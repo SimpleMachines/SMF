@@ -14,8 +14,11 @@
 namespace SMF\Tasks;
 
 use SMF\BBCodeParser;
+use SMF\Config;
 use SMF\Mentions;
 use SMF\TaskRunner;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
 
 /**
  * This class contains code used to notify people when a new post is created that
@@ -88,12 +91,12 @@ class CreatePost_Notify extends BackgroundTask
 	 */
 	public function execute()
 	{
-		global $smcFunc, $sourcedir, $scripturl, $language, $modSettings, $user_info, $txt;
+		global $user_info, $txt;
 
-		require_once($sourcedir . '/Subs-Post.php');
-		require_once($sourcedir . '/Subs-Notify.php');
-		require_once($sourcedir . '/Subs.php');
-		require_once($sourcedir . '/ScheduledTasks.php');
+		require_once(Config::$sourcedir . '/Subs-Post.php');
+		require_once(Config::$sourcedir . '/Subs-Notify.php');
+		require_once(Config::$sourcedir . '/Subs.php');
+		require_once(Config::$sourcedir . '/ScheduledTasks.php');
 		loadEssentialThemeData();
 
 		$msgOptions = &$this->_details['msgOptions'];
@@ -104,7 +107,7 @@ class CreatePost_Notify extends BackgroundTask
 		// Board id is required; if missing, log an error and return
 		if (!isset($topicOptions['board']))
 		{
-			require_once($sourcedir . '/Errors.php');
+			require_once(Config::$sourcedir . '/Errors.php');
 			loadLanguage('Errors');
 			log_error($txt['missing_board_id'], 'general', __FILE__, __LINE__);
 			return true;
@@ -123,7 +126,7 @@ class CreatePost_Notify extends BackgroundTask
 			$this->members['mentioned'] = Mentions::getMentionsByContent('msg', $msgOptions['id'], array_keys($msgOptions['mentioned_members']));
 
 		// Find the people interested in receiving notifications for this topic
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT
 				ln.id_member, ln.id_board, ln.id_topic, ln.sent,
 				mem.email_address, mem.lngfile, mem.pm_ignore_list,
@@ -142,7 +145,7 @@ class CreatePost_Notify extends BackgroundTask
 				'board' => $topicOptions['board'],
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			// Skip members who aren't allowed to see this board
 			$groups = array_merge(array($row['id_group'], $row['id_post_group']), (empty($row['additional_groups']) ? array() : explode(',', $row['additional_groups'])));
@@ -159,7 +162,7 @@ class CreatePost_Notify extends BackgroundTask
 
 			$this->members['watching'][$row['id_member']] = $row;
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// Filter out mentioned and quoted members who can't see this board.
 		if (!empty($this->members['mentioned']) || !empty($this->members['quoted']))
@@ -167,7 +170,7 @@ class CreatePost_Notify extends BackgroundTask
 			// This won't be set yet if no one is watching this board or topic.
 			if (!isset($allowed_groups))
 			{
-				$request = $smcFunc['db_query']('', '
+				$request = Db::$db->query('', '
 					SELECT member_groups
 					FROM {db_prefix}boards
 					WHERE id_board = {int:board}',
@@ -175,8 +178,8 @@ class CreatePost_Notify extends BackgroundTask
 						'board' => $topicOptions['board'],
 					)
 				);
-				list($allowed_groups) = $smcFunc['db_fetch_row']($request);
-				$smcFunc['db_free_result']($request);
+				list($allowed_groups) = Db::$db->fetch_row($request);
+				Db::$db->free_result($request);
 				$allowed_groups = explode(',', $allowed_groups);
 			}
 
@@ -209,20 +212,20 @@ class CreatePost_Notify extends BackgroundTask
 			}
 
 			// Never notify about edits to ancient posts.
-			if (!empty($modSettings['oldTopicDays']) && time() > $msgOptions['poster_time'] + $modSettings['oldTopicDays'] * 86400)
+			if (!empty(Config::$modSettings['oldTopicDays']) && time() > $msgOptions['poster_time'] + Config::$modSettings['oldTopicDays'] * 86400)
 				return true;
 
 			// If editing is only allowed for a brief time, send after editing becomes disabled.
-			if (!empty($modSettings['edit_disable_time']) && $modSettings['edit_disable_time'] <= self::MENTION_DELAY)
+			if (!empty(Config::$modSettings['edit_disable_time']) && Config::$modSettings['edit_disable_time'] <= self::MENTION_DELAY)
 			{
-				$this->mention_mail_time = $msgOptions['poster_time'] + $modSettings['edit_disable_time'] * 60;
+				$this->mention_mail_time = $msgOptions['poster_time'] + Config::$modSettings['edit_disable_time'] * 60;
 			}
 			// Otherwise, impose a delay before sending notifications about edited posts.
 			else
 			{
 				if (!empty($this->_details['respawns']))
 				{
-					$request = $smcFunc['db_query']('', '
+					$request = Db::$db->query('', '
 						SELECT modified_time
 						FROM {db_prefix}messages
 						WHERE id_msg = {int:msg}
@@ -231,8 +234,8 @@ class CreatePost_Notify extends BackgroundTask
 							'msg' => $msgOptions['id'],
 						)
 					);
-					list($real_modified_time) = $smcFunc['db_fetch_row']($request);
-					$smcFunc['db_free_result']($request);
+					list($real_modified_time) = Db::$db->fetch_row($request);
+					Db::$db->free_result($request);
 
 					// If it was modified again while we weren't looking, bail out.
 					// A future instance of this task will take care of it instead.
@@ -253,12 +256,12 @@ class CreatePost_Notify extends BackgroundTask
 
 		// May as well disable these, since they'll be stripped out anyway.
 		$disable = array('attach', 'img', 'iurl', 'url', 'youtube');
-		if (!empty($modSettings['disabledBBC']))
+		if (!empty(Config::$modSettings['disabledBBC']))
 		{
-			$disabledBBC = $modSettings['disabledBBC'];
-			$disable = array_unique(array_merge($disable, explode(',', $modSettings['disabledBBC'])));
+			$disabledBBC = Config::$modSettings['disabledBBC'];
+			$disable = array_unique(array_merge($disable, explode(',', Config::$modSettings['disabledBBC'])));
 		}
-		$modSettings['disabledBBC'] = implode(',', $disable);
+		Config::$modSettings['disabledBBC'] = implode(',', $disable);
 
 		// Notify any members who were mentioned.
 		if (!empty($this->members['mentioned']))
@@ -274,13 +277,13 @@ class CreatePost_Notify extends BackgroundTask
 
 		// Put this back the way we found it.
 		if (!empty($disabledBBC))
-			$modSettings['disabledBBC'] = $disabledBBC;
+			Config::$modSettings['disabledBBC'] = $disabledBBC;
 
 		// Track what we sent.
 		$members_to_log = array_intersect($this->members['emailed'], array_keys($this->members['watching']));
 		if (!empty($members_to_log))
 		{
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				UPDATE {db_prefix}log_notify
 				SET sent = {int:is_sent}
 				WHERE ' . ($type == 'topic' ? 'id_board = {int:board}' : 'id_topic = {int:topic}') . '
@@ -298,7 +301,7 @@ class CreatePost_Notify extends BackgroundTask
 		// Insert it into the digest for daily/weekly notifications
 		if ($type != 'edit' && empty($this->_details['respawns']))
 		{
-			$smcFunc['db_insert']('',
+			Db::$db->insert('',
 				'{db_prefix}log_digest',
 				array(
 					'id_topic' => 'int', 'id_msg' => 'int', 'note_type' => 'string', 'exclude' => 'int',
@@ -322,7 +325,7 @@ class CreatePost_Notify extends BackgroundTask
 
 			if ($new_details['respawns']++ < 10)
 			{
-				$smcFunc['db_insert']('',
+				Db::$db->insert('',
 					'{db_prefix}background_tasks',
 					array(
 						'task_file' => 'string',
@@ -333,7 +336,7 @@ class CreatePost_Notify extends BackgroundTask
 					array(
 						'$sourcedir/tasks/CreatePost_Notify.php',
 						'SMF\Tasks\CreatePost_Notify',
-						$smcFunc['json_encode']($new_details),
+						Utils::jsonEncode($new_details),
 						max(0, $this->mention_mail_time - TaskRunner::MAX_CLAIM_THRESHOLD),
 					),
 					array('id_task')
@@ -346,8 +349,6 @@ class CreatePost_Notify extends BackgroundTask
 
 	private function updateAlerts($msg_id)
 	{
-		global $smcFunc;
-
 		// We send alerts only on the first iteration of this task.
 		if (!empty($this->_details['respawns']))
 			return;
@@ -357,7 +358,7 @@ class CreatePost_Notify extends BackgroundTask
 		{
 			$old_alerts = array();
 
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT content_action, id_member
 				FROM {db_prefix}user_alerts
 				WHERE content_id = {int:msg_id}
@@ -367,16 +368,16 @@ class CreatePost_Notify extends BackgroundTask
 					'msg_id' => $msg_id,
 				)
 			);
-			if ($smcFunc['db_num_rows']($request) != 0)
+			if (Db::$db->num_rows($request) != 0)
 			{
-				while ($row = $smcFunc['db_fetch_assoc']($request))
+				while ($row = Db::$db->fetch_assoc($request))
 					$old_alerts[$row['content_action']][$row['id_member']] = $row['id_member'];
 			}
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 
 			if (!empty($old_alerts))
 			{
-				$request = $smcFunc['db_query']('', '
+				$request = Db::$db->query('', '
 					SELECT content_type, id_mentioned
 					FROM {db_prefix}mentions
 					WHERE content_id = {int:msg_id}
@@ -385,12 +386,12 @@ class CreatePost_Notify extends BackgroundTask
 						'msg_id' => $msg_id,
 					)
 				);
-				while ($row = $smcFunc['db_fetch_assoc']($request))
+				while ($row = Db::$db->fetch_assoc($request))
 				{
 					$content_action = $row['content_type'] == 'quote' ? 'quote' : 'mention';
 					unset($old_alerts[$content_action][$row['id_mentioned']]);
 				}
-				$smcFunc['db_free_result']($request);
+				Db::$db->free_result($request);
 
 				$conditions = array();
 
@@ -402,7 +403,7 @@ class CreatePost_Notify extends BackgroundTask
 
 				if (!empty($conditions))
 				{
-					$smcFunc['db_query']('', '
+					Db::$db->query('', '
 						DELETE FROM {db_prefix}user_alerts
 						WHERE content_id = {int:msg_id}
 							AND content_type = {literal:msg}
@@ -423,7 +424,7 @@ class CreatePost_Notify extends BackgroundTask
 		// Insert the new alerts.
 		if (!empty($this->alert_rows))
 		{
-			$smcFunc['db_insert']('',
+			Db::$db->insert('',
 				'{db_prefix}user_alerts',
 				array(
 					'alert_time' => 'int',
@@ -450,7 +451,7 @@ class CreatePost_Notify extends BackgroundTask
 	 */
 	protected function handleWatchedNotifications()
 	{
-		global $smcFunc, $scripturl, $modSettings, $user_info;
+		global $user_info;
 
 		$msgOptions = &$this->_details['msgOptions'];
 		$topicOptions = &$this->_details['topicOptions'];
@@ -514,7 +515,7 @@ class CreatePost_Notify extends BackgroundTask
 
 				if ($type == 'reply')
 				{
-					if (empty($modSettings['disallow_sendBody']) && !empty($this->prefs[$member_id]['msg_receive_body']))
+					if (empty(Config::$modSettings['disallow_sendBody']) && !empty($this->prefs[$member_id]['msg_receive_body']))
 						$message_type .= '_body';
 
 					if (!empty($frequency))
@@ -534,7 +535,7 @@ class CreatePost_Notify extends BackgroundTask
 
 				$message_type = !empty($frequency) ? 'notify_boards_once' : 'notify_boards';
 
-				if (empty($modSettings['disallow_sendBody']) && !empty($this->prefs[$member_id]['msg_receive_body']))
+				if (empty(Config::$modSettings['disallow_sendBody']) && !empty($this->prefs[$member_id]['msg_receive_body']))
 					$message_type .= '_body';
 			}
 
@@ -586,11 +587,11 @@ class CreatePost_Notify extends BackgroundTask
 					'content_id' => $topicOptions['id'],
 					'content_action' => $type,
 					'is_read' => 0,
-					'extra' => $smcFunc['json_encode'](array(
+					'extra' => Utils::jsonEncode(array(
 						'topic' => $topicOptions['id'],
 						'board' => $topicOptions['board'],
 						'content_subject' => $parsed_message[$localization]['subject'],
-						'content_link' => $scripturl . '?topic=' . $topicOptions['id'] . (in_array($type, array('reply', 'topic')) ? '.new;topicseen#new' : '.0'),
+						'content_link' => Config::$scripturl . '?topic=' . $topicOptions['id'] . (in_array($type, array('reply', 'topic')) ? '.new;topicseen#new' : '.0'),
 					)),
 				);
 			}
@@ -605,9 +606,9 @@ class CreatePost_Notify extends BackgroundTask
 				$replacements = array(
 					'TOPICSUBJECT' => $parsed_message[$localization]['subject'],
 					'POSTERNAME' => un_htmlspecialchars(isset($members_info[$posterOptions['id']]['name']) ? $members_info[$posterOptions['id']]['name'] : $posterOptions['name']),
-					'TOPICLINK' => $scripturl . '?topic=' . $topicOptions['id'] . '.new#new',
+					'TOPICLINK' => Config::$scripturl . '?topic=' . $topicOptions['id'] . '.new#new',
 					'MESSAGE' => $parsed_message[$localization]['body'],
-					'UNSUBSCRIBELINK' => $scripturl . '?action=notify' . $content_type . ';' . $content_type . '=' . $itemID . ';sa=off;u=' . $member_data['id_member'] . ';token=' . $token,
+					'UNSUBSCRIBELINK' => Config::$scripturl . '?action=notify' . $content_type . ';' . $content_type . '=' . $itemID . ';sa=off;u=' . $member_data['id_member'] . ';token=' . $token,
 				);
 
 				$emaildata = loadEmailTemplate($message_type, $replacements, $member_data['lngfile']);
@@ -626,8 +627,6 @@ class CreatePost_Notify extends BackgroundTask
 	 */
 	protected function handleQuoteNotifications()
 	{
-		global $smcFunc, $modSettings, $language, $scripturl;
-
 		$msgOptions = &$this->_details['msgOptions'];
 		$posterOptions = &$this->_details['posterOptions'];
 
@@ -659,9 +658,9 @@ class CreatePost_Notify extends BackgroundTask
 					'content_id' => $msgOptions['id'],
 					'content_action' => 'quote',
 					'is_read' => 0,
-					'extra' => $smcFunc['json_encode'](array(
+					'extra' => Utils::jsonEncode(array(
 						'content_subject' => $msgOptions['subject'],
-						'content_link' => $scripturl . '?msg=' . $msgOptions['id'],
+						'content_link' => Config::$scripturl . '?msg=' . $msgOptions['id'],
 					)),
 				);
 			}
@@ -678,10 +677,10 @@ class CreatePost_Notify extends BackgroundTask
 					'CONTENTSUBJECT' => $msgOptions['subject'],
 					'QUOTENAME' => un_htmlspecialchars(isset($members_info[$posterOptions['id']]['name']) ? $members_info[$posterOptions['id']]['name'] : $posterOptions['name']),
 					'MEMBERNAME' => $member_data['real_name'],
-					'CONTENTLINK' => $scripturl . '?msg=' . $msgOptions['id'],
+					'CONTENTLINK' => Config::$scripturl . '?msg=' . $msgOptions['id'],
 				);
 
-				$emaildata = loadEmailTemplate('msg_quote', $replacements, empty($member_data['lngfile']) || empty($modSettings['userLanguage']) ? $language : $member_data['lngfile']);
+				$emaildata = loadEmailTemplate('msg_quote', $replacements, empty($member_data['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $member_data['lngfile']);
 				$mail_result = sendmail($member_data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'msg_quote_' . $msgOptions['id'], $emaildata['is_html'], 2);
 
 				if ($mail_result !== false)
@@ -703,8 +702,6 @@ class CreatePost_Notify extends BackgroundTask
 	 */
 	protected function handleMentionedNotifications()
 	{
-		global $smcFunc, $scripturl, $language, $modSettings;
-
 		$msgOptions = &$this->_details['msgOptions'];
 
 		foreach ($this->members['mentioned'] as $member_id => $member_data)
@@ -733,9 +730,9 @@ class CreatePost_Notify extends BackgroundTask
 					'content_id' => $msgOptions['id'],
 					'content_action' => 'mention',
 					'is_read' => 0,
-					'extra' => $smcFunc['json_encode'](array(
+					'extra' => Utils::jsonEncode(array(
 						'content_subject' => $msgOptions['subject'],
-						'content_link' => $scripturl . '?msg=' . $msgOptions['id'],
+						'content_link' => Config::$scripturl . '?msg=' . $msgOptions['id'],
 					)),
 				);
 			}
@@ -753,10 +750,10 @@ class CreatePost_Notify extends BackgroundTask
 					'CONTENTSUBJECT' => $msgOptions['subject'],
 					'MENTIONNAME' => $member_data['mentioned_by']['name'],
 					'MEMBERNAME' => $member_data['real_name'],
-					'CONTENTLINK' => $scripturl . '?msg=' . $msgOptions['id'],
+					'CONTENTLINK' => Config::$scripturl . '?msg=' . $msgOptions['id'],
 				);
 
-				$emaildata = loadEmailTemplate('msg_mention', $replacements, empty($member_data['lngfile']) || empty($modSettings['userLanguage']) ? $language : $member_data['lngfile']);
+				$emaildata = loadEmailTemplate('msg_mention', $replacements, empty($member_data['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $member_data['lngfile']);
 				$mail_result = sendmail($member_data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'msg_mention_' . $msgOptions['id'], $emaildata['is_html'], 2);
 
 				if ($mail_result !== false)

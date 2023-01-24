@@ -13,8 +13,11 @@
 
 namespace SMF\Tasks;
 
+use SMF\Config;
 use SMF\TaskRunner;
+use SMF\Utils;
 use SMF\Cache\CacheApi;
+use SMF\Db\DatabaseApi as Db;
 
 /**
  * @todo Find a way to throttle the export rate dynamically when dealing with
@@ -40,7 +43,7 @@ class ExportProfileData extends BackgroundTask
 	private static $export_details = array();
 
 	/**
-	 * @var array Temporary backup of the $modSettings array
+	 * @var array Temporary backup of the Config::$modSettings array
 	 */
 	private static $real_modSettings = array();
 
@@ -73,8 +76,6 @@ class ExportProfileData extends BackgroundTask
 	 */
 	public function execute()
 	{
-		global $sourcedir, $smcFunc;
-
 		if (!defined('EXPORTING'))
 			define('EXPORTING', 1);
 
@@ -86,7 +87,7 @@ class ExportProfileData extends BackgroundTask
 		// This could happen if the user manually changed the URL params of the export request.
 		if ($this->_details['format'] == 'HTML' && (!class_exists('DOMDocument') || !class_exists('XSLTProcessor')))
 		{
-			require_once($sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
+			require_once(Config::$sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
 			$export_formats = get_export_formats();
 
 			$this->_details['format'] = 'XML_XSLT';
@@ -125,7 +126,7 @@ class ExportProfileData extends BackgroundTask
 		// If necessary, create a new background task to continue the export process.
 		if (!empty($this->next_task))
 		{
-			$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
+			Db::$db->insert('insert', '{db_prefix}background_tasks',
 				array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
 				$this->next_task,
 				array()
@@ -144,8 +145,8 @@ class ExportProfileData extends BackgroundTask
 	 */
 	protected function exportXml($member_info)
 	{
-		global $smcFunc, $sourcedir, $context, $modSettings, $settings, $user_info, $mbname;
-		global $user_profile, $txt, $scripturl, $query_this_board;
+		global $settings, $user_info;
+		global $user_profile, $txt, $query_this_board;
 
 		// For convenience...
 		$uid = $this->_details['uid'];
@@ -158,15 +159,15 @@ class ExportProfileData extends BackgroundTask
 		if (!isset($included[$datatype]['func']) || !isset($included[$datatype]['langfile']))
 			return;
 
-		require_once($sourcedir . DIRECTORY_SEPARATOR . 'News.php');
-		require_once($sourcedir . DIRECTORY_SEPARATOR . 'ScheduledTasks.php');
+		require_once(Config::$sourcedir . DIRECTORY_SEPARATOR . 'News.php');
+		require_once(Config::$sourcedir . DIRECTORY_SEPARATOR . 'ScheduledTasks.php');
 
 		// Setup.
 		$done = false;
 		$delay = 0;
-		$context['xmlnews_uid'] = $uid;
-		$context['xmlnews_limit'] = !empty($modSettings['export_rate']) ? $modSettings['export_rate'] : 250;
-		$context[$datatype . '_start'] = $start[$datatype];
+		Utils::$context['xmlnews_uid'] = $uid;
+		Utils::$context['xmlnews_limit'] = !empty(Config::$modSettings['export_rate']) ? Config::$modSettings['export_rate'] : 250;
+		Utils::$context[$datatype . '_start'] = $start[$datatype];
 		$datatypes = array_keys($included);
 
 		// Fake a wee bit of $user_info so that loading the member data & language doesn't choke.
@@ -174,25 +175,25 @@ class ExportProfileData extends BackgroundTask
 
 		loadEssentialThemeData();
 		$settings['actual_theme_dir'] = $settings['theme_dir'];
-		$context['user']['id'] = $uid;
-		$context['user']['language'] = $lang;
+		Utils::$context['user']['id'] = $uid;
+		Utils::$context['user']['language'] = $lang;
 		loadMemberData($uid);
 		loadLanguage(implode('+', array_unique(array('index', 'Modifications', 'Stats', 'Profile', $included[$datatype]['langfile']))), $lang);
 
 		// @todo Ask lawyers whether the GDPR requires us to include posts in the recycle bin.
-		$query_this_board = '{query_see_message_board}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? ' AND m.id_board != ' . $modSettings['recycle_board'] : '');
+		$query_this_board = '{query_see_message_board}' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? ' AND m.id_board != ' . Config::$modSettings['recycle_board'] : '');
 
 		// We need a valid export directory.
-		if (empty($modSettings['export_dir']) || !is_dir($modSettings['export_dir']) || !smf_chmod($modSettings['export_dir']))
+		if (empty(Config::$modSettings['export_dir']) || !is_dir(Config::$modSettings['export_dir']) || !smf_chmod(Config::$modSettings['export_dir']))
 		{
-			require_once($sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
+			require_once(Config::$sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
 			if (create_export_dir() === false)
 				return;
 		}
 
-		$export_dir_slash = $modSettings['export_dir'] . DIRECTORY_SEPARATOR;
+		$export_dir_slash = Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR;
 
-		$idhash = hash_hmac('sha1', $uid, get_auth_secret());
+		$idhash = hash_hmac('sha1', $uid, Config::getAuthSecret());
 		$idhash_ext = $idhash . '.' . $this->_details['format_settings']['extension'];
 
 		// Increment the file number until we reach one that doesn't exist.
@@ -213,15 +214,15 @@ class ExportProfileData extends BackgroundTask
 				},
 				array_keys($included)
 			)),
-			'author' => $mbname,
-			'source' => $scripturl . '?action=profile;u=' . $uid,
+			'author' => Config::$mbname,
+			'source' => Config::$scripturl . '?action=profile;u=' . $uid,
 			'self' => '', // Unused, but can't be null.
 			'page' => &$filenum,
 		);
 
 		// Some paranoid hosts disable or hamstring the disk space functions in an attempt at security via obscurity.
-		$check_diskspace = !empty($modSettings['export_min_diskspace_pct']) && function_exists('disk_free_space') && function_exists('disk_total_space') && intval(@disk_total_space($modSettings['export_dir']) >= 1440);
-		$minspace = $check_diskspace ? ceil(disk_total_space($modSettings['export_dir']) * $modSettings['export_min_diskspace_pct'] / 100) : 0;
+		$check_diskspace = !empty(Config::$modSettings['export_min_diskspace_pct']) && function_exists('disk_free_space') && function_exists('disk_total_space') && intval(@disk_total_space(Config::$modSettings['export_dir']) >= 1440);
+		$minspace = $check_diskspace ? ceil(disk_total_space(Config::$modSettings['export_dir']) * Config::$modSettings['export_min_diskspace_pct'] / 100) : 0;
 
 		// If a necessary file is missing, we need to start over.
 		if (!file_exists($tempfile) || !file_exists($progressfile) || filesize($progressfile) == 0)
@@ -233,13 +234,13 @@ class ExportProfileData extends BackgroundTask
 			$realfile = $export_dir_slash . $filenum . '_' . $idhash_ext;
 
 			buildXmlFeed('smf', array(), $feed_meta, 'profile');
-			file_put_contents($tempfile, implode('', $context['feed']), LOCK_EX);
+			file_put_contents($tempfile, implode('', Utils::$context['feed']), LOCK_EX);
 
 			$progress = array_fill_keys($datatypes, 0);
-			file_put_contents($progressfile, $smcFunc['json_encode']($progress));
+			file_put_contents($progressfile, Utils::jsonEncode($progress));
 		}
 		else
-			$progress = $smcFunc['json_decode'](file_get_contents($progressfile), true);
+			$progress = Utils::jsonDecode(file_get_contents($progressfile), true);
 
 		// Get the data, always in ascending order.
 		$xml_data = call_user_func($included[$datatype]['func'], 'smf', true);
@@ -252,13 +253,13 @@ class ExportProfileData extends BackgroundTask
 		elseif ($datatype == 'profile')
 		{
 			buildXmlFeed('smf', $xml_data, $feed_meta, 'profile');
-			file_put_contents($tempfile, implode('', $context['feed']), LOCK_EX);
+			file_put_contents($tempfile, implode('', Utils::$context['feed']), LOCK_EX);
 
 			$progress[$datatype] = time();
 			$datatype_done = true;
 
 			// Cache for subsequent reuse.
-			$profile_basic_items = $context['feed']['items'];
+			$profile_basic_items = Utils::$context['feed']['items'];
 			CacheApi::put('export_profile_basic-' . $uid, $profile_basic_items, Taskrunner::MAX_CLAIM_THRESHOLD);
 		}
 
@@ -271,9 +272,9 @@ class ExportProfileData extends BackgroundTask
 			{
 				$profile_data = call_user_func($included['profile']['func'], 'smf', true);
 				buildXmlFeed('smf', $profile_data, $feed_meta, 'profile');
-				$profile_basic_items = $context['feed']['items'];
+				$profile_basic_items = Utils::$context['feed']['items'];
 				CacheApi::put('export_profile_basic-' . $uid, $profile_basic_items, Taskrunner::MAX_CLAIM_THRESHOLD);
-				unset($context['feed']);
+				unset(Utils::$context['feed']);
 			}
 
 			$per_page = $this->_details['format_settings']['per_page'];
@@ -286,10 +287,10 @@ class ExportProfileData extends BackgroundTask
 				rename($tempfile, $realfile);
 				$realfile = $export_dir_slash . ++$filenum . '_' . $idhash_ext;
 
-				if (empty($context['feed']['header']))
+				if (empty(Utils::$context['feed']['header']))
 					buildXmlFeed('smf', array(), $feed_meta, 'profile');
 
-				file_put_contents($tempfile, implode('', array($context['feed']['header'], $profile_basic_items, $context['feed']['footer'])), LOCK_EX);
+				file_put_contents($tempfile, implode('', array(Utils::$context['feed']['header'], $profile_basic_items, Utils::$context['feed']['footer'])), LOCK_EX);
 
 				$prev_item_count = 0;
 			}
@@ -319,10 +320,10 @@ class ExportProfileData extends BackgroundTask
 				buildXmlFeed('smf', $items, $feed_meta, 'profile');
 
 				// If disk space is insufficient, pause for a day so the admin can fix it.
-				if ($check_diskspace && disk_free_space($modSettings['export_dir']) - $minspace <= strlen(implode('', $context['feed']) . self::$xslt_info['stylesheet']))
+				if ($check_diskspace && disk_free_space(Config::$modSettings['export_dir']) - $minspace <= strlen(implode('', Utils::$context['feed']) . self::$xslt_info['stylesheet']))
 				{
 					loadLanguage('Errors');
-					log_error(sprintf($txt['export_low_diskspace'], $modSettings['export_min_diskspace_pct']));
+					log_error(sprintf($txt['export_low_diskspace'], Config::$modSettings['export_min_diskspace_pct']));
 
 					$delay = 86400;
 				}
@@ -330,7 +331,7 @@ class ExportProfileData extends BackgroundTask
 				{
 					// We need a file to write to, of course.
 					if (!file_exists($tempfile))
-						file_put_contents($tempfile, implode('', array($context['feed']['header'], $profile_basic_items, $context['feed']['footer'])), LOCK_EX);
+						file_put_contents($tempfile, implode('', array(Utils::$context['feed']['header'], $profile_basic_items, Utils::$context['feed']['footer'])), LOCK_EX);
 
 					// Insert the new data before the feed footer.
 					$handle = fopen($tempfile, 'r+');
@@ -338,19 +339,19 @@ class ExportProfileData extends BackgroundTask
 					{
 						flock($handle, LOCK_EX);
 
-						fseek($handle, strlen($context['feed']['footer']) * -1, SEEK_END);
+						fseek($handle, strlen(Utils::$context['feed']['footer']) * -1, SEEK_END);
 
-						$bytes_written = fwrite($handle, $context['feed']['items'] . $context['feed']['footer']);
+						$bytes_written = fwrite($handle, Utils::$context['feed']['items'] . Utils::$context['feed']['footer']);
 
 						// If we couldn't write everything, revert the changes and consider the write to have failed.
-						if ($bytes_written > 0 && $bytes_written < strlen($context['feed']['items'] . $context['feed']['footer']))
+						if ($bytes_written > 0 && $bytes_written < strlen(Utils::$context['feed']['items'] . Utils::$context['feed']['footer']))
 						{
 							fseek($handle, $bytes_written * -1, SEEK_END);
 							$pointer_pos = ftell($handle);
 							ftruncate($handle, $pointer_pos);
 							rewind($handle);
 							fseek($handle, 0, SEEK_END);
-							fwrite($handle, $context['feed']['footer']);
+							fwrite($handle, Utils::$context['feed']['footer']);
 
 							$bytes_written = false;
 						}
@@ -371,7 +372,7 @@ class ExportProfileData extends BackgroundTask
 					{
 						// Track progress by ID where appropriate, and by time otherwise.
 						$progress[$datatype] = !isset($last_id) ? time() : $last_id;
-						file_put_contents($progressfile, $smcFunc['json_encode']($progress));
+						file_put_contents($progressfile, Utils::jsonEncode($progress));
 
 						// Are we done with this datatype yet?
 						if (!isset($last_id) || (count($items) < $per_page && $last_id >= $latest[$datatype]))
@@ -437,16 +438,16 @@ class ExportProfileData extends BackgroundTask
 			if (!empty($new_item_count))
 				$new_details['item_count'] = $new_item_count;
 
-			$this->next_task = array(__FILE__, __CLASS__, $smcFunc['json_encode']($new_details), time() - Taskrunner::MAX_CLAIM_THRESHOLD + $delay);
+			$this->next_task = array(__FILE__, __CLASS__, Utils::jsonEncode($new_details), time() - Taskrunner::MAX_CLAIM_THRESHOLD + $delay);
 
 			if (!file_exists($tempfile))
 			{
 				buildXmlFeed('smf', array(), $feed_meta, 'profile');
-				file_put_contents($tempfile, implode('', array($context['feed']['header'], !empty($profile_basic_items) ? $profile_basic_items : '', $context['feed']['footer'])), LOCK_EX);
+				file_put_contents($tempfile, implode('', array(Utils::$context['feed']['header'], !empty($profile_basic_items) ? $profile_basic_items : '', Utils::$context['feed']['footer'])), LOCK_EX);
 			}
 		}
 
-		file_put_contents($progressfile, $smcFunc['json_encode']($progress));
+		file_put_contents($progressfile, Utils::jsonEncode($progress));
 	}
 
 	/**
@@ -459,17 +460,15 @@ class ExportProfileData extends BackgroundTask
 	 */
 	protected function exportHtml($member_info)
 	{
-		global $modSettings, $context, $smcFunc, $sourcedir;
-
-		$context['export_last_page'] = $this->_details['last_page'];
-		$context['export_dlfilename'] = $this->_details['dlfilename'];
+		Utils::$context['export_last_page'] = $this->_details['last_page'];
+		Utils::$context['export_dlfilename'] = $this->_details['dlfilename'];
 
 		// Perform the export to XML.
 		$this->exportXml($member_info);
 
 		// Determine which files, if any, are ready to be transformed.
-		$export_dir_slash = $modSettings['export_dir'] . DIRECTORY_SEPARATOR;
-		$idhash = hash_hmac('sha1', $this->_details['uid'], get_auth_secret());
+		$export_dir_slash = Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR;
+		$idhash = hash_hmac('sha1', $this->_details['uid'], Config::getAuthSecret());
 		$idhash_ext = $idhash . '.' . $this->_details['format_settings']['extension'];
 
 		$new_exportfiles = array();
@@ -482,7 +481,7 @@ class ExportProfileData extends BackgroundTask
 			return;
 
 		// Get the XSLT stylesheet.
-		require_once($sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
+		require_once(Config::$sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
 		self::$xslt_info = get_xslt_stylesheet($this->_details['format'], $this->_details['uid']);
 
 		// Set up the XSLT processor.
@@ -522,9 +521,9 @@ class ExportProfileData extends BackgroundTask
 					$progressfile = $export_dir_slash . $idhash_ext . '.progress.json';
 
 					$new_details = $this->_details;
-					$new_details['start'] = $smcFunc['json_decode'](file_get_contents($progressfile), true);
+					$new_details['start'] = Utils::jsonDecode(file_get_contents($progressfile), true);
 
-					$this->next_task = array(__FILE__, __CLASS__, $smcFunc['json_encode']($new_details), time() - Taskrunner::MAX_CLAIM_THRESHOLD);
+					$this->next_task = array(__FILE__, __CLASS__, Utils::jsonEncode($new_details), time() - Taskrunner::MAX_CLAIM_THRESHOLD);
 				}
 
 				// So let's just relax and take a well deserved...
@@ -543,10 +542,8 @@ class ExportProfileData extends BackgroundTask
 	 */
 	protected function exportXmlXslt($member_info)
 	{
-		global $modSettings, $context, $smcFunc, $sourcedir;
-
-		$context['export_last_page'] = $this->_details['last_page'];
-		$context['export_dlfilename'] = $this->_details['dlfilename'];
+		Utils::$context['export_last_page'] = $this->_details['last_page'];
+		Utils::$context['export_dlfilename'] = $this->_details['dlfilename'];
 
 		// Embedded XSLT requires adding a special DTD and processing instruction in the main XML document.
 		add_integration_function('integrate_xml_data', __CLASS__ . '::add_dtd', false);
@@ -557,27 +554,27 @@ class ExportProfileData extends BackgroundTask
 		// Make sure we have everything we need.
 		if (empty(self::$xslt_info['stylesheet']))
 		{
-			require_once($sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
+			require_once(Config::$sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
 			self::$xslt_info = get_xslt_stylesheet($this->_details['format'], $this->_details['uid']);
 		}
-		if (empty($context['feed']['footer']))
+		if (empty(Utils::$context['feed']['footer']))
 		{
-			require_once($sourcedir . DIRECTORY_SEPARATOR . 'News.php');
+			require_once(Config::$sourcedir . DIRECTORY_SEPARATOR . 'News.php');
 			buildXmlFeed('smf', array(), array_fill_keys(array('title', 'desc', 'source', 'self'), ''), 'profile');
 		}
 
 		// Find any completed files that don't yet have the stylesheet embedded in them.
-		$export_dir_slash = $modSettings['export_dir'] . DIRECTORY_SEPARATOR;
-		$idhash = hash_hmac('sha1', $this->_details['uid'], get_auth_secret());
+		$export_dir_slash = Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR;
+		$idhash = hash_hmac('sha1', $this->_details['uid'], Config::getAuthSecret());
 		$idhash_ext = $idhash . '.' . $this->_details['format_settings']['extension'];
 
-		$test_length = strlen(self::$xslt_info['stylesheet'] . $context['feed']['footer']);
+		$test_length = strlen(self::$xslt_info['stylesheet'] . Utils::$context['feed']['footer']);
 
 		$new_exportfiles = array();
 		clearstatcache();
 		foreach (glob($export_dir_slash . '*_' . $idhash_ext) as $completed_file)
 		{
-			if (filesize($completed_file) < $test_length || file_get_contents($completed_file, false, null, $test_length * -1) !== self::$xslt_info['stylesheet'] . $context['feed']['footer'])
+			if (filesize($completed_file) < $test_length || file_get_contents($completed_file, false, null, $test_length * -1) !== self::$xslt_info['stylesheet'] . Utils::$context['feed']['footer'])
 				$new_exportfiles[] = $completed_file;
 		}
 		if (empty($new_exportfiles))
@@ -591,19 +588,19 @@ class ExportProfileData extends BackgroundTask
 			{
 				flock($handle, LOCK_EX);
 
-				fseek($handle, strlen($context['feed']['footer']) * -1, SEEK_END);
+				fseek($handle, strlen(Utils::$context['feed']['footer']) * -1, SEEK_END);
 
-				$bytes_written = fwrite($handle, self::$xslt_info['stylesheet'] . $context['feed']['footer']);
+				$bytes_written = fwrite($handle, self::$xslt_info['stylesheet'] . Utils::$context['feed']['footer']);
 
 				// If we couldn't write everything, revert the changes.
-				if ($bytes_written > 0 && $bytes_written < strlen(self::$xslt_info['stylesheet'] . $context['feed']['footer']))
+				if ($bytes_written > 0 && $bytes_written < strlen(self::$xslt_info['stylesheet'] . Utils::$context['feed']['footer']))
 				{
 					fseek($handle, $bytes_written * -1, SEEK_END);
 					$pointer_pos = ftell($handle);
 					ftruncate($handle, $pointer_pos);
 					rewind($handle);
 					fseek($handle, 0, SEEK_END);
-					fwrite($handle, $context['feed']['footer']);
+					fwrite($handle, Utils::$context['feed']['footer']);
 				}
 
 				flock($handle, LOCK_UN);
@@ -618,9 +615,7 @@ class ExportProfileData extends BackgroundTask
 	 */
 	public static function add_dtd(&$xml_data, &$feed_meta, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $subaction, &$doctype)
 	{
-		global $sourcedir;
-
-		require_once($sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
+		require_once(Config::$sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
 		self::$xslt_info = get_xslt_stylesheet(self::$export_details['format'], self::$export_details['uid']);
 
 		$doctype = self::$xslt_info['doctype'];
@@ -631,7 +626,7 @@ class ExportProfileData extends BackgroundTask
 	 */
 	public static function pre_parsebbc(&$message, &$smileys, &$cache_id, &$parse_tags, &$cache_key_extras)
 	{
-		global $modSettings, $context, $user_info;
+		global $user_info;
 
 		$cache_id = '';
 
@@ -640,24 +635,24 @@ class ExportProfileData extends BackgroundTask
 		if (in_array(self::$export_details['format'], array('HTML', 'XML_XSLT')))
 		{
 			foreach (array('smileys_url', 'attachmentThumbnails') as $var)
-				if (isset($modSettings[$var]))
-					self::$real_modSettings[$var] = $modSettings[$var];
+				if (isset(Config::$modSettings[$var]))
+					self::$real_modSettings[$var] = Config::$modSettings[$var];
 
-			$modSettings['smileys_url'] = '.';
-			$modSettings['attachmentThumbnails'] = false;
+			Config::$modSettings['smileys_url'] = '.';
+			Config::$modSettings['attachmentThumbnails'] = false;
 		}
 		else
 		{
 			$smileys = false;
 
-			if (!isset($modSettings['disabledBBC']))
-				$modSettings['disabledBBC'] = 'attach';
+			if (!isset(Config::$modSettings['disabledBBC']))
+				Config::$modSettings['disabledBBC'] = 'attach';
 			else
 			{
-				self::$real_modSettings['disabledBBC'] = $modSettings['disabledBBC'];
+				self::$real_modSettings['disabledBBC'] = Config::$modSettings['disabledBBC'];
 
-				if (strpos($modSettings['disabledBBC'], 'attach') === false)
-					$modSettings['disabledBBC'] = implode(',', array_merge(array_filter(explode(',', $modSettings['disabledBBC'])), array('attach')));
+				if (strpos(Config::$modSettings['disabledBBC'], 'attach') === false)
+					Config::$modSettings['disabledBBC'] = implode(',', array_merge(array_filter(explode(',', Config::$modSettings['disabledBBC'])), array('attach')));
 			}
 		}
 	}
@@ -667,11 +662,9 @@ class ExportProfileData extends BackgroundTask
 	 */
 	public static function post_parsebbc(&$message, &$smileys, &$cache_id, &$parse_tags)
 	{
-		global $modSettings, $context;
-
 		foreach (array('disabledBBC', 'smileys_url', 'attachmentThumbnails') as $var)
 			if (isset(self::$real_modSettings[$var]))
-				$modSettings[$var] = self::$real_modSettings[$var];
+				Config::$modSettings[$var] = self::$real_modSettings[$var];
 	}
 
 	/**
@@ -692,16 +685,15 @@ class ExportProfileData extends BackgroundTask
 	 */
 	public static function post_parseAttachBBC(&$attachContext)
 	{
-		global $scripturl, $context;
 		static $dltokens;
 
-		if (empty($dltokens[$context['xmlnews_uid']]))
+		if (empty($dltokens[Utils::$context['xmlnews_uid']]))
 		{
-			$idhash = hash_hmac('sha1', $context['xmlnews_uid'], get_auth_secret());
-			$dltokens[$context['xmlnews_uid']] = hash_hmac('sha1', $idhash, get_auth_secret());
+			$idhash = hash_hmac('sha1', Utils::$context['xmlnews_uid'], Config::getAuthSecret());
+			$dltokens[Utils::$context['xmlnews_uid']] = hash_hmac('sha1', $idhash, Config::getAuthSecret());
 		}
 
-		$attachContext['orig_href'] = $scripturl . '?action=profile;area=dlattach;u=' . $context['xmlnews_uid'] . ';attach=' . $attachContext['id'] . ';t=' . $dltokens[$context['xmlnews_uid']];
+		$attachContext['orig_href'] = Config::$scripturl . '?action=profile;area=dlattach;u=' . Utils::$context['xmlnews_uid'] . ';attach=' . $attachContext['id'] . ';t=' . $dltokens[Utils::$context['xmlnews_uid']];
 		$attachContext['href'] = rawurlencode($attachContext['id'] . ' - ' . html_entity_decode($attachContext['name']));
 	}
 
@@ -710,7 +702,7 @@ class ExportProfileData extends BackgroundTask
 	 */
 	public static function attach_bbc_validate(&$returnContext, $currentAttachment, $tag, $data, $disabled, $params)
 	{
-		global $smcFunc, $txt;
+		global $txt;
 
 		$orig_link = '<a href="' . $currentAttachment['orig_href'] . '" class="bbc_link">' . $txt['export_download_original'] . '</a>';
 		$hidden_orig_link = ' <a href="' . $currentAttachment['orig_href'] . '" class="bbc_link dlattach_' . $currentAttachment['id'] . '" style="display:none; flex: 1 0 auto; margin: auto;">' . $txt['export_download_original'] . '</a>';

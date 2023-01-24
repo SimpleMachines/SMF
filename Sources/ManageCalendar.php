@@ -13,6 +13,10 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -24,7 +28,7 @@ if (!defined('SMF'))
  */
 function ManageCalendar()
 {
-	global $context, $txt, $modSettings;
+	global $txt;
 
 	isAllowedTo('admin_forum');
 
@@ -32,7 +36,7 @@ function ManageCalendar()
 	loadLanguage('ManageCalendar');
 
 	// Little short on the ground of functions here... but things can and maybe will change...
-	if (!empty($modSettings['cal_enabled']))
+	if (!empty(Config::$modSettings['cal_enabled']))
 	{
 		$subActions = array(
 			'editholiday' => 'EditHoliday',
@@ -50,13 +54,13 @@ function ManageCalendar()
 	}
 
 	// Set up the two tabs here...
-	$context[$context['admin_menu_name']]['tab_data'] = array(
+	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['manage_calendar'],
 		'help' => 'calendar',
 		'description' => $txt['calendar_settings_desc'],
 	);
-	if (!empty($modSettings['cal_enabled']))
-		$context[$context['admin_menu_name']]['tab_data']['tabs'] = array(
+	if (!empty(Config::$modSettings['cal_enabled']))
+		Utils::$context[Utils::$context['admin_menu_name']]['tab_data']['tabs'] = array(
 			'holidays' => array(
 				'description' => $txt['manage_holidays_desc'],
 			),
@@ -77,7 +81,7 @@ function ManageCalendar()
  */
 function ModifyHolidays()
 {
-	global $sourcedir, $scripturl, $txt, $context, $modSettings;
+	global $txt;
 
 	// Submitting something...
 	if (isset($_REQUEST['delete']) && !empty($_REQUEST['holiday']))
@@ -89,7 +93,7 @@ function ModifyHolidays()
 			$_REQUEST['holiday'][$id] = (int) $id;
 
 		// Now the IDs are "safe" do the delete...
-		require_once($sourcedir . '/Subs-Calendar.php');
+		require_once(Config::$sourcedir . '/Subs-Calendar.php');
 		removeHolidays($_REQUEST['holiday']);
 	}
 
@@ -97,15 +101,15 @@ function ModifyHolidays()
 	$listOptions = array(
 		'id' => 'holiday_list',
 		'title' => $txt['current_holidays'],
-		'items_per_page' => $modSettings['defaultMaxListItems'],
-		'base_href' => $scripturl . '?action=admin;area=managecalendar;sa=holidays',
+		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
+		'base_href' => Config::$scripturl . '?action=admin;area=managecalendar;sa=holidays',
 		'default_sort_col' => 'name',
 		'get_items' => array(
-			'file' => $sourcedir . '/Subs-Calendar.php',
+			'file' => Config::$sourcedir . '/Subs-Calendar.php',
 			'function' => 'list_getHolidays',
 		),
 		'get_count' => array(
-			'file' => $sourcedir . '/Subs-Calendar.php',
+			'file' => Config::$sourcedir . '/Subs-Calendar.php',
 			'function' => 'list_getNumHolidays',
 		),
 		'no_items_label' => $txt['holidays_no_entries'],
@@ -116,7 +120,7 @@ function ModifyHolidays()
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<a href="' . $scripturl . '?action=admin;area=managecalendar;sa=editholiday;holiday=%1$d">%2$s</a>',
+						'format' => '<a href="' . Config::$scripturl . '?action=admin;area=managecalendar;sa=editholiday;holiday=%1$d">%2$s</a>',
 						'params' => array(
 							'id_holiday' => false,
 							'title' => false,
@@ -164,32 +168,32 @@ function ModifyHolidays()
 			),
 		),
 		'form' => array(
-			'href' => $scripturl . '?action=admin;area=managecalendar;sa=holidays',
+			'href' => Config::$scripturl . '?action=admin;area=managecalendar;sa=holidays',
 			'token' => 'admin-mc',
 		),
 		'additional_rows' => array(
 			array(
 				'position' => 'above_column_headers',
 				'value' => '<input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" class="button">
-					<a class="button" href="' . $scripturl . '?action=admin;area=managecalendar;sa=editholiday">' . $txt['holidays_add'] . '</a>',
+					<a class="button" href="' . Config::$scripturl . '?action=admin;area=managecalendar;sa=editholiday">' . $txt['holidays_add'] . '</a>',
 			),
 			array(
 				'position' => 'below_table_data',
 				'value' => '<input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" class="button">
-					<a class="button" href="' . $scripturl . '?action=admin;area=managecalendar;sa=editholiday">' . $txt['holidays_add'] . '</a>',
+					<a class="button" href="' . Config::$scripturl . '?action=admin;area=managecalendar;sa=editholiday">' . $txt['holidays_add'] . '</a>',
 			),
 		),
 	);
 
-	require_once($sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/Subs-List.php');
 	createList($listOptions);
 
 	//loadTemplate('ManageCalendar');
-	$context['page_title'] = $txt['manage_holidays'];
+	Utils::$context['page_title'] = $txt['manage_holidays'];
 
 	// Since the list is the only thing to show, use the default list template.
-	$context['default_list'] = 'holiday_list';
-	$context['sub_template'] = 'show_list';
+	Utils::$context['default_list'] = 'holiday_list';
+	Utils::$context['sub_template'] = 'show_list';
 }
 
 /**
@@ -197,30 +201,30 @@ function ModifyHolidays()
  */
 function EditHoliday()
 {
-	global $txt, $context, $smcFunc;
+	global $txt;
 
 	loadTemplate('ManageCalendar');
 
-	$context['is_new'] = !isset($_REQUEST['holiday']);
-	$context['page_title'] = $context['is_new'] ? $txt['holidays_add'] : $txt['holidays_edit'];
-	$context['sub_template'] = 'edit_holiday';
+	Utils::$context['is_new'] = !isset($_REQUEST['holiday']);
+	Utils::$context['page_title'] = Utils::$context['is_new'] ? $txt['holidays_add'] : $txt['holidays_edit'];
+	Utils::$context['sub_template'] = 'edit_holiday';
 
 	// Cast this for safety...
 	if (isset($_REQUEST['holiday']))
 		$_REQUEST['holiday'] = (int) $_REQUEST['holiday'];
 
 	// Submitting?
-	if (isset($_POST[$context['session_var']]) && (isset($_REQUEST['delete']) || $_REQUEST['title'] != ''))
+	if (isset($_POST[Utils::$context['session_var']]) && (isset($_REQUEST['delete']) || $_REQUEST['title'] != ''))
 	{
 		checkSession();
 		validateToken('admin-eh');
 
 		// Not too long good sir?
-		$_REQUEST['title'] = $smcFunc['substr']($smcFunc['normalize']($_REQUEST['title']), 0, 60);
+		$_REQUEST['title'] = Utils::entitySubstr(Utils::normalize($_REQUEST['title']), 0, 60);
 		$_REQUEST['holiday'] = isset($_REQUEST['holiday']) ? (int) $_REQUEST['holiday'] : 0;
 
 		if (isset($_REQUEST['delete']))
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				DELETE FROM {db_prefix}calendar_holidays
 				WHERE id_holiday = {int:selected_holiday}',
 				array(
@@ -231,7 +235,7 @@ function EditHoliday()
 		{
 			$date = smf_strftime($_REQUEST['year'] <= 1004 ? '1004-%m-%d' : '%Y-%m-%d', mktime(0, 0, 0, $_REQUEST['month'], $_REQUEST['day'], $_REQUEST['year']));
 			if (isset($_REQUEST['edit']))
-				$smcFunc['db_query']('', '
+				Db::$db->query('', '
 					UPDATE {db_prefix}calendar_holidays
 					SET event_date = {date:holiday_date}, title = {string:holiday_title}
 					WHERE id_holiday = {int:selected_holiday}',
@@ -242,7 +246,7 @@ function EditHoliday()
 					)
 				);
 			else
-				$smcFunc['db_insert']('',
+				Db::$db->insert('',
 					'{db_prefix}calendar_holidays',
 					array(
 						'event_date' => 'date', 'title' => 'string-60',
@@ -254,7 +258,7 @@ function EditHoliday()
 				);
 		}
 
-		updateSettings(array(
+		Config::updateModSettings(array(
 			'calendar_updated' => time(),
 			'settings_updated' => time(),
 		));
@@ -265,8 +269,8 @@ function EditHoliday()
 	createToken('admin-eh');
 
 	// Default states...
-	if ($context['is_new'])
-		$context['holiday'] = array(
+	if (Utils::$context['is_new'])
+		Utils::$context['holiday'] = array(
 			'id' => 0,
 			'day' => date('d'),
 			'month' => date('m'),
@@ -276,7 +280,7 @@ function EditHoliday()
 	// If it's not new load the data.
 	else
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_holiday, YEAR(event_date) AS year, MONTH(event_date) AS month, DAYOFMONTH(event_date) AS day, title
 			FROM {db_prefix}calendar_holidays
 			WHERE id_holiday = {int:selected_holiday}
@@ -285,19 +289,19 @@ function EditHoliday()
 				'selected_holiday' => $_REQUEST['holiday'],
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$context['holiday'] = array(
+		while ($row = Db::$db->fetch_assoc($request))
+			Utils::$context['holiday'] = array(
 				'id' => $row['id_holiday'],
 				'day' => $row['day'],
 				'month' => $row['month'],
 				'year' => $row['year'] <= 4 ? 0 : $row['year'],
 				'title' => $row['title']
 			);
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 	}
 
 	// Last day for the drop down?
-	$context['holiday']['last_day'] = (int) smf_strftime('%d', mktime(0, 0, 0, $context['holiday']['month'] == 12 ? 1 : $context['holiday']['month'] + 1, 0, $context['holiday']['month'] == 12 ? $context['holiday']['year'] + 1 : $context['holiday']['year']));
+	Utils::$context['holiday']['last_day'] = (int) smf_strftime('%d', mktime(0, 0, 0, Utils::$context['holiday']['month'] == 12 ? 1 : Utils::$context['holiday']['month'] + 1, 0, Utils::$context['holiday']['month'] == 12 ? Utils::$context['holiday']['year'] + 1 : Utils::$context['holiday']['year']));
 }
 
 /**
@@ -308,26 +312,26 @@ function EditHoliday()
  */
 function ModifyCalendarSettings($return_config = false)
 {
-	global $context, $txt, $sourcedir, $scripturl, $smcFunc, $modSettings;
+	global $txt;
 
 	// Load the boards list.
 	$boards = array('');
-	$request = $smcFunc['db_query']('order_by_board_order', '
+	$request = Db::$db->query('order_by_board_order', '
 		SELECT b.id_board, b.name AS board_name, c.name AS cat_name
 		FROM {db_prefix}boards AS b
 			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)',
 		array(
 		)
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$boards[$row['id_board']] = $row['cat_name'] . ' - ' . $row['board_name'];
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
-	require_once($sourcedir . '/Subs-Boards.php');
+	require_once(Config::$sourcedir . '/Subs-Boards.php');
 	sortBoards($boards);
 
 	// Look, all the calendar settings - of which there are many!
-	if (!empty($modSettings['cal_enabled']))
+	if (!empty(Config::$modSettings['cal_enabled']))
 		$config_vars = array(
 			array('check', 'cal_enabled'),
 			'',
@@ -380,15 +384,15 @@ function ModifyCalendarSettings($return_config = false)
 		return $config_vars;
 
 	// Get the settings template fired up.
-	require_once($sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/ManageServer.php');
 
 	// Some important context stuff
-	$context['page_title'] = $txt['calendar_settings'];
-	$context['sub_template'] = 'show_settings';
+	Utils::$context['page_title'] = $txt['calendar_settings'];
+	Utils::$context['sub_template'] = 'show_settings';
 
 	// Get the final touches in place.
-	$context['post_url'] = $scripturl . '?action=admin;area=managecalendar;save;sa=settings';
-	$context['settings_title'] = $txt['calendar_settings'];
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=managecalendar;save;sa=settings';
+	Utils::$context['settings_title'] = $txt['calendar_settings'];
 
 	// Saving the settings?
 	if (isset($_GET['save']))
@@ -398,7 +402,7 @@ function ModifyCalendarSettings($return_config = false)
 		saveDBSettings($config_vars);
 
 		// Update the stats in case.
-		updateSettings(array(
+		Config::updateModSettings(array(
 			'calendar_updated' => time(),
 		));
 

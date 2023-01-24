@@ -13,6 +13,10 @@
 
 namespace SMF\Tasks;
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
+
 /**
  * This class contains code used to notify members when something is liked.
  */
@@ -26,13 +30,11 @@ class Likes_Notify extends BackgroundTask
 	 */
 	public function execute()
 	{
-		global $smcFunc, $sourcedir;
-
 		$author = false;
 		// We need to figure out who the owner of this is.
 		if ($this->_details['content_type'] == 'msg')
 		{
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT mem.id_member, mem.id_group, mem.id_post_group, mem.additional_groups, b.member_groups,
 					mem.pm_ignore_list
 				FROM {db_prefix}messages AS m
@@ -43,7 +45,7 @@ class Likes_Notify extends BackgroundTask
 					'msg' => $this->_details['content_id'],
 				)
 			);
-			if ($row = $smcFunc['db_fetch_assoc']($request))
+			if ($row = Db::$db->fetch_assoc($request))
 			{
 				// Before we assign the author, let's just check that the author can see the board this is in...
 				// as it'd suck to notify someone their post was liked when in a board they can't see.
@@ -56,7 +58,7 @@ class Likes_Notify extends BackgroundTask
 				if (in_array(1, $groups) || count(array_intersect($allowed, $groups)) != 0)
 					$author = $row['id_member'];
 			}
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 		}
 		else
 		{
@@ -82,7 +84,7 @@ class Likes_Notify extends BackgroundTask
 		if (!empty($ignored_members) && in_array($this->_details['sender_id'], $ignored_members))
 			return true;
 
-		require_once($sourcedir . '/Subs-Notify.php');
+		require_once(Config::$sourcedir . '/Subs-Notify.php');
 		$prefs = getNotifyPrefs($author, $this->_details['content_type'] . '_like', true);
 
 		// The likes setup doesn't support email notifications because that would be too many emails.
@@ -94,7 +96,7 @@ class Likes_Notify extends BackgroundTask
 
 		// Don't spam the alerts: if there is an existing unread alert of the
 		// requested type for the target user from the sender, don't make a new one.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_alert
 			FROM {db_prefix}user_alerts
 			WHERE id_member = {int:id_member}
@@ -110,12 +112,12 @@ class Likes_Notify extends BackgroundTask
 			)
 		);
 
-		if ($smcFunc['db_num_rows']($request) > 0)
+		if (Db::$db->num_rows($request) > 0)
 			return true;
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// Issue, update, move on.
-		$smcFunc['db_insert']('insert',
+		Db::$db->insert('insert',
 			'{db_prefix}user_alerts',
 			array('alert_time' => 'int', 'id_member' => 'int', 'id_member_started' => 'int', 'member_name' => 'string',
 				'content_type' => 'string', 'content_id' => 'int', 'content_action' => 'string', 'is_read' => 'int', 'extra' => 'string'),

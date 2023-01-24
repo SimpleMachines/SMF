@@ -11,6 +11,11 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
+use SMF\PackageManager\FtpConnection;
+
 define('SMF_VERSION', '3.0 Alpha 1');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2023');
@@ -24,17 +29,28 @@ define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m')
 if (!defined('TIME_START'))
 	define('TIME_START', microtime(true));
 
+define('SMF_SETTINGS_FILE', __DIR__ . '/Settings.php');
+define('SMF_SETTINGS_BACKUP_FILE', __DIR__ . '/Settings_bak.php');
+
 $GLOBALS['required_php_version'] = '8.0.0';
 
 // Don't have PHP support, do you?
 // ><html dir="ltr"><head><title>Error!</title></head><body>Sorry, this installer requires PHP!<div style="display: none;">
 
-// Let's pull in useful classes
 if (!defined('SMF'))
 	define('SMF', 1);
 
-require_once('Sources/PackageManager/FtpConnection.php');
-require_once('Sources/Subs-Compat.php');
+// Let's pull in useful classes
+require_once('Sources/Autoloader.php');
+
+// Get the current settings, without affecting global namespace.
+Config::$backward_compatibility = false;
+Config::load();
+Config::$backward_compatibility = true;
+
+Utils::load();
+
+require_once(Config::$sourcedir . '/Subs-Compat.php');
 
 // Database info.
 $databases = array(
@@ -44,7 +60,7 @@ $databases = array(
 		'version_check' => function() {
 			if (!function_exists('mysqli_fetch_row'))
 				return false;
-			return mysqli_fetch_row(mysqli_query(SMF\Db\DatabaseApi::$db_connection, 'SELECT VERSION();'))[0];
+			return mysqli_fetch_row(mysqli_query(Db::$db->connection, 'SELECT VERSION();'))[0];
 		},
 		'supported' => function_exists('mysqli_connect'),
 		'default_user' => 'mysql.default_user',
@@ -57,7 +73,7 @@ $databases = array(
 		},
 		'utf8_version' => '5.0.22',
 		'utf8_version_check' => function() {
-			return mysqli_get_server_info(SMF\Db\DatabaseApi::$db_connection);
+			return mysqli_get_server_info(Db::$db->connection);
 		},
 		'alter_support' => true,
 		'validate_prefix' => function(&$value)
@@ -70,7 +86,7 @@ $databases = array(
 		'name' => 'PostgreSQL',
 		'version' => '9.6',
 		'version_check' => function() {
-			$request = pg_query(SMF\Db\DatabaseApi::$db_connection, 'SELECT version()');
+			$request = pg_query(Db::$db->connection, 'SELECT version()');
 			list ($version) = pg_fetch_row($request);
 			list($pgl, $version) = explode(' ', $version);
 			return $version;
@@ -79,7 +95,7 @@ $databases = array(
 		'always_has_db' => true,
 		'utf8_support' => function()
 		{
-			$request = pg_query(SMF\Db\DatabaseApi::$db_connection, 'SHOW SERVER_ENCODING');
+			$request = pg_query(Db::$db->connection, 'SHOW SERVER_ENCODING');
 
 			list ($charcode) = pg_fetch_row($request);
 
@@ -90,7 +106,7 @@ $databases = array(
 		},
 		'utf8_version' => '8.0',
 		'utf8_version_check' => function (){
-			$request = pg_query(SMF\Db\DatabaseApi::$db_connection, 'SELECT version()');
+			$request = pg_query(Db::$db->connection, 'SELECT version()');
 			list ($version) = pg_fetch_row($request);
 			list($pgl, $version) = explode(' ', $version);
 			return $version;
@@ -225,7 +241,7 @@ function initialize_inputs()
 	{
 		if (isset($_SESSION['installer_temp_ftp']))
 		{
-			$ftp = new \SMF\PackageManager\FtpConnection($_SESSION['installer_temp_ftp']['server'], $_SESSION['installer_temp_ftp']['port'], $_SESSION['installer_temp_ftp']['username'], $_SESSION['installer_temp_ftp']['password']);
+			$ftp = new FtpConnection($_SESSION['installer_temp_ftp']['server'], $_SESSION['installer_temp_ftp']['port'], $_SESSION['installer_temp_ftp']['username'], $_SESSION['installer_temp_ftp']['password']);
 			$ftp->chdir($_SESSION['installer_temp_ftp']['path']);
 
 			$ftp->unlink('install.php');
@@ -247,7 +263,7 @@ function initialize_inputs()
 			foreach ($databases as $key => $dummy)
 			{
 				$type = ($key == 'mysqli') ? 'mysql' : $key;
-				@unlink(dirname(__FILE__) . '/install_' . DB_SCRIPT_VERSION . '_' . $type . '.sql');
+				@unlink(Config::$boarddir . '/install_' . DB_SCRIPT_VERSION . '_' . $type . '.sql');
 			}
 		}
 
@@ -301,10 +317,10 @@ function load_lang_file()
 	$incontext['detected_languages'] = array();
 
 	// Make sure the languages directory actually exists.
-	if (file_exists(dirname(__FILE__) . '/Themes/default/languages'))
+	if (file_exists(Config::$boarddir . '/Themes/default/languages'))
 	{
 		// Find all the "Install" language files in the directory.
-		$dir = dir(dirname(__FILE__) . '/Themes/default/languages');
+		$dir = dir(Config::$boarddir . '/Themes/default/languages');
 		while ($entry = $dir->read())
 		{
 			if (substr($entry, 0, 8) == 'Install.' && substr($entry, -4) == '.php')
@@ -361,7 +377,7 @@ function load_lang_file()
 		$_SESSION['installer_temp_lang'] = $GLOBALS['HTTP_GET_VARS']['lang_file'];
 
 	// Make sure it exists, if it doesn't reset it.
-	if (!isset($_SESSION['installer_temp_lang']) || preg_match('~[^\\w_\\-.]~', $_SESSION['installer_temp_lang']) === 1 || !file_exists(dirname(__FILE__) . '/Themes/default/languages/' . $_SESSION['installer_temp_lang']))
+	if (!isset($_SESSION['installer_temp_lang']) || preg_match('~[^\\w_\\-.]~', $_SESSION['installer_temp_lang']) === 1 || !file_exists(Config::$boarddir . '/Themes/default/languages/' . $_SESSION['installer_temp_lang']))
 	{
 		// Use the first one...
 		list ($_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
@@ -372,38 +388,20 @@ function load_lang_file()
 	}
 
 	// And now include the actual language file itself.
-	require_once(dirname(__FILE__) . '/Themes/default/languages/' . $_SESSION['installer_temp_lang']);
+	require_once(Config::$boarddir . '/Themes/default/languages/' . $_SESSION['installer_temp_lang']);
 
-	// Which language did we load? Assume that he likes his language.
-	preg_match('~^Install\.(.+[^-utf8])\.php$~', $_SESSION['installer_temp_lang'], $matches);
-	$user_info['language'] = $matches[1];
+	// Which language did we load? Assume that the admin likes that language.
+	$user_info['language'] = Config::$language = preg_replace('~^Install\.|(-utf8)?\.php$~', '', $_SESSION['installer_temp_lang']);
 }
 
 // This handy function loads some settings and the like.
 function load_database()
 {
-	global $db_prefix, $sourcedir, $smcFunc, $modSettings, $db_port;
-	global $db_server, $db_passwd, $db_type, $db_name, $db_user, $db_persist, $db_mb4;
-
-	if (empty($sourcedir))
-		$sourcedir = dirname(__FILE__) . '/Sources';
-
-	// Need this to check whether we need the database password.
-	require(dirname(__FILE__) . '/Settings.php');
-	if (!defined('SMF'))
-		define('SMF', 1);
-	if (empty($smcFunc))
-		$smcFunc = array();
-
-	$modSettings['disableQueryCheck'] = true;
-
-	require_once($sourcedir . '/Autoloader.php');
+	Config::$modSettings['disableQueryCheck'] = true;
 
 	// Connect the database.
-	if (empty(SMF\Db\DatabaseApi::$db_connection))
-	{
-		SMF\Db\DatabaseApi::load();
-	}
+	if (empty(Db::$db->connection))
+		Db::load();
 }
 
 // This is called upon exiting the installer, for template etc.
@@ -453,20 +451,18 @@ function Welcome()
 		return true;
 
 	// See if we think they have already installed it?
-	if (is_readable(dirname(__FILE__) . '/Settings.php'))
-	{
-		$probably_installed = 0;
-		foreach (file(dirname(__FILE__) . '/Settings.php') as $line)
-		{
-			if (preg_match('~^\$db_passwd\s=\s\'([^\']+)\';$~', $line))
-				$probably_installed++;
-			if (preg_match('~^\$boardurl\s=\s\'([^\']+)\';~', $line) && !preg_match('~^\$boardurl\s=\s\'http://127\.0\.0\.1/smf\';~', $line))
-				$probably_installed++;
-		}
+	$probably_installed = 0;
 
-		if ($probably_installed == 2)
-			$incontext['warning'] = $txt['error_already_installed'];
+	$settingsDefs = Config::getSettingsDefs();
+
+	foreach (array('db_passwd', 'boardurl') as $var)
+	{
+		if (!empty(Config::${$var}) && Config::${$var} != $settingsDefs[$var]['default'])
+			$probably_installed++;
 	}
+
+	if ($probably_installed == 2)
+		$incontext['warning'] = $txt['error_already_installed'];
 
 	// Is some database support even compiled in?
 	$incontext['supported_databases'] = array();
@@ -475,7 +471,7 @@ function Welcome()
 		if ($db['supported'])
 		{
 			$type = ($key == 'mysqli') ? 'mysql' : $key;
-			if (!file_exists(dirname(__FILE__) . '/install_' . DB_SCRIPT_VERSION . '_' . $type . '.sql'))
+			if (!file_exists(Config::$boarddir . '/install_' . DB_SCRIPT_VERSION . '_' . $type . '.sql'))
 			{
 				$databases[$key]['supported'] = false;
 				$notFoundSQLFile = true;
@@ -488,20 +484,30 @@ function Welcome()
 
 	// Check the PHP version.
 	if ((!function_exists('version_compare') || version_compare($GLOBALS['required_php_version'], PHP_VERSION, '>=')))
+	{
 		$error = 'error_php_too_low';
+	}
 	// Make sure we have a supported database
 	elseif (empty($incontext['supported_databases']))
+	{
 		$error = empty($notFoundSQLFile) ? 'error_db_missing' : 'error_db_script_missing';
+	}
 	// How about session support?  Some crazy sysadmin remove it?
 	elseif (!function_exists('session_start'))
+	{
 		$error = 'error_session_missing';
+	}
 	// Make sure they uploaded all the files.
-	elseif (!file_exists(dirname(__FILE__) . '/index.php'))
+	elseif (!file_exists(Config::$boarddir . '/index.php'))
+	{
 		$error = 'error_missing_files';
+	}
 	// Very simple check on the session.save_path for Windows.
 	// @todo Move this down later if they don't use database-driven sessions?
 	elseif (@ini_get('session.save_path') == '/tmp' && substr(__FILE__, 1, 2) == ':\\')
+	{
 		$error = 'error_session_save_path';
+	}
 
 	// Since each of the three messages would look the same, anyway...
 	if (isset($error))
@@ -553,7 +559,9 @@ function CheckFilesWritable()
 
 	// With mod_security installed, we could attempt to fix it with .htaccess.
 	if (function_exists('apache_get_modules') && in_array('mod_security', apache_get_modules()))
-		$writable_files[] = file_exists(dirname(__FILE__) . '/.htaccess') ? '.htaccess' : '.';
+	{
+		$writable_files[] = file_exists(Config::$boarddir . '/.htaccess') ? '.htaccess' : '.';
+	}
 
 	$failed_files = array();
 
@@ -565,20 +573,22 @@ function CheckFilesWritable()
 		foreach ($writable_files as $file)
 		{
 			// Some files won't exist, try to address up front
-			if (!file_exists(dirname(__FILE__) . '/' . $file))
-				@touch(dirname(__FILE__) . '/' . $file);
+			if (!file_exists(Config::$boarddir . '/' . $file))
+				@touch(Config::$boarddir . '/' . $file);
+
 			// NOW do the writable check...
-			if (!is_writable(dirname(__FILE__) . '/' . $file))
+			if (!is_writable(Config::$boarddir . '/' . $file))
 			{
-				@chmod(dirname(__FILE__) . '/' . $file, 0755);
+				@chmod(Config::$boarddir . '/' . $file, 0755);
 
 				// Well, 755 hopefully worked... if not, try 777.
-				if (!is_writable(dirname(__FILE__) . '/' . $file) && !@chmod(dirname(__FILE__) . '/' . $file, 0777))
+				if (!is_writable(Config::$boarddir . '/' . $file) && !@chmod(Config::$boarddir . '/' . $file, 0777))
 					$failed_files[] = $file;
 			}
 		}
+
 		foreach ($extra_files as $file)
-			@chmod(dirname(__FILE__) . (empty($file) ? '' : '/' . $file), 0777);
+			@chmod(Config::$boarddir . (empty($file) ? '' : '/' . $file), 0777);
 	}
 	// Windows is trickier.  Let's try opening for r+...
 	else
@@ -588,24 +598,25 @@ function CheckFilesWritable()
 		foreach ($writable_files as $file)
 		{
 			// Folders can't be opened for write... but the index.php in them can ;)
-			if (is_dir(dirname(__FILE__) . '/' . $file))
+			if (is_dir(Config::$boarddir . '/' . $file))
 				$file .= '/index.php';
 
 			// Funny enough, chmod actually does do something on windows - it removes the read only attribute.
-			@chmod(dirname(__FILE__) . '/' . $file, 0777);
-			$fp = @fopen(dirname(__FILE__) . '/' . $file, 'r+');
+			@chmod(Config::$boarddir . '/' . $file, 0777);
+			$fp = @fopen(Config::$boarddir . '/' . $file, 'r+');
 
 			// Hmm, okay, try just for write in that case...
 			if (!is_resource($fp))
-				$fp = @fopen(dirname(__FILE__) . '/' . $file, 'w');
+				$fp = @fopen(Config::$boarddir . '/' . $file, 'w');
 
 			if (!is_resource($fp))
 				$failed_files[] = $file;
 
 			@fclose($fp);
 		}
+
 		foreach ($extra_files as $file)
-			@chmod(dirname(__FILE__) . (empty($file) ? '' : '/' . $file), 0777);
+			@chmod(Config::$boarddir . (empty($file) ? '' : '/' . $file), 0777);
 	}
 
 	$failure = count($failed_files) >= 1;
@@ -641,10 +652,10 @@ function CheckFilesWritable()
 		}
 
 		$incontext['ftp_errors'] = array();
-		require_once('Sources/PackageManager/FtpConnection.php');
+
 		if (isset($_POST['ftp_username']))
 		{
-			$ftp = new \SMF\PackageManager\FtpConnection($_POST['ftp_server'], $_POST['ftp_port'], $_POST['ftp_username'], $_POST['ftp_password']);
+			$ftp = new FtpConnection($_POST['ftp_server'], $_POST['ftp_port'], $_POST['ftp_username'], $_POST['ftp_password']);
 
 			if ($ftp->error === false)
 			{
@@ -660,12 +671,16 @@ function CheckFilesWritable()
 		if (!isset($ftp) || $ftp->error !== false)
 		{
 			if (!isset($ftp))
-				$ftp = new \SMF\PackageManager\FtpConnection(null);
+			{
+				$ftp = new FtpConnection(null);
+			}
 			// Save the error so we can mess with listing...
 			elseif ($ftp->error !== false && empty($incontext['ftp_errors']) && !empty($ftp->last_message))
+			{
 				$incontext['ftp_errors'][] = $ftp->last_message;
+			}
 
-			list ($username, $detect_path, $found_path) = $ftp->detect_path(dirname(__FILE__));
+			list ($username, $detect_path, $found_path) = $ftp->detect_path(Config::$boarddir);
 
 			if (empty($_POST['ftp_path']) && $found_path)
 				$_POST['ftp_path'] = $detect_path;
@@ -698,11 +713,13 @@ function CheckFilesWritable()
 
 			foreach ($failed_files as $file)
 			{
-				if (!is_writable(dirname(__FILE__) . '/' . $file))
+				if (!is_writable(Config::$boarddir . '/' . $file))
 					$ftp->chmod($file, 0755);
-				if (!is_writable(dirname(__FILE__) . '/' . $file))
+
+				if (!is_writable(Config::$boarddir . '/' . $file))
 					$ftp->chmod($file, 0777);
-				if (!is_writable(dirname(__FILE__) . '/' . $file))
+
+				if (!is_writable(Config::$boarddir . '/' . $file))
 				{
 					$failed_files_updated[] = $file;
 					$incontext['ftp_errors'][] = rtrim($ftp->last_message) . ' -> ' . $file . "\n";
@@ -732,8 +749,7 @@ function CheckFilesWritable()
 
 function DatabaseSettings()
 {
-	global $txt, $databases, $incontext, $smcFunc, $sourcedir;
-	global $db_server, $db_name, $db_user, $db_passwd, $db_port, $db_mb4;
+	global $txt, $databases, $incontext;
 
 	$incontext['sub_template'] = 'database_settings';
 	$incontext['page_title'] = $txt['db_settings'];
@@ -824,9 +840,13 @@ function DatabaseSettings()
 		{
 			// For MySQL, we can get the "default port" from PHP. PostgreSQL has no such option though.
 			if (($db_type == 'mysql' || $db_type == 'mysqli') && $_POST['db_port'] != ini_get($db_type . '.default_port'))
+			{
 				$vars['db_port'] = (int) $_POST['db_port'];
+			}
 			elseif ($db_type == 'postgresql' && $_POST['db_port'] != 5432)
+			{
 				$vars['db_port'] = (int) $_POST['db_port'];
+			}
 		}
 
 		// God I hope it saved!
@@ -836,42 +856,31 @@ function DatabaseSettings()
 			return false;
 		}
 
-		// Make sure it works.
-		require(dirname(__FILE__) . '/Settings.php');
-
-		if (empty($sourcedir))
-			$sourcedir = dirname(__FILE__) . '/Sources';
+		// Update SMF\Config with the changes we just saved.
+		Config::load();
 
 		// Better find the database file!
-		if (!file_exists($sourcedir . '/Db/APIs/' . $db_type . '.php'))
+		if (!file_exists(Config::$sourcedir . '/Db/APIs/' . Config::$db_type . '.php'))
 		{
-			$incontext['error'] = sprintf($txt['error_db_file'], 'Db/APIs/' . $db_type . '.php');
+			$incontext['error'] = sprintf($txt['error_db_file'], 'Db/APIs/' . Config::$db_type . '.php');
 			return false;
 		}
 
-		// Now include it for database functions!
-		if (!defined('SMF'))
-			define('SMF', 1);
-
-		$modSettings['disableQueryCheck'] = true;
-		if (empty($smcFunc))
-			$smcFunc = array();
-
-		require_once($sourcedir . '/Autoloader.php');
+		Config::$modSettings['disableQueryCheck'] = true;
 
 		// Attempt a connection.
-		$needsDB = !empty($databases[$db_type]['always_has_db']);
+		$needsDB = !empty($databases[Config::$db_type]['always_has_db']);
 
-		SMF\Db\DatabaseApi::load(array('non_fatal' => true, 'dont_select_db' => !$needsDB));
+		Db::load(array('non_fatal' => true, 'dont_select_db' => !$needsDB));
 
 		// Still no connection?  Big fat error message :P.
-		if (!SMF\Db\DatabaseApi::$db_connection)
+		if (!Db::$db->connection)
 		{
 			// Get error info...  Recast just in case we get false or 0...
-			$error_message = $smcFunc['db_connect_error']();
+			$error_message = Db::$db->connect_error();
 			if (empty($error_message))
 				$error_message = '';
-			$error_number = $smcFunc['db_connect_errno']();
+			$error_number = Db::$db->connect_errno();
 			if (empty($error_number))
 				$error_number = '';
 			$db_error = (!empty($error_number) ? $error_number . ': ' : '') . $error_message;
@@ -882,47 +891,47 @@ function DatabaseSettings()
 
 		// Do they meet the install requirements?
 		// @todo Old client, new server?
-		if (version_compare($databases[$db_type]['version'], preg_replace('~^\D*|\-.+?$~', '', $databases[$db_type]['version_check']())) > 0)
+		if (version_compare($databases[Config::$db_type]['version'], preg_replace('~^\D*|\-.+?$~', '', $databases[Config::$db_type]['version_check']())) > 0)
 		{
 			$incontext['error'] = $txt['error_db_too_low'];
 			return false;
 		}
 
 		// Let's try that database on for size... assuming we haven't already lost the opportunity.
-		if ($db_name != '' && !$needsDB)
+		if (Db::$db->name != '' && !$needsDB)
 		{
-			$smcFunc['db_query']('', "
-				CREATE DATABASE IF NOT EXISTS `$db_name`",
+			Db::$db->query('', "
+				CREATE DATABASE IF NOT EXISTS `" . Db::$db->name . "`",
 				array(
 					'security_override' => true,
 					'db_error_skip' => true,
 				),
-				SMF\Db\DatabaseApi::$db_connection
+				Db::$db->connection
 			);
 
 			// Okay, let's try the prefix if it didn't work...
-			if (!$smcFunc['db_select_db']($db_name, SMF\Db\DatabaseApi::$db_connection) && $db_name != '')
+			if (!Db::$db->select(Db::$db->name, Db::$db->connection) && Db::$db->name != '')
 			{
-				$smcFunc['db_query']('', "
-					CREATE DATABASE IF NOT EXISTS `$_POST[db_prefix]$db_name`",
+				Db::$db->query('', "
+					CREATE DATABASE IF NOT EXISTS `" . Db::$db->prefix . Db::$db->name . "`",
 					array(
 						'security_override' => true,
 						'db_error_skip' => true,
 					),
-					SMF\Db\DatabaseApi::$db_connection
+					Db::$db->connection
 				);
 
-				if ($smcFunc['db_select_db']($_POST['db_prefix'] . $db_name, SMF\Db\DatabaseApi::$db_connection))
+				if (Db::$db->select(Db::$db->prefix . Db::$db->name, Db::$db->connection))
 				{
-					$db_name = $_POST['db_prefix'] . $db_name;
-					installer_updateSettingsFile(array('db_name' => $db_name));
+					Db::$db->name = Db::$db->prefix . Db::$db->name;
+					installer_updateSettingsFile(array('db_name' => Db::$db->name));
 				}
 			}
 
 			// Okay, now let's try to connect...
-			if (!$smcFunc['db_select_db']($db_name, SMF\Db\DatabaseApi::$db_connection))
+			if (!Db::$db->select(Db::$db->name, Db::$db->connection))
 			{
-				$incontext['error'] = sprintf($txt['error_db_database'], $db_name);
+				$incontext['error'] = sprintf($txt['error_db_database'], Db::$db->name);
 				return false;
 			}
 		}
@@ -936,20 +945,20 @@ function DatabaseSettings()
 // Let's start with basic forum type settings.
 function ForumSettings()
 {
-	global $txt, $incontext, $databases, $db_type, $smcFunc;
+	global $txt, $incontext, $databases;
 
 	$incontext['sub_template'] = 'forum_settings';
 	$incontext['page_title'] = $txt['install_settings'];
 
 	// Let's see if we got the database type correct.
 	if (isset($_POST['db_type'], $databases[$_POST['db_type']]))
-		$db_type = $_POST['db_type'];
+		Config::$db_type = $_POST['db_type'];
 
 	// Else we'd better be able to get the connection.
 	else
 		load_database();
 
-	$db_type = isset($_POST['db_type']) ? $_POST['db_type'] : $db_type;
+	Config::$db_type = isset($_POST['db_type']) ? $_POST['db_type'] : Config::$db_type;
 
 	// What host and port are we on?
 	$host = empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] . (empty($_SERVER['SERVER_PORT']) || $_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']) : $_SERVER['HTTP_HOST'];
@@ -970,10 +979,10 @@ function ForumSettings()
 	$incontext['continue'] = 1;
 
 	// Check Postgres setting
-	if ( $db_type === 'postgresql')
+	if (Config::$db_type === 'postgresql')
 	{
 		load_database();
-		$result = $smcFunc['db_query']('', '
+		$result = Db::$db->query('', '
 			show standard_conforming_strings',
 			array(
 				'db_error_skip' => true,
@@ -982,13 +991,13 @@ function ForumSettings()
 
 		if ($result !== false)
 		{
-			$row = $smcFunc['db_fetch_assoc']($result);
+			$row = Db::$db->fetch_assoc($result);
 			if ($row['standard_conforming_strings'] !== 'on')
 				{
 					$incontext['continue'] = 0;
 					$incontext['error'] = $txt['error_pg_scs'];
 				}
-			$smcFunc['db_free_result']($result);
+			Db::$db->free_result($result);
 		}
 	}
 
@@ -997,7 +1006,7 @@ function ForumSettings()
 	$incontext['ssl_chkbx_checked'] = false;
 
 	// If redirect in effect, force ssl ON
-	require_once(dirname(__FILE__) . '/Sources/Subs.php');
+	require_once(Config::$boarddir . '/Sources/Subs.php');
 	if (https_redirect_active($incontext['detected_url']))
 	{
 		$incontext['ssl_chkbx_protected'] = true;
@@ -1060,19 +1069,19 @@ function ForumSettings()
 			return false;
 		}
 
-		// Make sure it works.
-		require(dirname(__FILE__) . '/Settings.php');
+		// Update SMF\Config with the changes we just saved.
+		Config::load();
 
 		// UTF-8 requires a setting to override the language charset.
-		if (!$databases[$db_type]['utf8_support']())
+		if (!$databases[Config::$db_type]['utf8_support']())
 		{
 			$incontext['error'] = sprintf($txt['error_utf8_support']);
 			return false;
 		}
 
-		if (!empty($databases[$db_type]['utf8_version_check']) && version_compare($databases[$db_type]['utf8_version'], preg_replace('~\-.+?$~', '', $databases[$db_type]['utf8_version_check']()), '>'))
+		if (!empty($databases[Config::$db_type]['utf8_version_check']) && version_compare($databases[Config::$db_type]['utf8_version'], preg_replace('~\-.+?$~', '', $databases[Config::$db_type]['utf8_version_check']()), '>'))
 		{
-			$incontext['error'] = sprintf($txt['error_utf8_version'], $databases[$db_type]['utf8_version']);
+			$incontext['error'] = sprintf($txt['error_utf8_version'], $databases[Config::$db_type]['utf8_version']);
 			return false;
 		}
 
@@ -1089,7 +1098,7 @@ function ForumSettings()
 // Step one: Do the SQL thang.
 function DatabasePopulation()
 {
-	global $db_character_set, $txt, $smcFunc, $databases, $modSettings, $db_type, $db_prefix, $incontext, $db_name, $boardurl;
+	global $txt, $databases, $incontext;
 
 	$incontext['sub_template'] = 'populate_database';
 	$incontext['page_title'] = $txt['db_populate'];
@@ -1100,11 +1109,11 @@ function DatabasePopulation()
 		return true;
 
 	// Reload settings.
-	require(dirname(__FILE__) . '/Settings.php');
+	Config::load();
 	load_database();
 
 	// Before running any of the queries, let's make sure another version isn't already installed.
-	$result = $smcFunc['db_query']('', '
+	$result = Db::$db->query('', '
 		SELECT variable, value
 		FROM {db_prefix}settings',
 		array(
@@ -1112,24 +1121,24 @@ function DatabasePopulation()
 		)
 	);
 	$newSettings = array();
-	$modSettings = array();
 	if ($result !== false)
 	{
-		while ($row = $smcFunc['db_fetch_assoc']($result))
-			$modSettings[$row['variable']] = $row['value'];
-		$smcFunc['db_free_result']($result);
+		while ($row = Db::$db->fetch_assoc($result))
+			Config::$modSettings[$row['variable']] = $row['value'];
+
+		Db::$db->free_result($result);
 
 		// Do they match?  If so, this is just a refresh so charge on!
-		if (!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] != SMF_VERSION)
+		if (!isset(Config::$modSettings['smfVersion']) || Config::$modSettings['smfVersion'] != SMF_VERSION)
 		{
 			$incontext['error'] = $txt['error_versions_do_not_match'];
 			return false;
 		}
 	}
-	$modSettings['disableQueryCheck'] = true;
+	Config::$modSettings['disableQueryCheck'] = true;
 
 	// If doing UTF8, select it. PostgreSQL requires passing it as a string...
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		SET NAMES {string:utf8}',
 		array(
 			'db_error_skip' => true,
@@ -1144,10 +1153,10 @@ function DatabasePopulation()
 		$attachdir = __DIR__ . '/attachments';
 
 	$replaces = array(
-		'{$db_prefix}' => $db_prefix,
-		'{$attachdir}' => json_encode(array(1 => $smcFunc['db_escape_string']($attachdir))),
-		'{$boarddir}' => $smcFunc['db_escape_string'](dirname(__FILE__)),
-		'{$boardurl}' => $boardurl,
+		'{$db_prefix}' => Db::$db->prefix,
+		'{$attachdir}' => json_encode(array(1 => Db::$db->escape_string($attachdir))),
+		'{$boarddir}' => Db::$db->escape_string(Config::$boarddir),
+		'{$boardurl}' => Config::$boardurl,
 		'{$enableCompressedOutput}' => isset($_POST['compress']) ? '1' : '0',
 		'{$databaseSession_enable}' => isset($_POST['dbsession']) ? '1' : '0',
 		'{$smf_version}' => SMF_VERSION,
@@ -1159,27 +1168,27 @@ function DatabasePopulation()
 	foreach ($txt as $key => $value)
 	{
 		if (substr($key, 0, 8) == 'default_')
-			$replaces['{$' . $key . '}'] = $smcFunc['db_escape_string']($value);
+			$replaces['{$' . $key . '}'] = Db::$db->escape_string($value);
 	}
 	$replaces['{$default_reserved_names}'] = strtr($replaces['{$default_reserved_names}'], array('\\\\n' => '\\n'));
 
 	// MySQL-specific stuff - storage engine and UTF8 handling
-	if (substr($db_type, 0, 5) == 'mysql')
+	if (substr(Config::$db_type, 0, 5) == 'mysql')
 	{
 		// Just in case the query fails for some reason...
 		$engines = array();
 
 		// Figure out storage engines - what do we have, etc.
-		$get_engines = $smcFunc['db_query']('', 'SHOW ENGINES', array());
+		$get_engines = Db::$db->query('', 'SHOW ENGINES', array());
 
-		while ($row = $smcFunc['db_fetch_assoc']($get_engines))
+		while ($row = Db::$db->fetch_assoc($get_engines))
 		{
 			if ($row['Support'] == 'YES' || $row['Support'] == 'DEFAULT')
 				$engines[] = $row['Engine'];
 		}
 
 		// Done with this now
-		$smcFunc['db_free_result']($get_engines);
+		Db::$db->free_result($get_engines);
 
 		// InnoDB is better, so use it if possible...
 		$has_innodb = in_array('InnoDB', $engines);
@@ -1203,8 +1212,8 @@ function DatabasePopulation()
 	}
 
 	// Read in the SQL.  Turn this on and that off... internationalize... etc.
-	$type = ($db_type == 'mysqli' ? 'mysql' : $db_type);
-	$sql_lines = explode("\n", strtr(implode(' ', file(dirname(__FILE__) . '/install_' . DB_SCRIPT_VERSION . '_' . $type . '.sql')), $replaces));
+	$type = (Config::$db_type == 'mysqli' ? 'mysql' : Config::$db_type);
+	$sql_lines = explode("\n", strtr(implode(' ', file(Config::$boarddir . '/install_' . DB_SCRIPT_VERSION . '_' . $type . '.sql')), $replaces));
 
 	// Execute the SQL.
 	$current_statement = '';
@@ -1239,20 +1248,20 @@ function DatabasePopulation()
 			continue;
 		}
 
-		if ($smcFunc['db_query']('', $current_statement, array('security_override' => true, 'db_error_skip' => true), SMF\Db\DatabaseApi::$db_connection) === false)
+		if (Db::$db->query('', $current_statement, array('security_override' => true, 'db_error_skip' => true), Db::$db->connection) === false)
 		{
 			// Error 1050: Table already exists!
 			// @todo Needs to be made better!
-			if ((($db_type != 'mysql' && $db_type != 'mysqli') || mysqli_errno(SMF\Db\DatabaseApi::$db_connection) == 1050) && preg_match('~^\s*CREATE TABLE ([^\s\n\r]+?)~', $current_statement, $match) == 1)
+			if (((Config::$db_type != 'mysql' && Config::$db_type != 'mysqli') || mysqli_errno(Db::$db->connection) == 1050) && preg_match('~^\s*CREATE TABLE ([^\s\n\r]+?)~', $current_statement, $match) == 1)
 			{
 				$exists[] = $match[1];
 				$incontext['sql_results']['table_dups']++;
 			}
 			// Don't error on duplicate indexes (or duplicate operators in PostgreSQL.)
-			elseif (!preg_match('~^\s*CREATE( UNIQUE)? INDEX ([^\n\r]+?)~', $current_statement, $match) && !($db_type == 'postgresql' && preg_match('~^\s*CREATE OPERATOR (^\n\r]+?)~', $current_statement, $match)))
+			elseif (!preg_match('~^\s*CREATE( UNIQUE)? INDEX ([^\n\r]+?)~', $current_statement, $match) && !(Config::$db_type == 'postgresql' && preg_match('~^\s*CREATE OPERATOR (^\n\r]+?)~', $current_statement, $match)))
 			{
 				// MySQLi requires a connection object. It's optional with MySQL and Postgres
-				$incontext['failures'][$count] = $smcFunc['db_error'](SMF\Db\DatabaseApi::$db_connection);
+				$incontext['failures'][$count] = Db::$db->error(Db::$db->connection);
 			}
 		}
 		else
@@ -1288,7 +1297,7 @@ function DatabasePopulation()
 	$newSettings[] = array('global_character_set', 'UTF-8');
 
 	// Are we allowing stat collection?
-	if (!empty($_POST['stats']) && substr($boardurl, 0, 16) != 'http://localhost' && empty($modSettings['allow_sm_stats']) && empty($modSettings['enable_sm_stats']))
+	if (!empty($_POST['stats']) && substr(Config::$boardurl, 0, 16) != 'http://localhost' && empty(Config::$modSettings['allow_sm_stats']) && empty(Config::$modSettings['enable_sm_stats']))
 	{
 		$incontext['allow_sm_stats'] = true;
 
@@ -1298,7 +1307,7 @@ function DatabasePopulation()
 			$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
 		if ($fp)
 		{
-			$out = 'GET /smf/stats/register_stats.php?site=' . base64_encode($boardurl) . ' HTTP/1.1' . "\r\n";
+			$out = 'GET /smf/stats/register_stats.php?site=' . base64_encode(Config::$boardurl) . ' HTTP/1.1' . "\r\n";
 			$out .= 'Host: www.simplemachines.org' . "\r\n";
 			$out .= 'Connection: Close' . "\r\n\r\n";
 			fwrite($fp, $out);
@@ -1313,8 +1322,8 @@ function DatabasePopulation()
 			preg_match('~SITE-ID:\s(\w{10})~', $return_data, $ID);
 
 			if (!empty($ID[1]))
-				$smcFunc['db_insert']('replace',
-					$db_prefix . 'settings',
+				Db::$db->insert('replace',
+					Db::$db->prefix . 'settings',
 					array('variable' => 'string', 'value' => 'string'),
 					array(
 						array('sm_stats_key', $ID[1]),
@@ -1326,7 +1335,7 @@ function DatabasePopulation()
 	}
 	// Don't remove stat collection unless we unchecked the box for real, not from the loop.
 	elseif (empty($_POST['stats']) && empty($incontext['allow_sm_stats']))
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}settings
 			WHERE variable = {string:enable_sm_stats}',
 			array(
@@ -1340,7 +1349,7 @@ function DatabasePopulation()
 		$newSettings[] = array('force_ssl', 1);
 
 	// Setting a timezone is required.
-	if (!isset($modSettings['default_timezone']) && function_exists('date_default_timezone_set'))
+	if (!isset(Config::$modSettings['default_timezone']) && function_exists('date_default_timezone_set'))
 	{
 		// Get PHP's default timezone, if set
 		$ini_tz = ini_get('date.timezone');
@@ -1365,7 +1374,7 @@ function DatabasePopulation()
 
 	if (!empty($newSettings))
 	{
-		$smcFunc['db_insert']('replace',
+		Db::$db->insert('replace',
 			'{db_prefix}settings',
 			array('variable' => 'string-255', 'value' => 'string-65534'),
 			$newSettings,
@@ -1402,19 +1411,19 @@ function DatabasePopulation()
 	$smiley_set_extensions = array('fugue' => '.png', 'alienine' => '.png');
 
 	$smiley_inserts = array();
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_smiley, code
 		FROM {db_prefix}smileys',
 		array()
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		foreach ($smiley_set_extensions as $set => $ext)
 			$smiley_inserts[] = array($row['id_smiley'], $set, $smiley_filenames[$row['code']] . $ext);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
-	$smcFunc['db_insert']('ignore',
+	Db::$db->insert('ignore',
 		'{db_prefix}smiley_files',
 		array('id_smiley' => 'int', 'smiley_set' => 'string-48', 'filename' => 'string-48'),
 		$smiley_inserts,
@@ -1424,35 +1433,35 @@ function DatabasePopulation()
 	// Let's optimize those new tables, but not on InnoDB, ok?
 	if (!$has_innodb)
 	{
-		$tables = $smcFunc['db_list_tables']($db_name, $db_prefix . '%');
+		$tables = Db::$db->list_tables(Db::$db->name, Db::$db->prefix . '%');
 		foreach ($tables as $table)
 		{
-			$smcFunc['db_optimize_table']($table) != -1 or $db_messed = true;
+			Db::$db->optimize_table($table) != -1 or $db_messed = true;
 
 			if (!empty($db_messed))
 			{
-				$incontext['failures'][-1] = $smcFunc['db_error']();
+				$incontext['failures'][-1] = Db::$db->error();
 				break;
 			}
 		}
 	}
 
 	// MySQL specific stuff
-	if (substr($db_type, 0, 5) != 'mysql')
+	if (substr(Config::$db_type, 0, 5) != 'mysql')
 		return false;
 
 	// Find database user privileges.
 	$privs = array();
-	$get_privs = $smcFunc['db_query']('', 'SHOW PRIVILEGES', array());
-	while ($row = $smcFunc['db_fetch_assoc']($get_privs))
+	$get_privs = Db::$db->query('', 'SHOW PRIVILEGES', array());
+	while ($row = Db::$db->fetch_assoc($get_privs))
 	{
 		if ($row['Privilege'] == 'Alter')
 			$privs[] = $row['Privilege'];
 	}
-	$smcFunc['db_free_result']($get_privs);
+	Db::$db->free_result($get_privs);
 
 	// Check for the ALTER privilege.
-	if (!empty($databases[$db_type]['alter_support']) && !in_array('Alter', $privs))
+	if (!empty($databases[Config::$db_type]['alter_support']) && !in_array('Alter', $privs))
 	{
 		$incontext['error'] = $txt['error_db_alter_priv'];
 		return false;
@@ -1470,7 +1479,7 @@ function DatabasePopulation()
 // Ask for the administrator login information.
 function AdminAccount()
 {
-	global $txt, $db_type, $smcFunc, $incontext, $db_prefix, $db_passwd, $sourcedir, $db_character_set;
+	global $txt, $incontext;
 
 	$incontext['sub_template'] = 'admin_account';
 	$incontext['page_title'] = $txt['user_settings'];
@@ -1481,29 +1490,23 @@ function AdminAccount()
 		return true;
 
 	// Need this to check whether we need the database password.
-	require(dirname(__FILE__) . '/Settings.php');
+	Config::load();
 	load_database();
 
-	require_once($sourcedir . '/Subs-Auth.php');
+	$settingsDefs = Config::getSettingsDefs();
 
-	require_once($sourcedir . '/Subs.php');
+	require_once(Config::$sourcedir . '/Subs-Auth.php');
+	require_once(Config::$sourcedir . '/Subs.php');
 
-	// Reload settings & set some global funcs
-	require_once($sourcedir . '/Load.php');
-	reloadSettings();
-
-	// We need this to properly hash the password for Admin
-	$smcFunc['strtolower'] = function($string)
-	{
-		global $sourcedir;
-		require_once($sourcedir . '/Subs-Charset.php');
-		return utf8_strtolower($string);
-	};
+	// Reload $modSettings.
+	Config::reloadModSettings();
 
 	if (!isset($_POST['username']))
 		$_POST['username'] = '';
+
 	if (!isset($_POST['email']))
 		$_POST['email'] = '';
+
 	if (!isset($_POST['server_email']))
 		$_POST['server_email'] = '';
 
@@ -1511,10 +1514,10 @@ function AdminAccount()
 	$incontext['email'] = htmlspecialchars($_POST['email']);
 	$incontext['server_email'] = htmlspecialchars($_POST['server_email']);
 
-	$incontext['require_db_confirm'] = empty($db_type);
+	$incontext['require_db_confirm'] = empty(Config::$db_type);
 
 	// Only allow skipping if we think they already have an account setup.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_member
 		FROM {db_prefix}members
 		WHERE id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0
@@ -1524,15 +1527,15 @@ function AdminAccount()
 			'admin_group' => 1,
 		)
 	);
-	if ($smcFunc['db_num_rows']($request) != 0)
+	if (Db::$db->num_rows($request) != 0)
 		$incontext['skip'] = 1;
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Trying to create an account?
 	if (isset($_POST['password1']) && !empty($_POST['contbutt']))
 	{
 		// Wrong password?
-		if ($incontext['require_db_confirm'] && $_POST['password3'] != $db_passwd)
+		if ($incontext['require_db_confirm'] && $_POST['password3'] != Config::$db_passwd)
 		{
 			$incontext['error'] = $txt['error_db_connect'];
 			return false;
@@ -1549,21 +1552,23 @@ function AdminAccount()
 			$incontext['error'] = $txt['error_user_settings_no_password'];
 			return false;
 		}
-		if (!file_exists($sourcedir . '/Subs.php'))
+		if (!file_exists(Config::$sourcedir . '/Subs.php'))
 		{
 			$incontext['error'] = sprintf($txt['error_sourcefile_missing'], 'Subs.php');
 			return false;
 		}
 
 		// Update the webmaster's email?
-		if (!empty($_POST['server_email']) && (empty($webmaster_email) || $webmaster_email == 'noreply@myserver.com'))
+		if (!empty($_POST['server_email']) && (empty(Config::$webmaster_email) || Config::$webmaster_email == $settingsDefs['webmaster_email']['default']))
+		{
 			installer_updateSettingsFile(array('webmaster_email' => $_POST['server_email']));
+		}
 
 		// Work out whether we're going to have dodgy characters and remove them.
 		$invalid_characters = preg_match('~[<>&"\'=\\\]~', $_POST['username']) != 0;
 		$_POST['username'] = preg_replace('~[<>&"\'=\\\]~', '', $_POST['username']);
 
-		$result = $smcFunc['db_query']('', '
+		$result = Db::$db->query('', '
 			SELECT id_member, password_salt
 			FROM {db_prefix}members
 			WHERE member_name = {string:username} OR email_address = {string:email}
@@ -1574,10 +1579,10 @@ function AdminAccount()
 				'db_error_skip' => true,
 			)
 		);
-		if ($smcFunc['db_num_rows']($result) != 0)
+		if (Db::$db->num_rows($result) != 0)
 		{
-			list ($incontext['member_id'], $incontext['member_salt']) = $smcFunc['db_fetch_row']($result);
-			$smcFunc['db_free_result']($result);
+			list ($incontext['member_id'], $incontext['member_salt']) = Db::$db->fetch_row($result);
+			Db::$db->free_result($result);
 
 			$incontext['account_existed'] = $txt['error_user_settings_taken'];
 		}
@@ -1618,8 +1623,8 @@ function AdminAccount()
 
 			$_POST['password1'] = hash_password($_POST['username'], $_POST['password1']);
 
-			$incontext['member_id'] = $smcFunc['db_insert']('',
-				$db_prefix . 'members',
+			$incontext['member_id'] = Db::$db->insert('',
+				Db::$db->prefix . 'members',
 				array(
 					'member_name' => 'string-25',
 					'real_name' => 'string-25',
@@ -1683,51 +1688,50 @@ function AdminAccount()
 // Final step, clean up and a complete message!
 function DeleteInstall()
 {
-	global $smcFunc, $db_character_set, $context, $txt, $incontext;
-	global $databases, $sourcedir, $modSettings, $user_info, $db_type, $boardurl;
-	global $auth_secret, $cookiename;
+	global $txt, $incontext;
+	global $databases, $user_info;
 
 	$incontext['page_title'] = $txt['congratulations'];
 	$incontext['sub_template'] = 'delete_install';
 	$incontext['continue'] = 0;
 
-	require(dirname(__FILE__) . '/Settings.php');
+	Config::load();
 	load_database();
 
-	chdir(dirname(__FILE__));
+	chdir(Config::$boarddir);
 
-	require_once($sourcedir . '/Errors.php');
-	require_once($sourcedir . '/Logging.php');
-	require_once($sourcedir . '/Subs.php');
-	require_once($sourcedir . '/Load.php');
-	require_once($sourcedir . '/Security.php');
-	require_once($sourcedir . '/Subs-Auth.php');
+	require_once(Config::$sourcedir . '/Errors.php');
+	require_once(Config::$sourcedir . '/Logging.php');
+	require_once(Config::$sourcedir . '/Subs.php');
+	require_once(Config::$sourcedir . '/Load.php');
+	require_once(Config::$sourcedir . '/Security.php');
+	require_once(Config::$sourcedir . '/Subs-Auth.php');
 
-	// Reload settings & set some global funcs
-	reloadSettings();
+	// Reload $modSettings.
+	Config::reloadModSettings();
 
 	// Bring a warning over.
 	if (!empty($incontext['account_existed']))
 		$incontext['warning'] = $incontext['account_existed'];
 
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		SET NAMES {string:db_character_set}',
 		array(
-			'db_character_set' => $db_character_set,
+			'db_character_set' => Config::$db_character_set,
 			'db_error_skip' => true,
 		)
 	);
 
 	// As track stats is by default enabled let's add some activity.
-	$smcFunc['db_insert']('ignore',
+	Db::$db->insert('ignore',
 		'{db_prefix}log_activity',
 		array('date' => 'date', 'topics' => 'int', 'posts' => 'int', 'registers' => 'int'),
 		array(smf_strftime('%Y-%m-%d', time()), 1, 1, (!empty($incontext['member_id']) ? 1 : 0)),
 		array('date')
 	);
 
-	// We're going to want our lovely $modSettings now.
-	$request = $smcFunc['db_query']('', '
+	// We're going to want our lovely Config::$modSettings now.
+	$request = Db::$db->query('', '
 		SELECT variable, value
 		FROM {db_prefix}settings',
 		array(
@@ -1737,16 +1741,16 @@ function DeleteInstall()
 	// Only proceed if we can load the data.
 	if ($request)
 	{
-		while ($row = $smcFunc['db_fetch_row']($request))
-			$modSettings[$row[0]] = $row[1];
-		$smcFunc['db_free_result']($request);
+		while ($row = Db::$db->fetch_row($request))
+			Config::$modSettings[$row[0]] = $row[1];
+		Db::$db->free_result($request);
 	}
 
 	// Automatically log them in ;)
 	if (isset($incontext['member_id']) && isset($incontext['member_salt']))
 		setLoginCookie(3153600 * 60, $incontext['member_id'], hash_salt($_POST['password1'], $incontext['member_salt']));
 
-	$result = $smcFunc['db_query']('', '
+	$result = Db::$db->query('', '
 		SELECT value
 		FROM {db_prefix}settings
 		WHERE variable = {string:db_sessions}',
@@ -1755,9 +1759,9 @@ function DeleteInstall()
 			'db_error_skip' => true,
 		)
 	);
-	if ($smcFunc['db_num_rows']($result) != 0)
-		list ($db_sessions) = $smcFunc['db_fetch_row']($result);
-	$smcFunc['db_free_result']($result);
+	if (Db::$db->num_rows($result) != 0)
+		list ($db_sessions) = Db::$db->fetch_row($result);
+	Db::$db->free_result($result);
 
 	if (empty($db_sessions))
 		$_SESSION['admin_time'] = time();
@@ -1765,7 +1769,7 @@ function DeleteInstall()
 	{
 		$_SERVER['HTTP_USER_AGENT'] = substr($_SERVER['HTTP_USER_AGENT'], 0, 211);
 
-		$smcFunc['db_insert']('replace',
+		Db::$db->insert('replace',
 			'{db_prefix}sessions',
 			array(
 				'session_id' => 'string', 'last_update' => 'int', 'data' => 'string',
@@ -1781,15 +1785,7 @@ function DeleteInstall()
 	updateStats('message');
 	updateStats('topic');
 
-	// This function is needed to do the updateStats('subject') call.
-	$smcFunc['strtolower'] = function($string)
-	{
-		global $sourcedir;
-		require_once($sourcedir . '/Subs-Charset.php');
-		return utf8_strtolower($string);
-	};
-
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_msg
 		FROM {db_prefix}messages
 		WHERE id_msg = 1
@@ -1799,15 +1795,15 @@ function DeleteInstall()
 			'db_error_skip' => true,
 		)
 	);
-	$context['utf8'] = true;
-	if ($smcFunc['db_num_rows']($request) > 0)
+	Utils::$context['utf8'] = true;
+	if (Db::$db->num_rows($request) > 0)
 		updateStats('subject', 1, htmlspecialchars($txt['default_topic_subject']));
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Now is the perfect time to fetch the SM files.
-	require_once($sourcedir . '/ScheduledTasks.php');
+	require_once(Config::$sourcedir . '/ScheduledTasks.php');
 	// Sanity check that they loaded earlier!
-	if (isset($modSettings['recycle_board']))
+	if (isset(Config::$modSettings['recycle_board']))
 	{
 		scheduled_fetchSMfiles(); // Now go get those files!
 
@@ -1818,16 +1814,16 @@ function DeleteInstall()
 	}
 
 	// Disable the legacy BBC by default for new installs
-	updateSettings(array(
-		'disabledBBC' => implode(',', $context['legacy_bbc']),
+	Config::updateModSettings(array(
+		'disabledBBC' => implode(',', Utils::$context['legacy_bbc']),
 	));
 
 	// Some final context for the template.
-	$incontext['dir_still_writable'] = is_writable(dirname(__FILE__)) && substr(__FILE__, 1, 2) != ':\\';
-	$incontext['probably_delete_install'] = isset($_SESSION['installer_temp_ftp']) || is_writable(dirname(__FILE__)) || is_writable(__FILE__);
+	$incontext['dir_still_writable'] = is_writable(Config::$boarddir) && substr(__FILE__, 1, 2) != ':\\';
+	$incontext['probably_delete_install'] = isset($_SESSION['installer_temp_ftp']) || is_writable(Config::$boarddir) || is_writable(__FILE__);
 
 	// Update hash's cost to an appropriate setting
-	updateSettings(array(
+	Config::updateModSettings(array(
 		'bcrypt_hash_cost' => hash_benchmark(),
 	));
 
@@ -1836,30 +1832,15 @@ function DeleteInstall()
 
 function installer_updateSettingsFile($vars, $rebuild = false)
 {
-	global $sourcedir, $context, $db_character_set, $txt;
-
-	$context['utf8'] = true;
-
-	if (empty($sourcedir))
+	if (!is_writable(SMF_SETTINGS_FILE))
 	{
-		if (file_exists(dirname(__FILE__) . '/Sources') && is_dir(dirname(__FILE__) . '/Sources'))
-			$sourcedir = dirname(__FILE__) . '/Sources';
-		else
+		@chmod(SMF_SETTINGS_FILE, 0777);
+
+		if (!is_writable(SMF_SETTINGS_FILE))
 			return false;
 	}
 
-	if (!is_writeable(dirname(__FILE__) . '/Settings.php'))
-	{
-		@chmod(dirname(__FILE__) . '/Settings.php', 0777);
-
-		if (!is_writeable(dirname(__FILE__) . '/Settings.php'))
-			return false;
-	}
-
-	require_once($sourcedir . '/Subs.php');
-	require_once($sourcedir . '/Subs-Admin.php');
-
-	return updateSettingsFile($vars, false, $rebuild);
+	return Config::updateSettingsFile($vars, false, $rebuild);
 }
 
 // Create an .htaccess file to prevent mod_security. SMF has filtering built-in.
@@ -1876,14 +1857,14 @@ function fixModSecurity()
 
 	if (!function_exists('apache_get_modules') || !in_array('mod_security', apache_get_modules()))
 		return true;
-	elseif (file_exists(dirname(__FILE__) . '/.htaccess') && is_writable(dirname(__FILE__) . '/.htaccess'))
+	elseif (file_exists(Config::$boarddir . '/.htaccess') && is_writable(Config::$boarddir . '/.htaccess'))
 	{
-		$current_htaccess = implode('', file(dirname(__FILE__) . '/.htaccess'));
+		$current_htaccess = implode('', file(Config::$boarddir . '/.htaccess'));
 
 		// Only change something if mod_security hasn't been addressed yet.
 		if (strpos($current_htaccess, '<IfModule mod_security.c>') === false)
 		{
-			if ($ht_handle = fopen(dirname(__FILE__) . '/.htaccess', 'a'))
+			if ($ht_handle = fopen(Config::$boarddir . '/.htaccess', 'a'))
 			{
 				fwrite($ht_handle, $htaccess_addition);
 				fclose($ht_handle);
@@ -1895,11 +1876,11 @@ function fixModSecurity()
 		else
 			return true;
 	}
-	elseif (file_exists(dirname(__FILE__) . '/.htaccess'))
-		return strpos(implode('', file(dirname(__FILE__) . '/.htaccess')), '<IfModule mod_security.c>') !== false;
-	elseif (is_writable(dirname(__FILE__)))
+	elseif (file_exists(Config::$boarddir . '/.htaccess'))
+		return strpos(implode('', file(Config::$boarddir . '/.htaccess')), '<IfModule mod_security.c>') !== false;
+	elseif (is_writable(Config::$boarddir))
 	{
-		if ($ht_handle = fopen(dirname(__FILE__) . '/.htaccess', 'w'))
+		if ($ht_handle = fopen(Config::$boarddir . '/.htaccess', 'w'))
 		{
 			fwrite($ht_handle, $htaccess_addition);
 			fclose($ht_handle);
@@ -2454,7 +2435,7 @@ function template_admin_account()
 // Tell them it's done, and to delete.
 function template_delete_install()
 {
-	global $incontext, $installurl, $txt, $boardurl;
+	global $incontext, $installurl, $txt;
 
 	echo '
 		<p>', $txt['congratulations_help'], '</p>';
@@ -2486,7 +2467,7 @@ function template_delete_install()
 		</script>';
 
 	echo '
-		<p>', sprintf($txt['go_to_your_forum'], $boardurl . '/index.php'), '</p>
+		<p>', sprintf($txt['go_to_your_forum'], Config::$boardurl . '/index.php'), '</p>
 		<br>
 		', $txt['good_luck'];
 }

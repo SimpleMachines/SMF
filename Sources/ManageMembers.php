@@ -13,6 +13,10 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -27,7 +31,7 @@ if (!defined('SMF'))
  */
 function ViewMembers()
 {
-	global $txt, $scripturl, $context, $modSettings, $smcFunc;
+	global $txt;
 
 	$subActions = array(
 		'all' => array('ViewMemberlist', 'moderate_forum'),
@@ -45,78 +49,78 @@ function ViewMembers()
 	GetMemberActivationCounts();
 
 	// For the page header... do we show activation?
-	$context['show_activate'] = (!empty($modSettings['registration_method']) && $modSettings['registration_method'] == 1) || !empty($context['awaiting_activation']);
+	Utils::$context['show_activate'] = (!empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == 1) || !empty(Utils::$context['awaiting_activation']);
 
 	// What about approval?
-	$context['show_approve'] = (!empty($modSettings['registration_method']) && $modSettings['registration_method'] == 2) || !empty($context['awaiting_approval']) || !empty($modSettings['approveAccountDeletion']);
+	Utils::$context['show_approve'] = (!empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == 2) || !empty(Utils::$context['awaiting_approval']) || !empty(Config::$modSettings['approveAccountDeletion']);
 
 	// Setup the admin tabs.
-	$context[$context['admin_menu_name']]['tab_data'] = array(
+	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['admin_members'],
 		'help' => 'view_members',
 		'description' => $txt['admin_members_list'],
 		'tabs' => array(),
 	);
 
-	$context['tabs'] = array(
+	Utils::$context['tabs'] = array(
 		'viewmembers' => array(
 			'label' => $txt['view_all_members'],
 			'description' => $txt['admin_members_list'],
-			'url' => $scripturl . '?action=admin;area=viewmembers;sa=all',
+			'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=all',
 			'selected_actions' => array('all'),
 		),
 		'search' => array(
 			'label' => $txt['mlist_search'],
 			'description' => $txt['admin_members_list'],
-			'url' => $scripturl . '?action=admin;area=viewmembers;sa=search',
+			'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=search',
 			'selected_actions' => array('search', 'query'),
 		),
 	);
-	$context['last_tab'] = 'search';
+	Utils::$context['last_tab'] = 'search';
 
 	// Do we have approvals
-	if ($context['show_approve'])
+	if (Utils::$context['show_approve'])
 	{
-		$context['tabs']['approve'] = array(
-			'label' => sprintf($txt['admin_browse_awaiting_approval'], $context['awaiting_approval']),
+		Utils::$context['tabs']['approve'] = array(
+			'label' => sprintf($txt['admin_browse_awaiting_approval'], Utils::$context['awaiting_approval']),
 			'description' => $txt['admin_browse_approve_desc'],
-			'url' => $scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve',
+			'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve',
 		);
-		$context['last_tab'] = 'approve';
+		Utils::$context['last_tab'] = 'approve';
 	}
 
 	// Do we have activations to show?
-	if ($context['show_activate'])
+	if (Utils::$context['show_activate'])
 	{
-		$context['tabs']['activate'] = array(
-			'label' => sprintf($txt['admin_browse_awaiting_activate'], $context['awaiting_activation']),
+		Utils::$context['tabs']['activate'] = array(
+			'label' => sprintf($txt['admin_browse_awaiting_activate'], Utils::$context['awaiting_activation']),
 			'description' => $txt['admin_browse_activate_desc'],
-			'url' => $scripturl . '?action=admin;area=viewmembers;sa=browse;type=activate',
+			'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=activate',
 		);
-		$context['last_tab'] = 'activate';
+		Utils::$context['last_tab'] = 'activate';
 	}
 
-	// Call our hook now, letting customizations add to the subActions and/or modify $context as needed.
+	// Call our hook now, letting customizations add to the subActions and/or modify Utils::$context as needed.
 	call_integration_hook('integrate_manage_members', array(&$subActions));
 
 	// Default to sub action 'index' or 'settings' depending on permissions.
-	$context['current_subaction'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'all';
+	Utils::$context['current_subaction'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'all';
 
 	// We know the sub action, now we know what you're allowed to do.
-	isAllowedTo($subActions[$context['current_subaction']][1]);
+	isAllowedTo($subActions[Utils::$context['current_subaction']][1]);
 
 	// Set the last tab.
-	$context['tabs'][$context['last_tab']]['is_last'] = true;
+	Utils::$context['tabs'][Utils::$context['last_tab']]['is_last'] = true;
 
 	// Find the active tab.
-	if (isset($context['tabs'][$context['current_subaction']]))
-		$context['tabs'][$context['current_subaction']]['is_selected'] = true;
-	elseif (isset($context['current_subaction']))
-		foreach ($context['tabs'] as $id_tab => $tab_data)
-			if (!empty($tab_data['selected_actions']) && in_array($context['current_subaction'], $tab_data['selected_actions']))
-				$context['tabs'][$id_tab]['is_selected'] = true;
+	if (isset(Utils::$context['tabs'][Utils::$context['current_subaction']]))
+		Utils::$context['tabs'][Utils::$context['current_subaction']]['is_selected'] = true;
+	elseif (isset(Utils::$context['current_subaction']))
+		foreach (Utils::$context['tabs'] as $id_tab => $tab_data)
+			if (!empty($tab_data['selected_actions']) && in_array(Utils::$context['current_subaction'], $tab_data['selected_actions']))
+				Utils::$context['tabs'][$id_tab]['is_selected'] = true;
 
-	call_helper($subActions[$context['current_subaction']][0]);
+	call_helper($subActions[Utils::$context['current_subaction']][0]);
 }
 
 /**
@@ -130,7 +134,7 @@ function ViewMembers()
  */
 function ViewMemberlist()
 {
-	global $txt, $scripturl, $context, $modSettings, $sourcedir, $smcFunc, $user_info;
+	global $txt, $user_info;
 
 	// Are we performing a delete?
 	if (isset($_POST['delete_members']) && !empty($_POST['delete']) && allowedTo('profile_remove_any'))
@@ -148,25 +152,25 @@ function ViewMemberlist()
 		if (!empty($delete))
 		{
 			// Delete all the selected members.
-			require_once($sourcedir . '/Subs-Members.php');
+			require_once(Config::$sourcedir . '/Subs-Members.php');
 			deleteMembers($delete, true);
 		}
 	}
 
 	// Check input after a member search has been submitted.
-	if ($context['current_subaction'] == 'query')
+	if (Utils::$context['current_subaction'] == 'query')
 	{
 		// Retrieving the membergroups and postgroups.
-		$context['membergroups'] = array(
+		Utils::$context['membergroups'] = array(
 			array(
 				'id' => 0,
 				'name' => $txt['membergroups_members'],
 				'can_be_additional' => false
 			)
 		);
-		$context['postgroups'] = array();
+		Utils::$context['postgroups'] = array();
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_group, group_name, min_posts
 			FROM {db_prefix}membergroups
 			WHERE id_group != {int:moderator_group}
@@ -176,21 +180,21 @@ function ViewMemberlist()
 				'newbie_group' => 4,
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			if ($row['min_posts'] == -1)
-				$context['membergroups'][] = array(
+				Utils::$context['membergroups'][] = array(
 					'id' => $row['id_group'],
 					'name' => $row['group_name'],
 					'can_be_additional' => true
 				);
 			else
-				$context['postgroups'][] = array(
+				Utils::$context['postgroups'][] = array(
 					'id' => $row['id_group'],
 					'name' => $row['group_name']
 				);
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// Some data about the form fields and how they are linked to the database.
 		$params = array(
@@ -260,8 +264,8 @@ function ViewMemberlist()
 		call_integration_hook('integrate_view_members_params', array(&$params));
 
 		$search_params = array();
-		if ($context['current_subaction'] == 'query' && !empty($_REQUEST['params']) && empty($_POST['types']))
-			$search_params = $smcFunc['json_decode'](base64_decode($_REQUEST['params']), true);
+		if (Utils::$context['current_subaction'] == 'query' && !empty($_REQUEST['params']) && empty($_POST['types']))
+			$search_params = Utils::jsonDecode(base64_decode($_REQUEST['params']), true);
 		elseif (!empty($_POST))
 		{
 			$search_params['types'] = $_POST['types'];
@@ -270,7 +274,7 @@ function ViewMemberlist()
 					$search_params[$param_name] = $_POST[$param_name];
 		}
 
-		$search_url_params = isset($search_params) ? base64_encode($smcFunc['json_encode']($search_params)) : null;
+		$search_url_params = isset($search_params) ? base64_encode(Utils::jsonEncode($search_params)) : null;
 
 		// @todo Validate a little more.
 
@@ -381,9 +385,9 @@ function ViewMemberlist()
 			elseif ($param_info['type'] != 'groups')
 			{
 				// Replace the wildcard characters ('*' and '?') into MySQL ones.
-				$parameter = strtolower(strtr($smcFunc['htmlspecialchars']($search_params[$param_name], ENT_QUOTES), array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_')));
+				$parameter = strtolower(strtr(Utils::htmlspecialchars($search_params[$param_name], ENT_QUOTES), array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_')));
 
-				if ($smcFunc['db_case_sensitive'])
+				if (Db::$db->case_sensitive)
 					$query_parts[] = '(LOWER(' . implode(') LIKE {string:' . $param_name . '_normal} OR LOWER(', $param_info['db_fields']) . ') LIKE {string:' . $param_name . '_normal})';
 				else
 					$query_parts[] = '(' . implode(' LIKE {string:' . $param_name . '_normal} OR ', $param_info['db_fields']) . ' LIKE {string:' . $param_name . '_normal})';
@@ -395,14 +399,14 @@ function ViewMemberlist()
 		$mg_query_parts = array();
 
 		// Primary membergroups, but only if at least was was not selected.
-		if (!empty($search_params['membergroups'][1]) && count($context['membergroups']) != count($search_params['membergroups'][1]))
+		if (!empty($search_params['membergroups'][1]) && count(Utils::$context['membergroups']) != count($search_params['membergroups'][1]))
 		{
 			$mg_query_parts[] = 'mem.id_group IN ({array_int:group_check})';
 			$where_params['group_check'] = $search_params['membergroups'][1];
 		}
 
 		// Additional membergroups (these are only relevant if not all primary groups where selected!).
-		if (!empty($search_params['membergroups'][2]) && (empty($search_params['membergroups'][1]) || count($context['membergroups']) != count($search_params['membergroups'][1])))
+		if (!empty($search_params['membergroups'][2]) && (empty($search_params['membergroups'][1]) || count(Utils::$context['membergroups']) != count($search_params['membergroups'][1])))
 			foreach ($search_params['membergroups'][2] as $mg)
 			{
 				$mg_query_parts[] = 'FIND_IN_SET({int:add_group_' . $mg . '}, mem.additional_groups) != 0';
@@ -414,7 +418,7 @@ function ViewMemberlist()
 			$query_parts[] = '(' . implode(' OR ', $mg_query_parts) . ')';
 
 		// Get all selected post count related membergroups.
-		if (!empty($search_params['postgroups']) && count($search_params['postgroups']) != count($context['postgroups']))
+		if (!empty($search_params['postgroups']) && count($search_params['postgroups']) != count(Utils::$context['postgroups']))
 		{
 			$query_parts[] = 'id_post_group IN ({array_int:post_groups})';
 			$where_params['post_groups'] = $search_params['postgroups'];
@@ -428,19 +432,19 @@ function ViewMemberlist()
 		$search_url_params = null;
 
 	// Construct the additional URL part with the query info in it.
-	$context['params_url'] = $context['current_subaction'] == 'query' ? ';sa=query;params=' . $search_url_params : '';
+	Utils::$context['params_url'] = Utils::$context['current_subaction'] == 'query' ? ';sa=query;params=' . $search_url_params : '';
 
 	// Get the title and sub template ready..
-	$context['page_title'] = $txt['admin_members'];
+	Utils::$context['page_title'] = $txt['admin_members'];
 
 	$listOptions = array(
 		'id' => 'member_list',
 		'title' => $txt['members_list'],
-		'items_per_page' => $modSettings['defaultMaxMembers'],
-		'base_href' => $scripturl . '?action=admin;area=viewmembers' . $context['params_url'],
+		'items_per_page' => Config::$modSettings['defaultMaxMembers'],
+		'base_href' => Config::$scripturl . '?action=admin;area=viewmembers' . Utils::$context['params_url'],
 		'default_sort_col' => 'user_name',
 		'get_items' => array(
-			'file' => $sourcedir . '/Subs-Members.php',
+			'file' => Config::$sourcedir . '/Subs-Members.php',
 			'function' => 'list_getMembers',
 			'params' => array(
 				isset($where) ? $where : '1=1',
@@ -448,7 +452,7 @@ function ViewMemberlist()
 			),
 		),
 		'get_count' => array(
-			'file' => $sourcedir . '/Subs-Members.php',
+			'file' => Config::$sourcedir . '/Subs-Members.php',
 			'function' => 'list_getNumMembers',
 			'params' => array(
 				isset($where) ? $where : '1=1',
@@ -474,7 +478,7 @@ function ViewMemberlist()
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<a href="' . strtr($scripturl, array('%' => '%%')) . '?action=profile;u=%1$d">%2$s</a>',
+						'format' => '<a href="' . strtr(Config::$scripturl, array('%' => '%%')) . '?action=profile;u=%1$d">%2$s</a>',
 						'params' => array(
 							'id_member' => false,
 							'member_name' => false,
@@ -492,7 +496,7 @@ function ViewMemberlist()
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<a href="' . strtr($scripturl, array('%' => '%%')) . '?action=profile;u=%1$d">%2$s</a>',
+						'format' => '<a href="' . strtr(Config::$scripturl, array('%' => '%%')) . '?action=profile;u=%1$d">%2$s</a>',
 						'params' => array(
 							'id_member' => false,
 							'real_name' => false,
@@ -527,7 +531,7 @@ function ViewMemberlist()
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<a href="' . strtr($scripturl, array('%' => '%%')) . '?action=trackip;searchip=%1$s">%1$s</a>',
+						'format' => '<a href="' . strtr(Config::$scripturl, array('%' => '%%')) . '?action=trackip;searchip=%1$s">%1$s</a>',
 						'params' => array(
 							'member_ip' => false,
 						),
@@ -604,7 +608,7 @@ function ViewMemberlist()
 			),
 		),
 		'form' => array(
-			'href' => $scripturl . '?action=admin;area=viewmembers' . $context['params_url'],
+			'href' => Config::$scripturl . '?action=admin;area=viewmembers' . Utils::$context['params_url'],
 			'include_start' => true,
 			'include_sort' => true,
 		),
@@ -620,11 +624,11 @@ function ViewMemberlist()
 	if (!allowedTo('profile_remove_any'))
 		unset($listOptions['cols']['check'], $listOptions['form'], $listOptions['additional_rows']);
 
-	require_once($sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/Subs-List.php');
 	createList($listOptions);
 
-	$context['sub_template'] = 'show_list';
-	$context['default_list'] = 'member_list';
+	Utils::$context['sub_template'] = 'show_list';
+	Utils::$context['default_list'] = 'member_list';
 }
 
 /**
@@ -637,19 +641,19 @@ function ViewMemberlist()
  */
 function SearchMembers()
 {
-	global $context, $txt, $smcFunc;
+	global $txt;
 
 	// Get a list of all the membergroups and postgroups that can be selected.
-	$context['membergroups'] = array(
+	Utils::$context['membergroups'] = array(
 		array(
 			'id' => 0,
 			'name' => $txt['membergroups_members'],
 			'can_be_additional' => false
 		)
 	);
-	$context['postgroups'] = array();
+	Utils::$context['postgroups'] = array();
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_group, group_name, min_posts
 		FROM {db_prefix}membergroups
 		WHERE id_group != {int:moderator_group}
@@ -659,24 +663,24 @@ function SearchMembers()
 			'newbie_group' => 4,
 		)
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		if ($row['min_posts'] == -1)
-			$context['membergroups'][] = array(
+			Utils::$context['membergroups'][] = array(
 				'id' => $row['id_group'],
 				'name' => $row['group_name'],
 				'can_be_additional' => true
 			);
 		else
-			$context['postgroups'][] = array(
+			Utils::$context['postgroups'][] = array(
 				'id' => $row['id_group'],
 				'name' => $row['group_name']
 			);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
-	$context['page_title'] = $txt['admin_members'];
-	$context['sub_template'] = 'search_members';
+	Utils::$context['page_title'] = $txt['admin_members'];
+	Utils::$context['sub_template'] = 'search_members';
 }
 
 /**
@@ -691,43 +695,42 @@ function SearchMembers()
  */
 function MembersAwaitingActivation()
 {
-	global $txt, $context, $scripturl, $modSettings;
-	global $sourcedir;
+	global $txt;
 
 	// Not a lot here!
-	$context['page_title'] = $txt['admin_members'];
-	$context['sub_template'] = 'admin_browse';
-	$context['browse_type'] = isset($_REQUEST['type']) ? $_REQUEST['type'] : (!empty($modSettings['registration_method']) && $modSettings['registration_method'] == 1 ? 'activate' : 'approve');
-	if (isset($context['tabs'][$context['browse_type']]))
-		$context['tabs'][$context['browse_type']]['is_selected'] = true;
+	Utils::$context['page_title'] = $txt['admin_members'];
+	Utils::$context['sub_template'] = 'admin_browse';
+	Utils::$context['browse_type'] = isset($_REQUEST['type']) ? $_REQUEST['type'] : (!empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == 1 ? 'activate' : 'approve');
+	if (isset(Utils::$context['tabs'][Utils::$context['browse_type']]))
+		Utils::$context['tabs'][Utils::$context['browse_type']]['is_selected'] = true;
 
 	// Allowed filters are those we can have, in theory.
-	$context['allowed_filters'] = $context['browse_type'] == 'approve' ? array(3, 4, 5) : array(0, 2);
-	$context['current_filter'] = isset($_REQUEST['filter']) && in_array($_REQUEST['filter'], $context['allowed_filters']) && !empty($context['activation_numbers'][$_REQUEST['filter']]) ? (int) $_REQUEST['filter'] : -1;
+	Utils::$context['allowed_filters'] = Utils::$context['browse_type'] == 'approve' ? array(3, 4, 5) : array(0, 2);
+	Utils::$context['current_filter'] = isset($_REQUEST['filter']) && in_array($_REQUEST['filter'], Utils::$context['allowed_filters']) && !empty(Utils::$context['activation_numbers'][$_REQUEST['filter']]) ? (int) $_REQUEST['filter'] : -1;
 
 	// Sort out the different sub areas that we can actually filter by.
-	$context['available_filters'] = array();
-	foreach ($context['activation_numbers'] as $type => $amount)
+	Utils::$context['available_filters'] = array();
+	foreach (Utils::$context['activation_numbers'] as $type => $amount)
 	{
 		// We have some of these...
-		if (in_array($type, $context['allowed_filters']) && $amount > 0)
-			$context['available_filters'][] = array(
+		if (in_array($type, Utils::$context['allowed_filters']) && $amount > 0)
+			Utils::$context['available_filters'][] = array(
 				'type' => $type,
 				'amount' => $amount,
 				'desc' => isset($txt['admin_browse_filter_type_' . $type]) ? $txt['admin_browse_filter_type_' . $type] : '?',
-				'selected' => $type == $context['current_filter']
+				'selected' => $type == Utils::$context['current_filter']
 			);
 	}
 
 	// If the filter was not sent, set it to whatever has people in it!
-	if ($context['current_filter'] == -1 && !empty($context['available_filters'][0]['amount']))
-		$context['current_filter'] = $context['available_filters'][0]['type'];
+	if (Utils::$context['current_filter'] == -1 && !empty(Utils::$context['available_filters'][0]['amount']))
+		Utils::$context['current_filter'] = Utils::$context['available_filters'][0]['type'];
 
 	// This little variable is used to determine if we should flag where we are looking.
-	$context['show_filter'] = ($context['current_filter'] != 0 && $context['current_filter'] != 3) || count($context['available_filters']) > 1;
+	Utils::$context['show_filter'] = (Utils::$context['current_filter'] != 0 && Utils::$context['current_filter'] != 3) || count(Utils::$context['available_filters']) > 1;
 
 	// The columns that can be sorted.
-	$context['columns'] = array(
+	Utils::$context['columns'] = array(
 		'id_member' => array('label' => $txt['admin_browse_id']),
 		'member_name' => array('label' => $txt['admin_browse_username']),
 		'email_address' => array('label' => $txt['admin_browse_email']),
@@ -738,19 +741,19 @@ function MembersAwaitingActivation()
 	// Are we showing duplicate information?
 	if (isset($_GET['showdupes']))
 		$_SESSION['showdupes'] = (int) $_GET['showdupes'];
-	$context['show_duplicates'] = !empty($_SESSION['showdupes']);
+	Utils::$context['show_duplicates'] = !empty($_SESSION['showdupes']);
 
 	// Determine which actions we should allow on this page.
-	if ($context['browse_type'] == 'approve')
+	if (Utils::$context['browse_type'] == 'approve')
 	{
 		// If we are approving deleted accounts we have a slightly different list... actually a mirror ;)
-		if ($context['current_filter'] == 4)
-			$context['allowed_actions'] = array(
+		if (Utils::$context['current_filter'] == 4)
+			Utils::$context['allowed_actions'] = array(
 				'reject' => $txt['admin_browse_w_approve_deletion'],
 				'ok' => $txt['admin_browse_w_reject'],
 			);
 		else
-			$context['allowed_actions'] = array(
+			Utils::$context['allowed_actions'] = array(
 				'ok' => $txt['admin_browse_w_approve'] .' '. $txt['admin_browse_no_email'],
 				'okemail' => $txt['admin_browse_w_approve'] . ' ' . $txt['admin_browse_w_email'],
 				'require_activation' => $txt['admin_browse_w_approve_require_activate'],
@@ -758,8 +761,8 @@ function MembersAwaitingActivation()
 				'rejectemail' => $txt['admin_browse_w_reject'] . ' ' . $txt['admin_browse_w_email'],
 			);
 	}
-	elseif ($context['browse_type'] == 'activate')
-		$context['allowed_actions'] = array(
+	elseif (Utils::$context['browse_type'] == 'activate')
+		Utils::$context['allowed_actions'] = array(
 			'ok' => $txt['admin_browse_w_activate'],
 			'okemail' => $txt['admin_browse_w_activate'] . ' ' . $txt['admin_browse_w_email'],
 			'delete' => $txt['admin_browse_w_delete'],
@@ -771,7 +774,7 @@ function MembersAwaitingActivation()
 	$allowed_actions = '
 			<option selected value="">' . $txt['admin_browse_with_selected'] . ':</option>
 			<option value="" disabled>-----------------------------</option>';
-	foreach ($context['allowed_actions'] as $key => $desc)
+	foreach (Utils::$context['allowed_actions'] as $key => $desc)
 		$allowed_actions .= '
 			<option value="' . $key . '">' . $desc . '</option>';
 
@@ -785,7 +788,7 @@ function MembersAwaitingActivation()
 			var message = "";';
 
 	// We have special messages for approving deletion of accounts - it's surprisingly logical - honest.
-	if ($context['current_filter'] == 4)
+	if (Utils::$context['current_filter'] == 4)
 		$javascript .= '
 			if (document.forms.postForm.todo.value.indexOf("reject") != -1)
 				message = "' . $txt['admin_browse_w_delete'] . '";
@@ -802,7 +805,7 @@ function MembersAwaitingActivation()
 			else if (document.forms.postForm.todo.value == "remind")
 				message = "' . $txt['admin_browse_w_remind'] . '";
 			else
-				message = "' . ($context['browse_type'] == 'approve' ? $txt['admin_browse_w_approve'] : $txt['admin_browse_w_activate']) . '";';
+				message = "' . (Utils::$context['browse_type'] == 'approve' ? $txt['admin_browse_w_approve'] : $txt['admin_browse_w_activate']) . '";';
 
 	$javascript .= '
 			if (confirm(message + " ' . $txt['admin_browse_warn'] . '"))
@@ -811,24 +814,24 @@ function MembersAwaitingActivation()
 
 	$listOptions = array(
 		'id' => 'approve_list',
-		'items_per_page' => $modSettings['defaultMaxMembers'],
-		'base_href' => $scripturl . '?action=admin;area=viewmembers;sa=browse;type=' . $context['browse_type'] . (!empty($context['show_filter']) ? ';filter=' . $context['current_filter'] : ''),
+		'items_per_page' => Config::$modSettings['defaultMaxMembers'],
+		'base_href' => Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=' . Utils::$context['browse_type'] . (!empty(Utils::$context['show_filter']) ? ';filter=' . Utils::$context['current_filter'] : ''),
 		'default_sort_col' => 'date_registered',
 		'get_items' => array(
-			'file' => $sourcedir . '/Subs-Members.php',
+			'file' => Config::$sourcedir . '/Subs-Members.php',
 			'function' => 'list_getMembers',
 			'params' => array(
 				'is_activated = {int:activated_status}',
-				array('activated_status' => $context['current_filter']),
-				$context['show_duplicates'],
+				array('activated_status' => Utils::$context['current_filter']),
+				Utils::$context['show_duplicates'],
 			),
 		),
 		'get_count' => array(
-			'file' => $sourcedir . '/Subs-Members.php',
+			'file' => Config::$sourcedir . '/Subs-Members.php',
 			'function' => 'list_getNumMembers',
 			'params' => array(
 				'is_activated = {int:activated_status}',
-				array('activated_status' => $context['current_filter']),
+				array('activated_status' => Utils::$context['current_filter']),
 			),
 		),
 		'columns' => array(
@@ -850,7 +853,7 @@ function MembersAwaitingActivation()
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<a href="' . strtr($scripturl, array('%' => '%%')) . '?action=profile;u=%1$d">%2$s</a>',
+						'format' => '<a href="' . strtr(Config::$scripturl, array('%' => '%%')) . '?action=profile;u=%1$d">%2$s</a>',
 						'params' => array(
 							'id_member' => false,
 							'member_name' => false,
@@ -885,7 +888,7 @@ function MembersAwaitingActivation()
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<a href="' . strtr($scripturl, array('%' => '%%')) . '?action=trackip;searchip=%1$s">%1$s</a>',
+						'format' => '<a href="' . strtr(Config::$scripturl, array('%' => '%%')) . '?action=trackip;searchip=%1$s">%1$s</a>',
 						'params' => array(
 							'member_ip' => false,
 						),
@@ -910,17 +913,17 @@ function MembersAwaitingActivation()
 			),
 			'date_registered' => array(
 				'header' => array(
-					'value' => $context['current_filter'] == 4 ? $txt['viewmembers_online'] : $txt['date_registered'],
+					'value' => Utils::$context['current_filter'] == 4 ? $txt['viewmembers_online'] : $txt['date_registered'],
 				),
 				'data' => array(
-					'function' => function($rowData) use ($context)
+					'function' => function($rowData)
 					{
-						return timeformat($rowData['' . ($context['current_filter'] == 4 ? 'last_login' : 'date_registered') . '']);
+						return timeformat($rowData['' . (Utils::$context['current_filter'] == 4 ? 'last_login' : 'date_registered') . '']);
 					},
 				),
 				'sort' => array(
-					'default' => $context['current_filter'] == 4 ? 'mem.last_login DESC' : 'date_registered DESC',
-					'reverse' => $context['current_filter'] == 4 ? 'mem.last_login' : 'date_registered',
+					'default' => Utils::$context['current_filter'] == 4 ? 'mem.last_login DESC' : 'date_registered DESC',
+					'reverse' => Utils::$context['current_filter'] == 4 ? 'mem.last_login' : 'date_registered',
 				),
 			),
 			'duplicates' => array(
@@ -930,13 +933,13 @@ function MembersAwaitingActivation()
 					'style' => 'width: 20%;',
 				),
 				'data' => array(
-					'function' => function($rowData) use ($scripturl, $txt)
+					'function' => function($rowData) use ($txt)
 					{
 						$member_links = array();
 						foreach ($rowData['duplicate_members'] as $member)
 						{
 							if ($member['id'])
-								$member_links[] = '<a href="' . $scripturl . '?action=profile;u=' . $member['id'] . '" ' . (!empty($member['is_banned']) ? 'class="red"' : '') . '>' . $member['name'] . '</a>';
+								$member_links[] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $member['id'] . '" ' . (!empty($member['is_banned']) ? 'class="red"' : '') . '>' . $member['name'] . '</a>';
 							else
 								$member_links[] = $member['name'] . ' (' . $txt['guest'] . ')';
 						}
@@ -963,19 +966,19 @@ function MembersAwaitingActivation()
 		),
 		'javascript' => $javascript,
 		'form' => array(
-			'href' => $scripturl . '?action=admin;area=viewmembers;sa=approve;type=' . $context['browse_type'],
+			'href' => Config::$scripturl . '?action=admin;area=viewmembers;sa=approve;type=' . Utils::$context['browse_type'],
 			'name' => 'postForm',
 			'include_start' => true,
 			'include_sort' => true,
 			'hidden_fields' => array(
-				'orig_filter' => $context['current_filter'],
+				'orig_filter' => Utils::$context['current_filter'],
 			),
 		),
 		'additional_rows' => array(
 			array(
 				'position' => 'below_table_data',
 				'value' => '
-					[<a href="' . $scripturl . '?action=admin;area=viewmembers;sa=browse;showdupes=' . ($context['show_duplicates'] ? 0 : 1) . ';type=' . $context['browse_type'] . (!empty($context['show_filter']) ? ';filter=' . $context['current_filter'] : '') . ';' . $context['session_var'] . '=' . $context['session_id'] . '">' . ($context['show_duplicates'] ? $txt['dont_check_for_duplicate'] : $txt['check_for_duplicate']) . '</a>]
+					[<a href="' . Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;showdupes=' . (Utils::$context['show_duplicates'] ? 0 : 1) . ';type=' . Utils::$context['browse_type'] . (!empty(Utils::$context['show_filter']) ? ';filter=' . Utils::$context['current_filter'] : '') . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '">' . (Utils::$context['show_duplicates'] ? $txt['dont_check_for_duplicate'] : $txt['check_for_duplicate']) . '</a>]
 					<select name="todo" onchange="onSelectChange();">
 						' . $allowed_actions . '
 					</select>
@@ -987,22 +990,22 @@ function MembersAwaitingActivation()
 	);
 
 	// Pick what column to actually include if we're showing duplicates.
-	if ($context['show_duplicates'])
+	if (Utils::$context['show_duplicates'])
 		unset($listOptions['columns']['email']);
 	else
 		unset($listOptions['columns']['duplicates']);
 
 	// Only show hostname on duplicates as it takes a lot of time.
-	if (!$context['show_duplicates'] || !empty($modSettings['disableHostnameLookup']))
+	if (!Utils::$context['show_duplicates'] || !empty(Config::$modSettings['disableHostnameLookup']))
 		unset($listOptions['columns']['hostname']);
 
 	// Is there any need to show filters?
-	if (isset($context['available_filters']) && count($context['available_filters']) > 1)
+	if (isset(Utils::$context['available_filters']) && count(Utils::$context['available_filters']) > 1)
 	{
 		$filterOptions = '
 			<strong>' . $txt['admin_browse_filter_by'] . ':</strong>
 			<select name="filter" onchange="this.form.submit();">';
-		foreach ($context['available_filters'] as $filter)
+		foreach (Utils::$context['available_filters'] as $filter)
 			$filterOptions .= '
 				<option value="' . $filter['type'] . '"' . ($filter['selected'] ? ' selected' : '') . '>' . $filter['desc'] . ' - ' . $filter['amount'] . ' ' . ($filter['amount'] == 1 ? $txt['user'] : $txt['users']) . '</option>';
 		$filterOptions .= '
@@ -1016,15 +1019,15 @@ function MembersAwaitingActivation()
 	}
 
 	// What about if we only have one filter, but it's not the "standard" filter - show them what they are looking at.
-	if (!empty($context['show_filter']) && !empty($context['available_filters']))
+	if (!empty(Utils::$context['show_filter']) && !empty(Utils::$context['available_filters']))
 		$listOptions['additional_rows'][] = array(
 			'position' => 'above_column_headers',
-			'value' => '<strong>' . $txt['admin_browse_filter_show'] . ':</strong> ' . ((isset($context['current_filter']) && isset($txt['admin_browse_filter_type_' . $context['current_filter']])) ? $txt['admin_browse_filter_type_' . $context['current_filter']] : $context['available_filters'][0]['desc']),
+			'value' => '<strong>' . $txt['admin_browse_filter_show'] . ':</strong> ' . ((isset(Utils::$context['current_filter']) && isset($txt['admin_browse_filter_type_' . Utils::$context['current_filter']])) ? $txt['admin_browse_filter_type_' . Utils::$context['current_filter']] : Utils::$context['available_filters'][0]['desc']),
 			'class' => 'filter_row generic_list_wrapper smalltext',
 		);
 
 	// Now that we have all the options, create the list.
-	require_once($sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/Subs-List.php');
 	createList($listOptions);
 }
 
@@ -1037,12 +1040,12 @@ function MembersAwaitingActivation()
  */
 function AdminApprove()
 {
-	global $scripturl, $modSettings, $sourcedir, $language, $user_info, $smcFunc;
+	global $user_info;
 
 	// First, check our session.
 	checkSession();
 
-	require_once($sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Subs-Post.php');
 
 	// We also need to the login languages here - for emails.
 	loadLanguage('Login');
@@ -1076,7 +1079,7 @@ function AdminApprove()
 	}
 
 	// Get information on each of the members, things that are important to us, like email address...
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_member, member_name, real_name, email_address, validation_code, lngfile
 		FROM {db_prefix}members
 		WHERE is_activated = {int:activated_status}' . $condition . '
@@ -1088,7 +1091,7 @@ function AdminApprove()
 		)
 	);
 
-	$member_count = $smcFunc['db_num_rows']($request);
+	$member_count = Db::$db->num_rows($request);
 
 	// If no results then just return!
 	if ($member_count == 0)
@@ -1097,7 +1100,7 @@ function AdminApprove()
 	$member_info = array();
 	$members = array();
 	// Fill the info array.
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$members[] = $row['id_member'];
 		$member_info[] = array(
@@ -1105,17 +1108,17 @@ function AdminApprove()
 			'username' => $row['member_name'],
 			'name' => $row['real_name'],
 			'email' => $row['email_address'],
-			'language' => empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile'],
+			'language' => empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $row['lngfile'],
 			'code' => $row['validation_code']
 		);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Are we activating or approving the members?
 	if ($_POST['todo'] == 'ok' || $_POST['todo'] == 'okemail')
 	{
 		// Approve/activate this member.
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}members
 			SET validation_code = {string:blank_string}, is_activated = {int:is_activated}
 			WHERE is_activated = {int:activated_status}' . $condition,
@@ -1129,7 +1132,7 @@ function AdminApprove()
 		);
 
 		// Do we have to let the integration code know about the activations?
-		if (!empty($modSettings['integrate_activate']))
+		if (!empty(Config::$modSettings['integrate_activate']))
 		{
 			foreach ($member_info as $member)
 				call_integration_hook('integrate_activate', array($member['username']));
@@ -1143,8 +1146,8 @@ function AdminApprove()
 				$replacements = array(
 					'NAME' => $member['name'],
 					'USERNAME' => $member['username'],
-					'PROFILELINK' => $scripturl . '?action=profile;u=' . $member['id'],
-					'FORGOTPASSWORDLINK' => $scripturl . '?action=reminder',
+					'PROFILELINK' => Config::$scripturl . '?action=profile;u=' . $member['id'],
+					'FORGOTPASSWORDLINK' => Config::$scripturl . '?action=reminder',
 				);
 
 				$emaildata = loadEmailTemplate('admin_approve_accept', $replacements, $member['language']);
@@ -1155,7 +1158,7 @@ function AdminApprove()
 	// Maybe we're sending it off for activation?
 	elseif ($_POST['todo'] == 'require_activation')
 	{
-		require_once($sourcedir . '/Subs-Members.php');
+		require_once(Config::$sourcedir . '/Subs-Members.php');
 
 		// We have to do this for each member I'm afraid.
 		foreach ($member_info as $member)
@@ -1164,7 +1167,7 @@ function AdminApprove()
 			$validation_code = generateValidationCode();
 
 			// Set these members for activation - I know this includes two id_member checks but it's safer than bodging $condition ;).
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				UPDATE {db_prefix}members
 				SET validation_code = {string:validation_code}, is_activated = {int:not_activated}
 				WHERE is_activated = {int:activated_status}
@@ -1182,8 +1185,8 @@ function AdminApprove()
 
 			$replacements = array(
 				'USERNAME' => $member['name'],
-				'ACTIVATIONLINK' => $scripturl . '?action=activate;u=' . $member['id'] . ';code=' . $validation_code,
-				'ACTIVATIONLINKWITHOUTCODE' => $scripturl . '?action=activate;u=' . $member['id'],
+				'ACTIVATIONLINK' => Config::$scripturl . '?action=activate;u=' . $member['id'] . ';code=' . $validation_code,
+				'ACTIVATIONLINKWITHOUTCODE' => Config::$scripturl . '?action=activate;u=' . $member['id'],
 				'ACTIVATIONCODE' => $validation_code,
 			);
 
@@ -1194,7 +1197,7 @@ function AdminApprove()
 	// Are we rejecting them?
 	elseif ($_POST['todo'] == 'reject' || $_POST['todo'] == 'rejectemail')
 	{
-		require_once($sourcedir . '/Subs-Members.php');
+		require_once(Config::$sourcedir . '/Subs-Members.php');
 		deleteMembers($members);
 
 		// Send email telling them they aren't welcome?
@@ -1214,7 +1217,7 @@ function AdminApprove()
 	// A simple delete?
 	elseif ($_POST['todo'] == 'delete' || $_POST['todo'] == 'deleteemail')
 	{
-		require_once($sourcedir . '/Subs-Members.php');
+		require_once(Config::$sourcedir . '/Subs-Members.php');
 		deleteMembers($members);
 
 		// Send email telling them they aren't welcome?
@@ -1238,8 +1241,8 @@ function AdminApprove()
 		{
 			$replacements = array(
 				'USERNAME' => $member['name'],
-				'ACTIVATIONLINK' => $scripturl . '?action=activate;u=' . $member['id'] . ';code=' . $member['code'],
-				'ACTIVATIONLINKWITHOUTCODE' => $scripturl . '?action=activate;u=' . $member['id'],
+				'ACTIVATIONLINK' => Config::$scripturl . '?action=activate;u=' . $member['id'] . ';code=' . $member['code'],
+				'ACTIVATIONLINKWITHOUTCODE' => Config::$scripturl . '?action=activate;u=' . $member['id'],
 				'ACTIVATIONCODE' => $member['code'],
 			);
 
@@ -1257,18 +1260,18 @@ function AdminApprove()
 	}
 
 	// Log what we did?
-	if (!empty($modSettings['modlog_enabled']) && in_array($_POST['todo'], array('ok', 'okemail', 'require_activation', 'remind')))
+	if (!empty(Config::$modSettings['modlog_enabled']) && in_array($_POST['todo'], array('ok', 'okemail', 'require_activation', 'remind')))
 	{
 		$log_action = $_POST['todo'] == 'remind' ? 'remind_member' : 'approve_member';
 
-		require_once($sourcedir . '/Logging.php');
+		require_once(Config::$sourcedir . '/Logging.php');
 		foreach ($member_info as $member)
 			logAction($log_action, array('member' => $member['id']), 'admin');
 	}
 
 	// Although updateStats *may* catch this, best to do it manually just in case (Doesn't always sort out unapprovedMembers).
 	if (in_array($current_filter, array(3, 4, 5)))
-		updateSettings(array('unapprovedMembers' => ($modSettings['unapprovedMembers'] > $member_count ? $modSettings['unapprovedMembers'] - $member_count : 0)));
+		Config::updateModSettings(array('unapprovedMembers' => (Config::$modSettings['unapprovedMembers'] > $member_count ? Config::$modSettings['unapprovedMembers'] - $member_count : 0)));
 
 	// Update the member's stats. (but, we know the member didn't change their name.)
 	updateStats('member', false);
@@ -1315,10 +1318,8 @@ function jeffsdatediff($old)
  */
 function GetMemberActivationCounts()
 {
-	global $smcFunc, $context;
-
 	// Get counts on every type of activation - for sections and filtering alike.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(*) AS total_members, is_activated
 		FROM {db_prefix}members
 		WHERE is_activated != {int:is_activated}
@@ -1327,19 +1328,19 @@ function GetMemberActivationCounts()
 			'is_activated' => 1,
 		)
 	);
-	$context['activation_numbers'] = array();
-	$context['awaiting_activation'] = 0;
-	$context['awaiting_approval'] = 0;
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$context['activation_numbers'][$row['is_activated']] = $row['total_members'];
-	$smcFunc['db_free_result']($request);
+	Utils::$context['activation_numbers'] = array();
+	Utils::$context['awaiting_activation'] = 0;
+	Utils::$context['awaiting_approval'] = 0;
+	while ($row = Db::$db->fetch_assoc($request))
+		Utils::$context['activation_numbers'][$row['is_activated']] = $row['total_members'];
+	Db::$db->free_result($request);
 
-	foreach ($context['activation_numbers'] as $activation_type => $total_members)
+	foreach (Utils::$context['activation_numbers'] as $activation_type => $total_members)
 	{
 		if (in_array($activation_type, array(0, 2)))
-			$context['awaiting_activation'] += $total_members;
+			Utils::$context['awaiting_activation'] += $total_members;
 		elseif (in_array($activation_type, array(3, 4, 5)))
-			$context['awaiting_approval'] += $total_members;
+			Utils::$context['awaiting_approval'] += $total_members;
 	}
 
 }

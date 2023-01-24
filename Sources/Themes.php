@@ -30,7 +30,10 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
 use SMF\Cache\CacheApi;
+use SMF\Db\DatabaseApi as Db;
 use SMF\PackageManager\SubsPackage;
 
 if (!defined('SMF'))
@@ -46,7 +49,7 @@ if (!defined('SMF'))
  */
 function ThemesMain()
 {
-	global $txt, $context, $sourcedir;
+	global $txt;
 
 	// Load the important language files...
 	loadLanguage('Themes');
@@ -56,10 +59,10 @@ function ThemesMain()
 	// No funny business - guests only.
 	is_not_guest();
 
-	require_once($sourcedir . '/Subs-Themes.php');
+	require_once(Config::$sourcedir . '/Subs-Themes.php');
 
 	// Default the page title to Theme Administration by default.
-	$context['page_title'] = $txt['themeadmin_title'];
+	Utils::$context['page_title'] = $txt['themeadmin_title'];
 
 	// Theme administration, removal, choice, or installation...
 	$subActions = array(
@@ -76,9 +79,9 @@ function ThemesMain()
 	);
 
 	// @todo Layout Settings?  huh?
-	if (!empty($context['admin_menu_name']))
+	if (!empty(Utils::$context['admin_menu_name']))
 	{
-		$context[$context['admin_menu_name']]['tab_data'] = array(
+		Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
 			'title' => $txt['themeadmin_title'],
 			'description' => $txt['themeadmin_description'],
 			'tabs' => array(
@@ -124,8 +127,6 @@ function ThemesMain()
  */
 function ThemeAdmin()
 {
-	global $context, $boarddir;
-
 	// Are handling any settings?
 	if (isset($_POST['save']))
 	{
@@ -143,7 +144,7 @@ function ThemeAdmin()
 			fatal_lang_error('themes_default_selectable', false);
 
 		// Commit the new settings.
-		updateSettings(array(
+		Config::updateModSettings(array(
 			'theme_allow' => $_POST['options']['theme_allow'],
 			'theme_guests' => $_POST['options']['theme_guests'],
 			'knownThemes' => implode(',', $_POST['options']['known_themes']),
@@ -151,7 +152,7 @@ function ThemeAdmin()
 		if ((int) $_POST['theme_reset'] == 0 || in_array($_POST['theme_reset'], $_POST['options']['known_themes']))
 			updateMemberData(null, array('id_theme' => (int) $_POST['theme_reset']));
 
-		redirectexit('action=admin;area=theme;' . $context['session_var'] . '=' . $context['session_id'] . ';sa=admin');
+		redirectexit('action=admin;area=theme;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=admin');
 	}
 
 	loadLanguage('Admin');
@@ -162,16 +163,16 @@ function ThemeAdmin()
 	get_all_themes(true);
 
 	// Can we create a new theme?
-	$context['can_create_new'] = is_writable($boarddir . '/Themes');
-	$context['new_theme_dir'] = substr(realpath($boarddir . '/Themes/default'), 0, -7);
+	Utils::$context['can_create_new'] = is_writable(Config::$boarddir . '/Themes');
+	Utils::$context['new_theme_dir'] = substr(realpath(Config::$boarddir . '/Themes/default'), 0, -7);
 
 	// Look for a non existent theme directory. (ie theme87.)
-	$theme_dir = $boarddir . '/Themes/theme';
+	$theme_dir = Config::$boarddir . '/Themes/theme';
 	$i = 1;
 	while (file_exists($theme_dir . $i))
 		$i++;
 
-	$context['new_theme_name'] = 'theme' . $i;
+	Utils::$context['new_theme_name'] = 'theme' . $i;
 
 	// A bunch of tokens for a bunch of forms.
 	createToken('admin-tm');
@@ -186,8 +187,6 @@ function ThemeAdmin()
  */
 function ThemeList()
 {
-	global $context, $boarddir, $boardurl, $smcFunc;
-
 	loadLanguage('Admin');
 	isAllowedTo('admin_forum');
 
@@ -203,7 +202,7 @@ function ThemeList()
 		get_installed_themes();
 
 		$setValues = array();
-		foreach ($context['themes'] as $id => $theme)
+		foreach (Utils::$context['themes'] as $id => $theme)
 		{
 			if (file_exists($_POST['reset_dir'] . '/' . basename($theme['theme_dir'])))
 			{
@@ -224,7 +223,7 @@ function ThemeList()
 
 		if (!empty($setValues))
 		{
-			$smcFunc['db_insert']('replace',
+			Db::$db->insert('replace',
 				'{db_prefix}themes',
 				array('id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'),
 				$setValues,
@@ -232,7 +231,7 @@ function ThemeList()
 			);
 		}
 
-		redirectexit('action=admin;area=theme;sa=list;' . $context['session_var'] . '=' . $context['session_id']);
+		redirectexit('action=admin;area=theme;sa=list;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 	}
 
 	loadTemplate('Themes');
@@ -240,10 +239,10 @@ function ThemeList()
 	// Get all installed themes.
 	get_installed_themes();
 
-	$context['reset_dir'] = realpath($boarddir . '/Themes');
-	$context['reset_url'] = $boardurl . '/Themes';
+	Utils::$context['reset_dir'] = realpath(Config::$boarddir . '/Themes');
+	Utils::$context['reset_url'] = Config::$boardurl . '/Themes';
 
-	$context['sub_template'] = 'list_themes';
+	Utils::$context['sub_template'] = 'list_themes';
 	createToken('admin-tl');
 	createToken('admin-tr', 'request');
 	createToken('admin-tre', 'request');
@@ -254,7 +253,7 @@ function ThemeList()
  */
 function SetThemeOptions()
 {
-	global $txt, $context, $settings, $modSettings, $smcFunc;
+	global $txt, $settings;
 
 	$_GET['th'] = isset($_GET['th']) ? (int) $_GET['th'] : (isset($_GET['id']) ? (int) $_GET['id'] : 0);
 
@@ -262,7 +261,7 @@ function SetThemeOptions()
 
 	if (empty($_GET['th']) && empty($_GET['id']))
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_theme, variable, value
 			FROM {db_prefix}themes
 			WHERE variable IN ({string:name}, {string:theme_dir})
@@ -273,20 +272,20 @@ function SetThemeOptions()
 				'theme_dir' => 'theme_dir',
 			)
 		);
-		$context['themes'] = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		Utils::$context['themes'] = array();
+		while ($row = Db::$db->fetch_assoc($request))
 		{
-			if (!isset($context['themes'][$row['id_theme']]))
-				$context['themes'][$row['id_theme']] = array(
+			if (!isset(Utils::$context['themes'][$row['id_theme']]))
+				Utils::$context['themes'][$row['id_theme']] = array(
 					'id' => $row['id_theme'],
 					'num_default_options' => 0,
 					'num_members' => 0,
 				);
-			$context['themes'][$row['id_theme']][$row['variable']] = $row['value'];
+			Utils::$context['themes'][$row['id_theme']][$row['variable']] = $row['value'];
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_theme, COUNT(*) AS value
 			FROM {db_prefix}themes
 			WHERE id_member = {int:guest_member}
@@ -295,24 +294,24 @@ function SetThemeOptions()
 				'guest_member' => -1,
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$context['themes'][$row['id_theme']]['num_default_options'] = $row['value'];
-		$smcFunc['db_free_result']($request);
+		while ($row = Db::$db->fetch_assoc($request))
+			Utils::$context['themes'][$row['id_theme']]['num_default_options'] = $row['value'];
+		Db::$db->free_result($request);
 
 		// Need to make sure we don't do custom fields.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT col_name
 			FROM {db_prefix}custom_fields',
 			array(
 			)
 		);
 		$customFields = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$customFields[] = $row['col_name'];
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 		$customFieldsQuery = empty($customFields) ? '' : ('AND variable NOT IN ({array_string:custom_fields})');
 
-		$request = $smcFunc['db_query']('themes_count', '
+		$request = Db::$db->query('themes_count', '
 			SELECT COUNT(DISTINCT id_member) AS value, id_theme
 			FROM {db_prefix}themes
 			WHERE id_member > {int:no_member}
@@ -323,17 +322,17 @@ function SetThemeOptions()
 				'custom_fields' => empty($customFields) ? array() : $customFields,
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$context['themes'][$row['id_theme']]['num_members'] = $row['value'];
-		$smcFunc['db_free_result']($request);
+		while ($row = Db::$db->fetch_assoc($request))
+			Utils::$context['themes'][$row['id_theme']]['num_members'] = $row['value'];
+		Db::$db->free_result($request);
 
 		// There has to be a Settings template!
-		foreach ($context['themes'] as $k => $v)
+		foreach (Utils::$context['themes'] as $k => $v)
 			if (empty($v['theme_dir']) || (!file_exists($v['theme_dir'] . '/Settings.template.php') && empty($v['num_members'])))
-				unset($context['themes'][$k]);
+				unset(Utils::$context['themes'][$k]);
 
 		loadTemplate('Themes');
-		$context['sub_template'] = 'reset_list';
+		Utils::$context['sub_template'] = 'reset_list';
 
 		createToken('admin-stor', 'request');
 		return;
@@ -369,7 +368,7 @@ function SetThemeOptions()
 		{
 			// Are there options in non-default themes set that should be cleared?
 			if (!empty($old_settings))
-				$smcFunc['db_query']('', '
+				Db::$db->query('', '
 					DELETE FROM {db_prefix}themes
 					WHERE id_theme != {int:default_theme}
 						AND id_member = {int:guest_member}
@@ -381,7 +380,7 @@ function SetThemeOptions()
 					)
 				);
 
-			$smcFunc['db_insert']('replace',
+			Db::$db->insert('replace',
 				'{db_prefix}themes',
 				array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'),
 				$setValues,
@@ -392,7 +391,7 @@ function SetThemeOptions()
 		CacheApi::put('theme_settings-' . $_GET['th'], null, 90);
 		CacheApi::put('theme_settings-1', null, 90);
 
-		redirectexit('action=admin;area=theme;' . $context['session_var'] . '=' . $context['session_id'] . ';sa=reset');
+		redirectexit('action=admin;area=theme;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=reset');
 	}
 	elseif (isset($_POST['submit']) && $_POST['who'] == 1)
 	{
@@ -412,7 +411,7 @@ function SetThemeOptions()
 			elseif ($_POST['default_options_master'][$opt] == 1)
 			{
 				// Delete then insert for ease of database compatibility!
-				$smcFunc['db_query']('substring', '
+				Db::$db->query('substring', '
 					DELETE FROM {db_prefix}themes
 					WHERE id_theme = {int:default_theme}
 						AND id_member > {int:no_member}
@@ -423,7 +422,7 @@ function SetThemeOptions()
 						'option' => $opt,
 					)
 				);
-				$smcFunc['db_query']('substring', '
+				Db::$db->query('substring', '
 					INSERT INTO {db_prefix}themes
 						(id_member, id_theme, variable, value)
 					SELECT id_member, 1, SUBSTRING({string:option}, 1, 255), SUBSTRING({string:value}, 1, 65534)
@@ -438,7 +437,7 @@ function SetThemeOptions()
 			}
 			elseif ($_POST['default_options_master'][$opt] == 2)
 			{
-				$smcFunc['db_query']('', '
+				Db::$db->query('', '
 					DELETE FROM {db_prefix}themes
 					WHERE variable = {string:option_name}
 						AND id_member > {int:no_member}',
@@ -452,7 +451,7 @@ function SetThemeOptions()
 
 		// Delete options from other themes.
 		if (!empty($old_settings))
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				DELETE FROM {db_prefix}themes
 				WHERE id_theme != {int:default_theme}
 					AND id_member > {int:no_member}
@@ -471,7 +470,7 @@ function SetThemeOptions()
 			elseif ($_POST['options_master'][$opt] == 1)
 			{
 				// Delete then insert for ease of database compatibility - again!
-				$smcFunc['db_query']('substring', '
+				Db::$db->query('substring', '
 					DELETE FROM {db_prefix}themes
 					WHERE id_theme = {int:current_theme}
 						AND id_member > {int:no_member}
@@ -482,7 +481,7 @@ function SetThemeOptions()
 						'option' => $opt,
 					)
 				);
-				$smcFunc['db_query']('substring', '
+				Db::$db->query('substring', '
 					INSERT INTO {db_prefix}themes
 						(id_member, id_theme, variable, value)
 					SELECT id_member, {int:current_theme}, SUBSTRING({string:option}, 1, 255), SUBSTRING({string:value}, 1, 65534)
@@ -496,7 +495,7 @@ function SetThemeOptions()
 			}
 			elseif ($_POST['options_master'][$opt] == 2)
 			{
-				$smcFunc['db_query']('', '
+				Db::$db->query('', '
 					DELETE FROM {db_prefix}themes
 					WHERE variable = {string:option}
 						AND id_member > {int:no_member}
@@ -510,7 +509,7 @@ function SetThemeOptions()
 			}
 		}
 
-		redirectexit('action=admin;area=theme;' . $context['session_var'] . '=' . $context['session_id'] . ';sa=reset');
+		redirectexit('action=admin;area=theme;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=reset');
 	}
 	elseif (!empty($_GET['who']) && $_GET['who'] == 2)
 	{
@@ -520,20 +519,20 @@ function SetThemeOptions()
 		// Don't delete custom fields!!
 		if ($_GET['th'] == 1)
 		{
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT col_name
 				FROM {db_prefix}custom_fields',
 				array(
 				)
 			);
 			$customFields = array();
-			while ($row = $smcFunc['db_fetch_assoc']($request))
+			while ($row = Db::$db->fetch_assoc($request))
 				$customFields[] = $row['col_name'];
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 		}
 		$customFieldsQuery = empty($customFields) ? '' : ('AND variable NOT IN ({array_string:custom_fields})');
 
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}themes
 			WHERE id_member > {int:no_member}
 				AND id_theme = {int:current_theme}
@@ -545,7 +544,7 @@ function SetThemeOptions()
 			)
 		);
 
-		redirectexit('action=admin;area=theme;' . $context['session_var'] . '=' . $context['session_id'] . ';sa=reset');
+		redirectexit('action=admin;area=theme;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=reset');
 	}
 
 	$old_id = $settings['theme_id'];
@@ -564,15 +563,15 @@ function SetThemeOptions()
 	// Let mods hook into the theme options.
 	call_integration_hook('integrate_theme_options');
 
-	$context['sub_template'] = 'set_options';
-	$context['page_title'] = $txt['theme_settings'];
+	Utils::$context['sub_template'] = 'set_options';
+	Utils::$context['page_title'] = $txt['theme_settings'];
 
-	$context['options'] = $context['theme_options'];
-	$context['theme_settings'] = $settings;
+	Utils::$context['options'] = Utils::$context['theme_options'];
+	Utils::$context['theme_settings'] = $settings;
 
 	if (empty($_REQUEST['who']))
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT variable, value
 			FROM {db_prefix}themes
 			WHERE id_theme IN (1, {int:current_theme})
@@ -582,20 +581,20 @@ function SetThemeOptions()
 				'guest_member' => -1,
 			)
 		);
-		$context['theme_options'] = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$context['theme_options'][$row['variable']] = $row['value'];
-		$smcFunc['db_free_result']($request);
+		Utils::$context['theme_options'] = array();
+		while ($row = Db::$db->fetch_assoc($request))
+			Utils::$context['theme_options'][$row['variable']] = $row['value'];
+		Db::$db->free_result($request);
 
-		$context['theme_options_reset'] = false;
+		Utils::$context['theme_options_reset'] = false;
 	}
 	else
 	{
-		$context['theme_options'] = array();
-		$context['theme_options_reset'] = true;
+		Utils::$context['theme_options'] = array();
+		Utils::$context['theme_options_reset'] = true;
 	}
 
-	foreach ($context['options'] as $i => $setting)
+	foreach (Utils::$context['options'] as $i => $setting)
 	{
 		// Just skip separators
 		if (!is_array($setting))
@@ -604,21 +603,21 @@ function SetThemeOptions()
 		// Is this disabled?
 		if (isset($setting['enabled']) && $setting['enabled'] === false)
 		{
-			unset($context['options'][$i]);
+			unset(Utils::$context['options'][$i]);
 			continue;
 		}
 
 		if (!isset($setting['type']) || $setting['type'] == 'bool')
-			$context['options'][$i]['type'] = 'checkbox';
+			Utils::$context['options'][$i]['type'] = 'checkbox';
 		elseif ($setting['type'] == 'int' || $setting['type'] == 'integer')
-			$context['options'][$i]['type'] = 'number';
+			Utils::$context['options'][$i]['type'] = 'number';
 		elseif ($setting['type'] == 'string')
-			$context['options'][$i]['type'] = 'text';
+			Utils::$context['options'][$i]['type'] = 'text';
 
 		if (isset($setting['options']))
-			$context['options'][$i]['type'] = 'list';
+			Utils::$context['options'][$i]['type'] = 'list';
 
-		$context['options'][$i]['value'] = !isset($context['theme_options'][$setting['id']]) ? '' : $context['theme_options'][$setting['id']];
+		Utils::$context['options'][$i]['value'] = !isset(Utils::$context['theme_options'][$setting['id']]) ? '' : Utils::$context['theme_options'][$setting['id']];
 	}
 
 	// Restore the existing theme.
@@ -639,7 +638,7 @@ function SetThemeOptions()
  */
 function SetThemeSettings()
 {
-	global $txt, $context, $settings, $modSettings, $smcFunc;
+	global $txt, $settings;
 
 	if (empty($_GET['th']) && empty($_GET['id']))
 		return ThemeAdmin();
@@ -647,7 +646,7 @@ function SetThemeSettings()
 	$_GET['th'] = isset($_GET['th']) ? (int) $_GET['th'] : (int) $_GET['id'];
 
 	// Select the best fitting tab.
-	$context[$context['admin_menu_name']]['current_subsection'] = 'list';
+	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'list';
 
 	loadLanguage('Admin');
 	isAllowedTo('admin_forum');
@@ -657,13 +656,13 @@ function SetThemeSettings()
 		fatal_lang_error('no_theme', false);
 
 	// Fetch the smiley sets...
-	$sets = explode(',', 'none,' . $modSettings['smiley_sets_known']);
-	$set_names = explode("\n", $txt['smileys_none'] . "\n" . $modSettings['smiley_sets_names']);
-	$context['smiley_sets'] = array(
+	$sets = explode(',', 'none,' . Config::$modSettings['smiley_sets_known']);
+	$set_names = explode("\n", $txt['smileys_none'] . "\n" . Config::$modSettings['smiley_sets_names']);
+	Utils::$context['smiley_sets'] = array(
 		'' => $txt['smileys_no_default']
 	);
 	foreach ($sets as $i => $set)
-		$context['smiley_sets'][$set] = $smcFunc['htmlspecialchars']($set_names[$i]);
+		Utils::$context['smiley_sets'][$set] = Utils::htmlspecialchars($set_names[$i]);
 
 	$old_id = $settings['theme_id'];
 	$old_settings = $settings;
@@ -707,7 +706,7 @@ function SetThemeSettings()
 			$_POST['default_options'] = array();
 
 		// Make sure items are cast correctly.
-		foreach ($context['theme_settings'] as $item)
+		foreach (Utils::$context['theme_settings'] as $item)
 		{
 			// Disregard this item if this is just a separator.
 			if (!is_array($item))
@@ -735,7 +734,7 @@ function SetThemeSettings()
 		// If we're actually inserting something..
 		if (!empty($inserts))
 		{
-			$smcFunc['db_insert']('replace',
+			Db::$db->insert('replace',
 				'{db_prefix}themes',
 				array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'),
 				$inserts,
@@ -747,13 +746,13 @@ function SetThemeSettings()
 		CacheApi::put('theme_settings-1', null, 90);
 
 		// Invalidate the cache.
-		updateSettings(array('settings_updated' => time()));
+		Config::updateModSettings(array('settings_updated' => time()));
 
-		redirectexit('action=admin;area=theme;sa=list;th=' . $_GET['th'] . ';' . $context['session_var'] . '=' . $context['session_id']);
+		redirectexit('action=admin;area=theme;sa=list;th=' . $_GET['th'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 	}
 
-	$context['sub_template'] = 'set_settings';
-	$context['page_title'] = $txt['theme_settings'];
+	Utils::$context['sub_template'] = 'set_settings';
+	Utils::$context['page_title'] = $txt['theme_settings'];
 
 	foreach ($settings as $setting => $dummy)
 	{
@@ -761,41 +760,41 @@ function SetThemeSettings()
 			$settings[$setting] = htmlspecialchars__recursive($settings[$setting]);
 	}
 
-	$context['settings'] = $context['theme_settings'];
-	$context['theme_settings'] = $settings;
+	Utils::$context['settings'] = Utils::$context['theme_settings'];
+	Utils::$context['theme_settings'] = $settings;
 
-	foreach ($context['settings'] as $i => $setting)
+	foreach (Utils::$context['settings'] as $i => $setting)
 	{
 		// Separators are dummies, so leave them alone.
 		if (!is_array($setting))
 			continue;
 
 		if (!isset($setting['type']) || $setting['type'] == 'bool')
-			$context['settings'][$i]['type'] = 'checkbox';
+			Utils::$context['settings'][$i]['type'] = 'checkbox';
 		elseif ($setting['type'] == 'int' || $setting['type'] == 'integer')
-			$context['settings'][$i]['type'] = 'number';
+			Utils::$context['settings'][$i]['type'] = 'number';
 		elseif ($setting['type'] == 'string')
-			$context['settings'][$i]['type'] = 'text';
+			Utils::$context['settings'][$i]['type'] = 'text';
 
 		if (isset($setting['options']))
-			$context['settings'][$i]['type'] = 'list';
+			Utils::$context['settings'][$i]['type'] = 'list';
 
-		$context['settings'][$i]['value'] = !isset($settings[$setting['id']]) ? '' : $settings[$setting['id']];
+		Utils::$context['settings'][$i]['value'] = !isset($settings[$setting['id']]) ? '' : $settings[$setting['id']];
 	}
 
 	// Do we support variants?
 	if (!empty($settings['theme_variants']))
 	{
-		$context['theme_variants'] = array();
+		Utils::$context['theme_variants'] = array();
 		foreach ($settings['theme_variants'] as $variant)
 		{
 			// Have any text, old chap?
-			$context['theme_variants'][$variant] = array(
+			Utils::$context['theme_variants'][$variant] = array(
 				'label' => isset($txt['variant_' . $variant]) ? $txt['variant_' . $variant] : $variant,
 				'thumbnail' => !file_exists($settings['theme_dir'] . '/images/thumbnail.png') || file_exists($settings['theme_dir'] . '/images/thumbnail_' . $variant . '.png') ? $settings['images_url'] . '/thumbnail_' . $variant . '.png' : ($settings['images_url'] . '/thumbnail.png'),
 			);
 		}
-		$context['default_variant'] = !empty($settings['default_variant']) && isset($context['theme_variants'][$settings['default_variant']]) ? $settings['default_variant'] : $settings['theme_variants'][0];
+		Utils::$context['default_variant'] = !empty($settings['default_variant']) && isset(Utils::$context['theme_variants'][$settings['default_variant']]) ? $settings['default_variant'] : $settings['theme_variants'][0];
 	}
 
 	// Restore the current theme.
@@ -820,8 +819,6 @@ function SetThemeSettings()
  */
 function RemoveTheme()
 {
-	global $context;
-
 	checkSession('get');
 
 	isAllowedTo('admin_forum');
@@ -844,7 +841,7 @@ function RemoveTheme()
 		remove_dir($theme_info['theme_dir']);
 
 	// Go back to the list page.
-	redirectexit('action=admin;area=theme;sa=list;' . $context['session_var'] . '=' . $context['session_id'] . ';done=removing');
+	redirectexit('action=admin;area=theme;sa=list;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';done=removing');
 }
 
 /**
@@ -852,8 +849,6 @@ function RemoveTheme()
  */
 function EnableTheme()
 {
-	global $modSettings, $context;
-
 	checkSession('get');
 
 	isAllowedTo('admin_forum');
@@ -863,7 +858,7 @@ function EnableTheme()
 	$themeID = isset($_GET['th']) ? (string) trim($_GET['th']) : (string) trim($_GET['id']);
 
 	// Get the current list.
-	$enableThemes = explode(',', $modSettings['enableThemes']);
+	$enableThemes = explode(',', Config::$modSettings['enableThemes']);
 
 	// Are we disabling it?
 	if (isset($_GET['disabled']))
@@ -875,10 +870,10 @@ function EnableTheme()
 
 	// Update the setting.
 	$enableThemes = strtr(implode(',', $enableThemes), array(',,' => ','));
-	updateSettings(array('enableThemes' => $enableThemes));
+	Config::updateModSettings(array('enableThemes' => $enableThemes));
 
 	// Done!
-	redirectexit('action=admin;area=theme;sa=list;' . $context['session_var'] . '=' . $context['session_id'] . ';done=' . (isset($_GET['disabled']) ? 'disabling' : 'enabling'));
+	redirectexit('action=admin;area=theme;sa=list;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';done=' . (isset($_GET['disabled']) ? 'disabling' : 'enabling'));
 }
 
 /**
@@ -891,12 +886,12 @@ function EnableTheme()
  */
 function canPickTheme($id_member, $id_theme)
 {
-	global $modSettings, $user_info;
+	global $user_info;
 
 	return
 		allowedTo($user_info['id'] == $id_member ? 'profile_extra_own' : 'profile_extra_any')
-		&& ($id_theme == 0 || (allowedTo('admin_forum') || in_array($id_theme, explode(',', $modSettings['knownThemes']))) && in_array($id_theme, explode(',', $modSettings['enableThemes'])))
-		&& (!empty($modSettings['theme_allow']) || allowedTo('admin_forum'));
+		&& ($id_theme == 0 || (allowedTo('admin_forum') || in_array($id_theme, explode(',', Config::$modSettings['knownThemes']))) && in_array($id_theme, explode(',', Config::$modSettings['enableThemes'])))
+		&& (!empty(Config::$modSettings['theme_allow']) || allowedTo('admin_forum'));
 }
 
 /**
@@ -907,17 +902,17 @@ function canPickTheme($id_member, $id_theme)
  */
 function PickTheme()
 {
-	global $txt, $context, $modSettings, $user_info, $language, $smcFunc, $settings, $scripturl;
+	global $txt, $user_info, $settings;
 
 	loadLanguage('Profile');
 	loadTemplate('Themes');
 
 	// Build the link tree.
-	$context['linktree'][] = array(
-		'url' => $scripturl . '?action=theme;sa=pick;u=' . (!empty($_REQUEST['u']) ? (int) $_REQUEST['u'] : 0),
+	Utils::$context['linktree'][] = array(
+		'url' => Config::$scripturl . '?action=theme;sa=pick;u=' . (!empty($_REQUEST['u']) ? (int) $_REQUEST['u'] : 0),
 		'name' => $txt['theme_pick'],
 	);
-	$context['default_theme_id'] = $modSettings['theme_default'];
+	Utils::$context['default_theme_id'] = Config::$modSettings['theme_default'];
 	$_SESSION['id_theme'] = 0;
 	if (!isset($_REQUEST['u']))
 		$_REQUEST['u'] = $user_info['id'];
@@ -941,9 +936,9 @@ function PickTheme()
 			{
 				// Set the identifier to the forum default.
 				if (isset($id_theme) && $id_theme == 0)
-					$id_theme = $modSettings['theme_guests'];
+					$id_theme = Config::$modSettings['theme_guests'];
 
-				$smcFunc['db_insert']('replace',
+				Db::$db->insert('replace',
 					'{db_prefix}themes',
 					array('id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'),
 					array($id_theme, (int) $_REQUEST['u'], 'theme_variant', $variant),
@@ -962,31 +957,31 @@ function PickTheme()
 	// Figure out who the member of the minute is, and what theme they've chosen.
 	if (!isset($_REQUEST['u']) || !allowedTo('admin_forum'))
 	{
-		$context['current_member'] = $user_info['id'];
-		$context['current_theme'] = $user_info['theme'];
+		Utils::$context['current_member'] = $user_info['id'];
+		Utils::$context['current_theme'] = $user_info['theme'];
 	}
 	else
 	{
-		$context['current_member'] = (int) $_REQUEST['u'];
+		Utils::$context['current_member'] = (int) $_REQUEST['u'];
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_theme
 			FROM {db_prefix}members
 			WHERE id_member = {int:current_member}
 			LIMIT 1',
 			array(
-				'current_member' => $context['current_member'],
+				'current_member' => Utils::$context['current_member'],
 			)
 		);
-		list ($context['current_theme']) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		list (Utils::$context['current_theme']) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 	}
 
 	// Get the theme name and descriptions.
-	$context['available_themes'] = array();
-	if (!empty($modSettings['knownThemes']))
+	Utils::$context['available_themes'] = array();
+	if (!empty(Config::$modSettings['knownThemes']))
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_theme, variable, value
 			FROM {db_prefix}themes
 			WHERE variable IN ({literal:name}, {literal:theme_url}, {literal:theme_dir}, {literal:images_url}, {literal:disable_user_variant})' . (!allowedTo('admin_forum') ? '
@@ -997,35 +992,35 @@ function PickTheme()
 			array(
 				'default_theme' => 0,
 				'no_member' => 0,
-				'known_themes' => explode(',', $modSettings['knownThemes']),
-				'enable_themes' => explode(',', $modSettings['enableThemes']),
+				'known_themes' => explode(',', Config::$modSettings['knownThemes']),
+				'enable_themes' => explode(',', Config::$modSettings['enableThemes']),
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
-			if (!isset($context['available_themes'][$row['id_theme']]))
-				$context['available_themes'][$row['id_theme']] = array(
+			if (!isset(Utils::$context['available_themes'][$row['id_theme']]))
+				Utils::$context['available_themes'][$row['id_theme']] = array(
 					'id' => $row['id_theme'],
-					'selected' => $context['current_theme'] == $row['id_theme'],
+					'selected' => Utils::$context['current_theme'] == $row['id_theme'],
 					'num_users' => 0
 				);
-			$context['available_themes'][$row['id_theme']][$row['variable']] = $row['value'];
+			Utils::$context['available_themes'][$row['id_theme']][$row['variable']] = $row['value'];
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 	}
 
 	// Okay, this is a complicated problem: the default theme is 1, but they aren't allowed to access 1!
-	if (!isset($context['available_themes'][$modSettings['theme_guests']]))
+	if (!isset(Utils::$context['available_themes'][Config::$modSettings['theme_guests']]))
 	{
-		$context['available_themes'][0] = array(
+		Utils::$context['available_themes'][0] = array(
 			'num_users' => 0
 		);
 		$guest_theme = 0;
 	}
 	else
-		$guest_theme = $modSettings['theme_guests'];
+		$guest_theme = Config::$modSettings['theme_guests'];
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_theme, COUNT(*) AS the_count
 		FROM {db_prefix}members
 		GROUP BY id_theme
@@ -1033,26 +1028,26 @@ function PickTheme()
 		array(
 		)
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// Figure out which theme it is they are REALLY using.
-		if (!empty($modSettings['knownThemes']) && !in_array($row['id_theme'], explode(',', $modSettings['knownThemes'])))
+		if (!empty(Config::$modSettings['knownThemes']) && !in_array($row['id_theme'], explode(',', Config::$modSettings['knownThemes'])))
 			$row['id_theme'] = $guest_theme;
-		elseif (empty($modSettings['theme_allow']))
+		elseif (empty(Config::$modSettings['theme_allow']))
 			$row['id_theme'] = $guest_theme;
 
-		if (isset($context['available_themes'][$row['id_theme']]))
-			$context['available_themes'][$row['id_theme']]['num_users'] += $row['the_count'];
+		if (isset(Utils::$context['available_themes'][$row['id_theme']]))
+			Utils::$context['available_themes'][$row['id_theme']]['num_users'] += $row['the_count'];
 		else
-			$context['available_themes'][$guest_theme]['num_users'] += $row['the_count'];
+			Utils::$context['available_themes'][$guest_theme]['num_users'] += $row['the_count'];
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Get any member variant preferences.
 	$variant_preferences = array();
-	if ($context['current_member'] > 0)
+	if (Utils::$context['current_member'] > 0)
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_theme, value
 			FROM {db_prefix}themes
 			WHERE variable = {string:theme_variant}
@@ -1060,19 +1055,19 @@ function PickTheme()
 			ORDER BY id_member ASC',
 			array(
 				'theme_variant' => 'theme_variant',
-				'id_member' => isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'pick' ? array(-1, $context['current_member']) : array(-1),
+				'id_member' => isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'pick' ? array(-1, Utils::$context['current_member']) : array(-1),
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$variant_preferences[$row['id_theme']] = $row['value'];
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 	}
 
 	// Save the setting first.
 	$current_images_url = $settings['images_url'];
 	$current_theme_variants = !empty($settings['theme_variants']) ? $settings['theme_variants'] : array();
 
-	foreach ($context['available_themes'] as $id_theme => $theme_data)
+	foreach (Utils::$context['available_themes'] as $id_theme => $theme_data)
 	{
 		// Don't try to load the forum or board default theme's data... it doesn't have any!
 		if ($id_theme == 0)
@@ -1083,19 +1078,19 @@ function PickTheme()
 
 		if (file_exists($theme_data['theme_dir'] . '/languages/Settings.' . $user_info['language'] . '.php'))
 			include($theme_data['theme_dir'] . '/languages/Settings.' . $user_info['language'] . '.php');
-		elseif (file_exists($theme_data['theme_dir'] . '/languages/Settings.' . $language . '.php'))
-			include($theme_data['theme_dir'] . '/languages/Settings.' . $language . '.php');
+		elseif (file_exists($theme_data['theme_dir'] . '/languages/Settings.' . Config::$language . '.php'))
+			include($theme_data['theme_dir'] . '/languages/Settings.' . Config::$language . '.php');
 		else
 		{
 			$txt['theme_thumbnail_href'] = $theme_data['images_url'] . '/thumbnail.png';
 			$txt['theme_description'] = '';
 		}
 
-		$context['available_themes'][$id_theme]['thumbnail_href'] = sprintf($txt['theme_thumbnail_href'], $settings['images_url']);
-		$context['available_themes'][$id_theme]['description'] = $txt['theme_description'];
+		Utils::$context['available_themes'][$id_theme]['thumbnail_href'] = sprintf($txt['theme_thumbnail_href'], $settings['images_url']);
+		Utils::$context['available_themes'][$id_theme]['description'] = $txt['theme_description'];
 
 		// Are there any variants?
-		$context['available_themes'][$id_theme]['variants'] = array();
+		Utils::$context['available_themes'][$id_theme]['variants'] = array();
 		if (file_exists($theme_data['theme_dir'] . '/index.template.php') && (empty($theme_data['disable_user_variant']) || allowedTo('admin_forum')))
 		{
 			$file_contents = implode('', file($theme_data['theme_dir'] . '/index.template.php'));
@@ -1111,18 +1106,18 @@ function PickTheme()
 					loadLanguage('Settings');
 
 					foreach ($settings['theme_variants'] as $variant)
-						$context['available_themes'][$id_theme]['variants'][$variant] = array(
+						Utils::$context['available_themes'][$id_theme]['variants'][$variant] = array(
 							'label' => isset($txt['variant_' . $variant]) ? $txt['variant_' . $variant] : $variant,
 							'thumbnail' => !file_exists($theme_data['theme_dir'] . '/images/thumbnail.png') || file_exists($theme_data['theme_dir'] . '/images/thumbnail_' . $variant . '.png') ? $theme_data['images_url'] . '/thumbnail_' . $variant . '.png' : ($theme_data['images_url'] . '/thumbnail.png'),
 						);
 
-					$context['available_themes'][$id_theme]['selected_variant'] = isset($_GET['vrt']) ? $_GET['vrt'] : (!empty($variant_preferences[$id_theme]) ? $variant_preferences[$id_theme] : (!empty($settings['default_variant']) ? $settings['default_variant'] : $settings['theme_variants'][0]));
-					if (!isset($context['available_themes'][$id_theme]['variants'][$context['available_themes'][$id_theme]['selected_variant']]['thumbnail']))
-						$context['available_themes'][$id_theme]['selected_variant'] = $settings['theme_variants'][0];
+					Utils::$context['available_themes'][$id_theme]['selected_variant'] = isset($_GET['vrt']) ? $_GET['vrt'] : (!empty($variant_preferences[$id_theme]) ? $variant_preferences[$id_theme] : (!empty($settings['default_variant']) ? $settings['default_variant'] : $settings['theme_variants'][0]));
+					if (!isset(Utils::$context['available_themes'][$id_theme]['variants'][Utils::$context['available_themes'][$id_theme]['selected_variant']]['thumbnail']))
+						Utils::$context['available_themes'][$id_theme]['selected_variant'] = $settings['theme_variants'][0];
 
-					$context['available_themes'][$id_theme]['thumbnail_href'] = $context['available_themes'][$id_theme]['variants'][$context['available_themes'][$id_theme]['selected_variant']]['thumbnail'];
+					Utils::$context['available_themes'][$id_theme]['thumbnail_href'] = Utils::$context['available_themes'][$id_theme]['variants'][Utils::$context['available_themes'][$id_theme]['selected_variant']]['thumbnail'];
 					// Allow themes to override the text.
-					$context['available_themes'][$id_theme]['pick_label'] = isset($txt['variant_pick']) ? $txt['variant_pick'] : $txt['theme_pick_variant'];
+					Utils::$context['available_themes'][$id_theme]['pick_label'] = isset($txt['variant_pick']) ? $txt['variant_pick'] : $txt['theme_pick_variant'];
 				}
 			}
 		}
@@ -1135,7 +1130,7 @@ function PickTheme()
 			{
 				return $theme['variants'];
 			},
-			$context['available_themes']
+			Utils::$context['available_themes']
 		))
 	);
 	loadJavaScriptFile('profile.js', array('defer' => false, 'minimize' => true), 'smf_profile');
@@ -1146,39 +1141,39 @@ function PickTheme()
 	if (!isset($_REQUEST['u']) || $_REQUEST['u'] >= 0)
 	{
 		if ($guest_theme != 0)
-			$context['available_themes'][0] = $context['available_themes'][$guest_theme];
+			Utils::$context['available_themes'][0] = Utils::$context['available_themes'][$guest_theme];
 
-		$context['available_themes'][0]['id'] = 0;
-		$context['available_themes'][0]['name'] = $txt['theme_forum_default'];
-		$context['available_themes'][0]['selected'] = $context['current_theme'] == 0;
-		$context['available_themes'][0]['description'] = $txt['theme_global_description'];
+		Utils::$context['available_themes'][0]['id'] = 0;
+		Utils::$context['available_themes'][0]['name'] = $txt['theme_forum_default'];
+		Utils::$context['available_themes'][0]['selected'] = Utils::$context['current_theme'] == 0;
+		Utils::$context['available_themes'][0]['description'] = $txt['theme_global_description'];
 	}
 
-	ksort($context['available_themes']);
+	ksort(Utils::$context['available_themes']);
 
-	$context['page_title'] = $txt['theme_pick'];
-	$context['sub_template'] = 'pick';
+	Utils::$context['page_title'] = $txt['theme_pick'];
+	Utils::$context['sub_template'] = 'pick';
 	createToken('pick-th');
 }
 
 /**
  * Installs new themes, calls the respective function according to the install type.
- * - puts themes in $boardurl/Themes.
+ * - puts themes in Config::$boardurl/Themes.
  * - assumes the gzip has a root directory in it. (ie default.)
  * Requires admin_forum.
  * Accessed with ?action=admin;area=theme;sa=install.
  */
 function ThemeInstall()
 {
-	global $sourcedir, $txt, $context, $boarddir, $boardurl;
-	global $themedir, $themeurl, $smcFunc;
+	global $txt;
+	global $themedir, $themeurl;
 
 	checkSession('request');
 	isAllowedTo('admin_forum');
 
 	// Make it easier to change the path and url.
-	$themedir = $boarddir . '/Themes';
-	$themeurl = $boardurl . '/Themes';
+	$themedir = Config::$boarddir . '/Themes';
+	$themeurl = Config::$boardurl . '/Themes';
 
 	loadTemplate('Themes');
 
@@ -1191,7 +1186,7 @@ function ThemeInstall()
 	// Is there a function to call?
 	if (isset($_GET['do']) && !empty($_GET['do']) && isset($subActions[$_GET['do']]))
 	{
-		$action = $smcFunc['htmlspecialchars'](trim($_GET['do']));
+		$action = Utils::htmlspecialchars(trim($_GET['do']));
 
 		// Got any info from the specific form?
 		if (!isset($_POST['save_' . $action]))
@@ -1209,9 +1204,9 @@ function ThemeInstall()
 		// Everything went better than expected!
 		if (!empty($result))
 		{
-			$context['sub_template'] = 'installed';
-			$context['page_title'] = $txt['theme_installed'];
-			$context['installed_theme'] = $result;
+			Utils::$context['sub_template'] = 'installed';
+			Utils::$context['page_title'] = $txt['theme_installed'];
+			Utils::$context['installed_theme'] = $result;
 		}
 	}
 
@@ -1229,7 +1224,7 @@ function ThemeInstall()
  */
 function InstallFile()
 {
-	global $themedir, $themeurl, $context;
+	global $themedir, $themeurl;
 
 	// Set a temp dir for dumping all required files on it.
 	$dirtemp = $themedir . '/temp';
@@ -1254,7 +1249,7 @@ function InstallFile()
 
 	// This happens when the admin session is gone and the user has to login again.
 	if (!isset($_FILES) || !isset($_FILES['theme_gz']) || empty($_FILES['theme_gz']))
-		redirectexit('action=admin;area=theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id']);
+		redirectexit('action=admin;area=theme;sa=admin;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 
 	// Another error check layer, something went wrong with the upload.
 	if (isset($_FILES['theme_gz']['error']) && $_FILES['theme_gz']['error'] != 0)
@@ -1265,7 +1260,7 @@ function InstallFile()
 	$name = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/', '/\.tar$/'), array('_', '.', '', ''), $name);
 
 	// Start setting some vars.
-	$context['to_install'] = array(
+	Utils::$context['to_install'] = array(
 		'theme_dir' => $themedir . '/' . $name,
 		'theme_url' => $themeurl . '/' . $name,
 		'images_url' => $themeurl . '/' . $name . '/images',
@@ -1279,16 +1274,16 @@ function InstallFile()
 	{
 		// Read its info form the XML file.
 		$theme_info = get_theme_info($dirtemp);
-		$context['to_install'] += $theme_info;
+		Utils::$context['to_install'] += $theme_info;
 
 		// Install the theme. theme_install() will return the new installed ID.
-		$context['to_install']['id'] = theme_install($context['to_install']);
+		Utils::$context['to_install']['id'] = theme_install(Utils::$context['to_install']);
 
 		// Rename the temp dir to the actual theme name.
-		rename($dirtemp, $context['to_install']['theme_dir']);
+		rename($dirtemp, Utils::$context['to_install']['theme_dir']);
 
 		// return all the info.
-		return $context['to_install'];
+		return Utils::$context['to_install'];
 	}
 
 	else
@@ -1304,7 +1299,7 @@ function InstallFile()
  */
 function InstallCopy()
 {
-	global $themedir, $themeurl, $settings, $smcFunc, $context;
+	global $themedir, $themeurl, $settings;
 
 	// There's gotta be something to work with.
 	if (!isset($_REQUEST['copy']) || empty($_REQUEST['copy']))
@@ -1318,7 +1313,7 @@ function InstallCopy()
 		fatal_lang_error('theme_install_already_dir', false);
 
 	// This is a brand new theme so set all possible values.
-	$context['to_install'] = array(
+	Utils::$context['to_install'] = array(
 		'theme_dir' => $themedir . '/' . $name,
 		'theme_url' => $themeurl . '/' . $name,
 		'name' => $name,
@@ -1333,7 +1328,7 @@ function InstallCopy()
 
 	// Create the specific dir.
 	umask(0);
-	mkdir($context['to_install']['theme_dir'], 0777);
+	mkdir(Utils::$context['to_install']['theme_dir'], 0777);
 
 	// Buy some time.
 	@set_time_limit(600);
@@ -1341,11 +1336,11 @@ function InstallCopy()
 		@apache_reset_timeout();
 
 	// Create subdirectories for css and javascript files.
-	mkdir($context['to_install']['theme_dir'] . '/css', 0777);
-	mkdir($context['to_install']['theme_dir'] . '/scripts', 0777);
+	mkdir(Utils::$context['to_install']['theme_dir'] . '/css', 0777);
+	mkdir(Utils::$context['to_install']['theme_dir'] . '/scripts', 0777);
 
 	// Create subdirectory for language files
-	mkdir($context['to_install']['theme_dir'] . '/languages', 0777);
+	mkdir(Utils::$context['to_install']['theme_dir'] . '/languages', 0777);
 
 	// Copy over the default non-theme files.
 	$to_copy = array(
@@ -1364,44 +1359,44 @@ function InstallCopy()
 
 	foreach ($to_copy as $file)
 	{
-		copy($settings['default_theme_dir'] . $file, $context['to_install']['theme_dir'] . $file);
-		smf_chmod($context['to_install']['theme_dir'] . $file, 0777);
+		copy($settings['default_theme_dir'] . $file, Utils::$context['to_install']['theme_dir'] . $file);
+		smf_chmod(Utils::$context['to_install']['theme_dir'] . $file, 0777);
 	}
 
 	// And now the entire images directory!
-	SubsPackage::copytree($settings['default_theme_dir'] . '/images', $context['to_install']['theme_dir'] . '/images');
+	SubsPackage::copytree($settings['default_theme_dir'] . '/images', Utils::$context['to_install']['theme_dir'] . '/images');
 	SubsPackage::package_flush_cache();
 
 	// Any data from the default theme that we want?
 	foreach (get_single_theme(1, array('theme_layers', 'theme_templates')) as $variable => $value)
 		if ($variable == 'theme_templates' || $variable == 'theme_layers')
-			$context['to_install'][$variable] = $value;
+			Utils::$context['to_install'][$variable] = $value;
 
 	// Lets add a theme_info.xml to this theme.
 	$xml_info = '<' . '?xml version="1.0"?' . '>
 <theme-info xmlns="http://www.simplemachines.org/xml/theme-info" xmlns:smf="http://www.simplemachines.org/">
 <!-- For the id, always use something unique - put your name, a colon, and then the package name. -->
-<id>smf:' . $smcFunc['strtolower']($context['to_install']['name']) . '</id>
+<id>smf:' . Utils::strtolower(Utils::$context['to_install']['name']) . '</id>
 <!-- The theme\'s version, please try to use semantic versioning. -->
 <version>1.0</version>
 <!-- Install for, the SMF versions this theme was designed for. Uses the same wildcards used in the packager manager. This field is mandatory. -->
-<install for="' . $context['to_install']['install_for'] . '" />
+<install for="' . Utils::$context['to_install']['install_for'] . '" />
 <!-- Theme name, used purely for aesthetics. -->
-<name>' . $context['to_install']['name'] . '</name>
+<name>' . Utils::$context['to_install']['name'] . '</name>
 <!-- Author: your email address or contact information. The name attribute is optional. -->
 <author name="Simple Machines">info@simplemachines.org</author>
 <!-- Website... where to get updates and more information. -->
 <website>https://www.simplemachines.org/</website>
 <!-- Template layers to use, defaults to "html,body". -->
-<layers>' . $context['to_install']['theme_layers'] . '</layers>
+<layers>' . Utils::$context['to_install']['theme_layers'] . '</layers>
 <!-- Templates to load on startup. Default is "index". -->
-<templates>' . $context['to_install']['theme_templates'] . '</templates>
+<templates>' . Utils::$context['to_install']['theme_templates'] . '</templates>
 <!-- Base this theme off another? Default is blank, or no. It could be "default". -->
 <based-on></based-on>
 </theme-info>';
 
 	// Now write it.
-	$fp = @fopen($context['to_install']['theme_dir'] . '/theme_info.xml', 'w+');
+	$fp = @fopen(Utils::$context['to_install']['theme_dir'] . '/theme_info.xml', 'w+');
 	if ($fp)
 	{
 		fwrite($fp, $xml_info);
@@ -1409,10 +1404,10 @@ function InstallCopy()
 	}
 
 	// Install the theme. theme_install() will take care of possible errors.
-	$context['to_install']['id'] = theme_install($context['to_install']);
+	Utils::$context['to_install']['id'] = theme_install(Utils::$context['to_install']);
 
 	// return the info.
-	return $context['to_install'];
+	return Utils::$context['to_install'];
 }
 
 /**
@@ -1424,7 +1419,7 @@ function InstallCopy()
  */
 function InstallDir()
 {
-	global $themedir, $themeurl, $context;
+	global $themedir, $themeurl;
 
 	// Cannot use the theme dir as a theme dir.
 	if (!isset($_REQUEST['theme_dir']) || empty($_REQUEST['theme_dir']) || rtrim(realpath($_REQUEST['theme_dir']), '/\\') == realpath($themedir))
@@ -1438,7 +1433,7 @@ function InstallDir()
 	$name = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $name);
 
 	// All good! set some needed vars.
-	$context['to_install'] = array(
+	Utils::$context['to_install'] = array(
 		'theme_dir' => $_REQUEST['theme_dir'],
 		'theme_url' => $themeurl . '/' . $name,
 		'name' => $name,
@@ -1446,14 +1441,14 @@ function InstallDir()
 	);
 
 	// Read its info form the XML file.
-	$theme_info = get_theme_info($context['to_install']['theme_dir']);
-	$context['to_install'] += $theme_info;
+	$theme_info = get_theme_info(Utils::$context['to_install']['theme_dir']);
+	Utils::$context['to_install'] += $theme_info;
 
 	// Install the theme. theme_install() will take care of possible errors.
-	$context['to_install']['id'] = theme_install($context['to_install']);
+	Utils::$context['to_install']['id'] = theme_install(Utils::$context['to_install']);
 
 	// return the info.
-	return $context['to_install'];
+	return Utils::$context['to_install'];
 }
 
 /**
@@ -1465,7 +1460,7 @@ function InstallDir()
  */
 function WrapAction()
 {
-	global $context, $settings;
+	global $settings;
 
 	// Load any necessary template(s)?
 	if (isset($settings['catch_action']['template']))
@@ -1477,7 +1472,7 @@ function WrapAction()
 
 	// Any special layers?
 	if (isset($settings['catch_action']['layers']))
-		$context['template_layers'] = $settings['catch_action']['layers'];
+		Utils::$context['template_layers'] = $settings['catch_action']['layers'];
 
 	// Any function to call?
 	if (isset($settings['catch_action']['function']))
@@ -1492,7 +1487,7 @@ function WrapAction()
 	}
 	// And finally, the main sub template ;).
 	if (isset($settings['catch_action']['sub_template']))
-		$context['sub_template'] = $settings['catch_action']['sub_template'];
+		Utils::$context['sub_template'] = $settings['catch_action']['sub_template'];
 }
 
 /**
@@ -1506,7 +1501,7 @@ function WrapAction()
  */
 function SetJavaScript()
 {
-	global $settings, $user_info, $smcFunc, $options;
+	global $settings, $user_info, $options;
 
 	// Check the session id.
 	checkSession('get');
@@ -1555,17 +1550,17 @@ function SetJavaScript()
 	// If this is the admin preferences the passed value will just be an element of it.
 	if ($_GET['var'] == 'admin_preferences')
 	{
-		$options['admin_preferences'] = !empty($options['admin_preferences']) ? $smcFunc['json_decode']($options['admin_preferences'], true) : array();
+		$options['admin_preferences'] = !empty($options['admin_preferences']) ? Utils::jsonDecode($options['admin_preferences'], true) : array();
 		// New thingy...
 		if (isset($_GET['admin_key']) && strlen($_GET['admin_key']) < 5)
 			$options['admin_preferences'][$_GET['admin_key']] = $_GET['val'];
 
 		// Change the value to be something nice,
-		$_GET['val'] = $smcFunc['json_encode']($options['admin_preferences']);
+		$_GET['val'] = Utils::jsonEncode($options['admin_preferences']);
 	}
 
 	// Update the option.
-	$smcFunc['db_insert']('replace',
+	Db::$db->insert('replace',
 		'{db_prefix}themes',
 		array('id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'),
 		array($settings['theme_id'], $user_info['id'], $_GET['var'], is_array($_GET['val']) ? implode(',', $_GET['val']) : $_GET['val']),
@@ -1585,7 +1580,7 @@ function SetJavaScript()
  */
 function EditTheme()
 {
-	global $context, $scripturl, $boarddir, $smcFunc, $txt, $sourcedir;
+	global $txt;
 
 	// @todo Should this be removed?
 	if (isset($_REQUEST['preview']))
@@ -1600,27 +1595,27 @@ function EditTheme()
 	{
 		get_installed_themes();
 
-		foreach ($context['themes'] as $key => $theme)
+		foreach (Utils::$context['themes'] as $key => $theme)
 		{
 			// There has to be a Settings template!
 			if (!file_exists($theme['theme_dir'] . '/index.template.php') && !file_exists($theme['theme_dir'] . '/css/index.css'))
-				unset($context['themes'][$key]);
+				unset(Utils::$context['themes'][$key]);
 
 			else
-				$context['themes'][$key]['can_edit_style'] = file_exists($theme['theme_dir'] . '/css/index.css');
+				Utils::$context['themes'][$key]['can_edit_style'] = file_exists($theme['theme_dir'] . '/css/index.css');
 		}
 
-		$context['sub_template'] = 'edit_list';
+		Utils::$context['sub_template'] = 'edit_list';
 
 		return 'no_themes';
 	}
 
-	$context['session_error'] = false;
+	Utils::$context['session_error'] = false;
 
 	// Get the directory of the theme we are editing.
 	$currentTheme = get_single_theme($_GET['th']);
-	$context['theme_id'] = $currentTheme['id'];
-	$context['browse_title'] = sprintf($txt['themeadmin_browsing_theme'], $currentTheme['name']);
+	Utils::$context['theme_id'] = $currentTheme['id'];
+	Utils::$context['browse_title'] = sprintf($txt['themeadmin_browsing_theme'], $currentTheme['name']);
 
 	if (!file_exists($currentTheme['theme_dir'] . '/index.template.php') && !file_exists($currentTheme['theme_dir'] . '/css/index.css'))
 		fatal_lang_error('theme_edit_missing', false);
@@ -1643,31 +1638,31 @@ function EditTheme()
 
 		if (isset($_GET['directory']) && $_GET['directory'] != '')
 		{
-			$context['theme_files'] = get_file_listing($currentTheme['theme_dir'] . '/' . $_GET['directory'], $_GET['directory'] . '/');
+			Utils::$context['theme_files'] = get_file_listing($currentTheme['theme_dir'] . '/' . $_GET['directory'], $_GET['directory'] . '/');
 
 			$temp = dirname($_GET['directory']);
-			array_unshift($context['theme_files'], array(
+			array_unshift(Utils::$context['theme_files'], array(
 				'filename' => $temp == '.' || $temp == '' ? '/ (..)' : $temp . ' (..)',
 				'is_writable' => is_writable($currentTheme['theme_dir'] . '/' . $temp),
 				'is_directory' => true,
 				'is_template' => false,
 				'is_image' => false,
 				'is_editable' => false,
-				'href' => $scripturl . '?action=admin;area=theme;th=' . $_GET['th'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';sa=edit;directory=' . $temp,
+				'href' => Config::$scripturl . '?action=admin;area=theme;th=' . $_GET['th'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=edit;directory=' . $temp,
 				'size' => '',
 			));
 		}
 		else
-			$context['theme_files'] = get_file_listing($currentTheme['theme_dir'], '');
+			Utils::$context['theme_files'] = get_file_listing($currentTheme['theme_dir'], '');
 
 		// Do not list minified_ files
-		foreach ($context['theme_files'] as $key => $file)
+		foreach (Utils::$context['theme_files'] as $key => $file)
 		{
 			if (strpos($file['filename'], 'minified_') !== false)
-				unset($context['theme_files'][$key]);
+				unset(Utils::$context['theme_files'][$key]);
 		}
 
-		$context['sub_template'] = 'edit_browse';
+		Utils::$context['sub_template'] = 'edit_browse';
 
 		return;
 	}
@@ -1697,12 +1692,10 @@ function EditTheme()
 
 			$_POST['entire_file'] = rtrim(strtr($_POST['entire_file'], array("\r" => '', '   ' => "\t")));
 
-			require_once($sourcedir . '/Subs-Admin.php');
-
 			// Check for a parse error!
 			if (substr($_REQUEST['filename'], -13) == '.template.php' && is_writable($currentTheme['theme_dir']) && ini_get('display_errors'))
 			{
-				safe_file_write($currentTheme['theme_dir'] . '/tmp_' . session_id() . '.php', $_POST['entire_file']);
+				Config::safeFileWrite($currentTheme['theme_dir'] . '/tmp_' . session_id() . '.php', $_POST['entire_file']);
 
 				$error = @file_get_contents($currentTheme['theme_url'] . '/tmp_' . session_id() . '.php');
 				if (preg_match('~ <b>(\d+)</b><br( /)?' . '>$~i', $error) != 0)
@@ -1713,12 +1706,12 @@ function EditTheme()
 
 			if (!isset($error_file))
 			{
-				safe_file_write($currentTheme['theme_dir'] . '/' . $_REQUEST['filename'], $_POST['entire_file']);
+				Config::safeFileWrite($currentTheme['theme_dir'] . '/' . $_REQUEST['filename'], $_POST['entire_file']);
 
-				// Nuke any minified files and update $modSettings['browser_cache']
+				// Nuke any minified files and update Config::$modSettings['browser_cache']
 				deleteAllMinified();
 
-				redirectexit('action=admin;area=theme;th=' . $_GET['th'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';sa=edit;directory=' . dirname($_REQUEST['filename']));
+				redirectexit('action=admin;area=theme;th=' . $_GET['th'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=edit;directory=' . dirname($_REQUEST['filename']));
 			}
 		}
 		// Session timed out.
@@ -1726,19 +1719,19 @@ function EditTheme()
 		{
 			loadLanguage('Errors');
 
-			$context['session_error'] = true;
-			$context['sub_template'] = 'edit_file';
+			Utils::$context['session_error'] = true;
+			Utils::$context['sub_template'] = 'edit_file';
 
 			// Recycle the submitted data.
 			if (is_array($_POST['entire_file']))
-				$context['entire_file'] = $smcFunc['htmlspecialchars'](implode("\n", $_POST['entire_file']));
+				Utils::$context['entire_file'] = Utils::htmlspecialchars(implode("\n", $_POST['entire_file']));
 			else
-				$context['entire_file'] = $smcFunc['htmlspecialchars']($_POST['entire_file']);
+				Utils::$context['entire_file'] = Utils::htmlspecialchars($_POST['entire_file']);
 
-			$context['edit_filename'] = $smcFunc['htmlspecialchars']($_POST['filename']);
+			Utils::$context['edit_filename'] = Utils::htmlspecialchars($_POST['filename']);
 
 			// You were able to submit it, so it's reasonable to assume you are allowed to save.
-			$context['allow_save'] = true;
+			Utils::$context['allow_save'] = true;
 
 			// Re-create the token so that it can be used
 			createToken('admin-te-' . md5($_GET['th'] . '-' . $_REQUEST['filename']));
@@ -1747,55 +1740,55 @@ function EditTheme()
 		}
 	}
 
-	$context['allow_save'] = is_writable($currentTheme['theme_dir'] . '/' . $_REQUEST['filename']);
-	$context['allow_save_filename'] = strtr($currentTheme['theme_dir'] . '/' . $_REQUEST['filename'], array($boarddir => '...'));
-	$context['edit_filename'] = $smcFunc['htmlspecialchars']($_REQUEST['filename']);
+	Utils::$context['allow_save'] = is_writable($currentTheme['theme_dir'] . '/' . $_REQUEST['filename']);
+	Utils::$context['allow_save_filename'] = strtr($currentTheme['theme_dir'] . '/' . $_REQUEST['filename'], array(Config::$boarddir => '...'));
+	Utils::$context['edit_filename'] = Utils::htmlspecialchars($_REQUEST['filename']);
 
 	if (substr($_REQUEST['filename'], -4) == '.css')
 	{
-		$context['sub_template'] = 'edit_style';
+		Utils::$context['sub_template'] = 'edit_style';
 
-		$context['entire_file'] = $smcFunc['htmlspecialchars'](strtr(file_get_contents($currentTheme['theme_dir'] . '/' . $_REQUEST['filename']), array("\t" => '   ')));
+		Utils::$context['entire_file'] = Utils::htmlspecialchars(strtr(file_get_contents($currentTheme['theme_dir'] . '/' . $_REQUEST['filename']), array("\t" => '   ')));
 	}
 	elseif (substr($_REQUEST['filename'], -13) == '.template.php')
 	{
-		$context['sub_template'] = 'edit_template';
+		Utils::$context['sub_template'] = 'edit_template';
 
 		if (!isset($error_file))
 			$file_data = file($currentTheme['theme_dir'] . '/' . $_REQUEST['filename']);
 		else
 		{
 			if (preg_match('~(<b>.+?</b>:.+?<b>).+?(</b>.+?<b>\d+</b>)<br( /)?' . '>$~i', $error, $match) != 0)
-				$context['parse_error'] = $match[1] . $_REQUEST['filename'] . $match[2];
+				Utils::$context['parse_error'] = $match[1] . $_REQUEST['filename'] . $match[2];
 			$file_data = file($error_file);
 			unlink($error_file);
 		}
 
 		$j = 0;
-		$context['file_parts'] = array(array('lines' => 0, 'line' => 1, 'data' => ''));
+		Utils::$context['file_parts'] = array(array('lines' => 0, 'line' => 1, 'data' => ''));
 		for ($i = 0, $n = count($file_data); $i < $n; $i++)
 		{
 			if (isset($file_data[$i + 1]) && substr($file_data[$i + 1], 0, 9) == 'function ')
 			{
 				// Try to format the functions a little nicer...
-				$context['file_parts'][$j]['data'] = trim($context['file_parts'][$j]['data']) . "\n";
+				Utils::$context['file_parts'][$j]['data'] = trim(Utils::$context['file_parts'][$j]['data']) . "\n";
 
-				if (empty($context['file_parts'][$j]['lines']))
-					unset($context['file_parts'][$j]);
-				$context['file_parts'][++$j] = array('lines' => 0, 'line' => $i + 1, 'data' => '');
+				if (empty(Utils::$context['file_parts'][$j]['lines']))
+					unset(Utils::$context['file_parts'][$j]);
+				Utils::$context['file_parts'][++$j] = array('lines' => 0, 'line' => $i + 1, 'data' => '');
 			}
 
-			$context['file_parts'][$j]['lines']++;
-			$context['file_parts'][$j]['data'] .= $smcFunc['htmlspecialchars'](strtr($file_data[$i], array("\t" => '   ')));
+			Utils::$context['file_parts'][$j]['lines']++;
+			Utils::$context['file_parts'][$j]['data'] .= Utils::htmlspecialchars(strtr($file_data[$i], array("\t" => '   ')));
 		}
 
-		$context['entire_file'] = $smcFunc['htmlspecialchars'](strtr(implode('', $file_data), array("\t" => '   ')));
+		Utils::$context['entire_file'] = Utils::htmlspecialchars(strtr(implode('', $file_data), array("\t" => '   ')));
 	}
 	else
 	{
-		$context['sub_template'] = 'edit_file';
+		Utils::$context['sub_template'] = 'edit_file';
 
-		$context['entire_file'] = $smcFunc['htmlspecialchars'](strtr(file_get_contents($currentTheme['theme_dir'] . '/' . $_REQUEST['filename']), array("\t" => '   ')));
+		Utils::$context['entire_file'] = Utils::htmlspecialchars(strtr(file_get_contents($currentTheme['theme_dir'] . '/' . $_REQUEST['filename']), array("\t" => '   ')));
 	}
 
 	// Create a special token to allow editing of multiple files.
@@ -1809,12 +1802,12 @@ function EditTheme()
  */
 function CopyTemplate()
 {
-	global $context, $settings;
+	global $settings;
 
 	isAllowedTo('admin_forum');
 	loadTemplate('Themes');
 
-	$context[$context['admin_menu_name']]['current_subsection'] = 'edit';
+	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'edit';
 
 	$_GET['th'] = isset($_GET['th']) ? (int) $_GET['th'] : (int) $_GET['id'];
 
@@ -1823,7 +1816,7 @@ function CopyTemplate()
 
 	// Get the theme info.
 	$theme = get_single_theme($_GET['th']);
-	$context['theme_id'] = $theme['id'];
+	Utils::$context['theme_id'] = $theme['id'];
 
 	if (isset($_REQUEST['template']) && preg_match('~[\./\\\\:\0]~', $_REQUEST['template']) == 0)
 	{
@@ -1837,7 +1830,7 @@ function CopyTemplate()
 		fwrite($fp, file_get_contents($filename));
 		fclose($fp);
 
-		redirectexit('action=admin;area=theme;th=' . $context['theme_id'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';sa=copy');
+		redirectexit('action=admin;area=theme;th=' . Utils::$context['theme_id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=copy');
 	}
 	elseif (isset($_REQUEST['lang_file']) && preg_match('~^[^\./\\\\:\0]\.[^\./\\\\:\0]$~', $_REQUEST['lang_file']) != 0)
 	{
@@ -1851,7 +1844,7 @@ function CopyTemplate()
 		fwrite($fp, file_get_contents($filename));
 		fclose($fp);
 
-		redirectexit('action=admin;area=theme;th=' . $context['theme_id'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';sa=copy');
+		redirectexit('action=admin;area=theme;th=' . Utils::$context['theme_id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=copy');
 	}
 
 	$templates = array();
@@ -1876,17 +1869,17 @@ function CopyTemplate()
 	natcasesort($templates);
 	natcasesort($lang_files);
 
-	$context['available_templates'] = array();
+	Utils::$context['available_templates'] = array();
 	foreach ($templates as $template)
-		$context['available_templates'][$template] = array(
+		Utils::$context['available_templates'][$template] = array(
 			'filename' => $template . '.template.php',
 			'value' => $template,
 			'already_exists' => false,
 			'can_copy' => is_writable($theme['theme_dir']),
 		);
-	$context['available_language_files'] = array();
+	Utils::$context['available_language_files'] = array();
 	foreach ($lang_files as $file)
-		$context['available_language_files'][$file] = array(
+		Utils::$context['available_language_files'][$file] = array(
 			'filename' => $file . '.php',
 			'value' => $file,
 			'already_exists' => false,
@@ -1896,10 +1889,10 @@ function CopyTemplate()
 	$dir = dir($theme['theme_dir']);
 	while ($entry = $dir->read())
 	{
-		if (substr($entry, -13) == '.template.php' && isset($context['available_templates'][substr($entry, 0, -13)]))
+		if (substr($entry, -13) == '.template.php' && isset(Utils::$context['available_templates'][substr($entry, 0, -13)]))
 		{
-			$context['available_templates'][substr($entry, 0, -13)]['already_exists'] = true;
-			$context['available_templates'][substr($entry, 0, -13)]['can_copy'] = is_writable($theme['theme_dir'] . '/' . $entry);
+			Utils::$context['available_templates'][substr($entry, 0, -13)]['already_exists'] = true;
+			Utils::$context['available_templates'][substr($entry, 0, -13)]['can_copy'] = is_writable($theme['theme_dir'] . '/' . $entry);
 		}
 	}
 	$dir->close();
@@ -1909,16 +1902,16 @@ function CopyTemplate()
 		$dir = dir($theme['theme_dir'] . '/languages');
 		while ($entry = $dir->read())
 		{
-			if (preg_match('~^([^\.]+\.[^\.]+)\.php$~', $entry, $matches) && isset($context['available_language_files'][$matches[1]]))
+			if (preg_match('~^([^\.]+\.[^\.]+)\.php$~', $entry, $matches) && isset(Utils::$context['available_language_files'][$matches[1]]))
 			{
-				$context['available_language_files'][$matches[1]]['already_exists'] = true;
-				$context['available_language_files'][$matches[1]]['can_copy'] = is_writable($theme['theme_dir'] . '/languages/' . $entry);
+				Utils::$context['available_language_files'][$matches[1]]['already_exists'] = true;
+				Utils::$context['available_language_files'][$matches[1]]['can_copy'] = is_writable($theme['theme_dir'] . '/languages/' . $entry);
 			}
 		}
 		$dir->close();
 	}
 
-	$context['sub_template'] = 'copy_template';
+	Utils::$context['sub_template'] = 'copy_template';
 }
 
 ?>

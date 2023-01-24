@@ -13,6 +13,8 @@
 
 namespace SMF\Db\APIs;
 
+use SMF\Config;
+use SMF\Utils;
 use SMF\Db\DatabaseApi;
 use SMF\Db\DatabaseApiInterface;
 
@@ -1890,20 +1892,18 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	protected function __construct(array $options = array())
 	{
-		global $db_user, $db_passwd, $ssi_db_user, $ssi_db_passwd;
-
 		parent::__construct();
 
 		// If caller was explict about non_fatal, respect that.
 		$non_fatal = !empty($options['non_fatal']);
 
 		// If we are in SSI try them first, but don't worry if it doesn't work, we have the normal username and password we can use.
-		if (SMF == 'SSI' && !empty($ssi_db_user) && !empty($ssi_db_passwd))
+		if (SMF == 'SSI' && !empty(Config::$ssi_db_user) && !empty(Config::$ssi_db_passwd))
 		{
 			if (empty($options))
 				$options = array('non_fatal' => true, 'dont_select_db' => true);
 
-			$this->initiate($ssi_db_user, $ssi_db_passwd, $options);
+			$this->initiate(Config::$ssi_db_user, Config::$ssi_db_passwd, $options);
 		}
 
 		// Either we aren't in SSI mode, or it failed.
@@ -1912,7 +1912,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			if (empty($options))
 				$options = array('dont_select_db' => SMF == 'SSI');
 
-			$this->initiate($db_user, $db_passwd, $options);
+			$this->initiate(Config::$db_user, Config::$db_passwd, $options);
 		}
 
 		// Safe guard here, if there isn't a valid connection let's put a stop to it.
@@ -2026,7 +2026,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	protected function replacement__callback($matches)
 	{
-		global $user_info, $smcFunc;
+		global $user_info;
 
 		if (!is_object($this->temp_connection))
 			display_db_error();
@@ -2047,7 +2047,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			return '\'' . mysqli_real_escape_string($this->temp_connection, $matches[2]) . '\'';
 
 		if (!isset($this->temp_values[$matches[2]]))
-			$this->error_backtrace('The database value you\'re trying to insert does not exist: ' . (isset($smcFunc['htmlspecialchars']) ? $smcFunc['htmlspecialchars']($matches[2]) : htmlspecialchars($matches[2])), '', E_USER_ERROR, __FILE__, __LINE__);
+			$this->error_backtrace('The database value you\'re trying to insert does not exist: ' . Utils::htmlspecialchars($matches[2]), '', E_USER_ERROR, __FILE__, __LINE__);
 
 		$replacement = $this->temp_values[$matches[2]];
 

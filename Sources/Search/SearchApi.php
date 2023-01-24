@@ -14,6 +14,9 @@
 namespace SMF\Search;
 
 use SMF\BackwardCompatibility;
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
 use SMF\PackageManager\SubsPackage;
 
 /**
@@ -145,10 +148,7 @@ abstract class SearchApi implements SearchApiInterface
 	 */
 	public function postRemoved($id_msg): void
 	{
-
-		global $smcFunc;
-
-		$result = $smcFunc['db_query']('', '
+		$result = Db::$db->query('', '
 			SELECT DISTINCT id_search
 			FROM {db_prefix}log_search_results
 			WHERE id_msg = {int:id_msg}',
@@ -158,13 +158,13 @@ abstract class SearchApi implements SearchApiInterface
 		);
 
 		$id_searchs = array();
-		while ($row = $smcFunc['db_fetch_assoc']($result))
+		while ($row = Db::$db->fetch_assoc($result))
 			$id_searchs[] = $row['id_search'];
 
 		if (count($id_searchs) < 1)
 			return;
 
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}log_search_results
 			WHERE id_search in ({array_int:id_searchs})',
 			array(
@@ -172,7 +172,7 @@ abstract class SearchApi implements SearchApiInterface
 			)
 		);
 
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}log_search_topics
 			WHERE id_search in ({array_int:id_searchs})',
 			array(
@@ -180,7 +180,7 @@ abstract class SearchApi implements SearchApiInterface
 			)
 		);
 
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}log_search_messages
 			WHERE id_search in ({array_int:id_searchs})',
 			array(
@@ -221,12 +221,12 @@ abstract class SearchApi implements SearchApiInterface
 	 */
 	final public static function load()
 	{
-		global $sourcedir, $modSettings, $txt;
+		global $txt;
 
 		// Load up the search API we are going to use.
-		$modSettings['search_index'] = empty($modSettings['search_index']) ? 'standard' : $modSettings['search_index'];
+		Config::$modSettings['search_index'] = empty(Config::$modSettings['search_index']) ? 'standard' : Config::$modSettings['search_index'];
 
-		$search_class_name = __NAMESPACE__ . '\\APIs\\' . ucwords($modSettings['search_index']);
+		$search_class_name = __NAMESPACE__ . '\\APIs\\' . ucwords(Config::$modSettings['search_index']);
 
 		if (!class_exists($search_class_name))
 			fatal_lang_error('search_api_missing');
@@ -239,12 +239,12 @@ abstract class SearchApi implements SearchApiInterface
 		{
 			// Log the error.
 			loadLanguage('Errors');
-			log_error(sprintf($txt['search_api_not_compatible'], 'Search/APIs/' . ucwords($modSettings['search_index']) . '.php'), 'critical');
+			log_error(sprintf($txt['search_api_not_compatible'], 'Search/APIs/' . ucwords(Config::$modSettings['search_index']) . '.php'), 'critical');
 
 			// Fall back to standard search.
-			if ($modSettings['search_index'] !== 'standard')
+			if (Config::$modSettings['search_index'] !== 'standard')
 			{
-				$modSettings['search_index'] = 'standard';
+				Config::$modSettings['search_index'] = 'standard';
 				self::load();
 			}
 			// This should never happen, but...
@@ -262,8 +262,6 @@ abstract class SearchApi implements SearchApiInterface
 	 */
 	final public static function detect(): array
 	{
-		global $sourcedir;
-
 		$loadedApis = array();
 
 		$api_classes = new \GlobIterator(__DIR__ . '/APIs/*.php', \FilesystemIterator::NEW_CURRENT_AND_KEY);
@@ -296,7 +294,7 @@ abstract class SearchApi implements SearchApiInterface
 
 		// Check for search APIs using the old SearchAPI-*.php system.
 		// Kept for backward compatibility.
-		$source_files = new \GlobIterator($sourcedir . '/SearchAPI-*.php', \FilesystemIterator::NEW_CURRENT_AND_KEY);
+		$source_files = new \GlobIterator(Config::$sourcedir . '/SearchAPI-*.php', \FilesystemIterator::NEW_CURRENT_AND_KEY);
 
 		foreach ($source_files as $file_path => $file_info)
 		{

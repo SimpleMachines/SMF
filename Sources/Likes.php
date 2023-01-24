@@ -14,6 +14,7 @@
 namespace SMF;
 
 use SMF\Cache\CacheApi;
+use SMF\Db\DatabaseApi as Db;
 
 /**
  * Handles liking posts and displaying the list of who liked a post.
@@ -155,7 +156,7 @@ class Likes
 	/**
 	 * Wrapper for constructor. Ensures only one instance is created.
 	 *
-	 * @todo Add a reference to $context['instances'] as well?
+	 * @todo Add a reference to Utils::$context['instances'] as well?
 	 *
 	 * @return An instance of this class.
 	 */
@@ -183,8 +184,6 @@ class Likes
 	 */
 	protected function __construct()
 	{
-		global $db_show_debug;
-
 		$this->_type = isset($_GET['ltype']) ? $_GET['ltype'] : '';
 		$this->_content = isset($_GET['like']) ? (int) $_GET['like'] : 0;
 		$this->_js = isset($_GET['js']) ? true : false;
@@ -193,7 +192,7 @@ class Likes
 
 		// We do not want to output debug information here.
 		if ($this->_js)
-			$db_show_debug = false;
+			Config::$db_show_debug = false;
 	}
 
 	/**
@@ -204,9 +203,7 @@ class Likes
 	 */
 	public function execute()
 	{
-		global $context;
-
-		$this->_user = $context['user'];
+		$this->_user = Utils::$context['user'];
 
 		// Make sure the user can see and like your content.
 		$this->check();
@@ -264,10 +261,8 @@ class Likes
 	 */
 	protected function check()
 	{
-		global $smcFunc, $modSettings;
-
 		// This feature is currently disable.
-		if (empty($modSettings['enable_likes']))
+		if (empty(Config::$modSettings['enable_likes']))
 			return $this->_error = 'like_disable';
 
 		// Zerothly, they did indicate some kind of content to like, right?
@@ -284,7 +279,7 @@ class Likes
 			// So we're doing something off a like. We need to verify that it exists, and that the current user can see it.
 			// Fortunately for messages, this is quite easy to do - and we'll get the topic id while we're at it, because
 			// we need this later for other things.
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT m.id_topic, m.id_member
 				FROM {db_prefix}messages AS m
 				WHERE {query_see_message_board}
@@ -293,10 +288,10 @@ class Likes
 					'msg' => $this->_content,
 				)
 			);
-			if ($smcFunc['db_num_rows']($request) == 1)
-				list ($this->_idTopic, $topicOwner) = $smcFunc['db_fetch_row']($request);
+			if (Db::$db->num_rows($request) == 1)
+				list ($this->_idTopic, $topicOwner) = Db::$db->fetch_row($request);
 
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 			if (empty($this->_idTopic))
 				return $this->_error = 'cannot_';
 
@@ -355,9 +350,7 @@ class Likes
 	 */
 	protected function delete()
 	{
-		global $smcFunc;
-
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}user_likes
 			WHERE content_id = {int:like_content}
 				AND content_type = {string:like_type}
@@ -374,7 +367,7 @@ class Likes
 			$this->_data = __FUNCTION__;
 
 		// Check to see if there is an unread alert to delete as well...
-		$result = $smcFunc['db_query']('', '
+		$result = Db::$db->query('', '
 			SELECT id_alert, id_member FROM {db_prefix}user_alerts
 			WHERE content_id = {int:like_content}
 				AND content_type = {string:like_type}
@@ -390,12 +383,12 @@ class Likes
 			)
 		);
 		// Found one?
-		if ($smcFunc['db_num_rows']($result) == 1)
+		if (Db::$db->num_rows($result) == 1)
 		{
-			list($alert, $member) = $smcFunc['db_fetch_row']($result);
+			list($alert, $member) = Db::$db->fetch_row($result);
 
 			// Delete it
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				DELETE FROM {db_prefix}user_alerts
 				WHERE id_alert = {int:alert}',
 				array(
@@ -414,8 +407,6 @@ class Likes
 	 */
 	protected function insert()
 	{
-		global $smcFunc;
-
 		// Any last minute changes? Temporarily turn the passed properties to normal vars to prevent unexpected behaviour with other methods using these properties.
 		$type = $this->_type;
 		$content = $this->_content;
@@ -425,7 +416,7 @@ class Likes
 		call_integration_hook('integrate_issue_like_before', array(&$type, &$content, &$user, &$time));
 
 		// Insert the like.
-		$smcFunc['db_insert']('insert',
+		Db::$db->insert('insert',
 			'{db_prefix}user_likes',
 			array('content_id' => 'int', 'content_type' => 'string-6', 'id_member' => 'int', 'like_time' => 'int'),
 			array($content, $type, $user['id'], $time),
@@ -435,10 +426,10 @@ class Likes
 		// Add a background task to process sending alerts.
 		// Mod author, you can add your own background task for your own custom like event using the "integrate_issue_like" hook or your callback, both are immediately called after this.
 		if ($this->_type == 'msg')
-			$smcFunc['db_insert']('insert',
+			Db::$db->insert('insert',
 				'{db_prefix}background_tasks',
 				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-				array('$sourcedir/tasks/Likes_Notify.php', 'SMF\Tasks\Likes_Notify', $smcFunc['json_encode'](array(
+				array('$sourcedir/tasks/Likes_Notify.php', 'SMF\Tasks\Likes_Notify', Utils::jsonEncode(array(
 					'content_id' => $content,
 					'content_type' => $type,
 					'sender_id' => $user['id'],
@@ -460,9 +451,7 @@ class Likes
 	 */
 	protected function _count()
 	{
-		global $smcFunc;
-
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT COUNT(*)
 			FROM {db_prefix}user_likes
 			WHERE content_id = {int:like_content}
@@ -472,8 +461,8 @@ class Likes
 				'like_type' => $this->_type,
 			)
 		);
-		list ($this->_numLikes) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		list ($this->_numLikes) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 
 		// If you want to call this directly, fill out _data property too.
 		if ($this->_sa == __FUNCTION__)
@@ -487,14 +476,12 @@ class Likes
 	 */
 	protected function like()
 	{
-		global $smcFunc;
-
 		// Safety first!
 		if (empty($this->_type) || empty($this->_content))
 			return $this->_error = 'cannot_';
 
 		// Do we already like this?
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT content_id, content_type, id_member
 			FROM {db_prefix}user_likes
 			WHERE content_id = {int:like_content}
@@ -506,8 +493,8 @@ class Likes
 				'id_member' => $this->_user['id'],
 			)
 		);
-		$this->_alreadyLiked = (bool) $smcFunc['db_num_rows']($request) != 0;
-		$smcFunc['db_free_result']($request);
+		$this->_alreadyLiked = (bool) Db::$db->num_rows($request) != 0;
+		Db::$db->free_result($request);
 
 		if ($this->_alreadyLiked)
 			$this->delete();
@@ -559,12 +546,10 @@ class Likes
 	 */
 	function msgIssueLike()
 	{
-		global $smcFunc;
-
 		if ($this->_type !== 'msg')
 			return;
 
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}messages
 			SET likes = {int:num_likes}
 			WHERE id_msg = {int:id_msg}',
@@ -588,11 +573,11 @@ class Likes
 	 */
 	function view()
 	{
-		global $smcFunc, $txt, $context, $memberContext;
+		global $txt, $memberContext;
 
 		// Firstly, load what we need. We already know we can see this, so that's something.
-		$context['likers'] = array();
-		$request = $smcFunc['db_query']('', '
+		Utils::$context['likers'] = array();
+		$request = Db::$db->query('', '
 			SELECT id_member, like_time
 			FROM {db_prefix}user_likes
 			WHERE content_id = {int:like_content}
@@ -603,41 +588,41 @@ class Likes
 				'like_type' => $this->_type,
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$context['likers'][$row['id_member']] = array('timestamp' => $row['like_time']);
+		while ($row = Db::$db->fetch_assoc($request))
+			Utils::$context['likers'][$row['id_member']] = array('timestamp' => $row['like_time']);
 
 		// Now to get member data, including avatars and so on.
-		$members = array_keys($context['likers']);
+		$members = array_keys(Utils::$context['likers']);
 		$loaded = loadMemberData($members);
 		if (count($loaded) != count($members))
 		{
 			$members = array_diff($members, $loaded);
 			foreach ($members as $not_loaded)
-				unset ($context['likers'][$not_loaded]);
+				unset (Utils::$context['likers'][$not_loaded]);
 		}
 
-		foreach ($context['likers'] as $liker => $dummy)
+		foreach (Utils::$context['likers'] as $liker => $dummy)
 		{
 			$loaded = loadMemberContext($liker);
 			if (!$loaded)
 			{
-				unset ($context['likers'][$liker]);
+				unset (Utils::$context['likers'][$liker]);
 				continue;
 			}
 
-			$context['likers'][$liker]['profile'] = &$memberContext[$liker];
-			$context['likers'][$liker]['time'] = !empty($dummy['timestamp']) ? timeformat($dummy['timestamp']) : '';
+			Utils::$context['likers'][$liker]['profile'] = &$memberContext[$liker];
+			Utils::$context['likers'][$liker]['time'] = !empty($dummy['timestamp']) ? timeformat($dummy['timestamp']) : '';
 		}
 
-		$count = count($context['likers']);
+		$count = count(Utils::$context['likers']);
 		$title_base = isset($txt['likes_' . $count]) ? 'likes_' . $count : 'likes_n';
-		$context['page_title'] = strip_tags(sprintf($txt[$title_base], '', comma_format($count)));
+		Utils::$context['page_title'] = strip_tags(sprintf($txt[$title_base], '', comma_format($count)));
 
 		// Lastly, setting up for display.
 		loadTemplate('Likes');
 		loadLanguage('Help'); // For the close window button.
-		$context['template_layers'] = array();
-		$context['sub_template'] = 'popup';
+		Utils::$context['template_layers'] = array();
+		Utils::$context['sub_template'] = 'popup';
 
 		// We already took care of our response so there is no need to bother with respond();
 		$this->_setResponse = false;
@@ -652,7 +637,7 @@ class Likes
 	 */
 	protected function response()
 	{
-		global $context, $txt;
+		global $txt;
 
 		// Don't do anything if someone else has already take care of the response.
 		if (!$this->_setResponse)
@@ -664,7 +649,7 @@ class Likes
 
 		// Set everything up for display.
 		loadTemplate('Likes');
-		$context['template_layers'] = array();
+		Utils::$context['template_layers'] = array();
 
 		// If there are any errors, process them first.
 		if ($this->_error)
@@ -676,8 +661,8 @@ class Likes
 			// Is this request coming from an ajax call?
 			if ($this->_js)
 			{
-				$context['sub_template'] = 'generic';
-				$context['data'] = isset($txt[$this->_error]) ? $txt[$this->_error] : $txt['like_error'];
+				Utils::$context['sub_template'] = 'generic';
+				Utils::$context['data'] = isset($txt[$this->_error]) ? $txt[$this->_error] : $txt['like_error'];
 			}
 
 			// Nope?  then just do a redirect to whatever URL was provided.
@@ -698,15 +683,15 @@ class Likes
 			$generic = array('delete', 'insert', '_count');
 			if (in_array($this->_sa, $generic))
 			{
-				$context['sub_template'] = 'generic';
-				$context['data'] = isset($txt['like_' . $this->_data]) ? $txt['like_' . $this->_data] : $this->_data;
+				Utils::$context['sub_template'] = 'generic';
+				Utils::$context['data'] = isset($txt['like_' . $this->_data]) ? $txt['like_' . $this->_data] : $this->_data;
 			}
 
 			// Directly pass the current called sub-action and the data generated by its associated Method.
 			else
 			{
-				$context['sub_template'] = $this->_sa;
-				$context['data'] = $this->_data;
+				Utils::$context['sub_template'] = $this->_sa;
+				Utils::$context['data'] = $this->_data;
 			}
 		}
 	}
@@ -716,8 +701,6 @@ class Likes
 	 */
 	protected function jsonResponse()
 	{
-		global $smcFunc;
-
 		$print = array(
 			'data' => $this->_data,
 		);
@@ -735,7 +718,7 @@ class Likes
 		call_integration_hook('integrate_likes_json_response', array(&$print));
 
 		// Print the data.
-		smf_serverResponse($smcFunc['json_encode']($print));
+		smf_serverResponse(Utils::jsonEncode($print));
 		die;
 	}
 
@@ -744,10 +727,8 @@ class Likes
 	 */
 	public static function BookOfUnknown()
 	{
-		global $context, $scripturl;
-
 		echo '<!DOCTYPE html>
-<html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
+<html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<title>The Book of Unknown, ', @$_GET['verse'] == '2:18' ? '2:18' : '4:16', '</title>
 		<style>
@@ -781,10 +762,10 @@ class Likes
 
 		if ($_GET['verse'] == '2:18')
 			echo '
-			from <span style="font-family: Georgia, serif;"><strong><a href="', $scripturl, '?action=about:unknown;verse=4:16" style="color: white; text-decoration: none; cursor: text;">The Book of Unknown</a></strong>, 2:18</span>';
+			from <span style="font-family: Georgia, serif;"><strong><a href="', Config::$scripturl, '?action=about:unknown;verse=4:16" style="color: white; text-decoration: none; cursor: text;">The Book of Unknown</a></strong>, 2:18</span>';
 		elseif ($_GET['verse'] == '4:16')
 			echo '
-			from <span style="font-family: Georgia, serif;"><strong><a href="', $scripturl, '?action=about:unknown;verse=22:1-2" style="color: white; text-decoration: none; cursor: text;">The Book of Unknown</a></strong>, 4:16</span>';
+			from <span style="font-family: Georgia, serif;"><strong><a href="', Config::$scripturl, '?action=about:unknown;verse=22:1-2" style="color: white; text-decoration: none; cursor: text;">The Book of Unknown</a></strong>, 4:16</span>';
 		elseif ($_GET['verse'] == '22:1-2')
 			echo '
 			from <span style="font-family: Georgia, serif;"><strong>The Book of Unknown</strong>, 22:1-2</span>';

@@ -13,6 +13,9 @@
 
 namespace SMF\Tasks;
 
+use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
+
 /**
  * This class contains code used to notify members when they have been added to
  * other members' buddy lists.
@@ -27,10 +30,8 @@ class Buddy_Notify extends BackgroundTask
 	 */
 	public function execute()
 	{
-		global $smcFunc, $sourcedir;
-
 		// Figure out if the user wants to be notified.
-		require_once($sourcedir . '/Subs-Notify.php');
+		require_once(Config::$sourcedir . '/Subs-Notify.php');
 		$prefs = getNotifyPrefs($this->_details['receiver_id'], 'buddy_request', true);
 
 		if ($prefs[$this->_details['receiver_id']]['buddy_request'])
@@ -47,7 +48,7 @@ class Buddy_Notify extends BackgroundTask
 				'extra' => '',
 			);
 
-			$smcFunc['db_insert']('insert', '{db_prefix}user_alerts',
+			Db::$db->insert('insert', '{db_prefix}user_alerts',
 				array('alert_time' => 'int', 'id_member' => 'int', 'id_member_started' => 'int', 'member_name' => 'string',
 				'content_type' => 'string', 'content_id' => 'int', 'content_action' => 'string', 'is_read' => 'int', 'extra' => 'string'),
 				$alert_row, array()

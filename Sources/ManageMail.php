@@ -16,6 +16,10 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -24,7 +28,7 @@ if (!defined('SMF'))
  */
 function ManageMail()
 {
-	global $context, $txt, $sourcedir;
+	global $txt;
 
 	// You need to be an admin to edit settings!
 	isAllowedTo('admin_forum');
@@ -33,10 +37,10 @@ function ManageMail()
 	loadLanguage('ManageMail');
 
 	// We'll need the utility functions from here.
-	require_once($sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/ManageServer.php');
 
-	$context['page_title'] = $txt['mailqueue_title'];
-	$context['sub_template'] = 'show_settings';
+	Utils::$context['page_title'] = $txt['mailqueue_title'];
+	Utils::$context['sub_template'] = 'show_settings';
 
 	$subActions = array(
 		'browse' => 'BrowseMailQueue',
@@ -49,10 +53,10 @@ function ManageMail()
 
 	// By default we want to browse
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'browse';
-	$context['sub_action'] = $_REQUEST['sa'];
+	Utils::$context['sub_action'] = $_REQUEST['sa'];
 
 	// Load up all the tabs...
-	$context[$context['admin_menu_name']]['tab_data'] = array(
+	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['mailqueue_title'],
 		'help' => '',
 		'description' => $txt['mailqueue_desc'],
@@ -67,15 +71,14 @@ function ManageMail()
  */
 function BrowseMailQueue()
 {
-	global $scripturl, $context, $txt, $smcFunc;
-	global $sourcedir, $modSettings;
+	global $txt;
 
 	// First, are we deleting something from the queue?
 	if (isset($_REQUEST['delete']))
 	{
 		checkSession();
 
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}mail_queue
 			WHERE id_mail IN ({array_int:mail_ids})',
 			array(
@@ -85,23 +88,23 @@ function BrowseMailQueue()
 	}
 
 	// How many items do we have?
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(*) AS queue_size, MIN(time_sent) AS oldest
 		FROM {db_prefix}mail_queue',
 		array(
 		)
 	);
-	list ($mailQueueSize, $mailOldest) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($mailQueueSize, $mailOldest) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
-	$context['oldest_mail'] = empty($mailOldest) ? $txt['mailqueue_oldest_not_available'] : time_since(time() - $mailOldest);
-	$context['mail_queue_size'] = comma_format($mailQueueSize);
+	Utils::$context['oldest_mail'] = empty($mailOldest) ? $txt['mailqueue_oldest_not_available'] : time_since(time() - $mailOldest);
+	Utils::$context['mail_queue_size'] = comma_format($mailQueueSize);
 
 	$listOptions = array(
 		'id' => 'mail_queue',
 		'title' => $txt['mailqueue_browse'],
-		'items_per_page' => $modSettings['defaultMaxListItems'],
-		'base_href' => $scripturl . '?action=admin;area=mailqueue',
+		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
+		'base_href' => Config::$scripturl . '?action=admin;area=mailqueue',
 		'default_sort_col' => 'age',
 		'no_items_label' => $txt['mailqueue_no_items'],
 		'get_items' => array(
@@ -116,9 +119,9 @@ function BrowseMailQueue()
 					'value' => $txt['mailqueue_subject'],
 				),
 				'data' => array(
-					'function' => function($rowData) use ($smcFunc)
+					'function' => function($rowData)
 					{
-						return $smcFunc['strlen']($rowData['subject']) > 50 ? sprintf('%1$s...', $smcFunc['htmlspecialchars']($smcFunc['substr']($rowData['subject'], 0, 47))) : $smcFunc['htmlspecialchars']($rowData['subject']);
+						return Utils::entityStrlen($rowData['subject']) > 50 ? sprintf('%1$s...', Utils::htmlspecialchars(Utils::entitySubstr($rowData['subject'], 0, 47))) : Utils::htmlspecialchars($rowData['subject']);
 					},
 					'class' => 'smalltext',
 				),
@@ -195,27 +198,27 @@ function BrowseMailQueue()
 			),
 		),
 		'form' => array(
-			'href' => $scripturl . '?action=admin;area=mailqueue',
+			'href' => Config::$scripturl . '?action=admin;area=mailqueue',
 			'include_start' => true,
 			'include_sort' => true,
 		),
 		'additional_rows' => array(
 			array(
 				'position' => 'top_of_list',
-				'value' => '<input type="submit" name="delete_redirects" value="' . $txt['quickmod_delete_selected'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="button you_sure"><a class="button you_sure" href="' . $scripturl . '?action=admin;area=mailqueue;sa=clear;' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['mailqueue_clear_list_warning'] . '">' . $txt['mailqueue_clear_list'] . '</a> ',
+				'value' => '<input type="submit" name="delete_redirects" value="' . $txt['quickmod_delete_selected'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="button you_sure"><a class="button you_sure" href="' . Config::$scripturl . '?action=admin;area=mailqueue;sa=clear;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . $txt['mailqueue_clear_list_warning'] . '">' . $txt['mailqueue_clear_list'] . '</a> ',
 			),
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '<input type="submit" name="delete_redirects" value="' . $txt['quickmod_delete_selected'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="button you_sure"><a class="button you_sure" href="' . $scripturl . '?action=admin;area=mailqueue;sa=clear;' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['mailqueue_clear_list_warning'] . '">' . $txt['mailqueue_clear_list'] . '</a> ',
+				'value' => '<input type="submit" name="delete_redirects" value="' . $txt['quickmod_delete_selected'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="button you_sure"><a class="button you_sure" href="' . Config::$scripturl . '?action=admin;area=mailqueue;sa=clear;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . $txt['mailqueue_clear_list_warning'] . '">' . $txt['mailqueue_clear_list'] . '</a> ',
 			),
 		),
 	);
 
-	require_once($sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/Subs-List.php');
 	createList($listOptions);
 
 	loadTemplate('ManageMail');
-	$context['sub_template'] = 'browse';
+	Utils::$context['sub_template'] = 'browse';
 }
 
 /**
@@ -229,9 +232,9 @@ function BrowseMailQueue()
  */
 function list_getMailQueue($start, $items_per_page, $sort)
 {
-	global $smcFunc, $txt;
+	global $txt;
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT
 			id_mail, time_sent, recipient, priority, private, subject
 		FROM {db_prefix}mail_queue
@@ -244,7 +247,7 @@ function list_getMailQueue($start, $items_per_page, $sort)
 		)
 	);
 	$mails = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// Private PM/email subjects and similar shouldn't be shown in the mailbox area.
 		if (!empty($row['private']))
@@ -254,7 +257,7 @@ function list_getMailQueue($start, $items_per_page, $sort)
 
 		$mails[] = $row;
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	return $mails;
 }
@@ -267,17 +270,15 @@ function list_getMailQueue($start, $items_per_page, $sort)
  */
 function list_getMailQueueSize()
 {
-	global $smcFunc;
-
 	// How many items do we have?
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(*) AS queue_size
 		FROM {db_prefix}mail_queue',
 		array(
 		)
 	);
-	list ($mailQueueSize) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($mailQueueSize) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	return $mailQueueSize;
 }
@@ -290,12 +291,12 @@ function list_getMailQueueSize()
  */
 function ModifyMailSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $modSettings, $txtBirthdayEmails;
+	global $txt, $txtBirthdayEmails;
 
 	loadLanguage('EmailTemplates');
 
-	$body = $txtBirthdayEmails[(empty($modSettings['birthday_email']) ? 'happy_birthday' : $modSettings['birthday_email']) . '_body'];
-	$subject = $txtBirthdayEmails[(empty($modSettings['birthday_email']) ? 'happy_birthday' : $modSettings['birthday_email']) . '_subject'];
+	$body = $txtBirthdayEmails[(empty(Config::$modSettings['birthday_email']) ? 'happy_birthday' : Config::$modSettings['birthday_email']) . '_body'];
+	$subject = $txtBirthdayEmails[(empty(Config::$modSettings['birthday_email']) ? 'happy_birthday' : Config::$modSettings['birthday_email']) . '_subject'];
 
 	$emails = array();
 	$processedBirthdayEmails = array();
@@ -323,7 +324,7 @@ function ModifyMailSettings($return_config = false)
 		'',
 
 		array('select', 'birthday_email', $emails, 'value' => array('subject' => $subject, 'body' => $body), 'javascript' => 'onchange="fetch_birthday_preview()"'),
-		'birthday_subject' => array('var_message', 'birthday_subject', 'var_message' => $processedBirthdayEmails[empty($modSettings['birthday_email']) ? 'happy_birthday' : $modSettings['birthday_email']]['subject'], 'disabled' => true, 'size' => strlen($subject) + 3),
+		'birthday_subject' => array('var_message', 'birthday_subject', 'var_message' => $processedBirthdayEmails[empty(Config::$modSettings['birthday_email']) ? 'happy_birthday' : Config::$modSettings['birthday_email']]['subject'], 'disabled' => true, 'size' => strlen($subject) + 3),
 		'birthday_body' => array('var_message', 'birthday_body', 'var_message' => nl2br($body), 'disabled' => true, 'size' => ceil(strlen($body) / 25)),
 	);
 
@@ -351,12 +352,12 @@ function ModifyMailSettings($return_config = false)
 		redirectexit('action=admin;area=mailqueue;sa=settings');
 	}
 
-	$context['post_url'] = $scripturl . '?action=admin;area=mailqueue;save;sa=settings';
-	$context['settings_title'] = $txt['mailqueue_settings'];
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=mailqueue;save;sa=settings';
+	Utils::$context['settings_title'] = $txt['mailqueue_settings'];
 
 	prepareDBSettingContext($config_vars);
 
-	$context['settings_insert_above'] = '
+	Utils::$context['settings_insert_above'] = '
 	<script>
 		var bDay = {';
 
@@ -364,13 +365,13 @@ function ModifyMailSettings($return_config = false)
 	foreach ($processedBirthdayEmails as $index => $email)
 	{
 		$is_last = ++$i == count($processedBirthdayEmails);
-		$context['settings_insert_above'] .= '
+		Utils::$context['settings_insert_above'] .= '
 			' . $index . ': {
 				subject: ' . JavaScriptEscape($email['subject']) . ',
 				body: ' . JavaScriptEscape(nl2br($email['body'])) . '
 			}' . (!$is_last ? ',' : '');
 	}
-	$context['settings_insert_above'] .= '
+	Utils::$context['settings_insert_above'] .= '
 		};
 		function fetch_birthday_preview()
 		{
@@ -386,25 +387,23 @@ function ModifyMailSettings($return_config = false)
  */
 function ClearMailQueue()
 {
-	global $sourcedir, $smcFunc;
-
 	checkSession('get');
 
 	// This is certainly needed!
-	require_once($sourcedir . '/ScheduledTasks.php');
+	require_once(Config::$sourcedir . '/ScheduledTasks.php');
 
 	// If we don't yet have the total to clear, find it.
 	if (!isset($_GET['te']))
 	{
 		// How many items do we have?
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT COUNT(*) AS queue_size
 			FROM {db_prefix}mail_queue',
 			array(
 			)
 		);
-		list ($_GET['te']) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		list ($_GET['te']) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 	}
 	else
 		$_GET['te'] = (int) $_GET['te'];
@@ -427,7 +426,7 @@ function ClearMailQueue()
  */
 function pauseMailQueueClear()
 {
-	global $context, $txt;
+	global $txt;
 
 	// Try get more time...
 	@set_time_limit(600);
@@ -438,20 +437,20 @@ function pauseMailQueueClear()
 	if ((time() - TIME_START) < 5)
 		return;
 
-	$context['continue_get_data'] = '?action=admin;area=mailqueue;sa=clear;te=' . $_GET['te'] . ';sent=' . $_GET['sent'] . ';' . $context['session_var'] . '=' . $context['session_id'];
-	$context['page_title'] = $txt['not_done_title'];
-	$context['continue_post_data'] = '';
-	$context['continue_countdown'] = '2';
-	$context['sub_template'] = 'not_done';
+	Utils::$context['continue_get_data'] = '?action=admin;area=mailqueue;sa=clear;te=' . $_GET['te'] . ';sent=' . $_GET['sent'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
+	Utils::$context['page_title'] = $txt['not_done_title'];
+	Utils::$context['continue_post_data'] = '';
+	Utils::$context['continue_countdown'] = '2';
+	Utils::$context['sub_template'] = 'not_done';
 
 	// Keep browse selected.
-	$context['selected'] = 'browse';
+	Utils::$context['selected'] = 'browse';
 
 	// What percent through are we?
-	$context['continue_percent'] = round(($_GET['sent'] / $_GET['te']) * 100, 1);
+	Utils::$context['continue_percent'] = round(($_GET['sent'] / $_GET['te']) * 100, 1);
 
 	// Never more than 100%!
-	$context['continue_percent'] = min($context['continue_percent'], 100);
+	Utils::$context['continue_percent'] = min(Utils::$context['continue_percent'], 100);
 
 	obExit();
 }
@@ -462,31 +461,31 @@ function pauseMailQueueClear()
  */
 function TestMailSend()
 {
-	global $scripturl, $context, $sourcedir, $user_info, $smcFunc;
+	global $user_info;
 
 	loadLanguage('ManageMail');
 	loadTemplate('ManageMail');
-	$context['sub_template'] = 'mailtest';
-	$context['base_url'] = $scripturl . '?action=admin;area=mailqueue;sa=test';
-	$context['post_url'] = $context['base_url'] . ';save';
+	Utils::$context['sub_template'] = 'mailtest';
+	Utils::$context['base_url'] = Config::$scripturl . '?action=admin;area=mailqueue;sa=test';
+	Utils::$context['post_url'] = Utils::$context['base_url'] . ';save';
 
 	// Sending the test message now.
 	if (isset($_GET['save']))
 	{
-		require_once($sourcedir . '/Subs-Post.php');
+		require_once(Config::$sourcedir . '/Subs-Post.php');
 
 		// Send to the current user, no options.
 		$to = $user_info['email'];
-		$subject = $smcFunc['htmlspecialchars']($_POST['subject']);
-		$message = $smcFunc['htmlspecialchars']($_POST['message']);
+		$subject = Utils::htmlspecialchars($_POST['subject']);
+		$message = Utils::htmlspecialchars($_POST['message']);
 
 		$result = sendmail($to, $subject, $message, null, null, false, 0);
-		redirectexit($context['base_url'] . ';result=' . ($result ? 'success' : 'failure'));
+		redirectexit(Utils::$context['base_url'] . ';result=' . ($result ? 'success' : 'failure'));
 	}
 
 	// The result.
 	if (isset($_GET['result']))
-		$context['result'] = ($_GET['result'] == 'success' ? 'success' : 'failure');
+		Utils::$context['result'] = ($_GET['result'] == 'success' ? 'success' : 'failure');
 }
 
 /**

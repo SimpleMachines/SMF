@@ -60,7 +60,10 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Config;
+use SMF\Utils;
 use SMF\Cache\CacheApi;
+use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -76,13 +79,13 @@ if (!defined('SMF'))
  */
 function ModifySettings()
 {
-	global $context, $txt, $boarddir;
+	global $txt;
 
 	// This is just to keep the database password more secure.
 	isAllowedTo('admin_forum');
 
 	// Load up all the tabs...
-	$context[$context['admin_menu_name']]['tab_data'] = array(
+	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['admin_server_settings'],
 		'help' => 'serversettings',
 		'description' => $txt['admin_basic_settings'],
@@ -93,8 +96,8 @@ function ModifySettings()
 	// The settings are in here, I swear!
 	loadLanguage('ManageSettings');
 
-	$context['page_title'] = $txt['admin_server_settings'];
-	$context['sub_template'] = 'show_settings';
+	Utils::$context['page_title'] = $txt['admin_server_settings'];
+	Utils::$context['sub_template'] = 'show_settings';
 
 	$subActions = array(
 		'general' => 'ModifyGeneralSettings',
@@ -108,24 +111,24 @@ function ModifySettings()
 	);
 
 	// Warn the user if there's any relevant information regarding Settings.php.
-	$settings_not_writable = !is_writable($boarddir . '/Settings.php');
-	$settings_backup_fail = !@is_writable($boarddir . '/Settings_bak.php') || !@copy($boarddir . '/Settings.php', $boarddir . '/Settings_bak.php');
+	$settings_not_writable = !is_writable(SMF_SETTINGS_FILE);
+	$settings_backup_fail = !@is_writable(SMF_SETTINGS_BACKUP_FILE) || !@copy(SMF_SETTINGS_FILE, SMF_SETTINGS_BACKUP_FILE);
 
 	if ($settings_backup_fail)
-		$context['settings_message'] = array(
+		Utils::$context['settings_message'] = array(
 			'label' => $txt['admin_backup_fail'],
 			'tag' => 'div',
 			'class' => 'centertext strong'
 		);
 
-	$context['settings_not_writable'] = $settings_not_writable;
+	Utils::$context['settings_not_writable'] = $settings_not_writable;
 
 	call_integration_hook('integrate_server_settings', array(&$subActions));
 
 	// By default we're editing the core settings
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'general';
 
-	$context['sub_action'] = $_REQUEST['sa'];
+	Utils::$context['sub_action'] = $_REQUEST['sa'];
 
 	// Call the right function for this sub-action.
 	call_helper($subActions[$_REQUEST['sa']]);
@@ -145,7 +148,7 @@ function ModifySettings()
  */
 function ModifyGeneralSettings($return_config = false)
 {
-	global $scripturl, $context, $txt, $modSettings, $boardurl, $sourcedir, $smcFunc;
+	global $txt;
 
 	/* If you're writing a mod, it's a bad idea to add things here....
 	For each option:
@@ -178,12 +181,12 @@ function ModifyGeneralSettings($return_config = false)
 		return $config_vars;
 
 	// If no cert, force_ssl must remain 0 (The admin search doesn't require this)
-	$config_vars['force_ssl']['disabled'] = empty($modSettings['force_ssl']) && !ssl_cert_found($boardurl);
+	$config_vars['force_ssl']['disabled'] = empty(Config::$modSettings['force_ssl']) && !ssl_cert_found(Config::$boardurl);
 
 	// Setup the template stuff.
-	$context['post_url'] = $scripturl . '?action=admin;area=serversettings;sa=general;save';
-	$context['settings_title'] = $txt['general_settings'];
-	$context['save_disabled'] = $context['settings_not_writable'];
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=serversettings;sa=general;save';
+	Utils::$context['settings_title'] = $txt['general_settings'];
+	Utils::$context['save_disabled'] = Utils::$context['settings_not_writable'];
 
 	// Saving settings?
 	if (isset($_REQUEST['save']))
@@ -193,11 +196,11 @@ function ModifyGeneralSettings($return_config = false)
 		foreach ($config_vars as $config_var)
 		{
 			if (is_array($config_var) && isset($config_var[3]) && $config_var[3] == 'text' && !empty($_POST[$config_var[0]]))
-				$_POST[$config_var[0]] = $smcFunc['normalize']($_POST[$config_var[0]]);
+				$_POST[$config_var[0]] = Utils::normalize($_POST[$config_var[0]]);
 		}
 
 		// Are we saving the stat collection?
-		if (!empty($_POST['enable_sm_stats']) && empty($modSettings['sm_stats_key']))
+		if (!empty($_POST['enable_sm_stats']) && empty(Config::$modSettings['sm_stats_key']))
 		{
 			$registerSMStats = registerSMStats();
 
@@ -215,14 +218,14 @@ function ModifyGeneralSettings($return_config = false)
 
 		saveSettings($config_vars);
 		$_SESSION['adm-save'] = true;
-		redirectexit('action=admin;area=serversettings;sa=general;' . $context['session_var'] . '=' . $context['session_id']);
+		redirectexit('action=admin;area=serversettings;sa=general;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 	}
 
 	// Fill the config array.
 	prepareServerSettingsContext($config_vars);
 
 	// Some javascript for SSL
-	if (empty($context['settings_not_writable']))
+	if (empty(Utils::$context['settings_not_writable']))
 		addInlineJavaScript('
 $(function()
 {
@@ -241,76 +244,77 @@ $(function()
  *
  * If force_ssl has changed, ensure all URLs are aligned with the new setting.
  * This includes:
- *     - $boardurl
- *     - $modSettings['smileys_url']
- *     - $modSettings['avatar_url']
- *     - $modSettings['custom_avatar_url'] - if found
+ *     - Config::$boardurl
+ *     - Config::$modSettings['smileys_url']
+ *     - Config::$modSettings['avatar_url']
+ *     - Config::$modSettings['custom_avatar_url'] - if found
  *     - theme_url - all entries in the themes table
  *     - images_url - all entries in the themes table
  *
  * This function will NOT overwrite URLs that are not subfolders of $boardurl.
- * The admin must have pointed those somewhere else on purpose, so they must be updated manually.
+ * The admin must have pointed those somewhere else on purpose, so they must be
+ * updated manually.
  *
- * A word of caution: You can't trust the http/https scheme reflected for these URLs in $globals
- * (e.g., $boardurl) or in $modSettings.  This is because SMF may change them in memory to comply
- * with the force_ssl setting - a soft redirect may be in effect...  Thus, conditional updates
- * to these values do not work.  You gotta just brute force overwrite them based on force_ssl.
+ * A word of caution: You can't trust the http/https scheme reflected for these
+ * URLs in Config::* or in Config::$modSettings. This is because SMF may change
+ * them in memory to comply with the force_ssl setting - a soft redirect may be
+ * in effect. Thus, conditional updates to these values do not work. You gotta
+ * just brute force overwrite them based on force_ssl.
  *
  * @param int $new_force_ssl is the current force_ssl setting.
  * @return void Returns nothing, just does its job
  */
 function AlignURLsWithSSLSetting($new_force_ssl = 0)
 {
-	global $boardurl, $modSettings, $sourcedir, $smcFunc;
-	require_once($sourcedir . '/Subs-Admin.php');
+	require_once(Config::$sourcedir . '/Subs-Admin.php');
 
-	// Check $boardurl
+	// Check Config::$boardurl
 	if (!empty($new_force_ssl))
-		$newval = strtr($boardurl, array('http://' => 'https://'));
+		$newval = strtr(Config::$boardurl, array('http://' => 'https://'));
 	else
-		$newval = strtr($boardurl, array('https://' => 'http://'));
-	updateSettingsFile(array('boardurl' => $newval));
+		$newval = strtr(Config::$boardurl, array('https://' => 'http://'));
+	Config::updateSettingsFile(array('boardurl' => $newval));
 
 	$new_settings = array();
 
-	// Check $smileys_url, but only if it points to a subfolder of $boardurl
-	if (BoardurlMatch($modSettings['smileys_url']))
+	// Check $smileys_url, but only if it points to a subfolder of Config::$boardurl
+	if (BoardurlMatch(Config::$modSettings['smileys_url']))
 	{
 		if (!empty($new_force_ssl))
-			$newval = strtr($modSettings['smileys_url'], array('http://' => 'https://'));
+			$newval = strtr(Config::$modSettings['smileys_url'], array('http://' => 'https://'));
 		else
-			$newval = strtr($modSettings['smileys_url'], array('https://' => 'http://'));
+			$newval = strtr(Config::$modSettings['smileys_url'], array('https://' => 'http://'));
 		$new_settings['smileys_url'] = $newval;
 	}
 
-	// Check $avatar_url, but only if it points to a subfolder of $boardurl
-	if (BoardurlMatch($modSettings['avatar_url']))
+	// Check $avatar_url, but only if it points to a subfolder of Config::$boardurl
+	if (BoardurlMatch(Config::$modSettings['avatar_url']))
 	{
 		if (!empty($new_force_ssl))
-			$newval = strtr($modSettings['avatar_url'], array('http://' => 'https://'));
+			$newval = strtr(Config::$modSettings['avatar_url'], array('http://' => 'https://'));
 		else
-			$newval = strtr($modSettings['avatar_url'], array('https://' => 'http://'));
+			$newval = strtr(Config::$modSettings['avatar_url'], array('https://' => 'http://'));
 		$new_settings['avatar_url'] = $newval;
 	}
 
-	// Check $custom_avatar_url, but only if it points to a subfolder of $boardurl
+	// Check $custom_avatar_url, but only if it points to a subfolder of Config::$boardurl
 	// This one had been optional in the past, make sure it is set first
-	if (isset($modSettings['custom_avatar_url']) && BoardurlMatch($modSettings['custom_avatar_url']))
+	if (isset(Config::$modSettings['custom_avatar_url']) && BoardurlMatch(Config::$modSettings['custom_avatar_url']))
 	{
 		if (!empty($new_force_ssl))
-			$newval = strtr($modSettings['custom_avatar_url'], array('http://' => 'https://'));
+			$newval = strtr(Config::$modSettings['custom_avatar_url'], array('http://' => 'https://'));
 		else
-			$newval = strtr($modSettings['custom_avatar_url'], array('https://' => 'http://'));
+			$newval = strtr(Config::$modSettings['custom_avatar_url'], array('https://' => 'http://'));
 		$new_settings['custom_avatar_url'] = $newval;
 	}
 
 	// Save updates to the settings table
 	if (!empty($new_settings))
-		updateSettings($new_settings, true);
+		Config::updateModSettings($new_settings, true);
 
 	// Now we move onto the themes.
 	// First, get a list of theme URLs...
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_theme, variable, value
 		FROM {db_prefix}themes
 		WHERE variable in ({string:themeurl}, {string:imagesurl})
@@ -322,9 +326,9 @@ function AlignURLsWithSSLSetting($new_force_ssl = 0)
 		)
 	);
 
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
-		// First check to see if it points to a subfolder of $boardurl
+		// First check to see if it points to a subfolder of Config::$boardurl
 		if (BoardurlMatch($row['value']))
 		{
 			if (!empty($new_force_ssl))
@@ -332,7 +336,7 @@ function AlignURLsWithSSLSetting($new_force_ssl = 0)
 			else
 				$newval = strtr($row['value'], array('https://' => 'http://'));
 
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				UPDATE {db_prefix}themes
 				SET value = {string:theme_val}
 				WHERE variable = {string:theme_var}
@@ -347,27 +351,25 @@ function AlignURLsWithSSLSetting($new_force_ssl = 0)
 			);
 		}
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 }
 
 /**
- * $boardurl Match.
+ * Config::$boardurl Match.
  *
- * Helper function to see if the url being checked is based off of $boardurl.
+ * Helper function to see if the url being checked is based off of Config::$boardurl.
  * If not, it was overridden by the admin to some other value on purpose, and should not
  * be stepped on by SMF when aligning URLs with the force_ssl setting.
- * The site admin must change URLs that are not aligned with $boardurl manually.
+ * The site admin must change URLs that are not aligned with Config::$boardurl manually.
  *
  * @param string $url is the url to check.
- * @return bool Returns true if the url is based off of $boardurl (without the scheme), false if not
+ * @return bool Returns true if the url is based off of Config::$boardurl (without the scheme), false if not
  */
 function BoardurlMatch($url = '')
 {
-	global $boardurl;
-
 	// Strip the schemes
 	$urlpath = strtr($url, array('http://' => '', 'https://' => ''));
-	$boardurlpath = strtr($boardurl, array('http://' => '', 'https://' => ''));
+	$boardurlpath = strtr(Config::$boardurl, array('http://' => '', 'https://' => ''));
 
 	// If leftmost portion of path matches boardurl, return true
 	$result = strpos($urlpath, $boardurlpath);
@@ -391,7 +393,7 @@ function BoardurlMatch($url = '')
  */
 function ModifyDatabaseSettings($return_config = false)
 {
-	global $scripturl, $context, $txt, $smcFunc;
+	global $txt;
 
 	/* If you're writing a mod, it's a bad idea to add things here....
 		For each option:
@@ -408,12 +410,12 @@ function ModifyDatabaseSettings($return_config = false)
 	);
 
 	// Add PG Stuff
-	if ($smcFunc['db_title'] === POSTGRE_TITLE)
+	if (Db::$db->title === POSTGRE_TITLE)
 	{
-		$request = $smcFunc['db_query']('', 'SELECT cfgname FROM pg_ts_config', array());
+		$request = Db::$db->query('', 'SELECT cfgname FROM pg_ts_config', array());
 		$fts_language = array();
 
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$fts_language[$row['cfgname']] = $row['cfgname'];
 
 		$config_vars = array_merge($config_vars, array(
@@ -429,11 +431,11 @@ function ModifyDatabaseSettings($return_config = false)
 		return $config_vars;
 
 	// Setup the template stuff.
-	$context['post_url'] = $scripturl . '?action=admin;area=serversettings;sa=database;save';
-	$context['settings_title'] = $txt['database_settings'];
-	$context['save_disabled'] = $context['settings_not_writable'];
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=serversettings;sa=database;save';
+	Utils::$context['settings_title'] = $txt['database_settings'];
+	Utils::$context['save_disabled'] = Utils::$context['settings_not_writable'];
 
-	if (!$smcFunc['db_allow_persistent']())
+	if (!Db::$db->allow_persistent())
 		addInlineJavaScript('
 			$(function()
 			{
@@ -447,7 +449,7 @@ function ModifyDatabaseSettings($return_config = false)
 
 		saveSettings($config_vars);
 		$_SESSION['adm-save'] = true;
-		redirectexit('action=admin;area=serversettings;sa=database;' . $context['session_var'] . '=' . $context['session_id']);
+		redirectexit('action=admin;area=serversettings;sa=database;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 	}
 
 	// Fill the config array.
@@ -462,7 +464,7 @@ function ModifyDatabaseSettings($return_config = false)
  */
 function ModifyCookieSettings($return_config = false)
 {
-	global $context, $scripturl, $txt, $sourcedir, $modSettings, $cookiename, $user_settings, $boardurl, $smcFunc;
+	global $txt, $user_settings;
 
 	// Define the variables we want to edit.
 	$config_vars = array(
@@ -473,7 +475,7 @@ function ModifyCookieSettings($return_config = false)
 			{
 				return isset($txt[$str]) ? $txt[$str] : '';
 			},
-			$context['login_cookie_times']
+			Utils::$context['login_cookie_times']
 		))),
 		array('localCookies', $txt['localCookies'], 'db', 'check', false, 'localCookies'),
 		array('globalCookies', $txt['globalCookies'], 'db', 'check', false, 'globalCookies'),
@@ -529,29 +531,29 @@ function ModifyCookieSettings($return_config = false)
 	if ($return_config)
 		return $config_vars;
 
-	$context['post_url'] = $scripturl . '?action=admin;area=serversettings;sa=cookie;save';
-	$context['settings_title'] = $txt['cookies_sessions_settings'];
-	$context['save_disabled'] = $context['settings_not_writable'];
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=serversettings;sa=cookie;save';
+	Utils::$context['settings_title'] = $txt['cookies_sessions_settings'];
+	Utils::$context['save_disabled'] = Utils::$context['settings_not_writable'];
 
 	// Saving settings?
 	if (isset($_REQUEST['save']))
 	{
 		call_integration_hook('integrate_save_cookie_settings');
 
-		$_POST['cookiename'] = $smcFunc['normalize']($_POST['cookiename']);
+		$_POST['cookiename'] = Utils::normalize($_POST['cookiename']);
 
 		// Local and global do not play nicely together.
 		if (!empty($_POST['localCookies']) && empty($_POST['globalCookies']))
 			unset ($_POST['globalCookies']);
 
-		if (empty($modSettings['localCookies']) != empty($_POST['localCookies']) || empty($modSettings['globalCookies']) != empty($_POST['globalCookies']))
+		if (empty(Config::$modSettings['localCookies']) != empty($_POST['localCookies']) || empty(Config::$modSettings['globalCookies']) != empty($_POST['globalCookies']))
 			$scope_changed = true;
 
 		if (!empty($_POST['globalCookiesDomain']))
 		{
 			$_POST['globalCookiesDomain'] = parse_iri(normalize_iri((strpos($_POST['globalCookiesDomain'], '//') === false ? 'http://' : '') . ltrim($_POST['globalCookiesDomain'], '.')), PHP_URL_HOST);
 
-			if (!preg_match('/(?:^|\.)' . preg_quote($_POST['globalCookiesDomain'], '/') . '$/u', parse_iri($boardurl, PHP_URL_HOST)))
+			if (!preg_match('/(?:^|\.)' . preg_quote($_POST['globalCookiesDomain'], '/') . '$/u', parse_iri(Config::$boardurl, PHP_URL_HOST)))
 				fatal_lang_error('invalid_cookie_domain', false);
 		}
 
@@ -562,32 +564,32 @@ function ModifyCookieSettings($return_config = false)
 		saveSettings($config_vars);
 
 		// If the cookie name or scope were changed, reset the cookie.
-		if ($cookiename != $_POST['cookiename'] || !empty($scope_changed))
+		if (Config::$cookiename != $_POST['cookiename'] || !empty($scope_changed))
 		{
-			$original_session_id = $context['session_id'];
-			include_once($sourcedir . '/Subs-Auth.php');
+			$original_session_id = Utils::$context['session_id'];
+			include_once(Config::$sourcedir . '/Subs-Auth.php');
 
 			// Remove the old cookie.
 			setLoginCookie(-3600, 0);
 
 			// Set the new one.
-			$cookiename = !empty($_POST['cookiename']) ? $_POST['cookiename'] : $cookiename;
-			setLoginCookie(60 * $modSettings['cookieTime'], $user_settings['id_member'], hash_salt($user_settings['passwd'], $user_settings['password_salt']));
+			Config::$cookiename = !empty($_POST['cookiename']) ? $_POST['cookiename'] : Config::$cookiename;
+			setLoginCookie(60 * Config::$modSettings['cookieTime'], $user_settings['id_member'], hash_salt($user_settings['passwd'], $user_settings['password_salt']));
 
-			redirectexit('action=admin;area=serversettings;sa=cookie;' . $context['session_var'] . '=' . $original_session_id, $context['server']['needs_login_fix']);
+			redirectexit('action=admin;area=serversettings;sa=cookie;' . Utils::$context['session_var'] . '=' . $original_session_id, Utils::$context['server']['needs_login_fix']);
 		}
 
 		//If we disabled 2FA, reset all members and membergroups settings.
 		if (isset($_POST['tfa_mode']) && empty($_POST['tfa_mode']))
 		{
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				UPDATE {db_prefix}membergroups
 				SET tfa_required = {int:zero}',
 				array(
 					'zero' => 0,
 				)
 			);
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				UPDATE {db_prefix}members
 				SET tfa_secret = {string:empty}, tfa_backup = {string:empty}',
 				array(
@@ -597,7 +599,7 @@ function ModifyCookieSettings($return_config = false)
 		}
 
 		$_SESSION['adm-save'] = true;
-		redirectexit('action=admin;area=serversettings;sa=cookie;' . $context['session_var'] . '=' . $context['session_id']);
+		redirectexit('action=admin;area=serversettings;sa=cookie;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 	}
 
 	// Fill the config array.
@@ -612,7 +614,7 @@ function ModifyCookieSettings($return_config = false)
  */
 function ModifyGeneralSecuritySettings($return_config = false)
 {
-	global $txt, $scripturl, $context;
+	global $txt;
 
 	$config_vars = array(
 		array('int', 'failed_login_threshold'),
@@ -711,11 +713,11 @@ function ModifyGeneralSecuritySettings($return_config = false)
 		call_integration_hook('integrate_save_general_security_settings');
 
 		writeLog();
-		redirectexit('action=admin;area=serversettings;sa=security;' . $context['session_var'] . '=' . $context['session_id']);
+		redirectexit('action=admin;area=serversettings;sa=security;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 	}
 
-	$context['post_url'] = $scripturl . '?action=admin;area=serversettings;save;sa=security';
-	$context['settings_title'] = $txt['security_settings'];
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=serversettings;save;sa=security';
+	Utils::$context['settings_title'] = $txt['security_settings'];
 
 	prepareDBSettingContext($config_vars);
 }
@@ -728,7 +730,7 @@ function ModifyGeneralSecuritySettings($return_config = false)
  */
 function ModifyCacheSettings($return_config = false)
 {
-	global $context, $scripturl, $txt;
+	global $txt;
 
 	// Detect all available optimizers
 	$detectedCacheApis = CacheApi::detect();
@@ -768,7 +770,7 @@ function ModifyCacheSettings($return_config = false)
 	);
 
 	// some javascript to enable / disable certain settings if the option is not selected
-	$context['settings_post_javascript'] = '
+	Utils::$context['settings_post_javascript'] = '
 		$(document).ready(function() {
 			$("#cache_accelerator").change();
 		});';
@@ -798,26 +800,26 @@ function ModifyCacheSettings($return_config = false)
 		saveSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 
-		// We need to save the CacheApi::$enable to $modSettings as well
-		updateSettings(array('cache_enable' => (int) $_POST['cache_enable']));
+		// We need to save the CacheApi::$enable to Config::$modSettings as well
+		Config::updateModSettings(array('cache_enable' => (int) $_POST['cache_enable']));
 
 		// exit so we reload our new settings on the page
-		redirectexit('action=admin;area=serversettings;sa=cache;' . $context['session_var'] . '=' . $context['session_id']);
+		redirectexit('action=admin;area=serversettings;sa=cache;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 	}
 
 	loadLanguage('ManageMaintenance');
 	createToken('admin-maint');
-	$context['template_layers'][] = 'clean_cache_button';
+	Utils::$context['template_layers'][] = 'clean_cache_button';
 
-	$context['post_url'] = $scripturl . '?action=admin;area=serversettings;sa=cache;save';
-	$context['settings_title'] = $txt['caching_settings'];
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=serversettings;sa=cache;save';
+	Utils::$context['settings_title'] = $txt['caching_settings'];
 
 	// Changing cache settings won't have any effect if Settings.php is not writable.
-	$context['save_disabled'] = $context['settings_not_writable'];
+	Utils::$context['save_disabled'] = Utils::$context['settings_not_writable'];
 
 	// Decide what message to show.
-	if (!$context['save_disabled'])
-		$context['settings_message'] = $txt['caching_information'];
+	if (!Utils::$context['save_disabled'])
+		Utils::$context['settings_message'] = $txt['caching_information'];
 
 	// Prepare the template.
 	prepareServerSettingsContext($config_vars);
@@ -831,11 +833,11 @@ function ModifyCacheSettings($return_config = false)
  */
 function ModifyExportSettings($return_config = false)
 {
-	global $context, $scripturl, $txt, $modSettings, $boarddir, $sourcedir;
+	global $txt;
 
 	// Fill in a default value for this if it is missing.
-	if (empty($modSettings['export_dir']))
-		$modSettings['export_dir'] = $boarddir . DIRECTORY_SEPARATOR . 'exports';
+	if (empty(Config::$modSettings['export_dir']))
+		Config::$modSettings['export_dir'] = Config::$boarddir . DIRECTORY_SEPARATOR . 'exports';
 
 	/*
 		Some paranoid hosts worry that the disk space functions pose a security
@@ -847,9 +849,9 @@ function ModifyExportSettings($return_config = false)
 		they report obviously insane values, it's not possible to track disk
 		usage correctly.
 	 */
-	$diskspace_disabled = (!function_exists('disk_free_space') || !function_exists('disk_total_space') || intval(@disk_total_space(file_exists($modSettings['export_dir']) ? $modSettings['export_dir'] : $boarddir)) < 1440);
+	$diskspace_disabled = (!function_exists('disk_free_space') || !function_exists('disk_total_space') || intval(@disk_total_space(file_exists(Config::$modSettings['export_dir']) ? Config::$modSettings['export_dir'] : Config::$boarddir)) < 1440);
 
-	$context['settings_message'] = $txt['export_settings_description'];
+	Utils::$context['settings_message'] = $txt['export_settings_description'];
 
 	$config_vars = array(
 		array('text', 'export_dir', 40),
@@ -865,7 +867,7 @@ function ModifyExportSettings($return_config = false)
 
 	if (isset($_REQUEST['save']))
 	{
-		$prev_export_dir = is_dir($modSettings['export_dir']) ? rtrim($modSettings['export_dir'], '/\\') : '';
+		$prev_export_dir = is_dir(Config::$modSettings['export_dir']) ? rtrim(Config::$modSettings['export_dir'], '/\\') : '';
 
 		if (!empty($_POST['export_dir']))
 			$_POST['export_dir'] = rtrim($_POST['export_dir'], '/\\');
@@ -878,11 +880,11 @@ function ModifyExportSettings($return_config = false)
 		saveDBSettings($config_vars);
 
 		// Create the new directory, but revert to the previous one if anything goes wrong.
-		require_once($sourcedir . '/Profile-Export.php');
+		require_once(Config::$sourcedir . '/Profile-Export.php');
 		create_export_dir($prev_export_dir);
 
 		// Ensure we don't lose track of any existing export files.
-		if (!empty($prev_export_dir) && $prev_export_dir != $modSettings['export_dir'])
+		if (!empty($prev_export_dir) && $prev_export_dir != Config::$modSettings['export_dir'])
 		{
 			$export_files = glob($prev_export_dir . DIRECTORY_SEPARATOR . '*');
 
@@ -890,7 +892,7 @@ function ModifyExportSettings($return_config = false)
 			{
 				if (!in_array(basename($export_file), array('index.php', '.htaccess')))
 				{
-					rename($export_file, $modSettings['export_dir'] . DIRECTORY_SEPARATOR . basename($export_file));
+					rename($export_file, Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR . basename($export_file));
 				}
 			}
 		}
@@ -898,11 +900,11 @@ function ModifyExportSettings($return_config = false)
 		call_integration_hook('integrate_save_export_settings');
 
 		$_SESSION['adm-save'] = true;
-		redirectexit('action=admin;area=serversettings;sa=export;' . $context['session_var'] . '=' . $context['session_id']);
+		redirectexit('action=admin;area=serversettings;sa=export;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 	}
 
-	$context['post_url'] = $scripturl . '?action=admin;area=serversettings;sa=export;save';
-	$context['settings_title'] = $txt['export_settings'];
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=serversettings;sa=export;save';
+	Utils::$context['settings_title'] = $txt['export_settings'];
 
 	prepareDBSettingContext($config_vars);
 }
@@ -915,37 +917,37 @@ function ModifyExportSettings($return_config = false)
  */
 function ModifyLoadBalancingSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $modSettings;
+	global $txt;
 
 	// Setup a warning message, but disabled by default.
 	$disabled = true;
-	$context['settings_message'] = array('label' => $txt['loadavg_disabled_conf'], 'class' => 'error');
+	Utils::$context['settings_message'] = array('label' => $txt['loadavg_disabled_conf'], 'class' => 'error');
 
 	if (DIRECTORY_SEPARATOR === '\\')
 	{
-		$context['settings_message']['label'] = $txt['loadavg_disabled_windows'];
+		Utils::$context['settings_message']['label'] = $txt['loadavg_disabled_windows'];
 		if (isset($_GET['save']))
-			$_SESSION['adm-save'] = $context['settings_message']['label'];
+			$_SESSION['adm-save'] = Utils::$context['settings_message']['label'];
 	}
 	elseif (stripos(PHP_OS, 'darwin') === 0)
 	{
-		$context['settings_message']['label'] = $txt['loadavg_disabled_osx'];
+		Utils::$context['settings_message']['label'] = $txt['loadavg_disabled_osx'];
 		if (isset($_GET['save']))
-			$_SESSION['adm-save'] = $context['settings_message']['label'];
+			$_SESSION['adm-save'] = Utils::$context['settings_message']['label'];
 	}
 	else
 	{
-		$modSettings['load_average'] = @file_get_contents('/proc/loadavg');
-		if (!empty($modSettings['load_average']) && preg_match('~^([^ ]+?) ([^ ]+?) ([^ ]+)~', $modSettings['load_average'], $matches) !== 0)
-			$modSettings['load_average'] = (float) $matches[1];
-		elseif (($modSettings['load_average'] = @`uptime`) !== null && preg_match('~load averages?: (\d+\.\d+), (\d+\.\d+), (\d+\.\d+)~i', $modSettings['load_average'], $matches) !== 0)
-			$modSettings['load_average'] = (float) $matches[1];
+		Config::$modSettings['load_average'] = @file_get_contents('/proc/loadavg');
+		if (!empty(Config::$modSettings['load_average']) && preg_match('~^([^ ]+?) ([^ ]+?) ([^ ]+)~', Config::$modSettings['load_average'], $matches) !== 0)
+			Config::$modSettings['load_average'] = (float) $matches[1];
+		elseif ((Config::$modSettings['load_average'] = @`uptime`) !== null && preg_match('~load averages?: (\d+\.\d+), (\d+\.\d+), (\d+\.\d+)~i', Config::$modSettings['load_average'], $matches) !== 0)
+			Config::$modSettings['load_average'] = (float) $matches[1];
 		else
-			unset($modSettings['load_average']);
+			unset(Config::$modSettings['load_average']);
 
-		if (!empty($modSettings['load_average']) || (isset($modSettings['load_average']) && $modSettings['load_average'] === 0.0))
+		if (!empty(Config::$modSettings['load_average']) || (isset(Config::$modSettings['load_average']) && Config::$modSettings['load_average'] === 0.0))
 		{
-			$context['settings_message']['label'] = sprintf($txt['loadavg_warning'], $modSettings['load_average']);
+			Utils::$context['settings_message']['label'] = sprintf($txt['loadavg_warning'], Config::$modSettings['load_average']);
 			$disabled = false;
 		}
 	}
@@ -971,7 +973,7 @@ function ModifyLoadBalancingSettings($return_config = false)
 	foreach ($default_values as $name => $value)
 	{
 		// Use the default value if the setting isn't set yet.
-		$value = !isset($modSettings[$name]) ? $value : $modSettings[$name];
+		$value = !isset(Config::$modSettings[$name]) ? $value : Config::$modSettings[$name];
 		$config_vars[] = array('float', $name, 'value' => $value, 'disabled' => $disabled);
 	}
 
@@ -980,8 +982,8 @@ function ModifyLoadBalancingSettings($return_config = false)
 	if ($return_config)
 		return $config_vars;
 
-	$context['post_url'] = $scripturl . '?action=admin;area=serversettings;sa=loads;save';
-	$context['settings_title'] = $txt['load_balancing_settings'];
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=serversettings;sa=loads;save';
+	Utils::$context['settings_title'] = $txt['load_balancing_settings'];
 
 	// Saving?
 	if (isset($_GET['save']))
@@ -1007,7 +1009,7 @@ function ModifyLoadBalancingSettings($return_config = false)
 		saveDBSettings($config_vars);
 		if (!isset($_SESSION['adm-save']))
 			$_SESSION['adm-save'] = true;
-		redirectexit('action=admin;area=serversettings;sa=loads;' . $context['session_var'] . '=' . $context['session_id']);
+		redirectexit('action=admin;area=serversettings;sa=loads;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 	}
 
 	prepareDBSettingContext($config_vars);
@@ -1038,10 +1040,10 @@ function ModifyLoadBalancingSettings($return_config = false)
  */
 function prepareServerSettingsContext(&$config_vars)
 {
-	global $context, $modSettings, $smcFunc, $txt;
+	global $txt;
 
-	if (!empty($context['settings_not_writable']))
-		$context['settings_message'] = array(
+	if (!empty(Utils::$context['settings_not_writable']))
+		Utils::$context['settings_message'] = array(
 			'label' => $txt['settings_not_writable'],
 			'tag' => 'div',
 			'class' => 'centertext strong'
@@ -1050,18 +1052,18 @@ function prepareServerSettingsContext(&$config_vars)
 	if (isset($_SESSION['adm-save']))
 	{
 		if ($_SESSION['adm-save'] === true)
-			$context['saved_successful'] = true;
+			Utils::$context['saved_successful'] = true;
 		else
-			$context['saved_failed'] = $_SESSION['adm-save'];
+			Utils::$context['saved_failed'] = $_SESSION['adm-save'];
 
 		unset($_SESSION['adm-save']);
 	}
 
-	$context['config_vars'] = array();
+	Utils::$context['config_vars'] = array();
 	foreach ($config_vars as $identifier => $config_var)
 	{
 		if (!is_array($config_var) || !isset($config_var[1]))
-			$context['config_vars'][] = $config_var;
+			Utils::$context['config_vars'][] = $config_var;
 		else
 		{
 			$varname = $config_var[0];
@@ -1077,15 +1079,15 @@ function prepareServerSettingsContext(&$config_vars)
 				$config_var[1] = substr($config_var[1], 0, $divPos);
 			}
 
-			$context['config_vars'][$config_var[0]] = array(
+			Utils::$context['config_vars'][$config_var[0]] = array(
 				'label' => $config_var[1],
 				'help' => isset($config_var[5]) ? $config_var[5] : '',
 				'type' => $config_var[3],
 				'size' => !empty($config_var[4]) && !is_array($config_var[4]) ? $config_var[4] : 0,
 				'data' => isset($config_var[4]) && is_array($config_var[4]) && $config_var[3] != 'select' ? $config_var[4] : array(),
 				'name' => $config_var[0],
-				'value' => $config_var[2] == 'file' ? $smcFunc['htmlspecialchars']($$varname) : (isset($modSettings[$config_var[0]]) ? $smcFunc['htmlspecialchars']($modSettings[$config_var[0]]) : (in_array($config_var[3], array('int', 'float')) ? 0 : '')),
-				'disabled' => !empty($context['settings_not_writable']) || !empty($config_var['disabled']),
+				'value' => $config_var[2] == 'file' ? Utils::htmlspecialchars($$varname) : (isset(Config::$modSettings[$config_var[0]]) ? Utils::htmlspecialchars(Config::$modSettings[$config_var[0]]) : (in_array($config_var[3], array('int', 'float')) ? 0 : '')),
+				'disabled' => !empty(Utils::$context['settings_not_writable']) || !empty($config_var['disabled']),
 				'invalid' => false,
 				'subtext' => !empty($config_var['subtext']) ? $config_var['subtext'] : $subtext,
 				'javascript' => '',
@@ -1098,15 +1100,15 @@ function prepareServerSettingsContext(&$config_vars)
 			{
 				// Default to a min of 0 if one isn't set
 				if (isset($config_var['min']))
-					$context['config_vars'][$config_var[0]]['min'] = $config_var['min'];
+					Utils::$context['config_vars'][$config_var[0]]['min'] = $config_var['min'];
 				else
-					$context['config_vars'][$config_var[0]]['min'] = 0;
+					Utils::$context['config_vars'][$config_var[0]]['min'] = 0;
 
 				if (isset($config_var['max']))
-					$context['config_vars'][$config_var[0]]['max'] = $config_var['max'];
+					Utils::$context['config_vars'][$config_var[0]]['max'] = $config_var['max'];
 
 				if (isset($config_var['step']))
-					$context['config_vars'][$config_var[0]]['step'] = $config_var['step'];
+					Utils::$context['config_vars'][$config_var[0]]['step'] = $config_var['step'];
 			}
 
 			// If this is a select box handle any data.
@@ -1115,11 +1117,11 @@ function prepareServerSettingsContext(&$config_vars)
 				// If it's associative
 				$config_values = array_values($config_var[4]);
 				if (isset($config_values[0]) && is_array($config_values[0]))
-					$context['config_vars'][$config_var[0]]['data'] = $config_var[4];
+					Utils::$context['config_vars'][$config_var[0]]['data'] = $config_var[4];
 				else
 				{
 					foreach ($config_var[4] as $key => $item)
-						$context['config_vars'][$config_var[0]]['data'][] = array($key, $item);
+						Utils::$context['config_vars'][$config_var[0]]['data'][] = array($key, $item);
 				}
 			}
 		}
@@ -1139,21 +1141,21 @@ function prepareServerSettingsContext(&$config_vars)
  */
 function prepareDBSettingContext(&$config_vars)
 {
-	global $txt, $helptxt, $context, $modSettings, $sourcedir, $smcFunc;
+	global $txt, $helptxt;
 
 	loadLanguage('Help');
 
 	if (isset($_SESSION['adm-save']))
 	{
 		if ($_SESSION['adm-save'] === true)
-			$context['saved_successful'] = true;
+			Utils::$context['saved_successful'] = true;
 		else
-			$context['saved_failed'] = $_SESSION['adm-save'];
+			Utils::$context['saved_failed'] = $_SESSION['adm-save'];
 
 		unset($_SESSION['adm-save']);
 	}
 
-	$context['config_vars'] = array();
+	Utils::$context['config_vars'] = array();
 	$inlinePermissions = array();
 	$bbcChoice = array();
 	$board_list = false;
@@ -1161,7 +1163,7 @@ function prepareDBSettingContext(&$config_vars)
 	{
 		// HR?
 		if (!is_array($config_var))
-			$context['config_vars'][] = $config_var;
+			Utils::$context['config_vars'][] = $config_var;
 		else
 		{
 			// If it has no name it doesn't have any purpose!
@@ -1183,21 +1185,21 @@ function prepareDBSettingContext(&$config_vars)
 				$bbcChoice[] = $config_var[1];
 
 			// We need to do some parsing of the value before we pass it in.
-			if (isset($modSettings[$config_var[1]]))
+			if (isset(Config::$modSettings[$config_var[1]]))
 			{
 				switch ($config_var[0])
 				{
 					case 'select':
-						$value = $modSettings[$config_var[1]];
+						$value = Config::$modSettings[$config_var[1]];
 						break;
 					case 'json':
-						$value = $smcFunc['htmlspecialchars']($smcFunc['json_encode']($modSettings[$config_var[1]]));
+						$value = Utils::htmlspecialchars(Utils::jsonEncode(Config::$modSettings[$config_var[1]]));
 						break;
 					case 'boards':
-						$value = explode(',', $modSettings[$config_var[1]]);
+						$value = explode(',', Config::$modSettings[$config_var[1]]);
 						break;
 					default:
-						$value = $smcFunc['htmlspecialchars']($modSettings[$config_var[1]]);
+						$value = Utils::htmlspecialchars(Config::$modSettings[$config_var[1]]);
 				}
 			}
 			else
@@ -1210,7 +1212,7 @@ function prepareDBSettingContext(&$config_vars)
 						$value = 0;
 						break;
 					case 'select':
-						$value = !empty($config_var['multiple']) ? $smcFunc['json_encode'](array()) : '';
+						$value = !empty($config_var['multiple']) ? Utils::jsonEncode(array()) : '';
 						break;
 					case 'boards':
 						$value = array();
@@ -1220,7 +1222,7 @@ function prepareDBSettingContext(&$config_vars)
 				}
 			}
 
-			$context['config_vars'][$config_var[1]] = array(
+			Utils::$context['config_vars'][$config_var[1]] = array(
 				'label' => isset($config_var['text_label']) ? $config_var['text_label'] : (isset($txt[$config_var[1]]) ? $txt[$config_var[1]] : (isset($config_var[3]) && !is_array($config_var[3]) ? $config_var[3] : '')),
 				'help' => isset($helptxt[$config_var[1]]) ? $config_var[1] : '',
 				'type' => $config_var[0],
@@ -1241,16 +1243,16 @@ function prepareDBSettingContext(&$config_vars)
 			{
 				// Default to a min of 0 if one isn't set
 				if (isset($config_var['min']))
-					$context['config_vars'][$config_var[1]]['min'] = $config_var['min'];
+					Utils::$context['config_vars'][$config_var[1]]['min'] = $config_var['min'];
 
 				else
-					$context['config_vars'][$config_var[1]]['min'] = 0;
+					Utils::$context['config_vars'][$config_var[1]]['min'] = 0;
 
 				if (isset($config_var['max']))
-					$context['config_vars'][$config_var[1]]['max'] = $config_var['max'];
+					Utils::$context['config_vars'][$config_var[1]]['max'] = $config_var['max'];
 
 				if (isset($config_var['step']))
-					$context['config_vars'][$config_var[1]]['step'] = $config_var['step'];
+					Utils::$context['config_vars'][$config_var[1]]['step'] = $config_var['step'];
 			}
 
 			// If this is a select box handle any data.
@@ -1259,21 +1261,21 @@ function prepareDBSettingContext(&$config_vars)
 				// If we allow multiple selections, we need to adjust a few things.
 				if ($config_var[0] == 'select' && !empty($config_var['multiple']))
 				{
-					$context['config_vars'][$config_var[1]]['name'] .= '[]';
-					$context['config_vars'][$config_var[1]]['value'] = !empty($context['config_vars'][$config_var[1]]['value']) ? $smcFunc['json_decode']($context['config_vars'][$config_var[1]]['value'], true) : array();
+					Utils::$context['config_vars'][$config_var[1]]['name'] .= '[]';
+					Utils::$context['config_vars'][$config_var[1]]['value'] = !empty(Utils::$context['config_vars'][$config_var[1]]['value']) ? Utils::jsonDecode(Utils::$context['config_vars'][$config_var[1]]['value'], true) : array();
 				}
 
 				// If it's associative
 				if (isset($config_var[2][0]) && is_array($config_var[2][0]))
-					$context['config_vars'][$config_var[1]]['data'] = $config_var[2];
+					Utils::$context['config_vars'][$config_var[1]]['data'] = $config_var[2];
 
 				else
 				{
 					foreach ($config_var[2] as $key => $item)
-						$context['config_vars'][$config_var[1]]['data'][] = array($key, $item);
+						Utils::$context['config_vars'][$config_var[1]]['data'][] = array($key, $item);
 				}
 				if (empty($config_var['size']) && !empty($config_var['multiple']))
-					$context['config_vars'][$config_var[1]]['size'] = max(4, count($config_var[2]));
+					Utils::$context['config_vars'][$config_var[1]]['size'] = max(4, count($config_var[2]));
 			}
 
 			// Finally allow overrides - and some final cleanups.
@@ -1282,26 +1284,26 @@ function prepareDBSettingContext(&$config_vars)
 				if (!is_numeric($k))
 				{
 					if (substr($k, 0, 2) == 'on')
-						$context['config_vars'][$config_var[1]]['javascript'] .= ' ' . $k . '="' . $v . '"';
+						Utils::$context['config_vars'][$config_var[1]]['javascript'] .= ' ' . $k . '="' . $v . '"';
 					else
-						$context['config_vars'][$config_var[1]][$k] = $v;
+						Utils::$context['config_vars'][$config_var[1]][$k] = $v;
 				}
 
 				// See if there are any other labels that might fit?
 				if (isset($txt['setting_' . $config_var[1]]))
-					$context['config_vars'][$config_var[1]]['label'] = $txt['setting_' . $config_var[1]];
+					Utils::$context['config_vars'][$config_var[1]]['label'] = $txt['setting_' . $config_var[1]];
 
 				elseif (isset($txt['groups_' . $config_var[1]]))
-					$context['config_vars'][$config_var[1]]['label'] = $txt['groups_' . $config_var[1]];
+					Utils::$context['config_vars'][$config_var[1]]['label'] = $txt['groups_' . $config_var[1]];
 			}
 
 			// Set the subtext in case it's part of the label.
 			// @todo Temporary. Preventing divs inside label tags.
-			$divPos = strpos($context['config_vars'][$config_var[1]]['label'], '<div');
+			$divPos = strpos(Utils::$context['config_vars'][$config_var[1]]['label'], '<div');
 			if ($divPos !== false)
 			{
-				$context['config_vars'][$config_var[1]]['subtext'] = preg_replace('~</?div[^>]*>~', '', substr($context['config_vars'][$config_var[1]]['label'], $divPos));
-				$context['config_vars'][$config_var[1]]['label'] = substr($context['config_vars'][$config_var[1]]['label'], 0, $divPos);
+				Utils::$context['config_vars'][$config_var[1]]['subtext'] = preg_replace('~</?div[^>]*>~', '', substr(Utils::$context['config_vars'][$config_var[1]]['label'], $divPos));
+				Utils::$context['config_vars'][$config_var[1]]['label'] = substr(Utils::$context['config_vars'][$config_var[1]]['label'], 0, $divPos);
 			}
 		}
 	}
@@ -1309,14 +1311,14 @@ function prepareDBSettingContext(&$config_vars)
 	// If we have inline permissions we need to prep them.
 	if (!empty($inlinePermissions) && allowedTo('manage_permissions'))
 	{
-		require_once($sourcedir . '/ManagePermissions.php');
+		require_once(Config::$sourcedir . '/ManagePermissions.php');
 		init_inline_permissions($inlinePermissions);
 	}
 
 	if ($board_list)
 	{
 		require_once($sourcedir . '/Subs-MessageIndex.php');
-		$context['board_list'] = getBoardList();
+		Utils::$context['board_list'] = getBoardList();
 	}
 
 	// What about any BBC selection boxes?
@@ -1332,23 +1334,23 @@ function prepareDBSettingContext(&$config_vars)
 		$bbcTags = array_unique($bbcTags);
 
 		// The number of columns we want to show the BBC tags in.
-		$numColumns = isset($context['num_bbc_columns']) ? $context['num_bbc_columns'] : 3;
+		$numColumns = isset(Utils::$context['num_bbc_columns']) ? Utils::$context['num_bbc_columns'] : 3;
 
 		// Now put whatever BBC options we may have into context too!
-		$context['bbc_sections'] = array();
+		Utils::$context['bbc_sections'] = array();
 		foreach ($bbcChoice as $bbcSection)
 		{
-			$context['bbc_sections'][$bbcSection] = array(
+			Utils::$context['bbc_sections'][$bbcSection] = array(
 				'title' => isset($txt['bbc_title_' . $bbcSection]) ? $txt['bbc_title_' . $bbcSection] : $txt['enabled_bbc_select'],
-				'disabled' => empty($modSettings['bbc_disabled_' . $bbcSection]) ? array() : $modSettings['bbc_disabled_' . $bbcSection],
-				'all_selected' => empty($modSettings['bbc_disabled_' . $bbcSection]),
+				'disabled' => empty(Config::$modSettings['bbc_disabled_' . $bbcSection]) ? array() : Config::$modSettings['bbc_disabled_' . $bbcSection],
+				'all_selected' => empty(Config::$modSettings['bbc_disabled_' . $bbcSection]),
 				'columns' => array(),
 			);
 
 			if ($bbcSection == 'legacyBBC')
-				$sectionTags = array_intersect($context['legacy_bbc'], $bbcTags);
+				$sectionTags = array_intersect(Utils::$context['legacy_bbc'], $bbcTags);
 			else
-				$sectionTags = array_diff($bbcTags, $context['legacy_bbc']);
+				$sectionTags = array_diff($bbcTags, Utils::$context['legacy_bbc']);
 
 			$totalTags = count($sectionTags);
 			$tagsPerColumn = ceil($totalTags / $numColumns);
@@ -1360,7 +1362,7 @@ function prepareDBSettingContext(&$config_vars)
 				if ($i % $tagsPerColumn == 0 && $i != 0)
 					$col++;
 
-				$context['bbc_sections'][$bbcSection]['columns'][$col][] = array(
+				Utils::$context['bbc_sections'][$bbcSection]['columns'][$col][] = array(
 					'tag' => $tag,
 					'show_help' => isset($helptxt['tag_' . $tag]),
 				);
@@ -1385,13 +1387,11 @@ function prepareDBSettingContext(&$config_vars)
  */
 function saveSettings(&$config_vars)
 {
-	global $sourcedir, $context;
-
 	validateToken('admin-ssc');
 
 	// Fix the darn stupid cookiename! (more may not be allowed, but these for sure!)
 	if (isset($_POST['cookiename']))
-		$_POST['cookiename'] = preg_replace('~[,;\s\.$]+~' . ($context['utf8'] ? 'u' : ''), '', $_POST['cookiename']);
+		$_POST['cookiename'] = preg_replace('~[,;\s\.$]+~' . (Utils::$context['utf8'] ? 'u' : ''), '', $_POST['cookiename']);
 
 	// Fix the forum's URL if necessary.
 	if (isset($_POST['boardurl']))
@@ -1406,7 +1406,7 @@ function saveSettings(&$config_vars)
 		$_POST['boardurl'] = normalize_iri($_POST['boardurl']);
 	}
 
-	require_once($sourcedir . '/Subs-Admin.php');
+	require_once(Config::$sourcedir . '/Subs-Admin.php');
 
 	// Any passwords?
 	$config_passwords = array();
@@ -1421,7 +1421,7 @@ function saveSettings(&$config_vars)
 	$config_multis = array();
 
 	// Get all known setting definitions and assign them to our groups above.
-	$settings_defs = get_settings_defs();
+	$settings_defs = Config::getSettingsDefs();
 	foreach ($settings_defs as $var => $def)
 	{
 		if (!is_string($var))
@@ -1567,7 +1567,7 @@ function saveSettings(&$config_vars)
 	}
 
 	// Save the relevant settings in the Settings.php file.
-	updateSettingsFile($new_settings);
+	Config::updateSettingsFile($new_settings);
 
 	// Now loop through the remaining (database-based) settings.
 	$new_settings = array();
@@ -1608,7 +1608,6 @@ function saveSettings(&$config_vars)
  */
 function saveDBSettings(&$config_vars)
 {
-	global $sourcedir, $smcFunc;
 	static $board_list = null;
 
 	validateToken('admin-dbsc');
@@ -1633,7 +1632,7 @@ function saveDBSettings(&$config_vars)
 				if (in_array($invar, array_keys($var[2])))
 					$lOptions[] = $invar;
 
-			$setArray[$var[1]] = $smcFunc['json_encode']($lOptions);
+			$setArray[$var[1]] = Utils::jsonEncode($lOptions);
 		}
 		// List of boards!
 		elseif ($var[0] == 'boards')
@@ -1642,14 +1641,14 @@ function saveDBSettings(&$config_vars)
 			if ($board_list === null)
 			{
 				$board_list = array();
-				$request = $smcFunc['db_query']('', '
+				$request = Db::$db->query('', '
 					SELECT id_board
 					FROM {db_prefix}boards');
 
-				while ($row = $smcFunc['db_fetch_row']($request))
+				while ($row = Db::$db->fetch_row($request))
 					$board_list[$row[0]] = true;
 
-				$smcFunc['db_free_result']($request);
+				Db::$db->free_result($request);
 			}
 
 			$lOptions = array();
@@ -1716,12 +1715,12 @@ function saveDBSettings(&$config_vars)
 	}
 
 	if (!empty($setArray))
-		updateSettings($setArray);
+		Config::updateModSettings($setArray);
 
 	// If we have inline permissions we need to save them.
 	if (!empty($inlinePermissions) && allowedTo('manage_permissions'))
 	{
-		require_once($sourcedir . '/ManagePermissions.php');
+		require_once(Config::$sourcedir . '/ManagePermissions.php');
 		save_inline_permissions($inlinePermissions);
 	}
 }
@@ -1734,7 +1733,7 @@ function saveDBSettings(&$config_vars)
  */
 function ShowPHPinfoSettings()
 {
-	global $context, $txt;
+	global $txt;
 
 	$category = $txt['phpinfo_settings'];
 
@@ -1768,9 +1767,9 @@ function ShowPHPinfoSettings()
 	}
 
 	// load it in to context and display it
-	$context['pinfo'] = $pinfo;
-	$context['page_title'] = $txt['admin_server_settings'];
-	$context['sub_template'] = 'php_info';
+	Utils::$context['pinfo'] = $pinfo;
+	Utils::$context['page_title'] = $txt['admin_server_settings'];
+	Utils::$context['sub_template'] = 'php_info';
 	return;
 }
 
@@ -1785,10 +1784,8 @@ function ShowPHPinfoSettings()
  */
 function registerSMStats()
 {
-	global $modSettings, $boardurl, $smcFunc;
-
 	// Already have a key?  Can't register again.
-	if (!empty($modSettings['sm_stats_key']))
+	if (!empty(Config::$modSettings['sm_stats_key']))
 		return true;
 
 	$fp = @fsockopen('www.simplemachines.org', 443, $errno, $errstr);
@@ -1796,7 +1793,7 @@ function registerSMStats()
 		$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
 	if ($fp)
 	{
-		$out = 'GET /smf/stats/register_stats.php?site=' . base64_encode($boardurl) . ' HTTP/1.1' . "\r\n";
+		$out = 'GET /smf/stats/register_stats.php?site=' . base64_encode(Config::$boardurl) . ' HTTP/1.1' . "\r\n";
 		$out .= 'Host: www.simplemachines.org' . "\r\n";
 		$out .= 'Connection: Close' . "\r\n\r\n";
 		fwrite($fp, $out);
@@ -1812,7 +1809,7 @@ function registerSMStats()
 
 		if (!empty($ID[1]))
 		{
-			$smcFunc['db_insert']('replace',
+			Db::$db->insert('replace',
 				'{db_prefix}settings',
 				array('variable' => 'string', 'value' => 'string'),
 				array('sm_stats_key', $ID[1]),

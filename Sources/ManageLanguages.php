@@ -13,7 +13,10 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
 use SMF\Cache\CacheApi;
+use SMF\Db\DatabaseApi as Db;
 use SMF\PackageManager\SubsPackage;
 use SMF\PackageManager\XmlArray;
 
@@ -31,13 +34,13 @@ if (!defined('SMF'))
  */
 function ManageLanguages()
 {
-	global $context, $txt;
+	global $txt;
 
 	loadTemplate('ManageLanguages');
 	loadLanguage('ManageSettings');
 
-	$context['page_title'] = $txt['edit_languages'];
-	$context['sub_template'] = 'show_settings';
+	Utils::$context['page_title'] = $txt['edit_languages'];
+	Utils::$context['sub_template'] = 'show_settings';
 
 	$subActions = array(
 		'edit' => 'ModifyLanguages',
@@ -48,7 +51,7 @@ function ManageLanguages()
 	);
 
 	// Load up all the tabs...
-	$context[$context['admin_menu_name']]['tab_data'] = array(
+	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['language_configuration'],
 		'description' => $txt['language_description'],
 	);
@@ -57,7 +60,7 @@ function ManageLanguages()
 
 	// By default we're managing languages.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'edit';
-	$context['sub_action'] = $_REQUEST['sa'];
+	Utils::$context['sub_action'] = $_REQUEST['sa'];
 
 	// Call the right function for this sub-action.
 	call_helper($subActions[$_REQUEST['sa']]);
@@ -70,12 +73,12 @@ function ManageLanguages()
  */
 function AddLanguage()
 {
-	global $context, $sourcedir, $txt, $smcFunc;
+	global $txt;
 
 	// Are we searching for new languages courtesy of Simple Machines?
 	if (!empty($_POST['smf_add_sub']))
 	{
-		$context['smf_search_term'] = $smcFunc['htmlspecialchars'](trim($_POST['smf_add']));
+		Utils::$context['smf_search_term'] = Utils::htmlspecialchars(trim($_POST['smf_add']));
 
 		$listOptions = array(
 			'id' => 'smf_languages',
@@ -128,13 +131,13 @@ function AddLanguage()
 			),
 		);
 
-		require_once($sourcedir . '/Subs-List.php');
+		require_once(Config::$sourcedir . '/Subs-List.php');
 		createList($listOptions);
 
-		$context['default_list'] = 'smf_languages';
+		Utils::$context['default_list'] = 'smf_languages';
 	}
 
-	$context['sub_template'] = 'add_language';
+	Utils::$context['sub_template'] = 'add_language';
 }
 
 /**
@@ -145,7 +148,7 @@ function AddLanguage()
  */
 function list_getLanguagesList()
 {
-	global $context, $sourcedir, $smcFunc, $txt, $scripturl;
+	global $txt;
 
 	// We're going to use this URL.
 	$url = 'https://download.simplemachines.org/fetch_language.php?version=' . urlencode(SMF_VERSION);
@@ -155,9 +158,9 @@ function list_getLanguagesList()
 
 	// Check that the site responded and that the language exists.
 	if (!$language_list->exists('languages'))
-		$context['smf_error'] = 'no_response';
+		Utils::$context['smf_error'] = 'no_response';
 	elseif (!$language_list->exists('languages/language'))
-		$context['smf_error'] = 'no_files';
+		Utils::$context['smf_error'] = 'no_files';
 	else
 	{
 		$language_list = $language_list->path('languages[0]');
@@ -166,20 +169,20 @@ function list_getLanguagesList()
 		foreach ($lang_files as $file)
 		{
 			// Were we searching?
-			if (!empty($context['smf_search_term']) && strpos($file->fetch('name'), $smcFunc['strtolower']($context['smf_search_term'])) === false)
+			if (!empty(Utils::$context['smf_search_term']) && strpos($file->fetch('name'), Utils::strtolower(Utils::$context['smf_search_term'])) === false)
 				continue;
 
 			$smf_languages[] = array(
 				'id' => $file->fetch('id'),
-				'name' => $smcFunc['ucwords']($file->fetch('name')),
+				'name' => Utils::ucwords($file->fetch('name')),
 				'version' => $file->fetch('version'),
 				'utf8' => $txt['yes'],
 				'description' => $file->fetch('description'),
-				'install_link' => '<a href="' . $scripturl . '?action=admin;area=languages;sa=downloadlang;did=' . $file->fetch('id') . ';' . $context['session_var'] . '=' . $context['session_id'] . '">' . $txt['add_language_smf_install'] . '</a>',
+				'install_link' => '<a href="' . Config::$scripturl . '?action=admin;area=languages;sa=downloadlang;did=' . $file->fetch('id') . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '">' . $txt['add_language_smf_install'] . '</a>',
 			);
 		}
 		if (empty($smf_languages))
-			$context['smf_error'] = 'no_files';
+			Utils::$context['smf_error'] = 'no_files';
 		else
 			return $smf_languages;
 	}
@@ -197,7 +200,7 @@ function list_getLanguagesList()
  */
 function DownloadLanguage()
 {
-	global $context, $sourcedir, $boarddir, $txt, $scripturl, $modSettings;
+	global $txt;
 
 	loadLanguage('ManageSettings');
 
@@ -206,9 +209,9 @@ function DownloadLanguage()
 		fatal_lang_error('no_access', false);
 
 	// Some lovely context.
-	$context['download_id'] = $_GET['did'];
-	$context['sub_template'] = 'download_language';
-	$context['menu_data_' . $context['admin_menu_id']]['current_subsection'] = 'add';
+	Utils::$context['download_id'] = $_GET['did'];
+	Utils::$context['sub_template'] = 'download_language';
+	Utils::$context['menu_data_' . Utils::$context['admin_menu_id']]['current_subsection'] = 'add';
 
 	// Can we actually do the installation - and do they want to?
 	if (!empty($_POST['do_install']) && !empty($_POST['copy_file']))
@@ -226,7 +229,7 @@ function DownloadLanguage()
 			if (strpos($file, '..') !== false || (strpos($file, 'Themes') !== 0 && !preg_match('~agreement\.[A-Za-z-_0-9]+\.txt$~', $file)))
 				fatal_error($txt['languages_download_illegal_paths']);
 
-			$chmod_files[] = $boarddir . '/' . $file;
+			$chmod_files[] = Config::$boarddir . '/' . $file;
 			$install_files[] = $file;
 		}
 
@@ -236,15 +239,15 @@ function DownloadLanguage()
 
 		// Something not writable?
 		if (!empty($files_left))
-			$context['error_message'] = $txt['languages_download_not_chmod'];
+			Utils::$context['error_message'] = $txt['languages_download_not_chmod'];
 		// Otherwise, go go go!
 		elseif (!empty($install_files))
 		{
-			SubsPackage::read_tgz_file('https://download.simplemachines.org/fetch_language.php?version=' . urlencode(SMF_VERSION) . ';fetch=' . urlencode($_GET['did']), $boarddir, false, true, $install_files);
+			SubsPackage::read_tgz_file('https://download.simplemachines.org/fetch_language.php?version=' . urlencode(SMF_VERSION) . ';fetch=' . urlencode($_GET['did']), Config::$boarddir, false, true, $install_files);
 
 			// Make sure the files aren't stuck in the cache.
 			SubsPackage::package_flush_cache();
-			$context['install_complete'] = sprintf($txt['languages_download_complete_desc'], $scripturl . '?action=admin;area=languages');
+			Utils::$context['install_complete'] = sprintf($txt['languages_download_complete_desc'], Config::$scripturl . '?action=admin;area=languages');
 
 			return;
 		}
@@ -258,11 +261,11 @@ function DownloadLanguage()
 		fatal_error($txt['add_language_error_no_response']);
 
 	// Now for each of the files, let's do some *stuff*
-	$context['files'] = array(
+	Utils::$context['files'] = array(
 		'lang' => array(),
 		'other' => array(),
 	);
-	$context['make_writable'] = array();
+	Utils::$context['make_writable'] = array();
 	foreach ($archive_content as $file)
 	{
 		$pathinfo = pathinfo($file['filename']);
@@ -277,7 +280,7 @@ function DownloadLanguage()
 		// Basic data.
 		$context_data = array(
 			'name' => $basename,
-			'destination' => $boarddir . '/' . $file['filename'],
+			'destination' => Config::$boarddir . '/' . $file['filename'],
 			'generaldest' => $file['filename'],
 			'size' => $file['size'],
 			// Does chmod status allow the copy?
@@ -289,19 +292,19 @@ function DownloadLanguage()
 		);
 
 		// Does the file exist, is it different and can we overwrite?
-		if (file_exists($boarddir . '/' . $file['filename']))
+		if (file_exists(Config::$boarddir . '/' . $file['filename']))
 		{
-			if (is_writable($boarddir . '/' . $file['filename']))
+			if (is_writable(Config::$boarddir . '/' . $file['filename']))
 				$context_data['writable'] = true;
 
 			// Finally, do we actually think the content has changed?
-			if ($file['size'] == filesize($boarddir . '/' . $file['filename']) && $file['md5'] == md5_file($boarddir . '/' . $file['filename']))
+			if ($file['size'] == filesize(Config::$boarddir . '/' . $file['filename']) && $file['md5'] == md5_file(Config::$boarddir . '/' . $file['filename']))
 			{
 				$context_data['exists'] = 'same';
 				$context_data['default_copy'] = false;
 			}
 			// Attempt to discover newline character differences.
-			elseif ($file['md5'] == md5(preg_replace("~[\r]?\n~", "\r\n", file_get_contents($boarddir . '/' . $file['filename']))))
+			elseif ($file['md5'] == md5(preg_replace("~[\r]?\n~", "\r\n", file_get_contents(Config::$boarddir . '/' . $file['filename']))))
 			{
 				$context_data['exists'] = 'same';
 				$context_data['default_copy'] = false;
@@ -313,7 +316,7 @@ function DownloadLanguage()
 		else
 		{
 			// Can we at least stick it in the directory...
-			if (is_writable($boarddir . '/' . $dirname))
+			if (is_writable(Config::$boarddir . '/' . $dirname))
 				$context_data['writable'] = true;
 		}
 
@@ -333,10 +336,10 @@ function DownloadLanguage()
 				$context_data['version'] = $match[1];
 
 			// Now does the old file exist - if so what is it's version?
-			if (file_exists($boarddir . '/' . $file['filename']))
+			if (file_exists(Config::$boarddir . '/' . $file['filename']))
 			{
 				// OK - what is the current version?
-				$fp = fopen($boarddir . '/' . $file['filename'], 'rb');
+				$fp = fopen(Config::$boarddir . '/' . $file['filename'], 'rb');
 				$header = fread($fp, 768);
 				fclose($fp);
 
@@ -358,7 +361,7 @@ function DownloadLanguage()
 			}
 
 			// Add the context data to the main set.
-			$context['files']['lang'][] = $context_data;
+			Utils::$context['files']['lang'][] = $context_data;
 		}
 		elseif ($extension == 'txt' && stripos($basename, 'agreement') !== false)
 		{
@@ -369,38 +372,38 @@ function DownloadLanguage()
 			);
 
 			// Registration agreement is a primary file
-			$context['files']['lang'][] = $context_data;
+			Utils::$context['files']['lang'][] = $context_data;
 		}
 		else
 		{
 			// There shouldn't be anything else, but load this into "other" in case we decide to handle it in the future
-			$context['files']['other'][] = $context_data;
+			Utils::$context['files']['other'][] = $context_data;
 		}
 
 		// Collect together all non-writable areas.
 		if (!$context_data['writable'])
-			$context['make_writable'][] = $context_data['destination'];
+			Utils::$context['make_writable'][] = $context_data['destination'];
 	}
 
 	// Before we go to far can we make anything writable, eh, eh?
-	if (!empty($context['make_writable']))
+	if (!empty(Utils::$context['make_writable']))
 	{
 		// What is left to be made writable?
-		$file_status = SubsPackage::create_chmod_control($context['make_writable']);
-		$context['still_not_writable'] = $file_status['files']['notwritable'];
+		$file_status = SubsPackage::create_chmod_control(Utils::$context['make_writable']);
+		Utils::$context['still_not_writable'] = $file_status['files']['notwritable'];
 
 		// Mark those which are now writable as such.
-		foreach ($context['files'] as $type => $data)
+		foreach (Utils::$context['files'] as $type => $data)
 		{
 			foreach ($data as $k => $file)
 			{
-				if (!$file['writable'] && !in_array($file['destination'], $context['still_not_writable']))
-					$context['files'][$type][$k]['writable'] = true;
+				if (!$file['writable'] && !in_array($file['destination'], Utils::$context['still_not_writable']))
+					Utils::$context['files'][$type][$k]['writable'] = true;
 			}
 		}
 
 		// Are we going to need more language stuff?
-		if (!empty($context['still_not_writable']))
+		if (!empty(Utils::$context['still_not_writable']))
 			loadLanguage('Packages');
 	}
 
@@ -409,9 +412,9 @@ function DownloadLanguage()
 		'id' => 'lang_main_files_list',
 		'title' => $txt['languages_download_main_files'],
 		'get_items' => array(
-			'function' => function() use ($context)
+			'function' => function()
 			{
-				return $context['files']['lang'];
+				return Utils::$context['files']['lang'];
 			},
 		),
 		'columns' => array(
@@ -483,10 +486,10 @@ function DownloadLanguage()
 		CacheApi::put('known_languages_all', null, !empty(CacheApi::$enable) && CacheApi::$enable < 1 ? 86400 : 3600);
 	}
 
-	require_once($sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/Subs-List.php');
 	createList($listOptions);
 
-	$context['default_list'] = 'lang_main_files_list';
+	Utils::$context['default_list'] = 'lang_main_files_list';
 	createToken('admin-dlang');
 }
 
@@ -495,8 +498,7 @@ function DownloadLanguage()
  */
 function ModifyLanguages()
 {
-	global $txt, $context, $scripturl, $modSettings;
-	global $sourcedir, $language, $boarddir;
+	global $txt;
 
 	// Setting a new default?
 	if (!empty($_POST['set_default']) && !empty($_POST['def_language']))
@@ -506,7 +508,7 @@ function ModifyLanguages()
 
 		getLanguages();
 		$lang_exists = false;
-		foreach ($context['languages'] as $lang)
+		foreach (Utils::$context['languages'] as $lang)
 		{
 			if ($_POST['def_language'] == $lang['filename'])
 			{
@@ -515,11 +517,11 @@ function ModifyLanguages()
 			}
 		}
 
-		if ($_POST['def_language'] != $language && $lang_exists)
+		if ($_POST['def_language'] != Config::$language && $lang_exists)
 		{
-			require_once($sourcedir . '/Subs-Admin.php');
-			updateSettingsFile(array('language' => $_POST['def_language']));
-			$language = $_POST['def_language'];
+			require_once(Config::$sourcedir . '/Subs-Admin.php');
+			Config::updateSettingsFile(array('language' => $_POST['def_language']));
+			Config::$language = $_POST['def_language'];
 		}
 	}
 
@@ -528,8 +530,8 @@ function ModifyLanguages()
 
 	$listOptions = array(
 		'id' => 'language_list',
-		'items_per_page' => $modSettings['defaultMaxListItems'],
-		'base_href' => $scripturl . '?action=admin;area=languages',
+		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
+		'base_href' => Config::$scripturl . '?action=admin;area=languages',
 		'title' => $txt['edit_languages'],
 		'get_items' => array(
 			'function' => 'list_getLanguages',
@@ -557,9 +559,9 @@ function ModifyLanguages()
 					'value' => $txt['languages_lang_name'],
 				),
 				'data' => array(
-					'function' => function($rowData) use ($scripturl)
+					'function' => function($rowData)
 					{
-						return sprintf('<a href="%1$s?action=admin;area=languages;sa=editlang;lid=%2$s">%3$s</a>', $scripturl, $rowData['id'], $rowData['name']);
+						return sprintf('<a href="%1$s?action=admin;area=languages;sa=editlang;lid=%2$s">%3$s</a>', Config::$scripturl, $rowData['id'], $rowData['name']);
 					},
 					'class' => 'centercol',
 				),
@@ -596,9 +598,9 @@ function ModifyLanguages()
 					'value' => '',
 				),
 				'data' => array(
-					'function' => function($rowData) use ($scripturl, $txt)
+					'function' => function($rowData) use ($txt)
 					{
-						return sprintf('<a href="%1$s?action=admin;area=languages;sa=editlang;lid=%2$s" class="button">%3$s</a>', $scripturl, $rowData['id'], $txt['edit']);
+						return sprintf('<a href="%1$s?action=admin;area=languages;sa=editlang;lid=%2$s" class="button">%3$s</a>', Config::$scripturl, $rowData['id'], $txt['edit']);
 					},
 					'style' => 'width: 8%;',
 					'class' => 'centercol',
@@ -606,13 +608,13 @@ function ModifyLanguages()
 			),
 		),
 		'form' => array(
-			'href' => $scripturl . '?action=admin;area=languages',
+			'href' => Config::$scripturl . '?action=admin;area=languages',
 			'token' => 'admin-lang',
 		),
 		'additional_rows' => array(
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '"><input type="submit" name="set_default" value="' . $txt['save'] . '"' . (is_writable($boarddir . '/Settings.php') ? '' : ' disabled') . ' class="button">',
+				'value' => '<input type="hidden" name="' . Utils::$context['session_var'] . '" value="' . Utils::$context['session_id'] . '"><input type="submit" name="set_default" value="' . $txt['save'] . '"' . (is_writable(SMF_SETTINGS_FILE) ? '' : ' disabled') . ' class="button">',
 			),
 		),
 	);
@@ -624,21 +626,21 @@ function ModifyLanguages()
 		$("tr.highlight2").removeClass("highlight2");
 		$("#" + box).addClass("highlight2");
 	}
-	highlightSelected("list_language_list_' . ($language == '' ? 'english' : $language) . '");', true);
+	highlightSelected("list_language_list_' . (Config::$language == '' ? 'english' : Config::$language) . '");', true);
 
 	// Display a warning if we cannot edit the default setting.
-	if (!is_writable($boarddir . '/Settings.php'))
+	if (!is_writable(SMF_SETTINGS_FILE))
 		$listOptions['additional_rows'][] = array(
 			'position' => 'after_title',
 			'value' => $txt['language_settings_writable'],
 			'class' => 'smalltext alert',
 		);
 
-	require_once($sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/Subs-List.php');
 	createList($listOptions);
 
-	$context['sub_template'] = 'show_list';
-	$context['default_list'] = 'language_list';
+	Utils::$context['sub_template'] = 'show_list';
+	Utils::$context['default_list'] = 'language_list';
 }
 
 /**
@@ -662,7 +664,7 @@ function list_getNumLanguages()
  */
 function list_getLanguages()
 {
-	global $settings, $smcFunc, $language, $context, $txt;
+	global $settings, $txt;
 
 	$languages = array();
 	// Keep our old entries.
@@ -682,7 +684,7 @@ function list_getLanguages()
 		unset($settings['base_theme_dir']);
 
 	// Get the language files and data...
-	foreach ($context['languages'] as $lang)
+	foreach (Utils::$context['languages'] as $lang)
 	{
 		// Load the file to get the character set.
 		require($settings['default_theme_dir'] . '/languages/index.' . $lang['filename'] . '.php');
@@ -691,32 +693,32 @@ function list_getLanguages()
 			'id' => $lang['filename'],
 			'count' => 0,
 			'char_set' => $txt['lang_character_set'],
-			'default' => $language == $lang['filename'] || ($language == '' && $lang['filename'] == 'english'),
+			'default' => Config::$language == $lang['filename'] || (Config::$language == '' && $lang['filename'] == 'english'),
 			'locale' => $txt['lang_locale'],
-			'name' => $smcFunc['ucwords'](strtr($lang['filename'], array('_' => ' ', '-utf8' => ''))),
+			'name' => Utils::ucwords(strtr($lang['filename'], array('_' => ' ', '-utf8' => ''))),
 		);
 	}
 
 	// Work out how many people are using each language.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT lngfile, COUNT(*) AS num_users
 		FROM {db_prefix}members
 		GROUP BY lngfile',
 		array(
 		)
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// Default?
 		if (empty($row['lngfile']) || !isset($languages[$row['lngfile']]))
-			$row['lngfile'] = $language;
+			$row['lngfile'] = Config::$language;
 
 		if (!isset($languages[$row['lngfile']]) && isset($languages['english']))
 			$languages['english']['count'] += $row['num_users'];
 		elseif (isset($languages[$row['lngfile']]))
 			$languages[$row['lngfile']]['count'] += $row['num_users'];
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Restore the current users language.
 	$txt = $old_txt;
@@ -733,14 +735,14 @@ function list_getLanguages()
  */
 function ModifyLanguageSettings($return_config = false)
 {
-	global $scripturl, $context, $txt, $boarddir, $sourcedir;
+	global $txt;
 
 	// We'll want to save them someday.
-	require_once $sourcedir . '/ManageServer.php';
+	require_once Config::$sourcedir . '/ManageServer.php';
 
 	// Warn the user if the backup of Settings.php failed.
-	$settings_not_writable = !is_writable($boarddir . '/Settings.php');
-	$settings_backup_fail = !@is_writable($boarddir . '/Settings_bak.php') || !@copy($boarddir . '/Settings.php', $boarddir . '/Settings_bak.php');
+	$settings_not_writable = !is_writable(SMF_SETTINGS_FILE);
+	$settings_backup_fail = !@is_writable(SMF_SETTINGS_BACKUP_FILE) || !@copy(SMF_SETTINGS_FILE, SMF_SETTINGS_BACKUP_FILE);
 
 	/* If you're writing a mod, it's a bad idea to add things here....
 	For each option:
@@ -759,7 +761,7 @@ function ModifyLanguageSettings($return_config = false)
 
 	// Get our languages. No cache
 	getLanguages(false);
-	foreach ($context['languages'] as $lang)
+	foreach (Utils::$context['languages'] as $lang)
 		$config_vars['language'][4][$lang['filename']] = array($lang['filename'], $lang['name']);
 
 	// Saving settings?
@@ -776,18 +778,18 @@ function ModifyLanguageSettings($return_config = false)
 	}
 
 	// Setup the template stuff.
-	$context['post_url'] = $scripturl . '?action=admin;area=languages;sa=settings;save';
-	$context['settings_title'] = $txt['language_settings'];
-	$context['save_disabled'] = $settings_not_writable;
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=languages;sa=settings;save';
+	Utils::$context['settings_title'] = $txt['language_settings'];
+	Utils::$context['save_disabled'] = $settings_not_writable;
 
 	if ($settings_not_writable)
-		$context['settings_message'] = array(
+		Utils::$context['settings_message'] = array(
 			'label' => $txt['settings_not_writable'],
 			'tag' => 'div',
 			'class' => 'centertext strong'
 		);
 	elseif ($settings_backup_fail)
-		$context['settings_message'] = array(
+		Utils::$context['settings_message'] = array(
 			'label' => $txt['admin_backup_fail'],
 			'tag' => 'div',
 			'class' => 'centertext strong'
@@ -802,24 +804,24 @@ function ModifyLanguageSettings($return_config = false)
  */
 function ModifyLanguage()
 {
-	global $settings, $context, $smcFunc, $txt, $modSettings, $boarddir, $sourcedir, $language;
+	global $settings, $txt;
 
 	loadLanguage('ManageSettings');
 
 	// Select the languages tab.
-	$context['menu_data_' . $context['admin_menu_id']]['current_subsection'] = 'edit';
-	$context['page_title'] = $txt['edit_languages'];
-	$context['sub_template'] = 'modify_language_entries';
+	Utils::$context['menu_data_' . Utils::$context['admin_menu_id']]['current_subsection'] = 'edit';
+	Utils::$context['page_title'] = $txt['edit_languages'];
+	Utils::$context['sub_template'] = 'modify_language_entries';
 
-	$context['lang_id'] = $_GET['lid'];
+	Utils::$context['lang_id'] = $_GET['lid'];
 	list($theme_id, $file_id) = empty($_REQUEST['tfid']) || strpos($_REQUEST['tfid'], '+') === false ? array(1, '') : explode('+', $_REQUEST['tfid']);
 
 	// Clean the ID - just in case.
-	preg_match('~([A-Za-z0-9_-]+)~', $context['lang_id'], $matches);
-	$context['lang_id'] = $matches[1];
+	preg_match('~([A-Za-z0-9_-]+)~', Utils::$context['lang_id'], $matches);
+	Utils::$context['lang_id'] = $matches[1];
 
 	// Get all the theme data.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_theme, variable, value
 		FROM {db_prefix}themes
 		WHERE id_theme != {int:default_theme}
@@ -838,9 +840,9 @@ function ModifyLanguage()
 			'theme_dir' => $settings['default_theme_dir'],
 		),
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$themes[$row['id_theme']][$row['variable']] = $row['value'];
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// This will be where we look
 	$lang_dirs = array();
@@ -878,14 +880,14 @@ function ModifyLanguage()
 			$lang_dirs[$id] = $data['theme_dir'] . '/languages';
 
 		// How about image directories?
-		if (is_dir($data['theme_dir'] . '/images/' . $context['lang_id']))
-			$images_dirs[$id] = $data['theme_dir'] . '/images/' . $context['lang_id'];
+		if (is_dir($data['theme_dir'] . '/images/' . Utils::$context['lang_id']))
+			$images_dirs[$id] = $data['theme_dir'] . '/images/' . Utils::$context['lang_id'];
 	}
 
-	$current_file = $file_id ? $lang_dirs[$theme_id] . '/' . $file_id . '.' . $context['lang_id'] . '.php' : '';
+	$current_file = $file_id ? $lang_dirs[$theme_id] . '/' . $file_id . '.' . Utils::$context['lang_id'] . '.php' : '';
 
 	// Now for every theme get all the files and stick them in context!
-	$context['possible_files'] = array();
+	Utils::$context['possible_files'] = array();
 	foreach ($lang_dirs as $theme => $theme_dir)
 	{
 		// Open it up.
@@ -893,17 +895,17 @@ function ModifyLanguage()
 		while ($entry = $dir->read())
 		{
 			// We're only after the files for this language.
-			if (preg_match('~^([A-Za-z]+)\.' . $context['lang_id'] . '\.php$~', $entry, $matches) == 0)
+			if (preg_match('~^([A-Za-z]+)\.' . Utils::$context['lang_id'] . '\.php$~', $entry, $matches) == 0)
 				continue;
 
-			if (!isset($context['possible_files'][$theme]))
-				$context['possible_files'][$theme] = array(
+			if (!isset(Utils::$context['possible_files'][$theme]))
+				Utils::$context['possible_files'][$theme] = array(
 					'id' => $theme,
 					'name' => $themes[$theme]['name'],
 					'files' => array(),
 				);
 
-			$context['possible_files'][$theme]['files'][] = array(
+			Utils::$context['possible_files'][$theme]['files'][] = array(
 				'id' => $matches[1],
 				'name' => isset($txt['lang_file_desc_' . $matches[1]]) ? $txt['lang_file_desc_' . $matches[1]] : $matches[1],
 				'selected' => $theme_id == $theme && $file_id == $matches[1],
@@ -911,10 +913,10 @@ function ModifyLanguage()
 		}
 		$dir->close();
 
-		if (!empty($context['possible_files'][$theme]['files']))
+		if (!empty(Utils::$context['possible_files'][$theme]['files']))
 		{
 			usort(
-				$context['possible_files'][$theme]['files'],
+				Utils::$context['possible_files'][$theme]['files'],
 				function($val1, $val2)
 				{
 					return strcmp($val1['name'], $val2['name']);
@@ -924,16 +926,16 @@ function ModifyLanguage()
 	}
 
 	// We no longer wish to speak this language.
-	if (!empty($_POST['delete_main']) && $context['lang_id'] != 'english')
+	if (!empty($_POST['delete_main']) && Utils::$context['lang_id'] != 'english')
 	{
 		checkSession();
 		validateToken('admin-mlang');
 
 		// First, Make a backup?
-		if (!empty($modSettings['package_make_backups']) && (!isset($_SESSION['last_backup_for']) || $_SESSION['last_backup_for'] != $context['lang_id'] . '$$$'))
+		if (!empty(Config::$modSettings['package_make_backups']) && (!isset($_SESSION['last_backup_for']) || $_SESSION['last_backup_for'] != Utils::$context['lang_id'] . '$$$'))
 		{
-			$_SESSION['last_backup_for'] = $context['lang_id'] . '$$$';
-			$result = SubsPackage::package_create_backup('backup_lang_' . $context['lang_id']);
+			$_SESSION['last_backup_for'] = Utils::$context['lang_id'] . '$$$';
+			$result = SubsPackage::package_create_backup('backup_lang_' . Utils::$context['lang_id']);
 			if (!$result)
 				fatal_lang_error('could_not_language_backup', false);
 		}
@@ -941,18 +943,18 @@ function ModifyLanguage()
 		// Second, loop through the array to remove the files.
 		foreach ($lang_dirs as $curPath)
 		{
-			foreach ($context['possible_files'][1]['files'] as $lang)
-				if (file_exists($curPath . '/' . $lang['id'] . '.' . $context['lang_id'] . '.php'))
-					unlink($curPath . '/' . $lang['id'] . '.' . $context['lang_id'] . '.php');
+			foreach (Utils::$context['possible_files'][1]['files'] as $lang)
+				if (file_exists($curPath . '/' . $lang['id'] . '.' . Utils::$context['lang_id'] . '.php'))
+					unlink($curPath . '/' . $lang['id'] . '.' . Utils::$context['lang_id'] . '.php');
 
 			// Check for the email template.
-			if (file_exists($curPath . '/EmailTemplates.' . $context['lang_id'] . '.php'))
-				unlink($curPath . '/EmailTemplates.' . $context['lang_id'] . '.php');
+			if (file_exists($curPath . '/EmailTemplates.' . Utils::$context['lang_id'] . '.php'))
+				unlink($curPath . '/EmailTemplates.' . Utils::$context['lang_id'] . '.php');
 		}
 
 		// Third, the agreement file.
-		if (file_exists($boarddir . '/agreement.' . $context['lang_id'] . '.txt'))
-			unlink($boarddir . '/agreement.' . $context['lang_id'] . '.txt');
+		if (file_exists(Config::$boarddir . '/agreement.' . Utils::$context['lang_id'] . '.txt'))
+			unlink(Config::$boarddir . '/agreement.' . Utils::$context['lang_id'] . '.txt');
 
 		// Fourth, a related images folder, if it exists...
 		if (!empty($images_dirs))
@@ -961,13 +963,13 @@ function ModifyLanguage()
 					SubsPackage::deltree($curPath);
 
 		// Members can no longer use this language.
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}members
 			SET lngfile = {empty}
 			WHERE lngfile = {string:current_language}',
 			array(
 				'empty_string' => '',
-				'current_language' => $context['lang_id'],
+				'current_language' => Utils::$context['lang_id'],
 			)
 		);
 
@@ -978,15 +980,15 @@ function ModifyLanguage()
 		}
 
 		// Sixth, if we deleted the default language, set us back to english?
-		if ($context['lang_id'] == $language)
+		if (Utils::$context['lang_id'] == Config::$language)
 		{
-			require_once($sourcedir . '/Subs-Admin.php');
-			$language = 'english';
-			updateSettingsFile(array('language' => $language));
+			require_once(Config::$sourcedir . '/Subs-Admin.php');
+			Config::$language = 'english';
+			Config::updateSettingsFile(array('language' => Config::$language));
 		}
 
 		// Seventh, get out of here.
-		redirectexit('action=admin;area=languages;sa=edit;' . $context['session_var'] . '=' . $context['session_id']);
+		redirectexit('action=admin;area=languages;sa=edit;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 	}
 
 	// Saving primary settings?
@@ -998,15 +1000,15 @@ function ModifyLanguage()
 		validateToken('admin-mlang');
 
 		// Read in the current file.
-		$current_data = implode('', file($settings['default_theme_dir'] . '/languages/index.' . $context['lang_id'] . '.php'));
+		$current_data = implode('', file($settings['default_theme_dir'] . '/languages/index.' . Utils::$context['lang_id'] . '.php'));
 
 		// Build the replacements. old => new
 		$replace_array = array();
 		foreach ($primary_settings as $setting => $type)
-			$replace_array['~\$txt\[\'' . $setting . '\'\]\s*=\s*[^\r\n]+~'] = '$txt[\'' . $setting . '\'] = ' . ($type === 'bool' ? (!empty($_POST[$setting]) ? 'true' : 'false') : '\'' . ($setting = 'native_name' ? htmlentities(un_htmlspecialchars($_POST[$setting]), ENT_QUOTES, $context['character_set']) : preg_replace('~[^\w-]~i', '', $_POST[$setting])) . '\'') . ';';
+			$replace_array['~\$txt\[\'' . $setting . '\'\]\s*=\s*[^\r\n]+~'] = '$txt[\'' . $setting . '\'] = ' . ($type === 'bool' ? (!empty($_POST[$setting]) ? 'true' : 'false') : '\'' . ($setting = 'native_name' ? htmlentities(un_htmlspecialchars($_POST[$setting]), ENT_QUOTES, Utils::$context['character_set']) : preg_replace('~[^\w-]~i', '', $_POST[$setting])) . '\'') . ';';
 
 		$current_data = preg_replace(array_keys($replace_array), array_values($replace_array), $current_data);
-		$fp = fopen($settings['default_theme_dir'] . '/languages/index.' . $context['lang_id'] . '.php', 'w+');
+		$fp = fopen($settings['default_theme_dir'] . '/languages/index.' . Utils::$context['lang_id'] . '.php', 'w+');
 		fwrite($fp, $current_data);
 		fclose($fp);
 
@@ -1015,13 +1017,13 @@ function ModifyLanguage()
 
 	// Quickly load index language entries.
 	$old_txt = $txt;
-	require($settings['default_theme_dir'] . '/languages/index.' . $context['lang_id'] . '.php');
-	$context['lang_file_not_writable_message'] = is_writable($settings['default_theme_dir'] . '/languages/index.' . $context['lang_id'] . '.php') ? '' : sprintf($txt['lang_file_not_writable'], $settings['default_theme_dir'] . '/languages/index.' . $context['lang_id'] . '.php');
+	require($settings['default_theme_dir'] . '/languages/index.' . Utils::$context['lang_id'] . '.php');
+	Utils::$context['lang_file_not_writable_message'] = is_writable($settings['default_theme_dir'] . '/languages/index.' . Utils::$context['lang_id'] . '.php') ? '' : sprintf($txt['lang_file_not_writable'], $settings['default_theme_dir'] . '/languages/index.' . Utils::$context['lang_id'] . '.php');
 	// Setup the primary settings context.
-	$context['primary_settings']['name'] = $smcFunc['ucwords'](strtr($context['lang_id'], array('_' => ' ', '-utf8' => '')));
+	Utils::$context['primary_settings']['name'] = Utils::ucwords(strtr(Utils::$context['lang_id'], array('_' => ' ', '-utf8' => '')));
 	foreach ($primary_settings as $setting => $type)
 	{
-		$context['primary_settings'][$setting] = array(
+		Utils::$context['primary_settings'][$setting] = array(
 			'label' => str_replace('lang_', '', $setting),
 			'value' => $txt[$setting],
 		);
@@ -1084,14 +1086,14 @@ function ModifyLanguage()
 	}
 
 	// If we are editing a file work away at that.
-	$context['can_add_lang_entry'] = array();
+	Utils::$context['can_add_lang_entry'] = array();
 	if ($current_file)
 	{
-		$context['entries_not_writable_message'] = is_writable($current_file) ? '' : sprintf($txt['lang_entries_not_writable'], $current_file);
+		Utils::$context['entries_not_writable_message'] = is_writable($current_file) ? '' : sprintf($txt['lang_entries_not_writable'], $current_file);
 
 		// How many strings will PHP let us edit at once?
 		// Each string needs 3 inputs, and there are 5 others in the form.
-		$context['max_inputs'] = floor(ini_get('max_input_vars') / 3) - 5;
+		Utils::$context['max_inputs'] = floor(ini_get('max_input_vars') / 3) - 5;
 
 		// Do we want to override the helptxt for certain types of text variables?
 		$special_groups = array(
@@ -1107,20 +1109,20 @@ function ModifyLanguage()
 			{
 				$group = !empty($special_groups[$file_id][$var_group]) ? $special_groups[$file_id][$var_group] : $var_group;
 				if (in_array($var_group, $allows_add_remove[$file_id]['add']))
-					$context['can_add_lang_entry'][$group] = true;
+					Utils::$context['can_add_lang_entry'][$group] = true;
 			}
 		}
 
 		// Read in the file's contents and process it into entries.
 		// Also, remove any lines for uneditable variables like $forum_copyright from the working data.
 		$entries = array();
-		foreach (preg_split('~^(?=\$(?:' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\])~m' . ($context['utf8'] ? 'u' : ''), preg_replace('~\s*\n(\$(?!(?:' . implode('|', $string_types) . '))[^\n]*)~', '', file_get_contents($current_file))) as $blob)
+		foreach (preg_split('~^(?=\$(?:' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\])~m' . (Utils::$context['utf8'] ? 'u' : ''), preg_replace('~\s*\n(\$(?!(?:' . implode('|', $string_types) . '))[^\n]*)~', '', file_get_contents($current_file))) as $blob)
 		{
 			// Comment lines at the end of the blob can make terrible messes
-			$blob = preg_replace('~(\n[ \t]*//[^\n]*)*$~' . ($context['utf8'] ? 'u' : ''), '', $blob);
+			$blob = preg_replace('~(\n[ \t]*//[^\n]*)*$~' . (Utils::$context['utf8'] ? 'u' : ''), '', $blob);
 
 			// Extract the variable
-			if (preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\](?:\[\'?([^\n]+?)\'?\])?\s?=\s?(.+);([ \t]*(?://[^\n]*)?)$~ms' . ($context['utf8'] ? 'u' : ''), strtr($blob, array("\r" => '')), $matches))
+			if (preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\](?:\[\'?([^\n]+?)\'?\])?\s?=\s?(.+);([ \t]*(?://[^\n]*)?)$~ms' . (Utils::$context['utf8'] ? 'u' : ''), strtr($blob, array("\r" => '')), $matches))
 			{
 				// If no valid subkey was found, we need it to be explicitly null
 				$matches[3] = isset($matches[3]) && $matches[3] !== '' ? $matches[3] : null;
@@ -1142,7 +1144,7 @@ function ModifyLanguage()
 		// These will be the entries we can definitely save.
 		$final_saves = array();
 
-		$context['file_entries'] = array();
+		Utils::$context['file_entries'] = array();
 		foreach ($entries as $entryKey => $entryValue)
 		{
 			// Ignore some things we set separately.
@@ -1195,7 +1197,7 @@ function ModifyLanguage()
 					# Followed by a comma or the end of the string
 					(?=,|$)
 
-					/x' . ($context['utf8'] ? 'u' : ''), $entryValue['entry'], $matches);
+					/x' . (Utils::$context['utf8'] ? 'u' : ''), $entryValue['entry'], $matches);
 
 				if (empty($m))
 					continue;
@@ -1242,7 +1244,7 @@ function ModifyLanguage()
 					else
 						$save_cache['entries'][$subKey] = $subValue;
 
-					$context['file_entries'][$entryValue['group']][] = array(
+					Utils::$context['file_entries'][$entryValue['group']][] = array(
 						'key' => $entryKey,
 						'subkey' => $subKey,
 						'value' => $subValue,
@@ -1252,7 +1254,7 @@ function ModifyLanguage()
 				}
 
 				// Should we add a new string to this array?
-				if (!empty($context['can_add_lang_entry'][$entryValue['type']]) && isset($add_strings[$entryKey]))
+				if (!empty(Utils::$context['can_add_lang_entry'][$entryValue['type']]) && isset($add_strings[$entryKey]))
 				{
 					foreach ($add_strings[$entryKey] as $string_key => $string_val)
 						$save_cache['entries'][$string_key] = strtr($string_val['string'], array('\'' => ''));
@@ -1324,7 +1326,7 @@ function ModifyLanguage()
 				}
 
 				$editing_string = cleanLangString($entryValue['entry'], true);
-				$context['file_entries'][$entryValue['group']][] = array(
+				Utils::$context['file_entries'][$entryValue['group']][] = array(
 					'key' => $entryValue['key'],
 					'subkey' => $entryValue['subkey'],
 					'value' => $editing_string,
@@ -1361,7 +1363,7 @@ function ModifyLanguage()
 				}
 
 				$editing_string = cleanLangString($entryValue['entry'], true);
-				$context['file_entries'][$entryValue['group']][] = array(
+				Utils::$context['file_entries'][$entryValue['group']][] = array(
 					'key' => $entryValue['key'],
 					'subkey' => null,
 					'value' => $editing_string,
@@ -1383,7 +1385,7 @@ function ModifyLanguage()
 				{
 					$type = isset($special_types[$string_val['group']]) ? $special_types[$string_val['group']] : $string_val['group'];
 
-					if (empty($context['can_add_lang_entry'][$type]))
+					if (empty(Utils::$context['can_add_lang_entry'][$type]))
 						continue;
 
 					$final_saves[$string_key] = array(
@@ -1399,7 +1401,7 @@ function ModifyLanguage()
 					{
 						$type = isset($special_types[$substring_val['group']]) ? $special_types[$substring_val['group']] : $substring_val['group'];
 
-						if (empty($context['can_add_lang_entry'][$type]))
+						if (empty(Utils::$context['can_add_lang_entry'][$type]))
 							continue;
 
 						$subKey = ctype_digit(trim($substring_key, '\'')) ? trim($substring_key, '\'') : '\'' . $substring_key . '\'';
@@ -1426,7 +1428,7 @@ function ModifyLanguage()
 			foreach ($final_saves as $save)
 			{
 				if (!empty($save['is_regex']))
-					$file_contents = preg_replace('~' . $save['find'] . '~' . ($context['utf8'] ? 'u' : ''), $save['replace'], $file_contents);
+					$file_contents = preg_replace('~' . $save['find'] . '~' . (Utils::$context['utf8'] ? 'u' : ''), $save['replace'], $file_contents);
 				else
 					$file_contents = str_replace($save['find'], $save['replace'], $file_contents);
 			}
@@ -1441,13 +1443,13 @@ function ModifyLanguage()
 		$txt = $old_txt;
 
 		// If they can add new language entries, make sure the UI is set up for that.
-		if (!empty($context['can_add_lang_entry']))
+		if (!empty(Utils::$context['can_add_lang_entry']))
 		{
 			// Make sure the Add button has a place to show up.
-			foreach ($context['can_add_lang_entry'] as $group => $value)
+			foreach (Utils::$context['can_add_lang_entry'] as $group => $value)
 			{
-				if (!isset($context['file_entries'][$group]))
-					$context['file_entries'][$group] = array();
+				if (!isset(Utils::$context['file_entries'][$group]))
+					Utils::$context['file_entries'][$group] = array();
 			}
 
 			addInlineJavaScript('
@@ -1482,10 +1484,10 @@ function ModifyLanguage()
 
 		// Warn them if they try to submit more changes than the server can accept in a single request.
 		// Also make it obvious that they cannot submit changes to both the primary settings and the entries at the same time.
-		if (!empty($context['file_entries']))
+		if (!empty(Utils::$context['file_entries']))
 		{
 			addInlineJavaScript('
-				max_inputs = ' . $context['max_inputs'] . ';
+				max_inputs = ' . Utils::$context['max_inputs'] . ';
 				num_inputs = 0;
 
 				$(".entry_textfield").prop("disabled", true);
@@ -1498,7 +1500,7 @@ function ModifyLanguage()
 						if (++num_inputs <= max_inputs) {
 							target_dd.find(".entry_oldvalue, .entry_textfield").prop("disabled", false);
 						} else {
-							alert("' . sprintf($txt['languages_max_inputs_warning'], $context['max_inputs']) . '");
+							alert("' . sprintf($txt['languages_max_inputs_warning'], Utils::$context['max_inputs']) . '");
 							$(this).prop("checked", false);
 						}
 					} else {
@@ -1541,7 +1543,7 @@ function ModifyLanguage()
 
 	// If we saved, redirect.
 	if ($madeSave)
-		redirectexit('action=admin;area=languages;sa=editlang;lid=' . $context['lang_id'] . (!empty($file_id) ? ';entries;tfid=' . $theme_id . rawurlencode('+') . $file_id : ''));
+		redirectexit('action=admin;area=languages;sa=editlang;lid=' . Utils::$context['lang_id'] . (!empty($file_id) ? ';entries;tfid=' . $theme_id . rawurlencode('+') . $file_id : ''));
 
 	createToken('admin-mlang');
 }
@@ -1557,8 +1559,6 @@ function ModifyLanguage()
  */
 function cleanLangString($string, $to_display = true)
 {
-	global $smcFunc;
-
 	// If going to display we make sure it doesn't have any HTML in it - etc.
 	$new_string = '';
 	if ($to_display)
@@ -1654,11 +1654,11 @@ function cleanLangString($string, $to_display = true)
 		}
 
 		// Unhtml then rehtml the whole thing!
-		$new_string = $smcFunc['htmlspecialchars'](un_htmlspecialchars($new_string));
+		$new_string = Utils::htmlspecialchars(un_htmlspecialchars($new_string));
 	}
 	else
 	{
-		$string = $smcFunc['normalize']($string);
+		$string = Utils::normalize($string);
 
 		// Keep track of what we're doing...
 		$in_string = 0;

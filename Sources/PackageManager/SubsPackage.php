@@ -14,6 +14,8 @@
 namespace SMF\PackageManager;
 
 use SMF\BackwardCompatibility;
+use SMF\Config;
+use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -431,8 +433,6 @@ class SubsPackage
 	 */
 	public static function loadInstalledPackages()
 	{
-		global $smcFunc;
-
 		// Load the packages from the database - note this is ordered by install time to ensure latest package uninstalled first.
 		$request = Db::$db->query('', '
 			SELECT id_install, package_id, filename, name, version, time_installed
@@ -457,10 +457,10 @@ class SubsPackage
 
 			$installed[] = array(
 				'id' => $row['id_install'],
-				'name' => $smcFunc['htmlspecialchars']($row['name']),
+				'name' => Utils::htmlspecialchars($row['name']),
 				'filename' => $row['filename'],
 				'package_id' => $row['package_id'],
-				'version' => $smcFunc['htmlspecialchars']($row['version']),
+				'version' => Utils::htmlspecialchars($row['version']),
 				'time_installed' => !empty($row['time_installed']) ? $row['time_installed'] : 0,
 			);
 		}
@@ -481,20 +481,18 @@ class SubsPackage
 	 */
 	public static function getPackageInfo($gzfilename)
 	{
-		global $packagesdir;
-
 		// Extract package-info.xml from downloaded file. (*/ is used because it could be in any directory.)
 		if (strpos($gzfilename, 'http://') !== false || strpos($gzfilename, 'https://') !== false)
 			$packageInfo = self::read_tgz_data($gzfilename, 'package-info.xml', true);
 		else
 		{
-			if (!file_exists($packagesdir . '/' . $gzfilename))
+			if (!file_exists(Config::$packagesdir . '/' . $gzfilename))
 				return 'package_get_error_not_found';
 
-			if (is_file($packagesdir . '/' . $gzfilename))
-				$packageInfo = self::read_tgz_file($packagesdir . '/' . $gzfilename, '*/package-info.xml', true);
-			elseif (file_exists($packagesdir . '/' . $gzfilename . '/package-info.xml'))
-				$packageInfo = file_get_contents($packagesdir . '/' . $gzfilename . '/package-info.xml');
+			if (is_file(Config::$packagesdir . '/' . $gzfilename))
+				$packageInfo = self::read_tgz_file(Config::$packagesdir . '/' . $gzfilename, '*/package-info.xml', true);
+			elseif (file_exists(Config::$packagesdir . '/' . $gzfilename . '/package-info.xml'))
+				$packageInfo = file_get_contents(Config::$packagesdir . '/' . $gzfilename . '/package-info.xml');
 			else
 				return 'package_get_error_missing_xml';
 		}
@@ -503,7 +501,7 @@ class SubsPackage
 		if (empty($packageInfo))
 		{
 			// Perhaps they are trying to install a theme, lets tell them nicely this is the wrong function
-			$packageInfo = self::read_tgz_file($packagesdir . '/' . $gzfilename, '*/theme_info.xml', true);
+			$packageInfo = self::read_tgz_file(Config::$packagesdir . '/' . $gzfilename, '*/theme_info.xml', true);
 			if (!empty($packageInfo))
 				return 'package_get_error_is_theme';
 			else
@@ -550,7 +548,7 @@ class SubsPackage
 	 */
 	public static function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $restore_write_status = false)
 	{
-		global $context, $modSettings, $boarddir, $txt, $sourcedir, $scripturl;
+		global $txt;
 
 		// If we're restoring the status of existing files prepare the data.
 		if ($restore_write_status && isset($_SESSION['pack_ftp']) && !empty($_SESSION['pack_ftp']['original_perms']))
@@ -625,7 +623,7 @@ class SubsPackage
 					),
 				),
 				'form' => array(
-					'href' => !empty($chmodOptions['destination_url']) ? $chmodOptions['destination_url'] : $scripturl . '?action=admin;area=packages;sa=perms;restore;' . $context['session_var'] . '=' . $context['session_id'],
+					'href' => !empty($chmodOptions['destination_url']) ? $chmodOptions['destination_url'] : Config::$scripturl . '?action=admin;area=packages;sa=perms;restore;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 				),
 				'additional_rows' => array(
 					array(
@@ -644,11 +642,11 @@ class SubsPackage
 			// Work out what columns and the like to show.
 			if (!empty($_POST['restore_perms']))
 			{
-				$listOptions['additional_rows'][1]['value'] = sprintf($txt['package_restore_permissions_action_done'], $scripturl . '?action=admin;area=packages;sa=perms;' . $context['session_var'] . '=' . $context['session_id']);
+				$listOptions['additional_rows'][1]['value'] = sprintf($txt['package_restore_permissions_action_done'], Config::$scripturl . '?action=admin;area=packages;sa=perms;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 				unset($listOptions['columns']['check'], $listOptions['form'], $listOptions['additional_rows'][0]);
 
-				$context['sub_template'] = 'show_list';
-				$context['default_list'] = 'restore_file_permissions';
+				Utils::$context['sub_template'] = 'show_list';
+				Utils::$context['default_list'] = 'restore_file_permissions';
 			}
 			else
 			{
@@ -656,7 +654,7 @@ class SubsPackage
 			}
 
 			// Create the list for display.
-			require_once($sourcedir . '/Subs-List.php');
+			require_once(Config::$sourcedir . '/Subs-List.php');
 			createList($listOptions);
 
 			// If we just restored permissions then whereever we are, we are now done and dusted.
@@ -698,12 +696,12 @@ class SubsPackage
 
 				if (!in_array($_POST['ftp_path'], array('', '/')))
 				{
-					$ftp_root = strtr($boarddir, array($_POST['ftp_path'] => ''));
+					$ftp_root = strtr(Config::$boarddir, array($_POST['ftp_path'] => ''));
 					if (substr($ftp_root, -1) == '/' && ($_POST['ftp_path'] == '' || substr($_POST['ftp_path'], 0, 1) == '/'))
 						$ftp_root = substr($ftp_root, 0, -1);
 				}
 				else
-					$ftp_root = $boarddir;
+					$ftp_root = Config::$boarddir;
 
 				$_SESSION['pack_ftp'] = array(
 					'server' => $_POST['ftp_server'],
@@ -715,8 +713,8 @@ class SubsPackage
 					'connected' => true,
 				);
 
-				if (!isset($modSettings['package_path']) || $modSettings['package_path'] != $_POST['ftp_path'])
-					updateSettings(array('package_path' => $_POST['ftp_path']));
+				if (!isset(Config::$modSettings['package_path']) || Config::$modSettings['package_path'] != $_POST['ftp_path'])
+					Config::updateModSettings(array('package_path' => $_POST['ftp_path']));
 
 				// This is now the primary connection.
 				self::$package_ftp = $ftp;
@@ -754,36 +752,36 @@ class SubsPackage
 				elseif ($ftp->error !== false && !isset($ftp_error))
 					$ftp_error = $ftp->last_message === null ? '' : $ftp->last_message;
 
-				list ($username, $detect_path, $found_path) = $ftp->detect_path($boarddir);
+				list ($username, $detect_path, $found_path) = $ftp->detect_path(Config::$boarddir);
 
 				if ($found_path)
 					$_POST['ftp_path'] = $detect_path;
 				elseif (!isset($_POST['ftp_path']))
-					$_POST['ftp_path'] = isset($modSettings['package_path']) ? $modSettings['package_path'] : $detect_path;
+					$_POST['ftp_path'] = isset(Config::$modSettings['package_path']) ? Config::$modSettings['package_path'] : $detect_path;
 
 				if (!isset($_POST['ftp_username']))
 					$_POST['ftp_username'] = $username;
 			}
 
-			$context['package_ftp'] = array(
-				'server' => isset($_POST['ftp_server']) ? $_POST['ftp_server'] : (isset($modSettings['package_server']) ? $modSettings['package_server'] : 'localhost'),
-				'port' => isset($_POST['ftp_port']) ? $_POST['ftp_port'] : (isset($modSettings['package_port']) ? $modSettings['package_port'] : '21'),
-				'username' => isset($_POST['ftp_username']) ? $_POST['ftp_username'] : (isset($modSettings['package_username']) ? $modSettings['package_username'] : ''),
+			Utils::$context['package_ftp'] = array(
+				'server' => isset($_POST['ftp_server']) ? $_POST['ftp_server'] : (isset(Config::$modSettings['package_server']) ? Config::$modSettings['package_server'] : 'localhost'),
+				'port' => isset($_POST['ftp_port']) ? $_POST['ftp_port'] : (isset(Config::$modSettings['package_port']) ? Config::$modSettings['package_port'] : '21'),
+				'username' => isset($_POST['ftp_username']) ? $_POST['ftp_username'] : (isset(Config::$modSettings['package_username']) ? Config::$modSettings['package_username'] : ''),
 				'path' => $_POST['ftp_path'],
 				'error' => empty($ftp_error) ? null : $ftp_error,
 				'destination' => !empty($chmodOptions['destination_url']) ? $chmodOptions['destination_url'] : '',
 			);
 
 			// Which files failed?
-			if (!isset($context['notwritable_files']))
-				$context['notwritable_files'] = array();
-			$context['notwritable_files'] = array_merge($context['notwritable_files'], $return_data['files']['notwritable']);
+			if (!isset(Utils::$context['notwritable_files']))
+				Utils::$context['notwritable_files'] = array();
+			Utils::$context['notwritable_files'] = array_merge(Utils::$context['notwritable_files'], $return_data['files']['notwritable']);
 
 			// Sent here to die?
 			if (!empty($chmodOptions['crash_on_error']))
 			{
-				$context['page_title'] = $txt['package_ftp_necessary'];
-				$context['sub_template'] = 'ftp_required';
+				Utils::$context['page_title'] = $txt['package_ftp_necessary'];
+				Utils::$context['sub_template'] = 'ftp_required';
 				obExit();
 			}
 		}
@@ -862,7 +860,7 @@ class SubsPackage
 	 */
 	public static function packageRequireFTP($destination_url, $files = null, $return = false)
 	{
-		global $context, $modSettings, $boarddir, $txt;
+		global $txt;
 
 		// Try to make them writable the manual way.
 		if ($files !== null)
@@ -988,20 +986,20 @@ class SubsPackage
 			elseif ($ftp->error !== false && !isset($ftp_error))
 				$ftp_error = $ftp->last_message === null ? '' : $ftp->last_message;
 
-			list ($username, $detect_path, $found_path) = $ftp->detect_path($boarddir);
+			list ($username, $detect_path, $found_path) = $ftp->detect_path(Config::$boarddir);
 
 			if ($found_path)
 				$_POST['ftp_path'] = $detect_path;
 			elseif (!isset($_POST['ftp_path']))
-				$_POST['ftp_path'] = isset($modSettings['package_path']) ? $modSettings['package_path'] : $detect_path;
+				$_POST['ftp_path'] = isset(Config::$modSettings['package_path']) ? Config::$modSettings['package_path'] : $detect_path;
 
 			if (!isset($_POST['ftp_username']))
 				$_POST['ftp_username'] = $username;
 
-			$context['package_ftp'] = array(
-				'server' => isset($_POST['ftp_server']) ? $_POST['ftp_server'] : (isset($modSettings['package_server']) ? $modSettings['package_server'] : 'localhost'),
-				'port' => isset($_POST['ftp_port']) ? $_POST['ftp_port'] : (isset($modSettings['package_port']) ? $modSettings['package_port'] : '21'),
-				'username' => isset($_POST['ftp_username']) ? $_POST['ftp_username'] : (isset($modSettings['package_username']) ? $modSettings['package_username'] : ''),
+			Utils::$context['package_ftp'] = array(
+				'server' => isset($_POST['ftp_server']) ? $_POST['ftp_server'] : (isset(Config::$modSettings['package_server']) ? Config::$modSettings['package_server'] : 'localhost'),
+				'port' => isset($_POST['ftp_port']) ? $_POST['ftp_port'] : (isset(Config::$modSettings['package_port']) ? Config::$modSettings['package_port'] : '21'),
+				'username' => isset($_POST['ftp_username']) ? $_POST['ftp_username'] : (isset(Config::$modSettings['package_username']) ? Config::$modSettings['package_username'] : ''),
 				'path' => $_POST['ftp_path'],
 				'error' => empty($ftp_error) ? null : $ftp_error,
 				'destination' => $destination_url,
@@ -1011,20 +1009,20 @@ class SubsPackage
 			if ($return)
 				return $files;
 
-			$context['page_title'] = $txt['package_ftp_necessary'];
-			$context['sub_template'] = 'ftp_required';
+			Utils::$context['page_title'] = $txt['package_ftp_necessary'];
+			Utils::$context['sub_template'] = 'ftp_required';
 			obExit();
 		}
 		else
 		{
 			if (!in_array($_POST['ftp_path'], array('', '/')))
 			{
-				$ftp_root = strtr($boarddir, array($_POST['ftp_path'] => ''));
+				$ftp_root = strtr(Config::$boarddir, array($_POST['ftp_path'] => ''));
 				if (substr($ftp_root, -1) == '/' && ($_POST['ftp_path'] == '' || $_POST['ftp_path'][0] == '/'))
 					$ftp_root = substr($ftp_root, 0, -1);
 			}
 			else
-				$ftp_root = $boarddir;
+				$ftp_root = Config::$boarddir;
 
 			$_SESSION['pack_ftp'] = array(
 				'server' => $_POST['ftp_server'],
@@ -1035,8 +1033,8 @@ class SubsPackage
 				'root' => $ftp_root,
 			);
 
-			if (!isset($modSettings['package_path']) || $modSettings['package_path'] != $_POST['ftp_path'])
-				updateSettings(array('package_path' => $_POST['ftp_path']));
+			if (!isset(Config::$modSettings['package_path']) || Config::$modSettings['package_path'] != $_POST['ftp_path'])
+				Config::updateModSettings(array('package_path' => $_POST['ftp_path']));
 
 			$files = self::packageRequireFTP($destination_url, $files, $return);
 		}
@@ -1061,8 +1059,6 @@ class SubsPackage
 	 */
 	public static function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install', $previous_version = '')
 	{
-		global $packagesdir, $context, $language, $smcFunc;
-
 		// Mayday!  That action doesn't exist!!
 		if (empty($packageXML) || !$packageXML->exists($method))
 			return array();
@@ -1118,10 +1114,10 @@ class SubsPackage
 		$return = array();
 
 		$temp_auto = 0;
-		self::$temp_path = $packagesdir . '/temp/' . (isset($context['base_path']) ? $context['base_path'] : '');
+		self::$temp_path = Config::$packagesdir . '/temp/' . (isset(Utils::$context['base_path']) ? Utils::$context['base_path'] : '');
 
-		$context['readmes'] = array();
-		$context['licences'] = array();
+		Utils::$context['readmes'] = array();
+		Utils::$context['licences'] = array();
 
 		// This is the testing phase... nothing shall be done yet.
 		foreach ($actions as $action)
@@ -1137,18 +1133,18 @@ class SubsPackage
 					if ($action->exists('@lang'))
 					{
 						// Auto-select the language based on either request variable or current language.
-						if ((isset($_REQUEST['readme']) && $action->fetch('@lang') == $_REQUEST['readme']) || (isset($_REQUEST['license']) && $action->fetch('@lang') == $_REQUEST['license']) || (!isset($_REQUEST['readme']) && $action->fetch('@lang') == $language) || (!isset($_REQUEST['license']) && $action->fetch('@lang') == $language))
+						if ((isset($_REQUEST['readme']) && $action->fetch('@lang') == $_REQUEST['readme']) || (isset($_REQUEST['license']) && $action->fetch('@lang') == $_REQUEST['license']) || (!isset($_REQUEST['readme']) && $action->fetch('@lang') == Config::$language) || (!isset($_REQUEST['license']) && $action->fetch('@lang') == Config::$language))
 						{
 							// In case the user put the blocks in the wrong order.
-							if (isset($context[$type]['selected']) && $context[$type]['selected'] == 'default')
-								$context[$type][] = 'default';
+							if (isset(Utils::$context[$type]['selected']) && Utils::$context[$type]['selected'] == 'default')
+								Utils::$context[$type][] = 'default';
 
-							$context[$type]['selected'] = $smcFunc['htmlspecialchars']($action->fetch('@lang'));
+							Utils::$context[$type]['selected'] = Utils::htmlspecialchars($action->fetch('@lang'));
 						}
 						else
 						{
 							// We don't want this now, but we'll allow the user to select to read it.
-							$context[$type][] = $smcFunc['htmlspecialchars']($action->fetch('@lang'));
+							Utils::$context[$type][] = Utils::htmlspecialchars($action->fetch('@lang'));
 							continue;
 						}
 					}
@@ -1156,13 +1152,13 @@ class SubsPackage
 					else
 					{
 						// Already selected one for use?
-						if (isset($context[$type]['selected']))
+						if (isset(Utils::$context[$type]['selected']))
 						{
-							$context[$type][] = 'default';
+							Utils::$context[$type][] = 'default';
 							continue;
 						}
 						else
-							$context[$type]['selected'] = 'default';
+							Utils::$context[$type]['selected'] = 'default';
 					}
 				}
 
@@ -1185,7 +1181,7 @@ class SubsPackage
 					'redirect_url' => $action->exists('@url') ? $action->fetch('@url') : '',
 					'redirect_timeout' => $action->exists('@timeout') ? (int) $action->fetch('@timeout') : '',
 					'parse_bbc' => $action->exists('@parsebbc') && $action->fetch('@parsebbc') == 'true',
-					'language' => (($actionType == 'readme' || $actionType == 'license') && $action->exists('@lang') && $action->fetch('@lang') == $language) ? $language : '',
+					'language' => (($actionType == 'readme' || $actionType == 'license') && $action->exists('@lang') && $action->fetch('@lang') == Config::$language) ? Config::$language : '',
 				);
 
 				continue;
@@ -1422,8 +1418,8 @@ class SubsPackage
 			{
 				self::copytree($action['source'], $action['destination']);
 				// Any other theme folders?
-				if (!empty($context['theme_copies']) && !empty($context['theme_copies'][$action['type']][$action['destination']]))
-					foreach ($context['theme_copies'][$action['type']][$action['destination']] as $theme_destination)
+				if (!empty(Utils::$context['theme_copies']) && !empty(Utils::$context['theme_copies'][$action['type']][$action['destination']]))
+					foreach (Utils::$context['theme_copies'][$action['type']][$action['destination']] as $theme_destination)
 						self::copytree($action['source'], $theme_destination);
 			}
 			elseif ($action['type'] == 'require-file')
@@ -1436,8 +1432,8 @@ class SubsPackage
 				$failure |= !copy($action['source'], $action['destination']);
 
 				// Any other theme files?
-				if (!empty($context['theme_copies']) && !empty($context['theme_copies'][$action['type']][$action['destination']]))
-					foreach ($context['theme_copies'][$action['type']][$action['destination']] as $theme_destination)
+				if (!empty(Utils::$context['theme_copies']) && !empty(Utils::$context['theme_copies'][$action['type']][$action['destination']]))
+					foreach (Utils::$context['theme_copies'][$action['type']][$action['destination']] as $theme_destination)
 					{
 						if (!self::mktree(dirname($theme_destination), 0755) || !is_writable(dirname($theme_destination)))
 							$failure |= !self::mktree(dirname($theme_destination), 0777);
@@ -1466,8 +1462,8 @@ class SubsPackage
 				self::deltree($action['filename']);
 
 				// Any other theme folders?
-				if (!empty($context['theme_copies']) && !empty($context['theme_copies'][$action['type']][$action['filename']]))
-					foreach ($context['theme_copies'][$action['type']][$action['filename']] as $theme_destination)
+				if (!empty(Utils::$context['theme_copies']) && !empty(Utils::$context['theme_copies'][$action['type']][$action['filename']]))
+					foreach (Utils::$context['theme_copies'][$action['type']][$action['filename']] as $theme_destination)
 						self::deltree($theme_destination);
 			}
 			elseif ($action['type'] == 'remove-file')
@@ -1483,8 +1479,8 @@ class SubsPackage
 					$failure = true;
 
 				// Any other theme folders?
-				if (!empty($context['theme_copies']) && !empty($context['theme_copies'][$action['type']][$action['filename']]))
-					foreach ($context['theme_copies'][$action['type']][$action['filename']] as $theme_destination)
+				if (!empty(Utils::$context['theme_copies']) && !empty(Utils::$context['theme_copies'][$action['type']][$action['filename']]))
+					foreach (Utils::$context['theme_copies'][$action['type']][$action['filename']] as $theme_destination)
 						if (file_exists($theme_destination))
 							$failure |= !unlink($theme_destination);
 						else
@@ -1651,21 +1647,21 @@ class SubsPackage
 	 */
 	public static function parse_path($path)
 	{
-		global $modSettings, $boarddir, $sourcedir, $settings, $txt;
+		global $settings, $txt;
 
 		$dirs = array(
 			'\\' => '/',
-			'$boarddir' => $boarddir,
-			'$sourcedir' => $sourcedir,
-			'$avatardir' => $modSettings['avatar_directory'],
-			'$avatars_dir' => $modSettings['avatar_directory'],
+			'$boarddir' => Config::$boarddir,
+			'$sourcedir' => Config::$sourcedir,
+			'$avatardir' => Config::$modSettings['avatar_directory'],
+			'$avatars_dir' => Config::$modSettings['avatar_directory'],
 			'$themedir' => $settings['default_theme_dir'],
 			'$imagesdir' => $settings['default_theme_dir'] . '/' . basename($settings['default_images_url']),
-			'$themes_dir' => $boarddir . '/Themes',
+			'$themes_dir' => Config::$boarddir . '/Themes',
 			'$languagedir' => $settings['default_theme_dir'] . '/languages',
 			'$languages_dir' => $settings['default_theme_dir'] . '/languages',
-			'$smileysdir' => $modSettings['smileys_dir'],
-			'$smileys_dir' => $modSettings['smileys_dir'],
+			'$smileysdir' => Config::$modSettings['smileys_dir'],
+			'$smileys_dir' => Config::$modSettings['smileys_dir'],
 		);
 
 		// do we parse in a package directory?
@@ -1913,7 +1909,7 @@ class SubsPackage
 	 */
 	public static function parseModification($file, $testing = true, $undo = false, $theme_paths = array())
 	{
-		global $boarddir, $txt, $modSettings;
+		global $txt;
 
 		@set_time_limit(600);
 		$xml = new XmlArray(strtr($file, array("\r" => '')));
@@ -1950,7 +1946,7 @@ class SubsPackage
 				// If this filename is relative, if so take a guess at what it should be.
 				$real_filename = $filename;
 				if (strpos($filename, 'Themes') === 0)
-					$real_filename = $boarddir . '/' . $filename;
+					$real_filename = Config::$boarddir . '/' . $filename;
 
 				if (strpos($real_filename, $theme['theme_dir']) === 0)
 				{
@@ -2004,7 +2000,7 @@ class SubsPackage
 					loadLanguage('Errors');
 					trigger_error(sprintf($txt['parse_modification_filename_not_full_path'], $working_file), E_USER_WARNING);
 
-					$working_file = $boarddir . '/' . $working_file;
+					$working_file = Config::$boarddir . '/' . $working_file;
 				}
 
 				// Doesn't exist - give an error or what?
@@ -2253,14 +2249,14 @@ class SubsPackage
 						'filename' => $working_file
 					);
 
-				if (basename($working_file) == 'Settings_bak.php')
+				if (basename($working_file) == basename(SMF_SETTINGS_BACKUP_FILE))
 					continue;
 
-				if (!$testing && !empty($modSettings['package_make_backups']) && file_exists($working_file))
+				if (!$testing && !empty(Config::$modSettings['package_make_backups']) && file_exists($working_file))
 				{
 					// No, no, not Settings.php!
-					if (basename($working_file) == 'Settings.php')
-						@copy($working_file, dirname($working_file) . '/Settings_bak.php');
+					if (basename($working_file) == basename(SMF_SETTINGS_FILE))
+						@copy($working_file, dirname($working_file) . '/' . basename(SMF_SETTINGS_BACKUP_FILE));
 					else
 						@copy($working_file, $working_file . '~');
 				}
@@ -2295,7 +2291,7 @@ class SubsPackage
 	 */
 	public static function parseBoardMod($file, $testing = true, $undo = false, $theme_paths = array())
 	{
-		global $boarddir, $sourcedir, $settings, $modSettings, $txt;
+		global $settings, $txt;
 
 		@set_time_limit(600);
 		$file = strtr($file, array("\r" => ''));
@@ -2348,7 +2344,7 @@ class SubsPackage
 			{
 				// If this filename is relative, if so take a guess at what it should be.
 				if (strpos($filename, 'Themes') === 0)
-					$filename = $boarddir . '/' . $filename;
+					$filename = Config::$boarddir . '/' . $filename;
 
 				if (strpos($filename, $theme['theme_dir']) === 0)
 					$template_changes[$id][$counter] = substr($filename, strlen($theme['theme_dir']) + 1);
@@ -2401,7 +2397,7 @@ class SubsPackage
 					self::package_chmod($working_file);
 
 					// Don't even dare.
-					if (basename($working_file) == 'Settings_bak.php')
+					if (basename($working_file) == basename(SMF_SETTINGS_BACKUP_FILE))
 						continue;
 
 					if (!is_writable($working_file))
@@ -2410,10 +2406,10 @@ class SubsPackage
 							'filename' => $working_file
 						);
 
-					if (!$testing && !empty($modSettings['package_make_backups']) && file_exists($working_file))
+					if (!$testing && !empty(Config::$modSettings['package_make_backups']) && file_exists($working_file))
 					{
-						if (basename($working_file) == 'Settings.php')
-							@copy($working_file, dirname($working_file) . '/Settings_bak.php');
+						if (basename($working_file) == basename(SMF_SETTINGS_FILE))
+							@copy($working_file, dirname($working_file) . '/' . basename(SMF_SETTINGS_BACKUP_FILE));
 						else
 							@copy($working_file, $working_file . '~');
 					}
@@ -2439,12 +2435,12 @@ class SubsPackage
 					loadLanguage('Errors');
 					trigger_error(sprintf($txt['parse_boardmod_filename_not_full_path'], $working_file), E_USER_WARNING);
 
-					$working_file = $boarddir . '/' . $working_file;
+					$working_file = Config::$boarddir . '/' . $working_file;
 				}
 
 				if (!file_exists($working_file))
 				{
-					$places_to_check = array($boarddir, $sourcedir, $settings['default_theme_dir'], $settings['default_theme_dir'] . '/languages');
+					$places_to_check = array(Config::$boarddir, Config::$sourcedir, $settings['default_theme_dir'], $settings['default_theme_dir'] . '/languages');
 
 					foreach ($places_to_check as $place)
 						if (file_exists($place . '/' . $working_file))
@@ -2573,10 +2569,10 @@ class SubsPackage
 					'filename' => $working_file
 				);
 
-			if (!$testing && !empty($modSettings['package_make_backups']) && file_exists($working_file))
+			if (!$testing && !empty(Config::$modSettings['package_make_backups']) && file_exists($working_file))
 			{
-				if (basename($working_file) == 'Settings.php')
-					@copy($working_file, dirname($working_file) . '/Settings_bak.php');
+				if (basename($working_file) == basename(SMF_SETTINGS_FILE))
+					@copy($working_file, dirname($working_file) . '/' . basename(SMF_SETTINGS_BACKUP_FILE));
 				else
 					@copy($working_file, $working_file . '~');
 			}
@@ -2607,14 +2603,12 @@ class SubsPackage
 	 */
 	public static function package_get_contents($filename)
 	{
-		global $modSettings;
-
 		if (!isset(self::$package_cache))
 		{
 			$mem_check = setMemoryLimit('128M');
 
 			// Windows doesn't seem to care about the memory_limit.
-			if (!empty($modSettings['package_disable_cache']) || $mem_check || stripos(PHP_OS, 'win') !== false)
+			if (!empty(Config::$modSettings['package_disable_cache']) || $mem_check || stripos(PHP_OS, 'win') !== false)
 				self::$package_cache = array();
 			else
 				self::$package_cache = false;
@@ -2639,8 +2633,6 @@ class SubsPackage
 	 */
 	public static function package_put_contents($filename, $data, $testing = false)
 	{
-		global $modSettings;
-
 		static $text_filetypes = array('php', 'txt', '.js', 'css', 'vbs', 'tml', 'htm');
 
 		if (!isset(self::$package_cache))
@@ -2648,7 +2640,7 @@ class SubsPackage
 			// Try to increase the memory limit - we don't want to run out of ram!
 			$mem_check = setMemoryLimit('128M');
 
-			if (!empty($modSettings['package_disable_cache']) || $mem_check || stripos(PHP_OS, 'win') !== false)
+			if (!empty(Config::$modSettings['package_disable_cache']) || $mem_check || stripos(PHP_OS, 'win') !== false)
 				self::$package_cache = array();
 			else
 				self::$package_cache = false;
@@ -2937,19 +2929,17 @@ class SubsPackage
 	 */
 	public static function package_create_backup($id = 'backup')
 	{
-		global $sourcedir, $boarddir, $packagesdir;
-
 		$files = array();
 
 		$base_files = array('index.php', 'SSI.php', 'agreement.txt', 'cron.php', 'proxy.php', 'ssi_examples.php', 'ssi_examples.shtml', 'subscriptions.php');
 		foreach ($base_files as $file)
 		{
-			if (file_exists($boarddir . '/' . $file))
-				$files[empty($_REQUEST['use_full_paths']) ? $file : $boarddir . '/' . $file] = $boarddir . '/' . $file;
+			if (file_exists(Config::$boarddir . '/' . $file))
+				$files[empty($_REQUEST['use_full_paths']) ? $file : Config::$boarddir . '/' . $file] = Config::$boarddir . '/' . $file;
 		}
 
 		$dirs = array(
-			$sourcedir => empty($_REQUEST['use_full_paths']) ? 'Sources/' : strtr($sourcedir . '/', '\\', '/')
+			Config::$sourcedir => empty($_REQUEST['use_full_paths']) ? 'Sources/' : strtr(Config::$sourcedir . '/', '\\', '/')
 		);
 
 		$request = Db::$db->query('', '
@@ -2984,17 +2974,17 @@ class SubsPackage
 					if (preg_match('~^(\.{1,2}|CVS|backup.*|help|images|.*\~|.*minified_[a-z0-9]{32}\.(js|css))$~', $entry) != 0)
 						continue;
 
-					$files[empty($_REQUEST['use_full_paths']) ? str_replace(realpath($boarddir), '', $entry) : $entry] = $entry;
+					$files[empty($_REQUEST['use_full_paths']) ? str_replace(realpath(Config::$boarddir), '', $entry) : $entry] = $entry;
 				}
 			}
 			$obj = new \ArrayObject($files);
 			$iterator = $obj->getIterator();
 
-			if (!file_exists($packagesdir . '/backups'))
-				self::mktree($packagesdir . '/backups', 0777);
-			if (!is_writable($packagesdir . '/backups'))
-				self::package_chmod($packagesdir . '/backups');
-			$output_file = $packagesdir . '/backups/' . smf_strftime('%Y-%m-%d_') . preg_replace('~[$\\\\/:<>|?*"\']~', '', $id);
+			if (!file_exists(Config::$packagesdir . '/backups'))
+				self::mktree(Config::$packagesdir . '/backups', 0777);
+			if (!is_writable(Config::$packagesdir . '/backups'))
+				self::package_chmod(Config::$packagesdir . '/backups');
+			$output_file = Config::$packagesdir . '/backups/' . smf_strftime('%Y-%m-%d_') . preg_replace('~[$\\\\/:<>|?*"\']~', '', $id);
 			$output_ext = '.tar';
 			$output_ext_target = '.tar.gz';
 
@@ -3056,13 +3046,11 @@ class SubsPackage
 	 */
 	public static function package_validate_installtest($package)
 	{
-		global $context;
-
 		// Don't validate directories.
-		$context['package_sha256_hash'] = is_dir($package['file_name']) ? null : hash_file('sha256', $package['file_name']);
+		Utils::$context['package_sha256_hash'] = is_dir($package['file_name']) ? null : hash_file('sha256', $package['file_name']);
 
 		$sendData = array(array(
-			'sha256_hash' => $context['package_sha256_hash'],
+			'sha256_hash' => Utils::$context['package_sha256_hash'],
 			'file_name' => basename($package['file_name']),
 			'custom_id' => $package['custom_id'],
 			'custom_type' => $package['custom_type'],
@@ -3079,8 +3067,6 @@ class SubsPackage
 	 */
 	public static function package_validate($packages)
 	{
-		global $context;
-
 		// Setup our send data.
 		$sendData = array();
 
@@ -3117,10 +3103,8 @@ class SubsPackage
 	 */
 	public static function package_validate_send($sendData)
 	{
-		global $context, $smcFunc;
-
 		// First lets get all package servers into here.
-		if (empty($context['package_servers']))
+		if (empty(Utils::$context['package_servers']))
 		{
 
 			$request = Db::$db->query('', '
@@ -3130,9 +3114,9 @@ class SubsPackage
 				array(
 					'empty' => '',
 			));
-			$context['package_servers'] = array();
+			Utils::$context['package_servers'] = array();
 			while ($row = Db::$db->fetch_assoc($request))
-				$context['package_servers'][$row['id_server']] = $row;
+				Utils::$context['package_servers'][$row['id_server']] = $row;
 			Db::$db->free_result($request);
 		}
 
@@ -3142,7 +3126,7 @@ class SubsPackage
 
 		// Test each server.
 		$return_data = array();
-		foreach ($context['package_servers'] as $id_server => $server)
+		foreach (Utils::$context['package_servers'] as $id_server => $server)
 		{
 			$return_data[$id_server] = array();
 
@@ -3153,13 +3137,13 @@ class SubsPackage
 
 			$results = fetch_web_data($validate_url, 'data=' . json_encode($sendData));
 
-			$parsed_data = $smcFunc['json_decode']($results, true);
+			$parsed_data = Utils::jsonDecode($results, true);
 			if (is_array($parsed_data) && isset($parsed_data['data']) && is_array($parsed_data['data']))
 			{
 				foreach ($parsed_data['data'] as $sha256_hash => $status)
 				{
 					if ((string) $status === 'blacklist')
-						$context['package_blacklist_found'] = true;
+						Utils::$context['package_blacklist_found'] = true;
 
 					$return_data[$id_server][(string) $sha256_hash] = 'package_validation_status_' . ((string) $status);
 				}
@@ -3182,21 +3166,19 @@ class SubsPackage
 	 */
 	protected function fetchPerms__recursive($path, &$data, $level)
 	{
-		global $context;
-
 		$isLikelyPath = false;
-		foreach ($context['look_for'] as $possiblePath)
+		foreach (Utils::$context['look_for'] as $possiblePath)
 			if (substr($possiblePath, 0, strlen($path)) == $path)
 				$isLikelyPath = true;
 
 		// Is this where we stop?
-		if (isset($_GET['xml']) && !empty($context['look_for']) && !$isLikelyPath)
+		if (isset($_GET['xml']) && !empty(Utils::$context['look_for']) && !$isLikelyPath)
 			return;
-		elseif ($level > $context['default_level'] && !$isLikelyPath)
+		elseif ($level > Utils::$context['default_level'] && !$isLikelyPath)
 			return;
 
 		// Are we actually interested in saving this data?
-		$save_data = empty($context['only_find']) || $context['only_find'] == $path;
+		$save_data = empty(Utils::$context['only_find']) || Utils::$context['only_find'] == $path;
 
 		// @todo Shouldn't happen - but better error message?
 		if (!is_dir($path))
@@ -3268,19 +3250,19 @@ class SubsPackage
 				$additional_data['type'] = $type;
 
 			// If there's an offset ignore any folders in XML mode.
-			if (isset($_GET['xml']) && $context['file_offset'] == 0)
+			if (isset($_GET['xml']) && Utils::$context['file_offset'] == 0)
 			{
-				$context['xml_data']['folders']['children'][] = array(
+				Utils::$context['xml_data']['folders']['children'][] = array(
 					'attributes' => array(
 						'writable' => $additional_data['perms']['chmod'] ? 1 : 0,
 						'permissions' => substr(sprintf('%o', $additional_data['perms']['perms']), -4),
 						'folder' => 1,
-						'path' => $context['only_find'],
+						'path' => Utils::$context['only_find'],
 						'level' => $level,
 						'more' => 0,
-						'offset' => $context['file_offset'],
-						'my_ident' => preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', $context['only_find'] . '/' . $folder),
-						'ident' => preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', $context['only_find']),
+						'offset' => Utils::$context['file_offset'],
+						'my_ident' => preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', Utils::$context['only_find'] . '/' . $folder),
+						'ident' => preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', Utils::$context['only_find']),
 					),
 					'value' => $folder,
 				);
@@ -3302,10 +3284,10 @@ class SubsPackage
 			$counter++;
 
 			// Have we reached our offset?
-			if ($context['file_offset'] > $counter)
+			if (Utils::$context['file_offset'] > $counter)
 				continue;
 			// Gone too far?
-			if ($counter > ($context['file_offset'] + $context['file_limit']))
+			if ($counter > (Utils::$context['file_offset'] + Utils::$context['file_limit']))
 				continue;
 
 			$additional_data = array(
@@ -3318,22 +3300,22 @@ class SubsPackage
 			// XML?
 			if (isset($_GET['xml']))
 			{
-				$context['xml_data']['folders']['children'][] = array(
+				Utils::$context['xml_data']['folders']['children'][] = array(
 					'attributes' => array(
 						'writable' => $additional_data['perms']['chmod'] ? 1 : 0,
 						'permissions' => substr(sprintf('%o', $additional_data['perms']['perms']), -4),
 						'folder' => 0,
-						'path' => $context['only_find'],
+						'path' => Utils::$context['only_find'],
 						'level' => $level,
-						'more' => $counter == ($context['file_offset'] + $context['file_limit']) ? 1 : 0,
-						'offset' => $context['file_offset'],
-						'my_ident' => preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', $context['only_find'] . '/' . $file),
-						'ident' => preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', $context['only_find']),
+						'more' => $counter == (Utils::$context['file_offset'] + Utils::$context['file_limit']) ? 1 : 0,
+						'offset' => Utils::$context['file_offset'],
+						'my_ident' => preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', Utils::$context['only_find'] . '/' . $file),
+						'ident' => preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', Utils::$context['only_find']),
 					),
 					'value' => $file,
 				);
 			}
-			elseif ($counter != ($context['file_offset'] + $context['file_limit']))
+			elseif ($counter != (Utils::$context['file_offset'] + Utils::$context['file_limit']))
 			{
 				if (isset($data['contents'][$file]))
 					$data['contents'][$file] = array_merge($data['contents'][$file], $additional_data);
@@ -3351,15 +3333,13 @@ class SubsPackage
 	 */
 	protected function count_directories__recursive($dir)
 	{
-		global $context;
-
 		$count = 0;
 		$dh = @opendir($dir);
 		while ($entry = readdir($dh))
 		{
 			if ($entry != '.' && $entry != '..' && is_dir($dir . '/' . $entry))
 			{
-				$context['directory_list'][$dir . '/' . $entry] = 1;
+				Utils::$context['directory_list'][$dir . '/' . $entry] = 1;
 				$count++;
 				$count += $this->count_directories__recursive($dir . '/' . $entry);
 			}
@@ -3377,11 +3357,9 @@ class SubsPackage
 	 */
 	protected function build_special_files__recursive($path, &$data)
 	{
-		global $context;
-
 		if (!empty($data['writable_on']))
-			if ($context['predefined_type'] == 'standard' || $data['writable_on'] == 'restrictive')
-				$context['special_files'][$path] = 1;
+			if (Utils::$context['predefined_type'] == 'standard' || $data['writable_on'] == 'restrictive')
+				Utils::$context['special_files'][$path] = 1;
 
 		if (!empty($data['contents']))
 			foreach ($data['contents'] as $name => $contents)
@@ -3401,9 +3379,7 @@ class SubsPackage
 	 */
 	private static function smf_crc32($number)
 	{
-		global $sourcedir;
-
-		require_once($sourcedir . '/Subs-Compat.php');
+		require_once(Config::$sourcedir . '/Subs-Compat.php');
 
 		return \smf_crc32($number);
 	}

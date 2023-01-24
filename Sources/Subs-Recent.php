@@ -14,6 +14,9 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -26,11 +29,9 @@ if (!defined('SMF'))
  */
 function getLastPosts($latestPostOptions)
 {
-	global $scripturl, $modSettings, $smcFunc, $sourcedir;
-
 	// Find all the posts.  Newer ones will have higher IDs.  (assuming the last 20 * number are accessible...)
 	// @todo SLOW This query is now slow, NEEDS to be fixed.  Maybe break into two?
-	$request = $smcFunc['db_query']('substring', '
+	$request = Db::$db->query('substring', '
 		SELECT
 			m.poster_time, m.subject, m.id_topic, m.id_member, m.id_msg,
 			COALESCE(mem.real_name, m.poster_name) AS poster_name, t.id_board, b.name AS board_name,
@@ -40,29 +41,29 @@ function getLastPosts($latestPostOptions)
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 		WHERE m.id_msg >= {int:likely_max_msg}' .
-			(!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
+			(!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? '
 			AND b.id_board != {int:recycle_board}' : '') . '
-			AND {query_wanna_see_board}' . ($modSettings['postmod_active'] ? '
+			AND {query_wanna_see_board}' . (Config::$modSettings['postmod_active'] ? '
 			AND t.approved = {int:is_approved}
 			AND m.approved = {int:is_approved}' : '') . '
 		ORDER BY m.id_msg DESC
 		LIMIT ' . $latestPostOptions['number_posts'],
 		array(
-			'likely_max_msg' => max(0, $modSettings['maxMsgID'] - 50 * $latestPostOptions['number_posts']),
-			'recycle_board' => $modSettings['recycle_board'],
+			'likely_max_msg' => max(0, Config::$modSettings['maxMsgID'] - 50 * $latestPostOptions['number_posts']),
+			'recycle_board' => Config::$modSettings['recycle_board'],
 			'is_approved' => 1,
 		)
 	);
-	$rows = $smcFunc['db_fetch_all']($request);
+	$rows = Db::$db->fetch_all($request);
 
 	// If the ability to embed attachments in posts is enabled, load the attachments now for efficiency
-	if (!empty($modSettings['attachmentEnable']) && (empty($modSettings['disabledBBC']) || !in_array('attach', explode(',', strtolower($modSettings['disabledBBC'])))))
+	if (!empty(Config::$modSettings['attachmentEnable']) && (empty(Config::$modSettings['disabledBBC']) || !in_array('attach', explode(',', strtolower(Config::$modSettings['disabledBBC'])))))
 	{
 		$msgIDs = array();
 		foreach ($rows as $row)
 			$msgIDs[] = $row['id_msg'];
 
-		require_once($sourcedir . '/Subs-Attachments.php');
+		require_once(Config::$sourcedir . '/Subs-Attachments.php');
 		prepareAttachsByMsg($msgIDs);
 	}
 
@@ -74,23 +75,23 @@ function getLastPosts($latestPostOptions)
 		censorText($row['body']);
 
 		$row['body'] = strip_tags(strtr(BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']), array('<br>' => '&#10;')));
-		if ($smcFunc['strlen']($row['body']) > 128)
-			$row['body'] = $smcFunc['substr']($row['body'], 0, 128) . '...';
+		if (Utils::entityStrlen($row['body']) > 128)
+			$row['body'] = Utils::entitySubstr($row['body'], 0, 128) . '...';
 
 		// Build the array.
 		$posts[] = array(
 			'board' => array(
 				'id' => $row['id_board'],
 				'name' => $row['board_name'],
-				'href' => $scripturl . '?board=' . $row['id_board'] . '.0',
-				'link' => '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['board_name'] . '</a>'
+				'href' => Config::$scripturl . '?board=' . $row['id_board'] . '.0',
+				'link' => '<a href="' . Config::$scripturl . '?board=' . $row['id_board'] . '.0">' . $row['board_name'] . '</a>'
 			),
 			'topic' => $row['id_topic'],
 			'poster' => array(
 				'id' => $row['id_member'],
 				'name' => $row['poster_name'],
-				'href' => empty($row['id_member']) ? '' : $scripturl . '?action=profile;u=' . $row['id_member'],
-				'link' => empty($row['id_member']) ? $row['poster_name'] : '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['poster_name'] . '</a>'
+				'href' => empty($row['id_member']) ? '' : Config::$scripturl . '?action=profile;u=' . $row['id_member'],
+				'link' => empty($row['id_member']) ? $row['poster_name'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['poster_name'] . '</a>'
 			),
 			'subject' => $row['subject'],
 			'short_subject' => shorten_subject($row['subject'], 24),
@@ -98,11 +99,11 @@ function getLastPosts($latestPostOptions)
 			'time' => timeformat($row['poster_time']),
 			'timestamp' => $row['poster_time'],
 			'raw_timestamp' => $row['poster_time'],
-			'href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . ';topicseen#msg' . $row['id_msg'],
-			'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . ';topicseen#msg' . $row['id_msg'] . '" rel="nofollow">' . $row['subject'] . '</a>'
+			'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . ';topicseen#msg' . $row['id_msg'],
+			'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . ';topicseen#msg' . $row['id_msg'] . '" rel="nofollow">' . $row['subject'] . '</a>'
 		);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	return $posts;
 }

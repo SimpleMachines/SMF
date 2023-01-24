@@ -13,7 +13,10 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
 use SMF\Cache\CacheApi;
+use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -29,16 +32,14 @@ if (!defined('SMF'))
  */
 function getBirthdayRange($low_date, $high_date)
 {
-	global $smcFunc;
-
 	// We need to search for any birthday in this range, and whatever year that birthday is on.
 	$year_low = (int) substr($low_date, 0, 4);
 	$year_high = (int) substr($high_date, 0, 4);
 
-	if ($smcFunc['db_title'] !== POSTGRE_TITLE)
+	if (Db::$db->title !== POSTGRE_TITLE)
 	{
 		// Collect all of the birthdays for this month.  I know, it's a painful query.
-		$result = $smcFunc['db_query']('', '
+		$result = Db::$db->query('', '
 			SELECT id_member, real_name, YEAR(birthdate) AS birth_year, birthdate
 			FROM {db_prefix}members
 			WHERE birthdate != {date:no_birthdate}
@@ -59,7 +60,7 @@ function getBirthdayRange($low_date, $high_date)
 	}
 	else
 	{
-		$result = $smcFunc['db_query']('', '
+		$result = Db::$db->query('', '
 			SELECT id_member, real_name, YEAR(birthdate) AS birth_year, birthdate
 			FROM {db_prefix}members
 			WHERE birthdate != {date:no_birthdate}
@@ -79,7 +80,7 @@ function getBirthdayRange($low_date, $high_date)
 		);
 	}
 	$bday = array();
-	while ($row = $smcFunc['db_fetch_assoc']($result))
+	while ($row = Db::$db->fetch_assoc($result))
 	{
 		if ($year_low != $year_high)
 			$age_year = substr($row['birthdate'], 5) <= substr($high_date, 5) ? $year_high : $year_low;
@@ -93,7 +94,7 @@ function getBirthdayRange($low_date, $high_date)
 			'is_last' => false
 		);
 	}
-	$smcFunc['db_free_result']($result);
+	Db::$db->free_result($result);
 
 	ksort($bday);
 
@@ -119,9 +120,9 @@ function getBirthdayRange($low_date, $high_date)
  */
 function getEventRange($low_date, $high_date, $use_permissions = true)
 {
-	global $scripturl, $modSettings, $user_info, $smcFunc, $context, $sourcedir;
+	global $user_info;
 	static $timezone_array = array();
-	require_once($sourcedir . '/Subs.php');
+	require_once(Config::$sourcedir . '/Subs.php');
 
 	if (empty($timezone_array['default']))
 		$timezone_array['default'] = timezone_open(getUserTimezone());
@@ -130,7 +131,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 	$high_object = date_create($high_date, $timezone_array['default']);
 
 	// Find all the calendar info...
-	$result = $smcFunc['db_query']('calendar_get_events', '
+	$result = Db::$db->query('calendar_get_events', '
 		SELECT
 			cal.id_event, cal.title, cal.id_member, cal.id_topic, cal.id_board,
 			cal.start_date, cal.end_date, cal.start_time, cal.end_time, cal.timezone, cal.location,
@@ -148,10 +149,10 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 		)
 	);
 	$events = array();
-	while ($row = $smcFunc['db_fetch_assoc']($result))
+	while ($row = Db::$db->fetch_assoc($result))
 	{
 		// If the attached topic is not approved then for the moment pretend it doesn't exist
-		if (!empty($row['id_first_msg']) && $modSettings['postmod_active'] && !$row['approved'])
+		if (!empty($row['id_first_msg']) && Config::$modSettings['postmod_active'] && !$row['approved'])
 			continue;
 
 		// Force a censor of the title - as often these are used by others.
@@ -222,7 +223,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 				'span' => $span,
 				'is_last' => false,
 				'id_board' => $row['id_board'],
-				'is_selected' => !empty($context['selected_event']) && $context['selected_event'] == $row['id_event'],
+				'is_selected' => !empty(Utils::$context['selected_event']) && Utils::$context['selected_event'] == $row['id_event'],
 				'starts_today' => $starts_today,
 				'ends_today' => $ends_today,
 				'location' => $row['location'],
@@ -231,20 +232,20 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 			// If we're using permissions (calendar pages?) then just output normal contextual style information.
 			if ($use_permissions)
 				$events[date_format($cal_date, 'Y-m-d')][] = array_merge($eventProperties, array(
-					'href' => $row['id_board'] == 0 ? '' : $scripturl . '?topic=' . $row['id_topic'] . '.0',
-					'link' => $row['id_board'] == 0 ? $row['title'] : '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['title'] . '</a>',
+					'href' => $row['id_board'] == 0 ? '' : Config::$scripturl . '?topic=' . $row['id_topic'] . '.0',
+					'link' => $row['id_board'] == 0 ? $row['title'] : '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['title'] . '</a>',
 					'can_edit' => allowedTo('calendar_edit_any') || ($row['id_member'] == $user_info['id'] && allowedTo('calendar_edit_own')),
-					'modify_href' => $scripturl . '?action=' . ($row['id_board'] == 0 ? 'calendar;sa=post;' : 'post;msg=' . $row['id_first_msg'] . ';topic=' . $row['id_topic'] . '.0;calendar;') . 'eventid=' . $row['id_event'] . ';' . $context['session_var'] . '=' . $context['session_id'],
-					'can_export' => !empty($modSettings['cal_export']) ? true : false,
-					'export_href' => $scripturl . '?action=calendar;sa=ical;eventid=' . $row['id_event'] . ';' . $context['session_var'] . '=' . $context['session_id'],
+					'modify_href' => Config::$scripturl . '?action=' . ($row['id_board'] == 0 ? 'calendar;sa=post;' : 'post;msg=' . $row['id_first_msg'] . ';topic=' . $row['id_topic'] . '.0;calendar;') . 'eventid=' . $row['id_event'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
+					'can_export' => !empty(Config::$modSettings['cal_export']) ? true : false,
+					'export_href' => Config::$scripturl . '?action=calendar;sa=ical;eventid=' . $row['id_event'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 				));
 			// Otherwise, this is going to be cached and the VIEWER'S permissions should apply... just put together some info.
 			else
 				$events[date_format($cal_date, 'Y-m-d')][] = array_merge($eventProperties, array(
-					'href' => $row['id_topic'] == 0 ? '' : $scripturl . '?topic=' . $row['id_topic'] . '.0',
-					'link' => $row['id_topic'] == 0 ? $row['title'] : '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['title'] . '</a>',
+					'href' => $row['id_topic'] == 0 ? '' : Config::$scripturl . '?topic=' . $row['id_topic'] . '.0',
+					'link' => $row['id_topic'] == 0 ? $row['title'] : '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['title'] . '</a>',
 					'can_edit' => false,
-					'can_export' => !empty($modSettings['cal_export']) ? true : false,
+					'can_export' => !empty(Config::$modSettings['cal_export']) ? true : false,
 					'topic' => $row['id_topic'],
 					'msg' => $row['id_first_msg'],
 					'poster' => $row['id_member'],
@@ -254,7 +255,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 			date_add($cal_date, date_interval_create_from_date_string('1 day'));
 		}
 	}
-	$smcFunc['db_free_result']($result);
+	Db::$db->free_result($result);
 
 	// If we're doing normal contextual data, go through and make things clear to the templates ;).
 	if ($use_permissions)
@@ -277,8 +278,6 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
  */
 function getHolidayRange($low_date, $high_date)
 {
-	global $smcFunc;
-
 	// Get the lowest and highest dates for "all years".
 	if (substr($low_date, 0, 4) != substr($high_date, 0, 4))
 		$allyear_part = 'event_date BETWEEN {date:all_year_low} AND {date:all_year_dec}
@@ -287,7 +286,7 @@ function getHolidayRange($low_date, $high_date)
 		$allyear_part = 'event_date BETWEEN {date:all_year_low} AND {date:all_year_high}';
 
 	// Find some holidays... ;).
-	$result = $smcFunc['db_query']('', '
+	$result = Db::$db->query('', '
 		SELECT event_date, YEAR(event_date) AS year, title
 		FROM {db_prefix}calendar_holidays
 		WHERE event_date BETWEEN {date:low_date} AND {date:high_date}
@@ -302,7 +301,7 @@ function getHolidayRange($low_date, $high_date)
 		)
 	);
 	$holidays = array();
-	while ($row = $smcFunc['db_fetch_assoc']($result))
+	while ($row = Db::$db->fetch_assoc($result))
 	{
 		if (substr($low_date, 0, 4) != substr($high_date, 0, 4))
 			$event_year = substr($row['event_date'], 5) < substr($high_date, 5) ? substr($high_date, 0, 4) : substr($low_date, 0, 4);
@@ -311,7 +310,7 @@ function getHolidayRange($low_date, $high_date)
 
 		$holidays[$event_year . substr($row['event_date'], 4)][] = $row['title'];
 	}
-	$smcFunc['db_free_result']($result);
+	Db::$db->free_result($result);
 
 	ksort($holidays);
 
@@ -327,7 +326,7 @@ function getHolidayRange($low_date, $high_date)
  */
 function canLinkEvent()
 {
-	global $user_info, $topic, $board, $smcFunc;
+	global $user_info, $topic, $board;
 
 	// If you can't post, you can't link.
 	isAllowedTo('calendar_post');
@@ -342,7 +341,7 @@ function canLinkEvent()
 	if (!allowedTo('admin_forum') && !allowedTo('moderate_board'))
 	{
 		// Not admin or a moderator of this board. You better be the owner - or else.
-		$result = $smcFunc['db_query']('', '
+		$result = Db::$db->query('', '
 			SELECT id_member_started
 			FROM {db_prefix}topics
 			WHERE id_topic = {int:current_topic}
@@ -351,7 +350,7 @@ function canLinkEvent()
 				'current_topic' => $topic,
 			)
 		);
-		if ($row = $smcFunc['db_fetch_assoc']($result))
+		if ($row = Db::$db->fetch_assoc($result))
 		{
 			// Not the owner of the topic.
 			if ($row['id_member_started'] != $user_info['id'])
@@ -360,7 +359,7 @@ function canLinkEvent()
 		// Topic/Board doesn't exist.....
 		else
 			fatal_lang_error('calendar_no_topic', 'general');
-		$smcFunc['db_free_result']($result);
+		Db::$db->free_result($result);
 	}
 }
 
@@ -392,8 +391,6 @@ function getTodayInfo()
  */
 function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false, $has_picker = true)
 {
-	global $scripturl, $modSettings;
-
 	$selected_object = date_create($selected_date . ' ' . getUserTimezone());
 
 	$next_object = date_create($selected_date . ' ' . getUserTimezone());
@@ -418,14 +415,14 @@ function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false,
 			'month' => date_format($prev_object, 'n'),
 			'day' => date_format($prev_object, 'd'),
 			'start_date' => date_format($prev_object, 'Y-m-d'),
-			'disabled' => $modSettings['cal_minyear'] > date_format($prev_object, 'Y'),
+			'disabled' => Config::$modSettings['cal_minyear'] > date_format($prev_object, 'Y'),
 		),
 		'next_calendar' => array(
 			'year' => date_format($next_object, 'Y'),
 			'month' => date_format($next_object, 'n'),
 			'day' => date_format($next_object, 'd'),
 			'start_date' => date_format($next_object, 'Y-m-d'),
-			'disabled' => $modSettings['cal_maxyear'] < date_format($next_object, 'Y'),
+			'disabled' => Config::$modSettings['cal_maxyear'] < date_format($next_object, 'Y'),
 		),
 		'start_date' => timeformat(date_format($selected_object, 'U'), get_date_or_time_format('date')),
 	);
@@ -524,8 +521,8 @@ function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false,
 	$calendarGrid['shift'] = $nShift;
 
 	// Set the previous and the next month's links.
-	$calendarGrid['previous_calendar']['href'] = $scripturl . '?action=calendar;viewmonth;year=' . $calendarGrid['previous_calendar']['year'] . ';month=' . $calendarGrid['previous_calendar']['month'] . ';day=' . $calendarGrid['previous_calendar']['day'];
-	$calendarGrid['next_calendar']['href'] = $scripturl . '?action=calendar;viewmonth;year=' . $calendarGrid['next_calendar']['year'] . ';month=' . $calendarGrid['next_calendar']['month'] . ';day=' . $calendarGrid['previous_calendar']['day'];
+	$calendarGrid['previous_calendar']['href'] = Config::$scripturl . '?action=calendar;viewmonth;year=' . $calendarGrid['previous_calendar']['year'] . ';month=' . $calendarGrid['previous_calendar']['month'] . ';day=' . $calendarGrid['previous_calendar']['day'];
+	$calendarGrid['next_calendar']['href'] = Config::$scripturl . '?action=calendar;viewmonth;year=' . $calendarGrid['next_calendar']['year'] . ';month=' . $calendarGrid['next_calendar']['month'] . ';day=' . $calendarGrid['previous_calendar']['day'];
 
 	if ($has_picker)
 	{
@@ -545,7 +542,7 @@ function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false,
  */
 function getCalendarWeek($selected_date, $calendarOptions)
 {
-	global $scripturl, $modSettings, $txt;
+	global $txt;
 
 	$selected_object = date_create($selected_date . ' ' . getUserTimezone());
 
@@ -587,14 +584,14 @@ function getCalendarWeek($selected_date, $calendarOptions)
 			'month' => date_format($prev_object, 'n'),
 			'day' => date_format($prev_object, 'd'),
 			'start_date' => date_format($prev_object, 'Y-m-d'),
-			'disabled' => $modSettings['cal_minyear'] > date_format($prev_object, 'Y'),
+			'disabled' => Config::$modSettings['cal_minyear'] > date_format($prev_object, 'Y'),
 		),
 		'next_week' => array(
 			'year' => date_format($next_object, 'Y'),
 			'month' => date_format($next_object, 'n'),
 			'day' => date_format($next_object, 'd'),
 			'start_date' => date_format($next_object, 'Y-m-d'),
-			'disabled' => $modSettings['cal_maxyear'] < date_format($next_object, 'Y'),
+			'disabled' => Config::$modSettings['cal_maxyear'] < date_format($next_object, 'Y'),
 		),
 		'start_date' => timeformat(date_format($selected_object, 'U'), get_date_or_time_format('date')),
 		'show_events' => $calendarOptions['show_events'],
@@ -639,8 +636,8 @@ function getCalendarWeek($selected_date, $calendarOptions)
 	}
 
 	// Set the previous and the next week's links.
-	$calendarGrid['previous_week']['href'] = $scripturl . '?action=calendar;viewweek;year=' . $calendarGrid['previous_week']['year'] . ';month=' . $calendarGrid['previous_week']['month'] . ';day=' . $calendarGrid['previous_week']['day'];
-	$calendarGrid['next_week']['href'] = $scripturl . '?action=calendar;viewweek;year=' . $calendarGrid['next_week']['year'] . ';month=' . $calendarGrid['next_week']['month'] . ';day=' . $calendarGrid['next_week']['day'];
+	$calendarGrid['previous_week']['href'] = Config::$scripturl . '?action=calendar;viewweek;year=' . $calendarGrid['previous_week']['year'] . ';month=' . $calendarGrid['previous_week']['month'] . ';day=' . $calendarGrid['previous_week']['day'];
+	$calendarGrid['next_week']['href'] = Config::$scripturl . '?action=calendar;viewweek;year=' . $calendarGrid['next_week']['year'] . ';month=' . $calendarGrid['next_week']['month'] . ';day=' . $calendarGrid['next_week']['day'];
 
 	loadDatePicker('#calendar_navigation .date_input');
 	loadDatePair('#calendar_navigation', 'date_input', '');
@@ -658,8 +655,8 @@ function getCalendarWeek($selected_date, $calendarOptions)
  */
 function getCalendarList($start_date, $end_date, $calendarOptions)
 {
-	global $modSettings, $user_info, $txt, $context, $sourcedir;
-	require_once($sourcedir . '/Subs.php');
+	global $user_info, $txt;
+	require_once(Config::$sourcedir . '/Subs.php');
 
 	// DateTime objects make life easier
 	$start_object = date_create($start_date . ' ' . getUserTimezone());
@@ -721,7 +718,7 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
  */
 function loadDatePicker($selector = 'input.date_input', $date_format = '')
 {
-	global $modSettings, $txt, $context, $user_info, $options;
+	global $txt, $user_info, $options;
 
 	if (empty($date_format))
 		$date_format = get_date_or_time_format('date');
@@ -751,11 +748,11 @@ function loadDatePicker($selector = 'input.date_input', $date_format = '')
 	$("' . $selector . '").datepicker({
 		dateFormat: "' . $date_format . '",
 		autoSize: true,
-		isRTL: ' . ($context['right_to_left'] ? 'true' : 'false') . ',
+		isRTL: ' . (Utils::$context['right_to_left'] ? 'true' : 'false') . ',
 		constrainInput: true,
 		showAnim: "",
 		showButtonPanel: false,
-		yearRange: "' . $modSettings['cal_minyear'] . ':' . $modSettings['cal_maxyear'] . '",
+		yearRange: "' . Config::$modSettings['cal_minyear'] . ':' . Config::$modSettings['cal_maxyear'] . '",
 		hideIfNoPrevNext: true,
 		monthNames: ["' . implode('", "', $txt['months_titles']) . '"],
 		monthNamesShort: ["' . implode('", "', $txt['months_short']) . '"],
@@ -776,7 +773,7 @@ function loadDatePicker($selector = 'input.date_input', $date_format = '')
  */
 function loadTimePicker($selector = 'input.time_input', $time_format = '')
 {
-	global $modSettings, $txt, $context;
+	global $txt;
 
 	if (empty($time_format))
 		$time_format = get_date_or_time_format('time');
@@ -828,7 +825,7 @@ function loadTimePicker($selector = 'input.time_input', $time_format = '')
  */
 function loadDatePair($container, $date_class = '', $time_class = '')
 {
-	global $modSettings, $txt, $context;
+	global $txt;
 
 	$container = (string) $container;
 	$date_class = (string) $date_class;
@@ -909,7 +906,7 @@ function cache_getOffsetIndependentEvents($eventOptions)
 			'birthdays' => (!empty($eventOptions['include_birthdays']) ? getBirthdayRange($low_date, $high_date) : array()),
 			'events' => (!empty($eventOptions['include_events']) ? getEventRange($low_date, $high_date, false) : array()),
 		),
-		'refresh_eval' => 'return \'' . smf_strftime('%Y%m%d', time()) . '\' != smf_strftime(\'%Y%m%d\', time()) || (!empty($modSettings[\'calendar_updated\']) && ' . time() . ' < $modSettings[\'calendar_updated\']);',
+		'refresh_eval' => 'return \'' . smf_strftime('%Y%m%d', time()) . '\' != smf_strftime(\'%Y%m%d\', time()) || (!empty(\SMF\Config::$modSettings[\'calendar_updated\']) && ' . time() . ' < \SMF\Config::$modSettings[\'calendar_updated\']);',
 		'expires' => time() + 3600,
 	);
 }
@@ -1014,9 +1011,9 @@ function cache_getRecentEvents($eventOptions)
 	return array(
 		'data' => $return_data,
 		'expires' => time() + 3600,
-		'refresh_eval' => 'return \'' . smf_strftime('%Y%m%d', time()) . '\' != smf_strftime(\'%Y%m%d\', time()) || (!empty($modSettings[\'calendar_updated\']) && ' . time() . ' < $modSettings[\'calendar_updated\']);',
+		'refresh_eval' => 'return \'' . smf_strftime('%Y%m%d', time()) . '\' != smf_strftime(\'%Y%m%d\', time()) || (!empty(\SMF\Config::$modSettings[\'calendar_updated\']) && ' . time() . ' < \SMF\Config::$modSettings[\'calendar_updated\']);',
 		'post_retri_eval' => '
-			global $context, $scripturl, $user_info;
+			global $user_info;
 
 			foreach ($cache_block[\'data\'][\'calendar_events\'] as $k => $event)
 			{
@@ -1029,7 +1026,7 @@ function cache_getRecentEvents($eventOptions)
 					$cache_block[\'data\'][\'calendar_events\'][$k][\'can_edit\'] = allowedTo(\'calendar_edit_any\') || ($event[\'poster\'] == $user_info[\'id\'] && allowedTo(\'calendar_edit_own\'));
 
 					// The added session code makes this URL not cachable.
-					$cache_block[\'data\'][\'calendar_events\'][$k][\'modify_href\'] = $scripturl . \'?action=\' . ($event[\'topic\'] == 0 ? \'calendar;sa=post;\' : \'post;msg=\' . $event[\'msg\'] . \';topic=\' . $event[\'topic\'] . \'.0;calendar;\') . \'eventid=\' . $event[\'id\'] . \';\' . $context[\'session_var\'] . \'=\' . $context[\'session_id\'];
+					$cache_block[\'data\'][\'calendar_events\'][$k][\'modify_href\'] = \SMF\Config::$scripturl . \'?action=\' . ($event[\'topic\'] == 0 ? \'calendar;sa=post;\' : \'post;msg=\' . $event[\'msg\'] . \';topic=\' . $event[\'topic\'] . \'.0;calendar;\') . \'eventid=\' . $event[\'id\'] . \';\' . \SMF\Utils::$context[\'session_var\'] . \'=\' . \SMF\Utils::$context[\'session_id\'];
 				}
 			}
 
@@ -1049,8 +1046,6 @@ function cache_getRecentEvents($eventOptions)
  */
 function validateEventPost()
 {
-	global $modSettings, $smcFunc;
-
 	if (!isset($_POST['deleteevent']))
 	{
 		// The 2.1 way
@@ -1086,7 +1081,7 @@ function validateEventPost()
 			// Check the month and year...
 			if ($_POST['month'] < 1 || $_POST['month'] > 12)
 				fatal_lang_error('invalid_month', false);
-			if ($_POST['year'] < $modSettings['cal_minyear'] || $_POST['year'] > $modSettings['cal_maxyear'])
+			if ($_POST['year'] < Config::$modSettings['cal_minyear'] || $_POST['year'] > Config::$modSettings['cal_maxyear'])
 				fatal_lang_error('invalid_year', false);
 		}
 	}
@@ -1097,7 +1092,7 @@ function validateEventPost()
 	// If they want to us to calculate an end date, make sure it will fit in an acceptable range.
 	if (isset($_POST['span']))
 	{
-		if (($_POST['span'] < 1) || (!empty($modSettings['cal_maxspan']) && $_POST['span'] > $modSettings['cal_maxspan']))
+		if (($_POST['span'] < 1) || (!empty(Config::$modSettings['cal_maxspan']) && $_POST['span'] > Config::$modSettings['cal_maxspan']))
 			fatal_lang_error('invalid_days_numb', false);
 	}
 
@@ -1122,10 +1117,10 @@ function validateEventPost()
 			$_POST['evtitle'] = $_POST['subject'];
 
 		// No title?
-		if ($smcFunc['htmltrim']($_POST['evtitle']) === '')
+		if (Utils::htmlTrim($_POST['evtitle']) === '')
 			fatal_lang_error('no_event_title', false);
-		if ($smcFunc['strlen']($_POST['evtitle']) > 100)
-			$_POST['evtitle'] = $smcFunc['substr']($_POST['evtitle'], 0, 100);
+		if (Utils::entityStrlen($_POST['evtitle']) > 100)
+			$_POST['evtitle'] = Utils::entitySubstr($_POST['evtitle'], 0, 100);
 		$_POST['evtitle'] = str_replace(';', '', $_POST['evtitle']);
 	}
 }
@@ -1138,10 +1133,8 @@ function validateEventPost()
  */
 function getEventPoster($event_id)
 {
-	global $smcFunc;
-
 	// A simple database query, how hard can that be?
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_member
 		FROM {db_prefix}calendar
 		WHERE id_event = {int:id_event}
@@ -1152,12 +1145,12 @@ function getEventPoster($event_id)
 	);
 
 	// No results, return false.
-	if ($smcFunc['db_num_rows']($request) === 0)
+	if (Db::$db->num_rows($request) === 0)
 		return false;
 
 	// Grab the results and return.
-	list ($poster) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($poster) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 	return (int) $poster;
 }
 
@@ -1171,12 +1164,10 @@ function getEventPoster($event_id)
  */
 function insertEvent(&$eventOptions)
 {
-	global $smcFunc, $context;
-
 	// Add special chars to the title.
-	$eventOptions['title'] = $smcFunc['htmlspecialchars']($eventOptions['title'], ENT_QUOTES);
+	$eventOptions['title'] = Utils::htmlspecialchars($eventOptions['title'], ENT_QUOTES);
 
-	$eventOptions['location'] = isset($eventOptions['location']) ? $smcFunc['htmlspecialchars']($eventOptions['location'], ENT_QUOTES) : '';
+	$eventOptions['location'] = isset($eventOptions['location']) ? Utils::htmlspecialchars($eventOptions['location'], ENT_QUOTES) : '';
 
 	// Set the start and end dates and times
 	list($start_date, $end_date, $start_time, $end_time, $tz) = setEventStartEnd($eventOptions);
@@ -1206,7 +1197,7 @@ function insertEvent(&$eventOptions)
 	call_integration_hook('integrate_create_event', array(&$eventOptions, &$event_columns, &$event_parameters));
 
 	// Insert the event!
-	$eventOptions['id'] = $smcFunc['db_insert']('',
+	$eventOptions['id'] = Db::$db->insert('',
 		'{db_prefix}calendar',
 		$event_columns,
 		$event_parameters,
@@ -1217,14 +1208,14 @@ function insertEvent(&$eventOptions)
 	// If this isn't tied to a topic, we need to notify people about it.
 	if (empty($eventOptions['topic']))
 	{
-		$smcFunc['db_insert']('insert',
+		Db::$db->insert('insert',
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-			array('$sourcedir/tasks/EventNew_Notify.php', 'SMF\Tasks\EventNew_Notify', $smcFunc['json_encode'](array(
+			array('$sourcedir/tasks/EventNew_Notify.php', 'SMF\Tasks\EventNew_Notify', Utils::jsonEncode(array(
 				'event_title' => $eventOptions['title'],
 				'event_id' => $eventOptions['id'],
 				'sender_id' => $eventOptions['member'],
-				'sender_name' => $eventOptions['member'] == $context['user']['id'] ? $context['user']['name'] : '',
+				'sender_name' => $eventOptions['member'] == Utils::$context['user']['id'] ? Utils::$context['user']['name'] : '',
 				'time' => time(),
 			)), 0),
 			array('id_task')
@@ -1232,7 +1223,7 @@ function insertEvent(&$eventOptions)
 	}
 
 	// Update the settings to show something calendar-ish was updated.
-	updateSettings(array(
+	Config::updateModSettings(array(
 		'calendar_updated' => time(),
 	));
 }
@@ -1247,11 +1238,9 @@ function insertEvent(&$eventOptions)
  */
 function modifyEvent($event_id, &$eventOptions)
 {
-	global $smcFunc;
-
 	// Properly sanitize the title and location
-	$eventOptions['title'] = $smcFunc['htmlspecialchars']($eventOptions['title'], ENT_QUOTES);
-	$eventOptions['location'] = $smcFunc['htmlspecialchars']($eventOptions['location'], ENT_QUOTES);
+	$eventOptions['title'] = Utils::htmlspecialchars($eventOptions['title'], ENT_QUOTES);
+	$eventOptions['location'] = Utils::htmlspecialchars($eventOptions['location'], ENT_QUOTES);
 
 	// Set the new start and end dates and times
 	list($start_date, $end_date, $start_time, $end_time, $tz) = setEventStartEnd($eventOptions);
@@ -1290,7 +1279,7 @@ function modifyEvent($event_id, &$eventOptions)
 	foreach ($event_columns as $col => $crit)
 		$column_clauses[] = $col . ' = ' . $crit;
 
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		UPDATE {db_prefix}calendar
 		SET
 			' . implode(', ', $column_clauses) . '
@@ -1305,7 +1294,7 @@ function modifyEvent($event_id, &$eventOptions)
 
 	if (empty($start_time) || empty($end_time) || empty($tz) || !in_array($tz, timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
 	{
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}calendar
 			SET start_time = NULL, end_time = NULL, timezone = NULL
 			WHERE id_event = {int:id_event}',
@@ -1315,7 +1304,7 @@ function modifyEvent($event_id, &$eventOptions)
 		);
 	}
 
-	updateSettings(array(
+	Config::updateModSettings(array(
 		'calendar_updated' => time(),
 	));
 }
@@ -1329,9 +1318,7 @@ function modifyEvent($event_id, &$eventOptions)
  */
 function removeEvent($event_id)
 {
-	global $smcFunc;
-
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}calendar
 		WHERE id_event = {int:id_event}',
 		array(
@@ -1341,7 +1328,7 @@ function removeEvent($event_id)
 
 	call_integration_hook('integrate_remove_event', array($event_id));
 
-	updateSettings(array(
+	Config::updateModSettings(array(
 		'calendar_updated' => time(),
 	));
 }
@@ -1354,9 +1341,7 @@ function removeEvent($event_id)
  */
 function getEventProperties($event_id)
 {
-	global $smcFunc;
-
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT
 			c.id_event, c.id_board, c.id_topic, c.id_member, c.title,
 			c.start_date, c.end_date, c.start_time, c.end_time, c.timezone, c.location,
@@ -1373,11 +1358,11 @@ function getEventProperties($event_id)
 	);
 
 	// If nothing returned, we are in poo, poo.
-	if ($smcFunc['db_num_rows']($request) === 0)
+	if (Db::$db->num_rows($request) === 0)
 		return false;
 
-	$row = $smcFunc['db_fetch_assoc']($request);
-	$smcFunc['db_free_result']($request);
+	$row = Db::$db->fetch_assoc($request);
+	Db::$db->free_result($request);
 
 	list($start, $end, $allday, $span, $tz, $tz_abbrev) = buildEventDatetimes($row);
 
@@ -1519,12 +1504,10 @@ function getNewEventDatetimes()
  */
 function setEventStartEnd($eventOptions = array())
 {
-	global $modSettings;
-
 	// Set $span, in case we need it
 	$span = isset($eventOptions['span']) ? $eventOptions['span'] : (isset($_POST['span']) ? $_POST['span'] : 0);
 	if ($span > 0)
-		$span = !empty($modSettings['cal_maxspan']) ? min($modSettings['cal_maxspan'], $span - 1) : $span - 1;
+		$span = !empty(Config::$modSettings['cal_maxspan']) ? min(Config::$modSettings['cal_maxspan'], $span - 1) : $span - 1;
 
 	// Define the timezone for this event, falling back to the default if not provided
 	if (!empty($eventOptions['tz']) && in_array($eventOptions['tz'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
@@ -1662,15 +1645,15 @@ function setEventStartEnd($eventOptions = array())
 	}
 
 	// Is $end_object too late?
-	if (!empty($modSettings['cal_maxspan']))
+	if (!empty(Config::$modSettings['cal_maxspan']))
 	{
 		$date_diff = date_diff($start_object, $end_object);
-		if ($date_diff->days > $modSettings['cal_maxspan'])
+		if ($date_diff->days > Config::$modSettings['cal_maxspan'])
 		{
-			if ($modSettings['cal_maxspan'] > 1)
+			if (Config::$modSettings['cal_maxspan'] > 1)
 			{
 				$end_object = date_create(sprintf('%04d-%02d-%02d %02d:%02d:%02d', $start_year, $start_month, $start_day, $start_hour, $start_minute, $start_second) . ' ' . $tz);
-				date_add($end_object, date_interval_create_from_date_string($modSettings['cal_maxspan'] . ' days'));
+				date_add($end_object, date_interval_create_from_date_string(Config::$modSettings['cal_maxspan'] . ' days'));
 			}
 			else
 				$end_object = date_create(sprintf('%04d-%02d-%02d %02d:%02d:%02d', $start_year, $start_month, $start_day, '11', '59', '59') . ' ' . $tz);
@@ -1704,10 +1687,10 @@ function setEventStartEnd($eventOptions = array())
  */
 function buildEventDatetimes($row)
 {
-	global $sourcedir, $user_info, $txt;
+	global $user_info, $txt;
 	static $date_format = '', $time_format = '';
 
-	require_once($sourcedir . '/Subs.php');
+	require_once(Config::$sourcedir . '/Subs.php');
 	static $timezone_array = array();
 
 	loadLanguage('Timezones');
@@ -1791,9 +1774,7 @@ function buildEventDatetimes($row)
  */
 function list_getHolidays($start, $items_per_page, $sort)
 {
-	global $smcFunc;
-
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_holiday, YEAR(event_date) AS year, MONTH(event_date) AS month, DAYOFMONTH(event_date) AS day, title
 		FROM {db_prefix}calendar_holidays
 		ORDER BY {raw:sort}
@@ -1805,9 +1786,9 @@ function list_getHolidays($start, $items_per_page, $sort)
 		)
 	);
 	$holidays = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$holidays[] = $row;
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	return $holidays;
 }
@@ -1819,16 +1800,14 @@ function list_getHolidays($start, $items_per_page, $sort)
  */
 function list_getNumHolidays()
 {
-	global $smcFunc;
-
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}calendar_holidays',
 		array(
 		)
 	);
-	list($num_items) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list($num_items) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	return (int) $num_items;
 }
@@ -1840,9 +1819,7 @@ function list_getNumHolidays()
  */
 function removeHolidays($holiday_ids)
 {
-	global $smcFunc;
-
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}calendar_holidays
 		WHERE id_holiday IN ({array_int:id_holiday})',
 		array(
@@ -1850,7 +1827,7 @@ function removeHolidays($holiday_ids)
 		)
 	);
 
-	updateSettings(array(
+	Config::updateModSettings(array(
 		'calendar_updated' => time(),
 	));
 }
@@ -1864,9 +1841,9 @@ function removeHolidays($holiday_ids)
  */
 function convertDateToEnglish($date)
 {
-	global $txt, $context;
+	global $txt;
 
-	if ($context['user']['language'] == 'english')
+	if (Utils::$context['user']['language'] == 'english')
 		return $date;
 
 	$replacements = array_combine(array_map('strtolower', $txt['months_titles']), array(

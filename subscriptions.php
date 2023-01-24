@@ -14,6 +14,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
 // Set this to true to always log $_POST info received from payment gateways.
@@ -25,32 +27,32 @@ if (!file_exists(dirname(__FILE__) . '/SSI.php'))
 	die('Cannot find SSI.php');
 
 require_once(dirname(__FILE__) . '/SSI.php');
-require_once($sourcedir . '/ManagePaid.php');
+require_once(Config::$sourcedir . '/ManagePaid.php');
 
 // For any admin emailing.
-require_once($sourcedir . '/Subs-Admin.php');
+require_once(Config::$sourcedir . '/Subs-Admin.php');
 
 // Ensure we don't trip over disabled internal functions
-require_once($sourcedir . '/Subs-Compat.php');
+require_once(Config::$sourcedir . '/Subs-Compat.php');
 
 loadLanguage('ManagePaid');
 
 // If there's literally nothing coming in, let's take flight!
 if (empty($_POST))
 {
-	header('content-type: text/html; charset=' . (empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : $modSettings['global_character_set']));
+	header('content-type: text/html; charset=' . (empty(Config::$modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : Config::$modSettings['global_character_set']));
 	die($txt['paid_no_data']);
 }
 
 // I assume we're even active?
-if (empty($modSettings['paid_enabled']))
+if (empty(Config::$modSettings['paid_enabled']))
 	exit;
 
 // If we have some custom people who find out about problems load them here.
 $notify_users = array();
-if (!empty($modSettings['paid_email_to']))
+if (!empty(Config::$modSettings['paid_email_to']))
 {
-	foreach (explode(',', $modSettings['paid_email_to']) as $email)
+	foreach (explode(',', Config::$modSettings['paid_email_to']) as $email)
 		$notify_users[] = array(
 			'email' => $email,
 			'name' => $txt['who_member'],
@@ -151,7 +153,7 @@ if ($gatewayClass->isRefund())
 	else
 	{
 		loadSubscriptions();
-		$subscription_act = $subscription_info['end_time'] - $context['subscriptions'][$subscription_id]['num_length'];
+		$subscription_act = $subscription_info['end_time'] - Utils::$context['subscriptions'][$subscription_id]['num_length'];
 		$status = 1;
 	}
 
@@ -171,13 +173,13 @@ if ($gatewayClass->isRefund())
 	);
 
 	// Receipt?
-	if (!empty($modSettings['paid_email']) && $modSettings['paid_email'] == 2)
+	if (!empty(Config::$modSettings['paid_email']) && Config::$modSettings['paid_email'] == 2)
 	{
 		$replacements = array(
 			'NAME' => $subscription_info['name'],
 			'REFUNDNAME' => $member_info['member_name'],
 			'REFUNDUSER' => $member_info['real_name'],
-			'PROFILELINK' => $scripturl . '?action=profile;u=' . $member_id,
+			'PROFILELINK' => Config::$scripturl . '?action=profile;u=' . $member_id,
 			'DATE' => timeformat(time(), false),
 		);
 
@@ -188,14 +190,14 @@ if ($gatewayClass->isRefund())
 // Otherwise is it what we want, a purchase?
 elseif ($gatewayClass->isPayment() || $gatewayClass->isSubscription())
 {
-	$cost = $smcFunc['json_decode']($subscription_info['cost'], true);
+	$cost = Utils::jsonDecode($subscription_info['cost'], true);
 	$total_cost = $gatewayClass->getCost();
 	$notify = false;
 
 	// For one off's we want to only capture them once!
 	if (!$gatewayClass->isSubscription())
 	{
-		$real_details = $smcFunc['json_decode']($subscription_info['pending_details'], true);
+		$real_details = Utils::jsonDecode($subscription_info['pending_details'], true);
 		if (empty($real_details))
 			generateSubscriptionError(sprintf($txt['paid_count_not_find_outstanding_payment'], $member_id, $subscription_id));
 
@@ -209,7 +211,7 @@ elseif ($gatewayClass->isPayment() || $gatewayClass->isSubscription())
 			break;
 		}
 
-		$subscription_info['pending_details'] = empty($real_details) ? '' : $smcFunc['json_encode']($real_details);
+		$subscription_info['pending_details'] = empty($real_details) ? '' : Utils::jsonEncode($real_details);
 
 		Db::$db->query('', '
 			UPDATE {db_prefix}log_subscribed
@@ -258,15 +260,15 @@ elseif ($gatewayClass->isPayment() || $gatewayClass->isSubscription())
 	}
 
 	// Send a receipt?
-	if (!empty($modSettings['paid_email']) && $modSettings['paid_email'] == 2 && $notify)
+	if (!empty(Config::$modSettings['paid_email']) && Config::$modSettings['paid_email'] == 2 && $notify)
 	{
 		$replacements = array(
 			'NAME' => $subscription_info['name'],
 			'SUBNAME' => $member_info['member_name'],
 			'SUBUSER' => $member_info['real_name'],
 			'SUBEMAIL' => $member_info['email_address'],
-			'PRICE' => sprintf($modSettings['paid_currency_symbol'], $total_cost),
-			'PROFILELINK' => $scripturl . '?action=profile;u=' . $member_id,
+			'PRICE' => sprintf(Config::$modSettings['paid_currency_symbol'], $total_cost),
+			'PROFILELINK' => Config::$scripturl . '?action=profile;u=' . $member_id,
 			'DATE' => timeformat(time(), false),
 		);
 
@@ -301,15 +303,15 @@ if ($paid_debug === true)
  * Log an error then exit
  *
  * @param string $text The error to log
- * @param bool $debug If true, won't send an email if $modSettings['paid_email'] isn't set
+ * @param bool $debug If true, won't send an email if Config::$modSettings['paid_email'] isn't set
  * @return void
  */
 function generateSubscriptionError($text, $debug = false)
 {
-	global $modSettings, $notify_users, $smcFunc;
+	global $notify_users;
 
 	// Send an email?
-	if (!empty($modSettings['paid_email']) && !$debug)
+	if (!empty(Config::$modSettings['paid_email']) && !$debug)
 	{
 		$replacements = array(
 			'ERROR' => $text,
@@ -322,7 +324,7 @@ function generateSubscriptionError($text, $debug = false)
 	if (!empty($_POST))
 	{
 		foreach ($_POST as $key => $val)
-			$text .= '<br>' . $smcFunc['htmlspecialchars']($key) . ': ' . $smcFunc['htmlspecialchars']($val);
+			$text .= '<br>' . Utils::htmlspecialchars($key) . ': ' . Utils::htmlspecialchars($val);
 	}
 
 	// Then just log and die.

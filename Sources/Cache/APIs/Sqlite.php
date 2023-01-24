@@ -13,6 +13,8 @@
 
 namespace SMF\Cache\APIs;
 
+use SMF\Config;
+use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Cache\CacheApiInterface;
 use SQLite3;
@@ -128,7 +130,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	 */
 	public function cacheSettings(array &$config_vars)
 	{
-		global $context, $txt;
+		global $txt;
 
 		$class_name = $this->getImplementationClassKeyName();
 		$class_name_txt_key = strtolower($class_name);
@@ -143,11 +145,11 @@ class Sqlite extends CacheApi implements CacheApiInterface
 			'cache_'. $class_name_txt_key .'_cachedir',
 		);
 
-		if (!isset($context['settings_post_javascript']))
-			$context['settings_post_javascript'] = '';
+		if (!isset(Utils::$context['settings_post_javascript']))
+			Utils::$context['settings_post_javascript'] = '';
 
-		if (empty($context['settings_not_writable']))
-			$context['settings_post_javascript'] .= '
+		if (empty(Utils::$context['settings_not_writable']))
+			Utils::$context['settings_post_javascript'] .= '
 			$("#cache_accelerator").change(function (e) {
 				var cache_type = e.currentTarget.value;
 				$("#cachedir_'. $class_name_txt_key .'").prop("disabled", cache_type != "'. $class_name .'");
@@ -165,20 +167,18 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	 */
 	public function setCachedir($dir = null)
 	{
-		global $cachedir, $cachedir_sqlite, $sourcedir;
-
 		// If its invalid, use SMF's.
 		if (!isset($dir) || !is_writable($dir))
 		{
-			if (!isset($cachedir_sqlite) || !is_writable($cachedir_sqlite))
+			if (!isset(Config::$cachedir_sqlite) || !is_writable(Config::$cachedir_sqlite))
 			{
-				$cachedir_sqlite = $cachedir;
+				Config::$cachedir_sqlite = Config::$cachedir;
 
-				require_once($sourcedir . '/Subs-Admin.php');
-				updateSettingsFile(array('cachedir_sqlite' => $cachedir_sqlite));
+				require_once(Config::$sourcedir . '/Subs-Admin.php');
+				Config::updateSettingsFile(array('cachedir_sqlite' => Config::$cachedir_sqlite));
 			}
 
-			$this->cachedir = $cachedir_sqlite;
+			$this->cachedir = Config::$cachedir_sqlite;
 		}
 		else
 			$this->cachedir = $dir;

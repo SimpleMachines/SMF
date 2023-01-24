@@ -13,7 +13,9 @@
 
 namespace SMF\Tasks;
 
+use SMF\Config;
 use SMF\TaskRunner;
+use SMF\DatabaseApi as Db;
 
 /**
  * This class contains code used to update SMF's Unicode data files.
@@ -37,7 +39,7 @@ class UpdateUnicode extends BackgroundTask
 	public $temp_dir = '';
 
 	/**
-	 * @var string Convenince alias of $sourcedir . '/Unicode'.
+	 * @var string Convenince alias of Config::$sourcedir . '/Unicode'.
 	 */
 	public $unicodedir = '';
 
@@ -409,12 +411,12 @@ class UpdateUnicode extends BackgroundTask
 	 */
 	public function execute()
 	{
-		global $sourcedir, $smcFunc, $txt;
+		global $txt;
 
 		/*****************
 		 * Part 1: Setup *
 		 *****************/
-		$this->unicodedir = $sourcedir . DIRECTORY_SEPARATOR . 'Unicode';
+		$this->unicodedir = Config::$sourcedir . DIRECTORY_SEPARATOR . 'Unicode';
 
 		// We need a temporary directory to hold our files while we work on them.
 		$this->make_temp_dir();
@@ -487,7 +489,7 @@ class UpdateUnicode extends BackgroundTask
 				// If prefetch is taking a really long time, pause and try again later.
 				if ($local_file === false || microtime(true) - TIME_START >= $this->time_limit - $max_fetch_time)
 				{
-					$smcFunc['db_insert']('',
+					Db::$db->insert('',
 						'{db_prefix}background_tasks',
 						array(
 							'task_file' => 'string',
@@ -597,13 +599,9 @@ class UpdateUnicode extends BackgroundTask
 	 */
 	private function make_temp_dir()
 	{
-		global $sourcedir;
-
 		if (empty($this->temp_dir))
 		{
-			require_once($sourcedir . DIRECTORY_SEPARATOR . 'Subs-Admin.php');
-
-			$this->temp_dir = rtrim(sm_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'Unicode';
+			$this->temp_dir = rtrim(Config::getTempDir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'Unicode';
 
 			if (!is_dir($this->temp_dir))
 				@mkdir($this->temp_dir);
@@ -626,8 +624,6 @@ class UpdateUnicode extends BackgroundTask
 	 */
 	private function fetch_unicode_file($filename, $data_url)
 	{
-		global $sourcedir;
-
 		$filename = ltrim($filename, '\\/');
 		$file_url_name = strtr($filename, array('\\' => '/'));
 		$file_local_name = strtr($filename, array('\\' => DIRECTORY_SEPARATOR, '/' => DIRECTORY_SEPARATOR));
@@ -704,15 +700,12 @@ class UpdateUnicode extends BackgroundTask
 	 */
 	private function smf_file_header()
 	{
-		global $sourcedir;
-
 		static $file_template;
 
 		if (!empty($file_template))
 			return $file_template;
 
-		require_once($sourcedir . '/Subs-Admin.php');
-		$settings_defs = get_settings_defs();
+		$settings_defs = Config::getSettingsDefs();
 
 		$license_block = '';
 
@@ -947,8 +940,6 @@ class UpdateUnicode extends BackgroundTask
 	 */
 	private function lookup_ucd_version()
 	{
-		global $sourcedir;
-
 		if (!empty($this->ucd_version))
 			return true;
 

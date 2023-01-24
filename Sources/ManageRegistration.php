@@ -14,6 +14,10 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -28,7 +32,7 @@ if (!defined('SMF'))
  */
 function RegCenter()
 {
-	global $context, $txt;
+	global $txt;
 
 	// Old templates might still request this.
 	if (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'browse')
@@ -43,17 +47,17 @@ function RegCenter()
 	);
 
 	// Work out which to call...
-	$context['sub_action'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (allowedTo('moderate_forum') ? 'register' : 'settings');
+	Utils::$context['sub_action'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (allowedTo('moderate_forum') ? 'register' : 'settings');
 
 	// Must have sufficient permissions.
-	isAllowedTo($subActions[$context['sub_action']][1]);
+	isAllowedTo($subActions[Utils::$context['sub_action']][1]);
 
 	// Loading, always loading.
 	loadLanguage('Login');
 	loadTemplate('Register');
 
 	// Next create the tabs for the template.
-	$context[$context['admin_menu_name']]['tab_data'] = array(
+	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['registration_center'],
 		'help' => 'registrations',
 		'description' => $txt['admin_settings_desc'],
@@ -79,7 +83,7 @@ function RegCenter()
 	call_integration_hook('integrate_manage_registrations', array(&$subActions));
 
 	// Finally, get around to calling the function...
-	call_helper($subActions[$context['sub_action']][0]);
+	call_helper($subActions[Utils::$context['sub_action']][0]);
 }
 
 /**
@@ -92,10 +96,10 @@ function RegCenter()
  */
 function AdminRegister()
 {
-	global $txt, $context, $sourcedir, $scripturl, $smcFunc;
+	global $txt;
 
 	// Are there any custom profile fields required during registration?
-	require_once($sourcedir . '/Profile.php');
+	require_once(Config::$sourcedir . '/Profile.php');
 	loadCustomFields(0, 'register');
 
 	if (!empty($_POST['regSubmit']))
@@ -105,7 +109,7 @@ function AdminRegister()
 
 		foreach ($_POST as $key => $value)
 			if (!is_array($_POST[$key]))
-				$_POST[$key] = htmltrim__recursive(str_replace(array("\n", "\r"), '', $smcFunc['normalize']($_POST[$key])));
+				$_POST[$key] = htmltrim__recursive(str_replace(array("\n", "\r"), '', Utils::normalize($_POST[$key])));
 
 		$regOptions = array(
 			'interface' => 'admin',
@@ -121,31 +125,31 @@ function AdminRegister()
 			'memberGroup' => empty($_POST['group']) || !allowedTo('manage_membergroups') ? 0 : (int) $_POST['group'],
 		);
 
-		require_once($sourcedir . '/Subs-Members.php');
+		require_once(Config::$sourcedir . '/Subs-Members.php');
 		$memberID = registerMember($regOptions);
 		if (!empty($memberID))
 		{
 			// We'll do custom fields after as then we get to use the helper function!
 			if (!empty($_POST['customfield']))
 			{
-				require_once($sourcedir . '/Profile-Modify.php');
+				require_once(Config::$sourcedir . '/Profile-Modify.php');
 				makeCustomFieldChanges($memberID, 'register');
 			}
 
-			$context['new_member'] = array(
+			Utils::$context['new_member'] = array(
 				'id' => $memberID,
 				'name' => $_POST['user'],
-				'href' => $scripturl . '?action=profile;u=' . $memberID,
-				'link' => '<a href="' . $scripturl . '?action=profile;u=' . $memberID . '">' . $_POST['user'] . '</a>',
+				'href' => Config::$scripturl . '?action=profile;u=' . $memberID,
+				'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $memberID . '">' . $_POST['user'] . '</a>',
 			);
-			$context['registration_done'] = sprintf($txt['admin_register_done'], $context['new_member']['link']);
+			Utils::$context['registration_done'] = sprintf($txt['admin_register_done'], Utils::$context['new_member']['link']);
 		}
 	}
 
 	// Load the assignable member groups.
 	if (allowedTo('manage_membergroups'))
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT group_name, id_group
 			FROM {db_prefix}membergroups
 			WHERE id_group != {int:moderator_group}
@@ -163,17 +167,17 @@ function AdminRegister()
 				'newbie_group' => 4,
 			)
 		);
-		$context['member_groups'] = array(0 => $txt['admin_register_group_none']);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$context['member_groups'][$row['id_group']] = $row['group_name'];
-		$smcFunc['db_free_result']($request);
+		Utils::$context['member_groups'] = array(0 => $txt['admin_register_group_none']);
+		while ($row = Db::$db->fetch_assoc($request))
+			Utils::$context['member_groups'][$row['id_group']] = $row['group_name'];
+		Db::$db->free_result($request);
 	}
 	else
-		$context['member_groups'] = array();
+		Utils::$context['member_groups'] = array();
 
 	// Basic stuff.
-	$context['sub_template'] = 'admin_register';
-	$context['page_title'] = $txt['registration_center'];
+	Utils::$context['sub_template'] = 'admin_register';
+	Utils::$context['page_title'] = $txt['registration_center'];
 	createToken('admin-regc');
 	loadJavaScriptFile('register.js', array('defer' => false, 'minimize' => true), 'smf_register');
 }
@@ -190,13 +194,13 @@ function AdminRegister()
 function EditAgreement()
 {
 	// I hereby agree not to be a lazy bum.
-	global $txt, $boarddir, $context, $modSettings, $smcFunc, $user_info;
+	global $txt, $user_info;
 
 	// By default we look at agreement.txt.
-	$context['current_agreement'] = '';
+	Utils::$context['current_agreement'] = '';
 
 	// Is there more than one to edit?
-	$context['editable_agreements'] = array(
+	Utils::$context['editable_agreements'] = array(
 		'' => $txt['admin_agreement_default'],
 	);
 
@@ -204,61 +208,61 @@ function EditAgreement()
 	getLanguages();
 
 	// Try to figure out if we have more agreements.
-	foreach ($context['languages'] as $lang)
+	foreach (Utils::$context['languages'] as $lang)
 	{
-		if (file_exists($boarddir . '/agreement.' . $lang['filename'] . '.txt'))
+		if (file_exists(Config::$boarddir . '/agreement.' . $lang['filename'] . '.txt'))
 		{
-			$context['editable_agreements']['.' . $lang['filename']] = $lang['name'];
+			Utils::$context['editable_agreements']['.' . $lang['filename']] = $lang['name'];
 			// Are we editing this?
 			if (isset($_POST['agree_lang']) && $_POST['agree_lang'] == '.' . $lang['filename'])
-				$context['current_agreement'] = '.' . $lang['filename'];
+				Utils::$context['current_agreement'] = '.' . $lang['filename'];
 		}
 	}
 
-	$agreement_lang = empty($context['current_agreement']) ? 'default' : substr($context['current_agreement'], 1);
+	$agreement_lang = empty(Utils::$context['current_agreement']) ? 'default' : substr(Utils::$context['current_agreement'], 1);
 
-	$context['agreement'] = file_exists($boarddir . '/agreement' . $context['current_agreement'] . '.txt') ? str_replace("\r", '', file_get_contents($boarddir . '/agreement' . $context['current_agreement'] . '.txt')) : '';
+	Utils::$context['agreement'] = file_exists(Config::$boarddir . '/agreement' . Utils::$context['current_agreement'] . '.txt') ? str_replace("\r", '', file_get_contents(Config::$boarddir . '/agreement' . Utils::$context['current_agreement'] . '.txt')) : '';
 
-	if (isset($_POST['agreement']) && str_replace("\r", '', $_POST['agreement']) != $context['agreement'])
+	if (isset($_POST['agreement']) && str_replace("\r", '', $_POST['agreement']) != Utils::$context['agreement'])
 	{
 		checkSession();
 		validateToken('admin-rega');
 
-		$_POST['agreement'] = $smcFunc['normalize']($_POST['agreement']);
+		$_POST['agreement'] = Utils::normalize($_POST['agreement']);
 
 		// Off it goes to the agreement file.
 		$to_write = str_replace("\r", '', $_POST['agreement']);
-		$bytes = file_put_contents($boarddir . '/agreement' . $context['current_agreement'] . '.txt', $to_write, LOCK_EX);
+		$bytes = file_put_contents(Config::$boarddir . '/agreement' . Utils::$context['current_agreement'] . '.txt', $to_write, LOCK_EX);
 
 		$agreement_settings['agreement_updated_' . $agreement_lang] = time();
 
 		if ($bytes == strlen($to_write))
-			$context['saved_successful'] = true;
+			Utils::$context['saved_successful'] = true;
 		else
-			$context['could_not_save'] = true;
+			Utils::$context['could_not_save'] = true;
 
 		// Writing it counts as agreeing to it, right?
-		$smcFunc['db_insert']('replace',
+		Db::$db->insert('replace',
 			'{db_prefix}themes',
 			array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
 			array($user_info['id'], 1, 'agreement_accepted', time()),
 			array('id_member', 'id_theme', 'variable')
 		);
-		logAction('agreement_updated', array('language' => $context['editable_agreements'][$context['current_agreement']]), 'admin');
+		logAction('agreement_updated', array('language' => Utils::$context['editable_agreements'][Utils::$context['current_agreement']]), 'admin');
 		logAction('agreement_accepted', array('applicator' => $user_info['id']), 'user');
 
-		updateSettings($agreement_settings);
+		Config::updateModSettings($agreement_settings);
 
-		$context['agreement'] = str_replace("\r", '', $_POST['agreement']);
+		Utils::$context['agreement'] = str_replace("\r", '', $_POST['agreement']);
 	}
 
-	$context['agreement_info'] = sprintf($txt['admin_agreement_info'], empty($modSettings['agreement_updated_' . $agreement_lang]) ? $txt['never'] : timeformat($modSettings['agreement_updated_' . $agreement_lang]));
+	Utils::$context['agreement_info'] = sprintf($txt['admin_agreement_info'], empty(Config::$modSettings['agreement_updated_' . $agreement_lang]) ? $txt['never'] : timeformat(Config::$modSettings['agreement_updated_' . $agreement_lang]));
 
-	$context['agreement'] = $smcFunc['htmlspecialchars']($context['agreement']);
-	$context['warning'] = is_writable($boarddir . '/agreement' . $context['current_agreement'] . '.txt') ? '' : $txt['agreement_not_writable'];
+	Utils::$context['agreement'] = Utils::htmlspecialchars(Utils::$context['agreement']);
+	Utils::$context['warning'] = is_writable(Config::$boarddir . '/agreement' . Utils::$context['current_agreement'] . '.txt') ? '' : $txt['agreement_not_writable'];
 
-	$context['sub_template'] = 'edit_agreement';
-	$context['page_title'] = $txt['registration_agreement'];
+	Utils::$context['sub_template'] = 'edit_agreement';
+	Utils::$context['page_title'] = $txt['registration_agreement'];
 
 	createToken('admin-rega');
 }
@@ -272,7 +276,7 @@ function EditAgreement()
  */
 function SetReserved()
 {
-	global $txt, $context, $modSettings, $smcFunc;
+	global $txt;
 
 	// Submitting new reserved words.
 	if (!empty($_POST['save_reserved_names']))
@@ -280,31 +284,31 @@ function SetReserved()
 		checkSession();
 		validateToken('admin-regr');
 
-		$_POST['reserved'] = $smcFunc['normalize']($_POST['reserved']);
+		$_POST['reserved'] = Utils::normalize($_POST['reserved']);
 
 		// Set all the options....
-		updateSettings(array(
+		Config::updateModSettings(array(
 			'reserveWord' => (isset($_POST['matchword']) ? '1' : '0'),
 			'reserveCase' => (isset($_POST['matchcase']) ? '1' : '0'),
 			'reserveUser' => (isset($_POST['matchuser']) ? '1' : '0'),
 			'reserveName' => (isset($_POST['matchname']) ? '1' : '0'),
 			'reserveNames' => str_replace("\r", '', $_POST['reserved'])
 		));
-		$context['saved_successful'] = true;
+		Utils::$context['saved_successful'] = true;
 	}
 
 	// Get the reserved word options and words.
-	$modSettings['reserveNames'] = str_replace('\n', "\n", $modSettings['reserveNames']);
-	$context['reserved_words'] = explode("\n", $modSettings['reserveNames']);
-	$context['reserved_word_options'] = array();
-	$context['reserved_word_options']['match_word'] = $modSettings['reserveWord'] == '1';
-	$context['reserved_word_options']['match_case'] = $modSettings['reserveCase'] == '1';
-	$context['reserved_word_options']['match_user'] = $modSettings['reserveUser'] == '1';
-	$context['reserved_word_options']['match_name'] = $modSettings['reserveName'] == '1';
+	Config::$modSettings['reserveNames'] = str_replace('\n', "\n", Config::$modSettings['reserveNames']);
+	Utils::$context['reserved_words'] = explode("\n", Config::$modSettings['reserveNames']);
+	Utils::$context['reserved_word_options'] = array();
+	Utils::$context['reserved_word_options']['match_word'] = Config::$modSettings['reserveWord'] == '1';
+	Utils::$context['reserved_word_options']['match_case'] = Config::$modSettings['reserveCase'] == '1';
+	Utils::$context['reserved_word_options']['match_user'] = Config::$modSettings['reserveUser'] == '1';
+	Utils::$context['reserved_word_options']['match_name'] = Config::$modSettings['reserveName'] == '1';
 
 	// Ready the template......
-	$context['sub_template'] = 'edit_reserved_words';
-	$context['page_title'] = $txt['admin_reserved_set'];
+	Utils::$context['sub_template'] = 'edit_reserved_words';
+	Utils::$context['page_title'] = $txt['admin_reserved_set'];
 	createToken('admin-regr');
 }
 
@@ -319,23 +323,22 @@ function SetReserved()
  */
 function ModifyRegistrationSettings($return_config = false)
 {
-	global $txt, $context, $scripturl, $modSettings, $sourcedir, $smcFunc;
-	global $language, $boarddir;
+	global $txt;
 
 	// This is really quite wanting.
-	require_once($sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/ManageServer.php');
 
 	// Do we have at least default versions of the agreement and privacy policy?
-	$agreement = file_exists($boarddir . '/agreement.' . $language . '.txt') || file_exists($boarddir . '/agreement.txt');
-	$policy = !empty($modSettings['policy_' . $language]);
+	$agreement = file_exists(Config::$boarddir . '/agreement.' . Config::$language . '.txt') || file_exists(Config::$boarddir . '/agreement.txt');
+	$policy = !empty(Config::$modSettings['policy_' . Config::$language]);
 
 	$config_vars = array(
 		array('select', 'registration_method', array($txt['setting_registration_standard'], $txt['setting_registration_activate'], $txt['setting_registration_approval'], $txt['setting_registration_disabled'])),
 		array('check', 'send_welcomeEmail'),
 	'',
-		array('check', 'requireAgreement', 'text_label' => $txt['admin_agreement'], 'value' => !empty($modSettings['requireAgreement'])),
+		array('check', 'requireAgreement', 'text_label' => $txt['admin_agreement'], 'value' => !empty(Config::$modSettings['requireAgreement'])),
 		array('warning', empty($agreement) ? 'error_no_agreement' : ''),
-		array('check', 'requirePolicyAgreement', 'text_label' => $txt['admin_privacy_policy'], 'value' => !empty($modSettings['requirePolicyAgreement'])),
+		array('check', 'requirePolicyAgreement', 'text_label' => $txt['admin_privacy_policy'], 'value' => !empty(Config::$modSettings['requirePolicyAgreement'])),
 		array('warning', empty($policy) ? 'error_no_privacy_policy' : ''),
 	'',
 		array('int', 'coppaAge', 'subtext' => $txt['zero_to_disable'], 'onchange' => 'checkCoppa();'),
@@ -351,8 +354,8 @@ function ModifyRegistrationSettings($return_config = false)
 		return $config_vars;
 
 	// Setup the template
-	$context['sub_template'] = 'show_settings';
-	$context['page_title'] = $txt['registration_center'];
+	Utils::$context['sub_template'] = 'show_settings';
+	Utils::$context['page_title'] = $txt['registration_center'];
 
 	if (isset($_GET['save']))
 	{
@@ -363,7 +366,7 @@ function ModifyRegistrationSettings($return_config = false)
 			fatal_lang_error('admin_setting_coppa_require_contact');
 
 		// Post needs to take into account line breaks.
-		$_POST['coppaPost'] = str_replace("\n", '<br>', empty($_POST['coppaPost']) ? '' : $smcFunc['normalize']($_POST['coppaPost']));
+		$_POST['coppaPost'] = str_replace("\n", '<br>', empty($_POST['coppaPost']) ? '' : Utils::normalize($_POST['coppaPost']));
 
 		call_integration_hook('integrate_save_registration_settings');
 
@@ -372,11 +375,11 @@ function ModifyRegistrationSettings($return_config = false)
 		redirectexit('action=admin;area=regcenter;sa=settings');
 	}
 
-	$context['post_url'] = $scripturl . '?action=admin;area=regcenter;save;sa=settings';
-	$context['settings_title'] = $txt['settings'];
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=regcenter;save;sa=settings';
+	Utils::$context['settings_title'] = $txt['settings'];
 
 	// Define some javascript for COPPA.
-	$context['settings_post_javascript'] = '
+	Utils::$context['settings_post_javascript'] = '
 		function checkCoppa()
 		{
 			var coppaDisabled = document.getElementById(\'coppaAge\').value == 0;
@@ -390,7 +393,7 @@ function ModifyRegistrationSettings($return_config = false)
 		checkCoppa();';
 
 	// Turn the postal address into something suitable for a textbox.
-	$modSettings['coppaPost'] = !empty($modSettings['coppaPost']) ? preg_replace('~<br ?/?' . '>~', "\n", $modSettings['coppaPost']) : '';
+	Config::$modSettings['coppaPost'] = !empty(Config::$modSettings['coppaPost']) ? preg_replace('~<br ?/?' . '>~', "\n", Config::$modSettings['coppaPost']) : '';
 
 	prepareDBSettingContext($config_vars);
 }
@@ -398,24 +401,24 @@ function ModifyRegistrationSettings($return_config = false)
 // Sure, you can sell my personal info for profit (...or not)
 function EditPrivacyPolicy()
 {
-	global $txt, $boarddir, $context, $modSettings, $smcFunc, $user_info;
+	global $txt, $user_info;
 
 	// By default, edit the current language's policy
-	$context['current_policy_lang'] = $user_info['language'];
+	Utils::$context['current_policy_lang'] = $user_info['language'];
 
 	// We need a policy for every language
 	getLanguages();
 
-	foreach ($context['languages'] as $lang)
+	foreach (Utils::$context['languages'] as $lang)
 	{
-		$context['editable_policies'][$lang['filename']] = $lang['name'];
+		Utils::$context['editable_policies'][$lang['filename']] = $lang['name'];
 
 		// Are we editing this one?
 		if (isset($_POST['policy_lang']) && $_POST['policy_lang'] == $lang['filename'])
-			$context['current_policy_lang'] = $lang['filename'];
+			Utils::$context['current_policy_lang'] = $lang['filename'];
 	}
 
-	$context['privacy_policy'] = empty($modSettings['policy_' . $context['current_policy_lang']]) ? '' : $modSettings['policy_' . $context['current_policy_lang']];
+	Utils::$context['privacy_policy'] = empty(Config::$modSettings['policy_' . Utils::$context['current_policy_lang']]) ? '' : Config::$modSettings['policy_' . Utils::$context['current_policy_lang']];
 
 	if (isset($_POST['policy']))
 	{
@@ -423,36 +426,36 @@ function EditPrivacyPolicy()
 		validateToken('admin-regp');
 
 		// Make sure there are no creepy-crawlies in it
-		$policy_text = $smcFunc['htmlspecialchars'](str_replace("\r", '', $_POST['policy']));
+		$policy_text = Utils::htmlspecialchars(str_replace("\r", '', $_POST['policy']));
 
 		$policy_settings = array(
-			'policy_' . $context['current_policy_lang'] => $policy_text,
+			'policy_' . Utils::$context['current_policy_lang'] => $policy_text,
 		);
 
-		$policy_settings['policy_updated_' . $context['current_policy_lang']] = time();
+		$policy_settings['policy_updated_' . Utils::$context['current_policy_lang']] = time();
 
 		// Writing it counts as agreeing to it, right?
-		$smcFunc['db_insert']('replace',
+		Db::$db->insert('replace',
 			'{db_prefix}themes',
 			array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
 			array($user_info['id'], 1, 'policy_accepted', time()),
 			array('id_member', 'id_theme', 'variable')
 		);
-		logAction('policy_updated', array('language' => $context['editable_policies'][$context['current_policy_lang']]), 'admin');
+		logAction('policy_updated', array('language' => Utils::$context['editable_policies'][Utils::$context['current_policy_lang']]), 'admin');
 		logAction('policy_accepted', array('applicator' => $user_info['id']), 'user');
 
-		if ($context['privacy_policy'] !== $policy_text)
-			$context['saved_successful'] = true;
+		if (Utils::$context['privacy_policy'] !== $policy_text)
+			Utils::$context['saved_successful'] = true;
 
-		updateSettings($policy_settings);
+		Config::updateModSettings($policy_settings);
 
-		$context['privacy_policy'] = $policy_text;
+		Utils::$context['privacy_policy'] = $policy_text;
 	}
 
-	$context['privacy_policy_info'] = sprintf($txt['admin_agreement_info'], empty($modSettings['policy_updated_' . $context['current_policy_lang']]) ? $txt['never'] : timeformat($modSettings['policy_updated_' . $context['current_policy_lang']]));
+	Utils::$context['privacy_policy_info'] = sprintf($txt['admin_agreement_info'], empty(Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']]) ? $txt['never'] : timeformat(Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']]));
 
-	$context['sub_template'] = 'edit_privacy_policy';
-	$context['page_title'] = $txt['privacy_policy'];
+	Utils::$context['sub_template'] = 'edit_privacy_policy';
+	Utils::$context['page_title'] = $txt['privacy_policy'];
 
 	createToken('admin-regp');
 }

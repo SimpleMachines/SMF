@@ -15,6 +15,9 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -30,25 +33,25 @@ if (!defined('SMF'))
 
 function PrintTopic()
 {
-	global $topic, $txt, $scripturl, $context, $user_info;
-	global $board_info, $smcFunc, $modSettings;
+	global $topic, $txt, $user_info;
+	global $board_info;
 
 	// Redirect to the boardindex if no valid topic id is provided.
 	if (empty($topic))
 		redirectexit();
 
-	if (!empty($modSettings['disable_print_topic']))
+	if (!empty(Config::$modSettings['disable_print_topic']))
 	{
 		unset($_REQUEST['action']);
-		$context['theme_loaded'] = false;
+		Utils::$context['theme_loaded'] = false;
 		fatal_lang_error('feature_disabled', false);
 	}
 
 	// Whatever happens don't index this.
-	$context['robot_no_index'] = true;
+	Utils::$context['robot_no_index'] = true;
 
 	// Get the topic starter information.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT mem.id_member, m.poster_time, COALESCE(mem.real_name, m.poster_name) AS poster_name, t.id_poll
 		FROM {db_prefix}messages AS m
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
@@ -61,10 +64,10 @@ function PrintTopic()
 		)
 	);
 	// Redirect to the boardindex if no valid topic id is provided.
-	if ($smcFunc['db_num_rows']($request) == 0)
+	if (Db::$db->num_rows($request) == 0)
 		redirectexit();
-	$row = $smcFunc['db_fetch_assoc']($request);
-	$smcFunc['db_free_result']($request);
+	$row = Db::$db->fetch_assoc($request);
+	Db::$db->free_result($request);
 
 	// We want a separate BBCodeParser instance for this, not the reusable one
 	// that would be returned by BBCodeParser::load().
@@ -74,7 +77,7 @@ function PrintTopic()
 	{
 		loadLanguage('Post');
 		// Get the question and if it's locked.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT
 				p.question, p.voting_locked, p.hide_results, p.expire_time, p.max_votes, p.change_vote,
 				p.guest_vote, p.id_member, COALESCE(mem.real_name, p.poster_name) AS poster_name, p.num_guest_voters, p.reset_poll
@@ -86,10 +89,10 @@ function PrintTopic()
 				'id_poll' => $row['id_poll'],
 			)
 		);
-		$pollinfo = $smcFunc['db_fetch_assoc']($request);
-		$smcFunc['db_free_result']($request);
+		$pollinfo = Db::$db->fetch_assoc($request);
+		Db::$db->free_result($request);
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT COUNT(DISTINCT id_member) AS total
 			FROM {db_prefix}log_polls
 			WHERE id_poll = {int:id_poll}
@@ -99,14 +102,14 @@ function PrintTopic()
 				'not_guest' => 0,
 			)
 		);
-		list ($pollinfo['total']) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		list ($pollinfo['total']) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 
 		// Total voters needs to include guest voters
 		$pollinfo['total'] += $pollinfo['num_guest_voters'];
 
 		// Get all the options, and calculate the total votes.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT pc.id_choice, pc.label, pc.votes, COALESCE(lp.id_choice, -1) AS voted_this
 			FROM {db_prefix}poll_choices AS pc
 				LEFT JOIN {db_prefix}log_polls AS lp ON (lp.id_choice = pc.id_choice AND lp.id_poll = {int:id_poll} AND lp.id_member = {int:current_member} AND lp.id_member != {int:not_guest})
@@ -120,14 +123,14 @@ function PrintTopic()
 		$pollOptions = array();
 		$realtotal = 0;
 		$pollinfo['has_voted'] = false;
-		while ($voterow = $smcFunc['db_fetch_assoc']($request))
+		while ($voterow = Db::$db->fetch_assoc($request))
 		{
 			censorText($voterow['label']);
 			$pollOptions[$voterow['id_choice']] = $voterow;
 			$realtotal += $voterow['votes'];
 			$pollinfo['has_voted'] |= $voterow['voted_this'] != -1;
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// If this is a guest we need to do our best to work out if they have voted, and what they voted for.
 		if ($user_info['is_guest'] && $pollinfo['guest_vote'] && allowedTo('poll_vote'))
@@ -168,9 +171,9 @@ function PrintTopic()
 			}
 		}
 
-		$context['user']['started'] = $user_info['id'] == $row['id_member'] && !$user_info['is_guest'];
+		Utils::$context['user']['started'] = $user_info['id'] == $row['id_member'] && !$user_info['is_guest'];
 		// Set up the basic poll information.
-		$context['poll'] = array(
+		Utils::$context['poll'] = array(
 			'id' => $row['id_poll'],
 			'image' => 'normal_' . (empty($pollinfo['voting_locked']) ? 'poll' : 'locked_poll'),
 			'question' => $bbcparser->parse($pollinfo['question']),
@@ -178,8 +181,8 @@ function PrintTopic()
 			'change_vote' => !empty($pollinfo['change_vote']),
 			'is_locked' => !empty($pollinfo['voting_locked']),
 			'options' => array(),
-			'lock' => allowedTo('poll_lock_any') || ($context['user']['started'] && allowedTo('poll_lock_own')),
-			'edit' => allowedTo('poll_edit_any') || ($context['user']['started'] && allowedTo('poll_edit_own')),
+			'lock' => allowedTo('poll_lock_any') || (Utils::$context['user']['started'] && allowedTo('poll_lock_own')),
+			'edit' => allowedTo('poll_edit_any') || (Utils::$context['user']['started'] && allowedTo('poll_edit_own')),
 			'allowed_warning' => $pollinfo['max_votes'] > 1 ? sprintf($txt['poll_options_limit'], min(count($pollOptions), $pollinfo['max_votes'])) : '',
 			'is_expired' => !empty($pollinfo['expire_time']) && $pollinfo['expire_time'] < time(),
 			'expire_time' => !empty($pollinfo['expire_time']) ? timeformat($pollinfo['expire_time']) : 0,
@@ -187,21 +190,21 @@ function PrintTopic()
 			'starter' => array(
 				'id' => $pollinfo['id_member'],
 				'name' => $row['poster_name'],
-				'href' => $pollinfo['id_member'] == 0 ? '' : $scripturl . '?action=profile;u=' . $pollinfo['id_member'],
-				'link' => $pollinfo['id_member'] == 0 ? $row['poster_name'] : '<a href="' . $scripturl . '?action=profile;u=' . $pollinfo['id_member'] . '">' . $row['poster_name'] . '</a>'
+				'href' => $pollinfo['id_member'] == 0 ? '' : Config::$scripturl . '?action=profile;u=' . $pollinfo['id_member'],
+				'link' => $pollinfo['id_member'] == 0 ? $row['poster_name'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $pollinfo['id_member'] . '">' . $row['poster_name'] . '</a>'
 			)
 		);
 
 		// Make the lock and edit permissions defined above more directly accessible.
-		$context['allow_lock_poll'] = $context['poll']['lock'];
-		$context['allow_edit_poll'] = $context['poll']['edit'];
+		Utils::$context['allow_lock_poll'] = Utils::$context['poll']['lock'];
+		Utils::$context['allow_edit_poll'] = Utils::$context['poll']['edit'];
 
 		// You're allowed to view the results if:
 		// 1. you're just a super-nice-guy, or
 		// 2. anyone can see them (hide_results == 0), or
 		// 3. you can see them after you voted (hide_results == 1), or
 		// 4. you've waited long enough for the poll to expire. (whether hide_results is 1 or 2.)
-		$context['allow_poll_view'] = allowedTo('moderate_board') || $pollinfo['hide_results'] == 0 || ($pollinfo['hide_results'] == 1 && $context['poll']['has_voted']) || $context['poll']['is_expired'];
+		Utils::$context['allow_poll_view'] = allowedTo('moderate_board') || $pollinfo['hide_results'] == 0 || ($pollinfo['hide_results'] == 1 && Utils::$context['poll']['has_voted']) || Utils::$context['poll']['is_expired'];
 
 		// Calculate the percentages and bar lengths...
 		$divisor = $realtotal == 0 ? 1 : $realtotal;
@@ -217,7 +220,7 @@ function PrintTopic()
 			$barWide = $bar == 0 ? 1 : floor(($bar * 8) / 3);
 
 			// Now add it to the poll's contextual theme data.
-			$context['poll']['options'][$i] = array(
+			Utils::$context['poll']['options'][$i] = array(
 				'id' => 'options-' . $i,
 				'percent' => $bar,
 				'votes' => $option['votes'],
@@ -236,21 +239,21 @@ function PrintTopic()
 
 	// Lets "output" all that info.
 	loadTemplate('Printpage');
-	$context['template_layers'] = array('print');
-	$context['board_name'] = $board_info['name'];
-	$context['category_name'] = $board_info['cat']['name'];
-	$context['poster_name'] = $row['poster_name'];
-	$context['post_time'] = timeformat($row['poster_time'], false);
-	$context['parent_boards'] = array();
+	Utils::$context['template_layers'] = array('print');
+	Utils::$context['board_name'] = $board_info['name'];
+	Utils::$context['category_name'] = $board_info['cat']['name'];
+	Utils::$context['poster_name'] = $row['poster_name'];
+	Utils::$context['post_time'] = timeformat($row['poster_time'], false);
+	Utils::$context['parent_boards'] = array();
 	foreach ($board_info['parent_boards'] as $parent)
-		$context['parent_boards'][] = $parent['name'];
+		Utils::$context['parent_boards'][] = $parent['name'];
 
 	// Split the topics up so we can print them.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT subject, poster_time, body, COALESCE(mem.real_name, poster_name) AS poster_name, id_msg
 		FROM {db_prefix}messages AS m
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
-		WHERE m.id_topic = {int:current_topic}' . ($modSettings['postmod_active'] && !allowedTo('approve_posts') ? '
+		WHERE m.id_topic = {int:current_topic}' . (Config::$modSettings['postmod_active'] && !allowedTo('approve_posts') ? '
 			AND (m.approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR m.id_member = {int:current_member}') . ')' : '') . '
 		ORDER BY m.id_msg',
 		array(
@@ -259,14 +262,14 @@ function PrintTopic()
 			'current_member' => $user_info['id'],
 		)
 	);
-	$context['posts'] = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	Utils::$context['posts'] = array();
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// Censor the subject and message.
 		censorText($row['subject']);
 		censorText($row['body']);
 
-		$context['posts'][] = array(
+		Utils::$context['posts'][] = array(
 			'subject' => $row['subject'],
 			'member' => $row['poster_name'],
 			'time' => timeformat($row['poster_time'], false),
@@ -275,20 +278,20 @@ function PrintTopic()
 			'id_msg' => $row['id_msg'],
 		);
 
-		if (!isset($context['topic_subject']))
-			$context['topic_subject'] = $row['subject'];
+		if (!isset(Utils::$context['topic_subject']))
+			Utils::$context['topic_subject'] = $row['subject'];
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Fetch attachments so we can print them if asked, enabled and allowed
-	if (isset($_REQUEST['images']) && !empty($modSettings['attachmentEnable']) && allowedTo('view_attachments'))
+	if (isset($_REQUEST['images']) && !empty(Config::$modSettings['attachmentEnable']) && allowedTo('view_attachments'))
 	{
 		$messages = array();
-		foreach ($context['posts'] as $temp)
+		foreach (Utils::$context['posts'] as $temp)
 			$messages[] = $temp['id_msg'];
 
 		// build the request
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT
 				a.id_attach, a.id_msg, a.approved, a.width, a.height, a.file_hash, a.filename, a.id_folder, a.mime_type
 			FROM {db_prefix}attachments AS a
@@ -301,50 +304,50 @@ function PrintTopic()
 			)
 		);
 		$temp = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			$temp[$row['id_attach']] = $row;
-			if (!isset($context['printattach'][$row['id_msg']]))
-				$context['printattach'][$row['id_msg']] = array();
+			if (!isset(Utils::$context['printattach'][$row['id_msg']]))
+				Utils::$context['printattach'][$row['id_msg']] = array();
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 		ksort($temp);
 
-		// load them into $context so the template can use them
+		// load them into Utils::$context so the template can use them
 		foreach ($temp as $row)
 		{
-			if (!empty($modSettings['dont_show_attach_under_post']) && !empty($context['show_attach_under_post'][$row['id_attach']]))
+			if (!empty(Config::$modSettings['dont_show_attach_under_post']) && !empty(Utils::$context['show_attach_under_post'][$row['id_attach']]))
 				continue;
 
 			if (!empty($row['width']) && !empty($row['height']))
 			{
-				if (!empty($modSettings['max_image_width']) && (empty($modSettings['max_image_height']) || $row['height'] * ($modSettings['max_image_width'] / $row['width']) <= $modSettings['max_image_height']))
+				if (!empty(Config::$modSettings['max_image_width']) && (empty(Config::$modSettings['max_image_height']) || $row['height'] * (Config::$modSettings['max_image_width'] / $row['width']) <= Config::$modSettings['max_image_height']))
 				{
-					if ($row['width'] > $modSettings['max_image_width'])
+					if ($row['width'] > Config::$modSettings['max_image_width'])
 					{
-						$row['height'] = floor($row['height'] * ($modSettings['max_image_width'] / $row['width']));
-						$row['width'] = $modSettings['max_image_width'];
+						$row['height'] = floor($row['height'] * (Config::$modSettings['max_image_width'] / $row['width']));
+						$row['width'] = Config::$modSettings['max_image_width'];
 					}
 				}
-				elseif (!empty($modSettings['max_image_width']))
+				elseif (!empty(Config::$modSettings['max_image_width']))
 				{
-					if ($row['height'] > $modSettings['max_image_height'])
+					if ($row['height'] > Config::$modSettings['max_image_height'])
 					{
-						$row['width'] = floor($row['width'] * $modSettings['max_image_height'] / $row['height']);
-						$row['height'] = $modSettings['max_image_height'];
+						$row['width'] = floor($row['width'] * Config::$modSettings['max_image_height'] / $row['height']);
+						$row['height'] = Config::$modSettings['max_image_height'];
 					}
 				}
 
 				$row['filename'] = getAttachmentFilename($row['filename'], $row['id_attach'], $row['id_folder'], false, $row['file_hash']);
 
 				// save for the template
-				$context['printattach'][$row['id_msg']][] = $row;
+				Utils::$context['printattach'][$row['id_msg']][] = $row;
 			}
 		}
 	}
 
 	// Set a canonical URL for this page.
-	$context['canonical_url'] = $scripturl . '?topic=' . $topic . '.0';
+	Utils::$context['canonical_url'] = Config::$scripturl . '?topic=' . $topic . '.0';
 }
 
 ?>

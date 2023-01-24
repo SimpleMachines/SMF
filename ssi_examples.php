@@ -38,7 +38,7 @@ template_ssi_above();
 
 			<h2>Include Code</h2>
 			<p>To use SSI.php in your page add at the very top of your page before the &lt;html&gt; tag on line 1 of your php file:</p>
-			<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php require(&quot;<?php echo addslashes($user_info['is_admin'] ? realpath($boarddir . '/SSI.php') : 'SSI.php'); ?>&quot;); ?&gt;</code>
+			<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php require(&quot;<?php echo addslashes($user_info['is_admin'] ? realpath(SMF\Config::$boarddir . '/SSI.php') : 'SSI.php'); ?>&quot;); ?&gt;</code>
 
 			<h2>Some notes on usage</h2>
 			<p>All the functions have an output method parameter.  This can either be &quot;echo&quot; (the default) or &quot;array&quot;</p>
@@ -413,14 +413,14 @@ template_ssi_below();
  */
 function template_ssi_above()
 {
-	global $settings, $context, $scripturl;
+	global $settings;
 
 	echo '<!DOCTYPE html>
 <html>
 	<head>
 		<title>', SMF_FULL_VERSION, ' SSI.php Examples</title>
 		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css">
-		<script src="', !empty($context['javascript_files']['smf_jquery']['fileUrl']) ? $context['javascript_files']['smf_jquery']['fileUrl'] : 'https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', '"></script>
+		<script src="', !empty(SMF\Utils::$context['javascript_files']['smf_jquery']['fileUrl']) ? SMF\Utils::$context['javascript_files']['smf_jquery']['fileUrl'] : 'https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', '"></script>
 		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 		<style>
 			#wrapper {
@@ -478,9 +478,9 @@ function template_ssi_above()
 			}
 		</style>
 		<script>
-			var smf_scripturl = "', $scripturl, '";
-			var smf_iso_case_folding = ', $context['server']['iso_case_folding'] ? 'true' : 'false', ';
-			var smf_charset = "', $context['character_set'], '";
+			var smf_scripturl = "', SMF\Config::$scripturl, '";
+			var smf_iso_case_folding = ', SMF\Utils::$context['server']['iso_case_folding'] ? 'true' : 'false', ';
+			var smf_charset = "', SMF\Utils::$context['character_set'], '";
 
 			// Sets all ssi_preview class to hidden, then shows the one requested.
 			function showSSIBlock(elementID)
@@ -550,7 +550,7 @@ function template_ssi_below()
  */
 function template_homepage_sample1($method = 'source')
 {
-	global $user_info, $boarddir;
+	global $user_info;
 
 	$header = '<!DOCTYPE html>
 <html>
@@ -596,7 +596,7 @@ function template_homepage_sample1($method = 'source')
 
 	if ($method == 'source')
 	{
-		$header = '<?php require("' . ($user_info['is_admin'] ? addslashes(realpath($boarddir . '/SSI.php')) : 'SSI.php') . '"); ?>' . "\n" . $header;
+		$header = '<?php require("' . ($user_info['is_admin'] ? addslashes(realpath(SMF\Config::$boarddir . '/SSI.php')) : 'SSI.php') . '"); ?>' . "\n" . $header;
 		return $header . template_homepage_sample1_html() . $footer;
 	}
 	else

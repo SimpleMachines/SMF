@@ -13,6 +13,10 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -26,7 +30,7 @@ if (!defined('SMF'))
  */
 function ManageScheduledTasks()
 {
-	global $context, $txt;
+	global $txt;
 
 	isAllowedTo('admin_forum');
 
@@ -42,12 +46,12 @@ function ManageScheduledTasks()
 
 	// We need to find what's the action.
 	if (isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]))
-		$context['sub_action'] = $_REQUEST['sa'];
+		Utils::$context['sub_action'] = $_REQUEST['sa'];
 	else
-		$context['sub_action'] = 'tasks';
+		Utils::$context['sub_action'] = 'tasks';
 
 	// Now for the lovely tabs. That we all love.
-	$context[$context['admin_menu_name']]['tab_data'] = array(
+	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['scheduled_tasks_title'],
 		'help' => '',
 		'description' => $txt['maintain_info'],
@@ -67,7 +71,7 @@ function ManageScheduledTasks()
 	call_integration_hook('integrate_manage_scheduled_tasks', array(&$subActions));
 
 	// Call it.
-	call_helper($subActions[$context['sub_action']]);
+	call_helper($subActions[Utils::$context['sub_action']]);
 }
 
 /**
@@ -77,12 +81,12 @@ function ManageScheduledTasks()
  */
 function ScheduledTasks()
 {
-	global $context, $txt, $sourcedir, $smcFunc, $scripturl;
+	global $txt;
 
 	// Mama, setup the template first - cause it's like the most important bit, like pickle in a sandwich.
 	// ... ironically I don't like pickle. </grudge>
-	$context['sub_template'] = 'view_scheduled_tasks';
-	$context['page_title'] = $txt['maintain_tasks'];
+	Utils::$context['sub_template'] = 'view_scheduled_tasks';
+	Utils::$context['page_title'] = $txt['maintain_tasks'];
 
 	// Saving changes?
 	if (isset($_REQUEST['save']) && isset($_POST['enable_task']))
@@ -90,7 +94,7 @@ function ScheduledTasks()
 		checkSession();
 
 		// We'll recalculate the dates at the end!
-		require_once($sourcedir . '/ScheduledTasks.php');
+		require_once(Config::$sourcedir . '/ScheduledTasks.php');
 
 		// Enable and disable as required.
 		$enablers = array(0);
@@ -99,7 +103,7 @@ function ScheduledTasks()
 				$enablers[] = (int) $id;
 
 		// Do the update!
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}scheduled_tasks
 			SET disabled = CASE WHEN id_task IN ({array_int:id_task_enable}) THEN 0 ELSE 1 END',
 			array(
@@ -108,7 +112,7 @@ function ScheduledTasks()
 		);
 
 		// Update the "allow_expire_redirect" setting...
-		$get_info = $smcFunc['db_query']('', '
+		$get_info = Db::$db->query('', '
 			SELECT disabled
 			FROM {db_prefix}scheduled_tasks
 			WHERE task = {string:remove_redirect}',
@@ -117,11 +121,11 @@ function ScheduledTasks()
 			)
 		);
 
-		$temp = $smcFunc['db_fetch_assoc']($get_info);
+		$temp = Db::$db->fetch_assoc($get_info);
 		$task_disabled = !empty($temp['disabled']) ? 0 : 1;
-		$smcFunc['db_free_result']($get_info);
+		Db::$db->free_result($get_info);
 
-		updateSettings(array('allow_expire_redirect' => $task_disabled));
+		Config::updateModSettings(array('allow_expire_redirect' => $task_disabled));
 
 		// Pop along...
 		CalculateNextTrigger();
@@ -138,7 +142,7 @@ function ScheduledTasks()
 			$tasks[] = (int) $task;
 
 		// Load up the tasks.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_task, task, callable
 			FROM {db_prefix}scheduled_tasks
 			WHERE id_task IN ({array_int:tasks})
@@ -150,9 +154,9 @@ function ScheduledTasks()
 		);
 
 		// Lets get it on!
-		require_once($sourcedir . '/ScheduledTasks.php');
+		require_once(Config::$sourcedir . '/ScheduledTasks.php');
 		ignore_user_abort(true);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			// What kind of task are we handling?
 			if (!empty($row['callable']))
@@ -190,7 +194,7 @@ function ScheduledTasks()
 			if ($completed)
 			{
 				$total_time = round(microtime(true) - $start_time, 3);
-				$smcFunc['db_insert']('',
+				Db::$db->insert('',
 					'{db_prefix}log_scheduled_tasks',
 					array('id_task' => 'int', 'time_run' => 'int', 'time_taken' => 'float'),
 					array($row['id_task'], time(), $total_time),
@@ -198,25 +202,25 @@ function ScheduledTasks()
 				);
 			}
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// If we had any errors, push them to session so we can pick them up next time to tell the user.
-		if (!empty($context['scheduled_errors']))
-			$_SESSION['st_error'] = $context['scheduled_errors'];
+		if (!empty(Utils::$context['scheduled_errors']))
+			$_SESSION['st_error'] = Utils::$context['scheduled_errors'];
 
 		redirectexit('action=admin;area=scheduledtasks;done');
 	}
 
 	if (isset($_SESSION['st_error']))
 	{
-		$context['scheduled_errors'] = $_SESSION['st_error'];
+		Utils::$context['scheduled_errors'] = $_SESSION['st_error'];
 		unset ($_SESSION['st_error']);
 	}
 
 	$listOptions = array(
 		'id' => 'scheduled_tasks',
 		'title' => $txt['maintain_tasks'],
-		'base_href' => $scripturl . '?action=admin;area=scheduledtasks',
+		'base_href' => Config::$scripturl . '?action=admin;area=scheduledtasks',
 		'get_items' => array(
 			'function' => 'list_getScheduledTasks',
 		),
@@ -229,7 +233,7 @@ function ScheduledTasks()
 				'data' => array(
 					'sprintf' => array(
 						'format' => '
-							<a href="' . $scripturl . '?action=admin;area=scheduledtasks;sa=taskedit;tid=%1$d">%2$s</a><br><span class="smalltext">%3$s</span>',
+							<a href="' . Config::$scripturl . '?action=admin;area=scheduledtasks;sa=taskedit;tid=%1$d">%2$s</a><br><span class="smalltext">%3$s</span>',
 						'params' => array(
 							'id' => false,
 							'name' => false,
@@ -293,7 +297,7 @@ function ScheduledTasks()
 			),
 		),
 		'form' => array(
-			'href' => $scripturl . '?action=admin;area=scheduledtasks',
+			'href' => Config::$scripturl . '?action=admin;area=scheduledtasks',
 		),
 		'additional_rows' => array(
 			array(
@@ -309,12 +313,12 @@ function ScheduledTasks()
 		),
 	);
 
-	require_once($sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/Subs-List.php');
 	createList($listOptions);
 
-	$context['sub_template'] = 'view_scheduled_tasks';
+	Utils::$context['sub_template'] = 'view_scheduled_tasks';
 
-	$context['tasks_were_run'] = isset($_GET['done']);
+	Utils::$context['tasks_were_run'] = isset($_GET['done']);
 }
 
 /**
@@ -327,16 +331,16 @@ function ScheduledTasks()
  */
 function list_getScheduledTasks($start, $items_per_page, $sort)
 {
-	global $smcFunc, $txt, $scripturl;
+	global $txt;
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_task, next_time, time_offset, time_regularity, time_unit, disabled, task
 		FROM {db_prefix}scheduled_tasks',
 		array(
 		)
 	);
 	$known_tasks = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// Find the next for regularity - don't offset as it's always server time!
 		$offset = sprintf($txt['scheduled_task_reg_starting'], date('H:i', $row['time_offset']));
@@ -346,14 +350,14 @@ function list_getScheduledTasks($start, $items_per_page, $sort)
 			'id' => $row['id_task'],
 			'function' => $row['task'],
 			'name' => isset($txt['scheduled_task_' . $row['task']]) ? $txt['scheduled_task_' . $row['task']] : $row['task'],
-			'desc' => isset($txt['scheduled_task_desc_' . $row['task']]) ? sprintf($txt['scheduled_task_desc_' . $row['task']], $scripturl) : '',
+			'desc' => isset($txt['scheduled_task_desc_' . $row['task']]) ? sprintf($txt['scheduled_task_desc_' . $row['task']], Config::$scripturl) : '',
 			'next_time' => $row['disabled'] ? $txt['scheduled_tasks_na'] : timeformat(($row['next_time'] == 0 ? time() : $row['next_time']), true, 'server'),
 			'disabled' => $row['disabled'],
 			'checked_state' => $row['disabled'] ? '' : 'checked',
 			'regularity' => $offset . ', ' . $repeating,
 		);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	return $known_tasks;
 }
@@ -365,13 +369,13 @@ function list_getScheduledTasks($start, $items_per_page, $sort)
  */
 function EditTask()
 {
-	global $context, $txt, $sourcedir, $smcFunc, $scripturl;
+	global $txt;
 
 	// Just set up some lovely context stuff.
-	$context[$context['admin_menu_name']]['current_subsection'] = 'tasks';
-	$context['sub_template'] = 'edit_scheduled_tasks';
-	$context['page_title'] = $txt['scheduled_task_edit'];
-	$context['server_time'] = timeformat(time(), false, 'server');
+	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'tasks';
+	Utils::$context['sub_template'] = 'edit_scheduled_tasks';
+	Utils::$context['page_title'] = $txt['scheduled_task_edit'];
+	Utils::$context['server_time'] = timeformat(time(), false, 'server');
 
 	// Cleaning...
 	if (!isset($_GET['tid']))
@@ -385,7 +389,7 @@ function EditTask()
 		validateToken('admin-st');
 
 		// We'll need this for calculating the next event.
-		require_once($sourcedir . '/ScheduledTasks.php');
+		require_once(Config::$sourcedir . '/ScheduledTasks.php');
 
 		// Do we have a valid offset?
 		preg_match('~(\d{1,2}):(\d{1,2})~', $_POST['offset'], $matches);
@@ -411,7 +415,7 @@ function EditTask()
 		$disabled = !isset($_POST['enabled']) ? 1 : 0;
 
 		// Do the update!
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}scheduled_tasks
 			SET disabled = {int:disabled}, time_offset = {int:time_offset}, time_unit = {string:time_unit},
 				time_regularity = {int:time_regularity}
@@ -433,7 +437,7 @@ function EditTask()
 	}
 
 	// Load the task, understand? Que? Que?
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_task, next_time, time_offset, time_regularity, time_unit, disabled, task
 		FROM {db_prefix}scheduled_tasks
 		WHERE id_task = {int:id_task}',
@@ -443,16 +447,16 @@ function EditTask()
 	);
 
 	// Should never, ever, happen!
-	if ($smcFunc['db_num_rows']($request) == 0)
+	if (Db::$db->num_rows($request) == 0)
 		fatal_lang_error('no_access', false);
 
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
-		$context['task'] = array(
+		Utils::$context['task'] = array(
 			'id' => $row['id_task'],
 			'function' => $row['task'],
 			'name' => isset($txt['scheduled_task_' . $row['task']]) ? $txt['scheduled_task_' . $row['task']] : $row['task'],
-			'desc' => isset($txt['scheduled_task_desc_' . $row['task']]) ? sprintf($txt['scheduled_task_desc_' . $row['task']], $scripturl) : '',
+			'desc' => isset($txt['scheduled_task_desc_' . $row['task']]) ? sprintf($txt['scheduled_task_desc_' . $row['task']], Config::$scripturl) : '',
 			'next_time' => $row['disabled'] ? $txt['scheduled_tasks_na'] : timeformat($row['next_time'] == 0 ? time() : $row['next_time'], true, 'server'),
 			'disabled' => $row['disabled'],
 			'offset' => $row['time_offset'],
@@ -461,7 +465,7 @@ function EditTask()
 			'unit' => $row['time_unit'],
 		);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	createToken('admin-st');
 }
@@ -473,7 +477,7 @@ function EditTask()
  */
 function TaskLog()
 {
-	global $scripturl, $context, $txt, $smcFunc, $sourcedir;
+	global $txt;
 
 	// Lets load the language just incase we are outside the Scheduled area.
 	loadLanguage('ManageScheduledTasks');
@@ -484,7 +488,7 @@ function TaskLog()
 		checkSession();
 		validateToken('admin-tl');
 
-		$smcFunc['db_query']('truncate_table', '
+		Db::$db->query('truncate_table', '
 			TRUNCATE {db_prefix}log_scheduled_tasks',
 			array(
 			)
@@ -497,7 +501,7 @@ function TaskLog()
 		'items_per_page' => 30,
 		'title' => $txt['scheduled_log'],
 		'no_items_label' => $txt['scheduled_log_empty'],
-		'base_href' => $context['admin_area'] == 'scheduledtasks' ? $scripturl . '?action=admin;area=scheduledtasks;sa=tasklog' : $scripturl . '?action=admin;area=logs;sa=tasklog',
+		'base_href' => Utils::$context['admin_area'] == 'scheduledtasks' ? Config::$scripturl . '?action=admin;area=scheduledtasks;sa=tasklog' : Config::$scripturl . '?action=admin;area=logs;sa=tasklog',
 		'default_sort_col' => 'date',
 		'get_items' => array(
 			'function' => 'list_getTaskLogEntries',
@@ -548,7 +552,7 @@ function TaskLog()
 			),
 		),
 		'form' => array(
-			'href' => $context['admin_area'] == 'scheduledtasks' ? $scripturl . '?action=admin;area=scheduledtasks;sa=tasklog' : $scripturl . '?action=admin;area=logs;sa=tasklog',
+			'href' => Utils::$context['admin_area'] == 'scheduledtasks' ? Config::$scripturl . '?action=admin;area=scheduledtasks;sa=tasklog' : Config::$scripturl . '?action=admin;area=logs;sa=tasklog',
 			'token' => 'admin-tl',
 		),
 		'additional_rows' => array(
@@ -566,15 +570,15 @@ function TaskLog()
 
 	createToken('admin-tl');
 
-	require_once($sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/Subs-List.php');
 	createList($listOptions);
 
-	$context['sub_template'] = 'show_list';
-	$context['default_list'] = 'task_log';
+	Utils::$context['sub_template'] = 'show_list';
+	Utils::$context['default_list'] = 'task_log';
 
 	// Make it all look tify.
-	$context[$context['admin_menu_name']]['current_subsection'] = 'tasklog';
-	$context['page_title'] = $txt['scheduled_log'];
+	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'tasklog';
+	Utils::$context['page_title'] = $txt['scheduled_log'];
 }
 
 /**
@@ -587,9 +591,9 @@ function TaskLog()
  */
 function list_getTaskLogEntries($start, $items_per_page, $sort)
 {
-	global $smcFunc, $txt;
+	global $txt;
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT lst.id_log, lst.id_task, lst.time_run, lst.time_taken, st.task
 		FROM {db_prefix}log_scheduled_tasks AS lst
 			INNER JOIN {db_prefix}scheduled_tasks AS st ON (st.id_task = lst.id_task)
@@ -602,14 +606,14 @@ function list_getTaskLogEntries($start, $items_per_page, $sort)
 		)
 	);
 	$log_entries = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$log_entries[] = array(
 			'id' => $row['id_log'],
 			'name' => isset($txt['scheduled_task_' . $row['task']]) ? $txt['scheduled_task_' . $row['task']] : $row['task'],
 			'time_run' => $row['time_run'],
 			'time_taken' => $row['time_taken'],
 		);
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	return $log_entries;
 }
@@ -621,16 +625,14 @@ function list_getTaskLogEntries($start, $items_per_page, $sort)
  */
 function list_getNumTaskLogEntries()
 {
-	global $smcFunc;
-
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}log_scheduled_tasks',
 		array(
 		)
 	);
-	list ($num_entries) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($num_entries) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	return $num_entries;
 }
@@ -643,10 +645,10 @@ function list_getNumTaskLogEntries()
  */
 function TaskSettings($return_config = false)
 {
-	global $sourcedir, $txt, $context, $scripturl;
+	global $txt;
 
 	// We will need the utility functions from here.
-	require_once($sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/ManageServer.php');
 
 	loadLanguage('Help');
 
@@ -660,11 +662,11 @@ function TaskSettings($return_config = false)
 		return $config_vars;
 
 	// Set up the template.
-	$context['page_title'] = $txt['scheduled_tasks_settings'];
-	$context['sub_template'] = 'show_settings';
+	Utils::$context['page_title'] = $txt['scheduled_tasks_settings'];
+	Utils::$context['sub_template'] = 'show_settings';
 
-	$context['post_url'] = $scripturl . '?action=admin;area=scheduledtasks;save;sa=settings';
-	$context['settings_title'] = $txt['scheduled_tasks_settings'];
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=scheduledtasks;save;sa=settings';
+	Utils::$context['settings_title'] = $txt['scheduled_tasks_settings'];
 
 	// Saving?
 	if (isset($_GET['save']))

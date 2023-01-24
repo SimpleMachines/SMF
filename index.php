@@ -56,94 +56,91 @@ if (!defined('SMF_USER_AGENT'))
 if (!defined('TIME_START'))
 	define('TIME_START', microtime(true));
 
+if (!defined('SMF_SETTINGS_FILE'))
+	define('SMF_SETTINGS_FILE', __DIR__ . '/Settings.php');
+
+if (!defined('SMF_SETTINGS_BACKUP_FILE'))
+	define('SMF_SETTINGS_BACKUP_FILE', dirname(SMF_SETTINGS_FILE) . '/' . pathinfo(SMF_SETTINGS_FILE, PATHINFO_FILENAME) . '_bak.php');
+
 /*
  * 2. Load the Settings.php file.
  */
 
+if (!is_file(SMF_SETTINGS_FILE) || !is_readable(SMF_SETTINGS_FILE))
+	die('File not readable: ' . basename(SMF_SETTINGS_FILE));
+
 // Don't load it twice.
-if (in_array(dirname(__FILE__) . '/Settings.php', get_included_files()))
+if (in_array(SMF_SETTINGS_FILE, get_included_files()))
 	return;
 
+// If anything goes wrong loading Settings.php, make sure the admin knows it.
 if (SMF === 1)
 {
-	// If anything goes wrong loading Settings.php, make sure the admin knows it.
 	error_reporting(E_ALL);
-
-	// This makes it so headers can be sent!
 	ob_start();
 }
 
-// Do some cleaning, just in case.
-foreach (array('db_character_set', 'cachedir') as $variable)
-	$GLOBALS[$variable] = null;
-
-// Load the settings...
-require_once(dirname(__FILE__) . '/Settings.php');
-
-if (SMF === 1)
+// This is wrapped in a closure to keep the global namespace clean.
+call_user_func(function()
 {
-	// Devs want all error messages, but others don't.
-	error_reporting(!empty($db_show_debug) ? E_ALL : E_ALL & ~E_DEPRECATED);
-}
+	require_once(SMF_SETTINGS_FILE);
 
-// Ensure there are no trailing slashes in these variables.
-foreach (array('boardurl', 'boarddir', 'sourcedir', 'packagesdir', 'tasksdir', 'cachedir') as $variable)
-	$GLOBALS[$variable] = rtrim($GLOBALS[$variable], "\\/");
-
-// Make sure the paths are correct... at least try to fix them.
-// @todo Remove similar path correction code from Settings.php.
-if (empty($boarddir) || !is_dir(realpath($boarddir)))
-	$boarddir = __DIR__;
-if ((empty($sourcedir) || !is_dir(realpath($sourcedir))) && is_dir($boarddir . '/Sources'))
-	$sourcedir = $boarddir . '/Sources';
-if ((empty($tasksdir) || !is_dir(realpath($tasksdir))) && is_dir($sourcedir . '/tasks'))
-	$tasksdir = $sourcedir . '/tasks';
-if ((empty($packagesdir) || !is_dir(realpath($packagesdir))) && is_dir($boarddir . '/Packages'))
-	$packagesdir = $boarddir . '/Packages';
-
-// Make absolutely sure the cache directory is defined and writable.
-if (empty($cachedir) || !is_dir($cachedir) || !is_writable($cachedir))
-{
-	if (is_dir($boarddir . '/cache') && is_writable($boarddir . '/cache'))
-		$cachedir = $boarddir . '/cache';
-
-	else
+	// Ensure $sourcedir is valid.
+	$sourcedir = rtrim($sourcedir, "\\/");
+	if ((empty($sourcedir) || !is_dir(realpath($sourcedir))))
 	{
-		$cachedir = sys_get_temp_dir() . '/smf_cache_' . md5($boarddir);
+		$boarddir = rtrim($boarddir, "\\/");
 
-		@mkdir($cachedir, 0750);
+		if (empty($boarddir) || !is_dir(realpath($boarddir)))
+			$boarddir = __DIR__;
+
+		if (is_dir($boarddir . '/Sources'))
+			$sourcedir = $boarddir . '/Sources';
 	}
-}
+
+	// We need this class, or nothing works.
+	if (!is_file($sourcedir . '/Config.php') || !is_readable($sourcedir . '/Config.php'))
+		die('File not readable: (Sources)/Config.php');
+
+	// Pass all the settings to SMF\Config.
+	require_once($sourcedir . '/Config.php');
+	SMF\Config::set(get_defined_vars());
+});
+
+// Devs want all error messages, but others don't.
+if (SMF === 1)
+	error_reporting(!empty(SMF\Config::$db_show_debug) ? E_ALL : E_ALL & ~E_DEPRECATED);
 
 /*
  * 3. Load some other essential includes.
  */
+
+require_once(SMF\Config::$sourcedir . '/Autoloader.php');
 
 // Some entry points need more includes than others.
 switch (SMF)
 {
 	case 1:
 	case 'SSI':
-		require_once($sourcedir . '/QueryString.php');
-		require_once($sourcedir . '/Subs-Auth.php');
-		require_once($sourcedir . '/Session.php');
-		require_once($sourcedir . '/Logging.php');
+		require_once(SMF\Config::$sourcedir . '/QueryString.php');
+		require_once(SMF\Config::$sourcedir . '/Subs-Auth.php');
+		require_once(SMF\Config::$sourcedir . '/Session.php');
+		require_once(SMF\Config::$sourcedir . '/Logging.php');
 		// no break
 
 	case 'BACKGROUND':
-		require_once($sourcedir . '/Security.php');
+		require_once(SMF\Config::$sourcedir . '/Security.php');
 		// no break
 
 	default:
-		require_once($sourcedir . '/Subs.php');
-		require_once($sourcedir . '/Errors.php');
-		require_once($sourcedir . '/Load.php');
-		require_once($sourcedir . '/Autoloader.php');
+		require_once(SMF\Config::$sourcedir . '/Subs.php');
+		require_once(SMF\Config::$sourcedir . '/Errors.php');
+		require_once(SMF\Config::$sourcedir . '/Load.php');
 		break;
 }
 
 // Ensure we don't trip over disabled internal functions
-require_once($sourcedir . '/Subs-Compat.php');
+require_once(SMF\Config::$sourcedir . '/Subs-Compat.php');
 
 
 /*********************************************************************

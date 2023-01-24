@@ -10,26 +10,29 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+
 /**
  * Displays a sortable listing of all members registered on the forum.
  */
 function template_main()
 {
-	global $context, $settings, $scripturl, $txt;
+	global $settings, $txt;
 
 	echo '
 	<div class="main_section" id="memberlist">
 		<div class="pagesection">
-			', template_button_strip($context['memberlist_buttons'], 'right'), '
-			<div class="pagelinks floatleft">', $context['page_index'], '</div>
+			', template_button_strip(Utils::$context['memberlist_buttons'], 'right'), '
+			<div class="pagelinks floatleft">', Utils::$context['page_index'], '</div>
 		</div>
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span class="floatleft">', $txt['members_list'], '</span>';
 
-	if (!isset($context['old_search']))
+	if (!isset(Utils::$context['old_search']))
 		echo '
-				<span class="floatright">', $context['letter_links'], '</span>';
+				<span class="floatright">', Utils::$context['letter_links'], '</span>';
 	echo '
 			</h3>
 		</div>';
@@ -41,17 +44,17 @@ function template_main()
 					<tr class="title_bar">';
 
 	// Display each of the column headers of the table.
-	foreach ($context['columns'] as $key => $column)
+	foreach (Utils::$context['columns'] as $key => $column)
 	{
 		// @TODO maybe find something nicer?
-		if ($key == 'email_address' && !$context['can_send_email'])
+		if ($key == 'email_address' && !Utils::$context['can_send_email'])
 			continue;
 
 		// This is a selected column, so underline it or some such.
 		if ($column['selected'])
 			echo '
 						<th scope="col" class="', $key, isset($column['class']) ? ' ' . $column['class'] : '', ' selected" style="width: auto;"' . (isset($column['colspan']) ? ' colspan="' . $column['colspan'] . '"' : '') . '>
-							<a href="' . $column['href'] . '" rel="nofollow">' . $column['label'] . '</a><span class="main_icons sort_' . $context['sort_direction'] . '"></span></th>';
+							<a href="' . $column['href'] . '" rel="nofollow">' . $column['label'] . '</a><span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span></th>';
 
 		// This is just some column... show the link and be done with it.
 		else
@@ -66,18 +69,18 @@ function template_main()
 				<tbody>';
 
 	// Assuming there are members loop through each one displaying their data.
-	if (!empty($context['members']))
+	if (!empty(Utils::$context['members']))
 	{
-		foreach ($context['members'] as $member)
+		foreach (Utils::$context['members'] as $member)
 		{
 			echo '
 					<tr class="windowbg"', empty($member['sort_letter']) ? '' : ' id="letter' . $member['sort_letter'] . '"', '>
 						<td class="is_online centertext">
-							', $context['can_send_pm'] ? '<a href="' . $member['online']['href'] . '" title="' . $member['online']['text'] . '">' : '', $settings['use_image_buttons'] ? '<span class="' . ($member['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $member['online']['text'] . '"></span>' : $member['online']['label'], $context['can_send_pm'] ? '</a>' : '', '
+							', Utils::$context['can_send_pm'] ? '<a href="' . $member['online']['href'] . '" title="' . $member['online']['text'] . '">' : '', $settings['use_image_buttons'] ? '<span class="' . ($member['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $member['online']['text'] . '"></span>' : $member['online']['label'], Utils::$context['can_send_pm'] ? '</a>' : '', '
 						</td>
 						<td class="real_name lefttext">', $member['link'], '</td>';
 
-			if (!isset($context['disabled_fields']['website']))
+			if (!isset(Utils::$context['disabled_fields']['website']))
 				echo '
 						<td class="website_url centertext">', $member['website']['url'] != '' ? '<a href="' . $member['website']['url'] . '" target="_blank" rel="noopener"><span class="main_icons www" title="' . $member['website']['title'] . '"></span></a>' : '', '</td>';
 
@@ -86,7 +89,7 @@ function template_main()
 						<td class="id_group centertext">', empty($member['group']) ? $member['post_group'] : $member['group'], '</td>
 						<td class="registered centertext">', $member['registered_date'], '</td>';
 
-			if (!isset($context['disabled_fields']['posts']))
+			if (!isset(Utils::$context['disabled_fields']['posts']))
 			{
 				echo '
 						<td class="post_count centertext">';
@@ -103,8 +106,8 @@ function template_main()
 			}
 
 			// Show custom fields marked to be shown here
-			if (!empty($context['custom_profile_fields']['columns']))
-				foreach ($context['custom_profile_fields']['columns'] as $key => $column)
+			if (!empty(Utils::$context['custom_profile_fields']['columns']))
+				foreach (Utils::$context['custom_profile_fields']['columns'] as $key => $column)
 					echo '
 						<td class="', $key, ' centertext">', $member['options'][$key], '</td>';
 
@@ -116,7 +119,7 @@ function template_main()
 	else
 		echo '
 					<tr>
-						<td colspan="', $context['colspan'], '" class="windowbg">', $txt['search_no_results'], '</td>
+						<td colspan="', Utils::$context['colspan'], '" class="windowbg">', $txt['search_no_results'], '</td>
 					</tr>';
 
 	echo '
@@ -127,13 +130,13 @@ function template_main()
 	// Show the page numbers again. (makes 'em easier to find!)
 	echo '
 		<div class="pagesection">
-			<div class="pagelinks floatleft">', $context['page_index'], '</div>';
+			<div class="pagelinks floatleft">', Utils::$context['page_index'], '</div>';
 
 	// If it is displaying the result of a search show a "search again" link to edit their criteria.
-	if (isset($context['old_search']))
+	if (isset(Utils::$context['old_search']))
 		echo '
 			<div class="buttonlist floatright">
-				<a class="button" href="', $scripturl, '?action=mlist;sa=search;search=', $context['old_search_value'], '">', $txt['mlist_search_again'], '</a>
+				<a class="button" href="', Config::$scripturl, '?action=mlist;sa=search;search=', Utils::$context['old_search_value'], '">', $txt['mlist_search_again'], '</a>
 			</div>';
 	echo '
 		</div>
@@ -146,14 +149,14 @@ function template_main()
  */
 function template_search()
 {
-	global $context, $scripturl, $txt;
+	global $txt;
 
 	// Start the submission form for the search!
 	echo '
-	<form action="', $scripturl, '?action=mlist;sa=search" method="post" accept-charset="', $context['character_set'], '">
+	<form action="', Config::$scripturl, '?action=mlist;sa=search" method="post" accept-charset="', Utils::$context['character_set'], '">
 		<div id="memberlist">
 			<div class="pagesection">
-				', template_button_strip($context['memberlist_buttons'], 'right'), '
+				', template_button_strip(Utils::$context['memberlist_buttons'], 'right'), '
 			</div>
 			<div class="cat_bar">
 				<h3 class="catbg mlist">
@@ -166,7 +169,7 @@ function template_search()
 						<label><strong>', $txt['search_for'], ':</strong></label>
 					</dt>
 					<dd>
-						<input type="text" name="search" value="', $context['old_search'], '" size="40">
+						<input type="text" name="search" value="', Utils::$context['old_search'], '" size="40">
 					</dd>
 					<dt>
 						<label><strong>', $txt['mlist_search_filter'], ':</strong></label>
@@ -174,10 +177,10 @@ function template_search()
 					<dd>
 						<ul>';
 
-	foreach ($context['search_fields'] as $id => $title)
+	foreach (Utils::$context['search_fields'] as $id => $title)
 		echo '
 							<li>
-								<input type="checkbox" name="fields[]" id="fields-', $id, '" value="', $id, '"', in_array($id, $context['search_defaults']) ? ' checked' : '', '>
+								<input type="checkbox" name="fields[]" id="fields-', $id, '" value="', $id, '"', in_array($id, Utils::$context['search_defaults']) ? ' checked' : '', '>
 								<label for="fields-', $id, '">', $title, '</label>
 							</li>';
 

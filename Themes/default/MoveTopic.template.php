@@ -10,16 +10,19 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+
 /**
  * Show an interface for selecting which board to move a post to.
  */
 function template_move()
 {
-	global $context, $txt, $scripturl;
+	global $txt;
 
 	echo '
 	<div id="move_topic" class="lower_padding">
-		<form action="', $scripturl, '?action=movetopic2;current_board=' . $context['current_board'] . ';topic=', $context['current_topic'], '.0" method="post" accept-charset="', $context['character_set'], '" onsubmit="submitonce(this);">
+		<form action="', Config::$scripturl, '?action=movetopic2;current_board=' . Utils::$context['current_board'] . ';topic=', Utils::$context['current_topic'], '.0" method="post" accept-charset="', Utils::$context['character_set'], '" onsubmit="submitonce(this);">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['move_topic'], '</h3>
 			</div>
@@ -32,14 +35,14 @@ function template_move()
 						<dd>
 							<select name="toboard">';
 
-	foreach ($context['categories'] as $category)
+	foreach (Utils::$context['categories'] as $category)
 	{
 		echo '
 								<optgroup label="', $category['name'], '">';
 
 		foreach ($category['boards'] as $board)
 			echo '
-									<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', $board['id'] == $context['current_board'] ? ' disabled' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt; ' : '', $board['name'], '</option>';
+									<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', $board['id'] == Utils::$context['current_board'] ? ' disabled' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt; ' : '', $board['name'], '</option>';
 		echo '
 								</optgroup>';
 	}
@@ -57,7 +60,7 @@ function template_move()
 					<fieldset id="subjectArea" class="hidden">
 						<dl class="settings">
 							<dt><strong>', $txt['movetopic_new_subject'], ':</strong></dt>
-							<dd><input type="text" name="custom_subject" size="30" value="', $context['subject'], '"></dd>
+							<dd><input type="text" name="custom_subject" size="30" value="', Utils::$context['subject'], '"></dd>
 						</dl>
 						<label for="enforce_subject"><input type="checkbox" name="enforce_subject" id="enforce_subject"> ', $txt['movetopic_change_all_subjects'], '.</label>
 					</fieldset>';
@@ -70,13 +73,13 @@ function template_move()
 				</div><!-- .move_topic -->
 			</div><!-- .windowbg -->';
 
-	if ($context['back_to_topic'])
+	if (Utils::$context['back_to_topic'])
 		echo '
 			<input type="hidden" name="goback" value="1">';
 
 	echo '
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-			<input type="hidden" name="seqnum" value="', $context['form_sequence_number'], '">
+			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+			<input type="hidden" name="seqnum" value="', Utils::$context['form_sequence_number'], '">
 		</form>
 	</div><!-- #move_topic -->';
 }
@@ -88,13 +91,13 @@ function template_move()
  */
 function template_redirect_options($type)
 {
-	global $txt, $context, $modSettings;
+	global $txt;
 
 	echo '
 					<label for="postRedirect" class="block">
-						<input type="checkbox" name="postRedirect" id="postRedirect"', $context['is_approved'] ? ' checked' : '', ' onclick="', $context['is_approved'] ? '' : 'if (this.checked && !confirm(\'' . $txt[$type . '_topic_unapproved_js'] . '\')) return false; ', 'document.getElementById(\'reasonArea\').classList.toggle(\'hidden\');"> ', $txt['post_redirection'], '.
+						<input type="checkbox" name="postRedirect" id="postRedirect"', Utils::$context['is_approved'] ? ' checked' : '', ' onclick="', Utils::$context['is_approved'] ? '' : 'if (this.checked && !confirm(\'' . $txt[$type . '_topic_unapproved_js'] . '\')) return false; ', 'document.getElementById(\'reasonArea\').classList.toggle(\'hidden\');"> ', $txt['post_redirection'], '.
 					</label>
-					<fieldset id="reasonArea"', $context['is_approved'] ? '' : 'class="hidden"', '>
+					<fieldset id="reasonArea"', Utils::$context['is_approved'] ? '' : 'class="hidden"', '>
 						<dl class="settings">
 							<dt>
 								', $txt[$type . '_why'], '
@@ -109,7 +112,7 @@ function template_redirect_options($type)
 								<input type="checkbox" name="redirect_topic" id="redirect_topic" checked>
 							</dd>';
 
-	if (!empty($modSettings['allow_expire_redirect']))
+	if (!empty(Config::$modSettings['allow_expire_redirect']))
 	{
 		echo '
 							<dt>
@@ -140,7 +143,7 @@ function template_redirect_options($type)
  */
 function template_merge_done()
 {
-	global $context, $txt, $scripturl;
+	global $txt;
 
 	echo '
 		<div id="merge_topics">
@@ -152,10 +155,10 @@ function template_merge_done()
 				<br>
 				<ul>
 					<li>
-						<a href="', $scripturl, '?board=', $context['target_board'], '.0">', $txt['message_index'], '</a>
+						<a href="', Config::$scripturl, '?board=', Utils::$context['target_board'], '.0">', $txt['message_index'], '</a>
 					</li>
 					<li>
-						<a href="', $scripturl, '?topic=', $context['target_topic'], '.0">', $txt['new_merged_topic'], '</a>
+						<a href="', Config::$scripturl, '?topic=', Utils::$context['target_topic'], '.0">', $txt['new_merged_topic'], '</a>
 					</li>
 				</ul>
 			</div>
@@ -168,7 +171,7 @@ function template_merge_done()
  */
 function template_merge()
 {
-	global $context, $txt, $scripturl;
+	global $txt;
 
 	echo '
 		<div id="merge_topics">
@@ -184,7 +187,7 @@ function template_merge()
 						<strong>', $txt['topic_to_merge'], ':</strong>
 					</dt>
 					<dd>
-						', $context['origin_subject'], '
+						', Utils::$context['origin_subject'], '
 					</dd>
 				</dl>
 			</div>
@@ -195,14 +198,14 @@ function template_merge()
 			<div class="title_bar">
 				<h4 class="titlebg">';
 
-	if (isset($context['merge_categories']))
+	if (isset(Utils::$context['merge_categories']))
 	{
 		echo '
-					<form action="' . $scripturl . '?action=mergetopics;from=' . $context['origin_topic'] . ';targetboard=' . $context['target_board'] . ';board=' . $context['current_board'] . '.0" method="post" accept-charset="', $context['character_set'], '" id="mergeSelectBoard">
+					<form action="' . Config::$scripturl . '?action=mergetopics;from=' . Utils::$context['origin_topic'] . ';targetboard=' . Utils::$context['target_board'] . ';board=' . Utils::$context['current_board'] . '.0" method="post" accept-charset="', Utils::$context['character_set'], '" id="mergeSelectBoard">
 						', $txt['target_below'], ' (', $txt['board'], ':
 						<select name="targetboard" onchange="this.form.submit();">';
 
-		foreach ($context['merge_categories'] as $cat)
+		foreach (Utils::$context['merge_categories'] as $cat)
 		{
 			echo '
 							<optgroup label="', $cat['name'], '">';
@@ -216,7 +219,7 @@ function template_merge()
 		}
 		echo '
 						</select>)
-						<input type="hidden" name="from" value="' . $context['origin_topic'] . '">
+						<input type="hidden" name="from" value="' . Utils::$context['origin_topic'] . '">
 						<input type="submit" value="', $txt['go'], '" class="button">
 					</form>';
 	}
@@ -225,30 +228,30 @@ function template_merge()
 
 	echo '		</h4>
 			</div><!-- .title_bar -->
-			<form action="', $scripturl, '?action=mergetopics;sa=options" method="post" accept-charset="', $context['character_set'], '">';
+			<form action="', Config::$scripturl, '?action=mergetopics;sa=options" method="post" accept-charset="', Utils::$context['character_set'], '">';
 
 	// Don't show this if there aren't any topics...
-	if (!empty($context['topics']))
+	if (!empty(Utils::$context['topics']))
 	{
 		echo '
 				<div class="pagesection">
-					<div class="pagelinks">', $context['page_index'], '</div>
+					<div class="pagelinks">', Utils::$context['page_index'], '</div>
 				</div>
 				<div class="windowbg">
 					<ul class="merge_topics">';
 
-		foreach ($context['topics'] as $topic)
+		foreach (Utils::$context['topics'] as $topic)
 			echo '
 						<li>
-							<a href="', $scripturl, '?action=mergetopics;sa=options;board=', $context['current_board'], '.0;from=', $context['origin_topic'], ';to=', $topic['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="main_icons merge"></span></a>
-							<a href="', $scripturl, '?topic=', $topic['id'], '.0" target="_blank" rel="noopener">', $topic['subject'], '</a> ', $txt['started_by'], ' ', $topic['poster']['link'], '
+							<a href="', Config::$scripturl, '?action=mergetopics;sa=options;board=', Utils::$context['current_board'], '.0;from=', Utils::$context['origin_topic'], ';to=', $topic['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '"><span class="main_icons merge"></span></a>
+							<a href="', Config::$scripturl, '?topic=', $topic['id'], '.0" target="_blank" rel="noopener">', $topic['subject'], '</a> ', $txt['started_by'], ' ', $topic['poster']['link'], '
 						</li>';
 
 		echo '
 					</ul>
 				</div>
 				<div class="pagesection">
-					<div class="pagelinks">', $context['page_index'], '</div>
+					<div class="pagelinks">', Utils::$context['page_index'], '</div>
 				</div>';
 	}
 	// Just a nice "There aren't any topics" message
@@ -267,9 +270,9 @@ function template_merge()
 							<strong>', $txt['merge_to_topic_id'], ': </strong>
 						</dt>
 						<dd>
-							<input type="hidden" name="topics[]" value="', $context['origin_topic'], '">
+							<input type="hidden" name="topics[]" value="', Utils::$context['origin_topic'], '">
 							<input type="text" name="topics[]">
-							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+							<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 
 						</dd>
 					</dl>
@@ -284,11 +287,11 @@ function template_merge()
  */
 function template_merge_extra_options()
 {
-	global $context, $txt, $scripturl;
+	global $txt;
 
 	echo '
 	<div id="merge_topics">
-		<form action="', $scripturl, '?action=mergetopics;sa=execute;" method="post" accept-charset="', $context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=mergetopics;sa=execute;" method="post" accept-charset="', Utils::$context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['merge_topic_list'], '</h3>
 			</div>
@@ -304,14 +307,14 @@ function template_merge_extra_options()
 				</thead>
 				<tbody>';
 
-	foreach ($context['topics'] as $topic)
+	foreach (Utils::$context['topics'] as $topic)
 		echo '
 					<tr class="windowbg">
 						<td>
 							<input type="checkbox" name="topics[]" value="' . $topic['id'] . '" checked>
 						</td>
 						<td>
-							<a href="' . $scripturl . '?topic=' . $topic['id'] . '.0" target="_blank" rel="noopener">' . $topic['subject'] . '</a>
+							<a href="' . Config::$scripturl . '?topic=' . $topic['id'] . '.0" target="_blank" rel="noopener">' . $topic['subject'] . '</a>
 						</td>
 						<td>
 							', $topic['started']['link'], '<br>
@@ -334,7 +337,7 @@ function template_merge_extra_options()
 					<legend>', $txt['merge_select_subject'], '</legend>
 					<select name="subject" onchange="this.form.custom_subject.style.display = (this.options[this.selectedIndex].value != 0) ? \'none\': \'\' ;">';
 
-	foreach ($context['topics'] as $topic)
+	foreach (Utils::$context['topics'] as $topic)
 		echo '
 						<option value="', $topic['id'], '"' . ($topic['selected'] ? ' selected' : '') . '>', $topic['subject'], '</option>';
 	echo '
@@ -348,14 +351,14 @@ function template_merge_extra_options()
 	// Show an option to create a redirection topic as well...
 	template_redirect_options('merge');
 
-	if (!empty($context['boards']) && count($context['boards']) > 1)
+	if (!empty(Utils::$context['boards']) && count(Utils::$context['boards']) > 1)
 	{
 		echo '
 				<fieldset id="merge_board" class="merge_options">
 					<legend>', $txt['merge_select_target_board'], '</legend>
 					<ul>';
 
-		foreach ($context['boards'] as $board)
+		foreach (Utils::$context['boards'] as $board)
 			echo '
 						<li>
 							<input type="radio" name="board" value="' . $board['id'] . '"' . ($board['selected'] ? ' checked' : '') . '> ' . $board['name'] . '
@@ -364,17 +367,17 @@ function template_merge_extra_options()
 					</ul>
 				</fieldset>';
 	}
-	if (!empty($context['polls']))
+	if (!empty(Utils::$context['polls']))
 	{
 		echo '
 				<fieldset id="merge_poll" class="merge_options">
 					<legend>' . $txt['merge_select_poll'] . '</legend>
 					<ul>';
 
-		foreach ($context['polls'] as $poll)
+		foreach (Utils::$context['polls'] as $poll)
 			echo '
 						<li>
-							<input type="radio" name="poll" value="' . $poll['id'] . '"' . ($poll['selected'] ? ' checked' : '') . '> ' . $poll['question'] . ' (' . $txt['topic'] . ': <a href="' . $scripturl . '?topic=' . $poll['topic']['id'] . '.0" target="_blank" rel="noopener">' . $poll['topic']['subject'] . '</a>)
+							<input type="radio" name="poll" value="' . $poll['id'] . '"' . ($poll['selected'] ? ' checked' : '') . '> ' . $poll['question'] . ' (' . $txt['topic'] . ': <a href="' . Config::$scripturl . '?topic=' . $poll['topic']['id'] . '.0" target="_blank" rel="noopener">' . $poll['topic']['subject'] . '</a>)
 						</li>';
 		echo '
 						<li>
@@ -387,7 +390,7 @@ function template_merge_extra_options()
 	echo '
 				<div class="auto_flow">
 					<input type="submit" value="' . $txt['merge'] . '" class="button">
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 					<input type="hidden" name="sa" value="execute">
 				</div>
 			</div><!-- .windowbg -->

@@ -514,10 +514,8 @@ class Punycode
 	 */
 	protected function preprocess(string $domain, array &$errors = array())
 	{
-		global $sourcedir;
-
-		require_once($sourcedir . '/Unicode/Idna.php');
-		require_once($sourcedir . '/Subs-Charset.php');
+		require_once(Config::$sourcedir . '/Unicode/Idna.php');
+		require_once(Config::$sourcedir . '/Subs-Charset.php');
 
 		$regexes = idna_regex();
 
@@ -547,8 +545,6 @@ class Punycode
 	 */
 	protected function validateLabel(string $label, bool $toPunycode = true)
 	{
-		global $sourcedir;
-
 		$length = strlen($label);
 
 		if ($length === 0)
@@ -589,8 +585,8 @@ class Punycode
 			return self::IDNA_ERROR_LEADING_COMBINING_MARK;
 		}
 
-		require_once($sourcedir . '/Unicode/Idna.php');
-		require_once($sourcedir . '/Subs-Charset.php');
+		require_once(Config::$sourcedir . '/Unicode/Idna.php');
+		require_once(Config::$sourcedir . '/Subs-Charset.php');
 
 		$regexes = idna_regex();
 

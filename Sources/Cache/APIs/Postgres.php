@@ -13,6 +13,7 @@
 
 namespace SMF\Cache\APIs;
 
+use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Cache\CacheApi;
 use SMF\Cache\CacheApiInterface;
@@ -35,9 +36,7 @@ class Postgres extends CacheApi implements CacheApiInterface
 
 	public function __construct()
 	{
-		global $db_prefix;
-
-		$this->db_prefix = $db_prefix;
+		$this->db_prefix = Config::$db_prefix;
 		$this->db_connection = Db::$db_connection;
 
 		parent::__construct();
@@ -109,9 +108,7 @@ class Postgres extends CacheApi implements CacheApiInterface
 	 */
 	public function isSupported($test = false)
 	{
-		global $smcFunc;
-
-		if ($smcFunc['db_title'] !== POSTGRE_TITLE)
+		if (Db::$db->title !== POSTGRE_TITLE)
 			return false;
 
 		$result = pg_query($this->db_connection, 'SHOW server_version_num');

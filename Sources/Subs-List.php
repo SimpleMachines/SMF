@@ -12,6 +12,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Utils;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -22,8 +24,6 @@ if (!defined('SMF'))
  */
 function createList($listOptions)
 {
-	global $context, $smcFunc;
-
 	assert(isset($listOptions['id']));
 	assert(isset($listOptions['columns']));
 	assert(is_array($listOptions['columns']));
@@ -40,8 +40,8 @@ function createList($listOptions)
 	call_integration_hook('integrate_' . $listOptions['id'], array(&$listOptions));
 
 	// All the context data will be easily accessible by using a reference.
-	$context[$listOptions['id']] = array();
-	$list_context = &$context[$listOptions['id']];
+	Utils::$context[$listOptions['id']] = array();
+	$list_context = &Utils::$context[$listOptions['id']];
 
 	// Figure out the sort.
 	if (empty($listOptions['default_sort_col']))
@@ -148,14 +148,14 @@ function createList($listOptions)
 
 			// Take the value from the database and make it HTML safe.
 			elseif (isset($column['data']['db_htmlsafe']))
-				$cur_data['value'] = $smcFunc['htmlspecialchars']($list_item[$column['data']['db_htmlsafe']]);
+				$cur_data['value'] = Utils::htmlspecialchars($list_item[$column['data']['db_htmlsafe']]);
 
 			// Using sprintf is probably the most readable way of injecting data.
 			elseif (isset($column['data']['sprintf']))
 			{
 				$params = array();
 				foreach ($column['data']['sprintf']['params'] as $sprintf_param => $htmlsafe)
-					$params[] = $htmlsafe ? $smcFunc['htmlspecialchars']($list_item[$sprintf_param]) : $list_item[$sprintf_param];
+					$params[] = $htmlsafe ? Utils::htmlspecialchars($list_item[$sprintf_param]) : $list_item[$sprintf_param];
 				$cur_data['value'] = vsprintf($column['data']['sprintf']['format'], $params);
 			}
 
@@ -219,11 +219,11 @@ function createList($listOptions)
 			$list_context['form']['hidden_fields'] = array();
 
 		// Always add a session check field.
-		$list_context['form']['hidden_fields'][$context['session_var']] = $context['session_id'];
+		$list_context['form']['hidden_fields'][Utils::$context['session_var']] = Utils::$context['session_id'];
 
 		// Will this do a token check?
 		if (isset($listOptions['form']['token']))
-			$list_context['form']['hidden_fields'][$context[$listOptions['form']['token'] . '_token_var']] = $context[$listOptions['form']['token'] . '_token'];
+			$list_context['form']['hidden_fields'][Utils::$context[$listOptions['form']['token'] . '_token_var']] = Utils::$context[$listOptions['form']['token'] . '_token'];
 
 		// Include the starting page as hidden field?
 		if (!empty($list_context['form']['include_start']) && !empty($list_context['start']))

@@ -247,15 +247,15 @@ class ServerSideIncludes
 	 */
 	public static function copyright($output_method = 'echo')
 	{
-		global $forum_copyright, $scripturl;
+		global $forum_copyright;
 
 		if (!self::$setup_done)
 			new self();
 
 		if ($output_method == 'echo')
-			printf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, $scripturl);
+			printf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl);
 		else
-			return sprintf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, $scripturl);
+			return sprintf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl);
 	}
 
 	/**
@@ -268,21 +268,21 @@ class ServerSideIncludes
 	 */
 	public static function welcome($output_method = 'echo')
 	{
-		global $context, $txt, $scripturl;
+		global $txt;
 
 		if (!self::$setup_done)
 			new self();
 
 		if ($output_method == 'echo')
 		{
-			if ($context['user']['is_guest'])
-				echo sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $context['forum_name_html_safe'], $scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');', $scripturl . '?action=signup');
+			if (Utils::$context['user']['is_guest'])
+				echo sprintf($txt[Utils::$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], Utils::$context['forum_name_html_safe'], Config::$scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');', Config::$scripturl . '?action=signup');
 			else
-				echo $txt['hello_member'], ' <strong>', $context['user']['name'], '</strong>', allowedTo('pm_read') ? ', ' . (empty($context['user']['messages']) ? $txt['msg_alert_no_messages'] : (($context['user']['messages'] == 1 ? sprintf($txt['msg_alert_one_message'], $scripturl . '?action=pm') : sprintf($txt['msg_alert_many_message'], $scripturl . '?action=pm', $context['user']['messages'])) . ', ' . ($context['user']['unread_messages'] == 1 ? $txt['msg_alert_one_new'] : sprintf($txt['msg_alert_many_new'], $context['user']['unread_messages'])))) : '';
+				echo $txt['hello_member'], ' <strong>', Utils::$context['user']['name'], '</strong>', allowedTo('pm_read') ? ', ' . (empty(Utils::$context['user']['messages']) ? $txt['msg_alert_no_messages'] : ((Utils::$context['user']['messages'] == 1 ? sprintf($txt['msg_alert_one_message'], Config::$scripturl . '?action=pm') : sprintf($txt['msg_alert_many_message'], Config::$scripturl . '?action=pm', Utils::$context['user']['messages'])) . ', ' . (Utils::$context['user']['unread_messages'] == 1 ? $txt['msg_alert_one_new'] : sprintf($txt['msg_alert_many_new'], Utils::$context['user']['unread_messages'])))) : '';
 		}
 		// Don't echo... then do what?!
 		else
-			return $context['user'];
+			return Utils::$context['user'];
 	}
 
 	/**
@@ -295,8 +295,6 @@ class ServerSideIncludes
 	 */
 	public static function menubar($output_method = 'echo')
 	{
-		global $context;
-
 		if (!self::$setup_done)
 			new self();
 
@@ -304,7 +302,7 @@ class ServerSideIncludes
 			template_menu();
 		// What else could this do?
 		else
-			return $context['menu_buttons'];
+			return Utils::$context['menu_buttons'];
 	}
 
 	/**
@@ -318,7 +316,7 @@ class ServerSideIncludes
 	 */
 	public static function logout($redirect_to = '', $output_method = 'echo')
 	{
-		global $context, $txt, $scripturl;
+		global $txt;
 
 		if (!self::$setup_done)
 			new self();
@@ -327,10 +325,10 @@ class ServerSideIncludes
 			$_SESSION['logout_url'] = $redirect_to;
 
 		// Guests can't log out.
-		if ($context['user']['is_guest'])
+		if (Utils::$context['user']['is_guest'])
 			return false;
 
-		$link = '<a href="' . $scripturl . '?action=logout;' . $context['session_var'] . '=' . $context['session_id'] . '">' . $txt['logout'] . '</a>';
+		$link = '<a href="' . Config::$scripturl . '?action=logout;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '">' . $txt['logout'] . '</a>';
 
 		if ($output_method == 'echo')
 			echo $link;
@@ -352,14 +350,12 @@ class ServerSideIncludes
 	 */
 	public static function recentPosts($num_recent = 8, $exclude_boards = null, $include_boards = null, $output_method = 'echo', $limit_body = true)
 	{
-		global $modSettings, $context;
-
 		if (!self::$setup_done)
 			new self();
 
 		// Excluding certain boards...
-		if ($exclude_boards === null && !empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']))
-			$exclude_boards = array($modSettings['recycle_board']);
+		if ($exclude_boards === null && !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']))
+			$exclude_boards = array(Config::$modSettings['recycle_board']);
 		else
 			$exclude_boards = empty($exclude_boards) ? array() : (is_array($exclude_boards) ? $exclude_boards : array($exclude_boards));
 
@@ -380,14 +376,14 @@ class ServerSideIncludes
 			AND b.id_board NOT IN ({array_int:exclude_boards})') . '
 			' . ($include_boards === null ? '' : '
 			AND b.id_board IN ({array_int:include_boards})') . '
-			AND {query_wanna_see_board}' . ($modSettings['postmod_active'] ? '
+			AND {query_wanna_see_board}' . (Config::$modSettings['postmod_active'] ? '
 			AND m.approved = {int:is_approved}' : '');
 
 		$query_where_params = array(
 			'is_approved' => 1,
 			'include_boards' => $include_boards === null ? '' : $include_boards,
 			'exclude_boards' => empty($exclude_boards) ? '' : $exclude_boards,
-			'min_message_id' => $modSettings['maxMsgID'] - (!empty($context['min_message_posts']) ? $context['min_message_posts'] : 25) * min($num_recent, 5),
+			'min_message_id' => Config::$modSettings['maxMsgID'] - (!empty(Utils::$context['min_message_posts']) ? Utils::$context['min_message_posts'] : 25) * min($num_recent, 5),
 		);
 
 		// Past to this simpleton of a function...
@@ -406,8 +402,6 @@ class ServerSideIncludes
 	 */
 	public static function fetchPosts($post_ids = array(), $override_permissions = false, $output_method = 'echo')
 	{
-		global $modSettings;
-
 		if (!self::$setup_done)
 			new self();
 
@@ -420,7 +414,7 @@ class ServerSideIncludes
 		// Restrict the posts required...
 		$query_where = '
 			m.id_msg IN ({array_int:message_list})' . ($override_permissions ? '' : '
-				AND {query_wanna_see_board}') . ($modSettings['postmod_active'] ? '
+				AND {query_wanna_see_board}') . (Config::$modSettings['postmod_active'] ? '
 				AND m.approved = {int:is_approved}' : '');
 		$query_where_params = array(
 			'message_list' => $post_ids,
@@ -447,30 +441,28 @@ class ServerSideIncludes
 	 */
 	public static function queryPosts($query_where = '', $query_where_params = array(), $query_limit = 10, $query_order = 'm.id_msg DESC', $output_method = 'echo', $limit_body = false, $override_permissions = false)
 	{
-		global $scripturl, $txt, $user_info;
-		global $modSettings, $smcFunc, $context;
-
+		global $txt, $user_info;
 		if (!self::$setup_done)
 			new self();
 
-		if (!empty($modSettings['enable_likes']))
-			$context['can_like'] = allowedTo('likes_like');
+		if (!empty(Config::$modSettings['enable_likes']))
+			Utils::$context['can_like'] = allowedTo('likes_like');
 
 		// Find all the posts. Newer ones will have higher IDs.
-		$request = $smcFunc['db_query']('substring', '
+		$request = Db::$db->query('substring', '
 			SELECT
 				m.poster_time, m.subject, m.id_topic, m.id_member, m.id_msg, m.id_board, m.likes, b.name AS board_name,
 				COALESCE(mem.real_name, m.poster_name) AS poster_name, ' . ($user_info['is_guest'] ? '1 AS is_read, 0 AS new_from' : '
 				COALESCE(lt.id_msg, lmr.id_msg, 0) >= m.id_msg_modified AS is_read,
 				COALESCE(lt.id_msg, lmr.id_msg, -1) + 1 AS new_from') . ', ' . ($limit_body ? 'SUBSTRING(m.body, 1, 384) AS body' : 'm.body') . ', m.smileys_enabled
 			FROM {db_prefix}messages AS m
-				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)' . ($modSettings['postmod_active'] ? '
+				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)' . (Config::$modSettings['postmod_active'] ? '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)' : '') . '
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (!$user_info['is_guest'] ? '
 				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = m.id_topic AND lt.id_member = {int:current_member})
 				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = m.id_board AND lmr.id_member = {int:current_member})' : '') . '
 			WHERE 1=1 ' . ($override_permissions ? '' : '
-				AND {query_wanna_see_board}') . ($modSettings['postmod_active'] ? '
+				AND {query_wanna_see_board}') . (Config::$modSettings['postmod_active'] ? '
 				AND m.approved = {int:is_approved}
 				AND t.approved = {int:is_approved}' : '') . '
 			' . (empty($query_where) ? '' : 'AND ' . $query_where) . '
@@ -482,7 +474,7 @@ class ServerSideIncludes
 			))
 		);
 		$posts = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
 
@@ -498,38 +490,38 @@ class ServerSideIncludes
 				'board' => array(
 					'id' => $row['id_board'],
 					'name' => $row['board_name'],
-					'href' => $scripturl . '?board=' . $row['id_board'] . '.0',
-					'link' => '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['board_name'] . '</a>'
+					'href' => Config::$scripturl . '?board=' . $row['id_board'] . '.0',
+					'link' => '<a href="' . Config::$scripturl . '?board=' . $row['id_board'] . '.0">' . $row['board_name'] . '</a>'
 				),
 				'topic' => $row['id_topic'],
 				'poster' => array(
 					'id' => $row['id_member'],
 					'name' => $row['poster_name'],
-					'href' => empty($row['id_member']) ? '' : $scripturl . '?action=profile;u=' . $row['id_member'],
-					'link' => empty($row['id_member']) ? $row['poster_name'] : '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['poster_name'] . '</a>'
+					'href' => empty($row['id_member']) ? '' : Config::$scripturl . '?action=profile;u=' . $row['id_member'],
+					'link' => empty($row['id_member']) ? $row['poster_name'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['poster_name'] . '</a>'
 				),
 				'subject' => $row['subject'],
 				'short_subject' => shorten_subject($row['subject'], 25),
-				'preview' => $smcFunc['strlen']($preview) > 128 ? $smcFunc['substr']($preview, 0, 128) . '...' : $preview,
+				'preview' => Utils::entityStrlen($preview) > 128 ? Utils::entitySubstr($preview, 0, 128) . '...' : $preview,
 				'body' => $row['body'],
 				'time' => timeformat($row['poster_time']),
 				'timestamp' => $row['poster_time'],
-				'href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . ';topicseen#new',
-				'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '" rel="nofollow">' . $row['subject'] . '</a>',
+				'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . ';topicseen#new',
+				'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '" rel="nofollow">' . $row['subject'] . '</a>',
 				'new' => !empty($row['is_read']),
 				'is_new' => empty($row['is_read']),
 				'new_from' => $row['new_from'],
 			);
 
 			// Get the likes for each message.
-			if (!empty($modSettings['enable_likes']))
+			if (!empty(Config::$modSettings['enable_likes']))
 				$posts[$row['id_msg']]['likes'] = array(
 					'count' => $row['likes'],
 					'you' => in_array($row['id_msg'], prepareLikesContext($row['id_topic'])),
-					'can_like' => !$context['user']['is_guest'] && $row['id_member'] != $context['user']['id'] && !empty($context['can_like']),
+					'can_like' => !Utils::$context['user']['is_guest'] && $row['id_member'] != Utils::$context['user']['id'] && !empty(Utils::$context['can_like']),
 				);
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// If mods want to do something with this list of posts, let them do that now.
 		call_integration_hook('integrate_ssi_queryPosts', array(&$posts));
@@ -549,7 +541,7 @@ class ServerSideIncludes
 					<td style="vertical-align: top">
 						<a href="', $post['href'], '">', $post['subject'], '</a>
 						', $txt['by'], ' ', $post['poster']['link'], '
-						', $post['is_new'] ? '<a href="' . $scripturl . '?topic=' . $post['topic'] . '.msg' . $post['new_from'] . ';topicseen#new" rel="nofollow" class="new_posts">' . $txt['new'] . '</a>' : '', '
+						', $post['is_new'] ? '<a href="' . Config::$scripturl . '?topic=' . $post['topic'] . '.msg' . $post['new_from'] . ';topicseen#new" rel="nofollow" class="new_posts">' . $txt['new'] . '</a>' : '', '
 					</td>
 					<td style="text-align: right; white-space: nowrap">
 						', $post['time'], '
@@ -572,14 +564,12 @@ class ServerSideIncludes
 	 */
 	public static function recentTopics($num_recent = 8, $exclude_boards = null, $include_boards = null, $output_method = 'echo')
 	{
-		global $settings, $scripturl, $txt, $user_info;
-		global $modSettings, $smcFunc, $context;
-
+		global $settings, $txt, $user_info;
 		if (!self::$setup_done)
 			new self();
 
-		if ($exclude_boards === null && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0)
-			$exclude_boards = array($modSettings['recycle_board']);
+		if ($exclude_boards === null && !empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0)
+			$exclude_boards = array(Config::$modSettings['recycle_board']);
 		else
 			$exclude_boards = empty($exclude_boards) ? array() : (is_array($exclude_boards) ? $exclude_boards : array($exclude_boards));
 
@@ -595,11 +585,11 @@ class ServerSideIncludes
 		}
 
 		$icon_sources = array();
-		foreach ($context['stable_icons'] as $icon)
+		foreach (Utils::$context['stable_icons'] as $icon)
 			$icon_sources[$icon] = 'images_url';
 
 		// Find all the posts in distinct topics.  Newer ones will have higher IDs.
-		$request = $smcFunc['db_query']('substring', '
+		$request = Db::$db->query('substring', '
 			SELECT
 				t.id_topic, b.id_board, b.name AS board_name
 			FROM {db_prefix}topics AS t
@@ -608,7 +598,7 @@ class ServerSideIncludes
 			WHERE t.id_last_msg >= {int:min_message_id}' . (empty($exclude_boards) ? '' : '
 				AND b.id_board NOT IN ({array_int:exclude_boards})') . '' . (empty($include_boards) ? '' : '
 				AND b.id_board IN ({array_int:include_boards})') . '
-				AND {query_wanna_see_board}' . ($modSettings['postmod_active'] ? '
+				AND {query_wanna_see_board}' . (Config::$modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved}
 				AND ml.approved = {int:is_approved}' : '') . '
 			ORDER BY t.id_last_msg DESC
@@ -616,23 +606,23 @@ class ServerSideIncludes
 			array(
 				'include_boards' => empty($include_boards) ? '' : $include_boards,
 				'exclude_boards' => empty($exclude_boards) ? '' : $exclude_boards,
-				'min_message_id' => $modSettings['maxMsgID'] - (!empty($context['min_message_topics']) ? $context['min_message_topics'] : 35) * min($num_recent, 5),
+				'min_message_id' => Config::$modSettings['maxMsgID'] - (!empty(Utils::$context['min_message_topics']) ? Utils::$context['min_message_topics'] : 35) * min($num_recent, 5),
 				'is_approved' => 1,
 			)
 		);
 		$topics = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$topics[$row['id_topic']] = $row;
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// Did we find anything? If not, bail.
 		if (empty($topics))
 			return array();
 
-		$recycle_board = !empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) ? (int) $modSettings['recycle_board'] : 0;
+		$recycle_board = !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) ? (int) Config::$modSettings['recycle_board'] : 0;
 
 		// Find all the posts in distinct topics.  Newer ones will have higher IDs.
-		$request = $smcFunc['db_query']('substring', '
+		$request = Db::$db->query('substring', '
 			SELECT
 				ml.poster_time, mf.subject, mf.id_topic, ml.id_member, ml.id_msg, t.num_replies, t.num_views, mg.online_color, t.id_last_msg,
 				COALESCE(mem.real_name, ml.poster_name) AS poster_name, ' . ($user_info['is_guest'] ? '1 AS is_read, 0 AS new_from' : '
@@ -653,11 +643,11 @@ class ServerSideIncludes
 			)
 		);
 		$posts = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			$row['body'] = strip_tags(strtr(BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']), array('<br>' => '&#10;')));
-			if ($smcFunc['strlen']($row['body']) > 128)
-				$row['body'] = $smcFunc['substr']($row['body'], 0, 128) . '...';
+			if (Utils::entityStrlen($row['body']) > 128)
+				$row['body'] = Utils::entitySubstr($row['body'], 0, 128) . '...';
 
 			// Censor the subject.
 			censorText($row['subject']);
@@ -667,7 +657,7 @@ class ServerSideIncludes
 			if (!empty($recycle_board) && $topics[$row['id_topic']]['id_board'] == $recycle_board)
 				$row['icon'] = 'recycled';
 
-			if (!empty($modSettings['messageIconChecks_enable']) && !isset($icon_sources[$row['icon']]))
+			if (!empty(Config::$modSettings['messageIconChecks_enable']) && !isset($icon_sources[$row['icon']]))
 				$icon_sources[$row['icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $row['icon'] . '.png') ? 'images_url' : 'default_images_url';
 			elseif (!isset($icon_sources[$row['icon']]))
 				$icon_sources[$row['icon']] = 'images_url';
@@ -677,15 +667,15 @@ class ServerSideIncludes
 				'board' => array(
 					'id' => $topics[$row['id_topic']]['id_board'],
 					'name' => $topics[$row['id_topic']]['board_name'],
-					'href' => $scripturl . '?board=' . $topics[$row['id_topic']]['id_board'] . '.0',
-					'link' => '<a href="' . $scripturl . '?board=' . $topics[$row['id_topic']]['id_board'] . '.0">' . $topics[$row['id_topic']]['board_name'] . '</a>',
+					'href' => Config::$scripturl . '?board=' . $topics[$row['id_topic']]['id_board'] . '.0',
+					'link' => '<a href="' . Config::$scripturl . '?board=' . $topics[$row['id_topic']]['id_board'] . '.0">' . $topics[$row['id_topic']]['board_name'] . '</a>',
 				),
 				'topic' => $row['id_topic'],
 				'poster' => array(
 					'id' => $row['id_member'],
 					'name' => $row['poster_name'],
-					'href' => empty($row['id_member']) ? '' : $scripturl . '?action=profile;u=' . $row['id_member'],
-					'link' => empty($row['id_member']) ? $row['poster_name'] : '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['poster_name'] . '</a>'
+					'href' => empty($row['id_member']) ? '' : Config::$scripturl . '?action=profile;u=' . $row['id_member'],
+					'link' => empty($row['id_member']) ? $row['poster_name'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['poster_name'] . '</a>'
 				),
 				'subject' => $row['subject'],
 				'replies' => $row['num_replies'],
@@ -694,8 +684,8 @@ class ServerSideIncludes
 				'preview' => $row['body'],
 				'time' => timeformat($row['poster_time']),
 				'timestamp' => $row['poster_time'],
-				'href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . ';topicseen#new',
-				'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#new" rel="nofollow">' . $row['subject'] . '</a>',
+				'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . ';topicseen#new',
+				'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#new" rel="nofollow">' . $row['subject'] . '</a>',
 				// Retained for compatibility - is technically incorrect!
 				'new' => !empty($row['is_read']),
 				'is_new' => empty($row['is_read']),
@@ -703,7 +693,7 @@ class ServerSideIncludes
 				'icon' => '<img src="' . $settings[$icon_sources[$row['icon']]] . '/post/' . $row['icon'] . '.png" style="vertical-align:middle;" alt="' . $row['icon'] . '">',
 			);
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// If mods want to do something with this list of topics, let them do that now.
 		call_integration_hook('integrate_ssi_recentTopics', array(&$posts));
@@ -723,7 +713,7 @@ class ServerSideIncludes
 					<td style="vertical-align: top">
 						<a href="', $post['href'], '">', $post['subject'], '</a>
 						', $txt['by'], ' ', $post['poster']['link'], '
-						', !$post['is_new'] ? '' : '<a href="' . $scripturl . '?topic=' . $post['topic'] . '.msg' . $post['new_from'] . ';topicseen#new" rel="nofollow" class="new_posts">' . $txt['new'] . '</a>', '
+						', !$post['is_new'] ? '' : '<a href="' . Config::$scripturl . '?topic=' . $post['topic'] . '.msg' . $post['new_from'] . ';topicseen#new" rel="nofollow" class="new_posts">' . $txt['new'] . '</a>', '
 					</td>
 					<td style="text-align: right; white-space: nowrap">
 						', $post['time'], '
@@ -744,13 +734,11 @@ class ServerSideIncludes
 	 */
 	public static function topPoster($topNumber = 1, $output_method = 'echo')
 	{
-		global $scripturl, $smcFunc;
-
 		if (!self::$setup_done)
 			new self();
 
 		// Find the latest poster.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_member, real_name, posts
 			FROM {db_prefix}members
 			ORDER BY posts DESC
@@ -759,15 +747,15 @@ class ServerSideIncludes
 			)
 		);
 		$return = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$return[] = array(
 				'id' => $row['id_member'],
 				'name' => $row['real_name'],
-				'href' => $scripturl . '?action=profile;u=' . $row['id_member'],
-				'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
+				'href' => Config::$scripturl . '?action=profile;u=' . $row['id_member'],
+				'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
 				'posts' => $row['posts']
 			);
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// If mods want to do something with this list of members, let them do that now.
 		call_integration_hook('integrate_ssi_topPoster', array(&$return));
@@ -795,39 +783,39 @@ class ServerSideIncludes
 	 */
 	public static function topBoards($num_top = 10, $output_method = 'echo')
 	{
-		global $txt, $scripturl, $user_info, $modSettings, $smcFunc;
+		global $txt, $user_info;
 
 		if (!self::$setup_done)
 			new self();
 
 		// Find boards with lots of posts.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT
 				b.name, b.num_topics, b.num_posts, b.id_board,' . (!$user_info['is_guest'] ? ' 1 AS is_read' : '
 				(COALESCE(lb.id_msg, 0) >= b.id_last_msg) AS is_read') . '
 			FROM {db_prefix}boards AS b
 				LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})
-			WHERE {query_wanna_see_board}' . (!empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) ? '
+			WHERE {query_wanna_see_board}' . (!empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) ? '
 				AND b.id_board != {int:recycle_board}' : '') . '
 			ORDER BY b.num_posts DESC
 			LIMIT ' . $num_top,
 			array(
 				'current_member' => $user_info['id'],
-				'recycle_board' => !empty($modSettings['recycle_board']) ? (int) $modSettings['recycle_board'] : null,
+				'recycle_board' => !empty(Config::$modSettings['recycle_board']) ? (int) Config::$modSettings['recycle_board'] : null,
 			)
 		);
 		$boards = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$boards[] = array(
 				'id' => $row['id_board'],
 				'num_posts' => $row['num_posts'],
 				'num_topics' => $row['num_topics'],
 				'name' => $row['name'],
 				'new' => empty($row['is_read']),
-				'href' => $scripturl . '?board=' . $row['id_board'] . '.0',
-				'link' => '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>'
+				'href' => Config::$scripturl . '?board=' . $row['id_board'] . '.0',
+				'link' => '<a href="' . Config::$scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>'
 			);
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// If mods want to do something with this list of boards, let them do that now.
 		call_integration_hook('integrate_ssi_topBoards', array(&$boards));
@@ -866,18 +854,18 @@ class ServerSideIncludes
 	 */
 	public static function topTopics($type = 'replies', $num_topics = 10, $output_method = 'echo')
 	{
-		global $txt, $scripturl, $modSettings, $smcFunc;
+		global $txt;
 
 		if (!self::$setup_done)
 			new self();
 
-		if ($modSettings['totalMessages'] > 100000)
+		if (Config::$modSettings['totalMessages'] > 100000)
 		{
 			// @todo Why don't we use {query(_wanna)_see_board}?
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT id_topic
 				FROM {db_prefix}topics
-				WHERE num_' . ($type != 'replies' ? 'views' : 'replies') . ' != 0' . ($modSettings['postmod_active'] ? '
+				WHERE num_' . ($type != 'replies' ? 'views' : 'replies') . ' != 0' . (Config::$modSettings['postmod_active'] ? '
 					AND approved = {int:is_approved}' : '') . '
 				ORDER BY num_' . ($type != 'replies' ? 'views' : 'replies') . ' DESC
 				LIMIT {int:limit}',
@@ -887,33 +875,33 @@ class ServerSideIncludes
 				)
 			);
 			$topic_ids = array();
-			while ($row = $smcFunc['db_fetch_assoc']($request))
+			while ($row = Db::$db->fetch_assoc($request))
 				$topic_ids[] = $row['id_topic'];
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 		}
 		else
 			$topic_ids = array();
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT m.subject, m.id_topic, t.num_views, t.num_replies
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
-			WHERE {query_wanna_see_board}' . ($modSettings['postmod_active'] ? '
+			WHERE {query_wanna_see_board}' . (Config::$modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved}' : '') . (!empty($topic_ids) ? '
-				AND t.id_topic IN ({array_int:topic_list})' : '') . (!empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) ? '
+				AND t.id_topic IN ({array_int:topic_list})' : '') . (!empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) ? '
 				AND b.id_board != {int:recycle_board}' : '') . '
 			ORDER BY t.num_' . ($type != 'replies' ? 'views' : 'replies') . ' DESC
 			LIMIT {int:limit}',
 			array(
 				'topic_list' => $topic_ids,
 				'is_approved' => 1,
-				'recycle_board' => !empty($modSettings['recycle_board']) ? (int) $modSettings['recycle_board'] : null,
+				'recycle_board' => !empty(Config::$modSettings['recycle_board']) ? (int) Config::$modSettings['recycle_board'] : null,
 				'limit' => $num_topics,
 			)
 		);
 		$topics = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			censorText($row['subject']);
 
@@ -922,11 +910,11 @@ class ServerSideIncludes
 				'subject' => $row['subject'],
 				'num_replies' => $row['num_replies'],
 				'num_views' => $row['num_views'],
-				'href' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
-				'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['subject'] . '</a>',
+				'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0',
+				'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['subject'] . '</a>',
 			);
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// If mods want to do something with this list of topics, let them do that now.
 		call_integration_hook('integrate_ssi_topTopics', array(&$topics, $type));
@@ -998,16 +986,16 @@ class ServerSideIncludes
 	 */
 	public static function latestMember($output_method = 'echo')
 	{
-		global $txt, $context;
+		global $txt;
 
 		if (!self::$setup_done)
 			new self();
 
 		if ($output_method == 'echo')
 			echo '
-		', sprintf($txt['welcome_newest_member'], $context['common_stats']['latest_member']['link']), '<br>';
+		', sprintf($txt['welcome_newest_member'], Utils::$context['common_stats']['latest_member']['link']), '<br>';
 		else
-			return $context['common_stats']['latest_member'];
+			return Utils::$context['common_stats']['latest_member'];
 	}
 
 	/**
@@ -1021,8 +1009,6 @@ class ServerSideIncludes
 	 */
 	public static function randomMember($random_type = '', $output_method = 'echo')
 	{
-		global $modSettings;
-
 		if (!self::$setup_done)
 			new self();
 
@@ -1034,7 +1020,7 @@ class ServerSideIncludes
 		}
 
 		// Get the lowest ID we're interested in.
-		$member_id = mt_rand(1, $modSettings['latestMember']);
+		$member_id = mt_rand(1, Config::$modSettings['latestMember']);
 
 		$where_query = '
 			id_member >= {int:selected_member}
@@ -1145,7 +1131,7 @@ class ServerSideIncludes
 	 */
 	public static function queryMembers($query_where = null, $query_where_params = array(), $query_limit = '', $query_order = 'id_member DESC', $output_method = 'echo')
 	{
-		global $smcFunc, $memberContext;
+		global $memberContext;
 
 		if (!self::$setup_done)
 			new self();
@@ -1154,7 +1140,7 @@ class ServerSideIncludes
 			return;
 
 		// Fetch the members in question.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_member
 			FROM {db_prefix}members
 			WHERE ' . $query_where . '
@@ -1164,9 +1150,9 @@ class ServerSideIncludes
 			))
 		);
 		$members = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$members[] = $row['id_member'];
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		if (empty($members))
 			return array();
@@ -1223,7 +1209,7 @@ class ServerSideIncludes
 	 */
 	public static function boardStats($output_method = 'echo')
 	{
-		global $txt, $scripturl, $modSettings, $smcFunc;
+		global $txt;
 
 		if (!self::$setup_done)
 			new self();
@@ -1232,28 +1218,28 @@ class ServerSideIncludes
 			return;
 
 		$totals = array(
-			'members' => $modSettings['totalMembers'],
-			'posts' => $modSettings['totalMessages'],
-			'topics' => $modSettings['totalTopics']
+			'members' => Config::$modSettings['totalMembers'],
+			'posts' => Config::$modSettings['totalMessages'],
+			'topics' => Config::$modSettings['totalTopics']
 		);
 
-		$result = $smcFunc['db_query']('', '
+		$result = Db::$db->query('', '
 			SELECT COUNT(*)
 			FROM {db_prefix}boards',
 			array(
 			)
 		);
-		list ($totals['boards']) = $smcFunc['db_fetch_row']($result);
-		$smcFunc['db_free_result']($result);
+		list ($totals['boards']) = Db::$db->fetch_row($result);
+		Db::$db->free_result($result);
 
-		$result = $smcFunc['db_query']('', '
+		$result = Db::$db->query('', '
 			SELECT COUNT(*)
 			FROM {db_prefix}categories',
 			array(
 			)
 		);
-		list ($totals['categories']) = $smcFunc['db_fetch_row']($result);
-		$smcFunc['db_free_result']($result);
+		list ($totals['categories']) = Db::$db->fetch_row($result);
+		Db::$db->free_result($result);
 
 		// If mods want to do something with the board stats, let them do that now.
 		call_integration_hook('integrate_ssi_boardStats', array(&$totals));
@@ -1262,7 +1248,7 @@ class ServerSideIncludes
 			return $totals;
 
 		echo '
-			', $txt['total_members'], ': <a href="', $scripturl . '?action=mlist">', comma_format($totals['members']), '</a><br>
+			', $txt['total_members'], ': <a href="', Config::$scripturl . '?action=mlist">', comma_format($totals['members']), '</a><br>
 			', $txt['total_posts'], ': ', comma_format($totals['posts']), '<br>
 			', $txt['total_topics'], ': ', comma_format($totals['topics']), ' <br>
 			', $txt['total_cats'], ': ', comma_format($totals['categories']), '<br>
@@ -1279,12 +1265,12 @@ class ServerSideIncludes
 	 */
 	public static function whosOnline($output_method = 'echo')
 	{
-		global $user_info, $txt, $sourcedir, $settings;
+		global $user_info, $txt, $settings;
 
 		if (!self::$setup_done)
 			new self();
 
-		require_once($sourcedir . '/Subs-MembersOnline.php');
+		require_once(Config::$sourcedir . '/Subs-MembersOnline.php');
 		$membersOnlineOptions = array(
 			'show_hidden' => allowedTo('moderate_forum'),
 		);
@@ -1370,7 +1356,7 @@ class ServerSideIncludes
 	 */
 	public static function login($redirect_to = '', $output_method = 'echo')
 	{
-		global $scripturl, $txt, $user_info, $context;
+		global $txt, $user_info;
 
 		if (!self::$setup_done)
 			new self();
@@ -1385,7 +1371,7 @@ class ServerSideIncludes
 		createToken('login');
 
 		echo '
-			<form action="', $scripturl, '?action=login2" method="post" accept-charset="', $context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=login2" method="post" accept-charset="', Utils::$context['character_set'], '">
 				<table style="border: none" class="ssi_table">
 					<tr>
 						<td style="text-align: right; border-spacing: 1"><label for="user">', $txt['username'], ':</label>&nbsp;</td>
@@ -1397,8 +1383,8 @@ class ServerSideIncludes
 					<tr>
 						<td>
 							<input type="hidden" name="cookielength" value="-1">
-							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-							<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '">
+							<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '" />
+							<input type="hidden" name="', Utils::$context['login_token_var'], '" value="', Utils::$context['login_token'], '">
 						</td>
 						<td><input type="submit" value="', $txt['login'], '" class="button"></td>
 					</tr>
@@ -1435,7 +1421,7 @@ class ServerSideIncludes
 	 */
 	public static function recentPoll($topPollInstead = false, $output_method = 'echo')
 	{
-		global $txt, $boardurl, $user_info, $context, $smcFunc, $modSettings;
+		global $txt, $user_info;
 
 		if (!self::$setup_done)
 			new self();
@@ -1445,10 +1431,10 @@ class ServerSideIncludes
 		if (empty($boardsAllowed))
 			return array();
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT p.id_poll, p.question, t.id_topic, p.max_votes, p.guest_vote, p.hide_results, p.expire_time
 			FROM {db_prefix}polls AS p
-				INNER JOIN {db_prefix}topics AS t ON (t.id_poll = p.id_poll' . ($modSettings['postmod_active'] ? ' AND t.approved = {int:is_approved}' : '') . ')
+				INNER JOIN {db_prefix}topics AS t ON (t.id_poll = p.id_poll' . (Config::$modSettings['postmod_active'] ? ' AND t.approved = {int:is_approved}' : '') . ')
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)' . ($topPollInstead ? '
 				INNER JOIN {db_prefix}poll_choices AS pc ON (pc.id_poll = p.id_poll)' : '') . '
 				LEFT JOIN {db_prefix}log_polls AS lp ON (lp.id_poll = p.id_poll AND lp.id_member > {int:no_member} AND lp.id_member = {int:current_member})
@@ -1456,7 +1442,7 @@ class ServerSideIncludes
 				AND (p.expire_time = {int:no_expiration} OR {int:current_time} < p.expire_time)
 				AND ' . ($user_info['is_guest'] ? 'p.guest_vote = {int:guest_vote_allowed}' : 'lp.id_choice IS NULL') . '
 				AND {query_wanna_see_board}' . (!in_array(0, $boardsAllowed) ? '
-				AND b.id_board IN ({array_int:boards_allowed_list})' : '') . (!empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) ? '
+				AND b.id_board IN ({array_int:boards_allowed_list})' : '') . (!empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) ? '
 				AND b.id_board != {int:recycle_board}' : '') . '
 			ORDER BY ' . ($topPollInstead ? 'pc.votes' : 'p.id_poll') . ' DESC
 			LIMIT 1',
@@ -1469,11 +1455,11 @@ class ServerSideIncludes
 				'voting_opened' => 0,
 				'no_expiration' => 0,
 				'current_time' => time(),
-				'recycle_board' => !empty($modSettings['recycle_board']) ? (int) $modSettings['recycle_board'] : null,
+				'recycle_board' => !empty(Config::$modSettings['recycle_board']) ? (int) Config::$modSettings['recycle_board'] : null,
 			)
 		);
-		$row = $smcFunc['db_fetch_assoc']($request);
-		$smcFunc['db_free_result']($request);
+		$row = Db::$db->fetch_assoc($request);
+		Db::$db->free_result($request);
 
 		// This user has voted on all the polls.
 		if (empty($row) || !is_array($row))
@@ -1483,7 +1469,7 @@ class ServerSideIncludes
 		if ($user_info['is_guest'] && (!$row['guest_vote'] || (isset($_COOKIE['guest_poll_vote']) && in_array($row['id_poll'], explode(',', $_COOKIE['guest_poll_vote'])))))
 			return self::showPoll($row['id_topic'], $output_method);
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT COUNT(DISTINCT id_member)
 			FROM {db_prefix}log_polls
 			WHERE id_poll = {int:current_poll}',
@@ -1491,10 +1477,10 @@ class ServerSideIncludes
 				'current_poll' => $row['id_poll'],
 			)
 		);
-		list ($total) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		list ($total) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_choice, label, votes
 			FROM {db_prefix}poll_choices
 			WHERE id_poll = {int:current_poll}',
@@ -1503,13 +1489,13 @@ class ServerSideIncludes
 			)
 		);
 		$sOptions = array();
-		while ($rowChoice = $smcFunc['db_fetch_assoc']($request))
+		while ($rowChoice = Db::$db->fetch_assoc($request))
 		{
 			censorText($rowChoice['label']);
 
 			$sOptions[$rowChoice['id_choice']] = array($rowChoice['label'], $rowChoice['votes']);
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// Can they view it?
 		$is_expired = !empty($row['expire_time']) && $row['expire_time'] < time();
@@ -1551,7 +1537,7 @@ class ServerSideIncludes
 		if ($allow_view_results)
 		{
 			echo '
-			<form class="ssi_poll" action="', $boardurl, '/SSI.php?ssi_function=pollVote" method="post" accept-charset="', $context['character_set'], '">
+			<form class="ssi_poll" action="', Config::$boardurl, '/SSI.php?ssi_function=pollVote" method="post" accept-charset="', Utils::$context['character_set'], '">
 				<strong>', $return['question'], '</strong><br>
 				', !empty($return['allowed_warning']) ? $return['allowed_warning'] . '<br>' : '';
 
@@ -1562,7 +1548,7 @@ class ServerSideIncludes
 			echo '
 				<input type="submit" value="', $txt['poll_vote'], '" class="button">
 				<input type="hidden" name="poll" value="', $return['id'], '">
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			</form>';
 		}
 		else
@@ -1580,7 +1566,7 @@ class ServerSideIncludes
 	 */
 	public static function showPoll($topic = null, $output_method = 'echo')
 	{
-		global $txt, $boardurl, $user_info, $context, $smcFunc, $modSettings;
+		global $txt, $user_info;
 
 		if (!self::$setup_done)
 			new self();
@@ -1595,7 +1581,7 @@ class ServerSideIncludes
 		else
 			$topic = (int) $topic;
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT
 				p.id_poll, p.question, p.voting_locked, p.hide_results, p.expire_time, p.max_votes, p.guest_vote, b.id_board
 			FROM {db_prefix}topics AS t
@@ -1603,7 +1589,7 @@ class ServerSideIncludes
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
 			WHERE t.id_topic = {int:current_topic}
 				AND {query_see_board}' . (!in_array(0, $boardsAllowed) ? '
-				AND b.id_board IN ({array_int:boards_allowed_see})' : '') . ($modSettings['postmod_active'] ? '
+				AND b.id_board IN ({array_int:boards_allowed_see})' : '') . (Config::$modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved}' : '') . '
 			LIMIT 1',
 			array(
@@ -1614,11 +1600,11 @@ class ServerSideIncludes
 		);
 
 		// Either this topic has no poll, or the user cannot view it.
-		if ($smcFunc['db_num_rows']($request) == 0)
+		if (Db::$db->num_rows($request) == 0)
 			return array();
 
-		$row = $smcFunc['db_fetch_assoc']($request);
-		$smcFunc['db_free_result']($request);
+		$row = Db::$db->fetch_assoc($request);
+		Db::$db->free_result($request);
 
 		// Check if they can vote.
 		$already_voted = false;
@@ -1639,7 +1625,7 @@ class ServerSideIncludes
 			$allow_vote = false;
 		else
 		{
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT id_member
 				FROM {db_prefix}log_polls
 				WHERE id_poll = {int:current_poll}
@@ -1650,16 +1636,16 @@ class ServerSideIncludes
 					'current_poll' => $row['id_poll'],
 				)
 			);
-			$allow_vote = $smcFunc['db_num_rows']($request) == 0;
+			$allow_vote = Db::$db->num_rows($request) == 0;
 			$already_voted = $allow_vote;
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 		}
 
 		// Can they view?
 		$is_expired = !empty($row['expire_time']) && $row['expire_time'] < time();
 		$allow_view_results = allowedTo('moderate_board') || $row['hide_results'] == 0 || ($row['hide_results'] == 1 && $already_voted) || $is_expired;
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT COUNT(DISTINCT id_member)
 			FROM {db_prefix}log_polls
 			WHERE id_poll = {int:current_poll}',
@@ -1667,10 +1653,10 @@ class ServerSideIncludes
 				'current_poll' => $row['id_poll'],
 			)
 		);
-		list ($total) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		list ($total) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_choice, label, votes
 			FROM {db_prefix}poll_choices
 			WHERE id_poll = {int:current_poll}',
@@ -1680,14 +1666,14 @@ class ServerSideIncludes
 		);
 		$sOptions = array();
 		$total_votes = 0;
-		while ($rowChoice = $smcFunc['db_fetch_assoc']($request))
+		while ($rowChoice = Db::$db->fetch_assoc($request))
 		{
 			censorText($rowChoice['label']);
 
 			$sOptions[$rowChoice['id_choice']] = array($rowChoice['label'], $rowChoice['votes']);
 			$total_votes += $rowChoice['votes'];
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		$return = array(
 			'id' => $row['id_poll'],
@@ -1725,7 +1711,7 @@ class ServerSideIncludes
 		if ($return['allow_vote'])
 		{
 			echo '
-				<form class="ssi_poll" action="', $boardurl, '/SSI.php?ssi_function=pollVote" method="post" accept-charset="', $context['character_set'], '">
+				<form class="ssi_poll" action="', Config::$boardurl, '/SSI.php?ssi_function=pollVote" method="post" accept-charset="', Utils::$context['character_set'], '">
 					<strong>', $return['question'], '</strong><br>
 					', !empty($return['allowed_warning']) ? $return['allowed_warning'] . '<br>' : '';
 
@@ -1736,7 +1722,7 @@ class ServerSideIncludes
 			echo '
 					<input type="submit" value="', $txt['poll_vote'], '" class="button">
 					<input type="hidden" name="poll" value="', $return['id'], '">
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				</form>';
 		}
 		else
@@ -1780,12 +1766,12 @@ class ServerSideIncludes
 	 */
 	public static function pollVote()
 	{
-		global $context, $db_prefix, $user_info, $sc, $smcFunc, $sourcedir, $modSettings;
+		global $user_info, $sc;
 
 		if (!self::$setup_done)
 			new self();
 
-		if (!isset($_POST[$context['session_var']]) || $_POST[$context['session_var']] != $sc || empty($_POST['options']) || !isset($_POST['poll']))
+		if (!isset($_POST[Utils::$context['session_var']]) || $_POST[Utils::$context['session_var']] != $sc || empty($_POST['options']) || !isset($_POST['poll']))
 		{
 			echo '<!DOCTYPE html>
 	<html>
@@ -1805,7 +1791,7 @@ class ServerSideIncludes
 		$_POST['poll'] = (int) $_POST['poll'];
 
 		// Check if they have already voted, or voting is locked.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT
 				p.id_poll, p.voting_locked, p.expire_time, p.max_votes, p.guest_vote,
 				t.id_topic,
@@ -1815,7 +1801,7 @@ class ServerSideIncludes
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
 				LEFT JOIN {db_prefix}log_polls AS lp ON (lp.id_poll = p.id_poll AND lp.id_member = {int:current_member})
 			WHERE p.id_poll = {int:current_poll}
-				AND {query_see_board}' . ($modSettings['postmod_active'] ? '
+				AND {query_see_board}' . (Config::$modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved}' : '') . '
 			LIMIT 1',
 			array(
@@ -1824,10 +1810,10 @@ class ServerSideIncludes
 				'is_approved' => 1,
 			)
 		);
-		if ($smcFunc['db_num_rows']($request) == 0)
+		if (Db::$db->num_rows($request) == 0)
 			die;
-		$row = $smcFunc['db_fetch_assoc']($request);
-		$smcFunc['db_free_result']($request);
+		$row = Db::$db->fetch_assoc($request);
+		Db::$db->free_result($request);
 
 		if (!empty($row['voting_locked']) || ($row['selected'] != -1 && !$user_info['is_guest']) || (!empty($row['expire_time']) && time() > $row['expire_time']))
 			redirectexit('topic=' . $row['id_topic'] . '.0');
@@ -1858,13 +1844,13 @@ class ServerSideIncludes
 		}
 
 		// Add their vote in to the tally.
-		$smcFunc['db_insert']('insert',
-			$db_prefix . 'log_polls',
+		Db::$db->insert('insert',
+			Db::$db->prefix . 'log_polls',
 			array('id_poll' => 'int', 'id_member' => 'int', 'id_choice' => 'int'),
 			$inserts,
 			array('id_poll', 'id_member', 'id_choice')
 		);
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}poll_choices
 			SET votes = votes + 1
 			WHERE id_poll = {int:current_poll}
@@ -1880,8 +1866,8 @@ class ServerSideIncludes
 		{
 			$_COOKIE['guest_poll_vote'] = !empty($_COOKIE['guest_poll_vote']) ? ($_COOKIE['guest_poll_vote'] . ',' . $row['id_poll']) : $row['id_poll'];
 
-			require_once($sourcedir . '/Subs-Auth.php');
-			$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
+			require_once(Config::$sourcedir . '/Subs-Auth.php');
+			$cookie_url = url_parts(!empty(Config::$modSettings['localCookies']), !empty(Config::$modSettings['globalCookies']));
 			smf_setcookie('guest_poll_vote', $_COOKIE['guest_poll_vote'], time() + 2500000, $cookie_url[1], $cookie_url[0], false, false);
 		}
 
@@ -1898,7 +1884,7 @@ class ServerSideIncludes
 	 */
 	public static function quickSearch($output_method = 'echo')
 	{
-		global $scripturl, $txt, $context;
+		global $txt;
 
 		if (!self::$setup_done)
 			new self();
@@ -1907,10 +1893,10 @@ class ServerSideIncludes
 			return;
 
 		if ($output_method != 'echo')
-			return $scripturl . '?action=search';
+			return Config::$scripturl . '?action=search';
 
 		echo '
-			<form action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=search2" method="post" accept-charset="', Utils::$context['character_set'], '">
 				<input type="hidden" name="advanced" value="0"><input type="text" name="search" size="30"> <input type="submit" value="', $txt['search'], '" class="button">
 			</form>';
 	}
@@ -1925,20 +1911,18 @@ class ServerSideIncludes
 	 */
 	public static function news($output_method = 'echo')
 	{
-		global $context;
-
 		if (!self::$setup_done)
 			new self();
 
-		$context['random_news_line'] = !empty($context['news_lines']) ? $context['news_lines'][mt_rand(0, count($context['news_lines']) - 1)] : '';
+		Utils::$context['random_news_line'] = !empty(Utils::$context['news_lines']) ? Utils::$context['news_lines'][mt_rand(0, count(Utils::$context['news_lines']) - 1)] : '';
 
-		// If mods want to do something with the news, let them do that now. Don't need to pass the news line itself, since it is already in $context.
+		// If mods want to do somthing with the news, let them do that now. Don't need to pass the news line itself, since it is already in Utils::$context.
 		call_integration_hook('integrate_ssi_news');
 
 		if ($output_method != 'echo')
-			return $context['random_news_line'];
+			return Utils::$context['random_news_line'];
 
-		echo $context['random_news_line'];
+		echo Utils::$context['random_news_line'];
 	}
 
 	/**
@@ -1951,17 +1935,17 @@ class ServerSideIncludes
 	 */
 	public static function todaysBirthdays($output_method = 'echo')
 	{
-		global $scripturl, $modSettings, $user_info;
+		global $user_info;
 
 		if (!self::$setup_done)
 			new self();
 
-		if (empty($modSettings['cal_enabled']) || !allowedTo('calendar_view') || !allowedTo('profile_view'))
+		if (empty(Config::$modSettings['cal_enabled']) || !allowedTo('calendar_view') || !allowedTo('profile_view'))
 			return;
 
 		$eventOptions = array(
 			'include_birthdays' => true,
-			'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],
+			'num_days_shown' => empty(Config::$modSettings['cal_days_for_index']) || Config::$modSettings['cal_days_for_index'] < 1 ? 1 : Config::$modSettings['cal_days_for_index'],
 		);
 		$return = CacheApi::quickGet('calendar_index_offset_' . $user_info['time_offset'], 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
 
@@ -1973,7 +1957,7 @@ class ServerSideIncludes
 
 		foreach ($return['calendar_birthdays'] as $member)
 			echo '
-				<a href="', $scripturl, '?action=profile;u=', $member['id'], '"><span class="fix_rtl_names">' . $member['name'] . '</span>' . (isset($member['age']) ? ' (' . $member['age'] . ')' : '') . '</a>' . (!$member['is_last'] ? ', ' : '');
+				<a href="', Config::$scripturl, '?action=profile;u=', $member['id'], '"><span class="fix_rtl_names">' . $member['name'] . '</span>' . (isset($member['age']) ? ' (' . $member['age'] . ')' : '') . '</a>' . (!$member['is_last'] ? ', ' : '');
 	}
 
 	/**
@@ -1986,17 +1970,17 @@ class ServerSideIncludes
 	 */
 	public static function todaysHolidays($output_method = 'echo')
 	{
-		global $modSettings, $user_info;
+		global $user_info;
 
 		if (!self::$setup_done)
 			new self();
 
-		if (empty($modSettings['cal_enabled']) || !allowedTo('calendar_view'))
+		if (empty(Config::$modSettings['cal_enabled']) || !allowedTo('calendar_view'))
 			return;
 
 		$eventOptions = array(
 			'include_holidays' => true,
-			'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],
+			'num_days_shown' => empty(Config::$modSettings['cal_days_for_index']) || Config::$modSettings['cal_days_for_index'] < 1 ? 1 : Config::$modSettings['cal_days_for_index'],
 		);
 		$return = CacheApi::quickGet('calendar_index_offset_' . $user_info['time_offset'], 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
 
@@ -2020,17 +2004,17 @@ class ServerSideIncludes
 	 */
 	public static function todaysEvents($output_method = 'echo')
 	{
-		global $modSettings, $user_info;
+		global $user_info;
 
 		if (!self::$setup_done)
 			new self();
 
-		if (empty($modSettings['cal_enabled']) || !allowedTo('calendar_view'))
+		if (empty(Config::$modSettings['cal_enabled']) || !allowedTo('calendar_view'))
 			return;
 
 		$eventOptions = array(
 			'include_events' => true,
-			'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],
+			'num_days_shown' => empty(Config::$modSettings['cal_days_for_index']) || Config::$modSettings['cal_days_for_index'] < 1 ? 1 : Config::$modSettings['cal_days_for_index'],
 		);
 		$return = CacheApi::quickGet('calendar_index_offset_' . $user_info['time_offset'], 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
 
@@ -2060,19 +2044,19 @@ class ServerSideIncludes
 	 */
 	public static function todaysCalendar($output_method = 'echo')
 	{
-		global $modSettings, $txt, $scripturl, $user_info;
+		global $txt, $user_info;
 
 		if (!self::$setup_done)
 			new self();
 
-		if (empty($modSettings['cal_enabled']) || !allowedTo('calendar_view'))
+		if (empty(Config::$modSettings['cal_enabled']) || !allowedTo('calendar_view'))
 			return;
 
 		$eventOptions = array(
 			'include_birthdays' => allowedTo('profile_view'),
 			'include_holidays' => true,
 			'include_events' => true,
-			'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],
+			'num_days_shown' => empty(Config::$modSettings['cal_days_for_index']) || Config::$modSettings['cal_days_for_index'] < 1 ? 1 : Config::$modSettings['cal_days_for_index'],
 		);
 		$return = CacheApi::quickGet('calendar_index_offset_' . $user_info['time_offset'], 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
 
@@ -2091,7 +2075,7 @@ class ServerSideIncludes
 				<span class="birthday">' . $txt['birthdays_upcoming'] . '</span> ';
 			foreach ($return['calendar_birthdays'] as $member)
 				echo '
-				<a href="', $scripturl, '?action=profile;u=', $member['id'], '"><span class="fix_rtl_names">', $member['name'], '</span>', isset($member['age']) ? ' (' . $member['age'] . ')' : '', '</a>', !$member['is_last'] ? ', ' : '';
+				<a href="', Config::$scripturl, '?action=profile;u=', $member['id'], '"><span class="fix_rtl_names">', $member['name'], '</span>', isset($member['age']) ? ' (' . $member['age'] . ')' : '', '</a>', !$member['is_last'] ? ', ' : '';
 			echo '
 				<br>';
 		}
@@ -2124,8 +2108,7 @@ class ServerSideIncludes
 	 */
 	public static function boardNews($board = null, $limit = null, $start = null, $length = null, $output_method = 'echo')
 	{
-		global $scripturl, $txt, $settings, $modSettings, $context;
-		global $smcFunc;
+		global $txt, $settings;
 
 		if (!self::$setup_done)
 			new self();
@@ -2157,7 +2140,7 @@ class ServerSideIncludes
 		$start = max(0, $start);
 
 		// Make sure guests can see this board.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_board
 			FROM {db_prefix}boards
 			WHERE ' . ($board === null ? '' : 'id_board = {int:current_board}
@@ -2167,31 +2150,31 @@ class ServerSideIncludes
 				'current_board' => $board,
 			)
 		);
-		if ($smcFunc['db_num_rows']($request) == 0)
+		if (Db::$db->num_rows($request) == 0)
 		{
 			if ($output_method == 'echo')
 				die($txt['ssi_no_guests']);
 			else
 				return array();
 		}
-		list ($board) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		list ($board) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 
 		$icon_sources = array();
-		foreach ($context['stable_icons'] as $icon)
+		foreach (Utils::$context['stable_icons'] as $icon)
 			$icon_sources[$icon] = 'images_url';
 
-		if (!empty($modSettings['enable_likes']))
+		if (!empty(Config::$modSettings['enable_likes']))
 		{
-			$context['can_like'] = allowedTo('likes_like');
+			Utils::$context['can_like'] = allowedTo('likes_like');
 		}
 
 		// Find the post ids.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT t.id_first_msg
 			FROM {db_prefix}topics as t
 				LEFT JOIN {db_prefix}boards as b ON (b.id_board = t.id_board)
-			WHERE t.id_board = {int:current_board}' . ($modSettings['postmod_active'] ? '
+			WHERE t.id_board = {int:current_board}' . (Config::$modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved}' : '') . '
 				AND {query_see_board}
 			ORDER BY t.id_first_msg DESC
@@ -2202,15 +2185,15 @@ class ServerSideIncludes
 			)
 		);
 		$posts = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$posts[] = $row['id_first_msg'];
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		if (empty($posts))
 			return array();
 
 		// Find the posts.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT
 				m.icon, m.subject, m.body, COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.likes,
 				t.num_replies, t.id_topic, m.id_member, m.smileys_enabled, m.id_msg, t.locked, t.id_last_msg, m.id_board
@@ -2225,13 +2208,13 @@ class ServerSideIncludes
 			)
 		);
 		$return = array();
-		$recycle_board = !empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) ? (int) $modSettings['recycle_board'] : 0;
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		$recycle_board = !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) ? (int) Config::$modSettings['recycle_board'] : 0;
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			// If we want to limit the length of the post.
-			if (!empty($length) && $smcFunc['strlen']($row['body']) > $length)
+			if (!empty($length) && Utils::entityStrlen($row['body']) > $length)
 			{
-				$row['body'] = $smcFunc['substr']($row['body'], 0, $length);
+				$row['body'] = Utils::entitySubstr($row['body'], 0, $length);
 				$cutoff = false;
 
 				$last_space = strrpos($row['body'], ' ');
@@ -2243,7 +2226,7 @@ class ServerSideIncludes
 					$cutoff = $last_space;
 
 				if ($cutoff !== false)
-					$row['body'] = $smcFunc['substr']($row['body'], 0, $cutoff);
+					$row['body'] = Utils::entitySubstr($row['body'], 0, $cutoff);
 				$row['body'] .= '...';
 			}
 
@@ -2253,7 +2236,7 @@ class ServerSideIncludes
 				$row['icon'] = 'recycled';
 
 			// Check that this message icon is there...
-			if (!empty($modSettings['messageIconChecks_enable']) && !isset($icon_sources[$row['icon']]))
+			if (!empty(Config::$modSettings['messageIconChecks_enable']) && !isset($icon_sources[$row['icon']]))
 				$icon_sources[$row['icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $row['icon'] . '.png') ? 'images_url' : 'default_images_url';
 			elseif (!isset($icon_sources[$row['icon']]))
 				$icon_sources[$row['icon']] = 'images_url';
@@ -2269,29 +2252,29 @@ class ServerSideIncludes
 				'time' => timeformat($row['poster_time']),
 				'timestamp' => $row['poster_time'],
 				'body' => $row['body'],
-				'href' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
-				'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['num_replies'] . ' ' . ($row['num_replies'] == 1 ? $txt['ssi_comment'] : $txt['ssi_comments']) . '</a>',
+				'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0',
+				'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['num_replies'] . ' ' . ($row['num_replies'] == 1 ? $txt['ssi_comment'] : $txt['ssi_comments']) . '</a>',
 				'replies' => $row['num_replies'],
-				'comment_href' => !empty($row['locked']) ? '' : $scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . ';last_msg=' . $row['id_last_msg'],
-				'comment_link' => !empty($row['locked']) ? '' : '<a href="' . $scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . ';last_msg=' . $row['id_last_msg'] . '">' . $txt['ssi_write_comment'] . '</a>',
-				'new_comment' => !empty($row['locked']) ? '' : '<a href="' . $scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . '">' . $txt['ssi_write_comment'] . '</a>',
+				'comment_href' => !empty($row['locked']) ? '' : Config::$scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . ';last_msg=' . $row['id_last_msg'],
+				'comment_link' => !empty($row['locked']) ? '' : '<a href="' . Config::$scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . ';last_msg=' . $row['id_last_msg'] . '">' . $txt['ssi_write_comment'] . '</a>',
+				'new_comment' => !empty($row['locked']) ? '' : '<a href="' . Config::$scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . '">' . $txt['ssi_write_comment'] . '</a>',
 				'poster' => array(
 					'id' => $row['id_member'],
 					'name' => $row['poster_name'],
-					'href' => !empty($row['id_member']) ? $scripturl . '?action=profile;u=' . $row['id_member'] : '',
-					'link' => !empty($row['id_member']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['poster_name'] . '</a>' : $row['poster_name']
+					'href' => !empty($row['id_member']) ? Config::$scripturl . '?action=profile;u=' . $row['id_member'] : '',
+					'link' => !empty($row['id_member']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['poster_name'] . '</a>' : $row['poster_name']
 				),
 				'locked' => !empty($row['locked']),
 				'is_last' => false,
 				// Nasty ternary for likes not messing around the "is_last" check.
-				'likes' => !empty($modSettings['enable_likes']) ? array(
+				'likes' => !empty(Config::$modSettings['enable_likes']) ? array(
 					'count' => $row['likes'],
 					'you' => in_array($row['id_msg'], prepareLikesContext((int) $row['id_topic'])),
-					'can_like' => !$context['user']['is_guest'] && $row['id_member'] != $context['user']['id'] && !empty($context['can_like']),
+					'can_like' => !Utils::$context['user']['is_guest'] && $row['id_member'] != Utils::$context['user']['id'] && !empty(Utils::$context['can_like']),
 				) : array(),
 			);
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		if (empty($return))
 			return $return;
@@ -2317,7 +2300,7 @@ class ServerSideIncludes
 					', $news['link'], $news['locked'] ? '' : ' | ' . $news['comment_link'], '';
 
 			// Is there any likes to show?
-			if (!empty($modSettings['enable_likes']))
+			if (!empty(Config::$modSettings['enable_likes']))
 			{
 				echo '
 						<ul>';
@@ -2325,12 +2308,12 @@ class ServerSideIncludes
 				if (!empty($news['likes']['can_like']))
 				{
 					echo '
-							<li class="smflikebutton" id="msg_', $news['message_id'], '_likes"><a href="', $scripturl, '?action=likes;ltype=msg;sa=like;like=', $news['message_id'], ';', $context['session_var'], '=', $context['session_id'], '" class="msg_like"><span class="', $news['likes']['you'] ? 'unlike' : 'like', '"></span>', $news['likes']['you'] ? $txt['unlike'] : $txt['like'], '</a></li>';
+							<li class="smflikebutton" id="msg_', $news['message_id'], '_likes"><a href="', Config::$scripturl, '?action=likes;ltype=msg;sa=like;like=', $news['message_id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="msg_like"><span class="', $news['likes']['you'] ? 'unlike' : 'like', '"></span>', $news['likes']['you'] ? $txt['unlike'] : $txt['like'], '</a></li>';
 				}
 
 				if (!empty($news['likes']['count']))
 				{
-					$context['some_likes'] = true;
+					Utils::$context['some_likes'] = true;
 					$count = $news['likes']['count'];
 					$base = 'likes_';
 					if ($news['likes']['you'])
@@ -2341,7 +2324,7 @@ class ServerSideIncludes
 					$base .= (isset($txt[$base . $count])) ? $count : 'n';
 
 					echo '
-							<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;sa=view;ltype=msg;like=' . $news['message_id'] . ';' . $context['session_var'] . '=' . $context['session_id'], comma_format($count)), '</li>';
+							<li class="like_count smalltext">', sprintf($txt[$base], Config::$scripturl . '?action=likes;sa=view;ltype=msg;like=' . $news['message_id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], comma_format($count)), '</li>';
 				}
 
 				echo '
@@ -2369,16 +2352,16 @@ class ServerSideIncludes
 	 */
 	public static function recentEvents($max_events = 7, $output_method = 'echo')
 	{
-		global $user_info, $scripturl, $modSettings, $txt, $context, $smcFunc;
+		global $user_info, $txt;
 
 		if (!self::$setup_done)
 			new self();
 
-		if (empty($modSettings['cal_enabled']) || !allowedTo('calendar_view'))
+		if (empty(Config::$modSettings['cal_enabled']) || !allowedTo('calendar_view'))
 			return;
 
 		// Find all events which are happening in the near future that the member can see.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT
 				cal.id_event, cal.start_date, cal.end_date, cal.title, cal.id_member, cal.id_topic,
 				cal.start_time, cal.end_time, cal.timezone, cal.location,
@@ -2398,7 +2381,7 @@ class ServerSideIncludes
 		);
 		$return = array();
 		$duplicates = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			// Check if we've already come by an event linked to this same topic with the same title... and don't display it if we have.
 			if (!empty($duplicates[$row['title'] . $row['id_topic']]))
@@ -2423,9 +2406,9 @@ class ServerSideIncludes
 				'title' => $row['title'],
 				'location' => $row['location'],
 				'can_edit' => allowedTo('calendar_edit_any') || ($row['id_member'] == $user_info['id'] && allowedTo('calendar_edit_own')),
-				'modify_href' => $scripturl . '?action=' . ($row['id_board'] == 0 ? 'calendar;sa=post;' : 'post;msg=' . $row['id_first_msg'] . ';topic=' . $row['id_topic'] . '.0;calendar;') . 'eventid=' . $row['id_event'] . ';' . $context['session_var'] . '=' . $context['session_id'],
-				'href' => $row['id_board'] == 0 ? '' : $scripturl . '?topic=' . $row['id_topic'] . '.0',
-				'link' => $row['id_board'] == 0 ? $row['title'] : '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['title'] . '</a>',
+				'modify_href' => Config::$scripturl . '?action=' . ($row['id_board'] == 0 ? 'calendar;sa=post;' : 'post;msg=' . $row['id_first_msg'] . ';topic=' . $row['id_topic'] . '.0;calendar;') . 'eventid=' . $row['id_event'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
+				'href' => $row['id_board'] == 0 ? '' : Config::$scripturl . '?topic=' . $row['id_topic'] . '.0',
+				'link' => $row['id_board'] == 0 ? $row['title'] : '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['title'] . '</a>',
 				'start_date' => $row['start_date'],
 				'end_date' => $row['end_date'],
 				'start_time' => !$allday ? $row['start_time'] : null,
@@ -2438,7 +2421,7 @@ class ServerSideIncludes
 			// Let's not show this one again, huh?
 			$duplicates[$row['title'] . $row['id_topic']] = true;
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		foreach ($return as $mday => $array)
 			$return[$mday][count($array) - 1]['is_last'] = true;
@@ -2476,8 +2459,6 @@ class ServerSideIncludes
 	 */
 	public static function checkPassword($id = null, $password = null, $is_username = false)
 	{
-		global $smcFunc;
-
 		if (!self::$setup_done)
 			new self();
 
@@ -2485,7 +2466,7 @@ class ServerSideIncludes
 		if ($id === null)
 			return;
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT passwd, member_name, is_activated
 			FROM {db_prefix}members
 			WHERE ' . ($is_username ? 'member_name' : 'id_member') . ' = {string:id}
@@ -2494,8 +2475,8 @@ class ServerSideIncludes
 				'id' => $id,
 			)
 		);
-		list ($pass, $user, $active) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		list ($pass, $user, $active) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 
 		return hash_verify_password($user, $password, $pass) && $active == 1;
 	}
@@ -2512,7 +2493,7 @@ class ServerSideIncludes
 	 */
 	public static function recentAttachments($num_attachments = 10, $attachment_ext = array(), $output_method = 'echo')
 	{
-		global $smcFunc, $modSettings, $scripturl, $txt, $settings;
+		global $txt, $settings;
 
 		if (!self::$setup_done)
 			new self();
@@ -2528,20 +2509,20 @@ class ServerSideIncludes
 		$attachment_ext = (array) $attachment_ext;
 
 		// Lets build the query.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT
 				att.id_attach, att.id_msg, att.filename, COALESCE(att.size, 0) AS filesize, att.downloads, mem.id_member,
 				COALESCE(mem.real_name, m.poster_name) AS poster_name, m.id_topic, m.subject, t.id_board, m.poster_time,
-				att.width, att.height' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : ', COALESCE(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '
+				att.width, att.height' . (empty(Config::$modSettings['attachmentShowImages']) || empty(Config::$modSettings['attachmentThumbnails']) ? '' : ', COALESCE(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '
 			FROM {db_prefix}attachments AS att
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = att.id_msg)
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
-				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : '
+				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (empty(Config::$modSettings['attachmentShowImages']) || empty(Config::$modSettings['attachmentThumbnails']) ? '' : '
 				LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = att.id_thumb)') . '
 			WHERE att.attachment_type = 0' . ($attachments_boards === array(0) ? '' : '
 				AND m.id_board IN ({array_int:boards_can_see})') . (!empty($attachment_ext) ? '
 				AND att.fileext IN ({array_string:attachment_ext})' : '') .
-				(!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+				(!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 				AND t.approved = {int:is_approved}
 				AND m.approved = {int:is_approved}
 				AND att.approved = {int:is_approved}') . '
@@ -2557,7 +2538,7 @@ class ServerSideIncludes
 
 		// We have something.
 		$attachments = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			$filename = preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', htmlspecialchars($row['filename']));
 
@@ -2566,21 +2547,21 @@ class ServerSideIncludes
 				'member' => array(
 					'id' => $row['id_member'],
 					'name' => $row['poster_name'],
-					'link' => empty($row['id_member']) ? $row['poster_name'] : '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['poster_name'] . '</a>',
+					'link' => empty($row['id_member']) ? $row['poster_name'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['poster_name'] . '</a>',
 				),
 				'file' => array(
 					'filename' => $filename,
 					'filesize' => round($row['filesize'] / 1024, 2) . $txt['kilobyte'],
 					'downloads' => $row['downloads'],
-					'href' => $scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $row['id_attach'],
-					'link' => '<img src="' . $settings['images_url'] . '/icons/clip.png" alt=""> <a href="' . $scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $row['id_attach'] . '">' . $filename . '</a>',
-					'is_image' => !empty($row['width']) && !empty($row['height']) && !empty($modSettings['attachmentShowImages']),
+					'href' => Config::$scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $row['id_attach'],
+					'link' => '<img src="' . $settings['images_url'] . '/icons/clip.png" alt=""> <a href="' . Config::$scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $row['id_attach'] . '">' . $filename . '</a>',
+					'is_image' => !empty($row['width']) && !empty($row['height']) && !empty(Config::$modSettings['attachmentShowImages']),
 				),
 				'topic' => array(
 					'id' => $row['id_topic'],
 					'subject' => $row['subject'],
-					'href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
-					'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '">' . $row['subject'] . '</a>',
+					'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
+					'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '">' . $row['subject'] . '</a>',
 					'time' => timeformat($row['poster_time']),
 				),
 			);
@@ -2593,14 +2574,14 @@ class ServerSideIncludes
 					'id' => $id_thumb,
 					'width' => $row['width'],
 					'height' => $row['height'],
-					'img' => '<img src="' . $scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $row['id_attach'] . ';image" alt="' . $filename . '">',
-					'thumb' => '<img src="' . $scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $id_thumb . ';image" alt="' . $filename . '">',
-					'href' => $scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $id_thumb . ';image',
-					'link' => '<a href="' . $scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $row['id_attach'] . ';image"><img src="' . $scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $id_thumb . ';image" alt="' . $filename . '"></a>',
+					'img' => '<img src="' . Config::$scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $row['id_attach'] . ';image" alt="' . $filename . '">',
+					'thumb' => '<img src="' . Config::$scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $id_thumb . ';image" alt="' . $filename . '">',
+					'href' => Config::$scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $id_thumb . ';image',
+					'link' => '<a href="' . Config::$scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $row['id_attach'] . ';image"><img src="' . Config::$scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $id_thumb . ';image" alt="' . $filename . '"></a>',
 				);
 			}
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// If mods want to do something with this list of attachments, let them do that now.
 		call_integration_hook('integrate_ssi_recentAttachments', array(&$attachments));
@@ -2642,8 +2623,8 @@ class ServerSideIncludes
 	 */
 	public function __construct()
 	{
-		global $sourcedir, $maintenance, $db_show_debug, $sc, $board, $topic;
-		global $smcFunc, $modSettings, $context, $txt, $user_info;
+		global $sc, $board, $topic;
+		global $txt, $user_info;
 
 		foreach ($this->ssi_globals as $var)
 		{
@@ -2656,29 +2637,26 @@ class ServerSideIncludes
 			}
 		}
 
-		$this->error_reporting = error_reporting(!empty($db_show_debug) ? E_ALL : E_ALL & ~E_DEPRECATED);
+		$this->error_reporting = error_reporting(!empty(Config::$db_show_debug) ? E_ALL : E_ALL & ~E_DEPRECATED);
 
 		if (!isset($this->gzip))
-			$this->gzip = !empty($modSettings['enableCompressedOutput']);
+			$this->gzip = !empty(Config::$modSettings['enableCompressedOutput']);
 
 		// Don't do john didley if the forum's been shut down completely.
-		if ($maintenance == 2 && $this->maintenance_off !== true)
+		if (Config::$maintenance == 2 && $this->maintenance_off !== true)
 			display_maintenance_message();
-
-		// Create a variable to store some SMF specific functions in.
-		$smcFunc = array();
 
 		// Initiate the database connection and define some database functions to use.
 		Db::load();
 
 		// Load installed 'Mods' settings.
-		reloadSettings();
+		Config::reloadModSettings();
 
 		// Clean the request variables.
 		cleanRequest();
 
 		// Seed the random generator?
-		if (empty($modSettings['rand_seed']) || mt_rand(1, 250) == 69)
+		if (empty(Config::$modSettings['rand_seed']) || mt_rand(1, 250) == 69)
 			smf_seed_generator();
 
 		// Check on any hacking attempts.
@@ -2701,7 +2679,7 @@ class ServerSideIncludes
 		if ($this->gzip === true && ini_get('zlib.output_compression') != '1' && ini_get('output_handler') != 'ob_gzhandler' && version_compare(PHP_VERSION, '4.2.0', '>='))
 			ob_start('ob_gzhandler');
 		else
-			$modSettings['enableCompressedOutput'] = '0';
+			Config::$modSettings['enableCompressedOutput'] = '0';
 
 		// Primarily, this is to fix the URLs...
 		ob_start('ob_sessrewrite');
@@ -2721,8 +2699,8 @@ class ServerSideIncludes
 
 			if (!isset($_SESSION['session_value']))
 			{
-				$_SESSION['session_var'] = substr(md5($smcFunc['random_int']() . session_id() . $smcFunc['random_int']()), 0, rand(7, 12));
-				$_SESSION['session_value'] = md5(session_id() . $smcFunc['random_int']());
+				$_SESSION['session_var'] = substr(md5(Utils::randomInt() . session_id() . Utils::randomInt()), 0, rand(7, 12));
+				$_SESSION['session_value'] = md5(session_id() . Utils::randomInt());
 			}
 			$sc = $_SESSION['session_value'];
 		}
@@ -2730,8 +2708,8 @@ class ServerSideIncludes
 		// Get rid of $board and $topic... do stuff loadBoard would do.
 		unset($board, $topic);
 		$user_info['is_mod'] = false;
-		$context['user']['is_mod'] = &$user_info['is_mod'];
-		$context['linktree'] = array();
+		Utils::$context['user']['is_mod'] = &$user_info['is_mod'];
+		Utils::$context['linktree'] = array();
 
 		// Load the user and their cookie, as well as their settings.
 		loadUserSettings();
@@ -2744,16 +2722,16 @@ class ServerSideIncludes
 
 		// @todo: probably not the best place, but somewhere it should be set...
 		if (!headers_sent())
-			header('content-type: text/html; charset=' . (empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : $modSettings['global_character_set']));
+			header('content-type: text/html; charset=' . (empty(Config::$modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : Config::$modSettings['global_character_set']));
 
 		// Take care of any banning that needs to be done.
 		if (isset($_REQUEST['ssi_ban']) || $this->ban === true)
 			is_not_banned();
 
 		// Do we allow guests in here?
-		if (empty($this->guest_access) && empty($modSettings['allow_guestAccess']) && $user_info['is_guest'] && basename($_SERVER['PHP_SELF']) != 'SSI.php')
+		if (empty($this->guest_access) && empty(Config::$modSettings['allow_guestAccess']) && $user_info['is_guest'] && basename($_SERVER['PHP_SELF']) != 'SSI.php')
 		{
-			require_once($sourcedir . '/Subs-Auth.php');
+			require_once(Config::$sourcedir . '/Subs-Auth.php');
 			KickGuest();
 			obExit(null, true);
 		}
@@ -2761,7 +2739,7 @@ class ServerSideIncludes
 		// Load the stuff like the menu bar, etc.
 		if (isset($this->layers))
 		{
-			$context['template_layers'] = $this->layers;
+			Utils::$context['template_layers'] = $this->layers;
 			template_header();
 		}
 		else
@@ -2788,7 +2766,7 @@ class ServerSideIncludes
 	 */
 	public function execute()
 	{
-		global $modSettings, $context, $txt, $user_info;
+		global $txt, $user_info;
 
 		// Ignore a call to ssi_* functions if we are not accessing SSI.php directly.
 		if (basename($_SERVER['SCRIPT_FILENAME']) == 'SSI.php')
@@ -2798,7 +2776,7 @@ class ServerSideIncludes
 				die(sprintf($txt['ssi_not_direct'], $user_info['is_admin'] ? '\'' . addslashes(__FILE__) . '\'' : '\'SSI.php\''));
 
 			// Call a function passed by GET.
-			if (method_exists(__CLASS__, $_GET['ssi_function']) && (!empty($modSettings['allow_guestAccess']) || !$user_info['is_guest']))
+			if (method_exists(__CLASS__, $_GET['ssi_function']) && (!empty(Config::$modSettings['allow_guestAccess']) || !$user_info['is_guest']))
 				call_user_func(array(__CLASS__, $_GET['ssi_function']));
 
 			exit;

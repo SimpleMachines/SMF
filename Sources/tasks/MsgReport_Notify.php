@@ -13,6 +13,10 @@
 
 namespace SMF\Tasks;
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
+
 /**
  * This class contains code used to notify moderators when someone files a report
  * about a message.
@@ -27,15 +31,13 @@ class MsgReport_Notify extends BackgroundTask
 	 */
 	public function execute()
 	{
-		global $smcFunc, $sourcedir, $modSettings, $language, $scripturl;
-
 		// We need to know who can moderate this board - and therefore who can see this report.
 		// First up, people who have moderate_board in the board this topic was in.
-		require_once($sourcedir . '/Subs-Members.php');
+		require_once(Config::$sourcedir . '/Subs-Members.php');
 		$members = membersAllowedTo('moderate_board', $this->_details['board_id']);
 
 		// Second, anyone assigned to be a moderator of this board directly.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_member
 			FROM {db_prefix}moderators
 			WHERE id_board = {int:current_board}',
@@ -43,12 +45,12 @@ class MsgReport_Notify extends BackgroundTask
 				'current_board' => $this->_details['board_id'],
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$members[] = $row['id_member'];
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// Thirdly, anyone assigned to be a moderator of this group as a group->board moderator.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT mem.id_member
 			FROM {db_prefix}members AS mem, {db_prefix}moderator_groups AS bm
 			WHERE bm.id_board = {int:current_board}
@@ -61,9 +63,9 @@ class MsgReport_Notify extends BackgroundTask
 			)
 		);
 
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$members[] = $row['id_member'];
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// And now weed out the duplicates.
 		$members = array_flip(array_flip($members));
@@ -72,7 +74,7 @@ class MsgReport_Notify extends BackgroundTask
 		$members = array_diff($members, array($this->_details['sender_id']));
 
 		// Having successfully figured this out, now let's get the preferences of everyone.
-		require_once($sourcedir . '/Subs-Notify.php');
+		require_once(Config::$sourcedir . '/Subs-Notify.php');
 		$prefs = getNotifyPrefs($members, 'msg_report', true);
 
 		// So now we find out who wants what.
@@ -105,15 +107,15 @@ class MsgReport_Notify extends BackgroundTask
 					'content_id' => $this->_details['msg_id'],
 					'content_action' => 'report',
 					'is_read' => 0,
-					'extra' => $smcFunc['json_encode'](
+					'extra' => Utils::jsonEncode(
 						array(
-							'report_link' => '?action=moderate;area=reportedposts;sa=details;rid=' . $this->_details['report_id'], // We don't put $scripturl in these!
+							'report_link' => '?action=moderate;area=reportedposts;sa=details;rid=' . $this->_details['report_id'], // We don't put Config::$scripturl in these!
 						)
 					),
 				);
 			}
 
-			$smcFunc['db_insert']('insert',
+			Db::$db->insert('insert',
 				'{db_prefix}user_alerts',
 				array('alert_time' => 'int', 'id_member' => 'int', 'id_member_started' => 'int',
 					'member_name' => 'string', 'content_type' => 'string', 'content_id' => 'int',
@@ -130,13 +132,13 @@ class MsgReport_Notify extends BackgroundTask
 		if (!empty($notifies['email']))
 		{
 			// Emails are a bit complicated. We have to do language stuff.
-			require_once($sourcedir . '/Subs-Post.php');
-			require_once($sourcedir . '/ScheduledTasks.php');
+			require_once(Config::$sourcedir . '/Subs-Post.php');
+			require_once(Config::$sourcedir . '/ScheduledTasks.php');
 			loadEssentialThemeData();
 
 			// First, get everyone's language and details.
 			$emails = array();
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT id_member, lngfile, email_address
 				FROM {db_prefix}members
 				WHERE id_member IN ({array_int:members})',
@@ -144,17 +146,17 @@ class MsgReport_Notify extends BackgroundTask
 					'members' => $notifies['email'],
 				)
 			);
-			while ($row = $smcFunc['db_fetch_assoc']($request))
+			while ($row = Db::$db->fetch_assoc($request))
 			{
 				if (empty($row['lngfile']))
-					$row['lngfile'] = $language;
+					$row['lngfile'] = Config::$language;
 				$emails[$row['lngfile']][$row['id_member']] = $row['email_address'];
 			}
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 
 			// Second, get some details that might be nice for the report email.
 			// We don't bother cluttering up the tasks data for this, when it's really no bother to fetch it.
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT lr.subject, lr.membername, lrc.comment
 				FROM {db_prefix}log_reported AS lr
 					INNER JOIN {db_prefix}log_reported_comments AS lrc ON (lr.id_report = lrc.id_report)
@@ -165,8 +167,8 @@ class MsgReport_Notify extends BackgroundTask
 					'comment' => $this->_details['comment_id'],
 				)
 			);
-			list ($subject, $poster_name, $comment) = $smcFunc['db_fetch_row']($request);
-			$smcFunc['db_free_result']($request);
+			list ($subject, $poster_name, $comment) = Db::$db->fetch_row($request);
+			Db::$db->free_result($request);
 
 			// Third, iterate through each language, load the relevant templates and set up sending.
 			foreach ($emails as $this_lang => $recipients)
@@ -175,12 +177,12 @@ class MsgReport_Notify extends BackgroundTask
 					'TOPICSUBJECT' => $subject,
 					'POSTERNAME' => $poster_name,
 					'REPORTERNAME' => $this->_details['sender_name'],
-					'TOPICLINK' => $scripturl . '?topic=' . $this->_details['topic_id'] . '.msg' . $this->_details['msg_id'] . '#msg' . $this->_details['msg_id'],
-					'REPORTLINK' => $scripturl . '?action=moderate;area=reportedposts;sa=details;rid=' . $this->_details['report_id'],
+					'TOPICLINK' => Config::$scripturl . '?topic=' . $this->_details['topic_id'] . '.msg' . $this->_details['msg_id'] . '#msg' . $this->_details['msg_id'],
+					'REPORTLINK' => Config::$scripturl . '?action=moderate;area=reportedposts;sa=details;rid=' . $this->_details['report_id'],
 					'COMMENT' => $comment,
 				);
 
-				$emaildata = loadEmailTemplate('report_to_moderator', $replacements, empty($modSettings['userLanguage']) ? $language : $this_lang);
+				$emaildata = loadEmailTemplate('report_to_moderator', $replacements, empty(Config::$modSettings['userLanguage']) ? Config::$language : $this_lang);
 
 				// And do the actual sending...
 				foreach ($recipients as $id_member => $email_address)

@@ -12,6 +12,10 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -22,13 +26,13 @@ if (!defined('SMF'))
  */
 function RemindMe()
 {
-	global $txt, $context;
+	global $txt;
 
 	loadLanguage('Profile');
 	loadTemplate('Reminder');
 
-	$context['page_title'] = $txt['authentication_reminder'];
-	$context['robot_no_index'] = true;
+	Utils::$context['page_title'] = $txt['authentication_reminder'];
+	Utils::$context['robot_no_index'] = true;
 
 	// Delegation can be useful sometimes.
 	$subActions = array(
@@ -52,7 +56,7 @@ function RemindMe()
  */
 function RemindPick()
 {
-	global $context, $txt, $scripturl, $sourcedir, $user_info, $webmaster_email, $smcFunc, $language, $modSettings;
+	global $txt, $user_info;
 
 	checkSession();
 	validateToken('remind');
@@ -83,7 +87,7 @@ function RemindPick()
 	}
 
 	// Find the user!
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_member, real_name, member_name, email_address, is_activated, validation_code, lngfile, secret_question
 		FROM {db_prefix}members
 		WHERE ' . $where . '
@@ -91,56 +95,56 @@ function RemindPick()
 		$where_params
 	);
 	// Maybe email?
-	if ($smcFunc['db_num_rows']($request) == 0 && empty($_REQUEST['uid']))
+	if (Db::$db->num_rows($request) == 0 && empty($_REQUEST['uid']))
 	{
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_member, real_name, member_name, email_address, is_activated, validation_code, lngfile, secret_question
 			FROM {db_prefix}members
 			WHERE email_address = {string:email_address}
 			LIMIT 1',
 			$where_params
 		);
-		if ($smcFunc['db_num_rows']($request) == 0)
+		if (Db::$db->num_rows($request) == 0)
 			fatal_lang_error('no_user_with_email', false);
 	}
 
-	$row = $smcFunc['db_fetch_assoc']($request);
-	$smcFunc['db_free_result']($request);
+	$row = Db::$db->fetch_assoc($request);
+	Db::$db->free_result($request);
 
 	// If the user isn't activated/approved, give them some feedback on what to do next.
 	if ($row['is_activated'] != 1)
 	{
 		// Awaiting approval...
 		if (trim($row['validation_code']) == '')
-			fatal_error(sprintf($txt['registration_not_approved'], $scripturl . '?action=activate;user=' . $_POST['user']), false);
+			fatal_error(sprintf($txt['registration_not_approved'], Config::$scripturl . '?action=activate;user=' . $_POST['user']), false);
 		else
-			fatal_error(sprintf($txt['registration_not_activated'], $scripturl . '?action=activate;user=' . $_POST['user']), false);
+			fatal_error(sprintf($txt['registration_not_activated'], Config::$scripturl . '?action=activate;user=' . $_POST['user']), false);
 	}
 
 	// You can't get emailed if you have no email address.
 	$row['email_address'] = trim($row['email_address']);
 	if ($row['email_address'] == '')
-		fatal_error($txt['no_reminder_email'] . '<br>' . $txt['send_email_to'] . ' <a href="mailto:' . $webmaster_email . '">' . $txt['webmaster'] . '</a> ' . $txt['to_ask_password']);
+		fatal_error($txt['no_reminder_email'] . '<br>' . $txt['send_email_to'] . ' <a href="mailto:' . Config::$webmaster_email . '">' . $txt['webmaster'] . '</a> ' . $txt['to_ask_password']);
 
 	// If they have no secret question then they can only get emailed the item, or they are requesting the email, send them an email.
 	if (empty($row['secret_question']) || (isset($_POST['reminder_type']) && $_POST['reminder_type'] == 'email'))
 	{
 		// Randomly generate a new password, with only alpha numeric characters that is a max length of 10 chars.
-		require_once($sourcedir . '/Subs-Members.php');
+		require_once(Config::$sourcedir . '/Subs-Members.php');
 		$password = generateValidationCode();
 
-		require_once($sourcedir . '/Subs-Post.php');
+		require_once(Config::$sourcedir . '/Subs-Post.php');
 		$replacements = array(
 			'REALNAME' => $row['real_name'],
-			'REMINDLINK' => $scripturl . '?action=reminder;sa=setpassword;u=' . $row['id_member'] . ';code=' . $password,
+			'REMINDLINK' => Config::$scripturl . '?action=reminder;sa=setpassword;u=' . $row['id_member'] . ';code=' . $password,
 			'IP' => $user_info['ip'],
 			'MEMBERNAME' => $row['member_name'],
 		);
 
-		$emaildata = loadEmailTemplate('forgot_password', $replacements, empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile']);
-		$context['description'] = $txt['reminder_sent'];
+		$emaildata = loadEmailTemplate('forgot_password', $replacements, empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $row['lngfile']);
+		Utils::$context['description'] = $txt['reminder_sent'];
 
 		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'reminder', $emaildata['is_html'], 1);
 
@@ -148,7 +152,7 @@ function RemindPick()
 		updateMemberData($row['id_member'], array('validation_code' => substr(md5($password), 0, 10)));
 
 		// Set up the template.
-		$context['sub_template'] = 'sent';
+		Utils::$context['sub_template'] = 'sent';
 
 		// Don't really.
 		return;
@@ -160,8 +164,8 @@ function RemindPick()
 	}
 
 	// No we're here setup the context for template number 2!
-	$context['sub_template'] = 'reminder_pick';
-	$context['current_member'] = array(
+	Utils::$context['sub_template'] = 'reminder_pick';
+	Utils::$context['current_member'] = array(
 		'id' => $row['id_member'],
 		'name' => $row['member_name'],
 	);
@@ -172,7 +176,7 @@ function RemindPick()
  */
 function setPassword()
 {
-	global $txt, $context;
+	global $txt;
 
 	loadLanguage('Login');
 
@@ -181,7 +185,7 @@ function setPassword()
 		fatal_lang_error('no_access', false);
 
 	// Fill the context array.
-	$context += array(
+	Utils::$context += array(
 		'page_title' => $txt['reminder_set_password'],
 		'sub_template' => 'set_password',
 		'code' => $_REQUEST['code'],
@@ -199,7 +203,7 @@ function setPassword()
  */
 function setPassword2()
 {
-	global $context, $modSettings, $txt, $smcFunc, $sourcedir;
+	global $txt;
 
 	checkSession();
 	validateToken('remind-sp');
@@ -218,7 +222,7 @@ function setPassword2()
 	loadLanguage('Login');
 
 	// Get the code as it should be from the database.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT validation_code, member_name, email_address, passwd_flood
 		FROM {db_prefix}members
 		WHERE id_member = {int:id_member}
@@ -233,24 +237,24 @@ function setPassword2()
 	);
 
 	// Does this user exist at all?
-	if ($smcFunc['db_num_rows']($request) == 0)
+	if (Db::$db->num_rows($request) == 0)
 		fatal_lang_error('invalid_userid', false);
 
-	list ($realCode, $username, $email, $flood_value) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($realCode, $username, $email, $flood_value) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	// Is the password actually valid?
-	require_once($sourcedir . '/Subs-Auth.php');
+	require_once(Config::$sourcedir . '/Subs-Auth.php');
 	$passwordError = validatePassword($_POST['passwrd1'], $username, array($email));
 
 	// What - it's not?
 	if ($passwordError != null)
 		if ($passwordError == 'short')
-			fatal_lang_error('profile_error_password_' . $passwordError, false, array(empty($modSettings['password_strength']) ? 4 : 8));
+			fatal_lang_error('profile_error_password_' . $passwordError, false, array(empty(Config::$modSettings['password_strength']) ? 4 : 8));
 		else
 			fatal_lang_error('profile_error_password_' . $passwordError, false);
 
-	require_once($sourcedir . '/LogInOut.php');
+	require_once(Config::$sourcedir . '/LogInOut.php');
 
 	// Quit if this code is not right.
 	if (empty($_POST['code']) || substr($realCode, 0, 10) !== substr(md5($_POST['code']), 0, 10))
@@ -270,7 +274,7 @@ function setPassword2()
 	call_integration_hook('integrate_reset_pass', array($username, $username, $_POST['passwrd1']));
 
 	loadTemplate('Login');
-	$context += array(
+	Utils::$context += array(
 		'page_title' => $txt['reminder_password_set'],
 		'sub_template' => 'login',
 		'default_username' => $username,
@@ -287,8 +291,6 @@ function setPassword2()
  */
 function SecretAnswerInput()
 {
-	global $context, $smcFunc;
-
 	checkSession();
 
 	// Strings for the register auto javascript clever stuffy wuffy.
@@ -299,7 +301,7 @@ function SecretAnswerInput()
 		fatal_lang_error('username_no_exist', false);
 
 	// Get the stuff....
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_member, real_name, member_name, secret_question
 		FROM {db_prefix}members
 		WHERE id_member = {int:id_member}
@@ -308,22 +310,22 @@ function SecretAnswerInput()
 			'id_member' => (int) $_REQUEST['uid'],
 		)
 	);
-	if ($smcFunc['db_num_rows']($request) == 0)
+	if (Db::$db->num_rows($request) == 0)
 		fatal_lang_error('username_no_exist', false);
 
-	$row = $smcFunc['db_fetch_assoc']($request);
-	$smcFunc['db_free_result']($request);
+	$row = Db::$db->fetch_assoc($request);
+	Db::$db->free_result($request);
 
 	// If there is NO secret question - then throw an error.
 	if (trim($row['secret_question']) == '')
 		fatal_lang_error('registration_no_secret_question', false);
 
 	// Ask for the answer...
-	$context['remind_user'] = $row['id_member'];
-	$context['remind_type'] = '';
-	$context['secret_question'] = $row['secret_question'];
+	Utils::$context['remind_user'] = $row['id_member'];
+	Utils::$context['remind_type'] = '';
+	Utils::$context['secret_question'] = $row['secret_question'];
 
-	$context['sub_template'] = 'ask';
+	Utils::$context['sub_template'] = 'ask';
 	createToken('remind-sai');
 	loadJavaScriptFile('register.js', array('defer' => false, 'minimize' => true), 'smf_register');
 }
@@ -333,7 +335,7 @@ function SecretAnswerInput()
  */
 function SecretAnswer2()
 {
-	global $txt, $context, $modSettings, $smcFunc, $sourcedir;
+	global $txt;
 
 	checkSession();
 	validateToken('remind-sai');
@@ -345,7 +347,7 @@ function SecretAnswer2()
 	loadLanguage('Login');
 
 	// Get the information from the database.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_member, real_name, member_name, secret_answer, secret_question, email_address
 		FROM {db_prefix}members
 		WHERE id_member = {int:id_member}
@@ -354,11 +356,11 @@ function SecretAnswer2()
 			'id_member' => $_REQUEST['uid'],
 		)
 	);
-	if ($smcFunc['db_num_rows']($request) == 0)
+	if (Db::$db->num_rows($request) == 0)
 		fatal_lang_error('username_no_exist', false);
 
-	$row = $smcFunc['db_fetch_assoc']($request);
-	$smcFunc['db_free_result']($request);
+	$row = Db::$db->fetch_assoc($request);
+	Db::$db->free_result($request);
 
 	/*
 	 * Check if the secret answer is correct.
@@ -381,13 +383,13 @@ function SecretAnswer2()
 		fatal_lang_error('passwords_dont_match', false);
 
 	// Make sure they have a strong enough password.
-	require_once($sourcedir . '/Subs-Auth.php');
+	require_once(Config::$sourcedir . '/Subs-Auth.php');
 	$passwordError = validatePassword($_POST['passwrd1'], $row['member_name'], array($row['email_address']));
 
 	// Invalid?
 	if ($passwordError != null)
 		if ($passwordError == 'short')
-			fatal_lang_error('profile_error_password_' . $passwordError, false, array(empty($modSettings['password_strength']) ? 4 : 8));
+			fatal_lang_error('profile_error_password_' . $passwordError, false, array(empty(Config::$modSettings['password_strength']) ? 4 : 8));
 		else
 			fatal_lang_error('profile_error_password_' . $passwordError, false);
 
@@ -398,7 +400,7 @@ function SecretAnswer2()
 
 	// Tell them it went fine.
 	loadTemplate('Login');
-	$context += array(
+	Utils::$context += array(
 		'page_title' => $txt['reminder_password_set'],
 		'sub_template' => 'login',
 		'default_username' => $row['member_name'],

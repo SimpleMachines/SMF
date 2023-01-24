@@ -18,8 +18,11 @@
 if (!defined('SMF'))
 	die('No direct access...');
 
+use SMF\Config;
+use SMF\Utils;
 use SMF\ServerSideIncludes as SSI;
 use SMF\Cache\CacheApi;
+use SMF\Db\DatabaseApi as Db;
 
 /**
  * Log an error, if the error logging is enabled.
@@ -35,14 +38,14 @@ use SMF\Cache\CacheApi;
  */
 function log_error($error_message, $error_type = 'general', $file = null, $line = null)
 {
-	global $modSettings, $sc, $user_info, $smcFunc, $scripturl, $last_error, $context, $db_show_debug;
+	global $sc, $user_info, $last_error;
 	static $tried_hook = false;
 	static $error_call = 0;
 
 	$error_call++;
 
 	// Collect a backtrace
-	if (!isset($db_show_debug) || $db_show_debug === false)
+	if (!isset(Config::$db_show_debug) || Config::$db_show_debug === false)
 		$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 	else
 		$backtrace = debug_backtrace();
@@ -55,7 +58,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 	}
 
 	// Check if error logging is actually on.
-	if (empty($modSettings['enableErrorLogging']))
+	if (empty(Config::$modSettings['enableErrorLogging']))
 		return $error_message;
 
 	// Basically, htmlspecialchars it minus &. (for entities!)
@@ -82,11 +85,10 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 		$user_info['ip'] = '';
 
 	// Find the best query string we can...
-	$query_string = empty($_SERVER['QUERY_STRING']) ? (empty($_SERVER['REQUEST_URL']) ? '' : str_replace($scripturl, '', $_SERVER['REQUEST_URL'])) : $_SERVER['QUERY_STRING'];
+	$query_string = empty($_SERVER['QUERY_STRING']) ? (empty($_SERVER['REQUEST_URL']) ? '' : str_replace(Config::$scripturl, '', $_SERVER['REQUEST_URL'])) : $_SERVER['QUERY_STRING'];
 
 	// Don't log the session hash in the url twice, it's a waste.
-	if (!empty($smcFunc['htmlspecialchars']))
-		$query_string = $smcFunc['htmlspecialchars']((SMF == 'SSI' || SMF == 'BACKGROUND' ? '' : '?') . preg_replace(array('~;sesc=[^&;]+~', '~' . session_name() . '=' . session_id() . '[&;]~'), array(';sesc', ''), $query_string));
+	$query_string = Utils::htmlspecialchars((SMF == 'SSI' || SMF == 'BACKGROUND' ? '' : '?') . preg_replace(array('~;sesc=[^&;]+~', '~' . session_name() . '=' . session_id() . '[&;]~'), array(';sesc', ''), $query_string));
 
 	// Just so we know what board error messages are from.
 	if (isset($_POST['board']) && !isset($_GET['board']))
@@ -122,30 +124,30 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 
 	// leave out the call to log_error
 	array_splice($backtrace, 0, 1);
-	$backtrace = !empty($smcFunc['json_encode']) ? $smcFunc['json_encode']($backtrace) : json_encode($backtrace);
+	$backtrace = Utils::jsonEncode($backtrace);
 
 	// Don't log the same error countless times, as we can get in a cycle of depression...
 	$error_info = array($user_info['id'], time(), $user_info['ip'], $query_string, $error_message, (string) $sc, $error_type, $file, $line, $backtrace);
 	if (empty($last_error) || $last_error != $error_info)
 	{
 		// Insert the error into the database.
-		$smcFunc['db_error_insert']($error_info);
+		Db::$db->error_insert($error_info);
 		$last_error = $error_info;
 
 		// Get an error count, if necessary
-		if (!isset($context['num_errors']))
+		if (!isset(Utils::$context['num_errors']))
 		{
-			$query = $smcFunc['db_query']('', '
+			$query = Db::$db->query('', '
 				SELECT COUNT(*)
 				FROM {db_prefix}log_errors',
 				array()
 			);
 
-			list($context['num_errors']) = $smcFunc['db_fetch_row']($query);
-			$smcFunc['db_free_result']($query);
+			list(Utils::$context['num_errors']) = Db::$db->fetch_row($query);
+			Db::$db->free_result($query);
 		}
 		else
-			$context['num_errors']++;
+			Utils::$context['num_errors']++;
 	}
 
 	// reset error call
@@ -196,7 +198,7 @@ function fatal_error($error, $log = 'general', $status = 500)
  */
 function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status = 403)
 {
-	global $txt, $language, $user_info, $context;
+	global $txt, $user_info;
 	static $fatal_error_called = false;
 
 	// Ensure this is an array.
@@ -207,7 +209,7 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status 
 		send_http_status($status);
 
 	// Try to load a theme if we don't have one.
-	if (empty($context['theme_loaded']) && empty($fatal_error_called))
+	if (empty(Utils::$context['theme_loaded']) && empty($fatal_error_called))
 	{
 		$fatal_error_called = true;
 		loadTheme();
@@ -225,7 +227,7 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status 
 		header('X-SMF-errormsg: ' .  $error_message);
 
 	// If we have no theme stuff we can't have the language file...
-	if (empty($context['theme_loaded']))
+	if (empty(Utils::$context['theme_loaded']))
 		die($error);
 
 	$reload_lang_file = true;
@@ -263,7 +265,7 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status 
  */
 function smf_error_handler($error_level, $error_string, $file, $line)
 {
-	global $settings, $modSettings, $db_show_debug;
+	global $settings;
 
 	// Error was suppressed with the @-operator.
 	if (error_reporting() == 0 || error_reporting() == (E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR))
@@ -271,7 +273,7 @@ function smf_error_handler($error_level, $error_string, $file, $line)
 
 	// Ignore errors that should should not be logged.
 	$error_match = error_reporting() & $error_level;
-	if (empty($error_match) || empty($modSettings['enableErrorLogging']))
+	if (empty($error_match) || empty(Config::$modSettings['enableErrorLogging']))
 		return false;
 
 	if (strpos($file, 'eval()') !== false && !empty($settings['current_include_filename']))
@@ -295,7 +297,7 @@ function smf_error_handler($error_level, $error_string, $file, $line)
 			$file = realpath($settings['current_include_filename']) . ' (eval?)';
 	}
 
-	if (isset($db_show_debug) && $db_show_debug === true)
+	if (isset(Config::$db_show_debug) && Config::$db_show_debug === true)
 	{
 		// Commonly, undefined indexes will occur inside attributes; try to show them anyway!
 		if ($error_level % 255 != E_ERROR)
@@ -347,7 +349,7 @@ function smf_error_handler($error_level, $error_string, $file, $line)
  */
 function setup_fatal_error_context($error_message, $error_code = null)
 {
-	global $context, $txt;
+	global $txt;
 	static $level = 0;
 
 	// Attempt to prevent a recursive loop.
@@ -356,25 +358,25 @@ function setup_fatal_error_context($error_message, $error_code = null)
 		return false;
 
 	// Maybe they came from dlattach or similar?
-	if (SMF != 'SSI' && SMF != 'BACKGROUND' && empty($context['theme_loaded']))
+	if (SMF != 'SSI' && SMF != 'BACKGROUND' && empty(Utils::$context['theme_loaded']))
 		loadTheme();
 
 	// Don't bother indexing errors mate...
-	$context['robot_no_index'] = true;
+	Utils::$context['robot_no_index'] = true;
 
-	if (!isset($context['error_title']))
-		$context['error_title'] = $txt['error_occured'];
-	$context['error_message'] = isset($context['error_message']) ? $context['error_message'] : $error_message;
+	if (!isset(Utils::$context['error_title']))
+		Utils::$context['error_title'] = $txt['error_occured'];
+	Utils::$context['error_message'] = isset(Utils::$context['error_message']) ? Utils::$context['error_message'] : $error_message;
 
-	$context['error_code'] = isset($error_code) ? 'id="' . $error_code . '" ' : '';
+	Utils::$context['error_code'] = isset($error_code) ? 'id="' . $error_code . '" ' : '';
 
-	$context['error_link'] = isset($context['error_link']) ? $context['error_link'] : 'javascript:document.location=document.referrer';
+	Utils::$context['error_link'] = isset(Utils::$context['error_link']) ? Utils::$context['error_link'] : 'javascript:document.location=document.referrer';
 
-	if (empty($context['page_title']))
-		$context['page_title'] = $context['error_title'];
+	if (empty(Utils::$context['page_title']))
+		Utils::$context['page_title'] = Utils::$context['error_title'];
 
 	loadTemplate('Errors');
-	$context['sub_template'] = 'fatal_error';
+	Utils::$context['sub_template'] = 'fatal_error';
 
 	// If this is SSI, what do they want us to do?
 	if (SMF == 'SSI')
@@ -393,7 +395,7 @@ function setup_fatal_error_context($error_message, $error_code = null)
 	{
 		// We can't rely on even having language files available.
 		if (defined('FROM_CLI') && FROM_CLI)
-			echo 'cron error: ', $context['error_message'];
+			echo 'cron error: ', Utils::$context['error_message'];
 		else
 			echo 'An error occurred. More information may be available in your logs.';
 		exit;
@@ -419,20 +421,18 @@ function setup_fatal_error_context($error_message, $error_code = null)
  */
 function display_maintenance_message()
 {
-	global $maintenance, $mtitle, $mmessage;
-
 	set_fatal_error_headers();
 
-	if (!empty($maintenance))
+	if (!empty(Config::$maintenance))
 		echo '<!DOCTYPE html>
 <html>
 	<head>
 		<meta name="robots" content="noindex">
-		<title>', $mtitle, '</title>
+		<title>', Config::$mtitle, '</title>
 	</head>
 	<body>
-		<h3>', $mtitle, '</h3>
-		', $mmessage, '
+		<h3>', Config::$mtitle, '</h3>
+		', Config::$mmessage, '
 	</body>
 </html>';
 
@@ -447,19 +447,16 @@ function display_maintenance_message()
  */
 function display_db_error()
 {
-	global $mbname, $modSettings, $maintenance;
-	global $webmaster_email, $db_last_error, $db_error_send, $smcFunc, $sourcedir;
-
-	require_once($sourcedir . '/Logging.php');
+	require_once(Config::$sourcedir . '/Logging.php');
 	set_fatal_error_headers();
 
 	// For our purposes, we're gonna want this on if at all possible.
 	CacheApi::$enable = 1;
 
 	if (($temp = CacheApi::get('db_last_error', 600)) !== null)
-		$db_last_error = max($db_last_error, $temp);
+		Config::$db_last_error = max(Config::$db_last_error, $temp);
 
-	if ($db_last_error < time() - 3600 * 24 * 3 && empty($maintenance) && !empty($db_error_send))
+	if (Config::$db_last_error < time() - 3600 * 24 * 3 && empty(Config::$maintenance) && !empty(Config::$db_error_send))
 	{
 		// Avoid writing to the Settings.php file if at all possible; use shared memory instead.
 		CacheApi::put('db_last_error', time(), 600);
@@ -468,7 +465,7 @@ function display_db_error()
 
 		// Language files aren't loaded yet :(.
 		$db_error = @Db::$db->error();
-		@mail($webmaster_email, $mbname . ': SMF Database Error!', 'There has been a problem with the database!' . ($db_error == '' ? '' : "\n" . Db::$db->title . ' reported:' . "\n" . $db_error) . "\n\n" . 'This is a notice email to let you know that SMF could not connect to the database, contact your host if this continues.');
+		@mail(Config::$webmaster_email, Config::$mbname . ': SMF Database Error!', 'There has been a problem with the database!' . ($db_error == '' ? '' : "\n" . Db::$db->title . ' reported:' . "\n" . $db_error) . "\n\n" . 'This is a notice email to let you know that SMF could not connect to the database, contact your host if this continues.');
 	}
 
 	// What to do?  Language files haven't and can't be loaded yet...
@@ -544,10 +541,10 @@ function set_fatal_error_headers()
  */
 function log_error_online($error, $sprintf = array())
 {
-	global $smcFunc, $user_info, $modSettings;
+	global $user_info;
 
 	// Don't bother if Who's Online is disabled.
-	if (empty($modSettings['who_enabled']))
+	if (empty(Config::$modSettings['who_enabled']))
 		return;
 
 	// Maybe they came from SSI or similar where sessions are not recorded?
@@ -557,7 +554,7 @@ function log_error_online($error, $sprintf = array())
 	$session_id = !empty($user_info['is_guest']) ? 'ip' . $user_info['ip'] : session_id();
 
 	// First, we have to get the online log, because we need to break apart the serialized string.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT url
 		FROM {db_prefix}log_online
 		WHERE session = {string:session}',
@@ -565,17 +562,10 @@ function log_error_online($error, $sprintf = array())
 			'session' => $session_id,
 		)
 	);
-	if ($smcFunc['db_num_rows']($request) != 0)
+	if (Db::$db->num_rows($request) != 0)
 	{
-		// If this happened very early on in SMF startup, $smcFunc may not fully be defined.
-		if (!isset($smcFunc['json_decode']))
-		{
-			$smcFunc['json_decode'] = 'smf_json_decode';
-			$smcFunc['json_encode'] = 'json_encode';
-		}
-
-		list ($url) = $smcFunc['db_fetch_row']($request);
-		$url = $smcFunc['json_decode']($url, true);
+		list ($url) = Db::$db->fetch_row($request);
+		$url = Utils::jsonDecode($url, true);
 		$url['error'] = $error;
 		// Url field got a max length of 1024 in db
 		if (strlen($url['error']) > 500)
@@ -584,17 +574,17 @@ function log_error_online($error, $sprintf = array())
 		if (!empty($sprintf))
 			$url['error_params'] = $sprintf;
 
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}log_online
 			SET url = {string:url}
 			WHERE session = {string:session}',
 			array(
-				'url' => $smcFunc['json_encode']($url),
+				'url' => Utils::jsonEncode($url),
 				'session' => $session_id,
 			)
 		);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 }
 
 ?>

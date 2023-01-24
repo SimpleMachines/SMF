@@ -15,6 +15,9 @@
  */
 
 use SMF\BrowserDetector;
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -27,20 +30,17 @@ if (!defined('SMF'))
  * - makes sure the query string was parsed correctly.
  * - handles the URLs passed by the queryless URLs option.
  * - makes sure, regardless of php.ini, everything has slashes.
- * - sets up $board, $topic, and $scripturl and $_REQUEST['start'].
+ * - sets up $board, $topic, and $_REQUEST['start'].
  * - determines, or rather tries to determine, the client's IP.
  */
 
 function cleanRequest()
 {
-	global $board, $topic, $boardurl, $scripturl, $modSettings, $smcFunc;
-
-	// Makes it easier to refer to things this way.
-	$scripturl = $boardurl . '/index.php';
+	global $board, $topic;
 
 	// What function to use to reverse magic quotes - if sybase is on we assume that the database sensibly has the right unescape function!
 	$removeMagicQuoteFunction = ini_get('magic_quotes_sybase') || strtolower(ini_get('magic_quotes_sybase')) == 'on' ? 'unescapestring__recursive' : 'stripslashes__recursive';
-	$magicQuotesEnabled = version_compare(PHP_VERSION, '7.4.0') == -1 && function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc() != 0 && empty($modSettings['integrate_magic_quotes']);
+	$magicQuotesEnabled = version_compare(PHP_VERSION, '7.4.0') == -1 && function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc() != 0 && empty(Config::$modSettings['integrate_magic_quotes']);
 
 	// Save some memory.. (since we don't use these anyway.)
 	unset($GLOBALS['HTTP_POST_VARS'], $GLOBALS['HTTP_POST_VARS']);
@@ -130,10 +130,10 @@ function cleanRequest()
 
 		// @todo smflib.
 		// Replace 'index.php/a,b,c/d/e,f' with 'a=b,c&d=&e=f' and parse it into $_GET.
-		if (strpos($request, basename($scripturl) . '/') !== false)
+		if (strpos($request, basename(Config::$scripturl) . '/') !== false)
 		{
-			parse_str(substr(preg_replace('/&(\w+)(?=&|$)/', '&$1=', strtr(preg_replace('~/([^,/]+),~', '/$1=', substr($request, strpos($request, basename($scripturl)) + strlen(basename($scripturl)))), '/', '&')), 1), $temp);
-			if (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc() != 0 && empty($modSettings['integrate_magic_quotes']))
+			parse_str(substr(preg_replace('/&(\w+)(?=&|$)/', '&$1=', strtr(preg_replace('~/([^,/]+),~', '/$1=', substr($request, strpos($request, basename(Config::$scripturl)) + strlen(basename(Config::$scripturl)))), '/', '&')), 1), $temp);
+			if (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc() != 0 && empty(Config::$modSettings['integrate_magic_quotes']))
 				$temp = $removeMagicQuoteFunction($temp);
 			$_GET += $temp;
 		}
@@ -247,7 +247,7 @@ function cleanRequest()
 	// Some mail providers like to encode semicolons in activation URLs...
 	if (!empty($_REQUEST['action']) && substr($_SERVER['QUERY_STRING'], 0, 18) == 'action=activate%3b')
 	{
-		header('location: ' . $scripturl . '?' . str_replace('%3b', ';', $_SERVER['QUERY_STRING']));
+		header('location: ' . Config::$scripturl . '?' . str_replace('%3b', ';', $_SERVER['QUERY_STRING']));
 		exit;
 	}
 
@@ -268,16 +268,16 @@ function cleanRequest()
 	$_SERVER['BAN_CHECK_IP'] = $_SERVER['REMOTE_ADDR'];
 
 	// If we haven't specified how to handle Reverse Proxy IP headers, lets do what we always used to do.
-	if (!isset($modSettings['proxy_ip_header']))
-		$modSettings['proxy_ip_header'] = 'autodetect';
+	if (!isset(Config::$modSettings['proxy_ip_header']))
+		Config::$modSettings['proxy_ip_header'] = 'autodetect';
 
 	// Which headers are we going to check for Reverse Proxy IP headers?
-	if ($modSettings['proxy_ip_header'] == 'disabled')
+	if (Config::$modSettings['proxy_ip_header'] == 'disabled')
 		$reverseIPheaders = array();
-	elseif ($modSettings['proxy_ip_header'] == 'autodetect')
+	elseif (Config::$modSettings['proxy_ip_header'] == 'autodetect')
 		$reverseIPheaders = array('HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'HTTP_X_REAL_IP', 'HTTP_CF_CONNECTING_IP');
 	else
-		$reverseIPheaders = array($modSettings['proxy_ip_header']);
+		$reverseIPheaders = array(Config::$modSettings['proxy_ip_header']);
 
 	// Find the user's IP address. (but don't let it give you 'unknown'!)
 	foreach ($reverseIPheaders as $proxyIPheader)
@@ -286,11 +286,11 @@ function cleanRequest()
 		if (!isset($_SERVER[$proxyIPheader]))
 			continue;
 
-		if (!empty($modSettings['proxy_ip_servers']))
+		if (!empty(Config::$modSettings['proxy_ip_servers']))
 		{
 			$valid_sender = false;
 
-			foreach (explode(',', $modSettings['proxy_ip_servers']) as $proxy)
+			foreach (explode(',', Config::$modSettings['proxy_ip_servers']) as $proxy)
 			{
 				if ($proxy == $_SERVER['REMOTE_ADDR'] || matchIPtoCIDR($_SERVER['REMOTE_ADDR'], $proxy))
 				{
@@ -348,14 +348,14 @@ function cleanRequest()
 
 	// Make sure we know the URL of the current request.
 	if (empty($_SERVER['REQUEST_URI']))
-		$_SERVER['REQUEST_URL'] = $scripturl . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '');
-	elseif (preg_match('~^([^/]+//[^/]+)~', $scripturl, $match) == 1)
+		$_SERVER['REQUEST_URL'] = Config::$scripturl . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '');
+	elseif (preg_match('~^([^/]+//[^/]+)~', Config::$scripturl, $match) == 1)
 		$_SERVER['REQUEST_URL'] = $match[1] . $_SERVER['REQUEST_URI'];
 	else
 		$_SERVER['REQUEST_URL'] = $_SERVER['REQUEST_URI'];
 
 	// And make sure HTTP_USER_AGENT is set.
-	$_SERVER['HTTP_USER_AGENT'] = isset($_SERVER['HTTP_USER_AGENT']) ? (isset($smcFunc['htmlspecialchars']) ? $smcFunc['htmlspecialchars']($smcFunc['db_unescape_string']($_SERVER['HTTP_USER_AGENT']), ENT_QUOTES) : htmlspecialchars($smcFunc['db_unescape_string']($_SERVER['HTTP_USER_AGENT']), ENT_QUOTES)) : '';
+	$_SERVER['HTTP_USER_AGENT'] = isset($_SERVER['HTTP_USER_AGENT']) ? Utils::htmlspecialchars(Db::$db->unescape_string($_SERVER['HTTP_USER_AGENT']), ENT_QUOTES) : '';
 
 	// Some final checking.
 	if (!isValidIP($_SERVER['BAN_CHECK_IP']))
@@ -487,17 +487,15 @@ function matchIPtoCIDR($ip_address, $cidr_address)
  */
 function escapestring__recursive($var)
 {
-	global $smcFunc;
-
 	if (!is_array($var))
-		return $smcFunc['db_escape_string']($var);
+		return Db::$db->escape_string($var);
 
 	// Reindex the array with slashes.
 	$new_var = array();
 
 	// Add slashes to every element, even the indexes!
 	foreach ($var as $k => $v)
-		$new_var[$smcFunc['db_escape_string']($k)] = escapestring__recursive($v);
+		$new_var[Db::$db->escape_string($k)] = escapestring__recursive($v);
 
 	return $new_var;
 }
@@ -515,10 +513,8 @@ function escapestring__recursive($var)
  */
 function htmlspecialchars__recursive($var, $level = 0)
 {
-	global $smcFunc;
-
 	if (!is_array($var))
-		return isset($smcFunc['htmlspecialchars']) ? $smcFunc['htmlspecialchars']($var, ENT_QUOTES) : htmlspecialchars($var, ENT_QUOTES);
+		return Utils::htmlspecialchars($var, ENT_QUOTES);
 
 	// Add the htmlspecialchars to every element.
 	foreach ($var as $k => $v)
@@ -565,17 +561,15 @@ function urldecode__recursive($var, $level = 0)
  */
 function unescapestring__recursive($var)
 {
-	global $smcFunc;
-
 	if (!is_array($var))
-		return $smcFunc['db_unescape_string']($var);
+		return Db::$db->unescape_string($var);
 
 	// Reindex the array without slashes, this time.
 	$new_var = array();
 
 	// Strip the slashes from every element.
 	foreach ($var as $k => $v)
-		$new_var[$smcFunc['db_unescape_string']($k)] = unescapestring__recursive($v);
+		$new_var[Db::$db->unescape_string($k)] = unescapestring__recursive($v);
 
 	return $new_var;
 }
@@ -619,11 +613,9 @@ function stripslashes__recursive($var, $level = 0)
  */
 function htmltrim__recursive($var, $level = 0)
 {
-	global $smcFunc;
-
 	// Remove spaces (32), tabs (9), returns (13, 10, and 11), nulls (0), and hard spaces. (160)
 	if (!is_array($var))
-		return isset($smcFunc) ? $smcFunc['htmltrim']($var) : trim($var, ' ' . "\t\n\r\x0B" . '\0' . "\xA0");
+		return Utils::htmlTrim($var);
 
 	// Go through all the elements and remove the whitespace.
 	foreach ($var as $k => $v)
@@ -638,7 +630,7 @@ function htmltrim__recursive($var, $level = 0)
  * - rewrites the URLs outputted to have the session ID, if the user
  *   is not accepting cookies and is using a standard web browser.
  * - handles rewriting URLs for the queryless URLs option.
- * - can be turned off entirely by setting $scripturl to an empty
+ * - can be turned off entirely by setting Config::$scripturl to an empty
  *   string, ''. (it wouldn't work well like that anyway.)
  * - because of bugs in certain builds of PHP, does not function in
  *   versions lower than 4.3.0 - please upgrade if this hurts you.
@@ -648,43 +640,37 @@ function htmltrim__recursive($var, $level = 0)
  */
 function ob_sessrewrite($buffer)
 {
-	global $scripturl, $modSettings, $context;
-
-	// If $scripturl is set to nothing, or the SID is not defined (SSI?) just quit.
-	if ($scripturl == '' || !defined('SID'))
+	// If Config::$scripturl is set to nothing, or the SID is not defined (SSI?) just quit.
+	if (Config::$scripturl == '' || !defined('SID'))
 		return $buffer;
 
 	// Do nothing if the session is cookied, or they are a crawler - guests are caught by redirectexit().  This doesn't work below PHP 4.3.0, because it makes the output buffer bigger.
 	// @todo smflib
 	if (empty($_COOKIE) && SID != '' && !BrowserDetector::isBrowser('possibly_robot'))
-		$buffer = preg_replace('/(?<!<link rel="canonical" href=)"' . preg_quote($scripturl, '/') . '(?!\?' . preg_quote(SID, '/') . ')\\??/', '"' . $scripturl . '?' . SID . '&amp;', $buffer);
+		$buffer = preg_replace('/(?<!<link rel="canonical" href=)"' . preg_quote(Config::$scripturl, '/') . '(?!\?' . preg_quote(SID, '/') . ')\\??/', '"' . Config::$scripturl . '?' . SID . '&amp;', $buffer);
 	// Debugging templates, are we?
 	elseif (isset($_GET['debug']))
-		$buffer = preg_replace('/(?<!<link rel="canonical" href=)"' . preg_quote($scripturl, '/') . '\\??/', '"' . $scripturl . '?debug;', $buffer);
+		$buffer = preg_replace('/(?<!<link rel="canonical" href=)"' . preg_quote(Config::$scripturl, '/') . '\\??/', '"' . Config::$scripturl . '?debug;', $buffer);
 
 	// This should work even in 4.2.x, just not CGI without cgi.fix_pathinfo.
-	if (!empty($modSettings['queryless_urls']) && (!$context['server']['is_cgi'] || ini_get('cgi.fix_pathinfo') == 1 || @get_cfg_var('cgi.fix_pathinfo') == 1) && ($context['server']['is_apache'] || $context['server']['is_lighttpd'] || $context['server']['is_litespeed']))
+	if (!empty(Config::$modSettings['queryless_urls']) && (!Utils::$context['server']['is_cgi'] || ini_get('cgi.fix_pathinfo') == 1 || @get_cfg_var('cgi.fix_pathinfo') == 1) && (Utils::$context['server']['is_apache'] || Utils::$context['server']['is_lighttpd'] || Utils::$context['server']['is_litespeed']))
 	{
 		// Let's do something special for session ids!
 		if (defined('SID') && SID != '')
 			$buffer = preg_replace_callback(
-				'~"' . preg_quote($scripturl, '~') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#"]+?)(#[^"]*?)?"~',
+				'~"' . preg_quote(Config::$scripturl, '~') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#"]+?)(#[^"]*?)?"~',
 				function($m)
 				{
-					global $scripturl;
-
-					return '"' . $scripturl . "/" . strtr("$m[1]", '&;=', '//,') . ".html?" . SID . (isset($m[2]) ? $m[2] : "") . '"';
+					return '"' . Config::$scripturl . "/" . strtr("$m[1]", '&;=', '//,') . ".html?" . SID . (isset($m[2]) ? $m[2] : "") . '"';
 				},
 				$buffer
 			);
 		else
 			$buffer = preg_replace_callback(
-				'~"' . preg_quote($scripturl, '~') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?"~',
+				'~"' . preg_quote(Config::$scripturl, '~') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?"~',
 				function($m)
 				{
-					global $scripturl;
-
-					return '"' . $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? $m[2] : "") . '"';
+					return '"' . Config::$scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? $m[2] : "") . '"';
 				},
 				$buffer
 			);

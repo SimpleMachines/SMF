@@ -14,6 +14,8 @@
 namespace SMF\Cache;
 
 use SMF\BackwardCompatibility;
+use SMF\Config;
+use SMF\Utils;
 
 abstract class CacheApi
 {
@@ -176,8 +178,6 @@ abstract class CacheApi
 	 */
 	public function setPrefix($prefix = '')
 	{
-		global $boardurl, $cachedir, $boarddir;
-
 		if (!is_string($prefix))
 			$prefix = '';
 
@@ -190,14 +190,14 @@ abstract class CacheApi
 		}
 
 		// Ideally the prefix should reflect the last time the cache was reset.
-		if (!empty($cachedir) && file_exists($cachedir . '/index.php'))
+		if (!empty(Config::$cachedir) && file_exists(Config::$cachedir . '/index.php'))
 		{
-			$mtime = filemtime($cachedir . '/index.php');
+			$mtime = filemtime(Config::$cachedir . '/index.php');
 		}
 		// Fall back to the last time that Settings.php was updated.
-		elseif (!empty($boarddir) && file_exists($boarddir . '/Settings.php'))
+		elseif (!empty(Config::$boarddir) && file_exists(SMF_SETTINGS_FILE))
 		{
-			$mtime = filemtime($boarddir . '/Settings.php');
+			$mtime = filemtime(SMF_SETTINGS_FILE);
 		}
 		// This should never happen, but just in case...
 		else
@@ -205,7 +205,7 @@ abstract class CacheApi
 			$mtime = filemtime(realpath($_SERVER['SCRIPT_FILENAME']));
 		}
 
-		$this->prefix = md5($boardurl . $mtime) . '-SMF-';
+		$this->prefix = md5(Config::$boardurl . $mtime) . '-SMF-';
 
 		return true;
 	}
@@ -253,12 +253,10 @@ abstract class CacheApi
 	 */
 	public function invalidateCache()
 	{
-		global $cachedir;
-
 		// Invalidate cache, to be sure!
 		// ... as long as index.php can be modified, anyway.
-		if (is_writable($cachedir . '/' . 'index.php'))
-			@touch($cachedir . '/' . 'index.php');
+		if (is_writable(Config::$cachedir . '/' . 'index.php'))
+			@touch(Config::$cachedir . '/' . 'index.php');
 
 		return true;
 	}
@@ -353,7 +351,7 @@ abstract class CacheApi
 	 * Try to load up a supported caching method.
 	 * This is saved in $loadedApi if we are not overriding it.
 	 *
-	 * @todo Add a reference to $context['instances'] as well?
+	 * @todo Add a reference to Utils::$context['instances'] as well?
 	 *
 	 * @param string $overrideCache Allows manually specifying a cache accelerator engine.
 	 * @param bool $fallbackSMF Use the default SMF method if the accelerator fails.
@@ -362,10 +360,10 @@ abstract class CacheApi
 	final public static function load($overrideCache = '', $fallbackSMF = true)
 	{
 		if (!isset(self::$enable))
-			self::$enable = min(max((int) $GLOBALS['cache_enable'], 0), 3);
+			self::$enable = min(max((int) Config::$cache_enable, 0), 3);
 
 		if (!isset(self::$accelerator))
-			self::$accelerator = $GLOBALS['cache_accelerator'];
+			self::$accelerator = Config::$cache_accelerator;
 
 		// Is caching enabled?
 		if (empty(self::$enable) && empty($overrideCache))
@@ -492,8 +490,6 @@ abstract class CacheApi
 	 */
 	final public static function quickGet($key, $file, $function, $params, $level = 1)
 	{
-		global $sourcedir;
-
 		if (function_exists('call_integration_hook'))
 			call_integration_hook('pre_cache_quick_get', array(&$key, &$file, &$function, &$params, &$level));
 
@@ -506,8 +502,8 @@ abstract class CacheApi
 		*/
 		if (empty(self::$enable) || self::$enable < $level || !is_array($cache_block = self::get($key, 3600)) || (!empty($cache_block['refresh_eval']) && eval($cache_block['refresh_eval'])) || (!empty($cache_block['expires']) && $cache_block['expires'] < time()))
 		{
-			if (!empty($file) && is_file($sourcedir . '/' . $file))
-				require_once($sourcedir . '/' . $file);
+			if (!empty($file) && is_file(Config::$sourcedir . '/' . $file))
+				require_once(Config::$sourcedir . '/' . $file);
 
 			$cache_block = call_user_func_array($function, $params);
 
@@ -542,27 +538,24 @@ abstract class CacheApi
 	 */
 	final public static function put($key, $value, $ttl = 120)
 	{
-		global $smcFunc;
-		global $db_show_debug;
-
 		if (empty(self::$enable) || empty(self::$loadedApi))
 			return;
 
 		self::$count_hits++;
-		if (isset($db_show_debug) && $db_show_debug === true)
+		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true)
 		{
-			self::$hits[self::$count_hits] = array('k' => $key, 'd' => 'put', 's' => $value === null ? 0 : strlen(isset($smcFunc['json_encode']) ? $smcFunc['json_encode']($value) : json_encode($value)));
+			self::$hits[self::$count_hits] = array('k' => $key, 'd' => 'put', 's' => $value === null ? 0 : strlen(Utils::jsonEncode($value)));
 			$st = microtime(true);
 		}
 
 		// The API will handle the rest.
-		$value = $value === null ? null : (isset($smcFunc['json_encode']) ? $smcFunc['json_encode']($value) : json_encode($value));
+		$value = $value === null ? null : Utils::jsonEncode($value);
 		self::$loadedApi->putData($key, $value, $ttl);
 
 		if (function_exists('call_integration_hook'))
 			call_integration_hook('cache_put_data', array(&$key, &$value, &$ttl));
 
-		if (isset($db_show_debug) && $db_show_debug === true)
+		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true)
 			self::$hits[self::$count_hits]['t'] = microtime(true) - $st;
 	}
 
@@ -577,14 +570,11 @@ abstract class CacheApi
 	 */
 	final public static function get($key, $ttl = 120)
 	{
-		global $smcFunc;
-		global $db_show_debug;
-
 		if (empty(self::$enable) || empty(self::$loadedApi))
 			return null;
 
 		self::$count_hits++;
-		if (isset($db_show_debug) && $db_show_debug === true)
+		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true)
 		{
 			self::$hits[self::$count_hits] = array('k' => $key, 'd' => 'get');
 			$st = microtime(true);
@@ -594,7 +584,7 @@ abstract class CacheApi
 		// Ask the API to get the data.
 		$value = self::$loadedApi->getData($key, $ttl);
 
-		if (isset($db_show_debug) && $db_show_debug === true)
+		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true)
 		{
 			self::$hits[self::$count_hits]['t'] = microtime(true) - $st;
 			self::$hits[self::$count_hits]['s'] = isset($value) ? strlen($value) : 0;
@@ -609,7 +599,7 @@ abstract class CacheApi
 		if (function_exists('call_integration_hook') && isset($value))
 			call_integration_hook('cache_get_data', array(&$key, &$ttl, &$value));
 
-		return empty($value) ? null : (isset($smcFunc['json_decode']) ? $smcFunc['json_decode']($value, true) : smf_json_decode($value, true));
+		return empty($value) ? null : Utils::jsonDecode($value, true);
 	}
 }
 

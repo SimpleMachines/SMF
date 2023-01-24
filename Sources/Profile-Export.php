@@ -15,10 +15,12 @@
  */
 
 use SMF\BrowserDetector;
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
 	die('No direct access...');
-
 
 /**
  * Initiates exports a member's profile, posts, and personal messages to a file.
@@ -29,19 +31,19 @@ if (!defined('SMF'))
  */
 function export_profile_data($uid)
 {
-	global $context, $smcFunc, $txt, $modSettings, $sourcedir, $scripturl;
+	global $txt;
 	global $query_this_board;
 
-	if (!isset($context['token_check']))
-		$context['token_check'] = 'profile-ex' . $uid;
+	if (!isset(Utils::$context['token_check']))
+		Utils::$context['token_check'] = 'profile-ex' . $uid;
 
-	$context['export_formats'] = get_export_formats();
+	Utils::$context['export_formats'] = get_export_formats();
 
-	if (!isset($_POST['format']) || !isset($context['export_formats'][$_POST['format']]))
+	if (!isset($_POST['format']) || !isset(Utils::$context['export_formats'][$_POST['format']]))
 		unset($_POST['format'], $_POST['delete'], $_POST['export_begin']);
 
 	// This lists the types of data we can export and info for doing so.
-	$context['export_datatypes'] = array(
+	Utils::$context['export_datatypes'] = array(
 		'profile' => array(
 			'label' => null,
 			'total' => 0,
@@ -64,19 +66,17 @@ function export_profile_data($uid)
 		),
 		'posts' => array(
 			'label' => $txt['export_include_posts'],
-			'total' => $context['member']['real_posts'],
+			'total' => Utils::$context['member']['real_posts'],
 			'latest' => function($uid)
 			{
-				global $smcFunc, $modSettings;
-
 				static $latest_post;
 
 				if (isset($latest_post))
 					return $latest_post;
 
-				$query_this_board = !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? 'b.id_board != ' . $modSettings['recycle_board'] : '1=1';
+				$query_this_board = !empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? 'b.id_board != ' . Config::$modSettings['recycle_board'] : '1=1';
 
-				$request = $smcFunc['db_query']('', '
+				$request = Db::$db->query('', '
 					SELECT m.id_msg
 					FROM {db_prefix}messages as m
 						INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
@@ -89,8 +89,8 @@ function export_profile_data($uid)
 						'uid' => $uid,
 					)
 				);
-				list($latest_post) = $smcFunc['db_fetch_row']($request);
-				$smcFunc['db_free_result']($request);
+				list($latest_post) = Db::$db->fetch_row($request);
+				Db::$db->free_result($request);
 
 				return $latest_post;
 			},
@@ -114,14 +114,12 @@ function export_profile_data($uid)
 			'label' => $txt['export_include_personal_messages'],
 			'total' => function($uid)
 			{
-				global $smcFunc;
-
 				static $total_pms;
 
 				if (isset($total_pms))
 					return $total_pms;
 
-				$request = $smcFunc['db_query']('', '
+				$request = Db::$db->query('', '
 					SELECT COUNT(*)
 					FROM {db_prefix}personal_messages AS pm
 						INNER JOIN {db_prefix}pm_recipients AS pmr ON (pm.id_pm = pmr.id_pm)
@@ -132,21 +130,19 @@ function export_profile_data($uid)
 						'not_deleted' => 0,
 					)
 				);
-				list($total_pms) = $smcFunc['db_fetch_row']($request);
-				$smcFunc['db_free_result']($request);
+				list($total_pms) = Db::$db->fetch_row($request);
+				Db::$db->free_result($request);
 
 				return $total_pms;
 			},
 			'latest' => function($uid)
 			{
-				global $smcFunc;
-
 				static $latest_pm;
 
 				if (isset($latest_pm))
 					return $latest_pm;
 
-				$request = $smcFunc['db_query']('', '
+				$request = Db::$db->query('', '
 					SELECT pm.id_pm
 					FROM {db_prefix}personal_messages AS pm
 						INNER JOIN {db_prefix}pm_recipients AS pmr ON (pm.id_pm = pmr.id_pm)
@@ -160,8 +156,8 @@ function export_profile_data($uid)
 						'not_deleted' => 0,
 					)
 				);
-				list($latest_pm) = $smcFunc['db_fetch_row']($request);
-				$smcFunc['db_free_result']($request);
+				list($latest_pm) = Db::$db->fetch_row($request);
+				Db::$db->free_result($request);
 
 				return $latest_pm;
 			},
@@ -183,27 +179,27 @@ function export_profile_data($uid)
 		),
 	);
 
-	if (empty($modSettings['export_dir']) || !is_dir($modSettings['export_dir']) || !smf_chmod($modSettings['export_dir']))
+	if (empty(Config::$modSettings['export_dir']) || !is_dir(Config::$modSettings['export_dir']) || !smf_chmod(Config::$modSettings['export_dir']))
 		create_export_dir();
 
-	$export_dir_slash = $modSettings['export_dir'] . DIRECTORY_SEPARATOR;
+	$export_dir_slash = Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR;
 
-	$idhash = hash_hmac('sha1', $uid, get_auth_secret());
-	$dltoken = hash_hmac('sha1', $idhash, get_auth_secret());
+	$idhash = hash_hmac('sha1', $uid, Config::getAuthSecret());
+	$dltoken = hash_hmac('sha1', $idhash, Config::getAuthSecret());
 
-	$query_this_board = !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? 'b.id_board != ' . $modSettings['recycle_board'] : '1=1';
+	$query_this_board = !empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? 'b.id_board != ' . Config::$modSettings['recycle_board'] : '1=1';
 
-	$context['completed_exports'] = array();
-	$context['active_exports'] = array();
+	Utils::$context['completed_exports'] = array();
+	Utils::$context['active_exports'] = array();
 	$existing_export_formats = array();
 	$latest = array();
 
-	foreach ($context['export_formats'] as $format => $format_settings)
+	foreach (Utils::$context['export_formats'] as $format => $format_settings)
 	{
 		$idhash_ext = $idhash . '.' . $format_settings['extension'];
 
 		$done = null;
-		$context['outdated_exports'][$idhash_ext] = array();
+		Utils::$context['outdated_exports'][$idhash_ext] = array();
 
 		// $realfile needs to be the highest numbered one, or 1_*** if none exist.
 		$filenum = 1;
@@ -217,13 +213,13 @@ function export_profile_data($uid)
 		// If requested by the user, delete any existing export files and background tasks.
 		if (isset($_POST['delete']) && isset($_POST['format']) && $_POST['format'] === $format && isset($_POST['t']) && $_POST['t'] === $dltoken)
 		{
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				DELETE FROM {db_prefix}background_tasks
 				WHERE task_class = {string:class}
 					AND task_data LIKE {string:details}',
 				array(
 					'class' => 'SMF\Tasks\ExportProfileData',
-					'details' => substr($smcFunc['json_encode'](array('format' => $format, 'uid' => $uid)), 0, -1) . ',%',
+					'details' => substr(Utils::jsonEncode(array('format' => $format, 'uid' => $uid)), 0, -1) . ',%',
 				)
 			);
 
@@ -234,12 +230,12 @@ function export_profile_data($uid)
 				redirectexit('action=profile;area=getprofiledata;u=' . $uid);
 		}
 
-		$progress = file_exists($progressfile) ? $smcFunc['json_decode'](file_get_contents($progressfile), true) : array();
+		$progress = file_exists($progressfile) ? Utils::jsonDecode(file_get_contents($progressfile), true) : array();
 
 		if (!empty($progress))
 			$included = array_keys($progress);
 		else
-			$included = array_intersect(array_keys($context['export_datatypes']), array_keys($_POST));
+			$included = array_intersect(array_keys(Utils::$context['export_datatypes']), array_keys($_POST));
 
 		// If we're starting a new export in this format, we're done here.
 		if (!empty($_POST['export_begin']) && isset($_POST['format']) && $_POST['format'] === $format)
@@ -251,7 +247,7 @@ function export_profile_data($uid)
 		foreach ($included as $datatype)
 			$included_desc[] = $txt[$datatype];
 
-		$dlfilename = array_merge(array($context['forum_name'], $context['member']['username']), $included_desc);
+		$dlfilename = array_merge(array(Utils::$context['forum_name'], Utils::$context['member']['username']), $included_desc);
 		$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}_]+/u', '-', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('_', $dlfilename)))));
 
 		if (file_exists($tempfile) && file_exists($progressfile))
@@ -264,7 +260,7 @@ function export_profile_data($uid)
 			$done = true;
 
 			// But let's check whether it's outdated.
-			foreach ($context['export_datatypes'] as $datatype => $datatype_settings)
+			foreach (Utils::$context['export_datatypes'] as $datatype => $datatype_settings)
 			{
 				if (!isset($progress[$datatype]))
 					continue;
@@ -273,7 +269,7 @@ function export_profile_data($uid)
 					$latest[$datatype] = is_callable($datatype_settings['latest']) ? $datatype_settings['latest']($uid) : $datatype_settings['latest'];
 
 				if ($latest[$datatype] > $progress[$datatype])
-					$context['outdated_exports'][$idhash_ext][] = $datatype;
+					Utils::$context['outdated_exports'][$idhash_ext][] = $datatype;
 			}
 		}
 
@@ -298,7 +294,7 @@ function export_profile_data($uid)
 				}
 				$size = round($size, 2) . $units[$unitkey];
 
-				$context['completed_exports'][$idhash_ext][$part] = array(
+				Utils::$context['completed_exports'][$idhash_ext][$part] = array(
 					'realname' => $exportbasename,
 					'dlbasename' => $dlfilename . $suffix . '.' . $format_settings['extension'],
 					'dltoken' => $dltoken,
@@ -310,13 +306,13 @@ function export_profile_data($uid)
 				);
 			}
 
-			ksort($context['completed_exports'][$idhash_ext], SORT_NUMERIC);
+			ksort(Utils::$context['completed_exports'][$idhash_ext], SORT_NUMERIC);
 
 			$existing_export_formats[] = $format;
 		}
 		elseif ($done === false)
 		{
-			$context['active_exports'][$idhash_ext] = array(
+			Utils::$context['active_exports'][$idhash_ext] = array(
 				'dltoken' => $dltoken,
 				'included' => $included,
 				'included_desc' => sentence_list($included_desc),
@@ -330,13 +326,13 @@ function export_profile_data($uid)
 	if (!empty($_POST['export_begin']))
 	{
 		checkSession();
-		validateToken($context['token_check'], 'post');
+		validateToken(Utils::$context['token_check'], 'post');
 
-		$format = isset($_POST['format']) && isset($context['export_formats'][$_POST['format']]) ? $_POST['format'] : 'XML';
+		$format = isset($_POST['format']) && isset(Utils::$context['export_formats'][$_POST['format']]) ? $_POST['format'] : 'XML';
 
 		$included = array();
 		$included_desc = array();
-		foreach ($context['export_datatypes'] as $datatype => $datatype_settings)
+		foreach (Utils::$context['export_datatypes'] as $datatype => $datatype_settings)
 		{
 			if ($datatype == 'profile' || !empty($_POST[$datatype]))
 			{
@@ -353,25 +349,25 @@ function export_profile_data($uid)
 			}
 		}
 
-		$dlfilename = array_merge(array($context['forum_name'], $context['member']['username']), $included_desc);
+		$dlfilename = array_merge(array(Utils::$context['forum_name'], Utils::$context['member']['username']), $included_desc);
 		$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}_]+/u', '-', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('_', $dlfilename)))));
 
-		$last_page = ceil(array_sum($total) / $context['export_formats'][$format]['per_page']);
+		$last_page = ceil(array_sum($total) / Utils::$context['export_formats'][$format]['per_page']);
 
-		$data = $smcFunc['json_encode'](array(
+		$data = Utils::jsonEncode(array(
 			'format' => $format,
 			'uid' => $uid,
-			'lang' => $context['member']['language'],
+			'lang' => Utils::$context['member']['language'],
 			'included' => $included,
 			'start' => $start,
 			'latest' => $latest,
 			'datatype' => isset($current_datatype) ? $current_datatype : key($included),
-			'format_settings' => $context['export_formats'][$format],
+			'format_settings' => Utils::$context['export_formats'][$format],
 			'last_page' => $last_page,
 			'dlfilename' => $dlfilename,
 		));
 
-		$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
+		Db::$db->insert('insert', '{db_prefix}background_tasks',
 			array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
 			array('$sourcedir/tasks/ExportProfileData.php', 'SMF\Tasks\ExportProfileData', $data, 0),
 			array()
@@ -381,21 +377,21 @@ function export_profile_data($uid)
 		if (!file_exists($tempfile))
 			touch($tempfile);
 		if (!file_exists($progressfile))
-			file_put_contents($progressfile, $smcFunc['json_encode'](array_fill_keys(array_keys($included), 0)));
+			file_put_contents($progressfile, Utils::jsonEncode(array_fill_keys(array_keys($included), 0)));
 
 		redirectexit('action=profile;area=getprofiledata;u=' . $uid);
 	}
 
-	createToken($context['token_check'], 'post');
+	createToken(Utils::$context['token_check'], 'post');
 
-	$context['page_title'] = $txt['export_profile_data'];
+	Utils::$context['page_title'] = $txt['export_profile_data'];
 
-	if (empty($modSettings['export_expiry']))
+	if (empty(Config::$modSettings['export_expiry']))
 		unset($txt['export_profile_data_desc_list']['expiry']);
 	else
-		$txt['export_profile_data_desc_list']['expiry'] = sprintf($txt['export_profile_data_desc_list']['expiry'], $modSettings['export_expiry']);
+		$txt['export_profile_data_desc_list']['expiry'] = sprintf($txt['export_profile_data_desc_list']['expiry'], Config::$modSettings['export_expiry']);
 
-	$context['export_profile_data_desc'] = sprintf($txt['export_profile_data_desc'], '<li>' . implode('</li><li>', $txt['export_profile_data_desc_list']) . '</li>');
+	Utils::$context['export_profile_data_desc'] = sprintf($txt['export_profile_data_desc'], '<li>' . implode('</li><li>', $txt['export_profile_data_desc_list']) . '</li>');
 
 	addJavaScriptVar('completed_formats', '[\'' . implode('\', \'', array_unique($existing_export_formats)) . '\']', false);
 }
@@ -407,30 +403,30 @@ function export_profile_data($uid)
  */
 function download_export_file($uid)
 {
-	global $modSettings, $maintenance, $context, $txt, $smcFunc;
+	global $txt;
 
 	$export_formats = get_export_formats();
 
 	// This is done to clear any output that was made before now.
 	ob_end_clean();
 
-	if (!empty($modSettings['enableCompressedOutput']) && !headers_sent() && ob_get_length() == 0)
+	if (!empty(Config::$modSettings['enableCompressedOutput']) && !headers_sent() && ob_get_length() == 0)
 	{
 		if (@ini_get('zlib.output_compression') == '1' || @ini_get('output_handler') == 'ob_gzhandler')
-			$modSettings['enableCompressedOutput'] = 0;
+			Config::$modSettings['enableCompressedOutput'] = 0;
 
 		else
 			ob_start('ob_gzhandler');
 	}
 
-	if (empty($modSettings['enableCompressedOutput']))
+	if (empty(Config::$modSettings['enableCompressedOutput']))
 	{
 		ob_start();
 		header('content-encoding: none');
 	}
 
 	// No access in strict maintenance mode.
-	if (!empty($maintenance) && $maintenance == 2)
+	if (!empty(Config::$maintenance) && Config::$maintenance == 2)
 	{
 		send_http_status(404);
 		exit;
@@ -443,9 +439,9 @@ function download_export_file($uid)
 		exit;
 	}
 
-	$export_dir_slash = $modSettings['export_dir'] . DIRECTORY_SEPARATOR;
+	$export_dir_slash = Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR;
 
-	$idhash = hash_hmac('sha1', $uid, get_auth_secret());
+	$idhash = hash_hmac('sha1', $uid, Config::getAuthSecret());
 	$part = isset($_GET['part']) ? (int) $_GET['part'] : 1;
 	$extension = $export_formats[$_GET['format']]['extension'];
 
@@ -454,7 +450,7 @@ function download_export_file($uid)
 
 	// Make sure they gave the correct authentication token.
 	// We use these tokens so the user can download without logging in, as required by the GDPR.
-	$dltoken = hash_hmac('sha1', $idhash, get_auth_secret());
+	$dltoken = hash_hmac('sha1', $idhash, Config::getAuthSecret());
 	if ($_GET['t'] !== $dltoken)
 	{
 		send_http_status(403);
@@ -462,14 +458,14 @@ function download_export_file($uid)
 	}
 
 	// Obviously we can't give what we don't have.
-	if (empty($modSettings['export_dir']) || !file_exists($filepath))
+	if (empty(Config::$modSettings['export_dir']) || !file_exists($filepath))
 	{
 		send_http_status(404);
 		exit;
 	}
 
 	// Figure out the filename we'll tell the browser.
-	$datatypes = file_exists($progressfile) ? array_keys($smcFunc['json_decode'](file_get_contents($progressfile), true)) : array('profile');
+	$datatypes = file_exists($progressfile) ? array_keys(Utils::jsonDecode(file_get_contents($progressfile), true)) : array('profile');
 	$included_desc = array_map(
 		function ($datatype) use ($txt)
 		{
@@ -478,7 +474,7 @@ function download_export_file($uid)
 		$datatypes
 	);
 
-	$dlfilename = array_merge(array($context['forum_name'], $context['member']['username']), $included_desc);
+	$dlfilename = array_merge(array(Utils::$context['forum_name'], Utils::$context['member']['username']), $included_desc);
 	$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}_]+/u', '-', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('_', $dlfilename)))));
 
 	$suffix = ($part > 1 || file_exists($export_dir_slash . '2_' . $idhash . '.' . $extension)) ? '_' . $part : '';
@@ -539,17 +535,17 @@ function download_export_file($uid)
 	header('content-type: ' . $export_formats[$_GET['format']]['mime']);
 
 	// Convert the file to UTF-8, cuz most browsers dig that.
-	$utf8name = !$context['utf8'] && function_exists('iconv') ? iconv($context['character_set'], 'UTF-8', $dlbasename) : (!$context['utf8'] && function_exists('mb_convert_encoding') ? mb_convert_encoding($dlbasename, 'UTF-8', $context['character_set']) : $dlbasename);
+	$utf8name = !Utils::$context['utf8'] && function_exists('iconv') ? iconv(Utils::$context['character_set'], 'UTF-8', $dlbasename) : (!Utils::$context['utf8'] && function_exists('mb_convert_encoding') ? mb_convert_encoding($dlbasename, 'UTF-8', Utils::$context['character_set']) : $dlbasename);
 
 	// Different browsers like different standards...
 	if (BrowserDetector::isBrowser('firefox'))
-		header('content-disposition: attachment; filename*=UTF-8\'\'' . rawurlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name)));
+		header('content-disposition: attachment; filename*=UTF-8\'\'' . rawurlencode(Utils::entityDecode($utf8name, true)));
 
 	elseif (BrowserDetector::isBrowser('opera'))
-		header('content-disposition: attachment; filename="' . preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name) . '"');
+		header('content-disposition: attachment; filename="' . Utils::entityDecode($utf8name, true) . '"');
 
 	elseif (BrowserDetector::isBrowser('ie'))
-		header('content-disposition: attachment; filename="' . urlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name)) . '"');
+		header('content-disposition: attachment; filename="' . urlencode(Utils::entityDecode($utf8name, true)) . '"');
 
 	else
 		header('content-disposition: attachment; filename="' . $utf8name . '"');
@@ -628,10 +624,8 @@ function download_export_file($uid)
  */
 function export_attachment($uid)
 {
-	global $sourcedir, $context, $smcFunc;
-
-	$idhash = hash_hmac('sha1', $uid, get_auth_secret());
-	$dltoken = hash_hmac('sha1', $idhash, get_auth_secret());
+	$idhash = hash_hmac('sha1', $uid, Config::getAuthSecret());
+	$dltoken = hash_hmac('sha1', $idhash, Config::getAuthSecret());
 	if (!isset($_GET['t']) || $_GET['t'] !== $dltoken)
 	{
 		send_http_status(403);
@@ -646,7 +640,7 @@ function export_attachment($uid)
 	}
 
 	// Does this attachment belong to this member?
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT m.id_topic
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}attachments AS a ON (m.id_msg = a.id_msg)
@@ -657,26 +651,26 @@ function export_attachment($uid)
 			'attachId' => $attachId,
 		)
 	);
-	if ($smcFunc['db_num_rows']($request) == 0)
+	if (Db::$db->num_rows($request) == 0)
 	{
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 		send_http_status(403);
 		exit;
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// This doesn't count as a normal download.
-	$context['skip_downloads_increment'] = true;
+	Utils::$context['skip_downloads_increment'] = true;
 
 	// Try to avoid collisions when attachment names are not unique.
-	$context['prepend_attachment_id'] = true;
+	Utils::$context['prepend_attachment_id'] = true;
 
 	// Allow access to their attachments even if they can't see the board.
 	// This is just like what we do with posts during export.
-	$context['attachment_allow_hidden_boards'] = true;
+	Utils::$context['attachment_allow_hidden_boards'] = true;
 
 	// We should now have what we need to serve the file.
-	require_once($sourcedir . DIRECTORY_SEPARATOR . 'ShowAttachments.php');
+	require_once(Config::$sourcedir . DIRECTORY_SEPARATOR . 'ShowAttachments.php');
 	showAttachment();
 }
 
@@ -742,30 +736,30 @@ function get_export_formats()
  */
 function create_export_dir($fallback = '')
 {
-	global $boarddir, $modSettings, $txt;
+	global $txt;
 
 	// No supplied fallback, so use the default location.
 	if (empty($fallback))
-		$fallback = $boarddir . DIRECTORY_SEPARATOR . 'exports';
+		$fallback = Config::$boarddir . DIRECTORY_SEPARATOR . 'exports';
 
 	// Automatically set it to the fallback if it is missing.
-	if (empty($modSettings['export_dir']))
-		updateSettings(array('export_dir' => $fallback));
+	if (empty(Config::$modSettings['export_dir']))
+		Config::updateModSettings(array('export_dir' => $fallback));
 
 	// Make sure the directory exists.
-	if (!file_exists($modSettings['export_dir']))
-		@mkdir($modSettings['export_dir'], null, true);
+	if (!file_exists(Config::$modSettings['export_dir']))
+		@mkdir(Config::$modSettings['export_dir'], null, true);
 
 	// Make sure the directory has the correct permissions.
-	if (!is_dir($modSettings['export_dir']) || !smf_chmod($modSettings['export_dir']))
+	if (!is_dir(Config::$modSettings['export_dir']) || !smf_chmod(Config::$modSettings['export_dir']))
 	{
 		loadLanguage('Errors');
 
 		// Try again at the fallback location.
-		if ($modSettings['export_dir'] != $fallback)
+		if (Config::$modSettings['export_dir'] != $fallback)
 		{
-			log_error(sprintf($txt['export_dir_forced_change'], $modSettings['export_dir'], $fallback));
-			updateSettings(array('export_dir' => $fallback));
+			log_error(sprintf($txt['export_dir_forced_change'], Config::$modSettings['export_dir'], $fallback));
+			Config::updateModSettings(array('export_dir' => $fallback));
 
 			// Secondary fallback will be the default location, so no parameter this time.
 			create_export_dir();
@@ -778,7 +772,7 @@ function create_export_dir($fallback = '')
 		}
 	}
 
-	return secureDirectory(array($modSettings['export_dir']), true);
+	return secureDirectory(array(Config::$modSettings['export_dir']), true);
 }
 
 /**
@@ -791,7 +785,7 @@ function create_export_dir($fallback = '')
  */
 function get_xslt_stylesheet($format, $uid)
 {
-	global $context, $txt, $settings, $modSettings, $sourcedir, $forum_copyright, $scripturl, $smcFunc;
+	global $txt, $settings, $forum_copyright;
 
 	static $xslts = array();
 
@@ -804,7 +798,7 @@ function get_xslt_stylesheet($format, $uid)
 	$xslt_ns = 'htt'.'p:/'.'/ww'.'w.w3.o'.'rg/1999/XSL/Transform';
 	$html_ns = 'htt'.'p:/'.'/ww'.'w.w3.o'.'rg/1999/xhtml';
 
-	require_once($sourcedir . DIRECTORY_SEPARATOR . 'News.php');
+	require_once(Config::$sourcedir . DIRECTORY_SEPARATOR . 'News.php');
 
 	if (in_array($format, array('HTML', 'XML_XSLT')))
 	{
@@ -836,7 +830,7 @@ function get_xslt_stylesheet($format, $uid)
 		 */
 		$xslt_variables = array(
 			'scripturl' => array(
-				'value' => $scripturl,
+				'value' => Config::$scripturl,
 			),
 			'themeurl' => array(
 				'value' => $settings['default_theme_url'],
@@ -846,18 +840,18 @@ function get_xslt_stylesheet($format, $uid)
 			),
 			'last_page' => array(
 				'param' => true,
-				'value' => !empty($context['export_last_page']) ? $context['export_last_page'] : 1,
+				'value' => !empty(Utils::$context['export_last_page']) ? Utils::$context['export_last_page'] : 1,
 				'xpath' => true,
 			),
 			'dlfilename' => array(
 				'param' => true,
-				'value' => !empty($context['export_dlfilename']) ? $context['export_dlfilename'] : '',
+				'value' => !empty(Utils::$context['export_dlfilename']) ? Utils::$context['export_dlfilename'] : '',
 			),
 			'ext' => array(
 				'value' => $export_formats[$format]['extension'],
 			),
 			'forum_copyright' => array(
-				'value' => sprintf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, $scripturl),
+				'value' => sprintf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl),
 			),
 			'txt_summary_heading' => array(
 				'value' => $txt['summary'],
@@ -891,13 +885,13 @@ function get_xslt_stylesheet($format, $uid)
 		// Let mods adjust the XSLT variables.
 		call_integration_hook('integrate_export_xslt_variables', array(&$xslt_variables, $format));
 
-		$idhash = hash_hmac('sha1', $uid, get_auth_secret());
+		$idhash = hash_hmac('sha1', $uid, Config::getAuthSecret());
 		$xslt_variables['dltoken'] = array(
-			'value' => hash_hmac('sha1', $idhash, get_auth_secret())
+			'value' => hash_hmac('sha1', $idhash, Config::getAuthSecret())
 		);
 
 		// Efficiency = good.
-		$xslt_key = $smcFunc['json_encode'](array($format, $uid, $xslt_variables));
+		$xslt_key = Utils::jsonEncode(array($format, $uid, $xslt_variables));
 		if (isset($xslts[$xslt_key]))
 			return $xslts[$xslt_key];
 
@@ -926,7 +920,7 @@ function get_xslt_stylesheet($format, $uid)
 		{
 			$doctype = '';
 			$stylesheet['header'] = implode("\n", array(
-				'<?xml version="1.0" encoding="' . $context['character_set'] . '"?' . '>',
+				'<?xml version="1.0" encoding="' . Utils::$context['character_set'] . '"?' . '>',
 				'<xsl:stylesheet version="1.0" xmlns:xsl="' . $xslt_ns . '" xmlns:html="' . $html_ns . '" xmlns:smf="' . $smf_ns . '" exclude-result-prefixes="smf html">',
 			));
 		}
@@ -1681,9 +1675,9 @@ function get_xslt_stylesheet($format, $uid)
 
 		export_load_css_js();
 
-		if (!empty($context['export_css_files']))
+		if (!empty(Utils::$context['export_css_files']))
 		{
-			foreach ($context['export_css_files'] as $css_file)
+			foreach (Utils::$context['export_css_files'] as $css_file)
 			{
 				$stylesheet['css_js'] .= '
 				<link rel="stylesheet">
@@ -1705,28 +1699,28 @@ function get_xslt_stylesheet($format, $uid)
 			}
 		}
 
-		if (!empty($context['export_css_header']))
+		if (!empty(Utils::$context['export_css_header']))
 		{
 			$stylesheet['css_js'] .=  '
-			<style><![CDATA[' . "\n" . implode("\n", $context['export_css_header']) . "\n" . ']]>
+			<style><![CDATA[' . "\n" . implode("\n", Utils::$context['export_css_header']) . "\n" . ']]>
 			</style>';
 		}
 
-		if (!empty($context['export_javascript_vars']))
+		if (!empty(Utils::$context['export_javascript_vars']))
 		{
 			$stylesheet['css_js'] .=  '
 			<script><![CDATA[';
 
-			foreach ($context['export_javascript_vars'] as $var => $val)
+			foreach (Utils::$context['export_javascript_vars'] as $var => $val)
 				$stylesheet['css_js'] .= "\nvar " . $var . (!empty($val) ? ' = ' . $val : '') . ';';
 
 			$stylesheet['css_js'] .= "\n" . ']]>
 			</script>';
 		}
 
-		if (!empty($context['export_javascript_files']))
+		if (!empty(Utils::$context['export_javascript_files']))
 		{
-			foreach ($context['export_javascript_files'] as $js_file)
+			foreach (Utils::$context['export_javascript_files'] as $js_file)
 			{
 				$stylesheet['css_js'] .= '
 				<script>
@@ -1748,19 +1742,19 @@ function get_xslt_stylesheet($format, $uid)
 			}
 		}
 
-		if (!empty($context['export_javascript_inline']['standard']))
+		if (!empty(Utils::$context['export_javascript_inline']['standard']))
 		{
 			$stylesheet['css_js'] .=  '
-			<script><![CDATA[' . "\n" . implode("\n", $context['export_javascript_inline']['standard']) . "\n" . ']]>
+			<script><![CDATA[' . "\n" . implode("\n", Utils::$context['export_javascript_inline']['standard']) . "\n" . ']]>
 			</script>';
 		}
 
-		if (!empty($context['export_javascript_inline']['defer']))
+		if (!empty(Utils::$context['export_javascript_inline']['defer']))
 		{
 			$stylesheet['css_js'] .= '
 			<script><![CDATA[' . "\n" . 'window.addEventListener("DOMContentLoaded", function() {';
 
-			$stylesheet['css_js'] .= "\n\t" . str_replace("\n", "\n\t", implode("\n", $context['export_javascript_inline']['defer']));
+			$stylesheet['css_js'] .= "\n\t" . str_replace("\n", "\n\t", implode("\n", Utils::$context['export_javascript_inline']['defer']));
 
 			$stylesheet['css_js'] .= "\n" . '});'. "\n" . ']]>
 			</script>';
@@ -1777,7 +1771,7 @@ function get_xslt_stylesheet($format, $uid)
 	call_integration_hook('integrate_export_xslt_stylesheet', array(&$stylesheet, $format));
 
 	// Remember for later.
-	$xslt_key = isset($xslt_key) ? $xslt_key : $smcFunc['json_encode'](array($format, $uid, $xslt_variables));
+	$xslt_key = isset($xslt_key) ? $xslt_key : Utils::jsonEncode(array($format, $uid, $xslt_variables));
 	$xslts[$xslt_key] = array('stylesheet' => implode("\n", (array) $stylesheet), 'doctype' => $doctype);
 
 	return $xslts[$xslt_key];
@@ -1788,44 +1782,44 @@ function get_xslt_stylesheet($format, $uid)
  */
 function export_load_css_js()
 {
-	global $context, $modSettings, $sourcedir, $smcFunc, $user_info;
+	global $user_info;
 
 	// If we're not running a background task, we need to preserve any existing CSS and JavaScript.
 	if (SMF != 'BACKGROUND')
 	{
 		foreach (array('css_files', 'css_header', 'javascript_vars', 'javascript_files', 'javascript_inline') as $var)
 		{
-			if (isset($context[$var]))
-				$context['real_' . $var] = $context[$var];
+			if (isset(Utils::$context[$var]))
+				Utils::$context['real_' . $var] = Utils::$context[$var];
 
 			if ($var == 'javascript_inline')
 			{
-				foreach ($context[$var] as $key => $value)
-					$context[$var][$key] = array();
+				foreach (Utils::$context[$var] as $key => $value)
+					Utils::$context[$var][$key] = array();
 			}
 			else
-				$context[$var] = array();
+				Utils::$context[$var] = array();
 		}
 	}
 	// Autoloading is unavailable for background tasks, so we have to do things the hard way...
 	else
 	{
-		if (!empty($modSettings['minimize_files']) && (!class_exists('MatthiasMullie\\Minify\\CSS') || !class_exists('MatthiasMullie\\Minify\\JS')))
+		if (!empty(Config::$modSettings['minimize_files']) && (!class_exists('MatthiasMullie\\Minify\\CSS') || !class_exists('MatthiasMullie\\Minify\\JS')))
 		{
 			// Include, not require, because minimization is nice to have but not vital here.
-			include_once(implode(DIRECTORY_SEPARATOR, array($sourcedir, 'minify', 'src', 'Exception.php')));
-			include_once(implode(DIRECTORY_SEPARATOR, array($sourcedir, 'minify', 'src', 'Exceptions', 'BasicException.php')));
-			include_once(implode(DIRECTORY_SEPARATOR, array($sourcedir, 'minify', 'src', 'Exceptions', 'FileImportException.php')));
-			include_once(implode(DIRECTORY_SEPARATOR, array($sourcedir, 'minify', 'src', 'Exceptions', 'IOException.php')));
+			include_once(implode(DIRECTORY_SEPARATOR, array(Config::$sourcedir, 'minify', 'src', 'Exception.php')));
+			include_once(implode(DIRECTORY_SEPARATOR, array(Config::$sourcedir, 'minify', 'src', 'Exceptions', 'BasicException.php')));
+			include_once(implode(DIRECTORY_SEPARATOR, array(Config::$sourcedir, 'minify', 'src', 'Exceptions', 'FileImportException.php')));
+			include_once(implode(DIRECTORY_SEPARATOR, array(Config::$sourcedir, 'minify', 'src', 'Exceptions', 'IOException.php')));
 
-			include_once(implode(DIRECTORY_SEPARATOR, array($sourcedir, 'minify', 'src', 'Minify.php')));
-			include_once(implode(DIRECTORY_SEPARATOR, array($sourcedir, 'minify', 'path-converter', 'src', 'Converter.php')));
+			include_once(implode(DIRECTORY_SEPARATOR, array(Config::$sourcedir, 'minify', 'src', 'Minify.php')));
+			include_once(implode(DIRECTORY_SEPARATOR, array(Config::$sourcedir, 'minify', 'path-converter', 'src', 'Converter.php')));
 
-			include_once(implode(DIRECTORY_SEPARATOR, array($sourcedir, 'minify', 'src', 'CSS.php')));
-			include_once(implode(DIRECTORY_SEPARATOR, array($sourcedir, 'minify', 'src', 'JS.php')));
+			include_once(implode(DIRECTORY_SEPARATOR, array(Config::$sourcedir, 'minify', 'src', 'CSS.php')));
+			include_once(implode(DIRECTORY_SEPARATOR, array(Config::$sourcedir, 'minify', 'src', 'JS.php')));
 
 			if (!class_exists('MatthiasMullie\\Minify\\CSS') || !class_exists('MatthiasMullie\\Minify\\JS'))
-				$modSettings['minimize_files'] = false;
+				Config::$modSettings['minimize_files'] = false;
 		}
 	}
 
@@ -1833,7 +1827,7 @@ function export_load_css_js()
 	loadCSSFile('index.css', array('minimize' => true, 'order_pos' => 1), 'smf_index');
 	loadCSSFile('responsive.css', array('force_current' => false, 'validate' => true, 'minimize' => true, 'order_pos' => 9000), 'smf_responsive');
 
-	if ($context['right_to_left'])
+	if (Utils::$context['right_to_left'])
 		loadCSSFile('rtl.css', array('order_pos' => 4000), 'smf_rtl');
 
 	// In case any mods added relevant CSS.
@@ -1844,19 +1838,19 @@ function export_load_css_js()
 	$normal_css_files = array();
 
 	usort(
-		$context['css_files'],
+		Utils::$context['css_files'],
 		function ($a, $b)
 		{
 			return $a['options']['order_pos'] < $b['options']['order_pos'] ? -1 : ($a['options']['order_pos'] > $b['options']['order_pos'] ? 1 : 0);
 		}
 	);
 
-	foreach ($context['css_files'] as $css_file)
+	foreach (Utils::$context['css_files'] as $css_file)
 	{
 		if (!isset($css_file['options']['minimize']))
 			$css_file['options']['minimize'] = true;
 
-		if (!empty($css_file['options']['minimize']) && !empty($modSettings['minimize_files']))
+		if (!empty($css_file['options']['minimize']) && !empty(Config::$modSettings['minimize_files']))
 			$css_to_minify[] = $css_file;
 		else
 			$normal_css_files[] = $css_file;
@@ -1864,15 +1858,15 @@ function export_load_css_js()
 
 	$minified_css_files = !empty($css_to_minify) ? custMinify($css_to_minify, 'css') : array();
 
-	$context['css_files'] = array();
+	Utils::$context['css_files'] = array();
 	foreach (array_merge($minified_css_files, $normal_css_files) as $css_file)
 	{
 		// Embed the CSS in a <style> element if possible, since exports are supposed to be standalone files.
 		if (file_exists($css_file['filePath']))
-			$context['css_header'][] = file_get_contents($css_file['filePath']);
+			Utils::$context['css_header'][] = file_get_contents($css_file['filePath']);
 
 		elseif (!empty($css_file['fileUrl']))
-			$context['css_files'][] = $css_file;
+			Utils::$context['css_files'][] = $css_file;
 	}
 
 	// Next, we need to do for JavaScript what we just did for CSS.
@@ -1885,9 +1879,9 @@ function export_load_css_js()
 	$js_to_minify = array();
 	$all_js_files = array();
 
-	foreach ($context['javascript_files'] as $js_file)
+	foreach (Utils::$context['javascript_files'] as $js_file)
 	{
-		if (!empty($js_file['options']['minimize']) && !empty($modSettings['minimize_files']))
+		if (!empty($js_file['options']['minimize']) && !empty(Config::$modSettings['minimize_files']))
 		{
 			if (!empty($js_file['options']['async']))
 				$js_to_minify['async'][] = $js_file;
@@ -1902,7 +1896,7 @@ function export_load_css_js()
 			$all_js_files[] = $js_file;
 	}
 
-	$context['javascript_files'] = array();
+	Utils::$context['javascript_files'] = array();
 	foreach ($js_to_minify as $type => $js_files)
 	{
 		if (!empty($js_files))
@@ -1916,10 +1910,10 @@ function export_load_css_js()
 	{
 		// As with the CSS, embed whatever JavaScript we can.
 		if (file_exists($js_file['filePath']))
-			$context['javascript_inline'][(!empty($js_file['options']['defer']) ? 'defer' : 'standard')][] = file_get_contents($js_file['filePath']);
+			Utils::$context['javascript_inline'][(!empty($js_file['options']['defer']) ? 'defer' : 'standard')][] = file_get_contents($js_file['filePath']);
 
 		elseif (!empty($js_file['fileUrl']))
-			$context['javascript_files'][] = $js_file;
+			Utils::$context['javascript_files'][] = $js_file;
 	}
 
 	// We need to embed the smiley images, too. To save space, we store the image data in JS variables.
@@ -1932,7 +1926,7 @@ function export_load_css_js()
 		'svg' => 'image/svg+xml',
 	);
 
-	foreach (glob(implode(DIRECTORY_SEPARATOR, array($modSettings['smileys_dir'], $user_info['smiley_set'], '*.*'))) as $smiley_file)
+	foreach (glob(implode(DIRECTORY_SEPARATOR, array(Config::$modSettings['smileys_dir'], $user_info['smiley_set'], '*.*'))) as $smiley_file)
 	{
 		$pathinfo = pathinfo($smiley_file);
 
@@ -1941,11 +1935,11 @@ function export_load_css_js()
 
 		$var = implode('_', array('smf', 'smiley', $pathinfo['filename'], $pathinfo['extension']));
 
-		if (!isset($context['javascript_vars'][$var]))
-			$context['javascript_vars'][$var] = '\'data:' . $smiley_mimetypes[$pathinfo['extension']] . ';base64,' . base64_encode(file_get_contents($smiley_file)) . '\'';
+		if (!isset(Utils::$context['javascript_vars'][$var]))
+			Utils::$context['javascript_vars'][$var] = '\'data:' . $smiley_mimetypes[$pathinfo['extension']] . ';base64,' . base64_encode(file_get_contents($smiley_file)) . '\'';
 	}
 
-	$context['javascript_inline']['defer'][] = implode("\n", array(
+	Utils::$context['javascript_inline']['defer'][] = implode("\n", array(
 		'$("img.smiley").each(function() {',
 		'	var data_uri_var = $(this).attr("src").replace(/.*\/(\w+)\.(\w+)$/, "smf_smiley_$1_$2");',
 		'	$(this).attr("src", window[data_uri_var]);',
@@ -1955,10 +1949,10 @@ function export_load_css_js()
 	// Now move everything to the special export version of these arrays.
 	foreach (array('css_files', 'css_header', 'javascript_vars', 'javascript_files', 'javascript_inline') as $var)
 	{
-		if (isset($context[$var]))
-			$context['export_' . $var] = $context[$var];
+		if (isset(Utils::$context[$var]))
+			Utils::$context['export_' . $var] = Utils::$context[$var];
 
-		unset($context[$var]);
+		unset(Utils::$context[$var]);
 	}
 
 	// Finally, restore the real values.
@@ -1966,10 +1960,10 @@ function export_load_css_js()
 	{
 		foreach (array('css_files', 'css_header', 'javascript_vars', 'javascript_files', 'javascript_inline') as $var)
 		{
-			if (isset($context['real_' . $var]))
-				$context[$var] = $context['real_' . $var];
+			if (isset(Utils::$context['real_' . $var]))
+				Utils::$context[$var] = Utils::$context['real_' . $var];
 
-			unset($context['real_' . $var]);
+			unset(Utils::$context['real_' . $var]);
 		}
 	}
 }

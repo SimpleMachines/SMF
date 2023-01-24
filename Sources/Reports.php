@@ -21,6 +21,10 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -40,7 +44,7 @@ if (!defined('SMF'))
  */
 function ReportsMain()
 {
-	global $txt, $context, $scripturl;
+	global $txt;
 
 	// Only admins, only EVER admins!
 	isAllowedTo('admin_forum');
@@ -49,10 +53,10 @@ function ReportsMain()
 	loadTemplate('Reports');
 	loadLanguage('Reports');
 
-	$context['page_title'] = $txt['generate_reports'];
+	Utils::$context['page_title'] = $txt['generate_reports'];
 
 	// These are the types of reports which exist - and the functions to generate them.
-	$context['report_types'] = array(
+	Utils::$context['report_types'] = array(
 		'boards' => 'BoardReport',
 		'board_perms' => 'BoardPermissionsReport',
 		'member_groups' => 'MemberGroupsReport',
@@ -62,15 +66,15 @@ function ReportsMain()
 
 	call_integration_hook('integrate_report_types');
 	// Load up all the tabs...
-	$context[$context['admin_menu_name']]['tab_data'] = array(
+	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['generate_reports'],
 		'help' => '',
 		'description' => $txt['generate_reports_desc'],
 	);
 
 	$is_first = 0;
-	foreach ($context['report_types'] as $k => $temp)
-		$context['report_types'][$k] = array(
+	foreach (Utils::$context['report_types'] as $k => $temp)
+		Utils::$context['report_types'][$k] = array(
 			'id' => $k,
 			'title' => isset($txt['gr_type_' . $k]) ? $txt['gr_type_' . $k] : $k,
 			'description' => isset($txt['gr_type_desc_' . $k]) ? $txt['gr_type_desc_' . $k] : null,
@@ -79,12 +83,12 @@ function ReportsMain()
 		);
 
 	// If they haven't chosen a report type which is valid, send them off to the report type chooser!
-	if (empty($_REQUEST['rt']) || !isset($context['report_types'][$_REQUEST['rt']]))
+	if (empty($_REQUEST['rt']) || !isset(Utils::$context['report_types'][$_REQUEST['rt']]))
 	{
-		$context['sub_template'] = 'report_type';
+		Utils::$context['sub_template'] = 'report_type';
 		return;
 	}
-	$context['report_type'] = $_REQUEST['rt'];
+	Utils::$context['report_type'] = $_REQUEST['rt'];
 
 	// What are valid templates for showing reports?
 	$reportTemplates = array(
@@ -99,27 +103,27 @@ function ReportsMain()
 	// Specific template? Use that instead of main!
 	if (isset($_REQUEST['st']) && isset($reportTemplates[$_REQUEST['st']]))
 	{
-		$context['sub_template'] = $_REQUEST['st'];
+		Utils::$context['sub_template'] = $_REQUEST['st'];
 
 		// Are we disabling the other layers - print friendly for example?
 		if ($reportTemplates[$_REQUEST['st']]['layers'] !== null)
-			$context['template_layers'] = $reportTemplates[$_REQUEST['st']]['layers'];
+			Utils::$context['template_layers'] = $reportTemplates[$_REQUEST['st']]['layers'];
 	}
 
 	// Make the page title more descriptive.
-	$context['page_title'] .= ' - ' . (isset($txt['gr_type_' . $context['report_type']]) ? $txt['gr_type_' . $context['report_type']] : $context['report_type']);
+	Utils::$context['page_title'] .= ' - ' . (isset($txt['gr_type_' . Utils::$context['report_type']]) ? $txt['gr_type_' . Utils::$context['report_type']] : Utils::$context['report_type']);
 
 	// Build the reports button array.
-	$context['report_buttons'] = array(
-		'generate_reports' => array('text' => 'generate_reports', 'image' => 'print.png', 'url' => $scripturl . '?action=admin;area=reports', 'active' => true),
-		'print' => array('text' => 'print', 'image' => 'print.png', 'url' => $scripturl . '?action=admin;area=reports;rt=' . $context['report_type'] . ';st=print', 'custom' => 'target="_blank"'),
+	Utils::$context['report_buttons'] = array(
+		'generate_reports' => array('text' => 'generate_reports', 'image' => 'print.png', 'url' => Config::$scripturl . '?action=admin;area=reports', 'active' => true),
+		'print' => array('text' => 'print', 'image' => 'print.png', 'url' => Config::$scripturl . '?action=admin;area=reports;rt=' . Utils::$context['report_type'] . ';st=print', 'custom' => 'target="_blank"'),
 	);
 
 	// Allow mods to add additional buttons here
 	call_integration_hook('integrate_report_buttons');
 
 	// Now generate the data.
-	$context['report_types'][$context['report_type']]['function']();
+	Utils::$context['report_types'][Utils::$context['report_type']]['function']();
 
 	// Finish the tables before exiting - this is to help the templates a little more.
 	finishTables();
@@ -135,15 +139,15 @@ function ReportsMain()
  */
 function BoardReport()
 {
-	global $context, $txt, $sourcedir, $smcFunc, $modSettings;
+	global $txt;
 
 	// Load the permission profiles.
-	require_once($sourcedir . '/ManagePermissions.php');
+	require_once(Config::$sourcedir . '/ManagePermissions.php');
 	loadLanguage('ManagePermissions');
 	loadPermissionProfiles();
 
 	// Get every moderator.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT mods.id_board, mods.id_member, mem.real_name
 		FROM {db_prefix}moderators AS mods
 			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = mods.id_member)',
@@ -151,12 +155,12 @@ function BoardReport()
 		)
 	);
 	$moderators = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$moderators[$row['id_board']][] = $row['real_name'];
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Get every moderator gruop.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT modgs.id_board, modgs.id_group, memg.group_name
 		FROM {db_prefix}moderator_groups AS modgs
 			INNER JOIN {db_prefix}membergroups AS memg ON (memg.id_group = modgs.id_group)',
@@ -164,21 +168,21 @@ function BoardReport()
 		)
 	);
 	$moderator_groups = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$moderator_groups[$row['id_board']][] = $row['group_name'];
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Get all the possible membergroups!
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_group, group_name, online_color
 		FROM {db_prefix}membergroups',
 		array(
 		)
 	);
 	$groups = array(-1 => $txt['guest_title'], 0 => $txt['membergroups_members']);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$groups[$row['id_group']] = empty($row['online_color']) ? $row['group_name'] : '<span style="color: ' . $row['online_color'] . '">' . $row['group_name'] . '</span>';
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// All the fields we'll show.
 	$boardSettings = array(
@@ -195,14 +199,14 @@ function BoardReport()
 		'moderator_groups' => $txt['board_moderator_groups'],
 		'groups' => $txt['board_groups'],
 	);
-	if (!empty($modSettings['deny_boards_access']))
+	if (!empty(Config::$modSettings['deny_boards_access']))
 		$boardSettings['disallowed_groups'] = $txt['board_disallowed_groups'];
 
 	// Do it in columns, it's just easier.
 	setKeys('cols');
 
 	// Go through each board!
-	$request = $smcFunc['db_query']('order_by_board_order', '
+	$request = Db::$db->query('order_by_board_order', '
 		SELECT b.id_board, b.name, b.num_posts, b.num_topics, b.count_posts, b.member_groups, b.override_theme, b.id_profile, b.deny_member_groups,
 			b.redirect, c.name AS cat_name, COALESCE(par.name, {string:text_none}) AS parent_name, COALESCE(th.value, {string:text_none}) AS theme_name
 		FROM {db_prefix}boards AS b
@@ -216,7 +220,7 @@ function BoardReport()
 		)
 	);
 
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// Each board has its own table.
 		newTable($row['name'], '', 'left', 'auto', 'left', 200, 'left');
@@ -229,7 +233,7 @@ function BoardReport()
 		addData($this_boardSettings);
 
 		// Format the profile name.
-		$profile_name = $context['profiles'][$row['id_profile']]['name'];
+		$profile_name = Utils::$context['profiles'][$row['id_profile']]['name'];
 
 		// Create the main data array.
 		$boardData = array(
@@ -256,7 +260,7 @@ function BoardReport()
 				unset($allowedGroups[$key]);
 		}
 		$boardData['groups'] = implode(', ', $allowedGroups);
-		if (!empty($modSettings['deny_boards_access']))
+		if (!empty(Config::$modSettings['deny_boards_access']))
 		{
 			$disallowedGroups = explode(',', $row['deny_member_groups']);
 			foreach ($disallowedGroups as $key => $group)
@@ -275,7 +279,7 @@ function BoardReport()
 		// Next add the main data.
 		addData($boardData);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 }
 
 /**
@@ -288,7 +292,7 @@ function BoardReport()
  */
 function BoardPermissionsReport()
 {
-	global $txt, $modSettings, $smcFunc;
+	global $txt;
 
 	// Get as much memory as possible as this can be big.
 	setMemoryLimit('256M');
@@ -318,7 +322,7 @@ function BoardPermissionsReport()
 		$group_clause = '1=1';
 
 	// Fetch all the board names.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_board, name, id_profile
 		FROM {db_prefix}boards
 		WHERE ' . $board_clause . '
@@ -328,7 +332,7 @@ function BoardPermissionsReport()
 		)
 	);
 	$profiles = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$boards[$row['id_board']] = array(
 			'name' => $row['name'],
@@ -337,29 +341,29 @@ function BoardPermissionsReport()
 		);
 		$profiles[] = $row['id_profile'];
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Get the ids of any groups allowed to moderate this board
 	// Limit it to any boards and/or groups we're looking at
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_board, id_group
 		FROM {db_prefix}moderator_groups
 		WHERE ' . $board_clause . ' AND ' . $group_clause,
 		array(
 		)
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$boards[$row['id_board']]['mod_groups'][] = $row['id_group'];
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Get all the possible membergroups, except admin!
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_group, group_name
 		FROM {db_prefix}membergroups
 		WHERE ' . $group_clause . '
-			AND id_group != {int:admin_group}' . (empty($modSettings['permission_enable_postgroups']) ? '
+			AND id_group != {int:admin_group}' . (empty(Config::$modSettings['permission_enable_postgroups']) ? '
 			AND min_posts = {int:min_posts}' : '') . '
 		ORDER BY min_posts, CASE WHEN id_group < {int:newbie_group} THEN id_group ELSE 4 END, group_name',
 		array(
@@ -373,16 +377,16 @@ function BoardPermissionsReport()
 		$member_groups = array('col' => '', -1 => $txt['membergroups_guests'], 0 => $txt['membergroups_members']);
 	else
 		$member_groups = array('col' => '');
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$member_groups[$row['id_group']] = $row['group_name'];
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Make sure that every group is represented - plus in rows!
 	setKeys('rows', $member_groups);
 
 	// Certain permissions should not really be shown.
 	$disabled_permissions = array();
-	if (!$modSettings['postmod_active'])
+	if (!Config::$modSettings['postmod_active'])
 	{
 		$disabled_permissions[] = 'approve_posts';
 		$disabled_permissions[] = 'post_unapproved_topics';
@@ -396,11 +400,11 @@ function BoardPermissionsReport()
 	// Cache every permission setting, to make sure we don't miss any allows.
 	$permissions = array();
 	$board_permissions = array();
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_profile, id_group, add_deny, permission
 		FROM {db_prefix}board_permissions
 		WHERE id_profile IN ({array_int:profile_list})
-			AND ' . $group_clause . (empty($modSettings['permission_enable_deny']) ? '
+			AND ' . $group_clause . (empty(Config::$modSettings['permission_enable_deny']) ? '
 			AND add_deny = {int:not_deny}' : '') . '
 		ORDER BY id_profile, permission',
 		array(
@@ -409,7 +413,7 @@ function BoardPermissionsReport()
 			'groups' => isset($_REQUEST['groups']) ? $_REQUEST['groups'] : array(),
 		)
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		if (in_array($row['permission'], $disabled_permissions))
 			continue;
@@ -427,7 +431,7 @@ function BoardPermissionsReport()
 			);
 		}
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Now cycle through the board permissions array... lots to do ;)
 	foreach ($board_permissions as $board => $groups)
@@ -502,16 +506,16 @@ function BoardPermissionsReport()
  */
 function MemberGroupsReport()
 {
-	global $txt, $settings, $modSettings, $smcFunc;
+	global $txt, $settings;
 
 	// Fetch all the board names.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_board, name, member_groups, id_profile, deny_member_groups
 		FROM {db_prefix}boards',
 		array(
 		)
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		if (trim($row['member_groups']) == '')
 			$groups = array(1);
@@ -531,7 +535,7 @@ function MemberGroupsReport()
 			'deny_groups' => $denyGroups,
 		);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Standard settings.
 	$mgSettings = array(
@@ -558,7 +562,7 @@ function MemberGroupsReport()
 	addData($mgSettings);
 
 	// Now start cycling the membergroups!
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT mg.id_group, mg.group_name, mg.online_color, mg.min_posts, mg.max_messages, mg.icons,
 			CASE WHEN bp.permission IS NOT NULL OR mg.id_group = {int:admin_group} THEN 1 ELSE 0 END AS can_moderate
 		FROM {db_prefix}membergroups AS mg
@@ -591,9 +595,9 @@ function MemberGroupsReport()
 			'icons' => ''
 		),
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$rows[] = $row;
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	foreach ($rows as $row)
 	{
@@ -609,7 +613,7 @@ function MemberGroupsReport()
 
 		// Board permissions.
 		foreach ($boards as $board)
-			$group['board_' . $board['id']] = in_array($row['id_group'], $board['groups']) ? '<span class="success">' . $txt['board_perms_allow'] . '</span>' : (!empty($modSettings['deny_boards_access']) && in_array($row['id_group'], $board['deny_groups']) ? '<span class="alert">' . $txt['board_perms_deny'] . '</span>' : 'x');
+			$group['board_' . $board['id']] = in_array($row['id_group'], $board['groups']) ? '<span class="success">' . $txt['board_perms_allow'] . '</span>' : (!empty(Config::$modSettings['deny_boards_access']) && in_array($row['id_group'], $board['deny_groups']) ? '<span class="alert">' . $txt['board_perms_deny'] . '</span>' : 'x');
 
 		addData($group);
 	}
@@ -625,7 +629,7 @@ function MemberGroupsReport()
  */
 function GroupPermissionsReport()
 {
-	global $txt, $modSettings, $smcFunc;
+	global $txt;
 
 	if (isset($_REQUEST['groups']))
 	{
@@ -641,11 +645,11 @@ function GroupPermissionsReport()
 		$clause = 'id_group != {int:moderator_group}';
 
 	// Get all the possible membergroups, except admin!
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_group, group_name
 		FROM {db_prefix}membergroups
 		WHERE ' . $clause . '
-			AND id_group != {int:admin_group}' . (empty($modSettings['permission_enable_postgroups']) ? '
+			AND id_group != {int:admin_group}' . (empty(Config::$modSettings['permission_enable_postgroups']) ? '
 			AND min_posts = {int:min_posts}' : '') . '
 		ORDER BY min_posts, CASE WHEN id_group < {int:newbie_group} THEN id_group ELSE 4 END, group_name',
 		array(
@@ -660,9 +664,9 @@ function GroupPermissionsReport()
 		$groups = array('col' => '', -1 => $txt['membergroups_guests'], 0 => $txt['membergroups_members']);
 	else
 		$groups = array('col' => '');
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$groups[$row['id_group']] = $row['group_name'];
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Make sure that every group is represented!
 	setKeys('rows', $groups);
@@ -678,23 +682,23 @@ function GroupPermissionsReport()
 
 	// Certain permissions should not really be shown.
 	$disabled_permissions = array();
-	if (empty($modSettings['cal_enabled']))
+	if (empty(Config::$modSettings['cal_enabled']))
 	{
 		$disabled_permissions[] = 'calendar_view';
 		$disabled_permissions[] = 'calendar_post';
 		$disabled_permissions[] = 'calendar_edit_own';
 		$disabled_permissions[] = 'calendar_edit_any';
 	}
-	if (empty($modSettings['warning_settings']) || $modSettings['warning_settings'][0] == 0)
+	if (empty(Config::$modSettings['warning_settings']) || Config::$modSettings['warning_settings'][0] == 0)
 		$disabled_permissions[] = 'issue_warning';
 
 	call_integration_hook('integrate_reports_groupperm', array(&$disabled_permissions));
 
 	// Now the big permission fetch!
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_group, add_deny, permission
 		FROM {db_prefix}permissions
-		WHERE ' . $clause . (empty($modSettings['permission_enable_deny']) ? '
+		WHERE ' . $clause . (empty(Config::$modSettings['permission_enable_deny']) ? '
 			AND add_deny = {int:not_denied}' : '') . '
 		ORDER BY permission',
 		array(
@@ -705,7 +709,7 @@ function GroupPermissionsReport()
 	);
 	$lastPermission = null;
 	$curData = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		if (in_array($row['permission'], $disabled_permissions))
 			continue;
@@ -732,7 +736,7 @@ function GroupPermissionsReport()
 		else
 			$curData[$row['id_group']] = '<span class="red">' . $txt['board_perms_deny'] . '</span>';
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Flush the last data!
 	addData($curData);
@@ -748,24 +752,24 @@ function GroupPermissionsReport()
  */
 function StaffReport()
 {
-	global $sourcedir, $txt, $smcFunc;
+	global $txt;
 
-	require_once($sourcedir . '/Subs-Members.php');
+	require_once(Config::$sourcedir . '/Subs-Members.php');
 
 	// Fetch all the board names.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_board, name
 		FROM {db_prefix}boards',
 		array(
 		)
 	);
 	$boards = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$boards[$row['id_board']] = $row['name'];
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Get every moderator.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT mods.id_board, mods.id_member
 		FROM {db_prefix}moderators AS mods',
 		array(
@@ -773,15 +777,15 @@ function StaffReport()
 	);
 	$moderators = array();
 	$local_mods = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$moderators[$row['id_member']][] = $row['id_board'];
 		$local_mods[$row['id_member']] = $row['id_member'];
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Get any additional boards they can moderate through group-based board moderation
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT mem.id_member, modgs.id_board
 		FROM {db_prefix}members AS mem
 			INNER JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_group = mem.id_group OR FIND_IN_SET(modgs.id_group, mem.additional_groups) != 0)',
@@ -790,7 +794,7 @@ function StaffReport()
 	);
 
 	// Add each board/member to the arrays, but only if they aren't already there
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// Either we don't have them as a moderator at all or at least not as a moderator of this board
 		if (!array_key_exists($row['id_member'], $moderators) || !in_array($row['id_board'], $moderators[$row['id_member']]))
@@ -815,16 +819,16 @@ function StaffReport()
 		fatal_lang_error('report_error_too_many_staff');
 
 	// Get all the possible membergroups!
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_group, group_name, online_color
 		FROM {db_prefix}membergroups',
 		array(
 		)
 	);
 	$groups = array(0 => $txt['membergroups_members']);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$groups[$row['id_group']] = empty($row['online_color']) ? $row['group_name'] : '<span style="color: ' . $row['online_color'] . '">' . $row['group_name'] . '</span>';
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// All the fields we'll show.
 	$staffSettings = array(
@@ -838,7 +842,7 @@ function StaffReport()
 	setKeys('cols');
 
 	// Get each member!
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_member, real_name, id_group, posts, last_login
 		FROM {db_prefix}members
 		WHERE id_member IN ({array_int:staff_list})
@@ -847,7 +851,7 @@ function StaffReport()
 			'staff_list' => $allStaff,
 		)
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// Each member gets their own table!.
 		newTable($row['real_name'], '', 'left', 'auto', 'left', 200, 'center');
@@ -881,7 +885,7 @@ function StaffReport()
 		// Next add the main data.
 		addData($staffData);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 }
 
 /**
@@ -901,14 +905,12 @@ function StaffReport()
  */
 function newTable($title = '', $default_value = '', $shading = 'all', $width_normal = 'auto', $align_normal = 'center', $width_shaded = 'auto', $align_shaded = 'auto')
 {
-	global $context;
-
 	// Set the table count if needed.
-	if (empty($context['table_count']))
-		$context['table_count'] = 0;
+	if (empty(Utils::$context['table_count']))
+		Utils::$context['table_count'] = 0;
 
 	// Create the table!
-	$context['tables'][$context['table_count']] = array(
+	Utils::$context['tables'][Utils::$context['table_count']] = array(
 		'title' => $title,
 		'default_value' => $default_value,
 		'shading' => array(
@@ -927,10 +929,10 @@ function newTable($title = '', $default_value = '', $shading = 'all', $width_nor
 		'data' => array(),
 	);
 
-	$context['current_table'] = $context['table_count'];
+	Utils::$context['current_table'] = Utils::$context['table_count'];
 
 	// Increment the count...
-	$context['table_count']++;
+	Utils::$context['table_count']++;
 }
 
 /**
@@ -952,28 +954,26 @@ function newTable($title = '', $default_value = '', $shading = 'all', $width_nor
  */
 function addData($inc_data, $custom_table = null)
 {
-	global $context;
-
 	// No tables? Create one even though we are probably already in a bad state!
-	if (empty($context['table_count']))
+	if (empty(Utils::$context['table_count']))
 		newTable();
 
 	// Specific table?
-	if ($custom_table !== null && !isset($context['tables'][$custom_table]))
+	if ($custom_table !== null && !isset(Utils::$context['tables'][$custom_table]))
 		return false;
 	elseif ($custom_table !== null)
 		$table = $custom_table;
 	else
-		$table = $context['current_table'];
+		$table = Utils::$context['current_table'];
 
 	// If we have keys, sanitise the data...
-	if (!empty($context['keys']))
+	if (!empty(Utils::$context['keys']))
 	{
 		// Basically, check every key exists!
-		foreach ($context['keys'] as $key => $dummy)
+		foreach (Utils::$context['keys'] as $key => $dummy)
 		{
 			$data[$key] = array(
-				'v' => empty($inc_data[$key]) ? $context['tables'][$table]['default_value'] : $inc_data[$key],
+				'v' => empty($inc_data[$key]) ? Utils::$context['tables'][$table]['default_value'] : $inc_data[$key],
 			);
 			// Special "hack" the adding separators when doing data by column.
 			if (substr($key, 0, 5) == '#sep#')
@@ -994,16 +994,16 @@ function addData($inc_data, $custom_table = null)
 	}
 
 	// Is it by row?
-	if (empty($context['key_method']) || $context['key_method'] == 'rows')
+	if (empty(Utils::$context['key_method']) || Utils::$context['key_method'] == 'rows')
 	{
 		// Add the data!
-		$context['tables'][$table]['data'][] = $data;
+		Utils::$context['tables'][$table]['data'][] = $data;
 	}
 	// Otherwise, tricky!
 	else
 	{
 		foreach ($data as $key => $item)
-			$context['tables'][$table]['data'][$key][] = $item;
+			Utils::$context['tables'][$table]['data'][$key][] = $item;
 	}
 }
 
@@ -1017,22 +1017,20 @@ function addData($inc_data, $custom_table = null)
  */
 function addSeparator($title = '', $custom_table = null)
 {
-	global $context;
-
 	// No tables - return?
-	if (empty($context['table_count']))
+	if (empty(Utils::$context['table_count']))
 		return;
 
 	// Specific table?
-	if ($custom_table !== null && !isset($context['tables'][$table]))
+	if ($custom_table !== null && !isset(Utils::$context['tables'][$table]))
 		return false;
 	elseif ($custom_table !== null)
 		$table = $custom_table;
 	else
-		$table = $context['current_table'];
+		$table = Utils::$context['current_table'];
 
 	// Plumb in the separator
-	$context['tables'][$table]['data'][] = array(0 => array(
+	Utils::$context['tables'][$table]['data'][] = array(0 => array(
 		'separator' => true,
 		'v' => $title
 	));
@@ -1048,26 +1046,24 @@ function addSeparator($title = '', $custom_table = null)
  */
 function finishTables()
 {
-	global $context;
-
-	if (empty($context['tables']))
+	if (empty(Utils::$context['tables']))
 		return;
 
 	// Loop through each table counting up some basic values, to help with the templating.
-	foreach ($context['tables'] as $id => $table)
+	foreach (Utils::$context['tables'] as $id => $table)
 	{
-		$context['tables'][$id]['id'] = $id;
-		$context['tables'][$id]['row_count'] = count($table['data']);
+		Utils::$context['tables'][$id]['id'] = $id;
+		Utils::$context['tables'][$id]['row_count'] = count($table['data']);
 		$curElement = current($table['data']);
-		$context['tables'][$id]['column_count'] = count($curElement);
+		Utils::$context['tables'][$id]['column_count'] = count($curElement);
 
 		// Work out the rough width - for templates like the print template. Without this we might get funny tables.
 		if ($table['shading']['left'] && $table['width']['shaded'] != 'auto' && $table['width']['normal'] != 'auto')
-			$context['tables'][$id]['max_width'] = $table['width']['shaded'] + ($context['tables'][$id]['column_count'] - 1) * $table['width']['normal'];
+			Utils::$context['tables'][$id]['max_width'] = $table['width']['shaded'] + (Utils::$context['tables'][$id]['column_count'] - 1) * $table['width']['normal'];
 		elseif ($table['width']['normal'] != 'auto')
-			$context['tables'][$id]['max_width'] = $context['tables'][$id]['column_count'] * $table['width']['normal'];
+			Utils::$context['tables'][$id]['max_width'] = Utils::$context['tables'][$id]['column_count'] * $table['width']['normal'];
 		else
-			$context['tables'][$id]['max_width'] = 'auto';
+			Utils::$context['tables'][$id]['max_width'] = 'auto';
 	}
 }
 
@@ -1089,16 +1085,14 @@ function finishTables()
  */
 function setKeys($method = 'rows', $keys = array(), $reverse = false)
 {
-	global $context;
-
 	// Do we want to use the keys of the keys as the keys? :P
 	if ($reverse)
-		$context['keys'] = array_flip($keys);
+		Utils::$context['keys'] = array_flip($keys);
 	else
-		$context['keys'] = $keys;
+		Utils::$context['keys'] = $keys;
 
 	// Rows or columns?
-	$context['key_method'] = $method == 'rows' ? 'rows' : 'cols';
+	Utils::$context['key_method'] = $method == 'rows' ? 'rows' : 'cols';
 }
 
 ?>

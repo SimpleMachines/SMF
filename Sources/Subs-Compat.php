@@ -16,6 +16,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
 use SMF\Punycode;
 
 if (!defined('SMF'))
@@ -379,12 +380,12 @@ if (!function_exists('mb_chr'))
  */
 function mb_ord_chr_encoding($encoding = null)
 {
-	global $modSettings, $txt;
+	global $txt;
 
 	if (is_null($encoding))
 	{
-		if (isset($modSettings['global_character_set']))
-			$encoding = $modSettings['global_character_set'];
+		if (isset(Config::$modSettings['global_character_set']))
+			$encoding = Config::$modSettings['global_character_set'];
 
 		elseif (isset($txt['lang_character_set']))
 			$encoding = $txt['lang_character_set'];
@@ -478,8 +479,6 @@ if (!function_exists('idn_to_ascii'))
 	 */
 	function idn_to_ascii($domain, $flags = 0, $variant = 1, &$idna_info = null)
 	{
-		global $sourcedir;
-
 		static $Punycode;
 
 		if (!is_object($Punycode))
@@ -514,8 +513,6 @@ if (!function_exists('idn_to_utf8'))
 	 */
 	function idn_to_utf8($domain, $flags = 0, $variant = 1, &$idna_info = null)
 	{
-		global $sourcedir;
-
 		static $Punycode;
 
 		if (!is_object($Punycode))

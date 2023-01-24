@@ -10,12 +10,15 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+
 /**
  * This is the administration center home.
  */
 function template_admin()
 {
-	global $context, $scripturl, $txt, $modSettings;
+	global $txt;
 
 	// Is there an update available?
 	echo '
@@ -29,7 +32,7 @@ function template_admin()
 							<div id="live_news" class="floatleft">
 								<div class="cat_bar">
 									<h3 class="catbg">
-										<a href="', $scripturl, '?action=helpadmin;help=live_news" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a> ', $txt['live'], '
+										<a href="', Config::$scripturl, '?action=helpadmin;help=live_news" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a> ', $txt['live'], '
 									</h3>
 								</div>
 								<div class="windowbg nopadding">
@@ -42,28 +45,28 @@ function template_admin()
 							<div id="support_info" class="floatright">
 								<div class="cat_bar">
 									<h3 class="catbg">
-										<a href="', $scripturl, '?action=admin;area=credits">', $txt['support_title'], '</a>
+										<a href="', Config::$scripturl, '?action=admin;area=credits">', $txt['support_title'], '</a>
 									</h3>
 								</div>
 								<div class="windowbg nopadding">
 									<div id="version_details" class="padding">
 										<strong>', $txt['support_versions'], ':</strong><br>
 										', $txt['support_versions_forum'], ':
-										<em id="yourVersion">', $context['forum_version'], '</em><br>
+										<em id="yourVersion">', Utils::$context['forum_version'], '</em><br>
 										', $txt['support_versions_current'], ':
 										<em id="smfVersion">??</em><br>
-										', $context['can_admin'] ? '<a href="' . $scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . $txt['version_check_more'] . '</a>' : '', '<br>';
+										', Utils::$context['can_admin'] ? '<a href="' . Config::$scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . $txt['version_check_more'] . '</a>' : '', '<br>';
 
 	// Display all the members who can administrate the forum.
 	echo '
 										<br>
 										<strong>', $txt['administrators'], ':</strong>
-										', implode(', ', $context['administrators']);
+										', implode(', ', Utils::$context['administrators']);
 
 	// If we have lots of admins... don't show them all.
-	if (!empty($context['more_admins_link']))
+	if (!empty(Utils::$context['more_admins_link']))
 		echo '
-										(', $context['more_admins_link'], ')';
+										(', Utils::$context['more_admins_link'], ')';
 
 	echo '
 									</div><!-- #version_details -->
@@ -71,7 +74,7 @@ function template_admin()
 							</div><!-- #support_info -->
 						</div><!-- #admin_main_section -->';
 
-	foreach ($context[$context['admin_menu_name']]['sections'] as $area_id => $area)
+	foreach (Utils::$context[Utils::$context['admin_menu_name']]['sections'] as $area_id => $area)
 	{
 		echo '
 						<fieldset id="group_', $area_id, '" class="windowbg admin_group">
@@ -83,7 +86,7 @@ function template_admin()
 			if ($area_id == 'forum' && $item_id == 'index')
 				continue;
 
-			$url = isset($item['url']) ? $item['url'] : $scripturl . '?action=admin;area=' . $item_id . (!empty($context[$context['admin_menu_name']]['extra_parameters']) ? $context[$context['admin_menu_name']]['extra_parameters'] : '');
+			$url = isset($item['url']) ? $item['url'] : Config::$scripturl . '?action=admin;area=' . $item_id . (!empty(Utils::$context[Utils::$context['admin_menu_name']]['extra_parameters']) ? Utils::$context[Utils::$context['admin_menu_name']]['extra_parameters'] : '');
 
 			if (!empty($item['icon_file']))
 				echo '
@@ -98,10 +101,10 @@ function template_admin()
 	}
 
 	// The below functions include all the scripts needed from the simplemachines.org site. The language and format are passed for internationalization.
-	if (empty($modSettings['disable_smf_js']))
+	if (empty(Config::$modSettings['disable_smf_js']))
 		echo '
-					<script src="', $scripturl, '?action=viewsmfile;filename=current-version.js"></script>
-					<script src="', $scripturl, '?action=viewsmfile;filename=latest-news.js"></script>';
+					<script src="', Config::$scripturl, '?action=viewsmfile;filename=current-version.js"></script>
+					<script src="', Config::$scripturl, '?action=viewsmfile;filename=latest-news.js"></script>';
 
 	// This sets the announcements and current versions themselves ;).
 	echo '
@@ -142,7 +145,7 @@ function template_admin()
 									%message%
 								</div>
 							'), ',
-							sUpdateNotificationLink: smf_scripturl + ', JavaScriptEscape('?action=admin;area=packages;pgdownload;auto;package=%package%;' . $context['session_var'] . '=' . $context['session_id']), '
+							sUpdateNotificationLink: smf_scripturl + ', JavaScriptEscape('?action=admin;area=packages;pgdownload;auto;package=%package%;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']), '
 						});
 					</script>';
 }
@@ -152,7 +155,7 @@ function template_admin()
  */
 function template_credits()
 {
-	global $context, $settings, $scripturl, $txt;
+	global $settings, $txt;
 
 	// Show the user version information from their server.
 	echo '
@@ -166,21 +169,21 @@ function template_credits()
 							<img src="', $settings['images_url'], '/smflogo.svg" class="floatright" alt="">
 							<strong>', $txt['support_versions'], ':</strong><br>
 								', $txt['support_versions_forum'], ':
-							<em id="yourVersion">', $context['forum_version'], '</em>', $context['can_admin'] ? ' <a href="' . $scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . $txt['version_check_more'] . '</a>' : '', '<br>
+							<em id="yourVersion">', Utils::$context['forum_version'], '</em>', Utils::$context['can_admin'] ? ' <a href="' . Config::$scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . $txt['version_check_more'] . '</a>' : '', '<br>
 								', $txt['support_versions_current'], ':
 							<em id="smfVersion">??</em><br>';
 
 	// Display all the variables we have server information for.
-	foreach ($context['current_versions'] as $version)
+	foreach (Utils::$context['current_versions'] as $version)
 	{
 		echo '
 								', $version['title'], ':
 							<em>', $version['version'], '</em>';
 
 		// more details for this item, show them a link
-		if ($context['can_admin'] && isset($version['more']))
+		if (Utils::$context['can_admin'] && isset($version['more']))
 			echo
-							' <a href="', $scripturl, $version['more'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['version_check_more'], '</a>';
+							' <a href="', Config::$scripturl, $version['more'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', $txt['version_check_more'], '</a>';
 		echo '
 							<br>';
 	}
@@ -209,7 +212,7 @@ function template_credits()
 						</div>
 						<div id="support_credits_list" class="padding">';
 
-	foreach ($context['credits'] as $section)
+	foreach (Utils::$context['credits'] as $section)
 	{
 		if (isset($section['pretext']))
 			echo '
@@ -249,18 +252,18 @@ function template_credits()
 					<script>
 						var smfSupportVersions = {};
 
-						smfSupportVersions.forum = "', $context['forum_version'], '";';
+						smfSupportVersions.forum = "', Utils::$context['forum_version'], '";';
 
 	// Don't worry, none of this is logged, it's just used to give information that might be of use.
-	foreach ($context['current_versions'] as $variable => $version)
+	foreach (Utils::$context['current_versions'] as $variable => $version)
 		echo '
 						smfSupportVersions.', $variable, ' = "', $version['version'], '";';
 
 	// Now we just have to include the script and wait ;).
 	echo '
 					</script>
-					<script src="', $scripturl, '?action=viewsmfile;filename=current-version.js"></script>
-					<script src="', $scripturl, '?action=viewsmfile;filename=latest-news.js"></script>';
+					<script src="', Config::$scripturl, '?action=viewsmfile;filename=current-version.js"></script>
+					<script src="', Config::$scripturl, '?action=viewsmfile;filename=latest-news.js"></script>';
 
 	// This sets the latest support stuff.
 	echo '
@@ -290,7 +293,7 @@ function template_credits()
  */
 function template_view_versions()
 {
-	global $context, $scripturl, $txt;
+	global $txt;
 
 	echo '
 						<div id="section_header" class="cat_bar">
@@ -323,7 +326,7 @@ function template_view_versions()
 											', $txt['admin_smfpackage'], '
 										</td>
 										<td class="quarter_table">
-											<em id="yourSMF">', $context['forum_version'], '</em>
+											<em id="yourSMF">', Utils::$context['forum_version'], '</em>
 										</td>
 										<td class="quarter_table">
 											<em id="currentSMF">??</em>
@@ -350,7 +353,7 @@ function template_view_versions()
 								<tbody>';
 
 	// Loop through every source file displaying its version - using javascript.
-	foreach ($context['file_versions'] as $filename => $version)
+	foreach (Utils::$context['file_versions'] as $filename => $version)
 		echo '
 									<tr class="windowbg">
 										<td class="half_table">
@@ -388,7 +391,7 @@ function template_view_versions()
 							<table id="Default" class="table_grid">
 								<tbody>';
 
-	foreach ($context['default_template_versions'] as $filename => $version)
+	foreach (Utils::$context['default_template_versions'] as $filename => $version)
 		echo '
 									<tr class="windowbg">
 										<td class="half_table">
@@ -426,7 +429,7 @@ function template_view_versions()
 							<table id="Languages" class="table_grid">
 								<tbody>';
 
-	foreach ($context['default_language_versions'] as $language => $files)
+	foreach (Utils::$context['default_language_versions'] as $language => $files)
 	{
 		foreach ($files as $filename => $version)
 			echo '
@@ -448,7 +451,7 @@ function template_view_versions()
 							</table>';
 
 	// Display the version information for the currently selected theme - if it is not the default one.
-	if (!empty($context['template_versions']))
+	if (!empty(Utils::$context['template_versions']))
 	{
 		echo '
 							<table class="table_grid">
@@ -470,7 +473,7 @@ function template_view_versions()
 							<table id="Templates" class="table_grid">
 								<tbody>';
 
-		foreach ($context['template_versions'] as $filename => $version)
+		foreach (Utils::$context['template_versions'] as $filename => $version)
 			echo '
 									<tr class="windowbg">
 										<td class="half_table">
@@ -490,7 +493,7 @@ function template_view_versions()
 	}
 
 	// Display the tasks files version.
-	if (!empty($context['tasks_versions']))
+	if (!empty(Utils::$context['tasks_versions']))
 	{
 		echo '
 							<table class="table_grid">
@@ -512,7 +515,7 @@ function template_view_versions()
 							<table id="Tasks" class="table_grid">
 								<tbody>';
 
-		foreach ($context['tasks_versions'] as $filename => $version)
+		foreach (Utils::$context['tasks_versions'] as $filename => $version)
 			echo '
 									<tr class="windowbg">
 										<td class="half_table">
@@ -539,12 +542,12 @@ function template_view_versions()
 	   red. It also contains the function, swapOption, that toggles showing the detailed information for each of the
 	   file categories. (sources, languages, and templates.) */
 	echo '
-					<script src="', $scripturl, '?action=viewsmfile;filename=detailed-version.js"></script>
+					<script src="', Config::$scripturl, '?action=viewsmfile;filename=detailed-version.js"></script>
 					<script>
 						var oViewVersions = new smf_ViewVersions({
 							aKnownLanguages: [
 								\'.', implode('\',
-								\'.', $context['default_known_languages']), '\'
+								\'.', Utils::$context['default_known_languages']), '\'
 							],
 							oSectionContainerIds: {
 								Sources: \'Sources\',
@@ -563,15 +566,15 @@ function template_view_versions()
  */
 function template_edit_censored()
 {
-	global $context, $scripturl, $txt, $modSettings;
+	global $txt;
 
-	if (!empty($context['saved_successful']))
+	if (!empty(Utils::$context['saved_successful']))
 		echo '
 					<div class="infobox">', $txt['settings_saved'], '</div>';
 
 	// First section is for adding/removing words from the censored list.
 	echo '
-						<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=postsettings;sa=censor" method="post" accept-charset="', $context['character_set'], '">
+						<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=postsettings;sa=censor" method="post" accept-charset="', Utils::$context['character_set'], '">
 							<div id="section_header" class="cat_bar">
 								<h3 class="catbg">
 									', $txt['admin_censored_words'], '
@@ -581,7 +584,7 @@ function template_edit_censored()
 								<p>', $txt['admin_censored_where'], '</p>';
 
 	// Show text boxes for censoring [bad   ] => [good  ].
-	foreach ($context['censored_words'] as $vulgar => $proper)
+	foreach (Utils::$context['censored_words'] as $vulgar => $proper)
 		echo '
 								<div class="block">
 									<input type="text" name="censor_vulgar[]" value="', $vulgar, '" size="30"> =&gt; <input type="text" name="censor_proper[]" value="', $proper, '" size="30">
@@ -605,19 +608,19 @@ function template_edit_censored()
 										<strong><label for="allow_no_censored">', $txt['allow_no_censored'], ':</label></strong>
 									</dt>
 									<dd>
-										<input type="checkbox" name="allow_no_censored" value="1" id="allow_no_censored"', empty($modSettings['allow_no_censored']) ? '' : ' checked', '>
+										<input type="checkbox" name="allow_no_censored" value="1" id="allow_no_censored"', empty(Config::$modSettings['allow_no_censored']) ? '' : ' checked', '>
 									</dd>
 									<dt>
 										<strong><label for="censorWholeWord_check">', $txt['censor_whole_words'], ':</label></strong>
 									</dt>
 									<dd>
-										<input type="checkbox" name="censorWholeWord" value="1" id="censorWholeWord_check"', empty($modSettings['censorWholeWord']) ? '' : ' checked', '>
+										<input type="checkbox" name="censorWholeWord" value="1" id="censorWholeWord_check"', empty(Config::$modSettings['censorWholeWord']) ? '' : ' checked', '>
 									</dd>
 									<dt>
 										<strong><label for="censorIgnoreCase_check">', $txt['censor_case'], ':</label></strong>
 									</dt>
 									<dd>
-										<input type="checkbox" name="censorIgnoreCase" value="1" id="censorIgnoreCase_check"', empty($modSettings['censorIgnoreCase']) ? '' : ' checked', '>
+										<input type="checkbox" name="censorIgnoreCase" value="1" id="censorIgnoreCase_check"', empty(Config::$modSettings['censorIgnoreCase']) ? '' : ' checked', '>
 									</dd>
 								</dl>
 								<input type="submit" name="save_censor" value="', $txt['save'], '" class="button">
@@ -632,13 +635,13 @@ function template_edit_censored()
 							</div>
 							<div class="windowbg">
 								<p class="centertext">
-									<input type="text" name="censortest" value="', empty($context['censor_test']) ? '' : $context['censor_test'], '">
+									<input type="text" name="censortest" value="', empty(Utils::$context['censor_test']) ? '' : Utils::$context['censor_test'], '">
 									<input type="submit" value="', $txt['censor_test_save'], '" class="button">
 								</p>
 							</div>
 
-							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-							<input type="hidden" name="', $context['admin-censor_token_var'], '" value="', $context['admin-censor_token'], '">
+							<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+							<input type="hidden" name="', Utils::$context['admin-censor_token_var'], '" value="', Utils::$context['admin-censor_token'], '">
 						</form>';
 }
 
@@ -647,7 +650,7 @@ function template_edit_censored()
  */
 function template_not_done()
 {
-	global $context, $txt, $scripturl;
+	global $txt;
 
 	echo '
 						<div id="section_header" class="cat_bar">
@@ -658,35 +661,35 @@ function template_not_done()
 						<div class="windowbg">
 							', $txt['not_done_reason'];
 
-	if (!empty($context['continue_percent']))
+	if (!empty(Utils::$context['continue_percent']))
 		echo '
 							<div class="progress_bar">
-								<span>', $context['continue_percent'], '%</span>
-								<div class="bar" style="width: ', $context['continue_percent'], '%;"></div>
+								<span>', Utils::$context['continue_percent'], '%</span>
+								<div class="bar" style="width: ', Utils::$context['continue_percent'], '%;"></div>
 							</div>';
 
-	if (!empty($context['substep_enabled']))
+	if (!empty(Utils::$context['substep_enabled']))
 		echo '
 							<div class="progress_bar progress_blue">
-								<span>', $context['substep_title'], ' (', $context['substep_continue_percent'], '%)</span>
-								<div class="bar" style="width: ', $context['substep_continue_percent'], '%;"></div>
+								<span>', Utils::$context['substep_title'], ' (', Utils::$context['substep_continue_percent'], '%)</span>
+								<div class="bar" style="width: ', Utils::$context['substep_continue_percent'], '%;"></div>
 							</div>';
 
 	echo '
-							<form action="', $scripturl, $context['continue_get_data'], '" method="post" accept-charset="', $context['character_set'], '" name="autoSubmit" id="autoSubmit">';
+							<form action="', Config::$scripturl, Utils::$context['continue_get_data'], '" method="post" accept-charset="', Utils::$context['character_set'], '" name="autoSubmit" id="autoSubmit">';
 
 	// Do we have a token?
-	if (isset($context['not_done_token']) && isset($context[$context['not_done_token'] . '_token'], $context[$context['not_done_token'] . '_token_var']))
+	if (isset(Utils::$context['not_done_token']) && isset(Utils::$context[Utils::$context['not_done_token'] . '_token'], Utils::$context[Utils::$context['not_done_token'] . '_token_var']))
 		echo '
-							<input type="hidden" name="', $context[$context['not_done_token'] . '_token_var'], '" value="', $context[$context['not_done_token'] . '_token'], '">';
+							<input type="hidden" name="', Utils::$context[Utils::$context['not_done_token'] . '_token_var'], '" value="', Utils::$context[Utils::$context['not_done_token'] . '_token'], '">';
 
 	echo '
 								<input type="submit" name="cont" value="', $txt['not_done_continue'], '" class="button">
-								', $context['continue_post_data'], '
+								', Utils::$context['continue_post_data'], '
 							</form>
 						</div><!-- .windowbg -->
 					<script>
-						var countdown = ', $context['continue_countdown'], ';
+						var countdown = ', Utils::$context['continue_countdown'], ';
 						doAutoSubmit();
 
 						function doAutoSubmit()
@@ -709,61 +712,61 @@ function template_not_done()
  */
 function template_show_settings()
 {
-	global $context, $txt, $scripturl;
+	global $txt;
 
-	if (!empty($context['saved_successful']))
+	if (!empty(Utils::$context['saved_successful']))
 		echo '
 					<div class="infobox">', $txt['settings_saved'], '</div>';
-	elseif (!empty($context['saved_failed']))
+	elseif (!empty(Utils::$context['saved_failed']))
 		echo '
-					<div class="errorbox">', sprintf($txt['settings_not_saved'], $context['saved_failed']), '</div>';
+					<div class="errorbox">', sprintf($txt['settings_not_saved'], Utils::$context['saved_failed']), '</div>';
 
-	if (!empty($context['settings_pre_javascript']))
+	if (!empty(Utils::$context['settings_pre_javascript']))
 		echo '
-					<script>', $context['settings_pre_javascript'], '</script>';
+					<script>', Utils::$context['settings_pre_javascript'], '</script>';
 
-	if (!empty($context['settings_insert_above']))
-		echo $context['settings_insert_above'];
+	if (!empty(Utils::$context['settings_insert_above']))
+		echo Utils::$context['settings_insert_above'];
 
 	echo '
-						<form id="admin_form_wrapper" action="', $context['post_url'], '" method="post" accept-charset="', $context['character_set'], '"', !empty($context['force_form_onsubmit']) ? ' onsubmit="' . $context['force_form_onsubmit'] . '"' : '', '>';
+						<form id="admin_form_wrapper" action="', Utils::$context['post_url'], '" method="post" accept-charset="', Utils::$context['character_set'], '"', !empty(Utils::$context['force_form_onsubmit']) ? ' onsubmit="' . Utils::$context['force_form_onsubmit'] . '"' : '', '>';
 
 	// Is there a custom title?
-	if (isset($context['settings_title']))
+	if (isset(Utils::$context['settings_title']))
 		echo '
 							<div class="cat_bar">
-								<h3 class="catbg">', $context['settings_title'], '</h3>
+								<h3 class="catbg">', Utils::$context['settings_title'], '</h3>
 							</div>';
 
 	// Have we got a message to display?
-	if (!empty($context['settings_message']))
+	if (!empty(Utils::$context['settings_message']))
 	{
-		$tag = !empty($context['settings_message']['tag']) ? $context['settings_message']['tag'] : 'span';
+		$tag = !empty(Utils::$context['settings_message']['tag']) ? Utils::$context['settings_message']['tag'] : 'span';
 
 		echo '
 							<div class="information noup">';
 
-		if (is_array($context['settings_message']))
+		if (is_array(Utils::$context['settings_message']))
 			echo '
-								<', $tag, !empty($context['settings_message']['class']) ? ' class="' . $context['settings_message']['class'] . '"' : '', '>
-									', $context['settings_message']['label'], '
+								<', $tag, !empty(Utils::$context['settings_message']['class']) ? ' class="' . Utils::$context['settings_message']['class'] . '"' : '', '>
+									', Utils::$context['settings_message']['label'], '
 								</', $tag, '>';
 		else
-			echo $context['settings_message'];
+			echo Utils::$context['settings_message'];
 
 		echo '
 							</div>';
 	}
 
 	// Filter out any redundant separators before we start the loop
-	$context['config_vars'] = array_filter(
-		$context['config_vars'],
-		function ($v) use ($context)
+	Utils::$context['config_vars'] = array_filter(
+		Utils::$context['config_vars'],
+		function ($v)
 		{
 			static $config_vars, $prev;
 
 			$at_start = is_null($config_vars);
-			$config_vars = $at_start ? $context['config_vars'] : $config_vars;
+			$config_vars = $at_start ? Utils::$context['config_vars'] : $config_vars;
 
 			$next = next($config_vars);
 			$at_end = key($config_vars) === null;
@@ -782,7 +785,7 @@ function template_show_settings()
 
 	// Now actually loop through all the variables.
 	$is_open = false;
-	foreach ($context['config_vars'] as $config_var)
+	foreach (Utils::$context['config_vars'] as $config_var)
 	{
 		// Is it a title or a description?
 		if (is_array($config_var) && ($config_var['type'] == 'title' || $config_var['type'] == 'desc'))
@@ -802,7 +805,7 @@ function template_show_settings()
 				echo '
 							<div class="cat_bar">
 								<h3 class="', !empty($config_var['class']) ? $config_var['class'] : 'catbg', '"', !empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '"' : '', '>
-									', ($config_var['help'] ? '<a href="' . $scripturl . '?action=helpadmin;help=' . $config_var['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="' . $txt['help'] . '"></span></a>' : ''), '
+									', ($config_var['help'] ? '<a href="' . Config::$scripturl . '?action=helpadmin;help=' . $config_var['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="' . $txt['help'] . '"></span></a>' : ''), '
 									', $config_var['label'], '
 								</h3>
 							</div>';
@@ -864,7 +867,7 @@ function template_show_settings()
 				// Show the [?] button.
 				if ($config_var['help'])
 					echo '
-										<a id="setting_', $config_var['name'], '_help" href="', $scripturl, '?action=helpadmin;help=', $config_var['help'], '" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="', $txt['help'], '"></span></a> ';
+										<a id="setting_', $config_var['name'], '_help" href="', Config::$scripturl, '?action=helpadmin;help=', $config_var['help'], '" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="', $txt['help'], '"></span></a> ';
 
 				echo '
 										<a id="setting_', $config_var['name'], '"></a> <span', ($config_var['disabled'] ? ' style="color: #777777;"' : ($config_var['invalid'] ? ' class="error"' : '')), '><label', ($config_var['type'] == 'boards' || $config_var['type'] == 'permissions' ? '' : ' for="' . $config_var['name'] . '"'), '>', $config_var['label'], '</label>', $subtext, ($config_var['type'] == 'password' ? '<br><em>' . $txt['admin_confirm_password'] . '</em>' : ''), '</span>
@@ -894,7 +897,7 @@ function template_show_settings()
 										</select>';
 				}
 
-				// List of boards? This requires getBoardList() having been run and the results in $context['board_list'].
+				// List of boards? This requires getBoardList() having been run and the results in Utils::$context['board_list'].
 				elseif ($config_var['type'] == 'boards')
 				{
 					$first = true;
@@ -905,7 +908,7 @@ function template_show_settings()
 												<a href="#">', $txt['select_boards_from_list'], '</a>
 											</legend>';
 
-					foreach ($context['board_list'] as $id_cat => $cat)
+					foreach (Utils::$context['board_list'] as $id_cat => $cat)
 					{
 						if (!$first)
 							echo '
@@ -941,19 +944,19 @@ function template_show_settings()
 				{
 					echo '
 										<fieldset id="', $config_var['name'], '">
-											<legend>', $context['bbc_sections'][$config_var['name']]['title'], '</legend>
+											<legend>', Utils::$context['bbc_sections'][$config_var['name']]['title'], '</legend>
 											<ul>';
 
-					foreach ($context['bbc_sections'][$config_var['name']]['columns'] as $bbcColumn)
+					foreach (Utils::$context['bbc_sections'][$config_var['name']]['columns'] as $bbcColumn)
 					{
 						foreach ($bbcColumn as $bbcTag)
 							echo '
 												<li class="list_bbc floatleft">
-													<input type="checkbox" name="', $config_var['name'], '_enabledTags[]" id="tag_', $config_var['name'], '_', $bbcTag['tag'], '" value="', $bbcTag['tag'], '"', !in_array($bbcTag['tag'], $context['bbc_sections'][$config_var['name']]['disabled']) ? ' checked' : '', '> <label for="tag_', $config_var['name'], '_', $bbcTag['tag'], '">', $bbcTag['tag'], '</label>', $bbcTag['show_help'] ? ' (<a href="' . $scripturl . '?action=helpadmin;help=tag_' . $bbcTag['tag'] . '" onclick="return reqOverlayDiv(this.href);">?</a>)' : '', '
+													<input type="checkbox" name="', $config_var['name'], '_enabledTags[]" id="tag_', $config_var['name'], '_', $bbcTag['tag'], '" value="', $bbcTag['tag'], '"', !in_array($bbcTag['tag'], Utils::$context['bbc_sections'][$config_var['name']]['disabled']) ? ' checked' : '', '> <label for="tag_', $config_var['name'], '_', $bbcTag['tag'], '">', $bbcTag['tag'], '</label>', $bbcTag['show_help'] ? ' (<a href="' . Config::$scripturl . '?action=helpadmin;help=tag_' . $bbcTag['tag'] . '" onclick="return reqOverlayDiv(this.href);">?</a>)' : '', '
 												</li>';
 					}
 					echo '					</ul>
-											<input type="checkbox" id="bbc_', $config_var['name'], '_select_all" onclick="invertAll(this, this.form, \'', $config_var['name'], '_enabledTags\');"', $context['bbc_sections'][$config_var['name']]['all_selected'] ? ' checked' : '', '> <label for="bbc_', $config_var['name'], '_select_all"><em>', $txt['enabled_bbc_select_all'], '</em></label>
+											<input type="checkbox" id="bbc_', $config_var['name'], '_select_all" onclick="invertAll(this, this.form, \'', $config_var['name'], '_enabledTags\');"', Utils::$context['bbc_sections'][$config_var['name']]['all_selected'] ? ' checked' : '', '> <label for="bbc_', $config_var['name'], '_select_all"><em>', $txt['enabled_bbc_select_all'], '</em></label>
 										</fieldset>';
 				}
 				// A simple message?
@@ -1008,39 +1011,39 @@ function template_show_settings()
 		echo '
 								</dl>';
 
-	if (empty($context['settings_save_dont_show']))
+	if (empty(Utils::$context['settings_save_dont_show']))
 		echo '
-								<input type="submit" value="', $txt['save'], '"', (!empty($context['save_disabled']) ? ' disabled' : ''), (!empty($context['settings_save_onclick']) ? ' onclick="' . $context['settings_save_onclick'] . '"' : ''), ' class="button">';
+								<input type="submit" value="', $txt['save'], '"', (!empty(Utils::$context['save_disabled']) ? ' disabled' : ''), (!empty(Utils::$context['settings_save_onclick']) ? ' onclick="' . Utils::$context['settings_save_onclick'] . '"' : ''), ' class="button">';
 
 	if ($is_open)
 		echo '
 							</div><!-- .windowbg -->';
 
 	// At least one token has to be used!
-	if (isset($context['admin-ssc_token']))
+	if (isset(Utils::$context['admin-ssc_token']))
 		echo '
-							<input type="hidden" name="', $context['admin-ssc_token_var'], '" value="', $context['admin-ssc_token'], '">';
+							<input type="hidden" name="', Utils::$context['admin-ssc_token_var'], '" value="', Utils::$context['admin-ssc_token'], '">';
 
-	if (isset($context['admin-dbsc_token']))
+	if (isset(Utils::$context['admin-dbsc_token']))
 		echo '
-							<input type="hidden" name="', $context['admin-dbsc_token_var'], '" value="', $context['admin-dbsc_token'], '">';
+							<input type="hidden" name="', Utils::$context['admin-dbsc_token_var'], '" value="', Utils::$context['admin-dbsc_token'], '">';
 
-	if (isset($context['admin-mp_token']))
+	if (isset(Utils::$context['admin-mp_token']))
 		echo '
-							<input type="hidden" name="', $context['admin-mp_token_var'], '" value="', $context['admin-mp_token'], '">';
+							<input type="hidden" name="', Utils::$context['admin-mp_token_var'], '" value="', Utils::$context['admin-mp_token'], '">';
 
 	echo '
-							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+							<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 						</form>';
 
-	if (!empty($context['settings_post_javascript']))
+	if (!empty(Utils::$context['settings_post_javascript']))
 		echo '
 					<script>
-						', $context['settings_post_javascript'], '
+						', Utils::$context['settings_post_javascript'], '
 					</script>';
 
-	if (!empty($context['settings_insert_below']))
-		echo $context['settings_insert_below'];
+	if (!empty(Utils::$context['settings_insert_below']))
+		echo Utils::$context['settings_insert_below'];
 
 	// We may have added a board listing. If we did, we need to make it work.
 	addInlineJavascript('
@@ -1061,9 +1064,9 @@ function template_show_settings()
  */
 function template_show_custom_profile()
 {
-	global $context, $txt;
+	global $txt;
 
-	if (!empty($context['saved_successful']))
+	if (!empty(Utils::$context['saved_successful']))
 		echo '
 					<div class="infobox">', $txt['settings_saved'], '</div>';
 
@@ -1088,12 +1091,12 @@ function template_show_custom_profile()
  */
 function template_edit_profile_field()
 {
-	global $context, $txt, $scripturl;
+	global $txt;
 
 	// All the javascript for this page - quite a bit in script.js!
 	echo '
 					<script>
-						var startOptID = ', count($context['field']['options']), ';
+						var startOptID = ', count(Utils::$context['field']['options']), ';
 					</script>';
 
 	// any errors messages to show?
@@ -1109,9 +1112,9 @@ function template_edit_profile_field()
 	}
 
 	echo '
-						<form action="', $scripturl, '?action=admin;area=featuresettings;sa=profileedit;fid=', $context['fid'], ';', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
+						<form action="', Config::$scripturl, '?action=admin;area=featuresettings;sa=profileedit;fid=', Utils::$context['fid'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
 							<div id="section_header" class="cat_bar">
-								<h3 class="catbg">', $context['page_title'], '</h3>
+								<h3 class="catbg">', Utils::$context['page_title'], '</h3>
 							</div>
 							<div class="windowbg">
 								<fieldset>
@@ -1119,22 +1122,22 @@ function template_edit_profile_field()
 
 									<dl class="settings">
 										<dt>
-											<a id="field_name_help" href="', $scripturl, '?action=helpadmin;help=translatable_fields" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
+											<a id="field_name_help" href="', Config::$scripturl, '?action=helpadmin;help=translatable_fields" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
 											<strong><label for="field_name">', $txt['custom_edit_name'], ':</label></strong><br>
 											<span class="smalltext">', $txt['custom_edit_name_desc'], '</span>
 										</dt>
 										<dd>
-											<input type="text" name="field_name" id="field_name" value="', $context['field']['name'], '" size="20" maxlength="40">
+											<input type="text" name="field_name" id="field_name" value="', Utils::$context['field']['name'], '" size="20" maxlength="40">
 										</dd>
 										<dt>
-											<a id="field_desc_help" href="', $scripturl, '?action=helpadmin;help=translatable_fields" onclick="return reqOverlayDiv(this.href);" class="help">
+											<a id="field_desc_help" href="', Config::$scripturl, '?action=helpadmin;help=translatable_fields" onclick="return reqOverlayDiv(this.href);" class="help">
 												<span class="main_icons help" title="', $txt['help'], '"></span>
 											</a>
 											<strong><label for="field_desc">', $txt['custom_edit_desc'], ':</label></strong><br>
 											<span class="smalltext">', $txt['custom_edit_name_desc'], '</span>
 										</dt>
 										<dd>
-											<textarea name="field_desc" id="field_desc" rows="3" cols="40">', $context['field']['desc'], '</textarea>
+											<textarea name="field_desc" id="field_desc" rows="3" cols="40">', Utils::$context['field']['desc'], '</textarea>
 										</dd>
 										<dt>
 											<strong><label for="profile_area">', $txt['custom_edit_profile'], ':</label></strong><br>
@@ -1142,34 +1145,34 @@ function template_edit_profile_field()
 										</dt>
 										<dd>
 											<select name="profile_area" id="profile_area">
-												<option value="none"', $context['field']['profile_area'] == 'none' ? ' selected' : '', '>', $txt['custom_edit_profile_none'], '</option>
-												<option value="account"', $context['field']['profile_area'] == 'account' ? ' selected' : '', '>', $txt['account'], '</option>
-												<option value="forumprofile"', $context['field']['profile_area'] == 'forumprofile' ? ' selected' : '', '>', $txt['forumprofile'], '</option>
-												<option value="theme"', $context['field']['profile_area'] == 'theme' ? ' selected' : '', '>', $txt['theme'], '</option>
+												<option value="none"', Utils::$context['field']['profile_area'] == 'none' ? ' selected' : '', '>', $txt['custom_edit_profile_none'], '</option>
+												<option value="account"', Utils::$context['field']['profile_area'] == 'account' ? ' selected' : '', '>', $txt['account'], '</option>
+												<option value="forumprofile"', Utils::$context['field']['profile_area'] == 'forumprofile' ? ' selected' : '', '>', $txt['forumprofile'], '</option>
+												<option value="theme"', Utils::$context['field']['profile_area'] == 'theme' ? ' selected' : '', '>', $txt['theme'], '</option>
 											</select>
 										</dd>
 										<dt>
-											<a id="field_reg_require" href="', $scripturl, '?action=helpadmin;help=field_reg_require" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
+											<a id="field_reg_require" href="', Config::$scripturl, '?action=helpadmin;help=field_reg_require" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
 											<strong><label for="reg">', $txt['custom_edit_registration'], ':</label></strong>
 										</dt>
 										<dd>
 											<select name="reg" id="reg">
-												<option value="0"', $context['field']['reg'] == 0 ? ' selected' : '', '>', $txt['custom_edit_registration_disable'], '</option>
-												<option value="1"', $context['field']['reg'] == 1 ? ' selected' : '', '>', $txt['custom_edit_registration_allow'], '</option>
-												<option value="2"', $context['field']['reg'] == 2 ? ' selected' : '', '>', $txt['custom_edit_registration_require'], '</option>
+												<option value="0"', Utils::$context['field']['reg'] == 0 ? ' selected' : '', '>', $txt['custom_edit_registration_disable'], '</option>
+												<option value="1"', Utils::$context['field']['reg'] == 1 ? ' selected' : '', '>', $txt['custom_edit_registration_allow'], '</option>
+												<option value="2"', Utils::$context['field']['reg'] == 2 ? ' selected' : '', '>', $txt['custom_edit_registration_require'], '</option>
 											</select>
 										</dd>
 										<dt>
 											<strong><label for="display">', $txt['custom_edit_display'], ':</label></strong>
 										</dt>
 										<dd>
-											<input type="checkbox" name="display" id="display"', $context['field']['display'] ? ' checked' : '', '>
+											<input type="checkbox" name="display" id="display"', Utils::$context['field']['display'] ? ' checked' : '', '>
 										</dd>
 										<dt>
 											<strong><label for="mlist">', $txt['custom_edit_mlist'], ':</label></strong>
 										</dt>
 										<dd>
-											<input type="checkbox" name="mlist" id="show_mlist"', $context['field']['mlist'] ? ' checked' : '', '>
+											<input type="checkbox" name="mlist" id="show_mlist"', Utils::$context['field']['mlist'] ? ' checked' : '', '>
 										</dd>
 										<dt>
 											<strong><label for="placement">', $txt['custom_edit_placement'], ':</label></strong>
@@ -1177,20 +1180,20 @@ function template_edit_profile_field()
 										<dd>
 											<select name="placement" id="placement">';
 
-	foreach ($context['cust_profile_fields_placement'] as $order => $name)
+	foreach (Utils::$context['cust_profile_fields_placement'] as $order => $name)
 		echo '
-												<option value="', $order, '"', $context['field']['placement'] == $order ? ' selected' : '', '>', $txt['custom_profile_placement_' . $name], '</option>';
+												<option value="', $order, '"', Utils::$context['field']['placement'] == $order ? ' selected' : '', '>', $txt['custom_profile_placement_' . $name], '</option>';
 
 	echo '
 											</select>
 										</dd>
 										<dt>
-											<a id="field_show_enclosed" href="', $scripturl, '?action=helpadmin;help=field_show_enclosed" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
+											<a id="field_show_enclosed" href="', Config::$scripturl, '?action=helpadmin;help=field_show_enclosed" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
 											<strong><label for="enclose">', $txt['custom_edit_enclose'], ':</label></strong><br>
 											<span class="smalltext">', $txt['custom_edit_enclose_desc'], '</span>
 										</dt>
 										<dd>
-											<textarea name="enclose" id="enclose" rows="10" cols="50">', @$context['field']['enclose'], '</textarea>
+											<textarea name="enclose" id="enclose" rows="10" cols="50">', @Utils::$context['field']['enclose'], '</textarea>
 										</dd>
 									</dl>
 								</fieldset>
@@ -1205,7 +1208,7 @@ function template_edit_profile_field()
 
 	foreach (array('text', 'textarea', 'select', 'radio', 'check') as $field_type)
 		echo '
-												<option value="', $field_type, '"', $context['field']['type'] == $field_type ? ' selected' : '', '>', $txt['custom_profile_type_' . $field_type], '</option>';
+												<option value="', $field_type, '"', Utils::$context['field']['type'] == $field_type ? ' selected' : '', '>', $txt['custom_profile_type_' . $field_type], '</option>';
 
 	echo '
 											</select>
@@ -1215,23 +1218,23 @@ function template_edit_profile_field()
 											<span class="smalltext">', $txt['custom_edit_max_length_desc'], '</span>
 										</dt>
 										<dd>
-											<input type="text" name="max_length" id="max_length_dd" value="', $context['field']['max_length'], '" size="7" maxlength="6">
+											<input type="text" name="max_length" id="max_length_dd" value="', Utils::$context['field']['max_length'], '" size="7" maxlength="6">
 										</dd>
 										<dt id="dimension_dt">
 											<strong><label for="dimension_dd">', $txt['custom_edit_dimension'], ':</label></strong>
 										</dt>
 										<dd id="dimension_dd">
-											<strong>', $txt['custom_edit_dimension_row'], ':</strong> <input type="text" name="rows" value="', $context['field']['rows'], '" size="5" maxlength="3">
-											<strong>', $txt['custom_edit_dimension_col'], ':</strong> <input type="text" name="cols" value="', $context['field']['cols'], '" size="5" maxlength="3">
+											<strong>', $txt['custom_edit_dimension_row'], ':</strong> <input type="text" name="rows" value="', Utils::$context['field']['rows'], '" size="5" maxlength="3">
+											<strong>', $txt['custom_edit_dimension_col'], ':</strong> <input type="text" name="cols" value="', Utils::$context['field']['cols'], '" size="5" maxlength="3">
 										</dd>
 										<dt id="bbc_dt">
 											<strong><label for="bbc_dd">', $txt['custom_edit_bbc'], '</label></strong>
 										</dt>
 										<dd>
-											<input type="checkbox" name="bbc" id="bbc_dd"', $context['field']['bbc'] ? ' checked' : '', '>
+											<input type="checkbox" name="bbc" id="bbc_dd"', Utils::$context['field']['bbc'] ? ' checked' : '', '>
 										</dd>
 										<dt id="options_dt">
-											<a href="', $scripturl, '?action=helpadmin;help=customoptions" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
+											<a href="', Config::$scripturl, '?action=helpadmin;help=customoptions" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
 											<strong><label for="options_dd">', $txt['custom_edit_options'], ':</label></strong><br>
 											<span class="smalltext">', $txt['custom_edit_options_desc'], '</span>
 											<br>
@@ -1239,9 +1242,9 @@ function template_edit_profile_field()
 										</dt>
 										<dd id="options_dd">';
 
-	foreach ($context['field']['options'] as $k => $option)
+	foreach (Utils::$context['field']['options'] as $k => $option)
 		echo '
-											', $k == 0 ? '' : '<br>', '<input type="radio" name="default_select" value="', $k, '"', $context['field']['default_select'] == $option ? ' checked' : '', '><input type="text" name="select_option[', $k, ']" value="', $option, '">';
+											', $k == 0 ? '' : '<br>', '<input type="radio" name="default_select" value="', $k, '"', Utils::$context['field']['default_select'] == $option ? ' checked' : '', '><input type="text" name="select_option[', $k, ']" value="', $option, '">';
 
 	echo '
 											<span id="addopt"></span>
@@ -1251,7 +1254,7 @@ function template_edit_profile_field()
 											<strong><label for="default_dd">', $txt['custom_edit_default'], ':</label></strong>
 										</dt>
 										<dd>
-											<input type="checkbox" name="default_check" id="default_dd"', $context['field']['default_check'] ? ' checked' : '', '>
+											<input type="checkbox" name="default_check" id="default_dd"', Utils::$context['field']['default_check'] ? ' checked' : '', '>
 										</dd>
 									</dl>
 								</fieldset>
@@ -1259,20 +1262,20 @@ function template_edit_profile_field()
 									<legend>', $txt['custom_edit_advanced'], '</legend>
 									<dl class="settings">
 										<dt id="mask_dt">
-											<a id="custom_mask" href="', $scripturl, '?action=helpadmin;help=custom_mask" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
+											<a id="custom_mask" href="', Config::$scripturl, '?action=helpadmin;help=custom_mask" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
 											<strong><label for="mask">', $txt['custom_edit_mask'], ':</label></strong><br>
 											<span class="smalltext">', $txt['custom_edit_mask_desc'], '</span>
 										</dt>
 										<dd>
 											<select name="mask" id="mask" onchange="updateInputBoxes();">
-												<option value="nohtml"', $context['field']['mask'] == 'nohtml' ? ' selected' : '', '>', $txt['custom_edit_mask_nohtml'], '</option>
-												<option value="email"', $context['field']['mask'] == 'email' ? ' selected' : '', '>', $txt['custom_edit_mask_email'], '</option>
-												<option value="number"', $context['field']['mask'] == 'number' ? ' selected' : '', '>', $txt['custom_edit_mask_number'], '</option>
-												<option value="regex"', strpos($context['field']['mask'], 'regex') === 0 ? ' selected' : '', '>', $txt['custom_edit_mask_regex'], '</option>
+												<option value="nohtml"', Utils::$context['field']['mask'] == 'nohtml' ? ' selected' : '', '>', $txt['custom_edit_mask_nohtml'], '</option>
+												<option value="email"', Utils::$context['field']['mask'] == 'email' ? ' selected' : '', '>', $txt['custom_edit_mask_email'], '</option>
+												<option value="number"', Utils::$context['field']['mask'] == 'number' ? ' selected' : '', '>', $txt['custom_edit_mask_number'], '</option>
+												<option value="regex"', strpos(Utils::$context['field']['mask'], 'regex') === 0 ? ' selected' : '', '>', $txt['custom_edit_mask_regex'], '</option>
 											</select>
 											<br>
 											<span id="regex_div">
-												<input type="text" name="regex" value="', $context['field']['regex'], '" size="30">
+												<input type="text" name="regex" value="', Utils::$context['field']['regex'], '" size="30">
 											</span>
 										</dd>
 										<dt>
@@ -1281,10 +1284,10 @@ function template_edit_profile_field()
 										</dt>
 										<dd>
 											<select name="private" id="private" onchange="updateInputBoxes();">
-												<option value="0"', $context['field']['private'] == 0 ? ' selected' : '', '>', $txt['custom_edit_privacy_all'], '</option>
-												<option value="1"', $context['field']['private'] == 1 ? ' selected' : '', '>', $txt['custom_edit_privacy_see'], '</option>
-												<option value="2"', $context['field']['private'] == 2 ? ' selected' : '', '>', $txt['custom_edit_privacy_owner'], '</option>
-												<option value="3"', $context['field']['private'] == 3 ? ' selected' : '', '>', $txt['custom_edit_privacy_none'], '</option>
+												<option value="0"', Utils::$context['field']['private'] == 0 ? ' selected' : '', '>', $txt['custom_edit_privacy_all'], '</option>
+												<option value="1"', Utils::$context['field']['private'] == 1 ? ' selected' : '', '>', $txt['custom_edit_privacy_see'], '</option>
+												<option value="2"', Utils::$context['field']['private'] == 2 ? ' selected' : '', '>', $txt['custom_edit_privacy_owner'], '</option>
+												<option value="3"', Utils::$context['field']['private'] == 3 ? ' selected' : '', '>', $txt['custom_edit_privacy_none'], '</option>
 											</select>
 										</dd>
 										<dt id="can_search_dt">
@@ -1292,27 +1295,27 @@ function template_edit_profile_field()
 											<span class="smalltext">', $txt['custom_edit_can_search_desc'], '</span>
 										</dt>
 										<dd>
-											<input type="checkbox" name="can_search" id="can_search_dd"', $context['field']['can_search'] ? ' checked' : '', '>
+											<input type="checkbox" name="can_search" id="can_search_dd"', Utils::$context['field']['can_search'] ? ' checked' : '', '>
 										</dd>
 										<dt>
 											<strong><label for="can_search_check">', $txt['custom_edit_active'], ':</label></strong><br>
 											<span class="smalltext">', $txt['custom_edit_active_desc'], '</span>
 										</dt>
 										<dd>
-											<input type="checkbox" name="active" id="can_search_check"', $context['field']['active'] ? ' checked' : '', '>
+											<input type="checkbox" name="active" id="can_search_check"', Utils::$context['field']['active'] ? ' checked' : '', '>
 										</dd>
 									</dl>
 								</fieldset>
 								<input type="submit" name="save" value="', $txt['save'], '" class="button">';
 
-	if ($context['fid'])
+	if (Utils::$context['fid'])
 		echo '
 								<input type="submit" name="delete" value="', $txt['delete'], '" data-confirm="', $txt['custom_edit_delete_sure'], '" class="button you_sure">';
 
 	echo '
 							</div><!-- .windowbg -->
-							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-							<input type="hidden" name="', $context['admin-ecp_token_var'], '" value="', $context['admin-ecp_token'], '">
+							<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+							<input type="hidden" name="', Utils::$context['admin-ecp_token_var'], '" value="', Utils::$context['admin-ecp_token'], '">
 						</form>';
 
 	// Get the javascript bits right!
@@ -1327,20 +1330,20 @@ function template_edit_profile_field()
  */
 function template_admin_search_results()
 {
-	global $context, $txt;
+	global $txt;
 
 	echo '
 						<div id="section_header" class="cat_bar">
 							', template_admin_quick_search(), '
 							<h3 class="catbg">
 								<span id="quick_search_results">
-									', sprintf($txt['admin_search_results_desc'], $context['search_term']), '
+									', sprintf($txt['admin_search_results_desc'], Utils::$context['search_term']), '
 								</span>
 							</h3>
 						</div><!-- #section_header -->
 						<div class="windowbg generic_list_wrapper">';
 
-	if (empty($context['search_results']))
+	if (empty(Utils::$context['search_results']))
 	{
 		echo '
 							<p class="centertext">
@@ -1352,15 +1355,15 @@ function template_admin_search_results()
 		echo '
 							<ol class="search_results">';
 
-		foreach ($context['search_results'] as $result)
+		foreach (Utils::$context['search_results'] as $result)
 		{
 			// Is it a result from the online manual?
-			if ($context['search_type'] == 'online')
+			if (Utils::$context['search_type'] == 'online')
 			{
 				echo '
 								<li>
 									<p>
-										<a href="', $context['doc_scripturl'], str_replace(' ', '_', $result['title']), '" target="_blank" rel="noopener"><strong>', $result['title'], '</strong></a>
+										<a href="', Utils::$context['doc_scripturl'], str_replace(' ', '_', $result['title']), '" target="_blank" rel="noopener"><strong>', $result['title'], '</strong></a>
 									</p>
 									<p class="double_height">
 										', $result['snippet'], '
@@ -1395,9 +1398,9 @@ function template_admin_search_results()
  */
 function template_callback_question_answer_list()
 {
-	global $txt, $context;
+	global $txt;
 
-	foreach ($context['languages'] as $lang_id => $lang)
+	foreach (Utils::$context['languages'] as $lang_id => $lang)
 	{
 		$lang_id = strtr($lang_id, array('-utf8' => ''));
 		$lang['name'] = strtr($lang['name'], array('-utf8' => ''));
@@ -1416,10 +1419,10 @@ function template_callback_question_answer_list()
 									<strong>', $txt['setup_verification_answer'], '</strong>
 								</dd>';
 
-		if (!empty($context['qa_by_lang'][$lang_id]))
-			foreach ($context['qa_by_lang'][$lang_id] as $q_id)
+		if (!empty(Utils::$context['qa_by_lang'][$lang_id]))
+			foreach (Utils::$context['qa_by_lang'][$lang_id] as $q_id)
 			{
-				$question = $context['question_answers'][$q_id];
+				$question = Utils::$context['question_answers'][$q_id];
 
 				echo '
 								<dt>
@@ -1448,26 +1451,26 @@ function template_callback_question_answer_list()
  */
 function template_repair_boards()
 {
-	global $context, $txt, $scripturl;
+	global $txt;
 
 	echo '
 						<div id="section_header" class="cat_bar">
 							<h3 class="catbg">',
-								$context['error_search'] ? $txt['errors_list'] : $txt['errors_fixing'], '
+								Utils::$context['error_search'] ? $txt['errors_list'] : $txt['errors_fixing'], '
 							</h3>
 						</div>
 						<div class="windowbg">';
 
 	// Are we actually fixing them, or is this just a prompt?
-	if ($context['error_search'])
+	if (Utils::$context['error_search'])
 	{
-		if (!empty($context['to_fix']))
+		if (!empty(Utils::$context['to_fix']))
 		{
 			echo '
 							', $txt['errors_found'], ':
 							<ul>';
 
-			foreach ($context['repair_errors'] as $error)
+			foreach (Utils::$context['repair_errors'] as $error)
 				echo '
 								<li>
 									', $error, '
@@ -1479,27 +1482,27 @@ function template_repair_boards()
 								', $txt['errors_fix'], '
 							</p>
 							<p class="padding">
-								<strong><a href="', $scripturl, '?action=admin;area=repairboards;fixErrors;', $context['session_var'], '=', $context['session_id'], ';', $context['admin-repairboards_token_var'], '=', $context['admin-repairboards_token'], '">', $txt['yes'], '</a> - <a href="', $scripturl, '?action=admin;area=maintain">', $txt['no'], '</a></strong>
+								<strong><a href="', Config::$scripturl, '?action=admin;area=repairboards;fixErrors;', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';', Utils::$context['admin-repairboards_token_var'], '=', Utils::$context['admin-repairboards_token'], '">', $txt['yes'], '</a> - <a href="', Config::$scripturl, '?action=admin;area=maintain">', $txt['no'], '</a></strong>
 							</p>';
 		}
 		else
 			echo '
 							<p>', $txt['maintain_no_errors'], '</p>
 							<p class="padding">
-								<a href="', $scripturl, '?action=admin;area=maintain;sa=routine">', $txt['maintain_return'], '</a>
+								<a href="', Config::$scripturl, '?action=admin;area=maintain;sa=routine">', $txt['maintain_return'], '</a>
 							</p>';
 	}
 	else
 	{
-		if (!empty($context['redirect_to_recount']))
+		if (!empty(Utils::$context['redirect_to_recount']))
 		{
 			echo '
 							<p>
 								', $txt['errors_do_recount'], '
 							</p>
-							<form action="', $scripturl, '?action=admin;area=maintain;sa=routine;activity=recount" id="recount_form" method="post">
-								<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
-								<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+							<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=routine;activity=recount" id="recount_form" method="post">
+								<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">
+								<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 								<input type="submit" name="recount" id="recount_now" value="', $txt['errors_recount_now'], '">
 							</form>';
 		}
@@ -1508,7 +1511,7 @@ function template_repair_boards()
 			echo '
 							<p>', $txt['errors_fixed'], '</p>
 							<p class="padding">
-								<a href="', $scripturl, '?action=admin;area=maintain;sa=routine">', $txt['maintain_return'], '</a>
+								<a href="', Config::$scripturl, '?action=admin;area=maintain;sa=routine">', $txt['maintain_return'], '</a>
 							</p>';
 		}
 	}
@@ -1516,7 +1519,7 @@ function template_repair_boards()
 	echo '
 						</div><!-- .windowbg -->';
 
-	if (!empty($context['redirect_to_recount']))
+	if (!empty(Utils::$context['redirect_to_recount']))
 	{
 		echo '
 					<script>
@@ -1544,7 +1547,7 @@ function template_repair_boards()
  */
 function template_php_info()
 {
-	global $context, $txt;
+	global $txt;
 
 	echo '
 					<div id="admin_form_wrapper">
@@ -1555,7 +1558,7 @@ function template_php_info()
 						</div>';
 
 	// for each php info area
-	foreach ($context['pinfo'] as $area => $php_area)
+	foreach (Utils::$context['pinfo'] as $area => $php_area)
 	{
 		echo '
 						<table id="', str_replace(' ', '_', $area), '" class="table_grid">
@@ -1632,18 +1635,18 @@ function template_clean_cache_button_above()
  */
 function template_clean_cache_button_below()
 {
-	global $txt, $scripturl, $context;
+	global $txt;
 
 	echo '
 					<div class="cat_bar">
 						<h3 class="catbg">', $txt['maintain_cache'], '</h3>
 					</div>
 					<div class="windowbg">
-						<form action="', $scripturl, '?action=admin;area=maintain;sa=routine;activity=cleancache" method="post" accept-charset="', $context['character_set'], '">
+						<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=routine;activity=cleancache" method="post" accept-charset="', Utils::$context['character_set'], '">
 							<p>', $txt['maintain_cache_info'], '</p>
 							<span><input type="submit" value="', $txt['maintain_run_now'], '" class="button"></span>
-							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-							<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
+							<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+							<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">
 						</form>
 					</div>';
 }
@@ -1653,17 +1656,17 @@ function template_clean_cache_button_below()
  */
 function template_admin_quick_search()
 {
-	global $context, $txt, $scripturl;
+	global $txt;
 
-	if ($context['user']['is_admin'])
+	if (Utils::$context['user']['is_admin'])
 		echo '
-								<form action="' . $scripturl . '?action=admin;area=search" method="post" accept-charset="' . $context['character_set'] . '" class="admin_search">
+								<form action="' . Config::$scripturl . '?action=admin;area=search" method="post" accept-charset="' . Utils::$context['character_set'] . '" class="admin_search">
 									<span class="main_icons filter centericon"></span>
-									<input type="search" name="search_term" placeholder="', $txt['admin_search'], '"', isset($context['search_term']) ? ' value="' . $context['search_term'] . '"' : '','>
+									<input type="search" name="search_term" placeholder="', $txt['admin_search'], '"', isset(Utils::$context['search_term']) ? ' value="' . Utils::$context['search_term'] . '"' : '','>
 									<select name="search_type">
-										<option value="internal"', (empty($context['admin_preferences']['sb']) || $context['admin_preferences']['sb'] == 'internal' ? ' selected' : ''), '>', $txt['admin_search_type_internal'], '</option>
-										<option value="member"', (!empty($context['admin_preferences']['sb']) && $context['admin_preferences']['sb'] == 'member' ? ' selected' : ''), '>', $txt['admin_search_type_member'], '</option>
-										<option value="online"', (!empty($context['admin_preferences']['sb']) && $context['admin_preferences']['sb'] == 'online' ? ' selected' : ''), '>', $txt['admin_search_type_online'], '</option>
+										<option value="internal"', (empty(Utils::$context['admin_preferences']['sb']) || Utils::$context['admin_preferences']['sb'] == 'internal' ? ' selected' : ''), '>', $txt['admin_search_type_internal'], '</option>
+										<option value="member"', (!empty(Utils::$context['admin_preferences']['sb']) && Utils::$context['admin_preferences']['sb'] == 'member' ? ' selected' : ''), '>', $txt['admin_search_type_member'], '</option>
+										<option value="online"', (!empty(Utils::$context['admin_preferences']['sb']) && Utils::$context['admin_preferences']['sb'] == 'online' ? ' selected' : ''), '>', $txt['admin_search_type_online'], '</option>
 									</select>
 									<input type="submit" name="search_go" id="search_go" value="', $txt['admin_search_go'], '" class="button">
 								</form>';

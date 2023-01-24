@@ -14,6 +14,10 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -29,7 +33,7 @@ if (!defined('SMF'))
  */
 function LockTopic()
 {
-	global $topic, $user_info, $sourcedir, $board, $smcFunc;
+	global $topic, $user_info, $board;
 
 	// Just quit if there's no topic to lock.
 	if (empty($topic))
@@ -38,10 +42,10 @@ function LockTopic()
 	checkSession('get');
 
 	// Get Subs-Post.php for sendNotifications.
-	require_once($sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Subs-Post.php');
 
 	// Find out who started the topic - in case User Topic Locking is enabled.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_member_started, locked
 		FROM {db_prefix}topics
 		WHERE id_topic = {int:current_topic}
@@ -50,8 +54,8 @@ function LockTopic()
 			'current_topic' => $topic,
 		)
 	);
-	list ($starter, $locked) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($starter, $locked) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	// Can you lock topics here, mister?
 	$user_lock = !allowedTo('lock_any');
@@ -80,7 +84,7 @@ function LockTopic()
 		fatal_lang_error('locked_by_admin', 'user');
 
 	// Actually lock the topic in the database with the new value.
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		UPDATE {db_prefix}topics
 		SET locked = {int:locked}
 		WHERE id_topic = {int:current_topic}',
@@ -112,7 +116,7 @@ function LockTopic()
  */
 function Sticky()
 {
-	global $topic, $board, $sourcedir, $smcFunc;
+	global $topic, $board;
 
 	// Make sure the user can sticky it, and they are stickying *something*.
 	isAllowedTo('make_sticky');
@@ -124,10 +128,10 @@ function Sticky()
 	checkSession('get');
 
 	// We need Subs-Post.php for the sendNotifications() function.
-	require_once($sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Subs-Post.php');
 
 	// Is this topic already stickied, or no?
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT is_sticky
 		FROM {db_prefix}topics
 		WHERE id_topic = {int:current_topic}
@@ -136,8 +140,8 @@ function Sticky()
 			'current_topic' => $topic,
 		)
 	);
-	list ($is_sticky) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($is_sticky) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	// Another moderator got the job done first?
 	if (isset($_GET['sa']) && $_GET['sa'] == 'nonsticky' && $is_sticky == '0')
@@ -146,7 +150,7 @@ function Sticky()
 		fatal_lang_error('error_topic_sticky_already', false);
 
 	// Toggle the sticky value.... pretty simple ;).
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		UPDATE {db_prefix}topics
 		SET is_sticky = {int:is_sticky}
 		WHERE id_topic = {int:current_topic}',

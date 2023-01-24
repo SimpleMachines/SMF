@@ -15,6 +15,9 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -24,15 +27,15 @@ if (!defined('SMF'))
  */
 function MessageIndex()
 {
-	global $txt, $scripturl, $board, $modSettings, $context;
-	global $options, $settings, $board_info, $user_info, $smcFunc, $sourcedir;
+	global $txt, $board;
+	global $options, $settings, $board_info, $user_info;
 
-	require_once($sourcedir . '/Subs-Boards.php');
+	require_once(Config::$sourcedir . '/Subs-Boards.php');
 
 	// If this is a redirection board head off.
 	if ($board_info['redirect'])
 	{
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}boards
 			SET num_posts = num_posts + 1
 			WHERE id_board = {int:current_board}',
@@ -65,19 +68,19 @@ function MessageIndex()
 			$board_info['id'] => $board_info['description']
 		));
 
-	$context['name'] = $board_info['name'];
-	$context['description'] = $boards_parsed_data[$board_info['id']];
+	Utils::$context['name'] = $board_info['name'];
+	Utils::$context['description'] = $boards_parsed_data[$board_info['id']];
 
 	if (!empty($board_info['description']))
-		$context['meta_description'] = strip_tags($board_info['description']);
+		Utils::$context['meta_description'] = strip_tags($board_info['description']);
 
 	// How many topics do we have in total?
 	$board_info['total_topics'] = allowedTo('approve_posts') ? $board_info['num_topics'] + $board_info['unapproved_topics'] : $board_info['num_topics'] + $board_info['unapproved_user_topics'];
 
 	// View all the topics, or just a few?
-	$context['topics_per_page'] = empty($modSettings['disableCustomPerPage']) && !empty($options['topics_per_page']) ? $options['topics_per_page'] : $modSettings['defaultMaxTopics'];
-	$context['messages_per_page'] = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
-	$context['maxindex'] = isset($_REQUEST['all']) && !empty($modSettings['enableAllMessages']) ? $board_info['total_topics'] : $context['topics_per_page'];
+	Utils::$context['topics_per_page'] = empty(Config::$modSettings['disableCustomPerPage']) && !empty($options['topics_per_page']) ? $options['topics_per_page'] : Config::$modSettings['defaultMaxTopics'];
+	Utils::$context['messages_per_page'] = empty(Config::$modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) ? $options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
+	Utils::$context['maxindex'] = isset($_REQUEST['all']) && !empty(Config::$modSettings['enableAllMessages']) ? $board_info['total_topics'] : Utils::$context['topics_per_page'];
 
 	// Right, let's only index normal stuff!
 	if (count($_GET) > 1)
@@ -86,18 +89,18 @@ function MessageIndex()
 		foreach ($_GET as $k => $v)
 		{
 			if (!in_array($k, array('board', 'start', $session_name)))
-				$context['robot_no_index'] = true;
+				Utils::$context['robot_no_index'] = true;
 		}
 	}
-	if (!empty($_REQUEST['start']) && (!is_numeric($_REQUEST['start']) || $_REQUEST['start'] % $context['topics_per_page'] != 0))
-		$context['robot_no_index'] = true;
+	if (!empty($_REQUEST['start']) && (!is_numeric($_REQUEST['start']) || $_REQUEST['start'] % Utils::$context['topics_per_page'] != 0))
+		Utils::$context['robot_no_index'] = true;
 
 	// If we can view unapproved messages and there are some build up a list.
 	if (allowedTo('approve_posts') && ($board_info['unapproved_topics'] || $board_info['unapproved_posts']))
 	{
-		$untopics = $board_info['unapproved_topics'] ? '<a href="' . $scripturl . '?action=moderate;area=postmod;sa=topics;brd=' . $board . '">' . $board_info['unapproved_topics'] . '</a>' : 0;
-		$unposts = $board_info['unapproved_posts'] ? '<a href="' . $scripturl . '?action=moderate;area=postmod;sa=posts;brd=' . $board . '">' . ($board_info['unapproved_posts'] - $board_info['unapproved_topics']) . '</a>' : 0;
-		$context['unapproved_posts_message'] = sprintf($txt['there_are_unapproved_topics'], $untopics, $unposts, $scripturl . '?action=moderate;area=postmod;sa=' . ($board_info['unapproved_topics'] ? 'topics' : 'posts') . ';brd=' . $board);
+		$untopics = $board_info['unapproved_topics'] ? '<a href="' . Config::$scripturl . '?action=moderate;area=postmod;sa=topics;brd=' . $board . '">' . $board_info['unapproved_topics'] . '</a>' : 0;
+		$unposts = $board_info['unapproved_posts'] ? '<a href="' . Config::$scripturl . '?action=moderate;area=postmod;sa=posts;brd=' . $board . '">' . ($board_info['unapproved_posts'] - $board_info['unapproved_topics']) . '</a>' : 0;
+		Utils::$context['unapproved_posts_message'] = sprintf($txt['there_are_unapproved_topics'], $untopics, $unposts, Config::$scripturl . '?action=moderate;area=postmod;sa=' . ($board_info['unapproved_topics'] ? 'topics' : 'posts') . ';brd=' . $board);
 	}
 
 	// Default sort methods.
@@ -133,88 +136,88 @@ function MessageIndex()
 
 	// Make sure the starting place makes sense and construct the page index.
 	if (isset($_REQUEST['sort']))
-		$context['page_index'] = constructPageIndex($scripturl . '?board=' . $board . '.%1$d;sort=' . $_REQUEST['sort'] . (isset($_REQUEST['desc']) ? ';desc' : ''), $_REQUEST['start'], $board_info['total_topics'], $context['maxindex'], true);
+		Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?board=' . $board . '.%1$d;sort=' . $_REQUEST['sort'] . (isset($_REQUEST['desc']) ? ';desc' : ''), $_REQUEST['start'], $board_info['total_topics'], Utils::$context['maxindex'], true);
 	else
-		$context['page_index'] = constructPageIndex($scripturl . '?board=' . $board . '.%1$d', $_REQUEST['start'], $board_info['total_topics'], $context['maxindex'], true);
-	$context['start'] = &$_REQUEST['start'];
+		Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?board=' . $board . '.%1$d', $_REQUEST['start'], $board_info['total_topics'], Utils::$context['maxindex'], true);
+	Utils::$context['start'] = &$_REQUEST['start'];
 
 	// Set a canonical URL for this page.
-	$context['canonical_url'] = $scripturl . '?board=' . $board . '.' . $context['start'];
+	Utils::$context['canonical_url'] = Config::$scripturl . '?board=' . $board . '.' . Utils::$context['start'];
 
-	$can_show_all = !empty($modSettings['enableAllMessages']) && $context['maxindex'] > $modSettings['enableAllMessages'];
+	$can_show_all = !empty(Config::$modSettings['enableAllMessages']) && Utils::$context['maxindex'] > Config::$modSettings['enableAllMessages'];
 
 	if (!($can_show_all && isset($_REQUEST['all'])))
 	{
-		$context['links'] = array(
-			'first' => $_REQUEST['start'] >= $context['topics_per_page'] ? $scripturl . '?board=' . $board . '.0' : '',
-			'prev' => $_REQUEST['start'] >= $context['topics_per_page'] ? $scripturl . '?board=' . $board . '.' . ($_REQUEST['start'] - $context['topics_per_page']) : '',
-			'next' => $_REQUEST['start'] + $context['topics_per_page'] < $board_info['total_topics'] ? $scripturl . '?board=' . $board . '.' . ($_REQUEST['start'] + $context['topics_per_page']) : '',
-			'last' => $_REQUEST['start'] + $context['topics_per_page'] < $board_info['total_topics'] ? $scripturl . '?board=' . $board . '.' . (floor(($board_info['total_topics'] - 1) / $context['topics_per_page']) * $context['topics_per_page']) : '',
-			'up' => $board_info['parent'] == 0 ? $scripturl . '?' : $scripturl . '?board=' . $board_info['parent'] . '.0'
+		Utils::$context['links'] = array(
+			'first' => $_REQUEST['start'] >= Utils::$context['topics_per_page'] ? Config::$scripturl . '?board=' . $board . '.0' : '',
+			'prev' => $_REQUEST['start'] >= Utils::$context['topics_per_page'] ? Config::$scripturl . '?board=' . $board . '.' . ($_REQUEST['start'] - Utils::$context['topics_per_page']) : '',
+			'next' => $_REQUEST['start'] + Utils::$context['topics_per_page'] < $board_info['total_topics'] ? Config::$scripturl . '?board=' . $board . '.' . ($_REQUEST['start'] + Utils::$context['topics_per_page']) : '',
+			'last' => $_REQUEST['start'] + Utils::$context['topics_per_page'] < $board_info['total_topics'] ? Config::$scripturl . '?board=' . $board . '.' . (floor(($board_info['total_topics'] - 1) / Utils::$context['topics_per_page']) * Utils::$context['topics_per_page']) : '',
+			'up' => $board_info['parent'] == 0 ? Config::$scripturl . '?' : Config::$scripturl . '?board=' . $board_info['parent'] . '.0'
 		);
 	}
 
-	$context['page_info'] = array(
-		'current_page' => $_REQUEST['start'] / $context['topics_per_page'] + 1,
-		'num_pages' => floor(($board_info['total_topics'] - 1) / $context['topics_per_page']) + 1
+	Utils::$context['page_info'] = array(
+		'current_page' => $_REQUEST['start'] / Utils::$context['topics_per_page'] + 1,
+		'num_pages' => floor(($board_info['total_topics'] - 1) / Utils::$context['topics_per_page']) + 1
 	);
 
 	if (isset($_REQUEST['all']) && $can_show_all)
 	{
-		$context['maxindex'] = $modSettings['enableAllMessages'];
+		Utils::$context['maxindex'] = Config::$modSettings['enableAllMessages'];
 		$_REQUEST['start'] = 0;
 	}
 
 	// Build a list of the board's moderators.
-	$context['moderators'] = &$board_info['moderators'];
-	$context['moderator_groups'] = &$board_info['moderator_groups'];
-	$context['link_moderators'] = array();
+	Utils::$context['moderators'] = &$board_info['moderators'];
+	Utils::$context['moderator_groups'] = &$board_info['moderator_groups'];
+	Utils::$context['link_moderators'] = array();
 	if (!empty($board_info['moderators']))
 	{
 		foreach ($board_info['moderators'] as $mod)
-			$context['link_moderators'][] = '<a href="' . $scripturl . '?action=profile;u=' . $mod['id'] . '" title="' . $txt['board_moderator'] . '">' . $mod['name'] . '</a>';
+			Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $mod['id'] . '" title="' . $txt['board_moderator'] . '">' . $mod['name'] . '</a>';
 	}
 	if (!empty($board_info['moderator_groups']))
 	{
 		// By default just tack the moderator groups onto the end of the members
 		foreach ($board_info['moderator_groups'] as $mod_group)
-			$context['link_moderators'][] = '<a href="' . $scripturl . '?action=groups;sa=members;group=' . $mod_group['id'] . '" title="' . $txt['board_moderator'] . '">' . $mod_group['name'] . '</a>';
+			Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=groups;sa=members;group=' . $mod_group['id'] . '" title="' . $txt['board_moderator'] . '">' . $mod_group['name'] . '</a>';
 	}
 
 	// Now we tack the info onto the end of the linktree
-	if (!empty($context['link_moderators']))
+	if (!empty(Utils::$context['link_moderators']))
 	{
-		$context['linktree'][count($context['linktree']) - 1]['extra_after'] = '<span class="board_moderators">(' . (count($context['link_moderators']) == 1 ? $txt['moderator'] : $txt['moderators']) . ': ' . implode(', ', $context['link_moderators']) . ')</span>';
+		Utils::$context['linktree'][count(Utils::$context['linktree']) - 1]['extra_after'] = '<span class="board_moderators">(' . (count(Utils::$context['link_moderators']) == 1 ? $txt['moderator'] : $txt['moderators']) . ': ' . implode(', ', Utils::$context['link_moderators']) . ')</span>';
 	}
 
 	// 'Print' the header and board info.
-	$context['page_title'] = strip_tags($board_info['name']);
+	Utils::$context['page_title'] = strip_tags($board_info['name']);
 
 	// Set the variables up for the template.
-	$context['can_mark_notify'] = !$user_info['is_guest'];
-	$context['can_post_new'] = allowedTo('post_new') || ($modSettings['postmod_active'] && allowedTo('post_unapproved_topics'));
-	$context['can_post_poll'] = $modSettings['pollMode'] == '1' && allowedTo('poll_post') && $context['can_post_new'];
-	$context['can_moderate_forum'] = allowedTo('moderate_forum');
-	$context['can_approve_posts'] = allowedTo('approve_posts');
+	Utils::$context['can_mark_notify'] = !$user_info['is_guest'];
+	Utils::$context['can_post_new'] = allowedTo('post_new') || (Config::$modSettings['postmod_active'] && allowedTo('post_unapproved_topics'));
+	Utils::$context['can_post_poll'] = Config::$modSettings['pollMode'] == '1' && allowedTo('poll_post') && Utils::$context['can_post_new'];
+	Utils::$context['can_moderate_forum'] = allowedTo('moderate_forum');
+	Utils::$context['can_approve_posts'] = allowedTo('approve_posts');
 
-	require_once($sourcedir . '/Subs-BoardIndex.php');
+	require_once(Config::$sourcedir . '/Subs-BoardIndex.php');
 	$boardIndexOptions = array(
 		'include_categories' => false,
 		'base_level' => $board_info['child_level'] + 1,
 		'parent_id' => $board_info['id'],
 		'set_latest_post' => false,
-		'countChildPosts' => !empty($modSettings['countChildPosts']),
+		'countChildPosts' => !empty(Config::$modSettings['countChildPosts']),
 	);
-	$context['boards'] = getBoardIndex($boardIndexOptions);
+	Utils::$context['boards'] = getBoardIndex($boardIndexOptions);
 
 	// Nosey, nosey - who's viewing this topic?
 	if (!empty($settings['display_who_viewing']))
 	{
-		$context['view_members'] = array();
-		$context['view_members_list'] = array();
-		$context['view_num_hidden'] = 0;
+		Utils::$context['view_members'] = array();
+		Utils::$context['view_members_list'] = array();
+		Utils::$context['view_num_hidden'] = 0;
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT
 				lo.id_member, lo.log_time, mem.real_name, mem.member_name, mem.show_online,
 				mg.online_color, mg.id_group, mg.group_name
@@ -228,65 +231,65 @@ function MessageIndex()
 				'session' => $user_info['is_guest'] ? 'ip' . $user_info['ip'] : session_id(),
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			if (empty($row['id_member']))
 				continue;
 
 			if (!empty($row['online_color']))
-				$link = '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '" style="color: ' . $row['online_color'] . ';">' . $row['real_name'] . '</a>';
+				$link = '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '" style="color: ' . $row['online_color'] . ';">' . $row['real_name'] . '</a>';
 			else
-				$link = '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>';
+				$link = '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>';
 
 			$is_buddy = in_array($row['id_member'], $user_info['buddies']);
 			if ($is_buddy)
 				$link = '<strong>' . $link . '</strong>';
 
 			if (!empty($row['show_online']) || allowedTo('moderate_forum'))
-				$context['view_members_list'][$row['log_time'] . $row['member_name']] = empty($row['show_online']) ? '<em>' . $link . '</em>' : $link;
+				Utils::$context['view_members_list'][$row['log_time'] . $row['member_name']] = empty($row['show_online']) ? '<em>' . $link . '</em>' : $link;
 			// @todo why are we filling this array of data that are just counted (twice) and discarded? ???
-			$context['view_members'][$row['log_time'] . $row['member_name']] = array(
+			Utils::$context['view_members'][$row['log_time'] . $row['member_name']] = array(
 				'id' => $row['id_member'],
 				'username' => $row['member_name'],
 				'name' => $row['real_name'],
 				'group' => $row['id_group'],
-				'href' => $scripturl . '?action=profile;u=' . $row['id_member'],
+				'href' => Config::$scripturl . '?action=profile;u=' . $row['id_member'],
 				'link' => $link,
 				'is_buddy' => $is_buddy,
 				'hidden' => empty($row['show_online']),
 			);
 
 			if (empty($row['show_online']))
-				$context['view_num_hidden']++;
+				Utils::$context['view_num_hidden']++;
 		}
-		$context['view_num_guests'] = $smcFunc['db_num_rows']($request) - count($context['view_members']);
-		$smcFunc['db_free_result']($request);
+		Utils::$context['view_num_guests'] = Db::$db->num_rows($request) - count(Utils::$context['view_members']);
+		Db::$db->free_result($request);
 
 		// Put them in "last clicked" order.
-		krsort($context['view_members_list']);
-		krsort($context['view_members']);
+		krsort(Utils::$context['view_members_list']);
+		krsort(Utils::$context['view_members']);
 	}
 
 	// They didn't pick one, default to by last post descending.
 	if (!isset($_REQUEST['sort']) || !isset($sort_methods[$_REQUEST['sort']]))
 	{
-		$context['sort_by'] = 'last_post';
+		Utils::$context['sort_by'] = 'last_post';
 		$_REQUEST['sort'] = 'id_last_msg';
 		$ascending = isset($_REQUEST['asc']);
 	}
 	// Otherwise default to ascending.
 	else
 	{
-		$context['sort_by'] = $_REQUEST['sort'];
+		Utils::$context['sort_by'] = $_REQUEST['sort'];
 		$_REQUEST['sort'] = $sort_methods[$_REQUEST['sort']];
 		$ascending = !isset($_REQUEST['desc']);
 	}
 
-	$context['sort_direction'] = $ascending ? 'up' : 'down';
+	Utils::$context['sort_direction'] = $ascending ? 'up' : 'down';
 	$txt['starter'] = $txt['started_by'];
 
 	foreach ($sort_methods as $key => $val)
-		$context['topics_headers'][$key] = '<a href="' . $scripturl . '?board=' . $context['current_board'] . '.' . $context['start'] . ';sort=' . $key . ($context['sort_by'] == $key && $context['sort_direction'] == 'up' ? ';desc' : '') . '">' . $txt[$key] . ($context['sort_by'] == $key ? '<span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '') . '</a>';
+		Utils::$context['topics_headers'][$key] = '<a href="' . Config::$scripturl . '?board=' . Utils::$context['current_board'] . '.' . Utils::$context['start'] . ';sort=' . $key . (Utils::$context['sort_by'] == $key && Utils::$context['sort_direction'] == 'up' ? ';desc' : '') . '">' . $txt[$key] . (Utils::$context['sort_by'] == $key ? '<span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '') . '</a>';
 
 	// Calculate the fastest way to get the topics.
 	$start = (int) $_REQUEST['start'];
@@ -294,23 +297,23 @@ function MessageIndex()
 	{
 		$ascending = !$ascending;
 		$fake_ascending = true;
-		$context['maxindex'] = $board_info['total_topics'] < $start + $context['maxindex'] + 1 ? $board_info['total_topics'] - $start : $context['maxindex'];
-		$start = $board_info['total_topics'] < $start + $context['maxindex'] + 1 ? 0 : $board_info['total_topics'] - $start - $context['maxindex'];
+		Utils::$context['maxindex'] = $board_info['total_topics'] < $start + Utils::$context['maxindex'] + 1 ? $board_info['total_topics'] - $start : Utils::$context['maxindex'];
+		$start = $board_info['total_topics'] < $start + Utils::$context['maxindex'] + 1 ? 0 : $board_info['total_topics'] - $start - Utils::$context['maxindex'];
 	}
 	else
 		$fake_ascending = false;
 
 	// Setup the default topic icons...
-	$context['icon_sources'] = array();
-	foreach ($context['stable_icons'] as $icon)
-		$context['icon_sources'][$icon] = 'images_url';
+	Utils::$context['icon_sources'] = array();
+	foreach (Utils::$context['stable_icons'] as $icon)
+		Utils::$context['icon_sources'][$icon] = 'images_url';
 
 	$topic_ids = array();
-	$context['topics'] = array();
+	Utils::$context['topics'] = array();
 
 	// Grab the appropriate topic information...
 	// For search engine effectiveness we'll link guests differently.
-	$context['pageindex_multiplier'] = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
+	Utils::$context['pageindex_multiplier'] = empty(Config::$modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) ? $options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
 
 	$message_index_parameters = array(
 		'current_board' => $board,
@@ -319,7 +322,7 @@ function MessageIndex()
 		'is_approved' => 1,
 		'find_set_topics' => implode(',', $topic_ids),
 		'start' => $start,
-		'maxindex' => $context['maxindex'],
+		'maxindex' => Utils::$context['maxindex'],
 	);
 
 	$message_index_selects = array();
@@ -329,7 +332,7 @@ function MessageIndex()
 
 	call_integration_hook('integrate_message_index', array(&$message_index_selects, &$message_index_tables, &$message_index_parameters, &$message_index_wheres, &$topic_ids, &$message_index_topic_wheres));
 
-	if (!empty($modSettings['enableParticipation']) && !$user_info['is_guest'])
+	if (!empty(Config::$modSettings['enableParticipation']) && !$user_info['is_guest'])
 		$enableParticipation = true;
 	else
 		$enableParticipation = false;
@@ -337,17 +340,17 @@ function MessageIndex()
 	$sort_table = '
 		SELECT t.id_topic, t.id_first_msg, t.id_last_msg' . (!empty($message_index_selects) ? (', ' . implode(', ', $message_index_selects)) : '') . '
 		FROM {db_prefix}topics t
-		' . (empty($sort_methods_table[$context['sort_by']]) ? '' : $sort_methods_table[$context['sort_by']]) . '
+		' . (empty($sort_methods_table[Utils::$context['sort_by']]) ? '' : $sort_methods_table[Utils::$context['sort_by']]) . '
 		' . (!empty($message_index_tables) ? implode("\n\t\t\t\t", $message_index_tables) : '') . '
 		WHERE t.id_board = {int:current_board} '
-			. (!$modSettings['postmod_active'] || $context['can_approve_posts'] ? '' : '
+			. (!Config::$modSettings['postmod_active'] || Utils::$context['can_approve_posts'] ? '' : '
 			AND (t.approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR t.id_member_started = {int:current_member}') . ')') . (!empty($message_index_topic_wheres) ? '
 			AND ' . implode("\n\t\t\t\tAND ", $message_index_topic_wheres) : ''). '
 		ORDER BY is_sticky' . ($fake_ascending ? '' : ' DESC') . ', ' . $_REQUEST['sort'] . ($ascending ? '' : ' DESC') . '
 		LIMIT {int:maxindex}
 			OFFSET {int:start} ';
 
-	$result = $smcFunc['db_query']('substring', '
+	$result = Db::$db->query('substring', '
 		SELECT
 			t.id_topic, t.num_replies, t.locked, t.num_views, t.is_sticky, t.id_poll, t.id_previous_board,
 			' . ($user_info['is_guest'] ? '0' : 'COALESCE(lt.id_msg, COALESCE(lmr.id_msg, -1)) + 1') . ' AS new_from,
@@ -359,9 +362,9 @@ function MessageIndex()
 			COALESCE(meml.real_name, ml.poster_name) AS last_display_name, t.id_first_msg,
 			mf.poster_time AS first_poster_time, mf.subject AS first_subject, mf.icon AS first_icon,
 			mf.poster_name AS first_member_name, mf.id_member AS first_id_member,
-			COALESCE(memf.real_name, mf.poster_name) AS first_display_name, ' . (!empty($modSettings['preview_characters']) ? '
-			SUBSTRING(ml.body, 1, ' . ($modSettings['preview_characters'] + 256) . ') AS last_body,
-			SUBSTRING(mf.body, 1, ' . ($modSettings['preview_characters'] + 256) . ') AS first_body,' : '') . 'ml.smileys_enabled AS last_smileys, mf.smileys_enabled AS first_smileys
+			COALESCE(memf.real_name, mf.poster_name) AS first_display_name, ' . (!empty(Config::$modSettings['preview_characters']) ? '
+			SUBSTRING(ml.body, 1, ' . (Config::$modSettings['preview_characters'] + 256) . ') AS last_body,
+			SUBSTRING(mf.body, 1, ' . (Config::$modSettings['preview_characters'] + 256) . ') AS first_body,' : '') . 'ml.smileys_enabled AS last_smileys, mf.smileys_enabled AS first_smileys
 			' . (!empty($message_index_selects) ? (', ' . implode(', ', $message_index_selects)) : '') . '
 		FROM (' . $sort_table . ') as st
 			JOIN {db_prefix}topics AS t ON (st.id_topic = t.id_topic)
@@ -380,9 +383,9 @@ function MessageIndex()
 	);
 
 	// Begin 'printing' the message index for current board.
-	while ($row = $smcFunc['db_fetch_assoc']($result))
+	while ($row = Db::$db->fetch_assoc($result))
 	{
-		if ($row['id_poll'] > 0 && $modSettings['pollMode'] == '0')
+		if ($row['id_poll'] > 0 && Config::$modSettings['pollMode'] == '0')
 			continue;
 
 		$topic_ids[] = $row['id_topic'];
@@ -391,12 +394,12 @@ function MessageIndex()
 		$colorClass = 'windowbg';
 
 		// Does the theme support message previews?
-		if (!empty($modSettings['preview_characters']))
+		if (!empty(Config::$modSettings['preview_characters']))
 		{
-			// Limit them to $modSettings['preview_characters'] characters
+			// Limit them to Config::$modSettings['preview_characters'] characters
 			$row['first_body'] = strip_tags(strtr(BBCodeParser::load()->parse($row['first_body'], $row['first_smileys'], $row['id_first_msg']), array('<br>' => '&#10;')));
-			if ($smcFunc['strlen']($row['first_body']) > $modSettings['preview_characters'])
-				$row['first_body'] = $smcFunc['substr']($row['first_body'], 0, $modSettings['preview_characters']) . '...';
+			if (Utils::entityStrlen($row['first_body']) > Config::$modSettings['preview_characters'])
+				$row['first_body'] = Utils::entitySubstr($row['first_body'], 0, Config::$modSettings['preview_characters']) . '...';
 
 			// Censor the subject and message preview.
 			censorText($row['first_subject']);
@@ -411,8 +414,8 @@ function MessageIndex()
 			else
 			{
 				$row['last_body'] = strip_tags(strtr(BBCodeParser::load()->parse($row['last_body'], $row['last_smileys'], $row['id_last_msg']), array('<br>' => '&#10;')));
-				if ($smcFunc['strlen']($row['last_body']) > $modSettings['preview_characters'])
-					$row['last_body'] = $smcFunc['substr']($row['last_body'], 0, $modSettings['preview_characters']) . '...';
+				if (Utils::entityStrlen($row['last_body']) > Config::$modSettings['preview_characters'])
+					$row['last_body'] = Utils::entitySubstr($row['last_body'], 0, Config::$modSettings['preview_characters']) . '...';
 
 				censorText($row['last_subject']);
 				censorText($row['last_body']);
@@ -431,40 +434,40 @@ function MessageIndex()
 		}
 
 		// Decide how many pages the topic should have.
-		if ($row['num_replies'] + 1 > $context['messages_per_page'])
+		if ($row['num_replies'] + 1 > Utils::$context['messages_per_page'])
 		{
 			// We can't pass start by reference.
 			$start = -1;
-			$pages = constructPageIndex($scripturl . '?topic=' . $row['id_topic'] . '.%1$d', $start, $row['num_replies'] + 1, $context['messages_per_page'], true, false);
+			$pages = constructPageIndex(Config::$scripturl . '?topic=' . $row['id_topic'] . '.%1$d', $start, $row['num_replies'] + 1, Utils::$context['messages_per_page'], true, false);
 
 			// If we can use all, show all.
-			if (!empty($modSettings['enableAllMessages']) && $row['num_replies'] + 1 < $modSettings['enableAllMessages'])
-				$pages .= sprintf(strtr($settings['page_index']['page'], array('{URL}' => $scripturl . '?topic=' . $row['id_topic'] . '.0;all')), '', $txt['all']);
+			if (!empty(Config::$modSettings['enableAllMessages']) && $row['num_replies'] + 1 < Config::$modSettings['enableAllMessages'])
+				$pages .= sprintf(strtr($settings['page_index']['page'], array('{URL}' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0;all')), '', $txt['all']);
 		}
 		else
 			$pages = '';
 
 		// We need to check the topic icons exist...
-		if (!empty($modSettings['messageIconChecks_enable']))
+		if (!empty(Config::$modSettings['messageIconChecks_enable']))
 		{
-			if (!isset($context['icon_sources'][$row['first_icon']]))
-				$context['icon_sources'][$row['first_icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $row['first_icon'] . '.png') ? 'images_url' : 'default_images_url';
-			if (!isset($context['icon_sources'][$row['last_icon']]))
-				$context['icon_sources'][$row['last_icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $row['last_icon'] . '.png') ? 'images_url' : 'default_images_url';
+			if (!isset(Utils::$context['icon_sources'][$row['first_icon']]))
+				Utils::$context['icon_sources'][$row['first_icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $row['first_icon'] . '.png') ? 'images_url' : 'default_images_url';
+			if (!isset(Utils::$context['icon_sources'][$row['last_icon']]))
+				Utils::$context['icon_sources'][$row['last_icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $row['last_icon'] . '.png') ? 'images_url' : 'default_images_url';
 		}
 		else
 		{
-			if (!isset($context['icon_sources'][$row['first_icon']]))
-				$context['icon_sources'][$row['first_icon']] = 'images_url';
-			if (!isset($context['icon_sources'][$row['last_icon']]))
-				$context['icon_sources'][$row['last_icon']] = 'images_url';
+			if (!isset(Utils::$context['icon_sources'][$row['first_icon']]))
+				Utils::$context['icon_sources'][$row['first_icon']] = 'images_url';
+			if (!isset(Utils::$context['icon_sources'][$row['last_icon']]))
+				Utils::$context['icon_sources'][$row['last_icon']] = 'images_url';
 		}
 
 		if (!empty($board_info['recycle']))
 			$row['first_icon'] = 'recycled';
 
 		// Is this topic pending approval, or does it have any posts pending approval?
-		if ($context['can_approve_posts'] && $row['unapproved_posts'])
+		if (Utils::$context['can_approve_posts'] && $row['unapproved_posts'])
 			$colorClass .= (!$row['approved'] ? ' approvetopic' : ' approvepost');
 
 		// Sticky topics should get a different color, too.
@@ -476,7 +479,7 @@ function MessageIndex()
 			$colorClass .= ' locked';
 
 		// 'Print' the topic info.
-		$context['topics'][$row['id_topic']] = array_merge($row, array(
+		Utils::$context['topics'][$row['id_topic']] = array_merge($row, array(
 			'id' => $row['id_topic'],
 			'first_post' => array(
 				'id' => $row['id_first_msg'],
@@ -484,17 +487,17 @@ function MessageIndex()
 					'username' => $row['first_member_name'],
 					'name' => $row['first_display_name'],
 					'id' => $row['first_id_member'],
-					'href' => !empty($row['first_id_member']) ? $scripturl . '?action=profile;u=' . $row['first_id_member'] : '',
-					'link' => !empty($row['first_id_member']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['first_id_member'] . '" title="' . sprintf($txt['view_profile_of_username'], $row['first_display_name']) . '" class="preview">' . $row['first_display_name'] . '</a>' : $row['first_display_name']
+					'href' => !empty($row['first_id_member']) ? Config::$scripturl . '?action=profile;u=' . $row['first_id_member'] : '',
+					'link' => !empty($row['first_id_member']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['first_id_member'] . '" title="' . sprintf($txt['view_profile_of_username'], $row['first_display_name']) . '" class="preview">' . $row['first_display_name'] . '</a>' : $row['first_display_name']
 				),
 				'time' => timeformat($row['first_poster_time']),
 				'timestamp' => $row['first_poster_time'],
 				'subject' => $row['first_subject'],
 				'preview' => $row['first_body'],
 				'icon' => $row['first_icon'],
-				'icon_url' => $settings[$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
-				'href' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
-				'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['first_subject'] . '</a>',
+				'icon_url' => $settings[Utils::$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
+				'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0',
+				'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['first_subject'] . '</a>',
 			),
 			'last_post' => array(
 				'id' => $row['id_last_msg'],
@@ -502,31 +505,31 @@ function MessageIndex()
 					'username' => $row['last_member_name'],
 					'name' => $row['last_display_name'],
 					'id' => $row['last_id_member'],
-					'href' => !empty($row['last_id_member']) ? $scripturl . '?action=profile;u=' . $row['last_id_member'] : '',
-					'link' => !empty($row['last_id_member']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['last_id_member'] . '">' . $row['last_display_name'] . '</a>' : $row['last_display_name']
+					'href' => !empty($row['last_id_member']) ? Config::$scripturl . '?action=profile;u=' . $row['last_id_member'] : '',
+					'link' => !empty($row['last_id_member']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['last_id_member'] . '">' . $row['last_display_name'] . '</a>' : $row['last_display_name']
 				),
 				'time' => timeformat($row['last_poster_time']),
 				'timestamp' => $row['last_poster_time'],
 				'subject' => $row['last_subject'],
 				'preview' => $row['last_body'],
 				'icon' => $row['last_icon'],
-				'icon_url' => $settings[$context['icon_sources'][$row['last_icon']]] . '/post/' . $row['last_icon'] . '.png',
-				'href' => $scripturl . '?topic=' . $row['id_topic'] . ($user_info['is_guest'] ? ('.' . (!empty($options['view_newest_first']) ? 0 : ((int) (($row['num_replies']) / $context['pageindex_multiplier'])) * $context['pageindex_multiplier']) . '#msg' . $row['id_last_msg']) : (($row['num_replies'] == 0 ? '.0' : '.msg' . $row['id_last_msg']) . '#new')),
-				'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . ($user_info['is_guest'] ? ('.' . (!empty($options['view_newest_first']) ? 0 : ((int) (($row['num_replies']) / $context['pageindex_multiplier'])) * $context['pageindex_multiplier']) . '#msg' . $row['id_last_msg']) : (($row['num_replies'] == 0 ? '.0' : '.msg' . $row['id_last_msg']) . '#new')) . '" ' . ($row['num_replies'] == 0 ? '' : 'rel="nofollow"') . '>' . $row['last_subject'] . '</a>'
+				'icon_url' => $settings[Utils::$context['icon_sources'][$row['last_icon']]] . '/post/' . $row['last_icon'] . '.png',
+				'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . ($user_info['is_guest'] ? ('.' . (!empty($options['view_newest_first']) ? 0 : ((int) (($row['num_replies']) / Utils::$context['pageindex_multiplier'])) * Utils::$context['pageindex_multiplier']) . '#msg' . $row['id_last_msg']) : (($row['num_replies'] == 0 ? '.0' : '.msg' . $row['id_last_msg']) . '#new')),
+				'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . ($user_info['is_guest'] ? ('.' . (!empty($options['view_newest_first']) ? 0 : ((int) (($row['num_replies']) / Utils::$context['pageindex_multiplier'])) * Utils::$context['pageindex_multiplier']) . '#msg' . $row['id_last_msg']) : (($row['num_replies'] == 0 ? '.0' : '.msg' . $row['id_last_msg']) . '#new')) . '" ' . ($row['num_replies'] == 0 ? '' : 'rel="nofollow"') . '>' . $row['last_subject'] . '</a>'
 			),
 			'is_sticky' => !empty($row['is_sticky']),
 			'is_locked' => !empty($row['locked']),
 			'is_redirect' => !empty($row['id_redirect_topic']),
-			'is_poll' => $modSettings['pollMode'] == '1' && $row['id_poll'] > 0,
+			'is_poll' => Config::$modSettings['pollMode'] == '1' && $row['id_poll'] > 0,
 			'is_posted_in' => ($enableParticipation ? $row['is_posted_in'] : false),
 			'is_watched' => false,
 			'icon' => $row['first_icon'],
-			'icon_url' => $settings[$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
+			'icon_url' => $settings[Utils::$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
 			'subject' => $row['first_subject'],
 			'new' => $row['new_from'] <= $row['id_msg_modified'],
 			'new_from' => $row['new_from'],
 			'newtime' => $row['new_from'],
-			'new_href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['new_from'] . '#new',
+			'new_href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['new_from'] . '#new',
 			'pages' => $pages,
 			'replies' => comma_format($row['num_replies']),
 			'views' => comma_format($row['num_views']),
@@ -537,101 +540,101 @@ function MessageIndex()
 		if (!empty($settings['avatars_on_indexes']))
 		{
 			// Last post member avatar
-			$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = set_avatar_data(array(
+			Utils::$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = set_avatar_data(array(
 				'avatar' => $row['avatar'],
 				'email' => $row['email_address'],
 				'filename' => !empty($row['last_member_filename']) ? $row['last_member_filename'] : '',
 			));
 
 			// First post member avatar
-			$context['topics'][$row['id_topic']]['first_post']['member']['avatar'] = set_avatar_data(array(
+			Utils::$context['topics'][$row['id_topic']]['first_post']['member']['avatar'] = set_avatar_data(array(
 				'avatar' => $row['first_member_avatar'],
 				'email' => $row['first_member_mail'],
 				'filename' => !empty($row['first_member_filename']) ? $row['first_member_filename'] : '',
 			));
 		}
 	}
-	$smcFunc['db_free_result']($result);
+	Db::$db->free_result($result);
 
 	// Fix the sequence of topics if they were retrieved in the wrong order. (for speed reasons...)
 	if ($fake_ascending)
-		$context['topics'] = array_reverse($context['topics'], true);
+		Utils::$context['topics'] = array_reverse(Utils::$context['topics'], true);
 
-	$context['jump_to'] = array(
+	Utils::$context['jump_to'] = array(
 		'label' => addslashes(un_htmlspecialchars($txt['jump_to'])),
-		'board_name' => strtr($smcFunc['htmlspecialchars'](strip_tags($board_info['name'])), array('&amp;' => '&')),
+		'board_name' => strtr(Utils::htmlspecialchars(strip_tags($board_info['name'])), array('&amp;' => '&')),
 		'child_level' => $board_info['child_level'],
 	);
 
 	// Is Quick Moderation active/needed?
-	if (!empty($options['display_quick_mod']) && !empty($context['topics']))
+	if (!empty($options['display_quick_mod']) && !empty(Utils::$context['topics']))
 	{
-		$context['can_markread'] = $context['user']['is_logged'];
-		$context['can_lock'] = allowedTo('lock_any');
-		$context['can_sticky'] = allowedTo('make_sticky');
-		$context['can_move'] = allowedTo('move_any');
-		$context['can_remove'] = allowedTo('remove_any');
-		$context['can_merge'] = allowedTo('merge_any');
+		Utils::$context['can_markread'] = Utils::$context['user']['is_logged'];
+		Utils::$context['can_lock'] = allowedTo('lock_any');
+		Utils::$context['can_sticky'] = allowedTo('make_sticky');
+		Utils::$context['can_move'] = allowedTo('move_any');
+		Utils::$context['can_remove'] = allowedTo('remove_any');
+		Utils::$context['can_merge'] = allowedTo('merge_any');
 		// Ignore approving own topics as it's unlikely to come up...
-		$context['can_approve'] = $modSettings['postmod_active'] && allowedTo('approve_posts') && !empty($board_info['unapproved_topics']);
+		Utils::$context['can_approve'] = Config::$modSettings['postmod_active'] && allowedTo('approve_posts') && !empty($board_info['unapproved_topics']);
 		// Can we restore topics?
-		$context['can_restore'] = allowedTo('move_any') && !empty($board_info['recycle']);
+		Utils::$context['can_restore'] = allowedTo('move_any') && !empty($board_info['recycle']);
 
-		if ($user_info['is_admin'] || $modSettings['topic_move_any'])
-			$context['can_move_any'] = true;
+		if ($user_info['is_admin'] || Config::$modSettings['topic_move_any'])
+			Utils::$context['can_move_any'] = true;
 		else
 		{
 			// We'll use this in a minute
 			$boards_allowed = boardsAllowedTo('post_new');
 
 			// How many boards can you do this on besides this one?
-			$context['can_move_any'] = count($boards_allowed) > 1;
+			Utils::$context['can_move_any'] = count($boards_allowed) > 1;
 		}
 
 		// Set permissions for all the topics.
-		foreach ($context['topics'] as $t => $topic)
+		foreach (Utils::$context['topics'] as $t => $topic)
 		{
 			$started = $topic['first_post']['member']['id'] == $user_info['id'];
-			$context['topics'][$t]['quick_mod'] = array(
+			Utils::$context['topics'][$t]['quick_mod'] = array(
 				'lock' => allowedTo('lock_any') || ($started && allowedTo('lock_own')),
 				'sticky' => allowedTo('make_sticky'),
-				'move' => (allowedTo('move_any') || ($started && allowedTo('move_own')) && $context['can_move_any']),
+				'move' => (allowedTo('move_any') || ($started && allowedTo('move_own')) && Utils::$context['can_move_any']),
 				'modify' => allowedTo('modify_any') || ($started && allowedTo('modify_own')),
 				'remove' => allowedTo('remove_any') || ($started && allowedTo('remove_own')),
-				'approve' => $context['can_approve'] && $topic['unapproved_posts']
+				'approve' => Utils::$context['can_approve'] && $topic['unapproved_posts']
 			);
-			$context['can_lock'] |= ($started && allowedTo('lock_own'));
-			$context['can_move'] |= ($started && allowedTo('move_own') && $context['can_move_any']);
-			$context['can_remove'] |= ($started && allowedTo('remove_own'));
+			Utils::$context['can_lock'] |= ($started && allowedTo('lock_own'));
+			Utils::$context['can_move'] |= ($started && allowedTo('move_own') && Utils::$context['can_move_any']);
+			Utils::$context['can_remove'] |= ($started && allowedTo('remove_own'));
 		}
 
 		// Can we use quick moderation checkboxes?
 		if ($options['display_quick_mod'] == 1)
-			$context['can_quick_mod'] = $context['user']['is_logged'] || $context['can_approve'] || $context['can_remove'] || $context['can_lock'] || $context['can_sticky'] || $context['can_move'] || $context['can_merge'] || $context['can_restore'];
+			Utils::$context['can_quick_mod'] = Utils::$context['user']['is_logged'] || Utils::$context['can_approve'] || Utils::$context['can_remove'] || Utils::$context['can_lock'] || Utils::$context['can_sticky'] || Utils::$context['can_move'] || Utils::$context['can_merge'] || Utils::$context['can_restore'];
 		// Or the icons?
 		else
-			$context['can_quick_mod'] = $context['can_remove'] || $context['can_lock'] || $context['can_sticky'] || $context['can_move'];
+			Utils::$context['can_quick_mod'] = Utils::$context['can_remove'] || Utils::$context['can_lock'] || Utils::$context['can_sticky'] || Utils::$context['can_move'];
 	}
 
-	if (!empty($context['can_quick_mod']) && $options['display_quick_mod'] == 1)
+	if (!empty(Utils::$context['can_quick_mod']) && $options['display_quick_mod'] == 1)
 	{
-		$context['qmod_actions'] = array('approve', 'remove', 'lock', 'sticky', 'move', 'merge', 'restore', 'markread');
+		Utils::$context['qmod_actions'] = array('approve', 'remove', 'lock', 'sticky', 'move', 'merge', 'restore', 'markread');
 		call_integration_hook('integrate_quick_mod_actions');
 	}
 
 	// Mark current and parent boards as seen.
 	if (!$user_info['is_guest'])
 	{
-		$smcFunc['db_insert']('replace',
+		Db::$db->insert('replace',
 			'{db_prefix}log_boards',
 			array('id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'),
-			array($modSettings['maxMsgID'], $user_info['id'], $board),
+			array(Config::$modSettings['maxMsgID'], $user_info['id'], $board),
 			array('id_member', 'id_board')
 		);
 
 		if (!empty($board_info['parent_boards']))
 		{
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				UPDATE {db_prefix}log_boards
 				SET id_msg = {int:id_msg}
 				WHERE id_member = {int:current_member}
@@ -639,7 +642,7 @@ function MessageIndex()
 				array(
 					'current_member' => $user_info['id'],
 					'board_list' => array_keys($board_info['parent_boards']),
-					'id_msg' => $modSettings['maxMsgID'],
+					'id_msg' => Config::$modSettings['maxMsgID'],
 				)
 			);
 
@@ -652,33 +655,33 @@ function MessageIndex()
 		if (isset($_SESSION['topicseen_cache'][$board]))
 			unset($_SESSION['topicseen_cache'][$board]);
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_topic, id_board, sent
 			FROM {db_prefix}log_notify
 			WHERE id_member = {int:current_member}
-				AND (' . (!empty($context['topics']) ? 'id_topic IN ({array_int:topics}) OR ' : '') . 'id_board = {int:current_board})',
+				AND (' . (!empty(Utils::$context['topics']) ? 'id_topic IN ({array_int:topics}) OR ' : '') . 'id_board = {int:current_board})',
 			array(
 				'current_board' => $board,
-				'topics' => !empty($context['topics']) ? array_keys($context['topics']) : array(),
+				'topics' => !empty(Utils::$context['topics']) ? array_keys(Utils::$context['topics']) : array(),
 				'current_member' => $user_info['id'],
 			)
 		);
-		$context['is_marked_notify'] = false; // this is for the *board* only
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		Utils::$context['is_marked_notify'] = false; // this is for the *board* only
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			if (!empty($row['id_board']))
 			{
-				$context['is_marked_notify'] = true;
+				Utils::$context['is_marked_notify'] = true;
 				$board_sent = $row['sent'];
 			}
 			if (!empty($row['id_topic']))
-				$context['topics'][$row['id_topic']]['is_watched'] = true;
+				Utils::$context['topics'][$row['id_topic']]['is_watched'] = true;
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
-		if ($context['is_marked_notify'] && !empty($board_sent))
+		if (Utils::$context['is_marked_notify'] && !empty($board_sent))
 		{
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				UPDATE {db_prefix}log_notify
 				SET sent = {int:is_sent}
 				WHERE id_member = {int:current_member}
@@ -691,53 +694,53 @@ function MessageIndex()
 			);
 		}
 
-		require_once($sourcedir . '/Subs-Notify.php');
+		require_once(Config::$sourcedir . '/Subs-Notify.php');
 		$pref = getNotifyPrefs($user_info['id'], array('board_notify', 'board_notify_' . $board), true);
 		$pref = !empty($pref[$user_info['id']]) ? $pref[$user_info['id']] : array();
 		$pref = isset($pref['board_notify_' . $board]) ? $pref['board_notify_' . $board] : (!empty($pref['board_notify']) ? $pref['board_notify'] : 0);
-		$context['board_notification_mode'] = !$context['is_marked_notify'] ? 1 : ($pref & 0x02 ? 3 : ($pref & 0x01 ? 2 : 1));
+		Utils::$context['board_notification_mode'] = !Utils::$context['is_marked_notify'] ? 1 : ($pref & 0x02 ? 3 : ($pref & 0x01 ? 2 : 1));
 	}
 	else
 	{
-		$context['is_marked_notify'] = false;
-		$context['board_notification_mode'] = 1;
+		Utils::$context['is_marked_notify'] = false;
+		Utils::$context['board_notification_mode'] = 1;
 	}
 
 	// If there are children, but no topics and no ability to post topics...
-	$context['no_topic_listing'] = !empty($context['boards']) && empty($context['topics']) && !$context['can_post_new'];
+	Utils::$context['no_topic_listing'] = !empty(Utils::$context['boards']) && empty(Utils::$context['topics']) && !Utils::$context['can_post_new'];
 
 	// Show a message in case a recently posted message became unapproved.
-	$context['becomesUnapproved'] = !empty($_SESSION['becomesUnapproved']);
+	Utils::$context['becomesUnapproved'] = !empty($_SESSION['becomesUnapproved']);
 	unset($_SESSION['becomesUnapproved']);
 
 	// Build the message index button array.
-	$context['normal_buttons'] = array();
+	Utils::$context['normal_buttons'] = array();
 
-	if ($context['can_post_new'])
-		$context['normal_buttons']['new_topic'] = array('text' => 'new_topic', 'image' => 'new_topic.png', 'lang' => true, 'url' => $scripturl . '?action=post;board=' . $context['current_board'] . '.0', 'active' => true);
+	if (Utils::$context['can_post_new'])
+		Utils::$context['normal_buttons']['new_topic'] = array('text' => 'new_topic', 'image' => 'new_topic.png', 'lang' => true, 'url' => Config::$scripturl . '?action=post;board=' . Utils::$context['current_board'] . '.0', 'active' => true);
 
-	if ($context['can_post_poll'])
-		$context['normal_buttons']['post_poll'] = array('text' => 'new_poll', 'image' => 'new_poll.png', 'lang' => true, 'url' => $scripturl . '?action=post;board=' . $context['current_board'] . '.0;poll');
+	if (Utils::$context['can_post_poll'])
+		Utils::$context['normal_buttons']['post_poll'] = array('text' => 'new_poll', 'image' => 'new_poll.png', 'lang' => true, 'url' => Config::$scripturl . '?action=post;board=' . Utils::$context['current_board'] . '.0;poll');
 
-	if ($context['user']['is_logged'])
-		$context['normal_buttons']['markread'] = array('text' => 'mark_read_short', 'image' => 'markread.png', 'lang' => true, 'custom' => 'data-confirm="' . $txt['are_sure_mark_read'] . '"', 'class' => 'you_sure', 'url' => $scripturl . '?action=markasread;sa=board;board=' . $context['current_board'] . '.0;' . $context['session_var'] . '=' . $context['session_id']);
+	if (Utils::$context['user']['is_logged'])
+		Utils::$context['normal_buttons']['markread'] = array('text' => 'mark_read_short', 'image' => 'markread.png', 'lang' => true, 'custom' => 'data-confirm="' . $txt['are_sure_mark_read'] . '"', 'class' => 'you_sure', 'url' => Config::$scripturl . '?action=markasread;sa=board;board=' . Utils::$context['current_board'] . '.0;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 
-	if ($context['can_mark_notify'])
-		$context['normal_buttons']['notify'] = array(
+	if (Utils::$context['can_mark_notify'])
+		Utils::$context['normal_buttons']['notify'] = array(
 			'lang' => true,
-			'text' => 'notify_board_' . $context['board_notification_mode'],
+			'text' => 'notify_board_' . Utils::$context['board_notification_mode'],
 			'sub_buttons' => array(
 				array(
 					'text' => 'notify_board_1',
-					'url' => $scripturl . '?action=notifyboard;board=' . $board . ';mode=1;' . $context['session_var'] . '=' . $context['session_id'],
+					'url' => Config::$scripturl . '?action=notifyboard;board=' . $board . ';mode=1;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 				),
 				array(
 					'text' => 'notify_board_2',
-					'url' => $scripturl . '?action=notifyboard;board=' . $board . ';mode=2;' . $context['session_var'] . '=' . $context['session_id'],
+					'url' => Config::$scripturl . '?action=notifyboard;board=' . $board . ';mode=2;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 				),
 				array(
 					'text' => 'notify_board_3',
-					'url' => $scripturl . '?action=notifyboard;board=' . $board . ';mode=3;' . $context['session_var'] . '=' . $context['session_id'],
+					'url' => Config::$scripturl . '?action=notifyboard;board=' . $board . ';mode=3;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 				),
 			),
 		);
@@ -746,8 +749,8 @@ function MessageIndex()
 	loadJavaScriptFile('topic.js', array('defer' => false, 'minimize' => true), 'smf_topic');
 
 	// Allow adding new buttons easily.
-	// Note: $context['normal_buttons'] is added for backward compatibility with 2.0, but is deprecated and should not be used
-	call_integration_hook('integrate_messageindex_buttons', array(&$context['normal_buttons']));
+	// Note: Utils::$context['normal_buttons'] is added for backward compatibility with 2.0, but is deprecated and should not be used
+	call_integration_hook('integrate_messageindex_buttons', array(&Utils::$context['normal_buttons']));
 }
 
 /**
@@ -757,20 +760,20 @@ function MessageIndex()
  */
 function QuickModeration()
 {
-	global $sourcedir, $board, $user_info, $modSettings, $smcFunc, $context;
+	global $board, $user_info;
 
 	// Check the session = get or post.
 	checkSession('request');
 
 	// Lets go straight to the restore area.
 	if (isset($_REQUEST['qaction']) && $_REQUEST['qaction'] == 'restore' && !empty($_REQUEST['topics']))
-		redirectexit('action=restoretopic;topics=' . implode(',', $_REQUEST['topics']) . ';' . $context['session_var'] . '=' . $context['session_id']);
+		redirectexit('action=restoretopic;topics=' . implode(',', $_REQUEST['topics']) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 
 	if (isset($_SESSION['topicseen_cache']))
 		$_SESSION['topicseen_cache'] = array();
 
 	// This is going to be needed to send off the notifications and for updateLastMessages().
-	require_once($sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Subs-Post.php');
 
 	// Remember the last board they moved things to.
 	if (isset($_REQUEST['move_to']))
@@ -803,7 +806,7 @@ function QuickModeration()
 	}
 
 	// Are we enforcing the "no moving topics to boards where you can't post new ones" rule?
-	if (!$user_info['is_admin'] && !$modSettings['topic_move_any'])
+	if (!$user_info['is_admin'] && !Config::$modSettings['topic_move_any'])
 	{
 		// Don't count this board, if it's specified
 		if (!empty($board))
@@ -857,7 +860,7 @@ function QuickModeration()
 			if (empty($_REQUEST['topics']) || count($_REQUEST['topics']) < 2)
 				redirectexit($redirect_url);
 
-			require_once($sourcedir . '/SplitTopics.php');
+			require_once(Config::$sourcedir . '/SplitTopics.php');
 			return MergeExecute($_REQUEST['topics']);
 		}
 
@@ -882,7 +885,7 @@ function QuickModeration()
 	if (!empty($_REQUEST['actions']))
 	{
 		// Find all topics...
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_topic, id_member_started, id_board, locked, approved, unapproved_posts
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:action_topic_ids})
@@ -892,17 +895,17 @@ function QuickModeration()
 				'limit' => count($_REQUEST['actions']),
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			if (!empty($board))
 			{
-				if ($row['id_board'] != $board || ($modSettings['postmod_active'] && !$row['approved'] && !allowedTo('approve_posts')))
+				if ($row['id_board'] != $board || (Config::$modSettings['postmod_active'] && !$row['approved'] && !allowedTo('approve_posts')))
 					unset($_REQUEST['actions'][$row['id_topic']]);
 			}
 			else
 			{
 				// Don't allow them to act on unapproved posts they can't see...
-				if ($modSettings['postmod_active'] && !$row['approved'] && !in_array(0, $boards_can['approve_posts']) && !in_array($row['id_board'], $boards_can['approve_posts']))
+				if (Config::$modSettings['postmod_active'] && !$row['approved'] && !in_array(0, $boards_can['approve_posts']) && !in_array($row['id_board'], $boards_can['approve_posts']))
 					unset($_REQUEST['actions'][$row['id_topic']]);
 				// Goodness, this is fun.  We need to validate the action.
 				elseif ($_REQUEST['actions'][$row['id_topic']] == 'sticky' && !in_array(0, $boards_can['make_sticky']) && !in_array($row['id_board'], $boards_can['make_sticky']))
@@ -919,7 +922,7 @@ function QuickModeration()
 					unset($_REQUEST['actions'][$row['id_topic']]);
 			}
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 	}
 
 	$stickyCache = array();
@@ -940,7 +943,7 @@ function QuickModeration()
 			$stickyCache[] = $topic;
 		elseif ($action == 'move')
 		{
-			require_once($sourcedir . '/MoveTopic.php');
+			require_once(Config::$sourcedir . '/MoveTopic.php');
 			moveTopicConcurrence();
 
 			// $moveCache[0] is the topic, $moveCache[1] is the board to move to.
@@ -951,7 +954,7 @@ function QuickModeration()
 
 			// Never move topics to redirect boards
 			$redirect_boards = array();
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT id_board
 				FROM {db_prefix}boards
 				WHERE redirect != {string:blank_redirect}',
@@ -959,9 +962,9 @@ function QuickModeration()
 					'blank_redirect' => '',
 				)
 			);
-			while ($row = $smcFunc['db_fetch_row']($request))
+			while ($row = Db::$db->fetch_row($request))
 				$redirect_boards[] = $row[0];
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 
 			if (in_array($moveCache[1][$topic], $redirect_boards))
 				continue;
@@ -984,7 +987,7 @@ function QuickModeration()
 	// Do all the stickies...
 	if (!empty($stickyCache))
 	{
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}topics
 			SET is_sticky = CASE WHEN is_sticky = {int:is_sticky} THEN 0 ELSE 1 END
 			WHERE id_topic IN ({array_int:sticky_topic_ids})',
@@ -995,7 +998,7 @@ function QuickModeration()
 		);
 
 		// Get the board IDs and Sticky status
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_topic, id_board, is_sticky
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:sticky_topic_ids})
@@ -1007,19 +1010,19 @@ function QuickModeration()
 		);
 		$stickyCacheBoards = array();
 		$stickyCacheStatus = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			$stickyCacheBoards[$row['id_topic']] = $row['id_board'];
 			$stickyCacheStatus[$row['id_topic']] = empty($row['is_sticky']);
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 	}
 
 	// Move sucka! (this is, by the by, probably the most complicated part....)
 	if (!empty($moveCache[0]))
 	{
 		// I know - I just KNOW you're trying to beat the system.  Too bad for you... we CHECK :P.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT t.id_topic, t.id_board, b.count_posts
 			FROM {db_prefix}topics AS t
 				LEFT JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
@@ -1035,7 +1038,7 @@ function QuickModeration()
 		$moveTos = array();
 		$moveCache2 = array();
 		$countPosts = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			$to = $moveCache[1][$row['id_topic']];
 
@@ -1053,11 +1056,11 @@ function QuickModeration()
 			// For reporting...
 			$moveCache2[] = array($row['id_topic'], $row['id_board'], $to);
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		$moveCache = $moveCache2;
 
-		require_once($sourcedir . '/MoveTopic.php');
+		require_once(Config::$sourcedir . '/MoveTopic.php');
 
 		// Do the actual moves...
 		foreach ($moveTos as $to => $topics)
@@ -1067,7 +1070,7 @@ function QuickModeration()
 		if (!empty($moveTos))
 		{
 			$topicRecounts = array();
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT id_board, count_posts
 				FROM {db_prefix}boards
 				WHERE id_board IN ({array_int:move_boards})',
@@ -1076,7 +1079,7 @@ function QuickModeration()
 				)
 			);
 
-			while ($row = $smcFunc['db_fetch_assoc']($request))
+			while ($row = Db::$db->fetch_assoc($request))
 			{
 				$cp = empty($row['count_posts']);
 
@@ -1092,14 +1095,14 @@ function QuickModeration()
 				}
 			}
 
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 
 			if (!empty($topicRecounts))
 			{
 				$members = array();
 
 				// Get all the members who have posted in the moved topics.
-				$request = $smcFunc['db_query']('', '
+				$request = Db::$db->query('', '
 					SELECT id_member, id_topic
 					FROM {db_prefix}messages
 					WHERE id_topic IN ({array_int:moved_topic_ids})',
@@ -1108,7 +1111,7 @@ function QuickModeration()
 					)
 				);
 
-				while ($row = $smcFunc['db_fetch_assoc']($request))
+				while ($row = Db::$db->fetch_assoc($request))
 				{
 					if (!isset($members[$row['id_member']]))
 						$members[$row['id_member']] = 0;
@@ -1119,7 +1122,7 @@ function QuickModeration()
 						$members[$row['id_member']] -= 1;
 				}
 
-				$smcFunc['db_free_result']($request);
+				Db::$db->free_result($request);
 
 				// And now update them member's post counts
 				foreach ($members as $id_member => $post_adj)
@@ -1132,7 +1135,7 @@ function QuickModeration()
 	if (!empty($removeCache))
 	{
 		// They can only delete their own topics. (we wouldn't be here if they couldn't do that..)
-		$result = $smcFunc['db_query']('', '
+		$result = Db::$db->query('', '
 			SELECT id_topic, id_board
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:removed_topic_ids})' . (!empty($board) && !allowedTo('remove_any') ? '
@@ -1147,12 +1150,12 @@ function QuickModeration()
 
 		$removeCache = array();
 		$removeCacheBoards = array();
-		while ($row = $smcFunc['db_fetch_assoc']($result))
+		while ($row = Db::$db->fetch_assoc($result))
 		{
 			$removeCache[] = $row['id_topic'];
 			$removeCacheBoards[$row['id_topic']] = $row['id_board'];
 		}
-		$smcFunc['db_free_result']($result);
+		Db::$db->free_result($result);
 
 		// Maybe *none* were their own topics.
 		if (!empty($removeCache))
@@ -1161,11 +1164,11 @@ function QuickModeration()
 			foreach ($removeCache as $topic)
 			{
 				// Only log the topic ID if it's not in the recycle board.
-				logAction('remove', array((empty($modSettings['recycle_enable']) || $modSettings['recycle_board'] != $removeCacheBoards[$topic] ? 'topic' : 'old_topic_id') => $topic, 'board' => $removeCacheBoards[$topic]));
+				logAction('remove', array((empty(Config::$modSettings['recycle_enable']) || Config::$modSettings['recycle_board'] != $removeCacheBoards[$topic] ? 'topic' : 'old_topic_id') => $topic, 'board' => $removeCacheBoards[$topic]));
 				sendNotifications($topic, 'remove');
 			}
 
-			require_once($sourcedir . '/RemoveTopic.php');
+			require_once(Config::$sourcedir . '/RemoveTopic.php');
 			removeTopics($removeCache);
 		}
 	}
@@ -1174,7 +1177,7 @@ function QuickModeration()
 	if (!empty($approveCache))
 	{
 		// We need unapproved topic ids and their authors!
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_topic, id_member_started
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:approve_topic_ids})
@@ -1188,12 +1191,12 @@ function QuickModeration()
 		);
 		$approveCache = array();
 		$approveCacheMembers = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			$approveCache[] = $row['id_topic'];
 			$approveCacheMembers[$row['id_topic']] = $row['id_member_started'];
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// Any topics to approve?
 		if (!empty($approveCache))
@@ -1216,7 +1219,7 @@ function QuickModeration()
 		if (!empty($board) && !allowedTo('lock_any'))
 		{
 			// Make sure they started the topic AND it isn't already locked by someone with higher priv's.
-			$result = $smcFunc['db_query']('', '
+			$result = Db::$db->query('', '
 				SELECT id_topic, locked, id_board
 				FROM {db_prefix}topics
 				WHERE id_topic IN ({array_int:locked_topic_ids})
@@ -1231,17 +1234,17 @@ function QuickModeration()
 			);
 			$lockCache = array();
 			$lockCacheBoards = array();
-			while ($row = $smcFunc['db_fetch_assoc']($result))
+			while ($row = Db::$db->fetch_assoc($result))
 			{
 				$lockCache[] = $row['id_topic'];
 				$lockCacheBoards[$row['id_topic']] = $row['id_board'];
 				$lockStatus[$row['id_topic']] = empty($row['locked']);
 			}
-			$smcFunc['db_free_result']($result);
+			Db::$db->free_result($result);
 		}
 		else
 		{
-			$result = $smcFunc['db_query']('', '
+			$result = Db::$db->query('', '
 				SELECT id_topic, locked, id_board
 				FROM {db_prefix}topics
 				WHERE id_topic IN ({array_int:locked_topic_ids})
@@ -1252,19 +1255,19 @@ function QuickModeration()
 				)
 			);
 			$lockCacheBoards = array();
-			while ($row = $smcFunc['db_fetch_assoc']($result))
+			while ($row = Db::$db->fetch_assoc($result))
 			{
 				$lockStatus[$row['id_topic']] = empty($row['locked']);
 				$lockCacheBoards[$row['id_topic']] = $row['id_board'];
 			}
-			$smcFunc['db_free_result']($result);
+			Db::$db->free_result($result);
 		}
 
 		// It could just be that *none* were their own topics...
 		if (!empty($lockCache))
 		{
 			// Alternate the locked value.
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				UPDATE {db_prefix}topics
 				SET locked = CASE WHEN locked = {int:is_locked} THEN ' . (allowedTo('lock_any') ? '1' : '2') . ' ELSE 0 END
 				WHERE id_topic IN ({array_int:locked_topic_ids})',
@@ -1278,7 +1281,7 @@ function QuickModeration()
 
 	if (!empty($markCache))
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_topic, unwatched
 			FROM {db_prefix}log_topics
 			WHERE id_topic IN ({array_int:selected_topics})
@@ -1289,16 +1292,16 @@ function QuickModeration()
 			)
 		);
 		$logged_topics = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$logged_topics[$row['id_topic']] = $row['unwatched'];
 
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		$markArray = array();
 		foreach ($markCache as $topic)
-			$markArray[] = array($modSettings['maxMsgID'], $user_info['id'], $topic, (isset($logged_topics[$topic]) ? $logged_topics[$topic] : 0));
+			$markArray[] = array(Config::$modSettings['maxMsgID'], $user_info['id'], $topic, (isset($logged_topics[$topic]) ? $logged_topics[$topic] : 0));
 
-		$smcFunc['db_insert']('replace',
+		Db::$db->insert('replace',
 			'{db_prefix}log_topics',
 			array('id_msg' => 'int', 'id_member' => 'int', 'id_topic' => 'int', 'unwatched' => 'int'),
 			$markArray,
@@ -1328,7 +1331,7 @@ function QuickModeration()
 
 	updateStats('topic');
 	updateStats('message');
-	updateSettings(array(
+	Config::updateModSettings(array(
 		'calendar_updated' => time(),
 	));
 

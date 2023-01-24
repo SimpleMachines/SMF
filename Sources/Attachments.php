@@ -15,6 +15,8 @@
 
 namespace SMF;
 
+use SMF\Db\DatabaseApi as Db;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -112,7 +114,7 @@ class Attachments
 	/**
 	 * Wrapper for constructor. Ensures only one instance is created.
 	 *
-	 * @todo Add a reference to $context['instances'] as well?
+	 * @todo Add a reference to Utils::$context['instances'] as well?
 	 *
 	 * @return An instance of this class.
 	 */
@@ -140,18 +142,16 @@ class Attachments
 	 */
 	protected function __construct()
 	{
-		global $modSettings, $context;
-
 		$this->_msg = (int) !empty($_REQUEST['msg']) ? $_REQUEST['msg'] : 0;
 		$this->_board = (int) !empty($_REQUEST['board']) ? $_REQUEST['board'] : null;
 
-		$this->_currentAttachmentUploadDir = $modSettings['currentAttachmentUploadDir'];
+		$this->_currentAttachmentUploadDir = Config::$modSettings['currentAttachmentUploadDir'];
 
-		$this->_attachmentUploadDir = $modSettings['attachmentUploadDir'];
+		$this->_attachmentUploadDir = Config::$modSettings['attachmentUploadDir'];
 
-		$this->_attchDir = $context['attach_dir'] = $this->_attachmentUploadDir[$modSettings['currentAttachmentUploadDir']];
+		$this->_attchDir = Utils::$context['attach_dir'] = $this->_attachmentUploadDir[Config::$modSettings['currentAttachmentUploadDir']];
 
-		$this->_canPostAttachment = $context['can_post_attachment'] = !empty($modSettings['attachmentEnable']) && $modSettings['attachmentEnable'] == 1 && (allowedTo('post_attachment', $this->_board) || ($modSettings['postmod_active'] && allowedTo('post_unapproved_attachments', $this->_board)));
+		$this->_canPostAttachment = Utils::$context['can_post_attachment'] = !empty(Config::$modSettings['attachmentEnable']) && Config::$modSettings['attachmentEnable'] == 1 && (allowedTo('post_attachment', $this->_board) || (Config::$modSettings['postmod_active'] && allowedTo('post_unapproved_attachments', $this->_board)));
 	}
 
 	/**
@@ -159,14 +159,12 @@ class Attachments
 	 */
 	public function execute()
 	{
-		global $smcFunc, $sourcedir;
-
-		require_once($sourcedir . '/Subs-Attachments.php');
+		require_once(Config::$sourcedir . '/Subs-Attachments.php');
 
 		// Need this. For reasons...
 		loadLanguage('Post');
 
-		$this->_sa = !empty($_REQUEST['sa']) ? $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($_REQUEST['sa'])) : false;
+		$this->_sa = !empty($_REQUEST['sa']) ? Utils::htmlspecialchars(Utils::htmlTrim($_REQUEST['sa'])) : false;
 
 		if ($this->_canPostAttachment && $this->_sa && in_array($this->_sa, $this->_subActions))
 			$this->{$this->_sa}();
@@ -188,10 +186,8 @@ class Attachments
 	 */
 	public function delete()
 	{
-		global $sourcedir;
-
 		// Need this, don't ask why just nod your head.
-		require_once($sourcedir . '/ManageAttachments.php');
+		require_once(Config::$sourcedir . '/ManageAttachments.php');
 
 		$attachID = !empty($_REQUEST['attach']) && is_numeric($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : 0;
 
@@ -246,21 +242,21 @@ class Attachments
 	 */
 	protected function processAttachments()
 	{
-		global $context, $modSettings, $smcFunc, $user_info, $txt;
+		global $user_info, $txt;
 
 		if (!isset($_FILES['attachment']['name']))
 			$_FILES['attachment']['tmp_name'] = array();
 
 		// If there are attachments, calculate the total size and how many.
-		$context['attachments']['total_size'] = 0;
-		$context['attachments']['quantity'] = 0;
+		Utils::$context['attachments']['total_size'] = 0;
+		Utils::$context['attachments']['quantity'] = 0;
 
 		// If this isn't a new post, check the current attachments.
 		if (isset($_REQUEST['msg']))
 		{
-			$context['attachments']['quantity'] = count($context['current_attachments']);
-			foreach ($context['current_attachments'] as $attachment)
-				$context['attachments']['total_size'] += $attachment['size'];
+			Utils::$context['attachments']['quantity'] = count(Utils::$context['current_attachments']);
+			foreach (Utils::$context['current_attachments'] as $attachment)
+				Utils::$context['attachments']['total_size'] += $attachment['size'];
 		}
 
 		// A bit of house keeping first.
@@ -272,12 +268,12 @@ class Attachments
 			$_SESSION['temp_attachments'] = array();
 
 		// Make sure we're uploading to the right place.
-		if (!empty($modSettings['automanage_attachments']))
+		if (!empty(Config::$modSettings['automanage_attachments']))
 			automanage_attachments_check_directory();
 
 		// Is the attachments folder actually there?
-		if (!empty($context['dir_creation_error']))
-			$this->_generalErrors[] = $context['dir_creation_error'];
+		if (!empty(Utils::$context['dir_creation_error']))
+			$this->_generalErrors[] = Utils::$context['dir_creation_error'];
 
 		// The current attach folder ha some issues...
 		elseif (!is_dir($this->_attchDir))
@@ -289,8 +285,8 @@ class Attachments
 		// If this isn't a new post, check the current attachments.
 		if (empty($this->_generalErrors) && $this->_msg)
 		{
-			$context['attachments'] = array();
-			$request = $smcFunc['db_query']('', '
+			Utils::$context['attachments'] = array();
+			$request = Db::$db->query('', '
 				SELECT COUNT(*), SUM(size)
 				FROM {db_prefix}attachments
 				WHERE id_msg = {int:id_msg}
@@ -300,12 +296,12 @@ class Attachments
 					'attachment_type' => 0,
 				)
 			);
-			list ($context['attachments']['quantity'], $context['attachments']['total_size']) = $smcFunc['db_fetch_row']($request);
-			$smcFunc['db_free_result']($request);
+			list (Utils::$context['attachments']['quantity'], Utils::$context['attachments']['total_size']) = Db::$db->fetch_row($request);
+			Db::$db->free_result($request);
 		}
 
 		else
-			$context['attachments'] = array(
+			Utils::$context['attachments'] = array(
 				'quantity' => 0,
 				'total_size' => 0,
 			);
@@ -337,7 +333,7 @@ class Attachments
 			if (!empty($_FILES['attachment']['error'][$n]))
 			{
 				if ($_FILES['attachment']['error'][$n] == 2)
-					$errors[] = array('file_too_big', array($modSettings['attachmentSizeLimit']));
+					$errors[] = array('file_too_big', array(Config::$modSettings['attachmentSizeLimit']));
 
 				else
 					log_error($_FILES['attachment']['name'][$n] . ': ' . $txt['php_upload_error_' . $_FILES['attachment']['error'][$n]]);
@@ -364,11 +360,11 @@ class Attachments
 					$_FILES['attachment']['type'][$n] = $detected_mime_type;
 
 				$_SESSION['temp_attachments'][$attachID] = array(
-					'name' => $smcFunc['htmlspecialchars'](basename($_FILES['attachment']['name'][$n])),
+					'name' => Utils::htmlspecialchars(basename($_FILES['attachment']['name'][$n])),
 					'tmp_name' => $destName,
 					'size' => $_FILES['attachment']['size'][$n],
 					'type' => $_FILES['attachment']['type'][$n],
-					'id_folder' => $modSettings['currentAttachmentUploadDir'],
+					'id_folder' => Config::$modSettings['currentAttachmentUploadDir'],
 					'errors' => array(),
 				);
 
@@ -390,7 +386,7 @@ class Attachments
 			else
 			{
 				$_SESSION['temp_attachments'][$attachID] = array(
-					'name' => $smcFunc['htmlspecialchars'](basename($_FILES['attachment']['name'][$n])),
+					'name' => Utils::htmlspecialchars(basename($_FILES['attachment']['name'][$n])),
 					'tmp_name' => $destName,
 					'errors' => $errors,
 				);
@@ -411,7 +407,7 @@ class Attachments
 		//   tmp_name => Path to the temp file ($this->_attchDir . '/' . $attachID).
 		//   size => File size (required).
 		//   type => MIME type (optional if not available on upload).
-		//   id_folder => $modSettings['currentAttachmentUploadDir']
+		//   id_folder => Config::$modSettings['currentAttachmentUploadDir']
 		//   errors => An array of errors (use the index of the $txt variable for that error).
 		// Template changes can be done using "integrate_upload_template".
 		call_integration_hook('integrate_attachment_upload', array());
@@ -422,7 +418,7 @@ class Attachments
 	 */
 	protected function createAttach()
 	{
-		global $txt, $user_info, $modSettings;
+		global $txt, $user_info;
 
 		// Create an empty session var to keep track of all the files we attached.
 		if (!isset($_SESSION['already_attached']))
@@ -437,8 +433,8 @@ class Attachments
 				'tmp_name' => $attachment['tmp_name'],
 				'size' => isset($attachment['size']) ? $attachment['size'] : 0,
 				'mime_type' => isset($attachment['type']) ? $attachment['type'] : '',
-				'id_folder' => isset($attachment['id_folder']) ? $attachment['id_folder'] : $modSettings['currentAttachmentUploadDir'],
-				'approved' => !$modSettings['postmod_active'] || allowedTo('post_attachment'),
+				'id_folder' => isset($attachment['id_folder']) ? $attachment['id_folder'] : Config::$modSettings['currentAttachmentUploadDir'],
+				'approved' => !Config::$modSettings['postmod_active'] || allowedTo('post_attachment'),
 				'errors' => array(),
 			);
 
@@ -548,19 +544,17 @@ class Attachments
 	 */
 	protected function sendResponse()
 	{
-		global $smcFunc, $modSettings, $context;
-
 		ob_end_clean();
 
-		if (!empty($modSettings['enableCompressedOutput']))
+		if (!empty(Config::$modSettings['enableCompressedOutput']))
 			@ob_start('ob_gzhandler');
 		else
 			ob_start();
 
 		// Set the header.
-		header('content-type: application/json; charset=' . $context['character_set'] . '');
+		header('content-type: application/json; charset=' . Utils::$context['character_set'] . '');
 
-		echo $smcFunc['json_encode']($this->_response ? $this->_response : array());
+		echo Utils::jsonEncode($this->_response ? $this->_response : array());
 
 		// Done.
 		obExit(false);

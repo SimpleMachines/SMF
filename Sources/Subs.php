@@ -15,7 +15,9 @@
 
 use SMF\BrowserDetector;
 use SMF\BBCodeParser;
+use SMF\Config;
 use SMF\Forum;
+use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Fetchers\CurlFetcher;
@@ -24,6 +26,7 @@ if (!defined('SMF'))
 	die('No direct access...');
 
 class_exists('SMF\\BBCodeParser');
+class_exists('SMF\\Utils');
 
 /**
  * Update some basic statistics.
@@ -52,7 +55,7 @@ class_exists('SMF\\BBCodeParser');
  */
 function updateStats($type, $parameter1 = null, $parameter2 = null)
 {
-	global $modSettings, $smcFunc, $txt;
+	global $txt;
 
 	switch ($type)
 	{
@@ -67,14 +70,14 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 				$changes['latestMember'] = $parameter1;
 				$changes['latestRealName'] = $parameter2;
 
-				updateSettings(array('totalMembers' => true), true);
+				Config::updateModSettings(array('totalMembers' => true), true);
 			}
 
 			// We need to calculate the totals.
 			else
 			{
 				// Update the latest activated member (highest id_member) and count.
-				$result = $smcFunc['db_query']('', '
+				$result = Db::$db->query('', '
 					SELECT COUNT(*), MAX(id_member)
 					FROM {db_prefix}members
 					WHERE is_activated = {int:is_activated}',
@@ -82,11 +85,11 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 						'is_activated' => 1,
 					)
 				);
-				list ($changes['totalMembers'], $changes['latestMember']) = $smcFunc['db_fetch_row']($result);
-				$smcFunc['db_free_result']($result);
+				list ($changes['totalMembers'], $changes['latestMember']) = Db::$db->fetch_row($result);
+				Db::$db->free_result($result);
 
 				// Get the latest activated member's display name.
-				$result = $smcFunc['db_query']('', '
+				$result = Db::$db->query('', '
 					SELECT real_name
 					FROM {db_prefix}members
 					WHERE id_member = {int:id_member}
@@ -95,11 +98,11 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 						'id_member' => (int) $changes['latestMember'],
 					)
 				);
-				list ($changes['latestRealName']) = $smcFunc['db_fetch_row']($result);
-				$smcFunc['db_free_result']($result);
+				list ($changes['latestRealName']) = Db::$db->fetch_row($result);
+				Db::$db->free_result($result);
 
 				// Update the amount of members awaiting approval
-				$result = $smcFunc['db_query']('', '
+				$result = Db::$db->query('', '
 					SELECT COUNT(*)
 					FROM {db_prefix}members
 					WHERE is_activated IN ({array_int:activation_status})',
@@ -108,32 +111,32 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 					)
 				);
 
-				list ($changes['unapprovedMembers']) = $smcFunc['db_fetch_row']($result);
-				$smcFunc['db_free_result']($result);
+				list ($changes['unapprovedMembers']) = Db::$db->fetch_row($result);
+				Db::$db->free_result($result);
 			}
-			updateSettings($changes);
+			Config::updateModSettings($changes);
 			break;
 
 		case 'message':
 			if ($parameter1 === true && $parameter2 !== null)
-				updateSettings(array('totalMessages' => true, 'maxMsgID' => $parameter2), true);
+				Config::updateModSettings(array('totalMessages' => true, 'maxMsgID' => $parameter2), true);
 			else
 			{
 				// SUM and MAX on a smaller table is better for InnoDB tables.
-				$result = $smcFunc['db_query']('', '
+				$result = Db::$db->query('', '
 					SELECT SUM(num_posts + unapproved_posts) AS total_messages, MAX(id_last_msg) AS max_msg_id
 					FROM {db_prefix}boards
-					WHERE redirect = {string:blank_redirect}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
+					WHERE redirect = {string:blank_redirect}' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? '
 						AND id_board != {int:recycle_board}' : ''),
 					array(
-						'recycle_board' => isset($modSettings['recycle_board']) ? $modSettings['recycle_board'] : 0,
+						'recycle_board' => isset(Config::$modSettings['recycle_board']) ? Config::$modSettings['recycle_board'] : 0,
 						'blank_redirect' => '',
 					)
 				);
-				$row = $smcFunc['db_fetch_assoc']($result);
-				$smcFunc['db_free_result']($result);
+				$row = Db::$db->fetch_assoc($result);
+				Db::$db->free_result($result);
 
-				updateSettings(array(
+				Config::updateModSettings(array(
 					'totalMessages' => $row['total_messages'] === null ? 0 : $row['total_messages'],
 					'maxMsgID' => $row['max_msg_id'] === null ? 0 : $row['max_msg_id']
 				));
@@ -142,7 +145,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 
 		case 'subject':
 			// Remove the previous subject (if any).
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				DELETE FROM {db_prefix}log_search_subjects
 				WHERE id_topic = {int:id_topic}',
 				array(
@@ -161,7 +164,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 					$inserts[] = array($word, $parameter1);
 
 				if (!empty($inserts))
-					$smcFunc['db_insert']('ignore',
+					Db::$db->insert('ignore',
 						'{db_prefix}log_search_subjects',
 						array('word' => 'string', 'id_topic' => 'int'),
 						$inserts,
@@ -172,24 +175,24 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 
 		case 'topic':
 			if ($parameter1 === true)
-				updateSettings(array('totalTopics' => true), true);
+				Config::updateModSettings(array('totalTopics' => true), true);
 
 			else
 			{
 				// Get the number of topics - a SUM is better for InnoDB tables.
 				// We also ignore the recycle bin here because there will probably be a bunch of one-post topics there.
-				$result = $smcFunc['db_query']('', '
+				$result = Db::$db->query('', '
 					SELECT SUM(num_topics + unapproved_topics) AS total_topics
-					FROM {db_prefix}boards' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
+					FROM {db_prefix}boards' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? '
 					WHERE id_board != {int:recycle_board}' : ''),
 					array(
-						'recycle_board' => !empty($modSettings['recycle_board']) ? $modSettings['recycle_board'] : 0,
+						'recycle_board' => !empty(Config::$modSettings['recycle_board']) ? Config::$modSettings['recycle_board'] : 0,
 					)
 				);
-				$row = $smcFunc['db_fetch_assoc']($result);
-				$smcFunc['db_free_result']($result);
+				$row = Db::$db->fetch_assoc($result);
+				Db::$db->free_result($result);
 
-				updateSettings(array('totalTopics' => $row['total_topics'] === null ? 0 : $row['total_topics']));
+				Config::updateModSettings(array('totalTopics' => $row['total_topics'] === null ? 0 : $row['total_topics']));
 			}
 			break;
 
@@ -202,7 +205,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 			if ($postgroups == null || $parameter1 == null)
 			{
 				// Fetch the postgroups!
-				$request = $smcFunc['db_query']('', '
+				$request = Db::$db->query('', '
 					SELECT id_group, min_posts
 					FROM {db_prefix}membergroups
 					WHERE min_posts != {int:min_posts}',
@@ -211,10 +214,10 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 					)
 				);
 				$postgroups = array();
-				while ($row = $smcFunc['db_fetch_assoc']($request))
+				while ($row = Db::$db->fetch_assoc($request))
 					$postgroups[$row['id_group']] = $row['min_posts'];
 
-				$smcFunc['db_free_result']($request);
+				Db::$db->free_result($request);
 
 				// Sort them this way because if it's done with MySQL it causes a filesort :(.
 				arsort($postgroups);
@@ -238,7 +241,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 			}
 
 			// A big fat CASE WHEN... END is faster than a zillion UPDATE's ;).
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				UPDATE {db_prefix}members
 				SET id_post_group = CASE ' . $conditions . '
 				ELSE 0
@@ -277,7 +280,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
  */
 function updateMemberData($members, $data)
 {
-	global $modSettings, $user_info, $smcFunc, $sourcedir;
+	global $user_info;
 
 	// An empty array means there's nobody to update.
 	if ($members === array())
@@ -309,7 +312,7 @@ function updateMemberData($members, $data)
 		'time_offset',
 	);
 
-	if (!empty($modSettings['integrate_change_member_data']))
+	if (!empty(Config::$modSettings['integrate_change_member_data']))
 	{
 		// Only a few member variables are really interesting for integration.
 		$integration_vars = array(
@@ -339,15 +342,15 @@ function updateMemberData($members, $data)
 			else
 			{
 				$member_names = array();
-				$request = $smcFunc['db_query']('', '
+				$request = Db::$db->query('', '
 					SELECT member_name
 					FROM {db_prefix}members
 					WHERE ' . $condition,
 					$parameters
 				);
-				while ($row = $smcFunc['db_fetch_assoc']($request))
+				while ($row = Db::$db->fetch_assoc($request))
 					$member_names[] = $row['member_name'];
-				$smcFunc['db_free_result']($request);
+				Db::$db->free_result($request);
 			}
 
 			if (!empty($member_names))
@@ -383,7 +386,7 @@ function updateMemberData($members, $data)
 		// Doing an increment?
 		if ($var == 'alerts' && ($val === '+' || $val === '-'))
 		{
-			include_once($sourcedir . '/Profile-Modify.php');
+			include_once(Config::$sourcedir . '/Profile-Modify.php');
 			if (is_array($members))
 			{
 				$val = 'CASE ';
@@ -420,7 +423,7 @@ function updateMemberData($members, $data)
 		$parameters['p_' . $var] = $val;
 	}
 
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		UPDATE {db_prefix}members
 		SET' . substr($setString, 0, -1) . '
 		WHERE ' . $condition,
@@ -449,100 +452,6 @@ function updateMemberData($members, $data)
 }
 
 /**
- * Updates the settings table as well as $modSettings... only does one at a time if $update is true.
- *
- * - updates both the settings table and $modSettings array.
- * - all of changeArray's indexes and values are assumed to have escaped apostrophes (')!
- * - if a variable is already set to what you want to change it to, that
- *   variable will be skipped over; it would be unnecessary to reset.
- * - When use_update is true, UPDATEs will be used instead of REPLACE.
- * - when use_update is true, the value can be true or false to increment
- *  or decrement it, respectively.
- *
- * @param array $changeArray An array of info about what we're changing in 'setting' => 'value' format
- * @param bool $update Whether to use an UPDATE query instead of a REPLACE query
- */
-function updateSettings($changeArray, $update = false)
-{
-	global $modSettings, $smcFunc;
-
-	if (empty($changeArray) || !is_array($changeArray))
-		return;
-
-	$toRemove = array();
-
-	// Go check if there is any setting to be removed.
-	foreach ($changeArray as $k => $v)
-		if ($v === null)
-		{
-			// Found some, remove them from the original array and add them to ours.
-			unset($changeArray[$k]);
-			$toRemove[] = $k;
-		}
-
-	// Proceed with the deletion.
-	if (!empty($toRemove))
-		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}settings
-			WHERE variable IN ({array_string:remove})',
-			array(
-				'remove' => $toRemove,
-			)
-		);
-
-	// In some cases, this may be better and faster, but for large sets we don't want so many UPDATEs.
-	if ($update)
-	{
-		foreach ($changeArray as $variable => $value)
-		{
-			$smcFunc['db_query']('', '
-				UPDATE {db_prefix}settings
-				SET value = {' . ($value === false || $value === true ? 'raw' : 'string') . ':value}
-				WHERE variable = {string:variable}',
-				array(
-					'value' => $value === true ? 'value + 1' : ($value === false ? 'value - 1' : $value),
-					'variable' => $variable,
-				)
-			);
-			$modSettings[$variable] = $value === true ? $modSettings[$variable] + 1 : ($value === false ? $modSettings[$variable] - 1 : $value);
-		}
-
-		// Clean out the cache and make sure the cobwebs are gone too.
-		CacheApi::put('modSettings', null, 90);
-
-		return;
-	}
-
-	$replaceArray = array();
-	foreach ($changeArray as $variable => $value)
-	{
-		// Don't bother if it's already like that ;).
-		if (isset($modSettings[$variable]) && $modSettings[$variable] == $value)
-			continue;
-		// If the variable isn't set, but would only be set to nothing'ness, then don't bother setting it.
-		elseif (!isset($modSettings[$variable]) && empty($value))
-			continue;
-
-		$replaceArray[] = array($variable, $value);
-
-		$modSettings[$variable] = $value;
-	}
-
-	if (empty($replaceArray))
-		return;
-
-	$smcFunc['db_insert']('replace',
-		'{db_prefix}settings',
-		array('variable' => 'string-255', 'value' => 'string-65534'),
-		$replaceArray,
-		array('variable')
-	);
-
-	// Kill the cache - it needs redoing now, but we won't bother ourselves with that here.
-	CacheApi::put('modSettings', null, 90);
-}
-
-/**
  * Constructs a page list.
  *
  * - builds the page list, e.g. 1 ... 6 7 [8] 9 10 ... 15.
@@ -555,7 +464,7 @@ function updateSettings($changeArray, $update = false)
  *   settings to decide how to display the menu.
  *
  * an example is available near the function definition.
- * $pageindex = constructPageIndex($scripturl . '?board=' . $board, $_REQUEST['start'], $num_messages, $maxindex, true);
+ * $pageindex = constructPageIndex(Config::$scripturl . '?board=' . $board, $_REQUEST['start'], $num_messages, $maxindex, true);
  *
  * @param string $base_url The basic URL to be used for each link.
  * @param int &$start The start position, by reference. If this is not a multiple of the number of items per page, it is sanitized to be so and the value will persist upon the function's return.
@@ -568,7 +477,7 @@ function updateSettings($changeArray, $update = false)
  */
 function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flexible_start = false, $show_prevnext = true)
 {
-	global $modSettings, $context, $smcFunc, $settings, $txt;
+	global $settings, $txt;
 
 	// Save whether $start was less than 0 or not.
 	$start = (int) $start;
@@ -578,8 +487,8 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 	$start = min(max(0, $start), $max_value);
 	$start = $start - ($start % $num_per_page);
 
-	if (!isset($context['current_page']))
-		$context['current_page'] = $start / $num_per_page;
+	if (!isset(Utils::$context['current_page']))
+		Utils::$context['current_page'] = $start / $num_per_page;
 
 	// Define some default page index settings for compatibility with old themes.
 	// !!! Should this be moved to loadTheme()?
@@ -603,7 +512,7 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 		$pageindex .= sprintf($base_link, $start - $num_per_page, $settings['page_index']['previous_page']);
 
 	// Compact pages is off or on?
-	if (empty($modSettings['compactTopicPagesEnable']))
+	if (empty(Config::$modSettings['compactTopicPagesEnable']))
 	{
 		// Show all the pages.
 		$display_page = 1;
@@ -613,7 +522,7 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 	else
 	{
 		// If they didn't enter an odd value, pretend they did.
-		$page_contiguous = (int) ($modSettings['compactTopicPagesContiguous'] - ($modSettings['compactTopicPagesContiguous'] % 2)) / 2;
+		$page_contiguous = (int) (Config::$modSettings['compactTopicPagesContiguous'] - (Config::$modSettings['compactTopicPagesContiguous'] % 2)) / 2;
 
 		// Show the first page. (prev page >1< ... 6 7 [8] 9 10 ... 15)
 		if ($start > $num_per_page * $page_contiguous)
@@ -622,7 +531,7 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 		// Show the ... after the first page.  (prev page 1 >...< 6 7 [8] 9 10 ... 15 next page)
 		if ($start > $num_per_page * ($page_contiguous + 1))
 			$pageindex .= strtr($settings['page_index']['expand_pages'], array(
-				'{LINK}' => JavaScriptEscape($smcFunc['htmlspecialchars']($base_link)),
+				'{LINK}' => JavaScriptEscape(Utils::htmlspecialchars($base_link)),
 				'{FIRST_PAGE}' => $num_per_page,
 				'{LAST_PAGE}' => $start - $num_per_page * $page_contiguous,
 				'{PER_PAGE}' => $num_per_page,
@@ -649,7 +558,7 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 		// Show the '...' part near the end. (prev page 1 ... 6 7 [8] 9 10 >...< 15 next page)
 		if ($start + $num_per_page * ($page_contiguous + 1) < $last_page_value)
 			$pageindex .= strtr($settings['page_index']['expand_pages'], array(
-				'{LINK}' => JavaScriptEscape($smcFunc['htmlspecialchars']($base_link)),
+				'{LINK}' => JavaScriptEscape(Utils::htmlspecialchars($base_link)),
 				'{FIRST_PAGE}' => $start + $num_per_page * ($page_contiguous + 1),
 				'{LAST_PAGE}' => $last_page_value,
 				'{PER_PAGE}' => $num_per_page,
@@ -715,26 +624,26 @@ function comma_format($number, $override_decimal_count = false)
  *     If a string is specified, that is used to temporarily override the date format.
  * @param null|string $tzid Time zone to use when generating the formatted string.
  *     If empty, the user's time zone will be used.
- *     If set to 'forum', the value of $modSettings['default_timezone'] will be used.
+ *     If set to 'forum', the value of Config::$modSettings['default_timezone'] will be used.
  *     If set to a valid time zone identifier, that will be used.
  *     Otherwise, the value of date_default_timezone_get() will be used.
  * @return string A formatted time string
  */
 function timeformat($log_time, $show_today = true, $tzid = null)
 {
-	global $context, $user_info, $txt, $modSettings;
+	global $user_info, $txt;
 	static $today;
 
 	// Ensure required values are set
-	$user_info['time_format'] = !empty($user_info['time_format']) ? $user_info['time_format'] : (!empty($modSettings['time_format']) ? $modSettings['time_format'] : '%F %H:%M');
+	$user_info['time_format'] = !empty($user_info['time_format']) ? $user_info['time_format'] : (!empty(Config::$modSettings['time_format']) ? Config::$modSettings['time_format'] : '%F %H:%M');
 
 	// For backward compatibility, replace empty values with user's time zone
 	// and replace 'forum' with forum's default time zone.
-	$tzid = empty($tzid) ? getUserTimezone() : (($tzid === 'forum' || @timezone_open((string) $tzid) === false) ? $modSettings['default_timezone'] : (string) $tzid);
+	$tzid = empty($tzid) ? getUserTimezone() : (($tzid === 'forum' || @timezone_open((string) $tzid) === false) ? Config::$modSettings['default_timezone'] : (string) $tzid);
 
 	// Today and Yesterday?
 	$prefix = '';
-	if ($modSettings['todayMod'] >= 1 && $show_today === true)
+	if (Config::$modSettings['todayMod'] >= 1 && $show_today === true)
 	{
 		if (!isset($today[$tzid]))
 			$today[$tzid] = date_format(date_create('today ' . $tzid), 'U');
@@ -750,7 +659,7 @@ function timeformat($log_time, $show_today = true, $tzid = null)
 			$prefix = $txt['today'];
 		}
 		// Yesterday.
-		elseif ($modSettings['todayMod'] > 1 && $log_time >= $today[$tzid] - 86400)
+		elseif (Config::$modSettings['todayMod'] > 1 && $log_time >= $today[$tzid] - 86400)
 		{
 			$prefix = $txt['yesterday'];
 		}
@@ -774,12 +683,12 @@ function timeformat($log_time, $show_today = true, $tzid = null)
  */
 function get_date_or_time_format($type = '', $format = '')
 {
-	global $user_info, $modSettings;
+	global $user_info;
 	static $formats;
 
 	// If the format is invalid, fall back to defaults.
 	if (strpos($format, '%') === false)
-		$format = !empty($user_info['time_format']) ? $user_info['time_format'] : (!empty($modSettings['time_format']) ? $modSettings['time_format'] : '%F %k:%M');
+		$format = !empty($user_info['time_format']) ? $user_info['time_format'] : (!empty(Config::$modSettings['time_format']) ? Config::$modSettings['time_format'] : '%F %k:%M');
 
 	$orig_format = $format;
 
@@ -911,7 +820,7 @@ function get_date_or_time_format($type = '', $format = '')
  */
 function smf_strftime(string $format, int $timestamp = null, string $tzid = null)
 {
-	global $txt, $smcFunc, $sourcedir;
+	global $txt;
 
 	static $dates = array();
 
@@ -955,27 +864,6 @@ function smf_strftime(string $format, int $timestamp = null, string $tzid = null
 	{
 		$dates[$tzid . '_' . $timestamp]['object'] = date_create('@' . $timestamp);
 		date_timezone_set($dates[$tzid . '_' . $timestamp]['object'], $tz);
-	}
-
-	// In case this function is called before reloadSettings().
-	if (!isset($smcFunc['strtoupper']))
-	{
-		if (isset($sourcedir))
-		{
-			require_once($sourcedir . '/Subs-Charset.php');
-			$smcFunc['strtoupper'] = 'utf8_strtoupper';
-			$smcFunc['strtolower'] = 'utf8_strtolower';
-		}
-		elseif (function_exists('mb_strtoupper'))
-		{
-			$smcFunc['strtoupper'] = 'mb_strtoupper';
-			$smcFunc['strtolower'] = 'mb_strtolower';
-		}
-		else
-		{
-			$smcFunc['strtoupper'] = 'strtoupper';
-			$smcFunc['strtolower'] = 'strtolower';
-		}
 	}
 
 	$format_equivalents = array(
@@ -1111,14 +999,14 @@ function smf_strftime(string $format, int $timestamp = null, string $tzid = null
 			{
 				// Lower case
 				case 'p':
-					$placeholders[str_replace($format_equivalents[$parts[$i]], 'AM', $placeholder)] = $smcFunc['strtoupper']($txt['time_am']);
-					$placeholders[str_replace($format_equivalents[$parts[$i]], 'PM', $placeholder)] = $smcFunc['strtoupper']($txt['time_pm']);
+					$placeholders[str_replace($format_equivalents[$parts[$i]], 'AM', $placeholder)] = Utils::strtoupper($txt['time_am']);
+					$placeholders[str_replace($format_equivalents[$parts[$i]], 'PM', $placeholder)] = Utils::strtoupper($txt['time_pm']);
 					break;
 
 				// Upper case
 				case 'P':
-					$placeholders[str_replace($format_equivalents[$parts[$i]], 'am', $placeholder)] = $smcFunc['strtolower']($txt['time_am']);
-					$placeholders[str_replace($format_equivalents[$parts[$i]], 'pm', $placeholder)] = $smcFunc['strtolower']($txt['time_pm']);
+					$placeholders[str_replace($format_equivalents[$parts[$i]], 'am', $placeholder)] = Utils::strtolower($txt['time_am']);
+					$placeholders[str_replace($format_equivalents[$parts[$i]], 'pm', $placeholder)] = Utils::strtolower($txt['time_pm']);
 					break;
 			}
 
@@ -1248,160 +1136,21 @@ function smf_gmstrftime(string $format, int $timestamp = null)
  */
 function un_htmlspecialchars($string)
 {
-	global $context;
 	static $translation = array();
 
 	// Determine the character set... Default to UTF-8
-	if (empty($context['character_set']))
+	if (empty(Utils::$context['character_set']))
 		$charset = 'UTF-8';
 	// Use ISO-8859-1 in place of non-supported ISO-8859 charsets...
-	elseif (strpos($context['character_set'], 'ISO-8859-') !== false && !in_array($context['character_set'], array('ISO-8859-5', 'ISO-8859-15')))
+	elseif (strpos(Utils::$context['character_set'], 'ISO-8859-') !== false && !in_array(Utils::$context['character_set'], array('ISO-8859-5', 'ISO-8859-15')))
 		$charset = 'ISO-8859-1';
 	else
-		$charset = $context['character_set'];
+		$charset = Utils::$context['character_set'];
 
 	if (empty($translation))
 		$translation = array_flip(get_html_translation_table(HTML_SPECIALCHARS, ENT_QUOTES, $charset)) + array('&#039;' => '\'', '&#39;' => '\'', '&nbsp;' => ' ');
 
 	return strtr($string, $translation);
-}
-
-/**
- * Replaces invalid characters with a substitute.
- *
- * !!! Warning !!! Setting $substitute to '' in order to delete invalid
- * characters from the string can create unexpected security problems. See
- * https://www.unicode.org/reports/tr36/#Deletion_of_Noncharacters for an
- * explanation.
- *
- * @param string $string The string to sanitize.
- * @param int $level Controls filtering of invisible formatting characters.
- *      0: Allow valid formatting characters. Use for sanitizing text in posts.
- *      1: Allow necessary formatting characters. Use for sanitizing usernames.
- *      2: Disallow all formatting characters. Use for internal comparisons
- *         only, such as in the word censor, search contexts, etc.
- *      Default: 0.
- * @param string|null $substitute Replacement string for the invalid characters.
- *      If not set, the Unicode replacement character (U+FFFD) will be used
- *      (or a fallback like "?" if necessary).
- * @return string The sanitized string.
- */
-function sanitize_chars($string, $level = 0, $substitute = null)
-{
-	global $context, $sourcedir;
-
-	$string = (string) $string;
-	$level = min(max((int) $level, 0), 2);
-
-	// What substitute character should we use?
-	if (isset($substitute))
-	{
-		$substitute = strval($substitute);
-	}
-	elseif (!empty($context['utf8']))
-	{
-		// Raw UTF-8 bytes for U+FFFD.
-		$substitute = "\xEF\xBF\xBD";
-	}
-	elseif (!empty($context['character_set']) && is_callable('mb_decode_numericentity'))
-	{
-		// Get whatever the default replacement character is for this encoding.
-		$substitute = mb_decode_numericentity('&#xFFFD;', array(0xFFFD,0xFFFD,0,0xFFFF), $context['character_set']);
-	}
-	else
-		$substitute = '?';
-
-	// Fix any invalid byte sequences.
-	if (!empty($context['character_set']))
-	{
-		// For UTF-8, this preg_match test is much faster than mb_check_encoding.
-		$malformed = !empty($context['utf8']) ? @preg_match('//u', $string) === false && preg_last_error() === PREG_BAD_UTF8_ERROR : (!is_callable('mb_check_encoding') || !mb_check_encoding($string, $context['character_set']));
-
-		if ($malformed)
-		{
-			// mb_convert_encoding will replace invalid byte sequences with our substitute.
-			if (is_callable('mb_convert_encoding'))
-			{
-				if (!is_callable('mb_ord'))
-					require_once($sourcedir . '/Subs-Compat.php');
-
-				$substitute_ord = $substitute === '' ? 'none' : mb_ord($substitute, $context['character_set']);
-
-				$mb_substitute_character = mb_substitute_character();
-				mb_substitute_character($substitute_ord);
-
-				$string = mb_convert_encoding($string, $context['character_set'], $context['character_set']);
-
-				mb_substitute_character($mb_substitute_character);
-			}
-			else
-				return false;
-		}
-	}
-
-	// Fix any weird vertical space characters.
-	$string = normalize_spaces($string, true);
-
-	// Deal with unwanted control characters, invisible formatting characters, and other creepy-crawlies.
-	if (!empty($context['utf8']))
-	{
-		require_once($sourcedir . '/Subs-Charset.php');
-		$string = utf8_sanitize_invisibles($string, $level, $substitute);
-	}
-	else
-		$string = preg_replace('/[^\P{Cc}\t\r\n]/', $substitute, $string);
-
-	return $string;
-}
-
-/**
- * Normalizes space characters and line breaks.
- *
- * @param string $string The string to sanitize.
- * @param bool $vspace If true, replaces all line breaks and vertical space
- *      characters with "\n". Default: true.
- * @param bool $hspace If true, replaces horizontal space characters with a
- *      plain " " character. (Note: tabs are not replaced unless the
- *      'replace_tabs' option is supplied.) Default: false.
- * @param array $options An array of boolean options. Possible values are:
- *      - no_breaks: Vertical spaces are replaced by " " instead of "\n".
- *      - replace_tabs: If true, tabs are are replaced by " " chars.
- *      - collapse_hspace: If true, removes extra horizontal spaces.
- * @return string The sanitized string.
- */
-function normalize_spaces($string, $vspace = true, $hspace = false, $options = array())
-{
-	global $context;
-
-	$string = (string) $string;
-	$vspace = !empty($vspace);
-	$hspace = !empty($hspace);
-
-	if (!$vspace && !$hspace)
-		return $string;
-
-	$options['no_breaks'] = !empty($options['no_breaks']);
-	$options['collapse_hspace'] = !empty($options['collapse_hspace']);
-	$options['replace_tabs'] = !empty($options['replace_tabs']);
-
-	$patterns = array();
-	$replacements = array();
-
-	if ($vspace)
-	{
-		// \R is like \v, except it handles "\r\n" as a single unit.
-		$patterns[] = '/\R/' . ($context['utf8'] ? 'u' : '');
-		$replacements[] = $options['no_breaks'] ? ' ' : "\n";
-	}
-
-	if ($hspace)
-	{
-		// Interesting fact: Unicode properties like \p{Zs} work even when not in UTF-8 mode.
-		$patterns[] = '/' . ($options['replace_tabs'] ? '\h' : '\p{Zs}') . ($options['collapse_hspace'] ? '+' : '') . '/' . ($context['utf8'] ? 'u' : '');
-		$replacements[] = ' ';
-	}
-
-	return preg_replace($patterns, $replacements, $string);
 }
 
 /**
@@ -1418,14 +1167,12 @@ function normalize_spaces($string, $vspace = true, $hspace = false, $options = a
  */
 function shorten_subject($subject, $len)
 {
-	global $smcFunc;
-
 	// It was already short enough!
-	if ($smcFunc['strlen']($subject) <= $len)
+	if (Utils::entityStrlen((string) $subject) <= (int) $len)
 		return $subject;
 
 	// Shorten it by the length it was too long, and strip off junk from the end.
-	return $smcFunc['substr']($subject, 0, $len) . '...';
+	return Utils::entitySubstr((string) $subject, 0, (int) $len) . '...';
 }
 
 /**
@@ -1487,10 +1234,10 @@ function permute($array)
  */
 function get_proxied_url($url)
 {
-	global $boardurl, $image_proxy_enabled, $image_proxy_secret, $user_info;
+	global $user_info;
 
 	// Only use the proxy if enabled, and never for robots
-	if (empty($image_proxy_enabled) || !empty($user_info['possibly_robot']))
+	if (empty(Config::$image_proxy_enabled) || !empty($user_info['possibly_robot']))
 		return $url;
 
 	$parsedurl = parse_iri($url);
@@ -1500,11 +1247,11 @@ function get_proxied_url($url)
 		return $url;
 
 	// We don't need to proxy our own resources
-	if ($parsedurl['host'] === parse_iri($boardurl, PHP_URL_HOST))
+	if ($parsedurl['host'] === parse_iri(Config::$boardurl, PHP_URL_HOST))
 		return strtr($url, array('http://' => 'https://'));
 
 	// By default, use SMF's own image proxy script
-	$proxied_url = strtr($boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($url) . '&hash=' . hash_hmac('sha1', $url, $image_proxy_secret);
+	$proxied_url = strtr(Config::$boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($url) . '&hash=' . hash_hmac('sha1', $url, Config::$image_proxy_secret);
 
 	// Allow mods to easily implement an alternative proxy
 	// MOD AUTHORS: To add settings UI for your proxy, use the integrate_general_settings hook.
@@ -1523,42 +1270,40 @@ function get_proxied_url($url)
  */
 function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 {
-	global $scripturl, $context, $modSettings, $db_show_debug;
-
 	// In case we have mail to send, better do that - as obExit doesn't always quite make it...
-	if (!empty($context['flush_mail']))
+	if (!empty(Utils::$context['flush_mail']))
 		// @todo this relies on 'flush_mail' being only set in AddMailQueue itself... :\
 		AddMailQueue(true);
 
 	$add = preg_match('~^(ftp|http)[s]?://~', $setLocation) == 0 && substr($setLocation, 0, 6) != 'about:';
 
 	if ($add)
-		$setLocation = $scripturl . ($setLocation != '' ? '?' . $setLocation : '');
+		$setLocation = Config::$scripturl . ($setLocation != '' ? '?' . $setLocation : '');
 
 	// Put the session ID in.
 	if (defined('SID') && SID != '')
-		$setLocation = preg_replace('/^' . preg_quote($scripturl, '/') . '(?!\?' . preg_quote(SID, '/') . ')\\??/', $scripturl . '?' . SID . ';', $setLocation);
+		$setLocation = preg_replace('/^' . preg_quote(Config::$scripturl, '/') . '(?!\?' . preg_quote(SID, '/') . ')\\??/', Config::$scripturl . '?' . SID . ';', $setLocation);
 	// Keep that debug in their for template debugging!
 	elseif (isset($_GET['debug']))
-		$setLocation = preg_replace('/^' . preg_quote($scripturl, '/') . '\\??/', $scripturl . '?debug;', $setLocation);
+		$setLocation = preg_replace('/^' . preg_quote(Config::$scripturl, '/') . '\\??/', Config::$scripturl . '?debug;', $setLocation);
 
-	if (!empty($modSettings['queryless_urls']) && (empty($context['server']['is_cgi']) || ini_get('cgi.fix_pathinfo') == 1 || @get_cfg_var('cgi.fix_pathinfo') == 1) && (!empty($context['server']['is_apache']) || !empty($context['server']['is_lighttpd']) || !empty($context['server']['is_litespeed'])))
+	if (!empty(Config::$modSettings['queryless_urls']) && (empty(Utils::$context['server']['is_cgi']) || ini_get('cgi.fix_pathinfo') == 1 || @get_cfg_var('cgi.fix_pathinfo') == 1) && (!empty(Utils::$context['server']['is_apache']) || !empty(Utils::$context['server']['is_lighttpd']) || !empty(Utils::$context['server']['is_litespeed'])))
 	{
 		if (defined('SID') && SID != '')
 			$setLocation = preg_replace_callback(
-				'~^' . preg_quote($scripturl, '~') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~',
-				function($m) use ($scripturl)
+				'~^' . preg_quote(Config::$scripturl, '~') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~',
+				function($m)
 				{
-					return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html?' . SID . (isset($m[2]) ? "$m[2]" : "");
+					return Config::$scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html?' . SID . (isset($m[2]) ? "$m[2]" : "");
 				},
 				$setLocation
 			);
 		else
 			$setLocation = preg_replace_callback(
-				'~^' . preg_quote($scripturl, '~') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?$~',
-				function($m) use ($scripturl)
+				'~^' . preg_quote(Config::$scripturl, '~') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?$~',
+				function($m)
 				{
-					return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? "$m[2]" : "");
+					return Config::$scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? "$m[2]" : "");
 				},
 				$setLocation
 			);
@@ -1571,7 +1316,7 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 	header('location: ' . str_replace(' ', '%20', $setLocation), true, $permanent ? 301 : 302);
 
 	// Debugging.
-	if (isset($db_show_debug) && $db_show_debug === true)
+	if (isset(Config::$db_show_debug) && Config::$db_show_debug === true)
 		$_SESSION['debug_redirect'] = Db::$cache;
 
 	obExit(false);
@@ -1587,7 +1332,7 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
  */
 function obExit($header = null, $do_footer = null, $from_index = false, $from_fatal_error = false)
 {
-	global $context, $settings, $modSettings, $txt, $smcFunc;
+	global $settings, $txt;
 	static $header_done = false, $footer_done = false, $level = 0, $has_fatal_error = false;
 
 	// Attempt to prevent a recursive loop.
@@ -1602,7 +1347,7 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 		trackStats();
 
 	// If we have mail to send, send it.
-	if (function_exists('AddMailQueue') && !empty($context['flush_mail']))
+	if (function_exists('AddMailQueue') && !empty(Utils::$context['flush_mail']))
 		// @todo this relies on 'flush_mail' being only set in AddMailQueue itself... :\
 		AddMailQueue(true);
 
@@ -1614,8 +1359,8 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 	if ($do_header)
 	{
 		// Was the page title set last minute? Also update the HTML safe one.
-		if (!empty($context['page_title']) && empty($context['page_title_html_safe']))
-			$context['page_title_html_safe'] = $smcFunc['htmlspecialchars'](html_entity_decode($context['page_title'])) . (!empty($context['current_page']) ? ' - ' . $txt['page'] . ' ' . ($context['current_page'] + 1) : '');
+		if (!empty(Utils::$context['page_title']) && empty(Utils::$context['page_title_html_safe']))
+			Utils::$context['page_title_html_safe'] = Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title'])) . (!empty(Utils::$context['current_page']) ? ' - ' . $txt['page'] . ' ' . (Utils::$context['current_page'] + 1) : '');
 
 		// Start up the session URL fixer.
 		ob_start('ob_sessrewrite');
@@ -1627,8 +1372,8 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 		else
 			$buffers = array();
 
-		if (isset($modSettings['integrate_buffer']))
-			$buffers = array_merge(explode(',', $modSettings['integrate_buffer']), $buffers);
+		if (isset(Config::$modSettings['integrate_buffer']))
+			$buffers = array_merge(explode(',', Config::$modSettings['integrate_buffer']), $buffers);
 
 		if (!empty($buffers))
 			foreach ($buffers as $function)
@@ -1646,11 +1391,11 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 	}
 	if ($do_footer)
 	{
-		loadSubTemplate(isset($context['sub_template']) ? $context['sub_template'] : 'main');
+		loadSubTemplate(isset(Utils::$context['sub_template']) ? Utils::$context['sub_template'] : 'main');
 
 		// Anything special to put out?
-		if (!empty($context['insert_after_template']) && !isset($_REQUEST['xml']))
-			echo $context['insert_after_template'];
+		if (!empty(Utils::$context['insert_after_template']) && !isset($_REQUEST['xml']))
+			echo Utils::$context['insert_after_template'];
 
 		// Just so we don't get caught in an endless loop of errors from the footer...
 		if (!$footer_done)
@@ -1691,8 +1436,6 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
  */
 function url_image_size($url)
 {
-	global $sourcedir;
-
 	// Make sure it is a proper URL.
 	$url = str_replace(' ', '%20', $url);
 
@@ -1768,8 +1511,8 @@ function url_image_size($url)
  */
 function setupThemeContext($forceload = false)
 {
-	global $modSettings, $user_info, $scripturl, $context, $settings, $options, $txt, $maintenance;
-	global $smcFunc;
+	global $user_info, $settings, $options, $txt;
+
 	static $loaded = false;
 
 	// Under SSI this function can be called more then once.  That can cause some problems.
@@ -1779,49 +1522,49 @@ function setupThemeContext($forceload = false)
 
 	$loaded = true;
 
-	$context['in_maintenance'] = !empty($maintenance);
-	$context['current_time'] = timeformat(time(), false);
-	$context['current_action'] = isset($_GET['action']) ? $smcFunc['htmlspecialchars']($_GET['action']) : '';
-	$context['random_news_line'] = array();
+	Utils::$context['in_maintenance'] = !empty(Config::$maintenance);
+	Utils::$context['current_time'] = timeformat(time(), false);
+	Utils::$context['current_action'] = isset($_GET['action']) ? Utils::htmlspecialchars($_GET['action']) : '';
+	Utils::$context['random_news_line'] = array();
 
 	// Get some news...
-	$context['news_lines'] = array_filter(explode("\n", str_replace("\r", '', trim(addslashes($modSettings['news'])))));
-	for ($i = 0, $n = count($context['news_lines']); $i < $n; $i++)
+	Utils::$context['news_lines'] = array_filter(explode("\n", str_replace("\r", '', trim(addslashes(Config::$modSettings['news'])))));
+	for ($i = 0, $n = count(Utils::$context['news_lines']); $i < $n; $i++)
 	{
-		if (trim($context['news_lines'][$i]) == '')
+		if (trim(Utils::$context['news_lines'][$i]) == '')
 			continue;
 
 		// Clean it up for presentation ;).
-		$context['news_lines'][$i] = BBCodeParser::load()->parse(stripslashes(trim($context['news_lines'][$i])), true, 'news' . $i);
+		Utils::$context['news_lines'][$i] = BBCodeParser::load()->parse(stripslashes(trim(Utils::$context['news_lines'][$i])), true, 'news' . $i);
 	}
 
-	if (!empty($context['news_lines']) && (!empty($modSettings['allow_guestAccess']) || $context['user']['is_logged']))
-		$context['random_news_line'] = $context['news_lines'][mt_rand(0, count($context['news_lines']) - 1)];
+	if (!empty(Utils::$context['news_lines']) && (!empty(Config::$modSettings['allow_guestAccess']) || Utils::$context['user']['is_logged']))
+		Utils::$context['random_news_line'] = Utils::$context['news_lines'][mt_rand(0, count(Utils::$context['news_lines']) - 1)];
 
 	if (!$user_info['is_guest'])
 	{
-		$context['user']['messages'] = &$user_info['messages'];
-		$context['user']['unread_messages'] = &$user_info['unread_messages'];
-		$context['user']['alerts'] = &$user_info['alerts'];
+		Utils::$context['user']['messages'] = &$user_info['messages'];
+		Utils::$context['user']['unread_messages'] = &$user_info['unread_messages'];
+		Utils::$context['user']['alerts'] = &$user_info['alerts'];
 
 		// Personal message popup...
 		if ($user_info['unread_messages'] > (isset($_SESSION['unread_messages']) ? $_SESSION['unread_messages'] : 0))
-			$context['user']['popup_messages'] = true;
+			Utils::$context['user']['popup_messages'] = true;
 		else
-			$context['user']['popup_messages'] = false;
+			Utils::$context['user']['popup_messages'] = false;
 		$_SESSION['unread_messages'] = $user_info['unread_messages'];
 
 		if (allowedTo('moderate_forum'))
-			$context['unapproved_members'] = !empty($modSettings['unapprovedMembers']) ? $modSettings['unapprovedMembers'] : 0;
+			Utils::$context['unapproved_members'] = !empty(Config::$modSettings['unapprovedMembers']) ? Config::$modSettings['unapprovedMembers'] : 0;
 
-		$context['user']['avatar'] = set_avatar_data(array(
+		Utils::$context['user']['avatar'] = set_avatar_data(array(
 			'filename' => $user_info['avatar']['filename'],
 			'avatar' => $user_info['avatar']['url'],
 			'email' => $user_info['email'],
 		));
 
 		// Figure out how long they've been logged in.
-		$context['user']['total_time_logged_in'] = array(
+		Utils::$context['user']['total_time_logged_in'] = array(
 			'days' => floor($user_info['total_time_logged_in'] / 86400),
 			'hours' => floor(($user_info['total_time_logged_in'] % 86400) / 3600),
 			'minutes' => floor(($user_info['total_time_logged_in'] % 3600) / 60)
@@ -1829,33 +1572,33 @@ function setupThemeContext($forceload = false)
 	}
 	else
 	{
-		$context['user']['messages'] = 0;
-		$context['user']['unread_messages'] = 0;
-		$context['user']['avatar'] = array();
-		$context['user']['total_time_logged_in'] = array('days' => 0, 'hours' => 0, 'minutes' => 0);
-		$context['user']['popup_messages'] = false;
+		Utils::$context['user']['messages'] = 0;
+		Utils::$context['user']['unread_messages'] = 0;
+		Utils::$context['user']['avatar'] = array();
+		Utils::$context['user']['total_time_logged_in'] = array('days' => 0, 'hours' => 0, 'minutes' => 0);
+		Utils::$context['user']['popup_messages'] = false;
 
 		// If we've upgraded recently, go easy on the passwords.
-		if (!empty($modSettings['disableHashTime']) && ($modSettings['disableHashTime'] == 1 || time() < $modSettings['disableHashTime']))
-			$context['disable_login_hashing'] = true;
+		if (!empty(Config::$modSettings['disableHashTime']) && (Config::$modSettings['disableHashTime'] == 1 || time() < Config::$modSettings['disableHashTime']))
+			Utils::$context['disable_login_hashing'] = true;
 	}
 
 	// Setup the main menu items.
 	setupMenuContext();
 
 	// This is here because old index templates might still use it.
-	$context['show_news'] = !empty($settings['enable_news']);
+	Utils::$context['show_news'] = !empty($settings['enable_news']);
 
 	// This is done to allow theme authors to customize it as they want.
-	$context['show_pm_popup'] = $context['user']['popup_messages'] && !empty($options['popup_messages']) && (!isset($_REQUEST['action']) || $_REQUEST['action'] != 'pm');
+	Utils::$context['show_pm_popup'] = Utils::$context['user']['popup_messages'] && !empty($options['popup_messages']) && (!isset($_REQUEST['action']) || $_REQUEST['action'] != 'pm');
 
 	// 2.1+: Add the PM popup here instead. Theme authors can still override it simply by editing/removing the 'fPmPopup' in the array.
-	if ($context['show_pm_popup'])
+	if (Utils::$context['show_pm_popup'])
 		addInlineJavaScript('
 		jQuery(document).ready(function($) {
 			new smc_Popup({
 				heading: ' . JavaScriptEscape($txt['show_personal_messages_heading']) . ',
-				content: ' . JavaScriptEscape(sprintf($txt['show_personal_messages'], $context['user']['unread_messages'], $scripturl . '?action=pm')) . ',
+				content: ' . JavaScriptEscape(sprintf($txt['show_personal_messages'], Utils::$context['user']['unread_messages'], Config::$scripturl . '?action=pm')) . ',
 				icon_class: \'main_icons mail_new\'
 			});
 		});');
@@ -1865,66 +1608,66 @@ function setupThemeContext($forceload = false)
 	var smf_you_sure =' . JavaScriptEscape($txt['quickmod_confirm']) . ';');
 
 	// Now add the capping code for avatars.
-	if (!empty($modSettings['avatar_max_width_external']) && !empty($modSettings['avatar_max_height_external']) && !empty($modSettings['avatar_action_too_large']) && $modSettings['avatar_action_too_large'] == 'option_css_resize')
+	if (!empty(Config::$modSettings['avatar_max_width_external']) && !empty(Config::$modSettings['avatar_max_height_external']) && !empty(Config::$modSettings['avatar_action_too_large']) && Config::$modSettings['avatar_action_too_large'] == 'option_css_resize')
 		addInlineCss('
-	img.avatar { max-width: ' . $modSettings['avatar_max_width_external'] . 'px !important; max-height: ' . $modSettings['avatar_max_height_external'] . 'px !important; }');
+	img.avatar { max-width: ' . Config::$modSettings['avatar_max_width_external'] . 'px !important; max-height: ' . Config::$modSettings['avatar_max_height_external'] . 'px !important; }');
 
 	// Add max image limits
-	if (!empty($modSettings['max_image_width']))
+	if (!empty(Config::$modSettings['max_image_width']))
 		addInlineCss('
-	.postarea .bbc_img, .list_posts .bbc_img, .post .inner .bbc_img, form#reported_posts .bbc_img, #preview_body .bbc_img { max-width: min(100%,' . $modSettings['max_image_width'] . 'px); }');
+	.postarea .bbc_img, .list_posts .bbc_img, .post .inner .bbc_img, form#reported_posts .bbc_img, #preview_body .bbc_img { max-width: min(100%,' . Config::$modSettings['max_image_width'] . 'px); }');
 
-	if (!empty($modSettings['max_image_height']))
+	if (!empty(Config::$modSettings['max_image_height']))
 		addInlineCss('
-	.postarea .bbc_img, .list_posts .bbc_img, .post .inner .bbc_img, form#reported_posts .bbc_img, #preview_body .bbc_img { max-height: ' . $modSettings['max_image_height'] . 'px; }');
+	.postarea .bbc_img, .list_posts .bbc_img, .post .inner .bbc_img, form#reported_posts .bbc_img, #preview_body .bbc_img { max-height: ' . Config::$modSettings['max_image_height'] . 'px; }');
 
 	// This looks weird, but it's because BoardIndex.php references the variable.
-	$context['common_stats']['latest_member'] = array(
-		'id' => $modSettings['latestMember'],
-		'name' => $modSettings['latestRealName'],
-		'href' => $scripturl . '?action=profile;u=' . $modSettings['latestMember'],
-		'link' => '<a href="' . $scripturl . '?action=profile;u=' . $modSettings['latestMember'] . '">' . $modSettings['latestRealName'] . '</a>',
+	Utils::$context['common_stats']['latest_member'] = array(
+		'id' => Config::$modSettings['latestMember'],
+		'name' => Config::$modSettings['latestRealName'],
+		'href' => Config::$scripturl . '?action=profile;u=' . Config::$modSettings['latestMember'],
+		'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . Config::$modSettings['latestMember'] . '">' . Config::$modSettings['latestRealName'] . '</a>',
 	);
-	$context['common_stats'] = array(
-		'total_posts' => comma_format($modSettings['totalMessages']),
-		'total_topics' => comma_format($modSettings['totalTopics']),
-		'total_members' => comma_format($modSettings['totalMembers']),
-		'latest_member' => $context['common_stats']['latest_member'],
+	Utils::$context['common_stats'] = array(
+		'total_posts' => comma_format(Config::$modSettings['totalMessages']),
+		'total_topics' => comma_format(Config::$modSettings['totalTopics']),
+		'total_members' => comma_format(Config::$modSettings['totalMembers']),
+		'latest_member' => Utils::$context['common_stats']['latest_member'],
 	);
-	$context['common_stats']['boardindex_total_posts'] = sprintf($txt['boardindex_total_posts'], $context['common_stats']['total_posts'], $context['common_stats']['total_topics'], $context['common_stats']['total_members']);
+	Utils::$context['common_stats']['boardindex_total_posts'] = sprintf($txt['boardindex_total_posts'], Utils::$context['common_stats']['total_posts'], Utils::$context['common_stats']['total_topics'], Utils::$context['common_stats']['total_members']);
 
 	if (empty($settings['theme_version']))
-		addJavaScriptVar('smf_scripturl', $scripturl);
+		addJavaScriptVar('smf_scripturl', Config::$scripturl);
 
-	if (!isset($context['page_title']))
-		$context['page_title'] = '';
+	if (!isset(Utils::$context['page_title']))
+		Utils::$context['page_title'] = '';
 
 	// Set some specific vars.
-	$context['page_title_html_safe'] = $smcFunc['htmlspecialchars'](html_entity_decode($context['page_title'])) . (!empty($context['current_page']) ? ' - ' . $txt['page'] . ' ' . ($context['current_page'] + 1) : '');
-	$context['meta_keywords'] = !empty($modSettings['meta_keywords']) ? $smcFunc['htmlspecialchars']($modSettings['meta_keywords']) : '';
+	Utils::$context['page_title_html_safe'] = Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title'])) . (!empty(Utils::$context['current_page']) ? ' - ' . $txt['page'] . ' ' . (Utils::$context['current_page'] + 1) : '');
+	Utils::$context['meta_keywords'] = !empty(Config::$modSettings['meta_keywords']) ? Utils::htmlspecialchars(Config::$modSettings['meta_keywords']) : '';
 
 	// Content related meta tags, including Open Graph
-	$context['meta_tags'][] = array('property' => 'og:site_name', 'content' => $context['forum_name']);
-	$context['meta_tags'][] = array('property' => 'og:title', 'content' => $context['page_title_html_safe']);
+	Utils::$context['meta_tags'][] = array('property' => 'og:site_name', 'content' => Utils::$context['forum_name']);
+	Utils::$context['meta_tags'][] = array('property' => 'og:title', 'content' => Utils::$context['page_title_html_safe']);
 
-	if (!empty($context['meta_keywords']))
-		$context['meta_tags'][] = array('name' => 'keywords', 'content' => $context['meta_keywords']);
+	if (!empty(Utils::$context['meta_keywords']))
+		Utils::$context['meta_tags'][] = array('name' => 'keywords', 'content' => Utils::$context['meta_keywords']);
 
-	if (!empty($context['canonical_url']))
-		$context['meta_tags'][] = array('property' => 'og:url', 'content' => $context['canonical_url']);
+	if (!empty(Utils::$context['canonical_url']))
+		Utils::$context['meta_tags'][] = array('property' => 'og:url', 'content' => Utils::$context['canonical_url']);
 
 	if (!empty($settings['og_image']))
-		$context['meta_tags'][] = array('property' => 'og:image', 'content' => $settings['og_image']);
+		Utils::$context['meta_tags'][] = array('property' => 'og:image', 'content' => $settings['og_image']);
 
-	if (!empty($context['meta_description']))
+	if (!empty(Utils::$context['meta_description']))
 	{
-		$context['meta_tags'][] = array('property' => 'og:description', 'content' => $context['meta_description']);
-		$context['meta_tags'][] = array('name' => 'description', 'content' => $context['meta_description']);
+		Utils::$context['meta_tags'][] = array('property' => 'og:description', 'content' => Utils::$context['meta_description']);
+		Utils::$context['meta_tags'][] = array('name' => 'description', 'content' => Utils::$context['meta_description']);
 	}
 	else
 	{
-		$context['meta_tags'][] = array('property' => 'og:description', 'content' => $context['page_title_html_safe']);
-		$context['meta_tags'][] = array('name' => 'description', 'content' => $context['page_title_html_safe']);
+		Utils::$context['meta_tags'][] = array('property' => 'og:description', 'content' => Utils::$context['page_title_html_safe']);
+		Utils::$context['meta_tags'][] = array('name' => 'description', 'content' => Utils::$context['page_title_html_safe']);
 	}
 
 	call_integration_hook('integrate_theme_context');
@@ -1996,12 +1739,12 @@ function memoryReturnBytes($val)
  */
 function template_header()
 {
-	global $txt, $modSettings, $context, $user_info, $boarddir, $cachedir, $language;
+	global $txt, $user_info;
 
 	setupThemeContext();
 
 	// Print stuff to prevent caching of pages (except on attachment errors, etc.)
-	if (empty($context['no_last_modified']))
+	if (empty(Utils::$context['no_last_modified']))
 	{
 		header('expires: Mon, 26 Jul 1997 05:00:00 GMT');
 		header('last-modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
@@ -2010,29 +1753,29 @@ function template_header()
 		if (!isset($_REQUEST['xml']) && isset($_GET['debug']) && !BrowserDetector::isBrowser('ie'))
 			header('content-type: application/xhtml+xml');
 		elseif (!isset($_REQUEST['xml']))
-			header('content-type: text/html; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
+			header('content-type: text/html; charset=' . (empty(Utils::$context['character_set']) ? 'ISO-8859-1' : Utils::$context['character_set']));
 	}
 
-	header('content-type: text/' . (isset($_REQUEST['xml']) ? 'xml' : 'html') . '; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
+	header('content-type: text/' . (isset($_REQUEST['xml']) ? 'xml' : 'html') . '; charset=' . (empty(Utils::$context['character_set']) ? 'ISO-8859-1' : Utils::$context['character_set']));
 
 	// We need to splice this in after the body layer, or after the main layer for older stuff.
-	if ($context['in_maintenance'] && $context['user']['is_admin'])
+	if (Utils::$context['in_maintenance'] && Utils::$context['user']['is_admin'])
 	{
-		$position = array_search('body', $context['template_layers']);
+		$position = array_search('body', Utils::$context['template_layers']);
 		if ($position === false)
-			$position = array_search('main', $context['template_layers']);
+			$position = array_search('main', Utils::$context['template_layers']);
 
 		if ($position !== false)
 		{
-			$before = array_slice($context['template_layers'], 0, $position + 1);
-			$after = array_slice($context['template_layers'], $position + 1);
-			$context['template_layers'] = array_merge($before, array('maint_warning'), $after);
+			$before = array_slice(Utils::$context['template_layers'], 0, $position + 1);
+			$after = array_slice(Utils::$context['template_layers'], $position + 1);
+			Utils::$context['template_layers'] = array_merge($before, array('maint_warning'), $after);
 		}
 	}
 
 	$checked_securityFiles = false;
 	$showed_banned = false;
-	foreach ($context['template_layers'] as $layer)
+	foreach (Utils::$context['template_layers'] as $layer)
 	{
 		loadSubTemplate($layer . '_above', true);
 
@@ -2048,38 +1791,38 @@ function template_header()
 
 			foreach ($securityFiles as $i => $securityFile)
 			{
-				if (!file_exists($boarddir . '/' . $securityFile))
+				if (!file_exists(Config::$boarddir . '/' . $securityFile))
 					unset($securityFiles[$i]);
 			}
 
 			// We are already checking so many files...just few more doesn't make any difference! :P
-			if (!empty($modSettings['currentAttachmentUploadDir']))
-				$path = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
+			if (!empty(Config::$modSettings['currentAttachmentUploadDir']))
+				$path = Config::$modSettings['attachmentUploadDir'][Config::$modSettings['currentAttachmentUploadDir']];
 
 			else
-				$path = $modSettings['attachmentUploadDir'];
+				$path = Config::$modSettings['attachmentUploadDir'];
 
 			secureDirectory($path, true);
-			secureDirectory($cachedir);
+			secureDirectory(Config::$cachedir);
 
 			// If agreement is enabled, at least the english version shall exist
-			if (!empty($modSettings['requireAgreement']))
-				$agreement = !file_exists($boarddir . '/agreement.txt');
+			if (!empty(Config::$modSettings['requireAgreement']))
+				$agreement = !file_exists(Config::$boarddir . '/agreement.txt');
 
 			// If privacy policy is enabled, at least the default language version shall exist
-			if (!empty($modSettings['requirePolicyAgreement']))
-				$policy_agreement = empty($modSettings['policy_' . $language]);
+			if (!empty(Config::$modSettings['requirePolicyAgreement']))
+				$policy_agreement = empty(Config::$modSettings['policy_' . Config::$language]);
 
 			if (!empty($securityFiles) ||
-				(!empty(CacheApi::$enable) && !is_writable($cachedir)) ||
+				(!empty(CacheApi::$enable) && !is_writable(Config::$cachedir)) ||
 				!empty($agreement) ||
 				!empty($policy_agreement) ||
-				!empty($context['auth_secret_missing']))
+				!empty(Utils::$context['auth_secret_missing']))
 			{
 				echo '
 		<div class="errorbox">
 			<p class="alert">!!</p>
-			<h3>', empty($securityFiles) && empty($context['auth_secret_missing']) ? $txt['generic_warning'] : $txt['security_risk'], '</h3>
+			<h3>', empty($securityFiles) && empty(Utils::$context['auth_secret_missing']) ? $txt['generic_warning'] : $txt['security_risk'], '</h3>
 			<p>';
 
 				foreach ($securityFiles as $securityFile)
@@ -2092,7 +1835,7 @@ function template_header()
 				', sprintf($txt['not_removed_extra'], $securityFile, substr($securityFile, 0, -1)), '<br>';
 				}
 
-				if (!empty(CacheApi::$enable) && !is_writable($cachedir))
+				if (!empty(CacheApi::$enable) && !is_writable(Config::$cachedir))
 					echo '
 				<strong>', $txt['cache_writable'], '</strong><br>';
 
@@ -2104,7 +1847,7 @@ function template_header()
 					echo '
 				<strong>', $txt['policy_agreement_missing'], '</strong><br>';
 
-				if (!empty($context['auth_secret_missing']))
+				if (!empty(Utils::$context['auth_secret_missing']))
 					echo '
 				<strong>', $txt['auth_secret_missing'], '</strong><br>';
 
@@ -2143,14 +1886,14 @@ function template_header()
  */
 function theme_copyright()
 {
-	global $forum_copyright, $scripturl;
+	global $forum_copyright;
 
 	// Don't display copyright for things like SSI.
 	if (SMF !== 1)
 		return;
 
 	// Put in the version...
-	printf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, $scripturl);
+	printf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl);
 }
 
 /**
@@ -2158,15 +1901,13 @@ function theme_copyright()
  */
 function template_footer()
 {
-	global $context, $modSettings;
-
 	// Show the load time?  (only makes sense for the footer.)
-	$context['show_load_time'] = !empty($modSettings['timeLoadPageEnable']);
-	$context['load_time'] = round(microtime(true) - TIME_START, 3);
-	$context['load_queries'] = Db::$count;
+	Utils::$context['show_load_time'] = !empty(Config::$modSettings['timeLoadPageEnable']);
+	Utils::$context['load_time'] = round(microtime(true) - TIME_START, 3);
+	Utils::$context['load_queries'] = Db::$count;
 
-	if (!empty($context['template_layers']) && is_array($context['template_layers']))
-		foreach (array_reverse($context['template_layers']) as $layer)
+	if (!empty(Utils::$context['template_layers']) && is_array(Utils::$context['template_layers']))
+		foreach (array_reverse(Utils::$context['template_layers']) as $layer)
 			loadSubTemplate($layer . '_below', true);
 }
 
@@ -2179,7 +1920,7 @@ function template_footer()
  */
 function template_javascript($do_deferred = false)
 {
-	global $context, $modSettings, $settings;
+	global $settings;
 
 	// Use this hook to minify/optimize Javascript files and vars
 	call_integration_hook('integrate_pre_javascript_output', array(&$do_deferred));
@@ -2191,12 +1932,12 @@ function template_javascript($do_deferred = false)
 	);
 
 	// Output the declared Javascript variables.
-	if (!empty($context['javascript_vars']) && !$do_deferred)
+	if (!empty(Utils::$context['javascript_vars']) && !$do_deferred)
 	{
 		echo '
 	<script>';
 
-		foreach ($context['javascript_vars'] as $key => $value)
+		foreach (Utils::$context['javascript_vars'] as $key => $value)
 		{
 			if (!is_string($key) || is_numeric($key))
 				continue;
@@ -2216,14 +1957,14 @@ function template_javascript($do_deferred = false)
 	if (!$do_deferred)
 	{
 		// While we have JavaScript files to place in the template.
-		foreach ($context['javascript_files'] as $id => $js_file)
+		foreach (Utils::$context['javascript_files'] as $id => $js_file)
 		{
 			// Last minute call! allow theme authors to disable single files.
 			if (!empty($settings['disable_files']) && in_array($id, $settings['disable_files']))
 				continue;
 
 			// By default files don't get minimized unless the file explicitly says so!
-			if (!empty($js_file['options']['minimize']) && !empty($modSettings['minimize_files']))
+			if (!empty($js_file['options']['minimize']) && !empty(Config::$modSettings['minimize_files']))
 			{
 				if (!empty($js_file['options']['async']))
 					$toMinify['async'][] = $js_file;
@@ -2274,15 +2015,15 @@ function template_javascript($do_deferred = false)
 	}
 
 	// Inline JavaScript - Actually useful some times!
-	if (!empty($context['javascript_inline']))
+	if (!empty(Utils::$context['javascript_inline']))
 	{
-		if (!empty($context['javascript_inline']['defer']) && $do_deferred)
+		if (!empty(Utils::$context['javascript_inline']['defer']) && $do_deferred)
 		{
 			echo '
 <script>
 window.addEventListener("DOMContentLoaded", function() {';
 
-			foreach ($context['javascript_inline']['defer'] as $js_code)
+			foreach (Utils::$context['javascript_inline']['defer'] as $js_code)
 				echo $js_code;
 
 			echo '
@@ -2290,12 +2031,12 @@ window.addEventListener("DOMContentLoaded", function() {';
 </script>';
 		}
 
-		if (!empty($context['javascript_inline']['standard']) && !$do_deferred)
+		if (!empty(Utils::$context['javascript_inline']['standard']) && !$do_deferred)
 		{
 			echo '
 	<script>';
 
-			foreach ($context['javascript_inline']['standard'] as $js_code)
+			foreach (Utils::$context['javascript_inline']['standard'] as $js_code)
 				echo $js_code;
 
 			echo '
@@ -2309,7 +2050,7 @@ window.addEventListener("DOMContentLoaded", function() {';
  */
 function template_css()
 {
-	global $context, $db_show_debug, $boardurl, $settings, $modSettings;
+	global $settings;
 
 	// Use this hook to minify/optimize CSS files
 	call_integration_hook('integrate_pre_css_output');
@@ -2318,14 +2059,14 @@ function template_css()
 	$normal = array();
 
 	uasort(
-		$context['css_files'],
+		Utils::$context['css_files'],
 		function ($a, $b)
 		{
 			return $a['options']['order_pos'] < $b['options']['order_pos'] ? -1 : ($a['options']['order_pos'] > $b['options']['order_pos'] ? 1 : 0);
 		}
 	);
 
-	foreach ($context['css_files'] as $id => $file)
+	foreach (Utils::$context['css_files'] as $id => $file)
 	{
 		// Last minute call! allow theme authors to disable single files.
 		if (!empty($settings['disable_files']) && in_array($id, $settings['disable_files']))
@@ -2335,7 +2076,7 @@ function template_css()
 		if (!isset($file['options']['minimize']))
 			$file['options']['minimize'] = true;
 
-		if (!empty($file['options']['minimize']) && !empty($modSettings['minimize_files']) && !isset($_REQUEST['normalcss']))
+		if (!empty($file['options']['minimize']) && !empty(Config::$modSettings['minimize_files']) && !isset($_REQUEST['normalcss']))
 		{
 			$toMinify[] = $file;
 
@@ -2380,20 +2121,20 @@ function template_css()
 			echo '>';
 		}
 
-	if ($db_show_debug === true)
+	if (Config::$db_show_debug === true)
 	{
 		// Try to keep only what's useful.
-		$repl = array($boardurl . '/Themes/' => '', $boardurl . '/' => '');
-		foreach ($context['css_files'] as $file)
-			$context['debug']['sheets'][] = strtr($file['fileName'], $repl);
+		$repl = array(Config::$boardurl . '/Themes/' => '', Config::$boardurl . '/' => '');
+		foreach (Utils::$context['css_files'] as $file)
+			Utils::$context['debug']['sheets'][] = strtr($file['fileName'], $repl);
 	}
 
-	if (!empty($context['css_header']))
+	if (!empty(Utils::$context['css_header']))
 	{
 		echo '
 	<style>';
 
-		foreach ($context['css_header'] as $css)
+		foreach (Utils::$context['css_header'] as $css)
 			echo $css . '
 	';
 
@@ -2516,17 +2257,17 @@ function custMinify($data, $type)
 }
 
 /**
- * Clears out old minimized CSS and JavaScript files and ensures $modSettings['browser_cache'] is up to date
+ * Clears out old minimized CSS and JavaScript files and ensures Config::$modSettings['browser_cache'] is up to date
  */
 function deleteAllMinified()
 {
-	global $smcFunc, $txt, $modSettings;
+	global $txt;
 
 	$not_deleted = array();
 	$most_recent = 0;
 
 	// Kinda sucks that we need to do another query to get all the theme dirs, but c'est la vie.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_theme AS id, value AS dir
 		FROM {db_prefix}themes
 		WHERE variable = {string:var}',
@@ -2534,7 +2275,7 @@ function deleteAllMinified()
 			'var' => 'theme_dir',
 		)
 	);
-	while ($theme = $smcFunc['db_fetch_assoc']($request))
+	while ($theme = Db::$db->fetch_assoc($request))
 	{
 		foreach (array('css', 'js') as $type)
 		{
@@ -2550,11 +2291,11 @@ function deleteAllMinified()
 			}
 		}
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// This setting tracks the most recent modification time of any of our CSS and JS files
-	if ($most_recent != $modSettings['browser_cache'])
-		updateSettings(array('browser_cache' => $most_recent));
+	if ($most_recent != Config::$modSettings['browser_cache'])
+		Config::updateModSettings(array('browser_cache' => $most_recent));
 
 	// If any of the files could not be deleted, log an error about it.
 	if (!empty($not_deleted))
@@ -2581,8 +2322,6 @@ function deleteAllMinified()
  */
 function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = false, $file_hash = '')
 {
-	global $modSettings, $smcFunc;
-
 	// Just make up a nice hash...
 	if ($new)
 		return sha1(md5($filename . time()) . mt_rand());
@@ -2594,7 +2333,7 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 	// Left this for legacy.
 	if ($file_hash === '')
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT file_hash
 			FROM {db_prefix}attachments
 			WHERE id_attach = {int:id_attach}',
@@ -2603,11 +2342,11 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 			)
 		);
 
-		if ($smcFunc['db_num_rows']($request) === 0)
+		if (Db::$db->num_rows($request) === 0)
 			return false;
 
-		list ($file_hash) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		list ($file_hash) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 	}
 
 	// Still no hash? mmm...
@@ -2615,11 +2354,11 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 		$file_hash = sha1(md5($filename . time()) . mt_rand());
 
 	// Are we using multiple directories?
-	if (is_array($modSettings['attachmentUploadDir']))
-		$path = $modSettings['attachmentUploadDir'][$dir];
+	if (is_array(Config::$modSettings['attachmentUploadDir']))
+		$path = Config::$modSettings['attachmentUploadDir'][$dir];
 
 	else
-		$path = $modSettings['attachmentUploadDir'];
+		$path = Config::$modSettings['attachmentUploadDir'];
 
 	return $path . '/' . $attachment_id . '_' . $file_hash . '.dat';
 }
@@ -2713,8 +2452,6 @@ function ip2range($fullip)
  */
 function host_from_ip($ip)
 {
-	global $modSettings;
-
 	if (($host = CacheApi::get('hostlookup-' . $ip, 600)) !== null)
 		return $host;
 	$t = microtime(true);
@@ -2724,7 +2461,7 @@ function host_from_ip($ip)
 	// Try the Linux host command, perhaps?
 	if ($exists && !isset($host) && (strpos(strtolower(PHP_OS), 'win') === false || strpos(strtolower(PHP_OS), 'darwin') !== false) && mt_rand(0, 1) == 1)
 	{
-		if (!isset($modSettings['host_to_dis']))
+		if (!isset(Config::$modSettings['host_to_dis']))
 			$test = @shell_exec('host -W 1 ' . @escapeshellarg($ip));
 		else
 			$test = @shell_exec('host ' . @escapeshellarg($ip));
@@ -2733,8 +2470,8 @@ function host_from_ip($ip)
 		if (strpos($test, 'not found') !== false)
 			$host = '';
 		// Invalid server option?
-		elseif ((strpos($test, 'invalid option') || strpos($test, 'Invalid query name 1')) && !isset($modSettings['host_to_dis']))
-			updateSettings(array('host_to_dis' => 1));
+		elseif ((strpos($test, 'invalid option') || strpos($test, 'Invalid query name 1')) && !isset(Config::$modSettings['host_to_dis']))
+			Config::updateModSettings(array('host_to_dis' => 1));
 		// Maybe it found something, after all?
 		elseif (preg_match('~\s([^\s]+?)\.\s~', $test, $match) == 1)
 			$host = $match[1];
@@ -2771,17 +2508,15 @@ function host_from_ip($ip)
  */
 function text2words($text, $max_chars = 20, $encrypt = false)
 {
-	global $smcFunc, $context;
-
 	// Upgrader may be working on old DBs...
-	if (!isset($context['utf8']))
-		$context['utf8'] = false;
+	if (!isset(Utils::$context['utf8']))
+		Utils::$context['utf8'] = false;
 
 	// Step 1: Remove entities/things we don't consider words:
-	$words = preg_replace('~(?:[\x0B\0' . ($context['utf8'] ? '\x{A0}' : '\xA0') . '\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~' . ($context['utf8'] ? 'u' : ''), ' ', strtr($text, array('<br>' => ' ')));
+	$words = preg_replace('~(?:[\x0B\0' . (Utils::$context['utf8'] ? '\x{A0}' : '\xA0') . '\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~' . (Utils::$context['utf8'] ? 'u' : ''), ' ', strtr($text, array('<br>' => ' ')));
 
 	// Step 2: Entities we left to letters, where applicable, lowercase.
-	$words = un_htmlspecialchars($smcFunc['strtolower']($words));
+	$words = un_htmlspecialchars(Utils::strtolower($words));
 
 	// Step 3: Ready to split apart and index!
 	$words = explode(' ', $words);
@@ -2846,141 +2581,141 @@ function create_button($name, $alt, $label = '', $custom = '', $force_use = fals
 /**
  * Sets up all of the top menu buttons
  * Saves them in the cache if it is available and on
- * Places the results in $context
+ * Places the results in Utils::$context
  */
 function setupMenuContext()
 {
-	global $context, $modSettings, $user_info, $txt, $scripturl, $sourcedir, $settings, $smcFunc;
+	global $user_info, $txt, $settings;
 
 	// Set up the menu privileges.
-	$context['allow_search'] = !empty($modSettings['allow_guestAccess']) ? allowedTo('search_posts') : (!$user_info['is_guest'] && allowedTo('search_posts'));
-	$context['allow_admin'] = allowedTo(array('admin_forum', 'manage_boards', 'manage_permissions', 'moderate_forum', 'manage_membergroups', 'manage_bans', 'send_mail', 'edit_news', 'manage_attachments', 'manage_smileys'));
+	Utils::$context['allow_search'] = !empty(Config::$modSettings['allow_guestAccess']) ? allowedTo('search_posts') : (!$user_info['is_guest'] && allowedTo('search_posts'));
+	Utils::$context['allow_admin'] = allowedTo(array('admin_forum', 'manage_boards', 'manage_permissions', 'moderate_forum', 'manage_membergroups', 'manage_bans', 'send_mail', 'edit_news', 'manage_attachments', 'manage_smileys'));
 
-	$context['allow_memberlist'] = allowedTo('view_mlist');
-	$context['allow_calendar'] = allowedTo('calendar_view') && !empty($modSettings['cal_enabled']);
-	$context['allow_moderation_center'] = $context['user']['can_mod'];
-	$context['allow_pm'] = allowedTo('pm_read');
+	Utils::$context['allow_memberlist'] = allowedTo('view_mlist');
+	Utils::$context['allow_calendar'] = allowedTo('calendar_view') && !empty(Config::$modSettings['cal_enabled']);
+	Utils::$context['allow_moderation_center'] = Utils::$context['user']['can_mod'];
+	Utils::$context['allow_pm'] = allowedTo('pm_read');
 
-	$cacheTime = $modSettings['lastActive'] * 60;
+	$cacheTime = Config::$modSettings['lastActive'] * 60;
 
 	// Initial "can you post an event in the calendar" option - but this might have been set in the calendar already.
-	if (!isset($context['allow_calendar_event']))
+	if (!isset(Utils::$context['allow_calendar_event']))
 	{
-		$context['allow_calendar_event'] = $context['allow_calendar'] && allowedTo('calendar_post');
+		Utils::$context['allow_calendar_event'] = Utils::$context['allow_calendar'] && allowedTo('calendar_post');
 
 		// If you don't allow events not linked to posts and you're not an admin, we have more work to do...
-		if ($context['allow_calendar'] && $context['allow_calendar_event'] && empty($modSettings['cal_allow_unlinked']) && !$user_info['is_admin'])
+		if (Utils::$context['allow_calendar'] && Utils::$context['allow_calendar_event'] && empty(Config::$modSettings['cal_allow_unlinked']) && !$user_info['is_admin'])
 		{
 			$boards_can_post = boardsAllowedTo('post_new');
-			$context['allow_calendar_event'] &= !empty($boards_can_post);
+			Utils::$context['allow_calendar_event'] &= !empty($boards_can_post);
 		}
 	}
 
 	// There is some menu stuff we need to do if we're coming at this from a non-guest perspective.
-	if (!$context['user']['is_guest'])
+	if (!Utils::$context['user']['is_guest'])
 	{
 		addInlineJavaScript('
 	var user_menus = new smc_PopupMenu();
-	user_menus.add("profile", "' . $scripturl . '?action=profile;area=popup");
-	user_menus.add("alerts", "' . $scripturl . '?action=profile;area=alerts_popup;u=' . $context['user']['id'] . '");', true);
-		if ($context['allow_pm'])
+	user_menus.add("profile", "' . Config::$scripturl . '?action=profile;area=popup");
+	user_menus.add("alerts", "' . Config::$scripturl . '?action=profile;area=alerts_popup;u=' . Utils::$context['user']['id'] . '");', true);
+		if (Utils::$context['allow_pm'])
 			addInlineJavaScript('
-	user_menus.add("pm", "' . $scripturl . '?action=pm;sa=popup");', true);
+	user_menus.add("pm", "' . Config::$scripturl . '?action=pm;sa=popup");', true);
 
-		if (!empty($modSettings['enable_ajax_alerts']))
+		if (!empty(Config::$modSettings['enable_ajax_alerts']))
 		{
-			require_once($sourcedir . '/Subs-Notify.php');
+			require_once(Config::$sourcedir . '/Subs-Notify.php');
 
-			$timeout = getNotifyPrefs($context['user']['id'], 'alert_timeout', true);
-			$timeout = empty($timeout) ? 10000 : $timeout[$context['user']['id']]['alert_timeout'] * 1000;
+			$timeout = getNotifyPrefs(Utils::$context['user']['id'], 'alert_timeout', true);
+			$timeout = empty($timeout) ? 10000 : $timeout[Utils::$context['user']['id']]['alert_timeout'] * 1000;
 
 			addInlineJavaScript('
-	var new_alert_title = "' . $context['forum_name_html_safe'] . '";
+	var new_alert_title = "' . Utils::$context['forum_name_html_safe'] . '";
 	var alert_timeout = ' . $timeout . ';');
 			loadJavaScriptFile('alerts.js', array('minimize' => true), 'smf_alerts');
 		}
 	}
 
 	// All the buttons we can possible want and then some, try pulling the final list of buttons from cache first.
-	if (($menu_buttons = CacheApi::get('menu_buttons-' . implode('_', $user_info['groups']) . '-' . $user_info['language'], $cacheTime)) === null || time() - $cacheTime <= $modSettings['settings_updated'])
+	if (($menu_buttons = CacheApi::get('menu_buttons-' . implode('_', $user_info['groups']) . '-' . $user_info['language'], $cacheTime)) === null || time() - $cacheTime <= Config::$modSettings['settings_updated'])
 	{
 		$buttons = array(
 			'home' => array(
 				'title' => $txt['home'],
-				'href' => $scripturl,
+				'href' => Config::$scripturl,
 				'show' => true,
 				'sub_buttons' => array(
 				),
-				'is_last' => $context['right_to_left'],
+				'is_last' => Utils::$context['right_to_left'],
 			),
 			'search' => array(
 				'title' => $txt['search'],
-				'href' => $scripturl . '?action=search',
-				'show' => $context['allow_search'],
+				'href' => Config::$scripturl . '?action=search',
+				'show' => Utils::$context['allow_search'],
 				'sub_buttons' => array(
 				),
 			),
 			'admin' => array(
 				'title' => $txt['admin'],
-				'href' => $scripturl . '?action=admin',
-				'show' => $context['allow_admin'],
+				'href' => Config::$scripturl . '?action=admin',
+				'show' => Utils::$context['allow_admin'],
 				'sub_buttons' => array(
 					'featuresettings' => array(
 						'title' => $txt['modSettings_title'],
-						'href' => $scripturl . '?action=admin;area=featuresettings',
+						'href' => Config::$scripturl . '?action=admin;area=featuresettings',
 						'show' => allowedTo('admin_forum'),
 					),
 					'packages' => array(
 						'title' => $txt['package'],
-						'href' => $scripturl . '?action=admin;area=packages',
+						'href' => Config::$scripturl . '?action=admin;area=packages',
 						'show' => allowedTo('admin_forum'),
 					),
 					'errorlog' => array(
 						'title' => $txt['errorlog'],
-						'href' => $scripturl . '?action=admin;area=logs;sa=errorlog;desc',
-						'show' => allowedTo('admin_forum') && !empty($modSettings['enableErrorLogging']),
+						'href' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog;desc',
+						'show' => allowedTo('admin_forum') && !empty(Config::$modSettings['enableErrorLogging']),
 					),
 					'permissions' => array(
 						'title' => $txt['edit_permissions'],
-						'href' => $scripturl . '?action=admin;area=permissions',
+						'href' => Config::$scripturl . '?action=admin;area=permissions',
 						'show' => allowedTo('manage_permissions'),
 					),
 					'memberapprove' => array(
 						'title' => $txt['approve_members_waiting'],
-						'href' => $scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve',
-						'show' => !empty($context['unapproved_members']),
+						'href' => Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve',
+						'show' => !empty(Utils::$context['unapproved_members']),
 						'is_last' => true,
 					),
 				),
 			),
 			'moderate' => array(
 				'title' => $txt['moderate'],
-				'href' => $scripturl . '?action=moderate',
-				'show' => $context['allow_moderation_center'],
+				'href' => Config::$scripturl . '?action=moderate',
+				'show' => Utils::$context['allow_moderation_center'],
 				'sub_buttons' => array(
 					'modlog' => array(
 						'title' => $txt['modlog_view'],
-						'href' => $scripturl . '?action=moderate;area=modlog',
-						'show' => !empty($modSettings['modlog_enabled']) && !empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1',
+						'href' => Config::$scripturl . '?action=moderate;area=modlog',
+						'show' => !empty(Config::$modSettings['modlog_enabled']) && !empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1',
 					),
 					'poststopics' => array(
 						'title' => $txt['mc_unapproved_poststopics'],
-						'href' => $scripturl . '?action=moderate;area=postmod;sa=posts',
-						'show' => $modSettings['postmod_active'] && !empty($user_info['mod_cache']['ap']),
+						'href' => Config::$scripturl . '?action=moderate;area=postmod;sa=posts',
+						'show' => Config::$modSettings['postmod_active'] && !empty($user_info['mod_cache']['ap']),
 					),
 					'attachments' => array(
 						'title' => $txt['mc_unapproved_attachments'],
-						'href' => $scripturl . '?action=moderate;area=attachmod;sa=attachments',
-						'show' => $modSettings['postmod_active'] && !empty($user_info['mod_cache']['ap']),
+						'href' => Config::$scripturl . '?action=moderate;area=attachmod;sa=attachments',
+						'show' => Config::$modSettings['postmod_active'] && !empty($user_info['mod_cache']['ap']),
 					),
 					'reports' => array(
 						'title' => $txt['mc_reported_posts'],
-						'href' => $scripturl . '?action=moderate;area=reportedposts',
+						'href' => Config::$scripturl . '?action=moderate;area=reportedposts',
 						'show' => !empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1',
 					),
 					'reported_members' => array(
 						'title' => $txt['mc_reported_members'],
-						'href' => $scripturl . '?action=moderate;area=reportedmembers',
+						'href' => Config::$scripturl . '?action=moderate;area=reportedmembers',
 						'show' => allowedTo('moderate_forum'),
 						'is_last' => true,
 					)
@@ -2988,69 +2723,69 @@ function setupMenuContext()
 			),
 			'calendar' => array(
 				'title' => $txt['calendar'],
-				'href' => $scripturl . '?action=calendar',
-				'show' => $context['allow_calendar'],
+				'href' => Config::$scripturl . '?action=calendar',
+				'show' => Utils::$context['allow_calendar'],
 				'sub_buttons' => array(
 					'view' => array(
 						'title' => $txt['calendar_menu'],
-						'href' => $scripturl . '?action=calendar',
-						'show' => $context['allow_calendar_event'],
+						'href' => Config::$scripturl . '?action=calendar',
+						'show' => Utils::$context['allow_calendar_event'],
 					),
 					'post' => array(
 						'title' => $txt['calendar_post_event'],
-						'href' => $scripturl . '?action=calendar;sa=post',
-						'show' => $context['allow_calendar_event'],
+						'href' => Config::$scripturl . '?action=calendar;sa=post',
+						'show' => Utils::$context['allow_calendar_event'],
 						'is_last' => true,
 					),
 				),
 			),
 			'mlist' => array(
 				'title' => $txt['members_title'],
-				'href' => $scripturl . '?action=mlist',
-				'show' => $context['allow_memberlist'],
+				'href' => Config::$scripturl . '?action=mlist',
+				'show' => Utils::$context['allow_memberlist'],
 				'sub_buttons' => array(
 					'mlist_view' => array(
 						'title' => $txt['mlist_menu_view'],
-						'href' => $scripturl . '?action=mlist',
+						'href' => Config::$scripturl . '?action=mlist',
 						'show' => true,
 					),
 					'mlist_search' => array(
 						'title' => $txt['mlist_search'],
-						'href' => $scripturl . '?action=mlist;sa=search',
+						'href' => Config::$scripturl . '?action=mlist;sa=search',
 						'show' => true,
 						'is_last' => true,
 					),
 				),
-				'is_last' => !$context['right_to_left'] && empty($settings['login_main_menu']),
+				'is_last' => !Utils::$context['right_to_left'] && empty($settings['login_main_menu']),
 			),
 			// Theme authors: If you want the login and register buttons to appear in
 			// the main forum menu on your theme, set $settings['login_main_menu'] to
 			// true in your theme's template_init() function in index.template.php.
 			'login' => array(
 				'title' => $txt['login'],
-				'href' => $scripturl . '?action=login',
+				'href' => Config::$scripturl . '?action=login',
 				'onclick' => 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ', \'login\');',
 				'show' => $user_info['is_guest'] && !empty($settings['login_main_menu']),
 				'sub_buttons' => array(
 				),
-				'is_last' => !$context['right_to_left'],
+				'is_last' => !Utils::$context['right_to_left'],
 			),
 			'logout' => array(
 				'title' => $txt['logout'],
-				'href' => $scripturl . '?action=logout;' . $context['session_var'] . '=' . $context['session_id'],
+				'href' => Config::$scripturl . '?action=logout;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 				'show' => !$user_info['is_guest'] && !empty($settings['login_main_menu']),
 				'sub_buttons' => array(
 				),
-				'is_last' => !$context['right_to_left'],
+				'is_last' => !Utils::$context['right_to_left'],
 			),
 			'signup' => array(
 				'title' => $txt['register'],
-				'href' => $scripturl . '?action=signup',
+				'href' => Config::$scripturl . '?action=signup',
 				'icon' => 'regcenter',
-				'show' => $user_info['is_guest'] && $context['can_register'] && !empty($settings['login_main_menu']),
+				'show' => $user_info['is_guest'] && Utils::$context['can_register'] && !empty($settings['login_main_menu']),
 				'sub_buttons' => array(
 				),
-				'is_last' => !$context['right_to_left'],
+				'is_last' => !Utils::$context['right_to_left'],
 			),
 		);
 
@@ -3107,102 +2842,102 @@ function setupMenuContext()
 			CacheApi::put('menu_buttons-' . implode('_', $user_info['groups']) . '-' . $user_info['language'], $menu_buttons, $cacheTime);
 	}
 
-	$context['menu_buttons'] = $menu_buttons;
+	Utils::$context['menu_buttons'] = $menu_buttons;
 
 	// Logging out requires the session id in the url.
-	if (isset($context['menu_buttons']['logout']))
-		$context['menu_buttons']['logout']['href'] = sprintf($context['menu_buttons']['logout']['href'], $context['session_var'], $context['session_id']);
+	if (isset(Utils::$context['menu_buttons']['logout']))
+		Utils::$context['menu_buttons']['logout']['href'] = sprintf(Utils::$context['menu_buttons']['logout']['href'], Utils::$context['session_var'], Utils::$context['session_id']);
 
 	// Figure out which action we are doing so we can set the active tab.
 	// Default to home.
 	$current_action = 'home';
 
-	if (isset($context['menu_buttons'][$context['current_action']]))
-		$current_action = $context['current_action'];
-	elseif ($context['current_action'] == 'search2')
+	if (isset(Utils::$context['menu_buttons'][Utils::$context['current_action']]))
+		$current_action = Utils::$context['current_action'];
+	elseif (Utils::$context['current_action'] == 'search2')
 		$current_action = 'search';
-	elseif ($context['current_action'] == 'theme')
+	elseif (Utils::$context['current_action'] == 'theme')
 		$current_action = isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'pick' ? 'profile' : 'admin';
-	elseif ($context['current_action'] == 'signup2')
+	elseif (Utils::$context['current_action'] == 'signup2')
 		$current_action = 'signup';
-	elseif ($context['current_action'] == 'login2' || ($user_info['is_guest'] && $context['current_action'] == 'reminder'))
+	elseif (Utils::$context['current_action'] == 'login2' || ($user_info['is_guest'] && Utils::$context['current_action'] == 'reminder'))
 		$current_action = 'login';
-	elseif ($context['current_action'] == 'groups' && $context['allow_moderation_center'])
+	elseif (Utils::$context['current_action'] == 'groups' && Utils::$context['allow_moderation_center'])
 		$current_action = 'moderate';
 
 	// There are certain exceptions to the above where we don't want anything on the menu highlighted.
-	if ($context['current_action'] == 'profile' && !empty($context['user']['is_owner']))
+	if (Utils::$context['current_action'] == 'profile' && !empty(Utils::$context['user']['is_owner']))
 	{
 		$current_action = !empty($_GET['area']) && $_GET['area'] == 'showalerts' ? 'self_alerts' : 'self_profile';
-		$context[$current_action] = true;
+		Utils::$context[$current_action] = true;
 	}
-	elseif ($context['current_action'] == 'pm')
+	elseif (Utils::$context['current_action'] == 'pm')
 	{
 		$current_action = 'self_pm';
-		$context['self_pm'] = true;
+		Utils::$context['self_pm'] = true;
 	}
 
-	$context['total_mod_reports'] = 0;
-	$context['total_admin_reports'] = 0;
+	Utils::$context['total_mod_reports'] = 0;
+	Utils::$context['total_admin_reports'] = 0;
 
-	if (!empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1' && !empty($context['open_mod_reports']) && !empty($context['menu_buttons']['moderate']['sub_buttons']['reports']))
+	if (!empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1' && !empty(Utils::$context['open_mod_reports']) && !empty(Utils::$context['menu_buttons']['moderate']['sub_buttons']['reports']))
 	{
-		$context['total_mod_reports'] = $context['open_mod_reports'];
-		$context['menu_buttons']['moderate']['sub_buttons']['reports']['amt'] = $context['open_mod_reports'];
+		Utils::$context['total_mod_reports'] = Utils::$context['open_mod_reports'];
+		Utils::$context['menu_buttons']['moderate']['sub_buttons']['reports']['amt'] = Utils::$context['open_mod_reports'];
 	}
 
 	// Show how many errors there are
-	if (!empty($context['menu_buttons']['admin']['sub_buttons']['errorlog']))
+	if (!empty(Utils::$context['menu_buttons']['admin']['sub_buttons']['errorlog']))
 	{
 		// Get an error count, if necessary
-		if (!isset($context['num_errors']))
+		if (!isset(Utils::$context['num_errors']))
 		{
-			$query = $smcFunc['db_query']('', '
+			$query = Db::$db->query('', '
 				SELECT COUNT(*)
 				FROM {db_prefix}log_errors',
 				array()
 			);
 
-			list($context['num_errors']) = $smcFunc['db_fetch_row']($query);
-			$smcFunc['db_free_result']($query);
+			list(Utils::$context['num_errors']) = Db::$db->fetch_row($query);
+			Db::$db->free_result($query);
 		}
 
-		if (!empty($context['num_errors']))
+		if (!empty(Utils::$context['num_errors']))
 		{
-			$context['total_admin_reports'] += $context['num_errors'];
-			$context['menu_buttons']['admin']['sub_buttons']['errorlog']['amt'] = $context['num_errors'];
+			Utils::$context['total_admin_reports'] += Utils::$context['num_errors'];
+			Utils::$context['menu_buttons']['admin']['sub_buttons']['errorlog']['amt'] = Utils::$context['num_errors'];
 		}
 	}
 
 	// Show number of reported members
-	if (!empty($context['open_member_reports']) && !empty($context['menu_buttons']['moderate']['sub_buttons']['reported_members']))
+	if (!empty(Utils::$context['open_member_reports']) && !empty(Utils::$context['menu_buttons']['moderate']['sub_buttons']['reported_members']))
 	{
-		$context['total_mod_reports'] += $context['open_member_reports'];
-		$context['menu_buttons']['moderate']['sub_buttons']['reported_members']['amt'] = $context['open_member_reports'];
+		Utils::$context['total_mod_reports'] += Utils::$context['open_member_reports'];
+		Utils::$context['menu_buttons']['moderate']['sub_buttons']['reported_members']['amt'] = Utils::$context['open_member_reports'];
 	}
 
-	if (!empty($context['unapproved_members']) && !empty($context['menu_buttons']['admin']))
+	if (!empty(Utils::$context['unapproved_members']) && !empty(Utils::$context['menu_buttons']['admin']))
 	{
-		$context['menu_buttons']['admin']['sub_buttons']['memberapprove']['amt'] = $context['unapproved_members'];
-		$context['total_admin_reports'] += $context['unapproved_members'];
+		Utils::$context['menu_buttons']['admin']['sub_buttons']['memberapprove']['amt'] = Utils::$context['unapproved_members'];
+		Utils::$context['total_admin_reports'] += Utils::$context['unapproved_members'];
 	}
 
-	if ($context['total_admin_reports'] > 0 && !empty($context['menu_buttons']['admin']))
+	if (Utils::$context['total_admin_reports'] > 0 && !empty(Utils::$context['menu_buttons']['admin']))
 	{
-		$context['menu_buttons']['admin']['amt'] = $context['total_admin_reports'];
+		Utils::$context['menu_buttons']['admin']['amt'] = Utils::$context['total_admin_reports'];
 	}
 
 	// Do we have any open reports?
-	if ($context['total_mod_reports'] > 0 && !empty($context['menu_buttons']['moderate']))
+	if (Utils::$context['total_mod_reports'] > 0 && !empty(Utils::$context['menu_buttons']['moderate']))
 	{
-		$context['menu_buttons']['moderate']['amt'] = $context['total_mod_reports'];
+		Utils::$context['menu_buttons']['moderate']['amt'] = Utils::$context['total_mod_reports'];
 	}
 
 	// Not all actions are simple.
 	call_integration_hook('integrate_current_action', array(&$current_action));
 
-	if (isset($context['menu_buttons'][$current_action]))
-		$context['menu_buttons'][$current_action]['active_button'] = true;
+	if (isset(Utils::$context['menu_buttons'][$current_action]))
+		Utils::$context['menu_buttons'][$current_action]['active_button'] = true;
 }
 
 /**
@@ -3210,9 +2945,8 @@ function setupMenuContext()
  */
 function smf_seed_generator()
 {
-	updateSettings(array('rand_seed' => microtime(true)));
+	Config::updateModSettings(array('rand_seed' => microtime(true)));
 }
-
 /**
  * Process functions of an integration hook.
  * calls all functions of the given hook.
@@ -3224,21 +2958,24 @@ function smf_seed_generator()
  */
 function call_integration_hook($hook, $parameters = array())
 {
-	global $modSettings, $settings, $boarddir, $sourcedir, $db_show_debug;
-	global $context, $txt;
+	global $settings;
+	global $txt;
 
-	if ($db_show_debug === true)
-		$context['debug']['hooks'][] = $hook;
+	if (!class_exists('SMF\\Utils', false))
+		return;
+
+	if (Config::$db_show_debug === true)
+		Utils::$context['debug']['hooks'][] = $hook;
 
 	// Need to have some control.
-	if (!isset($context['instances']))
-		$context['instances'] = array();
+	if (!isset(Utils::$context['instances']))
+		Utils::$context['instances'] = array();
 
 	$results = array();
-	if (empty($modSettings[$hook]))
+	if (empty(Config::$modSettings[$hook]))
 		return $results;
 
-	$functions = explode(',', $modSettings[$hook]);
+	$functions = explode(',', Config::$modSettings[$hook]);
 	// Loop through each function.
 	foreach ($functions as $function)
 	{
@@ -3252,7 +2989,7 @@ function call_integration_hook($hook, $parameters = array())
 		if (!empty($call))
 			$results[$function] = call_user_func_array($call, $parameters);
 		// This failed, but we want to do so silently.
-		elseif (!empty($function) && !empty($context['ignore_hook_errors']))
+		elseif (!empty($function) && !empty(Utils::$context['ignore_hook_errors']))
 			return $results;
 		// Whatever it was suppose to call, it failed :(
 		elseif (!empty($function))
@@ -3263,12 +3000,12 @@ function call_integration_hook($hook, $parameters = array())
 			if (strpos($function, '|') !== false)
 			{
 				list ($file, $string) = explode('|', $function);
-				$absPath = empty($settings['theme_dir']) ? (strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir))) : (strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir'])));
+				$absPath = empty($settings['theme_dir']) ? (strtr(trim($file), array('$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir))) : (strtr(trim($file), array('$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir, '$themedir' => $settings['theme_dir'])));
 				log_error(sprintf($txt['hook_fail_call_to'], $string, $absPath), 'general');
 			}
-			// "Assume" the file resides on $boarddir somewhere...
+			// "Assume" the file resides on Config::$boarddir somewhere...
 			else
-				log_error(sprintf($txt['hook_fail_call_to'], $function, $boarddir), 'general');
+				log_error(sprintf($txt['hook_fail_call_to'], $function, Config::$boarddir), 'general');
 		}
 	}
 
@@ -3288,8 +3025,6 @@ function call_integration_hook($hook, $parameters = array())
  */
 function add_integration_function($hook, $function, $permanent = true, $file = '', $object = false)
 {
-	global $smcFunc, $modSettings, $context;
-
 	// Any objects?
 	if ($object)
 		$function = $function . '#';
@@ -3306,7 +3041,7 @@ function add_integration_function($hook, $function, $permanent = true, $file = '
 	// Is it going to be permanent?
 	if ($permanent)
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT value
 			FROM {db_prefix}settings
 			WHERE variable = {string:variable}',
@@ -3314,8 +3049,8 @@ function add_integration_function($hook, $function, $permanent = true, $file = '
 				'variable' => $hook,
 			)
 		);
-		list ($current_functions) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		list ($current_functions) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 
 		if (!empty($current_functions))
 		{
@@ -3329,24 +3064,24 @@ function add_integration_function($hook, $function, $permanent = true, $file = '
 		else
 			$permanent_functions = array($integration_call);
 
-		updateSettings(array($hook => implode(',', $permanent_functions)));
+		Config::updateModSettings(array($hook => implode(',', $permanent_functions)));
 	}
 
 	// Make current function list usable.
-	$functions = empty($modSettings[$hook]) ? array() : explode(',', $modSettings[$hook]);
+	$functions = empty(Config::$modSettings[$hook]) ? array() : explode(',', Config::$modSettings[$hook]);
 
 	// Cleanup enabled/disabled variants before taking action.
 	$functions = array_diff($functions, array($enabled_call, $disabled_call));
 
 	$functions = array_unique(array_merge($functions, array($integration_call)));
-	$modSettings[$hook] = implode(',', $functions);
+	Config::$modSettings[$hook] = implode(',', $functions);
 
 	// It is handy to be able to know which hooks are temporary...
 	if ($permanent !== true)
 	{
-		if (!isset($context['integration_hooks_temporary']))
-			$context['integration_hooks_temporary'] = array();
-		$context['integration_hooks_temporary'][$hook][$function] = true;
+		if (!isset(Utils::$context['integration_hooks_temporary']))
+			Utils::$context['integration_hooks_temporary'] = array();
+		Utils::$context['integration_hooks_temporary'][$hook][$function] = true;
 	}
 }
 
@@ -3365,8 +3100,6 @@ function add_integration_function($hook, $function, $permanent = true, $file = '
  */
 function remove_integration_function($hook, $function, $permanent = true, $file = '', $object = false)
 {
-	global $smcFunc, $modSettings;
-
 	// Any objects?
 	if ($object)
 		$function = $function . '#';
@@ -3381,7 +3114,7 @@ function remove_integration_function($hook, $function, $permanent = true, $file 
 	$disabled_call = $enabled_call . '!';
 
 	// Get the permanent functions.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT value
 		FROM {db_prefix}settings
 		WHERE variable = {string:variable}',
@@ -3389,8 +3122,8 @@ function remove_integration_function($hook, $function, $permanent = true, $file 
 			'variable' => $hook,
 		)
 	);
-	list ($current_functions) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($current_functions) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	if (!empty($current_functions))
 	{
@@ -3399,16 +3132,16 @@ function remove_integration_function($hook, $function, $permanent = true, $file 
 		// Cleanup enabled and disabled variants.
 		$current_functions = array_unique(array_diff($current_functions, array($enabled_call, $disabled_call)));
 
-		updateSettings(array($hook => implode(',', $current_functions)));
+		Config::updateModSettings(array($hook => implode(',', $current_functions)));
 	}
 
 	// Turn the function list into something usable.
-	$functions = empty($modSettings[$hook]) ? array() : explode(',', $modSettings[$hook]);
+	$functions = empty(Config::$modSettings[$hook]) ? array() : explode(',', Config::$modSettings[$hook]);
 
 	// Cleanup enabled and disabled variants.
 	$functions = array_unique(array_diff($functions, array($enabled_call, $disabled_call)));
 
-	$modSettings[$hook] = implode(',', $functions);
+	Config::$modSettings[$hook] = implode(',', $functions);
 }
 
 /**
@@ -3423,7 +3156,7 @@ function remove_integration_function($hook, $function, $permanent = true, $file 
  */
 function call_helper($string, $return = false)
 {
-	global $context, $smcFunc, $txt, $db_show_debug;
+	global $txt;
 
 	// Really?
 	if (empty($string))
@@ -3439,7 +3172,7 @@ function call_helper($string, $return = false)
 		return false;
 
 	// Stay vitaminized my friends...
-	$string = $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($string));
+	$string = Utils::htmlspecialchars(Utils::htmlTrim($string));
 
 	// Is there a file to load?
 	$string = load_file($string);
@@ -3460,21 +3193,21 @@ function call_helper($string, $return = false)
 			$method = str_replace('#', '', $method);
 
 			// Don't need to create a new instance for every method.
-			if (empty($context['instances'][$class]) || !($context['instances'][$class] instanceof $class))
+			if (empty(Utils::$context['instances'][$class]) || !(Utils::$context['instances'][$class] instanceof $class))
 			{
-				$context['instances'][$class] = new $class;
+				Utils::$context['instances'][$class] = new $class;
 
 				// Add another one to the list.
-				if ($db_show_debug === true)
+				if (Config::$db_show_debug === true)
 				{
-					if (!isset($context['debug']['instances']))
-						$context['debug']['instances'] = array();
+					if (!isset(Utils::$context['debug']['instances']))
+						Utils::$context['debug']['instances'] = array();
 
-					$context['debug']['instances'][$class] = $class;
+					Utils::$context['debug']['instances'][$class] = $class;
 				}
 			}
 
-			$func = array($context['instances'][$class], $method);
+			$func = array(Utils::$context['instances'][$class], $method);
 		}
 
 		// Right then. This is a call to a static method.
@@ -3487,7 +3220,7 @@ function call_helper($string, $return = false)
 		$func = $string;
 
 	// We can't call this helper, but we want to silently ignore this.
-	if (!is_callable($func, false, $callable_name) && !empty($context['ignore_hook_errors']))
+	if (!is_callable($func, false, $callable_name) && !empty(Utils::$context['ignore_hook_errors']))
 		return false;
 
 	// Right, we got what we need, time to do some checks.
@@ -3529,7 +3262,7 @@ function call_helper($string, $return = false)
  */
 function load_file($string)
 {
-	global $sourcedir, $txt, $boarddir, $settings, $context;
+	global $txt, $settings;
 
 	if (empty($string))
 		return false;
@@ -3540,25 +3273,25 @@ function load_file($string)
 
 		// Match the wildcards to their regular vars.
 		if (empty($settings['theme_dir']))
-			$absPath = strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir));
+			$absPath = strtr(trim($file), array('$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir));
 
 		else
-			$absPath = strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir']));
+			$absPath = strtr(trim($file), array('$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir, '$themedir' => $settings['theme_dir']));
 
 		// Load the file if it can be loaded.
 		if (file_exists($absPath))
 			require_once($absPath);
 
-		// No? try a fallback to $sourcedir
+		// No? try a fallback to Config::$sourcedir
 		else
 		{
-			$absPath = $sourcedir . '/' . $file;
+			$absPath = Config::$sourcedir . '/' . $file;
 
 			if (file_exists($absPath))
 				require_once($absPath);
 
 			// Sorry, can't do much for you at this point.
-			elseif (empty($context['uninstalling']))
+			elseif (empty(Utils::$context['uninstalling']))
 			{
 				loadLanguage('Errors');
 				log_error(sprintf($txt['hook_fail_loading_file'], $absPath), 'general');
@@ -3588,7 +3321,7 @@ function load_file($string)
  */
 function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection_level = 0)
 {
-	global $webmaster_email, $sourcedir, $txt;
+	global $txt;
 	static $keep_alive_dom = null, $keep_alive_fp = null;
 
 	preg_match('~^(http|ftp)(s)?://([^/:]+)(:(\d+))?(.+)$~', iri_to_url($url), $match);
@@ -3602,7 +3335,7 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 	elseif ($match[1] == 'ftp')
 	{
 		// Establish a connection and attempt to enable passive mode.
-		$ftp = new SMF\PackageManager\FtpConnection(($match[2] ? 'ssl://' : '') . $match[3], empty($match[5]) ? 21 : $match[5], 'anonymous', $webmaster_email);
+		$ftp = new SMF\PackageManager\FtpConnection(($match[2] ? 'ssl://' : '') . $match[3], empty($match[5]) ? 21 : $match[5], 'anonymous', Config::$webmaster_email);
 
 		if ($ftp->error !== false || !$ftp->passive())
 			return false;
@@ -3765,8 +3498,6 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
  */
 function get_mime_type($data, $is_path = false)
 {
-	global $cachedir;
-
 	$finfo_loaded = extension_loaded('fileinfo');
 	$exif_loaded = extension_loaded('exif') && function_exists('image_type_to_mime_type');
 
@@ -3808,7 +3539,7 @@ function get_mime_type($data, $is_path = false)
 		// If we don't have a local file, create one and use it.
 		if (empty($is_path))
 		{
-			$temp_file = tempnam($cachedir, md5($data));
+			$temp_file = tempnam(Config::$cachedir, md5($data));
 			file_put_contents($temp_file, $data);
 			$is_path = true;
 			$data = $temp_file;
@@ -3856,7 +3587,7 @@ function check_mime_type($data, $type_pattern, $is_path = false)
  */
 function prepareLikesContext($topic)
 {
-	global $user_info, $smcFunc;
+	global $user_info;
 
 	// Make sure we have something to work with.
 	if (empty($topic))
@@ -3870,7 +3601,7 @@ function prepareLikesContext($topic)
 	if (($temp = CacheApi::get($cache_key, $ttl)) === null)
 	{
 		$temp = array();
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT content_id
 			FROM {db_prefix}user_likes AS l
 				INNER JOIN {db_prefix}messages AS m ON (l.content_id = m.id_msg)
@@ -3882,7 +3613,7 @@ function prepareLikesContext($topic)
 				'topic' => $topic,
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$temp[] = (int) $row['content_id'];
 
 		CacheApi::put($cache_key, $temp, $ttl);
@@ -3892,121 +3623,62 @@ function prepareLikesContext($topic)
 }
 
 /**
- * Decode numeric html entities to their ascii or UTF8 equivalent character.
+ * Decode HTML entities to their UTF-8 equivalent character, except for
+ * HTML special characters, which are always converted to numeric entities.
  *
  * Callback function for preg_replace_callback in subs-members
  * Uses capture group 2 in the supplied array
  * Does basic scan to ensure characters are inside a valid range
+ *
+ * @deprecated since 3.0
  *
  * @param array $matches An array of matches (relevant info should be the 3rd item)
  * @return string A fixed string
  */
 function replaceEntities__callback($matches)
 {
-	global $context;
-
-	if (!isset($matches[2]))
-		return '';
-
-	$num = $matches[2][0] === 'x' ? hexdec(substr($matches[2], 1)) : (int) $matches[2];
-
-	// remove left to right / right to left overrides
-	if ($num === 0x202D || $num === 0x202E)
-		return '';
-
-	// Quote, Ampersand, Apostrophe, Less/Greater Than get html replaced
-	if (in_array($num, array(0x22, 0x26, 0x27, 0x3C, 0x3E)))
-		return '&#' . $num . ';';
-
-	if (empty($context['utf8']))
-	{
-		// no control characters
-		if ($num < 0x20)
-			return '';
-		// text is text
-		elseif ($num < 0x80)
-			return chr($num);
-		// all others get html-ised
-		else
-			return '&#' . $matches[2] . ';';
-	}
-	else
-	{
-		// <0x20 are control characters, 0x20 is a space, > 0x10FFFF is past the end of the utf8 character set
-		// 0xD800 >= $num <= 0xDFFF are surrogate markers (not valid for utf8 text)
-		if ($num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF))
-			return '';
-		// <0x80 (or less than 128) are standard ascii characters a-z A-Z 0-9 and punctuation
-		elseif ($num < 0x80)
-			return chr($num);
-		// <0x800 (2048)
-		elseif ($num < 0x800)
-			return chr(($num >> 6) + 192) . chr(($num & 63) + 128);
-		// < 0x10000 (65536)
-		elseif ($num < 0x10000)
-			return chr(($num >> 12) + 224) . chr((($num >> 6) & 63) + 128) . chr(($num & 63) + 128);
-		// <= 0x10FFFF (1114111)
-		else
-			return chr(($num >> 18) + 240) . chr((($num >> 12) & 63) + 128) . chr((($num >> 6) & 63) + 128) . chr(($num & 63) + 128);
-	}
+	return strtr(
+		htmlspecialchars(Utils::entityDecode($matches[1], true), ENT_QUOTES),
+		array(
+			'&amp;' => '&#038;',
+			'&quot;' => '&#034;',
+			'&lt;' => '&#060;',
+			'&gt;' => '&#062;',
+		)
+	);
 }
 
 /**
- * Converts html entities to utf8 equivalents
+ * Converts HTML entities to UTF-8 equivalents.
  *
  * Callback function for preg_replace_callback
  * Uses capture group 1 in the supplied array
  * Does basic checks to keep characters inside a viewable range.
+ *
+ * @deprecated since 3.0
  *
  * @param array $matches An array of matches (relevant info should be the 2nd item in the array)
  * @return string The fixed string
  */
 function fixchar__callback($matches)
 {
-	if (!isset($matches[1]))
-		return '';
-
-	$num = $matches[1][0] === 'x' ? hexdec(substr($matches[1], 1)) : (int) $matches[1];
-
-	// <0x20 are control characters, > 0x10FFFF is past the end of the utf8 character set
-	// 0xD800 >= $num <= 0xDFFF are surrogate markers (not valid for utf8 text), 0x202D-E are left to right overrides
-	if ($num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF) || $num === 0x202D || $num === 0x202E)
-		return '';
-	// <0x80 (or less than 128) are standard ascii characters a-z A-Z 0-9 and punctuation
-	elseif ($num < 0x80)
-		return chr($num);
-	// <0x800 (2048)
-	elseif ($num < 0x800)
-		return chr(($num >> 6) + 192) . chr(($num & 63) + 128);
-	// < 0x10000 (65536)
-	elseif ($num < 0x10000)
-		return chr(($num >> 12) + 224) . chr((($num >> 6) & 63) + 128) . chr(($num & 63) + 128);
-	// <= 0x10FFFF (1114111)
-	else
-		return chr(($num >> 18) + 240) . chr((($num >> 12) & 63) + 128) . chr((($num >> 6) & 63) + 128) . chr(($num & 63) + 128);
+	return Utils::entityDecode($matches[0], true);
 }
 
 /**
- * Strips out invalid html entities, replaces others with html style &#123; codes
+ * Strips out invalid HTML entities and fixes double-encoded entities.
  *
- * Callback function used of preg_replace_callback in smcFunc $ent_checks, for example
- * strpos, strlen, substr etc
+ * Callback function for preg_replace_callback.
  *
- * @param array $matches An array of matches (relevant info should be the 3rd item in the array)
+ * @deprecated since 3.0
+ *
+ * @param array $matches An array of matches (relevant info should be the 3rd
+ *    item in the array)
  * @return string The fixed string
  */
 function entity_fix__callback($matches)
 {
-	if (!isset($matches[2]))
-		return '';
-
-	$num = $matches[2][0] === 'x' ? hexdec(substr($matches[2], 1)) : (int) $matches[2];
-
-	// we don't allow control characters, characters out of range, byte markers, etc
-	if ($num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF) || $num == 0x202D || $num == 0x202E)
-		return '';
-	else
-		return '&#' . $num . ';';
+	return Utils::sanitizeEntities(Utils::entityFix($matches[1]));
 }
 
 /**
@@ -4023,7 +3695,6 @@ function entity_fix__callback($matches)
  */
 function get_gravatar_url($email_address)
 {
-	global $modSettings, $smcFunc;
 	static $url_params = null;
 
 	if ($url_params === null)
@@ -4031,22 +3702,22 @@ function get_gravatar_url($email_address)
 		$ratings = array('G', 'PG', 'R', 'X');
 		$defaults = array('mm', 'identicon', 'monsterid', 'wavatar', 'retro', 'blank');
 		$url_params = array();
-		if (!empty($modSettings['gravatarMaxRating']) && in_array($modSettings['gravatarMaxRating'], $ratings))
-			$url_params[] = 'rating=' . $modSettings['gravatarMaxRating'];
-		if (!empty($modSettings['gravatarDefault']) && in_array($modSettings['gravatarDefault'], $defaults))
-			$url_params[] = 'default=' . $modSettings['gravatarDefault'];
-		if (!empty($modSettings['avatar_max_width_external']))
-			$size_string = (int) $modSettings['avatar_max_width_external'];
-		if (!empty($modSettings['avatar_max_height_external']) && !empty($size_string))
-			if ((int) $modSettings['avatar_max_height_external'] < $size_string)
-				$size_string = $modSettings['avatar_max_height_external'];
+		if (!empty(Config::$modSettings['gravatarMaxRating']) && in_array(Config::$modSettings['gravatarMaxRating'], $ratings))
+			$url_params[] = 'rating=' . Config::$modSettings['gravatarMaxRating'];
+		if (!empty(Config::$modSettings['gravatarDefault']) && in_array(Config::$modSettings['gravatarDefault'], $defaults))
+			$url_params[] = 'default=' . Config::$modSettings['gravatarDefault'];
+		if (!empty(Config::$modSettings['avatar_max_width_external']))
+			$size_string = (int) Config::$modSettings['avatar_max_width_external'];
+		if (!empty(Config::$modSettings['avatar_max_height_external']) && !empty($size_string))
+			if ((int) Config::$modSettings['avatar_max_height_external'] < $size_string)
+				$size_string = Config::$modSettings['avatar_max_height_external'];
 
 		if (!empty($size_string))
 			$url_params[] = 's=' . $size_string;
 	}
-	$http_method = !empty($modSettings['force_ssl']) ? 'https://secure' : 'http://www';
+	$http_method = !empty(Config::$modSettings['force_ssl']) ? 'https://secure' : 'http://www';
 
-	return $http_method . '.gravatar.com/avatar/' . md5($smcFunc['strtolower']($email_address)) . '?' . implode('&', $url_params);
+	return $http_method . '.gravatar.com/avatar/' . md5(Utils::strtolower($email_address)) . '?' . implode('&', $url_params);
 }
 
 /**
@@ -4059,10 +3730,10 @@ function get_gravatar_url($email_address)
  */
 function smf_list_timezones($when = 'now')
 {
-	global $modSettings, $tztxt, $txt, $context, $cur_profile, $sourcedir;
+	global $tztxt, $txt, $cur_profile;
 	static $timezones_when = array();
 
-	require_once($sourcedir . '/Subs-Timezones.php');
+	require_once(Config::$sourcedir . '/Subs-Timezones.php');
 
 	// Parseable datetime string?
 	if (is_int($timestamp = strtotime($when)))
@@ -4090,7 +3761,7 @@ function smf_list_timezones($when = 'now')
 	$tzid_metazones = get_tzid_metazones($later);
 
 	// Should we put time zones from certain countries at the top of the list?
-	$priority_countries = !empty($modSettings['timezone_priority_countries']) ? explode(',', $modSettings['timezone_priority_countries']) : array();
+	$priority_countries = !empty(Config::$modSettings['timezone_priority_countries']) ? explode(',', Config::$modSettings['timezone_priority_countries']) : array();
 
 	$priority_tzids = array();
 	foreach ($priority_countries as $country)
@@ -4196,9 +3867,9 @@ function smf_list_timezones($when = 'now')
 		// Remember this for later
 		if (isset($cur_profile['timezone']) && $cur_profile['timezone'] == $tzid)
 			$member_tzkey = $tzkey;
-		if (isset($context['event']['tz']) && $context['event']['tz'] == $tzid)
+		if (isset(Utils::$context['event']['tz']) && Utils::$context['event']['tz'] == $tzid)
 			$event_tzkey = $tzkey;
-		if ($modSettings['default_timezone'] == $tzid)
+		if (Config::$modSettings['default_timezone'] == $tzid)
 			$default_tzkey = $tzkey;
 	}
 
@@ -4262,9 +3933,9 @@ function smf_list_timezones($when = 'now')
 		if (isset($member_tzkey) && $member_tzkey == $tzkey)
 			$cur_profile['timezone'] = $tzvalue['tzid'];
 		if (isset($event_tzkey) && $event_tzkey == $tzkey)
-			$context['event']['tz'] = $tzvalue['tzid'];
-		if (isset($default_tzkey) && $default_tzkey == $tzkey && $modSettings['default_timezone'] != $tzvalue['tzid'])
-			updateSettings(array('default_timezone' => $tzvalue['tzid']));
+			Utils::$context['event']['tz'] = $tzvalue['tzid'];
+		if (isset($default_tzkey) && $default_tzkey == $tzkey && Config::$modSettings['default_timezone'] != $tzvalue['tzid'])
+			Config::updateModSettings(array('default_timezone' => $tzvalue['tzid']));
 	}
 
 	if (!empty($priority_timezones))
@@ -4289,7 +3960,7 @@ function smf_list_timezones($when = 'now')
  */
 function getUserTimezone($id_member = null)
 {
-	global $smcFunc, $user_info, $modSettings, $user_settings;
+	global $user_info, $user_settings;
 	static $member_cache = array();
 
 	if (is_null($id_member))
@@ -4311,7 +3982,7 @@ function getUserTimezone($id_member = null)
 	if (!empty($id_member))
 	{
 		// Look it up in the database.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT timezone
 			FROM {db_prefix}members
 			WHERE id_member = {int:id_member}',
@@ -4319,13 +3990,13 @@ function getUserTimezone($id_member = null)
 				'id_member' => $id_member,
 			)
 		);
-		list($timezone) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		list($timezone) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 	}
 
 	// If it is invalid, fall back to the default.
 	if (empty($timezone) || !in_array($timezone, timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
-		$timezone = isset($modSettings['default_timezone']) ? $modSettings['default_timezone'] : date_default_timezone_get();
+		$timezone = isset(Config::$modSettings['default_timezone']) ? Config::$modSettings['default_timezone'] : date_default_timezone_get();
 
 	// Save for later.
 	$member_cache[$id_member] = $timezone;
@@ -4356,11 +4027,9 @@ function inet_ptod($ip_address)
  */
 function inet_dtop($bin)
 {
-	global $db_type;
-
 	if (empty($bin))
 		return '';
-	elseif ($db_type == 'postgresql')
+	elseif (Config::$db_type == 'postgresql')
 		return $bin;
 	// Already a String?
 	elseif (isValidIP($bin))
@@ -4674,71 +4343,6 @@ function smf_chmod($file, $value = 0)
 }
 
 /**
- * Wrapper function for json_decode() with error handling.
- *
- * @param string $json The string to decode.
- * @param bool $returnAsArray To return the decoded string as an array or an object, SMF only uses Arrays but to keep on compatibility with json_decode its set to false as default.
- * @param bool $logIt To specify if the error will be logged if theres any.
- * @return array Either an empty array or the decoded data as an array.
- */
-function smf_json_decode($json, $returnAsArray = false, $logIt = true)
-{
-	global $txt;
-
-	// Come on...
-	if (empty($json) || !is_string($json))
-		return array();
-
-	$returnArray = @json_decode($json, $returnAsArray);
-
-	// PHP 5.3 so no json_last_error_msg()
-	switch (json_last_error())
-	{
-		case JSON_ERROR_NONE:
-			$jsonError = false;
-			break;
-		case JSON_ERROR_DEPTH:
-			$jsonError = 'JSON_ERROR_DEPTH';
-			break;
-		case JSON_ERROR_STATE_MISMATCH:
-			$jsonError = 'JSON_ERROR_STATE_MISMATCH';
-			break;
-		case JSON_ERROR_CTRL_CHAR:
-			$jsonError = 'JSON_ERROR_CTRL_CHAR';
-			break;
-		case JSON_ERROR_SYNTAX:
-			$jsonError = 'JSON_ERROR_SYNTAX';
-			break;
-		case JSON_ERROR_UTF8:
-			$jsonError = 'JSON_ERROR_UTF8';
-			break;
-		default:
-			$jsonError = 'unknown';
-			break;
-	}
-
-	// Something went wrong!
-	if (!empty($jsonError) && $logIt)
-	{
-		// Being a wrapper means we lost our smf_error_handler() privileges :(
-		$jsonDebug = debug_backtrace();
-		$jsonDebug = $jsonDebug[0];
-		loadLanguage('Errors');
-
-		if (!empty($jsonDebug))
-			log_error($txt['json_' . $jsonError], 'critical', $jsonDebug['file'], $jsonDebug['line']);
-
-		else
-			log_error($txt['json_' . $jsonError], 'critical');
-
-		// Everyone expects an array.
-		return array();
-	}
-
-	return $returnArray;
-}
-
-/**
  * Check the given String if he is a valid IPv4 or IPv6
  * return true or false
  *
@@ -4761,19 +4365,17 @@ function isValidIP($IPString)
  */
 function smf_serverResponse($data = '', $type = 'content-type: application/json')
 {
-	global $db_show_debug, $modSettings;
-
 	// Defensive programming anyone?
 	if (empty($data))
 		return false;
 
 	// Don't need extra stuff...
-	$db_show_debug = false;
+	Config::$db_show_debug = false;
 
 	// Kill anything else.
 	ob_end_clean();
 
-	if (!empty($modSettings['enableCompressedOutput']))
+	if (!empty(Config::$modSettings['enableCompressedOutput']))
 		@ob_start('ob_gzhandler');
 	else
 		ob_start();
@@ -4791,7 +4393,7 @@ function smf_serverResponse($data = '', $type = 'content-type: application/json'
 /**
  * Creates an optimized regex to match all known top level domains.
  *
- * The optimized regex is stored in $modSettings['tld_regex'].
+ * The optimized regex is stored in Config::$modSettings['tld_regex'].
  *
  * To update the stored version of the regex to use the latest list of valid
  * TLDs from iana.org, set the $update parameter to true. Updating can take some
@@ -4806,7 +4408,6 @@ function smf_serverResponse($data = '', $type = 'content-type: application/json'
  */
 function set_tld_regex($update = false)
 {
-	global $sourcedir, $smcFunc, $modSettings;
 	static $done = false;
 
 	// If we don't need to do anything, don't
@@ -4834,7 +4435,7 @@ function set_tld_regex($update = false)
 			$tlds = array();
 	}
 	// If we aren't updating and the regex is valid, we're done
-	elseif (!empty($modSettings['tld_regex']) && @preg_match('~' . $modSettings['tld_regex'] . '~', '') !== false)
+	elseif (!empty(Config::$modSettings['tld_regex']) && @preg_match('~' . Config::$modSettings['tld_regex'] . '~', '') !== false)
 	{
 		$done = true;
 		return;
@@ -4858,7 +4459,7 @@ function set_tld_regex($update = false)
 
 		// Convert Punycode to Unicode
 		if (!function_exists('idn_to_utf8'))
-			require_once($sourcedir . '/Subs-Compat.php');
+			require_once(Config::$sourcedir . '/Subs-Compat.php');
 
 		foreach ($tlds as &$tld)
 			$tld = idn_to_utf8($tld, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
@@ -4893,7 +4494,7 @@ function set_tld_regex($update = false)
 		// Schedule a background update, unless civilization has collapsed and/or we are having connectivity issues.
 		if (empty($postapocalypticNightmare))
 		{
-			$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
+			Db::$db->insert('insert', '{db_prefix}background_tasks',
 				array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
 				array('$sourcedir/tasks/UpdateTldRegex.php', 'SMF\Tasks\UpdateTldRegex', '', 0), array()
 			);
@@ -4907,8 +4508,8 @@ function set_tld_regex($update = false)
 	// Get an optimized regex to match all the TLDs
 	$tld_regex = build_regex($tlds);
 
-	// Remember the new regex in $modSettings
-	updateSettings(array('tld_regex' => $tld_regex));
+	// Remember the new regex in Config::$modSettings
+	Config::updateModSettings(array('tld_regex' => $tld_regex));
 
 	// Redundant repetition is redundant
 	$done = true;
@@ -4941,7 +4542,6 @@ function set_tld_regex($update = false)
  */
 function build_regex($strings, $delim = null, $returnArray = false)
 {
-	global $smcFunc;
 	static $regexes = array();
 
 	// If it's not an array, there's not much to do. ;)
@@ -4953,7 +4553,7 @@ function build_regex($strings, $delim = null, $returnArray = false)
 	if (isset($regexes[$regex_key]))
 		return $regexes[$regex_key];
 
-	// The mb_* functions are faster than the $smcFunc ones, but may not be available
+	// The mb_* functions are faster than the SMF\Utils ones, but may not be available
 	if (function_exists('mb_internal_encoding') && function_exists('mb_detect_encoding') && function_exists('mb_strlen') && function_exists('mb_substr'))
 	{
 		if (($string_encoding = mb_detect_encoding(implode(' ', $strings))) !== false)
@@ -4967,8 +4567,8 @@ function build_regex($strings, $delim = null, $returnArray = false)
 	}
 	else
 	{
-		$strlen = $smcFunc['strlen'];
-		$substr = $smcFunc['substr'];
+		$strlen = 'SMF\\Utils::entityStrlen';
+		$substr = 'SMF\\Utils::entitySubstr';
 	}
 
 	// This recursive function creates the index array from the strings
@@ -5106,7 +4706,7 @@ function build_regex($strings, $delim = null, $returnArray = false)
  *
  * Returns true if a cert was found & false if not.
  *
- * @param string $url to check, in $boardurl format (no trailing slash).
+ * @param string $url to check, in Config::$boardurl format (no trailing slash).
  */
 function ssl_cert_found($url)
 {
@@ -5125,8 +4725,8 @@ function ssl_cert_found($url)
 		$ssloptions = array("capture_peer_cert" => true, "verify_peer" => true, "allow_self_signed" => true);
 
 	$result = false;
-	$context = stream_context_create(array("ssl" => $ssloptions));
-	$stream = @stream_socket_client($url, $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $context);
+	$strem_context = stream_context_create(array("ssl" => $ssloptions));
+	$stream = @stream_socket_client($url, $errno, $errstr, 30, STREAM_CLIENT_CONNECT, Utils::$strem_context);
 	if ($stream !== false)
 	{
 		$params = stream_context_get_params($stream);
@@ -5142,7 +4742,7 @@ function ssl_cert_found($url)
  * Note that when force_ssl = 2, SMF issues its own redirect...  So if this
  * returns true, it may be caused by SMF, not necessarily an .htaccess redirect.
  *
- * @param string $url to check, in $boardurl format (no trailing slash).
+ * @param string $url to check, in Config::$boardurl format (no trailing slash).
  */
 function https_redirect_active($url)
 {
@@ -5180,7 +4780,7 @@ function https_redirect_active($url)
  */
 function build_query_board($userid)
 {
-	global $user_info, $modSettings, $smcFunc, $db_prefix;
+	global $user_info;
 
 	$query_part = array();
 
@@ -5193,7 +4793,7 @@ function build_query_board($userid)
 	}
 	else
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT mem.ignore_boards, mem.id_group, mem.additional_groups, mem.id_post_group
 			FROM {db_prefix}members AS mem
 			WHERE mem.id_member = {int:id_member}
@@ -5203,7 +4803,7 @@ function build_query_board($userid)
 			)
 		);
 
-		$row = $smcFunc['db_fetch_assoc']($request);
+		$row = Db::$db->fetch_assoc($request);
 
 		if (empty($row['additional_groups']))
 			$groups = array($row['id_group'], $row['id_post_group']);
@@ -5217,9 +4817,9 @@ function build_query_board($userid)
 		foreach ($groups as $k => $v)
 			$groups[$k] = (int) $v;
 
-		$can_see_all_boards = in_array(1, $groups) || (!empty($modSettings['board_manager_groups']) && count(array_intersect($groups, explode(',', $modSettings['board_manager_groups']))) > 0);
+		$can_see_all_boards = in_array(1, $groups) || (!empty(Config::$modSettings['board_manager_groups']) && count(array_intersect($groups, explode(',', Config::$modSettings['board_manager_groups']))) > 0);
 
-		$ignoreboards = !empty($row['ignore_boards']) && !empty($modSettings['allow_ignore_boards']) ? explode(',', $row['ignore_boards']) : array();
+		$ignoreboards = !empty($row['ignore_boards']) && !empty(Config::$modSettings['allow_ignore_boards']) ? explode(',', $row['ignore_boards']) : array();
 	}
 
 	// Just build this here, it makes it easier to change/use - administrators can see all boards.
@@ -5231,17 +4831,17 @@ function build_query_board($userid)
 		$query_part['query_see_board'] = '
 			EXISTS (
 				SELECT bpv.id_board
-				FROM ' . $db_prefix . 'board_permissions_view AS bpv
+				FROM ' . Db::$db->prefix . 'board_permissions_view AS bpv
 				WHERE bpv.id_group IN ('. implode(',', $groups) .')
 					AND bpv.deny = 0
 					AND bpv.id_board = b.id_board
 			)';
 
-		if (!empty($modSettings['deny_boards_access']))
+		if (!empty(Config::$modSettings['deny_boards_access']))
 			$query_part['query_see_board'] .= '
 			AND NOT EXISTS (
 				SELECT bpv.id_board
-				FROM ' . $db_prefix . 'board_permissions_view AS bpv
+				FROM ' . Db::$db->prefix . 'board_permissions_view AS bpv
 				WHERE bpv.id_group IN ( '. implode(',', $groups) .')
 					AND bpv.deny = 1
 					AND bpv.id_board = b.id_board
@@ -5392,13 +4992,13 @@ function sanitize_iri($iri)
  */
 function normalize_iri($iri)
 {
-	global $sourcedir, $context, $txt, $db_character_set;
+	global $txt;
 
 	// If we are not using UTF-8, just sanitize and return.
-	if (isset($context['utf8']) ? !$context['utf8'] : (isset($txt['lang_character_set']) ? $txt['lang_character_set'] != 'UTF-8' : (isset($db_character_set) && $db_character_set != 'utf8')))
+	if (isset(Utils::$context['utf8']) ? !Utils::$context['utf8'] : (isset($txt['lang_character_set']) ? $txt['lang_character_set'] != 'UTF-8' : (isset(Config::$db_character_set) && Config::$db_character_set != 'utf8')))
 		return sanitize_iri($iri);
 
-	require_once($sourcedir . '/Subs-Charset.php');
+	require_once(Config::$sourcedir . '/Subs-Charset.php');
 
 	$iri = sanitize_iri(utf8_normalize_c($iri));
 
@@ -5433,13 +5033,13 @@ function normalize_iri($iri)
  */
 function iri_to_url($iri)
 {
-	global $sourcedir, $context, $txt, $db_character_set;
+	global $txt;
 
 	// Sanity check: must be using UTF-8 to do this.
-	if (isset($context['utf8']) ? !$context['utf8'] : (isset($txt['lang_character_set']) ? $txt['lang_character_set'] != 'UTF-8' : (isset($db_character_set) && $db_character_set != 'utf8')))
+	if (isset(Utils::$context['utf8']) ? !Utils::$context['utf8'] : (isset($txt['lang_character_set']) ? $txt['lang_character_set'] != 'UTF-8' : (isset(Config::$db_character_set) && Config::$db_character_set != 'utf8')))
 		return $iri;
 
-	require_once($sourcedir . '/Subs-Charset.php');
+	require_once(Config::$sourcedir . '/Subs-Charset.php');
 
 	$iri = sanitize_iri(utf8_normalize_c($iri));
 
@@ -5448,7 +5048,7 @@ function iri_to_url($iri)
 	if (!empty($host))
 	{
 		if (!function_exists('idn_to_ascii'))
-			require_once($sourcedir . '/Subs-Compat.php');
+			require_once(Config::$sourcedir . '/Subs-Compat.php');
 
 		// Convert the host using the Punycode algorithm
 		$encoded_host = idn_to_ascii($host, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
@@ -5491,10 +5091,10 @@ function iri_to_url($iri)
  */
 function url_to_iri($url)
 {
-	global $sourcedir, $context, $txt, $db_character_set;
+	global $txt;
 
 	// Sanity check: must be using UTF-8 to do this.
-	if (isset($context['utf8']) ? !$context['utf8'] : (isset($txt['lang_character_set']) ? $txt['lang_character_set'] != 'UTF-8' : (isset($db_character_set) && $db_character_set != 'utf8')))
+	if (isset(Utils::$context['utf8']) ? !Utils::$context['utf8'] : (isset($txt['lang_character_set']) ? $txt['lang_character_set'] != 'UTF-8' : (isset(Config::$db_character_set) && Config::$db_character_set != 'utf8')))
 		return $url;
 
 	$host = parse_iri((strpos($url, '//') === 0 ? 'http:' : '') . $url, PHP_URL_HOST);
@@ -5502,7 +5102,7 @@ function url_to_iri($url)
 	if (!empty($host))
 	{
 		if (!function_exists('idn_to_utf8'))
-			require_once($sourcedir . '/Subs-Compat.php');
+			require_once(Config::$sourcedir . '/Subs-Compat.php');
 
 		// Decode the domain from Punycode
 		$decoded_host = idn_to_utf8($host, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
@@ -5542,11 +5142,11 @@ function url_to_iri($url)
  */
 function check_cron()
 {
-	global $modSettings, $smcFunc, $txt;
+	global $txt;
 
-	if (!empty($modSettings['cron_is_real_cron']) && time() - @intval($modSettings['cron_last_checked']) > 84600)
+	if (!empty(Config::$modSettings['cron_is_real_cron']) && time() - @intval(Config::$modSettings['cron_last_checked']) > 84600)
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT COUNT(*)
 			FROM {db_prefix}scheduled_tasks
 			WHERE disabled = {int:not_disabled}
@@ -5556,18 +5156,18 @@ function check_cron()
 				'yesterday' => time() - 84600,
 			)
 		);
-		list($overdue) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		list($overdue) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 
 		// If we have tasks more than a day overdue, cron isn't doing its job.
 		if (!empty($overdue))
 		{
 			loadLanguage('ManageScheduledTasks');
 			log_error($txt['cron_not_working']);
-			updateSettings(array('cron_is_real_cron' => 0));
+			Config::updateModSettings(array('cron_is_real_cron' => 0));
 		}
 		else
-			updateSettings(array('cron_last_checked' => time()));
+			Config::updateModSettings(array('cron_last_checked' => time()));
 	}
 }
 
@@ -5579,8 +5179,6 @@ function check_cron()
  */
 function send_http_status($code, $status = '')
 {
-	global $sourcedir;
-
 	// This will fail anyways if headers have been sent.
 	if (headers_sent())
 		return;
@@ -5600,7 +5198,7 @@ function send_http_status($code, $status = '')
 	$protocol = !empty($_SERVER['SERVER_PROTOCOL']) && preg_match('~^\s*(HTTP/[12]\.\d)\s*$~i', $_SERVER['SERVER_PROTOCOL'], $matches) ? $matches[1] : 'HTTP/1.0';
 
 	// Typically during these requests, we have cleaned the response (ob_*clean), ensure these headers exist.
-	require_once($sourcedir . '/Security.php');
+	require_once(Config::$sourcedir . '/Security.php');
 	frameOptionsHeader();
 	corsPolicyHeader();
 
@@ -5792,8 +5390,6 @@ function is_filtered_request(array $array, $req_var)
  */
 function cleanXml($string)
 {
-	global $context;
-
 	$illegal_chars = array(
 		// Remove all ASCII control characters except \t, \n, and \r.
 		"\x00", "\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\x07", "\x08",
@@ -5808,7 +5404,7 @@ function cleanXml($string)
 
 	// The Unicode surrogate pair code points should never be present in our
 	// strings to begin with, but if any snuck in, they need to be removed.
-	if (!empty($context['utf8']) && strpos($string, "\xED") !== false)
+	if (!empty(Utils::$context['utf8']) && strpos($string, "\xED") !== false)
 		$string = preg_replace('/\xED[\xA0-\xBF][\x80-\xBF]/', '', $string);
 
 	return $string;
@@ -5823,8 +5419,6 @@ function cleanXml($string)
  */
 function JavaScriptEscape($string, $as_json = false)
 {
-	global $scripturl;
-
 	$q = !empty($as_json) ? '"' : '\'';
 
 	return $q . strtr($string, array(
@@ -5837,7 +5431,7 @@ function JavaScriptEscape($string, $as_json = false)
 		'<script' => '<scri' . $q . '+' . $q . 'pt',
 		'<body>' => '<bo' . $q . '+' . $q . 'dy>',
 		'<a href' => '<a hr' . $q . '+' . $q . 'ef',
-		$scripturl => $q . ' + smf_scripturl + ' . $q,
+		Config::$scripturl => $q . ' + smf_scripturl + ' . $q,
 	)) . $q;
 }
 

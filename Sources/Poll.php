@@ -14,6 +14,10 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -29,7 +33,7 @@ if (!defined('SMF'))
  */
 function Vote()
 {
-	global $topic, $user_info, $smcFunc, $sourcedir, $modSettings;
+	global $topic, $user_info;
 
 	// Make sure you can vote.
 	isAllowedTo('poll_vote');
@@ -37,7 +41,7 @@ function Vote()
 	loadLanguage('Post');
 
 	// Check if they have already voted, or voting is locked.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COALESCE(lp.id_choice, -1) AS selected, p.voting_locked, p.id_poll, p.expire_time, p.max_votes, p.change_vote,
 			p.guest_vote, p.reset_poll, p.num_guest_voters
 		FROM {db_prefix}topics AS t
@@ -51,11 +55,11 @@ function Vote()
 			'not_guest' => 0,
 		)
 	);
-	if ($smcFunc['db_num_rows']($request) == 0)
+	if (Db::$db->num_rows($request) == 0)
 		fatal_lang_error('poll_error', false);
 
-	$row = $smcFunc['db_fetch_assoc']($request);
-	$smcFunc['db_free_result']($request);
+	$row = Db::$db->fetch_assoc($request);
+	Db::$db->free_result($request);
 
 	// If this is a guest can they vote?
 	if ($user_info['is_guest'])
@@ -105,7 +109,7 @@ function Vote()
 		$pollOptions = array();
 
 		// Find out what they voted for before.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_choice
 			FROM {db_prefix}log_polls
 			WHERE id_member = {int:current_member}
@@ -115,15 +119,15 @@ function Vote()
 				'id_poll' => $row['id_poll'],
 			)
 		);
-		while ($choice = $smcFunc['db_fetch_row']($request))
+		while ($choice = Db::$db->fetch_row($request))
 			$pollOptions[] = $choice[0];
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// Just skip it if they had voted for nothing before.
 		if (!empty($pollOptions))
 		{
 			// Update the poll totals.
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				UPDATE {db_prefix}poll_choices
 				SET votes = votes - 1
 				WHERE id_poll = {int:id_poll}
@@ -137,7 +141,7 @@ function Vote()
 			);
 
 			// Delete off the log.
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				DELETE FROM {db_prefix}log_polls
 				WHERE id_member = {int:current_member}
 					AND id_poll = {int:id_poll}',
@@ -174,14 +178,14 @@ function Vote()
 	}
 
 	// Add their vote to the tally.
-	$smcFunc['db_insert']('insert',
+	Db::$db->insert('insert',
 		'{db_prefix}log_polls',
 		array('id_poll' => 'int', 'id_member' => 'int', 'id_choice' => 'int'),
 		$inserts,
 		array('id_poll', 'id_member', 'id_choice')
 	);
 
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		UPDATE {db_prefix}poll_choices
 		SET votes = votes + 1
 		WHERE id_poll = {int:id_poll}
@@ -201,7 +205,7 @@ function Vote()
 		$_COOKIE['guest_poll_vote'] .= ';' . $row['id_poll'] . ',' . time() . ',' . implode(',', $pollOptions);
 
 		// Increase num guest voters count by 1
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}polls
 			SET num_guest_voters = num_guest_voters + 1
 			WHERE id_poll = {int:id_poll}',
@@ -210,8 +214,8 @@ function Vote()
 			)
 		);
 
-		require_once($sourcedir . '/Subs-Auth.php');
-		$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
+		require_once(Config::$sourcedir . '/Subs-Auth.php');
+		$cookie_url = url_parts(!empty(Config::$modSettings['localCookies']), !empty(Config::$modSettings['globalCookies']));
 		smf_setcookie('guest_poll_vote', $_COOKIE['guest_poll_vote'], time() + 2500000, $cookie_url[1], $cookie_url[0], false, false);
 	}
 
@@ -233,12 +237,12 @@ function Vote()
  */
 function LockVoting()
 {
-	global $topic, $user_info, $smcFunc;
+	global $topic, $user_info;
 
 	checkSession('get');
 
 	// Get the poll starter, ID, and whether or not it is locked.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT t.id_member_started, t.id_poll, p.voting_locked
 		FROM {db_prefix}topics AS t
 			INNER JOIN {db_prefix}polls AS p ON (p.id_poll = t.id_poll)
@@ -248,7 +252,7 @@ function LockVoting()
 			'current_topic' => $topic,
 		)
 	);
-	list ($memberID, $pollID, $voting_locked) = $smcFunc['db_fetch_row']($request);
+	list ($memberID, $pollID, $voting_locked) = Db::$db->fetch_row($request);
 
 	// If the user _can_ modify the poll....
 	if (!allowedTo('poll_lock_any'))
@@ -271,7 +275,7 @@ function LockVoting()
 		$voting_locked = '1';
 
 	// Lock!  *Poof* - no one can vote.
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		UPDATE {db_prefix}polls
 		SET voting_locked = {int:voting_locked}
 		WHERE id_poll = {int:id_poll}',
@@ -301,7 +305,7 @@ function LockVoting()
  */
 function EditPoll()
 {
-	global $txt, $user_info, $context, $topic, $board, $smcFunc, $sourcedir, $scripturl;
+	global $txt, $user_info, $topic, $board;
 
 	if (empty($topic))
 		fatal_lang_error('no_access', false);
@@ -309,11 +313,11 @@ function EditPoll()
 	loadLanguage('Post');
 	loadTemplate('Poll');
 
-	$context['start'] = (int) $_REQUEST['start'];
-	$context['is_edit'] = isset($_REQUEST['add']) ? 0 : 1;
+	Utils::$context['start'] = (int) $_REQUEST['start'];
+	Utils::$context['is_edit'] = isset($_REQUEST['add']) ? 0 : 1;
 
 	// Check if a poll currently exists on this topic, and get the id, question and starter.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT
 			t.id_member_started, p.id_poll, p.question, p.hide_results, p.expire_time, p.max_votes, p.change_vote,
 			m.subject, p.guest_vote, p.id_member AS poll_starter
@@ -328,38 +332,38 @@ function EditPoll()
 	);
 
 	// Assume the the topic exists, right?
-	if ($smcFunc['db_num_rows']($request) == 0)
+	if (Db::$db->num_rows($request) == 0)
 		fatal_lang_error('no_board');
 
 	// Get the poll information.
-	$pollinfo = $smcFunc['db_fetch_assoc']($request);
-	$smcFunc['db_free_result']($request);
+	$pollinfo = Db::$db->fetch_assoc($request);
+	Db::$db->free_result($request);
 
 	// If we are adding a new poll - make sure that there isn't already a poll there.
-	if (!$context['is_edit'] && !empty($pollinfo['id_poll']))
+	if (!Utils::$context['is_edit'] && !empty($pollinfo['id_poll']))
 		fatal_lang_error('poll_already_exists');
 	// Otherwise, if we're editing it, it does exist I assume?
-	elseif ($context['is_edit'] && empty($pollinfo['id_poll']))
+	elseif (Utils::$context['is_edit'] && empty($pollinfo['id_poll']))
 		fatal_lang_error('poll_not_found');
 
 	// Can you do this?
-	if ($context['is_edit'] && !allowedTo('poll_edit_any'))
+	if (Utils::$context['is_edit'] && !allowedTo('poll_edit_any'))
 		isAllowedTo('poll_edit_' . ($user_info['id'] == $pollinfo['id_member_started'] || ($pollinfo['poll_starter'] != 0 && $user_info['id'] == $pollinfo['poll_starter']) ? 'own' : 'any'));
-	elseif (!$context['is_edit'] && !allowedTo('poll_add_any'))
+	elseif (!Utils::$context['is_edit'] && !allowedTo('poll_add_any'))
 		isAllowedTo('poll_add_' . ($user_info['id'] == $pollinfo['id_member_started'] ? 'own' : 'any'));
-	$context['can_moderate_poll'] = isset($_REQUEST['add']) ? true : allowedTo('poll_edit_' . ($user_info['id'] == $pollinfo['id_member_started'] || ($pollinfo['poll_starter'] != 0 && $user_info['id'] == $pollinfo['poll_starter']) ? 'own' : 'any'));
+	Utils::$context['can_moderate_poll'] = isset($_REQUEST['add']) ? true : allowedTo('poll_edit_' . ($user_info['id'] == $pollinfo['id_member_started'] || ($pollinfo['poll_starter'] != 0 && $user_info['id'] == $pollinfo['poll_starter']) ? 'own' : 'any'));
 
 	// Do we enable guest voting?
-	require_once($sourcedir . '/Subs-Members.php');
+	require_once(Config::$sourcedir . '/Subs-Members.php');
 	$groupsAllowedVote = groupsAllowedTo('poll_vote', $board);
 
 	// Want to make sure before you actually submit?  Must be a lot of options, or something.
 	if (isset($_POST['preview']))
 	{
-		$question = $smcFunc['htmlspecialchars']($_POST['question']);
+		$question = Utils::htmlspecialchars($_POST['question']);
 
 		// Basic theme info...
-		$context['poll'] = array(
+		Utils::$context['poll'] = array(
 			'id' => $pollinfo['id_poll'],
 			'question' => $question,
 			'hide_results' => empty($_POST['poll_hide']) ? 0 : $_POST['poll_hide'],
@@ -374,9 +378,9 @@ function EditPoll()
 		$last_id = 0;
 
 		// Get all the choices - if this is an edit.
-		if ($context['is_edit'])
+		if (Utils::$context['is_edit'])
 		{
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT label, votes, id_choice
 				FROM {db_prefix}poll_choices
 				WHERE id_poll = {int:id_poll}',
@@ -384,8 +388,8 @@ function EditPoll()
 					'id_poll' => $pollinfo['id_poll'],
 				)
 			);
-			$context['choices'] = array();
-			while ($row = $smcFunc['db_fetch_assoc']($request))
+			Utils::$context['choices'] = array();
+			while ($row = Db::$db->fetch_assoc($request))
 			{
 				// Get the highest id so we can add more without reusing.
 				if ($row['id_choice'] >= $last_id)
@@ -398,7 +402,7 @@ function EditPoll()
 				censorText($row['label']);
 
 				// Add the choice!
-				$context['choices'][$row['id_choice']] = array(
+				Utils::$context['choices'][$row['id_choice']] = array(
 					'id' => $row['id_choice'],
 					'number' => $number++,
 					'votes' => $row['votes'],
@@ -406,7 +410,7 @@ function EditPoll()
 					'is_last' => false
 				);
 			}
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 		}
 
 		// Work out how many options we have, so we get the 'is_last' field right...
@@ -419,13 +423,13 @@ function EditPoll()
 		// If an option exists, update it.  If it is new, add it - but don't reuse ids!
 		foreach ($_POST['options'] as $id => $label)
 		{
-			$label = $smcFunc['htmlspecialchars']($label);
+			$label = Utils::htmlspecialchars($label);
 			censorText($label);
 
-			if (isset($context['choices'][$id]))
-				$context['choices'][$id]['label'] = $label;
+			if (isset(Utils::$context['choices'][$id]))
+				Utils::$context['choices'][$id]['label'] = $label;
 			elseif ($label != '')
-				$context['choices'][] = array(
+				Utils::$context['choices'][] = array(
 					'id' => $last_id++,
 					'number' => $number++,
 					'label' => $label,
@@ -439,7 +443,7 @@ function EditPoll()
 		{
 			// Need two?
 			if ($totalPostOptions == 0)
-				$context['choices'][] = array(
+				Utils::$context['choices'][] = array(
 					'id' => $last_id++,
 					'number' => $number++,
 					'label' => '',
@@ -450,7 +454,7 @@ function EditPoll()
 		}
 
 		// Always show one extra box...
-		$context['choices'][] = array(
+		Utils::$context['choices'][] = array(
 			'id' => $last_id++,
 			'number' => $number++,
 			'label' => '',
@@ -458,35 +462,35 @@ function EditPoll()
 			'is_last' => true
 		);
 
-		$context['last_choice_id'] = $last_id;
+		Utils::$context['last_choice_id'] = $last_id;
 
-		if ($context['can_moderate_poll'])
-			$context['poll']['expiration'] = $_POST['poll_expire'];
+		if (Utils::$context['can_moderate_poll'])
+			Utils::$context['poll']['expiration'] = $_POST['poll_expire'];
 
 		// Check the question/option count for errors.
-		if (trim($_POST['question']) == '' && empty($context['poll_error']))
+		if (trim($_POST['question']) == '' && empty(Utils::$context['poll_error']))
 			$poll_errors[] = 'no_question';
 
 		// No check is needed, since nothing is really posted.
 		checkSubmitOnce('free');
 
 		// Take a check for any errors... assuming we haven't already done so!
-		if (!empty($poll_errors) && empty($context['poll_error']))
+		if (!empty($poll_errors) && empty(Utils::$context['poll_error']))
 		{
 			loadLanguage('Errors');
 
-			$context['poll_error'] = array('messages' => array());
+			Utils::$context['poll_error'] = array('messages' => array());
 			foreach ($poll_errors as $poll_error)
 			{
-				$context['poll_error'][$poll_error] = true;
-				$context['poll_error']['messages'][] = $txt['error_' . $poll_error];
+				Utils::$context['poll_error'][$poll_error] = true;
+				Utils::$context['poll_error']['messages'][] = $txt['error_' . $poll_error];
 			}
 		}
 	}
 	else
 	{
 		// Basic theme info...
-		$context['poll'] = array(
+		Utils::$context['poll'] = array(
 			'id' => $pollinfo['id_poll'],
 			'question' => $pollinfo['question'],
 			'hide_results' => $pollinfo['hide_results'],
@@ -497,12 +501,12 @@ function EditPoll()
 		);
 
 		// Poll expiration time?
-		$context['poll']['expiration'] = empty($pollinfo['expire_time']) || !$context['can_moderate_poll'] ? '' : ceil($pollinfo['expire_time'] <= time() ? -1 : ($pollinfo['expire_time'] - time()) / (3600 * 24));
+		Utils::$context['poll']['expiration'] = empty($pollinfo['expire_time']) || !Utils::$context['can_moderate_poll'] ? '' : ceil($pollinfo['expire_time'] <= time() ? -1 : ($pollinfo['expire_time'] - time()) / (3600 * 24));
 
 		// Get all the choices - if this is an edit.
-		if ($context['is_edit'])
+		if (Utils::$context['is_edit'])
 		{
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT label, votes, id_choice
 				FROM {db_prefix}poll_choices
 				WHERE id_poll = {int:id_poll}',
@@ -510,13 +514,13 @@ function EditPoll()
 					'id_poll' => $pollinfo['id_poll'],
 				)
 			);
-			$context['choices'] = array();
+			Utils::$context['choices'] = array();
 			$number = 1;
-			while ($row = $smcFunc['db_fetch_assoc']($request))
+			while ($row = Db::$db->fetch_assoc($request))
 			{
 				censorText($row['label']);
 
-				$context['choices'][$row['id_choice']] = array(
+				Utils::$context['choices'][$row['id_choice']] = array(
 					'id' => $row['id_choice'],
 					'number' => $number++,
 					'votes' => $row['votes'],
@@ -524,25 +528,25 @@ function EditPoll()
 					'is_last' => false
 				);
 			}
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 
-			$last_id = max(array_keys($context['choices'])) + 1;
+			$last_id = max(array_keys(Utils::$context['choices'])) + 1;
 
 			// Add an extra choice...
-			$context['choices'][] = array(
+			Utils::$context['choices'][] = array(
 				'id' => $last_id,
 				'number' => $number,
 				'votes' => -1,
 				'label' => '',
 				'is_last' => true
 			);
-			$context['last_choice_id'] = $last_id;
+			Utils::$context['last_choice_id'] = $last_id;
 		}
 		// New poll?
 		else
 		{
 			// Setup the default poll options.
-			$context['poll'] = array(
+			Utils::$context['poll'] = array(
 				'id' => 0,
 				'question' => '',
 				'hide_results' => 0,
@@ -554,26 +558,26 @@ function EditPoll()
 			);
 
 			// Make all five poll choices empty.
-			$context['choices'] = array(
+			Utils::$context['choices'] = array(
 				array('id' => 0, 'number' => 1, 'votes' => -1, 'label' => '', 'is_last' => false),
 				array('id' => 1, 'number' => 2, 'votes' => -1, 'label' => '', 'is_last' => false),
 				array('id' => 2, 'number' => 3, 'votes' => -1, 'label' => '', 'is_last' => false),
 				array('id' => 3, 'number' => 4, 'votes' => -1, 'label' => '', 'is_last' => false),
 				array('id' => 4, 'number' => 5, 'votes' => -1, 'label' => '', 'is_last' => true)
 			);
-			$context['last_choice_id'] = 4;
+			Utils::$context['last_choice_id'] = 4;
 		}
 	}
-	$context['page_title'] = $context['is_edit'] ? $txt['poll_edit'] : $txt['add_poll'];
+	Utils::$context['page_title'] = Utils::$context['is_edit'] ? $txt['poll_edit'] : $txt['add_poll'];
 
 	// Build the link tree.
 	censorText($pollinfo['subject']);
-	$context['linktree'][] = array(
-		'url' => $scripturl . '?topic=' . $topic . '.0',
+	Utils::$context['linktree'][] = array(
+		'url' => Config::$scripturl . '?topic=' . $topic . '.0',
 		'name' => $pollinfo['subject'],
 	);
-	$context['linktree'][] = array(
-		'name' => $context['page_title'],
+	Utils::$context['linktree'][] = array(
+		'name' => Utils::$context['page_title'],
 	);
 
 	// Register this form in the session variables.
@@ -594,8 +598,8 @@ function EditPoll()
  */
 function EditPoll2()
 {
-	global $txt, $topic, $board, $context;
-	global $user_info, $smcFunc, $sourcedir;
+	global $txt, $topic, $board;
+	global $user_info;
 
 	// Sneaking off, are we?
 	if (empty($_POST))
@@ -615,7 +619,7 @@ function EditPoll2()
 	$isEdit = isset($_REQUEST['add']) ? 0 : 1;
 
 	// Get the starter and the poll's ID - if it's an edit.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT t.id_member_started, t.id_poll, p.id_member AS poll_starter, p.expire_time
 		FROM {db_prefix}topics AS t
 			LEFT JOIN {db_prefix}polls AS p ON (p.id_poll = t.id_poll)
@@ -625,10 +629,10 @@ function EditPoll2()
 			'current_topic' => $topic,
 		)
 	);
-	if ($smcFunc['db_num_rows']($request) == 0)
+	if (Db::$db->num_rows($request) == 0)
 		fatal_lang_error('no_board');
-	$bcinfo = $smcFunc['db_fetch_assoc']($request);
-	$smcFunc['db_free_result']($request);
+	$bcinfo = Db::$db->fetch_assoc($request);
+	Db::$db->free_result($request);
 
 	// Check their adding/editing is valid.
 	if (!$isEdit && !empty($bcinfo['id_poll']))
@@ -670,11 +674,11 @@ function EditPoll2()
 		// Previewing.
 		$_POST['preview'] = true;
 
-		$context['poll_error'] = array('messages' => array());
+		Utils::$context['poll_error'] = array('messages' => array());
 		foreach ($poll_errors as $poll_error)
 		{
-			$context['poll_error'][$poll_error] = true;
-			$context['poll_error']['messages'][] = $txt['error_' . $poll_error];
+			Utils::$context['poll_error'][$poll_error] = true;
+			Utils::$context['poll_error']['messages'][] = $txt['error_' . $poll_error];
 		}
 
 		return EditPoll();
@@ -684,8 +688,8 @@ function EditPoll2()
 	checkSubmitOnce('check');
 
 	// Now we've done all our error checking, let's get the core poll information cleaned... question first.
-	$_POST['question'] = $smcFunc['htmlspecialchars']($_POST['question']);
-	$_POST['question'] = $smcFunc['truncate']($_POST['question'], 255);
+	$_POST['question'] = Utils::htmlspecialchars($_POST['question']);
+	$_POST['question'] = Utils::truncate($_POST['question'], 255);
 
 	$_POST['poll_hide'] = (int) $_POST['poll_hide'];
 	$_POST['poll_expire'] = isset($_POST['poll_expire']) ? (int) $_POST['poll_expire'] : 0;
@@ -695,7 +699,7 @@ function EditPoll2()
 	// Make sure guests are actually allowed to vote generally.
 	if ($_POST['poll_guest_vote'])
 	{
-		require_once($sourcedir . '/Subs-Members.php');
+		require_once(Config::$sourcedir . '/Subs-Members.php');
 		$allowedGroups = groupsAllowedTo('poll_vote', $board);
 		if (!in_array(-1, $allowedGroups['allowed']))
 			$_POST['poll_guest_vote'] = 0;
@@ -722,7 +726,7 @@ function EditPoll2()
 	// If we're editing, let's commit the changes.
 	if ($isEdit)
 	{
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}polls
 			SET question = {string:question}, change_vote = {int:change_vote},' . (allowedTo('moderate_board') ? '
 				hide_results = {int:hide_results}, expire_time = {int:expire_time}, max_votes = {int:max_votes},
@@ -745,7 +749,7 @@ function EditPoll2()
 	else
 	{
 		// Create the poll.
-		$bcinfo['id_poll'] = $smcFunc['db_insert']('',
+		$bcinfo['id_poll'] = Db::$db->insert('',
 			'{db_prefix}polls',
 			array(
 				'question' => 'string-255', 'hide_results' => 'int', 'max_votes' => 'int', 'expire_time' => 'int', 'id_member' => 'int',
@@ -760,7 +764,7 @@ function EditPoll2()
 		);
 
 		// Link the poll to the topic
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}topics
 			SET id_poll = {int:id_poll}
 			WHERE id_topic = {int:current_topic}',
@@ -772,7 +776,7 @@ function EditPoll2()
 	}
 
 	// Get all the choices.  (no better way to remove all emptied and add previously non-existent ones.)
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_choice
 		FROM {db_prefix}poll_choices
 		WHERE id_poll = {int:id_poll}',
@@ -781,9 +785,9 @@ function EditPoll2()
 		)
 	);
 	$choices = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$choices[] = $row['id_choice'];
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	$delete_options = array();
 	foreach ($_POST['options'] as $k => $option)
@@ -803,11 +807,11 @@ function EditPoll2()
 		}
 
 		// Dress the option up for its big date with the database.
-		$option = $smcFunc['htmlspecialchars']($option);
+		$option = Utils::htmlspecialchars($option);
 
 		// If it's already there, update it.  If it's not... add it.
 		if (in_array($k, $choices))
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				UPDATE {db_prefix}poll_choices
 				SET label = {string:option_name}
 				WHERE id_poll = {int:id_poll}
@@ -819,7 +823,7 @@ function EditPoll2()
 				)
 			);
 		else
-			$smcFunc['db_insert']('',
+			Db::$db->insert('',
 				'{db_prefix}poll_choices',
 				array(
 					'id_poll' => 'int', 'id_choice' => 'int', 'label' => 'string-255', 'votes' => 'int',
@@ -834,7 +838,7 @@ function EditPoll2()
 	// I'm sorry, but... well, no one was choosing you.  Poor options, I'll put you out of your misery.
 	if (!empty($delete_options))
 	{
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}log_polls
 			WHERE id_poll = {int:id_poll}
 				AND id_choice IN ({array_int:delete_options})',
@@ -843,7 +847,7 @@ function EditPoll2()
 				'id_poll' => $bcinfo['id_poll'],
 			)
 		);
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}poll_choices
 			WHERE id_poll = {int:id_poll}
 				AND id_choice IN ({array_int:delete_options})',
@@ -857,7 +861,7 @@ function EditPoll2()
 	// Shall I reset the vote count, sir?
 	if (isset($_POST['resetVoteCount']))
 	{
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}polls
 			SET num_guest_voters = {int:no_votes}, reset_poll = {int:time}
 			WHERE id_poll = {int:id_poll}',
@@ -867,7 +871,7 @@ function EditPoll2()
 				'time' => time(),
 			)
 		);
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}poll_choices
 			SET votes = {int:no_votes}
 			WHERE id_poll = {int:id_poll}',
@@ -876,7 +880,7 @@ function EditPoll2()
 				'id_poll' => $bcinfo['id_poll'],
 			)
 		);
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}log_polls
 			WHERE id_poll = {int:id_poll}',
 			array(
@@ -920,7 +924,7 @@ function EditPoll2()
  */
 function RemovePoll()
 {
-	global $topic, $user_info, $smcFunc;
+	global $topic, $user_info;
 
 	// Make sure the topic is not empty.
 	if (empty($topic))
@@ -932,7 +936,7 @@ function RemovePoll()
 	// Check permissions.
 	if (!allowedTo('poll_remove_any'))
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT t.id_member_started, p.id_member AS poll_starter
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}polls AS p ON (p.id_poll = t.id_poll)
@@ -942,16 +946,16 @@ function RemovePoll()
 				'current_topic' => $topic,
 			)
 		);
-		if ($smcFunc['db_num_rows']($request) == 0)
+		if (Db::$db->num_rows($request) == 0)
 			fatal_lang_error('no_access', false);
-		list ($topicStarter, $pollStarter) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		list ($topicStarter, $pollStarter) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 
 		isAllowedTo('poll_remove_' . ($topicStarter == $user_info['id'] || ($pollStarter != 0 && $user_info['id'] == $pollStarter) ? 'own' : 'any'));
 	}
 
 	// Retrieve the poll ID.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_poll
 		FROM {db_prefix}topics
 		WHERE id_topic = {int:current_topic}
@@ -960,11 +964,11 @@ function RemovePoll()
 			'current_topic' => $topic,
 		)
 	);
-	list ($pollID) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($pollID) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	// Remove all user logs for this poll.
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}log_polls
 		WHERE id_poll = {int:id_poll}',
 		array(
@@ -972,7 +976,7 @@ function RemovePoll()
 		)
 	);
 	// Remove all poll choices.
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}poll_choices
 		WHERE id_poll = {int:id_poll}',
 		array(
@@ -980,7 +984,7 @@ function RemovePoll()
 		)
 	);
 	// Remove the poll itself.
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}polls
 		WHERE id_poll = {int:id_poll}',
 		array(
@@ -988,7 +992,7 @@ function RemovePoll()
 		)
 	);
 	// Finally set the topic poll ID back to 0!
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		UPDATE {db_prefix}topics
 		SET id_poll = {int:no_poll}
 		WHERE id_topic = {int:current_topic}',

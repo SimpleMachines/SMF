@@ -14,6 +14,9 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -45,25 +48,23 @@ function XMLhttpMain()
  */
 function GetJumpTo()
 {
-	global $context, $sourcedir;
-
 	// Find the boards/categories they can see.
 	require_once($sourcedir . '/Subs-MessageIndex.php');
 	$boardListOptions = array(
 		'use_permissions' => true,
-		'selected_board' => isset($context['current_board']) ? $context['current_board'] : 0,
+		'selected_board' => isset(Utils::$context['current_board']) ? Utils::$context['current_board'] : 0,
 	);
-	$context['jump_to'] = getBoardList($boardListOptions);
+	Utils::$context['jump_to'] = getBoardList($boardListOptions);
 
 	// Make the board safe for display.
-	foreach ($context['jump_to'] as $id_cat => $cat)
+	foreach (Utils::$context['jump_to'] as $id_cat => $cat)
 	{
-		$context['jump_to'][$id_cat]['name'] = un_htmlspecialchars(strip_tags($cat['name']));
+		Utils::$context['jump_to'][$id_cat]['name'] = un_htmlspecialchars(strip_tags($cat['name']));
 		foreach ($cat['boards'] as $id_board => $board)
-			$context['jump_to'][$id_cat]['boards'][$id_board]['name'] = un_htmlspecialchars(strip_tags($board['name']));
+			Utils::$context['jump_to'][$id_cat]['boards'][$id_board]['name'] = un_htmlspecialchars(strip_tags($board['name']));
 	}
 
-	$context['sub_template'] = 'jump_to';
+	Utils::$context['sub_template'] = 'jump_to';
 }
 
 /**
@@ -71,12 +72,12 @@ function GetJumpTo()
  */
 function ListMessageIcons()
 {
-	global $context, $sourcedir, $board;
+	global $board;
 
-	require_once($sourcedir . '/Subs-Editor.php');
-	$context['icons'] = getMessageIcons($board);
+	require_once(Config::$sourcedir . '/Subs-Editor.php');
+	Utils::$context['icons'] = getMessageIcons($board);
 
-	$context['sub_template'] = 'message_icons';
+	Utils::$context['sub_template'] = 'message_icons';
 }
 
 /**
@@ -87,8 +88,6 @@ function ListMessageIcons()
  */
 function RetrievePreview()
 {
-	global $context;
-
 	$items = array(
 		'newspreview',
 		'newsletterpreview',
@@ -96,7 +95,7 @@ function RetrievePreview()
 		'warning_preview',
 	);
 
-	$context['sub_template'] = 'generic_xml';
+	Utils::$context['sub_template'] = 'generic_xml';
 
 	if (!isset($_POST['item']) || !in_array($_POST['item'], $items))
 		return false;
@@ -109,18 +108,16 @@ function RetrievePreview()
  */
 function newspreview()
 {
-	global $context, $sourcedir, $smcFunc;
-
-	require_once($sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Subs-Post.php');
 
 	$errors = array();
-	$news = !isset($_POST['news']) ? '' : $smcFunc['htmlspecialchars']($_POST['news'], ENT_QUOTES);
+	$news = !isset($_POST['news']) ? '' : Utils::htmlspecialchars($_POST['news'], ENT_QUOTES);
 	if (empty($news))
 		$errors[] = array('value' => 'no_news');
 	else
 		preparsecode($news);
 
-	$context['xml_data'] = array(
+	Utils::$context['xml_data'] = array(
 		'news' => array(
 			'identifier' => 'parsedNews',
 			'children' => array(
@@ -141,24 +138,24 @@ function newspreview()
  */
 function newsletterpreview()
 {
-	global $context, $sourcedir, $txt;
+	global $txt;
 
-	require_once($sourcedir . '/Subs-Post.php');
-	require_once($sourcedir . '/ManageNews.php');
+	require_once(Config::$sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/ManageNews.php');
 	loadLanguage('Errors');
 
-	$context['post_error']['messages'] = array();
-	$context['send_pm'] = !empty($_POST['send_pm']) ? 1 : 0;
-	$context['send_html'] = !empty($_POST['send_html']) ? 1 : 0;
+	Utils::$context['post_error']['messages'] = array();
+	Utils::$context['send_pm'] = !empty($_POST['send_pm']) ? 1 : 0;
+	Utils::$context['send_html'] = !empty($_POST['send_html']) ? 1 : 0;
 
 	if (empty($_POST['subject']))
-		$context['post_error']['messages'][] = $txt['error_no_subject'];
+		Utils::$context['post_error']['messages'][] = $txt['error_no_subject'];
 	if (empty($_POST['message']))
-		$context['post_error']['messages'][] = $txt['error_no_message'];
+		Utils::$context['post_error']['messages'][] = $txt['error_no_message'];
 
 	prepareMailingForPreview();
 
-	$context['sub_template'] = 'pm';
+	Utils::$context['sub_template'] = 'pm';
 }
 
 /**
@@ -166,9 +163,9 @@ function newsletterpreview()
  */
 function sig_preview()
 {
-	global $context, $sourcedir, $smcFunc, $txt, $user_info;
+	global $txt, $user_info;
 
-	require_once($sourcedir . '/Profile-Modify.php');
+	require_once(Config::$sourcedir . '/Profile-Modify.php');
 	loadLanguage('Profile');
 	loadLanguage('Errors');
 
@@ -182,7 +179,7 @@ function sig_preview()
 	$errors = array();
 	if (!empty($user) && $can_change)
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT signature
 			FROM {db_prefix}members
 			WHERE id_member = {int:id_member}
@@ -191,13 +188,13 @@ function sig_preview()
 				'id_member' => $user,
 			)
 		);
-		list($current_signature) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		list($current_signature) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 		censorText($current_signature);
 		$allowedTags = BBCodeParser::getSigTags();
 		$current_signature = !empty($current_signature) ? BBCodeParser::load()->parse($current_signature, true, 'sig' . $user, $allowedTags) : $txt['no_signature_set'];
 
-		$preview_signature = !empty($_POST['signature']) ? $smcFunc['htmlspecialchars']($_POST['signature']) : $txt['no_signature_preview'];
+		$preview_signature = !empty($_POST['signature']) ? Utils::htmlspecialchars($_POST['signature']) : $txt['no_signature_preview'];
 		$validation = profileValidateSignature($preview_signature);
 
 		if ($validation !== true && $validation !== false)
@@ -216,22 +213,22 @@ function sig_preview()
 	else
 		$errors[] = array('value' => $txt['no_user_selected'], 'attributes' => array('type' => 'error'));
 
-	$context['xml_data']['signatures'] = array(
+	Utils::$context['xml_data']['signatures'] = array(
 		'identifier' => 'signature',
 		'children' => array()
 	);
 	if (isset($current_signature))
-		$context['xml_data']['signatures']['children'][] = array(
+		Utils::$context['xml_data']['signatures']['children'][] = array(
 			'value' => $current_signature,
 			'attributes' => array('type' => 'current'),
 		);
 	if (isset($preview_signature))
-		$context['xml_data']['signatures']['children'][] = array(
+		Utils::$context['xml_data']['signatures']['children'][] = array(
 			'value' => $preview_signature,
 			'attributes' => array('type' => 'preview'),
 		);
 	if (!empty($errors))
-		$context['xml_data']['errors'] = array(
+		Utils::$context['xml_data']['errors'] = array(
 			'identifier' => 'error',
 			'children' => array_merge(
 				array(
@@ -250,28 +247,28 @@ function sig_preview()
  */
 function warning_preview()
 {
-	global $context, $sourcedir, $smcFunc, $txt, $user_info, $scripturl, $mbname;
+	global $txt, $user_info;
 
-	require_once($sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Subs-Post.php');
 	loadLanguage('Errors');
 	loadLanguage('ModerationCenter');
 
-	$context['post_error']['messages'] = array();
+	Utils::$context['post_error']['messages'] = array();
 	if (allowedTo('issue_warning'))
 	{
 		$warning_body = !empty($_POST['body']) ? trim(censorText($_POST['body'])) : '';
-		$context['preview_subject'] = !empty($_POST['title']) ? trim($smcFunc['htmlspecialchars']($_POST['title'])) : '';
+		Utils::$context['preview_subject'] = !empty($_POST['title']) ? trim(Utils::htmlspecialchars($_POST['title'])) : '';
 		if (isset($_POST['issuing']))
 		{
 			if (empty($_POST['title']) || empty($_POST['body']))
-				$context['post_error']['messages'][] = $txt['warning_notify_blank'];
+				Utils::$context['post_error']['messages'][] = $txt['warning_notify_blank'];
 		}
 		else
 		{
 			if (empty($_POST['title']))
-				$context['post_error']['messages'][] = $txt['mc_warning_template_error_no_title'];
+				Utils::$context['post_error']['messages'][] = $txt['mc_warning_template_error_no_title'];
 			if (empty($_POST['body']))
-				$context['post_error']['messages'][] = $txt['mc_warning_template_error_no_body'];
+				Utils::$context['post_error']['messages'][] = $txt['mc_warning_template_error_no_body'];
 			// Add in few replacements.
 			/**
 			 * These are the defaults:
@@ -289,9 +286,9 @@ function warning_preview()
 			);
 			$replace = array(
 				$user_info['name'],
-				$mbname,
-				$scripturl,
-				sprintf($txt['regards_team'], $context['forum_name']),
+				Config::$mbname,
+				Config::$scripturl,
+				sprintf($txt['regards_team'], Utils::$context['forum_name']),
 			);
 			$warning_body = str_replace($find, $replace, $warning_body);
 		}
@@ -301,12 +298,12 @@ function warning_preview()
 			preparsecode($warning_body);
 			$warning_body = BBCodeParser::load()->parse($warning_body);
 		}
-		$context['preview_message'] = $warning_body;
+		Utils::$context['preview_message'] = $warning_body;
 	}
 	else
-		$context['post_error']['messages'][] = array('value' => $txt['cannot_issue_warning'], 'attributes' => array('type' => 'error'));
+		Utils::$context['post_error']['messages'][] = array('value' => $txt['cannot_issue_warning'], 'attributes' => array('type' => 'error'));
 
-	$context['sub_template'] = 'warning';
+	Utils::$context['sub_template'] = 'warning';
 }
 
 ?>

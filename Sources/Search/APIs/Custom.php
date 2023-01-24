@@ -13,6 +13,9 @@
 
 namespace SMF\Search\APIs;
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
 
 /**
@@ -46,21 +49,19 @@ class Custom extends SearchApi
 	 */
 	public function __construct()
 	{
-		global $smcFunc, $modSettings, $db_type;
-
 		// Is this database supported?
-		if (!in_array($db_type, $this->supported_databases))
+		if (!in_array(Config::$db_type, $this->supported_databases))
 		{
 			$this->is_supported = false;
 			return;
 		}
 
-		if (empty($modSettings['search_custom_index_config']))
+		if (empty(Config::$modSettings['search_custom_index_config']))
 			return;
 
-		$this->indexSettings = $smcFunc['json_decode']($modSettings['search_custom_index_config'], true);
+		$this->indexSettings = Utils::jsonDecode(Config::$modSettings['search_custom_index_config'], true);
 
-		$this->bannedWords = empty($modSettings['search_stopwords']) ? array() : explode(',', $modSettings['search_stopwords']);
+		$this->bannedWords = empty(Config::$modSettings['search_stopwords']) ? array() : explode(',', Config::$modSettings['search_stopwords']);
 		$this->min_word_length = $this->indexSettings['bytes_per_word'];
 	}
 
@@ -98,9 +99,7 @@ class Custom extends SearchApi
 	 */
 	public function isValid(): bool
 	{
-		global $modSettings;
-
-		return !empty($modSettings['search_custom_index_config']);
+		return !empty(Config::$modSettings['search_custom_index_config']);
 	}
 
 	/**
@@ -121,11 +120,9 @@ class Custom extends SearchApi
 	 */
 	public function prepareIndexes($word, array &$wordsSearch, array &$wordsExclude, $isExcluded): void
 	{
-		global $modSettings, $smcFunc;
-
 		$subwords = text2words($word, $this->min_word_length, true);
 
-		if (empty($modSettings['search_force_index']))
+		if (empty(Config::$modSettings['search_force_index']))
 			$wordsSearch['words'][] = $word;
 
 		// Excluded phrases don't benefit from being split into subwords.
@@ -135,7 +132,7 @@ class Custom extends SearchApi
 		{
 			foreach ($subwords as $subword)
 			{
-				if ($smcFunc['strlen']($subword) >= $this->min_word_length && !in_array($subword, $this->bannedWords))
+				if (Utils::entityStrlen($subword) >= $this->min_word_length && !in_array($subword, $this->bannedWords))
 				{
 					$wordsSearch['indexed_words'][] = $subword;
 
@@ -151,14 +148,12 @@ class Custom extends SearchApi
 	 */
 	public function indexedWordQuery(array $words, array $search_data)
 	{
-		global $modSettings, $smcFunc;
-
 		// Specify the function to search with. Regex is for word boundaries.
-		$is_search_regex = !empty($modSettings['search_match_words']) && !$search_data['no_regexp'];
+		$is_search_regex = !empty(Config::$modSettings['search_match_words']) && !$search_data['no_regexp'];
 		$query_match_type = $is_search_regex ? 'RLIKE' : 'LIKE';
-		$word_boundary_wrapper = function(string $str) use ($smcFunc): string
+		$word_boundary_wrapper = function(string $str): string
 		{
-			return sprintf($smcFunc['db_supports_pcre'] ? '\\b%s\\b' : '[[:<:]]%s[[:>:]]', $str);
+			return sprintf(Db::$db->supports_pcre ? '\\b%s\\b' : '[[:<:]]%s[[:>:]]', $str);
 		};
 		$escape_sql_regex = function(string $str): string
 		{
@@ -187,7 +182,7 @@ class Custom extends SearchApi
 			if ($is_search_regex)
 				$query_params['complex_body_' . $count++] = $word_boundary_wrapper($escape_sql_regex($regularWord));
 			else
-				$query_params['complex_body_' . $count++] = '%' . $smcFunc['db_escape_wildcard_string']($regularWord) . '%';
+				$query_params['complex_body_' . $count++] = '%' . Db::$db->escape_wildcard_string($regularWord) . '%';
 		}
 
 		if ($query_params['user_query'])
@@ -203,7 +198,7 @@ class Custom extends SearchApi
 			$query_where[] = 'm.id_msg <= {int:max_msg_id}';
 
 		$count = 0;
-		if (!empty($query_params['excluded_phrases']) && empty($modSettings['search_force_index']))
+		if (!empty($query_params['excluded_phrases']) && empty(Config::$modSettings['search_force_index']))
 			foreach ($query_params['excluded_phrases'] as $phrase)
 			{
 				$query_where[] = 'subject NOT ' . $query_match_type . ' {string:exclude_subject_words_' . $count . '}';
@@ -211,10 +206,10 @@ class Custom extends SearchApi
 				if ($is_search_regex)
 					$query_params['exclude_subject_words_' . $count++] = $word_boundary_wrapper($escape_sql_regex($excludedWord));
 				else
-					$query_params['exclude_subject_words_' . $count++] = '%' . $smcFunc['db_escape_wildcard_string']($excludedWord) . '%';
+					$query_params['exclude_subject_words_' . $count++] = '%' . Db::$db->escape_wildcard_string($excludedWord) . '%';
 			}
 		$count = 0;
-		if (!empty($query_params['excluded_subject_words']) && empty($modSettings['search_force_index']))
+		if (!empty($query_params['excluded_subject_words']) && empty(Config::$modSettings['search_force_index']))
 			foreach ($query_params['excluded_subject_words'] as $excludedWord)
 			{
 				$query_where[] = 'subject NOT ' . $query_match_type . ' {string:exclude_subject_words_' . $count . '}';
@@ -222,7 +217,7 @@ class Custom extends SearchApi
 				if ($is_search_regex)
 					$query_params['exclude_subject_words_' . $count++] = $word_boundary_wrapper($escape_sql_regex($excludedWord));
 				else
-					$query_params['exclude_subject_words_' . $count++] = '%' . $smcFunc['db_escape_wildcard_string']($excludedWord) . '%';
+					$query_params['exclude_subject_words_' . $count++] = '%' . Db::$db->escape_wildcard_string($excludedWord) . '%';
 			}
 
 		$numTables = 0;
@@ -243,7 +238,7 @@ class Custom extends SearchApi
 			}
 		}
 
-		$ignoreRequest = $smcFunc['db_search_query']('insert_into_log_messages_fulltext', ($smcFunc['db_support_ignore'] ? ('
+		$ignoreRequest = Db::$db->search_query('insert_into_log_messages_fulltext', (Db::$db->support_ignore ? ('
 			INSERT IGNORE INTO {db_prefix}' . $search_data['insert_into'] . '
 				(' . implode(', ', array_keys($query_select)) . ')') : '') . '
 			SELECT ' . implode(', ', $query_select) . '
@@ -266,16 +261,14 @@ class Custom extends SearchApi
 	 */
 	public function postCreated(array &$msgOptions, array &$topicOptions, array &$posterOptions): void
 	{
-		global $modSettings, $smcFunc;
-
-		$customIndexSettings = $smcFunc['json_decode']($modSettings['search_custom_index_config'], true);
+		$customIndexSettings = Utils::jsonDecode(Config::$modSettings['search_custom_index_config'], true);
 
 		$inserts = array();
 		foreach (text2words($msgOptions['body'], $customIndexSettings['bytes_per_word'], true) as $word)
 			$inserts[] = array($word, $msgOptions['id']);
 
 		if (!empty($inserts))
-			$smcFunc['db_insert']('ignore',
+			Db::$db->insert('ignore',
 				'{db_prefix}log_search_words',
 				array('id_word' => 'int', 'id_msg' => 'int'),
 				$inserts,
@@ -288,12 +281,10 @@ class Custom extends SearchApi
 	 */
 	public function postModified(array &$msgOptions, array &$topicOptions, array &$posterOptions): void
 	{
-		global $modSettings, $smcFunc;
-
 		if (isset($msgOptions['body']))
 		{
-			$customIndexSettings = $smcFunc['json_decode']($modSettings['search_custom_index_config'], true);
-			$stopwords = empty($modSettings['search_stopwords']) ? array() : explode(',', $modSettings['search_stopwords']);
+			$customIndexSettings = Utils::jsonDecode(Config::$modSettings['search_custom_index_config'], true);
+			$stopwords = empty(Config::$modSettings['search_stopwords']) ? array() : explode(',', Config::$modSettings['search_stopwords']);
 			$old_body = isset($msgOptions['old_body']) ? $msgOptions['old_body'] : '';
 
 			// create thew new and old index
@@ -308,7 +299,7 @@ class Custom extends SearchApi
 			if (!empty($removed_words))
 			{
 				$removed_words = array_merge($removed_words, $inserted_words);
-				$smcFunc['db_query']('', '
+				Db::$db->query('', '
 					DELETE FROM {db_prefix}log_search_words
 					WHERE id_msg = {int:id_msg}
 						AND id_word IN ({array_int:removed_words})',
@@ -325,7 +316,7 @@ class Custom extends SearchApi
 				$inserts = array();
 				foreach ($inserted_words as $word)
 					$inserts[] = array($word, $msgOptions['id']);
-				$smcFunc['db_insert']('insert',
+				Db::$db->insert('insert',
 					'{db_prefix}log_search_words',
 					array('id_word' => 'string', 'id_msg' => 'int'),
 					$inserts,

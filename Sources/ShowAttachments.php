@@ -14,7 +14,10 @@
  */
 
 use SMF\BrowserDetector;
+use SMF\Config;
+use SMF\Utils;
 use SMF\Cache\CacheApi;
+use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -29,11 +32,11 @@ if (!defined('SMF'))
  */
 function showAttachment()
 {
-	global $smcFunc, $modSettings, $maintenance, $context, $txt, $user_info;
+	global $txt, $user_info;
 
 	// Some defaults that we need.
-	$context['character_set'] = empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : $modSettings['global_character_set'];
-	$context['utf8'] = $context['character_set'] === 'UTF-8';
+	Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : Config::$modSettings['global_character_set'];
+	Utils::$context['utf8'] = Utils::$context['character_set'] === 'UTF-8';
 
 	// An early hook to set up global vars, clean cache and other early process.
 	call_integration_hook('integrate_pre_download_request');
@@ -42,16 +45,16 @@ function showAttachment()
 	ob_end_clean();
 	header_remove('content-encoding');
 
-	if (!empty($modSettings['enableCompressedOutput']) && !headers_sent() && ob_get_length() == 0)
+	if (!empty(Config::$modSettings['enableCompressedOutput']) && !headers_sent() && ob_get_length() == 0)
 	{
 		if (@ini_get('zlib.output_compression') == '1' || @ini_get('output_handler') == 'ob_gzhandler')
-			$modSettings['enableCompressedOutput'] = 0;
+			Config::$modSettings['enableCompressedOutput'] = 0;
 
 		else
 			ob_start('ob_gzhandler');
 	}
 
-	if (empty($modSettings['enableCompressedOutput']))
+	if (empty(Config::$modSettings['enableCompressedOutput']))
 	{
 		ob_start();
 		header('content-encoding: none');
@@ -71,7 +74,7 @@ function showAttachment()
 	$showThumb = isset($_REQUEST['thumb']);
 
 	// No access in strict maintenance mode.
-	if (!empty($maintenance) && $maintenance == 2)
+	if (!empty(Config::$maintenance) && Config::$maintenance == 2)
 	{
 		send_http_status(404, 'File Not Found');
 		die('404 File Not Found');
@@ -87,12 +90,12 @@ function showAttachment()
 		// Do we have a hook wanting to use our attachment system? We use $attachRequest to prevent accidental usage of $request.
 		$attachRequest = null;
 		call_integration_hook('integrate_download_request', array(&$attachRequest));
-		if (!is_null($attachRequest) && $smcFunc['db_is_resource']($attachRequest))
+		if (!is_null($attachRequest) && Db::$db->is_resource($attachRequest))
 			$request = $attachRequest;
 		else
 		{
 			// Make sure this attachment is on this board and load its info while we are at it.
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT
 					{string:source} AS source,
 					a.id_folder, a.filename, a.file_hash, a.fileext, a.id_attach,
@@ -110,14 +113,14 @@ function showAttachment()
 		}
 
 		// No attachment has been found.
-		if ($smcFunc['db_num_rows']($request) == 0)
+		if (Db::$db->num_rows($request) == 0)
 		{
 			send_http_status(404, 'File Not Found');
 			die('404 File Not Found');
 		}
 
-		$file = $smcFunc['db_fetch_assoc']($request);
-		$smcFunc['db_free_result']($request);
+		$file = Db::$db->fetch_assoc($request);
+		Db::$db->free_result($request);
 
 		// set filePath and ETag time
 		$file['filePath'] = getAttachmentFilename($file['filename'], $attachId, $file['id_folder'], false, $file['file_hash']);
@@ -134,7 +137,7 @@ function showAttachment()
 		$thumbFile = array();
 		if (!empty($file['id_thumb']))
 		{
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT id_folder, filename, file_hash, fileext, id_attach, attachment_type, mime_type, approved, id_member
 				FROM {db_prefix}attachments
 				WHERE id_attach = {int:thumb_id}
@@ -144,8 +147,8 @@ function showAttachment()
 				)
 			);
 
-			$thumbFile = $smcFunc['db_fetch_assoc']($request);
-			$smcFunc['db_free_result']($request);
+			$thumbFile = Db::$db->fetch_assoc($request);
+			Db::$db->free_result($request);
 
 			// Got something! replace the $file var with the thumbnail info.
 			if ($thumbFile)
@@ -171,7 +174,7 @@ function showAttachment()
 	if (!empty($file['id_msg']))
 	{
 		// Special case for profile exports.
-		if (!empty($context['attachment_allow_hidden_boards']))
+		if (!empty(Utils::$context['attachment_allow_hidden_boards']))
 		{
 			$boards_allowed = array(0);
 		}
@@ -217,9 +220,9 @@ function showAttachment()
 	}
 
 	// If attachment is unapproved, see if user is allowed to approve
-	if (!$file['approved'] && $modSettings['postmod_active'] && !allowedTo('approve_posts'))
+	if (!$file['approved'] && Config::$modSettings['postmod_active'] && !allowedTo('approve_posts'))
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_member
 			FROM {db_prefix}messages
 			WHERE id_msg = {int:id_msg}
@@ -229,8 +232,8 @@ function showAttachment()
 			)
 		);
 
-		$id_member = $smcFunc['db_fetch_assoc']($request)['id_member'];
-		$smcFunc['db_free_result']($request);
+		$id_member = Db::$db->fetch_assoc($request)['id_member'];
+		Db::$db->free_result($request);
 
 		// Let users see own unapproved attachments
 		if ($id_member != $user_info['id'])
@@ -248,7 +251,7 @@ function showAttachment()
 	if (empty($file['exists']))
 	{
 		send_http_status(404);
-		header('content-type: text/plain; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
+		header('content-type: text/plain; charset=' . (empty(Utils::$context['character_set']) ? 'ISO-8859-1' : Utils::$context['character_set']));
 
 		// We need to die like this *before* we send any anti-caching headers as below.
 		die('File not found.');
@@ -292,8 +295,8 @@ function showAttachment()
 	}
 
 	// Update the download counter (unless it's a thumbnail or resuming an incomplete download).
-	if ($file['attachment_type'] != 3 && empty($showThumb) && empty($_REQUEST['preview']) && $range === 0 && empty($context['skip_downloads_increment']))
-		$smcFunc['db_query']('', '
+	if ($file['attachment_type'] != 3 && empty($showThumb) && empty($_REQUEST['preview']) && $range === 0 && empty(Utils::$context['skip_downloads_increment']))
+		Db::$db->query('', '
 			UPDATE {db_prefix}attachments
 			SET downloads = downloads + 1
 			WHERE id_attach = {int:id_attach}',
@@ -330,9 +333,9 @@ function showAttachment()
 	}
 
 	// Convert the file to UTF-8, cuz most browsers dig that.
-	$utf8name = !$context['utf8'] && function_exists('iconv') ? iconv($context['character_set'], 'UTF-8', $file['filename']) : (!$context['utf8'] && function_exists('mb_convert_encoding') ? mb_convert_encoding($file['filename'], 'UTF-8', $context['character_set']) : $file['filename']);
+	$utf8name = !Utils::$context['utf8'] && function_exists('iconv') ? iconv(Utils::$context['character_set'], 'UTF-8', $file['filename']) : (!Utils::$context['utf8'] && function_exists('mb_convert_encoding') ? mb_convert_encoding($file['filename'], 'UTF-8', Utils::$context['character_set']) : $file['filename']);
 
-	if (!empty($context['prepend_attachment_id']))
+	if (!empty(Utils::$context['prepend_attachment_id']))
 		$utf8name = $_REQUEST['attach'] . ' - ' . $utf8name;
 
 	// On mobile devices, audio and video should be served inline so the browser can play them.
@@ -343,13 +346,13 @@ function showAttachment()
 
 	// Different browsers like different standards...
 	if (BrowserDetector::isBrowser('firefox'))
-		header('content-disposition: ' . $disposition . '; filename*=UTF-8\'\'' . rawurlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name)));
+		header('content-disposition: ' . $disposition . '; filename*=UTF-8\'\'' . rawurlencode(Utils::entityDecode($utf8name, true)));
 
 	elseif (BrowserDetector::isBrowser('opera'))
-		header('content-disposition: ' . $disposition . '; filename="' . preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name) . '"');
+		header('content-disposition: ' . $disposition . '; filename="' . Utils::entityDecode($utf8name, true) . '"');
 
 	elseif (BrowserDetector::isBrowser('ie'))
-		header('content-disposition: ' . $disposition . '; filename="' . urlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name)) . '"');
+		header('content-disposition: ' . $disposition . '; filename="' . urlencode(Utils::entityDecode($utf8name, true)) . '"');
 
 	else
 		header('content-disposition: ' . $disposition . '; filename="' . $utf8name . '"');

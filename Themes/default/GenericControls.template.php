@@ -10,6 +10,9 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+
 /**
  * This function displays all the stuff you get with a richedit box - BBC, smileys, etc.
  *
@@ -19,9 +22,9 @@
  */
 function template_control_richedit($editor_id, $smileyContainer = null, $bbcContainer = null)
 {
-	global $context, $settings, $modSettings, $smcFunc;
+	global $settings;
 
-	$editor_context = &$context['controls']['richedit'][$editor_id];
+	$editor_context = &Utils::$context['controls']['richedit'][$editor_id];
 
 	if ($smileyContainer === null)
 		$editor_context['sce_options']['emoticonsEnabled'] = false;
@@ -30,15 +33,15 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 		$editor_context['sce_options']['toolbar'] = '';
 
 	echo '
-		<textarea class="editor" name="', $editor_id, '" id="', $editor_id, '" cols="600" onselect="storeCaret(this);" onclick="storeCaret(this);" onkeyup="storeCaret(this);" onchange="storeCaret(this);" tabindex="', $context['tabindex']++, '" style="width: ', $editor_context['width'], '; height: ', $editor_context['height'], ';', isset($context['post_error']['no_message']) || isset($context['post_error']['long_message']) ? 'border: 1px solid red;' : '', '"', !empty($context['editor']['required']) ? ' required' : '', '>', $editor_context['value'], '</textarea>
+		<textarea class="editor" name="', $editor_id, '" id="', $editor_id, '" cols="600" onselect="storeCaret(this);" onclick="storeCaret(this);" onkeyup="storeCaret(this);" onchange="storeCaret(this);" tabindex="', Utils::$context['tabindex']++, '" style="width: ', $editor_context['width'], '; height: ', $editor_context['height'], ';', isset(Utils::$context['post_error']['no_message']) || isset(Utils::$context['post_error']['long_message']) ? 'border: 1px solid red;' : '', '"', !empty(Utils::$context['editor']['required']) ? ' required' : '', '>', $editor_context['value'], '</textarea>
 		<div id="', $editor_id, '_resizer" class="richedit_resize"></div>
 		<input type="hidden" name="', $editor_id, '_mode" id="', $editor_id, '_mode" value="0">
 		<script>
 			$(document).ready(function() {
-				', !empty($context['bbcodes_handlers']) ? $context['bbcodes_handlers'] : '', '
+				', !empty(Utils::$context['bbcodes_handlers']) ? Utils::$context['bbcodes_handlers'] : '', '
 
 				var textarea = $("#', $editor_id, '").get(0);
-				sceditor.create(textarea, ', $smcFunc['json_encode']($editor_context['sce_options'], JSON_PRETTY_PRINT), ');';
+				sceditor.create(textarea, ', Utils::jsonEncode($editor_context['sce_options'], JSON_PRETTY_PRINT), ');';
 
 	if ($editor_context['sce_options']['emoticonsEnabled'])
 		echo '
@@ -48,7 +51,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 		echo '
 				sceditor.instance(textarea).toggleSourceMode();';
 
-	if (isset($context['post_error']['no_message']) || isset($context['post_error']['long_message']))
+	if (isset(Utils::$context['post_error']['no_message']) || isset(Utils::$context['post_error']['long_message']))
 		echo '
 				$(".sceditor-container").find("textarea").each(function() {$(this).css({border: "1px solid red"})});
 				$(".sceditor-container").find("iframe").each(function() {$(this).css({border: "1px solid red"})});';
@@ -62,7 +65,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 				sUniqueId: ', JavaScriptEscape($editor_id), ',
 				sEditWidth: ', JavaScriptEscape($editor_context['width']), ',
 				sEditHeight: ', JavaScriptEscape($editor_context['height']), ',
-				bRichEditOff: ', empty($modSettings['disable_wysiwyg']) ? 'false' : 'true', ',
+				bRichEditOff: ', empty(Config::$modSettings['disable_wysiwyg']) ? 'false' : 'true', ',
 				oSmileyBox: null,
 				oBBCBox: null
 			});
@@ -77,31 +80,31 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
  */
 function template_control_richedit_buttons($editor_id)
 {
-	global $context, $settings, $txt, $modSettings;
+	global $settings, $txt;
 
-	$editor_context = &$context['controls']['richedit'][$editor_id];
+	$editor_context = &Utils::$context['controls']['richedit'][$editor_id];
 
 	echo '
 		<span class="smalltext">
-			', $context['shortcuts_text'], '
+			', Utils::$context['shortcuts_text'], '
 		</span>
 		<span class="post_button_container">';
 
-	$tempTab = $context['tabindex'];
+	$tempTab = Utils::$context['tabindex'];
 
-	if (!empty($context['drafts_pm_save']))
+	if (!empty(Utils::$context['drafts_pm_save']))
 		$tempTab++;
-	elseif (!empty($context['drafts_save']))
+	elseif (!empty(Utils::$context['drafts_save']))
 		$tempTab++;
 	elseif ($editor_context['preview_type'])
 		$tempTab++;
-	elseif ($context['show_spellchecking'])
+	elseif (Utils::$context['show_spellchecking'])
 		$tempTab++;
 
 	$tempTab++;
-	$context['tabindex'] = $tempTab;
+	Utils::$context['tabindex'] = $tempTab;
 
-	foreach ($context['richedit_buttons'] as $name => $button) {
+	foreach (Utils::$context['richedit_buttons'] as $name => $button) {
 		if ($name == 'spell_check') {
 			$button['onclick'] = 'oEditorHandle_' . $editor_id . '.spellCheckStart();';
 		}
@@ -123,7 +126,7 @@ function template_control_richedit_buttons($editor_id)
 		</span>';
 
 	// Load in the PM autosaver if it's enabled
-	if (!empty($context['drafts_pm_save']) && !empty($context['drafts_autosave']))
+	if (!empty(Utils::$context['drafts_pm_save']) && !empty(Utils::$context['drafts_autosave']))
 		echo '
 		<span class="righttext padding" style="display: block">
 			<span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon"></span>
@@ -138,12 +141,12 @@ function template_control_richedit_buttons($editor_id)
 				sType: \'post\',
 				bPM: true,
 				iBoard: 0,
-				iFreq: ', (empty($modSettings['drafts_autosave_frequency']) ? 60000 : $modSettings['drafts_autosave_frequency'] * 1000), '
+				iFreq: ', (empty(Config::$modSettings['drafts_autosave_frequency']) ? 60000 : Config::$modSettings['drafts_autosave_frequency'] * 1000), '
 			});
 		</script>';
 
 	// Start an instance of the auto saver if its enabled
-	if (!empty($context['drafts_save']) && !empty($context['drafts_autosave']))
+	if (!empty(Utils::$context['drafts_save']) && !empty(Utils::$context['drafts_autosave']))
 		echo '
 		<span class="righttext padding" style="display: block">
 			<span id="throbber" style="display:none"><img src="', $settings['images_url'], '/loading_sm.gif" alt="" class="centericon"></span>
@@ -156,8 +159,8 @@ function template_control_richedit_buttons($editor_id)
 				sLastID: \'id_draft\',
 				sSceditorID: \'', $editor_id, '\',
 				sType: \'post\',
-				iBoard: ', (empty($context['current_board']) ? 0 : $context['current_board']), ',
-				iFreq: ', $context['drafts_autosave_frequency'], '
+				iBoard: ', (empty(Utils::$context['current_board']) ? 0 : Utils::$context['current_board']), ',
+				iFreq: ', Utils::$context['drafts_autosave_frequency'], '
 			});
 		</script>';
 }
@@ -172,9 +175,9 @@ function template_control_richedit_buttons($editor_id)
  */
 function template_control_verification($verify_id, $display_type = 'all', $reset = false)
 {
-	global $context, $txt;
+	global $txt;
 
-	$verify_context = &$context['controls']['verification'][$verify_id];
+	$verify_context = &Utils::$context['controls']['verification'][$verify_id];
 
 	// Keep track of where we are.
 	if (empty($verify_context['tracking']) || $reset)
@@ -211,7 +214,7 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 		{
 			if ($verify_context['show_visual'])
 			{
-				if ($context['use_graphic_library'])
+				if (Utils::$context['use_graphic_library'])
 					echo '
 				<img src="', $verify_context['image_href'], '" alt="', $txt['visual_verification_description'], '" id="verification_image_', $verify_id, '">';
 				else
@@ -227,7 +230,7 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 				<div class="smalltext" style="margin: 4px 0 8px 0;">
 					<a href="', $verify_context['image_href'], ';sound" id="visual_verification_', $verify_id, '_sound" rel="nofollow">', $txt['visual_verification_sound'], '</a> / <a href="#visual_verification_', $verify_id, '_refresh" id="visual_verification_', $verify_id, '_refresh">', $txt['visual_verification_request_new'], '</a>', $display_type != 'quick_reply' ? '<br>' : '', '<br>
 					', $txt['visual_verification_description'], ':', $display_type != 'quick_reply' ? '<br>' : '', '
-					<input type="text" name="', $verify_id, '_vv[code]" value="" size="30" tabindex="', $context['tabindex']++, '" autocomplete="off" required>
+					<input type="text" name="', $verify_id, '_vv[code]" value="" size="30" tabindex="', Utils::$context['tabindex']++, '" autocomplete="off" required>
 				</div>';
 			}
 
@@ -249,7 +252,7 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 				echo '
 				<div class="smalltext">
 					', $verify_context['questions'][$qIndex]['q'], ':<br>
-					<input type="text" name="', $verify_id, '_vv[q][', $verify_context['questions'][$qIndex]['id'], ']" size="30" value="', $verify_context['questions'][$qIndex]['a'], '" ', $verify_context['questions'][$qIndex]['is_error'] ? 'style="border: 1px red solid;"' : '', ' tabindex="', $context['tabindex']++, '" required>
+					<input type="text" name="', $verify_id, '_vv[q][', $verify_context['questions'][$qIndex]['id'], ']" size="30" value="', $verify_context['questions'][$qIndex]['a'], '" ', $verify_context['questions'][$qIndex]['is_error'] ? 'style="border: 1px red solid;"' : '', ' tabindex="', Utils::$context['tabindex']++, '" required>
 				</div>';
 		}
 

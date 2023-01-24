@@ -10,16 +10,17 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+
 /**
  * This defines the XML for sending the body of a message
  */
 function template_sendbody()
 {
-	global $context;
-
-	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+	echo '<', '?xml version="1.0" encoding="', Utils::$context['character_set'], '"?', '>
 <smf>
-	<message view="', $context['view'], '">', cleanXml($context['message']), '</message>
+	<message view="', Utils::$context['view'], '">', cleanXml(Utils::$context['message']), '</message>
 </smf>';
 }
 
@@ -28,11 +29,9 @@ function template_sendbody()
  */
 function template_quotefast()
 {
-	global $context;
-
-	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+	echo '<', '?xml version="1.0" encoding="', Utils::$context['character_set'], '"?', '>
 <smf>
-	<quote>', cleanXml($context['quote']['xml']), '</quote>
+	<quote>', cleanXml(Utils::$context['quote']['xml']), '</quote>
 </smf>';
 }
 
@@ -41,13 +40,11 @@ function template_quotefast()
  */
 function template_modifyfast()
 {
-	global $context;
-
-	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+	echo '<', '?xml version="1.0" encoding="', Utils::$context['character_set'], '"?', '>
 <smf>
-	<subject><![CDATA[', cleanXml($context['message']['subject']), ']]></subject>
-	<message id="msg_', $context['message']['id'], '"><![CDATA[', cleanXml($context['message']['body']), ']]></message>
-	<reason time="', $context['message']['reason']['time'], '" name="', $context['message']['reason']['name'], '"><![CDATA[', cleanXml($context['message']['reason']['text']), ']]></reason>
+	<subject><![CDATA[', cleanXml(Utils::$context['message']['subject']), ']]></subject>
+	<message id="msg_', Utils::$context['message']['id'], '"><![CDATA[', cleanXml(Utils::$context['message']['body']), ']]></message>
+	<reason time="', Utils::$context['message']['reason']['time'], '" name="', Utils::$context['message']['reason']['name'], '"><![CDATA[', cleanXml(Utils::$context['message']['reason']['text']), ']]></reason>
 </smf>';
 
 }
@@ -57,26 +54,26 @@ function template_modifyfast()
  */
 function template_modifydone()
 {
-	global $context, $txt;
+	global $txt;
 
-	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+	echo '<', '?xml version="1.0" encoding="', Utils::$context['character_set'], '"?', '>
 <smf>
-	<message id="msg_', $context['message']['id'], '">';
-	if (empty($context['message']['errors']))
+	<message id="msg_', Utils::$context['message']['id'], '">';
+	if (empty(Utils::$context['message']['errors']))
 	{
 		// Build our string of info about when and why it was modified
-		$modified = empty($context['message']['modified']['time']) ? '' : sprintf($txt['last_edit_by'], $context['message']['modified']['time'], $context['message']['modified']['name']);
-		$modified .= empty($context['message']['modified']['reason']) ? '' : ' ' . sprintf($txt['last_edit_reason'], $context['message']['modified']['reason']);
+		$modified = empty(Utils::$context['message']['modified']['time']) ? '' : sprintf($txt['last_edit_by'], Utils::$context['message']['modified']['time'], Utils::$context['message']['modified']['name']);
+		$modified .= empty(Utils::$context['message']['modified']['reason']) ? '' : ' ' . sprintf($txt['last_edit_reason'], Utils::$context['message']['modified']['reason']);
 
 		echo '
 		<modified><![CDATA[', empty($modified) ? '' : cleanXml($modified), ']]></modified>
-		<subject is_first="', $context['message']['first_in_topic'] ? '1' : '0', '"><![CDATA[', cleanXml($context['message']['subject']), ']]></subject>
-		<body><![CDATA[', $context['message']['body'], ']]></body>
+		<subject is_first="', Utils::$context['message']['first_in_topic'] ? '1' : '0', '"><![CDATA[', cleanXml(Utils::$context['message']['subject']), ']]></subject>
+		<body><![CDATA[', Utils::$context['message']['body'], ']]></body>
 		<success><![CDATA[', $txt['quick_modify_message'], ']]></success>';
 	}
 	else
 		echo '
-		<error in_subject="', $context['message']['error_in_subject'] ? '1' : '0', '" in_body="', cleanXml($context['message']['error_in_body']) ? '1' : '0', '"><![CDATA[', implode('<br />', $context['message']['errors']), ']]></error>';
+		<error in_subject="', Utils::$context['message']['error_in_subject'] ? '1' : '0', '" in_body="', cleanXml(Utils::$context['message']['error_in_body']) ? '1' : '0', '"><![CDATA[', implode('<br />', Utils::$context['message']['errors']), ']]></error>';
 	echo '
 	</message>
 </smf>';
@@ -87,27 +84,27 @@ function template_modifydone()
  */
 function template_modifytopicdone()
 {
-	global $context, $txt;
+	global $txt;
 
-	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+	echo '<', '?xml version="1.0" encoding="', Utils::$context['character_set'], '"?', '>
 <smf>
-	<message id="msg_', $context['message']['id'], '">';
-	if (empty($context['message']['errors']))
+	<message id="msg_', Utils::$context['message']['id'], '">';
+	if (empty(Utils::$context['message']['errors']))
 	{
 		// Build our string of info about when and why it was modified
-		$modified = empty($context['message']['modified']['time']) ? '' : sprintf($txt['last_edit_by'], $context['message']['modified']['time'], $context['message']['modified']['name']);
-		$modified .= empty($context['message']['modified']['reason']) ? '' : sprintf($txt['last_edit_reason'], $context['message']['modified']['reason']);
+		$modified = empty(Utils::$context['message']['modified']['time']) ? '' : sprintf($txt['last_edit_by'], Utils::$context['message']['modified']['time'], Utils::$context['message']['modified']['name']);
+		$modified .= empty(Utils::$context['message']['modified']['reason']) ? '' : sprintf($txt['last_edit_reason'], Utils::$context['message']['modified']['reason']);
 
 		echo '
 		<modified><![CDATA[', empty($modified) ? '' : cleanXml('<em>' . $modified . '</em>'), ']]></modified>';
 
-		if (!empty($context['message']['subject']))
+		if (!empty(Utils::$context['message']['subject']))
 			echo '
-		<subject><![CDATA[', cleanXml($context['message']['subject']), ']]></subject>';
+		<subject><![CDATA[', cleanXml(Utils::$context['message']['subject']), ']]></subject>';
 	}
 	else
 		echo '
-		<error in_subject="', $context['message']['error_in_subject'] ? '1' : '0', '"><![CDATA[', cleanXml(implode('<br />', $context['message']['errors'])), ']]></error>';
+		<error in_subject="', Utils::$context['message']['error_in_subject'] ? '1' : '0', '"><![CDATA[', cleanXml(implode('<br />', Utils::$context['message']['errors'])), ']]></error>';
 	echo '
 	</message>
 </smf>';
@@ -118,37 +115,35 @@ function template_modifytopicdone()
  */
 function template_post()
 {
-	global $context;
-
-	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+	echo '<', '?xml version="1.0" encoding="', Utils::$context['character_set'], '"?', '>
 <smf>
 	<preview>
-		<subject><![CDATA[', $context['preview_subject'], ']]></subject>
-		<body><![CDATA[', $context['preview_message'], ']]></body>
+		<subject><![CDATA[', Utils::$context['preview_subject'], ']]></subject>
+		<body><![CDATA[', Utils::$context['preview_message'], ']]></body>
 	</preview>
-	<errors serious="', empty($context['error_type']) || $context['error_type'] != 'serious' ? '0' : '1', '" topic_locked="', $context['locked'] ? '1' : '0', '">';
+	<errors serious="', empty(Utils::$context['error_type']) || Utils::$context['error_type'] != 'serious' ? '0' : '1', '" topic_locked="', Utils::$context['locked'] ? '1' : '0', '">';
 
-	if (!empty($context['post_error']))
-		foreach ($context['post_error'] as $message)
+	if (!empty(Utils::$context['post_error']))
+		foreach (Utils::$context['post_error'] as $message)
 			echo '
 		<error><![CDATA[', cleanXml($message), ']]></error>';
 
 	echo '
-		<caption name="guestname" class="', isset($context['post_error']['long_name']) || isset($context['post_error']['no_name']) || isset($context['post_error']['bad_name']) ? 'error' : '', '" />
-		<caption name="email" class="', isset($context['post_error']['no_email']) || isset($context['post_error']['bad_email']) ? 'error' : '', '" />
-		<caption name="evtitle" class="', isset($context['post_error']['no_event']) ? 'error' : '', '" />
-		<caption name="subject" class="', isset($context['post_error']['no_subject']) ? 'error' : '', '" />
-		<caption name="question" class="', isset($context['post_error']['no_question']) ? 'error' : '', '" />', isset($context['post_error']['no_message']) || isset($context['post_error']['long_message']) ? '
+		<caption name="guestname" class="', isset(Utils::$context['post_error']['long_name']) || isset(Utils::$context['post_error']['no_name']) || isset(Utils::$context['post_error']['bad_name']) ? 'error' : '', '" />
+		<caption name="email" class="', isset(Utils::$context['post_error']['no_email']) || isset(Utils::$context['post_error']['bad_email']) ? 'error' : '', '" />
+		<caption name="evtitle" class="', isset(Utils::$context['post_error']['no_event']) ? 'error' : '', '" />
+		<caption name="subject" class="', isset(Utils::$context['post_error']['no_subject']) ? 'error' : '', '" />
+		<caption name="question" class="', isset(Utils::$context['post_error']['no_question']) ? 'error' : '', '" />', isset(Utils::$context['post_error']['no_message']) || isset(Utils::$context['post_error']['long_message']) ? '
 		<post_error />' : '', '
 	</errors>
-	<last_msg>', isset($context['topic_last_message']) ? $context['topic_last_message'] : '0', '</last_msg>';
+	<last_msg>', isset(Utils::$context['topic_last_message']) ? Utils::$context['topic_last_message'] : '0', '</last_msg>';
 
-	if (!empty($context['previous_posts']))
+	if (!empty(Utils::$context['previous_posts']))
 	{
 		echo '
 	<new_posts>';
 
-		foreach ($context['previous_posts'] as $post)
+		foreach (Utils::$context['previous_posts'] as $post)
 			echo '
 		<post id="', $post['id'], '">
 			<time><![CDATA[', $post['time'], ']]></time>
@@ -170,27 +165,27 @@ function template_post()
  */
 function template_pm()
 {
-	global $context, $txt;
+	global $txt;
 
 	// @todo something could be removed...otherwise it can be merged again with template_post
-	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+	echo '<', '?xml version="1.0" encoding="', Utils::$context['character_set'], '"?', '>
 <smf>
 	<preview>
-		<subject><![CDATA[', $txt['preview'], ' - ', !empty($context['preview_subject']) ? $context['preview_subject'] : $txt['no_subject'], ']]></subject>
-		<body><![CDATA[', $context['preview_message'], ']]></body>
+		<subject><![CDATA[', $txt['preview'], ' - ', !empty(Utils::$context['preview_subject']) ? Utils::$context['preview_subject'] : $txt['no_subject'], ']]></subject>
+		<body><![CDATA[', Utils::$context['preview_message'], ']]></body>
 	</preview>
-	<errors serious="', empty($context['error_type']) || $context['error_type'] != 'serious' ? '0' : '1', '">';
+	<errors serious="', empty(Utils::$context['error_type']) || Utils::$context['error_type'] != 'serious' ? '0' : '1', '">';
 
-	if (!empty($context['post_error']['messages']))
-		foreach ($context['post_error']['messages'] as $message)
+	if (!empty(Utils::$context['post_error']['messages']))
+		foreach (Utils::$context['post_error']['messages'] as $message)
 			echo '
 		<error><![CDATA[', cleanXml($message), ']]></error>';
 
 	echo '
-		<caption name="to" class="', isset($context['post_error']['no_to']) ? 'error' : '', '" />
-		<caption name="bbc" class="', isset($context['post_error']['no_bbc']) ? 'error' : '', '" />
-		<caption name="subject" class="', isset($context['post_error']['no_subject']) ? 'error' : '', '" />
-		<caption name="question" class="', isset($context['post_error']['no_question']) ? 'error' : '', '" />', isset($context['post_error']['no_message']) || isset($context['post_error']['long_message']) ? '
+		<caption name="to" class="', isset(Utils::$context['post_error']['no_to']) ? 'error' : '', '" />
+		<caption name="bbc" class="', isset(Utils::$context['post_error']['no_bbc']) ? 'error' : '', '" />
+		<caption name="subject" class="', isset(Utils::$context['post_error']['no_subject']) ? 'error' : '', '" />
+		<caption name="question" class="', isset(Utils::$context['post_error']['no_question']) ? 'error' : '', '" />', isset(Utils::$context['post_error']['no_message']) || isset(Utils::$context['post_error']['long_message']) ? '
 		<post_error />' : '', '
 	</errors>';
 
@@ -203,19 +198,17 @@ function template_pm()
  */
 function template_warning()
 {
-	global $context;
-
 	// @todo something could be removed...otherwise it can be merged again with template_post
-	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+	echo '<', '?xml version="1.0" encoding="', Utils::$context['character_set'], '"?', '>
 <smf>
 	<preview>
-		<subject><![CDATA[', $context['preview_subject'], ']]></subject>
-		<body><![CDATA[', $context['preview_message'], ']]></body>
+		<subject><![CDATA[', Utils::$context['preview_subject'], ']]></subject>
+		<body><![CDATA[', Utils::$context['preview_message'], ']]></body>
 	</preview>
-	<errors serious="', empty($context['error_type']) || $context['error_type'] != 'serious' ? '0' : '1', '">';
+	<errors serious="', empty(Utils::$context['error_type']) || Utils::$context['error_type'] != 'serious' ? '0' : '1', '">';
 
-	if (!empty($context['post_error']['messages']))
-		foreach ($context['post_error']['messages'] as $message)
+	if (!empty(Utils::$context['post_error']['messages']))
+		foreach (Utils::$context['post_error']['messages'] as $message)
 			echo '
 		<error><![CDATA[', cleanXml($message), ']]></error>';
 
@@ -231,14 +224,12 @@ function template_warning()
  */
 function template_stats()
 {
-	global $context, $modSettings;
-
-	if (empty($context['yearly']))
+	if (empty(Utils::$context['yearly']))
 		return;
 
-	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+	echo '<', '?xml version="1.0" encoding="', Utils::$context['character_set'], '"?', '>
 <smf>';
-	foreach ($context['yearly'] as $year)
+	foreach (Utils::$context['yearly'] as $year)
 		foreach ($year['months'] as $month)
 		{
 			echo '
@@ -246,7 +237,7 @@ function template_stats()
 
 			foreach ($month['days'] as $day)
 				echo '
-		<day date="', $day['year'], '-', $day['month'], '-', $day['day'], '" new_topics="', $day['new_topics'], '" new_posts="', $day['new_posts'], '" new_members="', $day['new_members'], '" most_members_online="', $day['most_members_online'], '"', empty($modSettings['hitStats']) ? '' : ' hits="' . $day['hits'] . '"', ' />';
+		<day date="', $day['year'], '-', $day['month'], '-', $day['day'], '" new_topics="', $day['new_topics'], '" new_posts="', $day['new_posts'], '" new_members="', $day['new_members'], '" most_members_online="', $day['most_members_online'], '"', empty(Config::$modSettings['hitStats']) ? '' : ' hits="' . $day['hits'] . '"', ' />';
 
 			echo '
 	</month>';
@@ -261,13 +252,11 @@ function template_stats()
  */
 function template_split()
 {
-	global $context;
-
-	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+	echo '<', '?xml version="1.0" encoding="', Utils::$context['character_set'], '"?', '>
 <smf>
-	<pageIndex section="not_selected" startFrom="', $context['not_selected']['start'], '"><![CDATA[', $context['not_selected']['page_index'], ']]></pageIndex>
-	<pageIndex section="selected" startFrom="', $context['selected']['start'], '"><![CDATA[', $context['selected']['page_index'], ']]></pageIndex>';
-	foreach ($context['changes'] as $change)
+	<pageIndex section="not_selected" startFrom="', Utils::$context['not_selected']['start'], '"><![CDATA[', Utils::$context['not_selected']['page_index'], ']]></pageIndex>
+	<pageIndex section="selected" startFrom="', Utils::$context['selected']['start'], '"><![CDATA[', Utils::$context['selected']['page_index'], ']]></pageIndex>';
+	foreach (Utils::$context['changes'] as $change)
 	{
 		if ($change['type'] == 'remove')
 			echo '
@@ -308,11 +297,11 @@ if (!function_exists('template_button_strip'))
  */
 function template_results()
 {
-	global $context, $txt;
-	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+	global $txt;
+	echo '<', '?xml version="1.0" encoding="', Utils::$context['character_set'], '"?', '>
 <smf>';
 
-	if (empty($context['topics']))
+	if (empty(Utils::$context['topics']))
 		echo '
 		<noresults>', $txt['search_no_results'], '</noresults>';
 	else
@@ -320,7 +309,7 @@ function template_results()
 		echo '
 		<results>';
 
-		while ($topic = $context['get_topics']())
+		while ($topic = Utils::$context['get_topics']())
 		{
 			echo '
 			<result>
@@ -374,12 +363,10 @@ function template_results()
  */
 function template_jump_to()
 {
-	global $context;
-
-	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+	echo '<', '?xml version="1.0" encoding="', Utils::$context['character_set'], '"?', '>
 <smf>';
 
-	foreach ($context['jump_to'] as $category)
+	foreach (Utils::$context['jump_to'] as $category)
 	{
 		echo '
 	<item type="category" id="', $category['id'], '"><![CDATA[', cleanXml($category['name']), ']]></item>';
@@ -397,12 +384,10 @@ function template_jump_to()
  */
 function template_message_icons()
 {
-	global $context;
-
-	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+	echo '<', '?xml version="1.0" encoding="', Utils::$context['character_set'], '"?', '>
 <smf>';
 
-	foreach ($context['icons'] as $icon)
+	foreach (Utils::$context['icons'] as $icon)
 		echo '
 	<icon value="', $icon['value'], '" url="', $icon['url'], '"><![CDATA[', cleanXml($icon['name']), ']]></icon>';
 
@@ -415,11 +400,9 @@ function template_message_icons()
  */
 function template_check_username()
 {
-	global $context;
-
-	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+	echo '<', '?xml version="1.0" encoding="', Utils::$context['character_set'], '"?', '>
 <smf>
-	<username valid="', $context['valid_username'] ? 1 : 0, '">', cleanXml($context['checked_username']), '</username>
+	<username valid="', Utils::$context['valid_username'] ? 1 : 0, '">', cleanXml(Utils::$context['checked_username']), '</username>
 </smf>';
 }
 
@@ -428,12 +411,10 @@ function template_check_username()
  */
 function template_generic_xml()
 {
-	global $context;
-
-	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>';
+	echo '<', '?xml version="1.0" encoding="', Utils::$context['character_set'], '"?', '>';
 
 	// Show the data.
-	template_generic_xml_recursive($context['xml_data'], 'smf', '', -1);
+	template_generic_xml_recursive(Utils::$context['xml_data'], 'smf', '', -1);
 }
 
 /**

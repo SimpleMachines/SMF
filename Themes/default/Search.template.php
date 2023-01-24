@@ -10,26 +10,29 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+
 /**
  * The main search form
  */
 function template_main()
 {
-	global $context, $txt, $scripturl, $modSettings;
+	global $txt;
 
 	echo '
-	<form action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '" name="searchform" id="searchform">';
+	<form action="', Config::$scripturl, '?action=search2" method="post" accept-charset="', Utils::$context['character_set'], '" name="searchform" id="searchform">';
 
-	if (!empty($context['search_errors']))
+	if (!empty(Utils::$context['search_errors']))
 		echo '
 		<div class="errorbox">
-			', implode('<br>', $context['search_errors']['messages']), '
+			', implode('<br>', Utils::$context['search_errors']['messages']), '
 		</div>';
 
-	if (!empty($context['search_ignored']))
+	if (!empty(Utils::$context['search_ignored']))
 		echo '
 		<div class="noticebox">
-			', $txt['search_warning_ignored_word' . (count($context['search_ignored']) == 1 ? '' : 's')], ': ', implode(', ', $context['search_ignored']), '
+			', $txt['search_warning_ignored_word' . (count(Utils::$context['search_ignored']) == 1 ? '' : 's')], ': ', implode(', ', Utils::$context['search_ignored']), '
 		</div>';
 
 	echo '
@@ -44,9 +47,9 @@ function template_main()
 					<strong><label for="searchfor">', $txt['search_for'], ':</label></strong>
 				</dt>
 				<dd>
-					<input type="search" name="search" id="searchfor" ', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' maxlength="', $context['search_string_limit'], '" size="40">';
+					<input type="search" name="search" id="searchfor" ', !empty(Utils::$context['search_params']['search']) ? ' value="' . Utils::$context['search_params']['search'] . '"' : '', ' maxlength="', Utils::$context['search_string_limit'], '" size="40">';
 
-	if (empty($modSettings['search_simple_fulltext']))
+	if (empty(Config::$modSettings['search_simple_fulltext']))
 		echo '
 					<br><em class="smalltext">', $txt['search_example'], '</em>';
 
@@ -58,15 +61,15 @@ function template_main()
 				</dt>
 				<dd>
 					<select name="searchtype" id="searchtype">
-						<option value="1"', empty($context['search_params']['searchtype']) ? ' selected' : '', '>', $txt['all_words'], '</option>
-						<option value="2"', !empty($context['search_params']['searchtype']) ? ' selected' : '', '>', $txt['any_words'], '</option>
+						<option value="1"', empty(Utils::$context['search_params']['searchtype']) ? ' selected' : '', '>', $txt['all_words'], '</option>
+						<option value="2"', !empty(Utils::$context['search_params']['searchtype']) ? ' selected' : '', '>', $txt['any_words'], '</option>
 					</select>
 				</dd>
 				<dt>
 					<label for="userspec">', $txt['by_user'], ':</label>
 				</dt>
 				<dd>
-					<input id="userspec" type="text" name="userspec" value="', empty($context['search_params']['userspec']) ? '*' : $context['search_params']['userspec'], '" size="40">
+					<input id="userspec" type="text" name="userspec" value="', empty(Utils::$context['search_params']['userspec']) ? '*' : Utils::$context['search_params']['userspec'], '" size="40">
 				</dd>
 				<dt>
 					<label for="sort">', $txt['search_order'], ':</label>
@@ -86,11 +89,11 @@ function template_main()
 				<dd class="options">
 					<ul>
 						<li>
-							<input type="checkbox" name="show_complete" id="show_complete" value="1"', !empty($context['search_params']['show_complete']) ? ' checked' : '', '>
+							<input type="checkbox" name="show_complete" id="show_complete" value="1"', !empty(Utils::$context['search_params']['show_complete']) ? ' checked' : '', '>
 							<label for="show_complete">', $txt['search_show_complete_messages'], '</label>
 						</li>
 						<li>
-							<input type="checkbox" name="subject_only" id="subject_only" value="1"', !empty($context['search_params']['subject_only']) ? ' checked' : '', '>
+							<input type="checkbox" name="subject_only" id="subject_only" value="1"', !empty(Utils::$context['search_params']['subject_only']) ? ' checked' : '', '>
 							<label for="subject_only">', $txt['search_subject_only'], '</label>
 						</li>
 					</ul>
@@ -100,9 +103,9 @@ function template_main()
 				</dt>
 				<dd>
 					<label for="minage">', $txt['search_between'], ' </label>
-					<input type="number" name="minage" id="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" size="5" maxlength="4">
+					<input type="number" name="minage" id="minage" value="', empty(Utils::$context['search_params']['minage']) ? '0' : Utils::$context['search_params']['minage'], '" size="5" maxlength="4">
 					<label for="maxage"> ', $txt['search_and'], ' </label>
-					<input type="number" name="maxage" id="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" size="5" maxlength="4"> ', $txt['days_word'], '
+					<input type="number" name="maxage" id="maxage" value="', empty(Utils::$context['search_params']['maxage']) ? '9999' : Utils::$context['search_params']['maxage'], '" size="5" maxlength="4"> ', $txt['days_word'], '
 				</dd>
 			</dl>
 			<script>
@@ -112,26 +115,26 @@ function template_main()
 			<input type="hidden" name="advanced" value="1">';
 
 	// Require an image to be typed to save spamming?
-	if ($context['require_verification'])
+	if (Utils::$context['require_verification'])
 		echo '
 			<p>
 				<strong>', $txt['verification'], ':</strong>
-				', template_control_verification($context['visual_verification_id'], 'all'), '
+				', template_control_verification(Utils::$context['visual_verification_id'], 'all'), '
 			</p>';
 
-	// If $context['search_params']['topic'] is set, that means we're searching just one topic.
-	if (!empty($context['search_params']['topic']))
+	// If Utils::$context['search_params']['topic'] is set, that means we're searching just one topic.
+	if (!empty(Utils::$context['search_params']['topic']))
 		echo '
 			<p>
-				', $txt['search_specific_topic'], ' &quot;', $context['search_topic']['link'], '&quot;.
+				', $txt['search_specific_topic'], ' &quot;', Utils::$context['search_topic']['link'], '&quot;.
 			</p>
-			<input type="hidden" name="topic" value="', $context['search_topic']['id'], '">
+			<input type="hidden" name="topic" value="', Utils::$context['search_topic']['id'], '">
 			<input type="submit" name="b_search" value="', $txt['search'], '" class="button">';
 
 	echo '
 		</div>';
 
-	if (empty($context['search_params']['topic']))
+	if (empty(Utils::$context['search_params']['topic']))
 	{
 		echo '
 		<fieldset class="flow_hidden">
@@ -142,10 +145,10 @@ function template_main()
 						<a href="#" id="advanced_panel_link">', $txt['choose_board'], '</a>
 					</h4>
 				</div>
-				<div class="flow_auto boardslist" id="advanced_panel_div"', $context['boards_check_all'] ? ' style="display: none;"' : '', '>
+				<div class="flow_auto boardslist" id="advanced_panel_div"', Utils::$context['boards_check_all'] ? ' style="display: none;"' : '', '>
 					<ul>';
 
-		foreach ($context['categories'] as $category)
+		foreach (Utils::$context['categories'] as $category)
 		{
 			echo '
 						<li>
@@ -169,7 +172,7 @@ function template_main()
 				if ($next_child_level > $curr_child_level)
 				{
 					echo '
-									<ul style="margin-', $context['right_to_left'] ? 'right' : 'left', ': 2.5ch;">';
+									<ul style="margin-', Utils::$context['right_to_left'] ? 'right' : 'left', ': 2.5ch;">';
 				}
 				else
 				{
@@ -197,7 +200,7 @@ function template_main()
 				</div><!-- #advanced_panel_div -->
 				<br class="clear">
 				<div class="padding">
-					<input type="checkbox" name="all" id="check_all" value=""', $context['boards_check_all'] ? ' checked' : '', ' onclick="invertAll(this, this.form, \'brd\');">
+					<input type="checkbox" name="all" id="check_all" value=""', Utils::$context['boards_check_all'] ? ' checked' : '', ' onclick="invertAll(this, this.form, \'brd\');">
 					<label for="check_all"><em>', $txt['check_all'], '</em></label>
 					<input type="submit" name="b_search" value="', $txt['search'], '" class="button floatright">
 				</div>
@@ -208,7 +211,7 @@ function template_main()
 		<script>
 			var oAdvancedPanelToggle = new smc_Toggle({
 				bToggleEnabled: true,
-				bCurrentlyCollapsed: ', $context['boards_check_all'] ? 'true' : 'false', ',
+				bCurrentlyCollapsed: ', Utils::$context['boards_check_all'] ? 'true' : 'false', ',
 				aSwappableContainers: [
 					\'advanced_panel_div\'
 				],
@@ -249,9 +252,9 @@ function template_main()
  */
 function template_results()
 {
-	global $context, $options, $txt, $scripturl, $message;
+	global $options, $txt, $message;
 
-	if (isset($context['did_you_mean']) || empty($context['topics']) || !empty($context['search_ignored']))
+	if (isset(Utils::$context['did_you_mean']) || empty(Utils::$context['topics']) || !empty(Utils::$context['search_ignored']))
 	{
 		echo '
 	<div id="search_results">
@@ -263,33 +266,33 @@ function template_results()
 		<div class="roundframe">';
 
 		// Did they make any typos or mistakes, perhaps?
-		if (isset($context['did_you_mean']))
+		if (isset(Utils::$context['did_you_mean']))
 			echo '
 			<p>
-				', $txt['search_did_you_mean'], ' <a href="', $scripturl, '?action=search2;params=', $context['did_you_mean_params'], '">', $context['did_you_mean'], '</a>.
+				', $txt['search_did_you_mean'], ' <a href="', Config::$scripturl, '?action=search2;params=', Utils::$context['did_you_mean_params'], '">', Utils::$context['did_you_mean'], '</a>.
 			</p>';
 
-		if (!empty($context['search_ignored']))
+		if (!empty(Utils::$context['search_ignored']))
 			echo '
 			<p>
-				', $txt['search_warning_ignored_word' . (count($context['search_ignored']) == 1 ? '' : 's')], ': ', implode(', ', $context['search_ignored']), '
+				', $txt['search_warning_ignored_word' . (count(Utils::$context['search_ignored']) == 1 ? '' : 's')], ': ', implode(', ', Utils::$context['search_ignored']), '
 			</p>';
 
 		echo '
-			<form action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=search2" method="post" accept-charset="', Utils::$context['character_set'], '">
 				<strong>', $txt['search_for'], ':</strong>
-				<input type="text" name="search"', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' maxlength="', $context['search_string_limit'], '" size="40">
+				<input type="text" name="search"', !empty(Utils::$context['search_params']['search']) ? ' value="' . Utils::$context['search_params']['search'] . '"' : '', ' maxlength="', Utils::$context['search_string_limit'], '" size="40">
 				<input type="submit" name="edit_search" value="', $txt['search_adjust_submit'], '" class="button">
-				<input type="hidden" name="searchtype" value="', !empty($context['search_params']['searchtype']) ? $context['search_params']['searchtype'] : 0, '">
-				<input type="hidden" name="userspec" value="', !empty($context['search_params']['userspec']) ? $context['search_params']['userspec'] : '', '">
-				<input type="hidden" name="show_complete" value="', !empty($context['search_params']['show_complete']) ? 1 : 0, '">
-				<input type="hidden" name="subject_only" value="', !empty($context['search_params']['subject_only']) ? 1 : 0, '">
-				<input type="hidden" name="minage" value="', !empty($context['search_params']['minage']) ? $context['search_params']['minage'] : '0', '">
-				<input type="hidden" name="maxage" value="', !empty($context['search_params']['maxage']) ? $context['search_params']['maxage'] : '9999', '">
-				<input type="hidden" name="sort" value="', !empty($context['search_params']['sort']) ? $context['search_params']['sort'] : 'relevance', '">';
+				<input type="hidden" name="searchtype" value="', !empty(Utils::$context['search_params']['searchtype']) ? Utils::$context['search_params']['searchtype'] : 0, '">
+				<input type="hidden" name="userspec" value="', !empty(Utils::$context['search_params']['userspec']) ? Utils::$context['search_params']['userspec'] : '', '">
+				<input type="hidden" name="show_complete" value="', !empty(Utils::$context['search_params']['show_complete']) ? 1 : 0, '">
+				<input type="hidden" name="subject_only" value="', !empty(Utils::$context['search_params']['subject_only']) ? 1 : 0, '">
+				<input type="hidden" name="minage" value="', !empty(Utils::$context['search_params']['minage']) ? Utils::$context['search_params']['minage'] : '0', '">
+				<input type="hidden" name="maxage" value="', !empty(Utils::$context['search_params']['maxage']) ? Utils::$context['search_params']['maxage'] : '9999', '">
+				<input type="hidden" name="sort" value="', !empty(Utils::$context['search_params']['sort']) ? Utils::$context['search_params']['sort'] : 'relevance', '">';
 
-		if (!empty($context['search_params']['brd']))
-			foreach ($context['search_params']['brd'] as $board_id)
+		if (!empty(Utils::$context['search_params']['brd']))
+			foreach (Utils::$context['search_params']['brd'] as $board_id)
 				echo '
 				<input type="hidden" name="brd[', $board_id, ']" value="', $board_id, '">';
 
@@ -299,20 +302,20 @@ function template_results()
 	</div><!-- #search_results -->';
 	}
 
-	if ($context['compact'])
+	if (Utils::$context['compact'])
 	{
 		echo '
-	<form id="new_search" name="new_search" action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '">
-		<input type="hidden" name="search"', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' maxlength="', $context['search_string_limit'], '" size="40">
-		<input type="hidden" name="searchtype" value="', !empty($context['search_params']['searchtype']) ? $context['search_params']['searchtype'] : 0, '">
-		<input type="hidden" name="userspec" value="', !empty($context['search_params']['userspec']) ? $context['search_params']['userspec'] : '', '">
-		<input type="hidden" name="show_complete" value="', !empty($context['search_params']['show_complete']) ? 1 : 0, '">
-		<input type="hidden" name="subject_only" value="', !empty($context['search_params']['subject_only']) ? 1 : 0, '">
-		<input type="hidden" name="minage" value="', !empty($context['search_params']['minage']) ? $context['search_params']['minage'] : '0', '">
-		<input type="hidden" name="maxage" value="', !empty($context['search_params']['maxage']) ? $context['search_params']['maxage'] : '9999', '">';
+	<form id="new_search" name="new_search" action="', Config::$scripturl, '?action=search2" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<input type="hidden" name="search"', !empty(Utils::$context['search_params']['search']) ? ' value="' . Utils::$context['search_params']['search'] . '"' : '', ' maxlength="', Utils::$context['search_string_limit'], '" size="40">
+		<input type="hidden" name="searchtype" value="', !empty(Utils::$context['search_params']['searchtype']) ? Utils::$context['search_params']['searchtype'] : 0, '">
+		<input type="hidden" name="userspec" value="', !empty(Utils::$context['search_params']['userspec']) ? Utils::$context['search_params']['userspec'] : '', '">
+		<input type="hidden" name="show_complete" value="', !empty(Utils::$context['search_params']['show_complete']) ? 1 : 0, '">
+		<input type="hidden" name="subject_only" value="', !empty(Utils::$context['search_params']['subject_only']) ? 1 : 0, '">
+		<input type="hidden" name="minage" value="', !empty(Utils::$context['search_params']['minage']) ? Utils::$context['search_params']['minage'] : '0', '">
+		<input type="hidden" name="maxage" value="', !empty(Utils::$context['search_params']['maxage']) ? Utils::$context['search_params']['maxage'] : '9999', '">';
 
-		if (!empty($context['search_params']['brd']))
-			foreach ($context['search_params']['brd'] as $board_id)
+		if (!empty(Utils::$context['search_params']['brd']))
+			foreach (Utils::$context['search_params']['brd'] as $board_id)
 				echo '
 		<input type="hidden" name="brd[', $board_id, ']" value="', $board_id, '">';
 
@@ -322,29 +325,29 @@ function template_results()
 		echo '
 		<div id="display_head" class="information">
 			<h2 class="display_title">
-				<span>', $txt['mlist_search_results'], ': ', $context['search_params']['search'], '</span>
+				<span>', $txt['mlist_search_results'], ': ', Utils::$context['search_params']['search'], '</span>
 			</h2>
 			<div class="floatleft">
-				<a class="button" href="', $scripturl, '?action=search;params=' . $context['params'], '">', $txt['search_adjust_query'], '</a>
+				<a class="button" href="', Config::$scripturl, '?action=search;params=' . Utils::$context['params'], '">', $txt['search_adjust_query'], '</a>
 			</div>';
 
 		// Was anything even found?
-		if (!empty($context['topics']))
+		if (!empty(Utils::$context['topics']))
 		{
 			echo '
 			<div class="floatright">
 				<span class="padding">', $txt['search_order'], '</span>
 				<select name="sort" class="floatright" form="new_search" onchange="document.forms.new_search.submit()">
 					<option value="relevance|desc">', $txt['search_orderby_relevant_first'], '</option>
-					<option value="num_replies|desc"', $context['current_sorting'] == 'num_replies|desc' ? ' selected' : '', '>', $txt['search_orderby_large_first'], '</option>
-					<option value="num_replies|asc"', $context['current_sorting'] == 'num_replies|asc' ? ' selected' : '', '>', $txt['search_orderby_small_first'], '</option>
-					<option value="id_msg|desc"', $context['current_sorting'] == 'id_msg|desc' ? ' selected' : '', '>', $txt['search_orderby_recent_first'], '</option>
-					<option value="id_msg|asc"', $context['current_sorting'] == 'id_msg|asc' ? ' selected' : '', '>', $txt['search_orderby_old_first'], '</option>
+					<option value="num_replies|desc"', Utils::$context['current_sorting'] == 'num_replies|desc' ? ' selected' : '', '>', $txt['search_orderby_large_first'], '</option>
+					<option value="num_replies|asc"', Utils::$context['current_sorting'] == 'num_replies|asc' ? ' selected' : '', '>', $txt['search_orderby_small_first'], '</option>
+					<option value="id_msg|desc"', Utils::$context['current_sorting'] == 'id_msg|desc' ? ' selected' : '', '>', $txt['search_orderby_recent_first'], '</option>
+					<option value="id_msg|asc"', Utils::$context['current_sorting'] == 'id_msg|asc' ? ' selected' : '', '>', $txt['search_orderby_old_first'], '</option>
 				</select>
 			</div>
 		</div>
 		<div class="pagesection">
-			<div class="pagelinks">', $context['page_index'], '</div>
+			<div class="pagelinks">', Utils::$context['page_index'], '</div>
 		</div>';
 		}
 		else
@@ -355,7 +358,7 @@ function template_results()
 		}
 
 		// While we have results to show ...
-		while ($topic = $context['get_topics']())
+		while ($topic = Utils::$context['get_topics']())
 		{
 			echo '
 		<div class="', $topic['css_class'], '">';
@@ -367,7 +370,7 @@ function template_results()
 				<div class="page_number floatright"> #', $message['counter'], '</div>
 				<div class="half_content">
 					<div class="topic_details">
-						<h5>', $topic['board']['link'], ' / <a href="', $scripturl, '?topic=', $topic['id'], '.msg', $message['id'], '#msg', $message['id'], '">', $message['subject_highlighted'], '</a></h5>
+						<h5>', $topic['board']['link'], ' / <a href="', Config::$scripturl, '?topic=', $topic['id'], '.msg', $message['id'], '#msg', $message['id'], '">', $message['subject_highlighted'], '</a></h5>
 						<span class="smalltext">', sprintf(str_replace('<br>', ' ', $txt['last_post_topic']), $message['time'], '<strong>' . $message['member']['link'] . '</strong>'), '</span>
 					</div>
 				</div>
@@ -387,29 +390,29 @@ function template_results()
 		echo '
 	<div id="display_head" class="information">
 		<h2 class="display_title">
-			<span>', $txt['mlist_search_results'], ': ', $context['search_params']['search'], '</span>
+			<span>', $txt['mlist_search_results'], ': ', Utils::$context['search_params']['search'], '</span>
 		</h2>
 		<div class="floatleft">
-			<a class="button" href="', $scripturl, '?action=search;params=' . $context['params'], '">', $txt['search_adjust_query'], '</a>
+			<a class="button" href="', Config::$scripturl, '?action=search;params=' . Utils::$context['params'], '">', $txt['search_adjust_query'], '</a>
 		</div>';
 
 		// Was anything even found?
-		if (!empty($context['topics']))
+		if (!empty(Utils::$context['topics']))
 		{
 			echo '
 		<div class="floatright">
 			<span class="padding">', $txt['search_order'], '</span>
 			<select name="sort" class="floatright" form="new_search" onchange="document.forms.new_search.submit()">
 				<option value="relevance|desc">', $txt['search_orderby_relevant_first'], '</option>
-				<option value="num_replies|desc"', $context['current_sorting'] == 'num_replies|desc' ? ' selected' : '', '>', $txt['search_orderby_large_first'], '</option>
-				<option value="num_replies|asc"', $context['current_sorting'] == 'num_replies|asc' ? ' selected' : '', '>', $txt['search_orderby_small_first'], '</option>
-				<option value="id_msg|desc"', $context['current_sorting'] == 'id_msg|desc' ? ' selected' : '', '>', $txt['search_orderby_recent_first'], '</option>
-				<option value="id_msg|asc"', $context['current_sorting'] == 'id_msg|asc' ? ' selected' : '', '>', $txt['search_orderby_old_first'], '</option>
+				<option value="num_replies|desc"', Utils::$context['current_sorting'] == 'num_replies|desc' ? ' selected' : '', '>', $txt['search_orderby_large_first'], '</option>
+				<option value="num_replies|asc"', Utils::$context['current_sorting'] == 'num_replies|asc' ? ' selected' : '', '>', $txt['search_orderby_small_first'], '</option>
+				<option value="id_msg|desc"', Utils::$context['current_sorting'] == 'id_msg|desc' ? ' selected' : '', '>', $txt['search_orderby_recent_first'], '</option>
+				<option value="id_msg|asc"', Utils::$context['current_sorting'] == 'id_msg|asc' ? ' selected' : '', '>', $txt['search_orderby_old_first'], '</option>
 			</select>
 		</div>
 	</div>
 	<div class="pagesection">
-		<div class="pagelinks">', $context['page_index'], '</div>
+		<div class="pagelinks">', Utils::$context['page_index'], '</div>
 	</div>';
 		}
 		else
@@ -419,7 +422,7 @@ function template_results()
 	<div class="roundframe noup">', $txt['search_no_results'], '</div>';
 		}
 
-		while ($topic = $context['get_topics']())
+		while ($topic = Utils::$context['get_topics']())
 		{
 			foreach ($topic['matches'] as $message)
 			{
@@ -428,7 +431,7 @@ function template_results()
 		<div class="page_number floatright"> #', $message['counter'], '</div>
 		<div class="topic_details">
 			<h5>
-				', $topic['board']['link'], ' / <a href="', $scripturl, '?topic=', $topic['id'], '.', $message['start'], ';topicseen#msg', $message['id'], '">', $message['subject_highlighted'], '</a>
+				', $topic['board']['link'], ' / <a href="', Config::$scripturl, '?topic=', $topic['id'], '.', $message['start'], ';topicseen#msg', $message['id'], '">', $message['subject_highlighted'], '</a>
 			</h5>
 			<span class="smalltext">', sprintf(str_replace('<br>', ' ', $txt['last_post_topic']), $message['time'], '<strong>' . $message['member']['link'] . '</strong>'), '</span>
 		</div>
@@ -444,9 +447,9 @@ function template_results()
 	echo '
 	<div class="pagesection">';
 
-	if (!empty($context['topics']))
+	if (!empty(Utils::$context['topics']))
 		echo '
-		<div class="pagelinks">', $context['page_index'], '</div>';
+		<div class="pagelinks">', Utils::$context['page_index'], '</div>';
 
 	// Show a jump to box for easy navigation.
 	echo '
@@ -455,10 +458,10 @@ function template_results()
 		if (typeof(window.XMLHttpRequest) != "undefined")
 			aJumpTo[aJumpTo.length] = new JumpTo({
 				sContainerId: "search_jump_to",
-				sJumpToTemplate: "<label class=\"smalltext jump_to\" for=\"%select_id%\">', $context['jump_to']['label'], '<" + "/label> %dropdown_list%",
+				sJumpToTemplate: "<label class=\"smalltext jump_to\" for=\"%select_id%\">', Utils::$context['jump_to']['label'], '<" + "/label> %dropdown_list%",
 				iCurBoardId: 0,
 				iCurBoardChildLevel: 0,
-				sCurBoardName: "', $context['jump_to']['board_name'], '",
+				sCurBoardName: "', Utils::$context['jump_to']['board_name'], '",
 				sBoardChildLevelIndicator: "==",
 				sBoardPrefix: "=> ",
 				sCatSeparator: "-----------------------------",

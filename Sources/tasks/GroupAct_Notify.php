@@ -13,6 +13,10 @@
 
 namespace SMF\Tasks;
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
+
 /**
  * This class contains code used to notify a member when a group moderator has
  * taken action on that member's request to join a group.
@@ -27,10 +31,8 @@ class GroupAct_Notify extends BackgroundTask
 	 */
 	public function execute()
 	{
-		global $sourcedir, $smcFunc, $language, $modSettings;
-
 		// Get the details of all the members concerned...
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT lgr.id_request, lgr.id_member, lgr.id_group, mem.email_address,
 				mem.lngfile, mem.member_name,  mg.group_name, mg.hidden
 			FROM {db_prefix}log_group_requests AS lgr
@@ -45,23 +47,23 @@ class GroupAct_Notify extends BackgroundTask
 		$affected_users = array();
 		$members = array();
 		$alert_rows = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			$members[] = $row['id_member'];
-			$row['lngfile'] = empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile'];
+			$row['lngfile'] = empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $row['lngfile'];
 
 			// If we are approving, add them!
 			if ($this->_details['status'] == 'approve')
 			{
 				// Hack in blank permissions so that allowedTo() will fail.
-				require_once($sourcedir . '/Security.php');
+				require_once(Config::$sourcedir . '/Security.php');
 				$user_info['permissions'] = array();
 
 				// For the modlog
 				$user_info['id'] = $this->_details['member_id'];
 				$user_info['ip'] = $this->_details['member_ip'];
 
-				require_once($sourcedir . '/Subs-Membergroups.php');
+				require_once(Config::$sourcedir . '/Subs-Membergroups.php');
 				addMembersToGroup($row['id_member'], $row['id_group'], $row['hidden'] == 2 ? 'only_additional' : 'auto', true);
 			}
 
@@ -76,14 +78,14 @@ class GroupAct_Notify extends BackgroundTask
 				'language' => $row['lngfile'],
 			);
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// Ensure everyone who is online gets their changes right away.
-		updateSettings(array('settings_updated' => time()));
+		Config::updateModSettings(array('settings_updated' => time()));
 
 		if (!empty($affected_users))
 		{
-			require_once($sourcedir . '/Subs-Notify.php');
+			require_once(Config::$sourcedir . '/Subs-Notify.php');
 
 			$prefs = getNotifyPrefs($members, array('groupr_approved', 'groupr_rejected'), true);
 
@@ -118,15 +120,15 @@ class GroupAct_Notify extends BackgroundTask
 						'content_id' => 0,
 						'content_action' => $pref_name,
 						'is_read' => 0,
-						'extra' => $smcFunc['json_encode'](array('group_name' => $user['group_name'], 'reason' => !empty($custom_reason) ? '<br><br>' . $custom_reason : '')),
+						'extra' => Utils::jsonEncode(array('group_name' => $user['group_name'], 'reason' => !empty($custom_reason) ? '<br><br>' . $custom_reason : '')),
 					);
 				}
 
 				if ($pref & self::RECEIVE_NOTIFY_EMAIL)
 				{
 					// Emails are a bit complicated. We have to do language stuff.
-					require_once($sourcedir . '/Subs-Post.php');
-					require_once($sourcedir . '/ScheduledTasks.php');
+					require_once(Config::$sourcedir . '/Subs-Post.php');
+					require_once(Config::$sourcedir . '/ScheduledTasks.php');
 					loadEssentialThemeData();
 
 					$replacements = array(
@@ -146,7 +148,7 @@ class GroupAct_Notify extends BackgroundTask
 			// Insert the alerts if any
 			if (!empty($alert_rows))
 			{
-				$smcFunc['db_insert']('',
+				Db::$db->insert('',
 					'{db_prefix}user_alerts',
 					array(
 						'alert_time' => 'int', 'id_member' => 'int', 'content_type' => 'string',

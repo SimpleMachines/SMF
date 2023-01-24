@@ -14,6 +14,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
 use SMF\Cache\CacheApi;
 
 if (!defined('SMF'))
@@ -27,31 +29,31 @@ if (!defined('SMF'))
  */
 function BoardIndex()
 {
-	global $txt, $user_info, $sourcedir, $modSettings, $context, $settings, $scripturl;
+	global $txt, $user_info, $settings;
 
 	loadTemplate('BoardIndex');
-	$context['template_layers'][] = 'boardindex_outer';
+	Utils::$context['template_layers'][] = 'boardindex_outer';
 
 	// Set a canonical URL for this page.
-	$context['canonical_url'] = $scripturl;
+	Utils::$context['canonical_url'] = Config::$scripturl;
 
 	// Do not let search engines index anything if there is a random thing in $_GET.
 	if (!empty($_GET))
-		$context['robot_no_index'] = true;
+		Utils::$context['robot_no_index'] = true;
 
 	// Retrieve the categories and boards.
-	require_once($sourcedir . '/Subs-BoardIndex.php');
+	require_once(Config::$sourcedir . '/Subs-BoardIndex.php');
 	$boardIndexOptions = array(
 		'include_categories' => true,
 		'base_level' => 0,
 		'parent_id' => 0,
 		'set_latest_post' => true,
-		'countChildPosts' => !empty($modSettings['countChildPosts']),
+		'countChildPosts' => !empty(Config::$modSettings['countChildPosts']),
 	);
-	$context['categories'] = getBoardIndex($boardIndexOptions);
+	Utils::$context['categories'] = getBoardIndex($boardIndexOptions);
 
 	// Now set up for the info center.
-	$context['info_center'] = array();
+	Utils::$context['info_center'] = array();
 
 	// Retrieve the latest posts if the theme settings require it.
 	if (!empty($settings['number_recent_posts']))
@@ -61,78 +63,78 @@ function BoardIndex()
 			$latestPostOptions = array(
 				'number_posts' => $settings['number_recent_posts'],
 			);
-			$context['latest_posts'] = CacheApi::quickGet('boardindex-latest_posts:' . md5($user_info['query_wanna_see_board'] . $user_info['language']), 'Subs-Recent.php', 'cache_getLastPosts', array($latestPostOptions));
+			Utils::$context['latest_posts'] = CacheApi::quickGet('boardindex-latest_posts:' . md5($user_info['query_wanna_see_board'] . $user_info['language']), 'Subs-Recent.php', 'cache_getLastPosts', array($latestPostOptions));
 		}
 
-		if (!empty($context['latest_posts']) || !empty($context['latest_post']))
-			$context['info_center'][] = array(
+		if (!empty(Utils::$context['latest_posts']) || !empty(Utils::$context['latest_post']))
+			Utils::$context['info_center'][] = array(
 				'tpl' => 'recent',
 				'txt' => 'recent_posts',
 			);
 	}
 
 	// Load the calendar?
-	if (!empty($modSettings['cal_enabled']) && allowedTo('calendar_view'))
+	if (!empty(Config::$modSettings['cal_enabled']) && allowedTo('calendar_view'))
 	{
 		// Retrieve the calendar data (events, birthdays, holidays).
 		$eventOptions = array(
-			'include_holidays' => $modSettings['cal_showholidays'] > 1,
-			'include_birthdays' => $modSettings['cal_showbdays'] > 1,
-			'include_events' => $modSettings['cal_showevents'] > 1,
-			'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],
+			'include_holidays' => Config::$modSettings['cal_showholidays'] > 1,
+			'include_birthdays' => Config::$modSettings['cal_showbdays'] > 1,
+			'include_events' => Config::$modSettings['cal_showevents'] > 1,
+			'num_days_shown' => empty(Config::$modSettings['cal_days_for_index']) || Config::$modSettings['cal_days_for_index'] < 1 ? 1 : Config::$modSettings['cal_days_for_index'],
 		);
-		$context += CacheApi::quickGet('calendar_index_offset_' . $user_info['time_offset'], 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
+		Utils::$context += CacheApi::quickGet('calendar_index_offset_' . $user_info['time_offset'], 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
 
 		// Whether one or multiple days are shown on the board index.
-		$context['calendar_only_today'] = $modSettings['cal_days_for_index'] == 1;
+		Utils::$context['calendar_only_today'] = Config::$modSettings['cal_days_for_index'] == 1;
 
 		// This is used to show the "how-do-I-edit" help.
-		$context['calendar_can_edit'] = allowedTo('calendar_edit_any');
+		Utils::$context['calendar_can_edit'] = allowedTo('calendar_edit_any');
 
-		if (!empty($context['show_calendar']))
-			$context['info_center'][] = array(
+		if (!empty(Utils::$context['show_calendar']))
+			Utils::$context['info_center'][] = array(
 				'tpl' => 'calendar',
-				'txt' => $context['calendar_only_today'] ? 'calendar_today' : 'calendar_upcoming',
+				'txt' => Utils::$context['calendar_only_today'] ? 'calendar_today' : 'calendar_upcoming',
 			);
 	}
 
 	// And stats.
-	$context['show_stats'] = allowedTo('view_stats') && !empty($modSettings['trackStats']);
+	Utils::$context['show_stats'] = allowedTo('view_stats') && !empty(Config::$modSettings['trackStats']);
 	if ($settings['show_stats_index'])
-		$context['info_center'][] = array(
+		Utils::$context['info_center'][] = array(
 			'tpl' => 'stats',
 			'txt' => 'forum_stats',
 		);
 
 	// Now the online stuff
-	require_once($sourcedir . '/Subs-MembersOnline.php');
+	require_once(Config::$sourcedir . '/Subs-MembersOnline.php');
 	$membersOnlineOptions = array(
 		'show_hidden' => allowedTo('moderate_forum'),
 		'sort' => 'log_time',
 		'reverse_sort' => true,
 	);
-	$context += getMembersOnlineStats($membersOnlineOptions);
-	$context['show_buddies'] = !empty($user_info['buddies']);
-	$context['show_who'] = allowedTo('who_view') && !empty($modSettings['who_enabled']);
-	$context['info_center'][] = array(
+	Utils::$context += getMembersOnlineStats($membersOnlineOptions);
+	Utils::$context['show_buddies'] = !empty($user_info['buddies']);
+	Utils::$context['show_who'] = allowedTo('who_view') && !empty(Config::$modSettings['who_enabled']);
+	Utils::$context['info_center'][] = array(
 		'tpl' => 'online',
 		'txt' => 'online_users',
 	);
 
 	// Track most online statistics? (Subs-MembersOnline.php)
-	if (!empty($modSettings['trackStats']))
-		trackStatsUsersOnline($context['num_guests'] + $context['num_users_online']);
+	if (!empty(Config::$modSettings['trackStats']))
+		trackStatsUsersOnline(Utils::$context['num_guests'] + Utils::$context['num_users_online']);
 
 	// Are we showing all membergroups on the board index?
 	if (!empty($settings['show_group_key']))
-		$context['membergroups'] = CacheApi::quickGet('membergroup_list', 'Subs-Membergroups.php', 'cache_getMembergroupList', array());
+		Utils::$context['membergroups'] = CacheApi::quickGet('membergroup_list', 'Subs-Membergroups.php', 'cache_getMembergroupList', array());
 
 	// And back to normality.
-	$context['page_title'] = sprintf($txt['forum_index'], $context['forum_name']);
+	Utils::$context['page_title'] = sprintf($txt['forum_index'], Utils::$context['forum_name']);
 
 	// Mark read button
-	$context['mark_read_button'] = array(
-		'markread' => array('text' => 'mark_as_read', 'image' => 'markread.png', 'custom' => 'data-confirm="' . $txt['are_sure_mark_read'] . '"', 'class' => 'you_sure', 'url' => $scripturl . '?action=markasread;sa=all;' . $context['session_var'] . '=' . $context['session_id']),
+	Utils::$context['mark_read_button'] = array(
+		'markread' => array('text' => 'mark_as_read', 'image' => 'markread.png', 'custom' => 'data-confirm="' . $txt['are_sure_mark_read'] . '"', 'class' => 'you_sure', 'url' => Config::$scripturl . '?action=markasread;sa=all;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']),
 	);
 
 	// Replace the collapse and expand default alts.

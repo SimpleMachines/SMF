@@ -10,26 +10,26 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Utils;
+
 /**
  * This template handles displaying a list
  *
- * @param string $list_id The list ID. If null, uses $context['default_list'].
+ * @param string $list_id The list ID. If null, uses Utils::$context['default_list'].
  */
 function template_show_list($list_id = null)
 {
-	global $context;
-
 	// Get a shortcut to the current list.
-	$list_id = $list_id === null ? (!empty($context['default_list']) ? $context['default_list'] : '') : $list_id;
+	$list_id = $list_id === null ? (!empty(Utils::$context['default_list']) ? Utils::$context['default_list'] : '') : $list_id;
 
-	if (empty($list_id) || empty($context[$list_id]))
+	if (empty($list_id) || empty(Utils::$context[$list_id]))
 		return;
 
-	$cur_list = &$context[$list_id];
+	$cur_list = &Utils::$context[$list_id];
 
 	if (isset($cur_list['form']))
 		echo '
-	<form action="', $cur_list['form']['href'], '" method="post"', empty($cur_list['form']['name']) ? '' : ' name="' . $cur_list['form']['name'] . '" id="' . $cur_list['form']['name'] . '"', ' accept-charset="', $context['character_set'], '">';
+	<form action="', $cur_list['form']['href'], '" method="post"', empty($cur_list['form']['name']) ? '' : ' name="' . $cur_list['form']['name'] . '" id="' . $cur_list['form']['name'] . '"', ' accept-charset="', Utils::$context['character_set'], '">';
 
 	// Show the title of the table (if any).
 	if (!empty($cur_list['title']))
@@ -156,7 +156,7 @@ function template_show_list($list_id = null)
 
 		if (isset($cur_list['form']['token']))
 			echo '
-		<input type="hidden" name="', $context[$cur_list['form']['token'] . '_token_var'], '" value="', $context[$cur_list['form']['token'] . '_token'], '">';
+		<input type="hidden" name="', Utils::$context[$cur_list['form']['token'] . '_token_var'], '" value="', Utils::$context[$cur_list['form']['token'] . '_token'], '">';
 
 		echo '
 	</form>';

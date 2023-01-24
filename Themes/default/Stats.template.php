@@ -10,17 +10,20 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+
 /**
  * The stats page.
  */
 function template_main()
 {
-	global $context, $settings, $txt, $scripturl, $modSettings;
+	global $settings, $txt;
 
 	echo '
 	<div id="statistics" class="main_section">
 		<div class="cat_bar">
-			<h3 class="catbg">', $context['page_title'], '</h3>
+			<h3 class="catbg">', Utils::$context['page_title'], '</h3>
 		</div>
 		<div class="roundframe">
 			<div class="title_bar">
@@ -30,63 +33,63 @@ function template_main()
 			</div>
 			<dl class="stats half_content">
 				<dt>', $txt['total_members'], ':</dt>
-				<dd>', $context['show_member_list'] ? '<a href="' . $scripturl . '?action=mlist">' . $context['num_members'] . '</a>' : $context['num_members'], '</dd>
+				<dd>', Utils::$context['show_member_list'] ? '<a href="' . Config::$scripturl . '?action=mlist">' . Utils::$context['num_members'] . '</a>' : Utils::$context['num_members'], '</dd>
 				<dt>', $txt['total_posts'], ':</dt>
-				<dd>', $context['num_posts'], '</dd>
+				<dd>', Utils::$context['num_posts'], '</dd>
 				<dt>', $txt['total_topics'], ':</dt>
-				<dd>', $context['num_topics'], '</dd>
+				<dd>', Utils::$context['num_topics'], '</dd>
 				<dt>', $txt['total_cats'], ':</dt>
-				<dd>', $context['num_categories'], '</dd>
+				<dd>', Utils::$context['num_categories'], '</dd>
 				<dt>', $txt['users_online'], ':</dt>
-				<dd>', $context['users_online'], '</dd>
+				<dd>', Utils::$context['users_online'], '</dd>
 				<dt>', $txt['most_online'], ':</dt>
-				<dd>', $context['most_members_online']['number'], ' - ', $context['most_members_online']['date'], '</dd>
+				<dd>', Utils::$context['most_members_online']['number'], ' - ', Utils::$context['most_members_online']['date'], '</dd>
 				<dt>', $txt['users_online_today'], ':</dt>
-				<dd>', $context['online_today'], '</dd>';
+				<dd>', Utils::$context['online_today'], '</dd>';
 
-	if (!empty($modSettings['hitStats']))
+	if (!empty(Config::$modSettings['hitStats']))
 		echo '
 				<dt>', $txt['num_hits'], ':</dt>
-				<dd>', $context['num_hits'], '</dd>';
+				<dd>', Utils::$context['num_hits'], '</dd>';
 
 	echo '
 			</dl>
 			<dl class="stats half_content">
 				<dt>', $txt['average_members'], ':</dt>
-				<dd>', $context['average_members'], '</dd>
+				<dd>', Utils::$context['average_members'], '</dd>
 				<dt>', $txt['average_posts'], ':</dt>
-				<dd>', $context['average_posts'], '</dd>
+				<dd>', Utils::$context['average_posts'], '</dd>
 				<dt>', $txt['average_topics'], ':</dt>
-				<dd>', $context['average_topics'], '</dd>
+				<dd>', Utils::$context['average_topics'], '</dd>
 				<dt>', $txt['total_boards'], ':</dt>
-				<dd>', $context['num_boards'], '</dd>
+				<dd>', Utils::$context['num_boards'], '</dd>
 				<dt>', $txt['latest_member'], ':</dt>
-				<dd>', $context['common_stats']['latest_member']['link'], '</dd>
+				<dd>', Utils::$context['common_stats']['latest_member']['link'], '</dd>
 				<dt>', $txt['average_online'], ':</dt>
-				<dd>', $context['average_online'], '</dd>';
+				<dd>', Utils::$context['average_online'], '</dd>';
 
-	if (!empty($context['gender']))
+	if (!empty(Utils::$context['gender']))
 	{
 		echo '
 				<dt>', $txt['gender_stats'], ':</dt>
 				<dd>';
 
-		foreach ($context['gender'] as $g => $n)
+		foreach (Utils::$context['gender'] as $g => $n)
 			echo tokenTxtReplace($g), ': ', $n, '<br>';
 
 		echo '
 				</dd>';
 	}
 
-	if (!empty($modSettings['hitStats']))
+	if (!empty(Config::$modSettings['hitStats']))
 		echo '
 				<dt>', $txt['average_hits'], ':</dt>
-				<dd>', $context['average_hits'], '</dd>';
+				<dd>', Utils::$context['average_hits'], '</dd>';
 
 	echo '
 			</dl>';
 
-	foreach ($context['stats_blocks'] as $name => $block)
+	foreach (Utils::$context['stats_blocks'] as $name => $block)
 	{
 		echo '
 			<div class="half_content">
@@ -131,7 +134,7 @@ function template_main()
 			</h3>
 		</div>';
 
-	if (!empty($context['yearly']))
+	if (!empty(Utils::$context['yearly']))
 	{
 		echo '
 		<table id="stats" class="table_grid">
@@ -143,7 +146,7 @@ function template_main()
 					<th>', $txt['stats_new_members'], '</th>
 					<th>', $txt['most_online'], '</th>';
 
-		if (!empty($modSettings['hitStats']))
+		if (!empty(Config::$modSettings['hitStats']))
 			echo '
 					<th>', $txt['page_views'], '</th>';
 
@@ -152,7 +155,7 @@ function template_main()
 			</thead>
 			<tbody>';
 
-		foreach ($context['yearly'] as $id => $year)
+		foreach (Utils::$context['yearly'] as $id => $year)
 		{
 			echo '
 				<tr class="windowbg" id="year_', $id, '">
@@ -164,7 +167,7 @@ function template_main()
 					<th>', $year['new_members'], '</th>
 					<th>', $year['most_members_online'], '</th>';
 
-			if (!empty($modSettings['hitStats']))
+			if (!empty(Config::$modSettings['hitStats']))
 				echo '
 					<th>', $year['hits'], '</th>';
 
@@ -183,7 +186,7 @@ function template_main()
 					<th>', $month['new_members'], '</th>
 					<th>', $month['most_members_online'], '</th>';
 
-				if (!empty($modSettings['hitStats']))
+				if (!empty(Config::$modSettings['hitStats']))
 					echo '
 					<th>', $month['hits'], '</th>';
 
@@ -202,7 +205,7 @@ function template_main()
 					<td>', $day['new_members'], '</td>
 					<td>', $day['most_members_online'], '</td>';
 
-						if (!empty($modSettings['hitStats']))
+						if (!empty(Config::$modSettings['hitStats']))
 							echo '
 					<td>', $day['hits'], '</td>';
 
@@ -239,10 +242,10 @@ function template_main()
 
 			aCollapsedYears: [';
 
-		foreach ($context['collapsed_years'] as $id => $year)
+		foreach (Utils::$context['collapsed_years'] as $id => $year)
 		{
 			echo '
-				\'', $year, '\'', $id != count($context['collapsed_years']) - 1 ? ',' : '';
+				\'', $year, '\'', $id != count(Utils::$context['collapsed_years']) - 1 ? ',' : '';
 		}
 
 		echo '
@@ -253,7 +256,7 @@ function template_main()
 				\'new_topics\',
 				\'new_posts\',
 				\'new_members\',
-				\'most_members_online\'', empty($modSettings['hitStats']) ? '' : ',
+				\'most_members_online\'', empty(Config::$modSettings['hitStats']) ? '' : ',
 				\'hits\'', '
 			]
 		});

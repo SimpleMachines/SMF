@@ -13,6 +13,10 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -23,7 +27,7 @@ if (!defined('SMF'))
  */
 function Groups()
 {
-	global $context, $txt, $scripturl, $sourcedir, $user_info;
+	global $txt, $user_info;
 
 	// The sub-actions that we can do. Format "Function Name, Mod Bar Index if appropriate".
 	$subActions = array(
@@ -45,7 +49,7 @@ function Groups()
 	// If we can see the moderation center, and this has a mod bar entry, add the mod center bar.
 	if (allowedTo('access_mod_center') || $user_info['mod_cache']['bq'] != '0=1' || $user_info['mod_cache']['gq'] != '0=1' || allowedTo('manage_membergroups'))
 	{
-		require_once($sourcedir . '/ModerationCenter.php');
+		require_once(Config::$sourcedir . '/ModerationCenter.php');
 		$_GET['area'] = $_REQUEST['sa'] == 'requests' ? 'groups' : 'viewgroups';
 		ModerationMain(true);
 	}
@@ -54,8 +58,8 @@ function Groups()
 	{
 		isAllowedTo('view_mlist');
 
-		$context['linktree'][] = array(
-			'url' => $scripturl . '?action=groups',
+		Utils::$context['linktree'][] = array(
+			'url' => Config::$scripturl . '?action=groups',
 			'name' => $txt['groups'],
 		);
 	}
@@ -69,21 +73,21 @@ function Groups()
  */
 function GroupList()
 {
-	global $txt, $context, $sourcedir, $scripturl;
+	global $txt;
 
-	$context['page_title'] = $txt['viewing_groups'];
+	Utils::$context['page_title'] = $txt['viewing_groups'];
 
 	// Making a list is not hard with this beauty.
-	require_once($sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/Subs-List.php');
 
 	// Use the standard templates for showing this.
 	$listOptions = array(
 		'id' => 'group_lists',
-		'title' => $context['page_title'],
-		'base_href' => $scripturl . '?action=moderate;area=viewgroups;sa=view',
+		'title' => Utils::$context['page_title'],
+		'base_href' => Config::$scripturl . '?action=moderate;area=viewgroups;sa=view',
 		'default_sort_col' => 'group',
 		'get_items' => array(
-			'file' => $sourcedir . '/Subs-Membergroups.php',
+			'file' => Config::$sourcedir . '/Subs-Membergroups.php',
 			'function' => 'list_getMembergroups',
 			'params' => array(
 				'regular',
@@ -95,7 +99,7 @@ function GroupList()
 					'value' => $txt['name'],
 				),
 				'data' => array(
-					'function' => function($rowData) use ($scripturl)
+					'function' => function($rowData)
 					{
 						// Since the moderator group has no explicit members, no link is needed.
 						if ($rowData['id_group'] == 3)
@@ -106,19 +110,19 @@ function GroupList()
 
 							if (allowedTo('manage_membergroups'))
 							{
-								$group_name = sprintf('<a href="%1$s?action=admin;area=membergroups;sa=members;group=%2$d"%3$s>%4$s</a>', $scripturl, $rowData['id_group'], $color_style, $rowData['group_name']);
+								$group_name = sprintf('<a href="%1$s?action=admin;area=membergroups;sa=members;group=%2$d"%3$s>%4$s</a>', Config::$scripturl, $rowData['id_group'], $color_style, $rowData['group_name']);
 							}
 							else
 							{
-								$group_name = sprintf('<a href="%1$s?action=groups;sa=members;group=%2$d"%3$s>%4$s</a>', $scripturl, $rowData['id_group'], $color_style, $rowData['group_name']);
+								$group_name = sprintf('<a href="%1$s?action=groups;sa=members;group=%2$d"%3$s>%4$s</a>', Config::$scripturl, $rowData['id_group'], $color_style, $rowData['group_name']);
 							}
 						}
 
 						// Add a help option for moderator and administrator.
 						if ($rowData['id_group'] == 1)
-							$group_name .= sprintf(' (<a href="%1$s?action=helpadmin;help=membergroup_administrator" onclick="return reqOverlayDiv(this.href);">?</a>)', $scripturl);
+							$group_name .= sprintf(' (<a href="%1$s?action=helpadmin;help=membergroup_administrator" onclick="return reqOverlayDiv(this.href);">?</a>)', Config::$scripturl);
 						elseif ($rowData['id_group'] == 3)
-							$group_name .= sprintf(' (<a href="%1$s?action=helpadmin;help=membergroup_moderator" onclick="return reqOverlayDiv(this.href);">?</a>)', $scripturl);
+							$group_name .= sprintf(' (<a href="%1$s?action=helpadmin;help=membergroup_moderator" onclick="return reqOverlayDiv(this.href);">?</a>)', Config::$scripturl);
 
 						return $group_name;
 					},
@@ -174,8 +178,8 @@ function GroupList()
 	// Create the request list.
 	createList($listOptions);
 
-	$context['sub_template'] = 'show_list';
-	$context['default_list'] = 'group_lists';
+	Utils::$context['sub_template'] = 'show_list';
+	Utils::$context['default_list'] = 'group_lists';
 }
 
 /**
@@ -193,7 +197,7 @@ function GroupList()
  */
 function MembergroupMembers()
 {
-	global $txt, $scripturl, $context, $modSettings, $sourcedir, $user_info, $settings, $smcFunc;
+	global $txt, $user_info, $settings;
 
 	$_REQUEST['group'] = isset($_REQUEST['group']) ? (int) $_REQUEST['group'] : 0;
 
@@ -202,7 +206,7 @@ function MembergroupMembers()
 		fatal_lang_error('membergroup_does_not_exist', false);
 
 	// Load up the group details.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_group AS id, group_name AS name, CASE WHEN min_posts = {int:min_posts} THEN 1 ELSE 0 END AS assignable, hidden, online_color,
 			icons, description, CASE WHEN min_posts != {int:min_posts} THEN 1 ELSE 0 END AS is_post_group, group_type
 		FROM {db_prefix}membergroups
@@ -214,24 +218,24 @@ function MembergroupMembers()
 		)
 	);
 	// Doesn't exist?
-	if ($smcFunc['db_num_rows']($request) == 0)
+	if (Db::$db->num_rows($request) == 0)
 		fatal_lang_error('membergroup_does_not_exist', false);
-	$context['group'] = $smcFunc['db_fetch_assoc']($request);
-	$smcFunc['db_free_result']($request);
+	Utils::$context['group'] = Db::$db->fetch_assoc($request);
+	Db::$db->free_result($request);
 
 	// Fix the membergroup icons.
-	$context['group']['icons'] = explode('#', $context['group']['icons']);
-	$context['group']['icons'] = !empty($context['group']['icons'][0]) && !empty($context['group']['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/membericons/' . $context['group']['icons'][1] . '" alt="*">', $context['group']['icons'][0]) : '';
-	$context['group']['can_moderate'] = allowedTo('manage_membergroups') && (allowedTo('admin_forum') || $context['group']['group_type'] != 1);
+	Utils::$context['group']['icons'] = explode('#', Utils::$context['group']['icons']);
+	Utils::$context['group']['icons'] = !empty(Utils::$context['group']['icons'][0]) && !empty(Utils::$context['group']['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/membericons/' . Utils::$context['group']['icons'][1] . '" alt="*">', Utils::$context['group']['icons'][0]) : '';
+	Utils::$context['group']['can_moderate'] = allowedTo('manage_membergroups') && (allowedTo('admin_forum') || Utils::$context['group']['group_type'] != 1);
 
-	$context['linktree'][] = array(
-		'url' => $scripturl . '?action=groups;sa=members;group=' . $context['group']['id'],
-		'name' => $context['group']['name'],
+	Utils::$context['linktree'][] = array(
+		'url' => Config::$scripturl . '?action=groups;sa=members;group=' . Utils::$context['group']['id'],
+		'name' => Utils::$context['group']['name'],
 	);
-	$context['can_send_email'] = allowedTo('moderate_forum');
+	Utils::$context['can_send_email'] = allowedTo('moderate_forum');
 
 	// Load all the group moderators, for fun.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT mem.id_member, mem.real_name
 		FROM {db_prefix}group_moderators AS mods
 			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = mods.id_member)
@@ -240,52 +244,52 @@ function MembergroupMembers()
 			'id_group' => $_REQUEST['group'],
 		)
 	);
-	$context['group']['moderators'] = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	Utils::$context['group']['moderators'] = array();
+	while ($row = Db::$db->fetch_assoc($request))
 	{
-		$context['group']['moderators'][] = array(
+		Utils::$context['group']['moderators'][] = array(
 			'id' => $row['id_member'],
 			'name' => $row['real_name']
 		);
 
-		if ($user_info['id'] == $row['id_member'] && $context['group']['group_type'] != 1)
-			$context['group']['can_moderate'] = true;
+		if ($user_info['id'] == $row['id_member'] && Utils::$context['group']['group_type'] != 1)
+			Utils::$context['group']['can_moderate'] = true;
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// If this group is hidden then it can only "exists" if the user can moderate it!
-	if ($context['group']['hidden'] && !$context['group']['can_moderate'])
+	if (Utils::$context['group']['hidden'] && !Utils::$context['group']['can_moderate'])
 		fatal_lang_error('membergroup_does_not_exist', false);
 
 	// You can only assign membership if you are the moderator and/or can manage groups!
-	if (!$context['group']['can_moderate'])
-		$context['group']['assignable'] = 0;
+	if (!Utils::$context['group']['can_moderate'])
+		Utils::$context['group']['assignable'] = 0;
 	// Non-admins cannot assign admins.
-	elseif ($context['group']['id'] == 1 && !allowedTo('admin_forum'))
-		$context['group']['assignable'] = 0;
+	elseif (Utils::$context['group']['id'] == 1 && !allowedTo('admin_forum'))
+		Utils::$context['group']['assignable'] = 0;
 
 	// Removing member from group?
-	if (isset($_POST['remove']) && !empty($_REQUEST['rem']) && is_array($_REQUEST['rem']) && $context['group']['assignable'])
+	if (isset($_POST['remove']) && !empty($_REQUEST['rem']) && is_array($_REQUEST['rem']) && Utils::$context['group']['assignable'])
 	{
 		checkSession();
 		validateToken('mod-mgm');
 
 		// Only proven admins can remove admins.
-		if ($context['group']['id'] == 1)
+		if (Utils::$context['group']['id'] == 1)
 			validateSession();
 
 		// Make sure we're dealing with integers only.
 		foreach ($_REQUEST['rem'] as $key => $group)
 			$_REQUEST['rem'][$key] = (int) $group;
 
-		require_once($sourcedir . '/Subs-Membergroups.php');
+		require_once(Config::$sourcedir . '/Subs-Membergroups.php');
 		removeMembersFromGroups($_REQUEST['rem'], $_REQUEST['group'], true);
 	}
 	// Must be adding new members to the group...
-	elseif (isset($_REQUEST['add']) && (!empty($_REQUEST['toAdd']) || !empty($_REQUEST['member_add'])) && $context['group']['assignable'])
+	elseif (isset($_REQUEST['add']) && (!empty($_REQUEST['toAdd']) || !empty($_REQUEST['member_add'])) && Utils::$context['group']['assignable'])
 	{
 		// Demand an admin password before adding new admins -- every time, no matter what.
-		if ($context['group']['id'] == 1)
+		if (Utils::$context['group']['id'] == 1)
 			validateSession('admin', true);
 
 		checkSession();
@@ -295,13 +299,13 @@ function MembergroupMembers()
 		$member_parameters = array();
 
 		// Get all the members to be added... taking into account names can be quoted ;)
-		$_REQUEST['toAdd'] = strtr($smcFunc['htmlspecialchars']($_REQUEST['toAdd'], ENT_QUOTES), array('&quot;' => '"'));
+		$_REQUEST['toAdd'] = strtr(Utils::htmlspecialchars($_REQUEST['toAdd'], ENT_QUOTES), array('&quot;' => '"'));
 		preg_match_all('~"([^"]+)"~', $_REQUEST['toAdd'], $matches);
 		$member_names = array_unique(array_merge($matches[1], explode(',', preg_replace('~"[^"]+"~', '', $_REQUEST['toAdd']))));
 
 		foreach ($member_names as $index => $member_name)
 		{
-			$member_names[$index] = trim($smcFunc['strtolower']($member_names[$index]));
+			$member_names[$index] = trim(Utils::strtolower($member_names[$index]));
 
 			if (strlen($member_names[$index]) == 0)
 				unset($member_names[$index]);
@@ -330,7 +334,7 @@ function MembergroupMembers()
 		$members = array();
 		if (!empty($member_query))
 		{
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT id_member
 				FROM {db_prefix}members
 				WHERE (' . implode(' OR ', $member_query) . ')
@@ -340,9 +344,9 @@ function MembergroupMembers()
 					'id_group' => $_REQUEST['group'],
 				))
 			);
-			while ($row = $smcFunc['db_fetch_assoc']($request))
+			while ($row = Db::$db->fetch_assoc($request))
 				$members[] = $row['id_member'];
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 		}
 
 		// @todo Add $_POST['additional'] to templates!
@@ -350,8 +354,8 @@ function MembergroupMembers()
 		// Do the updates...
 		if (!empty($members))
 		{
-			require_once($sourcedir . '/Subs-Membergroups.php');
-			addMembersToGroup($members, $_REQUEST['group'], isset($_POST['additional']) || $context['group']['hidden'] ? 'only_additional' : 'auto', true);
+			require_once(Config::$sourcedir . '/Subs-Membergroups.php');
+			addMembersToGroup($members, $_REQUEST['group'], isset($_POST['additional']) || Utils::$context['group']['hidden'] ? 'only_additional' : 'auto', true);
 		}
 	}
 
@@ -367,26 +371,26 @@ function MembergroupMembers()
 	// They didn't pick one, default to by name..
 	if (!isset($_REQUEST['sort']) || !isset($sort_methods[$_REQUEST['sort']]))
 	{
-		$context['sort_by'] = 'name';
+		Utils::$context['sort_by'] = 'name';
 		$querySort = 'real_name';
 	}
 	// Otherwise default to ascending.
 	else
 	{
-		$context['sort_by'] = $_REQUEST['sort'];
+		Utils::$context['sort_by'] = $_REQUEST['sort'];
 		$querySort = $sort_methods[$_REQUEST['sort']];
 	}
 
-	$context['sort_direction'] = isset($_REQUEST['desc']) ? 'down' : 'up';
+	Utils::$context['sort_direction'] = isset($_REQUEST['desc']) ? 'down' : 'up';
 
 	// The where on the query is interesting. Non-moderators should only see people who are in this group as primary.
-	if ($context['group']['can_moderate'])
-		$where = $context['group']['is_post_group'] ? 'id_post_group = {int:group}' : 'id_group = {int:group} OR FIND_IN_SET({int:group}, additional_groups) != 0';
+	if (Utils::$context['group']['can_moderate'])
+		$where = Utils::$context['group']['is_post_group'] ? 'id_post_group = {int:group}' : 'id_group = {int:group} OR FIND_IN_SET({int:group}, additional_groups) != 0';
 	else
-		$where = $context['group']['is_post_group'] ? 'id_post_group = {int:group}' : 'id_group = {int:group}';
+		$where = Utils::$context['group']['is_post_group'] ? 'id_post_group = {int:group}' : 'id_group = {int:group}';
 
 	// Count members of the group.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}members
 		WHERE ' . $where,
@@ -394,31 +398,31 @@ function MembergroupMembers()
 			'group' => $_REQUEST['group'],
 		)
 	);
-	list ($context['total_members']) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list (Utils::$context['total_members']) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	// Create the page index.
-	$context['page_index'] = constructPageIndex($scripturl . '?action=' . ($context['group']['can_moderate'] ? 'moderate;area=viewgroups' : 'groups') . ';sa=members;group=' . $_REQUEST['group'] . ';sort=' . $context['sort_by'] . (isset($_REQUEST['desc']) ? ';desc' : ''), $_REQUEST['start'], $context['total_members'], $modSettings['defaultMaxMembers']);
-	$context['total_members'] = comma_format($context['total_members']);
-	$context['start'] = $_REQUEST['start'];
-	$context['can_moderate_forum'] = allowedTo('moderate_forum');
+	Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=' . (Utils::$context['group']['can_moderate'] ? 'moderate;area=viewgroups' : 'groups') . ';sa=members;group=' . $_REQUEST['group'] . ';sort=' . Utils::$context['sort_by'] . (isset($_REQUEST['desc']) ? ';desc' : ''), $_REQUEST['start'], Utils::$context['total_members'], Config::$modSettings['defaultMaxMembers']);
+	Utils::$context['total_members'] = comma_format(Utils::$context['total_members']);
+	Utils::$context['start'] = $_REQUEST['start'];
+	Utils::$context['can_moderate_forum'] = allowedTo('moderate_forum');
 
 	// Load up all members of this group.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_member, member_name, real_name, email_address, member_ip, date_registered, last_login,
 			posts, is_activated, real_name
 		FROM {db_prefix}members
 		WHERE ' . $where . '
-		ORDER BY ' . $querySort . ' ' . ($context['sort_direction'] == 'down' ? 'DESC' : 'ASC') . '
+		ORDER BY ' . $querySort . ' ' . (Utils::$context['sort_direction'] == 'down' ? 'DESC' : 'ASC') . '
 		LIMIT {int:start}, {int:max}',
 		array(
 			'group' => $_REQUEST['group'],
-			'start' => $context['start'],
-			'max' => $modSettings['defaultMaxMembers'],
+			'start' => Utils::$context['start'],
+			'max' => Config::$modSettings['defaultMaxMembers'],
 		)
 	);
-	$context['members'] = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	Utils::$context['members'] = array();
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$row['member_ip'] = inet_dtop($row['member_ip']);
 		$last_online = empty($row['last_login']) ? $txt['never'] : timeformat($row['last_login']);
@@ -427,25 +431,25 @@ function MembergroupMembers()
 		if ($row['is_activated'] % 10 != 1)
 			$last_online = '<em title="' . $txt['not_activated'] . '">' . $last_online . '</em>';
 
-		$context['members'][] = array(
+		Utils::$context['members'][] = array(
 			'id' => $row['id_member'],
-			'name' => '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
+			'name' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
 			'email' => $row['email_address'],
-			'ip' => '<a href="' . $scripturl . '?action=trackip;searchip=' . $row['member_ip'] . '">' . $row['member_ip'] . '</a>',
+			'ip' => '<a href="' . Config::$scripturl . '?action=trackip;searchip=' . $row['member_ip'] . '">' . $row['member_ip'] . '</a>',
 			'registered' => timeformat($row['date_registered']),
 			'last_online' => $last_online,
 			'posts' => comma_format($row['posts']),
 			'is_activated' => $row['is_activated'] % 10 == 1,
 		);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Select the template.
-	$context['sub_template'] = 'group_members';
-	$context['page_title'] = $txt['membergroups_members_title'] . ': ' . $context['group']['name'];
+	Utils::$context['sub_template'] = 'group_members';
+	Utils::$context['page_title'] = $txt['membergroups_members_title'] . ': ' . Utils::$context['group']['name'];
 	createToken('mod-mgm');
 
-	if ($context['group']['assignable'])
+	if (Utils::$context['group']['assignable'])
 		loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
 }
 
@@ -454,11 +458,11 @@ function MembergroupMembers()
  */
 function GroupRequests()
 {
-	global $txt, $context, $scripturl, $user_info, $sourcedir, $smcFunc, $modSettings;
+	global $txt, $user_info;
 
 	// Set up the template stuff...
-	$context['page_title'] = $txt['mc_group_requests'];
-	$context['sub_template'] = 'show_list';
+	Utils::$context['page_title'] = $txt['mc_group_requests'];
+	Utils::$context['sub_template'] = 'show_list';
 
 	// Verify we can be here.
 	if ($user_info['mod_cache']['gq'] == '0=1')
@@ -477,7 +481,7 @@ function GroupRequests()
 	);
 
 	// We've submitted?
-	if (isset($_POST[$context['session_var']]) && !empty($_POST['groupr']) && !empty($_POST['req_action']))
+	if (isset($_POST[Utils::$context['session_var']]) && !empty($_POST['groupr']) && !empty($_POST['req_action']))
 	{
 		checkSession();
 		validateToken('mod-gr');
@@ -492,12 +496,12 @@ function GroupRequests()
 		if ($_POST['req_action'] == 'reason')
 		{
 			// Different sub template...
-			$context['sub_template'] = 'group_request_reason';
+			Utils::$context['sub_template'] = 'group_request_reason';
 			// And a limitation. We don't care that the page number bit makes no sense, as we don't need it!
 			$where .= ' AND lgr.id_request IN ({array_int:request_ids})';
 			$where_parameters['request_ids'] = $_POST['groupr'];
 
-			$context['group_requests'] = list_getGroupRequests(0, $modSettings['defaultMaxListItems'], 'lgr.id_request', $where, $where_parameters);
+			Utils::$context['group_requests'] = list_getGroupRequests(0, Config::$modSettings['defaultMaxListItems'], 'lgr.id_request', $where, $where_parameters);
 
 			// Need to make another token for this.
 			createToken('mod-gr');
@@ -508,7 +512,7 @@ function GroupRequests()
 		// Otherwise we do something!
 		else
 		{
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT lgr.id_request
 				FROM {db_prefix}log_group_requests AS lgr
 				WHERE ' . $where . '
@@ -519,7 +523,7 @@ function GroupRequests()
 				)
 			);
 			$request_list = array();
-			while ($row = $smcFunc['db_fetch_assoc']($request))
+			while ($row = Db::$db->fetch_assoc($request))
 			{
 				if (!isset($log_changes[$row['id_request']]))
 					$log_changes[$row['id_request']] = array(
@@ -528,15 +532,15 @@ function GroupRequests()
 						'id_member_acted' => $user_info['id'],
 						'member_name_acted' => $user_info['name'],
 						'time_acted' => time(),
-						'act_reason' => $_POST['req_action'] != 'approve' && !empty($_POST['groupreason']) && !empty($_POST['groupreason'][$row['id_request']]) ? $smcFunc['htmlspecialchars']($_POST['groupreason'][$row['id_request']], ENT_QUOTES) : '',
+						'act_reason' => $_POST['req_action'] != 'approve' && !empty($_POST['groupreason']) && !empty($_POST['groupreason'][$row['id_request']]) ? Utils::htmlspecialchars($_POST['groupreason'][$row['id_request']], ENT_QUOTES) : '',
 					);
 				$request_list[] = $row['id_request'];
 			}
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 
 			// Add a background task to handle notifying people of this request
-			$data = $smcFunc['json_encode'](array('member_id' => $user_info['id'], 'member_ip' => $user_info['ip'], 'request_list' => $request_list, 'status' => $_POST['req_action'], 'reason' => isset($_POST['groupreason']) ? $_POST['groupreason'] : '', 'time' => time()));
-			$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
+			$data = Utils::jsonEncode(array('member_id' => $user_info['id'], 'member_ip' => $user_info['ip'], 'request_list' => $request_list, 'status' => $_POST['req_action'], 'reason' => isset($_POST['groupreason']) ? $_POST['groupreason'] : '', 'time' => time()));
+			Db::$db->insert('insert', '{db_prefix}background_tasks',
 				array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
 				array('$sourcedir/tasks/GroupAct_Notify.php', 'SMF\Tasks\GroupAct_Notify', $data, 0), array()
 			);
@@ -546,7 +550,7 @@ function GroupRequests()
 			{
 				foreach ($log_changes as $id_request => $details)
 				{
-					$smcFunc['db_query']('', '
+					Db::$db->query('', '
 						UPDATE {db_prefix}log_group_requests
 						SET status = {int:status},
 							id_member_acted = {int:id_member_acted},
@@ -562,15 +566,15 @@ function GroupRequests()
 	}
 
 	// We're going to want this for making our list.
-	require_once($sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/Subs-List.php');
 
 	// This is all the information required for a group listing.
 	$listOptions = array(
 		'id' => 'group_request_list',
 		'width' => '100%',
-		'items_per_page' => $modSettings['defaultMaxListItems'],
+		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 		'no_items_label' => $txt['mc_groupr_none_found'],
-		'base_href' => $scripturl . '?action=groups;sa=requests',
+		'base_href' => Config::$scripturl . '?action=groups;sa=requests',
 		'default_sort_col' => 'member',
 		'get_items' => array(
 			'function' => 'list_getGroupRequests',
@@ -646,11 +650,11 @@ function GroupRequests()
 			),
 		),
 		'form' => array(
-			'href' => $scripturl . '?action=groups;sa=requests',
+			'href' => Config::$scripturl . '?action=groups;sa=requests',
 			'include_sort' => true,
 			'include_start' => true,
 			'hidden_fields' => array(
-				$context['session_var'] => $context['session_id'],
+				Utils::$context['session_var'] => Utils::$context['session_id'],
 			),
 			'token' => 'mod-gr',
 		),
@@ -682,8 +686,8 @@ function GroupRequests()
 	createToken('mod-gr');
 	createList($listOptions);
 
-	$context['default_list'] = 'group_request_list';
-	$context[$context['moderation_menu_name']]['tab_data'] = array(
+	Utils::$context['default_list'] = 'group_request_list';
+	Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = array(
 		'title' => $txt['mc_group_requests'],
 	);
 }
@@ -697,17 +701,15 @@ function GroupRequests()
  */
 function list_getGroupRequestCount($where, $where_parameters)
 {
-	global $smcFunc;
-
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}log_group_requests AS lgr
 		WHERE ' . $where,
 		array_merge($where_parameters, array(
 		))
 	);
-	list ($totalRequests) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($totalRequests) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	return $totalRequests;
 }
@@ -730,9 +732,9 @@ function list_getGroupRequestCount($where, $where_parameters)
  */
 function list_getGroupRequests($start, $items_per_page, $sort, $where, $where_parameters)
 {
-	global $smcFunc, $scripturl, $txt;
+	global $txt;
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT
 			lgr.id_request, lgr.id_member, lgr.id_group, lgr.time_applied, lgr.reason,
 			lgr.status, lgr.id_member_acted, lgr.member_name_acted, lgr.time_acted, lgr.act_reason,
@@ -750,7 +752,7 @@ function list_getGroupRequests($start, $items_per_page, $sort, $where, $where_pa
 		))
 	);
 	$group_requests = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		if (empty($row['reason']))
 			$reason = '<em>(' . $txt['mc_groupr_no_reason'] . ')</em>';
@@ -771,13 +773,13 @@ function list_getGroupRequests($start, $items_per_page, $sort, $where, $where_pa
 
 		$group_requests[] = array(
 			'id' => $row['id_request'],
-			'member_link' => '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
+			'member_link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
 			'group_link' => '<span style="color: ' . $row['online_color'] . '">' . $row['group_name'] . '</span>',
 			'reason' => $reason,
 			'time_submitted' => timeformat($row['time_applied']),
 		);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	return $group_requests;
 }

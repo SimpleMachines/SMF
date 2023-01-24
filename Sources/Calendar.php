@@ -15,6 +15,9 @@
  */
 
 use SMF\BrowserDetector;
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -33,15 +36,15 @@ if (!defined('SMF'))
  */
 function CalendarMain()
 {
-	global $txt, $context, $modSettings, $scripturl, $options, $sourcedir, $user_info, $smcFunc;
+	global $txt, $options, $user_info;
 
 	// Permissions, permissions, permissions.
 	isAllowedTo('calendar_view');
 
 	// Some global template resources.
-	$context['calendar_resources'] = array(
-		'min_year' => $modSettings['cal_minyear'],
-		'max_year' => $modSettings['cal_maxyear'],
+	Utils::$context['calendar_resources'] = array(
+		'min_year' => Config::$modSettings['cal_minyear'],
+		'max_year' => Config::$modSettings['cal_maxyear'],
 	);
 
 	// Doing something other than calendar viewing?
@@ -54,7 +57,7 @@ function CalendarMain()
 		return call_helper($subActions[$_GET['sa']]);
 
 	// You can't do anything if the calendar is off.
-	if (empty($modSettings['cal_enabled']))
+	if (empty(Config::$modSettings['cal_enabled']))
 		fatal_lang_error('calendar_off', false);
 
 	// This is gonna be needed...
@@ -67,7 +70,7 @@ function CalendarMain()
 		$evid = (int) $_GET['event'];
 		if ($evid > 0)
 		{
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT start_date
 				FROM {db_prefix}calendar
 				WHERE id_event = {int:event_id}',
@@ -75,20 +78,20 @@ function CalendarMain()
 					'event_id' => $evid,
 				)
 			);
-			if ($row = $smcFunc['db_fetch_assoc']($request))
+			if ($row = Db::$db->fetch_assoc($request))
 			{
 				$_REQUEST['start_date'] = $row['start_date'];
 
 				// We might use this later.
-				$context['selected_event'] = $evid;
+				Utils::$context['selected_event'] = $evid;
 			}
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 		}
 		unset ($_GET['event']);
 	}
 
 	// Set the page title to mention the calendar ;).
-	$context['page_title'] = $txt['calendar'];
+	Utils::$context['page_title'] = $txt['calendar'];
 
 	// Ensure a default view is defined
 	if (empty($options['calendar_default_view']))
@@ -96,20 +99,20 @@ function CalendarMain()
 
 	// What view do we want?
 	if (isset($_GET['viewweek']))
-		$context['calendar_view'] = 'viewweek';
+		Utils::$context['calendar_view'] = 'viewweek';
 	elseif (isset($_GET['viewmonth']))
-		$context['calendar_view'] = 'viewmonth';
+		Utils::$context['calendar_view'] = 'viewmonth';
 	elseif (isset($_GET['viewlist']))
-		$context['calendar_view'] = 'viewlist';
+		Utils::$context['calendar_view'] = 'viewlist';
 	else
-		$context['calendar_view'] = $options['calendar_default_view'];
+		Utils::$context['calendar_view'] = $options['calendar_default_view'];
 
 	// Don't let search engines index the non-default calendar pages
-	if ($context['calendar_view'] !== $options['calendar_default_view'])
-		$context['robot_no_index'] = true;
+	if (Utils::$context['calendar_view'] !== $options['calendar_default_view'])
+		Utils::$context['robot_no_index'] = true;
 
 	// Get the current day of month...
-	require_once($sourcedir . '/Subs-Calendar.php');
+	require_once(Config::$sourcedir . '/Subs-Calendar.php');
 	$today = getTodayInfo();
 
 	// Need a start date for all views
@@ -153,7 +156,7 @@ function CalendarMain()
 
 	if (empty($end_object) || $start_object >= $end_object)
 	{
-		$num_days_shown = empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'];
+		$num_days_shown = empty(Config::$modSettings['cal_days_for_index']) || Config::$modSettings['cal_days_for_index'] < 1 ? 1 : Config::$modSettings['cal_days_for_index'];
 
 		$end_object = date_create(date_format($start_object, 'Y-m-d') . ' ' . getUserTimezone());
 
@@ -174,10 +177,10 @@ function CalendarMain()
 	// Make sure the year and month are in valid ranges.
 	if ($curPage['month'] < 1 || $curPage['month'] > 12)
 		fatal_lang_error('invalid_month', false);
-	if ($curPage['year'] < $modSettings['cal_minyear'] || $curPage['year'] > $modSettings['cal_maxyear'])
+	if ($curPage['year'] < Config::$modSettings['cal_minyear'] || $curPage['year'] > Config::$modSettings['cal_maxyear'])
 		fatal_lang_error('invalid_year', false);
 	// If we have a day clean that too.
-	if ($context['calendar_view'] != 'viewmonth')
+	if (Utils::$context['calendar_view'] != 'viewmonth')
 	{
 		$isValid = checkdate($curPage['month'], $curPage['day'], $curPage['year']);
 		if (!$isValid)
@@ -187,78 +190,78 @@ function CalendarMain()
 	// Load all the context information needed to show the calendar grid.
 	$calendarOptions = array(
 		'start_day' => !empty($options['calendar_start_day']) ? $options['calendar_start_day'] : 0,
-		'show_birthdays' => in_array($modSettings['cal_showbdays'], array(1, 2)),
-		'show_events' => in_array($modSettings['cal_showevents'], array(1, 2)),
-		'show_holidays' => in_array($modSettings['cal_showholidays'], array(1, 2)),
+		'show_birthdays' => in_array(Config::$modSettings['cal_showbdays'], array(1, 2)),
+		'show_events' => in_array(Config::$modSettings['cal_showevents'], array(1, 2)),
+		'show_holidays' => in_array(Config::$modSettings['cal_showholidays'], array(1, 2)),
 		'show_week_num' => true,
-		'short_day_titles' => !empty($modSettings['cal_short_days']),
-		'short_month_titles' => !empty($modSettings['cal_short_months']),
-		'show_next_prev' => !empty($modSettings['cal_prev_next_links']),
-		'show_week_links' => isset($modSettings['cal_week_links']) ? $modSettings['cal_week_links'] : 0,
+		'short_day_titles' => !empty(Config::$modSettings['cal_short_days']),
+		'short_month_titles' => !empty(Config::$modSettings['cal_short_months']),
+		'show_next_prev' => !empty(Config::$modSettings['cal_prev_next_links']),
+		'show_week_links' => isset(Config::$modSettings['cal_week_links']) ? Config::$modSettings['cal_week_links'] : 0,
 	);
 
 	// Load up the main view.
-	if ($context['calendar_view'] == 'viewlist')
-		$context['calendar_grid_main'] = getCalendarList($curPage['start_date'], $curPage['end_date'], $calendarOptions);
-	elseif ($context['calendar_view'] == 'viewweek')
-		$context['calendar_grid_main'] = getCalendarWeek($curPage['start_date'], $calendarOptions);
+	if (Utils::$context['calendar_view'] == 'viewlist')
+		Utils::$context['calendar_grid_main'] = getCalendarList($curPage['start_date'], $curPage['end_date'], $calendarOptions);
+	elseif (Utils::$context['calendar_view'] == 'viewweek')
+		Utils::$context['calendar_grid_main'] = getCalendarWeek($curPage['start_date'], $calendarOptions);
 	else
-		$context['calendar_grid_main'] = getCalendarGrid($curPage['start_date'], $calendarOptions);
+		Utils::$context['calendar_grid_main'] = getCalendarGrid($curPage['start_date'], $calendarOptions);
 
 	// Load up the previous and next months.
-	$context['calendar_grid_current'] = getCalendarGrid($curPage['start_date'], $calendarOptions, false, false);
+	Utils::$context['calendar_grid_current'] = getCalendarGrid($curPage['start_date'], $calendarOptions, false, false);
 
 	// Only show previous month if it isn't pre-January of the min-year
-	if ($context['calendar_grid_current']['previous_calendar']['year'] > $modSettings['cal_minyear'] || $curPage['month'] != 1)
-		$context['calendar_grid_prev'] = getCalendarGrid($context['calendar_grid_current']['previous_calendar']['start_date'], $calendarOptions, true, false);
+	if (Utils::$context['calendar_grid_current']['previous_calendar']['year'] > Config::$modSettings['cal_minyear'] || $curPage['month'] != 1)
+		Utils::$context['calendar_grid_prev'] = getCalendarGrid(Utils::$context['calendar_grid_current']['previous_calendar']['start_date'], $calendarOptions, true, false);
 
 	// Only show next month if it isn't post-December of the max-year
-	if ($context['calendar_grid_current']['next_calendar']['year'] < $modSettings['cal_maxyear'] || $curPage['month'] != 12)
-		$context['calendar_grid_next'] = getCalendarGrid($context['calendar_grid_current']['next_calendar']['start_date'], $calendarOptions, false, false);
+	if (Utils::$context['calendar_grid_current']['next_calendar']['year'] < Config::$modSettings['cal_maxyear'] || $curPage['month'] != 12)
+		Utils::$context['calendar_grid_next'] = getCalendarGrid(Utils::$context['calendar_grid_current']['next_calendar']['start_date'], $calendarOptions, false, false);
 
 	// Basic template stuff.
-	$context['allow_calendar_event'] = allowedTo('calendar_post');
+	Utils::$context['allow_calendar_event'] = allowedTo('calendar_post');
 
 	// If you don't allow events not linked to posts and you're not an admin, we have more work to do...
-	if ($context['allow_calendar_event'] && empty($modSettings['cal_allow_unlinked']) && !$user_info['is_admin'])
+	if (Utils::$context['allow_calendar_event'] && empty(Config::$modSettings['cal_allow_unlinked']) && !$user_info['is_admin'])
 	{
 		$boards_can_post = boardsAllowedTo('post_new');
-		$context['allow_calendar_event'] &= !empty($boards_can_post);
+		Utils::$context['allow_calendar_event'] &= !empty($boards_can_post);
 	}
 
-	$context['can_post'] = $context['allow_calendar_event'];
-	$context['current_day'] = $curPage['day'];
-	$context['current_month'] = $curPage['month'];
-	$context['current_year'] = $curPage['year'];
-	$context['show_all_birthdays'] = isset($_GET['showbd']);
-	$context['blocks_disabled'] = !empty($modSettings['cal_disable_prev_next']) ? 1 : 0;
+	Utils::$context['can_post'] = Utils::$context['allow_calendar_event'];
+	Utils::$context['current_day'] = $curPage['day'];
+	Utils::$context['current_month'] = $curPage['month'];
+	Utils::$context['current_year'] = $curPage['year'];
+	Utils::$context['show_all_birthdays'] = isset($_GET['showbd']);
+	Utils::$context['blocks_disabled'] = !empty(Config::$modSettings['cal_disable_prev_next']) ? 1 : 0;
 
 	// Set the page title to mention the month or week, too
-	if ($context['calendar_view'] != 'viewlist')
-		$context['page_title'] .= ' - ' . ($context['calendar_view'] == 'viewweek' ? $context['calendar_grid_main']['week_title'] : $txt['months_titles'][$context['current_month']] . ' ' . $context['current_year']);
+	if (Utils::$context['calendar_view'] != 'viewlist')
+		Utils::$context['page_title'] .= ' - ' . (Utils::$context['calendar_view'] == 'viewweek' ? Utils::$context['calendar_grid_main']['week_title'] : $txt['months_titles'][Utils::$context['current_month']] . ' ' . Utils::$context['current_year']);
 
 	// Load up the linktree!
-	$context['linktree'][] = array(
-		'url' => $scripturl . '?action=calendar',
+	Utils::$context['linktree'][] = array(
+		'url' => Config::$scripturl . '?action=calendar',
 		'name' => $txt['calendar']
 	);
 	// Add the current month to the linktree.
-	$context['linktree'][] = array(
-		'url' => $scripturl . '?action=calendar;year=' . $context['current_year'] . ';month=' . $context['current_month'],
-		'name' => $txt['months_titles'][$context['current_month']] . ' ' . $context['current_year']
+	Utils::$context['linktree'][] = array(
+		'url' => Config::$scripturl . '?action=calendar;year=' . Utils::$context['current_year'] . ';month=' . Utils::$context['current_month'],
+		'name' => $txt['months_titles'][Utils::$context['current_month']] . ' ' . Utils::$context['current_year']
 	);
 	// If applicable, add the current week to the linktree.
-	if ($context['calendar_view'] == 'viewweek')
-		$context['linktree'][] = array(
-			'url' => $scripturl . '?action=calendar;viewweek;year=' . $context['current_year'] . ';month=' . $context['current_month'] . ';day=' . $context['current_day'],
-			'name' => $context['calendar_grid_main']['week_title'],
+	if (Utils::$context['calendar_view'] == 'viewweek')
+		Utils::$context['linktree'][] = array(
+			'url' => Config::$scripturl . '?action=calendar;viewweek;year=' . Utils::$context['current_year'] . ';month=' . Utils::$context['current_month'] . ';day=' . Utils::$context['current_day'],
+			'name' => Utils::$context['calendar_grid_main']['week_title'],
 		);
 
 	// Build the calendar button array.
-	$context['calendar_buttons'] = array();
+	Utils::$context['calendar_buttons'] = array();
 
-	if ($context['can_post'])
-		$context['calendar_buttons']['post_event'] = array('text' => 'calendar_post_event', 'image' => 'calendarpe.png', 'url' => $scripturl . '?action=calendar;sa=post;month=' . $context['current_month'] . ';year=' . $context['current_year'] . ';' . $context['session_var'] . '=' . $context['session_id']);
+	if (Utils::$context['can_post'])
+		Utils::$context['calendar_buttons']['post_event'] = array('text' => 'calendar_post_event', 'image' => 'calendarpe.png', 'url' => Config::$scripturl . '?action=calendar;sa=post;month=' . Utils::$context['current_month'] . ';year=' . Utils::$context['current_year'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 
 	// Allow mods to add additional buttons here
 	call_integration_hook('integrate_calendar_buttons');
@@ -276,15 +279,15 @@ function CalendarMain()
  */
 function CalendarPost()
 {
-	global $context, $txt, $user_info, $sourcedir, $scripturl;
-	global $modSettings, $topic, $smcFunc;
+	global $txt, $user_info;
+	global $topic;
 
 	// Well - can they?
 	isAllowedTo('calendar_post');
 
 	// We need these for all kinds of useful functions.
-	require_once($sourcedir . '/Subs-Calendar.php');
-	require_once($sourcedir . '/Subs.php');
+	require_once(Config::$sourcedir . '/Subs-Calendar.php');
+	require_once(Config::$sourcedir . '/Subs.php');
 
 	// Cast this for safety...
 	if (isset($_REQUEST['eventid']))
@@ -303,7 +306,7 @@ function CalendarPost()
 	$time_string = preg_replace('~:(?=\s|$|%[pPzZ])~', '', $time_string);
 
 	// Submitting?
-	if (isset($_POST[$context['session_var']], $_REQUEST['eventid']))
+	if (isset($_POST[Utils::$context['session_var']], $_REQUEST['eventid']))
 	{
 		checkSession();
 
@@ -316,10 +319,10 @@ function CalendarPost()
 			isAllowedTo('calendar_edit_' . (!empty($user_info['id']) && getEventPoster($_REQUEST['eventid']) == $user_info['id'] ? 'own' : 'any'));
 
 		// New - and directing?
-		if (isset($_POST['link_to_board']) || empty($modSettings['cal_allow_unlinked']))
+		if (isset($_POST['link_to_board']) || empty(Config::$modSettings['cal_allow_unlinked']))
 		{
 			$_REQUEST['calendar'] = 1;
-			require_once($sourcedir . '/Post.php');
+			require_once(Config::$sourcedir . '/Post.php');
 			return Post();
 		}
 		// New...
@@ -328,8 +331,8 @@ function CalendarPost()
 			$eventOptions = array(
 				'board' => 0,
 				'topic' => 0,
-				'title' => $smcFunc['substr']($_REQUEST['evtitle'], 0, 100),
-				'location' => $smcFunc['substr']($_REQUEST['event_location'], 0, 255),
+				'title' => Utils::entitySubstr($_REQUEST['evtitle'], 0, 100),
+				'location' => Utils::entitySubstr($_REQUEST['event_location'], 0, 255),
 				'member' => $user_info['id'],
 			);
 			insertEvent($eventOptions);
@@ -343,13 +346,13 @@ function CalendarPost()
 		else
 		{
 			$eventOptions = array(
-				'title' => $smcFunc['substr']($_REQUEST['evtitle'], 0, 100),
-				'location' => $smcFunc['substr']($_REQUEST['event_location'], 0, 255),
+				'title' => Utils::entitySubstr($_REQUEST['evtitle'], 0, 100),
+				'location' => Utils::entitySubstr($_REQUEST['event_location'], 0, 255),
 			);
 			modifyEvent($_REQUEST['eventid'], $eventOptions);
 		}
 
-		updateSettings(array(
+		Config::updateModSettings(array(
 			'calendar_updated' => time(),
 		));
 
@@ -375,21 +378,21 @@ function CalendarPost()
 			$month = isset($_POST['month']) ? $_POST['month'] : $today['mon'];
 			$day = isset($_POST['day']) ? $_POST['day'] : $today['mday'];
 		}
-		redirectexit($scripturl . '?action=calendar;month=' . $month . ';year=' . $year . ';day=' . $day);
+		redirectexit(Config::$scripturl . '?action=calendar;month=' . $month . ';year=' . $year . ';day=' . $day);
 	}
 
 	// If we are not enabled... we are not enabled.
-	if (empty($modSettings['cal_allow_unlinked']) && empty($_REQUEST['eventid']))
+	if (empty(Config::$modSettings['cal_allow_unlinked']) && empty($_REQUEST['eventid']))
 	{
 		$_REQUEST['calendar'] = 1;
-		require_once($sourcedir . '/Post.php');
+		require_once(Config::$sourcedir . '/Post.php');
 		return Post();
 	}
 
 	// New?
 	if (!isset($_REQUEST['eventid']))
 	{
-		$context['event'] = array(
+		Utils::$context['event'] = array(
 			'boards' => array(),
 			'board' => 0,
 			'new' => 1,
@@ -399,67 +402,67 @@ function CalendarPost()
 		);
 
 		$eventDatetimes = getNewEventDatetimes();
-		$context['event'] = array_merge($context['event'], $eventDatetimes);
+		Utils::$context['event'] = array_merge(Utils::$context['event'], $eventDatetimes);
 
-		$context['event']['last_day'] = (int) smf_strftime('%d', mktime(0, 0, 0, $context['event']['month'] == 12 ? 1 : $context['event']['month'] + 1, 0, $context['event']['month'] == 12 ? $context['event']['year'] + 1 : $context['event']['year']));
+		Utils::$context['event']['last_day'] = (int) smf_strftime('%d', mktime(0, 0, 0, Utils::$context['event']['month'] == 12 ? 1 : Utils::$context['event']['month'] + 1, 0, Utils::$context['event']['month'] == 12 ? Utils::$context['event']['year'] + 1 : Utils::$context['event']['year']));
 	}
 	else
 	{
-		$context['event'] = getEventProperties($_REQUEST['eventid']);
+		Utils::$context['event'] = getEventProperties($_REQUEST['eventid']);
 
-		if ($context['event'] === false)
+		if (Utils::$context['event'] === false)
 			fatal_lang_error('no_access', false);
 
 		// If it has a board, then they should be editing it within the topic.
-		if (!empty($context['event']['topic']['id']) && !empty($context['event']['topic']['first_msg']))
+		if (!empty(Utils::$context['event']['topic']['id']) && !empty(Utils::$context['event']['topic']['first_msg']))
 		{
 			// We load the board up, for a check on the board access rights...
-			$topic = $context['event']['topic']['id'];
+			$topic = Utils::$context['event']['topic']['id'];
 			loadBoard();
 		}
 
 		// Make sure the user is allowed to edit this event.
-		if ($context['event']['member'] != $user_info['id'])
+		if (Utils::$context['event']['member'] != $user_info['id'])
 			isAllowedTo('calendar_edit_any');
 		elseif (!allowedTo('calendar_edit_any'))
 			isAllowedTo('calendar_edit_own');
 	}
 
 	// An all day event? Set up some nice defaults in case the user wants to change that
-	if ($context['event']['allday'] == true)
+	if (Utils::$context['event']['allday'] == true)
 	{
-		$context['event']['tz'] = getUserTimezone();
-		$context['event']['start_time'] = timeformat(time(), $time_string);
-		$context['event']['end_time'] = timeformat(time() + 3600, $time_string);
+		Utils::$context['event']['tz'] = getUserTimezone();
+		Utils::$context['event']['start_time'] = timeformat(time(), $time_string);
+		Utils::$context['event']['end_time'] = timeformat(time() + 3600, $time_string);
 	}
 	// Otherwise, just adjust these to look nice on the input form
 	else
 	{
-		$context['event']['start_time'] = $context['event']['start_time_orig'];
-		$context['event']['end_time'] = $context['event']['end_time_orig'];
+		Utils::$context['event']['start_time'] = Utils::$context['event']['start_time_orig'];
+		Utils::$context['event']['end_time'] = Utils::$context['event']['end_time_orig'];
 	}
 
 	// Need this so the user can select a timezone for the event.
-	$context['all_timezones'] = smf_list_timezones($context['event']['start_date']);
+	Utils::$context['all_timezones'] = smf_list_timezones(Utils::$context['event']['start_date']);
 
 	// If the event's timezone is not in SMF's standard list of time zones, try to fix it.
-	if (!isset($context['all_timezones'][$context['event']['tz']]))
+	if (!isset(Utils::$context['all_timezones'][Utils::$context['event']['tz']]))
 	{
-		$later = strtotime('@' . $context['event']['start_timestamp'] . ' + 1 year');
-		$tzinfo = timezone_transitions_get(timezone_open($context['event']['tz']), $context['event']['start_timestamp'], $later);
+		$later = strtotime('@' . Utils::$context['event']['start_timestamp'] . ' + 1 year');
+		$tzinfo = timezone_transitions_get(timezone_open(Utils::$context['event']['tz']), Utils::$context['event']['start_timestamp'], $later);
 
 		$found = false;
-		foreach ($context['all_timezones'] as $possible_tzid => $dummy)
+		foreach (Utils::$context['all_timezones'] as $possible_tzid => $dummy)
 		{
 			// Ignore the "-----" option
 			if (empty($possible_tzid))
 				continue;
 
-			$possible_tzinfo = timezone_transitions_get(timezone_open($possible_tzid), $context['event']['start_timestamp'], $later);
+			$possible_tzinfo = timezone_transitions_get(timezone_open($possible_tzid), Utils::$context['event']['start_timestamp'], $later);
 
 			if ($tzinfo === $possible_tzinfo)
 			{
-				$context['event']['tz'] = $possible_tzid;
+				Utils::$context['event']['tz'] = $possible_tzid;
 				$found = true;
 				break;
 			}
@@ -468,8 +471,8 @@ function CalendarPost()
 		// Hm. That's weird. Well, just prepend it to the list and let the user deal with it.
 		if (!$found)
 		{
-			$d = date_create($context['event']['start_datetime'] . ' ' . $context['event']['tz']);
-			$context['all_timezones'] = array($context['event']['tz'] => '[UTC' . date_format($d, 'P') . '] - ' . $context['event']['tz']) + $context['all_timezones'];
+			$d = date_create(Utils::$context['event']['start_datetime'] . ' ' . Utils::$context['event']['tz']);
+			Utils::$context['all_timezones'] = array(Utils::$context['event']['tz'] => '[UTC' . date_format($d, 'P') . '] - ' . Utils::$context['event']['tz']) + Utils::$context['all_timezones'];
 		}
 	}
 
@@ -478,7 +481,7 @@ function CalendarPost()
 	if (empty($boards))
 	{
 		// You can post new events but can't link them to anything...
-		$context['event']['categories'] = array();
+		Utils::$context['event']['categories'] = array();
 	}
 	else
 	{
@@ -488,18 +491,18 @@ function CalendarPost()
 			'included_boards' => in_array(0, $boards) ? null : $boards,
 			'not_redirection' => true,
 			'use_permissions' => true,
-			'selected_board' => $modSettings['cal_defaultboard'],
+			'selected_board' => Config::$modSettings['cal_defaultboard'],
 		);
-		$context['event']['categories'] = getBoardList($boardListOptions);
+		Utils::$context['event']['categories'] = getBoardList($boardListOptions);
 	}
 
 	// Template, sub template, etc.
 	loadTemplate('Calendar');
-	$context['sub_template'] = 'event_post';
+	Utils::$context['sub_template'] = 'event_post';
 
-	$context['page_title'] = isset($_REQUEST['eventid']) ? $txt['calendar_edit'] : $txt['calendar_post_event'];
-	$context['linktree'][] = array(
-		'name' => $context['page_title'],
+	Utils::$context['page_title'] = isset($_REQUEST['eventid']) ? $txt['calendar_edit'] : $txt['calendar_post_event'];
+	Utils::$context['linktree'][] = array(
+		'name' => Utils::$context['page_title'],
 	);
 
 	loadDatePicker('#event_time_input .date_input');
@@ -525,10 +528,8 @@ function CalendarPost()
  */
 function iCalDownload()
 {
-	global $smcFunc, $sourcedir, $modSettings, $webmaster_email, $mbname;
-
 	// You can't export if the calendar export feature is off.
-	if (empty($modSettings['cal_export']))
+	if (empty(Config::$modSettings['cal_export']))
 		fatal_lang_error('calendar_export_off', false);
 
 	// Goes without saying that this is required.
@@ -536,7 +537,7 @@ function iCalDownload()
 		fatal_lang_error('no_access', false);
 
 	// This is kinda wanted.
-	require_once($sourcedir . '/Subs-Calendar.php');
+	require_once(Config::$sourcedir . '/Subs-Calendar.php');
 
 	// Load up the event in question and check it exists.
 	$event = getEventProperties($_REQUEST['eventid']);
@@ -578,8 +579,8 @@ function iCalDownload()
 	$filecontents .= 'PRODID:-//SimpleMachines//' . SMF_FULL_VERSION . '//EN' . "\n";
 	$filecontents .= 'VERSION:2.0' . "\n";
 	$filecontents .= 'BEGIN:VEVENT' . "\n";
-	// @TODO - Should be the members email who created the event rather than $webmaster_email.
-	$filecontents .= 'ORGANIZER;CN="' . $event['realname'] . '":MAILTO:' . $webmaster_email . "\n";
+	// @TODO - Should be the members email who created the event rather than Config::$webmaster_email.
+	$filecontents .= 'ORGANIZER;CN="' . $event['realname'] . '":MAILTO:' . Config::$webmaster_email . "\n";
 	$filecontents .= 'DTSTAMP:' . $datestamp . "\n";
 	$filecontents .= 'DTSTART' . (!empty($event['start_time']) ? ';TZID=' . $event['tz'] : ';VALUE=DATE') . ':' . $datestart . "\n";
 
@@ -595,13 +596,13 @@ function iCalDownload()
 		$filecontents .= 'LOCATION:' . str_replace(',', '\,', $event['location']) . "\n";
 
 	$filecontents .= 'SUMMARY:' . implode('', $title);
-	$filecontents .= 'UID:' . $event['eventid'] . '@' . str_replace(' ', '-', $mbname) . "\n";
+	$filecontents .= 'UID:' . $event['eventid'] . '@' . str_replace(' ', '-', Config::$mbname) . "\n";
 	$filecontents .= 'END:VEVENT' . "\n";
 	$filecontents .= 'END:VCALENDAR';
 
 	// Send some standard headers.
 	ob_end_clean();
-	if (!empty($modSettings['enableCompressedOutput']))
+	if (!empty(Config::$modSettings['enableCompressedOutput']))
 		@ob_start('ob_gzhandler');
 	else
 		ob_start();
@@ -616,8 +617,8 @@ function iCalDownload()
 	header('accept-ranges: bytes');
 	header('connection: close');
 	header('content-disposition: attachment; filename="' . $event['title'] . '.ics"');
-	if (empty($modSettings['enableCompressedOutput']))
-		header('content-length: ' . $smcFunc['strlen']($filecontents));
+	if (empty(Config::$modSettings['enableCompressedOutput']))
+		header('content-length: ' . Utils::entityStrlen($filecontents));
 
 	// This is a calendar item!
 	header('content-type: text/calendar');
@@ -634,17 +635,17 @@ function iCalDownload()
  */
 function clock()
 {
-	global $smcFunc, $settings, $context, $scripturl;
+	global $settings;
 
-	$context['onimg'] = $settings['images_url'] . '/bbc/bbc_hoverbg.png';
-	$context['offimg'] = $settings['images_url'] . '/bbc/bbc_bg.png';
+	Utils::$context['onimg'] = $settings['images_url'] . '/bbc/bbc_hoverbg.png';
+	Utils::$context['offimg'] = $settings['images_url'] . '/bbc/bbc_bg.png';
 
-	$context['page_title'] = 'Anyone know what time it is?';
-	$context['linktree'][] = array(
-		'url' => $scripturl . '?action=clock',
+	Utils::$context['page_title'] = 'Anyone know what time it is?';
+	Utils::$context['linktree'][] = array(
+		'url' => Config::$scripturl . '?action=clock',
 		'name' => 'Clock',
 	);
-	$context['robot_no_index'] = true;
+	Utils::$context['robot_no_index'] = true;
 
 	$omfg = isset($_REQUEST['omfg']);
 	$bcd = !isset($_REQUEST['rb']) && !isset($_REQUEST['omfg']) && !isset($_REQUEST['time']);
@@ -653,28 +654,28 @@ function clock()
 
 	if ($bcd)
 	{
-		$context['sub_template'] = 'bcd';
-		$context['linktree'][] = array('url' => $scripturl . '?action=clock;bcd', 'name' => 'BCD');
-		$context['clockicons'] = $smcFunc['json_decode'](base64_decode('eyJoMSI6WzIsMV0sImgyIjpbOCw0LDIsMV0sIm0xIjpbNCwyLDFdLCJtMiI6WzgsNCwyLDFdLCJzMSI6WzQsMiwxXSwiczIiOls4LDQsMiwxXX0='), true);
+		Utils::$context['sub_template'] = 'bcd';
+		Utils::$context['linktree'][] = array('url' => Config::$scripturl . '?action=clock;bcd', 'name' => 'BCD');
+		Utils::$context['clockicons'] = Utils::jsonDecode(base64_decode('eyJoMSI6WzIsMV0sImgyIjpbOCw0LDIsMV0sIm0xIjpbNCwyLDFdLCJtMiI6WzgsNCwyLDFdLCJzMSI6WzQsMiwxXSwiczIiOls4LDQsMiwxXX0='), true);
 	}
 	elseif (!$omfg && !isset($_REQUEST['time']))
 	{
-		$context['sub_template'] = 'hms';
-		$context['linktree'][] = array('url' => $scripturl . '?action=clock', 'name' => 'Binary');
-		$context['clockicons'] = $smcFunc['json_decode'](base64_decode('eyJoIjpbMTYsOCw0LDIsMV0sIm0iOlszMiwxNiw4LDQsMiwxXSwicyI6WzMyLDE2LDgsNCwyLDFdfQ'), true);
+		Utils::$context['sub_template'] = 'hms';
+		Utils::$context['linktree'][] = array('url' => Config::$scripturl . '?action=clock', 'name' => 'Binary');
+		Utils::$context['clockicons'] = Utils::jsonDecode(base64_decode('eyJoIjpbMTYsOCw0LDIsMV0sIm0iOlszMiwxNiw4LDQsMiwxXSwicyI6WzMyLDE2LDgsNCwyLDFdfQ'), true);
 	}
 	elseif ($omfg)
 	{
-		$context['sub_template'] = 'omfg';
-		$context['linktree'][] = array('url' => $scripturl . '?action=clock;omfg', 'name' => 'OMFG');
-		$context['clockicons'] = $smcFunc['json_decode'](base64_decode('eyJ5ZWFyIjpbNjQsMzIsMTYsOCw0LDIsMV0sIm1vbnRoIjpbOCw0LDIsMV0sImRheSI6WzE2LDgsNCwyLDFdLCJob3VyIjpbMTYsOCw0LDIsMV0sIm1pbiI6WzMyLDE2LDgsNCwyLDFdLCJzZWMiOlszMiwxNiw4LDQsMiwxXX0='), true);
+		Utils::$context['sub_template'] = 'omfg';
+		Utils::$context['linktree'][] = array('url' => Config::$scripturl . '?action=clock;omfg', 'name' => 'OMFG');
+		Utils::$context['clockicons'] = Utils::jsonDecode(base64_decode('eyJ5ZWFyIjpbNjQsMzIsMTYsOCw0LDIsMV0sIm1vbnRoIjpbOCw0LDIsMV0sImRheSI6WzE2LDgsNCwyLDFdLCJob3VyIjpbMTYsOCw0LDIsMV0sIm1pbiI6WzMyLDE2LDgsNCwyLDFdLCJzZWMiOlszMiwxNiw4LDQsMiwxXX0='), true);
 	}
 	elseif (isset($_REQUEST['time']))
 	{
-		$context['sub_template'] = 'thetime';
+		Utils::$context['sub_template'] = 'thetime';
 		$time = getdate($_REQUEST['time'] == 'now' ? time() : (int) $_REQUEST['time']);
-		$context['linktree'][] = array('url' => $scripturl . '?action=clock;time=' . $_REQUEST['time'], 'name' => 'Requested Time');
-		$context['clockicons'] = array(
+		Utils::$context['linktree'][] = array('url' => Config::$scripturl . '?action=clock;time=' . $_REQUEST['time'], 'name' => 'Requested Time');
+		Utils::$context['clockicons'] = array(
 			'year' => array(
 				64 => false,
 				32 => false,
@@ -723,13 +724,13 @@ function clock()
 			),
 		);
 
-		foreach ($context['clockicons'] as $t => $vs)
+		foreach (Utils::$context['clockicons'] as $t => $vs)
 			foreach ($vs as $v => $dumb)
 			{
 				if ($$t >= $v)
 				{
 					$$t -= $v;
-					$context['clockicons'][$t][$v] = true;
+					Utils::$context['clockicons'][$t][$v] = true;
 				}
 			}
 	}

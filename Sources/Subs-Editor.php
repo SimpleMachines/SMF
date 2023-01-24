@@ -16,7 +16,10 @@
 
 use SMF\BrowserDetector;
 use SMF\BBCodeParser;
+use SMF\Config;
+use SMF\Utils;
 use SMF\Cache\CacheApi;
+use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -36,9 +39,9 @@ class_exists('SMF\\BBCodeParser');
  */
 function getMessageIcons($board_id)
 {
-	global $modSettings, $txt, $settings, $smcFunc;
+	global $txt, $settings;
 
-	if (empty($modSettings['messageIcons_enable']))
+	if (empty(Config::$modSettings['messageIcons_enable']))
 	{
 		loadLanguage('Post');
 
@@ -69,7 +72,7 @@ function getMessageIcons($board_id)
 	{
 		if (($temp = CacheApi::get('posting_icons-' . $board_id, 480)) == null)
 		{
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT title, filename
 				FROM {db_prefix}message_icons
 				WHERE id_board IN (0, {int:board_id})
@@ -79,9 +82,9 @@ function getMessageIcons($board_id)
 				)
 			);
 			$icon_data = array();
-			while ($row = $smcFunc['db_fetch_assoc']($request))
+			while ($row = Db::$db->fetch_assoc($request))
 				$icon_data[] = $row;
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 
 			$icons = array();
 			foreach ($icon_data as $icon)
@@ -111,36 +114,36 @@ function getMessageIcons($board_id)
  */
 function create_control_richedit($editorOptions)
 {
-	global $txt, $modSettings, $options, $smcFunc, $editortxt;
-	global $context, $settings, $user_info, $scripturl;
+	global $txt, $options, $editortxt;
+	global $settings, $user_info;
 
 	// Load the Post language file... for the moment at least.
 	loadLanguage('Post');
 	loadLanguage('Editor');
 	loadLanguage('Drafts');
 
-	$context['richedit_buttons'] = array(
+	Utils::$context['richedit_buttons'] = array(
 		'save_draft' => array(
 			'type' => 'submit',
 			'value' => $txt['draft_save'],
-			'onclick' => !empty($context['drafts_pm_save']) ? 'submitThisOnce(this);' : (!empty($context['drafts_save']) ? 'return confirm(' . JavaScriptEscape($txt['draft_save_note']) . ') && submitThisOnce(this);' : ''),
+			'onclick' => !empty(Utils::$context['drafts_pm_save']) ? 'submitThisOnce(this);' : (!empty(Utils::$context['drafts_save']) ? 'return confirm(' . JavaScriptEscape($txt['draft_save_note']) . ') && submitThisOnce(this);' : ''),
 			'accessKey' => 'd',
-			'show' => !empty($context['drafts_pm_save']) || !empty($context['drafts_save'])
+			'show' => !empty(Utils::$context['drafts_pm_save']) || !empty(Utils::$context['drafts_save'])
 		),
 		'id_pm_draft' => array(
 			'type' => 'hidden',
-			'value' => empty($context['id_pm_draft']) ? 0 : $context['id_pm_draft'],
-			'show' => !empty($context['drafts_pm_save'])
+			'value' => empty(Utils::$context['id_pm_draft']) ? 0 : Utils::$context['id_pm_draft'],
+			'show' => !empty(Utils::$context['drafts_pm_save'])
 		),
 		'id_draft' => array(
 			'type' => 'hidden',
-			'value' => empty($context['id_draft']) ? 0 : $context['id_draft'],
-			'show' => !empty($context['drafts_save'])
+			'value' => empty(Utils::$context['id_draft']) ? 0 : Utils::$context['id_draft'],
+			'show' => !empty(Utils::$context['drafts_save'])
 		),
 		'spell_check' => array(
 			'type' => 'submit',
 			'value' => $txt['spell_check'],
-			'show' => !empty($context['show_spellchecking'])
+			'show' => !empty(Utils::$context['show_spellchecking'])
 		),
 		'preview' => array(
 			'type' => 'submit',
@@ -154,12 +157,12 @@ function create_control_richedit($editorOptions)
 	assert(isset($editorOptions['value']));
 
 	// Is this the first richedit - if so we need to ensure some template stuff is initialised.
-	if (empty($context['controls']['richedit']))
+	if (empty(Utils::$context['controls']['richedit']))
 	{
 		// Some general stuff.
-		$settings['smileys_url'] = $modSettings['smileys_url'] . '/' . $user_info['smiley_set'];
-		if (!empty($context['drafts_autosave']))
-			$context['drafts_autosave_frequency'] = empty($modSettings['drafts_autosave_frequency']) ? 60000 : $modSettings['drafts_autosave_frequency'] * 1000;
+		$settings['smileys_url'] = Config::$modSettings['smileys_url'] . '/' . $user_info['smiley_set'];
+		if (!empty(Utils::$context['drafts_autosave']))
+			Utils::$context['drafts_autosave_frequency'] = empty(Config::$modSettings['drafts_autosave_frequency']) ? 60000 : Config::$modSettings['drafts_autosave_frequency'] * 1000;
 
 		// This really has some WYSIWYG stuff.
 		loadCSSFile('jquery.sceditor.css', array('default_theme' => true, 'validate' => true), 'smf_jquery_sceditor');
@@ -201,16 +204,16 @@ function create_control_richedit($editorOptions)
 		var bbc_quote = \'' . addcslashes($txt['quote'], "'") . '\';
 		var bbc_search_on = \'' . addcslashes($txt['search_on'], "'") . '\';');
 
-		$context['shortcuts_text'] = $txt['shortcuts' . (!empty($context['drafts_save']) ? '_drafts' : '') . (stripos($_SERVER['HTTP_USER_AGENT'], 'Macintosh') !== false ? '_mac' : (BrowserDetector::isBrowser('is_firefox') ? '_firefox' : ''))];
+		Utils::$context['shortcuts_text'] = $txt['shortcuts' . (!empty(Utils::$context['drafts_save']) ? '_drafts' : '') . (stripos($_SERVER['HTTP_USER_AGENT'], 'Macintosh') !== false ? '_mac' : (BrowserDetector::isBrowser('is_firefox') ? '_firefox' : ''))];
 
-		if ($context['show_spellchecking'])
+		if (Utils::$context['show_spellchecking'])
 		{
 			loadJavaScriptFile('spellcheck.js', array('minimize' => true), 'smf_spellcheck');
 
 			// Some hidden information is needed in order to make the spell checking work.
 			if (!isset($_REQUEST['xml']))
-				$context['insert_after_template'] .= '
-		<form name="spell_form" id="spell_form" method="post" accept-charset="' . $context['character_set'] . '" target="spellWindow" action="' . $scripturl . '?action=spellcheck">
+				Utils::$context['insert_after_template'] .= '
+		<form name="spell_form" id="spell_form" method="post" accept-charset="' . Utils::$context['character_set'] . '" target="spellWindow" action="' . Config::$scripturl . '?action=spellcheck">
 			<input type="hidden" name="spellstring" value="">
 		</form>';
 		}
@@ -222,11 +225,11 @@ function create_control_richedit($editorOptions)
 	$editorOptions['value'] = str_replace("\t", '    ', $editorOptions['value']);
 
 	// Start off the editor...
-	$context['controls']['richedit'][$editorOptions['id']] = array(
+	Utils::$context['controls']['richedit'][$editorOptions['id']] = array(
 		'id' => $editorOptions['id'],
 		'value' => $editorOptions['value'],
 		'rich_value' => $editorOptions['value'], // 2.0 editor compatibility
-		'rich_active' => empty($modSettings['disable_wysiwyg']) && (!empty($options['wysiwyg_default']) || !empty($editorOptions['force_rich']) || !empty($_REQUEST[$editorOptions['id'] . '_mode'])),
+		'rich_active' => empty(Config::$modSettings['disable_wysiwyg']) && (!empty($options['wysiwyg_default']) || !empty($editorOptions['force_rich']) || !empty($_REQUEST[$editorOptions['id'] . '_mode'])),
 		'disable_smiley_box' => !empty($editorOptions['disable_smiley_box']),
 		'columns' => isset($editorOptions['columns']) ? $editorOptions['columns'] : 60,
 		'rows' => isset($editorOptions['rows']) ? $editorOptions['rows'] : 18,
@@ -240,7 +243,7 @@ function create_control_richedit($editorOptions)
 		'required' => !empty($editorOptions['required']),
 	);
 
-	if (empty($context['bbc_tags']))
+	if (empty(Utils::$context['bbc_tags']))
 	{
 		// The below array makes it dead easy to add images to this control. Add it to the array and everything else is done for you!
 		// Note: 'before' and 'after' are deprecated as of SMF 2.1. Instead, use a separate JS file to configure the functionality of your toolbar buttons.
@@ -253,8 +256,8 @@ function create_control_richedit($editorOptions)
 				'after' => '[/b]', // Deprecated
 			),
 		*/
-		$context['bbc_tags'] = array();
-		$context['bbc_tags'][] = array(
+		Utils::$context['bbc_tags'] = array();
+		Utils::$context['bbc_tags'][] = array(
 			array(
 				'code' => 'bold',
 				'description' => $editortxt['bold'],
@@ -314,14 +317,14 @@ function create_control_richedit($editorOptions)
 				'description' => $editortxt['font_color']
 			),
 		);
-		if (empty($modSettings['disable_wysiwyg']))
+		if (empty(Config::$modSettings['disable_wysiwyg']))
 		{
-			$context['bbc_tags'][count($context['bbc_tags']) - 1][] = array(
+			Utils::$context['bbc_tags'][count(Utils::$context['bbc_tags']) - 1][] = array(
 				'code' => 'removeformat',
 				'description' => $editortxt['remove_formatting'],
 			);
 		}
-		$context['bbc_tags'][] = array(
+		Utils::$context['bbc_tags'][] = array(
 			array(
 				'code' => 'floatleft',
 				'description' => $editortxt['float_left']
@@ -379,9 +382,9 @@ function create_control_richedit($editorOptions)
 				'description' => $editortxt['maximize']
 			),
 		);
-		if (empty($modSettings['disable_wysiwyg']))
+		if (empty(Config::$modSettings['disable_wysiwyg']))
 		{
-			$context['bbc_tags'][count($context['bbc_tags']) - 1][] = array(
+			Utils::$context['bbc_tags'][count(Utils::$context['bbc_tags']) - 1][] = array(
 				'code' => 'source',
 				'description' => $editortxt['view_source'],
 			);
@@ -400,16 +403,16 @@ function create_control_richedit($editorOptions)
 		);
 
 		// Define this here so mods can add to it via the hook.
-		$context['disabled_tags'] = array();
+		Utils::$context['disabled_tags'] = array();
 
 		// Allow mods to modify BBC buttons.
 		// Note: passing the array here is not necessary and is deprecated, but it is kept for backward compatibility with 2.0
-		call_integration_hook('integrate_bbc_buttons', array(&$context['bbc_tags'], &$editor_tag_map));
+		call_integration_hook('integrate_bbc_buttons', array(&Utils::$context['bbc_tags'], &$editor_tag_map));
 
 		// Generate a list of buttons that shouldn't be shown - this should be the fastest way to do this.
 		$disabled_tags = array();
-		if (!empty($modSettings['disabledBBC']))
-			$disabled_tags = explode(',', $modSettings['disabledBBC']);
+		if (!empty(Config::$modSettings['disabledBBC']))
+			$disabled_tags = explode(',', Config::$modSettings['disabledBBC']);
 
 		foreach ($disabled_tags as $tag)
 		{
@@ -417,31 +420,31 @@ function create_control_richedit($editorOptions)
 
 			if ($tag === 'list')
 			{
-				$context['disabled_tags']['bulletlist'] = true;
-				$context['disabled_tags']['orderedlist'] = true;
+				Utils::$context['disabled_tags']['bulletlist'] = true;
+				Utils::$context['disabled_tags']['orderedlist'] = true;
 			}
 
 			if ($tag === 'float')
 			{
-				$context['disabled_tags']['floatleft'] = true;
-				$context['disabled_tags']['floatright'] = true;
+				Utils::$context['disabled_tags']['floatleft'] = true;
+				Utils::$context['disabled_tags']['floatright'] = true;
 			}
 
 			foreach ($editor_tag_map as $thisTag => $tagNameBBC)
 				if ($tag === $thisTag)
-					$context['disabled_tags'][$tagNameBBC] = true;
+					Utils::$context['disabled_tags'][$tagNameBBC] = true;
 
-			$context['disabled_tags'][$tag] = true;
+			Utils::$context['disabled_tags'][$tag] = true;
 		}
 
 		$bbcodes_styles = '';
-		$context['bbcodes_handlers'] = '';
-		$context['bbc_toolbar'] = array();
+		Utils::$context['bbcodes_handlers'] = '';
+		Utils::$context['bbc_toolbar'] = array();
 
-		foreach ($context['bbc_tags'] as $row => $tagRow)
+		foreach (Utils::$context['bbc_tags'] as $row => $tagRow)
 		{
-			if (!isset($context['bbc_toolbar'][$row]))
-				$context['bbc_toolbar'][$row] = array();
+			if (!isset(Utils::$context['bbc_toolbar'][$row]))
+				Utils::$context['bbc_toolbar'][$row] = array();
 
 			$tagsRow = array();
 
@@ -449,10 +452,10 @@ function create_control_richedit($editorOptions)
 			{
 				if (empty($tag['code']))
 				{
-					$context['bbc_toolbar'][$row][] = implode(',', $tagsRow);
+					Utils::$context['bbc_toolbar'][$row][] = implode(',', $tagsRow);
 					$tagsRow = array();
 				}
-				elseif (empty($context['disabled_tags'][$tag['code']]))
+				elseif (empty(Utils::$context['disabled_tags'][$tag['code']]))
 				{
 					$tagsRow[] = $tag['code'];
 
@@ -466,27 +469,27 @@ function create_control_richedit($editorOptions)
 					}
 
 					// Set the tooltip and possibly the command info
-					$context['bbcodes_handlers'] .= '
+					Utils::$context['bbcodes_handlers'] .= '
 						sceditor.command.set(' . JavaScriptEscape($tag['code']) . ', {
 							tooltip: ' . JavaScriptEscape(isset($tag['description']) ? $tag['description'] : $tag['code']);
 
 					// Legacy support for 2.0 BBC mods
 					if (isset($tag['before']))
 					{
-						$context['bbcodes_handlers'] .= ',
+						Utils::$context['bbcodes_handlers'] .= ',
 							exec: function () {
 								this.insertText(' . JavaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . JavaScriptEscape($tag['after']) : '') . ');
 							},
 							txtExec: [' . JavaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . JavaScriptEscape($tag['after']) : '') . ']';
 					}
 
-					$context['bbcodes_handlers'] .= '
+					Utils::$context['bbcodes_handlers'] .= '
 						});';
 				}
 			}
 
 			if (!empty($tagsRow))
-				$context['bbc_toolbar'][$row][] = implode(',', $tagsRow);
+				Utils::$context['bbc_toolbar'][$row][] = implode(',', $tagsRow);
 		}
 
 		if (!empty($bbcodes_styles))
@@ -494,9 +497,9 @@ function create_control_richedit($editorOptions)
 	}
 
 	// Initialize smiley array... if not loaded before.
-	if (empty($context['smileys']) && empty($editorOptions['disable_smiley_box']))
+	if (empty(Utils::$context['smileys']) && empty($editorOptions['disable_smiley_box']))
 	{
-		$context['smileys'] = array(
+		Utils::$context['smileys'] = array(
 			'postform' => array(),
 			'popup' => array(),
 		);
@@ -504,16 +507,16 @@ function create_control_richedit($editorOptions)
 		if ($user_info['smiley_set'] != 'none')
 		{
 			// Cache for longer when customized smiley codes aren't enabled
-			$cache_time = empty($modSettings['smiley_enable']) ? 7200 : 480;
+			$cache_time = empty(Config::$modSettings['smiley_enable']) ? 7200 : 480;
 
 			if (($temp = CacheApi::get('posting_smileys_' . $user_info['smiley_set'], $cache_time)) == null)
 			{
-				$request = $smcFunc['db_query']('', '
+				$request = Db::$db->query('', '
 					SELECT s.code, f.filename, s.description, s.smiley_row, s.hidden
 					FROM {db_prefix}smileys AS s
 						JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)
 					WHERE s.hidden IN (0, 2)
-						AND f.smiley_set = {string:smiley_set}' . (empty($modSettings['smiley_enable']) ? '
+						AND f.smiley_set = {string:smiley_set}' . (empty(Config::$modSettings['smiley_enable']) ? '
 						AND s.code IN ({array_string:default_codes})' : '') . '
 					ORDER BY s.smiley_row, s.smiley_order',
 					array(
@@ -521,27 +524,27 @@ function create_control_richedit($editorOptions)
 						'smiley_set' => $user_info['smiley_set'],
 					)
 				);
-				while ($row = $smcFunc['db_fetch_assoc']($request))
+				while ($row = Db::$db->fetch_assoc($request))
 				{
-					$row['description'] = !empty($txt['icon_' . strtolower($row['description'])]) ? $smcFunc['htmlspecialchars']($txt['icon_' . strtolower($row['description'])]) : $smcFunc['htmlspecialchars']($row['description']);
+					$row['description'] = !empty($txt['icon_' . strtolower($row['description'])]) ? Utils::htmlspecialchars($txt['icon_' . strtolower($row['description'])]) : Utils::htmlspecialchars($row['description']);
 
-					$context['smileys'][empty($row['hidden']) ? 'postform' : 'popup'][$row['smiley_row']]['smileys'][] = $row;
+					Utils::$context['smileys'][empty($row['hidden']) ? 'postform' : 'popup'][$row['smiley_row']]['smileys'][] = $row;
 				}
-				$smcFunc['db_free_result']($request);
+				Db::$db->free_result($request);
 
-				foreach ($context['smileys'] as $section => $smileyRows)
+				foreach (Utils::$context['smileys'] as $section => $smileyRows)
 				{
 					foreach ($smileyRows as $rowIndex => $smileys)
-						$context['smileys'][$section][$rowIndex]['smileys'][count($smileys['smileys']) - 1]['isLast'] = true;
+						Utils::$context['smileys'][$section][$rowIndex]['smileys'][count($smileys['smileys']) - 1]['isLast'] = true;
 
 					if (!empty($smileyRows))
-						$context['smileys'][$section][count($smileyRows) - 1]['isLast'] = true;
+						Utils::$context['smileys'][$section][count($smileyRows) - 1]['isLast'] = true;
 				}
 
-				CacheApi::put('posting_smileys_' . $user_info['smiley_set'], $context['smileys'], $cache_time);
+				CacheApi::put('posting_smileys_' . $user_info['smiley_set'], Utils::$context['smileys'], $cache_time);
 			}
 			else
-				$context['smileys'] = $temp;
+				Utils::$context['smileys'] = $temp;
 		}
 	}
 
@@ -549,16 +552,16 @@ function create_control_richedit($editorOptions)
 	$sce_options = array(
 		'width' => isset($editorOptions['width']) ? $editorOptions['width'] : '100%',
 		'height' => isset($editorOptions['height']) ? $editorOptions['height'] : '175px',
-		'style' => $settings[file_exists($settings['theme_dir'] . '/css/jquery.sceditor.default.css') ? 'theme_url' : 'default_theme_url'] . '/css/jquery.sceditor.default.css' . $context['browser_cache'],
+		'style' => $settings[file_exists($settings['theme_dir'] . '/css/jquery.sceditor.default.css') ? 'theme_url' : 'default_theme_url'] . '/css/jquery.sceditor.default.css' . Utils::$context['browser_cache'],
 		'emoticonsCompat' => true,
 		'colors' => 'black,maroon,brown,green,navy,grey,red,orange,teal,blue,white,hotpink,yellow,limegreen,purple',
 		'format' => 'bbcode',
 		'plugins' => '',
 		'bbcodeTrim' => false,
 	);
-	if (!empty($context['controls']['richedit'][$editorOptions['id']]['locale']))
-		$sce_options['locale'] = $context['controls']['richedit'][$editorOptions['id']]['locale'];
-	if (!empty($context['right_to_left']))
+	if (!empty(Utils::$context['controls']['richedit'][$editorOptions['id']]['locale']))
+		$sce_options['locale'] = Utils::$context['controls']['richedit'][$editorOptions['id']]['locale'];
+	if (!empty(Utils::$context['right_to_left']))
 		$sce_options['rtl'] = true;
 	if ($editorOptions['id'] != 'quickReply')
 		$sce_options['autofocus'] = true;
@@ -566,14 +569,14 @@ function create_control_richedit($editorOptions)
 	$sce_options['emoticons'] = array();
 	$sce_options['emoticonsDescriptions'] = array();
 	$sce_options['emoticonsEnabled'] = false;
-	if ((!empty($context['smileys']['postform']) || !empty($context['smileys']['popup'])) && !$context['controls']['richedit'][$editorOptions['id']]['disable_smiley_box'])
+	if ((!empty(Utils::$context['smileys']['postform']) || !empty(Utils::$context['smileys']['popup'])) && !Utils::$context['controls']['richedit'][$editorOptions['id']]['disable_smiley_box'])
 	{
 		$sce_options['emoticonsEnabled'] = true;
 		$sce_options['emoticons']['dropdown'] = array();
 		$sce_options['emoticons']['popup'] = array();
 
-		$countLocations = count($context['smileys']);
-		foreach ($context['smileys'] as $location => $smileyRows)
+		$countLocations = count(Utils::$context['smileys']);
+		foreach (Utils::$context['smileys'] as $location => $smileyRows)
 		{
 			$countLocations--;
 
@@ -605,10 +608,10 @@ function create_control_richedit($editorOptions)
 	$sce_options['parserOptions']['txtVars'] = [
 		'code' => $txt['code']
 	];
-	if (!empty($modSettings['enableBBC']))
+	if (!empty(Config::$modSettings['enableBBC']))
 	{
-		$count_tags = count($context['bbc_tags']);
-		foreach ($context['bbc_toolbar'] as $i => $buttonRow)
+		$count_tags = count(Utils::$context['bbc_tags']);
+		foreach (Utils::$context['bbc_toolbar'] as $i => $buttonRow)
 		{
 			$sce_options['toolbar'] .= implode('|', $buttonRow);
 
@@ -622,7 +625,7 @@ function create_control_richedit($editorOptions)
 	// Allow mods to change $sce_options. Usful if, e.g., a mod wants to add an SCEditor plugin.
 	call_integration_hook('integrate_sceditor_options', array(&$sce_options));
 
-	$context['controls']['richedit'][$editorOptions['id']]['sce_options'] = $sce_options;
+	Utils::$context['controls']['richedit'][$editorOptions['id']]['sce_options'] = $sce_options;
 }
 
 /**
@@ -634,43 +637,42 @@ function create_control_richedit($editorOptions)
  */
 function create_control_verification(&$verificationOptions, $do_test = false)
 {
-	global $modSettings, $smcFunc;
-	global $context, $user_info, $scripturl, $language;
+	global $user_info;
 
 	// First verification means we need to set up some bits...
-	if (empty($context['controls']['verification']))
+	if (empty(Utils::$context['controls']['verification']))
 	{
 		// The template
 		loadTemplate('GenericControls');
 
 		// Some javascript ma'am?
-		if (!empty($verificationOptions['override_visual']) || (!empty($modSettings['visual_verification_type']) && !isset($verificationOptions['override_visual'])))
+		if (!empty($verificationOptions['override_visual']) || (!empty(Config::$modSettings['visual_verification_type']) && !isset($verificationOptions['override_visual'])))
 			loadJavaScriptFile('captcha.js', array('minimize' => true), 'smf_captcha');
 
-		$context['use_graphic_library'] = in_array('gd', get_loaded_extensions());
+		Utils::$context['use_graphic_library'] = in_array('gd', get_loaded_extensions());
 
 		// Skip I, J, L, O, Q, S and Z.
-		$context['standard_captcha_range'] = array_merge(range('A', 'H'), array('K', 'M', 'N', 'P', 'R'), range('T', 'Y'));
+		Utils::$context['standard_captcha_range'] = array_merge(range('A', 'H'), array('K', 'M', 'N', 'P', 'R'), range('T', 'Y'));
 	}
 
 	// Always have an ID.
 	assert(isset($verificationOptions['id']));
-	$isNew = !isset($context['controls']['verification'][$verificationOptions['id']]);
+	$isNew = !isset(Utils::$context['controls']['verification'][$verificationOptions['id']]);
 
 	// Log this into our collection.
 	if ($isNew)
-		$context['controls']['verification'][$verificationOptions['id']] = array(
+		Utils::$context['controls']['verification'][$verificationOptions['id']] = array(
 			'id' => $verificationOptions['id'],
 			'empty_field' => empty($verificationOptions['no_empty_field']),
-			'show_visual' => !empty($verificationOptions['override_visual']) || (!empty($modSettings['visual_verification_type']) && !isset($verificationOptions['override_visual'])),
-			'number_questions' => isset($verificationOptions['override_qs']) ? $verificationOptions['override_qs'] : (!empty($modSettings['qa_verification_number']) ? $modSettings['qa_verification_number'] : 0),
+			'show_visual' => !empty($verificationOptions['override_visual']) || (!empty(Config::$modSettings['visual_verification_type']) && !isset($verificationOptions['override_visual'])),
+			'number_questions' => isset($verificationOptions['override_qs']) ? $verificationOptions['override_qs'] : (!empty(Config::$modSettings['qa_verification_number']) ? Config::$modSettings['qa_verification_number'] : 0),
 			'max_errors' => isset($verificationOptions['max_errors']) ? $verificationOptions['max_errors'] : 3,
-			'image_href' => $scripturl . '?action=verificationcode;vid=' . $verificationOptions['id'] . ';rand=' . md5(mt_rand()),
+			'image_href' => Config::$scripturl . '?action=verificationcode;vid=' . $verificationOptions['id'] . ';rand=' . md5(mt_rand()),
 			'text_value' => '',
 			'questions' => array(),
-			'can_recaptcha' => !empty($modSettings['recaptcha_enabled']) && !empty($modSettings['recaptcha_site_key']) && !empty($modSettings['recaptcha_secret_key']),
+			'can_recaptcha' => !empty(Config::$modSettings['recaptcha_enabled']) && !empty(Config::$modSettings['recaptcha_site_key']) && !empty(Config::$modSettings['recaptcha_secret_key']),
 		);
-	$thisVerification = &$context['controls']['verification'][$verificationOptions['id']];
+	$thisVerification = &Utils::$context['controls']['verification'][$verificationOptions['id']];
 
 	// Add a verification hook, presetup.
 	call_integration_hook('integrate_create_control_verification_pre', array(&$verificationOptions, $do_test));
@@ -685,49 +687,49 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 	if ($thisVerification['can_recaptcha'])
 	{
 		// Only allow 40 alphanumeric, underscore and dash characters.
-		$thisVerification['recaptcha_site_key'] = preg_replace('/(0-9a-zA-Z_){40}/', '$1', $modSettings['recaptcha_site_key']);
+		$thisVerification['recaptcha_site_key'] = preg_replace('/(0-9a-zA-Z_){40}/', '$1', Config::$modSettings['recaptcha_site_key']);
 
 		// Light or dark theme...
-		$thisVerification['recaptcha_theme'] = preg_replace('/(light|dark)/', '$1', $modSettings['recaptcha_theme']);
+		$thisVerification['recaptcha_theme'] = preg_replace('/(light|dark)/', '$1', Config::$modSettings['recaptcha_theme']);
 	}
 
 	// Add javascript for the object.
-	if ($context['controls']['verification'][$verificationOptions['id']]['show_visual'])
-		$context['insert_after_template'] .= '
+	if (Utils::$context['controls']['verification'][$verificationOptions['id']]['show_visual'])
+		Utils::$context['insert_after_template'] .= '
 			<script>
-				var verification' . $verificationOptions['id'] . 'Handle = new smfCaptcha("' . $thisVerification['image_href'] . '", "' . $verificationOptions['id'] . '", ' . ($context['use_graphic_library'] ? 1 : 0) . ');
+				var verification' . $verificationOptions['id'] . 'Handle = new smfCaptcha("' . $thisVerification['image_href'] . '", "' . $verificationOptions['id'] . '", ' . (Utils::$context['use_graphic_library'] ? 1 : 0) . ');
 			</script>';
 
 	// If we want questions do we have a cache of all the IDs?
-	if (!empty($thisVerification['number_questions']) && empty($modSettings['question_id_cache']))
+	if (!empty($thisVerification['number_questions']) && empty(Config::$modSettings['question_id_cache']))
 	{
-		if (($modSettings['question_id_cache'] = CacheApi::get('verificationQuestions', 300)) == null)
+		if ((Config::$modSettings['question_id_cache'] = CacheApi::get('verificationQuestions', 300)) == null)
 		{
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT id_question, lngfile, question, answers
 				FROM {db_prefix}qanda',
 				array()
 			);
-			$modSettings['question_id_cache'] = array(
+			Config::$modSettings['question_id_cache'] = array(
 				'questions' => array(),
 				'langs' => array(),
 			);
 			// This is like Captain Kirk climbing a mountain in some ways. This is L's fault, mkay? :P
-			while ($row = $smcFunc['db_fetch_assoc']($request))
+			while ($row = Db::$db->fetch_assoc($request))
 			{
 				$id_question = $row['id_question'];
 				unset ($row['id_question']);
-				// Make them all lowercase. We can't directly use $smcFunc['strtolower'] with array_walk, so do it manually, eh?
-				$row['answers'] = (array) $smcFunc['json_decode']($row['answers'], true);
+				// Make them all lowercase. We can't directly use Utils::strtolower with array_walk, so do it manually, eh?
+				$row['answers'] = (array) Utils::jsonDecode($row['answers'], true);
 				foreach ($row['answers'] as $k => $v)
-					$row['answers'][$k] = $smcFunc['strtolower']($v);
+					$row['answers'][$k] = Utils::strtolower($v);
 
-				$modSettings['question_id_cache']['questions'][$id_question] = $row;
-				$modSettings['question_id_cache']['langs'][$row['lngfile']][] = $id_question;
+				Config::$modSettings['question_id_cache']['questions'][$id_question] = $row;
+				Config::$modSettings['question_id_cache']['langs'][$row['lngfile']][] = $id_question;
 			}
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 
-			CacheApi::put('verificationQuestions', $modSettings['question_id_cache'], 300);
+			CacheApi::put('verificationQuestions', Config::$modSettings['question_id_cache'], 300);
 		}
 	}
 
@@ -760,7 +762,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 
 		if ($thisVerification['can_recaptcha'])
 		{
-			$reCaptcha = new \ReCaptcha\ReCaptcha($modSettings['recaptcha_secret_key'], new \ReCaptcha\RequestMethod\SocketPost());
+			$reCaptcha = new \ReCaptcha\ReCaptcha(Config::$modSettings['recaptcha_secret_key'], new \ReCaptcha\RequestMethod\SocketPost());
 
 			// Was there a reCAPTCHA response?
 			if (isset($_POST['g-recaptcha-response']))
@@ -781,7 +783,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 			foreach ($_SESSION[$verificationOptions['id'] . '_vv']['q'] as $q)
 			{
 				// We don't have this question any more, thus no answers.
-				if (!isset($modSettings['question_id_cache']['questions'][$q]))
+				if (!isset(Config::$modSettings['question_id_cache']['questions'][$q]))
 					continue;
 				// This is quite complex. We have our question but it might have multiple answers.
 				// First, did they actually answer this question?
@@ -793,8 +795,8 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 				// Second, is their answer in the list of possible answers?
 				else
 				{
-					$given_answer = trim($smcFunc['htmlspecialchars']($smcFunc['strtolower']($_REQUEST[$verificationOptions['id'] . '_vv']['q'][$q])));
-					if (!in_array($given_answer, $modSettings['question_id_cache']['questions'][$q]['answers']))
+					$given_answer = trim(Utils::htmlspecialchars(Utils::strtolower($_REQUEST[$verificationOptions['id'] . '_vv']['q'][$q])));
+					if (!in_array($given_answer, Config::$modSettings['question_id_cache']['questions'][$q]['answers']))
 						$incorrectQuestions[] = $q;
 				}
 			}
@@ -845,7 +847,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 		if ($thisVerification['show_visual'])
 		{
 			// Are we overriding the range?
-			$character_range = !empty($verificationOptions['override_range']) ? $verificationOptions['override_range'] : $context['standard_captcha_range'];
+			$character_range = !empty($verificationOptions['override_range']) ? $verificationOptions['override_range'] : Utils::$context['standard_captcha_range'];
 
 			for ($i = 0; $i < 6; $i++)
 				$_SESSION[$verificationOptions['id'] . '_vv']['code'] .= $character_range[array_rand($character_range)];
@@ -861,16 +863,16 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 			if (!empty($user_info['language']))
 				$possible_langs[] = $user_info['language'];
 
-			$possible_langs[] = $language;
+			$possible_langs[] = Config::$language;
 
 			$questionIDs = array();
 			foreach ($possible_langs as $lang)
 			{
 				$lang = strtr($lang, array('-utf8' => ''));
-				if (isset($modSettings['question_id_cache']['langs'][$lang]))
+				if (isset(Config::$modSettings['question_id_cache']['langs'][$lang]))
 				{
 					// If we find questions for this, grab the ids from this language's ones, randomize the array and take just the number we need.
-					$questionIDs = $modSettings['question_id_cache']['langs'][$lang];
+					$questionIDs = Config::$modSettings['question_id_cache']['langs'][$lang];
 					shuffle($questionIDs);
 					$questionIDs = array_slice($questionIDs, 0, $thisVerification['number_questions']);
 					break;
@@ -885,15 +887,15 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 	{
 		// Same questions as before.
 		$questionIDs = !empty($_SESSION[$verificationOptions['id'] . '_vv']['q']) ? $_SESSION[$verificationOptions['id'] . '_vv']['q'] : array();
-		$thisVerification['text_value'] = !empty($_REQUEST[$verificationOptions['id'] . '_vv']['code']) ? $smcFunc['htmlspecialchars']($_REQUEST[$verificationOptions['id'] . '_vv']['code']) : '';
+		$thisVerification['text_value'] = !empty($_REQUEST[$verificationOptions['id'] . '_vv']['code']) ? Utils::htmlspecialchars($_REQUEST[$verificationOptions['id'] . '_vv']['code']) : '';
 	}
 
 	// If we do have an empty field, it would be nice to hide it from legitimate users who shouldn't be populating it anyway.
 	if (!empty($_SESSION[$verificationOptions['id'] . '_vv']['empty_field']))
 	{
-		if (!isset($context['html_headers']))
-			$context['html_headers'] = '';
-		$context['html_headers'] .= '<style>.vv_special { display:none; }</style>';
+		if (!isset(Utils::$context['html_headers']))
+			Utils::$context['html_headers'] = '';
+		Utils::$context['html_headers'] .= '<style>.vv_special { display:none; }</style>';
 	}
 
 	// Have we got some questions to load?
@@ -903,13 +905,13 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 		foreach ($questionIDs as $q)
 		{
 			// Bit of a shortcut this.
-			$row = &$modSettings['question_id_cache']['questions'][$q];
+			$row = &Config::$modSettings['question_id_cache']['questions'][$q];
 			$thisVerification['questions'][] = array(
 				'id' => $q,
 				'q' => BBCodeParser::load()->parse($row['question']),
 				'is_error' => !empty($incorrectQuestions) && in_array($q, $incorrectQuestions),
 				// Remember a previous submission?
-				'a' => isset($_REQUEST[$verificationOptions['id'] . '_vv'], $_REQUEST[$verificationOptions['id'] . '_vv']['q'], $_REQUEST[$verificationOptions['id'] . '_vv']['q'][$q]) ? $smcFunc['htmlspecialchars']($_REQUEST[$verificationOptions['id'] . '_vv']['q'][$q]) : '',
+				'a' => isset($_REQUEST[$verificationOptions['id'] . '_vv'], $_REQUEST[$verificationOptions['id'] . '_vv']['q'], $_REQUEST[$verificationOptions['id'] . '_vv']['q'][$q]) ? Utils::htmlspecialchars($_REQUEST[$verificationOptions['id'] . '_vv']['q'][$q]) : '',
 			);
 			$_SESSION[$verificationOptions['id'] . '_vv']['q'][] = $q;
 		}
@@ -939,8 +941,6 @@ function create_control_verification(&$verificationOptions, $do_test = false)
  */
 function AutoSuggestHandler($checkRegistered = null)
 {
-	global $smcFunc, $context;
-
 	// These are all registered types.
 	$searchTypes = array(
 		'member' => 'Member',
@@ -958,13 +958,13 @@ function AutoSuggestHandler($checkRegistered = null)
 	loadTemplate('Xml');
 
 	// Any parameters?
-	$context['search_param'] = isset($_REQUEST['search_param']) ? $smcFunc['json_decode'](base64_decode($_REQUEST['search_param']), true) : array();
+	Utils::$context['search_param'] = isset($_REQUEST['search_param']) ? Utils::jsonDecode(base64_decode($_REQUEST['search_param']), true) : array();
 
 	if (isset($_REQUEST['suggest_type'], $_REQUEST['search']) && isset($searchTypes[$_REQUEST['suggest_type']]))
 	{
 		$function = 'AutoSuggest_Search_' . $searchTypes[$_REQUEST['suggest_type']];
-		$context['sub_template'] = 'generic_xml';
-		$context['xml_data'] = $function();
+		Utils::$context['sub_template'] = 'generic_xml';
+		Utils::$context['xml_data'] = $function();
 	}
 }
 
@@ -975,21 +975,21 @@ function AutoSuggestHandler($checkRegistered = null)
  */
 function AutoSuggest_Search_Member()
 {
-	global $user_info, $smcFunc, $context;
+	global $user_info;
 
-	$_REQUEST['search'] = trim($smcFunc['strtolower']($_REQUEST['search'])) . '*';
+	$_REQUEST['search'] = trim(Utils::strtolower($_REQUEST['search'])) . '*';
 	$_REQUEST['search'] = strtr($_REQUEST['search'], array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_', '&#038;' => '&amp;'));
 
 	// Find the member.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_member, real_name
 		FROM {db_prefix}members
-		WHERE {raw:real_name} LIKE {string:search}' . (!empty($context['search_param']['buddies']) ? '
+		WHERE {raw:real_name} LIKE {string:search}' . (!empty(Utils::$context['search_param']['buddies']) ? '
 			AND id_member IN ({array_int:buddy_list})' : '') . '
 			AND is_activated IN (1, 11)
-		LIMIT ' . ($smcFunc['strlen']($_REQUEST['search']) <= 2 ? '100' : '800'),
+		LIMIT ' . (Utils::entityStrlen($_REQUEST['search']) <= 2 ? '100' : '800'),
 		array(
-			'real_name' => $smcFunc['db_case_sensitive'] ? 'LOWER(real_name)' : 'real_name',
+			'real_name' => Db::$db->case_sensitive ? 'LOWER(real_name)' : 'real_name',
 			'buddy_list' => $user_info['buddies'],
 			'search' => $_REQUEST['search'],
 		)
@@ -1000,7 +1000,7 @@ function AutoSuggest_Search_Member()
 			'children' => array(),
 		),
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$row['real_name'] = strtr($row['real_name'], array('&amp;' => '&#038;', '&lt;' => '&#060;', '&gt;' => '&#062;', '&quot;' => '&#034;'));
 
@@ -1011,7 +1011,7 @@ function AutoSuggest_Search_Member()
 			'value' => $row['real_name'],
 		);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	return $xml_data;
 }
@@ -1023,14 +1023,12 @@ function AutoSuggest_Search_Member()
  */
 function AutoSuggest_Search_MemberGroups()
 {
-	global $smcFunc;
-
-	$_REQUEST['search'] = trim($smcFunc['strtolower']($_REQUEST['search'])) . '*';
+	$_REQUEST['search'] = trim(Utils::strtolower($_REQUEST['search'])) . '*';
 	$_REQUEST['search'] = strtr($_REQUEST['search'], array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_', '&#038;' => '&amp;'));
 
 	// Find the group.
 	// Only return groups which are not post-based and not "Hidden", but not the "Administrators" or "Moderators" groups.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_group, group_name
 		FROM {db_prefix}membergroups
 		WHERE {raw:group_name} LIKE {string:search}
@@ -1038,7 +1036,7 @@ function AutoSuggest_Search_MemberGroups()
 			AND id_group NOT IN ({array_int:invalid_groups})
 			AND hidden != {int:hidden}',
 		array(
-			'group_name' => $smcFunc['db_case_sensitive'] ? 'LOWER(group_name)' : 'group_name',
+			'group_name' => Db::$db->case_sensitive ? 'LOWER(group_name)' : 'group_name',
 			'min_posts' => -1,
 			'invalid_groups' => array(1, 3),
 			'hidden' => 2,
@@ -1051,7 +1049,7 @@ function AutoSuggest_Search_MemberGroups()
 			'children' => array(),
 		),
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$row['group_name'] = strtr($row['group_name'], array('&amp;' => '&#038;', '&lt;' => '&#060;', '&gt;' => '&#062;', '&quot;' => '&#034;'));
 
@@ -1062,7 +1060,7 @@ function AutoSuggest_Search_MemberGroups()
 			'value' => $row['group_name'],
 		);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	return $xml_data;
 }
@@ -1074,8 +1072,6 @@ function AutoSuggest_Search_MemberGroups()
  */
 function AutoSuggest_Search_SMFVersions()
 {
-	global $smcFunc;
-
 	$xml_data = array(
 		'items' => array(
 			'identifier' => 'item',
@@ -1085,7 +1081,7 @@ function AutoSuggest_Search_SMFVersions()
 
 	// First try and get it from the database.
 	$versions = array();
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT data
 		FROM {db_prefix}admin_info_files
 		WHERE filename = {string:latest_versions}
@@ -1095,7 +1091,7 @@ function AutoSuggest_Search_SMFVersions()
 			'path' => '/smf/',
 		)
 	);
-	if (($smcFunc['db_num_rows']($request) > 0) && ($row = $smcFunc['db_fetch_assoc']($request)) && !empty($row['data']))
+	if ((Db::$db->num_rows($request) > 0) && ($row = Db::$db->fetch_assoc($request)) && !empty($row['data']))
 	{
 		// The file can be either Windows or Linux line endings, but let's ensure we clean it as best we can.
 		$possible_versions = explode("\n", $row['data']);
@@ -1106,7 +1102,7 @@ function AutoSuggest_Search_SMFVersions()
 				$versions[] = $ver;
 		}
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Just in case we don't have ANYthing.
 	if (empty($versions))

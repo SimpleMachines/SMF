@@ -14,6 +14,9 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -23,14 +26,12 @@ if (!defined('SMF'))
  */
 function PostModerationMain()
 {
-	global $sourcedir;
-
 	// @todo We'll shift these later bud.
 	loadLanguage('ModerationCenter');
 	loadTemplate('ModerationCenter');
 
 	// Probably need this...
-	require_once($sourcedir . '/ModerationCenter.php');
+	require_once(Config::$sourcedir . '/ModerationCenter.php');
 
 	// Allowed sub-actions, you know the drill by now!
 	$subActions = array(
@@ -54,10 +55,10 @@ function PostModerationMain()
  */
 function UnapprovedPosts()
 {
-	global $txt, $scripturl, $context, $user_info, $smcFunc, $options, $modSettings;
+	global $txt, $user_info, $options;
 
-	$context['current_view'] = isset($_GET['sa']) && $_GET['sa'] == 'topics' ? 'topics' : 'replies';
-	$context['page_title'] = $txt['mc_unapproved_posts'];
+	Utils::$context['current_view'] = isset($_GET['sa']) && $_GET['sa'] == 'topics' ? 'topics' : 'replies';
+	Utils::$context['page_title'] = $txt['mc_unapproved_posts'];
 
 	// Work out what boards we can work in!
 	$approve_boards = boardsAllowedTo('approve_posts');
@@ -80,7 +81,7 @@ function UnapprovedPosts()
 
 	// We also need to know where we can delete topics and/or replies to.
 	$boards_can = boardsAllowedTo(array('remove_any', 'remove_own', 'delete_own', 'delete_any', 'delete_own_replies'), true, false);
-	if ($context['current_view'] == 'topics')
+	if (Utils::$context['current_view'] == 'topics')
 	{
 		$delete_own_boards = $boards_can['remove_own'];
 		$delete_any_boards = $boards_can['remove_any'];
@@ -120,7 +121,7 @@ function UnapprovedPosts()
 		$any_array = $curAction == 'approve' ? $approve_boards : $delete_any_boards;
 
 		// Now for each message work out whether it's actually a topic, and what board it's on.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT m.id_msg, m.id_member, m.id_board, m.subject, t.id_topic, t.id_first_msg, t.id_member_started
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
@@ -134,10 +135,10 @@ function UnapprovedPosts()
 		);
 		$toAction = array();
 		$details = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			// If it's not within what our view is ignore it...
-			if (($row['id_msg'] == $row['id_first_msg'] && $context['current_view'] != 'topics') || ($row['id_msg'] != $row['id_first_msg'] && $context['current_view'] != 'replies'))
+			if (($row['id_msg'] == $row['id_first_msg'] && Utils::$context['current_view'] != 'topics') || ($row['id_msg'] != $row['id_first_msg'] && Utils::$context['current_view'] != 'replies'))
 				continue;
 
 			$can_add = false;
@@ -161,34 +162,34 @@ function UnapprovedPosts()
 			}
 
 			if ($can_add)
-				$anItem = $context['current_view'] == 'topics' ? $row['id_topic'] : $row['id_msg'];
+				$anItem = Utils::$context['current_view'] == 'topics' ? $row['id_topic'] : $row['id_msg'];
 			$toAction[] = $anItem;
 
 			// All clear. What have we got now, what, what?
 			$details[$anItem] = array();
 			$details[$anItem]["subject"] = $row['subject'];
 			$details[$anItem]["topic"] = $row['id_topic'];
-			$details[$anItem]["member"] = ($context['current_view'] == 'topics') ? $row['id_member_started'] : $row['id_member'];
+			$details[$anItem]["member"] = (Utils::$context['current_view'] == 'topics') ? $row['id_member_started'] : $row['id_member'];
 			$details[$anItem]["board"] = $row['id_board'];
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// If we have anything left we can actually do the approving (etc).
 		if (!empty($toAction))
 		{
 			if ($curAction == 'approve')
 			{
-				approveMessages($toAction, $details, $context['current_view']);
+				approveMessages($toAction, $details, Utils::$context['current_view']);
 			}
 			else
 			{
-				removeMessages($toAction, $details, $context['current_view']);
+				removeMessages($toAction, $details, Utils::$context['current_view']);
 			}
 		}
 	}
 
 	// How many unapproved posts are there?
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic AND t.id_first_msg != m.id_msg)
@@ -200,11 +201,11 @@ function UnapprovedPosts()
 			'not_approved' => 0,
 		)
 	);
-	list ($context['total_unapproved_posts']) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list (Utils::$context['total_unapproved_posts']) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	// What about topics?  Normally we'd use the table alias t for topics but lets use m so we don't have to redo our approve query.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}topics AS m
 		WHERE m.approved = {int:not_approved}
@@ -214,35 +215,35 @@ function UnapprovedPosts()
 			'not_approved' => 0,
 		)
 	);
-	list ($context['total_unapproved_topics']) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list (Utils::$context['total_unapproved_topics']) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	// Limit to how many? (obey the user setting)
-	$limit = !empty($options['messages_per_page']) ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
+	$limit = !empty($options['messages_per_page']) ? $options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
 
-	$context['page_index'] = constructPageIndex($scripturl . '?action=moderate;area=postmod;sa=' . $context['current_view'] . (isset($_REQUEST['brd']) ? ';brd=' . (int) $_REQUEST['brd'] : ''), $_GET['start'], $context['current_view'] == 'topics' ? $context['total_unapproved_topics'] : $context['total_unapproved_posts'], $limit);
-	$context['start'] = $_GET['start'];
+	Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=moderate;area=postmod;sa=' . Utils::$context['current_view'] . (isset($_REQUEST['brd']) ? ';brd=' . (int) $_REQUEST['brd'] : ''), $_GET['start'], Utils::$context['current_view'] == 'topics' ? Utils::$context['total_unapproved_topics'] : Utils::$context['total_unapproved_posts'], $limit);
+	Utils::$context['start'] = $_GET['start'];
 
 	// We have enough to make some pretty tabs!
-	$context[$context['moderation_menu_name']]['tab_data'] = array(
+	Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = array(
 		'title' => $txt['mc_unapproved_posts'],
 		'help' => 'postmod',
 		'description' => $txt['mc_unapproved_posts_desc'],
 	);
 
 	// Update the tabs with the correct number of posts.
-	$context['menu_data_' . $context['moderation_menu_id']]['sections']['posts']['areas']['postmod']['subsections']['posts']['label'] .= ' (' . $context['total_unapproved_posts'] . ')';
-	$context['menu_data_' . $context['moderation_menu_id']]['sections']['posts']['areas']['postmod']['subsections']['topics']['label'] .= ' (' . $context['total_unapproved_topics'] . ')';
+	Utils::$context['menu_data_' . Utils::$context['moderation_menu_id']]['sections']['posts']['areas']['postmod']['subsections']['posts']['label'] .= ' (' . Utils::$context['total_unapproved_posts'] . ')';
+	Utils::$context['menu_data_' . Utils::$context['moderation_menu_id']]['sections']['posts']['areas']['postmod']['subsections']['topics']['label'] .= ' (' . Utils::$context['total_unapproved_topics'] . ')';
 
 	// If we are filtering some boards out then make sure to send that along with the links.
 	if (isset($_REQUEST['brd']))
 	{
-		$context['menu_data_' . $context['moderation_menu_id']]['sections']['posts']['areas']['postmod']['subsections']['posts']['add_params'] = ';brd=' . (int) $_REQUEST['brd'];
-		$context['menu_data_' . $context['moderation_menu_id']]['sections']['posts']['areas']['postmod']['subsections']['topics']['add_params'] = ';brd=' . (int) $_REQUEST['brd'];
+		Utils::$context['menu_data_' . Utils::$context['moderation_menu_id']]['sections']['posts']['areas']['postmod']['subsections']['posts']['add_params'] = ';brd=' . (int) $_REQUEST['brd'];
+		Utils::$context['menu_data_' . Utils::$context['moderation_menu_id']]['sections']['posts']['areas']['postmod']['subsections']['topics']['add_params'] = ';brd=' . (int) $_REQUEST['brd'];
 	}
 
 	// Get all unapproved posts.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT m.id_msg, m.id_topic, m.id_board, m.subject, m.body, m.id_member,
 			COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.smileys_enabled,
 			t.id_member_started, t.id_first_msg, b.name AS board_name, c.id_cat, c.name AS cat_name
@@ -252,18 +253,18 @@ function UnapprovedPosts()
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
 		WHERE m.approved = {int:not_approved}
-			AND t.id_first_msg ' . ($context['current_view'] == 'topics' ? '=' : '!=') . ' m.id_msg
+			AND t.id_first_msg ' . (Utils::$context['current_view'] == 'topics' ? '=' : '!=') . ' m.id_msg
 			AND {query_see_board}
 			' . $approve_query . '
 		LIMIT {int:start}, {int:limit}',
 		array(
 			'not_approved' => 0,
-			'start' => $context['start'],
+			'start' => Utils::$context['start'],
 			'limit' => $limit,
 		)
 	);
-	$context['unapproved_items'] = array();
-	for ($i = 1; $row = $smcFunc['db_fetch_assoc']($request); $i++)
+	Utils::$context['unapproved_items'] = array();
+	for ($i = 1; $row = Db::$db->fetch_assoc($request); $i++)
 	{
 		// Can delete is complicated, let's solve it first... is it their own post?
 		if ($row['id_member'] == $user_info['id'] && ($delete_own_boards == array(0) || in_array($row['id_board'], $delete_own_boards)))
@@ -277,19 +278,19 @@ function UnapprovedPosts()
 		else
 			$can_delete = false;
 
-		$context['unapproved_items'][] = array(
+		Utils::$context['unapproved_items'][] = array(
 			'id' => $row['id_msg'],
-			'counter' => $context['start'] + $i,
-			'href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
-			'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '">' . $row['subject'] . '</a>',
+			'counter' => Utils::$context['start'] + $i,
+			'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
+			'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '">' . $row['subject'] . '</a>',
 			'subject' => $row['subject'],
 			'body' => BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']),
 			'time' => timeformat($row['poster_time']),
 			'poster' => array(
 				'id' => $row['id_member'],
 				'name' => $row['poster_name'],
-				'link' => $row['id_member'] ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['poster_name'] . '</a>' : $row['poster_name'],
-				'href' => $scripturl . '?action=profile;u=' . $row['id_member'],
+				'link' => $row['id_member'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['poster_name'] . '</a>' : $row['poster_name'],
+				'href' => Config::$scripturl . '?action=profile;u=' . $row['id_member'],
 			),
 			'topic' => array(
 				'id' => $row['id_topic'],
@@ -297,19 +298,19 @@ function UnapprovedPosts()
 			'board' => array(
 				'id' => $row['id_board'],
 				'name' => $row['board_name'],
-				'link' => '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['board_name'] . '</a>',
+				'link' => '<a href="' . Config::$scripturl . '?board=' . $row['id_board'] . '.0">' . $row['board_name'] . '</a>',
 			),
 			'category' => array(
 				'id' => $row['id_cat'],
 				'name' => $row['cat_name'],
-				'link' => '<a href="' . $scripturl . '#c' . $row['id_cat'] . '">' . $row['cat_name'] . '</a>',
+				'link' => '<a href="' . Config::$scripturl . '#c' . $row['id_cat'] . '">' . $row['cat_name'] . '</a>',
 			),
 			'can_delete' => $can_delete,
 		);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
-	$context['sub_template'] = 'unapproved_posts';
+	Utils::$context['sub_template'] = 'unapproved_posts';
 }
 
 /**
@@ -317,9 +318,9 @@ function UnapprovedPosts()
  */
 function UnapprovedAttachments()
 {
-	global $txt, $scripturl, $context, $sourcedir, $smcFunc, $modSettings;
+	global $txt;
 
-	$context['page_title'] = $txt['mc_unapproved_attachments'];
+	Utils::$context['page_title'] = $txt['mc_unapproved_attachments'];
 
 	// Once again, permissions are king!
 	$approve_boards = boardsAllowedTo('approve_posts');
@@ -353,10 +354,10 @@ function UnapprovedAttachments()
 		checkSession('request');
 
 		// This will be handy.
-		require_once($sourcedir . '/ManageAttachments.php');
+		require_once(Config::$sourcedir . '/ManageAttachments.php');
 
 		// Confirm the attachments are eligible for changing!
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT a.id_attach
 			FROM {db_prefix}attachments AS a
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
@@ -372,9 +373,9 @@ function UnapprovedAttachments()
 			)
 		);
 		$attachments = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$attachments[] = $row['id_attach'];
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// Assuming it wasn't all like, proper illegal, we can do the approving.
 		if (!empty($attachments))
@@ -386,14 +387,14 @@ function UnapprovedAttachments()
 		}
 	}
 
-	require_once($sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/Subs-List.php');
 
 	$listOptions = array(
 		'id' => 'mc_unapproved_attach',
 		'width' => '100%',
-		'items_per_page' => $modSettings['defaultMaxListItems'],
+		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 		'no_items_label' => $txt['mc_unapproved_attachments_none_found'],
-		'base_href' => $scripturl . '?action=moderate;area=attachmod;sa=attachments',
+		'base_href' => Config::$scripturl . '?action=moderate;area=attachmod;sa=attachments',
 		'default_sort_col' => 'attach_name',
 		'get_items' => array(
 			'function' => 'list_getUnapprovedAttachments',
@@ -497,11 +498,11 @@ function UnapprovedAttachments()
 			),
 		),
 		'form' => array(
-			'href' => $scripturl . '?action=moderate;area=attachmod;sa=attachments',
+			'href' => Config::$scripturl . '?action=moderate;area=attachmod;sa=attachments',
 			'include_sort' => true,
 			'include_start' => true,
 			'hidden_fields' => array(
-				$context['session_var'] => $context['session_id'],
+				Utils::$context['session_var'] => Utils::$context['session_id'],
 			),
 			'token' => 'mod-ap',
 		),
@@ -525,10 +526,10 @@ function UnapprovedAttachments()
 	createToken('mod-ap');
 	createList($listOptions);
 
-	$context['sub_template'] = 'show_list';
-	$context['default_list'] = 'mc_unapproved_attach';
+	Utils::$context['sub_template'] = 'show_list';
+	Utils::$context['default_list'] = 'mc_unapproved_attach';
 
-	$context[$context['moderation_menu_name']]['tab_data'] = array(
+	Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = array(
 		'title' => $txt['mc_unapproved_attachments'],
 		'help' => '',
 		'description' => $txt['mc_unapproved_attachments_desc']
@@ -547,10 +548,8 @@ function UnapprovedAttachments()
  */
 function list_getUnapprovedAttachments($start, $items_per_page, $sort, $approve_query)
 {
-	global $smcFunc, $scripturl;
-
 	// Get all unapproved attachments.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT a.id_attach, a.filename, a.size, m.id_msg, m.id_topic, m.id_board, m.subject, m.body, m.id_member,
 			COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time,
 			t.id_member_started, t.id_first_msg, b.name AS board_name, c.id_cat, c.name AS cat_name
@@ -577,7 +576,7 @@ function list_getUnapprovedAttachments($start, $items_per_page, $sort, $approve_
 	);
 
 	$unapproved_items = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$unapproved_items[] = array(
 			'id' => $row['id_attach'],
@@ -587,15 +586,15 @@ function list_getUnapprovedAttachments($start, $items_per_page, $sort, $approve_
 			'poster' => array(
 				'id' => $row['id_member'],
 				'name' => $row['poster_name'],
-				'link' => $row['id_member'] ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['poster_name'] . '</a>' : $row['poster_name'],
-				'href' => $scripturl . '?action=profile;u=' . $row['id_member'],
+				'link' => $row['id_member'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['poster_name'] . '</a>' : $row['poster_name'],
+				'href' => Config::$scripturl . '?action=profile;u=' . $row['id_member'],
 			),
 			'message' => array(
 				'id' => $row['id_msg'],
 				'subject' => $row['subject'],
 				'body' => BBCodeParser::load()->parse($row['body']),
 				'time' => timeformat($row['poster_time']),
-				'href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
+				'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
 			),
 			'topic' => array(
 				'id' => $row['id_topic'],
@@ -610,7 +609,7 @@ function list_getUnapprovedAttachments($start, $items_per_page, $sort, $approve_
 			),
 		);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	return $unapproved_items;
 }
@@ -624,10 +623,8 @@ function list_getUnapprovedAttachments($start, $items_per_page, $sort, $approve_
  */
 function list_getNumUnapprovedAttachments($approve_query)
 {
-	global $smcFunc;
-
 	// How many unapproved attachments in total?
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}attachments AS a
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
@@ -640,8 +637,8 @@ function list_getNumUnapprovedAttachments($approve_query)
 			'attachment_type' => 0,
 		)
 	);
-	list ($total_unapproved_attachments) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($total_unapproved_attachments) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	return $total_unapproved_attachments;
 }
@@ -651,17 +648,17 @@ function list_getNumUnapprovedAttachments($approve_query)
  */
 function ApproveMessage()
 {
-	global $user_info, $topic, $board, $sourcedir, $smcFunc;
+	global $user_info, $topic, $board;
 
 	checkSession('get');
 
 	$_REQUEST['msg'] = (int) $_REQUEST['msg'];
 
-	require_once($sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Subs-Post.php');
 
 	isAllowedTo('approve_posts');
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT t.id_member_started, t.id_first_msg, m.id_member, m.subject, m.approved
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
@@ -673,8 +670,8 @@ function ApproveMessage()
 			'id_msg' => $_REQUEST['msg'],
 		)
 	);
-	list ($starter, $first_msg, $poster, $subject, $approved) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($starter, $first_msg, $poster, $subject, $approved) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	// If it's the first in a topic then the whole topic gets approved!
 	if ($first_msg == $_REQUEST['msg'])
@@ -704,9 +701,7 @@ function ApproveMessage()
  */
 function approveMessages($messages, $messageDetails, $current_view = 'replies')
 {
-	global $sourcedir;
-
-	require_once($sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Subs-Post.php');
 	if ($current_view == 'topics')
 	{
 		approveTopics($messages);
@@ -732,10 +727,8 @@ function approveMessages($messages, $messageDetails, $current_view = 'replies')
  */
 function approveAllData()
 {
-	global $smcFunc, $sourcedir;
-
 	// Start with messages and topics.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_msg
 		FROM {db_prefix}messages
 		WHERE approved = {int:not_approved}',
@@ -744,18 +737,18 @@ function approveAllData()
 		)
 	);
 	$msgs = array();
-	while ($row = $smcFunc['db_fetch_row']($request))
+	while ($row = Db::$db->fetch_row($request))
 		$msgs[] = $row[0];
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	if (!empty($msgs))
 	{
-		require_once($sourcedir . '/Subs-Post.php');
+		require_once(Config::$sourcedir . '/Subs-Post.php');
 		approvePosts($msgs);
 	}
 
 	// Now do attachments
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_attach
 		FROM {db_prefix}attachments
 		WHERE approved = {int:not_approved}',
@@ -764,13 +757,13 @@ function approveAllData()
 		)
 	);
 	$attaches = array();
-	while ($row = $smcFunc['db_fetch_row']($request))
+	while ($row = Db::$db->fetch_row($request))
 		$attaches[] = $row[0];
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	if (!empty($attaches))
 	{
-		require_once($sourcedir . '/ManageAttachments.php');
+		require_once(Config::$sourcedir . '/ManageAttachments.php');
 		ApproveAttachments($attaches);
 	}
 }
@@ -784,11 +777,9 @@ function approveAllData()
  */
 function removeMessages($messages, $messageDetails, $current_view = 'replies')
 {
-	global $sourcedir, $modSettings;
-
 	// @todo something's not right, removeMessage() does check permissions,
 	// removeTopics() doesn't
-	require_once($sourcedir . '/RemoveTopic.php');
+	require_once(Config::$sourcedir . '/RemoveTopic.php');
 	if ($current_view == 'topics')
 	{
 		removeTopics($messages);
@@ -796,7 +787,7 @@ function removeMessages($messages, $messageDetails, $current_view = 'replies')
 		foreach ($messages as $topic)
 			// Note, only log topic ID in native form if it's not gone forever.
 			logAction('remove', array(
-				(empty($modSettings['recycle_enable']) || $modSettings['recycle_board'] != $messageDetails[$topic]['board'] ? 'topic' : 'old_topic_id') => $topic, 'subject' => $messageDetails[$topic]['subject'], 'member' => $messageDetails[$topic]['member'], 'board' => $messageDetails[$topic]['board']));
+				(empty(Config::$modSettings['recycle_enable']) || Config::$modSettings['recycle_board'] != $messageDetails[$topic]['board'] ? 'topic' : 'old_topic_id') => $topic, 'subject' => $messageDetails[$topic]['subject'], 'member' => $messageDetails[$topic]['member'], 'board' => $messageDetails[$topic]['board']));
 	}
 	else
 	{
@@ -804,7 +795,7 @@ function removeMessages($messages, $messageDetails, $current_view = 'replies')
 		{
 			removeMessage($post);
 			logAction('delete', array(
-				(empty($modSettings['recycle_enable']) || $modSettings['recycle_board'] != $messageDetails[$post]['board'] ? 'topic' : 'old_topic_id') => $messageDetails[$post]['topic'], 'subject' => $messageDetails[$post]['subject'], 'member' => $messageDetails[$post]['member'], 'board' => $messageDetails[$post]['board']));
+				(empty(Config::$modSettings['recycle_enable']) || Config::$modSettings['recycle_board'] != $messageDetails[$post]['board'] ? 'topic' : 'old_topic_id') => $messageDetails[$post]['topic'], 'subject' => $messageDetails[$post]['subject'], 'member' => $messageDetails[$post]['member'], 'board' => $messageDetails[$post]['board']));
 		}
 	}
 }

@@ -87,15 +87,13 @@ class ProxyServer
 	 */
 	public function __construct()
 	{
-		global $image_proxy_enabled, $image_proxy_maxsize, $image_proxy_secret, $cachedir;
-
 		// Turn off all error reporting; any extra junk makes for an invalid image.
 		error_reporting(0);
 
-		$this->enabled = (bool) $image_proxy_enabled;
-		$this->maxSize = (int) $image_proxy_maxsize;
-		$this->secret = (string) $image_proxy_secret;
-		$this->cache = $cachedir . '/images';
+		$this->enabled = (bool) Config::$image_proxy_enabled;
+		$this->maxSize = (int) Config::$image_proxy_maxsize;
+		$this->secret = (string) Config::$image_proxy_secret;
+		$this->cache = Config::$cachedir . '/images';
 		$this->maxDays = 5;
 	}
 
