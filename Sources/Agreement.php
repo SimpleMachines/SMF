@@ -14,6 +14,9 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -41,84 +44,84 @@ if (!defined('SMF'))
 
 function prepareAgreementContext()
 {
-	global $boarddir, $context, $language, $modSettings, $user_info;
+	global $user_info;
 
 	// What, if anything, do they need to accept?
-	$context['can_accept_agreement'] = !empty($modSettings['requireAgreement']) && canRequireAgreement();
-	$context['can_accept_privacy_policy'] = !empty($modSettings['requirePolicyAgreement']) && canRequirePrivacyPolicy();
-	$context['accept_doc'] = $context['can_accept_agreement'] || $context['can_accept_privacy_policy'];
+	Utils::$context['can_accept_agreement'] = !empty(Config::$modSettings['requireAgreement']) && canRequireAgreement();
+	Utils::$context['can_accept_privacy_policy'] = !empty(Config::$modSettings['requirePolicyAgreement']) && canRequirePrivacyPolicy();
+	Utils::$context['accept_doc'] = Utils::$context['can_accept_agreement'] || Utils::$context['can_accept_privacy_policy'];
 
-	if (!$context['accept_doc'] || $context['can_accept_agreement'])
+	if (!Utils::$context['accept_doc'] || Utils::$context['can_accept_agreement'])
 	{
 		// Grab the agreement.
 		// Have we got a localized one?
-		if (file_exists($boarddir . '/agreement.' . $user_info['language'] . '.txt'))
-			$context['agreement_file'] = $boarddir . '/agreement.' . $user_info['language'] . '.txt';
-		elseif (file_exists($boarddir . '/agreement.txt'))
-			$context['agreement_file'] = $boarddir . '/agreement.txt';
+		if (file_exists(Config::$boarddir . '/agreement.' . $user_info['language'] . '.txt'))
+			Utils::$context['agreement_file'] = Config::$boarddir . '/agreement.' . $user_info['language'] . '.txt';
+		elseif (file_exists(Config::$boarddir . '/agreement.txt'))
+			Utils::$context['agreement_file'] = Config::$boarddir . '/agreement.txt';
 
-		if (!empty($context['agreement_file']))
+		if (!empty(Utils::$context['agreement_file']))
 		{
-			$cache_id = strtr($context['agreement_file'], array($boarddir => '', '.txt' => '', '.' => '_'));
-			$context['agreement'] = BBCodeParser::load()->parse(file_get_contents($context['agreement_file']), true, $cache_id);
+			$cache_id = strtr(Utils::$context['agreement_file'], array(Config::$boarddir => '', '.txt' => '', '.' => '_'));
+			Utils::$context['agreement'] = BBCodeParser::load()->parse(file_get_contents(Utils::$context['agreement_file']), true, $cache_id);
 		}
-		elseif ($context['can_accept_agreement'])
+		elseif (Utils::$context['can_accept_agreement'])
 			fatal_lang_error('error_no_agreement', false);
 	}
 
-	if (!$context['accept_doc'] || $context['can_accept_privacy_policy'])
+	if (!Utils::$context['accept_doc'] || Utils::$context['can_accept_privacy_policy'])
 	{
 		// Have we got a localized policy?
-		if (!empty($modSettings['policy_' . $user_info['language']]))
-			$context['privacy_policy'] = BBCodeParser::load()->parse($modSettings['policy_' . $user_info['language']]);
-		elseif (!empty($modSettings['policy_' . $language]))
-			$context['privacy_policy'] = BBCodeParser::load()->parse($modSettings['policy_' . $language]);
+		if (!empty(Config::$modSettings['policy_' . $user_info['language']]))
+			Utils::$context['privacy_policy'] = BBCodeParser::load()->parse(Config::$modSettings['policy_' . $user_info['language']]);
+		elseif (!empty(Config::$modSettings['policy_' . Config::$language]))
+			Utils::$context['privacy_policy'] = BBCodeParser::load()->parse(Config::$modSettings['policy_' . Config::$language]);
 		// Then I guess we've got nothing
-		elseif ($context['can_accept_privacy_policy'])
+		elseif (Utils::$context['can_accept_privacy_policy'])
 			fatal_lang_error('error_no_privacy_policy', false);
 	}
 }
 
 function canRequireAgreement()
 {
-	global $boarddir, $context, $modSettings, $options, $user_info;
+	global $options, $user_info;
 
 	// Guests can't agree
-	if (!empty($user_info['is_guest']) || empty($modSettings['requireAgreement']))
+	if (!empty($user_info['is_guest']) || empty(Config::$modSettings['requireAgreement']))
 		return false;
 
-	$agreement_lang = file_exists($boarddir . '/agreement.' . $user_info['language'] . '.txt') ? $user_info['language'] : 'default';
+	$agreement_lang = file_exists(Config::$boarddir . '/agreement.' . $user_info['language'] . '.txt') ? $user_info['language'] : 'default';
 
-	if (empty($modSettings['agreement_updated_' . $agreement_lang]))
+	if (empty(Config::$modSettings['agreement_updated_' . $agreement_lang]))
 		return false;
 
-	$context['agreement_accepted_date'] = empty($options['agreement_accepted']) ? 0 : $options['agreement_accepted'];
+	Utils::$context['agreement_accepted_date'] = empty($options['agreement_accepted']) ? 0 : $options['agreement_accepted'];
 
 	// A new timestamp means that there are new changes to the registration agreement and must therefore be shown.
-	return empty($options['agreement_accepted']) || $modSettings['agreement_updated_' . $agreement_lang] > $options['agreement_accepted'];
+	return empty($options['agreement_accepted']) || Config::$modSettings['agreement_updated_' . $agreement_lang] > $options['agreement_accepted'];
 }
 
 function canRequirePrivacyPolicy()
 {
-	global $modSettings, $options, $user_info, $language, $context;
+	global $options, $user_info;
 
-	if (!empty($user_info['is_guest']) || empty($modSettings['requirePolicyAgreement']))
+	if (!empty($user_info['is_guest']) || empty(Config::$modSettings['requirePolicyAgreement']))
 		return false;
 
-	$policy_lang = !empty($modSettings['policy_' . $user_info['language']]) ? $user_info['language'] : $language;
+	$policy_lang = !empty(Config::$modSettings['policy_' . $user_info['language']]) ? $user_info['language'] : Config::$language;
 
-	if (empty($modSettings['policy_updated_' . $policy_lang]))
+	if (empty(Config::$modSettings['policy_updated_' . $policy_lang]))
 		return false;
 
-	$context['privacy_policy_accepted_date'] = empty($options['policy_accepted']) ? 0 : $options['policy_accepted'];
+	Utils::$context['privacy_policy_accepted_date'] = empty($options['policy_accepted']) ? 0 : $options['policy_accepted'];
 
-	return empty($options['policy_accepted']) || $modSettings['policy_updated_' . $policy_lang] > $options['policy_accepted'];
+	return empty($options['policy_accepted']) || Config::$modSettings['policy_updated_' . $policy_lang] > $options['policy_accepted'];
 }
 
 // Let's tell them there's a new agreement
 function Agreement()
 {
-	global $context, $modSettings, $scripturl, $smcFunc, $txt;
+	global $txt;
 
 	prepareAgreementContext();
 
@@ -126,17 +129,17 @@ function Agreement()
 	loadTemplate('Agreement');
 
 	$page_title = '';
-	if (!empty($context['agreement']) && !empty($context['privacy_policy']))
+	if (!empty(Utils::$context['agreement']) && !empty(Utils::$context['privacy_policy']))
 		$page_title = $txt['agreement_and_privacy_policy'];
-	elseif (!empty($context['agreement']))
+	elseif (!empty(Utils::$context['agreement']))
 		$page_title = $txt['agreement'];
-	elseif (!empty($context['privacy_policy']))
+	elseif (!empty(Utils::$context['privacy_policy']))
 		$page_title = $txt['privacy_policy'];
 
-	$context['page_title'] = $page_title;
-	$context['linktree'][] = array(
-		'url' => $scripturl . '?action=agreement',
-		'name' => $context['page_title'],
+	Utils::$context['page_title'] = $page_title;
+	Utils::$context['linktree'][] = array(
+		'url' => Config::$scripturl . '?action=agreement',
+		'name' => Utils::$context['page_title'],
 	);
 
 	if (isset($_SESSION['old_url']))
@@ -147,10 +150,10 @@ function Agreement()
 // I solemly swear to no longer chase squirrels.
 function AcceptAgreement()
 {
-	global $context, $modSettings, $smcFunc, $user_info;
+	global $user_info;
 
-	$can_accept_agreement = !empty($modSettings['requireAgreement']) && canRequireAgreement();
-	$can_accept_privacy_policy = !empty($modSettings['requirePolicyAgreement']) && canRequirePrivacyPolicy();
+	$can_accept_agreement = !empty(Config::$modSettings['requireAgreement']) && canRequireAgreement();
+	$can_accept_privacy_policy = !empty(Config::$modSettings['requirePolicyAgreement']) && canRequirePrivacyPolicy();
 
 	if ($can_accept_agreement || $can_accept_privacy_policy)
 	{
@@ -158,7 +161,7 @@ function AcceptAgreement()
 
 		if ($can_accept_agreement)
 		{
-			$smcFunc['db_insert']('replace',
+			Db::$db->insert('replace',
 				'{db_prefix}themes',
 				array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
 				array($user_info['id'], 1, 'agreement_accepted', time()),
@@ -169,7 +172,7 @@ function AcceptAgreement()
 
 		if ($can_accept_privacy_policy)
 		{
-			$smcFunc['db_insert']('replace',
+			Db::$db->insert('replace',
 				'{db_prefix}themes',
 				array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
 				array($user_info['id'], 1, 'policy_accepted', time()),

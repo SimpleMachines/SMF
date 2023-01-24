@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
@@ -26,7 +28,7 @@ if (!defined('SMF'))
  */
 function writeLog($force = false)
 {
-	global $user_info, $user_settings, $context, $modSettings, $settings, $topic, $board, $smcFunc, $sourcedir;
+	global $user_info, $user_settings, $settings, $topic, $board;
 
 	// If we are showing who is viewing a topic, let's see if we are, and force an update if so - to make it accurate.
 	if (!empty($settings['display_who_viewing']) && ($topic || $board))
@@ -43,9 +45,9 @@ function writeLog($force = false)
 	}
 
 	// Are they a spider we should be tracking? Mode = 1 gets tracked on its spider check...
-	if (!empty($user_info['possibly_robot']) && !empty($modSettings['spider_mode']) && $modSettings['spider_mode'] > 1)
+	if (!empty($user_info['possibly_robot']) && !empty(Config::$modSettings['spider_mode']) && Config::$modSettings['spider_mode'] > 1)
 	{
-		require_once($sourcedir . '/ManageSearchEngines.php');
+		require_once(Config::$sourcedir . '/ManageSearchEngines.php');
 		logSpider();
 	}
 
@@ -53,16 +55,16 @@ function writeLog($force = false)
 	if (!empty($_SESSION['log_time']) && $_SESSION['log_time'] >= (time() - 8) && !$force)
 		return;
 
-	if (!empty($modSettings['who_enabled']))
+	if (!empty(Config::$modSettings['who_enabled']))
 	{
 		$encoded_get = truncate_array($_GET) + array('USER_AGENT' => mb_substr($_SERVER['HTTP_USER_AGENT'], 0, 128));
 
 		// In the case of a dlattach action, session_var may not be set.
-		if (!isset($context['session_var']))
-			$context['session_var'] = $_SESSION['session_var'];
+		if (!isset(Utils::$context['session_var']))
+			Utils::$context['session_var'] = $_SESSION['session_var'];
 
-		unset($encoded_get['sesc'], $encoded_get[$context['session_var']]);
-		$encoded_get = $smcFunc['json_encode']($encoded_get);
+		unset($encoded_get['sesc'], $encoded_get[Utils::$context['session_var']]);
+		$encoded_get = Utils::jsonEncode($encoded_get);
 
 		// Sometimes folks mess with USER_AGENT & $_GET data, so one last check to avoid 'data too long' errors
 		if (mb_strlen($encoded_get) > 2048)
@@ -78,16 +80,16 @@ function writeLog($force = false)
 	$do_delete = CacheApi::get('log_online-update', 30) < time() - 30;
 
 	// If the last click wasn't a long time ago, and there was a last click...
-	if (!empty($_SESSION['log_time']) && $_SESSION['log_time'] >= time() - $modSettings['lastActive'] * 20)
+	if (!empty($_SESSION['log_time']) && $_SESSION['log_time'] >= time() - Config::$modSettings['lastActive'] * 20)
 	{
 		if ($do_delete)
 		{
-			$smcFunc['db_query']('delete_log_online_interval', '
+			Db::$db->query('delete_log_online_interval', '
 				DELETE FROM {db_prefix}log_online
 				WHERE log_time < {int:log_time}
 					AND session != {string:session}',
 				array(
-					'log_time' => time() - $modSettings['lastActive'] * 60,
+					'log_time' => time() - Config::$modSettings['lastActive'] * 60,
 					'session' => $session_id,
 				)
 			);
@@ -96,7 +98,7 @@ function writeLog($force = false)
 			CacheApi::put('log_online-update', time(), 30);
 		}
 
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}log_online
 			SET log_time = {int:log_time}, ip = {inet:ip}, url = {string:url}
 			WHERE session = {string:session}',
@@ -109,7 +111,7 @@ function writeLog($force = false)
 		);
 
 		// Guess it got deleted.
-		if ($smcFunc['db_affected_rows']() == 0)
+		if (Db::$db->affected_rows() == 0)
 			$_SESSION['log_time'] = 0;
 	}
 	else
@@ -119,16 +121,16 @@ function writeLog($force = false)
 	if (empty($_SESSION['log_time']))
 	{
 		if ($do_delete || !empty($user_info['id']))
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				DELETE FROM {db_prefix}log_online
 				WHERE ' . ($do_delete ? 'log_time < {int:log_time}' : '') . ($do_delete && !empty($user_info['id']) ? ' OR ' : '') . (empty($user_info['id']) ? '' : 'id_member = {int:current_member}'),
 				array(
 					'current_member' => $user_info['id'],
-					'log_time' => time() - $modSettings['lastActive'] * 60,
+					'log_time' => time() - Config::$modSettings['lastActive'] * 60,
 				)
 			);
 
-		$smcFunc['db_insert']($do_delete ? 'ignore' : 'replace',
+		Db::$db->insert($do_delete ? 'ignore' : 'replace',
 			'{db_prefix}log_online',
 			array('session' => 'string', 'id_member' => 'int', 'id_spider' => 'int', 'log_time' => 'int', 'ip' => 'inet', 'url' => 'string'),
 			array($session_id, $user_info['id'], empty($_SESSION['id_robot']) ? 0 : $_SESSION['id_robot'], time(), $user_info['ip'], $encoded_get),
@@ -168,33 +170,31 @@ function writeLog($force = false)
  */
 function logLastDatabaseError()
 {
-	global $boarddir, $cachedir;
-
 	// Make a note of the last modified time in case someone does this before us
-	$last_db_error_change = @filemtime($cachedir . '/db_last_error.php');
+	$last_db_error_change = @filemtime(Config::$cachedir . '/db_last_error.php');
 
 	// save the old file before we do anything
-	$file = $cachedir . '/db_last_error.php';
-	$dberror_backup_fail = !@is_writable($cachedir . '/db_last_error_bak.php') || !@copy($file, $cachedir . '/db_last_error_bak.php');
-	$dberror_backup_fail = !$dberror_backup_fail ? (!file_exists($cachedir . '/db_last_error_bak.php') || filesize($cachedir . '/db_last_error_bak.php') === 0) : $dberror_backup_fail;
+	$file = Config::$cachedir . '/db_last_error.php';
+	$dberror_backup_fail = !@is_writable(Config::$cachedir . '/db_last_error_bak.php') || !@copy($file, Config::$cachedir . '/db_last_error_bak.php');
+	$dberror_backup_fail = !$dberror_backup_fail ? (!file_exists(Config::$cachedir . '/db_last_error_bak.php') || filesize(Config::$cachedir . '/db_last_error_bak.php') === 0) : $dberror_backup_fail;
 
 	clearstatcache();
-	if (filemtime($cachedir . '/db_last_error.php') === $last_db_error_change)
+	if (filemtime(Config::$cachedir . '/db_last_error.php') === $last_db_error_change)
 	{
 		// Write the change
 		$write_db_change = '<' . '?' . "php\n" . '$db_last_error = ' . time() . ';' . "\n" . '?' . '>';
-		$written_bytes = file_put_contents($cachedir . '/db_last_error.php', $write_db_change, LOCK_EX);
+		$written_bytes = file_put_contents(Config::$cachedir . '/db_last_error.php', $write_db_change, LOCK_EX);
 
 		// survey says ...
 		if ($written_bytes !== strlen($write_db_change) && !$dberror_backup_fail)
 		{
 			// Oops. maybe we have no more disk space left, or some other troubles, troubles...
 			// Copy the file back and run for your life!
-			@copy($cachedir . '/db_last_error_bak.php', $cachedir . '/db_last_error.php');
+			@copy(Config::$cachedir . '/db_last_error_bak.php', Config::$cachedir . '/db_last_error.php');
 		}
 		else
 		{
-			@touch($boarddir . '/' . 'Settings.php');
+			@touch(SMF_SETTINGS_FILE);
 			return true;
 		}
 	}
@@ -203,24 +203,24 @@ function logLastDatabaseError()
 }
 
 /**
- * This function shows the debug information tracked when $db_show_debug = true
+ * This function shows the debug information tracked when Config::$db_show_debug = true
  * in Settings.php
  */
 function displayDebug()
 {
-	global $context, $scripturl, $boarddir, $sourcedir, $cachedir, $settings, $modSettings;
-	global $db_show_debug, $smcFunc, $txt;
+	global $settings;
+	global $txt;
 
 	// Add to Settings.php if you want to show the debugging information.
-	if (!isset($db_show_debug) || $db_show_debug !== true || (isset($_GET['action']) && $_GET['action'] == 'viewquery'))
+	if (!isset(Config::$db_show_debug) || Config::$db_show_debug !== true || (isset($_GET['action']) && $_GET['action'] == 'viewquery'))
 		return;
 
 	if (empty($_SESSION['view_queries']))
 		$_SESSION['view_queries'] = 0;
-	if (empty($context['debug']['language_files']))
-		$context['debug']['language_files'] = array();
-	if (empty($context['debug']['sheets']))
-		$context['debug']['sheets'] = array();
+	if (empty(Utils::$context['debug']['language_files']))
+		Utils::$context['debug']['language_files'] = array();
+	if (empty(Utils::$context['debug']['sheets']))
+		Utils::$context['debug']['sheets'] = array();
 
 	$files = get_included_files();
 	$total_size = 0;
@@ -228,7 +228,7 @@ function displayDebug()
 	{
 		if (file_exists($files[$i]))
 			$total_size += filesize($files[$i]);
-		$files[$i] = strtr($files[$i], array($boarddir => '.', $sourcedir => '(Sources)', $cachedir => '(Cache)', $settings['actual_theme_dir'] => '(Current Theme)'));
+		$files[$i] = strtr($files[$i], array(Config::$boarddir => '.', Config::$sourcedir => '(Sources)', Config::$cachedir => '(Cache)', $settings['actual_theme_dir'] => '(Current Theme)'));
 	}
 
 	$warnings = 0;
@@ -249,13 +249,13 @@ function displayDebug()
 
 	echo preg_replace('~</body>\s*</html>~', '', $temp), '
 <div class="smalltext" style="text-align: left; margin: 1ex;">
-	', $txt['debug_browser'], $context['browser_body_id'], ' <em>(', implode('</em>, <em>', array_reverse(array_keys($context['browser'], true))), ')</em><br>
-	', $txt['debug_templates'], count($context['debug']['templates']), ': <em>', implode('</em>, <em>', $context['debug']['templates']), '</em>.<br>
-	', $txt['debug_subtemplates'], count($context['debug']['sub_templates']), ': <em>', implode('</em>, <em>', $context['debug']['sub_templates']), '</em>.<br>
-	', $txt['debug_language_files'], count($context['debug']['language_files']), ': <em>', implode('</em>, <em>', $context['debug']['language_files']), '</em>.<br>
-	', $txt['debug_stylesheets'], count($context['debug']['sheets']), ': <em>', implode('</em>, <em>', $context['debug']['sheets']), '</em>.<br>
-	', $txt['debug_hooks'], empty($context['debug']['hooks']) ? 0 : count($context['debug']['hooks']) . ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_hooks\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_hooks" style="display: none;"><em>' . implode('</em>, <em>', $context['debug']['hooks']), '</em></span>)', '<br>
-	', (isset($context['debug']['instances']) ? ($txt['debug_instances'] . (empty($context['debug']['instances']) ? 0 : count($context['debug']['instances'])) . ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_instances\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . $txt['debug_show'] . '</a><span id="debug_instances" style="display: none;"><em>' . implode('</em>, <em>', array_keys($context['debug']['instances'])) . '</em></span>)' . '<br>') : ''), '
+	', $txt['debug_browser'], Utils::$context['browser_body_id'], ' <em>(', implode('</em>, <em>', array_reverse(array_keys(Utils::$context['browser'], true))), ')</em><br>
+	', $txt['debug_templates'], count(Utils::$context['debug']['templates']), ': <em>', implode('</em>, <em>', Utils::$context['debug']['templates']), '</em>.<br>
+	', $txt['debug_subtemplates'], count(Utils::$context['debug']['sub_templates']), ': <em>', implode('</em>, <em>', Utils::$context['debug']['sub_templates']), '</em>.<br>
+	', $txt['debug_language_files'], count(Utils::$context['debug']['language_files']), ': <em>', implode('</em>, <em>', Utils::$context['debug']['language_files']), '</em>.<br>
+	', $txt['debug_stylesheets'], count(Utils::$context['debug']['sheets']), ': <em>', implode('</em>, <em>', Utils::$context['debug']['sheets']), '</em>.<br>
+	', $txt['debug_hooks'], empty(Utils::$context['debug']['hooks']) ? 0 : count(Utils::$context['debug']['hooks']) . ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_hooks\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_hooks" style="display: none;"><em>' . implode('</em>, <em>', Utils::$context['debug']['hooks']), '</em></span>)', '<br>
+	', (isset(Utils::$context['debug']['instances']) ? ($txt['debug_instances'] . (empty(Utils::$context['debug']['instances']) ? 0 : count(Utils::$context['debug']['instances'])) . ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_instances\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . $txt['debug_show'] . '</a><span id="debug_instances" style="display: none;"><em>' . implode('</em>, <em>', array_keys(Utils::$context['debug']['instances'])) . '</em></span>)' . '<br>') : ''), '
 	', $txt['debug_files_included'], count($files), ' - ', round($total_size / 1024), $txt['debug_kb'], ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_include_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_include_info" style="display: none;"><em>', implode('</em>, <em>', $files), '</em></span>)<br>';
 
 	if (function_exists('memory_get_peak_usage'))
@@ -288,7 +288,7 @@ function displayDebug()
 	}
 
 	echo '
-	<a href="', $scripturl, '?action=viewquery" target="_blank" rel="noopener">', $warnings == 0 ? sprintf($txt['debug_queries_used'], (int) Db::$count) : sprintf($txt['debug_queries_used_and_warnings'], (int) Db::$count, $warnings), '</a><br>
+	<a href="', Config::$scripturl, '?action=viewquery" target="_blank" rel="noopener">', $warnings == 0 ? sprintf($txt['debug_queries_used'], (int) Db::$count) : sprintf($txt['debug_queries_used_and_warnings'], (int) Db::$count, $warnings), '</a><br>
 	<br>';
 
 	if ($_SESSION['view_queries'] == 1 && !empty(Db::$cache))
@@ -311,10 +311,10 @@ function displayDebug()
 
 			// Make the filenames look a bit better.
 			if (isset($query_data['f']))
-				$query_data['f'] = preg_replace('~^' . preg_quote($boarddir, '~') . '~', '...', $query_data['f']);
+				$query_data['f'] = preg_replace('~^' . preg_quote(Config::$boarddir, '~') . '~', '...', $query_data['f']);
 
 			echo '
-	<strong>', $is_select ? '<a href="' . $scripturl . '?action=viewquery;qq=' . ($q + 1) . '#qq' . $q . '" target="_blank" rel="noopener" style="text-decoration: none;">' : '', nl2br(str_replace("\t", '&nbsp;&nbsp;&nbsp;', $smcFunc['htmlspecialchars'](ltrim($query_data['q'], "\n\r")))) . ($is_select ? '</a></strong>' : '</strong>') . '<br>
+	<strong>', $is_select ? '<a href="' . Config::$scripturl . '?action=viewquery;qq=' . ($q + 1) . '#qq' . $q . '" target="_blank" rel="noopener" style="text-decoration: none;">' : '', nl2br(str_replace("\t", '&nbsp;&nbsp;&nbsp;', Utils::htmlspecialchars(ltrim($query_data['q'], "\n\r")))) . ($is_select ? '</a></strong>' : '</strong>') . '<br>
 	&nbsp;&nbsp;&nbsp;';
 			if (!empty($query_data['f']) && !empty($query_data['l']))
 				echo sprintf($txt['debug_query_in_line'], $query_data['f'], $query_data['l']);
@@ -328,7 +328,7 @@ function displayDebug()
 		}
 
 	echo '
-	<a href="' . $scripturl . '?action=viewquery;sa=hide">', $txt['debug_' . (empty($_SESSION['view_queries']) ? 'show' : 'hide') . '_queries'], '</a>
+	<a href="' . Config::$scripturl . '?action=viewquery;sa=hide">', $txt['debug_' . (empty($_SESSION['view_queries']) ? 'show' : 'hide') . '_queries'], '</a>
 </div></body></html>';
 }
 
@@ -344,10 +344,9 @@ function displayDebug()
  */
 function trackStats($stats = array())
 {
-	global $modSettings, $smcFunc;
 	static $cache_stats = array();
 
-	if (empty($modSettings['trackStats']))
+	if (empty(Config::$modSettings['trackStats']))
 		return false;
 	if (!empty($stats))
 		return $cache_stats = array_merge($cache_stats, $stats);
@@ -372,15 +371,15 @@ function trackStats($stats = array())
 		$insert_keys[$field] = 'int';
 	}
 
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		UPDATE {db_prefix}log_activity
 		SET' . substr($setStringUpdate, 0, -1) . '
 		WHERE date = {date:current_date}',
 		$update_parameters
 	);
-	if ($smcFunc['db_affected_rows']() == 0)
+	if (Db::$db->affected_rows() == 0)
 	{
-		$smcFunc['db_insert']('ignore',
+		Db::$db->insert('ignore',
 			'{db_prefix}log_activity',
 			array_merge($insert_keys, array('date' => 'date')),
 			array_merge($cache_stats, array($date)),
@@ -435,7 +434,7 @@ function logAction($action, array $extra = array(), $log_type = 'moderate')
  */
 function logActions(array $logs)
 {
-	global $modSettings, $user_info, $smcFunc, $sourcedir, $txt;
+	global $user_info, $txt;
 
 	$inserts = array();
 	$log_types = array(
@@ -449,7 +448,7 @@ function logActions(array $logs)
 
 	foreach ($logs as $log)
 	{
-		if (!isset($log_types[$log['log_type']]) && (empty($modSettings[$log['log_type'] . 'log_enabled']) || !in_array($log['action'], $always_log)))
+		if (!isset($log_types[$log['log_type']]) && (empty(Config::$modSettings[$log['log_type'] . 'log_enabled']) || !in_array($log['action'], $always_log)))
 			continue;
 
 		if (!is_array($log['extra']))
@@ -489,7 +488,7 @@ function logActions(array $logs)
 		// Is there an associated report on this?
 		if (in_array($log['action'], array('move', 'remove', 'split', 'merge')))
 		{
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT id_report
 				FROM {db_prefix}log_reported
 				WHERE {raw:column_name} = {int:reported}
@@ -501,13 +500,13 @@ function logActions(array $logs)
 			);
 
 			// Alright, if we get any result back, update open reports.
-			if ($smcFunc['db_num_rows']($request) > 0)
+			if (Db::$db->num_rows($request) > 0)
 			{
-				require_once($sourcedir . '/Subs-ReportedContent.php');
-				updateSettings(array('last_mod_report_action' => time()));
+				require_once(Config::$sourcedir . '/Subs-ReportedContent.php');
+				Config::updateModSettings(array('last_mod_report_action' => time()));
 				recountOpenReports('posts');
 			}
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 		}
 
 		if (isset($log['extra']['member']) && !is_numeric($log['extra']['member']))
@@ -555,11 +554,11 @@ function logActions(array $logs)
 
 		$inserts[] = array(
 			time(), $log_types[$log['log_type']], $memID, $memIP, $log['action'],
-			$board_id, $topic_id, $msg_id, $smcFunc['json_encode']($log['extra']),
+			$board_id, $topic_id, $msg_id, Utils::jsonEncode($log['extra']),
 		);
 	}
 
-	$id_action = $smcFunc['db_insert']('',
+	$id_action = Db::$db->insert('',
 		'{db_prefix}log_actions',
 		array(
 			'log_time' => 'int', 'id_log' => 'int', 'id_member' => 'int', 'ip' => 'inet', 'action' => 'string',

@@ -13,6 +13,9 @@
 
 namespace SMF\Tasks;
 
+use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
+
 /**
  * This class contains code used to notify people when a new member new signs up.
  */
@@ -26,14 +29,12 @@ class Register_Notify extends BackgroundTask
 	 */
 	public function execute()
 	{
-		global $smcFunc, $sourcedir, $modSettings, $language, $scripturl;
-
 		// Get everyone who could be notified.
-		require_once($sourcedir . '/Subs-Members.php');
+		require_once(Config::$sourcedir . '/Subs-Members.php');
 		$members = membersAllowedTo('moderate_forum');
 
 		// Having successfully figured this out, now let's get the preferences of everyone.
-		require_once($sourcedir . '/Subs-Notify.php');
+		require_once(Config::$sourcedir . '/Subs-Notify.php');
 		$prefs = getNotifyPrefs($members, 'member_register', true);
 
 		// So now we find out who wants what.
@@ -70,7 +71,7 @@ class Register_Notify extends BackgroundTask
 				);
 			}
 
-			$smcFunc['db_insert']('insert',
+			Db::$db->insert('insert',
 				'{db_prefix}user_alerts',
 				array('alert_time' => 'int', 'id_member' => 'int', 'id_member_started' => 'int',
 					'member_name' => 'string', 'content_type' => 'string', 'content_id' => 'int',
@@ -87,13 +88,13 @@ class Register_Notify extends BackgroundTask
 		if (!empty($notifies['email']))
 		{
 			// Emails are a bit complicated. We have to do language stuff.
-			require_once($sourcedir . '/Subs-Post.php');
-			require_once($sourcedir . '/ScheduledTasks.php');
+			require_once(Config::$sourcedir . '/Subs-Post.php');
+			require_once(Config::$sourcedir . '/ScheduledTasks.php');
 			loadEssentialThemeData();
 
 			// First, get everyone's language and details.
 			$emails = array();
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT id_member, lngfile, email_address
 				FROM {db_prefix}members
 				WHERE id_member IN ({array_int:members})',
@@ -101,31 +102,31 @@ class Register_Notify extends BackgroundTask
 					'members' => $notifies['email'],
 				)
 			);
-			while ($row = $smcFunc['db_fetch_assoc']($request))
+			while ($row = Db::$db->fetch_assoc($request))
 			{
 				if (empty($row['lngfile']))
-					$row['lngfile'] = $language;
+					$row['lngfile'] = Config::$language;
 				$emails[$row['lngfile']][$row['id_member']] = $row['email_address'];
 			}
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 
 			// Second, iterate through each language, load the relevant templates and set up sending.
 			foreach ($emails as $this_lang => $recipients)
 			{
 				$replacements = array(
 					'USERNAME' => $this->_details['new_member_name'],
-					'PROFILELINK' => $scripturl . '?action=profile;u=' . $this->_details['new_member_id']
+					'PROFILELINK' => Config::$scripturl . '?action=profile;u=' . $this->_details['new_member_id']
 				);
 				$emailtype = 'admin_notify';
 
 				// If they need to be approved add more info...
 				if ($this->_details['notify_type'] == 'approval')
 				{
-					$replacements['APPROVALLINK'] = $scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve';
+					$replacements['APPROVALLINK'] = Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve';
 					$emailtype .= '_approval';
 				}
 
-				$emaildata = loadEmailTemplate($emailtype, $replacements, empty($modSettings['userLanguage']) ? $language : $this_lang);
+				$emaildata = loadEmailTemplate($emailtype, $replacements, empty(Config::$modSettings['userLanguage']) ? Config::$language : $this_lang);
 
 				// And do the actual sending...
 				foreach ($recipients as $id_member => $email_address)

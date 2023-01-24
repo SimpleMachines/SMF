@@ -49,7 +49,7 @@ class BrowserDetector
 	 * @var array
 	 *
 	 * Holds all the browser information.
-	 * Its contents will be placed into $context['browser']
+	 * Its contents will be placed into Utils::$context['browser']
 	 */
 	private array $_browsers = array();
 
@@ -105,7 +105,7 @@ class BrowserDetector
 	 */
 	public function detectBrowser()
 	{
-		global $context, $user_info;
+		global $user_info;
 
 		// Initialize some values we'll set differently if necessary...
 		$this->_browsers['needs_size_fix'] = false;
@@ -156,7 +156,7 @@ class BrowserDetector
 		$this->setupBrowserPriority();
 
 		// Now see what you've done!
-		$context['browser'] = $this->_browsers;
+		Utils::$context['browser'] = $this->_browsers;
 	}
 
 	/**
@@ -439,10 +439,8 @@ class BrowserDetector
 	 */
 	private function setupBrowserPriority()
 	{
-		global $context;
-
 		if ($this->_is_mobile)
-			$context['browser_body_id'] = 'mobile';
+			Utils::$context['browser_body_id'] = 'mobile';
 		else
 		{
 			// add in any specific detection conversions here if you want a special body id e.g. 'is_opera9' => 'opera9'
@@ -465,13 +463,13 @@ class BrowserDetector
 				'is_konqueror' => 'konqueror',
 			);
 
-			$context['browser_body_id'] = 'smf';
+			Utils::$context['browser_body_id'] = 'smf';
 			$active = array_reverse(array_keys($this->_browsers, true));
 			foreach ($active as $browser)
 			{
 				if (array_key_exists($browser, $browser_priority))
 				{
-					$context['browser_body_id'] = $browser_priority[$browser];
+					Utils::$context['browser_body_id'] = $browser_priority[$browser];
 					break;
 				}
 			}

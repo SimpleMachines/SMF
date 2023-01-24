@@ -18,6 +18,9 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
 use SMF\Graphics\Gif;
 
 if (!defined('SMF'))
@@ -40,21 +43,19 @@ if (!defined('SMF'))
  */
 function downloadAvatar($url, $memID, $max_width, $max_height)
 {
-	global $modSettings, $sourcedir, $smcFunc;
-
-	$ext = !empty($modSettings['avatar_download_png']) ? 'png' : 'jpeg';
+	$ext = !empty(Config::$modSettings['avatar_download_png']) ? 'png' : 'jpeg';
 	$destName = 'avatar_' . $memID . '_' . time() . '.' . $ext;
 
 	// Just making sure there is a non-zero member.
 	if (empty($memID))
 		return false;
 
-	require_once($sourcedir . '/ManageAttachments.php');
+	require_once(Config::$sourcedir . '/ManageAttachments.php');
 	removeAttachments(array('id_member' => $memID));
 
 	$id_folder = 1;
 	$avatar_hash = '';
-	$attachID = $smcFunc['db_insert']('',
+	$attachID = Db::$db->insert('',
 		'{db_prefix}attachments',
 		array(
 			'id_member' => 'int', 'attachment_type' => 'int', 'filename' => 'string-255', 'file_hash' => 'string-255', 'fileext' => 'string-8', 'size' => 'int',
@@ -69,16 +70,16 @@ function downloadAvatar($url, $memID, $max_width, $max_height)
 	);
 
 	// Retain this globally in case the script wants it.
-	$modSettings['new_avatar_data'] = array(
+	Config::$modSettings['new_avatar_data'] = array(
 		'id' => $attachID,
 		'filename' => $destName,
 		'type' => 1,
 	);
 
-	$destName = $modSettings['custom_avatar_dir'] . '/' . $destName . '.tmp';
+	$destName = Config::$modSettings['custom_avatar_dir'] . '/' . $destName . '.tmp';
 
 	// Resize it.
-	if (!empty($modSettings['avatar_download_png']))
+	if (!empty(Config::$modSettings['avatar_download_png']))
 		$success = resizeImageFile($url, $destName, $max_width, $max_height, 3);
 	else
 		$success = resizeImageFile($url, $destName, $max_width, $max_height);
@@ -95,7 +96,7 @@ function downloadAvatar($url, $memID, $max_width, $max_height)
 			$mime_type = 'image/' . $ext;
 
 			// Write filesize in the database.
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				UPDATE {db_prefix}attachments
 				SET size = {int:filesize}, width = {int:width}, height = {int:height},
 					mime_type = {string:mime_type}
@@ -115,7 +116,7 @@ function downloadAvatar($url, $memID, $max_width, $max_height)
 	}
 	else
 	{
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}attachments
 			WHERE id_attach = {int:current_attachment}',
 			array(
@@ -140,12 +141,10 @@ function downloadAvatar($url, $memID, $max_width, $max_height)
  */
 function createThumbnail($source, $max_width, $max_height)
 {
-	global $modSettings;
-
 	$destName = $source . '_thumb.tmp';
 
 	// Do the actual resize.
-	if (!empty($modSettings['attachment_thumb_png']))
+	if (!empty(Config::$modSettings['attachment_thumb_png']))
 		$success = resizeImageFile($source, $destName, $max_width, $max_height, 3);
 	else
 		$success = resizeImageFile($source, $destName, $max_width, $max_height);
@@ -351,10 +350,8 @@ function checkMagickWand()
  */
 function imageMemoryCheck($sizes)
 {
-	global $modSettings;
-
 	// doing the old 'set it and hope' way?
-	if (empty($modSettings['attachment_thumb_memory']))
+	if (empty(Config::$modSettings['attachment_thumb_memory']))
 	{
 		setMemoryLimit('128M');
 		return true;
@@ -384,8 +381,6 @@ function imageMemoryCheck($sizes)
  */
 function resizeImageFile($source, $destination, $max_width, $max_height, $preferred_format = 0)
 {
-	global $sourcedir;
-
 	// Nothing to do without GD or IM/MW
 	if (!checkGD() && !checkImagick() && !checkMagickWand())
 		return false;
@@ -481,7 +476,7 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
  */
 function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $max_height, $force_resize = false, $preferred_format = 0)
 {
-	global $gd2, $modSettings;
+	global $gd2;
 
 	$orientation = 0;
 	if (function_exists('exif_read_data') && ($exif_data = @exif_read_data($destName)) !== false && !empty($exif_data['Orientation']))
@@ -507,7 +502,7 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 			$dest_height = empty($max_height) ? $src_height : $max_height;
 
 			if ($default_formats[$preferred_format] == 'jpeg')
-				$imagick->setCompressionQuality(!empty($modSettings['avatar_jpeg_quality']) ? $modSettings['avatar_jpeg_quality'] : 82);
+				$imagick->setCompressionQuality(!empty(Config::$modSettings['avatar_jpeg_quality']) ? Config::$modSettings['avatar_jpeg_quality'] : 82);
 
 			$imagick->setImageFormat($default_formats[$preferred_format]);
 			$imagick->resizeImage($dest_width, $dest_height, Imagick::FILTER_LANCZOS, 1, true);
@@ -536,7 +531,7 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 			$dest_height = empty($max_height) ? $src_height : $max_height;
 
 			if ($default_formats[$preferred_format] == 'jpeg')
-				MagickSetCompressionQuality($magick_wand, !empty($modSettings['avatar_jpeg_quality']) ? $modSettings['avatar_jpeg_quality'] : 82);
+				MagickSetCompressionQuality($magick_wand, !empty(Config::$modSettings['avatar_jpeg_quality']) ? Config::$modSettings['avatar_jpeg_quality'] : 82);
 
 			MagickSetImageFormat($magick_wand, $default_formats[$preferred_format]);
 			MagickResizeImage($magick_wand, $dest_width, $dest_height, MW_LanczosFilter, 1, true);
@@ -630,7 +625,7 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 		elseif (!empty($preferred_format) && ($preferred_format == 15) && function_exists('imagewbmp'))
 			$success = imagewbmp($dst_img, $destName);
 		elseif (function_exists('imagejpeg'))
-			$success = imagejpeg($dst_img, $destName, !empty($modSettings['avatar_jpeg_quality']) ? $modSettings['avatar_jpeg_quality'] : 82);
+			$success = imagejpeg($dst_img, $destName, !empty(Config::$modSettings['avatar_jpeg_quality']) ? Config::$modSettings['avatar_jpeg_quality'] : 82);
 
 		// Free the memory.
 		imagedestroy($src_img);
@@ -917,12 +912,12 @@ function gif_outputAsPng($gif, $lpszFileName, $background_color = -1)
  */
 function showCodeImage($code)
 {
-	global $gd2, $settings, $user_info, $modSettings;
+	global $gd2, $settings, $user_info;
 
 	// Note: The higher the value of visual_verification_type the harder the verification is - from 0 as disabled through to 4 as "Very hard".
 
 	// What type are we going to be doing?
-	$imageType = $modSettings['visual_verification_type'];
+	$imageType = Config::$modSettings['visual_verification_type'];
 	// Special case to allow the admin center to show samples.
 	if ($user_info['is_admin'] && isset($_GET['type']))
 		$imageType = (int) $_GET['type'];

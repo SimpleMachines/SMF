@@ -15,7 +15,10 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Config;
+use SMF\Utils;
 use SMF\Cache\CacheApi;
+use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -28,22 +31,20 @@ if (!defined('SMF'))
  */
 function loadGeneralSettingParameters($subActions = array(), $defaultAction = null)
 {
-	global $context, $sourcedir;
-
 	// You need to be an admin to edit settings!
 	isAllowedTo('admin_forum');
 
 	// Will need the utility functions from here.
-	require_once($sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/ManageServer.php');
 
-	$context['sub_template'] = 'show_settings';
+	Utils::$context['sub_template'] = 'show_settings';
 
 	// If no fallback was specified, use the first subaction.
 	$defaultAction = $defaultAction ?: key($subActions);
 
 	// I want...
 	$_REQUEST['sa'] = isset($_REQUEST['sa'], $subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : $defaultAction;
-	$context['sub_action'] = $_REQUEST['sa'];
+	Utils::$context['sub_action'] = $_REQUEST['sa'];
 }
 
 /**
@@ -51,13 +52,13 @@ function loadGeneralSettingParameters($subActions = array(), $defaultAction = nu
  */
 function ModifyFeatureSettings()
 {
-	global $context, $txt, $settings, $scripturl, $modSettings, $language;
+	global $txt, $settings;
 
 	loadLanguage('Help');
 	loadLanguage('ManageSettings');
 
-	$context['page_title'] = $txt['modSettings_title'];
-	$context['show_privacy_policy_warning'] = empty($modSettings['policy_' . $language]);
+	Utils::$context['page_title'] = $txt['modSettings_title'];
+	Utils::$context['show_privacy_policy_warning'] = empty(Config::$modSettings['policy_' . Config::$language]);
 
 	$subActions = array(
 		'basic' => 'ModifyBasicSettings',
@@ -72,10 +73,10 @@ function ModifyFeatureSettings()
 	);
 
 	// Load up all the tabs...
-	$context[$context['admin_menu_name']]['tab_data'] = array(
+	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['modSettings_title'],
 		'help' => 'featuresettings',
-		'description' => sprintf($txt['modSettings_desc'], $settings['theme_id'], $context['session_id'], $context['session_var'], $scripturl),
+		'description' => sprintf($txt['modSettings_desc'], $settings['theme_id'], Utils::$context['session_id'], Utils::$context['session_var'], Config::$scripturl),
 		'tabs' => array(
 			'basic' => array(
 			),
@@ -113,12 +114,12 @@ function ModifyFeatureSettings()
  */
 function ModifyModSettings()
 {
-	global $context, $txt;
+	global $txt;
 
 	loadLanguage('Help');
 	loadLanguage('ManageSettings');
 
-	$context['page_title'] = $txt['admin_modifications'];
+	Utils::$context['page_title'] = $txt['admin_modifications'];
 
 	$subActions = array(
 		'general' => 'ModifyGeneralModSettings',
@@ -126,7 +127,7 @@ function ModifyModSettings()
 	);
 
 	// Load up all the tabs...
-	$context[$context['admin_menu_name']]['tab_data'] = array(
+	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['admin_modifications'],
 		'help' => 'modsettings',
 		'description' => $txt['modification_settings_desc'],
@@ -154,12 +155,12 @@ function ModifyModSettings()
  */
 function ModifyBasicSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $modSettings, $sourcedir;
+	global $txt;
 
 	// We need to know if personal text is enabled, and if it's in the registration fields option.
 	// If admins have set it up as an on-registration thing, they can't set a default value (because it'll never be used)
-	$disabled_fields = isset($modSettings['disabled_profile_fields']) ? explode(',', $modSettings['disabled_profile_fields']) : array();
-	$reg_fields = isset($modSettings['registration_fields']) ? explode(',', $modSettings['registration_fields']) : array();
+	$disabled_fields = isset(Config::$modSettings['disabled_profile_fields']) ? explode(',', Config::$modSettings['disabled_profile_fields']) : array();
+	$reg_fields = isset(Config::$modSettings['registration_fields']) ? explode(',', Config::$modSettings['registration_fields']) : array();
 	$can_personal_text = !in_array('personal_text', $disabled_fields) && !in_array('personal_text', $reg_fields);
 
 	$config_vars = array(
@@ -193,7 +194,7 @@ function ModifyBasicSettings($return_config = false)
 		array(
 			'text',
 			'jquery_custom',
-			'disabled' => !isset($modSettings['jquery_source']) || (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] != 'custom'), 'size' => 75
+			'disabled' => !isset(Config::$modSettings['jquery_source']) || (isset(Config::$modSettings['jquery_source']) && Config::$modSettings['jquery_source'] != 'custom'), 'size' => 75
 		),
 		'',
 
@@ -252,7 +253,7 @@ function ModifyBasicSettings($return_config = false)
 		// Make sure the country codes are valid.
 		if (!empty($_POST['timezone_priority_countries']))
 		{
-			require_once($sourcedir . '/Subs-Timezones.php');
+			require_once(Config::$sourcedir . '/Subs-Timezones.php');
 
 			$_POST['timezone_priority_countries'] = validate_iso_country_codes($_POST['timezone_priority_countries'], true);
 		}
@@ -267,15 +268,15 @@ function ModifyBasicSettings($return_config = false)
 		$_SESSION['adm-save'] = true;
 
 		// Do a bit of housekeeping
-		if (empty($_POST['minimize_files']) || $_POST['minimize_files'] != $modSettings['minimize_files'])
+		if (empty($_POST['minimize_files']) || $_POST['minimize_files'] != Config::$modSettings['minimize_files'])
 			deleteAllMinified();
 
 		writeLog();
 		redirectexit('action=admin;area=featuresettings;sa=basic');
 	}
 
-	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=basic';
-	$context['settings_title'] = $txt['mods_cat_features'];
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=basic';
+	Utils::$context['settings_title'] = $txt['mods_cat_features'];
 
 	prepareDBSettingContext($config_vars);
 }
@@ -291,7 +292,7 @@ function ModifyBasicSettings($return_config = false)
  */
 function ModifyBBCSettings($return_config = false)
 {
-	global $context, $txt, $modSettings, $scripturl, $sourcedir;
+	global $txt;
 
 	$config_vars = array(
 		// Main tweaks
@@ -308,15 +309,15 @@ function ModifyBBCSettings($return_config = false)
 	);
 
 	// Permissions for restricted BBC
-	if (!empty($context['restricted_bbc']))
+	if (!empty(Utils::$context['restricted_bbc']))
 		$config_vars[] = '';
 
-	foreach ($context['restricted_bbc'] as $bbc)
+	foreach (Utils::$context['restricted_bbc'] as $bbc)
 		$config_vars[] = array('permissions', 'bbc_' . $bbc, 'text_label' => sprintf($txt['groups_can_use'], '[' . $bbc . ']'));
 
-	$context['settings_post_javascript'] = '
-		toggleBBCDisabled(\'disabledBBC\', ' . (empty($modSettings['enableBBC']) ? 'true' : 'false') . ');
-		toggleBBCDisabled(\'legacyBBC\', ' . (empty($modSettings['enableBBC']) ? 'true' : 'false') . ');';
+	Utils::$context['settings_post_javascript'] = '
+		toggleBBCDisabled(\'disabledBBC\', ' . (empty(Config::$modSettings['enableBBC']) ? 'true' : 'false') . ');
+		toggleBBCDisabled(\'legacyBBC\', ' . (empty(Config::$modSettings['enableBBC']) ? 'true' : 'false') . ');';
 
 	call_integration_hook('integrate_modify_bbc_settings', array(&$config_vars));
 
@@ -324,15 +325,15 @@ function ModifyBBCSettings($return_config = false)
 		return $config_vars;
 
 	// Setup the template.
-	require_once($sourcedir . '/ManageServer.php');
-	$context['sub_template'] = 'show_settings';
-	$context['page_title'] = $txt['manageposts_bbc_settings_title'];
+	require_once(Config::$sourcedir . '/ManageServer.php');
+	Utils::$context['sub_template'] = 'show_settings';
+	Utils::$context['page_title'] = $txt['manageposts_bbc_settings_title'];
 
 	// Make sure we check the right tags!
-	$modSettings['bbc_disabled_disabledBBC'] = empty($modSettings['disabledBBC']) ? array() : explode(',', $modSettings['disabledBBC']);
+	Config::$modSettings['bbc_disabled_disabledBBC'] = empty(Config::$modSettings['disabledBBC']) ? array() : explode(',', Config::$modSettings['disabledBBC']);
 
 	// Legacy BBC are listed separately, but we use the same info in both cases
-	$modSettings['bbc_disabled_legacyBBC'] = $modSettings['bbc_disabled_disabledBBC'];
+	Config::$modSettings['bbc_disabled_legacyBBC'] = Config::$modSettings['bbc_disabled_disabledBBC'];
 
 	$extra = '';
 	if (isset($_REQUEST['cowsay']))
@@ -394,7 +395,7 @@ function ModifyBBCSettings($return_config = false)
 		// Work out what is actually disabled!
 		$_POST['disabledBBC'] = implode(',', array_diff($bbcTags, $_POST['disabledBBC_enabledTags']));
 
-		// $modSettings['legacyBBC'] isn't really a thing...
+		// Config::$modSettings['legacyBBC'] isn't really a thing...
 		unset($_POST['legacyBBC_enabledTags']);
 		$config_vars = array_filter($config_vars, function($config_var)
 		{
@@ -408,8 +409,8 @@ function ModifyBBCSettings($return_config = false)
 		redirectexit('action=admin;area=featuresettings;sa=bbc' . $extra);
 	}
 
-	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=bbc' . $extra;
-	$context['settings_title'] = $txt['manageposts_bbc_settings_title'];
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=bbc' . $extra;
+	Utils::$context['settings_title'] = $txt['manageposts_bbc_settings_title'];
 
 	prepareDBSettingContext($config_vars);
 }
@@ -423,7 +424,7 @@ function ModifyBBCSettings($return_config = false)
  */
 function ModifyLayoutSettings($return_config = false)
 {
-	global $txt, $scripturl, $context;
+	global $txt;
 
 	$config_vars = array(
 		// Pagination stuff.
@@ -465,8 +466,8 @@ function ModifyLayoutSettings($return_config = false)
 		redirectexit('action=admin;area=featuresettings;sa=layout');
 	}
 
-	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=layout';
-	$context['settings_title'] = $txt['mods_cat_layout'];
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=layout';
+	Utils::$context['settings_title'] = $txt['mods_cat_layout'];
 
 	prepareDBSettingContext($config_vars);
 }
@@ -480,7 +481,7 @@ function ModifyLayoutSettings($return_config = false)
  */
 function ModifyLikesSettings($return_config = false)
 {
-	global $txt, $scripturl, $context;
+	global $txt;
 
 	$config_vars = array(
 		array('check', 'enable_likes'),
@@ -504,8 +505,8 @@ function ModifyLikesSettings($return_config = false)
 		redirectexit('action=admin;area=featuresettings;sa=likes');
 	}
 
-	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=likes';
-	$context['settings_title'] = $txt['likes'];
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=likes';
+	Utils::$context['settings_title'] = $txt['likes'];
 
 	prepareDBSettingContext($config_vars);
 }
@@ -519,7 +520,7 @@ function ModifyLikesSettings($return_config = false)
  */
 function ModifyMentionsSettings($return_config = false)
 {
-	global $txt, $scripturl, $context;
+	global $txt;
 
 	$config_vars = array(
 		array('check', 'enable_mentions'),
@@ -543,8 +544,8 @@ function ModifyMentionsSettings($return_config = false)
 		redirectexit('action=admin;area=featuresettings;sa=mentions');
 	}
 
-	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=mentions';
-	$context['settings_title'] = $txt['mentions'];
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=mentions';
+	Utils::$context['settings_title'] = $txt['mentions'];
 
 	prepareDBSettingContext($config_vars);
 }
@@ -557,7 +558,7 @@ function ModifyMentionsSettings($return_config = false)
  */
 function ModifyWarningSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $modSettings, $sourcedir;
+	global $txt;
 
 	// You need to be an admin to edit settings!
 	isAllowedTo('admin_forum');
@@ -566,14 +567,14 @@ function ModifyWarningSettings($return_config = false)
 	loadLanguage('ManageSettings');
 
 	// We need the existing ones for this
-	list ($currently_enabled, $modSettings['user_limit'], $modSettings['warning_decrement']) = explode(',', $modSettings['warning_settings']);
+	list ($currently_enabled, Config::$modSettings['user_limit'], Config::$modSettings['warning_decrement']) = explode(',', Config::$modSettings['warning_settings']);
 
 	$config_vars = array(
 		// Warning system?
 		'enable' => array('check', 'warning_enable'),
 	);
 
-	if (!empty($modSettings['warning_settings']) && $currently_enabled)
+	if (!empty(Config::$modSettings['warning_settings']) && $currently_enabled)
 		$config_vars += array(
 			'',
 
@@ -612,11 +613,11 @@ function ModifyWarningSettings($return_config = false)
 		return $config_vars;
 
 	// Cannot use moderation if post moderation is not enabled.
-	if (!$modSettings['postmod_active'])
+	if (!Config::$modSettings['postmod_active'])
 		unset($config_vars['moderate']);
 
 	// Will need the utility functions from here.
-	require_once($sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/ManageServer.php');
 
 	// Saving?
 	if (isset($_GET['save']))
@@ -638,7 +639,7 @@ function ModifyWarningSettings($return_config = false)
 				'warning_watch' => 10,
 				'warning_mute' => 60,
 			);
-			if ($modSettings['postmod_active'])
+			if (Config::$modSettings['postmod_active'])
 				$vars['warning_moderate'] = 35;
 
 			foreach ($vars as $var => $value)
@@ -650,13 +651,13 @@ function ModifyWarningSettings($return_config = false)
 		else
 		{
 			$_POST['warning_watch'] = min($_POST['warning_watch'], 100);
-			$_POST['warning_moderate'] = $modSettings['postmod_active'] ? min($_POST['warning_moderate'], 100) : 0;
+			$_POST['warning_moderate'] = Config::$modSettings['postmod_active'] ? min($_POST['warning_moderate'], 100) : 0;
 			$_POST['warning_mute'] = min($_POST['warning_mute'], 100);
 		}
 
 		// We might not have these already depending on how we got here.
-		$_POST['user_limit'] = isset($_POST['user_limit']) ? (int) $_POST['user_limit'] : $modSettings['user_limit'];
-		$_POST['warning_decrement'] = isset($_POST['warning_decrement']) ? (int) $_POST['warning_decrement'] : $modSettings['warning_decrement'];
+		$_POST['user_limit'] = isset($_POST['user_limit']) ? (int) $_POST['user_limit'] : Config::$modSettings['user_limit'];
+		$_POST['warning_decrement'] = isset($_POST['warning_decrement']) ? (int) $_POST['warning_decrement'] : Config::$modSettings['warning_decrement'];
 
 		// Fix the warning setting array!
 		$_POST['warning_settings'] = (!empty($_POST['warning_enable']) ? 1 : 0) . ',' . min(100, $_POST['user_limit']) . ',' . min(100, $_POST['warning_decrement']);
@@ -672,14 +673,14 @@ function ModifyWarningSettings($return_config = false)
 	}
 
 	// We actually store lots of these together - for efficiency.
-	list ($modSettings['warning_enable'], $modSettings['user_limit'], $modSettings['warning_decrement']) = explode(',', $modSettings['warning_settings']);
+	list (Config::$modSettings['warning_enable'], Config::$modSettings['user_limit'], Config::$modSettings['warning_decrement']) = explode(',', Config::$modSettings['warning_settings']);
 
-	$context['sub_template'] = 'show_settings';
-	$context['post_url'] = $scripturl . '?action=admin;area=warnings;save';
-	$context['settings_title'] = $txt['warnings'];
-	$context['page_title'] = $txt['warnings'];
+	Utils::$context['sub_template'] = 'show_settings';
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=warnings;save';
+	Utils::$context['settings_title'] = $txt['warnings'];
+	Utils::$context['page_title'] = $txt['warnings'];
 
-	$context[$context['admin_menu_name']]['tab_data'] = array(
+	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['warnings'],
 		'help' => '',
 		'description' => $txt['warnings_desc'],
@@ -696,14 +697,14 @@ function ModifyWarningSettings($return_config = false)
  */
 function ModifyAntispamSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $modSettings, $smcFunc, $language, $sourcedir;
+	global $txt;
 
 	loadLanguage('Help');
 	loadLanguage('ManageSettings');
 
 	// Generate a sample registration image.
-	$context['use_graphic_library'] = in_array('gd', get_loaded_extensions());
-	$context['verification_image_href'] = $scripturl . '?action=verificationcode;rand=' . md5(mt_rand());
+	Utils::$context['use_graphic_library'] = in_array('gd', get_loaded_extensions());
+	Utils::$context['verification_image_href'] = Config::$scripturl . '?action=verificationcode;rand=' . md5(mt_rand());
 
 	$config_vars = array(
 		array('check', 'reg_verification'),
@@ -742,7 +743,7 @@ function ModifyAntispamSettings($return_config = false)
 				$txt['setting_image_verification_extreme']
 			),
 			'subtext' => $txt['setting_visual_verification_type_desc'],
-			'onchange' => $context['use_graphic_library'] ? 'refreshImages();' : ''
+			'onchange' => Utils::$context['use_graphic_library'] ? 'refreshImages();' : ''
 		),
 		// reCAPTCHA
 		array('title', 'recaptcha_configure'),
@@ -768,42 +769,42 @@ function ModifyAntispamSettings($return_config = false)
 
 	// Firstly, figure out what languages we're dealing with, and do a little processing for the form's benefit.
 	getLanguages();
-	$context['qa_languages'] = array();
-	foreach ($context['languages'] as $lang_id => $lang)
+	Utils::$context['qa_languages'] = array();
+	foreach (Utils::$context['languages'] as $lang_id => $lang)
 	{
 		$lang_id = strtr($lang_id, array('-utf8' => ''));
 		$lang['name'] = strtr($lang['name'], array('-utf8' => ''));
-		$context['qa_languages'][$lang_id] = $lang;
+		Utils::$context['qa_languages'][$lang_id] = $lang;
 	}
 
 	// Secondly, load any questions we currently have.
-	$context['question_answers'] = array();
-	$request = $smcFunc['db_query']('', '
+	Utils::$context['question_answers'] = array();
+	$request = Db::$db->query('', '
 		SELECT id_question, lngfile, question, answers
 		FROM {db_prefix}qanda'
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$lang = strtr($row['lngfile'], array('-utf8' => ''));
-		$context['question_answers'][$row['id_question']] = array(
+		Utils::$context['question_answers'][$row['id_question']] = array(
 			'lngfile' => $lang,
 			'question' => $row['question'],
-			'answers' => (array) $smcFunc['json_decode']($row['answers'], true),
+			'answers' => (array) Utils::jsonDecode($row['answers'], true),
 		);
-		$context['qa_by_lang'][$lang][] = $row['id_question'];
+		Utils::$context['qa_by_lang'][$lang][] = $row['id_question'];
 	}
 
-	if (empty($context['qa_by_lang'][strtr($language, array('-utf8' => ''))]) && !empty($context['question_answers']))
+	if (empty(Utils::$context['qa_by_lang'][strtr(Config::$language, array('-utf8' => ''))]) && !empty(Utils::$context['question_answers']))
 	{
-		if (empty($context['settings_insert_above']))
-			$context['settings_insert_above'] = '';
+		if (empty(Utils::$context['settings_insert_above']))
+			Utils::$context['settings_insert_above'] = '';
 
-		$context['settings_insert_above'] .= '<div class="noticebox">' . sprintf($txt['question_not_defined'], $context['languages'][$language]['name']) . '</div>';
+		Utils::$context['settings_insert_above'] .= '<div class="noticebox">' . sprintf($txt['question_not_defined'], Utils::$context['languages'][Config::$language]['name']) . '</div>';
 	}
 
 	// Thirdly, push some JavaScript for the form to make it work.
 	addInlineJavaScript('
-	var nextrow = ' . (!empty($context['question_answers']) ? max(array_keys($context['question_answers'])) + 1 : 1) . ';
+	var nextrow = ' . (!empty(Utils::$context['question_answers']) ? max(array_keys(Utils::$context['question_answers'])) + 1 : 1) . ';
 	$(".qa_link a").click(function() {
 		var id = $(this).parent().attr("id").substring(6);
 		$("#qa_fs_" + id).show();
@@ -824,10 +825,10 @@ function ModifyAntispamSettings($return_config = false)
 		$(\'<input type="text" name="\' + attr + \'" value="" size="50" class="verification_answer">\').insertBefore($(this).closest("div"));
 		return false;
 	});
-	$("#qa_dt_' . strtr($language, array('-utf8' => '')) . ' a").click();', true);
+	$("#qa_dt_' . strtr(Config::$language, array('-utf8' => '')) . ' a").click();', true);
 
 	// Will need the utility functions from here.
-	require_once($sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/ManageServer.php');
 
 	// Saving?
 	if (isset($_GET['save']))
@@ -853,15 +854,15 @@ function ModifyAntispamSettings($return_config = false)
 			'delete' => array(),
 		);
 		$qs_per_lang = array();
-		foreach ($context['qa_languages'] as $lang_id => $dummy)
+		foreach (Utils::$context['qa_languages'] as $lang_id => $dummy)
 		{
 			// If we had some questions for this language before, but don't now, delete everything from that language.
-			if ((!isset($_POST['question'][$lang_id]) || !is_array($_POST['question'][$lang_id])) && !empty($context['qa_by_lang'][$lang_id]))
-				$changes['delete'] = array_merge($changes['delete'], $context['qa_by_lang'][$lang_id]);
+			if ((!isset($_POST['question'][$lang_id]) || !is_array($_POST['question'][$lang_id])) && !empty(Utils::$context['qa_by_lang'][$lang_id]))
+				$changes['delete'] = array_merge($changes['delete'], Utils::$context['qa_by_lang'][$lang_id]);
 
 			// Now step through and see if any existing questions no longer exist.
-			if (!empty($context['qa_by_lang'][$lang_id]))
-				foreach ($context['qa_by_lang'][$lang_id] as $q_id)
+			if (!empty(Utils::$context['qa_by_lang'][$lang_id]))
+				foreach (Utils::$context['qa_by_lang'][$lang_id] as $q_id)
 					if (empty($_POST['question'][$lang_id][$q_id]))
 						$changes['delete'][] = $q_id;
 
@@ -878,16 +879,16 @@ function ModifyAntispamSettings($return_config = false)
 					// Check the question isn't empty (because they want to delete it?)
 					if (empty($question) || trim($question) == '')
 					{
-						if (isset($context['question_answers'][$q_id]))
+						if (isset(Utils::$context['question_answers'][$q_id]))
 							$changes['delete'][] = $q_id;
 						continue;
 					}
-					$question = $smcFunc['htmlspecialchars'](trim($question));
+					$question = Utils::htmlspecialchars(trim($question));
 
 					// Get the answers. Firstly check there actually might be some.
 					if (!isset($_POST['answer'][$lang_id][$q_id]) || !is_array($_POST['answer'][$lang_id][$q_id]))
 					{
-						if (isset($context['question_answers'][$q_id]))
+						if (isset(Utils::$context['question_answers'][$q_id]))
 							$changes['delete'][] = $q_id;
 						continue;
 					}
@@ -895,17 +896,17 @@ function ModifyAntispamSettings($return_config = false)
 					$answers = array();
 					foreach ($_POST['answer'][$lang_id][$q_id] as $answer)
 						if (!empty($answer) && trim($answer) !== '')
-							$answers[] = $smcFunc['htmlspecialchars'](trim($answer));
+							$answers[] = Utils::htmlspecialchars(trim($answer));
 					if (empty($answers))
 					{
-						if (isset($context['question_answers'][$q_id]))
+						if (isset(Utils::$context['question_answers'][$q_id]))
 							$changes['delete'][] = $q_id;
 						continue;
 					}
-					$answers = $smcFunc['json_encode']($answers);
+					$answers = Utils::jsonEncode($answers);
 
 					// At this point we know we have a question and some answers. What are we doing with it?
-					if (!isset($context['question_answers'][$q_id]))
+					if (!isset(Utils::$context['question_answers'][$q_id]))
 					{
 						// New question. Now, we don't want to randomly consume ids, so we'll set those, rather than trusting the browser's supplied ids.
 						$changes['insert'][] = array($lang_id, $question, $answers);
@@ -913,7 +914,7 @@ function ModifyAntispamSettings($return_config = false)
 					else
 					{
 						// It's an existing question. Let's see what's changed, if anything.
-						if ($lang_id != $context['question_answers'][$q_id]['lngfile'] || $question != $context['question_answers'][$q_id]['question'] || $answers != $context['question_answers'][$q_id]['answers'])
+						if ($lang_id != Utils::$context['question_answers'][$q_id]['lngfile'] || $question != Utils::$context['question_answers'][$q_id]['question'] || $answers != Utils::$context['question_answers'][$q_id]['answers'])
 							$changes['replace'][$q_id] = array('lngfile' => $lang_id, 'question' => $question, 'answers' => $answers);
 					}
 
@@ -927,7 +928,7 @@ function ModifyAntispamSettings($return_config = false)
 		// OK, so changes?
 		if (!empty($changes['delete']))
 		{
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				DELETE FROM {db_prefix}qanda
 				WHERE id_question IN ({array_int:questions})',
 				array(
@@ -940,7 +941,7 @@ function ModifyAntispamSettings($return_config = false)
 		{
 			foreach ($changes['replace'] as $q_id => $question)
 			{
-				$smcFunc['db_query']('', '
+				Db::$db->query('', '
 					UPDATE {db_prefix}qanda
 					SET lngfile = {string:lngfile},
 						question = {string:question},
@@ -958,7 +959,7 @@ function ModifyAntispamSettings($return_config = false)
 
 		if (!empty($changes['insert']))
 		{
-			$smcFunc['db_insert']('insert',
+			Db::$db->insert('insert',
 				'{db_prefix}qanda',
 				array('lngfile' => 'string-50', 'question' => 'string-255', 'answers' => 'string-65534'),
 				$changes['insert'],
@@ -988,40 +989,40 @@ function ModifyAntispamSettings($return_config = false)
 		$_SESSION['visual_verification_code'] .= $character_range[array_rand($character_range)];
 
 	// Some javascript for CAPTCHA.
-	$context['settings_post_javascript'] = '';
-	if ($context['use_graphic_library'])
-		$context['settings_post_javascript'] .= '
+	Utils::$context['settings_post_javascript'] = '';
+	if (Utils::$context['use_graphic_library'])
+		Utils::$context['settings_post_javascript'] .= '
 		function refreshImages()
 		{
 			var imageType = document.getElementById(\'visual_verification_type\').value;
-			document.getElementById(\'verification_image\').src = \'' . $context['verification_image_href'] . ';type=\' + imageType;
+			document.getElementById(\'verification_image\').src = \'' . Utils::$context['verification_image_href'] . ';type=\' + imageType;
 		}';
 
 	// Show the image itself, or text saying we can't.
-	if ($context['use_graphic_library'])
-		$config_vars['vv']['postinput'] = '<br><img src="' . $context['verification_image_href'] . ';type=' . (empty($modSettings['visual_verification_type']) ? 0 : $modSettings['visual_verification_type']) . '" alt="' . $txt['setting_image_verification_sample'] . '" id="verification_image"><br>';
+	if (Utils::$context['use_graphic_library'])
+		$config_vars['vv']['postinput'] = '<br><img src="' . Utils::$context['verification_image_href'] . ';type=' . (empty(Config::$modSettings['visual_verification_type']) ? 0 : Config::$modSettings['visual_verification_type']) . '" alt="' . $txt['setting_image_verification_sample'] . '" id="verification_image"><br>';
 	else
 		$config_vars['vv']['postinput'] = '<br><span class="smalltext">' . $txt['setting_image_verification_nogd'] . '</span>';
 
 	// Hack for PM spam settings.
-	list ($modSettings['max_pm_recipients'], $modSettings['pm_posts_verification'], $modSettings['pm_posts_per_hour']) = explode(',', $modSettings['pm_spam_settings']);
+	list (Config::$modSettings['max_pm_recipients'], Config::$modSettings['pm_posts_verification'], Config::$modSettings['pm_posts_per_hour']) = explode(',', Config::$modSettings['pm_spam_settings']);
 
 	// Hack for guests requiring verification.
-	$modSettings['guests_require_captcha'] = !empty($modSettings['posts_require_captcha']);
-	$modSettings['posts_require_captcha'] = !isset($modSettings['posts_require_captcha']) || $modSettings['posts_require_captcha'] == -1 ? 0 : $modSettings['posts_require_captcha'];
+	Config::$modSettings['guests_require_captcha'] = !empty(Config::$modSettings['posts_require_captcha']);
+	Config::$modSettings['posts_require_captcha'] = !isset(Config::$modSettings['posts_require_captcha']) || Config::$modSettings['posts_require_captcha'] == -1 ? 0 : Config::$modSettings['posts_require_captcha'];
 
 	// Some minor javascript for the guest post setting.
-	if ($modSettings['posts_require_captcha'])
-		$context['settings_post_javascript'] .= '
+	if (Config::$modSettings['posts_require_captcha'])
+		Utils::$context['settings_post_javascript'] .= '
 		document.getElementById(\'guests_require_captcha\').disabled = true;';
 
 	// And everything else.
-	$context['post_url'] = $scripturl . '?action=admin;area=antispam;save';
-	$context['settings_title'] = $txt['antispam_Settings'];
-	$context['page_title'] = $txt['antispam_title'];
-	$context['sub_template'] = 'show_settings';
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=antispam;save';
+	Utils::$context['settings_title'] = $txt['antispam_Settings'];
+	Utils::$context['page_title'] = $txt['antispam_title'];
+	Utils::$context['sub_template'] = 'show_settings';
 
-	$context[$context['admin_menu_name']]['tab_data'] = array(
+	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['antispam_title'],
 		'description' => $txt['antispam_Settings_desc'],
 	);
@@ -1037,7 +1038,7 @@ function ModifyAntispamSettings($return_config = false)
  */
 function ModifySignatureSettings($return_config = false)
 {
-	global $context, $txt, $modSettings, $sig_start, $smcFunc, $scripturl;
+	global $txt, $sig_start;
 
 	$config_vars = array(
 		// Are signatures even enabled?
@@ -1067,14 +1068,14 @@ function ModifySignatureSettings($return_config = false)
 		return $config_vars;
 
 	// Setup the template.
-	$context['page_title'] = $txt['signature_settings'];
-	$context['sub_template'] = 'show_settings';
+	Utils::$context['page_title'] = $txt['signature_settings'];
+	Utils::$context['sub_template'] = 'show_settings';
 
 	// Disable the max smileys option if we don't allow smileys at all!
-	$context['settings_post_javascript'] = 'document.getElementById(\'signature_max_smileys\').disabled = !document.getElementById(\'signature_allow_smileys\').checked;';
+	Utils::$context['settings_post_javascript'] = 'document.getElementById(\'signature_max_smileys\').disabled = !document.getElementById(\'signature_allow_smileys\').checked;';
 
 	// Load all the signature settings.
-	list ($sig_limits, $sig_bbc) = explode(':', $modSettings['signature_settings']);
+	list ($sig_limits, $sig_bbc) = explode(':', Config::$modSettings['signature_settings']);
 	$sig_limits = explode(',', $sig_limits);
 	$disabledTags = !empty($sig_bbc) ? explode(',', $sig_bbc) : array();
 
@@ -1089,20 +1090,20 @@ function ModifySignatureSettings($return_config = false)
 		$_GET['step'] = isset($_GET['step']) ? (int) $_GET['step'] : 0;
 		$done = false;
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT MAX(id_member)
 			FROM {db_prefix}members',
 			array(
 			)
 		);
-		list ($context['max_member']) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		list (Utils::$context['max_member']) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 
 		while (!$done)
 		{
 			$changes = array();
 
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT id_member, signature
 				FROM {db_prefix}members
 				WHERE id_member BETWEEN {int:step} AND {int:step} + 49
@@ -1113,14 +1114,14 @@ function ModifySignatureSettings($return_config = false)
 					'step' => $_GET['step'],
 				)
 			);
-			while ($row = $smcFunc['db_fetch_assoc']($request))
+			while ($row = Db::$db->fetch_assoc($request))
 			{
 				// Apply all the rules we can realistically do.
 				$sig = strtr($row['signature'], array('<br>' => "\n"));
 
 				// Max characters...
 				if (!empty($sig_limits[1]))
-					$sig = $smcFunc['substr']($sig, 0, $sig_limits[1]);
+					$sig = Utils::entitySubstr($sig, 0, $sig_limits[1]);
 				// Max lines...
 				if (!empty($sig_limits[2]))
 				{
@@ -1286,15 +1287,15 @@ function ModifySignatureSettings($return_config = false)
 				if ($sig != $row['signature'])
 					$changes[$row['id_member']] = $sig;
 			}
-			if ($smcFunc['db_num_rows']($request) == 0)
+			if (Db::$db->num_rows($request) == 0)
 				$done = true;
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 
 			// Do we need to delete what we have?
 			if (!empty($changes))
 			{
 				foreach ($changes as $id => $sig)
-					$smcFunc['db_query']('', '
+					Db::$db->query('', '
 						UPDATE {db_prefix}members
 						SET signature = {string:signature}
 						WHERE id_member = {int:id_member}',
@@ -1312,7 +1313,7 @@ function ModifySignatureSettings($return_config = false)
 		$settings_applied = true;
 	}
 
-	$context['signature_settings'] = array(
+	Utils::$context['signature_settings'] = array(
 		'enable' => isset($sig_limits[0]) ? $sig_limits[0] : 0,
 		'max_length' => isset($sig_limits[1]) ? $sig_limits[1] : 0,
 		'max_lines' => isset($sig_limits[2]) ? $sig_limits[2] : 0,
@@ -1325,11 +1326,11 @@ function ModifySignatureSettings($return_config = false)
 	);
 
 	// Temporarily make each setting a modSetting!
-	foreach ($context['signature_settings'] as $key => $value)
-		$modSettings['signature_' . $key] = $value;
+	foreach (Utils::$context['signature_settings'] as $key => $value)
+		Config::$modSettings['signature_' . $key] = $value;
 
 	// Make sure we check the right tags!
-	$modSettings['bbc_disabled_signature_bbc'] = $disabledTags;
+	Config::$modSettings['bbc_disabled_signature_bbc'] = $disabledTags;
 
 	// Saving?
 	if (isset($_GET['save']))
@@ -1347,7 +1348,7 @@ function ModifySignatureSettings($return_config = false)
 			$_POST['signature_bbc_enabledTags'] = array($_POST['signature_bbc_enabledTags']);
 
 		$sig_limits = array();
-		foreach ($context['signature_settings'] as $key => $value)
+		foreach (Utils::$context['signature_settings'] as $key => $value)
 		{
 			if ($key == 'allow_smileys')
 				continue;
@@ -1370,18 +1371,18 @@ function ModifySignatureSettings($return_config = false)
 		redirectexit('action=admin;area=featuresettings;sa=sig');
 	}
 
-	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=sig';
-	$context['settings_title'] = $txt['signature_settings'];
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=sig';
+	Utils::$context['settings_title'] = $txt['signature_settings'];
 
 	if (!empty($settings_applied))
-		$context['settings_message'] = array(
+		Utils::$context['settings_message'] = array(
 			'label' => $txt['signature_settings_applied'],
 			'tag' => 'div',
 			'class' => 'infobox'
 		);
 	else
-		$context['settings_message'] = array(
-			'label' => sprintf($txt['signature_settings_warning'], $context['session_id'], $context['session_var'], $scripturl),
+		Utils::$context['settings_message'] = array(
+			'label' => sprintf($txt['signature_settings_warning'], Utils::$context['session_id'], Utils::$context['session_var'], Config::$scripturl),
 			'tag' => 'div',
 			'class' => 'centertext'
 		);
@@ -1394,7 +1395,7 @@ function ModifySignatureSettings($return_config = false)
  */
 function pauseSignatureApplySettings()
 {
-	global $context, $txt, $sig_start;
+	global $txt, $sig_start;
 
 	// Try get more time...
 	@set_time_limit(600);
@@ -1405,20 +1406,20 @@ function pauseSignatureApplySettings()
 	if (time() - array_sum(explode(' ', $sig_start)) < 3)
 		return;
 
-	$context['continue_get_data'] = '?action=admin;area=featuresettings;sa=sig;apply;step=' . $_GET['step'] . ';' . $context['session_var'] . '=' . $context['session_id'];
-	$context['page_title'] = $txt['not_done_title'];
-	$context['continue_post_data'] = '';
-	$context['continue_countdown'] = '2';
-	$context['sub_template'] = 'not_done';
+	Utils::$context['continue_get_data'] = '?action=admin;area=featuresettings;sa=sig;apply;step=' . $_GET['step'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
+	Utils::$context['page_title'] = $txt['not_done_title'];
+	Utils::$context['continue_post_data'] = '';
+	Utils::$context['continue_countdown'] = '2';
+	Utils::$context['sub_template'] = 'not_done';
 
 	// Specific stuff to not break this template!
-	$context[$context['admin_menu_name']]['current_subsection'] = 'sig';
+	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'sig';
 
 	// Get the right percent.
-	$context['continue_percent'] = round(($_GET['step'] / $context['max_member']) * 100);
+	Utils::$context['continue_percent'] = round(($_GET['step'] / Utils::$context['max_member']) * 100);
 
 	// Never more than 100%!
-	$context['continue_percent'] = min($context['continue_percent'], 100);
+	Utils::$context['continue_percent'] = min(Utils::$context['continue_percent'], 100);
 
 	obExit();
 }
@@ -1428,16 +1429,15 @@ function pauseSignatureApplySettings()
  */
 function ShowCustomProfiles()
 {
-	global $txt, $scripturl, $context;
-	global $sourcedir;
+	global $txt;
 
-	$context['page_title'] = $txt['custom_profile_title'];
-	$context['sub_template'] = 'show_custom_profile';
+	Utils::$context['page_title'] = $txt['custom_profile_title'];
+	Utils::$context['sub_template'] = 'show_custom_profile';
 
 	// What about standard fields they can tweak?
 	$standard_fields = array('website', 'personal_text', 'timezone', 'posts', 'warning_status');
 	// What fields can't you put on the registration page?
-	$context['fields_no_registration'] = array('posts', 'warning_status');
+	Utils::$context['fields_no_registration'] = array('posts', 'warning_status');
 
 	// Are we saving any standard field changes?
 	if (isset($_POST['save']))
@@ -1469,20 +1469,20 @@ function ShowCustomProfiles()
 
 		$_SESSION['adm-save'] = true;
 		if (!empty($changes))
-			updateSettings($changes);
+			Config::updateModSettings($changes);
 	}
 
 	createToken('admin-scp');
 
 	// Need to know the max order for custom fields
-	$context['custFieldsMaxOrder'] = custFieldsMaxOrder();
+	Utils::$context['custFieldsMaxOrder'] = custFieldsMaxOrder();
 
-	require_once($sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/Subs-List.php');
 
 	$listOptions = array(
 		'id' => 'standard_profile_fields',
 		'title' => $txt['standard_profile_title'],
-		'base_href' => $scripturl . '?action=admin;area=featuresettings;sa=profile',
+		'base_href' => Config::$scripturl . '?action=admin;area=featuresettings;sa=profile',
 		'get_items' => array(
 			'function' => 'list_getProfileFields',
 			'params' => array(
@@ -1533,7 +1533,7 @@ function ShowCustomProfiles()
 			),
 		),
 		'form' => array(
-			'href' => $scripturl . '?action=admin;area=featuresettings;sa=profile',
+			'href' => Config::$scripturl . '?action=admin;area=featuresettings;sa=profile',
 			'name' => 'standardProfileFields',
 			'token' => 'admin-scp',
 		),
@@ -1549,7 +1549,7 @@ function ShowCustomProfiles()
 	$listOptions = array(
 		'id' => 'custom_profile_fields',
 		'title' => $txt['custom_profile_title'],
-		'base_href' => $scripturl . '?action=admin;area=featuresettings;sa=profile',
+		'base_href' => Config::$scripturl . '?action=admin;area=featuresettings;sa=profile',
 		'default_sort_col' => 'field_order',
 		'no_items_label' => $txt['custom_profile_none'],
 		'items_per_page' => 25,
@@ -1568,15 +1568,15 @@ function ShowCustomProfiles()
 					'value' => $txt['custom_profile_fieldorder'],
 				),
 				'data' => array(
-					'function' => function($rowData) use ($context, $txt, $scripturl)
+					'function' => function($rowData) use ($txt)
 					{
 						$return = '<p class="centertext bold_text">';
 
 						if ($rowData['field_order'] > 1)
-							$return .= '<a href="' . $scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=up"><span class="toggle_up" title="' . $txt['custom_edit_order_move'] . ' ' . $txt['custom_edit_order_up'] . '"></span></a>';
+							$return .= '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=up"><span class="toggle_up" title="' . $txt['custom_edit_order_move'] . ' ' . $txt['custom_edit_order_up'] . '"></span></a>';
 
-						if ($rowData['field_order'] < $context['custFieldsMaxOrder'])
-							$return .= '<a href="' . $scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=down"><span class="toggle_down" title="' . $txt['custom_edit_order_move'] . ' ' . $txt['custom_edit_order_down'] . '"></span></a>';
+						if ($rowData['field_order'] < Utils::$context['custFieldsMaxOrder'])
+							$return .= '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=down"><span class="toggle_down" title="' . $txt['custom_edit_order_move'] . ' ' . $txt['custom_edit_order_down'] . '"></span></a>';
 
 						$return .= '</p>';
 
@@ -1594,13 +1594,13 @@ function ShowCustomProfiles()
 					'value' => $txt['custom_profile_fieldname'],
 				),
 				'data' => array(
-					'function' => function($rowData) use ($scripturl)
+					'function' => function($rowData)
 					{
 						$field_name = tokenTxtReplace($rowData['field_name']);
 						$field_desc = tokenTxtReplace($rowData['field_desc']);
 
 						return sprintf('<a href="%1$s?action=admin;area=featuresettings;sa=profileedit;fid=%2$d">%3$s</a><div class="smalltext">%4$s</div>',
-							$scripturl,
+							Config::$scripturl,
 							$rowData['id_field'],
 							$field_name,
 							$field_desc);
@@ -1652,9 +1652,9 @@ function ShowCustomProfiles()
 				'data' => array(
 					'function' => function($rowData)
 					{
-						global $txt, $context;
+						global $txt;
 
-						return $txt['custom_profile_placement_' . (empty($rowData['placement']) ? 'standard' : $context['cust_profile_fields_placement'][$rowData['placement']])];
+						return $txt['custom_profile_placement_' . (empty($rowData['placement']) ? 'standard' : Utils::$context['cust_profile_fields_placement'][$rowData['placement']])];
 					},
 					'style' => 'width: 8%;',
 				),
@@ -1666,7 +1666,7 @@ function ShowCustomProfiles()
 			'show_on_registration' => array(
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<a href="' . $scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=%1$s">' . $txt['modify'] . '</a>',
+						'format' => '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=%1$s">' . $txt['modify'] . '</a>',
 						'params' => array(
 							'id_field' => false,
 						),
@@ -1676,7 +1676,7 @@ function ShowCustomProfiles()
 			),
 		),
 		'form' => array(
-			'href' => $scripturl . '?action=admin;area=featuresettings;sa=profileedit',
+			'href' => Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit',
 			'name' => 'customProfileFields',
 		),
 		'additional_rows' => array(
@@ -1692,7 +1692,7 @@ function ShowCustomProfiles()
 	// the same basic thing.
 	if (isset($_SESSION['adm-save']))
 	{
-		$context['saved_successful'] = true;
+		Utils::$context['saved_successful'] = true;
 		unset ($_SESSION['adm-save']);
 	}
 }
@@ -1708,7 +1708,7 @@ function ShowCustomProfiles()
  */
 function list_getProfileFields($start, $items_per_page, $sort, $standardFields)
 {
-	global $txt, $modSettings, $smcFunc;
+	global $txt;
 
 	$list = array();
 
@@ -1716,8 +1716,8 @@ function list_getProfileFields($start, $items_per_page, $sort, $standardFields)
 	{
 		$standard_fields = array('website', 'personal_text', 'timezone', 'posts', 'warning_status');
 		$fields_no_registration = array('posts', 'warning_status');
-		$disabled_fields = isset($modSettings['disabled_profile_fields']) ? explode(',', $modSettings['disabled_profile_fields']) : array();
-		$registration_fields = isset($modSettings['registration_fields']) ? explode(',', $modSettings['registration_fields']) : array();
+		$disabled_fields = isset(Config::$modSettings['disabled_profile_fields']) ? explode(',', Config::$modSettings['disabled_profile_fields']) : array();
+		$registration_fields = isset(Config::$modSettings['registration_fields']) ? explode(',', Config::$modSettings['registration_fields']) : array();
 
 		foreach ($standard_fields as $field)
 			$list[] = array(
@@ -1731,7 +1731,7 @@ function list_getProfileFields($start, $items_per_page, $sort, $standardFields)
 	else
 	{
 		// Load all the fields.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_field, col_name, field_name, field_desc, field_type, field_order, active, placement
 			FROM {db_prefix}custom_fields
 			ORDER BY {raw:sort}
@@ -1742,9 +1742,9 @@ function list_getProfileFields($start, $items_per_page, $sort, $standardFields)
 				'items_per_page' => $items_per_page,
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$list[] = $row;
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 	}
 
 	return $list;
@@ -1757,17 +1757,15 @@ function list_getProfileFields($start, $items_per_page, $sort, $standardFields)
  */
 function list_getProfileFieldSize()
 {
-	global $smcFunc;
-
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}custom_fields',
 		array(
 		)
 	);
 
-	list ($numProfileFields) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($numProfileFields) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	return $numProfileFields;
 }
@@ -1777,13 +1775,13 @@ function list_getProfileFieldSize()
  */
 function EditCustomProfiles()
 {
-	global $txt, $scripturl, $context, $smcFunc;
+	global $txt;
 
 	// Sort out the context!
-	$context['fid'] = isset($_GET['fid']) ? (int) $_GET['fid'] : 0;
-	$context[$context['admin_menu_name']]['current_subsection'] = 'profile';
-	$context['page_title'] = $context['fid'] ? $txt['custom_edit_title'] : $txt['custom_add_title'];
-	$context['sub_template'] = 'edit_profile_field';
+	Utils::$context['fid'] = isset($_GET['fid']) ? (int) $_GET['fid'] : 0;
+	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'profile';
+	Utils::$context['page_title'] = Utils::$context['fid'] ? $txt['custom_edit_title'] : $txt['custom_add_title'];
+	Utils::$context['sub_template'] = 'edit_profile_field';
 
 	// Load the profile language for section names.
 	loadLanguage('Profile');
@@ -1794,9 +1792,9 @@ function EditCustomProfiles()
 	// We need this for both moving and saving so put it right here.
 	$order_count = custFieldsMaxOrder();
 
-	if ($context['fid'] && !isset($_GET['move']))
+	if (Utils::$context['fid'] && !isset($_GET['move']))
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT
 				id_field, col_name, field_name, field_desc, field_type, field_order, field_length, field_options,
 				show_reg, show_display, show_mlist, show_profile, private, active, default_value, can_search,
@@ -1804,11 +1802,11 @@ function EditCustomProfiles()
 			FROM {db_prefix}custom_fields
 			WHERE id_field = {int:current_field}',
 			array(
-				'current_field' => $context['fid'],
+				'current_field' => Utils::$context['fid'],
 			)
 		);
-		$context['field'] = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		Utils::$context['field'] = array();
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			if ($row['field_type'] == 'textarea')
 				@list ($rows, $cols) = @explode(',', $row['default_value']);
@@ -1818,7 +1816,7 @@ function EditCustomProfiles()
 				$cols = 30;
 			}
 
-			$context['field'] = array(
+			Utils::$context['field'] = array(
 				'name' => $row['field_name'],
 				'desc' => $row['field_desc'],
 				'col_name' => $row['col_name'],
@@ -1844,12 +1842,12 @@ function EditCustomProfiles()
 				'placement' => $row['placement'],
 			);
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 	}
 
 	// Setup the default values as needed.
-	if (empty($context['field']))
-		$context['field'] = array(
+	if (empty(Utils::$context['field']))
+		Utils::$context['field'] = array(
 			'name' => '',
 			'col_name' => '???',
 			'desc' => '',
@@ -1876,9 +1874,9 @@ function EditCustomProfiles()
 		);
 
 	// Are we moving it?
-	if ($context['fid'] && isset($_GET['move']) && in_array($smcFunc['htmlspecialchars']($_GET['move']), $move_to))
+	if (Utils::$context['fid'] && isset($_GET['move']) && in_array(Utils::htmlspecialchars($_GET['move']), $move_to))
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT
 				id_field, field_order
 			FROM {db_prefix}custom_fields
@@ -1888,11 +1886,11 @@ function EditCustomProfiles()
 		$fields = array();
 		$new_sort = array();
 
-		while($row = $smcFunc['db_fetch_assoc']($request))
+		while($row = Db::$db->fetch_assoc($request))
 				$fields[] = $row['id_field'];
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
-		$idx = array_search($context['fid'], $fields);
+		$idx = array_search(Utils::$context['fid'], $fields);
 
 		if ($_GET['move'] == 'down' && count($fields) - 1 > $idx )
 		{
@@ -1901,7 +1899,7 @@ function EditCustomProfiles()
 				$new_sort[] = $fields[$idx];
 				$new_sort += array_slice($fields ,$idx + 2 ,count($fields) ,true);
 		}
-		elseif ($context['fid'] > 0 and $idx < count($fields))
+		elseif (Utils::$context['fid'] > 0 and $idx < count($fields))
 		{
 				$new_sort = array_slice($fields ,0 ,($idx - 1) ,true);
 				$new_sort[] = $fields[$idx];
@@ -1918,7 +1916,7 @@ function EditCustomProfiles()
 		}
 		$sql_update .= 'END';
 
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}custom_fields
 			SET field_order = ' . $sql_update,
 				array()
@@ -1935,14 +1933,14 @@ function EditCustomProfiles()
 
 		// Everyone needs a name - even the (bracket) unknown...
 		if (trim($_POST['field_name']) == '')
-			redirectexit($scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $_GET['fid'] . ';msg=need_name');
+			redirectexit(Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $_GET['fid'] . ';msg=need_name');
 
 		// Regex you say?  Do a very basic test to see if the pattern is valid
 		if (!empty($_POST['regex']) && @preg_match($_POST['regex'], 'dummy') === false)
-			redirectexit($scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $_GET['fid'] . ';msg=regex_error');
+			redirectexit(Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $_GET['fid'] . ';msg=regex_error');
 
-		$_POST['field_name'] = $smcFunc['htmlspecialchars']($_POST['field_name']);
-		$_POST['field_desc'] = $smcFunc['htmlspecialchars']($_POST['field_desc']);
+		$_POST['field_name'] = Utils::htmlspecialchars($_POST['field_name']);
+		$_POST['field_desc'] = Utils::htmlspecialchars($_POST['field_desc']);
 
 		// Checkboxes...
 		$show_reg = isset($_POST['reg']) ? (int) $_POST['reg'] : 0;
@@ -1958,10 +1956,10 @@ function EditCustomProfiles()
 		$mask = isset($_POST['mask']) ? $_POST['mask'] : '';
 		if ($mask == 'regex' && isset($_POST['regex']))
 			$mask .= $_POST['regex'];
-		$mask = $smcFunc['normalize']($mask);
+		$mask = Utils::normalize($mask);
 
 		$field_length = isset($_POST['max_length']) ? (int) $_POST['max_length'] : 255;
-		$enclose = isset($_POST['enclose']) ? $smcFunc['normalize']($_POST['enclose']) : '';
+		$enclose = isset($_POST['enclose']) ? Utils::normalize($_POST['enclose']) : '';
 		$placement = isset($_POST['placement']) ? (int) $_POST['placement'] : 0;
 
 		// Select options?
@@ -1973,7 +1971,7 @@ function EditCustomProfiles()
 			foreach ($_POST['select_option'] as $k => $v)
 			{
 				// Clean, clean, clean...
-				$v = $smcFunc['htmlspecialchars']($v);
+				$v = Utils::htmlspecialchars($v);
 				$v = strtr($v, array(',' => ''));
 
 				// Nada, zip, etc...
@@ -1997,9 +1995,9 @@ function EditCustomProfiles()
 			$default = (int) $_POST['rows'] . ',' . (int) $_POST['cols'];
 
 		// Come up with the unique name?
-		if (empty($context['fid']))
+		if (empty(Utils::$context['fid']))
 		{
-			$col_name = $smcFunc['substr'](strtr($_POST['field_name'], array(' ' => '')), 0, 6);
+			$col_name = Utils::entitySubstr(strtr($_POST['field_name'], array(' ' => '')), 0, 6);
 			preg_match('~([\w\d_-]+)~', $col_name, $matches);
 
 			// If there is nothing to the name, then let's start out own - for foreign languages etc.
@@ -2010,14 +2008,14 @@ function EditCustomProfiles()
 
 			// Make sure this is unique.
 			$current_fields = array();
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT id_field, col_name
 				FROM {db_prefix}custom_fields'
 			);
-			while ($row = $smcFunc['db_fetch_assoc']($request))
+			while ($row = Db::$db->fetch_assoc($request))
 				$current_fields[$row['id_field']] = $row['col_name'];
 
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 
 			$unique = false;
 			for ($i = 0; !$unique && $i < 9; $i++)
@@ -2036,17 +2034,17 @@ function EditCustomProfiles()
 		else
 		{
 			// Anything going to check or select is pointless keeping - as is anything coming from check!
-			if (($_POST['field_type'] == 'check' && $context['field']['type'] != 'check')
-				|| (($_POST['field_type'] == 'select' || $_POST['field_type'] == 'radio') && $context['field']['type'] != 'select' && $context['field']['type'] != 'radio')
-				|| ($context['field']['type'] == 'check' && $_POST['field_type'] != 'check'))
+			if (($_POST['field_type'] == 'check' && Utils::$context['field']['type'] != 'check')
+				|| (($_POST['field_type'] == 'select' || $_POST['field_type'] == 'radio') && Utils::$context['field']['type'] != 'select' && Utils::$context['field']['type'] != 'radio')
+				|| (Utils::$context['field']['type'] == 'check' && $_POST['field_type'] != 'check'))
 			{
-				$smcFunc['db_query']('', '
+				Db::$db->query('', '
 					DELETE FROM {db_prefix}themes
 					WHERE variable = {string:current_column}
 						AND id_member > {int:no_member}',
 					array(
 						'no_member' => 0,
-						'current_column' => $context['field']['col_name'],
+						'current_column' => Utils::$context['field']['col_name'],
 					)
 				);
 			}
@@ -2056,7 +2054,7 @@ function EditCustomProfiles()
 				$optionChanges = array();
 				$takenKeys = array();
 				// Work out what's changed!
-				foreach ($context['field']['options'] as $k => $option)
+				foreach (Utils::$context['field']['options'] as $k => $option)
 				{
 					if (trim($option) == '')
 						continue;
@@ -2074,7 +2072,7 @@ function EditCustomProfiles()
 				{
 					// Just been renamed?
 					if (!in_array($k, $takenKeys) && !empty($newOptions[$k]))
-						$smcFunc['db_query']('', '
+						Db::$db->query('', '
 							UPDATE {db_prefix}themes
 							SET value = {string:new_value}
 							WHERE variable = {string:current_column}
@@ -2083,7 +2081,7 @@ function EditCustomProfiles()
 							array(
 								'no_member' => 0,
 								'new_value' => $newOptions[$k],
-								'current_column' => $context['field']['col_name'],
+								'current_column' => Utils::$context['field']['col_name'],
 								'old_value' => $option,
 							)
 						);
@@ -2093,9 +2091,9 @@ function EditCustomProfiles()
 		}
 
 		// Do the insertion/updates.
-		if ($context['fid'])
+		if (Utils::$context['fid'])
 		{
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				UPDATE {db_prefix}custom_fields
 				SET
 					field_name = {string:field_name}, field_desc = {string:field_desc},
@@ -2115,7 +2113,7 @@ function EditCustomProfiles()
 					'active' => $active,
 					'can_search' => $can_search,
 					'bbc' => $bbc,
-					'current_field' => $context['fid'],
+					'current_field' => Utils::$context['fid'],
 					'field_name' => $_POST['field_name'],
 					'field_desc' => $_POST['field_desc'],
 					'field_type' => $_POST['field_type'],
@@ -2130,7 +2128,7 @@ function EditCustomProfiles()
 
 			// Just clean up any old selects - these are a pain!
 			if (($_POST['field_type'] == 'select' || $_POST['field_type'] == 'radio') && !empty($newOptions))
-				$smcFunc['db_query']('', '
+				Db::$db->query('', '
 					DELETE FROM {db_prefix}themes
 					WHERE variable = {string:current_column}
 						AND value NOT IN ({array_string:new_option_values})
@@ -2138,7 +2136,7 @@ function EditCustomProfiles()
 					array(
 						'no_member' => 0,
 						'new_option_values' => $newOptions,
-						'current_column' => $context['field']['col_name'],
+						'current_column' => Utils::$context['field']['col_name'],
 					)
 				);
 		}
@@ -2147,7 +2145,7 @@ function EditCustomProfiles()
 			// Gotta figure it out the order.
 			$new_order = $order_count > 1 ? ($order_count + 1) : 1;
 
-			$smcFunc['db_insert']('',
+			Db::$db->insert('',
 				'{db_prefix}custom_fields',
 				array(
 					'col_name' => 'string', 'field_name' => 'string', 'field_desc' => 'string',
@@ -2168,37 +2166,37 @@ function EditCustomProfiles()
 		}
 	}
 	// Deleting?
-	elseif (isset($_POST['delete']) && $context['field']['col_name'])
+	elseif (isset($_POST['delete']) && Utils::$context['field']['col_name'])
 	{
 		checkSession();
 		validateToken('admin-ecp');
 
 		// Delete the user data first.
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}themes
 			WHERE variable = {string:current_column}
 				AND id_member > {int:no_member}',
 			array(
 				'no_member' => 0,
-				'current_column' => $context['field']['col_name'],
+				'current_column' => Utils::$context['field']['col_name'],
 			)
 		);
 		// Finally - the field itself is gone!
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}custom_fields
 			WHERE id_field = {int:current_field}',
 			array(
-				'current_field' => $context['fid'],
+				'current_field' => Utils::$context['fid'],
 			)
 		);
 
 		// Re-arrange the order.
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}custom_fields
 			SET field_order = field_order - 1
 			WHERE field_order > {int:current_order}',
 			array(
-				'current_order' => $context['field']['order'],
+				'current_order' => Utils::$context['field']['order'],
 			)
 		);
 	}
@@ -2208,7 +2206,7 @@ function EditCustomProfiles()
 	{
 		checkSession();
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT col_name, field_name, field_type, field_order, bbc, enclose, placement, show_mlist, field_options
 			FROM {db_prefix}custom_fields
 			WHERE show_display = {int:is_displayed}
@@ -2225,7 +2223,7 @@ function EditCustomProfiles()
 		);
 
 		$fields = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			$fields[] = array(
 				'col_name' => strtr($row['col_name'], array('|' => '', ';' => '')),
@@ -2239,9 +2237,9 @@ function EditCustomProfiles()
 				'options' => (!empty($row['field_options']) ? explode(',', $row['field_options']) : array()),
 			);
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
-		updateSettings(array('displayFields' => $smcFunc['json_encode']($fields)));
+		Config::updateModSettings(array('displayFields' => Utils::jsonEncode($fields)));
 		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=featuresettings;sa=profile');
 	}
@@ -2256,17 +2254,15 @@ function EditCustomProfiles()
  */
 function custFieldsMaxOrder()
 {
-	global $smcFunc;
-
 	// Gotta know the order limit
-	$result = $smcFunc['db_query']('', '
+	$result = Db::$db->query('', '
 		SELECT MAX(field_order)
 		FROM {db_prefix}custom_fields',
 		array()
 	);
 
-	list ($order_count) = $smcFunc['db_fetch_row']($result);
-	$smcFunc['db_free_result']($result);
+	list ($order_count) = Db::$db->fetch_row($result);
+	Db::$db->free_result($result);
 
 	return (int) $order_count;
 }
@@ -2279,12 +2275,12 @@ function custFieldsMaxOrder()
  */
 function ModifyLogSettings($return_config = false)
 {
-	global $txt, $scripturl, $sourcedir, $context, $modSettings;
+	global $txt;
 
 	// Make sure we understand what's going on.
 	loadLanguage('ManageSettings');
 
-	$context['page_title'] = $txt['log_settings'];
+	Utils::$context['page_title'] = $txt['log_settings'];
 
 	$config_vars = array(
 		array('check', 'modlog_enabled', 'help' => 'modlog'),
@@ -2342,7 +2338,7 @@ function ModifyLogSettings($return_config = false)
 	$("#pruningOptions").click(function() { togglePruned(); });', true);
 
 	// We'll need this in a bit.
-	require_once($sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/ManageServer.php');
 
 	// Saving?
 	if (isset($_GET['save']))
@@ -2384,15 +2380,15 @@ function ModifyLogSettings($return_config = false)
 		redirectexit('action=admin;area=logs;sa=settings');
 	}
 
-	$context['post_url'] = $scripturl . '?action=admin;area=logs;save;sa=settings';
-	$context['settings_title'] = $txt['log_settings'];
-	$context['sub_template'] = 'show_settings';
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=logs;save;sa=settings';
+	Utils::$context['settings_title'] = $txt['log_settings'];
+	Utils::$context['sub_template'] = 'show_settings';
 
 	// Get the actual values
-	if (!empty($modSettings['pruningOptions']))
-		@list ($modSettings['pruneErrorLog'], $modSettings['pruneModLog'], $modSettings['pruneBanLog'], $modSettings['pruneReportLog'], $modSettings['pruneScheduledTaskLog'], $modSettings['pruneSpiderHitLog']) = explode(',', $modSettings['pruningOptions']);
+	if (!empty(Config::$modSettings['pruningOptions']))
+		@list (Config::$modSettings['pruneErrorLog'], Config::$modSettings['pruneModLog'], Config::$modSettings['pruneBanLog'], Config::$modSettings['pruneReportLog'], Config::$modSettings['pruneScheduledTaskLog'], Config::$modSettings['pruneSpiderHitLog']) = explode(',', Config::$modSettings['pruningOptions']);
 	else
-		$modSettings['pruneErrorLog'] = $modSettings['pruneModLog'] = $modSettings['pruneBanLog'] = $modSettings['pruneReportLog'] = $modSettings['pruneScheduledTaskLog'] = $modSettings['pruneSpiderHitLog'] = 0;
+		Config::$modSettings['pruneErrorLog'] = Config::$modSettings['pruneModLog'] = Config::$modSettings['pruneBanLog'] = Config::$modSettings['pruneReportLog'] = Config::$modSettings['pruneScheduledTaskLog'] = Config::$modSettings['pruneSpiderHitLog'] = 0;
 
 	prepareDBSettingContext($config_vars);
 }
@@ -2405,7 +2401,7 @@ function ModifyLogSettings($return_config = false)
  */
 function ModifyGeneralModSettings($return_config = false)
 {
-	global $txt, $scripturl, $context;
+	global $txt;
 
 	$config_vars = array(
 		// Mod authors, add any settings UNDER this line. Include a comma at the end of the line and don't remove this statement!!
@@ -2417,14 +2413,14 @@ function ModifyGeneralModSettings($return_config = false)
 	if ($return_config)
 		return $config_vars;
 
-	$context['post_url'] = $scripturl . '?action=admin;area=modsettings;save;sa=general';
-	$context['settings_title'] = $txt['mods_cat_modifications_misc'];
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=modsettings;save;sa=general';
+	Utils::$context['settings_title'] = $txt['mods_cat_modifications_misc'];
 
 	// No removing this line you, dirty unwashed mod authors. :p
 	if (empty($config_vars))
 	{
-		$context['settings_save_dont_show'] = true;
-		$context['settings_message'] = array(
+		Utils::$context['settings_save_dont_show'] = true;
+		Utils::$context['settings_message'] = array(
 			'label' => $txt['modification_no_misc_settings'],
 			'tag' => 'div',
 			'class' => 'centertext'
@@ -2461,29 +2457,29 @@ function ModifyGeneralModSettings($return_config = false)
  */
 function ModifyAlertsSettings()
 {
-	global $context, $modSettings, $sourcedir, $txt;
+	global $txt;
 
 	// Dummy settings for the template...
-	$context['user']['is_owner'] = false;
-	$context['member'] = array();
-	$context['id_member'] = 0;
-	$context['menu_item_selected'] = 'alerts';
-	$context['token_check'] = 'noti-admin';
+	Utils::$context['user']['is_owner'] = false;
+	Utils::$context['member'] = array();
+	Utils::$context['id_member'] = 0;
+	Utils::$context['menu_item_selected'] = 'alerts';
+	Utils::$context['token_check'] = 'noti-admin';
 
 	// Specify our action since we'll want to post back here instead of the profile
-	$context['action'] = 'action=admin;area=featuresettings;sa=alerts;' . $context['session_var'] . '=' . $context['session_id'];
+	Utils::$context['action'] = 'action=admin;area=featuresettings;sa=alerts;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
 
 	loadTemplate('Profile');
 	loadLanguage('Profile');
 
-	include_once($sourcedir . '/Profile-Modify.php');
+	include_once(Config::$sourcedir . '/Profile-Modify.php');
 	alert_configuration(0, true);
 
-	$context['page_title'] = $txt['notify_settings'];
+	Utils::$context['page_title'] = $txt['notify_settings'];
 
 	// Override the description
-	$context['description'] = $txt['notifications_desc'];
-	$context['sub_template'] = 'alert_configuration';
+	Utils::$context['description'] = $txt['notifications_desc'];
+	Utils::$context['sub_template'] = 'alert_configuration';
 }
 
 ?>

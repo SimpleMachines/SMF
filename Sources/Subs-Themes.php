@@ -13,6 +13,9 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
 use SMF\PackageManager\SubsPackage;
 use SMF\PackageManager\XmlArray;
 
@@ -28,8 +31,6 @@ if (!defined('SMF'))
  */
 function get_single_theme($id, array $variables = array())
 {
-	global $smcFunc, $modSettings;
-
 	// No data, no fun!
 	if (empty($id))
 		return false;
@@ -45,10 +46,10 @@ function get_single_theme($id, array $variables = array())
 	);
 
 	// Make our known/enable themes a little easier to work with.
-	$knownThemes = !empty($modSettings['knownThemes']) ? explode(',', $modSettings['knownThemes']) : array();
-	$enableThemes = !empty($modSettings['enableThemes']) ? explode(',', $modSettings['enableThemes']) : array();
+	$knownThemes = !empty(Config::$modSettings['knownThemes']) ? explode(',', Config::$modSettings['knownThemes']) : array();
+	$enableThemes = !empty(Config::$modSettings['enableThemes']) ? explode(',', Config::$modSettings['enableThemes']) : array();
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_theme, variable, value
 		FROM {db_prefix}themes
 		WHERE id_theme = ({int:id_theme})
@@ -61,7 +62,7 @@ function get_single_theme($id, array $variables = array())
 		)
 	);
 
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$single[$row['variable']] = $row['value'];
 
@@ -84,19 +85,17 @@ function get_single_theme($id, array $variables = array())
 /**
  * Loads and returns all installed themes.
  *
- * Stores all themes on $context['themes'] for easier use.
+ * Stores all themes on Utils::$context['themes'] for easier use.
  *
- * $modSettings['knownThemes'] stores themes that the user is able to select.
+ * Config::$modSettings['knownThemes'] stores themes that the user is able to select.
  *
  * @param bool $enable_only Whether to fetch only enabled themes. Default is false.
  */
 function get_all_themes($enable_only = false)
 {
-	global $modSettings, $context, $smcFunc;
-
 	// Make our known/enable themes a little easier to work with.
-	$knownThemes = !empty($modSettings['knownThemes']) ? explode(',', $modSettings['knownThemes']) : array();
-	$enableThemes = !empty($modSettings['enableThemes']) ? explode(',', $modSettings['enableThemes']) : array();
+	$knownThemes = !empty(Config::$modSettings['knownThemes']) ? explode(',', Config::$modSettings['knownThemes']) : array();
+	$enableThemes = !empty(Config::$modSettings['enableThemes']) ? explode(',', Config::$modSettings['enableThemes']) : array();
 
 	// List of all possible themes values.
 	$themeValues = array(
@@ -118,7 +117,7 @@ function get_all_themes($enable_only = false)
 	$query_where = $enable_only ? $enableThemes : $knownThemes;
 
 	// Perform the query as requested.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_theme, variable, value
 		FROM {db_prefix}themes
 		WHERE variable IN ({array_string:theme_values})
@@ -131,12 +130,12 @@ function get_all_themes($enable_only = false)
 		)
 	);
 
-	$context['themes'] = array();
+	Utils::$context['themes'] = array();
 
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
-		if (!isset($context['themes'][$row['id_theme']]))
-			$context['themes'][$row['id_theme']] = array(
+		if (!isset(Utils::$context['themes'][$row['id_theme']]))
+			Utils::$context['themes'][$row['id_theme']] = array(
 				'id' => (int) $row['id_theme'],
 				'known' => in_array($row['id_theme'], $knownThemes),
 				'enable' => in_array($row['id_theme'], $enableThemes)
@@ -146,28 +145,26 @@ function get_all_themes($enable_only = false)
 		if ($row['variable'] == 'theme_dir')
 		{
 			$row['value'] = realpath($row['value']);
-			$context['themes'][$row['id_theme']]['valid_path'] = file_exists($row['value']) && is_dir($row['value']);
+			Utils::$context['themes'][$row['id_theme']]['valid_path'] = file_exists($row['value']) && is_dir($row['value']);
 		}
-		$context['themes'][$row['id_theme']][$row['variable']] = $row['value'];
+		Utils::$context['themes'][$row['id_theme']][$row['variable']] = $row['value'];
 	}
 
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 }
 
 /**
  * Loads and returns all installed themes.
  *
- * Stores all themes on $context['themes'] for easier use.
+ * Stores all themes on Utils::$context['themes'] for easier use.
  *
- * $modSettings['knownThemes'] stores themes that the user is able to select.
+ * Config::$modSettings['knownThemes'] stores themes that the user is able to select.
  */
 function get_installed_themes()
 {
-	global $modSettings, $context, $smcFunc;
-
 	// Make our known/enable themes a little easier to work with.
-	$knownThemes = !empty($modSettings['knownThemes']) ? explode(',', $modSettings['knownThemes']) : array();
-	$enableThemes = !empty($modSettings['enableThemes']) ? explode(',', $modSettings['enableThemes']) : array();
+	$knownThemes = !empty(Config::$modSettings['knownThemes']) ? explode(',', Config::$modSettings['knownThemes']) : array();
+	$enableThemes = !empty(Config::$modSettings['enableThemes']) ? explode(',', Config::$modSettings['enableThemes']) : array();
 
 	// List of all possible themes values.
 	$themeValues = array(
@@ -186,7 +183,7 @@ function get_installed_themes()
 	call_integration_hook('integrate_get_installed_themes', array(&$themeValues));
 
 	// Perform the query as requested.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_theme, variable, value
 		FROM {db_prefix}themes
 		WHERE variable IN ({array_string:theme_values})
@@ -197,12 +194,12 @@ function get_installed_themes()
 		)
 	);
 
-	$context['themes'] = array();
+	Utils::$context['themes'] = array();
 
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
-		if (!isset($context['themes'][$row['id_theme']]))
-			$context['themes'][$row['id_theme']] = array(
+		if (!isset(Utils::$context['themes'][$row['id_theme']]))
+			Utils::$context['themes'][$row['id_theme']] = array(
 				'id' => (int) $row['id_theme'],
 				'known' => in_array($row['id_theme'], $knownThemes),
 				'enable' => in_array($row['id_theme'], $enableThemes)
@@ -212,12 +209,12 @@ function get_installed_themes()
 		if ($row['variable'] == 'theme_dir')
 		{
 			$row['value'] = realpath($row['value']);
-			$context['themes'][$row['id_theme']]['valid_path'] = file_exists($row['value']) && is_dir($row['value']);
+			Utils::$context['themes'][$row['id_theme']]['valid_path'] = file_exists($row['value']) && is_dir($row['value']);
 		}
-		$context['themes'][$row['id_theme']][$row['variable']] = $row['value'];
+		Utils::$context['themes'][$row['id_theme']][$row['variable']] = $row['value'];
 	}
 
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 }
 
 /**
@@ -230,7 +227,7 @@ function get_installed_themes()
  */
 function get_theme_info($path)
 {
-	global $smcFunc, $sourcedir, $txt, $scripturl, $context;
+	global $txt;
 	global $explicit_images;
 
 	if (empty($path))
@@ -247,7 +244,7 @@ function get_theme_info($path)
 		// We need to delete the dir otherwise the next time you try to install a theme you will get the same error.
 		remove_dir($path);
 
-		$txt['package_get_error_is_mod'] = str_replace('{MANAGEMODURL}', $scripturl . '?action=admin;area=packages;' . $context['session_var'] . '=' . $context['session_id'], $txt['package_get_error_is_mod']);
+		$txt['package_get_error_is_mod'] = str_replace('{MANAGEMODURL}', Config::$scripturl . '?action=admin;area=packages;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], $txt['package_get_error_is_mod']);
 		fatal_lang_error('package_theme_upload_error_broken', false, $txt['package_get_error_is_mod']);
 	}
 
@@ -304,7 +301,7 @@ function get_theme_info($path)
 	}
 
 	if (!empty($theme_info_xml['extra']))
-		$xml_data += $smcFunc['json_decode']($theme_info_xml['extra'], true);
+		$xml_data += Utils::jsonDecode($theme_info_xml['extra'], true);
 
 	return $xml_data;
 }
@@ -319,21 +316,20 @@ function get_theme_info($path)
  */
 function theme_install($to_install = array())
 {
-	global $smcFunc, $context, $modSettings;
 	global $settings, $explicit_images;
 
 	// External use? no problem!
 	if (!empty($to_install))
-		$context['to_install'] = $to_install;
+		Utils::$context['to_install'] = $to_install;
 
 	// One last check.
-	if (empty($context['to_install']['theme_dir']) || basename($context['to_install']['theme_dir']) == 'Themes')
+	if (empty(Utils::$context['to_install']['theme_dir']) || basename(Utils::$context['to_install']['theme_dir']) == 'Themes')
 		fatal_lang_error('theme_install_invalid_dir', false);
 
 	// OK, is this a newer version of an already installed theme?
-	if (!empty($context['to_install']['version']))
+	if (!empty(Utils::$context['to_install']['version']))
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_theme
 			FROM {db_prefix}themes
 			WHERE id_member = {int:no_member}
@@ -342,58 +338,58 @@ function theme_install($to_install = array())
 			LIMIT 1',
 			array(
 				'no_member' => 0,
-				'name_value' => '%' . $context['to_install']['name'] . '%',
+				'name_value' => '%' . Utils::$context['to_install']['name'] . '%',
 			)
 		);
 
-		list ($id_to_update) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		list ($id_to_update) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 		$to_update = get_single_theme($id_to_update, array('version'));
 
 		// Got something, lets figure it out what to do next.
 		if (!empty($id_to_update) && !empty($to_update['version']))
-			switch (SubsPackage::compareVersions($context['to_install']['version'], $to_update['version']))
+			switch (SubsPackage::compareVersions(Utils::$context['to_install']['version'], $to_update['version']))
 			{
 				case 1: // Got a newer version, update the old entry.
-					$smcFunc['db_query']('', '
+					Db::$db->query('', '
 						UPDATE {db_prefix}themes
 						SET value = {string:new_value}
 						WHERE variable = {literal:version}
 							AND id_theme = {int:id_theme}',
 						array(
-							'new_value' => $context['to_install']['version'],
+							'new_value' => Utils::$context['to_install']['version'],
 							'id_theme' => $id_to_update,
 						)
 					);
 
 					// Done with the update, tell the user about it.
-					$context['to_install']['updated'] = true;
+					Utils::$context['to_install']['updated'] = true;
 
 					return $id_to_update;
 
 				case 0: // This is exactly the same theme.
 				case -1: // The one being installed is older than the one already installed.
 				default: // Any other possible result.
-					fatal_lang_error('package_get_error_theme_no_new_version', false, array($context['to_install']['version'], $to_update['version']));
+					fatal_lang_error('package_get_error_theme_no_new_version', false, array(Utils::$context['to_install']['version'], $to_update['version']));
 			}
 	}
 
-	if (!empty($context['to_install']['based_on']))
+	if (!empty(Utils::$context['to_install']['based_on']))
 	{
 		// No need for elaborated stuff when the theme is based on the default one.
-		if ($context['to_install']['based_on'] == 'default')
+		if (Utils::$context['to_install']['based_on'] == 'default')
 		{
-			$context['to_install']['theme_url'] = $settings['default_theme_url'];
-			$context['to_install']['images_url'] = $settings['default_images_url'];
+			Utils::$context['to_install']['theme_url'] = $settings['default_theme_url'];
+			Utils::$context['to_install']['images_url'] = $settings['default_images_url'];
 		}
 
 		// Custom theme based on another custom theme, lets get some info.
-		elseif ($context['to_install']['based_on'] != '')
+		elseif (Utils::$context['to_install']['based_on'] != '')
 		{
-			$context['to_install']['based_on'] = preg_replace('~[^A-Za-z0-9\-_ ]~', '', $context['to_install']['based_on']);
+			Utils::$context['to_install']['based_on'] = preg_replace('~[^A-Za-z0-9\-_ ]~', '', Utils::$context['to_install']['based_on']);
 
 			// Get the theme info first.
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT id_theme
 				FROM {db_prefix}themes
 				WHERE id_member = {int:no_member}
@@ -401,55 +397,55 @@ function theme_install($to_install = array())
 				LIMIT 1',
 				array(
 					'no_member' => 0,
-					'based_on' => '%/' . $context['to_install']['based_on'],
-					'based_on_path' => '%' . "\\" . $context['to_install']['based_on'],
+					'based_on' => '%/' . Utils::$context['to_install']['based_on'],
+					'based_on_path' => '%' . "\\" . Utils::$context['to_install']['based_on'],
 				)
 			);
 
-			list ($id_based_on) = $smcFunc['db_fetch_row']($request);
-			$smcFunc['db_free_result']($request);
+			list ($id_based_on) = Db::$db->fetch_row($request);
+			Db::$db->free_result($request);
 			$temp = get_single_theme($id_based_on, array('theme_dir', 'images_url', 'theme_url'));
 
 			// Found the based on theme info, add it to the current one being installed.
 			if (!empty($temp))
 			{
-				$context['to_install']['base_theme_url'] = $temp['theme_url'];
-				$context['to_install']['base_theme_dir'] = $temp['theme_dir'];
+				Utils::$context['to_install']['base_theme_url'] = $temp['theme_url'];
+				Utils::$context['to_install']['base_theme_dir'] = $temp['theme_dir'];
 
-				if (empty($explicit_images) && !empty($context['to_install']['base_theme_url']))
-					$context['to_install']['theme_url'] = $context['to_install']['base_theme_url'];
+				if (empty($explicit_images) && !empty(Utils::$context['to_install']['base_theme_url']))
+					Utils::$context['to_install']['theme_url'] = Utils::$context['to_install']['base_theme_url'];
 			}
 
 			// Nope, sorry, couldn't find any theme already installed.
 			else
-				fatal_lang_error('package_get_error_theme_no_based_on_found', false, $context['to_install']['based_on']);
+				fatal_lang_error('package_get_error_theme_no_based_on_found', false, Utils::$context['to_install']['based_on']);
 		}
 
-		unset($context['to_install']['based_on']);
+		unset(Utils::$context['to_install']['based_on']);
 	}
 
 	// Find the newest id_theme.
-	$result = $smcFunc['db_query']('', '
+	$result = Db::$db->query('', '
 		SELECT MAX(id_theme)
 		FROM {db_prefix}themes',
 		array(
 		)
 	);
-	list ($id_theme) = $smcFunc['db_fetch_row']($result);
-	$smcFunc['db_free_result']($result);
+	list ($id_theme) = Db::$db->fetch_row($result);
+	Db::$db->free_result($result);
 
 	// This will be theme number...
 	$id_theme++;
 
 	// Last minute changes? although, the actual array is a context value you might want to use the new ID.
-	call_integration_hook('integrate_theme_install', array(&$context['to_install'], $id_theme));
+	call_integration_hook('integrate_theme_install', array(&Utils::$context['to_install'], $id_theme));
 
 	$inserts = array();
-	foreach ($context['to_install'] as $var => $val)
+	foreach (Utils::$context['to_install'] as $var => $val)
 		$inserts[] = array($id_theme, $var, $val);
 
 	if (!empty($inserts))
-		$smcFunc['db_insert']('insert',
+		Db::$db->insert('insert',
 			'{db_prefix}themes',
 			array('id_theme' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'),
 			$inserts,
@@ -457,9 +453,9 @@ function theme_install($to_install = array())
 		);
 
 	// Update the known and enable Theme's settings.
-	$known = strtr($modSettings['knownThemes'] . ',' . $id_theme, array(',,' => ','));
-	$enable = strtr($modSettings['enableThemes'] . ',' . $id_theme, array(',,' => ','));
-	updateSettings(array('knownThemes' => $known, 'enableThemes' => $enable));
+	$known = strtr(Config::$modSettings['knownThemes'] . ',' . $id_theme, array(',,' => ','));
+	$enable = strtr(Config::$modSettings['enableThemes'] . ',' . $id_theme, array(',,' => ','));
+	Config::updateModSettings(array('knownThemes' => $known, 'enableThemes' => $enable));
 
 	return $id_theme;
 }
@@ -504,17 +500,15 @@ function remove_dir($path)
  */
 function remove_theme($themeID)
 {
-	global $smcFunc, $modSettings;
-
 	// Can't delete the default theme, sorry!
 	if (empty($themeID) || $themeID == 1)
 		return false;
 
-	$known = explode(',', $modSettings['knownThemes']);
-	$enable = explode(',', $modSettings['enableThemes']);
+	$known = explode(',', Config::$modSettings['knownThemes']);
+	$enable = explode(',', Config::$modSettings['enableThemes']);
 
 	// Remove it from the themes table.
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}themes
 		WHERE id_theme = {int:current_theme}',
 		array(
@@ -523,7 +517,7 @@ function remove_theme($themeID)
 	);
 
 	// Update users preferences.
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		UPDATE {db_prefix}members
 		SET id_theme = {int:default_theme}
 		WHERE id_theme = {int:current_theme}',
@@ -534,7 +528,7 @@ function remove_theme($themeID)
 	);
 
 	// Some boards may have it as preferred theme.
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		UPDATE {db_prefix}boards
 		SET id_theme = {int:default_theme}
 		WHERE id_theme = {int:current_theme}',
@@ -555,11 +549,11 @@ function remove_theme($themeID)
 	$enable = strtr(implode(',', $enable), array(',,' => ','));
 
 	// Update the enableThemes list.
-	updateSettings(array('enableThemes' => $enable, 'knownThemes' => $known));
+	Config::updateModSettings(array('enableThemes' => $enable, 'knownThemes' => $known));
 
 	// Fix it if the theme was the overall default theme.
-	if ($modSettings['theme_guests'] == $themeID)
-		updateSettings(array('theme_guests' => '1'));
+	if (Config::$modSettings['theme_guests'] == $themeID)
+		Config::updateModSettings(array('theme_guests' => '1'));
 
 	return true;
 }
@@ -573,7 +567,7 @@ function remove_theme($themeID)
  */
 function get_file_listing($path, $relative)
 {
-	global $scripturl, $txt, $context;
+	global $txt;
 
 	// Is it even a directory?
 	if (!is_dir($path))
@@ -604,7 +598,7 @@ function get_file_listing($path, $relative)
 				'is_template' => false,
 				'is_image' => false,
 				'is_editable' => false,
-				'href' => $scripturl . '?action=admin;area=theme;th=' . $_GET['th'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';sa=edit;directory=' . $relative . $entry,
+				'href' => Config::$scripturl . '?action=admin;area=theme;th=' . $_GET['th'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=edit;directory=' . $relative . $entry,
 				'size' => '',
 			);
 		else
@@ -622,7 +616,7 @@ function get_file_listing($path, $relative)
 				'is_template' => preg_match('~\.template\.php$~', $entry) != 0,
 				'is_image' => preg_match('~\.(jpg|jpeg|gif|bmp|png)$~', $entry) != 0,
 				'is_editable' => is_writable($path . '/' . $entry) && preg_match('~\.(php|pl|css|js|vbs|xml|xslt|txt|xsl|html|htm|shtm|shtml|asp|aspx|cgi|py)$~', $entry) != 0,
-				'href' => $scripturl . '?action=admin;area=theme;th=' . $_GET['th'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';sa=edit;filename=' . $relative . $entry,
+				'href' => Config::$scripturl . '?action=admin;area=theme;th=' . $_GET['th'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=edit;filename=' . $relative . $entry,
 				'size' => $size,
 				'last_modified' => timeformat(filemtime($path . '/' . $entry)),
 			);

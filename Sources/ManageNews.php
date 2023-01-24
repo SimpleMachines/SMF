@@ -14,6 +14,9 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -27,7 +30,7 @@ if (!defined('SMF'))
  */
 function ManageNews()
 {
-	global $context, $txt;
+	global $txt;
 
 	// First, let's do a quick permissions check for the best error message possible.
 	isAllowedTo(array('edit_news', 'send_mail', 'admin_forum'));
@@ -44,7 +47,7 @@ function ManageNews()
 	);
 
 	// Create the tabs for the template.
-	$context[$context['admin_menu_name']]['tab_data'] = array(
+	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['news_title'],
 		'help' => 'edit_news',
 		'description' => $txt['admin_news_desc'],
@@ -70,7 +73,7 @@ function ManageNews()
 
 	// Force the right area...
 	if (substr($_REQUEST['sa'], 0, 7) == 'mailing')
-		$context[$context['admin_menu_name']]['current_subsection'] = 'mailingmembers';
+		Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'mailingmembers';
 
 	call_helper($subActions[$_REQUEST['sa']][0]);
 }
@@ -87,10 +90,9 @@ function ManageNews()
  */
 function EditNews()
 {
-	global $txt, $modSettings, $context, $sourcedir, $scripturl;
-	global $smcFunc;
+	global $txt;
 
-	require_once($sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Subs-Post.php');
 
 	// The 'remove selected' button was pressed.
 	if (!empty($_POST['delete_selection']) && !empty($_POST['remove']))
@@ -98,7 +100,7 @@ function EditNews()
 		checkSession();
 
 		// Store the news temporarily in this array.
-		$temp_news = explode("\n", $modSettings['news']);
+		$temp_news = explode("\n", Config::$modSettings['news']);
 
 		// Remove the items that were selected.
 		foreach ($temp_news as $i => $news)
@@ -106,9 +108,9 @@ function EditNews()
 				unset($temp_news[$i]);
 
 		// Update the database.
-		updateSettings(array('news' => implode("\n", $temp_news)));
+		Config::updateModSettings(array('news' => implode("\n", $temp_news)));
 
-		$context['saved_successful'] = true;
+		Utils::$context['saved_successful'] = true;
 
 		logAction('news');
 	}
@@ -123,24 +125,24 @@ function EditNews()
 				unset($_POST['news'][$i]);
 			else
 			{
-				$_POST['news'][$i] = $smcFunc['htmlspecialchars']($_POST['news'][$i], ENT_QUOTES);
+				$_POST['news'][$i] = Utils::htmlspecialchars($_POST['news'][$i], ENT_QUOTES);
 				preparsecode($_POST['news'][$i]);
 			}
 		}
 
 		// Send the new news to the database.
-		updateSettings(array('news' => implode("\n", $_POST['news'])));
+		Config::updateModSettings(array('news' => implode("\n", $_POST['news'])));
 
-		$context['saved_successful'] = true;
+		Utils::$context['saved_successful'] = true;
 
 		// Log this into the moderation log.
 		logAction('news');
 	}
 
 	// We're going to want this for making our list.
-	require_once($sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/Subs-List.php');
 
-	$context['page_title'] = $txt['admin_edit_news'];
+	Utils::$context['page_title'] = $txt['admin_edit_news'];
 
 	// Use the standard templates for showing this.
 	$listOptions = array(
@@ -198,9 +200,9 @@ function EditNews()
 			),
 		),
 		'form' => array(
-			'href' => $scripturl . '?action=admin;area=news;sa=editnews',
+			'href' => Config::$scripturl . '?action=admin;area=news;sa=editnews',
 			'hidden_fields' => array(
-				$context['session_var'] => $context['session_id'],
+				Utils::$context['session_var'] => Utils::$context['session_id'],
 			),
 		),
 		'additional_rows' => array(
@@ -240,7 +242,7 @@ function EditNews()
 								xhrFields: {
 									withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
 								},
-								url: "' . $scripturl . '?action=xmlhttp;sa=previews;xml",
+								url: "' . Config::$scripturl . '?action=xmlhttp;sa=previews;xml",
 								data: {item: "newspreview", news: $("#data_" + preview_id).val()},
 								context: document.body,
 								success: function(request){
@@ -277,7 +279,7 @@ function EditNews()
 
 	// And go!
 	loadTemplate('ManageNews');
-	$context['sub_template'] = 'news_lists';
+	Utils::$context['sub_template'] = 'news_lists';
 }
 
 /**
@@ -287,11 +289,9 @@ function EditNews()
  */
 function list_getNews()
 {
-	global $modSettings;
-
 	$admin_current_news = array();
 	// Ready the current news.
-	foreach (explode("\n", $modSettings['news']) as $id => $line)
+	foreach (explode("\n", Config::$modSettings['news']) as $id => $line)
 		$admin_current_news[$id] = array(
 			'id' => $id,
 			'unparsed' => un_preparsecode($line),
@@ -319,23 +319,23 @@ function list_getNews()
  */
 function SelectMailingMembers()
 {
-	global $txt, $context, $modSettings, $smcFunc;
+	global $txt;
 
 	// Is there any confirm message?
-	$context['newsletter_sent'] = isset($_SESSION['newsletter_sent']) ? $_SESSION['newsletter_sent'] : '';
+	Utils::$context['newsletter_sent'] = isset($_SESSION['newsletter_sent']) ? $_SESSION['newsletter_sent'] : '';
 
-	$context['page_title'] = $txt['admin_newsletters'];
+	Utils::$context['page_title'] = $txt['admin_newsletters'];
 
-	$context['sub_template'] = 'email_members';
+	Utils::$context['sub_template'] = 'email_members';
 
-	$context['groups'] = array();
+	Utils::$context['groups'] = array();
 	$postGroups = array();
 	$normalGroups = array();
 
 	// If we have post groups disabled then we need to give a "ungrouped members" option.
-	if (empty($modSettings['permission_enable_postgroups']))
+	if (empty(Config::$modSettings['permission_enable_postgroups']))
 	{
-		$context['groups'][0] = array(
+		Utils::$context['groups'][0] = array(
 			'id' => 0,
 			'name' => $txt['membergroups_members'],
 			'member_count' => 0,
@@ -344,9 +344,9 @@ function SelectMailingMembers()
 	}
 
 	// Get all the extra groups as well as Administrator and Global Moderator.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT mg.id_group, mg.group_name, mg.min_posts
-		FROM {db_prefix}membergroups AS mg' . (empty($modSettings['permission_enable_postgroups']) ? '
+		FROM {db_prefix}membergroups AS mg' . (empty(Config::$modSettings['permission_enable_postgroups']) ? '
 		WHERE mg.min_posts = {int:min_posts}' : '') . '
 		GROUP BY mg.id_group, mg.min_posts, mg.group_name
 		ORDER BY mg.min_posts, CASE WHEN mg.id_group < {int:newbie_group} THEN mg.id_group ELSE 4 END, mg.group_name',
@@ -355,9 +355,9 @@ function SelectMailingMembers()
 			'newbie_group' => 4,
 		)
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
-		$context['groups'][$row['id_group']] = array(
+		Utils::$context['groups'][$row['id_group']] = array(
 			'id' => $row['id_group'],
 			'name' => $row['group_name'],
 			'member_count' => 0,
@@ -368,12 +368,12 @@ function SelectMailingMembers()
 		else
 			$postGroups[$row['id_group']] = $row['id_group'];
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// If we have post groups, let's count the number of members...
 	if (!empty($postGroups))
 	{
-		$query = $smcFunc['db_query']('', '
+		$query = Db::$db->query('', '
 			SELECT mem.id_post_group AS id_group, COUNT(*) AS member_count
 			FROM {db_prefix}members AS mem
 			WHERE mem.id_post_group IN ({array_int:post_group_list})
@@ -382,15 +382,15 @@ function SelectMailingMembers()
 				'post_group_list' => $postGroups,
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($query))
-			$context['groups'][$row['id_group']]['member_count'] += $row['member_count'];
-		$smcFunc['db_free_result']($query);
+		while ($row = Db::$db->fetch_assoc($query))
+			Utils::$context['groups'][$row['id_group']]['member_count'] += $row['member_count'];
+		Db::$db->free_result($query);
 	}
 
 	if (!empty($normalGroups))
 	{
 		// Find people who are members of this group...
-		$query = $smcFunc['db_query']('', '
+		$query = Db::$db->query('', '
 			SELECT id_group, COUNT(*) AS member_count
 			FROM {db_prefix}members
 			WHERE id_group IN ({array_int:normal_group_list})
@@ -399,12 +399,12 @@ function SelectMailingMembers()
 				'normal_group_list' => $normalGroups,
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($query))
-			$context['groups'][$row['id_group']]['member_count'] += $row['member_count'];
-		$smcFunc['db_free_result']($query);
+		while ($row = Db::$db->fetch_assoc($query))
+			Utils::$context['groups'][$row['id_group']]['member_count'] += $row['member_count'];
+		Db::$db->free_result($query);
 
 		// Also do those who have it as an additional membergroup - this ones more yucky...
-		$query = $smcFunc['db_query']('', '
+		$query = Db::$db->query('', '
 			SELECT mg.id_group, COUNT(*) AS member_count
 			FROM {db_prefix}membergroups AS mg
 				INNER JOIN {db_prefix}members AS mem ON (mem.additional_groups != {string:blank_string}
@@ -417,23 +417,23 @@ function SelectMailingMembers()
 				'blank_string' => '',
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($query))
-			$context['groups'][$row['id_group']]['member_count'] += $row['member_count'];
-		$smcFunc['db_free_result']($query);
+		while ($row = Db::$db->fetch_assoc($query))
+			Utils::$context['groups'][$row['id_group']]['member_count'] += $row['member_count'];
+		Db::$db->free_result($query);
 	}
 
 	// Any moderators?
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(DISTINCT id_member) AS num_distinct_mods
 		FROM {db_prefix}moderators
 		LIMIT 1',
 		array(
 		)
 	);
-	list ($context['groups'][3]['member_count']) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list (Utils::$context['groups'][3]['member_count']) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
-	$context['can_send_pm'] = allowedTo('pm_send');
+	Utils::$context['can_send_pm'] = allowedTo('pm_send');
 
 	loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
 }
@@ -444,13 +444,13 @@ function SelectMailingMembers()
  */
 function prepareMailingForPreview()
 {
-	global $context, $modSettings, $scripturl, $user_info, $txt;
+	global $user_info, $txt;
 	loadLanguage('Errors');
 
 	$processing = array('preview_subject' => 'subject', 'preview_message' => 'message');
 
 	// Use the default time format.
-	$user_info['time_format'] = $modSettings['time_format'];
+	$user_info['time_format'] = Config::$modSettings['time_format'];
 
 	$variables = array(
 		'{$board_url}',
@@ -460,38 +460,38 @@ function prepareMailingForPreview()
 		'{$latest_member.name}'
 	);
 
-	$html = $context['send_html'];
+	$html = Utils::$context['send_html'];
 
 	// We might need this in a bit
-	$cleanLatestMember = empty($context['send_html']) || $context['send_pm'] ? un_htmlspecialchars($modSettings['latestRealName']) : $modSettings['latestRealName'];
+	$cleanLatestMember = empty(Utils::$context['send_html']) || Utils::$context['send_pm'] ? un_htmlspecialchars(Config::$modSettings['latestRealName']) : Config::$modSettings['latestRealName'];
 
 	foreach ($processing as $key => $post)
 	{
-		$context[$key] = !empty($_REQUEST[$post]) ? $_REQUEST[$post] : '';
+		Utils::$context[$key] = !empty($_REQUEST[$post]) ? $_REQUEST[$post] : '';
 
-		if (empty($context[$key]) && empty($_REQUEST['xml']))
-			$context['post_error']['messages'][] = $txt['error_no_' . $post];
+		if (empty(Utils::$context[$key]) && empty($_REQUEST['xml']))
+			Utils::$context['post_error']['messages'][] = $txt['error_no_' . $post];
 		elseif (!empty($_REQUEST['xml']))
 			continue;
 
-		preparsecode($context[$key]);
+		preparsecode(Utils::$context[$key]);
 		if ($html)
 		{
-			$enablePostHTML = $modSettings['enablePostHTML'];
-			$modSettings['enablePostHTML'] = $context['send_html'];
-			$context[$key] = BBCodeParser::load()->parse($context[$key]);
-			$modSettings['enablePostHTML'] = $enablePostHTML;
+			$enablePostHTML = Config::$modSettings['enablePostHTML'];
+			Config::$modSettings['enablePostHTML'] = Utils::$context['send_html'];
+			Utils::$context[$key] = BBCodeParser::load()->parse(Utils::$context[$key]);
+			Config::$modSettings['enablePostHTML'] = $enablePostHTML;
 		}
 
 		// Replace in all the standard things.
-		$context[$key] = str_replace($variables,
+		Utils::$context[$key] = str_replace($variables,
 			array(
-				!empty($context['send_html']) ? '<a href="' . $scripturl . '">' . $scripturl . '</a>' : $scripturl,
+				!empty(Utils::$context['send_html']) ? '<a href="' . Config::$scripturl . '">' . Config::$scripturl . '</a>' : Config::$scripturl,
 				timeformat(time(), false),
-				!empty($context['send_html']) ? '<a href="' . $scripturl . '?action=profile;u=' . $modSettings['latestMember'] . '">' . $cleanLatestMember . '</a>' : ($context['send_pm'] ? '[url=' . $scripturl . '?action=profile;u=' . $modSettings['latestMember'] . ']' . $cleanLatestMember . '[/url]' : $cleanLatestMember),
-				$modSettings['latestMember'],
+				!empty(Utils::$context['send_html']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . Config::$modSettings['latestMember'] . '">' . $cleanLatestMember . '</a>' : (Utils::$context['send_pm'] ? '[url=' . Config::$scripturl . '?action=profile;u=' . Config::$modSettings['latestMember'] . ']' . $cleanLatestMember . '[/url]' : $cleanLatestMember),
+				Config::$modSettings['latestMember'],
 				$cleanLatestMember
-			), $context[$key]);
+			), Utils::$context[$key]);
 	}
 }
 
@@ -505,22 +505,22 @@ function prepareMailingForPreview()
  */
 function ComposeMailing()
 {
-	global $txt, $sourcedir, $context, $smcFunc;
+	global $txt;
 
 	// Setup the template!
-	$context['page_title'] = $txt['admin_newsletters'];
-	$context['sub_template'] = 'email_members_compose';
+	Utils::$context['page_title'] = $txt['admin_newsletters'];
+	Utils::$context['sub_template'] = 'email_members_compose';
 
-	$context['subject'] = !empty($_POST['subject']) ? $_POST['subject'] : $smcFunc['htmlspecialchars']($context['forum_name'] . ': ' . $txt['subject']);
-	$context['message'] = !empty($_POST['message']) ? $_POST['message'] : $smcFunc['htmlspecialchars']($txt['message'] . "\n\n" . sprintf($txt['regards_team'], $context['forum_name']) . "\n\n" . '{$board_url}');
+	Utils::$context['subject'] = !empty($_POST['subject']) ? $_POST['subject'] : Utils::htmlspecialchars(Utils::$context['forum_name'] . ': ' . $txt['subject']);
+	Utils::$context['message'] = !empty($_POST['message']) ? $_POST['message'] : Utils::htmlspecialchars($txt['message'] . "\n\n" . sprintf($txt['regards_team'], Utils::$context['forum_name']) . "\n\n" . '{$board_url}');
 
 	// Needed for the WYSIWYG editor.
-	require_once($sourcedir . '/Subs-Editor.php');
+	require_once(Config::$sourcedir . '/Subs-Editor.php');
 
 	// Now create the editor.
 	$editorOptions = array(
 		'id' => 'message',
-		'value' => $context['message'],
+		'value' => Utils::$context['message'],
 		'height' => '150px',
 		'width' => '100%',
 		'labels' => array(
@@ -531,20 +531,20 @@ function ComposeMailing()
 	);
 	create_control_richedit($editorOptions);
 	// Store the ID for old compatibility.
-	$context['post_box_name'] = $editorOptions['id'];
+	Utils::$context['post_box_name'] = $editorOptions['id'];
 
-	if (isset($context['preview']))
+	if (isset(Utils::$context['preview']))
 	{
-		require_once($sourcedir . '/Subs-Post.php');
-		$context['recipients']['members'] = !empty($_POST['members']) ? explode(',', $_POST['members']) : array();
-		$context['recipients']['exclude_members'] = !empty($_POST['exclude_members']) ? explode(',', $_POST['exclude_members']) : array();
-		$context['recipients']['groups'] = !empty($_POST['groups']) ? explode(',', $_POST['groups']) : array();
-		$context['recipients']['exclude_groups'] = !empty($_POST['exclude_groups']) ? explode(',', $_POST['exclude_groups']) : array();
-		$context['recipients']['emails'] = !empty($_POST['emails']) ? explode(';', $_POST['emails']) : array();
-		$context['email_force'] = !empty($_POST['email_force']) ? 1 : 0;
-		$context['total_emails'] = !empty($_POST['total_emails']) ? (int) $_POST['total_emails'] : 0;
-		$context['send_pm'] = !empty($_POST['send_pm']) ? 1 : 0;
-		$context['send_html'] = !empty($_POST['send_html']) ? '1' : '0';
+		require_once(Config::$sourcedir . '/Subs-Post.php');
+		Utils::$context['recipients']['members'] = !empty($_POST['members']) ? explode(',', $_POST['members']) : array();
+		Utils::$context['recipients']['exclude_members'] = !empty($_POST['exclude_members']) ? explode(',', $_POST['exclude_members']) : array();
+		Utils::$context['recipients']['groups'] = !empty($_POST['groups']) ? explode(',', $_POST['groups']) : array();
+		Utils::$context['recipients']['exclude_groups'] = !empty($_POST['exclude_groups']) ? explode(',', $_POST['exclude_groups']) : array();
+		Utils::$context['recipients']['emails'] = !empty($_POST['emails']) ? explode(';', $_POST['emails']) : array();
+		Utils::$context['email_force'] = !empty($_POST['email_force']) ? 1 : 0;
+		Utils::$context['total_emails'] = !empty($_POST['total_emails']) ? (int) $_POST['total_emails'] : 0;
+		Utils::$context['send_pm'] = !empty($_POST['send_pm']) ? 1 : 0;
+		Utils::$context['send_html'] = !empty($_POST['send_html']) ? '1' : '0';
 
 		return prepareMailingForPreview();
 	}
@@ -557,7 +557,7 @@ function ComposeMailing()
 		$toClean[] = 'exclude_members';
 	if (!empty($toClean))
 	{
-		require_once($sourcedir . '/Subs-Auth.php');
+		require_once(Config::$sourcedir . '/Subs-Auth.php');
 		foreach ($toClean as $type)
 		{
 			// Remove the quotes.
@@ -568,7 +568,7 @@ function ComposeMailing()
 
 			foreach ($_POST[$type] as $index => $member)
 				if (strlen(trim($member)) > 0)
-					$_POST[$type][$index] = $smcFunc['htmlspecialchars']($smcFunc['strtolower'](trim($member)));
+					$_POST[$type][$index] = Utils::htmlspecialchars(Utils::strtolower(trim($member)));
 				else
 					unset($_POST[$type][$index]);
 
@@ -600,7 +600,7 @@ function ComposeMailing()
 	loadLanguage('EmailTemplates');
 
 	// Get a list of all full banned users.  Use their Username and email to find them.  Only get the ones that can't login to turn off notification.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT DISTINCT mem.id_member
 		FROM {db_prefix}ban_groups AS bg
 			INNER JOIN {db_prefix}ban_items AS bi ON (bg.id_ban_group = bi.id_ban_group)
@@ -613,11 +613,11 @@ function ComposeMailing()
 			'current_time' => time(),
 		)
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$context['recipients']['exclude_members'][] = $row['id_member'];
-	$smcFunc['db_free_result']($request);
+	while ($row = Db::$db->fetch_assoc($request))
+		Utils::$context['recipients']['exclude_members'][] = $row['id_member'];
+	Db::$db->free_result($request);
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT DISTINCT bi.email_address
 		FROM {db_prefix}ban_items AS bi
 			INNER JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group)
@@ -634,30 +634,30 @@ function ComposeMailing()
 	$condition_array = array();
 	$condition_array_params = array();
 	$count = 0;
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$condition_array[] = '{string:email_' . $count . '}';
 		$condition_array_params['email_' . $count++] = $row['email_address'];
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	if (!empty($condition_array))
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_member
 			FROM {db_prefix}members
 			WHERE email_address IN(' . implode(', ', $condition_array) . ')',
 			$condition_array_params
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$context['recipients']['exclude_members'][] = $row['id_member'];
-		$smcFunc['db_free_result']($request);
+		while ($row = Db::$db->fetch_assoc($request))
+			Utils::$context['recipients']['exclude_members'][] = $row['id_member'];
+		Db::$db->free_result($request);
 	}
 
 	// Did they select moderators - if so add them as specific members...
-	if ((!empty($context['recipients']['groups']) && in_array(3, $context['recipients']['groups'])) || (!empty($context['recipients']['exclude_groups']) && in_array(3, $context['recipients']['exclude_groups'])))
+	if ((!empty(Utils::$context['recipients']['groups']) && in_array(3, Utils::$context['recipients']['groups'])) || (!empty(Utils::$context['recipients']['exclude_groups']) && in_array(3, Utils::$context['recipients']['exclude_groups'])))
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT DISTINCT mem.id_member AS identifier
 			FROM {db_prefix}members AS mem
 				INNER JOIN {db_prefix}moderators AS mods ON (mods.id_member = mem.id_member)
@@ -666,30 +666,30 @@ function ComposeMailing()
 				'is_activated' => 1,
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
-			if (in_array(3, $context['recipients']))
-				$context['recipients']['exclude_members'][] = $row['identifier'];
+			if (in_array(3, Utils::$context['recipients']))
+				Utils::$context['recipients']['exclude_members'][] = $row['identifier'];
 			else
-				$context['recipients']['members'][] = $row['identifier'];
+				Utils::$context['recipients']['members'][] = $row['identifier'];
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 	}
 
 	// For progress bar!
-	$context['total_emails'] = count($context['recipients']['emails']);
-	$request = $smcFunc['db_query']('', '
+	Utils::$context['total_emails'] = count(Utils::$context['recipients']['emails']);
+	$request = Db::$db->query('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}members',
 		array(
 		)
 	);
-	list ($context['total_members']) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list (Utils::$context['total_members']) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	// Clean up the arrays.
-	$context['recipients']['members'] = array_unique($context['recipients']['members']);
-	$context['recipients']['exclude_members'] = array_unique($context['recipients']['exclude_members']);
+	Utils::$context['recipients']['members'] = array_unique(Utils::$context['recipients']['members']);
+	Utils::$context['recipients']['exclude_members'] = array_unique(Utils::$context['recipients']['exclude_members']);
 }
 
 /**
@@ -704,13 +704,12 @@ function ComposeMailing()
  */
 function SendMailing($clean_only = false)
 {
-	global $txt, $sourcedir, $context, $smcFunc;
-	global $scripturl, $modSettings, $user_info;
-	global $webmaster_email;
+	global $txt;
+	global $user_info;
 
 	if (isset($_POST['preview']))
 	{
-		$context['preview'] = true;
+		Utils::$context['preview'] = true;
 		return ComposeMailing();
 	}
 
@@ -725,32 +724,32 @@ function SendMailing($clean_only = false)
 	checkSession();
 
 	// Where are we actually to?
-	$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
-	$context['email_force'] = !empty($_POST['email_force']) ? 1 : 0;
-	$context['send_pm'] = !empty($_POST['send_pm']) ? 1 : 0;
-	$context['total_emails'] = !empty($_POST['total_emails']) ? (int) $_POST['total_emails'] : 0;
-	$context['send_html'] = !empty($_POST['send_html']) ? '1' : '0';
-	$context['parse_html'] = !empty($_POST['parse_html']) ? '1' : '0';
+	Utils::$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
+	Utils::$context['email_force'] = !empty($_POST['email_force']) ? 1 : 0;
+	Utils::$context['send_pm'] = !empty($_POST['send_pm']) ? 1 : 0;
+	Utils::$context['total_emails'] = !empty($_POST['total_emails']) ? (int) $_POST['total_emails'] : 0;
+	Utils::$context['send_html'] = !empty($_POST['send_html']) ? '1' : '0';
+	Utils::$context['parse_html'] = !empty($_POST['parse_html']) ? '1' : '0';
 
 	//One can't simply nullify things around
 	if (empty($_REQUEST['total_members']))
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT COUNT(*)
 			FROM {db_prefix}members',
 			array(
 			)
 		);
-		list ($context['total_members']) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		list (Utils::$context['total_members']) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 	}
 	else
 	{
-		$context['total_members'] = (int) $_REQUEST['total_members'];
+		Utils::$context['total_members'] = (int) $_REQUEST['total_members'];
 	}
 
 	// Create our main context.
-	$context['recipients'] = array(
+	Utils::$context['recipients'] = array(
 		'groups' => array(),
 		'exclude_groups' => array(),
 		'members' => array(),
@@ -763,8 +762,8 @@ function SendMailing($clean_only = false)
 	{
 		$members = explode(',', $_POST['exclude_members']);
 		foreach ($members as $member)
-			if ($member >= $context['start'])
-				$context['recipients']['exclude_members'][] = (int) $member;
+			if ($member >= Utils::$context['start'])
+				Utils::$context['recipients']['exclude_members'][] = (int) $member;
 	}
 
 	// What about members we *must* do?
@@ -772,8 +771,8 @@ function SendMailing($clean_only = false)
 	{
 		$members = explode(',', $_POST['members']);
 		foreach ($members as $member)
-			if ($member >= $context['start'])
-				$context['recipients']['members'][] = (int) $member;
+			if ($member >= Utils::$context['start'])
+				Utils::$context['recipients']['members'][] = (int) $member;
 	}
 	// Cleaning groups is simple - although deal with both checkbox and commas.
 	if (isset($_POST['groups']))
@@ -781,13 +780,13 @@ function SendMailing($clean_only = false)
 		if (is_array($_POST['groups']))
 		{
 			foreach ($_POST['groups'] as $group => $dummy)
-				$context['recipients']['groups'][] = (int) $group;
+				Utils::$context['recipients']['groups'][] = (int) $group;
 		}
 		else
 		{
 			$groups = explode(',', $_POST['groups']);
 			foreach ($groups as $group)
-				$context['recipients']['groups'][] = (int) $group;
+				Utils::$context['recipients']['groups'][] = (int) $group;
 		}
 	}
 	// Same for excluded groups
@@ -796,14 +795,14 @@ function SendMailing($clean_only = false)
 		if (is_array($_POST['exclude_groups']))
 		{
 			foreach ($_POST['exclude_groups'] as $group => $dummy)
-				$context['recipients']['exclude_groups'][] = (int) $group;
+				Utils::$context['recipients']['exclude_groups'][] = (int) $group;
 		}
 		// Ignore an empty string - we don't want to exclude "Regular Members" unless it's specifically selected
 		elseif ($_POST['exclude_groups'] != '')
 		{
 			$groups = explode(',', $_POST['exclude_groups']);
 			foreach ($groups as $group)
-				$context['recipients']['exclude_groups'][] = (int) $group;
+				Utils::$context['recipients']['exclude_groups'][] = (int) $group;
 		}
 	}
 	// Finally - emails!
@@ -814,7 +813,7 @@ function SendMailing($clean_only = false)
 		{
 			$curmem = trim($curmem);
 			if ($curmem != '' && filter_var($curmem, FILTER_VALIDATE_EMAIL))
-				$context['recipients']['emails'][$curmem] = $curmem;
+				Utils::$context['recipients']['emails'][$curmem] = $curmem;
 		}
 	}
 
@@ -822,25 +821,25 @@ function SendMailing($clean_only = false)
 	if ($clean_only)
 		return;
 
-	require_once($sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Subs-Post.php');
 
 	// We are relying too much on writing to superglobals...
 	$_POST['subject'] = !empty($_POST['subject']) ? $_POST['subject'] : '';
 	$_POST['message'] = !empty($_POST['message']) ? $_POST['message'] : '';
 
-	// Save the message and its subject in $context
-	$context['subject'] = $smcFunc['htmlspecialchars']($_POST['subject'], ENT_QUOTES);
-	$context['message'] = $smcFunc['htmlspecialchars']($_POST['message'], ENT_QUOTES);
+	// Save the message and its subject in Utils::$context
+	Utils::$context['subject'] = Utils::htmlspecialchars($_POST['subject'], ENT_QUOTES);
+	Utils::$context['message'] = Utils::htmlspecialchars($_POST['message'], ENT_QUOTES);
 
 	// Include an unsubscribe link if necessary.
-	if (!$context['send_pm'])
+	if (!Utils::$context['send_pm'])
 	{
 		$include_unsubscribe = true;
 		$_POST['message'] .= "\n\n" . '{$member.unsubscribe}';
 	}
 
 	// Prepare the message for sending it as HTML
-	if (!$context['send_pm'] && !empty($_POST['send_html']))
+	if (!Utils::$context['send_pm'] && !empty($_POST['send_html']))
 	{
 		// Prepare the message for HTML.
 		if (!empty($_POST['parse_html']))
@@ -858,12 +857,12 @@ function SendMailing($clean_only = false)
 
 	if (empty($_POST['message']) || empty($_POST['subject']))
 	{
-		$context['preview'] = true;
+		Utils::$context['preview'] = true;
 		return ComposeMailing();
 	}
 
 	// Use the default time format.
-	$user_info['time_format'] = $modSettings['time_format'];
+	$user_info['time_format'] = Config::$modSettings['time_format'];
 
 	$variables = array(
 		'{$board_url}',
@@ -874,24 +873,24 @@ function SendMailing($clean_only = false)
 	);
 
 	// We might need this in a bit
-	$cleanLatestMember = empty($_POST['send_html']) || $context['send_pm'] ? un_htmlspecialchars($modSettings['latestRealName']) : $modSettings['latestRealName'];
+	$cleanLatestMember = empty($_POST['send_html']) || Utils::$context['send_pm'] ? un_htmlspecialchars(Config::$modSettings['latestRealName']) : Config::$modSettings['latestRealName'];
 
 	// Replace in all the standard things.
 	$_POST['message'] = str_replace($variables,
 		array(
-			!empty($_POST['send_html']) ? '<a href="' . $scripturl . '">' . $scripturl . '</a>' : $scripturl,
+			!empty($_POST['send_html']) ? '<a href="' . Config::$scripturl . '">' . Config::$scripturl . '</a>' : Config::$scripturl,
 			timeformat(time(), false),
-			!empty($_POST['send_html']) ? '<a href="' . $scripturl . '?action=profile;u=' . $modSettings['latestMember'] . '">' . $cleanLatestMember . '</a>' : ($context['send_pm'] ? '[url=' . $scripturl . '?action=profile;u=' . $modSettings['latestMember'] . ']' . $cleanLatestMember . '[/url]' : $scripturl . '?action=profile;u=' . $modSettings['latestMember']),
-			$modSettings['latestMember'],
+			!empty($_POST['send_html']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . Config::$modSettings['latestMember'] . '">' . $cleanLatestMember . '</a>' : (Utils::$context['send_pm'] ? '[url=' . Config::$scripturl . '?action=profile;u=' . Config::$modSettings['latestMember'] . ']' . $cleanLatestMember . '[/url]' : Config::$scripturl . '?action=profile;u=' . Config::$modSettings['latestMember']),
+			Config::$modSettings['latestMember'],
 			$cleanLatestMember
 		), $_POST['message']);
 	$_POST['subject'] = str_replace($variables,
 		array(
-			$scripturl,
+			Config::$scripturl,
 			timeformat(time(), false),
-			$modSettings['latestRealName'],
-			$modSettings['latestMember'],
-			$modSettings['latestRealName']
+			Config::$modSettings['latestRealName'],
+			Config::$modSettings['latestMember'],
+			Config::$modSettings['latestRealName']
 		), $_POST['subject']);
 
 	$from_member = array(
@@ -904,21 +903,21 @@ function SendMailing($clean_only = false)
 
 	// If we still have emails, do them first!
 	$i = 0;
-	foreach ($context['recipients']['emails'] as $k => $email)
+	foreach (Utils::$context['recipients']['emails'] as $k => $email)
 	{
 		// Done as many as we can?
 		if ($i >= $num_at_once)
 			break;
 
 		// Don't sent it twice!
-		unset($context['recipients']['emails'][$k]);
+		unset(Utils::$context['recipients']['emails'][$k]);
 
 		// Dammit - can't PM emails!
-		if ($context['send_pm'])
+		if (Utils::$context['send_pm'])
 			continue;
 
 		// Non-members can't unsubscribe via the automated system.
-		$unsubscribe_link = sprintf($txt['unsubscribe_announcements_manual'], empty($modSettings['mail_from']) ? $webmaster_email : $modSettings['mail_from']);
+		$unsubscribe_link = sprintf($txt['unsubscribe_announcements_manual'], empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from']);
 
 		$to_member = array(
 			$email,
@@ -939,11 +938,11 @@ function SendMailing($clean_only = false)
 		// Need to build quite a query!
 		$sendQuery = '(';
 		$sendParams = array();
-		if (!empty($context['recipients']['groups']))
+		if (!empty(Utils::$context['recipients']['groups']))
 		{
 			// Take the long route...
 			$queryBuild = array();
-			foreach ($context['recipients']['groups'] as $group)
+			foreach (Utils::$context['recipients']['groups'] as $group)
 			{
 				$sendParams['group_' . $group] = $group;
 				$queryBuild[] = 'mem.id_group = {int:group_' . $group . '}';
@@ -956,10 +955,10 @@ function SendMailing($clean_only = false)
 			if (!empty($queryBuild))
 				$sendQuery .= implode(' OR ', $queryBuild);
 		}
-		if (!empty($context['recipients']['members']))
+		if (!empty(Utils::$context['recipients']['members']))
 		{
 			$sendQuery .= ($sendQuery == '(' ? '' : ' OR ') . 'mem.id_member IN ({array_int:members})';
-			$sendParams['members'] = $context['recipients']['members'];
+			$sendParams['members'] = Utils::$context['recipients']['members'];
 		}
 
 		$sendQuery .= ')';
@@ -973,16 +972,16 @@ function SendMailing($clean_only = false)
 		}
 
 		// Anything to exclude?
-		if (!empty($context['recipients']['exclude_groups']) && in_array(0, $context['recipients']['exclude_groups']))
+		if (!empty(Utils::$context['recipients']['exclude_groups']) && in_array(0, Utils::$context['recipients']['exclude_groups']))
 			$sendQuery .= ' AND mem.id_group != {int:regular_group}';
-		if (!empty($context['recipients']['exclude_members']))
+		if (!empty(Utils::$context['recipients']['exclude_members']))
 		{
 			$sendQuery .= ' AND mem.id_member NOT IN ({array_int:exclude_members})';
-			$sendParams['exclude_members'] = $context['recipients']['exclude_members'];
+			$sendParams['exclude_members'] = Utils::$context['recipients']['exclude_members'];
 		}
 
 		// Get the smelly people - note we respect the id_member range as it gives us a quicker query.
-		$result = $smcFunc['db_query']('', '
+		$result = Db::$db->query('', '
 			SELECT mem.id_member, mem.email_address, mem.real_name, mem.id_group, mem.additional_groups, mem.id_post_group
 			FROM {db_prefix}members AS mem
 			WHERE ' . $sendQuery . '
@@ -990,27 +989,27 @@ function SendMailing($clean_only = false)
 			ORDER BY mem.id_member ASC
 			LIMIT {int:start}, {int:atonce}',
 			array_merge($sendParams, array(
-				'start' => $context['start'],
+				'start' => Utils::$context['start'],
 				'atonce' => $num_at_once,
 				'regular_group' => 0,
 				'is_activated' => 1,
 			))
 		);
 		$rows = array();
-		while ($row = $smcFunc['db_fetch_assoc']($result))
+		while ($row = Db::$db->fetch_assoc($result))
 		{
 			$rows[$row['id_member']] = $row;
 		}
-		$smcFunc['db_free_result']($result);
+		Db::$db->free_result($result);
 
 		// Load their alert preferences
-		require_once($sourcedir . '/Subs-Notify.php');
+		require_once(Config::$sourcedir . '/Subs-Notify.php');
 		$prefs = getNotifyPrefs(array_keys($rows), 'announcements', true);
 
 		foreach ($rows as $row)
 		{
 			// Force them to have it?
-			if (empty($context['email_force']) && empty($prefs[$row['id_member']]['announcements']))
+			if (empty(Utils::$context['email_force']) && empty($prefs[$row['id_member']]['announcements']))
 				continue;
 
 			// What groups are we looking at here?
@@ -1023,16 +1022,16 @@ function SendMailing($clean_only = false)
 				);
 
 			// Excluded groups?
-			if (array_intersect($groups, $context['recipients']['exclude_groups']))
+			if (array_intersect($groups, Utils::$context['recipients']['exclude_groups']))
 				continue;
 
 			// We might need this
-			$cleanMemberName = empty($_POST['send_html']) || $context['send_pm'] ? un_htmlspecialchars($row['real_name']) : $row['real_name'];
+			$cleanMemberName = empty($_POST['send_html']) || Utils::$context['send_pm'] ? un_htmlspecialchars($row['real_name']) : $row['real_name'];
 
 			if (!empty($include_unsubscribe))
 			{
 				$token = createUnsubscribeToken($row['id_member'], $row['email_address'], 'announcements');
-				$unsubscribe_link = sprintf($txt['unsubscribe_announcements_' . (!empty($_POST['send_html']) ? 'html' : 'plain')], $scripturl . '?action=notifyannouncements;u=' . $row['id_member'] . ';token=' . $token);
+				$unsubscribe_link = sprintf($txt['unsubscribe_announcements_' . (!empty($_POST['send_html']) ? 'html' : 'plain')], Config::$scripturl . '?action=notifyannouncements;u=' . $row['id_member'] . ';token=' . $token);
 			}
 			else
 				$unsubscribe_link = '';
@@ -1041,7 +1040,7 @@ function SendMailing($clean_only = false)
 			$message = str_replace($from_member,
 				array(
 					$row['email_address'],
-					!empty($_POST['send_html']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $cleanMemberName . '</a>' : ($context['send_pm'] ? '[url=' . $scripturl . '?action=profile;u=' . $row['id_member'] . ']' . $cleanMemberName . '[/url]' : $scripturl . '?action=profile;u=' . $row['id_member']),
+					!empty($_POST['send_html']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $cleanMemberName . '</a>' : (Utils::$context['send_pm'] ? '[url=' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . ']' . $cleanMemberName . '[/url]' : Config::$scripturl . '?action=profile;u=' . $row['id_member']),
 					$row['id_member'],
 					$cleanMemberName,
 					$unsubscribe_link,
@@ -1056,15 +1055,15 @@ function SendMailing($clean_only = false)
 				), $_POST['subject']);
 
 			// Send the actual email - or a PM!
-			if (!$context['send_pm'])
+			if (!Utils::$context['send_pm'])
 				sendmail($row['email_address'], $subject, $message, null, 'news', !empty($_POST['send_html']), 5);
 			else
 				sendpm(array('to' => array($row['id_member']), 'bcc' => array()), $subject, $message);
 		}
 	}
 
-	$context['start'] = $context['start'] + $num_at_once;
-	if (empty($context['recipients']['emails']) && ($context['start'] >= $context['total_members']))
+	Utils::$context['start'] = Utils::$context['start'] + $num_at_once;
+	if (empty(Utils::$context['recipients']['emails']) && (Utils::$context['start'] >= Utils::$context['total_members']))
 	{
 		// Log this into the admin log.
 		logAction('newsletter', array(), 'admin');
@@ -1073,12 +1072,12 @@ function SendMailing($clean_only = false)
 	}
 
 	// Working out progress is a black art of sorts.
-	$percentEmails = $context['total_emails'] == 0 ? 0 : ((count($context['recipients']['emails']) / $context['total_emails']) * ($context['total_emails'] / ($context['total_emails'] + $context['total_members'])));
-	$percentMembers = ($context['start'] / $context['total_members']) * ($context['total_members'] / ($context['total_emails'] + $context['total_members']));
-	$context['percentage_done'] = round(($percentEmails + $percentMembers) * 100, 2);
+	$percentEmails = Utils::$context['total_emails'] == 0 ? 0 : ((count(Utils::$context['recipients']['emails']) / Utils::$context['total_emails']) * (Utils::$context['total_emails'] / (Utils::$context['total_emails'] + Utils::$context['total_members'])));
+	$percentMembers = (Utils::$context['start'] / Utils::$context['total_members']) * (Utils::$context['total_members'] / (Utils::$context['total_emails'] + Utils::$context['total_members']));
+	Utils::$context['percentage_done'] = round(($percentEmails + $percentMembers) * 100, 2);
 
-	$context['page_title'] = $txt['admin_newsletters'];
-	$context['sub_template'] = 'email_members_send';
+	Utils::$context['page_title'] = $txt['admin_newsletters'];
+	Utils::$context['sub_template'] = 'email_members_send';
 }
 
 /**
@@ -1092,7 +1091,7 @@ function SendMailing($clean_only = false)
  */
 function ModifyNewsSettings($return_config = false)
 {
-	global $context, $sourcedir, $txt, $scripturl;
+	global $txt;
 
 	$config_vars = array(
 		array('title', 'settings'),
@@ -1112,14 +1111,14 @@ function ModifyNewsSettings($return_config = false)
 	if ($return_config)
 		return $config_vars;
 
-	$context['page_title'] = $txt['admin_edit_news'] . ' - ' . $txt['settings'];
-	$context['sub_template'] = 'show_settings';
+	Utils::$context['page_title'] = $txt['admin_edit_news'] . ' - ' . $txt['settings'];
+	Utils::$context['sub_template'] = 'show_settings';
 
 	// Needed for the settings template.
-	require_once($sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/ManageServer.php');
 
 	// Wrap it all up nice and warm...
-	$context['post_url'] = $scripturl . '?action=admin;area=news;save;sa=settings';
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=news;save;sa=settings';
 
 	// Add some javascript at the bottom...
 	addInlineJavaScript('

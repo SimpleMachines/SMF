@@ -14,6 +14,10 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -28,9 +32,9 @@ if (!defined('SMF'))
  */
 function BoardNotify()
 {
-	global $board, $user_info, $context, $smcFunc, $sourcedir, $scripturl, $txt;
+	global $board, $user_info, $txt;
 
-	require_once($sourcedir . '/Subs-Notify.php');
+	require_once(Config::$sourcedir . '/Subs-Notify.php');
 
 	// Subscribing or unsubscribing with a token.
 	if (isset($_REQUEST['u']) && isset($_REQUEST['token']))
@@ -64,7 +68,7 @@ function BoardNotify()
 		loadTemplate('Notify');
 
 		// Find out if they have notification set for this board already.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_member
 			FROM {db_prefix}log_notify
 			WHERE id_member = {int:current_member}
@@ -75,20 +79,20 @@ function BoardNotify()
 				'current_member' => $member_info['id'],
 			)
 		);
-		$context['notification_set'] = $smcFunc['db_num_rows']($request) != 0;
-		$smcFunc['db_free_result']($request);
+		Utils::$context['notification_set'] = Db::$db->num_rows($request) != 0;
+		Db::$db->free_result($request);
 
 		if ($member_info['id'] !== $user_info['id'])
-			$context['notify_info'] = array(
+			Utils::$context['notify_info'] = array(
 				'u' => $member_info['id'],
 				'token' => $_REQUEST['token'],
 			);
 
 		// Set the template variables...
-		$context['board_href'] = $scripturl . '?board=' . $board . '.' . $_REQUEST['start'];
-		$context['start'] = $_REQUEST['start'];
-		$context['page_title'] = $txt['notification'];
-		$context['sub_template'] = 'notify_board';
+		Utils::$context['board_href'] = Config::$scripturl . '?board=' . $board . '.' . $_REQUEST['start'];
+		Utils::$context['start'] = $_REQUEST['start'];
+		Utils::$context['page_title'] = $txt['notification'];
+		Utils::$context['sub_template'] = 'notify_board';
 
 		return;
 	}
@@ -109,14 +113,14 @@ function BoardNotify()
 
 		if ($mode > 1)
 			// Turn notification on.  (note this just blows smoke if it's already on.)
-			$smcFunc['db_insert']('ignore',
+			Db::$db->insert('ignore',
 				'{db_prefix}log_notify',
 				array('id_member' => 'int', 'id_topic' => 'int', 'id_board' => 'int'),
 				array($user_info['id'], 0, $board),
 				array('id_member', 'id_topic', 'id_board')
 			);
 		else
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				DELETE FROM {db_prefix}log_notify
 				WHERE id_member = {int:current_member}
 					AND id_board = {int:current_board}',
@@ -129,7 +133,7 @@ function BoardNotify()
 
 	if (isset($_GET['xml']))
 	{
-		$context['xml_data']['errors'] = array(
+		Utils::$context['xml_data']['errors'] = array(
 			'identifier' => 'error',
 			'children' => array(
 				array(
@@ -137,15 +141,15 @@ function BoardNotify()
 				),
 			),
 		);
-		$context['sub_template'] = 'generic_xml';
+		Utils::$context['sub_template'] = 'generic_xml';
 	}
 	// Probably followed an unsubscribe link, so just show a confirmation message.
 	elseif (!empty($skipCheckSession) && isset($mode))
 	{
 		loadTemplate('Notify');
-		$context['page_title'] = $txt['notification'];
-		$context['sub_template'] = 'notify_pref_changed';
-		$context['notify_success_msg'] = sprintf($txt['notify_board' . ($mode == 3 ? '_subscribed' : '_unsubscribed')], $member_info['email']);
+		Utils::$context['page_title'] = $txt['notification'];
+		Utils::$context['sub_template'] = 'notify_pref_changed';
+		Utils::$context['notify_success_msg'] = sprintf($txt['notify_board' . ($mode == 3 ? '_subscribed' : '_unsubscribed')], $member_info['email']);
 		return;
 	}
 	// Back to the board!
@@ -163,9 +167,9 @@ function BoardNotify()
  */
 function TopicNotify()
 {
-	global $smcFunc, $user_info, $topic, $sourcedir, $context, $scripturl, $txt;
+	global $user_info, $topic, $txt;
 
-	require_once($sourcedir . '/Subs-Notify.php');
+	require_once(Config::$sourcedir . '/Subs-Notify.php');
 
 	if (isset($_REQUEST['u']) && isset($_REQUEST['token']))
 	{
@@ -196,7 +200,7 @@ function TopicNotify()
 		loadTemplate('Notify');
 
 		// Find out if they have notification set for this topic already.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_member
 			FROM {db_prefix}log_notify
 			WHERE id_member = {int:current_member}
@@ -207,19 +211,19 @@ function TopicNotify()
 				'current_topic' => $topic,
 			)
 		);
-		$context['notification_set'] = $smcFunc['db_num_rows']($request) != 0;
-		$smcFunc['db_free_result']($request);
+		Utils::$context['notification_set'] = Db::$db->num_rows($request) != 0;
+		Db::$db->free_result($request);
 
 		if ($member_info['id'] !== $user_info['id'])
-			$context['notify_info'] = array(
+			Utils::$context['notify_info'] = array(
 				'u' => $member_info['id'],
 				'token' => $_REQUEST['token'],
 			);
 
 		// Set the template variables...
-		$context['topic_href'] = $scripturl . '?topic=' . $topic . '.' . $_REQUEST['start'];
-		$context['start'] = $_REQUEST['start'];
-		$context['page_title'] = $txt['notification'];
+		Utils::$context['topic_href'] = Config::$scripturl . '?topic=' . $topic . '.' . $_REQUEST['start'];
+		Utils::$context['start'] = $_REQUEST['start'];
+		Utils::$context['page_title'] = $txt['notification'];
 
 		return;
 	}
@@ -236,7 +240,7 @@ function TopicNotify()
 
 		$alertPref = $mode <= 1 ? 0 : ($mode == 2 ? 1 : 3);
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_member, id_topic, id_msg, unwatched
 			FROM {db_prefix}log_topics
 			WHERE id_member = {int:current_user}
@@ -246,8 +250,8 @@ function TopicNotify()
 				'current_topic' => $topic,
 			)
 		);
-		$log = $smcFunc['db_fetch_assoc']($request);
-		$smcFunc['db_free_result']($request);
+		$log = Db::$db->fetch_assoc($request);
+		Db::$db->free_result($request);
 		if (empty($log))
 		{
 			$insert = true;
@@ -264,7 +268,7 @@ function TopicNotify()
 			$log['unwatched'] = empty($mode) ? 1 : 0;
 		}
 
-		$smcFunc['db_insert']($insert ? 'insert' : 'replace',
+		Db::$db->insert($insert ? 'insert' : 'replace',
 			'{db_prefix}log_topics',
 			array(
 				'id_member' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'unwatched' => 'int',
@@ -278,7 +282,7 @@ function TopicNotify()
 		if ($mode > 1)
 		{
 			// Turn notification on.  (note this just blows smoke if it's already on.)
-			$smcFunc['db_insert']('ignore',
+			Db::$db->insert('ignore',
 				'{db_prefix}log_notify',
 				array('id_member' => 'int', 'id_topic' => 'int', 'id_board' => 'int'),
 				array($user_info['id'], $log['id_topic'], 0),
@@ -286,7 +290,7 @@ function TopicNotify()
 			);
 		}
 		else
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				DELETE FROM {db_prefix}log_notify
 				WHERE id_topic = {int:topic}
 					AND id_member = {int:member}',
@@ -299,7 +303,7 @@ function TopicNotify()
 
 	if (isset($_GET['xml']))
 	{
-		$context['xml_data']['errors'] = array(
+		Utils::$context['xml_data']['errors'] = array(
 			'identifier' => 'error',
 			'children' => array(
 				array(
@@ -307,15 +311,15 @@ function TopicNotify()
 				),
 			),
 		);
-		$context['sub_template'] = 'generic_xml';
+		Utils::$context['sub_template'] = 'generic_xml';
 	}
 	// Probably followed an unsubscribe link, so just show a confirmation message.
 	elseif (!empty($skipCheckSession) && isset($mode))
 	{
 		loadTemplate('Notify');
-		$context['page_title'] = $txt['notification'];
-		$context['sub_template'] = 'notify_pref_changed';
-		$context['notify_success_msg'] = sprintf($txt['notify_topic' . ($mode == 3 ? '_subscribed' : '_unsubscribed')], $member_info['email']);
+		Utils::$context['page_title'] = $txt['notification'];
+		Utils::$context['sub_template'] = 'notify_pref_changed';
+		Utils::$context['notify_success_msg'] = sprintf($txt['notify_topic' . ($mode == 3 ? '_subscribed' : '_unsubscribed')], $member_info['email']);
 		return;
 	}
 	// Back to the topic.
@@ -330,9 +334,9 @@ function TopicNotify()
  */
 function AnnouncementsNotify()
 {
-	global $scripturl, $txt, $board, $user_info, $context, $smcFunc, $sourcedir;
+	global $txt, $board, $user_info;
 
-	require_once($sourcedir . '/Subs-Notify.php');
+	require_once(Config::$sourcedir . '/Subs-Notify.php');
 
 	if (isset($_REQUEST['u']) && isset($_REQUEST['token']))
 	{
@@ -346,7 +350,7 @@ function AnnouncementsNotify()
 	}
 
 	loadTemplate('Notify');
-	$context['page_title'] = $txt['notification'];
+	Utils::$context['page_title'] = $txt['notification'];
 
 	// Backward compatibility.
 	if (!isset($_GET['mode']) && isset($_GET['sa']))
@@ -358,10 +362,10 @@ function AnnouncementsNotify()
 	// Ask what they want to do.
 	if (!isset($_GET['mode']))
 	{
-		$context['sub_template'] = 'notify_announcements';
+		Utils::$context['sub_template'] = 'notify_announcements';
 
 		if ($member_info['id'] !== $user_info['id'])
-			$context['notify_info'] = array(
+			Utils::$context['notify_info'] = array(
 				'u' => $member_info['id'],
 				'token' => $_REQUEST['token'],
 			);
@@ -379,8 +383,8 @@ function AnnouncementsNotify()
 	setNotifyPrefs((int) $member_info['id'], array('announcements' => $mode));
 
 	// Show a confirmation message.
-	$context['sub_template'] = 'notify_pref_changed';
-	$context['notify_success_msg'] = sprintf($txt['notify_announcements' . (!empty($mode) ? '_subscribed' : '_unsubscribed')], $member_info['email']);
+	Utils::$context['sub_template'] = 'notify_pref_changed';
+	Utils::$context['notify_success_msg'] = sprintf($txt['notify_announcements' . (!empty($mode) ? '_subscribed' : '_unsubscribed')], $member_info['email']);
 }
 
 ?>

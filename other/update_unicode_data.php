@@ -54,6 +54,8 @@ foreach (array('SMF_VERSION', 'SMF_SOFTWARE_YEAR') as $const)
 // 4. Get some more stuff we need.
 require_once($sourcedir . '/Autoloader.php');
 require_once($sourcedir . '/Subs.php');
+SMF\Config::$boarddir = $boarddir;
+SMF\Config::$sourcedir = $sourcedir;
 
 // 5. Do the job.
 $unicode_updater = new SMF\Tasks\UpdateUnicode(array());

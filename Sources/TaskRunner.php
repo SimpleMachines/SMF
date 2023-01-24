@@ -53,7 +53,7 @@ class TaskRunner
 	 */
 	public function __construct()
 	{
-		global $maintenance, $cachedir, $smcFunc, $db_show_debug, $sc, $boardurl;
+		global $sc;
 
 		define('FROM_CLI', empty($_SERVER['REQUEST_METHOD']));
 
@@ -65,12 +65,12 @@ class TaskRunner
 			define('MAX_CLAIM_THRESHOLD', self::MAX_CLAIM_THRESHOLD);
 
 		// Don't do john didley if the forum's been shut down completely.
-		if (!empty($maintenance) &&  2 === $maintenance)
+		if (!empty(Config::$maintenance) &&  2 === Config::$maintenance)
 			display_maintenance_message();
 
 		// Have we already turned this off? If so, exist gracefully.
 		// @todo Remove this? It's a bad idea to ever disable background tasks.
-		if (file_exists($cachedir . '/cron.lock'))
+		if (file_exists(Config::$cachedir . '/cron.lock'))
 			$this->obExit();
 
 		// Before we go any further, if this is not a CLI request, we need to do some checking.
@@ -92,14 +92,11 @@ class TaskRunner
 			$_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
 		}
 
-		// Create a variable to store some SMF specific functions in.
-		$smcFunc = array();
-
-		unset($db_show_debug);
+		Config::$db_show_debug = null;
 
 		Db::load();
 
-		reloadSettings();
+		Config::reloadModSettings();
 
 		// Just in case there's a problem...
 		set_error_handler(__CLASS__ . '::handleError');
@@ -107,7 +104,7 @@ class TaskRunner
 		$sc = '';
 
 		$_SERVER['QUERY_STRING'] = '';
-		$_SERVER['REQUEST_URL'] = FROM_CLI ? 'CLI cron.php' : $boardurl . '/cron.php';
+		$_SERVER['REQUEST_URL'] = FROM_CLI ? 'CLI cron.php' : Config::$boardurl . '/cron.php';
 
 		// Now 'clean the request' (or more accurately, ignore everything we're not going to use)
 		$this->cleanRequest();
@@ -122,15 +119,13 @@ class TaskRunner
 	 */
 	public function execute(): void
 	{
-		global $smcFunc, $sourcedir;
-
 		while ($task_details = $this->fetchTask())
 		{
 			$result = $this->performTask($task_details);
 
 			if ($result)
 			{
-				$smcFunc['db_query']('', '
+				Db::$db->query('', '
 					DELETE FROM {db_prefix}background_tasks
 					WHERE id_task = {int:task}',
 					array(
@@ -143,13 +138,13 @@ class TaskRunner
 		// If we have time, check the scheduled tasks.
 		if (time() - TIME_START < ceil(self::MAX_CRON_TIME / 2))
 		{
-			require_once($sourcedir . '/ScheduledTasks.php');
+			require_once(Config::$sourcedir . '/ScheduledTasks.php');
 
-			if (empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time())
+			if (empty(Config::$modSettings['next_task_time']) || Config::$modSettings['next_task_time'] < time())
 			{
 				AutoTask();
 			}
-			elseif (!empty($modSettings['mail_next_send']) && $modSettings['mail_next_send'] < time())
+			elseif (!empty(Config::$modSettings['mail_next_send']) && Config::$modSettings['mail_next_send'] < time())
 			{
 				ReduceMailQueue();
 			}
@@ -173,8 +168,6 @@ class TaskRunner
 	 */
 	public static function handleError($error_level, $error_string, $file, $line): void
 	{
-		global $modSettings;
-
 		// Ignore errors that should not be logged.
 		if (error_reporting() == 0)
 			return;
@@ -200,8 +193,6 @@ class TaskRunner
 	 */
 	protected function fetchTask(): bool|array
 	{
-		global $smcFunc;
-
 		// Check we haven't run over our time limit.
 		if (microtime(true) - TIME_START > self::MAX_CRON_TIME)
 			return false;
@@ -211,7 +202,7 @@ class TaskRunner
 		// failed for whatever reason and failed long enough ago. We should not
 		// care what task it is, merely that it is one in the queue; the order
 		// is irrelevant.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_task, task_file, task_class, task_data, claimed_time
 			FROM {db_prefix}background_tasks
 			WHERE claimed_time < {int:claim_limit}
@@ -220,11 +211,11 @@ class TaskRunner
 				'claim_limit' => time() - self::MAX_CLAIM_THRESHOLD,
 			)
 		);
-		if ($row = $smcFunc['db_fetch_assoc']($request))
+		if ($row = Db::$db->fetch_assoc($request))
 		{
 			// We found one. Let's try and claim it immediately.
-			$smcFunc['db_free_result']($request);
-			$smcFunc['db_query']('', '
+			Db::$db->free_result($request);
+			Db::$db->query('', '
 				UPDATE {db_prefix}background_tasks
 				SET claimed_time = {int:new_claimed}
 				WHERE id_task = {int:task}
@@ -236,7 +227,7 @@ class TaskRunner
 				)
 			);
 			// Could we claim it? If so, return it back.
-			if ($smcFunc['db_affected_rows']() != 0)
+			if (Db::$db->affected_rows() != 0)
 			{
 				// Update the time and go back.
 				$row['claimed_time'] = time();
@@ -252,7 +243,7 @@ class TaskRunner
 		else
 		{
 			// No dice. Clean up and go home.
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 			return false;
 		}
 	}
@@ -265,13 +256,11 @@ class TaskRunner
 	 */
 	protected function performTask($task_details): bool
 	{
-		global $smcFunc, $sourcedir, $boarddir;
-
 		// This indicates the file to load.
 		// Only needed for tasks that don't use the SMF\Tasks\ namespace.
 		if (!empty($task_details['task_file']))
 		{
-			$include = strtr(trim($task_details['task_file']), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir));
+			$include = strtr(trim($task_details['task_file']), array('$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir));
 
 			if (file_exists($include))
 				require_once($include);
@@ -289,7 +278,7 @@ class TaskRunner
 		// All background tasks need to be classes.
 		elseif (class_exists($task_details['task_class']) && is_subclass_of($task_details['task_class'], 'SMF\\Tasks\\BackgroundTask'))
 		{
-			$details = empty($task_details['task_data']) ? array() : $smcFunc['json_decode']($task_details['task_data'], true);
+			$details = empty($task_details['task_data']) ? array() : Utils::jsonDecode($task_details['task_data'], true);
 
 			$bgtask = new $task_details['task_class']($details);
 
@@ -298,7 +287,7 @@ class TaskRunner
 		// Backward compatibility for tasks listed in global namespace.
 		elseif (class_exists('SMF\Tasks\\' . $task_details['task_class']) && is_subclass_of('SMF\Tasks\\' . $task_details['task_class'], 'SMF\\Tasks\\BackgroundTask'))
 		{
-			$details = empty($task_details['task_data']) ? array() : $smcFunc['json_decode']($task_details['task_data'], true);
+			$details = empty($task_details['task_data']) ? array() : Utils::jsonDecode($task_details['task_data'], true);
 
 			$task_class = 'SMF\Tasks\\' . $task_details['task_class'];
 
@@ -324,10 +313,6 @@ class TaskRunner
 	 */
 	protected function cleanRequest()
 	{
-		global $scripturl, $boardurl;
-
-		$scripturl = $boardurl . '/index.php';
-
 		// These keys shouldn't be set...ever.
 		if (isset($_REQUEST['GLOBALS']) || isset($_COOKIE['GLOBALS']))
 			die('Invalid request variable.');

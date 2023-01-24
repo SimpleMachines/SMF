@@ -81,6 +81,10 @@ trait BackwardCompatibility
 	 */
 	public static function exportStatic(): void
 	{
+		// Do nothing if backward compatibility has been turned off.
+		if (empty(\SMF\Config::$backward_compatibility))
+			return;
+
 		$reflector = new \ReflectionClass(__CLASS__);
 
 		// Get any backward compatibility settings.

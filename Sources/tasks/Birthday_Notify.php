@@ -13,6 +13,10 @@
 
 namespace SMF\Tasks;
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
+
 /**
  * This class contains code used to send out "Happy Birthday" emails.
  */
@@ -26,23 +30,23 @@ class Birthday_Notify extends BackgroundTask
 	 */
 	public function execute()
 	{
-		global $txt, $smcFunc, $txtBirthdayEmails, $modSettings, $sourcedir;
+		global $txt, $txtBirthdayEmails;
 
-		$greeting = isset($modSettings['birthday_email']) ? $modSettings['birthday_email'] : 'happy_birthday';
+		$greeting = isset(Config::$modSettings['birthday_email']) ? Config::$modSettings['birthday_email'] : 'happy_birthday';
 
 		// Get the month and day of today.
 		$month = date('n'); // Month without leading zeros.
 		$day = date('j'); // Day without leading zeros.
 
 		// So who are the lucky ones?  Don't include those who are banned and those who don't want them.
-		$result = $smcFunc['db_query']('', '
+		$result = Db::$db->query('', '
 			SELECT id_member, real_name, lngfile, email_address
 			FROM {db_prefix}members
 			WHERE is_activated < 10
 				AND MONTH(birthdate) = {int:month}
 				AND DAYOFMONTH(birthdate) = {int:day}
 				AND YEAR(birthdate) > {int:year}
-				' . ($smcFunc['db_title'] === POSTGRE_TITLE ? 'AND indexable_month_day(birthdate) = indexable_month_day({date:bdate})' : ''),
+				' . (Db::$db->title === POSTGRE_TITLE ? 'AND indexable_month_day(birthdate) = indexable_month_day({date:bdate})' : ''),
 			array(
 				'year' => 1004,
 				'month' => $month,
@@ -53,7 +57,7 @@ class Birthday_Notify extends BackgroundTask
 
 		// Group them by languages.
 		$birthdays = array();
-		while ($row = $smcFunc['db_fetch_assoc']($result))
+		while ($row = Db::$db->fetch_assoc($result))
 		{
 			if (!isset($birthdays[$row['lngfile']]))
 				$birthdays[$row['lngfile']] = array();
@@ -62,14 +66,14 @@ class Birthday_Notify extends BackgroundTask
 				'email' => $row['email_address']
 			);
 		}
-		$smcFunc['db_free_result']($result);
+		Db::$db->free_result($result);
 
 		if (!empty($birthdays))
 		{
-			require_once($sourcedir . '/ScheduledTasks.php');
+			require_once(Config::$sourcedir . '/ScheduledTasks.php');
 			loadEssentialThemeData();
 			// We need this for sendmail and AddMailQueue
-			require_once($sourcedir . '/Subs-Post.php');
+			require_once(Config::$sourcedir . '/Subs-Post.php');
 
 			// Send out the greetings!
 			foreach ($birthdays as $lang => $members)
@@ -78,7 +82,7 @@ class Birthday_Notify extends BackgroundTask
 				loadLanguage('EmailTemplates', $lang);
 				$txt['happy_birthday_subject'] = $txtBirthdayEmails[$greeting . '_subject'];
 				$txt['happy_birthday_body'] = $txtBirthdayEmails[$greeting . '_body'];
-				require_once($sourcedir . '/Subs-Notify.php');
+				require_once(Config::$sourcedir . '/Subs-Notify.php');
 
 				$prefs = getNotifyPrefs(array_keys($members), array('birthday'), true);
 
@@ -104,7 +108,7 @@ class Birthday_Notify extends BackgroundTask
 							'content_id' => 0,
 							'content_action' => 'msg',
 							'is_read' => 0,
-							'extra' => $smcFunc['json_encode'](array('happy_birthday' => $alertdata['body'])),
+							'extra' => Utils::jsonEncode(array('happy_birthday' => $alertdata['body'])),
 						);
 					}
 
@@ -122,7 +126,7 @@ class Birthday_Notify extends BackgroundTask
 			// Insert the alerts if any
 			if (!empty($alert_rows))
 			{
-				$smcFunc['db_insert']('',
+				Db::$db->insert('',
 					'{db_prefix}user_alerts',
 					array(
 						'alert_time' => 'int', 'id_member' => 'int', 'content_type' => 'string',

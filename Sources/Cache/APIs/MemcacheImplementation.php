@@ -14,6 +14,7 @@
 namespace SMF\Cache\APIs;
 
 use Memcache;
+use SMF\Config;
 use SMF\Cache\CacheApi;
 use SMF\Cache\CacheApiInterface;
 
@@ -48,8 +49,6 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	 */
 	public function __construct()
 	{
-		global $cache_memcached;
-
 		$this->servers = array_map(
 			function($server)
 			{
@@ -63,7 +62,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 					return array($server[0], isset($server[1]) ? (int) $server[1] : 11211);
 				}
 			},
-			array_map('trim', explode(',', $cache_memcached))
+			array_map('trim', explode(',', Config::$cache_memcached))
 		);
 
 		parent::__construct();
@@ -87,8 +86,6 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	 */
 	public function connect()
 	{
-		global $db_persist;
-
 		$this->memcache = new Memcache();
 
 		// Don't try more times than we have servers!
@@ -110,7 +107,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 			$port = $server[1];
 
 			// Don't wait too long: yes, we want the server, but we might be able to run the query faster!
-			if (empty($db_persist))
+			if (empty(Config::$db_persist))
 				$connected = $this->memcache->connect($host, $port);
 
 			else
@@ -169,7 +166,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	 */
 	public function cacheSettings(array &$config_vars)
 	{
-		global $context, $txt;
+		global $txt;
 
 		if (!in_array($txt[self::CLASS_KEY .'_settings'], $config_vars))
 		{
@@ -183,11 +180,11 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 				'subtext' => $txt[self::CLASS_KEY .'_servers_subtext']);
 		}
 
-		if (!isset($context['settings_post_javascript']))
-			$context['settings_post_javascript'] = '';
+		if (!isset(Utils::$context['settings_post_javascript']))
+			Utils::$context['settings_post_javascript'] = '';
 
-		if (empty($context['settings_not_writable']))
-			$context['settings_post_javascript'] .= '
+		if (empty(Utils::$context['settings_not_writable']))
+			Utils::$context['settings_post_javascript'] .= '
 			$("#cache_accelerator").change(function (e) {
 				var cache_type = e.currentTarget.value;
 				$("#'. self::CLASS_KEY .'").prop("disabled", cache_type != "MemcacheImplementation" && cache_type != "MemcachedImplementation");

@@ -13,6 +13,10 @@
 
 namespace SMF\Tasks;
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
+
 /**
  * This class contains code used to notify moderators when someone files a report
  * about another member's profile.
@@ -27,17 +31,15 @@ class MemberReport_Notify extends BackgroundTask
 	 */
 	public function execute()
 	{
-		global $smcFunc, $sourcedir, $modSettings, $language, $scripturl;
-
 		// Anyone with moderate_forum can see this report
-		require_once($sourcedir . '/Subs-Members.php');
+		require_once(Config::$sourcedir . '/Subs-Members.php');
 		$members = membersAllowedTo('moderate_forum');
 
 		// And don't send it to them if they're the one who reported it.
 		$members = array_diff($members, array($this->_details['sender_id']));
 
 		// Having successfully figured this out, now let's get the preferences of everyone.
-		require_once($sourcedir . '/Subs-Notify.php');
+		require_once(Config::$sourcedir . '/Subs-Notify.php');
 		$prefs = getNotifyPrefs($members, 'member_report', true);
 
 		// So now we find out who wants what.
@@ -70,9 +72,9 @@ class MemberReport_Notify extends BackgroundTask
 					'content_id' => $this->_details['user_id'],
 					'content_action' => 'report',
 					'is_read' => 0,
-					'extra' => $smcFunc['json_encode'](
+					'extra' => Utils::jsonEncode(
 						array(
-							'report_link' => '?action=moderate;area=reportedmembers;sa=details;rid=' . $this->_details['report_id'], // We don't put $scripturl in these!
+							'report_link' => '?action=moderate;area=reportedmembers;sa=details;rid=' . $this->_details['report_id'], // We don't put Config::$scripturl in these!
 							'user_name' => $this->_details['user_name'],
 							'user_id' => $this->_details['user_id'],
 						)
@@ -80,7 +82,7 @@ class MemberReport_Notify extends BackgroundTask
 				);
 			}
 
-			$smcFunc['db_insert']('insert',
+			Db::$db->insert('insert',
 				'{db_prefix}user_alerts',
 				array('alert_time' => 'int', 'id_member' => 'int', 'id_member_started' => 'int',
 					'member_name' => 'string', 'content_type' => 'string', 'content_id' => 'int',
@@ -97,13 +99,13 @@ class MemberReport_Notify extends BackgroundTask
 		if (!empty($notifies['email']))
 		{
 			// Emails are a bit complicated. We have to do language stuff.
-			require_once($sourcedir . '/Subs-Post.php');
-			require_once($sourcedir . '/ScheduledTasks.php');
+			require_once(Config::$sourcedir . '/Subs-Post.php');
+			require_once(Config::$sourcedir . '/ScheduledTasks.php');
 			loadEssentialThemeData();
 
 			// First, get everyone's language and details.
 			$emails = array();
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT id_member, lngfile, email_address
 				FROM {db_prefix}members
 				WHERE id_member IN ({array_int:members})',
@@ -111,13 +113,13 @@ class MemberReport_Notify extends BackgroundTask
 					'members' => $notifies['email'],
 				)
 			);
-			while ($row = $smcFunc['db_fetch_assoc']($request))
+			while ($row = Db::$db->fetch_assoc($request))
 			{
 				if (empty($row['lngfile']))
-					$row['lngfile'] = $language;
+					$row['lngfile'] = Config::$language;
 				$emails[$row['lngfile']][$row['id_member']] = $row['email_address'];
 			}
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 
 			// Iterate through each language, load the relevant templates and set up sending.
 			foreach ($emails as $this_lang => $recipients)
@@ -125,12 +127,12 @@ class MemberReport_Notify extends BackgroundTask
 				$replacements = array(
 					'MEMBERNAME' => $this->_details['user_name'],
 					'REPORTERNAME' => $this->_details['sender_name'],
-					'PROFILELINK' => $scripturl . '?action=profile;u=' . $this->_details['user_id'],
-					'REPORTLINK' => $scripturl . '?action=moderate;area=reportedmembers;sa=details;rid=' . $this->_details['report_id'],
+					'PROFILELINK' => Config::$scripturl . '?action=profile;u=' . $this->_details['user_id'],
+					'REPORTLINK' => Config::$scripturl . '?action=moderate;area=reportedmembers;sa=details;rid=' . $this->_details['report_id'],
 					'COMMENT' => $this->_details['comment'],
 				);
 
-				$emaildata = loadEmailTemplate('report_member_profile', $replacements, empty($modSettings['userLanguage']) ? $language : $this_lang);
+				$emaildata = loadEmailTemplate('report_member_profile', $replacements, empty(Config::$modSettings['userLanguage']) ? Config::$language : $this_lang);
 
 				// And do the actual sending...
 				foreach ($recipients as $id_member => $email_address)

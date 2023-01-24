@@ -10,26 +10,29 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+
 /**
  * Add or edit a ban
  */
 function template_ban_edit()
 {
-	global $context, $scripturl, $txt, $modSettings;
+	global $txt;
 
 	echo '
 	<div id="manage_bans">
-		<form id="admin_form_wrapper" action="', $context['form_url'], '" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirmBan(this);">';
+		<form id="admin_form_wrapper" action="', Utils::$context['form_url'], '" method="post" accept-charset="', Utils::$context['character_set'], '" onsubmit="return confirmBan(this);">';
 
 	// If there were errors creating the ban, show them.
-	if (!empty($context['error_messages']))
+	if (!empty(Utils::$context['error_messages']))
 	{
 		echo '
 			<div class="errorbox">
 				<strong>', $txt['ban_errors_detected'], '</strong>
 				<ul>';
 
-		foreach ($context['error_messages'] as $error)
+		foreach (Utils::$context['error_messages'] as $error)
 			echo '
 					<li class="error">', $error, '</li>';
 
@@ -41,11 +44,11 @@ function template_ban_edit()
 	echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', $context['ban']['is_new'] ? $txt['ban_add_new'] : $txt['ban_edit'] . ' \'' . $context['ban']['name'] . '\'', '
+					', Utils::$context['ban']['is_new'] ? $txt['ban_add_new'] : $txt['ban_edit'] . ' \'' . Utils::$context['ban']['name'] . '\'', '
 				</h3>
 			</div>';
 
-	if ($context['ban']['is_new'])
+	if (Utils::$context['ban']['is_new'])
 		echo '
 			<div class="information noup">', $txt['ban_add_notes'], '</div>';
 
@@ -56,27 +59,27 @@ function template_ban_edit()
 						<strong>', $txt['ban_name'], ':</strong>
 					</dt>
 					<dd>
-						<input type="text" id="ban_name" name="ban_name" value="', $context['ban']['name'], '" size="45" maxlength="60">
+						<input type="text" id="ban_name" name="ban_name" value="', Utils::$context['ban']['name'], '" size="45" maxlength="60">
 					</dd>';
 
-	if (isset($context['ban']['reason']))
+	if (isset(Utils::$context['ban']['reason']))
 		echo '
 					<dt>
 						<strong><label for="reason">', $txt['ban_reason'], ':</label></strong><br>
 						<span class="smalltext">', $txt['ban_reason_desc'], '</span>
 					</dt>
 					<dd>
-						<textarea name="reason" id="reason" cols="40" rows="3">', $context['ban']['reason'], '</textarea>
+						<textarea name="reason" id="reason" cols="40" rows="3">', Utils::$context['ban']['reason'], '</textarea>
 					</dd>';
 
-	if (isset($context['ban']['notes']))
+	if (isset(Utils::$context['ban']['notes']))
 		echo '
 					<dt>
 						<strong><label for="ban_notes">', $txt['ban_notes'], ':</label></strong><br>
 						<span class="smalltext">', $txt['ban_notes_desc'], '</span>
 					</dt>
 					<dd>
-						<textarea name="notes" id="ban_notes" cols="40" rows="3">', $context['ban']['notes'], '</textarea>
+						<textarea name="notes" id="ban_notes" cols="40" rows="3">', Utils::$context['ban']['notes'], '</textarea>
 					</dd>';
 
 	echo '
@@ -85,23 +88,23 @@ function template_ban_edit()
 					<legend>
 						', $txt['ban_expiration'], '
 					</legend>
-					<input type="radio" name="expiration" value="never" id="never_expires" onclick="fUpdateStatus();"', $context['ban']['expiration']['status'] == 'never' ? ' checked' : '', '> <label for="never_expires">', $txt['never'], '</label><br>
-					<input type="radio" name="expiration" value="one_day" id="expires_one_day" onclick="fUpdateStatus();"', $context['ban']['expiration']['status'] == 'one_day' ? ' checked' : '', '> <label for="expires_one_day">', $txt['ban_will_expire_within'], '</label>: <input type="number" name="expire_date" id="expire_date" size="3" value="', $context['ban']['expiration']['days'], '"> ', $txt['ban_days'], '<br>
-					<input type="radio" name="expiration" value="expired" id="already_expired" onclick="fUpdateStatus();"', $context['ban']['expiration']['status'] == 'expired' ? ' checked' : '', '> <label for="already_expired">', $txt['ban_expired'], '</label>
+					<input type="radio" name="expiration" value="never" id="never_expires" onclick="fUpdateStatus();"', Utils::$context['ban']['expiration']['status'] == 'never' ? ' checked' : '', '> <label for="never_expires">', $txt['never'], '</label><br>
+					<input type="radio" name="expiration" value="one_day" id="expires_one_day" onclick="fUpdateStatus();"', Utils::$context['ban']['expiration']['status'] == 'one_day' ? ' checked' : '', '> <label for="expires_one_day">', $txt['ban_will_expire_within'], '</label>: <input type="number" name="expire_date" id="expire_date" size="3" value="', Utils::$context['ban']['expiration']['days'], '"> ', $txt['ban_days'], '<br>
+					<input type="radio" name="expiration" value="expired" id="already_expired" onclick="fUpdateStatus();"', Utils::$context['ban']['expiration']['status'] == 'expired' ? ' checked' : '', '> <label for="already_expired">', $txt['ban_expired'], '</label>
 				</fieldset>
 				<fieldset class="ban_settings floatright">
 					<legend>
 						', $txt['ban_restriction'], '
 					</legend>
-					<input type="radio" name="full_ban" id="full_ban" value="1" onclick="fUpdateStatus();"', $context['ban']['cannot']['access'] ? ' checked' : '', '> <label for="full_ban">', $txt['ban_full_ban'], '</label><br>
-					<input type="radio" name="full_ban" id="partial_ban" value="0" onclick="fUpdateStatus();"', !$context['ban']['cannot']['access'] ? ' checked' : '', '> <label for="partial_ban">', $txt['ban_partial_ban'], '</label><br>
-					<input type="checkbox" name="cannot_post" id="cannot_post" value="1"', $context['ban']['cannot']['post'] ? ' checked' : '', ' class="ban_restriction"> <label for="cannot_post">', $txt['ban_cannot_post'], '</label> (<a href="', $scripturl, '?action=helpadmin;help=ban_cannot_post" onclick="return reqOverlayDiv(this.href);">?</a>)<br>
-					<input type="checkbox" name="cannot_register" id="cannot_register" value="1"', $context['ban']['cannot']['register'] ? ' checked' : '', ' class="ban_restriction"> <label for="cannot_register">', $txt['ban_cannot_register'], '</label><br>
-					<input type="checkbox" name="cannot_login" id="cannot_login" value="1"', $context['ban']['cannot']['login'] ? ' checked' : '', ' class="ban_restriction"> <label for="cannot_login">', $txt['ban_cannot_login'], '</label><br>
+					<input type="radio" name="full_ban" id="full_ban" value="1" onclick="fUpdateStatus();"', Utils::$context['ban']['cannot']['access'] ? ' checked' : '', '> <label for="full_ban">', $txt['ban_full_ban'], '</label><br>
+					<input type="radio" name="full_ban" id="partial_ban" value="0" onclick="fUpdateStatus();"', !Utils::$context['ban']['cannot']['access'] ? ' checked' : '', '> <label for="partial_ban">', $txt['ban_partial_ban'], '</label><br>
+					<input type="checkbox" name="cannot_post" id="cannot_post" value="1"', Utils::$context['ban']['cannot']['post'] ? ' checked' : '', ' class="ban_restriction"> <label for="cannot_post">', $txt['ban_cannot_post'], '</label> (<a href="', Config::$scripturl, '?action=helpadmin;help=ban_cannot_post" onclick="return reqOverlayDiv(this.href);">?</a>)<br>
+					<input type="checkbox" name="cannot_register" id="cannot_register" value="1"', Utils::$context['ban']['cannot']['register'] ? ' checked' : '', ' class="ban_restriction"> <label for="cannot_register">', $txt['ban_cannot_register'], '</label><br>
+					<input type="checkbox" name="cannot_login" id="cannot_login" value="1"', Utils::$context['ban']['cannot']['login'] ? ' checked' : '', ' class="ban_restriction"> <label for="cannot_login">', $txt['ban_cannot_login'], '</label><br>
 				</fieldset>
 				<br class="clear_right">';
 
-	if (!empty($context['ban_suggestions']))
+	if (!empty(Utils::$context['ban_suggestions']))
 	{
 		echo '
 				<fieldset>
@@ -110,43 +113,43 @@ function template_ban_edit()
 					</legend>
 					<dl class="settings">
 						<dt>
-							<input type="checkbox" name="ban_suggestions[]" id="main_ip_check" value="main_ip"', !empty($context['ban_suggestions']['main_ip']) ? ' checked' : '', '>
+							<input type="checkbox" name="ban_suggestions[]" id="main_ip_check" value="main_ip"', !empty(Utils::$context['ban_suggestions']['main_ip']) ? ' checked' : '', '>
 							<label for="main_ip_check">', $txt['ban_on_ip'], '</label>
 						</dt>
 						<dd>
-							<input type="text" name="main_ip" value="', $context['ban_suggestions']['main_ip'], '" size="44" onfocus="document.getElementById(\'main_ip_check\').checked = true;">
+							<input type="text" name="main_ip" value="', Utils::$context['ban_suggestions']['main_ip'], '" size="44" onfocus="document.getElementById(\'main_ip_check\').checked = true;">
 						</dd>';
 
-		if (empty($modSettings['disableHostnameLookup']))
+		if (empty(Config::$modSettings['disableHostnameLookup']))
 			echo '
 						<dt>
-							<input type="checkbox" name="ban_suggestions[]" id="hostname_check" value="hostname"', !empty($context['ban_suggestions']['hostname']) ? ' checked' : '', '>
+							<input type="checkbox" name="ban_suggestions[]" id="hostname_check" value="hostname"', !empty(Utils::$context['ban_suggestions']['hostname']) ? ' checked' : '', '>
 							<label for="hostname_check">', $txt['ban_on_hostname'], '</label>
 						</dt>
 						<dd>
-							<input type="text" name="hostname" value="', $context['ban_suggestions']['hostname'], '" size="44" onfocus="document.getElementById(\'hostname_check\').checked = true;">
+							<input type="text" name="hostname" value="', Utils::$context['ban_suggestions']['hostname'], '" size="44" onfocus="document.getElementById(\'hostname_check\').checked = true;">
 						</dd>';
 
 		echo '
 						<dt>
-							<input type="checkbox" name="ban_suggestions[]" id="email_check" value="email"', !empty($context['ban_suggestions']['email']) ? ' checked' : '', '>
+							<input type="checkbox" name="ban_suggestions[]" id="email_check" value="email"', !empty(Utils::$context['ban_suggestions']['email']) ? ' checked' : '', '>
 							<label for="email_check">', $txt['ban_on_email'], '</label>
 						</dt>
 						<dd>
-							<input type="email" name="email" value="', $context['ban_suggestions']['email'], '" size="44" onfocus="document.getElementById(\'email_check\').checked = true;">
+							<input type="email" name="email" value="', Utils::$context['ban_suggestions']['email'], '" size="44" onfocus="document.getElementById(\'email_check\').checked = true;">
 						</dd>
 						<dt>
-							<input type="checkbox" name="ban_suggestions[]" id="user_check" value="user"', !empty($context['ban_suggestions']['user']) || isset($context['ban']['from_user']) ? ' checked' : '', '>
+							<input type="checkbox" name="ban_suggestions[]" id="user_check" value="user"', !empty(Utils::$context['ban_suggestions']['user']) || isset(Utils::$context['ban']['from_user']) ? ' checked' : '', '>
 							<label for="user_check">', $txt['ban_on_username'], '</label>:
 						</dt>
 						<dd>
-							<input type="text" ', isset($context['ban']['from_user']) ? 'readonly value="' . $context['ban_suggestions']['member']['name'] . '"' : ' value=""', ' name="user" id="user" size="44">
+							<input type="text" ', isset(Utils::$context['ban']['from_user']) ? 'readonly value="' . Utils::$context['ban_suggestions']['member']['name'] . '"' : ' value=""', ' name="user" id="user" size="44">
 						</dd>
 					</dl>';
 
-		if (!empty($context['ban_suggestions']['other_ips']))
+		if (!empty(Utils::$context['ban_suggestions']['other_ips']))
 		{
-			foreach ($context['ban_suggestions']['other_ips'] as $key => $ban_ips)
+			foreach (Utils::$context['ban_suggestions']['other_ips'] as $key => $ban_ips)
 			{
 				if (!empty($ban_ips))
 				{
@@ -158,7 +161,7 @@ function template_ban_edit()
 					foreach ($ban_ips as $ip)
 						echo '
 						<dt>
-							<input type="checkbox" id="suggestions_', $key, '_', $count, '" name="ban_suggestions[', $key, '][]"', !empty($context['ban_suggestions']['saved_triggers'][$key]) && in_array($ip, $context['ban_suggestions']['saved_triggers'][$key]) ? ' checked' : '', ' value="', $ip, '">
+							<input type="checkbox" id="suggestions_', $key, '_', $count, '" name="ban_suggestions[', $key, '][]"', !empty(Utils::$context['ban_suggestions']['saved_triggers'][$key]) && in_array($ip, Utils::$context['ban_suggestions']['saved_triggers'][$key]) ? ' checked' : '', ' value="', $ip, '">
 						</dt>
 						<dd>
 							<label for="suggestions_', $key, '_', $count++, '">', $ip, '</label>
@@ -175,16 +178,16 @@ function template_ban_edit()
 	}
 
 	echo '
-				<input type="submit" name="', $context['ban']['is_new'] ? 'add_ban' : 'modify_ban', '" value="', $context['ban']['is_new'] ? $txt['ban_add'] : $txt['ban_modify'], '" class="button">
-				<input type="hidden" name="old_expire" value="', $context['ban']['expiration']['days'], '">
-				<input type="hidden" name="bg" value="', $context['ban']['id'], '">', isset($context['ban']['from_user']) ? '
-				<input type="hidden" name="u" value="' . $context['ban_suggestions']['member']['id'] . '">' : '', '
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-				<input type="hidden" name="', $context['admin-bet_token_var'], '" value="', $context['admin-bet_token'], '">
+				<input type="submit" name="', Utils::$context['ban']['is_new'] ? 'add_ban' : 'modify_ban', '" value="', Utils::$context['ban']['is_new'] ? $txt['ban_add'] : $txt['ban_modify'], '" class="button">
+				<input type="hidden" name="old_expire" value="', Utils::$context['ban']['expiration']['days'], '">
+				<input type="hidden" name="bg" value="', Utils::$context['ban']['id'], '">', isset(Utils::$context['ban']['from_user']) ? '
+				<input type="hidden" name="u" value="' . Utils::$context['ban_suggestions']['member']['id'] . '">' : '', '
+				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+				<input type="hidden" name="', Utils::$context['admin-bet_token_var'], '" value="', Utils::$context['admin-bet_token'], '">
 			</div><!-- .windowbg -->
 		</form>';
 
-	if (!$context['ban']['is_new'] && empty($context['ban_suggestions']))
+	if (!Utils::$context['ban']['is_new'] && empty(Utils::$context['ban_suggestions']))
 	{
 		echo '
 		<br>';
@@ -204,7 +207,7 @@ function template_ban_edit()
 		addLoadEvent(fUpdateStatus);';
 
 	// Auto suggest only needed for adding new bans, not editing
-	if ($context['ban']['is_new'] && empty($_REQUEST['u']))
+	if (Utils::$context['ban']['is_new'] && empty($_REQUEST['u']))
 		echo '
 		var oAddMemberSuggest = new smc_AutoSuggest({
 			sSelf: \'oAddMemberSuggest\',
@@ -247,71 +250,71 @@ function template_ban_edit()
  */
 function template_ban_edit_trigger()
 {
-	global $context, $txt, $modSettings;
+	global $txt;
 
 	echo '
 	<div id="manage_bans">
-		<form id="admin_form_wrapper" action="', $context['form_url'], '" method="post" accept-charset="', $context['character_set'], '">
+		<form id="admin_form_wrapper" action="', Utils::$context['form_url'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', $context['ban_trigger']['is_new'] ? $txt['ban_add_trigger'] : $txt['ban_edit_trigger_title'], '
+					', Utils::$context['ban_trigger']['is_new'] ? $txt['ban_add_trigger'] : $txt['ban_edit_trigger_title'], '
 				</h3>
 			</div>
 			<div class="windowbg">
 				<fieldset>';
-	if ($context['ban_trigger']['is_new'])
+	if (Utils::$context['ban_trigger']['is_new'])
 		echo '
 					<legend>
 						<input type="checkbox" onclick="invertAll(this, this.form, \'ban_suggestion\');"> ', $txt['ban_triggers'], '
 					</legend>';
 	echo '
 					<dl class="settings">';
-	if ($context['ban_trigger']['is_new'] || $context['ban_trigger']['ip']['selected'])
+	if (Utils::$context['ban_trigger']['is_new'] || Utils::$context['ban_trigger']['ip']['selected'])
 		echo '
 						<dt>
-							<input type="checkbox" name="ban_suggestions[]" id="main_ip_check" value="main_ip"', $context['ban_trigger']['ip']['selected'] ? ' checked' : '', '>
+							<input type="checkbox" name="ban_suggestions[]" id="main_ip_check" value="main_ip"', Utils::$context['ban_trigger']['ip']['selected'] ? ' checked' : '', '>
 							<label for="main_ip_check">', $txt['ban_on_ip'], '</label>
 						</dt>
 						<dd>
-							<input type="text" name="main_ip" value="', $context['ban_trigger']['ip']['value'], '" size="44" onfocus="document.getElementById(\'main_ip_check\').checked = true;">
+							<input type="text" name="main_ip" value="', Utils::$context['ban_trigger']['ip']['value'], '" size="44" onfocus="document.getElementById(\'main_ip_check\').checked = true;">
 						</dd>';
 
-	if (empty($modSettings['disableHostnameLookup']) && ($context['ban_trigger']['is_new'] || $context['ban_trigger']['hostname']['selected']))
+	if (empty(Config::$modSettings['disableHostnameLookup']) && (Utils::$context['ban_trigger']['is_new'] || Utils::$context['ban_trigger']['hostname']['selected']))
 		echo '
 						<dt>
-							<input type="checkbox" name="ban_suggestions[]" id="hostname_check" value="hostname"', $context['ban_trigger']['hostname']['selected'] ? ' checked' : '', '>
+							<input type="checkbox" name="ban_suggestions[]" id="hostname_check" value="hostname"', Utils::$context['ban_trigger']['hostname']['selected'] ? ' checked' : '', '>
 							<label for="hostname_check">', $txt['ban_on_hostname'], '</label>
 						</dt>
 						<dd>
-							<input type="text" name="hostname" value="', $context['ban_trigger']['hostname']['value'], '" size="44" onfocus="document.getElementById(\'hostname_check\').checked = true;">
+							<input type="text" name="hostname" value="', Utils::$context['ban_trigger']['hostname']['value'], '" size="44" onfocus="document.getElementById(\'hostname_check\').checked = true;">
 						</dd>';
-	if ($context['ban_trigger']['is_new'] || $context['ban_trigger']['email']['selected'])
+	if (Utils::$context['ban_trigger']['is_new'] || Utils::$context['ban_trigger']['email']['selected'])
 		echo '
 						<dt>
-							<input type="checkbox" name="ban_suggestions[]" id="email_check" value="email"', $context['ban_trigger']['email']['selected'] ? ' checked' : '', '>
+							<input type="checkbox" name="ban_suggestions[]" id="email_check" value="email"', Utils::$context['ban_trigger']['email']['selected'] ? ' checked' : '', '>
 							<label for="email_check">', $txt['ban_on_email'], '</label>
 						</dt>
 						<dd>
-							<input type="email" name="email" value="', $context['ban_trigger']['email']['value'], '" size="44" onfocus="document.getElementById(\'email_check\').checked = true;">
+							<input type="email" name="email" value="', Utils::$context['ban_trigger']['email']['value'], '" size="44" onfocus="document.getElementById(\'email_check\').checked = true;">
 						</dd>';
-	if ($context['ban_trigger']['is_new'] || $context['ban_trigger']['banneduser']['selected'])
+	if (Utils::$context['ban_trigger']['is_new'] || Utils::$context['ban_trigger']['banneduser']['selected'])
 		echo '
 						<dt>
-							<input type="checkbox" name="ban_suggestions[]" id="user_check" value="user"', $context['ban_trigger']['banneduser']['selected'] ? ' checked' : '', '>
+							<input type="checkbox" name="ban_suggestions[]" id="user_check" value="user"', Utils::$context['ban_trigger']['banneduser']['selected'] ? ' checked' : '', '>
 							<label for="user_check">', $txt['ban_on_username'], '</label>:
 						</dt>
 						<dd>
-							<input type="text" value="' . $context['ban_trigger']['banneduser']['value'] . '" name="user" id="user" size="44"  onfocus="document.getElementById(\'user_check\').checked = true;">
+							<input type="text" value="' . Utils::$context['ban_trigger']['banneduser']['value'] . '" name="user" id="user" size="44"  onfocus="document.getElementById(\'user_check\').checked = true;">
 						</dd>';
 	echo '
 					</dl>
 				</fieldset>
-				<input type="submit" name="', $context['ban_trigger']['is_new'] ? 'add_new_trigger' : 'edit_trigger', '" value="', $context['ban_trigger']['is_new'] ? $txt['ban_add_trigger_submit'] : $txt['ban_edit_trigger_submit'], '" class="button">
+				<input type="submit" name="', Utils::$context['ban_trigger']['is_new'] ? 'add_new_trigger' : 'edit_trigger', '" value="', Utils::$context['ban_trigger']['is_new'] ? $txt['ban_add_trigger_submit'] : $txt['ban_edit_trigger_submit'], '" class="button">
 			</div><!-- .windowbg -->
-			<input type="hidden" name="bi" value="' . $context['ban_trigger']['id'] . '">
-			<input type="hidden" name="bg" value="' . $context['ban_trigger']['group'] . '">
-			<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
-			<input type="hidden" name="', $context['admin-bet_token_var'], '" value="', $context['admin-bet_token'], '">
+			<input type="hidden" name="bi" value="' . Utils::$context['ban_trigger']['id'] . '">
+			<input type="hidden" name="bg" value="' . Utils::$context['ban_trigger']['group'] . '">
+			<input type="hidden" name="' . Utils::$context['session_var'] . '" value="' . Utils::$context['session_id'] . '">
+			<input type="hidden" name="', Utils::$context['admin-bet_token_var'], '" value="', Utils::$context['admin-bet_token'], '">
 		</form>
 	</div><!-- #manage_bans -->
 	<script>

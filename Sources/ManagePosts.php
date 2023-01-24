@@ -13,6 +13,10 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -26,7 +30,7 @@ if (!defined('SMF'))
  */
 function ManagePostSettings()
 {
-	global $context, $txt;
+	global $txt;
 
 	// Make sure you can be here.
 	isAllowedTo('admin_forum');
@@ -39,10 +43,10 @@ function ManagePostSettings()
 		'drafts' => 'ModifyDraftSettings',
 	);
 
-	$context['page_title'] = $txt['manageposts_title'];
+	Utils::$context['page_title'] = $txt['manageposts_title'];
 
 	// Tabs for browsing the different post functions.
-	$context[$context['admin_menu_name']]['tab_data'] = array(
+	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['manageposts_title'],
 		'help' => 'posts_and_topics',
 		'description' => $txt['manageposts_description'],
@@ -82,7 +86,7 @@ function ManagePostSettings()
  */
 function SetCensor()
 {
-	global $txt, $modSettings, $context, $smcFunc, $sourcedir;
+	global $txt;
 
 	if (!empty($_POST['save_censor']))
 	{
@@ -123,8 +127,8 @@ function SetCensor()
 
 		// Set the new arrays and settings in the database.
 		$updates = array(
-			'censor_vulgar' => $smcFunc['normalize'](implode("\n", $censored_vulgar)),
-			'censor_proper' => $smcFunc['normalize'](implode("\n", $censored_proper)),
+			'censor_vulgar' => Utils::normalize(implode("\n", $censored_vulgar)),
+			'censor_proper' => Utils::normalize(implode("\n", $censored_proper)),
 			'allow_no_censored' => empty($_POST['allow_no_censored']) ? '0' : '1',
 			'censorWholeWord' => empty($_POST['censorWholeWord']) ? '0' : '1',
 			'censorIgnoreCase' => empty($_POST['censorIgnoreCase']) ? '0' : '1',
@@ -132,23 +136,23 @@ function SetCensor()
 
 		call_integration_hook('integrate_save_censors', array(&$updates));
 
-		$context['saved_successful'] = true;
-		updateSettings($updates);
+		Utils::$context['saved_successful'] = true;
+		Config::updateModSettings($updates);
 	}
 
 	if (isset($_POST['censortest']))
 	{
-		require_once($sourcedir . '/Subs-Post.php');
-		$censorText = $smcFunc['htmlspecialchars']($_POST['censortest'], ENT_QUOTES);
+		require_once(Config::$sourcedir . '/Subs-Post.php');
+		$censorText = Utils::htmlspecialchars($_POST['censortest'], ENT_QUOTES);
 		preparsecode($censorText);
-		$context['censor_test'] = strtr(censorText($censorText), array('"' => '&quot;'));
+		Utils::$context['censor_test'] = strtr(censorText($censorText), array('"' => '&quot;'));
 	}
 
 	// Set everything up for the template to do its thang.
-	$censor_vulgar = explode("\n", $modSettings['censor_vulgar']);
-	$censor_proper = explode("\n", $modSettings['censor_proper']);
+	$censor_vulgar = explode("\n", Config::$modSettings['censor_vulgar']);
+	$censor_proper = explode("\n", Config::$modSettings['censor_proper']);
 
-	$context['censored_words'] = array();
+	Utils::$context['censored_words'] = array();
 	for ($i = 0, $n = count($censor_vulgar); $i < $n; $i++)
 	{
 		if (empty($censor_vulgar[$i]))
@@ -158,7 +162,7 @@ function SetCensor()
 		if (trim(strtr($censor_vulgar[$i], '*', ' ')) == '')
 			continue;
 
-		$context['censored_words'][$smcFunc['htmlspecialchars'](trim($censor_vulgar[$i]))] = isset($censor_proper[$i]) ? $smcFunc['htmlspecialchars']($censor_proper[$i]) : '';
+		Utils::$context['censored_words'][Utils::htmlspecialchars(trim($censor_vulgar[$i]))] = isset($censor_proper[$i]) ? Utils::htmlspecialchars($censor_proper[$i]) : '';
 	}
 
 	call_integration_hook('integrate_censors');
@@ -166,8 +170,8 @@ function SetCensor()
 	// Since the "Allow users to disable the word censor" stuff was moved from a theme setting to a global one, we need this...
 	loadLanguage('Themes');
 
-	$context['sub_template'] = 'edit_censored';
-	$context['page_title'] = $txt['admin_censored_words'];
+	Utils::$context['sub_template'] = 'edit_censored';
+	Utils::$context['page_title'] = $txt['admin_censored_words'];
 
 	createToken('admin-censor');
 }
@@ -183,7 +187,7 @@ function SetCensor()
  */
 function ModifyPostSettings($return_config = false)
 {
-	global $context, $txt, $modSettings, $scripturl, $sourcedir, $smcFunc, $db_type;
+	global $txt;
 
 	// All the settings...
 	$config_vars = array(
@@ -223,11 +227,11 @@ function ModifyPostSettings($return_config = false)
 		return $config_vars;
 
 	// We'll want this for our easy save.
-	require_once($sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/ManageServer.php');
 
 	// Setup the template.
-	$context['page_title'] = $txt['manageposts_settings'];
-	$context['sub_template'] = 'show_settings';
+	Utils::$context['page_title'] = $txt['manageposts_settings'];
+	Utils::$context['sub_template'] = 'show_settings';
 
 	// Are we saving them - are we??
 	if (isset($_GET['save']))
@@ -235,15 +239,15 @@ function ModifyPostSettings($return_config = false)
 		checkSession();
 
 		// If we're changing the message length (and we are using MySQL) let's check the column is big enough.
-		if (isset($_POST['max_messageLength']) && $_POST['max_messageLength'] != $modSettings['max_messageLength'] && ($db_type == 'mysql'))
+		if (isset($_POST['max_messageLength']) && $_POST['max_messageLength'] != Config::$modSettings['max_messageLength'] && (Config::$db_type == 'mysql'))
 		{
-			$colData = $smcFunc['db_list_columns']('{db_prefix}messages', true);
+			$colData = Db::$db->list_columns('{db_prefix}messages', true);
 			foreach ($colData as $column)
 				if ($column['name'] == 'body')
 					$body_type = $column['type'];
 
 			if (isset($body_type) && ($_POST['max_messageLength'] > 65535 || $_POST['max_messageLength'] == 0) && $body_type == 'text')
-				fatal_lang_error('convert_to_mediumtext', false, array($scripturl . '?action=admin;area=maintain;sa=database'));
+				fatal_lang_error('convert_to_mediumtext', false, array(Config::$scripturl . '?action=admin;area=maintain;sa=database'));
 		}
 
 		// If we're changing the post preview length let's check its valid
@@ -258,8 +262,8 @@ function ModifyPostSettings($return_config = false)
 	}
 
 	// Final settings...
-	$context['post_url'] = $scripturl . '?action=admin;area=postsettings;save;sa=posts';
-	$context['settings_title'] = $txt['manageposts_settings'];
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=postsettings;save;sa=posts';
+	Utils::$context['settings_title'] = $txt['manageposts_settings'];
 
 	// Prepare the settings...
 	prepareDBSettingContext($config_vars);
@@ -276,7 +280,7 @@ function ModifyPostSettings($return_config = false)
  */
 function ModifyTopicSettings($return_config = false)
 {
-	global $context, $txt, $sourcedir, $scripturl;
+	global $txt;
 
 	// Here are all the topic settings.
 	$config_vars = array(
@@ -317,11 +321,11 @@ function ModifyTopicSettings($return_config = false)
 		return $config_vars;
 
 	// Get the settings template ready.
-	require_once($sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/ManageServer.php');
 
 	// Setup the template.
-	$context['page_title'] = $txt['manageposts_topic_settings'];
-	$context['sub_template'] = 'show_settings';
+	Utils::$context['page_title'] = $txt['manageposts_topic_settings'];
+	Utils::$context['sub_template'] = 'show_settings';
 
 	// Are we saving them - are we??
 	if (isset($_GET['save']))
@@ -335,8 +339,8 @@ function ModifyTopicSettings($return_config = false)
 	}
 
 	// Final settings...
-	$context['post_url'] = $scripturl . '?action=admin;area=postsettings;save;sa=topics';
-	$context['settings_title'] = $txt['manageposts_topic_settings'];
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=postsettings;save;sa=topics';
+	Utils::$context['settings_title'] = $txt['manageposts_topic_settings'];
 
 	// Prepare the settings...
 	prepareDBSettingContext($config_vars);
@@ -353,7 +357,7 @@ function ModifyTopicSettings($return_config = false)
  */
 function ModifyDraftSettings($return_config = false)
 {
-	global $context, $txt, $sourcedir, $scripturl, $smcFunc;
+	global $txt;
 
 	// Here are all the draft settings, a bit lite for now, but we can add more :P
 	$config_vars = array(
@@ -371,11 +375,11 @@ function ModifyDraftSettings($return_config = false)
 		return $config_vars;
 
 	// Get the settings template ready.
-	require_once($sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/ManageServer.php');
 
 	// Setup the template.
-	$context['page_title'] = $txt['managedrafts_settings'];
-	$context['sub_template'] = 'show_settings';
+	Utils::$context['page_title'] = $txt['managedrafts_settings'];
+	Utils::$context['sub_template'] = 'show_settings';
 
 	// Saving them ?
 	if (isset($_GET['save']))
@@ -386,7 +390,7 @@ function ModifyDraftSettings($return_config = false)
 		$_POST['drafts_autosave_frequency'] = !isset($_POST['drafts_autosave_frequency']) || $_POST['drafts_autosave_frequency'] < 30 ? 30 : $_POST['drafts_autosave_frequency'];
 
 		// Also disable the scheduled task if we're not using it.
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}scheduled_tasks
 			SET disabled = {int:disabled}
 			WHERE task = {string:task}',
@@ -395,7 +399,7 @@ function ModifyDraftSettings($return_config = false)
 				'task' => 'remove_old_drafts',
 			)
 		);
-		require_once($sourcedir . '/ScheduledTasks.php');
+		require_once(Config::$sourcedir . '/ScheduledTasks.php');
 		CalculateNextTrigger();
 
 		// Save everything else and leave.
@@ -405,7 +409,7 @@ function ModifyDraftSettings($return_config = false)
 	}
 
 	// some javascript to enable / disable the frequency input box
-	$context['settings_post_javascript'] = '
+	Utils::$context['settings_post_javascript'] = '
 		function toggle()
 		{
 			$("#drafts_autosave_frequency").prop("disabled", !($("#drafts_autosave_enabled").prop("checked")));
@@ -416,8 +420,8 @@ function ModifyDraftSettings($return_config = false)
 	';
 
 	// Final settings...
-	$context['post_url'] = $scripturl . '?action=admin;area=postsettings;sa=drafts;save';
-	$context['settings_title'] = $txt['managedrafts_settings'];
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=postsettings;sa=drafts;save';
+	Utils::$context['settings_title'] = $txt['managedrafts_settings'];
 
 	// Prepare the settings...
 	prepareDBSettingContext($config_vars);

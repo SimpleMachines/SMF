@@ -17,6 +17,9 @@
 
 use SMF\BrowserDetector;
 use SMF\BBCodeParser;
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -28,15 +31,15 @@ if (!defined('SMF'))
  */
 function Register($reg_errors = array())
 {
-	global $txt, $boarddir, $context, $modSettings, $user_info;
-	global $language, $scripturl, $smcFunc, $sourcedir, $cur_profile;
+	global $txt, $user_info;
+	global $cur_profile;
 
 	// Is this an incoming AJAX check?
 	if (isset($_GET['sa']) && $_GET['sa'] == 'usernamecheck')
 		return RegisterCheckUsername();
 
 	// Check if the administrator has it disabled.
-	if (!empty($modSettings['registration_method']) && $modSettings['registration_method'] == '3')
+	if (!empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == '3')
 		fatal_lang_error('registration_disabled', false);
 
 	// If this user is an admin - redirect them to the admin registration page.
@@ -50,67 +53,67 @@ function Register($reg_errors = array())
 	loadTemplate('Register');
 
 	// How many steps have we done so far today?
-	$current_step = isset($_REQUEST['step']) ? (int) $_REQUEST['step'] : (!empty($modSettings['requireAgreement']) || !empty($modSettings['requirePolicyAgreement']) ? 1 : 2);
+	$current_step = isset($_REQUEST['step']) ? (int) $_REQUEST['step'] : (!empty(Config::$modSettings['requireAgreement']) || !empty(Config::$modSettings['requirePolicyAgreement']) ? 1 : 2);
 
 	// Do we need them to agree to the registration agreement and/or privacy policy agreement, first?
-	$context['registration_passed_agreement'] = !empty($_SESSION['registration_agreed']);
-	$context['show_coppa'] = !empty($modSettings['coppaAge']);
+	Utils::$context['registration_passed_agreement'] = !empty($_SESSION['registration_agreed']);
+	Utils::$context['show_coppa'] = !empty(Config::$modSettings['coppaAge']);
 
 	$agree_txt_key = '';
 	if ($current_step == 1)
 	{
-		if (!empty($modSettings['requireAgreement']) && !empty($modSettings['requirePolicyAgreement']))
+		if (!empty(Config::$modSettings['requireAgreement']) && !empty(Config::$modSettings['requirePolicyAgreement']))
 			$agree_txt_key = 'agreement_policy_';
-		elseif (!empty($modSettings['requireAgreement']))
+		elseif (!empty(Config::$modSettings['requireAgreement']))
 			$agree_txt_key = 'agreement_';
-		elseif (!empty($modSettings['requirePolicyAgreement']))
+		elseif (!empty(Config::$modSettings['requirePolicyAgreement']))
 			$agree_txt_key = 'policy_';
 	}
 
 	// Under age restrictions?
-	if ($context['show_coppa'])
+	if (Utils::$context['show_coppa'])
 	{
-		$context['skip_coppa'] = false;
-		$context['coppa_agree_above'] = sprintf($txt[$agree_txt_key . 'agree_coppa_above'], $modSettings['coppaAge']);
-		$context['coppa_agree_below'] = sprintf($txt[$agree_txt_key . 'agree_coppa_below'], $modSettings['coppaAge']);
+		Utils::$context['skip_coppa'] = false;
+		Utils::$context['coppa_agree_above'] = sprintf($txt[$agree_txt_key . 'agree_coppa_above'], Config::$modSettings['coppaAge']);
+		Utils::$context['coppa_agree_below'] = sprintf($txt[$agree_txt_key . 'agree_coppa_below'], Config::$modSettings['coppaAge']);
 	}
 	elseif ($agree_txt_key != '')
-		$context['agree'] = $txt[$agree_txt_key . 'agree'];
+		Utils::$context['agree'] = $txt[$agree_txt_key . 'agree'];
 
 	// Does this user agree to the registration agreement?
 	if ($current_step == 1 && (isset($_POST['accept_agreement']) || isset($_POST['accept_agreement_coppa'])))
 	{
-		$context['registration_passed_agreement'] = $_SESSION['registration_agreed'] = true;
+		Utils::$context['registration_passed_agreement'] = $_SESSION['registration_agreed'] = true;
 		$current_step = 2;
 
 		// Skip the coppa procedure if the user says he's old enough.
-		if ($context['show_coppa'])
+		if (Utils::$context['show_coppa'])
 		{
 			$_SESSION['skip_coppa'] = !empty($_POST['accept_agreement']);
 
 			// Are they saying they're under age, while under age registration is disabled?
-			if (empty($modSettings['coppaType']) && empty($_SESSION['skip_coppa']))
+			if (empty(Config::$modSettings['coppaType']) && empty($_SESSION['skip_coppa']))
 			{
 				loadLanguage('Login');
-				fatal_lang_error('under_age_registration_prohibited', false, array($modSettings['coppaAge']));
+				fatal_lang_error('under_age_registration_prohibited', false, array(Config::$modSettings['coppaAge']));
 			}
 		}
 	}
 	// Make sure they don't squeeze through without agreeing.
-	elseif ($current_step > 1 && (!empty($modSettings['requireAgreement']) || !empty($modSettings['requirePolicyAgreement'])) && !$context['registration_passed_agreement'])
+	elseif ($current_step > 1 && (!empty(Config::$modSettings['requireAgreement']) || !empty(Config::$modSettings['requirePolicyAgreement'])) && !Utils::$context['registration_passed_agreement'])
 		$current_step = 1;
 
 	// Show the user the right form.
-	$context['sub_template'] = $current_step == 1 ? 'registration_agreement' : 'registration_form';
-	$context['page_title'] = $current_step == 1 ? $txt['registration_agreement'] : $txt['registration_form'];
+	Utils::$context['sub_template'] = $current_step == 1 ? 'registration_agreement' : 'registration_form';
+	Utils::$context['page_title'] = $current_step == 1 ? $txt['registration_agreement'] : $txt['registration_form'];
 
 	// Kinda need this.
-	if ($context['sub_template'] == 'registration_form')
+	if (Utils::$context['sub_template'] == 'registration_form')
 		loadJavaScriptFile('register.js', array('defer' => false, 'minimize' => true), 'smf_register');
 
 	// Add the register chain to the link tree.
-	$context['linktree'][] = array(
-		'url' => $scripturl . '?action=signup',
+	Utils::$context['linktree'][] = array(
+		'url' => Config::$scripturl . '?action=signup',
 		'name' => $txt['register'],
 	);
 
@@ -124,18 +127,18 @@ function Register($reg_errors = array())
 		$_SESSION['register']['timenow'] = time();
 
 	// If you have to agree to the agreement, it needs to be fetched from the file.
-	if (!empty($modSettings['requireAgreement']))
+	if (!empty(Config::$modSettings['requireAgreement']))
 	{
 		// Have we got a localized one?
-		if (file_exists($boarddir . '/agreement.' . $user_info['language'] . '.txt'))
-			$context['agreement'] = BBCodeParser::load()->parse(file_get_contents($boarddir . '/agreement.' . $user_info['language'] . '.txt'), true, 'agreement_' . $user_info['language']);
-		elseif (file_exists($boarddir . '/agreement.txt'))
-			$context['agreement'] = BBCodeParser::load()->parse(file_get_contents($boarddir . '/agreement.txt'), true, 'agreement');
+		if (file_exists(Config::$boarddir . '/agreement.' . $user_info['language'] . '.txt'))
+			Utils::$context['agreement'] = BBCodeParser::load()->parse(file_get_contents(Config::$boarddir . '/agreement.' . $user_info['language'] . '.txt'), true, 'agreement_' . $user_info['language']);
+		elseif (file_exists(Config::$boarddir . '/agreement.txt'))
+			Utils::$context['agreement'] = BBCodeParser::load()->parse(file_get_contents(Config::$boarddir . '/agreement.txt'), true, 'agreement');
 		else
-			$context['agreement'] = '';
+			Utils::$context['agreement'] = '';
 
 		// Nothing to show, lets disable registration and inform the admin of this error
-		if (empty($context['agreement']))
+		if (empty(Utils::$context['agreement']))
 		{
 			// No file found or a blank file, log the error so the admin knows there is a problem!
 			log_error($txt['registration_agreement_missing'], 'critical');
@@ -143,37 +146,37 @@ function Register($reg_errors = array())
 		}
 	}
 
-	require_once($sourcedir . '/Subs-Notify.php');
+	require_once(Config::$sourcedir . '/Subs-Notify.php');
 	$prefs = getNotifyPrefs(0, 'announcements');
-	$context['notify_announcements'] = !empty($prefs[0]['announcements']);
+	Utils::$context['notify_announcements'] = !empty($prefs[0]['announcements']);
 
-	if (!empty($modSettings['userLanguage']))
+	if (!empty(Config::$modSettings['userLanguage']))
 	{
-		$selectedLanguage = empty($_SESSION['language']) ? $language : $_SESSION['language'];
+		$selectedLanguage = empty($_SESSION['language']) ? Config::$language : $_SESSION['language'];
 
 		// Do we have any languages?
-		if (empty($context['languages']))
+		if (empty(Utils::$context['languages']))
 			getLanguages();
 
 		// Try to find our selected language.
-		foreach ($context['languages'] as $key => $lang)
+		foreach (Utils::$context['languages'] as $key => $lang)
 		{
-			$context['languages'][$key]['name'] = strtr($lang['name'], array('-utf8' => ''));
+			Utils::$context['languages'][$key]['name'] = strtr($lang['name'], array('-utf8' => ''));
 
 			// Found it!
 			if ($selectedLanguage == $lang['filename'])
-				$context['languages'][$key]['selected'] = true;
+				Utils::$context['languages'][$key]['selected'] = true;
 		}
 	}
 
 	// If you have to agree to the privacy policy, it needs to be loaded from the database.
-	if (!empty($modSettings['requirePolicyAgreement']))
+	if (!empty(Config::$modSettings['requirePolicyAgreement']))
 	{
 		// Have we got a localized one?
-		if (!empty($modSettings['policy_' . $user_info['language']]))
-			$context['privacy_policy'] = BBCodeParser::load()->parse($modSettings['policy_' . $user_info['language']]);
-		elseif (!empty($modSettings['policy_' . $language]))
-			$context['privacy_policy'] = BBCodeParser::load()->parse($modSettings['policy_' . $language]);
+		if (!empty(Config::$modSettings['policy_' . $user_info['language']]))
+			Utils::$context['privacy_policy'] = BBCodeParser::load()->parse(Config::$modSettings['policy_' . $user_info['language']]);
+		elseif (!empty(Config::$modSettings['policy_' . Config::$language]))
+			Utils::$context['privacy_policy'] = BBCodeParser::load()->parse(Config::$modSettings['policy_' . Config::$language]);
 		else
 		{
 			// None was found; log the error so the admin knows there is a problem!
@@ -183,67 +186,67 @@ function Register($reg_errors = array())
 	}
 
 	// Any custom fields we want filled in?
-	require_once($sourcedir . '/Profile.php');
+	require_once(Config::$sourcedir . '/Profile.php');
 	loadCustomFields(0, 'register');
 
 	// Or any standard ones?
-	if (!empty($modSettings['registration_fields']))
+	if (!empty(Config::$modSettings['registration_fields']))
 	{
-		require_once($sourcedir . '/Profile-Modify.php');
+		require_once(Config::$sourcedir . '/Profile-Modify.php');
 
 		// Setup some important context.
 		loadLanguage('Profile');
 		loadTemplate('Profile');
 
-		$context['user']['is_owner'] = true;
+		Utils::$context['user']['is_owner'] = true;
 
 		// Here, and here only, emulate the permissions the user would have to do this.
 		$user_info['permissions'] = array_merge($user_info['permissions'], array('profile_account_own', 'profile_extra_own', 'profile_other_own', 'profile_password_own', 'profile_website_own', 'profile_blurb'));
-		$reg_fields = explode(',', $modSettings['registration_fields']);
+		$reg_fields = explode(',', Config::$modSettings['registration_fields']);
 
 		// Website is a little different
 		if (in_array('website', $reg_fields))
 		{
 			unset($reg_fields['website']);
 			if (isset($_POST['website_title']))
-				$cur_profile['website_title'] = $smcFunc['htmlspecialchars']($_POST['website_title']);
+				$cur_profile['website_title'] = Utils::htmlspecialchars($_POST['website_title']);
 			if (isset($_POST['website_url']))
-				$cur_profile['website_url'] = $smcFunc['htmlspecialchars']($_POST['website_url']);
+				$cur_profile['website_url'] = Utils::htmlspecialchars($_POST['website_url']);
 		}
 
 		// We might have had some submissions on this front - go check.
 		foreach ($reg_fields as $field)
 			if (isset($_POST[$field]))
-				$cur_profile[$field] = $smcFunc['htmlspecialchars']($_POST[$field]);
+				$cur_profile[$field] = Utils::htmlspecialchars($_POST[$field]);
 
 		// Load all the fields in question.
 		setupProfileContext($reg_fields);
 	}
 
 	// Generate a visual verification code to make sure the user is no bot.
-	if (!empty($modSettings['reg_verification']))
+	if (!empty(Config::$modSettings['reg_verification']))
 	{
-		require_once($sourcedir . '/Subs-Editor.php');
+		require_once(Config::$sourcedir . '/Subs-Editor.php');
 		$verificationOptions = array(
 			'id' => 'register',
 		);
-		$context['visual_verification'] = create_control_verification($verificationOptions);
-		$context['visual_verification_id'] = $verificationOptions['id'];
+		Utils::$context['visual_verification'] = create_control_verification($verificationOptions);
+		Utils::$context['visual_verification_id'] = $verificationOptions['id'];
 	}
 	// Otherwise we have nothing to show.
 	else
-		$context['visual_verification'] = false;
+		Utils::$context['visual_verification'] = false;
 
-	$context += array(
-		'username' => isset($_POST['user']) ? $smcFunc['htmlspecialchars']($_POST['user']) : '',
-		'email' => isset($_POST['email']) ? $smcFunc['htmlspecialchars']($_POST['email']) : '',
+	Utils::$context += array(
+		'username' => isset($_POST['user']) ? Utils::htmlspecialchars($_POST['user']) : '',
+		'email' => isset($_POST['email']) ? Utils::htmlspecialchars($_POST['email']) : '',
 		'notify_announcements' => !empty($_POST['notify_announcements']) ? 1 : 0,
 	);
 
 	// Were there any errors?
-	$context['registration_errors'] = array();
+	Utils::$context['registration_errors'] = array();
 	if (!empty($reg_errors))
-		$context['registration_errors'] = $reg_errors;
+		Utils::$context['registration_errors'] = $reg_errors;
 
 	createToken('register');
 }
@@ -253,25 +256,24 @@ function Register($reg_errors = array())
  */
 function Register2()
 {
-	global $txt, $modSettings, $context, $sourcedir;
-	global $smcFunc, $maintenance;
+	global $txt;
 
 	checkSession();
 	validateToken('register');
 
 	// Check to ensure we're forcing SSL for authentication
-	if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
+	if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !httpsOn())
 		fatal_lang_error('register_ssl_required');
 
 	// Start collecting together any errors.
 	$reg_errors = array();
 
 	// You can't register if it's disabled.
-	if (!empty($modSettings['registration_method']) && $modSettings['registration_method'] == 3)
+	if (!empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == 3)
 		fatal_lang_error('registration_disabled', false);
 
 	// Well, if you don't agree, you can't register.
-	if ((!empty($modSettings['requireAgreement']) || !empty($modSettings['requirePolicyAgreement'])) && empty($_SESSION['registration_agreed']))
+	if ((!empty(Config::$modSettings['requireAgreement']) || !empty(Config::$modSettings['requirePolicyAgreement'])) && empty($_SESSION['registration_agreed']))
 		redirectexit();
 
 	// Make sure they came from *somewhere*, have a session.
@@ -279,14 +281,14 @@ function Register2()
 		redirectexit('action=signup');
 
 	// If we require neither an agreement nor a privacy policy, we need a extra check for coppa.
-	if (empty($modSettings['requireAgreement']) && empty($modSettings['requirePolicyAgreement']) && !empty($modSettings['coppaAge']))
+	if (empty(Config::$modSettings['requireAgreement']) && empty(Config::$modSettings['requirePolicyAgreement']) && !empty(Config::$modSettings['coppaAge']))
 		$_SESSION['skip_coppa'] = !empty($_POST['accept_agreement']);
 
 	// Are they under age, and under age users are banned?
-	if (!empty($modSettings['coppaAge']) && empty($modSettings['coppaType']) && empty($_SESSION['skip_coppa']))
+	if (!empty(Config::$modSettings['coppaAge']) && empty(Config::$modSettings['coppaType']) && empty($_SESSION['skip_coppa']))
 	{
 		loadLanguage('Errors');
-		fatal_lang_error('under_age_registration_prohibited', false, array($modSettings['coppaAge']));
+		fatal_lang_error('under_age_registration_prohibited', false, array(Config::$modSettings['coppaAge']));
 	}
 
 	// Check the time gate for miscreants. First make sure they came from somewhere that actually set it up.
@@ -300,31 +302,31 @@ function Register2()
 	}
 
 	// Check whether the visual verification code was entered correctly.
-	if (!empty($modSettings['reg_verification']))
+	if (!empty(Config::$modSettings['reg_verification']))
 	{
-		require_once($sourcedir . '/Subs-Editor.php');
+		require_once(Config::$sourcedir . '/Subs-Editor.php');
 		$verificationOptions = array(
 			'id' => 'register',
 		);
-		$context['visual_verification'] = create_control_verification($verificationOptions, true);
+		Utils::$context['visual_verification'] = create_control_verification($verificationOptions, true);
 
-		if (is_array($context['visual_verification']))
+		if (is_array(Utils::$context['visual_verification']))
 		{
 			loadLanguage('Errors');
-			foreach ($context['visual_verification'] as $error)
+			foreach (Utils::$context['visual_verification'] as $error)
 				$reg_errors[] = $txt['error_' . $error];
 		}
 	}
 
 	array_walk_recursive(
 		$_POST,
-		function (&$value, $key) use ($context, $smcFunc)
+		function (&$value, $key)
 		{
 			// Normalize Unicode characters. (Does nothing if not in UTF-8 mode.)
-			$value = $smcFunc['normalize']($value);
+			$value = Utils::normalize($value);
 
 			// Replace any kind of space or illegal character with a normal space, and then trim.
-			$value = $smcFunc['htmltrim'](normalize_spaces(sanitize_chars($value, 1, ' '), true, true, array('no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true)));
+			$value = Utils::htmlTrim(Utils::normalizeSpaces(Utils::sanitizeChars($value, 1, ' '), true, true, array('no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true)));
 		}
 	);
 
@@ -350,9 +352,9 @@ function Register2()
 	);
 
 	// We may want to add certain things to these if selected in the admin panel.
-	if (!empty($modSettings['registration_fields']))
+	if (!empty(Config::$modSettings['registration_fields']))
 	{
-		$reg_fields = explode(',', $modSettings['registration_fields']);
+		$reg_fields = explode(',', Config::$modSettings['registration_fields']);
 
 		// Website is a little different
 		if (in_array('website', $reg_fields))
@@ -369,7 +371,7 @@ function Register2()
 		$_POST['secret_answer'] = md5($_POST['secret_answer']);
 
 	// Needed for isReservedName() and registerMember().
-	require_once($sourcedir . '/Subs-Members.php');
+	require_once(Config::$sourcedir . '/Subs-Members.php');
 
 	// Maybe you want set the displayed name during registration
 	if (isset($_POST['real_name']))
@@ -381,7 +383,7 @@ function Register2()
 		// If you are a guest, will you be allowed to once you register?
 		else
 		{
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT add_deny
 				FROM {db_prefix}permissions
 				WHERE id_group = {int:id_group} AND permission = {string:permission}',
@@ -390,12 +392,12 @@ function Register2()
 					'permission' => 'profile_displayed_name_own',
 				)
 			);
-			list($canEditDisplayName) = $smcFunc['db_fetch_row']($request);
-			$smcFunc['db_free_result']($request);
+			list($canEditDisplayName) = Db::$db->fetch_row($request);
+			Db::$db->free_result($request);
 		}
 
 		// Only set it if you can and if we are sure it is good
-		if ($canEditDisplayName && $smcFunc['htmltrim']($_POST['real_name']) != '' && !isReservedName($_POST['real_name']) && $smcFunc['strlen']($_POST['real_name']) < 60)
+		if ($canEditDisplayName && Utils::htmlTrim($_POST['real_name']) != '' && !isReservedName($_POST['real_name']) && Utils::entityStrlen($_POST['real_name']) < 60)
 			$possible_strings[] = 'real_name';
 	}
 
@@ -407,14 +409,14 @@ function Register2()
 		$_POST['birthdate'] = sprintf('%04d-%02d-%02d', empty($_POST['bday3']) ? 0 : (int) $_POST['bday3'], (int) $_POST['bday1'], (int) $_POST['bday2']);
 
 	// Validate the passed language file.
-	if (isset($_POST['lngfile']) && !empty($modSettings['userLanguage']))
+	if (isset($_POST['lngfile']) && !empty(Config::$modSettings['userLanguage']))
 	{
 		// Do we have any languages?
-		if (empty($context['languages']))
+		if (empty(Utils::$context['languages']))
 			getLanguages();
 
 		// Did we find it?
-		if (isset($context['languages'][$_POST['lngfile']]))
+		if (isset(Utils::$context['languages'][$_POST['lngfile']]))
 			$_SESSION['language'] = $_POST['lngfile'];
 		else
 			unset($_POST['lngfile']);
@@ -432,8 +434,8 @@ function Register2()
 		'check_reserved_name' => true,
 		'check_password_strength' => true,
 		'check_email_ban' => true,
-		'send_welcome_email' => !empty($modSettings['send_welcomeEmail']),
-		'require' => !empty($modSettings['coppaAge']) && empty($_SESSION['skip_coppa']) ? 'coppa' : (empty($modSettings['registration_method']) ? 'nothing' : ($modSettings['registration_method'] == 1 ? 'activation' : 'approval')),
+		'send_welcome_email' => !empty(Config::$modSettings['send_welcomeEmail']),
+		'require' => !empty(Config::$modSettings['coppaAge']) && empty($_SESSION['skip_coppa']) ? 'coppa' : (empty(Config::$modSettings['registration_method']) ? 'nothing' : (Config::$modSettings['registration_method'] == 1 ? 'activation' : 'approval')),
 		'extra_register_vars' => array(),
 		'theme_vars' => array(),
 	);
@@ -441,7 +443,7 @@ function Register2()
 	// Include the additional options that might have been filled in.
 	foreach ($possible_strings as $var)
 		if (isset($_POST[$var]))
-			$regOptions['extra_register_vars'][$var] = $smcFunc['htmlspecialchars']($_POST[$var], ENT_QUOTES);
+			$regOptions['extra_register_vars'][$var] = Utils::htmlspecialchars($_POST[$var], ENT_QUOTES);
 	foreach ($possible_ints as $var)
 		if (isset($_POST[$var]))
 			$regOptions['extra_register_vars'][$var] = (int) $_POST[$var];
@@ -458,16 +460,16 @@ function Register2()
 	$regOptions['theme_vars'] = isset($_POST['options']) && is_array($_POST['options']) ? $_POST['options'] : array();
 
 	// Note when they accepted the agreement and privacy policy
-	if (!empty($modSettings['requireAgreement']))
+	if (!empty(Config::$modSettings['requireAgreement']))
 		$regOptions['theme_vars']['agreement_accepted'] = time();
-	if (!empty($modSettings['requirePolicyAgreement']))
+	if (!empty(Config::$modSettings['requirePolicyAgreement']))
 		$regOptions['theme_vars']['policy_accepted'] = time();
 
 	// Make sure they are clean, dammit!
 	$regOptions['theme_vars'] = htmlspecialchars__recursive($regOptions['theme_vars']);
 
 	// Check whether we have fields that simply MUST be displayed?
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT col_name, field_name, field_type, field_length, mask, show_reg
 		FROM {db_prefix}custom_fields
 		WHERE active = {int:is_active}
@@ -477,7 +479,7 @@ function Register2()
 		)
 	);
 	$custom_field_errors = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// Don't allow overriding of the theme variables.
 		if (isset($regOptions['theme_vars'][$row['col_name']]))
@@ -494,7 +496,7 @@ function Register2()
 		if (!in_array($row['field_type'], array('check', 'select', 'radio')))
 		{
 			// Is it too long?
-			if ($row['field_length'] && $row['field_length'] < $smcFunc['strlen']($value))
+			if ($row['field_length'] && $row['field_length'] < Utils::entityStrlen($value))
 				$custom_field_errors[] = array('custom_field_too_long', array($row['field_name'], $row['field_length']));
 
 			// Any masks to apply?
@@ -513,7 +515,7 @@ function Register2()
 		if (trim($value) == '' && $row['show_reg'] > 1)
 			$custom_field_errors[] = array('custom_field_empty', array($row['field_name']));
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Process any errors.
 	if (!empty($custom_field_errors))
@@ -545,7 +547,7 @@ function Register2()
 	spamProtection('register');
 
 	// Do they want to receive announcements?
-	require_once($sourcedir . '/Subs-Notify.php');
+	require_once(Config::$sourcedir . '/Subs-Notify.php');
 	$prefs = getNotifyPrefs($memberID, 'announcements', true);
 	$var = !empty($_POST['notify_announcements']);
 	$pref = !empty($prefs[$memberID]['announcements']);
@@ -557,33 +559,33 @@ function Register2()
 	// We'll do custom fields after as then we get to use the helper function!
 	if (!empty($_POST['customfield']))
 	{
-		require_once($sourcedir . '/Profile.php');
-		require_once($sourcedir . '/Profile-Modify.php');
+		require_once(Config::$sourcedir . '/Profile.php');
+		require_once(Config::$sourcedir . '/Profile-Modify.php');
 		makeCustomFieldChanges($memberID, 'register');
 	}
 
 	// If COPPA has been selected then things get complicated, setup the template.
-	if (!empty($modSettings['coppaAge']) && empty($_SESSION['skip_coppa']))
+	if (!empty(Config::$modSettings['coppaAge']) && empty($_SESSION['skip_coppa']))
 		redirectexit('action=coppa;member=' . $memberID);
 	// Basic template variable setup.
-	elseif (!empty($modSettings['registration_method']))
+	elseif (!empty(Config::$modSettings['registration_method']))
 	{
 		loadTemplate('Register');
 
-		$context += array(
+		Utils::$context += array(
 			'page_title' => $txt['register'],
 			'title' => $txt['registration_successful'],
 			'sub_template' => 'after',
-			'description' => $modSettings['registration_method'] == 2 ? $txt['approval_after_registration'] : $txt['activate_after_registration']
+			'description' => Config::$modSettings['registration_method'] == 2 ? $txt['approval_after_registration'] : $txt['activate_after_registration']
 		);
 	}
 	else
 	{
 		call_integration_hook('integrate_activate', array($regOptions['username']));
 
-		setLoginCookie(60 * $modSettings['cookieTime'], $memberID, hash_salt($regOptions['register_vars']['passwd'], $regOptions['register_vars']['password_salt']));
+		setLoginCookie(60 * Config::$modSettings['cookieTime'], $memberID, hash_salt($regOptions['register_vars']['passwd'], $regOptions['register_vars']['password_salt']));
 
-		redirectexit('action=login2;sa=check;member=' . $memberID, $context['server']['needs_login_fix']);
+		redirectexit('action=login2;sa=check;member=' . $memberID, Utils::$context['server']['needs_login_fix']);
 	}
 }
 
@@ -594,7 +596,7 @@ function Register2()
  */
 function Activate()
 {
-	global $context, $txt, $modSettings, $scripturl, $sourcedir, $smcFunc, $language, $user_info;
+	global $txt, $user_info;
 
 	// Logged in users should not bother to activate their accounts
 	if (!empty($user_info['id']))
@@ -605,20 +607,20 @@ function Activate()
 
 	if (empty($_REQUEST['u']) && empty($_POST['user']))
 	{
-		if (empty($modSettings['registration_method']) || $modSettings['registration_method'] == '3')
+		if (empty(Config::$modSettings['registration_method']) || Config::$modSettings['registration_method'] == '3')
 			fatal_lang_error('no_access', false);
 
-		$context['member_id'] = 0;
-		$context['sub_template'] = 'resend';
-		$context['page_title'] = $txt['invalid_activation_resend'];
-		$context['can_activate'] = empty($modSettings['registration_method']) || $modSettings['registration_method'] == '1';
-		$context['default_username'] = isset($_GET['user']) ? $_GET['user'] : '';
+		Utils::$context['member_id'] = 0;
+		Utils::$context['sub_template'] = 'resend';
+		Utils::$context['page_title'] = $txt['invalid_activation_resend'];
+		Utils::$context['can_activate'] = empty(Config::$modSettings['registration_method']) || Config::$modSettings['registration_method'] == '1';
+		Utils::$context['default_username'] = isset($_GET['user']) ? $_GET['user'] : '';
 
 		return;
 	}
 
 	// Get the code from the database...
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_member, validation_code, member_name, real_name, email_address, is_activated, passwd, lngfile
 		FROM {db_prefix}members' . (empty($_REQUEST['u']) ? '
 		WHERE member_name = {string:email_address} OR email_address = {string:email_address}' : '
@@ -631,32 +633,32 @@ function Activate()
 	);
 
 	// Does this user exist at all?
-	if ($smcFunc['db_num_rows']($request) == 0)
+	if (Db::$db->num_rows($request) == 0)
 	{
-		$context['sub_template'] = 'retry_activate';
-		$context['page_title'] = $txt['invalid_userid'];
-		$context['member_id'] = 0;
+		Utils::$context['sub_template'] = 'retry_activate';
+		Utils::$context['page_title'] = $txt['invalid_userid'];
+		Utils::$context['member_id'] = 0;
 
 		return;
 	}
 
-	$row = $smcFunc['db_fetch_assoc']($request);
-	$smcFunc['db_free_result']($request);
+	$row = Db::$db->fetch_assoc($request);
+	Db::$db->free_result($request);
 
 	// Change their email address? (they probably tried a fake one first :P.)
 	if (!empty($_POST['new_email']) && !empty($_REQUEST['passwd']) && hash_verify_password($row['member_name'], $_REQUEST['passwd'], $row['passwd']) && ($row['is_activated'] == 0 || $row['is_activated'] == 2))
 	{
-		if (empty($modSettings['registration_method']) || $modSettings['registration_method'] == 3)
+		if (empty(Config::$modSettings['registration_method']) || Config::$modSettings['registration_method'] == 3)
 			fatal_lang_error('no_access', false);
 
 		if (!filter_var($_POST['new_email'], FILTER_VALIDATE_EMAIL))
-			fatal_error(sprintf($txt['valid_email_needed'], $smcFunc['htmlspecialchars']($_POST['new_email'])), false);
+			fatal_error(sprintf($txt['valid_email_needed'], Utils::htmlspecialchars($_POST['new_email'])), false);
 
 		// Make sure their email isn't banned.
 		isBannedEmail($_POST['new_email'], 'cannot_register', $txt['ban_register_prohibited']);
 
 		// Ummm... don't even dare try to take someone else's email!!
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_member
 			FROM {db_prefix}members
 			WHERE email_address = {string:email_address}
@@ -666,9 +668,9 @@ function Activate()
 			)
 		);
 
-		if ($smcFunc['db_num_rows']($request) != 0)
-			fatal_lang_error('email_in_use', false, array($smcFunc['htmlspecialchars']($_POST['new_email'])));
-		$smcFunc['db_free_result']($request);
+		if (Db::$db->num_rows($request) != 0)
+			fatal_lang_error('email_in_use', false, array(Utils::htmlspecialchars($_POST['new_email'])));
+		Db::$db->free_result($request);
 
 		updateMemberData($row['id_member'], array('email_address' => $_POST['new_email']));
 		$row['email_address'] = $_POST['new_email'];
@@ -679,25 +681,25 @@ function Activate()
 	// Resend the password, but only if the account wasn't activated yet.
 	if (!empty($_REQUEST['sa']) && $_REQUEST['sa'] == 'resend' && ($row['is_activated'] == 0 || $row['is_activated'] == 2) && (!isset($_REQUEST['code']) || $_REQUEST['code'] == ''))
 	{
-		require_once($sourcedir . '/Subs-Post.php');
+		require_once(Config::$sourcedir . '/Subs-Post.php');
 
 		$replacements = array(
 			'REALNAME' => $row['real_name'],
 			'USERNAME' => $row['member_name'],
-			'ACTIVATIONLINK' => $scripturl . '?action=activate;u=' . $row['id_member'] . ';code=' . $row['validation_code'],
-			'ACTIVATIONLINKWITHOUTCODE' => $scripturl . '?action=activate;u=' . $row['id_member'],
+			'ACTIVATIONLINK' => Config::$scripturl . '?action=activate;u=' . $row['id_member'] . ';code=' . $row['validation_code'],
+			'ACTIVATIONLINKWITHOUTCODE' => Config::$scripturl . '?action=activate;u=' . $row['id_member'],
 			'ACTIVATIONCODE' => $row['validation_code'],
-			'FORGOTPASSWORDLINK' => $scripturl . '?action=reminder',
+			'FORGOTPASSWORDLINK' => Config::$scripturl . '?action=reminder',
 		);
 
-		$emaildata = loadEmailTemplate('resend_activate_message', $replacements, empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile']);
+		$emaildata = loadEmailTemplate('resend_activate_message', $replacements, empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $row['lngfile']);
 
 		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'resendact', $emaildata['is_html'], 0);
 
-		$context['page_title'] = $txt['invalid_activation_resend'];
+		Utils::$context['page_title'] = $txt['invalid_activation_resend'];
 
 		// This will ensure we don't actually get an error message if it works!
-		$context['error_title'] = $txt['invalid_activation_resend'];
+		Utils::$context['error_title'] = $txt['invalid_activation_resend'];
 
 		fatal_lang_error(!empty($email_change) ? 'change_email_success' : 'resend_email_success', false, array(), false);
 	}
@@ -710,12 +712,12 @@ function Activate()
 		elseif ($row['validation_code'] == '')
 		{
 			loadLanguage('Profile');
-			fatal_error(sprintf($txt['registration_not_approved'], $scripturl . '?action=activate;user=' . $row['member_name']), false);
+			fatal_error(sprintf($txt['registration_not_approved'], Config::$scripturl . '?action=activate;user=' . $row['member_name']), false);
 		}
 
-		$context['sub_template'] = 'retry_activate';
-		$context['page_title'] = $txt['invalid_activation_code'];
-		$context['member_id'] = $row['id_member'];
+		Utils::$context['sub_template'] = 'retry_activate';
+		Utils::$context['page_title'] = $txt['invalid_activation_code'];
+		Utils::$context['member_id'] = $row['id_member'];
 
 		return;
 	}
@@ -732,12 +734,12 @@ function Activate()
 	// Notify the admin about new activations, but not re-activations.
 	if (empty($row['is_activated']))
 	{
-		require_once($sourcedir . '/Subs-Post.php');
+		require_once(Config::$sourcedir . '/Subs-Post.php');
 
 		adminNotify('activation', $row['id_member'], $row['member_name']);
 	}
 
-	$context += array(
+	Utils::$context += array(
 		'page_title' => $txt['registration_successful'],
 		'sub_template' => 'login',
 		'default_username' => $row['member_name'],
@@ -752,7 +754,7 @@ function Activate()
  */
 function CoppaForm()
 {
-	global $context, $modSettings, $txt, $smcFunc;
+	global $txt;
 
 	loadLanguage('Login');
 	loadTemplate('Register');
@@ -762,7 +764,7 @@ function CoppaForm()
 		fatal_lang_error('no_access', false);
 
 	// Get the user details...
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT member_name
 		FROM {db_prefix}members
 		WHERE id_member = {int:id_member}
@@ -772,26 +774,26 @@ function CoppaForm()
 			'is_coppa' => 5,
 		)
 	);
-	if ($smcFunc['db_num_rows']($request) == 0)
+	if (Db::$db->num_rows($request) == 0)
 		fatal_lang_error('no_access', false);
-	list ($username) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($username) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	if (isset($_GET['form']))
 	{
 		// Some simple contact stuff for the forum.
-		$context['forum_contacts'] = (!empty($modSettings['coppaPost']) ? $modSettings['coppaPost'] . '<br><br>' : '') . (!empty($modSettings['coppaFax']) ? $modSettings['coppaFax'] . '<br>' : '');
-		$context['forum_contacts'] = !empty($context['forum_contacts']) ? $context['forum_name_html_safe'] . '<br>' . $context['forum_contacts'] : '';
+		Utils::$context['forum_contacts'] = (!empty(Config::$modSettings['coppaPost']) ? Config::$modSettings['coppaPost'] . '<br><br>' : '') . (!empty(Config::$modSettings['coppaFax']) ? Config::$modSettings['coppaFax'] . '<br>' : '');
+		Utils::$context['forum_contacts'] = !empty(Utils::$context['forum_contacts']) ? Utils::$context['forum_name_html_safe'] . '<br>' . Utils::$context['forum_contacts'] : '';
 
 		// Showing template?
 		if (!isset($_GET['dl']))
 		{
 			// Shortcut for producing underlines.
-			$context['ul'] = '<u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>';
-			$context['template_layers'] = array();
-			$context['sub_template'] = 'coppa_form';
-			$context['page_title'] = sprintf($txt['coppa_form_title'], $context['forum_name_html_safe']);
-			$context['coppa_body'] = str_replace(array('{PARENT_NAME}', '{CHILD_NAME}', '{USER_NAME}'), array($context['ul'], $context['ul'], $username), sprintf($txt['coppa_form_body'], $context['forum_name_html_safe']));
+			Utils::$context['ul'] = '<u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>';
+			Utils::$context['template_layers'] = array();
+			Utils::$context['sub_template'] = 'coppa_form';
+			Utils::$context['page_title'] = sprintf($txt['coppa_form_title'], Utils::$context['forum_name_html_safe']);
+			Utils::$context['coppa_body'] = str_replace(array('{PARENT_NAME}', '{CHILD_NAME}', '{USER_NAME}'), array(Utils::$context['ul'], Utils::$context['ul'], $username), sprintf($txt['coppa_form_body'], Utils::$context['forum_name_html_safe']));
 		}
 		// Downloading.
 		else
@@ -799,7 +801,7 @@ function CoppaForm()
 			// The data.
 			$ul = '                ';
 			$crlf = "\r\n";
-			$data = $context['forum_contacts'] . $crlf . $txt['coppa_form_address'] . ':' . $crlf . $txt['coppa_form_date'] . ':' . $crlf . $crlf . $crlf . sprintf($txt['coppa_form_body'], $context['forum_name_html_safe']);
+			$data = Utils::$context['forum_contacts'] . $crlf . $txt['coppa_form_address'] . ':' . $crlf . $txt['coppa_form_date'] . ':' . $crlf . $crlf . $crlf . sprintf($txt['coppa_form_body'], Utils::$context['forum_name_html_safe']);
 			$data = str_replace(array('{PARENT_NAME}', '{CHILD_NAME}', '{USER_NAME}', '<br>', '<br>'), array($ul, $ul, $username, $crlf, $crlf), $data);
 
 			// Send the headers.
@@ -814,17 +816,17 @@ function CoppaForm()
 	}
 	else
 	{
-		$context += array(
+		Utils::$context += array(
 			'page_title' => $txt['coppa_title'],
 			'sub_template' => 'coppa',
 		);
 
-		$context['coppa'] = array(
-			'body' => str_replace('{MINIMUM_AGE}', $modSettings['coppaAge'], sprintf($txt['coppa_after_registration'], $context['forum_name_html_safe'])),
-			'many_options' => !empty($modSettings['coppaPost']) && !empty($modSettings['coppaFax']),
-			'post' => empty($modSettings['coppaPost']) ? '' : $modSettings['coppaPost'],
-			'fax' => empty($modSettings['coppaFax']) ? '' : $modSettings['coppaFax'],
-			'phone' => empty($modSettings['coppaPhone']) ? '' : str_replace('{PHONE_NUMBER}', $modSettings['coppaPhone'], $txt['coppa_send_by_phone']),
+		Utils::$context['coppa'] = array(
+			'body' => str_replace('{MINIMUM_AGE}', Config::$modSettings['coppaAge'], sprintf($txt['coppa_after_registration'], Utils::$context['forum_name_html_safe'])),
+			'many_options' => !empty(Config::$modSettings['coppaPost']) && !empty(Config::$modSettings['coppaFax']),
+			'post' => empty(Config::$modSettings['coppaPost']) ? '' : Config::$modSettings['coppaPost'],
+			'fax' => empty(Config::$modSettings['coppaFax']) ? '' : Config::$modSettings['coppaFax'],
+			'phone' => empty(Config::$modSettings['coppaPhone']) ? '' : str_replace('{PHONE_NUMBER}', Config::$modSettings['coppaPhone'], $txt['coppa_send_by_phone']),
 			'id' => $_GET['member'],
 		);
 	}
@@ -835,8 +837,6 @@ function CoppaForm()
  */
 function VerificationCode()
 {
-	global $sourcedir, $context, $scripturl;
-
 	$verification_id = isset($_GET['vid']) ? $_GET['vid'] : '';
 	$code = $verification_id && isset($_SESSION[$verification_id . '_vv']) ? $_SESSION[$verification_id . '_vv']['code'] : (isset($_SESSION['visual_verification_code']) ? $_SESSION['visual_verification_code'] : '');
 
@@ -853,9 +853,9 @@ function VerificationCode()
 		loadLanguage('Login');
 		loadTemplate('Register');
 
-		$context['verification_sound_href'] = $scripturl . '?action=verificationcode;rand=' . md5(mt_rand()) . ($verification_id ? ';vid=' . $verification_id : '') . ';format=.wav';
-		$context['sub_template'] = 'verification_sound';
-		$context['template_layers'] = array();
+		Utils::$context['verification_sound_href'] = Config::$scripturl . '?action=verificationcode;rand=' . md5(mt_rand()) . ($verification_id ? ';vid=' . $verification_id : '') . ';format=.wav';
+		Utils::$context['sub_template'] = 'verification_sound';
+		Utils::$context['template_layers'] = array();
 
 		obExit();
 	}
@@ -863,7 +863,7 @@ function VerificationCode()
 	// If we have GD, try the nice code.
 	elseif (empty($_REQUEST['format']))
 	{
-		require_once($sourcedir . '/Subs-Graphics.php');
+		require_once(Config::$sourcedir . '/Subs-Graphics.php');
 
 		if (in_array('gd', get_loaded_extensions()) && !showCodeImage($code))
 			send_http_status(400);
@@ -888,7 +888,7 @@ function VerificationCode()
 
 	elseif ($_REQUEST['format'] === '.wav')
 	{
-		require_once($sourcedir . '/Subs-Sound.php');
+		require_once(Config::$sourcedir . '/Subs-Sound.php');
 
 		if (!createWaveFile($code))
 			send_http_status(400);
@@ -903,21 +903,19 @@ function VerificationCode()
  */
 function RegisterCheckUsername()
 {
-	global $sourcedir, $context;
-
 	// This is XML!
 	loadTemplate('Xml');
-	$context['sub_template'] = 'check_username';
-	$context['checked_username'] = isset($_GET['username']) ? un_htmlspecialchars($_GET['username']) : '';
-	$context['valid_username'] = true;
+	Utils::$context['sub_template'] = 'check_username';
+	Utils::$context['checked_username'] = isset($_GET['username']) ? un_htmlspecialchars($_GET['username']) : '';
+	Utils::$context['valid_username'] = true;
 
 	// Clean it up like mother would.
-	$context['checked_username'] = trim(normalize_spaces(sanitize_chars($context['checked_username'], 1, ' '), true, true, array('no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true)));
+	Utils::$context['checked_username'] = trim(Utils::normalizeSpaces(Utils::sanitizeChars(Utils::$context['checked_username'], 1, ' '), true, true, array('no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true)));
 
-	require_once($sourcedir . '/Subs-Auth.php');
-	$errors = validateUsername(0, $context['checked_username'], true);
+	require_once(Config::$sourcedir . '/Subs-Auth.php');
+	$errors = validateUsername(0, Utils::$context['checked_username'], true);
 
-	$context['valid_username'] = empty($errors);
+	Utils::$context['valid_username'] = empty($errors);
 }
 
 /**
@@ -925,18 +923,18 @@ function RegisterCheckUsername()
  */
 function SendActivation()
 {
-	global $context, $txt;
+	global $txt;
 
-	$context['user']['is_logged'] = false;
-	$context['user']['is_guest'] = true;
+	Utils::$context['user']['is_logged'] = false;
+	Utils::$context['user']['is_guest'] = true;
 
 	// Send them to the done-with-registration-login screen.
 	loadTemplate('Register');
 
-	$context['page_title'] = $txt['profile'];
-	$context['sub_template'] = 'after';
-	$context['title'] = $txt['activate_changed_email_title'];
-	$context['description'] = $txt['activate_changed_email_desc'];
+	Utils::$context['page_title'] = $txt['profile'];
+	Utils::$context['sub_template'] = 'after';
+	Utils::$context['title'] = $txt['activate_changed_email_title'];
+	Utils::$context['description'] = $txt['activate_changed_email_desc'];
 
 	// Aaand we're gone!
 	obExit();

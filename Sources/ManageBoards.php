@@ -13,6 +13,10 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -26,7 +30,7 @@ if (!defined('SMF'))
  */
 function ManageBoards()
 {
-	global $context, $txt;
+	global $txt;
 
 	// Everything's gonna need this.
 	loadLanguage('ManageBoards');
@@ -45,7 +49,7 @@ function ManageBoards()
 	);
 
 	// Create the tabs for the template.
-	$context[$context['admin_menu_name']]['tab_data'] = array(
+	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['boards_and_cats'],
 		'help' => 'manage_boards',
 		'description' => $txt['boards_and_cats_desc'],
@@ -81,11 +85,11 @@ function ManageBoards()
  */
 function ManageBoardsMain()
 {
-	global $txt, $context, $cat_tree, $boards, $boardList, $scripturl, $sourcedir, $smcFunc;
+	global $txt, $cat_tree, $boards, $boardList;
 
 	loadTemplate('ManageBoards');
 
-	require_once($sourcedir . '/Subs-Boards.php');
+	require_once(Config::$sourcedir . '/Subs-Boards.php');
 
 	if (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'move' && in_array($_REQUEST['move_to'], array('child', 'before', 'after', 'top')))
 	{
@@ -109,101 +113,101 @@ function ManageBoardsMain()
 
 	getBoardTree();
 
-	$context['move_board'] = !empty($_REQUEST['move']) && isset($boards[(int) $_REQUEST['move']]) ? (int) $_REQUEST['move'] : 0;
+	Utils::$context['move_board'] = !empty($_REQUEST['move']) && isset($boards[(int) $_REQUEST['move']]) ? (int) $_REQUEST['move'] : 0;
 
-	$context['categories'] = array();
+	Utils::$context['categories'] = array();
 	foreach ($cat_tree as $catid => $tree)
 	{
-		$context['categories'][$catid] = array(
+		Utils::$context['categories'][$catid] = array(
 			'name' => &$tree['node']['name'],
 			'id' => &$tree['node']['id'],
 			'boards' => array()
 		);
-		$move_cat = !empty($context['move_board']) && $boards[$context['move_board']]['category'] == $catid;
+		$move_cat = !empty(Utils::$context['move_board']) && $boards[Utils::$context['move_board']]['category'] == $catid;
 		foreach ($boardList[$catid] as $boardid)
 		{
-			$context['categories'][$catid]['boards'][$boardid] = array(
+			Utils::$context['categories'][$catid]['boards'][$boardid] = array(
 				'id' => &$boards[$boardid]['id'],
 				'name' => &$boards[$boardid]['name'],
 				'description' => &$boards[$boardid]['description'],
 				'child_level' => &$boards[$boardid]['level'],
-				'move' => $move_cat && ($boardid == $context['move_board'] || isChildOf($boardid, $context['move_board'])),
+				'move' => $move_cat && ($boardid == Utils::$context['move_board'] || isChildOf($boardid, Utils::$context['move_board'])),
 				'permission_profile' => &$boards[$boardid]['profile'],
 				'is_redirect' => !empty($boards[$boardid]['redirect']),
 			);
 		}
 	}
 
-	if (!empty($context['move_board']))
+	if (!empty(Utils::$context['move_board']))
 	{
-		createToken('admin-bm-' . $context['move_board'], 'request');
+		createToken('admin-bm-' . Utils::$context['move_board'], 'request');
 
-		$context['move_title'] = sprintf($txt['mboards_select_destination'], $smcFunc['htmlspecialchars']($boards[$context['move_board']]['name']));
+		Utils::$context['move_title'] = sprintf($txt['mboards_select_destination'], Utils::htmlspecialchars($boards[Utils::$context['move_board']]['name']));
 		foreach ($cat_tree as $catid => $tree)
 		{
 			$prev_child_level = 0;
 			$prev_board = 0;
 			$stack = array();
 			// Just a shortcut, this is the same for all the urls
-			$security = $context['session_var'] . '=' . $context['session_id'] . ';' . $context['admin-bm-' . $context['move_board'] . '_token_var'] . '=' . $context['admin-bm-' . $context['move_board'] . '_token'];
+			$security = Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';' . Utils::$context['admin-bm-' . Utils::$context['move_board'] . '_token_var'] . '=' . Utils::$context['admin-bm-' . Utils::$context['move_board'] . '_token'];
 			foreach ($boardList[$catid] as $boardid)
 			{
-				if (!isset($context['categories'][$catid]['move_link']))
-					$context['categories'][$catid]['move_link'] = array(
+				if (!isset(Utils::$context['categories'][$catid]['move_link']))
+					Utils::$context['categories'][$catid]['move_link'] = array(
 						'child_level' => 0,
-						'label' => $txt['mboards_order_before'] . ' \'' . $smcFunc['htmlspecialchars']($boards[$boardid]['name']) . '\'',
-						'href' => $scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . $context['move_board'] . ';target_board=' . $boardid . ';move_to=before;' . $security,
+						'label' => $txt['mboards_order_before'] . ' \'' . Utils::htmlspecialchars($boards[$boardid]['name']) . '\'',
+						'href' => Config::$scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . Utils::$context['move_board'] . ';target_board=' . $boardid . ';move_to=before;' . $security,
 					);
 
-				if (!$context['categories'][$catid]['boards'][$boardid]['move'])
-					$context['categories'][$catid]['boards'][$boardid]['move_links'] = array(
+				if (!Utils::$context['categories'][$catid]['boards'][$boardid]['move'])
+					Utils::$context['categories'][$catid]['boards'][$boardid]['move_links'] = array(
 						array(
 							'child_level' => $boards[$boardid]['level'],
-							'label' => $txt['mboards_order_after'] . '\'' . $smcFunc['htmlspecialchars']($boards[$boardid]['name']) . '\'',
-							'href' => $scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . $context['move_board'] . ';target_board=' . $boardid . ';move_to=after;' . $security,
+							'label' => $txt['mboards_order_after'] . '\'' . Utils::htmlspecialchars($boards[$boardid]['name']) . '\'',
+							'href' => Config::$scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . Utils::$context['move_board'] . ';target_board=' . $boardid . ';move_to=after;' . $security,
 							'class' => $boards[$boardid]['level'] > 0 ? 'above' : 'below',
 						),
 						array(
 							'child_level' => $boards[$boardid]['level'] + 1,
-							'label' => $txt['mboards_order_child_of'] . ' \'' . $smcFunc['htmlspecialchars']($boards[$boardid]['name']) . '\'',
-							'href' => $scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . $context['move_board'] . ';target_board=' . $boardid . ';move_to=child;' . $security,
+							'label' => $txt['mboards_order_child_of'] . ' \'' . Utils::htmlspecialchars($boards[$boardid]['name']) . '\'',
+							'href' => Config::$scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . Utils::$context['move_board'] . ';target_board=' . $boardid . ';move_to=child;' . $security,
 							'class' => 'here',
 						),
 					);
 
 				$difference = $boards[$boardid]['level'] - $prev_child_level;
 				if ($difference == 1)
-					array_push($stack, !empty($context['categories'][$catid]['boards'][$prev_board]['move_links']) ? array_shift($context['categories'][$catid]['boards'][$prev_board]['move_links']) : null);
+					array_push($stack, !empty(Utils::$context['categories'][$catid]['boards'][$prev_board]['move_links']) ? array_shift(Utils::$context['categories'][$catid]['boards'][$prev_board]['move_links']) : null);
 				elseif ($difference < 0)
 				{
-					if (empty($context['categories'][$catid]['boards'][$prev_board]['move_links']))
-						$context['categories'][$catid]['boards'][$prev_board]['move_links'] = array();
+					if (empty(Utils::$context['categories'][$catid]['boards'][$prev_board]['move_links']))
+						Utils::$context['categories'][$catid]['boards'][$prev_board]['move_links'] = array();
 					for ($i = 0; $i < -$difference; $i++)
 						if (($temp = array_pop($stack)) != null)
-							array_unshift($context['categories'][$catid]['boards'][$prev_board]['move_links'], $temp);
+							array_unshift(Utils::$context['categories'][$catid]['boards'][$prev_board]['move_links'], $temp);
 				}
 
 				$prev_board = $boardid;
 				$prev_child_level = $boards[$boardid]['level'];
 			}
-			if (!empty($stack) && !empty($context['categories'][$catid]['boards'][$prev_board]['move_links']))
-				$context['categories'][$catid]['boards'][$prev_board]['move_links'] = array_merge($stack, $context['categories'][$catid]['boards'][$prev_board]['move_links']);
+			if (!empty($stack) && !empty(Utils::$context['categories'][$catid]['boards'][$prev_board]['move_links']))
+				Utils::$context['categories'][$catid]['boards'][$prev_board]['move_links'] = array_merge($stack, Utils::$context['categories'][$catid]['boards'][$prev_board]['move_links']);
 			elseif (!empty($stack))
-				$context['categories'][$catid]['boards'][$prev_board]['move_links'] = $stack;
+				Utils::$context['categories'][$catid]['boards'][$prev_board]['move_links'] = $stack;
 
 			if (empty($boardList[$catid]))
-				$context['categories'][$catid]['move_link'] = array(
+				Utils::$context['categories'][$catid]['move_link'] = array(
 					'child_level' => 0,
-					'label' => $txt['mboards_order_before'] . ' \'' . $smcFunc['htmlspecialchars']($tree['node']['name']) . '\'',
-					'href' => $scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . $context['move_board'] . ';target_cat=' . $catid . ';move_to=top;' . $security,
+					'label' => $txt['mboards_order_before'] . ' \'' . Utils::htmlspecialchars($tree['node']['name']) . '\'',
+					'href' => Config::$scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . Utils::$context['move_board'] . ';target_cat=' . $catid . ';move_to=top;' . $security,
 				);
 		}
 	}
 
 	call_integration_hook('integrate_boards_main');
 
-	$context['page_title'] = $txt['boards_and_cats'];
-	$context['can_manage_permissions'] = allowedTo('manage_permissions');
+	Utils::$context['page_title'] = $txt['boards_and_cats'];
+	Utils::$context['can_manage_permissions'] = allowedTo('manage_permissions');
 }
 
 /**
@@ -218,18 +222,18 @@ function ManageBoardsMain()
  */
 function EditCategory()
 {
-	global $txt, $context, $cat_tree, $boardList, $boards, $smcFunc, $sourcedir;
+	global $txt, $cat_tree, $boardList, $boards;
 
 	loadTemplate('ManageBoards');
-	require_once($sourcedir . '/Subs-Boards.php');
-	require_once($sourcedir . '/Subs-Editor.php');
+	require_once(Config::$sourcedir . '/Subs-Boards.php');
+	require_once(Config::$sourcedir . '/Subs-Editor.php');
 	getBoardTree();
 
 	// id_cat must be a number.... if it exists.
 	$_REQUEST['cat'] = isset($_REQUEST['cat']) ? (int) $_REQUEST['cat'] : 0;
 
 	// Start with one - "In first place".
-	$context['category_order'] = array(
+	Utils::$context['category_order'] = array(
 		array(
 			'id' => 0,
 			'name' => $txt['mboards_order_first'],
@@ -241,10 +245,10 @@ function EditCategory()
 	// If this is a new category set up some defaults.
 	if ($_REQUEST['sa'] == 'newcat')
 	{
-		$context['category'] = array(
+		Utils::$context['category'] = array(
 			'id' => 0,
 			'name' => $txt['mboards_new_cat_name'],
-			'editable_name' => $smcFunc['htmlspecialchars']($txt['mboards_new_cat_name']),
+			'editable_name' => Utils::htmlspecialchars($txt['mboards_new_cat_name']),
 			'description' => '',
 			'can_collapse' => true,
 			'is_new' => true,
@@ -256,7 +260,7 @@ function EditCategory()
 		redirectexit('action=admin;area=manageboards');
 	else
 	{
-		$context['category'] = array(
+		Utils::$context['category'] = array(
 			'id' => $_REQUEST['cat'],
 			'name' => $cat_tree[$_REQUEST['cat']]['node']['name'],
 			'editable_name' => $cat_tree[$_REQUEST['cat']]['node']['name'],
@@ -267,16 +271,16 @@ function EditCategory()
 		);
 
 		foreach ($boardList[$_REQUEST['cat']] as $child_board)
-			$context['category']['children'][] = str_repeat('-', $boards[$child_board]['level']) . ' ' . $boards[$child_board]['name'];
+			Utils::$context['category']['children'][] = str_repeat('-', $boards[$child_board]['level']) . ' ' . $boards[$child_board]['name'];
 	}
 
 	$prevCat = 0;
 	foreach ($cat_tree as $catid => $tree)
 	{
 		if ($catid == $_REQUEST['cat'] && $prevCat > 0)
-			$context['category_order'][$prevCat]['selected'] = true;
+			Utils::$context['category_order'][$prevCat]['selected'] = true;
 		elseif ($catid != $_REQUEST['cat'])
-			$context['category_order'][$catid] = array(
+			Utils::$context['category_order'][$catid] = array(
 				'id' => $catid,
 				'name' => $txt['mboards_order_after'] . $tree['node']['name'],
 				'selected' => false,
@@ -286,18 +290,18 @@ function EditCategory()
 	}
 	if (!isset($_REQUEST['delete']))
 	{
-		$context['sub_template'] = 'modify_category';
-		$context['page_title'] = $_REQUEST['sa'] == 'newcat' ? $txt['mboards_new_cat_name'] : $txt['cat_edit'];
+		Utils::$context['sub_template'] = 'modify_category';
+		Utils::$context['page_title'] = $_REQUEST['sa'] == 'newcat' ? $txt['mboards_new_cat_name'] : $txt['cat_edit'];
 	}
 	else
 	{
-		$context['sub_template'] = 'confirm_category_delete';
-		$context['page_title'] = $txt['mboards_delete_cat'];
+		Utils::$context['sub_template'] = 'confirm_category_delete';
+		Utils::$context['page_title'] = $txt['mboards_delete_cat'];
 	}
 
 	// Create a special token.
 	createToken('admin-bc-' . $_REQUEST['cat']);
-	$context['token_check'] = 'admin-bc-' . $_REQUEST['cat'];
+	Utils::$context['token_check'] = 'admin-bc-' . $_REQUEST['cat'];
 
 	call_integration_hook('integrate_edit_category');
 }
@@ -312,13 +316,11 @@ function EditCategory()
  */
 function EditCategory2()
 {
-	global $sourcedir, $smcFunc, $context;
-
 	checkSession();
 	validateToken('admin-bc-' . $_REQUEST['cat']);
 
-	require_once($sourcedir . '/Subs-Categories.php');
-	require_once($sourcedir . '/Subs-Editor.php');
+	require_once(Config::$sourcedir . '/Subs-Categories.php');
+	require_once(Config::$sourcedir . '/Subs-Editor.php');
 
 	$_POST['cat'] = (int) $_POST['cat'];
 
@@ -331,8 +333,8 @@ function EditCategory2()
 			$catOptions['move_after'] = (int) $_POST['cat_order'];
 
 		// Try and get any valid HTML to BBC first, add a naive attempt to strip it off, htmlspecialchars for the rest
-		$catOptions['cat_name'] = $smcFunc['htmlspecialchars'](strip_tags($_POST['cat_name']));
-		$catOptions['cat_desc'] = $smcFunc['htmlspecialchars'](strip_tags(BBCodeParser::load()->unparse($_POST['cat_desc'])));
+		$catOptions['cat_name'] = Utils::htmlspecialchars(strip_tags($_POST['cat_name']));
+		$catOptions['cat_desc'] = Utils::htmlspecialchars(strip_tags(BBCodeParser::load()->unparse($_POST['cat_desc'])));
 		$catOptions['is_collapsible'] = isset($_POST['collapse']);
 
 		if (isset($_POST['add']))
@@ -375,23 +377,22 @@ function EditCategory2()
  */
 function EditBoard()
 {
-	global $txt, $context, $cat_tree, $boards, $boardList;
-	global $sourcedir, $smcFunc, $modSettings;
+	global $txt, $cat_tree, $boards, $boardList;
 
 	loadTemplate('ManageBoards');
-	require_once($sourcedir . '/Subs-Boards.php');
-	require_once($sourcedir . '/Subs-Editor.php');
+	require_once(Config::$sourcedir . '/Subs-Boards.php');
+	require_once(Config::$sourcedir . '/Subs-Editor.php');
 	getBoardTree();
 
 	// For editing the profile we'll need this.
 	loadLanguage('ManagePermissions');
-	require_once($sourcedir . '/ManagePermissions.php');
+	require_once(Config::$sourcedir . '/ManagePermissions.php');
 	loadPermissionProfiles();
 
 	// People with manage-boards are special.
-	require_once($sourcedir . '/Subs-Members.php');
+	require_once(Config::$sourcedir . '/Subs-Members.php');
 	$groups = groupsAllowedTo('manage_boards', null);
-	$context['board_managers'] = $groups['allowed']; // We don't need *all* this in $context.
+	Utils::$context['board_managers'] = $groups['allowed']; // We don't need *all* this in Utils::$context.
 
 	// id_board must be a number....
 	$_REQUEST['boardid'] = isset($_REQUEST['boardid']) ? (int) $_REQUEST['boardid'] : 0;
@@ -414,8 +415,8 @@ function EditBoard()
 			'deny_groups' => array(),
 			'category' => (int) $_REQUEST['cat']
 		);
-		$context['board_order'] = array();
-		$context['board'] = array(
+		Utils::$context['board_order'] = array();
+		Utils::$context['board'] = array(
 			'is_new' => true,
 			'id' => 0,
 			'name' => $txt['mboards_new_board_name'],
@@ -435,19 +436,19 @@ function EditBoard()
 	{
 		// Just some easy shortcuts.
 		$curBoard = &$boards[$_REQUEST['boardid']];
-		$context['board'] = $boards[$_REQUEST['boardid']];
-		$context['board']['no_children'] = empty($boards[$_REQUEST['boardid']]['tree']['children']);
-		$context['board']['is_recycle'] = !empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) && $modSettings['recycle_board'] == $context['board']['id'];
+		Utils::$context['board'] = $boards[$_REQUEST['boardid']];
+		Utils::$context['board']['no_children'] = empty($boards[$_REQUEST['boardid']]['tree']['children']);
+		Utils::$context['board']['is_recycle'] = !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) && Config::$modSettings['recycle_board'] == Utils::$context['board']['id'];
 	}
 
 	// As we may have come from the permissions screen keep track of where we should go on save.
-	$context['redirect_location'] = isset($_GET['rid']) && $_GET['rid'] == 'permissions' ? 'permissions' : 'boards';
+	Utils::$context['redirect_location'] = isset($_GET['rid']) && $_GET['rid'] == 'permissions' ? 'permissions' : 'boards';
 
 	// We might need this to hide links to certain areas.
-	$context['can_manage_permissions'] = allowedTo('manage_permissions');
+	Utils::$context['can_manage_permissions'] = allowedTo('manage_permissions');
 
 	// Default membergroups.
-	$context['groups'] = array(
+	Utils::$context['groups'] = array(
 		-1 => array(
 			'id' => '-1',
 			'name' => $txt['parent_guests_only'],
@@ -465,7 +466,7 @@ function EditBoard()
 	);
 
 	// Load membergroups.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT group_name, id_group, min_posts
 		FROM {db_prefix}membergroups
 		WHERE id_group > {int:moderator_group} OR id_group = {int:global_moderator}
@@ -475,12 +476,12 @@ function EditBoard()
 			'global_moderator' => 2,
 		)
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		if ($_REQUEST['sa'] == 'newboard' && $row['min_posts'] == -1)
 			$curBoard['member_groups'][] = $row['id_group'];
 
-		$context['groups'][(int) $row['id_group']] = array(
+		Utils::$context['groups'][(int) $row['id_group']] = array(
 			'id' => $row['id_group'],
 			'name' => trim($row['group_name']),
 			'allow' => in_array($row['id_group'], $curBoard['member_groups']),
@@ -488,7 +489,7 @@ function EditBoard()
 			'is_post_group' => $row['min_posts'] != -1,
 		);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Category doesn't exist, man... sorry.
 	if (!isset($boardList[$curBoard['category']]))
@@ -498,7 +499,7 @@ function EditBoard()
 	{
 		if ($boardid == $_REQUEST['boardid'])
 		{
-			$context['board_order'][] = array(
+			Utils::$context['board_order'][] = array(
 				'id' => $boardid,
 				'name' => str_repeat('-', $boards[$boardid]['level']) . ' (' . $txt['mboards_current_position'] . ')',
 				'children' => $boards[$boardid]['tree']['children'],
@@ -509,7 +510,7 @@ function EditBoard()
 		}
 		else
 		{
-			$context['board_order'][] = array(
+			Utils::$context['board_order'][] = array(
 				'id' => $boardid,
 				'name' => str_repeat('-', $boards[$boardid]['level']) . ' ' . $boards[$boardid]['name'],
 				'is_child' => empty($_REQUEST['boardid']) ? false : isChildOf($boardid, $_REQUEST['boardid']),
@@ -521,24 +522,24 @@ function EditBoard()
 	// Are there any places to move child boards to in the case where we are confirming a delete?
 	if (!empty($_REQUEST['boardid']))
 	{
-		$context['can_move_children'] = false;
-		$context['children'] = $boards[$_REQUEST['boardid']]['tree']['children'];
+		Utils::$context['can_move_children'] = false;
+		Utils::$context['children'] = $boards[$_REQUEST['boardid']]['tree']['children'];
 
-		foreach ($context['board_order'] as $lBoard)
+		foreach (Utils::$context['board_order'] as $lBoard)
 			if ($lBoard['is_child'] == false && $lBoard['selected'] == false)
-				$context['can_move_children'] = true;
+				Utils::$context['can_move_children'] = true;
 	}
 
 	// Get other available categories.
-	$context['categories'] = array();
+	Utils::$context['categories'] = array();
 	foreach ($cat_tree as $catID => $tree)
-		$context['categories'][] = array(
+		Utils::$context['categories'][] = array(
 			'id' => $catID == $curBoard['category'] ? 0 : $catID,
 			'name' => $tree['node']['name'],
 			'selected' => $catID == $curBoard['category']
 		);
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT mem.id_member, mem.real_name
 		FROM {db_prefix}moderators AS mods
 			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = mods.id_member)
@@ -547,18 +548,18 @@ function EditBoard()
 			'current_board' => $_REQUEST['boardid'],
 		)
 	);
-	$context['board']['moderators'] = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$context['board']['moderators'][$row['id_member']] = $row['real_name'];
-	$smcFunc['db_free_result']($request);
+	Utils::$context['board']['moderators'] = array();
+	while ($row = Db::$db->fetch_assoc($request))
+		Utils::$context['board']['moderators'][$row['id_member']] = $row['real_name'];
+	Db::$db->free_result($request);
 
-	$context['board']['moderator_list'] = empty($context['board']['moderators']) ? '' : '&quot;' . implode('&quot;, &quot;', $context['board']['moderators']) . '&quot;';
+	Utils::$context['board']['moderator_list'] = empty(Utils::$context['board']['moderators']) ? '' : '&quot;' . implode('&quot;, &quot;', Utils::$context['board']['moderators']) . '&quot;';
 
-	if (!empty($context['board']['moderators']))
-		list ($context['board']['last_moderator_id']) = array_slice(array_keys($context['board']['moderators']), -1);
+	if (!empty(Utils::$context['board']['moderators']))
+		list (Utils::$context['board']['last_moderator_id']) = array_slice(array_keys(Utils::$context['board']['moderators']), -1);
 
 	// Get all the groups assigned as moderators
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_group
 		FROM {db_prefix}moderator_groups
 		WHERE id_board = {int:current_board}',
@@ -566,41 +567,41 @@ function EditBoard()
 			'current_board' => $_REQUEST['boardid'],
 		)
 	);
-	$context['board']['moderator_groups'] = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$context['board']['moderator_groups'][$row['id_group']] = $context['groups'][$row['id_group']]['name'];
-	$smcFunc['db_free_result']($request);
+	Utils::$context['board']['moderator_groups'] = array();
+	while ($row = Db::$db->fetch_assoc($request))
+		Utils::$context['board']['moderator_groups'][$row['id_group']] = Utils::$context['groups'][$row['id_group']]['name'];
+	Db::$db->free_result($request);
 
-	$context['board']['moderator_groups_list'] = empty($context['board']['moderator_groups']) ? '' : '&quot;' . implode('&quot;, &qout;', $context['board']['moderator_groups']) . '&quot;';
+	Utils::$context['board']['moderator_groups_list'] = empty(Utils::$context['board']['moderator_groups']) ? '' : '&quot;' . implode('&quot;, &qout;', Utils::$context['board']['moderator_groups']) . '&quot;';
 
-	if (!empty($context['board']['moderator_groups']))
-		list ($context['board']['last_moderator_group_id']) = array_slice(array_keys($context['board']['moderator_groups']), -1);
+	if (!empty(Utils::$context['board']['moderator_groups']))
+		list (Utils::$context['board']['last_moderator_group_id']) = array_slice(array_keys(Utils::$context['board']['moderator_groups']), -1);
 
 	// Get all the themes...
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_theme AS id, value AS name
 		FROM {db_prefix}themes
 		WHERE variable = {literal:name}
 			AND id_theme IN ({array_int:enable_themes})',
 		array(
-			'enable_themes' => explode(',', $modSettings['enableThemes']),
+			'enable_themes' => explode(',', Config::$modSettings['enableThemes']),
 		)
 	);
-	$context['themes'] = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$context['themes'][] = $row;
-	$smcFunc['db_free_result']($request);
+	Utils::$context['themes'] = array();
+	while ($row = Db::$db->fetch_assoc($request))
+		Utils::$context['themes'][] = $row;
+	Db::$db->free_result($request);
 
 	if (!isset($_REQUEST['delete']))
 	{
-		$context['sub_template'] = 'modify_board';
-		$context['page_title'] = $txt['boards_edit'];
+		Utils::$context['sub_template'] = 'modify_board';
+		Utils::$context['page_title'] = $txt['boards_edit'];
 		loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
 	}
 	else
 	{
-		$context['sub_template'] = 'confirm_board_delete';
-		$context['page_title'] = $txt['mboards_delete_board'];
+		Utils::$context['sub_template'] = 'confirm_board_delete';
+		Utils::$context['page_title'] = $txt['mboards_delete_board'];
 	}
 
 	// Create a special token.
@@ -619,14 +620,12 @@ function EditBoard()
  */
 function EditBoard2()
 {
-	global $sourcedir, $smcFunc, $context;
-
 	$_POST['boardid'] = (int) $_POST['boardid'];
 	checkSession();
 	validateToken('admin-be-' . $_REQUEST['boardid']);
 
-	require_once($sourcedir . '/Subs-Boards.php');
-	require_once($sourcedir . '/Subs-Editor.php');
+	require_once(Config::$sourcedir . '/Subs-Boards.php');
+	require_once(Config::$sourcedir . '/Subs-Editor.php');
 
 	// Mode: modify aka. don't delete.
 	if (isset($_POST['edit']) || isset($_POST['add']))
@@ -669,8 +668,8 @@ function EditBoard2()
 			fatal_lang_error('too_many_groups', false);
 
 		// Try and get any valid HTML to BBC first, add a naive attempt to strip it off, htmlspecialchars for the rest
-		$boardOptions['board_name'] = $smcFunc['htmlspecialchars'](strip_tags($_POST['board_name']));
-		$boardOptions['board_description'] = $smcFunc['htmlspecialchars'](strip_tags(BBCodeParser::load()->unparse($_POST['desc'])));
+		$boardOptions['board_name'] = Utils::htmlspecialchars(strip_tags($_POST['board_name']));
+		$boardOptions['board_description'] = Utils::htmlspecialchars(strip_tags(BBCodeParser::load()->unparse($_POST['desc'])));
 
 		$boardOptions['moderator_string'] = $_POST['moderators'];
 
@@ -703,7 +702,7 @@ function EditBoard2()
 		// We need to know what used to be case in terms of redirection.
 		if (!empty($_POST['boardid']))
 		{
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT redirect, num_posts, id_cat
 				FROM {db_prefix}boards
 				WHERE id_board = {int:current_board}',
@@ -711,8 +710,8 @@ function EditBoard2()
 					'current_board' => $_POST['boardid'],
 				)
 			);
-			list ($oldRedirect, $numPosts, $old_id_cat) = $smcFunc['db_fetch_row']($request);
-			$smcFunc['db_free_result']($request);
+			list ($oldRedirect, $numPosts, $old_id_cat) = Db::$db->fetch_row($request);
+			Db::$db->free_result($request);
 
 			// If we're turning redirection on check the board doesn't have posts in it - if it does don't make it a redirection board.
 			if ($boardOptions['redirect'] && empty($oldRedirect) && $numPosts)
@@ -765,7 +764,7 @@ function EditBoard2()
 	}
 
 	if (isset($_REQUEST['rid']) && $_REQUEST['rid'] == 'permissions')
-		redirectexit('action=admin;area=permissions;sa=board;' . $context['session_var'] . '=' . $context['session_id']);
+		redirectexit('action=admin;area=permissions;sa=board;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 	else
 		redirectexit('action=admin;area=manageboards');
 }
@@ -775,10 +774,10 @@ function EditBoard2()
  */
 function ModifyCat()
 {
-	global $boards, $sourcedir, $smcFunc;
+	global $boards;
 
 	// Get some information about the boards and the cats.
-	require_once($sourcedir . '/Subs-Boards.php');
+	require_once(Config::$sourcedir . '/Subs-Boards.php');
 	getBoardTree();
 
 	// Allowed sub-actions...
@@ -789,7 +788,7 @@ function ModifyCat()
 	$_POST['id'] = substr($_POST['id'][1], 0, 3);
 
 	// Select the stuff we need from the DB.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT CONCAT({string:post_id}, {string:feline_clause}, {string:subact})
 		FROM {db_prefix}categories
 		LIMIT 1',
@@ -799,10 +798,10 @@ function ModifyCat()
 			'subact' => $allowed_sa[2] . 'e, ',
 		)
 	);
-	list ($cat) = $smcFunc['db_fetch_row']($request);
+	list ($cat) = Db::$db->fetch_row($request);
 
 	// Free resources.
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// This would probably never happen, but just to be sure.
 	if ($cat .= $allowed_sa[1])
@@ -820,10 +819,10 @@ function ModifyCat()
  */
 function EditBoardSettings($return_config = false)
 {
-	global $context, $txt, $sourcedir, $scripturl, $smcFunc, $modSettings;
+	global $txt;
 
 	// Load the boards list - for the recycle bin!
-	$request = $smcFunc['db_query']('order_by_board_order', '
+	$request = Db::$db->query('order_by_board_order', '
 		SELECT b.id_board, b.name AS board_name, c.name AS cat_name
 		FROM {db_prefix}boards AS b
 			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
@@ -832,13 +831,13 @@ function EditBoardSettings($return_config = false)
 			'empty_string' => '',
 		)
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$recycle_boards[$row['id_board']] = $row['cat_name'] . ' - ' . $row['board_name'];
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	if (!empty($recycle_boards))
 	{
-		require_once($sourcedir . '/Subs-Boards.php');
+		require_once(Config::$sourcedir . '/Subs-Boards.php');
 		sortBoards($recycle_boards);
 		$recycle_boards = array('') + $recycle_boards;
 	}
@@ -846,8 +845,8 @@ function EditBoardSettings($return_config = false)
 		$recycle_boards = array('');
 
 	// If this setting is missing, set it to 1
-	if (empty($modSettings['boardindex_max_depth']))
-		$modSettings['boardindex_max_depth'] = 1;
+	if (empty(Config::$modSettings['boardindex_max_depth']))
+		Config::$modSettings['boardindex_max_depth'] = 1;
 
 	// Here and the board settings...
 	$config_vars = array(
@@ -871,21 +870,21 @@ function EditBoardSettings($return_config = false)
 		return $config_vars;
 
 	// Needed for the settings template.
-	require_once($sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/ManageServer.php');
 
-	$context['post_url'] = $scripturl . '?action=admin;area=manageboards;save;sa=settings';
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=manageboards;save;sa=settings';
 
-	$context['page_title'] = $txt['boards_and_cats'] . ' - ' . $txt['settings'];
+	Utils::$context['page_title'] = $txt['boards_and_cats'] . ' - ' . $txt['settings'];
 
 	loadTemplate('ManageBoards');
-	$context['sub_template'] = 'show_settings';
+	Utils::$context['sub_template'] = 'show_settings';
 
 	// Add some javascript stuff for the recycle box.
 	addInlineJavaScript('
 	document.getElementById("recycle_board").disabled = !document.getElementById("recycle_enable").checked;', true);
 
 	// Warn the admin against selecting the recycle topic without selecting a board.
-	$context['force_form_onsubmit'] = 'if(document.getElementById(\'recycle_enable\').checked && document.getElementById(\'recycle_board\').value == 0) { return confirm(\'' . $txt['recycle_board_unselected_notice'] . '\');} return true;';
+	Utils::$context['force_form_onsubmit'] = 'if(document.getElementById(\'recycle_enable\').checked && document.getElementById(\'recycle_board\').value == 0) { return confirm(\'' . $txt['recycle_board_unselected_notice'] . '\');} return true;';
 
 	// Doing a save?
 	if (isset($_GET['save']))

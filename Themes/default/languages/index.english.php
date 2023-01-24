@@ -258,10 +258,10 @@ $txt['welcome_guest'] = 'Welcome to <strong>%1$s</strong>. Please <a href="%2$s"
 // argument(s): forum name, login URL, login JavaScript snippet, signup URL
 $txt['welcome_guest_register'] = 'Welcome to <strong>%1$s</strong>. Please <a href="%2$s" onclick="%3$s">log in</a> or <a href="%4$s">sign up</a>.';
 
-// argument(s): $scripturl
+// argument(s): Config::$scripturl
 $txt['welcome_guest_activate'] = '<a href="%1$s?action=activate">Did you miss your activation email?</a>';
 
-// argument(s): $scripturl
+// argument(s): Config::$scripturl
 $txt['register_prompt'] = 'Don\'t have an account? <a href="%1$s?action=signup">Sign up</a>.';
 
 // argument(s): forum name
@@ -416,7 +416,7 @@ $txt['tried_to_repair'] = 'SMF has detected and automatically tried to repair an
 $txt['database_error_versions'] = '<strong>Note:</strong> It appears that your database <em>may</em> require an upgrade. Your forum\'s files are currently at version %1$s, while your database is at version %2$s. The above error might possibly go away if you execute the latest version of upgrade.php.';
 $txt['template_parse_error'] = 'Template Parse Error!';
 $txt['template_parse_error_message'] = 'It seems something has gone sour on the forum with the template system. This problem should only be temporary, so please come back later and try again. If you continue to see this message, please contact the administrator.<br><br>You can also try <a href="javascript:location.reload();">refreshing this page</a>.';
-// argument(s): filename, $boardurl, $scripturl
+// argument(s): filename, Config::$boardurl, Config::$scripturl
 $txt['template_parse_error_details'] = 'There was a problem loading the <pre><strong>%1$s</strong></pre> template or language file. Please check the syntax and try again - remember, single quotes (<pre>\'</pre>) often have to be escaped with a slash (<pre>\\</pre>). To see more specific error information from PHP, try <a href="%2$s%1$s">accessing the file directly</a>.<br><br>You may want to try to <a href="javascript:location.reload();">refresh this page</a> or <a href="%3$s?theme=1">use the default theme</a>.';
 $txt['template_parse_errmsg'] = 'Unfortunately more information is not available at this time as to exactly what is wrong.';
 
@@ -521,7 +521,7 @@ $txt['status'] = 'Status';
 $txt['go_up'] = 'Go Up';
 $txt['go_down'] = 'Go Down';
 
-// argument(s): SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, $scripturl
+// argument(s): SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl
 $forum_copyright = '<a href="%3$s?action=credits" title="License" target="_blank" rel="noopener">%1$s &copy; %2$s</a>, <a href="https://www.simplemachines.org" title="Simple Machines" target="_blank" rel="noopener">Simple Machines</a>';
 
 $txt['birthdays'] = 'Birthdays:';
@@ -858,7 +858,7 @@ $txt['prompt_text_img'] = 'Enter image location';
 // Escape any single quotes in here twice.. 'it\'s' -> 'it\\\'s'.
 $txt['autosuggest_delete_item'] = 'Delete Item';
 
-// Debug related - when $db_show_debug is true.
+// Debug related - when Config::$db_show_debug is true.
 $txt['debug_templates'] = 'Templates: ';
 $txt['debug_subtemplates'] = 'Sub templates: ';
 $txt['debug_language_files'] = 'Language files: ';

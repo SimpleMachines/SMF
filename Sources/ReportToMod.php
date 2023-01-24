@@ -12,6 +12,10 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -25,10 +29,10 @@ if (!defined('SMF'))
  */
 function ReportToModerator()
 {
-	global $txt, $topic, $context, $smcFunc, $scripturl, $sourcedir;
+	global $txt, $topic;
 
-	$context['robot_no_index'] = true;
-	$context['comment_body'] = '';
+	Utils::$context['robot_no_index'] = true;
+	Utils::$context['comment_body'] = '';
 
 	// No guests!
 	is_not_guest();
@@ -43,18 +47,18 @@ function ReportToModerator()
 	// Previewing or modifying?
 	if (isset($_POST['preview']) && !isset($_POST['save']))
 	{
-		require_once($sourcedir . '/Subs-Post.php');
+		require_once(Config::$sourcedir . '/Subs-Post.php');
 
 		// Set up the preview message.
-		$context['preview_message'] = $smcFunc['htmlspecialchars']($_POST['comment'], ENT_QUOTES);
-		preparsecode($context['preview_message']);
+		Utils::$context['preview_message'] = Utils::htmlspecialchars($_POST['comment'], ENT_QUOTES);
+		preparsecode(Utils::$context['preview_message']);
 
 		// We censor for your protection...
-		censorText($context['preview_message']);
+		censorText(Utils::$context['preview_message']);
 	}
 
 	// If they're posting, it should be processed by ReportToModerator2.
-	if ((isset($_POST[$context['session_var']]) || isset($_POST['save'])) && empty($context['post_errors']) && !isset($_POST['preview']))
+	if ((isset($_POST[Utils::$context['session_var']]) || isset($_POST['save'])) && empty(Utils::$context['post_errors']) && !isset($_POST['preview']))
 		ReportToModerator2();
 
 	// We need a message ID or user ID to check!
@@ -69,13 +73,13 @@ function ReportToModerator()
 		$_REQUEST['u'] = (int) $_REQUEST['u'];
 
 	// Set up some form values
-	$context['report_type'] = isset($_REQUEST['msg']) ? 'msg' : 'u';
-	$context['reported_item'] = isset($_REQUEST['msg']) ? $_REQUEST['msg'] : $_REQUEST['u'];
+	Utils::$context['report_type'] = isset($_REQUEST['msg']) ? 'msg' : 'u';
+	Utils::$context['reported_item'] = isset($_REQUEST['msg']) ? $_REQUEST['msg'] : $_REQUEST['u'];
 
 	if (isset($_REQUEST['msg']))
 	{
 		// Check the message's ID - don't want anyone reporting a post they can't even see!
-		$result = $smcFunc['db_query']('', '
+		$result = Db::$db->query('', '
 			SELECT m.id_msg, m.id_member, t.id_member_started
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
@@ -87,23 +91,23 @@ function ReportToModerator()
 				'id_msg' => $_REQUEST['msg'],
 			)
 		);
-		if ($smcFunc['db_num_rows']($result) == 0)
+		if (Db::$db->num_rows($result) == 0)
 			fatal_lang_error('no_board', false);
 
-		list ($_REQUEST['msg'], $member, $starter) = $smcFunc['db_fetch_row']($result);
-		$smcFunc['db_free_result']($result);
+		list ($_REQUEST['msg'], $member, $starter) = Db::$db->fetch_row($result);
+		Db::$db->free_result($result);
 
 		// This is here so that the user could, in theory, be redirected back to the topic.
-		$context['start'] = $_REQUEST['start'];
-		$context['message_id'] = $_REQUEST['msg'];
+		Utils::$context['start'] = $_REQUEST['start'];
+		Utils::$context['message_id'] = $_REQUEST['msg'];
 
 		// The submit URL is different for users than it is for posts
-		$context['submit_url'] = $scripturl . '?action=reporttm;msg=' . $_REQUEST['msg'] . ';topic=' . $topic;
+		Utils::$context['submit_url'] = Config::$scripturl . '?action=reporttm;msg=' . $_REQUEST['msg'] . ';topic=' . $topic;
 	}
 	else
 	{
 		// Check the user's ID
-		$result = $smcFunc['db_query']('', '
+		$result = Db::$db->query('', '
 			SELECT id_member, real_name, member_name
 			FROM {db_prefix}members
 			WHERE id_member = {int:current_user}',
@@ -112,18 +116,18 @@ function ReportToModerator()
 			)
 		);
 
-		if ($smcFunc['db_num_rows']($result) == 0)
+		if (Db::$db->num_rows($result) == 0)
 			fatal_lang_error('no_user', false);
-		list($_REQUEST['u'], $display_name, $username) = $smcFunc['db_fetch_row']($result);
+		list($_REQUEST['u'], $display_name, $username) = Db::$db->fetch_row($result);
 
-		$context['current_user'] = $_REQUEST['u'];
-		$context['submit_url'] = $scripturl . '?action=reporttm;u=' . $_REQUEST['u'];
+		Utils::$context['current_user'] = $_REQUEST['u'];
+		Utils::$context['submit_url'] = Config::$scripturl . '?action=reporttm;u=' . $_REQUEST['u'];
 	}
 
-	$context['comment_body'] = $smcFunc['htmlspecialchars']((!isset($_POST['comment']) ? '' : trim($_POST['comment'])), ENT_QUOTES);
+	Utils::$context['comment_body'] = Utils::htmlspecialchars((!isset($_POST['comment']) ? '' : trim($_POST['comment'])), ENT_QUOTES);
 
-	$context['page_title'] = $context['report_type'] == 'msg' ? $txt['report_to_mod'] : sprintf($txt['report_profile'], $display_name);
-	$context['notice'] = $context['report_type'] == 'msg' ? $txt['report_to_mod_func'] : $txt['report_profile_func'];
+	Utils::$context['page_title'] = Utils::$context['report_type'] == 'msg' ? $txt['report_to_mod'] : sprintf($txt['report_profile'], $display_name);
+	Utils::$context['notice'] = Utils::$context['report_type'] == 'msg' ? $txt['report_to_mod_func'] : $txt['report_profile_func'];
 
 	// Show the inputs for the comment, etc.
 	loadLanguage('Post');
@@ -162,7 +166,7 @@ function ReportToModerator()
  */
 function ReportToModerator2()
 {
-	global $txt, $sourcedir, $context, $smcFunc;
+	global $txt;
 
 	// Sorry, no guests allowed... Probably just trying to spam us anyway
 	is_not_guest();
@@ -176,7 +180,7 @@ function ReportToModerator2()
 	// Make sure they aren't spamming.
 	spamProtection('reporttm');
 
-	require_once($sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Subs-Post.php');
 
 	// Prevent double submission of this form.
 	checkSubmitOnce('check');
@@ -189,12 +193,12 @@ function ReportToModerator2()
 		$post_errors[] = 'session_timeout';
 
 	// Make sure we have a comment and it's clean.
-	if (!isset($_POST['comment']) || $smcFunc['htmltrim']($_POST['comment']) === '')
+	if (!isset($_POST['comment']) || Utils::htmlTrim($_POST['comment']) === '')
 		$post_errors[] = 'no_comment';
 
-	$poster_comment = strtr($smcFunc['htmlspecialchars']($_POST['comment']), array("\r" => '', "\t" => ''));
+	$poster_comment = strtr(Utils::htmlspecialchars($_POST['comment']), array("\r" => '', "\t" => ''));
 
-	if ($smcFunc['strlen']($poster_comment) > 254)
+	if (Utils::entityStrlen($poster_comment) > 254)
 		$post_errors[] = 'post_too_long';
 
 	// Any errors?
@@ -202,9 +206,9 @@ function ReportToModerator2()
 	{
 		loadLanguage('Errors');
 
-		$context['post_errors'] = array();
+		Utils::$context['post_errors'] = array();
 		foreach ($post_errors as $post_error)
-			$context['post_errors'][$post_error] = $txt['error_' . $post_error];
+			Utils::$context['post_errors'][$post_error] = $txt['error_' . $post_error];
 
 		return ReportToModerator();
 	}
@@ -228,12 +232,12 @@ function ReportToModerator2()
  */
 function reportPost($msg, $reason)
 {
-	global $context, $smcFunc, $user_info, $topic;
+	global $user_info, $topic;
 
 	// Get the basic topic information, and make sure they can see it.
 	$_POST['msg'] = (int) $msg;
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT m.id_topic, m.id_board, m.subject, m.body, m.id_member AS id_poster, m.poster_name, mem.real_name
 		FROM {db_prefix}messages AS m
 			LEFT JOIN {db_prefix}members AS mem ON (m.id_member = mem.id_member)
@@ -245,12 +249,12 @@ function reportPost($msg, $reason)
 			'id_msg' => $_POST['msg'],
 		)
 	);
-	if ($smcFunc['db_num_rows']($request) == 0)
+	if (Db::$db->num_rows($request) == 0)
 		fatal_lang_error('no_board', false);
-	$message = $smcFunc['db_fetch_assoc']($request);
-	$smcFunc['db_free_result']($request);
+	$message = Db::$db->fetch_assoc($request);
+	Db::$db->free_result($request);
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_report, ignore_all
 		FROM {db_prefix}log_reported
 		WHERE id_msg = {int:id_msg}
@@ -262,10 +266,10 @@ function reportPost($msg, $reason)
 			'ignored' => 1,
 		)
 	);
-	if ($smcFunc['db_num_rows']($request) != 0)
-		list ($id_report, $ignore) = $smcFunc['db_fetch_row']($request);
+	if (Db::$db->num_rows($request) != 0)
+		list ($id_report, $ignore) = Db::$db->fetch_row($request);
 
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// If we're just going to ignore these, then who gives a monkeys...
 	if (!empty($ignore))
@@ -273,7 +277,7 @@ function reportPost($msg, $reason)
 
 	// Already reported? My god, we could be dealing with a real rogue here...
 	if (!empty($id_report))
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}log_reported
 			SET num_reports = num_reports + 1, time_updated = {int:current_time}
 			WHERE id_report = {int:id_report}',
@@ -288,7 +292,7 @@ function reportPost($msg, $reason)
 		if (empty($message['real_name']))
 			$message['real_name'] = $message['poster_name'];
 
-		$id_report = $smcFunc['db_insert']('',
+		$id_report = Db::$db->insert('',
 			'{db_prefix}log_reported',
 			array(
 				'id_msg' => 'int', 'id_topic' => 'int', 'id_board' => 'int', 'id_member' => 'int', 'membername' => 'string',
@@ -307,7 +311,7 @@ function reportPost($msg, $reason)
 	// Now just add our report...
 	if ($id_report)
 	{
-		$id_comment = $smcFunc['db_insert']('',
+		$id_comment = Db::$db->insert('',
 			'{db_prefix}log_reported_comments',
 			array(
 				'id_report' => 'int', 'id_member' => 'int', 'membername' => 'string',
@@ -322,16 +326,16 @@ function reportPost($msg, $reason)
 		);
 
 		// And get ready to notify people.
-		$smcFunc['db_insert']('insert',
+		Db::$db->insert('insert',
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-			array('$sourcedir/tasks/MsgReport_Notify.php', 'SMF\Tasks\MsgReport_Notify', $smcFunc['json_encode'](array(
+			array('$sourcedir/tasks/MsgReport_Notify.php', 'SMF\Tasks\MsgReport_Notify', Utils::jsonEncode(array(
 				'report_id' => $id_report,
 				'msg_id' => $_POST['msg'],
 				'topic_id' => $message['id_topic'],
 				'board_id' => $message['id_board'],
-				'sender_id' => $context['user']['id'],
-				'sender_name' => $context['user']['name'],
+				'sender_id' => Utils::$context['user']['id'],
+				'sender_name' => Utils::$context['user']['name'],
 				'time' => time(),
 				'comment_id' => $id_comment,
 			)), 0),
@@ -340,7 +344,7 @@ function reportPost($msg, $reason)
 	}
 
 	// Keep track of when the mod reports get updated, that way we know when we need to look again.
-	updateSettings(array('last_mod_report_action' => time()));
+	Config::updateModSettings(array('last_mod_report_action' => time()));
 
 	// Back to the post we reported!
 	redirectexit('reportsent;topic=' . $topic . '.msg' . $_POST['msg'] . '#msg' . $_POST['msg']);
@@ -354,12 +358,12 @@ function reportPost($msg, $reason)
  */
 function reportUser($id_member, $reason)
 {
-	global $context, $smcFunc, $user_info;
+	global $user_info;
 
 	// Get the basic topic information, and make sure they can see it.
 	$_POST['u'] = (int) $id_member;
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_member, real_name, member_name
 		FROM {db_prefix}members
 		WHERE id_member = {int:id_member}',
@@ -367,14 +371,14 @@ function reportUser($id_member, $reason)
 			'id_member' => $_POST['u']
 		)
 	);
-	if ($smcFunc['db_num_rows']($request) == 0)
+	if (Db::$db->num_rows($request) == 0)
 		fatal_lang_error('no_user', false);
-	$user = $smcFunc['db_fetch_assoc']($request);
-	$smcFunc['db_free_result']($request);
+	$user = Db::$db->fetch_assoc($request);
+	Db::$db->free_result($request);
 
 	$user_name = un_htmlspecialchars($user['real_name']) . ($user['real_name'] != $user['member_name'] ? ' (' . $user['member_name'] . ')' : '');
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_report, ignore_all
 		FROM {db_prefix}log_reported
 		WHERE id_member = {int:id_member}
@@ -388,10 +392,10 @@ function reportUser($id_member, $reason)
 			'ignored' => 1,
 		)
 	);
-	if ($smcFunc['db_num_rows']($request) != 0)
-		list ($id_report, $ignore) = $smcFunc['db_fetch_row']($request);
+	if (Db::$db->num_rows($request) != 0)
+		list ($id_report, $ignore) = Db::$db->fetch_row($request);
 
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// If we're just going to ignore these, then who gives a monkeys...
 	if (!empty($ignore))
@@ -399,7 +403,7 @@ function reportUser($id_member, $reason)
 
 	// Already reported? My god, we could be dealing with a real rogue here...
 	if (!empty($id_report))
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}log_reported
 			SET num_reports = num_reports + 1, time_updated = {int:current_time}
 			WHERE id_report = {int:id_report}',
@@ -411,7 +415,7 @@ function reportUser($id_member, $reason)
 	// Otherwise, we shall make one!
 	else
 	{
-		$id_report = $smcFunc['db_insert']('',
+		$id_report = Db::$db->insert('',
 			'{db_prefix}log_reported',
 			array(
 				'id_msg' => 'int', 'id_topic' => 'int', 'id_board' => 'int', 'id_member' => 'int', 'membername' => 'string',
@@ -430,7 +434,7 @@ function reportUser($id_member, $reason)
 	// Now just add our report...
 	if ($id_report)
 	{
-		$smcFunc['db_insert']('',
+		Db::$db->insert('',
 			'{db_prefix}log_reported_comments',
 			array(
 				'id_report' => 'int', 'id_member' => 'int', 'membername' => 'string',
@@ -444,15 +448,15 @@ function reportUser($id_member, $reason)
 		);
 
 		// And get ready to notify people.
-		$smcFunc['db_insert']('insert',
+		Db::$db->insert('insert',
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-			array('$sourcedir/tasks/MemberReport_Notify.php', 'SMF\Tasks\MemberReport_Notify', $smcFunc['json_encode'](array(
+			array('$sourcedir/tasks/MemberReport_Notify.php', 'SMF\Tasks\MemberReport_Notify', Utils::jsonEncode(array(
 				'report_id' => $id_report,
 				'user_id' => $user['id_member'],
 				'user_name' => $user_name,
-				'sender_id' => $context['user']['id'],
-				'sender_name' => $context['user']['name'],
+				'sender_id' => Utils::$context['user']['id'],
+				'sender_name' => Utils::$context['user']['name'],
 				'comment' => $reason,
 				'time' => time(),
 			)), 0),
@@ -461,7 +465,7 @@ function reportUser($id_member, $reason)
 	}
 
 	// Keep track of when the mod reports get updated, that way we know when we need to look again.
-	updateSettings(array('last_mod_report_action' => time()));
+	Config::updateModSettings(array('last_mod_report_action' => time()));
 
 	// Back to the post we reported!
 	redirectexit('reportsent;action=profile;u=' . $id_member);

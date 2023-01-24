@@ -193,29 +193,23 @@ class Forum
 	 */
 	public function __construct()
 	{
-		global $maintenance, $smcFunc, $context, $modSettings, $sourcedir;
-
-		// If $maintenance is set specifically to 2, then we're upgrading or something.
-		if (!empty($maintenance) &&  2 === $maintenance)
+		// If Config::$maintenance is set specifically to 2, then we're upgrading or something.
+		if (!empty(Config::$maintenance) &&  2 === Config::$maintenance)
 		{
 			display_maintenance_message();
 		}
-
-		// Create a variable to store some SMF specific functions in.
-		$smcFunc = array();
 
 		// Initiate the database connection and define some database functions to use.
 		Db::load();
 
 		// Load the settings from the settings table, and perform operations like optimizing.
-		$context = array();
-		reloadSettings();
+		Config::reloadModSettings();
 
 		// Clean the request variables, add slashes, etc.
 		cleanRequest();
 
 		// Seed the random generator.
-		if (empty($modSettings['rand_seed']) || mt_rand(1, 250) == 69)
+		if (empty(Config::$modSettings['rand_seed']) || mt_rand(1, 250) == 69)
 			smf_seed_generator();
 
 		// If a Preflight is occurring, lets stop now.
@@ -226,11 +220,11 @@ class Forum
 		}
 
 		// Check if compressed output is enabled, supported, and not already being done.
-		if (!empty($modSettings['enableCompressedOutput']) && !headers_sent())
+		if (!empty(Config::$modSettings['enableCompressedOutput']) && !headers_sent())
 		{
 			// If zlib is being used, turn off output compression.
 			if (ini_get('zlib.output_compression') >= 1 || ini_get('output_handler') == 'ob_gzhandler')
-				$modSettings['enableCompressedOutput'] = '0';
+				Config::$modSettings['enableCompressedOutput'] = '0';
 
 			else
 			{
@@ -284,8 +278,8 @@ class Forum
 	 */
 	protected function main()
 	{
-		global $modSettings, $settings, $user_info, $board, $topic;
-		global $board_info, $maintenance, $sourcedir;
+		global $settings, $user_info, $board, $topic;
+		global $board_info;
 
 		// Special case: session keep-alive, output a transparent pixel.
 		if (isset($_GET['action']) && $_GET['action'] == 'keepalive')
@@ -310,7 +304,7 @@ class Forum
 		loadPermissions();
 
 		// Attachments don't require the entire theme to be loaded.
-		if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'dlattach' && empty($maintenance))
+		if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'dlattach' && empty(Config::$maintenance))
 		{
 			BrowserDetector::call();
 		}
@@ -336,7 +330,7 @@ class Forum
 			writeLog();
 
 			// Track forum statistics and hits...?
-			if (!empty($modSettings['hitStats']))
+			if (!empty(Config::$modSettings['hitStats']))
 				trackStats(array('hits' => '+'));
 		}
 
@@ -344,12 +338,12 @@ class Forum
 		check_cron();
 
 		// Is the forum in maintenance mode? (doesn't apply to administrators.)
-		if (!empty($maintenance) && !allowedTo('admin_forum'))
+		if (!empty(Config::$maintenance) && !allowedTo('admin_forum'))
 		{
 			// You can only login.... otherwise, you're getting the "maintenance mode" display.
 			if (isset($_REQUEST['action']) && (in_array($_REQUEST['action'], array('login2', 'logintfa', 'logout'))))
 			{
-				require_once($sourcedir . '/LogInOut.php');
+				require_once(Config::$sourcedir . '/LogInOut.php');
 				return ($_REQUEST['action'] == 'login2' ? 'Login2' : ($_REQUEST['action'] == 'logintfa' ? 'LoginTFA' : 'Logout'));
 			}
 			// Don't even try it, sonny.
@@ -357,7 +351,7 @@ class Forum
 				return 'InMaintenance';
 		}
 		// If guest access is off, a guest can only do one of the very few following actions.
-		elseif (empty($modSettings['allow_guestAccess']) && $user_info['is_guest'] && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], self::$guest_access_actions)))
+		elseif (empty(Config::$modSettings['allow_guestAccess']) && $user_info['is_guest'] && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], self::$guest_access_actions)))
 		{
 			return 'KickGuest';
 		}
@@ -366,9 +360,9 @@ class Forum
 			// Action and board are both empty... BoardIndex! Unless someone else wants to do something different.
 			if (empty($board) && empty($topic))
 			{
-				if (!empty($modSettings['integrate_default_action']))
+				if (!empty(Config::$modSettings['integrate_default_action']))
 				{
-					$defaultAction = explode(',', $modSettings['integrate_default_action']);
+					$defaultAction = explode(',', Config::$modSettings['integrate_default_action']);
 
 					// Sorry, only one default action is needed.
 					$defaultAction = $defaultAction[0];
@@ -382,7 +376,7 @@ class Forum
 				// No default action huh? then go to our good old BoardIndex.
 				else
 				{
-					require_once($sourcedir . '/BoardIndex.php');
+					require_once(Config::$sourcedir . '/BoardIndex.php');
 					return 'BoardIndex';
 				}
 			}
@@ -390,14 +384,14 @@ class Forum
 			// Topic is empty, and action is empty.... MessageIndex!
 			elseif (empty($topic))
 			{
-				require_once($sourcedir . '/MessageIndex.php');
+				require_once(Config::$sourcedir . '/MessageIndex.php');
 				return 'MessageIndex';
 			}
 
 			// Board is not empty... topic is not empty... action is empty.. Display!
 			else
 			{
-				require_once($sourcedir . '/Display.php');
+				require_once(Config::$sourcedir . '/Display.php');
 				return 'Display';
 			}
 		}
@@ -408,13 +402,13 @@ class Forum
 			// Catch the action with the theme?
 			if (!empty($settings['catch_action']))
 			{
-				require_once($sourcedir . '/Themes.php');
+				require_once(Config::$sourcedir . '/Themes.php');
 				return 'WrapAction';
 			}
 
-			if (!empty($modSettings['integrate_fallback_action']))
+			if (!empty(Config::$modSettings['integrate_fallback_action']))
 			{
-				$fallbackAction = explode(',', $modSettings['integrate_fallback_action']);
+				$fallbackAction = explode(',', Config::$modSettings['integrate_fallback_action']);
 
 				// Sorry, only one fallback action is needed.
 				$fallbackAction = $fallbackAction[0];
@@ -434,7 +428,7 @@ class Forum
 
 		// Otherwise, it was set - so let's go to that action.
 		if (!empty(self::$actions[$_REQUEST['action']][0]))
-			require_once($sourcedir . '/' . self::$actions[$_REQUEST['action']][0]);
+			require_once(Config::$sourcedir . '/' . self::$actions[$_REQUEST['action']][0]);
 
 		// Do the right thing.
 		return call_helper(self::$actions[$_REQUEST['action']][1], true);

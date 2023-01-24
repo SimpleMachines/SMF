@@ -13,6 +13,9 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -44,16 +47,16 @@ function ShowHelp()
  */
 function HelpIndex()
 {
-	global $scripturl, $context, $txt;
+	global $txt;
 
 	// We need to know where our wiki is.
-	$context['wiki_url'] = 'https://wiki.simplemachines.org/smf';
-	$context['wiki_prefix'] = 'SMF2.1:';
+	Utils::$context['wiki_url'] = 'https://wiki.simplemachines.org/smf';
+	Utils::$context['wiki_prefix'] = 'SMF2.1:';
 
-	$context['canonical_url'] = $scripturl . '?action=help';
+	Utils::$context['canonical_url'] = Config::$scripturl . '?action=help';
 
 	// Sections were are going to link...
-	$context['manual_sections'] = array(
+	Utils::$context['manual_sections'] = array(
 		'registering' => 'Registering',
 		'logging_in' => 'Logging_In',
 		'profile' => 'Profile',
@@ -67,14 +70,14 @@ function HelpIndex()
 	);
 
 	// Build the link tree.
-	$context['linktree'][] = array(
-		'url' => $scripturl . '?action=help',
+	Utils::$context['linktree'][] = array(
+		'url' => Config::$scripturl . '?action=help',
 		'name' => $txt['help'],
 	);
 
 	// Lastly, some minor template stuff.
-	$context['page_title'] = $txt['manual_smf_user_help'];
-	$context['sub_template'] = 'manual';
+	Utils::$context['page_title'] = $txt['manual_smf_user_help'];
+	Utils::$context['sub_template'] = 'manual';
 }
 
 /**
@@ -89,7 +92,7 @@ function HelpIndex()
  */
 function ShowAdminHelp()
 {
-	global $txt, $helptxt, $context, $scripturl, $boarddir, $boardurl;
+	global $txt, $helptxt;
 
 	if (!isset($_GET['help']) || !is_string($_GET['help']))
 		fatal_lang_error('no_access', false);
@@ -111,37 +114,37 @@ function ShowAdminHelp()
 
 	// What help string should be used?
 	if (isset($helptxt[$_GET['help']]))
-		$context['help_text'] = $helptxt[$_GET['help']];
+		Utils::$context['help_text'] = $helptxt[$_GET['help']];
 	elseif (isset($txt[$_GET['help']]))
-		$context['help_text'] = $txt[$_GET['help']];
+		Utils::$context['help_text'] = $txt[$_GET['help']];
 	else
 		fatal_lang_error('not_found', false, array(), 404);
 
 	switch ($_GET['help']) {
 		case 'cal_short_months':
-			$context['help_text'] = sprintf($context['help_text'], $txt['months_short'][1], $txt['months_titles'][1]);
+			Utils::$context['help_text'] = sprintf(Utils::$context['help_text'], $txt['months_short'][1], $txt['months_titles'][1]);
 			break;
 		case 'cal_short_days':
-			$context['help_text'] = sprintf($context['help_text'], $txt['days_short'][1], $txt['days'][1]);
+			Utils::$context['help_text'] = sprintf(Utils::$context['help_text'], $txt['days_short'][1], $txt['days'][1]);
 			break;
 		case 'cron_is_real_cron':
-			$context['help_text'] = sprintf($context['help_text'], allowedTo('admin_forum') ? $boarddir : '[' . $txt['hidden'] . ']', $boardurl);
+			Utils::$context['help_text'] = sprintf(Utils::$context['help_text'], allowedTo('admin_forum') ? Config::$boarddir : '[' . $txt['hidden'] . ']', Config::$boardurl);
 			break;
 		case 'queryless_urls':
-			$context['help_text'] = sprintf($context['help_text'], (isset($_SERVER['SERVER_SOFTWARE']) && (strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false || strpos($_SERVER['SERVER_SOFTWARE'], 'lighttpd') !== false) ? $helptxt['queryless_urls_supported'] : $helptxt['queryless_urls_unsupported']));
+			Utils::$context['help_text'] = sprintf(Utils::$context['help_text'], (isset($_SERVER['SERVER_SOFTWARE']) && (strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false || strpos($_SERVER['SERVER_SOFTWARE'], 'lighttpd') !== false) ? $helptxt['queryless_urls_supported'] : $helptxt['queryless_urls_unsupported']));
 			break;
 	}
 
 	// Does this text contain a link that we should fill in?
-	if (preg_match('~%([0-9]+\$)?s\?~', $context['help_text'], $match))
-		$context['help_text'] = sprintf($context['help_text'], $scripturl, $context['session_id'], $context['session_var']);
+	if (preg_match('~%([0-9]+\$)?s\?~', Utils::$context['help_text'], $match))
+		Utils::$context['help_text'] = sprintf(Utils::$context['help_text'], Config::$scripturl, Utils::$context['session_id'], Utils::$context['session_var']);
 
 	// Set the page title to something relevant.
-	$context['page_title'] = $context['forum_name'] . ' - ' . $txt['help'];
+	Utils::$context['page_title'] = Utils::$context['forum_name'] . ' - ' . $txt['help'];
 
 	// Don't show any template layers, just the popup sub template.
-	$context['template_layers'] = array();
-	$context['sub_template'] = 'popup';
+	Utils::$context['template_layers'] = array();
+	Utils::$context['sub_template'] = 'popup';
 }
 
 ?>

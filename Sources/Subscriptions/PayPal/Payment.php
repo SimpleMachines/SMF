@@ -13,6 +13,8 @@
 
 namespace SMF\Subscriptions\PayPal;
 
+use SMF\Config;
+
 /**
  * Class of functions to validate a IPN response and provide details of the payment
  */
@@ -30,10 +32,8 @@ class Payment
 	 */
 	public function isValid()
 	{
-		global $modSettings;
-
 		// Has the user set up an email address?
-		if ((empty($modSettings['paidsubs_test']) && empty($modSettings['paypal_email'])) || (!empty($modSettings['paidsubs_test']) && empty($modSettings['paypal_sandbox_email'])))
+		if ((empty(Config::$modSettings['paidsubs_test']) && empty(Config::$modSettings['paypal_email'])) || (!empty(Config::$modSettings['paidsubs_test']) && empty(Config::$modSettings['paypal_sandbox_email'])))
 			return false;
 		// Check the correct transaction types are even here.
 		if ((!isset($_POST['txn_type']) && !isset($_POST['payment_status'])) || (!isset($_POST['business']) && !isset($_POST['receiver_email'])))
@@ -43,9 +43,9 @@ class Payment
 			$_POST['business'] = $_POST['receiver_email'];
 
 		// Are we testing?
-		if (!empty($modSettings['paidsubs_test']) && strtolower($modSettings['paypal_sandbox_email']) != strtolower($_POST['business']) && (empty($modSettings['paypal_additional_emails']) || !in_array(strtolower($_POST['business']), explode(',', strtolower($modSettings['paypal_additional_emails'])))))
+		if (!empty(Config::$modSettings['paidsubs_test']) && strtolower(Config::$modSettings['paypal_sandbox_email']) != strtolower($_POST['business']) && (empty(Config::$modSettings['paypal_additional_emails']) || !in_array(strtolower($_POST['business']), explode(',', strtolower(Config::$modSettings['paypal_additional_emails'])))))
 			return false;
-		elseif (strtolower($modSettings['paypal_email']) != strtolower($_POST['business']) && (empty($modSettings['paypal_additional_emails']) || !in_array(strtolower($_POST['business']), explode(',', $modSettings['paypal_additional_emails']))))
+		elseif (strtolower(Config::$modSettings['paypal_email']) != strtolower($_POST['business']) && (empty(Config::$modSettings['paypal_additional_emails']) || !in_array(strtolower($_POST['business']), explode(',', Config::$modSettings['paypal_additional_emails']))))
 			return false;
 		return true;
 	}
@@ -62,7 +62,7 @@ class Payment
 	 */
 	public function precheck()
 	{
-		global $modSettings, $txt;
+		global $txt;
 
 		// Put this to some default value.
 		if (!isset($_POST['txn_type']))
@@ -76,7 +76,7 @@ class Payment
 			$requestString .= '&' . $k . '=' . urlencode($v);
 
 		// Can we use curl?
-		if (function_exists('curl_init') && $curl = curl_init((!empty($modSettings['paidsubs_test']) ? 'https://www.sandbox.' : 'https://www.') . 'paypal.com/cgi-bin/webscr'))
+		if (function_exists('curl_init') && $curl = curl_init((!empty(Config::$modSettings['paidsubs_test']) ? 'https://www.sandbox.' : 'https://www.') . 'paypal.com/cgi-bin/webscr'))
 		{
 			// Set the post data.
 			curl_setopt($curl, CURLOPT_POST, true);
@@ -88,7 +88,7 @@ class Payment
 			curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
 			curl_setopt($curl, CURLOPT_FORBID_REUSE, 1);
 			curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-				'Host: www.' . (!empty($modSettings['paidsubs_test']) ? 'sandbox.' : '') . 'paypal.com',
+				'Host: www.' . (!empty(Config::$modSettings['paidsubs_test']) ? 'sandbox.' : '') . 'paypal.com',
 				'Connection: close'
 			));
 
@@ -107,12 +107,12 @@ class Payment
 			// Setup the headers.
 			$header = 'POST /cgi-bin/webscr HTTP/1.1' . "\r\n";
 			$header .= 'content-type: application/x-www-form-urlencoded' . "\r\n";
-			$header .= 'Host: www.' . (!empty($modSettings['paidsubs_test']) ? 'sandbox.' : '') . 'paypal.com' . "\r\n";
+			$header .= 'Host: www.' . (!empty(Config::$modSettings['paidsubs_test']) ? 'sandbox.' : '') . 'paypal.com' . "\r\n";
 			$header .= 'content-length: ' . strlen($requestString) . "\r\n";
 			$header .= 'connection: close' . "\r\n\r\n";
 
 			// Open the connection.
-			if (!empty($modSettings['paidsubs_test']))
+			if (!empty(Config::$modSettings['paidsubs_test']))
 				$fp = fsockopen('ssl://www.sandbox.paypal.com', 443, $errno, $errstr, 30);
 			else
 				$fp = fsockopen('www.paypal.com', 80, $errno, $errstr, 30);
@@ -141,7 +141,7 @@ class Payment
 			exit;
 
 		// Check that this is intended for us.
-		if (strtolower($modSettings['paypal_email']) != strtolower($_POST['business']) && (empty($modSettings['paypal_additional_emails']) || !in_array(strtolower($_POST['business']), explode(',', strtolower($modSettings['paypal_additional_emails'])))))
+		if (strtolower(Config::$modSettings['paypal_email']) != strtolower($_POST['business']) && (empty(Config::$modSettings['paypal_additional_emails']) || !in_array(strtolower($_POST['business']), explode(',', strtolower(Config::$modSettings['paypal_additional_emails'])))))
 			exit;
 
 		// Is this a subscription - and if so is it a secondary payment that we need to process?
@@ -153,7 +153,7 @@ class Payment
 			$this->_findSubscription();
 
 		// Verify the currency!
-		if (strtolower($_POST['mc_currency']) !== strtolower($modSettings['paid_currency_code']))
+		if (strtolower($_POST['mc_currency']) !== strtolower(Config::$modSettings['paid_currency_code']))
 			exit;
 
 		// Can't exist if it doesn't contain anything.
@@ -250,12 +250,12 @@ class Payment
 	 */
 	public function close()
 	{
-		global $smcFunc, $subscription_id;
+		global $subscription_id;
 
 		// If it's a subscription record the reference.
 		if ($_POST['txn_type'] == 'subscr_payment' && !empty($_POST['subscr_id']))
 		{
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				UPDATE {db_prefix}log_subscribed
 				SET vendor_ref = {string:vendor_ref}
 				WHERE id_sublog = {int:current_subscription}',
@@ -275,14 +275,12 @@ class Payment
 	 */
 	private function _findSubscription()
 	{
-		global $smcFunc;
-
 		// Assume we have this?
 		if (empty($_POST['subscr_id']))
 			return false;
 
 		// Do we have this in the database?
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_member, id_subscribe
 			FROM {db_prefix}log_subscribed
 			WHERE vendor_ref = {string:vendor_ref}
@@ -292,13 +290,13 @@ class Payment
 			)
 		);
 		// No joy?
-		if ($smcFunc['db_num_rows']($request) == 0)
+		if (Db::$db->num_rows($request) == 0)
 		{
 			// Can we identify them by email?
 			if (!empty($_POST['payer_email']))
 			{
-				$smcFunc['db_free_result']($request);
-				$request = $smcFunc['db_query']('', '
+				Db::$db->free_result($request);
+				$request = Db::$db->query('', '
 					SELECT ls.id_member, ls.id_subscribe
 					FROM {db_prefix}log_subscribed AS ls
 						INNER JOIN {db_prefix}members AS mem ON (mem.id_member = ls.id_member)
@@ -308,15 +306,15 @@ class Payment
 						'payer_email' => $_POST['payer_email'],
 					)
 				);
-				if ($smcFunc['db_num_rows']($request) === 0)
+				if (Db::$db->num_rows($request) === 0)
 					return false;
 			}
 			else
 				return false;
 		}
-		list ($member_id, $subscription_id) = $smcFunc['db_fetch_row']($request);
+		list ($member_id, $subscription_id) = Db::$db->fetch_row($request);
 		$_POST['item_number'] = $member_id . '+' . $subscription_id;
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 	}
 }
 

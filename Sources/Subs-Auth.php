@@ -13,6 +13,10 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -31,8 +35,6 @@ if (!defined('SMF'))
  */
 function setLoginCookie($cookie_length, $id, $password = '')
 {
-	global $smcFunc, $cookiename, $boardurl, $modSettings, $sourcedir;
-
 	$id = (int) $id;
 
 	$expiry_time = ($cookie_length >= 0 ? time() + $cookie_length : 1);
@@ -40,22 +42,22 @@ function setLoginCookie($cookie_length, $id, $password = '')
 	// If changing state force them to re-address some permission caching.
 	$_SESSION['mc']['time'] = 0;
 
-	// Extract our cookie domain and path from $boardurl
-	$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
+	// Extract our cookie domain and path from Config::$boardurl
+	$cookie_url = url_parts(!empty(Config::$modSettings['localCookies']), !empty(Config::$modSettings['globalCookies']));
 
 	// The cookie may already exist, and have been set with different options.
-	if (isset($_COOKIE[$cookiename]))
+	if (isset($_COOKIE[Config::$cookiename]))
 	{
 		// First check for 2.1 json-format cookie
-		if (preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+,"3":"[^"]+","4":"[^"]+"~', $_COOKIE[$cookiename]) === 1)
-			list(,,, $old_domain, $old_path) = $smcFunc['json_decode']($_COOKIE[$cookiename], true);
+		if (preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+,"3":"[^"]+","4":"[^"]+"~', $_COOKIE[Config::$cookiename]) === 1)
+			list(,,, $old_domain, $old_path) = Utils::jsonDecode($_COOKIE[Config::$cookiename], true);
 
 		// Legacy format (for recent 2.0 --> 2.1 upgrades)
-		elseif (preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\d+;(i:3;i:\d;)?~', $_COOKIE[$cookiename]) === 1)
+		elseif (preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\d+;(i:3;i:\d;)?~', $_COOKIE[Config::$cookiename]) === 1)
 		{
-			list(,,, $old_state) = safe_unserialize($_COOKIE[$cookiename]);
+			list(,,, $old_state) = safe_unserialize($_COOKIE[Config::$cookiename]);
 
-			$cookie_state = (empty($modSettings['localCookies']) ? 0 : 1) | (empty($modSettings['globalCookies']) ? 0 : 2);
+			$cookie_state = (empty(Config::$modSettings['localCookies']) ? 0 : 1) | (empty(Config::$modSettings['globalCookies']) ? 0 : 2);
 
 			// Maybe we need to temporarily pretend to be using local cookies
 			if ($cookie_state == 0 && $old_state == 1)
@@ -66,7 +68,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 
 		// Out with the old, in with the new!
 		if (isset($old_domain) && $old_domain != $cookie_url[0] || isset($old_path) && $old_path != $cookie_url[1])
-			smf_setcookie($cookiename, $smcFunc['json_encode'](array(0, '', 0, $old_domain, $old_path), JSON_FORCE_OBJECT), 1, $old_path, $old_domain);
+			smf_setcookie(Config::$cookiename, Utils::jsonEncode(array(0, '', 0, $old_domain, $old_path), JSON_FORCE_OBJECT), 1, $old_path, $old_domain);
 	}
 
 	// Get the data and path to set it on.
@@ -76,50 +78,50 @@ function setLoginCookie($cookie_length, $id, $password = '')
 	$custom_data = array();
 	call_integration_hook('integrate_cookie_data', array($data, &$custom_data));
 
-	$data = $smcFunc['json_encode'](array_merge($data, $custom_data), JSON_FORCE_OBJECT);
+	$data = Utils::jsonEncode(array_merge($data, $custom_data), JSON_FORCE_OBJECT);
 
 	// Set the cookie, $_COOKIE, and session variable.
-	smf_setcookie($cookiename, $data, $expiry_time, $cookie_url[1], $cookie_url[0]);
+	smf_setcookie(Config::$cookiename, $data, $expiry_time, $cookie_url[1], $cookie_url[0]);
 
 	// If subdomain-independent cookies are on, unset the subdomain-dependent cookie too.
-	if (empty($id) && !empty($modSettings['globalCookies']))
-		smf_setcookie($cookiename, $data, $expiry_time, $cookie_url[1], '');
+	if (empty($id) && !empty(Config::$modSettings['globalCookies']))
+		smf_setcookie(Config::$cookiename, $data, $expiry_time, $cookie_url[1], '');
 
 	// Any alias URLs?  This is mainly for use with frames, etc.
-	if (!empty($modSettings['forum_alias_urls']))
+	if (!empty(Config::$modSettings['forum_alias_urls']))
 	{
-		$aliases = explode(',', $modSettings['forum_alias_urls']);
+		$aliases = explode(',', Config::$modSettings['forum_alias_urls']);
 
-		$temp = $boardurl;
+		$temp = Config::$boardurl;
 		foreach ($aliases as $alias)
 		{
-			// Fake the $boardurl so we can set a different cookie.
+			// Fake the Config::$boardurl so we can set a different cookie.
 			$alias = strtr(trim($alias), array('http://' => '', 'https://' => ''));
-			$boardurl = 'http://' . $alias;
+			Config::$boardurl = 'http://' . $alias;
 
-			$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
+			$cookie_url = url_parts(!empty(Config::$modSettings['localCookies']), !empty(Config::$modSettings['globalCookies']));
 
 			if ($cookie_url[0] == '')
 				$cookie_url[0] = strtok($alias, '/');
 
-			$alias_data = $smcFunc['json_decode']($data, true);
+			$alias_data = Utils::jsonDecode($data, true);
 			$alias_data[3] = $cookie_url[0];
 			$alias_data[4] = $cookie_url[1];
-			$alias_data = $smcFunc['json_encode']($alias_data, JSON_FORCE_OBJECT);
+			$alias_data = Utils::jsonEncode($alias_data, JSON_FORCE_OBJECT);
 
-			smf_setcookie($cookiename, $alias_data, $expiry_time, $cookie_url[1], $cookie_url[0]);
+			smf_setcookie(Config::$cookiename, $alias_data, $expiry_time, $cookie_url[1], $cookie_url[0]);
 		}
 
-		$boardurl = $temp;
+		Config::$boardurl = $temp;
 	}
 
-	$_COOKIE[$cookiename] = $data;
+	$_COOKIE[Config::$cookiename] = $data;
 
 	// Make sure the user logs in with a new session ID.
-	if (!isset($_SESSION['login_' . $cookiename]) || $_SESSION['login_' . $cookiename] !== $data)
+	if (!isset($_SESSION['login_' . Config::$cookiename]) || $_SESSION['login_' . Config::$cookiename] !== $data)
 	{
 		// We need to meddle with the session.
-		require_once($sourcedir . '/Session.php');
+		require_once(Config::$sourcedir . '/Session.php');
 
 		// Backup and remove the old session.
 		$oldSessionData = $_SESSION;
@@ -132,7 +134,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 		session_regenerate_id();
 		$_SESSION = $oldSessionData;
 
-		$_SESSION['login_' . $cookiename] = $data;
+		$_SESSION['login_' . Config::$cookiename] = $data;
 	}
 }
 
@@ -145,21 +147,19 @@ function setLoginCookie($cookie_length, $id, $password = '')
  */
 function setTFACookie($cookie_length, $id, $secret)
 {
-	global $smcFunc, $modSettings, $cookiename;
-
 	$expiry_time = ($cookie_length >= 0 ? time() + $cookie_length : 1);
 
-	$identifier = $cookiename . '_tfa';
-	$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
+	$identifier = Config::$cookiename . '_tfa';
+	$cookie_url = url_parts(!empty(Config::$modSettings['localCookies']), !empty(Config::$modSettings['globalCookies']));
 
 	// Get the data and path to set it on.
-	$data = $smcFunc['json_encode'](empty($id) ? array(0, '', 0, $cookie_url[0], $cookie_url[1], false) : array($id, $secret, $expiry_time, $cookie_url[0], $cookie_url[1]), JSON_FORCE_OBJECT);
+	$data = Utils::jsonEncode(empty($id) ? array(0, '', 0, $cookie_url[0], $cookie_url[1], false) : array($id, $secret, $expiry_time, $cookie_url[0], $cookie_url[1]), JSON_FORCE_OBJECT);
 
 	// Set the cookie, $_COOKIE, and session variable.
 	smf_setcookie($identifier, $data, $expiry_time, $cookie_url[1], $cookie_url[0]);
 
 	// If subdomain-independent cookies are on, unset the subdomain-dependent cookie too.
-	if (empty($id) && !empty($modSettings['globalCookies']))
+	if (empty($id) && !empty(Config::$modSettings['globalCookies']))
 		smf_setcookie($identifier, $data, $expiry_time, $cookie_url[1], '');
 
 	$_COOKIE[$identifier] = $data;
@@ -176,17 +176,15 @@ function setTFACookie($cookie_length, $id, $secret)
  */
 function url_parts($local, $global)
 {
-	global $boardurl, $modSettings;
-
 	// Parse the URL with PHP to make life easier.
-	$parsed_url = parse_iri($boardurl);
+	$parsed_url = parse_iri(Config::$boardurl);
 
 	// Is local cookies off?
 	if (empty($parsed_url['path']) || !$local)
 		$parsed_url['path'] = '';
 
-	if (!empty($modSettings['globalCookiesDomain']) && strpos($boardurl, $modSettings['globalCookiesDomain']) !== false)
-		$parsed_url['host'] = $modSettings['globalCookiesDomain'];
+	if (!empty(Config::$modSettings['globalCookiesDomain']) && strpos(Config::$boardurl, Config::$modSettings['globalCookiesDomain']) !== false)
+		$parsed_url['host'] = Config::$modSettings['globalCookiesDomain'];
 
 	// Globalize cookies across domains (filter out IP-addresses)?
 	elseif ($global && preg_match('~^\d{1,3}(\.\d{1,3}){3}$~', $parsed_url['host']) == 0 && preg_match('~(?:[^\.]+\.)?([^\.]{2,}\..+)\z~i', $parsed_url['host'], $parts) == 1)
@@ -210,7 +208,7 @@ function url_parts($local, $global)
  */
 function KickGuest()
 {
-	global $txt, $context;
+	global $txt;
 
 	loadTheme();
 	loadLanguage('Login');
@@ -221,8 +219,8 @@ function KickGuest()
 	if (strpos($_SERVER['REQUEST_URL'], 'dlattach') === false)
 		$_SESSION['login_url'] = $_SERVER['REQUEST_URL'];
 
-	$context['sub_template'] = 'kick_guest';
-	$context['page_title'] = $txt['login'];
+	Utils::$context['sub_template'] = 'kick_guest';
+	Utils::$context['page_title'] = $txt['login'];
 }
 
 /**
@@ -232,7 +230,7 @@ function KickGuest()
  */
 function InMaintenance()
 {
-	global $txt, $mtitle, $mmessage, $context, $smcFunc;
+	global $txt;
 
 	loadLanguage('Login');
 	loadTemplate('Login');
@@ -242,10 +240,10 @@ function InMaintenance()
 	send_http_status(503, 'Service Temporarily Unavailable');
 
 	// Basic template stuff..
-	$context['sub_template'] = 'maintenance';
-	$context['title'] = $smcFunc['htmlspecialchars']($mtitle);
-	$context['description'] = &$mmessage;
-	$context['page_title'] = $txt['maintain_mode'];
+	Utils::$context['sub_template'] = 'maintenance';
+	Utils::$context['title'] = Utils::htmlspecialchars(Config::$mtitle);
+	Utils::$context['description'] = &Config::$mmessage;
+	Utils::$context['page_title'] = $txt['maintain_mode'];
 }
 
 /**
@@ -258,7 +256,7 @@ function InMaintenance()
  */
 function adminLogin($type = 'admin')
 {
-	global $context, $txt, $user_info;
+	global $txt, $user_info;
 
 	loadLanguage('Admin');
 	loadTemplate('Login');
@@ -279,29 +277,29 @@ function adminLogin($type = 'admin')
 		if (isset($_POST[$type . '_pass']))
 			unset($_POST[$type . '_pass']);
 
-		$context['incorrect_password'] = true;
+		Utils::$context['incorrect_password'] = true;
 	}
 
 	createToken('admin-login');
 
 	// Figure out the get data and post data.
-	$context['get_data'] = '?' . construct_query_string($_GET);
-	$context['post_data'] = '';
+	Utils::$context['get_data'] = '?' . construct_query_string($_GET);
+	Utils::$context['post_data'] = '';
 
 	// Now go through $_POST.  Make sure the session hash is sent.
-	$_POST[$context['session_var']] = $context['session_id'];
+	$_POST[Utils::$context['session_var']] = Utils::$context['session_id'];
 	foreach ($_POST as $k => $v)
-		$context['post_data'] .= adminLogin_outputPostVars($k, $v);
+		Utils::$context['post_data'] .= adminLogin_outputPostVars($k, $v);
 
 	// Now we'll use the admin_login sub template of the Login template.
-	$context['sub_template'] = 'admin_login';
+	Utils::$context['sub_template'] = 'admin_login';
 
 	// And title the page something like "Login".
-	if (!isset($context['page_title']))
-		$context['page_title'] = $txt['login'];
+	if (!isset(Utils::$context['page_title']))
+		Utils::$context['page_title'] = $txt['login'];
 
 	// The type of action.
-	$context['sessionCheckType'] = $type;
+	Utils::$context['sessionCheckType'] = $type;
 
 	obExit();
 
@@ -319,11 +317,9 @@ function adminLogin($type = 'admin')
  */
 function adminLogin_outputPostVars($k, $v)
 {
-	global $smcFunc;
-
 	if (!is_array($v))
 		return '
-<input type="hidden" name="' . $smcFunc['htmlspecialchars']($k) . '" value="' . strtr($v, array('"' => '&quot;', '<' => '&lt;', '>' => '&gt;')) . '">';
+<input type="hidden" name="' . Utils::htmlspecialchars($k) . '" value="' . strtr($v, array('"' => '&quot;', '<' => '&lt;', '>' => '&gt;')) . '">';
 	else
 	{
 		$ret = '';
@@ -342,19 +338,17 @@ function adminLogin_outputPostVars($k, $v)
  */
 function construct_query_string($get)
 {
-	global $scripturl;
-
 	$query_string = '';
 
-	// Awww, darn.  The $scripturl contains GET stuff!
-	$q = strpos($scripturl, '?');
+	// Awww, darn. The Config::$scripturl contains GET stuff!
+	$q = strpos(Config::$scripturl, '?');
 	if ($q !== false)
 	{
-		parse_str(preg_replace('/&(\w+)(?=&|$)/', '&$1=', strtr(substr($scripturl, $q + 1), ';', '&')), $temp);
+		parse_str(preg_replace('/&(\w+)(?=&|$)/', '&$1=', strtr(substr(Config::$scripturl, $q + 1), ';', '&')), $temp);
 
 		foreach ($get as $k => $v)
 		{
-			// Only if it's not already in the $scripturl!
+			// Only if it's not already in the Config::$scripturl!
 			if (!isset($temp[$k]))
 				$query_string .= urlencode($k) . '=' . urlencode($v) . ';';
 			// If it changed, put it out there, but with an ampersand.
@@ -386,7 +380,7 @@ function construct_query_string($get)
  */
 function findMembers($names, $use_wildcards = false, $buddies_only = false, $max = 500)
 {
-	global $scripturl, $user_info, $smcFunc;
+	global $user_info;
 
 	// If it's not already an array, make it one.
 	if (!is_array($names))
@@ -397,7 +391,7 @@ function findMembers($names, $use_wildcards = false, $buddies_only = false, $max
 	foreach (array_values($names) as $i => $name)
 	{
 		// Trim, and fix wildcards for each name.
-		$names[$i] = trim($smcFunc['strtolower']($name));
+		$names[$i] = trim(Utils::strtolower($name));
 
 		$maybe_email |= strpos($name, '@') !== false;
 
@@ -425,15 +419,15 @@ function findMembers($names, $use_wildcards = false, $buddies_only = false, $max
 		$email_condition = '';
 
 	// Get the case of the columns right - but only if we need to as things like MySQL will go slow needlessly otherwise.
-	$member_name = $smcFunc['db_case_sensitive'] ? 'LOWER(member_name)' : 'member_name';
-	$real_name = $smcFunc['db_case_sensitive'] ? 'LOWER(real_name)' : 'real_name';
+	$member_name = Db::$db->case_sensitive ? 'LOWER(member_name)' : 'member_name';
+	$real_name = Db::$db->case_sensitive ? 'LOWER(real_name)' : 'real_name';
 
 	// Searches.
 	$member_name_search = $member_name . ' ' . $comparison . ' ' . implode(' OR ' . $member_name . ' ' . $comparison . ' ', $names_list);
 	$real_name_search = $real_name . ' ' . $comparison . ' ' . implode(' OR ' . $real_name . ' ' . $comparison . ' ', $names_list);
 
 	// Search by username, display name, and email address.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_member, member_name, real_name, email_address
 		FROM {db_prefix}members
 		WHERE (' . $member_name_search . '
@@ -446,18 +440,18 @@ function findMembers($names, $use_wildcards = false, $buddies_only = false, $max
 			'limit' => $max,
 		))
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$results[$row['id_member']] = array(
 			'id' => $row['id_member'],
 			'name' => $row['real_name'],
 			'username' => $row['member_name'],
 			'email' => allowedTo('moderate_forum') ? $row['email_address'] : '',
-			'href' => $scripturl . '?action=profile;u=' . $row['id_member'],
-			'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>'
+			'href' => Config::$scripturl . '?action=profile;u=' . $row['id_member'],
+			'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>'
 		);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Return all the results.
 	return $results;
@@ -471,63 +465,63 @@ function findMembers($names, $use_wildcards = false, $buddies_only = false, $max
  */
 function JSMembers()
 {
-	global $context, $scripturl, $user_info, $smcFunc;
+	global $user_info;
 
 	checkSession('get');
 
 	// Why is this in the Help template, you ask?  Well, erm... it helps you.  Does that work?
 	loadTemplate('Help');
 
-	$context['template_layers'] = array();
-	$context['sub_template'] = 'find_members';
+	Utils::$context['template_layers'] = array();
+	Utils::$context['sub_template'] = 'find_members';
 
 	if (isset($_REQUEST['search']))
-		$context['last_search'] = $smcFunc['htmlspecialchars']($_REQUEST['search'], ENT_QUOTES);
+		Utils::$context['last_search'] = Utils::htmlspecialchars($_REQUEST['search'], ENT_QUOTES);
 	else
 		$_REQUEST['start'] = 0;
 
 	// Allow the user to pass the input to be added to to the box.
-	$context['input_box_name'] = isset($_REQUEST['input']) && preg_match('~^[\w-]+$~', $_REQUEST['input']) === 1 ? $_REQUEST['input'] : 'to';
+	Utils::$context['input_box_name'] = isset($_REQUEST['input']) && preg_match('~^[\w-]+$~', $_REQUEST['input']) === 1 ? $_REQUEST['input'] : 'to';
 
 	// Take the delimiter over GET in case it's \n or something.
-	$context['delimiter'] = isset($_REQUEST['delim']) ? ($_REQUEST['delim'] == 'LB' ? "\n" : $_REQUEST['delim']) : ', ';
-	$context['quote_results'] = !empty($_REQUEST['quote']);
+	Utils::$context['delimiter'] = isset($_REQUEST['delim']) ? ($_REQUEST['delim'] == 'LB' ? "\n" : $_REQUEST['delim']) : ', ';
+	Utils::$context['quote_results'] = !empty($_REQUEST['quote']);
 
 	// List all the results.
-	$context['results'] = array();
+	Utils::$context['results'] = array();
 
 	// Some buddy related settings ;)
-	$context['show_buddies'] = !empty($user_info['buddies']);
-	$context['buddy_search'] = isset($_REQUEST['buddies']);
+	Utils::$context['show_buddies'] = !empty($user_info['buddies']);
+	Utils::$context['buddy_search'] = isset($_REQUEST['buddies']);
 
 	// If the user has done a search, well - search.
 	if (isset($_REQUEST['search']))
 	{
-		$_REQUEST['search'] = $smcFunc['htmlspecialchars']($_REQUEST['search'], ENT_QUOTES);
+		$_REQUEST['search'] = Utils::htmlspecialchars($_REQUEST['search'], ENT_QUOTES);
 
-		$context['results'] = findMembers(array($_REQUEST['search']), true, $context['buddy_search']);
-		$total_results = count($context['results']);
+		Utils::$context['results'] = findMembers(array($_REQUEST['search']), true, Utils::$context['buddy_search']);
+		$total_results = count(Utils::$context['results']);
 
-		$context['page_index'] = constructPageIndex($scripturl . '?action=findmember;search=' . $context['last_search'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';input=' . $context['input_box_name'] . ($context['quote_results'] ? ';quote=1' : '') . ($context['buddy_search'] ? ';buddies' : ''), $_REQUEST['start'], $total_results, 7);
+		Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=findmember;search=' . Utils::$context['last_search'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';input=' . Utils::$context['input_box_name'] . (Utils::$context['quote_results'] ? ';quote=1' : '') . (Utils::$context['buddy_search'] ? ';buddies' : ''), $_REQUEST['start'], $total_results, 7);
 
 		// Determine the navigation context.
-		$base_url = $scripturl . '?action=findmember;search=' . urlencode($context['last_search']) . (empty($_REQUEST['u']) ? '' : ';u=' . $_REQUEST['u']) . ';' . $context['session_var'] . '=' . $context['session_id'];
-		$context['links'] = array(
+		$base_url = Config::$scripturl . '?action=findmember;search=' . urlencode(Utils::$context['last_search']) . (empty($_REQUEST['u']) ? '' : ';u=' . $_REQUEST['u']) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
+		Utils::$context['links'] = array(
 			'first' => $_REQUEST['start'] >= 7 ? $base_url . ';start=0' : '',
 			'prev' => $_REQUEST['start'] >= 7 ? $base_url . ';start=' . ($_REQUEST['start'] - 7) : '',
 			'next' => $_REQUEST['start'] + 7 < $total_results ? $base_url . ';start=' . ($_REQUEST['start'] + 7) : '',
 			'last' => $_REQUEST['start'] + 7 < $total_results ? $base_url . ';start=' . (floor(($total_results - 1) / 7) * 7) : '',
-			'up' => $scripturl . '?action=pm;sa=send' . (empty($_REQUEST['u']) ? '' : ';u=' . $_REQUEST['u']),
+			'up' => Config::$scripturl . '?action=pm;sa=send' . (empty($_REQUEST['u']) ? '' : ';u=' . $_REQUEST['u']),
 		);
-		$context['page_info'] = array(
+		Utils::$context['page_info'] = array(
 			'current_page' => $_REQUEST['start'] / 7 + 1,
 			'num_pages' => floor(($total_results - 1) / 7) + 1
 		);
 
-		$context['results'] = array_slice($context['results'], $_REQUEST['start'], 7);
+		Utils::$context['results'] = array_slice(Utils::$context['results'], $_REQUEST['start'], 7);
 	}
 	else
-		$context['links']['up'] = $scripturl . '?action=pm;sa=send' . (empty($_REQUEST['u']) ? '' : ';u=' . $_REQUEST['u']);
+		Utils::$context['links']['up'] = Config::$scripturl . '?action=pm;sa=send' . (empty($_REQUEST['u']) ? '' : ';u=' . $_REQUEST['u']);
 }
 
 /**
@@ -536,31 +530,31 @@ function JSMembers()
  */
 function RequestMembers()
 {
-	global $user_info, $txt, $smcFunc;
+	global $user_info, $txt;
 
 	checkSession('get');
 
-	$_REQUEST['search'] = $smcFunc['htmlspecialchars']($_REQUEST['search']) . '*';
-	$_REQUEST['search'] = trim($smcFunc['strtolower']($_REQUEST['search']));
+	$_REQUEST['search'] = Utils::htmlspecialchars($_REQUEST['search']) . '*';
+	$_REQUEST['search'] = trim(Utils::strtolower($_REQUEST['search']));
 	$_REQUEST['search'] = strtr($_REQUEST['search'], array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_', '&#038;' => '&amp;'));
 
 	if (function_exists('iconv'))
 		header('content-type: text/plain; charset=UTF-8');
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT real_name
 		FROM {db_prefix}members
 		WHERE {raw:real_name} LIKE {string:search}' . (isset($_REQUEST['buddies']) ? '
 			AND id_member IN ({array_int:buddy_list})' : '') . '
 			AND is_activated IN (1, 11)
-		LIMIT ' . ($smcFunc['strlen']($_REQUEST['search']) <= 2 ? '100' : '800'),
+		LIMIT ' . (Utils::entityStrlen($_REQUEST['search']) <= 2 ? '100' : '800'),
 		array(
-			'real_name' => $smcFunc['db_case_sensitive'] ? 'LOWER(real_name)' : 'real_name',
+			'real_name' => Db::$db->case_sensitive ? 'LOWER(real_name)' : 'real_name',
 			'buddy_list' => $user_info['buddies'],
 			'search' => $_REQUEST['search'],
 		)
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		if (function_exists('iconv'))
 		{
@@ -571,12 +565,11 @@ function RequestMembers()
 
 		$row['real_name'] = strtr($row['real_name'], array('&amp;' => '&#038;', '&lt;' => '&#060;', '&gt;' => '&#062;', '&quot;' => '&#034;'));
 
-		if (preg_match('~&#\d+;~', $row['real_name']) != 0)
-			$row['real_name'] = preg_replace_callback('~&#(\d+);~', 'fixchar__callback', $row['real_name']);
+		$row['real_name'] = Utils::entityDecode($row['real_name'], true);
 
 		echo $row['real_name'], "\n";
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	obExit(false);
 }
@@ -594,14 +587,12 @@ function RequestMembers()
  */
 function resetPassword($memID, $username = null)
 {
-	global $sourcedir, $modSettings, $smcFunc, $language;
-
 	// Language... and a required file.
 	loadLanguage('Login');
-	require_once($sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Subs-Post.php');
 
 	// Get some important details.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT member_name, email_address, lngfile
 		FROM {db_prefix}members
 		WHERE id_member = {int:id_member}',
@@ -609,8 +600,8 @@ function resetPassword($memID, $username = null)
 			'id_member' => $memID,
 		)
 	);
-	list ($user, $email, $lngfile) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($user, $email, $lngfile) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	if ($username !== null)
 	{
@@ -619,7 +610,7 @@ function resetPassword($memID, $username = null)
 	}
 
 	// Generate a random password.
-	$newPassword = substr(preg_replace('/\W/', '', md5($smcFunc['random_int']())), 0, 10);
+	$newPassword = substr(preg_replace('/\W/', '', md5(Utils::randomInt())), 0, 10);
 	$newPassword_sha1 = hash_password($user, $newPassword);
 
 	// Do some checks on the username if needed.
@@ -640,7 +631,7 @@ function resetPassword($memID, $username = null)
 		'PASSWORD' => $newPassword,
 	);
 
-	$emaildata = loadEmailTemplate('change_password', $replacements, empty($lngfile) || empty($modSettings['userLanguage']) ? $language : $lngfile);
+	$emaildata = loadEmailTemplate('change_password', $replacements, empty($lngfile) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $lngfile);
 
 	// Send them the email informing them of the change - then we're done!
 	sendmail($email, $emaildata['subject'], $emaildata['body'], null, 'chgpass' . $memID, $emaildata['is_html'], 0);
@@ -657,12 +648,12 @@ function resetPassword($memID, $username = null)
  */
 function validateUsername($memID, $username, $return_error = false, $check_reserved_name = true)
 {
-	global $sourcedir, $txt, $smcFunc, $user_info;
+	global $txt, $user_info;
 
 	$errors = array();
 
 	// Don't use too long a name.
-	if ($smcFunc['strlen']($username) > 25)
+	if (Utils::entityStrlen($username) > 25)
 		$errors[] = array('lang', 'error_long_name');
 
 	// No name?!  How can you register with no name?
@@ -678,9 +669,9 @@ function validateUsername($memID, $username, $return_error = false, $check_reser
 
 	if ($check_reserved_name)
 	{
-		require_once($sourcedir . '/Subs-Members.php');
+		require_once(Config::$sourcedir . '/Subs-Members.php');
 		if (isReservedName($username, $memID, false))
-			$errors[] = array('done', '(' . $smcFunc['htmlspecialchars']($username) . ') ' . $txt['name_in_use']);
+			$errors[] = array('done', '(' . Utils::htmlspecialchars($username) . ') ' . $txt['name_in_use']);
 	}
 
 	// Maybe a mod wants to perform more checks?
@@ -712,10 +703,8 @@ function validateUsername($memID, $username, $return_error = false, $check_reser
  */
 function validatePassword($password, $username, $restrict_in = array())
 {
-	global $modSettings, $smcFunc;
-
 	// Perform basic requirements first.
-	if ($smcFunc['strlen']($password) < (empty($modSettings['password_strength']) ? 4 : 8))
+	if (Utils::entityStrlen($password) < (empty(Config::$modSettings['password_strength']) ? 4 : 8))
 		return 'short';
 
 	// Maybe we need some more fancy password checks.
@@ -725,22 +714,22 @@ function validatePassword($password, $username, $restrict_in = array())
 		return $pass_error;
 
 	// Is this enough?
-	if (empty($modSettings['password_strength']))
+	if (empty(Config::$modSettings['password_strength']))
 		return null;
 
 	// Otherwise, perform the medium strength test - checking if password appears in the restricted string.
 	if (preg_match('~\b' . preg_quote($password, '~') . '\b~', implode(' ', $restrict_in)) != 0)
 		return 'restricted_words';
-	elseif ($smcFunc['strpos']($password, $username) !== false)
+	elseif (Utils::entityStrpos($password, $username) !== false)
 		return 'restricted_words';
 
 	// If just medium, we're done.
-	if ($modSettings['password_strength'] == 1)
+	if (Config::$modSettings['password_strength'] == 1)
 		return null;
 
 	// Otherwise, hard test next, check for numbers and letters, uppercase too.
 	$good = preg_match('~(\D\d|\d\D)~', $password) != 0;
-	$good &= $smcFunc['strtolower']($password) != $password;
+	$good &= Utils::strtolower($password) != $password;
 
 	return $good ? null : 'chars';
 }
@@ -752,14 +741,14 @@ function validatePassword($password, $username, $restrict_in = array())
  */
 function rebuildModCache()
 {
-	global $user_info, $smcFunc;
+	global $user_info;
 
 	// What groups can they moderate?
 	$group_query = allowedTo('manage_membergroups') ? '1=1' : '0=1';
 
 	if ($group_query == '0=1' && !$user_info['is_guest'])
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_group
 			FROM {db_prefix}group_moderators
 			WHERE id_member = {int:current_member}',
@@ -768,9 +757,9 @@ function rebuildModCache()
 			)
 		);
 		$groups = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$groups[] = $row['id_group'];
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		if (empty($groups))
 			$group_query = '0=1';
@@ -795,7 +784,7 @@ function rebuildModCache()
 	$boards_mod = array();
 	if (!$user_info['is_guest'])
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_board
 			FROM {db_prefix}moderators
 			WHERE id_member = {int:current_member}',
@@ -803,12 +792,12 @@ function rebuildModCache()
 				'current_member' => $user_info['id'],
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$boards_mod[] = $row['id_board'];
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// Can any of the groups they're in moderate any of the boards?
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_board
 			FROM {db_prefix}moderator_groups
 			WHERE id_group IN({array_int:groups})',
@@ -816,9 +805,9 @@ function rebuildModCache()
 				'groups' => $user_info['groups'],
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$boards_mod[] = $row['id_board'];
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// Just in case we've got duplicates here...
 		$boards_mod = array_unique($boards_mod);
@@ -859,15 +848,13 @@ function rebuildModCache()
  */
 function smf_setcookie($name, $value = '', $expire = 0, $path = '', $domain = '', $secure = null, $httponly = true, $samesite = null)
 {
-	global $modSettings;
-
 	// In case a customization wants to override the default settings
 	if ($httponly === null)
-		$httponly = !empty($modSettings['httponlyCookies']);
+		$httponly = !empty(Config::$modSettings['httponlyCookies']);
 	if ($secure === null)
-		$secure = !empty($modSettings['secureCookies']);
+		$secure = !empty(Config::$modSettings['secureCookies']);
 	if ($samesite === null)
-		$samesite = !empty($modSettings['samesiteCookies']) ? $modSettings['samesiteCookies'] : 'lax';
+		$samesite = !empty(Config::$modSettings['samesiteCookies']) ? Config::$modSettings['samesiteCookies'] : 'lax';
 
 	// Intercept cookie?
 	call_integration_hook('integrate_cookie', array($name, $value, $expire, $path, $domain, $secure, $httponly, $samesite));
@@ -895,11 +882,9 @@ function smf_setcookie($name, $value = '', $expire = 0, $path = '', $domain = ''
  */
 function hash_password($username, $password, $cost = null)
 {
-	global $smcFunc, $modSettings;
+	$cost = empty($cost) ? (empty(Config::$modSettings['bcrypt_hash_cost']) ? 10 : Config::$modSettings['bcrypt_hash_cost']) : $cost;
 
-	$cost = empty($cost) ? (empty($modSettings['bcrypt_hash_cost']) ? 10 : $modSettings['bcrypt_hash_cost']) : $cost;
-
-	return password_hash($smcFunc['strtolower']($username) . $password, PASSWORD_BCRYPT, array(
+	return password_hash(Utils::strtolower($username) . $password, PASSWORD_BCRYPT, array(
 		'cost' => $cost,
 	));
 }
@@ -914,7 +899,7 @@ function hash_password($username, $password, $cost = null)
 function hash_salt($password, $salt)
 {
 	// Append the salt to get a user-specific authentication secret.
-	$secret_key = get_auth_secret() . $salt;
+	$secret_key = Config::getAuthSecret() . $salt;
 
 	// Now use that to generate an HMAC of the password.
 	return hash_hmac('sha512', $password, $secret_key);
@@ -930,9 +915,7 @@ function hash_salt($password, $salt)
  */
 function hash_verify_password($username, $password, $hash)
 {
-	global $smcFunc;
-
-	return password_verify($smcFunc['strtolower']($username) . $password, $hash);
+	return password_verify(Utils::strtolower($username) . $password, $hash);
 }
 
 /**

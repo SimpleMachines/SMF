@@ -14,7 +14,10 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Config;
+use SMF\Utils;
 use SMF\Cache\CacheApi;
+use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
 
 if (!defined('SMF'))
@@ -32,10 +35,10 @@ if (!defined('SMF'))
  */
 function PlushSearch1()
 {
-	global $txt, $scripturl, $modSettings, $user_info, $context, $smcFunc, $sourcedir;
+	global $txt, $user_info;
 
 	// Is the load average too high to allow searching just now?
-	if (!empty($context['load_average']) && !empty($modSettings['loadavg_search']) && $context['load_average'] >= $modSettings['loadavg_search'])
+	if (!empty(Utils::$context['load_average']) && !empty(Config::$modSettings['loadavg_search']) && Utils::$context['load_average'] >= Config::$modSettings['loadavg_search'])
 		fatal_lang_error('loadavg_search_disabled', false);
 
 	loadLanguage('Search');
@@ -50,23 +53,23 @@ function PlushSearch1()
 	isAllowedTo('search_posts');
 
 	// Link tree....
-	$context['linktree'][] = array(
-		'url' => $scripturl . '?action=search',
+	Utils::$context['linktree'][] = array(
+		'url' => Config::$scripturl . '?action=search',
 		'name' => $txt['search']
 	);
 
 	// This is hard coded maximum string length.
-	$context['search_string_limit'] = 100;
+	Utils::$context['search_string_limit'] = 100;
 
-	$context['require_verification'] = $user_info['is_guest'] && !empty($modSettings['search_enable_captcha']) && empty($_SESSION['ss_vv_passed']);
-	if ($context['require_verification'])
+	Utils::$context['require_verification'] = $user_info['is_guest'] && !empty(Config::$modSettings['search_enable_captcha']) && empty($_SESSION['ss_vv_passed']);
+	if (Utils::$context['require_verification'])
 	{
-		require_once($sourcedir . '/Subs-Editor.php');
+		require_once(Config::$sourcedir . '/Subs-Editor.php');
 		$verificationOptions = array(
 			'id' => 'search',
 		);
-		$context['require_verification'] = create_control_verification($verificationOptions);
-		$context['visual_verification_id'] = $verificationOptions['id'];
+		Utils::$context['require_verification'] = create_control_verification($verificationOptions);
+		Utils::$context['visual_verification_id'] = $verificationOptions['id'];
 	}
 
 	// If you got back from search2 by using the linktree, you get your original search parameters back.
@@ -78,52 +81,52 @@ function PlushSearch1()
 		$temp_params2 = @gzuncompress($temp_params);
 		$temp_params = explode('|"|', !empty($temp_params2) ? $temp_params2 : $temp_params);
 
-		$context['search_params'] = array();
+		Utils::$context['search_params'] = array();
 		foreach ($temp_params as $i => $data)
 		{
 			@list ($k, $v) = explode('|\'|', $data);
-			$context['search_params'][$k] = $v;
+			Utils::$context['search_params'][$k] = $v;
 		}
-		if (isset($context['search_params']['brd']))
-			$context['search_params']['brd'] = $context['search_params']['brd'] == '' ? array() : explode(',', $context['search_params']['brd']);
+		if (isset(Utils::$context['search_params']['brd']))
+			Utils::$context['search_params']['brd'] = Utils::$context['search_params']['brd'] == '' ? array() : explode(',', Utils::$context['search_params']['brd']);
 	}
 
 	if (isset($_REQUEST['search']))
-		$context['search_params']['search'] = un_htmlspecialchars($_REQUEST['search']);
+		Utils::$context['search_params']['search'] = un_htmlspecialchars($_REQUEST['search']);
 
-	if (isset($context['search_params']['search']))
-		$context['search_params']['search'] = $smcFunc['htmlspecialchars']($context['search_params']['search']);
-	if (isset($context['search_params']['userspec']))
-		$context['search_params']['userspec'] = $smcFunc['htmlspecialchars']($context['search_params']['userspec']);
-	if (!empty($context['search_params']['searchtype']))
-		$context['search_params']['searchtype'] = 2;
-	if (!empty($context['search_params']['minage']))
-		$context['search_params']['minage'] = (int) $context['search_params']['minage'];
-	if (!empty($context['search_params']['maxage']))
-		$context['search_params']['maxage'] = (int) $context['search_params']['maxage'];
+	if (isset(Utils::$context['search_params']['search']))
+		Utils::$context['search_params']['search'] = Utils::htmlspecialchars(Utils::$context['search_params']['search']);
+	if (isset(Utils::$context['search_params']['userspec']))
+		Utils::$context['search_params']['userspec'] = Utils::htmlspecialchars(Utils::$context['search_params']['userspec']);
+	if (!empty(Utils::$context['search_params']['searchtype']))
+		Utils::$context['search_params']['searchtype'] = 2;
+	if (!empty(Utils::$context['search_params']['minage']))
+		Utils::$context['search_params']['minage'] = (int) Utils::$context['search_params']['minage'];
+	if (!empty(Utils::$context['search_params']['maxage']))
+		Utils::$context['search_params']['maxage'] = (int) Utils::$context['search_params']['maxage'];
 
-	$context['search_params']['show_complete'] = !empty($context['search_params']['show_complete']);
-	$context['search_params']['subject_only'] = !empty($context['search_params']['subject_only']);
+	Utils::$context['search_params']['show_complete'] = !empty(Utils::$context['search_params']['show_complete']);
+	Utils::$context['search_params']['subject_only'] = !empty(Utils::$context['search_params']['subject_only']);
 
 	// Load the error text strings if there were errors in the search.
-	if (!empty($context['search_errors']))
+	if (!empty(Utils::$context['search_errors']))
 	{
 		loadLanguage('Errors');
-		$context['search_errors']['messages'] = array();
-		foreach ($context['search_errors'] as $search_error => $dummy)
+		Utils::$context['search_errors']['messages'] = array();
+		foreach (Utils::$context['search_errors'] as $search_error => $dummy)
 		{
 			if ($search_error === 'messages')
 				continue;
 
 			if ($search_error == 'string_too_long')
-				$txt['error_string_too_long'] = sprintf($txt['error_string_too_long'], $context['search_string_limit']);
+				$txt['error_string_too_long'] = sprintf($txt['error_string_too_long'], Utils::$context['search_string_limit']);
 
-			$context['search_errors']['messages'][] = $txt['error_' . $search_error];
+			Utils::$context['search_errors']['messages'][] = $txt['error_' . $search_error];
 		}
 	}
 
 	// Find all the boards this user is allowed to see.
-	$request = $smcFunc['db_query']('order_by_board_order', '
+	$request = Db::$db->query('order_by_board_order', '
 		SELECT b.id_cat, c.name AS cat_name, b.id_board, b.name, b.child_level
 		FROM {db_prefix}boards AS b
 			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
@@ -133,39 +136,39 @@ function PlushSearch1()
 			'empty_string' => '',
 		)
 	);
-	$context['num_boards'] = $smcFunc['db_num_rows']($request);
-	$context['boards_check_all'] = true;
-	$context['categories'] = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	Utils::$context['num_boards'] = Db::$db->num_rows($request);
+	Utils::$context['boards_check_all'] = true;
+	Utils::$context['categories'] = array();
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// This category hasn't been set up yet..
-		if (!isset($context['categories'][$row['id_cat']]))
-			$context['categories'][$row['id_cat']] = array(
+		if (!isset(Utils::$context['categories'][$row['id_cat']]))
+			Utils::$context['categories'][$row['id_cat']] = array(
 				'id' => $row['id_cat'],
 				'name' => $row['cat_name'],
 				'boards' => array()
 			);
 
 		// Set this board up, and let the template know when it's a child.  (indent them..)
-		$context['categories'][$row['id_cat']]['boards'][$row['id_board']] = array(
+		Utils::$context['categories'][$row['id_cat']]['boards'][$row['id_board']] = array(
 			'id' => $row['id_board'],
 			'name' => $row['name'],
 			'child_level' => $row['child_level'],
-			'selected' => (empty($context['search_params']['brd']) && (empty($modSettings['recycle_enable']) || $row['id_board'] != $modSettings['recycle_board']) && !in_array($row['id_board'], $user_info['ignoreboards'])) || (!empty($context['search_params']['brd']) && in_array($row['id_board'], $context['search_params']['brd']))
+			'selected' => (empty(Utils::$context['search_params']['brd']) && (empty(Config::$modSettings['recycle_enable']) || $row['id_board'] != Config::$modSettings['recycle_board']) && !in_array($row['id_board'], $user_info['ignoreboards'])) || (!empty(Utils::$context['search_params']['brd']) && in_array($row['id_board'], Utils::$context['search_params']['brd']))
 		);
 
 		// If a board wasn't checked that probably should have been ensure the board selection is selected, yo!
-		if (!$context['categories'][$row['id_cat']]['boards'][$row['id_board']]['selected'] && (empty($modSettings['recycle_enable']) || $row['id_board'] != $modSettings['recycle_board']))
-			$context['boards_check_all'] = false;
+		if (!Utils::$context['categories'][$row['id_cat']]['boards'][$row['id_board']]['selected'] && (empty(Config::$modSettings['recycle_enable']) || $row['id_board'] != Config::$modSettings['recycle_board']))
+			Utils::$context['boards_check_all'] = false;
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
-	require_once($sourcedir . '/Subs-Boards.php');
-	sortCategories($context['categories']);
+	require_once(Config::$sourcedir . '/Subs-Boards.php');
+	sortCategories(Utils::$context['categories']);
 
 	// Now, let's sort the list of categories into the boards for templates that like that.
 	$temp_boards = array();
-	foreach ($context['categories'] as $category)
+	foreach (Utils::$context['categories'] as $category)
 	{
 		$temp_boards[] = array(
 			'name' => $category['name'],
@@ -174,7 +177,7 @@ function PlushSearch1()
 		$temp_boards = array_merge($temp_boards, array_values($category['boards']));
 
 		// Include a list of boards per category for easy toggling.
-		$context['categories'][$category['id']]['child_ids'] = array_keys($category['boards']);
+		Utils::$context['categories'][$category['id']]['child_ids'] = array_keys($category['boards']);
 	}
 
 	$max_boards = ceil(count($temp_boards) / 2);
@@ -182,54 +185,54 @@ function PlushSearch1()
 		$max_boards = 2;
 
 	// Now, alternate them so they can be shown left and right ;).
-	$context['board_columns'] = array();
+	Utils::$context['board_columns'] = array();
 	for ($i = 0; $i < $max_boards; $i++)
 	{
-		$context['board_columns'][] = $temp_boards[$i];
+		Utils::$context['board_columns'][] = $temp_boards[$i];
 		if (isset($temp_boards[$i + $max_boards]))
-			$context['board_columns'][] = $temp_boards[$i + $max_boards];
+			Utils::$context['board_columns'][] = $temp_boards[$i + $max_boards];
 		else
-			$context['board_columns'][] = array();
+			Utils::$context['board_columns'][] = array();
 	}
 
 	if (!empty($_REQUEST['topic']))
 	{
-		$context['search_params']['topic'] = (int) $_REQUEST['topic'];
-		$context['search_params']['show_complete'] = true;
+		Utils::$context['search_params']['topic'] = (int) $_REQUEST['topic'];
+		Utils::$context['search_params']['show_complete'] = true;
 	}
-	if (!empty($context['search_params']['topic']))
+	if (!empty(Utils::$context['search_params']['topic']))
 	{
-		$context['search_params']['topic'] = (int) $context['search_params']['topic'];
+		Utils::$context['search_params']['topic'] = (int) Utils::$context['search_params']['topic'];
 
-		$context['search_topic'] = array(
-			'id' => $context['search_params']['topic'],
-			'href' => $scripturl . '?topic=' . $context['search_params']['topic'] . '.0',
+		Utils::$context['search_topic'] = array(
+			'id' => Utils::$context['search_params']['topic'],
+			'href' => Config::$scripturl . '?topic=' . Utils::$context['search_params']['topic'] . '.0',
 		);
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT subject
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
 			WHERE t.id_topic = {int:search_topic_id}
-				AND {query_see_message_board} ' . ($modSettings['postmod_active'] ? '
+				AND {query_see_message_board} ' . (Config::$modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved_true}' : '') . '
 			LIMIT 1',
 			array(
 				'is_approved_true' => 1,
-				'search_topic_id' => $context['search_params']['topic'],
+				'search_topic_id' => Utils::$context['search_params']['topic'],
 			)
 		);
 
-		if ($smcFunc['db_num_rows']($request) == 0)
+		if (Db::$db->num_rows($request) == 0)
 			fatal_lang_error('topic_gone', false);
 
-		list ($context['search_topic']['subject']) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		list (Utils::$context['search_topic']['subject']) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 
-		$context['search_topic']['link'] = '<a href="' . $context['search_topic']['href'] . '">' . $context['search_topic']['subject'] . '</a>';
+		Utils::$context['search_topic']['link'] = '<a href="' . Utils::$context['search_topic']['href'] . '">' . Utils::$context['search_topic']['subject'] . '</a>';
 	}
 
-	$context['page_title'] = $txt['set_parameters'];
+	Utils::$context['page_title'] = $txt['set_parameters'];
 
 	call_integration_hook('integrate_search');
 }
@@ -246,15 +249,15 @@ function PlushSearch1()
  */
 function PlushSearch2()
 {
-	global $scripturl, $modSettings, $sourcedir, $txt;
-	global $user_info, $context, $options, $messages_request, $boards_can;
-	global $excludedWords, $participants, $smcFunc;
+	global $txt;
+	global $user_info, $options, $messages_request, $boards_can;
+	global $excludedWords, $participants;
 
 	// if coming from the quick search box, and we want to search on members, well we need to do that ;)
 	if (isset($_REQUEST['search_selection']) && $_REQUEST['search_selection'] === 'members')
-		redirectexit($scripturl . '?action=mlist;sa=search;fields=name,email;search=' . urlencode($_REQUEST['search']));
+		redirectexit(Config::$scripturl . '?action=mlist;sa=search;fields=name,email;search=' . urlencode($_REQUEST['search']));
 
-	if (!empty($context['load_average']) && !empty($modSettings['loadavg_search']) && $context['load_average'] >= $modSettings['loadavg_search'])
+	if (!empty(Utils::$context['load_average']) && !empty(Config::$modSettings['loadavg_search']) && Utils::$context['load_average'] >= Config::$modSettings['loadavg_search'])
 		fatal_lang_error('loadavg_search_disabled', false);
 
 	// No, no, no... this is a bit hard on the server, so don't you go prefetching it!
@@ -300,7 +303,7 @@ function PlushSearch2()
 	$weight_total = 0;
 	foreach ($weight_factors as $weight_factor => $value)
 	{
-		$weight[$weight_factor] = empty($modSettings['search_weight_' . $weight_factor]) ? 0 : (int) $modSettings['search_weight_' . $weight_factor];
+		$weight[$weight_factor] = empty(Config::$modSettings['search_weight_' . $weight_factor]) ? 0 : (int) Config::$modSettings['search_weight_' . $weight_factor];
 		$weight_total += $weight[$weight_factor];
 	}
 
@@ -312,28 +315,28 @@ function PlushSearch2()
 	$recentPercentage = 0.30;
 	$humungousTopicPosts = 200;
 	$maxMembersToSearch = 500;
-	$maxMessageResults = empty($modSettings['search_max_results']) ? 0 : $modSettings['search_max_results'] * 5;
+	$maxMessageResults = empty(Config::$modSettings['search_max_results']) ? 0 : Config::$modSettings['search_max_results'] * 5;
 
 	// Start with no errors.
-	$context['search_errors'] = array();
+	Utils::$context['search_errors'] = array();
 
 	// Number of pages hard maximum - normally not set at all.
-	$modSettings['search_max_results'] = empty($modSettings['search_max_results']) ? 200 * $modSettings['search_results_per_page'] : (int) $modSettings['search_max_results'];
+	Config::$modSettings['search_max_results'] = empty(Config::$modSettings['search_max_results']) ? 200 * Config::$modSettings['search_results_per_page'] : (int) Config::$modSettings['search_max_results'];
 
 	// Maximum length of the string.
-	$context['search_string_limit'] = 100;
+	Utils::$context['search_string_limit'] = 100;
 
 	loadLanguage('Search');
 	if (!isset($_REQUEST['xml']))
 		loadTemplate('Search');
 	//If we're doing XML we need to use the results template regardless really.
 	else
-		$context['sub_template'] = 'results';
+		Utils::$context['sub_template'] = 'results';
 
 	// Are you allowed?
 	isAllowedTo('search_posts');
 
-	require_once($sourcedir . '/Display.php');
+	require_once(Config::$sourcedir . '/Display.php');
 
 	// Load up the search API we are going to use.
 	$searchAPI = SearchApi::load();
@@ -388,10 +391,10 @@ function PlushSearch2()
 
 	if (!empty($search_params['minage']) || !empty($search_params['maxage']))
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT ' . (empty($search_params['maxage']) ? '0, ' : 'COALESCE(MIN(id_msg), -1), ') . (empty($search_params['minage']) ? '0' : 'COALESCE(MAX(id_msg), -1)') . '
 			FROM {db_prefix}messages
-			WHERE 1=1' . ($modSettings['postmod_active'] ? '
+			WHERE 1=1' . (Config::$modSettings['postmod_active'] ? '
 				AND approved = {int:is_approved_true}' : '') . (empty($search_params['minage']) ? '' : '
 				AND poster_time <= {int:timestamp_minimum_age}') . (empty($search_params['maxage']) ? '' : '
 				AND poster_time >= {int:timestamp_maximum_age}'),
@@ -401,10 +404,10 @@ function PlushSearch2()
 				'is_approved_true' => 1,
 			)
 		);
-		list ($minMsgID, $maxMsgID) = $smcFunc['db_fetch_row']($request);
+		list ($minMsgID, $maxMsgID) = Db::$db->fetch_row($request);
 		if ($minMsgID < 0 || $maxMsgID < 0)
-			$context['search_errors']['no_messages_in_time_frame'] = true;
-		$smcFunc['db_free_result']($request);
+			Utils::$context['search_errors']['no_messages_in_time_frame'] = true;
+		Db::$db->free_result($request);
 	}
 
 	// Default the user name to a wildcard matching every user (*).
@@ -416,7 +419,7 @@ function PlushSearch2()
 		$userQuery = '';
 	else
 	{
-		$userString = strtr($smcFunc['htmlspecialchars']($search_params['userspec'], ENT_QUOTES), array('&quot;' => '"', '%' => '\%', '_' => '\_', '*' => '%', '?' => '_'));
+		$userString = strtr(Utils::htmlspecialchars($search_params['userspec'], ENT_QUOTES), array('&quot;' => '"', '%' => '\%', '_' => '\_', '*' => '%', '?' => '_'));
 
 		preg_match_all('~"([^"]+)"~', $userString, $matches);
 		$possible_users = array_merge($matches[1], explode(',', preg_replace('~"[^"]+"~', '', $userString)));
@@ -439,7 +442,7 @@ function PlushSearch2()
 			$realNameMatches = array();
 
 			foreach ($possible_users as $possible_user)
-				$realNameMatches[] = $smcFunc['db_quote'](
+				$realNameMatches[] = Db::$db->quote(
 					'{string:possible_user}',
 					array(
 						'possible_user' => $possible_user
@@ -447,7 +450,7 @@ function PlushSearch2()
 				);
 
 			// Retrieve a list of possible members.
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT id_member
 				FROM {db_prefix}members
 				WHERE {raw:match_possible_users}',
@@ -457,13 +460,13 @@ function PlushSearch2()
 			);
 
 			// Simply do nothing if there're too many members matching the criteria.
-			if ($smcFunc['db_num_rows']($request) > $maxMembersToSearch)
+			if (Db::$db->num_rows($request) > $maxMembersToSearch)
 			{
 				$userQuery = '';
 			}
-			elseif ($smcFunc['db_num_rows']($request) == 0)
+			elseif (Db::$db->num_rows($request) == 0)
 			{
-				$userQuery = $smcFunc['db_quote'](
+				$userQuery = Db::$db->quote(
 					'm.id_member = {int:id_member_guest} AND ({raw:match_possible_guest_names})',
 					array(
 						'id_member_guest' => 0,
@@ -475,10 +478,10 @@ function PlushSearch2()
 			{
 				$memberlist = array();
 
-				while ($row = $smcFunc['db_fetch_assoc']($request))
+				while ($row = Db::$db->fetch_assoc($request))
 					$memberlist[] = $row['id_member'];
 
-				$userQuery = $smcFunc['db_quote'](
+				$userQuery = Db::$db->quote(
 					'(m.id_member IN ({array_int:matched_members}) OR (m.id_member = {int:id_member_guest} AND ({raw:match_possible_guest_names})))',
 					array(
 						'matched_members' => $memberlist,
@@ -487,7 +490,7 @@ function PlushSearch2()
 					)
 				);
 			}
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 		}
 	}
 
@@ -516,11 +519,11 @@ function PlushSearch2()
 	// Special case for boards: searching just one topic?
 	if (!empty($search_params['topic']))
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT t.id_board
 			FROM {db_prefix}topics AS t
 			WHERE t.id_topic = {int:search_topic_id}
-				AND {query_see_topic_board}' . ($modSettings['postmod_active'] ? '
+				AND {query_see_topic_board}' . (Config::$modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved_true}' : '') . '
 			LIMIT 1',
 			array(
@@ -529,12 +532,12 @@ function PlushSearch2()
 			)
 		);
 
-		if ($smcFunc['db_num_rows']($request) == 0)
+		if (Db::$db->num_rows($request) == 0)
 			fatal_lang_error('topic_gone', false);
 
 		$search_params['brd'] = array();
-		list ($search_params['brd'][0]) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		list ($search_params['brd'][0]) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 	}
 	// Select all boards you've selected AND are allowed to see.
 	elseif ($user_info['is_admin'] && (!empty($search_params['advanced']) || !empty($_REQUEST['brd'])))
@@ -545,31 +548,31 @@ function PlushSearch2()
 	{
 		$see_board = empty($search_params['advanced']) ? 'query_wanna_see_board' : 'query_see_board';
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT b.id_board
 			FROM {db_prefix}boards AS b
 			WHERE {raw:boards_allowed_to_see}
-				AND redirect = {string:empty_string}' . (empty($_REQUEST['brd']) ? (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
+				AND redirect = {string:empty_string}' . (empty($_REQUEST['brd']) ? (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? '
 				AND b.id_board != {int:recycle_board_id}' : '') : '
 				AND b.id_board IN ({array_int:selected_search_boards})'),
 			array(
 				'boards_allowed_to_see' => $user_info[$see_board],
 				'empty_string' => '',
 				'selected_search_boards' => empty($_REQUEST['brd']) ? array() : $_REQUEST['brd'],
-				'recycle_board_id' => $modSettings['recycle_board'],
+				'recycle_board_id' => Config::$modSettings['recycle_board'],
 			)
 		);
 
 		$search_params['brd'] = array();
 
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$search_params['brd'][] = $row['id_board'];
 
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// This error should pro'bly only happen for hackers.
 		if (empty($search_params['brd']))
-			$context['search_errors']['no_boards_selected'] = true;
+			Utils::$context['search_errors']['no_boards_selected'] = true;
 	}
 
 	if (count($search_params['brd']) != 0)
@@ -578,7 +581,7 @@ function PlushSearch2()
 			$search_params['brd'][$k] = (int) $v;
 
 		// If we've selected all boards, this parameter can be left empty.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT COUNT(*)
 			FROM {db_prefix}boards
 			WHERE redirect = {string:empty_string}',
@@ -587,17 +590,17 @@ function PlushSearch2()
 			)
 		);
 
-		list ($num_boards) = $smcFunc['db_fetch_row']($request);
+		list ($num_boards) = Db::$db->fetch_row($request);
 
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		if (count($search_params['brd']) == $num_boards)
 		{
 			$boardQuery = '';
 		}
-		elseif (count($search_params['brd']) == $num_boards - 1 && !empty($modSettings['recycle_board']) && !in_array($modSettings['recycle_board'], $search_params['brd']))
+		elseif (count($search_params['brd']) == $num_boards - 1 && !empty(Config::$modSettings['recycle_board']) && !in_array(Config::$modSettings['recycle_board'], $search_params['brd']))
 		{
-			$boardQuery = '!= ' . $modSettings['recycle_board'];
+			$boardQuery = '!= ' . Config::$modSettings['recycle_board'];
 		}
 		else
 			$boardQuery = 'IN (' . implode(', ', $search_params['brd']) . ')';
@@ -609,7 +612,7 @@ function PlushSearch2()
 
 	$search_params['subject_only'] = !empty($search_params['subject_only']) || !empty($_REQUEST['subject_only']);
 
-	$context['compact'] = !$search_params['show_complete'];
+	Utils::$context['compact'] = !$search_params['show_complete'];
 
 	// Get the sorting parameters right. Default to sort by relevance descending.
 	$sort_columns = array(
@@ -634,11 +637,11 @@ function PlushSearch2()
 	$search_params['sort_dir'] = !empty($search_params['sort_dir']) && $search_params['sort_dir'] == 'asc' ? 'asc' : 'desc';
 
 	// Remember current sort type and sort direction
-	$context['current_sorting'] = $search_params['sort'] . '|' . $search_params['sort_dir'];
+	Utils::$context['current_sorting'] = $search_params['sort'] . '|' . $search_params['sort_dir'];
 
 	// Determine some values needed to calculate the relevance.
-	$minMsg = (int) ((1 - $recentPercentage) * $modSettings['maxMsgID']);
-	$recentMsg = $modSettings['maxMsgID'] - $minMsg;
+	$minMsg = (int) ((1 - $recentPercentage) * Config::$modSettings['maxMsgID']);
+	$recentMsg = Config::$modSettings['maxMsgID'] - $minMsg;
 
 	// *** Parse the search query
 	call_integration_hook('integrate_search_params', array(&$search_params));
@@ -669,32 +672,32 @@ function PlushSearch2()
 	// Nothing??
 	if (!isset($search_params['search']) || $search_params['search'] == '')
 	{
-		$context['search_errors']['invalid_search_string'] = true;
+		Utils::$context['search_errors']['invalid_search_string'] = true;
 	}
 	// Too long?
-	elseif ($smcFunc['strlen']($search_params['search']) > $context['search_string_limit'])
+	elseif (Utils::entityStrlen($search_params['search']) > Utils::$context['search_string_limit'])
 	{
-		$context['search_errors']['string_too_long'] = true;
+		Utils::$context['search_errors']['string_too_long'] = true;
 	}
 
 	// Change non-word characters into spaces.
-	$stripped_query = preg_replace('~(?:[\x0B\0' . ($context['utf8'] ? '\x{A0}' : '\xA0') . '\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~' . ($context['utf8'] ? 'u' : ''), ' ', $search_params['search']);
+	$stripped_query = preg_replace('~(?:[\x0B\0' . (Utils::$context['utf8'] ? '\x{A0}' : '\xA0') . '\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~' . (Utils::$context['utf8'] ? 'u' : ''), ' ', $search_params['search']);
 
 	// Make the query lower case. It's gonna be case insensitive anyway.
-	$stripped_query = un_htmlspecialchars($smcFunc['strtolower']($stripped_query));
+	$stripped_query = un_htmlspecialchars(Utils::strtolower($stripped_query));
 
 	// This (hidden) setting will do fulltext searching in the most basic way.
-	if (!empty($modSettings['search_simple_fulltext']))
+	if (!empty(Config::$modSettings['search_simple_fulltext']))
 		$stripped_query = strtr($stripped_query, array('"' => ''));
 
 	$no_regexp = preg_match('~&#(?:\d{1,7}|x[0-9a-fA-F]{1,6});~', $stripped_query) === 1;
-	$is_search_regex = !empty($modSettings['search_match_words']) && !$no_regexp;
+	$is_search_regex = !empty(Config::$modSettings['search_match_words']) && !$no_regexp;
 
 	// Specify the function to search with. Regex is for word boundaries.
 	$query_match_type = $is_search_regex ? 'RLIKE' : 'LIKE';
-	$word_boundary_wrapper = function(string $str) use ($smcFunc): string
+	$word_boundary_wrapper = function(string $str): string
 	{
-		return sprintf($smcFunc['db_supports_pcre'] ? '\\b%s\\b' : '[[:<:]]%s[[:>:]]', $str);
+		return sprintf(Db::$db->supports_pcre ? '\\b%s\\b' : '[[:<:]]%s[[:>:]]', $str);
 	};
 	$escape_sql_regex = function(string $str): string
 	{
@@ -707,9 +710,9 @@ function PlushSearch2()
 	$phraseArray = $matches[2];
 
 	// Remove the phrase parts and extract the words.
-	$wordArray = preg_replace('~(?:^|\s)[-]?"[^"]+"(?:$|\s)~' . ($context['utf8'] ? 'u' : ''), ' ', $search_params['search']);
+	$wordArray = preg_replace('~(?:^|\s)[-]?"[^"]+"(?:$|\s)~' . (Utils::$context['utf8'] ? 'u' : ''), ' ', $search_params['search']);
 
-	$wordArray = explode(' ', $smcFunc['htmlspecialchars'](un_htmlspecialchars($wordArray), ENT_QUOTES));
+	$wordArray = explode(' ', Utils::htmlspecialchars(un_htmlspecialchars($wordArray), ENT_QUOTES));
 
 	// A minus sign in front of a word excludes the word.... so...
 	$excludedWords = array();
@@ -743,7 +746,7 @@ function PlushSearch2()
 	// The remaining words and phrases are all included.
 	$searchArray = array_merge($phraseArray, $wordArray);
 
-	$context['search_ignored'] = array();
+	Utils::$context['search_ignored'] = array();
 	// Trim everything and make sure there are no words that are the same.
 	foreach ($searchArray as $index => $value)
 	{
@@ -759,19 +762,19 @@ function PlushSearch2()
 			unset($searchArray[$index]);
 		}
 		// Don't allow very, very short words.
-		elseif ($smcFunc['strlen']($value) < 2)
+		elseif (Utils::entityStrlen($value) < 2)
 		{
-			$context['search_ignored'][] = $value;
+			Utils::$context['search_ignored'][] = $value;
 			unset($searchArray[$index]);
 		}
 	}
 	$searchArray = array_slice(array_unique($searchArray), 0, 10);
 
 	// Create an array of replacements for highlighting.
-	$context['mark'] = array();
+	Utils::$context['mark'] = array();
 
 	foreach ($searchArray as $word)
-		$context['mark'][$word] = '<strong class="highlight">' . $word . '</strong>';
+		Utils::$context['mark'][$word] = '<strong class="highlight">' . $word . '</strong>';
 
 	// Initialize two arrays storing the words that have to be searched for.
 	$orParts = array();
@@ -780,7 +783,7 @@ function PlushSearch2()
 	// Make sure at least one word is being searched for.
 	if (empty($searchArray))
 	{
-		$context['search_errors']['invalid_search_string' . (!empty($foundBlackListedWords) ? '_blacklist' : '')] = true;
+		Utils::$context['search_errors']['invalid_search_string' . (!empty($foundBlackListedWords) ? '_blacklist' : '')] = true;
 	}
 	// All words/sentences must match.
 	elseif (empty($search_params['searchtype']))
@@ -795,8 +798,8 @@ function PlushSearch2()
 	}
 
 	// Don't allow duplicate error messages if one string is too short.
-	if (isset($context['search_errors']['search_string_small_words'], $context['search_errors']['invalid_search_string']))
-		unset($context['search_errors']['invalid_search_string']);
+	if (isset(Utils::$context['search_errors']['search_string_small_words'], Utils::$context['search_errors']['invalid_search_string']))
+		unset(Utils::$context['search_errors']['invalid_search_string']);
 
 	// Make sure the excluded words are in all or-branches.
 	foreach ($orParts as $orIndex => $andParts)
@@ -840,14 +843,14 @@ function PlushSearch2()
 		}
 
 		// Search_force_index requires all AND parts to have at least one fulltext word.
-		if (!empty($modSettings['search_force_index']) && empty($searchWords[$orIndex]['indexed_words']))
+		if (!empty(Config::$modSettings['search_force_index']) && empty($searchWords[$orIndex]['indexed_words']))
 		{
-			$context['search_errors']['query_not_specific_enough'] = true;
+			Utils::$context['search_errors']['query_not_specific_enough'] = true;
 			break;
 		}
 		elseif ($search_params['subject_only'] && empty($searchWords[$orIndex]['subject_words']) && empty($excludedSubjectWords))
 		{
-			$context['search_errors']['query_not_specific_enough'] = true;
+			Utils::$context['search_errors']['query_not_specific_enough'] = true;
 			break;
 		}
 
@@ -861,9 +864,9 @@ function PlushSearch2()
 	}
 
 	// *** Spell checking
-	if ($context['show_spellchecking'])
+	if (Utils::$context['show_spellchecking'])
 	{
-		require_once($sourcedir . '/Subs-Post.php');
+		require_once(Config::$sourcedir . '/Subs-Post.php');
 
 		// Don't hardcode spellchecking functions!
 		$link = spell_init();
@@ -879,20 +882,20 @@ function PlushSearch2()
 			if (preg_match('~^\w+$~', $word) === 0)
 			{
 				$did_you_mean['search'][] = '"' . $word . '"';
-				$did_you_mean['display'][] = '&quot;' . $smcFunc['htmlspecialchars']($word) . '&quot;';
+				$did_you_mean['display'][] = '&quot;' . Utils::htmlspecialchars($word) . '&quot;';
 				continue;
 			}
 			// For some strange reason spell check can crash PHP on decimals.
 			elseif (preg_match('~\d~', $word) === 1)
 			{
 				$did_you_mean['search'][] = $word;
-				$did_you_mean['display'][] = $smcFunc['htmlspecialchars']($word);
+				$did_you_mean['display'][] = Utils::htmlspecialchars($word);
 				continue;
 			}
 			elseif (spell_check($link, $word))
 			{
 				$did_you_mean['search'][] = $word;
-				$did_you_mean['display'][] = $smcFunc['htmlspecialchars']($word);
+				$did_you_mean['display'][] = Utils::htmlspecialchars($word);
 				continue;
 			}
 
@@ -900,7 +903,7 @@ function PlushSearch2()
 			foreach ($suggestions as $i => $s)
 			{
 				// Search is case insensitive.
-				if ($smcFunc['strtolower']($s) == $smcFunc['strtolower']($word))
+				if (Utils::strtolower($s) == Utils::strtolower($word))
 					unset($suggestions[$i]);
 
 				// Plus, don't suggest something the user thinks is rude!
@@ -913,13 +916,13 @@ function PlushSearch2()
 			{
 				$suggestions = array_values($suggestions);
 				$did_you_mean['search'][] = $suggestions[0];
-				$did_you_mean['display'][] = '<em><strong>' . $smcFunc['htmlspecialchars']($suggestions[0]) . '</strong></em>';
+				$did_you_mean['display'][] = '<em><strong>' . Utils::htmlspecialchars($suggestions[0]) . '</strong></em>';
 				$found_misspelling = true;
 			}
 			else
 			{
 				$did_you_mean['search'][] = $word;
-				$did_you_mean['display'][] = $smcFunc['htmlspecialchars']($word);
+				$did_you_mean['display'][] = Utils::htmlspecialchars($word);
 			}
 		}
 
@@ -933,12 +936,12 @@ function PlushSearch2()
 				if (preg_match('~^\w+$~', $word) == 0)
 				{
 					$temp_excluded['search'][] = '-"' . $word . '"';
-					$temp_excluded['display'][] = '-&quot;' . $smcFunc['htmlspecialchars']($word) . '&quot;';
+					$temp_excluded['display'][] = '-&quot;' . Utils::htmlspecialchars($word) . '&quot;';
 				}
 				else
 				{
 					$temp_excluded['search'][] = '-' . $word;
-					$temp_excluded['display'][] = '-' . $smcFunc['htmlspecialchars']($word);
+					$temp_excluded['display'][] = '-' . Utils::htmlspecialchars($word);
 				}
 			}
 
@@ -951,40 +954,40 @@ function PlushSearch2()
 			if (isset($temp_params['brd']))
 				$temp_params['brd'] = implode(',', $temp_params['brd']);
 
-			$context['params'] = array();
+			Utils::$context['params'] = array();
 
 			foreach ($temp_params as $k => $v)
-				$context['did_you_mean_params'][] = $k . '|\'|' . $v;
+				Utils::$context['did_you_mean_params'][] = $k . '|\'|' . $v;
 
-			$context['did_you_mean_params'] = base64_encode(implode('|"|', $context['did_you_mean_params']));
-			$context['did_you_mean'] = implode(' ', $did_you_mean['display']);
+			Utils::$context['did_you_mean_params'] = base64_encode(implode('|"|', Utils::$context['did_you_mean_params']));
+			Utils::$context['did_you_mean'] = implode(' ', $did_you_mean['display']);
 		}
 	}
 
 	// Let the user adjust the search query, should they wish?
-	$context['search_params'] = $search_params;
+	Utils::$context['search_params'] = $search_params;
 
-	if (isset($context['search_params']['search']))
-		$context['search_params']['search'] = $smcFunc['htmlspecialchars']($context['search_params']['search']);
+	if (isset(Utils::$context['search_params']['search']))
+		Utils::$context['search_params']['search'] = Utils::htmlspecialchars(Utils::$context['search_params']['search']);
 
-	if (isset($context['search_params']['userspec']))
-		$context['search_params']['userspec'] = $smcFunc['htmlspecialchars']($context['search_params']['userspec']);
+	if (isset(Utils::$context['search_params']['userspec']))
+		Utils::$context['search_params']['userspec'] = Utils::htmlspecialchars(Utils::$context['search_params']['userspec']);
 
 	// Do we have captcha enabled?
-	if ($user_info['is_guest'] && !empty($modSettings['search_enable_captcha']) && empty($_SESSION['ss_vv_passed']) && (empty($_SESSION['last_ss']) || $_SESSION['last_ss'] != $search_params['search']))
+	if ($user_info['is_guest'] && !empty(Config::$modSettings['search_enable_captcha']) && empty($_SESSION['ss_vv_passed']) && (empty($_SESSION['last_ss']) || $_SESSION['last_ss'] != $search_params['search']))
 	{
-		require_once($sourcedir . '/Subs-Editor.php');
+		require_once(Config::$sourcedir . '/Subs-Editor.php');
 
 		$verificationOptions = array(
 			'id' => 'search',
 		);
 
-		$context['require_verification'] = create_control_verification($verificationOptions, true);
+		Utils::$context['require_verification'] = create_control_verification($verificationOptions, true);
 
-		if (is_array($context['require_verification']))
+		if (is_array(Utils::$context['require_verification']))
 		{
-			foreach ($context['require_verification'] as $error)
-				$context['search_errors'][$error] = true;
+			foreach (Utils::$context['require_verification'] as $error)
+				Utils::$context['search_errors'][$error] = true;
 		}
 		// Don't keep asking for it - they've proven themselves worthy.
 		else
@@ -998,31 +1001,31 @@ function PlushSearch2()
 	if (isset($temp_params['brd']))
 		$temp_params['brd'] = implode(',', $temp_params['brd']);
 
-	$context['params'] = array();
+	Utils::$context['params'] = array();
 
 	foreach ($temp_params as $k => $v)
-		$context['params'][] = $k . '|\'|' . $v;
+		Utils::$context['params'][] = $k . '|\'|' . $v;
 
-	if (!empty($context['params']))
+	if (!empty(Utils::$context['params']))
 	{
 		// Due to old IE's 2083 character limit, we have to compress long search strings
-		$params = @gzcompress(implode('|"|', $context['params']));
+		$params = @gzcompress(implode('|"|', Utils::$context['params']));
 
 		// Gzcompress failed, use try non-gz
 		if (empty($params))
-			$params = implode('|"|', $context['params']);
+			$params = implode('|"|', Utils::$context['params']);
 
 		// Base64 encode, then replace +/= with uri safe ones that can be reverted
-		$context['params'] = str_replace(array('+', '/', '='), array('-', '_', '.'), base64_encode($params));
+		Utils::$context['params'] = str_replace(array('+', '/', '='), array('-', '_', '.'), base64_encode($params));
 	}
 
 	// ... and add the links to the link tree.
-	$context['linktree'][] = array(
-		'url' => $scripturl . '?action=search;params=' . $context['params'],
+	Utils::$context['linktree'][] = array(
+		'url' => Config::$scripturl . '?action=search;params=' . Utils::$context['params'],
 		'name' => $txt['search']
 	);
-	$context['linktree'][] = array(
-		'url' => $scripturl . '?action=search2;params=' . $context['params'],
+	Utils::$context['linktree'][] = array(
+		'url' => Config::$scripturl . '?action=search2;params=' . Utils::$context['params'],
 		'name' => $txt['search_results']
 	);
 
@@ -1030,9 +1033,9 @@ function PlushSearch2()
 	call_integration_hook('integrate_search_errors');
 
 	// One or more search errors? Go back to the first search screen.
-	if (!empty($context['search_errors']))
+	if (!empty(Utils::$context['search_errors']))
 	{
-		$_REQUEST['params'] = $context['params'];
+		$_REQUEST['params'] = Utils::$context['params'];
 		return PlushSearch1();
 	}
 
@@ -1062,12 +1065,12 @@ function PlushSearch2()
 	// Update the cache if the current search term is not yet cached.
 	else
 	{
-		$update_cache = empty($_SESSION['search_cache']) || ($_SESSION['search_cache']['params'] != $context['params']);
+		$update_cache = empty($_SESSION['search_cache']) || ($_SESSION['search_cache']['params'] != Utils::$context['params']);
 
 		// Are the result fresh?
 		if (!$update_cache && !empty($_SESSION['search_cache']['id_search']))
 		{
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT id_search
 				FROM {db_prefix}log_search_results
 				WHERE id_search = {int:search_id}
@@ -1077,27 +1080,27 @@ function PlushSearch2()
 				)
 			);
 
-			if ($smcFunc['db_num_rows']($request) === 0)
+			if (Db::$db->num_rows($request) === 0)
 				$update_cache = true;
 		}
 
 		if ($update_cache)
 		{
 			// Increase the pointer...
-			$modSettings['search_pointer'] = empty($modSettings['search_pointer']) ? 0 : (int) $modSettings['search_pointer'];
+			Config::$modSettings['search_pointer'] = empty(Config::$modSettings['search_pointer']) ? 0 : (int) Config::$modSettings['search_pointer'];
 
 			// ...and store it right off.
-			updateSettings(array('search_pointer' => $modSettings['search_pointer'] >= 255 ? 0 : $modSettings['search_pointer'] + 1));
+			Config::updateModSettings(array('search_pointer' => Config::$modSettings['search_pointer'] >= 255 ? 0 : Config::$modSettings['search_pointer'] + 1));
 
 			// As long as you don't change the parameters, the cache result is yours.
 			$_SESSION['search_cache'] = array(
-				'id_search' => $modSettings['search_pointer'],
+				'id_search' => Config::$modSettings['search_pointer'],
 				'num_results' => -1,
-				'params' => $context['params'],
+				'params' => Utils::$context['params'],
 			);
 
 			// Clear the previous cache of the final results cache.
-			$smcFunc['db_search_query']('delete_log_search_results', '
+			Db::$db->search_query('delete_log_search_results', '
 				DELETE FROM {db_prefix}log_search_results
 				WHERE id_search = {int:search_id}',
 				array(
@@ -1126,7 +1129,7 @@ function PlushSearch2()
 						),
 					);
 
-					if ($modSettings['postmod_active'])
+					if (Config::$modSettings['postmod_active'])
 						$subject_query['where'][] = 't.approved = {int:is_approved}';
 
 					$numTables = 0;
@@ -1139,7 +1142,7 @@ function PlushSearch2()
 
 						if (in_array($subjectWord, $excludedSubjectWords))
 						{
-							$subject_query['left_join'][] = '{db_prefix}log_search_subjects AS subj' . $numTables . ' ON (subj' . $numTables . '.word ' . (empty($modSettings['search_match_words']) ? 'LIKE {string:subject_words_' . $numTables . '_wild}' : '= {string:subject_words_' . $numTables . '}') . ' AND subj' . $numTables . '.id_topic = t.id_topic)';
+							$subject_query['left_join'][] = '{db_prefix}log_search_subjects AS subj' . $numTables . ' ON (subj' . $numTables . '.word ' . (empty(Config::$modSettings['search_match_words']) ? 'LIKE {string:subject_words_' . $numTables . '_wild}' : '= {string:subject_words_' . $numTables . '}') . ' AND subj' . $numTables . '.id_topic = t.id_topic)';
 
 							$subject_query['where'][] = '(subj' . $numTables . '.word IS NULL)';
 						}
@@ -1147,7 +1150,7 @@ function PlushSearch2()
 						{
 							$subject_query['inner_join'][] = '{db_prefix}log_search_subjects AS subj' . $numTables . ' ON (subj' . $numTables . '.id_topic = ' . ($prev_join === 0 ? 't' : 'subj' . $prev_join) . '.id_topic)';
 
-							$subject_query['where'][] = 'subj' . $numTables . '.word ' . (empty($modSettings['search_match_words']) ? 'LIKE {string:subject_words_' . $numTables . '_wild}' : '= {string:subject_words_' . $numTables . '}');
+							$subject_query['where'][] = 'subj' . $numTables . '.word ' . (empty(Config::$modSettings['search_match_words']) ? 'LIKE {string:subject_words_' . $numTables . '_wild}' : '= {string:subject_words_' . $numTables . '}');
 
 							$prev_join = $numTables;
 						}
@@ -1194,7 +1197,7 @@ function PlushSearch2()
 							if ($is_search_regex)
 								$subject_query_params['excluded_phrases_' . $count++] = $word_boundary_wrapper($escape_sql_regex($phrase));
 							else
-								$subject_query_params['excluded_phrases_' . $count++] = '%' . $smcFunc['db_escape_wildcard_string']($phrase) . '%';
+								$subject_query_params['excluded_phrases_' . $count++] = '%' . Db::$db->escape_wildcard_string($phrase) . '%';
 						}
 					}
 
@@ -1214,8 +1217,8 @@ function PlushSearch2()
 
 					$relevance = substr($relevance, 0, -3) . ') / ' . $weight_total . ' AS relevance';
 
-					$ignoreRequest = $smcFunc['db_search_query']('insert_log_search_results_subject',
-						($smcFunc['db_support_ignore'] ? '
+					$ignoreRequest = Db::$db->search_query('insert_log_search_results_subject',
+						(Db::$db->support_ignore ? '
 						INSERT IGNORE INTO {db_prefix}log_search_results
 							(id_search, id_topic, relevance, id_msg, num_matches)' : '') . '
 						SELECT
@@ -1230,8 +1233,8 @@ function PlushSearch2()
 							LEFT JOIN ' . implode('
 							LEFT JOIN ', $subject_query['left_join'])) . '
 						WHERE ' . implode('
-							AND ', $subject_query['where']) . (empty($modSettings['search_max_results']) ? '' : '
-						LIMIT ' . ($modSettings['search_max_results'] - $numSubjectResults)),
+							AND ', $subject_query['where']) . (empty(Config::$modSettings['search_max_results']) ? '' : '
+						LIMIT ' . (Config::$modSettings['search_max_results'] - $numSubjectResults)),
 						array_merge($subject_query_params, array(
 							'id_search' => $_SESSION['search_cache']['id_search'],
 							'min_msg' => $minMsg,
@@ -1242,9 +1245,9 @@ function PlushSearch2()
 					);
 
 					// If the database doesn't support IGNORE to make this fast we need to do some tracking.
-					if (!$smcFunc['db_support_ignore'])
+					if (!Db::$db->support_ignore)
 					{
-						while ($row = $smcFunc['db_fetch_row']($ignoreRequest))
+						while ($row = Db::$db->fetch_row($ignoreRequest))
 						{
 							// No duplicates!
 							if (isset($inserts[$row[1]]))
@@ -1253,20 +1256,20 @@ function PlushSearch2()
 							foreach ($row as $key => $value)
 								$inserts[$row[1]][] = (int) $row[$key];
 						}
-						$smcFunc['db_free_result']($ignoreRequest);
+						Db::$db->free_result($ignoreRequest);
 						$numSubjectResults = count($inserts);
 					}
 					else
-						$numSubjectResults += $smcFunc['db_affected_rows']();
+						$numSubjectResults += Db::$db->affected_rows();
 
-					if (!empty($modSettings['search_max_results']) && $numSubjectResults >= $modSettings['search_max_results'])
+					if (!empty(Config::$modSettings['search_max_results']) && $numSubjectResults >= Config::$modSettings['search_max_results'])
 						break;
 				}
 
 				// If there's data to be inserted for non-IGNORE databases do it here!
 				if (!empty($inserts))
 				{
-					$smcFunc['db_insert']('',
+					Db::$db->insert('',
 						'{db_prefix}log_search_results',
 						array('id_search' => 'int', 'id_topic' => 'int', 'relevance' => 'int', 'id_msg' => 'int', 'num_matches' => 'int'),
 						$inserts,
@@ -1345,12 +1348,12 @@ function PlushSearch2()
 				{
 					$inserts = array();
 					// Create a temporary table to store some preliminary results in.
-					$smcFunc['db_search_query']('drop_tmp_log_search_topics', '
+					Db::$db->search_query('drop_tmp_log_search_topics', '
 						DROP TABLE IF EXISTS {db_prefix}tmp_log_search_topics',
 						array(
 						)
 					);
-					$createTemporary = $smcFunc['db_search_query']('create_tmp_log_search_topics', '
+					$createTemporary = Db::$db->search_query('create_tmp_log_search_topics', '
 						CREATE TEMPORARY TABLE {db_prefix}tmp_log_search_topics (
 							id_topic int NOT NULL default {string:string_zero},
 							PRIMARY KEY (id_topic)
@@ -1362,7 +1365,7 @@ function PlushSearch2()
 
 					// Clean up some previous cache.
 					if (!$createTemporary)
-						$smcFunc['db_search_query']('delete_log_search_topics', '
+						Db::$db->search_query('delete_log_search_topics', '
 							DELETE FROM {db_prefix}log_search_topics
 							WHERE id_search = {int:search_id}',
 							array(
@@ -1400,8 +1403,8 @@ function PlushSearch2()
 									$subject_query['inner_join']['m'] = '{db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)';
 									$excluded = true;
 								}
-								$subject_query['left_join'][] = '{db_prefix}log_search_subjects AS subj' . $numTables . ' ON (subj' . $numTables . '.word ' . (empty($modSettings['search_match_words']) ? 'LIKE {string:subject_not_' . $count . '}' : '= {string:subject_not_' . $count . '}') . ' AND subj' . $numTables . '.id_topic = t.id_topic)';
-								$subject_query['params']['subject_not_' . $count] = empty($modSettings['search_match_words']) ? '%' . $subjectWord . '%' : $subjectWord;
+								$subject_query['left_join'][] = '{db_prefix}log_search_subjects AS subj' . $numTables . ' ON (subj' . $numTables . '.word ' . (empty(Config::$modSettings['search_match_words']) ? 'LIKE {string:subject_not_' . $count . '}' : '= {string:subject_not_' . $count . '}') . ' AND subj' . $numTables . '.id_topic = t.id_topic)';
+								$subject_query['params']['subject_not_' . $count] = empty(Config::$modSettings['search_match_words']) ? '%' . $subjectWord . '%' : $subjectWord;
 
 								$subject_query['where'][] = '(subj' . $numTables . '.word IS NULL)';
 								$subject_query['where'][] = 'm.body NOT ' . $query_match_type . ' {string:body_not_' . $count . '}';
@@ -1409,13 +1412,13 @@ function PlushSearch2()
 								if ($is_search_regex)
 									$subject_query['params']['body_not_' . $count++] = $word_boundary_wrapper($escape_sql_regex($subjectWord));
 								else
-									$subject_query['params']['body_not_' . $count++] = '%' . $smcFunc['db_escape_wildcard_string']($subjectWord) . '%';
+									$subject_query['params']['body_not_' . $count++] = '%' . Db::$db->escape_wildcard_string($subjectWord) . '%';
 							}
 							else
 							{
 								$subject_query['inner_join'][] = '{db_prefix}log_search_subjects AS subj' . $numTables . ' ON (subj' . $numTables . '.id_topic = ' . ($prev_join === 0 ? 't' : 'subj' . $prev_join) . '.id_topic)';
 								$subject_query['where'][] = 'subj' . $numTables . '.word LIKE {string:subject_like_' . $count . '}';
-								$subject_query['params']['subject_like_' . $count++] = empty($modSettings['search_match_words']) ? '%' . $subjectWord . '%' : $subjectWord;
+								$subject_query['params']['subject_like_' . $count++] = empty(Config::$modSettings['search_match_words']) ? '%' . $subjectWord . '%' : $subjectWord;
 								$prev_join = $numTables;
 							}
 						}
@@ -1464,7 +1467,7 @@ function PlushSearch2()
 								if ($is_search_regex)
 									$subject_query['params']['exclude_phrase_' . $count++] = $word_boundary_wrapper($escape_sql_regex($phrase));
 								else
-									$subject_query['params']['exclude_phrase_' . $count++] = '%' . $smcFunc['db_escape_wildcard_string']($phrase) . '%';
+									$subject_query['params']['exclude_phrase_' . $count++] = '%' . Db::$db->escape_wildcard_string($phrase) . '%';
 							}
 						}
 						call_integration_hook('integrate_subject_search_query', array(&$subject_query));
@@ -1473,7 +1476,7 @@ function PlushSearch2()
 						if (empty($subject_query['where']))
 							continue;
 
-						$ignoreRequest = $smcFunc['db_search_query']('insert_log_search_topics', ($smcFunc['db_support_ignore'] ? ('
+						$ignoreRequest = Db::$db->search_query('insert_log_search_topics', (Db::$db->support_ignore ? ('
 							INSERT IGNORE INTO {db_prefix}' . ($createTemporary ? 'tmp_' : '') . 'log_search_topics
 								(' . ($createTemporary ? '' : 'id_search, ') . 'id_topic)') : '') . '
 							SELECT ' . ($createTemporary ? '' : $_SESSION['search_cache']['id_search'] . ', ') . 't.id_topic
@@ -1483,14 +1486,14 @@ function PlushSearch2()
 								LEFT JOIN ' . implode('
 								LEFT JOIN ', $subject_query['left_join'])) . '
 							WHERE ' . implode('
-								AND ', $subject_query['where']) . (empty($modSettings['search_max_results']) ? '' : '
-							LIMIT ' . ($modSettings['search_max_results'] - $numSubjectResults)),
+								AND ', $subject_query['where']) . (empty(Config::$modSettings['search_max_results']) ? '' : '
+							LIMIT ' . (Config::$modSettings['search_max_results'] - $numSubjectResults)),
 							$subject_query['params']
 						);
 						// Don't do INSERT IGNORE? Manually fix this up!
-						if (!$smcFunc['db_support_ignore'])
+						if (!Db::$db->support_ignore)
 						{
-							while ($row = $smcFunc['db_fetch_row']($ignoreRequest))
+							while ($row = Db::$db->fetch_row($ignoreRequest))
 							{
 								$ind = $createTemporary ? 0 : 1;
 								// No duplicates!
@@ -1499,20 +1502,20 @@ function PlushSearch2()
 
 								$inserts[$row[$ind]] = $row;
 							}
-							$smcFunc['db_free_result']($ignoreRequest);
+							Db::$db->free_result($ignoreRequest);
 							$numSubjectResults = count($inserts);
 						}
 						else
-							$numSubjectResults += $smcFunc['db_affected_rows']();
+							$numSubjectResults += Db::$db->affected_rows();
 
-						if (!empty($modSettings['search_max_results']) && $numSubjectResults >= $modSettings['search_max_results'])
+						if (!empty(Config::$modSettings['search_max_results']) && $numSubjectResults >= Config::$modSettings['search_max_results'])
 							break;
 					}
 
 					// Got some non-MySQL data to plonk in?
 					if (!empty($inserts))
 					{
-						$smcFunc['db_insert']('',
+						Db::$db->insert('',
 							('{db_prefix}' . ($createTemporary ? 'tmp_' : '') . 'log_search_topics'),
 							$createTemporary ? array('id_topic' => 'int') : array('id_search' => 'int', 'id_topic' => 'int'),
 							$inserts,
@@ -1534,13 +1537,13 @@ function PlushSearch2()
 				if ($searchAPI->supportsMethod('indexedWordQuery', $query_params))
 				{
 					$inserts = array();
-					$smcFunc['db_search_query']('drop_tmp_log_search_messages', '
+					Db::$db->search_query('drop_tmp_log_search_messages', '
 						DROP TABLE IF EXISTS {db_prefix}tmp_log_search_messages',
 						array(
 						)
 					);
 
-					$createTemporary = $smcFunc['db_search_query']('create_tmp_log_search_messages', '
+					$createTemporary = Db::$db->search_query('create_tmp_log_search_messages', '
 						CREATE TEMPORARY TABLE {db_prefix}tmp_log_search_messages (
 							id_msg int NOT NULL default {string:string_zero},
 							PRIMARY KEY (id_msg)
@@ -1552,7 +1555,7 @@ function PlushSearch2()
 
 					// Clear, all clear!
 					if (!$createTemporary)
-						$smcFunc['db_search_query']('delete_log_search_messages', '
+						Db::$db->search_query('delete_log_search_messages', '
 							DELETE FROM {db_prefix}log_search_messages
 							WHERE id_search = {int:id_search}',
 							array(
@@ -1587,9 +1590,9 @@ function PlushSearch2()
 
 							$ignoreRequest = $searchAPI->indexedWordQuery($words, $search_data);
 
-							if (!$smcFunc['db_support_ignore'])
+							if (!Db::$db->support_ignore)
 							{
-								while ($row = $smcFunc['db_fetch_row']($ignoreRequest))
+								while ($row = Db::$db->fetch_row($ignoreRequest))
 								{
 									// No duplicates!
 									if (isset($inserts[$row[0]]))
@@ -1597,11 +1600,11 @@ function PlushSearch2()
 
 									$inserts[$row[0]] = $row;
 								}
-								$smcFunc['db_free_result']($ignoreRequest);
+								Db::$db->free_result($ignoreRequest);
 								$indexedResults = count($inserts);
 							}
 							else
-								$indexedResults += $smcFunc['db_affected_rows']();
+								$indexedResults += Db::$db->affected_rows();
 
 							if (!empty($maxMessageResults) && $indexedResults >= $maxMessageResults)
 								break;
@@ -1611,7 +1614,7 @@ function PlushSearch2()
 					// More non-MySQL stuff needed?
 					if (!empty($inserts))
 					{
-						$smcFunc['db_insert']('',
+						Db::$db->insert('',
 							'{db_prefix}' . ($createTemporary ? 'tmp_' : '') . 'log_search_messages',
 							$createTemporary ? array('id_msg' => 'int') : array('id_msg' => 'int', 'id_search' => 'int'),
 							$inserts,
@@ -1619,10 +1622,10 @@ function PlushSearch2()
 						);
 					}
 
-					if (empty($indexedResults) && empty($numSubjectResults) && !empty($modSettings['search_force_index']))
+					if (empty($indexedResults) && empty($numSubjectResults) && !empty(Config::$modSettings['search_force_index']))
 					{
-						$context['search_errors']['query_not_specific_enough'] = true;
-						$_REQUEST['params'] = $context['params'];
+						Utils::$context['search_errors']['query_not_specific_enough'] = true;
+						$_REQUEST['params'] = Utils::$context['params'];
 						return PlushSearch1();
 					}
 					elseif (!empty($indexedResults))
@@ -1657,7 +1660,7 @@ function PlushSearch2()
 							if ($is_search_regex)
 								$main_query['parameters']['all_word_body_' . $count++] = $word_boundary_wrapper($escape_sql_regex($regularWord));
 							else
-								$main_query['parameters']['all_word_body_' . $count++] = '%' . $smcFunc['db_escape_wildcard_string']($regularWord) . '%';
+								$main_query['parameters']['all_word_body_' . $count++] = '%' . Db::$db->escape_wildcard_string($regularWord) . '%';
 						}
 						if (!empty($where))
 							$orWhere[] = count($where) > 1 ? '(' . implode(' AND ', $where) . ')' : $where[0];
@@ -1708,7 +1711,7 @@ function PlushSearch2()
 					}
 					$main_query['select']['relevance'] = substr($relevance, 0, -3) . ') / ' . $new_weight_total . ' AS relevance';
 
-					$ignoreRequest = $smcFunc['db_search_query']('insert_log_search_results_no_index', ($smcFunc['db_support_ignore'] ? ('
+					$ignoreRequest = Db::$db->search_query('insert_log_search_results_no_index', (Db::$db->support_ignore ? ('
 						INSERT IGNORE INTO ' . '{db_prefix}log_search_results
 							(' . implode(', ', array_keys($main_query['select'])) . ')') : '') . '
 						SELECT
@@ -1721,16 +1724,16 @@ function PlushSearch2()
 							LEFT JOIN ', $main_query['left_join'])) . (!empty($main_query['where']) ? '
 						WHERE ' : '') . implode('
 							AND ', $main_query['where']) . (empty($main_query['group_by']) ? '' : '
-						GROUP BY ' . implode(', ', $main_query['group_by'])) . (empty($modSettings['search_max_results']) ? '' : '
-						LIMIT ' . $modSettings['search_max_results']),
+						GROUP BY ' . implode(', ', $main_query['group_by'])) . (empty(Config::$modSettings['search_max_results']) ? '' : '
+						LIMIT ' . Config::$modSettings['search_max_results']),
 						$main_query['parameters']
 					);
 
 					// We love to handle non-good databases that don't support our ignore!
-					if (!$smcFunc['db_support_ignore'])
+					if (!Db::$db->support_ignore)
 					{
 						$inserts = array();
-						while ($row = $smcFunc['db_fetch_row']($ignoreRequest))
+						while ($row = Db::$db->fetch_row($ignoreRequest))
 						{
 							// No duplicates!
 							if (isset($inserts[$row[2]]))
@@ -1739,7 +1742,7 @@ function PlushSearch2()
 							foreach ($row as $key => $value)
 								$inserts[$row[2]][] = (int) $row[$key];
 						}
-						$smcFunc['db_free_result']($ignoreRequest);
+						Db::$db->free_result($ignoreRequest);
 
 						// Now put them in!
 						if (!empty($inserts))
@@ -1748,7 +1751,7 @@ function PlushSearch2()
 							foreach ($main_query['select'] as $k => $v)
 								$query_columns[$k] = 'int';
 
-							$smcFunc['db_insert']('',
+							Db::$db->insert('',
 								'{db_prefix}log_search_results',
 								$query_columns,
 								$inserts,
@@ -1758,11 +1761,11 @@ function PlushSearch2()
 						$_SESSION['search_cache']['num_results'] += count($inserts);
 					}
 					else
-						$_SESSION['search_cache']['num_results'] = $smcFunc['db_affected_rows']();
+						$_SESSION['search_cache']['num_results'] = Db::$db->affected_rows();
 				}
 
 				// Insert subject-only matches.
-				if ($_SESSION['search_cache']['num_results'] < $modSettings['search_max_results'] && $numSubjectResults !== 0)
+				if ($_SESSION['search_cache']['num_results'] < Config::$modSettings['search_max_results'] && $numSubjectResults !== 0)
 				{
 					$relevance = '1000 * (';
 					foreach ($weight_factors as $type => $value)
@@ -1776,7 +1779,7 @@ function PlushSearch2()
 					$relevance = substr($relevance, 0, -3) . ') / ' . $weight_total . ' AS relevance';
 
 					$usedIDs = array_flip(empty($inserts) ? array() : array_keys($inserts));
-					$ignoreRequest = $smcFunc['db_search_query']('insert_log_search_results_sub_only', ($smcFunc['db_support_ignore'] ? ('
+					$ignoreRequest = Db::$db->search_query('insert_log_search_results_sub_only', (Db::$db->support_ignore ? ('
 						INSERT IGNORE INTO {db_prefix}log_search_results
 							(id_search, id_topic, relevance, id_msg, num_matches)') : '') . '
 						SELECT
@@ -1788,8 +1791,8 @@ function PlushSearch2()
 						FROM {db_prefix}topics AS t
 							INNER JOIN {db_prefix}' . ($createTemporary ? 'tmp_' : '') . 'log_search_topics AS lst ON (lst.id_topic = t.id_topic)'
 						. ($createTemporary ? '' : ' WHERE lst.id_search = {int:id_search}')
-						. (empty($modSettings['search_max_results']) ? '' : '
-						LIMIT ' . ($modSettings['search_max_results'] - $_SESSION['search_cache']['num_results'])),
+						. (empty(Config::$modSettings['search_max_results']) ? '' : '
+						LIMIT ' . (Config::$modSettings['search_max_results'] - $_SESSION['search_cache']['num_results'])),
 						array(
 							'id_search' => $_SESSION['search_cache']['id_search'],
 							'min_msg' => $minMsg,
@@ -1798,10 +1801,10 @@ function PlushSearch2()
 						)
 					);
 					// Once again need to do the inserts if the database don't support ignore!
-					if (!$smcFunc['db_support_ignore'])
+					if (!Db::$db->support_ignore)
 					{
 						$inserts = array();
-						while ($row = $smcFunc['db_fetch_row']($ignoreRequest))
+						while ($row = Db::$db->fetch_row($ignoreRequest))
 						{
 							// No duplicates!
 							if (isset($usedIDs[$row[1]]))
@@ -1810,12 +1813,12 @@ function PlushSearch2()
 							$usedIDs[$row[1]] = true;
 							$inserts[] = $row;
 						}
-						$smcFunc['db_free_result']($ignoreRequest);
+						Db::$db->free_result($ignoreRequest);
 
 						// Now put them in!
 						if (!empty($inserts))
 						{
-							$smcFunc['db_insert']('',
+							Db::$db->insert('',
 								'{db_prefix}log_search_results',
 								array('id_search' => 'int', 'id_topic' => 'int', 'relevance' => 'float', 'id_msg' => 'int', 'num_matches' => 'int'),
 								$inserts,
@@ -1825,7 +1828,7 @@ function PlushSearch2()
 						$_SESSION['search_cache']['num_results'] += count($inserts);
 					}
 					else
-						$_SESSION['search_cache']['num_results'] += $smcFunc['db_affected_rows']();
+						$_SESSION['search_cache']['num_results'] += Db::$db->affected_rows();
 				}
 				elseif ($_SESSION['search_cache']['num_results'] == -1)
 					$_SESSION['search_cache']['num_results'] = 0;
@@ -1833,7 +1836,7 @@ function PlushSearch2()
 		}
 
 		$approve_query = '';
-		if (!empty($modSettings['postmod_active']))
+		if (!empty(Config::$modSettings['postmod_active']))
 		{
 			// Exclude unapproved topics, but show ones they started.
 			if (empty($user_info['mod_cache']['ap']))
@@ -1848,7 +1851,7 @@ function PlushSearch2()
 
 		// *** Retrieve the results to be shown on the page
 		$participants = array();
-		$request = $smcFunc['db_search_query']('', '
+		$request = Db::$db->search_query('', '
 			SELECT ' . (empty($search_params['topic']) ? 'lsr.id_topic' : $search_params['topic'] . ' AS id_topic') . ', lsr.id_msg, lsr.relevance, lsr.num_matches
 			FROM {db_prefix}log_search_results AS lsr' . ($search_params['sort'] == 'num_replies' || !empty($approve_query) ? '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = lsr.id_topic)' : '') . '
@@ -1860,15 +1863,15 @@ function PlushSearch2()
 				'sort' => $search_params['sort'],
 				'sort_dir' => $search_params['sort_dir'],
 				'start' => $_REQUEST['start'],
-				'max' => $modSettings['search_results_per_page'],
+				'max' => Config::$modSettings['search_results_per_page'],
 				'is_approved' => 1,
 				'current_member' => $user_info['id'],
-				'approve_boards' => !empty($modSettings['postmod_active']) ? $user_info['mod_cache']['ap'] : array(),
+				'approve_boards' => !empty(Config::$modSettings['postmod_active']) ? $user_info['mod_cache']['ap'] : array(),
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
-			$context['topics'][$row['id_msg']] = array(
+			Utils::$context['topics'][$row['id_msg']] = array(
 				'relevance' => round($row['relevance'] / 10, 1) . '%',
 				'num_matches' => $row['num_matches'],
 				'matches' => array(),
@@ -1876,11 +1879,11 @@ function PlushSearch2()
 			// By default they didn't participate in the topic!
 			$participants[$row['id_topic']] = false;
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 	}
 
 	$num_results = 0;
-	if (!empty($context['topics']))
+	if (!empty(Utils::$context['topics']))
 	{
 		// Create an array for the permissions.
 		$perms = array('post_reply_own', 'post_reply_any');
@@ -1893,15 +1896,15 @@ function PlushSearch2()
 		// How's about some quick moderation?
 		if (!empty($options['display_quick_mod']))
 		{
-			$context['can_lock'] = in_array(0, $boards_can['lock_any']);
-			$context['can_sticky'] = in_array(0, $boards_can['make_sticky']);
-			$context['can_move'] = in_array(0, $boards_can['move_any']);
-			$context['can_remove'] = in_array(0, $boards_can['remove_any']);
-			$context['can_merge'] = in_array(0, $boards_can['merge_any']);
+			Utils::$context['can_lock'] = in_array(0, $boards_can['lock_any']);
+			Utils::$context['can_sticky'] = in_array(0, $boards_can['make_sticky']);
+			Utils::$context['can_move'] = in_array(0, $boards_can['move_any']);
+			Utils::$context['can_remove'] = in_array(0, $boards_can['remove_any']);
+			Utils::$context['can_merge'] = in_array(0, $boards_can['merge_any']);
 		}
 
 		$approve_query = '';
-		if (!empty($modSettings['postmod_active']))
+		if (!empty(Config::$modSettings['postmod_active']))
 		{
 			if (empty($user_info['mod_cache']['ap']))
 				$approve_query = '
@@ -1913,10 +1916,10 @@ function PlushSearch2()
 		}
 
 		// What messages are we using?
-		$msg_list = array_keys($context['topics']);
+		$msg_list = array_keys(Utils::$context['topics']);
 
 		// Load the posters...
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_member
 			FROM {db_prefix}messages
 			WHERE id_member != {int:no_member}
@@ -1925,13 +1928,13 @@ function PlushSearch2()
 			array(
 				'message_list' => $msg_list,
 				'no_member' => 0,
-				'limit' => count($context['topics']),
+				'limit' => count(Utils::$context['topics']),
 			)
 		);
 		$posters = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$posters[] = $row['id_member'];
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		call_integration_hook('integrate_search_message_list', array(&$msg_list, &$posters));
 
@@ -1939,7 +1942,7 @@ function PlushSearch2()
 			loadMemberData(array_unique($posters));
 
 		// Get the messages out for the callback - select enough that it can be made to look just like Display.
-		$messages_request = $smcFunc['db_query']('', '
+		$messages_request = Db::$db->query('', '
 			SELECT
 				m.id_msg, m.subject, m.poster_name, m.poster_email, m.poster_time, m.id_member,
 				m.icon, m.poster_ip, m.body, m.smileys_enabled, m.modified_time, m.modified_name,
@@ -1958,14 +1961,14 @@ function PlushSearch2()
 				LEFT JOIN {db_prefix}members AS first_mem ON (first_mem.id_member = first_m.id_member)
 				LEFT JOIN {db_prefix}members AS last_mem ON (last_mem.id_member = first_m.id_member)
 			WHERE m.id_msg IN ({array_int:message_list})' . $approve_query . '
-			ORDER BY ' . $smcFunc['db_custom_order']('m.id_msg', $msg_list) . '
+			ORDER BY ' . Db::$db->custom_order('m.id_msg', $msg_list) . '
 			LIMIT {int:limit}',
 			array(
 				'message_list' => $msg_list,
 				'is_approved' => 1,
 				'current_member' => $user_info['id'],
-				'approve_boards' => !empty($modSettings['postmod_active']) ? $user_info['mod_cache']['ap'] : array(),
-				'limit' => count($context['topics']),
+				'approve_boards' => !empty(Config::$modSettings['postmod_active']) ? $user_info['mod_cache']['ap'] : array(),
+				'limit' => count(Utils::$context['topics']),
 			)
 		);
 
@@ -1973,16 +1976,16 @@ function PlushSearch2()
 		if (!empty($_SESSION['search_cache']['num_results']))
 			$num_results = $_SESSION['search_cache']['num_results'];
 		else
-			$num_results = $smcFunc['db_num_rows']($messages_request);
+			$num_results = Db::$db->num_rows($messages_request);
 
 		// If there are no results that means the things in the cache got deleted, so pretend we have no topics anymore.
 		if ($num_results == 0)
-			$context['topics'] = array();
+			Utils::$context['topics'] = array();
 
 		// If we want to know who participated in what then load this now.
-		if (!empty($modSettings['enableParticipation']) && !$user_info['is_guest'])
+		if (!empty(Config::$modSettings['enableParticipation']) && !$user_info['is_guest'])
 		{
-			$result = $smcFunc['db_query']('', '
+			$result = Db::$db->query('', '
 				SELECT id_topic
 				FROM {db_prefix}messages
 				WHERE id_topic IN ({array_int:topic_list})
@@ -1995,34 +1998,34 @@ function PlushSearch2()
 					'limit' => count($participants),
 				)
 			);
-			while ($row = $smcFunc['db_fetch_assoc']($result))
+			while ($row = Db::$db->fetch_assoc($result))
 				$participants[$row['id_topic']] = true;
 
-			$smcFunc['db_free_result']($result);
+			Db::$db->free_result($result);
 		}
 	}
 
 	// Now that we know how many results to expect we can start calculating the page numbers.
-	$context['page_index'] = constructPageIndex($scripturl . '?action=search2;params=' . $context['params'], $_REQUEST['start'], $num_results, $modSettings['search_results_per_page'], false);
+	Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=search2;params=' . Utils::$context['params'], $_REQUEST['start'], $num_results, Config::$modSettings['search_results_per_page'], false);
 
 	// Consider the search complete!
 	if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2)
 		CacheApi::put('search_start:' . ($user_info['is_guest'] ? $user_info['ip'] : $user_info['id']), null, 90);
 
-	$context['key_words'] = &$searchArray;
+	Utils::$context['key_words'] = &$searchArray;
 
 	// Setup the default topic icons... for checking they exist and the like!
-	$context['icon_sources'] = array();
-	foreach ($context['stable_icons'] as $icon)
-		$context['icon_sources'][$icon] = 'images_url';
+	Utils::$context['icon_sources'] = array();
+	foreach (Utils::$context['stable_icons'] as $icon)
+		Utils::$context['icon_sources'][$icon] = 'images_url';
 
-	$context['sub_template'] = 'results';
-	$context['page_title'] = $txt['search_results'];
-	$context['get_topics'] = 'prepareSearchContext';
-	$context['can_restore_perm'] = allowedTo('move_any') && !empty($modSettings['recycle_enable']);
-	$context['can_restore'] = false; // We won't know until we handle the context later whether we can actually restore...
+	Utils::$context['sub_template'] = 'results';
+	Utils::$context['page_title'] = $txt['search_results'];
+	Utils::$context['get_topics'] = 'prepareSearchContext';
+	Utils::$context['can_restore_perm'] = allowedTo('move_any') && !empty(Config::$modSettings['recycle_enable']);
+	Utils::$context['can_restore'] = false; // We won't know until we handle the context later whether we can actually restore...
 
-	$context['jump_to'] = array(
+	Utils::$context['jump_to'] = array(
 		'label' => addslashes(un_htmlspecialchars($txt['jump_to'])),
 		'board_name' => addslashes(un_htmlspecialchars($txt['select_destination'])),
 	);
@@ -2040,13 +2043,13 @@ function PlushSearch2()
  */
 function prepareSearchContext($reset = false)
 {
-	global $txt, $modSettings, $scripturl, $user_info;
-	global $memberContext, $context, $settings, $options, $messages_request;
-	global $boards_can, $participants, $smcFunc;
+	global $txt, $user_info;
+	global $memberContext, $settings, $options, $messages_request;
+	global $boards_can, $participants;
 	static $recycle_board = null;
 
 	if ($recycle_board === null)
-		$recycle_board = !empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) ? (int) $modSettings['recycle_board'] : 0;
+		$recycle_board = !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) ? (int) Config::$modSettings['recycle_board'] : 0;
 
 	// Remember which message this is.  (ie. reply #83)
 	static $counter = null;
@@ -2059,10 +2062,10 @@ function prepareSearchContext($reset = false)
 
 	// Start from the beginning...
 	if ($reset)
-		return @$smcFunc['db_data_seek']($messages_request, 0);
+		return @Db::$db->data_seek($messages_request, 0);
 
 	// Attempt to get the next message.
-	$message = $smcFunc['db_fetch_assoc']($messages_request);
+	$message = Db::$db->fetch_assoc($messages_request);
 	if (!$message)
 		return false;
 
@@ -2092,7 +2095,7 @@ function prepareSearchContext($reset = false)
 	censorText($message['last_subject']);
 
 	// Shorten this message if necessary.
-	if ($context['compact'])
+	if (Utils::$context['compact'])
 	{
 		// Set the number of characters before and after the searched keyword.
 		$charLimit = 50;
@@ -2101,18 +2104,18 @@ function prepareSearchContext($reset = false)
 		$message['body'] = BBCodeParser::load()->parse($message['body'], $message['smileys_enabled'], $message['id_msg']);
 		$message['body'] = strip_tags(strtr($message['body'], array('</div>' => '<br>', '</li>' => '<br>')), '<br>');
 
-		if ($smcFunc['strlen']($message['body']) > $charLimit)
+		if (Utils::entityStrlen($message['body']) > $charLimit)
 		{
-			if (empty($context['key_words']))
-				$message['body'] = $smcFunc['substr']($message['body'], 0, $charLimit) . '<strong>...</strong>';
+			if (empty(Utils::$context['key_words']))
+				$message['body'] = Utils::entitySubstr($message['body'], 0, $charLimit) . '<strong>...</strong>';
 			else
 			{
 				$matchString = '';
 				$force_partial_word = false;
-				foreach ($context['key_words'] as $keyword)
+				foreach (Utils::$context['key_words'] as $keyword)
 				{
 					$keyword = un_htmlspecialchars($keyword);
-					$keyword = preg_replace_callback('~(&amp;#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', 'entity_fix__callback', strtr($keyword, array('\\\'' => '\'', '&' => '&amp;')));
+					$keyword = Utils::sanitizeEntities(Utils::entityFix(strtr($keyword, array('\\\'' => '\'', '&' => '&amp;'))));
 
 					if (preg_match('~[\'\.,/@%&;:(){}\[\]_\-+\\\\]$~', $keyword) != 0 || preg_match('~^[\'\.,/@%&;:(){}\[\]_\-+\\\\]~', $keyword) != 0)
 						$force_partial_word = true;
@@ -2122,32 +2125,32 @@ function prepareSearchContext($reset = false)
 
 				$message['body'] = un_htmlspecialchars(strtr($message['body'], array('&nbsp;' => ' ', '<br>' => "\n", '&#91;' => '[', '&#93;' => ']', '&#58;' => ':', '&#64;' => '@')));
 
-				if (empty($modSettings['search_method']) || $force_partial_word)
-					preg_match_all('/([^\s\W]{' . $charLimit . '}[\s\W]|[\s\W].{0,' . $charLimit . '}?|^)(' . $matchString . ')(.{0,' . $charLimit . '}[\s\W]|[^\s\W]{0,' . $charLimit . '})/is' . ($context['utf8'] ? 'u' : ''), $message['body'], $matches);
+				if (empty(Config::$modSettings['search_method']) || $force_partial_word)
+					preg_match_all('/([^\s\W]{' . $charLimit . '}[\s\W]|[\s\W].{0,' . $charLimit . '}?|^)(' . $matchString . ')(.{0,' . $charLimit . '}[\s\W]|[^\s\W]{0,' . $charLimit . '})/is' . (Utils::$context['utf8'] ? 'u' : ''), $message['body'], $matches);
 				else
-					preg_match_all('/([^\s\W]{' . $charLimit . '}[\s\W]|[\s\W].{0,' . $charLimit . '}?[\s\W]|^)(' . $matchString . ')([\s\W].{0,' . $charLimit . '}[\s\W]|[\s\W][^\s\W]{0,' . $charLimit . '})/is' . ($context['utf8'] ? 'u' : ''), $message['body'], $matches);
+					preg_match_all('/([^\s\W]{' . $charLimit . '}[\s\W]|[\s\W].{0,' . $charLimit . '}?[\s\W]|^)(' . $matchString . ')([\s\W].{0,' . $charLimit . '}[\s\W]|[\s\W][^\s\W]{0,' . $charLimit . '})/is' . (Utils::$context['utf8'] ? 'u' : ''), $message['body'], $matches);
 
 				$message['body'] = '';
 				foreach ($matches[0] as $index => $match)
 				{
-					$match = strtr($smcFunc['htmlspecialchars']($match, ENT_QUOTES), array("\n" => '&nbsp;'));
+					$match = strtr(Utils::htmlspecialchars($match, ENT_QUOTES), array("\n" => '&nbsp;'));
 					$message['body'] .= '<strong>......</strong>&nbsp;' . $match . '&nbsp;<strong>......</strong>';
 				}
 			}
 
 			// Re-fix the international characters.
-			$message['body'] = preg_replace_callback('~(&amp;#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', 'entity_fix__callback', $message['body']);
+			$message['body'] = Utils::sanitizeEntities(Utils::entityFix($message['body']));
 		}
-		$message['subject_highlighted'] = highlight($message['subject'], $context['key_words']);
-		$message['body_highlighted'] = highlight($message['body'], $context['key_words']);
+		$message['subject_highlighted'] = highlight($message['subject'], Utils::$context['key_words']);
+		$message['body_highlighted'] = highlight($message['body'], Utils::$context['key_words']);
 	}
 	else
 	{
 		// Run BBC interpreter on the message.
 		$message['body'] = BBCodeParser::load()->parse($message['body'], $message['smileys_enabled'], $message['id_msg']);
 
-		$message['subject_highlighted'] = highlight($message['subject'], $context['key_words']);
-		$message['body_highlighted'] = highlight($message['body'], $context['key_words']);
+		$message['subject_highlighted'] = highlight($message['subject'], Utils::$context['key_words']);
+		$message['body_highlighted'] = highlight($message['body'], Utils::$context['key_words']);
 	}
 
 	// Make sure we don't end up with a practically empty message body.
@@ -2161,27 +2164,27 @@ function prepareSearchContext($reset = false)
 	}
 
 	// Sadly, we need to check the icon ain't broke.
-	if (!empty($modSettings['messageIconChecks_enable']))
+	if (!empty(Config::$modSettings['messageIconChecks_enable']))
 	{
-		if (!isset($context['icon_sources'][$message['first_icon']]))
-			$context['icon_sources'][$message['first_icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $message['first_icon'] . '.png') ? 'images_url' : 'default_images_url';
-		if (!isset($context['icon_sources'][$message['last_icon']]))
-			$context['icon_sources'][$message['last_icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $message['last_icon'] . '.png') ? 'images_url' : 'default_images_url';
-		if (!isset($context['icon_sources'][$message['icon']]))
-			$context['icon_sources'][$message['icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $message['icon'] . '.png') ? 'images_url' : 'default_images_url';
+		if (!isset(Utils::$context['icon_sources'][$message['first_icon']]))
+			Utils::$context['icon_sources'][$message['first_icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $message['first_icon'] . '.png') ? 'images_url' : 'default_images_url';
+		if (!isset(Utils::$context['icon_sources'][$message['last_icon']]))
+			Utils::$context['icon_sources'][$message['last_icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $message['last_icon'] . '.png') ? 'images_url' : 'default_images_url';
+		if (!isset(Utils::$context['icon_sources'][$message['icon']]))
+			Utils::$context['icon_sources'][$message['icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $message['icon'] . '.png') ? 'images_url' : 'default_images_url';
 	}
 	else
 	{
-		if (!isset($context['icon_sources'][$message['first_icon']]))
-			$context['icon_sources'][$message['first_icon']] = 'images_url';
-		if (!isset($context['icon_sources'][$message['last_icon']]))
-			$context['icon_sources'][$message['last_icon']] = 'images_url';
-		if (!isset($context['icon_sources'][$message['icon']]))
-			$context['icon_sources'][$message['icon']] = 'images_url';
+		if (!isset(Utils::$context['icon_sources'][$message['first_icon']]))
+			Utils::$context['icon_sources'][$message['first_icon']] = 'images_url';
+		if (!isset(Utils::$context['icon_sources'][$message['last_icon']]))
+			Utils::$context['icon_sources'][$message['last_icon']] = 'images_url';
+		if (!isset(Utils::$context['icon_sources'][$message['icon']]))
+			Utils::$context['icon_sources'][$message['icon']] = 'images_url';
 	}
 
 	// Do we have quote tag enabled?
-	$quote_enabled = empty($modSettings['disabledBBC']) || !in_array('quote', explode(',', $modSettings['disabledBBC']));
+	$quote_enabled = empty(Config::$modSettings['disabledBBC']) || !in_array('quote', explode(',', Config::$modSettings['disabledBBC']));
 
 	// Reference the main color class.
 	$colorClass = 'windowbg';
@@ -2194,12 +2197,12 @@ function prepareSearchContext($reset = false)
 	if ($message['locked'])
 		$colorClass .= ' locked';
 
-	$output = array_merge($context['topics'][$message['id_msg']], array(
+	$output = array_merge(Utils::$context['topics'][$message['id_msg']], array(
 		'id' => $message['id_topic'],
 		'is_sticky' => !empty($message['is_sticky']),
 		'is_locked' => !empty($message['locked']),
 		'css_class' => $colorClass,
-		'is_poll' => $modSettings['pollMode'] == '1' && $message['id_poll'] > 0,
+		'is_poll' => Config::$modSettings['pollMode'] == '1' && $message['id_poll'] > 0,
 		'posted_in' => !empty($participants[$message['id_topic']]),
 		'views' => $message['num_views'],
 		'replies' => $message['num_replies'],
@@ -2210,15 +2213,15 @@ function prepareSearchContext($reset = false)
 			'time' => timeformat($message['first_poster_time']),
 			'timestamp' => $message['first_poster_time'],
 			'subject' => $message['first_subject'],
-			'href' => $scripturl . '?topic=' . $message['id_topic'] . '.0',
-			'link' => '<a href="' . $scripturl . '?topic=' . $message['id_topic'] . '.0">' . $message['first_subject'] . '</a>',
+			'href' => Config::$scripturl . '?topic=' . $message['id_topic'] . '.0',
+			'link' => '<a href="' . Config::$scripturl . '?topic=' . $message['id_topic'] . '.0">' . $message['first_subject'] . '</a>',
 			'icon' => $message['first_icon'],
-			'icon_url' => $settings[$context['icon_sources'][$message['first_icon']]] . '/post/' . $message['first_icon'] . '.png',
+			'icon_url' => $settings[Utils::$context['icon_sources'][$message['first_icon']]] . '/post/' . $message['first_icon'] . '.png',
 			'member' => array(
 				'id' => $message['first_member_id'],
 				'name' => $message['first_member_name'],
-				'href' => !empty($message['first_member_id']) ? $scripturl . '?action=profile;u=' . $message['first_member_id'] : '',
-				'link' => !empty($message['first_member_id']) ? '<a href="' . $scripturl . '?action=profile;u=' . $message['first_member_id'] . '" title="' . sprintf($txt['view_profile_of_username'], $message['first_member_name']) . '">' . $message['first_member_name'] . '</a>' : $message['first_member_name']
+				'href' => !empty($message['first_member_id']) ? Config::$scripturl . '?action=profile;u=' . $message['first_member_id'] : '',
+				'link' => !empty($message['first_member_id']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $message['first_member_id'] . '" title="' . sprintf($txt['view_profile_of_username'], $message['first_member_name']) . '">' . $message['first_member_name'] . '</a>' : $message['first_member_name']
 			)
 		),
 		'last_post' => array(
@@ -2226,28 +2229,28 @@ function prepareSearchContext($reset = false)
 			'time' => timeformat($message['last_poster_time']),
 			'timestamp' => $message['last_poster_time'],
 			'subject' => $message['last_subject'],
-			'href' => $scripturl . '?topic=' . $message['id_topic'] . ($message['num_replies'] == 0 ? '.0' : '.msg' . $message['last_msg']) . '#msg' . $message['last_msg'],
-			'link' => '<a href="' . $scripturl . '?topic=' . $message['id_topic'] . ($message['num_replies'] == 0 ? '.0' : '.msg' . $message['last_msg']) . '#msg' . $message['last_msg'] . '">' . $message['last_subject'] . '</a>',
+			'href' => Config::$scripturl . '?topic=' . $message['id_topic'] . ($message['num_replies'] == 0 ? '.0' : '.msg' . $message['last_msg']) . '#msg' . $message['last_msg'],
+			'link' => '<a href="' . Config::$scripturl . '?topic=' . $message['id_topic'] . ($message['num_replies'] == 0 ? '.0' : '.msg' . $message['last_msg']) . '#msg' . $message['last_msg'] . '">' . $message['last_subject'] . '</a>',
 			'icon' => $message['last_icon'],
-			'icon_url' => $settings[$context['icon_sources'][$message['last_icon']]] . '/post/' . $message['last_icon'] . '.png',
+			'icon_url' => $settings[Utils::$context['icon_sources'][$message['last_icon']]] . '/post/' . $message['last_icon'] . '.png',
 			'member' => array(
 				'id' => $message['last_member_id'],
 				'name' => $message['last_member_name'],
-				'href' => !empty($message['last_member_id']) ? $scripturl . '?action=profile;u=' . $message['last_member_id'] : '',
-				'link' => !empty($message['last_member_id']) ? '<a href="' . $scripturl . '?action=profile;u=' . $message['last_member_id'] . '" title="' . sprintf($txt['view_profile_of_username'], $message['last_member_name']) . '">' . $message['last_member_name'] . '</a>' : $message['last_member_name']
+				'href' => !empty($message['last_member_id']) ? Config::$scripturl . '?action=profile;u=' . $message['last_member_id'] : '',
+				'link' => !empty($message['last_member_id']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $message['last_member_id'] . '" title="' . sprintf($txt['view_profile_of_username'], $message['last_member_name']) . '">' . $message['last_member_name'] . '</a>' : $message['last_member_name']
 			)
 		),
 		'board' => array(
 			'id' => $message['id_board'],
 			'name' => $message['board_name'],
-			'href' => $scripturl . '?board=' . $message['id_board'] . '.0',
-			'link' => '<a href="' . $scripturl . '?board=' . $message['id_board'] . '.0">' . $message['board_name'] . '</a>'
+			'href' => Config::$scripturl . '?board=' . $message['id_board'] . '.0',
+			'link' => '<a href="' . Config::$scripturl . '?board=' . $message['id_board'] . '.0">' . $message['board_name'] . '</a>'
 		),
 		'category' => array(
 			'id' => $message['id_cat'],
 			'name' => $message['cat_name'],
-			'href' => $scripturl . '#c' . $message['id_cat'],
-			'link' => '<a href="' . $scripturl . '#c' . $message['id_cat'] . '">' . $message['cat_name'] . '</a>'
+			'href' => Config::$scripturl . '#c' . $message['id_cat'],
+			'link' => '<a href="' . Config::$scripturl . '#c' . $message['id_cat'] . '">' . $message['cat_name'] . '</a>'
 		)
 	));
 
@@ -2260,18 +2263,18 @@ function prepareSearchContext($reset = false)
 			'sticky' => (in_array(0, $boards_can['make_sticky']) || in_array($output['board']['id'], $boards_can['make_sticky'])),
 			'move' => in_array(0, $boards_can['move_any']) || in_array($output['board']['id'], $boards_can['move_any']) || ($started && (in_array(0, $boards_can['move_own']) || in_array($output['board']['id'], $boards_can['move_own']))),
 			'remove' => in_array(0, $boards_can['remove_any']) || in_array($output['board']['id'], $boards_can['remove_any']) || ($started && (in_array(0, $boards_can['remove_own']) || in_array($output['board']['id'], $boards_can['remove_own']))),
-			'restore' => $context['can_restore_perm'] && ($modSettings['recycle_board'] == $output['board']['id']),
+			'restore' => Utils::$context['can_restore_perm'] && (Config::$modSettings['recycle_board'] == $output['board']['id']),
 		);
 
-		$context['can_lock'] |= $output['quick_mod']['lock'];
-		$context['can_sticky'] |= $output['quick_mod']['sticky'];
-		$context['can_move'] |= $output['quick_mod']['move'];
-		$context['can_remove'] |= $output['quick_mod']['remove'];
-		$context['can_merge'] |= in_array($output['board']['id'], $boards_can['merge_any']);
-		$context['can_restore'] |= $output['quick_mod']['restore'];
-		$context['can_markread'] = $context['user']['is_logged'];
+		Utils::$context['can_lock'] |= $output['quick_mod']['lock'];
+		Utils::$context['can_sticky'] |= $output['quick_mod']['sticky'];
+		Utils::$context['can_move'] |= $output['quick_mod']['move'];
+		Utils::$context['can_remove'] |= $output['quick_mod']['remove'];
+		Utils::$context['can_merge'] |= in_array($output['board']['id'], $boards_can['merge_any']);
+		Utils::$context['can_restore'] |= $output['quick_mod']['restore'];
+		Utils::$context['can_markread'] = Utils::$context['user']['is_logged'];
 
-		$context['qmod_actions'] = array('remove', 'lock', 'sticky', 'move', 'merge', 'restore', 'markread');
+		Utils::$context['qmod_actions'] = array('remove', 'lock', 'sticky', 'move', 'merge', 'restore', 'markread');
 		call_integration_hook('integrate_quick_mod_actions_search');
 	}
 
@@ -2280,7 +2283,7 @@ function prepareSearchContext($reset = false)
 		'attachment' => array(),
 		'member' => &$memberContext[$message['id_member']],
 		'icon' => $message['icon'],
-		'icon_url' => $settings[$context['icon_sources'][$message['icon']]] . '/post/' . $message['icon'] . '.png',
+		'icon_url' => $settings[Utils::$context['icon_sources'][$message['icon']]] . '/post/' . $message['icon'] . '.png',
 		'subject' => $message['subject'],
 		'subject_highlighted' => $message['subject_highlighted'],
 		'time' => timeformat($message['poster_time']),

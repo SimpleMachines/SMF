@@ -14,6 +14,7 @@
 namespace SMF;
 
 use SMF\Cache\CacheApi;
+use SMF\Db\DatabaseApi as Db;
 
 /**
  * Parses Bulletin Board Code in a string and converts it to HTML.
@@ -1073,19 +1074,19 @@ class BBCodeParser
 	 */
 	public function __construct()
 	{
-		global $txt, $context, $modSettings, $user_info;
+		global $txt, $user_info;
 
 		/**********************
 		 * Set up localization.
 		 **********************/
-		if (!empty($context['utf8']))
+		if (!empty(Utils::$context['utf8']))
 		{
 			$this->utf8 = true;
 			$this->encoding = 'UTF-8';
 		}
 		else
 		{
-			$this->encoding = !empty($modSettings['global_character_set']) ? $modSettings['global_character_set'] : (!empty($txt['lang_character_set']) ? $txt['lang_character_set'] : $this->encoding);
+			$this->encoding = !empty(Config::$modSettings['global_character_set']) ? Config::$modSettings['global_character_set'] : (!empty($txt['lang_character_set']) ? $txt['lang_character_set'] : $this->encoding);
 
 			$this->utf8 = $this->encoding === 'UTF-8';
 		}
@@ -1099,8 +1100,8 @@ class BBCodeParser
 		/************************
 		 * Set up BBCode parsing.
 		 ************************/
-		$this->enable_bbc = !empty($modSettings['enableBBC']);
-		$this->enable_post_html = !empty($modSettings['enablePostHTML']);
+		$this->enable_bbc = !empty(Config::$modSettings['enableBBC']);
+		$this->enable_post_html = !empty(Config::$modSettings['enablePostHTML']);
 
 		// Let mods add new BBC without hassle.
 		self::integrateBBC();
@@ -1116,7 +1117,7 @@ class BBCodeParser
 		/********************
 		 * Set up autolinker.
 		 ********************/
-		$this->autolink_enabled = !empty($modSettings['autoLinkUrls']);
+		$this->autolink_enabled = !empty(Config::$modSettings['autoLinkUrls']);
 
 		if (!$this->utf8)
 			self::$domain_label_chars = '0-9A-Za-z\-';
@@ -1127,9 +1128,9 @@ class BBCodeParser
 		/*************************
 		 * Set up smileys parsing.
 		 *************************/
-		$this->custom_smileys_enabled = !empty($modSettings['smiley_enable']);
-		$this->smileys_url = $modSettings['smileys_url'];
-		$this->smiley_set = !empty($user_info['smiley_set']) ? $user_info['smiley_set'] : (!empty($modSettings['smiley_sets_default']) ? $modSettings['smiley_sets_default'] : 'none');
+		$this->custom_smileys_enabled = !empty(Config::$modSettings['smiley_enable']);
+		$this->smileys_url = Config::$modSettings['smileys_url'];
+		$this->smiley_set = !empty($user_info['smiley_set']) ? $user_info['smiley_set'] : (!empty(Config::$modSettings['smiley_sets_default']) ? Config::$modSettings['smiley_sets_default'] : 'none');
 
 		// Maybe a mod wants to implement an alternative method for smileys
 		// (e.g. emojis instead of images)
@@ -1261,7 +1262,7 @@ class BBCodeParser
 	 */
 	public function parseSmileys(string $message): string
 	{
-		global $txt, $smcFunc;
+		global $txt;
 
 		if ($this->smiley_set == 'none' || trim($message) == '')
 			return $message;
@@ -1279,7 +1280,7 @@ class BBCodeParser
 				$smileysto = array();
 				$smileysdescs = array();
 
-				$result = $smcFunc['db_query']('', '
+				$result = Db::$db->query('', '
 					SELECT s.code, f.filename, s.description
 					FROM {db_prefix}smileys AS s
 						JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)
@@ -1291,13 +1292,13 @@ class BBCodeParser
 						'smiley_set' => $this->smiley_set,
 					)
 				);
-				while ($row = $smcFunc['db_fetch_assoc']($result))
+				while ($row = Db::$db->fetch_assoc($result))
 				{
 					$smileysfrom[] = $row['code'];
-					$smileysto[] = $smcFunc['htmlspecialchars']($row['filename']);
+					$smileysto[] = Utils::htmlspecialchars($row['filename']);
 					$smileysdescs[] = !empty($txt['icon_' . strtolower($row['description'])]) ? $txt['icon_' . strtolower($row['description'])] : $row['description'];
 				}
-				$smcFunc['db_free_result']($result);
+				Db::$db->free_result($result);
 
 				CacheApi::put('parsing_smileys_' . $this->smiley_set, array($smileysfrom, $smileysto, $smileysdescs), $cache_time);
 			}
@@ -1312,13 +1313,13 @@ class BBCodeParser
 			// This smiley regex makes sure it doesn't parse smileys within code tags (so [url=mailto:David@bla.com] doesn't parse the :D smiley)
 			$this->smiley_preg_replacements = array();
 			$search_parts = array();
-			$smileys_path = $smcFunc['htmlspecialchars']($this->smileys_url . '/' . $this->smiley_set . '/');
+			$smileys_path = Utils::htmlspecialchars($this->smileys_url . '/' . $this->smiley_set . '/');
 
 			for ($i = 0, $n = count($smileysfrom); $i < $n; $i++)
 			{
-				$special_chars = $smcFunc['htmlspecialchars']($smileysfrom[$i], ENT_QUOTES);
+				$special_chars = Utils::htmlspecialchars($smileysfrom[$i], ENT_QUOTES);
 
-				$smiley_code = '<img src="' . $smileys_path . $smileysto[$i] . '" alt="' . strtr($special_chars, array(':' => '&#58;', '(' => '&#40;', ')' => '&#41;', '$' => '&#36;', '[' => '&#091;')) . '" title="' . strtr($smcFunc['htmlspecialchars']($smileysdescs[$i]), array(':' => '&#58;', '(' => '&#40;', ')' => '&#41;', '$' => '&#36;', '[' => '&#091;')) . '" class="smiley">';
+				$smiley_code = '<img src="' . $smileys_path . $smileysto[$i] . '" alt="' . strtr($special_chars, array(':' => '&#58;', '(' => '&#40;', ')' => '&#41;', '$' => '&#36;', '[' => '&#091;')) . '" title="' . strtr(Utils::htmlspecialchars($smileysdescs[$i]), array(':' => '&#58;', '(' => '&#40;', ')' => '&#41;', '$' => '&#36;', '[' => '&#091;')) . '" class="smiley">';
 
 				$this->smiley_preg_replacements[$smileysfrom[$i]] = $smiley_code;
 
@@ -1366,8 +1367,6 @@ class BBCodeParser
 	 */
 	public function unparse(string $string): string
 	{
-		global $modSettings, $smcFunc, $scripturl, $context;
-
 		// Replace newlines with spaces, as that's how browsers usually interpret them.
 		$string = preg_replace("~\s*[\r\n]+\s*~", ' ', $string);
 
@@ -1444,7 +1443,7 @@ class BBCodeParser
 		}
 
 		// Only try to buy more time if the client didn't quit.
-		if (connection_aborted() && $context['server']['is_apache'])
+		if (connection_aborted() && Utils::$context['server']['is_apache'])
 			@apache_reset_timeout();
 
 		$parts = preg_split('~(<[A-Za-z]+\s*[^<>]*?style="?[^<>"]+"?[^<>]*?(?:/?)>|</[A-Za-z]+>)~', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
@@ -1617,7 +1616,7 @@ class BBCodeParser
 		$string = $replacement;
 
 		// We are not finished yet, request more time.
-		if (connection_aborted() && $context['server']['is_apache'])
+		if (connection_aborted() && Utils::$context['server']['is_apache'])
 			@apache_reset_timeout();
 
 		// Let's pull out any legacy alignments.
@@ -1738,7 +1737,7 @@ class BBCodeParser
 		}
 
 		// Almost there, just a little more time.
-		if (connection_aborted() && $context['server']['is_apache'])
+		if (connection_aborted() && Utils::$context['server']['is_apache'])
 			@apache_reset_timeout();
 
 		if (count($parts = preg_split('~<(/?)(li|ol|ul)([^>]*)>~i', $string, -1, PREG_SPLIT_DELIM_CAPTURE)) > 1)
@@ -1982,7 +1981,7 @@ class BBCodeParser
 			if (!empty($src))
 			{
 				// Attempt to fix the path in case it's not present.
-				if (preg_match('~^https?://~i', $src) === 0 && is_array($parsedURL = parse_iri($scripturl)) && isset($parsedURL['host']))
+				if (preg_match('~^https?://~i', $src) === 0 && is_array($parsedURL = parse_iri(Config::$scripturl)) && isset($parsedURL['host']))
 				{
 					$baseURL = (isset($parsedURL['scheme']) ? $parsedURL['scheme'] : 'http') . '://' . $parsedURL['host'] . (empty($parsedURL['port']) ? '' : ':' . $parsedURL['port']);
 
@@ -2175,7 +2174,7 @@ class BBCodeParser
 			$string = preg_replace_callback($tag, $replace, $string);
 
 		// Please give us just a little more time.
-		if (connection_aborted() && $context['server']['is_apache'])
+		if (connection_aborted() && Utils::$context['server']['is_apache'])
 			@apache_reset_timeout();
 
 		// What about URL's - the pain in the ass of the tag world.
@@ -2212,7 +2211,7 @@ class BBCodeParser
 						$href = substr($href, 7);
 					}
 					// No http(s), so attempt to fix this potential relative URL.
-					elseif (preg_match('~^https?://~i', $href) === 0 && is_array($parsedURL = parse_iri($scripturl)) && isset($parsedURL['host']))
+					elseif (preg_match('~^https?://~i', $href) === 0 && is_array($parsedURL = parse_iri(Config::$scripturl)) && isset($parsedURL['host']))
 					{
 						$baseURL = (isset($parsedURL['scheme']) ? $parsedURL['scheme'] : 'http') . '://' . $parsedURL['host'] . (empty($parsedURL['port']) ? '' : ':' . $parsedURL['port']);
 
@@ -2306,9 +2305,7 @@ class BBCodeParser
 	 */
 	public static function getSigTags(): array
 	{
-		global $modSettings;
-
-		list($sig_limits, $sig_bbc) = explode(':', $modSettings['signature_settings']);
+		list($sig_limits, $sig_bbc) = explode(':', Config::$modSettings['signature_settings']);
 
 		if (empty($sig_bbc))
 			return array();
@@ -2371,8 +2368,6 @@ class BBCodeParser
 	 */
 	public static function sanitizeMSCutPaste(string $string): string
 	{
-		global $context;
-
 		if (empty($string))
 			return $string;
 
@@ -2411,7 +2406,7 @@ class BBCodeParser
 			'"',	// &rdquo;
 		);
 
-		$string = str_replace($context['utf8'] ? $findchars_utf8 : $findchars_iso, $replacechars, $string);
+		$string = str_replace(Utils::$context['utf8'] ? $findchars_utf8 : $findchars_iso, $replacechars, $string);
 
 		return $string;
 	}
@@ -2483,19 +2478,19 @@ class BBCodeParser
 	 */
 	public static function attachValidate(&$tag, &$data, $disabled, $params): void
 	{
-		global $modSettings, $context, $sourcedir, $txt, $smcFunc;
+		global $txt;
 
 		$return_context = '';
 
 		// BBC or the entire attachments feature is disabled
-		if (empty($modSettings['attachmentEnable']) || !empty($disabled['attach']))
+		if (empty(Config::$modSettings['attachmentEnable']) || !empty($disabled['attach']))
 			return;
 
 		// Save the attach ID.
 		$attach_id = $params['{id}'];
 
 		// Kinda need this.
-		require_once($sourcedir . '/Subs-Attachments.php');
+		require_once(Config::$sourcedir . '/Subs-Attachments.php');
 
 		$current_attachment = parseAttachBBC($attach_id);
 
@@ -2526,7 +2521,7 @@ class BBCodeParser
 		if ($params['{display}'] == 'embed')
 		{
 			$alt = ' alt="' . (!empty($params['{alt}']) ? $params['{alt}'] : $current_attachment['name']) . '"';
-			$title = !empty($data) ? ' title="' . $smcFunc['htmlspecialchars']($data) . '"' : '';
+			$title = !empty($data) ? ' title="' . Utils::htmlspecialchars($data) . '"' : '';
 
 			// Image.
 			if (!empty($current_attachment['is_image']))
@@ -2551,7 +2546,7 @@ class BBCodeParser
 				$width = !empty($params['{width}']) ? ' width="' . $params['{width}'] . '"' : '';
 				$height = !empty($params['{height}']) ? ' height="' . $params['{height}'] . '"' : '';
 
-				$return_context .= '<div class="videocontainer"><video controls preload="metadata" src="'. $current_attachment['href'] . '" playsinline' . $width . $height . '><a href="' . $current_attachment['href'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars'](!empty($data) ? $data : $current_attachment['name']) . '</a></video></div>' . (!empty($data) && $data != $current_attachment['name'] ? '<div class="smalltext">' . $data . '</div>' : '');
+				$return_context .= '<div class="videocontainer"><video controls preload="metadata" src="'. $current_attachment['href'] . '" playsinline' . $width . $height . '><a href="' . $current_attachment['href'] . '" class="bbc_link">' . Utils::htmlspecialchars(!empty($data) ? $data : $current_attachment['name']) . '</a></video></div>' . (!empty($data) && $data != $current_attachment['name'] ? '<div class="smalltext">' . $data . '</div>' : '');
 			}
 			// Audio.
 			elseif (strpos($current_attachment['mime_type'], 'audio/') === 0)
@@ -2559,7 +2554,7 @@ class BBCodeParser
 				$width = 'max-width:100%; width: ' . (!empty($params['{width}']) ? $params['{width}'] : '400') . 'px;';
 				$height = !empty($params['{height}']) ? 'height: ' . $params['{height}'] . 'px;' : '';
 
-				$return_context .= (!empty($data) && $data != $current_attachment['name'] ? $data . ' ' : '') . '<audio controls preload="none" src="'. $current_attachment['href'] . '" class="bbc_audio" style="vertical-align:middle;' . $width . $height . '"><a href="' . $current_attachment['href'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars'](!empty($data) ? $data : $current_attachment['name']) . '</a></audio>';
+				$return_context .= (!empty($data) && $data != $current_attachment['name'] ? $data . ' ' : '') . '<audio controls preload="none" src="'. $current_attachment['href'] . '" class="bbc_audio" style="vertical-align:middle;' . $width . $height . '"><a href="' . $current_attachment['href'] . '" class="bbc_link">' . Utils::htmlspecialchars(!empty($data) ? $data : $current_attachment['name']) . '</a></audio>';
 			}
 			// Anything else.
 			else
@@ -2567,13 +2562,13 @@ class BBCodeParser
 				$width = !empty($params['{width}']) ? ' width="' . $params['{width}'] . '"' : '';
 				$height = !empty($params['{height}']) ? ' height="' . $params['{height}'] . '"' : '';
 
-				$return_context .= '<object type="' . $current_attachment['mime_type'] . '" data="' . $current_attachment['href'] . '"' . $width . $height . ' typemustmatch><a href="' . $current_attachment['href'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars'](!empty($data) ? $data : $current_attachment['name']) . '</a></object>';
+				$return_context .= '<object type="' . $current_attachment['mime_type'] . '" data="' . $current_attachment['href'] . '"' . $width . $height . ' typemustmatch><a href="' . $current_attachment['href'] . '" class="bbc_link">' . Utils::htmlspecialchars(!empty($data) ? $data : $current_attachment['name']) . '</a></object>';
 			}
 		}
 		// No image. Show a link.
 		else
 		{
-			$return_context .= '<a href="' . $current_attachment['href'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars'](!empty($data) ? $data : $current_attachment['name']) . '</a>';
+			$return_context .= '<a href="' . $current_attachment['href'] . '" class="bbc_link">' . Utils::htmlspecialchars(!empty($data) ? $data : $current_attachment['name']) . '</a>';
 		}
 
 		// Use this hook to adjust the HTML output of the attach BBCode.
@@ -3146,9 +3141,7 @@ class BBCodeParser
 	 */
 	protected function highLoadAverage(): bool
 	{
-		global $context, $modSettings;
-
-		return !empty($context['load_average']) && !empty($modSettings['bbc']) && $context['load_average'] >= $modSettings['bbc'];
+		return !empty(Utils::$context['load_average']) && !empty(Config::$modSettings['bbc']) && Utils::$context['load_average'] >= Config::$modSettings['bbc'];
 	}
 
 	/**
@@ -3156,13 +3149,11 @@ class BBCodeParser
 	 */
 	protected function setDisabled(): void
 	{
-		global $modSettings;
-
 		$this->disabled = array();
 
-		if (!empty($modSettings['disabledBBC']))
+		if (!empty(Config::$modSettings['disabledBBC']))
 		{
-			$temp = explode(',', strtolower($modSettings['disabledBBC']));
+			$temp = explode(',', strtolower(Config::$modSettings['disabledBBC']));
 
 			foreach ($temp as $tag)
 				$this->disabled[trim($tag)] = true;
@@ -3279,14 +3270,12 @@ class BBCodeParser
 			'parameters' => array(
 				'e' => array('optional' => true, 'quoted' => true, 'match' => '(.*?)', 'default' => 'oo', 'validate' => function ($eyes)
 					{
-						global $smcFunc;
-						return $smcFunc['substr']($eyes . 'oo', 0, 2);
+						return Utils::entitySubstr($eyes . 'oo', 0, 2);
 					},
 				),
 				't' => array('optional' => true, 'quoted' => true, 'match' => '(.*?)', 'default' => '  ', 'validate' => function ($tongue)
 					{
-						global $smcFunc;
-						return $smcFunc['substr']($tongue . '  ', 0, 2);
+						return Utils::entitySubstr($tongue . '  ', 0, 2);
 					},
 				),
 			),
@@ -3704,12 +3693,10 @@ class BBCodeParser
 	 */
 	protected function setTldRegex(): void
 	{
-		global $modSettings;
-
 		if (!isset($this->tld_regex))
 		{
 			set_tld_regex();
-			$this->tld_regex = $modSettings['tld_regex'];
+			$this->tld_regex = Config::$modSettings['tld_regex'];
 		}
 	}
 
@@ -3725,17 +3712,17 @@ class BBCodeParser
 			'/{(.*?)}/',
 			function ($matches)
 			{
-				global $txt, $scripturl;
+				global $txt;
 
 				if ($matches[0] === '{scripturl}')
 				{
-					return $scripturl;
+					return Config::$scripturl;
 				}
 				elseif ($matches[0] === '{hosturl}')
 				{
 					if (!isset($this->hosturl))
 					{
-						$scripturl_parts = parse_iri($scripturl);
+						$scripturl_parts = parse_iri(Config::$scripturl);
 						$this->hosturl = $scripturl_parts['scheme'] . '://' . $scripturl_parts['host'];
 					}
 
@@ -4657,14 +4644,12 @@ class BBCodeParser
 	 */
 	protected function legalise($string)
 	{
-		global $modSettings;
-
 		// Don't care about the texts that are too short.
 		if (strlen($string) < 3)
 			return $string;
 
 		// A list of tags that's disabled by the admin.
-		$disabled = empty($modSettings['disabledBBC']) ? array() : array_flip(explode(',', strtolower($modSettings['disabledBBC'])));
+		$disabled = empty(Config::$modSettings['disabledBBC']) ? array() : array_flip(explode(',', strtolower(Config::$modSettings['disabledBBC'])));
 
 		// Get a list of all the tags that are not disabled.
 		$all_tags = self::getCodes();

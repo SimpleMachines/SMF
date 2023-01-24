@@ -11,11 +11,13 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
 // If this file is missing, we're using an old version of Unicode.
-if (!@include_once($sourcedir . '/Unicode/Metadata.php'))
+if (!@include_once(Config::$sourcedir . '/Unicode/Metadata.php'))
 	define('SMF_UNICODE_VERSION', '14.0.0.0');
 
 /**
@@ -70,7 +72,7 @@ function utf8_casefold($string)
  */
 function utf8_convert_case($string, $case, $simple = false)
 {
-	global $sourcedir, $txt;
+	global $txt;
 
 	$simple = !empty($simple);
 
@@ -87,7 +89,7 @@ function utf8_convert_case($string, $case, $simple = false)
 		switch ($case)
 		{
 			case 'upper':
-				require_once($sourcedir . '/Unicode/CaseUpper.php');
+				require_once(Config::$sourcedir . '/Unicode/CaseUpper.php');
 
 				$substitutions = $simple ? utf8_strtoupper_simple_maps() : utf8_strtoupper_maps();
 
@@ -98,7 +100,7 @@ function utf8_convert_case($string, $case, $simple = false)
 				break;
 
 			case 'lower':
-				require_once($sourcedir . '/Unicode/CaseLower.php');
+				require_once(Config::$sourcedir . '/Unicode/CaseLower.php');
 
 				$substitutions = $simple ? utf8_strtolower_simple_maps() : utf8_strtolower_maps();
 
@@ -113,7 +115,7 @@ function utf8_convert_case($string, $case, $simple = false)
 				break;
 
 			case 'fold':
-				require_once($sourcedir . '/Unicode/CaseFold.php');
+				require_once(Config::$sourcedir . '/Unicode/CaseFold.php');
 
 				$substitutions = $simple ? utf8_casefold_simple_maps() : utf8_casefold_maps();
 
@@ -127,9 +129,9 @@ function utf8_convert_case($string, $case, $simple = false)
 	}
 	elseif (in_array($case, array('title', 'ucfirst', 'ucwords')))
 	{
-		require_once($sourcedir . '/Unicode/RegularExpressions.php');
-		require_once($sourcedir . '/Unicode/CaseUpper.php');
-		require_once($sourcedir . '/Unicode/CaseTitle.php');
+		require_once(Config::$sourcedir . '/Unicode/RegularExpressions.php');
+		require_once(Config::$sourcedir . '/Unicode/CaseUpper.php');
+		require_once(Config::$sourcedir . '/Unicode/CaseTitle.php');
 
 		$prop_classes = utf8_regex_properties();
 
@@ -185,7 +187,7 @@ function utf8_convert_case($string, $case, $simple = false)
 	// Note that this rule doesn't depend on $txt['lang_locale'].
 	if ($case !== 'upper' && strpos($string, 'ς') !== false || strpos($string, 'σ') !== false)
 	{
-		require_once($sourcedir . '/Unicode/RegularExpressions.php');
+		require_once(Config::$sourcedir . '/Unicode/RegularExpressions.php');
 
 		$prop_classes = utf8_regex_properties();
 
@@ -409,8 +411,6 @@ function utf8_normalize_kc($string)
  */
 function utf8_normalize_kc_casefold($string)
 {
-	global $sourcedir;
-
 	$string = (string) $string;
 
 	if (utf8_is_normalized($string, 'kc_casefold'))
@@ -423,8 +423,8 @@ function utf8_normalize_kc_casefold($string)
 
 	$chars = utf8_decompose($chars, true);
 
-	require_once($sourcedir . '/Unicode/CaseFold.php');
-	require_once($sourcedir . '/Unicode/DefaultIgnorables.php');
+	require_once(Config::$sourcedir . '/Unicode/CaseFold.php');
+	require_once(Config::$sourcedir . '/Unicode/DefaultIgnorables.php');
 
 	$substitutions = utf8_casefold_maps();
 	$ignorables = array_flip(utf8_default_ignorables());
@@ -450,8 +450,6 @@ function utf8_normalize_kc_casefold($string)
  */
 function utf8_is_normalized($string, $form)
 {
-	global $sourcedir;
-
 	// Check whether string contains characters that are disallowed in this form.
 	switch ($form)
 	{
@@ -480,7 +478,7 @@ function utf8_is_normalized($string, $form)
 			break;
 	}
 
-	require_once($sourcedir . '/Unicode/QuickCheck.php');
+	require_once(Config::$sourcedir . '/Unicode/QuickCheck.php');
 	$qc = utf8_regex_quick_check();
 
 	if (preg_match('/[' . $qc[$prop] . ']/u', $string))
@@ -494,7 +492,7 @@ function utf8_is_normalized($string, $form)
 	// would be more expensive in the vast majority of cases, so meh.
 	if (preg_match_all('/([\p{M}\p{Cn}])/u', $string, $matches, PREG_OFFSET_CAPTURE))
 	{
-		require_once($sourcedir . '/Unicode/CombiningClasses.php');
+		require_once(Config::$sourcedir . '/Unicode/CombiningClasses.php');
 
 		$combining_classes = utf8_combining_classes();
 
@@ -530,11 +528,9 @@ function utf8_is_normalized($string, $form)
  */
 function utf8_decompose($chars, $compatibility = false)
 {
-	global $sourcedir;
-
 	if (!empty($compatibility))
 	{
-		require_once($sourcedir . '/Unicode/DecompositionCompatibility.php');
+		require_once(Config::$sourcedir . '/Unicode/DecompositionCompatibility.php');
 
 		$substitutions = utf8_normalize_kd_maps();
 
@@ -542,8 +538,8 @@ function utf8_decompose($chars, $compatibility = false)
 			$char = isset($substitutions[$char]) ? $substitutions[$char] : $char;
 	}
 
-	require_once($sourcedir . '/Unicode/DecompositionCanonical.php');
-	require_once($sourcedir . '/Unicode/CombiningClasses.php');
+	require_once(Config::$sourcedir . '/Unicode/DecompositionCanonical.php');
+	require_once(Config::$sourcedir . '/Unicode/CombiningClasses.php');
 
 	$substitutions = utf8_normalize_d_maps();
 	$combining_classes = utf8_combining_classes();
@@ -556,7 +552,7 @@ function utf8_decompose($chars, $compatibility = false)
 		if ($chars[$i] >= "\xEA\xB0\x80" && $chars[$i] <= "\xED\x9E\xA3")
 		{
 			if (!function_exists('mb_ord'))
-				require_once($sourcedir . '/Subs-Compat.php');
+				require_once(Config::$sourcedir . '/Subs-Compat.php');
 
 			$s = mb_ord($chars[$i]);
 			$sindex = $s - 0xAC00;
@@ -603,10 +599,8 @@ function utf8_decompose($chars, $compatibility = false)
  */
 function utf8_compose($chars)
 {
-	global $sourcedir;
-
-	require_once($sourcedir . '/Unicode/Composition.php');
-	require_once($sourcedir . '/Unicode/CombiningClasses.php');
+	require_once(Config::$sourcedir . '/Unicode/Composition.php');
+	require_once(Config::$sourcedir . '/Unicode/CombiningClasses.php');
 
 	$substitutions = utf8_compose_maps();
 	$combining_classes = utf8_combining_classes();
@@ -622,7 +616,7 @@ function utf8_compose($chars)
 		if ($chars[$c] >= "\xE1\x84\x80" && $chars[$c] <= "\xE1\x84\x92" && isset($chars[$c + 1]) && $chars[$c + 1] >= "\xE1\x85\xA1" && $chars[$c + 1] <= "\xE1\x85\xB5")
 		{
 			if (!function_exists('mb_ord'))
-				require_once($sourcedir . '/Subs-Compat.php');
+				require_once(Config::$sourcedir . '/Subs-Compat.php');
 
 			$l_part = $chars[$c];
 			$v_part = $chars[$c + 1];
@@ -675,7 +669,7 @@ function utf8_compose($chars)
 }
 
 /**
- * Helper function for sanitize_chars() that deals with invisible characters.
+ * Helper function for Utils::sanitizeChars() that deals with invisible characters.
  *
  * This function deals with control characters, private use characters,
  * non-characters, and characters that are invisible by definition in the
@@ -695,13 +689,11 @@ function utf8_compose($chars)
  */
 function utf8_sanitize_invisibles($string, $level, $substitute)
 {
-	global $sourcedir;
-
 	$string = (string) $string;
 	$level = min(max((int) $level, 0), 2);
 	$substitute = (string) $substitute;
 
-	require_once($sourcedir . '/Unicode/RegularExpressions.php');
+	require_once(Config::$sourcedir . '/Unicode/RegularExpressions.php');
 	$prop_classes = utf8_regex_properties();
 
 	// We never want non-whitespace control characters

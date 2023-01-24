@@ -14,6 +14,9 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
 use SMF\TOTP\Auth as Tfa;
 
 if (!defined('SMF'))
@@ -29,13 +32,13 @@ if (!defined('SMF'))
  */
 function Login()
 {
-	global $txt, $context, $scripturl, $user_info;
+	global $txt, $user_info;
 
 	// You are already logged in, go take a tour of the boards
 	if (!empty($user_info['id']))
 	{
  		// This came from a valid hashed return url.  Or something that knows our secrets...
- 		if (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', un_htmlspecialchars($_REQUEST['return_to']), get_auth_secret()) == $_REQUEST['return_hash'])
+ 		if (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', un_htmlspecialchars($_REQUEST['return_to']), Config::getAuthSecret()) == $_REQUEST['return_hash'])
 			redirectexit(un_htmlspecialchars($_REQUEST['return_to']));
 		else
 			redirectexit();
@@ -45,7 +48,7 @@ function Login()
 	loadLanguage('Login');
 	loadTemplate('Login');
 
-	$context['sub_template'] = 'login';
+	Utils::$context['sub_template'] = 'login';
 
 	/* This is true when:
 	 * We have a valid header indicating a JQXHR request.  This is not sent during a cross domain request.
@@ -62,25 +65,25 @@ function Login()
 		)
 		||
 		(
-			!empty($context['valid_cors_found'])
+			!empty(Utils::$context['valid_cors_found'])
 			&& !empty($_SERVER['HTTP_X_SMF_AJAX'])
 			&& isset($_REQUEST['ajax'])
 		)
 	)
 	{
-		$context['from_ajax'] = true;
-		$context['template_layers'] = array();
+		Utils::$context['from_ajax'] = true;
+		Utils::$context['template_layers'] = array();
 	}
 
 	// Get the template ready.... not really much else to do.
-	$context['page_title'] = $txt['login'];
-	$context['default_username'] = &$_REQUEST['u'];
-	$context['default_password'] = '';
-	$context['never_expire'] = false;
+	Utils::$context['page_title'] = $txt['login'];
+	Utils::$context['default_username'] = &$_REQUEST['u'];
+	Utils::$context['default_password'] = '';
+	Utils::$context['never_expire'] = false;
 
 	// Add the login chain to the link tree.
-	$context['linktree'][] = array(
-		'url' => $scripturl . '?action=login',
+	Utils::$context['linktree'][] = array(
+		'url' => Config::$scripturl . '?action=login',
 		'name' => $txt['login'],
 	);
 
@@ -88,7 +91,7 @@ function Login()
 	if (isset($_SESSION['old_url']) && strpos($_SESSION['old_url'], 'dlattach') === false && preg_match('~(board|topic)[=,]~', $_SESSION['old_url']) != 0)
 		$_SESSION['login_url'] = $_SESSION['old_url'];
 	// This came from a valid hashed return url.  Or something that knows our secrets...
-	elseif (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', un_htmlspecialchars($_REQUEST['return_to']), get_auth_secret()) == $_REQUEST['return_hash'])
+	elseif (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', un_htmlspecialchars($_REQUEST['return_to']), Config::getAuthSecret()) == $_REQUEST['return_hash'])
 		$_SESSION['login_url'] = un_htmlspecialchars($_REQUEST['return_to']);
 	elseif (isset($_SESSION['login_url']) && strpos($_SESSION['login_url'], 'dlattach') !== false)
 		unset($_SESSION['login_url']);
@@ -110,15 +113,14 @@ function Login()
  */
 function Login2()
 {
-	global $txt, $scripturl, $user_info, $user_settings, $smcFunc;
-	global $cookiename, $modSettings, $context, $sourcedir, $maintenance;
+	global $txt, $user_info, $user_settings;
 
 	// Check to ensure we're forcing SSL for authentication
-	if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
+	if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !httpsOn())
 		fatal_lang_error('login_ssl_required', false);
 
 	// Load cookie authentication stuff.
-	require_once($sourcedir . '/Subs-Auth.php');
+	require_once(Config::$sourcedir . '/Subs-Auth.php');
 
 	/* This is true when:
 	 * We have a valid header indicating a JQXHR request.  This is not sent during a cross domain request.
@@ -135,33 +137,33 @@ function Login2()
 		)
 		||
 		(
-			!empty($context['valid_cors_found'])
+			!empty(Utils::$context['valid_cors_found'])
 			&& !empty($_SERVER['HTTP_X_SMF_AJAX'])
 			&& isset($_REQUEST['ajax'])
 		)
 	)
 	{
-		$context['from_ajax'] = true;
-		$context['template_layers'] = array();
+		Utils::$context['from_ajax'] = true;
+		Utils::$context['template_layers'] = array();
 	}
 
 	if (isset($_GET['sa']) && $_GET['sa'] == 'salt' && !$user_info['is_guest'])
 	{
 		// First check for 2.1 json-format cookie in $_COOKIE
-		if (isset($_COOKIE[$cookiename]) && preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+~', $_COOKIE[$cookiename]) === 1)
-			list (,, $timeout) = $smcFunc['json_decode']($_COOKIE[$cookiename], true);
+		if (isset($_COOKIE[Config::$cookiename]) && preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+~', $_COOKIE[Config::$cookiename]) === 1)
+			list (,, $timeout) = Utils::jsonDecode($_COOKIE[Config::$cookiename], true);
 
 		// Try checking for 2.1 json-format cookie in $_SESSION
-		elseif (isset($_SESSION['login_' . $cookiename]) && preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+~', $_SESSION['login_' . $cookiename]) === 1)
-			list (,, $timeout) = $smcFunc['json_decode']($_SESSION['login_' . $cookiename]);
+		elseif (isset($_SESSION['login_' . Config::$cookiename]) && preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+~', $_SESSION['login_' . Config::$cookiename]) === 1)
+			list (,, $timeout) = Utils::jsonDecode($_SESSION['login_' . Config::$cookiename]);
 
 		// Next, try checking for 2.0 serialized string cookie in $_COOKIE
-		elseif (isset($_COOKIE[$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\d+;~', $_COOKIE[$cookiename]) === 1)
-			list (,, $timeout) = safe_unserialize($_COOKIE[$cookiename]);
+		elseif (isset($_COOKIE[Config::$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\d+;~', $_COOKIE[Config::$cookiename]) === 1)
+			list (,, $timeout) = safe_unserialize($_COOKIE[Config::$cookiename]);
 
 		// Last, see if you need to fall back on checking for 2.0 serialized string cookie in $_SESSION
-		elseif (isset($_SESSION['login_' . $cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\d+;~', $_SESSION['login_' . $cookiename]) === 1)
-			list (,, $timeout) = safe_unserialize($_SESSION['login_' . $cookiename]);
+		elseif (isset($_SESSION['login_' . Config::$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\d+;~', $_SESSION['login_' . Config::$cookiename]) === 1)
+			list (,, $timeout) = safe_unserialize($_SESSION['login_' . Config::$cookiename]);
 
 		else
 		{
@@ -169,19 +171,19 @@ function Login2()
 			trigger_error($txt['login_no_session_cookie'], E_USER_ERROR);
 		}
 
-		$user_settings['password_salt'] = bin2hex($smcFunc['random_bytes'](16));
+		$user_settings['password_salt'] = bin2hex(Utils::randomBytes(16));
 		updateMemberData($user_info['id'], array('password_salt' => $user_settings['password_salt']));
 
 		// Preserve the 2FA cookie?
-		if (!empty($modSettings['tfa_mode']) && !empty($_COOKIE[$cookiename . '_tfa']))
+		if (!empty(Config::$modSettings['tfa_mode']) && !empty($_COOKIE[Config::$cookiename . '_tfa']))
 		{
-			list (,, $exp) = $smcFunc['json_decode']($_COOKIE[$cookiename . '_tfa'], true);
+			list (,, $exp) = Utils::jsonDecode($_COOKIE[Config::$cookiename . '_tfa'], true);
 			setTFACookie((int) $exp - time(), $user_info['password_salt'], hash_salt($user_settings['tfa_backup'], $user_settings['password_salt']));
 		}
 
 		setLoginCookie((int) $timeout - time(), $user_info['id'], hash_salt($user_settings['passwd'], $user_settings['password_salt']));
 
-		redirectexit('action=login2;sa=check;member=' . $user_info['id'], $context['server']['needs_login_fix']);
+		redirectexit('action=login2;sa=check;member=' . $user_info['id'], Utils::$context['server']['needs_login_fix']);
 	}
 	// Double check the cookie...
 	elseif (isset($_GET['sa']) && $_GET['sa'] == 'check')
@@ -190,7 +192,7 @@ function Login2()
 		if ($_GET['member'] != $user_info['id'])
 			fatal_lang_error('login_cookie_error', false);
 
-		$user_info['can_mod'] = allowedTo('access_mod_center') || (!$user_info['is_guest'] && ($user_info['mod_cache']['gq'] != '0=1' || $user_info['mod_cache']['bq'] != '0=1' || ($modSettings['postmod_active'] && !empty($user_info['mod_cache']['ap']))));
+		$user_info['can_mod'] = allowedTo('access_mod_center') || (!$user_info['is_guest'] && ($user_info['mod_cache']['gq'] != '0=1' || $user_info['mod_cache']['bq'] != '0=1' || (Config::$modSettings['postmod_active'] && !empty($user_info['mod_cache']['ap']))));
 
 		// Some whitelisting for login_url...
 		if (empty($_SESSION['login_url']))
@@ -228,88 +230,88 @@ function Login2()
 		$_SESSION['login_url'] = $_SESSION['old_url'];
 
 	// Been guessing a lot, haven't we?
-	if (isset($_SESSION['failed_login']) && $_SESSION['failed_login'] >= $modSettings['failed_login_threshold'] * 3)
+	if (isset($_SESSION['failed_login']) && $_SESSION['failed_login'] >= Config::$modSettings['failed_login_threshold'] * 3)
 		fatal_lang_error('login_threshold_fail', 'login');
 
 	// Set up the cookie length.  (if it's invalid, just fall through and use the default.)
 	if (isset($_POST['cookieneverexp']) || (!empty($_POST['cookielength']) && $_POST['cookielength'] == -1))
-		$modSettings['cookieTime'] = 3153600;
+		Config::$modSettings['cookieTime'] = 3153600;
 	elseif (!empty($_POST['cookielength']) && ($_POST['cookielength'] >= 1 && $_POST['cookielength'] <= 3153600))
-		$modSettings['cookieTime'] = (int) $_POST['cookielength'];
+		Config::$modSettings['cookieTime'] = (int) $_POST['cookielength'];
 
 	loadLanguage('Login');
 	// Load the template stuff.
 	loadTemplate('Login');
-	$context['sub_template'] = 'login';
+	Utils::$context['sub_template'] = 'login';
 
 	// Create a one time token.
 	createToken('login');
 
 	// Set up the default/fallback stuff.
-	$context['default_username'] = isset($_POST['user']) ? preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($_POST['user'])) : '';
-	$context['default_password'] = '';
-	$context['never_expire'] = $modSettings['cookieTime'] <= 525600;
-	$context['login_errors'] = array($txt['error_occured']);
-	$context['page_title'] = $txt['login'];
+	Utils::$context['default_username'] = isset($_POST['user']) ? preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', Utils::htmlspecialchars($_POST['user'])) : '';
+	Utils::$context['default_password'] = '';
+	Utils::$context['never_expire'] = Config::$modSettings['cookieTime'] <= 525600;
+	Utils::$context['login_errors'] = array($txt['error_occured']);
+	Utils::$context['page_title'] = $txt['login'];
 
 	// Add the login chain to the link tree.
-	$context['linktree'][] = array(
-		'url' => $scripturl . '?action=login',
+	Utils::$context['linktree'][] = array(
+		'url' => Config::$scripturl . '?action=login',
 		'name' => $txt['login'],
 	);
 
 	// You forgot to type your username, dummy!
 	if (!isset($_POST['user']) || $_POST['user'] == '')
 	{
-		$context['login_errors'] = array($txt['need_username']);
+		Utils::$context['login_errors'] = array($txt['need_username']);
 		return;
 	}
 
 	// Hmm... maybe 'admin' will login with no password. Uhh... NO!
 	if (!isset($_POST['passwrd']) || $_POST['passwrd'] == '')
 	{
-		$context['login_errors'] = array($txt['no_password']);
+		Utils::$context['login_errors'] = array($txt['no_password']);
 		return;
 	}
 
 	// No funky symbols either.
 	if (preg_match('~[<>&"\'=\\\]~', preg_replace('~(&#(\\d{1,7}|x[0-9a-fA-F]{1,6});)~', '', $_POST['user'])) != 0)
 	{
-		$context['login_errors'] = array($txt['error_invalid_characters_username']);
+		Utils::$context['login_errors'] = array($txt['error_invalid_characters_username']);
 		return;
 	}
 
 	// And if it's too long, trim it back.
-	if ($smcFunc['strlen']($_POST['user']) > 80)
+	if (Utils::entityStrlen($_POST['user']) > 80)
 	{
-		$_POST['user'] = $smcFunc['substr']($_POST['user'], 0, 79);
-		$context['default_username'] = preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($_POST['user']));
+		$_POST['user'] = Utils::entitySubstr($_POST['user'], 0, 79);
+		Utils::$context['default_username'] = preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', Utils::htmlspecialchars($_POST['user']));
 	}
 
 	// Are we using any sort of integration to validate the login?
-	if (in_array('retry', call_integration_hook('integrate_validate_login', array($_POST['user'], isset($_POST['passwrd']) ? $_POST['passwrd'] : null, $modSettings['cookieTime'])), true))
+	if (in_array('retry', call_integration_hook('integrate_validate_login', array($_POST['user'], isset($_POST['passwrd']) ? $_POST['passwrd'] : null, Config::$modSettings['cookieTime'])), true))
 	{
-		$context['login_errors'] = array($txt['incorrect_password']);
+		Utils::$context['login_errors'] = array($txt['incorrect_password']);
 		return;
 	}
 
 	// Load the data up!
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT passwd, id_member, id_group, lngfile, is_activated, email_address, additional_groups, member_name, password_salt,
 			passwd_flood, tfa_secret
 		FROM {db_prefix}members
-		WHERE ' . ($smcFunc['db_case_sensitive'] ? 'LOWER(member_name) = LOWER({string:user_name})' : 'member_name = {string:user_name}') . '
+		WHERE ' . (Db::$db->case_sensitive ? 'LOWER(member_name) = LOWER({string:user_name})' : 'member_name = {string:user_name}') . '
 		LIMIT 1',
 		array(
-			'user_name' => $smcFunc['db_case_sensitive'] ? strtolower($_POST['user']) : $_POST['user'],
+			'user_name' => Db::$db->case_sensitive ? strtolower($_POST['user']) : $_POST['user'],
 		)
 	);
 	// Probably mistyped or their email, try it as an email address. (member_name first, though!)
-	if ($smcFunc['db_num_rows']($request) == 0 && strpos($_POST['user'], '@') !== false)
+	if (Db::$db->num_rows($request) == 0 && strpos($_POST['user'], '@') !== false)
 	{
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT passwd, id_member, id_group, lngfile, is_activated, email_address, additional_groups, member_name, password_salt,
 				passwd_flood, tfa_secret
 			FROM {db_prefix}members
@@ -322,14 +324,14 @@ function Login2()
 	}
 
 	// Let them try again, it didn't match anything...
-	if ($smcFunc['db_num_rows']($request) == 0)
+	if (Db::$db->num_rows($request) == 0)
 	{
-		$context['login_errors'] = array($txt['username_no_exist']);
+		Utils::$context['login_errors'] = array($txt['username_no_exist']);
 		return;
 	}
 
-	$user_settings = $smcFunc['db_fetch_assoc']($request);
-	$smcFunc['db_free_result']($request);
+	$user_settings = Db::$db->fetch_assoc($request);
+	Db::$db->free_result($request);
 
 	// Bad password!  Thought you could fool the database?!
 	if (!hash_verify_password($user_settings['member_name'], un_htmlspecialchars($_POST['passwrd']), $user_settings['passwd']))
@@ -341,7 +343,7 @@ function Login2()
 		$other_passwords = array();
 
 		// None of the below cases will be used most of the time (because the salt is normally set.)
-		if (!empty($modSettings['enable_password_conversion']) && $user_settings['password_salt'] == '')
+		if (!empty(Config::$modSettings['enable_password_conversion']) && $user_settings['password_salt'] == '')
 		{
 			// YaBB SE, Discus, MD5 (used a lot), SHA-1 (used some), SMF 1.0.x, IkonBoard, and none at all.
 			$other_passwords[] = crypt($_POST['passwrd'], substr($_POST['passwrd'], 0, 2));
@@ -368,7 +370,7 @@ function Login2()
 			$other_passwords[] = md5(crypt($_POST['passwrd'], 'CRYPT_MD5'));
 		}
 		// If the salt is set let's try some other options
-		elseif (!empty($modSettings['enable_password_conversion']) && $user_settings['password_salt'] != '')
+		elseif (!empty(Config::$modSettings['enable_password_conversion']) && $user_settings['password_salt'] != '')
 		{
 			// PHPBB 3 check this function exists in PHP 5.5 or higher
 			if (function_exists('password_verify'))
@@ -381,7 +383,7 @@ function Login2()
 			$other_passwords[] = md5(md5($user_settings['password_salt']) . md5($_POST['passwrd']));
 		}
 		// The hash should be 40 if it's SHA-1, so we're safe with more here too.
-		elseif (!empty($modSettings['enable_password_conversion']) && strlen($user_settings['passwd']) == 32)
+		elseif (!empty(Config::$modSettings['enable_password_conversion']) && strlen($user_settings['passwd']) == 32)
 		{
 			// vBulletin 3 style hashing?  Let's welcome them with open arms \o/.
 			$other_passwords[] = md5(md5($_POST['passwrd']) . stripslashes($user_settings['password_salt']));
@@ -400,29 +402,29 @@ function Login2()
 			$other_passwords[] = sha1(strtolower($user_settings['member_name']) . un_htmlspecialchars($_POST['passwrd']));
 
 			// BurningBoard3 style of hashing.
-			if (!empty($modSettings['enable_password_conversion']))
+			if (!empty(Config::$modSettings['enable_password_conversion']))
 				$other_passwords[] = sha1($user_settings['password_salt'] . sha1($user_settings['password_salt'] . sha1($_POST['passwrd'])));
 
 			// PunBB
 			$other_passwords[] = sha1($user_settings['password_salt'] . sha1($_POST['passwrd']));
 
 			// Perhaps we converted to UTF-8 and have a valid password being hashed differently.
-			if ($context['character_set'] == 'UTF-8' && !empty($modSettings['previousCharacterSet']) && $modSettings['previousCharacterSet'] != 'utf8')
+			if (Utils::$context['character_set'] == 'UTF-8' && !empty(Config::$modSettings['previousCharacterSet']) && Config::$modSettings['previousCharacterSet'] != 'utf8')
 			{
 				// Try iconv first, for no particular reason.
 				if (function_exists('iconv'))
-					$other_passwords['iconv'] = sha1(strtolower(iconv('UTF-8', $modSettings['previousCharacterSet'], $user_settings['member_name'])) . un_htmlspecialchars(iconv('UTF-8', $modSettings['previousCharacterSet'], $_POST['passwrd'])));
+					$other_passwords['iconv'] = sha1(strtolower(iconv('UTF-8', Config::$modSettings['previousCharacterSet'], $user_settings['member_name'])) . un_htmlspecialchars(iconv('UTF-8', Config::$modSettings['previousCharacterSet'], $_POST['passwrd'])));
 
 				// Say it aint so, iconv failed!
 				if (empty($other_passwords['iconv']) && function_exists('mb_convert_encoding'))
-					$other_passwords[] = sha1(strtolower(mb_convert_encoding($user_settings['member_name'], 'UTF-8', $modSettings['previousCharacterSet'])) . un_htmlspecialchars(mb_convert_encoding($_POST['passwrd'], 'UTF-8', $modSettings['previousCharacterSet'])));
+					$other_passwords[] = sha1(strtolower(mb_convert_encoding($user_settings['member_name'], 'UTF-8', Config::$modSettings['previousCharacterSet'])) . un_htmlspecialchars(mb_convert_encoding($_POST['passwrd'], 'UTF-8', Config::$modSettings['previousCharacterSet'])));
 			}
 		}
 
 		// SMF's sha1 function can give a funny result on Linux (Not our fault!). If we've now got the real one let the old one be valid!
 		if (stripos(PHP_OS, 'win') !== 0 && strlen($user_settings['passwd']) < hash_length())
 		{
-			require_once($sourcedir . '/Subs-Compat.php');
+			require_once(Config::$sourcedir . '/Subs-Compat.php');
 			$other_passwords[] = sha1_smf(strtolower($user_settings['member_name']) . un_htmlspecialchars($_POST['passwrd']));
 		}
 
@@ -433,7 +435,7 @@ function Login2()
 		if (in_array($user_settings['passwd'], $other_passwords))
 		{
 			$user_settings['passwd'] = hash_password($user_settings['member_name'], un_htmlspecialchars($_POST['passwrd']));
-			$user_settings['password_salt'] = bin2hex($smcFunc['random_bytes'](16));
+			$user_settings['password_salt'] = bin2hex(Utils::randomBytes(16));
 
 			// Update the password and set up the hash.
 			updateMemberData($user_settings['id_member'], array('passwd' => $user_settings['passwd'], 'password_salt' => $user_settings['password_salt'], 'passwd_flood' => ''));
@@ -445,7 +447,7 @@ function Login2()
 			$_SESSION['failed_login'] = isset($_SESSION['failed_login']) ? ($_SESSION['failed_login'] + 1) : 1;
 
 			// Hmm... don't remember it, do you?  Here, try the password reminder ;).
-			if ($_SESSION['failed_login'] >= $modSettings['failed_login_threshold'])
+			if ($_SESSION['failed_login'] >= Config::$modSettings['failed_login_threshold'])
 				redirectexit('action=reminder');
 			// We'll give you another chance...
 			else
@@ -453,7 +455,7 @@ function Login2()
 				// Log an error so we know that it didn't go well in the error log.
 				log_error($txt['incorrect_password'] . ' - <span class="remove">' . $user_settings['member_name'] . '</span>', 'user');
 
-				$context['login_errors'] = array($txt['incorrect_password']);
+				Utils::$context['login_errors'] = array($txt['incorrect_password']);
 				return;
 			}
 		}
@@ -470,7 +472,7 @@ function Login2()
 	// Correct password, but they've got no salt; fix it!
 	if (strlen($user_settings['password_salt']) < 32)
 	{
-		$user_settings['password_salt'] = bin2hex($smcFunc['random_bytes'](16));
+		$user_settings['password_salt'] = bin2hex(Utils::randomBytes(16));
 		updateMemberData($user_settings['id_member'], array('password_salt' => $user_settings['password_salt']));
 	}
 
@@ -486,14 +488,14 @@ function Login2()
  */
 function LoginTFA()
 {
-	global $sourcedir, $txt, $context, $user_info, $modSettings, $scripturl;
+	global $txt, $user_info;
 
-	if (!$user_info['is_guest'] || empty($context['tfa_member']) || empty($modSettings['tfa_mode']))
+	if (!$user_info['is_guest'] || empty(Utils::$context['tfa_member']) || empty(Config::$modSettings['tfa_mode']))
 		fatal_lang_error('no_access', false);
 
 	loadLanguage('Profile');
 
-	$member = $context['tfa_member'];
+	$member = Utils::$context['tfa_member'];
 
 	// Prevent replay attacks by limiting at least 2 minutes before they can log in again via 2FA
 	if (time() - $member['last_login'] < 120)
@@ -517,20 +519,20 @@ function LoginTFA()
 		)
 		||
 		(
-			!empty($context['valid_cors_found'])
+			!empty(Utils::$context['valid_cors_found'])
 			&& !empty($_SERVER['HTTP_X_SMF_AJAX'])
 			&& isset($_REQUEST['ajax'])
 		)
 	)
 	{
-		$context['from_ajax'] = true;
-		$context['template_layers'] = array();
+		Utils::$context['from_ajax'] = true;
+		Utils::$context['template_layers'] = array();
 	}
 
 	if (!empty($_POST['tfa_code']) && empty($_POST['tfa_backup']))
 	{
 		// Check to ensure we're forcing SSL for authentication
-		if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
+		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !httpsOn())
 			fatal_lang_error('login_ssl_required', false);
 
 		$code = $_POST['tfa_code'];
@@ -546,14 +548,14 @@ function LoginTFA()
 		{
 			validatePasswordFlood($member['id_member'], $member['member_name'], $member['passwd_flood'], false, true);
 
-			$context['tfa_error'] = true;
-			$context['tfa_value'] = $_POST['tfa_code'];
+			Utils::$context['tfa_error'] = true;
+			Utils::$context['tfa_value'] = $_POST['tfa_code'];
 		}
 	}
 	elseif (!empty($_POST['tfa_backup']))
 	{
 		// Check to ensure we're forcing SSL for authentication
-		if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
+		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !httpsOn())
 			fatal_lang_error('login_ssl_required', false);
 
 		$backup = $_POST['tfa_backup'];
@@ -573,16 +575,16 @@ function LoginTFA()
 		{
 			validatePasswordFlood($member['id_member'], $member['member_name'], $member['passwd_flood'], false, true);
 
-			$context['tfa_backup_error'] = true;
-			$context['tfa_value'] = $_POST['tfa_code'];
-			$context['tfa_backup_value'] = $_POST['tfa_backup'];
+			Utils::$context['tfa_backup_error'] = true;
+			Utils::$context['tfa_value'] = $_POST['tfa_code'];
+			Utils::$context['tfa_backup_value'] = $_POST['tfa_backup'];
 		}
 	}
 
 	loadTemplate('Login');
-	$context['sub_template'] = 'login_tfa';
-	$context['page_title'] = $txt['login'];
-	$context['tfa_url'] = $scripturl . '?action=logintfa';
+	Utils::$context['sub_template'] = 'login_tfa';
+	Utils::$context['page_title'] = $txt['login'];
+	Utils::$context['tfa_url'] = Config::$scripturl . '?action=logintfa';
 }
 
 /**
@@ -590,10 +592,10 @@ function LoginTFA()
  */
 function checkActivation()
 {
-	global $context, $txt, $scripturl, $user_settings, $modSettings;
+	global $txt, $user_settings;
 
-	if (!isset($context['login_errors']))
-		$context['login_errors'] = array();
+	if (!isset(Utils::$context['login_errors']))
+		Utils::$context['login_errors'] = array();
 
 	// What is the true activation status of this account?
 	$activation_status = $user_settings['is_activated'] > 10 ? $user_settings['is_activated'] - 10 : $user_settings['is_activated'];
@@ -601,7 +603,7 @@ function checkActivation()
 	// Check if the account is activated - COPPA first...
 	if ($activation_status == 5)
 	{
-		$context['login_errors'][] = $txt['coppa_no_consent'] . ' <a href="' . $scripturl . '?action=coppa;member=' . $user_settings['id_member'] . '">' . $txt['coppa_need_more_details'] . '</a>';
+		Utils::$context['login_errors'][] = $txt['coppa_no_consent'] . ' <a href="' . Config::$scripturl . '?action=coppa;member=' . $user_settings['id_member'] . '">' . $txt['coppa_need_more_details'] . '</a>';
 		return false;
 	}
 	// Awaiting approval still?
@@ -613,13 +615,13 @@ function checkActivation()
 		if (isset($_REQUEST['undelete']))
 		{
 			updateMemberData($user_settings['id_member'], array('is_activated' => 1));
-			updateSettings(array('unapprovedMembers' => ($modSettings['unapprovedMembers'] > 0 ? $modSettings['unapprovedMembers'] - 1 : 0)));
+			Config::updateModSettings(array('unapprovedMembers' => (Config::$modSettings['unapprovedMembers'] > 0 ? Config::$modSettings['unapprovedMembers'] - 1 : 0)));
 		}
 		else
 		{
-			$context['disable_login_hashing'] = true;
-			$context['login_errors'][] = $txt['awaiting_delete_account'];
-			$context['login_show_undelete'] = true;
+			Utils::$context['disable_login_hashing'] = true;
+			Utils::$context['login_errors'][] = $txt['awaiting_delete_account'];
+			Utils::$context['login_show_undelete'] = true;
 			return false;
 		}
 	}
@@ -628,7 +630,7 @@ function checkActivation()
 	{
 		log_error($txt['activate_not_completed1'] . ' - <span class="remove">' . $user_settings['member_name'] . '</span>', 'user');
 
-		$context['login_errors'][] = $txt['activate_not_completed1'] . ' <a href="' . $scripturl . '?action=activate;sa=resend;u=' . $user_settings['id_member'] . '">' . $txt['activate_not_completed2'] . '</a>';
+		Utils::$context['login_errors'][] = $txt['activate_not_completed1'] . ' <a href="' . Config::$scripturl . '?action=activate;sa=resend;u=' . $user_settings['id_member'] . '">' . $txt['activate_not_completed2'] . '</a>';
 		return false;
 	}
 	return true;
@@ -639,20 +641,19 @@ function checkActivation()
  */
 function DoLogin()
 {
-	global $user_info, $user_settings, $smcFunc;
-	global $maintenance, $modSettings, $context, $sourcedir;
+	global $user_info, $user_settings;
 
 	// Load cookie authentication stuff.
-	require_once($sourcedir . '/Subs-Auth.php');
+	require_once(Config::$sourcedir . '/Subs-Auth.php');
 
 	// Call login integration functions.
-	call_integration_hook('integrate_login', array($user_settings['member_name'], null, $modSettings['cookieTime']));
+	call_integration_hook('integrate_login', array($user_settings['member_name'], null, Config::$modSettings['cookieTime']));
 
 	// Get ready to set the cookie...
 	$user_info['id'] = $user_settings['id_member'];
 
 	// Bam!  Cookie set.  A session too, just in case.
-	setLoginCookie(60 * $modSettings['cookieTime'], $user_settings['id_member'], hash_salt($user_settings['passwd'], $user_settings['password_salt']));
+	setLoginCookie(60 * Config::$modSettings['cookieTime'], $user_settings['id_member'], hash_salt($user_settings['passwd'], $user_settings['password_salt']));
 
 	// Reset the login threshold.
 	if (isset($_SESSION['failed_login']))
@@ -669,7 +670,7 @@ function DoLogin()
 	unset($_SESSION['language'], $_SESSION['id_theme']);
 
 	// First login?
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT last_login
 		FROM {db_prefix}members
 		WHERE id_member = {int:id_member}
@@ -678,11 +679,11 @@ function DoLogin()
 			'id_member' => $user_info['id'],
 		)
 	);
-	if ($smcFunc['db_num_rows']($request) == 1)
+	if (Db::$db->num_rows($request) == 1)
 		$_SESSION['first_login'] = true;
 	else
 		unset($_SESSION['first_login']);
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// You've logged in, haven't you?
 	$update = array('member_ip' => $user_info['ip'], 'member_ip2' => $_SERVER['BAN_CHECK_IP']);
@@ -691,7 +692,7 @@ function DoLogin()
 	updateMemberData($user_info['id'], $update);
 
 	// Get rid of the online entry for that old guest....
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}log_online
 		WHERE session = {string:session}',
 		array(
@@ -701,8 +702,8 @@ function DoLogin()
 	$_SESSION['log_time'] = 0;
 
 	// Log this entry, only if we have it enabled.
-	if (!empty($modSettings['loginHistoryDays']))
-		$smcFunc['db_insert']('insert',
+	if (!empty(Config::$modSettings['loginHistoryDays']))
+		Db::$db->insert('insert',
 			'{db_prefix}member_logins',
 			array(
 				'id_member' => 'int', 'time' => 'int', 'ip' => 'inet', 'ip2' => 'inet',
@@ -716,10 +717,10 @@ function DoLogin()
 		);
 
 	// Just log you back out if it's in maintenance mode and you AREN'T an admin.
-	if (empty($maintenance) || allowedTo('admin_forum'))
-		redirectexit('action=login2;sa=check;member=' . $user_info['id'], $context['server']['needs_login_fix']);
+	if (empty(Config::$maintenance) || allowedTo('admin_forum'))
+		redirectexit('action=login2;sa=check;member=' . $user_info['id'], Utils::$context['server']['needs_login_fix']);
 	else
-		redirectexit('action=logout;' . $context['session_var'] . '=' . $context['session_id'], $context['server']['needs_login_fix']);
+		redirectexit('action=logout;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], Utils::$context['server']['needs_login_fix']);
 }
 
 /**
@@ -733,20 +734,20 @@ function DoLogin()
  */
 function Logout($internal = false, $redirect = true)
 {
-	global $sourcedir, $user_info, $user_settings, $context, $smcFunc, $cookiename, $modSettings;
+	global $user_info, $user_settings;
 
 	// They decided to cancel a logout?
-	if (!$internal && isset($_POST['cancel']) && isset($_GET[$context['session_var']]))
+	if (!$internal && isset($_POST['cancel']) && isset($_GET[Utils::$context['session_var']]))
 		redirectexit(!empty($_SESSION['logout_return']) ? $_SESSION['logout_return'] : '');
 	// Prompt to logout?
-	elseif (!$internal && !isset($_GET[$context['session_var']]))
+	elseif (!$internal && !isset($_GET[Utils::$context['session_var']]))
 	{
 		loadLanguage('Login');
 		loadTemplate('Login');
-		$context['sub_template'] = 'logout';
+		Utils::$context['sub_template'] = 'logout';
 
 		// This came from a valid hashed return url.  Or something that knows our secrets...
-		if (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', un_htmlspecialchars($_REQUEST['return_to']), get_auth_secret()) == $_REQUEST['return_hash'])
+		if (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', un_htmlspecialchars($_REQUEST['return_to']), Config::getAuthSecret()) == $_REQUEST['return_hash'])
 		{
 			$_SESSION['logout_url'] = un_htmlspecialchars($_REQUEST['return_to']);
 			$_SESSION['logout_return'] = $_SESSION['logout_url'];
@@ -759,10 +760,10 @@ function Logout($internal = false, $redirect = true)
 		return;
 	}
 	// Make sure they aren't being auto-logged out.
-	elseif (!$internal && isset($_GET[$context['session_var']]))
+	elseif (!$internal && isset($_GET[Utils::$context['session_var']]))
 		checkSession('get');
 
-	require_once($sourcedir . '/Subs-Auth.php');
+	require_once(Config::$sourcedir . '/Subs-Auth.php');
 
 	if (isset($_SESSION['pack_ftp']))
 		$_SESSION['pack_ftp'] = null;
@@ -777,7 +778,7 @@ function Logout($internal = false, $redirect = true)
 		call_integration_hook('integrate_logout', array($user_settings['member_name']));
 
 		// If you log out, you aren't online anymore :P.
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}log_online
 			WHERE id_member = {int:current_member}',
 			array(
@@ -792,13 +793,13 @@ function Logout($internal = false, $redirect = true)
 	setLoginCookie(-3600, 0);
 
 	// And some other housekeeping while we're at it.
-	$salt = bin2hex($smcFunc['random_bytes'](16));
+	$salt = bin2hex(Utils::randomBytes(16));
 	if (!empty($user_info['id']))
 		updateMemberData($user_info['id'], array('password_salt' => $salt));
 
-	if (!empty($modSettings['tfa_mode']) && !empty($user_info['id']) && !empty($_COOKIE[$cookiename . '_tfa']))
+	if (!empty(Config::$modSettings['tfa_mode']) && !empty($user_info['id']) && !empty($_COOKIE[Config::$cookiename . '_tfa']))
 	{
-		list (,, $exp) = $smcFunc['json_decode']($_COOKIE[$cookiename . '_tfa'], true);
+		list (,, $exp) = Utils::jsonDecode($_COOKIE[Config::$cookiename . '_tfa'], true);
 		setTFACookie((int) $exp - time(), $salt, hash_salt($user_settings['tfa_backup'], $salt));
 	}
 
@@ -808,7 +809,7 @@ function Logout($internal = false, $redirect = true)
 	if ($redirect)
 	{
 		if (empty($_SESSION['logout_url']))
-			redirectexit('', $context['server']['needs_login_fix']);
+			redirectexit('', Utils::$context['server']['needs_login_fix']);
 		elseif (!empty($_SESSION['logout_url']) && (strpos($_SESSION['logout_url'], 'http://') === false && strpos($_SESSION['logout_url'], 'https://') === false))
 		{
 			unset ($_SESSION['logout_url']);
@@ -819,7 +820,7 @@ function Logout($internal = false, $redirect = true)
 			$temp = $_SESSION['logout_url'];
 			unset($_SESSION['logout_url']);
 
-			redirectexit($temp, $context['server']['needs_login_fix']);
+			redirectexit($temp, Utils::$context['server']['needs_login_fix']);
 		}
 	}
 }
@@ -904,19 +905,17 @@ function phpBB3_password_check($passwd, $passwd_hash)
  */
 function validatePasswordFlood($id_member, $member_name, $password_flood_value = false, $was_correct = false, $tfa = false)
 {
-	global $cookiename, $sourcedir;
-
 	// As this is only brute protection, we allow 5 attempts every 10 seconds.
 
 	// Destroy any session or cookie data about this member, as they validated wrong.
 	// Only if they're not validating for 2FA
 	if (!$tfa)
 	{
-		require_once($sourcedir . '/Subs-Auth.php');
+		require_once(Config::$sourcedir . '/Subs-Auth.php');
 		setLoginCookie(-3600, 0);
 
-		if (isset($_SESSION['login_' . $cookiename]))
-			unset($_SESSION['login_' . $cookiename]);
+		if (isset($_SESSION['login_' . Config::$cookiename]))
+			unset($_SESSION['login_' . Config::$cookiename]);
 	}
 
 	// We need a member!

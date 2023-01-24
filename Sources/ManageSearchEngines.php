@@ -13,7 +13,10 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
 use SMF\Cache\CacheApi;
+use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -23,14 +26,14 @@ if (!defined('SMF'))
  */
 function SearchEngines()
 {
-	global $context, $txt, $modSettings;
+	global $txt;
 
 	isAllowedTo('admin_forum');
 
 	loadLanguage('Search');
 	loadTemplate('ManageSearch');
 
-	if (!empty($modSettings['spider_mode']))
+	if (!empty(Config::$modSettings['spider_mode']))
 	{
 		$subActions = array(
 			'editspiders' => 'EditSpider',
@@ -50,12 +53,12 @@ function SearchEngines()
 	}
 
 	// Ensure we have a valid subaction.
-	$context['sub_action'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : $default;
+	Utils::$context['sub_action'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : $default;
 
-	$context['page_title'] = $txt['search_engines'];
+	Utils::$context['page_title'] = $txt['search_engines'];
 
 	// Some more tab data.
-	$context[$context['admin_menu_name']]['tab_data'] = array(
+	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['search_engines'],
 		'description' => $txt['search_engines_description'],
 	);
@@ -63,7 +66,7 @@ function SearchEngines()
 	call_integration_hook('integrate_manage_search_engines', array(&$subActions));
 
 	// Call the function!
-	call_helper($subActions[$context['sub_action']]);
+	call_helper($subActions[Utils::$context['sub_action']]);
 }
 
 /**
@@ -74,7 +77,7 @@ function SearchEngines()
  */
 function ManageSearchEngineSettings($return_config = false)
 {
-	global $context, $txt, $scripturl, $sourcedir, $smcFunc;
+	global $txt;
 
 	$config_vars = array(
 		// How much detail?
@@ -84,7 +87,7 @@ function ManageSearchEngineSettings($return_config = false)
 	);
 
 	// Set up a message.
-	$context['settings_message'] = sprintf($txt['spider_settings_desc'], $scripturl . '?action=admin;area=logs;sa=settings;' . $context['session_var'] . '=' . $context['session_id']);
+	Utils::$context['settings_message'] = sprintf($txt['spider_settings_desc'], Config::$scripturl . '?action=admin;area=logs;sa=settings;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 
 	// Do some javascript.
 	$javascript_function = '
@@ -108,7 +111,7 @@ function ManageSearchEngineSettings($return_config = false)
 		return $config_vars;
 
 	// We need to load the groups for the spider group thingy.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_group, group_name
 		FROM {db_prefix}membergroups
 		WHERE id_group != {int:admin_group}
@@ -118,20 +121,20 @@ function ManageSearchEngineSettings($return_config = false)
 			'moderator_group' => 3,
 		)
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$config_vars['spider_group'][2][$row['id_group']] = $row['group_name'];
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Make sure it's valid - note that regular members are given id_group = 1 which is reversed in Load.php - no admins here!
 	if (isset($_POST['spider_group']) && !isset($config_vars['spider_group'][2][$_POST['spider_group']]))
 		$_POST['spider_group'] = 0;
 
 	// We'll want this for our easy save.
-	require_once($sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/ManageServer.php');
 
 	// Setup the template.
-	$context['page_title'] = $txt['settings'];
-	$context['sub_template'] = 'show_settings';
+	Utils::$context['page_title'] = $txt['settings'];
+	Utils::$context['sub_template'] = 'show_settings';
 
 	// Are we saving them - are we??
 	if (isset($_GET['save']))
@@ -146,8 +149,8 @@ function ManageSearchEngineSettings($return_config = false)
 	}
 
 	// Final settings...
-	$context['post_url'] = $scripturl . '?action=admin;area=sengines;save;sa=settings';
-	$context['settings_title'] = $txt['settings'];
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=sengines;save;sa=settings';
+	Utils::$context['settings_title'] = $txt['settings'];
 	addInlineJavaScript($javascript_function, true);
 
 	// Prepare the settings...
@@ -159,7 +162,7 @@ function ManageSearchEngineSettings($return_config = false)
  */
 function ViewSpiders()
 {
-	global $context, $txt, $sourcedir, $scripturl, $smcFunc, $modSettings;
+	global $txt;
 
 	if (!isset($_SESSION['spider_stat']) || $_SESSION['spider_stat'] < time() - 60)
 	{
@@ -181,21 +184,21 @@ function ViewSpiders()
 			$_POST['remove'][(int) $index] = (int) $spider_id;
 
 		// Delete them all!
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}spiders
 			WHERE id_spider IN ({array_int:remove_list})',
 			array(
 				'remove_list' => $_POST['remove'],
 			)
 		);
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}log_spider_hits
 			WHERE id_spider IN ({array_int:remove_list})',
 			array(
 				'remove_list' => $_POST['remove'],
 			)
 		);
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}log_spider_stats
 			WHERE id_spider IN ({array_int:remove_list})',
 			array(
@@ -208,7 +211,7 @@ function ViewSpiders()
 	}
 
 	// Get the last seens.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_spider, MAX(last_seen) AS last_seen_time
 		FROM {db_prefix}log_spider_stats
 		GROUP BY id_spider',
@@ -216,17 +219,17 @@ function ViewSpiders()
 		)
 	);
 
-	$context['spider_last_seen'] = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$context['spider_last_seen'][$row['id_spider']] = $row['last_seen_time'];
-	$smcFunc['db_free_result']($request);
+	Utils::$context['spider_last_seen'] = array();
+	while ($row = Db::$db->fetch_assoc($request))
+		Utils::$context['spider_last_seen'][$row['id_spider']] = $row['last_seen_time'];
+	Db::$db->free_result($request);
 
 	createToken('admin-ser');
 	$listOptions = array(
 		'id' => 'spider_list',
 		'title' => $txt['spiders'],
-		'items_per_page' => $modSettings['defaultMaxListItems'],
-		'base_href' => $scripturl . '?action=admin;area=sengines;sa=spiders',
+		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
+		'base_href' => Config::$scripturl . '?action=admin;area=sengines;sa=spiders',
 		'default_sort_col' => 'name',
 		'get_items' => array(
 			'function' => 'list_getSpiders',
@@ -241,9 +244,9 @@ function ViewSpiders()
 					'value' => $txt['spider_name'],
 				),
 				'data' => array(
-					'function' => function($rowData) use ($smcFunc, $scripturl)
+					'function' => function($rowData)
 					{
-						return sprintf('<a href="%1$s?action=admin;area=sengines;sa=editspiders;sid=%2$d">%3$s</a>', $scripturl, $rowData['id_spider'], $smcFunc['htmlspecialchars']($rowData['spider_name']));
+						return sprintf('<a href="%1$s?action=admin;area=sengines;sa=editspiders;sid=%2$d">%3$s</a>', Config::$scripturl, $rowData['id_spider'], Utils::htmlspecialchars($rowData['spider_name']));
 					},
 				),
 				'sort' => array(
@@ -256,9 +259,9 @@ function ViewSpiders()
 					'value' => $txt['spider_last_seen'],
 				),
 				'data' => array(
-					'function' => function($rowData) use ($context, $txt)
+					'function' => function($rowData) use ($txt)
 					{
-						return isset($context['spider_last_seen'][$rowData['id_spider']]) ? timeformat($context['spider_last_seen'][$rowData['id_spider']]) : $txt['spider_last_never'];
+						return isset(Utils::$context['spider_last_seen'][$rowData['id_spider']]) ? timeformat(Utils::$context['spider_last_seen'][$rowData['id_spider']]) : $txt['spider_last_never'];
 					},
 				),
 			),
@@ -304,7 +307,7 @@ function ViewSpiders()
 			),
 		),
 		'form' => array(
-			'href' => $scripturl . '?action=admin;area=sengines;sa=spiders',
+			'href' => Config::$scripturl . '?action=admin;area=sengines;sa=spiders',
 			'token' => 'admin-ser',
 		),
 		'additional_rows' => array(
@@ -318,11 +321,11 @@ function ViewSpiders()
 		),
 	);
 
-	require_once($sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/Subs-List.php');
 	createList($listOptions);
 
-	$context['sub_template'] = 'show_list';
-	$context['default_list'] = 'spider_list';
+	Utils::$context['sub_template'] = 'show_list';
+	Utils::$context['default_list'] = 'spider_list';
 }
 
 /**
@@ -335,9 +338,7 @@ function ViewSpiders()
  */
 function list_getSpiders($start, $items_per_page, $sort)
 {
-	global $smcFunc;
-
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_spider, spider_name, user_agent, ip_info
 		FROM {db_prefix}spiders
 		ORDER BY {raw:sort}
@@ -349,9 +350,9 @@ function list_getSpiders($start, $items_per_page, $sort)
 		)
 	);
 	$spiders = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$spiders[$row['id_spider']] = $row;
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	return $spiders;
 }
@@ -363,16 +364,14 @@ function list_getSpiders($start, $items_per_page, $sort)
  */
 function list_getNumSpiders()
 {
-	global $smcFunc;
-
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(*) AS num_spiders
 		FROM {db_prefix}spiders',
 		array(
 		)
 	);
-	list ($numSpiders) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($numSpiders) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	return $numSpiders;
 }
@@ -382,12 +381,12 @@ function list_getNumSpiders()
  */
 function EditSpider()
 {
-	global $context, $smcFunc, $txt;
+	global $txt;
 
 	// Some standard stuff.
-	$context['id_spider'] = !empty($_GET['sid']) ? (int) $_GET['sid'] : 0;
-	$context['page_title'] = $context['id_spider'] ? $txt['spiders_edit'] : $txt['spiders_add'];
-	$context['sub_template'] = 'spider_edit';
+	Utils::$context['id_spider'] = !empty($_GET['sid']) ? (int) $_GET['sid'] : 0;
+	Utils::$context['page_title'] = Utils::$context['id_spider'] ? $txt['spiders_edit'] : $txt['spiders_add'];
+	Utils::$context['sub_template'] = 'spider_edit';
 
 	// Are we saving?
 	if (!empty($_POST['save']))
@@ -396,7 +395,7 @@ function EditSpider()
 		validateToken('admin-ses');
 
 		foreach (array('spider_name', 'spider_agent') as $key)
-			$_POST[$key] = trim($smcFunc['normalize']($_POST[$key]));
+			$_POST[$key] = trim(Utils::normalize($_POST[$key]));
 
 		$ips = array();
 		// Check the IP range is valid.
@@ -410,21 +409,21 @@ function EditSpider()
 		$ips = implode(',', $ips);
 
 		// Goes in as it is...
-		if ($context['id_spider'])
-			$smcFunc['db_query']('', '
+		if (Utils::$context['id_spider'])
+			Db::$db->query('', '
 				UPDATE {db_prefix}spiders
 				SET spider_name = {string:spider_name}, user_agent = {string:spider_agent},
 					ip_info = {string:ip_info}
 				WHERE id_spider = {int:current_spider}',
 				array(
-					'current_spider' => $context['id_spider'],
+					'current_spider' => Utils::$context['id_spider'],
 					'spider_name' => $_POST['spider_name'],
 					'spider_agent' => $_POST['spider_agent'],
 					'ip_info' => $ips,
 				)
 			);
 		else
-			$smcFunc['db_insert']('insert',
+			Db::$db->insert('insert',
 				'{db_prefix}spiders',
 				array(
 					'spider_name' => 'string', 'user_agent' => 'string', 'ip_info' => 'string',
@@ -442,7 +441,7 @@ function EditSpider()
 	}
 
 	// The default is new.
-	$context['spider'] = array(
+	Utils::$context['spider'] = array(
 		'id' => 0,
 		'name' => '',
 		'agent' => '',
@@ -450,24 +449,24 @@ function EditSpider()
 	);
 
 	// An edit?
-	if ($context['id_spider'])
+	if (Utils::$context['id_spider'])
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_spider, spider_name, user_agent, ip_info
 			FROM {db_prefix}spiders
 			WHERE id_spider = {int:current_spider}',
 			array(
-				'current_spider' => $context['id_spider'],
+				'current_spider' => Utils::$context['id_spider'],
 			)
 		);
-		if ($row = $smcFunc['db_fetch_assoc']($request))
-			$context['spider'] = array(
+		if ($row = Db::$db->fetch_assoc($request))
+			Utils::$context['spider'] = array(
 				'id' => $row['id_spider'],
 				'name' => $row['spider_name'],
 				'agent' => $row['user_agent'],
 				'ip_info' => $row['ip_info'],
 			);
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 	}
 
 	createToken('admin-ses');
@@ -481,8 +480,6 @@ function EditSpider()
  */
 function SpiderCheck()
 {
-	global $modSettings, $smcFunc;
-
 	if (isset($_SESSION['id_robot']))
 		unset($_SESSION['id_robot']);
 	$_SESSION['robot_check'] = time();
@@ -490,7 +487,7 @@ function SpiderCheck()
 	// We cache the spider data for ten minutes if we can.
 	if (($spider_data = CacheApi::get('spider_search', 600)) === null)
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_spider, user_agent, ip_info
 			FROM {db_prefix}spiders
 			ORDER BY LENGTH(user_agent) DESC',
@@ -498,9 +495,9 @@ function SpiderCheck()
 			)
 		);
 		$spider_data = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$spider_data[] = $row;
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		CacheApi::put('spider_search', $spider_data, 600);
 	}
@@ -539,7 +536,7 @@ function SpiderCheck()
 	}
 
 	// If this is low server tracking then log the spider here as opposed to the main logging function.
-	if (!empty($modSettings['spider_mode']) && $modSettings['spider_mode'] == 1 && !empty($_SESSION['id_robot']))
+	if (!empty(Config::$modSettings['spider_mode']) && Config::$modSettings['spider_mode'] == 1 && !empty($_SESSION['id_robot']))
 		logSpider();
 
 	return !empty($_SESSION['id_robot']) ? $_SESSION['id_robot'] : 0;
@@ -552,16 +549,14 @@ function SpiderCheck()
  */
 function logSpider()
 {
-	global $smcFunc, $modSettings, $context;
-
-	if (empty($modSettings['spider_mode']) || empty($_SESSION['id_robot']))
+	if (empty(Config::$modSettings['spider_mode']) || empty($_SESSION['id_robot']))
 		return;
 
 	// Attempt to update today's entry.
-	if ($modSettings['spider_mode'] == 1)
+	if (Config::$modSettings['spider_mode'] == 1)
 	{
 		$date = smf_strftime('%Y-%m-%d', time());
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}log_spider_stats
 			SET last_seen = {int:current_time}, page_hits = page_hits + 1
 			WHERE id_spider = {int:current_spider}
@@ -574,9 +569,9 @@ function logSpider()
 		);
 
 		// Nothing updated?
-		if ($smcFunc['db_affected_rows']() == 0)
+		if (Db::$db->affected_rows() == 0)
 		{
-			$smcFunc['db_insert']('ignore',
+			Db::$db->insert('ignore',
 				'{db_prefix}log_spider_stats',
 				array(
 					'id_spider' => 'int', 'last_seen' => 'int', 'stat_date' => 'date', 'page_hits' => 'int',
@@ -591,16 +586,16 @@ function logSpider()
 	// If we're tracking better stats than track, better stats - we sort out the today thing later.
 	else
 	{
-		if ($modSettings['spider_mode'] > 2)
+		if (Config::$modSettings['spider_mode'] > 2)
 		{
 			$url = $_GET + array('USER_AGENT' => $_SERVER['HTTP_USER_AGENT']);
-			unset($url['sesc'], $url[$context['session_var']]);
-			$url = $smcFunc['json_encode']($url);
+			unset($url['sesc'], $url[Utils::$context['session_var']]);
+			$url = Utils::jsonEncode($url);
 		}
 		else
 			$url = '';
 
-		$smcFunc['db_insert']('insert',
+		Db::$db->insert('insert',
 			'{db_prefix}log_spider_hits',
 			array('id_spider' => 'int', 'log_time' => 'int', 'url' => 'string'),
 			array($_SESSION['id_robot'], time(), $url),
@@ -614,9 +609,7 @@ function logSpider()
  */
 function consolidateSpiderStats()
 {
-	global $smcFunc;
-
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_spider, MAX(log_time) AS last_seen, COUNT(*) AS num_hits
 		FROM {db_prefix}log_spider_hits
 		WHERE processed = {int:not_processed}
@@ -626,9 +619,9 @@ function consolidateSpiderStats()
 		)
 	);
 	$spider_hits = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$spider_hits[] = $row;
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	if (empty($spider_hits))
 		return;
@@ -639,7 +632,7 @@ function consolidateSpiderStats()
 	{
 		// We assume the max date is within the right day.
 		$date = smf_strftime('%Y-%m-%d', $stat['last_seen']);
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}log_spider_stats
 			SET page_hits = page_hits + {int:hits},
 				last_seen = CASE WHEN last_seen > {int:last_seen} THEN last_seen ELSE {int:last_seen} END
@@ -652,13 +645,13 @@ function consolidateSpiderStats()
 				'hits' => $stat['num_hits'],
 			)
 		);
-		if ($smcFunc['db_affected_rows']() == 0)
+		if (Db::$db->affected_rows() == 0)
 			$stat_inserts[] = array($date, $stat['id_spider'], $stat['num_hits'], $stat['last_seen']);
 	}
 
 	// New stats?
 	if (!empty($stat_inserts))
-		$smcFunc['db_insert']('ignore',
+		Db::$db->insert('ignore',
 			'{db_prefix}log_spider_stats',
 			array('stat_date' => 'date', 'id_spider' => 'int', 'page_hits' => 'int', 'last_seen' => 'int'),
 			$stat_inserts,
@@ -666,7 +659,7 @@ function consolidateSpiderStats()
 		);
 
 	// All processed.
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		UPDATE {db_prefix}log_spider_hits
 		SET processed = {int:is_processed}
 		WHERE processed = {int:not_processed}',
@@ -682,7 +675,7 @@ function consolidateSpiderStats()
  */
 function SpiderLogs()
 {
-	global $context, $txt, $sourcedir, $scripturl, $smcFunc, $modSettings;
+	global $txt;
 
 	// Load the template and language just incase.
 	loadLanguage('Search');
@@ -699,7 +692,7 @@ function SpiderLogs()
 			$deleteTime = time() - (((int) $_POST['older']) * 24 * 60 * 60);
 
 			// Delete the entires.
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				DELETE FROM {db_prefix}log_spider_hits
 				WHERE log_time < {int:delete_period}',
 				array(
@@ -710,7 +703,7 @@ function SpiderLogs()
 		else
 		{
 			// Deleting all of them
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				TRUNCATE TABLE {db_prefix}log_spider_hits',
 				array()
 			);
@@ -719,10 +712,10 @@ function SpiderLogs()
 
 	$listOptions = array(
 		'id' => 'spider_logs',
-		'items_per_page' => $modSettings['defaultMaxListItems'],
+		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 		'title' => $txt['spider_logs'],
 		'no_items_label' => $txt['spider_logs_empty'],
-		'base_href' => $context['admin_area'] == 'sengines' ? $scripturl . '?action=admin;area=sengines;sa=logs' : $scripturl . '?action=admin;area=logs;sa=spiderlog',
+		'base_href' => Utils::$context['admin_area'] == 'sengines' ? Config::$scripturl . '?action=admin;area=sengines;sa=logs' : Config::$scripturl . '?action=admin;area=logs;sa=spiderlog',
 		'default_sort_col' => 'log_time',
 		'get_items' => array(
 			'function' => 'list_getSpiderLogs',
@@ -769,7 +762,7 @@ function SpiderLogs()
 		),
 		'form' => array(
 			'token' => 'admin-sl',
-			'href' => $scripturl . '?action=admin;area=sengines;sa=logs',
+			'href' => Config::$scripturl . '?action=admin;area=sengines;sa=logs',
 		),
 		'additional_rows' => array(
 			array(
@@ -785,41 +778,41 @@ function SpiderLogs()
 
 	createToken('admin-sl');
 
-	require_once($sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/Subs-List.php');
 	createList($listOptions);
 
 	// Now determine the actions of the URLs.
-	if (!empty($context['spider_logs']['rows']))
+	if (!empty(Utils::$context['spider_logs']['rows']))
 	{
 		$urls = array();
 
 		// Grab the current /url.
-		foreach ($context['spider_logs']['rows'] as $k => $row)
+		foreach (Utils::$context['spider_logs']['rows'] as $k => $row)
 		{
 			// Feature disabled?
-			if (empty($row['data']['viewing']['value']) && isset($modSettings['spider_mode']) && $modSettings['spider_mode'] < 3)
-				$context['spider_logs']['rows'][$k]['viewing']['value'] = '<em>' . $txt['spider_disabled'] . '</em>';
+			if (empty($row['data']['viewing']['value']) && isset(Config::$modSettings['spider_mode']) && Config::$modSettings['spider_mode'] < 3)
+				Utils::$context['spider_logs']['rows'][$k]['viewing']['value'] = '<em>' . $txt['spider_disabled'] . '</em>';
 			else
 				$urls[$k] = array($row['data']['viewing']['value'], -1);
 		}
 
 		// Now stick in the new URLs.
-		require_once($sourcedir . '/Who.php');
+		require_once(Config::$sourcedir . '/Who.php');
 		$urls = determineActions($urls, 'whospider_');
 		foreach ($urls as $k => $new_url)
 		{
 			if (is_array($new_url))
 			{
-				$context['spider_logs']['rows'][$k]['data']['viewing']['value'] = $txt[$new_url['label']];
-				$context['spider_logs']['rows'][$k]['data']['viewing']['class'] = $new_url['class'];
+				Utils::$context['spider_logs']['rows'][$k]['data']['viewing']['value'] = $txt[$new_url['label']];
+				Utils::$context['spider_logs']['rows'][$k]['data']['viewing']['class'] = $new_url['class'];
 			} else
-				$context['spider_logs']['rows'][$k]['data']['viewing']['value'] = $new_url;
+				Utils::$context['spider_logs']['rows'][$k]['data']['viewing']['value'] = $new_url;
 		}
 	}
 
-	$context['page_title'] = $txt['spider_logs'];
-	$context['sub_template'] = 'show_spider_logs';
-	$context['default_list'] = 'spider_logs';
+	Utils::$context['page_title'] = $txt['spider_logs'];
+	Utils::$context['sub_template'] = 'show_spider_logs';
+	Utils::$context['default_list'] = 'spider_logs';
 }
 
 /**
@@ -832,9 +825,7 @@ function SpiderLogs()
  */
 function list_getSpiderLogs($start, $items_per_page, $sort)
 {
-	global $smcFunc;
-
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT sl.id_spider, sl.url, sl.log_time, s.spider_name
 		FROM {db_prefix}log_spider_hits AS sl
 			INNER JOIN {db_prefix}spiders AS s ON (s.id_spider = sl.id_spider)
@@ -847,9 +838,9 @@ function list_getSpiderLogs($start, $items_per_page, $sort)
 		)
 	);
 	$spider_logs = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$spider_logs[] = $row;
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	return $spider_logs;
 }
@@ -861,16 +852,14 @@ function list_getSpiderLogs($start, $items_per_page, $sort)
  */
 function list_getNumSpiderLogs()
 {
-	global $smcFunc;
-
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(*) AS num_logs
 		FROM {db_prefix}log_spider_hits',
 		array(
 		)
 	);
-	list ($numLogs) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($numLogs) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	return $numLogs;
 }
@@ -880,7 +869,7 @@ function list_getNumSpiderLogs()
  */
 function SpiderStats()
 {
-	global $context, $txt, $sourcedir, $scripturl, $smcFunc, $modSettings;
+	global $txt;
 
 	// Force an update of the stats every 60 seconds.
 	if (!isset($_SESSION['spider_stat']) || $_SESSION['spider_stat'] < time() - 60)
@@ -898,7 +887,7 @@ function SpiderStats()
 		$deleteTime = time() - (((int) $_POST['older']) * 24 * 60 * 60);
 
 		// Delete the entires.
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}log_spider_stats
 			WHERE last_seen < {int:delete_period}',
 			array(
@@ -908,15 +897,15 @@ function SpiderStats()
 	}
 
 	// Get the earliest and latest dates.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT MIN(stat_date) AS first_date, MAX(stat_date) AS last_date
 		FROM {db_prefix}log_spider_stats',
 		array(
 		)
 	);
 
-	list ($min_date, $max_date) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($min_date, $max_date) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	$min_year = (int) substr($min_date, 0, 4);
 	$max_year = (int) substr($max_date, 0, 4);
@@ -963,7 +952,7 @@ function SpiderStats()
 	{
 		$date_query = sprintf('%04d-%02d-01', substr($current_date, 0, 4), substr($current_date, 4));
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT COUNT(*)
 			FROM {db_prefix}log_spider_stats
 			WHERE stat_date < {date:date_being_viewed}',
@@ -971,15 +960,15 @@ function SpiderStats()
 				'date_being_viewed' => $date_query,
 			)
 		);
-		list ($_REQUEST['start']) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		list ($_REQUEST['start']) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 	}
 
 	$listOptions = array(
 		'id' => 'spider_stat_list',
 		'title' => $txt['spider_stats'],
-		'items_per_page' => $modSettings['defaultMaxListItems'],
-		'base_href' => $scripturl . '?action=admin;area=sengines;sa=stats',
+		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
+		'base_href' => Config::$scripturl . '?action=admin;area=sengines;sa=stats',
 		'default_sort_col' => 'stat_date',
 		'get_items' => array(
 			'function' => 'list_getSpiderStats',
@@ -1027,7 +1016,7 @@ function SpiderStats()
 			),
 		),
 		'form' => array(
-			'href' => $scripturl . '?action=admin;area=sengines;sa=stats',
+			'href' => Config::$scripturl . '?action=admin;area=sengines;sa=stats',
 			'name' => 'spider_stat_list',
 		),
 		'additional_rows' => empty($date_select) ? array() : array(
@@ -1041,11 +1030,11 @@ function SpiderStats()
 
 	createToken('admin-ss');
 
-	require_once($sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/Subs-List.php');
 	createList($listOptions);
 
-	$context['sub_template'] = 'show_spider_stats';
-	$context['default_list'] = 'spider_stat_list';
+	Utils::$context['sub_template'] = 'show_spider_stats';
+	Utils::$context['default_list'] = 'spider_stat_list';
 }
 
 /**
@@ -1059,9 +1048,7 @@ function SpiderStats()
  */
 function list_getSpiderStats($start, $items_per_page, $sort)
 {
-	global $smcFunc;
-
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT ss.id_spider, ss.stat_date, ss.page_hits, s.spider_name
 		FROM {db_prefix}log_spider_stats AS ss
 			INNER JOIN {db_prefix}spiders AS s ON (s.id_spider = ss.id_spider)
@@ -1074,9 +1061,9 @@ function list_getSpiderStats($start, $items_per_page, $sort)
 		)
 	);
 	$spider_stats = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$spider_stats[] = $row;
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	return $spider_stats;
 }
@@ -1089,16 +1076,14 @@ function list_getSpiderStats($start, $items_per_page, $sort)
  */
 function list_getNumSpiderStats()
 {
-	global $smcFunc;
-
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(*) AS num_stats
 		FROM {db_prefix}log_spider_stats',
 		array(
 		)
 	);
-	list ($numStats) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($numStats) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	return $numStats;
 }
@@ -1108,19 +1093,17 @@ function list_getNumSpiderStats()
  */
 function recacheSpiderNames()
 {
-	global $smcFunc;
-
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_spider, spider_name
 		FROM {db_prefix}spiders',
 		array()
 	);
 	$spiders = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$spiders[$row['id_spider']] = $row['spider_name'];
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
-	updateSettings(array('spider_name_cache' => $smcFunc['json_encode']($spiders)));
+	Config::updateModSettings(array('spider_name_cache' => Utils::jsonEncode($spiders)));
 }
 
 ?>

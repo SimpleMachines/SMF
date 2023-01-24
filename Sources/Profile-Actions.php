@@ -14,6 +14,9 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -25,7 +28,7 @@ if (!defined('SMF'))
  */
 function activateAccount($memID)
 {
-	global $sourcedir, $context, $user_profile, $modSettings;
+	global $user_profile;
 
 	isAllowedTo('moderate_forum');
 
@@ -34,8 +37,8 @@ function activateAccount($memID)
 		// If we are approving the deletion of an account, we do something special ;)
 		if ($user_profile[$memID]['is_activated'] == 4)
 		{
-			require_once($sourcedir . '/Subs-Members.php');
-			deleteMembers($context['id_member']);
+			require_once(Config::$sourcedir . '/Subs-Members.php');
+			deleteMembers(Utils::$context['id_member']);
 			redirectexit();
 		}
 
@@ -43,15 +46,15 @@ function activateAccount($memID)
 		call_integration_hook('integrate_activate', array($user_profile[$memID]['member_name']));
 
 		// Actually update this member now, as it guarantees the unapproved count can't get corrupted.
-		updateMemberData($context['id_member'], array('is_activated' => $user_profile[$memID]['is_activated'] >= 10 ? 11 : 1, 'validation_code' => ''));
+		updateMemberData(Utils::$context['id_member'], array('is_activated' => $user_profile[$memID]['is_activated'] >= 10 ? 11 : 1, 'validation_code' => ''));
 
 		// Log what we did?
-		require_once($sourcedir . '/Logging.php');
+		require_once(Config::$sourcedir . '/Logging.php');
 		logAction('approve_member', array('member' => $memID), 'admin');
 
 		// If we are doing approval, update the stats for the member just in case.
 		if (in_array($user_profile[$memID]['is_activated'], array(3, 4, 5, 13, 14, 15)))
-			updateSettings(array('unapprovedMembers' => ($modSettings['unapprovedMembers'] > 1 ? $modSettings['unapprovedMembers'] - 1 : 0)));
+			Config::updateModSettings(array('unapprovedMembers' => (Config::$modSettings['unapprovedMembers'] > 1 ? Config::$modSettings['unapprovedMembers'] - 1 : 0)));
 
 		// Make sure we update the stats too.
 		updateStats('member', false);
@@ -68,39 +71,39 @@ function activateAccount($memID)
  */
 function issueWarning($memID)
 {
-	global $txt, $scripturl, $modSettings, $user_info, $mbname;
-	global $context, $cur_profile, $smcFunc, $sourcedir;
+	global $txt, $user_info;
+	global $cur_profile;
 
 	// Get all the actual settings.
-	list ($modSettings['warning_enable'], $modSettings['user_limit']) = explode(',', $modSettings['warning_settings']);
+	list (Config::$modSettings['warning_enable'], Config::$modSettings['user_limit']) = explode(',', Config::$modSettings['warning_settings']);
 
 	// This stores any legitimate errors.
 	$issueErrors = array();
 
 	// Doesn't hurt to be overly cautious.
-	if (empty($modSettings['warning_enable']) || ($context['user']['is_owner'] && !$cur_profile['warning']) || !allowedTo('issue_warning'))
+	if (empty(Config::$modSettings['warning_enable']) || (Utils::$context['user']['is_owner'] && !$cur_profile['warning']) || !allowedTo('issue_warning'))
 		fatal_lang_error('no_access', false);
 
 	// Get the base (errors related) stuff done.
 	loadLanguage('Errors');
-	$context['custom_error_title'] = $txt['profile_warning_errors_occured'];
+	Utils::$context['custom_error_title'] = $txt['profile_warning_errors_occured'];
 
 	// Make sure things which are disabled stay disabled.
-	$modSettings['warning_watch'] = !empty($modSettings['warning_watch']) ? $modSettings['warning_watch'] : 110;
-	$modSettings['warning_moderate'] = !empty($modSettings['warning_moderate']) && !empty($modSettings['postmod_active']) ? $modSettings['warning_moderate'] : 110;
-	$modSettings['warning_mute'] = !empty($modSettings['warning_mute']) ? $modSettings['warning_mute'] : 110;
+	Config::$modSettings['warning_watch'] = !empty(Config::$modSettings['warning_watch']) ? Config::$modSettings['warning_watch'] : 110;
+	Config::$modSettings['warning_moderate'] = !empty(Config::$modSettings['warning_moderate']) && !empty(Config::$modSettings['postmod_active']) ? Config::$modSettings['warning_moderate'] : 110;
+	Config::$modSettings['warning_mute'] = !empty(Config::$modSettings['warning_mute']) ? Config::$modSettings['warning_mute'] : 110;
 
-	$context['warning_limit'] = allowedTo('admin_forum') ? 0 : $modSettings['user_limit'];
-	$context['member']['warning'] = $cur_profile['warning'];
-	$context['member']['name'] = $cur_profile['real_name'];
+	Utils::$context['warning_limit'] = allowedTo('admin_forum') ? 0 : Config::$modSettings['user_limit'];
+	Utils::$context['member']['warning'] = $cur_profile['warning'];
+	Utils::$context['member']['name'] = $cur_profile['real_name'];
 
 	// What are the limits we can apply?
-	$context['min_allowed'] = 0;
-	$context['max_allowed'] = 100;
-	if ($context['warning_limit'] > 0)
+	Utils::$context['min_allowed'] = 0;
+	Utils::$context['max_allowed'] = 100;
+	if (Utils::$context['warning_limit'] > 0)
 	{
 		// Make sure we cannot go outside of our limit for the day.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT SUM(counter)
 			FROM {db_prefix}log_comments
 			WHERE id_recipient = {int:selected_member}
@@ -114,15 +117,15 @@ function issueWarning($memID)
 				'warning' => 'warning',
 			)
 		);
-		list ($current_applied) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		list ($current_applied) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 
-		$context['min_allowed'] = max(0, $cur_profile['warning'] - $current_applied - $context['warning_limit']);
-		$context['max_allowed'] = min(100, $cur_profile['warning'] - $current_applied + $context['warning_limit']);
+		Utils::$context['min_allowed'] = max(0, $cur_profile['warning'] - $current_applied - Utils::$context['warning_limit']);
+		Utils::$context['max_allowed'] = min(100, $cur_profile['warning'] - $current_applied + Utils::$context['warning_limit']);
 	}
 
 	// Defaults.
-	$context['warning_data'] = array(
+	Utils::$context['warning_data'] = array(
 		'reason' => '',
 		'notify' => '',
 		'notify_subject' => '',
@@ -137,16 +140,16 @@ function issueWarning($memID)
 
 		// This cannot be empty!
 		$_POST['warn_reason'] = isset($_POST['warn_reason']) ? trim($_POST['warn_reason']) : '';
-		if ($_POST['warn_reason'] == '' && !$context['user']['is_owner'])
+		if ($_POST['warn_reason'] == '' && !Utils::$context['user']['is_owner'])
 			$issueErrors[] = 'warning_no_reason';
-		$_POST['warn_reason'] = $smcFunc['htmlspecialchars']($_POST['warn_reason']);
+		$_POST['warn_reason'] = Utils::htmlspecialchars($_POST['warn_reason']);
 
 		$_POST['warning_level'] = (int) $_POST['warning_level'];
 		$_POST['warning_level'] = max(0, min(100, $_POST['warning_level']));
-		if ($_POST['warning_level'] < $context['min_allowed'])
-			$_POST['warning_level'] = $context['min_allowed'];
-		elseif ($_POST['warning_level'] > $context['max_allowed'])
-			$_POST['warning_level'] = $context['max_allowed'];
+		if ($_POST['warning_level'] < Utils::$context['min_allowed'])
+			$_POST['warning_level'] = Utils::$context['min_allowed'];
+		elseif ($_POST['warning_level'] > Utils::$context['max_allowed'])
+			$_POST['warning_level'] = Utils::$context['max_allowed'];
 
 		// Do we actually have to issue them with a PM?
 		$id_notice = 0;
@@ -159,22 +162,22 @@ function issueWarning($memID)
 			// Send the PM?
 			else
 			{
-				require_once($sourcedir . '/Subs-Post.php');
+				require_once(Config::$sourcedir . '/Subs-Post.php');
 				$from = array(
 					'id' => 0,
-					'name' => $context['forum_name_html_safe'],
-					'username' => $context['forum_name_html_safe'],
+					'name' => Utils::$context['forum_name_html_safe'],
+					'username' => Utils::$context['forum_name_html_safe'],
 				);
 				sendpm(array('to' => array($memID), 'bcc' => array()), $_POST['warn_sub'], $_POST['warn_body'], false, $from);
 
 				// Log the notice!
-				$id_notice = $smcFunc['db_insert']('',
+				$id_notice = Db::$db->insert('',
 					'{db_prefix}log_member_notices',
 					array(
 						'subject' => 'string-255', 'body' => 'string-65534',
 					),
 					array(
-						$smcFunc['htmlspecialchars']($_POST['warn_sub']), $smcFunc['htmlspecialchars']($_POST['warn_body']),
+						Utils::htmlspecialchars($_POST['warn_sub']), Utils::htmlspecialchars($_POST['warn_body']),
 					),
 					array('id_notice'),
 					1
@@ -192,8 +195,8 @@ function issueWarning($memID)
 		if (empty($issueErrors))
 		{
 			// Log what we've done!
-			if (!$context['user']['is_owner'])
-				$smcFunc['db_insert']('',
+			if (!Utils::$context['user']['is_owner'])
+				Db::$db->insert('',
 					'{db_prefix}log_comments',
 					array(
 						'id_member' => 'int', 'member_name' => 'string', 'comment_type' => 'string', 'id_recipient' => 'int', 'recipient_name' => 'string-255',
@@ -210,12 +213,12 @@ function issueWarning($memID)
 			updateMemberData($memID, array('warning' => $_POST['warning_level']));
 
 			// Leave a lovely message.
-			$context['profile_updated'] = $context['user']['is_owner'] ? $txt['profile_updated_own'] : $txt['profile_warning_success'];
+			Utils::$context['profile_updated'] = Utils::$context['user']['is_owner'] ? $txt['profile_updated_own'] : $txt['profile_warning_success'];
 		}
 		else
 		{
 			// Try to remember some bits.
-			$context['warning_data'] = array(
+			Utils::$context['warning_data'] = array(
 				'reason' => $_POST['warn_reason'],
 				'notify' => !empty($_POST['warn_notify']),
 				'notify_subject' => isset($_POST['warn_sub']) ? $_POST['warn_sub'] : '',
@@ -224,26 +227,26 @@ function issueWarning($memID)
 		}
 
 		// Show the new improved warning level.
-		$context['member']['warning'] = $_POST['warning_level'];
+		Utils::$context['member']['warning'] = $_POST['warning_level'];
 	}
 
 	if (isset($_POST['preview']))
 	{
 		$warning_body = !empty($_POST['warn_body']) ? trim(censorText($_POST['warn_body'])) : '';
-		$context['preview_subject'] = !empty($_POST['warn_sub']) ? trim($smcFunc['htmlspecialchars']($_POST['warn_sub'])) : '';
+		Utils::$context['preview_subject'] = !empty($_POST['warn_sub']) ? trim(Utils::htmlspecialchars($_POST['warn_sub'])) : '';
 		if (empty($_POST['warn_sub']) || empty($_POST['warn_body']))
 			$issueErrors[] = 'warning_notify_blank';
 
 		if (!empty($_POST['warn_body']))
 		{
-			require_once($sourcedir . '/Subs-Post.php');
+			require_once(Config::$sourcedir . '/Subs-Post.php');
 
 			preparsecode($warning_body);
 			$warning_body = BBCodeParser::load()->parse($warning_body);
 		}
 
 		// Try to remember some bits.
-		$context['warning_data'] = array(
+		Utils::$context['warning_data'] = array(
 			'reason' => $_POST['warn_reason'],
 			'notify' => !empty($_POST['warn_notify']),
 			'notify_subject' => isset($_POST['warn_sub']) ? $_POST['warn_sub'] : '',
@@ -255,34 +258,34 @@ function issueWarning($memID)
 	if (!empty($issueErrors))
 	{
 		// Fill in the suite of errors.
-		$context['post_errors'] = array();
+		Utils::$context['post_errors'] = array();
 		foreach ($issueErrors as $error)
-			$context['post_errors'][] = $txt[$error];
+			Utils::$context['post_errors'][] = $txt[$error];
 	}
 
-	$context['page_title'] = $txt['profile_issue_warning'];
+	Utils::$context['page_title'] = $txt['profile_issue_warning'];
 
 	// Let's use a generic list to get all the current warnings
-	require_once($sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/Subs-List.php');
 
 	// Work our the various levels.
-	$context['level_effects'] = array(
+	Utils::$context['level_effects'] = array(
 		0 => $txt['profile_warning_effect_none'],
-		$modSettings['warning_watch'] => $txt['profile_warning_effect_watch'],
-		$modSettings['warning_moderate'] => $txt['profile_warning_effect_moderation'],
-		$modSettings['warning_mute'] => $txt['profile_warning_effect_mute'],
+		Config::$modSettings['warning_watch'] => $txt['profile_warning_effect_watch'],
+		Config::$modSettings['warning_moderate'] => $txt['profile_warning_effect_moderation'],
+		Config::$modSettings['warning_mute'] => $txt['profile_warning_effect_mute'],
 	);
-	$context['current_level'] = 0;
-	foreach ($context['level_effects'] as $limit => $dummy)
-		if ($context['member']['warning'] >= $limit)
-			$context['current_level'] = $limit;
+	Utils::$context['current_level'] = 0;
+	foreach (Utils::$context['level_effects'] as $limit => $dummy)
+		if (Utils::$context['member']['warning'] >= $limit)
+			Utils::$context['current_level'] = $limit;
 
 	$listOptions = array(
 		'id' => 'view_warnings',
 		'title' => $txt['profile_viewwarning_previous_warnings'],
-		'items_per_page' => $modSettings['defaultMaxListItems'],
+		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 		'no_items_label' => $txt['profile_viewwarning_no_warnings'],
-		'base_href' => $scripturl . '?action=profile;area=issuewarning;sa=user;u=' . $memID,
+		'base_href' => Config::$scripturl . '?action=profile;area=issuewarning;sa=user;u=' . $memID,
 		'default_sort_col' => 'log_time',
 		'get_items' => array(
 			'function' => 'list_getUserWarnings',
@@ -331,7 +334,7 @@ function issueWarning($memID)
 					'value' => $txt['profile_warning_previous_reason'],
 				),
 				'data' => array(
-					'function' => function($warning) use ($scripturl, $txt)
+					'function' => function($warning) use ($txt)
 					{
 						$ret = '
 						<div class="floatleft">
@@ -341,7 +344,7 @@ function issueWarning($memID)
 						if (!empty($warning['id_notice']))
 							$ret .= '
 						<div class="floatright">
-							<a href="' . $scripturl . '?action=moderate;area=notice;nid=' . $warning['id_notice'] . '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" rel="noopener" title="' . $txt['profile_warning_previous_notice'] . '"><span class="main_icons filter centericon"></span></a>
+							<a href="' . Config::$scripturl . '?action=moderate;area=notice;nid=' . $warning['id_notice'] . '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" rel="noopener" title="' . $txt['profile_warning_previous_notice'] . '"><span class="main_icons filter centericon"></span></a>
 						</div>';
 
 						return $ret;
@@ -365,13 +368,13 @@ function issueWarning($memID)
 	);
 
 	// Create the list for viewing.
-	require_once($sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/Subs-List.php');
 	createList($listOptions);
 
 	// Are they warning because of a message?
 	if (isset($_REQUEST['msg']) && 0 < (int) $_REQUEST['msg'])
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT m.subject
 			FROM {db_prefix}messages AS m
 			WHERE m.id_msg = {int:message}
@@ -381,25 +384,25 @@ function issueWarning($memID)
 				'message' => (int) $_REQUEST['msg'],
 			)
 		);
-		if ($smcFunc['db_num_rows']($request) != 0)
+		if (Db::$db->num_rows($request) != 0)
 		{
-			$context['warning_for_message'] = (int) $_REQUEST['msg'];
-			list ($context['warned_message_subject']) = $smcFunc['db_fetch_row']($request);
+			Utils::$context['warning_for_message'] = (int) $_REQUEST['msg'];
+			list (Utils::$context['warned_message_subject']) = Db::$db->fetch_row($request);
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 	}
 
 	// Didn't find the message?
-	if (empty($context['warning_for_message']))
+	if (empty(Utils::$context['warning_for_message']))
 	{
-		$context['warning_for_message'] = 0;
-		$context['warned_message_subject'] = '';
+		Utils::$context['warning_for_message'] = 0;
+		Utils::$context['warned_message_subject'] = '';
 	}
 
 	// Any custom templates?
-	$context['notification_templates'] = array();
+	Utils::$context['notification_templates'] = array();
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT recipient_name AS template_title, body
 		FROM {db_prefix}log_comments
 		WHERE comment_type = {literal:warntpl}
@@ -409,29 +412,29 @@ function issueWarning($memID)
 			'current_member' => $user_info['id'],
 		)
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// If we're not warning for a message skip any that are.
-		if (!$context['warning_for_message'] && strpos($row['body'], '{MESSAGE}') !== false)
+		if (!Utils::$context['warning_for_message'] && strpos($row['body'], '{MESSAGE}') !== false)
 			continue;
 
-		$context['notification_templates'][] = array(
+		Utils::$context['notification_templates'][] = array(
 			'title' => $row['template_title'],
 			'body' => $row['body'],
 		);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Setup the "default" templates.
 	foreach (array('spamming', 'offence', 'insulting') as $type)
-		$context['notification_templates'][] = array(
+		Utils::$context['notification_templates'][] = array(
 			'title' => $txt['profile_warning_notify_title_' . $type],
-			'body' => sprintf($txt['profile_warning_notify_template_outline' . (!empty($context['warning_for_message']) ? '_post' : '')], $txt['profile_warning_notify_for_' . $type]),
+			'body' => sprintf($txt['profile_warning_notify_template_outline' . (!empty(Utils::$context['warning_for_message']) ? '_post' : '')], $txt['profile_warning_notify_for_' . $type]),
 		);
 
 	// Replace all the common variables in the templates.
-	foreach ($context['notification_templates'] as $k => $name)
-		$context['notification_templates'][$k]['body'] = strtr($name['body'], array('{MEMBER}' => un_htmlspecialchars($context['member']['name']), '{MESSAGE}' => '[url=' . $scripturl . '?msg=' . $context['warning_for_message'] . ']' . un_htmlspecialchars($context['warned_message_subject']) . '[/url]', '{SCRIPTURL}' => $scripturl, '{FORUMNAME}' => $mbname, '{REGARDS}' => sprintf($txt['regards_team'], $context['forum_name'])));
+	foreach (Utils::$context['notification_templates'] as $k => $name)
+		Utils::$context['notification_templates'][$k]['body'] = strtr($name['body'], array('{MEMBER}' => un_htmlspecialchars(Utils::$context['member']['name']), '{MESSAGE}' => '[url=' . Config::$scripturl . '?msg=' . Utils::$context['warning_for_message'] . ']' . un_htmlspecialchars(Utils::$context['warned_message_subject']) . '[/url]', '{SCRIPTURL}' => Config::$scripturl, '{FORUMNAME}' => Config::$mbname, '{REGARDS}' => sprintf($txt['regards_team'], Utils::$context['forum_name'])));
 }
 
 /**
@@ -442,9 +445,7 @@ function issueWarning($memID)
  */
 function list_getUserWarningCount($memID)
 {
-	global $smcFunc;
-
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}log_comments
 		WHERE id_recipient = {int:selected_member}
@@ -453,8 +454,8 @@ function list_getUserWarningCount($memID)
 			'selected_member' => $memID,
 		)
 	);
-	list ($total_warnings) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($total_warnings) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	return $total_warnings;
 }
@@ -470,9 +471,7 @@ function list_getUserWarningCount($memID)
  */
 function list_getUserWarnings($start, $items_per_page, $sort, $memID)
 {
-	global $smcFunc, $scripturl;
-
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, lc.member_name) AS member_name,
 			lc.log_time, lc.body, lc.counter, lc.id_notice
 		FROM {db_prefix}log_comments AS lc
@@ -489,12 +488,12 @@ function list_getUserWarnings($start, $items_per_page, $sort, $memID)
 		)
 	);
 	$previous_warnings = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$previous_warnings[] = array(
 			'issuer' => array(
 				'id' => $row['id_member'],
-				'link' => $row['id_member'] ? ('<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['member_name'] . '</a>') : $row['member_name'],
+				'link' => $row['id_member'] ? ('<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['member_name'] . '</a>') : $row['member_name'],
 			),
 			'time' => timeformat($row['log_time']),
 			'reason' => $row['body'],
@@ -502,7 +501,7 @@ function list_getUserWarnings($start, $items_per_page, $sort, $memID)
 			'id_notice' => $row['id_notice'],
 		);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	return $previous_warnings;
 }
@@ -514,22 +513,22 @@ function list_getUserWarnings($start, $items_per_page, $sort, $memID)
  */
 function deleteAccount($memID)
 {
-	global $txt, $context, $modSettings, $cur_profile;
+	global $txt, $cur_profile;
 
-	if (!$context['user']['is_owner'])
+	if (!Utils::$context['user']['is_owner'])
 		isAllowedTo('profile_remove_any');
 	elseif (!allowedTo('profile_remove_any'))
 		isAllowedTo('profile_remove_own');
 
 	// Permissions for removing stuff...
-	$context['can_delete_posts'] = !$context['user']['is_owner'] && allowedTo('moderate_forum');
+	Utils::$context['can_delete_posts'] = !Utils::$context['user']['is_owner'] && allowedTo('moderate_forum');
 
 	// Show an extra option if recycling is enabled...
-	$context['show_perma_delete'] = !empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']);
+	Utils::$context['show_perma_delete'] = !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']);
 
 	// Can they do this, or will they need approval?
-	$context['needs_approval'] = $context['user']['is_owner'] && !empty($modSettings['approveAccountDeletion']) && !allowedTo('moderate_forum');
-	$context['page_title'] = $txt['deleteAccount'] . ': ' . $cur_profile['real_name'];
+	Utils::$context['needs_approval'] = Utils::$context['user']['is_owner'] && !empty(Config::$modSettings['approveAccountDeletion']) && !allowedTo('moderate_forum');
+	Utils::$context['page_title'] = $txt['deleteAccount'] . ': ' . $cur_profile['real_name'];
 }
 
 /**
@@ -539,14 +538,14 @@ function deleteAccount($memID)
  */
 function deleteAccount2($memID)
 {
-	global $user_info, $sourcedir, $context, $cur_profile, $modSettings, $smcFunc;
+	global $user_info, $cur_profile;
 
 	// Try get more time...
 	@set_time_limit(600);
 
 	// @todo Add a way to delete pms as well?
 
-	if (!$context['user']['is_owner'])
+	if (!Utils::$context['user']['is_owner'])
 		isAllowedTo('profile_remove_any');
 	elseif (!allowedTo('profile_remove_any'))
 		isAllowedTo('profile_remove_own');
@@ -561,7 +560,7 @@ function deleteAccount2($memID)
 		// Are you allowed to administrate the forum, as they are?
 		isAllowedTo('admin_forum');
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_member
 			FROM {db_prefix}members
 			WHERE (id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0)
@@ -572,15 +571,15 @@ function deleteAccount2($memID)
 				'selected_member' => $memID,
 			)
 		);
-		list ($another) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		list ($another) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 
 		if (empty($another))
 			fatal_lang_error('at_least_one_admin', 'critical');
 	}
 
 	// This file is needed for the deleteMembers function.
-	require_once($sourcedir . '/Subs-Members.php');
+	require_once(Config::$sourcedir . '/Subs-Members.php');
 
 	// Do you have permission to delete others profiles, or is that your profile you wanna delete?
 	if ($memID != $user_info['id'])
@@ -591,7 +590,7 @@ function deleteAccount2($memID)
 		if (!empty($_POST['deleteVotes']) && allowedTo('moderate_forum'))
 		{
 			// First we find any polls that this user has voted in...
-			$get_voted_polls = $smcFunc['db_query']('', '
+			$get_voted_polls = Db::$db->query('', '
 				SELECT DISTINCT id_poll
 				FROM {db_prefix}log_polls
 				WHERE id_member = {int:selected_member}',
@@ -602,17 +601,17 @@ function deleteAccount2($memID)
 
 			$polls_to_update = array();
 
-			while ($row = $smcFunc['db_fetch_assoc']($get_voted_polls))
+			while ($row = Db::$db->fetch_assoc($get_voted_polls))
 			{
 				$polls_to_update[] = $row['id_poll'];
 			}
 
-			$smcFunc['db_free_result']($get_voted_polls);
+			Db::$db->free_result($get_voted_polls);
 
 			// Now we delete the votes and update the polls
 			if (!empty($polls_to_update))
 			{
-				$smcFunc['db_query']('', '
+				Db::$db->query('', '
 					DELETE FROM {db_prefix}log_polls
 					WHERE id_member = {int:selected_member}',
 					array(
@@ -620,7 +619,7 @@ function deleteAccount2($memID)
 					)
 				);
 
-				$smcFunc['db_query']('', '
+				Db::$db->query('', '
 					UPDATE {db_prefix}polls
 					SET votes = votes - 1
 					WHERE id_poll IN ({array_int:polls_to_update})',
@@ -636,16 +635,16 @@ function deleteAccount2($memID)
 		if (!empty($_POST['deletePosts']) && in_array($_POST['remove_type'], array('posts', 'topics')) && allowedTo('moderate_forum'))
 		{
 			// Include RemoveTopics - essential for this type of work!
-			require_once($sourcedir . '/RemoveTopic.php');
+			require_once(Config::$sourcedir . '/RemoveTopic.php');
 
 			$extra = empty($_POST['perma_delete']) ? ' AND t.id_board != {int:recycle_board}' : '';
-			$recycle_board = empty($modSettings['recycle_board']) ? 0 : $modSettings['recycle_board'];
+			$recycle_board = empty(Config::$modSettings['recycle_board']) ? 0 : Config::$modSettings['recycle_board'];
 
 			// First off we delete any topics the member has started - if they wanted topics being done.
 			if ($_POST['remove_type'] == 'topics')
 			{
 				// Fetch all topics started by this user within the time period.
-				$request = $smcFunc['db_query']('', '
+				$request = Db::$db->query('', '
 					SELECT t.id_topic
 					FROM {db_prefix}topics AS t
 					WHERE t.id_member_started = {int:selected_member}' . $extra,
@@ -655,9 +654,9 @@ function deleteAccount2($memID)
 					)
 				);
 				$topicIDs = array();
-				while ($row = $smcFunc['db_fetch_assoc']($request))
+				while ($row = Db::$db->fetch_assoc($request))
 					$topicIDs[] = $row['id_topic'];
-				$smcFunc['db_free_result']($request);
+				Db::$db->free_result($request);
 
 				// Actually remove the topics. Ignore recycling if we want to perma-delete things...
 				// @todo This needs to check permissions, but we'll let it slide for now because of moderate_forum already being had.
@@ -665,7 +664,7 @@ function deleteAccount2($memID)
 			}
 
 			// Now delete the remaining messages.
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT m.id_msg
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic
@@ -677,14 +676,14 @@ function deleteAccount2($memID)
 				)
 			);
 			// This could take a while... but ya know it's gonna be worth it in the end.
-			while ($row = $smcFunc['db_fetch_assoc']($request))
+			while ($row = Db::$db->fetch_assoc($request))
 			{
 				if (function_exists('apache_reset_timeout'))
 					@apache_reset_timeout();
 
 				removeMessage($row['id_msg']);
 			}
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 		}
 
 		// Only delete this poor members account if they are actually being booted out of camp.
@@ -692,19 +691,19 @@ function deleteAccount2($memID)
 			deleteMembers($memID);
 	}
 	// Do they need approval to delete?
-	elseif (!empty($modSettings['approveAccountDeletion']) && !allowedTo('moderate_forum'))
+	elseif (!empty(Config::$modSettings['approveAccountDeletion']) && !allowedTo('moderate_forum'))
 	{
 		// Setup their account for deletion ;)
 		updateMemberData($memID, array('is_activated' => 4));
 		// Another account needs approval...
-		updateSettings(array('unapprovedMembers' => true), true);
+		Config::updateModSettings(array('unapprovedMembers' => true), true);
 	}
 	// Also check if you typed your password correctly.
 	else
 	{
 		deleteMembers($memID);
 
-		require_once($sourcedir . '/LogInOut.php');
+		require_once(Config::$sourcedir . '/LogInOut.php');
 		LogOut(true);
 
 		redirectexit();
@@ -718,22 +717,22 @@ function deleteAccount2($memID)
  */
 function subscriptions($memID)
 {
-	global $context, $txt, $sourcedir, $modSettings, $smcFunc, $scripturl;
+	global $txt;
 
 	// Load the paid template anyway.
 	loadTemplate('ManagePaid');
 	loadLanguage('ManagePaid');
 
 	// Load all of the subscriptions.
-	require_once($sourcedir . '/ManagePaid.php');
+	require_once(Config::$sourcedir . '/ManagePaid.php');
 	loadSubscriptions();
-	$context['member']['id'] = $memID;
+	Utils::$context['member']['id'] = $memID;
 
 	// Remove any invalid ones.
-	foreach ($context['subscriptions'] as $id => $sub)
+	foreach (Utils::$context['subscriptions'] as $id => $sub)
 	{
 		// Work out the costs.
-		$costs = $smcFunc['json_decode']($sub['real_cost'], true);
+		$costs = Utils::jsonDecode($sub['real_cost'], true);
 
 		$cost_array = array();
 		if ($sub['real_length'] == 'F')
@@ -750,12 +749,12 @@ function subscriptions($memID)
 		}
 
 		if (empty($cost_array))
-			unset($context['subscriptions'][$id]);
+			unset(Utils::$context['subscriptions'][$id]);
 		else
 		{
-			$context['subscriptions'][$id]['member'] = 0;
-			$context['subscriptions'][$id]['subscribed'] = false;
-			$context['subscriptions'][$id]['costs'] = $cost_array;
+			Utils::$context['subscriptions'][$id]['member'] = 0;
+			Utils::$context['subscriptions'][$id]['subscribed'] = false;
+			Utils::$context['subscriptions'][$id]['costs'] = $cost_array;
 		}
 	}
 
@@ -773,7 +772,7 @@ function subscriptions($memID)
 		fatal_error($txt['paid_admin_not_setup_gateway']);
 
 	// Get the current subscriptions.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_sublog, id_subscribe, start_time, end_time, status, payments_pending, pending_details
 		FROM {db_prefix}log_subscribed
 		WHERE id_member = {int:selected_member}',
@@ -781,18 +780,18 @@ function subscriptions($memID)
 			'selected_member' => $memID,
 		)
 	);
-	$context['current'] = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	Utils::$context['current'] = array();
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// The subscription must exist!
-		if (!isset($context['subscriptions'][$row['id_subscribe']]))
+		if (!isset(Utils::$context['subscriptions'][$row['id_subscribe']]))
 			continue;
 
-		$context['current'][$row['id_subscribe']] = array(
+		Utils::$context['current'][$row['id_subscribe']] = array(
 			'id' => $row['id_sublog'],
 			'sub_id' => $row['id_subscribe'],
 			'hide' => $row['status'] == 0 && $row['end_time'] == 0 && $row['payments_pending'] == 0,
-			'name' => $context['subscriptions'][$row['id_subscribe']]['name'],
+			'name' => Utils::$context['subscriptions'][$row['id_subscribe']]['name'],
 			'start' => timeformat($row['start_time'], false),
 			'end' => $row['end_time'] == 0 ? $txt['not_applicable'] : timeformat($row['end_time'], false),
 			'pending_details' => $row['pending_details'],
@@ -801,9 +800,9 @@ function subscriptions($memID)
 		);
 
 		if ($row['status'] == 1)
-			$context['subscriptions'][$row['id_subscribe']]['subscribed'] = true;
+			Utils::$context['subscriptions'][$row['id_subscribe']]['subscribed'] = true;
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Simple "done"?
 	if (isset($_GET['done']))
@@ -811,10 +810,10 @@ function subscriptions($memID)
 		$_GET['sub_id'] = (int) $_GET['sub_id'];
 
 		// Must exist but let's be sure...
-		if (isset($context['current'][$_GET['sub_id']]))
+		if (isset(Utils::$context['current'][$_GET['sub_id']]))
 		{
 			// What are the details like?
-			$current_pending = $smcFunc['json_decode']($context['current'][$_GET['sub_id']]['pending_details'], true);
+			$current_pending = Utils::jsonDecode(Utils::$context['current'][$_GET['sub_id']]['pending_details'], true);
 			if (!empty($current_pending))
 			{
 				$current_pending = array_reverse($current_pending);
@@ -829,15 +828,15 @@ function subscriptions($memID)
 				}
 
 				// Save the details back.
-				$pending_details = $smcFunc['json_encode']($current_pending);
+				$pending_details = Utils::jsonEncode($current_pending);
 
-				$smcFunc['db_query']('', '
+				Db::$db->query('', '
 					UPDATE {db_prefix}log_subscribed
 					SET payments_pending = payments_pending + 1, pending_details = {string:pending_details}
 					WHERE id_sublog = {int:current_subscription_id}
 						AND id_member = {int:selected_member}',
 					array(
-						'current_subscription_id' => $context['current'][$_GET['sub_id']]['id'],
+						'current_subscription_id' => Utils::$context['current'][$_GET['sub_id']]['id'],
 						'selected_member' => $memID,
 						'pending_details' => $pending_details,
 					)
@@ -845,7 +844,7 @@ function subscriptions($memID)
 			}
 		}
 
-		$context['sub_template'] = 'paid_done';
+		Utils::$context['sub_template'] = 'paid_done';
 		return;
 	}
 	// If this is confirmation then it's simpler...
@@ -855,64 +854,64 @@ function subscriptions($memID)
 		foreach ($_POST['sub_id'] as $k => $v)
 			$ID_SUB = (int) $k;
 
-		if (!isset($context['subscriptions'][$ID_SUB]) || $context['subscriptions'][$ID_SUB]['active'] == 0)
+		if (!isset(Utils::$context['subscriptions'][$ID_SUB]) || Utils::$context['subscriptions'][$ID_SUB]['active'] == 0)
 			fatal_lang_error('paid_sub_not_active');
 
 		// Simplify...
-		$context['sub'] = $context['subscriptions'][$ID_SUB];
+		Utils::$context['sub'] = Utils::$context['subscriptions'][$ID_SUB];
 		$period = 'xx';
-		if ($context['sub']['flexible'])
-			$period = isset($_POST['cur'][$ID_SUB]) && isset($context['sub']['costs'][$_POST['cur'][$ID_SUB]]) ? $_POST['cur'][$ID_SUB] : 'xx';
+		if (Utils::$context['sub']['flexible'])
+			$period = isset($_POST['cur'][$ID_SUB]) && isset(Utils::$context['sub']['costs'][$_POST['cur'][$ID_SUB]]) ? $_POST['cur'][$ID_SUB] : 'xx';
 
 		// Check we have a valid cost.
-		if ($context['sub']['flexible'] && $period == 'xx')
+		if (Utils::$context['sub']['flexible'] && $period == 'xx')
 			fatal_lang_error('paid_sub_not_active');
 
 		// Sort out the cost/currency.
-		$context['currency'] = $modSettings['paid_currency_code'];
-		$context['recur'] = $context['sub']['repeatable'];
+		Utils::$context['currency'] = Config::$modSettings['paid_currency_code'];
+		Utils::$context['recur'] = Utils::$context['sub']['repeatable'];
 
-		if ($context['sub']['flexible'])
+		if (Utils::$context['sub']['flexible'])
 		{
 			// Real cost...
-			$context['value'] = $context['sub']['costs'][$_POST['cur'][$ID_SUB]];
-			$context['cost'] = sprintf($modSettings['paid_currency_symbol'], $context['value']) . '/' . $txt[$_POST['cur'][$ID_SUB]];
+			Utils::$context['value'] = Utils::$context['sub']['costs'][$_POST['cur'][$ID_SUB]];
+			Utils::$context['cost'] = sprintf(Config::$modSettings['paid_currency_symbol'], Utils::$context['value']) . '/' . $txt[$_POST['cur'][$ID_SUB]];
 			// The period value for paypal.
-			$context['paypal_period'] = strtoupper(substr($_POST['cur'][$ID_SUB], 0, 1));
+			Utils::$context['paypal_period'] = strtoupper(substr($_POST['cur'][$ID_SUB], 0, 1));
 		}
 		else
 		{
 			// Real cost...
-			$context['value'] = $context['sub']['costs']['fixed'];
-			$context['cost'] = sprintf($modSettings['paid_currency_symbol'], $context['value']);
+			Utils::$context['value'] = Utils::$context['sub']['costs']['fixed'];
+			Utils::$context['cost'] = sprintf(Config::$modSettings['paid_currency_symbol'], Utils::$context['value']);
 
 			// Recur?
-			preg_match('~(\d*)(\w)~', $context['sub']['real_length'], $match);
-			$context['paypal_unit'] = $match[1];
-			$context['paypal_period'] = $match[2];
+			preg_match('~(\d*)(\w)~', Utils::$context['sub']['real_length'], $match);
+			Utils::$context['paypal_unit'] = $match[1];
+			Utils::$context['paypal_period'] = $match[2];
 		}
 
 		// Setup the gateway context.
-		$context['gateways'] = array();
+		Utils::$context['gateways'] = array();
 		foreach ($gateways as $id => $gateway)
 		{
-			$fields = $gateways[$id]->fetchGatewayFields($context['sub']['id'] . '+' . $memID, $context['sub'], $context['value'], $period, $scripturl . '?action=profile&u=' . $memID . '&area=subscriptions&sub_id=' . $context['sub']['id'] . '&done');
+			$fields = $gateways[$id]->fetchGatewayFields(Utils::$context['sub']['id'] . '+' . $memID, Utils::$context['sub'], Utils::$context['value'], $period, Config::$scripturl . '?action=profile&u=' . $memID . '&area=subscriptions&sub_id=' . Utils::$context['sub']['id'] . '&done');
 			if (!empty($fields['form']))
-				$context['gateways'][] = $fields;
+				Utils::$context['gateways'][] = $fields;
 		}
 
 		// Bugger?!
-		if (empty($context['gateways']))
+		if (empty(Utils::$context['gateways']))
 			fatal_error($txt['paid_admin_not_setup_gateway']);
 
 		// Now we are going to assume they want to take this out ;)
-		$new_data = array($context['sub']['id'], $context['value'], $period, 'prepay');
-		if (isset($context['current'][$context['sub']['id']]))
+		$new_data = array(Utils::$context['sub']['id'], Utils::$context['value'], $period, 'prepay');
+		if (isset(Utils::$context['current'][Utils::$context['sub']['id']]))
 		{
 			// What are the details like?
 			$current_pending = array();
-			if ($context['current'][$context['sub']['id']]['pending_details'] != '')
-				$current_pending = $smcFunc['json_decode']($context['current'][$context['sub']['id']]['pending_details'], true);
+			if (Utils::$context['current'][Utils::$context['sub']['id']]['pending_details'] != '')
+				$current_pending = Utils::jsonDecode(Utils::$context['current'][Utils::$context['sub']['id']]['pending_details'], true);
 			// Don't get silly.
 			if (count($current_pending) > 9)
 				$current_pending = array();
@@ -925,16 +924,16 @@ function subscriptions($memID)
 			if (!in_array($new_data, $current_pending))
 			{
 				$current_pending[] = $new_data;
-				$pending_details = $smcFunc['json_encode']($current_pending);
+				$pending_details = Utils::jsonEncode($current_pending);
 
-				$smcFunc['db_query']('', '
+				Db::$db->query('', '
 					UPDATE {db_prefix}log_subscribed
 					SET payments_pending = {int:pending_count}, pending_details = {string:pending_details}
 					WHERE id_sublog = {int:current_subscription_item}
 						AND id_member = {int:selected_member}',
 					array(
 						'pending_count' => $pending_count,
-						'current_subscription_item' => $context['current'][$context['sub']['id']]['id'],
+						'current_subscription_item' => Utils::$context['current'][Utils::$context['sub']['id']]['id'],
 						'selected_member' => $memID,
 						'pending_details' => $pending_details,
 					)
@@ -944,15 +943,15 @@ function subscriptions($memID)
 		// Never had this before, lovely.
 		else
 		{
-			$pending_details = $smcFunc['json_encode'](array($new_data));
-			$smcFunc['db_insert']('',
+			$pending_details = Utils::jsonEncode(array($new_data));
+			Db::$db->insert('',
 				'{db_prefix}log_subscribed',
 				array(
 					'id_subscribe' => 'int', 'id_member' => 'int', 'status' => 'int', 'payments_pending' => 'int', 'pending_details' => 'string-65534',
 					'start_time' => 'int', 'vendor_ref' => 'string-255',
 				),
 				array(
-					$context['sub']['id'], $memID, 0, 0, $pending_details,
+					Utils::$context['sub']['id'], $memID, 0, 0, $pending_details,
 					time(), '',
 				),
 				array('id_sublog')
@@ -960,13 +959,13 @@ function subscriptions($memID)
 		}
 
 		// Change the template.
-		$context['sub_template'] = 'choose_payment';
+		Utils::$context['sub_template'] = 'choose_payment';
 
 		// Quit.
 		return;
 	}
 	else
-		$context['sub_template'] = 'user_subscription';
+		Utils::$context['sub_template'] = 'user_subscription';
 }
 
 ?>

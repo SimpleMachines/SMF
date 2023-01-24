@@ -13,6 +13,10 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -27,7 +31,7 @@ if (!defined('SMF'))
  */
 function getMembersOnlineStats($membersOnlineOptions)
 {
-	global $smcFunc, $scripturl, $user_info, $modSettings, $txt;
+	global $user_info, $txt;
 
 	// The list can be sorted in several ways.
 	$allowed_sort_options = array(
@@ -67,11 +71,11 @@ function getMembersOnlineStats($membersOnlineOptions)
 	// Get any spiders if enabled.
 	$spiders = array();
 	$spider_finds = array();
-	if (!empty($modSettings['show_spider_online']) && ($modSettings['show_spider_online'] < 3 || allowedTo('admin_forum')) && !empty($modSettings['spider_name_cache']))
-		$spiders = $smcFunc['json_decode']($modSettings['spider_name_cache'], true);
+	if (!empty(Config::$modSettings['show_spider_online']) && (Config::$modSettings['show_spider_online'] < 3 || allowedTo('admin_forum')) && !empty(Config::$modSettings['spider_name_cache']))
+		$spiders = Utils::jsonDecode(Config::$modSettings['spider_name_cache'], true);
 
 	// Load the users online right now.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT
 			lo.id_member, lo.log_time, lo.id_spider, mem.real_name, mem.member_name, mem.show_online,
 			mg.online_color, mg.id_group, mg.group_name, mg.hidden, mg.group_type, mg.id_parent
@@ -82,7 +86,7 @@ function getMembersOnlineStats($membersOnlineOptions)
 			'reg_mem_group' => 0,
 		)
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		if (empty($row['real_name']))
 		{
@@ -107,9 +111,9 @@ function getMembersOnlineStats($membersOnlineOptions)
 
 		// Some basic color coding...
 		if (!empty($row['online_color']))
-			$link = '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '" style="color: ' . $row['online_color'] . ';">' . $row['real_name'] . '</a>';
+			$link = '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '" style="color: ' . $row['online_color'] . ';">' . $row['real_name'] . '</a>';
 		else
-			$link = '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>';
+			$link = '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>';
 
 		// Buddies get counted and highlighted.
 		$is_buddy = in_array($row['id_member'], $user_info['buddies']);
@@ -125,7 +129,7 @@ function getMembersOnlineStats($membersOnlineOptions)
 			'username' => $row['member_name'],
 			'name' => $row['real_name'],
 			'group' => $row['id_group'],
-			'href' => $scripturl . '?action=profile;u=' . $row['id_member'],
+			'href' => Config::$scripturl . '?action=profile;u=' . $row['id_member'],
 			'link' => $link,
 			'is_buddy' => $is_buddy,
 			'hidden' => empty($row['show_online']),
@@ -146,10 +150,10 @@ function getMembersOnlineStats($membersOnlineOptions)
 				'parent' => $row['id_parent'],
 			);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// If there are spiders only and we're showing the detail, add them to the online list - at the bottom.
-	if (!empty($spider_finds) && $modSettings['show_spider_online'] > 1)
+	if (!empty($spider_finds) && Config::$modSettings['show_spider_online'] > 1)
 	{
 		$sort = $membersOnlineOptions['sort'] === 'log_time' && $membersOnlineOptions['reverse_sort'] ? 0 : 'zzz_';
 		foreach ($spider_finds as $id => $count)
@@ -189,7 +193,7 @@ function getMembersOnlineStats($membersOnlineOptions)
 	ksort($membersOnlineStats['online_groups']);
 
 	// Hidden and non-hidden members make up all online members.
-	$membersOnlineStats['num_users_online'] = count($membersOnlineStats['users_online']) + $membersOnlineStats['num_users_hidden'] - (isset($modSettings['show_spider_online']) && $modSettings['show_spider_online'] > 1 ? count($spider_finds) : 0);
+	$membersOnlineStats['num_users_online'] = count($membersOnlineStats['users_online']) + $membersOnlineStats['num_users_hidden'] - (isset(Config::$modSettings['show_spider_online']) && Config::$modSettings['show_spider_online'] > 1 ? count($spider_finds) : 0);
 
 	call_integration_hook('integrate_online_stats', array(&$membersOnlineStats));
 
@@ -203,12 +207,10 @@ function getMembersOnlineStats($membersOnlineOptions)
  */
 function trackStatsUsersOnline($total_users_online)
 {
-	global $modSettings, $smcFunc;
-
 	$settingsToUpdate = array();
 
 	// More members on now than ever were?  Update it!
-	if (!isset($modSettings['mostOnline']) || $total_users_online >= $modSettings['mostOnline'])
+	if (!isset(Config::$modSettings['mostOnline']) || $total_users_online >= Config::$modSettings['mostOnline'])
 		$settingsToUpdate = array(
 			'mostOnline' => $total_users_online,
 			'mostDate' => time()
@@ -217,9 +219,9 @@ function trackStatsUsersOnline($total_users_online)
 	$date = smf_strftime('%Y-%m-%d', time());
 
 	// No entry exists for today yet?
-	if (!isset($modSettings['mostOnlineUpdated']) || $modSettings['mostOnlineUpdated'] != $date)
+	if (!isset(Config::$modSettings['mostOnlineUpdated']) || Config::$modSettings['mostOnlineUpdated'] != $date)
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT most_on
 			FROM {db_prefix}log_activity
 			WHERE date = {date:date}
@@ -230,9 +232,9 @@ function trackStatsUsersOnline($total_users_online)
 		);
 
 		// The log_activity hasn't got an entry for today?
-		if ($smcFunc['db_num_rows']($request) === 0)
+		if (Db::$db->num_rows($request) === 0)
 		{
-			$smcFunc['db_insert']('ignore',
+			Db::$db->insert('ignore',
 				'{db_prefix}log_activity',
 				array('date' => 'date', 'most_on' => 'int'),
 				array($date, $total_users_online),
@@ -242,28 +244,28 @@ function trackStatsUsersOnline($total_users_online)
 		// There's an entry in log_activity on today...
 		else
 		{
-			list ($modSettings['mostOnlineToday']) = $smcFunc['db_fetch_row']($request);
+			list (Config::$modSettings['mostOnlineToday']) = Db::$db->fetch_row($request);
 
-			if ($total_users_online > $modSettings['mostOnlineToday'])
+			if ($total_users_online > Config::$modSettings['mostOnlineToday'])
 				trackStats(array('most_on' => $total_users_online));
 
-			$total_users_online = max($total_users_online, $modSettings['mostOnlineToday']);
+			$total_users_online = max($total_users_online, Config::$modSettings['mostOnlineToday']);
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		$settingsToUpdate['mostOnlineUpdated'] = $date;
 		$settingsToUpdate['mostOnlineToday'] = $total_users_online;
 	}
 
 	// Highest number of users online today?
-	elseif ($total_users_online > $modSettings['mostOnlineToday'])
+	elseif ($total_users_online > Config::$modSettings['mostOnlineToday'])
 	{
 		trackStats(array('most_on' => $total_users_online));
 		$settingsToUpdate['mostOnlineToday'] = $total_users_online;
 	}
 
 	if (!empty($settingsToUpdate))
-		updateSettings($settingsToUpdate);
+		Config::updateModSettings($settingsToUpdate);
 }
 
 ?>

@@ -15,7 +15,10 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Config;
+use SMF\Utils;
 use SMF\Cache\CacheApi;
+use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -28,7 +31,7 @@ if (!defined('SMF'))
  */
 function markBoardsRead($boards, $unread = false)
 {
-	global $user_info, $modSettings, $smcFunc;
+	global $user_info;
 
 	// Force $boards to be an array.
 	if (!is_array($boards))
@@ -45,7 +48,7 @@ function markBoardsRead($boards, $unread = false)
 	{
 		// Clear out all the places where this lovely info is stored.
 		// @todo Maybe not log_mark_read?
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}log_mark_read
 			WHERE id_board IN ({array_int:board_list})
 				AND id_member = {int:current_member}',
@@ -54,7 +57,7 @@ function markBoardsRead($boards, $unread = false)
 				'board_list' => $boards,
 			)
 		);
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}log_boards
 			WHERE id_board IN ({array_int:board_list})
 				AND id_member = {int:current_member}',
@@ -69,17 +72,17 @@ function markBoardsRead($boards, $unread = false)
 	{
 		$markRead = array();
 		foreach ($boards as $board)
-			$markRead[] = array($modSettings['maxMsgID'], $user_info['id'], $board);
+			$markRead[] = array(Config::$modSettings['maxMsgID'], $user_info['id'], $board);
 
 		// Update log_mark_read and log_boards.
-		$smcFunc['db_insert']('replace',
+		Db::$db->insert('replace',
 			'{db_prefix}log_mark_read',
 			array('id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'),
 			$markRead,
 			array('id_board', 'id_member')
 		);
 
-		$smcFunc['db_insert']('replace',
+		Db::$db->insert('replace',
 			'{db_prefix}log_boards',
 			array('id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'),
 			$markRead,
@@ -91,7 +94,7 @@ function markBoardsRead($boards, $unread = false)
 	// @todo look at this...
 	// The call to markBoardsRead() in Display() used to be simply
 	// marking log_boards (the previous query only)
-	$result = $smcFunc['db_query']('', '
+	$result = Db::$db->query('', '
 		SELECT MIN(id_topic)
 		FROM {db_prefix}log_topics
 		WHERE id_member = {int:current_member}',
@@ -99,14 +102,14 @@ function markBoardsRead($boards, $unread = false)
 			'current_member' => $user_info['id'],
 		)
 	);
-	list ($lowest_topic) = $smcFunc['db_fetch_row']($result);
-	$smcFunc['db_free_result']($result);
+	list ($lowest_topic) = Db::$db->fetch_row($result);
+	Db::$db->free_result($result);
 
 	if (empty($lowest_topic))
 		return;
 
 	// @todo SLOW This query seems to eat it sometimes.
-	$result = $smcFunc['db_query']('', '
+	$result = Db::$db->query('', '
 		SELECT lt.id_topic
 		FROM {db_prefix}log_topics AS lt
 			INNER JOIN {db_prefix}topics AS t /*!40000 USE INDEX (PRIMARY) */ ON (t.id_topic = lt.id_topic
@@ -121,12 +124,12 @@ function markBoardsRead($boards, $unread = false)
 		)
 	);
 	$topics = array();
-	while ($row = $smcFunc['db_fetch_assoc']($result))
+	while ($row = Db::$db->fetch_assoc($result))
 		$topics[] = $row['id_topic'];
-	$smcFunc['db_free_result']($result);
+	Db::$db->free_result($result);
 
 	if (!empty($topics))
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}log_topics
 			WHERE id_member = {int:current_member}
 				AND id_topic IN ({array_int:topic_list})',
@@ -142,7 +145,7 @@ function markBoardsRead($boards, $unread = false)
  */
 function MarkRead()
 {
-	global $board, $topic, $user_info, $board_info, $modSettings, $smcFunc;
+	global $board, $topic, $user_info, $board_info;
 
 	// No Guests allowed!
 	is_not_guest();
@@ -152,7 +155,7 @@ function MarkRead()
 	if (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'all')
 	{
 		// Find all the boards this user can see.
-		$result = $smcFunc['db_query']('', '
+		$result = Db::$db->query('', '
 			SELECT b.id_board
 			FROM {db_prefix}boards AS b
 			WHERE {query_see_board}',
@@ -160,14 +163,14 @@ function MarkRead()
 			)
 		);
 		$boards = array();
-		while ($row = $smcFunc['db_fetch_assoc']($result))
+		while ($row = Db::$db->fetch_assoc($result))
 			$boards[] = $row['id_board'];
-		$smcFunc['db_free_result']($result);
+		Db::$db->free_result($result);
 
 		if (!empty($boards))
 			markBoardsRead($boards, isset($_REQUEST['unread']));
 
-		$_SESSION['id_msg_last_visit'] = $modSettings['maxMsgID'];
+		$_SESSION['id_msg_last_visit'] = Config::$modSettings['maxMsgID'];
 		if (!empty($_SESSION['old_url']) && strpos($_SESSION['old_url'], 'action=unread') !== false)
 			redirectexit('action=unread');
 
@@ -181,7 +184,7 @@ function MarkRead()
 		// Make sure all the topics are integers!
 		$topics = array_map('intval', explode('-', $_REQUEST['topics']));
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_topic, unwatched
 			FROM {db_prefix}log_topics
 			WHERE id_topic IN ({array_int:selected_topics})
@@ -192,15 +195,15 @@ function MarkRead()
 			)
 		);
 		$logged_topics = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$logged_topics[$row['id_topic']] = $row['unwatched'];
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		$markRead = array();
 		foreach ($topics as $id_topic)
-			$markRead[] = array($modSettings['maxMsgID'], $user_info['id'], $id_topic, (isset($logged_topics[$topic]) ? $logged_topics[$topic] : 0));
+			$markRead[] = array(Config::$modSettings['maxMsgID'], $user_info['id'], $id_topic, (isset($logged_topics[$topic]) ? $logged_topics[$topic] : 0));
 
-		$smcFunc['db_insert']('replace',
+		Db::$db->insert('replace',
 			'{db_prefix}log_topics',
 			array('id_msg' => 'int', 'id_member' => 'int', 'id_topic' => 'int', 'unwatched' => 'int'),
 			$markRead,
@@ -217,7 +220,7 @@ function MarkRead()
 	elseif (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'topic')
 	{
 		// First, let's figure out what the latest message is.
-		$result = $smcFunc['db_query']('', '
+		$result = Db::$db->query('', '
 			SELECT t.id_first_msg, t.id_last_msg, COALESCE(lt.unwatched, 0) as unwatched
 			FROM {db_prefix}topics as t
 				LEFT JOIN {db_prefix}log_topics as lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
@@ -227,8 +230,8 @@ function MarkRead()
 				'current_member' => $user_info['id'],
 			)
 		);
-		$topicinfo = $smcFunc['db_fetch_assoc']($result);
-		$smcFunc['db_free_result']($result);
+		$topicinfo = Db::$db->fetch_assoc($result);
+		Db::$db->free_result($result);
 
 		if (!empty($_GET['t']))
 		{
@@ -241,7 +244,7 @@ function MarkRead()
 			// Otherwise, get the latest message before the named one.
 			else
 			{
-				$result = $smcFunc['db_query']('', '
+				$result = Db::$db->query('', '
 					SELECT MAX(id_msg)
 					FROM {db_prefix}messages
 					WHERE id_topic = {int:current_topic}
@@ -253,8 +256,8 @@ function MarkRead()
 						'id_first_msg' => $topicinfo['id_first_msg'],
 					)
 				);
-				list ($earlyMsg) = $smcFunc['db_fetch_row']($result);
-				$smcFunc['db_free_result']($result);
+				list ($earlyMsg) = Db::$db->fetch_row($result);
+				Db::$db->free_result($result);
 			}
 		}
 		// Marking read from first page?  That's the whole topic.
@@ -262,7 +265,7 @@ function MarkRead()
 			$earlyMsg = 0;
 		else
 		{
-			$result = $smcFunc['db_query']('', '
+			$result = Db::$db->query('', '
 				SELECT id_msg
 				FROM {db_prefix}messages
 				WHERE id_topic = {int:current_topic}
@@ -273,14 +276,14 @@ function MarkRead()
 					'start' => (int) $_REQUEST['start'],
 				)
 			);
-			list ($earlyMsg) = $smcFunc['db_fetch_row']($result);
-			$smcFunc['db_free_result']($result);
+			list ($earlyMsg) = Db::$db->fetch_row($result);
+			Db::$db->free_result($result);
 
 			$earlyMsg--;
 		}
 
 		// Blam, unread!
-		$smcFunc['db_insert']('replace',
+		Db::$db->insert('replace',
 			'{db_prefix}log_topics',
 			array('id_msg' => 'int', 'id_member' => 'int', 'id_topic' => 'int', 'unwatched' => 'int'),
 			array($earlyMsg, $user_info['id'], $topic, $topicinfo['unwatched']),
@@ -314,7 +317,7 @@ function MarkRead()
 			// They want to mark the entire tree starting with the boards specified
 			// The easiest thing is to just get all the boards they can see, but since we've specified the top of tree we ignore some of them
 
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT b.id_board, b.id_parent
 				FROM {db_prefix}boards AS b
 				WHERE {query_see_board}
@@ -326,11 +329,11 @@ function MarkRead()
 					'board_list' => $boards,
 				)
 			);
-			while ($row = $smcFunc['db_fetch_assoc']($request))
+			while ($row = Db::$db->fetch_assoc($request))
 				if (in_array($row['id_parent'], $boards))
 					$boards[] = $row['id_board'];
 
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 		}
 
 		$clauses = array();
@@ -349,7 +352,7 @@ function MarkRead()
 		if (empty($clauses))
 			redirectexit();
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT b.id_board
 			FROM {db_prefix}boards AS b
 			WHERE {query_see_board}
@@ -358,9 +361,9 @@ function MarkRead()
 			))
 		);
 		$boards = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$boards[] = $row['id_board'];
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		if (empty($boards))
 			redirectexit();
@@ -376,7 +379,7 @@ function MarkRead()
 		if (!isset($_REQUEST['unread']))
 		{
 			// Find all the boards this user can see.
-			$result = $smcFunc['db_query']('', '
+			$result = Db::$db->query('', '
 				SELECT b.id_board
 				FROM {db_prefix}boards AS b
 				WHERE b.id_parent IN ({array_int:parent_list})
@@ -385,20 +388,20 @@ function MarkRead()
 					'parent_list' => $boards,
 				)
 			);
-			if ($smcFunc['db_num_rows']($result) > 0)
+			if (Db::$db->num_rows($result) > 0)
 			{
 				$logBoardInserts = array();
-				while ($row = $smcFunc['db_fetch_assoc']($result))
-					$logBoardInserts[] = array($modSettings['maxMsgID'], $user_info['id'], $row['id_board']);
+				while ($row = Db::$db->fetch_assoc($result))
+					$logBoardInserts[] = array(Config::$modSettings['maxMsgID'], $user_info['id'], $row['id_board']);
 
-				$smcFunc['db_insert']('replace',
+				Db::$db->insert('replace',
 					'{db_prefix}log_boards',
 					array('id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'),
 					$logBoardInserts,
 					array('id_member', 'id_board')
 				);
 			}
-			$smcFunc['db_free_result']($result);
+			Db::$db->free_result($result);
 
 			if (empty($board))
 				redirectexit();
@@ -423,10 +426,8 @@ function MarkRead()
  */
 function getMsgMemberID($messageID)
 {
-	global $smcFunc;
-
 	// Find the topic and make sure the member still exists.
-	$result = $smcFunc['db_query']('', '
+	$result = Db::$db->query('', '
 		SELECT COALESCE(mem.id_member, 0)
 		FROM {db_prefix}messages AS m
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
@@ -436,13 +437,13 @@ function getMsgMemberID($messageID)
 			'selected_message' => (int) $messageID,
 		)
 	);
-	if ($smcFunc['db_num_rows']($result) > 0)
-		list ($memberID) = $smcFunc['db_fetch_row']($result);
+	if (Db::$db->num_rows($result) > 0)
+		list ($memberID) = Db::$db->fetch_row($result);
 	// The message doesn't even exist.
 	else
 		$memberID = 0;
 
-	$smcFunc['db_free_result']($result);
+	Db::$db->free_result($result);
 
 	return (int) $memberID;
 }
@@ -456,7 +457,7 @@ function getMsgMemberID($messageID)
  */
 function modifyBoard($board_id, &$boardOptions)
 {
-	global $cat_tree, $boards, $smcFunc, $context, $txt;
+	global $cat_tree, $boards, $txt;
 
 	// Get some basic information about all boards and categories.
 	getBoardTree();
@@ -549,7 +550,7 @@ function modifyBoard($board_id, &$boardOptions)
 
 		// Fix the children of this board.
 		if (!empty($childList) && !empty($childUpdates))
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				UPDATE {db_prefix}boards
 				SET ' . implode(',
 					', $childUpdates) . '
@@ -562,7 +563,7 @@ function modifyBoard($board_id, &$boardOptions)
 			);
 
 		// Make some room for this spot.
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}boards
 			SET board_order = board_order + {int:new_order}
 			WHERE board_order > {int:insert_after}
@@ -608,12 +609,8 @@ function modifyBoard($board_id, &$boardOptions)
 	}
 
 	// Who's allowed to access this board.
-	$board_permissions_inserts = array();
 	if (isset($boardOptions['access_groups']))
 	{
-		foreach ($boardOptions['access_groups'] as $value)
-			$board_permissions_inserts[] = array($value, $board_id, 0);
-
 		$boardUpdates[] = 'member_groups = {string:member_groups}';
 		$boardUpdateParameters['member_groups'] = implode(',', $boardOptions['access_groups']);
 	}
@@ -621,9 +618,6 @@ function modifyBoard($board_id, &$boardOptions)
 	// And who isn't.
 	if (isset($boardOptions['deny_groups']))
 	{
-		foreach ($boardOptions['deny_groups'] as $value)
-			$board_permissions_inserts[] = array($value, $board_id, 1);
-
 		$boardUpdates[] = 'deny_member_groups = {string:deny_groups}';
 		$boardUpdateParameters['deny_groups'] = implode(',', $boardOptions['deny_groups']);
 	}
@@ -663,7 +657,7 @@ function modifyBoard($board_id, &$boardOptions)
 
 	// Do the updates (if any).
 	if (!empty($boardUpdates))
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}boards
 			SET
 				' . implode(',
@@ -674,28 +668,51 @@ function modifyBoard($board_id, &$boardOptions)
 			))
 		);
 
-	// Before we add new access_groups or deny_groups, remove all of the old entries
-	$smcFunc['db_query']('', '
-		DELETE FROM {db_prefix}board_permissions_view
-		WHERE id_board = {int:selected_board}',
-		array(
-			'selected_board' => $board_id,
-		)
-	);
+	if (!empty($boardOptions['deny_groups']) || !empty($boardOptions['access_groups'])) {
+		// Before we add new access_groups or deny_groups, remove all of the old entries
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}board_permissions_view
+			WHERE id_board = {int:selected_board}',
+			array(
+				'selected_board' => $board_id,
+			)
+		);
+	}
 
-	if ($board_permissions_inserts != array())
-		$smcFunc['db_insert']('insert',
+	// Do permission sync
+	if (!empty($boardOptions['deny_groups']))
+	{
+		$insert = array();
+		foreach ($boardOptions['deny_groups'] as $value)
+			$insert[] = array($value, $board_id, 1);
+
+		Db::$db->insert('insert',
 			'{db_prefix}board_permissions_view',
 			array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
-			$board_permissions_inserts,
+			$insert,
 			array('id_group', 'id_board', 'deny')
 		);
+	}
+
+	if (!empty($boardOptions['access_groups']))
+	{
+		$insert = array();
+		foreach ($boardOptions['access_groups'] as $value)
+			$insert[] = array($value, $board_id, 0);
+
+		Db::$db->insert('insert',
+			'{db_prefix}board_permissions_view',
+			array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
+			$insert,
+			array('id_group', 'id_board', 'deny')
+		);
+	}
 
 	// Set moderators of this board.
 	if (isset($boardOptions['moderators']) || isset($boardOptions['moderator_string']) || isset($boardOptions['moderator_groups']) || isset($boardOptions['moderator_group_string']))
 	{
 		// Reset current moderators for this board - if there are any!
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}moderators
 			WHERE id_board = {int:board_list}',
 			array(
@@ -707,7 +724,7 @@ function modifyBoard($board_id, &$boardOptions)
 		if (isset($boardOptions['moderator_string']) && trim($boardOptions['moderator_string']) != '')
 		{
 			// Divvy out the usernames, remove extra space.
-			$moderator_string = strtr($smcFunc['htmlspecialchars']($boardOptions['moderator_string'], ENT_QUOTES), array('&quot;' => '"'));
+			$moderator_string = strtr(Utils::htmlspecialchars($boardOptions['moderator_string'], ENT_QUOTES), array('&quot;' => '"'));
 			preg_match_all('~"([^"]+)"~', $moderator_string, $matches);
 			$moderators = array_merge($matches[1], explode(',', preg_replace('~"[^"]+"~', '', $moderator_string)));
 			for ($k = 0, $n = count($moderators); $k < $n; $k++)
@@ -723,7 +740,7 @@ function modifyBoard($board_id, &$boardOptions)
 				$boardOptions['moderators'] = array();
 			if (!empty($moderators))
 			{
-				$request = $smcFunc['db_query']('', '
+				$request = Db::$db->query('', '
 					SELECT id_member
 					FROM {db_prefix}members
 					WHERE member_name IN ({array_string:moderator_list}) OR real_name IN ({array_string:moderator_list})
@@ -733,9 +750,9 @@ function modifyBoard($board_id, &$boardOptions)
 						'limit' => count($moderators),
 					)
 				);
-				while ($row = $smcFunc['db_fetch_assoc']($request))
+				while ($row = Db::$db->fetch_assoc($request))
 					$boardOptions['moderators'][] = $row['id_member'];
-				$smcFunc['db_free_result']($request);
+				Db::$db->free_result($request);
 			}
 		}
 
@@ -746,7 +763,7 @@ function modifyBoard($board_id, &$boardOptions)
 			foreach ($boardOptions['moderators'] as $moderator)
 				$inserts[] = array($board_id, $moderator);
 
-			$smcFunc['db_insert']('insert',
+			Db::$db->insert('insert',
 				'{db_prefix}moderators',
 				array('id_board' => 'int', 'id_member' => 'int'),
 				$inserts,
@@ -755,7 +772,7 @@ function modifyBoard($board_id, &$boardOptions)
 		}
 
 		// Reset current moderator groups for this board - if there are any!
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}moderator_groups
 			WHERE id_board = {int:board_list}',
 			array(
@@ -767,7 +784,7 @@ function modifyBoard($board_id, &$boardOptions)
 		if (isset($boardOptions['moderator_group_string']) && trim($boardOptions['moderator_group_string']) != '')
 		{
 			// Divvy out the group names, remove extra space.
-			$moderator_group_string = strtr($smcFunc['htmlspecialchars']($boardOptions['moderator_group_string'], ENT_QUOTES), array('&quot;' => '"'));
+			$moderator_group_string = strtr(Utils::htmlspecialchars($boardOptions['moderator_group_string'], ENT_QUOTES), array('&quot;' => '"'));
 			preg_match_all('~"([^"]+)"~', $moderator_group_string, $matches);
 			$moderator_groups = array_merge($matches[1], explode(',', preg_replace('~"[^"]+"~', '', $moderator_group_string)));
 			for ($k = 0, $n = count($moderator_groups); $k < $n; $k++)
@@ -784,7 +801,7 @@ function modifyBoard($board_id, &$boardOptions)
 				$boardOptions['moderator_groups'] = array();
 			if (!empty($moderator_groups))
 			{
-				$request = $smcFunc['db_query']('', '
+				$request = Db::$db->query('', '
 					SELECT id_group
 					FROM {db_prefix}membergroups
 					WHERE group_name IN ({array_string:moderator_group_list})
@@ -800,11 +817,11 @@ function modifyBoard($board_id, &$boardOptions)
 						'limit' => count($moderator_groups),
 					)
 				);
-				while ($row = $smcFunc['db_fetch_assoc']($request))
+				while ($row = Db::$db->fetch_assoc($request))
 				{
 					$boardOptions['moderator_groups'][] = $row['id_group'];
 				}
-				$smcFunc['db_free_result']($request);
+				Db::$db->free_result($request);
 			}
 		}
 
@@ -815,7 +832,7 @@ function modifyBoard($board_id, &$boardOptions)
 			foreach ($boardOptions['moderator_groups'] as $moderator_group)
 				$inserts[] = array($board_id, $moderator_group);
 
-			$smcFunc['db_insert']('insert',
+			Db::$db->insert('insert',
 				'{db_prefix}moderator_groups',
 				array('id_board' => 'int', 'id_group' => 'int'),
 				$inserts,
@@ -824,7 +841,7 @@ function modifyBoard($board_id, &$boardOptions)
 		}
 
 		// Note that caches can now be wrong!
-		updateSettings(array('settings_updated' => time()));
+		Config::updateModSettings(array('settings_updated' => time()));
 	}
 
 	if (isset($boardOptions['move_to']))
@@ -838,7 +855,7 @@ function modifyBoard($board_id, &$boardOptions)
 			$boardOptions['board_description'],
 			false,
 			'',
-			$context['description_allowed_tags']
+			Utils::$context['description_allowed_tags']
 		);
 
 	CacheApi::clean('data');
@@ -860,7 +877,7 @@ function modifyBoard($board_id, &$boardOptions)
  */
 function createBoard($boardOptions)
 {
-	global $boards, $smcFunc, $txt;
+	global $boards, $txt;
 
 	// Trigger an error if one of the required values is not set.
 	if (!isset($boardOptions['board_name']) || trim($boardOptions['board_name']) == '' || !isset($boardOptions['move_to']) || !isset($boardOptions['target_category']))
@@ -888,23 +905,38 @@ function createBoard($boardOptions)
 		'dont_log' => true,
 	);
 
+	$default_memgrps = '-1,0';
+
 	$board_columns = array(
 		'id_cat' => 'int', 'name' => 'string-255', 'description' => 'string', 'board_order' => 'int',
 		'member_groups' => 'string', 'redirect' => 'string',
 	);
 	$board_parameters = array(
 		$boardOptions['target_category'], $boardOptions['board_name'], '', 0,
-		'', '',
+		$default_memgrps, '',
 	);
 
 	call_integration_hook('integrate_create_board', array(&$boardOptions, &$board_columns, &$board_parameters));
 
 	// Insert a board, the settings are dealt with later.
-	$board_id = $smcFunc['db_insert']('',
+	$board_id = Db::$db->insert('',
 		'{db_prefix}boards',
 		$board_columns,
 		$board_parameters,
 		array('id_board'),
+		1
+	);
+
+	$insert = array();
+
+	foreach (explode(',', $default_memgrps) as $value)
+		$insert[] = array($value, $board_id, 0);
+
+	Db::$db->insert('',
+		'{db_prefix}board_permissions_view',
+		array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
+		$insert,
+		array('id_group', 'id_board', 'deny'),
 		1
 	);
 
@@ -921,7 +953,7 @@ function createBoard($boardOptions)
 
 		if (!empty($boards[$board_id]['parent']))
 		{
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT id_profile
 				FROM {db_prefix}boards
 				WHERE id_board = {int:board_parent}
@@ -930,10 +962,10 @@ function createBoard($boardOptions)
 					'board_parent' => (int) $boards[$board_id]['parent'],
 				)
 			);
-			list ($boardOptions['profile']) = $smcFunc['db_fetch_row']($request);
-			$smcFunc['db_free_result']($request);
+			list ($boardOptions['profile']) = Db::$db->fetch_row($request);
+			Db::$db->free_result($request);
 
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				UPDATE {db_prefix}boards
 				SET id_profile = {int:new_profile}
 				WHERE id_board = {int:current_board}',
@@ -969,7 +1001,7 @@ function createBoard($boardOptions)
  */
 function deleteBoards($boards_to_remove, $moveChildrenTo = null)
 {
-	global $sourcedir, $boards, $smcFunc;
+	global $boards;
 
 	// No boards to delete? Return!
 	if (empty($boards_to_remove))
@@ -1005,7 +1037,7 @@ function deleteBoards($boards_to_remove, $moveChildrenTo = null)
 	}
 
 	// Delete ALL topics in the selected boards (done first so topics can't be marooned.)
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_topic
 		FROM {db_prefix}topics
 		WHERE id_board IN ({array_int:boards_to_remove})',
@@ -1014,29 +1046,29 @@ function deleteBoards($boards_to_remove, $moveChildrenTo = null)
 		)
 	);
 	$topics = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$topics[] = $row['id_topic'];
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
-	require_once($sourcedir . '/RemoveTopic.php');
+	require_once(Config::$sourcedir . '/RemoveTopic.php');
 	removeTopics($topics, false);
 
 	// Delete the board's logs.
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}log_mark_read
 		WHERE id_board IN ({array_int:boards_to_remove})',
 		array(
 			'boards_to_remove' => $boards_to_remove,
 		)
 	);
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}log_boards
 		WHERE id_board IN ({array_int:boards_to_remove})',
 		array(
 			'boards_to_remove' => $boards_to_remove,
 		)
 	);
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}log_notify
 		WHERE id_board IN ({array_int:boards_to_remove})',
 		array(
@@ -1045,7 +1077,7 @@ function deleteBoards($boards_to_remove, $moveChildrenTo = null)
 	);
 
 	// Delete this board's moderators.
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}moderators
 		WHERE id_board IN ({array_int:boards_to_remove})',
 		array(
@@ -1054,7 +1086,7 @@ function deleteBoards($boards_to_remove, $moveChildrenTo = null)
 	);
 
 	// Delete this board's moderator groups.
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}moderator_groups
 		WHERE id_board IN ({array_int:boards_to_remove})',
 		array(
@@ -1063,7 +1095,7 @@ function deleteBoards($boards_to_remove, $moveChildrenTo = null)
 	);
 
 	// Delete any extra events in the calendar.
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}calendar
 		WHERE id_board IN ({array_int:boards_to_remove})',
 		array(
@@ -1072,7 +1104,7 @@ function deleteBoards($boards_to_remove, $moveChildrenTo = null)
 	);
 
 	// Delete any message icons that only appear on these boards.
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}message_icons
 		WHERE id_board IN ({array_int:boards_to_remove})',
 		array(
@@ -1081,7 +1113,7 @@ function deleteBoards($boards_to_remove, $moveChildrenTo = null)
 	);
 
 	// Delete the boards.
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}boards
 		WHERE id_board IN ({array_int:boards_to_remove})',
 		array(
@@ -1090,7 +1122,7 @@ function deleteBoards($boards_to_remove, $moveChildrenTo = null)
 	);
 
 	// Delete permissions
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}board_permissions_view
 		WHERE id_board IN ({array_int:boards_to_remove})',
 		array(
@@ -1101,12 +1133,12 @@ function deleteBoards($boards_to_remove, $moveChildrenTo = null)
 	// Latest message/topic might not be there anymore.
 	updateStats('message');
 	updateStats('topic');
-	updateSettings(array(
+	Config::updateModSettings(array(
 		'calendar_updated' => time(),
 	));
 
 	// Plus reset the cache to stop people getting odd results.
-	updateSettings(array('settings_updated' => time()));
+	Config::updateModSettings(array('settings_updated' => time()));
 
 	// Clean the cache as well.
 	CacheApi::clean('data');
@@ -1124,7 +1156,7 @@ function deleteBoards($boards_to_remove, $moveChildrenTo = null)
  */
 function reorderBoards()
 {
-	global $cat_tree, $boardList, $boards, $smcFunc;
+	global $cat_tree, $boardList, $boards;
 
 	getBoardTree();
 
@@ -1134,7 +1166,7 @@ function reorderBoards()
 	{
 		foreach ($boardList[$catID] as $boardID)
 			if ($boards[$boardID]['order'] != ++$board_order)
-				$smcFunc['db_query']('', '
+				Db::$db->query('', '
 					UPDATE {db_prefix}boards
 					SET board_order = {int:new_order}
 					WHERE id_board = {int:selected_board}',
@@ -1159,10 +1191,8 @@ function reorderBoards()
  */
 function fixChildren($parent, $newLevel, $newParent)
 {
-	global $smcFunc;
-
 	// Grab all children of $parent...
-	$result = $smcFunc['db_query']('', '
+	$result = Db::$db->query('', '
 		SELECT id_board
 		FROM {db_prefix}boards
 		WHERE id_parent = {int:parent_board}',
@@ -1171,12 +1201,12 @@ function fixChildren($parent, $newLevel, $newParent)
 		)
 	);
 	$children = array();
-	while ($row = $smcFunc['db_fetch_assoc']($result))
+	while ($row = Db::$db->fetch_assoc($result))
 		$children[] = $row['id_board'];
-	$smcFunc['db_free_result']($result);
+	Db::$db->free_result($result);
 
 	// ...and set it to a new parent and child_level.
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		UPDATE {db_prefix}boards
 		SET id_parent = {int:new_parent}, child_level = {int:new_child_level}
 		WHERE id_parent = {int:parent_board}',
@@ -1200,8 +1230,6 @@ function fixChildren($parent, $newLevel, $newParent)
  */
 function getTreeOrder()
 {
-	global $smcFunc;
-
 	static $tree_order = array(
 		'cats' => array(),
 		'boards' => array(),
@@ -1216,20 +1244,20 @@ function getTreeOrder()
 		return $cached;
 	}
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT b.id_board, b.id_cat
 		FROM {db_prefix}categories AS c
 			JOIN {db_prefix}boards AS b ON (b.id_cat = c.id_cat)
 		ORDER BY c.cat_order, b.board_order'
 	);
 
-	foreach ($smcFunc['db_fetch_all']($request) as $row)
+	foreach (Db::$db->fetch_all($request) as $row)
 	{
 		if (!in_array($row['id_cat'], $tree_order['cats']))
 			$tree_order['cats'][] = $row['id_cat'];
 		$tree_order['boards'][] = $row['id_board'];
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	CacheApi::put('board_order', $tree_order, 86400);
 
@@ -1290,12 +1318,12 @@ function sortCategories(array &$categories)
  */
 function getBoardModerators(array $boards)
 {
-	global $smcFunc, $scripturl, $txt;
+	global $txt;
 
 	if (empty($boards))
 		return array();
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT mem.id_member, mem.real_name, mo.id_board
 		FROM {db_prefix}moderators AS mo
 			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = mo.id_member)
@@ -1305,7 +1333,7 @@ function getBoardModerators(array $boards)
 		)
 	);
 	$moderators = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		if (empty($moderators[$row['id_board']]))
 			$moderators[$row['id_board']] = array();
@@ -1313,11 +1341,11 @@ function getBoardModerators(array $boards)
 		$moderators[$row['id_board']][] = array(
 			'id' => $row['id_member'],
 			'name' => $row['real_name'],
-			'href' => $scripturl . '?action=profile;u=' . $row['id_member'],
-			'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '" title="' . $txt['board_moderator'] . '">' . $row['real_name'] . '</a>',
+			'href' => Config::$scripturl . '?action=profile;u=' . $row['id_member'],
+			'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '" title="' . $txt['board_moderator'] . '">' . $row['real_name'] . '</a>',
 		);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	return $moderators;
 }
@@ -1330,12 +1358,12 @@ function getBoardModerators(array $boards)
  */
 function getBoardModeratorGroups(array $boards)
 {
-	global $smcFunc, $scripturl, $txt;
+	global $txt;
 
 	if (empty($boards))
 		return array();
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT mg.id_group, mg.group_name, bg.id_board
 		FROM {db_prefix}moderator_groups AS bg
 			INNER JOIN {db_prefix}membergroups AS mg ON (mg.id_group = bg.id_group)
@@ -1345,7 +1373,7 @@ function getBoardModeratorGroups(array $boards)
 		)
 	);
 	$groups = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		if (empty($groups[$row['id_board']]))
 			$groups[$row['id_board']] = array();
@@ -1353,8 +1381,8 @@ function getBoardModeratorGroups(array $boards)
 		$groups[$row['id_board']][] = array(
 			'id' => $row['id_group'],
 			'name' => $row['group_name'],
-			'href' => $scripturl . '?action=groups;sa=members;group=' . $row['id_group'],
-			'link' => '<a href="' . $scripturl . '?action=groups;sa=members;group=' . $row['id_group'] . '" title="' . $txt['board_moderator'] . '">' . $row['group_name'] . '</a>',
+			'href' => Config::$scripturl . '?action=groups;sa=members;group=' . $row['id_group'],
+			'link' => '<a href="' . Config::$scripturl . '?action=groups;sa=members;group=' . $row['id_group'] . '" title="' . $txt['board_moderator'] . '">' . $row['group_name'] . '</a>',
 		);
 	}
 
@@ -1370,7 +1398,7 @@ function getBoardModeratorGroups(array $boards)
  */
 function getBoardTree()
 {
-	global $cat_tree, $boards, $boardList, $smcFunc;
+	global $cat_tree, $boards, $boardList;
 
 	$boardColumns = array(
 		'COALESCE(b.id_board, 0) AS id_board', 'b.id_parent', 'b.name AS board_name',
@@ -1394,7 +1422,7 @@ function getBoardTree()
 	$boardOrder = array_unique($boardOrder);
 
 	// Getting all the board and category information you'd ever wanted.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT
 			' . implode(', ', $boardColumns) . '
 		FROM {db_prefix}categories AS c
@@ -1408,7 +1436,7 @@ function getBoardTree()
 	$cat_tree = array();
 	$boards = array();
 	$last_board_order = 0;
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		if (!isset($cat_tree[$row['id_cat']]))
 		{
@@ -1472,7 +1500,7 @@ function getBoardTree()
 
 				// Wrong childlevel...we can silently fix this...
 				if ($boards[$row['id_parent']]['tree']['node']['level'] != $row['child_level'] - 1)
-					$smcFunc['db_query']('', '
+					Db::$db->query('', '
 						UPDATE {db_prefix}boards
 						SET child_level = {int:new_child_level}
 						WHERE id_board = {int:selected_board}',
@@ -1494,7 +1522,7 @@ function getBoardTree()
 		// If mods want to do anything with this board before we move on, now's the time
 		call_integration_hook('integrate_boardtree_board', array($row));
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Get a list of all the boards in each category (using recursion).
 	$boardList = array();
@@ -1546,8 +1574,6 @@ function isChildOf($child, $parent)
 
 function setBoardParsedDescription($category_id = 0, $boards_info = array())
 {
-	global $context;
-
 	if (empty($category_id) || empty($boards_info))
 		return array();
 
@@ -1559,7 +1585,7 @@ function setBoardParsedDescription($category_id = 0, $boards_info = array())
 			$board_description,
 			false,
 			'',
-			$context['description_allowed_tags']
+			Utils::$context['description_allowed_tags']
 		);
 
 	CacheApi::put('parsed_boards_descriptions_'. $category_id, $already_parsed_boards, 864000);

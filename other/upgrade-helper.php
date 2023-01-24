@@ -34,13 +34,12 @@ function upgrade_clean_cache()
  */
 function getMemberGroups()
 {
-	global $smcFunc;
 	static $member_groups = array();
 
 	if (!empty($member_groups))
 		return $member_groups;
 
-	$request = $smcFunc['db_query']('', '
+	$request = SMF\Db\DatabaseApi::$db->query('', '
 		SELECT groupName, id_group
 		FROM {db_prefix}membergroups
 		WHERE id_group = {int:admin_group} OR id_group > {int:old_group}',
@@ -52,7 +51,7 @@ function getMemberGroups()
 	);
 	if ($request === false)
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = SMF\Db\DatabaseApi::$db->query('', '
 			SELECT membergroup, id_group
 			FROM {db_prefix}membergroups
 			WHERE id_group = {int:admin_group} OR id_group > {int:old_group}',
@@ -63,9 +62,9 @@ function getMemberGroups()
 			)
 		);
 	}
-	while ($row = $smcFunc['db_fetch_row']($request))
+	while ($row = SMF\Db\DatabaseApi::$db->fetch_row($request))
 		$member_groups[trim($row[0])] = $row[1];
-	$smcFunc['db_free_result']($request);
+	SMF\Db\DatabaseApi::$db->free_result($request);
 
 	return $member_groups;
 }
@@ -78,7 +77,7 @@ function getMemberGroups()
  */
 function makeFilesWritable(&$files)
 {
-	global $upcontext, $boarddir, $sourcedir;
+	global $upcontext;
 
 	if (empty($files))
 		return true;
@@ -175,7 +174,7 @@ function makeFilesWritable(&$files)
 			$upcontext['chmod']['path'] = $_POST['ftp_path'];
 		}
 
-		require_once($sourcedir . '/PackageManager/FtpConnection.php');
+		require_once(\SMF\Config::$sourcedir . '/PackageManager/FtpConnection.php');
 		if (isset($upcontext['chmod']['username']))
 		{
 			$ftp = new \SMF\PackageManager\FtpConnection($upcontext['chmod']['server'], $upcontext['chmod']['port'], $upcontext['chmod']['username'], $upcontext['chmod']['password']);
@@ -217,12 +216,12 @@ function makeFilesWritable(&$files)
 			// We want to do a relative path for FTP.
 			if (!in_array($upcontext['chmod']['path'], array('', '/')))
 			{
-				$ftp_root = strtr($boarddir, array($upcontext['chmod']['path'] => ''));
+				$ftp_root = strtr(\SMF\Config::$boarddir, array($upcontext['chmod']['path'] => ''));
 				if (substr($ftp_root, -1) == '/' && ($upcontext['chmod']['path'] == '' || $upcontext['chmod']['path'][0] === '/'))
 					$ftp_root = substr($ftp_root, 0, -1);
 			}
 			else
-				$ftp_root = $boarddir;
+				$ftp_root = \SMF\Config::$boarddir;
 
 			// Save the info for next time!
 			$_SESSION['installer_temp_ftp'] = array(
@@ -244,7 +243,7 @@ function makeFilesWritable(&$files)
 				// Assuming that didn't work calculate the path without the boarddir.
 				if (!is_writable($file))
 				{
-					if (strpos($file, $boarddir) === 0)
+					if (strpos($file, \SMF\Config::$boarddir) === 0)
 					{
 						$ftp_file = strtr($file, array($_SESSION['installer_temp_ftp']['root'] => ''));
 						$ftp->chmod($ftp_file, 0755);
@@ -325,19 +324,6 @@ function deleteFile($file)
 	@unlink($file);
 
 	return;
-}
-
-/**
- * UTF-8 aware strtolower function.
- *
- * @param $string
- * @return string
- */
-function smf_strtolower($string)
-{
-	global $sourcedir;
-	require_once($sourcedir . '/Subs-Charset.php');
-	return utf8_strtolower($string);
 }
 
 /**

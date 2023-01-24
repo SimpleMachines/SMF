@@ -10,16 +10,19 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+
 /**
  * The main "Here's how you can reset your password" page
  */
 function template_main()
 {
-	global $context, $txt, $scripturl;
+	global $txt;
 
 	echo '
 	<br>
-	<form action="', $scripturl, '?action=reminder;sa=picktype" method="post" accept-charset="', $context['character_set'], '">
+	<form action="', Config::$scripturl, '?action=reminder;sa=picktype" method="post" accept-charset="', Utils::$context['character_set'], '">
 		<div class="tborder login">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['authentication_reminder'], '</h3>
@@ -34,8 +37,8 @@ function template_main()
 				<br class="clear">
 			</div>
 		</div>
-		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-		<input type="hidden" name="', $context['remind_token_var'], '" value="', $context['remind_token'], '">
+		<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+		<input type="hidden" name="', Utils::$context['remind_token_var'], '" value="', Utils::$context['remind_token'], '">
 	</form>';
 }
 
@@ -44,11 +47,11 @@ function template_main()
  */
 function template_reminder_pick()
 {
-	global $context, $txt, $scripturl;
+	global $txt;
 
 	echo '
 	<br>
-	<form action="', $scripturl, '?action=reminder;sa=picktype" method="post" accept-charset="', $context['character_set'], '">
+	<form action="', Config::$scripturl, '?action=reminder;sa=picktype" method="post" accept-charset="', Utils::$context['character_set'], '">
 		<div class="tborder login">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['authentication_reminder'], '</h3>
@@ -65,9 +68,9 @@ function template_reminder_pick()
 				</p>
 				<div class="flow_auto">
 					<input type="submit" value="', $txt['reminder_continue'], '" class="button">
-					<input type="hidden" name="uid" value="', $context['current_member']['id'], '">
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-					<input type="hidden" name="', $context['remind_token_var'], '" value="', $context['remind_token'], '">
+					<input type="hidden" name="uid" value="', Utils::$context['current_member']['id'], '">
+					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+					<input type="hidden" name="', Utils::$context['remind_token_var'], '" value="', Utils::$context['remind_token'], '">
 				</div>
 			</div><!-- .roundframe -->
 		</div><!-- .login -->
@@ -79,15 +82,13 @@ function template_reminder_pick()
  */
 function template_sent()
 {
-	global $context;
-
 	echo '
 		<br>
 		<div class="tborder login" id="reminder_sent">
 			<div class="cat_bar">
-				<h3 class="catbg">' . $context['page_title'] . '</h3>
+				<h3 class="catbg">' . Utils::$context['page_title'] . '</h3>
 			</div>
-			<p class="information">' . $context['description'] . '</p>
+			<p class="information">' . Utils::$context['description'] . '</p>
 		</div>';
 }
 
@@ -96,14 +97,14 @@ function template_sent()
  */
 function template_set_password()
 {
-	global $context, $txt, $scripturl, $modSettings;
+	global $txt;
 
 	echo '
 	<br>
-	<form action="', $scripturl, '?action=reminder;sa=setpassword2" name="reminder_form" id="reminder_form" method="post" accept-charset="', $context['character_set'], '">
+	<form action="', Config::$scripturl, '?action=reminder;sa=setpassword2" name="reminder_form" id="reminder_form" method="post" accept-charset="', Utils::$context['character_set'], '">
 		<div class="tborder login">
 			<div class="cat_bar">
-				<h3 class="catbg">', $context['page_title'], '</h3>
+				<h3 class="catbg">', Utils::$context['page_title'], '</h3>
 			</div>
 			<div class="roundframe">
 				<dl>
@@ -127,10 +128,10 @@ function template_set_password()
 				</p>
 			</div><!-- .roundframe -->
 		</div><!-- .login -->
-		<input type="hidden" name="code" value="', $context['code'], '">
-		<input type="hidden" name="u" value="', $context['memID'], '">
-		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-		<input type="hidden" name="', $context['remind-sp_token_var'], '" value="', $context['remind-sp_token'], '">
+		<input type="hidden" name="code" value="', Utils::$context['code'], '">
+		<input type="hidden" name="u" value="', Utils::$context['memID'], '">
+		<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+		<input type="hidden" name="', Utils::$context['remind-sp_token_var'], '" value="', Utils::$context['remind-sp_token'], '">
 	</form>
 	<script>
 		var regTextStrings = {
@@ -140,7 +141,7 @@ function template_set_password()
 			"password_no_match": "', $txt['registration_password_no_match'], '",
 			"password_valid": "', $txt['registration_password_valid'], '"
 		};
-		var verificationHandle = new smfRegister("reminder_form", ', empty($modSettings['password_strength']) ? 0 : $modSettings['password_strength'], ', regTextStrings);
+		var verificationHandle = new smfRegister("reminder_form", ', empty(Config::$modSettings['password_strength']) ? 0 : Config::$modSettings['password_strength'], ', regTextStrings);
 	</script>';
 }
 
@@ -149,11 +150,11 @@ function template_set_password()
  */
 function template_ask()
 {
-	global $context, $txt, $scripturl, $modSettings;
+	global $txt;
 
 	echo '
 	<br>
-	<form action="', $scripturl, '?action=reminder;sa=secret2" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
+	<form action="', Config::$scripturl, '?action=reminder;sa=secret2" method="post" accept-charset="', Utils::$context['character_set'], '" name="creator" id="creator">
 		<div class="tborder login">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['authentication_reminder'], '</h3>
@@ -162,7 +163,7 @@ function template_ask()
 				<p class="smalltext">', $txt['enter_new_password'], '</p>
 				<dl>
 					<dt>', $txt['secret_question'], ':</dt>
-					<dd>', $context['secret_question'], '</dd>
+					<dd>', Utils::$context['secret_question'], '</dd>
 					<dt>', $txt['secret_answer'], ':</dt>
 					<dd><input type="text" name="secret_answer" size="22"></dd>
 					<dt>', $txt['choose_pass'], ': </dt>
@@ -182,9 +183,9 @@ function template_ask()
 				</dl>
 				<div class="auto_flow">
 					<input type="submit" value="', $txt['save'], '" class="button">
-					<input type="hidden" name="uid" value="', $context['remind_user'], '">
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-					<input type="hidden" name="', $context['remind-sai_token_var'], '" value="', $context['remind-sai_token'], '">
+					<input type="hidden" name="uid" value="', Utils::$context['remind_user'], '">
+					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+					<input type="hidden" name="', Utils::$context['remind-sai_token_var'], '" value="', Utils::$context['remind-sai_token'], '">
 				</div>
 			</div><!-- .roundframe -->
 		</div><!-- .login -->
@@ -197,7 +198,7 @@ function template_ask()
 			"password_no_match": "', $txt['registration_password_no_match'], '",
 			"password_valid": "', $txt['registration_password_valid'], '"
 		};
-		var verificationHandle = new smfRegister("creator", ', empty($modSettings['password_strength']) ? 0 : $modSettings['password_strength'], ', regTextStrings);
+		var verificationHandle = new smfRegister("creator", ', empty(Config::$modSettings['password_strength']) ? 0 : Config::$modSettings['password_strength'], ', regTextStrings);
 	</script>';
 
 }

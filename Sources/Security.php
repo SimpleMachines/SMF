@@ -14,6 +14,10 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -29,7 +33,7 @@ if (!defined('SMF'))
  */
 function validateSession($type = 'admin', $force = false)
 {
-	global $modSettings, $sourcedir, $user_info;
+	global $user_info;
 
 	// We don't care if the option is off, because Guests should NEVER get past here.
 	is_not_guest();
@@ -45,7 +49,7 @@ function validateSession($type = 'admin', $force = false)
 	if (empty($force))
 	{
 		// Is the security option off?
-		if (!empty($modSettings['securityDisable' . ($type != 'admin' ? '_' . $type : '')]))
+		if (!empty(Config::$modSettings['securityDisable' . ($type != 'admin' ? '_' . $type : '')]))
 			return;
 
 		// Or are they already logged in?, Moderator or admin session is need for this area
@@ -53,13 +57,13 @@ function validateSession($type = 'admin', $force = false)
 			return;
 	}
 
-	require_once($sourcedir . '/Subs-Auth.php');
+	require_once(Config::$sourcedir . '/Subs-Auth.php');
 
 	// Posting the password... check it.
 	if (isset($_POST[$type . '_pass']))
 	{
 		// Check to ensure we're forcing SSL for authentication
-		if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
+		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !httpsOn())
 			fatal_lang_error('login_ssl_required');
 
 		checkSession();
@@ -97,14 +101,14 @@ function validateSession($type = 'admin', $force = false)
  */
 function is_not_guest($message = '')
 {
-	global $user_info, $txt, $context, $scripturl, $modSettings;
+	global $user_info, $txt;
 
 	// Luckily, this person isn't a guest.
 	if (!$user_info['is_guest'])
 		return;
 
 	// Log what they were trying to do didn't work)
-	if (!empty($modSettings['who_enabled']))
+	if (!empty(Config::$modSettings['who_enabled']))
 		$_GET['error'] = 'guest_login';
 	writeLog(true);
 
@@ -113,7 +117,7 @@ function is_not_guest($message = '')
 		obExit(false);
 
 	// Attempt to detect if they came from dlattach.
-	if (SMF != 'SSI' && empty($context['theme_loaded']))
+	if (SMF != 'SSI' && empty(Utils::$context['theme_loaded']))
 		loadTheme();
 
 	// Never redirect to an attachment
@@ -124,21 +128,21 @@ function is_not_guest($message = '')
 	loadLanguage('Login');
 
 	// Apparently we're not in a position to handle this now. Let's go to a safer location for now.
-	if (empty($context['template_layers']))
+	if (empty(Utils::$context['template_layers']))
 	{
-		$_SESSION['login_url'] = $scripturl . '?' . $_SERVER['QUERY_STRING'];
+		$_SESSION['login_url'] = Config::$scripturl . '?' . $_SERVER['QUERY_STRING'];
 		redirectexit('action=login');
 	}
 	else
 	{
 		loadTemplate('Login');
-		$context['sub_template'] = 'kick_guest';
-		$context['robot_no_index'] = true;
+		Utils::$context['sub_template'] = 'kick_guest';
+		Utils::$context['robot_no_index'] = true;
 	}
 
 	// Use the kick_guest sub template...
-	$context['kick_message'] = $message;
-	$context['page_title'] = $txt['login'];
+	Utils::$context['kick_message'] = $message;
+	Utils::$context['page_title'] = $txt['login'];
 
 	obExit();
 
@@ -155,15 +159,15 @@ function is_not_guest($message = '')
  */
 function is_not_banned($forceCheck = false)
 {
-	global $txt, $modSettings, $context, $user_info;
-	global $sourcedir, $cookiename, $user_settings, $smcFunc;
+	global $txt, $user_info;
+	global $user_settings;
 
 	// You cannot be banned if you are an admin - doesn't help if you log out.
 	if ($user_info['is_admin'])
 		return;
 
 	// Only check the ban every so often. (to reduce load.)
-	if ($forceCheck || !isset($_SESSION['ban']) || empty($modSettings['banLastUpdated']) || ($_SESSION['ban']['last_checked'] < $modSettings['banLastUpdated']) || $_SESSION['ban']['id_member'] != $user_info['id'] || $_SESSION['ban']['ip'] != $user_info['ip'] || $_SESSION['ban']['ip2'] != $user_info['ip2'] || (isset($user_info['email'], $_SESSION['ban']['email']) && $_SESSION['ban']['email'] != $user_info['email']))
+	if ($forceCheck || !isset($_SESSION['ban']) || empty(Config::$modSettings['banLastUpdated']) || ($_SESSION['ban']['last_checked'] < Config::$modSettings['banLastUpdated']) || $_SESSION['ban']['id_member'] != $user_info['id'] || $_SESSION['ban']['ip'] != $user_info['ip'] || $_SESSION['ban']['ip2'] != $user_info['ip2'] || (isset($user_info['email'], $_SESSION['ban']['email']) && $_SESSION['ban']['email'] != $user_info['email']))
 	{
 		// Innocent until proven guilty.  (but we know you are! :P)
 		$_SESSION['ban'] = array(
@@ -186,7 +190,7 @@ function is_not_banned($forceCheck = false)
 			$ban_query[] = ' {inet:' . $ip_number . '} BETWEEN bi.ip_low and bi.ip_high';
 			$ban_query_vars[$ip_number] = $user_info[$ip_number];
 			// IP was valid, maybe there's also a hostname...
-			if (empty($modSettings['disableHostnameLookup']) && $user_info[$ip_number] != 'unknown')
+			if (empty(Config::$modSettings['disableHostnameLookup']) && $user_info[$ip_number] != 'unknown')
 			{
 				$hostname = host_from_ip($user_info[$ip_number]);
 				if (strlen($hostname) > 0)
@@ -220,7 +224,7 @@ function is_not_banned($forceCheck = false)
 				'cannot_post',
 				'cannot_register',
 			);
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT bi.id_ban, bi.email_address, bi.id_member, bg.cannot_access, bg.cannot_register,
 					bg.cannot_post, bg.cannot_login, bg.reason, COALESCE(bg.expire_time, 0) AS expire_time
 				FROM {db_prefix}ban_items AS bi
@@ -230,7 +234,7 @@ function is_not_banned($forceCheck = false)
 				$ban_query_vars
 			);
 			// Store every type of ban that applies to you in your session.
-			while ($row = $smcFunc['db_fetch_assoc']($request))
+			while ($row = Db::$db->fetch_assoc($request))
 			{
 				foreach ($restrictions as $restriction)
 					if (!empty($row[$restriction]))
@@ -244,7 +248,7 @@ function is_not_banned($forceCheck = false)
 							$flag_is_activated = true;
 					}
 			}
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 		}
 
 		// Mark the cannot_access and cannot_post bans as being 'hit'.
@@ -255,18 +259,18 @@ function is_not_banned($forceCheck = false)
 		if ($user_info['id'] && (($user_settings['is_activated'] >= 10 && !$flag_is_activated)
 			|| ($user_settings['is_activated'] < 10 && $flag_is_activated)))
 		{
-			require_once($sourcedir . '/ManageBans.php');
+			require_once(Config::$sourcedir . '/ManageBans.php');
 			updateBanMembers();
 		}
 	}
 
 	// Hey, I know you! You're ehm...
-	if (!isset($_SESSION['ban']['cannot_access']) && !empty($_COOKIE[$cookiename . '_']))
+	if (!isset($_SESSION['ban']['cannot_access']) && !empty($_COOKIE[Config::$cookiename . '_']))
 	{
-		$bans = explode(',', $_COOKIE[$cookiename . '_']);
+		$bans = explode(',', $_COOKIE[Config::$cookiename . '_']);
 		foreach ($bans as $key => $value)
 			$bans[$key] = (int) $value;
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT bi.id_ban, bg.reason, COALESCE(bg.expire_time, 0) AS expire_time
 			FROM {db_prefix}ban_items AS bi
 				INNER JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group)
@@ -281,20 +285,20 @@ function is_not_banned($forceCheck = false)
 				'limit' => count($bans),
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			$_SESSION['ban']['cannot_access']['ids'][] = $row['id_ban'];
 			$_SESSION['ban']['cannot_access']['reason'] = $row['reason'];
 			$_SESSION['ban']['expire_time'] = $row['expire_time'];
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// My mistake. Next time better.
 		if (!isset($_SESSION['ban']['cannot_access']))
 		{
-			require_once($sourcedir . '/Subs-Auth.php');
-			$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
-			smf_setcookie($cookiename . '_', '', time() - 3600, $cookie_url[1], $cookie_url[0], false, false);
+			require_once(Config::$sourcedir . '/Subs-Auth.php');
+			$cookie_url = url_parts(!empty(Config::$modSettings['localCookies']), !empty(Config::$modSettings['globalCookies']));
+			smf_setcookie(Config::$cookiename . '_', '', time() - 3600, $cookie_url[1], $cookie_url[0], false, false);
 		}
 	}
 
@@ -303,7 +307,7 @@ function is_not_banned($forceCheck = false)
 	{
 		// We don't wanna see you!
 		if (!$user_info['is_guest'])
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				DELETE FROM {db_prefix}log_online
 				WHERE id_member = {int:current_member}',
 				array(
@@ -322,7 +326,7 @@ function is_not_banned($forceCheck = false)
 		$user_info['is_admin'] = false;
 		$user_info['permissions'] = array();
 		$user_info['id'] = 0;
-		$context['user'] = array(
+		Utils::$context['user'] = array(
 			'id' => 0,
 			'username' => '',
 			'name' => $txt['guest_title'],
@@ -335,10 +339,10 @@ function is_not_banned($forceCheck = false)
 		);
 
 		// A goodbye present.
-		require_once($sourcedir . '/Subs-Auth.php');
-		require_once($sourcedir . '/LogInOut.php');
-		$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
-		smf_setcookie($cookiename . '_', implode(',', $_SESSION['ban']['cannot_access']['ids']), time() + 3153600, $cookie_url[1], $cookie_url[0], false, false);
+		require_once(Config::$sourcedir . '/Subs-Auth.php');
+		require_once(Config::$sourcedir . '/LogInOut.php');
+		$cookie_url = url_parts(!empty(Config::$modSettings['localCookies']), !empty(Config::$modSettings['globalCookies']));
+		smf_setcookie(Config::$cookiename . '_', implode(',', $_SESSION['ban']['cannot_access']['ids']), time() + 3153600, $cookie_url[1], $cookie_url[0], false, false);
 
 		// Don't scare anyone, now.
 		$_GET['action'] = '';
@@ -357,7 +361,7 @@ function is_not_banned($forceCheck = false)
 	elseif (isset($_SESSION['ban']['cannot_login']) && !$user_info['is_guest'])
 	{
 		// We don't wanna see you!
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}log_online
 			WHERE id_member = {int:current_member}',
 			array(
@@ -373,7 +377,7 @@ function is_not_banned($forceCheck = false)
 		$user_info['is_admin'] = false;
 		$user_info['permissions'] = array();
 		$user_info['id'] = 0;
-		$context['user'] = array(
+		Utils::$context['user'] = array(
 			'id' => 0,
 			'username' => '',
 			'name' => $txt['guest_title'],
@@ -391,7 +395,7 @@ function is_not_banned($forceCheck = false)
 		$_GET['topic'] = '';
 		writeLog(true);
 
-		require_once($sourcedir . '/LogInOut.php');
+		require_once(Config::$sourcedir . '/LogInOut.php');
 		Logout(true, false);
 
 		fatal_error(sprintf($txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_login']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_login']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf($txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : $txt['your_ban_expires_never']) . '<br>' . $txt['ban_continue_browse'], false, 403);
@@ -408,13 +412,13 @@ function is_not_banned($forceCheck = false)
  */
 function banPermissions()
 {
-	global $user_info, $sourcedir, $modSettings, $context;
+	global $user_info;
 
 	// Somehow they got here, at least take away all permissions...
 	if (isset($_SESSION['ban']['cannot_access']))
 		$user_info['permissions'] = array();
 	// Okay, well, you can watch, but don't touch a thing.
-	elseif (isset($_SESSION['ban']['cannot_post']) || (!empty($modSettings['warning_mute']) && $modSettings['warning_mute'] <= $user_info['warning']))
+	elseif (isset($_SESSION['ban']['cannot_post']) || (!empty(Config::$modSettings['warning_mute']) && Config::$modSettings['warning_mute'] <= $user_info['warning']))
 	{
 		$denied_permissions = array(
 			'pm_send',
@@ -442,7 +446,7 @@ function banPermissions()
 		$user_info['permissions'] = array_diff($user_info['permissions'], $denied_permissions);
 	}
 	// Are they absolutely under moderation?
-	elseif (!empty($modSettings['warning_moderate']) && $modSettings['warning_moderate'] <= $user_info['warning'])
+	elseif (!empty(Config::$modSettings['warning_moderate']) && Config::$modSettings['warning_moderate'] <= $user_info['warning'])
 	{
 		// Work out what permissions should change...
 		$permission_change = array(
@@ -464,30 +468,30 @@ function banPermissions()
 
 	// @todo Find a better place to call this? Needs to be after permissions loaded!
 	// Finally, some bits we cache in the session because it saves queries.
-	if (isset($_SESSION['mc']) && $_SESSION['mc']['time'] > $modSettings['settings_updated'] && $_SESSION['mc']['id'] == $user_info['id'])
+	if (isset($_SESSION['mc']) && $_SESSION['mc']['time'] > Config::$modSettings['settings_updated'] && $_SESSION['mc']['id'] == $user_info['id'])
 		$user_info['mod_cache'] = $_SESSION['mc'];
 	else
 	{
-		require_once($sourcedir . '/Subs-Auth.php');
+		require_once(Config::$sourcedir . '/Subs-Auth.php');
 		rebuildModCache();
 	}
 
 	// Now that we have the mod cache taken care of lets setup a cache for the number of mod reports still open
-	if (isset($_SESSION['rc']['reports']) && isset($_SESSION['rc']['member_reports']) && $_SESSION['rc']['time'] > $modSettings['last_mod_report_action'] && $_SESSION['rc']['id'] == $user_info['id'])
+	if (isset($_SESSION['rc']['reports']) && isset($_SESSION['rc']['member_reports']) && $_SESSION['rc']['time'] > Config::$modSettings['last_mod_report_action'] && $_SESSION['rc']['id'] == $user_info['id'])
 	{
-		$context['open_mod_reports'] = $_SESSION['rc']['reports'];
-		$context['open_member_reports'] = $_SESSION['rc']['member_reports'];
+		Utils::$context['open_mod_reports'] = $_SESSION['rc']['reports'];
+		Utils::$context['open_member_reports'] = $_SESSION['rc']['member_reports'];
 	}
 	elseif ($_SESSION['mc']['bq'] != '0=1')
 	{
-		require_once($sourcedir . '/Subs-ReportedContent.php');
-		$context['open_mod_reports'] = recountOpenReports('posts');
-		$context['open_member_reports'] = recountOpenReports('members');
+		require_once(Config::$sourcedir . '/Subs-ReportedContent.php');
+		Utils::$context['open_mod_reports'] = recountOpenReports('posts');
+		Utils::$context['open_member_reports'] = recountOpenReports('members');
 	}
 	else
 	{
-		$context['open_mod_reports'] = 0;
-		$context['open_member_reports'] = 0;
+		Utils::$context['open_mod_reports'] = 0;
+		Utils::$context['open_member_reports'] = 0;
 	}
 }
 
@@ -501,13 +505,13 @@ function banPermissions()
  */
 function log_ban($ban_ids = array(), $email = null)
 {
-	global $user_info, $smcFunc;
+	global $user_info;
 
 	// Don't log web accelerators, it's very confusing...
 	if (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch')
 		return;
 
-	$smcFunc['db_insert']('',
+	Db::$db->insert('',
 		'{db_prefix}log_banned',
 		array('id_member' => 'int', 'ip' => 'inet', 'email' => 'string', 'log_time' => 'int'),
 		array($user_info['id'], $user_info['ip'], ($email === null ? ($user_info['is_guest'] ? '' : $user_info['email']) : $email), time()),
@@ -516,7 +520,7 @@ function log_ban($ban_ids = array(), $email = null)
 
 	// One extra point for these bans.
 	if (!empty($ban_ids))
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}ban_items
 			SET hits = hits + 1
 			WHERE id_ban IN ({array_int:ban_ids})',
@@ -537,7 +541,7 @@ function log_ban($ban_ids = array(), $email = null)
  */
 function isBannedEmail($email, $restriction, $error)
 {
-	global $txt, $smcFunc;
+	global $txt;
 
 	// Can't ban an empty email
 	if (empty($email) || trim($email) == '')
@@ -548,7 +552,7 @@ function isBannedEmail($email, $restriction, $error)
 	$ban_reason = isset($_SESSION['ban'][$restriction]) ? $_SESSION['ban'][$restriction]['reason'] : '';
 
 	// ...and add to that the email address you're trying to register.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT bi.id_ban, bg.' . $restriction . ', bg.cannot_access, bg.reason
 		FROM {db_prefix}ban_items AS bi
 			INNER JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group)
@@ -561,7 +565,7 @@ function isBannedEmail($email, $restriction, $error)
 			'now' => time(),
 		)
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		if (!empty($row['cannot_access']))
 		{
@@ -574,7 +578,7 @@ function isBannedEmail($email, $restriction, $error)
 			$ban_reason = $row['reason'];
 		}
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// You're in biiig trouble.  Banned for the rest of this session!
 	if (isset($_SESSION['ban']['cannot_access']))
@@ -608,12 +612,12 @@ function isBannedEmail($email, $restriction, $error)
  */
 function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 {
-	global $context, $sc, $modSettings, $boardurl;
+	global $sc;
 
 	// Is it in as $_POST['sc']?
 	if ($type == 'post')
 	{
-		$check = isset($_POST[$_SESSION['session_var']]) ? $_POST[$_SESSION['session_var']] : (empty($modSettings['strictSessionCheck']) && isset($_POST['sc']) ? $_POST['sc'] : null);
+		$check = isset($_POST[$_SESSION['session_var']]) ? $_POST[$_SESSION['session_var']] : (empty(Config::$modSettings['strictSessionCheck']) && isset($_POST['sc']) ? $_POST['sc'] : null);
 		if ($check !== $sc)
 			$error = 'session_timeout';
 	}
@@ -621,7 +625,7 @@ function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 	// How about $_GET['sesc']?
 	elseif ($type == 'get')
 	{
-		$check = isset($_GET[$_SESSION['session_var']]) ? $_GET[$_SESSION['session_var']] : (empty($modSettings['strictSessionCheck']) && isset($_GET['sesc']) ? $_GET['sesc'] : null);
+		$check = isset($_GET[$_SESSION['session_var']]) ? $_GET[$_SESSION['session_var']] : (empty(Config::$modSettings['strictSessionCheck']) && isset($_GET['sesc']) ? $_GET['sesc'] : null);
 		if ($check !== $sc)
 			$error = 'session_verify_fail';
 	}
@@ -629,14 +633,14 @@ function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 	// Or can it be in either?
 	elseif ($type == 'request')
 	{
-		$check = isset($_GET[$_SESSION['session_var']]) ? $_GET[$_SESSION['session_var']] : (empty($modSettings['strictSessionCheck']) && isset($_GET['sesc']) ? $_GET['sesc'] : (isset($_POST[$_SESSION['session_var']]) ? $_POST[$_SESSION['session_var']] : (empty($modSettings['strictSessionCheck']) && isset($_POST['sc']) ? $_POST['sc'] : null)));
+		$check = isset($_GET[$_SESSION['session_var']]) ? $_GET[$_SESSION['session_var']] : (empty(Config::$modSettings['strictSessionCheck']) && isset($_GET['sesc']) ? $_GET['sesc'] : (isset($_POST[$_SESSION['session_var']]) ? $_POST[$_SESSION['session_var']] : (empty(Config::$modSettings['strictSessionCheck']) && isset($_POST['sc']) ? $_POST['sc'] : null)));
 
 		if ($check !== $sc)
 			$error = 'session_verify_fail';
 	}
 
 	// Verify that they aren't changing user agents on us - that could be bad.
-	if ((!isset($_SESSION['USER_AGENT']) || $_SESSION['USER_AGENT'] != $_SERVER['HTTP_USER_AGENT']) && empty($modSettings['disableCheckUA']))
+	if ((!isset($_SESSION['USER_AGENT']) || $_SESSION['USER_AGENT'] != $_SERVER['HTTP_USER_AGENT']) && empty(Config::$modSettings['disableCheckUA']))
 		$error = 'session_verify_fail';
 
 	// Make sure a page with session check requirement is not being prefetched.
@@ -654,17 +658,17 @@ function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 		$referrer = isset($_SERVER['HTTP_REFERER']) ? @parse_url($_SERVER['HTTP_REFERER']) : array();
 
 	// Check the refer but if we have CORS enabled and it came from a trusted source, we can skip this check.
-	if (!empty($referrer['host']) && (empty($modSettings['allow_cors']) || empty($context['valid_cors_found']) || !in_array($context['valid_cors_found'], array('same', 'subdomain'))))
+	if (!empty($referrer['host']) && (empty(Config::$modSettings['allow_cors']) || empty(Utils::$context['valid_cors_found']) || !in_array(Utils::$context['valid_cors_found'], array('same', 'subdomain'))))
 	{
 		if (strpos($_SERVER['HTTP_HOST'], ':') !== false)
 			$real_host = substr($_SERVER['HTTP_HOST'], 0, strpos($_SERVER['HTTP_HOST'], ':'));
 		else
 			$real_host = $_SERVER['HTTP_HOST'];
 
-		$parsed_url = parse_iri($boardurl);
+		$parsed_url = parse_iri(Config::$boardurl);
 
 		// Are global cookies on?  If so, let's check them ;).
-		if (!empty($modSettings['globalCookies']))
+		if (!empty(Config::$modSettings['globalCookies']))
 		{
 			if (preg_match('~(?:[^\.]+\.)?([^\.]{3,}\..+)\z~i', $parsed_url['host'], $parts) == 1)
 				$parsed_url['host'] = $parts[1];
@@ -725,14 +729,12 @@ function checkSession($type = 'post', $from_action = '', $is_fatal = true)
  */
 function checkConfirm($action)
 {
-	global $modSettings, $smcFunc;
-
 	if (isset($_GET['confirm']) && isset($_SESSION['confirm_' . $action]) && md5($_GET['confirm'] . $_SERVER['HTTP_USER_AGENT']) == $_SESSION['confirm_' . $action])
 		return true;
 
 	else
 	{
-		$token = md5($smcFunc['random_int']() . session_id() . (string) microtime() . $modSettings['rand_seed']);
+		$token = md5(Utils::randomInt() . session_id() . (string) microtime() . Config::$modSettings['rand_seed']);
 		$_SESSION['confirm_' . $action] = md5($token . $_SERVER['HTTP_USER_AGENT']);
 
 		return $token;
@@ -748,15 +750,13 @@ function checkConfirm($action)
  */
 function createToken($action, $type = 'post')
 {
-	global $modSettings, $context, $smcFunc;
-
-	$token = md5($smcFunc['random_int']() . session_id() . (string) microtime() . $modSettings['rand_seed'] . $type);
-	$token_var = substr(preg_replace('~^\d+~', '', md5($smcFunc['random_int']() . (string) microtime() . $smcFunc['random_int']())), 0, $smcFunc['random_int'](7, 12));
+	$token = md5(Utils::randomInt() . session_id() . (string) microtime() . Config::$modSettings['rand_seed'] . $type);
+	$token_var = substr(preg_replace('~^\d+~', '', md5(Utils::randomInt() . (string) microtime() . Utils::randomInt())), 0, Utils::randomInt(7, 12));
 
 	$_SESSION['token'][$type . '-' . $action] = array($token_var, md5($token . $_SERVER['HTTP_USER_AGENT']), time(), $token);
 
-	$context[$action . '_token'] = $token;
-	$context[$action . '_token_var'] = $token_var;
+	Utils::$context[$action . '_token'] = $token;
+	Utils::$context[$action . '_token_var'] = $token_var;
 
 	return array($action . '_token_var' => $token_var, $action . '_token' => $token);
 }
@@ -844,7 +844,7 @@ function cleanTokens($complete = false)
  */
 function checkSubmitOnce($action, $is_fatal = true)
 {
-	global $context, $txt;
+	global $txt;
 
 	if (!isset($_SESSION['forms']))
 		$_SESSION['forms'] = array();
@@ -852,9 +852,9 @@ function checkSubmitOnce($action, $is_fatal = true)
 	// Register a form number and store it in the session stack. (use this on the page that has the form.)
 	if ($action == 'register')
 	{
-		$context['form_sequence_number'] = 0;
-		while (empty($context['form_sequence_number']) || in_array($context['form_sequence_number'], $_SESSION['forms']))
-			$context['form_sequence_number'] = mt_rand(1, 16000000);
+		Utils::$context['form_sequence_number'] = 0;
+		while (empty(Utils::$context['form_sequence_number']) || in_array(Utils::$context['form_sequence_number'], $_SESSION['forms']))
+			Utils::$context['form_sequence_number'] = mt_rand(1, 16000000);
 	}
 	// Check whether the submitted number can be found in the session.
 	elseif ($action == 'check')
@@ -895,7 +895,7 @@ function checkSubmitOnce($action, $is_fatal = true)
  */
 function allowedTo($permission, $boards = null, $any = false)
 {
-	global $user_info, $smcFunc;
+	global $user_info;
 	static $perm_cache = array();
 
 	// You're always allowed to do nothing. (unless you're a working man, MR. LAZY :P!)
@@ -934,7 +934,7 @@ function allowedTo($permission, $boards = null, $any = false)
 	if (isset($perm_cache[$cache_key]))
 		return $perm_cache[$cache_key];
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT MIN(bp.add_deny) AS add_deny
 		FROM {db_prefix}boards AS b
 			INNER JOIN {db_prefix}board_permissions AS bp ON (bp.id_profile = b.id_profile)
@@ -957,26 +957,26 @@ function allowedTo($permission, $boards = null, $any = false)
 	if ($any)
 	{
 		$result = false;
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			$result = !empty($row['add_deny']);
 			if ($result == true)
 				break;
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 		$return = $result;
 	}
 
 	// Make sure they can do it on all of the boards.
-	elseif ($smcFunc['db_num_rows']($request) != count($boards))
+	elseif (Db::$db->num_rows($request) != count($boards))
 		$return = false;
 
 	else
 	{
 		$result = true;
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$result &= !empty($row['add_deny']);
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 		$return = $result;
 	}
 
@@ -1067,7 +1067,7 @@ function isAllowedTo($permission, $boards = null, $any = false)
  */
 function boardsAllowedTo($permissions, $check_access = true, $simple = true)
 {
-	global $user_info, $smcFunc;
+	global $user_info;
 
 	// Arrays are nice, most of the time.
 	$permissions = (array) $permissions;
@@ -1097,7 +1097,7 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
 	// All groups the user is in except 'moderator'.
 	$groups = array_diff($user_info['groups'], array(3));
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT b.id_board, bp.add_deny' . ($simple ? '' : ', bp.permission') . '
 		FROM {db_prefix}board_permissions AS bp
 			INNER JOIN {db_prefix}boards AS b ON (b.id_profile = bp.id_profile)
@@ -1116,7 +1116,7 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
 	);
 	$boards = array();
 	$deny_boards = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		if ($simple)
 		{
@@ -1133,7 +1133,7 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
 				$boards[$row['permission']][] = $row['id_board'];
 		}
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	if ($simple)
 		$boards = array_unique(array_values(array_diff($boards, $deny_boards)));
@@ -1169,28 +1169,28 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
  */
 function spamProtection($error_type, $only_return_result = false)
 {
-	global $modSettings, $user_info, $smcFunc;
+	global $user_info;
 
 	// Certain types take less/more time.
 	$timeOverrides = array(
 		'login' => 2,
 		'register' => 2,
 		'remind' => 30,
-		'sendmail' => $modSettings['spamWaitTime'] * 5,
-		'reporttm' => $modSettings['spamWaitTime'] * 4,
-		'search' => !empty($modSettings['search_floodcontrol_time']) ? $modSettings['search_floodcontrol_time'] : 1,
+		'sendmail' => Config::$modSettings['spamWaitTime'] * 5,
+		'reporttm' => Config::$modSettings['spamWaitTime'] * 4,
+		'search' => !empty(Config::$modSettings['search_floodcontrol_time']) ? Config::$modSettings['search_floodcontrol_time'] : 1,
 	);
 
 	call_integration_hook('integrate_spam_protection', array(&$timeOverrides));
 
 	// Moderators are free...
 	if (!allowedTo('moderate_board'))
-		$timeLimit = isset($timeOverrides[$error_type]) ? $timeOverrides[$error_type] : $modSettings['spamWaitTime'];
+		$timeLimit = isset($timeOverrides[$error_type]) ? $timeOverrides[$error_type] : Config::$modSettings['spamWaitTime'];
 	else
 		$timeLimit = 2;
 
 	// Delete old entries...
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}log_floodcontrol
 		WHERE log_time < {int:log_time}
 			AND log_type = {string:log_type}',
@@ -1201,7 +1201,7 @@ function spamProtection($error_type, $only_return_result = false)
 	);
 
 	// Add a new entry, deleting the old if necessary.
-	$smcFunc['db_insert']('replace',
+	Db::$db->insert('replace',
 		'{db_prefix}log_floodcontrol',
 		array('ip' => 'inet', 'log_time' => 'int', 'log_type' => 'string'),
 		array($user_info['ip'], time(), $error_type),
@@ -1209,7 +1209,7 @@ function spamProtection($error_type, $only_return_result = false)
 	);
 
 	// If affected is 0 or 2, it was there already.
-	if ($smcFunc['db_affected_rows']() != 1)
+	if (Db::$db->affected_rows() != 1)
 	{
 		// Spammer!  You only have to wait a *few* seconds!
 		if (!$only_return_result)
@@ -1337,11 +1337,9 @@ else
  */
 function frameOptionsHeader($override = null)
 {
-	global $modSettings;
-
 	$option = 'SAMEORIGIN';
-	if (is_null($override) && !empty($modSettings['frame_security']))
-		$option = $modSettings['frame_security'];
+	if (is_null($override) && !empty(Config::$modSettings['frame_security']))
+		$option = Config::$modSettings['frame_security'];
 	elseif (in_array($override, array('SAMEORIGIN', 'DENY')))
 		$option = $override;
 
@@ -1361,28 +1359,26 @@ function frameOptionsHeader($override = null)
  * This sets the Access-Control-Allow-Origin header.
  * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
  *
- * @param bool $set_header (Default: true): When false, we will do the logic, but not send the headers.  The relevant logic is still saved in the $context and can be sent manually.
+ * @param bool $set_header (Default: true): When false, we will do the logic, but not send the headers.  The relevant logic is still saved in Utils::$context and can be sent manually.
  *
  * @since 2.1
  */
 function corsPolicyHeader($set_header = true)
 {
-	global $boardurl, $modSettings, $context;
-
-	if (empty($modSettings['allow_cors']) || empty($_SERVER['HTTP_ORIGIN']))
+	if (empty(Config::$modSettings['allow_cors']) || empty($_SERVER['HTTP_ORIGIN']))
 		return;
 
-	foreach (array('origin' => $_SERVER['HTTP_ORIGIN'], 'boardurl_parts' => $boardurl) as $var => $url)
+	foreach (array('origin' => $_SERVER['HTTP_ORIGIN'], 'boardurl_parts' => Config::$boardurl) as $var => $url)
 	{
 		// Convert any Punycode to Unicode for the sake of comparison, then parse.
 		$$var = parse_iri(url_to_iri((string) validate_iri(normalize_iri(trim($url)))));
 	}
 
 	// The admin wants weak security... :(
-	if (!empty($modSettings['cors_domains']) && $modSettings['cors_domains'] === '*')
+	if (!empty(Config::$modSettings['cors_domains']) && Config::$modSettings['cors_domains'] === '*')
 	{
-		$context['cors_domain'] = '*';
-		$context['valid_cors_found'] = 'wildcard';
+		Utils::$context['cors_domain'] = '*';
+		Utils::$context['valid_cors_found'] = 'wildcard';
 	}
 
 	// Oh good, the admin cares about security. :)
@@ -1394,22 +1390,22 @@ function corsPolicyHeader($set_header = true)
 		$allowed_origins = array();
 
 		// If subdomain-independent cookies are on, allow CORS requests from subdomains.
-		if (!empty($modSettings['globalCookies']) && !empty($modSettings['globalCookiesDomain']))
+		if (!empty(Config::$modSettings['globalCookies']) && !empty(Config::$modSettings['globalCookiesDomain']))
 		{
-			$allowed_origins[++$i] = array_merge(parse_iri('//*.' . trim($modSettings['globalCookiesDomain'])), array('type' => 'subdomain'));
+			$allowed_origins[++$i] = array_merge(parse_iri('//*.' . trim(Config::$modSettings['globalCookiesDomain'])), array('type' => 'subdomain'));
 		}
 
 		// Support forum_alias_urls as well, since those are supported by our login cookie.
-		if (!empty($modSettings['forum_alias_urls']))
+		if (!empty(Config::$modSettings['forum_alias_urls']))
 		{
-			foreach (explode(',', $modSettings['forum_alias_urls']) as $alias)
+			foreach (explode(',', Config::$modSettings['forum_alias_urls']) as $alias)
 				$allowed_origins[++$i] = array_merge(parse_iri((strpos($alias, '//') === false ? '//' : '') . trim($alias)), array('type' => 'alias'));
 		}
 
 		// Additional CORS domains.
-		if (!empty($modSettings['cors_domains']))
+		if (!empty(Config::$modSettings['cors_domains']))
 		{
-			foreach (explode(',', $modSettings['cors_domains']) as $cors_domain)
+			foreach (explode(',', Config::$modSettings['cors_domains']) as $cors_domain)
 			{
 				$allowed_origins[++$i] = array_merge(parse_iri((strpos($cors_domain, '//') === false ? '//' : '') . trim($cors_domain)), array('type' => 'additional'));
 
@@ -1473,46 +1469,46 @@ function corsPolicyHeader($set_header = true)
 
 			if (preg_match('~' . $host_regex . '~u', $origin['host']))
 			{
-				$context['cors_domain'] = trim($_SERVER['HTTP_ORIGIN']);
-				$context['valid_cors_found'] = $allowed_origin['type'];
+				Utils::$context['cors_domain'] = trim($_SERVER['HTTP_ORIGIN']);
+				Utils::$context['valid_cors_found'] = $allowed_origin['type'];
 				break;
 			}
 		}
 	}
 
 	// The default is just to place the root URL of the forum into the policy.
-	if (empty($context['cors_domain']))
+	if (empty(Utils::$context['cors_domain']))
 	{
-		$context['cors_domain'] = iri_to_url($boardurl_parts['scheme'] . '://' . $boardurl_parts['host']);
+		Utils::$context['cors_domain'] = iri_to_url($boardurl_parts['scheme'] . '://' . $boardurl_parts['host']);
 
 		// Attach the port if needed.
 		if (!empty($boardurl_parts['port']))
-			$context['cors_domain'] .= ':' . $boardurl_parts['port'];
+			Utils::$context['cors_domain'] .= ':' . $boardurl_parts['port'];
 
-		$context['valid_cors_found'] = 'same';
+		Utils::$context['valid_cors_found'] = 'same';
 	}
 
-	$context['cors_headers'] = 'X-SMF-AJAX';
+	Utils::$context['cors_headers'] = 'X-SMF-AJAX';
 
 	// Any additional headers?
-	if (!empty($modSettings['cors_headers']))
+	if (!empty(Config::$modSettings['cors_headers']))
 	{
 		// Cleanup any typos.
-		$cors_headers = explode(',', $modSettings['cors_headers']);
+		$cors_headers = explode(',', Config::$modSettings['cors_headers']);
 		foreach ($cors_headers as &$ch)
 			$ch = str_replace(' ', '-', trim($ch));
 
-		$context['cors_headers'] .= ',' . implode(',', $cors_headers);
+		Utils::$context['cors_headers'] .= ',' . implode(',', $cors_headers);
 	}
 
 	// Allowing Cross-Origin Resource Sharing (CORS).
-	if ($set_header && !empty($context['valid_cors_found']) && !empty($context['cors_domain']))
+	if ($set_header && !empty(Utils::$context['valid_cors_found']) && !empty(Utils::$context['cors_domain']))
 	{
-		header('Access-Control-Allow-Origin: ' . $context['cors_domain']);
-		header('Access-Control-Allow-Headers: ' . $context['cors_headers']);
+		header('Access-Control-Allow-Origin: ' . Utils::$context['cors_domain']);
+		header('Access-Control-Allow-Headers: ' . Utils::$context['cors_headers']);
 
 		// Be careful with this, you're allowing an external site to allow the browser to send cookies with this.
-		if (!empty($modSettings['allow_cors_credentials']))
+		if (!empty(Config::$modSettings['allow_cors_credentials']))
 			header('Access-Control-Allow-Credentials: true');
 	}
 }

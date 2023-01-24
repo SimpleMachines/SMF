@@ -15,6 +15,10 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -31,7 +35,7 @@ if (!defined('SMF'))
  */
 function ManageAttachments()
 {
-	global $txt, $context;
+	global $txt;
 
 	// You have to be able to moderate the forum to do this.
 	isAllowedTo('manage_attachments');
@@ -55,7 +59,7 @@ function ManageAttachments()
 	);
 
 	// This uses admin tabs - as it should!
-	$context[$context['admin_menu_name']]['tab_data'] = array(
+	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['attachments_avatars'],
 		'help' => 'manage_files',
 		'description' => $txt['attachments_desc'],
@@ -65,15 +69,15 @@ function ManageAttachments()
 
 	// Pick the correct sub-action.
 	if (isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]))
-		$context['sub_action'] = $_REQUEST['sa'];
+		Utils::$context['sub_action'] = $_REQUEST['sa'];
 	else
-		$context['sub_action'] = 'browse';
+		Utils::$context['sub_action'] = 'browse';
 
 	// Default page title is good.
-	$context['page_title'] = $txt['attachments_avatars'];
+	Utils::$context['page_title'] = $txt['attachments_avatars'];
 
 	// Finally fall through to what we are doing.
-	call_helper($subActions[$context['sub_action']]);
+	call_helper($subActions[Utils::$context['sub_action']]);
 }
 
 /**
@@ -88,36 +92,36 @@ function ManageAttachments()
 
 function ManageAttachmentSettings($return_config = false)
 {
-	global $smcFunc, $txt, $modSettings, $scripturl, $context, $sourcedir, $boarddir;
+	global $txt;
 
-	require_once($sourcedir . '/Subs-Attachments.php');
+	require_once(Config::$sourcedir . '/Subs-Attachments.php');
 
-	$context['attachmentUploadDir'] = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
+	Utils::$context['attachmentUploadDir'] = Config::$modSettings['attachmentUploadDir'][Config::$modSettings['currentAttachmentUploadDir']];
 
 	// If not set, show a default path for the base directory
-	if (!isset($_GET['save']) && empty($modSettings['basedirectory_for_attachments']))
-		if (is_dir($modSettings['attachmentUploadDir'][1]))
-			$modSettings['basedirectory_for_attachments'] = $modSettings['attachmentUploadDir'][1];
+	if (!isset($_GET['save']) && empty(Config::$modSettings['basedirectory_for_attachments']))
+		if (is_dir(Config::$modSettings['attachmentUploadDir'][1]))
+			Config::$modSettings['basedirectory_for_attachments'] = Config::$modSettings['attachmentUploadDir'][1];
 
 		else
-			$modSettings['basedirectory_for_attachments'] = $context['attachmentUploadDir'];
+			Config::$modSettings['basedirectory_for_attachments'] = Utils::$context['attachmentUploadDir'];
 
-	$context['valid_upload_dir'] = is_dir($context['attachmentUploadDir']) && is_writable($context['attachmentUploadDir']);
+	Utils::$context['valid_upload_dir'] = is_dir(Utils::$context['attachmentUploadDir']) && is_writable(Utils::$context['attachmentUploadDir']);
 
-	if (!empty($modSettings['automanage_attachments']))
-		$context['valid_basedirectory'] = !empty($modSettings['basedirectory_for_attachments']) && is_writable($modSettings['basedirectory_for_attachments']);
+	if (!empty(Config::$modSettings['automanage_attachments']))
+		Utils::$context['valid_basedirectory'] = !empty(Config::$modSettings['basedirectory_for_attachments']) && is_writable(Config::$modSettings['basedirectory_for_attachments']);
 
 	else
-		$context['valid_basedirectory'] = true;
+		Utils::$context['valid_basedirectory'] = true;
 
 	// A bit of razzle dazzle with the $txt strings. :)
-	$txt['attachment_path'] = $context['attachmentUploadDir'];
-	if (empty($modSettings['attachment_basedirectories']) && $modSettings['currentAttachmentUploadDir'] == 1 && count($modSettings['attachmentUploadDir']) == 1)
-		$txt['attachmentUploadDir_path'] = $modSettings['attachmentUploadDir'][1];
-	$txt['basedirectory_for_attachments_path'] = isset($modSettings['basedirectory_for_attachments']) ? $modSettings['basedirectory_for_attachments'] : '';
-	$txt['use_subdirectories_for_attachments_note'] = empty($modSettings['attachment_basedirectories']) || empty($modSettings['use_subdirectories_for_attachments']) ? $txt['use_subdirectories_for_attachments_note'] : '';
-	$txt['attachmentUploadDir_multiple_configure'] = '<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=attachpaths">[' . $txt['attachmentUploadDir_multiple_configure'] . ']</a>';
-	$txt['attach_current_dir'] = empty($modSettings['automanage_attachments']) ? $txt['attach_current_dir'] : $txt['attach_last_dir'];
+	$txt['attachment_path'] = Utils::$context['attachmentUploadDir'];
+	if (empty(Config::$modSettings['attachment_basedirectories']) && Config::$modSettings['currentAttachmentUploadDir'] == 1 && count(Config::$modSettings['attachmentUploadDir']) == 1)
+		$txt['attachmentUploadDir_path'] = Config::$modSettings['attachmentUploadDir'][1];
+	$txt['basedirectory_for_attachments_path'] = isset(Config::$modSettings['basedirectory_for_attachments']) ? Config::$modSettings['basedirectory_for_attachments'] : '';
+	$txt['use_subdirectories_for_attachments_note'] = empty(Config::$modSettings['attachment_basedirectories']) || empty(Config::$modSettings['use_subdirectories_for_attachments']) ? $txt['use_subdirectories_for_attachments_note'] : '';
+	$txt['attachmentUploadDir_multiple_configure'] = '<a href="' . Config::$scripturl . '?action=admin;area=manageattachments;sa=attachpaths">[' . $txt['attachmentUploadDir_multiple_configure'] . ']</a>';
+	$txt['attach_current_dir'] = empty(Config::$modSettings['automanage_attachments']) ? $txt['attach_current_dir'] : $txt['attach_last_dir'];
 	$txt['attach_current_dir_warning'] = $txt['attach_current_dir'] . $txt['attach_current_dir_warning'];
 	$txt['basedirectory_for_attachments_warning'] = $txt['basedirectory_for_attachments_current'] . $txt['basedirectory_for_attachments_warning'];
 
@@ -137,8 +141,8 @@ function ManageAttachmentSettings($return_config = false)
 		// Directory and size limits.
 		array('select', 'automanage_attachments', array(0 => $txt['attachments_normal'], 1 => $txt['attachments_auto_space'], 2 => $txt['attachments_auto_years'], 3 => $txt['attachments_auto_months'], 4 => $txt['attachments_auto_16'])),
 		array('check', 'use_subdirectories_for_attachments', 'subtext' => $txt['use_subdirectories_for_attachments_note']),
-		(empty($modSettings['attachment_basedirectories']) ? array('text', 'basedirectory_for_attachments', 40,) : array('var_message', 'basedirectory_for_attachments', 'message' => 'basedirectory_for_attachments_path', 'invalid' => empty($context['valid_basedirectory']), 'text_label' => (!empty($context['valid_basedirectory']) ? $txt['basedirectory_for_attachments_current'] : sprintf($txt['basedirectory_for_attachments_warning'], $scripturl)))),
-		empty($modSettings['attachment_basedirectories']) && $modSettings['currentAttachmentUploadDir'] == 1 && count($modSettings['attachmentUploadDir']) == 1 ? array('var_message', 'attachmentUploadDir_path', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 40, 'invalid' => !$context['valid_upload_dir'], 'text_label' => $txt['attachmentUploadDir'], 'message' => 'attachmentUploadDir_path') : array('var_message', 'attach_current_directory', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 'message' => 'attachment_path', 'invalid' => empty($context['valid_upload_dir']), 'text_label' => (!empty($context['valid_upload_dir']) ? $txt['attach_current_dir'] : sprintf($txt['attach_current_dir_warning'], $scripturl))),
+		(empty(Config::$modSettings['attachment_basedirectories']) ? array('text', 'basedirectory_for_attachments', 40,) : array('var_message', 'basedirectory_for_attachments', 'message' => 'basedirectory_for_attachments_path', 'invalid' => empty(Utils::$context['valid_basedirectory']), 'text_label' => (!empty(Utils::$context['valid_basedirectory']) ? $txt['basedirectory_for_attachments_current'] : sprintf($txt['basedirectory_for_attachments_warning'], Config::$scripturl)))),
+		empty(Config::$modSettings['attachment_basedirectories']) && Config::$modSettings['currentAttachmentUploadDir'] == 1 && count(Config::$modSettings['attachmentUploadDir']) == 1 ? array('var_message', 'attachmentUploadDir_path', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 40, 'invalid' => !Utils::$context['valid_upload_dir'], 'text_label' => $txt['attachmentUploadDir'], 'message' => 'attachmentUploadDir_path') : array('var_message', 'attach_current_directory', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 'message' => 'attachment_path', 'invalid' => empty(Utils::$context['valid_upload_dir']), 'text_label' => (!empty(Utils::$context['valid_upload_dir']) ? $txt['attach_current_dir'] : sprintf($txt['attach_current_dir_warning'], Config::$scripturl))),
 		array('int', 'attachmentDirFileLimit', 'subtext' => $txt['zero_for_no_limit'], 6),
 		array('int', 'attachmentDirSizeLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
 		array('check', 'dont_show_attach_under_post', 'subtext' => $txt['dont_show_attach_under_post_sub']),
@@ -177,7 +181,7 @@ function ManageAttachmentSettings($return_config = false)
 		array('int', 'max_image_height', 'subtext' => $txt['zero_for_no_limit']),
 	);
 
-	$context['settings_post_javascript'] = '
+	Utils::$context['settings_post_javascript'] = '
 	var storing_type = document.getElementById(\'automanage_attachments\');
 	var base_dir = document.getElementById(\'use_subdirectories_for_attachments\');
 
@@ -193,8 +197,8 @@ function ManageAttachmentSettings($return_config = false)
 		return $config_vars;
 
 	// These are very likely to come in handy! (i.e. without them we're doomed!)
-	require_once($sourcedir . '/ManagePermissions.php');
-	require_once($sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/ManagePermissions.php');
+	require_once(Config::$sourcedir . '/ManageServer.php');
 
 	// Saving settings?
 	if (isset($_GET['save']))
@@ -207,36 +211,36 @@ function ManageAttachmentSettings($return_config = false)
 		if (!empty($_POST['use_subdirectories_for_attachments']))
 		{
 			if (isset($_POST['use_subdirectories_for_attachments']) && empty($_POST['basedirectory_for_attachments']))
-				$_POST['basedirectory_for_attachments'] = (!empty($modSettings['basedirectory_for_attachments']) ? ($modSettings['basedirectory_for_attachments']) : $boarddir);
+				$_POST['basedirectory_for_attachments'] = (!empty(Config::$modSettings['basedirectory_for_attachments']) ? (Config::$modSettings['basedirectory_for_attachments']) : Config::$boarddir);
 
-			if (!empty($_POST['use_subdirectories_for_attachments']) && !empty($modSettings['attachment_basedirectories']))
+			if (!empty($_POST['use_subdirectories_for_attachments']) && !empty(Config::$modSettings['attachment_basedirectories']))
 			{
-				if (!is_array($modSettings['attachment_basedirectories']))
-					$modSettings['attachment_basedirectories'] = $smcFunc['json_decode']($modSettings['attachment_basedirectories'], true);
+				if (!is_array(Config::$modSettings['attachment_basedirectories']))
+					Config::$modSettings['attachment_basedirectories'] = Utils::jsonDecode(Config::$modSettings['attachment_basedirectories'], true);
 			}
 			else
-				$modSettings['attachment_basedirectories'] = array();
+				Config::$modSettings['attachment_basedirectories'] = array();
 
-			if (!empty($_POST['use_subdirectories_for_attachments']) && !empty($_POST['basedirectory_for_attachments']) && !in_array($_POST['basedirectory_for_attachments'], $modSettings['attachment_basedirectories']))
+			if (!empty($_POST['use_subdirectories_for_attachments']) && !empty($_POST['basedirectory_for_attachments']) && !in_array($_POST['basedirectory_for_attachments'], Config::$modSettings['attachment_basedirectories']))
 			{
-				$currentAttachmentUploadDir = $modSettings['currentAttachmentUploadDir'];
+				$currentAttachmentUploadDir = Config::$modSettings['currentAttachmentUploadDir'];
 
-				if (!in_array($_POST['basedirectory_for_attachments'], $modSettings['attachmentUploadDir']))
+				if (!in_array($_POST['basedirectory_for_attachments'], Config::$modSettings['attachmentUploadDir']))
 				{
 					if (!automanage_attachments_create_directory($_POST['basedirectory_for_attachments']))
-						$_POST['basedirectory_for_attachments'] = $modSettings['basedirectory_for_attachments'];
+						$_POST['basedirectory_for_attachments'] = Config::$modSettings['basedirectory_for_attachments'];
 				}
 
-				if (!in_array($_POST['basedirectory_for_attachments'], $modSettings['attachment_basedirectories']))
+				if (!in_array($_POST['basedirectory_for_attachments'], Config::$modSettings['attachment_basedirectories']))
 				{
-					$modSettings['attachment_basedirectories'][$modSettings['currentAttachmentUploadDir']] = $_POST['basedirectory_for_attachments'];
-					updateSettings(array(
-						'attachment_basedirectories' => $smcFunc['json_encode']($modSettings['attachment_basedirectories']),
+					Config::$modSettings['attachment_basedirectories'][Config::$modSettings['currentAttachmentUploadDir']] = $_POST['basedirectory_for_attachments'];
+					Config::updateModSettings(array(
+						'attachment_basedirectories' => Utils::jsonEncode(Config::$modSettings['attachment_basedirectories']),
 						'currentAttachmentUploadDir' => $currentAttachmentUploadDir,
 					));
 
 					$_POST['use_subdirectories_for_attachments'] = 1;
-					$_POST['attachmentUploadDir'] = $smcFunc['json_encode']($modSettings['attachmentUploadDir']);
+					$_POST['attachmentUploadDir'] = Utils::jsonEncode(Config::$modSettings['attachmentUploadDir']);
 				}
 			}
 		}
@@ -248,10 +252,10 @@ function ManageAttachmentSettings($return_config = false)
 		redirectexit('action=admin;area=manageattachments;sa=attachments');
 	}
 
-	$context['post_url'] = $scripturl . '?action=admin;area=manageattachments;save;sa=attachments';
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=manageattachments;save;sa=attachments';
 	prepareDBSettingContext($config_vars);
 
-	$context['sub_template'] = 'show_settings';
+	Utils::$context['sub_template'] = 'show_settings';
 }
 
 /**
@@ -265,22 +269,21 @@ function ManageAttachmentSettings($return_config = false)
  */
 function ManageAvatarSettings($return_config = false)
 {
-	global $txt, $context, $modSettings, $sourcedir, $scripturl;
-	global $boarddir, $boardurl;
+	global $txt;
 
 	// Perform a test to see if the GD module or ImageMagick are installed.
 	$testImg = get_extension_funcs('gd') || class_exists('Imagick');
 
-	$context['valid_avatar_dir'] = is_dir($modSettings['avatar_directory']);
-	$context['valid_custom_avatar_dir'] = !empty($modSettings['custom_avatar_dir']) && is_dir($modSettings['custom_avatar_dir']) && is_writable($modSettings['custom_avatar_dir']);
+	Utils::$context['valid_avatar_dir'] = is_dir(Config::$modSettings['avatar_directory']);
+	Utils::$context['valid_custom_avatar_dir'] = !empty(Config::$modSettings['custom_avatar_dir']) && is_dir(Config::$modSettings['custom_avatar_dir']) && is_writable(Config::$modSettings['custom_avatar_dir']);
 
 	$config_vars = array(
 		// Server stored avatars!
 		array('title', 'avatar_server_stored'),
 		array('warning', empty($testImg) ? 'avatar_img_enc_warning' : ''),
 		array('permissions', 'profile_server_avatar', 0, $txt['avatar_server_stored_groups']),
-		array('warning', !$context['valid_avatar_dir'] ? 'avatar_directory_wrong' : ''),
-		array('text', 'avatar_directory', 40, 'invalid' => !$context['valid_avatar_dir']),
+		array('warning', !Utils::$context['valid_avatar_dir'] ? 'avatar_directory_wrong' : ''),
+		array('text', 'avatar_directory', 40, 'invalid' => !Utils::$context['valid_avatar_dir']),
 		array('text', 'avatar_url', 40),
 		// External avatars?
 		array('title', 'avatar_external'),
@@ -309,8 +312,8 @@ function ManageAvatarSettings($return_config = false)
 		array('check', 'avatar_paranoid'),
 		'',
 
-		array('warning', !$context['valid_custom_avatar_dir'] ? 'custom_avatar_dir_wrong' : ''),
-		array('text', 'custom_avatar_dir', 40, 'subtext' => $txt['custom_avatar_dir_desc'], 'invalid' => !$context['valid_custom_avatar_dir']),
+		array('warning', !Utils::$context['valid_custom_avatar_dir'] ? 'custom_avatar_dir_wrong' : ''),
+		array('text', 'custom_avatar_dir', 40, 'subtext' => $txt['custom_avatar_dir_desc'], 'invalid' => !Utils::$context['valid_custom_avatar_dir']),
 		array('text', 'custom_avatar_url', 40),
 		// Grvatars?
 		array('title', 'gravatar_settings'),
@@ -345,7 +348,7 @@ function ManageAvatarSettings($return_config = false)
 		return $config_vars;
 
 	// We need this file for the settings template.
-	require_once($sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/ManageServer.php');
 
 	// Saving avatar settings?
 	if (isset($_GET['save']))
@@ -354,16 +357,16 @@ function ManageAvatarSettings($return_config = false)
 
 		// These settings cannot be left empty!
 		if (empty($_POST['custom_avatar_dir']))
-			$_POST['custom_avatar_dir'] = $boarddir . '/custom_avatar';
+			$_POST['custom_avatar_dir'] = Config::$boarddir . '/custom_avatar';
 
 		if (empty($_POST['custom_avatar_url']))
-			$_POST['custom_avatar_url'] = $boardurl . '/custom_avatar';
+			$_POST['custom_avatar_url'] = Config::$boardurl . '/custom_avatar';
 
 		if (empty($_POST['avatar_directory']))
-			$_POST['avatar_directory'] = $boarddir . '/avatars';
+			$_POST['avatar_directory'] = Config::$boarddir . '/avatars';
 
 		if (empty($_POST['avatar_url']))
-			$_POST['avatar_url'] = $boardurl . '/avatars';
+			$_POST['avatar_url'] = Config::$boardurl . '/avatars';
 
 		call_integration_hook('integrate_save_avatar_settings');
 
@@ -373,18 +376,18 @@ function ManageAvatarSettings($return_config = false)
 	}
 
 	// Attempt to figure out if the admin is trying to break things.
-	$context['settings_save_onclick'] = 'return (document.getElementById(\'custom_avatar_dir\').value == \'\' || document.getElementById(\'custom_avatar_url\').value == \'\') ? confirm(\'' . $txt['custom_avatar_check_empty'] . '\') : true;';
+	Utils::$context['settings_save_onclick'] = 'return (document.getElementById(\'custom_avatar_dir\').value == \'\' || document.getElementById(\'custom_avatar_url\').value == \'\') ? confirm(\'' . $txt['custom_avatar_check_empty'] . '\') : true;';
 
 	// We need this for the in-line permissions
 	createToken('admin-mp');
 
 	// Prepare the context.
-	$context['post_url'] = $scripturl . '?action=admin;area=manageattachments;save;sa=avatars';
+	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=manageattachments;save;sa=avatars';
 	prepareDBSettingContext($config_vars);
 
 	// Add a layer for the javascript.
-	$context['template_layers'][] = 'avatar_settings';
-	$context['sub_template'] = 'show_settings';
+	Utils::$context['template_layers'][] = 'avatar_settings';
+	Utils::$context['sub_template'] = 'show_settings';
 }
 
 /**
@@ -396,29 +399,28 @@ function ManageAvatarSettings($return_config = false)
  */
 function BrowseFiles()
 {
-	global $context, $txt, $scripturl, $modSettings;
-	global $smcFunc, $sourcedir, $settings;
+	global $txt, $settings;
 
 	// Attachments or avatars?
-	$context['browse_type'] = isset($_REQUEST['avatars']) ? 'avatars' : (isset($_REQUEST['thumbs']) ? 'thumbs' : 'attachments');
+	Utils::$context['browse_type'] = isset($_REQUEST['avatars']) ? 'avatars' : (isset($_REQUEST['thumbs']) ? 'thumbs' : 'attachments');
 
 	// Set the options for the list component.
 	$listOptions = array(
 		'id' => 'file_list',
-		'items_per_page' => $modSettings['defaultMaxListItems'],
-		'base_href' => $scripturl . '?action=admin;area=manageattachments;sa=browse' . ($context['browse_type'] === 'avatars' ? ';avatars' : ($context['browse_type'] === 'thumbs' ? ';thumbs' : '')),
+		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
+		'base_href' => Config::$scripturl . '?action=admin;area=manageattachments;sa=browse' . (Utils::$context['browse_type'] === 'avatars' ? ';avatars' : (Utils::$context['browse_type'] === 'thumbs' ? ';thumbs' : '')),
 		'default_sort_col' => 'name',
-		'no_items_label' => $txt['attachment_manager_' . ($context['browse_type'] === 'avatars' ? 'avatars' : ($context['browse_type'] === 'thumbs' ? 'thumbs' : 'attachments')) . '_no_entries'],
+		'no_items_label' => $txt['attachment_manager_' . (Utils::$context['browse_type'] === 'avatars' ? 'avatars' : (Utils::$context['browse_type'] === 'thumbs' ? 'thumbs' : 'attachments')) . '_no_entries'],
 		'get_items' => array(
 			'function' => 'list_getFiles',
 			'params' => array(
-				$context['browse_type'],
+				Utils::$context['browse_type'],
 			),
 		),
 		'get_count' => array(
 			'function' => 'list_getNumFiles',
 			'params' => array(
-				$context['browse_type'],
+				Utils::$context['browse_type'],
 			),
 		),
 		'columns' => array(
@@ -427,21 +429,21 @@ function BrowseFiles()
 					'value' => $txt['attachment_name'],
 				),
 				'data' => array(
-					'function' => function($rowData) use ($modSettings, $context, $scripturl, $smcFunc)
+					'function' => function($rowData)
 					{
 						$link = '<a href="';
 
 						// In case of a custom avatar URL attachments have a fixed directory.
 						if ($rowData['attachment_type'] == 1)
-							$link .= sprintf('%1$s/%2$s', $modSettings['custom_avatar_url'], $rowData['filename']);
+							$link .= sprintf('%1$s/%2$s', Config::$modSettings['custom_avatar_url'], $rowData['filename']);
 
 						// By default avatars are downloaded almost as attachments.
-						elseif ($context['browse_type'] == 'avatars')
-							$link .= sprintf('%1$s?action=dlattach;type=avatar;attach=%2$d', $scripturl, $rowData['id_attach']);
+						elseif (Utils::$context['browse_type'] == 'avatars')
+							$link .= sprintf('%1$s?action=dlattach;type=avatar;attach=%2$d', Config::$scripturl, $rowData['id_attach']);
 
 						// Normal attachments are always linked to a topic ID.
 						else
-							$link .= sprintf('%1$s?action=dlattach;topic=%2$d.0;attach=%3$d', $scripturl, $rowData['id_topic'], $rowData['id_attach']);
+							$link .= sprintf('%1$s?action=dlattach;topic=%2$d.0;attach=%3$d', Config::$scripturl, $rowData['id_topic'], $rowData['id_attach']);
 
 						$link .= '"';
 
@@ -449,7 +451,7 @@ function BrowseFiles()
 						if (!empty($rowData['width']) && !empty($rowData['height']))
 							$link .= sprintf(' onclick="return reqWin(this.href' . ($rowData['attachment_type'] == 1 ? '' : ' + \';image\'') . ', %1$d, %2$d, true);"', $rowData['width'] + 20, $rowData['height'] + 20);
 
-						$link .= sprintf('>%1$s</a>', preg_replace('~&amp;#(\\\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\\\1;', $smcFunc['htmlspecialchars']($rowData['filename'])));
+						$link .= sprintf('>%1$s</a>', preg_replace('~&amp;#(\\\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\\\1;', Utils::htmlspecialchars($rowData['filename'])));
 
 						// Show the dimensions.
 						if (!empty($rowData['width']) && !empty($rowData['height']))
@@ -480,18 +482,18 @@ function BrowseFiles()
 			),
 			'member' => array(
 				'header' => array(
-					'value' => $context['browse_type'] == 'avatars' ? $txt['attachment_manager_member'] : $txt['posted_by'],
+					'value' => Utils::$context['browse_type'] == 'avatars' ? $txt['attachment_manager_member'] : $txt['posted_by'],
 				),
 				'data' => array(
-					'function' => function($rowData) use ($scripturl, $smcFunc)
+					'function' => function($rowData)
 					{
 						// In case of an attachment, return the poster of the attachment.
 						if (empty($rowData['id_member']))
-							return $smcFunc['htmlspecialchars']($rowData['poster_name']);
+							return Utils::htmlspecialchars($rowData['poster_name']);
 
 						// Otherwise it must be an avatar, return the link to the owner of it.
 						else
-							return sprintf('<a href="%1$s?action=profile;u=%2$d">%3$s</a>', $scripturl, $rowData['id_member'], $rowData['poster_name']);
+							return sprintf('<a href="%1$s?action=profile;u=%2$d">%3$s</a>', Config::$scripturl, $rowData['id_member'], $rowData['poster_name']);
 					},
 				),
 				'sort' => array(
@@ -501,24 +503,24 @@ function BrowseFiles()
 			),
 			'date' => array(
 				'header' => array(
-					'value' => $context['browse_type'] == 'avatars' ? $txt['attachment_manager_last_active'] : $txt['date'],
+					'value' => Utils::$context['browse_type'] == 'avatars' ? $txt['attachment_manager_last_active'] : $txt['date'],
 				),
 				'data' => array(
-					'function' => function($rowData) use ($txt, $context, $scripturl)
+					'function' => function($rowData) use ($txt)
 					{
 						// The date the message containing the attachment was posted or the owner of the avatar was active.
 						$date = empty($rowData['poster_time']) ? $txt['never'] : timeformat($rowData['poster_time']);
 
 						// Add a link to the topic in case of an attachment.
-						if ($context['browse_type'] !== 'avatars')
-							$date .= sprintf('<br>%1$s <a href="%2$s?topic=%3$d.msg%4$d#msg%4$d">%5$s</a>', $txt['in'], $scripturl, $rowData['id_topic'], $rowData['id_msg'], $rowData['subject']);
+						if (Utils::$context['browse_type'] !== 'avatars')
+							$date .= sprintf('<br>%1$s <a href="%2$s?topic=%3$d.msg%4$d#msg%4$d">%5$s</a>', $txt['in'], Config::$scripturl, $rowData['id_topic'], $rowData['id_msg'], $rowData['subject']);
 
 						return $date;
 					},
 				),
 				'sort' => array(
-					'default' => $context['browse_type'] === 'avatars' ? 'mem.last_login' : 'm.id_msg',
-					'reverse' => $context['browse_type'] === 'avatars' ? 'mem.last_login DESC' : 'm.id_msg DESC',
+					'default' => Utils::$context['browse_type'] === 'avatars' ? 'mem.last_login' : 'm.id_msg',
+					'reverse' => Utils::$context['browse_type'] === 'avatars' ? 'mem.last_login DESC' : 'm.id_msg DESC',
 				),
 			),
 			'downloads' => array(
@@ -551,11 +553,11 @@ function BrowseFiles()
 			),
 		),
 		'form' => array(
-			'href' => $scripturl . '?action=admin;area=manageattachments;sa=remove' . ($context['browse_type'] === 'avatars' ? ';avatars' : ($context['browse_type'] === 'thumbs' ? ';thumbs' : '')),
+			'href' => Config::$scripturl . '?action=admin;area=manageattachments;sa=remove' . (Utils::$context['browse_type'] === 'avatars' ? ';avatars' : (Utils::$context['browse_type'] === 'thumbs' ? ';thumbs' : '')),
 			'include_sort' => true,
 			'include_start' => true,
 			'hidden_fields' => array(
-				'type' => $context['browse_type'],
+				'type' => Utils::$context['browse_type'],
 			),
 		),
 		'additional_rows' => array(
@@ -586,20 +588,20 @@ function BrowseFiles()
 		if ($browse_type != 'attachments')
 			$list_title .= ' | ';
 
-		if ($context['browse_type'] == $browse_type)
+		if (Utils::$context['browse_type'] == $browse_type)
 			$list_title .= '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ';
 
-		$list_title .= '<a href="' . $scripturl . $details[0] . '">' . $details[1] . '</a>';
+		$list_title .= '<a href="' . Config::$scripturl . $details[0] . '">' . $details[1] . '</a>';
 	}
 
 	$listOptions['title'] = $list_title;
 
 	// Create the list.
-	require_once($sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/Subs-List.php');
 	createList($listOptions);
 
-	$context['sub_template'] = 'show_list';
-	$context['default_list'] = 'file_list';
+	Utils::$context['sub_template'] = 'show_list';
+	Utils::$context['default_list'] = 'file_list';
 }
 
 /**
@@ -614,11 +616,11 @@ function BrowseFiles()
  */
 function list_getFiles($start, $items_per_page, $sort, $browse_type)
 {
-	global $smcFunc, $txt;
+	global $txt;
 
 	// Choose a query depending on what we are viewing.
 	if ($browse_type === 'avatars')
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT
 				{string:blank_text} AS id_msg, COALESCE(mem.real_name, {string:not_applicable_text}) AS poster_name,
 				mem.last_login AS poster_time, 0 AS id_topic, a.id_member, a.id_attach, a.filename, a.file_hash, a.attachment_type,
@@ -638,7 +640,7 @@ function list_getFiles($start, $items_per_page, $sort, $browse_type)
 			)
 		);
 	else
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT
 				m.id_msg, COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.id_topic, m.id_member,
 				a.id_attach, a.filename, a.file_hash, a.attachment_type, a.size, a.width, a.height, a.downloads, mf.subject, t.id_board
@@ -660,9 +662,9 @@ function list_getFiles($start, $items_per_page, $sort, $browse_type)
 			)
 		);
 	$files = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$files[] = $row;
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	return $files;
 }
@@ -676,11 +678,9 @@ function list_getFiles($start, $items_per_page, $sort, $browse_type)
  */
 function list_getNumFiles($browse_type)
 {
-	global $smcFunc;
-
 	// Depending on the type of file, different queries are used.
 	if ($browse_type === 'avatars')
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT COUNT(*)
 			FROM {db_prefix}attachments
 			WHERE id_member != {int:guest_id_member}',
@@ -689,7 +689,7 @@ function list_getNumFiles($browse_type)
 			)
 		);
 	else
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT COUNT(*) AS num_attach
 			FROM {db_prefix}attachments AS a
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
@@ -703,8 +703,8 @@ function list_getNumFiles($browse_type)
 			)
 		);
 
-	list ($num_files) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($num_files) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	return $num_files;
 }
@@ -719,14 +719,12 @@ function list_getNumFiles($browse_type)
  */
 function MaintainFiles()
 {
-	global $context, $modSettings, $smcFunc;
+	Utils::$context['sub_template'] = 'maintenance';
 
-	$context['sub_template'] = 'maintenance';
-
-	$attach_dirs = $modSettings['attachmentUploadDir'];
+	$attach_dirs = Config::$modSettings['attachmentUploadDir'];
 
 	// Get the number of attachments....
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}attachments
 		WHERE attachment_type = {int:attachment_type}
@@ -736,12 +734,12 @@ function MaintainFiles()
 			'guest_id_member' => 0,
 		)
 	);
-	list ($context['num_attachments']) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
-	$context['num_attachments'] = comma_format($context['num_attachments'], 0);
+	list (Utils::$context['num_attachments']) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
+	Utils::$context['num_attachments'] = comma_format(Utils::$context['num_attachments'], 0);
 
 	// Also get the avatar amount....
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}attachments
 		WHERE id_member != {int:guest_id_member}',
@@ -749,12 +747,12 @@ function MaintainFiles()
 			'guest_id_member' => 0,
 		)
 	);
-	list ($context['num_avatars']) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
-	$context['num_avatars'] = comma_format($context['num_avatars'], 0);
+	list (Utils::$context['num_avatars']) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
+	Utils::$context['num_avatars'] = comma_format(Utils::$context['num_avatars'], 0);
 
 	// Check the size of all the directories.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT SUM(size)
 		FROM {db_prefix}attachments
 		WHERE attachment_type != {int:type}',
@@ -762,43 +760,43 @@ function MaintainFiles()
 			'type' => 1,
 		)
 	);
-	list ($attachmentDirSize) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($attachmentDirSize) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	// Divide it into kilobytes.
 	$attachmentDirSize /= 1024;
-	$context['attachment_total_size'] = comma_format($attachmentDirSize, 2);
+	Utils::$context['attachment_total_size'] = comma_format($attachmentDirSize, 2);
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(*), SUM(size)
 		FROM {db_prefix}attachments
 		WHERE id_folder = {int:folder_id}
 			AND attachment_type != {int:type}',
 		array(
-			'folder_id' => $modSettings['currentAttachmentUploadDir'],
+			'folder_id' => Config::$modSettings['currentAttachmentUploadDir'],
 			'type' => 1,
 		)
 	);
-	list ($current_dir_files, $current_dir_size) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($current_dir_files, $current_dir_size) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 	$current_dir_size /= 1024;
 
 	// If they specified a limit only....
-	if (!empty($modSettings['attachmentDirSizeLimit']))
-		$context['attachment_space'] = comma_format(max($modSettings['attachmentDirSizeLimit'] - $current_dir_size, 0), 2);
-	$context['attachment_current_size'] = comma_format($current_dir_size, 2);
+	if (!empty(Config::$modSettings['attachmentDirSizeLimit']))
+		Utils::$context['attachment_space'] = comma_format(max(Config::$modSettings['attachmentDirSizeLimit'] - $current_dir_size, 0), 2);
+	Utils::$context['attachment_current_size'] = comma_format($current_dir_size, 2);
 
-	if (!empty($modSettings['attachmentDirFileLimit']))
-		$context['attachment_files'] = comma_format(max($modSettings['attachmentDirFileLimit'] - $current_dir_files, 0), 0);
-	$context['attachment_current_files'] = comma_format($current_dir_files, 0);
+	if (!empty(Config::$modSettings['attachmentDirFileLimit']))
+		Utils::$context['attachment_files'] = comma_format(max(Config::$modSettings['attachmentDirFileLimit'] - $current_dir_files, 0), 0);
+	Utils::$context['attachment_current_files'] = comma_format($current_dir_files, 0);
 
-	$context['attach_multiple_dirs'] = count($attach_dirs) > 1 ? true : false;
-	$context['attach_dirs'] = $attach_dirs;
-	$context['base_dirs'] = !empty($modSettings['attachment_basedirectories']) ? $smcFunc['json_decode']($modSettings['attachment_basedirectories'], true) : array();
-	$context['checked'] = isset($_SESSION['checked']) ? $_SESSION['checked'] : true;
+	Utils::$context['attach_multiple_dirs'] = count($attach_dirs) > 1 ? true : false;
+	Utils::$context['attach_dirs'] = $attach_dirs;
+	Utils::$context['base_dirs'] = !empty(Config::$modSettings['attachment_basedirectories']) ? Utils::jsonDecode(Config::$modSettings['attachment_basedirectories'], true) : array();
+	Utils::$context['checked'] = isset($_SESSION['checked']) ? $_SESSION['checked'] : true;
 	if (!empty($_SESSION['results']))
 	{
-		$context['results'] = implode('<br>', $_SESSION['results']);
+		Utils::$context['results'] = implode('<br>', $_SESSION['results']);
 		unset($_SESSION['results']);
 	}
 }
@@ -814,8 +812,6 @@ function MaintainFiles()
  */
 function RemoveAttachmentByAge()
 {
-	global $smcFunc;
-
 	checkSession('post', 'admin');
 
 	// @todo Ignore messages in topics that are stickied?
@@ -828,7 +824,7 @@ function RemoveAttachmentByAge()
 
 		// Update the messages to reflect the change.
 		if (!empty($messages) && !empty($_POST['notice']))
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				UPDATE {db_prefix}messages
 				SET body = CONCAT(body, {string:notice})
 				WHERE id_msg IN ({array_int:messages})',
@@ -855,8 +851,6 @@ function RemoveAttachmentByAge()
  */
 function RemoveAttachmentBySize()
 {
-	global $smcFunc;
-
 	checkSession('post', 'admin');
 
 	// Find humungous attachments.
@@ -864,7 +858,7 @@ function RemoveAttachmentBySize()
 
 	// And make a note on the post.
 	if (!empty($messages) && !empty($_POST['notice']))
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}messages
 			SET body = CONCAT(body, {string:notice})
 			WHERE id_msg IN ({array_int:messages})',
@@ -884,7 +878,7 @@ function RemoveAttachmentBySize()
  */
 function RemoveAttachment()
 {
-	global $txt, $smcFunc, $language, $user_info;
+	global $txt, $user_info;
 
 	checkSession();
 
@@ -908,8 +902,8 @@ function RemoveAttachment()
 			// And change the message to reflect this.
 			if (!empty($messages))
 			{
-				loadLanguage('index', $language, true);
-				$smcFunc['db_query']('', '
+				loadLanguage('index', Config::$language, true);
+				Db::$db->query('', '
 					UPDATE {db_prefix}messages
 					SET body = CONCAT(body, {string:deleted_message})
 					WHERE id_msg IN ({array_int:messages_affected})',
@@ -934,7 +928,7 @@ function RemoveAttachment()
  */
 function RemoveAllAttachments()
 {
-	global $txt, $smcFunc;
+	global $txt;
 
 	checkSession('get', 'admin');
 
@@ -945,7 +939,7 @@ function RemoveAllAttachments()
 
 	// Add the notice on the end of the changed messages.
 	if (!empty($messages))
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}messages
 			SET body = CONCAT(body, {string:deleted_message})
 			WHERE id_msg IN ({array_int:messages})',
@@ -976,8 +970,6 @@ function RemoveAllAttachments()
  */
 function removeAttachments($condition, $query_type = '', $return_affected_messages = false, $autoThumbRemoval = true)
 {
-	global $modSettings, $smcFunc;
-
 	// @todo This might need more work!
 	$new_condition = array();
 	$query_parameter = array(
@@ -1021,7 +1013,7 @@ function removeAttachments($condition, $query_type = '', $return_affected_messag
 	$parents = array();
 
 	// Get all the attachment names and id_msg's.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT
 			a.id_folder, a.filename, a.file_hash, a.attachment_type, a.id_attach, a.id_member' . ($query_type == 'messages' ? ', m.id_msg' : ', a.id_msg') . ',
 			thumb.id_folder AS thumb_folder, COALESCE(thumb.id_attach, 0) AS id_thumb, thumb.filename AS thumb_filename, thumb.file_hash AS thumb_file_hash, thumb_parent.id_attach AS id_parent
@@ -1033,7 +1025,7 @@ function removeAttachments($condition, $query_type = '', $return_affected_messag
 		WHERE ' . $condition,
 		$query_parameter
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// Figure out the "encrypted" filename and unlink it ;).
 		if ($row['attachment_type'] == 1)
@@ -1041,7 +1033,7 @@ function removeAttachments($condition, $query_type = '', $return_affected_messag
 			// if attachment_type = 1, it's... an avatar in a custom avatars directory.
 			// wasn't it obvious? :P
 			// @todo look again at this.
-			@unlink($modSettings['custom_avatar_dir'] . '/' . $row['filename']);
+			@unlink(Config::$modSettings['custom_avatar_dir'] . '/' . $row['filename']);
 		}
 		else
 		{
@@ -1067,12 +1059,12 @@ function removeAttachments($condition, $query_type = '', $return_affected_messag
 
 		$attach[] = $row['id_attach'];
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Removed attachments don't have to be updated anymore.
 	$parents = array_diff($parents, $attach);
 	if (!empty($parents))
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}attachments
 			SET id_thumb = {int:no_thumb}
 			WHERE id_attach IN ({array_int:parent_attachments})',
@@ -1085,7 +1077,7 @@ function removeAttachments($condition, $query_type = '', $return_affected_messag
 	if (!empty($do_logging))
 	{
 		// In order to log the attachments, we really need their message and filename
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT m.id_msg, a.filename
 			FROM {db_prefix}attachments AS a
 				INNER JOIN {db_prefix}messages AS m ON (a.id_msg = m.id_msg)
@@ -1097,19 +1089,19 @@ function removeAttachments($condition, $query_type = '', $return_affected_messag
 			)
 		);
 
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			logAction(
 				'remove_attach',
 				array(
 					'message' => $row['id_msg'],
-					'filename' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($row['filename'])),
+					'filename' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', Utils::htmlspecialchars($row['filename'])),
 				)
 			);
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 	}
 
 	if (!empty($attach))
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}attachments
 			WHERE id_attach IN ({array_int:attachment_list})',
 			array(
@@ -1128,7 +1120,7 @@ function removeAttachments($condition, $query_type = '', $return_affected_messag
  */
 function RepairAttachments()
 {
-	global $modSettings, $context, $txt, $smcFunc;
+	global $txt;
 
 	checkSession('get');
 
@@ -1140,7 +1132,7 @@ function RepairAttachments()
 	@set_time_limit(600);
 
 	$_GET['step'] = empty($_GET['step']) ? 0 : (int) $_GET['step'];
-	$context['starting_substep'] = $_GET['substep'] = empty($_GET['substep']) ? 0 : (int) $_GET['substep'];
+	Utils::$context['starting_substep'] = $_GET['substep'] = empty($_GET['substep']) ? 0 : (int) $_GET['substep'];
 
 	// Don't recall the session just in case.
 	if ($_GET['step'] == 0 && $_GET['substep'] == 0)
@@ -1162,7 +1154,7 @@ function RepairAttachments()
 	}
 
 	// All the valid problems are here:
-	$context['repair_errors'] = array(
+	Utils::$context['repair_errors'] = array(
 		'missing_thumbnail_parent' => 0,
 		'parent_missing_thumbnail' => 0,
 		'file_missing_on_disk' => 0,
@@ -1175,13 +1167,13 @@ function RepairAttachments()
 	);
 
 	$to_fix = !empty($_SESSION['attachments_to_fix']) ? $_SESSION['attachments_to_fix'] : array();
-	$context['repair_errors'] = isset($_SESSION['attachments_to_fix2']) ? $_SESSION['attachments_to_fix2'] : $context['repair_errors'];
+	Utils::$context['repair_errors'] = isset($_SESSION['attachments_to_fix2']) ? $_SESSION['attachments_to_fix2'] : Utils::$context['repair_errors'];
 	$fix_errors = isset($_GET['fixErrors']) ? true : false;
 
 	// Get stranded thumbnails.
 	if ($_GET['step'] <= 0)
 	{
-		$result = $smcFunc['db_query']('', '
+		$result = Db::$db->query('', '
 			SELECT MAX(id_attach)
 			FROM {db_prefix}attachments
 			WHERE attachment_type = {int:thumbnail}',
@@ -1189,14 +1181,14 @@ function RepairAttachments()
 				'thumbnail' => 3,
 			)
 		);
-		list ($thumbnails) = $smcFunc['db_fetch_row']($result);
-		$smcFunc['db_free_result']($result);
+		list ($thumbnails) = Db::$db->fetch_row($result);
+		Db::$db->free_result($result);
 
 		for (; $_GET['substep'] < $thumbnails; $_GET['substep'] += 500)
 		{
 			$to_remove = array();
 
-			$result = $smcFunc['db_query']('', '
+			$result = Db::$db->query('', '
 				SELECT thumb.id_attach, thumb.id_folder, thumb.filename, thumb.file_hash
 				FROM {db_prefix}attachments AS thumb
 					LEFT JOIN {db_prefix}attachments AS tparent ON (tparent.id_thumb = thumb.id_attach)
@@ -1208,13 +1200,13 @@ function RepairAttachments()
 					'substep' => $_GET['substep'],
 				)
 			);
-			while ($row = $smcFunc['db_fetch_assoc']($result))
+			while ($row = Db::$db->fetch_assoc($result))
 			{
 				// Only do anything once... just in case
 				if (!isset($to_remove[$row['id_attach']]))
 				{
 					$to_remove[$row['id_attach']] = $row['id_attach'];
-					$context['repair_errors']['missing_thumbnail_parent']++;
+					Utils::$context['repair_errors']['missing_thumbnail_parent']++;
 
 					// If we are repairing remove the file from disk now.
 					if ($fix_errors && in_array('missing_thumbnail_parent', $to_fix))
@@ -1224,13 +1216,13 @@ function RepairAttachments()
 					}
 				}
 			}
-			if ($smcFunc['db_num_rows']($result) != 0)
+			if (Db::$db->num_rows($result) != 0)
 				$to_fix[] = 'missing_thumbnail_parent';
-			$smcFunc['db_free_result']($result);
+			Db::$db->free_result($result);
 
 			// Do we need to delete what we have?
 			if ($fix_errors && !empty($to_remove) && in_array('missing_thumbnail_parent', $to_fix))
-				$smcFunc['db_query']('', '
+				Db::$db->query('', '
 					DELETE FROM {db_prefix}attachments
 					WHERE id_attach IN ({array_int:to_remove})
 						AND attachment_type = {int:attachment_type}',
@@ -1251,7 +1243,7 @@ function RepairAttachments()
 	// Find parents which think they have thumbnails, but actually, don't.
 	if ($_GET['step'] <= 1)
 	{
-		$result = $smcFunc['db_query']('', '
+		$result = Db::$db->query('', '
 			SELECT MAX(id_attach)
 			FROM {db_prefix}attachments
 			WHERE id_thumb != {int:no_thumb}',
@@ -1259,14 +1251,14 @@ function RepairAttachments()
 				'no_thumb' => 0,
 			)
 		);
-		list ($thumbnails) = $smcFunc['db_fetch_row']($result);
-		$smcFunc['db_free_result']($result);
+		list ($thumbnails) = Db::$db->fetch_row($result);
+		Db::$db->free_result($result);
 
 		for (; $_GET['substep'] < $thumbnails; $_GET['substep'] += 500)
 		{
 			$to_update = array();
 
-			$result = $smcFunc['db_query']('', '
+			$result = Db::$db->query('', '
 				SELECT a.id_attach
 				FROM {db_prefix}attachments AS a
 					LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)
@@ -1278,18 +1270,18 @@ function RepairAttachments()
 					'substep' => $_GET['substep'],
 				)
 			);
-			while ($row = $smcFunc['db_fetch_assoc']($result))
+			while ($row = Db::$db->fetch_assoc($result))
 			{
 				$to_update[] = $row['id_attach'];
-				$context['repair_errors']['parent_missing_thumbnail']++;
+				Utils::$context['repair_errors']['parent_missing_thumbnail']++;
 			}
-			if ($smcFunc['db_num_rows']($result) != 0)
+			if (Db::$db->num_rows($result) != 0)
 				$to_fix[] = 'parent_missing_thumbnail';
-			$smcFunc['db_free_result']($result);
+			Db::$db->free_result($result);
 
 			// Do we need to delete what we have?
 			if ($fix_errors && !empty($to_update) && in_array('parent_missing_thumbnail', $to_fix))
-				$smcFunc['db_query']('', '
+				Db::$db->query('', '
 					UPDATE {db_prefix}attachments
 					SET id_thumb = {int:no_thumb}
 					WHERE id_attach IN ({array_int:to_update})',
@@ -1310,21 +1302,21 @@ function RepairAttachments()
 	// This may take forever I'm afraid, but life sucks... recount EVERY attachments!
 	if ($_GET['step'] <= 2)
 	{
-		$result = $smcFunc['db_query']('', '
+		$result = Db::$db->query('', '
 			SELECT MAX(id_attach)
 			FROM {db_prefix}attachments',
 			array(
 			)
 		);
-		list ($thumbnails) = $smcFunc['db_fetch_row']($result);
-		$smcFunc['db_free_result']($result);
+		list ($thumbnails) = Db::$db->fetch_row($result);
+		Db::$db->free_result($result);
 
 		for (; $_GET['substep'] < $thumbnails; $_GET['substep'] += 250)
 		{
 			$to_remove = array();
 			$errors_found = array();
 
-			$result = $smcFunc['db_query']('', '
+			$result = Db::$db->query('', '
 				SELECT id_attach, id_folder, filename, file_hash, size, attachment_type
 				FROM {db_prefix}attachments
 				WHERE id_attach BETWEEN {int:substep} AND {int:substep} + 249',
@@ -1332,11 +1324,11 @@ function RepairAttachments()
 					'substep' => $_GET['substep'],
 				)
 			);
-			while ($row = $smcFunc['db_fetch_assoc']($result))
+			while ($row = Db::$db->fetch_assoc($result))
 			{
 				// Get the filename.
 				if ($row['attachment_type'] == 1)
-					$filename = $modSettings['custom_avatar_dir'] . '/' . $row['filename'];
+					$filename = Config::$modSettings['custom_avatar_dir'] . '/' . $row['filename'];
 				else
 					$filename = getAttachmentFilename($row['filename'], $row['id_attach'], $row['id_folder'], false, $row['file_hash']);
 
@@ -1344,21 +1336,21 @@ function RepairAttachments()
 				if (!file_exists($filename))
 				{
 					// If we're lucky it might just be in a different folder.
-					if (!empty($modSettings['currentAttachmentUploadDir']))
+					if (!empty(Config::$modSettings['currentAttachmentUploadDir']))
 					{
 						// Get the attachment name with out the folder.
 						$attachment_name = $row['id_attach'] . '_' . $row['file_hash'] . '.dat';
 
 						// Loop through the other folders.
-						foreach ($modSettings['attachmentUploadDir'] as $id => $dir)
+						foreach (Config::$modSettings['attachmentUploadDir'] as $id => $dir)
 							if (file_exists($dir . '/' . $attachment_name))
 							{
-								$context['repair_errors']['wrong_folder']++;
+								Utils::$context['repair_errors']['wrong_folder']++;
 								$errors_found[] = 'wrong_folder';
 
 								// Are we going to fix this now?
 								if ($fix_errors && in_array('wrong_folder', $to_fix))
-									$smcFunc['db_query']('', '
+									Db::$db->query('', '
 										UPDATE {db_prefix}attachments
 										SET id_folder = {int:new_folder}
 										WHERE id_attach = {int:id_attach}',
@@ -1373,12 +1365,12 @@ function RepairAttachments()
 					}
 
 					$to_remove[] = $row['id_attach'];
-					$context['repair_errors']['file_missing_on_disk']++;
+					Utils::$context['repair_errors']['file_missing_on_disk']++;
 					$errors_found[] = 'file_missing_on_disk';
 				}
 				elseif (filesize($filename) == 0)
 				{
-					$context['repair_errors']['file_size_of_zero']++;
+					Utils::$context['repair_errors']['file_size_of_zero']++;
 					$errors_found[] = 'file_size_of_zero';
 
 					// Fixing?
@@ -1390,13 +1382,13 @@ function RepairAttachments()
 				}
 				elseif (filesize($filename) != $row['size'])
 				{
-					$context['repair_errors']['file_wrong_size']++;
+					Utils::$context['repair_errors']['file_wrong_size']++;
 					$errors_found[] = 'file_wrong_size';
 
 					// Fix it here?
 					if ($fix_errors && in_array('file_wrong_size', $to_fix))
 					{
-						$smcFunc['db_query']('', '
+						Db::$db->query('', '
 							UPDATE {db_prefix}attachments
 							SET size = {int:filesize}
 							WHERE id_attach = {int:id_attach}',
@@ -1417,19 +1409,19 @@ function RepairAttachments()
 				$to_fix[] = 'file_wrong_size';
 			if (in_array('wrong_folder', $errors_found))
 				$to_fix[] = 'wrong_folder';
-			$smcFunc['db_free_result']($result);
+			Db::$db->free_result($result);
 
 			// Do we need to delete what we have?
 			if ($fix_errors && !empty($to_remove))
 			{
-				$smcFunc['db_query']('', '
+				Db::$db->query('', '
 					DELETE FROM {db_prefix}attachments
 					WHERE id_attach IN ({array_int:to_remove})',
 					array(
 						'to_remove' => $to_remove,
 					)
 				);
-				$smcFunc['db_query']('', '
+				Db::$db->query('', '
 					UPDATE {db_prefix}attachments
 					SET id_thumb = {int:no_thumb}
 					WHERE id_thumb IN ({array_int:to_remove})',
@@ -1451,20 +1443,20 @@ function RepairAttachments()
 	// Get avatars with no members associated with them.
 	if ($_GET['step'] <= 3)
 	{
-		$result = $smcFunc['db_query']('', '
+		$result = Db::$db->query('', '
 			SELECT MAX(id_attach)
 			FROM {db_prefix}attachments',
 			array(
 			)
 		);
-		list ($thumbnails) = $smcFunc['db_fetch_row']($result);
-		$smcFunc['db_free_result']($result);
+		list ($thumbnails) = Db::$db->fetch_row($result);
+		Db::$db->free_result($result);
 
 		for (; $_GET['substep'] < $thumbnails; $_GET['substep'] += 500)
 		{
 			$to_remove = array();
 
-			$result = $smcFunc['db_query']('', '
+			$result = Db::$db->query('', '
 				SELECT a.id_attach, a.id_folder, a.filename, a.file_hash, a.attachment_type
 				FROM {db_prefix}attachments AS a
 					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = a.id_member)
@@ -1478,28 +1470,28 @@ function RepairAttachments()
 					'substep' => $_GET['substep'],
 				)
 			);
-			while ($row = $smcFunc['db_fetch_assoc']($result))
+			while ($row = Db::$db->fetch_assoc($result))
 			{
 				$to_remove[] = $row['id_attach'];
-				$context['repair_errors']['avatar_no_member']++;
+				Utils::$context['repair_errors']['avatar_no_member']++;
 
 				// If we are repairing remove the file from disk now.
 				if ($fix_errors && in_array('avatar_no_member', $to_fix))
 				{
 					if ($row['attachment_type'] == 1)
-						$filename = $modSettings['custom_avatar_dir'] . '/' . $row['filename'];
+						$filename = Config::$modSettings['custom_avatar_dir'] . '/' . $row['filename'];
 					else
 						$filename = getAttachmentFilename($row['filename'], $row['id_attach'], $row['id_folder'], false, $row['file_hash']);
 					@unlink($filename);
 				}
 			}
-			if ($smcFunc['db_num_rows']($result) != 0)
+			if (Db::$db->num_rows($result) != 0)
 				$to_fix[] = 'avatar_no_member';
-			$smcFunc['db_free_result']($result);
+			Db::$db->free_result($result);
 
 			// Do we need to delete what we have?
 			if ($fix_errors && !empty($to_remove) && in_array('avatar_no_member', $to_fix))
-				$smcFunc['db_query']('', '
+				Db::$db->query('', '
 					DELETE FROM {db_prefix}attachments
 					WHERE id_attach IN ({array_int:to_remove})
 						AND id_member != {int:no_member}
@@ -1522,14 +1514,14 @@ function RepairAttachments()
 	// What about attachments, who are missing a message :'(
 	if ($_GET['step'] <= 4)
 	{
-		$result = $smcFunc['db_query']('', '
+		$result = Db::$db->query('', '
 			SELECT MAX(id_attach)
 			FROM {db_prefix}attachments',
 			array(
 			)
 		);
-		list ($thumbnails) = $smcFunc['db_fetch_row']($result);
-		$smcFunc['db_free_result']($result);
+		list ($thumbnails) = Db::$db->fetch_row($result);
+		Db::$db->free_result($result);
 
 		for (; $_GET['substep'] < $thumbnails; $_GET['substep'] += 500)
 		{
@@ -1539,7 +1531,7 @@ function RepairAttachments()
 			// returns an array of ints of id_attach's that should not be deleted
 			call_integration_hook('integrate_repair_attachments_nomsg', array(&$ignore_ids, $_GET['substep'], $_GET['substep'] + 500));
 
-			$result = $smcFunc['db_query']('', '
+			$result = Db::$db->query('', '
 				SELECT a.id_attach, a.id_folder, a.filename, a.file_hash
 				FROM {db_prefix}attachments AS a
 					LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
@@ -1557,10 +1549,10 @@ function RepairAttachments()
 				)
 			);
 
-			while ($row = $smcFunc['db_fetch_assoc']($result))
+			while ($row = Db::$db->fetch_assoc($result))
 			{
 				$to_remove[] = $row['id_attach'];
-				$context['repair_errors']['attachment_no_msg']++;
+				Utils::$context['repair_errors']['attachment_no_msg']++;
 
 				// If we are repairing remove the file from disk now.
 				if ($fix_errors && in_array('attachment_no_msg', $to_fix))
@@ -1569,13 +1561,13 @@ function RepairAttachments()
 					@unlink($filename);
 				}
 			}
-			if ($smcFunc['db_num_rows']($result) != 0)
+			if (Db::$db->num_rows($result) != 0)
 				$to_fix[] = 'attachment_no_msg';
-			$smcFunc['db_free_result']($result);
+			Db::$db->free_result($result);
 
 			// Do we need to delete what we have?
 			if ($fix_errors && !empty($to_remove) && in_array('attachment_no_msg', $to_fix))
-				$smcFunc['db_query']('', '
+				Db::$db->query('', '
 					DELETE FROM {db_prefix}attachments
 					WHERE id_attach IN ({array_int:to_remove})
 						AND id_member = {int:no_member}
@@ -1598,7 +1590,7 @@ function RepairAttachments()
 	// What about files who are not recorded in the database?
 	if ($_GET['step'] <= 5)
 	{
-		$attach_dirs = $modSettings['attachmentUploadDir'];
+		$attach_dirs = Config::$modSettings['attachmentUploadDir'];
 
 		$current_check = 0;
 		$max_checks = 500;
@@ -1627,7 +1619,7 @@ function RepairAttachments()
 							$attachID = (int) substr($file, 0, strpos($file, '_'));
 							if (!empty($attachID))
 							{
-								$request = $smcFunc['db_query']('', '
+								$request = Db::$db->query('', '
 									SELECT  id_attach
 									FROM {db_prefix}attachments
 									WHERE id_attach = {int:attachment_id}
@@ -1636,7 +1628,7 @@ function RepairAttachments()
 										'attachment_id' => $attachID,
 									)
 								);
-								if ($smcFunc['db_num_rows']($request) == 0)
+								if (Db::$db->num_rows($request) == 0)
 								{
 									if ($fix_errors && in_array('files_without_attachment', $to_fix))
 									{
@@ -1644,11 +1636,11 @@ function RepairAttachments()
 									}
 									else
 									{
-										$context['repair_errors']['files_without_attachment']++;
+										Utils::$context['repair_errors']['files_without_attachment']++;
 										$to_fix[] = 'files_without_attachment';
 									}
 								}
-								$smcFunc['db_free_result']($request);
+								Db::$db->free_result($request);
 							}
 						}
 						else
@@ -1659,7 +1651,7 @@ function RepairAttachments()
 							}
 							else
 							{
-								$context['repair_errors']['files_without_attachment']++;
+								Utils::$context['repair_errors']['files_without_attachment']++;
 								$to_fix[] = 'files_without_attachment';
 							}
 						}
@@ -1679,13 +1671,13 @@ function RepairAttachments()
 	}
 
 	// Got here we must be doing well - just the template! :D
-	$context['page_title'] = $txt['repair_attachments'];
-	$context[$context['admin_menu_name']]['current_subsection'] = 'maintenance';
-	$context['sub_template'] = 'attachment_repair';
+	Utils::$context['page_title'] = $txt['repair_attachments'];
+	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'maintenance';
+	Utils::$context['sub_template'] = 'attachment_repair';
 
 	// What stage are we at?
-	$context['completed'] = $fix_errors ? true : false;
-	$context['errors_found'] = !empty($to_fix) ? true : false;
+	Utils::$context['completed'] = $fix_errors ? true : false;
+	Utils::$context['errors_found'] = !empty($to_fix) ? true : false;
 
 }
 
@@ -1699,7 +1691,7 @@ function RepairAttachments()
  */
 function pauseAttachmentMaintenance($to_fix, $max_substep = 0)
 {
-	global $context, $txt;
+	global $txt;
 
 	// Try get more time...
 	@set_time_limit(600);
@@ -1707,29 +1699,29 @@ function pauseAttachmentMaintenance($to_fix, $max_substep = 0)
 		@apache_reset_timeout();
 
 	// Have we already used our maximum time?
-	if ((time() - TIME_START) < 3 || $context['starting_substep'] == $_GET['substep'])
+	if ((time() - TIME_START) < 3 || Utils::$context['starting_substep'] == $_GET['substep'])
 		return;
 
-	$context['continue_get_data'] = '?action=admin;area=manageattachments;sa=repair' . (isset($_GET['fixErrors']) ? ';fixErrors' : '') . ';step=' . $_GET['step'] . ';substep=' . $_GET['substep'] . ';' . $context['session_var'] . '=' . $context['session_id'];
-	$context['page_title'] = $txt['not_done_title'];
-	$context['continue_post_data'] = '';
-	$context['continue_countdown'] = '2';
-	$context['sub_template'] = 'not_done';
+	Utils::$context['continue_get_data'] = '?action=admin;area=manageattachments;sa=repair' . (isset($_GET['fixErrors']) ? ';fixErrors' : '') . ';step=' . $_GET['step'] . ';substep=' . $_GET['substep'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
+	Utils::$context['page_title'] = $txt['not_done_title'];
+	Utils::$context['continue_post_data'] = '';
+	Utils::$context['continue_countdown'] = '2';
+	Utils::$context['sub_template'] = 'not_done';
 
 	// Specific stuff to not break this template!
-	$context[$context['admin_menu_name']]['current_subsection'] = 'maintenance';
+	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'maintenance';
 
 	// Change these two if more steps are added!
 	if (empty($max_substep))
-		$context['continue_percent'] = round(($_GET['step'] * 100) / 25);
+		Utils::$context['continue_percent'] = round(($_GET['step'] * 100) / 25);
 	else
-		$context['continue_percent'] = round(($_GET['step'] * 100 + ($_GET['substep'] * 100) / $max_substep) / 25);
+		Utils::$context['continue_percent'] = round(($_GET['step'] * 100 + ($_GET['substep'] * 100) / $max_substep) / 25);
 
 	// Never more than 100%!
-	$context['continue_percent'] = min($context['continue_percent'], 100);
+	Utils::$context['continue_percent'] = min(Utils::$context['continue_percent'], 100);
 
 	$_SESSION['attachments_to_fix'] = $to_fix;
-	$_SESSION['attachments_to_fix2'] = $context['repair_errors'];
+	$_SESSION['attachments_to_fix2'] = Utils::$context['repair_errors'];
 
 	obExit();
 }
@@ -1739,8 +1731,6 @@ function pauseAttachmentMaintenance($to_fix, $max_substep = 0)
  */
 function ApproveAttach()
 {
-	global $smcFunc;
-
 	// Security is our primary concern...
 	checkSession('get');
 
@@ -1753,7 +1743,7 @@ function ApproveAttach()
 	{
 		$id_msg = (int) $_GET['mid'];
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_attach
 			FROM {db_prefix}attachments
 			WHERE id_msg = {int:id_msg}
@@ -1765,9 +1755,9 @@ function ApproveAttach()
 				'attachment_type' => 0,
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$attachments[] = $row['id_attach'];
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 	}
 	elseif (!empty($_GET['aid']))
 		$attachments[] = (int) $_GET['aid'];
@@ -1779,7 +1769,7 @@ function ApproveAttach()
 	$allowed_boards = boardsAllowedTo('approve_posts');
 
 	// Validate the attachments exist and are the right approval state.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT a.id_attach, m.id_board, m.id_msg, m.id_topic
 		FROM {db_prefix}attachments AS a
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
@@ -1793,7 +1783,7 @@ function ApproveAttach()
 		)
 	);
 	$attachments = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// We can only add it if we can approve in this board!
 		if ($allowed_boards = array(0) || in_array($row['id_board'], $allowed_boards))
@@ -1804,7 +1794,7 @@ function ApproveAttach()
 			$redirect = 'topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'];
 		}
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	if (empty($attachments))
 		fatal_lang_error('no_access', false);
@@ -1830,13 +1820,11 @@ function ApproveAttach()
  */
 function ApproveAttachments($attachments)
 {
-	global $smcFunc;
-
 	if (empty($attachments))
 		return 0;
 
 	// For safety, check for thumbnails...
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT
 			a.id_attach, a.id_member, COALESCE(thumb.id_attach, 0) AS id_thumb
 		FROM {db_prefix}attachments AS a
@@ -1849,7 +1837,7 @@ function ApproveAttachments($attachments)
 		)
 	);
 	$attachments = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// Update the thumbnail too...
 		if (!empty($row['id_thumb']))
@@ -1857,13 +1845,13 @@ function ApproveAttachments($attachments)
 
 		$attachments[] = $row['id_attach'];
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	if (empty($attachments))
 		return 0;
 
 	// Approving an attachment is not hard - it's easy.
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		UPDATE {db_prefix}attachments
 		SET approved = {int:is_approved}
 		WHERE id_attach IN ({array_int:attachments})',
@@ -1874,7 +1862,7 @@ function ApproveAttachments($attachments)
 	);
 
 	// In order to log the attachments, we really need their message and filename
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT m.id_msg, a.filename
 		FROM {db_prefix}attachments AS a
 			INNER JOIN {db_prefix}messages AS m ON (a.id_msg = m.id_msg)
@@ -1886,18 +1874,18 @@ function ApproveAttachments($attachments)
 		)
 	);
 
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		logAction(
 			'approve_attach',
 			array(
 				'message' => $row['id_msg'],
-				'filename' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($row['filename'])),
+				'filename' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', Utils::htmlspecialchars($row['filename'])),
 			)
 		);
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Remove from the approval queue.
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}approval_queue
 		WHERE id_attach IN ({array_int:attachments})',
 		array(
@@ -1913,14 +1901,14 @@ function ApproveAttachments($attachments)
  */
 function ManageAttachmentPaths()
 {
-	global $modSettings, $scripturl, $context, $txt, $sourcedir, $boarddir, $smcFunc, $settings;
+	global $txt, $settings;
 
 	// Since this needs to be done eventually.
-	if (!isset($modSettings['attachment_basedirectories']))
-		$modSettings['attachment_basedirectories'] = array();
+	if (!isset(Config::$modSettings['attachment_basedirectories']))
+		Config::$modSettings['attachment_basedirectories'] = array();
 
-	elseif (!is_array($modSettings['attachment_basedirectories']))
-		$modSettings['attachment_basedirectories'] = $smcFunc['json_decode']($modSettings['attachment_basedirectories'], true);
+	elseif (!is_array(Config::$modSettings['attachment_basedirectories']))
+		Config::$modSettings['attachment_basedirectories'] = Utils::jsonDecode(Config::$modSettings['attachment_basedirectories'], true);
 
 	$errors = array();
 
@@ -1939,7 +1927,7 @@ function ManageAttachmentPaths()
 				continue;
 
 			// Sorry, these dirs are NOT valid
-			$invalid_dirs = array($boarddir, $settings['default_theme_dir'], $sourcedir);
+			$invalid_dirs = array(Config::$boarddir, $settings['default_theme_dir'], Config::$sourcedir);
 			if (in_array($path, $invalid_dirs))
 			{
 				$errors[] = $path . ': ' . $txt['attach_dir_invalid'];
@@ -1948,10 +1936,10 @@ function ManageAttachmentPaths()
 
 			// Hmm, a new path maybe?
 			// Don't allow empty paths
-			if (!array_key_exists($id, $modSettings['attachmentUploadDir']) && !empty($path))
+			if (!array_key_exists($id, Config::$modSettings['attachmentUploadDir']) && !empty($path))
 			{
 				// or is it?
-				if (in_array($path, $modSettings['attachmentUploadDir']) || in_array($boarddir . DIRECTORY_SEPARATOR . $path, $modSettings['attachmentUploadDir']))
+				if (in_array($path, Config::$modSettings['attachmentUploadDir']) || in_array(Config::$boarddir . DIRECTORY_SEPARATOR . $path, Config::$modSettings['attachmentUploadDir']))
 				{
 					$errors[] = $path . ': ' . $txt['attach_dir_duplicate_msg'];
 					continue;
@@ -1963,58 +1951,58 @@ function ManageAttachmentPaths()
 				}
 
 				// OK, so let's try to create it then.
-				require_once($sourcedir . '/Subs-Attachments.php');
+				require_once(Config::$sourcedir . '/Subs-Attachments.php');
 				if (automanage_attachments_create_directory($path))
-					$_POST['current_dir'] = $modSettings['currentAttachmentUploadDir'];
+					$_POST['current_dir'] = Config::$modSettings['currentAttachmentUploadDir'];
 				else
-					$errors[] = $path . ': ' . $txt[$context['dir_creation_error']];
+					$errors[] = $path . ': ' . $txt[Utils::$context['dir_creation_error']];
 			}
 
 			// Changing a directory name?
-			if (!empty($modSettings['attachmentUploadDir'][$id]) && !empty($path) && $path != $modSettings['attachmentUploadDir'][$id])
+			if (!empty(Config::$modSettings['attachmentUploadDir'][$id]) && !empty($path) && $path != Config::$modSettings['attachmentUploadDir'][$id])
 			{
-				if ($path != $modSettings['attachmentUploadDir'][$id] && !is_dir($path))
+				if ($path != Config::$modSettings['attachmentUploadDir'][$id] && !is_dir($path))
 				{
-					if (!@rename($modSettings['attachmentUploadDir'][$id], $path))
+					if (!@rename(Config::$modSettings['attachmentUploadDir'][$id], $path))
 					{
 						$errors[] = $path . ': ' . $txt['attach_dir_no_rename'];
-						$path = $modSettings['attachmentUploadDir'][$id];
+						$path = Config::$modSettings['attachmentUploadDir'][$id];
 					}
 				}
 				else
 				{
 					$errors[] = $path . ': ' . $txt['attach_dir_exists_msg'];
-					$path = $modSettings['attachmentUploadDir'][$id];
+					$path = Config::$modSettings['attachmentUploadDir'][$id];
 				}
 
 				// Update the base directory path
-				if (!empty($modSettings['attachment_basedirectories']) && array_key_exists($id, $modSettings['attachment_basedirectories']))
+				if (!empty(Config::$modSettings['attachment_basedirectories']) && array_key_exists($id, Config::$modSettings['attachment_basedirectories']))
 				{
-					$base = $modSettings['basedirectory_for_attachments'] == $modSettings['attachmentUploadDir'][$id] ? $path : $modSettings['basedirectory_for_attachments'];
+					$base = Config::$modSettings['basedirectory_for_attachments'] == Config::$modSettings['attachmentUploadDir'][$id] ? $path : Config::$modSettings['basedirectory_for_attachments'];
 
-					$modSettings['attachment_basedirectories'][$id] = $path;
-					updateSettings(array(
-						'attachment_basedirectories' => $smcFunc['json_encode']($modSettings['attachment_basedirectories']),
+					Config::$modSettings['attachment_basedirectories'][$id] = $path;
+					Config::updateModSettings(array(
+						'attachment_basedirectories' => Utils::jsonEncode(Config::$modSettings['attachment_basedirectories']),
 						'basedirectory_for_attachments' => $base,
 					));
-					$modSettings['attachment_basedirectories'] = $smcFunc['json_decode']($modSettings['attachment_basedirectories'], true);
+					Config::$modSettings['attachment_basedirectories'] = Utils::jsonDecode(Config::$modSettings['attachment_basedirectories'], true);
 				}
 			}
 
 			if (empty($path))
 			{
-				$path = $modSettings['attachmentUploadDir'][$id];
+				$path = Config::$modSettings['attachmentUploadDir'][$id];
 
 				// It's not a good idea to delete the current directory.
-				if ($id == (!empty($_POST['current_dir']) ? $_POST['current_dir'] : $modSettings['currentAttachmentUploadDir']))
+				if ($id == (!empty($_POST['current_dir']) ? $_POST['current_dir'] : Config::$modSettings['currentAttachmentUploadDir']))
 					$errors[] = $path . ': ' . $txt['attach_dir_is_current'];
 				// Or the current base directory
-				elseif (!empty($modSettings['basedirectory_for_attachments']) && $modSettings['basedirectory_for_attachments'] == $modSettings['attachmentUploadDir'][$id])
+				elseif (!empty(Config::$modSettings['basedirectory_for_attachments']) && Config::$modSettings['basedirectory_for_attachments'] == Config::$modSettings['attachmentUploadDir'][$id])
 					$errors[] = $path . ': ' . $txt['attach_dir_is_current_bd'];
 				else
 				{
 					// Let's not try to delete a path with files in it.
-					$request = $smcFunc['db_query']('', '
+					$request = Db::$db->query('', '
 						SELECT COUNT(id_attach) AS num_attach
 						FROM {db_prefix}attachments
 						WHERE id_folder = {int:id_folder}',
@@ -2023,14 +2011,14 @@ function ManageAttachmentPaths()
 						)
 					);
 
-					list ($num_attach) = $smcFunc['db_fetch_row']($request);
-					$smcFunc['db_free_result']($request);
+					list ($num_attach) = Db::$db->fetch_row($request);
+					Db::$db->free_result($request);
 
 					// A check to see if it's a used base dir.
-					if (!empty($modSettings['attachment_basedirectories']))
+					if (!empty(Config::$modSettings['attachment_basedirectories']))
 					{
 						// Count any sub-folders.
-						foreach ($modSettings['attachmentUploadDir'] as $sub)
+						foreach (Config::$modSettings['attachmentUploadDir'] as $sub)
 							if (strpos($sub, $path . DIRECTORY_SEPARATOR) !== false)
 								$num_attach++;
 					}
@@ -2040,13 +2028,13 @@ function ManageAttachmentPaths()
 					{
 						if (is_dir($path))
 							$doit = true;
-						elseif (is_dir($boarddir . DIRECTORY_SEPARATOR . $path))
+						elseif (is_dir(Config::$boarddir . DIRECTORY_SEPARATOR . $path))
 						{
 							$doit = true;
-							$path = $boarddir . DIRECTORY_SEPARATOR . $path;
+							$path = Config::$boarddir . DIRECTORY_SEPARATOR . $path;
 						}
 
-						if (isset($doit) && realpath($path) != realpath($boarddir))
+						if (isset($doit) && realpath($path) != realpath(Config::$boarddir))
 						{
 							unlink($path . '/.htaccess');
 							unlink($path . '/index.php');
@@ -2055,11 +2043,11 @@ function ManageAttachmentPaths()
 						}
 
 						// Remove it from the base directory list.
-						if (empty($error) && !empty($modSettings['attachment_basedirectories']))
+						if (empty($error) && !empty(Config::$modSettings['attachment_basedirectories']))
 						{
-							unset($modSettings['attachment_basedirectories'][$id]);
-							updateSettings(array('attachment_basedirectories' => $smcFunc['json_encode']($modSettings['attachment_basedirectories'])));
-							$modSettings['attachment_basedirectories'] = $smcFunc['json_decode']($modSettings['attachment_basedirectories'], true);
+							unset(Config::$modSettings['attachment_basedirectories'][$id]);
+							Config::updateModSettings(array('attachment_basedirectories' => Utils::jsonEncode(Config::$modSettings['attachment_basedirectories'])));
+							Config::$modSettings['attachment_basedirectories'] = Utils::jsonDecode(Config::$modSettings['attachment_basedirectories'], true);
 						}
 					}
 					else
@@ -2076,47 +2064,47 @@ function ManageAttachmentPaths()
 		}
 
 		// We need to make sure the current directory is right.
-		if (empty($_POST['current_dir']) && !empty($modSettings['currentAttachmentUploadDir']))
-			$_POST['current_dir'] = $modSettings['currentAttachmentUploadDir'];
+		if (empty($_POST['current_dir']) && !empty(Config::$modSettings['currentAttachmentUploadDir']))
+			$_POST['current_dir'] = Config::$modSettings['currentAttachmentUploadDir'];
 
 		// Find the current directory if there's no value carried,
 		if (empty($_POST['current_dir']) || empty($new_dirs[$_POST['current_dir']]))
 		{
-			if (array_key_exists($modSettings['currentAttachmentUploadDir'], $modSettings['attachmentUploadDir']))
-				$_POST['current_dir'] = $modSettings['currentAttachmentUploadDir'];
+			if (array_key_exists(Config::$modSettings['currentAttachmentUploadDir'], Config::$modSettings['attachmentUploadDir']))
+				$_POST['current_dir'] = Config::$modSettings['currentAttachmentUploadDir'];
 			else
-				$_POST['current_dir'] = max(array_keys($modSettings['attachmentUploadDir']));
+				$_POST['current_dir'] = max(array_keys(Config::$modSettings['attachmentUploadDir']));
 		}
 
 		// If the user wishes to go back, update the last_dir array
-		if ($_POST['current_dir'] != $modSettings['currentAttachmentUploadDir'] && !empty($modSettings['last_attachments_directory']) && (isset($modSettings['last_attachments_directory'][$_POST['current_dir']]) || isset($modSettings['last_attachments_directory'][0])))
+		if ($_POST['current_dir'] != Config::$modSettings['currentAttachmentUploadDir'] && !empty(Config::$modSettings['last_attachments_directory']) && (isset(Config::$modSettings['last_attachments_directory'][$_POST['current_dir']]) || isset(Config::$modSettings['last_attachments_directory'][0])))
 		{
-			if (!is_array($modSettings['last_attachments_directory']))
-				$modSettings['last_attachments_directory'] = $smcFunc['json_decode']($modSettings['last_attachments_directory'], true);
-			$num = substr(strrchr($modSettings['attachmentUploadDir'][$_POST['current_dir']], '_'), 1);
+			if (!is_array(Config::$modSettings['last_attachments_directory']))
+				Config::$modSettings['last_attachments_directory'] = Utils::jsonDecode(Config::$modSettings['last_attachments_directory'], true);
+			$num = substr(strrchr(Config::$modSettings['attachmentUploadDir'][$_POST['current_dir']], '_'), 1);
 
 			if (is_numeric($num))
 			{
 				// Need to find the base folder.
 				$bid = -1;
 				$use_subdirectories_for_attachments = 0;
-				if (!empty($modSettings['attachment_basedirectories']))
-					foreach ($modSettings['attachment_basedirectories'] as $bid => $base)
-						if (strpos($modSettings['attachmentUploadDir'][$_POST['current_dir']], $base . DIRECTORY_SEPARATOR) !== false)
+				if (!empty(Config::$modSettings['attachment_basedirectories']))
+					foreach (Config::$modSettings['attachment_basedirectories'] as $bid => $base)
+						if (strpos(Config::$modSettings['attachmentUploadDir'][$_POST['current_dir']], $base . DIRECTORY_SEPARATOR) !== false)
 						{
 							$use_subdirectories_for_attachments = 1;
 							break;
 						}
 
-				if ($use_subdirectories_for_attachments == 0 && strpos($modSettings['attachmentUploadDir'][$_POST['current_dir']], $boarddir . DIRECTORY_SEPARATOR) !== false)
+				if ($use_subdirectories_for_attachments == 0 && strpos(Config::$modSettings['attachmentUploadDir'][$_POST['current_dir']], Config::$boarddir . DIRECTORY_SEPARATOR) !== false)
 					$bid = 0;
 
-				$modSettings['last_attachments_directory'][$bid] = (int) $num;
-				$modSettings['basedirectory_for_attachments'] = !empty($modSettings['basedirectory_for_attachments']) ? $modSettings['basedirectory_for_attachments'] : '';
-				$modSettings['use_subdirectories_for_attachments'] = !empty($modSettings['use_subdirectories_for_attachments']) ? $modSettings['use_subdirectories_for_attachments'] : 0;
-				updateSettings(array(
-					'last_attachments_directory' => $smcFunc['json_encode']($modSettings['last_attachments_directory']),
-					'basedirectory_for_attachments' => $bid == 0 ? $modSettings['basedirectory_for_attachments'] : $modSettings['attachment_basedirectories'][$bid],
+				Config::$modSettings['last_attachments_directory'][$bid] = (int) $num;
+				Config::$modSettings['basedirectory_for_attachments'] = !empty(Config::$modSettings['basedirectory_for_attachments']) ? Config::$modSettings['basedirectory_for_attachments'] : '';
+				Config::$modSettings['use_subdirectories_for_attachments'] = !empty(Config::$modSettings['use_subdirectories_for_attachments']) ? Config::$modSettings['use_subdirectories_for_attachments'] : 0;
+				Config::updateModSettings(array(
+					'last_attachments_directory' => Utils::jsonEncode(Config::$modSettings['last_attachments_directory']),
+					'basedirectory_for_attachments' => $bid == 0 ? Config::$modSettings['basedirectory_for_attachments'] : Config::$modSettings['attachment_basedirectories'][$bid],
 					'use_subdirectories_for_attachments' => $use_subdirectories_for_attachments,
 				));
 			}
@@ -2129,7 +2117,7 @@ function ManageAttachmentPaths()
 			foreach ($new_dirs as $id => $dir)
 			{
 				if ($id != 1)
-					$smcFunc['db_query']('', '
+					Db::$db->query('', '
 						UPDATE {db_prefix}attachments
 						SET id_folder = {int:default_folder}
 						WHERE id_folder = {int:current_folder}',
@@ -2141,7 +2129,7 @@ function ManageAttachmentPaths()
 
 				$update = array(
 					'currentAttachmentUploadDir' => 1,
-					'attachmentUploadDir' => $smcFunc['json_encode'](array(1 => $dir)),
+					'attachmentUploadDir' => Utils::jsonEncode(array(1 => $dir)),
 				);
 			}
 		}
@@ -2150,17 +2138,17 @@ function ManageAttachmentPaths()
 			// Save it to the database.
 			$update = array(
 				'currentAttachmentUploadDir' => $_POST['current_dir'],
-				'attachmentUploadDir' => $smcFunc['json_encode']($new_dirs),
+				'attachmentUploadDir' => Utils::jsonEncode($new_dirs),
 			);
 		}
 
 		if (!empty($update))
-			updateSettings($update);
+			Config::updateModSettings($update);
 
 		if (!empty($errors))
 			$_SESSION['errors']['dir'] = $errors;
 
-		redirectexit('action=admin;area=manageattachments;sa=attachpaths;' . $context['session_var'] . '=' . $context['session_id']);
+		redirectexit('action=admin;area=manageattachments;sa=attachpaths;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 	}
 
 	// Saving a base directory?
@@ -2172,9 +2160,9 @@ function ManageAttachmentPaths()
 		$_POST['current_base_dir'] = isset($_POST['current_base_dir']) ? (int) $_POST['current_base_dir'] : 1;
 		if (empty($_POST['new_base_dir']) && !empty($_POST['current_base_dir']))
 		{
-			if ($modSettings['basedirectory_for_attachments'] != $modSettings['attachmentUploadDir'][$_POST['current_base_dir']])
+			if (Config::$modSettings['basedirectory_for_attachments'] != Config::$modSettings['attachmentUploadDir'][$_POST['current_base_dir']])
 				$update = (array(
-					'basedirectory_for_attachments' => $modSettings['attachmentUploadDir'][$_POST['current_base_dir']],
+					'basedirectory_for_attachments' => Config::$modSettings['attachmentUploadDir'][$_POST['current_base_dir']],
 				));
 		}
 
@@ -2182,16 +2170,16 @@ function ManageAttachmentPaths()
 		{
 			foreach ($_POST['base_dir'] as $id => $dir)
 			{
-				if (!empty($dir) && $dir != $modSettings['attachmentUploadDir'][$id])
+				if (!empty($dir) && $dir != Config::$modSettings['attachmentUploadDir'][$id])
 				{
-					if (@rename($modSettings['attachmentUploadDir'][$id], $dir))
+					if (@rename(Config::$modSettings['attachmentUploadDir'][$id], $dir))
 					{
-						$modSettings['attachmentUploadDir'][$id] = $dir;
-						$modSettings['attachment_basedirectories'][$id] = $dir;
+						Config::$modSettings['attachmentUploadDir'][$id] = $dir;
+						Config::$modSettings['attachment_basedirectories'][$id] = $dir;
 						$update = (array(
-							'attachmentUploadDir' => $smcFunc['json_encode']($modSettings['attachmentUploadDir']),
-							'attachment_basedirectories' => $smcFunc['json_encode']($modSettings['attachment_basedirectories']),
-							'basedirectory_for_attachments' => $modSettings['attachmentUploadDir'][$_POST['current_base_dir']],
+							'attachmentUploadDir' => Utils::jsonEncode(Config::$modSettings['attachmentUploadDir']),
+							'attachment_basedirectories' => Utils::jsonEncode(Config::$modSettings['attachment_basedirectories']),
+							'basedirectory_for_attachments' => Config::$modSettings['attachmentUploadDir'][$_POST['current_base_dir']],
 						));
 					}
 				}
@@ -2200,14 +2188,14 @@ function ManageAttachmentPaths()
 				{
 					if ($id == $_POST['current_base_dir'])
 					{
-						$errors[] = $modSettings['attachmentUploadDir'][$id] . ': ' . $txt['attach_dir_is_current'];
+						$errors[] = Config::$modSettings['attachmentUploadDir'][$id] . ': ' . $txt['attach_dir_is_current'];
 						continue;
 					}
 
-					unset($modSettings['attachment_basedirectories'][$id]);
+					unset(Config::$modSettings['attachment_basedirectories'][$id]);
 					$update = (array(
-						'attachment_basedirectories' => $smcFunc['json_encode']($modSettings['attachment_basedirectories']),
-						'basedirectory_for_attachments' => $modSettings['attachmentUploadDir'][$_POST['current_base_dir']],
+						'attachment_basedirectories' => Utils::jsonEncode(Config::$modSettings['attachment_basedirectories']),
+						'basedirectory_for_attachments' => Config::$modSettings['attachmentUploadDir'][$_POST['current_base_dir']],
 					));
 				}
 			}
@@ -2216,24 +2204,24 @@ function ManageAttachmentPaths()
 		// Or adding a new one?
 		if (!empty($_POST['new_base_dir']))
 		{
-			require_once($sourcedir . '/Subs-Attachments.php');
-			$_POST['new_base_dir'] = $smcFunc['htmlspecialchars']($_POST['new_base_dir'], ENT_QUOTES);
+			require_once(Config::$sourcedir . '/Subs-Attachments.php');
+			$_POST['new_base_dir'] = Utils::htmlspecialchars($_POST['new_base_dir'], ENT_QUOTES);
 
-			$current_dir = $modSettings['currentAttachmentUploadDir'];
+			$current_dir = Config::$modSettings['currentAttachmentUploadDir'];
 
-			if (!in_array($_POST['new_base_dir'], $modSettings['attachmentUploadDir']))
+			if (!in_array($_POST['new_base_dir'], Config::$modSettings['attachmentUploadDir']))
 			{
 				if (!automanage_attachments_create_directory($_POST['new_base_dir']))
 					$errors[] = $_POST['new_base_dir'] . ': ' . $txt['attach_dir_base_no_create'];
 			}
 
-			$modSettings['currentAttachmentUploadDir'] = array_search($_POST['new_base_dir'], $modSettings['attachmentUploadDir']);
-			if (!in_array($_POST['new_base_dir'], $modSettings['attachment_basedirectories']))
-				$modSettings['attachment_basedirectories'][$modSettings['currentAttachmentUploadDir']] = $_POST['new_base_dir'];
-			ksort($modSettings['attachment_basedirectories']);
+			Config::$modSettings['currentAttachmentUploadDir'] = array_search($_POST['new_base_dir'], Config::$modSettings['attachmentUploadDir']);
+			if (!in_array($_POST['new_base_dir'], Config::$modSettings['attachment_basedirectories']))
+				Config::$modSettings['attachment_basedirectories'][Config::$modSettings['currentAttachmentUploadDir']] = $_POST['new_base_dir'];
+			ksort(Config::$modSettings['attachment_basedirectories']);
 
 			$update = (array(
-				'attachment_basedirectories' => $smcFunc['json_encode']($modSettings['attachment_basedirectories']),
+				'attachment_basedirectories' => Utils::jsonEncode(Config::$modSettings['attachment_basedirectories']),
 				'basedirectory_for_attachments' => $_POST['new_base_dir'],
 				'currentAttachmentUploadDir' => $current_dir,
 			));
@@ -2243,9 +2231,9 @@ function ManageAttachmentPaths()
 			$_SESSION['errors']['base'] = $errors;
 
 		if (!empty($update))
-			updateSettings($update);
+			Config::updateModSettings($update);
 
-		redirectexit('action=admin;area=manageattachments;sa=attachpaths;' . $context['session_var'] . '=' . $context['session_id']);
+		redirectexit('action=admin;area=manageattachments;sa=attachpaths;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 	}
 
 	if (isset($_SESSION['errors']))
@@ -2255,18 +2243,18 @@ function ManageAttachmentPaths()
 			$errors = array();
 			if (!empty($_SESSION['errors']['dir']))
 				foreach ($_SESSION['errors']['dir'] as $error)
-					$errors['dir'][] = $smcFunc['htmlspecialchars']($error, ENT_QUOTES);
+					$errors['dir'][] = Utils::htmlspecialchars($error, ENT_QUOTES);
 
 			if (!empty($_SESSION['errors']['base']))
 				foreach ($_SESSION['errors']['base'] as $error)
-					$errors['base'][] = $smcFunc['htmlspecialchars']($error, ENT_QUOTES);
+					$errors['base'][] = Utils::htmlspecialchars($error, ENT_QUOTES);
 		}
 		unset($_SESSION['errors']);
 	}
 
 	$listOptions = array(
 		'id' => 'attach_paths',
-		'base_href' => $scripturl . '?action=admin;area=manageattachments;sa=attachpaths;' . $context['session_var'] . '=' . $context['session_id'],
+		'base_href' => Config::$scripturl . '?action=admin;area=manageattachments;sa=attachpaths;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 		'title' => $txt['attach_paths'],
 		'get_items' => array(
 			'function' => 'list_getAttachDirs',
@@ -2329,13 +2317,13 @@ function ManageAttachmentPaths()
 			),
 		),
 		'form' => array(
-			'href' => $scripturl . '?action=admin;area=manageattachments;sa=attachpaths;' . $context['session_var'] . '=' . $context['session_id'],
+			'href' => Config::$scripturl . '?action=admin;area=manageattachments;sa=attachpaths;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 		),
 		'additional_rows' => array(
 			array(
 				'position' => 'below_table_data',
 				'value' => '
-				<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
+				<input type="hidden" name="' . Utils::$context['session_var'] . '" value="' . Utils::$context['session_id'] . '">
 				<input type="submit" name="save" value="' . $txt['save'] . '" class="button">
 				<input type="submit" name="new_path" value="' . $txt['attach_add_path'] . '" class="button">',
 			),
@@ -2351,14 +2339,14 @@ function ManageAttachmentPaths()
 			),
 		),
 	);
-	require_once($sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/Subs-List.php');
 	createList($listOptions);
 
-	if (!empty($modSettings['attachment_basedirectories']))
+	if (!empty(Config::$modSettings['attachment_basedirectories']))
 	{
 		$listOptions2 = array(
 			'id' => 'base_paths',
-			'base_href' => $scripturl . '?action=admin;area=manageattachments;sa=attachpaths;' . $context['session_var'] . '=' . $context['session_id'],
+			'base_href' => Config::$scripturl . '?action=admin;area=manageattachments;sa=attachpaths;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 			'title' => $txt['attach_base_paths'],
 			'get_items' => array(
 				'function' => 'list_getBaseDirs',
@@ -2409,12 +2397,12 @@ function ManageAttachmentPaths()
 				),
 			),
 			'form' => array(
-				'href' => $scripturl . '?action=admin;area=manageattachments;sa=attachpaths;' . $context['session_var'] . '=' . $context['session_id'],
+				'href' => Config::$scripturl . '?action=admin;area=manageattachments;sa=attachpaths;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 			),
 			'additional_rows' => array(
 				array(
 					'position' => 'below_table_data',
-					'value' => '<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '"><input type="submit" name="save2" value="' . $txt['save'] . '" class="button">
+					'value' => '<input type="hidden" name="' . Utils::$context['session_var'] . '" value="' . Utils::$context['session_id'] . '"><input type="submit" name="save2" value="' . $txt['save'] . '" class="button">
 					<input type="submit" name="new_base_path" value="' . $txt['attach_add_path'] . '" class="button">',
 				),
 				empty($errors['base']) ? array(
@@ -2434,9 +2422,9 @@ function ManageAttachmentPaths()
 	}
 
 	// Fix up our template.
-	$context[$context['admin_menu_name']]['current_subsection'] = 'attachpaths';
-	$context['page_title'] = $txt['attach_path_manage'];
-	$context['sub_template'] = 'attachment_paths';
+	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'attachpaths';
+	Utils::$context['page_title'] = $txt['attach_path_manage'];
+	Utils::$context['sub_template'] = 'attachment_paths';
 }
 
 /**
@@ -2446,9 +2434,9 @@ function ManageAttachmentPaths()
  */
 function list_getAttachDirs()
 {
-	global $smcFunc, $modSettings, $context, $scripturl, $txt;
+	global $txt;
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_folder, COUNT(id_attach) AS num_attach, SUM(size) AS size_attach
 		FROM {db_prefix}attachments
 		WHERE attachment_type != {int:type}
@@ -2460,15 +2448,15 @@ function list_getAttachDirs()
 
 	$expected_files = array();
 	$expected_size = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$expected_files[$row['id_folder']] = $row['num_attach'];
 		$expected_size[$row['id_folder']] = $row['size_attach'];
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	$attachdirs = array();
-	foreach ($modSettings['attachmentUploadDir'] as $id => $dir)
+	foreach (Config::$modSettings['attachmentUploadDir'] as $id => $dir)
 	{
 		// If there aren't any attachments in this directory this won't exist.
 		if (!isset($expected_files[$id]))
@@ -2480,12 +2468,12 @@ function list_getAttachDirs()
 		// If it is one, let's show that it's a base directory.
 		$sub_dirs = 0;
 		$is_base_dir = false;
-		if (!empty($modSettings['attachment_basedirectories']))
+		if (!empty(Config::$modSettings['attachment_basedirectories']))
 		{
-			$is_base_dir = in_array($dir, $modSettings['attachment_basedirectories']);
+			$is_base_dir = in_array($dir, Config::$modSettings['attachment_basedirectories']);
 
 			// Count any sub-folders.
-			foreach ($modSettings['attachmentUploadDir'] as $sid => $sub)
+			foreach (Config::$modSettings['attachmentUploadDir'] as $sid => $sub)
 				if (strpos($sub, $dir . DIRECTORY_SEPARATOR) !== false)
 				{
 					$expected_files[$id]++;
@@ -2495,20 +2483,20 @@ function list_getAttachDirs()
 
 		$attachdirs[] = array(
 			'id' => $id,
-			'current' => $id == $modSettings['currentAttachmentUploadDir'],
-			'disable_current' => isset($modSettings['automanage_attachments']) && $modSettings['automanage_attachments'] > 1,
+			'current' => $id == Config::$modSettings['currentAttachmentUploadDir'],
+			'disable_current' => isset(Config::$modSettings['automanage_attachments']) && Config::$modSettings['automanage_attachments'] > 1,
 			'disable_base_dir' => $is_base_dir && $sub_dirs > 0 && !empty($files) && empty($error) && empty($save_errors),
 			'path' => $dir,
 			'current_size' => !empty($expected_size[$id]) ? comma_format($expected_size[$id] / 1024, 0) : 0,
 			'num_files' => comma_format($expected_files[$id] - $sub_dirs, 0) . ($sub_dirs > 0 ? ' (' . $sub_dirs . ')' : ''),
-			'status' => ($is_base_dir ? $txt['attach_dir_basedir'] . '<br>' : '') . ($error ? '<div class="error">' : '') . sprintf($txt['attach_dir_' . $status], $context['session_id'], $context['session_var'], $scripturl) . ($error ? '</div>' : ''),
+			'status' => ($is_base_dir ? $txt['attach_dir_basedir'] . '<br>' : '') . ($error ? '<div class="error">' : '') . sprintf($txt['attach_dir_' . $status], Utils::$context['session_id'], Utils::$context['session_var'], Config::$scripturl) . ($error ? '</div>' : ''),
 		);
 	}
 
 	// Just stick a new directory on at the bottom.
 	if (isset($_REQUEST['new_path']))
 		$attachdirs[] = array(
-			'id' => max(array_merge(array_keys($expected_files), array_keys($modSettings['attachmentUploadDir']))) + 1,
+			'id' => max(array_merge(array_keys($expected_files), array_keys(Config::$modSettings['attachmentUploadDir']))) + 1,
 			'current' => false,
 			'path' => '',
 			'current_size' => '',
@@ -2526,18 +2514,18 @@ function list_getAttachDirs()
  */
 function list_getBaseDirs()
 {
-	global $modSettings, $txt;
+	global $txt;
 
-	if (empty($modSettings['attachment_basedirectories']))
+	if (empty(Config::$modSettings['attachment_basedirectories']))
 		return;
 
 	$basedirs = array();
 	// Get a list of the base directories.
-	foreach ($modSettings['attachment_basedirectories'] as $id => $dir)
+	foreach (Config::$modSettings['attachment_basedirectories'] as $id => $dir)
 	{
 		// Loop through the attach directory array to count any sub-directories
 		$expected_dirs = 0;
-		foreach ($modSettings['attachmentUploadDir'] as $sid => $sub)
+		foreach (Config::$modSettings['attachmentUploadDir'] as $sid => $sub)
 			if (strpos($sub, $dir . DIRECTORY_SEPARATOR) !== false)
 				$expected_dirs++;
 
@@ -2550,7 +2538,7 @@ function list_getBaseDirs()
 
 		$basedirs[] = array(
 			'id' => $id,
-			'current' => $dir == $modSettings['basedirectory_for_attachments'],
+			'current' => $dir == Config::$modSettings['basedirectory_for_attachments'],
 			'path' => $expected_dirs > 0 ? $dir : ('<input type="text" name="base_dir[' . $id . ']" value="' . $dir . '" size="40">'),
 			'num_dirs' => $expected_dirs,
 			'status' => $status == 'ok' ? $txt['attach_dir_ok'] : ('<span class="error">' . $txt['attach_dir_' . $status] . '</span>'),
@@ -2613,19 +2601,19 @@ function attachDirStatus($dir, $expected_files)
  */
 function TransferAttachments()
 {
-	global $modSettings, $smcFunc, $sourcedir, $txt, $boarddir;
+	global $txt;
 
 	checkSession();
 
-	if (!empty($modSettings['attachment_basedirectories']))
-		$modSettings['attachment_basedirectories'] = $smcFunc['json_decode']($modSettings['attachment_basedirectories'], true);
+	if (!empty(Config::$modSettings['attachment_basedirectories']))
+		Config::$modSettings['attachment_basedirectories'] = Utils::jsonDecode(Config::$modSettings['attachment_basedirectories'], true);
 	else
-		$modSettings['basedirectory_for_attachments'] = array();
+		Config::$modSettings['basedirectory_for_attachments'] = array();
 
 	$_POST['from'] = (int) $_POST['from'];
 	$_POST['auto'] = !empty($_POST['auto']) ? (int) $_POST['auto'] : 0;
 	$_POST['to'] = (int) $_POST['to'];
-	$start = !empty($_POST['empty_it']) ? 0 : $modSettings['attachmentDirFileLimit'];
+	$start = !empty($_POST['empty_it']) ? 0 : Config::$modSettings['attachmentDirFileLimit'];
 	$_SESSION['checked'] = !empty($_POST['empty_it']) ? true : false;
 	$limit = 501;
 	$results = array();
@@ -2643,7 +2631,7 @@ function TransferAttachments()
 	if (empty($results))
 	{
 		// Get the total file count for the progress bar.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT COUNT(*)
 			FROM {db_prefix}attachments
 			WHERE id_folder = {int:folder_id}
@@ -2653,8 +2641,8 @@ function TransferAttachments()
 				'attachment_type' => 1,
 			)
 		);
-		list ($total_progress) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		list ($total_progress) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 		$total_progress -= $start;
 
 		if ($total_progress < 1)
@@ -2666,19 +2654,19 @@ function TransferAttachments()
 		// Where are they going?
 		if (!empty($_POST['auto']))
 		{
-			require_once($sourcedir . '/Subs-Attachments.php');
+			require_once(Config::$sourcedir . '/Subs-Attachments.php');
 
-			$modSettings['automanage_attachments'] = 1;
-			$modSettings['use_subdirectories_for_attachments'] = $_POST['auto'] == -1 ? 0 : 1;
-			$modSettings['basedirectory_for_attachments'] = $_POST['auto'] > 0 ? $modSettings['attachmentUploadDir'][$_POST['auto']] : $modSettings['basedirectory_for_attachments'];
+			Config::$modSettings['automanage_attachments'] = 1;
+			Config::$modSettings['use_subdirectories_for_attachments'] = $_POST['auto'] == -1 ? 0 : 1;
+			Config::$modSettings['basedirectory_for_attachments'] = $_POST['auto'] > 0 ? Config::$modSettings['attachmentUploadDir'][$_POST['auto']] : Config::$modSettings['basedirectory_for_attachments'];
 
 			automanage_attachments_check_directory();
-			$new_dir = $modSettings['currentAttachmentUploadDir'];
+			$new_dir = Config::$modSettings['currentAttachmentUploadDir'];
 		}
 		else
 			$new_dir = $_POST['to'];
 
-		$modSettings['currentAttachmentUploadDir'] = $new_dir;
+		Config::$modSettings['currentAttachmentUploadDir'] = $new_dir;
 
 		$break = false;
 		while ($break == false)
@@ -2688,9 +2676,9 @@ function TransferAttachments()
 				@apache_reset_timeout();
 
 			// If limits are set, get the file count and size for the destination folder
-			if ($dir_files <= 0 && (!empty($modSettings['attachmentDirSizeLimit']) || !empty($modSettings['attachmentDirFileLimit'])))
+			if ($dir_files <= 0 && (!empty(Config::$modSettings['attachmentDirSizeLimit']) || !empty(Config::$modSettings['attachmentDirFileLimit'])))
 			{
-				$request = $smcFunc['db_query']('', '
+				$request = Db::$db->query('', '
 					SELECT COUNT(*), SUM(size)
 					FROM {db_prefix}attachments
 					WHERE id_folder = {int:folder_id}
@@ -2700,12 +2688,12 @@ function TransferAttachments()
 						'attachment_type' => 1,
 					)
 				);
-				list ($dir_files, $dir_size) = $smcFunc['db_fetch_row']($request);
-				$smcFunc['db_free_result']($request);
+				list ($dir_files, $dir_size) = Db::$db->fetch_row($request);
+				Db::$db->free_result($request);
 			}
 
 			// Find some attachments to move
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT id_attach, filename, id_folder, file_hash, size
 				FROM {db_prefix}attachments
 				WHERE id_folder = {int:folder}
@@ -2719,38 +2707,38 @@ function TransferAttachments()
 				)
 			);
 
-			if ($smcFunc['db_num_rows']($request) === 0)
+			if (Db::$db->num_rows($request) === 0)
 			{
 				if (empty($current_progress))
 					$results[] = $txt['attachment_transfer_no_find'];
 				break;
 			}
 
-			if ($smcFunc['db_num_rows']($request) < $limit)
+			if (Db::$db->num_rows($request) < $limit)
 				$break = true;
 
 			// Move them
 			$moved = array();
-			while ($row = $smcFunc['db_fetch_assoc']($request))
+			while ($row = Db::$db->fetch_assoc($request))
 			{
 				$source = getAttachmentFilename($row['filename'], $row['id_attach'], $row['id_folder'], false, $row['file_hash']);
-				$dest = $modSettings['attachmentUploadDir'][$new_dir] . '/' . basename($source);
+				$dest = Config::$modSettings['attachmentUploadDir'][$new_dir] . '/' . basename($source);
 
 				// Size and file count check
-				if (!empty($modSettings['attachmentDirSizeLimit']) || !empty($modSettings['attachmentDirFileLimit']))
+				if (!empty(Config::$modSettings['attachmentDirSizeLimit']) || !empty(Config::$modSettings['attachmentDirFileLimit']))
 				{
 					$dir_files++;
 					$dir_size += !empty($row['size']) ? $row['size'] : filesize($source);
 
 					// If we've reached a limit. Do something.
-					if (!empty($modSettings['attachmentDirSizeLimit']) && $dir_size > $modSettings['attachmentDirSizeLimit'] * 1024 || (!empty($modSettings['attachmentDirFileLimit']) && $dir_files > $modSettings['attachmentDirFileLimit']))
+					if (!empty(Config::$modSettings['attachmentDirSizeLimit']) && $dir_size > Config::$modSettings['attachmentDirSizeLimit'] * 1024 || (!empty(Config::$modSettings['attachmentDirFileLimit']) && $dir_files > Config::$modSettings['attachmentDirFileLimit']))
 					{
 						if (!empty($_POST['auto']))
 						{
 							// Since we're in auto mode. Create a new folder and reset the counters.
 							automanage_attachments_by_space();
 
-							$results[] = sprintf($txt['attachments_transferred'], $total_moved, $modSettings['attachmentUploadDir'][$new_dir]);
+							$results[] = sprintf($txt['attachments_transferred'], $total_moved, Config::$modSettings['attachmentUploadDir'][$new_dir]);
 							if (!empty($total_not_moved))
 								$results[] = sprintf($txt['attachments_not_transferred'], $total_not_moved);
 
@@ -2780,12 +2768,12 @@ function TransferAttachments()
 				else
 					$total_not_moved++;
 			}
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 
 			if (!empty($moved))
 			{
 				// Update the database
-				$smcFunc['db_query']('', '
+				Db::$db->query('', '
 					UPDATE {db_prefix}attachments
 					SET id_folder = {int:new}
 					WHERE id_attach IN ({array_int:attachments})',
@@ -2796,7 +2784,7 @@ function TransferAttachments()
 				);
 			}
 
-			$new_dir = $modSettings['currentAttachmentUploadDir'];
+			$new_dir = Config::$modSettings['currentAttachmentUploadDir'];
 
 			// Create the progress bar.
 			if (!$break)
@@ -2808,21 +2796,21 @@ function TransferAttachments()
 						<span>' . $percent_done . '%</span>
 					</div>';
 				// Write it to a file so it can be displayed
-				$fp = fopen($boarddir . '/progress.php', "w");
+				$fp = fopen(Config::$boarddir . '/progress.php', "w");
 				fwrite($fp, $prog_bar);
 				fclose($fp);
 				usleep(500000);
 			}
 		}
 
-		$results[] = sprintf($txt['attachments_transferred'], $total_moved, $modSettings['attachmentUploadDir'][$new_dir]);
+		$results[] = sprintf($txt['attachments_transferred'], $total_moved, Config::$modSettings['attachmentUploadDir'][$new_dir]);
 		if (!empty($total_not_moved))
 			$results[] = sprintf($txt['attachments_not_transferred'], $total_not_moved);
 	}
 
 	$_SESSION['results'] = $results;
-	if (file_exists($boarddir . '/progress.php'))
-		unlink($boarddir . '/progress.php');
+	if (file_exists(Config::$boarddir . '/progress.php'))
+		unlink(Config::$boarddir . '/progress.php');
 
 	redirectexit('action=admin;area=manageattachments;sa=maintenance#transfer');
 }

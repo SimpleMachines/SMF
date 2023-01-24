@@ -15,6 +15,9 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -32,10 +35,10 @@ loadLanguage('Drafts');
  */
 function SaveDraft(&$post_errors)
 {
-	global $context, $user_info, $smcFunc, $modSettings, $board;
+	global $user_info, $board;
 
 	// can you be, should you be ... here?
-	if (empty($modSettings['drafts_post_enabled']) || !allowedTo('post_draft') || !isset($_POST['save_draft']) || !isset($_POST['id_draft']))
+	if (empty(Config::$modSettings['drafts_post_enabled']) || !allowedTo('post_draft') || !isset($_POST['save_draft']) || !isset($_POST['id_draft']))
 		return false;
 
 	// read in what they sent us, if anything
@@ -45,7 +48,7 @@ function SaveDraft(&$post_errors)
 	// A draft has been saved less than 5 seconds ago, let's not do the autosave again
 	if (isset($_REQUEST['xml']) && !empty($draft_info['poster_time']) && time() < $draft_info['poster_time'] + 5)
 	{
-		$context['draft_saved_on'] = $draft_info['poster_time'];
+		Utils::$context['draft_saved_on'] = $draft_info['poster_time'];
 
 		// since we were called from the autosave function, send something back
 		if (!empty($id_draft))
@@ -63,18 +66,18 @@ function SaveDraft(&$post_errors)
 	$draft['smileys_enabled'] = isset($_POST['ns']) ? (int) $_POST['ns'] : 1;
 	$draft['locked'] = isset($_POST['lock']) ? (int) $_POST['lock'] : 0;
 	$draft['sticky'] = isset($_POST['sticky']) ? (int) $_POST['sticky'] : 0;
-	$draft['subject'] = strtr($smcFunc['htmlspecialchars']($_POST['subject']), array("\r" => '', "\n" => '', "\t" => ''));
-	$draft['body'] = $smcFunc['htmlspecialchars']($_POST['message'], ENT_QUOTES);
+	$draft['subject'] = strtr(Utils::htmlspecialchars($_POST['subject']), array("\r" => '', "\n" => '', "\t" => ''));
+	$draft['body'] = Utils::htmlspecialchars($_POST['message'], ENT_QUOTES);
 
 	// message and subject still need a bit more work
 	preparsecode($draft['body']);
-	if ($smcFunc['strlen']($draft['subject']) > 100)
-		$draft['subject'] = $smcFunc['substr']($draft['subject'], 0, 100);
+	if (Utils::entityStrlen($draft['subject']) > 100)
+		$draft['subject'] = Utils::entitySubstr($draft['subject'], 0, 100);
 
 	// Modifying an existing draft, like hitting the save draft button or autosave enabled?
 	if (!empty($id_draft) && !empty($draft_info))
 	{
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}user_drafts
 			SET
 				id_topic = {int:id_topic},
@@ -102,8 +105,8 @@ function SaveDraft(&$post_errors)
 		);
 
 		// some items to return to the form
-		$context['draft_saved'] = true;
-		$context['id_draft'] = $id_draft;
+		Utils::$context['draft_saved'] = true;
+		Utils::$context['id_draft'] = $id_draft;
 
 		// cleanup
 		unset($_POST['save_draft']);
@@ -111,7 +114,7 @@ function SaveDraft(&$post_errors)
 	// otherwise creating a new draft
 	else
 	{
-		$id_draft = $smcFunc['db_insert']('',
+		$id_draft = Db::$db->insert('',
 			'{db_prefix}user_drafts',
 			array(
 				'id_topic' => 'int',
@@ -121,7 +124,7 @@ function SaveDraft(&$post_errors)
 				'id_member' => 'int',
 				'subject' => 'string-255',
 				'smileys_enabled' => 'int',
-				'body' => (!empty($modSettings['max_messageLength']) && $modSettings['max_messageLength'] > 65534 ? 'string-' . $modSettings['max_messageLength'] : 'string-65534'),
+				'body' => (!empty(Config::$modSettings['max_messageLength']) && Config::$modSettings['max_messageLength'] > 65534 ? 'string-' . Config::$modSettings['max_messageLength'] : 'string-65534'),
 				'icon' => 'string-16',
 				'locked' => 'int',
 				'is_sticky' => 'int'
@@ -148,8 +151,8 @@ function SaveDraft(&$post_errors)
 		// everything go as expected?
 		if (!empty($id_draft))
 		{
-			$context['draft_saved'] = true;
-			$context['id_draft'] = $id_draft;
+			Utils::$context['draft_saved'] = true;
+			Utils::$context['id_draft'] = $id_draft;
 		}
 		else
 			$post_errors[] = 'draft_not_saved';
@@ -161,7 +164,7 @@ function SaveDraft(&$post_errors)
 	// if we were called from the autosave function, send something back
 	if (!empty($id_draft) && isset($_REQUEST['xml']) && (!in_array('session_timeout', $post_errors)))
 	{
-		$context['draft_saved_on'] = time();
+		Utils::$context['draft_saved_on'] = time();
 		XmlDraft($id_draft);
 	}
 
@@ -179,10 +182,10 @@ function SaveDraft(&$post_errors)
  */
 function SavePMDraft(&$post_errors, $recipientList)
 {
-	global $context, $user_info, $smcFunc, $modSettings;
+	global $user_info;
 
 	// PM survey says ... can you stay or must you go
-	if (empty($modSettings['drafts_pm_enabled']) || !allowedTo('pm_draft') || !isset($_POST['save_draft']))
+	if (empty(Config::$modSettings['drafts_pm_enabled']) || !allowedTo('pm_draft') || !isset($_POST['save_draft']))
 		return false;
 
 	// read in what you sent us
@@ -192,7 +195,7 @@ function SavePMDraft(&$post_errors, $recipientList)
 	// 5 seconds is the same limit we have for posting
 	if (isset($_REQUEST['xml']) && !empty($draft_info['poster_time']) && time() < $draft_info['poster_time'] + 5)
 	{
-		$context['draft_saved_on'] = $draft_info['poster_time'];
+		Utils::$context['draft_saved_on'] = $draft_info['poster_time'];
 
 		// Send something back to the javascript caller
 		if (!empty($id_draft))
@@ -208,22 +211,22 @@ function SavePMDraft(&$post_errors, $recipientList)
 		$recipientList['bcc'] = isset($_POST['recipient_bcc']) ? explode(',', $_POST['recipient_bcc']) : array();
 	}
 	elseif (!empty($draft_info['to_list']) && empty($recipientList))
-		$recipientList = $smcFunc['json_decode']($draft_info['to_list'], true);
+		$recipientList = Utils::jsonDecode($draft_info['to_list'], true);
 
 	// prepare the data we got from the form
 	$reply_id = empty($_POST['replied_to']) ? 0 : (int) $_POST['replied_to'];
-	$draft['body'] = $smcFunc['htmlspecialchars']($_POST['message'], ENT_QUOTES);
-	$draft['subject'] = strtr($smcFunc['htmlspecialchars']($_POST['subject']), array("\r" => '', "\n" => '', "\t" => ''));
+	$draft['body'] = Utils::htmlspecialchars($_POST['message'], ENT_QUOTES);
+	$draft['subject'] = strtr(Utils::htmlspecialchars($_POST['subject']), array("\r" => '', "\n" => '', "\t" => ''));
 
 	// message and subject always need a bit more work
 	preparsecode($draft['body']);
-	if ($smcFunc['strlen']($draft['subject']) > 100)
-		$draft['subject'] = $smcFunc['substr']($draft['subject'], 0, 100);
+	if (Utils::entityStrlen($draft['subject']) > 100)
+		$draft['subject'] = Utils::entitySubstr($draft['subject'], 0, 100);
 
 	// Modifying an existing PM draft?
 	if (!empty($id_pm_draft) && !empty($draft_info))
 	{
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}user_drafts
 			SET id_reply = {int:id_reply},
 				type = {int:type},
@@ -239,18 +242,18 @@ function SavePMDraft(&$post_errors, $recipientList)
 				'subject' => $draft['subject'],
 				'body' => $draft['body'],
 				'id_pm_draft' => $id_pm_draft,
-				'to_list' => $smcFunc['json_encode']($recipientList),
+				'to_list' => Utils::jsonEncode($recipientList),
 			)
 		);
 
 		// some items to return to the form
-		$context['draft_saved'] = true;
-		$context['id_pm_draft'] = $id_pm_draft;
+		Utils::$context['draft_saved'] = true;
+		Utils::$context['id_pm_draft'] = $id_pm_draft;
 	}
 	// otherwise creating a new PM draft.
 	else
 	{
-		$id_pm_draft = $smcFunc['db_insert']('',
+		$id_pm_draft = Db::$db->insert('',
 			'{db_prefix}user_drafts',
 			array(
 				'id_reply' => 'int',
@@ -268,7 +271,7 @@ function SavePMDraft(&$post_errors, $recipientList)
 				$user_info['id'],
 				$draft['subject'],
 				$draft['body'],
-				$smcFunc['json_encode']($recipientList),
+				Utils::jsonEncode($recipientList),
 			),
 			array(
 				'id_draft'
@@ -279,8 +282,8 @@ function SavePMDraft(&$post_errors, $recipientList)
 		// everything go as expected, if not toss back an error
 		if (!empty($id_pm_draft))
 		{
-			$context['draft_saved'] = true;
-			$context['id_pm_draft'] = $id_pm_draft;
+			Utils::$context['draft_saved'] = true;
+			Utils::$context['id_pm_draft'] = $id_pm_draft;
 		}
 		else
 			$post_errors[] = 'draft_not_saved';
@@ -289,7 +292,7 @@ function SavePMDraft(&$post_errors, $recipientList)
 	// if we were called from the autosave function, send something back
 	if (!empty($id_pm_draft) && isset($_REQUEST['xml']) && !in_array('session_timeout', $post_errors))
 	{
-		$context['draft_saved_on'] = time();
+		Utils::$context['draft_saved_on'] = time();
 		XmlDraft($id_pm_draft);
 	}
 
@@ -309,7 +312,7 @@ function SavePMDraft(&$post_errors, $recipientList)
  */
 function ReadDraft($id_draft, $type = 0, $check = true, $load = false)
 {
-	global $context, $user_info, $smcFunc, $modSettings;
+	global $user_info;
 
 	// like purell always clean to be sure
 	$id_draft = (int) $id_draft;
@@ -320,30 +323,30 @@ function ReadDraft($id_draft, $type = 0, $check = true, $load = false)
 		return false;
 
 	// load in this draft from the DB
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT is_sticky, locked, smileys_enabled, icon, body , subject,
 			id_board, id_draft, id_reply, to_list
 		FROM {db_prefix}user_drafts
 		WHERE id_draft = {int:id_draft}' . ($check ? '
 			AND id_member = {int:id_member}' : '') . '
-			AND type = {int:type}' . (!empty($modSettings['drafts_keep_days']) ? '
+			AND type = {int:type}' . (!empty(Config::$modSettings['drafts_keep_days']) ? '
 			AND poster_time > {int:time}' : '') . '
 		LIMIT 1',
 		array(
 			'id_member' => $user_info['id'],
 			'id_draft' => $id_draft,
 			'type' => $type,
-			'time' => (!empty($modSettings['drafts_keep_days']) ? (time() - ($modSettings['drafts_keep_days'] * 86400)) : 0),
+			'time' => (!empty(Config::$modSettings['drafts_keep_days']) ? (time() - (Config::$modSettings['drafts_keep_days'] * 86400)) : 0),
 		)
 	);
 
 	// no results?
-	if (!$smcFunc['db_num_rows']($request))
+	if (!Db::$db->num_rows($request))
 		return false;
 
 	// load up the data
-	$draft_info = $smcFunc['db_fetch_assoc']($request);
-	$smcFunc['db_free_result']($request);
+	$draft_info = Db::$db->fetch_assoc($request);
+	Db::$db->free_result($request);
 
 	// Load it up for the templates as well
 	if (!empty($load))
@@ -351,14 +354,14 @@ function ReadDraft($id_draft, $type = 0, $check = true, $load = false)
 		if ($type === 0)
 		{
 			// a standard post draft?
-			$context['sticky'] = !empty($draft_info['is_sticky']) ? $draft_info['is_sticky'] : '';
-			$context['locked'] = !empty($draft_info['locked']) ? $draft_info['locked'] : '';
-			$context['use_smileys'] = !empty($draft_info['smileys_enabled']) ? true : false;
-			$context['icon'] = !empty($draft_info['icon']) ? $draft_info['icon'] : 'xx';
-			$context['message'] = !empty($draft_info['body']) ? str_replace('<br>', "\n", un_htmlspecialchars(stripslashes($draft_info['body']))) : '';
-			$context['subject'] = !empty($draft_info['subject']) ? stripslashes($draft_info['subject']) : '';
-			$context['board'] = !empty($draft_info['id_board']) ? $draft_info['id_board'] : '';
-			$context['id_draft'] = !empty($draft_info['id_draft']) ? $draft_info['id_draft'] : 0;
+			Utils::$context['sticky'] = !empty($draft_info['is_sticky']) ? $draft_info['is_sticky'] : '';
+			Utils::$context['locked'] = !empty($draft_info['locked']) ? $draft_info['locked'] : '';
+			Utils::$context['use_smileys'] = !empty($draft_info['smileys_enabled']) ? true : false;
+			Utils::$context['icon'] = !empty($draft_info['icon']) ? $draft_info['icon'] : 'xx';
+			Utils::$context['message'] = !empty($draft_info['body']) ? str_replace('<br>', "\n", un_htmlspecialchars(stripslashes($draft_info['body']))) : '';
+			Utils::$context['subject'] = !empty($draft_info['subject']) ? stripslashes($draft_info['subject']) : '';
+			Utils::$context['board'] = !empty($draft_info['id_board']) ? $draft_info['id_board'] : '';
+			Utils::$context['id_draft'] = !empty($draft_info['id_draft']) ? $draft_info['id_draft'] : 0;
 		}
 		elseif ($type === 1)
 		{
@@ -366,8 +369,8 @@ function ReadDraft($id_draft, $type = 0, $check = true, $load = false)
 			$_REQUEST['subject'] = !empty($draft_info['subject']) ? stripslashes($draft_info['subject']) : '';
 			$_REQUEST['message'] = !empty($draft_info['body']) ? str_replace('<br>', "\n", un_htmlspecialchars(stripslashes($draft_info['body']))) : '';
 			$_REQUEST['replied_to'] = !empty($draft_info['id_reply']) ? $draft_info['id_reply'] : 0;
-			$context['id_pm_draft'] = !empty($draft_info['id_draft']) ? $draft_info['id_draft'] : 0;
-			$recipients = $smcFunc['json_decode']($draft_info['to_list'], true);
+			Utils::$context['id_pm_draft'] = !empty($draft_info['id_draft']) ? $draft_info['id_draft'] : 0;
+			$recipients = Utils::jsonDecode($draft_info['to_list'], true);
 
 			// make sure we only have integers in this array
 			$recipients['to'] = array_map('intval', $recipients['to']);
@@ -393,7 +396,7 @@ function ReadDraft($id_draft, $type = 0, $check = true, $load = false)
  */
 function DeleteDraft($id_draft, $check = true)
 {
-	global $user_info, $smcFunc;
+	global $user_info;
 
 	// Only a single draft.
 	if (is_numeric($id_draft))
@@ -403,7 +406,7 @@ function DeleteDraft($id_draft, $check = true)
 	if (empty($id_draft) || ($check && empty($user_info['id'])))
 		return false;
 
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}user_drafts
 		WHERE id_draft IN ({array_int:id_draft})' . ($check ? '
 			AND  id_member = {int:id_member}' : ''),
@@ -427,38 +430,38 @@ function DeleteDraft($id_draft, $check = true)
  */
 function ShowDrafts($member_id, $topic = false, $draft_type = 0)
 {
-	global $smcFunc, $scripturl, $context, $txt, $modSettings;
+	global $txt;
 
 	// Permissions
-	if (($draft_type === 0 && empty($context['drafts_save'])) || ($draft_type === 1 && empty($context['drafts_pm_save'])) || empty($member_id))
+	if (($draft_type === 0 && empty(Utils::$context['drafts_save'])) || ($draft_type === 1 && empty(Utils::$context['drafts_pm_save'])) || empty($member_id))
 		return false;
 
-	$context['drafts'] = array();
+	Utils::$context['drafts'] = array();
 
 	// has a specific draft has been selected?  Load it up if there is not a message already in the editor
 	if (isset($_REQUEST['id_draft']) && empty($_POST['subject']) && empty($_POST['message']))
 		ReadDraft((int) $_REQUEST['id_draft'], $draft_type, true, true);
 
 	// load the drafts this user has available
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT subject, poster_time, id_board, id_topic, id_draft
 		FROM {db_prefix}user_drafts
 		WHERE id_member = {int:id_member}' . ((!empty($topic) && empty($draft_type)) ? '
 			AND id_topic = {int:id_topic}' : (!empty($topic) ? '
 			AND id_reply = {int:id_topic}' : '')) . '
-			AND type = {int:draft_type}' . (!empty($modSettings['drafts_keep_days']) ? '
+			AND type = {int:draft_type}' . (!empty(Config::$modSettings['drafts_keep_days']) ? '
 			AND poster_time > {int:time}' : '') . '
 		ORDER BY poster_time DESC',
 		array(
 			'id_member' => $member_id,
 			'id_topic' => (int) $topic,
 			'draft_type' => $draft_type,
-			'time' => (!empty($modSettings['drafts_keep_days']) ? (time() - ($modSettings['drafts_keep_days'] * 86400)) : 0),
+			'time' => (!empty(Config::$modSettings['drafts_keep_days']) ? (time() - (Config::$modSettings['drafts_keep_days'] * 86400)) : 0),
 		)
 	);
 
 	// add them to the draft array for display
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		if (empty($row['subject']))
 			$row['subject'] = $txt['no_subject'];
@@ -467,24 +470,24 @@ function ShowDrafts($member_id, $topic = false, $draft_type = 0)
 		if ($draft_type === 0)
 		{
 			$tmp_subject = shorten_subject(stripslashes($row['subject']), 24);
-			$context['drafts'][] = array(
+			Utils::$context['drafts'][] = array(
 				'subject' => censorText($tmp_subject),
 				'poster_time' => timeformat($row['poster_time']),
-				'link' => '<a href="' . $scripturl . '?action=post;board=' . $row['id_board'] . ';' . (!empty($row['id_topic']) ? 'topic=' . $row['id_topic'] . '.0;' : '') . 'id_draft=' . $row['id_draft'] . '">' . $row['subject'] . '</a>',
+				'link' => '<a href="' . Config::$scripturl . '?action=post;board=' . $row['id_board'] . ';' . (!empty($row['id_topic']) ? 'topic=' . $row['id_topic'] . '.0;' : '') . 'id_draft=' . $row['id_draft'] . '">' . $row['subject'] . '</a>',
 			);
 		}
 		// PM drafts
 		elseif ($draft_type === 1)
 		{
 			$tmp_subject = shorten_subject(stripslashes($row['subject']), 24);
-			$context['drafts'][] = array(
+			Utils::$context['drafts'][] = array(
 				'subject' => censorText($tmp_subject),
 				'poster_time' => timeformat($row['poster_time']),
-				'link' => '<a href="' . $scripturl . '?action=pm;sa=send;id_draft=' . $row['id_draft'] . '">' . (!empty($row['subject']) ? $row['subject'] : $txt['drafts_none']) . '</a>',
+				'link' => '<a href="' . Config::$scripturl . '?action=pm;sa=send;id_draft=' . $row['id_draft'] . '">' . (!empty($row['subject']) ? $row['subject'] : $txt['drafts_none']) . '</a>',
 			);
 		}
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 }
 
 /**
@@ -495,13 +498,13 @@ function ShowDrafts($member_id, $topic = false, $draft_type = 0)
  */
 function XmlDraft($id_draft)
 {
-	global $txt, $context;
+	global $txt;
 
-	header('content-type: text/xml; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
+	header('content-type: text/xml; charset=' . (empty(Utils::$context['character_set']) ? 'ISO-8859-1' : Utils::$context['character_set']));
 
-	echo '<?xml version="1.0" encoding="', $context['character_set'], '"?>
+	echo '<?xml version="1.0" encoding="', Utils::$context['character_set'], '"?>
 	<drafts>
-		<draft id="', $id_draft, '"><![CDATA[', $txt['draft_saved_on'], ': ', timeformat($context['draft_saved_on']), ']]></draft>
+		<draft id="', $id_draft, '"><![CDATA[', $txt['draft_saved_on'], ': ', timeformat(Utils::$context['draft_saved_on']), ']]></draft>
 	</drafts>';
 
 	obExit(false);
@@ -517,11 +520,11 @@ function XmlDraft($id_draft)
  */
 function showProfileDrafts($memID, $draft_type = 0)
 {
-	global $txt, $scripturl, $modSettings, $context, $smcFunc, $options;
+	global $txt, $options;
 
 	// Some initial context.
-	$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
-	$context['current_member'] = $memID;
+	Utils::$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
+	Utils::$context['current_member'] = $memID;
 
 	// If just deleting a draft, do it and then redirect back.
 	if (!empty($_REQUEST['delete']))
@@ -529,7 +532,7 @@ function showProfileDrafts($memID, $draft_type = 0)
 		checkSession('get');
 		$id_delete = (int) $_REQUEST['delete'];
 
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}user_drafts
 			WHERE id_draft = {int:id_draft}
 				AND id_member = {int:id_member}
@@ -541,7 +544,7 @@ function showProfileDrafts($memID, $draft_type = 0)
 			)
 		);
 
-		redirectexit('action=profile;u=' . $memID . ';area=showdrafts;start=' . $context['start']);
+		redirectexit('action=profile;u=' . $memID . ';area=showdrafts;start=' . Utils::$context['start']);
 	}
 
 	// Default to 10.
@@ -550,71 +553,71 @@ function showProfileDrafts($memID, $draft_type = 0)
 
 	// Get the count of applicable drafts on the boards they can (still) see ...
 	// @todo .. should we just let them see their drafts even if they have lost board access ?
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}user_drafts AS ud
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = ud.id_board AND {query_see_board})
 		WHERE id_member = {int:id_member}
-			AND type={int:draft_type}' . (!empty($modSettings['drafts_keep_days']) ? '
+			AND type={int:draft_type}' . (!empty(Config::$modSettings['drafts_keep_days']) ? '
 			AND poster_time > {int:time}' : ''),
 		array(
 			'id_member' => $memID,
 			'draft_type' => $draft_type,
-			'time' => (!empty($modSettings['drafts_keep_days']) ? (time() - ($modSettings['drafts_keep_days'] * 86400)) : 0),
+			'time' => (!empty(Config::$modSettings['drafts_keep_days']) ? (time() - (Config::$modSettings['drafts_keep_days'] * 86400)) : 0),
 		)
 	);
-	list ($msgCount) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($msgCount) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
-	$maxPerPage = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
+	$maxPerPage = empty(Config::$modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) ? $options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
 	$maxIndex = $maxPerPage;
 
 	// Make sure the starting place makes sense and construct our friend the page index.
-	$context['page_index'] = constructPageIndex($scripturl . '?action=profile;u=' . $memID . ';area=showdrafts', $context['start'], $msgCount, $maxIndex);
-	$context['current_page'] = $context['start'] / $maxIndex;
+	Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=profile;u=' . $memID . ';area=showdrafts', Utils::$context['start'], $msgCount, $maxIndex);
+	Utils::$context['current_page'] = Utils::$context['start'] / $maxIndex;
 
 	// Reverse the query if we're past 50% of the pages for better performance.
-	$start = $context['start'];
+	$start = Utils::$context['start'];
 	$reverse = $_REQUEST['start'] > $msgCount / 2;
 	if ($reverse)
 	{
-		$maxIndex = $msgCount < $context['start'] + $maxPerPage + 1 && $msgCount > $context['start'] ? $msgCount - $context['start'] : $maxPerPage;
-		$start = $msgCount < $context['start'] + $maxPerPage + 1 || $msgCount < $context['start'] + $maxPerPage ? 0 : $msgCount - $context['start'] - $maxPerPage;
+		$maxIndex = $msgCount < Utils::$context['start'] + $maxPerPage + 1 && $msgCount > Utils::$context['start'] ? $msgCount - Utils::$context['start'] : $maxPerPage;
+		$start = $msgCount < Utils::$context['start'] + $maxPerPage + 1 || $msgCount < Utils::$context['start'] + $maxPerPage ? 0 : $msgCount - Utils::$context['start'] - $maxPerPage;
 	}
 
 	// Find this user's drafts for the boards they can access
 	// @todo ... do we want to do this?  If they were able to create a draft, do we remove their access to said draft if they loose
 	//           access to the board or if the topic moves to a board they can not see?
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT
 			b.id_board, b.name AS bname,
 			ud.id_member, ud.id_draft, ud.body, ud.smileys_enabled, ud.subject, ud.poster_time, ud.icon, ud.id_topic, ud.locked, ud.is_sticky
 		FROM {db_prefix}user_drafts AS ud
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = ud.id_board AND {query_see_board})
 		WHERE ud.id_member = {int:current_member}
-			AND type = {int:draft_type}' . (!empty($modSettings['drafts_keep_days']) ? '
+			AND type = {int:draft_type}' . (!empty(Config::$modSettings['drafts_keep_days']) ? '
 			AND poster_time > {int:time}' : '') . '
 		ORDER BY ud.id_draft ' . ($reverse ? 'ASC' : 'DESC') . '
 		LIMIT {int:start}, {int:max}',
 		array(
 			'current_member' => $memID,
 			'draft_type' => $draft_type,
-			'time' => (!empty($modSettings['drafts_keep_days']) ? (time() - ($modSettings['drafts_keep_days'] * 86400)) : 0),
+			'time' => (!empty(Config::$modSettings['drafts_keep_days']) ? (time() - (Config::$modSettings['drafts_keep_days'] * 86400)) : 0),
 			'start' => $start,
 			'max' => $maxIndex,
 		)
 	);
 
 	// Start counting at the number of the first message displayed.
-	$counter = $reverse ? $context['start'] + $maxIndex + 1 : $context['start'];
-	$context['posts'] = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	$counter = $reverse ? Utils::$context['start'] + $maxIndex + 1 : Utils::$context['start'];
+	Utils::$context['posts'] = array();
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// Censor....
 		if (empty($row['body']))
 			$row['body'] = '';
 
-		$row['subject'] = $smcFunc['htmltrim']($row['subject']);
+		$row['subject'] = Utils::htmlTrim($row['subject']);
 		if (empty($row['subject']))
 			$row['subject'] = $txt['no_subject'];
 
@@ -625,7 +628,7 @@ function showProfileDrafts($memID, $draft_type = 0)
 		$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], 'draft' . $row['id_draft']);
 
 		// And the array...
-		$context['drafts'][$counter += $reverse ? -1 : 1] = array(
+		Utils::$context['drafts'][$counter += $reverse ? -1 : 1] = array(
 			'body' => $row['body'],
 			'counter' => $counter,
 			'board' => array(
@@ -634,7 +637,7 @@ function showProfileDrafts($memID, $draft_type = 0)
 			),
 			'topic' => array(
 				'id' => $row['id_topic'],
-				'link' => empty($row['id']) ? $row['subject'] : '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['subject'] . '</a>',
+				'link' => empty($row['id']) ? $row['subject'] : '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['subject'] . '</a>',
 			),
 			'subject' => $row['subject'],
 			'time' => timeformat($row['poster_time']),
@@ -646,12 +649,12 @@ function showProfileDrafts($memID, $draft_type = 0)
 			'quickbuttons' => array(
 				'edit' => array(
 					'label' => $txt['draft_edit'],
-					'href' => $scripturl.'?action=post;'.(empty($row['id_topic']) ? 'board='.$row['id_board'] : 'topic='.$row['id_topic']).'.0;id_draft='.$row['id_draft'],
+					'href' => Config::$scripturl.'?action=post;'.(empty($row['id_topic']) ? 'board='.$row['id_board'] : 'topic='.$row['id_topic']).'.0;id_draft='.$row['id_draft'],
 					'icon' => 'modify_button'
 				),
 				'delete' => array(
 					'label' => $txt['draft_delete'],
-					'href' => $scripturl.'?action=profile;u='.$context['member']['id'].';area=showdrafts;delete='.$row['id_draft'].';'.$context['session_var'].'='.$context['session_id'],
+					'href' => Config::$scripturl.'?action=profile;u='.Utils::$context['member']['id'].';area=showdrafts;delete='.$row['id_draft'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'],
 					'javascript' => 'data-confirm="'.$txt['draft_remove'].'"',
 					'class' => 'you_sure',
 					'icon' => 'remove_button'
@@ -659,19 +662,19 @@ function showProfileDrafts($memID, $draft_type = 0)
 			),
 		);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// If the drafts were retrieved in reverse order, get them right again.
 	if ($reverse)
-		$context['drafts'] = array_reverse($context['drafts'], true);
+		Utils::$context['drafts'] = array_reverse(Utils::$context['drafts'], true);
 
 	// Menu tab
-	$context[$context['profile_menu_name']]['tab_data'] = array(
+	Utils::$context[Utils::$context['profile_menu_name']]['tab_data'] = array(
 		'title' => $txt['drafts_show'],
 		'description' => $txt['drafts_show_desc'],
 		'icon_class' => 'main_icons drafts'
 	);
-	$context['sub_template'] = 'showDrafts';
+	Utils::$context['sub_template'] = 'showDrafts';
 }
 
 /**
@@ -683,11 +686,11 @@ function showProfileDrafts($memID, $draft_type = 0)
  */
 function showPMDrafts($memID = -1)
 {
-	global $txt, $user_info, $scripturl, $modSettings, $context, $smcFunc, $options;
+	global $txt, $user_info, $options;
 
 	// init
 	$draft_type = 1;
-	$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
+	Utils::$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
 
 	// If just deleting a draft, do it and then redirect back.
 	if (!empty($_REQUEST['delete']))
@@ -696,7 +699,7 @@ function showPMDrafts($memID = -1)
 		$id_delete = (int) $_REQUEST['delete'];
 		$start = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
 
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}user_drafts
 			WHERE id_draft = {int:id_draft}
 				AND id_member = {int:id_member}
@@ -713,7 +716,7 @@ function showPMDrafts($memID = -1)
 	}
 
 	// perhaps a draft was selected for editing? if so pass this off
-	if (!empty($_REQUEST['id_draft']) && !empty($context['drafts_pm_save']) && $memID == $user_info['id'])
+	if (!empty($_REQUEST['id_draft']) && !empty(Utils::$context['drafts_pm_save']) && $memID == $user_info['id'])
 	{
 		checkSession('get');
 		$id_draft = (int) $_REQUEST['id_draft'];
@@ -725,66 +728,66 @@ function showPMDrafts($memID = -1)
 		$_REQUEST['viewscount'] = 10;
 
 	// Get the count of applicable drafts
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}user_drafts
 		WHERE id_member = {int:id_member}
-			AND type={int:draft_type}' . (!empty($modSettings['drafts_keep_days']) ? '
+			AND type={int:draft_type}' . (!empty(Config::$modSettings['drafts_keep_days']) ? '
 			AND poster_time > {int:time}' : ''),
 		array(
 			'id_member' => $memID,
 			'draft_type' => $draft_type,
-			'time' => (!empty($modSettings['drafts_keep_days']) ? (time() - ($modSettings['drafts_keep_days'] * 86400)) : 0),
+			'time' => (!empty(Config::$modSettings['drafts_keep_days']) ? (time() - (Config::$modSettings['drafts_keep_days'] * 86400)) : 0),
 		)
 	);
-	list ($msgCount) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($msgCount) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
-	$maxPerPage = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
+	$maxPerPage = empty(Config::$modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) ? $options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
 	$maxIndex = $maxPerPage;
 
 	// Make sure the starting place makes sense and construct our friend the page index.
-	$context['page_index'] = constructPageIndex($scripturl . '?action=pm;sa=showpmdrafts', $context['start'], $msgCount, $maxIndex);
-	$context['current_page'] = $context['start'] / $maxIndex;
+	Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=pm;sa=showpmdrafts', Utils::$context['start'], $msgCount, $maxIndex);
+	Utils::$context['current_page'] = Utils::$context['start'] / $maxIndex;
 
 	// Reverse the query if we're past 50% of the total for better performance.
-	$start = $context['start'];
+	$start = Utils::$context['start'];
 	$reverse = $_REQUEST['start'] > $msgCount / 2;
 	if ($reverse)
 	{
-		$maxIndex = $msgCount < $context['start'] + $maxPerPage + 1 && $msgCount > $context['start'] ? $msgCount - $context['start'] : $maxPerPage;
-		$start = $msgCount < $context['start'] + $maxPerPage + 1 || $msgCount < $context['start'] + $maxPerPage ? 0 : $msgCount - $context['start'] - $maxPerPage;
+		$maxIndex = $msgCount < Utils::$context['start'] + $maxPerPage + 1 && $msgCount > Utils::$context['start'] ? $msgCount - Utils::$context['start'] : $maxPerPage;
+		$start = $msgCount < Utils::$context['start'] + $maxPerPage + 1 || $msgCount < Utils::$context['start'] + $maxPerPage ? 0 : $msgCount - Utils::$context['start'] - $maxPerPage;
 	}
 
 	// Load in this user's PM drafts
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT
 			ud.id_member, ud.id_draft, ud.body, ud.subject, ud.poster_time, ud.id_reply, ud.to_list
 		FROM {db_prefix}user_drafts AS ud
 		WHERE ud.id_member = {int:current_member}
-			AND type = {int:draft_type}' . (!empty($modSettings['drafts_keep_days']) ? '
+			AND type = {int:draft_type}' . (!empty(Config::$modSettings['drafts_keep_days']) ? '
 			AND poster_time > {int:time}' : '') . '
 		ORDER BY ud.id_draft ' . ($reverse ? 'ASC' : 'DESC') . '
 		LIMIT {int:start}, {int:max}',
 		array(
 			'current_member' => $memID,
 			'draft_type' => $draft_type,
-			'time' => (!empty($modSettings['drafts_keep_days']) ? (time() - ($modSettings['drafts_keep_days'] * 86400)) : 0),
+			'time' => (!empty(Config::$modSettings['drafts_keep_days']) ? (time() - (Config::$modSettings['drafts_keep_days'] * 86400)) : 0),
 			'start' => $start,
 			'max' => $maxIndex,
 		)
 	);
 
 	// Start counting at the number of the first message displayed.
-	$counter = $reverse ? $context['start'] + $maxIndex + 1 : $context['start'];
-	$context['posts'] = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	$counter = $reverse ? Utils::$context['start'] + $maxIndex + 1 : Utils::$context['start'];
+	Utils::$context['posts'] = array();
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// Censor....
 		if (empty($row['body']))
 			$row['body'] = '';
 
-		$row['subject'] = $smcFunc['htmltrim']($row['subject']);
+		$row['subject'] = Utils::htmlTrim($row['subject']);
 		if (empty($row['subject']))
 			$row['subject'] = $txt['no_subject'];
 
@@ -799,7 +802,7 @@ function showPMDrafts($memID = -1)
 			'to' => array(),
 			'bcc' => array(),
 		);
-		$recipient_ids = (!empty($row['to_list'])) ? $smcFunc['json_decode']($row['to_list'], true) : array();
+		$recipient_ids = (!empty($row['to_list'])) ? Utils::jsonDecode($row['to_list'], true) : array();
 
 		// @todo ... this is a bit ugly since it runs an extra query for every message, do we want this?
 		// at least its only for draft PM's and only the user can see them ... so not heavily used .. still
@@ -809,7 +812,7 @@ function showPMDrafts($memID = -1)
 			$recipient_ids['bcc'] = array_map('intval', $recipient_ids['bcc']);
 			$allRecipients = array_merge($recipient_ids['to'], $recipient_ids['bcc']);
 
-			$request_2 = $smcFunc['db_query']('', '
+			$request_2 = Db::$db->query('', '
 				SELECT id_member, real_name
 				FROM {db_prefix}members
 				WHERE id_member IN ({array_int:member_list})',
@@ -817,16 +820,16 @@ function showPMDrafts($memID = -1)
 					'member_list' => $allRecipients,
 				)
 			);
-			while ($result = $smcFunc['db_fetch_assoc']($request_2))
+			while ($result = Db::$db->fetch_assoc($request_2))
 			{
 				$recipientType = in_array($result['id_member'], $recipient_ids['bcc']) ? 'bcc' : 'to';
 				$recipients[$recipientType][] = $result['real_name'];
 			}
-			$smcFunc['db_free_result']($request_2);
+			Db::$db->free_result($request_2);
 		}
 
 		// Add the items to the array for template use
-		$context['drafts'][$counter += $reverse ? -1 : 1] = array(
+		Utils::$context['drafts'][$counter += $reverse ? -1 : 1] = array(
 			'body' => $row['body'],
 			'counter' => $counter,
 			'subject' => $row['subject'],
@@ -835,16 +838,16 @@ function showPMDrafts($memID = -1)
 			'id_draft' => $row['id_draft'],
 			'recipients' => $recipients,
 			'age' => floor((time() - $row['poster_time']) / 86400),
-			'remaining' => (!empty($modSettings['drafts_keep_days']) ? floor($modSettings['drafts_keep_days'] - ((time() - $row['poster_time']) / 86400)) : 0),
+			'remaining' => (!empty(Config::$modSettings['drafts_keep_days']) ? floor(Config::$modSettings['drafts_keep_days'] - ((time() - $row['poster_time']) / 86400)) : 0),
 			'quickbuttons' => array(
 				'edit' => array(
 					'label' => $txt['draft_edit'],
-					'href' => $scripturl.'?action=pm;sa=showpmdrafts;id_draft='.$row['id_draft'].';'.$context['session_var'].'='.$context['session_id'],
+					'href' => Config::$scripturl.'?action=pm;sa=showpmdrafts;id_draft='.$row['id_draft'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'],
 					'icon' => 'modify_button'
 				),
 				'delete' => array(
 					'label' => $txt['draft_delete'],
-					'href' => $scripturl.'?action=pm;sa=showpmdrafts;delete='.$row['id_draft'].';'.$context['session_var'].'='.$context['session_id'],
+					'href' => Config::$scripturl.'?action=pm;sa=showpmdrafts;delete='.$row['id_draft'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'],
 					'javascript' => 'data-confirm="'.$txt['draft_remove'].'?"',
 					'class' => 'you_sure',
 					'icon' => 'remove_button'
@@ -852,17 +855,17 @@ function showPMDrafts($memID = -1)
 			),
 		);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// if the drafts were retrieved in reverse order, then put them in the right order again.
 	if ($reverse)
-		$context['drafts'] = array_reverse($context['drafts'], true);
+		Utils::$context['drafts'] = array_reverse(Utils::$context['drafts'], true);
 
 	// off to the template we go
-	$context['page_title'] = $txt['drafts'];
-	$context['sub_template'] = 'showPMDrafts';
-	$context['linktree'][] = array(
-		'url' => $scripturl . '?action=pm;sa=showpmdrafts',
+	Utils::$context['page_title'] = $txt['drafts'];
+	Utils::$context['sub_template'] = 'showPMDrafts';
+	Utils::$context['linktree'][] = array(
+		'url' => Config::$scripturl . '?action=pm;sa=showpmdrafts',
 		'name' => $txt['drafts'],
 	);
 }

@@ -11,6 +11,10 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -25,8 +29,6 @@ if (!defined('SMF'))
  */
 function getNotifyPrefs($members, $prefs = '', $process_default = false)
 {
-	global $smcFunc;
-
 	// We want this as an array whether it is or not.
 	$members = is_array($members) ? $members : (array) $members;
 
@@ -38,7 +40,7 @@ function getNotifyPrefs($members, $prefs = '', $process_default = false)
 	// We want to now load the default, which is stored with a member id of 0.
 	$members[] = 0;
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_member, alert_pref, alert_value
 		FROM {db_prefix}user_alerts_prefs
 		WHERE id_member IN ({array_int:members})' . (!empty($prefs) ? '
@@ -48,7 +50,7 @@ function getNotifyPrefs($members, $prefs = '', $process_default = false)
 			'prefs' => $prefs,
 		)
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$result[$row['id_member']][$row['alert_pref']] = $row['alert_value'];
 
 	// We may want to keep the default values separate from a given user's. Or we might not.
@@ -74,8 +76,6 @@ function getNotifyPrefs($members, $prefs = '', $process_default = false)
  */
 function setNotifyPrefs($memID, $prefs = array())
 {
-	global $smcFunc;
-
 	if (empty($prefs) || !is_int($memID))
 		return;
 
@@ -83,7 +83,7 @@ function setNotifyPrefs($memID, $prefs = array())
 	foreach ($prefs as $k => $v)
 		$update_rows[] = array($memID, $k, min(max((int) $v, -128), 127));
 
-	$smcFunc['db_insert']('replace',
+	Db::$db->insert('replace',
 		'{db_prefix}user_alerts_prefs',
 		array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'int'),
 		$update_rows,
@@ -99,12 +99,10 @@ function setNotifyPrefs($memID, $prefs = array())
  */
 function deleteNotifyPrefs($memID, array $prefs)
 {
-	global $smcFunc;
-
 	if (empty($prefs) || empty($memID))
 		return;
 
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}user_alerts_prefs
 		WHERE id_member = {int:member}
 			AND alert_pref IN ({array_string:prefs})',
@@ -123,7 +121,7 @@ function deleteNotifyPrefs($memID, array $prefs)
  */
 function getMemberWithToken($type)
 {
-	global $smcFunc, $board, $topic, $modSettings;
+	global $board, $topic;
 
 	// Keep it sanitary, folks
 	$id_member = !empty($_REQUEST['u']) ? (int) $_REQUEST['u'] : 0;
@@ -133,7 +131,7 @@ function getMemberWithToken($type)
 		fatal_lang_error('unsubscribe_invalid', false);
 
 	// Get the user info we need
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_member AS id, email_address AS email
 		FROM {db_prefix}members
 		WHERE id_member = {int:id_member}',
@@ -141,10 +139,10 @@ function getMemberWithToken($type)
 			'id_member' => $id_member,
 		)
 	);
-	if ($smcFunc['db_num_rows']($request) == 0)
+	if (Db::$db->num_rows($request) == 0)
 		fatal_lang_error('unsubscribe_invalid', false);
-	$member_info = $smcFunc['db_fetch_assoc']($request);
-	$smcFunc['db_free_result']($request);
+	$member_info = Db::$db->fetch_assoc($request);
+	Db::$db->free_result($request);
 
 	// What token are we expecting?
 	$expected_token = createUnsubscribeToken($member_info['id'], $member_info['email'], $type, in_array($type, array('board', 'topic')) && !empty($$type) ? $$type : 0);
@@ -171,7 +169,7 @@ function createUnsubscribeToken($memID, $email, $type = '', $itemID = 0)
 	$token_items = implode(' ', array($memID, $email, $type, $itemID));
 
 	// When the message is public and the key is secret, an HMAC is the appropriate tool.
-	$token = hash_hmac('sha256', $token_items, get_auth_secret(), true);
+	$token = hash_hmac('sha256', $token_items, Config::getAuthSecret(), true);
 
 	// When using an HMAC, 80 bits (10 bytes) is plenty for security.
 	$token = substr($token, 0, 10);

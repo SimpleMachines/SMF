@@ -14,6 +14,8 @@
 namespace SMF\Db;
 
 use SMF\BackwardCompatibility;
+use SMF\Config;
+use SMF\Utils;
 
 /**
  * Class DatabaseApi
@@ -95,35 +97,35 @@ abstract class DatabaseApi
 	/**
 	 * @var string
 	 *
-	 * Local copy of global $db_server variable.
+	 * Local copy of Config::$db_server.
 	 */
 	public string $server;
 
 	/**
 	 * @var string
 	 *
-	 * Local copy of global $db_name variable.
+	 * Local copy of Config::$db_name.
 	 */
 	public string $name;
 
 	/**
 	 * @var string
 	 *
-	 * Local copy of global $db_prefix variable.
+	 * Local copy of Config::$db_prefix.
 	 */
 	public string $prefix;
 
 	/**
 	 * @var int
 	 *
-	 * Local copy of global $db_port variable.
+	 * Local copy of Config::$db_port.
 	 */
 	public int $port;
 
 	/**
 	 * @var bool
 	 *
-	 * Local copy of global $db_persist variable.
+	 * Local copy of Config::$db_persist.
 	 */
 	public bool $persist;
 
@@ -133,7 +135,7 @@ abstract class DatabaseApi
 	 * Whether the database supports 4-byte UTF-8 characters.
 	 *
 	 * For PostgreSQL, this will always be set to true.
-	 * For MySQL, this will be set to the value of the global $db_mb4 variable.
+	 * For MySQL, this will be set to the value of the Config::$db_mb4.
 	 *
 	 * @todo Use auto-detect for MySQL.
 	 */
@@ -142,21 +144,21 @@ abstract class DatabaseApi
 	/**
 	 * @var string
 	 *
-	 * Local copy of global $db_character_set variable.
+	 * Local copy of Config::$db_character_set.
 	 */
 	public string $character_set;
 
 	/**
 	 * @var bool
 	 *
-	 * Local copy of global $db_show_debug variable.
+	 * Local copy of Config::$db_show_debug.
 	 */
 	public bool $show_debug;
 
 	/**
 	 * @var bool
 	 *
-	 * Local copy of global $modSettings['disableQueryCheck'] variable.
+	 * Local copy of Config::$modSettings['disableQueryCheck'].
 	 */
 	public bool $disableQueryCheck;
 
@@ -309,7 +311,7 @@ abstract class DatabaseApi
 	 ***********************/
 
 	/**
-	 * Static method used to instantiate the child class specified by $db_type.
+	 * Static method used to instantiate the child class specified by Config::$db_type.
 	 *
 	 * If $options is empty, correct settings will be determined automatically.
 	 *
@@ -318,13 +320,11 @@ abstract class DatabaseApi
 	 */
 	final public static function load(array $options = array())
 	{
-		global $db_type;
-
 		if (isset(self::$db))
 			return self::$db;
 
 		// Figure out what type of database we are using.
-		switch (!empty($db_type) ? strtolower($db_type) : 'mysql')
+		switch (!empty(Config::$db_type) ? strtolower(Config::$db_type) : 'mysql')
 		{
 			// PostgreSQL is known by many names.
 			case 'postgresql':
@@ -343,7 +343,7 @@ abstract class DatabaseApi
 
 			// Something else?
 			default:
-				$class = ucwords($db_type);
+				$class = ucwords(Config::$db_type);
 
 				// If the necessary class doesn't exist, fall back to MySQL.
 				if (!class_exists(__NAMESPACE__ . '\\APIs\\' . $class))
@@ -384,35 +384,32 @@ abstract class DatabaseApi
 	 */
 	protected function __construct()
 	{
-		global $db_server, $db_name, $db_prefix, $db_port, $db_persist, $db_mb4;
-		global $db_character_set, $db_show_debug, $db_unbuffered, $modSettings;
-
 		if (!isset($this->server))
-			$this->server = (string) $db_server;
+			$this->server = (string) Config::$db_server;
 
 		if (!isset($this->name))
-			$this->name = (string) $db_name;
+			$this->name = (string) Config::$db_name;
 
 		if (!isset($this->prefix))
-			$this->prefix = (string) $db_prefix;
+			$this->prefix = (string) Config::$db_prefix;
 
 		if (!isset($this->port))
-			$this->port = !empty($db_port) ? (int) $db_port : 0;
+			$this->port = !empty(Config::$db_port) ? (int) Config::$db_port : 0;
 
 		if (!isset($this->persist))
-			$this->persist = !empty($db_persist);
+			$this->persist = !empty(Config::$db_persist);
 
 		if (!isset($this->mb4))
-			$this->mb4 = !empty($db_mb4);
+			$this->mb4 = !empty(Config::$db_mb4);
 
 		if (!isset($this->character_set))
-			$this->character_set = (string) $db_character_set;
+			$this->character_set = (string) Config::$db_character_set;
 
 		if (!isset($this->show_debug))
-			$this->show_debug = !empty($db_show_debug);
+			$this->show_debug = !empty(Config::$db_show_debug);
 
 		if (!isset($this->disableQueryCheck))
-			$this->disableQueryCheck = !empty($modSettings['disableQueryCheck']);
+			$this->disableQueryCheck = !empty(Config::$modSettings['disableQueryCheck']);
 
 		$this->prefixReservedTables();
 
@@ -436,18 +433,16 @@ abstract class DatabaseApi
 
 	/**
 	 * For backward compatibility, make various public methods available as
-	 * $smcFunc functions.
+	 * Utils::$smcFunc functions.
 	 */
 	protected function mapToSmcFunc()
 	{
-		global $smcFunc;
-
 		// Only do this once.
-		if (isset($smcFunc['db_fetch_assoc']))
+		if (isset(Utils::$smcFunc['db_fetch_assoc']))
 			return;
 
 		// Scalar values to export.
-		$smcFunc += array(
+		Utils::$smcFunc += array(
 			'db_title' => &$this->title,
 			'db_sybase' => &$this->sybase,
 			'db_case_sensitive' => &$this->case_sensitive,
@@ -519,7 +514,7 @@ abstract class DatabaseApi
 		// Wrap each method in a closure that calls it.
 		foreach ($methods as $key => $method)
 		{
-			$smcFunc[$key] = function(...$args) use ($method)
+			Utils::$smcFunc[$key] = function(...$args) use ($method)
 			{
 				return $this->$method(...$args);
 			};

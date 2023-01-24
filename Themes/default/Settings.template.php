@@ -10,14 +10,17 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+
 /**
  * This pseudo-template defines all the theme options
  */
 function template_options()
 {
-	global $context, $txt, $modSettings;
+	global $txt;
 
-	$context['theme_options'] = array(
+	Utils::$context['theme_options'] = array(
 		$txt['theme_opt_display'],
 		array(
 			'id' => 'show_children',
@@ -35,7 +38,7 @@ function template_options()
 				50 => 50,
 			),
 			'default' => true,
-			'enabled' => empty($modSettings['disableCustomPerPage']),
+			'enabled' => empty(Config::$modSettings['disableCustomPerPage']),
 		),
 		array(
 			'id' => 'messages_per_page',
@@ -48,7 +51,7 @@ function template_options()
 				50 => 50,
 			),
 			'default' => true,
-			'enabled' => empty($modSettings['disableCustomPerPage']),
+			'enabled' => empty(Config::$modSettings['disableCustomPerPage']),
 		),
 		array(
 			'id' => 'view_newest_first',
@@ -69,7 +72,7 @@ function template_options()
 			'id' => 'posts_apply_ignore_list',
 			'label' => $txt['posts_apply_ignore_list'],
 			'default' => false,
-			'enabled' => !empty($modSettings['enable_buddylist'])
+			'enabled' => !empty(Config::$modSettings['enable_buddylist'])
 		),
 		$txt['theme_opt_posting'],
 		array(
@@ -91,19 +94,19 @@ function template_options()
 			'id' => 'wysiwyg_default',
 			'label' => $txt['wysiwyg_default'],
 			'default' => false,
-			'enabled' => empty($modSettings['disable_wysiwyg']),
+			'enabled' => empty(Config::$modSettings['disable_wysiwyg']),
 		),
 		array(
 			'id' => 'drafts_autosave_enabled',
 			'label' => $txt['drafts_autosave_enabled'],
 			'default' => true,
-			'enabled' => !empty($modSettings['drafts_autosave_enabled']) && (!empty($modSettings['drafts_post_enabled']) || !empty($modSettings['drafts_pm_enabled'])),
+			'enabled' => !empty(Config::$modSettings['drafts_autosave_enabled']) && (!empty(Config::$modSettings['drafts_post_enabled']) || !empty(Config::$modSettings['drafts_pm_enabled'])),
 		),
 		array(
 			'id' => 'drafts_show_saved_enabled',
 			'label' => $txt['drafts_show_saved_enabled'],
 			'default' => true,
-			'enabled' => !empty($modSettings['drafts_show_saved_enabled']) && (!empty($modSettings['drafts_post_enabled']) || !empty($modSettings['drafts_pm_enabled'])),
+			'enabled' => !empty(Config::$modSettings['drafts_show_saved_enabled']) && (!empty(Config::$modSettings['drafts_post_enabled']) || !empty(Config::$modSettings['drafts_pm_enabled'])),
 		),
 		$txt['theme_opt_moderation'],
 		array(
@@ -142,7 +145,7 @@ function template_options()
 				'viewweek' => $txt['calendar_viewweek']
 			),
 			'default' => true,
-			'enabled' => !empty($modSettings['cal_enabled']),
+			'enabled' => !empty(Config::$modSettings['cal_enabled']),
 		),
 		array(
 			'id' => 'calendar_start_day',
@@ -153,7 +156,7 @@ function template_options()
 				6 => $txt['days'][6],
 			),
 			'default' => true,
-			'enabled' => !empty($modSettings['cal_enabled']),
+			'enabled' => !empty(Config::$modSettings['cal_enabled']),
 		),
 	);
 }
@@ -163,9 +166,9 @@ function template_options()
  */
 function template_settings()
 {
-	global $context, $txt;
+	global $txt;
 
-	$context['theme_settings'] = array(
+	Utils::$context['theme_settings'] = array(
 		array(
 			'id' => 'header_logo_url',
 			'label' => $txt['header_logo_url'],
@@ -188,7 +191,7 @@ function template_settings()
 		array(
 			'id' => 'smiley_sets_default',
 			'label' => $txt['smileys_default_set_for_theme'],
-			'options' => $context['smiley_sets'],
+			'options' => Utils::$context['smiley_sets'],
 			'type' => 'text',
 		),
 		'',

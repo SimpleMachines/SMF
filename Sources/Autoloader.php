@@ -18,7 +18,7 @@ namespace SMF;
  *
  * @param string $class The fully-qualified class name.
  */
-spl_autoload_register(function ($class) use ($sourcedir)
+spl_autoload_register(function ($class)
 {
 	static $level = 0;
 
@@ -41,6 +41,9 @@ spl_autoload_register(function ($class) use ($sourcedir)
 	}
 
 	// Ensure $sourcedir is set to something valid.
+	if (class_exists('SMF\\Config', false) && isset(Config::$sourcedir))
+		$sourcedir = Config::$sourcedir;
+
 	if (empty($sourcedir) || !is_dir($sourcedir))
 		$sourcedir = __DIR__;
 

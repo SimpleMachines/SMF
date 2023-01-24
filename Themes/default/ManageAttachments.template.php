@@ -10,6 +10,9 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+
 /**
  * This template wraps around the simple settings page to add javascript functionality.
  */
@@ -39,7 +42,7 @@ function template_avatar_settings_below()
  */
 function template_maintenance()
 {
-	global $context, $settings, $scripturl, $txt, $modSettings;
+	global $settings, $txt;
 
 	echo '
 	<div id="manage_attachments">
@@ -49,28 +52,28 @@ function template_maintenance()
 		<div class="windowbg">
 			<dl class="settings">
 				<dt><strong>', $txt['attachment_total'], ':</strong></dt>
-				<dd>', $context['num_attachments'], '</dd>
+				<dd>', Utils::$context['num_attachments'], '</dd>
 				<dt><strong>', $txt['attachment_manager_total_avatars'], ':</strong></dt>
-				<dd>', $context['num_avatars'], '</dd>
+				<dd>', Utils::$context['num_avatars'], '</dd>
 				<dt><strong>', $txt['attachmentdir_size'], ':</strong></dt>
-				<dd>', $context['attachment_total_size'], ' ', $txt['kilobyte'], '</dd>
+				<dd>', Utils::$context['attachment_total_size'], ' ', $txt['kilobyte'], '</dd>
 				<dt><strong>', $txt['attach_current_dir'], ':</strong></dt>
-				<dd class="word_break">', $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']], '</dd>
+				<dd class="word_break">', Config::$modSettings['attachmentUploadDir'][Config::$modSettings['currentAttachmentUploadDir']], '</dd>
 				<dt><strong>', $txt['attachmentdir_size_current'], ':</strong></dt>
-				<dd>', $context['attachment_current_size'], ' ', $txt['kilobyte'], '</dd>
+				<dd>', Utils::$context['attachment_current_size'], ' ', $txt['kilobyte'], '</dd>
 				<dt><strong>', $txt['attachment_space'], ':</strong></dt>
-				<dd>', isset($context['attachment_space']) ? $context['attachment_space'] . ' ' . $txt['kilobyte'] : $txt['attachmentdir_size_not_set'], '</dd>
+				<dd>', isset(Utils::$context['attachment_space']) ? Utils::$context['attachment_space'] . ' ' . $txt['kilobyte'] : $txt['attachmentdir_size_not_set'], '</dd>
 				<dt><strong>', $txt['attachmentdir_files_current'], ':</strong></dt>
-				<dd>', $context['attachment_current_files'], '</dd>
+				<dd>', Utils::$context['attachment_current_files'], '</dd>
 				<dt><strong>', $txt['attachment_files'], ':</strong></dt>
-				<dd>', isset($context['attachment_files']) ? $context['attachment_files'] : $txt['attachmentdir_files_not_set'], '</dd>
+				<dd>', isset(Utils::$context['attachment_files']) ? Utils::$context['attachment_files'] : $txt['attachmentdir_files_not_set'], '</dd>
 			</dl>
 		</div>
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['attachment_integrity_check'], '</h3>
 		</div>
 		<div class="windowbg">
-			<form action="', $scripturl, '?action=admin;area=manageattachments;sa=repair;', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=admin;area=manageattachments;sa=repair;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
 				<p>', $txt['attachment_integrity_check_desc'], '</p>
 				<input type="submit" name="repair" value="', $txt['attachment_check_now'], '" class="button">
 			</form>
@@ -79,7 +82,7 @@ function template_maintenance()
 			<h3 class="catbg">', $txt['attachment_pruning'], '</h3>
 		</div>
 		<div class="windowbg">
-			<form action="', $scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirm(\'', $txt['attachment_pruning_warning'], '\');">
+			<form action="', Config::$scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', Utils::$context['character_set'], '" onsubmit="return confirm(\'', $txt['attachment_pruning_warning'], '\');">
 				<dl class="settings">
 					<dt>', $txt['attachment_remove_old'], '</dt>
 					<dd><input type="number" name="age" value="25" size="4"> ', $txt['days_word'], '</dd>
@@ -87,11 +90,11 @@ function template_maintenance()
 					<dd><input type="text" name="notice" value="', $txt['attachment_delete_admin'], '" size="40"></dd>
 					<input type="submit" name="remove" value="', $txt['remove'], '" class="button">
 					<input type="hidden" name="type" value="attachments">
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 					<input type="hidden" name="sa" value="byAge">
 				</dl>
 			</form>
-			<form action="', $scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirm(\'', $txt['attachment_pruning_warning'], '\');">
+			<form action="', Config::$scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', Utils::$context['character_set'], '" onsubmit="return confirm(\'', $txt['attachment_pruning_warning'], '\');">
 				<dl class="settings">
 					<dt>', $txt['attachment_remove_size'], '</dt>
 					<dd><input type="number" name="size" id="size" value="100" size="4"> ', $txt['kilobyte'], '</dd>
@@ -99,33 +102,33 @@ function template_maintenance()
 					<dd><input type="text" name="notice" value="', $txt['attachment_delete_admin'], '" size="40"></dd>
 					<input type="submit" name="remove" value="', $txt['remove'], '" class="button">
 					<input type="hidden" name="type" value="attachments">
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 					<input type="hidden" name="sa" value="bySize">
 				</dl>
 			</form>
-			<form action="', $scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirm(\'', $txt['attachment_pruning_warning'], '\');">
+			<form action="', Config::$scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', Utils::$context['character_set'], '" onsubmit="return confirm(\'', $txt['attachment_pruning_warning'], '\');">
 				<dl class="settings">
 					<dt>', $txt['attachment_manager_avatars_older'], '</dt>
 					<dd><input type="number" name="age" value="45" size="4"> ', $txt['days_word'], '</dd>
 					<input type="submit" name="remove" value="', $txt['remove'], '" class="button">
 					<input type="hidden" name="type" value="avatars">
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 					<input type="hidden" name="sa" value="byAge">
 				</dl>
 			</form>
 		</div><!-- .windowbg -->
 	</div><!-- #manage_attachments -->';
 
-	if (!empty($context['results']))
+	if (!empty(Utils::$context['results']))
 		echo '
-	<div class="noticebox">', $context['results'], '</div>';
+	<div class="noticebox">', Utils::$context['results'], '</div>';
 
 	echo '
 	<div id="transfer" class="cat_bar">
 		<h3 class="catbg">', $txt['attachment_transfer'], '</h3>
 	</div>
 	<div class="windowbg">
-		<form action="', $scripturl, '?action=admin;area=manageattachments;sa=transfer" method="post" accept-charset="', $context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=manageattachments;sa=transfer" method="post" accept-charset="', Utils::$context['character_set'], '">
 			<p>', $txt['attachment_transfer_desc'], '</p>
 			<dl class="settings">
 				<dt>', $txt['attachment_transfer_from'], '</dt>
@@ -133,7 +136,7 @@ function template_maintenance()
 					<select name="from">
 						<option value="0">', $txt['attachment_transfer_select'], '</option>';
 
-	foreach ($context['attach_dirs'] as $id => $dir)
+	foreach (Utils::$context['attach_dirs'] as $id => $dir)
 		echo '
 						<option value="', $id, '">', $dir, '</option>';
 
@@ -146,8 +149,8 @@ function template_maintenance()
 						<option value="0">', $txt['attachment_transfer_auto_select'], '</option>
 						<option value="-1">', $txt['attachment_transfer_forum_root'], '</option>';
 
-	if (!empty($context['base_dirs']))
-		foreach ($context['base_dirs'] as $id => $dir)
+	if (!empty(Utils::$context['base_dirs']))
+		foreach (Utils::$context['base_dirs'] as $id => $dir)
 			echo '
 						<option value="', $id, '">', $dir, '</option>';
 	else
@@ -162,7 +165,7 @@ function template_maintenance()
 					<select name="to">
 						<option value="0">', $txt['attachment_transfer_select'], '</option>';
 
-	foreach ($context['attach_dirs'] as $id => $dir)
+	foreach (Utils::$context['attach_dirs'] as $id => $dir)
 		echo '
 						<option value="', $id, '">', $dir, '</option>';
 
@@ -170,14 +173,14 @@ function template_maintenance()
 					</select>
 				</dd>';
 
-	if (!empty($modSettings['attachmentDirFileLimit']))
+	if (!empty(Config::$modSettings['attachmentDirFileLimit']))
 		echo '
 				<dt>', $txt['attachment_transfer_empty'], '</dt>
-				<dd><input type="checkbox" name="empty_it"', $context['checked'] ? ' checked' : '', '></dd>';
+				<dd><input type="checkbox" name="empty_it"', Utils::$context['checked'] ? ' checked' : '', '></dd>';
 
 	echo '
 			</dl>
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			<input type="submit" onclick="start_progress()" name="transfer" value="', $txt['attachment_transfer_now'], '" class="button">
 			<div id="progress_msg"></div>
 			<div id="show_progress" class="padding"></div>
@@ -206,10 +209,10 @@ function template_maintenance()
  */
 function template_attachment_repair()
 {
-	global $context, $txt, $scripturl;
+	global $txt;
 
 	// If we've completed just let them know!
-	if ($context['completed'])
+	if (Utils::$context['completed'])
 		echo '
 	<div id="manage_attachments">
 		<div class="cat_bar">
@@ -221,7 +224,7 @@ function template_attachment_repair()
 	</div>';
 
 	// What about if no errors were even found?
-	elseif (!$context['errors_found'])
+	elseif (!Utils::$context['errors_found'])
 		echo '
 	<div id="manage_attachments">
 		<div class="cat_bar">
@@ -237,7 +240,7 @@ function template_attachment_repair()
 	{
 		echo '
 	<div id="manage_attachments">
-		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=manageattachments;sa=repair;fixErrors=1;step=0;substep=0;', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
+		<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=manageattachments;sa=repair;fixErrors=1;step=0;substep=0;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['repair_attachments'], '</h3>
 			</div>
@@ -245,7 +248,7 @@ function template_attachment_repair()
 				<p>', $txt['repair_attachments_error_desc'], '</p>';
 
 		// Loop through each error reporting the status
-		foreach ($context['repair_errors'] as $error => $number)
+		foreach (Utils::$context['repair_errors'] as $error => $number)
 			if (!empty($number))
 				echo '
 				<input type="checkbox" name="to_fix[]" id="', $error, '" value="', $error, '">
@@ -266,9 +269,7 @@ function template_attachment_repair()
  */
 function template_attachment_paths()
 {
-	global $modSettings;
-
-	if (!empty($modSettings['attachment_basedirectories']))
+	if (!empty(Config::$modSettings['attachment_basedirectories']))
 		template_show_list('base_paths');
 
 	template_show_list('attach_paths');

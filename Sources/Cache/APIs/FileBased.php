@@ -15,6 +15,8 @@ namespace SMF\Cache\APIs;
 
 use GlobIterator;
 use FilesystemIterator;
+use SMF\Config;
+use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Cache\CacheApiInterface;
 
@@ -129,7 +131,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 		// SMF Data returns $value and $expired.  $expired has a unix timestamp of when this expires.
 		if (file_exists($file) && ($raw = $this->readFile($file)) !== false)
 		{
-			if (($value = smf_json_decode($raw, true, false)) !== array() && isset($value['expiration']) && $value['expiration'] >= time())
+			if (($value = Utils::jsonDecode($raw, true, false)) !== array() && isset($value['expiration']) && $value['expiration'] >= time())
 				return $value['value'];
 			else
 				@unlink($file);
@@ -213,7 +215,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 	 */
 	public function cacheSettings(array &$config_vars)
 	{
-		global $context, $txt;
+		global $txt;
 
 		$class_name = $this->getImplementationClassKeyName();
 		$class_name_txt_key = strtolower($class_name);
@@ -221,11 +223,11 @@ class FileBased extends CacheApi implements CacheApiInterface
 		$config_vars[] = $txt['cache_'. $class_name_txt_key .'_settings'];
 		$config_vars[] = array('cachedir', $txt['cachedir'], 'file', 'text', 36, 'cache_cachedir');
 
-		if (!isset($context['settings_post_javascript']))
-			$context['settings_post_javascript'] = '';
+		if (!isset(Utils::$context['settings_post_javascript']))
+			Utils::$context['settings_post_javascript'] = '';
 
-		if (empty($context['settings_not_writable']))
-			$context['settings_post_javascript'] .= '
+		if (empty(Utils::$context['settings_not_writable']))
+			Utils::$context['settings_post_javascript'] .= '
 			$("#cache_accelerator").change(function (e) {
 				var cache_type = e.currentTarget.value;
 				$("#cachedir").prop("disabled", cache_type != "'. $class_name .'");
@@ -241,11 +243,9 @@ class FileBased extends CacheApi implements CacheApiInterface
 	 */
 	public function setCachedir($dir = null)
 	{
-		global $cachedir;
-
 		// If its invalid, use SMF's.
 		if (is_null($dir) || !is_writable($dir))
-			$this->cachedir = $cachedir;
+			$this->cachedir = Config::$cachedir;
 
 		else
 			$this->cachedir = $dir;

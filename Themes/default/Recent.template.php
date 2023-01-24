@@ -10,12 +10,15 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+
 /**
  * Template for showing recent posts
  */
 function template_recent()
 {
-	global $context, $txt;
+	global $txt;
 
 	echo '
 	<div id="recent" class="main_section">
@@ -25,17 +28,17 @@ function template_recent()
 			</h2>
 		</div>';
 
-	if (!empty($context['page_index']))
+	if (!empty(Utils::$context['page_index']))
 		echo '
 		<div class="pagesection">
-			<div class="pagelinks">' . $context['page_index'] . '</div>
+			<div class="pagelinks">' . Utils::$context['page_index'] . '</div>
 		</div>';
 
-	if (empty($context['posts']))
+	if (empty(Utils::$context['posts']))
 		echo '
 		<div class="windowbg">', $txt['no_messages'], '</div>';
 
-	foreach ($context['posts'] as $post)
+	foreach (Utils::$context['posts'] as $post)
 	{
 		echo '
 		<div class="', $post['css_class'], '">
@@ -55,7 +58,7 @@ function template_recent()
 
 	echo '
 		<div class="pagesection">
-			<div class="pagelinks">', $context['page_index'], '</div>
+			<div class="pagelinks">', Utils::$context['page_index'], '</div>
 		</div>
 	</div><!-- #recent -->';
 }
@@ -65,10 +68,10 @@ function template_recent()
  */
 function template_unread()
 {
-	global $context, $txt, $scripturl, $modSettings, $board_info;
+	global $txt, $board_info;
 
 	// User action pop on mobile screen (or actually small screen), this uses responsive css does not check mobile device.
-	if (!empty($context['recent_buttons']))
+	if (!empty(Utils::$context['recent_buttons']))
 		echo '
 	<div id="mobile_action" class="popup_container">
 		<div class="popup_window description">
@@ -76,7 +79,7 @@ function template_unread()
 				', $txt['mobile_action'], '
 				<a href="javascript:void(0);" class="main_icons hide_popup"></a>
 			</div>
-			', template_button_strip($context['recent_buttons']), '
+			', template_button_strip(Utils::$context['recent_buttons']), '
 		</div>
 	</div>';
 
@@ -84,30 +87,30 @@ function template_unread()
 	<div id="recent" class="main_content">
 		<div id="display_head" class="information">
 			<h2 class="display_title">
-				<span>', (!empty($board_info['name']) ? $board_info['name'] . ' - ' : '') . $context['page_title'], '</span>
+				<span>', (!empty($board_info['name']) ? $board_info['name'] . ' - ' : '') . Utils::$context['page_title'], '</span>
 			</h2>
 		</div>';
 
-	if ($context['showCheckboxes'])
+	if (Utils::$context['showCheckboxes'])
 		echo '
-		<form action="', $scripturl, '?action=quickmod" method="post" accept-charset="', $context['character_set'], '" name="quickModForm" id="quickModForm">
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+		<form action="', Config::$scripturl, '?action=quickmod" method="post" accept-charset="', Utils::$context['character_set'], '" name="quickModForm" id="quickModForm">
+			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			<input type="hidden" name="qaction" value="markread">
-			<input type="hidden" name="redirect_url" value="action=unread', (!empty($context['showing_all_topics']) ? ';all' : ''), $context['querystring_board_limits'], '">';
+			<input type="hidden" name="redirect_url" value="action=unread', (!empty(Utils::$context['showing_all_topics']) ? ';all' : ''), Utils::$context['querystring_board_limits'], '">';
 
-	if (!empty($context['topics']))
+	if (!empty(Utils::$context['topics']))
 	{
 		echo '
 			<div class="pagesection">
-				', $context['menu_separator'], '
+				', Utils::$context['menu_separator'], '
 				<div class="pagelinks floatleft">
 					<a href="#bot" class="button">', $txt['go_down'], '</a>
-					', $context['page_index'], '
+					', Utils::$context['page_index'], '
 				</div>
-				', !empty($context['recent_buttons']) ? template_button_strip($context['recent_buttons'], 'right') : '';
+				', !empty(Utils::$context['recent_buttons']) ? template_button_strip(Utils::$context['recent_buttons'], 'right') : '';
 
 		// Mobile action (top)
-		if (!empty($context['recent_buttons']))
+		if (!empty(Utils::$context['recent_buttons']))
 			echo '
 				<div class="mobile_buttons floatright">
 					<a class="button mobile_act">', $txt['mobile_action'], '</a>
@@ -121,17 +124,17 @@ function template_unread()
 				<div id="topic_header" class="title_bar">
 					<div class="board_icon"></div>
 					<div class="info">
-						<a href="', $scripturl, '?action=unread', $context['showing_all_topics'] ? ';all' : '', $context['querystring_board_limits'], ';sort=subject', $context['sort_by'] == 'subject' && $context['sort_direction'] == 'up' ? ';desc' : '', '">', $txt['subject'], $context['sort_by'] == 'subject' ? ' <span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
+						<a href="', Config::$scripturl, '?action=unread', Utils::$context['showing_all_topics'] ? ';all' : '', Utils::$context['querystring_board_limits'], ';sort=subject', Utils::$context['sort_by'] == 'subject' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', '">', $txt['subject'], Utils::$context['sort_by'] == 'subject' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
 					</div>
 					<div class="board_stats centertext">
-						<a href="', $scripturl, '?action=unread', $context['showing_all_topics'] ? ';all' : '', $context['querystring_board_limits'], ';sort=replies', $context['sort_by'] == 'replies' && $context['sort_direction'] == 'up' ? ';desc' : '', '">', $txt['replies'], $context['sort_by'] == 'replies' ? ' <span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
+						<a href="', Config::$scripturl, '?action=unread', Utils::$context['showing_all_topics'] ? ';all' : '', Utils::$context['querystring_board_limits'], ';sort=replies', Utils::$context['sort_by'] == 'replies' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', '">', $txt['replies'], Utils::$context['sort_by'] == 'replies' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
 					</div>
 					<div class="lastpost">
-						<a href="', $scripturl, '?action=unread', $context['showing_all_topics'] ? ';all' : '', $context['querystring_board_limits'], ';sort=last_post', $context['sort_by'] == 'last_post' && $context['sort_direction'] == 'up' ? ';desc' : '', '">', $txt['last_post'], $context['sort_by'] == 'last_post' ? ' <span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
+						<a href="', Config::$scripturl, '?action=unread', Utils::$context['showing_all_topics'] ? ';all' : '', Utils::$context['querystring_board_limits'], ';sort=last_post', Utils::$context['sort_by'] == 'last_post' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', '">', $txt['last_post'], Utils::$context['sort_by'] == 'last_post' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
 					</div>';
 
 		// Show a "select all" box for quick moderation?
-		if ($context['showCheckboxes'])
+		if (Utils::$context['showCheckboxes'])
 			echo '
 					<div class="moderation">
 						<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');">
@@ -141,7 +144,7 @@ function template_unread()
 				</div><!-- #topic_header -->
 				<div id="topic_container">';
 
-		foreach ($context['topics'] as $topic)
+		foreach (Utils::$context['topics'] as $topic)
 		{
 			echo '
 					<div class="', $topic['css_class'], '">
@@ -173,7 +176,7 @@ function template_unread()
 			echo '
 							<div class="recent_title">
 								<a href="', $topic['new_href'], '" id="newicon', $topic['first_post']['id'], '" class="new_posts">' . $txt['new'] . '</a>
-								', $topic['is_sticky'] ? '<strong>' : '', '<span class="preview" title="', $topic[(empty($modSettings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '"><span id="msg_' . $topic['first_post']['id'] . '">', $topic['first_post']['link'], '</span></span>', $topic['is_sticky'] ? '</strong>' : '', '
+								', $topic['is_sticky'] ? '<strong>' : '', '<span class="preview" title="', $topic[(empty(Config::$modSettings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '"><span id="msg_' . $topic['first_post']['id'] . '">', $topic['first_post']['link'], '</span></span>', $topic['is_sticky'] ? '</strong>' : '', '
 							</div>
 							<p class="floatleft">
 								', $topic['first_post']['started_by'], '
@@ -191,7 +194,7 @@ function template_unread()
 							', sprintf($txt['last_post_topic'], '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', $topic['last_post']['member']['link']), '
 						</div>';
 
-			if ($context['showCheckboxes'])
+			if (Utils::$context['showCheckboxes'])
 				echo '
 						<div class="moderation">
 							<input type="checkbox" name="topics[]" value="', $topic['id'], '">
@@ -201,7 +204,7 @@ function template_unread()
 					</div><!-- $topic[css_class] -->';
 		}
 
-		if (empty($context['topics']))
+		if (empty(Utils::$context['topics']))
 			echo '
 					<div style="display: none;"></div>';
 
@@ -211,15 +214,15 @@ function template_unread()
 
 		echo '
 			<div class="pagesection">
-				', !empty($context['recent_buttons']) ? template_button_strip($context['recent_buttons'], 'right') : '', '
-				', $context['menu_separator'], '
+				', !empty(Utils::$context['recent_buttons']) ? template_button_strip(Utils::$context['recent_buttons'], 'right') : '', '
+				', Utils::$context['menu_separator'], '
 				<div class="pagelinks floatleft">
 					<a href="#recent" class="button">', $txt['go_up'], '</a>
-					', $context['page_index'], '
+					', Utils::$context['page_index'], '
 				</div>';
 
 		// Mobile action (bottom)
-		if (!empty($context['recent_buttons']))
+		if (!empty(Utils::$context['recent_buttons']))
 		echo '
 				<div class="mobile_buttons floatright">
 					<a class="button mobile_act">', $txt['mobile_action'], '</a>
@@ -232,18 +235,18 @@ function template_unread()
 		echo '
 			<div class="infobox">
 				<p class="centertext">
-					', $context['showing_all_topics'] ? $txt['topic_alert_none'] : sprintf($txt['unread_topics_visit_none'], $scripturl), '
+					', Utils::$context['showing_all_topics'] ? $txt['topic_alert_none'] : sprintf($txt['unread_topics_visit_none'], Config::$scripturl), '
 				</p>
 			</div>';
 
-	if ($context['showCheckboxes'])
+	if (Utils::$context['showCheckboxes'])
 		echo '
 		</form>';
 
 	echo '
 	</div><!-- #recent -->';
 
-	if (empty($context['no_topic_listing']))
+	if (empty(Utils::$context['no_topic_listing']))
 		template_topic_legend();
 }
 
@@ -252,10 +255,10 @@ function template_unread()
  */
 function template_replies()
 {
-	global $context, $txt, $scripturl, $modSettings, $board_info;
+	global $txt, $board_info;
 
 	// User action pop on mobile screen (or actually small screen), this uses responsive css does not check mobile device.
-	if (!empty($context['recent_buttons']))
+	if (!empty(Utils::$context['recent_buttons']))
 		echo '
 	<div id="mobile_action" class="popup_container">
 		<div class="popup_window description">
@@ -263,7 +266,7 @@ function template_replies()
 				', $txt['mobile_action'], '
 				<a href="javascript:void(0);" class="main_icons hide_popup"></a>
 			</div>
-			', template_button_strip($context['recent_buttons']), '
+			', template_button_strip(Utils::$context['recent_buttons']), '
 		</div>
 	</div>';
 
@@ -271,30 +274,30 @@ function template_replies()
 	<div id="recent">
 		<div id="display_head" class="information">
 			<h2 class="display_title">
-				<span>', (!empty($board_info['name']) ? $board_info['name'] . ' - ' : '') . $context['page_title'], '</span>
+				<span>', (!empty($board_info['name']) ? $board_info['name'] . ' - ' : '') . Utils::$context['page_title'], '</span>
 			</h2>
 		</div>';
 
-	if ($context['showCheckboxes'])
+	if (Utils::$context['showCheckboxes'])
 		echo '
-		<form action="', $scripturl, '?action=quickmod" method="post" accept-charset="', $context['character_set'], '" name="quickModForm" id="quickModForm">
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+		<form action="', Config::$scripturl, '?action=quickmod" method="post" accept-charset="', Utils::$context['character_set'], '" name="quickModForm" id="quickModForm">
+			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			<input type="hidden" name="qaction" value="markread">
-			<input type="hidden" name="redirect_url" value="action=unreadreplies', (!empty($context['showing_all_topics']) ? ';all' : ''), $context['querystring_board_limits'], '">';
+			<input type="hidden" name="redirect_url" value="action=unreadreplies', (!empty(Utils::$context['showing_all_topics']) ? ';all' : ''), Utils::$context['querystring_board_limits'], '">';
 
-	if (!empty($context['topics']))
+	if (!empty(Utils::$context['topics']))
 	{
 		echo '
 			<div class="pagesection">
-				', $context['menu_separator'], '
+				', Utils::$context['menu_separator'], '
 				<div class="pagelinks floatleft">
 					<a href="#bot" class="button">', $txt['go_down'], '</a>
-					', $context['page_index'], '
+					', Utils::$context['page_index'], '
 				</div>
-				', !empty($context['recent_buttons']) ? template_button_strip($context['recent_buttons'], 'right') : '';
+				', !empty(Utils::$context['recent_buttons']) ? template_button_strip(Utils::$context['recent_buttons'], 'right') : '';
 
 		// Mobile action (top)
-		if (!empty($context['recent_buttons']))
+		if (!empty(Utils::$context['recent_buttons']))
 			echo '
 				<div class="mobile_buttons floatright">
 					<a class="button mobile_act">', $txt['mobile_action'], '</a>
@@ -308,17 +311,17 @@ function template_replies()
 				<div id="topic_header" class="title_bar">
 					<div class="board_icon"></div>
 					<div class="info">
-						<a href="', $scripturl, '?action=unreadreplies', $context['querystring_board_limits'], ';sort=subject', $context['sort_by'] === 'subject' && $context['sort_direction'] === 'up' ? ';desc' : '', '">', $txt['subject'], $context['sort_by'] === 'subject' ? ' <span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
+						<a href="', Config::$scripturl, '?action=unreadreplies', Utils::$context['querystring_board_limits'], ';sort=subject', Utils::$context['sort_by'] === 'subject' && Utils::$context['sort_direction'] === 'up' ? ';desc' : '', '">', $txt['subject'], Utils::$context['sort_by'] === 'subject' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
 					</div>
 					<div class="board_stats centertext">
-						<a href="', $scripturl, '?action=unreadreplies', $context['querystring_board_limits'], ';sort=replies', $context['sort_by'] === 'replies' && $context['sort_direction'] === 'up' ? ';desc' : '', '">', $txt['replies'], $context['sort_by'] === 'replies' ? ' <span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
+						<a href="', Config::$scripturl, '?action=unreadreplies', Utils::$context['querystring_board_limits'], ';sort=replies', Utils::$context['sort_by'] === 'replies' && Utils::$context['sort_direction'] === 'up' ? ';desc' : '', '">', $txt['replies'], Utils::$context['sort_by'] === 'replies' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
 					</div>
 					<div class="lastpost">
-						<a href="', $scripturl, '?action=unreadreplies', $context['querystring_board_limits'], ';sort=last_post', $context['sort_by'] === 'last_post' && $context['sort_direction'] === 'up' ? ';desc' : '', '">', $txt['last_post'], $context['sort_by'] === 'last_post' ? ' <span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
+						<a href="', Config::$scripturl, '?action=unreadreplies', Utils::$context['querystring_board_limits'], ';sort=last_post', Utils::$context['sort_by'] === 'last_post' && Utils::$context['sort_direction'] === 'up' ? ';desc' : '', '">', $txt['last_post'], Utils::$context['sort_by'] === 'last_post' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
 					</div>';
 
 		// Show a "select all" box for quick moderation?
-		if ($context['showCheckboxes'])
+		if (Utils::$context['showCheckboxes'])
 			echo '
 					<div class="moderation">
 						<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');">
@@ -328,7 +331,7 @@ function template_replies()
 				</div><!-- #topic_header -->
 				<div id="topic_container">';
 
-		foreach ($context['topics'] as $topic)
+		foreach (Utils::$context['topics'] as $topic)
 		{
 			echo '
 					<div class="', $topic['css_class'], '">
@@ -360,7 +363,7 @@ function template_replies()
 			echo '
 							<div class="recent_title">
 								<a href="', $topic['new_href'], '" id="newicon', $topic['first_post']['id'], '" class="new_posts">' . $txt['new'] . '</a>
-								', $topic['is_sticky'] ? '<strong>' : '', '<span title="', $topic[(empty($modSettings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '"><span id="msg_' . $topic['first_post']['id'] . '">', $topic['first_post']['link'], '</span>', $topic['is_sticky'] ? '</strong>' : '', '
+								', $topic['is_sticky'] ? '<strong>' : '', '<span title="', $topic[(empty(Config::$modSettings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '"><span id="msg_' . $topic['first_post']['id'] . '">', $topic['first_post']['link'], '</span>', $topic['is_sticky'] ? '</strong>' : '', '
 							</div>
 							<p class="floatleft">
 								', $topic['first_post']['started_by'], '
@@ -378,7 +381,7 @@ function template_replies()
 							', sprintf($txt['last_post_topic'], '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', $topic['last_post']['member']['link']), '
 						</div>';
 
-			if ($context['showCheckboxes'])
+			if (Utils::$context['showCheckboxes'])
 				echo '
 						<div class="moderation">
 							<input type="checkbox" name="topics[]" value="', $topic['id'], '">
@@ -392,15 +395,15 @@ function template_replies()
 				</div><!-- #topic_container -->
 			</div><!-- #unreadreplies -->
 			<div class="pagesection">
-				', !empty($context['recent_buttons']) ? template_button_strip($context['recent_buttons'], 'right') : '', '
-				', $context['menu_separator'], '
+				', !empty(Utils::$context['recent_buttons']) ? template_button_strip(Utils::$context['recent_buttons'], 'right') : '', '
+				', Utils::$context['menu_separator'], '
 				<div class="pagelinks floatleft">
 					<a href="#recent" class="button">', $txt['go_up'], '</a>
-					', $context['page_index'], '
+					', Utils::$context['page_index'], '
 				</div>';
 
 		// Mobile action (bottom)
-		if (!empty($context['recent_buttons']))
+		if (!empty(Utils::$context['recent_buttons']))
 			echo '
 				<div class="mobile_buttons floatright">
 					<a class="button mobile_act">', $txt['mobile_action'], '</a>
@@ -413,18 +416,18 @@ function template_replies()
 		echo '
 			<div class="infobox">
 				<p class="centertext">
-					', $context['showing_all_topics'] ? $txt['topic_alert_none'] : $txt['updated_topics_visit_none'], '
+					', Utils::$context['showing_all_topics'] ? $txt['topic_alert_none'] : $txt['updated_topics_visit_none'], '
 				</p>
 			</div>';
 
-	if ($context['showCheckboxes'])
+	if (Utils::$context['showCheckboxes'])
 		echo '
 		</form>';
 
 	echo '
 	</div><!-- #recent -->';
 
-	if (empty($context['no_topic_listing']))
+	if (empty(Utils::$context['no_topic_listing']))
 		template_topic_legend();
 }
 

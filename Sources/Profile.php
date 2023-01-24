@@ -16,7 +16,10 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Config;
+use SMF\Utils;
 use SMF\Cache\CacheApi;
+use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -28,15 +31,15 @@ if (!defined('SMF'))
  */
 function ModifyProfile($post_errors = array())
 {
-	global $txt, $scripturl, $user_info, $context, $sourcedir, $user_profile, $cur_profile;
-	global $modSettings, $memberContext, $profile_vars, $post_errors, $smcFunc;
+	global $txt, $user_info, $user_profile, $cur_profile;
+	global $memberContext, $profile_vars, $post_errors;
 
 	// Don't reload this as we may have processed error strings.
 	if (empty($post_errors))
 		loadLanguage('Profile+Drafts');
 	loadTemplate('Profile');
 
-	require_once($sourcedir . '/Subs-Menu.php');
+	require_once(Config::$sourcedir . '/Subs-Menu.php');
 
 	// Did we get the user by name...
 	if (isset($_REQUEST['user']))
@@ -59,15 +62,15 @@ function ModifyProfile($post_errors = array())
 	// If all went well, we have a valid member ID!
 	list ($memID) = $memberResult;
 	$memID = (int) $memID;
-	$context['id_member'] = $memID;
+	Utils::$context['id_member'] = $memID;
 	$cur_profile = $user_profile[$memID];
 
 	// Let's have some information about this member ready, too.
 	loadMemberContext($memID);
-	$context['member'] = $memberContext[$memID];
+	Utils::$context['member'] = $memberContext[$memID];
 
 	// Is this the profile of the user himself or herself?
-	$context['user']['is_owner'] = $memID == $user_info['id'];
+	Utils::$context['user']['is_owner'] = $memID == $user_info['id'];
 
 	// Group management isn't actually a permission. But we need it to be for this, so we need a phantom permission.
 	// And we care about what the current user can do, not what the user whose profile it is.
@@ -75,11 +78,11 @@ function ModifyProfile($post_errors = array())
 		$user_info['permissions'][] = 'approve_group_requests';
 
 	// If paid subscriptions are enabled, make sure we actually have at least one subscription available...
-	$context['subs_available'] = false;
+	Utils::$context['subs_available'] = false;
 
-	if (!empty($modSettings['paid_enabled']))
+	if (!empty(Config::$modSettings['paid_enabled']))
 	{
-		$get_active_subs = $smcFunc['db_query']('', '
+		$get_active_subs = Db::$db->query('', '
 			SELECT COUNT(*)
 			FROM {db_prefix}subscriptions
 			WHERE active = {int:active}', array(
@@ -87,11 +90,11 @@ function ModifyProfile($post_errors = array())
 			)
 		);
 
-		list ($num_subs) = $smcFunc['db_fetch_row']($get_active_subs);
+		list ($num_subs) = Db::$db->fetch_row($get_active_subs);
 
-		$context['subs_available'] = ($num_subs > 0);
+		Utils::$context['subs_available'] = ($num_subs > 0);
 
-		$smcFunc['db_free_result']($get_active_subs);
+		Db::$db->free_result($get_active_subs);
 	}
 
 	/* Define all the sections within the profile area!
@@ -162,7 +165,7 @@ function ModifyProfile($post_errors = array())
 					'subsections' => array(
 						'messages' => array($txt['showMessages'], array('is_not_guest', 'profile_view')),
 						'topics' => array($txt['showTopics'], array('is_not_guest', 'profile_view')),
-						'unwatchedtopics' => array($txt['showUnwatched'], array('is_not_guest', 'profile_view'), 'enabled' => $context['user']['is_owner']),
+						'unwatchedtopics' => array($txt['showUnwatched'], array('is_not_guest', 'profile_view'), 'enabled' => Utils::$context['user']['is_owner']),
 						'attach' => array($txt['showAttachments'], array('is_not_guest', 'profile_view')),
 					),
 					'permission' => array(
@@ -175,7 +178,7 @@ function ModifyProfile($post_errors = array())
 					'file' => 'Drafts.php',
 					'function' => 'showProfileDrafts',
 					'icon' => 'drafts',
-					'enabled' => !empty($modSettings['drafts_post_enabled']) && $context['user']['is_owner'],
+					'enabled' => !empty(Config::$modSettings['drafts_post_enabled']) && Utils::$context['user']['is_owner'],
 					'permission' => array(
 						'own' => 'is_not_guest',
 						'any' => array(),
@@ -209,9 +212,9 @@ function ModifyProfile($post_errors = array())
 					'subsections' => array(
 						'activity' => array($txt['trackActivity'], 'moderate_forum'),
 						'ip' => array($txt['trackIP'], 'moderate_forum'),
-						'edits' => array($txt['trackEdits'], 'moderate_forum', 'enabled' => !empty($modSettings['userlog_enabled'])),
-						'groupreq' => array($txt['trackGroupRequests'], 'approve_group_requests', 'enabled' => !empty($modSettings['show_group_membership'])),
-						'logins' => array($txt['trackLogins'], 'moderate_forum', 'enabled' => !empty($modSettings['loginHistoryDays'])),
+						'edits' => array($txt['trackEdits'], 'moderate_forum', 'enabled' => !empty(Config::$modSettings['userlog_enabled'])),
+						'groupreq' => array($txt['trackGroupRequests'], 'approve_group_requests', 'enabled' => !empty(Config::$modSettings['show_group_membership'])),
+						'logins' => array($txt['trackLogins'], 'moderate_forum', 'enabled' => !empty(Config::$modSettings['loginHistoryDays'])),
 					),
 					'permission' => array(
 						'own' => array('moderate_forum', 'approve_group_requests'),
@@ -220,7 +223,7 @@ function ModifyProfile($post_errors = array())
 				),
 				'viewwarning' => array(
 					'label' => $txt['profile_view_warnings'],
-					'enabled' => $modSettings['warning_settings'][0] == 1 && $cur_profile['warning'],
+					'enabled' => Config::$modSettings['warning_settings'][0] == 1 && $cur_profile['warning'],
 					'file' => 'Profile-View.php',
 					'function' => 'viewWarning',
 					'icon' => 'warning',
@@ -239,7 +242,7 @@ function ModifyProfile($post_errors = array())
 					'file' => 'Profile-Modify.php',
 					'function' => 'account',
 					'icon' => 'maintain',
-					'enabled' => $context['user']['is_admin'] || ($cur_profile['id_group'] != 1 && !in_array(1, explode(',', $cur_profile['additional_groups']))),
+					'enabled' => Utils::$context['user']['is_admin'] || ($cur_profile['id_group'] != 1 && !in_array(1, explode(',', $cur_profile['additional_groups']))),
 					'sc' => 'post',
 					'token' => 'profile-ac%u',
 					'password' => true,
@@ -253,7 +256,7 @@ function ModifyProfile($post_errors = array())
 					'file' => 'Profile-Modify.php',
 					'function' => 'tfasetup',
 					'token' => 'profile-tfa%u',
-					'enabled' => !empty($modSettings['tfa_mode']),
+					'enabled' => !empty(Config::$modSettings['tfa_mode']),
 					'hidden' => true,
 					'select' => 'account',
 					'permission' => array(
@@ -268,7 +271,7 @@ function ModifyProfile($post_errors = array())
 					'token' => 'profile-tfa%u',
 					'sc' => 'post',
 					'password' => true,
-					'enabled' => !empty($modSettings['tfa_mode']),
+					'enabled' => !empty(Config::$modSettings['tfa_mode']),
 					'hidden' => true,
 					'select' => 'account',
 					'permission' => array(
@@ -322,7 +325,7 @@ function ModifyProfile($post_errors = array())
 					'file' => 'Profile-Modify.php',
 					'function' => 'ignoreboards',
 					'icon' => 'boards',
-					'enabled' => !empty($modSettings['allow_ignore_boards']),
+					'enabled' => !empty(Config::$modSettings['allow_ignore_boards']),
 					'sc' => 'post',
 					'token' => 'profile-ib%u',
 					'permission' => array(
@@ -335,7 +338,7 @@ function ModifyProfile($post_errors = array())
 					'file' => 'Profile-Modify.php',
 					'function' => 'editBuddyIgnoreLists',
 					'icon' => 'frenemy',
-					'enabled' => !empty($modSettings['enable_buddylist']) && $context['user']['is_owner'],
+					'enabled' => !empty(Config::$modSettings['enable_buddylist']) && Utils::$context['user']['is_owner'],
 					'sc' => 'post',
 					'subsections' => array(
 						'buddies' => array($txt['editBuddies']),
@@ -351,7 +354,7 @@ function ModifyProfile($post_errors = array())
 					'file' => 'Profile-Modify.php',
 					'function' => 'groupMembership',
 					'icon' => 'people',
-					'enabled' => !empty($modSettings['show_group_membership']) && $context['user']['is_owner'],
+					'enabled' => !empty(Config::$modSettings['show_group_membership']) && Utils::$context['user']['is_owner'],
 					'sc' => 'request',
 					'token' => 'profile-gm%u',
 					'token_type' => 'request',
@@ -367,7 +370,7 @@ function ModifyProfile($post_errors = array())
 			'areas' => array(
 				'sendpm' => array(
 					'label' => $txt['profileSendIm'],
-					'custom_url' => $scripturl . '?action=pm;sa=send',
+					'custom_url' => Config::$scripturl . '?action=pm;sa=send',
 					'icon' => 'personal_message',
 					'enabled' => allowedTo('profile_view'),
 					'permission' => array(
@@ -377,7 +380,7 @@ function ModifyProfile($post_errors = array())
 				),
 				'report' => array(
 					'label' => $txt['report_profile'],
-					'custom_url' => $scripturl . '?action=reporttm;' . $context['session_var'] . '=' . $context['session_id'],
+					'custom_url' => Config::$scripturl . '?action=reporttm;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 					'icon' => 'warning',
 					'enabled' => allowedTo('profile_view'),
 					'permission' => array(
@@ -387,7 +390,7 @@ function ModifyProfile($post_errors = array())
 				),
 				'issuewarning' => array(
 					'label' => $txt['profile_issue_warning'],
-					'enabled' => $modSettings['warning_settings'][0] == 1,
+					'enabled' => Config::$modSettings['warning_settings'][0] == 1,
 					'file' => 'Profile-Actions.php',
 					'function' => 'issueWarning',
 					'icon' => 'warning',
@@ -399,7 +402,7 @@ function ModifyProfile($post_errors = array())
 				),
 				'banuser' => array(
 					'label' => $txt['profileBanUser'],
-					'custom_url' => $scripturl . '?action=admin;area=ban;sa=add',
+					'custom_url' => Config::$scripturl . '?action=admin;area=ban;sa=add',
 					'icon' => 'ban',
 					'enabled' => $cur_profile['id_group'] != 1 && !in_array(1, explode(',', $cur_profile['additional_groups'])),
 					'permission' => array(
@@ -412,7 +415,7 @@ function ModifyProfile($post_errors = array())
 					'file' => 'Profile-Actions.php',
 					'function' => 'subscriptions',
 					'icon' => 'paid',
-					'enabled' => !empty($modSettings['paid_enabled']) && $context['subs_available'],
+					'enabled' => !empty(Config::$modSettings['paid_enabled']) && Utils::$context['subs_available'],
 					'permission' => array(
 						'own' => array('is_not_guest'),
 						'any' => array('moderate_forum'),
@@ -481,7 +484,7 @@ function ModifyProfile($post_errors = array())
 				// A logout link just for the popup menu.
 				'logout' => array(
 					'label' => $txt['logout'],
-					'custom_url' => $scripturl . '?action=logout;%1$s=%2$s',
+					'custom_url' => Config::$scripturl . '?action=logout;%1$s=%2$s',
 					'icon' => 'logout',
 					'enabled' => !empty($_REQUEST['area']) && $_REQUEST['area'] === 'popup',
 					'permission' => array(
@@ -501,7 +504,7 @@ function ModifyProfile($post_errors = array())
 	call_integration_hook('integrate_pre_profile_areas', array(&$profile_areas));
 
 	// Do some cleaning ready for the menu function.
-	$context['password_areas'] = array();
+	Utils::$context['password_areas'] = array();
 	$current_area = isset($_REQUEST['area']) ? $_REQUEST['area'] : '';
 
 	foreach ($profile_areas as $section_id => $section)
@@ -510,21 +513,21 @@ function ModifyProfile($post_errors = array())
 		foreach ($section['areas'] as $area_id => $area)
 		{
 			// If it said no permissions that meant it wasn't valid!
-			if (empty($area['permission'][$context['user']['is_owner'] ? 'own' : 'any']))
+			if (empty($area['permission'][Utils::$context['user']['is_owner'] ? 'own' : 'any']))
 				$profile_areas[$section_id]['areas'][$area_id]['enabled'] = false;
 			// Otherwise pick the right set.
 			else
-				$profile_areas[$section_id]['areas'][$area_id]['permission'] = $area['permission'][$context['user']['is_owner'] ? 'own' : 'any'];
+				$profile_areas[$section_id]['areas'][$area_id]['permission'] = $area['permission'][Utils::$context['user']['is_owner'] ? 'own' : 'any'];
 
 			// Password required in most cases
 			if (!empty($area['password']))
-				$context['password_areas'][] = $area_id;
+				Utils::$context['password_areas'][] = $area_id;
 		}
 	}
 
 	// Is there an updated message to show?
 	if (isset($_GET['updated']))
-		$context['profile_updated'] = $txt['profile_updated_own'];
+		Utils::$context['profile_updated'] = $txt['profile_updated_own'];
 
 	// Set a few options for the menu.
 	$menuOptions = array(
@@ -532,12 +535,12 @@ function ModifyProfile($post_errors = array())
 		'disable_url_session_check' => true,
 		'current_area' => $current_area,
 		'extra_url_parameters' => array(
-			'u' => $context['id_member'],
+			'u' => Utils::$context['id_member'],
 		),
 	);
 
 	// Logging out requires the session id in the url.
-	$profile_areas['profile_action']['areas']['logout']['custom_url'] = sprintf($profile_areas['profile_action']['areas']['logout']['custom_url'], $context['session_var'], $context['session_id']);
+	$profile_areas['profile_action']['areas']['logout']['custom_url'] = sprintf($profile_areas['profile_action']['areas']['logout']['custom_url'], Utils::$context['session_var'], Utils::$context['session_id']);
 
 	// Actually create the menu!
 	$profile_include_data = createMenu($profile_areas, $menuOptions);
@@ -547,17 +550,17 @@ function ModifyProfile($post_errors = array())
 		fatal_lang_error('no_access', false);
 
 	// Make a note of the Unique ID for this menu.
-	$context['profile_menu_id'] = $context['max_menu_id'];
-	$context['profile_menu_name'] = 'menu_data_' . $context['profile_menu_id'];
+	Utils::$context['profile_menu_id'] = Utils::$context['max_menu_id'];
+	Utils::$context['profile_menu_name'] = 'menu_data_' . Utils::$context['profile_menu_id'];
 
 	// Set the selected item - now it's been validated.
 	$current_area = $profile_include_data['current_area'];
 	$current_sa = $profile_include_data['current_subsection'];
-	$context['menu_item_selected'] = $current_area;
+	Utils::$context['menu_item_selected'] = $current_area;
 
 	// Before we go any further, let's work on the area we've said is valid. Note this is done here just in case we ever compromise the menu function in error!
-	$context['completed_save'] = false;
-	$context['do_preview'] = isset($_REQUEST['preview_signature']);
+	Utils::$context['completed_save'] = false;
+	Utils::$context['do_preview'] = isset($_REQUEST['preview_signature']);
 
 	$security_checks = array();
 	$found_area = false;
@@ -574,23 +577,23 @@ function ModifyProfile($post_errors = array())
 					fatal_lang_error('no_access', false);
 
 				// Are we saving data in a valid area?
-				if (isset($area['sc']) && (isset($_REQUEST['save']) || $context['do_preview']))
+				if (isset($area['sc']) && (isset($_REQUEST['save']) || Utils::$context['do_preview']))
 				{
 					$security_checks['session'] = $area['sc'];
-					$context['completed_save'] = true;
+					Utils::$context['completed_save'] = true;
 				}
 
 				// Do we need to perform a token check?
 				if (!empty($area['token']))
 				{
 					$security_checks[isset($_REQUEST['save']) ? 'validateToken' : 'needsToken'] = $area['token'];
-					$token_name = $area['token'] !== true ? str_replace('%u', $context['id_member'], $area['token']) : 'profile-u' . $context['id_member'];
+					$token_name = $area['token'] !== true ? str_replace('%u', Utils::$context['id_member'], $area['token']) : 'profile-u' . Utils::$context['id_member'];
 
 					$token_type = isset($area['token_type']) && in_array($area['token_type'], array('request', 'post', 'get')) ? $area['token_type'] : 'post';
 				}
 
 				// Does this require session validating?
-				if (!empty($area['validate']) || (isset($_REQUEST['save']) && !$context['user']['is_owner'] && ($area_id != 'issuewarning' || empty($modSettings['securityDisable_moderate']))))
+				if (!empty($area['validate']) || (isset($_REQUEST['save']) && !Utils::$context['user']['is_owner'] && ($area_id != 'issuewarning' || empty(Config::$modSettings['securityDisable_moderate']))))
 					$security_checks['validate'] = true;
 
 				// Permissions for good measure.
@@ -624,38 +627,38 @@ function ModifyProfile($post_errors = array())
 	if (isset($security_checks['needsToken']) || isset($security_checks['validateToken']))
 	{
 		createToken($token_name, $token_type);
-		$context['token_check'] = $token_name;
+		Utils::$context['token_check'] = $token_name;
 	}
 
 	// File to include?
 	if (isset($profile_include_data['file']))
-		require_once($sourcedir . '/' . $profile_include_data['file']);
+		require_once(Config::$sourcedir . '/' . $profile_include_data['file']);
 
 	// Build the link tree.
-	$context['linktree'][] = array(
-		'url' => $scripturl . '?action=profile' . ($memID != $user_info['id'] ? ';u=' . $memID : ''),
-		'name' => sprintf($txt['profile_of_username'], $context['member']['name']),
+	Utils::$context['linktree'][] = array(
+		'url' => Config::$scripturl . '?action=profile' . ($memID != $user_info['id'] ? ';u=' . $memID : ''),
+		'name' => sprintf($txt['profile_of_username'], Utils::$context['member']['name']),
 	);
 
 	if (!empty($profile_include_data['label']))
-		$context['linktree'][] = array(
-			'url' => $scripturl . '?action=profile' . ($memID != $user_info['id'] ? ';u=' . $memID : '') . ';area=' . $profile_include_data['current_area'],
+		Utils::$context['linktree'][] = array(
+			'url' => Config::$scripturl . '?action=profile' . ($memID != $user_info['id'] ? ';u=' . $memID : '') . ';area=' . $profile_include_data['current_area'],
 			'name' => $profile_include_data['label'],
 		);
 
 	if (!empty($profile_include_data['current_subsection']) && $profile_include_data['subsections'][$profile_include_data['current_subsection']][0] != $profile_include_data['label'])
-		$context['linktree'][] = array(
-			'url' => $scripturl . '?action=profile' . ($memID != $user_info['id'] ? ';u=' . $memID : '') . ';area=' . $profile_include_data['current_area'] . ';sa=' . $profile_include_data['current_subsection'],
+		Utils::$context['linktree'][] = array(
+			'url' => Config::$scripturl . '?action=profile' . ($memID != $user_info['id'] ? ';u=' . $memID : '') . ';area=' . $profile_include_data['current_area'] . ';sa=' . $profile_include_data['current_subsection'],
 			'name' => $profile_include_data['subsections'][$profile_include_data['current_subsection']][0],
 		);
 
 	// Set the template for this area and add the profile layer.
-	$context['sub_template'] = $profile_include_data['function'];
-	$context['template_layers'][] = 'profile';
+	Utils::$context['sub_template'] = $profile_include_data['function'];
+	Utils::$context['template_layers'][] = 'profile';
 
 	// All the subactions that require a user password in order to validate.
-	$check_password = $context['user']['is_owner'] && in_array($profile_include_data['current_area'], $context['password_areas']);
-	$context['require_password'] = $check_password;
+	$check_password = Utils::$context['user']['is_owner'] && in_array($profile_include_data['current_area'], Utils::$context['password_areas']);
+	Utils::$context['require_password'] = $check_password;
 
 	loadJavaScriptFile('profile.js', array('defer' => false, 'minimize' => true), 'smf_profile');
 
@@ -664,7 +667,7 @@ function ModifyProfile($post_errors = array())
 	$profile_vars = array();
 
 	// Right - are we saving - if so let's save the old data first.
-	if ($context['completed_save'])
+	if (Utils::$context['completed_save'])
 	{
 		// Clean up the POST variables.
 		$_POST = htmltrim__recursive($_POST);
@@ -673,7 +676,7 @@ function ModifyProfile($post_errors = array())
 		if ($check_password)
 		{
 			// Check to ensure we're forcing SSL for authentication
-			if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
+			if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !httpsOn())
 				fatal_lang_error('login_ssl_required', false);
 
 			$password = isset($_POST['oldpasswrd']) ? $_POST['oldpasswrd'] :  '';
@@ -694,11 +697,11 @@ function ModifyProfile($post_errors = array())
 
 			// Warn other elements not to jump the gun and do custom changes!
 			if (in_array('bad_password', $post_errors))
-				$context['password_auth_failed'] = true;
+				Utils::$context['password_auth_failed'] = true;
 		}
 
 		// Change the IP address in the database.
-		if ($context['user']['is_owner'] && $menuOptions['current_area'] != 'tfasetup')
+		if (Utils::$context['user']['is_owner'] && $menuOptions['current_area'] != 'tfasetup')
 			$profile_vars['member_ip'] = $user_info['ip'];
 
 		// Now call the sub-action function...
@@ -728,7 +731,7 @@ function ModifyProfile($post_errors = array())
 			$msg = groupMembership2($profile_vars, $post_errors, $memID);
 
 			// Whatever we've done, we have nothing else to do here...
-			redirectexit('action=profile' . ($context['user']['is_owner'] ? '' : ';u=' . $memID) . ';area=groupmembership' . (!empty($msg) ? ';msg=' . $msg : ''));
+			redirectexit('action=profile' . (Utils::$context['user']['is_owner'] ? '' : ';u=' . $memID) . ';area=groupmembership' . (!empty($msg) ? ';msg=' . $msg : ''));
 		}
 		elseif (in_array($current_area, array('account', 'forumprofile', 'theme')))
 			saveProfileFields();
@@ -736,7 +739,7 @@ function ModifyProfile($post_errors = array())
 		{
 			$force_redirect = true;
 			// Ensure we include this.
-			require_once($sourcedir . '/Profile-Modify.php');
+			require_once(Config::$sourcedir . '/Profile-Modify.php');
 			saveProfileChanges($profile_vars, $post_errors, $memID);
 		}
 
@@ -747,7 +750,7 @@ function ModifyProfile($post_errors = array())
 		{
 			// Load the language file so we can give a nice explanation of the errors.
 			loadLanguage('Errors');
-			$context['post_errors'] = $post_errors;
+			Utils::$context['post_errors'] = $post_errors;
 		}
 		elseif (!empty($profile_vars))
 		{
@@ -758,23 +761,23 @@ function ModifyProfile($post_errors = array())
 			updateMemberData($memID, $profile_vars);
 
 			// What if this is the newest member?
-			if ($modSettings['latestMember'] == $memID)
+			if (Config::$modSettings['latestMember'] == $memID)
 				updateStats('member');
 			elseif (isset($profile_vars['real_name']))
-				updateSettings(array('memberlist_updated' => time()));
+				Config::updateModSettings(array('memberlist_updated' => time()));
 
 			// If the member changed his/her birthdate, update calendar statistics.
 			if (isset($profile_vars['birthdate']) || isset($profile_vars['real_name']))
-				updateSettings(array(
+				Config::updateModSettings(array(
 					'calendar_updated' => time(),
 				));
 
 			// Anything worth logging?
-			if (!empty($context['log_changes']) && !empty($modSettings['modlog_enabled']))
+			if (!empty(Utils::$context['log_changes']) && !empty(Config::$modSettings['modlog_enabled']))
 			{
 				$log_changes = array();
-				require_once($sourcedir . '/Logging.php');
-				foreach ($context['log_changes'] as $k => $v)
+				require_once(Config::$sourcedir . '/Logging.php');
+				foreach (Utils::$context['log_changes'] as $k => $v)
 					$log_changes[] = array(
 						'action' => $k,
 						'log_type' => 'user',
@@ -788,12 +791,12 @@ function ModifyProfile($post_errors = array())
 			}
 
 			// Have we got any post save functions to execute?
-			if (!empty($context['profile_execute_on_save']))
-				foreach ($context['profile_execute_on_save'] as $saveFunc)
+			if (!empty(Utils::$context['profile_execute_on_save']))
+				foreach (Utils::$context['profile_execute_on_save'] as $saveFunc)
 					$saveFunc();
 
 			// Let them know it worked!
-			$context['profile_updated'] = $context['user']['is_owner'] ? $txt['profile_updated_own'] : sprintf($txt['profile_updated_else'], $cur_profile['member_name']);
+			Utils::$context['profile_updated'] = Utils::$context['user']['is_owner'] ? $txt['profile_updated_own'] : sprintf($txt['profile_updated_else'], $cur_profile['member_name']);
 
 			// Invalidate any cached data.
 			CacheApi::put('member_data-profile-' . $memID, null, 0);
@@ -805,13 +808,13 @@ function ModifyProfile($post_errors = array())
 	{
 		// Set all the errors so the template knows what went wrong.
 		foreach ($post_errors as $error_type)
-			$context['modify_error'][$error_type] = true;
+			Utils::$context['modify_error'][$error_type] = true;
 	}
 	// If it's you then we should redirect upon save.
-	elseif (!empty($profile_vars) && $context['user']['is_owner'] && !$context['do_preview'])
+	elseif (!empty($profile_vars) && Utils::$context['user']['is_owner'] && !Utils::$context['do_preview'])
 		redirectexit('action=profile;area=' . $current_area . (!empty($current_sa) ? ';sa=' . $current_sa : '') . ';updated');
 	elseif (!empty($force_redirect))
-		redirectexit('action=profile' . ($context['user']['is_owner'] ? '' : ';u=' . $memID) . ';area=' . $current_area);
+		redirectexit('action=profile' . (Utils::$context['user']['is_owner'] ? '' : ';u=' . $memID) . ';area=' . $current_area);
 
 	// Get the right callable.
 	$call = call_helper($profile_include_data['function'], true);
@@ -821,8 +824,8 @@ function ModifyProfile($post_errors = array())
 		call_user_func($call, $memID);
 
 	// Set the page title if it's not already set...
-	if (!isset($context['page_title']))
-		$context['page_title'] = $txt['profile'] . (isset($txt[$current_area]) ? ' - ' . $txt[$current_area] : '');
+	if (!isset(Utils::$context['page_title']))
+		Utils::$context['page_title'] = $txt['profile'] . (isset($txt[$current_area]) ? ' - ' . $txt[$current_area] : '');
 }
 
 /**
@@ -832,13 +835,13 @@ function ModifyProfile($post_errors = array())
  */
 function profile_popup($memID)
 {
-	global $context, $scripturl, $txt, $db_show_debug;
+	global $txt;
 
 	// We do not want to output debug information here.
-	$db_show_debug = false;
+	Config::$db_show_debug = false;
 
 	// We only want to output our little layer here.
-	$context['template_layers'] = array();
+	Utils::$context['template_layers'] = array();
 
 	// This list will pull from the master list wherever possible. Hopefully it should be clear what does what.
 	$profile_items = array(
@@ -867,7 +870,7 @@ function profile_popup($memID)
 		array(
 			'menu' => 'edit_profile',
 			'area' => 'lists',
-			'url' => $scripturl . '?action=profile;area=lists;sa=ignore',
+			'url' => Config::$scripturl . '?action=profile;area=lists;sa=ignore',
 			'title' => $txt['popup_ignore'],
 		),
 		array(
@@ -899,13 +902,13 @@ function profile_popup($memID)
 	call_integration_hook('integrate_profile_popup', array(&$profile_items));
 
 	// Now check if these items are available
-	$context['profile_items'] = array();
-	$menu_context = &$context[$context['profile_menu_name']]['sections'];
+	Utils::$context['profile_items'] = array();
+	$menu_context = &Utils::$context[Utils::$context['profile_menu_name']]['sections'];
 	foreach ($profile_items as $item)
 	{
 		if (isset($menu_context[$item['menu']]['areas'][$item['area']]))
 		{
-			$context['profile_items'][] = $item;
+			Utils::$context['profile_items'][] = $item;
 		}
 	}
 }
@@ -917,27 +920,27 @@ function profile_popup($memID)
  */
 function alerts_popup($memID)
 {
-	global $context, $sourcedir, $db_show_debug, $cur_profile, $modSettings;
+	global $cur_profile;
 
 	// Load the Alerts language file.
 	loadLanguage('Alerts');
 
 	// We do not want to output debug information here.
-	$db_show_debug = false;
+	Config::$db_show_debug = false;
 
 	// We only want to output our little layer here.
-	$context['template_layers'] = array();
+	Utils::$context['template_layers'] = array();
 
 	// No funny business allowed
 	$counter = isset($_REQUEST['counter']) ? max(0, (int) $_REQUEST['counter']) : 0;
-	$limit = !empty($modSettings['alerts_per_page']) && (int) $modSettings['alerts_per_page'] < 1000 ? min((int) $modSettings['alerts_per_page'], 1000) : 25;
+	$limit = !empty(Config::$modSettings['alerts_per_page']) && (int) Config::$modSettings['alerts_per_page'] < 1000 ? min((int) Config::$modSettings['alerts_per_page'], 1000) : 25;
 
-	$context['unread_alerts'] = array();
+	Utils::$context['unread_alerts'] = array();
 	if ($counter < $cur_profile['alerts'])
 	{
 		// Now fetch me my unread alerts, pronto!
-		require_once($sourcedir . '/Profile-View.php');
-		$context['unread_alerts'] = fetch_alerts($memID, false, !empty($counter) ? $cur_profile['alerts'] - $counter : $limit, 0, !isset($_REQUEST['counter']));
+		require_once(Config::$sourcedir . '/Profile-View.php');
+		Utils::$context['unread_alerts'] = fetch_alerts($memID, false, !empty($counter) ? $cur_profile['alerts'] - $counter : $limit, 0, !isset($_REQUEST['counter']));
 	}
 }
 
@@ -949,7 +952,7 @@ function alerts_popup($memID)
  */
 function loadCustomFields($memID, $area = 'summary')
 {
-	global $context, $txt, $user_profile, $smcFunc, $user_info, $settings, $scripturl;
+	global $txt, $user_profile, $user_info, $settings;
 
 	// Get the right restrictions in place...
 	$where = 'active = 1';
@@ -968,7 +971,7 @@ function loadCustomFields($memID, $area = 'summary')
 		$where .= ' AND show_profile = {string:area}';
 
 	// Load all the relevant fields - and data.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT
 			col_name, field_name, field_desc, field_type, field_order, show_reg, field_length, field_options,
 			default_value, bbc, enclose, placement
@@ -979,9 +982,9 @@ function loadCustomFields($memID, $area = 'summary')
 			'area' => $area,
 		)
 	);
-	$context['custom_fields'] = array();
-	$context['custom_fields_required'] = false;
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	Utils::$context['custom_fields'] = array();
+	Utils::$context['custom_fields_required'] = false;
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// Shortcut.
 		$exists = $memID && isset($user_profile[$memID], $user_profile[$memID]['options'][$row['col_name']]);
@@ -1001,7 +1004,7 @@ function loadCustomFields($memID, $area = 'summary')
 		// If this was submitted already then make the value the posted version.
 		if (isset($_POST['customfield']) && isset($_POST['customfield'][$row['col_name']]))
 		{
-			$value = $smcFunc['htmlspecialchars']($_POST['customfield'][$row['col_name']]);
+			$value = Utils::htmlspecialchars($_POST['customfield'][$row['col_name']]);
 			if (in_array($row['field_type'], array('select', 'radio')))
 				$value = ($options = explode(',', $row['field_options'])) && isset($options[$value]) ? $options[$value] : '';
 		}
@@ -1065,14 +1068,14 @@ function loadCustomFields($memID, $area = 'summary')
 		// Enclosing the user input within some other text?
 		if (!empty($row['enclose']) && !empty($output_html))
 			$output_html = strtr($row['enclose'], array(
-				'{SCRIPTURL}' => $scripturl,
+				'{SCRIPTURL}' => Config::$scripturl,
 				'{IMAGES_URL}' => $settings['images_url'],
 				'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
 				'{INPUT}' => un_htmlspecialchars($output_html),
 				'{KEY}' => $currentKey
 			));
 
-		$context['custom_fields'][] = array(
+		Utils::$context['custom_fields'][] = array(
 			'name' => tokenTxtReplace($row['field_name']),
 			'desc' => tokenTxtReplace($row['field_desc']),
 			'type' => $row['field_type'],
@@ -1084,9 +1087,9 @@ function loadCustomFields($memID, $area = 'summary')
 			'value' => $value,
 			'show_reg' => $row['show_reg'],
 		);
-		$context['custom_fields_required'] = $context['custom_fields_required'] || $row['show_reg'] == 2;
+		Utils::$context['custom_fields_required'] = Utils::$context['custom_fields_required'] || $row['show_reg'] == 2;
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	call_integration_hook('integrate_load_custom_profile_fields', array($memID, $area));
 }

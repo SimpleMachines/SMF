@@ -10,12 +10,15 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+
 /**
  * Template for browsing the mail queue.
  */
 function template_browse()
 {
-	global $context, $txt;
+	global $txt;
 
 	echo '
 	<div id="manage_mail">
@@ -26,9 +29,9 @@ function template_browse()
 			<div class="windowbg">
 				<dl class="settings">
 					<dt><strong>', $txt['mailqueue_size'], '</strong></dt>
-					<dd>', $context['mail_queue_size'], '</dd>
+					<dd>', Utils::$context['mail_queue_size'], '</dd>
 					<dt><strong>', $txt['mailqueue_oldest'], '</strong></dt>
-					<dd>', $context['oldest_mail'], '</dd>
+					<dd>', Utils::$context['oldest_mail'], '</dd>
 				</dl>
 			</div>
 		</div>';
@@ -45,22 +48,22 @@ function template_browse()
 
 function template_mailtest()
 {
-	global $context, $txt, $scripturl;
+	global $txt;
 
 	// The results.
-	if (!empty($context['result']))
+	if (!empty(Utils::$context['result']))
 	{
-		if ($context['result'] == 'failure')
-			$result_txt = sprintf($txt['mailtest_result_failure'], $scripturl . '?action=admin;area=logs;sa=errorlog;desc');
+		if (Utils::$context['result'] == 'failure')
+			$result_txt = sprintf($txt['mailtest_result_failure'], Config::$scripturl . '?action=admin;area=logs;sa=errorlog;desc');
 		else
 			$result_txt = $txt['mailtest_result_success'];
 
 		echo '
-					<div class="', $context['result'] == 'success' ? 'infobox' : 'errorbox', '">', $result_txt, '</div>';
+					<div class="', Utils::$context['result'] == 'success' ? 'infobox' : 'errorbox', '">', $result_txt, '</div>';
 	}
 
 	echo '
-	<form id="admin_form_wrapper" action="', $context['post_url'], '" method="post">
+	<form id="admin_form_wrapper" action="', Utils::$context['post_url'], '" method="post">
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['mailtest_header'], '</h3>
 		</div>

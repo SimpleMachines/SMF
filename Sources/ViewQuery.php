@@ -13,6 +13,10 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -27,10 +31,10 @@ if (!defined('SMF'))
  */
 function ViewQuery()
 {
-	global $scripturl, $settings, $context, $boarddir, $smcFunc, $txt, $db_show_debug;
+	global $settings, $txt;
 
 	// We should have debug mode enabled, as well as something to display!
-	if (!isset($db_show_debug) || $db_show_debug !== true || !isset($_SESSION['debug']))
+	if (!isset(Config::$db_show_debug) || Config::$db_show_debug !== true || !isset($_SESSION['debug']))
 		fatal_lang_error('no_access', false);
 
 	// Don't allow except for administrators.
@@ -52,10 +56,10 @@ function ViewQuery()
 	$query_id = isset($_REQUEST['qq']) ? (int) $_REQUEST['qq'] - 1 : -1;
 
 	echo '<!DOCTYPE html>
-<html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
+<html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<title>', $context['forum_name_html_safe'], '</title>
-		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21">
+		<title>', Utils::$context['forum_name_html_safe'], '</title>
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', Utils::$context['theme_variant'], '.css?alp21">
 		<style>
 			body
 			{
@@ -92,7 +96,7 @@ function ViewQuery()
 
 		// Make the filenames look a bit better.
 		if (isset($query_data['f']))
-			$query_data['f'] = preg_replace('~^' . preg_quote($boarddir, '~') . '~', '...', $query_data['f']);
+			$query_data['f'] = preg_replace('~^' . preg_quote(Config::$boarddir, '~') . '~', '...', $query_data['f']);
 
 		$is_select_query = substr(trim($query_data['q']), 0, 6) == 'SELECT' || substr(trim($query_data['q']), 0, 4) == 'WITH';
 		if ($is_select_query)
@@ -120,8 +124,8 @@ function ViewQuery()
 
 		echo '
 		<div id="qq', $q, '" style="margin-bottom: 2ex;">
-			<a', $is_select_query ? ' href="' . $scripturl . '?action=viewquery;qq=' . ($q + 1) . '#qq' . $q . '"' : '', ' style="font-weight: bold; text-decoration: none;">
-				', nl2br(str_replace("\t", '&nbsp;&nbsp;&nbsp;', $smcFunc['htmlspecialchars']($query_data['q']))), '
+			<a', $is_select_query ? ' href="' . Config::$scripturl . '?action=viewquery;qq=' . ($q + 1) . '#qq' . $q . '"' : '', ' style="font-weight: bold; text-decoration: none;">
+				', nl2br(str_replace("\t", '&nbsp;&nbsp;&nbsp;', Utils::htmlspecialchars($query_data['q']))), '
 			</a><br>';
 
 		if (!empty($query_data['f']) && !empty($query_data['l']))
@@ -138,8 +142,8 @@ function ViewQuery()
 		// Explain the query.
 		if ($query_id == $q && $is_select_query)
 		{
-			$result = $smcFunc['db_query']('', '
-				EXPLAIN ' . ($smcFunc['db_title'] === POSTGRE_TITLE ? 'ANALYZE ' : '') . $select,
+			$result = Db::$db->query('', '
+				EXPLAIN ' . (Db::$db->title === POSTGRE_TITLE ? 'ANALYZE ' : '') . $select,
 				array(
 				)
 			);
@@ -147,7 +151,7 @@ function ViewQuery()
 			{
 				echo '
 		<table>
-			<tr><td>', $smcFunc['db_error'](), '</td></tr>
+			<tr><td>', Db::$db->error(), '</td></tr>
 		</table>';
 				continue;
 			}
@@ -155,7 +159,7 @@ function ViewQuery()
 			echo '
 		<table>';
 
-			$row = $smcFunc['db_fetch_assoc']($result);
+			$row = Db::$db->fetch_assoc($result);
 
 			echo '
 			<tr>
@@ -163,8 +167,8 @@ function ViewQuery()
 				<th>', array_keys($row)) . '</th>
 			</tr>';
 
-			$smcFunc['db_data_seek']($result, 0);
-			while ($row = $smcFunc['db_fetch_assoc']($result))
+			Db::$db->data_seek($result, 0);
+			while ($row = Db::$db->fetch_assoc($result))
 			{
 				echo '
 			<tr>
@@ -172,7 +176,7 @@ function ViewQuery()
 				<td>', $row) . '</td>
 			</tr>';
 			}
-			$smcFunc['db_free_result']($result);
+			Db::$db->free_result($result);
 
 			echo '
 		</table>';

@@ -14,7 +14,10 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Config;
+use SMF\Utils;
 use SMF\Cache\CacheApi;
+use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -26,30 +29,30 @@ if (!defined('SMF'))
  */
 function ModerationMain($dont_call = false)
 {
-	global $smcFunc, $txt, $context, $scripturl, $modSettings, $user_info, $sourcedir, $options;
+	global $txt, $user_info, $options;
 
 	// Don't run this twice... and don't conflict with the admin bar.
-	if (isset($context['admin_area']))
+	if (isset(Utils::$context['admin_area']))
 		return;
 
-	$context['can_moderate_boards'] = $user_info['mod_cache']['bq'] != '0=1';
-	$context['can_moderate_groups'] = $user_info['mod_cache']['gq'] != '0=1';
-	$context['can_moderate_approvals'] = $modSettings['postmod_active'] && !empty($user_info['mod_cache']['ap']);
-	$context['can_moderate_users'] = allowedTo('moderate_forum');
+	Utils::$context['can_moderate_boards'] = $user_info['mod_cache']['bq'] != '0=1';
+	Utils::$context['can_moderate_groups'] = $user_info['mod_cache']['gq'] != '0=1';
+	Utils::$context['can_moderate_approvals'] = Config::$modSettings['postmod_active'] && !empty($user_info['mod_cache']['ap']);
+	Utils::$context['can_moderate_users'] = allowedTo('moderate_forum');
 
 	// Everyone using this area must be allowed here!
-	if (!$context['can_moderate_boards'] && !$context['can_moderate_groups'] && !$context['can_moderate_approvals'] && !$context['can_moderate_users'])
+	if (!Utils::$context['can_moderate_boards'] && !Utils::$context['can_moderate_groups'] && !Utils::$context['can_moderate_approvals'] && !Utils::$context['can_moderate_users'])
 		isAllowedTo('access_mod_center');
 
 	// We're gonna want a menu of some kind.
-	require_once($sourcedir . '/Subs-Menu.php');
+	require_once(Config::$sourcedir . '/Subs-Menu.php');
 
 	// Load the language, and the template.
 	loadLanguage('ModerationCenter');
 	loadTemplate(false, 'admin');
 
-	$context['admin_preferences'] = !empty($options['admin_preferences']) ? $smcFunc['json_decode']($options['admin_preferences'], true) : array();
-	$context['robot_no_index'] = true;
+	Utils::$context['admin_preferences'] = !empty($options['admin_preferences']) ? Utils::jsonDecode($options['admin_preferences'], true) : array();
+	Utils::$context['robot_no_index'] = true;
 
 	// This is the menu structure - refer to Subs-Menu.php for the details.
 	$moderation_areas = array(
@@ -69,7 +72,7 @@ function ModerationMain($dont_call = false)
 				'modlogoff' => array(
 					'label' => $txt['mc_logoff'],
 					'function' => 'ModEndSession',
-					'enabled' => empty($modSettings['securityDisable_moderate']),
+					'enabled' => empty(Config::$modSettings['securityDisable_moderate']),
 					'icon' => 'exit',
 				),
 				'notice' => array(
@@ -84,14 +87,14 @@ function ModerationMain($dont_call = false)
 			'areas' => array(
 				'modlog' => array(
 					'label' => $txt['modlog_view'],
-					'enabled' => !empty($modSettings['modlog_enabled']) && $context['can_moderate_boards'],
+					'enabled' => !empty(Config::$modSettings['modlog_enabled']) && Utils::$context['can_moderate_boards'],
 					'file' => 'Modlog.php',
 					'function' => 'ViewModlog',
 					'icon' => 'logs',
 				),
 				'warnings' => array(
 					'label' => $txt['mc_warnings'],
-					'enabled' => $modSettings['warning_settings'][0] == 1 && allowedTo(array('issue_warning', 'view_warning_any')),
+					'enabled' => Config::$modSettings['warning_settings'][0] == 1 && allowedTo(array('issue_warning', 'view_warning_any')),
 					'function' => 'ViewWarnings',
 					'icon' => 'warning',
 					'subsections' => array(
@@ -103,15 +106,15 @@ function ModerationMain($dont_call = false)
 		),
 		'posts' => array(
 			'title' => $txt['mc_posts'],
-			'enabled' => $context['can_moderate_boards'] || $context['can_moderate_approvals'],
+			'enabled' => Utils::$context['can_moderate_boards'] || Utils::$context['can_moderate_approvals'],
 			'areas' => array(
 				'postmod' => array(
 					'label' => $txt['mc_unapproved_posts'],
-					'enabled' => $context['can_moderate_approvals'],
+					'enabled' => Utils::$context['can_moderate_approvals'],
 					'file' => 'PostModeration.php',
 					'function' => 'PostModerationMain',
 					'icon' => 'posts',
-					'custom_url' => $scripturl . '?action=moderate;area=postmod',
+					'custom_url' => Config::$scripturl . '?action=moderate;area=postmod',
 					'subsections' => array(
 						'posts' => array($txt['mc_unapproved_replies']),
 						'topics' => array($txt['mc_unapproved_topics']),
@@ -119,15 +122,15 @@ function ModerationMain($dont_call = false)
 				),
 				'attachmod' => array(
 					'label' => $txt['mc_unapproved_attachments'],
-					'enabled' => $context['can_moderate_approvals'],
+					'enabled' => Utils::$context['can_moderate_approvals'],
 					'file' => 'PostModeration.php',
 					'function' => 'PostModerationMain',
 					'icon' => 'post_moderation_attach',
-					'custom_url' => $scripturl . '?action=moderate;area=attachmod;sa=attachments',
+					'custom_url' => Config::$scripturl . '?action=moderate;area=attachmod;sa=attachments',
 				),
 				'reportedposts' => array(
 					'label' => $txt['mc_reported_posts'],
-					'enabled' => $context['can_moderate_boards'],
+					'enabled' => Utils::$context['can_moderate_boards'],
 					'file' => 'ReportedContent.php',
 					'function' => 'ReportedContent',
 					'icon' => 'reports',
@@ -140,14 +143,14 @@ function ModerationMain($dont_call = false)
 		),
 		'groups' => array(
 			'title' => $txt['mc_groups'],
-			'enabled' => $context['can_moderate_groups'],
+			'enabled' => Utils::$context['can_moderate_groups'],
 			'areas' => array(
 				'groups' => array(
 					'label' => $txt['mc_group_requests'],
 					'file' => 'Groups.php',
 					'function' => 'Groups',
 					'icon' => 'members_request',
-					'custom_url' => $scripturl . '?action=moderate;area=groups;sa=requests',
+					'custom_url' => Config::$scripturl . '?action=moderate;area=groups;sa=requests',
 				),
 				'viewgroups' => array(
 					'label' => $txt['mc_view_groups'],
@@ -159,11 +162,11 @@ function ModerationMain($dont_call = false)
 		),
 		'members' => array(
 			'title' => $txt['mc_members'],
-			'enabled' => $context['can_moderate_users'] || ($modSettings['warning_settings'][0] == 1 && $context['can_moderate_boards']),
+			'enabled' => Utils::$context['can_moderate_users'] || (Config::$modSettings['warning_settings'][0] == 1 && Utils::$context['can_moderate_boards']),
 			'areas' => array(
 				'userwatch' => array(
 					'label' => $txt['mc_watched_users_title'],
-					'enabled' => $modSettings['warning_settings'][0] == 1 && $context['can_moderate_boards'],
+					'enabled' => Config::$modSettings['warning_settings'][0] == 1 && Utils::$context['can_moderate_boards'],
 					'function' => 'ViewWatchedUsers',
 					'icon' => 'members_watched',
 					'subsections' => array(
@@ -173,7 +176,7 @@ function ModerationMain($dont_call = false)
 				),
 				'reportedmembers' => array(
 					'label' => $txt['mc_reported_members_title'],
-					'enabled' => $context['can_moderate_users'],
+					'enabled' => Utils::$context['can_moderate_users'],
 					'file' => 'ReportedContent.php',
 					'function' => 'ReportedContent',
 					'icon' => 'members_watched',
@@ -202,34 +205,34 @@ function ModerationMain($dont_call = false)
 		fatal_lang_error('no_access', false);
 
 	// Retain the ID information in case required by a subaction.
-	$context['moderation_menu_id'] = $context['max_menu_id'];
-	$context['moderation_menu_name'] = 'menu_data_' . $context['moderation_menu_id'];
+	Utils::$context['moderation_menu_id'] = Utils::$context['max_menu_id'];
+	Utils::$context['moderation_menu_name'] = 'menu_data_' . Utils::$context['moderation_menu_id'];
 
 	// @todo: html in here is not good
-	$context[$context['moderation_menu_name']]['tab_data'] = array(
+	Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = array(
 		'title' => $txt['moderation_center'],
 		'help' => '',
 		'description' => '
-			<strong>' . $txt['hello_guest'] . ' ' . $context['user']['name'] . '!</strong>
+			<strong>' . $txt['hello_guest'] . ' ' . Utils::$context['user']['name'] . '!</strong>
 			<br><br>
 			' . $txt['mc_description']);
 
 	// What a pleasant shortcut - even tho we're not *really* on the admin screen who cares...
-	$context['admin_area'] = $mod_include_data['current_area'];
+	Utils::$context['admin_area'] = $mod_include_data['current_area'];
 
 	// Build the link tree.
-	$context['linktree'][] = array(
-		'url' => $scripturl . '?action=moderate',
+	Utils::$context['linktree'][] = array(
+		'url' => Config::$scripturl . '?action=moderate',
 		'name' => $txt['moderation_center'],
 	);
 	if (isset($mod_include_data['current_area']) && $mod_include_data['current_area'] != 'index')
-		$context['linktree'][] = array(
-			'url' => $scripturl . '?action=moderate;area=' . $mod_include_data['current_area'],
+		Utils::$context['linktree'][] = array(
+			'url' => Config::$scripturl . '?action=moderate;area=' . $mod_include_data['current_area'],
 			'name' => $mod_include_data['label'],
 		);
 	if (!empty($mod_include_data['current_subsection']) && $mod_include_data['subsections'][$mod_include_data['current_subsection']][0] != $mod_include_data['label'])
-		$context['linktree'][] = array(
-			'url' => $scripturl . '?action=moderate;area=' . $mod_include_data['current_area'] . ';sa=' . $mod_include_data['current_subsection'],
+		Utils::$context['linktree'][] = array(
+			'url' => Config::$scripturl . '?action=moderate;area=' . $mod_include_data['current_area'] . ';sa=' . $mod_include_data['current_subsection'],
 			'name' => $mod_include_data['subsections'][$mod_include_data['current_subsection']][0],
 		);
 
@@ -237,7 +240,7 @@ function ModerationMain($dont_call = false)
 	if (!$dont_call)
 	{
 		if (isset($mod_include_data['file']))
-			require_once($sourcedir . '/' . $mod_include_data['file']);
+			require_once(Config::$sourcedir . '/' . $mod_include_data['file']);
 
 		call_helper($mod_include_data['function']);
 	}
@@ -248,13 +251,13 @@ function ModerationMain($dont_call = false)
  */
 function ModerationHome()
 {
-	global $smcFunc, $txt, $context, $options;
+	global $txt, $options;
 
 	loadTemplate('ModerationCenter');
 	loadJavaScriptFile('admin.js', array('minimize' => true), 'smf_admin');
 
-	$context['page_title'] = $txt['moderation_center'];
-	$context['sub_template'] = 'moderation_center';
+	Utils::$context['page_title'] = $txt['moderation_center'];
+	Utils::$context['sub_template'] = 'moderation_center';
 
 	// Handle moderators notes.
 	ModBlockNotes();
@@ -262,17 +265,17 @@ function ModerationHome()
 	// Load what blocks the user actually can see...
 	$valid_blocks = array();
 
-	if ($context['can_moderate_groups'])
+	if (Utils::$context['can_moderate_groups'])
 		$valid_blocks['g'] = 'GroupRequests';
-	if ($context['can_moderate_boards'])
+	if (Utils::$context['can_moderate_boards'])
 	{
 		$valid_blocks['r'] = 'ReportedPosts';
 		$valid_blocks['w'] = 'WatchedUsers';
 	}
-	if ($context['can_moderate_users'])
+	if (Utils::$context['can_moderate_users'])
 	{
 		// This falls under the category of moderating users as well...
-		if (!$context['can_moderate_boards'])
+		if (!Utils::$context['can_moderate_boards'])
 			$valid_blocks['w'] = 'WatchedUsers';
 
 		$valid_blocks['rm'] = 'ReportedMembers';
@@ -280,15 +283,15 @@ function ModerationHome()
 
 	call_integration_hook('integrate_mod_centre_blocks', array(&$valid_blocks));
 
-	$context['mod_blocks'] = array();
+	Utils::$context['mod_blocks'] = array();
 	foreach ($valid_blocks as $k => $block)
 	{
 		$block = 'ModBlock' . $block;
 		if (function_exists($block))
-			$context['mod_blocks'][] = $block();
+			Utils::$context['mod_blocks'][] = $block();
 	}
 
-	$context['admin_prefs'] = !empty($options['admin_preferences']) ? $smcFunc['json_decode']($options['admin_preferences'], true) : array();
+	Utils::$context['admin_prefs'] = !empty($options['admin_preferences']) ? Utils::jsonDecode($options['admin_preferences'], true) : array();
 }
 
 /**
@@ -296,37 +299,35 @@ function ModerationHome()
  */
 function ModBlockWatchedUsers()
 {
-	global $context, $smcFunc, $scripturl, $modSettings;
-
 	if (($watched_users = CacheApi::get('recent_user_watches', 240)) === null)
 	{
-		$modSettings['warning_watch'] = empty($modSettings['warning_watch']) ? 1 : $modSettings['warning_watch'];
-		$request = $smcFunc['db_query']('', '
+		Config::$modSettings['warning_watch'] = empty(Config::$modSettings['warning_watch']) ? 1 : Config::$modSettings['warning_watch'];
+		$request = Db::$db->query('', '
 			SELECT id_member, real_name, last_login
 			FROM {db_prefix}members
 			WHERE warning >= {int:warning_watch}
 			ORDER BY last_login DESC
 			LIMIT 10',
 			array(
-				'warning_watch' => $modSettings['warning_watch'],
+				'warning_watch' => Config::$modSettings['warning_watch'],
 			)
 		);
 		$watched_users = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$watched_users[] = $row;
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		CacheApi::put('recent_user_watches', $watched_users, 240);
 	}
 
-	$context['watched_users'] = array();
+	Utils::$context['watched_users'] = array();
 	foreach ($watched_users as $user)
 	{
-		$context['watched_users'][] = array(
+		Utils::$context['watched_users'][] = array(
 			'id' => $user['id_member'],
 			'name' => $user['real_name'],
-			'link' => '<a href="' . $scripturl . '?action=profile;u=' . $user['id_member'] . '">' . $user['real_name'] . '</a>',
-			'href' => $scripturl . '?action=profile;u=' . $user['id_member'],
+			'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $user['id_member'] . '">' . $user['real_name'] . '</a>',
+			'href' => Config::$scripturl . '?action=profile;u=' . $user['id_member'],
 			'last_login' => !empty($user['last_login']) ? timeformat($user['last_login']) : '',
 		);
 	}
@@ -339,10 +340,10 @@ function ModBlockWatchedUsers()
  */
 function ModBlockNotes()
 {
-	global $context, $smcFunc, $scripturl, $user_info;
+	global $user_info;
 
 	// Set a nice and informative message.
-	$context['report_post_action'] = !empty($_SESSION['rc_confirmation']) ? $_SESSION['rc_confirmation'] : array();
+	Utils::$context['report_post_action'] = !empty($_SESSION['rc_confirmation']) ? $_SESSION['rc_confirmation'] : array();
 	unset($_SESSION['rc_confirmation']);
 
 	// Are we saving a note?
@@ -351,12 +352,12 @@ function ModBlockNotes()
 		checkSession();
 		validateToken('mod-modnote-add');
 
-		$_POST['new_note'] = $smcFunc['htmlspecialchars'](trim($_POST['new_note']));
+		$_POST['new_note'] = Utils::htmlspecialchars(trim($_POST['new_note']));
 		// Make sure they actually entered something.
 		if (!empty($_POST['new_note']))
 		{
 			// Insert it into the database then!
-			$smcFunc['db_insert']('',
+			Db::$db->insert('',
 				'{db_prefix}log_comments',
 				array(
 					'id_member' => 'int', 'member_name' => 'string', 'comment_type' => 'string', 'recipient_name' => 'string',
@@ -390,7 +391,7 @@ function ModBlockNotes()
 		if (!allowedTo('admin_forum'))
 		{
 			// Is this your note?
-			$get_owner = $smcFunc['db_query']('', '
+			$get_owner = Db::$db->query('', '
 				SELECT id_member
 				FROM {db_prefix}log_comments
 				WHERE id_comment = {int:note}
@@ -402,15 +403,15 @@ function ModBlockNotes()
 				)
 			);
 
-			$note_owner = $smcFunc['db_num_rows']($get_owner);
-			$smcFunc['db_free_result']($get_owner);
+			$note_owner = Db::$db->num_rows($get_owner);
+			Db::$db->free_result($get_owner);
 
 			if (empty($note_owner))
 				fatal_lang_error('mc_notes_delete_own', false);
 		}
 
 		// Lets delete it.
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}log_comments
 			WHERE id_comment = {int:note}
 				AND comment_type = {literal:modnote}',
@@ -432,7 +433,7 @@ function ModBlockNotes()
 	// How many notes in total?
 	if (($moderator_notes_total = CacheApi::get('moderator_notes_total', 240)) === null)
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT COUNT(*)
 			FROM {db_prefix}log_comments AS lc
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lc.id_member)
@@ -440,8 +441,8 @@ function ModBlockNotes()
 			array(
 			)
 		);
-		list ($moderator_notes_total) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		list ($moderator_notes_total) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 
 		CacheApi::put('moderator_notes_total', $moderator_notes_total, 240);
 	}
@@ -450,7 +451,7 @@ function ModBlockNotes()
 	$offset = isset($_GET['notes']) && isset($_GET['start']) ? $_GET['start'] : 0;
 	if ($offset != 0 || ($moderator_notes = CacheApi::get('moderator_notes', 240)) === null)
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, lc.member_name) AS member_name,
 				lc.log_time, lc.body, lc.id_comment AS id_note
 			FROM {db_prefix}log_comments AS lc
@@ -463,29 +464,29 @@ function ModBlockNotes()
 			)
 		);
 		$moderator_notes = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$moderator_notes[] = $row;
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		if ($offset == 0)
 			CacheApi::put('moderator_notes', $moderator_notes, 240);
 	}
 
 	// Lets construct a page index.
-	$context['page_index'] = constructPageIndex($scripturl . '?action=moderate;area=index;notes', $_GET['start'], $moderator_notes_total, 10);
-	$context['start'] = $_GET['start'];
+	Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=moderate;area=index;notes', $_GET['start'], $moderator_notes_total, 10);
+	Utils::$context['start'] = $_GET['start'];
 
-	$context['notes'] = array();
+	Utils::$context['notes'] = array();
 	foreach ($moderator_notes as $note)
 	{
-		$context['notes'][] = array(
+		Utils::$context['notes'][] = array(
 			'author' => array(
 				'id' => $note['id_member'],
-				'link' => $note['id_member'] ? ('<a href="' . $scripturl . '?action=profile;u=' . $note['id_member'] . '">' . $note['member_name'] . '</a>') : $note['member_name'],
+				'link' => $note['id_member'] ? ('<a href="' . Config::$scripturl . '?action=profile;u=' . $note['id_member'] . '">' . $note['member_name'] . '</a>') : $note['member_name'],
 			),
 			'time' => timeformat($note['log_time']),
 			'text' => BBCodeParser::load()->parse($note['body']),
-			'delete_href' => $scripturl . '?action=moderate;area=index;notes;delete=' . $note['id_note'] . ';' . $context['session_var'] . '=' . $context['session_id'],
+			'delete_href' => Config::$scripturl . '?action=moderate;area=index;notes;delete=' . $note['id_note'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 			'can_delete' => allowedTo('admin_forum') || $note['id_member'] == $user_info['id'],
 		);
 	}
@@ -502,18 +503,18 @@ function ModBlockNotes()
  */
 function ModBlockReportedPosts()
 {
-	global $context, $user_info, $scripturl, $smcFunc;
+	global $user_info;
 
 	// Got the info already?
-	$cachekey = md5($smcFunc['json_encode']($user_info['mod_cache']['bq']));
-	$context['reported_posts'] = array();
+	$cachekey = md5(Utils::jsonEncode($user_info['mod_cache']['bq']));
+	Utils::$context['reported_posts'] = array();
 	if ($user_info['mod_cache']['bq'] == '0=1')
 		return 'reported_posts_block';
 
 	if (($reported_posts = CacheApi::get('reported_posts_' . $cachekey, 90)) === null)
 	{
 		// By George, that means we in a position to get the reports, jolly good.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT lr.id_report, lr.id_msg, lr.id_topic, lr.id_board, lr.id_member, lr.subject,
 				lr.num_reports, COALESCE(mem.real_name, lr.membername) AS author_name,
 				COALESCE(mem.id_member, 0) AS id_author
@@ -532,27 +533,27 @@ function ModBlockReportedPosts()
 			)
 		);
 		$reported_posts = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$reported_posts[] = $row;
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// Cache it.
 		CacheApi::put('reported_posts_' . $cachekey, $reported_posts, 90);
 	}
 
-	$context['reported_posts'] = array();
+	Utils::$context['reported_posts'] = array();
 	foreach ($reported_posts as $i => $row)
 	{
-		$context['reported_posts'][] = array(
+		Utils::$context['reported_posts'][] = array(
 			'id' => $row['id_report'],
-			'topic_href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
-			'report_href' => $scripturl . '?action=moderate;area=reportedposts;sa=details;rid=' . $row['id_report'],
-			'report_link' => '<a href="' . $scripturl . '?action=moderate;area=reportedposts;sa=details;rid=' . $row['id_report'] . '">' . $row['subject'] . '</a>',
+			'topic_href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
+			'report_href' => Config::$scripturl . '?action=moderate;area=reportedposts;sa=details;rid=' . $row['id_report'],
+			'report_link' => '<a href="' . Config::$scripturl . '?action=moderate;area=reportedposts;sa=details;rid=' . $row['id_report'] . '">' . $row['subject'] . '</a>',
 			'author' => array(
 				'id' => $row['id_author'],
 				'name' => $row['author_name'],
-				'link' => $row['id_author'] ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_author'] . '">' . $row['author_name'] . '</a>' : $row['author_name'],
-				'href' => $scripturl . '?action=profile;u=' . $row['id_author'],
+				'link' => $row['id_author'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_author'] . '">' . $row['author_name'] . '</a>' : $row['author_name'],
+				'href' => Config::$scripturl . '?action=profile;u=' . $row['id_author'],
 			),
 			'subject' => $row['subject'],
 			'num_reports' => $row['num_reports'],
@@ -567,15 +568,15 @@ function ModBlockReportedPosts()
  */
 function ModBlockGroupRequests()
 {
-	global $context, $user_info, $scripturl, $smcFunc;
+	global $user_info;
 
-	$context['group_requests'] = array();
+	Utils::$context['group_requests'] = array();
 	// Make sure they can even moderate someone!
 	if ($user_info['mod_cache']['gq'] == '0=1')
 		return 'group_requests_block';
 
 	// What requests are outstanding?
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT lgr.id_request, lgr.id_member, lgr.id_group, lgr.time_applied, mem.member_name, mg.group_name, mem.real_name
 		FROM {db_prefix}log_group_requests AS lgr
 			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = lgr.id_member)
@@ -588,16 +589,16 @@ function ModBlockGroupRequests()
 			'status_open' => 0,
 		)
 	);
-	for ($i = 0; $row = $smcFunc['db_fetch_assoc']($request); $i++)
+	for ($i = 0; $row = Db::$db->fetch_assoc($request); $i++)
 	{
-		$context['group_requests'][] = array(
+		Utils::$context['group_requests'][] = array(
 			'id' => $row['id_request'],
-			'request_href' => $scripturl . '?action=groups;sa=requests;gid=' . $row['id_group'],
+			'request_href' => Config::$scripturl . '?action=groups;sa=requests;gid=' . $row['id_group'],
 			'member' => array(
 				'id' => $row['id_member'],
 				'name' => $row['real_name'],
-				'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
-				'href' => $scripturl . '?action=profile;u=' . $row['id_member'],
+				'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
+				'href' => Config::$scripturl . '?action=profile;u=' . $row['id_member'],
 			),
 			'group' => array(
 				'id' => $row['id_group'],
@@ -606,7 +607,7 @@ function ModBlockGroupRequests()
 			'time_submitted' => timeformat($row['time_applied']),
 		);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	return 'group_requests_block';
 }
@@ -616,18 +617,16 @@ function ModBlockGroupRequests()
  */
 function ModBlockReportedMembers()
 {
-	global $context, $scripturl, $smcFunc;
-
 	// Got the info already?
-	$cachekey = md5($smcFunc['json_encode']((int) allowedTo('moderate_forum')));
-	$context['reported_users'] = array();
+	$cachekey = md5(Utils::jsonEncode((int) allowedTo('moderate_forum')));
+	Utils::$context['reported_users'] = array();
 	if (!allowedTo('moderate_forum'))
 		return 'reported_users_block';
 
 	if (($reported_users = CacheApi::get('reported_users_' . $cachekey, 90)) === null)
 	{
 		// By George, that means we in a position to get the reports, jolly good.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT lr.id_report, lr.id_member,
 				lr.num_reports, COALESCE(mem.real_name, lr.membername) AS user_name,
 				COALESCE(mem.id_member, 0) AS id_user
@@ -645,25 +644,25 @@ function ModBlockReportedMembers()
 			)
 		);
 		$reported_users = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$reported_users[] = $row;
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// Cache it.
 		CacheApi::put('reported_users_' . $cachekey, $reported_users, 90);
 	}
 
-	$context['reported_users'] = array();
+	Utils::$context['reported_users'] = array();
 	foreach ($reported_users as $i => $row)
 	{
-		$context['reported_users'][] = array(
+		Utils::$context['reported_users'][] = array(
 			'id' => $row['id_report'],
-			'report_href' => $scripturl . '?action=moderate;area=reportedmembers;report=' . $row['id_report'],
+			'report_href' => Config::$scripturl . '?action=moderate;area=reportedmembers;report=' . $row['id_report'],
 			'user' => array(
 				'id' => $row['id_user'],
 				'name' => $row['user_name'],
-				'link' => $row['id_user'] ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_user'] . '">' . $row['user_name'] . '</a>' : $row['user_name'],
-				'href' => $scripturl . '?action=profile;u=' . $row['id_user'],
+				'link' => $row['id_user'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_user'] . '">' . $row['user_name'] . '</a>' : $row['user_name'],
+				'href' => Config::$scripturl . '?action=profile;u=' . $row['id_user'],
 			),
 			'num_reports' => $row['num_reports'],
 		);
@@ -679,7 +678,7 @@ function ModBlockReportedMembers()
  */
 function ModerateGroups()
 {
-	global $context, $user_info;
+	global $user_info;
 
 	// You need to be allowed to moderate groups...
 	if ($user_info['mod_cache']['gq'] == '0=1')
@@ -696,10 +695,10 @@ function ModerateGroups()
 
 	if (!isset($_GET['sa']) || !isset($subActions[$_GET['sa']]))
 		$_GET['sa'] = 'view';
-	$context['sub_action'] = $_GET['sa'];
+	Utils::$context['sub_action'] = $_GET['sa'];
 
 	// Call the relevant function.
-	call_helper($subActions[$context['sub_action']]);
+	call_helper($subActions[Utils::$context['sub_action']]);
 }
 
 /**
@@ -707,17 +706,17 @@ function ModerateGroups()
  */
 function ShowNotice()
 {
-	global $smcFunc, $txt, $context;
+	global $txt;
 
-	$context['page_title'] = $txt['show_notice'];
-	$context['sub_template'] = 'show_notice';
-	$context['template_layers'] = array();
+	Utils::$context['page_title'] = $txt['show_notice'];
+	Utils::$context['sub_template'] = 'show_notice';
+	Utils::$context['template_layers'] = array();
 
 	loadTemplate('ModerationCenter');
 
 	// @todo Assumes nothing needs permission more than accessing moderation center!
 	$id_notice = (int) $_GET['nid'];
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT body, subject
 		FROM {db_prefix}log_member_notices
 		WHERE id_notice = {int:id_notice}',
@@ -725,12 +724,12 @@ function ShowNotice()
 			'id_notice' => $id_notice,
 		)
 	);
-	if ($smcFunc['db_num_rows']($request) == 0)
+	if (Db::$db->num_rows($request) == 0)
 		fatal_lang_error('no_access', false);
-	list ($context['notice_body'], $context['notice_subject']) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list (Utils::$context['notice_body'], Utils::$context['notice_subject']) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
-	$context['notice_body'] = BBCodeParser::load()->parse($context['notice_body'], false);
+	Utils::$context['notice_body'] = BBCodeParser::load()->parse(Utils::$context['notice_body'], false);
 }
 
 /**
@@ -738,20 +737,20 @@ function ShowNotice()
  */
 function ViewWatchedUsers()
 {
-	global $modSettings, $context, $txt, $scripturl, $sourcedir;
+	global $txt;
 
 	// Some important context!
-	$context['page_title'] = $txt['mc_watched_users_title'];
-	$context['view_posts'] = isset($_GET['sa']) && $_GET['sa'] == 'post';
-	$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
+	Utils::$context['page_title'] = $txt['mc_watched_users_title'];
+	Utils::$context['view_posts'] = isset($_GET['sa']) && $_GET['sa'] == 'post';
+	Utils::$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
 
 	loadTemplate('ModerationCenter');
 
 	// Get some key settings!
-	$modSettings['warning_watch'] = empty($modSettings['warning_watch']) ? 1 : $modSettings['warning_watch'];
+	Config::$modSettings['warning_watch'] = empty(Config::$modSettings['warning_watch']) ? 1 : Config::$modSettings['warning_watch'];
 
 	// Put some pretty tabs on cause we're gonna be doing hot stuff here...
-	$context[$context['moderation_menu_name']]['tab_data'] = array(
+	Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = array(
 		'title' => $txt['mc_watched_users_title'],
 		'help' => '',
 		'description' => $txt['mc_watched_users_desc'],
@@ -771,7 +770,7 @@ function ViewWatchedUsers()
 
 		if (!empty($toDelete))
 		{
-			require_once($sourcedir . '/RemoveTopic.php');
+			require_once(Config::$sourcedir . '/RemoveTopic.php');
 			// If they don't have permission we'll let it error - either way no chance of a security slip here!
 			foreach ($toDelete as $did)
 				removeMessage($did);
@@ -779,7 +778,7 @@ function ViewWatchedUsers()
 	}
 
 	// Start preparing the list by grabbing relevant permissions.
-	if (!$context['view_posts'])
+	if (!Utils::$context['view_posts'])
 	{
 		$approve_query = '';
 		$delete_boards = array();
@@ -799,25 +798,25 @@ function ViewWatchedUsers()
 			$approve_query = ' AND 1=0';
 	}
 
-	require_once($sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/Subs-List.php');
 
 	// This is all the information required for a watched user listing.
 	$listOptions = array(
 		'id' => 'watch_user_list',
-		'title' => $txt['mc_watched_users_title'] . ' - ' . ($context['view_posts'] ? $txt['mc_watched_users_post'] : $txt['mc_watched_users_member']),
-		'items_per_page' => $modSettings['defaultMaxListItems'],
-		'no_items_label' => $context['view_posts'] ? $txt['mc_watched_users_no_posts'] : $txt['mc_watched_users_none'],
-		'base_href' => $scripturl . '?action=moderate;area=userwatch;sa=' . ($context['view_posts'] ? 'post' : 'member'),
-		'default_sort_col' => $context['view_posts'] ? '' : 'member',
+		'title' => $txt['mc_watched_users_title'] . ' - ' . (Utils::$context['view_posts'] ? $txt['mc_watched_users_post'] : $txt['mc_watched_users_member']),
+		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
+		'no_items_label' => Utils::$context['view_posts'] ? $txt['mc_watched_users_no_posts'] : $txt['mc_watched_users_none'],
+		'base_href' => Config::$scripturl . '?action=moderate;area=userwatch;sa=' . (Utils::$context['view_posts'] ? 'post' : 'member'),
+		'default_sort_col' => Utils::$context['view_posts'] ? '' : 'member',
 		'get_items' => array(
-			'function' => $context['view_posts'] ? 'list_getWatchedUserPosts' : 'list_getWatchedUsers',
+			'function' => Utils::$context['view_posts'] ? 'list_getWatchedUserPosts' : 'list_getWatchedUsers',
 			'params' => array(
 				$approve_query,
 				$delete_boards,
 			),
 		),
 		'get_count' => array(
-			'function' => $context['view_posts'] ? 'list_getWatchedUserPostsCount' : 'list_getWatchedUserCount',
+			'function' => Utils::$context['view_posts'] ? 'list_getWatchedUserPostsCount' : 'list_getWatchedUserCount',
 			'params' => array(
 				$approve_query,
 			),
@@ -830,7 +829,7 @@ function ViewWatchedUsers()
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<a href="' . $scripturl . '?action=profile;u=%1$d">%2$s</a>',
+						'format' => '<a href="' . Config::$scripturl . '?action=profile;u=%1$d">%2$s</a>',
 						'params' => array(
 							'id' => false,
 							'name' => false,
@@ -847,9 +846,9 @@ function ViewWatchedUsers()
 					'value' => $txt['mc_watched_users_warning'],
 				),
 				'data' => array(
-					'function' => function($member) use ($scripturl)
+					'function' => function($member)
 					{
-						return allowedTo('issue_warning') ? '<a href="' . $scripturl . '?action=profile;area=issuewarning;u=' . $member['id'] . '">' . $member['warning'] . '%</a>' : $member['warning'] . '%';
+						return allowedTo('issue_warning') ? '<a href="' . Config::$scripturl . '?action=profile;area=issuewarning;u=' . $member['id'] . '">' . $member['warning'] . '%</a>' : $member['warning'] . '%';
 					},
 				),
 				'sort' => array(
@@ -863,7 +862,7 @@ function ViewWatchedUsers()
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<a href="' . $scripturl . '?action=profile;u=%1$d;area=showposts;sa=messages">%2$s</a>',
+						'format' => '<a href="' . Config::$scripturl . '?action=profile;u=%1$d;area=showposts;sa=messages">%2$s</a>',
 						'params' => array(
 							'id' => false,
 							'posts' => false,
@@ -892,10 +891,10 @@ function ViewWatchedUsers()
 					'value' => $txt['mc_watched_users_last_post'],
 				),
 				'data' => array(
-					'function' => function($member) use ($scripturl)
+					'function' => function($member)
 					{
 						if ($member['last_post_id'])
-							return '<a href="' . $scripturl . '?msg=' . $member['last_post_id'] . '">' . $member['last_post'] . '</a>';
+							return '<a href="' . Config::$scripturl . '?msg=' . $member['last_post_id'] . '">' . $member['last_post'] . '</a>';
 						else
 							return $member['last_post'];
 					},
@@ -903,15 +902,15 @@ function ViewWatchedUsers()
 			),
 		),
 		'form' => array(
-			'href' => $scripturl . '?action=moderate;area=userwatch;sa=post',
+			'href' => Config::$scripturl . '?action=moderate;area=userwatch;sa=post',
 			'include_sort' => true,
 			'include_start' => true,
 			'hidden_fields' => array(
-				$context['session_var'] => $context['session_id'],
+				Utils::$context['session_var'] => Utils::$context['session_id'],
 			),
 		),
 		'additional_rows' => array(
-			$context['view_posts'] ?
+			Utils::$context['view_posts'] ?
 				array(
 					'position' => 'bottom_of_list',
 					'value' => '
@@ -922,7 +921,7 @@ function ViewWatchedUsers()
 	);
 
 	// If this is being viewed by posts we actually change the columns to call a template each time.
-	if ($context['view_posts'])
+	if (Utils::$context['view_posts'])
 	{
 		$listOptions['columns'] = array(
 			'posts' => array(
@@ -940,8 +939,8 @@ function ViewWatchedUsers()
 	// Create the watched user list.
 	createList($listOptions);
 
-	$context['sub_template'] = 'show_list';
-	$context['default_list'] = 'watch_user_list';
+	Utils::$context['sub_template'] = 'show_list';
+	Utils::$context['default_list'] = 'watch_user_list';
 }
 
 /**
@@ -952,18 +951,16 @@ function ViewWatchedUsers()
  */
 function list_getWatchedUserCount($approve_query)
 {
-	global $smcFunc, $modSettings;
-
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}members
 		WHERE warning >= {int:warning_watch}',
 		array(
-			'warning_watch' => $modSettings['warning_watch'],
+			'warning_watch' => Config::$modSettings['warning_watch'],
 		)
 	);
-	list ($totalMembers) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($totalMembers) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	return $totalMembers;
 }
@@ -979,16 +976,16 @@ function list_getWatchedUserCount($approve_query)
  */
 function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $dummy)
 {
-	global $smcFunc, $txt, $modSettings, $user_info;
+	global $txt, $user_info;
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_member, real_name, last_login, posts, warning
 		FROM {db_prefix}members
 		WHERE warning >= {int:warning_watch}
 		ORDER BY {raw:sort}
 		LIMIT {int:start}, {int:max}',
 		array(
-			'warning_watch' => $modSettings['warning_watch'],
+			'warning_watch' => Config::$modSettings['warning_watch'],
 			'sort' => $sort,
 			'start' => $start,
 			'max' => $items_per_page,
@@ -996,7 +993,7 @@ function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $d
 	);
 	$watched_users = array();
 	$members = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$watched_users[$row['id_member']] = array(
 			'id' => $row['id_member'],
@@ -1009,17 +1006,17 @@ function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $d
 		);
 		$members[] = $row['id_member'];
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	if (!empty($members))
 	{
 		// First get the latest messages from these users.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT m.id_member, MAX(m.id_msg) AS last_post_id
-			FROM {db_prefix}messages AS m' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+			FROM {db_prefix}messages AS m' . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)') . '
 			WHERE {query_see_message_board}
-				AND m.id_member IN ({array_int:member_list})' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+				AND m.id_member IN ({array_int:member_list})' . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 				AND m.approved = {int:is_approved}
 				AND t.approved = {int:is_approved}') . '
 			GROUP BY m.id_member',
@@ -1029,13 +1026,13 @@ function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $d
 			)
 		);
 		$latest_posts = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$latest_posts[$row['id_member']] = $row['last_post_id'];
 
 		if (!empty($latest_posts))
 		{
 			// Now get the time those messages were posted.
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT id_member, poster_time
 				FROM {db_prefix}messages
 				WHERE id_msg IN ({array_int:message_list})',
@@ -1043,20 +1040,20 @@ function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $d
 					'message_list' => $latest_posts,
 				)
 			);
-			while ($row = $smcFunc['db_fetch_assoc']($request))
+			while ($row = Db::$db->fetch_assoc($request))
 			{
 				$watched_users[$row['id_member']]['last_post'] = timeformat($row['poster_time']);
 				$watched_users[$row['id_member']]['last_post_id'] = $latest_posts[$row['id_member']];
 			}
 
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 		}
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT MAX(m.poster_time) AS last_post, MAX(m.id_msg) AS last_post_id, m.id_member
 			FROM {db_prefix}messages AS m
 			WHERE {query_see_message_board}
-				AND m.id_member IN ({array_int:member_list})' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+				AND m.id_member IN ({array_int:member_list})' . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 				AND m.approved = {int:is_approved}') . '
 			GROUP BY m.id_member',
 			array(
@@ -1064,12 +1061,12 @@ function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $d
 				'is_approved' => 1,
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			$watched_users[$row['id_member']]['last_post'] = timeformat($row['last_post']);
 			$watched_users[$row['id_member']]['last_post_id'] = $row['last_post_id'];
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 	}
 
 	return $watched_users;
@@ -1083,9 +1080,7 @@ function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $d
  */
 function list_getWatchedUserPostsCount($approve_query)
 {
-	global $smcFunc, $modSettings;
-
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
@@ -1094,11 +1089,11 @@ function list_getWatchedUserPostsCount($approve_query)
 			AND {query_see_board}
 			' . $approve_query,
 		array(
-			'warning_watch' => $modSettings['warning_watch'],
+			'warning_watch' => Config::$modSettings['warning_watch'],
 		)
 	);
-	list ($totalMemberPosts) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($totalMemberPosts) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	return $totalMemberPosts;
 }
@@ -1115,9 +1110,7 @@ function list_getWatchedUserPostsCount($approve_query)
  */
 function list_getWatchedUserPosts($start, $items_per_page, $sort, $approve_query, $delete_boards)
 {
-	global $smcFunc, $scripturl, $modSettings;
-
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT m.id_msg, m.id_topic, m.id_board, m.id_member, m.subject, m.body, m.poster_time,
 			m.approved, mem.real_name, m.smileys_enabled
 		FROM {db_prefix}messages AS m
@@ -1129,13 +1122,13 @@ function list_getWatchedUserPosts($start, $items_per_page, $sort, $approve_query
 		ORDER BY m.id_msg DESC
 		LIMIT {int:start}, {int:max}',
 		array(
-			'warning_watch' => $modSettings['warning_watch'],
+			'warning_watch' => Config::$modSettings['warning_watch'],
 			'start' => $start,
 			'max' => $items_per_page,
 		)
 	);
 	$member_posts = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$row['subject'] = censorText($row['subject']);
 		$row['body'] = censorText($row['body']);
@@ -1143,7 +1136,7 @@ function list_getWatchedUserPosts($start, $items_per_page, $sort, $approve_query
 		$member_posts[$row['id_msg']] = array(
 			'id' => $row['id_msg'],
 			'id_topic' => $row['id_topic'],
-			'author_link' => '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
+			'author_link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
 			'subject' => $row['subject'],
 			'body' => BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']),
 			'poster_time' => timeformat($row['poster_time']),
@@ -1151,7 +1144,7 @@ function list_getWatchedUserPosts($start, $items_per_page, $sort, $approve_query
 			'can_delete' => $delete_boards == array(0) || in_array($row['id_board'], $delete_boards),
 		);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	return $member_posts;
 }
@@ -1161,7 +1154,7 @@ function list_getWatchedUserPosts($start, $items_per_page, $sort, $approve_query
  */
 function ViewWarnings()
 {
-	global $context, $txt;
+	global $txt;
 
 	$subActions = array(
 		'log' => array('ViewWarningLog', array('view_warning_any', 'moderate_forum')),
@@ -1200,7 +1193,7 @@ function ViewWarnings()
 	loadLanguage('Profile');
 
 	// Setup the admin tabs.
-	$context[$context['moderation_menu_name']]['tab_data'] = array(
+	Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = array(
 		'title' => $txt['mc_warnings'],
 		'description' => $txt['mc_warnings_description'],
 	);
@@ -1214,10 +1207,10 @@ function ViewWarnings()
  */
 function ViewWarningLog()
 {
-	global $smcFunc, $modSettings, $context, $txt, $scripturl, $sourcedir;
+	global $txt;
 
 	// Setup context as always.
-	$context['page_title'] = $txt['mc_warning_log_title'];
+	Utils::$context['page_title'] = $txt['mc_warning_log_title'];
 
 	loadLanguage('Modlog');
 
@@ -1225,7 +1218,7 @@ function ViewWarningLog()
 	if (!empty($_REQUEST['params']) && empty($_REQUEST['is_search']))
 	{
 		$search_params = base64_decode(strtr($_REQUEST['params'], array(' ' => '+')));
-		$search_params = $smcFunc['json_decode']($search_params, true);
+		$search_params = Utils::jsonDecode($search_params, true);
 	}
 
 	// This array houses all the valid search types.
@@ -1241,7 +1234,7 @@ function ViewWarningLog()
 	);
 
 	// Setup the direction stuff...
-	$context['order'] = isset($_REQUEST['sort']) && isset($sort_types[$_REQUEST['sort']]) ? $_REQUEST['sort'] : 'member';
+	Utils::$context['order'] = isset($_REQUEST['sort']) && isset($sort_types[$_REQUEST['sort']]) ? $_REQUEST['sort'] : 'member';
 
 	if (!isset($search_params['string']) || (!empty($_REQUEST['search']) && $search_params['string'] != $_REQUEST['search']))
 		$search_params_string = empty($_REQUEST['search']) ? '' : $_REQUEST['search'];
@@ -1249,7 +1242,7 @@ function ViewWarningLog()
 		$search_params_string = $search_params['string'];
 
 	if (isset($_REQUEST['search_type']) || empty($search_params['type']) || !isset($searchTypes[$search_params['type']]))
-		$search_params_type = isset($_REQUEST['search_type']) && isset($searchTypes[$_REQUEST['search_type']]) ? $_REQUEST['search_type'] : (isset($searchTypes[$context['order']]) ? $context['order'] : 'member');
+		$search_params_type = isset($_REQUEST['search_type']) && isset($searchTypes[$_REQUEST['search_type']]) ? $_REQUEST['search_type'] : (isset($searchTypes[Utils::$context['order']]) ? Utils::$context['order'] : 'member');
 	else
 		$search_params_type = $search_params['type'];
 
@@ -1258,25 +1251,25 @@ function ViewWarningLog()
 		'type' => $search_params_type,
 	);
 
-	$context['url_start'] = '?action=moderate;area=warnings;sa=log;sort=' . $context['order'];
+	Utils::$context['url_start'] = '?action=moderate;area=warnings;sa=log;sort=' . Utils::$context['order'];
 
 	// Setup the search context.
-	$context['search_params'] = empty($search_params['string']) ? '' : base64_encode($smcFunc['json_encode']($search_params));
-	$context['search'] = array(
+	Utils::$context['search_params'] = empty($search_params['string']) ? '' : base64_encode(Utils::jsonEncode($search_params));
+	Utils::$context['search'] = array(
 		'string' => $search_params['string'],
 		'type' => $search_params['type'],
 		'label' => $searchTypes[$search_params_type]['label'],
 	);
 
-	require_once($sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/Subs-List.php');
 
 	// This is all the information required for a watched user listing.
 	$listOptions = array(
 		'id' => 'warning_list',
 		'title' => $txt['mc_warning_log_title'],
-		'items_per_page' => $modSettings['defaultMaxListItems'],
+		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 		'no_items_label' => $txt['mc_warnings_none'],
-		'base_href' => $scripturl . '?action=moderate;area=warnings;sa=log;' . $context['session_var'] . '=' . $context['session_id'],
+		'base_href' => Config::$scripturl . '?action=moderate;area=warnings;sa=log;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 		'default_sort_col' => 'time',
 		'get_items' => array(
 			'function' => 'list_getWarnings',
@@ -1327,7 +1320,7 @@ function ViewWarningLog()
 					'value' => $txt['profile_warning_previous_reason'],
 				),
 				'data' => array(
-					'function' => function($rowData) use ($scripturl, $txt)
+					'function' => function($rowData) use ($txt)
 					{
 						$output = '
 							<div class="floatleft">
@@ -1336,7 +1329,7 @@ function ViewWarningLog()
 
 						if (!empty($rowData['id_notice']))
 							$output .= '
-								&nbsp;<a href="' . $scripturl . '?action=moderate;area=notice;nid=' . $rowData['id_notice'] . '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" rel="noopener" title="' . $txt['profile_warning_previous_notice'] . '"><span class="main_icons filter centericon"></span></a>';
+								&nbsp;<a href="' . Config::$scripturl . '?action=moderate;area=notice;nid=' . $rowData['id_notice'] . '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" rel="noopener" title="' . $txt['profile_warning_previous_notice'] . '"><span class="main_icons filter centericon"></span></a>';
 						return $output;
 					},
 				),
@@ -1351,11 +1344,11 @@ function ViewWarningLog()
 			),
 		),
 		'form' => array(
-			'href' => $scripturl . $context['url_start'],
+			'href' => Config::$scripturl . Utils::$context['url_start'],
 			'include_sort' => true,
 			'include_start' => true,
 			'hidden_fields' => array(
-				$context['session_var'] => $context['session_id'],
+				Utils::$context['session_var'] => Utils::$context['session_id'],
 				'params' => false
 			),
 		),
@@ -1364,7 +1357,7 @@ function ViewWarningLog()
 				'position' => 'below_table_data',
 				'value' => '
 					' . $txt['modlog_search'] . ':
-					<input type="text" name="search" size="18" value="' . $smcFunc['htmlspecialchars']($context['search']['string']) . '">
+					<input type="text" name="search" size="18" value="' . Utils::htmlspecialchars(Utils::$context['search']['string']) . '">
 					<input type="submit" name="is_search" value="' . $txt['modlog_go'] . '" class="button">',
 				'class' => 'floatright',
 			),
@@ -1374,8 +1367,8 @@ function ViewWarningLog()
 	// Create the watched user list.
 	createList($listOptions);
 
-	$context['sub_template'] = 'show_list';
-	$context['default_list'] = 'warning_list';
+	Utils::$context['sub_template'] = 'show_list';
+	Utils::$context['default_list'] = 'warning_list';
 }
 
 /**
@@ -1385,9 +1378,7 @@ function ViewWarningLog()
  */
 function list_getWarningCount()
 {
-	global $smcFunc;
-
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}log_comments
 		WHERE comment_type = {string:warning}',
@@ -1395,8 +1386,8 @@ function list_getWarningCount()
 			'warning' => 'warning',
 		)
 	);
-	list ($totalWarns) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($totalWarns) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	return $totalWarns;
 }
@@ -1411,9 +1402,7 @@ function list_getWarningCount()
  */
 function list_getWarnings($start, $items_per_page, $sort)
 {
-	global $smcFunc, $scripturl;
-
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, lc.member_name) AS member_name_col,
 			COALESCE(mem2.id_member, 0) AS id_recipient, COALESCE(mem2.real_name, lc.recipient_name) AS recipient_name,
 			lc.log_time, lc.body, lc.id_notice, lc.counter
@@ -1431,18 +1420,18 @@ function list_getWarnings($start, $items_per_page, $sort)
 		)
 	);
 	$warnings = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$warnings[] = array(
-			'issuer_link' => $row['id_member'] ? ('<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['member_name_col'] . '</a>') : $row['member_name_col'],
-			'recipient_link' => $row['id_recipient'] ? ('<a href="' . $scripturl . '?action=profile;u=' . $row['id_recipient'] . '">' . $row['recipient_name'] . '</a>') : $row['recipient_name'],
+			'issuer_link' => $row['id_member'] ? ('<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['member_name_col'] . '</a>') : $row['member_name_col'],
+			'recipient_link' => $row['id_recipient'] ? ('<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_recipient'] . '">' . $row['recipient_name'] . '</a>') : $row['recipient_name'],
 			'time' => timeformat($row['log_time']),
 			'reason' => $row['body'],
 			'counter' => $row['counter'] > 0 ? '+' . $row['counter'] : $row['counter'],
 			'id_notice' => $row['id_notice'],
 		);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	return $warnings;
 }
@@ -1452,7 +1441,7 @@ function list_getWarnings($start, $items_per_page, $sort)
  */
 function ViewWarningTemplates()
 {
-	global $smcFunc, $modSettings, $context, $txt, $scripturl, $sourcedir, $user_info;
+	global $txt, $user_info;
 
 	// Submitting a new one?
 	if (isset($_POST['add']))
@@ -1463,7 +1452,7 @@ function ViewWarningTemplates()
 		validateToken('mod-wt');
 
 		// Log the actions.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT recipient_name
 			FROM {db_prefix}log_comments
 			WHERE id_comment IN ({array_int:delete_ids})
@@ -1476,12 +1465,12 @@ function ViewWarningTemplates()
 				'current_member' => $user_info['id'],
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			logAction('delete_warn_template', array('template' => $row['recipient_name']));
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// Do the deletes.
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}log_comments
 			WHERE id_comment IN ({array_int:delete_ids})
 				AND comment_type = {string:warntpl}
@@ -1496,17 +1485,17 @@ function ViewWarningTemplates()
 	}
 
 	// Setup context as always.
-	$context['page_title'] = $txt['mc_warning_templates_title'];
+	Utils::$context['page_title'] = $txt['mc_warning_templates_title'];
 
-	require_once($sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/Subs-List.php');
 
 	// This is all the information required for a watched user listing.
 	$listOptions = array(
 		'id' => 'warning_template_list',
 		'title' => $txt['mc_warning_templates_title'],
-		'items_per_page' => $modSettings['defaultMaxListItems'],
+		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 		'no_items_label' => $txt['mc_warning_templates_none'],
-		'base_href' => $scripturl . '?action=moderate;area=warnings;sa=templates;' . $context['session_var'] . '=' . $context['session_id'],
+		'base_href' => Config::$scripturl . '?action=moderate;area=warnings;sa=templates;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 		'default_sort_col' => 'title',
 		'get_items' => array(
 			'function' => 'list_getWarningTemplates',
@@ -1522,7 +1511,7 @@ function ViewWarningTemplates()
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<a href="' . $scripturl . '?action=moderate;area=warnings;sa=templateedit;tid=%1$d">%2$s</a>',
+						'format' => '<a href="' . Config::$scripturl . '?action=moderate;area=warnings;sa=templateedit;tid=%1$d">%2$s</a>',
 						'params' => array(
 							'id_comment' => false,
 							'title' => false,
@@ -1575,7 +1564,7 @@ function ViewWarningTemplates()
 			),
 		),
 		'form' => array(
-			'href' => $scripturl . '?action=moderate;area=warnings;sa=templates',
+			'href' => Config::$scripturl . '?action=moderate;area=warnings;sa=templates',
 			'token' => 'mod-wt',
 		),
 		'additional_rows' => array(
@@ -1594,8 +1583,8 @@ function ViewWarningTemplates()
 	createToken('mod-wt');
 	createList($listOptions);
 
-	$context['sub_template'] = 'show_list';
-	$context['default_list'] = 'warning_template_list';
+	Utils::$context['sub_template'] = 'show_list';
+	Utils::$context['default_list'] = 'warning_template_list';
 }
 
 /**
@@ -1605,9 +1594,9 @@ function ViewWarningTemplates()
  */
 function list_getWarningTemplateCount()
 {
-	global $smcFunc, $user_info;
+	global $user_info;
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}log_comments
 		WHERE comment_type = {string:warntpl}
@@ -1618,8 +1607,8 @@ function list_getWarningTemplateCount()
 			'current_member' => $user_info['id'],
 		)
 	);
-	list ($totalWarns) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($totalWarns) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	return $totalWarns;
 }
@@ -1634,9 +1623,9 @@ function list_getWarningTemplateCount()
  */
 function list_getWarningTemplates($start, $items_per_page, $sort)
 {
-	global $smcFunc, $scripturl, $user_info;
+	global $user_info;
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT lc.id_comment, COALESCE(mem.id_member, 0) AS id_member,
 			COALESCE(mem.real_name, lc.member_name) AS creator_name, recipient_name AS template_title,
 			lc.log_time, lc.body
@@ -1653,17 +1642,17 @@ function list_getWarningTemplates($start, $items_per_page, $sort)
 		)
 	);
 	$templates = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$templates[] = array(
 			'id_comment' => $row['id_comment'],
-			'creator' => $row['id_member'] ? ('<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['creator_name'] . '</a>') : $row['creator_name'],
+			'creator' => $row['id_member'] ? ('<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['creator_name'] . '</a>') : $row['creator_name'],
 			'time' => timeformat($row['log_time']),
 			'title' => $row['template_title'],
-			'body' => $smcFunc['htmlspecialchars']($row['body']),
+			'body' => Utils::htmlspecialchars($row['body']),
 		);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	return $templates;
 }
@@ -1673,18 +1662,18 @@ function list_getWarningTemplates($start, $items_per_page, $sort)
  */
 function ModifyWarningTemplate()
 {
-	global $smcFunc, $context, $txt, $user_info, $sourcedir;
+	global $txt, $user_info;
 
-	$context['id_template'] = isset($_REQUEST['tid']) ? (int) $_REQUEST['tid'] : 0;
-	$context['is_edit'] = $context['id_template'];
+	Utils::$context['id_template'] = isset($_REQUEST['tid']) ? (int) $_REQUEST['tid'] : 0;
+	Utils::$context['is_edit'] = Utils::$context['id_template'];
 
 	// Standard template things.
-	$context['page_title'] = $context['is_edit'] ? $txt['mc_warning_template_modify'] : $txt['mc_warning_template_add'];
-	$context['sub_template'] = 'warn_template';
-	$context[$context['moderation_menu_name']]['current_subsection'] = 'templates';
+	Utils::$context['page_title'] = Utils::$context['is_edit'] ? $txt['mc_warning_template_modify'] : $txt['mc_warning_template_add'];
+	Utils::$context['sub_template'] = 'warn_template';
+	Utils::$context[Utils::$context['moderation_menu_name']]['current_subsection'] = 'templates';
 
 	// Defaults.
-	$context['template_data'] = array(
+	Utils::$context['template_data'] = array(
 		'title' => '',
 		'body' => $txt['mc_warning_template_body_default'],
 		'personal' => false,
@@ -1692,31 +1681,31 @@ function ModifyWarningTemplate()
 	);
 
 	// If it's an edit load it.
-	if ($context['is_edit'])
+	if (Utils::$context['is_edit'])
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_member, id_recipient, recipient_name AS template_title, body
 			FROM {db_prefix}log_comments
 			WHERE id_comment = {int:id}
 				AND comment_type = {string:warntpl}
 				AND (id_recipient = {int:generic} OR id_recipient = {int:current_member})',
 			array(
-				'id' => $context['id_template'],
+				'id' => Utils::$context['id_template'],
 				'warntpl' => 'warntpl',
 				'generic' => 0,
 				'current_member' => $user_info['id'],
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
-			$context['template_data'] = array(
+			Utils::$context['template_data'] = array(
 				'title' => $row['template_title'],
-				'body' => $smcFunc['htmlspecialchars']($row['body']),
+				'body' => Utils::htmlspecialchars($row['body']),
 				'personal' => $row['id_recipient'],
 				'can_edit_personal' => $row['id_member'] == $user_info['id'],
 			);
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 	}
 
 	// Wait, we are saving?
@@ -1726,7 +1715,7 @@ function ModifyWarningTemplate()
 		validateToken('mod-wt');
 
 		// To check the BBC is pretty good...
-		require_once($sourcedir . '/Subs-Post.php');
+		require_once(Config::$sourcedir . '/Subs-Post.php');
 
 		// Bit of cleaning!
 		$_POST['template_body'] = trim($_POST['template_body']);
@@ -1736,7 +1725,7 @@ function ModifyWarningTemplate()
 		if (!empty($_POST['template_body']) && !empty($_POST['template_title']))
 		{
 			// Safety first.
-			$_POST['template_title'] = $smcFunc['htmlspecialchars']($_POST['template_title']);
+			$_POST['template_title'] = Utils::htmlspecialchars($_POST['template_title']);
 
 			// Clean up BBC.
 			preparsecode($_POST['template_body']);
@@ -1747,10 +1736,10 @@ function ModifyWarningTemplate()
 			$recipient_id = !empty($_POST['make_personal']) ? $user_info['id'] : 0;
 
 			// If we are this far it's save time.
-			if ($context['is_edit'])
+			if (Utils::$context['is_edit'])
 			{
 				// Simple update...
-				$smcFunc['db_query']('', '
+				Db::$db->query('', '
 					UPDATE {db_prefix}log_comments
 					SET id_recipient = {int:personal}, recipient_name = {string:title}, body = {string:body}
 					WHERE id_comment = {int:id}
@@ -1761,7 +1750,7 @@ function ModifyWarningTemplate()
 						'personal' => $recipient_id,
 						'title' => $_POST['template_title'],
 						'body' => $_POST['template_body'],
-						'id' => $context['id_template'],
+						'id' => Utils::$context['id_template'],
 						'warntpl' => 'warntpl',
 						'generic' => 0,
 						'current_member' => $user_info['id'],
@@ -1769,10 +1758,10 @@ function ModifyWarningTemplate()
 				);
 
 				// If it wasn't visible and now is they've effectively added it.
-				if ($context['template_data']['personal'] && !$recipient_id)
+				if (Utils::$context['template_data']['personal'] && !$recipient_id)
 					logAction('add_warn_template', array('template' => $_POST['template_title']));
 				// Conversely if they made it personal it's a delete.
-				elseif (!$context['template_data']['personal'] && $recipient_id)
+				elseif (!Utils::$context['template_data']['personal'] && $recipient_id)
 					logAction('delete_warn_template', array('template' => $_POST['template_title']));
 				// Otherwise just an edit.
 				else
@@ -1780,7 +1769,7 @@ function ModifyWarningTemplate()
 			}
 			else
 			{
-				$smcFunc['db_insert']('',
+				Db::$db->insert('',
 					'{db_prefix}log_comments',
 					array(
 						'id_member' => 'int', 'member_name' => 'string', 'comment_type' => 'string', 'id_recipient' => 'int',
@@ -1801,15 +1790,15 @@ function ModifyWarningTemplate()
 		}
 		else
 		{
-			$context['warning_errors'] = array();
-			$context['template_data']['title'] = !empty($_POST['template_title']) ? $_POST['template_title'] : '';
-			$context['template_data']['body'] = !empty($_POST['template_body']) ? $_POST['template_body'] : $txt['mc_warning_template_body_default'];
-			$context['template_data']['personal'] = !empty($_POST['make_personal']);
+			Utils::$context['warning_errors'] = array();
+			Utils::$context['template_data']['title'] = !empty($_POST['template_title']) ? $_POST['template_title'] : '';
+			Utils::$context['template_data']['body'] = !empty($_POST['template_body']) ? $_POST['template_body'] : $txt['mc_warning_template_body_default'];
+			Utils::$context['template_data']['personal'] = !empty($_POST['make_personal']);
 
 			if (empty($_POST['template_title']))
-				$context['warning_errors'][] = $txt['mc_warning_template_error_no_title'];
+				Utils::$context['warning_errors'][] = $txt['mc_warning_template_error_no_title'];
 			if (empty($_POST['template_body']))
-				$context['warning_errors'][] = $txt['mc_warning_template_error_no_body'];
+				Utils::$context['warning_errors'][] = $txt['mc_warning_template_error_no_body'];
 		}
 	}
 
@@ -1821,13 +1810,13 @@ function ModifyWarningTemplate()
  */
 function ModerationSettings()
 {
-	global $context, $txt, $user_info;
+	global $txt, $user_info;
 
 	// Some useful context stuff.
 	loadTemplate('ModerationCenter');
-	$context['page_title'] = $txt['mc_settings'];
-	$context['sub_template'] = 'moderation_settings';
-	$context[$context['moderation_menu_name']]['tab_data'] = array(
+	Utils::$context['page_title'] = $txt['mc_settings'];
+	Utils::$context['sub_template'] = 'moderation_settings';
+	Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = array(
 		'title' => $txt['mc_prefs_title'],
 		'help' => '',
 		'description' => $txt['mc_prefs_desc']
@@ -1860,7 +1849,7 @@ function ModerationSettings()
 	}
 
 	// What blocks does the user currently have selected?
-	$context['mod_settings'] = array(
+	Utils::$context['mod_settings'] = array(
 	);
 
 	createToken('mod-set');

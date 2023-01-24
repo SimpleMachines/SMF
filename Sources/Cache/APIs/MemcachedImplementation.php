@@ -14,6 +14,7 @@
 namespace SMF\Cache\APIs;
 
 use Memcached;
+use SMF\Config;
 use SMF\Cache\CacheApi;
 use SMF\Cache\CacheApiInterface;
 
@@ -48,8 +49,6 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	 */
 	public function __construct()
 	{
-		global $cache_memcached;
-
 		$this->servers = array_map(
 			function($server)
 			{
@@ -63,7 +62,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 					return array($server[0], isset($server[1]) ? (int) $server[1] : 11211);
 				}
 			},
-			explode(',', $cache_memcached)
+			explode(',', Config::$cache_memcached)
 		);
 
 		parent::__construct();
@@ -174,7 +173,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	 */
 	public function cacheSettings(array &$config_vars)
 	{
-		global $context, $txt;
+		global $txt;
 
 		if (!in_array($txt[self::CLASS_KEY .'_settings'], $config_vars))
 		{
@@ -188,11 +187,11 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 				'subtext' => $txt[self::CLASS_KEY .'_servers_subtext']);
 		}
 
-		if (!isset($context['settings_post_javascript']))
-			$context['settings_post_javascript'] = '';
+		if (!isset(Utils::$context['settings_post_javascript']))
+			Utils::$context['settings_post_javascript'] = '';
 
-		if (empty($context['settings_not_writable']))
-			$context['settings_post_javascript'] .= '
+		if (empty(Utils::$context['settings_not_writable']))
+			Utils::$context['settings_post_javascript'] .= '
 			$("#cache_accelerator").change(function (e) {
 				var cache_type = e.currentTarget.value;
 				$("#'. self::CLASS_KEY .'").prop("disabled", cache_type != "MemcacheImplementation" && cache_type != "MemcachedImplementation");

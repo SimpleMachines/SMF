@@ -13,6 +13,8 @@
 
 namespace SMF\Subscriptions\PayPal;
 
+use SMF\Config;
+
 /**
  * Class for returning available form data for this gateway
  */
@@ -60,9 +62,7 @@ class Display
 	 */
 	public function gatewayEnabled()
 	{
-		global $modSettings;
-
-		return !empty($modSettings['paypal_email']);
+		return !empty(Config::$modSettings['paypal_email']);
 	}
 
 	/**
@@ -80,10 +80,10 @@ class Display
 	 */
 	public function fetchGatewayFields($unique_id, $sub_data, $value, $period, $return_url)
 	{
-		global $modSettings, $txt, $boardurl;
+		global $txt;
 
 		$return_data = array(
-			'form' => 'https://www.' . (!empty($modSettings['paidsubs_test']) ? 'sandbox.' : '') . 'paypal.com/cgi-bin/webscr',
+			'form' => 'https://www.' . (!empty(Config::$modSettings['paidsubs_test']) ? 'sandbox.' : '') . 'paypal.com/cgi-bin/webscr',
 			'id' => 'paypal',
 			'hidden' => array(),
 			'title' => $txt['paypal'],
@@ -93,10 +93,10 @@ class Display
 		);
 
 		// All the standard bits.
-		$return_data['hidden']['business'] = $modSettings['paypal_email'];
+		$return_data['hidden']['business'] = Config::$modSettings['paypal_email'];
 		$return_data['hidden']['item_name'] = $sub_data['name'] . ' ' . $txt['subscription'];
 		$return_data['hidden']['item_number'] = $unique_id;
-		$return_data['hidden']['currency_code'] = strtoupper($modSettings['paid_currency_code']);
+		$return_data['hidden']['currency_code'] = strtoupper(Config::$modSettings['paid_currency_code']);
 		$return_data['hidden']['no_shipping'] = 1;
 		$return_data['hidden']['no_note'] = 1;
 		$return_data['hidden']['amount'] = $value;
@@ -104,7 +104,7 @@ class Display
 		$return_data['hidden']['return'] = $return_url;
 		$return_data['hidden']['a3'] = $value;
 		$return_data['hidden']['src'] = 1;
-		$return_data['hidden']['notify_url'] = $boardurl . '/subscriptions.php';
+		$return_data['hidden']['notify_url'] = Config::$boardurl . '/subscriptions.php';
 
 		// If possible let's use the language we know we need.
 		$return_data['hidden']['lc'] = !empty($txt['lang_paypal']) ? $txt['lang_paypal'] : 'US';

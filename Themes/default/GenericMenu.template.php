@@ -10,27 +10,30 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+
 /**
  * This contains the HTML for the menu bar at the top of the admin center.
  */
 function template_generic_menu_dropdown_above()
 {
-	global $context, $txt;
+	global $txt;
 
 	// Which menu are we rendering?
-	$context['cur_menu_id'] = isset($context['cur_menu_id']) ? $context['cur_menu_id'] + 1 : 1;
-	$menu_context = &$context['menu_data_' . $context['cur_menu_id']];
-	$menu_label = isset($context['admin_menu_name']) ? $txt['admin_center'] : (isset($context['moderation_menu_name']) ? $txt['moderation_center'] : '');
+	Utils::$context['cur_menu_id'] = isset(Utils::$context['cur_menu_id']) ? Utils::$context['cur_menu_id'] + 1 : 1;
+	$menu_context = &Utils::$context['menu_data_' . Utils::$context['cur_menu_id']];
+	$menu_label = isset(Utils::$context['admin_menu_name']) ? $txt['admin_center'] : (isset(Utils::$context['moderation_menu_name']) ? $txt['moderation_center'] : '');
 
 	// Load the menu
 	// Add mobile menu as well
 	echo '
-	<a class="mobile_generic_menu_', $context['cur_menu_id'], '">
+	<a class="mobile_generic_menu_', Utils::$context['cur_menu_id'], '">
 		<span class="menu_icon"></span>
 		<span class="text_menu">', sprintf($txt['mobile_generic_menu'], $menu_label), '</span>
 	</a>
 	<div id="genericmenu">
-		<div id="mobile_generic_menu_', $context['cur_menu_id'], '" class="popup_container">
+		<div id="mobile_generic_menu_', Utils::$context['cur_menu_id'], '" class="popup_container">
 			<div class="popup_window description">
 				<div class="popup_heading">
 					', sprintf($txt['mobile_generic_menu'], $menu_label), '
@@ -41,11 +44,11 @@ function template_generic_menu_dropdown_above()
 		</div>
 	</div>
 	<script>
-		$( ".mobile_generic_menu_', $context['cur_menu_id'], '" ).click(function() {
-			$( "#mobile_generic_menu_', $context['cur_menu_id'], '" ).show();
+		$( ".mobile_generic_menu_', Utils::$context['cur_menu_id'], '" ).click(function() {
+			$( "#mobile_generic_menu_', Utils::$context['cur_menu_id'], '" ).show();
 			});
 		$( ".hide_popup" ).click(function() {
-			$( "#mobile_generic_menu_', $context['cur_menu_id'], '" ).hide();
+			$( "#mobile_generic_menu_', Utils::$context['cur_menu_id'], '" ).hide();
 		});
 	</script>';
 
@@ -54,7 +57,7 @@ function template_generic_menu_dropdown_above()
 				<div id="admin_content">';
 
 	// It's possible that some pages have their own tabs they wanna force...
-// 	if (!empty($context['tabs']))
+// 	if (!empty(Utils::$context['tabs']))
 	template_generic_menu_tabs($menu_context);
 }
 
@@ -74,11 +77,9 @@ function template_generic_menu_dropdown_below()
  */
 function template_generic_menu(&$menu_context)
 {
-	global $context;
-
 	echo '
 				<div class="generic_menu">
-					<ul class="dropmenu dropdown_menu_', $context['cur_menu_id'], '">';
+					<ul class="dropmenu dropdown_menu_', Utils::$context['cur_menu_id'], '">';
 
 	// Main areas first.
 	foreach ($menu_context['sections'] as $section)
@@ -100,8 +101,8 @@ function template_generic_menu(&$menu_context)
 									<a class="', $area['icon_class'], !empty($area['selected']) ? ' chosen ' : '', '" href="', (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i), $menu_context['extra_parameters'], '">', $area['icon'], $area['label'], !empty($area['amt']) ? ' <span class="amt">' . $area['amt'] . '</span>' : '', '</a>';
 
 			// Is this the current area, or just some area?
-			if (!empty($area['selected']) && empty($context['tabs']))
-				$context['tabs'] = isset($area['subsections']) ? $area['subsections'] : array();
+			if (!empty($area['selected']) && empty(Utils::$context['tabs']))
+				Utils::$context['tabs'] = isset($area['subsections']) ? $area['subsections'] : array();
 
 			// Are there any subsections?
 			if (!empty($area['subsections']) && empty($area['hide_subsections']))
@@ -146,7 +147,7 @@ function template_generic_menu(&$menu_context)
  */
 function template_generic_menu_tabs(&$menu_context)
 {
-	global $context, $settings, $scripturl, $txt;
+	global $settings, $txt;
 
 	// Handy shortcut.
 	$tab_context = &$menu_context['tab_data'];
@@ -164,9 +165,9 @@ function template_generic_menu_tabs(&$menu_context)
 						<h3 class="catbg">';
 
 		// Exactly how many tabs do we have?
-		if (!empty($context['tabs']))
+		if (!empty(Utils::$context['tabs']))
 		{
-			foreach ($context['tabs'] as $id => $tab)
+			foreach (Utils::$context['tabs'] as $id => $tab)
 			{
 				// Can this not be accessed?
 				if (!empty($tab['disabled']))
@@ -225,7 +226,7 @@ function template_generic_menu_tabs(&$menu_context)
 
 			if (!empty($selected_tab['help']) || !empty($tab_context['help']))
 				echo '
-								<a href="', $scripturl, '?action=helpadmin;help=', !empty($selected_tab['help']) ? $selected_tab['help'] : $tab_context['help'], '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>';
+								<a href="', Config::$scripturl, '?action=helpadmin;help=', !empty($selected_tab['help']) ? $selected_tab['help'] : $tab_context['help'], '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>';
 
 			echo $tab_context['title'];
 		}
@@ -246,16 +247,16 @@ function template_generic_menu_tabs(&$menu_context)
 					</p>';
 
 	// Print out all the items in this tab (if any).
-	if (!empty($context['tabs']))
+	if (!empty(Utils::$context['tabs']))
 	{
 		// The admin tabs.
 		echo '
-					<a class="mobile_generic_menu_', $context['cur_menu_id'], '_tabs">
+					<a class="mobile_generic_menu_', Utils::$context['cur_menu_id'], '_tabs">
 						<span class="menu_icon"></span>
 						<span class="text_menu">', sprintf($txt['mobile_generic_menu'], $tab_context['title']), '</span>
 					</a>
 					<div id="adm_submenus">
-						<div id="mobile_generic_menu_', $context['cur_menu_id'], '_tabs" class="popup_container">
+						<div id="mobile_generic_menu_', Utils::$context['cur_menu_id'], '_tabs" class="popup_container">
 							<div class="popup_window description">
 								<div class="popup_heading">
 									', sprintf($txt['mobile_generic_menu'], $tab_context['title']), '
@@ -264,7 +265,7 @@ function template_generic_menu_tabs(&$menu_context)
 
 		echo '
 								<div class="generic_menu">
-									<ul class="dropmenu dropdown_menu_', $context['cur_menu_id'], '_tabs">';
+									<ul class="dropmenu dropdown_menu_', Utils::$context['cur_menu_id'], '_tabs">';
 
 		foreach ($tab_context['tabs'] as $sa => $tab)
 		{
@@ -291,11 +292,11 @@ function template_generic_menu_tabs(&$menu_context)
 						</div>
 					</div><!-- #adm_submenus -->
 					<script>
-						$( ".mobile_generic_menu_', $context['cur_menu_id'], '_tabs" ).click(function() {
-							$( "#mobile_generic_menu_', $context['cur_menu_id'], '_tabs" ).show();
+						$( ".mobile_generic_menu_', Utils::$context['cur_menu_id'], '_tabs" ).click(function() {
+							$( "#mobile_generic_menu_', Utils::$context['cur_menu_id'], '_tabs" ).show();
 							});
 						$( ".hide_popup" ).click(function() {
-							$( "#mobile_generic_menu_', $context['cur_menu_id'], '_tabs" ).hide();
+							$( "#mobile_generic_menu_', Utils::$context['cur_menu_id'], '_tabs" ).hide();
 						});
 					</script>';
 	}

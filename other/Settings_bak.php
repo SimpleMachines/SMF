@@ -15,213 +15,210 @@
 
 ########## Maintenance ##########
 /**
- * The maintenance "mode"
- * Set to 1 to enable Maintenance Mode, 2 to make the forum untouchable. (you'll have to make it 0 again manually!)
- * 0 is default and disables maintenance mode.
- *
  * @var int 0, 1, 2
- * @global int $maintenance
+ *
+ * The maintenance "mode":
+ * 0: Disable maintenance mode. This is the default.
+ * 1: Enable maintenance mode but allow admins to login normally.
+ * 2: Make the forum untouchable. You'll need to make it 0 again manually!
  */
 $maintenance = 0;
 /**
- * Title for the Maintenance Mode message.
- *
  * @var string
- * @global int $mtitle
+ *
+ * Title for the Maintenance Mode message.
  */
 $mtitle = 'Maintenance Mode';
 /**
- * Description of why the forum is in maintenance mode.
- *
  * @var string
- * @global string $mmessage
+ *
+ * Description of why the forum is in maintenance mode.
  */
 $mmessage = 'Okay faithful users...we\'re attempting to restore an older backup of the database...news will be posted once we\'re back!';
 
 ########## Forum Info ##########
 /**
- * The name of your forum.
- *
  * @var string
+ *
+ * The name of your forum.
  */
 $mbname = 'My Community';
 /**
- * The default language file set for the forum.
- *
  * @var string
+ *
+ * The default language file set for the forum.
  */
 $language = 'english';
 /**
- * URL to your forum's folder. (without the trailing /!)
- *
  * @var string
+ *
+ * URL to your forum's folder. (without the trailing /!)
  */
 $boardurl = 'http://127.0.0.1/smf';
 /**
- * Email address to send emails from. (like noreply@yourdomain.com.)
- *
  * @var string
+ *
+ * Email address to send emails from. (like noreply@yourdomain.com.)
  */
 $webmaster_email = 'noreply@myserver.com';
 /**
- * Name of the cookie to set for authentication.
- *
  * @var string
+ *
+ * Name of the cookie to set for authentication.
  */
 $cookiename = 'SMFCookie11';
 
 ########## Database Info ##########
 /**
- * The database type
- * Default options: mysql, postgresql
- *
  * @var string
+ *
+ * The database type.
+ * Default options: mysql, postgresql
  */
 $db_type = 'mysql';
 /**
- * The database port
- * 0 to use default port for the database type
- *
  * @var int
+ *
+ * The database port.
+ * 0 to use default port for the database type.
  */
 $db_port = 0;
 /**
- * The server to connect to (or a Unix socket)
- *
  * @var string
+ *
+ * The server to connect to (or a Unix socket)
  */
 $db_server = 'localhost';
 /**
- * The database name
- *
  * @var string
+ *
+ * The database name.
  */
 $db_name = 'smf';
 /**
- * Database username
- *
  * @var string
+ *
+ * Database username.
  */
 $db_user = 'root';
 /**
- * Database password
- *
  * @var string
+ *
+ * Database password.
  */
 $db_passwd = '';
 /**
- * Database user for when connecting with SSI
- *
  * @var string
+ *
+ * Database user for when connecting with SSI.
  */
 $ssi_db_user = '';
 /**
- * Database password for when connecting with SSI
- *
  * @var string
+ *
+ * Database password for when connecting with SSI.
  */
 $ssi_db_passwd = '';
 /**
- * A prefix to put in front of your table names.
- * This helps to prevent conflicts
- *
  * @var string
+ *
+ * A prefix to put in front of your table names.
+ * This helps to prevent conflicts.
  */
 $db_prefix = 'smf_';
 /**
- * Use a persistent database connection
- *
  * @var bool
+ *
+ * Use a persistent database connection.
  */
 $db_persist = false;
 /**
- * Send emails on database connection error
- *
  * @var bool
+ *
+ * Send emails on database connection error.
  */
 $db_error_send = false;
 /**
- * Override the default behavior of the database layer for mb4 handling
- * null keep the default behavior untouched
- *
  * @var null|bool
+ *
+ * Override the default behavior of the database layer for mb4 handling.
+ * null keep the default behavior untouched.
  */
 $db_mb4 = null;
 
 ########## Cache Info ##########
 /**
- * Select a cache system. You want to leave this up to the cache area of the admin panel for
- * proper detection of apc, memcached, output_cache, smf, or xcache
- * (you can add more with a mod).
- *
  * @var string
+ *
+ * Select a cache system. You should leave this up to the cache area of the
+ * admin panel for proper detection of the available options.
  */
 $cache_accelerator = '';
 /**
- * The level at which you would like to cache. Between 0 (off) through 3 (cache a lot).
- *
  * @var int
+ *
+ * The level at which you would like to cache.
+ * Between 0 (off) through 3 (cache a lot).
  */
 $cache_enable = 0;
 /**
- * This is only used for memcache / memcached. Should be a string of 'server:port,server:port'
- *
  * @var array
+ *
+ * This is only used for memcache / memcached.
+ * Should be a string of 'server:port,server:port'
  */
 $cache_memcached = '';
 /**
- * This is only for the 'smf' file cache system. It is the path to the cache directory.
- * It is also recommended that you place this in /tmp/ if you are going to use this.
- *
  * @var string
+ *
+ * Path to the cache directory for the file-based cache system.
  */
 $cachedir = dirname(__FILE__) . '/cache';
 
 ########## Image Proxy ##########
-# This is done entirely in Settings.php to avoid loading the DB while serving the images
 /**
- * Whether the proxy is enabled or not
- *
  * @var bool
+ *
+ * Whether the proxy is enabled or not.
  */
 $image_proxy_enabled = true;
 /**
- * Secret key to be used by the proxy
- *
  * @var string
+ *
+ * Secret key to be used by the proxy.
  */
 $image_proxy_secret = 'smfisawesome';
 /**
- * Maximum file size (in KB) for individual files
- *
  * @var int
+ *
+ * Maximum file size (in KB) for individual files.
  */
 $image_proxy_maxsize = 5192;
 
 ########## Directories/Files ##########
 # Note: These directories do not have to be changed unless you move things.
 /**
- * The absolute path to the forum's folder. (not just '.'!)
- *
  * @var string
+ *
+ * The absolute path to the forum's folder. (not just '.'!)
  */
 $boarddir = dirname(__FILE__);
 /**
- * Path to the Sources directory.
- *
  * @var string
+ *
+ * Path to the Sources directory.
  */
 $sourcedir = dirname(__FILE__) . '/Sources';
 /**
- * Path to the Packages directory.
- *
  * @var string
+ *
+ * Path to the Packages directory.
  */
 $packagesdir = dirname(__FILE__) . '/Packages';
 /**
- * Path to the tasks directory.
- *
  * @var string
+ *
+ * Path to the tasks directory.
  */
 $tasksdir = $sourcedir . '/tasks';
 
@@ -238,7 +235,11 @@ if (!is_dir(realpath($cachedir)) && is_dir($boarddir . '/cache'))
 	$cachedir = $boarddir . '/cache';
 
 ######### Legacy Settings #########
-# UTF-8 is now the only character set supported in 2.1.
+/**
+ * @var string
+ *
+ * Database character set. Should always be utf8.
+ */
 $db_character_set = 'utf8';
 
 ########## Error-Catching ##########

@@ -13,6 +13,9 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
 use SMF\PackageManager\XmlArray;
 
 if (!defined('SMF'))
@@ -26,8 +29,8 @@ if (!defined('SMF'))
  */
 function AdminMain()
 {
-	global $txt, $context, $scripturl, $modSettings, $settings;
-	global $smcFunc, $sourcedir, $options, $boarddir;
+	global $txt, $settings;
+	global $options;
 
 	// Load the language and templates....
 	loadLanguage('Admin');
@@ -36,12 +39,12 @@ function AdminMain()
 	loadCSSFile('admin.css', array(), 'smf_admin');
 
 	// No indexing evil stuff.
-	$context['robot_no_index'] = true;
+	Utils::$context['robot_no_index'] = true;
 
-	require_once($sourcedir . '/Subs-Menu.php');
+	require_once(Config::$sourcedir . '/Subs-Menu.php');
 
 	// Some preferences.
-	$context['admin_preferences'] = !empty($options['admin_preferences']) ? $smcFunc['json_decode']($options['admin_preferences'], true) : array();
+	Utils::$context['admin_preferences'] = !empty($options['admin_preferences']) ? Utils::jsonDecode($options['admin_preferences'], true) : array();
 
 	/** @var array $admin_areas Defines the menu structure for the admin center. See {@link Subs-Menu.php Subs-Menu.php} for details! */
 	$admin_areas = array(
@@ -78,7 +81,7 @@ function AdminMain()
 					'icon' => 'packages',
 					'subsections' => array(
 						'browse' => array($txt['browse_packages']),
-						'packageget' => array($txt['download_packages'], 'url' => $scripturl . '?action=admin;area=packages;sa=packageget;get'),
+						'packageget' => array($txt['download_packages'], 'url' => Config::$scripturl . '?action=admin;area=packages;sa=packageget;get'),
 						'perms' => array($txt['package_file_perms']),
 						'options' => array($txt['package_settings']),
 					),
@@ -91,7 +94,7 @@ function AdminMain()
 				'adminlogoff' => array(
 					'label' => $txt['admin_logoff'],
 					'function' => 'AdminEndSession',
-					'enabled' => empty($modSettings['securityDisable']),
+					'enabled' => empty(Config::$modSettings['securityDisable']),
 					'icon' => 'exit',
 				),
 
@@ -138,14 +141,14 @@ function AdminMain()
 					'label' => $txt['theme_current_settings'],
 					'file' => 'Themes.php',
 					'function' => 'ThemesMain',
-					'custom_url' => $scripturl . '?action=admin;area=theme;sa=list;th=' . $settings['theme_id'],
+					'custom_url' => Config::$scripturl . '?action=admin;area=theme;sa=list;th=' . $settings['theme_id'],
 					'icon' => 'current_theme',
 				),
 				'theme' => array(
 					'label' => $txt['theme_admin'],
 					'file' => 'Themes.php',
 					'function' => 'ThemesMain',
-					'custom_url' => $scripturl . '?action=admin;area=theme',
+					'custom_url' => Config::$scripturl . '?action=admin;area=theme',
 					'icon' => 'themes',
 					'subsections' => array(
 						'admin' => array($txt['themeadmin_admin_title']),
@@ -203,8 +206,8 @@ function AdminMain()
 					'function' => 'ManageCalendar',
 					'icon' => 'calendar',
 					'permission' => array('admin_forum'),
-					'inactive' => empty($modSettings['cal_enabled']),
-					'subsections' => empty($modSettings['cal_enabled']) ? array() : array(
+					'inactive' => empty(Config::$modSettings['cal_enabled']),
+					'subsections' => empty(Config::$modSettings['cal_enabled']) ? array() : array(
 						'holidays' => array($txt['manage_holidays'], 'admin_forum'),
 						'settings' => array($txt['calendar_settings'], 'admin_forum'),
 					),
@@ -229,10 +232,10 @@ function AdminMain()
 					'permission' => array('manage_smileys'),
 					'subsections' => array(
 						'editsets' => array($txt['smiley_sets']),
-						'addsmiley' => array($txt['smileys_add'], 'enabled' => !empty($modSettings['smiley_enable'])),
-						'editsmileys' => array($txt['smileys_edit'], 'enabled' => !empty($modSettings['smiley_enable'])),
-						'setorder' => array($txt['smileys_set_order'], 'enabled' => !empty($modSettings['smiley_enable'])),
-						'editicons' => array($txt['icons_edit_message_icons'], 'enabled' => !empty($modSettings['messageIcons_enable'])),
+						'addsmiley' => array($txt['smileys_add'], 'enabled' => !empty(Config::$modSettings['smiley_enable'])),
+						'editsmileys' => array($txt['smileys_edit'], 'enabled' => !empty(Config::$modSettings['smiley_enable'])),
+						'setorder' => array($txt['smileys_set_order'], 'enabled' => !empty(Config::$modSettings['smiley_enable'])),
+						'editicons' => array($txt['icons_edit_message_icons'], 'enabled' => !empty(Config::$modSettings['messageIcons_enable'])),
 						'settings' => array($txt['settings']),
 					),
 				),
@@ -252,12 +255,12 @@ function AdminMain()
 				),
 				'sengines' => array(
 					'label' => $txt['search_engines'],
-					'inactive' => empty($modSettings['spider_mode']),
+					'inactive' => empty(Config::$modSettings['spider_mode']),
 					'file' => 'ManageSearchEngines.php',
 					'icon' => 'engines',
 					'function' => 'SearchEngines',
 					'permission' => 'admin_forum',
-					'subsections' => empty($modSettings['spider_mode']) ? array() : array(
+					'subsections' => empty(Config::$modSettings['spider_mode']) ? array() : array(
 						'stats' => array($txt['spider_stats']),
 						'logs' => array($txt['spider_logs']),
 						'spiders' => array($txt['spiders']),
@@ -326,7 +329,7 @@ function AdminMain()
 					'file' => 'ManageSettings.php',
 					'function' => 'ModifyWarningSettings',
 					'icon' => 'warning',
-					'inactive' => $modSettings['warning_settings'][0] == 0,
+					'inactive' => Config::$modSettings['warning_settings'][0] == 0,
 					'permission' => array('admin_forum'),
 				),
 				'ban' => array(
@@ -344,12 +347,12 @@ function AdminMain()
 				),
 				'paidsubscribe' => array(
 					'label' => $txt['paid_subscriptions'],
-					'inactive' => empty($modSettings['paid_enabled']),
+					'inactive' => empty(Config::$modSettings['paid_enabled']),
 					'file' => 'ManagePaid.php',
 					'icon' => 'paid',
 					'function' => 'ManagePaidSubscriptions',
 					'permission' => 'admin_forum',
-					'subsections' => empty($modSettings['paid_enabled']) ? array() : array(
+					'subsections' => empty(Config::$modSettings['paid_enabled']) ? array() : array(
 						'view' => array($txt['paid_subs_view']),
 						'settings' => array($txt['settings']),
 					),
@@ -422,11 +425,11 @@ function AdminMain()
 					'function' => 'AdminLogs',
 					'icon' => 'logs',
 					'subsections' => array(
-						'errorlog' => array($txt['errorlog'], 'admin_forum', 'enabled' => !empty($modSettings['enableErrorLogging']), 'url' => $scripturl . '?action=admin;area=logs;sa=errorlog;desc'),
-						'adminlog' => array($txt['admin_log'], 'admin_forum', 'enabled' => !empty($modSettings['adminlog_enabled'])),
-						'modlog' => array($txt['moderation_log'], 'admin_forum', 'enabled' => !empty($modSettings['modlog_enabled'])),
+						'errorlog' => array($txt['errorlog'], 'admin_forum', 'enabled' => !empty(Config::$modSettings['enableErrorLogging']), 'url' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog;desc'),
+						'adminlog' => array($txt['admin_log'], 'admin_forum', 'enabled' => !empty(Config::$modSettings['adminlog_enabled'])),
+						'modlog' => array($txt['moderation_log'], 'admin_forum', 'enabled' => !empty(Config::$modSettings['modlog_enabled'])),
 						'banlog' => array($txt['ban_log'], 'manage_bans'),
-						'spiderlog' => array($txt['spider_logs'], 'admin_forum', 'enabled' => !empty($modSettings['spider_mode'])),
+						'spiderlog' => array($txt['spider_logs'], 'admin_forum', 'enabled' => !empty(Config::$modSettings['spider_mode'])),
 						'tasklog' => array($txt['scheduled_log'], 'admin_forum'),
 						'settings' => array($txt['log_settings'], 'admin_forum'),
 					),
@@ -443,12 +446,12 @@ function AdminMain()
 	);
 
 	// Any files to include for administration?
-	if (!empty($modSettings['integrate_admin_include']))
+	if (!empty(Config::$modSettings['integrate_admin_include']))
 	{
-		$admin_includes = explode(',', $modSettings['integrate_admin_include']);
+		$admin_includes = explode(',', Config::$modSettings['integrate_admin_include']);
 		foreach ($admin_includes as $include)
 		{
-			$include = strtr(trim($include), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir']));
+			$include = strtr(trim($include), array('$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir, '$themedir' => $settings['theme_dir']));
 			if (file_exists($include))
 				require_once($include);
 		}
@@ -466,31 +469,31 @@ function AdminMain()
 		fatal_lang_error('no_access', false);
 
 	// Build the link tree.
-	$context['linktree'][] = array(
-		'url' => $scripturl . '?action=admin',
+	Utils::$context['linktree'][] = array(
+		'url' => Config::$scripturl . '?action=admin',
 		'name' => $txt['admin_center'],
 	);
 	if (isset($admin_include_data['current_area']) && $admin_include_data['current_area'] != 'index')
-		$context['linktree'][] = array(
-			'url' => $scripturl . '?action=admin;area=' . $admin_include_data['current_area'] . ';' . $context['session_var'] . '=' . $context['session_id'],
+		Utils::$context['linktree'][] = array(
+			'url' => Config::$scripturl . '?action=admin;area=' . $admin_include_data['current_area'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 			'name' => $admin_include_data['label'],
 		);
 	if (!empty($admin_include_data['current_subsection']) && $admin_include_data['subsections'][$admin_include_data['current_subsection']][0] != $admin_include_data['label'])
-		$context['linktree'][] = array(
-			'url' => $scripturl . '?action=admin;area=' . $admin_include_data['current_area'] . ';sa=' . $admin_include_data['current_subsection'] . ';' . $context['session_var'] . '=' . $context['session_id'],
+		Utils::$context['linktree'][] = array(
+			'url' => Config::$scripturl . '?action=admin;area=' . $admin_include_data['current_area'] . ';sa=' . $admin_include_data['current_subsection'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 			'name' => $admin_include_data['subsections'][$admin_include_data['current_subsection']][0],
 		);
 
 	// Make a note of the Unique ID for this menu.
-	$context['admin_menu_id'] = $context['max_menu_id'];
-	$context['admin_menu_name'] = 'menu_data_' . $context['admin_menu_id'];
+	Utils::$context['admin_menu_id'] = Utils::$context['max_menu_id'];
+	Utils::$context['admin_menu_name'] = 'menu_data_' . Utils::$context['admin_menu_id'];
 
 	// Where in the admin are we?
-	$context['admin_area'] = $admin_include_data['current_area'];
+	Utils::$context['admin_area'] = $admin_include_data['current_area'];
 
 	// Now - finally - call the right place!
 	if (isset($admin_include_data['file']))
-		require_once($sourcedir . '/' . $admin_include_data['file']);
+		require_once(Config::$sourcedir . '/' . $admin_include_data['file']);
 
 	// Get the right callable.
 	$call = call_helper($admin_include_data['function'], true);
@@ -512,29 +515,29 @@ function AdminMain()
  */
 function AdminHome()
 {
-	global $sourcedir, $txt, $scripturl, $context, $user_info;
+	global $txt, $user_info;
 
 	// You have to be able to do at least one of the below to see this page.
 	isAllowedTo(array('admin_forum', 'manage_permissions', 'moderate_forum', 'manage_membergroups', 'manage_bans', 'send_mail', 'edit_news', 'manage_boards', 'manage_smileys', 'manage_attachments'));
 
 	// Find all of this forum's administrators...
-	require_once($sourcedir . '/Subs-Membergroups.php');
-	if (listMembergroupMembers_Href($context['administrators'], 1, 32) && allowedTo('manage_membergroups'))
+	require_once(Config::$sourcedir . '/Subs-Membergroups.php');
+	if (listMembergroupMembers_Href(Utils::$context['administrators'], 1, 32) && allowedTo('manage_membergroups'))
 	{
 		// Add a 'more'-link if there are more than 32.
-		$context['more_admins_link'] = '<a href="' . $scripturl . '?action=moderate;area=viewgroups;sa=members;group=1">' . $txt['more'] . '</a>';
+		Utils::$context['more_admins_link'] = '<a href="' . Config::$scripturl . '?action=moderate;area=viewgroups;sa=members;group=1">' . $txt['more'] . '</a>';
 	}
 
 	// Load the credits stuff.
-	require_once($sourcedir . '/Who.php');
+	require_once(Config::$sourcedir . '/Who.php');
 	Credits(true);
 
 	// This makes it easier to get the latest news with your time format.
-	$context['time_format'] = urlencode($user_info['time_format']);
-	$context['forum_version'] = SMF_FULL_VERSION;
+	Utils::$context['time_format'] = urlencode($user_info['time_format']);
+	Utils::$context['forum_version'] = SMF_FULL_VERSION;
 
 	// Get a list of current server versions.
-	require_once($sourcedir . '/Subs-Admin.php');
+	require_once(Config::$sourcedir . '/Subs-Admin.php');
 	$checkFor = array(
 		'gd',
 		'imagemagick',
@@ -549,17 +552,17 @@ function AdminHome()
 		'php',
 		'server',
 	);
-	$context['current_versions'] = getServerVersions($checkFor);
+	Utils::$context['current_versions'] = getServerVersions($checkFor);
 
-	$context['can_admin'] = allowedTo('admin_forum');
+	Utils::$context['can_admin'] = allowedTo('admin_forum');
 
-	$context['sub_template'] = $context['admin_area'] == 'credits' ? 'credits' : 'admin';
-	$context['page_title'] = $context['admin_area'] == 'credits' ? $txt['support_credits_title'] : $txt['admin_center'];
-	if ($context['admin_area'] != 'credits')
-		$context[$context['admin_menu_name']]['tab_data'] = array(
+	Utils::$context['sub_template'] = Utils::$context['admin_area'] == 'credits' ? 'credits' : 'admin';
+	Utils::$context['page_title'] = Utils::$context['admin_area'] == 'credits' ? $txt['support_credits_title'] : $txt['admin_center'];
+	if (Utils::$context['admin_area'] != 'credits')
+		Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
 			'title' => $txt['admin_center'],
 			'help' => '',
-			'description' => '<strong>' . $txt['hello_guest'] . ' ' . $context['user']['name'] . '!</strong>
+			'description' => '<strong>' . $txt['hello_guest'] . ' ' . Utils::$context['user']['name'] . '!</strong>
 				' . sprintf($txt['admin_main_welcome'], $txt['admin_center'], $txt['help'], $txt['help']),
 		);
 
@@ -579,7 +582,7 @@ function AdminHome()
 		'https://www.simplemachines.org/redirect/customize_support'
 	);
 
-	if ($context['admin_area'] == 'admin')
+	if (Utils::$context['admin_area'] == 'admin')
 		loadJavaScriptFile('admin.js', array('defer' => false, 'minimize' => true), 'smf_admin');
 }
 
@@ -588,17 +591,15 @@ function AdminHome()
  */
 function DisplayAdminFile()
 {
-	global $context, $modSettings, $smcFunc;
-
 	setMemoryLimit('32M');
 
 	if (empty($_REQUEST['filename']) || !is_string($_REQUEST['filename']))
 		fatal_lang_error('no_access', false);
 
 	// Strip off the forum cache part or we won't find it...
-	$_REQUEST['filename'] = str_replace($context['browser_cache'], '', $_REQUEST['filename']);
+	$_REQUEST['filename'] = str_replace(Utils::$context['browser_cache'], '', $_REQUEST['filename']);
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT data, filetype
 		FROM {db_prefix}admin_info_files
 		WHERE filename = {string:current_filename}
@@ -608,11 +609,11 @@ function DisplayAdminFile()
 		)
 	);
 
-	if ($smcFunc['db_num_rows']($request) == 0)
+	if (Db::$db->num_rows($request) == 0)
 		fatal_lang_error('admin_file_not_found', true, array($_REQUEST['filename']), 404);
 
-	list ($file_data, $filetype) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($file_data, $filetype) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	// @todo Temp
 	// Figure out if sesc is still being used.
@@ -622,10 +623,10 @@ if (!(\'smfForum_sessionvar\' in window))
 	window.smfForum_sessionvar = \'sesc\';
 ' . strtr($file_data, array(';sesc=' => ';\' + window.smfForum_sessionvar + \'='));
 
-	$context['template_layers'] = array();
+	Utils::$context['template_layers'] = array();
 	// Lets make sure we aren't going to output anything nasty.
 	@ob_end_clean();
-	if (!empty($modSettings['enableCompressedOutput']))
+	if (!empty(Config::$modSettings['enableCompressedOutput']))
 		@ob_start('ob_gzhandler');
 	else
 		@ob_start();
@@ -641,7 +642,7 @@ if (!(\'smfForum_sessionvar\' in window))
  */
 function AdminSearch()
 {
-	global $txt, $context, $smcFunc, $sourcedir;
+	global $txt;
 
 	isAllowedTo('admin_forum');
 
@@ -652,26 +653,26 @@ function AdminSearch()
 		'member' => 'AdminSearchMember',
 	);
 
-	$context['search_type'] = !isset($_REQUEST['search_type']) || !isset($subActions[$_REQUEST['search_type']]) ? 'internal' : $_REQUEST['search_type'];
-	$context['search_term'] = isset($_REQUEST['search_term']) ? $smcFunc['htmlspecialchars']($_REQUEST['search_term'], ENT_QUOTES) : '';
+	Utils::$context['search_type'] = !isset($_REQUEST['search_type']) || !isset($subActions[$_REQUEST['search_type']]) ? 'internal' : $_REQUEST['search_type'];
+	Utils::$context['search_term'] = isset($_REQUEST['search_term']) ? Utils::htmlspecialchars($_REQUEST['search_term'], ENT_QUOTES) : '';
 
-	$context['sub_template'] = 'admin_search_results';
-	$context['page_title'] = $txt['admin_search_results'];
+	Utils::$context['sub_template'] = 'admin_search_results';
+	Utils::$context['page_title'] = $txt['admin_search_results'];
 
 	// Keep track of what the admin wants.
-	if (empty($context['admin_preferences']['sb']) || $context['admin_preferences']['sb'] != $context['search_type'])
+	if (empty(Utils::$context['admin_preferences']['sb']) || Utils::$context['admin_preferences']['sb'] != Utils::$context['search_type'])
 	{
-		$context['admin_preferences']['sb'] = $context['search_type'];
+		Utils::$context['admin_preferences']['sb'] = Utils::$context['search_type'];
 
 		// Update the preferences.
-		require_once($sourcedir . '/Subs-Admin.php');
+		require_once(Config::$sourcedir . '/Subs-Admin.php');
 		updateAdminPreferences();
 	}
 
-	if (trim($context['search_term']) == '')
-		$context['search_results'] = array();
+	if (trim(Utils::$context['search_term']) == '')
+		Utils::$context['search_results'] = array();
 	else
-		call_helper($subActions[$context['search_type']]);
+		call_helper($subActions[Utils::$context['search_type']]);
 }
 
 /**
@@ -679,7 +680,7 @@ function AdminSearch()
  */
 function AdminSearchInternal()
 {
-	global $context, $txt, $helptxt, $scripturl, $sourcedir;
+	global $txt, $helptxt;
 
 	// Try to get some more memory.
 	setMemoryLimit('128M');
@@ -737,7 +738,7 @@ function AdminSearchInternal()
 	loadLanguage(implode('+', $language_files));
 
 	foreach ($include_files as $file)
-		require_once($sourcedir . '/' . $file . '.php');
+		require_once(Config::$sourcedir . '/' . $file . '.php');
 
 	/* This is the huge array that defines everything... it's a huge array of items formatted as follows:
 		0 = Language index (Can be array of indexes) to search through for this setting.
@@ -756,7 +757,7 @@ function AdminSearchInternal()
 	);
 
 	// Go through the admin menu structure trying to find suitably named areas!
-	foreach ($context[$context['admin_menu_name']]['sections'] as $section)
+	foreach (Utils::$context[Utils::$context['admin_menu_name']]['sections'] as $section)
 	{
 		foreach ($section['areas'] as $menu_key => $menu_item)
 		{
@@ -780,10 +781,10 @@ function AdminSearchInternal()
 				$search_data['settings'][] = array($var[(isset($var[2]) && in_array($var[2], array('file', 'db'))) ? 0 : 1], $setting_area[1], 'alttxt' => (isset($var[2]) && in_array($var[2], array('file', 'db'))) || isset($var[3]) ? (in_array($var[2], array('file', 'db')) ? $var[1] : $var[3]) : '');
 	}
 
-	$context['page_title'] = $txt['admin_search_results'];
-	$context['search_results'] = array();
+	Utils::$context['page_title'] = $txt['admin_search_results'];
+	Utils::$context['search_results'] = array();
 
-	$search_term = strtolower(un_htmlspecialchars($context['search_term']));
+	$search_term = strtolower(un_htmlspecialchars(Utils::$context['search_term']));
 	// Go through all the search data trying to find this text!
 	foreach ($search_data as $section => $data)
 	{
@@ -807,8 +808,8 @@ function AdminSearchInternal()
 				$name = isset($txt[$found]) ? $txt[$found] : (isset($txt['setting_' . $found]) ? $txt['setting_' . $found] : (!empty($item['alttxt']) ? $item['alttxt'] : $found));
 				$name = preg_replace('~<(?:div|span)\sclass="smalltext">.+?</(?:div|span)>~', '', $name);
 
-				$context['search_results'][] = array(
-					'url' => (substr($item[1], 0, 4) == 'area' ? $scripturl . '?action=admin;' . $item[1] : $item[1]) . ';' . $context['session_var'] . '=' . $context['session_id'] . ((substr($item[1], 0, 4) == 'area' && $section == 'settings' ? '#' . $item[0][0] : '')),
+				Utils::$context['search_results'][] = array(
+					'url' => (substr($item[1], 0, 4) == 'area' ? Config::$scripturl . '?action=admin;' . $item[1] : $item[1]) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ((substr($item[1], 0, 4) == 'area' && $section == 'settings' ? '#' . $item[0][0] : '')),
 					'name' => $name,
 					'type' => $section,
 					'help' => shorten_subject(isset($item[2]) ? strip_tags($helptxt[$item[2]]) : (isset($helptxt[$found]) ? strip_tags($helptxt[$found]) : ''), 255),
@@ -824,12 +825,10 @@ function AdminSearchInternal()
  */
 function AdminSearchMember()
 {
-	global $context, $sourcedir;
-
-	require_once($sourcedir . '/ManageMembers.php');
+	require_once(Config::$sourcedir . '/ManageMembers.php');
 	$_REQUEST['sa'] = 'query';
 
-	$_POST['membername'] = un_htmlspecialchars($context['search_term']);
+	$_POST['membername'] = un_htmlspecialchars(Utils::$context['search_term']);
 	$_POST['types'] = '';
 
 	ViewMembers();
@@ -840,13 +839,11 @@ function AdminSearchMember()
  */
 function AdminSearchOM()
 {
-	global $context, $sourcedir;
-
-	$context['doc_apiurl'] = 'https://wiki.simplemachines.org/api.php';
-	$context['doc_scripturl'] = 'https://wiki.simplemachines.org/smf/';
+	Utils::$context['doc_apiurl'] = 'https://wiki.simplemachines.org/api.php';
+	Utils::$context['doc_scripturl'] = 'https://wiki.simplemachines.org/smf/';
 
 	// Set all the parameters search might expect.
-	$postVars = explode(' ', $context['search_term']);
+	$postVars = explode(' ', Utils::$context['search_term']);
 
 	// Encode the search data.
 	foreach ($postVars as $k => $v)
@@ -858,7 +855,7 @@ function AdminSearchOM()
 	// Get the results from the doc site.
 	// Demo URL:
 	// https://wiki.simplemachines.org/api.php?action=query&list=search&srprop=timestamp|snippet&format=xml&srwhat=text&srsearch=template+eval
-	$search_results = fetch_web_data($context['doc_apiurl'] . '?action=query&list=search&srprop=timestamp|snippet&format=xml&srwhat=text&srsearch=' . $postVars);
+	$search_results = fetch_web_data(Utils::$context['doc_apiurl'] . '?action=query&list=search&srprop=timestamp|snippet&format=xml&srwhat=text&srsearch=' . $postVars);
 
 	// If we didn't get any xml back we are in trouble - perhaps the doc site is overloaded?
 	if (!$search_results || preg_match('~<' . '\?xml\sversion="\d+\.\d+"\?' . '>\s*(<api\b[^>]*>.+?</api>)~is', $search_results, $matches) != true)
@@ -867,7 +864,7 @@ function AdminSearchOM()
 	$search_results = $matches[1];
 
 	// Otherwise we simply walk through the XML and stick it in context for display.
-	$context['search_results'] = array();
+	Utils::$context['search_results'] = array();
 
 	// Get the results loaded into an array for processing!
 	$results = new XmlArray($search_results, false);
@@ -882,7 +879,7 @@ function AdminSearchOM()
 		$relevance = 0;
 		foreach ($results->set('api/query/search/p') as $result)
 		{
-			$context['search_results'][$result->fetch('@title')] = array(
+			Utils::$context['search_results'][$result->fetch('@title')] = array(
 				'title' => $result->fetch('@title'),
 				'relevance' => $relevance++,
 				'snippet' => str_replace('class=\'searchmatch\'', 'class="highlight"', un_htmlspecialchars($result->fetch('@snippet'))),
@@ -896,13 +893,13 @@ function AdminSearchOM()
  */
 function AdminLogs()
 {
-	global $sourcedir, $context, $txt, $scripturl, $modSettings;
+	global $txt;
 
 	// These are the logs they can load.
 	$log_functions = array(
 		'errorlog' => array('ManageErrors.php', 'ViewErrorLog'),
-		'adminlog' => array('Modlog.php', 'ViewModlog', 'disabled' => empty($modSettings['adminlog_enabled'])),
-		'modlog' => array('Modlog.php', 'ViewModlog', 'disabled' => empty($modSettings['modlog_enabled'])),
+		'adminlog' => array('Modlog.php', 'ViewModlog', 'disabled' => empty(Config::$modSettings['adminlog_enabled'])),
+		'modlog' => array('Modlog.php', 'ViewModlog', 'disabled' => empty(Config::$modSettings['modlog_enabled'])),
 		'banlog' => array('ManageBans.php', 'BanLog'),
 		'spiderlog' => array('ManageSearchEngines.php', 'SpiderLogs'),
 		'tasklog' => array('ManageScheduledTasks.php', 'TaskLog'),
@@ -914,13 +911,13 @@ function AdminLogs()
 		$_REQUEST['desc'] = true;
 
 	// Setup some tab stuff.
-	$context[$context['admin_menu_name']]['tab_data'] = array(
+	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['logs'],
 		'help' => '',
 		'description' => $txt['maintain_info'],
 		'tabs' => array(
 			'errorlog' => array(
-				'url' => $scripturl . '?action=admin;area=logs;sa=errorlog;desc',
+				'url' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog;desc',
 				'description' => sprintf($txt['errorlog_desc'], $txt['remove']),
 			),
 			'adminlog' => array(
@@ -948,7 +945,7 @@ function AdminLogs()
 
 	$subAction = isset($_REQUEST['sa']) && isset($log_functions[$_REQUEST['sa']]) && empty($log_functions[$_REQUEST['sa']]['disabled']) ? $_REQUEST['sa'] : 'errorlog';
 
-	require_once($sourcedir . '/' . $log_functions[$subAction][0]);
+	require_once(Config::$sourcedir . '/' . $log_functions[$subAction][0]);
 	call_helper($log_functions[$subAction][1]);
 }
 

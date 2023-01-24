@@ -13,6 +13,10 @@
 
 namespace SMF\Tasks;
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
+
 /**
  * This class contains code used to notify people that a new event has been
  * added to the calendar - but only when no topic has been created.
@@ -27,10 +31,10 @@ class EventNew_Notify extends BackgroundTask
 	 */
 	public function execute()
 	{
-		global $sourcedir, $smcFunc, $user_profile;
+		global $user_profile;
 
 		// Get everyone who could be notified - those are the people who can see the calendar.
-		require_once($sourcedir . '/Subs-Members.php');
+		require_once(Config::$sourcedir . '/Subs-Members.php');
 		$members = membersAllowedTo('calendar_view');
 
 		// Don't alert the event creator
@@ -38,7 +42,7 @@ class EventNew_Notify extends BackgroundTask
 			$members = array_diff($members, array($this->_details['sender_id']));
 
 		// Having successfully figured this out, now let's get the preferences of everyone.
-		require_once($sourcedir . '/Subs-Notify.php');
+		require_once(Config::$sourcedir . '/Subs-Notify.php');
 		$prefs = getNotifyPrefs($members, 'event_new', true);
 
 		// Just before we go any further, we may not have the sender's name. Let's just quickly fix that.
@@ -82,7 +86,7 @@ class EventNew_Notify extends BackgroundTask
 					'content_id' => $this->_details['event_id'],
 					'content_action' => empty($this->_details['sender_id']) ? 'new_guest' : 'new',
 					'is_read' => 0,
-					'extra' => $smcFunc['json_encode'](
+					'extra' => Db::$db->smcFunc['json_encode'](
 						array(
 							"event_id" => $this->_details['event_id'],
 							"event_title" => $this->_details['event_title']
@@ -91,7 +95,7 @@ class EventNew_Notify extends BackgroundTask
 				);
 			}
 
-			$smcFunc['db_insert']('insert',
+			Db::$db->insert('insert',
 				'{db_prefix}user_alerts',
 				array('alert_time' => 'int', 'id_member' => 'int', 'id_member_started' => 'int',
 					'member_name' => 'string', 'content_type' => 'string', 'content_id' => 'int',

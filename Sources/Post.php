@@ -16,7 +16,10 @@
 
 use SMF\BrowserDetector;
 use SMF\BBCodeParser;
+use SMF\Config;
+use SMF\Utils;
 use SMF\Cache\CacheApi;
+use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
 
 if (!defined('SMF'))
@@ -35,12 +38,12 @@ if (!defined('SMF'))
  */
 function Post($post_errors = array())
 {
-	global $txt, $scripturl, $topic, $modSettings, $board;
-	global $user_info, $context, $settings;
-	global $sourcedir, $smcFunc, $language, $options;
+	global $txt, $topic, $board;
+	global $user_info, $settings;
+	global $options;
 
 	loadLanguage('Post');
-	if (!empty($modSettings['drafts_post_enabled']))
+	if (!empty(Config::$modSettings['drafts_post_enabled']))
 		loadLanguage('Drafts');
 
 	// You can't reply with a poll... hacker.
@@ -48,24 +51,24 @@ function Post($post_errors = array())
 		unset($_REQUEST['poll']);
 
 	// Posting an event?
-	$context['make_event'] = isset($_REQUEST['calendar']);
-	$context['robot_no_index'] = true;
+	Utils::$context['make_event'] = isset($_REQUEST['calendar']);
+	Utils::$context['robot_no_index'] = true;
 
 	call_integration_hook('integrate_post_start');
 
 	// Get notification preferences for later
-	require_once($sourcedir . '/Subs-Notify.php');
+	require_once(Config::$sourcedir . '/Subs-Notify.php');
 	// use $temp to get around "Only variables should be passed by reference"
 	$temp = getNotifyPrefs($user_info['id']);
-	$context['notify_prefs'] = (array) array_pop($temp);
-	$context['auto_notify'] = !empty($context['notify_prefs']['msg_auto_notify']);
+	Utils::$context['notify_prefs'] = (array) array_pop($temp);
+	Utils::$context['auto_notify'] = !empty(Utils::$context['notify_prefs']['msg_auto_notify']);
 
 	// Not in a board? Fine, but we'll make them pick one eventually.
-	if (empty($board) || $context['make_event'])
+	if (empty($board) || Utils::$context['make_event'])
 	{
 		// Get ids of all the boards they can post in.
 		$post_permissions = array('post_new');
-		if ($modSettings['postmod_active'])
+		if (Config::$modSettings['postmod_active'])
 			$post_permissions[] = 'post_unapproved_topics';
 
 		$boards = boardsAllowedTo($post_permissions);
@@ -78,7 +81,7 @@ function Post($post_errors = array())
 			'included_boards' => in_array(0, $boards) ? null : $boards,
 			'not_redirection' => true,
 			'use_permissions' => true,
-			'selected_board' => !empty($board) ? $board : ($context['make_event'] && !empty($modSettings['cal_defaultboard']) ? $modSettings['cal_defaultboard'] : $boards[0]),
+			'selected_board' => !empty($board) ? $board : (Utils::$context['make_event'] && !empty(Config::$modSettings['cal_defaultboard']) ? Config::$modSettings['cal_defaultboard'] : $boards[0]),
 		);
 		$board_list = getBoardList($boardListOptions);
 	}
@@ -86,21 +89,21 @@ function Post($post_errors = array())
 	else
 		$boards = array($board);
 
-	require_once($sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Subs-Post.php');
 
 	if (isset($_REQUEST['xml']))
 	{
-		$context['sub_template'] = 'post';
+		Utils::$context['sub_template'] = 'post';
 
 		// Just in case of an earlier error...
-		$context['preview_message'] = '';
-		$context['preview_subject'] = '';
+		Utils::$context['preview_message'] = '';
+		Utils::$context['preview_subject'] = '';
 	}
 
 	// No message is complete without a topic.
 	if (empty($topic) && !empty($_REQUEST['msg']))
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_topic
 			FROM {db_prefix}messages
 			WHERE id_msg = {int:msg}',
@@ -108,17 +111,17 @@ function Post($post_errors = array())
 				'msg' => (int) $_REQUEST['msg'],
 			)
 		);
-		if ($smcFunc['db_num_rows']($request) != 1)
+		if (Db::$db->num_rows($request) != 1)
 			unset($_REQUEST['msg'], $_POST['msg'], $_GET['msg']);
 		else
-			list ($topic) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+			list ($topic) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 	}
 
 	// Check if it's locked. It isn't locked if no topic is specified.
 	if (!empty($topic))
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT
 				t.locked, t.approved, COALESCE(ln.id_topic, 0) AS notify, t.is_sticky, t.id_poll, t.id_last_msg, mf.id_member,
 				t.id_first_msg, mf.subject, ml.modified_reason,
@@ -134,8 +137,8 @@ function Post($post_errors = array())
 				'current_topic' => $topic,
 			)
 		);
-		list ($locked, $topic_approved, $context['notify'], $sticky, $pollID, $context['topic_last_message'], $id_member_poster, $id_first_msg, $first_subject, $editReason, $lastPostTime) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		list ($locked, $topic_approved, Utils::$context['notify'], $sticky, $pollID, Utils::$context['topic_last_message'], $id_member_poster, $id_first_msg, $first_subject, $editReason, $lastPostTime) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 
 		// If this topic already has a poll, they sure can't add another.
 		if (isset($_REQUEST['poll']) && $pollID > 0)
@@ -143,82 +146,82 @@ function Post($post_errors = array())
 
 		if (empty($_REQUEST['msg']))
 		{
-			if ($user_info['is_guest'] && !allowedTo('post_reply_any') && (!$modSettings['postmod_active'] || !allowedTo('post_unapproved_replies_any')))
+			if ($user_info['is_guest'] && !allowedTo('post_reply_any') && (!Config::$modSettings['postmod_active'] || !allowedTo('post_unapproved_replies_any')))
 				is_not_guest();
 
 			// By default the reply will be approved...
-			$context['becomes_approved'] = true;
+			Utils::$context['becomes_approved'] = true;
 			if ($id_member_poster != $user_info['id'] || $user_info['is_guest'])
 			{
-				if ($modSettings['postmod_active'] && allowedTo('post_unapproved_replies_any') && !allowedTo('post_reply_any'))
-					$context['becomes_approved'] = false;
+				if (Config::$modSettings['postmod_active'] && allowedTo('post_unapproved_replies_any') && !allowedTo('post_reply_any'))
+					Utils::$context['becomes_approved'] = false;
 				else
 					isAllowedTo('post_reply_any');
 			}
 			elseif (!allowedTo('post_reply_any'))
 			{
-				if ($modSettings['postmod_active'] && ((allowedTo('post_unapproved_replies_own') && !allowedTo('post_reply_own')) || allowedTo('post_unapproved_replies_any')))
-					$context['becomes_approved'] = false;
+				if (Config::$modSettings['postmod_active'] && ((allowedTo('post_unapproved_replies_own') && !allowedTo('post_reply_own')) || allowedTo('post_unapproved_replies_any')))
+					Utils::$context['becomes_approved'] = false;
 				else
 					isAllowedTo('post_reply_own');
 			}
 		}
 		else
-			$context['becomes_approved'] = true;
+			Utils::$context['becomes_approved'] = true;
 
-		$context['can_lock'] = allowedTo('lock_any') || ($user_info['id'] == $id_member_poster && allowedTo('lock_own'));
-		$context['can_sticky'] = allowedTo('make_sticky');
-		$context['can_move'] = allowedTo('move_any');
+		Utils::$context['can_lock'] = allowedTo('lock_any') || ($user_info['id'] == $id_member_poster && allowedTo('lock_own'));
+		Utils::$context['can_sticky'] = allowedTo('make_sticky');
+		Utils::$context['can_move'] = allowedTo('move_any');
 		// You can only announce topics that will get approved...
-		$context['can_announce'] = allowedTo('announce_topic') && $context['becomes_approved'];
-		$context['show_approval'] = !allowedTo('approve_posts') ? 0 : ($context['becomes_approved'] ? 2 : 1);
+		Utils::$context['can_announce'] = allowedTo('announce_topic') && Utils::$context['becomes_approved'];
+		Utils::$context['show_approval'] = !allowedTo('approve_posts') ? 0 : (Utils::$context['becomes_approved'] ? 2 : 1);
 
 		// We don't always want the request vars to override what's in the db...
-		$context['already_locked'] = $locked;
-		$context['already_sticky'] = $sticky;
-		$context['sticky'] = isset($_REQUEST['sticky']) ? !empty($_REQUEST['sticky']) : $sticky;
+		Utils::$context['already_locked'] = $locked;
+		Utils::$context['already_sticky'] = $sticky;
+		Utils::$context['sticky'] = isset($_REQUEST['sticky']) ? !empty($_REQUEST['sticky']) : $sticky;
 
 		// Check whether this is a really old post being bumped...
-		if (!empty($modSettings['oldTopicDays']) && $lastPostTime + $modSettings['oldTopicDays'] * 86400 < time() && empty($sticky) && !isset($_REQUEST['subject']))
-			$post_errors[] = array('old_topic', array($modSettings['oldTopicDays']));
+		if (!empty(Config::$modSettings['oldTopicDays']) && $lastPostTime + Config::$modSettings['oldTopicDays'] * 86400 < time() && empty($sticky) && !isset($_REQUEST['subject']))
+			$post_errors[] = array('old_topic', array(Config::$modSettings['oldTopicDays']));
 	}
 	else
 	{
 		// @todo Should use JavaScript to hide and show the warning based on the selection in the board select menu
-		$context['becomes_approved'] = true;
-		if ($modSettings['postmod_active'] && !allowedTo('post_new', $boards, true) && allowedTo('post_unapproved_topics', $boards, true))
-			$context['becomes_approved'] = false;
+		Utils::$context['becomes_approved'] = true;
+		if (Config::$modSettings['postmod_active'] && !allowedTo('post_new', $boards, true) && allowedTo('post_unapproved_topics', $boards, true))
+			Utils::$context['becomes_approved'] = false;
 		else
 			isAllowedTo('post_new', $boards, true);
 
 		$locked = 0;
-		$context['already_locked'] = 0;
-		$context['already_sticky'] = 0;
-		$context['sticky'] = !empty($_REQUEST['sticky']);
+		Utils::$context['already_locked'] = 0;
+		Utils::$context['already_sticky'] = 0;
+		Utils::$context['sticky'] = !empty($_REQUEST['sticky']);
 
 		// What options should we show?
-		$context['can_lock'] = allowedTo(array('lock_any', 'lock_own'), $boards, true);
-		$context['can_sticky'] = allowedTo('make_sticky', $boards, true);
-		$context['can_move'] = allowedTo('move_any', $boards, true);
-		$context['can_announce'] = allowedTo('announce_topic', $boards, true) && $context['becomes_approved'];
-		$context['show_approval'] = !allowedTo('approve_posts', $boards, true) ? 0 : ($context['becomes_approved'] ? 2 : 1);
+		Utils::$context['can_lock'] = allowedTo(array('lock_any', 'lock_own'), $boards, true);
+		Utils::$context['can_sticky'] = allowedTo('make_sticky', $boards, true);
+		Utils::$context['can_move'] = allowedTo('move_any', $boards, true);
+		Utils::$context['can_announce'] = allowedTo('announce_topic', $boards, true) && Utils::$context['becomes_approved'];
+		Utils::$context['show_approval'] = !allowedTo('approve_posts', $boards, true) ? 0 : (Utils::$context['becomes_approved'] ? 2 : 1);
 	}
 
-	$context['notify'] = !empty($context['notify']);
+	Utils::$context['notify'] = !empty(Utils::$context['notify']);
 
-	$context['can_notify'] = !$context['user']['is_guest'];
-	$context['move'] = !empty($_REQUEST['move']);
-	$context['announce'] = !empty($_REQUEST['announce']);
-	$context['locked'] = !empty($locked) || !empty($_REQUEST['lock']);
-	$context['can_quote'] = empty($modSettings['disabledBBC']) || !in_array('quote', explode(',', $modSettings['disabledBBC']));
+	Utils::$context['can_notify'] = !Utils::$context['user']['is_guest'];
+	Utils::$context['move'] = !empty($_REQUEST['move']);
+	Utils::$context['announce'] = !empty($_REQUEST['announce']);
+	Utils::$context['locked'] = !empty($locked) || !empty($_REQUEST['lock']);
+	Utils::$context['can_quote'] = empty(Config::$modSettings['disabledBBC']) || !in_array('quote', explode(',', Config::$modSettings['disabledBBC']));
 
 	// An array to hold all the attachments for this topic.
-	$context['current_attachments'] = array();
+	Utils::$context['current_attachments'] = array();
 
 	// Clear out prior attachment activity when starting afresh
 	if (empty($_REQUEST['message']) && empty($_REQUEST['preview']) && !empty($_SESSION['already_attached']))
 	{
-		require_once($sourcedir . '/ManageAttachments.php');
+		require_once(Config::$sourcedir . '/ManageAttachments.php');
 		foreach ($_SESSION['already_attached'] as $attachID => $attachment)
 			removeAttachments(array('id_attach' => $attachID));
 
@@ -229,7 +232,7 @@ function Post($post_errors = array())
 	if ($locked && !allowedTo('moderate_board'))
 		fatal_lang_error('topic_locked', false);
 	// Check the users permissions - is the user allowed to add or post a poll?
-	if (isset($_REQUEST['poll']) && $modSettings['pollMode'] == '1')
+	if (isset($_REQUEST['poll']) && Config::$modSettings['pollMode'] == '1')
 	{
 		// New topic, new poll.
 		if (empty($topic))
@@ -243,7 +246,7 @@ function Post($post_errors = array())
 
 		if (!empty($board))
 		{
-			require_once($sourcedir . '/Subs-Members.php');
+			require_once(Config::$sourcedir . '/Subs-Members.php');
 			$allowedVoteGroups = groupsAllowedTo('poll_vote', $board);
 			$guest_vote_enabled = in_array(-1, $allowedVoteGroups['allowed']);
 		}
@@ -252,7 +255,7 @@ function Post($post_errors = array())
 			$guest_vote_enabled = true;
 
 		// Set up the poll options.
-		$context['poll_options'] = array(
+		Utils::$context['poll_options'] = array(
 			'max_votes' => empty($_POST['poll_max_votes']) ? '1' : max(1, $_POST['poll_max_votes']),
 			'hide' => empty($_POST['poll_hide']) ? 0 : $_POST['poll_hide'],
 			'expire' => !isset($_POST['poll_expire']) ? '' : $_POST['poll_expire'],
@@ -262,34 +265,34 @@ function Post($post_errors = array())
 		);
 
 		// Make all five poll choices empty.
-		$context['choices'] = array(
+		Utils::$context['choices'] = array(
 			array('id' => 0, 'number' => 1, 'label' => '', 'is_last' => false),
 			array('id' => 1, 'number' => 2, 'label' => '', 'is_last' => false),
 			array('id' => 2, 'number' => 3, 'label' => '', 'is_last' => false),
 			array('id' => 3, 'number' => 4, 'label' => '', 'is_last' => false),
 			array('id' => 4, 'number' => 5, 'label' => '', 'is_last' => true)
 		);
-		$context['last_choice_id'] = 4;
+		Utils::$context['last_choice_id'] = 4;
 	}
 
-	if ($context['make_event'])
+	if (Utils::$context['make_event'])
 	{
 		// They might want to pick a board.
-		if (!isset($context['current_board']))
-			$context['current_board'] = 0;
+		if (!isset(Utils::$context['current_board']))
+			Utils::$context['current_board'] = 0;
 
 		// Start loading up the event info.
-		$context['event'] = array();
-		$context['event']['title'] = isset($_REQUEST['evtitle']) ? $smcFunc['htmlspecialchars'](stripslashes($_REQUEST['evtitle'])) : '';
-		$context['event']['location'] = isset($_REQUEST['event_location']) ? $smcFunc['htmlspecialchars'](stripslashes($_REQUEST['event_location'])) : '';
+		Utils::$context['event'] = array();
+		Utils::$context['event']['title'] = isset($_REQUEST['evtitle']) ? Utils::htmlspecialchars(stripslashes($_REQUEST['evtitle'])) : '';
+		Utils::$context['event']['location'] = isset($_REQUEST['event_location']) ? Utils::htmlspecialchars(stripslashes($_REQUEST['event_location'])) : '';
 
-		$context['event']['id'] = isset($_REQUEST['eventid']) ? (int) $_REQUEST['eventid'] : -1;
-		$context['event']['new'] = $context['event']['id'] == -1;
+		Utils::$context['event']['id'] = isset($_REQUEST['eventid']) ? (int) $_REQUEST['eventid'] : -1;
+		Utils::$context['event']['new'] = Utils::$context['event']['id'] == -1;
 
 		// Permissions check!
 		isAllowedTo('calendar_post');
 
-		require_once($sourcedir . '/Subs-Calendar.php');
+		require_once(Config::$sourcedir . '/Subs-Calendar.php');
 
 		// We want a fairly compact version of the time, but as close as possible to the user's settings.
 		$time_string = strtr(get_date_or_time_format('time'), array(
@@ -304,68 +307,68 @@ function Post($post_errors = array())
 		$time_string = preg_replace('~:(?=\s|$|%[pPzZ])~', '', $time_string);
 
 		// Editing an event?  (but NOT previewing!?)
-		if (empty($context['event']['new']) && !isset($_REQUEST['subject']))
+		if (empty(Utils::$context['event']['new']) && !isset($_REQUEST['subject']))
 		{
 			// If the user doesn't have permission to edit the post in this topic, redirect them.
 			if ((empty($id_member_poster) || $id_member_poster != $user_info['id'] || !allowedTo('modify_own')) && !allowedTo('modify_any'))
 			{
-				require_once($sourcedir . '/Calendar.php');
+				require_once(Config::$sourcedir . '/Calendar.php');
 				return CalendarPost();
 			}
 
 			// Get the current event information.
-			$eventProperties = getEventProperties($context['event']['id']);
-			$context['event'] = array_merge($context['event'], $eventProperties);
+			$eventProperties = getEventProperties(Utils::$context['event']['id']);
+			Utils::$context['event'] = array_merge(Utils::$context['event'], $eventProperties);
 		}
 		else
 		{
 			// Get the current event information.
 			$eventProperties = getNewEventDatetimes();
-			$context['event'] = array_merge($context['event'], $eventProperties);
+			Utils::$context['event'] = array_merge(Utils::$context['event'], $eventProperties);
 
 			// Make sure the year and month are in the valid range.
-			if ($context['event']['month'] < 1 || $context['event']['month'] > 12)
+			if (Utils::$context['event']['month'] < 1 || Utils::$context['event']['month'] > 12)
 				fatal_lang_error('invalid_month', false);
-			if ($context['event']['year'] < $modSettings['cal_minyear'] || $context['event']['year'] > $modSettings['cal_maxyear'])
+			if (Utils::$context['event']['year'] < Config::$modSettings['cal_minyear'] || Utils::$context['event']['year'] > Config::$modSettings['cal_maxyear'])
 				fatal_lang_error('invalid_year', false);
 
-			$context['event']['categories'] = $board_list;
+			Utils::$context['event']['categories'] = $board_list;
 		}
 
 		// Find the last day of the month.
-		$context['event']['last_day'] = (int) smf_strftime('%d', mktime(0, 0, 0, $context['event']['month'] == 12 ? 1 : $context['event']['month'] + 1, 0, $context['event']['month'] == 12 ? $context['event']['year'] + 1 : $context['event']['year']));
+		Utils::$context['event']['last_day'] = (int) smf_strftime('%d', mktime(0, 0, 0, Utils::$context['event']['month'] == 12 ? 1 : Utils::$context['event']['month'] + 1, 0, Utils::$context['event']['month'] == 12 ? Utils::$context['event']['year'] + 1 : Utils::$context['event']['year']));
 
 		// An all day event? Set up some nice defaults in case the user wants to change that
-		if ($context['event']['allday'] == true)
+		if (Utils::$context['event']['allday'] == true)
 		{
-			$context['event']['tz'] = getUserTimezone();
-			$context['event']['start_time'] = timeformat(time(), $time_string);
-			$context['event']['end_time'] = timeformat(time() + 3600, $time_string);
+			Utils::$context['event']['tz'] = getUserTimezone();
+			Utils::$context['event']['start_time'] = timeformat(time(), $time_string);
+			Utils::$context['event']['end_time'] = timeformat(time() + 3600, $time_string);
 		}
 		// Otherwise, just adjust these to look nice on the input form
 		else
 		{
-			$context['event']['start_time'] = $context['event']['start_time_orig'];
-			$context['event']['end_time'] = $context['event']['end_time_orig'];
+			Utils::$context['event']['start_time'] = Utils::$context['event']['start_time_orig'];
+			Utils::$context['event']['end_time'] = Utils::$context['event']['end_time_orig'];
 		}
 
 		// Need this so the user can select a timezone for the event.
-		$context['all_timezones'] = smf_list_timezones($context['event']['start_date']);
+		Utils::$context['all_timezones'] = smf_list_timezones(Utils::$context['event']['start_date']);
 
 		// If the event's timezone is not in SMF's standard list of time zones, try to fix it.
-		if (!isset($context['all_timezones'][$context['event']['tz']]))
+		if (!isset(Utils::$context['all_timezones'][Utils::$context['event']['tz']]))
 		{
-			$later = strtotime('@' . $context['event']['start_timestamp'] . ' + 1 year');
-			$tzinfo = timezone_transitions_get(timezone_open($context['event']['tz']), $context['event']['start_timestamp'], $later);
+			$later = strtotime('@' . Utils::$context['event']['start_timestamp'] . ' + 1 year');
+			$tzinfo = timezone_transitions_get(timezone_open(Utils::$context['event']['tz']), Utils::$context['event']['start_timestamp'], $later);
 
 			$found = false;
-			foreach ($context['all_timezones'] as $possible_tzid => $dummy)
+			foreach (Utils::$context['all_timezones'] as $possible_tzid => $dummy)
 			{
-				$possible_tzinfo = timezone_transitions_get(timezone_open($possible_tzid), $context['event']['start_timestamp'], $later);
+				$possible_tzinfo = timezone_transitions_get(timezone_open($possible_tzid), Utils::$context['event']['start_timestamp'], $later);
 
 				if ($tzinfo === $possible_tzinfo)
 				{
-					$context['event']['tz'] = $possible_tzid;
+					Utils::$context['event']['tz'] = $possible_tzid;
 					$found = true;
 					break;
 				}
@@ -374,8 +377,8 @@ function Post($post_errors = array())
 			// Hm. That's weird. Well, just prepend it to the list and let the user deal with it.
 			if (!$found)
 			{
-				$d = date_create($context['event']['start_datetime'] . ' ' . $context['event']['tz']);
-				$context['all_timezones'] = array($context['event']['tz'] => '[UTC' . date_format($d, 'P') . '] - ' . $context['event']['tz']) + $context['all_timezones'];
+				$d = date_create(Utils::$context['event']['start_datetime'] . ' ' . Utils::$context['event']['tz']);
+				Utils::$context['all_timezones'] = array(Utils::$context['event']['tz'] => '[UTC' . date_format($d, 'P') . '] - ' . Utils::$context['event']['tz']) + Utils::$context['all_timezones'];
 			}
 		}
 
@@ -389,8 +392,8 @@ function Post($post_errors = array())
 		$("#tz").attr("disabled", this.checked);
 	});	', true);
 
-		$context['event']['board'] = !empty($board) ? $board : $modSettings['cal_defaultboard'];
-		$context['event']['topic'] = !empty($topic) ? $topic : 0;
+		Utils::$context['event']['board'] = !empty($board) ? $board : Config::$modSettings['cal_defaultboard'];
+		Utils::$context['event']['topic'] = !empty($topic) ? $topic : 0;
 	}
 
 	// See if any new replies have come along.
@@ -398,13 +401,13 @@ function Post($post_errors = array())
 	// only at preview
 	if (empty($_REQUEST['msg']) && !empty($topic))
 	{
-		if (empty($options['no_new_reply_warning']) && isset($_REQUEST['last_msg']) && $context['topic_last_message'] > $_REQUEST['last_msg'])
+		if (empty($options['no_new_reply_warning']) && isset($_REQUEST['last_msg']) && Utils::$context['topic_last_message'] > $_REQUEST['last_msg'])
 		{
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT COUNT(*)
 				FROM {db_prefix}messages
 				WHERE id_topic = {int:current_topic}
-					AND id_msg > {int:last_msg}' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+					AND id_msg > {int:last_msg}' . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 					AND approved = {int:approved}') . '
 				LIMIT 1',
 				array(
@@ -413,46 +416,46 @@ function Post($post_errors = array())
 					'approved' => 1,
 				)
 			);
-			list ($context['new_replies']) = $smcFunc['db_fetch_row']($request);
-			$smcFunc['db_free_result']($request);
+			list (Utils::$context['new_replies']) = Db::$db->fetch_row($request);
+			Db::$db->free_result($request);
 
-			if (!empty($context['new_replies']))
+			if (!empty(Utils::$context['new_replies']))
 			{
-				if ($context['new_replies'] == 1)
+				if (Utils::$context['new_replies'] == 1)
 					$txt['error_new_replies'] = isset($_GET['last_msg']) ? $txt['error_new_reply_reading'] : $txt['error_new_reply'];
 				else
-					$txt['error_new_replies'] = sprintf(isset($_GET['last_msg']) ? $txt['error_new_replies_reading'] : $txt['error_new_replies'], $context['new_replies']);
+					$txt['error_new_replies'] = sprintf(isset($_GET['last_msg']) ? $txt['error_new_replies_reading'] : $txt['error_new_replies'], Utils::$context['new_replies']);
 
 				$post_errors[] = 'new_replies';
 
-				$modSettings['topicSummaryPosts'] = $context['new_replies'] > $modSettings['topicSummaryPosts'] ? max($modSettings['topicSummaryPosts'], 5) : $modSettings['topicSummaryPosts'];
+				Config::$modSettings['topicSummaryPosts'] = Utils::$context['new_replies'] > Config::$modSettings['topicSummaryPosts'] ? max(Config::$modSettings['topicSummaryPosts'], 5) : Config::$modSettings['topicSummaryPosts'];
 			}
 		}
 	}
 
 	// Get a response prefix (like 'Re:') in the default forum language.
-	if (!isset($context['response_prefix']) && !($context['response_prefix'] = CacheApi::get('response_prefix')))
+	if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix')))
 	{
-		if ($language === $user_info['language'])
-			$context['response_prefix'] = $txt['response_prefix'];
+		if (Config::$language === $user_info['language'])
+			Utils::$context['response_prefix'] = $txt['response_prefix'];
 		else
 		{
-			loadLanguage('index', $language, false);
-			$context['response_prefix'] = $txt['response_prefix'];
+			loadLanguage('index', Config::$language, false);
+			Utils::$context['response_prefix'] = $txt['response_prefix'];
 			loadLanguage('index');
 		}
-		CacheApi::put('response_prefix', $context['response_prefix'], 600);
+		CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 	}
 
 	// Previewing, modifying, or posting?
 	// Do we have a body, but an error happened.
-	if (isset($_REQUEST['message']) || isset($_REQUEST['quickReply']) || !empty($context['post_error']))
+	if (isset($_REQUEST['message']) || isset($_REQUEST['quickReply']) || !empty(Utils::$context['post_error']))
 	{
 		if (isset($_REQUEST['quickReply']))
 			$_REQUEST['message'] = $_REQUEST['quickReply'];
 
 		// Validate inputs.
-		if (empty($context['post_error']))
+		if (empty(Utils::$context['post_error']))
 		{
 			// This means they didn't click Post and get an error.
 			$really_previewing = true;
@@ -471,23 +474,23 @@ function Post($post_errors = array())
 		}
 
 		// In order to keep the approval status flowing through, we have to pass it through the form...
-		$context['becomes_approved'] = empty($_REQUEST['not_approved']);
-		$context['show_approval'] = isset($_REQUEST['approve']) ? ($_REQUEST['approve'] ? 2 : 1) : (allowedTo('approve_posts') ? 2 : 0);
-		$context['can_announce'] &= $context['becomes_approved'];
+		Utils::$context['becomes_approved'] = empty($_REQUEST['not_approved']);
+		Utils::$context['show_approval'] = isset($_REQUEST['approve']) ? ($_REQUEST['approve'] ? 2 : 1) : (allowedTo('approve_posts') ? 2 : 0);
+		Utils::$context['can_announce'] &= Utils::$context['becomes_approved'];
 
 		// Set up the inputs for the form.
-		$form_subject = strtr($smcFunc['htmlspecialchars']($_REQUEST['subject']), array("\r" => '', "\n" => '', "\t" => ''));
-		$form_message = $smcFunc['htmlspecialchars']($_REQUEST['message'], ENT_QUOTES);
+		$form_subject = strtr(Utils::htmlspecialchars($_REQUEST['subject']), array("\r" => '', "\n" => '', "\t" => ''));
+		$form_message = Utils::htmlspecialchars($_REQUEST['message'], ENT_QUOTES);
 
 		// Make sure the subject isn't too long - taking into account special characters.
-		if ($smcFunc['strlen']($form_subject) > 100)
-			$form_subject = $smcFunc['substr']($form_subject, 0, 100);
+		if (Utils::entityStrlen($form_subject) > 100)
+			$form_subject = Utils::entitySubstr($form_subject, 0, 100);
 
 		if (isset($_REQUEST['poll']))
 		{
-			$context['question'] = isset($_REQUEST['question']) ? $smcFunc['htmlspecialchars'](trim($_REQUEST['question'])) : '';
+			Utils::$context['question'] = isset($_REQUEST['question']) ? Utils::htmlspecialchars(trim($_REQUEST['question'])) : '';
 
-			$context['choices'] = array();
+			Utils::$context['choices'] = array();
 			$choice_id = 0;
 
 			$_POST['options'] = empty($_POST['options']) ? array() : htmlspecialchars__recursive($_POST['options']);
@@ -496,7 +499,7 @@ function Post($post_errors = array())
 				if (trim($option) == '')
 					continue;
 
-				$context['choices'][] = array(
+				Utils::$context['choices'][] = array(
 					'id' => $choice_id++,
 					'number' => $choice_id,
 					'label' => $option,
@@ -505,24 +508,24 @@ function Post($post_errors = array())
 			}
 
 			// One empty option for those with js disabled...I know are few... :P
-			$context['choices'][] = array(
+			Utils::$context['choices'][] = array(
 				'id' => $choice_id++,
 				'number' => $choice_id,
 				'label' => '',
 				'is_last' => false
 			);
 
-			if (count($context['choices']) < 2)
+			if (count(Utils::$context['choices']) < 2)
 			{
-				$context['choices'][] = array(
+				Utils::$context['choices'][] = array(
 					'id' => $choice_id++,
 					'number' => $choice_id,
 					'label' => '',
 					'is_last' => false
 				);
 			}
-			$context['last_choice_id'] = $choice_id;
-			$context['choices'][count($context['choices']) - 1]['is_last'] = true;
+			Utils::$context['last_choice_id'] = $choice_id;
+			Utils::$context['choices'][count(Utils::$context['choices']) - 1]['is_last'] = true;
 		}
 
 		// Are you... a guest?
@@ -531,10 +534,10 @@ function Post($post_errors = array())
 			$_REQUEST['guestname'] = !isset($_REQUEST['guestname']) ? '' : trim($_REQUEST['guestname']);
 			$_REQUEST['email'] = !isset($_REQUEST['email']) ? '' : trim($_REQUEST['email']);
 
-			$_REQUEST['guestname'] = $smcFunc['htmlspecialchars']($_REQUEST['guestname']);
-			$context['name'] = $_REQUEST['guestname'];
-			$_REQUEST['email'] = $smcFunc['htmlspecialchars']($_REQUEST['email']);
-			$context['email'] = $_REQUEST['email'];
+			$_REQUEST['guestname'] = Utils::htmlspecialchars($_REQUEST['guestname']);
+			Utils::$context['name'] = $_REQUEST['guestname'];
+			$_REQUEST['email'] = Utils::htmlspecialchars($_REQUEST['email']);
+			Utils::$context['email'] = $_REQUEST['email'];
 
 			$user_info['name'] = $_REQUEST['guestname'];
 		}
@@ -543,45 +546,45 @@ function Post($post_errors = array())
 		if (($really_previewing == true || isset($_REQUEST['xml'])) && !isset($_REQUEST['save_draft']))
 		{
 			// Set up the preview message and subject and censor them...
-			$context['preview_message'] = $form_message;
+			Utils::$context['preview_message'] = $form_message;
 			preparsecode($form_message, true);
-			preparsecode($context['preview_message']);
+			preparsecode(Utils::$context['preview_message']);
 
 			// Do all bulletin board code tags, with or without smileys.
-			$context['preview_message'] = BBCodeParser::load()->parse($context['preview_message'], !isset($_REQUEST['ns']));
-			censorText($context['preview_message']);
+			Utils::$context['preview_message'] = BBCodeParser::load()->parse(Utils::$context['preview_message'], !isset($_REQUEST['ns']));
+			censorText(Utils::$context['preview_message']);
 
 			if ($form_subject != '')
 			{
-				$context['preview_subject'] = $form_subject;
+				Utils::$context['preview_subject'] = $form_subject;
 
-				censorText($context['preview_subject']);
+				censorText(Utils::$context['preview_subject']);
 			}
 			else
-				$context['preview_subject'] = '<em>' . $txt['no_subject'] . '</em>';
+				Utils::$context['preview_subject'] = '<em>' . $txt['no_subject'] . '</em>';
 
 			call_integration_hook('integrate_preview_post', array(&$form_message, &$form_subject));
 
 			// Protect any CDATA blocks.
 			if (isset($_REQUEST['xml']))
-				$context['preview_message'] = strtr($context['preview_message'], array(']]>' => ']]]]><![CDATA[>'));
+				Utils::$context['preview_message'] = strtr(Utils::$context['preview_message'], array(']]>' => ']]]]><![CDATA[>'));
 		}
 
 		// Set up the checkboxes.
-		$context['notify'] = !empty($_REQUEST['notify']);
-		$context['use_smileys'] = !isset($_REQUEST['ns']);
+		Utils::$context['notify'] = !empty($_REQUEST['notify']);
+		Utils::$context['use_smileys'] = !isset($_REQUEST['ns']);
 
-		$context['icon'] = isset($_REQUEST['icon']) ? preg_replace('~[\./\\\\*\':"<>]~', '', $_REQUEST['icon']) : 'xx';
+		Utils::$context['icon'] = isset($_REQUEST['icon']) ? preg_replace('~[\./\\\\*\':"<>]~', '', $_REQUEST['icon']) : 'xx';
 
 		// Set the destination action for submission.
-		$context['destination'] = 'post2;start=' . $_REQUEST['start'] . (isset($_REQUEST['msg']) ? ';msg=' . $_REQUEST['msg'] . ';' . $context['session_var'] . '=' . $context['session_id'] : '') . (isset($_REQUEST['poll']) ? ';poll' : '');
-		$context['submit_label'] = isset($_REQUEST['msg']) ? $txt['save'] : $txt['post'];
+		Utils::$context['destination'] = 'post2;start=' . $_REQUEST['start'] . (isset($_REQUEST['msg']) ? ';msg=' . $_REQUEST['msg'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] : '') . (isset($_REQUEST['poll']) ? ';poll' : '');
+		Utils::$context['submit_label'] = isset($_REQUEST['msg']) ? $txt['save'] : $txt['post'];
 
 		// Previewing an edit?
 		if (isset($_REQUEST['msg']) && !empty($topic))
 		{
 			// Get the existing message. Previewing.
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT
 					m.id_member, m.modified_time, m.smileys_enabled, m.body,
 					m.poster_name, m.poster_email, m.subject, m.icon, m.approved,
@@ -603,19 +606,19 @@ function Post($post_errors = array())
 			);
 			// The message they were trying to edit was most likely deleted.
 			// @todo Change this error message?
-			if ($smcFunc['db_num_rows']($request) == 0)
+			if (Db::$db->num_rows($request) == 0)
 				fatal_lang_error('no_board', false);
-			$row = $smcFunc['db_fetch_assoc']($request);
+			$row = Db::$db->fetch_assoc($request);
 
 			$attachment_stuff = array($row);
-			while ($row2 = $smcFunc['db_fetch_assoc']($request))
+			while ($row2 = Db::$db->fetch_assoc($request))
 				$attachment_stuff[] = $row2;
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 
 			if ($row['id_member'] == $user_info['id'] && !allowedTo('modify_any'))
 			{
 				// Give an extra five minutes over the disable time threshold, so they can type - assuming the post is public.
-				if ($row['approved'] && !empty($modSettings['edit_disable_time']) && $row['poster_time'] + ($modSettings['edit_disable_time'] + 5) * 60 < time())
+				if ($row['approved'] && !empty(Config::$modSettings['edit_disable_time']) && $row['poster_time'] + (Config::$modSettings['edit_disable_time'] + 5) * 60 < time())
 					fatal_lang_error('modify_post_time_passed', false);
 				elseif ($row['id_member_poster'] == $user_info['id'] && !allowedTo('modify_own'))
 					isAllowedTo('modify_replies');
@@ -627,15 +630,15 @@ function Post($post_errors = array())
 			else
 				isAllowedTo('modify_any');
 
-			if ($context['can_announce'] && !empty($row['id_action']) && $row['id_first_msg'] == $_REQUEST['msg'])
+			if (Utils::$context['can_announce'] && !empty($row['id_action']) && $row['id_first_msg'] == $_REQUEST['msg'])
 			{
 				loadLanguage('Errors');
-				$context['post_error']['already_announced'] = $txt['error_topic_already_announced'];
+				Utils::$context['post_error']['already_announced'] = $txt['error_topic_already_announced'];
 			}
 
-			if (!empty($modSettings['attachmentEnable']))
+			if (!empty(Config::$modSettings['attachmentEnable']))
 			{
-				$request = $smcFunc['db_query']('', '
+				$request = Db::$db->query('', '
 					SELECT COALESCE(size, -1) AS filesize, filename, id_attach, approved, mime_type, id_thumb
 					FROM {db_prefix}attachments
 					WHERE id_msg = {int:id_msg}
@@ -647,12 +650,12 @@ function Post($post_errors = array())
 					)
 				);
 
-				while ($row = $smcFunc['db_fetch_assoc']($request))
+				while ($row = Db::$db->fetch_assoc($request))
 				{
 					if ($row['filesize'] <= 0)
 						continue;
-					$context['current_attachments'][$row['id_attach']] = array(
-						'name' => $smcFunc['htmlspecialchars']($row['filename']),
+					Utils::$context['current_attachments'][$row['id_attach']] = array(
+						'name' => Utils::htmlspecialchars($row['filename']),
 						'size' => $row['filesize'],
 						'attachID' => $row['id_attach'],
 						'approved' => $row['approved'],
@@ -660,13 +663,13 @@ function Post($post_errors = array())
 						'thumb' => $row['id_thumb'],
 					);
 				}
-				$smcFunc['db_free_result']($request);
+				Db::$db->free_result($request);
 			}
 
 			// Allow moderators to change names....
 			if (allowedTo('moderate_forum') && !empty($topic))
 			{
-				$request = $smcFunc['db_query']('', '
+				$request = Db::$db->query('', '
 					SELECT id_member, poster_name, poster_email
 					FROM {db_prefix}messages
 					WHERE id_msg = {int:id_msg}
@@ -677,13 +680,13 @@ function Post($post_errors = array())
 						'id_msg' => (int) $_REQUEST['msg'],
 					)
 				);
-				$row = $smcFunc['db_fetch_assoc']($request);
-				$smcFunc['db_free_result']($request);
+				$row = Db::$db->fetch_assoc($request);
+				Db::$db->free_result($request);
 
 				if (empty($row['id_member']))
 				{
-					$context['name'] = $smcFunc['htmlspecialchars']($row['poster_name']);
-					$context['email'] = $smcFunc['htmlspecialchars']($row['poster_email']);
+					Utils::$context['name'] = Utils::htmlspecialchars($row['poster_name']);
+					Utils::$context['email'] = Utils::htmlspecialchars($row['poster_email']);
 				}
 			}
 		}
@@ -694,12 +697,12 @@ function Post($post_errors = array())
 	// Editing a message...
 	elseif (isset($_REQUEST['msg']) && !empty($topic))
 	{
-		$context['editing'] = true;
+		Utils::$context['editing'] = true;
 
 		$_REQUEST['msg'] = (int) $_REQUEST['msg'];
 
 		// Get the existing message. Editing.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT
 				m.id_member, m.modified_time, m.modified_name, m.modified_reason, m.smileys_enabled, m.body,
 				m.poster_name, m.poster_email, m.subject, m.icon, m.approved,
@@ -720,19 +723,19 @@ function Post($post_errors = array())
 			)
 		);
 		// The message they were trying to edit was most likely deleted.
-		if ($smcFunc['db_num_rows']($request) == 0)
+		if (Db::$db->num_rows($request) == 0)
 			fatal_lang_error('no_message', false);
-		$row = $smcFunc['db_fetch_assoc']($request);
+		$row = Db::$db->fetch_assoc($request);
 
 		$attachment_stuff = array($row);
-		while ($row2 = $smcFunc['db_fetch_assoc']($request))
+		while ($row2 = Db::$db->fetch_assoc($request))
 			$attachment_stuff[] = $row2;
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		if ($row['id_member'] == $user_info['id'] && !allowedTo('modify_any'))
 		{
 			// Give an extra five minutes over the disable time threshold, so they can type - assuming the post is public.
-			if ($row['approved'] && !empty($modSettings['edit_disable_time']) && $row['poster_time'] + ($modSettings['edit_disable_time'] + 5) * 60 < time())
+			if ($row['approved'] && !empty(Config::$modSettings['edit_disable_time']) && $row['poster_time'] + (Config::$modSettings['edit_disable_time'] + 5) * 60 < time())
 				fatal_lang_error('modify_post_time_passed', false);
 			elseif ($row['id_member_poster'] == $user_info['id'] && !allowedTo('modify_own'))
 				isAllowedTo('modify_replies');
@@ -744,20 +747,20 @@ function Post($post_errors = array())
 		else
 			isAllowedTo('modify_any');
 
-		if ($context['can_announce'] && !empty($row['id_action']) && $row['id_first_msg'] == $_REQUEST['msg'])
+		if (Utils::$context['can_announce'] && !empty($row['id_action']) && $row['id_first_msg'] == $_REQUEST['msg'])
 		{
 			loadLanguage('Errors');
-			$context['post_error']['already_announced'] = $txt['error_topic_already_announced'];
+			Utils::$context['post_error']['already_announced'] = $txt['error_topic_already_announced'];
 		}
 
 		// When was it last modified?
 		if (!empty($row['modified_time']))
 		{
 			$modified_reason = $row['modified_reason'];
-			$context['last_modified'] = timeformat($row['modified_time']);
-			$context['last_modified_reason'] = censorText($row['modified_reason']);
-			$context['last_modified_name'] = $row['modified_name'];
-			$context['last_modified_text'] = sprintf($txt['last_edit_by'], $context['last_modified'], $row['modified_name']) . (empty($row['modified_reason']) ? '' : ' ' . sprintf($txt['last_edit_reason'], $row['modified_reason']));
+			Utils::$context['last_modified'] = timeformat($row['modified_time']);
+			Utils::$context['last_modified_reason'] = censorText($row['modified_reason']);
+			Utils::$context['last_modified_name'] = $row['modified_name'];
+			Utils::$context['last_modified_text'] = sprintf($txt['last_edit_by'], Utils::$context['last_modified'], $row['modified_name']) . (empty($row['modified_reason']) ? '' : ' ' . sprintf($txt['last_edit_reason'], $row['modified_reason']));
 		}
 
 		// Get the stuff ready for the form.
@@ -767,18 +770,18 @@ function Post($post_errors = array())
 		censorText($form_subject);
 
 		// Check the boxes that should be checked.
-		$context['use_smileys'] = !empty($row['smileys_enabled']);
-		$context['icon'] = $row['icon'];
+		Utils::$context['use_smileys'] = !empty($row['smileys_enabled']);
+		Utils::$context['icon'] = $row['icon'];
 
 		// Leave the approval checkbox unchecked by default for unapproved messages.
-		if (!$row['approved'] && !empty($context['show_approval']))
-			$context['show_approval'] = 1;
+		if (!$row['approved'] && !empty(Utils::$context['show_approval']))
+			Utils::$context['show_approval'] = 1;
 
 		// Sort the attachments so they are in the order saved
 		$temp = array();
 		foreach ($attachment_stuff as $attachment)
 		{
-			if ($attachment['filesize'] >= 0 && !empty($modSettings['attachmentEnable']))
+			if ($attachment['filesize'] >= 0 && !empty(Config::$modSettings['attachmentEnable']))
 				$temp[$attachment['id_attach']] = $attachment;
 		}
 		ksort($temp);
@@ -786,8 +789,8 @@ function Post($post_errors = array())
 		// Load up 'em attachments!
 		foreach ($temp as $attachment)
 		{
-			$context['current_attachments'][$attachment['id_attach']] = array(
-				'name' => $smcFunc['htmlspecialchars']($attachment['filename']),
+			Utils::$context['current_attachments'][$attachment['id_attach']] = array(
+				'name' => Utils::htmlspecialchars($attachment['filename']),
 				'size' => $attachment['filesize'],
 				'attachID' => $attachment['id_attach'],
 				'href' => $scripturl . '?action=dlattach;attach=' . $attachment['id_attach'],
@@ -800,41 +803,41 @@ function Post($post_errors = array())
 		// Allow moderators to change names....
 		if (allowedTo('moderate_forum') && empty($row['id_member']))
 		{
-			$context['name'] = $smcFunc['htmlspecialchars']($row['poster_name']);
-			$context['email'] = $smcFunc['htmlspecialchars']($row['poster_email']);
+			Utils::$context['name'] = Utils::htmlspecialchars($row['poster_name']);
+			Utils::$context['email'] = Utils::htmlspecialchars($row['poster_email']);
 		}
 
 		// Set the destination.
-		$context['destination'] = 'post2;start=' . $_REQUEST['start'] . ';msg=' . $_REQUEST['msg'] . ';' . $context['session_var'] . '=' . $context['session_id'] . (isset($_REQUEST['poll']) ? ';poll' : '');
-		$context['submit_label'] = $txt['save'];
+		Utils::$context['destination'] = 'post2;start=' . $_REQUEST['start'] . ';msg=' . $_REQUEST['msg'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . (isset($_REQUEST['poll']) ? ';poll' : '');
+		Utils::$context['submit_label'] = $txt['save'];
 	}
 	// Posting...
 	else
 	{
 		// By default....
-		$context['use_smileys'] = true;
-		$context['icon'] = 'xx';
+		Utils::$context['use_smileys'] = true;
+		Utils::$context['icon'] = 'xx';
 
 		if ($user_info['is_guest'])
 		{
-			$context['name'] = isset($_SESSION['guest_name']) ? $_SESSION['guest_name'] : '';
-			$context['email'] = isset($_SESSION['guest_email']) ? $_SESSION['guest_email'] : '';
+			Utils::$context['name'] = isset($_SESSION['guest_name']) ? $_SESSION['guest_name'] : '';
+			Utils::$context['email'] = isset($_SESSION['guest_email']) ? $_SESSION['guest_email'] : '';
 		}
-		$context['destination'] = 'post2;start=' . $_REQUEST['start'] . (isset($_REQUEST['poll']) ? ';poll' : '');
+		Utils::$context['destination'] = 'post2;start=' . $_REQUEST['start'] . (isset($_REQUEST['poll']) ? ';poll' : '');
 
-		$context['submit_label'] = $txt['post'];
+		Utils::$context['submit_label'] = $txt['post'];
 
 		// Posting a quoted reply?
 		if (!empty($topic) && !empty($_REQUEST['quote']))
 		{
 			// Make sure they _can_ quote this post, and if so get it.
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.body
 				FROM {db_prefix}messages AS m
-					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)') . '
 				WHERE {query_see_message_board}
-					AND m.id_msg = {int:id_msg}' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+					AND m.id_msg = {int:id_msg}' . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 					AND m.approved = {int:is_approved}
 					AND t.approved = {int:is_approved}') . '
 				LIMIT 1',
@@ -843,14 +846,14 @@ function Post($post_errors = array())
 					'is_approved' => 1,
 				)
 			);
-			if ($smcFunc['db_num_rows']($request) == 0)
+			if (Db::$db->num_rows($request) == 0)
 				fatal_lang_error('quoted_post_deleted', false);
-			list ($form_subject, $mname, $mdate, $form_message) = $smcFunc['db_fetch_row']($request);
-			$smcFunc['db_free_result']($request);
+			list ($form_subject, $mname, $mdate, $form_message) = Db::$db->fetch_row($request);
+			Db::$db->free_result($request);
 
 			// Add 'Re: ' to the front of the quoted subject.
-			if (trim($context['response_prefix']) != '' && $smcFunc['strpos']($form_subject, trim($context['response_prefix'])) !== 0)
-				$form_subject = $context['response_prefix'] . $form_subject;
+			if (trim(Utils::$context['response_prefix']) != '' && Utils::entityStrpos($form_subject, trim(Utils::$context['response_prefix'])) !== 0)
+				$form_subject = Utils::$context['response_prefix'] . $form_subject;
 
 			// Censor the message and subject.
 			censorText($form_message);
@@ -879,7 +882,7 @@ function Post($post_errors = array())
 			$form_message = preg_replace('~<br ?/?' . '>~i', "\n", $form_message);
 
 			// Remove any nested quotes, if necessary.
-			if (!empty($modSettings['removeNestedQuotes']))
+			if (!empty(Config::$modSettings['removeNestedQuotes']))
 				$form_message = preg_replace(array('~\n?\[quote.*?\].+?\[/quote\]\n?~is', '~^\n~', '~\[/quote\]~'), '', $form_message);
 
 			// Add a quote string on the front and end.
@@ -892,8 +895,8 @@ function Post($post_errors = array())
 			$form_subject = $first_subject;
 
 			// Add 'Re: ' to the front of the subject.
-			if (trim($context['response_prefix']) != '' && $form_subject != '' && $smcFunc['strpos']($form_subject, trim($context['response_prefix'])) !== 0)
-				$form_subject = $context['response_prefix'] . $form_subject;
+			if (trim(Utils::$context['response_prefix']) != '' && $form_subject != '' && Utils::entityStrpos($form_subject, trim(Utils::$context['response_prefix'])) !== 0)
+				$form_subject = Utils::$context['response_prefix'] . $form_subject;
 
 			// Censor the subject.
 			censorText($form_subject);
@@ -907,20 +910,20 @@ function Post($post_errors = array())
 		}
 	}
 
-	$context['can_post_attachment'] = !empty($modSettings['attachmentEnable']) && $modSettings['attachmentEnable'] == 1 && (allowedTo('post_attachment', $boards, true) || ($modSettings['postmod_active'] && allowedTo('post_unapproved_attachments', $boards, true)));
+	Utils::$context['can_post_attachment'] = !empty(Config::$modSettings['attachmentEnable']) && Config::$modSettings['attachmentEnable'] == 1 && (allowedTo('post_attachment', $boards, true) || (Config::$modSettings['postmod_active'] && allowedTo('post_unapproved_attachments', $boards, true)));
 
-	if ($context['can_post_attachment'])
+	if (Utils::$context['can_post_attachment'])
 	{
 		// If there are attachments, calculate the total size and how many.
-		$context['attachments']['total_size'] = 0;
-		$context['attachments']['quantity'] = 0;
+		Utils::$context['attachments']['total_size'] = 0;
+		Utils::$context['attachments']['quantity'] = 0;
 
 		// If this isn't a new post, check the current attachments.
 		if (isset($_REQUEST['msg']))
 		{
-			$context['attachments']['quantity'] = count($context['current_attachments']);
-			foreach ($context['current_attachments'] as $attachment)
-				$context['attachments']['total_size'] += $attachment['size'];
+			Utils::$context['attachments']['quantity'] = count(Utils::$context['current_attachments']);
+			foreach (Utils::$context['current_attachments'] as $attachment)
+				Utils::$context['attachments']['total_size'] += $attachment['size'];
 		}
 
 		// A bit of house keeping first.
@@ -942,7 +945,7 @@ function Post($post_errors = array())
 				$_SESSION['temp_attachments'] = array();
 			}
 			// Hmm, coming in fresh and there are files in session.
-			elseif ($context['current_action'] != 'post2' || !empty($_POST['from_qr']))
+			elseif (Utils::$context['current_action'] != 'post2' || !empty($_POST['from_qr']))
 			{
 				// Let's be nice and see if they belong here first.
 				if ((empty($_REQUEST['msg']) && empty($_SESSION['temp_attachments']['post']['msg']) && $_SESSION['temp_attachments']['post']['board'] == (!empty($board) ? $board : 0)) || (!empty($_REQUEST['msg']) && $_SESSION['temp_attachments']['post']['msg'] == $_REQUEST['msg']))
@@ -956,7 +959,7 @@ function Post($post_errors = array())
 						if (file_exists($attachment['tmp_name']))
 						{
 							$post_errors[] = 'temp_attachments_new';
-							$context['files_in_session_warning'] = $txt['attached_files_in_session'];
+							Utils::$context['files_in_session_warning'] = $txt['attached_files_in_session'];
 							unset($_SESSION['temp_attachments']['post']['files']);
 							break;
 						}
@@ -966,9 +969,9 @@ function Post($post_errors = array())
 				{
 					// Since, they don't belong here. Let's inform the user that they exist..
 					if (!empty($topic))
-						$delete_url = $scripturl . '?action=post' . (!empty($_REQUEST['msg']) ? (';msg=' . $_REQUEST['msg']) : '') . (!empty($_REQUEST['last_msg']) ? (';last_msg=' . $_REQUEST['last_msg']) : '') . ';topic=' . $topic . ';delete_temp';
+						$delete_url = Config::$scripturl . '?action=post' . (!empty($_REQUEST['msg']) ? (';msg=' . $_REQUEST['msg']) : '') . (!empty($_REQUEST['last_msg']) ? (';last_msg=' . $_REQUEST['last_msg']) : '') . ';topic=' . $topic . ';delete_temp';
 					else
-						$delete_url = $scripturl . '?action=post' . (!empty($board) ? ';board=' . $board : '') . ';delete_temp';
+						$delete_url = Config::$scripturl . '?action=post' . (!empty($board) ? ';board=' . $board : '') . ';delete_temp';
 
 					// Compile a list of the files to show the user.
 					$file_list = array();
@@ -982,25 +985,25 @@ function Post($post_errors = array())
 					if (!empty($_SESSION['temp_attachments']['post']['msg']))
 					{
 						// We have a message id, so we can link back to the old topic they were trying to edit..
-						$goback_url = $scripturl . '?action=post' . (!empty($_SESSION['temp_attachments']['post']['msg']) ? (';msg=' . $_SESSION['temp_attachments']['post']['msg']) : '') . (!empty($_SESSION['temp_attachments']['post']['last_msg']) ? (';last_msg=' . $_SESSION['temp_attachments']['post']['last_msg']) : '') . ';topic=' . $_SESSION['temp_attachments']['post']['topic'] . ';additionalOptions';
+						$goback_url = Config::$scripturl . '?action=post' . (!empty($_SESSION['temp_attachments']['post']['msg']) ? (';msg=' . $_SESSION['temp_attachments']['post']['msg']) : '') . (!empty($_SESSION['temp_attachments']['post']['last_msg']) ? (';last_msg=' . $_SESSION['temp_attachments']['post']['last_msg']) : '') . ';topic=' . $_SESSION['temp_attachments']['post']['topic'] . ';additionalOptions';
 
 						$post_errors[] = array('temp_attachments_found', array($delete_url, $goback_url, $file_list));
-						$context['ignore_temp_attachments'] = true;
+						Utils::$context['ignore_temp_attachments'] = true;
 					}
 					else
 					{
 						$post_errors[] = array('temp_attachments_lost', array($delete_url, $file_list));
-						$context['ignore_temp_attachments'] = true;
+						Utils::$context['ignore_temp_attachments'] = true;
 					}
 				}
 			}
 
-			if (!empty($context['we_are_history']))
-				$post_errors[] = $context['we_are_history'];
+			if (!empty(Utils::$context['we_are_history']))
+				$post_errors[] = Utils::$context['we_are_history'];
 
 			foreach ($_SESSION['temp_attachments'] as $attachID => $attachment)
 			{
-				if (isset($context['ignore_temp_attachments']) || isset($_SESSION['temp_attachments']['post']['files']))
+				if (isset(Utils::$context['ignore_temp_attachments']) || isset($_SESSION['temp_attachments']['post']['files']))
 					break;
 
 				if ($attachID != 'initial_error' && strpos($attachID, 'post_tmp_' . $user_info['id']) === false)
@@ -1038,13 +1041,13 @@ function Post($post_errors = array())
 					continue;
 				}
 
-				$context['attachments']['quantity']++;
-				$context['attachments']['total_size'] += $attachment['size'];
-				if (!isset($context['files_in_session_warning']))
-					$context['files_in_session_warning'] = $txt['attached_files_in_session'];
+				Utils::$context['attachments']['quantity']++;
+				Utils::$context['attachments']['total_size'] += $attachment['size'];
+				if (!isset(Utils::$context['files_in_session_warning']))
+					Utils::$context['files_in_session_warning'] = $txt['attached_files_in_session'];
 
-				$context['current_attachments'][$attachID] = array(
-					'name' => $smcFunc['htmlspecialchars']($attachment['name']),
+				Utils::$context['current_attachments'][$attachID] = array(
+					'name' => Utils::htmlspecialchars($attachment['name']),
 					'size' => $attachment['size'],
 					'attachID' => $attachID,
 					'unchecked' => false,
@@ -1063,7 +1066,7 @@ function Post($post_errors = array())
 	if (!empty($_SESSION['already_attached']))
 		$_SESSION['attachments_can_preview'] += array_fill_keys(array_keys($_SESSION['already_attached']), true);
 
-	foreach ($context['current_attachments'] as $attachID => $attachment)
+	foreach (Utils::$context['current_attachments'] as $attachID => $attachment)
 	{
 		$_SESSION['attachments_can_preview'][$attachID] = true;
 
@@ -1072,12 +1075,12 @@ function Post($post_errors = array())
 	}
 
 	// Previously uploaded attachments have 2 flavors:
-	// - Existing post - at this point, now in $context['current_attachments']
+	// - Existing post - at this point, now in Utils::$context['current_attachments']
 	// - Just added, current session only - at this point, now in $_SESSION['already_attached']
-	// We need to make sure *all* of these are in $context['current_attachments'], otherwise they won't show in dropzone during edits.
+	// We need to make sure *all* of these are in Utils::$context['current_attachments'], otherwise they won't show in dropzone during edits.
 	if (!empty($_SESSION['already_attached']))
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT
 				a.id_attach, a.filename, COALESCE(a.size, 0) AS filesize, a.approved, a.mime_type, a.id_thumb
 			FROM {db_prefix}attachments AS a
@@ -1089,10 +1092,10 @@ function Post($post_errors = array())
 			)
 		);
 
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
-			$context['current_attachments'][$row['id_attach']] = array(
-				'name' => $smcFunc['htmlspecialchars']($row['filename']),
+			Utils::$context['current_attachments'][$row['id_attach']] = array(
+				'name' => Utils::htmlspecialchars($row['filename']),
 				'size' => $row['filesize'],
 				'attachID' => $row['id_attach'],
 				'approved' => $row['approved'],
@@ -1100,23 +1103,23 @@ function Post($post_errors = array())
 				'thumb' => $row['id_thumb'],
 			);
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 	}
 
 	// Do we need to show the visual verification image?
-	$context['require_verification'] = !$user_info['is_mod'] && !$user_info['is_admin'] && !empty($modSettings['posts_require_captcha']) && ($user_info['posts'] < $modSettings['posts_require_captcha'] || ($user_info['is_guest'] && $modSettings['posts_require_captcha'] == -1));
-	if ($context['require_verification'])
+	Utils::$context['require_verification'] = !$user_info['is_mod'] && !$user_info['is_admin'] && !empty(Config::$modSettings['posts_require_captcha']) && ($user_info['posts'] < Config::$modSettings['posts_require_captcha'] || ($user_info['is_guest'] && Config::$modSettings['posts_require_captcha'] == -1));
+	if (Utils::$context['require_verification'])
 	{
-		require_once($sourcedir . '/Subs-Editor.php');
+		require_once(Config::$sourcedir . '/Subs-Editor.php');
 		$verificationOptions = array(
 			'id' => 'post',
 		);
-		$context['require_verification'] = create_control_verification($verificationOptions);
-		$context['visual_verification_id'] = $verificationOptions['id'];
+		Utils::$context['require_verification'] = create_control_verification($verificationOptions);
+		Utils::$context['visual_verification_id'] = $verificationOptions['id'];
 	}
 
 	// If they came from quick reply, and have to enter verification details, give them some notice.
-	if (!empty($_REQUEST['from_qr']) && !empty($context['require_verification']))
+	if (!empty($_REQUEST['from_qr']) && !empty(Utils::$context['require_verification']))
 		$post_errors[] = 'need_qr_verification';
 
 	/*
@@ -1133,77 +1136,77 @@ function Post($post_errors = array())
 	if (!empty($post_errors))
 	{
 		loadLanguage('Errors');
-		$context['error_type'] = 'minor';
+		Utils::$context['error_type'] = 'minor';
 		foreach ($post_errors as $post_error)
 			if (is_array($post_error))
 			{
 				$post_error_id = $post_error[0];
-				$context['post_error'][$post_error_id] = vsprintf($txt['error_' . $post_error_id], (array) $post_error[1]);
+				Utils::$context['post_error'][$post_error_id] = vsprintf($txt['error_' . $post_error_id], (array) $post_error[1]);
 
 				// If it's not a minor error flag it as such.
 				if (!in_array($post_error_id, $minor_errors))
-					$context['error_type'] = 'serious';
+					Utils::$context['error_type'] = 'serious';
 			}
 			else
 			{
-				$context['post_error'][$post_error] = $txt['error_' . $post_error];
+				Utils::$context['post_error'][$post_error] = $txt['error_' . $post_error];
 
 				// If it's not a minor error flag it as such.
 				if (!in_array($post_error, $minor_errors))
-					$context['error_type'] = 'serious';
+					Utils::$context['error_type'] = 'serious';
 			}
 	}
 
 	// What are you doing? Posting a poll, modifying, previewing, new post, or reply...
 	if (isset($_REQUEST['poll']))
-		$context['page_title'] = $txt['new_poll'];
-	elseif ($context['make_event'])
-		$context['page_title'] = $context['event']['id'] == -1 ? $txt['calendar_post_event'] : $txt['calendar_edit'];
+		Utils::$context['page_title'] = $txt['new_poll'];
+	elseif (Utils::$context['make_event'])
+		Utils::$context['page_title'] = Utils::$context['event']['id'] == -1 ? $txt['calendar_post_event'] : $txt['calendar_edit'];
 	elseif (isset($_REQUEST['msg']))
-		$context['page_title'] = $txt['modify_msg'];
-	elseif (isset($_REQUEST['subject'], $context['preview_subject']))
-		$context['page_title'] = $txt['preview'] . ' - ' . strip_tags($context['preview_subject']);
+		Utils::$context['page_title'] = $txt['modify_msg'];
+	elseif (isset($_REQUEST['subject'], Utils::$context['preview_subject']))
+		Utils::$context['page_title'] = $txt['preview'] . ' - ' . strip_tags(Utils::$context['preview_subject']);
 	elseif (empty($topic))
-		$context['page_title'] = $txt['start_new_topic'];
+		Utils::$context['page_title'] = $txt['start_new_topic'];
 	else
-		$context['page_title'] = $txt['post_reply'];
+		Utils::$context['page_title'] = $txt['post_reply'];
 
 	// Build the link tree.
 	if (empty($topic))
-		$context['linktree'][] = array(
+		Utils::$context['linktree'][] = array(
 			'name' => '<em>' . $txt['start_new_topic'] . '</em>'
 		);
 	else
-		$context['linktree'][] = array(
-			'url' => $scripturl . '?topic=' . $topic . '.' . $_REQUEST['start'],
+		Utils::$context['linktree'][] = array(
+			'url' => Config::$scripturl . '?topic=' . $topic . '.' . $_REQUEST['start'],
 			'name' => $form_subject,
-			'extra_before' => '<span><strong class="nav">' . $context['page_title'] . ' (</strong></span>',
+			'extra_before' => '<span><strong class="nav">' . Utils::$context['page_title'] . ' (</strong></span>',
 			'extra_after' => '<span><strong class="nav">)</strong></span>'
 		);
 
-	$context['subject'] = addcslashes($form_subject, '"');
-	$context['message'] = str_replace(array('"', '<', '>', '&nbsp;'), array('&quot;', '&lt;', '&gt;', ' '), $form_message);
+	Utils::$context['subject'] = addcslashes($form_subject, '"');
+	Utils::$context['message'] = str_replace(array('"', '<', '>', '&nbsp;'), array('&quot;', '&lt;', '&gt;', ' '), $form_message);
 
 	// Are post drafts enabled?
-	$context['drafts_save'] = !empty($modSettings['drafts_post_enabled']) && allowedTo('post_draft');
-	$context['drafts_autosave'] = !empty($context['drafts_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('post_autosave_draft') && !empty($options['drafts_autosave_enabled']);
+	Utils::$context['drafts_save'] = !empty(Config::$modSettings['drafts_post_enabled']) && allowedTo('post_draft');
+	Utils::$context['drafts_autosave'] = !empty(Utils::$context['drafts_save']) && !empty(Config::$modSettings['drafts_autosave_enabled']) && allowedTo('post_autosave_draft') && !empty($options['drafts_autosave_enabled']);
 
 	// Build a list of drafts that they can load in to the editor
-	if (!empty($context['drafts_save']))
+	if (!empty(Utils::$context['drafts_save']))
 	{
-		require_once($sourcedir . '/Drafts.php');
+		require_once(Config::$sourcedir . '/Drafts.php');
 		ShowDrafts($user_info['id'], $topic);
 	}
 
 	// Needed for the editor and message icons.
-	require_once($sourcedir . '/Subs-Editor.php');
+	require_once(Config::$sourcedir . '/Subs-Editor.php');
 
 	// Now create the editor.
 	$editorOptions = array(
 		'id' => 'message',
-		'value' => $context['message'],
+		'value' => Utils::$context['message'],
 		'labels' => array(
-			'post_button' => $context['submit_label'],
+			'post_button' => Utils::$context['submit_label'],
 		),
 		// add height and width for the editor
 		'height' => '175px',
@@ -1215,92 +1218,92 @@ function Post($post_errors = array())
 	create_control_richedit($editorOptions);
 
 	// Store the ID.
-	$context['post_box_name'] = $editorOptions['id'];
+	Utils::$context['post_box_name'] = $editorOptions['id'];
 
-	$context['attached'] = '';
-	$context['make_poll'] = isset($_REQUEST['poll']);
+	Utils::$context['attached'] = '';
+	Utils::$context['make_poll'] = isset($_REQUEST['poll']);
 
 	// Message icons - customized icons are off?
-	$context['icons'] = getMessageIcons(!empty($board) ? $board : 0);
+	Utils::$context['icons'] = getMessageIcons(!empty($board) ? $board : 0);
 
-	if (!empty($context['icons']))
-		$context['icons'][count($context['icons']) - 1]['is_last'] = true;
+	if (!empty(Utils::$context['icons']))
+		Utils::$context['icons'][count(Utils::$context['icons']) - 1]['is_last'] = true;
 
 	// Are we starting a poll? if set the poll icon as selected if its available
 	if (isset($_REQUEST['poll']))
 	{
-		foreach ($context['icons'] as $icons)
+		foreach (Utils::$context['icons'] as $icons)
 		{
 			if (isset($icons['value']) && $icons['value'] == 'poll')
 			{
 				// if found we are done
-				$context['icon'] = 'poll';
+				Utils::$context['icon'] = 'poll';
 				break;
 			}
 		}
 	}
 
-	$context['icon_url'] = '';
-	for ($i = 0, $n = count($context['icons']); $i < $n; $i++)
+	Utils::$context['icon_url'] = '';
+	for ($i = 0, $n = count(Utils::$context['icons']); $i < $n; $i++)
 	{
-		$context['icons'][$i]['selected'] = $context['icon'] == $context['icons'][$i]['value'];
-		if ($context['icons'][$i]['selected'])
-			$context['icon_url'] = $context['icons'][$i]['url'];
+		Utils::$context['icons'][$i]['selected'] = Utils::$context['icon'] == Utils::$context['icons'][$i]['value'];
+		if (Utils::$context['icons'][$i]['selected'])
+			Utils::$context['icon_url'] = Utils::$context['icons'][$i]['url'];
 	}
-	if (empty($context['icon_url']))
+	if (empty(Utils::$context['icon_url']))
 	{
-		$context['icon_url'] = $settings[file_exists($settings['theme_dir'] . '/images/post/' . $context['icon'] . '.png') ? 'images_url' : 'default_images_url'] . '/post/' . $context['icon'] . '.png';
-		array_unshift($context['icons'], array(
-			'value' => $context['icon'],
+		Utils::$context['icon_url'] = $settings[file_exists($settings['theme_dir'] . '/images/post/' . Utils::$context['icon'] . '.png') ? 'images_url' : 'default_images_url'] . '/post/' . Utils::$context['icon'] . '.png';
+		array_unshift(Utils::$context['icons'], array(
+			'value' => Utils::$context['icon'],
 			'name' => $txt['current_icon'],
-			'url' => $context['icon_url'],
-			'is_last' => empty($context['icons']),
+			'url' => Utils::$context['icon_url'],
+			'is_last' => empty(Utils::$context['icons']),
 			'selected' => true,
 		));
 	}
 
-	if (!empty($topic) && !empty($modSettings['topicSummaryPosts']))
+	if (!empty($topic) && !empty(Config::$modSettings['topicSummaryPosts']))
 		getTopic();
 
 	// If the user can post attachments prepare the warning labels.
-	if ($context['can_post_attachment'])
+	if (Utils::$context['can_post_attachment'])
 	{
 		// If they've unchecked an attachment, they may still want to attach that many more files, but don't allow more than num_allowed_attachments.
-		$context['num_allowed_attachments'] = empty($modSettings['attachmentNumPerPostLimit']) ? PHP_INT_MAX : $modSettings['attachmentNumPerPostLimit'];
-		$context['can_post_attachment_unapproved'] = allowedTo('post_attachment');
-		$context['attachment_restrictions'] = array();
-		$context['allowed_extensions'] = !empty($modSettings['attachmentCheckExtensions']) ? (strtr(strtolower($modSettings['attachmentExtensions']), array(',' => ', '))) : '';
+		Utils::$context['num_allowed_attachments'] = empty(Config::$modSettings['attachmentNumPerPostLimit']) ? PHP_INT_MAX : Config::$modSettings['attachmentNumPerPostLimit'];
+		Utils::$context['can_post_attachment_unapproved'] = allowedTo('post_attachment');
+		Utils::$context['attachment_restrictions'] = array();
+		Utils::$context['allowed_extensions'] = !empty(Config::$modSettings['attachmentCheckExtensions']) ? (strtr(strtolower(Config::$modSettings['attachmentExtensions']), array(',' => ', '))) : '';
 		$attachmentRestrictionTypes = array('attachmentNumPerPostLimit', 'attachmentPostLimit', 'attachmentSizeLimit');
 		foreach ($attachmentRestrictionTypes as $type)
-			if (!empty($modSettings[$type]))
+			if (!empty(Config::$modSettings[$type]))
 			{
-				$context['attachment_restrictions'][$type] = sprintf($txt['attach_restrict_' . $type . ($modSettings[$type] >= 1024 ? '_MB' : '')], comma_format($modSettings[$type] >= 1024 ? $modSettings[$type] / 1024 : $modSettings[$type], 2));
+				Utils::$context['attachment_restrictions'][$type] = sprintf($txt['attach_restrict_' . $type . (Config::$modSettings[$type] >= 1024 ? '_MB' : '')], comma_format(Config::$modSettings[$type] >= 1024 ? Config::$modSettings[$type] / 1024 : Config::$modSettings[$type], 2));
 
 				// Show the max number of attachments if not 0.
 				if ($type == 'attachmentNumPerPostLimit')
 				{
-					$context['attachment_restrictions'][$type] .= ' (' . sprintf($txt['attach_remaining'], max($modSettings['attachmentNumPerPostLimit'] - $context['attachments']['quantity'], 0)) . ')';
+					Utils::$context['attachment_restrictions'][$type] .= ' (' . sprintf($txt['attach_remaining'], max(Config::$modSettings['attachmentNumPerPostLimit'] - Utils::$context['attachments']['quantity'], 0)) . ')';
 				}
-				elseif ($type == 'attachmentPostLimit' && $context['attachments']['total_size'] > 0)
+				elseif ($type == 'attachmentPostLimit' && Utils::$context['attachments']['total_size'] > 0)
 				{
- 					$context['attachment_restrictions'][$type] .= '<span class="attach_available"> (' . sprintf($txt['attach_available'], round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0), 2)) . ')</span>';
+ 					Utils::$context['attachment_restrictions'][$type] .= '<span class="attach_available"> (' . sprintf($txt['attach_available'], round(max(Config::$modSettings['attachmentPostLimit'] - (Utils::$context['attachments']['total_size'] / 1024), 0), 2)) . ')</span>';
 				}
 
 			}
 	}
 
-	$context['back_to_topic'] = isset($_REQUEST['goback']) || (isset($_REQUEST['msg']) && !isset($_REQUEST['subject']));
-	$context['show_additional_options'] = !empty($_POST['additional_options']) || isset($_SESSION['temp_attachments']['post']) || isset($_GET['additionalOptions']);
+	Utils::$context['back_to_topic'] = isset($_REQUEST['goback']) || (isset($_REQUEST['msg']) && !isset($_REQUEST['subject']));
+	Utils::$context['show_additional_options'] = !empty($_POST['additional_options']) || isset($_SESSION['temp_attachments']['post']) || isset($_GET['additionalOptions']);
 
-	$context['is_new_topic'] = empty($topic);
-	$context['is_new_post'] = !isset($_REQUEST['msg']);
-	$context['is_first_post'] = $context['is_new_topic'] || (isset($_REQUEST['msg']) && $_REQUEST['msg'] == $id_first_msg);
+	Utils::$context['is_new_topic'] = empty($topic);
+	Utils::$context['is_new_post'] = !isset($_REQUEST['msg']);
+	Utils::$context['is_first_post'] = Utils::$context['is_new_topic'] || (isset($_REQUEST['msg']) && $_REQUEST['msg'] == $id_first_msg);
 
 	// Register this form in the session variables.
 	checkSubmitOnce('register');
 
 	// Mentions
-	if (!empty($modSettings['enable_mentions']) && allowedTo('mention'))
+	if (!empty(Config::$modSettings['enable_mentions']) && allowedTo('mention'))
 	{
 		loadJavaScriptFile('jquery.caret.min.js', array('defer' => true), 'smf_caret');
 		loadJavaScriptFile('jquery.atwho.min.js', array('defer' => true), 'smf_atwho');
@@ -1308,7 +1311,7 @@ function Post($post_errors = array())
 	}
 
 	// Load the drafts js file
-	if ($context['drafts_autosave'])
+	if (Utils::$context['drafts_autosave'])
 		loadJavaScriptFile('drafts.js', array('defer' => false, 'minimize' => true), 'smf_drafts');
 
 	// quotedText.js
@@ -1317,10 +1320,10 @@ function Post($post_errors = array())
 	addInlineJavaScript('
 	var current_attachments = [];');
 
-	if (!empty($context['current_attachments']))
+	if (!empty(Utils::$context['current_attachments']))
 	{
 		// Mock files to show already attached files.
-		foreach ($context['current_attachments'] as $key => $mock)
+		foreach (Utils::$context['current_attachments'] as $key => $mock)
 			addInlineJavaScript('
 	current_attachments.push({
 		name: ' . JavaScriptEscape($mock['name']) . ',
@@ -1333,14 +1336,14 @@ function Post($post_errors = array())
 	}
 
 	// File Upload.
-	if ($context['can_post_attachment'])
+	if (Utils::$context['can_post_attachment'])
 	{
-		$acceptedFiles = empty($context['allowed_extensions']) ? '' : implode(',', array_map(
-			function ($val) use ($smcFunc)
+		$acceptedFiles = empty(Utils::$context['allowed_extensions']) ? '' : implode(',', array_map(
+			function ($val)
 			{
-				return !empty($val) ? ('.' . $smcFunc['htmltrim']($val)) : '';
+				return !empty($val) ? ('.' . Utils::htmlTrim($val)) : '';
 			},
-			explode(',', $context['allowed_extensions'])
+			explode(',', Utils::$context['allowed_extensions'])
 		));
 
 		loadJavaScriptFile('dropzone.min.js', array('defer' => true), 'smf_dropzone');
@@ -1361,31 +1364,31 @@ function Post($post_errors = array())
 			text_attachUploaded: ' . JavaScriptEscape($txt['attached_file_uploaded']) . ',
 			text_attach_unlimited: ' . JavaScriptEscape($txt['attach_drop_unlimited']) . ',
 			text_totalMaxSize: ' . JavaScriptEscape($txt['attach_max_total_file_size_current']) . ',
-			text_max_size_progress: ' . JavaScriptEscape('{currentRemain} ' . ($modSettings['attachmentPostLimit'] >= 1024 ? $txt['megabyte'] : $txt['kilobyte']) . ' / {currentTotal} ' . ($modSettings['attachmentPostLimit'] >= 1024 ? $txt['megabyte'] : $txt['kilobyte'])) . ',
+			text_max_size_progress: ' . JavaScriptEscape('{currentRemain} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? $txt['megabyte'] : $txt['kilobyte']) . ' / {currentTotal} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? $txt['megabyte'] : $txt['kilobyte'])) . ',
 			dictMaxFilesExceeded: ' . JavaScriptEscape($txt['more_attachments_error']) . ',
-			dictInvalidFileType: ' . JavaScriptEscape(sprintf($txt['cant_upload_type'], $context['allowed_extensions'])) . ',
-			dictFileTooBig: ' . JavaScriptEscape(sprintf($txt['file_too_big'], comma_format($modSettings['attachmentSizeLimit'], 0))) . ',
+			dictInvalidFileType: ' . JavaScriptEscape(sprintf($txt['cant_upload_type'], Utils::$context['allowed_extensions'])) . ',
+			dictFileTooBig: ' . JavaScriptEscape(sprintf($txt['file_too_big'], comma_format(Config::$modSettings['attachmentSizeLimit'], 0))) . ',
 			acceptedFiles: ' . JavaScriptEscape($acceptedFiles) . ',
-			thumbnailWidth: ' . (!empty($modSettings['attachmentThumbWidth']) ? $modSettings['attachmentThumbWidth'] : 'null') . ',
-			thumbnailHeight: ' . (!empty($modSettings['attachmentThumbHeight']) ? $modSettings['attachmentThumbHeight'] : 'null') . ',
-			limitMultiFileUploadSize:' . round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)) * 1024 . ',
-			maxFileAmount: ' . (!empty($context['num_allowed_attachments']) ? $context['num_allowed_attachments'] : 'null') . ',
-			maxTotalSize: ' . (!empty($modSettings['attachmentPostLimit']) ? $modSettings['attachmentPostLimit'] : '0') . ',
-			maxFilesize: ' . (!empty($modSettings['attachmentSizeLimit']) ? $modSettings['attachmentSizeLimit'] : '0') . ',
+			thumbnailWidth: ' . (!empty(Config::$modSettings['attachmentThumbWidth']) ? Config::$modSettings['attachmentThumbWidth'] : 'null') . ',
+			thumbnailHeight: ' . (!empty(Config::$modSettings['attachmentThumbHeight']) ? Config::$modSettings['attachmentThumbHeight'] : 'null') . ',
+			limitMultiFileUploadSize:' . round(max(Config::$modSettings['attachmentPostLimit'] - (Utils::$context['attachments']['total_size'] / 1024), 0)) * 1024 . ',
+			maxFileAmount: ' . (!empty(Utils::$context['num_allowed_attachments']) ? Utils::$context['num_allowed_attachments'] : 'null') . ',
+			maxTotalSize: ' . (!empty(Config::$modSettings['attachmentPostLimit']) ? Config::$modSettings['attachmentPostLimit'] : '0') . ',
+			maxFilesize: ' . (!empty(Config::$modSettings['attachmentSizeLimit']) ? Config::$modSettings['attachmentSizeLimit'] : '0') . ',
 		});
 	});', true);
 	}
 
 	// Knowing the current board ID might be handy.
 	addInlineJavaScript('
-	var current_board = ' . (empty($context['current_board']) ? 'null' : $context['current_board']) . ';', false);
+	var current_board = ' . (empty(Utils::$context['current_board']) ? 'null' : Utils::$context['current_board']) . ';', false);
 
 	/* Now let's set up the fields for the posting form header...
 
-		Each item in $context['posting_fields'] is an array similar to one of
+		Each item in Utils::$context['posting_fields'] is an array similar to one of
 		the following:
 
-		$context['posting_fields']['foo'] = array(
+		Utils::$context['posting_fields']['foo'] = array(
 			'label' => array(
 				'text' => $txt['foo'], // required
 				'class' => 'foo', // optional
@@ -1400,7 +1403,7 @@ function Post($post_errors = array())
 			),
 		);
 
-		$context['posting_fields']['bar'] = array(
+		Utils::$context['posting_fields']['bar'] = array(
 			'label' => array(
 				'text' => $txt['bar'], // required
 				'class' => 'bar', // optional
@@ -1440,7 +1443,7 @@ function Post($post_errors = array())
 			),
 		);
 
-		$context['posting_fields']['baz'] = array(
+		Utils::$context['posting_fields']['baz'] = array(
 			'label' => array(
 				'text' => $txt['baz'], // required
 				'class' => 'baz', // optional
@@ -1502,39 +1505,39 @@ function Post($post_errors = array())
 		normally be generated in the template file using the other
 		information in the array. This should be avoided if at all possible.
 	*/
-	$context['posting_fields'] = array();
+	Utils::$context['posting_fields'] = array();
 
 	// Guests must supply their name and email.
-	if (isset($context['name']) && isset($context['email']))
+	if (isset(Utils::$context['name']) && isset(Utils::$context['email']))
 	{
-		$context['posting_fields']['guestname'] = array(
+		Utils::$context['posting_fields']['guestname'] = array(
 			'label' => array(
 				'text' => $txt['name'],
-				'class' => isset($context['post_error']['long_name']) || isset($context['post_error']['no_name']) || isset($context['post_error']['bad_name']) ? 'error' : '',
+				'class' => isset(Utils::$context['post_error']['long_name']) || isset(Utils::$context['post_error']['no_name']) || isset(Utils::$context['post_error']['bad_name']) ? 'error' : '',
 			),
 			'input' => array(
 				'type' => 'text',
 				'attributes' => array(
 					'size' => 25,
 					'maxlength' => 25,
-					'value' => $context['name'],
+					'value' => Utils::$context['name'],
 					'required' => true,
 				),
 			),
 		);
 
-		if (empty($modSettings['guest_post_no_email']))
+		if (empty(Config::$modSettings['guest_post_no_email']))
 		{
-			$context['posting_fields']['email'] = array(
+			Utils::$context['posting_fields']['email'] = array(
 				'label' => array(
 					'text' => $txt['email'],
-					'class' => isset($context['post_error']['no_email']) || isset($context['post_error']['bad_email']) ? 'error' : '',
+					'class' => isset(Utils::$context['post_error']['no_email']) || isset(Utils::$context['post_error']['bad_email']) ? 'error' : '',
 				),
 				'input' => array(
 					'type' => 'email',
 					'attributes' => array(
 						'size' => 25,
-						'value' => $context['email'],
+						'value' => Utils::$context['email'],
 						'required' => true,
 					),
 				),
@@ -1545,7 +1548,7 @@ function Post($post_errors = array())
 	// Gotta post it somewhere.
 	if (empty($board))
 	{
-		$context['posting_fields']['board'] = array(
+		Utils::$context['posting_fields']['board'] = array(
 			'label' => array(
 				'text' => $txt['calendar_post_in'],
 			),
@@ -1556,10 +1559,10 @@ function Post($post_errors = array())
 		);
 		foreach ($board_list as $category)
 		{
-			$context['posting_fields']['board']['input']['options'][$category['name']] = array('options' => array());
+			Utils::$context['posting_fields']['board']['input']['options'][$category['name']] = array('options' => array());
 
 			foreach ($category['boards'] as $brd)
-				$context['posting_fields']['board']['input']['options'][$category['name']]['options'][$brd['name']] = array(
+				Utils::$context['posting_fields']['board']['input']['options'][$category['name']]['options'][$brd['name']] = array(
 					'value' => $brd['id'],
 					'selected' => (bool) $brd['selected'],
 					'label' => ($brd['child_level'] > 0 ? str_repeat('==', $brd['child_level'] - 1) . '=&gt;' : '') . ' ' . $brd['name'],
@@ -1568,24 +1571,24 @@ function Post($post_errors = array())
 	}
 
 	// Gotta have a subject.
-	$context['posting_fields']['subject'] = array(
+	Utils::$context['posting_fields']['subject'] = array(
 		'label' => array(
 			'text' => $txt['subject'],
-			'class' => isset($context['post_error']['no_subject']) ? 'error' : '',
+			'class' => isset(Utils::$context['post_error']['no_subject']) ? 'error' : '',
 		),
 		'input' => array(
 			'type' => 'text',
 			'attributes' => array(
 				'size' => 80,
-				'maxlength' => 80 + (!empty($topic) ? $smcFunc['strlen']($context['response_prefix']) : 0),
-				'value' => $context['subject'],
+				'maxlength' => 80 + (!empty($topic) ? Utils::entityStrlen(Utils::$context['response_prefix']) : 0),
+				'value' => Utils::$context['subject'],
 				'required' => true,
 			),
 		),
 	);
 
 	// Icons are fun.
-	$context['posting_fields']['icon'] = array(
+	Utils::$context['posting_fields']['icon'] = array(
 		'label' => array(
 			'text' => $txt['message_icon'],
 		),
@@ -1596,21 +1599,21 @@ function Post($post_errors = array())
 				'onchange' => 'showimage();',
 			),
 			'options' => array(),
-			'after' => ' <img id="icons" src="' . $context['icon_url'] . '">',
+			'after' => ' <img id="icons" src="' . Utils::$context['icon_url'] . '">',
 		),
 	);
-	foreach ($context['icons'] as $icon)
+	foreach (Utils::$context['icons'] as $icon)
 	{
-		$context['posting_fields']['icon']['input']['options'][$icon['name']] = array(
+		Utils::$context['posting_fields']['icon']['input']['options'][$icon['name']] = array(
 			'value' => $icon['value'],
-			'selected' => $icon['value'] == $context['icon'],
+			'selected' => $icon['value'] == Utils::$context['icon'],
 		);
 	}
 
 	// If we're editing and displaying edit details, show a box where they can say why.
-	if (isset($context['editing']) && $modSettings['show_modify'])
+	if (isset(Utils::$context['editing']) && Config::$modSettings['show_modify'])
 	{
-		$context['posting_fields']['modify_reason'] = array(
+		Utils::$context['posting_fields']['modify_reason'] = array(
 			'label' => array(
 				'text' => $txt['reason_for_edit'],
 			),
@@ -1620,10 +1623,10 @@ function Post($post_errors = array())
 					'size' => 80,
 					'maxlength' => 80,
 					// If same user is editing again, keep the previous edit reason by default.
-					'value' => isset($modified_reason) && isset($context['last_modified_name']) && $context['last_modified_name'] === $user_info['name'] ? $modified_reason : '',
+					'value' => isset($modified_reason) && isset(Utils::$context['last_modified_name']) && Utils::$context['last_modified_name'] === $user_info['name'] ? $modified_reason : '',
 				),
 				// If message has been edited before, show info about that.
-				'after' => empty($context['last_modified_text']) ? '' : '<div class="smalltext em">' . $context['last_modified_text'] . '</div>',
+				'after' => empty(Utils::$context['last_modified_text']) ? '' : '<div class="smalltext em">' . Utils::$context['last_modified_text'] . '</div>',
 			),
 		);
 
@@ -1658,8 +1661,8 @@ function Post($post_errors = array())
  */
 function Post2()
 {
-	global $board, $topic, $txt, $modSettings, $sourcedir, $context;
-	global $user_info, $board_info, $options, $smcFunc, $settings;
+	global $board, $topic, $txt;
+	global $user_info, $board_info, $options, $settings;
 
 	// Sneaking off, are we?
 	if (empty($_POST) && empty($topic))
@@ -1673,7 +1676,7 @@ function Post2()
 		redirectexit('action=post;topic=' . $topic . '.0');
 
 	// No need!
-	$context['robot_no_index'] = true;
+	Utils::$context['robot_no_index'] = true;
 
 	// Prevent double submission of this form.
 	checkSubmitOnce('check');
@@ -1686,25 +1689,25 @@ function Post2()
 		$post_errors[] = 'session_timeout';
 
 	// Wrong verification code?
-	if (!$user_info['is_admin'] && !$user_info['is_mod'] && !empty($modSettings['posts_require_captcha']) && ($user_info['posts'] < $modSettings['posts_require_captcha'] || ($user_info['is_guest'] && $modSettings['posts_require_captcha'] == -1)))
+	if (!$user_info['is_admin'] && !$user_info['is_mod'] && !empty(Config::$modSettings['posts_require_captcha']) && ($user_info['posts'] < Config::$modSettings['posts_require_captcha'] || ($user_info['is_guest'] && Config::$modSettings['posts_require_captcha'] == -1)))
 	{
-		require_once($sourcedir . '/Subs-Editor.php');
+		require_once(Config::$sourcedir . '/Subs-Editor.php');
 		$verificationOptions = array(
 			'id' => 'post',
 		);
-		$context['require_verification'] = create_control_verification($verificationOptions, true);
-		if (is_array($context['require_verification']))
-			$post_errors = array_merge($post_errors, $context['require_verification']);
+		Utils::$context['require_verification'] = create_control_verification($verificationOptions, true);
+		if (is_array(Utils::$context['require_verification']))
+			$post_errors = array_merge($post_errors, Utils::$context['require_verification']);
 	}
 
-	require_once($sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Subs-Post.php');
 	loadLanguage('Post');
 
 	call_integration_hook('integrate_post2_start', array(&$post_errors));
 
 	// Drafts enabled and needed?
-	if (!empty($modSettings['drafts_post_enabled']) && (isset($_POST['save_draft']) || isset($_POST['id_draft'])))
-		require_once($sourcedir . '/Drafts.php');
+	if (!empty(Config::$modSettings['drafts_post_enabled']) && (isset($_POST['save_draft']) || isset($_POST['id_draft'])))
+		require_once(Config::$sourcedir . '/Drafts.php');
 
 	// First check to see if they are trying to delete any current attachments.
 	if (isset($_POST['attach_del']))
@@ -1729,7 +1732,7 @@ function Post2()
 
 		if (!empty($_REQUEST['msg']))
 		{
-			require_once($sourcedir . '/ManageAttachments.php');
+			require_once(Config::$sourcedir . '/ManageAttachments.php');
 			$attachmentQuery = array(
 				'attachment_type' => 0,
 				'id_msg' => (int) $_REQUEST['msg'],
@@ -1740,18 +1743,18 @@ function Post2()
 	}
 
 	// Then try to upload any attachments.
-	$context['can_post_attachment'] = !empty($modSettings['attachmentEnable']) && $modSettings['attachmentEnable'] == 1 && (allowedTo('post_attachment') || ($modSettings['postmod_active'] && allowedTo('post_unapproved_attachments')));
-	if ($context['can_post_attachment'] && empty($_POST['from_qr']))
+	Utils::$context['can_post_attachment'] = !empty(Config::$modSettings['attachmentEnable']) && Config::$modSettings['attachmentEnable'] == 1 && (allowedTo('post_attachment') || (Config::$modSettings['postmod_active'] && allowedTo('post_unapproved_attachments')));
+	if (Utils::$context['can_post_attachment'] && empty($_POST['from_qr']))
 	{
-		require_once($sourcedir . '/Subs-Attachments.php');
+		require_once(Config::$sourcedir . '/Subs-Attachments.php');
 		processAttachments();
 	}
 
 	// They've already uploaded some attachments, but they don't have permission to post them
 	// This can sometimes happen when they came from ?action=calendar;sa=post
-	if (!$context['can_post_attachment'] && !empty($_SESSION['already_attached']))
+	if (!Utils::$context['can_post_attachment'] && !empty($_SESSION['already_attached']))
 	{
-		require_once($sourcedir . '/ManageAttachments.php');
+		require_once(Config::$sourcedir . '/ManageAttachments.php');
 
 		foreach ($_SESSION['already_attached'] as $attachID => $attachment)
 			removeAttachments(array('id_attach' => $attachID));
@@ -1766,7 +1769,7 @@ function Post2()
 	// If this isn't a new topic load the topic info that we need.
 	if (!empty($topic))
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT locked, is_sticky, id_poll, approved, id_first_msg, id_last_msg, id_member_started, id_board
 			FROM {db_prefix}topics
 			WHERE id_topic = {int:current_topic}
@@ -1775,8 +1778,8 @@ function Post2()
 				'current_topic' => $topic,
 			)
 		);
-		$topic_info = $smcFunc['db_fetch_assoc']($request);
-		$smcFunc['db_free_result']($request);
+		$topic_info = Db::$db->fetch_assoc($request);
+		Db::$db->free_result($request);
 
 		// Though the topic should be there, it might have vanished.
 		if (!is_array($topic_info))
@@ -1812,7 +1815,7 @@ function Post2()
 
 		elseif ($topic_info['id_member_started'] != $user_info['id'])
 		{
-			if ($modSettings['postmod_active'] && allowedTo('post_unapproved_replies_any') && !allowedTo('post_reply_any'))
+			if (Config::$modSettings['postmod_active'] && allowedTo('post_unapproved_replies_any') && !allowedTo('post_reply_any'))
 				$becomesApproved = false;
 
 			else
@@ -1820,7 +1823,7 @@ function Post2()
 		}
 		elseif (!allowedTo('post_reply_any'))
 		{
-			if ($modSettings['postmod_active'] && allowedTo('post_unapproved_replies_own') && !allowedTo('post_reply_own'))
+			if (Config::$modSettings['postmod_active'] && allowedTo('post_unapproved_replies_own') && !allowedTo('post_reply_own'))
 				$becomesApproved = false;
 
 			else
@@ -1869,7 +1872,7 @@ function Post2()
 		}
 
 		// If drafts are enabled, then pass this off
-		if (!empty($modSettings['drafts_post_enabled']) && isset($_POST['save_draft']))
+		if (!empty(Config::$modSettings['drafts_post_enabled']) && isset($_POST['save_draft']))
 		{
 			SaveDraft($post_errors);
 			return Post();
@@ -1883,8 +1886,8 @@ function Post2()
 		}
 
 		$posterIsGuest = $user_info['is_guest'];
-		$context['is_own_post'] = true;
-		$context['poster_id'] = $user_info['id'];
+		Utils::$context['is_own_post'] = true;
+		Utils::$context['poster_id'] = $user_info['id'];
 	}
 	// Posting a new topic.
 	elseif (empty($topic))
@@ -1894,7 +1897,7 @@ function Post2()
 
 		// Do like, the permissions, for safety and stuff...
 		$becomesApproved = true;
-		if ($modSettings['postmod_active'] && !allowedTo('post_new') && allowedTo('post_unapproved_topics'))
+		if (Config::$modSettings['postmod_active'] && !allowedTo('post_new') && allowedTo('post_unapproved_topics'))
 			$becomesApproved = false;
 		else
 			isAllowedTo('post_new');
@@ -1916,22 +1919,22 @@ function Post2()
 			unset($_POST['sticky']);
 
 		// Saving your new topic as a draft first?
-		if (!empty($modSettings['drafts_post_enabled']) && isset($_POST['save_draft']))
+		if (!empty(Config::$modSettings['drafts_post_enabled']) && isset($_POST['save_draft']))
 		{
 			SaveDraft($post_errors);
 			return Post();
 		}
 
 		$posterIsGuest = $user_info['is_guest'];
-		$context['is_own_post'] = true;
-		$context['poster_id'] = $user_info['id'];
+		Utils::$context['is_own_post'] = true;
+		Utils::$context['poster_id'] = $user_info['id'];
 	}
 	// Modifying an existing message?
 	elseif (isset($_REQUEST['msg']) && !empty($topic))
 	{
 		$_REQUEST['msg'] = (int) $_REQUEST['msg'];
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_member, poster_name, poster_email, poster_time, approved
 			FROM {db_prefix}messages
 			WHERE id_msg = {int:id_msg}
@@ -1940,10 +1943,10 @@ function Post2()
 				'id_msg' => $_REQUEST['msg'],
 			)
 		);
-		if ($smcFunc['db_num_rows']($request) == 0)
+		if (Db::$db->num_rows($request) == 0)
 			fatal_lang_error('cant_find_messages', false);
-		$row = $smcFunc['db_fetch_assoc']($request);
-		$smcFunc['db_free_result']($request);
+		$row = Db::$db->fetch_assoc($request);
+		Db::$db->free_result($request);
 
 		if (!empty($topic_info['locked']) && !allowedTo('moderate_board'))
 			fatal_lang_error('topic_locked', false);
@@ -1989,7 +1992,7 @@ function Post2()
 
 		if ($row['id_member'] == $user_info['id'] && !allowedTo('modify_any'))
 		{
-			if ((!$modSettings['postmod_active'] || $row['approved']) && !empty($modSettings['edit_disable_time']) && $row['poster_time'] + ($modSettings['edit_disable_time'] + 5) * 60 < time())
+			if ((!Config::$modSettings['postmod_active'] || $row['approved']) && !empty(Config::$modSettings['edit_disable_time']) && $row['poster_time'] + (Config::$modSettings['edit_disable_time'] + 5) * 60 < time())
 				fatal_lang_error('modify_post_time_passed', false);
 			elseif ($topic_info['id_member_started'] == $user_info['id'] && !allowedTo('modify_own'))
 				isAllowedTo('modify_replies');
@@ -2013,19 +2016,19 @@ function Post2()
 		}
 
 		// If drafts are enabled, then lets send this off to save
-		if (!empty($modSettings['drafts_post_enabled']) && isset($_POST['save_draft']))
+		if (!empty(Config::$modSettings['drafts_post_enabled']) && isset($_POST['save_draft']))
 		{
 			SaveDraft($post_errors);
 			return Post();
 		}
 
 		$posterIsGuest = empty($row['id_member']);
-		$context['is_own_post'] = $user_info['id'] === (int) $row['id_member'];
-		$context['poster_id'] = (int) $row['id_member'];
+		Utils::$context['is_own_post'] = $user_info['id'] === (int) $row['id_member'];
+		Utils::$context['poster_id'] = (int) $row['id_member'];
 
 		// Can they approve it?
 		$approve_checked = (!empty($REQUEST['approve']) ? 1 : 0);
-		$becomesApproved = $modSettings['postmod_active'] ? ($can_approve && !$row['approved'] ? $approve_checked : $row['approved']) : 1;
+		$becomesApproved = Config::$modSettings['postmod_active'] ? ($can_approve && !$row['approved'] ? $approve_checked : $row['approved']) : 1;
 		$approve_has_changed = $row['approved'] != $becomesApproved;
 
 		if (!allowedTo('moderate_forum') || !$posterIsGuest)
@@ -2042,7 +2045,7 @@ function Post2()
 	}
 
 	// In case we have approval permissions and want to override.
-	if ($can_approve && $modSettings['postmod_active'])
+	if ($can_approve && Config::$modSettings['postmod_active'])
 	{
 		$becomesApproved = isset($_POST['quickReply']) || !empty($_REQUEST['approve']) ? 1 : 0;
 		$approve_has_changed = isset($row['approved']) ? $row['approved'] != $becomesApproved : false;
@@ -2051,15 +2054,15 @@ function Post2()
 	// If the poster is a guest evaluate the legality of name and email.
 	if ($posterIsGuest)
 	{
-		$_POST['guestname'] = !isset($_POST['guestname']) ? '' : trim(normalize_spaces(sanitize_chars($_POST['guestname'], 1, ' '), true, true, array('no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true)));
+		$_POST['guestname'] = !isset($_POST['guestname']) ? '' : trim(Utils::normalizeSpaces(Utils::sanitizeChars($_POST['guestname'], 1, ' '), true, true, array('no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true)));
 		$_POST['email'] = !isset($_POST['email']) ? '' : trim($_POST['email']);
 
 		if ($_POST['guestname'] == '' || $_POST['guestname'] == '_')
 			$post_errors[] = 'no_name';
-		if ($smcFunc['strlen']($_POST['guestname']) > 25)
+		if (Utils::entityStrlen($_POST['guestname']) > 25)
 			$post_errors[] = 'long_name';
 
-		if (empty($modSettings['guest_post_no_email']))
+		if (empty(Config::$modSettings['guest_post_no_email']))
 		{
 			// Only check if they changed it!
 			if (!isset($row) || $row['poster_email'] != $_POST['email'])
@@ -2087,16 +2090,16 @@ function Post2()
 		$_POST['message'] = $_POST['quickReply'];
 
 	// Check the subject and message.
-	if (!isset($_POST['subject']) || $smcFunc['htmltrim']($smcFunc['htmlspecialchars']($_POST['subject'])) === '')
+	if (!isset($_POST['subject']) || Utils::htmlTrim(Utils::htmlspecialchars($_POST['subject'])) === '')
 		$post_errors[] = 'no_subject';
-	if (!isset($_POST['message']) || $smcFunc['htmltrim']($smcFunc['htmlspecialchars']($_POST['message']), ENT_QUOTES) === '')
+	if (!isset($_POST['message']) || Utils::htmlTrim(Utils::htmlspecialchars($_POST['message']), ENT_QUOTES) === '')
 		$post_errors[] = 'no_message';
-	elseif (!empty($modSettings['max_messageLength']) && $smcFunc['strlen']($_POST['message']) > $modSettings['max_messageLength'])
-		$post_errors[] = array('long_message', array($modSettings['max_messageLength']));
+	elseif (!empty(Config::$modSettings['max_messageLength']) && Utils::entityStrlen($_POST['message']) > Config::$modSettings['max_messageLength'])
+		$post_errors[] = array('long_message', array(Config::$modSettings['max_messageLength']));
 	else
 	{
 		// Prepare the message a bit for some additional testing.
-		$_POST['message'] = $smcFunc['htmlspecialchars']($_POST['message'], ENT_QUOTES);
+		$_POST['message'] = Utils::htmlspecialchars($_POST['message'], ENT_QUOTES);
 
 		// Preparse code. (Zef)
 		if ($user_info['is_guest'])
@@ -2104,18 +2107,18 @@ function Post2()
 		preparsecode($_POST['message']);
 
 		// Let's see if there's still some content left without the tags.
-		if ($smcFunc['htmltrim'](strip_tags(BBCodeParser::load()->parse($_POST['message'], false), implode('', $context['allowed_html_tags']))) === '' && (!allowedTo('bbc_html') || strpos($_POST['message'], '[html]') === false))
+		if (Utils::htmlTrim(strip_tags(BBCodeParser::load()->parse($_POST['message'], false), implode('', Utils::$context['allowed_html_tags']))) === '' && (!allowedTo('bbc_html') || strpos($_POST['message'], '[html]') === false))
 			$post_errors[] = 'no_message';
 
 	}
-	if (isset($_POST['calendar']) && !isset($_REQUEST['deleteevent']) && $smcFunc['htmltrim']($_POST['evtitle']) === '')
+	if (isset($_POST['calendar']) && !isset($_REQUEST['deleteevent']) && Utils::htmlTrim($_POST['evtitle']) === '')
 		$post_errors[] = 'no_event';
 	// You are not!
 	if (isset($_POST['message']) && strtolower($_POST['message']) == 'i am the administrator.' && !$user_info['is_admin'])
 		fatal_error('Knave! Masquerader! Charlatan!', false);
 
 	// Validate the poll...
-	if (isset($_REQUEST['poll']) && $modSettings['pollMode'] == '1')
+	if (isset($_REQUEST['poll']) && Config::$modSettings['pollMode'] == '1')
 	{
 		if (!empty($topic) && !isset($_REQUEST['msg']))
 			fatal_lang_error('no_access', false);
@@ -2150,7 +2153,7 @@ function Post2()
 	if ($posterIsGuest)
 	{
 		// If user is a guest, make sure the chosen name isn't taken.
-		require_once($sourcedir . '/Subs-Members.php');
+		require_once(Config::$sourcedir . '/Subs-Members.php');
 		if (isReservedName($_POST['guestname'], 0, true, false) && (!isset($row['poster_name']) || $_POST['guestname'] != $row['poster_name']))
 			$post_errors[] = 'bad_name';
 	}
@@ -2193,18 +2196,18 @@ function Post2()
 	@set_time_limit(300);
 
 	// Add special html entities to the subject, name, and email.
-	$_POST['subject'] = strtr($smcFunc['htmlspecialchars']($_POST['subject']), array("\r" => '', "\n" => '', "\t" => ''));
-	$_POST['guestname'] = $smcFunc['htmlspecialchars']($_POST['guestname']);
-	$_POST['email'] = $smcFunc['htmlspecialchars']($_POST['email']);
-	$_POST['modify_reason'] = empty($_POST['modify_reason']) ? '' : strtr($smcFunc['htmlspecialchars']($_POST['modify_reason']), array("\r" => '', "\n" => '', "\t" => ''));
+	$_POST['subject'] = strtr(Utils::htmlspecialchars($_POST['subject']), array("\r" => '', "\n" => '', "\t" => ''));
+	$_POST['guestname'] = Utils::htmlspecialchars($_POST['guestname']);
+	$_POST['email'] = Utils::htmlspecialchars($_POST['email']);
+	$_POST['modify_reason'] = empty($_POST['modify_reason']) ? '' : strtr(Utils::htmlspecialchars($_POST['modify_reason']), array("\r" => '', "\n" => '', "\t" => ''));
 
 	// At this point, we want to make sure the subject isn't too long.
-	if ($smcFunc['strlen']($_POST['subject']) > 100)
-		$_POST['subject'] = $smcFunc['substr']($_POST['subject'], 0, 100);
+	if (Utils::entityStrlen($_POST['subject']) > 100)
+		$_POST['subject'] = Utils::entitySubstr($_POST['subject'], 0, 100);
 
 	// Same with the "why did you edit this" text.
-	if ($smcFunc['strlen']($_POST['modify_reason']) > 100)
-		$_POST['modify_reason'] = $smcFunc['substr']($_POST['modify_reason'], 0, 100);
+	if (Utils::entityStrlen($_POST['modify_reason']) > 100)
+		$_POST['modify_reason'] = Utils::entitySubstr($_POST['modify_reason'], 0, 100);
 
 	// Make the poll...
 	if (isset($_REQUEST['poll']))
@@ -2231,7 +2234,7 @@ function Post2()
 		// Make sure guests are actually allowed to vote generally.
 		if ($_POST['poll_guest_vote'])
 		{
-			require_once($sourcedir . '/Subs-Members.php');
+			require_once(Config::$sourcedir . '/Subs-Members.php');
 			$allowedVoteGroups = groupsAllowedTo('poll_vote', $board);
 			if (!in_array(-1, $allowedVoteGroups['allowed']))
 				$_POST['poll_guest_vote'] = 0;
@@ -2245,18 +2248,18 @@ function Post2()
 			$_POST['poll_hide'] = 1;
 
 		// Clean up the question and answers.
-		$_POST['question'] = $smcFunc['htmlspecialchars']($_POST['question']);
-		$_POST['question'] = $smcFunc['truncate']($_POST['question'], 255);
+		$_POST['question'] = Utils::htmlspecialchars($_POST['question']);
+		$_POST['question'] = Utils::truncate($_POST['question'], 255);
 		$_POST['question'] = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $_POST['question']);
 		$_POST['options'] = htmlspecialchars__recursive($_POST['options']);
 	}
 
 	// ...or attach a new file...
-	if ($context['can_post_attachment'] && !empty($_SESSION['temp_attachments']) && empty($_POST['from_qr']))
+	if (Utils::$context['can_post_attachment'] && !empty($_SESSION['temp_attachments']) && empty($_POST['from_qr']))
 	{
 		$attachIDs = array();
 		$attach_errors = array();
-		if (!empty($context['we_are_history']))
+		if (!empty(Utils::$context['we_are_history']))
 			$attach_errors[] = '<dd>' . $txt['error_temp_attachments_flushed'] . '<br><br></dd>';
 
 		foreach ($_SESSION['temp_attachments'] as $attachID => $attachment)
@@ -2281,8 +2284,8 @@ function Post2()
 				'tmp_name' => $attachment['tmp_name'],
 				'size' => isset($attachment['size']) ? $attachment['size'] : 0,
 				'mime_type' => isset($attachment['type']) ? $attachment['type'] : '',
-				'id_folder' => isset($attachment['id_folder']) ? $attachment['id_folder'] : $modSettings['currentAttachmentUploadDir'],
-				'approved' => !$modSettings['postmod_active'] || allowedTo('post_attachment'),
+				'id_folder' => isset($attachment['id_folder']) ? $attachment['id_folder'] : Config::$modSettings['currentAttachmentUploadDir'],
+				'approved' => !Config::$modSettings['postmod_active'] || allowedTo('post_attachment'),
 				'errors' => $attachment['errors'],
 			);
 
@@ -2325,7 +2328,7 @@ function Post2()
 	if (isset($_REQUEST['poll']))
 	{
 		// Create the poll.
-		$id_poll = $smcFunc['db_insert']('',
+		$id_poll = Db::$db->insert('',
 			'{db_prefix}polls',
 			array(
 				'question' => 'string-255', 'hide_results' => 'int', 'max_votes' => 'int', 'expire_time' => 'int', 'id_member' => 'int',
@@ -2348,7 +2351,7 @@ function Post2()
 			$i++;
 		}
 
-		$smcFunc['db_insert']('insert',
+		Db::$db->insert('insert',
 			'{db_prefix}poll_choices',
 			array('id_poll' => 'int', 'id_choice' => 'int', 'label' => 'string-255'),
 			$pollOptions,
@@ -2369,7 +2372,7 @@ function Post2()
 
 	else
 	{
-		$_POST['icon'] = $smcFunc['htmlspecialchars']($_POST['icon']);
+		$_POST['icon'] = Utils::htmlspecialchars($_POST['icon']);
 
 		// Need to figure it out if this is a valid icon name.
 		if ((!file_exists($settings['theme_dir'] . '/images/post/' . $_POST['icon'] . '.png')) && (!file_exists($settings['default_theme_dir'] . '/images/post/' . $_POST['icon'] . '.png')))
@@ -2393,7 +2396,7 @@ function Post2()
 		'lock_mode' => isset($_POST['lock']) ? (int) $_POST['lock'] : null,
 		'sticky_mode' => isset($_POST['sticky']) ? (int) $_POST['sticky'] : null,
 		'mark_as_read' => true,
-		'is_approved' => !$modSettings['postmod_active'] || empty($topic) || !empty($board_info['cur_topic_approved']),
+		'is_approved' => !Config::$modSettings['postmod_active'] || empty($topic) || !empty($board_info['cur_topic_approved']),
 		'first_msg' => empty($topic_info['id_first_msg']) ? null : $topic_info['id_first_msg'],
 		'last_msg' => empty($topic_info['id_last_msg']) ? null : $topic_info['id_last_msg'],
 	);
@@ -2408,7 +2411,7 @@ function Post2()
 	if (!empty($_REQUEST['msg']))
 	{
 		// Have admins allowed people to hide their screwups?
-		if (time() - $row['poster_time'] > $modSettings['edit_wait_time'] || $user_info['id'] != $row['id_member'])
+		if (time() - $row['poster_time'] > Config::$modSettings['edit_wait_time'] || $user_info['id'] != $row['id_member'])
 		{
 			$msgOptions['modify_time'] = time();
 			$msgOptions['modify_name'] = $user_info['name'];
@@ -2430,19 +2433,19 @@ function Post2()
 	// Are there attachments already uploaded and waiting to be assigned?
 	if (!empty($msgOptions['id']) && !empty($_SESSION['already_attached']))
 	{
-		require_once($sourcedir . '/Subs-Attachments.php');
+		require_once(Config::$sourcedir . '/Subs-Attachments.php');
 		assignAttachments($_SESSION['already_attached'], $msgOptions['id']);
 		unset($_SESSION['already_attached']);
 	}
 
 	// If we had a draft for this, its time to remove it since it was just posted
-	if (!empty($modSettings['drafts_post_enabled']) && !empty($_POST['id_draft']))
+	if (!empty(Config::$modSettings['drafts_post_enabled']) && !empty($_POST['id_draft']))
 		DeleteDraft($_POST['id_draft']);
 
 	// Editing or posting an event?
 	if (isset($_POST['calendar']) && (!isset($_REQUEST['eventid']) || $_REQUEST['eventid'] == -1))
 	{
-		require_once($sourcedir . '/Subs-Calendar.php');
+		require_once(Config::$sourcedir . '/Subs-Calendar.php');
 
 		// Make sure they can link an event to this post.
 		canLinkEvent();
@@ -2462,14 +2465,14 @@ function Post2()
 		$_REQUEST['eventid'] = (int) $_REQUEST['eventid'];
 
 		// Validate the post...
-		require_once($sourcedir . '/Subs-Calendar.php');
+		require_once(Config::$sourcedir . '/Subs-Calendar.php');
 		validateEventPost();
 
 		// If you're not allowed to edit any events, you have to be the poster.
 		if (!allowedTo('calendar_edit_any'))
 		{
 			// Get the event's poster.
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT id_member
 				FROM {db_prefix}calendar
 				WHERE id_event = {int:id_event}',
@@ -2477,8 +2480,8 @@ function Post2()
 					'id_event' => $_REQUEST['eventid'],
 				)
 			);
-			$row2 = $smcFunc['db_fetch_assoc']($request);
-			$smcFunc['db_free_result']($request);
+			$row2 = Db::$db->fetch_assoc($request);
+			Db::$db->free_result($request);
 
 			// Silly hacker, Trix are for kids. ...probably trademarked somewhere, this is FAIR USE! (parody...)
 			isAllowedTo('calendar_edit_' . ($row2['id_member'] == $user_info['id'] ? 'own' : 'any'));
@@ -2486,7 +2489,7 @@ function Post2()
 
 		// Delete it?
 		if (isset($_REQUEST['deleteevent']))
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				DELETE FROM {db_prefix}calendar
 				WHERE id_event = {int:id_event}',
 				array(
@@ -2512,7 +2515,7 @@ function Post2()
 	// Mark all the parents read.  (since you just posted and they will be unread.)
 	if (!$user_info['is_guest'] && !empty($board_info['parent_boards']))
 	{
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}log_boards
 			SET id_msg = {int:id_msg}
 			WHERE id_member = {int:current_member}
@@ -2520,15 +2523,15 @@ function Post2()
 			array(
 				'current_member' => $user_info['id'],
 				'board_list' => array_keys($board_info['parent_boards']),
-				'id_msg' => $modSettings['maxMsgID'],
+				'id_msg' => Config::$modSettings['maxMsgID'],
 			)
 		);
 	}
 
 	// Turn notification on or off.  (note this just blows smoke if it's already on or off.)
-	if (!empty($_POST['notify']) && !$context['user']['is_guest'])
+	if (!empty($_POST['notify']) && !Utils::$context['user']['is_guest'])
 	{
-		$smcFunc['db_insert']('ignore',
+		Db::$db->insert('ignore',
 			'{db_prefix}log_notify',
 			array('id_member' => 'int', 'id_topic' => 'int', 'id_board' => 'int'),
 			array($user_info['id'], $topic, 0),
@@ -2536,7 +2539,7 @@ function Post2()
 		);
 	}
 	elseif (!$newTopic)
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}log_notify
 			WHERE id_member = {int:current_member}
 				AND id_topic = {int:current_topic}',
@@ -2560,7 +2563,7 @@ function Post2()
 	if (!empty($_REQUEST['goback']))
 	{
 		// Mark the board as read.... because it might get confusing otherwise.
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}log_boards
 			SET id_msg = {int:maxMsgID}
 			WHERE id_member = {int:current_member}
@@ -2568,7 +2571,7 @@ function Post2()
 			array(
 				'current_board' => $board,
 				'current_member' => $user_info['id'],
-				'maxMsgID' => $modSettings['maxMsgID'],
+				'maxMsgID' => Config::$modSettings['maxMsgID'],
 			)
 		);
 	}
@@ -2604,7 +2607,7 @@ function Post2()
  */
 function AnnounceTopic()
 {
-	global $context, $txt, $topic;
+	global $txt, $topic;
 
 	isAllowedTo('announce_topic');
 
@@ -2621,7 +2624,7 @@ function AnnounceTopic()
 		'send' => 'AnnouncementSend',
 	);
 
-	$context['page_title'] = $txt['announce_topic'];
+	Utils::$context['page_title'] = $txt['announce_topic'];
 
 	// Call the function based on the sub-action.
 	$call = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'selectgroup';
@@ -2635,16 +2638,16 @@ function AnnounceTopic()
  */
 function AnnouncementSelectMembergroup()
 {
-	global $txt, $context, $topic, $board_info, $smcFunc;
+	global $txt, $topic, $board_info;
 
 	$groups = array_merge($board_info['groups'], array(1));
 	foreach ($groups as $id => $group)
 		$groups[$id] = (int) $group;
 
-	$context['groups'] = array();
+	Utils::$context['groups'] = array();
 	if (in_array(0, $groups))
 	{
-		$context['groups'][0] = array(
+		Utils::$context['groups'][0] = array(
 			'id' => 0,
 			'name' => $txt['announce_regular_members'],
 			'member_count' => 'n/a',
@@ -2652,7 +2655,7 @@ function AnnouncementSelectMembergroup()
 	}
 
 	// Get all membergroups that have access to the board the announcement was made on.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT mg.id_group, COUNT(mem.id_member) AS num_members
 		FROM {db_prefix}membergroups AS mg
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_group = mg.id_group OR FIND_IN_SET(mg.id_group, mem.additional_groups) != 0 OR mg.id_group = mem.id_post_group)
@@ -2663,18 +2666,18 @@ function AnnouncementSelectMembergroup()
 			'newbie_id_group' => 4,
 		)
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
-		$context['groups'][$row['id_group']] = array(
+		Utils::$context['groups'][$row['id_group']] = array(
 			'id' => $row['id_group'],
 			'name' => '',
 			'member_count' => $row['num_members'],
 		);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Now get the membergroup names.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_group, group_name
 		FROM {db_prefix}membergroups
 		WHERE id_group IN ({array_int:group_list})',
@@ -2682,12 +2685,12 @@ function AnnouncementSelectMembergroup()
 			'group_list' => $groups,
 		)
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$context['groups'][$row['id_group']]['name'] = $row['group_name'];
-	$smcFunc['db_free_result']($request);
+	while ($row = Db::$db->fetch_assoc($request))
+		Utils::$context['groups'][$row['id_group']]['name'] = $row['group_name'];
+	Db::$db->free_result($request);
 
 	// Get the subject of the topic we're about to announce.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT m.subject
 		FROM {db_prefix}topics AS t
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
@@ -2696,15 +2699,15 @@ function AnnouncementSelectMembergroup()
 			'current_topic' => $topic,
 		)
 	);
-	list ($context['topic_subject']) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list (Utils::$context['topic_subject']) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
-	censorText($context['announce_topic']['subject']);
+	censorText(Utils::$context['announce_topic']['subject']);
 
-	$context['move'] = isset($_REQUEST['move']) ? 1 : 0;
-	$context['go_back'] = isset($_REQUEST['goback']) ? 1 : 0;
+	Utils::$context['move'] = isset($_REQUEST['move']) ? 1 : 0;
+	Utils::$context['go_back'] = isset($_REQUEST['goback']) ? 1 : 0;
 
-	$context['sub_template'] = 'announce';
+	Utils::$context['sub_template'] = 'announce';
 }
 
 /**
@@ -2717,12 +2720,11 @@ function AnnouncementSelectMembergroup()
  */
 function AnnouncementSend()
 {
-	global $topic, $board, $board_info, $context, $modSettings;
-	global $language, $scripturl, $sourcedir, $smcFunc;
+	global $topic, $board, $board_info;
 
 	checkSession();
 
-	$context['start'] = empty($_REQUEST['start']) ? 0 : (int) $_REQUEST['start'];
+	Utils::$context['start'] = empty($_REQUEST['start']) ? 0 : (int) $_REQUEST['start'];
 	$groups = array_merge($board_info['groups'], array(1));
 
 	if (isset($_POST['membergroups']))
@@ -2737,7 +2739,7 @@ function AnnouncementSend()
 		$_POST['who'][$id] = in_array((int) $mg, $groups) ? (int) $mg : 0;
 
 	// Get the topic subject and censor it.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT m.id_msg, m.subject, m.body
 		FROM {db_prefix}topics AS t
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
@@ -2746,19 +2748,19 @@ function AnnouncementSend()
 			'current_topic' => $topic,
 		)
 	);
-	list ($id_msg, $context['topic_subject'], $message) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($id_msg, Utils::$context['topic_subject'], $message) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
-	censorText($context['topic_subject']);
+	censorText(Utils::$context['topic_subject']);
 	censorText($message);
 
 	$message = trim(un_htmlspecialchars(strip_tags(strtr(BBCodeParser::load()->parse($message, false, $id_msg), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
 
 	// We need this in order to be able send emails.
-	require_once($sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Subs-Post.php');
 
 	// Select the email addresses for this batch.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT mem.id_member, mem.email_address, mem.lngfile
 		FROM {db_prefix}members AS mem
 		WHERE (mem.id_group IN ({array_int:group_list}) OR mem.id_post_group IN ({array_int:group_list}) OR FIND_IN_SET({raw:additional_group_list}, mem.additional_groups) != 0)
@@ -2769,7 +2771,7 @@ function AnnouncementSend()
 		array(
 			'group_list' => $_POST['who'],
 			'is_activated' => 1,
-			'start' => $context['start'],
+			'start' => Utils::$context['start'],
 			'additional_group_list' => implode(', mem.additional_groups) != 0 OR FIND_IN_SET(', $_POST['who']),
 			// @todo Might need an interface?
 			'chunk_size' => 500,
@@ -2777,7 +2779,7 @@ function AnnouncementSend()
 	);
 
 	// All members have received a mail. Go to the next screen.
-	if ($smcFunc['db_num_rows']($request) == 0)
+	if (Db::$db->num_rows($request) == 0)
 	{
 		logAction('announce_topic', array('topic' => $topic), 'user');
 		if (!empty($_REQUEST['move']) && allowedTo('move_any'))
@@ -2791,33 +2793,33 @@ function AnnouncementSend()
 	$announcements = array();
 	// Loop through all members that'll receive an announcement in this batch.
 	$rows = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$rows[$row['id_member']] = $row;
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Load their alert preferences
-	require_once($sourcedir . '/Subs-Notify.php');
+	require_once(Config::$sourcedir . '/Subs-Notify.php');
 	$prefs = getNotifyPrefs(array_keys($rows), 'announcements', true);
 
 	foreach ($rows as $row)
 	{
-		$context['start'] = $row['id_member'];
+		Utils::$context['start'] = $row['id_member'];
 		// Force them to have it?
 		if (empty($prefs[$row['id_member']]['announcements']))
 			continue;
 
-		$cur_language = empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile'];
+		$cur_language = empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $row['lngfile'];
 
 		// If the language wasn't defined yet, load it and compose a notification message.
 		if (!isset($announcements[$cur_language]))
 		{
 			$replacements = array(
-				'TOPICSUBJECT' => $context['topic_subject'],
+				'TOPICSUBJECT' => Utils::$context['topic_subject'],
 				'MESSAGE' => $message,
-				'TOPICLINK' => $scripturl . '?topic=' . $topic . '.0',
-				'UNSUBSCRIBELINK' => $scripturl . '?action=notifyannouncements;u={UNSUBSCRIBE_ID};token={UNSUBSCRIBE_TOKEN}',
+				'TOPICLINK' => Config::$scripturl . '?topic=' . $topic . '.0',
+				'UNSUBSCRIBELINK' => Config::$scripturl . '?action=notifyannouncements;u={UNSUBSCRIBE_ID};token={UNSUBSCRIBE_TOKEN}',
 			);
 
 			$emaildata = loadEmailTemplate('new_announcement', $replacements, $cur_language);
@@ -2847,15 +2849,15 @@ function AnnouncementSend()
 
 	}
 
-	$context['percentage_done'] = round(100 * $context['start'] / $modSettings['latestMember'], 1);
+	Utils::$context['percentage_done'] = round(100 * Utils::$context['start'] / Config::$modSettings['latestMember'], 1);
 
-	$context['move'] = empty($_REQUEST['move']) ? 0 : 1;
-	$context['go_back'] = empty($_REQUEST['goback']) ? 0 : 1;
-	$context['membergroups'] = implode(',', $_POST['who']);
-	$context['sub_template'] = 'announcement_send';
+	Utils::$context['move'] = empty($_REQUEST['move']) ? 0 : 1;
+	Utils::$context['go_back'] = empty($_REQUEST['goback']) ? 0 : 1;
+	Utils::$context['membergroups'] = implode(',', $_POST['who']);
+	Utils::$context['sub_template'] = 'announcement_send';
 
 	// Go back to the correct language for the user ;).
-	if (!empty($modSettings['userLanguage']))
+	if (!empty(Config::$modSettings['userLanguage']))
 		loadLanguage('Post');
 }
 
@@ -2868,24 +2870,24 @@ function AnnouncementSend()
  */
 function getTopic()
 {
-	global $topic, $modSettings, $context, $smcFunc, $counter, $options;
+	global $topic, $counter, $options;
 
 	if (isset($_REQUEST['xml']))
 		$limit = '
-		LIMIT ' . (empty($context['new_replies']) ? '0' : $context['new_replies']);
+		LIMIT ' . (empty(Utils::$context['new_replies']) ? '0' : Utils::$context['new_replies']);
 	else
-		$limit = empty($modSettings['topicSummaryPosts']) ? '' : '
-		LIMIT ' . (int) $modSettings['topicSummaryPosts'];
+		$limit = empty(Config::$modSettings['topicSummaryPosts']) ? '' : '
+		LIMIT ' . (int) Config::$modSettings['topicSummaryPosts'];
 
 	// If you're modifying, get only those posts before the current one. (otherwise get all.)
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT
 			COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time,
 			m.body, m.smileys_enabled, m.id_msg, m.id_member
 		FROM {db_prefix}messages AS m
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 		WHERE m.id_topic = {int:current_topic}' . (isset($_REQUEST['msg']) ? '
-			AND m.id_msg < {int:id_msg}' : '') . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+			AND m.id_msg < {int:id_msg}' : '') . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 			AND m.approved = {int:approved}') . '
 		ORDER BY m.id_msg DESC' . $limit,
 		array(
@@ -2894,8 +2896,8 @@ function getTopic()
 			'approved' => 1,
 		)
 	);
-	$context['previous_posts'] = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	Utils::$context['previous_posts'] = array();
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// Censor, BBC, ...
 		censorText($row['body']);
@@ -2904,21 +2906,21 @@ function getTopic()
 	 	call_integration_hook('integrate_getTopic_previous_post', array(&$row));
 
 		// ...and store.
-		$context['previous_posts'][] = array(
+		Utils::$context['previous_posts'][] = array(
 			'counter' => $counter++,
 			'poster' => $row['poster_name'],
 			'message' => $row['body'],
 			'time' => timeformat($row['poster_time']),
 			'timestamp' => $row['poster_time'],
 			'id' => $row['id_msg'],
-			'is_new' => !empty($context['new_replies']),
-			'is_ignored' => !empty($modSettings['enable_buddylist']) && !empty($options['posts_apply_ignore_list']) && in_array($row['id_member'], $context['user']['ignoreusers']),
+			'is_new' => !empty(Utils::$context['new_replies']),
+			'is_ignored' => !empty(Config::$modSettings['enable_buddylist']) && !empty($options['posts_apply_ignore_list']) && in_array($row['id_member'], Utils::$context['user']['ignoreusers']),
 		);
 
-		if (!empty($context['new_replies']))
-			$context['new_replies']--;
+		if (!empty(Utils::$context['new_replies']))
+			Utils::$context['new_replies']--;
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 }
 
 /**
@@ -2929,18 +2931,17 @@ function getTopic()
  */
 function QuoteFast()
 {
-	global $modSettings, $user_info, $context;
-	global $sourcedir, $smcFunc;
+	global $user_info;
 
 	loadLanguage('Post');
 	if (!isset($_REQUEST['xml']))
 		loadTemplate('Post');
 
-	include_once($sourcedir . '/Subs-Post.php');
+	include_once(Config::$sourcedir . '/Subs-Post.php');
 
 	$moderate_boards = boardsAllowedTo('moderate_board');
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.body, m.id_topic, m.subject,
 			m.id_board, m.id_member, m.approved, m.modified_time, m.modified_name, m.modified_reason
 		FROM {db_prefix}messages AS m
@@ -2957,11 +2958,11 @@ function QuoteFast()
 			'not_locked' => 0,
 		)
 	);
-	$context['close_window'] = $smcFunc['db_num_rows']($request) == 0;
-	$row = $smcFunc['db_fetch_assoc']($request);
-	$smcFunc['db_free_result']($request);
+	Utils::$context['close_window'] = Db::$db->num_rows($request) == 0;
+	$row = Db::$db->fetch_assoc($request);
+	Db::$db->free_result($request);
 
-	$context['sub_template'] = 'quotefast';
+	Utils::$context['sub_template'] = 'quotefast';
 	if (!empty($row))
 		$can_view_post = $row['approved'] || ($row['id_member'] != 0 && $row['id_member'] == $user_info['id']) || allowedTo('approve_posts', $row['id_board']);
 
@@ -2978,8 +2979,8 @@ function QuoteFast()
 		{
 			censorText($row['subject']);
 
-			$context['sub_template'] = 'modifyfast';
-			$context['message'] = array(
+			Utils::$context['sub_template'] = 'modifyfast';
+			Utils::$context['message'] = array(
 				'id' => $_REQUEST['quote'],
 				'body' => $row['body'],
 				'subject' => addcslashes($row['subject'], '"'),
@@ -2994,24 +2995,24 @@ function QuoteFast()
 		}
 
 		// Remove any nested quotes.
-		if (!empty($modSettings['removeNestedQuotes']))
+		if (!empty(Config::$modSettings['removeNestedQuotes']))
 			$row['body'] = preg_replace(array('~\n?\[quote.*?\].+?\[/quote\]\n?~is', '~^\n~', '~\[/quote\]~'), '', $row['body']);
 
 		$lb = "\n";
 
 		// Add a quote string on the front and end.
-		$context['quote']['xml'] = '[quote author=' . $row['poster_name'] . ' link=msg=' . (int) $_REQUEST['quote'] . ' date=' . $row['poster_time'] . ']' . $lb . $row['body'] . $lb . '[/quote]';
-		$context['quote']['text'] = strtr(un_htmlspecialchars($context['quote']['xml']), array('\'' => '\\\'', '\\' => '\\\\', "\n" => '\\n', '</script>' => '</\' + \'script>'));
-		$context['quote']['xml'] = strtr($context['quote']['xml'], array('&nbsp;' => '&#160;', '<' => '&lt;', '>' => '&gt;'));
+		Utils::$context['quote']['xml'] = '[quote author=' . $row['poster_name'] . ' link=msg=' . (int) $_REQUEST['quote'] . ' date=' . $row['poster_time'] . ']' . $lb . $row['body'] . $lb . '[/quote]';
+		Utils::$context['quote']['text'] = strtr(un_htmlspecialchars(Utils::$context['quote']['xml']), array('\'' => '\\\'', '\\' => '\\\\', "\n" => '\\n', '</script>' => '</\' + \'script>'));
+		Utils::$context['quote']['xml'] = strtr(Utils::$context['quote']['xml'], array('&nbsp;' => '&#160;', '<' => '&lt;', '>' => '&gt;'));
 
-		$context['quote']['mozilla'] = strtr($smcFunc['htmlspecialchars']($context['quote']['text']), array('&quot;' => '"'));
+		Utils::$context['quote']['mozilla'] = strtr(Utils::htmlspecialchars(Utils::$context['quote']['text']), array('&quot;' => '"'));
 	}
 	//@todo Needs a nicer interface.
 	// In case our message has been removed in the meantime.
 	elseif (isset($_REQUEST['modify']))
 	{
-		$context['sub_template'] = 'modifyfast';
-		$context['message'] = array(
+		Utils::$context['sub_template'] = 'modifyfast';
+		Utils::$context['message'] = array(
 			'id' => 0,
 			'body' => '',
 			'subject' => '',
@@ -3023,7 +3024,7 @@ function QuoteFast()
 		);
 	}
 	else
-		$context['quote'] = array(
+		Utils::$context['quote'] = array(
 			'xml' => '',
 			'mozilla' => '',
 			'text' => '',
@@ -3036,18 +3037,18 @@ function QuoteFast()
  */
 function JavaScriptModify()
 {
-	global $sourcedir, $modSettings, $board, $topic, $txt;
-	global $user_info, $context, $smcFunc, $language, $board_info;
+	global $board, $topic, $txt;
+	global $user_info, $board_info;
 
 	// We have to have a topic!
 	if (empty($topic))
 		obExit(false);
 
 	checkSession('get');
-	require_once($sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Subs-Post.php');
 
 	// Assume the first message if no message ID was given.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT
 			t.locked, t.num_replies, t.id_member_started, t.id_first_msg,
 			m.id_msg, m.id_member, m.poster_time, m.subject, m.smileys_enabled, m.body, m.icon,
@@ -3056,7 +3057,7 @@ function JavaScriptModify()
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
 		WHERE m.id_msg = {raw:id_msg}
-			AND m.id_topic = {int:current_topic}' . (allowedTo('modify_any') || allowedTo('approve_posts') ? '' : (!$modSettings['postmod_active'] ? '
+			AND m.id_topic = {int:current_topic}' . (allowedTo('modify_any') || allowedTo('approve_posts') ? '' : (!Config::$modSettings['postmod_active'] ? '
 			AND (m.id_member != {int:guest_id} AND m.id_member = {int:current_member})' : '
 			AND (m.approved = {int:is_approved} OR (m.id_member != {int:guest_id} AND m.id_member = {int:current_member}))')),
 		array(
@@ -3067,10 +3068,10 @@ function JavaScriptModify()
 			'guest_id' => 0,
 		)
 	);
-	if ($smcFunc['db_num_rows']($request) == 0)
+	if (Db::$db->num_rows($request) == 0)
 		fatal_lang_error('no_board', false);
-	$row = $smcFunc['db_fetch_assoc']($request);
-	$smcFunc['db_free_result']($request);
+	$row = Db::$db->fetch_assoc($request);
+	Db::$db->free_result($request);
 
 	// Change either body or subject requires permissions to modify messages.
 	if (isset($_POST['message']) || isset($_POST['subject']) || isset($_REQUEST['icon']))
@@ -3080,7 +3081,7 @@ function JavaScriptModify()
 
 		if ($row['id_member'] == $user_info['id'] && !allowedTo('modify_any'))
 		{
-			if ((!$modSettings['postmod_active'] || $row['approved']) && !empty($modSettings['edit_disable_time']) && $row['poster_time'] + ($modSettings['edit_disable_time'] + 5) * 60 < time())
+			if ((!Config::$modSettings['postmod_active'] || $row['approved']) && !empty(Config::$modSettings['edit_disable_time']) && $row['poster_time'] + (Config::$modSettings['edit_disable_time'] + 5) * 60 < time())
 				fatal_lang_error('modify_post_time_passed', false);
 			elseif ($row['id_member_started'] == $user_info['id'] && !allowedTo('modify_own'))
 				isAllowedTo('modify_replies');
@@ -3098,13 +3099,13 @@ function JavaScriptModify()
 	}
 
 	$post_errors = array();
-	if (isset($_POST['subject']) && $smcFunc['htmltrim']($smcFunc['htmlspecialchars']($_POST['subject'])) !== '')
+	if (isset($_POST['subject']) && Utils::htmlTrim(Utils::htmlspecialchars($_POST['subject'])) !== '')
 	{
-		$_POST['subject'] = strtr($smcFunc['htmlspecialchars']($_POST['subject']), array("\r" => '', "\n" => '', "\t" => ''));
+		$_POST['subject'] = strtr(Utils::htmlspecialchars($_POST['subject']), array("\r" => '', "\n" => '', "\t" => ''));
 
 		// Maximum number of characters.
-		if ($smcFunc['strlen']($_POST['subject']) > 100)
-			$_POST['subject'] = $smcFunc['substr']($_POST['subject'], 0, 100);
+		if (Utils::entityStrlen($_POST['subject']) > 100)
+			$_POST['subject'] = Utils::entitySubstr($_POST['subject'], 0, 100);
 	}
 	elseif (isset($_POST['subject']))
 	{
@@ -3114,23 +3115,23 @@ function JavaScriptModify()
 
 	if (isset($_POST['message']))
 	{
-		if ($smcFunc['htmltrim']($smcFunc['htmlspecialchars']($_POST['message'])) === '')
+		if (Utils::htmlTrim(Utils::htmlspecialchars($_POST['message'])) === '')
 		{
 			$post_errors[] = 'no_message';
 			unset($_POST['message']);
 		}
-		elseif (!empty($modSettings['max_messageLength']) && $smcFunc['strlen']($_POST['message']) > $modSettings['max_messageLength'])
+		elseif (!empty(Config::$modSettings['max_messageLength']) && Utils::entityStrlen($_POST['message']) > Config::$modSettings['max_messageLength'])
 		{
 			$post_errors[] = 'long_message';
 			unset($_POST['message']);
 		}
 		else
 		{
-			$_POST['message'] = $smcFunc['htmlspecialchars']($_POST['message'], ENT_QUOTES);
+			$_POST['message'] = Utils::htmlspecialchars($_POST['message'], ENT_QUOTES);
 
 			preparsecode($_POST['message']);
 
-			if ($smcFunc['htmltrim'](strip_tags(BBCodeParser::load()->parse($_POST['message'], false), implode('', $context['allowed_html_tags']))) === '')
+			if (Utils::htmlTrim(strip_tags(BBCodeParser::load()->parse($_POST['message'], false), implode('', Utils::$context['allowed_html_tags']))) === '')
 			{
 				$post_errors[] = 'no_message';
 				unset($_POST['message']);
@@ -3162,11 +3163,11 @@ function JavaScriptModify()
 
 	if (isset($_POST['modify_reason']))
 	{
-		$_POST['modify_reason'] = strtr($smcFunc['htmlspecialchars']($_POST['modify_reason']), array("\r" => '', "\n" => '', "\t" => ''));
+		$_POST['modify_reason'] = strtr(Utils::htmlspecialchars($_POST['modify_reason']), array("\r" => '', "\n" => '', "\t" => ''));
 
 		// Maximum number of characters.
-		if ($smcFunc['strlen']($_POST['modify_reason']) > 100)
-			$_POST['modify_reason'] = $smcFunc['substr']($_POST['modify_reason'], 0, 100);
+		if (Utils::entityStrlen($_POST['modify_reason']) > 100)
+			$_POST['modify_reason'] = Utils::entitySubstr($_POST['modify_reason'], 0, 100);
 	}
 
 	if (empty($post_errors))
@@ -3197,7 +3198,7 @@ function JavaScriptModify()
 		if ((isset($_POST['subject']) && $_POST['subject'] != $row['subject']) || (isset($_POST['message']) && $_POST['message'] != $row['body']) || (isset($_REQUEST['icon']) && $_REQUEST['icon'] != $row['icon']))
 		{
 			// And even then only if the time has passed...
-			if (time() - $row['poster_time'] > $modSettings['edit_wait_time'] || $user_info['id'] != $row['id_member'])
+			if (time() - $row['poster_time'] > Config::$modSettings['edit_wait_time'] || $user_info['id'] != $row['id_member'])
 			{
 				$msgOptions['modify_time'] = time();
 				$msgOptions['modify_name'] = $user_info['name'];
@@ -3221,20 +3222,20 @@ function JavaScriptModify()
 		if (isset($_POST['subject']) && isset($_REQUEST['change_all_subjects']) && $row['id_first_msg'] == $row['id_msg'] && !empty($row['num_replies']) && (allowedTo('modify_any') || ($row['id_member_started'] == $user_info['id'] && allowedTo('modify_replies'))))
 		{
 			// Get the proper (default language) response prefix first.
-			if (!isset($context['response_prefix']) && !($context['response_prefix'] = CacheApi::get('response_prefix')))
+			if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix')))
 			{
-				if ($language === $user_info['language'])
-					$context['response_prefix'] = $txt['response_prefix'];
+				if (Config::$language === $user_info['language'])
+					Utils::$context['response_prefix'] = $txt['response_prefix'];
 				else
 				{
-					loadLanguage('index', $language, false);
-					$context['response_prefix'] = $txt['response_prefix'];
+					loadLanguage('index', Config::$language, false);
+					Utils::$context['response_prefix'] = $txt['response_prefix'];
 					loadLanguage('index');
 				}
-				CacheApi::put('response_prefix', $context['response_prefix'], 600);
+				CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 			}
 
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				UPDATE {db_prefix}messages
 				SET subject = {string:subject}
 				WHERE id_topic = {int:current_topic}
@@ -3242,7 +3243,7 @@ function JavaScriptModify()
 				array(
 					'current_topic' => $topic,
 					'id_first_msg' => $row['id_first_msg'],
-					'subject' => $context['response_prefix'] . $_POST['subject'],
+					'subject' => Utils::$context['response_prefix'] . $_POST['subject'],
 				)
 			);
 		}
@@ -3253,10 +3254,10 @@ function JavaScriptModify()
 
 	if (isset($_REQUEST['xml']))
 	{
-		$context['sub_template'] = 'modifydone';
+		Utils::$context['sub_template'] = 'modifydone';
 		if (empty($post_errors) && isset($msgOptions['subject']) && isset($msgOptions['body']))
 		{
-			$context['message'] = array(
+			Utils::$context['message'] = array(
 				'id' => $row['id_msg'],
 				'modified' => array(
 					'time' => isset($msgOptions['modify_time']) ? timeformat($msgOptions['modify_time']) : '',
@@ -3269,16 +3270,16 @@ function JavaScriptModify()
 				'body' => strtr($msgOptions['body'], array(']]>' => ']]]]><![CDATA[>')),
 			);
 
-			censorText($context['message']['subject']);
-			censorText($context['message']['body']);
+			censorText(Utils::$context['message']['subject']);
+			censorText(Utils::$context['message']['body']);
 
-			$context['message']['body'] = BBCodeParser::load()->parse($context['message']['body'], $row['smileys_enabled'], $row['id_msg']);
+			Utils::$context['message']['body'] = BBCodeParser::load()->parse(Utils::$context['message']['body'], $row['smileys_enabled'], $row['id_msg']);
 		}
 		// Topic?
 		elseif (empty($post_errors))
 		{
-			$context['sub_template'] = 'modifytopicdone';
-			$context['message'] = array(
+			Utils::$context['sub_template'] = 'modifytopicdone';
+			Utils::$context['message'] = array(
 				'id' => $row['id_msg'],
 				'modified' => array(
 					'time' => isset($msgOptions['modify_time']) ? timeformat($msgOptions['modify_time']) : '',
@@ -3288,11 +3289,11 @@ function JavaScriptModify()
 				'subject' => isset($msgOptions['subject']) ? $msgOptions['subject'] : '',
 			);
 
-			censorText($context['message']['subject']);
+			censorText(Utils::$context['message']['subject']);
 		}
 		else
 		{
-			$context['message'] = array(
+			Utils::$context['message'] = array(
 				'id' => $row['id_msg'],
 				'errors' => array(),
 				'error_in_subject' => in_array('no_subject', $post_errors),
@@ -3303,13 +3304,13 @@ function JavaScriptModify()
 			foreach ($post_errors as $post_error)
 			{
 				if ($post_error == 'long_message')
-					$context['message']['errors'][] = sprintf($txt['error_' . $post_error], $modSettings['max_messageLength']);
+					Utils::$context['message']['errors'][] = sprintf($txt['error_' . $post_error], Config::$modSettings['max_messageLength']);
 				else
-					$context['message']['errors'][] = $txt['error_' . $post_error];
+					Utils::$context['message']['errors'][] = $txt['error_' . $post_error];
 			}
 		}
 
-		// Allow mods to do something with $context before we return.
+		// Allow mods to do something with Utils::$context before we return.
 		call_integration_hook('integrate_jsmodify_xml');
 	}
 	else

@@ -16,7 +16,10 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Config;
 use SMF\Mentions;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
 
 if (!defined('SMF'))
@@ -32,7 +35,7 @@ if (!defined('SMF'))
  */
 function preparsecode(&$message, $previewing = false)
 {
-	global $user_info, $modSettings, $context, $sourcedir, $smcFunc;
+	global $user_info;
 
 	static $tags_regex, $disallowed_tags_regex;
 
@@ -50,15 +53,15 @@ function preparsecode(&$message, $previewing = false)
 	$message = strtr($message, $control_replacements);
 
 	// This line makes all languages *theoretically* work even with the wrong charset ;).
-	if (empty($context['utf8']))
+	if (empty(Utils::$context['utf8']))
 		$message = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $message);
 
 	// Normalize Unicode characters for storage efficiency, better searching, etc.
 	else
-		$message = $smcFunc['normalize']($message);
+		$message = Utils::normalize($message);
 
 	// Clean out any other funky stuff.
-	$message = sanitize_chars($message, 0);
+	$message = Utils::sanitizeChars($message, 0);
 
 	// Clean up after nobbc ;).
 	$message = preg_replace_callback(
@@ -135,7 +138,7 @@ function preparsecode(&$message, $previewing = false)
 	$message = implode('', $parts);
 
 	// The regular expression non breaking space has many versions.
-	$non_breaking_space = $context['utf8'] ? '\x{A0}' : '\xA0';
+	$non_breaking_space = Utils::$context['utf8'] ? '\x{A0}' : '\xA0';
 
 	// Now that we've fixed all the code tags, let's fix the img and url tags...
 	fixTags($message);
@@ -169,9 +172,9 @@ function preparsecode(&$message, $previewing = false)
 	// Let's look at the time tags...
 	$message = preg_replace_callback(
 		'~\[time(?:=(absolute))*\](.+?)\[/time\]~i',
-		function($m) use ($modSettings, $user_info)
+		function($m) use ($user_info)
 		{
-			return "[time]" . (is_numeric("$m[2]") || @strtotime("$m[2]") == 0 ? "$m[2]" : strtotime("$m[2]") - ("$m[1]" == "absolute" ? 0 : (($modSettings["time_offset"] + $user_info["time_offset"]) * 3600))) . "[/time]";
+			return "[time]" . (is_numeric("$m[2]") || @strtotime("$m[2]") == 0 ? "$m[2]" : strtotime("$m[2]") - ("$m[1]" == "absolute" ? 0 : ((Config::$modSettings["time_offset"] + $user_info["time_offset"]) * 3600))) . "[/time]";
 		},
 		$message
 	);
@@ -184,10 +187,10 @@ function preparsecode(&$message, $previewing = false)
 	if (empty($disallowed_tags_regex))
 	{
 		// Legacy BBC are only retained for historical reasons. They're not for use in new posts.
-		$disallowed_bbc = $context['legacy_bbc'];
+		$disallowed_bbc = Utils::$context['legacy_bbc'];
 
 		// Some BBC require permissions.
-		foreach ($context['restricted_bbc'] as $bbc)
+		foreach (Utils::$context['restricted_bbc'] as $bbc)
 		{
 			// Skip html, since we handled it separately above.
 			if ($bbc === 'html')
@@ -220,25 +223,25 @@ function preparsecode(&$message, $previewing = false)
 
 	$mistake_fixes = array(
 		// Find [table]s not followed by [tr].
-		'~\[table\](?![\s' . $non_breaking_space . ']*\[tr\])~s' . ($context['utf8'] ? 'u' : '') => '[table][tr]',
+		'~\[table\](?![\s' . $non_breaking_space . ']*\[tr\])~s' . (Utils::$context['utf8'] ? 'u' : '') => '[table][tr]',
 		// Find [tr]s not followed by [td].
-		'~\[tr\](?![\s' . $non_breaking_space . ']*\[td\])~s' . ($context['utf8'] ? 'u' : '') => '[tr][td]',
+		'~\[tr\](?![\s' . $non_breaking_space . ']*\[td\])~s' . (Utils::$context['utf8'] ? 'u' : '') => '[tr][td]',
 		// Find [/td]s not followed by something valid.
-		'~\[/td\](?![\s' . $non_breaking_space . ']*(?:\[td\]|\[/tr\]|\[/table\]))~s' . ($context['utf8'] ? 'u' : '') => '[/td][/tr]',
+		'~\[/td\](?![\s' . $non_breaking_space . ']*(?:\[td\]|\[/tr\]|\[/table\]))~s' . (Utils::$context['utf8'] ? 'u' : '') => '[/td][/tr]',
 		// Find [/tr]s not followed by something valid.
-		'~\[/tr\](?![\s' . $non_breaking_space . ']*(?:\[tr\]|\[/table\]))~s' . ($context['utf8'] ? 'u' : '') => '[/tr][/table]',
+		'~\[/tr\](?![\s' . $non_breaking_space . ']*(?:\[tr\]|\[/table\]))~s' . (Utils::$context['utf8'] ? 'u' : '') => '[/tr][/table]',
 		// Find [/td]s incorrectly followed by [/table].
-		'~\[/td\][\s' . $non_breaking_space . ']*\[/table\]~s' . ($context['utf8'] ? 'u' : '') => '[/td][/tr][/table]',
+		'~\[/td\][\s' . $non_breaking_space . ']*\[/table\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[/td][/tr][/table]',
 		// Find [table]s, [tr]s, and [/td]s (possibly correctly) followed by [td].
-		'~\[(table|tr|/td)\]([\s' . $non_breaking_space . ']*)\[td\]~s' . ($context['utf8'] ? 'u' : '') => '[$1]$2[_td_]',
+		'~\[(table|tr|/td)\]([\s' . $non_breaking_space . ']*)\[td\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[$1]$2[_td_]',
 		// Now, any [td]s left should have a [tr] before them.
 		'~\[td\]~s' => '[tr][td]',
 		// Look for [tr]s which are correctly placed.
-		'~\[(table|/tr)\]([\s' . $non_breaking_space . ']*)\[tr\]~s' . ($context['utf8'] ? 'u' : '') => '[$1]$2[_tr_]',
+		'~\[(table|/tr)\]([\s' . $non_breaking_space . ']*)\[tr\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[$1]$2[_tr_]',
 		// Any remaining [tr]s should have a [table] before them.
 		'~\[tr\]~s' => '[table][tr]',
 		// Look for [/td]s followed by [/tr].
-		'~\[/td\]([\s' . $non_breaking_space . ']*)\[/tr\]~s' . ($context['utf8'] ? 'u' : '') => '[/td]$1[_/tr_]',
+		'~\[/td\]([\s' . $non_breaking_space . ']*)\[/tr\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[/td]$1[_/tr_]',
 		// Any remaining [/tr]s should have a [/td].
 		'~\[/tr\]~s' => '[/td][/tr]',
 		// Look for properly opened [li]s which aren't closed.
@@ -246,14 +249,14 @@ function preparsecode(&$message, $previewing = false)
 		'~\[li\]([^\[\]]+?)\[/list\]~s' => '[_li_]$1[_/li_][/list]',
 		'~\[li\]([^\[\]]+?)$~s' => '[li]$1[/li]',
 		// Lists - find correctly closed items/lists.
-		'~\[/li\]([\s' . $non_breaking_space . ']*)\[/list\]~s' . ($context['utf8'] ? 'u' : '') => '[_/li_]$1[/list]',
+		'~\[/li\]([\s' . $non_breaking_space . ']*)\[/list\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[_/li_]$1[/list]',
 		// Find list items closed and then opened.
-		'~\[/li\]([\s' . $non_breaking_space . ']*)\[li\]~s' . ($context['utf8'] ? 'u' : '') => '[_/li_]$1[_li_]',
+		'~\[/li\]([\s' . $non_breaking_space . ']*)\[li\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[_/li_]$1[_li_]',
 		// Now, find any [list]s or [/li]s followed by [li].
-		'~\[(list(?: [^\]]*?)?|/li)\]([\s' . $non_breaking_space . ']*)\[li\]~s' . ($context['utf8'] ? 'u' : '') => '[$1]$2[_li_]',
+		'~\[(list(?: [^\]]*?)?|/li)\]([\s' . $non_breaking_space . ']*)\[li\]~s' . (Utils::$context['utf8'] ? 'u' : '') => '[$1]$2[_li_]',
 		// Allow for sub lists.
-		'~\[/li\]([\s' . $non_breaking_space . ']*)\[list\]~' . ($context['utf8'] ? 'u' : '') => '[_/li_]$1[list]',
-		'~\[/list\]([\s' . $non_breaking_space . ']*)\[li\]~' . ($context['utf8'] ? 'u' : '') => '[/list]$1[_li_]',
+		'~\[/li\]([\s' . $non_breaking_space . ']*)\[list\]~' . (Utils::$context['utf8'] ? 'u' : '') => '[_/li_]$1[list]',
+		'~\[/list\]([\s' . $non_breaking_space . ']*)\[li\]~' . (Utils::$context['utf8'] ? 'u' : '') => '[/list]$1[_li_]',
 		// Any remaining [li]s weren't inside a [list].
 		'~\[li\]~' => '[list][li]',
 		// Any remaining [/li]s weren't before a [/list].
@@ -271,7 +274,7 @@ function preparsecode(&$message, $previewing = false)
 	// Remove empty bbc from the sections outside the code tags
 	if (empty($tags_regex))
 	{
-		require_once($sourcedir . '/Subs.php');
+		require_once(Config::$sourcedir . '/Subs.php');
 
 		$allowed_empty = array('anchor', 'td',);
 
@@ -291,9 +294,9 @@ function preparsecode(&$message, $previewing = false)
 
 	// Restore white space entities
 	if (!$previewing)
-		$message = strtr($message, array('  ' => '&nbsp; ', "\n" => '<br>', $context['utf8'] ? "\xC2\xA0" : "\xA0" => '&nbsp;'));
+		$message = strtr($message, array('  ' => '&nbsp; ', "\n" => '<br>', Utils::$context['utf8'] ? "\xC2\xA0" : "\xA0" => '&nbsp;'));
 	else
-		$message = strtr($message, array('  ' => '&nbsp; ', $context['utf8'] ? "\xC2\xA0" : "\xA0" => '&nbsp;'));
+		$message = strtr($message, array('  ' => '&nbsp; ', Utils::$context['utf8'] ? "\xC2\xA0" : "\xA0" => '&nbsp;'));
 
 	// Now let's quickly clean up things that will slow our parser (which are common in posted code.)
 	$message = strtr($message, array('[]' => '&#91;]', '[&#039;' => '&#91;&#039;'));
@@ -309,8 +312,6 @@ function preparsecode(&$message, $previewing = false)
  */
 function un_preparsecode($message)
 {
-	global $smcFunc;
-
 	// Any hooks want to work here?
 	call_integration_hook('integrate_unpreparsecode', array(&$message));
 
@@ -333,9 +334,9 @@ function un_preparsecode($message)
 
 	$message = preg_replace_callback(
 		'~\[html\](.+?)\[/html\]~i',
-		function($m) use ($smcFunc)
+		function($m)
 		{
-			return "[html]" . strtr($smcFunc['htmlspecialchars']("$m[1]", ENT_QUOTES), array("\\&quot;" => "&quot;", "&amp;#13;" => "<br>", "&amp;#32;" => " ", "&amp;#91;" => "[", "&amp;#93;" => "]")) . "[/html]";
+			return "[html]" . strtr(Utils::htmlspecialchars("$m[1]", ENT_QUOTES), array("\\&quot;" => "&quot;", "&amp;#13;" => "<br>", "&amp;#32;" => " ", "&amp;#91;" => "[", "&amp;#93;" => "]")) . "[/html]";
 		},
 		$message
 	);
@@ -368,8 +369,6 @@ function un_preparsecode($message)
  */
 function fixTags(&$message)
 {
-	global $modSettings;
-
 	// WARNING: Editing the below can cause large security holes in your forum.
 	// Edit only if you are sure you know what you are doing.
 
@@ -464,8 +463,6 @@ function fixTags(&$message)
  */
 function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSign = false, $hasExtra = false)
 {
-	global $boardurl, $scripturl;
-
 	$forbidden_protocols = array(
 		// Poses security risks.
 		'javascript',
@@ -473,10 +470,10 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
 		'data',
 	);
 
-	if (preg_match('~^([^:]+://[^/]+)~', $boardurl, $match) != 0)
+	if (preg_match('~^([^:]+://[^/]+)~', Config::$boardurl, $match) != 0)
 		$domain_url = $match[1];
 	else
-		$domain_url = $boardurl . '/';
+		$domain_url = Config::$boardurl . '/';
 
 	$replaces = array();
 
@@ -518,7 +515,7 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
 				$replace = $domain_url . $replace;
 			// A query
 			elseif (substr($replace, 0, 1) == '?')
-				$replace = $scripturl . $replace;
+				$replace = Config::$scripturl . $replace;
 			// A fragment
 			elseif (substr($replace, 0, 1) == '#' && $embeddedUrl)
 			{
@@ -571,14 +568,14 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
  */
 function sendmail($to, $subject, $message, $from = null, $message_id = null, $send_html = false, $priority = 3, $hotmail_fix = null, $is_private = false)
 {
-	global $webmaster_email, $context, $modSettings, $txt, $scripturl;
+	global $txt;
 
 	// Use sendmail if it's set or if no SMTP server is set.
-	$use_sendmail = empty($modSettings['mail_type']) || $modSettings['smtp_host'] == '';
+	$use_sendmail = empty(Config::$modSettings['mail_type']) || Config::$modSettings['smtp_host'] == '';
 
 	// Line breaks need to be \r\n only in windows or for SMTP.
 	// Starting with php 8x, line breaks need to be \r\n even for linux.
-	$line_break = ($context['server']['is_windows'] || !$use_sendmail || version_compare(PHP_VERSION, '8.0.0', '>=')) ? "\r\n" : "\n";
+	$line_break = (Utils::$context['server']['is_windows'] || !$use_sendmail || version_compare(PHP_VERSION, '8.0.0', '>=')) ? "\r\n" : "\n";
 
 	// So far so good.
 	$mail_result = true;
@@ -636,20 +633,20 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 	{
 		$send_html = true;
 		$message = strtr($message, array($line_break => '<br>' . $line_break));
-		$message = preg_replace('~(' . preg_quote($scripturl, '~') . '(?:[?/][\w\-_%\.,\?&;=#]+)?)~', '<a href="$1">$1</a>', $message);
+		$message = preg_replace('~(' . preg_quote(Config::$scripturl, '~') . '(?:[?/][\w\-_%\.,\?&;=#]+)?)~', '<a href="$1">$1</a>', $message);
 	}
 
-	list (, $from_name) = mimespecialchars(addcslashes($from !== null ? $from : $context['forum_name'], '<>()\'\\"'), true, $hotmail_fix, $line_break);
+	list (, $from_name) = mimespecialchars(addcslashes($from !== null ? $from : Utils::$context['forum_name'], '<>()\'\\"'), true, $hotmail_fix, $line_break);
 	list (, $subject) = mimespecialchars($subject, true, $hotmail_fix, $line_break);
 
 	// Construct the mail headers...
-	$headers = 'From: "' . $from_name . '" <' . (empty($modSettings['mail_from']) ? $webmaster_email : $modSettings['mail_from']) . '>' . $line_break;
+	$headers = 'From: "' . $from_name . '" <' . (empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from']) . '>' . $line_break;
 	$headers .= $from !== null ? 'Reply-To: <' . $from . '>' . $line_break : '';
-	$headers .= 'Return-Path: ' . (empty($modSettings['mail_from']) ? $webmaster_email : $modSettings['mail_from']) . $line_break;
+	$headers .= 'Return-Path: ' . (empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from']) . $line_break;
 	$headers .= 'Date: ' . gmdate('D, d M Y H:i:s') . ' -0000' . $line_break;
 
-	if ($message_id !== null && empty($modSettings['mail_no_message_id']))
-		$headers .= 'Message-ID: <' . md5($scripturl . microtime()) . '-' . $message_id . strstr(empty($modSettings['mail_from']) ? $webmaster_email : $modSettings['mail_from'], '@') . '>' . $line_break;
+	if ($message_id !== null && empty(Config::$modSettings['mail_no_message_id']))
+		$headers .= 'Message-ID: <' . md5(Config::$scripturl . microtime()) . '-' . $message_id . strstr(empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from'], '@') . '>' . $line_break;
 	$headers .= 'X-Mailer: SMF' . $line_break;
 
 	// Pass this to the integration before we start modifying the output -- it'll make it easier later.
@@ -707,22 +704,22 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 		return AddMailQueue(false, $to_array, $subject, $message, $headers, $send_html, $priority, $is_private);
 
 	// If it's a priority mail, send it now - note though that this should NOT be used for sending many at once.
-	elseif (!empty($modSettings['mail_limit']))
+	elseif (!empty(Config::$modSettings['mail_limit']))
 	{
-		list ($last_mail_time, $mails_this_minute) = @explode('|', $modSettings['mail_recent']);
+		list ($last_mail_time, $mails_this_minute) = @explode('|', Config::$modSettings['mail_recent']);
 		if (empty($mails_this_minute) || time() > $last_mail_time + 60)
 			$new_queue_stat = time() . '|' . 1;
 		else
 			$new_queue_stat = $last_mail_time . '|' . ((int) $mails_this_minute + 1);
 
-		updateSettings(array('mail_recent' => $new_queue_stat));
+		Config::updateModSettings(array('mail_recent' => $new_queue_stat));
 	}
 
 	// SMTP or sendmail?
 	if ($use_sendmail)
 	{
 		$subject = strtr($subject, array("\r" => '', "\n" => ''));
-		if (!empty($modSettings['mail_strip_carriage']))
+		if (!empty(Config::$modSettings['mail_strip_carriage']))
 		{
 			$message = strtr($message, array("\r" => ''));
 			$headers = strtr($headers, array("\r" => ''));
@@ -784,8 +781,6 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
  */
 function AddMailQueue($flush = false, $to_array = array(), $subject = '', $message = '', $headers = '', $send_html = false, $priority = 3, $is_private = false)
 {
-	global $context, $smcFunc;
-
 	static $cur_insert = array();
 	static $cur_insert_len = 0;
 
@@ -799,7 +794,7 @@ function AddMailQueue($flush = false, $to_array = array(), $subject = '', $messa
 		$cur_insert_len = 0;
 
 		// Dump the data...
-		$smcFunc['db_insert']('',
+		Db::$db->insert('',
 			'{db_prefix}mail_queue',
 			array(
 				'time_sent' => 'int', 'recipient' => 'string-255', 'body' => 'string', 'subject' => 'string-255',
@@ -810,7 +805,7 @@ function AddMailQueue($flush = false, $to_array = array(), $subject = '', $messa
 		);
 
 		$cur_insert = array();
-		$context['flush_mail'] = false;
+		Utils::$context['flush_mail'] = false;
 	}
 
 	// If we're flushing we're done.
@@ -818,7 +813,7 @@ function AddMailQueue($flush = false, $to_array = array(), $subject = '', $messa
 	{
 		$nextSendTime = time() + 10;
 
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}settings
 			SET value = {string:nextSendTime}
 			WHERE variable = {literal:mail_next_send}
@@ -833,7 +828,7 @@ function AddMailQueue($flush = false, $to_array = array(), $subject = '', $messa
 	}
 
 	// Ensure we tell obExit to flush.
-	$context['flush_mail'] = true;
+	Utils::$context['flush_mail'] = true;
 
 	foreach ($to_array as $to)
 	{
@@ -844,7 +839,7 @@ function AddMailQueue($flush = false, $to_array = array(), $subject = '', $messa
 		if ($this_insert_len + $cur_insert_len > 1000000)
 		{
 			// Flush out what we have so far.
-			$smcFunc['db_insert']('',
+			Db::$db->insert('',
 				'{db_prefix}mail_queue',
 				array(
 					'time_sent' => 'int', 'recipient' => 'string-255', 'body' => 'string', 'subject' => 'string-255',
@@ -885,9 +880,7 @@ function AddMailQueue($flush = false, $to_array = array(), $subject = '', $messa
  */
 function sendpm($recipients, $subject, $message, $store_outbox = false, $from = null, $pm_head = 0)
 {
-	global $scripturl, $txt, $user_info, $language, $sourcedir;
-	global $modSettings, $smcFunc;
-
+	global $txt, $user_info;
 	// Make sure the PM language file is loaded, we might need something out of it.
 	loadLanguage('PersonalMessage');
 
@@ -905,11 +898,11 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		);
 
 	// This is the one that will go in their inbox.
-	$htmlmessage = $smcFunc['htmlspecialchars']($message, ENT_QUOTES);
+	$htmlmessage = Utils::htmlspecialchars($message, ENT_QUOTES);
 	preparsecode($htmlmessage);
-	$htmlsubject = strtr($smcFunc['htmlspecialchars']($subject), array("\r" => '', "\n" => '', "\t" => ''));
-	if ($smcFunc['strlen']($htmlsubject) > 100)
-		$htmlsubject = $smcFunc['substr']($htmlsubject, 0, 100);
+	$htmlsubject = strtr(Utils::htmlspecialchars($subject), array("\r" => '', "\n" => '', "\t" => ''));
+	if (Utils::entityStrlen($htmlsubject) > 100)
+		$htmlsubject = Utils::entitySubstr($htmlsubject, 0, 100);
 
 	// Make sure is an array
 	if (!is_array($recipients))
@@ -926,25 +919,25 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		{
 			if (!is_numeric($recipients[$rec_type][$id]))
 			{
-				$recipients[$rec_type][$id] = $smcFunc['strtolower'](trim(preg_replace('~[<>&"\'=\\\]~', '', $recipients[$rec_type][$id])));
+				$recipients[$rec_type][$id] = Utils::strtolower(trim(preg_replace('~[<>&"\'=\\\]~', '', $recipients[$rec_type][$id])));
 				$usernames[$recipients[$rec_type][$id]] = 0;
 			}
 		}
 	}
 	if (!empty($usernames))
 	{
-		$request = $smcFunc['db_query']('pm_find_username', '
+		$request = Db::$db->query('pm_find_username', '
 			SELECT id_member, member_name
 			FROM {db_prefix}members
-			WHERE ' . ($smcFunc['db_case_sensitive'] ? 'LOWER(member_name)' : 'member_name') . ' IN ({array_string:usernames})',
+			WHERE ' . (Db::$db->case_sensitive ? 'LOWER(member_name)' : 'member_name') . ' IN ({array_string:usernames})',
 			array(
 				'usernames' => array_keys($usernames),
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			if (isset($usernames[$smcFunc['strtolower']($row['member_name'])]))
-				$usernames[$smcFunc['strtolower']($row['member_name'])] = $row['id_member'];
-		$smcFunc['db_free_result']($request);
+		while ($row = Db::$db->fetch_assoc($request))
+			if (isset($usernames[Utils::strtolower($row['member_name'])]))
+				$usernames[Utils::strtolower($row['member_name'])] = $row['id_member'];
+		Db::$db->free_result($request);
 
 		// Replace the usernames with IDs. Drop usernames that couldn't be found.
 		foreach ($recipients as $rec_type => $rec)
@@ -973,7 +966,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 	$all_to = array_merge($recipients['to'], $recipients['bcc']);
 
 	// Check no-one will want it deleted right away!
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT
 			id_member, criteria, is_or
 		FROM {db_prefix}pm_rules
@@ -986,9 +979,9 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 	);
 	$deletes = array();
 	// Check whether we have to apply anything...
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
-		$criteria = $smcFunc['json_decode']($row['criteria'], true);
+		$criteria = Utils::jsonDecode($row['criteria'], true);
 		// Note we don't check the buddy status, cause deletion from buddy = madness!
 		$delete = false;
 		foreach ($criteria as $criterium)
@@ -1005,40 +998,40 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		if ($delete)
 			$deletes[$row['id_member']] = 1;
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Load the membergrounp message limits.
 	// @todo Consider caching this?
 	static $message_limit_cache = array();
 	if (!allowedTo('moderate_forum') && empty($message_limit_cache))
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_group, max_messages
 			FROM {db_prefix}membergroups',
 			array(
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$message_limit_cache[$row['id_group']] = $row['max_messages'];
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 	}
 
 	// Load the groups that are allowed to read PMs.
-	require_once($sourcedir . '/Subs-Members.php');
+	require_once(Config::$sourcedir . '/Subs-Members.php');
 	$pmReadGroups = groupsAllowedTo('pm_read');
 
-	if (empty($modSettings['permission_enable_deny']))
+	if (empty(Config::$modSettings['permission_enable_deny']))
 		$pmReadGroups['denied'] = array();
 
 	// Load their alert preferences
-	require_once($sourcedir . '/Subs-Notify.php');
+	require_once(Config::$sourcedir . '/Subs-Notify.php');
 	$notifyPrefs = getNotifyPrefs($all_to, array('pm_new', 'pm_reply', 'pm_notify'), true);
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT
 			member_name, real_name, id_member, email_address, lngfile,
 			instant_messages,' . (allowedTo('moderate_forum') ? ' 0' : '
-			(pm_receive_from = {int:admins_only}' . (empty($modSettings['enable_buddylist']) ? '' : ' OR
+			(pm_receive_from = {int:admins_only}' . (empty(Config::$modSettings['enable_buddylist']) ? '' : ' OR
 			(pm_receive_from = {int:buddies_only} AND FIND_IN_SET({string:from_id}, buddy_list) = 0) OR
 			(pm_receive_from = {int:not_on_ignore_list} AND FIND_IN_SET({string:from_id}, pm_ignore_list) != 0)') . ')') . ' AS ignored,
 			FIND_IN_SET({string:from_id}, buddy_list) != 0 AS is_buddy, is_activated,
@@ -1057,7 +1050,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		)
 	);
 	$notifications = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// Don't do anything for members to be deleted!
 		if (isset($deletes[$row['id_member']]))
@@ -1121,21 +1114,21 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		// Send a notification, if enabled - taking the buddy list into account.
 		if (!empty($row['email_address'])
 			&& ((empty($pm_head) && $prefs['pm_new'] & 0x02) || (!empty($pm_head) && $prefs['pm_reply'] & 0x02))
-			&& ($prefs['pm_notify'] <= 1 || ($prefs['pm_notify'] > 1 && (!empty($modSettings['enable_buddylist']) && $row['is_buddy']))) && $row['is_activated'] == 1)
+			&& ($prefs['pm_notify'] <= 1 || ($prefs['pm_notify'] > 1 && (!empty(Config::$modSettings['enable_buddylist']) && $row['is_buddy']))) && $row['is_activated'] == 1)
 		{
-			$notifications[empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile']][] = $row['email_address'];
+			$notifications[empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $row['lngfile']][] = $row['email_address'];
 		}
 
 		$log['sent'][$row['id_member']] = sprintf(isset($txt['pm_successfully_sent']) ? $txt['pm_successfully_sent'] : '', $row['real_name']);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Only 'send' the message if there are any recipients left.
 	if (empty($all_to))
 		return $log;
 
 	// Insert the message itself and then grab the last insert id.
-	$id_pm = $smcFunc['db_insert']('',
+	$id_pm = Db::$db->insert('',
 		'{db_prefix}personal_messages',
 		array(
 			'id_pm_head' => 'int', 'id_member_from' => 'int', 'deleted_by_sender' => 'int',
@@ -1154,7 +1147,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 	{
 		// If this is new we need to set it part of its own conversation.
 		if (empty($pm_head))
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				UPDATE {db_prefix}personal_messages
 				SET id_pm_head = {int:id_pm_head}
 				WHERE id_pm = {int:id_pm_head}',
@@ -1164,7 +1157,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 			);
 
 		// Some people think manually deleting personal_messages is fun... it's not. We protect against it though :)
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}pm_recipients
 			WHERE id_pm = {int:id_pm}',
 			array(
@@ -1181,7 +1174,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 				$to_list[] = $to;
 		}
 
-		$smcFunc['db_insert']('insert',
+		Db::$db->insert('insert',
 			'{db_prefix}pm_recipients',
 			array(
 				'id_pm' => 'int', 'id_member' => 'int', 'bcc' => 'int', 'deleted' => 'int', 'is_new' => 'int'
@@ -1194,7 +1187,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 	$to_names = array();
 	if (count($to_list) > 1)
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT real_name
 			FROM {db_prefix}members
 			WHERE id_member IN ({array_int:to_members})
@@ -1204,19 +1197,19 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 				'from' => $from['id'],
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$to_names[] = un_htmlspecialchars($row['real_name']);
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 	}
 	$replacements = array(
 		'SUBJECT' => $subject,
 		'MESSAGE' => $message,
 		'SENDER' => un_htmlspecialchars($from['name']),
-		'READLINK' => $scripturl . '?action=pm;pmsg=' . $id_pm . '#msg' . $id_pm,
-		'REPLYLINK' => $scripturl . '?action=pm;sa=send;f=inbox;pmsg=' . $id_pm . ';quote;u=' . $from['id'],
+		'READLINK' => Config::$scripturl . '?action=pm;pmsg=' . $id_pm . '#msg' . $id_pm,
+		'REPLYLINK' => Config::$scripturl . '?action=pm;sa=send;f=inbox;pmsg=' . $id_pm . ';quote;u=' . $from['id'],
 		'TOLIST' => implode(', ', $to_names),
 	);
-	$email_template = 'new_pm' . (empty($modSettings['disallow_sendBody']) ? '_body' : '') . (!empty($to_names) ? '_tolist' : '');
+	$email_template = 'new_pm' . (empty(Config::$modSettings['disallow_sendBody']) ? '_body' : '') . (!empty($to_names) ? '_tolist' : '');
 
 	$notification_texts = array();
 
@@ -1231,13 +1224,13 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 			$notification_texts[$lang]['subject'] = $subject;
 			censorText($notification_texts[$lang]['subject']);
 
-			if (empty($modSettings['disallow_sendBody']))
+			if (empty(Config::$modSettings['disallow_sendBody']))
 			{
 				$notification_texts[$lang]['body'] = $message;
 
 				censorText($notification_texts[$lang]['body']);
 
-				$notification_texts[$lang]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(BBCodeParser::load()->parse($smcFunc['htmlspecialchars']($notification_texts[$lang]['body']), false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
+				$notification_texts[$lang]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(BBCodeParser::load()->parse(Utils::htmlspecialchars($notification_texts[$lang]['body']), false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
 			}
 			else
 				$notification_texts[$lang]['body'] = '';
@@ -1287,9 +1280,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
  */
 function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $line_break = "\r\n", $custom_charset = null)
 {
-	global $context;
-
-	$charset = $custom_charset !== null ? $custom_charset : $context['character_set'];
+	$charset = $custom_charset !== null ? $custom_charset : Utils::$context['character_set'];
 
 	// This is the fun part....
 	if (preg_match_all('~&#(\d{3,8});~', $string, $matches) !== 0 && !$hotmail_fix)
@@ -1314,14 +1305,14 @@ function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $
 		else
 		{
 			// Try to convert the string to UTF-8.
-			if (!$context['utf8'] && function_exists('iconv'))
+			if (!Utils::$context['utf8'] && function_exists('iconv'))
 			{
-				$newstring = @iconv($context['character_set'], 'UTF-8', $string);
+				$newstring = @iconv(Utils::$context['character_set'], 'UTF-8', $string);
 				if ($newstring)
 					$string = $newstring;
 			}
 
-			$string = preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $string);
+			$string = Utils::entityDecode($string, true);
 
 			// Unicode, baby.
 			$charset = 'UTF-8';
@@ -1329,11 +1320,11 @@ function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $
 	}
 
 	// Convert all special characters to HTML entities...just for Hotmail :-\
-	if ($hotmail_fix && ($context['utf8'] || function_exists('iconv') || $context['character_set'] === 'ISO-8859-1'))
+	if ($hotmail_fix && (Utils::$context['utf8'] || function_exists('iconv') || Utils::$context['character_set'] === 'ISO-8859-1'))
 	{
-		if (!$context['utf8'] && function_exists('iconv'))
+		if (!Utils::$context['utf8'] && function_exists('iconv'))
 		{
-			$newstring = @iconv($context['character_set'], 'UTF-8', $string);
+			$newstring = @iconv(Utils::$context['character_set'], 'UTF-8', $string);
 			if ($newstring)
 				$string = $newstring;
 		}
@@ -1392,26 +1383,26 @@ function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $
  */
 function smtp_mail($mail_to_array, $subject, $message, $headers)
 {
-	global $modSettings, $webmaster_email, $txt, $boardurl, $sourcedir;
+	global $txt;
 
 	static $helo;
 
-	$modSettings['smtp_host'] = trim($modSettings['smtp_host']);
+	Config::$modSettings['smtp_host'] = trim(Config::$modSettings['smtp_host']);
 
 	// Try POP3 before SMTP?
 	// @todo There's no interface for this yet.
-	if ($modSettings['mail_type'] == 3 && $modSettings['smtp_username'] != '' && $modSettings['smtp_password'] != '')
+	if (Config::$modSettings['mail_type'] == 3 && Config::$modSettings['smtp_username'] != '' && Config::$modSettings['smtp_password'] != '')
 	{
-		$socket = fsockopen($modSettings['smtp_host'], 110, $errno, $errstr, 2);
-		if (!$socket && (substr($modSettings['smtp_host'], 0, 5) == 'smtp.' || substr($modSettings['smtp_host'], 0, 11) == 'ssl://smtp.'))
-			$socket = fsockopen(strtr($modSettings['smtp_host'], array('smtp.' => 'pop.')), 110, $errno, $errstr, 2);
+		$socket = fsockopen(Config::$modSettings['smtp_host'], 110, $errno, $errstr, 2);
+		if (!$socket && (substr(Config::$modSettings['smtp_host'], 0, 5) == 'smtp.' || substr(Config::$modSettings['smtp_host'], 0, 11) == 'ssl://smtp.'))
+			$socket = fsockopen(strtr(Config::$modSettings['smtp_host'], array('smtp.' => 'pop.')), 110, $errno, $errstr, 2);
 
 		if ($socket)
 		{
 			fgets($socket, 256);
-			fputs($socket, 'USER ' . $modSettings['smtp_username'] . "\r\n");
+			fputs($socket, 'USER ' . Config::$modSettings['smtp_username'] . "\r\n");
 			fgets($socket, 256);
-			fputs($socket, 'PASS ' . base64_decode($modSettings['smtp_password']) . "\r\n");
+			fputs($socket, 'PASS ' . base64_decode(Config::$modSettings['smtp_password']) . "\r\n");
 			fgets($socket, 256);
 			fputs($socket, 'QUIT' . "\r\n");
 
@@ -1420,16 +1411,16 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 	}
 
 	// Try to connect to the SMTP server... if it doesn't exist, only wait three seconds.
-	if (!$socket = fsockopen($modSettings['smtp_host'], empty($modSettings['smtp_port']) ? 25 : $modSettings['smtp_port'], $errno, $errstr, 3))
+	if (!$socket = fsockopen(Config::$modSettings['smtp_host'], empty(Config::$modSettings['smtp_port']) ? 25 : Config::$modSettings['smtp_port'], $errno, $errstr, 3))
 	{
 		// Maybe we can still save this?  The port might be wrong.
-		if (substr($modSettings['smtp_host'], 0, 4) == 'ssl:' && (empty($modSettings['smtp_port']) || $modSettings['smtp_port'] == 25))
+		if (substr(Config::$modSettings['smtp_host'], 0, 4) == 'ssl:' && (empty(Config::$modSettings['smtp_port']) || Config::$modSettings['smtp_port'] == 25))
 		{
 			// ssl:hostname can cause fsocketopen to fail with a lookup failure, ensure it exists for this test.
-			if (substr($modSettings['smtp_host'], 0, 6) != 'ssl://')
-				$modSettings['smtp_host'] = str_replace('ssl:', 'ss://', $modSettings['smtp_host']);
+			if (substr(Config::$modSettings['smtp_host'], 0, 6) != 'ssl://')
+				Config::$modSettings['smtp_host'] = str_replace('ssl:', 'ss://', Config::$modSettings['smtp_host']);
 
-			if ($socket = fsockopen($modSettings['smtp_host'], 465, $errno, $errstr, 3))
+			if ($socket = fsockopen(Config::$modSettings['smtp_host'], 465, $errno, $errstr, 3))
 				log_error($txt['smtp_port_ssl']);
 		}
 
@@ -1455,28 +1446,28 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 		elseif (function_exists('php_uname'))
 			$helo = php_uname('n');
 
-		// If the hostname isn't a fully qualified domain name, we can use the host name from $boardurl instead
-		if (empty($helo) || strpos($helo, '.') === false || substr_compare($helo, '.local', -6) === 0 || (!empty($modSettings['tld_regex']) && !preg_match('/\.' . $modSettings['tld_regex'] . '$/u', $helo)))
-			$helo = parse_iri($boardurl, PHP_URL_HOST);
+		// If the hostname isn't a fully qualified domain name, we can use the host name from Config::$boardurl instead
+		if (empty($helo) || strpos($helo, '.') === false || substr_compare($helo, '.local', -6) === 0 || (!empty(Config::$modSettings['tld_regex']) && !preg_match('/\.' . Config::$modSettings['tld_regex'] . '$/u', $helo)))
+			$helo = parse_iri(Config::$boardurl, PHP_URL_HOST);
 
 		// This is one of those situations where 'www.' is undesirable
 		if (strpos($helo, 'www.') === 0)
 			$helo = substr($helo, 4);
 
 		if (!function_exists('idn_to_ascii'))
-			require_once($sourcedir . '/Subs-Compat.php');
+			require_once(Config::$sourcedir . '/Subs-Compat.php');
 
 		$helo = idn_to_ascii($helo, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
 	}
 
 	// SMTP = 1, SMTP - STARTTLS = 2
-	if (in_array($modSettings['mail_type'], array(1, 2)) && $modSettings['smtp_username'] != '' && $modSettings['smtp_password'] != '')
+	if (in_array(Config::$modSettings['mail_type'], array(1, 2)) && Config::$modSettings['smtp_username'] != '' && Config::$modSettings['smtp_password'] != '')
 	{
 		// EHLO could be understood to mean encrypted hello...
 		if (server_parse('EHLO ' . $helo, $socket, null, $response) == '250')
 		{
 			// Are we using STARTTLS and does the server support STARTTLS?
-			if ($modSettings['mail_type'] == 2 && preg_match("~250( |-)STARTTLS~mi", $response))
+			if (Config::$modSettings['mail_type'] == 2 && preg_match("~250( |-)STARTTLS~mi", $response))
 			{
 				// Send STARTTLS to enable encryption
 				if (!server_parse('STARTTLS', $socket, '220'))
@@ -1501,10 +1492,10 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 			if (!server_parse('AUTH LOGIN', $socket, '334'))
 				return false;
 			// Send the username and password, encoded.
-			if (!server_parse(base64_encode($modSettings['smtp_username']), $socket, '334'))
+			if (!server_parse(base64_encode(Config::$modSettings['smtp_username']), $socket, '334'))
 				return false;
 			// The password is already encoded ;)
-			if (!server_parse($modSettings['smtp_password'], $socket, '235'))
+			if (!server_parse(Config::$modSettings['smtp_password'], $socket, '235'))
 				return false;
 		}
 		elseif (!server_parse('HELO ' . $helo, $socket, '250'))
@@ -1532,7 +1523,7 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 		}
 
 		// From, to, and then start the data...
-		if (!server_parse('MAIL FROM: <' . (empty($modSettings['mail_from']) ? $webmaster_email : $modSettings['mail_from']) . '>', $socket, '250'))
+		if (!server_parse('MAIL FROM: <' . (empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from']) . '>', $socket, '250'))
 			return false;
 		if (!server_parse('RCPT TO: <' . $mail_to . '>', $socket, '250'))
 			return false;
@@ -1622,7 +1613,7 @@ function server_parse($message, $socket, $code, &$response = null)
  */
 function SpellCheck()
 {
-	global $txt, $context, $smcFunc;
+	global $txt;
 
 	// A list of "words" we know about but pspell doesn't.
 	$known_words = array('smf', 'php', 'mysql', 'www', 'gif', 'jpeg', 'png', 'http', 'smfisawesome', 'grandia', 'terranigma', 'rpgs');
@@ -1637,7 +1628,7 @@ function SpellCheck()
 		die;
 
 	// Construct a bit of Javascript code.
-	$context['spell_js'] = '
+	Utils::$context['spell_js'] = '
 		var txt = {"done": "' . $txt['spellcheck_done'] . '"};
 		var mispstr = window.opener.spellCheckGetText(spell_fieldname);
 		var misps = Array(';
@@ -1652,14 +1643,14 @@ function SpellCheck()
 		$check_word = explode('|', $alphas[$i]);
 
 		// If the word is a known word, or spelled right...
-		if (in_array($smcFunc['strtolower']($check_word[0]), $known_words) || spell_check($dict, $check_word[0]) || !isset($check_word[2]))
+		if (in_array(Utils::strtolower($check_word[0]), $known_words) || spell_check($dict, $check_word[0]) || !isset($check_word[2]))
 			continue;
 
 		// Find the word, and move up the "last occurrence" to here.
 		$found_words = true;
 
 		// Add on the javascript for this misspelling.
-		$context['spell_js'] .= '
+		Utils::$context['spell_js'] .= '
 			new misp("' . strtr($check_word[0], array('\\' => '\\\\', '"' => '\\"', '<' => '', '&gt;' => '')) . '", ' . (int) $check_word[1] . ', ' . (int) $check_word[2] . ', [';
 
 		// If there are suggestions, add them in...
@@ -1672,28 +1663,28 @@ function SpellCheck()
 					unset($suggestions[$k]);
 
 			if (!empty($suggestions))
-				$context['spell_js'] .= '"' . implode('", "', $suggestions) . '"';
+				Utils::$context['spell_js'] .= '"' . implode('", "', $suggestions) . '"';
 		}
 
-		$context['spell_js'] .= ']),';
+		Utils::$context['spell_js'] .= ']),';
 	}
 
 	// If words were found, take off the last comma.
 	if ($found_words)
-		$context['spell_js'] = substr($context['spell_js'], 0, -1);
+		Utils::$context['spell_js'] = substr(Utils::$context['spell_js'], 0, -1);
 
-	$context['spell_js'] .= '
+	Utils::$context['spell_js'] .= '
 		);';
 
 	// And instruct the template system to just show the spellcheck sub template.
-	$context['template_layers'] = array();
-	$context['sub_template'] = 'spellcheck';
+	Utils::$context['template_layers'] = array();
+	Utils::$context['sub_template'] = 'spellcheck';
 
 	// Free resources for enchant...
-	if (isset($context['enchant_broker']))
+	if (isset(Utils::$context['enchant_broker']))
 	{
 		enchant_broker_free_dict($dict);
-		enchant_broker_free($context['enchant_broker']);
+		enchant_broker_free(Utils::$context['enchant_broker']);
 	}
 }
 
@@ -1712,7 +1703,7 @@ function SpellCheck()
  */
 function sendNotifications($topics, $type, $exclude = array(), $members_only = array())
 {
-	global $user_info, $smcFunc;
+	global $user_info;
 
 	// Can't do it if there's no topics.
 	if (empty($topics))
@@ -1722,7 +1713,7 @@ function sendNotifications($topics, $type, $exclude = array(), $members_only = a
 		$topics = array($topics);
 
 	// Get the subject and body...
-	$result = $smcFunc['db_query']('', '
+	$result = Db::$db->query('', '
 		SELECT mf.subject, ml.body, ml.id_member, t.id_last_msg, t.id_topic, t.id_board,
 			COALESCE(mem.real_name, ml.poster_name) AS poster_name, mf.id_msg
 		FROM {db_prefix}topics AS t
@@ -1736,10 +1727,10 @@ function sendNotifications($topics, $type, $exclude = array(), $members_only = a
 		)
 	);
 	$task_rows = array();
-	while ($row = $smcFunc['db_fetch_assoc']($result))
+	while ($row = Db::$db->fetch_assoc($result))
 	{
 		$task_rows[] = array(
-			'$sourcedir/tasks/CreatePost_Notify.php', 'SMF\Tasks\CreatePost_Notify', $smcFunc['json_encode'](array(
+			'$sourcedir/tasks/CreatePost_Notify.php', 'SMF\Tasks\CreatePost_Notify', Utils::jsonEncode(array(
 				'msgOptions' => array(
 					'id' => $row['id_msg'],
 					'subject' => $row['subject'],
@@ -1759,10 +1750,10 @@ function sendNotifications($topics, $type, $exclude = array(), $members_only = a
 			)), 0
 		);
 	}
-	$smcFunc['db_free_result']($result);
+	Db::$db->free_result($result);
 
 	if (!empty($task_rows))
-		$smcFunc['db_insert']('',
+		Db::$db->insert('',
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
 			$task_rows,
@@ -1784,7 +1775,7 @@ function sendNotifications($topics, $type, $exclude = array(), $members_only = a
  */
 function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 {
-	global $user_info, $txt, $modSettings, $smcFunc, $sourcedir;
+	global $user_info, $txt;
 
 	// Set optional parameters to the default value.
 	$msgOptions['icon'] = empty($msgOptions['icon']) ? 'xx' : $msgOptions['icon'];
@@ -1805,11 +1796,11 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	$msgOptions['send_notifications'] = isset($msgOptions['send_notifications']) ? (bool) $msgOptions['send_notifications'] : true;
 
 	// We need to know if the topic is approved. If we're told that's great - if not find out.
-	if (!$modSettings['postmod_active'])
+	if (!Config::$modSettings['postmod_active'])
 		$topicOptions['is_approved'] = true;
 	elseif (!empty($topicOptions['id']) && !isset($topicOptions['is_approved']))
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT approved
 			FROM {db_prefix}topics
 			WHERE id_topic = {int:id_topic}
@@ -1818,8 +1809,8 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 				'id_topic' => $topicOptions['id'],
 			)
 		);
-		list ($topicOptions['is_approved']) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		list ($topicOptions['is_approved']) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 	}
 
 	// If nothing was filled in as name/e-mail address, try the member table.
@@ -1833,7 +1824,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		}
 		elseif ($posterOptions['id'] != $user_info['id'])
 		{
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT member_name, email_address
 				FROM {db_prefix}members
 				WHERE id_member = {int:id_member}
@@ -1843,7 +1834,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 				)
 			);
 			// Couldn't find the current poster?
-			if ($smcFunc['db_num_rows']($request) == 0)
+			if (Db::$db->num_rows($request) == 0)
 			{
 				loadLanguage('Errors');
 				trigger_error(sprintf($txt['create_post_invalid_member_id'], $posterOptions['id']), E_USER_NOTICE);
@@ -1852,8 +1843,8 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 				$posterOptions['email'] = '';
 			}
 			else
-				list ($posterOptions['name'], $posterOptions['email']) = $smcFunc['db_fetch_row']($request);
-			$smcFunc['db_free_result']($request);
+				list ($posterOptions['name'], $posterOptions['email']) = Db::$db->fetch_row($request);
+			Db::$db->free_result($request);
 		}
 		else
 		{
@@ -1865,7 +1856,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	// Get any members who were quoted in this post.
 	$msgOptions['quoted_members'] = Mentions::getQuotedMembers($msgOptions['body'], $posterOptions['id']);
 
-	if (!empty($modSettings['enable_mentions']))
+	if (!empty(Config::$modSettings['enable_mentions']))
 	{
 		// Get any members who were possibly mentioned
 		$msgOptions['mentioned_members'] = Mentions::getMentionedMembers($msgOptions['body']);
@@ -1885,7 +1876,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	$new_topic = empty($topicOptions['id']);
 
 	$message_columns = array(
-		'id_board' => 'int', 'id_topic' => 'int', 'id_member' => 'int', 'subject' => 'string-255', 'body' => (!empty($modSettings['max_messageLength']) && $modSettings['max_messageLength'] > 65534 ? 'string-' . $modSettings['max_messageLength'] : (empty($modSettings['max_messageLength']) ? 'string' : 'string-65534')),
+		'id_board' => 'int', 'id_topic' => 'int', 'id_member' => 'int', 'subject' => 'string-255', 'body' => (!empty(Config::$modSettings['max_messageLength']) && Config::$modSettings['max_messageLength'] > 65534 ? 'string-' . Config::$modSettings['max_messageLength'] : (empty(Config::$modSettings['max_messageLength']) ? 'string' : 'string-65534')),
 		'poster_name' => 'string-255', 'poster_email' => 'string-255', 'poster_time' => 'int', 'poster_ip' => 'inet',
 		'smileys_enabled' => 'int', 'modified_name' => 'string', 'icon' => 'string-16', 'approved' => 'int',
 	);
@@ -1900,7 +1891,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	call_integration_hook('integrate_create_post', array(&$msgOptions, &$topicOptions, &$posterOptions, &$message_columns, &$message_parameters));
 
 	// Insert the post.
-	$msgOptions['id'] = $smcFunc['db_insert']('',
+	$msgOptions['id'] = Db::$db->insert('',
 		'{db_prefix}messages',
 		$message_columns,
 		$message_parameters,
@@ -1914,7 +1905,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 
 	// Fix the attachments.
 	if (!empty($msgOptions['attachments']))
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}attachments
 			SET id_msg = {int:id_msg}
 			WHERE id_attach IN ({array_int:attachment_list})',
@@ -1945,7 +1936,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 
 		call_integration_hook('integrate_before_create_topic', array(&$msgOptions, &$topicOptions, &$posterOptions, &$topic_columns, &$topic_parameters));
 
-		$topicOptions['id'] = $smcFunc['db_insert']('',
+		$topicOptions['id'] = Db::$db->insert('',
 			'{db_prefix}topics',
 			$topic_columns,
 			$topic_parameters,
@@ -1957,7 +1948,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		if (empty($topicOptions['id']))
 		{
 			// We should delete the post that did work, though...
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				DELETE FROM {db_prefix}messages
 				WHERE id_msg = {int:id_msg}',
 				array(
@@ -1969,7 +1960,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		}
 
 		// Fix the message with the topic.
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}messages
 			SET id_topic = {int:id_topic}
 			WHERE id_msg = {int:id_msg}',
@@ -2017,7 +2008,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		call_integration_hook('integrate_modify_topic', array(&$topics_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions));
 
 		// Update the number of replies and the lock/sticky status.
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}topics
 			SET
 				' . implode(', ', $topics_columns) . '
@@ -2031,7 +2022,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 
 	// Creating is modifying...in a way.
 	// @todo Why not set id_msg_modified on the insert?
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		UPDATE {db_prefix}messages
 		SET id_msg_modified = {int:id_msg}
 		WHERE id_msg = {int:id_msg}',
@@ -2042,7 +2033,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 
 	// Increase the number of posts and topics on the board.
 	if ($msgOptions['approved'])
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}boards
 			SET num_posts = num_posts + 1' . ($new_topic ? ', num_topics = num_topics + 1' : '') . '
 			WHERE id_board = {int:id_board}',
@@ -2052,7 +2043,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		);
 	else
 	{
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}boards
 			SET unapproved_posts = unapproved_posts + 1' . ($new_topic ? ', unapproved_topics = unapproved_topics + 1' : '') . '
 			WHERE id_board = {int:id_board}',
@@ -2062,7 +2053,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		);
 
 		// Add to the approval queue too.
-		$smcFunc['db_insert']('',
+		Db::$db->insert('',
 			'{db_prefix}approval_queue',
 			array(
 				'id_msg' => 'int',
@@ -2073,11 +2064,11 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 			array()
 		);
 
-		$smcFunc['db_insert']('',
+		Db::$db->insert('',
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
 			array(
-				'$sourcedir/tasks/ApprovePost_Notify.php', 'SMF\Tasks\ApprovePost_Notify', $smcFunc['json_encode'](array(
+				'$sourcedir/tasks/ApprovePost_Notify.php', 'SMF\Tasks\ApprovePost_Notify', Utils::jsonEncode(array(
 					'msgOptions' => $msgOptions,
 					'topicOptions' => $topicOptions,
 					'posterOptions' => $posterOptions,
@@ -2094,7 +2085,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		// Since it's likely they *read* it before replying, let's try an UPDATE first.
 		if (!$new_topic)
 		{
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				UPDATE {db_prefix}log_topics
 				SET id_msg = {int:id_msg}
 				WHERE id_member = {int:current_member}
@@ -2106,12 +2097,12 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 				)
 			);
 
-			$flag = $smcFunc['db_affected_rows']() != 0;
+			$flag = Db::$db->affected_rows() != 0;
 		}
 
 		if (empty($flag))
 		{
-			$smcFunc['db_insert']('ignore',
+			Db::$db->insert('ignore',
 				'{db_prefix}log_topics',
 				array('id_topic' => 'int', 'id_member' => 'int', 'id_msg' => 'int'),
 				array($topicOptions['id'], $posterOptions['id'], $msgOptions['id']),
@@ -2121,11 +2112,11 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	}
 
 	if ($msgOptions['approved'] && empty($topicOptions['is_approved']) && $posterOptions['id'] != $user_info['id'])
-		$smcFunc['db_insert']('',
+		Db::$db->insert('',
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
 			array(
-				'$sourcedir/tasks/ApproveReply_Notify.php', 'SMF\Tasks\ApproveReply_Notify', $smcFunc['json_encode'](array(
+				'$sourcedir/tasks/ApproveReply_Notify.php', 'SMF\Tasks\ApproveReply_Notify', Utils::jsonEncode(array(
 					'msgOptions' => $msgOptions,
 					'topicOptions' => $topicOptions,
 					'posterOptions' => $posterOptions,
@@ -2171,10 +2162,10 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 
 	// Queue createPost background notification
 	if ($msgOptions['send_notifications'] && $msgOptions['approved'])
-		$smcFunc['db_insert']('',
+		Db::$db->insert('',
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-			array('$sourcedir/tasks/CreatePost_Notify.php', 'SMF\Tasks\CreatePost_Notify', $smcFunc['json_encode'](array(
+			array('$sourcedir/tasks/CreatePost_Notify.php', 'SMF\Tasks\CreatePost_Notify', Utils::jsonEncode(array(
 				'msgOptions' => $msgOptions,
 				'topicOptions' => $topicOptions,
 				'posterOptions' => $posterOptions,
@@ -2200,7 +2191,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
  */
 function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 {
-	global $user_info, $modSettings, $smcFunc, $sourcedir;
+	global $user_info;
 
 	$topicOptions['poll'] = isset($topicOptions['poll']) ? (int) $topicOptions['poll'] : null;
 	$topicOptions['lock_mode'] = isset($topicOptions['lock_mode']) ? $topicOptions['lock_mode'] : null;
@@ -2221,9 +2212,9 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		$messages_columns['body'] = $msgOptions['body'];
 
 		// using a custom search index, then lets get the old message so we can update our index as needed
-		if (!empty($modSettings['search_custom_index_config']))
+		if (!empty(Config::$modSettings['search_custom_index_config']))
 		{
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT body
 				FROM {db_prefix}messages
 				WHERE id_msg = {int:id_msg}',
@@ -2231,8 +2222,8 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 					'id_msg' => $msgOptions['id'],
 				)
 			);
-			list ($msgOptions['old_body']) = $smcFunc['db_fetch_row']($request);
-			$smcFunc['db_free_result']($request);
+			list ($msgOptions['old_body']) = Db::$db->fetch_row($request);
+			Db::$db->free_result($request);
 		}
 	}
 	if (!empty($msgOptions['modify_time']))
@@ -2240,7 +2231,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		$messages_columns['modified_time'] = $msgOptions['modify_time'];
 		$messages_columns['modified_name'] = $msgOptions['modify_name'];
 		$messages_columns['modified_reason'] = $msgOptions['modify_reason'];
-		$messages_columns['id_msg_modified'] = $modSettings['maxMsgID'];
+		$messages_columns['id_msg_modified'] = Config::$modSettings['maxMsgID'];
 	}
 	if (isset($msgOptions['smileys_enabled']))
 		$messages_columns['smileys_enabled'] = empty($msgOptions['smileys_enabled']) ? 0 : 1;
@@ -2269,7 +2260,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		unset($msgOptions['quoted_members'][$user_info['id']]);
 	}
 
-	if (!empty($modSettings['enable_mentions']) && isset($msgOptions['body']))
+	if (!empty(Config::$modSettings['enable_mentions']) && isset($msgOptions['body']))
 	{
 		$mentions = Mentions::getMentionedMembers($msgOptions['body']);
 		$messages_columns['body'] = $msgOptions['body'] = Mentions::getBody($msgOptions['body'], $mentions);
@@ -2305,7 +2296,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		return true;
 
 	// Change the post.
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		UPDATE {db_prefix}messages
 		SET ' . implode(', ', $messages_columns) . '
 		WHERE id_msg = {int:id_msg}',
@@ -2315,7 +2306,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	// Lock and or sticky the post.
 	if ($topicOptions['sticky_mode'] !== null || $topicOptions['lock_mode'] !== null || $topicOptions['poll'] !== null)
 	{
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}topics
 			SET
 				is_sticky = {raw:is_sticky},
@@ -2335,26 +2326,26 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	if (!empty($topicOptions['mark_as_read']) && !$user_info['is_guest'])
 	{
 		// Since it's likely they *read* it before editing, let's try an UPDATE first.
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}log_topics
 			SET id_msg = {int:id_msg}
 			WHERE id_member = {int:current_member}
 				AND id_topic = {int:id_topic}',
 			array(
 				'current_member' => $user_info['id'],
-				'id_msg' => $modSettings['maxMsgID'],
+				'id_msg' => Config::$modSettings['maxMsgID'],
 				'id_topic' => $topicOptions['id'],
 			)
 		);
 
-		$flag = $smcFunc['db_affected_rows']() != 0;
+		$flag = Db::$db->affected_rows() != 0;
 
 		if (empty($flag))
 		{
-			$smcFunc['db_insert']('ignore',
+			Db::$db->insert('ignore',
 				'{db_prefix}log_topics',
 				array('id_topic' => 'int', 'id_member' => 'int', 'id_msg' => 'int'),
-				array($topicOptions['id'], $user_info['id'], $modSettings['maxMsgID']),
+				array($topicOptions['id'], $user_info['id'], Config::$modSettings['maxMsgID']),
 				array('id_topic', 'id_member')
 			);
 		}
@@ -2369,10 +2360,10 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	// Send notifications about any new quotes or mentions.
 	if ($msgOptions['send_notifications'] && !empty($msgOptions['approved']) && (!empty($msgOptions['quoted_members']) || !empty($msgOptions['mentioned_members']) || !empty($mention_modifications['removed']) || !empty($quoted_modifications['removed'])))
 	{
-		$smcFunc['db_insert']('',
+		Db::$db->insert('',
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-			array('$sourcedir/tasks/CreatePost_Notify.php', 'SMF\Tasks\CreatePost_Notify', $smcFunc['json_encode'](array(
+			array('$sourcedir/tasks/CreatePost_Notify.php', 'SMF\Tasks\CreatePost_Notify', Utils::jsonEncode(array(
 				'msgOptions' => $msgOptions,
 				'topicOptions' => $topicOptions,
 				'posterOptions' => $posterOptions,
@@ -2385,7 +2376,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	if (isset($msgOptions['subject']))
 	{
 		// Only update the subject if this was the first message in the topic.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_topic
 			FROM {db_prefix}topics
 			WHERE id_first_msg = {int:id_first_msg}
@@ -2394,13 +2385,13 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 				'id_first_msg' => $msgOptions['id'],
 			)
 		);
-		if ($smcFunc['db_num_rows']($request) == 1)
+		if (Db::$db->num_rows($request) == 1)
 			updateStats('subject', $topicOptions['id'], $msgOptions['subject']);
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 	}
 
 	// Finally, if we are setting the approved state we need to do much more work :(
-	if ($modSettings['postmod_active'] && isset($msgOptions['approved']))
+	if (Config::$modSettings['postmod_active'] && isset($msgOptions['approved']))
 		approvePosts($msgOptions['id'], $msgOptions['approved']);
 
 	return true;
@@ -2416,8 +2407,6 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
  */
 function approvePosts($msgs, $approve = true, $notify = true)
 {
-	global $smcFunc;
-
 	if (!is_array($msgs))
 		$msgs = array($msgs);
 
@@ -2425,7 +2414,7 @@ function approvePosts($msgs, $approve = true, $notify = true)
 		return false;
 
 	// May as well start at the beginning, working out *what* we need to change.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT m.id_msg, m.approved, m.id_topic, m.id_board, t.id_first_msg, t.id_last_msg,
 			m.body, m.subject, COALESCE(mem.real_name, m.poster_name) AS poster_name, m.id_member,
 			t.approved AS topic_approved, b.count_posts
@@ -2447,7 +2436,7 @@ function approvePosts($msgs, $approve = true, $notify = true)
 	$notification_topics = array();
 	$notification_posts = array();
 	$member_post_changes = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// Easy...
 		$msgs[] = $row['id_msg'];
@@ -2524,13 +2513,13 @@ function approvePosts($msgs, $approve = true, $notify = true)
 		if ($row['id_member'] && empty($row['count_posts']))
 			$member_post_changes[$row['id_member']] = isset($member_post_changes[$row['id_member']]) ? $member_post_changes[$row['id_member']] + 1 : 1;
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	if (empty($msgs))
 		return;
 
 	// Now we have the differences make the changes, first the easy one.
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		UPDATE {db_prefix}messages
 		SET approved = {int:approved_state}
 		WHERE id_msg IN ({array_int:message_list})',
@@ -2543,7 +2532,7 @@ function approvePosts($msgs, $approve = true, $notify = true)
 	// If we were unapproving find the last msg in the topics...
 	if (!$approve)
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_topic, MAX(id_msg) AS id_last_msg
 			FROM {db_prefix}messages
 			WHERE id_topic IN ({array_int:topic_list})
@@ -2554,14 +2543,14 @@ function approvePosts($msgs, $approve = true, $notify = true)
 				'approved' => 1,
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$topic_changes[$row['id_topic']]['id_last_msg'] = $row['id_last_msg'];
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 	}
 
 	// ... next the topics...
 	foreach ($topic_changes as $id => $changes)
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}topics
 			SET approved = {int:approved}, unapproved_posts = unapproved_posts + {int:unapproved_posts},
 				num_replies = num_replies + {int:num_replies}, id_last_msg = {int:id_last_msg}
@@ -2577,7 +2566,7 @@ function approvePosts($msgs, $approve = true, $notify = true)
 
 	// ... finally the boards...
 	foreach ($board_changes as $id => $changes)
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}boards
 			SET num_posts = num_posts + {int:num_posts}, unapproved_posts = unapproved_posts + {int:unapproved_posts},
 				num_topics = num_topics + {int:num_topics}, unapproved_topics = unapproved_topics + {int:unapproved_topics}
@@ -2597,7 +2586,7 @@ function approvePosts($msgs, $approve = true, $notify = true)
 		$task_rows = array();
 		foreach (array_merge($notification_topics, $notification_posts) as $topic)
 			$task_rows[] = array(
-				'$sourcedir/tasks/CreatePost_Notify.php', 'SMF\Tasks\CreatePost_Notify', $smcFunc['json_encode'](array(
+				'$sourcedir/tasks/CreatePost_Notify.php', 'SMF\Tasks\CreatePost_Notify', Utils::jsonEncode(array(
 					'msgOptions' => array(
 						'id' => $topic['msg'],
 						'body' => $topic['body'],
@@ -2616,14 +2605,14 @@ function approvePosts($msgs, $approve = true, $notify = true)
 			);
 
 		if ($notify)
-			$smcFunc['db_insert']('',
+			Db::$db->insert('',
 				'{db_prefix}background_tasks',
 				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
 				$task_rows,
 				array('id_task')
 			);
 
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}approval_queue
 			WHERE id_msg IN ({array_int:message_list})
 				AND id_attach = {int:id_attach}',
@@ -2646,7 +2635,7 @@ function approvePosts($msgs, $approve = true, $notify = true)
 		foreach ($msgs as $msg)
 			$msgInserts[] = array($msg);
 
-		$smcFunc['db_insert']('ignore',
+		Db::$db->insert('ignore',
 			'{db_prefix}approval_queue',
 			array('id_msg' => 'int'),
 			$msgInserts,
@@ -2679,8 +2668,6 @@ function approvePosts($msgs, $approve = true, $notify = true)
  */
 function approveTopics($topics, $approve = true)
 {
-	global $smcFunc;
-
 	if (!is_array($topics))
 		$topics = array($topics);
 
@@ -2690,7 +2677,7 @@ function approveTopics($topics, $approve = true)
 	$approve_type = $approve ? 0 : 1;
 
 	// Just get the messages to be approved and pass through...
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_first_msg
 		FROM {db_prefix}topics
 		WHERE id_topic IN ({array_int:topic_list})
@@ -2701,9 +2688,9 @@ function approveTopics($topics, $approve = true)
 		)
 	);
 	$msgs = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$msgs[] = $row['id_first_msg'];
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	return approvePosts($msgs, $approve);
 }
@@ -2717,8 +2704,6 @@ function approveTopics($topics, $approve = true)
  */
 function clearApprovalAlerts($content_ids, $content_action)
 {
-	global $smcFunc;
-
 	// Some data hygiene...
 	if (!is_array($content_ids))
 		return;
@@ -2733,7 +2718,7 @@ function clearApprovalAlerts($content_ids, $content_action)
 	// Might be multiple alerts, for multiple moderators...
 	$alerts = array();
 	$moderators = array();
-	$result = $smcFunc['db_query']('', '
+	$result = Db::$db->query('', '
 		SELECT id_alert, id_member FROM {db_prefix}user_alerts
 		WHERE content_id IN ({array_int:content_ids})
 			AND content_type = {string:content_type}
@@ -2747,7 +2732,7 @@ function clearApprovalAlerts($content_ids, $content_action)
 		)
 	);
 	// Found any?
-	while ($row = $smcFunc['db_fetch_assoc']($result))
+	while ($row = Db::$db->fetch_assoc($result))
 	{
 		$alerts[] = $row['id_alert'];
 		$moderators[] = $row['id_member'];
@@ -2755,7 +2740,7 @@ function clearApprovalAlerts($content_ids, $content_action)
 	if (!empty($alerts))
 	{
 		// Delete 'em
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}user_alerts
 			WHERE id_alert IN ({array_int:alerts})',
 			array(
@@ -2781,7 +2766,7 @@ function clearApprovalAlerts($content_ids, $content_action)
  */
 function updateLastMessages($setboards, $id_msg = 0)
 {
-	global $board_info, $board, $smcFunc;
+	global $board_info, $board;
 
 	// Please - let's be sane.
 	if (empty($setboards))
@@ -2794,7 +2779,7 @@ function updateLastMessages($setboards, $id_msg = 0)
 	if (!$id_msg)
 	{
 		// Find the latest message on this board (highest id_msg.)
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_board, MAX(id_last_msg) AS id_msg
 			FROM {db_prefix}topics
 			WHERE id_board IN ({array_int:board_list})
@@ -2806,9 +2791,9 @@ function updateLastMessages($setboards, $id_msg = 0)
 			)
 		);
 		$lastMsg = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$lastMsg[$row['id_board']] = $row['id_msg'];
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 	}
 	else
 	{
@@ -2879,7 +2864,7 @@ function updateLastMessages($setboards, $id_msg = 0)
 	// Now commit the changes!
 	foreach ($parent_updates as $id_msg => $boards)
 	{
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}boards
 			SET id_msg_updated = {int:id_msg_updated}
 			WHERE id_board IN ({array_int:board_list})
@@ -2892,7 +2877,7 @@ function updateLastMessages($setboards, $id_msg = 0)
 	}
 	foreach ($board_updates as $board_data)
 	{
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}boards
 			SET id_last_msg = {int:id_last_msg}, id_msg_updated = {int:id_msg_updated}
 			WHERE id_board IN ({array_int:board_list})',
@@ -2919,12 +2904,10 @@ function updateLastMessages($setboards, $id_msg = 0)
  */
 function adminNotify($type, $memberID, $member_name = null)
 {
-	global $smcFunc;
-
 	if ($member_name == null)
 	{
 		// Get the new user's name....
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT real_name
 			FROM {db_prefix}members
 			WHERE id_member = {int:id_member}
@@ -2933,15 +2916,15 @@ function adminNotify($type, $memberID, $member_name = null)
 				'id_member' => $memberID,
 			)
 		);
-		list ($member_name) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		list ($member_name) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 	}
 
 	// This is really just a wrapper for making a new background task to deal with all the fun.
-	$smcFunc['db_insert']('insert',
+	Db::$db->insert('insert',
 		'{db_prefix}background_tasks',
 		array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-		array('$sourcedir/tasks/Register_Notify.php', 'SMF\Tasks\Register_Notify', $smcFunc['json_encode'](array(
+		array('$sourcedir/tasks/Register_Notify.php', 'SMF\Tasks\Register_Notify', Utils::jsonEncode(array(
 			'new_member_id' => $memberID,
 			'new_member_name' => $member_name,
 			'notify_type' => $type,
@@ -2962,7 +2945,7 @@ function adminNotify($type, $memberID, $member_name = null)
  */
 function loadEmailTemplate($template, $replacements = array(), $lang = '', $loadLang = true)
 {
-	global $txt, $mbname, $scripturl, $settings, $context;
+	global $txt, $settings;
 
 	// First things first, load up the email templates language file, if we need to.
 	if ($loadLang)
@@ -2979,12 +2962,12 @@ function loadEmailTemplate($template, $replacements = array(), $lang = '', $load
 
 	// Add in the default replacements.
 	$replacements += array(
-		'FORUMNAME' => $mbname,
-		'SCRIPTURL' => $scripturl,
+		'FORUMNAME' => Config::$mbname,
+		'SCRIPTURL' => Config::$scripturl,
 		'THEMEURL' => $settings['theme_url'],
 		'IMAGESURL' => $settings['images_url'],
 		'DEFAULT_THEMEURL' => $settings['default_theme_url'],
-		'REGARDS' => sprintf($txt['regards_team'], $context['forum_name']),
+		'REGARDS' => sprintf($txt['regards_team'], Utils::$context['forum_name']),
 	);
 
 	// Split the replacements up into two arrays, for use with str_replace
@@ -3048,39 +3031,39 @@ function user_info_callback($matches)
  */
 function spell_init()
 {
-	global $context, $txt;
+	global $txt;
 
 	// Check for UTF-8 and strip ".utf8" off the lang_locale string for enchant
-	$context['spell_utf8'] = ($txt['lang_character_set'] == 'UTF-8');
+	Utils::$context['spell_utf8'] = ($txt['lang_character_set'] == 'UTF-8');
 	$lang_locale = str_replace('.utf8', '', $txt['lang_locale']);
 
 	// Try enchant first since PSpell is (supposedly) deprecated as of PHP 5.3
 	// enchant only does UTF-8, so we need iconv if you aren't using UTF-8
-	if (function_exists('enchant_broker_init') && ($context['spell_utf8'] || function_exists('iconv')))
+	if (function_exists('enchant_broker_init') && (Utils::$context['spell_utf8'] || function_exists('iconv')))
 	{
 		// We'll need this to free resources later...
-		$context['enchant_broker'] = enchant_broker_init();
+		Utils::$context['enchant_broker'] = enchant_broker_init();
 
 		// Try locale first, then general...
-		if (!empty($lang_locale) && enchant_broker_dict_exists($context['enchant_broker'], $lang_locale))
+		if (!empty($lang_locale) && enchant_broker_dict_exists(Utils::$context['enchant_broker'], $lang_locale))
 		{
-			$enchant_link = enchant_broker_request_dict($context['enchant_broker'], $lang_locale);
+			$enchant_link = enchant_broker_request_dict(Utils::$context['enchant_broker'], $lang_locale);
 		}
-		elseif (enchant_broker_dict_exists($context['enchant_broker'], $txt['lang_dictionary']))
+		elseif (enchant_broker_dict_exists(Utils::$context['enchant_broker'], $txt['lang_dictionary']))
 		{
-			$enchant_link = enchant_broker_request_dict($context['enchant_broker'], $txt['lang_dictionary']);
+			$enchant_link = enchant_broker_request_dict(Utils::$context['enchant_broker'], $txt['lang_dictionary']);
 		}
 
 		// Success
 		if (!empty($enchant_link))
 		{
-			$context['provider'] = 'enchant';
+			Utils::$context['provider'] = 'enchant';
 			return $enchant_link;
 		}
 		else
 		{
 			// Free up any resources used...
-			@enchant_broker_free($context['enchant_broker']);
+			@enchant_broker_free(Utils::$context['enchant_broker']);
 		}
 	}
 
@@ -3095,7 +3078,7 @@ function spell_init()
 		pspell_new('en');
 
 		// Next, the dictionary in question may not exist. So, we try it... but...
-		$pspell_link = pspell_new($txt['lang_dictionary'], '', '', strtr($context['character_set'], array('iso-' => 'iso', 'ISO-' => 'iso')), PSPELL_FAST | PSPELL_RUN_TOGETHER);
+		$pspell_link = pspell_new($txt['lang_dictionary'], '', '', strtr(Utils::$context['character_set'], array('iso-' => 'iso', 'ISO-' => 'iso')), PSPELL_FAST | PSPELL_RUN_TOGETHER);
 
 		// Most people don't have anything but English installed... So we use English as a last resort.
 		if (!$pspell_link)
@@ -3107,7 +3090,7 @@ function spell_init()
 		// If we have pspell, exit now...
 		if ($pspell_link)
 		{
-			$context['provider'] = 'pspell';
+			Utils::$context['provider'] = 'pspell';
 			return $pspell_link;
 		}
 	}
@@ -3127,20 +3110,20 @@ function spell_init()
  */
 function spell_check($dict, $word)
 {
-	global $context, $txt;
+	global $txt;
 
 	// Enchant or pspell?
-	if ($context['provider'] == 'enchant')
+	if (Utils::$context['provider'] == 'enchant')
 	{
 		// This is a bit tricky here...
-		if (!$context['spell_utf8'])
+		if (!Utils::$context['spell_utf8'])
 		{
 			// Convert the word to UTF-8 with iconv
 			$word = iconv($txt['lang_character_set'], 'UTF-8', $word);
 		}
 		return enchant_dict_check($dict, $word);
 	}
-	elseif ($context['provider'] == 'pspell')
+	elseif (Utils::$context['provider'] == 'pspell')
 	{
 		return pspell_check($dict, $word);
 	}
@@ -3157,12 +3140,12 @@ function spell_check($dict, $word)
  */
 function spell_suggest($dict, $word)
 {
-	global $context, $txt;
+	global $txt;
 
-	if ($context['provider'] == 'enchant')
+	if (Utils::$context['provider'] == 'enchant')
 	{
 		// If we're not using UTF-8, we need iconv to handle some stuff...
-		if (!$context['spell_utf8'])
+		if (!Utils::$context['spell_utf8'])
 		{
 			// Convert the word to UTF-8 before getting suggestions
 			$word = iconv($txt['lang_character_set'], 'UTF-8', $word);
@@ -3182,7 +3165,7 @@ function spell_suggest($dict, $word)
 			return enchant_dict_suggest($dict, $word);
 		}
 	}
-	elseif ($context['provider'] == 'pspell')
+	elseif (Utils::$context['provider'] == 'pspell')
 	{
 		return pspell_suggest($dict, $word);
 	}

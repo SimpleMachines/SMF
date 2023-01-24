@@ -15,6 +15,10 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+use SMF\Db\DatabaseApi as Db;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -30,7 +34,7 @@ if (!defined('SMF'))
  */
 function Ban()
 {
-	global $context, $txt, $scripturl;
+	global $txt;
 
 	isAllowedTo('manage_bans');
 
@@ -46,26 +50,26 @@ function Ban()
 	);
 
 	// Tabs for browsing the different ban functions.
-	$context[$context['admin_menu_name']]['tab_data'] = array(
+	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['ban_title'],
 		'help' => 'ban_members',
 		'description' => $txt['ban_description'],
 		'tabs' => array(
 			'list' => array(
 				'description' => $txt['ban_description'],
-				'href' => $scripturl . '?action=admin;area=ban;sa=list',
+				'href' => Config::$scripturl . '?action=admin;area=ban;sa=list',
 			),
 			'add' => array(
 				'description' => $txt['ban_description'],
-				'href' => $scripturl . '?action=admin;area=ban;sa=add',
+				'href' => Config::$scripturl . '?action=admin;area=ban;sa=add',
 			),
 			'browse' => array(
 				'description' => $txt['ban_trigger_browse_description'],
-				'href' => $scripturl . '?action=admin;area=ban;sa=browse',
+				'href' => Config::$scripturl . '?action=admin;area=ban;sa=browse',
 			),
 			'log' => array(
 				'description' => $txt['ban_log_description'],
-				'href' => $scripturl . '?action=admin;area=ban;sa=log',
+				'href' => Config::$scripturl . '?action=admin;area=ban;sa=log',
 				'is_last' => true,
 			),
 		),
@@ -77,11 +81,11 @@ function Ban()
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'list';
 
 	// Mark the appropriate menu entry as selected
-	if (array_key_exists($_REQUEST['sa'], $context[$context['admin_menu_name']]['tab_data']['tabs']))
-		$context[$context['admin_menu_name']]['tab_data']['tabs'][$_REQUEST['sa']]['is_selected'] = true;
+	if (array_key_exists($_REQUEST['sa'], Utils::$context[Utils::$context['admin_menu_name']]['tab_data']['tabs']))
+		Utils::$context[Utils::$context['admin_menu_name']]['tab_data']['tabs'][$_REQUEST['sa']]['is_selected'] = true;
 
-	$context['page_title'] = $txt['ban_title'];
-	$context['sub_action'] = $_REQUEST['sa'];
+	Utils::$context['page_title'] = $txt['ban_title'];
+	Utils::$context['sub_action'] = $_REQUEST['sa'];
 
 	// Call the right function for this sub-action.
 	call_helper($subActions[$_REQUEST['sa']]);
@@ -98,8 +102,8 @@ function Ban()
  */
 function BanList()
 {
-	global $txt, $context, $scripturl;
-	global $user_info, $sourcedir, $modSettings;
+	global $txt;
+	global $user_info;
 
 	// User pressed the 'remove selection button'.
 	if (!empty($_POST['removeBans']) && !empty($_POST['remove']) && is_array($_POST['remove']))
@@ -113,7 +117,7 @@ function BanList()
 		removeBanGroups($_POST['remove']);
 
 		// No more caching this ban!
-		updateSettings(array('banLastUpdated' => time()));
+		Config::updateModSettings(array('banLastUpdated' => time()));
 
 		// Some members might be unbanned now. Update the members table.
 		updateBanMembers();
@@ -121,15 +125,15 @@ function BanList()
 
 	// Create a date string so we don't overload them with date info.
 	if (preg_match('~%[AaBbCcDdeGghjmuYy](?:[^%]*%[AaBbCcDdeGghjmuYy])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
-		$context['ban_time_format'] = $user_info['time_format'];
+		Utils::$context['ban_time_format'] = $user_info['time_format'];
 	else
-		$context['ban_time_format'] = $matches[0];
+		Utils::$context['ban_time_format'] = $matches[0];
 
 	$listOptions = array(
 		'id' => 'ban_list',
 		'title' => $txt['ban_title'],
-		'items_per_page' => $modSettings['defaultMaxListItems'],
-		'base_href' => $scripturl . '?action=admin;area=ban;sa=list',
+		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
+		'base_href' => Config::$scripturl . '?action=admin;area=ban;sa=list',
 		'default_sort_col' => 'added',
 		'default_sort_dir' => 'desc',
 		'get_items' => array(
@@ -183,9 +187,9 @@ function BanList()
 					'value' => $txt['ban_added'],
 				),
 				'data' => array(
-					'function' => function($rowData) use ($context)
+					'function' => function($rowData)
 					{
-						return timeformat($rowData['ban_time'], empty($context['ban_time_format']) ? true : $context['ban_time_format']);
+						return timeformat($rowData['ban_time'], empty(Utils::$context['ban_time_format']) ? true : Utils::$context['ban_time_format']);
 					},
 				),
 				'sort' => array(
@@ -237,7 +241,7 @@ function BanList()
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<a href="' . $scripturl . '?action=admin;area=ban;sa=edit;bg=%1$d">' . $txt['modify'] . '</a>',
+						'format' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=%1$d">' . $txt['modify'] . '</a>',
 						'params' => array(
 							'id_ban_group' => false,
 						),
@@ -262,7 +266,7 @@ function BanList()
 			),
 		),
 		'form' => array(
-			'href' => $scripturl . '?action=admin;area=ban;sa=list',
+			'href' => Config::$scripturl . '?action=admin;area=ban;sa=list',
 		),
 		'additional_rows' => array(
 			array(
@@ -291,11 +295,11 @@ function BanList()
 		});',
 	);
 
-	require_once($sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/Subs-List.php');
 	createList($listOptions);
 
-	$context['sub_template'] = 'show_list';
-	$context['default_list'] = 'ban_list';
+	Utils::$context['sub_template'] = 'show_list';
+	Utils::$context['default_list'] = 'ban_list';
 }
 
 /**
@@ -308,9 +312,7 @@ function BanList()
  */
 function list_getBans($start, $items_per_page, $sort)
 {
-	global $smcFunc;
-
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT bg.id_ban_group, bg.name, bg.ban_time, bg.expire_time, bg.reason, bg.notes, COUNT(bi.id_ban) AS num_triggers
 		FROM {db_prefix}ban_groups AS bg
 			LEFT JOIN {db_prefix}ban_items AS bi ON (bi.id_ban_group = bg.id_ban_group)
@@ -324,10 +326,10 @@ function list_getBans($start, $items_per_page, $sort)
 		)
 	);
 	$bans = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$bans[] = $row;
 
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	return $bans;
 }
@@ -339,16 +341,14 @@ function list_getBans($start, $items_per_page, $sort)
  */
 function list_getNumBans()
 {
-	global $smcFunc;
-
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(*) AS num_bans
 		FROM {db_prefix}ban_groups',
 		array(
 		)
 	);
-	list ($numBans) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($numBans) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	return $numBans;
 }
@@ -365,37 +365,37 @@ function list_getNumBans()
  */
 function BanEdit()
 {
-	global $txt, $modSettings, $context, $scripturl, $smcFunc, $sourcedir;
+	global $txt;
 
-	if ((isset($_POST['add_ban']) || isset($_POST['modify_ban']) || isset($_POST['remove_selection'])) && empty($context['ban_errors']))
+	if ((isset($_POST['add_ban']) || isset($_POST['modify_ban']) || isset($_POST['remove_selection'])) && empty(Utils::$context['ban_errors']))
 		BanEdit2();
 
-	$ban_group_id = isset($context['ban']['id']) ? $context['ban']['id'] : (isset($_REQUEST['bg']) ? (int) $_REQUEST['bg'] : 0);
+	$ban_group_id = isset(Utils::$context['ban']['id']) ? Utils::$context['ban']['id'] : (isset($_REQUEST['bg']) ? (int) $_REQUEST['bg'] : 0);
 
 	// Template needs this to show errors using javascript
 	loadLanguage('Errors');
 	createToken('admin-bet');
-	$context['form_url'] = $scripturl . '?action=admin;area=ban;sa=edit';
+	Utils::$context['form_url'] = Config::$scripturl . '?action=admin;area=ban;sa=edit';
 
-	if (!empty($context['ban_errors']))
-		foreach ($context['ban_errors'] as $error)
-			$context['error_messages'][$error] = $txt[$error];
+	if (!empty(Utils::$context['ban_errors']))
+		foreach (Utils::$context['ban_errors'] as $error)
+			Utils::$context['error_messages'][$error] = $txt[$error];
 
 	else
 	{
 		// If we're editing an existing ban, get it from the database.
 		if (!empty($ban_group_id))
 		{
-			$context['ban_group_id'] = $ban_group_id;
+			Utils::$context['ban_group_id'] = $ban_group_id;
 
 			// We're going to want this for making our list.
-			require_once($sourcedir . '/Subs-List.php');
+			require_once(Config::$sourcedir . '/Subs-List.php');
 
 			$listOptions = array(
 				'id' => 'ban_items',
-				'base_href' => $scripturl . '?action=admin;area=ban;sa=edit;bg=' . $ban_group_id,
+				'base_href' => Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=' . $ban_group_id,
 				'no_items_label' => $txt['ban_no_triggers'],
-				'items_per_page' => $modSettings['defaultMaxListItems'],
+				'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 				'get_items' => array(
 					'function' => 'list_getBanItems',
 					'params' => array(
@@ -443,9 +443,9 @@ function BanEdit()
 							'style' => 'width: 15%; text-align: center;',
 						),
 						'data' => array(
-							'function' => function($ban_item) use ($txt, $context, $scripturl)
+							'function' => function($ban_item) use ($txt)
 							{
-								return '<a href="' . $scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $context['ban_group_id'] . ';bi=' . $ban_item['id'] . '">' . $txt['ban_edit_trigger'] . '</a>';
+								return '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . Utils::$context['ban_group_id'] . ';bi=' . $ban_item['id'] . '">' . $txt['ban_edit_trigger'] . '</a>';
 							},
 							'style' => 'text-align: center;',
 						),
@@ -467,34 +467,34 @@ function BanEdit()
 					),
 				),
 				'form' => array(
-					'href' => $scripturl . '?action=admin;area=ban;sa=edit;bg=' . $ban_group_id,
+					'href' => Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=' . $ban_group_id,
 				),
 				'additional_rows' => array(
 					array(
 						'position' => 'above_column_headers',
 						'value' => '
-						<input type="submit" name="remove_selection" value="' . $txt['ban_remove_selected_triggers'] . '" class="button"> <a class="button" href="' . $scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . $txt['ban_add_trigger'] . '</a>',
+						<input type="submit" name="remove_selection" value="' . $txt['ban_remove_selected_triggers'] . '" class="button"> <a class="button" href="' . Config::$scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . $txt['ban_add_trigger'] . '</a>',
 						'style' => 'text-align: right;',
 					),
 					array(
 						'position' => 'above_column_headers',
 						'value' => '
 						<input type="hidden" name="bg" value="' . $ban_group_id . '">
-						<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
-						<input type="hidden" name="' . $context['admin-bet_token_var'] . '" value="' . $context['admin-bet_token'] . '">',
+						<input type="hidden" name="' . Utils::$context['session_var'] . '" value="' . Utils::$context['session_id'] . '">
+						<input type="hidden" name="' . Utils::$context['admin-bet_token_var'] . '" value="' . Utils::$context['admin-bet_token'] . '">',
 					),
 					array(
 						'position' => 'below_table_data',
 						'value' => '
-						<input type="submit" name="remove_selection" value="' . $txt['ban_remove_selected_triggers'] . '" class="button"> <a class="button" href="' . $scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . $txt['ban_add_trigger'] . '</a>',
+						<input type="submit" name="remove_selection" value="' . $txt['ban_remove_selected_triggers'] . '" class="button"> <a class="button" href="' . Config::$scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . $txt['ban_add_trigger'] . '</a>',
 						'style' => 'text-align: right;',
 					),
 					array(
 						'position' => 'below_table_data',
 						'value' => '
 						<input type="hidden" name="bg" value="' . $ban_group_id . '">
-						<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
-						<input type="hidden" name="' . $context['admin-bet_token_var'] . '" value="' . $context['admin-bet_token'] . '">',
+						<input type="hidden" name="' . Utils::$context['session_var'] . '" value="' . Utils::$context['session_id'] . '">
+						<input type="hidden" name="' . Utils::$context['admin-bet_token_var'] . '" value="' . Utils::$context['admin-bet_token'] . '">',
 					),
 				),
 				'javascript' => '
@@ -521,7 +521,7 @@ function BanEdit()
 		// Not an existing one, then it's probably a new one.
 		else
 		{
-			$context['ban'] = array(
+			Utils::$context['ban'] = array(
 				'id' => 0,
 				'name' => '',
 				'expiration' => array(
@@ -539,7 +539,7 @@ function BanEdit()
 				),
 				'is_new' => true,
 			);
-			$context['ban_suggestions'] = array(
+			Utils::$context['ban_suggestions'] = array(
 				'main_ip' => '',
 				'hostname' => '',
 				'email' => '',
@@ -551,7 +551,7 @@ function BanEdit()
 			// Overwrite some of the default form values if a user ID was given.
 			if (!empty($_REQUEST['u']))
 			{
-				$request = $smcFunc['db_query']('', '
+				$request = Db::$db->query('', '
 					SELECT id_member, real_name, member_ip, email_address
 					FROM {db_prefix}members
 					WHERE id_member = {int:current_user}
@@ -560,35 +560,35 @@ function BanEdit()
 						'current_user' => (int) $_REQUEST['u'],
 					)
 				);
-				if ($smcFunc['db_num_rows']($request) > 0)
+				if (Db::$db->num_rows($request) > 0)
 				{
-					list ($context['ban_suggestions']['member']['id'], $context['ban_suggestions']['member']['name'], $context['ban_suggestions']['main_ip'], $context['ban_suggestions']['email']) = $smcFunc['db_fetch_row']($request);
-					$context['ban_suggestions']['main_ip'] = inet_dtop($context['ban_suggestions']['main_ip']);
+					list (Utils::$context['ban_suggestions']['member']['id'], Utils::$context['ban_suggestions']['member']['name'], Utils::$context['ban_suggestions']['main_ip'], Utils::$context['ban_suggestions']['email']) = Db::$db->fetch_row($request);
+					Utils::$context['ban_suggestions']['main_ip'] = inet_dtop(Utils::$context['ban_suggestions']['main_ip']);
 				}
-				$smcFunc['db_free_result']($request);
+				Db::$db->free_result($request);
 
-				if (!empty($context['ban_suggestions']['member']['id']))
+				if (!empty(Utils::$context['ban_suggestions']['member']['id']))
 				{
-					$context['ban_suggestions']['href'] = $scripturl . '?action=profile;u=' . $context['ban_suggestions']['member']['id'];
-					$context['ban_suggestions']['member']['link'] = '<a href="' . $context['ban_suggestions']['href'] . '">' . $context['ban_suggestions']['member']['name'] . '</a>';
+					Utils::$context['ban_suggestions']['href'] = Config::$scripturl . '?action=profile;u=' . Utils::$context['ban_suggestions']['member']['id'];
+					Utils::$context['ban_suggestions']['member']['link'] = '<a href="' . Utils::$context['ban_suggestions']['href'] . '">' . Utils::$context['ban_suggestions']['member']['name'] . '</a>';
 
 					// Default the ban name to the name of the banned member.
-					$context['ban']['name'] = $context['ban_suggestions']['member']['name'];
+					Utils::$context['ban']['name'] = Utils::$context['ban_suggestions']['member']['name'];
 					// @todo: there should be a better solution...used to lock the "Ban on Username" input when banning from profile
-					$context['ban']['from_user'] = true;
+					Utils::$context['ban']['from_user'] = true;
 
 					// Would be nice if we could also ban the hostname.
-					if ((preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/', $context['ban_suggestions']['main_ip']) == 1 || isValidIPv6($context['ban_suggestions']['main_ip'])) && empty($modSettings['disableHostnameLookup']))
-						$context['ban_suggestions']['hostname'] = host_from_ip($context['ban_suggestions']['main_ip']);
+					if ((preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/', Utils::$context['ban_suggestions']['main_ip']) == 1 || isValidIPv6(Utils::$context['ban_suggestions']['main_ip'])) && empty(Config::$modSettings['disableHostnameLookup']))
+						Utils::$context['ban_suggestions']['hostname'] = host_from_ip(Utils::$context['ban_suggestions']['main_ip']);
 
-					$context['ban_suggestions']['other_ips'] = banLoadAdditionalIPs($context['ban_suggestions']['member']['id']);
+					Utils::$context['ban_suggestions']['other_ips'] = banLoadAdditionalIPs(Utils::$context['ban_suggestions']['member']['id']);
 				}
 			}
 
 			// We come from the mod center.
 			elseif (isset($_GET['msg']) && !empty($_GET['msg']))
 			{
-				$request = $smcFunc['db_query']('', '
+				$request = Db::$db->query('', '
 					SELECT poster_name, poster_ip, poster_email
 					FROM {db_prefix}messages
 					WHERE id_msg = {int:message}
@@ -597,16 +597,16 @@ function BanEdit()
 						'message' => (int) $_REQUEST['msg'],
 					)
 				);
-				if ($smcFunc['db_num_rows']($request) > 0)
+				if (Db::$db->num_rows($request) > 0)
 				{
-					list ($context['ban_suggestions']['member']['name'], $context['ban_suggestions']['main_ip'], $context['ban_suggestions']['email']) = $smcFunc['db_fetch_row']($request);
-					$context['ban_suggestions']['main_ip'] = inet_dtop($context['ban_suggestions']['main_ip']);
+					list (Utils::$context['ban_suggestions']['member']['name'], Utils::$context['ban_suggestions']['main_ip'], Utils::$context['ban_suggestions']['email']) = Db::$db->fetch_row($request);
+					Utils::$context['ban_suggestions']['main_ip'] = inet_dtop(Utils::$context['ban_suggestions']['main_ip']);
 				}
-				$smcFunc['db_free_result']($request);
+				Db::$db->free_result($request);
 
 				// Can't hurt to ban base on the guest name...
-				$context['ban']['name'] = $context['ban_suggestions']['member']['name'];
-				$context['ban']['from_user'] = true;
+				Utils::$context['ban']['name'] = Utils::$context['ban_suggestions']['member']['name'];
+				Utils::$context['ban']['from_user'] = true;
 			}
 
 			call_integration_hook('integrate_ban_edit_new', array());
@@ -615,7 +615,7 @@ function BanEdit()
 	}
 
 	loadJavaScriptFile('suggest.js', array('minimize' => true), 'smf_suggest');
-	$context['sub_template'] = 'ban_edit';
+	Utils::$context['sub_template'] = 'ban_edit';
 
 }
 
@@ -630,10 +630,8 @@ function BanEdit()
  */
 function list_getBanItems($start = 0, $items_per_page = 0, $sort = 0, $ban_group_id = 0)
 {
-	global $context, $smcFunc, $scripturl;
-
 	$ban_items = array();
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT
 			bi.id_ban, bi.hostname, bi.email_address, bi.id_member, bi.hits,
 			bi.ip_low, bi.ip_high,
@@ -650,14 +648,14 @@ function list_getBanItems($start = 0, $items_per_page = 0, $sort = 0, $ban_group
 			'items_per_page' => $items_per_page,
 		)
 	);
-	if ($smcFunc['db_num_rows']($request) == 0)
+	if (Db::$db->num_rows($request) == 0)
 		fatal_lang_error('ban_not_found', false);
 
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
-		if (!isset($context['ban']))
+		if (!isset(Utils::$context['ban']))
 		{
-			$context['ban'] = array(
+			Utils::$context['ban'] = array(
 				'id' => $row['id_ban_group'],
 				'name' => $row['name'],
 				'expiration' => array(
@@ -705,8 +703,8 @@ function list_getBanItems($start = 0, $items_per_page = 0, $sort = 0, $ban_group
 				$ban_items[$row['id_ban']]['user'] = array(
 					'id' => $row['id_member'],
 					'name' => $row['real_name'],
-					'href' => $scripturl . '?action=profile;u=' . $row['id_member'],
-					'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
+					'href' => Config::$scripturl . '?action=profile;u=' . $row['id_member'],
+					'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
 				);
 			}
 			// Invalid ban (member probably doesn't exist anymore).
@@ -717,7 +715,7 @@ function list_getBanItems($start = 0, $items_per_page = 0, $sort = 0, $ban_group
 			}
 		}
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	call_integration_hook('integrate_ban_list', array(&$ban_items));
 
@@ -731,11 +729,9 @@ function list_getBanItems($start = 0, $items_per_page = 0, $sort = 0, $ban_group
  */
 function list_getNumBanItems()
 {
-	global $smcFunc, $context;
+	$ban_group_id = isset(Utils::$context['ban_group_id']) ? Utils::$context['ban_group_id'] : 0;
 
-	$ban_group_id = isset($context['ban_group_id']) ? $context['ban_group_id'] : 0;
-
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(bi.id_ban)
 		FROM {db_prefix}ban_groups AS bg
 			LEFT JOIN {db_prefix}ban_items AS bi ON (bi.id_ban_group = bg.id_ban_group)
@@ -745,8 +741,8 @@ function list_getNumBanItems()
 			'current_ban' => $ban_group_id,
 		)
 	);
-	list($banNumber) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list($banNumber) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	return $banNumber;
 }
@@ -782,11 +778,9 @@ function banLoadAdditionalIPs($member_id)
  */
 function banLoadAdditionalIPsMember($member_id)
 {
-	global $smcFunc;
-
 	// Find some additional IP's used by this member.
 	$message_ips = array();
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT DISTINCT poster_ip
 		FROM {db_prefix}messages
 		WHERE id_member = {int:current_user}
@@ -796,10 +790,10 @@ function banLoadAdditionalIPsMember($member_id)
 			'current_user' => $member_id,
 		)
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$message_ips[] = inet_dtop($row['poster_ip']);
 
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	return $message_ips;
 }
@@ -812,10 +806,8 @@ function banLoadAdditionalIPsMember($member_id)
  */
 function banLoadAdditionalIPsError($member_id)
 {
-	global $smcFunc;
-
 	$error_ips = array();
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT DISTINCT ip
 		FROM {db_prefix}log_errors
 		WHERE id_member = {int:current_user}
@@ -825,10 +817,10 @@ function banLoadAdditionalIPsError($member_id)
 			'current_user' => $member_id,
 		)
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$error_ips[] = inet_dtop($row['ip']);
 
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	return $error_ips;
 }
@@ -838,12 +830,10 @@ function banLoadAdditionalIPsError($member_id)
  */
 function banEdit2()
 {
-	global $smcFunc, $context;
-
 	checkSession();
 	validateToken('admin-bet');
 
-	$context['ban_errors'] = array();
+	Utils::$context['ban_errors'] = array();
 
 	// Adding or editing a ban group
 	if (isset($_POST['add_ban']) || isset($_POST['modify_ban']))
@@ -858,9 +848,9 @@ function banEdit2()
 		);
 		$ban_info['db_expiration'] = $ban_info['expiration']['status'] == 'never' ? 'NULL' : ($ban_info['expiration']['status'] == 'one_day' ? time() + 24 * 60 * 60 * $ban_info['expire_date'] : 0);
 		$ban_info['full_ban'] = empty($_POST['full_ban']) ? 0 : 1;
-		$ban_info['reason'] = !empty($_POST['reason']) ? $smcFunc['htmlspecialchars']($_POST['reason'], ENT_QUOTES) : '';
-		$ban_info['name'] = !empty($_POST['ban_name']) ? $smcFunc['htmlspecialchars']($_POST['ban_name'], ENT_QUOTES) : '';
-		$ban_info['notes'] = isset($_POST['notes']) ? $smcFunc['htmlspecialchars']($_POST['notes'], ENT_QUOTES) : '';
+		$ban_info['reason'] = !empty($_POST['reason']) ? Utils::htmlspecialchars($_POST['reason'], ENT_QUOTES) : '';
+		$ban_info['name'] = !empty($_POST['ban_name']) ? Utils::htmlspecialchars($_POST['ban_name'], ENT_QUOTES) : '';
+		$ban_info['notes'] = isset($_POST['notes']) ? Utils::htmlspecialchars($_POST['notes'], ENT_QUOTES) : '';
 		$ban_info['notes'] = str_replace(array("\r", "\n", '  '), array('', '<br>', '&nbsp; '), $ban_info['notes']);
 		$ban_info['cannot']['access'] = empty($ban_info['full_ban']) ? 0 : 1;
 		$ban_info['cannot']['post'] = !empty($ban_info['full_ban']) || empty($_POST['cannot_post']) ? 0 : 1;
@@ -870,7 +860,7 @@ function banEdit2()
 		call_integration_hook('integrate_edit_bans', array(&$ban_info, empty($_REQUEST['bg'])));
 
 		// Limit 'reason' characters
-		$ban_info['reason'] = $smcFunc['truncate']($ban_info['reason'], 255);
+		$ban_info['reason'] = Utils::truncate($ban_info['reason'], 255);
 
 		// Adding a new ban group
 		if (empty($_REQUEST['bg']))
@@ -885,7 +875,7 @@ function banEdit2()
 			$ban_info['is_new'] = false;
 		}
 
-		$context['ban'] = $ban_info;
+		Utils::$context['ban'] = $ban_info;
 	}
 
 	if (isset($_POST['ban_suggestions']))
@@ -893,21 +883,21 @@ function banEdit2()
 		$saved_triggers = saveTriggers($_POST['ban_suggestions'], $ban_info['id'], isset($_REQUEST['u']) ? (int) $_REQUEST['u'] : 0, isset($_REQUEST['bi']) ? (int) $_REQUEST['bi'] : 0);
 
 	// Something went wrong somewhere... Oh well, let's go back.
-	if (!empty($context['ban_errors']))
+	if (!empty(Utils::$context['ban_errors']))
 	{
-		$context['ban_suggestions'] = !empty($saved_triggers) ? $saved_triggers : array();
+		Utils::$context['ban_suggestions'] = !empty($saved_triggers) ? $saved_triggers : array();
 		if (isset($_REQUEST['u']))
 		{
-			$context['ban']['from_user'] = true;
-			$context['ban_suggestions'] = array_merge($context['ban_suggestions'], getMemberData((int) $_REQUEST['u']));
+			Utils::$context['ban']['from_user'] = true;
+			Utils::$context['ban_suggestions'] = array_merge(Utils::$context['ban_suggestions'], getMemberData((int) $_REQUEST['u']));
 		}
 
 		// Not strictly necessary, but it's nice
-		if (!empty($context['ban_suggestions']['member']['id']))
-			$context['ban_suggestions']['other_ips'] = banLoadAdditionalIPs($context['ban_suggestions']['member']['id']);
+		if (!empty(Utils::$context['ban_suggestions']['member']['id']))
+			Utils::$context['ban_suggestions']['other_ips'] = banLoadAdditionalIPs(Utils::$context['ban_suggestions']['member']['id']);
 		return BanEdit();
 	}
-	$context['ban_suggestions']['saved_triggers'] = !empty($saved_triggers) ? $saved_triggers : array();
+	Utils::$context['ban_suggestions']['saved_triggers'] = !empty($saved_triggers) ? $saved_triggers : array();
 
 	if (isset($_POST['ban_items']))
 	{
@@ -920,7 +910,7 @@ function banEdit2()
 	call_integration_hook('integrate_edit_bans_post', array());
 
 	// Register the last modified date.
-	updateSettings(array('banLastUpdated' => time()));
+	Config::updateModSettings(array('banLastUpdated' => time()));
 
 	// Update the member table to represent the new ban situation.
 	updateBanMembers();
@@ -940,8 +930,6 @@ function banEdit2()
  */
 function saveTriggers(array $suggestions, $ban_group, $member = 0, $ban_id = 0)
 {
-	global $context;
-
 	$triggers = array(
 		'main_ip' => '',
 		'hostname' => '',
@@ -964,14 +952,14 @@ function saveTriggers(array $suggestions, $ban_group, $member = 0, $ban_id = 0)
 	call_integration_hook('integrate_save_triggers', array(&$ban_triggers, &$ban_group));
 
 	// Time to save!
-	if (!empty($ban_triggers['ban_triggers']) && empty($context['ban_errors']))
+	if (!empty($ban_triggers['ban_triggers']) && empty(Utils::$context['ban_errors']))
 	{
 		if (empty($ban_id))
 			addTriggers($ban_group, $ban_triggers['ban_triggers'], $ban_triggers['log_info']);
 		else
 			updateTriggers($ban_id, $ban_group, array_shift($ban_triggers['ban_triggers']), $ban_triggers['log_info']);
 	}
-	if (!empty($context['ban_errors']))
+	if (!empty(Utils::$context['ban_errors']))
 		return $triggers;
 	else
 		return false;
@@ -987,8 +975,6 @@ function saveTriggers(array $suggestions, $ban_group, $member = 0, $ban_id = 0)
  */
 function removeBanTriggers($items_ids = array(), $group_id = false)
 {
-	global $smcFunc, $scripturl;
-
 	if ($group_id !== false)
 		$group_id = (int) $group_id;
 
@@ -1004,7 +990,7 @@ function removeBanTriggers($items_ids = array(), $group_id = false)
 	call_integration_hook('integrate_remove_triggers', array(&$items_ids, $group_id));
 
 	// First order of business: Load up the info so we can log this...
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT
 			bi.id_ban, bi.hostname, bi.email_address, bi.id_member, bi.hits,
 			bi.ip_low, bi.ip_high,
@@ -1018,7 +1004,7 @@ function removeBanTriggers($items_ids = array(), $group_id = false)
 	);
 
 	// Get all the info for the log
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		if (!empty($row['id_ban']))
 		{
@@ -1061,8 +1047,8 @@ function removeBanTriggers($items_ids = array(), $group_id = false)
 				$ban_items[$row['id_ban']]['user'] = array(
 					'id' => $row['id_member'],
 					'name' => $row['real_name'],
-					'href' => $scripturl . '?action=profile;u=' . $row['id_member'],
-					'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
+					'href' => Config::$scripturl . '?action=profile;u=' . $row['id_member'],
+					'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
 				);
 				$log_info[] = array(
 					'bantype' => 'user',
@@ -1075,11 +1061,11 @@ function removeBanTriggers($items_ids = array(), $group_id = false)
 	// Log this!
 	logTriggersUpdates($log_info, false, true);
 
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	if ($group_id !== false)
 	{
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}ban_items
 			WHERE id_ban IN ({array_int:ban_list})
 				AND id_ban_group = {int:ban_group}',
@@ -1091,7 +1077,7 @@ function removeBanTriggers($items_ids = array(), $group_id = false)
 	}
 	elseif (!empty($items_ids))
 	{
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}ban_items
 			WHERE id_ban IN ({array_int:ban_list})',
 			array(
@@ -1112,8 +1098,6 @@ function removeBanTriggers($items_ids = array(), $group_id = false)
  */
 function removeBanGroups($group_ids)
 {
-	global $smcFunc;
-
 	if (!is_array($group_ids))
 		$group_ids = array($group_ids);
 
@@ -1122,7 +1106,7 @@ function removeBanGroups($group_ids)
 	if (empty($group_ids))
 		return false;
 
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}ban_groups
 		WHERE id_ban_group IN ({array_int:ban_list})',
 		array(
@@ -1131,7 +1115,7 @@ function removeBanGroups($group_ids)
 	);
 
 	// Remove all ban triggers for these bans groups
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_ban
 		FROM {db_prefix}ban_items
 		WHERE id_ban_group IN ({array_int:ban_list})',
@@ -1141,11 +1125,11 @@ function removeBanGroups($group_ids)
 	);
 
 	$id_ban_triggers = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$id_ban_triggers[] = $row['id_ban'];
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	removeBanTriggers($id_ban_triggers);
 
@@ -1161,10 +1145,8 @@ function removeBanGroups($group_ids)
  */
 function removeBanLogs($ids = array())
 {
-	global $smcFunc;
-
 	if (empty($ids))
-		$smcFunc['db_query']('truncate_table', '
+		Db::$db->query('truncate_table', '
 			TRUNCATE {db_prefix}log_banned',
 			array(
 			)
@@ -1179,7 +1161,7 @@ function removeBanLogs($ids = array())
 		if (empty($ids))
 			return false;
 
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}log_banned
 			WHERE id_ban_log IN ({array_int:ban_list})',
 			array(
@@ -1194,17 +1176,15 @@ function removeBanLogs($ids = array())
 /**
  * This function validates the ban triggers
  *
- * Errors in $context['ban_errors']
+ * Errors in Utils::$context['ban_errors']
  *
  * @param array $triggers The triggers to validate
  * @return array An array of riggers and log info ready to be used
  */
 function validateTriggers(&$triggers)
 {
-	global $context, $smcFunc;
-
 	if (empty($triggers))
-		$context['ban_errors'][] = 'ban_empty_triggers';
+		Utils::$context['ban_errors'][] = 'ban_empty_triggers';
 
 	$ban_triggers = array();
 	$log_info = array();
@@ -1221,7 +1201,7 @@ function validateTriggers(&$triggers)
 				$value = trim($value);
 				$ip_parts = ip2range($value);
 				if (!checkExistingTriggerIP($ip_parts, $value))
-					$context['ban_errors'][] = 'invalid_ip';
+					Utils::$context['ban_errors'][] = 'invalid_ip';
 				else
 				{
 					$ban_triggers['main_ip'] = array(
@@ -1233,7 +1213,7 @@ function validateTriggers(&$triggers)
 			elseif ($key == 'hostname')
 			{
 				if (preg_match('/[^\w.\-*]/', $value) == 1)
-					$context['ban_errors'][] = 'invalid_hostname';
+					Utils::$context['ban_errors'][] = 'invalid_hostname';
 				else
 				{
 					// Replace the * wildcard by a MySQL wildcard %.
@@ -1245,10 +1225,10 @@ function validateTriggers(&$triggers)
 			elseif ($key == 'email')
 			{
 				if (preg_match('/[^\w.\-\+*@]/', $value) == 1)
-					$context['ban_errors'][] = 'invalid_email';
+					Utils::$context['ban_errors'][] = 'invalid_email';
 
 				// Check the user is not banning an admin.
-				$request = $smcFunc['db_query']('', '
+				$request = Db::$db->query('', '
 					SELECT id_member
 					FROM {db_prefix}members
 					WHERE (id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0)
@@ -1259,9 +1239,9 @@ function validateTriggers(&$triggers)
 						'email' => $value,
 					)
 				);
-				if ($smcFunc['db_num_rows']($request) != 0)
-					$context['ban_errors'][] = 'no_ban_admin';
-				$smcFunc['db_free_result']($request);
+				if (Db::$db->num_rows($request) != 0)
+					Utils::$context['ban_errors'][] = 'no_ban_admin';
+				Db::$db->free_result($request);
 
 				$value = substr(strtolower(str_replace('*', '%', $value)), 0, 255);
 
@@ -1269,9 +1249,9 @@ function validateTriggers(&$triggers)
 			}
 			elseif ($key == 'user')
 			{
-				$user = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $smcFunc['htmlspecialchars']($value, ENT_QUOTES));
+				$user = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', Utils::htmlspecialchars($value, ENT_QUOTES));
 
-				$request = $smcFunc['db_query']('', '
+				$request = Db::$db->query('', '
 					SELECT id_member, (id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0) AS isAdmin
 					FROM {db_prefix}members
 					WHERE member_name = {string:username} OR real_name = {string:username}
@@ -1281,15 +1261,15 @@ function validateTriggers(&$triggers)
 						'username' => $user,
 					)
 				);
-				if ($smcFunc['db_num_rows']($request) == 0)
-					$context['ban_errors'][] = 'invalid_username';
-				list ($value, $isAdmin) = $smcFunc['db_fetch_row']($request);
-				$smcFunc['db_free_result']($request);
+				if (Db::$db->num_rows($request) == 0)
+					Utils::$context['ban_errors'][] = 'invalid_username';
+				list ($value, $isAdmin) = Db::$db->fetch_row($request);
+				Db::$db->free_result($request);
 
 				if ($isAdmin && strtolower($isAdmin) != 'f')
 				{
 					unset($value);
-					$context['ban_errors'][] = 'no_ban_admin';
+					Utils::$context['ban_errors'][] = 'no_ban_admin';
 				}
 				else
 					$ban_triggers['user']['id_member'] = $value;
@@ -1307,7 +1287,7 @@ function validateTriggers(&$triggers)
 					$val = trim($val);
 					$ip_parts = ip2range($val);
 					if (!checkExistingTriggerIP($ip_parts, $val))
-						$context['ban_errors'][] = 'invalid_ip';
+						Utils::$context['ban_errors'][] = 'invalid_ip';
 					else
 					{
 						$ban_triggers[$key][] = array(
@@ -1323,7 +1303,7 @@ function validateTriggers(&$triggers)
 				}
 			}
 			else
-				$context['ban_errors'][] = 'no_bantype_selected';
+				Utils::$context['ban_errors'][] = 'no_bantype_selected';
 
 			if (isset($value) && !is_array($value))
 				$log_info[] = array(
@@ -1338,7 +1318,7 @@ function validateTriggers(&$triggers)
 /**
  * This function actually inserts the ban triggers into the database
  *
- * Errors in $context['ban_errors']
+ * Errors in Utils::$context['ban_errors']
  *
  * @param int $group_id The ID of the group to add the triggers to (0 to create a new one)
  * @param array $triggers The triggers to add
@@ -1347,10 +1327,8 @@ function validateTriggers(&$triggers)
  */
 function addTriggers($group_id = 0, $triggers = array(), $logs = array())
 {
-	global $smcFunc, $context;
-
 	if (empty($group_id))
-		$context['ban_errors'][] = 'ban_id_empty';
+		Utils::$context['ban_errors'][] = 'ban_id_empty';
 
 	// Preset all values that are required.
 	$values = array(
@@ -1383,12 +1361,12 @@ function addTriggers($group_id = 0, $triggers = array(), $logs = array())
 	}
 
 	if (empty($insertTriggers))
-		$context['ban_errors'][] = 'ban_no_triggers';
+		Utils::$context['ban_errors'][] = 'ban_no_triggers';
 
-	if (!empty($context['ban_errors']))
+	if (!empty(Utils::$context['ban_errors']))
 		return false;
 
-	$smcFunc['db_insert']('',
+	Db::$db->insert('',
 		'{db_prefix}ban_items',
 		$insertKeys,
 		$insertTriggers,
@@ -1403,7 +1381,7 @@ function addTriggers($group_id = 0, $triggers = array(), $logs = array())
 /**
  * This function updates an existing ban trigger into the database
  *
- * Errors in $context['ban_errors']
+ * Errors in Utils::$context['ban_errors']
  *
  * @param int $ban_item The ID of the ban item
  * @param int $group_id The ID of the ban group
@@ -1412,16 +1390,14 @@ function addTriggers($group_id = 0, $triggers = array(), $logs = array())
  */
 function updateTriggers($ban_item = 0, $group_id = 0, $trigger = array(), $logs = array())
 {
-	global $smcFunc, $context;
-
 	if (empty($ban_item))
-		$context['ban_errors'][] = 'ban_ban_item_empty';
+		Utils::$context['ban_errors'][] = 'ban_ban_item_empty';
 	if (empty($group_id))
-		$context['ban_errors'][] = 'ban_id_empty';
+		Utils::$context['ban_errors'][] = 'ban_id_empty';
 	if (empty($trigger))
-		$context['ban_errors'][] = 'ban_no_triggers';
+		Utils::$context['ban_errors'][] = 'ban_no_triggers';
 
-	if (!empty($context['ban_errors']))
+	if (!empty(Utils::$context['ban_errors']))
 		return;
 
 	// Preset all values that are required.
@@ -1436,7 +1412,7 @@ function updateTriggers($ban_item = 0, $group_id = 0, $trigger = array(), $logs 
 
 	$trigger = array_merge($values, $trigger);
 
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		UPDATE {db_prefix}ban_items
 		SET
 			hostname = {string:hostname}, email_address = {string:email_address}, id_member = {int:id_member},
@@ -1487,26 +1463,24 @@ function logTriggersUpdates($logs, $new = true, $removal = false)
 /**
  * Updates an existing ban group
  *
- * Errors in $context['ban_errors']
+ * Errors in Utils::$context['ban_errors']
  *
  * @param array $ban_info An array of info about the ban group. Should have name and may also have an id.
  * @return int The ban group's ID
  */
 function updateBanGroup($ban_info = array())
 {
-	global $smcFunc, $context;
-
 	if (empty($ban_info['name']))
-		$context['ban_errors'][] = 'ban_name_empty';
+		Utils::$context['ban_errors'][] = 'ban_name_empty';
 	if (empty($ban_info['id']))
-		$context['ban_errors'][] = 'ban_id_empty';
+		Utils::$context['ban_errors'][] = 'ban_id_empty';
 	if (empty($ban_info['cannot']['access']) && empty($ban_info['cannot']['register']) && empty($ban_info['cannot']['post']) && empty($ban_info['cannot']['login']))
-		$context['ban_errors'][] = 'ban_unknown_restriction_type';
+		Utils::$context['ban_errors'][] = 'ban_unknown_restriction_type';
 
 	if (!empty($ban_info['id']))
 	{
 		// Verify the ban group exists.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_ban_group
 			FROM {db_prefix}ban_groups
 			WHERE id_ban_group = {int:ban_group}
@@ -1516,15 +1490,15 @@ function updateBanGroup($ban_info = array())
 			)
 		);
 
-		if ($smcFunc['db_num_rows']($request) == 0)
-			$context['ban_errors'][] = 'ban_not_found';
-		$smcFunc['db_free_result']($request);
+		if (Db::$db->num_rows($request) == 0)
+			Utils::$context['ban_errors'][] = 'ban_not_found';
+		Db::$db->free_result($request);
 	}
 
 	if (!empty($ban_info['name']))
 	{
 		// Make sure the name does not already exist (Of course, if it exists in the ban group we are editing, proceed.)
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_ban_group
 			FROM {db_prefix}ban_groups
 			WHERE name = {string:new_ban_name}
@@ -1535,15 +1509,15 @@ function updateBanGroup($ban_info = array())
 				'new_ban_name' => $ban_info['name'],
 			)
 		);
-		if ($smcFunc['db_num_rows']($request) != 0)
-			$context['ban_errors'][] = 'ban_name_exists';
-		$smcFunc['db_free_result']($request);
+		if (Db::$db->num_rows($request) != 0)
+			Utils::$context['ban_errors'][] = 'ban_name_exists';
+		Db::$db->free_result($request);
 	}
 
-	if (!empty($context['ban_errors']))
+	if (!empty(Utils::$context['ban_errors']))
 		return $ban_info['id'];
 
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		UPDATE {db_prefix}ban_groups
 		SET
 			name = {string:ban_name},
@@ -1576,24 +1550,22 @@ function updateBanGroup($ban_info = array())
  * If the group is successfully created the ID is returned
  * On error the error code is returned or false
  *
- * Errors in $context['ban_errors']
+ * Errors in Utils::$context['ban_errors']
  *
  * @param array $ban_info An array containing 'name', which is the name of the ban group
  * @return int The ban group's ID
  */
 function insertBanGroup($ban_info = array())
 {
-	global $smcFunc, $context;
-
 	if (empty($ban_info['name']))
-		$context['ban_errors'][] = 'ban_name_empty';
+		Utils::$context['ban_errors'][] = 'ban_name_empty';
 	if (empty($ban_info['cannot']['access']) && empty($ban_info['cannot']['register']) && empty($ban_info['cannot']['post']) && empty($ban_info['cannot']['login']))
-		$context['ban_errors'][] = 'ban_unknown_restriction_type';
+		Utils::$context['ban_errors'][] = 'ban_unknown_restriction_type';
 
 	if (!empty($ban_info['name']))
 	{
 		// Check whether a ban with this name already exists.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_ban_group
 			FROM {db_prefix}ban_groups
 			WHERE name = {string:new_ban_name}' . '
@@ -1603,16 +1575,16 @@ function insertBanGroup($ban_info = array())
 			)
 		);
 
-		if ($smcFunc['db_num_rows']($request) == 1)
-			$context['ban_errors'][] = 'ban_name_exists';
-		$smcFunc['db_free_result']($request);
+		if (Db::$db->num_rows($request) == 1)
+			Utils::$context['ban_errors'][] = 'ban_name_exists';
+		Db::$db->free_result($request);
 	}
 
-	if (!empty($context['ban_errors']))
+	if (!empty(Utils::$context['ban_errors']))
 		return;
 
 	// Yes yes, we're ready to add now.
-	$ban_info['id'] = $smcFunc['db_insert']('',
+	$ban_info['id'] = Db::$db->insert('',
 		'{db_prefix}ban_groups',
 		array(
 			'name' => 'string-20', 'ban_time' => 'int', 'expire_time' => 'raw', 'cannot_access' => 'int', 'cannot_register' => 'int',
@@ -1627,7 +1599,7 @@ function insertBanGroup($ban_info = array())
 	);
 
 	if (empty($ban_info['id']))
-		$context['ban_errors'][] = 'impossible_insert_new_bangroup';
+		Utils::$context['ban_errors'][] = 'impossible_insert_new_bangroup';
 
 	return $ban_info['id'];
 }
@@ -1644,10 +1616,8 @@ function insertBanGroup($ban_info = array())
  */
 function BanEditTrigger()
 {
-	global $context, $smcFunc, $scripturl;
-
-	$context['sub_template'] = 'ban_edit_trigger';
-	$context['form_url'] = $scripturl . '?action=admin;area=ban;sa=edittrigger';
+	Utils::$context['sub_template'] = 'ban_edit_trigger';
+	Utils::$context['form_url'] = Config::$scripturl . '?action=admin;area=ban;sa=edittrigger';
 
 	$ban_group = isset($_REQUEST['bg']) ? (int) $_REQUEST['bg'] : 0;
 	$ban_id = isset($_REQUEST['bi']) ? (int) $_REQUEST['bi'] : 0;
@@ -1676,7 +1646,7 @@ function BanEditTrigger()
 
 	if (empty($ban_id))
 	{
-		$context['ban_trigger'] = array(
+		Utils::$context['ban_trigger'] = array(
 			'id' => 0,
 			'group' => $ban_group,
 			'ip' => array(
@@ -1700,7 +1670,7 @@ function BanEditTrigger()
 	}
 	else
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT
 				bi.id_ban, bi.id_ban_group, bi.hostname, bi.email_address, bi.id_member,
 				bi.ip_low, bi.ip_high,
@@ -1715,12 +1685,12 @@ function BanEditTrigger()
 				'ban_group' => $ban_group,
 			)
 		);
-		if ($smcFunc['db_num_rows']($request) == 0)
+		if (Db::$db->num_rows($request) == 0)
 			fatal_lang_error('ban_not_found', false);
-		$row = $smcFunc['db_fetch_assoc']($request);
-		$smcFunc['db_free_result']($request);
+		$row = Db::$db->fetch_assoc($request);
+		Db::$db->free_result($request);
 
-		$context['ban_trigger'] = array(
+		Utils::$context['ban_trigger'] = array(
 			'id' => $row['id_ban'],
 			'group' => $row['id_ban_group'],
 			'ip' => array(
@@ -1755,8 +1725,7 @@ function BanEditTrigger()
  */
 function BanBrowseTriggers()
 {
-	global $modSettings, $context, $scripturl, $smcFunc, $txt;
-	global $sourcedir, $settings;
+	global $txt, $settings;
 
 	if (!empty($_POST['remove_triggers']) && !empty($_POST['remove']) && is_array($_POST['remove']))
 	{
@@ -1769,28 +1738,28 @@ function BanBrowseTriggers()
 			updateBanMembers();
 
 		// Make sure the ban cache is refreshed.
-		updateSettings(array('banLastUpdated' => time()));
+		Config::updateModSettings(array('banLastUpdated' => time()));
 	}
 
-	$context['selected_entity'] = isset($_REQUEST['entity']) && in_array($_REQUEST['entity'], array('ip', 'hostname', 'email', 'member')) ? $_REQUEST['entity'] : 'ip';
+	Utils::$context['selected_entity'] = isset($_REQUEST['entity']) && in_array($_REQUEST['entity'], array('ip', 'hostname', 'email', 'member')) ? $_REQUEST['entity'] : 'ip';
 
 	$listOptions = array(
 		'id' => 'ban_trigger_list',
 		'title' => $txt['ban_trigger_browse'],
-		'items_per_page' => $modSettings['defaultMaxListItems'],
-		'base_href' => $scripturl . '?action=admin;area=ban;sa=browse;entity=' . $context['selected_entity'],
+		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
+		'base_href' => Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=' . Utils::$context['selected_entity'],
 		'default_sort_col' => 'banned_entity',
 		'no_items_label' => $txt['ban_no_triggers'],
 		'get_items' => array(
 			'function' => 'list_getBanTriggers',
 			'params' => array(
-				$context['selected_entity'],
+				Utils::$context['selected_entity'],
 			),
 		),
 		'get_count' => array(
 			'function' => 'list_getNumBanTriggers',
 			'params' => array(
-				$context['selected_entity'],
+				Utils::$context['selected_entity'],
 			),
 		),
 		'columns' => array(
@@ -1805,7 +1774,7 @@ function BanBrowseTriggers()
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<a href="' . $scripturl . '?action=admin;area=ban;sa=edit;bg=%1$d">%2$s</a>',
+						'format' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=%1$d">%2$s</a>',
 						'params' => array(
 							'id_ban_group' => false,
 							'name' => false,
@@ -1846,14 +1815,14 @@ function BanBrowseTriggers()
 			),
 		),
 		'form' => array(
-			'href' => $scripturl . '?action=admin;area=ban;sa=browse;entity=' . $context['selected_entity'],
+			'href' => Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=' . Utils::$context['selected_entity'],
 			'include_start' => true,
 			'include_sort' => true,
 		),
 		'additional_rows' => array(
 			array(
 				'position' => 'above_column_headers',
-				'value' => '<a href="' . $scripturl . '?action=admin;area=ban;sa=browse;entity=ip">' . ($context['selected_entity'] == 'ip' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . $txt['ip'] . '</a>&nbsp;|&nbsp;<a href="' . $scripturl . '?action=admin;area=ban;sa=browse;entity=hostname">' . ($context['selected_entity'] == 'hostname' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . $txt['hostname'] . '</a>&nbsp;|&nbsp;<a href="' . $scripturl . '?action=admin;area=ban;sa=browse;entity=email">' . ($context['selected_entity'] == 'email' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . $txt['email'] . '</a>&nbsp;|&nbsp;<a href="' . $scripturl . '?action=admin;area=ban;sa=browse;entity=member">' . ($context['selected_entity'] == 'member' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . $txt['username'] . '</a>',
+				'value' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=ip">' . (Utils::$context['selected_entity'] == 'ip' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . $txt['ip'] . '</a>&nbsp;|&nbsp;<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=hostname">' . (Utils::$context['selected_entity'] == 'hostname' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . $txt['hostname'] . '</a>&nbsp;|&nbsp;<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=email">' . (Utils::$context['selected_entity'] == 'email' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . $txt['email'] . '</a>&nbsp;|&nbsp;<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=member">' . (Utils::$context['selected_entity'] == 'member' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . $txt['username'] . '</a>',
 			),
 			array(
 				'position' => 'bottom_of_list',
@@ -1863,7 +1832,7 @@ function BanBrowseTriggers()
 	);
 
 	// Specific data for the first column depending on the selected entity.
-	if ($context['selected_entity'] === 'ip')
+	if (Utils::$context['selected_entity'] === 'ip')
 	{
 		$listOptions['columns']['banned_entity']['data'] = array(
 			'function' => function($rowData)
@@ -1880,12 +1849,12 @@ function BanBrowseTriggers()
 			'reverse' => 'bi.ip_low DESC, bi.ip_high DESC',
 		);
 	}
-	elseif ($context['selected_entity'] === 'hostname')
+	elseif (Utils::$context['selected_entity'] === 'hostname')
 	{
 		$listOptions['columns']['banned_entity']['data'] = array(
-			'function' => function($rowData) use ($smcFunc)
+			'function' => function($rowData)
 			{
-				return strtr($smcFunc['htmlspecialchars']($rowData['hostname']), array('%' => '*'));
+				return strtr(Utils::htmlspecialchars($rowData['hostname']), array('%' => '*'));
 			},
 		);
 		$listOptions['columns']['banned_entity']['sort'] = array(
@@ -1893,12 +1862,12 @@ function BanBrowseTriggers()
 			'reverse' => 'bi.hostname DESC',
 		);
 	}
-	elseif ($context['selected_entity'] === 'email')
+	elseif (Utils::$context['selected_entity'] === 'email')
 	{
 		$listOptions['columns']['banned_entity']['data'] = array(
-			'function' => function($rowData) use ($smcFunc)
+			'function' => function($rowData)
 			{
-				return strtr($smcFunc['htmlspecialchars']($rowData['email_address']), array('%' => '*'));
+				return strtr(Utils::htmlspecialchars($rowData['email_address']), array('%' => '*'));
 			},
 		);
 		$listOptions['columns']['banned_entity']['sort'] = array(
@@ -1906,11 +1875,11 @@ function BanBrowseTriggers()
 			'reverse' => 'bi.email_address DESC',
 		);
 	}
-	elseif ($context['selected_entity'] === 'member')
+	elseif (Utils::$context['selected_entity'] === 'member')
 	{
 		$listOptions['columns']['banned_entity']['data'] = array(
 			'sprintf' => array(
-				'format' => '<a href="' . $scripturl . '?action=profile;u=%1$d">%2$s</a>',
+				'format' => '<a href="' . Config::$scripturl . '?action=profile;u=%1$d">%2$s</a>',
 				'params' => array(
 					'id_member' => false,
 					'real_name' => false,
@@ -1924,12 +1893,12 @@ function BanBrowseTriggers()
 	}
 
 	// Create the list.
-	require_once($sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/Subs-List.php');
 	createList($listOptions);
 
 	// The list is the only thing to show, so make it the default sub template.
-	$context['sub_template'] = 'show_list';
-	$context['default_list'] = 'ban_trigger_list';
+	Utils::$context['sub_template'] = 'show_list';
+	Utils::$context['default_list'] = 'ban_trigger_list';
 }
 
 /**
@@ -1943,15 +1912,13 @@ function BanBrowseTriggers()
  */
 function list_getBanTriggers($start, $items_per_page, $sort, $trigger_type)
 {
-	global $smcFunc;
-
 	$where = array(
 		'ip' => 'bi.ip_low is not null',
 		'hostname' => 'bi.hostname != {string:blank_string}',
 		'email' => 'bi.email_address != {string:blank_string}',
 	);
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT
 			bi.id_ban, bi.ip_low, bi.ip_high, bi.hostname, bi.email_address, bi.hits,
 			bg.id_ban_group, bg.name' . ($trigger_type === 'member' ? ',
@@ -1970,9 +1937,9 @@ function list_getBanTriggers($start, $items_per_page, $sort, $trigger_type)
 		)
 	);
 	$ban_triggers = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$ban_triggers[] = $row;
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	return $ban_triggers;
 }
@@ -1985,15 +1952,13 @@ function list_getBanTriggers($start, $items_per_page, $sort, $trigger_type)
  */
 function list_getNumBanTriggers($trigger_type)
 {
-	global $smcFunc;
-
 	$where = array(
 		'ip' => 'bi.ip_low is not null',
 		'hostname' => 'bi.hostname != {string:blank_string}',
 		'email' => 'bi.email_address != {string:blank_string}',
 	);
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}ban_items AS bi' . ($trigger_type === 'member' ? '
 			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = bi.id_member)' : '
@@ -2002,8 +1967,8 @@ function list_getNumBanTriggers($trigger_type)
 			'blank_string' => '',
 		)
 	);
-	list ($num_triggers) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($num_triggers) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	return $num_triggers;
 }
@@ -2018,7 +1983,7 @@ function list_getNumBanTriggers($trigger_type)
  */
 function BanLog()
 {
-	global $scripturl, $context, $sourcedir, $txt, $modSettings;
+	global $txt;
 
 	// Delete one or more entries.
 	if (!empty($_POST['removeAll']) || (!empty($_POST['removeSelected']) && !empty($_POST['remove'])))
@@ -2040,8 +2005,8 @@ function BanLog()
 	$listOptions = array(
 		'id' => 'ban_log',
 		'title' => $txt['ban_log'],
-		'items_per_page' => $modSettings['defaultMaxListItems'],
-		'base_href' => $context['admin_area'] == 'ban' ? $scripturl . '?action=admin;area=ban;sa=log' : $scripturl . '?action=admin;area=logs;sa=banlog',
+		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
+		'base_href' => Utils::$context['admin_area'] == 'ban' ? Config::$scripturl . '?action=admin;area=ban;sa=log' : Config::$scripturl . '?action=admin;area=logs;sa=banlog',
 		'default_sort_col' => 'date',
 		'get_items' => array(
 			'function' => 'list_getBanLogEntries',
@@ -2057,7 +2022,7 @@ function BanLog()
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<a href="' . $scripturl . '?action=trackip;searchip=%1$s">%1$s</a>',
+						'format' => '<a href="' . Config::$scripturl . '?action=trackip;searchip=%1$s">%1$s</a>',
 						'params' => array(
 							'ip' => false,
 						),
@@ -2086,7 +2051,7 @@ function BanLog()
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<a href="' . $scripturl . '?action=profile;u=%1$d">%2$s</a>',
+						'format' => '<a href="' . Config::$scripturl . '?action=profile;u=%1$d">%2$s</a>',
 						'params' => array(
 							'id_member' => false,
 							'real_name' => false,
@@ -2130,7 +2095,7 @@ function BanLog()
 			),
 		),
 		'form' => array(
-			'href' => $context['admin_area'] == 'ban' ? $scripturl . '?action=admin;area=ban;sa=log' : $scripturl . '?action=admin;area=logs;sa=banlog',
+			'href' => Utils::$context['admin_area'] == 'ban' ? Config::$scripturl . '?action=admin;area=ban;sa=log' : Config::$scripturl . '?action=admin;area=logs;sa=banlog',
 			'include_start' => true,
 			'include_sort' => true,
 			'token' => 'admin-bl',
@@ -2153,12 +2118,12 @@ function BanLog()
 
 	createToken('admin-bl');
 
-	require_once($sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/Subs-List.php');
 	createList($listOptions);
 
-	$context['page_title'] = $txt['ban_log'];
-	$context['sub_template'] = 'show_list';
-	$context['default_list'] = 'ban_log';
+	Utils::$context['page_title'] = $txt['ban_log'];
+	Utils::$context['sub_template'] = 'show_list';
+	Utils::$context['default_list'] = 'ban_log';
 }
 
 /**
@@ -2172,11 +2137,9 @@ function BanLog()
  */
 function list_getBanLogEntries($start, $items_per_page, $sort)
 {
-	global $smcFunc;
-
 	$dash = '-';
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT lb.id_ban_log, lb.id_member, lb.ip AS ip, COALESCE(lb.email, {string:dash}) AS email, lb.log_time, COALESCE(mem.real_name, {string:blank_string}) AS real_name
 		FROM {db_prefix}log_banned AS lb
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lb.id_member)
@@ -2191,12 +2154,12 @@ function list_getBanLogEntries($start, $items_per_page, $sort)
 		)
 	);
 	$log_entries = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$row['ip'] = $row['ip'] === null ? $dash : inet_dtop($row['ip']);
 		$log_entries[] = $row;
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	return $log_entries;
 }
@@ -2208,16 +2171,14 @@ function list_getBanLogEntries($start, $items_per_page, $sort)
  */
 function list_getNumBanLogEntries()
 {
-	global $smcFunc;
-
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}log_banned AS lb',
 		array(
 		)
 	);
-	list ($num_entries) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($num_entries) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	return $num_entries;
 }
@@ -2256,14 +2217,12 @@ function range2ip($low, $high)
  */
 function checkExistingTriggerIP($ip_array, $fullip = '')
 {
-	global $smcFunc, $scripturl;
-
 	$values = array(
 		'ip_low' => $ip_array['low'],
 		'ip_high' => $ip_array['high']
 	);
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT bg.id_ban_group, bg.name
 		FROM {db_prefix}ban_groups AS bg
 		INNER JOIN {db_prefix}ban_items AS bi ON
@@ -2272,15 +2231,15 @@ function checkExistingTriggerIP($ip_array, $fullip = '')
 		LIMIT 1',
 		$values
 	);
-	if ($smcFunc['db_num_rows']($request) != 0)
+	if (Db::$db->num_rows($request) != 0)
 	{
-		list ($error_id_ban, $error_ban_name) = $smcFunc['db_fetch_row']($request);
+		list ($error_id_ban, $error_ban_name) = Db::$db->fetch_row($request);
 		fatal_lang_error('ban_trigger_already_exists', false, array(
 			$fullip,
-			'<a href="' . $scripturl . '?action=admin;area=ban;sa=edit;bg=' . $error_id_ban . '">' . $error_ban_name . '</a>',
+			'<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=' . $error_id_ban . '">' . $error_ban_name . '</a>',
 		));
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	return $values;
 }
@@ -2291,14 +2250,12 @@ function checkExistingTriggerIP($ip_array, $fullip = '')
  */
 function updateBanMembers()
 {
-	global $smcFunc;
-
 	$updates = array();
 	$allMembers = array();
 	$newMembers = array();
 
 	// Start by getting all active bans - it's quicker doing this in parts...
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT bi.id_member, bi.email_address
 		FROM {db_prefix}ban_items AS bi
 			INNER JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group)
@@ -2315,7 +2272,7 @@ function updateBanMembers()
 	$memberIDs = array();
 	$memberEmails = array();
 	$memberEmailWild = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		if ($row['id_member'])
 			$memberIDs[$row['id_member']] = $row['id_member'];
@@ -2328,7 +2285,7 @@ function updateBanMembers()
 				$memberEmails[$row['email_address']] = $row['email_address'];
 		}
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Build up the query.
 	$queryPart = array();
@@ -2353,13 +2310,13 @@ function updateBanMembers()
 	// Find all banned members.
 	if (!empty($queryPart))
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT mem.id_member, mem.is_activated
 			FROM {db_prefix}members AS mem
 			WHERE ' . implode(' OR ', $queryPart),
 			$queryValues
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			if (!in_array($row['id_member'], $allMembers))
 			{
@@ -2372,12 +2329,12 @@ function updateBanMembers()
 				}
 			}
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 	}
 
 	// We welcome our new members in the realm of the banned.
 	if (!empty($newMembers))
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}log_online
 			WHERE id_member IN ({array_int:new_banned_members})',
 			array(
@@ -2386,7 +2343,7 @@ function updateBanMembers()
 		);
 
 	// Find members that are wrongfully marked as banned.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT mem.id_member, mem.is_activated - 10 AS new_value
 		FROM {db_prefix}members AS mem
 			LEFT JOIN {db_prefix}ban_items AS bi ON (bi.id_member = mem.id_member OR mem.email_address LIKE bi.email_address)
@@ -2399,7 +2356,7 @@ function updateBanMembers()
 			'ban_flag' => 10,
 		)
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// Don't do this twice!
 		if (!in_array($row['id_member'], $allMembers))
@@ -2408,7 +2365,7 @@ function updateBanMembers()
 			$allMembers[] = $row['id_member'];
 		}
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	if (!empty($updates))
 		foreach ($updates as $newStatus => $members)
@@ -2426,10 +2383,8 @@ function updateBanMembers()
  */
 function getMemberData($id)
 {
-	global $smcFunc;
-
 	$suggestions = array();
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_member, real_name, member_ip, email_address
 		FROM {db_prefix}members
 		WHERE id_member = {int:current_user}
@@ -2438,12 +2393,12 @@ function getMemberData($id)
 			'current_user' => $id,
 		)
 	);
-	if ($smcFunc['db_num_rows']($request) > 0)
+	if (Db::$db->num_rows($request) > 0)
 	{
-		list ($suggestions['member']['id'], $suggestions['member']['name'], $suggestions['main_ip'], $suggestions['email']) = $smcFunc['db_fetch_row']($request);
+		list ($suggestions['member']['id'], $suggestions['member']['name'], $suggestions['main_ip'], $suggestions['email']) = Db::$db->fetch_row($request);
 		$suggestions['main_ip'] = inet_dtop($suggestions['main_ip']);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	return $suggestions;
 }

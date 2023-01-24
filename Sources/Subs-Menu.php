@@ -13,6 +13,9 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
+use SMF\Utils;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -25,7 +28,7 @@ if (!defined('SMF'))
  */
 function createMenu($menuData, $menuOptions = array())
 {
-	global $smcFunc, $context, $settings, $txt, $scripturl, $user_info;
+	global $settings, $txt, $user_info;
 
 	/* Note menuData is array of form:
 
@@ -55,14 +58,14 @@ function createMenu($menuData, $menuOptions = array())
 	*/
 
 	// Every menu gets a unique ID, these are shown in first in, first out order.
-	$context['max_menu_id'] = isset($context['max_menu_id']) ? $context['max_menu_id'] + 1 : 1;
+	Utils::$context['max_menu_id'] = isset(Utils::$context['max_menu_id']) ? Utils::$context['max_menu_id'] + 1 : 1;
 
 	// This will be all the data for this menu - and we'll make a shortcut to it to aid readability here.
-	$context['menu_data_' . $context['max_menu_id']] = array();
-	$menu_context = &$context['menu_data_' . $context['max_menu_id']];
+	Utils::$context['menu_data_' . Utils::$context['max_menu_id']] = array();
+	$menu_context = &Utils::$context['menu_data_' . Utils::$context['max_menu_id']];
 
-	// What is the general action of this menu? (i.e. $scripturl?action=XXXX)
-	$menu_context['current_action'] = isset($menuOptions['action']) ? $menuOptions['action'] : $context['current_action'];
+	// What is the general action of this menu? (i.e. Config::$scripturl?action=XXXX)
+	$menu_context['current_action'] = isset($menuOptions['action']) ? $menuOptions['action'] : Utils::$context['current_action'];
 
 	/* Allow extending *any* menu with a single hook.
 		For the sake of people searching for specific hooks, here are some common examples:
@@ -85,7 +88,7 @@ function createMenu($menuData, $menuOptions = array())
 
 	// Only include the session ID in the URL if it's strictly necessary.
 	if (empty($menuOptions['disable_url_session_check']))
-		$menu_context['extra_parameters'] .= ';' . $context['session_var'] . '=' . $context['session_id'];
+		$menu_context['extra_parameters'] .= ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
 
 	$include_data = array();
 	$menu_context['sections'] = array();
@@ -138,7 +141,7 @@ function createMenu($menuData, $menuOptions = array())
 						// Does this area have its own icon?
 						if (!isset($area['force_menu_into_arms_of_another_menu']) && $user_info['name'] == 'iamanoompaloompa')
 						{
-							$menu_context['sections'][$section_id]['areas'][$area_id] = $smcFunc['json_decode'](base64_decode('eyJsYWJlbCI6Ik9vbXBhIExvb21wYSIsInVybCI6Imh0dHBzOlwvXC9lbi53aWtpcGVkaWEub3JnXC93aWtpXC9Pb21wYV9Mb29tcGFzPyIsImljb24iOiI8aW1nIHNyYz1cImh0dHBzOlwvXC93d3cuc2ltcGxlbWFjaGluZXMub3JnXC9pbWFnZXNcL29vbXBhLmdpZlwiIGFsdD1cIkknbSBhbiBPb21wYSBMb29tcGFcIiBcLz4ifQ=='), true);
+							$menu_context['sections'][$section_id]['areas'][$area_id] = Utils::jsonDecode(base64_decode('eyJsYWJlbCI6Ik9vbXBhIExvb21wYSIsInVybCI6Imh0dHBzOlwvXC9lbi53aWtpcGVkaWEub3JnXC93aWtpXC9Pb21wYV9Mb29tcGFzPyIsImljb24iOiI8aW1nIHNyYz1cImh0dHBzOlwvXC93d3cuc2ltcGxlbWFjaGluZXMub3JnXC9pbWFnZXNcL29vbXBhLmdpZlwiIGFsdD1cIkknbSBhbiBPb21wYSBMb29tcGFcIiBcLz4ifQ=='), true);
 						}
 						elseif (isset($area['icon']))
 						{
@@ -239,8 +242,8 @@ function createMenu($menuData, $menuOptions = array())
 							// Set which one is first, last and selected in the group.
 							if (!empty($menu_context['sections'][$section_id]['areas'][$area_id]['subsections']))
 							{
-								$menu_context['sections'][$section_id]['areas'][$area_id]['subsections'][$context['right_to_left'] ? $last_sa : $first_sa]['is_first'] = true;
-								$menu_context['sections'][$section_id]['areas'][$area_id]['subsections'][$context['right_to_left'] ? $first_sa : $last_sa]['is_last'] = true;
+								$menu_context['sections'][$section_id]['areas'][$area_id]['subsections'][Utils::$context['right_to_left'] ? $last_sa : $first_sa]['is_first'] = true;
+								$menu_context['sections'][$section_id]['areas'][$area_id]['subsections'][Utils::$context['right_to_left'] ? $first_sa : $last_sa]['is_last'] = true;
 
 								if ($menu_context['current_area'] == $area_id && !isset($menu_context['current_subsection']))
 									$menu_context['current_subsection'] = $first_sa;
@@ -291,7 +294,7 @@ function createMenu($menuData, $menuOptions = array())
 	}
 
 	// Should we use a custom base url, or use the default?
-	$menu_context['base_url'] = isset($menuOptions['base_url']) ? $menuOptions['base_url'] : $scripturl . '?action=' . $menu_context['current_action'];
+	$menu_context['base_url'] = isset($menuOptions['base_url']) ? $menuOptions['base_url'] : Config::$scripturl . '?action=' . $menu_context['current_action'];
 
 	// If we didn't find the area we were looking for go to a default one.
 	if (isset($backup_area) && empty($found_section))
@@ -302,8 +305,8 @@ function createMenu($menuData, $menuOptions = array())
 	{
 		$menu_context['sections'][$menu_context['current_section']]['selected'] = true;
 		$menu_context['sections'][$menu_context['current_section']]['areas'][$menu_context['current_area']]['selected'] = true;
-		if (!empty($menu_context['sections'][$menu_context['current_section']]['areas'][$menu_context['current_area']]['subsections'][$context['current_subaction']]))
-			$menu_context['sections'][$menu_context['current_section']]['areas'][$menu_context['current_area']]['subsections'][$context['current_subaction']]['selected'] = true;
+		if (!empty($menu_context['sections'][$menu_context['current_section']]['areas'][$menu_context['current_area']]['subsections'][Utils::$context['current_subaction']]))
+			$menu_context['sections'][$menu_context['current_section']]['areas'][$menu_context['current_area']]['subsections'][Utils::$context['current_subaction']]['selected'] = true;
 
 		foreach ($menu_context['sections'] as $section_id => $section)
 			foreach ($section['areas'] as $area_id => $area)
@@ -320,9 +323,9 @@ function createMenu($menuData, $menuOptions = array())
 	if (empty($menu_context['sections']))
 	{
 		// Never happened!
-		$context['max_menu_id']--;
-		if ($context['max_menu_id'] == 0)
-			unset($context['max_menu_id']);
+		Utils::$context['max_menu_id']--;
+		if (Utils::$context['max_menu_id'] == 0)
+			unset(Utils::$context['max_menu_id']);
 
 		return false;
 	}
@@ -330,7 +333,7 @@ function createMenu($menuData, $menuOptions = array())
 	// Almost there - load the template and add to the template layers.
 	loadTemplate(isset($menuOptions['template_name']) ? $menuOptions['template_name'] : 'GenericMenu');
 	$menu_context['layer_name'] = (isset($menuOptions['layer_name']) ? $menuOptions['layer_name'] : 'generic_menu') . '_dropdown';
-	$context['template_layers'][] = $menu_context['layer_name'];
+	Utils::$context['template_layers'][] = $menu_context['layer_name'];
 
 	// Check we had something - for sanity sake.
 	if (empty($include_data))
@@ -355,17 +358,15 @@ function createMenu($menuData, $menuOptions = array())
  */
 function destroyMenu($menu_id = 'last')
 {
-	global $context;
-
-	$menu_name = $menu_id == 'last' && isset($context['max_menu_id']) && isset($context['menu_data_' . $context['max_menu_id']]) ? 'menu_data_' . $context['max_menu_id'] : 'menu_data_' . $menu_id;
-	if (!isset($context[$menu_name]))
+	$menu_name = $menu_id == 'last' && isset(Utils::$context['max_menu_id']) && isset(Utils::$context['menu_data_' . Utils::$context['max_menu_id']]) ? 'menu_data_' . Utils::$context['max_menu_id'] : 'menu_data_' . $menu_id;
+	if (!isset(Utils::$context[$menu_name]))
 		return false;
 
-	$layer_index = array_search($context[$menu_name]['layer_name'], $context['template_layers']);
+	$layer_index = array_search(Utils::$context[$menu_name]['layer_name'], Utils::$context['template_layers']);
 	if ($layer_index !== false)
-		unset($context['template_layers'][$layer_index]);
+		unset(Utils::$context['template_layers'][$layer_index]);
 
-	unset($context[$menu_name]);
+	unset(Utils::$context[$menu_name]);
 }
 
 ?>

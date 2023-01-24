@@ -13,8 +13,11 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Config;
 use SMF\ProxyServer;
+use SMF\Utils;
 use SMF\Cache\CacheApi;
+use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -24,8 +27,6 @@ if (!defined('SMF'))
  */
 function AutoTask()
 {
-	global $smcFunc;
-
 	// We bail out of index.php too early for these to be called.
 	frameOptionsHeader();
 	corsPolicyHeader();
@@ -45,7 +46,7 @@ function AutoTask()
 		$task_string = '';
 
 		// Select the next task to do.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_task, task, next_time, time_offset, time_regularity, time_unit, callable
 			FROM {db_prefix}scheduled_tasks
 			WHERE disabled = {int:not_disabled}
@@ -57,10 +58,10 @@ function AutoTask()
 				'current_time' => time(),
 			)
 		);
-		if ($smcFunc['db_num_rows']($request) != 0)
+		if (Db::$db->num_rows($request) != 0)
 		{
 			// The two important things really...
-			$row = $smcFunc['db_fetch_assoc']($request);
+			$row = Db::$db->fetch_assoc($request);
 
 			// When should this next be run?
 			$next_time = next_time($row['time_regularity'], $row['time_unit'], $row['time_offset']);
@@ -81,7 +82,7 @@ function AutoTask()
 				$next_time += $duration;
 
 			// Update it now, so no others run this!
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				UPDATE {db_prefix}scheduled_tasks
 				SET next_time = {int:next_time}
 				WHERE id_task = {int:id_task}
@@ -92,7 +93,7 @@ function AutoTask()
 					'current_next_time' => $row['next_time'],
 				)
 			);
-			$affected_rows = $smcFunc['db_affected_rows']();
+			$affected_rows = Db::$db->affected_rows();
 
 			// What kind of task are we handling?
 			if (!empty($row['callable']))
@@ -125,7 +126,7 @@ function AutoTask()
 				if ($completed)
 				{
 					$total_time = round(microtime(true) - TIME_START, 3);
-					$smcFunc['db_insert']('',
+					Db::$db->insert('',
 						'{db_prefix}log_scheduled_tasks',
 						array(
 							'id_task' => 'int', 'time_run' => 'int', 'time_taken' => 'float',
@@ -138,10 +139,10 @@ function AutoTask()
 				}
 			}
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// Get the next timestamp right.
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT next_time
 			FROM {db_prefix}scheduled_tasks
 			WHERE disabled = {int:not_disabled}
@@ -152,13 +153,13 @@ function AutoTask()
 			)
 		);
 		// No new task scheduled yet?
-		if ($smcFunc['db_num_rows']($request) === 0)
+		if (Db::$db->num_rows($request) === 0)
 			$nextEvent = time() + 86400;
 		else
-			list ($nextEvent) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+			list ($nextEvent) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 
-		updateSettings(array('next_task_time' => $nextEvent));
+		Config::updateModSettings(array('next_task_time' => $nextEvent));
 	}
 
 	// Shall we return?
@@ -177,17 +178,15 @@ function AutoTask()
  */
 function scheduled_daily_maintenance()
 {
-	global $smcFunc, $modSettings, $sourcedir, $boarddir, $db_type, $image_proxy_enabled;
-
 	// First clean out the cache.
 	CacheApi::clean();
 
 	// If warning decrement is enabled and we have people who have not had a new warning in 24 hours, lower their warning level.
-	list (, , $modSettings['warning_decrement']) = explode(',', $modSettings['warning_settings']);
-	if ($modSettings['warning_decrement'])
+	list (, , Config::$modSettings['warning_decrement']) = explode(',', Config::$modSettings['warning_settings']);
+	if (Config::$modSettings['warning_decrement'])
 	{
 		// Find every member who has a warning level...
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_member, warning
 			FROM {db_prefix}members
 			WHERE warning > {int:no_warning}',
@@ -196,15 +195,15 @@ function scheduled_daily_maintenance()
 			)
 		);
 		$members = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$members[$row['id_member']] = $row['warning'];
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// Have some members to check?
 		if (!empty($members))
 		{
 			// Find out when they were last warned.
-			$request = $smcFunc['db_query']('', '
+			$request = Db::$db->query('', '
 				SELECT id_recipient, MAX(log_time) AS last_warning
 				FROM {db_prefix}log_comments
 				WHERE id_recipient IN ({array_int:member_list})
@@ -216,21 +215,21 @@ function scheduled_daily_maintenance()
 				)
 			);
 			$member_changes = array();
-			while ($row = $smcFunc['db_fetch_assoc']($request))
+			while ($row = Db::$db->fetch_assoc($request))
 			{
 				// More than 24 hours ago?
 				if ($row['last_warning'] <= time() - 86400)
 					$member_changes[] = array(
 						'id' => $row['id_recipient'],
-						'warning' => $members[$row['id_recipient']] >= $modSettings['warning_decrement'] ? $members[$row['id_recipient']] - $modSettings['warning_decrement'] : 0,
+						'warning' => $members[$row['id_recipient']] >= Config::$modSettings['warning_decrement'] ? $members[$row['id_recipient']] - Config::$modSettings['warning_decrement'] : 0,
 					);
 			}
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 
 			// Have some members to change?
 			if (!empty($member_changes))
 				foreach ($member_changes as $change)
-					$smcFunc['db_query']('', '
+					Db::$db->query('', '
 						UPDATE {db_prefix}members
 						SET warning = {int:warning}
 						WHERE id_member = {int:id_member}',
@@ -243,33 +242,33 @@ function scheduled_daily_maintenance()
 	}
 
 	// Do any spider stuff.
-	if (!empty($modSettings['spider_mode']) && $modSettings['spider_mode'] > 1)
+	if (!empty(Config::$modSettings['spider_mode']) && Config::$modSettings['spider_mode'] > 1)
 	{
-		require_once($sourcedir . '/ManageSearchEngines.php');
+		require_once(Config::$sourcedir . '/ManageSearchEngines.php');
 		consolidateSpiderStats();
 	}
 
 	// Clean up some old login history information.
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}member_logins
 		WHERE time < {int:oldLogins}',
 		array(
-			'oldLogins' => time() - (!empty($modSettings['loginHistoryDays']) ? 60 * 60 * 24 * $modSettings['loginHistoryDays'] : 2592000),
+			'oldLogins' => time() - (!empty(Config::$modSettings['loginHistoryDays']) ? 60 * 60 * 24 * Config::$modSettings['loginHistoryDays'] : 2592000),
 		)
 	);
 
 	// Run Imageproxy housekeeping
-	if (!empty($image_proxy_enabled))
+	if (!empty(Config::$image_proxy_enabled))
 	{
 		$proxy = new ProxyServer();
 		$proxy->housekeeping();
 	}
 
 	// Delete old profile exports
-	if (!empty($modSettings['export_expiry']) && file_exists($modSettings['export_dir']) && is_dir($modSettings['export_dir']))
+	if (!empty(Config::$modSettings['export_expiry']) && file_exists(Config::$modSettings['export_dir']) && is_dir(Config::$modSettings['export_dir']))
 	{
-		$expiry_date = round(TIME_START - $modSettings['export_expiry'] * 86400);
-		$export_files = glob(rtrim($modSettings['export_dir'], '/\\') . DIRECTORY_SEPARATOR . '*');
+		$expiry_date = round(TIME_START - Config::$modSettings['export_expiry'] * 86400);
+		$export_files = glob(rtrim(Config::$modSettings['export_dir'], '/\\') . DIRECTORY_SEPARATOR . '*');
 
 		foreach ($export_files as $export_file)
 		{
@@ -279,14 +278,14 @@ function scheduled_daily_maintenance()
 	}
 
 	// Delete old alerts.
-	if (!empty($modSettings['alerts_auto_purge']))
+	if (!empty(Config::$modSettings['alerts_auto_purge']))
 	{
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}user_alerts
 			WHERE is_read > 0
 				AND is_read < {int:purge_before}',
 			array(
-				'purge_before' => time() - 86400 * $modSettings['alerts_auto_purge'],
+				'purge_before' => time() - 86400 * Config::$modSettings['alerts_auto_purge'],
 			)
 		);
 	}
@@ -303,16 +302,16 @@ function scheduled_daily_maintenance()
  */
 function scheduled_daily_digest()
 {
-	global $is_weekly, $txt, $mbname, $scripturl, $sourcedir, $smcFunc, $context, $modSettings;
+	global $is_weekly, $txt;
 
 	// We'll want this...
-	require_once($sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Subs-Post.php');
 	loadEssentialThemeData();
 
 	$is_weekly = !empty($is_weekly) ? 1 : 0;
 
 	// Right - get all the notification data FIRST.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT ln.id_topic, COALESCE(t.id_board, ln.id_board) AS id_board, mem.email_address, mem.member_name,
 			mem.lngfile, mem.id_member
 		FROM {db_prefix}log_notify AS ln
@@ -327,7 +326,7 @@ function scheduled_daily_digest()
 	$members = array();
 	$langs = array();
 	$notify = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		if (!isset($members[$row['id_member']]))
 		{
@@ -347,13 +346,13 @@ function scheduled_daily_digest()
 		else
 			$notify['boards'][$row['id_board']][] = $row['id_member'];
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	if (empty($boards))
 		return true;
 
 	// Just get the board names.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_board, name
 		FROM {db_prefix}boards
 		WHERE id_board IN ({array_int:board_list})',
@@ -362,15 +361,15 @@ function scheduled_daily_digest()
 		)
 	);
 	$boards = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$boards[$row['id_board']] = $row['name'];
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	if (empty($boards))
 		return true;
 
 	// Get the actual topics...
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT ld.note_type, t.id_topic, t.id_board, t.id_member_started, m.id_msg, m.subject,
 			b.name AS board_name
 		FROM {db_prefix}log_digest AS ld
@@ -385,7 +384,7 @@ function scheduled_daily_digest()
 		)
 	);
 	$types = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		if (!isset($types[$row['note_type']][$row['id_board']]))
 			$types[$row['note_type']][$row['id_board']] = array(
@@ -429,7 +428,7 @@ function scheduled_daily_digest()
 		if (!empty($notify['boards'][$row['id_board']]))
 			$types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']]['members'] = array_merge($types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']]['members'], $notify['boards'][$row['id_board']]);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	if (empty($types))
 		return true;
@@ -444,7 +443,7 @@ function scheduled_daily_digest()
 		$langtxt[$lang] = array(
 			'subject' => $txt['digest_subject_' . ($is_weekly ? 'weekly' : 'daily')],
 			'char_set' => $txt['lang_character_set'],
-			'intro' => sprintf($txt['digest_intro_' . ($is_weekly ? 'weekly' : 'daily')], $mbname),
+			'intro' => sprintf($txt['digest_intro_' . ($is_weekly ? 'weekly' : 'daily')], Config::$mbname),
 			'new_topics' => $txt['digest_new_topics'],
 			'topic_lines' => $txt['digest_new_topics_line'],
 			'new_replies' => $txt['digest_new_replies'],
@@ -458,14 +457,14 @@ function scheduled_daily_digest()
 			'move' => $txt['digest_mod_act_move'],
 			'merge' => $txt['digest_mod_act_merge'],
 			'split' => $txt['digest_mod_act_split'],
-			'bye' => sprintf($txt['regards_team'], $context['forum_name']),
+			'bye' => sprintf($txt['regards_team'], Utils::$context['forum_name']),
 		);
 
 		call_integration_hook('integrate_daily_digest_lang', array(&$langtxt, $lang));
 	}
 
 	// The preferred way...
-	require_once($sourcedir . '/Subs-Notify.php');
+	require_once(Config::$sourcedir . '/Subs-Notify.php');
 	$prefs = getNotifyPrefs(array_keys($members), array('msg_notify_type', 'msg_notify_pref'), true);
 
 	// Right - send out the silly things - this will take quite some space!
@@ -480,12 +479,12 @@ function scheduled_daily_digest()
 			continue;
 
 		// Right character set!
-		$context['character_set'] = empty($modSettings['global_character_set']) ? $langtxt[$lang]['char_set'] : $modSettings['global_character_set'];
+		Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? $langtxt[$lang]['char_set'] : Config::$modSettings['global_character_set'];
 
 		// Do the start stuff!
 		$email = array(
-			'subject' => $mbname . ' - ' . $langtxt[$lang]['subject'],
-			'body' => $member['name'] . ',' . "\n\n" . $langtxt[$lang]['intro'] . "\n" . $scripturl . '?action=profile;area=notification;u=' . $member['id'] . "\n",
+			'subject' => Config::$mbname . ' - ' . $langtxt[$lang]['subject'],
+			'body' => $member['name'] . ',' . "\n\n" . $langtxt[$lang]['intro'] . "\n" . Config::$scripturl . '?action=profile;area=notification;u=' . $member['id'] . "\n",
 			'email' => $member['email'],
 		);
 
@@ -557,7 +556,7 @@ function scheduled_daily_digest()
 			$email['body'] .= "\n";
 
 		// Then just say our goodbyes!
-		$email['body'] .= "\n\n" . sprintf($txt['regards_team'], $context['forum_name']);
+		$email['body'] .= "\n\n" . sprintf($txt['regards_team'], Utils::$context['forum_name']);
 
 		// Send it - low priority!
 		sendmail($email['email'], $email['subject'], $email['body'], null, 'digest', false, 4);
@@ -568,14 +567,14 @@ function scheduled_daily_digest()
 	// Clean up...
 	if ($is_weekly)
 	{
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}log_digest
 			WHERE daily != {int:not_daily}',
 			array(
 				'not_daily' => 0,
 			)
 		);
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}log_digest
 			SET daily = {int:daily_value}
 			WHERE daily = {int:not_daily}',
@@ -588,14 +587,14 @@ function scheduled_daily_digest()
 	else
 	{
 		// Clear any only weekly ones, and stop us from sending daily again.
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}log_digest
 			WHERE daily = {int:daily_value}',
 			array(
 				'daily_value' => 2,
 			)
 		);
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}log_digest
 			SET daily = {int:both_value}
 			WHERE daily = {int:no_value}',
@@ -609,7 +608,7 @@ function scheduled_daily_digest()
 	// Just in case the member changes their settings mark this as sent.
 	if (!empty($members_sent))
 	{
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}log_notify
 			SET sent = {int:is_sent}
 			WHERE id_member IN ({array_int:member_list})',
@@ -646,52 +645,52 @@ function scheduled_weekly_digest()
  */
 function ReduceMailQueue($number = false, $override_limit = false, $force_send = false)
 {
-	global $modSettings, $smcFunc, $sourcedir, $txt, $language;
+	global $txt;
 
 	// Are we intending another script to be sending out the queue?
-	if (!empty($modSettings['mail_queue_use_cron']) && empty($force_send))
+	if (!empty(Config::$modSettings['mail_queue_use_cron']) && empty($force_send))
 		return false;
 
 	// Just in case we run into a problem.
 	if (!isset($txt))
 	{
 		loadEssentialThemeData();
-		loadLanguage('Errors', $language, false);
-		loadLanguage('index', $language, false);
+		loadLanguage('Errors', Config::$language, false);
+		loadLanguage('index', Config::$language, false);
 	}
 
 	// By default send 5 at once.
 	if (!$number)
-		$number = empty($modSettings['mail_quantity']) ? 5 : $modSettings['mail_quantity'];
+		$number = empty(Config::$modSettings['mail_quantity']) ? 5 : Config::$modSettings['mail_quantity'];
 
 	// If we came with a timestamp, and that doesn't match the next event, then someone else has beaten us.
-	if (isset($_GET['ts']) && $_GET['ts'] != $modSettings['mail_next_send'] && empty($force_send))
+	if (isset($_GET['ts']) && $_GET['ts'] != Config::$modSettings['mail_next_send'] && empty($force_send))
 		return false;
 
 	// By default move the next sending on by 10 seconds, and require an affected row.
 	if (!$override_limit)
 	{
-		$delay = !empty($modSettings['mail_queue_delay']) ? $modSettings['mail_queue_delay'] : (!empty($modSettings['mail_limit']) && $modSettings['mail_limit'] < 5 ? 10 : 5);
+		$delay = !empty(Config::$modSettings['mail_queue_delay']) ? Config::$modSettings['mail_queue_delay'] : (!empty(Config::$modSettings['mail_limit']) && Config::$modSettings['mail_limit'] < 5 ? 10 : 5);
 
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}settings
 			SET value = {string:next_mail_send}
 			WHERE variable = {literal:mail_next_send}
 				AND value = {string:last_send}',
 			array(
 				'next_mail_send' => time() + $delay,
-				'last_send' => $modSettings['mail_next_send'],
+				'last_send' => Config::$modSettings['mail_next_send'],
 			)
 		);
-		if ($smcFunc['db_affected_rows']() == 0)
+		if (Db::$db->affected_rows() == 0)
 			return false;
-		$modSettings['mail_next_send'] = time() + $delay;
+		Config::$modSettings['mail_next_send'] = time() + $delay;
 	}
 
 	// If we're not overriding how many are we allow to send?
-	if (!$override_limit && !empty($modSettings['mail_limit']))
+	if (!$override_limit && !empty(Config::$modSettings['mail_limit']))
 	{
-		list ($mt, $mn) = @explode('|', $modSettings['mail_recent']);
+		list ($mt, $mn) = @explode('|', Config::$modSettings['mail_recent']);
 
 		// Nothing worth noting...
 		if (empty($mn) || $mt < time() - 60)
@@ -700,7 +699,7 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 			$mn = $number;
 		}
 		// Otherwise we have a few more we can spend?
-		elseif ($mn < $modSettings['mail_limit'])
+		elseif ($mn < Config::$modSettings['mail_limit'])
 		{
 			$mn += $number;
 		}
@@ -709,11 +708,11 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 			return false;
 
 		// Reflect that we're about to send some, do it now to be safe.
-		updateSettings(array('mail_recent' => $mt . '|' . $mn));
+		Config::updateModSettings(array('mail_recent' => $mt . '|' . $mn));
 	}
 
 	// Now we know how many we're sending, let's send them.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_mail, recipient, body, subject, headers, send_html, time_sent, private, priority
 		FROM {db_prefix}mail_queue
 		ORDER BY priority ASC, id_mail ASC
@@ -724,7 +723,7 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 	);
 	$ids = array();
 	$emails = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// We want to delete these from the database ASAP, so just get the data and go.
 		$ids[] = $row['id_mail'];
@@ -739,11 +738,11 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 			'priority' => $row['priority'],
 		);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Delete, delete, delete!!!
 	if (!empty($ids))
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}mail_queue
 			WHERE id_mail IN ({array_int:mail_list})',
 			array(
@@ -755,14 +754,14 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 	if (count($ids) < $number)
 	{
 		// Only update the setting if no-one else has beaten us to it.
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}settings
 			SET value = {string:no_send}
 			WHERE variable = {literal:mail_next_send}
 				AND value = {string:last_mail_send}',
 			array(
 				'no_send' => '0',
-				'last_mail_send' => $modSettings['mail_next_send'],
+				'last_mail_send' => Config::$modSettings['mail_next_send'],
 			)
 		);
 	}
@@ -770,8 +769,8 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 	if (empty($ids))
 		return false;
 
-	if (!empty($modSettings['mail_type']) && $modSettings['smtp_host'] != '')
-		require_once($sourcedir . '/Subs-Post.php');
+	if (!empty(Config::$modSettings['mail_type']) && Config::$modSettings['smtp_host'] != '')
+		require_once(Config::$sourcedir . '/Subs-Post.php');
 
 	// Send each email, yea!
 	$failed_emails = array();
@@ -787,10 +786,10 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 			continue;
 		}
 
-		if (empty($modSettings['mail_type']) || $modSettings['smtp_host'] == '')
+		if (empty(Config::$modSettings['mail_type']) || Config::$modSettings['smtp_host'] == '')
 		{
 			$email['subject'] = strtr($email['subject'], array("\r" => '', "\n" => ''));
-			if (!empty($modSettings['mail_strip_carriage']))
+			if (!empty(Config::$modSettings['mail_strip_carriage']))
 			{
 				$email['body'] = strtr($email['body'], array("\r" => ''));
 				$email['headers'] = strtr($email['headers'], array("\r" => ''));
@@ -826,28 +825,28 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 	if (!empty($failed_emails))
 	{
 		// Update the failed attempts check.
-		$smcFunc['db_insert']('replace',
+		Db::$db->insert('replace',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
-			array('mail_failed_attempts', empty($modSettings['mail_failed_attempts']) ? 1 : ++$modSettings['mail_failed_attempts']),
+			array('mail_failed_attempts', empty(Config::$modSettings['mail_failed_attempts']) ? 1 : ++Config::$modSettings['mail_failed_attempts']),
 			array('variable')
 		);
 
 		// If we have failed to many times, tell mail to wait a bit and try again.
-		if ($modSettings['mail_failed_attempts'] > 5)
-			$smcFunc['db_query']('', '
+		if (Config::$modSettings['mail_failed_attempts'] > 5)
+			Db::$db->query('', '
 				UPDATE {db_prefix}settings
 				SET value = {string:next_mail_send}
 				WHERE variable = {literal:mail_next_send}
 					AND value = {string:last_send}',
 				array(
 					'next_mail_send' => time() + 60,
-					'last_send' => $modSettings['mail_next_send'],
+					'last_send' => Config::$modSettings['mail_next_send'],
 				)
 			);
 
 		// Add our email back to the queue, manually.
-		$smcFunc['db_insert']('insert',
+		Db::$db->insert('insert',
 			'{db_prefix}mail_queue',
 			array('recipient' => 'string', 'body' => 'string', 'subject' => 'string', 'headers' => 'string', 'send_html' => 'string', 'time_sent' => 'string', 'private' => 'int', 'priority' => 'int'),
 			$failed_emails,
@@ -857,8 +856,8 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 		return false;
 	}
 	// We where unable to send the email, clear our failed attempts.
-	elseif (!empty($modSettings['mail_failed_attempts']))
-		$smcFunc['db_query']('', '
+	elseif (!empty(Config::$modSettings['mail_failed_attempts']))
+		Db::$db->query('', '
 			UPDATE {db_prefix}settings
 			SET value = {string:zero}
 			WHERE variable = {string:mail_failed_attempts}',
@@ -880,8 +879,6 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
  */
 function CalculateNextTrigger($tasks = array(), $forceUpdate = false)
 {
-	global $modSettings, $smcFunc;
-
 	$task_query = '';
 	if (!is_array($tasks))
 		$tasks = array($tasks);
@@ -894,10 +891,10 @@ function CalculateNextTrigger($tasks = array(), $forceUpdate = false)
 		else
 			$task_query = ' AND task IN ({array_string:tasks})';
 	}
-	$nextTaskTime = empty($tasks) ? time() + 86400 : $modSettings['next_task_time'];
+	$nextTaskTime = empty($tasks) ? time() + 86400 : Config::$modSettings['next_task_time'];
 
 	// Get the critical info for the tasks.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_task, next_time, time_offset, time_regularity, time_unit
 		FROM {db_prefix}scheduled_tasks
 		WHERE disabled = {int:no_disabled}
@@ -908,7 +905,7 @@ function CalculateNextTrigger($tasks = array(), $forceUpdate = false)
 		)
 	);
 	$tasks = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$next_time = next_time($row['time_regularity'], $row['time_unit'], $row['time_offset']);
 
@@ -922,11 +919,11 @@ function CalculateNextTrigger($tasks = array(), $forceUpdate = false)
 		if ($next_time < $nextTaskTime)
 			$nextTaskTime = $next_time;
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Now make the changes!
 	foreach ($tasks as $id => $time)
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}scheduled_tasks
 			SET next_time = {int:next_time}
 			WHERE id_task = {int:id_task}',
@@ -937,8 +934,8 @@ function CalculateNextTrigger($tasks = array(), $forceUpdate = false)
 		);
 
 	// If the next task is now different update.
-	if ($modSettings['next_task_time'] != $nextTaskTime)
-		updateSettings(array('next_task_time' => $nextTaskTime));
+	if (Config::$modSettings['next_task_time'] != $nextTaskTime)
+		Config::updateModSettings(array('next_task_time' => $nextTaskTime));
 }
 
 /**
@@ -1014,20 +1011,20 @@ function next_time($regularity, $unit, $offset)
  */
 function loadEssentialThemeData()
 {
-	global $settings, $modSettings, $smcFunc, $mbname, $context, $sourcedir, $txt;
+	global $settings, $txt;
 
 	// Get all the default theme variables.
-	$result = $smcFunc['db_query']('', '
+	$result = Db::$db->query('', '
 		SELECT id_theme, variable, value
 		FROM {db_prefix}themes
 		WHERE id_member = {int:no_member}
 			AND id_theme IN (1, {int:theme_guests})',
 		array(
 			'no_member' => 0,
-			'theme_guests' => !empty($modSettings['theme_guests']) ? $modSettings['theme_guests'] : 1,
+			'theme_guests' => !empty(Config::$modSettings['theme_guests']) ? Config::$modSettings['theme_guests'] : 1,
 		)
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($result))
+	while ($row = Db::$db->fetch_assoc($result))
 	{
 		$settings[$row['variable']] = $row['value'];
 
@@ -1035,7 +1032,7 @@ function loadEssentialThemeData()
 		if (in_array($row['variable'], array('theme_dir', 'theme_url', 'images_url')) && $row['id_theme'] == '1')
 			$settings['default_' . $row['variable']] = $row['value'];
 	}
-	$smcFunc['db_free_result']($result);
+	Db::$db->free_result($result);
 
 	// Check we have some directories setup.
 	if (empty($settings['template_dirs']))
@@ -1052,25 +1049,25 @@ function loadEssentialThemeData()
 	}
 
 	// Assume we want this.
-	$context['forum_name'] = $mbname;
-	$context['forum_name_html_safe'] = $smcFunc['htmlspecialchars']($context['forum_name']);
+	Utils::$context['forum_name'] = Config::$mbname;
+	Utils::$context['forum_name_html_safe'] = Utils::htmlspecialchars(Utils::$context['forum_name']);
 
 	// Check loadLanguage actually exists!
 	if (!function_exists('loadLanguage'))
 	{
-		require_once($sourcedir . '/Load.php');
-		require_once($sourcedir . '/Subs.php');
+		require_once(Config::$sourcedir . '/Load.php');
+		require_once(Config::$sourcedir . '/Subs.php');
 	}
 
 	loadLanguage('index+Modifications');
 
 	// Just in case it wasn't already set elsewhere.
-	$context['character_set'] = empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set'];
-	$context['utf8'] = $context['character_set'] === 'UTF-8';
-	$context['right_to_left'] = !empty($txt['lang_rtl']);
+	Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? $txt['lang_character_set'] : Config::$modSettings['global_character_set'];
+	Utils::$context['utf8'] = Utils::$context['character_set'] === 'UTF-8';
+	Utils::$context['right_to_left'] = !empty($txt['lang_rtl']);
 
 	// Tell fatal_lang_error() to not reload the theme.
-	$context['theme_loaded'] = true;
+	Utils::$context['theme_loaded'] = true;
 }
 
 /**
@@ -1078,10 +1075,10 @@ function loadEssentialThemeData()
  */
 function scheduled_fetchSMfiles()
 {
-	global $sourcedir, $txt, $language, $modSettings, $smcFunc, $context;
+	global $txt;
 
 	// What files do we want to get
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_file, filename, path, parameters
 		FROM {db_prefix}admin_info_files',
 		array(
@@ -1090,20 +1087,20 @@ function scheduled_fetchSMfiles()
 
 	$js_files = array();
 
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$js_files[$row['id_file']] = array(
 			'filename' => $row['filename'],
 			'path' => $row['path'],
-			'parameters' => sprintf($row['parameters'], $language, urlencode($modSettings['time_format']), urlencode(SMF_FULL_VERSION)),
+			'parameters' => sprintf($row['parameters'], Config::$language, urlencode(Config::$modSettings['time_format']), urlencode(SMF_FULL_VERSION)),
 		);
 	}
 
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Just in case we run into a problem.
 	loadEssentialThemeData();
-	loadLanguage('Errors', $language, false);
+	loadLanguage('Errors', Config::$language, false);
 
 	foreach ($js_files as $ID_FILE => $file)
 	{
@@ -1117,13 +1114,13 @@ function scheduled_fetchSMfiles()
 		// If we got an error - give up - the site might be down. And if we should happen to be coming from elsewhere, let's also make a note of it.
 		if ($file_data === false)
 		{
-			$context['scheduled_errors']['fetchSMfiles'][] = sprintf($txt['st_cannot_retrieve_file'], $url);
+			Utils::$context['scheduled_errors']['fetchSMfiles'][] = sprintf($txt['st_cannot_retrieve_file'], $url);
 			log_error(sprintf($txt['st_cannot_retrieve_file'], $url));
 			return false;
 		}
 
 		// Save the file to the database.
-		$smcFunc['db_query']('substring', '
+		Db::$db->query('substring', '
 			UPDATE {db_prefix}admin_info_files
 			SET data = SUBSTRING({string:file_data}, 1, 65534)
 			WHERE id_file = {int:id_file}',
@@ -1141,9 +1138,7 @@ function scheduled_fetchSMfiles()
  */
 function scheduled_birthdayemails()
 {
-	global $smcFunc;
-
-	$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
+	Db::$db->insert('insert', '{db_prefix}background_tasks',
 		array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
 		array('$sourcedir/tasks/Birthday_Notify.php', 'SMF\Tasks\Birthday_Notify', '', 0),
 		array()
@@ -1157,8 +1152,6 @@ function scheduled_birthdayemails()
  */
 function scheduled_weekly_maintenance()
 {
-	global $modSettings, $smcFunc;
-
 	// Delete some settings that needn't be set if they are otherwise empty.
 	$emptySettings = array(
 		'warning_mute', 'warning_moderate', 'warning_watch', 'warning_show', 'disableCustomPerPage', 'spider_mode', 'spider_group',
@@ -1166,7 +1159,7 @@ function scheduled_weekly_maintenance()
 		'search_enable_captcha', 'search_floodcontrol_time', 'show_spider_online',
 	);
 
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}settings
 		WHERE variable IN ({array_string:setting_list})
 			AND (value = {string:zero_value} OR value = {string:blank_value})',
@@ -1182,7 +1175,7 @@ function scheduled_weekly_maintenance()
 		'attachment_full_notified',
 	);
 
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}settings
 		WHERE variable IN ({array_string:setting_list})',
 		array(
@@ -1191,17 +1184,17 @@ function scheduled_weekly_maintenance()
 	);
 
 	// Ok should we prune the logs?
-	if (!empty($modSettings['pruningOptions']))
+	if (!empty(Config::$modSettings['pruningOptions']))
 	{
-		if (!empty($modSettings['pruningOptions']) && strpos($modSettings['pruningOptions'], ',') !== false)
-			list ($modSettings['pruneErrorLog'], $modSettings['pruneModLog'], $modSettings['pruneBanLog'], $modSettings['pruneReportLog'], $modSettings['pruneScheduledTaskLog'], $modSettings['pruneSpiderHitLog']) = explode(',', $modSettings['pruningOptions']);
+		if (!empty(Config::$modSettings['pruningOptions']) && strpos(Config::$modSettings['pruningOptions'], ',') !== false)
+			list (Config::$modSettings['pruneErrorLog'], Config::$modSettings['pruneModLog'], Config::$modSettings['pruneBanLog'], Config::$modSettings['pruneReportLog'], Config::$modSettings['pruneScheduledTaskLog'], Config::$modSettings['pruneSpiderHitLog']) = explode(',', Config::$modSettings['pruningOptions']);
 
-		if (!empty($modSettings['pruneErrorLog']))
+		if (!empty(Config::$modSettings['pruneErrorLog']))
 		{
 			// Figure out when our cutoff time is.  1 day = 86400 seconds.
-			$t = time() - $modSettings['pruneErrorLog'] * 86400;
+			$t = time() - Config::$modSettings['pruneErrorLog'] * 86400;
 
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				DELETE FROM {db_prefix}log_errors
 				WHERE log_time < {int:log_time}',
 				array(
@@ -1210,12 +1203,12 @@ function scheduled_weekly_maintenance()
 			);
 		}
 
-		if (!empty($modSettings['pruneModLog']))
+		if (!empty(Config::$modSettings['pruneModLog']))
 		{
 			// Figure out when our cutoff time is.  1 day = 86400 seconds.
-			$t = time() - $modSettings['pruneModLog'] * 86400;
+			$t = time() - Config::$modSettings['pruneModLog'] * 86400;
 
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				DELETE FROM {db_prefix}log_actions
 				WHERE log_time < {int:log_time}
 					AND id_log = {int:moderation_log}',
@@ -1226,12 +1219,12 @@ function scheduled_weekly_maintenance()
 			);
 		}
 
-		if (!empty($modSettings['pruneBanLog']))
+		if (!empty(Config::$modSettings['pruneBanLog']))
 		{
 			// Figure out when our cutoff time is.  1 day = 86400 seconds.
-			$t = time() - $modSettings['pruneBanLog'] * 86400;
+			$t = time() - Config::$modSettings['pruneBanLog'] * 86400;
 
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				DELETE FROM {db_prefix}log_banned
 				WHERE log_time < {int:log_time}',
 				array(
@@ -1240,14 +1233,14 @@ function scheduled_weekly_maintenance()
 			);
 		}
 
-		if (!empty($modSettings['pruneReportLog']))
+		if (!empty(Config::$modSettings['pruneReportLog']))
 		{
 			// Figure out when our cutoff time is.  1 day = 86400 seconds.
-			$t = time() - $modSettings['pruneReportLog'] * 86400;
+			$t = time() - Config::$modSettings['pruneReportLog'] * 86400;
 
 			// This one is more complex then the other logs.  First we need to figure out which reports are too old.
 			$reports = array();
-			$result = $smcFunc['db_query']('', '
+			$result = Db::$db->query('', '
 				SELECT id_report
 				FROM {db_prefix}log_reported
 				WHERE time_started < {int:time_started}
@@ -1260,15 +1253,15 @@ function scheduled_weekly_maintenance()
 				)
 			);
 
-			while ($row = $smcFunc['db_fetch_row']($result))
+			while ($row = Db::$db->fetch_row($result))
 				$reports[] = $row[0];
 
-			$smcFunc['db_free_result']($result);
+			Db::$db->free_result($result);
 
 			if (!empty($reports))
 			{
 				// Now delete the reports...
-				$smcFunc['db_query']('', '
+				Db::$db->query('', '
 					DELETE FROM {db_prefix}log_reported
 					WHERE id_report IN ({array_int:report_list})',
 					array(
@@ -1276,7 +1269,7 @@ function scheduled_weekly_maintenance()
 					)
 				);
 				// And delete the comments for those reports...
-				$smcFunc['db_query']('', '
+				Db::$db->query('', '
 					DELETE FROM {db_prefix}log_reported_comments
 					WHERE id_report IN ({array_int:report_list})',
 					array(
@@ -1286,12 +1279,12 @@ function scheduled_weekly_maintenance()
 			}
 		}
 
-		if (!empty($modSettings['pruneScheduledTaskLog']))
+		if (!empty(Config::$modSettings['pruneScheduledTaskLog']))
 		{
 			// Figure out when our cutoff time is.  1 day = 86400 seconds.
-			$t = time() - $modSettings['pruneScheduledTaskLog'] * 86400;
+			$t = time() - Config::$modSettings['pruneScheduledTaskLog'] * 86400;
 
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				DELETE FROM {db_prefix}log_scheduled_tasks
 				WHERE time_run < {int:time_run}',
 				array(
@@ -1300,12 +1293,12 @@ function scheduled_weekly_maintenance()
 			);
 		}
 
-		if (!empty($modSettings['pruneSpiderHitLog']))
+		if (!empty(Config::$modSettings['pruneSpiderHitLog']))
 		{
 			// Figure out when our cutoff time is.  1 day = 86400 seconds.
-			$t = time() - $modSettings['pruneSpiderHitLog'] * 86400;
+			$t = time() - Config::$modSettings['pruneSpiderHitLog'] * 86400;
 
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				DELETE FROM {db_prefix}log_spider_hits
 				WHERE log_time < {int:log_time}',
 				array(
@@ -1316,7 +1309,7 @@ function scheduled_weekly_maintenance()
 	}
 
 	// Get rid of any paid subscriptions that were never actioned.
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}log_subscribed
 		WHERE end_time = {int:no_end_time}
 			AND status = {int:not_active}
@@ -1331,7 +1324,7 @@ function scheduled_weekly_maintenance()
 	);
 
 	// Some OS's don't seem to clean out their sessions.
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}sessions
 		WHERE last_update < {int:last_update}',
 		array(
@@ -1340,13 +1333,13 @@ function scheduled_weekly_maintenance()
 	);
 
 	// Update the regex of top level domains with the IANA's latest official list
-	$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
+	Db::$db->insert('insert', '{db_prefix}background_tasks',
 		array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
 		array('$sourcedir/tasks/UpdateTldRegex.php', 'SMF\\Tasks\\UpdateTldRegex', '', 0), array()
 	);
 
 	// Ensure Unicode data files are up to date
-	$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
+	Db::$db->insert('insert', '{db_prefix}background_tasks',
 		array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
 		array('$sourcedir/tasks/UpdateUnicode.php', 'SMF\\Tasks\\UpdateUnicode', '', 0), array()
 	);
@@ -1369,10 +1362,8 @@ function scheduled_weekly_maintenance()
  */
 function scheduled_paid_subscriptions()
 {
-	global $sourcedir, $scripturl, $smcFunc, $modSettings, $language;
-
 	// Start off by checking for removed subscriptions.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_subscribe, id_member
 		FROM {db_prefix}log_subscribed
 		WHERE status = {int:is_active}
@@ -1382,15 +1373,15 @@ function scheduled_paid_subscriptions()
 			'time_now' => time(),
 		)
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
-		require_once($sourcedir . '/ManagePaid.php');
+		require_once(Config::$sourcedir . '/ManagePaid.php');
 		removeSubscription($row['id_subscribe'], $row['id_member']);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Get all those about to expire that have not had a reminder sent.
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT ls.id_sublog, m.id_member, m.member_name, m.email_address, m.lngfile, s.name, ls.end_time
 		FROM {db_prefix}log_subscribed AS ls
 			JOIN {db_prefix}subscriptions AS s ON (s.id_subscribe = ls.id_subscribe)
@@ -1408,12 +1399,12 @@ function scheduled_paid_subscriptions()
 	);
 	$subs_reminded = array();
 	$members = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// If this is the first one load the important bits.
 		if (empty($subs_reminded))
 		{
-			require_once($sourcedir . '/Subs-Post.php');
+			require_once(Config::$sourcedir . '/Subs-Post.php');
 			// Need the below for loadLanguage to work!
 			loadEssentialThemeData();
 		}
@@ -1421,22 +1412,22 @@ function scheduled_paid_subscriptions()
 		$subs_reminded[] = $row['id_sublog'];
 		$members[$row['id_member']] = $row;
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Load alert preferences
-	require_once($sourcedir . '/Subs-Notify.php');
+	require_once(Config::$sourcedir . '/Subs-Notify.php');
 	$notifyPrefs = getNotifyPrefs(array_keys($members), 'paidsubs_expiring', true);
 	$alert_rows = array();
 	foreach ($members as $row)
 	{
 		$replacements = array(
-			'PROFILE_LINK' => $scripturl . '?action=profile;area=subscriptions;u=' . $row['id_member'],
+			'PROFILE_LINK' => Config::$scripturl . '?action=profile;area=subscriptions;u=' . $row['id_member'],
 			'REALNAME' => $row['member_name'],
 			'SUBSCRIPTION' => $row['name'],
 			'END_DATE' => strip_tags(timeformat($row['end_time'])),
 		);
 
-		$emaildata = loadEmailTemplate('paid_subscription_reminder', $replacements, empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile']);
+		$emaildata = loadEmailTemplate('paid_subscription_reminder', $replacements, empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $row['lngfile']);
 
 		// Send the actual email.
 		if ($notifyPrefs[$row['id_member']] & 0x02)
@@ -1453,7 +1444,7 @@ function scheduled_paid_subscriptions()
 				'content_id' => $row['id_sublog'],
 				'content_action' => 'expiring',
 				'is_read' => 0,
-				'extra' => $smcFunc['json_encode'](array(
+				'extra' => Utils::jsonEncode(array(
 					'subscription_name' => $row['name'],
 					'end_time' => $row['end_time'],
 				)),
@@ -1464,7 +1455,7 @@ function scheduled_paid_subscriptions()
 
 	// Insert the alerts if any
 	if (!empty($alert_rows))
-		$smcFunc['db_insert']('',
+		Db::$db->insert('',
 			'{db_prefix}user_alerts',
 			array('alert_time' => 'int', 'id_member' => 'int', 'id_member_started' => 'int', 'member_name' => 'string',
 				'content_type' => 'string', 'content_id' => 'int', 'content_action' => 'string', 'is_read' => 'int', 'extra' => 'string'),
@@ -1474,7 +1465,7 @@ function scheduled_paid_subscriptions()
 
 	// Mark the reminder as sent.
 	if (!empty($subs_reminded))
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			UPDATE {db_prefix}log_subscribed
 			SET reminder_sent = {int:reminder_sent}
 			WHERE id_sublog IN ({array_int:subscription_list})',
@@ -1493,20 +1484,20 @@ function scheduled_paid_subscriptions()
  */
 function scheduled_remove_temp_attachments()
 {
-	global $smcFunc, $modSettings, $context, $txt;
+	global $txt;
 
 	// We need to know where this thing is going.
-	if (!empty($modSettings['currentAttachmentUploadDir']))
+	if (!empty(Config::$modSettings['currentAttachmentUploadDir']))
 	{
-		if (!is_array($modSettings['attachmentUploadDir']))
-			$modSettings['attachmentUploadDir'] = $smcFunc['json_decode']($modSettings['attachmentUploadDir'], true);
+		if (!is_array(Config::$modSettings['attachmentUploadDir']))
+			Config::$modSettings['attachmentUploadDir'] = Utils::jsonDecode(Config::$modSettings['attachmentUploadDir'], true);
 
 		// Just use the current path for temp files.
-		$attach_dirs = $modSettings['attachmentUploadDir'];
+		$attach_dirs = Config::$modSettings['attachmentUploadDir'];
 	}
 	else
 	{
-		$attach_dirs = array($modSettings['attachmentUploadDir']);
+		$attach_dirs = array(Config::$modSettings['attachmentUploadDir']);
 	}
 
 	foreach ($attach_dirs as $attach_dir)
@@ -1516,7 +1507,7 @@ function scheduled_remove_temp_attachments()
 		{
 			loadEssentialThemeData();
 			loadLanguage('Post');
-			$context['scheduled_errors']['remove_temp_attachments'][] = $txt['cant_access_upload_path'] . ' (' . $attach_dir . ')';
+			Utils::$context['scheduled_errors']['remove_temp_attachments'][] = $txt['cant_access_upload_path'] . ' (' . $attach_dir . ')';
 			log_error($txt['cant_access_upload_path'] . ' (' . $attach_dir . ')', 'critical');
 			return false;
 		}
@@ -1544,8 +1535,6 @@ function scheduled_remove_temp_attachments()
  */
 function scheduled_remove_topic_redirect()
 {
-	global $smcFunc, $sourcedir;
-
 	// init
 	$topics = array();
 
@@ -1553,7 +1542,7 @@ function scheduled_remove_topic_redirect()
 	loadEssentialThemeData();
 
 	// Find all of the old MOVE topic notices that were set to expire
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_topic
 		FROM {db_prefix}topics
 		WHERE redirect_expires <= {int:redirect_expires}
@@ -1563,14 +1552,14 @@ function scheduled_remove_topic_redirect()
 		)
 	);
 
-	while ($row = $smcFunc['db_fetch_row']($request))
+	while ($row = Db::$db->fetch_row($request))
 		$topics[] = $row[0];
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// Zap, your gone
 	if (count($topics) > 0)
 	{
-		require_once($sourcedir . '/RemoveTopic.php');
+		require_once(Config::$sourcedir . '/RemoveTopic.php');
 		removeTopics($topics, false, true);
 	}
 
@@ -1582,9 +1571,7 @@ function scheduled_remove_topic_redirect()
  */
 function scheduled_remove_old_drafts()
 {
-	global $smcFunc, $sourcedir, $modSettings;
-
-	if (empty($modSettings['drafts_keep_days']))
+	if (empty(Config::$modSettings['drafts_keep_days']))
 		return true;
 
 	// init
@@ -1594,23 +1581,23 @@ function scheduled_remove_old_drafts()
 	loadEssentialThemeData();
 
 	// Find all of the old drafts
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_draft
 		FROM {db_prefix}user_drafts
 		WHERE poster_time <= {int:poster_time_old}',
 		array(
-			'poster_time_old' => time() - (86400 * $modSettings['drafts_keep_days']),
+			'poster_time_old' => time() - (86400 * Config::$modSettings['drafts_keep_days']),
 		)
 	);
 
-	while ($row = $smcFunc['db_fetch_row']($request))
+	while ($row = Db::$db->fetch_row($request))
 		$drafts[] = (int) $row[0];
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	// If we have old one, remove them
 	if (count($drafts) > 0)
 	{
-		require_once($sourcedir . '/Drafts.php');
+		require_once(Config::$sourcedir . '/Drafts.php');
 		DeleteDraft($drafts, false);
 	}
 
@@ -1625,24 +1612,22 @@ function scheduled_remove_old_drafts()
  */
 function scheduled_prune_log_topics()
 {
-	global $smcFunc, $sourcedir, $modSettings;
-
 	// If set to zero, bypass
-	if (empty($modSettings['mark_read_max_users']) || (empty($modSettings['mark_read_beyond']) && empty($modSettings['mark_read_delete_beyond'])))
+	if (empty(Config::$modSettings['mark_read_max_users']) || (empty(Config::$modSettings['mark_read_beyond']) && empty(Config::$modSettings['mark_read_delete_beyond'])))
 		return true;
 
 	// Convert to timestamps for comparison
-	if (empty($modSettings['mark_read_beyond']))
+	if (empty(Config::$modSettings['mark_read_beyond']))
 		$markReadCutoff = 0;
 	else
-		$markReadCutoff = time() - $modSettings['mark_read_beyond'] * 86400;
+		$markReadCutoff = time() - Config::$modSettings['mark_read_beyond'] * 86400;
 
-	if (empty($modSettings['mark_read_delete_beyond']))
+	if (empty(Config::$modSettings['mark_read_delete_beyond']))
 		$cleanupBeyond = 0;
 	else
-		$cleanupBeyond = time() - $modSettings['mark_read_delete_beyond'] * 86400;
+		$cleanupBeyond = time() - Config::$modSettings['mark_read_delete_beyond'] * 86400;
 
-	$maxMembers = $modSettings['mark_read_max_users'];
+	$maxMembers = Config::$modSettings['mark_read_max_users'];
 
 	// You're basically saying to just purge, so just purge
 	if ($markReadCutoff < $cleanupBeyond)
@@ -1685,7 +1670,7 @@ function scheduled_prune_log_topics()
 			WHERE m.last_login <= {int:mrcutoff}
 		ORDER BY last_login
 		LIMIT {int:limit}';
-	$result = $smcFunc['db_query']('', $sql,
+	$result = Db::$db->query('', $sql,
 		array(
 			'limit' => $maxMembers,
 			'dcutoff' => $cleanupBeyond,
@@ -1695,8 +1680,8 @@ function scheduled_prune_log_topics()
 	);
 
 	// Move to array...
-	$members = $smcFunc['db_fetch_all']($result);
-	$smcFunc['db_free_result']($result);
+	$members = Db::$db->fetch_all($result);
+	Db::$db->free_result($result);
 
 	// Nothing to do?
 	if (empty($members))
@@ -1713,12 +1698,12 @@ function scheduled_prune_log_topics()
 			$markReadMembers[] = $member['id_member'];
 	}
 
-	if (!empty($purgeMembers) && !empty($modSettings['mark_read_delete_beyond']))
+	if (!empty($purgeMembers) && !empty(Config::$modSettings['mark_read_delete_beyond']))
 	{
 		// Delete rows from log_boards
 		$sql = 'DELETE FROM {db_prefix}log_boards
 			WHERE id_member IN ({array_int:members})';
-		$smcFunc['db_query']('', $sql,
+		Db::$db->query('', $sql,
 			array(
 				'members' => $purgeMembers,
 			)
@@ -1726,7 +1711,7 @@ function scheduled_prune_log_topics()
 		// Delete rows from log_mark_read
 		$sql = 'DELETE FROM {db_prefix}log_mark_read
 			WHERE id_member IN ({array_int:members})';
-		$smcFunc['db_query']('', $sql,
+		Db::$db->query('', $sql,
 			array(
 				'members' => $purgeMembers,
 			)
@@ -1735,7 +1720,7 @@ function scheduled_prune_log_topics()
 		$sql = 'DELETE FROM {db_prefix}log_topics
 			WHERE id_member IN ({array_int:members})
 				AND unwatched = {int:unwatched}';
-		$smcFunc['db_query']('', $sql,
+		Db::$db->query('', $sql,
 			array(
 				'members' => $purgeMembers,
 				'unwatched' => 0,
@@ -1744,7 +1729,7 @@ function scheduled_prune_log_topics()
 	}
 
 	// Nothing left to do?
-	if (empty($markReadMembers) || empty($modSettings['mark_read_beyond']))
+	if (empty($markReadMembers) || empty(Config::$modSettings['mark_read_beyond']))
 		return true;
 
 	// Find board inserts to perform...
@@ -1761,18 +1746,18 @@ function scheduled_prune_log_topics()
 			WHERE id_member IN ({array_int:members})
 		) lt ON t.id_topic = lt.id_topic
 		GROUP BY lt.id_member, t.id_board';
-	$result = $smcFunc['db_query']('', $sql,
+	$result = Db::$db->query('', $sql,
 		array(
 			'members' => $markReadMembers,
 		)
 	);
-	$boards = $smcFunc['db_fetch_all']($result);
-	$smcFunc['db_free_result']($result);
+	$boards = Db::$db->fetch_all($result);
+	Db::$db->free_result($result);
 
 	// Create one SQL statement for this set of inserts
 	if (!empty($boards))
 	{
-		$smcFunc['db_insert']('replace',
+		Db::$db->insert('replace',
 			'{db_prefix}log_mark_read',
 			array('id_member' => 'int', 'id_board' => 'int', 'id_msg' => 'int'),
 			$boards,
@@ -1784,7 +1769,7 @@ function scheduled_prune_log_topics()
 	$sql = 'DELETE FROM {db_prefix}log_topics
 		WHERE id_member IN ({array_int:members})
 			AND unwatched = {int:unwatched}';
-	$smcFunc['db_query']('', $sql,
+	Db::$db->query('', $sql,
 		array(
 			'members' => $markReadMembers,
 			'unwatched' => 0,
