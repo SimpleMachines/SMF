@@ -15,6 +15,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -34,8 +35,6 @@ if (!defined('SMF'))
  */
 function deleteMembergroups($groups)
 {
-	global $txt;
-
 	// Make sure it's an array.
 	if (!is_array($groups))
 		$groups = array((int) $groups);
@@ -93,8 +92,8 @@ function deleteMembergroups($groups)
 	if (!empty($subscriptions))
 	{
 		// Uh oh. But before we return, we need to update a language string because we want the names of the groups.
-		loadLanguage('ManageMembers');
-		$txt['membergroups_cannot_delete_paid'] = sprintf($txt['membergroups_cannot_delete_paid'], implode(', ', $subscriptions));
+		Lang::load('ManageMembers');
+		Lang::$txt['membergroups_cannot_delete_paid'] = sprintf(Lang::$txt['membergroups_cannot_delete_paid'], implode(', ', $subscriptions));
 		return 'group_cannot_delete_sub';
 	}
 
@@ -479,8 +478,6 @@ function removeMembersFromGroups($members, $groups = null, $permissionCheckDone 
  */
 function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDone = false, $ignoreProtected = false)
 {
-	global $txt;
-
 	// Show your licence, but only if it hasn't been done yet.
 	if (!$permissionCheckDone)
 		isAllowedTo('manage_membergroups');
@@ -600,8 +597,8 @@ function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDon
 	// Ack!!?  What happened?
 	else
 	{
-		loadLanguage('Errors');
-		trigger_error(sprintf($txt['add_members_to_group_invalid_type'], $type), E_USER_WARNING);
+		Lang::load('Errors');
+		trigger_error(sprintf(Lang::$txt['add_members_to_group_invalid_type'], $type), E_USER_WARNING);
 	}
 
 	call_integration_hook('integrate_add_members_to_group', array($members, $group, &$group_names));

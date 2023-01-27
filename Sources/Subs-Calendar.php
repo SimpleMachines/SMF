@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -156,7 +157,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 			continue;
 
 		// Force a censor of the title - as often these are used by others.
-		censorText($row['title'], $use_permissions ? false : true);
+		Lang::censorText($row['title'], $use_permissions ? false : true);
 
 		// Get the various time and date properties for this event
 		list($start, $end, $allday, $span, $tz, $tz_abbrev) = buildEventDatetimes($row);
@@ -542,8 +543,6 @@ function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false,
  */
 function getCalendarWeek($selected_date, $calendarOptions)
 {
-	global $txt;
-
 	$selected_object = date_create($selected_date . ' ' . getUserTimezone());
 
 	// Get today's date.
@@ -604,7 +603,7 @@ function getCalendarWeek($selected_date, $calendarOptions)
 	$events = $calendarOptions['show_events'] ? getEventRange(date_format($first_day_object, 'Y-m-d'), date_format($last_day_object, 'Y-m-d')) : array();
 	$holidays = $calendarOptions['show_holidays'] ? getHolidayRange(date_format($first_day_object, 'Y-m-d'), date_format($last_day_object, 'Y-m-d')) : array();
 
-	$calendarGrid['week_title'] = sprintf($txt['calendar_week_beginning'], $txt['months'][date_format($first_day_object, 'n')], date_format($first_day_object, 'j'), date_format($first_day_object, 'Y'));
+	$calendarGrid['week_title'] = sprintf(Lang::$txt['calendar_week_beginning'], Lang::$txt['months'][date_format($first_day_object, 'n')], date_format($first_day_object, 'j'), date_format($first_day_object, 'Y'));
 
 	// This holds all the main data - there is at least one month!
 	$calendarGrid['months'] = array();
@@ -655,7 +654,7 @@ function getCalendarWeek($selected_date, $calendarOptions)
  */
 function getCalendarList($start_date, $end_date, $calendarOptions)
 {
-	global $user_info, $txt;
+	global $user_info;
 	require_once(Config::$sourcedir . '/Subs.php');
 
 	// DateTime objects make life easier
@@ -718,7 +717,7 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
  */
 function loadDatePicker($selector = 'input.date_input', $date_format = '')
 {
-	global $txt, $user_info, $options;
+	global $user_info, $options;
 
 	if (empty($date_format))
 		$date_format = get_date_or_time_format('date');
@@ -754,13 +753,13 @@ function loadDatePicker($selector = 'input.date_input', $date_format = '')
 		showButtonPanel: false,
 		yearRange: "' . Config::$modSettings['cal_minyear'] . ':' . Config::$modSettings['cal_maxyear'] . '",
 		hideIfNoPrevNext: true,
-		monthNames: ["' . implode('", "', $txt['months_titles']) . '"],
-		monthNamesShort: ["' . implode('", "', $txt['months_short']) . '"],
-		dayNames: ["' . implode('", "', $txt['days']) . '"],
-		dayNamesShort: ["' . implode('", "', $txt['days_short']) . '"],
-		dayNamesMin: ["' . implode('", "', $txt['days_short']) . '"],
-		prevText: "' . $txt['prev_month'] . '",
-		nextText: "' . $txt['next_month'] . '",
+		monthNames: ["' . implode('", "', Lang::$txt['months_titles']) . '"],
+		monthNamesShort: ["' . implode('", "', Lang::$txt['months_short']) . '"],
+		dayNames: ["' . implode('", "', Lang::$txt['days']) . '"],
+		dayNamesShort: ["' . implode('", "', Lang::$txt['days_short']) . '"],
+		dayNamesMin: ["' . implode('", "', Lang::$txt['days_short']) . '"],
+		prevText: "' . Lang::$txt['prev_month'] . '",
+		nextText: "' . Lang::$txt['next_month'] . '",
 		firstDay: ' . (!empty($options['calendar_start_day']) ? $options['calendar_start_day'] : 0) . ',
 	});', true);
 }
@@ -773,8 +772,6 @@ function loadDatePicker($selector = 'input.date_input', $date_format = '')
  */
 function loadTimePicker($selector = 'input.time_input', $time_format = '')
 {
-	global $txt;
-
 	if (empty($time_format))
 		$time_format = get_date_or_time_format('time');
 
@@ -802,14 +799,14 @@ function loadTimePicker($selector = 'input.time_input', $time_format = '')
 		showDuration: true,
 		maxTime: "23:59:59",
 		lang: {
-			am: "' . strtolower($txt['time_am']) . '",
-			pm: "' . strtolower($txt['time_pm']) . '",
-			AM: "' . strtoupper($txt['time_am']) . '",
-			PM: "' . strtoupper($txt['time_pm']) . '",
-			decimal: "' . $txt['decimal_sign'] . '",
-			mins: "' . $txt['minutes_short'] . '",
-			hr: "' . $txt['hour_short'] . '",
-			hrs: "' . $txt['hours_short'] . '",
+			am: "' . strtolower(Lang::$txt['time_am']) . '",
+			pm: "' . strtolower(Lang::$txt['time_pm']) . '",
+			AM: "' . strtoupper(Lang::$txt['time_am']) . '",
+			PM: "' . strtoupper(Lang::$txt['time_pm']) . '",
+			decimal: "' . Lang::$txt['decimal_sign'] . '",
+			mins: "' . Lang::$txt['minutes_short'] . '",
+			hr: "' . Lang::$txt['hour_short'] . '",
+			hrs: "' . Lang::$txt['hours_short'] . '",
 		}
 	});', true);
 }
@@ -825,8 +822,6 @@ function loadTimePicker($selector = 'input.time_input', $time_format = '')
  */
 function loadDatePair($container, $date_class = '', $time_class = '')
 {
-	global $txt;
-
 	$container = (string) $container;
 	$date_class = (string) $date_class;
 	$time_class = (string) $time_class;
@@ -1687,13 +1682,13 @@ function setEventStartEnd($eventOptions = array())
  */
 function buildEventDatetimes($row)
 {
-	global $user_info, $txt;
+	global $user_info;
 	static $date_format = '', $time_format = '';
 
 	require_once(Config::$sourcedir . '/Subs.php');
 	static $timezone_array = array();
 
-	loadLanguage('Timezones');
+	Lang::load('Timezones');
 
 	// First, try to create a better date format, ignoring the "time" elements.
 	if (empty($date_format))
@@ -1841,28 +1836,26 @@ function removeHolidays($holiday_ids)
  */
 function convertDateToEnglish($date)
 {
-	global $txt;
-
 	if (Utils::$context['user']['language'] == 'english')
 		return $date;
 
-	$replacements = array_combine(array_map('strtolower', $txt['months_titles']), array(
+	$replacements = array_combine(array_map('strtolower', Lang::$txt['months_titles']), array(
 		'January', 'February', 'March', 'April', 'May', 'June',
 		'July', 'August', 'September', 'October', 'November', 'December'
 	));
-	$replacements += array_combine(array_map('strtolower', $txt['months_short']), array(
+	$replacements += array_combine(array_map('strtolower', Lang::$txt['months_short']), array(
 		'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
 		'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
 	));
-	$replacements += array_combine(array_map('strtolower', $txt['days']), array(
+	$replacements += array_combine(array_map('strtolower', Lang::$txt['days']), array(
 		'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
 	));
-	$replacements += array_combine(array_map('strtolower', $txt['days_short']), array(
+	$replacements += array_combine(array_map('strtolower', Lang::$txt['days_short']), array(
 		'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'
 	));
 	// Find all possible variants of AM and PM for this language.
-	$replacements[strtolower($txt['time_am'])] = 'AM';
-	$replacements[strtolower($txt['time_pm'])] = 'PM';
+	$replacements[strtolower(Lang::$txt['time_am'])] = 'AM';
+	$replacements[strtolower(Lang::$txt['time_pm'])] = 'PM';
 	if (($am = smf_strftime('%p', strtotime('01:00:00'))) !== 'p' && $am !== false)
 	{
 		$replacements[strtolower($am)] = 'AM';

@@ -11,6 +11,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 
 /**
@@ -18,8 +19,6 @@ use SMF\Utils;
  */
 function template_pm_above()
 {
-	global $txt;
-
 	echo '
 	<div id="personal_messages">';
 
@@ -28,7 +27,7 @@ function template_pm_above()
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="floatleft">', $txt['pm_capacity'], ':</span>
+				<span class="floatleft">', Lang::$txt['pm_capacity'], ':</span>
 				<span class="floatleft capacity_bar">
 					<span class="', Utils::$context['limit_bar']['percent'] > 85 ? 'full' : (Utils::$context['limit_bar']['percent'] > 40 ? 'filled' : 'empty'), '" style="width: ', Utils::$context['limit_bar']['percent'] / 10, 'em;"></span>
 				</span>
@@ -40,7 +39,7 @@ function template_pm_above()
 	if (isset(Utils::$context['pm_sent']))
 		echo '
 		<div class="infobox">
-			', $txt['pm_sent'], '
+			', Lang::$txt['pm_sent'], '
 		</div>';
 }
 
@@ -58,26 +57,24 @@ function template_pm_below()
  */
 function template_pm_popup()
 {
-	global $txt;
-
 	// Unlike almost every other template, this is designed to be included into the HTML directly via $().load()
 	echo '
 		<div class="pm_bar">
 			<div class="pm_sending block">
-				', Utils::$context['can_send_pm'] ? '<a href="' . Config::$scripturl . '?action=pm;sa=send">' . $txt['pm_new_short'] . '</a>' : '', '
-				', Utils::$context['can_draft'] ? ' | <a href="' . Config::$scripturl . '?action=pm;sa=showpmdrafts">' . $txt['pm_drafts_short'] . '</a>' : '', '
-				<a href="', Config::$scripturl, '?action=pm;sa=settings" class="floatright">', $txt['pm_settings_short'], '</a>
+				', Utils::$context['can_send_pm'] ? '<a href="' . Config::$scripturl . '?action=pm;sa=send">' . Lang::$txt['pm_new_short'] . '</a>' : '', '
+				', Utils::$context['can_draft'] ? ' | <a href="' . Config::$scripturl . '?action=pm;sa=showpmdrafts">' . Lang::$txt['pm_drafts_short'] . '</a>' : '', '
+				<a href="', Config::$scripturl, '?action=pm;sa=settings" class="floatright">', Lang::$txt['pm_settings_short'], '</a>
 			</div>
 			<div class="pm_mailbox centertext">
-				<a href="', Config::$scripturl, '?action=pm" class="button">', $txt['inbox'], '</a>
-				<a href="', Config::$scripturl, '?action=pm;f=sent" class="button">', $txt['sent_items'], '</a>
+				<a href="', Config::$scripturl, '?action=pm" class="button">', Lang::$txt['inbox'], '</a>
+				<a href="', Config::$scripturl, '?action=pm;f=sent" class="button">', Lang::$txt['sent_items'], '</a>
 			</div>
 		</div>
 		<div class="pm_unread">';
 
 	if (empty(Utils::$context['unread_pms']))
 		echo '
-			<div class="no_unread">', $txt['pm_no_unread'], '</div>';
+			<div class="no_unread">', Lang::$txt['pm_no_unread'], '</div>';
 	else
 	{
 		foreach (Utils::$context['unread_pms'] as $id_pm => $pm_details)
@@ -89,7 +86,7 @@ function template_pm_popup()
 				<div class="details">
 					<div class="subject">', $pm_details['pm_link'], '</div>
 					<div class="sender">
-						', $pm_details['replied_to_you'] ? '<span class="main_icons replied centericon" style="margin-right: 4px" title="' . $txt['pm_you_were_replied_to'] . '"></span>' : '<span class="main_icons im_off centericon" style="margin-right: 4px" title="' . $txt['pm_was_sent_to_you'] . '"></span>',
+						', $pm_details['replied_to_you'] ? '<span class="main_icons replied centericon" style="margin-right: 4px" title="' . Lang::$txt['pm_you_were_replied_to'] . '"></span>' : '<span class="main_icons im_off centericon" style="margin-right: 4px" title="' . Lang::$txt['pm_was_sent_to_you'] . '"></span>',
 						!empty($pm_details['member']) ? $pm_details['member']['link'] : $pm_details['member_from'], ' - ', $pm_details['time'], '
 					</div>
 				</div>
@@ -105,8 +102,6 @@ function template_pm_popup()
  */
 function template_folder()
 {
-	global $txt;
-
 	// The every helpful javascript!
 	echo '
 		<script>
@@ -160,8 +155,8 @@ function template_folder()
 
 				if (toAdd.length != 0)
 				{
-					theSelect.options[theSelect.options.length] = new Option("', $txt['pm_msg_label_apply'], '", "");
-					setInnerHTML(theSelect.options[theSelect.options.length - 1], "', $txt['pm_msg_label_apply'], '");
+					theSelect.options[theSelect.options.length] = new Option("', Lang::$txt['pm_msg_label_apply'], '", "");
+					setInnerHTML(theSelect.options[theSelect.options.length - 1], "', Lang::$txt['pm_msg_label_apply'], '");
 					theSelect.options[theSelect.options.length - 1].disabled = true;
 
 					for (i in toAdd)
@@ -173,8 +168,8 @@ function template_folder()
 
 				if (toRemove.length != 0)
 				{
-					theSelect.options[theSelect.options.length] = new Option("', $txt['pm_msg_label_remove'], '", "");
-					setInnerHTML(theSelect.options[theSelect.options.length - 1], "', $txt['pm_msg_label_remove'], '");
+					theSelect.options[theSelect.options.length] = new Option("', Lang::$txt['pm_msg_label_remove'], '", "");
+					setInnerHTML(theSelect.options[theSelect.options.length - 1], "', Lang::$txt['pm_msg_label_remove'], '");
 					theSelect.options[theSelect.options.length - 1].disabled = true;
 
 					for (i in toRemove)
@@ -211,12 +206,12 @@ function template_folder()
 				echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<span>', $txt['conversation'], '</span>
+					<span>', Lang::$txt['conversation'], '</span>
 				</h3>
 			</div>
 			<div class="roundframe">
 				<div class="display_title">', Utils::$context['current_pm_subject'], '</div>
-				<p>', $txt['started_by'], ' ', Utils::$context['current_pm_author'], ', ', Utils::$context['current_pm_time'], '</p>';
+				<p>', Lang::$txt['started_by'], ' ', Utils::$context['current_pm_author'], ', ', Utils::$context['current_pm_time'], '</p>';
 			}
 			else
 			{
@@ -239,7 +234,7 @@ function template_folder()
 			<div class="pagesection">
 				<div class="pagelinks">', Utils::$context['page_index'], '</div>
 				<div class="floatright">
-					<input type="submit" name="del_selected" value="', $txt['quickmod_delete_selected'], '" onclick="if (!confirm(\'', $txt['delete_selected_confirm'], '\')) return false;" class="button">
+					<input type="submit" name="del_selected" value="', Lang::$txt['quickmod_delete_selected'], '" onclick="if (!confirm(\'', Lang::$txt['delete_selected_confirm'], '\')) return false;" class="button">
 				</div>
 			</div>';
 
@@ -278,7 +273,7 @@ function template_folder()
  */
 function template_single_pm($message)
 {
-	global $txt, $settings, $options;
+	global $settings, $options;
 
 	echo '
 	<div class="windowbg" id="msg', $message['id'],'">
@@ -369,7 +364,7 @@ function template_single_pm($message)
 		// Show how many posts they have made.
 		if (!isset(Utils::$context['disabled_fields']['posts']))
 			echo '
-					<li class="postcount">', $txt['member_postcount'], ': ', $message['member']['posts'], '</li>';
+					<li class="postcount">', Lang::$txt['member_postcount'], ': ', $message['member']['posts'], '</li>';
 
 		// Show their personal text?
 		if (!empty(Config::$modSettings['show_blurb']) && $message['member']['blurb'] != '')
@@ -410,7 +405,7 @@ function template_single_pm($message)
 		else
 			echo '
 					<li class="poster_ip">
-						<a href="', Config::$scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', $txt['logged'], '</a>
+						<a href="', Config::$scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', Lang::$txt['logged'], '</a>
 					</li>';
 
 		// Show the profile, website, email address, and personal message buttons.
@@ -423,22 +418,22 @@ function template_single_pm($message)
 			// Show the profile button
 			if ($message['member']['can_view_profile'])
 				echo '
-							<li><a href="', $message['member']['href'], '" title="' . $txt['view_profile'] . '">', ($settings['use_image_buttons'] ? '<span class="main_icons members"></span>' : $txt['view_profile']), '</a></li>';
+							<li><a href="', $message['member']['href'], '" title="' . Lang::$txt['view_profile'] . '">', ($settings['use_image_buttons'] ? '<span class="main_icons members"></span>' : Lang::$txt['view_profile']), '</a></li>';
 
 			// Don't show an icon if they haven't specified a website.
 			if ($message['member']['website']['url'] != '' && !isset(Utils::$context['disabled_fields']['website']))
 				echo '
-							<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener">', ($settings['use_image_buttons'] ? '<span class="main_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : $txt['www']), '</a></li>';
+							<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener">', ($settings['use_image_buttons'] ? '<span class="main_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : Lang::$txt['www']), '</a></li>';
 
 			// Don't show the email address if they want it hidden.
 			if ($message['member']['show_email'])
 				echo '
-							<li><a href="mailto:', $message['member']['email'], '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . $txt['email'] . '"></span>' : $txt['email']), '</a></li>';
+							<li><a href="mailto:', $message['member']['email'], '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::$txt['email'] . '"></span>' : Lang::$txt['email']), '</a></li>';
 
 			// Since we know this person isn't a guest, you *can* message them.
 			if (Utils::$context['can_send_pm'] && $message['member']['id'] != 0)
 				echo '
-							<li><a href="', Config::$scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline'], '">', $settings['use_image_buttons'] ? '<span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . ($message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline']) . '"></span> ' : ($message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline']), '</a></li>';
+							<li><a href="', Config::$scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline'], '">', $settings['use_image_buttons'] ? '<span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . ($message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline']) . '"></span> ' : ($message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline']), '</a></li>';
 
 			echo '
 						</ol>
@@ -454,7 +449,7 @@ function template_single_pm($message)
 		// Are we showing the warning status?
 		if ($message['member']['can_see_warning'])
 			echo '
-					<li class="warning">', Utils::$context['can_issue_warning'] ? '<a href="' . Config::$scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<span class="main_icons warning_', $message['member']['warning_status'], '"></span>', Utils::$context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', $txt['warn_' . $message['member']['warning_status']], '</span></li>';
+					<li class="warning">', Utils::$context['can_issue_warning'] ? '<a href="' . Config::$scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<span class="main_icons warning_', $message['member']['warning_status'], '"></span>', Utils::$context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', Lang::$txt['warn_' . $message['member']['warning_status']], '</span></li>';
 
 		// Are there any custom fields to show at the bottom of the poster info?
 		if (!empty($message['custom_fields']['bottom_poster']))
@@ -476,7 +471,7 @@ function template_single_pm($message)
 
 	// Show who the message was sent to.
 	echo '
-						<span class="smalltext"><strong> ', $txt['sent_to'], ':</strong> ';
+						<span class="smalltext"><strong> ', Lang::$txt['sent_to'], ':</strong> ';
 
 	// People it was sent directly to....
 	if (!empty($message['recipients']['to']))
@@ -484,20 +479,20 @@ function template_single_pm($message)
 
 	// Otherwise, we're just going to say "some people"...
 	elseif (Utils::$context['folder'] != 'sent')
-		echo '(', $txt['pm_undisclosed_recipients'], ')';
+		echo '(', Lang::$txt['pm_undisclosed_recipients'], ')';
 
 	echo '
-							<strong> ', $txt['on'], ':</strong> ', $message['time'], '
+							<strong> ', Lang::$txt['on'], ':</strong> ', $message['time'], '
 						</span>';
 
 	// If we're in the sent items, show who it was sent to besides the "To:" people.
 	if (!empty($message['recipients']['bcc']))
 		echo '
-						<span class="smalltext"><strong> ', $txt['pm_bcc'], ':</strong> ', implode(', ', $message['recipients']['bcc']), ' </span>';
+						<span class="smalltext"><strong> ', Lang::$txt['pm_bcc'], ':</strong> ', implode(', ', $message['recipients']['bcc']), ' </span>';
 
 	if (!empty($message['is_replied_to']))
 		echo '
-						<span class="smalltext">', Utils::$context['folder'] == 'sent' ? $txt['pm_sent_is_replied_to'] : $txt['pm_is_replied_to'], ' </span>';
+						<span class="smalltext">', Utils::$context['folder'] == 'sent' ? Lang::$txt['pm_sent_is_replied_to'] : Lang::$txt['pm_is_replied_to'], ' </span>';
 
 	echo '
 					</div><!-- .postinfo -->
@@ -520,14 +515,14 @@ function template_single_pm($message)
 		{
 			echo '
 					<select name="pm_actions[', $message['id'], ']" onchange="if (this.options[this.selectedIndex].value) form.submit();">
-						<option value="">', $txt['pm_msg_label_title'], ':</option>
+						<option value="">', Lang::$txt['pm_msg_label_title'], ':</option>
 						<option value="" disabled>---------------</option>';
 
 			// Are there any labels which can be added to this?
 			if (!$message['fully_labeled'])
 			{
 				echo '
-						<option value="" disabled>', $txt['pm_msg_label_apply'], ':</option>';
+						<option value="" disabled>', Lang::$txt['pm_msg_label_apply'], ':</option>';
 
 				foreach (Utils::$context['labels'] as $label)
 					if (!isset($message['labels'][$label['id']]))
@@ -539,7 +534,7 @@ function template_single_pm($message)
 			if (!empty($message['labels']) && (count($message['labels']) > 1 || !isset($message['labels'][-1])))
 			{
 				echo '
-						<option value="" disabled>', $txt['pm_msg_label_remove'], ':</option>';
+						<option value="" disabled>', Lang::$txt['pm_msg_label_remove'], ':</option>';
 
 				foreach ($message['labels'] as $label)
 					echo '
@@ -548,7 +543,7 @@ function template_single_pm($message)
 			echo '
 					</select>
 					<noscript>
-						<input type="submit" value="', $txt['pm_apply'], '" class="button">
+						<input type="submit" value="', Lang::$txt['pm_apply'], '" class="button">
 					</noscript>';
 		}
 		echo '
@@ -613,28 +608,28 @@ function template_single_pm($message)
  */
 function template_subject_list()
 {
-	global $settings, $txt;
+	global $settings;
 
 	echo '
 	<div class="cat_bar">
 		<h3 class="catbg">
-			', Utils::$context['folder'] == 'sent' ? $txt['sent_items'] : Utils::$context['current_label'], '
+			', Utils::$context['folder'] == 'sent' ? Lang::$txt['sent_items'] : Utils::$context['current_label'], '
 		</h3>
 	</div>
 	<table class="table_grid">
 		<thead>
 			<tr class="title_bar">
 				<th class="centercol table_icon pm_icon">
-					<a href="', Config::$scripturl, '?action=pm;view;f=', Utils::$context['folder'], ';start=', Utils::$context['start'], ';sort=', Utils::$context['sort_by'], (Utils::$context['sort_direction'] == 'up' ? '' : ';desc'), (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : ''), '"> <span class="main_icons switch" title="', $txt['pm_change_view'], '"></span></a>
+					<a href="', Config::$scripturl, '?action=pm;view;f=', Utils::$context['folder'], ';start=', Utils::$context['start'], ';sort=', Utils::$context['sort_by'], (Utils::$context['sort_direction'] == 'up' ? '' : ';desc'), (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : ''), '"> <span class="main_icons switch" title="', Lang::$txt['pm_change_view'], '"></span></a>
 				</th>
 				<th class="lefttext quarter_table pm_time">
-					<a href="', Config::$scripturl, '?action=pm;f=', Utils::$context['folder'], ';start=', Utils::$context['start'], ';sort=date', Utils::$context['sort_by'] == 'date' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '', '">', $txt['date'], Utils::$context['sort_by'] == 'date' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
+					<a href="', Config::$scripturl, '?action=pm;f=', Utils::$context['folder'], ';start=', Utils::$context['start'], ';sort=date', Utils::$context['sort_by'] == 'date' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '', '">', Lang::$txt['date'], Utils::$context['sort_by'] == 'date' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
 				</th>
 				<th class="lefttext half_table pm_subject">
-					<a href="', Config::$scripturl, '?action=pm;f=', Utils::$context['folder'], ';start=', Utils::$context['start'], ';sort=subject', Utils::$context['sort_by'] == 'subject' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '', '">', $txt['subject'], Utils::$context['sort_by'] == 'subject' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
+					<a href="', Config::$scripturl, '?action=pm;f=', Utils::$context['folder'], ';start=', Utils::$context['start'], ';sort=subject', Utils::$context['sort_by'] == 'subject' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '', '">', Lang::$txt['subject'], Utils::$context['sort_by'] == 'subject' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
 				</th>
 				<th class="lefttext pm_from_to">
-					<a href="', Config::$scripturl, '?action=pm;f=', Utils::$context['folder'], ';start=', Utils::$context['start'], ';sort=name', Utils::$context['sort_by'] == 'name' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '', '">', (Utils::$context['from_or_to'] == 'from' ? $txt['from'] : $txt['pm_to']), Utils::$context['sort_by'] == 'name' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
+					<a href="', Config::$scripturl, '?action=pm;f=', Utils::$context['folder'], ';start=', Utils::$context['start'], ';sort=name', Utils::$context['sort_by'] == 'name' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '', '">', (Utils::$context['from_or_to'] == 'from' ? Lang::$txt['from'] : Lang::$txt['pm_to']), Utils::$context['sort_by'] == 'name' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
 				</th>
 				<th class="centercol table_icon pm_moderation">
 					<input type="checkbox" onclick="invertAll(this, this.form);">
@@ -646,7 +641,7 @@ function template_subject_list()
 	if (!Utils::$context['show_delete'])
 		echo '
 			<tr class="windowbg">
-				<td colspan="5">', $txt['pm_alert_none'], '</td>
+				<td colspan="5">', Lang::$txt['pm_alert_none'], '</td>
 			</tr>';
 
 	while ($message = Utils::$context['get_pmessage']('subject'))
@@ -679,11 +674,11 @@ function template_subject_list()
 		echo '
 						};
 					</script>
-					', $message['is_replied_to'] ? '<span class="main_icons replied" title="' . $txt['pm_replied'] . '"></span>' : '<span class="main_icons im_off" title="' . $txt['pm_read'] . '"></span>', '
+					', $message['is_replied_to'] ? '<span class="main_icons replied" title="' . Lang::$txt['pm_replied'] . '"></span>' : '<span class="main_icons im_off" title="' . Lang::$txt['pm_read'] . '"></span>', '
 				</td>
 				<td class="pm_time">', $message['time'], '</td>
 				<td class="pm_subject">
-					', (Utils::$context['display_mode'] != 0 && Utils::$context['current_pm'] == $message['id'] ? '<img src="' . $settings['images_url'] . '/selected.png" alt="*">' : ''), '<a href="', (Utils::$context['display_mode'] == 0 || Utils::$context['current_pm'] == $message['id'] ? '' : (Config::$scripturl . '?action=pm;pmid=' . $message['id'] . ';kstart;f=' . Utils::$context['folder'] . ';start=' . Utils::$context['start'] . ';sort=' . Utils::$context['sort_by'] . (Utils::$context['sort_direction'] == 'up' ? ';' : ';desc') . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : ''))), '#msg', $message['id'], '">', $message['subject'], $message['is_unread'] ? '&nbsp;<span class="new_posts">' . $txt['new'] . '</span>' : '', '</a>
+					', (Utils::$context['display_mode'] != 0 && Utils::$context['current_pm'] == $message['id'] ? '<img src="' . $settings['images_url'] . '/selected.png" alt="*">' : ''), '<a href="', (Utils::$context['display_mode'] == 0 || Utils::$context['current_pm'] == $message['id'] ? '' : (Config::$scripturl . '?action=pm;pmid=' . $message['id'] . ';kstart;f=' . Utils::$context['folder'] . ';start=' . Utils::$context['start'] . ';sort=' . Utils::$context['sort_by'] . (Utils::$context['sort_direction'] == 'up' ? ';' : ';desc') . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : ''))), '#msg', $message['id'], '">', $message['subject'], $message['is_unread'] ? '&nbsp;<span class="new_posts">' . Lang::$txt['new'] . '</span>' : '', '</a>
 					<span class="pm_inline_time"><span class="main_icons ', (Utils::$context['from_or_to'] == 'to' && count($message['recipients']['to']) > 1) ? 'people' : 'members', '"></span> ', (Utils::$context['from_or_to'] == 'from' ? $message['member']['link'] : (empty($message['recipients']['to']) ? '' : implode(', ', $message['recipients']['to']))), '  <span class="main_icons time_online"></span> ', $message['time'], '</span>
 				</td>
 				<td class="pm_from_to">
@@ -708,9 +703,9 @@ function template_subject_list()
 		{
 			echo '
 			<select name="pm_action" onchange="if (this.options[this.selectedIndex].value) this.form.submit();" onfocus="loadLabelChoices();">
-				<option value="">', $txt['pm_sel_label_title'], ':</option>
+				<option value="">', Lang::$txt['pm_sel_label_title'], ':</option>
 				<option value="" disabled>---------------</option>
-				<option value="" disabled>', $txt['pm_msg_label_apply'], ':</option>';
+				<option value="" disabled>', Lang::$txt['pm_msg_label_apply'], ':</option>';
 
 			foreach (Utils::$context['labels'] as $label)
 			{
@@ -720,7 +715,7 @@ function template_subject_list()
 			}
 
 			echo '
-				<option value="" disabled>', $txt['pm_msg_label_remove'], ':</option>';
+				<option value="" disabled>', Lang::$txt['pm_msg_label_remove'], ':</option>';
 
 			foreach (Utils::$context['labels'] as $label)
 				echo '
@@ -729,12 +724,12 @@ function template_subject_list()
 			echo '
 			</select>
 			<noscript>
-				<input type="submit" value="', $txt['pm_apply'], '" class="button">
+				<input type="submit" value="', Lang::$txt['pm_apply'], '" class="button">
 			</noscript>';
 		}
 
 		echo '
-			<input type="submit" name="del_selected" value="', $txt['quickmod_delete_selected'], '" onclick="if (!confirm(\'', $txt['delete_selected_confirm'], '\')) return false;" class="button">';
+			<input type="submit" name="del_selected" value="', Lang::$txt['quickmod_delete_selected'], '" onclick="if (!confirm(\'', Lang::$txt['delete_selected_confirm'], '\')) return false;" class="button">';
 	}
 
 	echo '
@@ -747,8 +742,6 @@ function template_subject_list()
  */
 function template_search()
 {
-	global $txt;
-
 	if (!empty(Utils::$context['search_errors']))
 		echo '
 		<div class="errorbox">
@@ -758,13 +751,13 @@ function template_search()
 	echo '
 	<form action="', Config::$scripturl, '?action=pm;sa=search2" method="post" accept-charset="', Utils::$context['character_set'], '" name="searchform" id="searchform">
 		<div class="cat_bar">
-			<h3 class="catbg">', $txt['pm_search_title'], '</h3>
+			<h3 class="catbg">', Lang::$txt['pm_search_title'], '</h3>
 		</div>
 		<div id="advanced_search" class="roundframe">
 			<input type="hidden" name="advanced" value="1">
 			<dl id="search_options" class="settings">
 				<dt>
-					<strong><label for="searchfor">', $txt['pm_search_text'], ':</label></strong>
+					<strong><label for="searchfor">', Lang::$txt['pm_search_text'], ':</label></strong>
 				</dt>
 				<dd>
 					<input type="search" name="search"', !empty(Utils::$context['search_params']['search']) ? ' value="' . Utils::$context['search_params']['search'] . '"' : '', ' size="40">
@@ -774,56 +767,56 @@ function template_search()
 					</script>
 				</dd>
 				<dt>
-					<label for="searchtype">', $txt['search_match'], ':</label>
+					<label for="searchtype">', Lang::$txt['search_match'], ':</label>
 				</dt>
 				<dd>
 					<select name="searchtype">
-						<option value="1"', empty(Utils::$context['search_params']['searchtype']) ? ' selected' : '', '>', $txt['pm_search_match_all'], '</option>
-						<option value="2"', !empty(Utils::$context['search_params']['searchtype']) ? ' selected' : '', '>', $txt['pm_search_match_any'], '</option>
+						<option value="1"', empty(Utils::$context['search_params']['searchtype']) ? ' selected' : '', '>', Lang::$txt['pm_search_match_all'], '</option>
+						<option value="2"', !empty(Utils::$context['search_params']['searchtype']) ? ' selected' : '', '>', Lang::$txt['pm_search_match_any'], '</option>
 					</select>
 				</dd>
 				<dt>
-					<label for="userspec">', $txt['pm_search_user'], ':</label>
+					<label for="userspec">', Lang::$txt['pm_search_user'], ':</label>
 				</dt>
 				<dd>
 					<input type="text" name="userspec" value="', empty(Utils::$context['search_params']['userspec']) ? '*' : Utils::$context['search_params']['userspec'], '" size="40">
 				</dd>
 				<dt>
-					<label for="sort">', $txt['pm_search_order'], ':</label>
+					<label for="sort">', Lang::$txt['pm_search_order'], ':</label>
 				</dt>
 				<dd>
 					<select name="sort">
-						<option value="relevance|desc">', $txt['pm_search_orderby_relevant_first'], '</option>
-						<option value="id_pm|desc">', $txt['pm_search_orderby_recent_first'], '</option>
-						<option value="id_pm|asc">', $txt['pm_search_orderby_old_first'], '</option>
+						<option value="relevance|desc">', Lang::$txt['pm_search_orderby_relevant_first'], '</option>
+						<option value="id_pm|desc">', Lang::$txt['pm_search_orderby_recent_first'], '</option>
+						<option value="id_pm|asc">', Lang::$txt['pm_search_orderby_old_first'], '</option>
 					</select>
 				</dd>
 				<dt class="options">
-					', $txt['pm_search_options'], ':
+					', Lang::$txt['pm_search_options'], ':
 				</dt>
 				<dd class="options">
 					<label for="show_complete">
-						<input type="checkbox" name="show_complete" id="show_complete" value="1"', !empty(Utils::$context['search_params']['show_complete']) ? ' checked' : '', '> ', $txt['pm_search_show_complete'], '
+						<input type="checkbox" name="show_complete" id="show_complete" value="1"', !empty(Utils::$context['search_params']['show_complete']) ? ' checked' : '', '> ', Lang::$txt['pm_search_show_complete'], '
 					</label><br>
 					<label for="subject_only">
-						<input type="checkbox" name="subject_only" id="subject_only" value="1"', !empty(Utils::$context['search_params']['subject_only']) ? ' checked' : '', '> ', $txt['pm_search_subject_only'], '
+						<input type="checkbox" name="subject_only" id="subject_only" value="1"', !empty(Utils::$context['search_params']['subject_only']) ? ' checked' : '', '> ', Lang::$txt['pm_search_subject_only'], '
 					</label>
 				</dd>
 				<dt class="between">
-					', $txt['pm_search_post_age'], ':
+					', Lang::$txt['pm_search_post_age'], ':
 				</dt>
 				<dd>
-					', $txt['pm_search_between'], '
+					', Lang::$txt['pm_search_between'], '
 					<input type="number" name="minage" value="', empty(Utils::$context['search_params']['minage']) ? '0' : Utils::$context['search_params']['minage'], '" size="5" maxlength="5" min="0" max="9999">
-					', $txt['pm_search_between_and'], '
+					', Lang::$txt['pm_search_between_and'], '
 					<input type="number" name="maxage" value="', empty(Utils::$context['search_params']['maxage']) ? '9999' : Utils::$context['search_params']['maxage'], '" size="5" maxlength="5" min="0" max="9999">
-					', $txt['pm_search_between_days'], '
+					', Lang::$txt['pm_search_between_days'], '
 				</dd>
 			</dl>';
 
 	if (!Utils::$context['currently_using_labels'])
 		echo '
-				<input type="submit" name="pm_search" value="', $txt['pm_search_go'], '" class="button floatright">';
+				<input type="submit" name="pm_search" value="', Lang::$txt['pm_search_go'], '" class="button floatright">';
 
 	echo '
 		</div><!-- .roundframe -->';
@@ -836,7 +829,7 @@ function template_search()
 			<div class="roundframe alt">
 				<div class="title_bar">
 					<h3 class="titlebg">
-						<span id="advanced_panel_toggle" class="toggle_up floatright" style="display: none;"></span><a href="#" id="advanced_panel_link">', $txt['pm_search_choose_label'], '</a>
+						<span id="advanced_panel_toggle" class="toggle_up floatright" style="display: none;"></span><a href="#" id="advanced_panel_link">', Lang::$txt['pm_search_choose_label'], '</a>
 					</h3>
 				</div>
 				<div id="advanced_panel_div">
@@ -855,8 +848,8 @@ function template_search()
 				<br class="clear">
 				<div class="padding">
 					<input type="checkbox" name="all" id="check_all" value=""', Utils::$context['check_all'] ? ' checked' : '', ' onclick="invertAll(this, this.form, \'searchlabel\');">
-					<label for="check_all"><em>', $txt['check_all'], '</em></label>
-					<input type="submit" name="pm_search" value="', $txt['pm_search_go'], '" class="button floatright">
+					<label for="check_all"><em>', Lang::$txt['check_all'], '</em></label>
+					<input type="submit" name="pm_search" value="', Lang::$txt['pm_search_go'], '" class="button floatright">
 				</div class="padding">
 			</div><!-- .roundframe -->
 		</fieldset>';
@@ -873,15 +866,15 @@ function template_search()
 				aSwapImages: [
 					{
 						sId: \'advanced_panel_toggle\',
-						altExpanded: ', JavaScriptEscape($txt['hide']), ',
-						altCollapsed: ', JavaScriptEscape($txt['show']), '
+						altExpanded: ', JavaScriptEscape(Lang::$txt['hide']), ',
+						altCollapsed: ', JavaScriptEscape(Lang::$txt['show']), '
 					}
 				],
 				aSwapLinks: [
 					{
 						sId: \'advanced_panel_link\',
-						msgExpanded: ', JavaScriptEscape($txt['pm_search_choose_label']), ',
-						msgCollapsed: ', JavaScriptEscape($txt['pm_search_choose_label']), '
+						msgExpanded: ', JavaScriptEscape(Lang::$txt['pm_search_choose_label']), ',
+						msgCollapsed: ', JavaScriptEscape(Lang::$txt['pm_search_choose_label']), '
 					}
 				]
 			});
@@ -897,14 +890,12 @@ function template_search()
  */
 function template_search_results()
 {
-	global $txt;
-
 	echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', $txt['pm_search_results'], '</h3>
+			<h3 class="catbg">', Lang::$txt['pm_search_results'], '</h3>
 		</div>
 		<div class="roundframe noup">
-			', sprintf($txt['pm_search_results_info'], Utils::$context['num_results'], sentence_list(Utils::$context['search_in'])), '
+			', sprintf(Lang::$txt['pm_search_results_info'], Utils::$context['num_results'], Lang::sentenceList(Utils::$context['search_in'])), '
 		</div>
 		<div class="pagesection">
 			<div class="pagelinks">', Utils::$context['page_index'], '</div>
@@ -916,9 +907,9 @@ function template_search_results()
 		<table class="table_grid">
 			<thead>
 				<tr class="title_bar">
-					<th class="lefttext quarter_table">', $txt['date'], '</th>
-					<th class="lefttext half_table">', $txt['subject'], '</th>
-					<th class="lefttext quarter_table">', $txt['from'], '</th>
+					<th class="lefttext quarter_table">', Lang::$txt['date'], '</th>
+					<th class="lefttext half_table">', Lang::$txt['subject'], '</th>
+					<th class="lefttext quarter_table">', Lang::$txt['from'], '</th>
 				</tr>
 			</thead>
 			<tbody>';
@@ -951,7 +942,7 @@ function template_search_results()
 	if (empty(Utils::$context['personal_messages']))
 		echo '
 		<div class="windowbg">
-			<p class="centertext">', $txt['pm_search_none_found'], '</p>
+			<p class="centertext">', Lang::$txt['pm_search_none_found'], '</p>
 		</div>';
 
 	echo '
@@ -966,14 +957,14 @@ function template_search_results()
  */
 function template_send()
 {
-	global $options, $txt;
+	global $options;
 
 	// Show which messages were sent successfully and which failed.
 	if (!empty(Utils::$context['send_log']))
 	{
 		echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', $txt['pm_send_report'], '</h3>
+			<h3 class="catbg">', Lang::$txt['pm_send_report'], '</h3>
 		</div>
 		<div class="windowbg noup">';
 
@@ -1013,7 +1004,7 @@ function template_send()
 		<form action="', Config::$scripturl, '?action=pm;sa=send2" method="post" accept-charset="', Utils::$context['character_set'], '" name="postmodify" id="postmodify" class="flow_hidden" onsubmit="submitonce(this);">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<span class="main_icons inbox icon" title="', $txt['new_message'], '"></span> ', $txt['new_message'], '
+					<span class="main_icons inbox icon" title="', Lang::$txt['new_message'], '"></span> ', Lang::$txt['new_message'], '
 				</h3>
 			</div>
 			<div class="roundframe noup">';
@@ -1023,7 +1014,7 @@ function template_send()
 				<div class="', empty(Utils::$context['error_type']) || Utils::$context['error_type'] != 'serious' ? 'noticebox' : 'errorbox', '', empty(Utils::$context['post_error']['messages']) ? ' hidden' : '', '" id="errors">
 					<dl>
 						<dt>
-							<strong id="error_serious">', $txt['error_while_submitting'], '</strong>
+							<strong id="error_serious">', Lang::$txt['error_while_submitting'], '</strong>
 						</dt>
 						<dd class="error" id="error_list">
 							', empty(Utils::$context['post_error']['messages']) ? '' : implode('<br>', Utils::$context['post_error']['messages']), '
@@ -1034,8 +1025,8 @@ function template_send()
 	if (!empty(Config::$modSettings['drafts_pm_enabled']))
 		echo '
 				<div id="draft_section" class="infobox"', isset(Utils::$context['draft_saved']) ? '' : ' style="display: none;"', '>',
-					sprintf($txt['draft_pm_saved'], Config::$scripturl . '?action=pm;sa=showpmdrafts'), '
-					', (!empty(Config::$modSettings['drafts_keep_days']) ? ' <strong>' . sprintf($txt['draft_save_warning'], Config::$modSettings['drafts_keep_days']) . '</strong>' : ''), '
+					sprintf(Lang::$txt['draft_pm_saved'], Config::$scripturl . '?action=pm;sa=showpmdrafts'), '
+					', (!empty(Config::$modSettings['drafts_keep_days']) ? ' <strong>' . sprintf(Lang::$txt['draft_save_warning'], Config::$modSettings['drafts_keep_days']) . '</strong>' : ''), '
 				</div>';
 
 	echo '
@@ -1044,7 +1035,7 @@ function template_send()
 	// To and bcc. Include a button to search for members.
 	echo '
 					<dt>
-						<span', (isset(Utils::$context['post_error']['no_to']) || isset(Utils::$context['post_error']['bad_to']) ? ' class="error"' : ''), ' id="caption_to">', $txt['pm_to'], ':</span>
+						<span', (isset(Utils::$context['post_error']['no_to']) || isset(Utils::$context['post_error']['bad_to']) ? ' class="error"' : ''), ' id="caption_to">', Lang::$txt['pm_to'], ':</span>
 					</dt>';
 
 	// Autosuggest will be added by the JavaScript later on.
@@ -1066,7 +1057,7 @@ function template_send()
 	// This BCC row will be hidden by default if JavaScript is enabled.
 	echo '
 					<dt  class="clear_left" id="bcc_div">
-						<span', (isset(Utils::$context['post_error']['no_to']) || isset(Utils::$context['post_error']['bad_bcc']) ? ' class="error"' : ''), ' id="caption_bbc">', $txt['pm_bcc'], ':</span>
+						<span', (isset(Utils::$context['post_error']['no_to']) || isset(Utils::$context['post_error']['bad_bcc']) ? ' class="error"' : ''), ' id="caption_bbc">', Lang::$txt['pm_bcc'], ':</span>
 					</dt>
 					<dd id="bcc_div2">
 						<input type="text" name="bcc" id="bcc_control" value="', Utils::$context['bcc_value'], '" tabindex="', Utils::$context['tabindex']++, '" size="20">
@@ -1076,7 +1067,7 @@ function template_send()
 	// The subject of the PM.
 	echo '
 					<dt class="clear_left">
-						<span', (isset(Utils::$context['post_error']['no_subject']) ? ' class="error"' : ''), ' id="caption_subject">', $txt['subject'], ':</span>
+						<span', (isset(Utils::$context['post_error']['no_subject']) ? ' class="error"' : ''), ' id="caption_subject">', Lang::$txt['subject'], ':</span>
 					</dt>
 					<dd id="pm_subject">
 						<input type="text" name="subject" value="', Utils::$context['subject'], '" tabindex="', Utils::$context['tabindex']++, '" size="80" maxlength="80"', isset(Utils::$context['post_error']['no_subject']) ? ' class="error"' : '', '>
@@ -1093,13 +1084,13 @@ function template_send()
 		echo '
 				<div id="post_draft_options_header" class="title_bar">
 					<h4 class="titlebg">
-						<span id="postDraftExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postDraftExpandLink">', $txt['drafts_show'], '</a></strong>
+						<span id="postDraftExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postDraftExpandLink">', Lang::$txt['drafts_show'], '</a></strong>
 					</h4>
 				</div>
 				<div id="post_draft_options">
 					<dl class="settings">
-						<dt><strong>', $txt['subject'], '</strong></dt>
-						<dd><strong>', $txt['draft_saved_on'], '</strong></dd>';
+						<dt><strong>', Lang::$txt['subject'], '</strong></dt>
+						<dd><strong>', Lang::$txt['draft_saved_on'], '</strong></dd>';
 
 		foreach (Utils::$context['drafts'] as $draft)
 			echo '
@@ -1114,7 +1105,7 @@ function template_send()
 	if (Utils::$context['require_verification'])
 		echo '
 				<div class="post_verification">
-					<strong>', $txt['pm_visual_verification_label'], ':</strong>
+					<strong>', Lang::$txt['pm_visual_verification_label'], ':</strong>
 					', template_control_verification(Utils::$context['visual_verification_id'], 'all'), '
 				</div>';
 
@@ -1138,8 +1129,8 @@ function template_send()
 
 	// The functions used to preview a personal message without loading a new page.
 	echo '
-			var txt_preview_title = "', $txt['preview_title'], '";
-			var txt_preview_fetch = "', $txt['preview_fetch'], '";
+			var txt_preview_title = "', Lang::$txt['preview_title'], '";
+			var txt_preview_fetch = "', Lang::$txt['preview_fetch'], '";
 			function previewPost()
 			{
 				if (window.XMLHttpRequest)
@@ -1252,8 +1243,8 @@ function template_send()
 				aSwapLinks: [
 					{
 						sId: \'postDraftExpandLink\',
-						msgExpanded: ', JavaScriptEscape($txt['draft_hide']), ',
-						msgCollapsed: ', JavaScriptEscape($txt['drafts_show']), '
+						msgExpanded: ', JavaScriptEscape(Lang::$txt['draft_hide']), ',
+						msgCollapsed: ', JavaScriptEscape(Lang::$txt['drafts_show']), '
 					}
 				]
 			});';
@@ -1266,12 +1257,12 @@ function template_send()
 		echo '
 		<br><br>
 		<div class="cat_bar">
-			<h3 class="catbg">', $txt['subject'], ': ', Utils::$context['quoted_message']['subject'], '</h3>
+			<h3 class="catbg">', Lang::$txt['subject'], ': ', Utils::$context['quoted_message']['subject'], '</h3>
 		</div>
 		<div class="windowbg">
 			<div class="clear">
-				<span class="smalltext floatright">', $txt['on'], ': ', Utils::$context['quoted_message']['time'], '</span>
-				<strong>', $txt['from'], ': ', Utils::$context['quoted_message']['member']['name'], '</strong>
+				<span class="smalltext floatright">', Lang::$txt['on'], ': ', Utils::$context['quoted_message']['time'], '</span>
+				<strong>', Lang::$txt['from'], ': ', Utils::$context['quoted_message']['member']['name'], '</strong>
 			</div>
 			<hr>
 			', Utils::$context['quoted_message']['body'], '
@@ -1284,7 +1275,7 @@ function template_send()
 				sSelf: \'oPersonalMessageSend\',
 				sSessionId: smf_session_id,
 				sSessionVar: smf_session_var,
-				sTextDeleteItem: \'', $txt['autosuggest_delete_item'], '\',
+				sTextDeleteItem: \'', Lang::$txt['autosuggest_delete_item'], '\',
 				sToControlId: \'to_control\',
 				aToRecipients: [';
 
@@ -1315,7 +1306,7 @@ function template_send()
 				sBccLinkContainerId: \'bcc_link_container\',
 				bBccShowByDefault: ', empty(Utils::$context['recipients']['bcc']) && empty(Utils::$context['bcc_value']) ? 'false' : 'true', ',
 				sShowBccLinkTemplate: ', JavaScriptEscape('
-					<a href="#" id="bcc_link">' . $txt['make_bcc'] . '</a> <a href="' . Config::$scripturl . '?action=helpadmin;help=pm_bcc" onclick="return reqOverlayDiv(this.href);">(?)</a>'
+					<a href="#" id="bcc_link">' . Lang::$txt['make_bcc'] . '</a> <a href="' . Config::$scripturl . '?action=helpadmin;help=pm_bcc" onclick="return reqOverlayDiv(this.href);">(?)</a>'
 				), '
 			});';
 
@@ -1328,18 +1319,16 @@ function template_send()
  */
 function template_ask_delete()
 {
-	global $txt;
-
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				', (Utils::$context['delete_all'] ? $txt['delete_message'] : $txt['delete_all']), '
+				', (Utils::$context['delete_all'] ? Lang::$txt['delete_message'] : Lang::$txt['delete_all']), '
 			</h3>
 		</div>
 		<div class="windowbg">
-			<p>', $txt['delete_all_confirm'], '</p>
+			<p>', Lang::$txt['delete_all_confirm'], '</p>
 			<br>
-			<strong><a href="', Config::$scripturl, '?action=pm;sa=removeall2;f=', Utils::$context['folder'], ';', Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '', ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', $txt['yes'], '</a> - <a href="javascript:history.go(-1);">', $txt['no'], '</a></strong>
+			<strong><a href="', Config::$scripturl, '?action=pm;sa=removeall2;f=', Utils::$context['folder'], ';', Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '', ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::$txt['yes'], '</a> - <a href="javascript:history.go(-1);">', Lang::$txt['no'], '</a></strong>
 		</div>';
 }
 
@@ -1348,23 +1337,21 @@ function template_ask_delete()
  */
 function template_prune()
 {
-	global $txt;
-
 	echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', $txt['pm_prune'], '</h3>
+			<h3 class="catbg">', Lang::$txt['pm_prune'], '</h3>
 		</div>
 		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=pm;sa=prune" method="post" accept-charset="', Utils::$context['character_set'], '" onsubmit="return confirm(\'', $txt['pm_prune_warning'], '\');">
-				<p>', $txt['pm_prune_desc1'], ' <input type="text" name="age" size="3" value="14"> ', $txt['pm_prune_desc2'], '</p>
-				<input type="submit" value="', $txt['delete'], '" class="button">
+			<form action="', Config::$scripturl, '?action=pm;sa=prune" method="post" accept-charset="', Utils::$context['character_set'], '" onsubmit="return confirm(\'', Lang::$txt['pm_prune_warning'], '\');">
+				<p>', Lang::$txt['pm_prune_desc1'], ' <input type="text" name="age" size="3" value="14"> ', Lang::$txt['pm_prune_desc2'], '</p>
+				<input type="submit" value="', Lang::$txt['delete'], '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			</form>
 		</div>
 		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=pm;sa=removeall2" method="post" onsubmit="return confirm(\'', $txt['pm_remove_all_warning'], '\');">
-				<p>', $txt['pm_remove_all'], '</p>
-				<input type="submit" value="', $txt['delete_all_prune'], '" class="button">
+			<form action="', Config::$scripturl, '?action=pm;sa=removeall2" method="post" onsubmit="return confirm(\'', Lang::$txt['pm_remove_all_warning'], '\');">
+				<p>', Lang::$txt['pm_remove_all'], '</p>
+				<input type="submit" value="', Lang::$txt['delete_all_prune'], '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			</form>
 		</div>';
@@ -1375,21 +1362,19 @@ function template_prune()
  */
 function template_labels()
 {
-	global $txt;
-
 	echo '
 	<form action="', Config::$scripturl, '?action=pm;sa=manlabels" method="post" accept-charset="', Utils::$context['character_set'], '">
 		<div class="cat_bar">
-			<h3 class="catbg">', $txt['pm_manage_labels'], '</h3>
+			<h3 class="catbg">', Lang::$txt['pm_manage_labels'], '</h3>
 		</div>
 		<div class="information">
-			', $txt['pm_labels_desc'], '
+			', Lang::$txt['pm_labels_desc'], '
 		</div>
 		<table class="table_grid">
 			<thead>
 				<tr class="title_bar">
 					<th class="lefttext">
-						', $txt['pm_label_name'], '
+						', Lang::$txt['pm_label_name'], '
 					</th>
 					<th class="centertext table_icon">';
 
@@ -1405,7 +1390,7 @@ function template_labels()
 	if (count(Utils::$context['labels']) < 2)
 		echo '
 				<tr class="windowbg">
-					<td colspan="2">', $txt['pm_labels_no_exist'], '</td>
+					<td colspan="2">', Lang::$txt['pm_labels_no_exist'], '</td>
 				</tr>';
 	else
 	{
@@ -1430,8 +1415,8 @@ function template_labels()
 	if (!count(Utils::$context['labels']) < 2)
 		echo '
 		<div class="block righttext">
-			<input type="submit" name="save" value="', $txt['save'], '" class="button">
-			<input type="submit" name="delete" value="', $txt['quickmod_delete_selected'], '" data-confirm="', $txt['pm_labels_delete'], '" class="button you_sure">
+			<input type="submit" name="save" value="', Lang::$txt['save'], '" class="button">
+			<input type="submit" name="delete" value="', Lang::$txt['quickmod_delete_selected'], '" data-confirm="', Lang::$txt['pm_labels_delete'], '" class="button you_sure">
 		</div>';
 
 	echo '
@@ -1439,18 +1424,18 @@ function template_labels()
 	</form>
 	<form action="', Config::$scripturl, '?action=pm;sa=manlabels" method="post" accept-charset="', Utils::$context['character_set'], '">
 		<div class="cat_bar">
-			<h3 class="catbg">', $txt['pm_label_add_new'], '</h3>
+			<h3 class="catbg">', Lang::$txt['pm_label_add_new'], '</h3>
 		</div>
 		<div class="windowbg">
 			<dl class="settings">
 				<dt>
-					<strong><label for="add_label">', $txt['pm_label_name'], '</label>:</strong>
+					<strong><label for="add_label">', Lang::$txt['pm_label_name'], '</label>:</strong>
 				</dt>
 				<dd>
 					<input type="text" id="add_label" name="label" value="" size="30" maxlength="30">
 				</dd>
 			</dl>
-			<input type="submit" name="add" value="', $txt['pm_label_add_new'], '" class="button floatright">
+			<input type="submit" name="add" value="', Lang::$txt['pm_label_add_new'], '" class="button floatright">
 		</div>
 		<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 	</form>
@@ -1462,16 +1447,14 @@ function template_labels()
  */
 function template_report_message()
 {
-	global $txt;
-
 	echo '
 	<form action="', Config::$scripturl, '?action=pm;sa=report;l=', Utils::$context['current_label_id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
 		<input type="hidden" name="pmsg" value="', Utils::$context['pm_id'], '">
 		<div class="information">
-			', $txt['pm_report_desc'], '
+			', Lang::$txt['pm_report_desc'], '
 		</div>
 		<div class="cat_bar">
-			<h3 class="catbg">', $txt['pm_report_title'], '</h3>
+			<h3 class="catbg">', Lang::$txt['pm_report_title'], '</h3>
 		</div>
 		<div class="windowbg">
 			<dl class="settings">';
@@ -1482,11 +1465,11 @@ function template_report_message()
 	{
 		echo '
 				<dt>
-					<strong>', $txt['pm_report_admins'], ':</strong>
+					<strong>', Lang::$txt['pm_report_admins'], ':</strong>
 				</dt>
 				<dd>
 					<select name="id_admin">
-						<option value="0">', $txt['pm_report_all_admins'], '</option>';
+						<option value="0">', Lang::$txt['pm_report_all_admins'], '</option>';
 
 		foreach (Utils::$context['admins'] as $id => $name)
 			echo '
@@ -1499,14 +1482,14 @@ function template_report_message()
 
 	echo '
 				<dt>
-					<strong>', $txt['pm_report_reason'], ':</strong>
+					<strong>', Lang::$txt['pm_report_reason'], ':</strong>
 				</dt>
 				<dd>
 					<textarea name="reason" rows="4" cols="70" style="width: 80%;"></textarea>
 				</dd>
 			</dl>
 			<div class="righttext">
-				<input type="submit" name="report" value="', $txt['pm_report_message'], '" class="button">
+				<input type="submit" name="report" value="', Lang::$txt['pm_report_message'], '" class="button">
 			</div>
 		</div><!-- .windowbg -->
 		<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -1518,15 +1501,13 @@ function template_report_message()
  */
 function template_report_message_complete()
 {
-	global $txt;
-
 	echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', $txt['pm_report_title'], '</h3>
+			<h3 class="catbg">', Lang::$txt['pm_report_title'], '</h3>
 		</div>
 		<div class="windowbg">
-			<p>', $txt['pm_report_done'], '</p>
-			<a href="', Config::$scripturl, '?action=pm;l=', Utils::$context['current_label_id'], '">', $txt['pm_report_return'], '</a>
+			<p>', Lang::$txt['pm_report_done'], '</p>
+			<a href="', Config::$scripturl, '?action=pm;l=', Utils::$context['current_label_id'], '">', Lang::$txt['pm_report_return'], '</a>
 		</div>';
 }
 
@@ -1535,21 +1516,19 @@ function template_report_message_complete()
  */
 function template_rules()
 {
-	global $txt;
-
 	echo '
 	<form action="', Config::$scripturl, '?action=pm;sa=manrules" method="post" accept-charset="', Utils::$context['character_set'], '" name="manRules" id="manrules">
 		<div class="cat_bar">
-			<h3 class="catbg">', $txt['pm_manage_rules'], '</h3>
+			<h3 class="catbg">', Lang::$txt['pm_manage_rules'], '</h3>
 		</div>
 		<div class="information">
-			', $txt['pm_manage_rules_desc'], '
+			', Lang::$txt['pm_manage_rules_desc'], '
 		</div>
 		<table class="table_grid">
 			<thead>
 				<tr class="title_bar">
 					<th class="lefttext">
-						', $txt['pm_rule_title'], '
+						', Lang::$txt['pm_rule_title'], '
 					</th>
 					<th class="centertext table_icon">';
 
@@ -1567,7 +1546,7 @@ function template_rules()
 		echo '
 				<tr class="windowbg">
 					<td colspan="2">
-						', $txt['pm_rules_none'], '
+						', Lang::$txt['pm_rules_none'], '
 					</td>
 				</tr>';
 
@@ -1586,16 +1565,16 @@ function template_rules()
 			</tbody>
 		</table>
 		<div class="righttext">
-			<a class="button" href="', Config::$scripturl, '?action=pm;sa=manrules;add;rid=0">', $txt['pm_add_rule'], '</a>';
+			<a class="button" href="', Config::$scripturl, '?action=pm;sa=manrules;add;rid=0">', Lang::$txt['pm_add_rule'], '</a>';
 
 	if (!empty(Utils::$context['rules']))
 		echo '
-			[<a href="', Config::$scripturl, '?action=pm;sa=manrules;apply;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" onclick="return confirm(\'', $txt['pm_js_apply_rules_confirm'], '\');">', $txt['pm_apply_rules'], '</a>]';
+			[<a href="', Config::$scripturl, '?action=pm;sa=manrules;apply;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" onclick="return confirm(\'', Lang::$txt['pm_js_apply_rules_confirm'], '\');">', Lang::$txt['pm_apply_rules'], '</a>]';
 
 	if (!empty(Utils::$context['rules']))
 		echo '
 			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-			<input type="submit" name="delselected" value="', $txt['pm_delete_selected_rule'], '" data-confirm="', $txt['pm_js_delete_rule_confirm'], '" class="button smalltext you_sure">';
+			<input type="submit" name="delselected" value="', Lang::$txt['pm_delete_selected_rule'], '" data-confirm="', Lang::$txt['pm_js_delete_rule_confirm'], '" class="button smalltext you_sure">';
 
 	echo '
 		</div>
@@ -1608,8 +1587,6 @@ function template_rules()
  */
 function template_add_rule()
 {
-	global $txt;
-
 	echo '
 	<script>
 		var criteriaNum = 0;
@@ -1639,7 +1616,7 @@ function template_add_rule()
 			if (criteriaNum++ >= ', Utils::$context['rule_limiters']['criteria'], ')
 				return false;
 
-			setOuterHTML(document.getElementById("criteriaAddHere"), \'<br><select name="ruletype[\' + criteriaNum + \']" id="ruletype\' + criteriaNum + \'" onchange="updateRuleDef(\' + criteriaNum + \'); rebuildRuleDesc();"><option value="">', addslashes($txt['pm_rule_criteria_pick']), ':<\' + \'/option><option value="mid">', addslashes($txt['pm_rule_mid']), '<\' + \'/option><option value="gid">', addslashes($txt['pm_rule_gid']), '<\' + \'/option><option value="sub">', addslashes($txt['pm_rule_sub']), '<\' + \'/option><option value="msg">', addslashes($txt['pm_rule_msg']), '<\' + \'/option><option value="bud">', addslashes($txt['pm_rule_bud']), '<\' + \'/option><\' + \'/select>&nbsp;<span id="defdiv\' + criteriaNum + \'" style="display: none;"><input type="text" name="ruledef[\' + criteriaNum + \']" id="ruledef\' + criteriaNum + \'" onkeyup="rebuildRuleDesc();" value=""><\' + \'/span><span id="defseldiv\' + criteriaNum + \'" style="display: none;"><select name="ruledefgroup[\' + criteriaNum + \']" id="ruledefgroup\' + criteriaNum + \'" onchange="rebuildRuleDesc();"><option value="">', addslashes($txt['pm_rule_sel_group']), '<\' + \'/option>';
+			setOuterHTML(document.getElementById("criteriaAddHere"), \'<br><select name="ruletype[\' + criteriaNum + \']" id="ruletype\' + criteriaNum + \'" onchange="updateRuleDef(\' + criteriaNum + \'); rebuildRuleDesc();"><option value="">', addslashes(Lang::$txt['pm_rule_criteria_pick']), ':<\' + \'/option><option value="mid">', addslashes(Lang::$txt['pm_rule_mid']), '<\' + \'/option><option value="gid">', addslashes(Lang::$txt['pm_rule_gid']), '<\' + \'/option><option value="sub">', addslashes(Lang::$txt['pm_rule_sub']), '<\' + \'/option><option value="msg">', addslashes(Lang::$txt['pm_rule_msg']), '<\' + \'/option><option value="bud">', addslashes(Lang::$txt['pm_rule_bud']), '<\' + \'/option><\' + \'/select>&nbsp;<span id="defdiv\' + criteriaNum + \'" style="display: none;"><input type="text" name="ruledef[\' + criteriaNum + \']" id="ruledef\' + criteriaNum + \'" onkeyup="rebuildRuleDesc();" value=""><\' + \'/span><span id="defseldiv\' + criteriaNum + \'" style="display: none;"><select name="ruledefgroup[\' + criteriaNum + \']" id="ruledefgroup\' + criteriaNum + \'" onchange="rebuildRuleDesc();"><option value="">', addslashes(Lang::$txt['pm_rule_sel_group']), '<\' + \'/option>';
 
 	foreach (Utils::$context['groups'] as $id => $group)
 		echo '<option value="', $id, '">', strtr($group, array("'" => "\'")), '<\' + \'/option>';
@@ -1661,7 +1638,7 @@ function template_add_rule()
 				if (actionNum++ >= ', Utils::$context['rule_limiters']['actions'], ')
 					return false;
 
-				setOuterHTML(document.getElementById("actionAddHere"), \'<br><select name="acttype[\' + actionNum + \']" id="acttype\' + actionNum + \'" onchange="updateActionDef(\' + actionNum + \'); rebuildRuleDesc();"><option value="">', addslashes($txt['pm_rule_sel_action']), ':<\' + \'/option><option value="lab">', addslashes($txt['pm_rule_label']), '<\' + \'/option><option value="del">', addslashes($txt['pm_rule_delete']), '<\' + \'/option><\' + \'/select>&nbsp;<span id="labdiv\' + actionNum + \'" style="display: none;"><select name="labdef[\' + actionNum + \']" id="labdef\' + actionNum + \'" onchange="rebuildRuleDesc();"><option value="">', addslashes($txt['pm_rule_sel_label']), '<\' + \'/option>';
+				setOuterHTML(document.getElementById("actionAddHere"), \'<br><select name="acttype[\' + actionNum + \']" id="acttype\' + actionNum + \'" onchange="updateActionDef(\' + actionNum + \'); rebuildRuleDesc();"><option value="">', addslashes(Lang::$txt['pm_rule_sel_action']), ':<\' + \'/option><option value="lab">', addslashes(Lang::$txt['pm_rule_label']), '<\' + \'/option><option value="del">', addslashes(Lang::$txt['pm_rule_delete']), '<\' + \'/option><\' + \'/select>&nbsp;<span id="labdiv\' + actionNum + \'" style="display: none;"><select name="labdef[\' + actionNum + \']" id="labdef\' + actionNum + \'" onchange="rebuildRuleDesc();"><option value="">', addslashes(Lang::$txt['pm_rule_sel_label']), '<\' + \'/option>';
 
 	foreach (Utils::$context['labels'] as $label)
 		if ($label['id'] != -1)
@@ -1690,7 +1667,7 @@ function template_add_rule()
 					if (document.forms.addrule.elements[i].id.substr(0, 8) == "ruletype")
 					{
 						if (foundCriteria)
-							joinText = document.getElementById("logic").value == \'and\' ? ', JavaScriptEscape(' <em>' . $txt['pm_readable_and'] . '</em> '), ' : ', JavaScriptEscape(' <em>' . $txt['pm_readable_or'] . '</em> '), ';
+							joinText = document.getElementById("logic").value == \'and\' ? ', JavaScriptEscape(' <em>' . Lang::$txt['pm_readable_and'] . '</em> '), ' : ', JavaScriptEscape(' <em>' . Lang::$txt['pm_readable_or'] . '</em> '), ';
 						else
 							joinText = \'\';
 						foundCriteria = true;
@@ -1706,23 +1683,23 @@ function template_add_rule()
 
 						// What type of test is this?
 						if (curVal == "mid" && curDef)
-							text += joinText + ', JavaScriptEscape($txt['pm_readable_member']), '.replace("{MEMBER}", curDef);
+							text += joinText + ', JavaScriptEscape(Lang::$txt['pm_readable_member']), '.replace("{MEMBER}", curDef);
 						else if (curVal == "gid" && curDef && groups[curDef])
-							text += joinText + ', JavaScriptEscape($txt['pm_readable_group']), '.replace("{GROUP}", groups[curDef]);
+							text += joinText + ', JavaScriptEscape(Lang::$txt['pm_readable_group']), '.replace("{GROUP}", groups[curDef]);
 						else if (curVal == "sub" && curDef)
-							text += joinText + ', JavaScriptEscape($txt['pm_readable_subject']), '.replace("{SUBJECT}", curDef);
+							text += joinText + ', JavaScriptEscape(Lang::$txt['pm_readable_subject']), '.replace("{SUBJECT}", curDef);
 						else if (curVal == "msg" && curDef)
-							text += joinText + ', JavaScriptEscape($txt['pm_readable_body']), '.replace("{BODY}", curDef);
+							text += joinText + ', JavaScriptEscape(Lang::$txt['pm_readable_body']), '.replace("{BODY}", curDef);
 						else if (curVal == "bud" && !hadBuddy)
 						{
-							text += joinText + ', JavaScriptEscape($txt['pm_readable_buddy']), ';
+							text += joinText + ', JavaScriptEscape(Lang::$txt['pm_readable_buddy']), ';
 							hadBuddy = true;
 						}
 					}
 					if (document.forms.addrule.elements[i].id.substr(0, 7) == "acttype")
 					{
 						if (foundAction)
-							joinText = ', JavaScriptEscape(' <em>' . $txt['pm_readable_and'] . '</em> '), ';
+							joinText = ', JavaScriptEscape(' <em>' . Lang::$txt['pm_readable_and'] . '</em> '), ';
 						else
 							joinText = "";
 						foundAction = true;
@@ -1736,20 +1713,20 @@ function template_add_rule()
 
 						// Now pick the actions.
 						if (curVal == "lab" && curDef && labels[curDef])
-							actionText += joinText + ', JavaScriptEscape($txt['pm_readable_label']), '.replace("{LABEL}", labels[curDef]);
+							actionText += joinText + ', JavaScriptEscape(Lang::$txt['pm_readable_label']), '.replace("{LABEL}", labels[curDef]);
 						else if (curVal == "del")
-							actionText += joinText + ', JavaScriptEscape($txt['pm_readable_delete']), ';
+							actionText += joinText + ', JavaScriptEscape(Lang::$txt['pm_readable_delete']), ';
 					}
 				}
 
 				// If still nothing make it default!
 				if (text == "" || !foundCriteria)
-					text = "', $txt['pm_rule_not_defined'], '";
+					text = "', Lang::$txt['pm_rule_not_defined'], '";
 				else
 				{
 					if (actionText != "")
-						text += ', JavaScriptEscape(' <strong>' . $txt['pm_readable_then'] . '</strong> '), ' + actionText;
-					text = ', JavaScriptEscape($txt['pm_readable_start']), ' + text + ', JavaScriptEscape($txt['pm_readable_end']), ';
+						text += ', JavaScriptEscape(' <strong>' . Lang::$txt['pm_readable_then'] . '</strong> '), ' + actionText;
+					text = ', JavaScriptEscape(Lang::$txt['pm_readable_start']), ' + text + ', JavaScriptEscape(Lang::$txt['pm_readable_end']), ';
 				}
 
 				// Set the actual HTML!
@@ -1760,20 +1737,20 @@ function template_add_rule()
 	echo '
 	<form action="', Config::$scripturl, '?action=pm;sa=manrules;save;rid=', Utils::$context['rid'], '" method="post" accept-charset="', Utils::$context['character_set'], '" name="addrule" id="addrule" class="flow_hidden">
 		<div class="cat_bar">
-			<h3 class="catbg">', Utils::$context['rid'] == 0 ? $txt['pm_add_rule'] : $txt['pm_edit_rule'], '</h3>
+			<h3 class="catbg">', Utils::$context['rid'] == 0 ? Lang::$txt['pm_add_rule'] : Lang::$txt['pm_edit_rule'], '</h3>
 		</div>
 		<div class="windowbg">
 			<dl class="addrules">
 				<dt class="floatleft">
-					<strong>', $txt['pm_rule_name'], ':</strong><br>
-					<span class="smalltext">', $txt['pm_rule_name_desc'], '</span>
+					<strong>', Lang::$txt['pm_rule_name'], ':</strong><br>
+					<span class="smalltext">', Lang::$txt['pm_rule_name_desc'], '</span>
 				</dt>
 				<dd class="floatleft">
-					<input type="text" name="rule_name" value="', empty(Utils::$context['rule']['name']) ? $txt['pm_rule_name_default'] : Utils::$context['rule']['name'], '" size="50">
+					<input type="text" name="rule_name" value="', empty(Utils::$context['rule']['name']) ? Lang::$txt['pm_rule_name_default'] : Utils::$context['rule']['name'], '" size="50">
 				</dd>
 			</dl>
 			<fieldset>
-				<legend>', $txt['pm_rule_criteria'], '</legend>';
+				<legend>', Lang::$txt['pm_rule_criteria'], '</legend>';
 
 	// Add a dummy criteria to allow expansion for none js users.
 	Utils::$context['rule']['criteria'][] = array('t' => '', 'v' => '');
@@ -1790,11 +1767,11 @@ function template_add_rule()
 
 		echo '
 				<select name="ruletype[', $k, ']" id="ruletype', $k, '" onchange="updateRuleDef(', $k, '); rebuildRuleDesc();">
-					<option value="">', $txt['pm_rule_criteria_pick'], ':</option>';
+					<option value="">', Lang::$txt['pm_rule_criteria_pick'], ':</option>';
 
 		foreach (array('mid', 'gid', 'sub', 'msg', 'bud') as $cr)
 			echo '
-					<option value="', $cr, '"', $criteria['t'] == $cr ? ' selected' : '', '>', $txt['pm_rule_' . $cr], '</option>';
+					<option value="', $cr, '"', $criteria['t'] == $cr ? ' selected' : '', '>', Lang::$txt['pm_rule_' . $cr], '</option>';
 
 		echo '
 				</select>
@@ -1803,7 +1780,7 @@ function template_add_rule()
 				</span>
 				<span id="defseldiv', $k, '" ', $criteria['t'] == 'gid' ? '' : 'style="display: none;"', '>
 					<select name="ruledefgroup[', $k, ']" id="ruledefgroup', $k, '" onchange="rebuildRuleDesc();">
-						<option value="">', $txt['pm_rule_sel_group'], '</option>';
+						<option value="">', Lang::$txt['pm_rule_sel_group'], '</option>';
 
 		foreach (Utils::$context['groups'] as $id => $group)
 			echo '
@@ -1822,16 +1799,16 @@ function template_add_rule()
 
 	echo '
 				<span id="criteriaAddHere"></span><br>
-				<a href="#" onclick="addCriteriaOption(); return false;" id="addonjs1" style="display: none;">(', $txt['pm_rule_criteria_add'], ')</a>
+				<a href="#" onclick="addCriteriaOption(); return false;" id="addonjs1" style="display: none;">(', Lang::$txt['pm_rule_criteria_add'], ')</a>
 				<br><br>
-				', $txt['pm_rule_logic'], ':
+				', Lang::$txt['pm_rule_logic'], ':
 				<select name="rule_logic" id="logic" onchange="rebuildRuleDesc();">
-					<option value="and"', Utils::$context['rule']['logic'] == 'and' ? ' selected' : '', '>', $txt['pm_rule_logic_and'], '</option>
-					<option value="or"', Utils::$context['rule']['logic'] == 'or' ? ' selected' : '', '>', $txt['pm_rule_logic_or'], '</option>
+					<option value="and"', Utils::$context['rule']['logic'] == 'and' ? ' selected' : '', '>', Lang::$txt['pm_rule_logic_and'], '</option>
+					<option value="or"', Utils::$context['rule']['logic'] == 'or' ? ' selected' : '', '>', Lang::$txt['pm_rule_logic_or'], '</option>
 				</select>
 			</fieldset>
 			<fieldset>
-				<legend>', $txt['pm_rule_actions'], '</legend>';
+				<legend>', Lang::$txt['pm_rule_actions'], '</legend>';
 
 	// As with criteria - add a dummy action for "expansion".
 	Utils::$context['rule']['actions'][] = array('t' => '', 'v' => '');
@@ -1847,13 +1824,13 @@ function template_add_rule()
 
 		echo '
 				<select name="acttype[', $k, ']" id="acttype', $k, '" onchange="updateActionDef(', $k, '); rebuildRuleDesc();">
-					<option value="">', $txt['pm_rule_sel_action'], ':</option>
-					<option value="lab"', $action['t'] == 'lab' ? ' selected' : '', '>', $txt['pm_rule_label'], '</option>
-					<option value="del"', $action['t'] == 'del' ? ' selected' : '', '>', $txt['pm_rule_delete'], '</option>
+					<option value="">', Lang::$txt['pm_rule_sel_action'], ':</option>
+					<option value="lab"', $action['t'] == 'lab' ? ' selected' : '', '>', Lang::$txt['pm_rule_label'], '</option>
+					<option value="del"', $action['t'] == 'del' ? ' selected' : '', '>', Lang::$txt['pm_rule_delete'], '</option>
 				</select>
 				<span id="labdiv', $k, '">
 					<select name="labdef[', $k, ']" id="labdef', $k, '" onchange="rebuildRuleDesc();">
-						<option value="">', $txt['pm_rule_sel_label'], '</option>';
+						<option value="">', Lang::$txt['pm_rule_sel_label'], '</option>';
 
 		foreach (Utils::$context['labels'] as $label)
 			if ($label['id'] != -1)
@@ -1873,17 +1850,17 @@ function template_add_rule()
 
 	echo '
 				<span id="actionAddHere"></span><br>
-				<a href="#" onclick="addActionOption(); return false;" id="addonjs2" style="display: none;">(', $txt['pm_rule_add_action'], ')</a>
+				<a href="#" onclick="addActionOption(); return false;" id="addonjs2" style="display: none;">(', Lang::$txt['pm_rule_add_action'], ')</a>
 			</fieldset>
 			<div class="cat_bar">
-				<h3 class="catbg">', $txt['pm_rule_description'], '</h3>
+				<h3 class="catbg">', Lang::$txt['pm_rule_description'], '</h3>
 			</div>
 			<div class="information">
-				<div id="ruletext">', $txt['pm_rule_js_disabled'], '</div>
+				<div id="ruletext">', Lang::$txt['pm_rule_js_disabled'], '</div>
 			</div>
 			<div class="righttext">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-				<input type="submit" name="save" value="', $txt['pm_rule_save'], '" class="button">
+				<input type="submit" name="save" value="', Lang::$txt['pm_rule_save'], '" class="button">
 			</div>
 		</div><!-- .windowbg -->
 	</form>';
@@ -1926,23 +1903,21 @@ function template_add_rule()
  */
 function template_showPMDrafts()
 {
-	global $txt;
-
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="main_icons inbox"></span> ', $txt['drafts_show'], '
+				<span class="main_icons inbox"></span> ', Lang::$txt['drafts_show'], '
 			</h3>
 		</div>
 		<p class="information">
-			', $txt['drafts_show_desc'], '
+			', Lang::$txt['drafts_show_desc'], '
 		</p>';
 
 	// No drafts? Just show an informative message.
 	if (empty(Utils::$context['drafts']))
 		echo '
 		<div class="windowbg centertext">
-			', $txt['draft_none'], '
+			', Lang::$txt['draft_none'], '
 		</div>';
 	else
 	{
@@ -1962,16 +1937,16 @@ function template_showPMDrafts()
 					<strong>', $draft['subject'], '</strong>
 				</h5>
 				<div class="smalltext">
-					<div class="recipient_to"><strong>', $txt['pm_to'], ':</strong> ', implode(', ', $draft['recipients']['to']), '</div>';
+					<div class="recipient_to"><strong>', Lang::$txt['pm_to'], ':</strong> ', implode(', ', $draft['recipients']['to']), '</div>';
 
 			if(!empty($draft['recipients']['bcc']))
 				echo'
-					<div class="pm_bbc"><strong>', $txt['pm_bcc'], ':</strong> ', implode(', ', $draft['recipients']['bcc']), '</div>';
+					<div class="pm_bbc"><strong>', Lang::$txt['pm_bcc'], ':</strong> ', implode(', ', $draft['recipients']['bcc']), '</div>';
 
 			echo '
 				</div>
 				<div class="smalltext">
-					<strong>', $txt['draft_saved_on'], ':</strong> ', sprintf($txt['draft_days_ago'], $draft['age']), (!empty($draft['remaining']) ? ', ' . sprintf($txt['draft_retain'], $draft['remaining']) : ''), '
+					<strong>', Lang::$txt['draft_saved_on'], ':</strong> ', sprintf(Lang::$txt['draft_days_ago'], $draft['age']), (!empty($draft['remaining']) ? ', ' . sprintf(Lang::$txt['draft_retain'], $draft['remaining']) : ''), '
 				</div>
 			</div>
 			<div class="list_posts">

@@ -12,8 +12,8 @@
  * 		array('text', 'nameInModSettingsAndSQL')
  * (NOTE: You have to add an entry for this at the bottom!)
  *
- * In these cases, it will look for $txt['nameInModSettingsAndSQL'] as the description,
- * and $helptxt['nameInModSettingsAndSQL'] as the help popup description.
+ * In these cases, it will look for Lang::$txt['nameInModSettingsAndSQL'] as the description,
+ * and Lang::$helptxt['nameInModSettingsAndSQL'] as the help popup description.
  *
  * Here's a quick explanation of how to add a new item:
  *
@@ -28,7 +28,7 @@
  * - A check box.  Either one or zero. (boolean)
  * 		array('check', 'nameInModSettingsAndSQL'),
  * - A selection box.  Used for the selection of something from a list.
- * 		array('select', 'nameInModSettingsAndSQL', array('valueForSQL' => $txt['displayedValue'])),
+ * 		array('select', 'nameInModSettingsAndSQL', array('valueForSQL' => Lang::$txt['displayedValue'])),
  * 		Note that just saying array('first', 'second') will put 0 in the SQL for 'first'.
  * - A password input box. Used for passwords, no less!
  * 		array('password', 'nameInModSettingsAndSQL', 'OptionalInputBoxWidth'),
@@ -61,6 +61,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -79,24 +80,22 @@ if (!defined('SMF'))
  */
 function ModifySettings()
 {
-	global $txt;
-
 	// This is just to keep the database password more secure.
 	isAllowedTo('admin_forum');
 
 	// Load up all the tabs...
 	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
-		'title' => $txt['admin_server_settings'],
+		'title' => Lang::$txt['admin_server_settings'],
 		'help' => 'serversettings',
-		'description' => $txt['admin_basic_settings'],
+		'description' => Lang::$txt['admin_basic_settings'],
 	);
 
 	checkSession('request');
 
 	// The settings are in here, I swear!
-	loadLanguage('ManageSettings');
+	Lang::load('ManageSettings');
 
-	Utils::$context['page_title'] = $txt['admin_server_settings'];
+	Utils::$context['page_title'] = Lang::$txt['admin_server_settings'];
 	Utils::$context['sub_template'] = 'show_settings';
 
 	$subActions = array(
@@ -116,7 +115,7 @@ function ModifySettings()
 
 	if ($settings_backup_fail)
 		Utils::$context['settings_message'] = array(
-			'label' => $txt['admin_backup_fail'],
+			'label' => Lang::$txt['admin_backup_fail'],
 			'tag' => 'div',
 			'class' => 'centertext strong'
 		);
@@ -148,31 +147,29 @@ function ModifySettings()
  */
 function ModifyGeneralSettings($return_config = false)
 {
-	global $txt;
-
 	/* If you're writing a mod, it's a bad idea to add things here....
 	For each option:
 		variable name, description, type (constant), size/possible values, helptext, optional 'min' (minimum value for float/int, defaults to 0), optional 'max' (maximum value for float/int), optional 'step' (amount to increment/decrement value for float/int)
 	OR	an empty string for a horizontal rule.
 	OR	a string for a titled section. */
 	$config_vars = array(
-		array('mbname', $txt['admin_title'], 'file', 'text', 30),
+		array('mbname', Lang::$txt['admin_title'], 'file', 'text', 30),
 		'',
-		array('maintenance', $txt['admin_maintain'], 'file', 'check'),
-		array('mtitle', $txt['maintenance_subject'], 'file', 'text', 36),
-		array('mmessage', $txt['maintenance_message'], 'file', 'text', 36),
+		array('maintenance', Lang::$txt['admin_maintain'], 'file', 'check'),
+		array('mtitle', Lang::$txt['maintenance_subject'], 'file', 'text', 36),
+		array('mmessage', Lang::$txt['maintenance_message'], 'file', 'text', 36),
 		'',
-		array('webmaster_email', $txt['admin_webmaster_email'], 'file', 'text', 30),
+		array('webmaster_email', Lang::$txt['admin_webmaster_email'], 'file', 'text', 30),
 		'',
-		array('enableCompressedOutput', $txt['enableCompressedOutput'], 'db', 'check', null, 'enableCompressedOutput'),
-		array('disableHostnameLookup', $txt['disableHostnameLookup'], 'db', 'check', null, 'disableHostnameLookup'),
+		array('enableCompressedOutput', Lang::$txt['enableCompressedOutput'], 'db', 'check', null, 'enableCompressedOutput'),
+		array('disableHostnameLookup', Lang::$txt['disableHostnameLookup'], 'db', 'check', null, 'disableHostnameLookup'),
 		'',
-		'force_ssl' => array('force_ssl', $txt['force_ssl'], 'db', 'select', array($txt['force_ssl_off'], $txt['force_ssl_complete']), 'force_ssl'),
-		array('image_proxy_enabled', $txt['image_proxy_enabled'], 'file', 'check', null, 'image_proxy_enabled'),
-		array('image_proxy_secret', $txt['image_proxy_secret'], 'file', 'text', 30, 'image_proxy_secret'),
-		array('image_proxy_maxsize', $txt['image_proxy_maxsize'], 'file', 'int', null, 'image_proxy_maxsize'),
+		'force_ssl' => array('force_ssl', Lang::$txt['force_ssl'], 'db', 'select', array(Lang::$txt['force_ssl_off'], Lang::$txt['force_ssl_complete']), 'force_ssl'),
+		array('image_proxy_enabled', Lang::$txt['image_proxy_enabled'], 'file', 'check', null, 'image_proxy_enabled'),
+		array('image_proxy_secret', Lang::$txt['image_proxy_secret'], 'file', 'text', 30, 'image_proxy_secret'),
+		array('image_proxy_maxsize', Lang::$txt['image_proxy_maxsize'], 'file', 'int', null, 'image_proxy_maxsize'),
 		'',
-		array('enable_sm_stats', $txt['enable_sm_stats'], 'db', 'check', null, 'enable_sm_stats'),
+		array('enable_sm_stats', Lang::$txt['enable_sm_stats'], 'db', 'check', null, 'enable_sm_stats'),
 	);
 
 	call_integration_hook('integrate_general_settings', array(&$config_vars));
@@ -185,7 +182,7 @@ function ModifyGeneralSettings($return_config = false)
 
 	// Setup the template stuff.
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=serversettings;sa=general;save';
-	Utils::$context['settings_title'] = $txt['general_settings'];
+	Utils::$context['settings_title'] = Lang::$txt['general_settings'];
 	Utils::$context['save_disabled'] = Utils::$context['settings_not_writable'];
 
 	// Saving settings?
@@ -393,20 +390,18 @@ function BoardurlMatch($url = '')
  */
 function ModifyDatabaseSettings($return_config = false)
 {
-	global $txt;
-
 	/* If you're writing a mod, it's a bad idea to add things here....
 		For each option:
 		variable name, description, type (constant), size/possible values, helptext, optional 'min' (minimum value for float/int, defaults to 0), optional 'max' (maximum value for float/int), optional 'step' (amount to increment/decrement value for float/int)
 		OR an empty string for a horizontal rule.
 		OR a string for a titled section. */
 	$config_vars = array(
-		array('db_persist', $txt['db_persist'], 'file', 'check', null, 'db_persist'),
-		array('db_error_send', $txt['db_error_send'], 'file', 'check'),
-		array('ssi_db_user', $txt['ssi_db_user'], 'file', 'text', null, 'ssi_db_user'),
-		array('ssi_db_passwd', $txt['ssi_db_passwd'], 'file', 'password'),
+		array('db_persist', Lang::$txt['db_persist'], 'file', 'check', null, 'db_persist'),
+		array('db_error_send', Lang::$txt['db_error_send'], 'file', 'check'),
+		array('ssi_db_user', Lang::$txt['ssi_db_user'], 'file', 'text', null, 'ssi_db_user'),
+		array('ssi_db_passwd', Lang::$txt['ssi_db_passwd'], 'file', 'password'),
 		'',
-		array('autoFixDatabase', $txt['autoFixDatabase'], 'db', 'check', false, 'autoFixDatabase')
+		array('autoFixDatabase', Lang::$txt['autoFixDatabase'], 'db', 'check', false, 'autoFixDatabase')
 	);
 
 	// Add PG Stuff
@@ -420,7 +415,7 @@ function ModifyDatabaseSettings($return_config = false)
 
 		$config_vars = array_merge($config_vars, array(
 				'',
-				array('search_language', $txt['search_language'], 'db', 'select', $fts_language, 'pgFulltextSearch')
+				array('search_language', Lang::$txt['search_language'], 'db', 'select', $fts_language, 'pgFulltextSearch')
 			)
 		);
 	}
@@ -432,7 +427,7 @@ function ModifyDatabaseSettings($return_config = false)
 
 	// Setup the template stuff.
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=serversettings;sa=database;save';
-	Utils::$context['settings_title'] = $txt['database_settings'];
+	Utils::$context['settings_title'] = Lang::$txt['database_settings'];
 	Utils::$context['save_disabled'] = Utils::$context['settings_not_writable'];
 
 	if (!Db::$db->allow_persistent())
@@ -464,45 +459,45 @@ function ModifyDatabaseSettings($return_config = false)
  */
 function ModifyCookieSettings($return_config = false)
 {
-	global $txt, $user_settings;
+	global $user_settings;
 
 	// Define the variables we want to edit.
 	$config_vars = array(
 		// Cookies...
-		array('cookiename', $txt['cookie_name'], 'file', 'text', 20),
-		array('cookieTime', $txt['cookieTime'], 'db', 'select', array_filter(array_map(
-			function ($str) use ($txt)
+		array('cookiename', Lang::$txt['cookie_name'], 'file', 'text', 20),
+		array('cookieTime', Lang::$txt['cookieTime'], 'db', 'select', array_filter(array_map(
+			function ($str)
 			{
-				return isset($txt[$str]) ? $txt[$str] : '';
+				return isset(Lang::$txt[$str]) ? Lang::$txt[$str] : '';
 			},
 			Utils::$context['login_cookie_times']
 		))),
-		array('localCookies', $txt['localCookies'], 'db', 'check', false, 'localCookies'),
-		array('globalCookies', $txt['globalCookies'], 'db', 'check', false, 'globalCookies'),
-		array('globalCookiesDomain', $txt['globalCookiesDomain'], 'db', 'text', false, 'globalCookiesDomain'),
-		array('secureCookies', $txt['secureCookies'], 'db', 'check', false, 'secureCookies', 'disabled' => !httpsOn()),
-		array('httponlyCookies', $txt['httponlyCookies'], 'db', 'check', false, 'httponlyCookies'),
-		array('samesiteCookies', $txt['samesiteCookies'], 'db', 'select', array(
-				'none' 		=> $txt['samesiteNone'],
-				'lax' 		=> $txt['samesiteLax'],
-				'strict' 	=> $txt['samesiteStrict']
+		array('localCookies', Lang::$txt['localCookies'], 'db', 'check', false, 'localCookies'),
+		array('globalCookies', Lang::$txt['globalCookies'], 'db', 'check', false, 'globalCookies'),
+		array('globalCookiesDomain', Lang::$txt['globalCookiesDomain'], 'db', 'text', false, 'globalCookiesDomain'),
+		array('secureCookies', Lang::$txt['secureCookies'], 'db', 'check', false, 'secureCookies', 'disabled' => !httpsOn()),
+		array('httponlyCookies', Lang::$txt['httponlyCookies'], 'db', 'check', false, 'httponlyCookies'),
+		array('samesiteCookies', Lang::$txt['samesiteCookies'], 'db', 'select', array(
+				'none' 		=> Lang::$txt['samesiteNone'],
+				'lax' 		=> Lang::$txt['samesiteLax'],
+				'strict' 	=> Lang::$txt['samesiteStrict']
 			),
 			'samesiteCookies'),
 		'',
 		// Sessions
-		array('databaseSession_enable', $txt['databaseSession_enable'], 'db', 'check', false, 'databaseSession_enable'),
-		array('databaseSession_loose', $txt['databaseSession_loose'], 'db', 'check', false, 'databaseSession_loose'),
-		array('databaseSession_lifetime', $txt['databaseSession_lifetime'], 'db', 'int', false, 'databaseSession_lifetime', 'postinput' => $txt['seconds']),
+		array('databaseSession_enable', Lang::$txt['databaseSession_enable'], 'db', 'check', false, 'databaseSession_enable'),
+		array('databaseSession_loose', Lang::$txt['databaseSession_loose'], 'db', 'check', false, 'databaseSession_loose'),
+		array('databaseSession_lifetime', Lang::$txt['databaseSession_lifetime'], 'db', 'int', false, 'databaseSession_lifetime', 'postinput' => Lang::$txt['seconds']),
 		'',
 		// 2FA
-		array('tfa_mode', $txt['tfa_mode'], 'db', 'select', array(
-			0 => $txt['tfa_mode_disabled'],
-			1 => $txt['tfa_mode_enabled'],
+		array('tfa_mode', Lang::$txt['tfa_mode'], 'db', 'select', array(
+			0 => Lang::$txt['tfa_mode_disabled'],
+			1 => Lang::$txt['tfa_mode_enabled'],
 		) + (empty($user_settings['tfa_secret']) ? array() : array(
-			2 => $txt['tfa_mode_forced'],
+			2 => Lang::$txt['tfa_mode_forced'],
 		)) + (empty($user_settings['tfa_secret']) ? array() : array(
-			3 => $txt['tfa_mode_forcedall'],
-		)), 'subtext' => $txt['tfa_mode_subtext'] . (empty($user_settings['tfa_secret']) ? '<br><strong>' . $txt['tfa_mode_forced_help'] . '</strong>' : ''), 'tfa_mode'),
+			3 => Lang::$txt['tfa_mode_forcedall'],
+		)), 'subtext' => Lang::$txt['tfa_mode_subtext'] . (empty($user_settings['tfa_secret']) ? '<br><strong>' . Lang::$txt['tfa_mode_forced_help'] . '</strong>' : ''), 'tfa_mode'),
 	);
 
 	addInlineJavaScript('
@@ -532,7 +527,7 @@ function ModifyCookieSettings($return_config = false)
 		return $config_vars;
 
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=serversettings;sa=cookie;save';
-	Utils::$context['settings_title'] = $txt['cookies_sessions_settings'];
+	Utils::$context['settings_title'] = Lang::$txt['cookies_sessions_settings'];
 	Utils::$context['save_disabled'] = Utils::$context['settings_not_writable'];
 
 	// Saving settings?
@@ -614,11 +609,9 @@ function ModifyCookieSettings($return_config = false)
  */
 function ModifyGeneralSecuritySettings($return_config = false)
 {
-	global $txt;
-
 	$config_vars = array(
 		array('int', 'failed_login_threshold'),
-		array('int', 'loginHistoryDays', 'subtext' => $txt['zero_to_disable']),
+		array('int', 'loginHistoryDays', 'subtext' => Lang::$txt['zero_to_disable']),
 		'',
 
 		array('check', 'securityDisable'),
@@ -635,9 +628,9 @@ function ModifyGeneralSecuritySettings($return_config = false)
 			'select',
 			'password_strength',
 			array(
-				$txt['setting_password_strength_low'],
-				$txt['setting_password_strength_medium'],
-				$txt['setting_password_strength_high']
+				Lang::$txt['setting_password_strength_low'],
+				Lang::$txt['setting_password_strength_medium'],
+				Lang::$txt['setting_password_strength_high']
 			)
 		),
 		array('check', 'enable_password_conversion'),
@@ -657,9 +650,9 @@ function ModifyGeneralSecuritySettings($return_config = false)
 			'select',
 			'frame_security',
 			array(
-				'SAMEORIGIN' => $txt['setting_frame_security_SAMEORIGIN'],
-				'DENY' => $txt['setting_frame_security_DENY'],
-				'DISABLE' => $txt['setting_frame_security_DISABLE']
+				'SAMEORIGIN' => Lang::$txt['setting_frame_security_SAMEORIGIN'],
+				'DENY' => Lang::$txt['setting_frame_security_DENY'],
+				'DISABLE' => Lang::$txt['setting_frame_security_DISABLE']
 			)
 		),
 		'',
@@ -668,8 +661,8 @@ function ModifyGeneralSecuritySettings($return_config = false)
 			'select',
 			'proxy_ip_header',
 			array(
-				'disabled' => $txt['setting_proxy_ip_header_disabled'],
-				'autodetect' => $txt['setting_proxy_ip_header_autodetect'],
+				'disabled' => Lang::$txt['setting_proxy_ip_header_disabled'],
+				'autodetect' => Lang::$txt['setting_proxy_ip_header_autodetect'],
 				'HTTP_X_FORWARDED_FOR' => 'X-Forwarded-For',
 				'HTTP_CLIENT_IP' => 'Client-IP',
 				'HTTP_X_REAL_IP' => 'X-Real-IP',
@@ -717,7 +710,7 @@ function ModifyGeneralSecuritySettings($return_config = false)
 	}
 
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=serversettings;save;sa=security';
-	Utils::$context['settings_title'] = $txt['security_settings'];
+	Utils::$context['settings_title'] = Lang::$txt['security_settings'];
 
 	prepareDBSettingContext($config_vars);
 }
@@ -730,8 +723,6 @@ function ModifyGeneralSecuritySettings($return_config = false)
  */
 function ModifyCacheSettings($return_config = false)
 {
-	global $txt;
-
 	// Detect all available optimizers
 	$detectedCacheApis = CacheApi::detect();
 	$apis_names = array();
@@ -741,32 +732,32 @@ function ModifyCacheSettings($return_config = false)
 	{
 		$class_name_txt_key = strtolower($cache_api->getImplementationClassKeyName());
 
-		$apis_names[$class_name] = isset($txt[$class_name_txt_key . '_cache']) ?
-			$txt[$class_name_txt_key . '_cache'] : $class_name;
+		$apis_names[$class_name] = isset(Lang::$txt[$class_name_txt_key . '_cache']) ?
+			Lang::$txt[$class_name_txt_key . '_cache'] : $class_name;
 	}
 
 	// set our values to show what, if anything, we found
 	if (empty($detectedCacheApis))
 	{
-		$txt['cache_settings_message'] = '<strong class="alert">' . $txt['detected_no_caching'] . '</strong>';
-		$cache_level = array($txt['cache_off']);
-		$apis_names['none'] = $txt['cache_off'];
+		Lang::$txt['cache_settings_message'] = '<strong class="alert">' . Lang::$txt['detected_no_caching'] . '</strong>';
+		$cache_level = array(Lang::$txt['cache_off']);
+		$apis_names['none'] = Lang::$txt['cache_off'];
 	}
 
 	else
 	{
-		$txt['cache_settings_message'] = '<strong class="success">' .
-			sprintf($txt['detected_accelerators'], implode(', ', $apis_names)) . '</strong>';
+		Lang::$txt['cache_settings_message'] = '<strong class="success">' .
+			sprintf(Lang::$txt['detected_accelerators'], implode(', ', $apis_names)) . '</strong>';
 
-		$cache_level = array($txt['cache_off'], $txt['cache_level1'], $txt['cache_level2'], $txt['cache_level3']);
+		$cache_level = array(Lang::$txt['cache_off'], Lang::$txt['cache_level1'], Lang::$txt['cache_level2'], Lang::$txt['cache_level3']);
 	}
 
 	// Define the variables we want to edit.
 	$config_vars = array(
 		// Only a few settings, but they are important
-		array('', $txt['cache_settings_message'], '', 'desc'),
-		array('cache_enable', $txt['cache_enable'], 'file', 'select', $cache_level, 'cache_enable'),
-		array('cache_accelerator', $txt['cache_accelerator'], 'file', 'select', $apis_names),
+		array('', Lang::$txt['cache_settings_message'], '', 'desc'),
+		array('cache_enable', Lang::$txt['cache_enable'], 'file', 'select', $cache_level, 'cache_enable'),
+		array('cache_accelerator', Lang::$txt['cache_accelerator'], 'file', 'select', $apis_names),
 	);
 
 	// some javascript to enable / disable certain settings if the option is not selected
@@ -807,19 +798,19 @@ function ModifyCacheSettings($return_config = false)
 		redirectexit('action=admin;area=serversettings;sa=cache;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 	}
 
-	loadLanguage('ManageMaintenance');
+	Lang::load('ManageMaintenance');
 	createToken('admin-maint');
 	Utils::$context['template_layers'][] = 'clean_cache_button';
 
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=serversettings;sa=cache;save';
-	Utils::$context['settings_title'] = $txt['caching_settings'];
+	Utils::$context['settings_title'] = Lang::$txt['caching_settings'];
 
 	// Changing cache settings won't have any effect if Settings.php is not writable.
 	Utils::$context['save_disabled'] = Utils::$context['settings_not_writable'];
 
 	// Decide what message to show.
 	if (!Utils::$context['save_disabled'])
-		Utils::$context['settings_message'] = $txt['caching_information'];
+		Utils::$context['settings_message'] = Lang::$txt['caching_information'];
 
 	// Prepare the template.
 	prepareServerSettingsContext($config_vars);
@@ -833,8 +824,6 @@ function ModifyCacheSettings($return_config = false)
  */
 function ModifyExportSettings($return_config = false)
 {
-	global $txt;
-
 	// Fill in a default value for this if it is missing.
 	if (empty(Config::$modSettings['export_dir']))
 		Config::$modSettings['export_dir'] = Config::$boarddir . DIRECTORY_SEPARATOR . 'exports';
@@ -851,13 +840,13 @@ function ModifyExportSettings($return_config = false)
 	 */
 	$diskspace_disabled = (!function_exists('disk_free_space') || !function_exists('disk_total_space') || intval(@disk_total_space(file_exists(Config::$modSettings['export_dir']) ? Config::$modSettings['export_dir'] : Config::$boarddir)) < 1440);
 
-	Utils::$context['settings_message'] = $txt['export_settings_description'];
+	Utils::$context['settings_message'] = Lang::$txt['export_settings_description'];
 
 	$config_vars = array(
 		array('text', 'export_dir', 40),
-		array('int', 'export_expiry', 'subtext' => $txt['zero_to_disable'], 'postinput' => $txt['days_word']),
+		array('int', 'export_expiry', 'subtext' => Lang::$txt['zero_to_disable'], 'postinput' => Lang::$txt['days_word']),
 		array('int', 'export_min_diskspace_pct', 'postinput' => '%', 'max' => 80, 'disabled' => $diskspace_disabled),
-		array('int', 'export_rate', 'min' => 5, 'max' => 500, 'step' => 5, 'subtext' => $txt['export_rate_desc']),
+		array('int', 'export_rate', 'min' => 5, 'max' => 500, 'step' => 5, 'subtext' => Lang::$txt['export_rate_desc']),
 	);
 
 	call_integration_hook('integrate_export_settings', array(&$config_vars));
@@ -904,7 +893,7 @@ function ModifyExportSettings($return_config = false)
 	}
 
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=serversettings;sa=export;save';
-	Utils::$context['settings_title'] = $txt['export_settings'];
+	Utils::$context['settings_title'] = Lang::$txt['export_settings'];
 
 	prepareDBSettingContext($config_vars);
 }
@@ -917,21 +906,19 @@ function ModifyExportSettings($return_config = false)
  */
 function ModifyLoadBalancingSettings($return_config = false)
 {
-	global $txt;
-
 	// Setup a warning message, but disabled by default.
 	$disabled = true;
-	Utils::$context['settings_message'] = array('label' => $txt['loadavg_disabled_conf'], 'class' => 'error');
+	Utils::$context['settings_message'] = array('label' => Lang::$txt['loadavg_disabled_conf'], 'class' => 'error');
 
 	if (DIRECTORY_SEPARATOR === '\\')
 	{
-		Utils::$context['settings_message']['label'] = $txt['loadavg_disabled_windows'];
+		Utils::$context['settings_message']['label'] = Lang::$txt['loadavg_disabled_windows'];
 		if (isset($_GET['save']))
 			$_SESSION['adm-save'] = Utils::$context['settings_message']['label'];
 	}
 	elseif (stripos(PHP_OS, 'darwin') === 0)
 	{
-		Utils::$context['settings_message']['label'] = $txt['loadavg_disabled_osx'];
+		Utils::$context['settings_message']['label'] = Lang::$txt['loadavg_disabled_osx'];
 		if (isset($_GET['save']))
 			$_SESSION['adm-save'] = Utils::$context['settings_message']['label'];
 	}
@@ -947,7 +934,7 @@ function ModifyLoadBalancingSettings($return_config = false)
 
 		if (!empty(Config::$modSettings['load_average']) || (isset(Config::$modSettings['load_average']) && Config::$modSettings['load_average'] === 0.0))
 		{
-			Utils::$context['settings_message']['label'] = sprintf($txt['loadavg_warning'], Config::$modSettings['load_average']);
+			Utils::$context['settings_message']['label'] = sprintf(Lang::$txt['loadavg_warning'], Config::$modSettings['load_average']);
 			$disabled = false;
 		}
 	}
@@ -983,7 +970,7 @@ function ModifyLoadBalancingSettings($return_config = false)
 		return $config_vars;
 
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=serversettings;sa=loads;save';
-	Utils::$context['settings_title'] = $txt['load_balancing_settings'];
+	Utils::$context['settings_title'] = Lang::$txt['load_balancing_settings'];
 
 	// Saving?
 	if (isset($_GET['save']))
@@ -1040,11 +1027,9 @@ function ModifyLoadBalancingSettings($return_config = false)
  */
 function prepareServerSettingsContext(&$config_vars)
 {
-	global $txt;
-
 	if (!empty(Utils::$context['settings_not_writable']))
 		Utils::$context['settings_message'] = array(
-			'label' => $txt['settings_not_writable'],
+			'label' => Lang::$txt['settings_not_writable'],
 			'tag' => 'div',
 			'class' => 'centertext strong'
 		);
@@ -1141,9 +1126,7 @@ function prepareServerSettingsContext(&$config_vars)
  */
 function prepareDBSettingContext(&$config_vars)
 {
-	global $txt, $helptxt;
-
-	loadLanguage('Help');
+	Lang::load('Help');
 
 	if (isset($_SESSION['adm-save']))
 	{
@@ -1223,8 +1206,8 @@ function prepareDBSettingContext(&$config_vars)
 			}
 
 			Utils::$context['config_vars'][$config_var[1]] = array(
-				'label' => isset($config_var['text_label']) ? $config_var['text_label'] : (isset($txt[$config_var[1]]) ? $txt[$config_var[1]] : (isset($config_var[3]) && !is_array($config_var[3]) ? $config_var[3] : '')),
-				'help' => isset($helptxt[$config_var[1]]) ? $config_var[1] : '',
+				'label' => isset($config_var['text_label']) ? $config_var['text_label'] : (isset(Lang::$txt[$config_var[1]]) ? Lang::$txt[$config_var[1]] : (isset($config_var[3]) && !is_array($config_var[3]) ? $config_var[3] : '')),
+				'help' => isset(Lang::$helptxt[$config_var[1]]) ? $config_var[1] : '',
 				'type' => $config_var[0],
 				'size' => !empty($config_var['size']) ? $config_var['size'] : (!empty($config_var[2]) && !is_array($config_var[2]) ? $config_var[2] : (in_array($config_var[0], array('int', 'float')) ? 6 : 0)),
 				'data' => array(),
@@ -1233,7 +1216,7 @@ function prepareDBSettingContext(&$config_vars)
 				'disabled' => false,
 				'invalid' => !empty($config_var['invalid']),
 				'javascript' => '',
-				'var_message' => !empty($config_var['message']) && isset($txt[$config_var['message']]) ? $txt[$config_var['message']] : '',
+				'var_message' => !empty($config_var['message']) && isset(Lang::$txt[$config_var['message']]) ? Lang::$txt[$config_var['message']] : '',
 				'preinput' => isset($config_var['preinput']) ? $config_var['preinput'] : '',
 				'postinput' => isset($config_var['postinput']) ? $config_var['postinput'] : '',
 			);
@@ -1290,11 +1273,11 @@ function prepareDBSettingContext(&$config_vars)
 				}
 
 				// See if there are any other labels that might fit?
-				if (isset($txt['setting_' . $config_var[1]]))
-					Utils::$context['config_vars'][$config_var[1]]['label'] = $txt['setting_' . $config_var[1]];
+				if (isset(Lang::$txt['setting_' . $config_var[1]]))
+					Utils::$context['config_vars'][$config_var[1]]['label'] = Lang::$txt['setting_' . $config_var[1]];
 
-				elseif (isset($txt['groups_' . $config_var[1]]))
-					Utils::$context['config_vars'][$config_var[1]]['label'] = $txt['groups_' . $config_var[1]];
+				elseif (isset(Lang::$txt['groups_' . $config_var[1]]))
+					Utils::$context['config_vars'][$config_var[1]]['label'] = Lang::$txt['groups_' . $config_var[1]];
 			}
 
 			// Set the subtext in case it's part of the label.
@@ -1341,7 +1324,7 @@ function prepareDBSettingContext(&$config_vars)
 		foreach ($bbcChoice as $bbcSection)
 		{
 			Utils::$context['bbc_sections'][$bbcSection] = array(
-				'title' => isset($txt['bbc_title_' . $bbcSection]) ? $txt['bbc_title_' . $bbcSection] : $txt['enabled_bbc_select'],
+				'title' => isset(Lang::$txt['bbc_title_' . $bbcSection]) ? Lang::$txt['bbc_title_' . $bbcSection] : Lang::$txt['enabled_bbc_select'],
 				'disabled' => empty(Config::$modSettings['bbc_disabled_' . $bbcSection]) ? array() : Config::$modSettings['bbc_disabled_' . $bbcSection],
 				'all_selected' => empty(Config::$modSettings['bbc_disabled_' . $bbcSection]),
 				'columns' => array(),
@@ -1364,7 +1347,7 @@ function prepareDBSettingContext(&$config_vars)
 
 				Utils::$context['bbc_sections'][$bbcSection]['columns'][$col][] = array(
 					'tag' => $tag,
-					'show_help' => isset($helptxt['tag_' . $tag]),
+					'show_help' => isset(Lang::$helptxt['tag_' . $tag]),
 				);
 
 				$i++;
@@ -1733,9 +1716,7 @@ function saveDBSettings(&$config_vars)
  */
 function ShowPHPinfoSettings()
 {
-	global $txt;
-
-	$category = $txt['phpinfo_settings'];
+	$category = Lang::$txt['phpinfo_settings'];
 
 	// get the data
 	ob_start();
@@ -1763,12 +1744,12 @@ function ShowPHPinfoSettings()
 		if (preg_match('~<tr><td[^>]+>([^<]*)</td><td[^>]+>([^<]*)</td></tr>~', $line, $val))
 			$pinfo[$category][$val[1]] = $val[2];
 		elseif (preg_match('~<tr><td[^>]+>([^<]*)</td><td[^>]+>([^<]*)</td><td[^>]+>([^<]*)</td></tr>~', $line, $val))
-			$pinfo[$category][$val[1]] = array($txt['phpinfo_localsettings'] => $val[2], $txt['phpinfo_defaultsettings'] => $val[3]);
+			$pinfo[$category][$val[1]] = array(Lang::$txt['phpinfo_localsettings'] => $val[2], Lang::$txt['phpinfo_defaultsettings'] => $val[3]);
 	}
 
 	// load it in to context and display it
 	Utils::$context['pinfo'] = $pinfo;
-	Utils::$context['page_title'] = $txt['admin_server_settings'];
+	Utils::$context['page_title'] = Lang::$txt['admin_server_settings'];
 	Utils::$context['sub_template'] = 'php_info';
 	return;
 }

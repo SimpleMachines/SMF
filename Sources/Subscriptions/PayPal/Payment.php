@@ -14,6 +14,7 @@
 namespace SMF\Subscriptions\PayPal;
 
 use SMF\Config;
+use SMF\Lang;
 
 /**
  * Class of functions to validate a IPN response and provide details of the payment
@@ -62,8 +63,6 @@ class Payment
 	 */
 	public function precheck()
 	{
-		global $txt;
-
 		// Put this to some default value.
 		if (!isset($_POST['txn_type']))
 			$_POST['txn_type'] = '';
@@ -119,7 +118,7 @@ class Payment
 
 			// Did it work?
 			if (!$fp)
-				generateSubscriptionError($txt['paypal_could_not_connect']);
+				generateSubscriptionError(Lang::$txt['paypal_could_not_connect']);
 
 			// Put the data to the port.
 			fputs($fp, $header . $requestString);

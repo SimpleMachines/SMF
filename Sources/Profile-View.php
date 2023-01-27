@@ -13,6 +13,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -26,7 +27,7 @@ if (!defined('SMF'))
  */
 function summary($memID)
 {
-	global $memberContext, $txt, $user_profile;
+	global $memberContext, $user_profile;
 
 	// Attempt to load the member's profile data.
 	if (!loadMemberContext($memID) || !isset($memberContext[$memID]))
@@ -34,7 +35,7 @@ function summary($memID)
 
 	// Set up the stuff and load the user.
 	Utils::$context += array(
-		'page_title' => sprintf($txt['profile_of_username'], $memberContext[$memID]['name']),
+		'page_title' => sprintf(Lang::$txt['profile_of_username'], $memberContext[$memID]['name']),
 		'can_send_pm' => allowedTo('pm_send'),
 		'can_have_buddy' => allowedTo('profile_extra_own') && !empty(Config::$modSettings['enable_buddylist']),
 		'can_issue_warning' => allowedTo('issue_warning') && Config::$modSettings['warning_settings'][0] == 1,
@@ -50,31 +51,31 @@ function summary($memID)
 	Utils::$context['disabled_fields'] = isset(Config::$modSettings['disabled_profile_fields']) ? array_flip(explode(',', Config::$modSettings['disabled_profile_fields'])) : array();
 	// Menu tab
 	Utils::$context[Utils::$context['profile_menu_name']]['tab_data'] = array(
-		'title' => $txt['summary'],
+		'title' => Lang::$txt['summary'],
 		'icon_class' => 'main_icons profile_hd'
 	);
 
 	// See if they have broken any warning levels...
 	list (Config::$modSettings['warning_enable'], Config::$modSettings['user_limit']) = explode(',', Config::$modSettings['warning_settings']);
 	if (!empty(Config::$modSettings['warning_mute']) && Config::$modSettings['warning_mute'] <= Utils::$context['member']['warning'])
-		Utils::$context['warning_status'] = $txt['profile_warning_is_muted'];
+		Utils::$context['warning_status'] = Lang::$txt['profile_warning_is_muted'];
 	elseif (!empty(Config::$modSettings['warning_moderate']) && Config::$modSettings['warning_moderate'] <= Utils::$context['member']['warning'])
-		Utils::$context['warning_status'] = $txt['profile_warning_is_moderation'];
+		Utils::$context['warning_status'] = Lang::$txt['profile_warning_is_moderation'];
 	elseif (!empty(Config::$modSettings['warning_watch']) && Config::$modSettings['warning_watch'] <= Utils::$context['member']['warning'])
-		Utils::$context['warning_status'] = $txt['profile_warning_is_watch'];
+		Utils::$context['warning_status'] = Lang::$txt['profile_warning_is_watch'];
 
 	// They haven't even been registered for a full day!?
 	$days_registered = (int) ((time() - $user_profile[$memID]['date_registered']) / (3600 * 24));
 	if (empty($user_profile[$memID]['date_registered']) || $days_registered < 1)
-		Utils::$context['member']['posts_per_day'] = $txt['not_applicable'];
+		Utils::$context['member']['posts_per_day'] = Lang::$txt['not_applicable'];
 	else
-		Utils::$context['member']['posts_per_day'] = comma_format(Utils::$context['member']['real_posts'] / $days_registered, 3);
+		Utils::$context['member']['posts_per_day'] = Lang::numberFormat(Utils::$context['member']['real_posts'] / $days_registered, 3);
 
 	// Set the age...
 	if (empty(Utils::$context['member']['birth_date']) || substr(Utils::$context['member']['birth_date'], 0, 4) < 1002)
 	{
 		Utils::$context['member'] += array(
-			'age' => $txt['not_applicable'],
+			'age' => Lang::$txt['not_applicable'],
 			'today_is_birthday' => false
 		);
 	}
@@ -83,7 +84,7 @@ function summary($memID)
 		list ($birth_year, $birth_month, $birth_day) = sscanf(Utils::$context['member']['birth_date'], '%d-%d-%d');
 		$datearray = getdate(time());
 		Utils::$context['member'] += array(
-			'age' => $birth_year <= 1004 ? $txt['not_applicable'] : $datearray['year'] - $birth_year - (($datearray['mon'] > $birth_month || ($datearray['mon'] == $birth_month && $datearray['mday'] >= $birth_day)) ? 0 : 1),
+			'age' => $birth_year <= 1004 ? Lang::$txt['not_applicable'] : $datearray['year'] - $birth_year - (($datearray['mon'] > $birth_month || ($datearray['mon'] == $birth_month && $datearray['mday'] >= $birth_day)) ? 0 : 1),
 			'today_is_birthday' => $datearray['mon'] == $birth_month && $datearray['mday'] == $birth_day && $birth_year > 1004
 		);
 	}
@@ -119,10 +120,10 @@ function summary($memID)
 	{
 		Utils::$context['activate_type'] = Utils::$context['member']['is_activated'];
 		// What should the link text be?
-		Utils::$context['activate_link_text'] = in_array(Utils::$context['member']['is_activated'], array(3, 4, 5, 13, 14, 15)) ? $txt['account_approve'] : $txt['account_activate'];
+		Utils::$context['activate_link_text'] = in_array(Utils::$context['member']['is_activated'], array(3, 4, 5, 13, 14, 15)) ? Lang::$txt['account_approve'] : Lang::$txt['account_activate'];
 
 		// Should we show a custom message?
-		Utils::$context['activate_message'] = isset($txt['account_activate_method_' . Utils::$context['member']['is_activated'] % 10]) ? $txt['account_activate_method_' . Utils::$context['member']['is_activated'] % 10] : $txt['account_not_activated'];
+		Utils::$context['activate_message'] = isset(Lang::$txt['account_activate_method_' . Utils::$context['member']['is_activated'] % 10]) ? Lang::$txt['account_activate_method_' . Utils::$context['member']['is_activated'] % 10] : Lang::$txt['account_not_activated'];
 
 		// If they can be approved, we need to set up a token for them.
 		Utils::$context['token_check'] = 'profile-aa' . $memID;
@@ -189,17 +190,17 @@ function summary($memID)
 			$ban_restrictions = array();
 			foreach (array('access', 'login', 'post') as $type)
 				if ($row['cannot_' . $type])
-					$ban_restrictions[] = $txt['ban_type_' . $type];
+					$ban_restrictions[] = Lang::$txt['ban_type_' . $type];
 
 			// No actual ban in place?
 			if (empty($ban_restrictions))
 				continue;
 
 			// Prepare the link for context.
-			$ban_explanation = sprintf($txt['user_cannot_due_to'], implode(', ', $ban_restrictions), '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=' . $row['id_ban_group'] . '">' . $row['name'] . '</a>');
+			$ban_explanation = sprintf(Lang::$txt['user_cannot_due_to'], implode(', ', $ban_restrictions), '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=' . $row['id_ban_group'] . '">' . $row['name'] . '</a>');
 
 			Utils::$context['member']['bans'][$row['id_ban_group']] = array(
-				'reason' => empty($row['reason']) ? '' : '<br><br><strong>' . $txt['ban_reason'] . ':</strong> ' . $row['reason'],
+				'reason' => empty($row['reason']) ? '' : '<br><br><strong>' . Lang::$txt['ban_reason'] . ':</strong> ' . $row['reason'],
 				'cannot' => array(
 					'access' => !empty($row['cannot_access']),
 					'post' => !empty($row['cannot_post']),
@@ -234,7 +235,7 @@ function summary($memID)
  */
 function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_avatar = false, $show_links = false)
 {
-	global $txt, $user_info, $user_profile;
+	global $user_info, $user_profile;
 
 	// Are we being asked for some specific alerts?
 	$alertIDs = is_bool($to_fetch) ? array() : array_filter(array_map('intval', (array) $to_fetch));
@@ -242,7 +243,7 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 	// Basic sanitation.
 	$memID = (int) $memID;
 	$unread = $to_fetch === false;
-	
+
 	if (empty($limit) || $limit > 1000)
 		$limit = min(!empty(Config::$modSettings['alerts_per_page']) && (int) Config::$modSettings['alerts_per_page'] < 1000 ? (int) Config::$modSettings['alerts_per_page'] : 1000, 1000);
 
@@ -339,7 +340,7 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 	}
 
 	// Now go through and actually make with the text.
-	loadLanguage('Alerts');
+	Lang::load('Alerts');
 
 	// Some sprintf formats for generating links/strings.
 	// 'required' is an array of keys in $alert['extra'] that should be used to generate the message, ordered to match the sprintf formats.
@@ -547,9 +548,9 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 				$alert['extra'][$msg_type] = vsprintf($formats[$msg_type][$alert['show_links'] ? 'link' : 'text'], $msg_values);
 
 			elseif (in_array($msg_type, array('msg_msg', 'topic_msg', 'board_msg')))
-				$alert['extra'][$msg_type] = $txt[$msg_type == 'board_msg' ? 'board_na' : 'topic_na'];
+				$alert['extra'][$msg_type] = Lang::$txt[$msg_type == 'board_msg' ? 'board_na' : 'topic_na'];
 			else
-				$alert['extra'][$msg_type] = '(' . $txt['not_applicable'] . ')';
+				$alert['extra'][$msg_type] = '(' . Lang::$txt['not_applicable'] . ')';
 		}
 
 		// Show the formatted time in alerts about subscriptions.
@@ -627,7 +628,7 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 
 		// This kludge exists because the alert content_types prior to 2.1 RC3 were a bit haphazard.
 		// This can be removed once all the translated language files have been updated.
-		if (!isset($txt[$string]))
+		if (!isset(Lang::$txt[$string]))
 		{
 			if (strpos($alert['content_action'], 'unapproved_') === 0)
 				$string = 'alert_' . $alert['content_action'];
@@ -639,7 +640,7 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 				$string = 'alert_buddy_' . $alert['content_action'];
 		}
 
-		if (isset($txt[$string]))
+		if (isset(Lang::$txt[$string]))
 		{
 			$substitutions = array(
 				'{scripturl}' => Config::$scripturl,
@@ -652,7 +653,7 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 					$substitutions['{' . $k . '}'] = $v;
 			}
 
-			$alert['text'] = strtr($txt[$string], $substitutions);
+			$alert['text'] = strtr(Lang::$txt[$string], $substitutions);
 		}
 
 		// Unset the reference variable to avoid any surprises in subsequent loops.
@@ -669,7 +670,7 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
  */
 function showAlerts($memID)
 {
-	global $txt, $options;
+	global $options;
 
 	require_once(Config::$sourcedir . '/Profile-Modify.php');
 
@@ -740,18 +741,18 @@ function showAlerts($memID)
 	{
 		Utils::$context['alerts'][$id]['quickbuttons'] = array(
 			'delete' => array(
-				'label' => $txt['delete'],
+				'label' => Lang::$txt['delete'],
 				'href' => Config::$scripturl . '?action=profile;u=' . Utils::$context['id_member'] . ';area=showalerts;do=remove;aid=' . $id . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . (!empty(Utils::$context['start']) ? ';start=' . Utils::$context['start'] : ''),
 				'class' => 'you_sure',
 				'icon' => 'remove_button'
 			),
 			'mark' => array(
-				'label' => $alert['is_read'] != 0 ? $txt['mark_unread'] : $txt['mark_read_short'],
+				'label' => $alert['is_read'] != 0 ? Lang::$txt['mark_unread'] : Lang::$txt['mark_read_short'],
 				'href' => Config::$scripturl . '?action=profile;u=' . Utils::$context['id_member'] . ';area=showalerts;do=' . ($alert['is_read'] != 0 ? 'unread' : 'read') . ';aid=' . $id . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . (!empty(Utils::$context['start']) ? ';start=' . Utils::$context['start'] : ''),
 				'icon' => $alert['is_read'] != 0 ? 'unread_button' : 'read_button',
 			),
 			'view' => array(
-				'label' => $txt['view'],
+				'label' => Lang::$txt['view'],
 				'href' => Config::$scripturl . '?action=profile;area=showalerts;alert=' . $id . ';',
 				'icon' => 'move',
 			),
@@ -769,7 +770,7 @@ function showAlerts($memID)
 	// Set a nice message.
 	if (!empty($_SESSION['update_message']))
 	{
-		Utils::$context['update_message'] = $txt['profile_updated_own'];
+		Utils::$context['update_message'] = Lang::$txt['profile_updated_own'];
 		unset($_SESSION['update_message']);
 	}
 
@@ -825,7 +826,7 @@ function showAlerts($memID)
  */
 function showPosts($memID)
 {
-	global $txt, $user_info, $options;
+	global $user_info, $options;
 	global $user_profile, $board;
 
 	// Some initial context.
@@ -834,8 +835,8 @@ function showPosts($memID)
 
 	// Create the tabs for the template.
 	Utils::$context[Utils::$context['profile_menu_name']]['tab_data'] = array(
-		'title' => $txt['showPosts'],
-		'description' => $txt['showPosts_help'],
+		'title' => Lang::$txt['showPosts'],
+		'description' => Lang::$txt['showPosts_help'],
 		'icon_class' => 'main_icons profile_hd',
 		'tabs' => array(
 			'messages' => array(
@@ -849,7 +850,7 @@ function showPosts($memID)
 		),
 	);
 
-	// Shortcut used to determine which $txt['show*'] string to use for the title, based on the SA
+	// Shortcut used to determine which Lang::$txt['show*'] string to use for the title, based on the SA
 	$title = array(
 		'attach' => 'Attachments',
 		'topics' => 'Topics'
@@ -860,9 +861,9 @@ function showPosts($memID)
 
 	// Set the page title
 	if (isset($_GET['sa']) && array_key_exists($_GET['sa'], $title))
-		Utils::$context['page_title'] = $txt['show' . $title[$_GET['sa']]];
+		Utils::$context['page_title'] = Lang::$txt['show' . $title[$_GET['sa']]];
 	else
-		Utils::$context['page_title'] = $txt['showPosts'];
+		Utils::$context['page_title'] = Lang::$txt['showPosts'];
 
 	Utils::$context['page_title'] .= ' - ' . $user_profile[$memID]['real_name'];
 
@@ -1074,8 +1075,8 @@ function showPosts($memID)
 	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// Censor....
-		censorText($row['body']);
-		censorText($row['subject']);
+		Lang::censorText($row['body']);
+		Lang::censorText($row['subject']);
 
 		// Do the code.
 		$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
@@ -1184,21 +1185,21 @@ function showPosts($memID)
 	{
 		Utils::$context['posts'][$key]['quickbuttons'] = array(
 			'reply' => array(
-				'label' => $txt['reply'],
+				'label' => Lang::$txt['reply'],
 				'href' => Config::$scripturl.'?action=post;topic='.$post['topic'].'.'.$post['start'],
 				'icon' => 'reply_button',
 				'show' => $post['can_reply']
 			),
 			'quote' => array(
-				'label' => $txt['quote_action'],
+				'label' => Lang::$txt['quote_action'],
 				'href' => Config::$scripturl.'?action=post;topic='.$post['topic'].'.'.$post['start'].';quote='.$post['id'],
 				'icon' => 'quote',
 				'show' => $post['can_quote']
 			),
 			'remove' => array(
-				'label' => $txt['remove'],
+				'label' => Lang::$txt['remove'],
 				'href' => Config::$scripturl.'?action=deletemsg;msg='.$post['id'].';topic='.$post['topic'].';profile;u='.Utils::$context['member']['id'].';start='.Utils::$context['start'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'],
-				'javascript' => 'data-confirm="'.$txt['remove_message'].'"',
+				'javascript' => 'data-confirm="'.Lang::$txt['remove_message'].'"',
 				'class' => 'you_sure',
 				'icon' => 'remove_button',
 				'show' => $post['can_delete']
@@ -1214,8 +1215,6 @@ function showPosts($memID)
  */
 function showAttachments($memID)
 {
-	global $txt;
-
 	// OBEY permissions!
 	$boardsAllowed = boardsAllowedTo('view_attachments');
 
@@ -1230,7 +1229,7 @@ function showAttachments($memID)
 		'id' => 'attachments',
 		'width' => '100%',
 		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-		'no_items_label' => $txt['show_attachments_none'],
+		'no_items_label' => Lang::$txt['show_attachments_none'],
 		'base_href' => Config::$scripturl . '?action=profile;area=showposts;sa=attach;u=' . $memID,
 		'default_sort_col' => 'filename',
 		'get_items' => array(
@@ -1256,7 +1255,7 @@ function showAttachments($memID)
 		'columns' => array(
 			'filename' => array(
 				'header' => array(
-					'value' => $txt['show_attach_filename'],
+					'value' => Lang::$txt['show_attach_filename'],
 					'class' => 'lefttext',
 					'style' => 'width: 25%;',
 				),
@@ -1278,7 +1277,7 @@ function showAttachments($memID)
 			),
 			'downloads' => array(
 				'header' => array(
-					'value' => $txt['show_attach_downloads'],
+					'value' => Lang::$txt['show_attach_downloads'],
 					'style' => 'width: 12%;',
 				),
 				'data' => array(
@@ -1292,7 +1291,7 @@ function showAttachments($memID)
 			),
 			'subject' => array(
 				'header' => array(
-					'value' => $txt['message'],
+					'value' => Lang::$txt['message'],
 					'class' => 'lefttext',
 					'style' => 'width: 30%;',
 				),
@@ -1312,7 +1311,7 @@ function showAttachments($memID)
 			),
 			'posted' => array(
 				'header' => array(
-					'value' => $txt['show_attach_posted'],
+					'value' => Lang::$txt['show_attach_posted'],
 					'class' => 'lefttext',
 				),
 				'data' => array(
@@ -1343,7 +1342,7 @@ function showAttachments($memID)
  */
 function list_getAttachments($start, $items_per_page, $sort, $boardsAllowed, $memID)
 {
-	global $board, $txt;
+	global $board;
 
 	// Retrieve some attachments.
 	$request = Db::$db->query('', '
@@ -1378,14 +1377,14 @@ function list_getAttachments($start, $items_per_page, $sort, $boardsAllowed, $me
 			'id' => $row['id_attach'],
 			'filename' => $row['filename'],
 			'downloads' => $row['downloads'],
-			'subject' => censorText($row['subject']),
+			'subject' => Lang::censorText($row['subject']),
 			'posted' => $row['poster_time'],
 			'msg' => $row['id_msg'],
 			'topic' => $row['id_topic'],
 			'board' => $row['id_board'],
 			'board_name' => $row['name'],
 			'approved' => $row['approved'],
-			'awaiting_approval' => (empty($row['approved']) ? ' <em>(' . $txt['awaiting_approval'] . ')</em>' : ''),
+			'awaiting_approval' => (empty($row['approved']) ? ' <em>(' . Lang::$txt['awaiting_approval'] . ')</em>' : ''),
 		);
 
 	Db::$db->free_result($request);
@@ -1440,7 +1439,7 @@ function list_getNumAttachments($boardsAllowed, $memID)
  */
 function showUnwatched($memID)
 {
-	global $txt, $user_info, $options;
+	global $user_info, $options;
 
 	// Only the owner can see the list (if the function is enabled of course)
 	if ($user_info['id'] != $memID)
@@ -1453,7 +1452,7 @@ function showUnwatched($memID)
 		'id' => 'unwatched_topics',
 		'width' => '100%',
 		'items_per_page' => (empty(Config::$modSettings['disableCustomPerPage']) && !empty($options['topics_per_page'])) ? $options['topics_per_page'] : Config::$modSettings['defaultMaxTopics'],
-		'no_items_label' => $txt['unwatched_topics_none'],
+		'no_items_label' => Lang::$txt['unwatched_topics_none'],
 		'base_href' => Config::$scripturl . '?action=profile;area=showposts;sa=unwatchedtopics;u=' . $memID,
 		'default_sort_col' => 'started_on',
 		'get_items' => array(
@@ -1471,7 +1470,7 @@ function showUnwatched($memID)
 		'columns' => array(
 			'subject' => array(
 				'header' => array(
-					'value' => $txt['subject'],
+					'value' => Lang::$txt['subject'],
 					'class' => 'lefttext',
 					'style' => 'width: 30%;',
 				),
@@ -1491,7 +1490,7 @@ function showUnwatched($memID)
 			),
 			'started_by' => array(
 				'header' => array(
-					'value' => $txt['started_by'],
+					'value' => Lang::$txt['started_by'],
 					'style' => 'width: 15%;',
 				),
 				'data' => array(
@@ -1504,7 +1503,7 @@ function showUnwatched($memID)
 			),
 			'started_on' => array(
 				'header' => array(
-					'value' => $txt['on'],
+					'value' => Lang::$txt['on'],
 					'class' => 'lefttext',
 					'style' => 'width: 20%;',
 				),
@@ -1519,7 +1518,7 @@ function showUnwatched($memID)
 			),
 			'last_post_by' => array(
 				'header' => array(
-					'value' => $txt['last_post'],
+					'value' => Lang::$txt['last_post'],
 					'style' => 'width: 15%;',
 				),
 				'data' => array(
@@ -1532,7 +1531,7 @@ function showUnwatched($memID)
 			),
 			'last_post_on' => array(
 				'header' => array(
-					'value' => $txt['on'],
+					'value' => Lang::$txt['on'],
 					'class' => 'lefttext',
 					'style' => 'width: 20%;',
 				),
@@ -1649,9 +1648,9 @@ function list_getNumUnwatched($memID)
  */
 function statPanel($memID)
 {
-	global $txt, $user_profile, $user_info;
+	global $user_profile, $user_info;
 
-	Utils::$context['page_title'] = $txt['statPanel_showStats'] . ' ' . $user_profile[$memID]['real_name'];
+	Utils::$context['page_title'] = Lang::$txt['statPanel_showStats'] . ' ' . $user_profile[$memID]['real_name'];
 
 	// Is the load average too high to allow searching just now?
 	if (!empty(Utils::$context['load_average']) && !empty(Config::$modSettings['loadavg_userstats']) && Utils::$context['load_average'] >= Config::$modSettings['loadavg_userstats'])
@@ -1660,11 +1659,11 @@ function statPanel($memID)
 	// General user statistics.
 	$timeDays = floor($user_profile[$memID]['total_time_logged_in'] / 86400);
 	$timeHours = floor(($user_profile[$memID]['total_time_logged_in'] % 86400) / 3600);
-	Utils::$context['time_logged_in'] = ($timeDays > 0 ? $timeDays . $txt['total_time_logged_days'] : '') . ($timeHours > 0 ? $timeHours . $txt['total_time_logged_hours'] : '') . floor(($user_profile[$memID]['total_time_logged_in'] % 3600) / 60) . $txt['total_time_logged_minutes'];
-	Utils::$context['num_posts'] = comma_format($user_profile[$memID]['posts']);
+	Utils::$context['time_logged_in'] = ($timeDays > 0 ? $timeDays . Lang::$txt['total_time_logged_days'] : '') . ($timeHours > 0 ? $timeHours . Lang::$txt['total_time_logged_hours'] : '') . floor(($user_profile[$memID]['total_time_logged_in'] % 3600) / 60) . Lang::$txt['total_time_logged_minutes'];
+	Utils::$context['num_posts'] = Lang::numberFormat($user_profile[$memID]['posts']);
 	// Menu tab
 	Utils::$context[Utils::$context['profile_menu_name']]['tab_data'] = array(
-		'title' => $txt['statPanel_generalStats'] . ' - ' . Utils::$context['member']['name'],
+		'title' => Lang::$txt['statPanel_generalStats'] . ' - ' . Utils::$context['member']['name'],
 		'icon' => 'stats_info.png'
 	);
 
@@ -1696,9 +1695,9 @@ function statPanel($memID)
 	Db::$db->free_result($result);
 
 	// Format the numbers...
-	Utils::$context['num_topics'] = comma_format(Utils::$context['num_topics']);
-	Utils::$context['num_polls'] = comma_format(Utils::$context['num_polls']);
-	Utils::$context['num_votes'] = comma_format(Utils::$context['num_votes']);
+	Utils::$context['num_topics'] = Lang::numberFormat(Utils::$context['num_topics']);
+	Utils::$context['num_polls'] = Lang::numberFormat(Utils::$context['num_polls']);
+	Utils::$context['num_votes'] = Lang::numberFormat(Utils::$context['num_votes']);
 
 	// Grab the board this member posted in most often.
 	$result = Db::$db->query('', '
@@ -1756,7 +1755,7 @@ function statPanel($memID)
 			'posts' => $row['message_count'],
 			'href' => Config::$scripturl . '?board=' . $row['id_board'] . '.0',
 			'link' => '<a href="' . Config::$scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>',
-			'percent' => comma_format((float) $row['percentage'], 2),
+			'percent' => Lang::numberFormat((float) $row['percentage'], 2),
 			'posts_percent' => (float) $row['percentage'],
 			'total_posts' => $row['num_posts'],
 		);
@@ -1830,7 +1829,7 @@ function statPanel($memID)
 	 * 		'url' => string, // OPTIONAL: The entry will be a url
 	 * ),
 	 *
-	 * 'key' will be used to look up the language string as $txt['statPanel_' . $key].
+	 * 'key' will be used to look up the language string as Lang::$txt['statPanel_' . $key].
 	 * Make sure to add a new entry when writing your mod!
 	 */
 	Utils::$context['text_stats'] = array(
@@ -1838,18 +1837,18 @@ function statPanel($memID)
 			'text' => Utils::$context['time_logged_in'],
 		),
 		'total_posts' => array(
-			'text' => Utils::$context['num_posts'] . ' ' . $txt['statPanel_posts'],
+			'text' => Utils::$context['num_posts'] . ' ' . Lang::$txt['statPanel_posts'],
 			'url' => Config::$scripturl . '?action=profile;area=showposts;sa=messages;u=' . $memID
 		),
 		'total_topics' => array(
-			'text' => Utils::$context['num_topics'] . ' ' . $txt['statPanel_topics'],
+			'text' => Utils::$context['num_topics'] . ' ' . Lang::$txt['statPanel_topics'],
 			'url' => Config::$scripturl . '?action=profile;area=showposts;sa=topics;u=' . $memID
 		),
 		'users_polls' => array(
-			'text' => Utils::$context['num_polls'] . ' ' . $txt['statPanel_polls'],
+			'text' => Utils::$context['num_polls'] . ' ' . Lang::$txt['statPanel_polls'],
 		),
 		'users_votes' => array(
-			'text' => Utils::$context['num_votes'] . ' ' . $txt['statPanel_votes']
+			'text' => Utils::$context['num_votes'] . ' ' . Lang::$txt['statPanel_votes']
 		)
 	);
 
@@ -1864,14 +1863,14 @@ function statPanel($memID)
  */
 function tracking($memID)
 {
-	global $txt, $user_profile;
+	global $user_profile;
 
 	$subActions = array(
-		'activity' => array('trackActivity', $txt['trackActivity'], 'moderate_forum'),
-		'ip' => array('TrackIP', $txt['trackIP'], 'moderate_forum'),
-		'edits' => array('trackEdits', $txt['trackEdits'], 'moderate_forum'),
-		'groupreq' => array('trackGroupReq', $txt['trackGroupRequests'], 'approve_group_requests'),
-		'logins' => array('TrackLogins', $txt['trackLogins'], 'moderate_forum'),
+		'activity' => array('trackActivity', Lang::$txt['trackActivity'], 'moderate_forum'),
+		'ip' => array('TrackIP', Lang::$txt['trackIP'], 'moderate_forum'),
+		'edits' => array('trackEdits', Lang::$txt['trackEdits'], 'moderate_forum'),
+		'groupreq' => array('trackGroupReq', Lang::$txt['trackGroupRequests'], 'approve_group_requests'),
+		'logins' => array('TrackLogins', Lang::$txt['trackLogins'], 'moderate_forum'),
 	);
 
 	foreach ($subActions as $sa => $action)
@@ -1882,8 +1881,8 @@ function tracking($memID)
 
 	// Create the tabs for the template.
 	Utils::$context[Utils::$context['profile_menu_name']]['tab_data'] = array(
-		'title' => $txt['tracking'],
-		'description' => $txt['tracking_description'],
+		'title' => Lang::$txt['tracking'],
+		'description' => Lang::$txt['tracking_description'],
 		'icon_class' => 'main_icons profile_hd',
 		'tabs' => array(
 			'activity' => array(),
@@ -1910,7 +1909,7 @@ function tracking($memID)
 	Utils::$context['tracking_area'] = isset($_GET['sa']) && isset($subActions[$_GET['sa']]) ? $_GET['sa'] : $default;
 
 	// Set a page title.
-	Utils::$context['page_title'] = $txt['trackUser'] . ' - ' . $subActions[Utils::$context['tracking_area']][1] . ' - ' . $user_profile[$memID]['real_name'];
+	Utils::$context['page_title'] = Lang::$txt['trackUser'] . ' - ' . $subActions[Utils::$context['tracking_area']][1] . ' - ' . $user_profile[$memID]['real_name'];
 
 	// Pass on to the actual function.
 	Utils::$context['sub_template'] = $subActions[Utils::$context['tracking_area']][0];
@@ -1927,7 +1926,6 @@ function tracking($memID)
  */
 function trackActivity($memID)
 {
-	global $txt;
 	global $user_profile;
 
 	// Verify if the user has sufficient permissions.
@@ -1941,9 +1939,9 @@ function trackActivity($memID)
 	// Set the options for the list component.
 	$listOptions = array(
 		'id' => 'track_user_list',
-		'title' => $txt['errors_by'] . ' ' . Utils::$context['member']['name'],
+		'title' => Lang::$txt['errors_by'] . ' ' . Utils::$context['member']['name'],
 		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-		'no_items_label' => $txt['no_errors_from_user'],
+		'no_items_label' => Lang::$txt['no_errors_from_user'],
 		'base_href' => Config::$scripturl . '?action=profile;area=tracking;sa=user;u=' . $memID,
 		'default_sort_col' => 'date',
 		'get_items' => array(
@@ -1963,7 +1961,7 @@ function trackActivity($memID)
 		'columns' => array(
 			'ip_address' => array(
 				'header' => array(
-					'value' => $txt['ip_address'],
+					'value' => Lang::$txt['ip_address'],
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -1980,7 +1978,7 @@ function trackActivity($memID)
 			),
 			'message' => array(
 				'header' => array(
-					'value' => $txt['message'],
+					'value' => Lang::$txt['message'],
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -1994,7 +1992,7 @@ function trackActivity($memID)
 			),
 			'date' => array(
 				'header' => array(
-					'value' => $txt['date'],
+					'value' => Lang::$txt['date'],
 				),
 				'data' => array(
 					'db' => 'time',
@@ -2008,7 +2006,7 @@ function trackActivity($memID)
 		'additional_rows' => array(
 			array(
 				'position' => 'after_title',
-				'value' => $txt['errors_desc'],
+				'value' => Lang::$txt['errors_desc'],
 			),
 		),
 	);
@@ -2172,8 +2170,6 @@ function list_getUserErrorCount($where, $where_vars = array())
  */
 function list_getUserErrors($start, $items_per_page, $sort, $where, $where_vars = array())
 {
-	global $txt;
-
 	// Get a list of error messages from this ip (range).
 	$request = Db::$db->query('', '
 		SELECT
@@ -2185,7 +2181,7 @@ function list_getUserErrors($start, $items_per_page, $sort, $where, $where_vars 
 		ORDER BY {raw:sort}
 		LIMIT {int:start}, {int:max}',
 		array_merge($where_vars, array(
-			'guest_title' => $txt['guest_title'],
+			'guest_title' => Lang::$txt['guest_title'],
 			'sort' => $sort,
 			'start' => $start,
 			'max' => $items_per_page,
@@ -2286,7 +2282,7 @@ function list_getIPMessages($start, $items_per_page, $sort, $where, $where_vars 
  */
 function TrackIP($memID = 0)
 {
-	global $user_profile, $txt, $user_info;
+	global $user_profile, $user_info;
 	global $options;
 
 	// Can the user do this?
@@ -2296,9 +2292,9 @@ function TrackIP($memID = 0)
 	{
 		Utils::$context['ip'] = ip2range($user_info['ip']);
 		loadTemplate('Profile');
-		loadLanguage('Profile');
+		Lang::load('Profile');
 		Utils::$context['sub_template'] = 'trackIP';
-		Utils::$context['page_title'] = $txt['profile'];
+		Utils::$context['page_title'] = Lang::$txt['profile'];
 		Utils::$context['base_url'] = Config::$scripturl . '?action=trackip';
 	}
 	else
@@ -2328,7 +2324,7 @@ function TrackIP($memID = 0)
 		Utils::$context['ip'] = Utils::$context['ip']['low'];
 
 	if (empty(Utils::$context['tracking_area']))
-		Utils::$context['page_title'] = $txt['trackIP'] . ' - ' . Utils::$context['ip'];
+		Utils::$context['page_title'] = Lang::$txt['trackIP'] . ' - ' . Utils::$context['ip'];
 
 	$request = Db::$db->query('', '
 		SELECT id_member, real_name AS display_name, member_ip
@@ -2352,10 +2348,10 @@ function TrackIP($memID = 0)
 	// Start with the user messages.
 	$listOptions = array(
 		'id' => 'track_message_list',
-		'title' => $txt['messages_from_ip'] . ' ' . Utils::$context['ip'],
+		'title' => Lang::$txt['messages_from_ip'] . ' ' . Utils::$context['ip'],
 		'start_var_name' => 'messageStart',
 		'items_per_page' => $maxPerPage,
-		'no_items_label' => $txt['no_messages_from_ip'],
+		'no_items_label' => Lang::$txt['no_messages_from_ip'],
 		'base_href' => Utils::$context['base_url'] . ';searchip=' . Utils::$context['ip'],
 		'default_sort_col' => 'date',
 		'get_items' => array(
@@ -2375,7 +2371,7 @@ function TrackIP($memID = 0)
 		'columns' => array(
 			'ip_address' => array(
 				'header' => array(
-					'value' => $txt['ip_address'],
+					'value' => Lang::$txt['ip_address'],
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -2392,7 +2388,7 @@ function TrackIP($memID = 0)
 			),
 			'poster' => array(
 				'header' => array(
-					'value' => $txt['poster'],
+					'value' => Lang::$txt['poster'],
 				),
 				'data' => array(
 					'db' => 'member_link',
@@ -2400,7 +2396,7 @@ function TrackIP($memID = 0)
 			),
 			'subject' => array(
 				'header' => array(
-					'value' => $txt['subject'],
+					'value' => Lang::$txt['subject'],
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -2415,7 +2411,7 @@ function TrackIP($memID = 0)
 			),
 			'date' => array(
 				'header' => array(
-					'value' => $txt['date'],
+					'value' => Lang::$txt['date'],
 				),
 				'data' => array(
 					'db' => 'time',
@@ -2429,7 +2425,7 @@ function TrackIP($memID = 0)
 		'additional_rows' => array(
 			array(
 				'position' => 'after_title',
-				'value' => $txt['messages_from_ip_desc'],
+				'value' => Lang::$txt['messages_from_ip_desc'],
 			),
 		),
 	);
@@ -2440,10 +2436,10 @@ function TrackIP($memID = 0)
 	// Set the options for the error lists.
 	$listOptions = array(
 		'id' => 'track_user_list',
-		'title' => $txt['errors_from_ip'] . ' ' . Utils::$context['ip'],
+		'title' => Lang::$txt['errors_from_ip'] . ' ' . Utils::$context['ip'],
 		'start_var_name' => 'errorStart',
 		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-		'no_items_label' => $txt['no_errors_from_ip'],
+		'no_items_label' => Lang::$txt['no_errors_from_ip'],
 		'base_href' => Utils::$context['base_url'] . ';searchip=' . Utils::$context['ip'],
 		'default_sort_col' => 'date2',
 		'get_items' => array(
@@ -2463,7 +2459,7 @@ function TrackIP($memID = 0)
 		'columns' => array(
 			'ip_address2' => array(
 				'header' => array(
-					'value' => $txt['ip_address'],
+					'value' => Lang::$txt['ip_address'],
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -2480,7 +2476,7 @@ function TrackIP($memID = 0)
 			),
 			'display_name' => array(
 				'header' => array(
-					'value' => $txt['display_name'],
+					'value' => Lang::$txt['display_name'],
 				),
 				'data' => array(
 					'db' => 'member_link',
@@ -2488,7 +2484,7 @@ function TrackIP($memID = 0)
 			),
 			'message' => array(
 				'header' => array(
-					'value' => $txt['message'],
+					'value' => Lang::$txt['message'],
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -2503,7 +2499,7 @@ function TrackIP($memID = 0)
 			),
 			'date2' => array(
 				'header' => array(
-					'value' => $txt['date'],
+					'value' => Lang::$txt['date'],
 				),
 				'data' => array(
 					'db' => 'time',
@@ -2517,7 +2513,7 @@ function TrackIP($memID = 0)
 		'additional_rows' => array(
 			array(
 				'position' => 'after_title',
-				'value' => $txt['errors_from_ip_desc'],
+				'value' => Lang::$txt['errors_from_ip_desc'],
 			),
 		),
 	);
@@ -2534,19 +2530,19 @@ function TrackIP($memID = 0)
 	{
 		Utils::$context['whois_servers'] = array(
 			'apnic' => array(
-				'name' => $txt['whois_apnic'],
+				'name' => Lang::$txt['whois_apnic'],
 				'url' => 'https://wq.apnic.net/apnic-bin/whois.pl?searchtext=' . Utils::$context['ip'],
 			),
 			'arin' => array(
-				'name' => $txt['whois_arin'],
+				'name' => Lang::$txt['whois_arin'],
 				'url' => 'https://whois.arin.net/rest/ip/' . Utils::$context['ip'],
 			),
 			'lacnic' => array(
-				'name' => $txt['whois_lacnic'],
+				'name' => Lang::$txt['whois_lacnic'],
 				'url' => 'https://lacnic.net/cgi-bin/lacnic/whois?query=' . Utils::$context['ip'],
 			),
 			'ripe' => array(
-				'name' => $txt['whois_ripe'],
+				'name' => Lang::$txt['whois_ripe'],
 				'url' => 'https://apps.db.ripe.net/search/query.html?searchtext=' . Utils::$context['ip'],
 			),
 		);
@@ -2560,8 +2556,6 @@ function TrackIP($memID = 0)
  */
 function TrackLogins($memID = 0)
 {
-	global $txt;
-
 	// Gonna want this for the list.
 	require_once(Config::$sourcedir . '/Subs-List.php');
 
@@ -2573,8 +2567,8 @@ function TrackLogins($memID = 0)
 	// Start with the user messages.
 	$listOptions = array(
 		'id' => 'track_logins_list',
-		'title' => $txt['trackLogins'],
-		'no_items_label' => $txt['trackLogins_none_found'],
+		'title' => Lang::$txt['trackLogins'],
+		'no_items_label' => Lang::$txt['trackLogins_none_found'],
 		'base_href' => Utils::$context['base_url'],
 		'get_items' => array(
 			'function' => 'list_getLogins',
@@ -2593,7 +2587,7 @@ function TrackLogins($memID = 0)
 		'columns' => array(
 			'time' => array(
 				'header' => array(
-					'value' => $txt['date'],
+					'value' => Lang::$txt['date'],
 				),
 				'data' => array(
 					'db' => 'time',
@@ -2601,7 +2595,7 @@ function TrackLogins($memID = 0)
 			),
 			'ip' => array(
 				'header' => array(
-					'value' => $txt['ip_address'],
+					'value' => Lang::$txt['ip_address'],
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -2617,7 +2611,7 @@ function TrackLogins($memID = 0)
 		'additional_rows' => array(
 			array(
 				'position' => 'after_title',
-				'value' => $txt['trackLogins_desc'],
+				'value' => Lang::$txt['trackLogins_desc'],
 			),
 		),
 	);
@@ -2692,8 +2686,6 @@ function list_getLogins($start, $items_per_page, $sort, $where, $where_vars = ar
  */
 function trackEdits($memID)
 {
-	global $txt;
-
 	require_once(Config::$sourcedir . '/Subs-List.php');
 
 	// Get the names of any custom fields.
@@ -2714,9 +2706,9 @@ function trackEdits($memID)
 	// Set the options for the error lists.
 	$listOptions = array(
 		'id' => 'edit_list',
-		'title' => $txt['trackEdits'],
+		'title' => Lang::$txt['trackEdits'],
 		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-		'no_items_label' => $txt['trackEdit_no_edits'],
+		'no_items_label' => Lang::$txt['trackEdit_no_edits'],
 		'base_href' => Config::$scripturl . '?action=profile;area=tracking;sa=edits;u=' . $memID,
 		'default_sort_col' => 'time',
 		'get_items' => array(
@@ -2734,7 +2726,7 @@ function trackEdits($memID)
 		'columns' => array(
 			'action' => array(
 				'header' => array(
-					'value' => $txt['trackEdit_action'],
+					'value' => Lang::$txt['trackEdit_action'],
 				),
 				'data' => array(
 					'db' => 'action_text',
@@ -2742,7 +2734,7 @@ function trackEdits($memID)
 			),
 			'before' => array(
 				'header' => array(
-					'value' => $txt['trackEdit_before'],
+					'value' => Lang::$txt['trackEdit_before'],
 				),
 				'data' => array(
 					'db' => 'before',
@@ -2750,7 +2742,7 @@ function trackEdits($memID)
 			),
 			'after' => array(
 				'header' => array(
-					'value' => $txt['trackEdit_after'],
+					'value' => Lang::$txt['trackEdit_after'],
 				),
 				'data' => array(
 					'db' => 'after',
@@ -2758,7 +2750,7 @@ function trackEdits($memID)
 			),
 			'time' => array(
 				'header' => array(
-					'value' => $txt['date'],
+					'value' => Lang::$txt['date'],
 				),
 				'data' => array(
 					'db' => 'time',
@@ -2770,7 +2762,7 @@ function trackEdits($memID)
 			),
 			'applicator' => array(
 				'header' => array(
-					'value' => $txt['trackEdit_applicator'],
+					'value' => Lang::$txt['trackEdit_applicator'],
 				),
 				'data' => array(
 					'db' => 'member_link',
@@ -2821,8 +2813,6 @@ function list_getProfileEditCount($memID)
  */
 function list_getProfileEdits($start, $items_per_page, $sort, $memID)
 {
-	global $txt;
-
 	// Get a list of error messages from this ip (range).
 	$request = Db::$db->query('', '
 		SELECT
@@ -2849,10 +2839,10 @@ function list_getProfileEdits($start, $items_per_page, $sort, $memID)
 			$members[] = $extra['applicator'];
 
 		// Work out what the name of the action is.
-		if (isset($txt['trackEdit_action_' . $row['action']]))
-			$action_text = $txt['trackEdit_action_' . $row['action']];
-		elseif (isset($txt[$row['action']]))
-			$action_text = $txt[$row['action']];
+		if (isset(Lang::$txt['trackEdit_action_' . $row['action']]))
+			$action_text = Lang::$txt['trackEdit_action_' . $row['action']];
+		elseif (isset(Lang::$txt[$row['action']]))
+			$action_text = Lang::$txt[$row['action']];
 		// Custom field?
 		elseif (isset(Utils::$context['custom_field_titles'][$row['action']]))
 			$action_text = Utils::$context['custom_field_titles'][$row['action']]['title'];
@@ -2866,7 +2856,7 @@ function list_getProfileEdits($start, $items_per_page, $sort, $memID)
 			'id' => $row['id_action'],
 			'ip' => inet_dtop($row['ip']),
 			'id_member' => !empty($extra['applicator']) ? $extra['applicator'] : 0,
-			'member_link' => $txt['trackEdit_deleted_member'],
+			'member_link' => Lang::$txt['trackEdit_deleted_member'],
 			'action' => $row['action'],
 			'action_text' => $action_text,
 			'before' => !empty($extra['previous']) ? ($parse_bbc ? BBCodeParser::load()->parse($extra['previous']) : $extra['previous']) : '',
@@ -2908,16 +2898,14 @@ function list_getProfileEdits($start, $items_per_page, $sort, $memID)
  */
 function trackGroupReq($memID)
 {
-	global $txt;
-
 	require_once(Config::$sourcedir . '/Subs-List.php');
 
 	// Set the options for the error lists.
 	$listOptions = array(
 		'id' => 'request_list',
-		'title' => sprintf($txt['trackGroupRequests_title'], Utils::$context['member']['name']),
+		'title' => sprintf(Lang::$txt['trackGroupRequests_title'], Utils::$context['member']['name']),
 		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-		'no_items_label' => $txt['requested_none'],
+		'no_items_label' => Lang::$txt['requested_none'],
 		'base_href' => Config::$scripturl . '?action=profile;area=tracking;sa=groupreq;u=' . $memID,
 		'default_sort_col' => 'time_applied',
 		'get_items' => array(
@@ -2935,7 +2923,7 @@ function trackGroupReq($memID)
 		'columns' => array(
 			'group' => array(
 				'header' => array(
-					'value' => $txt['requested_group'],
+					'value' => Lang::$txt['requested_group'],
 				),
 				'data' => array(
 					'db' => 'group_name',
@@ -2943,7 +2931,7 @@ function trackGroupReq($memID)
 			),
 			'group_reason' => array(
 				'header' => array(
-					'value' => $txt['requested_group_reason'],
+					'value' => Lang::$txt['requested_group_reason'],
 				),
 				'data' => array(
 					'db' => 'group_reason',
@@ -2951,7 +2939,7 @@ function trackGroupReq($memID)
 			),
 			'time_applied' => array(
 				'header' => array(
-					'value' => $txt['requested_group_time'],
+					'value' => Lang::$txt['requested_group_time'],
 				),
 				'data' => array(
 					'db' => 'time_applied',
@@ -2964,7 +2952,7 @@ function trackGroupReq($memID)
 			),
 			'outcome' => array(
 				'header' => array(
-					'value' => $txt['requested_group_outcome'],
+					'value' => Lang::$txt['requested_group_outcome'],
 				),
 				'data' => array(
 					'db' => 'outcome',
@@ -3016,7 +3004,7 @@ function list_getGroupRequestsCount($memID)
  */
 function list_getGroupRequests($start, $items_per_page, $sort, $memID)
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	$groupreq = array();
 
@@ -3048,15 +3036,15 @@ function list_getGroupRequests($start, $items_per_page, $sort, $memID)
 		switch ($row['status'])
 		{
 			case 0:
-				$this_req['outcome'] = $txt['outcome_pending'];
+				$this_req['outcome'] = Lang::$txt['outcome_pending'];
 				break;
 			case 1:
 				$member_link = empty($row['id_member_acted']) ? $row['act_name'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member_acted'] . '">' . $row['act_name'] . '</a>';
-				$this_req['outcome'] = sprintf($txt['outcome_approved'], $member_link, timeformat($row['time_acted']));
+				$this_req['outcome'] = sprintf(Lang::$txt['outcome_approved'], $member_link, timeformat($row['time_acted']));
 				break;
 			case 2:
 				$member_link = empty($row['id_member_acted']) ? $row['act_name'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member_acted'] . '">' . $row['act_name'] . '</a>';
-				$this_req['outcome'] = sprintf(!empty($row['act_reason']) ? $txt['outcome_refused_reason'] : $txt['outcome_refused'], $member_link, timeformat($row['time_acted']), $row['act_reason']);
+				$this_req['outcome'] = sprintf(!empty($row['act_reason']) ? Lang::$txt['outcome_refused_reason'] : Lang::$txt['outcome_refused'], $member_link, timeformat($row['time_acted']), $row['act_reason']);
 				break;
 		}
 
@@ -3074,14 +3062,14 @@ function list_getGroupRequests($start, $items_per_page, $sort, $memID)
  */
 function showPermissions($memID)
 {
-	global $txt, $board;
+	global $board;
 	global $user_profile;
 
 	// Verify if the user has sufficient permissions.
 	isAllowedTo('manage_permissions');
 
-	loadLanguage('ManagePermissions');
-	loadLanguage('Admin');
+	Lang::load('ManagePermissions');
+	Lang::load('Admin');
 	loadTemplate('ManageMembers');
 
 	// Load all the permission profiles.
@@ -3091,7 +3079,7 @@ function showPermissions($memID)
 	Utils::$context['member']['id'] = $memID;
 	Utils::$context['member']['name'] = $user_profile[$memID]['real_name'];
 
-	Utils::$context['page_title'] = $txt['showPermissions'];
+	Utils::$context['page_title'] = Lang::$txt['showPermissions'];
 	$board = empty($board) ? 0 : (int) $board;
 	Utils::$context['board'] = $board;
 
@@ -3170,17 +3158,17 @@ function showPermissions($memID)
 	while ($row = Db::$db->fetch_assoc($result))
 	{
 		// We don't know about this permission, it doesn't exist :P.
-		if (!isset($txt['permissionname_' . $row['permission']]))
+		if (!isset(Lang::$txt['permissionname_' . $row['permission']]))
 			continue;
 
 		if (empty($row['add_deny']))
 			$denied[] = $row['permission'];
 
 		// Permissions that end with _own or _any consist of two parts.
-		if (in_array(substr($row['permission'], -4), array('_own', '_any')) && isset($txt['permissionname_' . substr($row['permission'], 0, -4)]))
-			$name = $txt['permissionname_' . substr($row['permission'], 0, -4)] . ' - ' . $txt['permissionname_' . $row['permission']];
+		if (in_array(substr($row['permission'], -4), array('_own', '_any')) && isset(Lang::$txt['permissionname_' . substr($row['permission'], 0, -4)]))
+			$name = Lang::$txt['permissionname_' . substr($row['permission'], 0, -4)] . ' - ' . Lang::$txt['permissionname_' . $row['permission']];
 		else
-			$name = $txt['permissionname_' . $row['permission']];
+			$name = Lang::$txt['permissionname_' . $row['permission']];
 
 		// Add this permission if it doesn't exist yet.
 		if (!isset(Utils::$context['member']['permissions']['general'][$row['permission']]))
@@ -3196,7 +3184,7 @@ function showPermissions($memID)
 			);
 
 		// Add the membergroup to either the denied or the allowed groups.
-		Utils::$context['member']['permissions']['general'][$row['permission']]['groups'][empty($row['add_deny']) ? 'denied' : 'allowed'][] = $row['id_group'] == 0 ? $txt['membergroups_members'] : $row['group_name'];
+		Utils::$context['member']['permissions']['general'][$row['permission']]['groups'][empty($row['add_deny']) ? 'denied' : 'allowed'][] = $row['id_group'] == 0 ? Lang::$txt['membergroups_members'] : $row['group_name'];
 
 		// Once denied is always denied.
 		Utils::$context['member']['permissions']['general'][$row['permission']]['is_denied'] |= empty($row['add_deny']);
@@ -3227,14 +3215,14 @@ function showPermissions($memID)
 	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// We don't know about this permission, it doesn't exist :P.
-		if (!isset($txt['permissionname_' . $row['permission']]))
+		if (!isset(Lang::$txt['permissionname_' . $row['permission']]))
 			continue;
 
 		// The name of the permission using the format 'permission name' - 'own/any topic/event/etc.'.
-		if (in_array(substr($row['permission'], -4), array('_own', '_any')) && isset($txt['permissionname_' . substr($row['permission'], 0, -4)]))
-			$name = $txt['permissionname_' . substr($row['permission'], 0, -4)] . ' - ' . $txt['permissionname_' . $row['permission']];
+		if (in_array(substr($row['permission'], -4), array('_own', '_any')) && isset(Lang::$txt['permissionname_' . substr($row['permission'], 0, -4)]))
+			$name = Lang::$txt['permissionname_' . substr($row['permission'], 0, -4)] . ' - ' . Lang::$txt['permissionname_' . $row['permission']];
 		else
-			$name = $txt['permissionname_' . $row['permission']];
+			$name = Lang::$txt['permissionname_' . $row['permission']];
 
 		// Create the structure for this permission.
 		if (!isset(Utils::$context['member']['permissions']['board'][$row['permission']]))
@@ -3249,7 +3237,7 @@ function showPermissions($memID)
 				'is_global' => empty($board),
 			);
 
-		Utils::$context['member']['permissions']['board'][$row['permission']]['groups'][empty($row['add_deny']) ? 'denied' : 'allowed'][$row['id_group']] = $row['id_group'] == 0 ? $txt['membergroups_members'] : $row['group_name'];
+		Utils::$context['member']['permissions']['board'][$row['permission']]['groups'][empty($row['add_deny']) ? 'denied' : 'allowed'][$row['id_group']] = $row['id_group'] == 0 ? Lang::$txt['membergroups_members'] : $row['group_name'];
 
 		Utils::$context['member']['permissions']['board'][$row['permission']]['is_denied'] |= empty($row['add_deny']);
 	}
@@ -3263,8 +3251,6 @@ function showPermissions($memID)
  */
 function viewWarning($memID)
 {
-	global $txt;
-
 	// Firstly, can we actually even be here?
 	if (!(Utils::$context['user']['is_owner'] && allowedTo('view_warning_own')) && !allowedTo('view_warning_any') && !allowedTo('issue_warning') && !allowedTo('moderate_forum'))
 		fatal_lang_error('no_access', false);
@@ -3280,9 +3266,9 @@ function viewWarning($memID)
 
 	$listOptions = array(
 		'id' => 'view_warnings',
-		'title' => $txt['profile_viewwarning_previous_warnings'],
+		'title' => Lang::$txt['profile_viewwarning_previous_warnings'],
 		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-		'no_items_label' => $txt['profile_viewwarning_no_warnings'],
+		'no_items_label' => Lang::$txt['profile_viewwarning_no_warnings'],
 		'base_href' => Config::$scripturl . '?action=profile;area=viewwarning;sa=user;u=' . $memID,
 		'default_sort_col' => 'log_time',
 		'get_items' => array(
@@ -3300,7 +3286,7 @@ function viewWarning($memID)
 		'columns' => array(
 			'log_time' => array(
 				'header' => array(
-					'value' => $txt['profile_warning_previous_time'],
+					'value' => Lang::$txt['profile_warning_previous_time'],
 				),
 				'data' => array(
 					'db' => 'time',
@@ -3312,7 +3298,7 @@ function viewWarning($memID)
 			),
 			'reason' => array(
 				'header' => array(
-					'value' => $txt['profile_warning_previous_reason'],
+					'value' => Lang::$txt['profile_warning_previous_reason'],
 					'style' => 'width: 50%;',
 				),
 				'data' => array(
@@ -3321,7 +3307,7 @@ function viewWarning($memID)
 			),
 			'level' => array(
 				'header' => array(
-					'value' => $txt['profile_warning_previous_level'],
+					'value' => Lang::$txt['profile_warning_previous_level'],
 				),
 				'data' => array(
 					'db' => 'counter',
@@ -3335,7 +3321,7 @@ function viewWarning($memID)
 		'additional_rows' => array(
 			array(
 				'position' => 'after_title',
-				'value' => $txt['profile_viewwarning_desc'],
+				'value' => Lang::$txt['profile_viewwarning_desc'],
 				'class' => 'smalltext',
 				'style' => 'padding: 2ex;',
 			),
@@ -3349,9 +3335,9 @@ function viewWarning($memID)
 	// Create some common text bits for the template.
 	Utils::$context['level_effects'] = array(
 		0 => '',
-		Config::$modSettings['warning_watch'] => $txt['profile_warning_effect_own_watched'],
-		Config::$modSettings['warning_moderate'] => $txt['profile_warning_effect_own_moderated'],
-		Config::$modSettings['warning_mute'] => $txt['profile_warning_effect_own_muted'],
+		Config::$modSettings['warning_watch'] => Lang::$txt['profile_warning_effect_own_watched'],
+		Config::$modSettings['warning_moderate'] => Lang::$txt['profile_warning_effect_own_moderated'],
+		Config::$modSettings['warning_mute'] => Lang::$txt['profile_warning_effect_own_muted'],
 	);
 	Utils::$context['current_level'] = 0;
 	foreach (Utils::$context['level_effects'] as $limit => $dummy)

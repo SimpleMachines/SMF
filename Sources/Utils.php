@@ -751,8 +751,6 @@ class Utils
 	 */
 	public static function jsonDecode(string $json, bool $associative = false, bool $should_log = true)
 	{
-		global $txt;
-
 		// Come on...
 		if (empty($json) || !is_string($json))
 			return array();
@@ -798,15 +796,16 @@ class Utils
 			// Being a wrapper means we lost our smf_error_handler() privileges :(
 			$json_debug = debug_backtrace();
 			$json_debug = $json_debug[0];
-			loadLanguage('Errors');
+
+			Lang::load('Errors');
 
 			if (!empty($json_debug))
 			{
-				log_error($txt['json_' . $json_error], 'critical', $json_debug['file'], $json_debug['line']);
+				log_error(Lang::$txt['json_' . $json_error], 'critical', $json_debug['file'], $json_debug['line']);
 			}
 			else
 			{
-				log_error($txt['json_' . $json_error], 'critical');
+				log_error(Lang::$txt['json_' . $json_error], 'critical');
 			}
 
 			// Everyone expects an array.

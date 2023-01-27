@@ -12,6 +12,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Lang;
 use SMF\Utils;
 
 if (!defined('SMF'))
@@ -177,7 +178,7 @@ function createList($listOptions)
 
 			// Allow for basic formatting.
 			if (!empty($column['data']['comma_format']))
-				$cur_data['value'] = comma_format($cur_data['value']);
+				$cur_data['value'] = Lang::numberFormat($cur_data['value']);
 			elseif (!empty($column['data']['timeformat']))
 				$cur_data['value'] = timeformat($cur_data['value']);
 

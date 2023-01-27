@@ -1,8 +1,6 @@
 <?php
 // Version: 3.0 Alpha 1; Editor
 
-global $editortxt;
-
 $editortxt['bold'] = 'Bold';
 $editortxt['italic'] = 'Italic';
 $editortxt['underline'] = 'Underline';

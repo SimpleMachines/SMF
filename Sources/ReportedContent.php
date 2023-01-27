@@ -15,6 +15,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 
 if (!defined('SMF'))
@@ -30,14 +31,14 @@ if (!defined('SMF'))
  */
 function ReportedContent()
 {
-	global $txt, $user_info;
+	global $user_info;
 	global $options;
 
 	// First order of business - what are these reports about?
 	// area=reported{type}
 	Utils::$context['report_type'] = substr($_GET['area'], 8);
 
-	loadLanguage('ModerationCenter');
+	Lang::load('ModerationCenter');
 	loadTemplate('ReportedContent');
 
 	// We need this little rough gem.
@@ -48,13 +49,13 @@ function ReportedContent()
 	unset($_SESSION['rc_confirmation']);
 
 	// Set up the comforting bits...
-	Utils::$context['page_title'] = $txt['mc_reported_' . Utils::$context['report_type']];
+	Utils::$context['page_title'] = Lang::$txt['mc_reported_' . Utils::$context['report_type']];
 
 	// Put the open and closed options into tabs, because we can...
 	Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = array(
-		'title' => $txt['mc_reported_' . Utils::$context['report_type']],
+		'title' => Lang::$txt['mc_reported_' . Utils::$context['report_type']],
 		'help' => '',
-		'description' => $txt['mc_reported_' . Utils::$context['report_type'] . '_desc'],
+		'description' => Lang::$txt['mc_reported_' . Utils::$context['report_type'] . '_desc'],
 	);
 
 	// This comes under the umbrella of moderating posts.
@@ -91,19 +92,19 @@ function ReportedContent()
 		{
 			Utils::$context['reports'][$key]['quickbuttons'] = array(
 				'details' => array(
-					'label' => $txt['mc_reportedp_details'],
+					'label' => Lang::$txt['mc_reportedp_details'],
 					'href' => $report['report_href'],
 					'icon' => 'details',
 				),
 				'ignore' => array(
-					'label' => $report['ignore'] ? $txt['mc_reportedp_unignore'] : $txt['mc_reportedp_ignore'],
+					'label' => $report['ignore'] ? Lang::$txt['mc_reportedp_unignore'] : Lang::$txt['mc_reportedp_ignore'],
 					'href' => Config::$scripturl.'?action=moderate;area=reported'.Utils::$context['report_type'].';sa=handle;ignore='.(int)!$report['ignore'].';rid='.$report['id'].';start='.Utils::$context['start'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'].';'.Utils::$context['mod-report-ignore_token_var'].'='.Utils::$context['mod-report-ignore_token'],
-					'javascript' => !$report['ignore'] ? ' data-confirm="' . $txt['mc_reportedp_ignore_confirm'] . '"' : '',
+					'javascript' => !$report['ignore'] ? ' data-confirm="' . Lang::$txt['mc_reportedp_ignore_confirm'] . '"' : '',
 					'class' => 'you_sure',
 					'icon' => 'ignore'
 				),
 				'close' => array(
-					'label' => Utils::$context['view_closed'] ? $txt['mc_reportedp_open'] : $txt['mc_reportedp_close'],
+					'label' => Utils::$context['view_closed'] ? Lang::$txt['mc_reportedp_open'] : Lang::$txt['mc_reportedp_close'],
 					'href' => Config::$scripturl.'?action=moderate;area=reported'.Utils::$context['report_type'].';sa=handle;closed='.(int)!$report['closed'].';rid='.$report['id'].';start='.Utils::$context['start'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'].';'.Utils::$context['mod-report-closed_token_var'].'='.Utils::$context['mod-report-closed_token'],
 					'icon' => Utils::$context['view_closed'] ? 'folder' : 'close',
 				),
@@ -112,9 +113,9 @@ function ReportedContent()
 			// Only reported posts can be deleted
 			if (Utils::$context['report_type'] == 'posts')
 				Utils::$context['reports'][$key]['quickbuttons']['delete'] = array(
-					'label' => $txt['mc_reportedp_delete'],
+					'label' => Lang::$txt['mc_reportedp_delete'],
 					'href' => Config::$scripturl.'?action=deletemsg;topic='.$report['topic']['id'].'.0;msg='.$report['topic']['id_msg'].';modcenter;'.Utils::$context['session_var'].'='.Utils::$context['session_id'],
-					'javascript' => 'data-confirm="'.$txt['mc_reportedp_delete_confirm'].'"',
+					'javascript' => 'data-confirm="'.Lang::$txt['mc_reportedp_delete_confirm'].'"',
 					'class' => 'you_sure',
 					'icon' => 'delete',
 					'show' => !$report['closed'] && (is_array(Utils::$context['report_remove_any_boards']) && in_array($report['topic']['id_board'], Utils::$context['report_remove_any_boards']))
@@ -128,7 +129,7 @@ function ReportedContent()
 
 			Utils::$context['reports'][$key]['quickbuttons'] += array(
 				'ban' => array(
-					'label' => $txt['mc_reportedp_ban'],
+					'label' => Lang::$txt['mc_reportedp_ban'],
 					'href' => $ban_link,
 					'icon' => 'error',
 					'show' => !$report['closed'] && !empty(Utils::$context['report_manage_bans']) && (Utils::$context['report_type'] == 'posts' || Utils::$context['report_type'] == 'members' && !empty($report['user']['id']))
@@ -231,8 +232,6 @@ function ShowClosedReports()
  */
 function ReportDetails()
 {
-	global $txt;
-
 	// Have to at least give us something to work with.
 	if (empty($_REQUEST['rid']))
 		fatal_lang_error('mc_reportedp_none_found');
@@ -300,7 +299,7 @@ function ReportDetails()
 	// What have the other moderators done to this message?
 	require_once(Config::$sourcedir . '/Modlog.php');
 	require_once(Config::$sourcedir . '/Subs-List.php');
-	loadLanguage('Modlog');
+	Lang::load('Modlog');
 
 	// Parameters are slightly different depending on what we're doing here...
 	if (Utils::$context['report_type'] == 'members')
@@ -330,9 +329,9 @@ function ReportDetails()
 	// This is all the information from the moderation log.
 	$listOptions = array(
 		'id' => 'moderation_actions_list',
-		'title' => $txt['mc_modreport_modactions'],
+		'title' => Lang::$txt['mc_modreport_modactions'],
 		'items_per_page' => 15,
-		'no_items_label' => $txt['modlog_no_entries_found'],
+		'no_items_label' => Lang::$txt['modlog_no_entries_found'],
 		'base_href' => Config::$scripturl . '?action=moderate;area=reported' . Utils::$context['report_type'] . ';sa=details;rid=' . Utils::$context['report']['id'],
 		'default_sort_col' => 'time',
 		'get_items' => array(
@@ -347,7 +346,7 @@ function ReportDetails()
 		'columns' => array(
 			'action' => array(
 				'header' => array(
-					'value' => $txt['modlog_action'],
+					'value' => Lang::$txt['modlog_action'],
 				),
 				'data' => array(
 					'db' => 'action_text',
@@ -360,7 +359,7 @@ function ReportDetails()
 			),
 			'time' => array(
 				'header' => array(
-					'value' => $txt['modlog_date'],
+					'value' => Lang::$txt['modlog_date'],
 				),
 				'data' => array(
 					'db' => 'time',
@@ -373,7 +372,7 @@ function ReportDetails()
 			),
 			'moderator' => array(
 				'header' => array(
-					'value' => $txt['modlog_member'],
+					'value' => Lang::$txt['modlog_member'],
 				),
 				'data' => array(
 					'db' => 'moderator_link',
@@ -386,7 +385,7 @@ function ReportDetails()
 			),
 			'position' => array(
 				'header' => array(
-					'value' => $txt['modlog_position'],
+					'value' => Lang::$txt['modlog_position'],
 				),
 				'data' => array(
 					'db' => 'position',
@@ -399,7 +398,7 @@ function ReportDetails()
 			),
 			'ip' => array(
 				'header' => array(
-					'value' => $txt['modlog_ip'],
+					'value' => Lang::$txt['modlog_ip'],
 				),
 				'data' => array(
 					'db' => 'ip',
@@ -423,12 +422,12 @@ function ReportDetails()
 	// Finally we are done :P
 	if (Utils::$context['report_type'] == 'members')
 	{
-		Utils::$context['page_title'] = sprintf($txt['mc_viewmemberreport'], Utils::$context['report']['user']['name']);
+		Utils::$context['page_title'] = sprintf(Lang::$txt['mc_viewmemberreport'], Utils::$context['report']['user']['name']);
 		Utils::$context['sub_template'] = 'viewmemberreport';
 	}
 	else
 	{
-		Utils::$context['page_title'] = sprintf($txt['mc_viewmodreport'], Utils::$context['report']['subject'], Utils::$context['report']['author']['name']);
+		Utils::$context['page_title'] = sprintf(Lang::$txt['mc_viewmodreport'], Utils::$context['report']['subject'], Utils::$context['report']['author']['name']);
 		Utils::$context['sub_template'] = 'viewmodreport';
 	}
 
@@ -512,7 +511,7 @@ function HandleComment()
  */
 function EditComment()
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	checkSession(isset($_REQUEST['save']) ? 'post' : 'get');
 
@@ -533,7 +532,7 @@ function EditComment()
 		fatal_lang_error('mc_reportedp_comment_none_found');
 
 	// Set up the comforting bits...
-	Utils::$context['page_title'] = $txt['mc_reported_posts'];
+	Utils::$context['page_title'] = Lang::$txt['mc_reported_posts'];
 	Utils::$context['sub_template'] = 'edit_comment';
 
 	if (isset($_REQUEST['save']) && isset($_POST['edit_comment']) && !empty($_POST['mod_comment']))

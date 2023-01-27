@@ -16,6 +16,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -27,7 +28,7 @@ if (!defined('SMF'))
  */
 function MessageIndex()
 {
-	global $txt, $board;
+	global $board;
 	global $options, $settings, $board_info, $user_info;
 
 	require_once(Config::$sourcedir . '/Subs-Boards.php');
@@ -100,7 +101,7 @@ function MessageIndex()
 	{
 		$untopics = $board_info['unapproved_topics'] ? '<a href="' . Config::$scripturl . '?action=moderate;area=postmod;sa=topics;brd=' . $board . '">' . $board_info['unapproved_topics'] . '</a>' : 0;
 		$unposts = $board_info['unapproved_posts'] ? '<a href="' . Config::$scripturl . '?action=moderate;area=postmod;sa=posts;brd=' . $board . '">' . ($board_info['unapproved_posts'] - $board_info['unapproved_topics']) . '</a>' : 0;
-		Utils::$context['unapproved_posts_message'] = sprintf($txt['there_are_unapproved_topics'], $untopics, $unposts, Config::$scripturl . '?action=moderate;area=postmod;sa=' . ($board_info['unapproved_topics'] ? 'topics' : 'posts') . ';brd=' . $board);
+		Utils::$context['unapproved_posts_message'] = sprintf(Lang::$txt['there_are_unapproved_topics'], $untopics, $unposts, Config::$scripturl . '?action=moderate;area=postmod;sa=' . ($board_info['unapproved_topics'] ? 'topics' : 'posts') . ';brd=' . $board);
 	}
 
 	// Default sort methods.
@@ -175,19 +176,19 @@ function MessageIndex()
 	if (!empty($board_info['moderators']))
 	{
 		foreach ($board_info['moderators'] as $mod)
-			Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $mod['id'] . '" title="' . $txt['board_moderator'] . '">' . $mod['name'] . '</a>';
+			Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $mod['id'] . '" title="' . Lang::$txt['board_moderator'] . '">' . $mod['name'] . '</a>';
 	}
 	if (!empty($board_info['moderator_groups']))
 	{
 		// By default just tack the moderator groups onto the end of the members
 		foreach ($board_info['moderator_groups'] as $mod_group)
-			Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=groups;sa=members;group=' . $mod_group['id'] . '" title="' . $txt['board_moderator'] . '">' . $mod_group['name'] . '</a>';
+			Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=groups;sa=members;group=' . $mod_group['id'] . '" title="' . Lang::$txt['board_moderator'] . '">' . $mod_group['name'] . '</a>';
 	}
 
 	// Now we tack the info onto the end of the linktree
 	if (!empty(Utils::$context['link_moderators']))
 	{
-		Utils::$context['linktree'][count(Utils::$context['linktree']) - 1]['extra_after'] = '<span class="board_moderators">(' . (count(Utils::$context['link_moderators']) == 1 ? $txt['moderator'] : $txt['moderators']) . ': ' . implode(', ', Utils::$context['link_moderators']) . ')</span>';
+		Utils::$context['linktree'][count(Utils::$context['linktree']) - 1]['extra_after'] = '<span class="board_moderators">(' . (count(Utils::$context['link_moderators']) == 1 ? Lang::$txt['moderator'] : Lang::$txt['moderators']) . ': ' . implode(', ', Utils::$context['link_moderators']) . ')</span>';
 	}
 
 	// 'Print' the header and board info.
@@ -286,10 +287,10 @@ function MessageIndex()
 	}
 
 	Utils::$context['sort_direction'] = $ascending ? 'up' : 'down';
-	$txt['starter'] = $txt['started_by'];
+	Lang::$txt['starter'] = Lang::$txt['started_by'];
 
 	foreach ($sort_methods as $key => $val)
-		Utils::$context['topics_headers'][$key] = '<a href="' . Config::$scripturl . '?board=' . Utils::$context['current_board'] . '.' . Utils::$context['start'] . ';sort=' . $key . (Utils::$context['sort_by'] == $key && Utils::$context['sort_direction'] == 'up' ? ';desc' : '') . '">' . $txt[$key] . (Utils::$context['sort_by'] == $key ? '<span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '') . '</a>';
+		Utils::$context['topics_headers'][$key] = '<a href="' . Config::$scripturl . '?board=' . Utils::$context['current_board'] . '.' . Utils::$context['start'] . ';sort=' . $key . (Utils::$context['sort_by'] == $key && Utils::$context['sort_direction'] == 'up' ? ';desc' : '') . '">' . Lang::$txt[$key] . (Utils::$context['sort_by'] == $key ? '<span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '') . '</a>';
 
 	// Calculate the fastest way to get the topics.
 	$start = (int) $_REQUEST['start'];
@@ -402,8 +403,8 @@ function MessageIndex()
 				$row['first_body'] = Utils::entitySubstr($row['first_body'], 0, Config::$modSettings['preview_characters']) . '...';
 
 			// Censor the subject and message preview.
-			censorText($row['first_subject']);
-			censorText($row['first_body']);
+			Lang::censorText($row['first_subject']);
+			Lang::censorText($row['first_body']);
 
 			// Don't censor them twice!
 			if ($row['id_first_msg'] == $row['id_last_msg'])
@@ -417,20 +418,20 @@ function MessageIndex()
 				if (Utils::entityStrlen($row['last_body']) > Config::$modSettings['preview_characters'])
 					$row['last_body'] = Utils::entitySubstr($row['last_body'], 0, Config::$modSettings['preview_characters']) . '...';
 
-				censorText($row['last_subject']);
-				censorText($row['last_body']);
+				Lang::censorText($row['last_subject']);
+				Lang::censorText($row['last_body']);
 			}
 		}
 		else
 		{
 			$row['first_body'] = '';
 			$row['last_body'] = '';
-			censorText($row['first_subject']);
+			Lang::censorText($row['first_subject']);
 
 			if ($row['id_first_msg'] == $row['id_last_msg'])
 				$row['last_subject'] = $row['first_subject'];
 			else
-				censorText($row['last_subject']);
+				Lang::censorText($row['last_subject']);
 		}
 
 		// Decide how many pages the topic should have.
@@ -442,7 +443,7 @@ function MessageIndex()
 
 			// If we can use all, show all.
 			if (!empty(Config::$modSettings['enableAllMessages']) && $row['num_replies'] + 1 < Config::$modSettings['enableAllMessages'])
-				$pages .= sprintf(strtr($settings['page_index']['page'], array('{URL}' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0;all')), '', $txt['all']);
+				$pages .= sprintf(strtr($settings['page_index']['page'], array('{URL}' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0;all')), '', Lang::$txt['all']);
 		}
 		else
 			$pages = '';
@@ -488,7 +489,7 @@ function MessageIndex()
 					'name' => $row['first_display_name'],
 					'id' => $row['first_id_member'],
 					'href' => !empty($row['first_id_member']) ? Config::$scripturl . '?action=profile;u=' . $row['first_id_member'] : '',
-					'link' => !empty($row['first_id_member']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['first_id_member'] . '" title="' . sprintf($txt['view_profile_of_username'], $row['first_display_name']) . '" class="preview">' . $row['first_display_name'] . '</a>' : $row['first_display_name']
+					'link' => !empty($row['first_id_member']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['first_id_member'] . '" title="' . sprintf(Lang::$txt['view_profile_of_username'], $row['first_display_name']) . '" class="preview">' . $row['first_display_name'] . '</a>' : $row['first_display_name']
 				),
 				'time' => timeformat($row['first_poster_time']),
 				'timestamp' => $row['first_poster_time'],
@@ -531,8 +532,8 @@ function MessageIndex()
 			'newtime' => $row['new_from'],
 			'new_href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['new_from'] . '#new',
 			'pages' => $pages,
-			'replies' => comma_format($row['num_replies']),
-			'views' => comma_format($row['num_views']),
+			'replies' => Lang::numberFormat($row['num_replies']),
+			'views' => Lang::numberFormat($row['num_views']),
 			'approved' => $row['approved'],
 			'unapproved_posts' => $row['unapproved_posts'],
 			'css_class' => $colorClass,
@@ -561,7 +562,7 @@ function MessageIndex()
 		Utils::$context['topics'] = array_reverse(Utils::$context['topics'], true);
 
 	Utils::$context['jump_to'] = array(
-		'label' => addslashes(un_htmlspecialchars($txt['jump_to'])),
+		'label' => addslashes(un_htmlspecialchars(Lang::$txt['jump_to'])),
 		'board_name' => strtr(Utils::htmlspecialchars(strip_tags($board_info['name'])), array('&amp;' => '&')),
 		'child_level' => $board_info['child_level'],
 	);
@@ -723,7 +724,7 @@ function MessageIndex()
 		Utils::$context['normal_buttons']['post_poll'] = array('text' => 'new_poll', 'image' => 'new_poll.png', 'lang' => true, 'url' => Config::$scripturl . '?action=post;board=' . Utils::$context['current_board'] . '.0;poll');
 
 	if (Utils::$context['user']['is_logged'])
-		Utils::$context['normal_buttons']['markread'] = array('text' => 'mark_read_short', 'image' => 'markread.png', 'lang' => true, 'custom' => 'data-confirm="' . $txt['are_sure_mark_read'] . '"', 'class' => 'you_sure', 'url' => Config::$scripturl . '?action=markasread;sa=board;board=' . Utils::$context['current_board'] . '.0;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+		Utils::$context['normal_buttons']['markread'] = array('text' => 'mark_read_short', 'image' => 'markread.png', 'lang' => true, 'custom' => 'data-confirm="' . Lang::$txt['are_sure_mark_read'] . '"', 'class' => 'you_sure', 'url' => Config::$scripturl . '?action=markasread;sa=board;board=' . Utils::$context['current_board'] . '.0;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 
 	if (Utils::$context['can_mark_notify'])
 		Utils::$context['normal_buttons']['notify'] = array(

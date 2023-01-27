@@ -1,8 +1,6 @@
 <?php
 // Version: 3.0 Alpha 1; Stats
 
-global $context;
-
 $txt['most_online'] = 'Most Online';
 
 $txt['stats_center'] = 'Statistics Center';

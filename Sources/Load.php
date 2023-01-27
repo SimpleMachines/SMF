@@ -16,6 +16,7 @@
 use SMF\BBCodeParser;
 use SMF\BrowserDetector;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -420,7 +421,7 @@ function loadUserSettings()
 	// Allow the user to change their language.
 	if (!empty(Config::$modSettings['userLanguage']))
 	{
-		$languages = getLanguages();
+		$languages = Lang::get();
 
 		// Is it valid?
 		if (!empty($_GET['language']) && isset($languages[strtr($_GET['language'], './\\:', '____')]))
@@ -503,7 +504,7 @@ function loadMinUserInfo($user_ids = array())
 			'id' => $row['id_member'],
 			'username' => $row['member_name'],
 			'name' => isset($row['real_name']) ? $row['real_name'] : '',
-			'language' => (empty($row['lngfile']) || empty(Config::$modSettings['userLanguage'])) ? Config::$language : $row['lngfile'],
+			'language' => (empty($row['lngfile']) || empty(Config::$modSettings['userLanguage'])) ? Lang::$default : $row['lngfile'],
 			'is_guest' => false,
 			'time_format' => empty($row['time_format']) ? Config::$modSettings['time_format'] : $row['time_format'],
 			'smiley_set' => empty($row['smiley_set']) ? Config::$modSettings['smiley_sets_default'] : $row['smiley_set'],
@@ -570,7 +571,6 @@ function loadMinUserInfo($user_ids = array())
  */
 function loadBoard()
 {
-	global $txt;
 	global $board_info, $board, $topic, $user_info;
 
 	// Assume they are not a moderator.
@@ -860,8 +860,8 @@ function loadBoard()
 		}
 		elseif ($user_info['is_guest'])
 		{
-			loadLanguage('Errors');
-			is_not_guest($txt['topic_gone']);
+			Lang::load('Errors');
+			is_not_guest(Lang::$txt['topic_gone']);
 		}
 		else
 			fatal_lang_error('topic_gone', false);
@@ -1005,7 +1005,7 @@ function loadPermissions()
 function loadMemberData($users, $is_name = false, $set = 'normal')
 {
 	global $user_profile, $board_info;
-	global $user_info, $txt;
+	global $user_info;
 
 	// Can't just look for no users :P.
 	if (empty($users))
@@ -1068,8 +1068,8 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			break;
 		default:
 		{
-			loadLanguage('Errors');
-			trigger_error(sprintf($txt['invalid_member_data_set'], $set), E_USER_WARNING);
+			Lang::load('Errors');
+			trigger_error(sprintf(Lang::$txt['invalid_member_data_set'], $set), E_USER_WARNING);
 		}
 	}
 
@@ -1203,7 +1203,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
  */
 function loadMemberContext($user, $display_custom_fields = false)
 {
-	global $memberContext, $user_profile, $txt, $user_info;
+	global $memberContext, $user_profile, $user_info;
 	global $settings;
 	static $already_loaded_custom_fields = array();
 	static $loadedLanguages = array();
@@ -1217,8 +1217,8 @@ function loadMemberContext($user, $display_custom_fields = false)
 		return false;
 	if (!isset($user_profile[$user]))
 	{
-		loadLanguage('Errors');
-		trigger_error(sprintf($txt['user_not_loaded'], $user), E_USER_WARNING);
+		Lang::load('Errors');
+		trigger_error(sprintf(Lang::$txt['user_not_loaded'], $user), E_USER_WARNING);
 		return false;
 	}
 
@@ -1231,10 +1231,10 @@ function loadMemberContext($user, $display_custom_fields = false)
 		'name' => $profile['real_name'],
 		'id' => $profile['id_member'],
 		'href' => Config::$scripturl . '?action=profile;u=' . $profile['id_member'],
-		'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $profile['id_member'] . '" title="' . sprintf($txt['view_profile_of_username'], $profile['real_name']) . '">' . $profile['real_name'] . '</a>',
+		'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $profile['id_member'] . '" title="' . sprintf(Lang::$txt['view_profile_of_username'], $profile['real_name']) . '">' . $profile['real_name'] . '</a>',
 		'email' => $profile['email_address'],
 		'show_email' => !$user_info['is_guest'] && ($user_info['id'] == $profile['id_member'] || allowedTo('moderate_forum')),
-		'registered' => empty($profile['date_registered']) ? $txt['not_applicable'] : timeformat($profile['date_registered']),
+		'registered' => empty($profile['date_registered']) ? Lang::$txt['not_applicable'] : timeformat($profile['date_registered']),
 		'registered_timestamp' => empty($profile['date_registered']) ? 0 : $profile['date_registered'],
 	);
 
@@ -1242,8 +1242,8 @@ function loadMemberContext($user, $display_custom_fields = false)
 	if (Utils::$context['loadMemberContext_set'] != 'minimal')
 	{
 		// Censor everything.
-		censorText($profile['signature']);
-		censorText($profile['personal_text']);
+		Lang::censorText($profile['signature']);
+		Lang::censorText($profile['personal_text']);
 
 		// Set things up to be used before hand.
 		$profile['signature'] = str_replace(array("\n", "\r"), array('<br>', ''), $profile['signature']);
@@ -1265,7 +1265,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 
 		// Go the extra mile and load the user's native language name.
 		if (empty($loadedLanguages))
-			$loadedLanguages = getLanguages();
+			$loadedLanguages = Lang::get();
 
 		// Figure out the new time offset.
 		if (!empty($profile['timezone']))
@@ -1298,7 +1298,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 		$memberContext[$user] += array(
 			'username_color' => '<span ' . (!empty($profile['member_group_color']) ? 'style="color:' . $profile['member_group_color'] . ';"' : '') . '>' . $profile['member_name'] . '</span>',
 			'name_color' => '<span ' . (!empty($profile['member_group_color']) ? 'style="color:' . $profile['member_group_color'] . ';"' : '') . '>' . $profile['real_name'] . '</span>',
-			'link_color' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $profile['id_member'] . '" title="' . sprintf($txt['view_profile_of_username'], $profile['real_name']) . '" ' . (!empty($profile['member_group_color']) ? 'style="color:' . $profile['member_group_color'] . ';"' : '') . '>' . $profile['real_name'] . '</a>',
+			'link_color' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $profile['id_member'] . '" title="' . sprintf(Lang::$txt['view_profile_of_username'], $profile['real_name']) . '" ' . (!empty($profile['member_group_color']) ? 'style="color:' . $profile['member_group_color'] . ';"' : '') . '>' . $profile['real_name'] . '</a>',
 			'is_buddy' => $profile['buddy'],
 			'is_reverse_buddy' => in_array($user_info['id'], $buddy_list),
 			'buddies' => $buddy_list,
@@ -1311,18 +1311,18 @@ function loadMemberContext($user, $display_custom_fields = false)
 			'birth_date' => empty($profile['birthdate']) ? '1004-01-01' : (substr($profile['birthdate'], 0, 4) === '0004' ? '1004' . substr($profile['birthdate'], 4) : $profile['birthdate']),
 			'signature' => $profile['signature'],
 			'real_posts' => $profile['posts'],
-			'posts' => $profile['posts'] > 500000 ? $txt['geek'] : comma_format($profile['posts']),
-			'last_login' => empty($profile['last_login']) ? $txt['never'] : timeformat($profile['last_login']),
+			'posts' => $profile['posts'] > 500000 ? Lang::$txt['geek'] : Lang::numberFormat($profile['posts']),
+			'last_login' => empty($profile['last_login']) ? Lang::$txt['never'] : timeformat($profile['last_login']),
 			'last_login_timestamp' => empty($profile['last_login']) ? 0 : $profile['last_login'],
 			'ip' => Utils::htmlspecialchars($profile['member_ip']),
 			'ip2' => Utils::htmlspecialchars($profile['member_ip2']),
 			'online' => array(
 				'is_online' => $profile['is_online'],
-				'text' => Utils::htmlspecialchars($txt[$profile['is_online'] ? 'online' : 'offline']),
-				'member_online_text' => sprintf($txt[$profile['is_online'] ? 'member_is_online' : 'member_is_offline'], Utils::htmlspecialchars($profile['real_name'])),
+				'text' => Utils::htmlspecialchars(Lang::$txt[$profile['is_online'] ? 'online' : 'offline']),
+				'member_online_text' => sprintf(Lang::$txt[$profile['is_online'] ? 'member_is_online' : 'member_is_offline'], Utils::htmlspecialchars($profile['real_name'])),
 				'href' => Config::$scripturl . '?action=pm;sa=send;u=' . $profile['id_member'],
-				'link' => '<a href="' . Config::$scripturl . '?action=pm;sa=send;u=' . $profile['id_member'] . '">' . $txt[$profile['is_online'] ? 'online' : 'offline'] . '</a>',
-				'label' => $txt[$profile['is_online'] ? 'online' : 'offline']
+				'link' => '<a href="' . Config::$scripturl . '?action=pm;sa=send;u=' . $profile['id_member'] . '">' . Lang::$txt[$profile['is_online'] ? 'online' : 'offline'] . '</a>',
+				'label' => Lang::$txt[$profile['is_online'] ? 'online' : 'offline']
 			),
 			'language' => !empty($loadedLanguages[$profile['lngfile']]) && !empty($loadedLanguages[$profile['lngfile']]['name']) ? $loadedLanguages[$profile['lngfile']]['name'] : Utils::ucwords(strtr($profile['lngfile'], array('_' => ' ', '-utf8' => ''))),
 			'is_activated' => isset($profile['is_activated']) ? $profile['is_activated'] : 1,
@@ -1389,7 +1389,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 
 			// ... or checkbox?
 			elseif (isset($custom['type']) && $custom['type'] == 'check')
-				$value = $value ? $txt['yes'] : $txt['no'];
+				$value = $value ? Lang::$txt['yes'] : Lang::$txt['no'];
 
 			// Enclosing the user input within some other text?
 			$simple_value = $value;
@@ -1398,15 +1398,15 @@ function loadMemberContext($user, $display_custom_fields = false)
 					'{SCRIPTURL}' => Config::$scripturl,
 					'{IMAGES_URL}' => $settings['images_url'],
 					'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
-					'{INPUT}' => tokenTxtReplace($value),
+					'{INPUT}' => Lang::tokenTxtReplace($value),
 					'{KEY}' => $currentKey,
 				));
 
 			$memberContext[$user]['custom_fields'][] = array(
-				'title' => tokenTxtReplace(!empty($custom['title']) ? $custom['title'] : $custom['col_name']),
-				'col_name' => tokenTxtReplace($custom['col_name']),
-				'value' => un_htmlspecialchars(tokenTxtReplace($value)),
-				'simple' => tokenTxtReplace($simple_value),
+				'title' => Lang::tokenTxtReplace(!empty($custom['title']) ? $custom['title'] : $custom['col_name']),
+				'col_name' => Lang::tokenTxtReplace($custom['col_name']),
+				'value' => un_htmlspecialchars(Lang::tokenTxtReplace($value)),
+				'simple' => Lang::tokenTxtReplace($simple_value),
 				'raw' => $profile['options'][$custom['col_name']],
 				'placement' => !empty($custom['placement']) ? $custom['placement'] : 0,
 			);
@@ -1429,7 +1429,7 @@ function loadMemberContext($user, $display_custom_fields = false)
  */
 function loadMemberCustomFields($users, $params)
 {
-	global $txt, $settings;
+	global $settings;
 
 	// Do not waste my time...
 	if (empty($users) || empty($params))
@@ -1458,8 +1458,8 @@ function loadMemberCustomFields($users, $params)
 	{
 		$fieldOptions = array();
 		$currentKey = 0;
-		$row['field_name'] = tokenTxtReplace($row['field_name']);
-		$row['field_desc'] = tokenTxtReplace($row['field_desc']);
+		$row['field_name'] = Lang::tokenTxtReplace($row['field_name']);
+		$row['field_desc'] = Lang::tokenTxtReplace($row['field_desc']);
 
 		// Create a key => value array for multiple options fields
 		if (!empty($row['field_options']))
@@ -1476,7 +1476,7 @@ function loadMemberCustomFields($users, $params)
 
 		// ... or checkbox?
 		elseif (isset($row['type']) && $row['type'] == 'check')
-			$row['value'] = !empty($row['value']) ? $txt['yes'] : $txt['no'];
+			$row['value'] = !empty($row['value']) ? Lang::$txt['yes'] : Lang::$txt['no'];
 
 		// Enclosing the user input within some other text?
 		if (!empty($row['enclose']))
@@ -1516,7 +1516,6 @@ function loadMemberCustomFields($users, $params)
 function loadTheme($id_theme = 0, $initialize = true)
 {
 	global $user_info, $user_settings, $board_info;
-	global $txt;
 	global $settings, $options, $board;
 
 	if (empty($id_theme))
@@ -1682,7 +1681,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	{
 		if (isset($_GET['sslRedirect']))
 		{
-			loadLanguage('Errors');
+			Lang::load('Errors');
 			fatal_lang_error('login_ssl_required', false);
 		}
 
@@ -1788,8 +1787,8 @@ function loadTheme($id_theme = 0, $initialize = true)
 		);
 		if (!Utils::$context['user']['is_guest'])
 			Utils::$context['user']['name'] = $user_info['name'];
-		elseif (Utils::$context['user']['is_guest'] && !empty($txt['guest_title']))
-			Utils::$context['user']['name'] = $txt['guest_title'];
+		elseif (Utils::$context['user']['is_guest'] && !empty(Lang::$txt['guest_title']))
+			Utils::$context['user']['name'] = Lang::$txt['guest_title'];
 
 		// Determine the current smiley set.
 		$smiley_sets_known = explode(',', Config::$modSettings['smiley_sets_known']);
@@ -1805,8 +1804,8 @@ function loadTheme($id_theme = 0, $initialize = true)
 			'is_guest' => true,
 			'is_mod' => false,
 			'can_mod' => false,
-			'name' => $txt['guest_title'],
-			'language' => Config::$language,
+			'name' => Lang::$txt['guest_title'],
+			'language' => Lang::$default,
 			'email' => '',
 			'ignoreusers' => array(),
 		);
@@ -1816,8 +1815,8 @@ function loadTheme($id_theme = 0, $initialize = true)
 			'is_guest' => true,
 			'is_admin' => false,
 			'is_mod' => false,
-			'username' => $txt['guest_title'],
-			'language' => Config::$language,
+			'username' => Lang::$txt['guest_title'],
+			'language' => Lang::$default,
 			'email' => '',
 			'smiley_set' => '',
 			'permissions' => array(),
@@ -1872,9 +1871,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// This allows sticking some HTML on the page output - useful for controls.
 	Utils::$context['insert_after_template'] = '';
 
-	if (!isset($txt))
-		$txt = array();
-
 	$simpleActions = array(
 		'findmember',
 		'helpadmin',
@@ -1925,7 +1921,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// Output is fully XML, so no need for the index template.
 	if (isset($_REQUEST['xml']) && (in_array(Utils::$context['current_action'], $xmlActions) || $requiresXML))
 	{
-		loadLanguage('index+Modifications');
+		Lang::load('index+Modifications');
 		loadTemplate('Xml');
 		Utils::$context['template_layers'] = array();
 	}
@@ -1933,7 +1929,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// These actions don't require the index template at all.
 	elseif (!empty(Utils::$context['simple_action']))
 	{
-		loadLanguage('index+Modifications');
+		Lang::load('index+Modifications');
 		Utils::$context['template_layers'] = array();
 	}
 
@@ -1951,7 +1947,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 		// ...and attempt to load their associated language files.
 		$required_files = implode('+', array_merge($templates, array('Modifications')));
-		loadLanguage($required_files, '', false);
+		Lang::load($required_files, '', false);
 
 		// Custom template layers?
 		if (isset($settings['theme_layers']))
@@ -1964,23 +1960,23 @@ function loadTheme($id_theme = 0, $initialize = true)
 	loadSubTemplate('init', 'ignore');
 
 	// Allow overriding the board wide time/number formats.
-	if (empty($user_settings['time_format']) && !empty($txt['time_format']))
-		$user_info['time_format'] = $txt['time_format'];
+	if (empty($user_settings['time_format']) && !empty(Lang::$txt['time_format']))
+		$user_info['time_format'] = Lang::$txt['time_format'];
 
 	// Set the character set from the template.
-	Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? $txt['lang_character_set'] : Config::$modSettings['global_character_set'];
-	Utils::$context['right_to_left'] = !empty($txt['lang_rtl']);
+	Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? Lang::$txt['lang_character_set'] : Config::$modSettings['global_character_set'];
+	Utils::$context['right_to_left'] = !empty(Lang::$txt['lang_rtl']);
 
 	// Guests may still need a name.
 	if (Utils::$context['user']['is_guest'] && empty(Utils::$context['user']['name']))
-		Utils::$context['user']['name'] = $txt['guest_title'];
+		Utils::$context['user']['name'] = Lang::$txt['guest_title'];
 
 	// Any theme-related strings that need to be loaded?
 	if (!empty($settings['require_theme_strings']))
-		loadLanguage('ThemeStrings', '', false);
+		Lang::load('ThemeStrings', '', false);
 
 	// Make a special URL for the language.
-	$settings['lang_images_url'] = $settings['images_url'] . '/' . (!empty($txt['image_lang']) ? $txt['image_lang'] : $user_info['language']);
+	$settings['lang_images_url'] = $settings['images_url'] . '/' . (!empty(Lang::$txt['image_lang']) ? Lang::$txt['image_lang'] : $user_info['language']);
 
 	// And of course, let's load the default CSS file.
 	loadCSSFile('index.css', array('minimize' => true, 'order_pos' => 1), 'smf_index');
@@ -2043,13 +2039,13 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'smf_session_id' => '"' . Utils::$context['session_id'] . '"',
 		'smf_session_var' => '"' . Utils::$context['session_var'] . '"',
 		'smf_member_id' => Utils::$context['user']['id'],
-		'ajax_notification_text' => JavaScriptEscape($txt['ajax_in_progress']),
-		'help_popup_heading_text' => JavaScriptEscape($txt['help_popup']),
-		'banned_text' => JavaScriptEscape(sprintf($txt['your_ban'], Utils::$context['user']['name'])),
-		'smf_txt_expand' => JavaScriptEscape($txt['code_expand']),
-		'smf_txt_shrink' => JavaScriptEscape($txt['code_shrink']),
-		'smf_collapseAlt' => JavaScriptEscape($txt['hide']),
-		'smf_expandAlt' => JavaScriptEscape($txt['show']),
+		'ajax_notification_text' => JavaScriptEscape(Lang::$txt['ajax_in_progress']),
+		'help_popup_heading_text' => JavaScriptEscape(Lang::$txt['help_popup']),
+		'banned_text' => JavaScriptEscape(sprintf(Lang::$txt['your_ban'], Utils::$context['user']['name'])),
+		'smf_txt_expand' => JavaScriptEscape(Lang::$txt['code_expand']),
+		'smf_txt_shrink' => JavaScriptEscape(Lang::$txt['code_shrink']),
+		'smf_collapseAlt' => JavaScriptEscape(Lang::$txt['hide']),
+		'smf_expandAlt' => JavaScriptEscape(Lang::$txt['show']),
 		'smf_quote_expand' => !empty(Config::$modSettings['quote_expand']) ? Config::$modSettings['quote_expand'] : 'false',
 		'allow_xhjr_credentials' => !empty(Config::$modSettings['allow_cors_credentials']) ? 'true' : 'false',
 	);
@@ -2116,7 +2112,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 				(count(array_intersect($user_info['groups'], $element['groups'])) == 0 ||
 					(!empty(Config::$modSettings['deny_boards_access']) && count(array_intersect($user_info['groups'], $element['deny_groups'])) != 0)))
 			{
-				Utils::$context['linktree'][$k]['name'] = $txt['restricted_board'];
+				Utils::$context['linktree'][$k]['name'] = Lang::$txt['restricted_board'];
 				Utils::$context['linktree'][$k]['extra_before'] = '<i>';
 				Utils::$context['linktree'][$k]['extra_after'] = '</i>';
 				unset(Utils::$context['linktree'][$k]['url']);
@@ -2157,7 +2153,7 @@ function loadTheme($id_theme = 0, $initialize = true)
  */
 function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
 {
-	global $settings, $txt;
+	global $settings;
 
 	// Do any style sheets first, cause we're easy with those.
 	if (!empty($style_sheets))
@@ -2201,10 +2197,10 @@ function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
 
 		if (!empty(Utils::$context['user']['is_admin']) && !isset($_GET['th']))
 		{
-			loadLanguage('Errors');
+			Lang::load('Errors');
 			echo '
 <div class="alert errorbox">
-	<a href="', Config::$scripturl . '?action=admin;area=theme;sa=list;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], '" class="alert">', $txt['theme_dir_wrong'], '</a>
+	<a href="', Config::$scripturl . '?action=admin;area=theme;sa=list;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], '" class="alert">', Lang::$txt['theme_dir_wrong'], '</a>
 </div>';
 		}
 
@@ -2214,7 +2210,7 @@ function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
 	elseif ($template_name != 'Errors' && $template_name != 'index' && $fatal)
 		fatal_lang_error('theme_template_error', 'template', array((string) $template_name));
 	elseif ($fatal)
-		die(log_error(sprintf(isset($txt['theme_template_error']) ? $txt['theme_template_error'] : 'Unable to load Themes/default/%s.template.php!', (string) $template_name), 'template'));
+		die(log_error(sprintf(isset(Lang::$txt['theme_template_error']) ? Lang::$txt['theme_template_error'] : 'Unable to load Themes/default/%s.template.php!', (string) $template_name), 'template'));
 	else
 		return false;
 }
@@ -2233,8 +2229,6 @@ function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
  */
 function loadSubTemplate($sub_template_name, $fatal = false)
 {
-	global $txt;
-
 	if (Config::$db_show_debug === true)
 		Utils::$context['debug']['sub_templates'][] = $sub_template_name;
 
@@ -2245,7 +2239,7 @@ function loadSubTemplate($sub_template_name, $fatal = false)
 	elseif ($fatal === false)
 		fatal_lang_error('theme_template_error', 'template', array((string) $sub_template_name));
 	elseif ($fatal !== 'ignore')
-		die(log_error(sprintf(isset($txt['theme_template_error']) ? $txt['theme_template_error'] : 'Unable to load the %s sub template!', (string) $sub_template_name), 'template'));
+		die(log_error(sprintf(isset(Lang::$txt['theme_template_error']) ? Lang::$txt['theme_template_error'] : 'Unable to load the %s sub template!', (string) $sub_template_name), 'template'));
 
 	// Are we showing debugging for templates?  Just make sure not to do it before the doctype...
 	if (allowedTo('admin_forum') && isset($_REQUEST['debug']) && !in_array($sub_template_name, array('init', 'main_below')) && ob_get_length() > 0 && !isset($_REQUEST['xml']))
@@ -2534,146 +2528,6 @@ function addInlineJavaScript($javascript, $defer = false)
 }
 
 /**
- * Load a language file.  Tries the current and default themes as well as the user and global languages.
- *
- * @param string $template_name The name of a template file
- * @param string $lang A specific language to load this file from
- * @param bool $fatal Whether to die with an error if it can't be loaded
- * @param bool $force_reload Whether to load the file again if it's already loaded
- * @return string The language actually loaded.
- */
-function loadLanguage($template_name, $lang = '', $fatal = true, $force_reload = false)
-{
-	global $user_info, $settings;
-	global $txt, $birthdayEmails, $txtBirthdayEmails;
-	static $already_loaded = array();
-
-	// Default to the user's language.
-	if ($lang == '')
-		$lang = isset($user_info['language']) ? $user_info['language'] : Config::$language;
-
-	// Do we want the English version of language file as fallback?
-	if (empty(Config::$modSettings['disable_language_fallback']) && $lang != 'english')
-		loadLanguage($template_name, 'english', false);
-
-	if (!$force_reload && isset($already_loaded[$template_name]) && $already_loaded[$template_name] == $lang)
-		return $lang;
-
-	// Make sure we have $settings - if not we're in trouble and need to find it!
-	if (empty($settings['default_theme_dir']))
-	{
-		require_once(Config::$sourcedir . '/ScheduledTasks.php');
-		loadEssentialThemeData();
-	}
-
-	// What theme are we in?
-	$theme_name = basename($settings['theme_url']);
-	if (empty($theme_name))
-		$theme_name = 'unknown';
-
-	// For each file open it up and write it out!
-	foreach (explode('+', $template_name) as $template)
-	{
-		// Obviously, the current theme is most important to check.
-		$attempts = array(
-			array($settings['theme_dir'], $template, $lang, $settings['theme_url']),
-			array($settings['theme_dir'], $template, Config::$language, $settings['theme_url']),
-		);
-
-		// Do we have a base theme to worry about?
-		if (isset($settings['base_theme_dir']))
-		{
-			$attempts[] = array($settings['base_theme_dir'], $template, $lang, $settings['base_theme_url']);
-			$attempts[] = array($settings['base_theme_dir'], $template, Config::$language, $settings['base_theme_url']);
-		}
-
-		// Fall back on the default theme if necessary.
-		$attempts[] = array($settings['default_theme_dir'], $template, $lang, $settings['default_theme_url']);
-		$attempts[] = array($settings['default_theme_dir'], $template, Config::$language, $settings['default_theme_url']);
-
-		// Fall back on the English language if none of the preferred languages can be found.
-		if (!in_array('english', array($lang, Config::$language)))
-		{
-			$attempts[] = array($settings['theme_dir'], $template, 'english', $settings['theme_url']);
-			$attempts[] = array($settings['default_theme_dir'], $template, 'english', $settings['default_theme_url']);
-		}
-
-		// Try to find the language file.
-		$found = false;
-		foreach ($attempts as $k => $file)
-		{
-			if (file_exists($file[0] . '/languages/' . $file[1] . '.' . $file[2] . '.php'))
-			{
-				// Include it!
-				template_include($file[0] . '/languages/' . $file[1] . '.' . $file[2] . '.php');
-
-				// Note that we found it.
-				$found = true;
-
-				// setlocale is required for basename() & pathinfo() to work properly on the selected language
-				if (!empty($txt['lang_locale']))
-				{
-					if (strpos($txt['lang_locale'], '.') !== false)
-						$locale_variants = $txt['lang_locale'];
-					else
-						$locale_variants = array_unique(array_merge(
-							!empty(Config::$modSettings['global_character_set']) ? array($txt['lang_locale'] . '.' . Config::$modSettings['global_character_set']) : array(),
-							!empty(Utils::$context['utf8']) ? array($txt['lang_locale'] . '.UTF-8', $txt['lang_locale'] . '.UTF8', $txt['lang_locale'] . '.utf-8', $txt['lang_locale'] . '.utf8') : array(),
-							array($txt['lang_locale'])
-						));
-
-					setlocale(LC_CTYPE, $locale_variants);
-				}
-
-				break;
-			}
-		}
-
-		// That couldn't be found!  Log the error, but *try* to continue normally.
-		if (!$found && $fatal)
-		{
-			log_error(sprintf($txt['theme_language_error'], $template_name . '.' . $lang, 'template'));
-			break;
-		}
-
-		// For the sake of backward compatibility
-		if (!empty($txt['emails']))
-		{
-			foreach ($txt['emails'] as $key => $value)
-			{
-				$txt[$key . '_subject'] = $value['subject'];
-				$txt[$key . '_body'] = $value['body'];
-			}
-			$txt['emails'] = array();
-		}
-		// For sake of backward compatibility: $birthdayEmails is supposed to be
-		// empty in a normal install. If it isn't it means the forum is using
-		// something "old" (it may be the translation, it may be a mod) and this
-		// code (like the piece above) takes care of converting it to the new format
-		if (!empty($birthdayEmails))
-		{
-			foreach ($birthdayEmails as $key => $value)
-			{
-				$txtBirthdayEmails[$key . '_subject'] = $value['subject'];
-				$txtBirthdayEmails[$key . '_body'] = $value['body'];
-				$txtBirthdayEmails[$key . '_author'] = $value['author'];
-			}
-			$birthdayEmails = array();
-		}
-	}
-
-	// Keep track of what we're up to soldier.
-	if (Config::$db_show_debug === true)
-		Utils::$context['debug']['language_files'][] = $template_name . '.' . $lang . ' (' . $theme_name . ')';
-
-	// Remember what we have loaded, and in which language.
-	$already_loaded[$template_name] = $lang;
-
-	// Return the language actually loaded.
-	return $lang;
-}
-
-/**
  * Get all parent boards (requires first parent as parameter)
  * It finds all the parents of id_parent, and that board itself.
  * Additionally, it detects the moderators of said boards.
@@ -2759,166 +2613,6 @@ function getBoardParents($id_parent)
 }
 
 /**
- * Attempt to reload our known languages.
- * It will try to choose only utf8 or non-utf8 languages.
- *
- * @param bool $use_cache Whether or not to use the cache
- * @return array An array of information about available languages
- */
-function getLanguages($use_cache = true)
-{
-	global $settings;
-
-	// Either we don't use the cache, or its expired.
-	if (!$use_cache || (Utils::$context['languages'] = CacheApi::get('known_languages', !empty(CacheApi::$enable) && CacheApi::$enable < 1 ? 86400 : 3600)) == null)
-	{
-		// If we don't have our theme information yet, let's get it.
-		if (empty($settings['default_theme_dir']))
-			loadTheme(0, false);
-
-		// Default language directories to try.
-		$language_directories = array(
-			$settings['default_theme_dir'] . '/languages',
-		);
-		if (!empty($settings['actual_theme_dir']) && $settings['actual_theme_dir'] != $settings['default_theme_dir'])
-			$language_directories[] = $settings['actual_theme_dir'] . '/languages';
-
-		// We possibly have a base theme directory.
-		if (!empty($settings['base_theme_dir']))
-			$language_directories[] = $settings['base_theme_dir'] . '/languages';
-
-		// Remove any duplicates.
-		$language_directories = array_unique($language_directories);
-
-		foreach ($language_directories as $language_dir)
-		{
-			// Can't look in here... doesn't exist!
-			if (!file_exists($language_dir))
-				continue;
-
-			$dir = dir($language_dir);
-			while ($entry = $dir->read())
-			{
-				// Look for the index language file... For good measure skip any "index.language-utf8.php" files
-				if (!preg_match('~^index\.((?:.(?!-utf8))+)\.php$~', $entry, $matches))
-					continue;
-
-				$langName = Utils::ucwords(strtr($matches[1], array('_' => ' ')));
-
-				if (($spos = strpos($langName, ' ')) !== false)
-					$langName = substr($langName, 0, ++$spos) . '(' . substr($langName, $spos) . ')';
-
-				// Get the line we need.
-				$fp = @fopen($language_dir . '/' . $entry, 'r');
-
-				// Yay!
-				if ($fp)
-				{
-					while (($line = fgets($fp)) !== false)
-					{
-						if (strpos($line, '$txt[\'native_name\']') === false)
-							continue;
-
-						preg_match('~\$txt\[\'native_name\'\]\s*=\s*\'([^\']+)\';~', $line, $matchNative);
-
-						// Set the language's name.
-						if (!empty($matchNative) && !empty($matchNative[1]))
-						{
-							// Don't mislabel the language if the translator missed this one.
-							if ($langName !== 'English' && $matchNative[1] === 'English')
-								break;
-
-							$langName = un_htmlspecialchars($matchNative[1]);
-							break;
-						}
-					}
-
-					fclose($fp);
-				}
-
-				// Build this language entry.
-				Utils::$context['languages'][$matches[1]] = array(
-					'name' => $langName,
-					'selected' => false,
-					'filename' => $matches[1],
-					'location' => $language_dir . '/index.' . $matches[1] . '.php',
-				);
-			}
-			$dir->close();
-		}
-
-		// Avoid confusion when we have more than one English variant installed.
-		// Honestly, our default English version should always have been called "English (US)"
-		if (substr_count(implode(' ', array_keys(Utils::$context['languages'])), 'english') > 1 && Utils::$context['languages']['english']['name'] === 'English')
-			Utils::$context['languages']['english']['name'] = 'English (US)';
-
-		// Let's cash in on this deal.
-		if (!empty(CacheApi::$enable))
-			CacheApi::put('known_languages', Utils::$context['languages'], !empty(CacheApi::$enable) && CacheApi::$enable < 1 ? 86400 : 3600);
-	}
-
-	return Utils::$context['languages'];
-}
-
-/**
- * Replace all vulgar words with respective proper words. (substring or whole words..)
- * What this function does:
- *  - it censors the passed string.
- *  - if the theme setting allow_no_censored is on, and the theme option
- *	show_no_censored is enabled, does not censor, unless force is also set.
- *  - it caches the list of censored words to reduce parsing.
- *
- * @param string &$text The text to censor
- * @param bool $force Whether to censor the text regardless of settings
- * @return string The censored text
- */
-function censorText(&$text, $force = false)
-{
-	global $options, $txt;
-	static $censor_vulgar = null, $censor_proper;
-
-	if ((!empty($options['show_no_censored']) && !empty(Config::$modSettings['allow_no_censored']) && !$force) || empty(Config::$modSettings['censor_vulgar']) || !is_string($text) || trim($text) === '')
-		return $text;
-
-	call_integration_hook('integrate_word_censor', array(&$text));
-
-	// If they haven't yet been loaded, load them.
-	if ($censor_vulgar == null)
-	{
-		$censor_vulgar = explode("\n", Config::$modSettings['censor_vulgar']);
-		$censor_proper = explode("\n", Config::$modSettings['censor_proper']);
-
-		// Quote them for use in regular expressions.
-		if (!empty(Config::$modSettings['censorWholeWord']))
-		{
-			$charset = empty(Config::$modSettings['global_character_set']) ? $txt['lang_character_set'] : Config::$modSettings['global_character_set'];
-
-			for ($i = 0, $n = count($censor_vulgar); $i < $n; $i++)
-			{
-				$censor_vulgar[$i] = str_replace(array('\\\\\\*', '\\*', '&', '\''), array('[*]', '[^\s]*?', '&amp;', '&#039;'), preg_quote($censor_vulgar[$i], '/'));
-
-				// Use the faster \b if we can, or something more complex if we can't
-				$boundary_before = preg_match('/^\w/', $censor_vulgar[$i]) ? '\b' : ($charset === 'UTF-8' ? '(?<![\p{L}\p{M}\p{N}_])' : '(?<!\w)');
-				$boundary_after = preg_match('/\w$/', $censor_vulgar[$i]) ? '\b' : ($charset === 'UTF-8' ? '(?![\p{L}\p{M}\p{N}_])' : '(?!\w)');
-
-				$censor_vulgar[$i] = '/' . $boundary_before . $censor_vulgar[$i] . $boundary_after . '/' . (empty(Config::$modSettings['censorIgnoreCase']) ? '' : 'i') . ($charset === 'UTF-8' ? 'u' : '');
-			}
-		}
-	}
-
-	// Censoring isn't so very complicated :P.
-	if (empty(Config::$modSettings['censorWholeWord']))
-	{
-		$func = !empty(Config::$modSettings['censorIgnoreCase']) ? 'str_ireplace' : 'str_replace';
-		$text = $func($censor_vulgar, $censor_proper, $text);
-	}
-	else
-		$text = preg_replace($censor_vulgar, $censor_proper, $text);
-
-	return $text;
-}
-
-/**
  * Load the template/language file using require
  * 	- loads the template or language file specified by filename.
  * 	- uses eval unless disableTemplateEval is enabled.
@@ -2930,7 +2624,6 @@ function censorText(&$text, $force = false)
  */
 function template_include($filename, $once = false)
 {
-	global $txt;
 	static $templates = array();
 
 	// We want to be able to figure out any errors...
@@ -2966,12 +2659,12 @@ function template_include($filename, $once = false)
 		header('last-modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 		header('cache-control: no-cache');
 
-		if (!isset($txt['template_parse_error']))
+		if (!isset(Lang::$txt['template_parse_error']))
 		{
-			$txt['template_parse_error'] = 'Template Parse Error!';
-			$txt['template_parse_error_message'] = 'It seems something has gone sour on the forum with the template system.  This problem should only be temporary, so please come back later and try again.  If you continue to see this message, please contact the administrator.<br><br>You can also try <a href="javascript:location.reload();">refreshing this page</a>.';
-			$txt['template_parse_error_details'] = 'There was a problem loading the <pre><strong>%1$s</strong></pre> template or language file.  Please check the syntax and try again - remember, single quotes (<pre>\'</pre>) often have to be escaped with a slash (<pre>\\</pre>).  To see more specific error information from PHP, try <a href="%2$s%1$s" class="extern">accessing the file directly</a>.<br><br>You may want to try to <a href="javascript:location.reload();">refresh this page</a> or <a href="%3$s?theme=1">use the default theme</a>.';
-			$txt['template_parse_errmsg'] = 'Unfortunately more information is not available at this time as to exactly what is wrong.';
+			Lang::$txt['template_parse_error'] = 'Template Parse Error!';
+			Lang::$txt['template_parse_error_message'] = 'It seems something has gone sour on the forum with the template system.  This problem should only be temporary, so please come back later and try again.  If you continue to see this message, please contact the administrator.<br><br>You can also try <a href="javascript:location.reload();">refreshing this page</a>.';
+			Lang::$txt['template_parse_error_details'] = 'There was a problem loading the <pre><strong>%1$s</strong></pre> template or language file.  Please check the syntax and try again - remember, single quotes (<pre>\'</pre>) often have to be escaped with a slash (<pre>\\</pre>).  To see more specific error information from PHP, try <a href="%2$s%1$s" class="extern">accessing the file directly</a>.<br><br>You may want to try to <a href="javascript:location.reload();">refresh this page</a> or <a href="%3$s?theme=1">use the default theme</a>.';
+			Lang::$txt['template_parse_errmsg'] = 'Unfortunately more information is not available at this time as to exactly what is wrong.';
 		}
 
 		// First, let's get the doctype and language information out of the way.
@@ -2993,11 +2686,11 @@ function template_include($filename, $once = false)
 </html>';
 		elseif (!allowedTo('admin_forum'))
 			echo '
-		<title>', $txt['template_parse_error'], '</title>
+		<title>', Lang::$txt['template_parse_error'], '</title>
 	</head>
 	<body>
-		<h3>', $txt['template_parse_error'], '</h3>
-		', $txt['template_parse_error_message'], '
+		<h3>', Lang::$txt['template_parse_error'], '</h3>
+		', Lang::$txt['template_parse_error_message'], '
 	</body>
 </html>';
 		else
@@ -3007,16 +2700,16 @@ function template_include($filename, $once = false)
 			if (empty($error) && ini_get('track_errors') && !empty($error_array))
 				$error = $error_array['message'];
 			if (empty($error))
-				$error = $txt['template_parse_errmsg'];
+				$error = Lang::$txt['template_parse_errmsg'];
 
 			$error = strtr($error, array('<b>' => '<strong>', '</b>' => '</strong>'));
 
 			echo '
-		<title>', $txt['template_parse_error'], '</title>
+		<title>', Lang::$txt['template_parse_error'], '</title>
 	</head>
 	<body>
-		<h3>', $txt['template_parse_error'], '</h3>
-		', sprintf($txt['template_parse_error_details'], strtr($filename, array(Config::$boarddir => '', strtr(Config::$boarddir, '\\', '/') => '')), Config::$boardurl, Config::$scripturl);
+		<h3>', Lang::$txt['template_parse_error'], '</h3>
+		', sprintf(Lang::$txt['template_parse_error_details'], strtr($filename, array(Config::$boarddir => '', strtr(Config::$boarddir, '\\', '/') => '')), Config::$boardurl, Config::$scripturl);
 
 			if (!empty($error))
 				echo '

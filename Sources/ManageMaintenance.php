@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -27,19 +28,17 @@ if (!defined('SMF'))
  */
 function ManageMaintenance()
 {
-	global $txt;
-
 	// You absolutely must be an admin by here!
 	isAllowedTo('admin_forum');
 
 	// Need something to talk about?
-	loadLanguage('ManageMaintenance');
+	Lang::load('ManageMaintenance');
 	loadTemplate('ManageMaintenance');
 
 	// This uses admin tabs - as it should!
 	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
-		'title' => $txt['maintain_title'],
-		'description' => $txt['maintain_info'],
+		'title' => Lang::$txt['maintain_title'],
+		'description' => Lang::$txt['maintain_info'],
 		'tabs' => array(
 			'routine' => array(),
 			'database' => array(),
@@ -111,7 +110,7 @@ function ManageMaintenance()
 		$activity = $_REQUEST['activity'];
 
 	// Set a few things.
-	Utils::$context['page_title'] = $txt['maintain_title'];
+	Utils::$context['page_title'] = Lang::$txt['maintain_title'];
 	Utils::$context['sub_action'] = $subAction;
 	Utils::$context['sub_template'] = !empty($subActions[$subAction]['template']) ? $subActions[$subAction]['template'] : '';
 
@@ -131,8 +130,6 @@ function ManageMaintenance()
  */
 function MaintainDatabase()
 {
-	global $txt;
-
 	// Show some conversion options?
 	Utils::$context['convert_entities'] = isset(Config::$modSettings['global_character_set']) && Config::$modSettings['global_character_set'] === 'UTF-8';
 
@@ -148,7 +145,7 @@ function MaintainDatabase()
 	}
 
 	if (isset($_GET['done']) && $_GET['done'] == 'convertentities')
-		Utils::$context['maintenance_finished'] = $txt['entity_convert_title'];
+		Utils::$context['maintenance_finished'] = Lang::$txt['entity_convert_title'];
 }
 
 /**
@@ -156,10 +153,8 @@ function MaintainDatabase()
  */
 function MaintainRoutine()
 {
-	global $txt;
-
 	if (isset($_GET['done']) && in_array($_GET['done'], array('recount', 'rebuild_settings')))
-		Utils::$context['maintenance_finished'] = $txt['maintain_' . $_GET['done']];
+		Utils::$context['maintenance_finished'] = Lang::$txt['maintain_' . $_GET['done']];
 }
 
 /**
@@ -167,8 +162,6 @@ function MaintainRoutine()
  */
 function MaintainMembers()
 {
-	global $txt;
-
 	// Get membergroups - for deleting members and the like.
 	$result = Db::$db->query('', '
 		SELECT id_group, group_name
@@ -179,7 +172,7 @@ function MaintainMembers()
 	Utils::$context['membergroups'] = array(
 		array(
 			'id' => 0,
-			'name' => $txt['maintain_members_ungrouped']
+			'name' => Lang::$txt['maintain_members_ungrouped']
 		),
 	);
 	while ($row = Db::$db->fetch_assoc($result))
@@ -192,7 +185,7 @@ function MaintainMembers()
 	Db::$db->free_result($result);
 
 	if (isset($_GET['done']) && $_GET['done'] == 'recountposts')
-		Utils::$context['maintenance_finished'] = $txt['maintain_recountposts'];
+		Utils::$context['maintenance_finished'] = Lang::$txt['maintain_recountposts'];
 
 	loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
 }
@@ -202,8 +195,6 @@ function MaintainMembers()
  */
 function MaintainTopics()
 {
-	global $txt;
-
 	// Let's load up the boards in case they are useful.
 	$result = Db::$db->query('order_by_board_order', '
 		SELECT b.id_board, b.name, b.child_level, c.name AS cat_name, c.id_cat
@@ -236,9 +227,9 @@ function MaintainTopics()
 	sortCategories(Utils::$context['categories']);
 
 	if (isset($_GET['done']) && $_GET['done'] == 'purgeold')
-		Utils::$context['maintenance_finished'] = $txt['maintain_old'];
+		Utils::$context['maintenance_finished'] = Lang::$txt['maintain_old'];
 	elseif (isset($_GET['done']) && $_GET['done'] == 'massmove')
-		Utils::$context['maintenance_finished'] = $txt['move_topics_maintenance'];
+		Utils::$context['maintenance_finished'] = Lang::$txt['move_topics_maintenance'];
 }
 
 /**
@@ -258,15 +249,13 @@ function MaintainFindFixErrors()
  */
 function MaintainCleanCache()
 {
-	global $txt;
-
 	checkSession();
 	validateToken('admin-maint');
 
 	// Just wipe the whole cache!
 	CacheApi::clean();
 
-	Utils::$context['maintenance_finished'] = $txt['maintain_cache'];
+	Utils::$context['maintenance_finished'] = Lang::$txt['maintain_cache'];
 }
 
 /**
@@ -274,8 +263,6 @@ function MaintainCleanCache()
  */
 function MaintainEmptyUnimportantLogs()
 {
-	global $txt;
-
 	checkSession();
 	validateToken('admin-maint');
 
@@ -307,7 +294,7 @@ function MaintainEmptyUnimportantLogs()
 
 	Config::updateModSettings(array('search_pointer' => 0));
 
-	Utils::$context['maintenance_finished'] = $txt['maintain_logs'];
+	Utils::$context['maintenance_finished'] = Lang::$txt['maintain_logs'];
 }
 
 /**
@@ -336,7 +323,6 @@ function Destroy()
  */
 function ConvertMsgBody()
 {
-	global $txt;
 	// Show me your badge!
 	isAllowedTo('admin_forum');
 
@@ -370,7 +356,7 @@ function ConvertMsgBody()
 			if ($column['name'] == 'body')
 				$body_type = $column['type'];
 
-		Utils::$context['maintenance_finished'] = $txt[Utils::$context['convert_to'] . '_title'];
+		Utils::$context['maintenance_finished'] = Lang::$txt[Utils::$context['convert_to'] . '_title'];
 		Utils::$context['convert_to'] = $body_type == 'text' ? 'mediumtext' : 'text';
 		Utils::$context['convert_to_suggest'] = ($body_type != 'text' && !empty(Config::$modSettings['max_messageLength']) && Config::$modSettings['max_messageLength'] < 65536);
 
@@ -384,7 +370,7 @@ function ConvertMsgBody()
 		else
 			validateToken('admin-convertMsg');
 
-		Utils::$context['page_title'] = $txt['not_done_title'];
+		Utils::$context['page_title'] = Lang::$txt['not_done_title'];
 		Utils::$context['continue_post_data'] = '';
 		Utils::$context['continue_countdown'] = 3;
 		Utils::$context['sub_template'] = 'not_done';
@@ -435,7 +421,7 @@ function ConvertMsgBody()
 			}
 		}
 		createToken('admin-maint');
-		Utils::$context['page_title'] = $txt[Utils::$context['convert_to'] . '_title'];
+		Utils::$context['page_title'] = Lang::$txt[Utils::$context['convert_to'] . '_title'];
 		Utils::$context['sub_template'] = 'convert_msgbody';
 
 		if (!empty($id_msg_exceeding))
@@ -443,7 +429,7 @@ function ConvertMsgBody()
 			if (count($id_msg_exceeding) > 100)
 			{
 				$query_msg = array_slice($id_msg_exceeding, 0, 100);
-				Utils::$context['exceeding_messages_morethan'] = sprintf($txt['exceeding_messages_morethan'], count($id_msg_exceeding));
+				Utils::$context['exceeding_messages_morethan'] = sprintf(Lang::$txt['exceeding_messages_morethan'], count($id_msg_exceeding));
 			}
 			else
 				$query_msg = $id_msg_exceeding;
@@ -704,8 +690,6 @@ function ConvertEntities()
  */
 function OptimizeTables()
 {
-	global $txt;
-
 	isAllowedTo('admin_forum');
 
 	checkSession('request');
@@ -717,7 +701,7 @@ function OptimizeTables()
 
 	ignore_user_abort(true);
 
-	Utils::$context['page_title'] = $txt['database_optimize'];
+	Utils::$context['page_title'] = Lang::$txt['database_optimize'];
 	Utils::$context['sub_template'] = 'optimize';
 	Utils::$context['continue_post_data'] = '';
 	Utils::$context['continue_countdown'] = 3;
@@ -755,7 +739,7 @@ function OptimizeTables()
 			Utils::$context['continue_get_data'] = '?action=admin;area=maintain;sa=database;activity=optimize;start=' . $_REQUEST['start'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
 			Utils::$context['continue_percent'] = round(100 * $_REQUEST['start'] / Utils::$context['num_tables']);
 			Utils::$context['sub_template'] = 'not_done';
-			Utils::$context['page_title'] = $txt['not_done_title'];
+			Utils::$context['page_title'] = Lang::$txt['not_done_title'];
 
 			createToken('admin-optimize');
 			Utils::$context['continue_post_data'] = '<input type="hidden" name="' . Utils::$context['admin-optimize_token_var'] . '" value="' . Utils::$context['admin-optimize_token'] . '">';
@@ -777,7 +761,7 @@ function OptimizeTables()
 	}
 
 	// Number of tables, etc...
-	$txt['database_numb_tables'] = sprintf($txt['database_numb_tables'], Utils::$context['num_tables']);
+	Lang::$txt['database_numb_tables'] = sprintf(Lang::$txt['database_numb_tables'], Utils::$context['num_tables']);
 	Utils::$context['num_tables_optimized'] = count($_SESSION['optimized_tables']);
 	Utils::$context['optimized_tables'] = $_SESSION['optimized_tables'];
 	unset($_SESSION['optimized_tables']);
@@ -801,8 +785,6 @@ function OptimizeTables()
  */
 function AdminBoardRecount()
 {
-	global $txt;
-
 	isAllowedTo('admin_forum');
 	checkSession('request');
 
@@ -811,7 +793,7 @@ function AdminBoardRecount()
 	Utils::$context['not_done_token'] = 'admin-boardrecount';
 	createToken(Utils::$context['not_done_token']);
 
-	Utils::$context['page_title'] = $txt['not_done_title'];
+	Utils::$context['page_title'] = Lang::$txt['not_done_title'];
 	Utils::$context['continue_post_data'] = '';
 	Utils::$context['continue_countdown'] = 3;
 	Utils::$context['sub_template'] = 'not_done';
@@ -1303,8 +1285,6 @@ function AdminBoardRecount()
  */
 function VersionDetail()
 {
-	global $txt;
-
 	isAllowedTo('admin_forum');
 
 	// Call the function that'll get all the version info we need.
@@ -1331,7 +1311,7 @@ function VersionDetail()
 	Utils::$context['forum_version'] = SMF_FULL_VERSION;
 
 	Utils::$context['sub_template'] = 'view_versions';
-	Utils::$context['page_title'] = $txt['admin_version_check'];
+	Utils::$context['page_title'] = Lang::$txt['admin_version_check'];
 }
 
 /**
@@ -1339,8 +1319,6 @@ function VersionDetail()
  */
 function MaintainReattributePosts()
 {
-	global $txt;
-
 	checkSession();
 
 	// Find the member.
@@ -1360,7 +1338,7 @@ function MaintainReattributePosts()
 	require_once(Config::$sourcedir . '/Subs-Members.php');
 	reattributePosts($memID, $email, $membername, !empty($_POST['posts']));
 
-	Utils::$context['maintenance_finished'] = $txt['maintain_reattribute_posts'];
+	Utils::$context['maintenance_finished'] = Lang::$txt['maintain_reattribute_posts'];
 }
 
 /**
@@ -1370,8 +1348,6 @@ function MaintainReattributePosts()
  */
 function MaintainPurgeInactiveMembers()
 {
-	global $txt;
-
 	$_POST['maxdays'] = empty($_POST['maxdays']) ? 0 : (int) $_POST['maxdays'];
 	if (!empty($_POST['groups']) && $_POST['maxdays'] > 0)
 	{
@@ -1447,7 +1423,7 @@ function MaintainPurgeInactiveMembers()
 		deleteMembers($members);
 	}
 
-	Utils::$context['maintenance_finished'] = $txt['maintain_members'];
+	Utils::$context['maintenance_finished'] = Lang::$txt['maintain_members'];
 	createToken('admin-maint');
 }
 
@@ -1501,8 +1477,6 @@ function MaintainRemoveOldDrafts()
  */
 function MaintainMassMoveTopics()
 {
-	global $txt;
-
 	// Only admins.
 	isAllowedTo('admin_forum');
 
@@ -1510,7 +1484,7 @@ function MaintainMassMoveTopics()
 	validateToken('admin-maint');
 
 	// Set up to the context.
-	Utils::$context['page_title'] = $txt['not_done_title'];
+	Utils::$context['page_title'] = Lang::$txt['not_done_title'];
 	Utils::$context['continue_countdown'] = 3;
 	Utils::$context['continue_post_data'] = '';
 	Utils::$context['continue_get_data'] = '';
@@ -1662,14 +1636,12 @@ function MaintainMassMoveTopics()
  */
 function MaintainRecountPosts()
 {
-	global $txt;
-
 	// You have to be allowed in here
 	isAllowedTo('admin_forum');
 	checkSession('request');
 
 	// Set up to the context.
-	Utils::$context['page_title'] = $txt['not_done_title'];
+	Utils::$context['page_title'] = Lang::$txt['not_done_title'];
 	Utils::$context['continue_countdown'] = 3;
 	Utils::$context['continue_get_data'] = '';
 	Utils::$context['sub_template'] = 'not_done';
@@ -1807,7 +1779,7 @@ function MaintainRecountPosts()
 
 	// all done
 	unset($_SESSION['total_members']);
-	Utils::$context['maintenance_finished'] = $txt['maintain_recountposts'];
+	Utils::$context['maintenance_finished'] = Lang::$txt['maintain_recountposts'];
 	redirectexit('action=admin;area=maintain;sa=members;done=recountposts');
 }
 
@@ -1828,8 +1800,6 @@ function RebuildSettingsFile()
  */
 function list_integration_hooks()
 {
-	global $txt;
-
 	$filter_url = '';
 	$current_filter = '';
 	$hooks = get_integration_hooks();
@@ -1857,7 +1827,7 @@ function list_integration_hooks()
 		Utils::$context['insert_after_template'] .= '
 		<script>
 			var hook_name_header = document.getElementById(\'header_list_integration_hooks_hook_name\');
-			hook_name_header.innerHTML += ' . JavaScriptEscape('<select style="margin-left:15px;" onchange="window.location=(\'' . Config::$scripturl . '?action=admin;area=maintain;sa=hooks\' + (this.value ? \';filter=\' + this.value : \'\'));"><option value="">' . $txt['hooks_reset_filter'] . '</option>' . implode('', $hooks_filters) . '</select>') . ';
+			hook_name_header.innerHTML += ' . JavaScriptEscape('<select style="margin-left:15px;" onchange="window.location=(\'' . Config::$scripturl . '?action=admin;area=maintain;sa=hooks\' + (this.value ? \';filter=\' + this.value : \'\'));"><option value="">' . Lang::$txt['hooks_reset_filter'] . '</option>' . implode('', $hooks_filters) . '</select>') . ';
 		</script>';
 
 	if (!empty($_REQUEST['do']) && isset($_REQUEST['hook']) && isset($_REQUEST['function']))
@@ -1885,7 +1855,7 @@ function list_integration_hooks()
 
 	$list_options = array(
 		'id' => 'list_integration_hooks',
-		'title' => $txt['hooks_title_list'],
+		'title' => Lang::$txt['hooks_title_list'],
 		'items_per_page' => 20,
 		'base_href' => Config::$scripturl . '?action=admin;area=maintain;sa=hooks' . $filter_url . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 		'default_sort_col' => 'hook_name',
@@ -1907,11 +1877,11 @@ function list_integration_hooks()
 				0
 			),
 		),
-		'no_items_label' => $txt['hooks_no_hooks'],
+		'no_items_label' => Lang::$txt['hooks_no_hooks'],
 		'columns' => array(
 			'hook_name' => array(
 				'header' => array(
-					'value' => $txt['hooks_field_hook_name'],
+					'value' => Lang::$txt['hooks_field_hook_name'],
 				),
 				'data' => array(
 					'db' => 'hook_name',
@@ -1923,16 +1893,16 @@ function list_integration_hooks()
 			),
 			'function_name' => array(
 				'header' => array(
-					'value' => $txt['hooks_field_function_name'],
+					'value' => Lang::$txt['hooks_field_function_name'],
 				),
 				'data' => array(
-					'function' => function($data) use ($txt)
+					'function' => function($data)
 					{
 						// Show a nice icon to indicate this is an instance.
-						$instance = (!empty($data['instance']) ? '<span class="main_icons news" title="' . $txt['hooks_field_function_method'] . '"></span> ' : '');
+						$instance = (!empty($data['instance']) ? '<span class="main_icons news" title="' . Lang::$txt['hooks_field_function_method'] . '"></span> ' : '');
 
 						if (!empty($data['included_file']) && !empty($data['real_function']))
-							return $instance . $txt['hooks_field_function'] . ': ' . $data['real_function'] . '<br>' . $txt['hooks_field_included_file'] . ': ' . $data['included_file'];
+							return $instance . Lang::$txt['hooks_field_function'] . ': ' . $data['real_function'] . '<br>' . Lang::$txt['hooks_field_included_file'] . ': ' . $data['included_file'];
 
 						else
 							return $instance . $data['real_function'];
@@ -1946,7 +1916,7 @@ function list_integration_hooks()
 			),
 			'file_name' => array(
 				'header' => array(
-					'value' => $txt['hooks_field_file_name'],
+					'value' => Lang::$txt['hooks_field_file_name'],
 				),
 				'data' => array(
 					'db' => 'file_name',
@@ -1959,11 +1929,11 @@ function list_integration_hooks()
 			),
 			'status' => array(
 				'header' => array(
-					'value' => $txt['hooks_field_hook_exists'],
+					'value' => Lang::$txt['hooks_field_hook_exists'],
 					'style' => 'width:3%;',
 				),
 				'data' => array(
-					'function' => function($data) use ($txt, $filter_url)
+					'function' => function($data) use ($filter_url)
 					{
 						// Cannot update temp hooks in any way, really.  Just show the appropriate icon.
 						if ($data['status'] == 'temp')
@@ -1977,7 +1947,7 @@ function list_integration_hooks()
 							// Can only enable/disable if it exists...
 							if ($data['hook_exists'])
 							{
-								$change_status['before'] = '<a href="' . Config::$scripturl . '?action=admin;area=maintain;sa=hooks;do=' . ($data['enabled'] ? 'disable' : 'enable') . ';hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $filter_url . ';' . Utils::$context['admin-hook_token_var'] . '=' . Utils::$context['admin-hook_token'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="you_sure">';
+								$change_status['before'] = '<a href="' . Config::$scripturl . '?action=admin;area=maintain;sa=hooks;do=' . ($data['enabled'] ? 'disable' : 'enable') . ';hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $filter_url . ';' . Utils::$context['admin-hook_token_var'] . '=' . Utils::$context['admin-hook_token'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . Lang::$txt['quickmod_confirm'] . '" class="you_sure">';
 								$change_status['after'] = '</a>';
 							}
 
@@ -1995,14 +1965,14 @@ function list_integration_hooks()
 		'additional_rows' => array(
 			array(
 				'position' => 'after_title',
-				'value' => $txt['hooks_disable_instructions'] . '<br>
-					' . $txt['hooks_disable_legend'] . ':
+				'value' => Lang::$txt['hooks_disable_instructions'] . '<br>
+					' . Lang::$txt['hooks_disable_legend'] . ':
 				<ul style="list-style: none;">
-					<li><span class="main_icons post_moderation_allow"></span> ' . $txt['hooks_disable_legend_exists'] . '</li>
-					<li><span class="main_icons post_moderation_moderate"></span> ' . $txt['hooks_disable_legend_disabled'] . '</li>
-					<li><span class="main_icons post_moderation_deny"></span> ' . $txt['hooks_disable_legend_missing'] . '</li>
-					<li><span class="main_icons posts"></span> ' . $txt['hooks_disable_legend_temp'] . '</li>
-					<li><span class="main_icons error"></span> ' . $txt['hooks_disable_legend_temp_missing'] . '</li>
+					<li><span class="main_icons post_moderation_allow"></span> ' . Lang::$txt['hooks_disable_legend_exists'] . '</li>
+					<li><span class="main_icons post_moderation_moderate"></span> ' . Lang::$txt['hooks_disable_legend_disabled'] . '</li>
+					<li><span class="main_icons post_moderation_deny"></span> ' . Lang::$txt['hooks_disable_legend_missing'] . '</li>
+					<li><span class="main_icons posts"></span> ' . Lang::$txt['hooks_disable_legend_temp'] . '</li>
+					<li><span class="main_icons error"></span> ' . Lang::$txt['hooks_disable_legend_temp_missing'] . '</li>
 				</ul>'
 			),
 		),
@@ -2010,17 +1980,17 @@ function list_integration_hooks()
 
 	$list_options['columns']['remove'] = array(
 		'header' => array(
-			'value' => $txt['hooks_button_remove'],
+			'value' => Lang::$txt['hooks_button_remove'],
 			'style' => 'width:3%',
 		),
 		'data' => array(
-			'function' => function($data) use ($txt, $filter_url)
+			'function' => function($data) use ($filter_url)
 			{
 				// Note: Cannot remove temp hooks via the UI...
 				if (!$data['hook_exists'] && $data['status'] != 'temp')
 					return '
-					<a href="' . Config::$scripturl . '?action=admin;area=maintain;sa=hooks;do=remove;hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $filter_url . ';' . Utils::$context['admin-hook_token_var'] . '=' . Utils::$context['admin-hook_token'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="you_sure">
-						<span class="main_icons delete" title="' . $txt['hooks_button_remove'] . '"></span>
+					<a href="' . Config::$scripturl . '?action=admin;area=maintain;sa=hooks;do=remove;hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $filter_url . ';' . Utils::$context['admin-hook_token_var'] . '=' . Utils::$context['admin-hook_token'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . Lang::$txt['quickmod_confirm'] . '" class="you_sure">
+						<span class="main_icons delete" title="' . Lang::$txt['hooks_button_remove'] . '"></span>
 					</a>';
 			},
 			'class' => 'centertext',
@@ -2034,7 +2004,7 @@ function list_integration_hooks()
 	require_once(Config::$sourcedir . '/Subs-List.php');
 	createList($list_options);
 
-	Utils::$context['page_title'] = $txt['hooks_title_list'];
+	Utils::$context['page_title'] = Lang::$txt['hooks_title_list'];
 	Utils::$context['sub_template'] = 'show_list';
 	Utils::$context['default_list'] = 'list_integration_hooks';
 }
@@ -2074,7 +2044,7 @@ function get_files_recursive(string $dirname): array
  */
 function get_integration_hooks_data($start, $per_page, $sort, $filtered_hooks, $normalized_boarddir, $normalized_sourcedir)
 {
-	global $settings, $txt;
+	global $settings;
 
 	$function_list = $sort_array = $temp_data = array();
 	$files = get_files_recursive($normalized_sourcedir);
@@ -2113,7 +2083,7 @@ function get_integration_hooks_data($start, $per_page, $sort, $filtered_hooks, $
 				'instance' => $hookParsedData['object'],
 				'hook_exists' => $hook_exists,
 				'status' => ($hook_temp ? 'temp' : ($hook_exists ? ($hookParsedData['enabled'] ? 'allow' : 'moderate') : 'deny')),
-				'img_text' => $txt['hooks_' . ($hook_exists ? ($hook_temp ? 'temp' : ($hookParsedData['enabled'] ? 'active' : 'disabled')) : 'missing')],
+				'img_text' => Lang::$txt['hooks_' . ($hook_exists ? ($hook_temp ? 'temp' : ($hookParsedData['enabled'] ? 'active' : 'disabled')) : 'missing')],
 				'enabled' => $hookParsedData['enabled'],
 			);
 			$sort_array[] = $temp[$sort_types[$sort][0]];

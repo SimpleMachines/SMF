@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -209,7 +210,6 @@ function logLastDatabaseError()
 function displayDebug()
 {
 	global $settings;
-	global $txt;
 
 	// Add to Settings.php if you want to show the debugging information.
 	if (!isset(Config::$db_show_debug) || Config::$db_show_debug !== true || (isset($_GET['action']) && $_GET['action'] == 'viewquery'))
@@ -249,21 +249,21 @@ function displayDebug()
 
 	echo preg_replace('~</body>\s*</html>~', '', $temp), '
 <div class="smalltext" style="text-align: left; margin: 1ex;">
-	', $txt['debug_browser'], Utils::$context['browser_body_id'], ' <em>(', implode('</em>, <em>', array_reverse(array_keys(Utils::$context['browser'], true))), ')</em><br>
-	', $txt['debug_templates'], count(Utils::$context['debug']['templates']), ': <em>', implode('</em>, <em>', Utils::$context['debug']['templates']), '</em>.<br>
-	', $txt['debug_subtemplates'], count(Utils::$context['debug']['sub_templates']), ': <em>', implode('</em>, <em>', Utils::$context['debug']['sub_templates']), '</em>.<br>
-	', $txt['debug_language_files'], count(Utils::$context['debug']['language_files']), ': <em>', implode('</em>, <em>', Utils::$context['debug']['language_files']), '</em>.<br>
-	', $txt['debug_stylesheets'], count(Utils::$context['debug']['sheets']), ': <em>', implode('</em>, <em>', Utils::$context['debug']['sheets']), '</em>.<br>
-	', $txt['debug_hooks'], empty(Utils::$context['debug']['hooks']) ? 0 : count(Utils::$context['debug']['hooks']) . ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_hooks\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_hooks" style="display: none;"><em>' . implode('</em>, <em>', Utils::$context['debug']['hooks']), '</em></span>)', '<br>
-	', (isset(Utils::$context['debug']['instances']) ? ($txt['debug_instances'] . (empty(Utils::$context['debug']['instances']) ? 0 : count(Utils::$context['debug']['instances'])) . ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_instances\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . $txt['debug_show'] . '</a><span id="debug_instances" style="display: none;"><em>' . implode('</em>, <em>', array_keys(Utils::$context['debug']['instances'])) . '</em></span>)' . '<br>') : ''), '
-	', $txt['debug_files_included'], count($files), ' - ', round($total_size / 1024), $txt['debug_kb'], ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_include_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_include_info" style="display: none;"><em>', implode('</em>, <em>', $files), '</em></span>)<br>';
+	', Lang::$txt['debug_browser'], Utils::$context['browser_body_id'], ' <em>(', implode('</em>, <em>', array_reverse(array_keys(Utils::$context['browser'], true))), ')</em><br>
+	', Lang::$txt['debug_templates'], count(Utils::$context['debug']['templates']), ': <em>', implode('</em>, <em>', Utils::$context['debug']['templates']), '</em>.<br>
+	', Lang::$txt['debug_subtemplates'], count(Utils::$context['debug']['sub_templates']), ': <em>', implode('</em>, <em>', Utils::$context['debug']['sub_templates']), '</em>.<br>
+	', Lang::$txt['debug_language_files'], count(Utils::$context['debug']['language_files']), ': <em>', implode('</em>, <em>', Utils::$context['debug']['language_files']), '</em>.<br>
+	', Lang::$txt['debug_stylesheets'], count(Utils::$context['debug']['sheets']), ': <em>', implode('</em>, <em>', Utils::$context['debug']['sheets']), '</em>.<br>
+	', Lang::$txt['debug_hooks'], empty(Utils::$context['debug']['hooks']) ? 0 : count(Utils::$context['debug']['hooks']) . ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_hooks\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', Lang::$txt['debug_show'], '</a><span id="debug_hooks" style="display: none;"><em>' . implode('</em>, <em>', Utils::$context['debug']['hooks']), '</em></span>)', '<br>
+	', (isset(Utils::$context['debug']['instances']) ? (Lang::$txt['debug_instances'] . (empty(Utils::$context['debug']['instances']) ? 0 : count(Utils::$context['debug']['instances'])) . ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_instances\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . Lang::$txt['debug_show'] . '</a><span id="debug_instances" style="display: none;"><em>' . implode('</em>, <em>', array_keys(Utils::$context['debug']['instances'])) . '</em></span>)' . '<br>') : ''), '
+	', Lang::$txt['debug_files_included'], count($files), ' - ', round($total_size / 1024), Lang::$txt['debug_kb'], ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_include_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', Lang::$txt['debug_show'], '</a><span id="debug_include_info" style="display: none;"><em>', implode('</em>, <em>', $files), '</em></span>)<br>';
 
 	if (function_exists('memory_get_peak_usage'))
-		echo $txt['debug_memory_use'], ceil(memory_get_peak_usage() / 1024), $txt['debug_kb'], '<br>';
+		echo Lang::$txt['debug_memory_use'], ceil(memory_get_peak_usage() / 1024), Lang::$txt['debug_kb'], '<br>';
 
 	// What tokens are active?
 	if (isset($_SESSION['token']))
-		echo $txt['debug_tokens'] . '<em>' . implode(',</em> <em>', array_keys($_SESSION['token'])), '</em>.<br>';
+		echo Lang::$txt['debug_tokens'] . '<em>' . implode(',</em> <em>', array_keys($_SESSION['token'])), '</em>.<br>';
 
 	if (!empty(CacheApi::$enable) && !empty(CacheApi::$hits))
 	{
@@ -273,7 +273,7 @@ function displayDebug()
 		$total_s = 0;
 		foreach (CacheApi::$hits as $cache_hit)
 		{
-			$entries[] = $cache_hit['d'] . ' ' . $cache_hit['k'] . ': ' . sprintf($txt['debug_cache_seconds_bytes'], comma_format($cache_hit['t'], 5), $cache_hit['s']);
+			$entries[] = $cache_hit['d'] . ' ' . $cache_hit['k'] . ': ' . sprintf(Lang::$txt['debug_cache_seconds_bytes'], Lang::numberFormat($cache_hit['t'], 5), $cache_hit['s']);
 			$total_t += $cache_hit['t'];
 			$total_s += $cache_hit['s'];
 		}
@@ -283,12 +283,12 @@ function displayDebug()
 			$missed_entries[] = $missed['d'] . ' ' . $missed['k'];
 
 		echo '
-	', $txt['debug_cache_hits'], CacheApi::$count_hits, ': ', sprintf($txt['debug_cache_seconds_bytes_total'], comma_format($total_t, 5), comma_format($total_s)), ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_cache_info" style="display: none;"><em>', implode('</em>, <em>', $entries), '</em></span>)<br>
-	', $txt['debug_cache_misses'], CacheApi::$count_misses, ': (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_misses_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_cache_misses_info" style="display: none;"><em>', implode('</em>, <em>', $missed_entries), '</em></span>)<br>';
+	', Lang::$txt['debug_cache_hits'], CacheApi::$count_hits, ': ', sprintf(Lang::$txt['debug_cache_seconds_bytes_total'], Lang::numberFormat($total_t, 5), Lang::numberFormat($total_s)), ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', Lang::$txt['debug_show'], '</a><span id="debug_cache_info" style="display: none;"><em>', implode('</em>, <em>', $entries), '</em></span>)<br>
+	', Lang::$txt['debug_cache_misses'], CacheApi::$count_misses, ': (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_misses_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', Lang::$txt['debug_show'], '</a><span id="debug_cache_misses_info" style="display: none;"><em>', implode('</em>, <em>', $missed_entries), '</em></span>)<br>';
 	}
 
 	echo '
-	<a href="', Config::$scripturl, '?action=viewquery" target="_blank" rel="noopener">', $warnings == 0 ? sprintf($txt['debug_queries_used'], (int) Db::$count) : sprintf($txt['debug_queries_used_and_warnings'], (int) Db::$count, $warnings), '</a><br>
+	<a href="', Config::$scripturl, '?action=viewquery" target="_blank" rel="noopener">', $warnings == 0 ? sprintf(Lang::$txt['debug_queries_used'], (int) Db::$count) : sprintf(Lang::$txt['debug_queries_used_and_warnings'], (int) Db::$count, $warnings), '</a><br>
 	<br>';
 
 	if ($_SESSION['view_queries'] == 1 && !empty(Db::$cache))
@@ -317,18 +317,18 @@ function displayDebug()
 	<strong>', $is_select ? '<a href="' . Config::$scripturl . '?action=viewquery;qq=' . ($q + 1) . '#qq' . $q . '" target="_blank" rel="noopener" style="text-decoration: none;">' : '', nl2br(str_replace("\t", '&nbsp;&nbsp;&nbsp;', Utils::htmlspecialchars(ltrim($query_data['q'], "\n\r")))) . ($is_select ? '</a></strong>' : '</strong>') . '<br>
 	&nbsp;&nbsp;&nbsp;';
 			if (!empty($query_data['f']) && !empty($query_data['l']))
-				echo sprintf($txt['debug_query_in_line'], $query_data['f'], $query_data['l']);
+				echo sprintf(Lang::$txt['debug_query_in_line'], $query_data['f'], $query_data['l']);
 
-			if (isset($query_data['s'], $query_data['t']) && isset($txt['debug_query_which_took_at']))
-				echo sprintf($txt['debug_query_which_took_at'], round($query_data['t'], 8), round($query_data['s'], 8)) . '<br>';
+			if (isset($query_data['s'], $query_data['t']) && isset(Lang::$txt['debug_query_which_took_at']))
+				echo sprintf(Lang::$txt['debug_query_which_took_at'], round($query_data['t'], 8), round($query_data['s'], 8)) . '<br>';
 			elseif (isset($query_data['t']))
-				echo sprintf($txt['debug_query_which_took'], round($query_data['t'], 8)) . '<br>';
+				echo sprintf(Lang::$txt['debug_query_which_took'], round($query_data['t'], 8)) . '<br>';
 			echo '
 	<br>';
 		}
 
 	echo '
-	<a href="' . Config::$scripturl . '?action=viewquery;sa=hide">', $txt['debug_' . (empty($_SESSION['view_queries']) ? 'show' : 'hide') . '_queries'], '</a>
+	<a href="' . Config::$scripturl . '?action=viewquery;sa=hide">', Lang::$txt['debug_' . (empty($_SESSION['view_queries']) ? 'show' : 'hide') . '_queries'], '</a>
 </div></body></html>';
 }
 
@@ -434,7 +434,7 @@ function logAction($action, array $extra = array(), $log_type = 'moderate')
  */
 function logActions(array $logs)
 {
-	global $user_info, $txt;
+	global $user_info;
 
 	$inserts = array();
 	$log_types = array(
@@ -453,8 +453,8 @@ function logActions(array $logs)
 
 		if (!is_array($log['extra']))
 		{
-			loadLanguage('Errors');
-			trigger_error(sprintf($txt['logActions_not_array'], $log['action']), E_USER_NOTICE);
+			Lang::load('Errors');
+			trigger_error(sprintf(Lang::$txt['logActions_not_array'], $log['action']), E_USER_NOTICE);
 		}
 
 		// Pull out the parts we want to store separately, but also make sure that the data is proper
@@ -462,8 +462,8 @@ function logActions(array $logs)
 		{
 			if (!is_numeric($log['extra']['topic']))
 			{
-				loadLanguage('Errors');
-				trigger_error($txt['logActions_topic_not_numeric'], E_USER_NOTICE);
+				Lang::load('Errors');
+				trigger_error(Lang::$txt['logActions_topic_not_numeric'], E_USER_NOTICE);
 			}
 			$topic_id = empty($log['extra']['topic']) ? 0 : (int) $log['extra']['topic'];
 			unset($log['extra']['topic']);
@@ -475,8 +475,8 @@ function logActions(array $logs)
 		{
 			if (!is_numeric($log['extra']['message']))
 			{
-				loadLanguage('Errors');
-				trigger_error($txt['logActions_message_not_numeric'], E_USER_NOTICE);
+				Lang::load('Errors');
+				trigger_error(Lang::$txt['logActions_message_not_numeric'], E_USER_NOTICE);
 			}
 			$msg_id = empty($log['extra']['message']) ? 0 : (int) $log['extra']['message'];
 			unset($log['extra']['message']);
@@ -511,16 +511,16 @@ function logActions(array $logs)
 
 		if (isset($log['extra']['member']) && !is_numeric($log['extra']['member']))
 		{
-			loadLanguage('Errors');
-			trigger_error($txt['logActions_member_not_numeric'], E_USER_NOTICE);
+			Lang::load('Errors');
+			trigger_error(Lang::$txt['logActions_member_not_numeric'], E_USER_NOTICE);
 		}
 
 		if (isset($log['extra']['board']))
 		{
 			if (!is_numeric($log['extra']['board']))
 			{
-				loadLanguage('Errors');
-				trigger_error($txt['logActions_board_not_numeric'], E_USER_NOTICE);
+				Lang::load('Errors');
+				trigger_error(Lang::$txt['logActions_board_not_numeric'], E_USER_NOTICE);
 			}
 			$board_id = empty($log['extra']['board']) ? 0 : (int) $log['extra']['board'];
 			unset($log['extra']['board']);
@@ -532,8 +532,8 @@ function logActions(array $logs)
 		{
 			if (!is_numeric($log['extra']['board_to']))
 			{
-				loadLanguage('Errors');
-				trigger_error($txt['logActions_board_to_not_numeric'], E_USER_NOTICE);
+				Lang::load('Errors');
+				trigger_error(Lang::$txt['logActions_board_to_not_numeric'], E_USER_NOTICE);
 			}
 			if (empty($board_id))
 			{

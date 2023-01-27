@@ -10,6 +10,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Lang;
 use SMF\Utils;
 
 //------------------------------------------------------------------------------
@@ -32,14 +33,12 @@ use SMF\Utils;
  */
 function template_main()
 {
-	global $txt;
-
 	// Want to see your master piece?
 	echo '
 	<div id="preview_section"', isset(Utils::$context['preview_message']) ? '' : ' class="hidden"', '>
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span>', $txt['preview'], '</span>
+				<span>', Lang::$txt['preview'], '</span>
 			</h3>
 		</div>
 		<div class="windowbg">
@@ -82,14 +81,14 @@ function template_main()
 				<p class="noticebox">', Utils::$context['notice'], '</p>
 				<dl class="settings" id="report_post">
 					<dt>
-						<label for="report_comment">', $txt['enter_comment'], '</label>:
+						<label for="report_comment">', Lang::$txt['enter_comment'], '</label>:
 					</dt>
 					<dd>
 						<textarea type="text" id="report_comment" name="comment" rows="5">', Utils::$context['comment_body'], '</textarea>
 					</dd>
 				</dl>
-				<input type="submit" name="preview" value="', $txt['preview'], '" class="button">
-				<input type="submit" name="save" value="', $txt['report_submit'], '" class="button">
+				<input type="submit" name="preview" value="', Lang::$txt['preview'], '" class="button">
+				<input type="submit" name="save" value="', Lang::$txt['report_submit'], '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			</div><!-- .windowbg -->
 		</form>

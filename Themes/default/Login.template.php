@@ -11,6 +11,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 
 /**
@@ -18,13 +19,13 @@ use SMF\Utils;
  */
 function template_login()
 {
-	global $settings, $txt;
+	global $settings;
 
 	echo '
 		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<span class="main_icons login"></span> ', $txt['login'], '
+					<span class="main_icons login"></span> ', Lang::$txt['login'], '
 				</h3>
 			</div>
 			<div class="roundframe">
@@ -44,23 +45,23 @@ function template_login()
 	// Now just get the basic information - username, password, etc.
 	echo '
 					<dl>
-						<dt>', $txt['username'], ':</dt>
+						<dt>', Lang::$txt['username'], ':</dt>
 						<dd>
 							<input type="text" id="', !empty(Utils::$context['from_ajax']) ? 'ajax_' : '', 'loginuser" name="user" size="20" value="', Utils::$context['default_username'], '" required>
 						</dd>
-						<dt>', $txt['password'], ':</dt>
+						<dt>', Lang::$txt['password'], ':</dt>
 						<dd>
 							<input type="password" id="', !empty(Utils::$context['from_ajax']) ? 'ajax_' : '', 'loginpass" name="passwrd" value="', Utils::$context['default_password'], '" size="20" required>
 						</dd>
 					</dl>
 					<dl>
-						<dt>', $txt['time_logged_in'], ':</dt>
+						<dt>', Lang::$txt['time_logged_in'], ':</dt>
 						<dd>
 							<select name="cookielength" id="cookielength">';
 
 	foreach (Utils::$context['login_cookie_times'] as $cookie_time => $cookie_txt)
 		echo '
-								<option value="', $cookie_time, '"', Config::$modSettings['cookieTime'] == $cookie_time ? ' selected' : '', '>', $txt[$cookie_txt], '</option>';
+								<option value="', $cookie_time, '"', Config::$modSettings['cookieTime'] == $cookie_time ? ' selected' : '', '>', Lang::$txt[$cookie_txt], '</option>';
 
 	echo '
 							</select>
@@ -69,21 +70,21 @@ function template_login()
 	// If they have deleted their account, give them a chance to change their mind.
 	if (isset(Utils::$context['login_show_undelete']))
 		echo '
-						<dt class="alert">', $txt['undelete_account'], ':</dt>
+						<dt class="alert">', Lang::$txt['undelete_account'], ':</dt>
 						<dd><input type="checkbox" name="undelete"></dd>';
 
 	echo '
 					</dl>
 					<p>
-						<input type="submit" value="', $txt['login'], '" class="button">
+						<input type="submit" value="', Lang::$txt['login'], '" class="button">
 					</p>
 					<p class="smalltext">
-						<a href="', Config::$scripturl, '?action=reminder">', $txt['forgot_your_password'], '</a>
+						<a href="', Config::$scripturl, '?action=reminder">', Lang::$txt['forgot_your_password'], '</a>
 					</p>';
 	if (!empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == 1)
 		echo '
 					<p class="smalltext">
-						', sprintf($txt['welcome_guest_activate'], Config::$scripturl), '
+						', sprintf(Lang::$txt['welcome_guest_activate'], Config::$scripturl), '
 					</p>';
 	echo '
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -154,7 +155,7 @@ function template_login()
 		echo '
 				<hr>
 				<div class="centertext">
-					', sprintf($txt['register_prompt'], Config::$scripturl), '
+					', sprintf(Lang::$txt['register_prompt'], Config::$scripturl), '
 				</div>';
 
 	// It is a long story as to why we have this when we're clearly not going to use it.
@@ -173,13 +174,11 @@ function template_login()
  */
 function template_login_tfa()
 {
-	global $txt;
-
 	echo '
 		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', $txt['tfa_profile_label'], '
+					', Lang::$txt['tfa_profile_label'], '
 				</h3>
 			</div>
 			<div class="roundframe">';
@@ -187,29 +186,29 @@ function template_login_tfa()
 	if (!empty(Utils::$context['tfa_error']) || !empty(Utils::$context['tfa_backup_error']))
 		echo '
 				<div class="error">
-					', $txt['tfa_' . (!empty(Utils::$context['tfa_error']) ? 'code_' : 'backup_') . 'invalid'], '
+					', Lang::$txt['tfa_' . (!empty(Utils::$context['tfa_error']) ? 'code_' : 'backup_') . 'invalid'], '
 				</div>';
 
 	echo '
 				<form action="', Utils::$context['tfa_url'], '" method="post" id="frmTfa">
 					<div id="tfaCode">
-						<p style="margin-bottom: 0.5em">', $txt['tfa_login_desc'], '</p>
+						<p style="margin-bottom: 0.5em">', Lang::$txt['tfa_login_desc'], '</p>
 						<div class="centertext">
-							<strong>', $txt['tfa_code'], ':</strong>
+							<strong>', Lang::$txt['tfa_code'], ':</strong>
 							<input type="text" name="tfa_code" value="', !empty(Utils::$context['tfa_value']) ? Utils::$context['tfa_value'] : '', '">
-							<input type="submit" class="button" name="submit" value="', $txt['login'], '">
+							<input type="submit" class="button" name="submit" value="', Lang::$txt['login'], '">
 						</div>
 						<hr>
 						<div class="centertext">
-							<input type="button" class="button" name="backup" value="', $txt['tfa_backup'], '">
+							<input type="button" class="button" name="backup" value="', Lang::$txt['tfa_backup'], '">
 						</div>
 					</div>
 					<div id="tfaBackup" style="display: none;">
-						<p style="margin-bottom: 0.5em">', $txt['tfa_backup_desc'], '</p>
+						<p style="margin-bottom: 0.5em">', Lang::$txt['tfa_backup_desc'], '</p>
 						<div class="centertext">
-							<strong>', $txt['tfa_backup_code'], ': </strong>
+							<strong>', Lang::$txt['tfa_backup_code'], ': </strong>
 							<input type="text" name="tfa_backup" value="', !empty(Utils::$context['tfa_backup']) ? Utils::$context['tfa_backup'] : '', '">
-							<input type="submit" class="button" name="submit" value="', $txt['login'], '">
+							<input type="submit" class="button" name="submit" value="', Lang::$txt['login'], '">
 						</div>
 					</div>
 				</form>
@@ -252,56 +251,56 @@ function template_login_tfa()
  */
 function template_kick_guest()
 {
-	global $settings, $txt;
+	global $settings;
 
 	// This isn't that much... just like normal login but with a message at the top.
 	echo '
 	<form action="', Utils::$context['login_url'], '" method="post" accept-charset="', Utils::$context['character_set'], '" name="frmLogin" id="frmLogin">
 		<div class="login">
 			<div class="cat_bar">
-				<h3 class="catbg">', $txt['warning'], '</h3>
+				<h3 class="catbg">', Lang::$txt['warning'], '</h3>
 			</div>';
 
 	// Show the message or default message.
 	echo '
 			<p class="information centertext">
-				', empty(Utils::$context['kick_message']) ? $txt['only_members_can_access'] : Utils::$context['kick_message'], '<br>';
+				', empty(Utils::$context['kick_message']) ? Lang::$txt['only_members_can_access'] : Utils::$context['kick_message'], '<br>';
 
 	if (Utils::$context['can_register'])
-		echo sprintf($txt['login_below_or_register'], Config::$scripturl . '?action=signup', Utils::$context['forum_name_html_safe']);
+		echo sprintf(Lang::$txt['login_below_or_register'], Config::$scripturl . '?action=signup', Utils::$context['forum_name_html_safe']);
 	else
-		echo $txt['login_below'];
+		echo Lang::$txt['login_below'];
 
 	// And now the login information.
 	echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<span class="main_icons login"></span> ', $txt['login'], '
+					<span class="main_icons login"></span> ', Lang::$txt['login'], '
 				</h3>
 			</div>
 			<div class="roundframe">
 				<dl>
-					<dt>', $txt['username'], ':</dt>
+					<dt>', Lang::$txt['username'], ':</dt>
 					<dd><input type="text" name="user" size="20"></dd>
-					<dt>', $txt['password'], ':</dt>
+					<dt>', Lang::$txt['password'], ':</dt>
 					<dd><input type="password" name="passwrd" size="20"></dd>
-					<dt>', $txt['time_logged_in'], ':</dt>
+					<dt>', Lang::$txt['time_logged_in'], ':</dt>
 					<dd>
 							<select name="cookielength" id="cookielength">';
 
 	foreach (Utils::$context['login_cookie_times'] as $cookie_time => $cookie_txt)
 		echo '
-								<option value="', $cookie_time, '"', Config::$modSettings['cookieTime'] == $cookie_time ? ' selected' : '', '>', $txt[$cookie_txt], '</option>';
+								<option value="', $cookie_time, '"', Config::$modSettings['cookieTime'] == $cookie_time ? ' selected' : '', '>', Lang::$txt[$cookie_txt], '</option>';
 
 	echo '
 							</select>
 					</dd>
 				</dl>
 				<p class="centertext">
-					<input type="submit" value="', $txt['login'], '" class="button">
+					<input type="submit" value="', Lang::$txt['login'], '" class="button">
 				</p>
 				<p class="centertext smalltext">
-					<a href="', Config::$scripturl, '?action=reminder">', $txt['forgot_your_password'], '</a>
+					<a href="', Config::$scripturl, '?action=reminder">', Lang::$txt['forgot_your_password'], '</a>
 				</p>
 			</div>
 			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -321,7 +320,7 @@ function template_kick_guest()
  */
 function template_maintenance()
 {
-	global $settings, $txt;
+	global $settings;
 
 	// Display the administrator's message at the top.
 	echo '
@@ -331,31 +330,31 @@ function template_maintenance()
 				<h3 class="catbg">', Utils::$context['title'], '</h3>
 			</div>
 			<div class="information">
-				<img class="floatleft" src="', $settings['images_url'], '/construction.png" width="40" height="40" alt="', $txt['in_maintain_mode'], '">
+				<img class="floatleft" src="', $settings['images_url'], '/construction.png" width="40" height="40" alt="', Lang::$txt['in_maintain_mode'], '">
 				', Utils::$context['description'], '<br class="clear">
 			</div>
 			<div class="title_bar">
-				<h4 class="titlebg">', $txt['admin_login'], '</h4>
+				<h4 class="titlebg">', Lang::$txt['admin_login'], '</h4>
 			</div>
 			<div class="roundframe">
 				<dl>
-					<dt>', $txt['username'], ':</dt>
+					<dt>', Lang::$txt['username'], ':</dt>
 					<dd><input type="text" name="user" size="20"></dd>
-					<dt>', $txt['password'], ':</dt>
+					<dt>', Lang::$txt['password'], ':</dt>
 					<dd><input type="password" name="passwrd" size="20"></dd>
-					<dt>', $txt['time_logged_in'], ':</dt>
+					<dt>', Lang::$txt['time_logged_in'], ':</dt>
 					<dd>
 							<select name="cookielength" id="cookielength">';
 
 	foreach (Utils::$context['login_cookie_times'] as $cookie_time => $cookie_txt)
 		echo '
-								<option value="', $cookie_time, '"', Config::$modSettings['cookieTime'] == $cookie_time ? ' selected' : '', '>', $txt[$cookie_txt], '</option>';
+								<option value="', $cookie_time, '"', Config::$modSettings['cookieTime'] == $cookie_time ? ' selected' : '', '>', Lang::$txt[$cookie_txt], '</option>';
 
 	echo '
 							</select>
 					</dd>
 				</dl>
-				<input type="submit" value="', $txt['login'], '" class="button">
+				<input type="submit" value="', Lang::$txt['login'], '" class="button">
 				<br class="clear">
 			</div>
 			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -369,7 +368,7 @@ function template_maintenance()
  */
 function template_admin_login()
 {
-	global $settings, $txt;
+	global $settings;
 
 	// Since this should redirect to whatever they were doing, send all the get data.
 	echo '
@@ -377,22 +376,22 @@ function template_admin_login()
 		<div class="login" id="admin_login">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<span class="main_icons login"></span> ', $txt['login'], '
+					<span class="main_icons login"></span> ', Lang::$txt['login'], '
 				</h3>
 			</div>
 			<div class="roundframe centertext">';
 
 	if (!empty(Utils::$context['incorrect_password']))
 		echo '
-				<div class="error">', $txt['admin_incorrect_password'], '</div>';
+				<div class="error">', Lang::$txt['admin_incorrect_password'], '</div>';
 
 	echo '
-				<strong>', $txt['password'], ':</strong>
+				<strong>', Lang::$txt['password'], ':</strong>
 				<input type="password" name="', Utils::$context['sessionCheckType'], '_pass" size="24">
-				<a href="', Config::$scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a><br>
+				<a href="', Config::$scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a><br>
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				<input type="hidden" name="', Utils::$context['admin-login_token_var'], '" value="', Utils::$context['admin-login_token'], '">
-				<input type="submit" value="', $txt['login'], '" class="button">';
+				<input type="submit" value="', Lang::$txt['login'], '" class="button">';
 
 	// Make sure to output all the old post data.
 	echo Utils::$context['post_data'], '
@@ -413,8 +412,6 @@ function template_admin_login()
  */
 function template_retry_activate()
 {
-	global $txt;
-
 	// Just ask them for their code so they can try it again...
 	echo '
 		<form action="', Config::$scripturl, '?action=activate;u=', Utils::$context['member_id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
@@ -427,14 +424,14 @@ function template_retry_activate()
 	// You didn't even have an ID?
 	if (empty(Utils::$context['member_id']))
 		echo '
-					<dt>', $txt['invalid_activation_username'], ':</dt>
+					<dt>', Lang::$txt['invalid_activation_username'], ':</dt>
 					<dd><input type="text" name="user" size="30"></dd>';
 
 	echo '
-					<dt>', $txt['invalid_activation_retry'], ':</dt>
+					<dt>', Lang::$txt['invalid_activation_retry'], ':</dt>
 					<dd><input type="text" name="code" size="30"></dd>
 				</dl>
-				<p><input type="submit" value="', $txt['invalid_activation_submit'], '" class="button"></p>
+				<p><input type="submit" value="', Lang::$txt['invalid_activation_submit'], '" class="button"></p>
 			</div>
 		</form>';
 }
@@ -444,8 +441,6 @@ function template_retry_activate()
  */
 function template_resend()
 {
-	global $txt;
-
 	// Just ask them for their code so they can try it again...
 	echo '
 		<form action="', Config::$scripturl, '?action=activate;sa=resend" method="post" accept-charset="', Utils::$context['character_set'], '">
@@ -454,27 +449,27 @@ function template_resend()
 			</div>
 			<div class="roundframe">
 				<dl>
-					<dt>', $txt['invalid_activation_username'], ':</dt>
+					<dt>', Lang::$txt['invalid_activation_username'], ':</dt>
 					<dd><input type="text" name="user" size="40" value="', Utils::$context['default_username'], '"></dd>
 				</dl>
-				<p>', $txt['invalid_activation_new'], '</p>
+				<p>', Lang::$txt['invalid_activation_new'], '</p>
 				<dl>
-					<dt>', $txt['invalid_activation_new_email'], ':</dt>
+					<dt>', Lang::$txt['invalid_activation_new_email'], ':</dt>
 					<dd><input type="text" name="new_email" size="40"></dd>
-					<dt>', $txt['invalid_activation_password'], ':</dt>
+					<dt>', Lang::$txt['invalid_activation_password'], ':</dt>
 					<dd><input type="password" name="passwd" size="30"></dd>
 				</dl>';
 
 	if (Utils::$context['can_activate'])
 		echo '
-				<p>', $txt['invalid_activation_known'], '</p>
+				<p>', Lang::$txt['invalid_activation_known'], '</p>
 				<dl>
-					<dt>', $txt['invalid_activation_retry'], ':</dt>
+					<dt>', Lang::$txt['invalid_activation_retry'], ':</dt>
 					<dd><input type="text" name="code" size="30"></dd>
 				</dl>';
 
 	echo '
-				<p><input type="submit" value="', $txt['invalid_activation_resend'], '" class="button"></p>
+				<p><input type="submit" value="', Lang::$txt['invalid_activation_resend'], '" class="button"></p>
 			</div><!-- .roundframe -->
 		</form>';
 }
@@ -484,23 +479,23 @@ function template_resend()
  */
 function template_logout()
 {
-	global $settings, $txt;
+	global $settings;
 
 	// This isn't that much... just like normal login but with a message at the top.
 	echo '
 	<form action="', Config::$scripturl . '?action=logout;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="', Utils::$context['character_set'], '" name="frmLogout" id="frmLogout">
 		<div class="logout">
 			<div class="cat_bar">
-				<h3 class="catbg">', $txt['logout_confirm'], '</h3>
+				<h3 class="catbg">', Lang::$txt['logout_confirm'], '</h3>
 			</div>
 			<div class="roundframe">
 				<p class="information centertext">
-					', $txt['logout_notice'], '
+					', Lang::$txt['logout_notice'], '
 				</p>
 
 				<p class="centertext">
-					<input type="submit" value="', $txt['logout'], '" class="button">
-					<input type="submit" name="cancel" value="', $txt['logout_return'], '" class="button">
+					<input type="submit" value="', Lang::$txt['logout'], '" class="button">
+					<input type="submit" name="cancel" value="', Lang::$txt['logout_return'], '" class="button">
 				</p>
 			</div>
 		</div><!-- .logout -->

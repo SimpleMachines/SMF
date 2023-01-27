@@ -15,6 +15,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -29,7 +30,7 @@ if (!defined('SMF'))
  */
 function ModerationMain($dont_call = false)
 {
-	global $txt, $user_info, $options;
+	global $user_info, $options;
 
 	// Don't run this twice... and don't conflict with the admin bar.
 	if (isset(Utils::$context['admin_area']))
@@ -48,7 +49,7 @@ function ModerationMain($dont_call = false)
 	require_once(Config::$sourcedir . '/Subs-Menu.php');
 
 	// Load the language, and the template.
-	loadLanguage('ModerationCenter');
+	Lang::load('ModerationCenter');
 	loadTemplate(false, 'admin');
 
 	Utils::$context['admin_preferences'] = !empty($options['admin_preferences']) ? Utils::jsonDecode($options['admin_preferences'], true) : array();
@@ -57,20 +58,20 @@ function ModerationMain($dont_call = false)
 	// This is the menu structure - refer to Subs-Menu.php for the details.
 	$moderation_areas = array(
 		'main' => array(
-			'title' => $txt['mc_main'],
+			'title' => Lang::$txt['mc_main'],
 			'areas' => array(
 				'index' => array(
-					'label' => $txt['moderation_center'],
+					'label' => Lang::$txt['moderation_center'],
 					'function' => 'ModerationHome',
 					'icon' => 'administration',
 				),
 				'settings' => array(
-					'label' => $txt['mc_settings'],
+					'label' => Lang::$txt['mc_settings'],
 					'function' => 'ModerationSettings',
 					'icon' => 'features',
 				),
 				'modlogoff' => array(
-					'label' => $txt['mc_logoff'],
+					'label' => Lang::$txt['mc_logoff'],
 					'function' => 'ModEndSession',
 					'enabled' => empty(Config::$modSettings['securityDisable_moderate']),
 					'icon' => 'exit',
@@ -83,45 +84,45 @@ function ModerationMain($dont_call = false)
 			),
 		),
 		'logs' => array(
-			'title' => $txt['mc_logs'],
+			'title' => Lang::$txt['mc_logs'],
 			'areas' => array(
 				'modlog' => array(
-					'label' => $txt['modlog_view'],
+					'label' => Lang::$txt['modlog_view'],
 					'enabled' => !empty(Config::$modSettings['modlog_enabled']) && Utils::$context['can_moderate_boards'],
 					'file' => 'Modlog.php',
 					'function' => 'ViewModlog',
 					'icon' => 'logs',
 				),
 				'warnings' => array(
-					'label' => $txt['mc_warnings'],
+					'label' => Lang::$txt['mc_warnings'],
 					'enabled' => Config::$modSettings['warning_settings'][0] == 1 && allowedTo(array('issue_warning', 'view_warning_any')),
 					'function' => 'ViewWarnings',
 					'icon' => 'warning',
 					'subsections' => array(
-						'log' => array($txt['mc_warning_log'], array('view_warning_any', 'moderate_forum')),
-						'templates' => array($txt['mc_warning_templates'], 'issue_warning'),
+						'log' => array(Lang::$txt['mc_warning_log'], array('view_warning_any', 'moderate_forum')),
+						'templates' => array(Lang::$txt['mc_warning_templates'], 'issue_warning'),
 					),
 				),
 			),
 		),
 		'posts' => array(
-			'title' => $txt['mc_posts'],
+			'title' => Lang::$txt['mc_posts'],
 			'enabled' => Utils::$context['can_moderate_boards'] || Utils::$context['can_moderate_approvals'],
 			'areas' => array(
 				'postmod' => array(
-					'label' => $txt['mc_unapproved_posts'],
+					'label' => Lang::$txt['mc_unapproved_posts'],
 					'enabled' => Utils::$context['can_moderate_approvals'],
 					'file' => 'PostModeration.php',
 					'function' => 'PostModerationMain',
 					'icon' => 'posts',
 					'custom_url' => Config::$scripturl . '?action=moderate;area=postmod',
 					'subsections' => array(
-						'posts' => array($txt['mc_unapproved_replies']),
-						'topics' => array($txt['mc_unapproved_topics']),
+						'posts' => array(Lang::$txt['mc_unapproved_replies']),
+						'topics' => array(Lang::$txt['mc_unapproved_topics']),
 					),
 				),
 				'attachmod' => array(
-					'label' => $txt['mc_unapproved_attachments'],
+					'label' => Lang::$txt['mc_unapproved_attachments'],
 					'enabled' => Utils::$context['can_moderate_approvals'],
 					'file' => 'PostModeration.php',
 					'function' => 'PostModerationMain',
@@ -129,31 +130,31 @@ function ModerationMain($dont_call = false)
 					'custom_url' => Config::$scripturl . '?action=moderate;area=attachmod;sa=attachments',
 				),
 				'reportedposts' => array(
-					'label' => $txt['mc_reported_posts'],
+					'label' => Lang::$txt['mc_reported_posts'],
 					'enabled' => Utils::$context['can_moderate_boards'],
 					'file' => 'ReportedContent.php',
 					'function' => 'ReportedContent',
 					'icon' => 'reports',
 					'subsections' => array(
-						'show' => array($txt['mc_reportedp_active']),
-						'closed' => array($txt['mc_reportedp_closed']),
+						'show' => array(Lang::$txt['mc_reportedp_active']),
+						'closed' => array(Lang::$txt['mc_reportedp_closed']),
 					),
 				),
 			),
 		),
 		'groups' => array(
-			'title' => $txt['mc_groups'],
+			'title' => Lang::$txt['mc_groups'],
 			'enabled' => Utils::$context['can_moderate_groups'],
 			'areas' => array(
 				'groups' => array(
-					'label' => $txt['mc_group_requests'],
+					'label' => Lang::$txt['mc_group_requests'],
 					'file' => 'Groups.php',
 					'function' => 'Groups',
 					'icon' => 'members_request',
 					'custom_url' => Config::$scripturl . '?action=moderate;area=groups;sa=requests',
 				),
 				'viewgroups' => array(
-					'label' => $txt['mc_view_groups'],
+					'label' => Lang::$txt['mc_view_groups'],
 					'file' => 'Groups.php',
 					'function' => 'Groups',
 					'icon' => 'membergroups',
@@ -161,28 +162,28 @@ function ModerationMain($dont_call = false)
 			),
 		),
 		'members' => array(
-			'title' => $txt['mc_members'],
+			'title' => Lang::$txt['mc_members'],
 			'enabled' => Utils::$context['can_moderate_users'] || (Config::$modSettings['warning_settings'][0] == 1 && Utils::$context['can_moderate_boards']),
 			'areas' => array(
 				'userwatch' => array(
-					'label' => $txt['mc_watched_users_title'],
+					'label' => Lang::$txt['mc_watched_users_title'],
 					'enabled' => Config::$modSettings['warning_settings'][0] == 1 && Utils::$context['can_moderate_boards'],
 					'function' => 'ViewWatchedUsers',
 					'icon' => 'members_watched',
 					'subsections' => array(
-						'member' => array($txt['mc_watched_users_member']),
-						'post' => array($txt['mc_watched_users_post']),
+						'member' => array(Lang::$txt['mc_watched_users_member']),
+						'post' => array(Lang::$txt['mc_watched_users_post']),
 					),
 				),
 				'reportedmembers' => array(
-					'label' => $txt['mc_reported_members_title'],
+					'label' => Lang::$txt['mc_reported_members_title'],
 					'enabled' => Utils::$context['can_moderate_users'],
 					'file' => 'ReportedContent.php',
 					'function' => 'ReportedContent',
 					'icon' => 'members_watched',
 					'subsections' => array(
-						'open' => array($txt['mc_reportedp_active']),
-						'closed' => array($txt['mc_reportedp_closed']),
+						'open' => array(Lang::$txt['mc_reportedp_active']),
+						'closed' => array(Lang::$txt['mc_reportedp_closed']),
 					),
 				),
 			),
@@ -210,12 +211,12 @@ function ModerationMain($dont_call = false)
 
 	// @todo: html in here is not good
 	Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = array(
-		'title' => $txt['moderation_center'],
+		'title' => Lang::$txt['moderation_center'],
 		'help' => '',
 		'description' => '
-			<strong>' . $txt['hello_guest'] . ' ' . Utils::$context['user']['name'] . '!</strong>
+			<strong>' . Lang::$txt['hello_guest'] . ' ' . Utils::$context['user']['name'] . '!</strong>
 			<br><br>
-			' . $txt['mc_description']);
+			' . Lang::$txt['mc_description']);
 
 	// What a pleasant shortcut - even tho we're not *really* on the admin screen who cares...
 	Utils::$context['admin_area'] = $mod_include_data['current_area'];
@@ -223,7 +224,7 @@ function ModerationMain($dont_call = false)
 	// Build the link tree.
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=moderate',
-		'name' => $txt['moderation_center'],
+		'name' => Lang::$txt['moderation_center'],
 	);
 	if (isset($mod_include_data['current_area']) && $mod_include_data['current_area'] != 'index')
 		Utils::$context['linktree'][] = array(
@@ -251,12 +252,12 @@ function ModerationMain($dont_call = false)
  */
 function ModerationHome()
 {
-	global $txt, $options;
+	global $options;
 
 	loadTemplate('ModerationCenter');
 	loadJavaScriptFile('admin.js', array('minimize' => true), 'smf_admin');
 
-	Utils::$context['page_title'] = $txt['moderation_center'];
+	Utils::$context['page_title'] = Lang::$txt['moderation_center'];
 	Utils::$context['sub_template'] = 'moderation_center';
 
 	// Handle moderators notes.
@@ -706,9 +707,7 @@ function ModerateGroups()
  */
 function ShowNotice()
 {
-	global $txt;
-
-	Utils::$context['page_title'] = $txt['show_notice'];
+	Utils::$context['page_title'] = Lang::$txt['show_notice'];
 	Utils::$context['sub_template'] = 'show_notice';
 	Utils::$context['template_layers'] = array();
 
@@ -737,10 +736,8 @@ function ShowNotice()
  */
 function ViewWatchedUsers()
 {
-	global $txt;
-
 	// Some important context!
-	Utils::$context['page_title'] = $txt['mc_watched_users_title'];
+	Utils::$context['page_title'] = Lang::$txt['mc_watched_users_title'];
 	Utils::$context['view_posts'] = isset($_GET['sa']) && $_GET['sa'] == 'post';
 	Utils::$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
 
@@ -751,9 +748,9 @@ function ViewWatchedUsers()
 
 	// Put some pretty tabs on cause we're gonna be doing hot stuff here...
 	Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = array(
-		'title' => $txt['mc_watched_users_title'],
+		'title' => Lang::$txt['mc_watched_users_title'],
 		'help' => '',
-		'description' => $txt['mc_watched_users_desc'],
+		'description' => Lang::$txt['mc_watched_users_desc'],
 	);
 
 	// First off - are we deleting?
@@ -803,9 +800,9 @@ function ViewWatchedUsers()
 	// This is all the information required for a watched user listing.
 	$listOptions = array(
 		'id' => 'watch_user_list',
-		'title' => $txt['mc_watched_users_title'] . ' - ' . (Utils::$context['view_posts'] ? $txt['mc_watched_users_post'] : $txt['mc_watched_users_member']),
+		'title' => Lang::$txt['mc_watched_users_title'] . ' - ' . (Utils::$context['view_posts'] ? Lang::$txt['mc_watched_users_post'] : Lang::$txt['mc_watched_users_member']),
 		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-		'no_items_label' => Utils::$context['view_posts'] ? $txt['mc_watched_users_no_posts'] : $txt['mc_watched_users_none'],
+		'no_items_label' => Utils::$context['view_posts'] ? Lang::$txt['mc_watched_users_no_posts'] : Lang::$txt['mc_watched_users_none'],
 		'base_href' => Config::$scripturl . '?action=moderate;area=userwatch;sa=' . (Utils::$context['view_posts'] ? 'post' : 'member'),
 		'default_sort_col' => Utils::$context['view_posts'] ? '' : 'member',
 		'get_items' => array(
@@ -825,7 +822,7 @@ function ViewWatchedUsers()
 		'columns' => array(
 			'member' => array(
 				'header' => array(
-					'value' => $txt['mc_watched_users_member'],
+					'value' => Lang::$txt['mc_watched_users_member'],
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -843,7 +840,7 @@ function ViewWatchedUsers()
 			),
 			'warning' => array(
 				'header' => array(
-					'value' => $txt['mc_watched_users_warning'],
+					'value' => Lang::$txt['mc_watched_users_warning'],
 				),
 				'data' => array(
 					'function' => function($member)
@@ -858,7 +855,7 @@ function ViewWatchedUsers()
 			),
 			'posts' => array(
 				'header' => array(
-					'value' => $txt['posts'],
+					'value' => Lang::$txt['posts'],
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -876,7 +873,7 @@ function ViewWatchedUsers()
 			),
 			'last_login' => array(
 				'header' => array(
-					'value' => $txt['mc_watched_users_last_login'],
+					'value' => Lang::$txt['mc_watched_users_last_login'],
 				),
 				'data' => array(
 					'db' => 'last_login',
@@ -888,7 +885,7 @@ function ViewWatchedUsers()
 			),
 			'last_post' => array(
 				'header' => array(
-					'value' => $txt['mc_watched_users_last_post'],
+					'value' => Lang::$txt['mc_watched_users_last_post'],
 				),
 				'data' => array(
 					'function' => function($member)
@@ -914,7 +911,7 @@ function ViewWatchedUsers()
 				array(
 					'position' => 'bottom_of_list',
 					'value' => '
-					<input type="submit" name="delete_selected" value="' . $txt['quickmod_delete_selected'] . '" class="button">',
+					<input type="submit" name="delete_selected" value="' . Lang::$txt['quickmod_delete_selected'] . '" class="button">',
 					'class' => 'floatright',
 				) : array(),
 		),
@@ -976,7 +973,7 @@ function list_getWatchedUserCount($approve_query)
  */
 function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $dummy)
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	$request = Db::$db->query('', '
 		SELECT id_member, real_name, last_login, posts, warning
@@ -998,8 +995,8 @@ function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $d
 		$watched_users[$row['id_member']] = array(
 			'id' => $row['id_member'],
 			'name' => $row['real_name'],
-			'last_login' => $row['last_login'] ? timeformat($row['last_login']) : $txt['never'],
-			'last_post' => $txt['not_applicable'],
+			'last_login' => $row['last_login'] ? timeformat($row['last_login']) : Lang::$txt['never'],
+			'last_post' => Lang::$txt['not_applicable'],
 			'last_post_id' => 0,
 			'warning' => $row['warning'],
 			'posts' => $row['posts'],
@@ -1130,8 +1127,8 @@ function list_getWatchedUserPosts($start, $items_per_page, $sort, $approve_query
 	$member_posts = array();
 	while ($row = Db::$db->fetch_assoc($request))
 	{
-		$row['subject'] = censorText($row['subject']);
-		$row['body'] = censorText($row['body']);
+		$row['subject'] = Lang::censorText($row['subject']);
+		$row['body'] = Lang::censorText($row['body']);
 
 		$member_posts[$row['id_msg']] = array(
 			'id' => $row['id_msg'],
@@ -1154,8 +1151,6 @@ function list_getWatchedUserPosts($start, $items_per_page, $sort, $approve_query
  */
 function ViewWarnings()
 {
-	global $txt;
-
 	$subActions = array(
 		'log' => array('ViewWarningLog', array('view_warning_any', 'moderate_forum')),
 		'templates' => array('ViewWarningTemplates', 'issue_warning'),
@@ -1190,12 +1185,12 @@ function ViewWarnings()
 
 	// Some of this stuff is overseas, so to speak.
 	loadTemplate('ModerationCenter');
-	loadLanguage('Profile');
+	Lang::load('Profile');
 
 	// Setup the admin tabs.
 	Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = array(
-		'title' => $txt['mc_warnings'],
-		'description' => $txt['mc_warnings_description'],
+		'title' => Lang::$txt['mc_warnings'],
+		'description' => Lang::$txt['mc_warnings_description'],
 	);
 
 	// Call the right function.
@@ -1207,12 +1202,10 @@ function ViewWarnings()
  */
 function ViewWarningLog()
 {
-	global $txt;
-
 	// Setup context as always.
-	Utils::$context['page_title'] = $txt['mc_warning_log_title'];
+	Utils::$context['page_title'] = Lang::$txt['mc_warning_log_title'];
 
-	loadLanguage('Modlog');
+	Lang::load('Modlog');
 
 	// If we're coming from a search, get the variables.
 	if (!empty($_REQUEST['params']) && empty($_REQUEST['is_search']))
@@ -1223,8 +1216,8 @@ function ViewWarningLog()
 
 	// This array houses all the valid search types.
 	$searchTypes = array(
-		'member' => array('sql' => 'member_name_col', 'label' => $txt['profile_warning_previous_issued']),
-		'recipient' => array('sql' => 'recipient_name', 'label' => $txt['mc_warnings_recipient']),
+		'member' => array('sql' => 'member_name_col', 'label' => Lang::$txt['profile_warning_previous_issued']),
+		'recipient' => array('sql' => 'recipient_name', 'label' => Lang::$txt['mc_warnings_recipient']),
 	);
 
 	// Do the column stuff!
@@ -1266,9 +1259,9 @@ function ViewWarningLog()
 	// This is all the information required for a watched user listing.
 	$listOptions = array(
 		'id' => 'warning_list',
-		'title' => $txt['mc_warning_log_title'],
+		'title' => Lang::$txt['mc_warning_log_title'],
 		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-		'no_items_label' => $txt['mc_warnings_none'],
+		'no_items_label' => Lang::$txt['mc_warnings_none'],
 		'base_href' => Config::$scripturl . '?action=moderate;area=warnings;sa=log;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 		'default_sort_col' => 'time',
 		'get_items' => array(
@@ -1281,7 +1274,7 @@ function ViewWarningLog()
 		'columns' => array(
 			'issuer' => array(
 				'header' => array(
-					'value' => $txt['profile_warning_previous_issued'],
+					'value' => Lang::$txt['profile_warning_previous_issued'],
 				),
 				'data' => array(
 					'db' => 'issuer_link',
@@ -1293,7 +1286,7 @@ function ViewWarningLog()
 			),
 			'recipient' => array(
 				'header' => array(
-					'value' => $txt['mc_warnings_recipient'],
+					'value' => Lang::$txt['mc_warnings_recipient'],
 				),
 				'data' => array(
 					'db' => 'recipient_link',
@@ -1305,7 +1298,7 @@ function ViewWarningLog()
 			),
 			'time' => array(
 				'header' => array(
-					'value' => $txt['profile_warning_previous_time'],
+					'value' => Lang::$txt['profile_warning_previous_time'],
 				),
 				'data' => array(
 					'db' => 'time',
@@ -1317,10 +1310,10 @@ function ViewWarningLog()
 			),
 			'reason' => array(
 				'header' => array(
-					'value' => $txt['profile_warning_previous_reason'],
+					'value' => Lang::$txt['profile_warning_previous_reason'],
 				),
 				'data' => array(
-					'function' => function($rowData) use ($txt)
+					'function' => function($rowData)
 					{
 						$output = '
 							<div class="floatleft">
@@ -1329,14 +1322,14 @@ function ViewWarningLog()
 
 						if (!empty($rowData['id_notice']))
 							$output .= '
-								&nbsp;<a href="' . Config::$scripturl . '?action=moderate;area=notice;nid=' . $rowData['id_notice'] . '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" rel="noopener" title="' . $txt['profile_warning_previous_notice'] . '"><span class="main_icons filter centericon"></span></a>';
+								&nbsp;<a href="' . Config::$scripturl . '?action=moderate;area=notice;nid=' . $rowData['id_notice'] . '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" rel="noopener" title="' . Lang::$txt['profile_warning_previous_notice'] . '"><span class="main_icons filter centericon"></span></a>';
 						return $output;
 					},
 				),
 			),
 			'points' => array(
 				'header' => array(
-					'value' => $txt['profile_warning_previous_level'],
+					'value' => Lang::$txt['profile_warning_previous_level'],
 				),
 				'data' => array(
 					'db' => 'counter',
@@ -1356,9 +1349,9 @@ function ViewWarningLog()
 			array(
 				'position' => 'below_table_data',
 				'value' => '
-					' . $txt['modlog_search'] . ':
+					' . Lang::$txt['modlog_search'] . ':
 					<input type="text" name="search" size="18" value="' . Utils::htmlspecialchars(Utils::$context['search']['string']) . '">
-					<input type="submit" name="is_search" value="' . $txt['modlog_go'] . '" class="button">',
+					<input type="submit" name="is_search" value="' . Lang::$txt['modlog_go'] . '" class="button">',
 				'class' => 'floatright',
 			),
 		),
@@ -1441,7 +1434,7 @@ function list_getWarnings($start, $items_per_page, $sort)
  */
 function ViewWarningTemplates()
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	// Submitting a new one?
 	if (isset($_POST['add']))
@@ -1485,16 +1478,16 @@ function ViewWarningTemplates()
 	}
 
 	// Setup context as always.
-	Utils::$context['page_title'] = $txt['mc_warning_templates_title'];
+	Utils::$context['page_title'] = Lang::$txt['mc_warning_templates_title'];
 
 	require_once(Config::$sourcedir . '/Subs-List.php');
 
 	// This is all the information required for a watched user listing.
 	$listOptions = array(
 		'id' => 'warning_template_list',
-		'title' => $txt['mc_warning_templates_title'],
+		'title' => Lang::$txt['mc_warning_templates_title'],
 		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-		'no_items_label' => $txt['mc_warning_templates_none'],
+		'no_items_label' => Lang::$txt['mc_warning_templates_none'],
 		'base_href' => Config::$scripturl . '?action=moderate;area=warnings;sa=templates;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 		'default_sort_col' => 'title',
 		'get_items' => array(
@@ -1507,7 +1500,7 @@ function ViewWarningTemplates()
 		'columns' => array(
 			'title' => array(
 				'header' => array(
-					'value' => $txt['mc_warning_templates_name'],
+					'value' => Lang::$txt['mc_warning_templates_name'],
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -1526,7 +1519,7 @@ function ViewWarningTemplates()
 			),
 			'creator' => array(
 				'header' => array(
-					'value' => $txt['mc_warning_templates_creator'],
+					'value' => Lang::$txt['mc_warning_templates_creator'],
 				),
 				'data' => array(
 					'db' => 'creator',
@@ -1538,7 +1531,7 @@ function ViewWarningTemplates()
 			),
 			'time' => array(
 				'header' => array(
-					'value' => $txt['mc_warning_templates_time'],
+					'value' => Lang::$txt['mc_warning_templates_time'],
 				),
 				'data' => array(
 					'db' => 'time',
@@ -1570,11 +1563,11 @@ function ViewWarningTemplates()
 		'additional_rows' => array(
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '&nbsp;<input type="submit" name="delete" value="' . $txt['mc_warning_template_delete'] . '" data-confirm="' . $txt['mc_warning_template_delete_confirm'] . '" class="button you_sure">',
+				'value' => '&nbsp;<input type="submit" name="delete" value="' . Lang::$txt['mc_warning_template_delete'] . '" data-confirm="' . Lang::$txt['mc_warning_template_delete_confirm'] . '" class="button you_sure">',
 			),
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '<input type="submit" name="add" value="' . $txt['mc_warning_template_add'] . '" class="button">',
+				'value' => '<input type="submit" name="add" value="' . Lang::$txt['mc_warning_template_add'] . '" class="button">',
 			),
 		),
 	);
@@ -1662,20 +1655,20 @@ function list_getWarningTemplates($start, $items_per_page, $sort)
  */
 function ModifyWarningTemplate()
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	Utils::$context['id_template'] = isset($_REQUEST['tid']) ? (int) $_REQUEST['tid'] : 0;
 	Utils::$context['is_edit'] = Utils::$context['id_template'];
 
 	// Standard template things.
-	Utils::$context['page_title'] = Utils::$context['is_edit'] ? $txt['mc_warning_template_modify'] : $txt['mc_warning_template_add'];
+	Utils::$context['page_title'] = Utils::$context['is_edit'] ? Lang::$txt['mc_warning_template_modify'] : Lang::$txt['mc_warning_template_add'];
 	Utils::$context['sub_template'] = 'warn_template';
 	Utils::$context[Utils::$context['moderation_menu_name']]['current_subsection'] = 'templates';
 
 	// Defaults.
 	Utils::$context['template_data'] = array(
 		'title' => '',
-		'body' => $txt['mc_warning_template_body_default'],
+		'body' => Lang::$txt['mc_warning_template_body_default'],
 		'personal' => false,
 		'can_edit_personal' => true,
 	);
@@ -1792,13 +1785,13 @@ function ModifyWarningTemplate()
 		{
 			Utils::$context['warning_errors'] = array();
 			Utils::$context['template_data']['title'] = !empty($_POST['template_title']) ? $_POST['template_title'] : '';
-			Utils::$context['template_data']['body'] = !empty($_POST['template_body']) ? $_POST['template_body'] : $txt['mc_warning_template_body_default'];
+			Utils::$context['template_data']['body'] = !empty($_POST['template_body']) ? $_POST['template_body'] : Lang::$txt['mc_warning_template_body_default'];
 			Utils::$context['template_data']['personal'] = !empty($_POST['make_personal']);
 
 			if (empty($_POST['template_title']))
-				Utils::$context['warning_errors'][] = $txt['mc_warning_template_error_no_title'];
+				Utils::$context['warning_errors'][] = Lang::$txt['mc_warning_template_error_no_title'];
 			if (empty($_POST['template_body']))
-				Utils::$context['warning_errors'][] = $txt['mc_warning_template_error_no_body'];
+				Utils::$context['warning_errors'][] = Lang::$txt['mc_warning_template_error_no_body'];
 		}
 	}
 
@@ -1810,16 +1803,16 @@ function ModifyWarningTemplate()
  */
 function ModerationSettings()
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	// Some useful context stuff.
 	loadTemplate('ModerationCenter');
-	Utils::$context['page_title'] = $txt['mc_settings'];
+	Utils::$context['page_title'] = Lang::$txt['mc_settings'];
 	Utils::$context['sub_template'] = 'moderation_settings';
 	Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = array(
-		'title' => $txt['mc_prefs_title'],
+		'title' => Lang::$txt['mc_prefs_title'],
 		'help' => '',
-		'description' => $txt['mc_prefs_desc']
+		'description' => Lang::$txt['mc_prefs_desc']
 	);
 
 	$pref_binary = 5;

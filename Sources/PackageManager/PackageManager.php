@@ -15,6 +15,7 @@ namespace SMF\PackageManager;
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -117,13 +118,11 @@ class PackageManager
 	 */
 	public function execute()
 	{
-		global $txt;
-
 		// Load all the basic stuff.
-		loadLanguage('Packages');
+		Lang::load('Packages');
 		loadTemplate('Packages', 'admin');
 
-		Utils::$context['page_title'] = $txt['package'];
+		Utils::$context['page_title'] = Lang::$txt['package'];
 
 		// Work out exactly who it is we are calling.
 		if (isset($_REQUEST['sa']) && isset($this->subactions[$_REQUEST['sa']]))
@@ -133,20 +132,20 @@ class PackageManager
 
 		// Set up some tabs...
 		Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
-			'title' => $txt['package_manager'],
+			'title' => Lang::$txt['package_manager'],
 			// @todo 'help' => 'registrations',
-			'description' => $txt['package_manager_desc'],
+			'description' => Lang::$txt['package_manager_desc'],
 			'tabs' => array(
 				'browse' => array(
 				),
 				'packageget' => array(
-					'description' => $txt['download_packages_desc'],
+					'description' => Lang::$txt['download_packages_desc'],
 				),
 				'perms' => array(
-					'description' => $txt['package_file_perms_desc'],
+					'description' => Lang::$txt['package_file_perms_desc'],
 				),
 				'options' => array(
-					'description' => $txt['package_install_options_desc'],
+					'description' => Lang::$txt['package_install_options_desc'],
 				),
 			),
 		);
@@ -170,7 +169,7 @@ class PackageManager
 	 */
 	public function installTest()
 	{
-		global $txt, $settings;
+		global $settings;
 
 		// You have to specify a file!!
 		if (!isset($_REQUEST['package']) || $_REQUEST['package'] == '')
@@ -206,9 +205,9 @@ class PackageManager
 		// Change our last link tree item for more information on this Packages area.
 		Utils::$context['linktree'][count(Utils::$context['linktree']) - 1] = array(
 			'url' => Config::$scripturl . '?action=admin;area=packages;sa=browse',
-			'name' => Utils::$context['uninstalling'] ? $txt['package_uninstall_actions'] : $txt['install_actions']
+			'name' => Utils::$context['uninstalling'] ? Lang::$txt['package_uninstall_actions'] : Lang::$txt['install_actions']
 		);
-		Utils::$context['page_title'] .= ' - ' . (Utils::$context['uninstalling'] ? $txt['package_uninstall_actions'] : $txt['install_actions']);
+		Utils::$context['page_title'] .= ' - ' . (Utils::$context['uninstalling'] ? Lang::$txt['package_uninstall_actions'] : Lang::$txt['install_actions']);
 
 		Utils::$context['sub_template'] = 'view_package';
 
@@ -307,15 +306,15 @@ class PackageManager
 
 		Utils::$context['database_changes'] = array();
 		if (isset($packageInfo['uninstall']['database']))
-			Utils::$context['database_changes'][] = sprintf($txt['package_db_code'], $packageInfo['uninstall']['database']);
+			Utils::$context['database_changes'][] = sprintf(Lang::$txt['package_db_code'], $packageInfo['uninstall']['database']);
 		if (!empty($db_changes))
 		{
 			foreach ($db_changes as $change)
 			{
-				if (isset($change[2]) && isset($txt['package_db_' . $change[0]]))
-					Utils::$context['database_changes'][] = sprintf($txt['package_db_' . $change[0]], $change[1], $change[2]);
-				elseif (isset($txt['package_db_' . $change[0]]))
-					Utils::$context['database_changes'][] = sprintf($txt['package_db_' . $change[0]], $change[1]);
+				if (isset($change[2]) && isset(Lang::$txt['package_db_' . $change[0]]))
+					Utils::$context['database_changes'][] = sprintf(Lang::$txt['package_db_' . $change[0]], $change[1], $change[2]);
+				elseif (isset(Lang::$txt['package_db_' . $change[0]]))
+					Utils::$context['database_changes'][] = sprintf(Lang::$txt['package_db_' . $change[0]], $change[1]);
 				else
 					Utils::$context['database_changes'][] = $change[0] . '-' . $change[1] . (isset($change[2]) ? '-' . $change[2] : '');
 			}
@@ -424,9 +423,9 @@ class PackageManager
 			{
 				Utils::$context['has_failure'] = true;
 				if (isset($action['error_msg']) && isset($action['error_var']))
-					Utils::$context['failure_details'] = sprintf($txt['package_will_fail_' . $action['error_msg']], $action['error_var']);
+					Utils::$context['failure_details'] = sprintf(Lang::$txt['package_will_fail_' . $action['error_msg']], $action['error_var']);
 				elseif (isset($action['error_msg']))
-					Utils::$context['failure_details'] = isset($txt['package_will_fail_' . $action['error_msg']]) ? $txt['package_will_fail_' . $action['error_msg']] : $action['error_msg'];
+					Utils::$context['failure_details'] = isset(Lang::$txt['package_will_fail_' . $action['error_msg']]) ? Lang::$txt['package_will_fail_' . $action['error_msg']] : $action['error_msg'];
 			}
 			elseif ($action['type'] == 'modification')
 			{
@@ -435,9 +434,9 @@ class PackageManager
 					Utils::$context['has_failure'] = true;
 
 					Utils::$context['actions'][] = array(
-						'type' => $txt['execute_modification'],
+						'type' => Lang::$txt['execute_modification'],
 						'action' => Utils::htmlspecialchars(strtr($action['filename'], array(Config::$boarddir => '.'))),
-						'description' => $txt['package_action_missing'],
+						'description' => Lang::$txt['package_action_missing'],
 						'failed' => true,
 					);
 				}
@@ -487,50 +486,50 @@ class PackageManager
 									Utils::$context['theme_actions'][$mod_action['is_custom']]['has_failure'] |= $failed;
 
 								Utils::$context['theme_actions'][$mod_action['is_custom']]['actions'][$actual_filename] = array(
-									'type' => $txt['execute_modification'],
+									'type' => Lang::$txt['execute_modification'],
 									'action' => Utils::htmlspecialchars(strtr($mod_action['filename'], array(Config::$boarddir => '.'))),
-									'description' => $failed ? $txt['package_action_failure'] : $txt['package_action_success'],
+									'description' => $failed ? Lang::$txt['package_action_failure'] : Lang::$txt['package_action_success'],
 									'failed' => $failed,
 								);
 							}
 							elseif (!isset(Utils::$context['actions'][$actual_filename]))
 							{
 								Utils::$context['actions'][$actual_filename] = array(
-									'type' => $txt['execute_modification'],
+									'type' => Lang::$txt['execute_modification'],
 									'action' => Utils::htmlspecialchars(strtr($mod_action['filename'], array(Config::$boarddir => '.'))),
-									'description' => $failed ? $txt['package_action_failure'] : $txt['package_action_success'],
+									'description' => $failed ? Lang::$txt['package_action_failure'] : Lang::$txt['package_action_success'],
 									'failed' => $failed,
 								);
 							}
 							else
 							{
 								Utils::$context['actions'][$actual_filename]['failed'] |= $failed;
-								Utils::$context['actions'][$actual_filename]['description'] = Utils::$context['actions'][$actual_filename]['failed'] ? $txt['package_action_failure'] : $txt['package_action_success'];
+								Utils::$context['actions'][$actual_filename]['description'] = Utils::$context['actions'][$actual_filename]['failed'] ? Lang::$txt['package_action_failure'] : Lang::$txt['package_action_success'];
 							}
 						}
 						elseif ($mod_action['type'] == 'skipping')
 						{
 							Utils::$context['actions'][$actual_filename] = array(
-								'type' => $txt['execute_modification'],
+								'type' => Lang::$txt['execute_modification'],
 								'action' => Utils::htmlspecialchars(strtr($mod_action['filename'], array(Config::$boarddir => '.'))),
-								'description' => $txt['package_action_skipping']
+								'description' => Lang::$txt['package_action_skipping']
 							);
 						}
 						elseif ($mod_action['type'] == 'missing' && empty($mod_action['is_custom']))
 						{
 							Utils::$context['has_failure'] = true;
 							Utils::$context['actions'][$actual_filename] = array(
-								'type' => $txt['execute_modification'],
+								'type' => Lang::$txt['execute_modification'],
 								'action' => Utils::htmlspecialchars(strtr($mod_action['filename'], array(Config::$boarddir => '.'))),
-								'description' => $txt['package_action_missing'],
+								'description' => Lang::$txt['package_action_missing'],
 								'failed' => true,
 							);
 						}
 						elseif ($mod_action['type'] == 'error')
 							Utils::$context['actions'][$actual_filename] = array(
-								'type' => $txt['execute_modification'],
+								'type' => Lang::$txt['execute_modification'],
 								'action' => Utils::htmlspecialchars(strtr($mod_action['filename'], array(Config::$boarddir => '.'))),
-								'description' => $txt['package_action_error'],
+								'description' => Lang::$txt['package_action_error'],
 								'failed' => true,
 							);
 					}
@@ -551,9 +550,9 @@ class PackageManager
 						{
 							if (empty($mod_action['is_custom']))
 								Utils::$context['actions'][$actual_filename]['operations'][] = array(
-									'type' => $txt['execute_modification'],
+									'type' => Lang::$txt['execute_modification'],
 									'action' => Utils::htmlspecialchars(strtr($mod_action['filename'], array(Config::$boarddir => '.'))),
-									'description' => $mod_action['failed'] ? $txt['package_action_failure'] : $txt['package_action_success'],
+									'description' => $mod_action['failed'] ? Lang::$txt['package_action_failure'] : Lang::$txt['package_action_success'],
 									'position' => $mod_action['position'],
 									'operation_key' => $operation_key,
 									'filename' => $action['filename'],
@@ -565,9 +564,9 @@ class PackageManager
 							// Themes are under the saved type.
 							if (isset($mod_action['is_custom']) && isset(Utils::$context['theme_actions'][$mod_action['is_custom']]))
 								Utils::$context['theme_actions'][$mod_action['is_custom']]['actions'][$actual_filename]['operations'][] = array(
-									'type' => $txt['execute_modification'],
+									'type' => Lang::$txt['execute_modification'],
 									'action' => Utils::htmlspecialchars(strtr($mod_action['filename'], array(Config::$boarddir => '.'))),
-									'description' => $mod_action['failed'] ? $txt['package_action_failure'] : $txt['package_action_success'],
+									'description' => $mod_action['failed'] ? Lang::$txt['package_action_failure'] : Lang::$txt['package_action_success'],
 									'position' => $mod_action['position'],
 									'operation_key' => $operation_key,
 									'filename' => $action['filename'],
@@ -582,41 +581,41 @@ class PackageManager
 			elseif ($action['type'] == 'code')
 			{
 				$thisAction = array(
-					'type' => $txt['execute_code'],
+					'type' => Lang::$txt['execute_code'],
 					'action' => Utils::htmlspecialchars($action['filename']),
 				);
 			}
 			elseif ($action['type'] == 'database' && !Utils::$context['uninstalling'])
 			{
 				$thisAction = array(
-					'type' => $txt['execute_database_changes'],
+					'type' => Lang::$txt['execute_database_changes'],
 					'action' => Utils::htmlspecialchars($action['filename']),
 				);
 			}
 			elseif (in_array($action['type'], array('create-dir', 'create-file')))
 			{
 				$thisAction = array(
-					'type' => $txt['package_create'] . ' ' . ($action['type'] == 'create-dir' ? $txt['package_tree'] : $txt['package_file']),
+					'type' => Lang::$txt['package_create'] . ' ' . ($action['type'] == 'create-dir' ? Lang::$txt['package_tree'] : Lang::$txt['package_file']),
 					'action' => Utils::htmlspecialchars(strtr($action['destination'], array(Config::$boarddir => '.')))
 				);
 			}
 			elseif ($action['type'] == 'hook')
 			{
-				$action['description'] = !isset($action['hook'], $action['function']) ? $txt['package_action_failure'] : $txt['package_action_success'];
+				$action['description'] = !isset($action['hook'], $action['function']) ? Lang::$txt['package_action_failure'] : Lang::$txt['package_action_success'];
 
 				if (!isset($action['hook'], $action['function']))
 					Utils::$context['has_failure'] = true;
 
 				$thisAction = array(
-					'type' => $action['reverse'] ? $txt['execute_hook_remove'] : $txt['execute_hook_add'],
-					'action' => sprintf($txt['execute_hook_action' . ($action['reverse'] ? '_inverse' : '')], Utils::htmlspecialchars($action['hook'])),
+					'type' => $action['reverse'] ? Lang::$txt['execute_hook_remove'] : Lang::$txt['execute_hook_add'],
+					'action' => sprintf(Lang::$txt['execute_hook_action' . ($action['reverse'] ? '_inverse' : '')], Utils::htmlspecialchars($action['hook'])),
 				);
 			}
 			elseif ($action['type'] == 'credits')
 			{
 				$thisAction = array(
-					'type' => $txt['execute_credits_add'],
-					'action' => sprintf($txt['execute_credits_action'], Utils::htmlspecialchars($action['title'])),
+					'type' => Lang::$txt['execute_credits_add'],
+					'action' => sprintf(Lang::$txt['execute_credits_action'], Utils::htmlspecialchars($action['title'])),
 				);
 			}
 			elseif ($action['type'] == 'requires')
@@ -652,19 +651,19 @@ class PackageManager
 				}
 
 				// Set success or failure information
-				$action['description'] = ($installed && $version) ? $txt['package_action_success'] : $txt['package_action_failure'];
+				$action['description'] = ($installed && $version) ? Lang::$txt['package_action_success'] : Lang::$txt['package_action_failure'];
 				Utils::$context['has_failure'] = !($installed && $version);
 
 				$thisAction = array(
-					'type' => $txt['package_requires'],
-					'action' => $txt['package_check_for'] . ' ' . $action['id'] . (isset($action['version']) ? (' / ' . ($version ? $action['version'] : '<span class="error">' . $action['version'] . '</span>')) : ''),
+					'type' => Lang::$txt['package_requires'],
+					'action' => Lang::$txt['package_check_for'] . ' ' . $action['id'] . (isset($action['version']) ? (' / ' . ($version ? $action['version'] : '<span class="error">' . $action['version'] . '</span>')) : ''),
 				);
 			}
 			elseif (in_array($action['type'], array('require-dir', 'require-file')))
 			{
 				// Do this one...
 				$thisAction = array(
-					'type' => $txt['package_extract'] . ' ' . ($action['type'] == 'require-dir' ? $txt['package_tree'] : $txt['package_file']),
+					'type' => Lang::$txt['package_extract'] . ' ' . ($action['type'] == 'require-dir' ? Lang::$txt['package_tree'] : Lang::$txt['package_file']),
 					'action' => Utils::htmlspecialchars(strtr($action['destination'], array(Config::$boarddir => '.')))
 				);
 
@@ -690,13 +689,13 @@ class PackageManager
 			}
 			elseif (in_array($action['type'], array('move-dir', 'move-file')))
 				$thisAction = array(
-					'type' => $txt['package_move'] . ' ' . ($action['type'] == 'move-dir' ? $txt['package_tree'] : $txt['package_file']),
+					'type' => Lang::$txt['package_move'] . ' ' . ($action['type'] == 'move-dir' ? Lang::$txt['package_tree'] : Lang::$txt['package_file']),
 					'action' => Utils::htmlspecialchars(strtr($action['source'], array(Config::$boarddir => '.'))) . ' => ' . Utils::htmlspecialchars(strtr($action['destination'], array(Config::$boarddir => '.')))
 				);
 			elseif (in_array($action['type'], array('remove-dir', 'remove-file')))
 			{
 				$thisAction = array(
-					'type' => $txt['package_delete'] . ' ' . ($action['type'] == 'remove-dir' ? $txt['package_tree'] : $txt['package_file']),
+					'type' => Lang::$txt['package_delete'] . ' ' . ($action['type'] == 'remove-dir' ? Lang::$txt['package_tree'] : Lang::$txt['package_file']),
 					'action' => Utils::htmlspecialchars(strtr($action['filename'], array(Config::$boarddir => '.')))
 				);
 
@@ -740,7 +739,7 @@ class PackageManager
 				Utils::$context['has_failure'] = true;
 
 				$thisAction += array(
-					'description' => $txt['package_action_missing'],
+					'description' => Lang::$txt['package_action_missing'],
 					'failed' => true,
 				);
 			}
@@ -803,7 +802,7 @@ class PackageManager
 
 							if (Utils::$context['uninstalling'])
 								Utils::$context['theme_actions'][$id]['actions'][] = array(
-									'type' => $txt['package_delete'] . ' ' . ($action_data['type'] == 'require-dir' ? $txt['package_tree'] : $txt['package_file']),
+									'type' => Lang::$txt['package_delete'] . ' ' . ($action_data['type'] == 'require-dir' ? Lang::$txt['package_tree'] : Lang::$txt['package_file']),
 									'action' => strtr($real_path, array('\\' => '/', Config::$boarddir => '.')),
 									'description' => '',
 									'value' => base64_encode(Utils::jsonEncode(array('type' => $action_data['type'], 'orig' => $action_data['filename'], 'future' => $real_path, 'id' => $id))),
@@ -811,7 +810,7 @@ class PackageManager
 								);
 							else
 								Utils::$context['theme_actions'][$id]['actions'][] = array(
-									'type' => $txt['package_extract'] . ' ' . ($action_data['type'] == 'require-dir' ? $txt['package_tree'] : $txt['package_file']),
+									'type' => Lang::$txt['package_extract'] . ' ' . ($action_data['type'] == 'require-dir' ? Lang::$txt['package_tree'] : Lang::$txt['package_file']),
 									'action' => strtr($real_path, array('\\' => '/', Config::$boarddir => '.')),
 									'description' => '',
 									'value' => base64_encode(Utils::jsonEncode(array('type' => $action_data['type'], 'orig' => $action_data['destination'], 'future' => $real_path, 'id' => $id))),
@@ -844,7 +843,6 @@ class PackageManager
 	 */
 	public function install()
 	{
-		global $txt;
 		global $settings, $user_info;
 
 		// Make sure we don't install this mod twice.
@@ -866,9 +864,9 @@ class PackageManager
 		// Set up the linktree for other.
 		Utils::$context['linktree'][count(Utils::$context['linktree']) - 1] = array(
 			'url' => Config::$scripturl . '?action=admin;area=packages;sa=browse',
-			'name' => Utils::$context['uninstalling'] ? $txt['uninstall'] : $txt['extracting']
+			'name' => Utils::$context['uninstalling'] ? Lang::$txt['uninstall'] : Lang::$txt['extracting']
 		);
-		Utils::$context['page_title'] .= ' - ' . (Utils::$context['uninstalling'] ? $txt['uninstall'] : $txt['extracting']);
+		Utils::$context['page_title'] .= ' - ' . (Utils::$context['uninstalling'] ? Lang::$txt['uninstall'] : Lang::$txt['extracting']);
 
 		Utils::$context['sub_template'] = 'extract_package';
 
@@ -1105,6 +1103,7 @@ class PackageManager
 								'modSettings' => &Config::$modSettings,
 								'context' => &Utils::$context,
 								'smcFunc' => &Utils::$smcFunc,
+								'txt' => &Lang::$txt,
 							);
 
 							extract($backcompat_globals, EXTR_REFS | EXTR_SKIP);
@@ -1153,6 +1152,7 @@ class PackageManager
 								'modSettings' => &Config::$modSettings,
 								'context' => &Utils::$context,
 								'smcFunc' => &Utils::$smcFunc,
+								'txt' => &Lang::$txt,
 							);
 
 							extract($backcompat_globals, EXTR_REFS | EXTR_SKIP);
@@ -1165,7 +1165,7 @@ class PackageManager
 				elseif ($action['type'] == 'redirect' && !empty($action['redirect_url']))
 				{
 					Utils::$context['redirect_url'] = $action['redirect_url'];
-					Utils::$context['redirect_text'] = !empty($action['filename']) && file_exists(Config::$packagesdir . '/temp/' . Utils::$context['base_path'] . $action['filename']) ? Utils::htmlspecialchars(file_get_contents(Config::$packagesdir . '/temp/' . Utils::$context['base_path'] . $action['filename'])) : (Utils::$context['uninstalling'] ? $txt['package_uninstall_done'] : $txt['package_installed_done']);
+					Utils::$context['redirect_text'] = !empty($action['filename']) && file_exists(Config::$packagesdir . '/temp/' . Utils::$context['base_path'] . $action['filename']) ? Utils::htmlspecialchars(file_get_contents(Config::$packagesdir . '/temp/' . Utils::$context['base_path'] . $action['filename'])) : (Utils::$context['uninstalling'] ? Lang::$txt['package_uninstall_done'] : Lang::$txt['package_installed_done']);
 					Utils::$context['redirect_timeout'] = empty($action['redirect_timeout']) ? 5 : (int) ceil($action['redirect_timeout'] / 1000);
 					if (!empty($action['parse_bbc']))
 					{
@@ -1371,17 +1371,15 @@ class PackageManager
 	 */
 	public function list()
 	{
-		global $txt;
-
 		// No package?  Show him or her the door.
 		if (!isset($_REQUEST['package']) || $_REQUEST['package'] == '')
 			redirectexit('action=admin;area=packages');
 
 		Utils::$context['linktree'][] = array(
 			'url' => Config::$scripturl . '?action=admin;area=packages;sa=list;package=' . $_REQUEST['package'],
-			'name' => $txt['list_file']
+			'name' => Lang::$txt['list_file']
 		);
-		Utils::$context['page_title'] .= ' - ' . $txt['list_file'];
+		Utils::$context['page_title'] .= ' - ' . Lang::$txt['list_file'];
 		Utils::$context['sub_template'] = 'list';
 
 		// The filename...
@@ -1399,8 +1397,6 @@ class PackageManager
 	 */
 	public function examineFile()
 	{
-		global $txt;
-
 		// No package?  Show him or her the door.
 		if (!isset($_REQUEST['package']) || $_REQUEST['package'] == '')
 			redirectexit('action=admin;area=packages');
@@ -1424,9 +1420,9 @@ class PackageManager
 
 		Utils::$context['linktree'][count(Utils::$context['linktree']) - 1] = array(
 			'url' => Config::$scripturl . '?action=admin;area=packages;sa=list;package=' . $_REQUEST['package'],
-			'name' => $txt['package_examine_file']
+			'name' => Lang::$txt['package_examine_file']
 		);
-		Utils::$context['page_title'] .= ' - ' . $txt['package_examine_file'];
+		Utils::$context['page_title'] .= ' - ' . Lang::$txt['package_examine_file'];
 		Utils::$context['sub_template'] = 'examine';
 
 		// The filename...
@@ -1483,9 +1479,7 @@ class PackageManager
 	 */
 	public function browse()
 	{
-		global $txt;
-
-		Utils::$context['page_title'] .= ' - ' . $txt['browse_packages'];
+		Utils::$context['page_title'] .= ' - ' . Lang::$txt['browse_packages'];
 
 		Utils::$context['forum_version'] = SMF_FULL_VERSION;
 		Utils::$context['available_packages'] = 0;
@@ -1500,8 +1494,8 @@ class PackageManager
 			// Use the standard templates for showing this.
 			$listOptions = array(
 				'id' => 'packages_lists_' . $type,
-				'title' => $txt[$type . '_package'],
-				'no_items_label' => $txt['no_packages'],
+				'title' => Lang::$txt[$type . '_package'],
+				'no_items_label' => Lang::$txt['no_packages'],
 				'get_items' => array(
 					'function' => array($this, 'list_getPackages'),
 					'params' => array($type),
@@ -1511,7 +1505,7 @@ class PackageManager
 				'columns' => array(
 					'id' . $type => array(
 						'header' => array(
-							'value' => $txt['package_id'],
+							'value' => Lang::$txt['package_id'],
 							'style' => 'width: 52px;',
 						),
 						'data' => array(
@@ -1524,7 +1518,7 @@ class PackageManager
 					),
 					'mod_name' . $type => array(
 						'header' => array(
-							'value' => $txt['mod_name'],
+							'value' => Lang::$txt['mod_name'],
 							'style' => 'width: 25%;',
 						),
 						'data' => array(
@@ -1537,7 +1531,7 @@ class PackageManager
 					),
 					'version' . $type => array(
 						'header' => array(
-							'value' => $txt['mod_version'],
+							'value' => Lang::$txt['mod_version'],
 						),
 						'data' => array(
 							'db' => 'version',
@@ -1549,14 +1543,14 @@ class PackageManager
 					),
 					'time_installed' . $type => array(
 						'header' => array(
-							'value' => $txt['mod_installed_time'],
+							'value' => Lang::$txt['mod_installed_time'],
 						),
 						'data' => array(
-							'function' => function($package) use ($txt)
+							'function' => function($package)
 							{
 								return !empty($package['time_installed'])
 									? timeformat($package['time_installed'])
-									: $txt['not_applicable'];
+									: Lang::$txt['not_applicable'];
 							},
 							'class' => 'smalltext',
 						),
@@ -1570,29 +1564,29 @@ class PackageManager
 							'value' => '',
 						),
 						'data' => array(
-							'function' => function($package) use ($txt, $type)
+							'function' => function($package) use ($type)
 							{
 								$return = '';
 
 								if ($package['can_uninstall'])
 									$return = '
-										<a href="' . Config::$scripturl . '?action=admin;area=packages;sa=uninstall;package=' . $package['filename'] . ';pid=' . $package['installed_id'] . '" class="button floatnone">' . (isset($txt['uninstall_' . $type]) ? $txt['uninstall_' . $type] : $txt['uninstall']) . '</a>';
+										<a href="' . Config::$scripturl . '?action=admin;area=packages;sa=uninstall;package=' . $package['filename'] . ';pid=' . $package['installed_id'] . '" class="button floatnone">' . (isset(Lang::$txt['uninstall_' . $type]) ? Lang::$txt['uninstall_' . $type] : Lang::$txt['uninstall']) . '</a>';
 								elseif ($package['can_emulate_uninstall'])
 									$return = '
-										<a href="' . Config::$scripturl . '?action=admin;area=packages;sa=uninstall;ve=' . $package['can_emulate_uninstall'] . ';package=' . $package['filename'] . ';pid=' . $package['installed_id'] . '" class="button floatnone">' . $txt['package_emulate_uninstall'] . ' ' . $package['can_emulate_uninstall'] . '</a>';
+										<a href="' . Config::$scripturl . '?action=admin;area=packages;sa=uninstall;ve=' . $package['can_emulate_uninstall'] . ';package=' . $package['filename'] . ';pid=' . $package['installed_id'] . '" class="button floatnone">' . Lang::$txt['package_emulate_uninstall'] . ' ' . $package['can_emulate_uninstall'] . '</a>';
 								elseif ($package['can_upgrade'])
 									$return = '
-										<a href="' . Config::$scripturl . '?action=admin;area=packages;sa=install;package=' . $package['filename'] . '" class="button floatnone">' . $txt['package_upgrade'] . '</a>';
+										<a href="' . Config::$scripturl . '?action=admin;area=packages;sa=install;package=' . $package['filename'] . '" class="button floatnone">' . Lang::$txt['package_upgrade'] . '</a>';
 								elseif ($package['can_install'])
 									$return = '
-										<a href="' . Config::$scripturl . '?action=admin;area=packages;sa=install;package=' . $package['filename'] . '" class="button floatnone">' . $txt['install_' . $type] . '</a>';
+										<a href="' . Config::$scripturl . '?action=admin;area=packages;sa=install;package=' . $package['filename'] . '" class="button floatnone">' . Lang::$txt['install_' . $type] . '</a>';
 								elseif ($package['can_emulate_install'])
 									$return = '
-										<a href="' . Config::$scripturl . '?action=admin;area=packages;sa=install;ve=' . $package['can_emulate_install'] . ';package=' . $package['filename'] . '" class="button floatnone">' . $txt['package_emulate_install'] . ' ' . $package['can_emulate_install'] . '</a>';
+										<a href="' . Config::$scripturl . '?action=admin;area=packages;sa=install;ve=' . $package['can_emulate_install'] . ';package=' . $package['filename'] . '" class="button floatnone">' . Lang::$txt['package_emulate_install'] . ' ' . $package['can_emulate_install'] . '</a>';
 
 								return $return . '
-										<a href="' . Config::$scripturl . '?action=admin;area=packages;sa=list;package=' . $package['filename'] . '" class="button floatnone">' . $txt['list_files'] . '</a>
-										<a href="' . Config::$scripturl . '?action=admin;area=packages;sa=remove;package=' . $package['filename'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '"' . ($package['is_installed'] && $package['is_current'] ? ' data-confirm="' . $txt['package_delete_bad'] . '"' : '') . ' class="button' . ($package['is_installed'] && $package['is_current'] ? ' you_sure' : '') . ' floatnone">' . $txt['package_delete'] . '</a>';
+										<a href="' . Config::$scripturl . '?action=admin;area=packages;sa=list;package=' . $package['filename'] . '" class="button floatnone">' . Lang::$txt['list_files'] . '</a>
+										<a href="' . Config::$scripturl . '?action=admin;area=packages;sa=remove;package=' . $package['filename'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '"' . ($package['is_installed'] && $package['is_current'] ? ' data-confirm="' . Lang::$txt['package_delete_bad'] . '"' : '') . ' class="button' . ($package['is_installed'] && $package['is_current'] ? ' you_sure' : '') . ' floatnone">' . Lang::$txt['package_delete'] . '</a>';
 							},
 							'class' => 'righttext',
 						),
@@ -1639,8 +1633,6 @@ class PackageManager
 	 */
 	public function options()
 	{
-		global $txt;
-
 		if (isset($_POST['save']))
 		{
 			checkSession();
@@ -1662,7 +1654,7 @@ class PackageManager
 		else
 			$default_username = '';
 
-		Utils::$context['page_title'] = $txt['package_settings'];
+		Utils::$context['page_title'] = Lang::$txt['package_settings'];
 		Utils::$context['sub_template'] = 'install_options';
 
 		Utils::$context['package_ftp_server'] = isset(Config::$modSettings['package_server']) ? Config::$modSettings['package_server'] : 'localhost';
@@ -1683,7 +1675,7 @@ class PackageManager
 	 */
 	public function showOperations()
 	{
-		global $txt, $settings;
+		global $settings;
 
 		// Can't be in here buddy.
 		isAllowedTo('admin_forum');
@@ -1784,8 +1776,8 @@ class PackageManager
 
 		// Let's do some formatting...
 		$operation_text = Utils::$context['operations']['position'] == 'replace' ? 'operation_replace' : (Utils::$context['operations']['position'] == 'before' ? 'operation_after' : 'operation_before');
-		Utils::$context['operations']['search'] = BBCodeParser::load()->parse('[code=' . $txt['operation_find'] . ']' . (Utils::$context['operations']['position'] == 'end' ? '?&gt;' : Utils::$context['operations']['search']) . '[/code]');
-		Utils::$context['operations']['replace'] = BBCodeParser::load()->parse('[code=' . $txt[$operation_text] . ']' . Utils::$context['operations']['replace'] . '[/code]');
+		Utils::$context['operations']['search'] = BBCodeParser::load()->parse('[code=' . Lang::$txt['operation_find'] . ']' . (Utils::$context['operations']['position'] == 'end' ? '?&gt;' : Utils::$context['operations']['search']) . '[/code]');
+		Utils::$context['operations']['replace'] = BBCodeParser::load()->parse('[code=' . Lang::$txt[$operation_text] . ']' . Utils::$context['operations']['replace'] . '[/code]');
 
 		// No layers
 		Utils::$context['template_layers'] = array();
@@ -1809,8 +1801,6 @@ class PackageManager
 	 */
 	public function permissions()
 	{
-		global $txt;
-
 		// Let's try and be good, yes?
 		checkSession('get');
 
@@ -1845,7 +1835,7 @@ class PackageManager
 			Utils::$context['ftp_connected'] = true;
 
 		// Define the template.
-		Utils::$context['page_title'] = $txt['package_file_perms'];
+		Utils::$context['page_title'] = Lang::$txt['package_file_perms'];
 		Utils::$context['sub_template'] = 'file_permissions';
 
 		// Define what files we're interested in, as a tree.
@@ -2122,15 +2112,13 @@ class PackageManager
 	 */
 	public function PackagePermissionsAction()
 	{
-		global $txt;
-
 		umask(0);
 
 		$timeout_limit = 5;
 
 		Utils::$context['method'] = $_POST['method'] == 'individual' ? 'individual' : 'predefined';
 		Utils::$context['sub_template'] = 'action_permissions';
-		Utils::$context['page_title'] = $txt['package_file_perms_applying'];
+		Utils::$context['page_title'] = Lang::$txt['package_file_perms_applying'];
 		Utils::$context['back_look_data'] = isset($_POST['back_look']) ? $_POST['back_look'] : array();
 
 		// Skipping use of FTP?
@@ -2181,7 +2169,7 @@ class PackageManager
 				if ($validate_custom)
 				{
 					if (preg_match('~^[4567][4567][4567]$~', Utils::$context['custom_value']) == false)
-						fatal_error($txt['chmod_value_invalid']);
+						fatal_error(Lang::$txt['chmod_value_invalid']);
 				}
 
 				// Nothing to do?
@@ -2339,8 +2327,6 @@ class PackageManager
 	 */
 	public function ftpTest()
 	{
-		global $txt;
-
 		checkSession('get');
 
 		// Try to make the FTP connection.
@@ -2360,7 +2346,7 @@ class PackageManager
 						'attributes' => array(
 							'success' => !empty(SubsPackage::$package_ftp) ? 1 : 0,
 						),
-						'value' => !empty(SubsPackage::$package_ftp) ? $txt['package_ftp_test_success'] : (isset(Utils::$context['package_ftp'], Utils::$context['package_ftp']['error']) ? Utils::$context['package_ftp']['error'] : $txt['package_ftp_test_failed']),
+						'value' => !empty(SubsPackage::$package_ftp) ? Lang::$txt['package_ftp_test_success'] : (isset(Utils::$context['package_ftp'], Utils::$context['package_ftp']['error']) ? Utils::$context['package_ftp']['error'] : Lang::$txt['package_ftp_test_failed']),
 					),
 				),
 			),
@@ -2372,11 +2358,9 @@ class PackageManager
 	 */
 	public function servers()
 	{
-		global $txt;
-
 		// Ensure we use the correct template, and page title.
 		Utils::$context['sub_template'] = 'servers';
-		Utils::$context['page_title'] .= ' - ' . $txt['download_packages'];
+		Utils::$context['page_title'] .= ' - ' . Lang::$txt['download_packages'];
 
 		// Load the list of servers.
 		$request = Db::$db->query('', '
@@ -2467,14 +2451,14 @@ class PackageManager
 			{
 				collapsedDiv.show(\'slow\');
 				icon.removeClass(\'toggle_down\').addClass(\'toggle_up\');
-				icon.prop(\'title\', ' . JavaScriptEscape($txt['hide']) . ');
+				icon.prop(\'title\', ' . JavaScriptEscape(Lang::$txt['hide']) . ');
 			}
 
 			else
 			{
 				collapsedDiv.hide(\'slow\');
 				icon.removeClass(\'toggle_up\').addClass(\'toggle_down\');
-				icon.prop(\'title\', ' . JavaScriptEscape($txt['show']) . ');
+				icon.prop(\'title\', ' . JavaScriptEscape(Lang::$txt['show']) . ');
 			}
 		});', true);
 	}
@@ -2484,8 +2468,6 @@ class PackageManager
 	 */
 	public function serverBrowse()
 	{
-		global $txt;
-
 		if (isset($_GET['server']))
 		{
 			if ($_GET['server'] == '')
@@ -2542,8 +2524,8 @@ class PackageManager
 			{
 				Utils::$context['sub_template'] = 'package_confirm';
 
-				Utils::$context['page_title'] = $txt['package_servers'];
-				Utils::$context['confirm_message'] = sprintf($txt['package_confirm_view_package_content'], Utils::htmlspecialchars($_GET['absolute']));
+				Utils::$context['page_title'] = Lang::$txt['package_servers'];
+				Utils::$context['confirm_message'] = sprintf(Lang::$txt['package_confirm_view_package_content'], Utils::htmlspecialchars($_GET['absolute']));
 				Utils::$context['proceed_href'] = Config::$scripturl . '?action=admin;area=packages;get;sa=browse;absolute=' . urlencode($_GET['absolute']) . ';confirm=' . $token;
 
 				return;
@@ -2583,7 +2565,7 @@ class PackageManager
 		// Pick the correct template.
 		Utils::$context['sub_template'] = 'package_list';
 
-		Utils::$context['page_title'] = $txt['package_servers'] . ($name != '' ? ' - ' . $name : '');
+		Utils::$context['page_title'] = Lang::$txt['package_servers'] . ($name != '' ? ' - ' . $name : '');
 		Utils::$context['package_server'] = $server;
 
 		// By default we use an unordered list, unless there are no lists with more than one package.
@@ -2688,7 +2670,7 @@ class PackageManager
 					$package['author'] = array();
 
 					if ($package['description'] == '')
-						$package['description'] = $txt['package_no_description'];
+						$package['description'] = Lang::$txt['package_no_description'];
 					else
 						$package['description'] = BBCodeParser::load()->parse(preg_replace('~\[[/]?html\]~i', '', Utils::htmlspecialchars($package['description'])));
 
@@ -2823,8 +2805,6 @@ class PackageManager
 	 */
 	public function download()
 	{
-		global $txt;
-
 		// Use the downloaded sub template.
 		Utils::$context['sub_template'] = 'downloaded';
 
@@ -2918,17 +2898,17 @@ class PackageManager
 		if (!isset(Utils::$context['package']['type']))
 			Utils::$context['package']['install']['link'] = '';
 		else
-			Utils::$context['package']['install']['link'] = '<a href="' . Config::$scripturl . '?action=admin;area=packages;sa=install;package=' . Utils::$context['package']['filename'] . '">[ ' . (isset($txt['install_' . Utils::$context['package']['type']]) ? $txt['install_' . Utils::$context['package']['type']] : $txt['install_unknown']) . ' ]</a>';
+			Utils::$context['package']['install']['link'] = '<a href="' . Config::$scripturl . '?action=admin;area=packages;sa=install;package=' . Utils::$context['package']['filename'] . '">[ ' . (isset(Lang::$txt['install_' . Utils::$context['package']['type']]) ? Lang::$txt['install_' . Utils::$context['package']['type']] : Lang::$txt['install_unknown']) . ' ]</a>';
 
 		// Does a 3rd party hook want to do some additional changes?
 		call_integration_hook('integrate_package_download');
 
-		Utils::$context['package']['list_files']['link'] = '<a href="' . Config::$scripturl . '?action=admin;area=packages;sa=list;package=' . Utils::$context['package']['filename'] . '">[ ' . $txt['list_files'] . ' ]</a>';
+		Utils::$context['package']['list_files']['link'] = '<a href="' . Config::$scripturl . '?action=admin;area=packages;sa=list;package=' . Utils::$context['package']['filename'] . '">[ ' . Lang::$txt['list_files'] . ' ]</a>';
 
 		// Free a little bit of memory...
 		unset(Utils::$context['package']['xml']);
 
-		Utils::$context['page_title'] = $txt['download_success'];
+		Utils::$context['page_title'] = Lang::$txt['download_success'];
 	}
 
 	/**
@@ -2936,8 +2916,6 @@ class PackageManager
 	 */
 	public function upload()
 	{
-		global $txt;
-
 		// Setup the correct template, even though I'll admit we ain't downloading ;)
 		Utils::$context['sub_template'] = 'downloaded';
 
@@ -2977,9 +2955,9 @@ class PackageManager
 		if (!is_array(Utils::$context['package']))
 		{
 			@unlink($destination);
-			loadLanguage('Errors');
-			$txt[Utils::$context['package']] = str_replace('{MANAGETHEMEURL}', Config::$scripturl . '?action=admin;area=theme;sa=admin;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '#theme_install', $txt[Utils::$context['package']]);
-			fatal_lang_error('package_upload_error_broken', false, array($txt[Utils::$context['package']]));
+			Lang::load('Errors');
+			Lang::$txt[Utils::$context['package']] = str_replace('{MANAGETHEMEURL}', Config::$scripturl . '?action=admin;area=theme;sa=admin;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '#theme_install', Lang::$txt[Utils::$context['package']]);
+			fatal_lang_error('package_upload_error_broken', false, array(Lang::$txt[Utils::$context['package']]));
 		}
 		// Is it already uploaded, maybe?
 		elseif ($dir = @opendir(Config::$packagesdir))
@@ -2996,7 +2974,7 @@ class PackageManager
 				if ($packageInfo['id'] == Utils::$context['package']['id'] && $packageInfo['version'] == Utils::$context['package']['version'])
 				{
 					@unlink($destination);
-					loadLanguage('Errors');
+					Lang::load('Errors');
 					fatal_lang_error('package_upload_error_exists', false);
 				}
 			}
@@ -3006,16 +2984,16 @@ class PackageManager
 		if (!isset(Utils::$context['package']['type']))
 			Utils::$context['package']['install']['link'] = '';
 		else
-			Utils::$context['package']['install']['link'] = '<a href="' . Config::$scripturl . '?action=admin;area=packages;sa=install;package=' . Utils::$context['package']['filename'] . '">[ ' . (isset($txt['install_' . Utils::$context['package']['type']]) ? $txt['install_' . Utils::$context['package']['type']] : $txt['install_unknown']) . ' ]</a>';
+			Utils::$context['package']['install']['link'] = '<a href="' . Config::$scripturl . '?action=admin;area=packages;sa=install;package=' . Utils::$context['package']['filename'] . '">[ ' . (isset(Lang::$txt['install_' . Utils::$context['package']['type']]) ? Lang::$txt['install_' . Utils::$context['package']['type']] : Lang::$txt['install_unknown']) . ' ]</a>';
 
 		// Does a 3rd party hook want to do some additional changes?
 		call_integration_hook('integrate_package_upload');
 
-		Utils::$context['package']['list_files']['link'] = '<a href="' . Config::$scripturl . '?action=admin;area=packages;sa=list;package=' . Utils::$context['package']['filename'] . '">[ ' . $txt['list_files'] . ' ]</a>';
+		Utils::$context['package']['list_files']['link'] = '<a href="' . Config::$scripturl . '?action=admin;area=packages;sa=list;package=' . Utils::$context['package']['filename'] . '">[ ' . Lang::$txt['list_files'] . ' ]</a>';
 
 		unset(Utils::$context['package']['xml']);
 
-		Utils::$context['page_title'] = $txt['package_uploaded_success'];
+		Utils::$context['page_title'] = Lang::$txt['package_uploaded_success'];
 	}
 
 	/**

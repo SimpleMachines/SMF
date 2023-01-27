@@ -15,6 +15,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 
@@ -29,7 +30,7 @@ if (!defined('SMF'))
  */
 function BoardIndex()
 {
-	global $txt, $user_info, $settings;
+	global $user_info, $settings;
 
 	loadTemplate('BoardIndex');
 	Utils::$context['template_layers'][] = 'boardindex_outer';
@@ -130,16 +131,16 @@ function BoardIndex()
 		Utils::$context['membergroups'] = CacheApi::quickGet('membergroup_list', 'Subs-Membergroups.php', 'cache_getMembergroupList', array());
 
 	// And back to normality.
-	Utils::$context['page_title'] = sprintf($txt['forum_index'], Utils::$context['forum_name']);
+	Utils::$context['page_title'] = sprintf(Lang::$txt['forum_index'], Utils::$context['forum_name']);
 
 	// Mark read button
 	Utils::$context['mark_read_button'] = array(
-		'markread' => array('text' => 'mark_as_read', 'image' => 'markread.png', 'custom' => 'data-confirm="' . $txt['are_sure_mark_read'] . '"', 'class' => 'you_sure', 'url' => Config::$scripturl . '?action=markasread;sa=all;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']),
+		'markread' => array('text' => 'mark_as_read', 'image' => 'markread.png', 'custom' => 'data-confirm="' . Lang::$txt['are_sure_mark_read'] . '"', 'class' => 'you_sure', 'url' => Config::$scripturl . '?action=markasread;sa=all;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']),
 	);
 
 	// Replace the collapse and expand default alts.
-	addJavaScriptVar('smf_expandAlt', $txt['show_category'], true);
-	addJavaScriptVar('smf_collapseAlt', $txt['hide_category'], true);
+	addJavaScriptVar('smf_expandAlt', Lang::$txt['show_category'], true);
+	addJavaScriptVar('smf_collapseAlt', Lang::$txt['hide_category'], true);
 
 	// Allow mods to add additional buttons here
 	call_integration_hook('integrate_mark_read_button');

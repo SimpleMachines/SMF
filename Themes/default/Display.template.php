@@ -11,6 +11,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 
 /**
@@ -18,20 +19,20 @@ use SMF\Utils;
  */
 function template_main()
 {
-	global $settings, $options, $txt;
+	global $settings, $options;
 
 	// Let them know, if their report was a success!
 	if (Utils::$context['report_sent'])
 		echo '
 		<div class="infobox">
-			', $txt['report_sent'], '
+			', Lang::$txt['report_sent'], '
 		</div>';
 
 	// Let them know why their message became unapproved.
 	if (Utils::$context['becomesUnapproved'])
 		echo '
 		<div class="noticebox">
-			', $txt['post_becomes_unapproved'], '
+			', Lang::$txt['post_becomes_unapproved'], '
 		</div>';
 
 	// Show new topic info here?
@@ -40,7 +41,7 @@ function template_main()
 			<h2 class="display_title">
 				<span id="top_subject">', Utils::$context['subject'], '</span>', (Utils::$context['is_locked']) ? ' <span class="main_icons lock"></span>' : '', (Utils::$context['is_sticky']) ? ' <span class="main_icons sticky"></span>' : '', '
 			</h2>
-			<p>', $txt['started_by'], ' ', Utils::$context['topic_poster_name'], ', ', Utils::$context['topic_started_time'], '</p>';
+			<p>', Lang::$txt['started_by'], ' ', Utils::$context['topic_poster_name'], ', ', Utils::$context['topic_started_time'], '</p>';
 
 	// Next - Prev
 	echo '
@@ -53,13 +54,13 @@ function template_main()
 
 		// Show just numbers...?
 		if ($settings['display_who_viewing'] == 1)
-			echo count(Utils::$context['view_members']), ' ', count(Utils::$context['view_members']) == 1 ? $txt['who_member'] : $txt['members'];
+			echo count(Utils::$context['view_members']), ' ', count(Utils::$context['view_members']) == 1 ? Lang::$txt['who_member'] : Lang::$txt['members'];
 		// Or show the actual people viewing the topic?
 		else
-			echo empty(Utils::$context['view_members_list']) ? '0 ' . $txt['members'] : implode(', ', Utils::$context['view_members_list']) . ((empty(Utils::$context['view_num_hidden']) || Utils::$context['can_moderate_forum']) ? '' : ' (+ ' . Utils::$context['view_num_hidden'] . ' ' . $txt['hidden'] . ')');
+			echo empty(Utils::$context['view_members_list']) ? '0 ' . Lang::$txt['members'] : implode(', ', Utils::$context['view_members_list']) . ((empty(Utils::$context['view_num_hidden']) || Utils::$context['can_moderate_forum']) ? '' : ' (+ ' . Utils::$context['view_num_hidden'] . ' ' . Lang::$txt['hidden'] . ')');
 
 		// Now show how many guests are here too.
-		echo $txt['who_and'], Utils::$context['view_num_guests'], ' ', Utils::$context['view_num_guests'] == 1 ? $txt['guest'] : $txt['guests'], $txt['who_viewing_topic'], '
+		echo Lang::$txt['who_and'], Utils::$context['view_num_guests'], ' ', Utils::$context['view_num_guests'] == 1 ? Lang::$txt['guest'] : Lang::$txt['guests'], Lang::$txt['who_viewing_topic'], '
 			</p>';
 	}
 
@@ -108,7 +109,7 @@ function template_main()
 
 			if (Utils::$context['allow_results_view'])
 				echo '
-					<p><strong>', $txt['poll_total_voters'], ':</strong> ', Utils::$context['poll']['total_votes'], '</p>';
+					<p><strong>', Lang::$txt['poll_total_voters'], ':</strong> ', Utils::$context['poll']['total_votes'], '</p>';
 		}
 		// They are allowed to vote! Go to it!
 		else
@@ -132,7 +133,7 @@ function template_main()
 			echo '
 						</ul>
 						<div class="submitbutton">
-							<input type="submit" value="', $txt['poll_vote'], '" class="button">
+							<input type="submit" value="', Lang::$txt['poll_vote'], '" class="button">
 							<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 						</div>
 					</form>';
@@ -141,7 +142,7 @@ function template_main()
 		// Is the clock ticking?
 		if (!empty(Utils::$context['poll']['expire_time']))
 			echo '
-					<p><strong>', (Utils::$context['poll']['is_expired'] ? $txt['poll_expired_on'] : $txt['poll_expires_on']), ':</strong> ', Utils::$context['poll']['expire_time'], '</p>';
+					<p><strong>', (Utils::$context['poll']['is_expired'] ? Lang::$txt['poll_expired_on'] : Lang::$txt['poll_expires_on']), ':</strong> ', Utils::$context['poll']['expire_time'], '</p>';
 
 		echo '
 				</div><!-- #poll_options -->
@@ -160,7 +161,7 @@ function template_main()
 	{
 		echo '
 		<div class="title_bar">
-			<h3 class="titlebg">', $txt['calendar_linked_events'], '</h3>
+			<h3 class="titlebg">', Lang::$txt['calendar_linked_events'], '</h3>
 		</div>
 		<div class="information">
 			<ul>';
@@ -172,10 +173,10 @@ function template_main()
 					<strong class="event_title"><a href="', Config::$scripturl, '?action=calendar;event=', $event['id'], '">', $event['title'], '</a></strong>';
 
 			if ($event['can_edit'])
-				echo ' <a href="' . $event['modify_href'] . '"><span class="main_icons calendar_modify" title="', $txt['calendar_edit'], '"></span></a>';
+				echo ' <a href="' . $event['modify_href'] . '"><span class="main_icons calendar_modify" title="', Lang::$txt['calendar_edit'], '"></span></a>';
 
 			if ($event['can_export'])
-				echo ' <a href="' . $event['export_href'] . '"><span class="main_icons calendar_export" title="', $txt['calendar_export'], '"></span></a>';
+				echo ' <a href="' . $event['export_href'] . '"><span class="main_icons calendar_export" title="', Lang::$txt['calendar_export'], '"></span></a>';
 
 			echo '
 					<br>';
@@ -232,7 +233,7 @@ function template_main()
 			', template_button_strip(Utils::$context['normal_buttons'], 'right'), '
 			', Utils::$context['menu_separator'], '
 			<div class="pagelinks floatleft">
-				<a href="#bot" class="button">', $txt['go_down'], '</a>
+				<a href="#bot" class="button">', Lang::$txt['go_down'], '</a>
 				', Utils::$context['page_index'], '
 			</div>';
 
@@ -240,8 +241,8 @@ function template_main()
 	if (!empty(Utils::$context['normal_buttons']))
 		echo '
 		<div class="mobile_buttons floatright">
-			<a class="button mobile_act">', $txt['mobile_action'], '</a>
-			', !empty(Utils::$context['mod_buttons']) ? '<a class="button mobile_mod">' . $txt['mobile_moderation'] . '</a>' : '', '
+			<a class="button mobile_act">', Lang::$txt['mobile_action'], '</a>
+			', !empty(Utils::$context['mod_buttons']) ? '<a class="button mobile_mod">' . Lang::$txt['mobile_moderation'] . '</a>' : '', '
 		</div>';
 
 	echo '
@@ -269,7 +270,7 @@ function template_main()
 			', template_button_strip(Utils::$context['normal_buttons'], 'right'), '
 			', Utils::$context['menu_separator'], '
 			<div class="pagelinks floatleft">
-				<a href="#main_content_section" class="button" id="bot">', $txt['go_up'], '</a>
+				<a href="#main_content_section" class="button" id="bot">', Lang::$txt['go_up'], '</a>
 				', Utils::$context['page_index'], '
 			</div>';
 
@@ -277,8 +278,8 @@ function template_main()
 	if (!empty(Utils::$context['normal_buttons']))
 		echo '
 		<div class="mobile_buttons floatright">
-			<a class="button mobile_act">', $txt['mobile_action'], '</a>
-			', !empty(Utils::$context['mod_buttons']) ? '<a class="button mobile_mod">' . $txt['mobile_moderation'] . '</a>' : '', '
+			<a class="button mobile_act">', Lang::$txt['mobile_action'], '</a>
+			', !empty(Utils::$context['mod_buttons']) ? '<a class="button mobile_mod">' . Lang::$txt['mobile_moderation'] . '</a>' : '', '
 		</div>';
 
 	echo '
@@ -306,7 +307,7 @@ function template_main()
 		<div id="mobile_action" class="popup_container">
 			<div class="popup_window description">
 				<div class="popup_heading">
-					', $txt['mobile_action'], '
+					', Lang::$txt['mobile_action'], '
 					<a href="javascript:void(0);" class="main_icons hide_popup"></a>
 				</div>
 				', template_button_strip(Utils::$context['normal_buttons']), '
@@ -319,7 +320,7 @@ function template_main()
 		<div id="mobile_moderation" class="popup_container">
 			<div class="popup_window description">
 				<div class="popup_heading">
-					', $txt['mobile_moderation'], '
+					', Lang::$txt['mobile_moderation'], '
 					<a href="javascript:void(0);" class="main_icons hide_popup"></a>
 				</div>
 				<div id="moderationbuttons_mobile">
@@ -344,17 +345,17 @@ function template_main()
 				sButtonStripDisplay: \'moderationbuttons_strip\',
 				bUseImageButton: false,
 				bCanRemove: ', Utils::$context['can_remove_post'] ? 'true' : 'false', ',
-				sRemoveButtonLabel: \'', $txt['quickmod_delete_selected'], '\',
+				sRemoveButtonLabel: \'', Lang::$txt['quickmod_delete_selected'], '\',
 				sRemoveButtonImage: \'delete_selected.png\',
-				sRemoveButtonConfirm: \'', $txt['quickmod_confirm'], '\',
+				sRemoveButtonConfirm: \'', Lang::$txt['quickmod_confirm'], '\',
 				bCanRestore: ', Utils::$context['can_restore_msg'] ? 'true' : 'false', ',
-				sRestoreButtonLabel: \'', $txt['quick_mod_restore'], '\',
+				sRestoreButtonLabel: \'', Lang::$txt['quick_mod_restore'], '\',
 				sRestoreButtonImage: \'restore_selected.png\',
-				sRestoreButtonConfirm: \'', $txt['quickmod_confirm'], '\',
+				sRestoreButtonConfirm: \'', Lang::$txt['quickmod_confirm'], '\',
 				bCanSplit: ', Utils::$context['can_split'] ? 'true' : 'false', ',
-				sSplitButtonLabel: \'', $txt['quickmod_split_selected'], '\',
+				sSplitButtonLabel: \'', Lang::$txt['quickmod_split_selected'], '\',
 				sSplitButtonImage: \'split_selected.png\',
-				sSplitButtonConfirm: \'', $txt['quickmod_confirm'], '\',
+				sSplitButtonConfirm: \'', Lang::$txt['quickmod_confirm'], '\',
 				sFormId: \'quickModForm\'
 			});';
 
@@ -370,17 +371,17 @@ function template_main()
 				sButtonStripDisplay: \'moderationbuttons_strip_mobile\',
 				bUseImageButton: false,
 				bCanRemove: ', Utils::$context['can_remove_post'] ? 'true' : 'false', ',
-				sRemoveButtonLabel: \'', $txt['quickmod_delete_selected'], '\',
+				sRemoveButtonLabel: \'', Lang::$txt['quickmod_delete_selected'], '\',
 				sRemoveButtonImage: \'delete_selected.png\',
-				sRemoveButtonConfirm: \'', $txt['quickmod_confirm'], '\',
+				sRemoveButtonConfirm: \'', Lang::$txt['quickmod_confirm'], '\',
 				bCanRestore: ', Utils::$context['can_restore_msg'] ? 'true' : 'false', ',
-				sRestoreButtonLabel: \'', $txt['quick_mod_restore'], '\',
+				sRestoreButtonLabel: \'', Lang::$txt['quick_mod_restore'], '\',
 				sRestoreButtonImage: \'restore_selected.png\',
-				sRestoreButtonConfirm: \'', $txt['quickmod_confirm'], '\',
+				sRestoreButtonConfirm: \'', Lang::$txt['quickmod_confirm'], '\',
 				bCanSplit: ', Utils::$context['can_split'] ? 'true' : 'false', ',
-				sSplitButtonLabel: \'', $txt['quickmod_split_selected'], '\',
+				sSplitButtonLabel: \'', Lang::$txt['quickmod_split_selected'], '\',
 				sSplitButtonImage: \'split_selected.png\',
-				sSplitButtonConfirm: \'', $txt['quickmod_confirm'], '\',
+				sSplitButtonConfirm: \'', Lang::$txt['quickmod_confirm'], '\',
 				sFormId: \'quickModForm\'
 			});';
 	}
@@ -401,14 +402,14 @@ function template_main()
 							<input type="hidden" name="topic" value="' . Utils::$context['current_topic'] . '">
 							<input type="hidden" name="msg" value="%msg_id%">
 							<div class="righttext quickModifyMargin">
-								<input type="submit" name="post" value="' . $txt['save'] . '" tabindex="' . Utils::$context['tabindex']++ . '" onclick="return oQuickModify.modifySave(\'' . Utils::$context['session_id'] . '\', \'' . Utils::$context['session_var'] . '\');" accesskey="s" class="button">' . (Utils::$context['show_spellchecking'] ? ' <input type="button" value="' . $txt['spell_check'] . '" tabindex="' . Utils::$context['tabindex']++ . '" onclick="spellCheck(\'quickModForm\', \'message\');" class="button">' : '') . ' <input type="submit" name="cancel" value="' . $txt['modify_cancel'] . '" tabindex="' . Utils::$context['tabindex']++ . '" onclick="return oQuickModify.modifyCancel();" class="button">
+								<input type="submit" name="post" value="' . Lang::$txt['save'] . '" tabindex="' . Utils::$context['tabindex']++ . '" onclick="return oQuickModify.modifySave(\'' . Utils::$context['session_id'] . '\', \'' . Utils::$context['session_var'] . '\');" accesskey="s" class="button">' . (Utils::$context['show_spellchecking'] ? ' <input type="button" value="' . Lang::$txt['spell_check'] . '" tabindex="' . Utils::$context['tabindex']++ . '" onclick="spellCheck(\'quickModForm\', \'message\');" class="button">' : '') . ' <input type="submit" name="cancel" value="' . Lang::$txt['modify_cancel'] . '" tabindex="' . Utils::$context['tabindex']++ . '" onclick="return oQuickModify.modifyCancel();" class="button">
 							</div>
 						</div>'), ',
 					sTemplateSubjectEdit: ', JavaScriptEscape('<input type="text" name="subject" value="%subject%" size="80" maxlength="80" tabindex="' . Utils::$context['tabindex']++ . '">'), ',
 					sTemplateBodyNormal: ', JavaScriptEscape('%body%'), ',
 					sTemplateSubjectNormal: ', JavaScriptEscape('<a href="' . Config::$scripturl . '?topic=' . Utils::$context['current_topic'] . '.msg%msg_id%#msg%msg_id%" rel="nofollow">%subject%</a>'), ',
 					sTemplateTopSubject: ', JavaScriptEscape('%subject%'), ',
-					sTemplateReasonEdit: ', JavaScriptEscape($txt['reason_for_edit'] . ': <input type="text" name="modify_reason" value="%modify_reason%" size="80" maxlength="80" tabindex="' . Utils::$context['tabindex']++ . '" class="quickModifyMargin">'), ',
+					sTemplateReasonEdit: ', JavaScriptEscape(Lang::$txt['reason_for_edit'] . ': <input type="text" name="modify_reason" value="%modify_reason%" size="80" maxlength="80" tabindex="' . Utils::$context['tabindex']++ . '" class="quickModifyMargin">'), ',
 					sTemplateReasonNormal: ', JavaScriptEscape('%modify_text'), ',
 					sErrorBorderStyle: ', JavaScriptEscape('1px solid red'), (Utils::$context['can_reply']) ? ',
 					sFormRemoveAccessKeys: \'postmodify\'' : '', '
@@ -424,7 +425,7 @@ function template_main()
 					sBoardPrefix: "=> ",
 					sCatSeparator: "-----------------------------",
 					sCatPrefix: "",
-					sGoButtonLabel: "', $txt['go'], '"
+					sGoButtonLabel: "', Lang::$txt['go'], '"
 				});
 
 				aIconLists[aIconLists.length] = new IconList({
@@ -436,7 +437,7 @@ function template_main()
 					iTopicId: ', Utils::$context['current_topic'], ',
 					sSessionId: smf_session_id,
 					sSessionVar: smf_session_var,
-					sLabelIconList: "', $txt['message_icon'], '",
+					sLabelIconList: "', Lang::$txt['message_icon'], '",
 					sBoxBackground: "transparent",
 					sBoxBackgroundHover: "#ffffff",
 					iBoxBorderWidthHover: 1,
@@ -452,7 +453,7 @@ function template_main()
 
 	if (!empty(Utils::$context['ignoredMsgs']))
 		echo '
-			ignore_toggles([', implode(', ', Utils::$context['ignoredMsgs']), '], ', JavaScriptEscape($txt['show_ignore_user_post']), ');';
+			ignore_toggles([', implode(', ', Utils::$context['ignoredMsgs']), '], ', JavaScriptEscape(Lang::$txt['show_ignore_user_post']), ');';
 
 	echo '
 		</script>';
@@ -465,7 +466,7 @@ function template_main()
  */
 function template_single_post($message)
 {
-	global $settings, $options, $txt;
+	global $settings, $options;
 
 	$ignoring = false;
 
@@ -573,7 +574,7 @@ function template_single_post($message)
 		// Show how many posts they have made.
 		if (!isset(Utils::$context['disabled_fields']['posts']))
 			echo '
-								<li class="postcount">', $txt['member_postcount'], ': ', $message['member']['posts'], '</li>';
+								<li class="postcount">', Lang::$txt['member_postcount'], ': ', $message['member']['posts'], '</li>';
 
 		// Show their personal text?
 		if (!empty(Config::$modSettings['show_blurb']) && !empty($message['member']['blurb']))
@@ -606,17 +607,17 @@ function template_single_post($message)
 			// Don't show an icon if they haven't specified a website.
 			if (!empty($message['member']['website']['url']) && !isset(Utils::$context['disabled_fields']['website']))
 				echo '
-										<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener">', ($settings['use_image_buttons'] ? '<span class="main_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : $txt['www']), '</a></li>';
+										<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener">', ($settings['use_image_buttons'] ? '<span class="main_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : Lang::$txt['www']), '</a></li>';
 
 			// Since we know this person isn't a guest, you *can* message them.
 			if (Utils::$context['can_send_pm'])
 				echo '
-										<li><a href="', Config::$scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline'], '">', $settings['use_image_buttons'] ? '<span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . ($message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline']) . '"></span> ' : ($message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline']), '</a></li>';
+										<li><a href="', Config::$scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline'], '">', $settings['use_image_buttons'] ? '<span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . ($message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline']) . '"></span> ' : ($message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline']), '</a></li>';
 
 			// Show the email if necessary
 			if (!empty($message['member']['email']) && $message['member']['show_email'])
 				echo '
-										<li class="email"><a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . $txt['email'] . '"></span>' : $txt['email']), '</a></li>';
+										<li class="email"><a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::$txt['email'] . '"></span>' : Lang::$txt['email']), '</a></li>';
 
 			echo '
 									</ol>
@@ -633,41 +634,41 @@ function template_single_post($message)
 	elseif (!empty($message['member']['email']) && $message['member']['show_email'])
 		echo '
 								<li class="email">
-									<a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . $txt['email'] . '"></span>' : $txt['email']), '</a>
+									<a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::$txt['email'] . '"></span>' : Lang::$txt['email']), '</a>
 								</li>';
 
 	// Show the IP to this user for this post - because you can moderate?
 	if (!empty(Utils::$context['can_moderate_forum']) && !empty($message['member']['ip']))
 		echo '
 								<li class="poster_ip">
-									<a href="', Config::$scripturl, '?action=', !empty($message['member']['is_guest']) ? 'trackip' : 'profile;area=tracking;sa=ip;u=' . $message['member']['id'], ';searchip=', $message['member']['ip'], '" data-hover="', $message['member']['ip'], '" class="show_on_hover"><span>', $txt['show_ip'], '</span></a> <a href="', Config::$scripturl, '?action=helpadmin;help=see_admin_ip" onclick="return reqOverlayDiv(this.href);" class="help">(?)</a>
+									<a href="', Config::$scripturl, '?action=', !empty($message['member']['is_guest']) ? 'trackip' : 'profile;area=tracking;sa=ip;u=' . $message['member']['id'], ';searchip=', $message['member']['ip'], '" data-hover="', $message['member']['ip'], '" class="show_on_hover"><span>', Lang::$txt['show_ip'], '</span></a> <a href="', Config::$scripturl, '?action=helpadmin;help=see_admin_ip" onclick="return reqOverlayDiv(this.href);" class="help">(?)</a>
 								</li>';
 
 	// Or, should we show it because this is you?
 	elseif ($message['can_see_ip'])
 		echo '
 								<li class="poster_ip">
-									<a href="', Config::$scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help show_on_hover" data-hover="', $message['member']['ip'], '"><span>', $txt['show_ip'], '</span></a>
+									<a href="', Config::$scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help show_on_hover" data-hover="', $message['member']['ip'], '"><span>', Lang::$txt['show_ip'], '</span></a>
 								</li>';
 
 	// Okay, are you at least logged in? Then we can show something about why IPs are logged...
 	elseif (!Utils::$context['user']['is_guest'])
 		echo '
 								<li class="poster_ip">
-									<a href="', Config::$scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', $txt['logged'], '</a>
+									<a href="', Config::$scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', Lang::$txt['logged'], '</a>
 								</li>';
 
 	// Otherwise, you see NOTHING!
 	else
 		echo '
-								<li class="poster_ip">', $txt['logged'], '</li>';
+								<li class="poster_ip">', Lang::$txt['logged'], '</li>';
 
 	// Are we showing the warning status?
 	// Don't show these things for guests.
 	if (!$message['member']['is_guest'] && $message['member']['can_see_warning'])
 		echo '
 								<li class="warning">
-									', Utils::$context['can_issue_warning'] ? '<a href="' . Config::$scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<span class="main_icons warning_', $message['member']['warning_status'], '"></span> ', Utils::$context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', $txt['warn_' . $message['member']['warning_status']], '</span>
+									', Utils::$context['can_issue_warning'] ? '<a href="' . Config::$scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<span class="main_icons warning_', $message['member']['warning_status'], '"></span> ', Utils::$context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', Lang::$txt['warn_' . $message['member']['warning_status']], '</span>
 								</li>';
 
 	// Are there any custom fields to show at the bottom of the poster info?
@@ -695,7 +696,7 @@ function template_single_post($message)
 									<span class="messageicon" ', ($message['icon_url'] === $settings['images_url'] . '/post/xx.png' && !$message['can_modify']) ? ' style="position: absolute; z-index: -1;"' : '', '>
 										<img src="', $message['icon_url'] . '" alt=""', $message['can_modify'] ? ' id="msg_icon_' . $message['id'] . '"' : '', '>
 									</span>
-									<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? sprintf($txt['reply_number'], $message['counter'], ' - ') : '', $message['subject'], '" class="smalltext">', $message['time'], '</a>
+									<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? sprintf(Lang::$txt['reply_number'], $message['counter'], ' - ') : '', $message['subject'], '" class="smalltext">', $message['time'], '</a>
 									<span class="spacer"></span>';
 
 	// Show "<< Last Edit: Time by Person >>" if this post was edited. But we need the div even if it wasn't modified!
@@ -717,8 +718,8 @@ function template_single_post($message)
 	if ($ignoring)
 		echo '
 							<div id="msg_', $message['id'], '_ignored_prompt" class="noticebox">
-								', $txt['ignoring_user'], '
-								<a href="#" id="msg_', $message['id'], '_ignored_link" style="display: none;">', $txt['show_ignore_user_post'], '</a>
+								', Lang::$txt['ignoring_user'], '
+								<a href="#" id="msg_', $message['id'], '_ignored_link" style="display: none;">', Lang::$txt['show_ignore_user_post'], '</a>
 							</div>';
 
 	// Show the post itself, finally!
@@ -728,7 +729,7 @@ function template_single_post($message)
 	if (!$message['approved'] && $message['member']['id'] != 0 && $message['member']['id'] == Utils::$context['user']['id'])
 		echo '
 								<div class="noticebox">
-									', $txt['post_awaiting_approval'], '
+									', Lang::$txt['post_awaiting_approval'], '
 								</div>';
 	echo '
 								<div class="inner" data-msgid="', $message['id'], '" id="msg_', $message['id'], '"', $ignoring ? ' style="display:none;"' : '', '>
@@ -763,11 +764,11 @@ function template_single_post($message)
 				echo '
 								<fieldset>
 									<legend>
-										', $txt['attach_awaiting_approve'];
+										', Lang::$txt['attach_awaiting_approve'];
 
 				if (Utils::$context['can_approve'])
 					echo '
-										&nbsp;[<a href="', Config::$scripturl, '?action=attachapprove;sa=all;mid=', $message['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', $txt['approve_all'], '</a>]';
+										&nbsp;[<a href="', Config::$scripturl, '?action=attachapprove;sa=all;mid=', $message['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::$txt['approve_all'], '</a>]';
 
 				echo '
 									</legend>';
@@ -798,9 +799,9 @@ function template_single_post($message)
 
 			if (!$attachment['is_approved'] && Utils::$context['can_approve'])
 				echo '
-											[<a href="', Config::$scripturl, '?action=attachapprove;sa=approve;aid=', $attachment['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', $txt['approve'], '</a>] [<a href="', Config::$scripturl, '?action=attachapprove;sa=reject;aid=', $attachment['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', $txt['delete'], '</a>] ';
+											[<a href="', Config::$scripturl, '?action=attachapprove;sa=approve;aid=', $attachment['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::$txt['approve'], '</a>] [<a href="', Config::$scripturl, '?action=attachapprove;sa=reject;aid=', $attachment['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::$txt['delete'], '</a>] ';
 			echo '
-											<br>', $attachment['size'], ($attachment['is_image'] ? ', ' . $attachment['real_width'] . 'x' . $attachment['real_height'] . '<br>' . sprintf($txt['attach_viewed'], $attachment['downloads']) : '<br>' . sprintf($txt['attach_downloaded'], $attachment['downloads'])), '
+											<br>', $attachment['size'], ($attachment['is_image'] ? ', ' . $attachment['real_width'] . 'x' . $attachment['real_height'] . '<br>' . sprintf(Lang::$txt['attach_viewed'], $attachment['downloads']) : '<br>' . sprintf(Lang::$txt['attach_downloaded'], $attachment['downloads'])), '
 										</div><!-- .attachments_bot -->';
 
 			echo '
@@ -831,7 +832,7 @@ function template_single_post($message)
 		{
 			echo '
 									<li class="smflikebutton" id="msg_', $message['id'], '_likes"', $ignoring ? ' style="display:none;"' : '', '>
-										<a href="', Config::$scripturl, '?action=likes;ltype=msg;sa=like;like=', $message['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="msg_like"><span class="main_icons ', $message['likes']['you'] ? 'unlike' : 'like', '"></span> ', $message['likes']['you'] ? $txt['unlike'] : $txt['like'], '</a>
+										<a href="', Config::$scripturl, '?action=likes;ltype=msg;sa=like;like=', $message['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="msg_like"><span class="main_icons ', $message['likes']['you'] ? 'unlike' : 'like', '"></span> ', $message['likes']['you'] ? Lang::$txt['unlike'] : Lang::$txt['like'], '</a>
 									</li>';
 		}
 
@@ -847,11 +848,11 @@ function template_single_post($message)
 				$count--;
 			}
 
-			$base .= (isset($txt[$base . $count])) ? $count : 'n';
+			$base .= (isset(Lang::$txt[$base . $count])) ? $count : 'n';
 
 			echo '
 									<li class="like_count smalltext">
-										', sprintf($txt[$base], Config::$scripturl . '?action=likes;sa=view;ltype=msg;like=' . $message['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], comma_format($count)), '
+										', sprintf(Lang::$txt[$base], Config::$scripturl . '?action=likes;sa=view;ltype=msg;like=' . $message['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], Lang::numberFormat($count)), '
 									</li>';
 		}
 
@@ -918,14 +919,14 @@ function template_single_post($message)
  */
 function template_quickreply()
 {
-	global $options, $txt;
+	global $options;
 
 	echo '
 		<a id="quickreply_anchor"></a>
 		<div class="tborder" id="quickreply">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', $txt['quick_reply'], '
+					', Lang::$txt['quick_reply'], '
 				</h3>
 			</div>
 			<div id="quickreply_options">
@@ -934,17 +935,17 @@ function template_quickreply()
 	// Is the topic locked?
 	if (Utils::$context['is_locked'])
 		echo '
-					<p class="alert smalltext">', $txt['quick_reply_warning'], '</p>';
+					<p class="alert smalltext">', Lang::$txt['quick_reply_warning'], '</p>';
 
 	// Show a warning if the topic is old
 	if (!empty(Utils::$context['oldTopicError']))
 		echo '
-					<p class="alert smalltext">', sprintf($txt['error_old_topic'], Config::$modSettings['oldTopicDays']), '</p>';
+					<p class="alert smalltext">', sprintf(Lang::$txt['error_old_topic'], Config::$modSettings['oldTopicDays']), '</p>';
 
 	// Does the post need approval?
 	if (!Utils::$context['can_reply_approved'])
 		echo '
-					<p><em>', $txt['wait_for_approval'], '</em></p>';
+					<p><em>', Lang::$txt['wait_for_approval'], '</em></p>';
 
 	echo '
 					<form action="', Config::$scripturl, '?board=', Utils::$context['current_board'], ';action=post2" method="post" accept-charset="', Utils::$context['character_set'], '" name="postmodify" id="postmodify" onsubmit="submitonce(this);">
@@ -965,7 +966,7 @@ function template_quickreply()
 		echo '
 						<dl id="post_header">
 							<dt>
-								', $txt['name'], ':
+								', Lang::$txt['name'], ':
 							</dt>
 							<dd>
 								<input type="text" name="guestname" size="25" value="', Utils::$context['name'], '" tabindex="', Utils::$context['tabindex']++, '" required>
@@ -975,7 +976,7 @@ function template_quickreply()
 		{
 			echo '
 							<dt>
-								', $txt['email'], ':
+								', Lang::$txt['email'], ':
 							</dt>
 							<dd>
 								<input type="email" name="email" size="25" value="', Utils::$context['email'], '" tabindex="', Utils::$context['tabindex']++, '" required>
@@ -1002,7 +1003,7 @@ function template_quickreply()
 	if (Utils::$context['require_verification'])
 		echo '
 						<div class="post_verification">
-							<strong>', $txt['verification'], ':</strong>
+							<strong>', Lang::$txt['verification'], ':</strong>
 							', template_control_verification(Utils::$context['visual_verification_id'], 'all'), '
 						</div>';
 

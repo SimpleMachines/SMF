@@ -15,6 +15,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -143,13 +144,11 @@ function modifyCategory($category_id, $catOptions)
  */
 function createCategory($catOptions)
 {
-	global $txt;
-
 	// Check required values.
 	if (!isset($catOptions['cat_name']) || trim($catOptions['cat_name']) == '')
 	{
-		loadLanguage('Errors');
-		trigger_error($txt['create_category_no_name'], E_USER_ERROR);
+		Lang::load('Errors');
+		trigger_error(Lang::$txt['create_category_no_name'], E_USER_ERROR);
 	}
 
 	// Set default values.
@@ -207,7 +206,7 @@ function createCategory($catOptions)
  */
 function deleteCategories($categories, $moveBoardsTo = null)
 {
-	global $cat_tree, $txt;
+	global $cat_tree;
 
 	require_once(Config::$sourcedir . '/Subs-Boards.php');
 
@@ -238,8 +237,8 @@ function deleteCategories($categories, $moveBoardsTo = null)
 	// Make sure the safe category is really safe.
 	elseif (in_array($moveBoardsTo, $categories))
 	{
-		loadLanguage('Errors');
-		trigger_error($txt['cannot_move_to_deleted_category'], E_USER_ERROR);
+		Lang::load('Errors');
+		trigger_error(Lang::$txt['cannot_move_to_deleted_category'], E_USER_ERROR);
 	}
 
 	// Move the boards inside the categories to a safe category.

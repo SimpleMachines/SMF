@@ -17,6 +17,7 @@ use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Forum;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -55,8 +56,6 @@ class_exists('SMF\\Utils');
  */
 function updateStats($type, $parameter1 = null, $parameter2 = null)
 {
-	global $txt;
-
 	switch ($type)
 	{
 		case 'member':
@@ -254,8 +253,8 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 			break;
 
 		default:
-			loadLanguage('Errors');
-			trigger_error(sprintf($txt['invalid_statistic_type'], $type), E_USER_NOTICE);
+			Lang::load('Errors');
+			trigger_error(sprintf(Lang::$txt['invalid_statistic_type'], $type), E_USER_NOTICE);
 	}
 }
 
@@ -477,7 +476,7 @@ function updateMemberData($members, $data)
  */
 function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flexible_start = false, $show_prevnext = true)
 {
-	global $settings, $txt;
+	global $settings;
 
 	// Save whether $start was less than 0 or not.
 	$start = (int) $start;
@@ -494,7 +493,7 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 	// !!! Should this be moved to loadTheme()?
 	if (!isset($settings['page_index']))
 		$settings['page_index'] = array(
-			'extra_before' => '<span class="pages">' . $txt['pages'] . '</span>',
+			'extra_before' => '<span class="pages">' . Lang::$txt['pages'] . '</span>',
 			'previous_page' => '<span class="main_icons previous_page"></span>',
 			'current_page' => '<span class="current_page">%1$d</span> ',
 			'page' => '<a class="nav_page" href="{URL}">%2$s</a> ',
@@ -579,38 +578,6 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 }
 
 /**
- * - Formats a number.
- * - uses the format of number_format to decide how to format the number.
- *   for example, it might display "1 234,50".
- * - caches the formatting data from the setting for optimization.
- *
- * @param float $number A number
- * @param bool|int $override_decimal_count If set, will use the specified number of decimal places. Otherwise it's automatically determined
- * @return string A formatted number
- */
-function comma_format($number, $override_decimal_count = false)
-{
-	global $txt;
-	static $thousands_separator = null, $decimal_separator = null, $decimal_count = null;
-
-	// Cache these values...
-	if ($decimal_separator === null)
-	{
-		// Not set for whatever reason?
-		if (empty($txt['number_format']) || preg_match('~^1([^\d]*)?234([^\d]*)(0*?)$~', $txt['number_format'], $matches) != 1)
-			return $number;
-
-		// Cache these each load...
-		$thousands_separator = $matches[1];
-		$decimal_separator = $matches[2];
-		$decimal_count = strlen($matches[3]);
-	}
-
-	// Format the string with our friend, number_format.
-	return number_format($number, (float) $number === $number ? ($override_decimal_count === false ? $decimal_count : $override_decimal_count) : 0, $decimal_separator, $thousands_separator);
-}
-
-/**
  * Format a time to make it look purdy.
  *
  * - returns a pretty formatted version of time based on the user's format in $user_info['time_format'].
@@ -631,7 +598,7 @@ function comma_format($number, $override_decimal_count = false)
  */
 function timeformat($log_time, $show_today = true, $tzid = null)
 {
-	global $user_info, $txt;
+	global $user_info;
 	static $today;
 
 	// Ensure required values are set
@@ -656,12 +623,12 @@ function timeformat($log_time, $show_today = true, $tzid = null)
 		// Today.
 		elseif ($log_time >= $today[$tzid])
 		{
-			$prefix = $txt['today'];
+			$prefix = Lang::$txt['today'];
 		}
 		// Yesterday.
 		elseif (Config::$modSettings['todayMod'] > 1 && $log_time >= $today[$tzid] - 86400)
 		{
-			$prefix = $txt['yesterday'];
+			$prefix = Lang::$txt['yesterday'];
 		}
 	}
 
@@ -820,8 +787,6 @@ function get_date_or_time_format($type = '', $format = '')
  */
 function smf_strftime(string $format, int $timestamp = null, string $tzid = null)
 {
-	global $txt;
-
 	static $dates = array();
 
 	// Set default values as necessary.
@@ -868,8 +833,8 @@ function smf_strftime(string $format, int $timestamp = null, string $tzid = null
 
 	$format_equivalents = array(
 		// Day
-		'a' => 'D', // Complex: prefer $txt strings if available.
-		'A' => 'l', // Complex: prefer $txt strings if available.
+		'a' => 'D', // Complex: prefer Lang::$txt strings if available.
+		'A' => 'l', // Complex: prefer Lang::$txt strings if available.
 		'e' => 'j', // Complex: sprintf to prepend whitespace.
 		'd' => 'd',
 		'j' => 'z', // Complex: must add one and then sprintf to prepend zeros.
@@ -880,8 +845,8 @@ function smf_strftime(string $format, int $timestamp = null, string $tzid = null
 		'V' => 'W',
 		'W' => 'z_w_1', // Complex: calculated from these other values.
 		// Month
-		'b' => 'M', // Complex: prefer $txt strings if available.
-		'B' => 'F', // Complex: prefer $txt strings if available.
+		'b' => 'M', // Complex: prefer Lang::$txt strings if available.
+		'B' => 'F', // Complex: prefer Lang::$txt strings if available.
 		'm' => 'm',
 		// Year
 		'C' => 'Y', // Complex: Get 'Y' then truncate to first two digits.
@@ -895,8 +860,8 @@ function smf_strftime(string $format, int $timestamp = null, string $tzid = null
 		'I' => 'h',
 		'l' => 'g', // Complex: sprintf to prepend whitespace.
 		'M' => 'i',
-		'p' => 'A', // Complex: prefer $txt strings if available.
-		'P' => 'a', // Complex: prefer $txt strings if available.
+		'p' => 'A', // Complex: prefer Lang::$txt strings if available.
+		'P' => 'a', // Complex: prefer Lang::$txt strings if available.
 		'S' => 's',
 		'z' => 'O',
 		'Z' => 'T',
@@ -972,25 +937,25 @@ function smf_strftime(string $format, int $timestamp = null, string $tzid = null
 
 			$placeholder = "\xEE\x84\x80" . $f . $placeholder_end;
 
-			// Check whether $txt contains all expected strings.
+			// Check whether Lang::$txt contains all expected strings.
 			// If not, use English default.
 			$txt_strings_exist = true;
 			for ($num = $min; $num <= $max; $num++)
 			{
-				if (!isset($txt[$key][$num]))
+				if (!isset(Lang::$txt[$key][$num]))
 				{
 					$txt_strings_exist = false;
 					break;
 				}
 				else
-					$placeholders[str_replace($f, $num, $placeholder)] = $txt[$key][$num];
+					$placeholders[str_replace($f, $num, $placeholder)] = Lang::$txt[$key][$num];
 			}
 
 			$parts[$i] = $txt_strings_exist ? $placeholder : $format_equivalents[$parts[$i]];
 		}
 		elseif (in_array($parts[$i], array('p', 'P')))
 		{
-			if (!isset($txt['time_am']) || !isset($txt['time_pm']))
+			if (!isset(Lang::$txt['time_am']) || !isset(Lang::$txt['time_pm']))
 				continue;
 
 			$placeholder = "\xEE\x84\x90" . $format_equivalents[$parts[$i]] . "\xEE\x84\x91";
@@ -999,14 +964,14 @@ function smf_strftime(string $format, int $timestamp = null, string $tzid = null
 			{
 				// Lower case
 				case 'p':
-					$placeholders[str_replace($format_equivalents[$parts[$i]], 'AM', $placeholder)] = Utils::strtoupper($txt['time_am']);
-					$placeholders[str_replace($format_equivalents[$parts[$i]], 'PM', $placeholder)] = Utils::strtoupper($txt['time_pm']);
+					$placeholders[str_replace($format_equivalents[$parts[$i]], 'AM', $placeholder)] = Utils::strtoupper(Lang::$txt['time_am']);
+					$placeholders[str_replace($format_equivalents[$parts[$i]], 'PM', $placeholder)] = Utils::strtoupper(Lang::$txt['time_pm']);
 					break;
 
 				// Upper case
 				case 'P':
-					$placeholders[str_replace($format_equivalents[$parts[$i]], 'am', $placeholder)] = Utils::strtolower($txt['time_am']);
-					$placeholders[str_replace($format_equivalents[$parts[$i]], 'pm', $placeholder)] = Utils::strtolower($txt['time_pm']);
+					$placeholders[str_replace($format_equivalents[$parts[$i]], 'am', $placeholder)] = Utils::strtolower(Lang::$txt['time_am']);
+					$placeholders[str_replace($format_equivalents[$parts[$i]], 'pm', $placeholder)] = Utils::strtolower(Lang::$txt['time_pm']);
 					break;
 			}
 
@@ -1332,7 +1297,7 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
  */
 function obExit($header = null, $do_footer = null, $from_index = false, $from_fatal_error = false)
 {
-	global $settings, $txt;
+	global $settings;
 	static $header_done = false, $footer_done = false, $level = 0, $has_fatal_error = false;
 
 	// Attempt to prevent a recursive loop.
@@ -1360,7 +1325,7 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 	{
 		// Was the page title set last minute? Also update the HTML safe one.
 		if (!empty(Utils::$context['page_title']) && empty(Utils::$context['page_title_html_safe']))
-			Utils::$context['page_title_html_safe'] = Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title'])) . (!empty(Utils::$context['current_page']) ? ' - ' . $txt['page'] . ' ' . (Utils::$context['current_page'] + 1) : '');
+			Utils::$context['page_title_html_safe'] = Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title'])) . (!empty(Utils::$context['current_page']) ? ' - ' . Lang::$txt['page'] . ' ' . (Utils::$context['current_page'] + 1) : '');
 
 		// Start up the session URL fixer.
 		ob_start('ob_sessrewrite');
@@ -1511,7 +1476,7 @@ function url_image_size($url)
  */
 function setupThemeContext($forceload = false)
 {
-	global $user_info, $settings, $options, $txt;
+	global $user_info, $settings, $options;
 
 	static $loaded = false;
 
@@ -1597,15 +1562,15 @@ function setupThemeContext($forceload = false)
 		addInlineJavaScript('
 		jQuery(document).ready(function($) {
 			new smc_Popup({
-				heading: ' . JavaScriptEscape($txt['show_personal_messages_heading']) . ',
-				content: ' . JavaScriptEscape(sprintf($txt['show_personal_messages'], Utils::$context['user']['unread_messages'], Config::$scripturl . '?action=pm')) . ',
+				heading: ' . JavaScriptEscape(Lang::$txt['show_personal_messages_heading']) . ',
+				content: ' . JavaScriptEscape(sprintf(Lang::$txt['show_personal_messages'], Utils::$context['user']['unread_messages'], Config::$scripturl . '?action=pm')) . ',
 				icon_class: \'main_icons mail_new\'
 			});
 		});');
 
 	// Add a generic "Are you sure?" confirmation message.
 	addInlineJavaScript('
-	var smf_you_sure =' . JavaScriptEscape($txt['quickmod_confirm']) . ';');
+	var smf_you_sure =' . JavaScriptEscape(Lang::$txt['quickmod_confirm']) . ';');
 
 	// Now add the capping code for avatars.
 	if (!empty(Config::$modSettings['avatar_max_width_external']) && !empty(Config::$modSettings['avatar_max_height_external']) && !empty(Config::$modSettings['avatar_action_too_large']) && Config::$modSettings['avatar_action_too_large'] == 'option_css_resize')
@@ -1629,12 +1594,12 @@ function setupThemeContext($forceload = false)
 		'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . Config::$modSettings['latestMember'] . '">' . Config::$modSettings['latestRealName'] . '</a>',
 	);
 	Utils::$context['common_stats'] = array(
-		'total_posts' => comma_format(Config::$modSettings['totalMessages']),
-		'total_topics' => comma_format(Config::$modSettings['totalTopics']),
-		'total_members' => comma_format(Config::$modSettings['totalMembers']),
+		'total_posts' => Lang::numberFormat(Config::$modSettings['totalMessages']),
+		'total_topics' => Lang::numberFormat(Config::$modSettings['totalTopics']),
+		'total_members' => Lang::numberFormat(Config::$modSettings['totalMembers']),
 		'latest_member' => Utils::$context['common_stats']['latest_member'],
 	);
-	Utils::$context['common_stats']['boardindex_total_posts'] = sprintf($txt['boardindex_total_posts'], Utils::$context['common_stats']['total_posts'], Utils::$context['common_stats']['total_topics'], Utils::$context['common_stats']['total_members']);
+	Utils::$context['common_stats']['boardindex_total_posts'] = sprintf(Lang::$txt['boardindex_total_posts'], Utils::$context['common_stats']['total_posts'], Utils::$context['common_stats']['total_topics'], Utils::$context['common_stats']['total_members']);
 
 	if (empty($settings['theme_version']))
 		addJavaScriptVar('smf_scripturl', Config::$scripturl);
@@ -1643,7 +1608,7 @@ function setupThemeContext($forceload = false)
 		Utils::$context['page_title'] = '';
 
 	// Set some specific vars.
-	Utils::$context['page_title_html_safe'] = Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title'])) . (!empty(Utils::$context['current_page']) ? ' - ' . $txt['page'] . ' ' . (Utils::$context['current_page'] + 1) : '');
+	Utils::$context['page_title_html_safe'] = Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title'])) . (!empty(Utils::$context['current_page']) ? ' - ' . Lang::$txt['page'] . ' ' . (Utils::$context['current_page'] + 1) : '');
 	Utils::$context['meta_keywords'] = !empty(Config::$modSettings['meta_keywords']) ? Utils::htmlspecialchars(Config::$modSettings['meta_keywords']) : '';
 
 	// Content related meta tags, including Open Graph
@@ -1739,7 +1704,7 @@ function memoryReturnBytes($val)
  */
 function template_header()
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	setupThemeContext();
 
@@ -1811,7 +1776,7 @@ function template_header()
 
 			// If privacy policy is enabled, at least the default language version shall exist
 			if (!empty(Config::$modSettings['requirePolicyAgreement']))
-				$policy_agreement = empty(Config::$modSettings['policy_' . Config::$language]);
+				$policy_agreement = empty(Config::$modSettings['policy_' . Lang::$default]);
 
 			if (!empty($securityFiles) ||
 				(!empty(CacheApi::$enable) && !is_writable(Config::$cachedir)) ||
@@ -1822,34 +1787,34 @@ function template_header()
 				echo '
 		<div class="errorbox">
 			<p class="alert">!!</p>
-			<h3>', empty($securityFiles) && empty(Utils::$context['auth_secret_missing']) ? $txt['generic_warning'] : $txt['security_risk'], '</h3>
+			<h3>', empty($securityFiles) && empty(Utils::$context['auth_secret_missing']) ? Lang::$txt['generic_warning'] : Lang::$txt['security_risk'], '</h3>
 			<p>';
 
 				foreach ($securityFiles as $securityFile)
 				{
 					echo '
-				', $txt['not_removed'], '<strong>', $securityFile, '</strong>!<br>';
+				', Lang::$txt['not_removed'], '<strong>', $securityFile, '</strong>!<br>';
 
 					if ($securityFile == 'Settings.php~' || $securityFile == 'Settings_bak.php~')
 						echo '
-				', sprintf($txt['not_removed_extra'], $securityFile, substr($securityFile, 0, -1)), '<br>';
+				', sprintf(Lang::$txt['not_removed_extra'], $securityFile, substr($securityFile, 0, -1)), '<br>';
 				}
 
 				if (!empty(CacheApi::$enable) && !is_writable(Config::$cachedir))
 					echo '
-				<strong>', $txt['cache_writable'], '</strong><br>';
+				<strong>', Lang::$txt['cache_writable'], '</strong><br>';
 
 				if (!empty($agreement))
 					echo '
-				<strong>', $txt['agreement_missing'], '</strong><br>';
+				<strong>', Lang::$txt['agreement_missing'], '</strong><br>';
 
 				if (!empty($policy_agreement))
 					echo '
-				<strong>', $txt['policy_agreement_missing'], '</strong><br>';
+				<strong>', Lang::$txt['policy_agreement_missing'], '</strong><br>';
 
 				if (!empty(Utils::$context['auth_secret_missing']))
 					echo '
-				<strong>', $txt['auth_secret_missing'], '</strong><br>';
+				<strong>', Lang::$txt['auth_secret_missing'], '</strong><br>';
 
 				echo '
 			</p>
@@ -1862,7 +1827,7 @@ function template_header()
 			$showed_banned = true;
 			echo '
 				<div class="windowbg alert" style="margin: 2ex; padding: 2ex; border: 2px dashed red;">
-					', sprintf($txt['you_are_post_banned'], $user_info['is_guest'] ? $txt['guest_title'] : $user_info['name']);
+					', sprintf(Lang::$txt['you_are_post_banned'], $user_info['is_guest'] ? Lang::$txt['guest_title'] : $user_info['name']);
 
 			if (!empty($_SESSION['ban']['cannot_post']['reason']))
 				echo '
@@ -1870,10 +1835,10 @@ function template_header()
 
 			if (!empty($_SESSION['ban']['expire_time']))
 				echo '
-					<div>', sprintf($txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)), '</div>';
+					<div>', sprintf(Lang::$txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)), '</div>';
 			else
 				echo '
-					<div>', $txt['your_ban_expires_never'], '</div>';
+					<div>', Lang::$txt['your_ban_expires_never'], '</div>';
 
 			echo '
 				</div>';
@@ -1886,14 +1851,12 @@ function template_header()
  */
 function theme_copyright()
 {
-	global $forum_copyright;
-
 	// Don't display copyright for things like SSI.
 	if (SMF !== 1)
 		return;
 
 	// Put in the version...
-	printf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl);
+	printf(Lang::$forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl);
 }
 
 /**
@@ -2153,7 +2116,7 @@ function template_css()
  */
 function custMinify($data, $type)
 {
-	global $settings, $txt;
+	global $settings;
 
 	$types = array('css', 'js');
 	$type = !empty($type) && in_array($type, $types) ? $type : false;
@@ -2205,8 +2168,8 @@ function custMinify($data, $type)
 	// File has to exist. If it doesn't, try to create it.
 	elseif (@fopen($minified_file, 'w') === false || !smf_chmod($minified_file))
 	{
-		loadLanguage('Errors');
-		log_error(sprintf($txt['file_not_created'], $minified_file), 'general');
+		Lang::load('Errors');
+		log_error(sprintf(Lang::$txt['file_not_created'], $minified_file), 'general');
 
 		// The process failed, so roll back to print each individual file.
 		return $data;
@@ -2224,8 +2187,8 @@ function custMinify($data, $type)
 		// The file couldn't be located so it won't be added. Log this error.
 		if (empty($toAdd))
 		{
-			loadLanguage('Errors');
-			log_error(sprintf($txt['file_minimize_fail'], !empty($file['fileName']) ? $file['fileName'] : $id), 'general');
+			Lang::load('Errors');
+			log_error(sprintf(Lang::$txt['file_minimize_fail'], !empty($file['fileName']) ? $file['fileName'] : $id), 'general');
 			continue;
 		}
 
@@ -2241,8 +2204,8 @@ function custMinify($data, $type)
 	// Minify process failed.
 	if (!filesize($minified_file))
 	{
-		loadLanguage('Errors');
-		log_error(sprintf($txt['file_not_created'], $minified_file), 'general');
+		Lang::load('Errors');
+		log_error(sprintf(Lang::$txt['file_not_created'], $minified_file), 'general');
 
 		// The process failed so roll back to print each individual file.
 		return $data;
@@ -2261,8 +2224,6 @@ function custMinify($data, $type)
  */
 function deleteAllMinified()
 {
-	global $txt;
-
 	$not_deleted = array();
 	$most_recent = 0;
 
@@ -2300,8 +2261,8 @@ function deleteAllMinified()
 	// If any of the files could not be deleted, log an error about it.
 	if (!empty($not_deleted))
 	{
-		loadLanguage('Errors');
-		log_error(sprintf($txt['unlink_minimized_fail'], implode('<br>', $not_deleted)), 'general');
+		Lang::load('Errors');
+		log_error(sprintf(Lang::$txt['unlink_minimized_fail'], implode('<br>', $not_deleted)), 'general');
 	}
 }
 
@@ -2557,25 +2518,25 @@ function text2words($text, $max_chars = 20, $encrypt = false)
  * @deprecated since 2.1
  * @param string $name The name of the button (should be a main_icons class or the name of an image)
  * @param string $alt The alt text
- * @param string $label The $txt string to use as the label
+ * @param string $label The Lang::$txt string to use as the label
  * @param string $custom Custom text/html to add to the img tag (only when using an actual image)
  * @param boolean $force_use Whether to force use of this when template_create_button is available
  * @return string The HTML to display the button
  */
 function create_button($name, $alt, $label = '', $custom = '', $force_use = false)
 {
-	global $settings, $txt;
+	global $settings;
 
 	// Does the current loaded theme have this and we are not forcing the usage of this function?
 	if (function_exists('template_create_button') && !$force_use)
 		return template_create_button($name, $alt, $label = '', $custom = '');
 
 	if (!$settings['use_image_buttons'])
-		return $txt[$alt];
+		return Lang::$txt[$alt];
 	elseif (!empty($settings['use_buttons']))
-		return '<span class="main_icons ' . $name . '" alt="' . $txt[$alt] . '"></span>' . ($label != '' ? '&nbsp;<strong>' . $txt[$label] . '</strong>' : '');
+		return '<span class="main_icons ' . $name . '" alt="' . Lang::$txt[$alt] . '"></span>' . ($label != '' ? '&nbsp;<strong>' . Lang::$txt[$label] . '</strong>' : '');
 	else
-		return '<img src="' . $settings['lang_images_url'] . '/' . $name . '" alt="' . $txt[$alt] . '" ' . $custom . '>';
+		return '<img src="' . $settings['lang_images_url'] . '/' . $name . '" alt="' . Lang::$txt[$alt] . '" ' . $custom . '>';
 }
 
 /**
@@ -2585,7 +2546,7 @@ function create_button($name, $alt, $label = '', $custom = '', $force_use = fals
  */
 function setupMenuContext()
 {
-	global $user_info, $txt, $settings;
+	global $user_info, $settings;
 
 	// Set up the menu privileges.
 	Utils::$context['allow_search'] = !empty(Config::$modSettings['allow_guestAccess']) ? allowedTo('search_posts') : (!$user_info['is_guest'] && allowedTo('search_posts'));
@@ -2641,7 +2602,7 @@ function setupMenuContext()
 	{
 		$buttons = array(
 			'home' => array(
-				'title' => $txt['home'],
+				'title' => Lang::$txt['home'],
 				'href' => Config::$scripturl,
 				'show' => true,
 				'sub_buttons' => array(
@@ -2649,39 +2610,39 @@ function setupMenuContext()
 				'is_last' => Utils::$context['right_to_left'],
 			),
 			'search' => array(
-				'title' => $txt['search'],
+				'title' => Lang::$txt['search'],
 				'href' => Config::$scripturl . '?action=search',
 				'show' => Utils::$context['allow_search'],
 				'sub_buttons' => array(
 				),
 			),
 			'admin' => array(
-				'title' => $txt['admin'],
+				'title' => Lang::$txt['admin'],
 				'href' => Config::$scripturl . '?action=admin',
 				'show' => Utils::$context['allow_admin'],
 				'sub_buttons' => array(
 					'featuresettings' => array(
-						'title' => $txt['modSettings_title'],
+						'title' => Lang::$txt['modSettings_title'],
 						'href' => Config::$scripturl . '?action=admin;area=featuresettings',
 						'show' => allowedTo('admin_forum'),
 					),
 					'packages' => array(
-						'title' => $txt['package'],
+						'title' => Lang::$txt['package'],
 						'href' => Config::$scripturl . '?action=admin;area=packages',
 						'show' => allowedTo('admin_forum'),
 					),
 					'errorlog' => array(
-						'title' => $txt['errorlog'],
+						'title' => Lang::$txt['errorlog'],
 						'href' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog;desc',
 						'show' => allowedTo('admin_forum') && !empty(Config::$modSettings['enableErrorLogging']),
 					),
 					'permissions' => array(
-						'title' => $txt['edit_permissions'],
+						'title' => Lang::$txt['edit_permissions'],
 						'href' => Config::$scripturl . '?action=admin;area=permissions',
 						'show' => allowedTo('manage_permissions'),
 					),
 					'memberapprove' => array(
-						'title' => $txt['approve_members_waiting'],
+						'title' => Lang::$txt['approve_members_waiting'],
 						'href' => Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve',
 						'show' => !empty(Utils::$context['unapproved_members']),
 						'is_last' => true,
@@ -2689,32 +2650,32 @@ function setupMenuContext()
 				),
 			),
 			'moderate' => array(
-				'title' => $txt['moderate'],
+				'title' => Lang::$txt['moderate'],
 				'href' => Config::$scripturl . '?action=moderate',
 				'show' => Utils::$context['allow_moderation_center'],
 				'sub_buttons' => array(
 					'modlog' => array(
-						'title' => $txt['modlog_view'],
+						'title' => Lang::$txt['modlog_view'],
 						'href' => Config::$scripturl . '?action=moderate;area=modlog',
 						'show' => !empty(Config::$modSettings['modlog_enabled']) && !empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1',
 					),
 					'poststopics' => array(
-						'title' => $txt['mc_unapproved_poststopics'],
+						'title' => Lang::$txt['mc_unapproved_poststopics'],
 						'href' => Config::$scripturl . '?action=moderate;area=postmod;sa=posts',
 						'show' => Config::$modSettings['postmod_active'] && !empty($user_info['mod_cache']['ap']),
 					),
 					'attachments' => array(
-						'title' => $txt['mc_unapproved_attachments'],
+						'title' => Lang::$txt['mc_unapproved_attachments'],
 						'href' => Config::$scripturl . '?action=moderate;area=attachmod;sa=attachments',
 						'show' => Config::$modSettings['postmod_active'] && !empty($user_info['mod_cache']['ap']),
 					),
 					'reports' => array(
-						'title' => $txt['mc_reported_posts'],
+						'title' => Lang::$txt['mc_reported_posts'],
 						'href' => Config::$scripturl . '?action=moderate;area=reportedposts',
 						'show' => !empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1',
 					),
 					'reported_members' => array(
-						'title' => $txt['mc_reported_members'],
+						'title' => Lang::$txt['mc_reported_members'],
 						'href' => Config::$scripturl . '?action=moderate;area=reportedmembers',
 						'show' => allowedTo('moderate_forum'),
 						'is_last' => true,
@@ -2722,17 +2683,17 @@ function setupMenuContext()
 				),
 			),
 			'calendar' => array(
-				'title' => $txt['calendar'],
+				'title' => Lang::$txt['calendar'],
 				'href' => Config::$scripturl . '?action=calendar',
 				'show' => Utils::$context['allow_calendar'],
 				'sub_buttons' => array(
 					'view' => array(
-						'title' => $txt['calendar_menu'],
+						'title' => Lang::$txt['calendar_menu'],
 						'href' => Config::$scripturl . '?action=calendar',
 						'show' => Utils::$context['allow_calendar_event'],
 					),
 					'post' => array(
-						'title' => $txt['calendar_post_event'],
+						'title' => Lang::$txt['calendar_post_event'],
 						'href' => Config::$scripturl . '?action=calendar;sa=post',
 						'show' => Utils::$context['allow_calendar_event'],
 						'is_last' => true,
@@ -2740,17 +2701,17 @@ function setupMenuContext()
 				),
 			),
 			'mlist' => array(
-				'title' => $txt['members_title'],
+				'title' => Lang::$txt['members_title'],
 				'href' => Config::$scripturl . '?action=mlist',
 				'show' => Utils::$context['allow_memberlist'],
 				'sub_buttons' => array(
 					'mlist_view' => array(
-						'title' => $txt['mlist_menu_view'],
+						'title' => Lang::$txt['mlist_menu_view'],
 						'href' => Config::$scripturl . '?action=mlist',
 						'show' => true,
 					),
 					'mlist_search' => array(
-						'title' => $txt['mlist_search'],
+						'title' => Lang::$txt['mlist_search'],
 						'href' => Config::$scripturl . '?action=mlist;sa=search',
 						'show' => true,
 						'is_last' => true,
@@ -2762,16 +2723,16 @@ function setupMenuContext()
 			// the main forum menu on your theme, set $settings['login_main_menu'] to
 			// true in your theme's template_init() function in index.template.php.
 			'login' => array(
-				'title' => $txt['login'],
+				'title' => Lang::$txt['login'],
 				'href' => Config::$scripturl . '?action=login',
-				'onclick' => 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ', \'login\');',
+				'onclick' => 'return reqOverlayDiv(this.href, ' . JavaScriptEscape(Lang::$txt['login']) . ', \'login\');',
 				'show' => $user_info['is_guest'] && !empty($settings['login_main_menu']),
 				'sub_buttons' => array(
 				),
 				'is_last' => !Utils::$context['right_to_left'],
 			),
 			'logout' => array(
-				'title' => $txt['logout'],
+				'title' => Lang::$txt['logout'],
 				'href' => Config::$scripturl . '?action=logout;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 				'show' => !$user_info['is_guest'] && !empty($settings['login_main_menu']),
 				'sub_buttons' => array(
@@ -2779,7 +2740,7 @@ function setupMenuContext()
 				'is_last' => !Utils::$context['right_to_left'],
 			),
 			'signup' => array(
-				'title' => $txt['register'],
+				'title' => Lang::$txt['register'],
 				'href' => Config::$scripturl . '?action=signup',
 				'icon' => 'regcenter',
 				'show' => $user_info['is_guest'] && Utils::$context['can_register'] && !empty($settings['login_main_menu']),
@@ -2959,7 +2920,6 @@ function smf_seed_generator()
 function call_integration_hook($hook, $parameters = array())
 {
 	global $settings;
-	global $txt;
 
 	if (!class_exists('SMF\\Utils', false))
 		return;
@@ -2994,18 +2954,18 @@ function call_integration_hook($hook, $parameters = array())
 		// Whatever it was suppose to call, it failed :(
 		elseif (!empty($function))
 		{
-			loadLanguage('Errors');
+			Lang::load('Errors');
 
 			// Get a full path to show on error.
 			if (strpos($function, '|') !== false)
 			{
 				list ($file, $string) = explode('|', $function);
 				$absPath = empty($settings['theme_dir']) ? (strtr(trim($file), array('$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir))) : (strtr(trim($file), array('$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir, '$themedir' => $settings['theme_dir'])));
-				log_error(sprintf($txt['hook_fail_call_to'], $string, $absPath), 'general');
+				log_error(sprintf(Lang::$txt['hook_fail_call_to'], $string, $absPath), 'general');
 			}
 			// "Assume" the file resides on Config::$boarddir somewhere...
 			else
-				log_error(sprintf($txt['hook_fail_call_to'], $function, Config::$boarddir), 'general');
+				log_error(sprintf(Lang::$txt['hook_fail_call_to'], $function, Config::$boarddir), 'general');
 		}
 	}
 
@@ -3156,8 +3116,6 @@ function remove_integration_function($hook, $function, $permanent = true, $file 
  */
 function call_helper($string, $return = false)
 {
-	global $txt;
-
 	// Really?
 	if (empty($string))
 		return false;
@@ -3226,8 +3184,8 @@ function call_helper($string, $return = false)
 	// Right, we got what we need, time to do some checks.
 	elseif (!is_callable($func, false, $callable_name))
 	{
-		loadLanguage('Errors');
-		log_error(sprintf($txt['sub_action_fail'], $callable_name), 'general');
+		Lang::load('Errors');
+		log_error(sprintf(Lang::$txt['sub_action_fail'], $callable_name), 'general');
 
 		// Gotta tell everybody.
 		return false;
@@ -3262,7 +3220,7 @@ function call_helper($string, $return = false)
  */
 function load_file($string)
 {
-	global $txt, $settings;
+	global $settings;
 
 	if (empty($string))
 		return false;
@@ -3293,8 +3251,8 @@ function load_file($string)
 			// Sorry, can't do much for you at this point.
 			elseif (empty(Utils::$context['uninstalling']))
 			{
-				loadLanguage('Errors');
-				log_error(sprintf($txt['hook_fail_loading_file'], $absPath), 'general');
+				Lang::load('Errors');
+				log_error(sprintf(Lang::$txt['hook_fail_loading_file'], $absPath), 'general');
 
 				// File couldn't be loaded.
 				return false;
@@ -3321,7 +3279,6 @@ function load_file($string)
  */
 function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection_level = 0)
 {
-	global $txt;
 	static $keep_alive_dom = null, $keep_alive_fp = null;
 
 	preg_match('~^(http|ftp)(s)?://([^/:]+)(:(\d+))?(.+)$~', iri_to_url($url), $match);
@@ -3481,8 +3438,8 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 	else
 	{
 		// Umm, this shouldn't happen?
-		loadLanguage('Errors');
-		trigger_error($txt['fetch_web_data_bad_url'], E_USER_NOTICE);
+		Lang::load('Errors');
+		trigger_error(Lang::$txt['fetch_web_data_bad_url'], E_USER_NOTICE);
 		$data = false;
 	}
 
@@ -3730,7 +3687,7 @@ function get_gravatar_url($email_address)
  */
 function smf_list_timezones($when = 'now')
 {
-	global $tztxt, $txt, $cur_profile;
+	global $cur_profile;
 	static $timezones_when = array();
 
 	require_once(Config::$sourcedir . '/Subs-Timezones.php');
@@ -3756,7 +3713,7 @@ function smf_list_timezones($when = 'now')
 	$later = strtotime('@' . $when . ' + 1 year');
 
 	// Load up any custom time zone descriptions we might have
-	loadLanguage('Timezones');
+	Lang::load('Timezones');
 
 	$tzid_metazones = get_tzid_metazones($later);
 
@@ -3823,7 +3780,7 @@ function smf_list_timezones($when = 'now')
 				$country_tzids = get_sorted_tzids_for_country($tzgeo['country_code']);
 
 				if (count($country_tzids) === 1)
-					$zones[$tzkey]['metazone'] = $txt['iso3166'][$tzgeo['country_code']];
+					$zones[$tzkey]['metazone'] = Lang::$txt['iso3166'][$tzgeo['country_code']];
 			}
 		}
 
@@ -3832,8 +3789,8 @@ function smf_list_timezones($when = 'now')
 			$priority_zones[$tzkey] = true;
 
 		// Keep track of the location for this tzid.
-		if (!empty($txt[$tzid]))
-			$zones[$tzkey]['locations'][] = $txt[$tzid];
+		if (!empty(Lang::$txt[$tzid]))
+			$zones[$tzkey]['locations'][] = Lang::$txt[$tzid];
 		else
 		{
 			$tzid_parts = explode('/', $tzid);
@@ -3862,7 +3819,7 @@ function smf_list_timezones($when = 'now')
 			$zones[$tzkey]['dst_type'] = count($tzinfo) > 1 ? 1 : ($tzinfo[0]['isdst'] ? 2 : 0);
 		}
 		$dst_types[$tzkey] = count($tzinfo) > 1 ? 'c' : ($tzinfo[0]['isdst'] ? 't' : 'f');
-		$labels[$tzkey] = !empty($zones[$tzkey]['metazone']) && !empty($tztxt[$zones[$tzkey]['metazone']]) ? $tztxt[$zones[$tzkey]['metazone']] : '';
+		$labels[$tzkey] = !empty($zones[$tzkey]['metazone']) && !empty(Lang::$tztxt[$zones[$tzkey]['metazone']]) ? Lang::$tztxt[$zones[$tzkey]['metazone']] : '';
 
 		// Remember this for later
 		if (isset($cur_profile['timezone']) && $cur_profile['timezone'] == $tzid)
@@ -3887,15 +3844,15 @@ function smf_list_timezones($when = 'now')
 		$desc = '';
 		if (!empty($tzvalue['metazone']))
 		{
-			if (!empty($tztxt[$tzvalue['metazone']]))
-				$metazone = $tztxt[$tzvalue['metazone']];
+			if (!empty(Lang::$tztxt[$tzvalue['metazone']]))
+				$metazone = Lang::$tztxt[$tzvalue['metazone']];
 			else
-				$metazone = sprintf($tztxt['generic_timezone'], $tzvalue['metazone'], '%1$s');
+				$metazone = sprintf(Lang::$tztxt['generic_timezone'], $tzvalue['metazone'], '%1$s');
 
 			switch ($tzvalue['dst_type'])
 			{
 				case 0:
-					$desc = sprintf($metazone, $tztxt['daylight_saving_time_false']);
+					$desc = sprintf($metazone, Lang::$tztxt['daylight_saving_time_false']);
 					break;
 
 				case 1:
@@ -3903,13 +3860,13 @@ function smf_list_timezones($when = 'now')
 					break;
 
 				case 2:
-					$desc = sprintf($metazone, $tztxt['daylight_saving_time_true']);
+					$desc = sprintf($metazone, Lang::$tztxt['daylight_saving_time_true']);
 					break;
 			}
 		}
 		// Otherwise, use the list of locations (max 5, so things don't get silly)
 		else
-			$desc = implode(', ', array_slice(array_unique($tzvalue['locations']), 0, 5)) . (count($tzvalue['locations']) > 5 ? ', ' . $txt['etc'] : '');
+			$desc = implode(', ', array_slice(array_unique($tzvalue['locations']), 0, 5)) . (count($tzvalue['locations']) > 5 ? ', ' . Lang::$txt['etc'] : '');
 
 		// We don't want abbreviations like '+03' or '-11'.
 		$abbrs = array_filter(
@@ -3943,7 +3900,7 @@ function smf_list_timezones($when = 'now')
 
 	$timezones = array_merge(
 		$priority_timezones,
-		array('UTC' => 'UTC' . (!empty($tztxt['UTC']) ? ' - ' . $tztxt['UTC'] : ''), '-----'),
+		array('UTC' => 'UTC' . (!empty(Lang::$tztxt['UTC']) ? ' - ' . Lang::$tztxt['UTC'] : ''), '-----'),
 		$timezones
 	);
 
@@ -4992,10 +4949,8 @@ function sanitize_iri($iri)
  */
 function normalize_iri($iri)
 {
-	global $txt;
-
 	// If we are not using UTF-8, just sanitize and return.
-	if (isset(Utils::$context['utf8']) ? !Utils::$context['utf8'] : (isset($txt['lang_character_set']) ? $txt['lang_character_set'] != 'UTF-8' : (isset(Config::$db_character_set) && Config::$db_character_set != 'utf8')))
+	if (isset(Utils::$context['utf8']) ? !Utils::$context['utf8'] : (isset(Lang::$txt['lang_character_set']) ? Lang::$txt['lang_character_set'] != 'UTF-8' : (isset(Config::$db_character_set) && Config::$db_character_set != 'utf8')))
 		return sanitize_iri($iri);
 
 	require_once(Config::$sourcedir . '/Subs-Charset.php');
@@ -5033,10 +4988,8 @@ function normalize_iri($iri)
  */
 function iri_to_url($iri)
 {
-	global $txt;
-
 	// Sanity check: must be using UTF-8 to do this.
-	if (isset(Utils::$context['utf8']) ? !Utils::$context['utf8'] : (isset($txt['lang_character_set']) ? $txt['lang_character_set'] != 'UTF-8' : (isset(Config::$db_character_set) && Config::$db_character_set != 'utf8')))
+	if (isset(Utils::$context['utf8']) ? !Utils::$context['utf8'] : (isset(Lang::$txt['lang_character_set']) ? Lang::$txt['lang_character_set'] != 'UTF-8' : (isset(Config::$db_character_set) && Config::$db_character_set != 'utf8')))
 		return $iri;
 
 	require_once(Config::$sourcedir . '/Subs-Charset.php');
@@ -5091,10 +5044,8 @@ function iri_to_url($iri)
  */
 function url_to_iri($url)
 {
-	global $txt;
-
 	// Sanity check: must be using UTF-8 to do this.
-	if (isset(Utils::$context['utf8']) ? !Utils::$context['utf8'] : (isset($txt['lang_character_set']) ? $txt['lang_character_set'] != 'UTF-8' : (isset(Config::$db_character_set) && Config::$db_character_set != 'utf8')))
+	if (isset(Utils::$context['utf8']) ? !Utils::$context['utf8'] : (isset(Lang::$txt['lang_character_set']) ? Lang::$txt['lang_character_set'] != 'UTF-8' : (isset(Config::$db_character_set) && Config::$db_character_set != 'utf8')))
 		return $url;
 
 	$host = parse_iri((strpos($url, '//') === 0 ? 'http:' : '') . $url, PHP_URL_HOST);
@@ -5142,8 +5093,6 @@ function url_to_iri($url)
  */
 function check_cron()
 {
-	global $txt;
-
 	if (!empty(Config::$modSettings['cron_is_real_cron']) && time() - @intval(Config::$modSettings['cron_last_checked']) > 84600)
 	{
 		$request = Db::$db->query('', '
@@ -5162,8 +5111,8 @@ function check_cron()
 		// If we have tasks more than a day overdue, cron isn't doing its job.
 		if (!empty($overdue))
 		{
-			loadLanguage('ManageScheduledTasks');
-			log_error($txt['cron_not_working']);
+			Lang::load('ManageScheduledTasks');
+			log_error(Lang::$txt['cron_not_working']);
 			Config::updateModSettings(array('cron_is_real_cron' => 0));
 		}
 		else
@@ -5206,76 +5155,6 @@ function send_http_status($code, $status = '')
 		header($protocol . ' 500 Internal Server Error');
 	else
 		header($protocol . ' ' . $code . ' ' . (!empty($status) ? $status : $statuses[$code]));
-}
-
-/**
- * Concatenates an array of strings into a grammatically correct sentence list
- *
- * Uses formats defined in the language files to build the list appropriately
- * for the currently loaded language.
- *
- * @param array $list An array of strings to concatenate.
- * @return string The localized sentence list.
- */
-function sentence_list($list)
-{
-	global $txt;
-
-	// Make sure the bare necessities are defined
-	if (empty($txt['sentence_list_format']['n']))
-		$txt['sentence_list_format']['n'] = '{series}';
-	if (!isset($txt['sentence_list_separator']))
-		$txt['sentence_list_separator'] = ', ';
-	if (!isset($txt['sentence_list_separator_alt']))
-		$txt['sentence_list_separator_alt'] = '; ';
-
-	// Which format should we use?
-	if (isset($txt['sentence_list_format'][count($list)]))
-		$format = $txt['sentence_list_format'][count($list)];
-	else
-		$format = $txt['sentence_list_format']['n'];
-
-	// Do we want the normal separator or the alternate?
-	$separator = $txt['sentence_list_separator'];
-	foreach ($list as $item)
-	{
-		if (strpos($item, $separator) !== false)
-		{
-			$separator = $txt['sentence_list_separator_alt'];
-			$format = strtr($format, trim($txt['sentence_list_separator']), trim($separator));
-			break;
-		}
-	}
-
-	$replacements = array();
-
-	// Special handling for the last items on the list
-	$i = 0;
-	while (empty($done))
-	{
-		if (strpos($format, '{'. --$i . '}') !== false)
-			$replacements['{'. $i . '}'] = array_pop($list);
-		else
-			$done = true;
-	}
-	unset($done);
-
-	// Special handling for the first items on the list
-	$i = 0;
-	while (empty($done))
-	{
-		if (strpos($format, '{'. ++$i . '}') !== false)
-			$replacements['{'. $i . '}'] = array_shift($list);
-		else
-			$done = true;
-	}
-	unset($done);
-
-	// Whatever is left
-	$replacements['{series}'] = implode($separator, $list);
-
-	// Do the deed
-	return strtr($format, $replacements);
 }
 
 /**
@@ -5433,26 +5312,6 @@ function JavaScriptEscape($string, $as_json = false)
 		'<a href' => '<a hr' . $q . '+' . $q . 'ef',
 		Config::$scripturl => $q . ' + smf_scripturl + ' . $q,
 	)) . $q;
-}
-
-function tokenTxtReplace($stringSubject = '')
-{
-	global $txt;
-
-	if (empty($stringSubject))
-		return '';
-
-	$translatable_tokens = preg_match_all('/{(.*?)}/' , $stringSubject, $matches);
-	$toFind = array();
-	$replaceWith = array();
-
-	if (!empty($matches[1]))
-		foreach ($matches[1] as $token) {
-			$toFind[] = '{' . $token . '}';
-			$replaceWith[] = isset($txt[$token]) ? $txt[$token] : $token;
-		}
-
-	return str_replace($toFind, $replaceWith, $stringSubject);
 }
 
 ?>

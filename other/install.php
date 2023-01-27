@@ -12,6 +12,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 use SMF\PackageManager\FtpConnection;
@@ -113,24 +114,20 @@ $databases = array(
 		},
 		'validate_prefix' => function(&$value)
 		{
-			global $txt;
-
 			$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
 
 			// Is it reserved?
 			if ($value == 'pg_')
-				return $txt['error_db_prefix_reserved'];
+				return Lang::$txt['error_db_prefix_reserved'];
 
 			// Is the prefix numeric?
 			if (preg_match('~^\d~', $value))
-				return $txt['error_db_prefix_numeric'];
+				return Lang::$txt['error_db_prefix_numeric'];
 
 			return true;
 		},
 	),
 );
-
-global $txt;
 
 // Initialize everything and load the language files.
 initialize_inputs();
@@ -142,17 +139,17 @@ $installurl = $_SERVER['PHP_SELF'];
 // All the steps in detail.
 // Number,Name,Function,Progress Weight.
 $incontext['steps'] = array(
-	0 => array(1, $txt['install_step_welcome'], 'Welcome', 0),
-	1 => array(2, $txt['install_step_writable'], 'CheckFilesWritable', 10),
-	2 => array(3, $txt['install_step_databaseset'], 'DatabaseSettings', 15),
-	3 => array(4, $txt['install_step_forum'], 'ForumSettings', 40),
-	4 => array(5, $txt['install_step_databasechange'], 'DatabasePopulation', 15),
-	5 => array(6, $txt['install_step_admin'], 'AdminAccount', 20),
-	6 => array(7, $txt['install_step_delete'], 'DeleteInstall', 0),
+	0 => array(1, Lang::$txt['install_step_welcome'], 'Welcome', 0),
+	1 => array(2, Lang::$txt['install_step_writable'], 'CheckFilesWritable', 10),
+	2 => array(3, Lang::$txt['install_step_databaseset'], 'DatabaseSettings', 15),
+	3 => array(4, Lang::$txt['install_step_forum'], 'ForumSettings', 40),
+	4 => array(5, Lang::$txt['install_step_databasechange'], 'DatabasePopulation', 15),
+	5 => array(6, Lang::$txt['install_step_admin'], 'AdminAccount', 20),
+	6 => array(7, Lang::$txt['install_step_delete'], 'DeleteInstall', 0),
 );
 
 // Default title...
-$incontext['page_title'] = $txt['smf_installer'];
+$incontext['page_title'] = Lang::$txt['smf_installer'];
 
 // What step are we on?
 $incontext['current_step'] = isset($_GET['step']) ? (int) $_GET['step'] : 0;
@@ -312,7 +309,7 @@ function initialize_inputs()
 // Load the list of language files, and the current language file.
 function load_lang_file()
 {
-	global $incontext, $user_info, $txt;
+	global $incontext, $user_info;
 
 	$incontext['detected_languages'] = array();
 
@@ -387,11 +384,14 @@ function load_lang_file()
 			list (, $_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
 	}
 
-	// And now include the actual language file itself.
-	require_once(Config::$boarddir . '/Themes/default/languages/' . $_SESSION['installer_temp_lang']);
-
-	// Which language did we load? Assume that the admin likes that language.
+	// Which language are we loading? Assume that the admin likes that language.
 	$user_info['language'] = Config::$language = preg_replace('~^Install\.|(-utf8)?\.php$~', '', $_SESSION['installer_temp_lang']);
+
+	// Ensure SMF\Lang knows the path to the language directory.
+	Lang::addDirs(Config::$boarddir . '/Themes/default/languages');
+
+	// And now load the language file.
+	Lang::load('Install');
 }
 
 // This handy function loads some settings and the like.
@@ -407,10 +407,10 @@ function load_database()
 // This is called upon exiting the installer, for template etc.
 function installExit($fallThrough = false)
 {
-	global $incontext, $installurl, $txt;
+	global $incontext, $installurl;
 
 	// Send character set.
-	header('content-type: text/html; charset=' . (isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'UTF-8'));
+	header('content-type: text/html; charset=' . (isset(Lang::$txt['lang_character_set']) ? Lang::$txt['lang_character_set'] : 'UTF-8'));
 
 	// We usually dump our templates out.
 	if (!$fallThrough)
@@ -441,9 +441,9 @@ function installExit($fallThrough = false)
 
 function Welcome()
 {
-	global $incontext, $txt, $databases, $installurl;
+	global $incontext, $databases, $installurl;
 
-	$incontext['page_title'] = $txt['install_welcome'];
+	$incontext['page_title'] = Lang::$txt['install_welcome'];
 	$incontext['sub_template'] = 'welcome_message';
 
 	// Done the submission?
@@ -462,7 +462,7 @@ function Welcome()
 	}
 
 	if ($probably_installed == 2)
-		$incontext['warning'] = $txt['error_already_installed'];
+		$incontext['warning'] = Lang::$txt['error_already_installed'];
 
 	// Is some database support even compiled in?
 	$incontext['supported_databases'] = array();
@@ -475,7 +475,7 @@ function Welcome()
 			{
 				$databases[$key]['supported'] = false;
 				$notFoundSQLFile = true;
-				$txt['error_db_script_missing'] = sprintf($txt['error_db_script_missing'], 'install_' . DB_SCRIPT_VERSION . '_' . $type . '.sql');
+				Lang::$txt['error_db_script_missing'] = sprintf(Lang::$txt['error_db_script_missing'], 'install_' . DB_SCRIPT_VERSION . '_' . $type . '.sql');
 			}
 			else
 				$incontext['supported_databases'][] = $db;
@@ -511,33 +511,33 @@ function Welcome()
 
 	// Since each of the three messages would look the same, anyway...
 	if (isset($error))
-		$incontext['error'] = $txt[$error];
+		$incontext['error'] = Lang::$txt[$error];
 
 	// Mod_security blocks everything that smells funny. Let SMF handle security.
 	if (!fixModSecurity() && !isset($_GET['overmodsecurity']))
-		$incontext['error'] = $txt['error_mod_security'] . '<br><br><a href="' . $installurl . '?overmodsecurity=true">' . $txt['error_message_click'] . '</a> ' . $txt['error_message_bad_try_again'];
+		$incontext['error'] = Lang::$txt['error_mod_security'] . '<br><br><a href="' . $installurl . '?overmodsecurity=true">' . Lang::$txt['error_message_click'] . '</a> ' . Lang::$txt['error_message_bad_try_again'];
 
 	// Confirm mbstring is loaded...
 	if (!extension_loaded('mbstring'))
-		$incontext['error'] = $txt['install_no_mbstring'];
+		$incontext['error'] = Lang::$txt['install_no_mbstring'];
 
 	// Confirm fileinfo is loaded...
 	if (!extension_loaded('fileinfo'))
-		$incontext['error'] = $txt['install_no_fileinfo'];
+		$incontext['error'] = Lang::$txt['install_no_fileinfo'];
 
 	// Check for https stream support.
 	$supported_streams = stream_get_wrappers();
 	if (!in_array('https', $supported_streams))
-		$incontext['warning'] = $txt['install_no_https'];
+		$incontext['warning'] = Lang::$txt['install_no_https'];
 
 	return false;
 }
 
 function CheckFilesWritable()
 {
-	global $txt, $incontext;
+	global $incontext;
 
-	$incontext['page_title'] = $txt['ftp_checking_writable'];
+	$incontext['page_title'] = Lang::$txt['ftp_checking_writable'];
 	$incontext['sub_template'] = 'chmod_files';
 
 	$writable_files = array(
@@ -630,7 +630,7 @@ function CheckFilesWritable()
 	// It's not going to be possible to use FTP on windows to solve the problem...
 	if ($failure && substr(__FILE__, 1, 2) == ':\\')
 	{
-		$incontext['error'] = $txt['error_windows_chmod'] . '
+		$incontext['error'] = Lang::$txt['error_windows_chmod'] . '
 					<ul class="error_content">
 						<li>' . implode('</li>
 						<li>', $failed_files) . '</li>
@@ -694,7 +694,7 @@ function CheckFilesWritable()
 				'port' => isset($_POST['ftp_port']) ? $_POST['ftp_port'] : '21',
 				'username' => isset($_POST['ftp_username']) ? $_POST['ftp_username'] : '',
 				'path' => isset($_POST['ftp_path']) ? $_POST['ftp_path'] : '/',
-				'path_msg' => !empty($found_path) ? $txt['ftp_path_found_info'] : $txt['ftp_path_info'],
+				'path_msg' => !empty($found_path) ? Lang::$txt['ftp_path_found_info'] : Lang::$txt['ftp_path_info'],
 			);
 
 			return false;
@@ -736,7 +736,7 @@ function CheckFilesWritable()
 
 				// Set the username etc, into context.
 				$incontext['ftp'] = $_SESSION['installer_temp_ftp'] += array(
-					'path_msg' => $txt['ftp_path_info'],
+					'path_msg' => Lang::$txt['ftp_path_info'],
 				);
 
 				return false;
@@ -749,10 +749,10 @@ function CheckFilesWritable()
 
 function DatabaseSettings()
 {
-	global $txt, $databases, $incontext;
+	global $databases, $incontext;
 
 	$incontext['sub_template'] = 'database_settings';
-	$incontext['page_title'] = $txt['db_settings'];
+	$incontext['page_title'] = Lang::$txt['db_settings'];
 	$incontext['continue'] = 1;
 
 	// Set up the defaults.
@@ -852,7 +852,7 @@ function DatabaseSettings()
 		// God I hope it saved!
 		if (!installer_updateSettingsFile($vars))
 		{
-			$incontext['error'] = $txt['settings_error'];
+			$incontext['error'] = Lang::$txt['settings_error'];
 			return false;
 		}
 
@@ -862,7 +862,7 @@ function DatabaseSettings()
 		// Better find the database file!
 		if (!file_exists(Config::$sourcedir . '/Db/APIs/' . Config::$db_type . '.php'))
 		{
-			$incontext['error'] = sprintf($txt['error_db_file'], 'Db/APIs/' . Config::$db_type . '.php');
+			$incontext['error'] = sprintf(Lang::$txt['error_db_file'], 'Db/APIs/' . Config::$db_type . '.php');
 			return false;
 		}
 
@@ -885,7 +885,7 @@ function DatabaseSettings()
 				$error_number = '';
 			$db_error = (!empty($error_number) ? $error_number . ': ' : '') . $error_message;
 
-			$incontext['error'] = $txt['error_db_connect'] . '<div class="error_content"><strong>' . $db_error . '</strong></div>';
+			$incontext['error'] = Lang::$txt['error_db_connect'] . '<div class="error_content"><strong>' . $db_error . '</strong></div>';
 			return false;
 		}
 
@@ -893,7 +893,7 @@ function DatabaseSettings()
 		// @todo Old client, new server?
 		if (version_compare($databases[Config::$db_type]['version'], preg_replace('~^\D*|\-.+?$~', '', $databases[Config::$db_type]['version_check']())) > 0)
 		{
-			$incontext['error'] = $txt['error_db_too_low'];
+			$incontext['error'] = Lang::$txt['error_db_too_low'];
 			return false;
 		}
 
@@ -931,7 +931,7 @@ function DatabaseSettings()
 			// Okay, now let's try to connect...
 			if (!Db::$db->select(Db::$db->name, Db::$db->connection))
 			{
-				$incontext['error'] = sprintf($txt['error_db_database'], Db::$db->name);
+				$incontext['error'] = sprintf(Lang::$txt['error_db_database'], Db::$db->name);
 				return false;
 			}
 		}
@@ -945,10 +945,10 @@ function DatabaseSettings()
 // Let's start with basic forum type settings.
 function ForumSettings()
 {
-	global $txt, $incontext, $databases;
+	global $incontext, $databases;
 
 	$incontext['sub_template'] = 'forum_settings';
-	$incontext['page_title'] = $txt['install_settings'];
+	$incontext['page_title'] = Lang::$txt['install_settings'];
 
 	// Let's see if we got the database type correct.
 	if (isset($_POST['db_type'], $databases[$_POST['db_type']]))
@@ -995,7 +995,7 @@ function ForumSettings()
 			if ($row['standard_conforming_strings'] !== 'on')
 				{
 					$incontext['continue'] = 0;
-					$incontext['error'] = $txt['error_pg_scs'];
+					$incontext['error'] = Lang::$txt['error_pg_scs'];
 				}
 			Db::$db->free_result($result);
 		}
@@ -1037,7 +1037,7 @@ function ForumSettings()
 			$_POST['boardurl'] = strtr($_POST['boardurl'], array('http://' => 'https://'));
 
 		// Make sure international domain names are normalized correctly.
-		if ($txt['lang_character_set'] == 'UTF-8')
+		if (Lang::$txt['lang_character_set'] == 'UTF-8')
 			$_POST['boardurl'] = normalize_iri($_POST['boardurl']);
 
 		// Deal with different operating systems' directory structure...
@@ -1065,7 +1065,7 @@ function ForumSettings()
 		// Must save!
 		if (!installer_updateSettingsFile($vars))
 		{
-			$incontext['error'] = $txt['settings_error'];
+			$incontext['error'] = Lang::$txt['settings_error'];
 			return false;
 		}
 
@@ -1075,13 +1075,13 @@ function ForumSettings()
 		// UTF-8 requires a setting to override the language charset.
 		if (!$databases[Config::$db_type]['utf8_support']())
 		{
-			$incontext['error'] = sprintf($txt['error_utf8_support']);
+			$incontext['error'] = sprintf(Lang::$txt['error_utf8_support']);
 			return false;
 		}
 
 		if (!empty($databases[Config::$db_type]['utf8_version_check']) && version_compare($databases[Config::$db_type]['utf8_version'], preg_replace('~\-.+?$~', '', $databases[Config::$db_type]['utf8_version_check']()), '>'))
 		{
-			$incontext['error'] = sprintf($txt['error_utf8_version'], $databases[Config::$db_type]['utf8_version']);
+			$incontext['error'] = sprintf(Lang::$txt['error_utf8_version'], $databases[Config::$db_type]['utf8_version']);
 			return false;
 		}
 
@@ -1098,10 +1098,10 @@ function ForumSettings()
 // Step one: Do the SQL thang.
 function DatabasePopulation()
 {
-	global $txt, $databases, $incontext;
+	global $databases, $incontext;
 
 	$incontext['sub_template'] = 'populate_database';
-	$incontext['page_title'] = $txt['db_populate'];
+	$incontext['page_title'] = Lang::$txt['db_populate'];
 	$incontext['continue'] = 1;
 
 	// Already done?
@@ -1131,7 +1131,7 @@ function DatabasePopulation()
 		// Do they match?  If so, this is just a refresh so charge on!
 		if (!isset(Config::$modSettings['smfVersion']) || Config::$modSettings['smfVersion'] != SMF_VERSION)
 		{
-			$incontext['error'] = $txt['error_versions_do_not_match'];
+			$incontext['error'] = Lang::$txt['error_versions_do_not_match'];
 			return false;
 		}
 	}
@@ -1165,7 +1165,7 @@ function DatabasePopulation()
 		'{$registration_method}' => isset($_POST['reg_mode']) ? $_POST['reg_mode'] : 0,
 	);
 
-	foreach ($txt as $key => $value)
+	foreach (Lang::$txt as $key => $value)
 	{
 		if (substr($key, 0, 8) == 'default_')
 			$replaces['{$' . $key . '}'] = Db::$db->escape_string($value);
@@ -1290,7 +1290,7 @@ function DatabasePopulation()
 		if ($number == 0)
 			unset($incontext['sql_results'][$key]);
 		else
-			$incontext['sql_results'][$key] = sprintf($txt['db_populate_' . $key], $number);
+			$incontext['sql_results'][$key] = sprintf(Lang::$txt['db_populate_' . $key], $number);
 	}
 
 	// Make sure UTF will be used globally.
@@ -1463,13 +1463,13 @@ function DatabasePopulation()
 	// Check for the ALTER privilege.
 	if (!empty($databases[Config::$db_type]['alter_support']) && !in_array('Alter', $privs))
 	{
-		$incontext['error'] = $txt['error_db_alter_priv'];
+		$incontext['error'] = Lang::$txt['error_db_alter_priv'];
 		return false;
 	}
 
 	if (!empty($exists))
 	{
-		$incontext['page_title'] = $txt['user_refresh_install'];
+		$incontext['page_title'] = Lang::$txt['user_refresh_install'];
 		$incontext['was_refresh'] = true;
 	}
 
@@ -1479,10 +1479,10 @@ function DatabasePopulation()
 // Ask for the administrator login information.
 function AdminAccount()
 {
-	global $txt, $incontext;
+	global $incontext;
 
 	$incontext['sub_template'] = 'admin_account';
-	$incontext['page_title'] = $txt['user_settings'];
+	$incontext['page_title'] = Lang::$txt['user_settings'];
 	$incontext['continue'] = 1;
 
 	// Skipping?
@@ -1537,24 +1537,24 @@ function AdminAccount()
 		// Wrong password?
 		if ($incontext['require_db_confirm'] && $_POST['password3'] != Config::$db_passwd)
 		{
-			$incontext['error'] = $txt['error_db_connect'];
+			$incontext['error'] = Lang::$txt['error_db_connect'];
 			return false;
 		}
 		// Not matching passwords?
 		if ($_POST['password1'] != $_POST['password2'])
 		{
-			$incontext['error'] = $txt['error_user_settings_again_match'];
+			$incontext['error'] = Lang::$txt['error_user_settings_again_match'];
 			return false;
 		}
 		// No password?
 		if (strlen($_POST['password1']) < 4)
 		{
-			$incontext['error'] = $txt['error_user_settings_no_password'];
+			$incontext['error'] = Lang::$txt['error_user_settings_no_password'];
 			return false;
 		}
 		if (!file_exists(Config::$sourcedir . '/Subs.php'))
 		{
-			$incontext['error'] = sprintf($txt['error_sourcefile_missing'], 'Subs.php');
+			$incontext['error'] = sprintf(Lang::$txt['error_sourcefile_missing'], 'Subs.php');
 			return false;
 		}
 
@@ -1584,30 +1584,30 @@ function AdminAccount()
 			list ($incontext['member_id'], $incontext['member_salt']) = Db::$db->fetch_row($result);
 			Db::$db->free_result($result);
 
-			$incontext['account_existed'] = $txt['error_user_settings_taken'];
+			$incontext['account_existed'] = Lang::$txt['error_user_settings_taken'];
 		}
 		elseif ($_POST['username'] == '' || strlen($_POST['username']) > 25)
 		{
 			// Try the previous step again.
-			$incontext['error'] = $_POST['username'] == '' ? $txt['error_username_left_empty'] : $txt['error_username_too_long'];
+			$incontext['error'] = $_POST['username'] == '' ? Lang::$txt['error_username_left_empty'] : Lang::$txt['error_username_too_long'];
 			return false;
 		}
 		elseif ($invalid_characters || $_POST['username'] == '_' || $_POST['username'] == '|' || strpos($_POST['username'], '[code') !== false || strpos($_POST['username'], '[/code') !== false)
 		{
 			// Try the previous step again.
-			$incontext['error'] = $txt['error_invalid_characters_username'];
+			$incontext['error'] = Lang::$txt['error_invalid_characters_username'];
 			return false;
 		}
 		elseif (empty($_POST['email']) || !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) || strlen($_POST['email']) > 255)
 		{
 			// One step back, this time fill out a proper admin email address.
-			$incontext['error'] = sprintf($txt['error_valid_admin_email_needed'], $_POST['username']);
+			$incontext['error'] = sprintf(Lang::$txt['error_valid_admin_email_needed'], $_POST['username']);
 			return false;
 		}
 		elseif (empty($_POST['server_email']) || !filter_var($_POST['server_email'], FILTER_VALIDATE_EMAIL) || strlen($_POST['server_email']) > 255)
 		{
 			// One step back, this time fill out a proper admin email address.
-			$incontext['error'] = $txt['error_valid_server_email_needed'];
+			$incontext['error'] = Lang::$txt['error_valid_server_email_needed'];
 			return false;
 		}
 		elseif ($_POST['username'] != '')
@@ -1688,10 +1688,10 @@ function AdminAccount()
 // Final step, clean up and a complete message!
 function DeleteInstall()
 {
-	global $txt, $incontext;
+	global $incontext;
 	global $databases, $user_info;
 
-	$incontext['page_title'] = $txt['congratulations'];
+	$incontext['page_title'] = Lang::$txt['congratulations'];
 	$incontext['sub_template'] = 'delete_install';
 	$incontext['continue'] = 0;
 
@@ -1797,7 +1797,7 @@ function DeleteInstall()
 	);
 	Utils::$context['utf8'] = true;
 	if (Db::$db->num_rows($request) > 0)
-		updateStats('subject', 1, htmlspecialchars($txt['default_topic_subject']));
+		updateStats('subject', 1, htmlspecialchars(Lang::$txt['default_topic_subject']));
 	Db::$db->free_result($request);
 
 	// Now is the perfect time to fetch the SM files.
@@ -1895,17 +1895,17 @@ function fixModSecurity()
 
 function template_install_above()
 {
-	global $incontext, $txt, $installurl;
+	global $incontext, $installurl;
 
 	echo '<!DOCTYPE html>
-<html', $txt['lang_rtl'] == '1' ? ' dir="rtl"' : '', '>
+<html', Lang::$txt['lang_rtl'] == '1' ? ' dir="rtl"' : '', '>
 <head>
-	<meta charset="', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'UTF-8', '">
+	<meta charset="', isset(Lang::$txt['lang_character_set']) ? Lang::$txt['lang_character_set'] : 'UTF-8', '">
 	<meta name="robots" content="noindex">
-	<title>', $txt['smf_installer'], '</title>
+	<title>', Lang::$txt['smf_installer'], '</title>
 	<link rel="stylesheet" href="Themes/default/css/index.css">
 	<link rel="stylesheet" href="Themes/default/css/install.css">
-	', $txt['lang_rtl'] == '1' ? '<link rel="stylesheet" href="Themes/default/css/rtl.css">' : '', '
+	', Lang::$txt['lang_rtl'] == '1' ? '<link rel="stylesheet" href="Themes/default/css/rtl.css">' : '', '
 
 	<script src="Themes/default/scripts/jquery-' . JQUERY_VERSION . '.min.js"></script>
 	<script src="Themes/default/scripts/script.js"></script>
@@ -1913,7 +1913,7 @@ function template_install_above()
 <body>
 	<div id="footerfix">
 	<div id="header">
-		<h1 class="forumtitle">', $txt['smf_installer'], '</h1>
+		<h1 class="forumtitle">', Lang::$txt['smf_installer'], '</h1>
 		<img id="smflogo" src="Themes/default/images/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">
 	</div>
 	<div id="wrapper">';
@@ -1927,7 +1927,7 @@ function template_install_above()
 				<div id="inner_wrap">
 					<div class="news">
 						<form action="', $installurl, '" method="get">
-							<label for="installer_language">', $txt['installer_language'], ':</label>
+							<label for="installer_language">', Lang::$txt['installer_language'], ':</label>
 							<select id="installer_language" name="lang_file" onchange="location.href = \'', $installurl, '?lang_file=\' + this.options[this.selectedIndex].value;">';
 
 		foreach ($incontext['detected_languages'] as $lang => $name)
@@ -1936,7 +1936,7 @@ function template_install_above()
 
 		echo '
 							</select>
-							<noscript><input type="submit" value="', $txt['installer_language_set'], '" class="button"></noscript>
+							<noscript><input type="submit" value="', Lang::$txt['installer_language_set'], '" class="button"></noscript>
 						</form>
 					</div><!-- .news -->
 					<hr class="clear">
@@ -1949,13 +1949,13 @@ function template_install_above()
 		<div id="content_section">
 			<div id="main_content_section">
 				<div id="main_steps">
-					<h2>', $txt['upgrade_progress'], '</h2>
+					<h2>', Lang::$txt['upgrade_progress'], '</h2>
 					<ul class="steps_list">';
 
 	foreach ($incontext['steps'] as $num => $step)
 		echo '
 						<li', $num == $incontext['current_step'] ? ' class="stepcurrent"' : '', '>
-							', $txt['upgrade_step'], ' ', $step[0], ': ', $step[1], '
+							', Lang::$txt['upgrade_step'], ' ', $step[0], ': ', $step[1], '
 						</li>';
 
 	echo '
@@ -1963,7 +1963,7 @@ function template_install_above()
 				</div>
 				<div id="install_progress">
 					<div id="progress_bar" class="progress_bar progress_green">
-						<h3>'. $txt['upgrade_overall_progress'], '</h3>
+						<h3>'. Lang::$txt['upgrade_overall_progress'], '</h3>
 						<span id="overall_text">', $incontext['overall_percent'], '%</span>
 						<div id="overall_progress" class="bar" style="width: ', $incontext['overall_percent'], '%;"></div>
 					</div>
@@ -1975,7 +1975,7 @@ function template_install_above()
 
 function template_install_below()
 {
-	global $incontext, $txt;
+	global $incontext;
 
 	if (!empty($incontext['continue']) || !empty($incontext['skip']))
 	{
@@ -1984,10 +1984,10 @@ function template_install_below()
 
 		if (!empty($incontext['continue']))
 			echo '
-								<input type="submit" id="contbutt" name="contbutt" value="', $txt['upgrade_continue'], '" onclick="return submitThisOnce(this);" class="button">';
+								<input type="submit" id="contbutt" name="contbutt" value="', Lang::$txt['upgrade_continue'], '" onclick="return submitThisOnce(this);" class="button">';
 		if (!empty($incontext['skip']))
 			echo '
-								<input type="submit" id="skip" name="skip" value="', $txt['upgrade_skip'], '" onclick="return submitThisOnce(this);" class="button">';
+								<input type="submit" id="skip" name="skip" value="', Lang::$txt['upgrade_skip'], '" onclick="return submitThisOnce(this);" class="button">';
 		echo '
 							</div>';
 	}
@@ -2016,21 +2016,21 @@ function template_install_below()
 // Welcome them to the wonderful world of SMF!
 function template_welcome_message()
 {
-	global $incontext, $txt;
+	global $incontext;
 
 	echo '
 	<script src="https://www.simplemachines.org/smf/current-version.js?version=' . urlencode(SMF_VERSION) . '"></script>
 	<form action="', $incontext['form_url'], '" method="post">
-		<p>', sprintf($txt['install_welcome_desc'], SMF_VERSION), '</p>
+		<p>', sprintf(Lang::$txt['install_welcome_desc'], SMF_VERSION), '</p>
 		<div id="version_warning" class="noticebox hidden">
-			<h3>', $txt['error_warning_notice'], '</h3>
-			', sprintf($txt['error_script_outdated'], '<em id="smfVersion" style="white-space: nowrap;">??</em>', '<em id="yourVersion" style="white-space: nowrap;">' . SMF_VERSION . '</em>'), '
+			<h3>', Lang::$txt['error_warning_notice'], '</h3>
+			', sprintf(Lang::$txt['error_script_outdated'], '<em id="smfVersion" style="white-space: nowrap;">??</em>', '<em id="yourVersion" style="white-space: nowrap;">' . SMF_VERSION . '</em>'), '
 		</div>';
 
 	// Show the warnings, or not.
 	if (template_warning_divs())
 		echo '
-		<h3>', $txt['install_all_lovely'], '</h3>';
+		<h3>', Lang::$txt['install_all_lovely'], '</h3>';
 
 	// Say we want the continue button!
 	if (empty($incontext['error']))
@@ -2065,20 +2065,20 @@ function template_welcome_message()
 // A shortcut for any warning stuff.
 function template_warning_divs()
 {
-	global $txt, $incontext;
+	global $incontext;
 
 	// Errors are very serious..
 	if (!empty($incontext['error']))
 		echo '
 		<div class="errorbox">
-			<h3>', $txt['upgrade_critical_error'], '</h3>
+			<h3>', Lang::$txt['upgrade_critical_error'], '</h3>
 			', $incontext['error'], '
 		</div>';
 	// A warning message?
 	elseif (!empty($incontext['warning']))
 		echo '
 		<div class="errorbox">
-			<h3>', $txt['upgrade_warning'], '</h3>
+			<h3>', Lang::$txt['upgrade_warning'], '</h3>
 			', $incontext['warning'], '
 		</div>';
 
@@ -2087,10 +2087,10 @@ function template_warning_divs()
 
 function template_chmod_files()
 {
-	global $txt, $incontext;
+	global $incontext;
 
 	echo '
-		<p>', $txt['ftp_setup_why_info'], '</p>
+		<p>', Lang::$txt['ftp_setup_why_info'], '</p>
 		<ul class="error_content">
 			<li>', implode('</li>
 			<li>', $incontext['failed_files']), '</li>
@@ -2099,7 +2099,7 @@ function template_chmod_files()
 	if (isset($incontext['systemos'], $incontext['detected_path']) && $incontext['systemos'] == 'linux')
 		echo '
 		<hr>
-		<p>', $txt['chmod_linux_info'], '</p>
+		<p>', Lang::$txt['chmod_linux_info'], '</p>
 		<samp># chmod a+w ', implode(' ' . $incontext['detected_path'] . '/', $incontext['failed_files']), '</samp>';
 
 	// This is serious!
@@ -2108,12 +2108,12 @@ function template_chmod_files()
 
 	echo '
 		<hr>
-		<p>', $txt['ftp_setup_info'], '</p>';
+		<p>', Lang::$txt['ftp_setup_info'], '</p>';
 
 	if (!empty($incontext['ftp_errors']))
 		echo '
 		<div class="error_message">
-			', $txt['error_ftp_no_connect'], '<br><br>
+			', Lang::$txt['error_ftp_no_connect'], '<br><br>
 			<code>', implode('<br>', $incontext['ftp_errors']), '</code>
 		</div>';
 
@@ -2121,32 +2121,32 @@ function template_chmod_files()
 		<form action="', $incontext['form_url'], '" method="post">
 			<dl class="settings">
 				<dt>
-					<label for="ftp_server">', $txt['ftp_server'], ':</label>
+					<label for="ftp_server">', Lang::$txt['ftp_server'], ':</label>
 				</dt>
 				<dd>
 					<div class="floatright">
-						<label for="ftp_port" class="textbox"><strong>', $txt['ftp_port'], ':&nbsp;</strong></label>
+						<label for="ftp_port" class="textbox"><strong>', Lang::$txt['ftp_port'], ':&nbsp;</strong></label>
 						<input type="text" size="3" name="ftp_port" id="ftp_port" value="', $incontext['ftp']['port'], '">
 					</div>
 					<input type="text" size="30" name="ftp_server" id="ftp_server" value="', $incontext['ftp']['server'], '">
-					<div class="smalltext block">', $txt['ftp_server_info'], '</div>
+					<div class="smalltext block">', Lang::$txt['ftp_server_info'], '</div>
 				</dd>
 				<dt>
-					<label for="ftp_username">', $txt['ftp_username'], ':</label>
+					<label for="ftp_username">', Lang::$txt['ftp_username'], ':</label>
 				</dt>
 				<dd>
 					<input type="text" size="30" name="ftp_username" id="ftp_username" value="', $incontext['ftp']['username'], '">
-					<div class="smalltext block">', $txt['ftp_username_info'], '</div>
+					<div class="smalltext block">', Lang::$txt['ftp_username_info'], '</div>
 				</dd>
 				<dt>
-					<label for="ftp_password">', $txt['ftp_password'], ':</label>
+					<label for="ftp_password">', Lang::$txt['ftp_password'], ':</label>
 				</dt>
 				<dd>
 					<input type="password" size="30" name="ftp_password" id="ftp_password">
-					<div class="smalltext block">', $txt['ftp_password_info'], '</div>
+					<div class="smalltext block">', Lang::$txt['ftp_password_info'], '</div>
 				</dd>
 				<dt>
-					<label for="ftp_path">', $txt['ftp_path'], ':</label>
+					<label for="ftp_path">', Lang::$txt['ftp_path'], ':</label>
 				</dt>
 				<dd>
 					<input type="text" size="30" name="ftp_path" id="ftp_path" value="', $incontext['ftp']['path'], '">
@@ -2154,20 +2154,20 @@ function template_chmod_files()
 				</dd>
 			</dl>
 			<div class="righttext buttons">
-				<input type="submit" value="', $txt['ftp_connect'], '" onclick="return submitThisOnce(this);" class="button">
+				<input type="submit" value="', Lang::$txt['ftp_connect'], '" onclick="return submitThisOnce(this);" class="button">
 			</div>
 		</form>
-		<a href="', $incontext['form_url'], '">', $txt['error_message_click'], '</a> ', $txt['ftp_setup_again'];
+		<a href="', $incontext['form_url'], '">', Lang::$txt['error_message_click'], '</a> ', Lang::$txt['ftp_setup_again'];
 }
 
 // Get the database settings prepared.
 function template_database_settings()
 {
-	global $incontext, $txt;
+	global $incontext;
 
 	echo '
 	<form action="', $incontext['form_url'], '" method="post">
-		<p>', $txt['db_settings_info'], '</p>';
+		<p>', Lang::$txt['db_settings_info'], '</p>';
 
 	template_warning_divs();
 
@@ -2179,7 +2179,7 @@ function template_database_settings()
 	{
 		echo '
 			<dt>
-				<label for="db_type_input">', $txt['db_settings_type'], ':</label>
+				<label for="db_type_input">', Lang::$txt['db_settings_type'], ':</label>
 			</dt>
 			<dd>
 				<select name="db_type" id="db_type_input" onchange="toggleDBInput();">';
@@ -2190,7 +2190,7 @@ function template_database_settings()
 
 		echo '
 				</select>
-				<div class="smalltext">', $txt['db_settings_type_info'], '</div>
+				<div class="smalltext">', Lang::$txt['db_settings_type_info'], '</div>
 			</dd>';
 	}
 	else
@@ -2203,49 +2203,49 @@ function template_database_settings()
 
 	echo '
 			<dt>
-				<label for="db_server_input">', $txt['db_settings_server'], ':</label>
+				<label for="db_server_input">', Lang::$txt['db_settings_server'], ':</label>
 			</dt>
 			<dd>
 				<input type="text" name="db_server" id="db_server_input" value="', $incontext['db']['server'], '" size="30">
-				<div class="smalltext">', $txt['db_settings_server_info'], '</div>
+				<div class="smalltext">', Lang::$txt['db_settings_server_info'], '</div>
 			</dd>
 			<dt>
-				<label for="db_port_input">', $txt['db_settings_port'], ':</label>
+				<label for="db_port_input">', Lang::$txt['db_settings_port'], ':</label>
 			</dt>
 			<dd>
 				<input type="text" name="db_port" id="db_port_input" value="', $incontext['db']['port'], '">
-				<div class="smalltext">', $txt['db_settings_port_info'], '</div>
+				<div class="smalltext">', Lang::$txt['db_settings_port_info'], '</div>
 			</dd>
 			<dt>
-				<label for="db_user_input">', $txt['db_settings_username'], ':</label>
+				<label for="db_user_input">', Lang::$txt['db_settings_username'], ':</label>
 			</dt>
 			<dd>
 				<input type="text" name="db_user" id="db_user_input" value="', $incontext['db']['user'], '" size="30">
-				<div class="smalltext">', $txt['db_settings_username_info'], '</div>
+				<div class="smalltext">', Lang::$txt['db_settings_username_info'], '</div>
 			</dd>
 			<dt>
-				<label for="db_passwd_input">', $txt['db_settings_password'], ':</label>
+				<label for="db_passwd_input">', Lang::$txt['db_settings_password'], ':</label>
 			</dt>
 			<dd>
 				<input type="password" name="db_passwd" id="db_passwd_input" value="', $incontext['db']['pass'], '" size="30">
-				<div class="smalltext">', $txt['db_settings_password_info'], '</div>
+				<div class="smalltext">', Lang::$txt['db_settings_password_info'], '</div>
 			</dd>
 			<dt>
-				<label for="db_name_input">', $txt['db_settings_database'], ':</label>
+				<label for="db_name_input">', Lang::$txt['db_settings_database'], ':</label>
 			</dt>
 			<dd>
 				<input type="text" name="db_name" id="db_name_input" value="', empty($incontext['db']['name']) ? 'smf' : $incontext['db']['name'], '" size="30">
 				<div class="smalltext">
-					', $txt['db_settings_database_info'], '
-					<span id="db_name_info_warning">', $txt['db_settings_database_info_note'], '</span>
+					', Lang::$txt['db_settings_database_info'], '
+					<span id="db_name_info_warning">', Lang::$txt['db_settings_database_info_note'], '</span>
 				</div>
 			</dd>
 			<dt>
-				<label for="db_prefix_input">', $txt['db_settings_prefix'], ':</label>
+				<label for="db_prefix_input">', Lang::$txt['db_settings_prefix'], ':</label>
 			</dt>
 			<dd>
 				<input type="text" name="db_prefix" id="db_prefix_input" value="', $incontext['db']['prefix'], '" size="30">
-				<div class="smalltext">', $txt['db_settings_prefix_info'], '</div>
+				<div class="smalltext">', Lang::$txt['db_settings_prefix_info'], '</div>
 			</dd>
 		</dl>';
 
@@ -2266,68 +2266,68 @@ function template_database_settings()
 // Stick in their forum settings.
 function template_forum_settings()
 {
-	global $incontext, $txt;
+	global $incontext;
 
 	echo '
 	<form action="', $incontext['form_url'], '" method="post">
-		<h3>', $txt['install_settings_info'], '</h3>';
+		<h3>', Lang::$txt['install_settings_info'], '</h3>';
 
 	template_warning_divs();
 
 	echo '
 		<dl class="settings">
 			<dt>
-				<label for="mbname_input">', $txt['install_settings_name'], ':</label>
+				<label for="mbname_input">', Lang::$txt['install_settings_name'], ':</label>
 			</dt>
 			<dd>
-				<input type="text" name="mbname" id="mbname_input" value="', $txt['install_settings_name_default'], '" size="65">
-				<div class="smalltext">', $txt['install_settings_name_info'], '</div>
+				<input type="text" name="mbname" id="mbname_input" value="', Lang::$txt['install_settings_name_default'], '" size="65">
+				<div class="smalltext">', Lang::$txt['install_settings_name_info'], '</div>
 			</dd>
 			<dt>
-				<label for="boardurl_input">', $txt['install_settings_url'], ':</label>
+				<label for="boardurl_input">', Lang::$txt['install_settings_url'], ':</label>
 			</dt>
 			<dd>
 				<input type="text" name="boardurl" id="boardurl_input" value="', $incontext['detected_url'], '" size="65">
-				<div class="smalltext">', $txt['install_settings_url_info'], '</div>
+				<div class="smalltext">', Lang::$txt['install_settings_url_info'], '</div>
 			</dd>
 			<dt>
-				<label for="reg_mode">', $txt['install_settings_reg_mode'], ':</label>
+				<label for="reg_mode">', Lang::$txt['install_settings_reg_mode'], ':</label>
 			</dt>
 			<dd>
 				<select name="reg_mode" id="reg_mode">
-					<optgroup label="', $txt['install_settings_reg_modes'], ':">
-						<option value="0" selected>', $txt['install_settings_reg_immediate'], '</option>
-						<option value="1">', $txt['install_settings_reg_email'], '</option>
-						<option value="2">', $txt['install_settings_reg_admin'], '</option>
-						<option value="3">', $txt['install_settings_reg_disabled'], '</option>
+					<optgroup label="', Lang::$txt['install_settings_reg_modes'], ':">
+						<option value="0" selected>', Lang::$txt['install_settings_reg_immediate'], '</option>
+						<option value="1">', Lang::$txt['install_settings_reg_email'], '</option>
+						<option value="2">', Lang::$txt['install_settings_reg_admin'], '</option>
+						<option value="3">', Lang::$txt['install_settings_reg_disabled'], '</option>
 					</optgroup>
 				</select>
-				<div class="smalltext">', $txt['install_settings_reg_mode_info'], '</div>
+				<div class="smalltext">', Lang::$txt['install_settings_reg_mode_info'], '</div>
 			</dd>
-			<dt>', $txt['install_settings_compress'], ':</dt>
+			<dt>', Lang::$txt['install_settings_compress'], ':</dt>
 			<dd>
 				<input type="checkbox" name="compress" id="compress_check" checked>
-				<label for="compress_check">', $txt['install_settings_compress_title'], '</label>
-				<div class="smalltext">', $txt['install_settings_compress_info'], '</div>
+				<label for="compress_check">', Lang::$txt['install_settings_compress_title'], '</label>
+				<div class="smalltext">', Lang::$txt['install_settings_compress_info'], '</div>
 			</dd>
-			<dt>', $txt['install_settings_dbsession'], ':</dt>
+			<dt>', Lang::$txt['install_settings_dbsession'], ':</dt>
 			<dd>
 				<input type="checkbox" name="dbsession" id="dbsession_check" checked>
-				<label for="dbsession_check">', $txt['install_settings_dbsession_title'], '</label>
-				<div class="smalltext">', $incontext['test_dbsession'] ? $txt['install_settings_dbsession_info1'] : $txt['install_settings_dbsession_info2'], '</div>
+				<label for="dbsession_check">', Lang::$txt['install_settings_dbsession_title'], '</label>
+				<div class="smalltext">', $incontext['test_dbsession'] ? Lang::$txt['install_settings_dbsession_info1'] : Lang::$txt['install_settings_dbsession_info2'], '</div>
 			</dd>
-			<dt>', $txt['install_settings_stats'], ':</dt>
+			<dt>', Lang::$txt['install_settings_stats'], ':</dt>
 			<dd>
 				<input type="checkbox" name="stats" id="stats_check" checked="checked">
-				<label for="stats_check">', $txt['install_settings_stats_title'], '</label>
-				<div class="smalltext">', $txt['install_settings_stats_info'], '</div>
+				<label for="stats_check">', Lang::$txt['install_settings_stats_title'], '</label>
+				<div class="smalltext">', Lang::$txt['install_settings_stats_info'], '</div>
 			</dd>
-			<dt>', $txt['force_ssl'], ':</dt>
+			<dt>', Lang::$txt['force_ssl'], ':</dt>
 			<dd>
 				<input type="checkbox" name="force_ssl" id="force_ssl"', $incontext['ssl_chkbx_checked'] ? ' checked' : '',
 					$incontext['ssl_chkbx_protected'] ? ' disabled' : '', '>
-				<label for="force_ssl">', $txt['force_ssl_label'], '</label>
-				<div class="smalltext"><strong>', $txt['force_ssl_info'], '</strong></div>
+				<label for="force_ssl">', Lang::$txt['force_ssl_label'], '</label>
+				<div class="smalltext"><strong>', Lang::$txt['force_ssl_info'], '</strong></div>
 			</dd>
 		</dl>';
 }
@@ -2335,11 +2335,11 @@ function template_forum_settings()
 // Show results of the database population.
 function template_populate_database()
 {
-	global $incontext, $txt;
+	global $incontext;
 
 	echo '
 	<form action="', $incontext['form_url'], '" method="post">
-		<p>', !empty($incontext['was_refresh']) ? $txt['user_refresh_install_desc'] : $txt['db_populate_info'], '</p>';
+		<p>', !empty($incontext['was_refresh']) ? Lang::$txt['user_refresh_install_desc'] : Lang::$txt['db_populate_info'], '</p>';
 
 	if (!empty($incontext['sql_results']))
 	{
@@ -2352,19 +2352,19 @@ function template_populate_database()
 	if (!empty($incontext['failures']))
 	{
 		echo '
-		<div class="red">', $txt['error_db_queries'], '</div>
+		<div class="red">', Lang::$txt['error_db_queries'], '</div>
 		<ul>';
 
 		foreach ($incontext['failures'] as $line => $fail)
 			echo '
-			<li><strong>', $txt['error_db_queries_line'], $line + 1, ':</strong> ', nl2br(htmlspecialchars($fail)), '</li>';
+			<li><strong>', Lang::$txt['error_db_queries_line'], $line + 1, ':</strong> ', nl2br(htmlspecialchars($fail)), '</li>';
 
 		echo '
 		</ul>';
 	}
 
 	echo '
-		<p>', $txt['db_populate_info2'], '</p>';
+		<p>', Lang::$txt['db_populate_info2'], '</p>';
 
 	template_warning_divs();
 
@@ -2375,57 +2375,57 @@ function template_populate_database()
 // Create the admin account.
 function template_admin_account()
 {
-	global $incontext, $txt;
+	global $incontext;
 
 	echo '
 	<form action="', $incontext['form_url'], '" method="post">
-		<p>', $txt['user_settings_info'], '</p>';
+		<p>', Lang::$txt['user_settings_info'], '</p>';
 
 	template_warning_divs();
 
 	echo '
 		<dl class="settings">
 			<dt>
-				<label for="username">', $txt['user_settings_username'], ':</label>
+				<label for="username">', Lang::$txt['user_settings_username'], ':</label>
 			</dt>
 			<dd>
 				<input type="text" name="username" id="username" value="', $incontext['username'], '" size="40">
-				<div class="smalltext">', $txt['user_settings_username_info'], '</div>
+				<div class="smalltext">', Lang::$txt['user_settings_username_info'], '</div>
 			</dd>
 			<dt>
-				<label for="password1">', $txt['user_settings_password'], ':</label>
+				<label for="password1">', Lang::$txt['user_settings_password'], ':</label>
 			</dt>
 			<dd>
 				<input type="password" name="password1" id="password1" size="40">
-				<div class="smalltext">', $txt['user_settings_password_info'], '</div>
+				<div class="smalltext">', Lang::$txt['user_settings_password_info'], '</div>
 			</dd>
 			<dt>
-				<label for="password2">', $txt['user_settings_again'], ':</label>
+				<label for="password2">', Lang::$txt['user_settings_again'], ':</label>
 			</dt>
 			<dd>
 				<input type="password" name="password2" id="password2" size="40">
-				<div class="smalltext">', $txt['user_settings_again_info'], '</div>
+				<div class="smalltext">', Lang::$txt['user_settings_again_info'], '</div>
 			</dd>
 			<dt>
-				<label for="email">', $txt['user_settings_admin_email'], ':</label>
+				<label for="email">', Lang::$txt['user_settings_admin_email'], ':</label>
 			</dt>
 			<dd>
 				<input type="email" name="email" id="email" value="', $incontext['email'], '" size="40">
-				<div class="smalltext">', $txt['user_settings_admin_email_info'], '</div>
+				<div class="smalltext">', Lang::$txt['user_settings_admin_email_info'], '</div>
 			</dd>
 			<dt>
-				<label for="server_email">', $txt['user_settings_server_email'], ':</label>
+				<label for="server_email">', Lang::$txt['user_settings_server_email'], ':</label>
 			</dt>
 			<dd>
 				<input type="text" name="server_email" id="server_email" value="', $incontext['server_email'], '" size="40">
-				<div class="smalltext">', $txt['user_settings_server_email_info'], '</div>
+				<div class="smalltext">', Lang::$txt['user_settings_server_email_info'], '</div>
 			</dd>
 		</dl>';
 
 	if ($incontext['require_db_confirm'])
 		echo '
-		<h2>', $txt['user_settings_database'], '</h2>
-		<p>', $txt['user_settings_database_info'], '</p>
+		<h2>', Lang::$txt['user_settings_database'], '</h2>
+		<p>', Lang::$txt['user_settings_database_info'], '</p>
 
 		<div class="lefttext">
 			<input type="password" name="password3" size="30">
@@ -2435,24 +2435,24 @@ function template_admin_account()
 // Tell them it's done, and to delete.
 function template_delete_install()
 {
-	global $incontext, $installurl, $txt;
+	global $incontext, $installurl;
 
 	echo '
-		<p>', $txt['congratulations_help'], '</p>';
+		<p>', Lang::$txt['congratulations_help'], '</p>';
 
 	template_warning_divs();
 
 	// Install directory still writable?
 	if ($incontext['dir_still_writable'])
 		echo '
-		<p><em>', $txt['still_writable'], '</em></p>';
+		<p><em>', Lang::$txt['still_writable'], '</em></p>';
 
 	// Don't show the box if it's like 99% sure it won't work :P.
 	if ($incontext['probably_delete_install'])
 		echo '
 		<label>
 			<input type="checkbox" id="delete_self" onclick="doTheDelete();">
-			<strong>', $txt['delete_installer'], !isset($_SESSION['installer_temp_ftp']) ? ' ' . $txt['delete_installer_maybe'] : '', '</strong>
+			<strong>', Lang::$txt['delete_installer'], !isset($_SESSION['installer_temp_ftp']) ? ' ' . Lang::$txt['delete_installer_maybe'] : '', '</strong>
 		</label>
 		<script>
 			function doTheDelete()
@@ -2467,9 +2467,9 @@ function template_delete_install()
 		</script>';
 
 	echo '
-		<p>', sprintf($txt['go_to_your_forum'], Config::$boardurl . '/index.php'), '</p>
+		<p>', sprintf(Lang::$txt['go_to_your_forum'], Config::$boardurl . '/index.php'), '</p>
 		<br>
-		', $txt['good_luck'];
+		', Lang::$txt['good_luck'];
 }
 
 ?>

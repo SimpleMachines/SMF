@@ -15,6 +15,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -36,7 +37,7 @@ if (!defined('SMF'))
 
 function getBoardIndex($board_index_options)
 {
-	global $user_info, $txt;
+	global $user_info;
 	global $settings, $options;
 
 	require_once(Config::$sourcedir . '/Subs-Boards.php');
@@ -199,7 +200,7 @@ function getBoardIndex($board_index_options)
 				);
 
 				$categories[$row_board['id_cat']]['link'] = '<a id="c' . $row_board['id_cat'] . '"></a>' . (!Utils::$context['user']['is_guest'] ?
-						'<a href="' . Config::$scripturl . '?action=unread;c=' . $row_board['id_cat'] . '" title="' . sprintf($txt['new_posts_in_category'], $row_board['cat_name']) . '">' . $row_board['cat_name'] . '</a>' :
+						'<a href="' . Config::$scripturl . '?action=unread;c=' . $row_board['id_cat'] . '" title="' . sprintf(Lang::$txt['new_posts_in_category'], $row_board['cat_name']) . '">' . $row_board['cat_name'] . '</a>' :
 						$row_board['cat_name']);
 
 			}
@@ -276,18 +277,18 @@ function getBoardIndex($board_index_options)
 				if ($this_category[$row_board['id_board']]['is_redirect'])
 				{
 					$this_category[$row_board['id_board']]['board_class'] = 'redirect';
-					$this_category[$row_board['id_board']]['board_tooltip'] = $txt['redirect_board'];
+					$this_category[$row_board['id_board']]['board_tooltip'] = Lang::$txt['redirect_board'];
 				}
 				elseif ($this_category[$row_board['id_board']]['new'] || Utils::$context['user']['is_guest'])
 				{
 					// If we're showing to guests, we want to give them the idea that something interesting is going on!
 					$this_category[$row_board['id_board']]['board_class'] = 'on';
-					$this_category[$row_board['id_board']]['board_tooltip'] = $txt['new_posts'];
+					$this_category[$row_board['id_board']]['board_tooltip'] = Lang::$txt['new_posts'];
 				}
 
 				else
 				{
-					$this_category[$row_board['id_board']]['board_tooltip'] = $txt['old_posts'];
+					$this_category[$row_board['id_board']]['board_tooltip'] = Lang::$txt['old_posts'];
 				}
 			}
 		}
@@ -342,7 +343,7 @@ function getBoardIndex($board_index_options)
 			if ($this_category[$row_board['id_parent']]['children_new'] && $this_category[$row_board['id_parent']]['board_class'] == 'off')
 			{
 				$this_category[$row_board['id_parent']]['board_class'] = 'on2';
-				$this_category[$row_board['id_parent']]['board_tooltip'] = $txt['new_posts'];
+				$this_category[$row_board['id_parent']]['board_tooltip'] = Lang::$txt['new_posts'];
 			}
 
 			// This is easier to use in many cases for the theme....
@@ -389,7 +390,7 @@ function getBoardIndex($board_index_options)
 		}
 
 		// Prepare the subject, and make sure it's not too long.
-		censorText($row_board['subject']);
+		Lang::censorText($row_board['subject']);
 		$row_board['short_subject'] = shorten_subject($row_board['subject'], 24);
 		$this_last_post = array(
 			'id' => $row_board['id_msg'],
@@ -398,10 +399,10 @@ function getBoardIndex($board_index_options)
 			'subject' => $row_board['short_subject'],
 			'member' => array(
 				'id' => $row_board['id_member'],
-				'username' => $row_board['poster_name'] != '' ? $row_board['poster_name'] : $txt['not_applicable'],
+				'username' => $row_board['poster_name'] != '' ? $row_board['poster_name'] : Lang::$txt['not_applicable'],
 				'name' => $row_board['real_name'],
 				'href' => $row_board['poster_name'] != '' && !empty($row_board['id_member']) ? Config::$scripturl . '?action=profile;u=' . $row_board['id_member'] : '',
-				'link' => $row_board['poster_name'] != '' ? (!empty($row_board['id_member']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row_board['id_member'] . '">' . $row_board['real_name'] . '</a>' : $row_board['real_name']) : $txt['not_applicable'],
+				'link' => $row_board['poster_name'] != '' ? (!empty($row_board['id_member']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row_board['id_member'] . '">' . $row_board['real_name'] . '</a>' : $row_board['real_name']) : Lang::$txt['not_applicable'],
 			),
 			'start' => 'msg' . $row_board['new_from'],
 			'topic' => $row_board['id_topic']
@@ -424,7 +425,7 @@ function getBoardIndex($board_index_options)
 		else
 		{
 			$this_last_post['href'] = '';
-			$this_last_post['link'] = $txt['not_applicable'];
+			$this_last_post['link'] = Lang::$txt['not_applicable'];
 			$this_last_post['last_post_message'] = '';
 		}
 
@@ -514,7 +515,7 @@ function getBoardIndex($board_index_options)
 					}
 				}
 				if (!empty($board['last_post']))
-					$board['last_post']['last_post_message'] = sprintf($txt['last_post_message'], $board['last_post']['member']['link'], $board['last_post']['link'], $board['last_post']['time'] > 0 ? timeformat($board['last_post']['time']) : $txt['not_applicable']);
+					$board['last_post']['last_post_message'] = sprintf(Lang::$txt['last_post_message'], $board['last_post']['member']['link'], $board['last_post']['link'], $board['last_post']['time'] > 0 ? timeformat($board['last_post']['time']) : Lang::$txt['not_applicable']);
 			}
 		}
 
@@ -546,7 +547,7 @@ function getBoardIndex($board_index_options)
 				}
 			}
 			if (!empty($board['last_post']))
-				$board['last_post']['last_post_message'] = sprintf($txt['last_post_message'], $board['last_post']['member']['link'], $board['last_post']['link'], $board['last_post']['time'] > 0 ? timeformat($board['last_post']['time']) : $txt['not_applicable']);
+				$board['last_post']['last_post_message'] = sprintf(Lang::$txt['last_post_message'], $board['last_post']['member']['link'], $board['last_post']['link'], $board['last_post']['time'] > 0 ? timeformat($board['last_post']['time']) : Lang::$txt['not_applicable']);
 		}
 
 	unset($category, $board);

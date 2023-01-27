@@ -15,6 +15,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -54,8 +55,8 @@ function getLastPost()
 	Db::$db->free_result($request);
 
 	// Censor the subject and post...
-	censorText($row['subject']);
-	censorText($row['body']);
+	Lang::censorText($row['subject']);
+	Lang::censorText($row['body']);
 
 	$row['body'] = strip_tags(strtr(BBCodeParser::load()->parse($row['body'], $row['smileys_enabled']), array('<br>' => '&#10;')));
 	if (Utils::entityStrlen($row['body']) > 128)
@@ -79,10 +80,10 @@ function getLastPost()
  */
 function RecentPosts()
 {
-	global $txt, $user_info, $board;
+	global $user_info, $board;
 
 	loadTemplate('Recent');
-	Utils::$context['page_title'] = $txt['recent_posts'];
+	Utils::$context['page_title'] = Lang::$txt['recent_posts'];
 	Utils::$context['sub_template'] = 'recent';
 
 	Utils::$context['is_redirect'] = false;
@@ -355,8 +356,8 @@ function RecentPosts()
 	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// Censor everything.
-		censorText($row['body']);
-		censorText($row['subject']);
+		Lang::censorText($row['body']);
+		Lang::censorText($row['subject']);
 
 		// BBC-atize the message.
 		$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
@@ -469,21 +470,21 @@ function RecentPosts()
 	{
 		Utils::$context['posts'][$key]['quickbuttons'] = array(
 			'reply' => array(
-				'label' => $txt['reply'],
+				'label' => Lang::$txt['reply'],
 				'href' => Config::$scripturl.'?action=post;topic='.$post['topic'].'.'.$post['start'],
 				'icon' => 'reply_button',
 				'show' => $post['can_reply']
 			),
 			'quote' => array(
-				'label' => $txt['quote_action'],
+				'label' => Lang::$txt['quote_action'],
 				'href' => Config::$scripturl.'?action=post;topic='.$post['topic'].'.'.$post['start'].';quote='.$post['id'],
 				'icon' => 'quote',
 				'show' => $post['can_quote']
 			),
 			'delete' => array(
-				'label' => $txt['remove'],
+				'label' => Lang::$txt['remove'],
 				'href' => Config::$scripturl.'?action=deletemsg;msg='.$post['id'].';topic='.$post['topic'].';recent;'.Utils::$context['session_var'].'='.Utils::$context['session_id'],
-				'javascript' => 'data-confirm="'.$txt['remove_message'].'"',
+				'javascript' => 'data-confirm="'.Lang::$txt['remove_message'].'"',
 				'class' => 'you_sure',
 				'icon' => 'remove_button',
 				'show' => $post['can_delete']
@@ -500,7 +501,7 @@ function RecentPosts()
  */
 function UnreadTopics()
 {
-	global $board, $txt;
+	global $board;
 	global $user_info, $settings, $options;
 
 	// Guests can't have unread things, we don't know anything about them.
@@ -520,9 +521,9 @@ function UnreadTopics()
 	Utils::$context['start'] = (int) $_REQUEST['start'];
 	Utils::$context['topics_per_page'] = empty(Config::$modSettings['disableCustomPerPage']) && !empty($options['topics_per_page']) ? $options['topics_per_page'] : Config::$modSettings['defaultMaxTopics'];
 	if ($_REQUEST['action'] == 'unread')
-		Utils::$context['page_title'] = Utils::$context['showing_all_topics'] ? $txt['unread_topics_all'] : $txt['unread_topics_visit'];
+		Utils::$context['page_title'] = Utils::$context['showing_all_topics'] ? Lang::$txt['unread_topics_all'] : Lang::$txt['unread_topics_visit'];
 	else
-		Utils::$context['page_title'] = $txt['unread_replies'];
+		Utils::$context['page_title'] = Lang::$txt['unread_replies'];
 
 	if (Utils::$context['showing_all_topics'] && !empty(Utils::$context['load_average']) && !empty(Config::$modSettings['loadavg_allunread']) && Utils::$context['load_average'] >= Config::$modSettings['loadavg_allunread'])
 		fatal_lang_error('loadavg_allunread_disabled', false);
@@ -716,16 +717,16 @@ function UnreadTopics()
 
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=' . $_REQUEST['action'] . sprintf(Utils::$context['querystring_board_limits'], 0) . Utils::$context['querystring_sort_limits'],
-		'name' => $_REQUEST['action'] == 'unread' ? $txt['unread_topics_visit'] : $txt['unread_replies']
+		'name' => $_REQUEST['action'] == 'unread' ? Lang::$txt['unread_topics_visit'] : Lang::$txt['unread_replies']
 	);
 
 	if (Utils::$context['showing_all_topics'])
 		Utils::$context['linktree'][] = array(
 			'url' => Config::$scripturl . '?action=' . $_REQUEST['action'] . ';all' . sprintf(Utils::$context['querystring_board_limits'], 0) . Utils::$context['querystring_sort_limits'],
-			'name' => $txt['unread_topics_all']
+			'name' => Lang::$txt['unread_topics_all']
 		);
 	else
-		$txt['unread_topics_visit_none'] = strtr(sprintf($txt['unread_topics_visit_none'], Config::$scripturl), array('?action=unread;all' => '?action=unread;all' . sprintf(Utils::$context['querystring_board_limits'], 0) . Utils::$context['querystring_sort_limits']));
+		Lang::$txt['unread_topics_visit_none'] = strtr(sprintf(Lang::$txt['unread_topics_visit_none'], Config::$scripturl), array('?action=unread;all' => '?action=unread;all' . sprintf(Utils::$context['querystring_board_limits'], 0) . Utils::$context['querystring_sort_limits']));
 
 	loadTemplate('Recent');
 	loadTemplate('MessageIndex');
@@ -1257,8 +1258,8 @@ function UnreadTopics()
 				$row['last_body'] = Utils::entitySubstr($row['last_body'], 0, 128) . '...';
 
 			// Censor the subject and message preview.
-			censorText($row['first_subject']);
-			censorText($row['first_body']);
+			Lang::censorText($row['first_subject']);
+			Lang::censorText($row['first_body']);
 
 			// Don't censor them twice!
 			if ($row['id_first_msg'] == $row['id_last_msg'])
@@ -1268,20 +1269,20 @@ function UnreadTopics()
 			}
 			else
 			{
-				censorText($row['last_subject']);
-				censorText($row['last_body']);
+				Lang::censorText($row['last_subject']);
+				Lang::censorText($row['last_body']);
 			}
 		}
 		else
 		{
 			$row['first_body'] = '';
 			$row['last_body'] = '';
-			censorText($row['first_subject']);
+			Lang::censorText($row['first_subject']);
 
 			if ($row['id_first_msg'] == $row['id_last_msg'])
 				$row['last_subject'] = $row['first_subject'];
 			else
-				censorText($row['last_subject']);
+				Lang::censorText($row['last_subject']);
 		}
 
 		// Decide how many pages the topic should have.
@@ -1294,7 +1295,7 @@ function UnreadTopics()
 
 			// If we can use all, show all.
 			if (!empty(Config::$modSettings['enableAllMessages']) && $topic_length < Config::$modSettings['enableAllMessages'])
-				$pages .= sprintf(strtr($settings['page_index']['page'], array('{URL}' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0;all')), '', $txt['all']);
+				$pages .= sprintf(strtr($settings['page_index']['page'], array('{URL}' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0;all')), '', Lang::$txt['all']);
 		}
 
 		else
@@ -1345,7 +1346,7 @@ function UnreadTopics()
 					'name' => $row['first_poster_name'],
 					'id' => $row['id_first_member'],
 					'href' => Config::$scripturl . '?action=profile;u=' . $row['id_first_member'],
-					'link' => !empty($row['id_first_member']) ? '<a class="preview" href="' . Config::$scripturl . '?action=profile;u=' . $row['id_first_member'] . '" title="' . sprintf($txt['view_profile_of_username'], $row['first_poster_name']) . '">' . $row['first_poster_name'] . '</a>' : $row['first_poster_name']
+					'link' => !empty($row['id_first_member']) ? '<a class="preview" href="' . Config::$scripturl . '?action=profile;u=' . $row['id_first_member'] . '" title="' . sprintf(Lang::$txt['view_profile_of_username'], $row['first_poster_name']) . '">' . $row['first_poster_name'] . '</a>' : $row['first_poster_name']
 				),
 				'time' => timeformat($row['first_poster_time']),
 				'timestamp' => $row['first_poster_time'],
@@ -1386,8 +1387,8 @@ function UnreadTopics()
 			'icon_url' => $settings[Utils::$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
 			'subject' => $row['first_subject'],
 			'pages' => $pages,
-			'replies' => comma_format($row['num_replies']),
-			'views' => comma_format($row['num_views']),
+			'replies' => Lang::numberFormat($row['num_replies']),
+			'views' => Lang::numberFormat($row['num_views']),
 			'board' => array(
 				'id' => $row['id_board'],
 				'name' => $row['bname'],
@@ -1410,7 +1411,7 @@ function UnreadTopics()
 			));
 		}
 
-		Utils::$context['topics'][$row['id_topic']]['first_post']['started_by'] = sprintf($txt['topic_started_by'], Utils::$context['topics'][$row['id_topic']]['first_post']['member']['link'], Utils::$context['topics'][$row['id_topic']]['board']['link']);
+		Utils::$context['topics'][$row['id_topic']]['first_post']['started_by'] = sprintf(Lang::$txt['topic_started_by'], Utils::$context['topics'][$row['id_topic']]['first_post']['member']['link'], Utils::$context['topics'][$row['id_topic']]['board']['link']);
 	}
 	Db::$db->free_result($request);
 
@@ -1444,7 +1445,7 @@ function UnreadTopics()
 	if ($is_topics)
 	{
 		Utils::$context['recent_buttons'] = array(
-			'markread' => array('text' => !empty(Utils::$context['no_board_limits']) ? 'mark_as_read' : 'mark_read_short', 'image' => 'markread.png', 'custom' => 'data-confirm="' . $txt['are_sure_mark_read'] . '"', 'class' => 'you_sure', 'url' => Config::$scripturl . '?action=markasread;sa=' . (!empty(Utils::$context['no_board_limits']) ? 'all' : 'board' . Utils::$context['querystring_board_limits']) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']),
+			'markread' => array('text' => !empty(Utils::$context['no_board_limits']) ? 'mark_as_read' : 'mark_read_short', 'image' => 'markread.png', 'custom' => 'data-confirm="' . Lang::$txt['are_sure_mark_read'] . '"', 'class' => 'you_sure', 'url' => Config::$scripturl . '?action=markasread;sa=' . (!empty(Utils::$context['no_board_limits']) ? 'all' : 'board' . Utils::$context['querystring_board_limits']) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']),
 		);
 
 		if (Utils::$context['showCheckboxes'])
@@ -1460,7 +1461,7 @@ function UnreadTopics()
 	elseif (!$is_topics && isset(Utils::$context['topics_to_mark']))
 	{
 		Utils::$context['recent_buttons'] = array(
-			'markread' => array('text' => 'mark_as_read', 'image' => 'markread.png', 'custom' => 'data-confirm="' . $txt['are_sure_mark_read'] . '"', 'class' => 'you_sure', 'url' => Config::$scripturl . '?action=markasread;sa=unreadreplies;topics=' . Utils::$context['topics_to_mark'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']),
+			'markread' => array('text' => 'mark_as_read', 'image' => 'markread.png', 'custom' => 'data-confirm="' . Lang::$txt['are_sure_mark_read'] . '"', 'class' => 'you_sure', 'url' => Config::$scripturl . '?action=markasread;sa=unreadreplies;topics=' . Utils::$context['topics_to_mark'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']),
 		);
 
 		if (Utils::$context['showCheckboxes'])

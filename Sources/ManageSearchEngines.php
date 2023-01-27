@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -26,11 +27,9 @@ if (!defined('SMF'))
  */
 function SearchEngines()
 {
-	global $txt;
-
 	isAllowedTo('admin_forum');
 
-	loadLanguage('Search');
+	Lang::load('Search');
 	loadTemplate('ManageSearch');
 
 	if (!empty(Config::$modSettings['spider_mode']))
@@ -55,12 +54,12 @@ function SearchEngines()
 	// Ensure we have a valid subaction.
 	Utils::$context['sub_action'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : $default;
 
-	Utils::$context['page_title'] = $txt['search_engines'];
+	Utils::$context['page_title'] = Lang::$txt['search_engines'];
 
 	// Some more tab data.
 	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
-		'title' => $txt['search_engines'],
-		'description' => $txt['search_engines_description'],
+		'title' => Lang::$txt['search_engines'],
+		'description' => Lang::$txt['search_engines_description'],
 	);
 
 	call_integration_hook('integrate_manage_search_engines', array(&$subActions));
@@ -77,17 +76,15 @@ function SearchEngines()
  */
 function ManageSearchEngineSettings($return_config = false)
 {
-	global $txt;
-
 	$config_vars = array(
 		// How much detail?
-		array('select', 'spider_mode', 'subtext' => $txt['spider_mode_note'], array($txt['spider_mode_off'], $txt['spider_mode_standard'], $txt['spider_mode_high'], $txt['spider_mode_vhigh']), 'onchange' => 'disableFields();'),
-		'spider_group' => array('select', 'spider_group', 'subtext' => $txt['spider_group_note'], array($txt['spider_group_none'], $txt['membergroups_members'])),
-		array('select', 'show_spider_online', array($txt['show_spider_online_no'], $txt['show_spider_online_summary'], $txt['show_spider_online_detail'], $txt['show_spider_online_detail_admin'])),
+		array('select', 'spider_mode', 'subtext' => Lang::$txt['spider_mode_note'], array(Lang::$txt['spider_mode_off'], Lang::$txt['spider_mode_standard'], Lang::$txt['spider_mode_high'], Lang::$txt['spider_mode_vhigh']), 'onchange' => 'disableFields();'),
+		'spider_group' => array('select', 'spider_group', 'subtext' => Lang::$txt['spider_group_note'], array(Lang::$txt['spider_group_none'], Lang::$txt['membergroups_members'])),
+		array('select', 'show_spider_online', array(Lang::$txt['show_spider_online_no'], Lang::$txt['show_spider_online_summary'], Lang::$txt['show_spider_online_detail'], Lang::$txt['show_spider_online_detail_admin'])),
 	);
 
 	// Set up a message.
-	Utils::$context['settings_message'] = sprintf($txt['spider_settings_desc'], Config::$scripturl . '?action=admin;area=logs;sa=settings;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+	Utils::$context['settings_message'] = sprintf(Lang::$txt['spider_settings_desc'], Config::$scripturl . '?action=admin;area=logs;sa=settings;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 
 	// Do some javascript.
 	$javascript_function = '
@@ -133,7 +130,7 @@ function ManageSearchEngineSettings($return_config = false)
 	require_once(Config::$sourcedir . '/ManageServer.php');
 
 	// Setup the template.
-	Utils::$context['page_title'] = $txt['settings'];
+	Utils::$context['page_title'] = Lang::$txt['settings'];
 	Utils::$context['sub_template'] = 'show_settings';
 
 	// Are we saving them - are we??
@@ -150,7 +147,7 @@ function ManageSearchEngineSettings($return_config = false)
 
 	// Final settings...
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=sengines;save;sa=settings';
-	Utils::$context['settings_title'] = $txt['settings'];
+	Utils::$context['settings_title'] = Lang::$txt['settings'];
 	addInlineJavaScript($javascript_function, true);
 
 	// Prepare the settings...
@@ -162,8 +159,6 @@ function ManageSearchEngineSettings($return_config = false)
  */
 function ViewSpiders()
 {
-	global $txt;
-
 	if (!isset($_SESSION['spider_stat']) || $_SESSION['spider_stat'] < time() - 60)
 	{
 		consolidateSpiderStats();
@@ -227,7 +222,7 @@ function ViewSpiders()
 	createToken('admin-ser');
 	$listOptions = array(
 		'id' => 'spider_list',
-		'title' => $txt['spiders'],
+		'title' => Lang::$txt['spiders'],
 		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 		'base_href' => Config::$scripturl . '?action=admin;area=sengines;sa=spiders',
 		'default_sort_col' => 'name',
@@ -237,11 +232,11 @@ function ViewSpiders()
 		'get_count' => array(
 			'function' => 'list_getNumSpiders',
 		),
-		'no_items_label' => $txt['spiders_no_entries'],
+		'no_items_label' => Lang::$txt['spiders_no_entries'],
 		'columns' => array(
 			'name' => array(
 				'header' => array(
-					'value' => $txt['spider_name'],
+					'value' => Lang::$txt['spider_name'],
 				),
 				'data' => array(
 					'function' => function($rowData)
@@ -256,18 +251,18 @@ function ViewSpiders()
 			),
 			'last_seen' => array(
 				'header' => array(
-					'value' => $txt['spider_last_seen'],
+					'value' => Lang::$txt['spider_last_seen'],
 				),
 				'data' => array(
-					'function' => function($rowData) use ($txt)
+					'function' => function($rowData)
 					{
-						return isset(Utils::$context['spider_last_seen'][$rowData['id_spider']]) ? timeformat(Utils::$context['spider_last_seen'][$rowData['id_spider']]) : $txt['spider_last_never'];
+						return isset(Utils::$context['spider_last_seen'][$rowData['id_spider']]) ? timeformat(Utils::$context['spider_last_seen'][$rowData['id_spider']]) : Lang::$txt['spider_last_never'];
 					},
 				),
 			),
 			'user_agent' => array(
 				'header' => array(
-					'value' => $txt['spider_agent'],
+					'value' => Lang::$txt['spider_agent'],
 				),
 				'data' => array(
 					'db_htmlsafe' => 'user_agent',
@@ -279,7 +274,7 @@ function ViewSpiders()
 			),
 			'ip_info' => array(
 				'header' => array(
-					'value' => $txt['spider_ip_info'],
+					'value' => Lang::$txt['spider_ip_info'],
 				),
 				'data' => array(
 					'db_htmlsafe' => 'ip_info',
@@ -314,8 +309,8 @@ function ViewSpiders()
 			array(
 				'position' => 'bottom_of_list',
 				'value' => '
-					<input type="submit" name="removeSpiders" value="' . $txt['spiders_remove_selected'] . '" data-confirm="' . $txt['spider_remove_selected_confirm'] . '" class="button you_sure">
-					<input type="submit" name="addSpider" value="' . $txt['spiders_add'] . '" class="button">
+					<input type="submit" name="removeSpiders" value="' . Lang::$txt['spiders_remove_selected'] . '" data-confirm="' . Lang::$txt['spider_remove_selected_confirm'] . '" class="button you_sure">
+					<input type="submit" name="addSpider" value="' . Lang::$txt['spiders_add'] . '" class="button">
 				',
 			),
 		),
@@ -381,11 +376,9 @@ function list_getNumSpiders()
  */
 function EditSpider()
 {
-	global $txt;
-
 	// Some standard stuff.
 	Utils::$context['id_spider'] = !empty($_GET['sid']) ? (int) $_GET['sid'] : 0;
-	Utils::$context['page_title'] = Utils::$context['id_spider'] ? $txt['spiders_edit'] : $txt['spiders_add'];
+	Utils::$context['page_title'] = Utils::$context['id_spider'] ? Lang::$txt['spiders_edit'] : Lang::$txt['spiders_add'];
 	Utils::$context['sub_template'] = 'spider_edit';
 
 	// Are we saving?
@@ -675,10 +668,8 @@ function consolidateSpiderStats()
  */
 function SpiderLogs()
 {
-	global $txt;
-
 	// Load the template and language just incase.
-	loadLanguage('Search');
+	Lang::load('Search');
 	loadTemplate('ManageSearch');
 
 	// Did they want to delete some entries?
@@ -713,8 +704,8 @@ function SpiderLogs()
 	$listOptions = array(
 		'id' => 'spider_logs',
 		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-		'title' => $txt['spider_logs'],
-		'no_items_label' => $txt['spider_logs_empty'],
+		'title' => Lang::$txt['spider_logs'],
+		'no_items_label' => Lang::$txt['spider_logs_empty'],
 		'base_href' => Utils::$context['admin_area'] == 'sengines' ? Config::$scripturl . '?action=admin;area=sengines;sa=logs' : Config::$scripturl . '?action=admin;area=logs;sa=spiderlog',
 		'default_sort_col' => 'log_time',
 		'get_items' => array(
@@ -726,7 +717,7 @@ function SpiderLogs()
 		'columns' => array(
 			'name' => array(
 				'header' => array(
-					'value' => $txt['spider'],
+					'value' => Lang::$txt['spider'],
 				),
 				'data' => array(
 					'db' => 'spider_name',
@@ -738,7 +729,7 @@ function SpiderLogs()
 			),
 			'log_time' => array(
 				'header' => array(
-					'value' => $txt['spider_time'],
+					'value' => Lang::$txt['spider_time'],
 				),
 				'data' => array(
 					'function' => function($rowData)
@@ -753,7 +744,7 @@ function SpiderLogs()
 			),
 			'viewing' => array(
 				'header' => array(
-					'value' => $txt['spider_viewing'],
+					'value' => Lang::$txt['spider_viewing'],
 				),
 				'data' => array(
 					'db' => 'url',
@@ -767,11 +758,11 @@ function SpiderLogs()
 		'additional_rows' => array(
 			array(
 				'position' => 'after_title',
-				'value' => $txt['spider_logs_info'],
+				'value' => Lang::$txt['spider_logs_info'],
 			),
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="submit" name="removeAll" value="' . $txt['spider_log_empty_log'] . '" data-confirm="' . $txt['spider_log_empty_log_confirm'] . '" class="button you_sure">',
+				'value' => '<input type="submit" name="removeAll" value="' . Lang::$txt['spider_log_empty_log'] . '" data-confirm="' . Lang::$txt['spider_log_empty_log_confirm'] . '" class="button you_sure">',
 			),
 		),
 	);
@@ -791,7 +782,7 @@ function SpiderLogs()
 		{
 			// Feature disabled?
 			if (empty($row['data']['viewing']['value']) && isset(Config::$modSettings['spider_mode']) && Config::$modSettings['spider_mode'] < 3)
-				Utils::$context['spider_logs']['rows'][$k]['viewing']['value'] = '<em>' . $txt['spider_disabled'] . '</em>';
+				Utils::$context['spider_logs']['rows'][$k]['viewing']['value'] = '<em>' . Lang::$txt['spider_disabled'] . '</em>';
 			else
 				$urls[$k] = array($row['data']['viewing']['value'], -1);
 		}
@@ -803,14 +794,14 @@ function SpiderLogs()
 		{
 			if (is_array($new_url))
 			{
-				Utils::$context['spider_logs']['rows'][$k]['data']['viewing']['value'] = $txt[$new_url['label']];
+				Utils::$context['spider_logs']['rows'][$k]['data']['viewing']['value'] = Lang::$txt[$new_url['label']];
 				Utils::$context['spider_logs']['rows'][$k]['data']['viewing']['class'] = $new_url['class'];
 			} else
 				Utils::$context['spider_logs']['rows'][$k]['data']['viewing']['value'] = $new_url;
 		}
 	}
 
-	Utils::$context['page_title'] = $txt['spider_logs'];
+	Utils::$context['page_title'] = Lang::$txt['spider_logs'];
 	Utils::$context['sub_template'] = 'show_spider_logs';
 	Utils::$context['default_list'] = 'spider_logs';
 }
@@ -869,8 +860,6 @@ function list_getNumSpiderLogs()
  */
 function SpiderStats()
 {
-	global $txt;
-
 	// Force an update of the stats every 60 seconds.
 	if (!isset($_SESSION['spider_stat']) || $_SESSION['spider_stat'] < time() - 60)
 	{
@@ -923,7 +912,7 @@ function SpiderStats()
 			if ($y == $max_year && $m > $max_month)
 				break;
 
-			$date_choices[$y . $m] = $txt['months_short'][$m] . ' ' . $y;
+			$date_choices[$y . $m] = Lang::$txt['months_short'][$m] . ' ' . $y;
 		}
 
 	// What are we currently viewing?
@@ -933,7 +922,7 @@ function SpiderStats()
 	if (!empty($date_choices))
 	{
 		$date_select = '
-		' . $txt['spider_stats_select_month'] . ':
+		' . Lang::$txt['spider_stats_select_month'] . ':
 		<select name="new_date" onchange="document.spider_stat_list.submit();">';
 
 		foreach ($date_choices as $id => $text)
@@ -943,7 +932,7 @@ function SpiderStats()
 		$date_select .= '
 		</select>
 		<noscript>
-			<input type="submit" name="go" value="' . $txt['go'] . '" class="button">
+			<input type="submit" name="go" value="' . Lang::$txt['go'] . '" class="button">
 		</noscript>';
 	}
 
@@ -966,7 +955,7 @@ function SpiderStats()
 
 	$listOptions = array(
 		'id' => 'spider_stat_list',
-		'title' => $txt['spider_stats'],
+		'title' => Lang::$txt['spider_stats'],
 		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 		'base_href' => Config::$scripturl . '?action=admin;area=sengines;sa=stats',
 		'default_sort_col' => 'stat_date',
@@ -976,11 +965,11 @@ function SpiderStats()
 		'get_count' => array(
 			'function' => 'list_getNumSpiderStats',
 		),
-		'no_items_label' => $txt['spider_stats_no_entries'],
+		'no_items_label' => Lang::$txt['spider_stats_no_entries'],
 		'columns' => array(
 			'stat_date' => array(
 				'header' => array(
-					'value' => $txt['date'],
+					'value' => Lang::$txt['date'],
 				),
 				'data' => array(
 					'db' => 'stat_date',
@@ -992,7 +981,7 @@ function SpiderStats()
 			),
 			'name' => array(
 				'header' => array(
-					'value' => $txt['spider_name'],
+					'value' => Lang::$txt['spider_name'],
 				),
 				'data' => array(
 					'db' => 'spider_name',
@@ -1004,7 +993,7 @@ function SpiderStats()
 			),
 			'page_hits' => array(
 				'header' => array(
-					'value' => $txt['spider_stats_page_hits'],
+					'value' => Lang::$txt['spider_stats_page_hits'],
 				),
 				'data' => array(
 					'db' => 'page_hits',

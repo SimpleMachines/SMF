@@ -18,6 +18,7 @@
 use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -31,7 +32,7 @@ if (!defined('SMF'))
  */
 function Register($reg_errors = array())
 {
-	global $txt, $user_info;
+	global $user_info;
 	global $cur_profile;
 
 	// Is this an incoming AJAX check?
@@ -49,7 +50,7 @@ function Register($reg_errors = array())
 	elseif (empty($user_info['is_guest']))
 		redirectexit();
 
-	loadLanguage('Login');
+	Lang::load('Login');
 	loadTemplate('Register');
 
 	// How many steps have we done so far today?
@@ -74,11 +75,11 @@ function Register($reg_errors = array())
 	if (Utils::$context['show_coppa'])
 	{
 		Utils::$context['skip_coppa'] = false;
-		Utils::$context['coppa_agree_above'] = sprintf($txt[$agree_txt_key . 'agree_coppa_above'], Config::$modSettings['coppaAge']);
-		Utils::$context['coppa_agree_below'] = sprintf($txt[$agree_txt_key . 'agree_coppa_below'], Config::$modSettings['coppaAge']);
+		Utils::$context['coppa_agree_above'] = sprintf(Lang::$txt[$agree_txt_key . 'agree_coppa_above'], Config::$modSettings['coppaAge']);
+		Utils::$context['coppa_agree_below'] = sprintf(Lang::$txt[$agree_txt_key . 'agree_coppa_below'], Config::$modSettings['coppaAge']);
 	}
 	elseif ($agree_txt_key != '')
-		Utils::$context['agree'] = $txt[$agree_txt_key . 'agree'];
+		Utils::$context['agree'] = Lang::$txt[$agree_txt_key . 'agree'];
 
 	// Does this user agree to the registration agreement?
 	if ($current_step == 1 && (isset($_POST['accept_agreement']) || isset($_POST['accept_agreement_coppa'])))
@@ -94,7 +95,7 @@ function Register($reg_errors = array())
 			// Are they saying they're under age, while under age registration is disabled?
 			if (empty(Config::$modSettings['coppaType']) && empty($_SESSION['skip_coppa']))
 			{
-				loadLanguage('Login');
+				Lang::load('Login');
 				fatal_lang_error('under_age_registration_prohibited', false, array(Config::$modSettings['coppaAge']));
 			}
 		}
@@ -105,7 +106,7 @@ function Register($reg_errors = array())
 
 	// Show the user the right form.
 	Utils::$context['sub_template'] = $current_step == 1 ? 'registration_agreement' : 'registration_form';
-	Utils::$context['page_title'] = $current_step == 1 ? $txt['registration_agreement'] : $txt['registration_form'];
+	Utils::$context['page_title'] = $current_step == 1 ? Lang::$txt['registration_agreement'] : Lang::$txt['registration_form'];
 
 	// Kinda need this.
 	if (Utils::$context['sub_template'] == 'registration_form')
@@ -114,7 +115,7 @@ function Register($reg_errors = array())
 	// Add the register chain to the link tree.
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=signup',
-		'name' => $txt['register'],
+		'name' => Lang::$txt['register'],
 	);
 
 	// Prepare the time gate! Do it like so, in case later steps want to reset the limit for any reason, but make sure the time is the current one.
@@ -141,7 +142,7 @@ function Register($reg_errors = array())
 		if (empty(Utils::$context['agreement']))
 		{
 			// No file found or a blank file, log the error so the admin knows there is a problem!
-			log_error($txt['registration_agreement_missing'], 'critical');
+			log_error(Lang::$txt['registration_agreement_missing'], 'critical');
 			fatal_lang_error('registration_disabled', false);
 		}
 	}
@@ -152,11 +153,11 @@ function Register($reg_errors = array())
 
 	if (!empty(Config::$modSettings['userLanguage']))
 	{
-		$selectedLanguage = empty($_SESSION['language']) ? Config::$language : $_SESSION['language'];
+		$selectedLanguage = empty($_SESSION['language']) ? Lang::$default : $_SESSION['language'];
 
 		// Do we have any languages?
 		if (empty(Utils::$context['languages']))
-			getLanguages();
+			Lang::get();
 
 		// Try to find our selected language.
 		foreach (Utils::$context['languages'] as $key => $lang)
@@ -175,12 +176,12 @@ function Register($reg_errors = array())
 		// Have we got a localized one?
 		if (!empty(Config::$modSettings['policy_' . $user_info['language']]))
 			Utils::$context['privacy_policy'] = BBCodeParser::load()->parse(Config::$modSettings['policy_' . $user_info['language']]);
-		elseif (!empty(Config::$modSettings['policy_' . Config::$language]))
-			Utils::$context['privacy_policy'] = BBCodeParser::load()->parse(Config::$modSettings['policy_' . Config::$language]);
+		elseif (!empty(Config::$modSettings['policy_' . Lang::$default]))
+			Utils::$context['privacy_policy'] = BBCodeParser::load()->parse(Config::$modSettings['policy_' . Lang::$default]);
 		else
 		{
 			// None was found; log the error so the admin knows there is a problem!
-			log_error($txt['registration_policy_missing'], 'critical');
+			log_error(Lang::$txt['registration_policy_missing'], 'critical');
 			fatal_lang_error('registration_disabled', false);
 		}
 	}
@@ -195,7 +196,7 @@ function Register($reg_errors = array())
 		require_once(Config::$sourcedir . '/Profile-Modify.php');
 
 		// Setup some important context.
-		loadLanguage('Profile');
+		Lang::load('Profile');
 		loadTemplate('Profile');
 
 		Utils::$context['user']['is_owner'] = true;
@@ -256,8 +257,6 @@ function Register($reg_errors = array())
  */
 function Register2()
 {
-	global $txt;
-
 	checkSession();
 	validateToken('register');
 
@@ -287,7 +286,7 @@ function Register2()
 	// Are they under age, and under age users are banned?
 	if (!empty(Config::$modSettings['coppaAge']) && empty(Config::$modSettings['coppaType']) && empty($_SESSION['skip_coppa']))
 	{
-		loadLanguage('Errors');
+		Lang::load('Errors');
 		fatal_lang_error('under_age_registration_prohibited', false, array(Config::$modSettings['coppaAge']));
 	}
 
@@ -297,8 +296,8 @@ function Register2()
 	// Failing that, check the time on it.
 	if (time() - $_SESSION['register']['timenow'] < $_SESSION['register']['limit'])
 	{
-		loadLanguage('Errors');
-		$reg_errors[] = $txt['error_too_quickly'];
+		Lang::load('Errors');
+		$reg_errors[] = Lang::$txt['error_too_quickly'];
 	}
 
 	// Check whether the visual verification code was entered correctly.
@@ -312,9 +311,9 @@ function Register2()
 
 		if (is_array(Utils::$context['visual_verification']))
 		{
-			loadLanguage('Errors');
+			Lang::load('Errors');
 			foreach (Utils::$context['visual_verification'] as $error)
-				$reg_errors[] = $txt['error_' . $error];
+				$reg_errors[] = Lang::$txt['error_' . $error];
 		}
 	}
 
@@ -413,7 +412,7 @@ function Register2()
 	{
 		// Do we have any languages?
 		if (empty(Utils::$context['languages']))
-			getLanguages();
+			Lang::get();
 
 		// Did we find it?
 		if (isset(Utils::$context['languages'][$_POST['lngfile']]))
@@ -520,9 +519,9 @@ function Register2()
 	// Process any errors.
 	if (!empty($custom_field_errors))
 	{
-		loadLanguage('Errors');
+		Lang::load('Errors');
 		foreach ($custom_field_errors as $error)
-			$reg_errors[] = vsprintf($txt['error_' . $error[0]], (array) $error[1]);
+			$reg_errors[] = vsprintf(Lang::$txt['error_' . $error[0]], (array) $error[1]);
 	}
 
 	// Lets check for other errors before trying to register the member.
@@ -573,10 +572,10 @@ function Register2()
 		loadTemplate('Register');
 
 		Utils::$context += array(
-			'page_title' => $txt['register'],
-			'title' => $txt['registration_successful'],
+			'page_title' => Lang::$txt['register'],
+			'title' => Lang::$txt['registration_successful'],
 			'sub_template' => 'after',
-			'description' => Config::$modSettings['registration_method'] == 2 ? $txt['approval_after_registration'] : $txt['activate_after_registration']
+			'description' => Config::$modSettings['registration_method'] == 2 ? Lang::$txt['approval_after_registration'] : Lang::$txt['activate_after_registration']
 		);
 	}
 	else
@@ -596,13 +595,13 @@ function Register2()
  */
 function Activate()
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	// Logged in users should not bother to activate their accounts
 	if (!empty($user_info['id']))
 		redirectexit();
 
-	loadLanguage('Login');
+	Lang::load('Login');
 	loadTemplate('Login');
 
 	if (empty($_REQUEST['u']) && empty($_POST['user']))
@@ -612,7 +611,7 @@ function Activate()
 
 		Utils::$context['member_id'] = 0;
 		Utils::$context['sub_template'] = 'resend';
-		Utils::$context['page_title'] = $txt['invalid_activation_resend'];
+		Utils::$context['page_title'] = Lang::$txt['invalid_activation_resend'];
 		Utils::$context['can_activate'] = empty(Config::$modSettings['registration_method']) || Config::$modSettings['registration_method'] == '1';
 		Utils::$context['default_username'] = isset($_GET['user']) ? $_GET['user'] : '';
 
@@ -636,7 +635,7 @@ function Activate()
 	if (Db::$db->num_rows($request) == 0)
 	{
 		Utils::$context['sub_template'] = 'retry_activate';
-		Utils::$context['page_title'] = $txt['invalid_userid'];
+		Utils::$context['page_title'] = Lang::$txt['invalid_userid'];
 		Utils::$context['member_id'] = 0;
 
 		return;
@@ -652,10 +651,10 @@ function Activate()
 			fatal_lang_error('no_access', false);
 
 		if (!filter_var($_POST['new_email'], FILTER_VALIDATE_EMAIL))
-			fatal_error(sprintf($txt['valid_email_needed'], Utils::htmlspecialchars($_POST['new_email'])), false);
+			fatal_error(sprintf(Lang::$txt['valid_email_needed'], Utils::htmlspecialchars($_POST['new_email'])), false);
 
 		// Make sure their email isn't banned.
-		isBannedEmail($_POST['new_email'], 'cannot_register', $txt['ban_register_prohibited']);
+		isBannedEmail($_POST['new_email'], 'cannot_register', Lang::$txt['ban_register_prohibited']);
 
 		// Ummm... don't even dare try to take someone else's email!!
 		$request = Db::$db->query('', '
@@ -692,14 +691,14 @@ function Activate()
 			'FORGOTPASSWORDLINK' => Config::$scripturl . '?action=reminder',
 		);
 
-		$emaildata = loadEmailTemplate('resend_activate_message', $replacements, empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $row['lngfile']);
+		$emaildata = loadEmailTemplate('resend_activate_message', $replacements, empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile']);
 
 		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'resendact', $emaildata['is_html'], 0);
 
-		Utils::$context['page_title'] = $txt['invalid_activation_resend'];
+		Utils::$context['page_title'] = Lang::$txt['invalid_activation_resend'];
 
 		// This will ensure we don't actually get an error message if it works!
-		Utils::$context['error_title'] = $txt['invalid_activation_resend'];
+		Utils::$context['error_title'] = Lang::$txt['invalid_activation_resend'];
 
 		fatal_lang_error(!empty($email_change) ? 'change_email_success' : 'resend_email_success', false, array(), false);
 	}
@@ -711,12 +710,12 @@ function Activate()
 			fatal_lang_error('already_activated', false);
 		elseif ($row['validation_code'] == '')
 		{
-			loadLanguage('Profile');
-			fatal_error(sprintf($txt['registration_not_approved'], Config::$scripturl . '?action=activate;user=' . $row['member_name']), false);
+			Lang::load('Profile');
+			fatal_error(sprintf(Lang::$txt['registration_not_approved'], Config::$scripturl . '?action=activate;user=' . $row['member_name']), false);
 		}
 
 		Utils::$context['sub_template'] = 'retry_activate';
-		Utils::$context['page_title'] = $txt['invalid_activation_code'];
+		Utils::$context['page_title'] = Lang::$txt['invalid_activation_code'];
 		Utils::$context['member_id'] = $row['id_member'];
 
 		return;
@@ -740,12 +739,12 @@ function Activate()
 	}
 
 	Utils::$context += array(
-		'page_title' => $txt['registration_successful'],
+		'page_title' => Lang::$txt['registration_successful'],
 		'sub_template' => 'login',
 		'default_username' => $row['member_name'],
 		'default_password' => '',
 		'never_expire' => false,
-		'description' => $txt['activate_success']
+		'description' => Lang::$txt['activate_success']
 	);
 }
 
@@ -754,9 +753,7 @@ function Activate()
  */
 function CoppaForm()
 {
-	global $txt;
-
-	loadLanguage('Login');
+	Lang::load('Login');
 	loadTemplate('Register');
 
 	// No User ID??
@@ -792,8 +789,8 @@ function CoppaForm()
 			Utils::$context['ul'] = '<u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>';
 			Utils::$context['template_layers'] = array();
 			Utils::$context['sub_template'] = 'coppa_form';
-			Utils::$context['page_title'] = sprintf($txt['coppa_form_title'], Utils::$context['forum_name_html_safe']);
-			Utils::$context['coppa_body'] = str_replace(array('{PARENT_NAME}', '{CHILD_NAME}', '{USER_NAME}'), array(Utils::$context['ul'], Utils::$context['ul'], $username), sprintf($txt['coppa_form_body'], Utils::$context['forum_name_html_safe']));
+			Utils::$context['page_title'] = sprintf(Lang::$txt['coppa_form_title'], Utils::$context['forum_name_html_safe']);
+			Utils::$context['coppa_body'] = str_replace(array('{PARENT_NAME}', '{CHILD_NAME}', '{USER_NAME}'), array(Utils::$context['ul'], Utils::$context['ul'], $username), sprintf(Lang::$txt['coppa_form_body'], Utils::$context['forum_name_html_safe']));
 		}
 		// Downloading.
 		else
@@ -801,7 +798,7 @@ function CoppaForm()
 			// The data.
 			$ul = '                ';
 			$crlf = "\r\n";
-			$data = Utils::$context['forum_contacts'] . $crlf . $txt['coppa_form_address'] . ':' . $crlf . $txt['coppa_form_date'] . ':' . $crlf . $crlf . $crlf . sprintf($txt['coppa_form_body'], Utils::$context['forum_name_html_safe']);
+			$data = Utils::$context['forum_contacts'] . $crlf . Lang::$txt['coppa_form_address'] . ':' . $crlf . Lang::$txt['coppa_form_date'] . ':' . $crlf . $crlf . $crlf . sprintf(Lang::$txt['coppa_form_body'], Utils::$context['forum_name_html_safe']);
 			$data = str_replace(array('{PARENT_NAME}', '{CHILD_NAME}', '{USER_NAME}', '<br>', '<br>'), array($ul, $ul, $username, $crlf, $crlf), $data);
 
 			// Send the headers.
@@ -817,16 +814,16 @@ function CoppaForm()
 	else
 	{
 		Utils::$context += array(
-			'page_title' => $txt['coppa_title'],
+			'page_title' => Lang::$txt['coppa_title'],
 			'sub_template' => 'coppa',
 		);
 
 		Utils::$context['coppa'] = array(
-			'body' => str_replace('{MINIMUM_AGE}', Config::$modSettings['coppaAge'], sprintf($txt['coppa_after_registration'], Utils::$context['forum_name_html_safe'])),
+			'body' => str_replace('{MINIMUM_AGE}', Config::$modSettings['coppaAge'], sprintf(Lang::$txt['coppa_after_registration'], Utils::$context['forum_name_html_safe'])),
 			'many_options' => !empty(Config::$modSettings['coppaPost']) && !empty(Config::$modSettings['coppaFax']),
 			'post' => empty(Config::$modSettings['coppaPost']) ? '' : Config::$modSettings['coppaPost'],
 			'fax' => empty(Config::$modSettings['coppaFax']) ? '' : Config::$modSettings['coppaFax'],
-			'phone' => empty(Config::$modSettings['coppaPhone']) ? '' : str_replace('{PHONE_NUMBER}', Config::$modSettings['coppaPhone'], $txt['coppa_send_by_phone']),
+			'phone' => empty(Config::$modSettings['coppaPhone']) ? '' : str_replace('{PHONE_NUMBER}', Config::$modSettings['coppaPhone'], Lang::$txt['coppa_send_by_phone']),
 			'id' => $_GET['member'],
 		);
 	}
@@ -850,7 +847,7 @@ function VerificationCode()
 	// Show a window that will play the verification code.
 	elseif (isset($_REQUEST['sound']))
 	{
-		loadLanguage('Login');
+		Lang::load('Login');
 		loadTemplate('Register');
 
 		Utils::$context['verification_sound_href'] = Config::$scripturl . '?action=verificationcode;rand=' . md5(mt_rand()) . ($verification_id ? ';vid=' . $verification_id : '') . ';format=.wav';
@@ -923,18 +920,16 @@ function RegisterCheckUsername()
  */
 function SendActivation()
 {
-	global $txt;
-
 	Utils::$context['user']['is_logged'] = false;
 	Utils::$context['user']['is_guest'] = true;
 
 	// Send them to the done-with-registration-login screen.
 	loadTemplate('Register');
 
-	Utils::$context['page_title'] = $txt['profile'];
+	Utils::$context['page_title'] = Lang::$txt['profile'];
 	Utils::$context['sub_template'] = 'after';
-	Utils::$context['title'] = $txt['activate_changed_email_title'];
-	Utils::$context['description'] = $txt['activate_changed_email_desc'];
+	Utils::$context['title'] = Lang::$txt['activate_changed_email_title'];
+	Utils::$context['description'] = Lang::$txt['activate_changed_email_desc'];
 
 	// Aaand we're gone!
 	obExit();

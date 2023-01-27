@@ -15,6 +15,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -324,7 +325,7 @@ function attachments_init_dir(&$tree, &$count)
  */
 function processAttachments()
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	// Make sure we're uploading to the right place.
 	if (!empty(Config::$modSettings['automanage_attachments']))
@@ -341,7 +342,7 @@ function processAttachments()
 	elseif (!is_dir(Utils::$context['attach_dir']))
 	{
 		$initial_error = 'attach_folder_warning';
-		log_error(sprintf($txt['attach_folder_admin_warning'], Utils::$context['attach_dir']), 'critical');
+		log_error(sprintf(Lang::$txt['attach_folder_admin_warning'], Utils::$context['attach_dir']), 'critical');
 	}
 
 	if (!isset($initial_error) && !isset(Utils::$context['attachments']))
@@ -390,7 +391,7 @@ function processAttachments()
 				if (strpos($attachID, 'post_tmp_' . $user_info['id']) !== false)
 					unlink($attachment['tmp_name']);
 
-			Utils::$context['we_are_history'] = $txt['error_temp_attachments_flushed'];
+			Utils::$context['we_are_history'] = Lang::$txt['error_temp_attachments_flushed'];
 			$_SESSION['temp_attachments'] = array();
 		}
 	}
@@ -436,9 +437,9 @@ function processAttachments()
 			if ($_FILES['attachment']['error'][$n] == 2)
 				$errors[] = array('file_too_big', array(Config::$modSettings['attachmentSizeLimit']));
 			elseif ($_FILES['attachment']['error'][$n] == 6)
-				log_error($_FILES['attachment']['name'][$n] . ': ' . $txt['php_upload_error_6'], 'critical');
+				log_error($_FILES['attachment']['name'][$n] . ': ' . Lang::$txt['php_upload_error_6'], 'critical');
 			else
-				log_error($_FILES['attachment']['name'][$n] . ': ' . $txt['php_upload_error_' . $_FILES['attachment']['error'][$n]]);
+				log_error($_FILES['attachment']['name'][$n] . ': ' . Lang::$txt['php_upload_error_' . $_FILES['attachment']['error'][$n]]);
 			if (empty($errors))
 				$errors[] = 'attach_php_error';
 		}
@@ -495,7 +496,7 @@ function processAttachments()
 	//   size => File size (required).
 	//   type => MIME type (optional if not available on upload).
 	//   id_folder => Config::$modSettings['currentAttachmentUploadDir']
-	//   errors => An array of errors (use the index of the $txt variable for that error).
+	//   errors => An array of errors (use the index of the Lang::$txt variable for that error).
 	// Template changes can be done using "integrate_upload_template".
 	call_integration_hook('integrate_attachment_upload', array());
 }
@@ -629,11 +630,11 @@ function attachmentChecks($attachID)
 	// Is the file too big?
 	Utils::$context['attachments']['total_size'] += $_SESSION['temp_attachments'][$attachID]['size'];
 	if (!empty(Config::$modSettings['attachmentSizeLimit']) && $_SESSION['temp_attachments'][$attachID]['size'] > Config::$modSettings['attachmentSizeLimit'] * 1024)
-		$_SESSION['temp_attachments'][$attachID]['errors'][] = array('file_too_big', array(comma_format(Config::$modSettings['attachmentSizeLimit'], 0)));
+		$_SESSION['temp_attachments'][$attachID]['errors'][] = array('file_too_big', array(Lang::numberFormat(Config::$modSettings['attachmentSizeLimit'], 0)));
 
 	// Check the total upload size for this post...
 	if (!empty(Config::$modSettings['attachmentPostLimit']) && Utils::$context['attachments']['total_size'] > Config::$modSettings['attachmentPostLimit'] * 1024)
-		$_SESSION['temp_attachments'][$attachID]['errors'][] = array('attach_max_total_file_size', array(comma_format(Config::$modSettings['attachmentPostLimit'], 0), comma_format(Config::$modSettings['attachmentPostLimit'] - ((Utils::$context['attachments']['total_size'] - $_SESSION['temp_attachments'][$attachID]['size']) / 1024), 0)));
+		$_SESSION['temp_attachments'][$attachID]['errors'][] = array('attach_max_total_file_size', array(Lang::numberFormat(Config::$modSettings['attachmentPostLimit'], 0), Lang::numberFormat(Config::$modSettings['attachmentPostLimit'] - ((Utils::$context['attachments']['total_size'] - $_SESSION['temp_attachments'][$attachID]['size']) / 1024), 0)));
 
 	// Have we reached the maximum number of files we are allowed?
 	Utils::$context['attachments']['quantity']++;
@@ -685,8 +686,6 @@ function attachmentChecks($attachID)
  */
 function createAttachment(&$attachmentOptions)
 {
-	global $txt;
-
 	require_once(Config::$sourcedir . '/Subs-Graphics.php');
 
 	// If this is an image we need to set a few additional parameters.
@@ -796,8 +795,8 @@ function createAttachment(&$attachmentOptions)
 	// Attachment couldn't be created.
 	if (empty($attachmentOptions['id']))
 	{
-		loadLanguage('Errors');
-		log_error($txt['attachment_not_created'], 'general');
+		Lang::load('Errors');
+		log_error(Lang::$txt['attachment_not_created'], 'general');
 		return false;
 	}
 
@@ -970,7 +969,7 @@ function assignAttachments($attachIDs = array(), $msgID = 0)
  *
  * @param int $attachID the attachment ID to load info from.
  *
- * @return mixed If successful, it will return an array of loaded data. String, most likely a $txt key if there was some error.
+ * @return mixed If succesful, it will return an array of loaded data. String, most likely a Lang::$txt key if there was some error.
  */
 function parseAttachBBC($attachID = 0)
 {
@@ -1186,8 +1185,6 @@ function getAttachMsgInfo($attachID)
  */
 function loadAttachmentContext($id_msg, $attachments)
 {
-	global $txt;
-
 	if (empty($attachments) || empty($attachments[$id_msg]))
 		return array();
 
@@ -1202,7 +1199,7 @@ function loadAttachmentContext($id_msg, $attachments)
 				'id' => $attachment['id_attach'],
 				'name' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', Utils::htmlspecialchars(un_htmlspecialchars($attachment['filename']))),
 				'downloads' => $attachment['downloads'],
-				'size' => ($attachment['filesize'] < 1024000) ? round($attachment['filesize'] / 1024, 2) . ' ' . $txt['kilobyte'] : round($attachment['filesize'] / 1024 / 1024, 2) . ' ' . $txt['megabyte'],
+				'size' => ($attachment['filesize'] < 1024000) ? round($attachment['filesize'] / 1024, 2) . ' ' . Lang::$txt['kilobyte'] : round($attachment['filesize'] / 1024 / 1024, 2) . ' ' . Lang::$txt['megabyte'],
 				'byte_size' => $attachment['filesize'],
 				'href' => Config::$scripturl . '?action=dlattach;attach=' . $attachment['id_attach'],
 				'link' => '<a href="' . Config::$scripturl . '?action=dlattach;attach=' . $attachment['id_attach'] . '" class="bbc_link">' . Utils::htmlspecialchars(un_htmlspecialchars($attachment['filename'])) . '</a>',

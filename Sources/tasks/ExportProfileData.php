@@ -14,6 +14,7 @@
 namespace SMF\Tasks;
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\TaskRunner;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -146,7 +147,7 @@ class ExportProfileData extends BackgroundTask
 	protected function exportXml($member_info)
 	{
 		global $settings, $user_info;
-		global $user_profile, $txt, $query_this_board;
+		global $user_profile, $query_this_board;
 
 		// For convenience...
 		$uid = $this->_details['uid'];
@@ -178,7 +179,7 @@ class ExportProfileData extends BackgroundTask
 		Utils::$context['user']['id'] = $uid;
 		Utils::$context['user']['language'] = $lang;
 		loadMemberData($uid);
-		loadLanguage(implode('+', array_unique(array('index', 'Modifications', 'Stats', 'Profile', $included[$datatype]['langfile']))), $lang);
+		Lang::load(implode('+', array_unique(array('index', 'Modifications', 'Stats', 'Profile', $included[$datatype]['langfile']))), $lang);
 
 		// @todo Ask lawyers whether the GDPR requires us to include posts in the recycle bin.
 		$query_this_board = '{query_see_message_board}' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? ' AND m.id_board != ' . Config::$modSettings['recycle_board'] : '');
@@ -206,11 +207,11 @@ class ExportProfileData extends BackgroundTask
 		$progressfile = $export_dir_slash . $idhash_ext . '.progress.json';
 
 		$feed_meta = array(
-			'title' => sprintf($txt['profile_of_username'], $user_profile[$uid]['real_name']),
-			'desc' => sentence_list(array_map(
-				function ($datatype) use ($txt)
+			'title' => sprintf(Lang::$txt['profile_of_username'], $user_profile[$uid]['real_name']),
+			'desc' => Lang::sentenceList(array_map(
+				function ($datatype)
 				{
-					return $txt[$datatype];
+					return Lang::$txt[$datatype];
 				},
 				array_keys($included)
 			)),
@@ -322,8 +323,8 @@ class ExportProfileData extends BackgroundTask
 				// If disk space is insufficient, pause for a day so the admin can fix it.
 				if ($check_diskspace && disk_free_space(Config::$modSettings['export_dir']) - $minspace <= strlen(implode('', Utils::$context['feed']) . self::$xslt_info['stylesheet']))
 				{
-					loadLanguage('Errors');
-					log_error(sprintf($txt['export_low_diskspace'], Config::$modSettings['export_min_diskspace_pct']));
+					Lang::load('Errors');
+					log_error(sprintf(Lang::$txt['export_low_diskspace'], Config::$modSettings['export_min_diskspace_pct']));
 
 					$delay = 86400;
 				}
@@ -702,10 +703,8 @@ class ExportProfileData extends BackgroundTask
 	 */
 	public static function attach_bbc_validate(&$returnContext, $currentAttachment, $tag, $data, $disabled, $params)
 	{
-		global $txt;
-
-		$orig_link = '<a href="' . $currentAttachment['orig_href'] . '" class="bbc_link">' . $txt['export_download_original'] . '</a>';
-		$hidden_orig_link = ' <a href="' . $currentAttachment['orig_href'] . '" class="bbc_link dlattach_' . $currentAttachment['id'] . '" style="display:none; flex: 1 0 auto; margin: auto;">' . $txt['export_download_original'] . '</a>';
+		$orig_link = '<a href="' . $currentAttachment['orig_href'] . '" class="bbc_link">' . Lang::$txt['export_download_original'] . '</a>';
+		$hidden_orig_link = ' <a href="' . $currentAttachment['orig_href'] . '" class="bbc_link dlattach_' . $currentAttachment['id'] . '" style="display:none; flex: 1 0 auto; margin: auto;">' . Lang::$txt['export_download_original'] . '</a>';
 
 		if ($params['{display}'] == 'link')
 		{

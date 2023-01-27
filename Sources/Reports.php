@@ -22,6 +22,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -44,16 +45,14 @@ if (!defined('SMF'))
  */
 function ReportsMain()
 {
-	global $txt;
-
 	// Only admins, only EVER admins!
 	isAllowedTo('admin_forum');
 
 	// Let's get our things running...
 	loadTemplate('Reports');
-	loadLanguage('Reports');
+	Lang::load('Reports');
 
-	Utils::$context['page_title'] = $txt['generate_reports'];
+	Utils::$context['page_title'] = Lang::$txt['generate_reports'];
 
 	// These are the types of reports which exist - and the functions to generate them.
 	Utils::$context['report_types'] = array(
@@ -67,17 +66,17 @@ function ReportsMain()
 	call_integration_hook('integrate_report_types');
 	// Load up all the tabs...
 	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
-		'title' => $txt['generate_reports'],
+		'title' => Lang::$txt['generate_reports'],
 		'help' => '',
-		'description' => $txt['generate_reports_desc'],
+		'description' => Lang::$txt['generate_reports_desc'],
 	);
 
 	$is_first = 0;
 	foreach (Utils::$context['report_types'] as $k => $temp)
 		Utils::$context['report_types'][$k] = array(
 			'id' => $k,
-			'title' => isset($txt['gr_type_' . $k]) ? $txt['gr_type_' . $k] : $k,
-			'description' => isset($txt['gr_type_desc_' . $k]) ? $txt['gr_type_desc_' . $k] : null,
+			'title' => isset(Lang::$txt['gr_type_' . $k]) ? Lang::$txt['gr_type_' . $k] : $k,
+			'description' => isset(Lang::$txt['gr_type_desc_' . $k]) ? Lang::$txt['gr_type_desc_' . $k] : null,
 			'function' => $temp,
 			'is_first' => $is_first++ == 0,
 		);
@@ -111,7 +110,7 @@ function ReportsMain()
 	}
 
 	// Make the page title more descriptive.
-	Utils::$context['page_title'] .= ' - ' . (isset($txt['gr_type_' . Utils::$context['report_type']]) ? $txt['gr_type_' . Utils::$context['report_type']] : Utils::$context['report_type']);
+	Utils::$context['page_title'] .= ' - ' . (isset(Lang::$txt['gr_type_' . Utils::$context['report_type']]) ? Lang::$txt['gr_type_' . Utils::$context['report_type']] : Utils::$context['report_type']);
 
 	// Build the reports button array.
 	Utils::$context['report_buttons'] = array(
@@ -139,11 +138,9 @@ function ReportsMain()
  */
 function BoardReport()
 {
-	global $txt;
-
 	// Load the permission profiles.
 	require_once(Config::$sourcedir . '/ManagePermissions.php');
-	loadLanguage('ManagePermissions');
+	Lang::load('ManagePermissions');
 	loadPermissionProfiles();
 
 	// Get every moderator.
@@ -179,28 +176,28 @@ function BoardReport()
 		array(
 		)
 	);
-	$groups = array(-1 => $txt['guest_title'], 0 => $txt['membergroups_members']);
+	$groups = array(-1 => Lang::$txt['guest_title'], 0 => Lang::$txt['membergroups_members']);
 	while ($row = Db::$db->fetch_assoc($request))
 		$groups[$row['id_group']] = empty($row['online_color']) ? $row['group_name'] : '<span style="color: ' . $row['online_color'] . '">' . $row['group_name'] . '</span>';
 	Db::$db->free_result($request);
 
 	// All the fields we'll show.
 	$boardSettings = array(
-		'category' => $txt['board_category'],
-		'parent' => $txt['board_parent'],
-		'redirect' => $txt['board_redirect'],
-		'num_topics' => $txt['board_num_topics'],
-		'num_posts' => $txt['board_num_posts'],
-		'count_posts' => $txt['board_count_posts'],
-		'theme' => $txt['board_theme'],
-		'override_theme' => $txt['board_override_theme'],
-		'profile' => $txt['board_profile'],
-		'moderators' => $txt['board_moderators'],
-		'moderator_groups' => $txt['board_moderator_groups'],
-		'groups' => $txt['board_groups'],
+		'category' => Lang::$txt['board_category'],
+		'parent' => Lang::$txt['board_parent'],
+		'redirect' => Lang::$txt['board_redirect'],
+		'num_topics' => Lang::$txt['board_num_topics'],
+		'num_posts' => Lang::$txt['board_num_posts'],
+		'count_posts' => Lang::$txt['board_count_posts'],
+		'theme' => Lang::$txt['board_theme'],
+		'override_theme' => Lang::$txt['board_override_theme'],
+		'profile' => Lang::$txt['board_profile'],
+		'moderators' => Lang::$txt['board_moderators'],
+		'moderator_groups' => Lang::$txt['board_moderator_groups'],
+		'groups' => Lang::$txt['board_groups'],
 	);
 	if (!empty(Config::$modSettings['deny_boards_access']))
-		$boardSettings['disallowed_groups'] = $txt['board_disallowed_groups'];
+		$boardSettings['disallowed_groups'] = Lang::$txt['board_disallowed_groups'];
 
 	// Do it in columns, it's just easier.
 	setKeys('cols');
@@ -216,7 +213,7 @@ function BoardReport()
 		ORDER BY b.board_order',
 		array(
 			'name' => 'name',
-			'text_none' => $txt['none'],
+			'text_none' => Lang::$txt['none'],
 		)
 	);
 
@@ -242,12 +239,12 @@ function BoardReport()
 			'redirect' => $row['redirect'],
 			'num_posts' => $row['num_posts'],
 			'num_topics' => $row['num_topics'],
-			'count_posts' => empty($row['count_posts']) ? $txt['yes'] : $txt['no'],
+			'count_posts' => empty($row['count_posts']) ? Lang::$txt['yes'] : Lang::$txt['no'],
 			'theme' => $row['theme_name'],
 			'profile' => $profile_name,
-			'override_theme' => $row['override_theme'] ? $txt['yes'] : $txt['no'],
-			'moderators' => empty($moderators[$row['id_board']]) ? $txt['none'] : implode(', ', $moderators[$row['id_board']]),
-			'moderator_groups' => empty($moderator_groups[$row['id_board']]) ? $txt['none'] : implode(', ', $moderator_groups[$row['id_board']]),
+			'override_theme' => $row['override_theme'] ? Lang::$txt['yes'] : Lang::$txt['no'],
+			'moderators' => empty($moderators[$row['id_board']]) ? Lang::$txt['none'] : implode(', ', $moderators[$row['id_board']]),
+			'moderator_groups' => empty($moderator_groups[$row['id_board']]) ? Lang::$txt['none'] : implode(', ', $moderator_groups[$row['id_board']]),
 		);
 
 		// Work out the membergroups who can and cannot access it (but only if enabled).
@@ -292,8 +289,6 @@ function BoardReport()
  */
 function BoardPermissionsReport()
 {
-	global $txt;
-
 	// Get as much memory as possible as this can be big.
 	setMemoryLimit('256M');
 
@@ -374,7 +369,7 @@ function BoardPermissionsReport()
 		)
 	);
 	if (!isset($_REQUEST['groups']) || in_array(-1, $_REQUEST['groups']) || in_array(0, $_REQUEST['groups']))
-		$member_groups = array('col' => '', -1 => $txt['membergroups_guests'], 0 => $txt['membergroups_members']);
+		$member_groups = array('col' => '', -1 => Lang::$txt['membergroups_guests'], 0 => Lang::$txt['membergroups_members']);
 	else
 		$member_groups = array('col' => '');
 	while ($row = Db::$db->fetch_assoc($request))
@@ -427,7 +422,7 @@ function BoardPermissionsReport()
 		{
 			// This will be reused on other boards.
 			$permissions[$row['permission']] = array(
-				'title' => isset($txt['board_perms_name_' . $row['permission']]) ? $txt['board_perms_name_' . $row['permission']] : $row['permission'],
+				'title' => isset(Lang::$txt['board_perms_name_' . $row['permission']]) ? Lang::$txt['board_perms_name_' . $row['permission']] : $row['permission'],
 			);
 		}
 	}
@@ -443,7 +438,7 @@ function BoardPermissionsReport()
 		addData($member_groups);
 
 		// Add the separator.
-		addSeparator($txt['board_perms_permission']);
+		addSeparator(Lang::$txt['board_perms_permission']);
 
 		// Here cycle through all the detected permissions.
 		foreach ($permissions as $ID_PERM => $perm_info)
@@ -479,9 +474,9 @@ function BoardPermissionsReport()
 
 				// Now actually make the data for the group look right.
 				if (empty($curData[$id_group]))
-					$curData[$id_group] = '<span class="red">' . $txt['board_perms_deny'] . '</span>';
+					$curData[$id_group] = '<span class="red">' . Lang::$txt['board_perms_deny'] . '</span>';
 				elseif ($curData[$id_group] == 1)
-					$curData[$id_group] = '<span style="color: darkgreen;">' . $txt['board_perms_allow'] . '</span>';
+					$curData[$id_group] = '<span style="color: darkgreen;">' . Lang::$txt['board_perms_allow'] . '</span>';
 				else
 					$curData[$id_group] = 'x';
 
@@ -506,7 +501,7 @@ function BoardPermissionsReport()
  */
 function MemberGroupsReport()
 {
-	global $txt, $settings;
+	global $settings;
 
 	// Fetch all the board names.
 	$request = Db::$db->query('', '
@@ -540,12 +535,12 @@ function MemberGroupsReport()
 	// Standard settings.
 	$mgSettings = array(
 		'name' => '',
-		'#sep#1' => $txt['member_group_settings'],
-		'color' => $txt['member_group_color'],
-		'min_posts' => $txt['member_group_min_posts'],
-		'max_messages' => $txt['member_group_max_messages'],
-		'icons' => $txt['member_group_icons'],
-		'#sep#2' => $txt['member_group_access'],
+		'#sep#1' => Lang::$txt['member_group_settings'],
+		'color' => Lang::$txt['member_group_color'],
+		'min_posts' => Lang::$txt['member_group_min_posts'],
+		'max_messages' => Lang::$txt['member_group_max_messages'],
+		'icons' => Lang::$txt['member_group_icons'],
+		'#sep#2' => Lang::$txt['member_group_access'],
 	);
 
 	// Add on the boards!
@@ -556,7 +551,7 @@ function MemberGroupsReport()
 	setKeys('cols', $mgSettings);
 
 	// Only one table this time!
-	newTable($txt['gr_type_member_groups'], '-', 'all', 100, 'center', 200, 'left');
+	newTable(Lang::$txt['gr_type_member_groups'], '-', 'all', 100, 'center', 200, 'left');
 
 	// Get the shaded column in.
 	addData($mgSettings);
@@ -580,7 +575,7 @@ function MemberGroupsReport()
 	$rows = array(
 		array(
 			'id_group' => -1,
-			'group_name' => $txt['membergroups_guests'],
+			'group_name' => Lang::$txt['membergroups_guests'],
 			'online_color' => '',
 			'min_posts' => -1,
 			'max_messages' => null,
@@ -588,7 +583,7 @@ function MemberGroupsReport()
 		),
 		array(
 			'id_group' => 0,
-			'group_name' => $txt['membergroups_members'],
+			'group_name' => Lang::$txt['membergroups_members'],
 			'online_color' => '',
 			'min_posts' => -1,
 			'max_messages' => null,
@@ -613,7 +608,7 @@ function MemberGroupsReport()
 
 		// Board permissions.
 		foreach ($boards as $board)
-			$group['board_' . $board['id']] = in_array($row['id_group'], $board['groups']) ? '<span class="success">' . $txt['board_perms_allow'] . '</span>' : (!empty(Config::$modSettings['deny_boards_access']) && in_array($row['id_group'], $board['deny_groups']) ? '<span class="alert">' . $txt['board_perms_deny'] . '</span>' : 'x');
+			$group['board_' . $board['id']] = in_array($row['id_group'], $board['groups']) ? '<span class="success">' . Lang::$txt['board_perms_allow'] . '</span>' : (!empty(Config::$modSettings['deny_boards_access']) && in_array($row['id_group'], $board['deny_groups']) ? '<span class="alert">' . Lang::$txt['board_perms_deny'] . '</span>' : 'x');
 
 		addData($group);
 	}
@@ -629,8 +624,6 @@ function MemberGroupsReport()
  */
 function GroupPermissionsReport()
 {
-	global $txt;
-
 	if (isset($_REQUEST['groups']))
 	{
 		if (!is_array($_REQUEST['groups']))
@@ -661,7 +654,7 @@ function GroupPermissionsReport()
 		)
 	);
 	if (!isset($_REQUEST['groups']) || in_array(-1, $_REQUEST['groups']) || in_array(0, $_REQUEST['groups']))
-		$groups = array('col' => '', -1 => $txt['membergroups_guests'], 0 => $txt['membergroups_members']);
+		$groups = array('col' => '', -1 => Lang::$txt['membergroups_guests'], 0 => Lang::$txt['membergroups_members']);
 	else
 		$groups = array('col' => '');
 	while ($row = Db::$db->fetch_assoc($request))
@@ -672,13 +665,13 @@ function GroupPermissionsReport()
 	setKeys('rows', $groups);
 
 	// Create the table first.
-	newTable($txt['gr_type_group_perms'], '-', 'all', 100, 'center', 200, 'left');
+	newTable(Lang::$txt['gr_type_group_perms'], '-', 'all', 100, 'center', 200, 'left');
 
 	// Show all the groups
 	addData($groups);
 
 	// Add a separator
-	addSeparator($txt['board_perms_permission']);
+	addSeparator(Lang::$txt['board_perms_permission']);
 
 	// Certain permissions should not really be shown.
 	$disabled_permissions = array();
@@ -715,7 +708,7 @@ function GroupPermissionsReport()
 			continue;
 
 		if (strpos($row['permission'], 'bbc_') === 0)
-			$txt['group_perms_name_' . $row['permission']] = sprintf($txt['group_perms_name_bbc'], substr($row['permission'], 4));
+			Lang::$txt['group_perms_name_' . $row['permission']] = sprintf(Lang::$txt['group_perms_name_bbc'], substr($row['permission'], 4));
 
 		// If this is a new permission flush the last row.
 		if ($row['permission'] != $lastPermission)
@@ -725,16 +718,16 @@ function GroupPermissionsReport()
 				addData($curData);
 
 			// Add the permission name in the left column.
-			$curData = array('col' => isset($txt['group_perms_name_' . $row['permission']]) ? $txt['group_perms_name_' . $row['permission']] : $row['permission']);
+			$curData = array('col' => isset(Lang::$txt['group_perms_name_' . $row['permission']]) ? Lang::$txt['group_perms_name_' . $row['permission']] : $row['permission']);
 
 			$lastPermission = $row['permission'];
 		}
 
 		// Good stuff - add the permission to the list!
 		if ($row['add_deny'])
-			$curData[$row['id_group']] = '<span style="color: darkgreen;">' . $txt['board_perms_allow'] . '</span>';
+			$curData[$row['id_group']] = '<span style="color: darkgreen;">' . Lang::$txt['board_perms_allow'] . '</span>';
 		else
-			$curData[$row['id_group']] = '<span class="red">' . $txt['board_perms_deny'] . '</span>';
+			$curData[$row['id_group']] = '<span class="red">' . Lang::$txt['board_perms_deny'] . '</span>';
 	}
 	Db::$db->free_result($request);
 
@@ -752,8 +745,6 @@ function GroupPermissionsReport()
  */
 function StaffReport()
 {
-	global $txt;
-
 	require_once(Config::$sourcedir . '/Subs-Members.php');
 
 	// Fetch all the board names.
@@ -825,17 +816,17 @@ function StaffReport()
 		array(
 		)
 	);
-	$groups = array(0 => $txt['membergroups_members']);
+	$groups = array(0 => Lang::$txt['membergroups_members']);
 	while ($row = Db::$db->fetch_assoc($request))
 		$groups[$row['id_group']] = empty($row['online_color']) ? $row['group_name'] : '<span style="color: ' . $row['online_color'] . '">' . $row['group_name'] . '</span>';
 	Db::$db->free_result($request);
 
 	// All the fields we'll show.
 	$staffSettings = array(
-		'position' => $txt['report_staff_position'],
-		'moderates' => $txt['report_staff_moderates'],
-		'posts' => $txt['report_staff_posts'],
-		'last_login' => $txt['report_staff_last_login'],
+		'position' => Lang::$txt['report_staff_position'],
+		'moderates' => Lang::$txt['report_staff_moderates'],
+		'posts' => Lang::$txt['report_staff_posts'],
+		'last_login' => Lang::$txt['report_staff_last_login'],
 	);
 
 	// Do it in columns, it's just easier.
@@ -869,7 +860,7 @@ function StaffReport()
 
 		// What do they moderate?
 		if (in_array($row['id_member'], $global_mods))
-			$staffData['moderates'] = '<em>' . $txt['report_staff_all_boards'] . '</em>';
+			$staffData['moderates'] = '<em>' . Lang::$txt['report_staff_all_boards'] . '</em>';
 		elseif (isset($moderators[$row['id_member']]))
 		{
 			// Get the names
@@ -880,7 +871,7 @@ function StaffReport()
 			$staffData['moderates'] = implode(', ', $staffData['moderates']);
 		}
 		else
-			$staffData['moderates'] = '<em>' . $txt['report_staff_no_boards'] . '</em>';
+			$staffData['moderates'] = '<em>' . Lang::$txt['report_staff_no_boards'] . '</em>';
 
 		// Next add the main data.
 		addData($staffData);

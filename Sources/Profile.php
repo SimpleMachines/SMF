@@ -17,6 +17,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -31,12 +32,12 @@ if (!defined('SMF'))
  */
 function ModifyProfile($post_errors = array())
 {
-	global $txt, $user_info, $user_profile, $cur_profile;
+	global $user_info, $user_profile, $cur_profile;
 	global $memberContext, $profile_vars, $post_errors;
 
 	// Don't reload this as we may have processed error strings.
 	if (empty($post_errors))
-		loadLanguage('Profile+Drafts');
+		Lang::load('Profile+Drafts');
 	loadTemplate('Profile');
 
 	require_once(Config::$sourcedir . '/Subs-Menu.php');
@@ -119,10 +120,10 @@ function ModifyProfile($post_errors = array())
 	*/
 	$profile_areas = array(
 		'info' => array(
-			'title' => $txt['profileInfo'],
+			'title' => Lang::$txt['profileInfo'],
 			'areas' => array(
 				'summary' => array(
-					'label' => $txt['summary'],
+					'label' => Lang::$txt['summary'],
 					'file' => 'Profile-View.php',
 					'function' => 'summary',
 					'icon' => 'administration',
@@ -148,7 +149,7 @@ function ModifyProfile($post_errors = array())
 					'select' => 'summary',
 				),
 				'statistics' => array(
-					'label' => $txt['statPanel'],
+					'label' => Lang::$txt['statPanel'],
 					'file' => 'Profile-View.php',
 					'function' => 'statPanel',
 					'icon' => 'stats',
@@ -158,15 +159,15 @@ function ModifyProfile($post_errors = array())
 					),
 				),
 				'showposts' => array(
-					'label' => $txt['showPosts'],
+					'label' => Lang::$txt['showPosts'],
 					'file' => 'Profile-View.php',
 					'function' => 'showPosts',
 					'icon' => 'posts',
 					'subsections' => array(
-						'messages' => array($txt['showMessages'], array('is_not_guest', 'profile_view')),
-						'topics' => array($txt['showTopics'], array('is_not_guest', 'profile_view')),
-						'unwatchedtopics' => array($txt['showUnwatched'], array('is_not_guest', 'profile_view'), 'enabled' => Utils::$context['user']['is_owner']),
-						'attach' => array($txt['showAttachments'], array('is_not_guest', 'profile_view')),
+						'messages' => array(Lang::$txt['showMessages'], array('is_not_guest', 'profile_view')),
+						'topics' => array(Lang::$txt['showTopics'], array('is_not_guest', 'profile_view')),
+						'unwatchedtopics' => array(Lang::$txt['showUnwatched'], array('is_not_guest', 'profile_view'), 'enabled' => Utils::$context['user']['is_owner']),
+						'attach' => array(Lang::$txt['showAttachments'], array('is_not_guest', 'profile_view')),
 					),
 					'permission' => array(
 						'own' => 'is_not_guest',
@@ -174,7 +175,7 @@ function ModifyProfile($post_errors = array())
 					),
 				),
 				'showdrafts' => array(
-					'label' => $txt['drafts_show'],
+					'label' => Lang::$txt['drafts_show'],
 					'file' => 'Drafts.php',
 					'function' => 'showProfileDrafts',
 					'icon' => 'drafts',
@@ -185,7 +186,7 @@ function ModifyProfile($post_errors = array())
 					),
 				),
 				'showalerts' => array(
-					'label' => $txt['alerts_show'],
+					'label' => Lang::$txt['alerts_show'],
 					'file' => 'Profile-View.php',
 					'function' => 'showAlerts',
 					'icon' => 'alerts',
@@ -195,7 +196,7 @@ function ModifyProfile($post_errors = array())
 					),
 				),
 				'permissions' => array(
-					'label' => $txt['showPermissions'],
+					'label' => Lang::$txt['showPermissions'],
 					'file' => 'Profile-View.php',
 					'function' => 'showPermissions',
 					'icon' => 'permissions',
@@ -205,16 +206,16 @@ function ModifyProfile($post_errors = array())
 					),
 				),
 				'tracking' => array(
-					'label' => $txt['trackUser'],
+					'label' => Lang::$txt['trackUser'],
 					'file' => 'Profile-View.php',
 					'function' => 'tracking',
 					'icon' => 'logs',
 					'subsections' => array(
-						'activity' => array($txt['trackActivity'], 'moderate_forum'),
-						'ip' => array($txt['trackIP'], 'moderate_forum'),
-						'edits' => array($txt['trackEdits'], 'moderate_forum', 'enabled' => !empty(Config::$modSettings['userlog_enabled'])),
-						'groupreq' => array($txt['trackGroupRequests'], 'approve_group_requests', 'enabled' => !empty(Config::$modSettings['show_group_membership'])),
-						'logins' => array($txt['trackLogins'], 'moderate_forum', 'enabled' => !empty(Config::$modSettings['loginHistoryDays'])),
+						'activity' => array(Lang::$txt['trackActivity'], 'moderate_forum'),
+						'ip' => array(Lang::$txt['trackIP'], 'moderate_forum'),
+						'edits' => array(Lang::$txt['trackEdits'], 'moderate_forum', 'enabled' => !empty(Config::$modSettings['userlog_enabled'])),
+						'groupreq' => array(Lang::$txt['trackGroupRequests'], 'approve_group_requests', 'enabled' => !empty(Config::$modSettings['show_group_membership'])),
+						'logins' => array(Lang::$txt['trackLogins'], 'moderate_forum', 'enabled' => !empty(Config::$modSettings['loginHistoryDays'])),
 					),
 					'permission' => array(
 						'own' => array('moderate_forum', 'approve_group_requests'),
@@ -222,7 +223,7 @@ function ModifyProfile($post_errors = array())
 					),
 				),
 				'viewwarning' => array(
-					'label' => $txt['profile_view_warnings'],
+					'label' => Lang::$txt['profile_view_warnings'],
 					'enabled' => Config::$modSettings['warning_settings'][0] == 1 && $cur_profile['warning'],
 					'file' => 'Profile-View.php',
 					'function' => 'viewWarning',
@@ -235,10 +236,10 @@ function ModifyProfile($post_errors = array())
 			),
 		),
 		'edit_profile' => array(
-			'title' => $txt['forumprofile'],
+			'title' => Lang::$txt['forumprofile'],
 			'areas' => array(
 				'account' => array(
-					'label' => $txt['account'],
+					'label' => Lang::$txt['account'],
 					'file' => 'Profile-Modify.php',
 					'function' => 'account',
 					'icon' => 'maintain',
@@ -252,7 +253,7 @@ function ModifyProfile($post_errors = array())
 					),
 				),
 				'tfasetup' => array(
-					'label' => $txt['account'],
+					'label' => Lang::$txt['account'],
 					'file' => 'Profile-Modify.php',
 					'function' => 'tfasetup',
 					'token' => 'profile-tfa%u',
@@ -265,7 +266,7 @@ function ModifyProfile($post_errors = array())
 					),
 				),
 				'tfadisable' => array(
-					'label' => $txt['account'],
+					'label' => Lang::$txt['account'],
 					'file' => 'Profile-Modify.php',
 					'function' => 'tfadisable',
 					'token' => 'profile-tfa%u',
@@ -280,7 +281,7 @@ function ModifyProfile($post_errors = array())
 					),
 				),
 				'forumprofile' => array(
-					'label' => $txt['forumprofile'],
+					'label' => Lang::$txt['forumprofile'],
 					'file' => 'Profile-Modify.php',
 					'function' => 'forumProfile',
 					'icon' => 'members',
@@ -292,7 +293,7 @@ function ModifyProfile($post_errors = array())
 					),
 				),
 				'theme' => array(
-					'label' => $txt['theme'],
+					'label' => Lang::$txt['theme'],
 					'file' => 'Profile-Modify.php',
 					'function' => 'theme',
 					'icon' => 'features',
@@ -304,16 +305,16 @@ function ModifyProfile($post_errors = array())
 					),
 				),
 				'notification' => array(
-					'label' => $txt['notification'],
+					'label' => Lang::$txt['notification'],
 					'file' => 'Profile-Modify.php',
 					'function' => 'notification',
 					'icon' => 'alerts',
 					'sc' => 'post',
 					//'token' => 'profile-nt%u', This is not checked here. We do it in the function itself - but if it was checked, this is what it'd be.
 					'subsections' => array(
-						'alerts' => array($txt['alert_prefs'], array('is_not_guest', 'profile_extra_any')),
-						'topics' => array($txt['watched_topics'], array('is_not_guest', 'profile_extra_any')),
-						'boards' => array($txt['watched_boards'], array('is_not_guest', 'profile_extra_any')),
+						'alerts' => array(Lang::$txt['alert_prefs'], array('is_not_guest', 'profile_extra_any')),
+						'topics' => array(Lang::$txt['watched_topics'], array('is_not_guest', 'profile_extra_any')),
+						'boards' => array(Lang::$txt['watched_boards'], array('is_not_guest', 'profile_extra_any')),
 					),
 					'permission' => array(
 						'own' => array('is_not_guest'),
@@ -321,7 +322,7 @@ function ModifyProfile($post_errors = array())
 					),
 				),
 				'ignoreboards' => array(
-					'label' => $txt['ignoreboards'],
+					'label' => Lang::$txt['ignoreboards'],
 					'file' => 'Profile-Modify.php',
 					'function' => 'ignoreboards',
 					'icon' => 'boards',
@@ -334,15 +335,15 @@ function ModifyProfile($post_errors = array())
 					),
 				),
 				'lists' => array(
-					'label' => $txt['editBuddyIgnoreLists'],
+					'label' => Lang::$txt['editBuddyIgnoreLists'],
 					'file' => 'Profile-Modify.php',
 					'function' => 'editBuddyIgnoreLists',
 					'icon' => 'frenemy',
 					'enabled' => !empty(Config::$modSettings['enable_buddylist']) && Utils::$context['user']['is_owner'],
 					'sc' => 'post',
 					'subsections' => array(
-						'buddies' => array($txt['editBuddies']),
-						'ignore' => array($txt['editIgnoreList']),
+						'buddies' => array(Lang::$txt['editBuddies']),
+						'ignore' => array(Lang::$txt['editIgnoreList']),
 					),
 					'permission' => array(
 						'own' => array('profile_extra_any', 'profile_extra_own'),
@@ -350,7 +351,7 @@ function ModifyProfile($post_errors = array())
 					),
 				),
 				'groupmembership' => array(
-					'label' => $txt['groupmembership'],
+					'label' => Lang::$txt['groupmembership'],
 					'file' => 'Profile-Modify.php',
 					'function' => 'groupMembership',
 					'icon' => 'people',
@@ -366,10 +367,10 @@ function ModifyProfile($post_errors = array())
 			),
 		),
 		'profile_action' => array(
-			'title' => $txt['profileAction'],
+			'title' => Lang::$txt['profileAction'],
 			'areas' => array(
 				'sendpm' => array(
-					'label' => $txt['profileSendIm'],
+					'label' => Lang::$txt['profileSendIm'],
 					'custom_url' => Config::$scripturl . '?action=pm;sa=send',
 					'icon' => 'personal_message',
 					'enabled' => allowedTo('profile_view'),
@@ -379,7 +380,7 @@ function ModifyProfile($post_errors = array())
 					),
 				),
 				'report' => array(
-					'label' => $txt['report_profile'],
+					'label' => Lang::$txt['report_profile'],
 					'custom_url' => Config::$scripturl . '?action=reporttm;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 					'icon' => 'warning',
 					'enabled' => allowedTo('profile_view'),
@@ -389,7 +390,7 @@ function ModifyProfile($post_errors = array())
 					),
 				),
 				'issuewarning' => array(
-					'label' => $txt['profile_issue_warning'],
+					'label' => Lang::$txt['profile_issue_warning'],
 					'enabled' => Config::$modSettings['warning_settings'][0] == 1,
 					'file' => 'Profile-Actions.php',
 					'function' => 'issueWarning',
@@ -401,7 +402,7 @@ function ModifyProfile($post_errors = array())
 					),
 				),
 				'banuser' => array(
-					'label' => $txt['profileBanUser'],
+					'label' => Lang::$txt['profileBanUser'],
 					'custom_url' => Config::$scripturl . '?action=admin;area=ban;sa=add',
 					'icon' => 'ban',
 					'enabled' => $cur_profile['id_group'] != 1 && !in_array(1, explode(',', $cur_profile['additional_groups'])),
@@ -411,7 +412,7 @@ function ModifyProfile($post_errors = array())
 					),
 				),
 				'subscriptions' => array(
-					'label' => $txt['subscriptions'],
+					'label' => Lang::$txt['subscriptions'],
 					'file' => 'Profile-Actions.php',
 					'function' => 'subscriptions',
 					'icon' => 'paid',
@@ -422,7 +423,7 @@ function ModifyProfile($post_errors = array())
 					),
 				),
 				'getprofiledata' => array(
-					'label' => $txt['export_profile_data'],
+					'label' => Lang::$txt['export_profile_data'],
 					'file' => 'Profile-Export.php',
 					'function' => 'export_profile_data',
 					'icon' => 'packages',
@@ -433,7 +434,7 @@ function ModifyProfile($post_errors = array())
 					),
 				),
 				'download' => array(
-					'label' => $txt['export_profile_data'],
+					'label' => Lang::$txt['export_profile_data'],
 					'file' => 'Profile-Export.php',
 					'function' => 'download_export_file',
 					'icon' => 'packages',
@@ -445,7 +446,7 @@ function ModifyProfile($post_errors = array())
 					),
 				),
 				'dlattach' => array(
-					'label' => $txt['export_profile_data'],
+					'label' => Lang::$txt['export_profile_data'],
 					'file' => 'Profile-Export.php',
 					'function' => 'export_attachment',
 					'icon' => 'packages',
@@ -457,7 +458,7 @@ function ModifyProfile($post_errors = array())
 					),
 				),
 				'deleteaccount' => array(
-					'label' => $txt['deleteAccount'],
+					'label' => Lang::$txt['deleteAccount'],
 					'file' => 'Profile-Actions.php',
 					'function' => 'deleteAccount',
 					'icon' => 'members_delete',
@@ -483,7 +484,7 @@ function ModifyProfile($post_errors = array())
 				),
 				// A logout link just for the popup menu.
 				'logout' => array(
-					'label' => $txt['logout'],
+					'label' => Lang::$txt['logout'],
 					'custom_url' => Config::$scripturl . '?action=logout;%1$s=%2$s',
 					'icon' => 'logout',
 					'enabled' => !empty($_REQUEST['area']) && $_REQUEST['area'] === 'popup',
@@ -527,7 +528,7 @@ function ModifyProfile($post_errors = array())
 
 	// Is there an updated message to show?
 	if (isset($_GET['updated']))
-		Utils::$context['profile_updated'] = $txt['profile_updated_own'];
+		Utils::$context['profile_updated'] = Lang::$txt['profile_updated_own'];
 
 	// Set a few options for the menu.
 	$menuOptions = array(
@@ -637,7 +638,7 @@ function ModifyProfile($post_errors = array())
 	// Build the link tree.
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=profile' . ($memID != $user_info['id'] ? ';u=' . $memID : ''),
-		'name' => sprintf($txt['profile_of_username'], Utils::$context['member']['name']),
+		'name' => sprintf(Lang::$txt['profile_of_username'], Utils::$context['member']['name']),
 	);
 
 	if (!empty($profile_include_data['label']))
@@ -749,7 +750,7 @@ function ModifyProfile($post_errors = array())
 		if (!empty($post_errors))
 		{
 			// Load the language file so we can give a nice explanation of the errors.
-			loadLanguage('Errors');
+			Lang::load('Errors');
 			Utils::$context['post_errors'] = $post_errors;
 		}
 		elseif (!empty($profile_vars))
@@ -796,7 +797,7 @@ function ModifyProfile($post_errors = array())
 					$saveFunc();
 
 			// Let them know it worked!
-			Utils::$context['profile_updated'] = Utils::$context['user']['is_owner'] ? $txt['profile_updated_own'] : sprintf($txt['profile_updated_else'], $cur_profile['member_name']);
+			Utils::$context['profile_updated'] = Utils::$context['user']['is_owner'] ? Lang::$txt['profile_updated_own'] : sprintf(Lang::$txt['profile_updated_else'], $cur_profile['member_name']);
 
 			// Invalidate any cached data.
 			CacheApi::put('member_data-profile-' . $memID, null, 0);
@@ -825,7 +826,7 @@ function ModifyProfile($post_errors = array())
 
 	// Set the page title if it's not already set...
 	if (!isset(Utils::$context['page_title']))
-		Utils::$context['page_title'] = $txt['profile'] . (isset($txt[$current_area]) ? ' - ' . $txt[$current_area] : '');
+		Utils::$context['page_title'] = Lang::$txt['profile'] . (isset(Lang::$txt[$current_area]) ? ' - ' . Lang::$txt[$current_area] : '');
 }
 
 /**
@@ -835,8 +836,6 @@ function ModifyProfile($post_errors = array())
  */
 function profile_popup($memID)
 {
-	global $txt;
-
 	// We do not want to output debug information here.
 	Config::$db_show_debug = false;
 
@@ -852,12 +851,12 @@ function profile_popup($memID)
 		array(
 			'menu' => 'edit_profile',
 			'area' => 'forumprofile',
-			'title' => $txt['popup_forumprofile'],
+			'title' => Lang::$txt['popup_forumprofile'],
 		),
 		array(
 			'menu' => 'edit_profile',
 			'area' => 'theme',
-			'title' => $txt['theme'],
+			'title' => Lang::$txt['theme'],
 		),
 		array(
 			'menu' => 'edit_profile',
@@ -871,27 +870,27 @@ function profile_popup($memID)
 			'menu' => 'edit_profile',
 			'area' => 'lists',
 			'url' => Config::$scripturl . '?action=profile;area=lists;sa=ignore',
-			'title' => $txt['popup_ignore'],
+			'title' => Lang::$txt['popup_ignore'],
 		),
 		array(
 			'menu' => 'info',
 			'area' => 'showposts',
-			'title' => $txt['popup_showposts'],
+			'title' => Lang::$txt['popup_showposts'],
 		),
 		array(
 			'menu' => 'info',
 			'area' => 'showdrafts',
-			'title' => $txt['popup_showdrafts'],
+			'title' => Lang::$txt['popup_showdrafts'],
 		),
 		array(
 			'menu' => 'edit_profile',
 			'area' => 'groupmembership',
-			'title' => $txt['popup_groupmembership'],
+			'title' => Lang::$txt['popup_groupmembership'],
 		),
 		array(
 			'menu' => 'profile_action',
 			'area' => 'subscriptions',
-			'title' => $txt['popup_subscriptions'],
+			'title' => Lang::$txt['popup_subscriptions'],
 		),
 		array(
 			'menu' => 'profile_action',
@@ -923,7 +922,7 @@ function alerts_popup($memID)
 	global $cur_profile;
 
 	// Load the Alerts language file.
-	loadLanguage('Alerts');
+	Lang::load('Alerts');
 
 	// We do not want to output debug information here.
 	Config::$db_show_debug = false;
@@ -952,7 +951,7 @@ function alerts_popup($memID)
  */
 function loadCustomFields($memID, $area = 'summary')
 {
-	global $txt, $user_profile, $user_info, $settings;
+	global $user_profile, $user_info, $settings;
 
 	// Get the right restrictions in place...
 	$where = 'active = 1';
@@ -1019,7 +1018,7 @@ function loadCustomFields($memID, $area = 'summary')
 		{
 			$true = (!$exists && $row['default_value']) || $value;
 			$input_html = '<input type="checkbox" name="customfield[' . $row['col_name'] . ']" id="customfield[' . $row['col_name'] . ']"' . ($true ? ' checked' : '') . '>';
-			$output_html = $true ? $txt['yes'] : $txt['no'];
+			$output_html = $true ? Lang::$txt['yes'] : Lang::$txt['no'];
 		}
 		elseif ($row['field_type'] == 'select')
 		{
@@ -1028,7 +1027,7 @@ function loadCustomFields($memID, $area = 'summary')
 			foreach ($options as $k => $v)
 			{
 				$true = (!$exists && $row['default_value'] == $v) || $value == $v;
-				$input_html .= '<option value="' . $k . '"' . ($true ? ' selected' : '') . '>' . tokenTxtReplace($v) . '</option>';
+				$input_html .= '<option value="' . $k . '"' . ($true ? ' selected' : '') . '>' . Lang::tokenTxtReplace($v) . '</option>';
 				if ($true)
 					$output_html = $v;
 			}
@@ -1042,7 +1041,7 @@ function loadCustomFields($memID, $area = 'summary')
 			foreach ($options as $k => $v)
 			{
 				$true = (!$exists && $row['default_value'] == $v) || $value == $v;
-				$input_html .= '<label for="customfield_' . $row['col_name'] . '_' . $k . '"><input type="radio" name="customfield[' . $row['col_name'] . ']" id="customfield_' . $row['col_name'] . '_' . $k . '" value="' . $k . '"' . ($true ? ' checked' : '') . '>' . tokenTxtReplace($v) . '</label><br>';
+				$input_html .= '<label for="customfield_' . $row['col_name'] . '_' . $k . '"><input type="radio" name="customfield[' . $row['col_name'] . ']" id="customfield_' . $row['col_name'] . '_' . $k . '" value="' . $k . '"' . ($true ? ' checked' : '') . '>' . Lang::tokenTxtReplace($v) . '</label><br>';
 				if ($true)
 					$output_html = $v;
 			}
@@ -1076,12 +1075,12 @@ function loadCustomFields($memID, $area = 'summary')
 			));
 
 		Utils::$context['custom_fields'][] = array(
-			'name' => tokenTxtReplace($row['field_name']),
-			'desc' => tokenTxtReplace($row['field_desc']),
+			'name' => Lang::tokenTxtReplace($row['field_name']),
+			'desc' => Lang::tokenTxtReplace($row['field_desc']),
 			'type' => $row['field_type'],
 			'order' => $row['field_order'],
 			'input_html' => $input_html,
-			'output_html' => tokenTxtReplace($output_html),
+			'output_html' => Lang::tokenTxtReplace($output_html),
 			'placement' => $row['placement'],
 			'colname' => $row['col_name'],
 			'value' => $value,

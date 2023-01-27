@@ -15,6 +15,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -34,7 +35,7 @@ if (!defined('SMF'))
  */
 function Who()
 {
-	global $txt, $memberContext;
+	global $memberContext;
 
 	// Permissions, permissions, permissions.
 	isAllowedTo('who_view');
@@ -48,7 +49,7 @@ function Who()
 
 	// Load the 'Who' template.
 	loadTemplate('Who');
-	loadLanguage('Who');
+	Lang::load('Who');
 
 	// Sort out... the column sorting.
 	$sort_methods = array(
@@ -64,13 +65,13 @@ function Who()
 
 	// Store the sort methods and the show types for use in the template.
 	Utils::$context['sort_methods'] = array(
-		'user' => $txt['who_user'],
-		'time' => $txt['who_time'],
+		'user' => Lang::$txt['who_user'],
+		'time' => Lang::$txt['who_time'],
 	);
 	Utils::$context['show_methods'] = array(
-		'all' => $txt['who_show_all'],
-		'members' => $txt['who_show_members_only'],
-		'guests' => $txt['who_show_guests_only'],
+		'all' => Lang::$txt['who_show_all'],
+		'members' => Lang::$txt['who_show_members_only'],
+		'guests' => Lang::$txt['who_show_guests_only'],
 	);
 
 	// Can they see spiders too?
@@ -78,7 +79,7 @@ function Who()
 	{
 		$show_methods['spiders'] = '(lo.id_member = 0 AND lo.id_spider > 0)';
 		$show_methods['guests'] = '(lo.id_member = 0 AND lo.id_spider = 0)';
-		Utils::$context['show_methods']['spiders'] = $txt['who_show_spiders_only'];
+		Utils::$context['show_methods']['spiders'] = Lang::$txt['who_show_spiders_only'];
 	}
 	elseif (empty(Config::$modSettings['show_spider_online']) && isset($_SESSION['who_online_filter']) && $_SESSION['who_online_filter'] == 'spiders')
 		unset($_SESSION['who_online_filter']);
@@ -172,7 +173,7 @@ function Who()
 			'id' => $row['id_member'],
 			'ip' => allowedTo('moderate_forum') ? inet_dtop($row['ip']) : '',
 			// It is *going* to be today or yesterday, so why keep that information in there?
-			'time' => strtr(timeformat($row['log_time']), array($txt['today'] => '', $txt['yesterday'] => '')),
+			'time' => strtr(timeformat($row['log_time']), array(Lang::$txt['today'] => '', Lang::$txt['yesterday'] => '')),
 			'timestamp' => $row['log_time'],
 			'query' => $actions,
 			'is_hidden' => $row['show_online'] == 0,
@@ -191,11 +192,11 @@ function Who()
 	// Load up the guest user.
 	$memberContext[0] = array(
 		'id' => 0,
-		'name' => $txt['guest_title'],
-		'group' => $txt['guest_title'],
+		'name' => Lang::$txt['guest_title'],
+		'group' => Lang::$txt['guest_title'],
 		'href' => '',
-		'link' => $txt['guest_title'],
-		'email' => $txt['guest_title'],
+		'link' => Lang::$txt['guest_title'],
+		'email' => Lang::$txt['guest_title'],
 		'is_guest' => true
 	);
 
@@ -207,7 +208,7 @@ function Who()
 			$spiderContext[$id] = array(
 				'id' => 0,
 				'name' => $name,
-				'group' => $txt['spiders'],
+				'group' => Lang::$txt['spiders'],
 				'href' => '',
 				'link' => $name,
 				'email' => $name,
@@ -218,10 +219,10 @@ function Who()
 	$url_data = determineActions($url_data);
 
 	// Setup the linktree and page title (do it down here because the language files are now loaded..)
-	Utils::$context['page_title'] = $txt['who_title'];
+	Utils::$context['page_title'] = Lang::$txt['who_title'];
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=who',
-		'name' => $txt['who_title']
+		'name' => Lang::$txt['who_title']
 	);
 
 	// Put it in the context variables.
@@ -269,11 +270,11 @@ function Who()
  */
 function determineActions($urls, $preferred_prefix = false)
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	if (!allowedTo('who_view'))
 		return array();
-	loadLanguage('Who');
+	Lang::load('Who');
 
 	// Actions that require a specific permission level.
 	$allowedActions = array(
@@ -352,22 +353,22 @@ function determineActions($urls, $preferred_prefix = false)
 			{
 				// Assume they can't view it, and queue it up for later.
 				$data[$k] = array('label' => 'who_hidden', 'class' => 'em');
-				$topic_ids[(int) $actions['topic']][$k] = $txt['who_topic'];
+				$topic_ids[(int) $actions['topic']][$k] = Lang::$txt['who_topic'];
 			}
 			// It's a board!
 			elseif (isset($actions['board']))
 			{
 				// Hide first, show later.
 				$data[$k] = array('label' => 'who_hidden', 'class' => 'em');
-				$board_ids[$actions['board']][$k] = $txt['who_board'];
+				$board_ids[$actions['board']][$k] = Lang::$txt['who_board'];
 			}
 			// It's the board index!!  It must be!
 			else
-				$data[$k] = sprintf($txt['who_index'], Config::$scripturl, Utils::$context['forum_name_html_safe']);
+				$data[$k] = sprintf(Lang::$txt['who_index'], Config::$scripturl, Utils::$context['forum_name_html_safe']);
 		}
 		// Probably an error or some goon?
 		elseif ($actions['action'] == '')
-			$data[$k] = sprintf($txt['who_index'], Config::$scripturl, Utils::$context['forum_name_html_safe']);
+			$data[$k] = sprintf(Lang::$txt['who_index'], Config::$scripturl, Utils::$context['forum_name_html_safe']);
 		// Some other normal action...?
 		else
 		{
@@ -379,29 +380,29 @@ function determineActions($urls, $preferred_prefix = false)
 					$actions['u'] = $url[1];
 
 				$data[$k] = array('label' => 'who_hidden', 'class' => 'em');
-				$profile_ids[(int) $actions['u']][$k] = $actions['u'] == $url[1] ? $txt['who_viewownprofile'] : $txt['who_viewprofile'];
+				$profile_ids[(int) $actions['u']][$k] = $actions['u'] == $url[1] ? Lang::$txt['who_viewownprofile'] : Lang::$txt['who_viewprofile'];
 			}
 			elseif (($actions['action'] == 'post' || $actions['action'] == 'post2') && empty($actions['topic']) && isset($actions['board']))
 			{
 				$data[$k] = array('label' => 'who_hidden', 'class' => 'em');
-				$board_ids[(int) $actions['board']][$k] = isset($actions['poll']) ? $txt['who_poll'] : $txt['who_post'];
+				$board_ids[(int) $actions['board']][$k] = isset($actions['poll']) ? Lang::$txt['who_poll'] : Lang::$txt['who_post'];
 			}
 			// A subaction anyone can view... if the language string is there, show it.
-			elseif (isset($actions['sa']) && isset($txt['whoall_' . $actions['action'] . '_' . $actions['sa']]))
-				$data[$k] = $preferred_prefix && isset($txt[$preferred_prefix . $actions['action'] . '_' . $actions['sa']]) ? $txt[$preferred_prefix . $actions['action'] . '_' . $actions['sa']] : sprintf($txt['whoall_' . $actions['action'] . '_' . $actions['sa']], Config::$scripturl);
+			elseif (isset($actions['sa']) && isset(Lang::$txt['whoall_' . $actions['action'] . '_' . $actions['sa']]))
+				$data[$k] = $preferred_prefix && isset(Lang::$txt[$preferred_prefix . $actions['action'] . '_' . $actions['sa']]) ? Lang::$txt[$preferred_prefix . $actions['action'] . '_' . $actions['sa']] : sprintf(Lang::$txt['whoall_' . $actions['action'] . '_' . $actions['sa']], Config::$scripturl);
 			// An action any old fellow can look at. (if ['whoall_' . $action] exists, we know everyone can see it.)
-			elseif (isset($txt['whoall_' . $actions['action']]))
-				$data[$k] = $preferred_prefix && isset($txt[$preferred_prefix . $actions['action']]) ? $txt[$preferred_prefix . $actions['action']] : sprintf($txt['whoall_' . $actions['action']], Config::$scripturl);
+			elseif (isset(Lang::$txt['whoall_' . $actions['action']]))
+				$data[$k] = $preferred_prefix && isset(Lang::$txt[$preferred_prefix . $actions['action']]) ? Lang::$txt[$preferred_prefix . $actions['action']] : sprintf(Lang::$txt['whoall_' . $actions['action']], Config::$scripturl);
 			// Viewable if and only if they can see the board...
-			elseif (isset($txt['whotopic_' . $actions['action']]))
+			elseif (isset(Lang::$txt['whotopic_' . $actions['action']]))
 			{
 				// Find out what topic they are accessing.
 				$topic = (int) (isset($actions['topic']) ? $actions['topic'] : (isset($actions['from']) ? $actions['from'] : 0));
 
 				$data[$k] = array('label' => 'who_hidden', 'class' => 'em');
-				$topic_ids[$topic][$k] = $txt['whotopic_' . $actions['action']];
+				$topic_ids[$topic][$k] = Lang::$txt['whotopic_' . $actions['action']];
 			}
-			elseif (isset($txt['whopost_' . $actions['action']]))
+			elseif (isset(Lang::$txt['whopost_' . $actions['action']]))
 			{
 				// Find out what message they are accessing.
 				$msgid = (int) (isset($actions['msg']) ? $actions['msg'] : (isset($actions['quote']) ? $actions['quote'] : 0));
@@ -420,41 +421,41 @@ function determineActions($urls, $preferred_prefix = false)
 					)
 				);
 				list ($id_topic, $subject) = Db::$db->fetch_row($result);
-				$data[$k] = sprintf($txt['whopost_' . $actions['action']], $id_topic, $subject, Config::$scripturl);
+				$data[$k] = sprintf(Lang::$txt['whopost_' . $actions['action']], $id_topic, $subject, Config::$scripturl);
 				Db::$db->free_result($result);
 
 				if (empty($id_topic))
 					$data[$k] = array('label' => 'who_hidden', 'class' => 'em');
 			}
 			// Viewable only by administrators.. (if it starts with whoadmin, it's admin only!)
-			elseif (allowedTo('moderate_forum') && isset($txt['whoadmin_' . $actions['action']]))
-				$data[$k] = sprintf($txt['whoadmin_' . $actions['action']], Config::$scripturl);
+			elseif (allowedTo('moderate_forum') && isset(Lang::$txt['whoadmin_' . $actions['action']]))
+				$data[$k] = sprintf(Lang::$txt['whoadmin_' . $actions['action']], Config::$scripturl);
 			// Viewable by permission level.
 			elseif (isset($allowedActions[$actions['action']]))
 			{
-				if (allowedTo($allowedActions[$actions['action']]) && !empty($txt['whoallow_' . $actions['action']]))
-					$data[$k] = sprintf($txt['whoallow_' . $actions['action']], Config::$scripturl);
+				if (allowedTo($allowedActions[$actions['action']]) && !empty(Lang::$txt['whoallow_' . $actions['action']]))
+					$data[$k] = sprintf(Lang::$txt['whoallow_' . $actions['action']], Config::$scripturl);
 				elseif (in_array('moderate_forum', $allowedActions[$actions['action']]))
-					$data[$k] = $txt['who_moderate'];
+					$data[$k] = Lang::$txt['who_moderate'];
 				elseif (in_array('admin_forum', $allowedActions[$actions['action']]))
-					$data[$k] = $txt['who_admin'];
+					$data[$k] = Lang::$txt['who_admin'];
 				else
 					$data[$k] = array('label' => 'who_hidden', 'class' => 'em');
 			}
 			elseif (!empty($actions['action']))
-				$data[$k] = $txt['who_generic'] . ' ' . $actions['action'];
+				$data[$k] = Lang::$txt['who_generic'] . ' ' . $actions['action'];
 			else
 				$data[$k] = array('label' => 'who_unknown', 'class' => 'em');
 		}
 
 		if (isset($actions['error']))
 		{
-			loadLanguage('Errors');
+			Lang::load('Errors');
 
-			if (isset($txt[$actions['error']]))
-				$error_message = str_replace('"', '&quot;', empty($actions['error_params']) ? $txt[$actions['error']] : vsprintf($txt[$actions['error']], (array) $actions['error_params']));
+			if (isset(Lang::$txt[$actions['error']]))
+				$error_message = str_replace('"', '&quot;', empty($actions['error_params']) ? Lang::$txt[$actions['error']] : vsprintf(Lang::$txt[$actions['error']], (array) $actions['error_params']));
 			elseif ($actions['error'] == 'guest_login')
-				$error_message = str_replace('"', '&quot;', $txt['who_guest_login']);
+				$error_message = str_replace('"', '&quot;', Lang::$txt['who_guest_login']);
 			else
 				$error_message = str_replace('"', '&quot;', $actions['error']);
 
@@ -510,7 +511,7 @@ function determineActions($urls, $preferred_prefix = false)
 		{
 			// Show the topic's subject for each of the actions.
 			foreach ($topic_ids[$row['id_topic']] as $k => $session_text)
-				$data[$k] = sprintf($session_text, $row['id_topic'], censorText($row['subject']), Config::$scripturl);
+				$data[$k] = sprintf($session_text, $row['id_topic'], Lang::censorText($row['subject']), Config::$scripturl);
 		}
 		Db::$db->free_result($result);
 	}
@@ -580,10 +581,10 @@ function determineActions($urls, $preferred_prefix = false)
  */
 function Credits($in_admin = false)
 {
-	global $forum_copyright, $txt, $user_info;
+	global $user_info;
 
 	// Don't blink. Don't even blink. Blink and you're dead.
-	loadLanguage('Who');
+	Lang::load('Who');
 
 	// Discourage robots from indexing this page.
 	Utils::$context['robot_no_index'] = true;
@@ -591,7 +592,7 @@ function Credits($in_admin = false)
 	if ($in_admin)
 	{
 		Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
-			'title' => $txt['support_credits_title'],
+			'title' => Lang::$txt['support_credits_title'],
 			'help' => '',
 			'description' => '',
 		);
@@ -599,11 +600,11 @@ function Credits($in_admin = false)
 
 	Utils::$context['credits'] = array(
 		array(
-			'pretext' => $txt['credits_intro'],
-			'title' => $txt['credits_team'],
+			'pretext' => Lang::$txt['credits_intro'],
+			'title' => Lang::$txt['credits_team'],
 			'groups' => array(
 				array(
-					'title' => $txt['credits_groups_pm'],
+					'title' => Lang::$txt['credits_groups_pm'],
 					'members' => array(
 						'Aleksi "Lex" Kilpinen',
 						// Former Project Managers
@@ -613,7 +614,7 @@ function Credits($in_admin = false)
 					),
 				),
 				array(
-					'title' => $txt['credits_groups_dev'],
+					'title' => Lang::$txt['credits_groups_dev'],
 					'members' => array(
 						// Lead Developer
 						'Shawn Bulen',
@@ -649,7 +650,7 @@ function Credits($in_admin = false)
 					),
 				),
 				array(
-					'title' => $txt['credits_groups_support'],
+					'title' => Lang::$txt['credits_groups_support'],
 					'members' => array(
 						// Lead Support Specialist
 						'Will "Kindred" Wagner',
@@ -687,7 +688,7 @@ function Credits($in_admin = false)
 					),
 				),
 				array(
-					'title' => $txt['credits_groups_customize'],
+					'title' => Lang::$txt['credits_groups_customize'],
 					'members' => array(
 						// Lead Customizer
 						'Diego Andrés',
@@ -712,7 +713,7 @@ function Credits($in_admin = false)
 					),
 				),
 				array(
-					'title' => $txt['credits_groups_docs'],
+					'title' => Lang::$txt['credits_groups_docs'],
 					'members' => array(
 						// Doc Coordinator
 						'Michele "Illori" Davis',
@@ -727,7 +728,7 @@ function Credits($in_admin = false)
 					),
 				),
 				array(
-					'title' => $txt['credits_groups_internationalizers'],
+					'title' => Lang::$txt['credits_groups_internationalizers'],
 					'members' => array(
 						// Lead Localizer
 						'Nikola "Dzonny" Novaković',
@@ -740,7 +741,7 @@ function Credits($in_admin = false)
 					),
 				),
 				array(
-					'title' => $txt['credits_groups_marketing'],
+					'title' => Lang::$txt['credits_groups_marketing'],
 					'members' => array(
 						// Marketing Coordinator
 
@@ -754,13 +755,13 @@ function Credits($in_admin = false)
 					),
 				),
 				array(
-					'title' => $txt['credits_groups_site'],
+					'title' => Lang::$txt['credits_groups_site'],
 					'members' => array(
 						'Jeremy "SleePy" Darwood',
 					),
 				),
 				array(
-					'title' => $txt['credits_groups_servers'],
+					'title' => Lang::$txt['credits_groups_servers'],
 					'members' => array(
 						'Derek Schwab',
 						'Michael Johnson',
@@ -772,55 +773,55 @@ function Credits($in_admin = false)
 	);
 
 	// Give the translators some credit for their hard work.
-	if (!is_array($txt['translation_credits']))
-		$txt['translation_credits'] = array_filter(array_map('trim', explode(',', $txt['translation_credits'])));
+	if (!is_array(Lang::$txt['translation_credits']))
+		Lang::$txt['translation_credits'] = array_filter(array_map('trim', explode(',', Lang::$txt['translation_credits'])));
 
-	if (!empty($txt['translation_credits']))
+	if (!empty(Lang::$txt['translation_credits']))
 		Utils::$context['credits'][] = array(
-			'title' => $txt['credits_groups_translation'],
+			'title' => Lang::$txt['credits_groups_translation'],
 			'groups' => array(
 				array(
-					'title' => $txt['credits_groups_translation'],
-					'members' => $txt['translation_credits'],
+					'title' => Lang::$txt['credits_groups_translation'],
+					'members' => Lang::$txt['translation_credits'],
 				),
 			),
 		);
 
 	Utils::$context['credits'][] = array(
-		'title' => $txt['credits_special'],
-		'posttext' => $txt['credits_anyone'],
+		'title' => Lang::$txt['credits_special'],
+		'posttext' => Lang::$txt['credits_anyone'],
 		'groups' => array(
 			array(
-				'title' => $txt['credits_groups_consultants'],
+				'title' => Lang::$txt['credits_groups_consultants'],
 				'members' => array(
 					'albertlast',
 					'Brett Flannigan',
 					'Mark Rose',
 					'René-Gilles "Nao 尚" Deberdt',
 					'tinoest',
-					$txt['credits_code_contributors'],
+					Lang::$txt['credits_code_contributors'],
 				),
 			),
 			array(
-				'title' => $txt['credits_groups_beta'],
+				'title' => Lang::$txt['credits_groups_beta'],
 				'members' => array(
-					$txt['credits_beta_message'],
+					Lang::$txt['credits_beta_message'],
 				),
 			),
 			array(
-				'title' => $txt['credits_groups_translators'],
+				'title' => Lang::$txt['credits_groups_translators'],
 				'members' => array(
-					$txt['credits_translators_message'],
+					Lang::$txt['credits_translators_message'],
 				),
 			),
 			array(
-				'title' => $txt['credits_groups_founder'],
+				'title' => Lang::$txt['credits_groups_founder'],
 				'members' => array(
 					'Unknown W. "[Unknown]" Brackets',
 				),
 			),
 			array(
-				'title' => $txt['credits_groups_orignal_pm'],
+				'title' => Lang::$txt['credits_groups_orignal_pm'],
 				'members' => array(
 					'Jeff Lewis',
 					'Joseph Fung',
@@ -828,7 +829,7 @@ function Credits($in_admin = false)
 				),
 			),
 			array(
-				'title' => $txt['credits_in_memoriam'],
+				'title' => Lang::$txt['credits_in_memoriam'],
 				'members' => array(
 					'Crip',
 					'K@',
@@ -888,9 +889,9 @@ function Credits($in_admin = false)
 		{
 			$credit_info = Utils::jsonDecode($row['credits'], true);
 
-			$copyright = empty($credit_info['copyright']) ? '' : $txt['credits_copyright'] . ' © ' . Utils::htmlspecialchars($credit_info['copyright']);
-			$license = empty($credit_info['license']) ? '' : $txt['credits_license'] . ': ' . (!empty($credit_info['licenseurl']) ? '<a href="' . Utils::htmlspecialchars($credit_info['licenseurl']) . '">' . Utils::htmlspecialchars($credit_info['license']) . '</a>' : Utils::htmlspecialchars($credit_info['license']));
-			$version = $txt['credits_version'] . ' ' . $row['version'];
+			$copyright = empty($credit_info['copyright']) ? '' : Lang::$txt['credits_copyright'] . ' © ' . Utils::htmlspecialchars($credit_info['copyright']);
+			$license = empty($credit_info['license']) ? '' : Lang::$txt['credits_license'] . ': ' . (!empty($credit_info['licenseurl']) ? '<a href="' . Utils::htmlspecialchars($credit_info['licenseurl']) . '">' . Utils::htmlspecialchars($credit_info['license']) . '</a>' : Utils::htmlspecialchars($credit_info['license']));
+			$version = Lang::$txt['credits_version'] . ' ' . $row['version'];
 			$title = (empty($credit_info['title']) ? $row['name'] : Utils::htmlspecialchars($credit_info['title'])) . ': ' . $version;
 
 			// build this one out and stash it away
@@ -902,11 +903,11 @@ function Credits($in_admin = false)
 	Utils::$context['credits_modifications'] = $mods;
 
 	Utils::$context['copyrights'] = array(
-		'smf' => sprintf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl),
+		'smf' => sprintf(Lang::$forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl),
 		/* Modification Authors:  You may add a copyright statement to this array for your mods.
 			Copyright statements should be in the form of a value only without a array key.  I.E.:
 				'Some Mod by Thantos © 2010',
-				$txt['some_mod_copyright'],
+				Lang::$txt['some_mod_copyright'],
 		*/
 		'mods' => array(
 		),
@@ -920,7 +921,7 @@ function Credits($in_admin = false)
 		loadTemplate('Who');
 		Utils::$context['sub_template'] = 'credits';
 		Utils::$context['robot_no_index'] = true;
-		Utils::$context['page_title'] = $txt['credits'];
+		Utils::$context['page_title'] = Lang::$txt['credits'];
 	}
 }
 

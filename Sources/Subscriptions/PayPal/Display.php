@@ -14,6 +14,7 @@
 namespace SMF\Subscriptions\PayPal;
 
 use SMF\Config;
+use SMF\Lang;
 
 /**
  * Class for returning available form data for this gateway
@@ -32,22 +33,20 @@ class Display
 	 */
 	public function getGatewaySettings()
 	{
-		global $txt;
-
 		$setting_data = array(
 			array(
 				'email', 'paypal_email',
-				'subtext' => $txt['paypal_email_desc'],
+				'subtext' => Lang::$txt['paypal_email_desc'],
 				'size' => 60
 			),
 			array(
 				'email', 'paypal_additional_emails',
-				'subtext' => $txt['paypal_additional_emails_desc'],
+				'subtext' => Lang::$txt['paypal_additional_emails_desc'],
 				'size' => 60
 			),
 			array(
 				'email', 'paypal_sandbox_email',
-				'subtext' => $txt['paypal_sandbox_email_desc'],
+				'subtext' => Lang::$txt['paypal_sandbox_email_desc'],
 				'size' => 60
 			),
 		);
@@ -80,21 +79,19 @@ class Display
 	 */
 	public function fetchGatewayFields($unique_id, $sub_data, $value, $period, $return_url)
 	{
-		global $txt;
-
 		$return_data = array(
 			'form' => 'https://www.' . (!empty(Config::$modSettings['paidsubs_test']) ? 'sandbox.' : '') . 'paypal.com/cgi-bin/webscr',
 			'id' => 'paypal',
 			'hidden' => array(),
-			'title' => $txt['paypal'],
-			'desc' => $txt['paid_confirm_paypal'],
-			'submit' => $txt['paid_paypal_order'],
+			'title' => Lang::$txt['paypal'],
+			'desc' => Lang::$txt['paid_confirm_paypal'],
+			'submit' => Lang::$txt['paid_paypal_order'],
 			'javascript' => '',
 		);
 
 		// All the standard bits.
 		$return_data['hidden']['business'] = Config::$modSettings['paypal_email'];
-		$return_data['hidden']['item_name'] = $sub_data['name'] . ' ' . $txt['subscription'];
+		$return_data['hidden']['item_name'] = $sub_data['name'] . ' ' . Lang::$txt['subscription'];
 		$return_data['hidden']['item_number'] = $unique_id;
 		$return_data['hidden']['currency_code'] = strtoupper(Config::$modSettings['paid_currency_code']);
 		$return_data['hidden']['no_shipping'] = 1;
@@ -107,7 +104,7 @@ class Display
 		$return_data['hidden']['notify_url'] = Config::$boardurl . '/subscriptions.php';
 
 		// If possible let's use the language we know we need.
-		$return_data['hidden']['lc'] = !empty($txt['lang_paypal']) ? $txt['lang_paypal'] : 'US';
+		$return_data['hidden']['lc'] = !empty(Lang::$txt['lang_paypal']) ? Lang::$txt['lang_paypal'] : 'US';
 
 		// Now stuff dependant on what we're doing.
 		if ($sub_data['flexible'])
@@ -128,7 +125,7 @@ class Display
 		// If it's repeatable do some javascript to respect this idea.
 		if (!empty($sub_data['repeatable']))
 			$return_data['javascript'] = '
-				document.write(\'<label for="do_paypal_recur"><input type="checkbox" name="do_paypal_recur" id="do_paypal_recur" checked onclick="switchPaypalRecur();">' . $txt['paid_make_recurring'] . '</label><br>\');
+				document.write(\'<label for="do_paypal_recur"><input type="checkbox" name="do_paypal_recur" id="do_paypal_recur" checked onclick="switchPaypalRecur();">' . Lang::$txt['paid_make_recurring'] . '</label><br>\');
 
 				function switchPaypalRecur()
 				{

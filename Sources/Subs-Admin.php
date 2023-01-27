@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Cache\CacheApiInterface;
@@ -30,10 +31,8 @@ if (!defined('SMF'))
  */
 function getServerVersions($checkFor)
 {
-	global $txt;
-
-	loadLanguage('Admin');
-	loadLanguage('ManageSettings');
+	Lang::load('Admin');
+	Lang::load('ManageSettings');
 
 	$versions = array();
 
@@ -41,7 +40,7 @@ function getServerVersions($checkFor)
 	if (in_array('gd', $checkFor) && function_exists('gd_info'))
 	{
 		$temp = gd_info();
-		$versions['gd'] = array('title' => $txt['support_versions_gd'], 'version' => $temp['GD Version']);
+		$versions['gd'] = array('title' => Lang::$txt['support_versions_gd'], 'version' => $temp['GD Version']);
 	}
 
 	// Why not have a look at ImageMagick? If it's installed, we should show version information for it too.
@@ -62,7 +61,7 @@ function getServerVersions($checkFor)
 
 		// We already know it's ImageMagick and the website isn't needed...
 		$im_version = str_replace(array('ImageMagick ', ' https://www.imagemagick.org'), '', $im_version);
-		$versions['imagemagick'] = array('title' => $txt['support_versions_imagemagick'], 'version' => $im_version . ' (' . $extension_version . ')');
+		$versions['imagemagick'] = array('title' => Lang::$txt['support_versions_imagemagick'], 'version' => $im_version . ' (' . $extension_version . ')');
 	}
 
 	// Now lets check for the Database.
@@ -70,17 +69,17 @@ function getServerVersions($checkFor)
 	{
 		if (!isset(Db::$db_connection) || Db::$db_connection === false)
 		{
-			loadLanguage('Errors');
-			trigger_error($txt['get_server_versions_no_database'], E_USER_NOTICE);
+			Lang::load('Errors');
+			trigger_error(Lang::$txt['get_server_versions_no_database'], E_USER_NOTICE);
 		}
 		else
 		{
 			$versions['db_engine'] = array(
-				'title' => sprintf($txt['support_versions_db_engine'], Db::$db->title),
+				'title' => sprintf(Lang::$txt['support_versions_db_engine'], Db::$db->title),
 				'version' => Db::$db->get_vendor(),
 			);
 			$versions['db_server'] = array(
-				'title' => sprintf($txt['support_versions_db'], Db::$db->title),
+				'title' => sprintf(Lang::$txt['support_versions_db'], Db::$db->title),
 				'version' => Db::$db->get_version(),
 			);
 		}
@@ -96,8 +95,8 @@ function getServerVersions($checkFor)
 
 		if (in_array($class_name_txt_key, $checkFor))
 			$versions[$class_name_txt_key] = array(
-				'title' => isset($txt[$class_name_txt_key . '_cache']) ?
-					$txt[$class_name_txt_key . '_cache'] : $class_name,
+				'title' => isset(Lang::$txt[$class_name_txt_key . '_cache']) ?
+					Lang::$txt[$class_name_txt_key . '_cache'] : $class_name,
 				'version' => $cache_api->getVersion(),
 			);
 	}
@@ -111,7 +110,7 @@ function getServerVersions($checkFor)
 
 	if (in_array('server', $checkFor))
 		$versions['server'] = array(
-			'title' => $txt['support_versions_server'],
+			'title' => Lang::$txt['support_versions_server'],
 			'version' => $_SERVER['SERVER_SOFTWARE'],
 		);
 
@@ -368,7 +367,7 @@ function emailAdmins($template, $replacements = array(), $additional_recipients 
 		$replacements['USERNAME'] = $row['real_name'];
 
 		// Load the data from the template.
-		$emaildata = loadEmailTemplate($template, $replacements, empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $row['lngfile']);
+		$emaildata = loadEmailTemplate($template, $replacements, empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile']);
 
 		// Then send the actual email.
 		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, $template, $emaildata['is_html'], 1);
@@ -390,7 +389,7 @@ function emailAdmins($template, $replacements = array(), $additional_recipients 
 			$replacements['USERNAME'] = $recipient['name'];
 
 			// Load the template again.
-			$emaildata = loadEmailTemplate($template, $replacements, empty($recipient['lang']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $recipient['lang']);
+			$emaildata = loadEmailTemplate($template, $replacements, empty($recipient['lang']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $recipient['lang']);
 
 			// Send off the email.
 			sendmail($recipient['email'], $emaildata['subject'], $emaildata['body'], null, $template, $emaildata['is_html'], 1);

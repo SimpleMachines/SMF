@@ -14,6 +14,7 @@
 namespace SMF\Db\APIs;
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi;
 use SMF\Db\DatabaseApiInterface;
@@ -1075,8 +1076,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function get_vendor()
 	{
-		global $txt;
-
 		if (!empty($this->vendor))
 			return $this->vendor;
 
@@ -1096,8 +1095,8 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 		else
 		{
-			loadLanguage('Admin');
-			return $txt['unknown'];
+			Lang::load('Admin');
+			return Lang::$txt['unknown'];
 		}
 
 		return $this->vendor;

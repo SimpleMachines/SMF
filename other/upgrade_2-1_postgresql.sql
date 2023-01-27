@@ -3419,13 +3419,13 @@ foreach ($dirs AS $ix => $dir)
 }
 
 // Add our lovely new 2.1 smiley sets if not already there
-$combined['fugue'] = array($txt['default_fugue_smileyset_name'], 'png');
-$combined['alienine'] = array($txt['default_alienine_smileyset_name'], 'png');
+$combined['fugue'] = array(Lang::$txt['default_fugue_smileyset_name'], 'png');
+$combined['alienine'] = array(Lang::$txt['default_alienine_smileyset_name'], 'png');
 
 // Add/fix our 2.0 sets (to correct past problems where these got corrupted)
-$combined['default'] = array($txt['default_legacy_smileyset_name'], 'gif');
-$combined['aaron'] = array($txt['default_aaron_smileyset_name'], 'gif');
-$combined['akyhne'] = array($txt['default_akyhne_smileyset_name'], 'gif');
+$combined['default'] = array(Lang::$txt['default_legacy_smileyset_name'], 'gif');
+$combined['aaron'] = array(Lang::$txt['default_aaron_smileyset_name'], 'gif');
+$combined['akyhne'] = array(Lang::$txt['default_akyhne_smileyset_name'], 'gif');
 
 // Confirm they exist in the filesystem
 $filtered = array();

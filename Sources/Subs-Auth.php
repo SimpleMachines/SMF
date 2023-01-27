@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -208,10 +209,8 @@ function url_parts($local, $global)
  */
 function KickGuest()
 {
-	global $txt;
-
 	loadTheme();
-	loadLanguage('Login');
+	Lang::load('Login');
 	loadTemplate('Login');
 	createToken('login');
 
@@ -220,7 +219,7 @@ function KickGuest()
 		$_SESSION['login_url'] = $_SERVER['REQUEST_URL'];
 
 	Utils::$context['sub_template'] = 'kick_guest';
-	Utils::$context['page_title'] = $txt['login'];
+	Utils::$context['page_title'] = Lang::$txt['login'];
 }
 
 /**
@@ -230,9 +229,7 @@ function KickGuest()
  */
 function InMaintenance()
 {
-	global $txt;
-
-	loadLanguage('Login');
+	Lang::load('Login');
 	loadTemplate('Login');
 	createToken('login');
 
@@ -243,7 +240,7 @@ function InMaintenance()
 	Utils::$context['sub_template'] = 'maintenance';
 	Utils::$context['title'] = Utils::htmlspecialchars(Config::$mtitle);
 	Utils::$context['description'] = &Config::$mmessage;
-	Utils::$context['page_title'] = $txt['maintain_mode'];
+	Utils::$context['page_title'] = Lang::$txt['maintain_mode'];
 }
 
 /**
@@ -256,9 +253,9 @@ function InMaintenance()
  */
 function adminLogin($type = 'admin')
 {
-	global $txt, $user_info;
+	global $user_info;
 
-	loadLanguage('Admin');
+	Lang::load('Admin');
 	loadTemplate('Login');
 
 	// Validate what type of session check this is.
@@ -269,8 +266,8 @@ function adminLogin($type = 'admin')
 	// They used a wrong password, log it and unset that.
 	if (isset($_POST[$type . '_hash_pass']) || isset($_POST[$type . '_pass']))
 	{
-		$txt['security_wrong'] = sprintf($txt['security_wrong'], isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $txt['unknown'], $_SERVER['HTTP_USER_AGENT'], $user_info['ip']);
-		log_error($txt['security_wrong'], 'critical');
+		Lang::$txt['security_wrong'] = sprintf(Lang::$txt['security_wrong'], isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : Lang::$txt['unknown'], $_SERVER['HTTP_USER_AGENT'], $user_info['ip']);
+		log_error(Lang::$txt['security_wrong'], 'critical');
 
 		if (isset($_POST[$type . '_hash_pass']))
 			unset($_POST[$type . '_hash_pass']);
@@ -296,7 +293,7 @@ function adminLogin($type = 'admin')
 
 	// And title the page something like "Login".
 	if (!isset(Utils::$context['page_title']))
-		Utils::$context['page_title'] = $txt['login'];
+		Utils::$context['page_title'] = Lang::$txt['login'];
 
 	// The type of action.
 	Utils::$context['sessionCheckType'] = $type;
@@ -530,7 +527,7 @@ function JSMembers()
  */
 function RequestMembers()
 {
-	global $user_info, $txt;
+	global $user_info;
 
 	checkSession('get');
 
@@ -558,7 +555,7 @@ function RequestMembers()
 	{
 		if (function_exists('iconv'))
 		{
-			$utf8 = iconv($txt['lang_character_set'], 'UTF-8', $row['real_name']);
+			$utf8 = iconv(Lang::$txt['lang_character_set'], 'UTF-8', $row['real_name']);
 			if ($utf8)
 				$row['real_name'] = $utf8;
 		}
@@ -588,7 +585,7 @@ function RequestMembers()
 function resetPassword($memID, $username = null)
 {
 	// Language... and a required file.
-	loadLanguage('Login');
+	Lang::load('Login');
 	require_once(Config::$sourcedir . '/Subs-Post.php');
 
 	// Get some important details.
@@ -631,7 +628,7 @@ function resetPassword($memID, $username = null)
 		'PASSWORD' => $newPassword,
 	);
 
-	$emaildata = loadEmailTemplate('change_password', $replacements, empty($lngfile) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $lngfile);
+	$emaildata = loadEmailTemplate('change_password', $replacements, empty($lngfile) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $lngfile);
 
 	// Send them the email informing them of the change - then we're done!
 	sendmail($email, $emaildata['subject'], $emaildata['body'], null, 'chgpass' . $memID, $emaildata['is_html'], 0);
@@ -648,7 +645,7 @@ function resetPassword($memID, $username = null)
  */
 function validateUsername($memID, $username, $return_error = false, $check_reserved_name = true)
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	$errors = array();
 
@@ -664,14 +661,14 @@ function validateUsername($memID, $username, $return_error = false, $check_reser
 	if (in_array($username, array('_', '|')) || preg_match('~[<>&"\'=\\\\]~', preg_replace('~&#(?:\\d{1,7}|x[0-9a-fA-F]{1,6});~', '', $username)) != 0 || strpos($username, '[code') !== false || strpos($username, '[/code') !== false)
 		$errors[] = array('lang', 'error_invalid_characters_username');
 
-	if (stristr($username, $txt['guest_title']) !== false)
-		$errors[] = array('lang', 'username_reserved', 'general', array($txt['guest_title']));
+	if (stristr($username, Lang::$txt['guest_title']) !== false)
+		$errors[] = array('lang', 'username_reserved', 'general', array(Lang::$txt['guest_title']));
 
 	if ($check_reserved_name)
 	{
 		require_once(Config::$sourcedir . '/Subs-Members.php');
 		if (isReservedName($username, $memID, false))
-			$errors[] = array('done', '(' . Utils::htmlspecialchars($username) . ') ' . $txt['name_in_use']);
+			$errors[] = array('done', '(' . Utils::htmlspecialchars($username) . ') ' . Lang::$txt['name_in_use']);
 	}
 
 	// Maybe a mod wants to perform more checks?
@@ -682,10 +679,10 @@ function validateUsername($memID, $username, $return_error = false, $check_reser
 	elseif (empty($errors))
 		return null;
 
-	loadLanguage('Errors');
+	Lang::load('Errors');
 	$error = $errors[0];
 
-	$message = $error[0] == 'lang' ? (empty($error[3]) ? $txt[$error[1]] : vsprintf($txt[$error[1]], (array) $error[3])) : $error[1];
+	$message = $error[0] == 'lang' ? (empty($error[3]) ? Lang::$txt[$error[1]] : vsprintf(Lang::$txt[$error[1]], (array) $error[3])) : $error[1];
 	fatal_error($message, empty($error[2]) || $user_info['is_admin'] ? false : $error[2]);
 }
 

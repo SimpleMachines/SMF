@@ -17,6 +17,7 @@
 use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -39,26 +40,26 @@ class_exists('SMF\\BBCodeParser');
  */
 function getMessageIcons($board_id)
 {
-	global $txt, $settings;
+	global $settings;
 
 	if (empty(Config::$modSettings['messageIcons_enable']))
 	{
-		loadLanguage('Post');
+		Lang::load('Post');
 
 		$icons = array(
-			array('value' => 'xx', 'name' => $txt['standard']),
-			array('value' => 'thumbup', 'name' => $txt['thumbs_up']),
-			array('value' => 'thumbdown', 'name' => $txt['thumbs_down']),
-			array('value' => 'exclamation', 'name' => $txt['exclamation_point']),
-			array('value' => 'question', 'name' => $txt['question_mark']),
-			array('value' => 'lamp', 'name' => $txt['lamp']),
-			array('value' => 'smiley', 'name' => $txt['icon_smiley']),
-			array('value' => 'angry', 'name' => $txt['icon_angry']),
-			array('value' => 'cheesy', 'name' => $txt['icon_cheesy']),
-			array('value' => 'grin', 'name' => $txt['icon_grin']),
-			array('value' => 'sad', 'name' => $txt['icon_sad']),
-			array('value' => 'wink', 'name' => $txt['icon_wink']),
-			array('value' => 'poll', 'name' => $txt['icon_poll']),
+			array('value' => 'xx', 'name' => Lang::$txt['standard']),
+			array('value' => 'thumbup', 'name' => Lang::$txt['thumbs_up']),
+			array('value' => 'thumbdown', 'name' => Lang::$txt['thumbs_down']),
+			array('value' => 'exclamation', 'name' => Lang::$txt['exclamation_point']),
+			array('value' => 'question', 'name' => Lang::$txt['question_mark']),
+			array('value' => 'lamp', 'name' => Lang::$txt['lamp']),
+			array('value' => 'smiley', 'name' => Lang::$txt['icon_smiley']),
+			array('value' => 'angry', 'name' => Lang::$txt['icon_angry']),
+			array('value' => 'cheesy', 'name' => Lang::$txt['icon_cheesy']),
+			array('value' => 'grin', 'name' => Lang::$txt['icon_grin']),
+			array('value' => 'sad', 'name' => Lang::$txt['icon_sad']),
+			array('value' => 'wink', 'name' => Lang::$txt['icon_wink']),
+			array('value' => 'poll', 'name' => Lang::$txt['icon_poll']),
 		);
 
 		foreach ($icons as $k => $dummy)
@@ -114,19 +115,19 @@ function getMessageIcons($board_id)
  */
 function create_control_richedit($editorOptions)
 {
-	global $txt, $options, $editortxt;
+	global $options;
 	global $settings, $user_info;
 
 	// Load the Post language file... for the moment at least.
-	loadLanguage('Post');
-	loadLanguage('Editor');
-	loadLanguage('Drafts');
+	Lang::load('Post');
+	Lang::load('Editor');
+	Lang::load('Drafts');
 
 	Utils::$context['richedit_buttons'] = array(
 		'save_draft' => array(
 			'type' => 'submit',
-			'value' => $txt['draft_save'],
-			'onclick' => !empty(Utils::$context['drafts_pm_save']) ? 'submitThisOnce(this);' : (!empty(Utils::$context['drafts_save']) ? 'return confirm(' . JavaScriptEscape($txt['draft_save_note']) . ') && submitThisOnce(this);' : ''),
+			'value' => Lang::$txt['draft_save'],
+			'onclick' => !empty(Utils::$context['drafts_pm_save']) ? 'submitThisOnce(this);' : (!empty(Utils::$context['drafts_save']) ? 'return confirm(' . JavaScriptEscape(Lang::$txt['draft_save_note']) . ') && submitThisOnce(this);' : ''),
 			'accessKey' => 'd',
 			'show' => !empty(Utils::$context['drafts_pm_save']) || !empty(Utils::$context['drafts_save'])
 		),
@@ -142,12 +143,12 @@ function create_control_richedit($editorOptions)
 		),
 		'spell_check' => array(
 			'type' => 'submit',
-			'value' => $txt['spell_check'],
+			'value' => Lang::$txt['spell_check'],
 			'show' => !empty(Utils::$context['show_spellchecking'])
 		),
 		'preview' => array(
 			'type' => 'submit',
-			'value' => $txt['preview'],
+			'value' => Lang::$txt['preview'],
 			'accessKey' => 'p'
 		)
 	);
@@ -181,30 +182,30 @@ function create_control_richedit($editorOptions)
 		loadJavaScriptFile('jquery.sceditor.smf.js', array('minimize' => true), 'smf_sceditor_smf');
 
 		$scExtraLangs = '
-		$.sceditor.locale["' . $txt['lang_dictionary'] . '"] = {
-			"Width (optional):": "' . $editortxt['width'] . '",
-			"Height (optional):": "' . $editortxt['height'] . '",
-			"Insert": "' . $editortxt['insert'] . '",
-			"Description (optional):": "' . $editortxt['description'] . '",
-			"Rows:": "' . $editortxt['rows'] . '",
-			"Cols:": "' . $editortxt['cols'] . '",
-			"URL:": "' . $editortxt['url'] . '",
-			"E-mail:": "' . $editortxt['email'] . '",
-			"Video URL:": "' . $editortxt['video_url'] . '",
-			"More": "' . $editortxt['more'] . '",
-			"Close": "' . $editortxt['close'] . '",
-			dateFormat: "' . $editortxt['dateformat'] . '"
+		$.sceditor.locale["' . Lang::$txt['lang_dictionary'] . '"] = {
+			"Width (optional):": "' . Lang::$editortxt['width'] . '",
+			"Height (optional):": "' . Lang::$editortxt['height'] . '",
+			"Insert": "' . Lang::$editortxt['insert'] . '",
+			"Description (optional):": "' . Lang::$editortxt['description'] . '",
+			"Rows:": "' . Lang::$editortxt['rows'] . '",
+			"Cols:": "' . Lang::$editortxt['cols'] . '",
+			"URL:": "' . Lang::$editortxt['url'] . '",
+			"E-mail:": "' . Lang::$editortxt['email'] . '",
+			"Video URL:": "' . Lang::$editortxt['video_url'] . '",
+			"More": "' . Lang::$editortxt['more'] . '",
+			"Close": "' . Lang::$editortxt['close'] . '",
+			dateFormat: "' . Lang::$editortxt['dateformat'] . '"
 		};';
 
 		addInlineJavaScript($scExtraLangs, true);
 
 		addInlineJavaScript('
 		var smf_smileys_url = \'' . $settings['smileys_url'] . '\';
-		var bbc_quote_from = \'' . addcslashes($txt['quote_from'], "'") . '\';
-		var bbc_quote = \'' . addcslashes($txt['quote'], "'") . '\';
-		var bbc_search_on = \'' . addcslashes($txt['search_on'], "'") . '\';');
+		var bbc_quote_from = \'' . addcslashes(Lang::$txt['quote_from'], "'") . '\';
+		var bbc_quote = \'' . addcslashes(Lang::$txt['quote'], "'") . '\';
+		var bbc_search_on = \'' . addcslashes(Lang::$txt['search_on'], "'") . '\';');
 
-		Utils::$context['shortcuts_text'] = $txt['shortcuts' . (!empty(Utils::$context['drafts_save']) ? '_drafts' : '') . (stripos($_SERVER['HTTP_USER_AGENT'], 'Macintosh') !== false ? '_mac' : (BrowserDetector::isBrowser('is_firefox') ? '_firefox' : ''))];
+		Utils::$context['shortcuts_text'] = Lang::$txt['shortcuts' . (!empty(Utils::$context['drafts_save']) ? '_drafts' : '') . (stripos($_SERVER['HTTP_USER_AGENT'], 'Macintosh') !== false ? '_mac' : (BrowserDetector::isBrowser('is_firefox') ? '_firefox' : ''))];
 
 		if (Utils::$context['show_spellchecking'])
 		{
@@ -239,7 +240,7 @@ function create_control_richedit($editorOptions)
 		'bbc_level' => !empty($editorOptions['bbc_level']) ? $editorOptions['bbc_level'] : 'full',
 		'preview_type' => isset($editorOptions['preview_type']) ? (int) $editorOptions['preview_type'] : 1,
 		'labels' => !empty($editorOptions['labels']) ? $editorOptions['labels'] : array(),
-		'locale' => !empty($txt['lang_dictionary']) && $txt['lang_dictionary'] != 'en' ? $txt['lang_dictionary'] : '',
+		'locale' => !empty(Lang::$txt['lang_dictionary']) && Lang::$txt['lang_dictionary'] != 'en' ? Lang::$txt['lang_dictionary'] : '',
 		'required' => !empty($editorOptions['required']),
 	);
 
@@ -250,7 +251,7 @@ function create_control_richedit($editorOptions)
 		/*
 			array(
 				'code' => 'b', // Required
-				'description' => $editortxt['bold'], // Required
+				'description' => Lang::$editortxt['bold'], // Required
 				'image' => 'bold', // Optional
 				'before' => '[b]', // Deprecated
 				'after' => '[/b]', // Deprecated
@@ -260,133 +261,133 @@ function create_control_richedit($editorOptions)
 		Utils::$context['bbc_tags'][] = array(
 			array(
 				'code' => 'bold',
-				'description' => $editortxt['bold'],
+				'description' => Lang::$editortxt['bold'],
 			),
 			array(
 				'code' => 'italic',
-				'description' => $editortxt['italic'],
+				'description' => Lang::$editortxt['italic'],
 			),
 			array(
 				'code' => 'underline',
-				'description' => $editortxt['underline']
+				'description' => Lang::$editortxt['underline']
 			),
 			array(
 				'code' => 'strike',
-				'description' => $editortxt['strikethrough']
+				'description' => Lang::$editortxt['strikethrough']
 			),
 			array(
 				'code' => 'superscript',
-				'description' => $editortxt['superscript']
+				'description' => Lang::$editortxt['superscript']
 			),
 			array(
 				'code' => 'subscript',
-				'description' => $editortxt['subscript']
+				'description' => Lang::$editortxt['subscript']
 			),
 			array(),
 			array(
 				'code' => 'pre',
-				'description' => $editortxt['preformatted_text']
+				'description' => Lang::$editortxt['preformatted_text']
 			),
 			array(
 				'code' => 'left',
-				'description' => $editortxt['align_left']
+				'description' => Lang::$editortxt['align_left']
 			),
 			array(
 				'code' => 'center',
-				'description' => $editortxt['center']
+				'description' => Lang::$editortxt['center']
 			),
 			array(
 				'code' => 'right',
-				'description' => $editortxt['align_right']
+				'description' => Lang::$editortxt['align_right']
 			),
 			array(
 				'code' => 'justify',
-				'description' => $editortxt['justify']
+				'description' => Lang::$editortxt['justify']
 			),
 			array(),
 			array(
 				'code' => 'font',
-				'description' => $editortxt['font_name']
+				'description' => Lang::$editortxt['font_name']
 			),
 			array(
 				'code' => 'size',
-				'description' => $editortxt['font_size']
+				'description' => Lang::$editortxt['font_size']
 			),
 			array(
 				'code' => 'color',
-				'description' => $editortxt['font_color']
+				'description' => Lang::$editortxt['font_color']
 			),
 		);
 		if (empty(Config::$modSettings['disable_wysiwyg']))
 		{
 			Utils::$context['bbc_tags'][count(Utils::$context['bbc_tags']) - 1][] = array(
 				'code' => 'removeformat',
-				'description' => $editortxt['remove_formatting'],
+				'description' => Lang::$editortxt['remove_formatting'],
 			);
 		}
 		Utils::$context['bbc_tags'][] = array(
 			array(
 				'code' => 'floatleft',
-				'description' => $editortxt['float_left']
+				'description' => Lang::$editortxt['float_left']
 			),
 			array(
 				'code' => 'floatright',
-				'description' => $editortxt['float_right']
+				'description' => Lang::$editortxt['float_right']
 			),
 			array(),
 			array(
 				'code' => 'youtube',
-				'description' => $editortxt['insert_youtube_video']
+				'description' => Lang::$editortxt['insert_youtube_video']
 			),
 			array(
 				'code' => 'image',
-				'description' => $editortxt['insert_image']
+				'description' => Lang::$editortxt['insert_image']
 			),
 			array(
 				'code' => 'link',
-				'description' => $editortxt['insert_link']
+				'description' => Lang::$editortxt['insert_link']
 			),
 			array(
 				'code' => 'email',
-				'description' => $editortxt['insert_email']
+				'description' => Lang::$editortxt['insert_email']
 			),
 			array(),
 			array(
 				'code' => 'table',
-				'description' => $editortxt['insert_table']
+				'description' => Lang::$editortxt['insert_table']
 			),
 			array(
 				'code' => 'code',
-				'description' => $editortxt['code']
+				'description' => Lang::$editortxt['code']
 			),
 			array(
 				'code' => 'quote',
-				'description' => $editortxt['insert_quote']
+				'description' => Lang::$editortxt['insert_quote']
 			),
 			array(),
 			array(
 				'code' => 'bulletlist',
-				'description' => $editortxt['bullet_list']
+				'description' => Lang::$editortxt['bullet_list']
 			),
 			array(
 				'code' => 'orderedlist',
-				'description' => $editortxt['numbered_list']
+				'description' => Lang::$editortxt['numbered_list']
 			),
 			array(
 				'code' => 'horizontalrule',
-				'description' => $editortxt['insert_horizontal_rule']
+				'description' => Lang::$editortxt['insert_horizontal_rule']
 			),
 			array(),
 			array(
 				'code' => 'maximize',
-				'description' => $editortxt['maximize']
+				'description' => Lang::$editortxt['maximize']
 			),
 		);
 		if (empty(Config::$modSettings['disable_wysiwyg']))
 		{
 			Utils::$context['bbc_tags'][count(Utils::$context['bbc_tags']) - 1][] = array(
 				'code' => 'source',
-				'description' => $editortxt['view_source'],
+				'description' => Lang::$editortxt['view_source'],
 			);
 		}
 
@@ -526,7 +527,7 @@ function create_control_richedit($editorOptions)
 				);
 				while ($row = Db::$db->fetch_assoc($request))
 				{
-					$row['description'] = !empty($txt['icon_' . strtolower($row['description'])]) ? Utils::htmlspecialchars($txt['icon_' . strtolower($row['description'])]) : Utils::htmlspecialchars($row['description']);
+					$row['description'] = !empty(Lang::$txt['icon_' . strtolower($row['description'])]) ? Utils::htmlspecialchars(Lang::$txt['icon_' . strtolower($row['description'])]) : Utils::htmlspecialchars($row['description']);
 
 					Utils::$context['smileys'][empty($row['hidden']) ? 'postform' : 'popup'][$row['smiley_row']]['smileys'][] = $row;
 				}
@@ -606,7 +607,7 @@ function create_control_richedit($editorOptions)
 
 	$sce_options['toolbar'] = '';
 	$sce_options['parserOptions']['txtVars'] = [
-		'code' => $txt['code']
+		'code' => Lang::$txt['code']
 	];
 	if (!empty(Config::$modSettings['enableBBC']))
 	{
@@ -863,7 +864,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 			if (!empty($user_info['language']))
 				$possible_langs[] = $user_info['language'];
 
-			$possible_langs[] = Config::$language;
+			$possible_langs[] = Lang::$default;
 
 			$questionIDs = array();
 			foreach ($possible_langs as $lang)

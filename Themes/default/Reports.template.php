@@ -11,6 +11,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 
 /**
@@ -18,12 +19,10 @@ use SMF\Utils;
  */
 function template_report_type()
 {
-	global $txt;
-
 	echo '
 		<form action="', Config::$scripturl, '?action=admin;area=reports" method="post" accept-charset="', Utils::$context['character_set'], '">
 			<div class="cat_bar">
-				<h3 class="catbg">', $txt['generate_reports_type'], '</h3>
+				<h3 class="catbg">', Lang::$txt['generate_reports_type'], '</h3>
 			</div>
 			<div class="windowbg">
 				<dl class="settings">';
@@ -43,7 +42,7 @@ function template_report_type()
 	}
 	echo '
 				</dl>
-				<input type="submit" name="continue" value="', $txt['generate_reports_continue'], '" class="button">
+				<input type="submit" name="continue" value="', Lang::$txt['generate_reports_continue'], '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			</div><!-- .windowbg -->
 		</form>';
@@ -54,11 +53,9 @@ function template_report_type()
  */
 function template_main()
 {
-	global $txt;
-
 	echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', $txt['results'], '</h3>
+			<h3 class="catbg">', Lang::$txt['results'], '</h3>
 		</div>
 		<div id="report_buttons">';
 

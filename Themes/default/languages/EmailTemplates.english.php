@@ -9,8 +9,6 @@
 
 // Do not use block comments in this file, they will have special meaning.
 
-global $txtBirthdayEmails;
-
 /**
 	@additional_params: resend_activate_message
 		REALNAME: The display name for the member receiving the email.

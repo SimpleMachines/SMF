@@ -15,6 +15,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 use SMF\TOTP\Auth as Tfa;
@@ -32,7 +33,7 @@ if (!defined('SMF'))
  */
 function Login()
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	// You are already logged in, go take a tour of the boards
 	if (!empty($user_info['id']))
@@ -45,7 +46,7 @@ function Login()
 	}
 
 	// We need to load the Login template/language file.
-	loadLanguage('Login');
+	Lang::load('Login');
 	loadTemplate('Login');
 
 	Utils::$context['sub_template'] = 'login';
@@ -76,7 +77,7 @@ function Login()
 	}
 
 	// Get the template ready.... not really much else to do.
-	Utils::$context['page_title'] = $txt['login'];
+	Utils::$context['page_title'] = Lang::$txt['login'];
 	Utils::$context['default_username'] = &$_REQUEST['u'];
 	Utils::$context['default_password'] = '';
 	Utils::$context['never_expire'] = false;
@@ -84,7 +85,7 @@ function Login()
 	// Add the login chain to the link tree.
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=login',
-		'name' => $txt['login'],
+		'name' => Lang::$txt['login'],
 	);
 
 	// Set the login URL - will be used when the login process is done (but careful not to send us to an attachment).
@@ -113,7 +114,7 @@ function Login()
  */
 function Login2()
 {
-	global $txt, $user_info, $user_settings;
+	global $user_info, $user_settings;
 
 	// Check to ensure we're forcing SSL for authentication
 	if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !httpsOn())
@@ -167,8 +168,8 @@ function Login2()
 
 		else
 		{
-			loadLanguage('Errors');
-			trigger_error($txt['login_no_session_cookie'], E_USER_ERROR);
+			Lang::load('Errors');
+			trigger_error(Lang::$txt['login_no_session_cookie'], E_USER_ERROR);
 		}
 
 		$user_settings['password_salt'] = bin2hex(Utils::randomBytes(16));
@@ -239,7 +240,7 @@ function Login2()
 	elseif (!empty($_POST['cookielength']) && ($_POST['cookielength'] >= 1 && $_POST['cookielength'] <= 3153600))
 		Config::$modSettings['cookieTime'] = (int) $_POST['cookielength'];
 
-	loadLanguage('Login');
+	Lang::load('Login');
 	// Load the template stuff.
 	loadTemplate('Login');
 	Utils::$context['sub_template'] = 'login';
@@ -251,33 +252,33 @@ function Login2()
 	Utils::$context['default_username'] = isset($_POST['user']) ? preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', Utils::htmlspecialchars($_POST['user'])) : '';
 	Utils::$context['default_password'] = '';
 	Utils::$context['never_expire'] = Config::$modSettings['cookieTime'] <= 525600;
-	Utils::$context['login_errors'] = array($txt['error_occured']);
-	Utils::$context['page_title'] = $txt['login'];
+	Utils::$context['login_errors'] = array(Lang::$txt['error_occured']);
+	Utils::$context['page_title'] = Lang::$txt['login'];
 
 	// Add the login chain to the link tree.
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=login',
-		'name' => $txt['login'],
+		'name' => Lang::$txt['login'],
 	);
 
 	// You forgot to type your username, dummy!
 	if (!isset($_POST['user']) || $_POST['user'] == '')
 	{
-		Utils::$context['login_errors'] = array($txt['need_username']);
+		Utils::$context['login_errors'] = array(Lang::$txt['need_username']);
 		return;
 	}
 
 	// Hmm... maybe 'admin' will login with no password. Uhh... NO!
 	if (!isset($_POST['passwrd']) || $_POST['passwrd'] == '')
 	{
-		Utils::$context['login_errors'] = array($txt['no_password']);
+		Utils::$context['login_errors'] = array(Lang::$txt['no_password']);
 		return;
 	}
 
 	// No funky symbols either.
 	if (preg_match('~[<>&"\'=\\\]~', preg_replace('~(&#(\\d{1,7}|x[0-9a-fA-F]{1,6});)~', '', $_POST['user'])) != 0)
 	{
-		Utils::$context['login_errors'] = array($txt['error_invalid_characters_username']);
+		Utils::$context['login_errors'] = array(Lang::$txt['error_invalid_characters_username']);
 		return;
 	}
 
@@ -291,7 +292,7 @@ function Login2()
 	// Are we using any sort of integration to validate the login?
 	if (in_array('retry', call_integration_hook('integrate_validate_login', array($_POST['user'], isset($_POST['passwrd']) ? $_POST['passwrd'] : null, Config::$modSettings['cookieTime'])), true))
 	{
-		Utils::$context['login_errors'] = array($txt['incorrect_password']);
+		Utils::$context['login_errors'] = array(Lang::$txt['incorrect_password']);
 		return;
 	}
 
@@ -326,7 +327,7 @@ function Login2()
 	// Let them try again, it didn't match anything...
 	if (Db::$db->num_rows($request) == 0)
 	{
-		Utils::$context['login_errors'] = array($txt['username_no_exist']);
+		Utils::$context['login_errors'] = array(Lang::$txt['username_no_exist']);
 		return;
 	}
 
@@ -453,9 +454,9 @@ function Login2()
 			else
 			{
 				// Log an error so we know that it didn't go well in the error log.
-				log_error($txt['incorrect_password'] . ' - <span class="remove">' . $user_settings['member_name'] . '</span>', 'user');
+				log_error(Lang::$txt['incorrect_password'] . ' - <span class="remove">' . $user_settings['member_name'] . '</span>', 'user');
 
-				Utils::$context['login_errors'] = array($txt['incorrect_password']);
+				Utils::$context['login_errors'] = array(Lang::$txt['incorrect_password']);
 				return;
 			}
 		}
@@ -488,12 +489,12 @@ function Login2()
  */
 function LoginTFA()
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	if (!$user_info['is_guest'] || empty(Utils::$context['tfa_member']) || empty(Config::$modSettings['tfa_mode']))
 		fatal_lang_error('no_access', false);
 
-	loadLanguage('Profile');
+	Lang::load('Profile');
 
 	$member = Utils::$context['tfa_member'];
 
@@ -583,7 +584,7 @@ function LoginTFA()
 
 	loadTemplate('Login');
 	Utils::$context['sub_template'] = 'login_tfa';
-	Utils::$context['page_title'] = $txt['login'];
+	Utils::$context['page_title'] = Lang::$txt['login'];
 	Utils::$context['tfa_url'] = Config::$scripturl . '?action=logintfa';
 }
 
@@ -592,7 +593,7 @@ function LoginTFA()
  */
 function checkActivation()
 {
-	global $txt, $user_settings;
+	global $user_settings;
 
 	if (!isset(Utils::$context['login_errors']))
 		Utils::$context['login_errors'] = array();
@@ -603,7 +604,7 @@ function checkActivation()
 	// Check if the account is activated - COPPA first...
 	if ($activation_status == 5)
 	{
-		Utils::$context['login_errors'][] = $txt['coppa_no_consent'] . ' <a href="' . Config::$scripturl . '?action=coppa;member=' . $user_settings['id_member'] . '">' . $txt['coppa_need_more_details'] . '</a>';
+		Utils::$context['login_errors'][] = Lang::$txt['coppa_no_consent'] . ' <a href="' . Config::$scripturl . '?action=coppa;member=' . $user_settings['id_member'] . '">' . Lang::$txt['coppa_need_more_details'] . '</a>';
 		return false;
 	}
 	// Awaiting approval still?
@@ -620,7 +621,7 @@ function checkActivation()
 		else
 		{
 			Utils::$context['disable_login_hashing'] = true;
-			Utils::$context['login_errors'][] = $txt['awaiting_delete_account'];
+			Utils::$context['login_errors'][] = Lang::$txt['awaiting_delete_account'];
 			Utils::$context['login_show_undelete'] = true;
 			return false;
 		}
@@ -628,9 +629,9 @@ function checkActivation()
 	// Standard activation?
 	elseif ($activation_status != 1)
 	{
-		log_error($txt['activate_not_completed1'] . ' - <span class="remove">' . $user_settings['member_name'] . '</span>', 'user');
+		log_error(Lang::$txt['activate_not_completed1'] . ' - <span class="remove">' . $user_settings['member_name'] . '</span>', 'user');
 
-		Utils::$context['login_errors'][] = $txt['activate_not_completed1'] . ' <a href="' . Config::$scripturl . '?action=activate;sa=resend;u=' . $user_settings['id_member'] . '">' . $txt['activate_not_completed2'] . '</a>';
+		Utils::$context['login_errors'][] = Lang::$txt['activate_not_completed1'] . ' <a href="' . Config::$scripturl . '?action=activate;sa=resend;u=' . $user_settings['id_member'] . '">' . Lang::$txt['activate_not_completed2'] . '</a>';
 		return false;
 	}
 	return true;
@@ -742,7 +743,7 @@ function Logout($internal = false, $redirect = true)
 	// Prompt to logout?
 	elseif (!$internal && !isset($_GET[Utils::$context['session_var']]))
 	{
-		loadLanguage('Login');
+		Lang::load('Login');
 		loadTemplate('Login');
 		Utils::$context['sub_template'] = 'logout';
 

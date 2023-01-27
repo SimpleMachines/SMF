@@ -11,6 +11,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 
 /**
@@ -18,7 +19,7 @@ use SMF\Utils;
  */
 function template_main()
 {
-	global $settings, $txt;
+	global $settings;
 
 	echo '
 	<div class="main_section" id="memberlist">
@@ -28,7 +29,7 @@ function template_main()
 		</div>
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="floatleft">', $txt['members_list'], '</span>';
+				<span class="floatleft">', Lang::$txt['members_list'], '</span>';
 
 	if (!isset(Utils::$context['old_search']))
 		echo '
@@ -119,7 +120,7 @@ function template_main()
 	else
 		echo '
 					<tr>
-						<td colspan="', Utils::$context['colspan'], '" class="windowbg">', $txt['search_no_results'], '</td>
+						<td colspan="', Utils::$context['colspan'], '" class="windowbg">', Lang::$txt['search_no_results'], '</td>
 					</tr>';
 
 	echo '
@@ -136,7 +137,7 @@ function template_main()
 	if (isset(Utils::$context['old_search']))
 		echo '
 			<div class="buttonlist floatright">
-				<a class="button" href="', Config::$scripturl, '?action=mlist;sa=search;search=', Utils::$context['old_search_value'], '">', $txt['mlist_search_again'], '</a>
+				<a class="button" href="', Config::$scripturl, '?action=mlist;sa=search;search=', Utils::$context['old_search_value'], '">', Lang::$txt['mlist_search_again'], '</a>
 			</div>';
 	echo '
 		</div>
@@ -149,8 +150,6 @@ function template_main()
  */
 function template_search()
 {
-	global $txt;
-
 	// Start the submission form for the search!
 	echo '
 	<form action="', Config::$scripturl, '?action=mlist;sa=search" method="post" accept-charset="', Utils::$context['character_set'], '">
@@ -160,19 +159,19 @@ function template_search()
 			</div>
 			<div class="cat_bar">
 				<h3 class="catbg mlist">
-					<span class="main_icons filter"></span>', $txt['mlist_search'], '
+					<span class="main_icons filter"></span>', Lang::$txt['mlist_search'], '
 				</h3>
 			</div>
 			<div id="advanced_search" class="roundframe">
 				<dl id="mlist_search" class="settings">
 					<dt>
-						<label><strong>', $txt['search_for'], ':</strong></label>
+						<label><strong>', Lang::$txt['search_for'], ':</strong></label>
 					</dt>
 					<dd>
 						<input type="text" name="search" value="', Utils::$context['old_search'], '" size="40">
 					</dd>
 					<dt>
-						<label><strong>', $txt['mlist_search_filter'], ':</strong></label>
+						<label><strong>', Lang::$txt['mlist_search_filter'], ':</strong></label>
 					</dt>
 					<dd>
 						<ul>';
@@ -188,7 +187,7 @@ function template_search()
 						</ul>
 					</dd>
 				</dl>
-				<input type="submit" name="submit" value="' . $txt['search'] . '" class="button floatright">
+				<input type="submit" name="submit" value="' . Lang::$txt['search'] . '" class="button floatright">
 			</div><!-- #advanced_search -->
 		</div><!-- #memberlist -->
 	</form>';

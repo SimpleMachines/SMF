@@ -16,6 +16,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -35,8 +36,6 @@ if (!defined('SMF'))
  */
 function ManageAttachments()
 {
-	global $txt;
-
 	// You have to be able to moderate the forum to do this.
 	isAllowedTo('manage_attachments');
 
@@ -60,9 +59,9 @@ function ManageAttachments()
 
 	// This uses admin tabs - as it should!
 	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
-		'title' => $txt['attachments_avatars'],
+		'title' => Lang::$txt['attachments_avatars'],
 		'help' => 'manage_files',
-		'description' => $txt['attachments_desc'],
+		'description' => Lang::$txt['attachments_desc'],
 	);
 
 	call_integration_hook('integrate_manage_attachments', array(&$subActions));
@@ -74,7 +73,7 @@ function ManageAttachments()
 		Utils::$context['sub_action'] = 'browse';
 
 	// Default page title is good.
-	Utils::$context['page_title'] = $txt['attachments_avatars'];
+	Utils::$context['page_title'] = Lang::$txt['attachments_avatars'];
 
 	// Finally fall through to what we are doing.
 	call_helper($subActions[Utils::$context['sub_action']]);
@@ -92,8 +91,6 @@ function ManageAttachments()
 
 function ManageAttachmentSettings($return_config = false)
 {
-	global $txt;
-
 	require_once(Config::$sourcedir . '/Subs-Attachments.php');
 
 	Utils::$context['attachmentUploadDir'] = Config::$modSettings['attachmentUploadDir'][Config::$modSettings['currentAttachmentUploadDir']];
@@ -114,16 +111,16 @@ function ManageAttachmentSettings($return_config = false)
 	else
 		Utils::$context['valid_basedirectory'] = true;
 
-	// A bit of razzle dazzle with the $txt strings. :)
-	$txt['attachment_path'] = Utils::$context['attachmentUploadDir'];
+	// A bit of razzle dazzle with the Lang::$txt strings. :)
+	Lang::$txt['attachment_path'] = Utils::$context['attachmentUploadDir'];
 	if (empty(Config::$modSettings['attachment_basedirectories']) && Config::$modSettings['currentAttachmentUploadDir'] == 1 && count(Config::$modSettings['attachmentUploadDir']) == 1)
-		$txt['attachmentUploadDir_path'] = Config::$modSettings['attachmentUploadDir'][1];
-	$txt['basedirectory_for_attachments_path'] = isset(Config::$modSettings['basedirectory_for_attachments']) ? Config::$modSettings['basedirectory_for_attachments'] : '';
-	$txt['use_subdirectories_for_attachments_note'] = empty(Config::$modSettings['attachment_basedirectories']) || empty(Config::$modSettings['use_subdirectories_for_attachments']) ? $txt['use_subdirectories_for_attachments_note'] : '';
-	$txt['attachmentUploadDir_multiple_configure'] = '<a href="' . Config::$scripturl . '?action=admin;area=manageattachments;sa=attachpaths">[' . $txt['attachmentUploadDir_multiple_configure'] . ']</a>';
-	$txt['attach_current_dir'] = empty(Config::$modSettings['automanage_attachments']) ? $txt['attach_current_dir'] : $txt['attach_last_dir'];
-	$txt['attach_current_dir_warning'] = $txt['attach_current_dir'] . $txt['attach_current_dir_warning'];
-	$txt['basedirectory_for_attachments_warning'] = $txt['basedirectory_for_attachments_current'] . $txt['basedirectory_for_attachments_warning'];
+		Lang::$txt['attachmentUploadDir_path'] = Config::$modSettings['attachmentUploadDir'][1];
+	Lang::$txt['basedirectory_for_attachments_path'] = isset(Config::$modSettings['basedirectory_for_attachments']) ? Config::$modSettings['basedirectory_for_attachments'] : '';
+	Lang::$txt['use_subdirectories_for_attachments_note'] = empty(Config::$modSettings['attachment_basedirectories']) || empty(Config::$modSettings['use_subdirectories_for_attachments']) ? Lang::$txt['use_subdirectories_for_attachments_note'] : '';
+	Lang::$txt['attachmentUploadDir_multiple_configure'] = '<a href="' . Config::$scripturl . '?action=admin;area=manageattachments;sa=attachpaths">[' . Lang::$txt['attachmentUploadDir_multiple_configure'] . ']</a>';
+	Lang::$txt['attach_current_dir'] = empty(Config::$modSettings['automanage_attachments']) ? Lang::$txt['attach_current_dir'] : Lang::$txt['attach_last_dir'];
+	Lang::$txt['attach_current_dir_warning'] = Lang::$txt['attach_current_dir'] . Lang::$txt['attach_current_dir_warning'];
+	Lang::$txt['basedirectory_for_attachments_warning'] = Lang::$txt['basedirectory_for_attachments_current'] . Lang::$txt['basedirectory_for_attachments_warning'];
 
 	// Perform a test to see if the GD module or ImageMagick are installed.
 	$testImg = get_extension_funcs('gd') || class_exists('Imagick') || get_extension_funcs('MagickWand');
@@ -135,23 +132,23 @@ function ManageAttachmentSettings($return_config = false)
 	$config_vars = array(
 		array('title', 'attachment_manager_settings'),
 		// Are attachments enabled?
-		array('select', 'attachmentEnable', array($txt['attachmentEnable_deactivate'], $txt['attachmentEnable_enable_all'], $txt['attachmentEnable_disable_new'])),
+		array('select', 'attachmentEnable', array(Lang::$txt['attachmentEnable_deactivate'], Lang::$txt['attachmentEnable_enable_all'], Lang::$txt['attachmentEnable_disable_new'])),
 		'',
 
 		// Directory and size limits.
-		array('select', 'automanage_attachments', array(0 => $txt['attachments_normal'], 1 => $txt['attachments_auto_space'], 2 => $txt['attachments_auto_years'], 3 => $txt['attachments_auto_months'], 4 => $txt['attachments_auto_16'])),
-		array('check', 'use_subdirectories_for_attachments', 'subtext' => $txt['use_subdirectories_for_attachments_note']),
-		(empty(Config::$modSettings['attachment_basedirectories']) ? array('text', 'basedirectory_for_attachments', 40,) : array('var_message', 'basedirectory_for_attachments', 'message' => 'basedirectory_for_attachments_path', 'invalid' => empty(Utils::$context['valid_basedirectory']), 'text_label' => (!empty(Utils::$context['valid_basedirectory']) ? $txt['basedirectory_for_attachments_current'] : sprintf($txt['basedirectory_for_attachments_warning'], Config::$scripturl)))),
-		empty(Config::$modSettings['attachment_basedirectories']) && Config::$modSettings['currentAttachmentUploadDir'] == 1 && count(Config::$modSettings['attachmentUploadDir']) == 1 ? array('var_message', 'attachmentUploadDir_path', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 40, 'invalid' => !Utils::$context['valid_upload_dir'], 'text_label' => $txt['attachmentUploadDir'], 'message' => 'attachmentUploadDir_path') : array('var_message', 'attach_current_directory', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 'message' => 'attachment_path', 'invalid' => empty(Utils::$context['valid_upload_dir']), 'text_label' => (!empty(Utils::$context['valid_upload_dir']) ? $txt['attach_current_dir'] : sprintf($txt['attach_current_dir_warning'], Config::$scripturl))),
-		array('int', 'attachmentDirFileLimit', 'subtext' => $txt['zero_for_no_limit'], 6),
-		array('int', 'attachmentDirSizeLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
-		array('check', 'dont_show_attach_under_post', 'subtext' => $txt['dont_show_attach_under_post_sub']),
+		array('select', 'automanage_attachments', array(0 => Lang::$txt['attachments_normal'], 1 => Lang::$txt['attachments_auto_space'], 2 => Lang::$txt['attachments_auto_years'], 3 => Lang::$txt['attachments_auto_months'], 4 => Lang::$txt['attachments_auto_16'])),
+		array('check', 'use_subdirectories_for_attachments', 'subtext' => Lang::$txt['use_subdirectories_for_attachments_note']),
+		(empty(Config::$modSettings['attachment_basedirectories']) ? array('text', 'basedirectory_for_attachments', 40,) : array('var_message', 'basedirectory_for_attachments', 'message' => 'basedirectory_for_attachments_path', 'invalid' => empty(Utils::$context['valid_basedirectory']), 'text_label' => (!empty(Utils::$context['valid_basedirectory']) ? Lang::$txt['basedirectory_for_attachments_current'] : sprintf(Lang::$txt['basedirectory_for_attachments_warning'], Config::$scripturl)))),
+		empty(Config::$modSettings['attachment_basedirectories']) && Config::$modSettings['currentAttachmentUploadDir'] == 1 && count(Config::$modSettings['attachmentUploadDir']) == 1 ? array('var_message', 'attachmentUploadDir_path', 'subtext' => Lang::$txt['attachmentUploadDir_multiple_configure'], 40, 'invalid' => !Utils::$context['valid_upload_dir'], 'text_label' => Lang::$txt['attachmentUploadDir'], 'message' => 'attachmentUploadDir_path') : array('var_message', 'attach_current_directory', 'subtext' => Lang::$txt['attachmentUploadDir_multiple_configure'], 'message' => 'attachment_path', 'invalid' => empty(Utils::$context['valid_upload_dir']), 'text_label' => (!empty(Utils::$context['valid_upload_dir']) ? Lang::$txt['attach_current_dir'] : sprintf(Lang::$txt['attach_current_dir_warning'], Config::$scripturl))),
+		array('int', 'attachmentDirFileLimit', 'subtext' => Lang::$txt['zero_for_no_limit'], 6),
+		array('int', 'attachmentDirSizeLimit', 'subtext' => Lang::$txt['zero_for_no_limit'], 6, 'postinput' => Lang::$txt['kilobyte']),
+		array('check', 'dont_show_attach_under_post', 'subtext' => Lang::$txt['dont_show_attach_under_post_sub']),
 		'',
 
 		// Posting limits
-		array('int', 'attachmentPostLimit', 'subtext' => sprintf($txt['attachment_ini_max'], $post_max_kb . ' ' . $txt['kilobyte']), 6, 'postinput' => $txt['kilobyte'], 'min' => 1, 'max' => $post_max_kb, 'disabled' => empty($post_max_kb)),
-		array('int', 'attachmentSizeLimit', 'subtext' => sprintf($txt['attachment_ini_max'], $file_max_kb . ' ' . $txt['kilobyte']), 6, 'postinput' => $txt['kilobyte'], 'min' => 1, 'max' => $file_max_kb, 'disabled' => empty($file_max_kb)),
-		array('int', 'attachmentNumPerPostLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'min' => 0),
+		array('int', 'attachmentPostLimit', 'subtext' => sprintf(Lang::$txt['attachment_ini_max'], $post_max_kb . ' ' . Lang::$txt['kilobyte']), 6, 'postinput' => Lang::$txt['kilobyte'], 'min' => 1, 'max' => $post_max_kb, 'disabled' => empty($post_max_kb)),
+		array('int', 'attachmentSizeLimit', 'subtext' => sprintf(Lang::$txt['attachment_ini_max'], $file_max_kb . ' ' . Lang::$txt['kilobyte']), 6, 'postinput' => Lang::$txt['kilobyte'], 'min' => 1, 'max' => $file_max_kb, 'disabled' => empty($file_max_kb)),
+		array('int', 'attachmentNumPerPostLimit', 'subtext' => Lang::$txt['zero_for_no_limit'], 6, 'min' => 0),
 		// Security Items
 		array('title', 'attachment_security_settings'),
 		// Extension checks etc.
@@ -177,8 +174,8 @@ function ManageAttachmentSettings($return_config = false)
 		array('text', 'attachmentThumbHeight', 6),
 		'',
 
-		array('int', 'max_image_width', 'subtext' => $txt['zero_for_no_limit']),
-		array('int', 'max_image_height', 'subtext' => $txt['zero_for_no_limit']),
+		array('int', 'max_image_width', 'subtext' => Lang::$txt['zero_for_no_limit']),
+		array('int', 'max_image_height', 'subtext' => Lang::$txt['zero_for_no_limit']),
 	);
 
 	Utils::$context['settings_post_javascript'] = '
@@ -269,8 +266,6 @@ function ManageAttachmentSettings($return_config = false)
  */
 function ManageAvatarSettings($return_config = false)
 {
-	global $txt;
-
 	// Perform a test to see if the GD module or ImageMagick are installed.
 	$testImg = get_extension_funcs('gd') || class_exists('Imagick');
 
@@ -281,29 +276,29 @@ function ManageAvatarSettings($return_config = false)
 		// Server stored avatars!
 		array('title', 'avatar_server_stored'),
 		array('warning', empty($testImg) ? 'avatar_img_enc_warning' : ''),
-		array('permissions', 'profile_server_avatar', 0, $txt['avatar_server_stored_groups']),
+		array('permissions', 'profile_server_avatar', 0, Lang::$txt['avatar_server_stored_groups']),
 		array('warning', !Utils::$context['valid_avatar_dir'] ? 'avatar_directory_wrong' : ''),
 		array('text', 'avatar_directory', 40, 'invalid' => !Utils::$context['valid_avatar_dir']),
 		array('text', 'avatar_url', 40),
 		// External avatars?
 		array('title', 'avatar_external'),
-		array('permissions', 'profile_remote_avatar', 0, $txt['avatar_external_url_groups']),
+		array('permissions', 'profile_remote_avatar', 0, Lang::$txt['avatar_external_url_groups']),
 		array('check', 'avatar_download_external', 0, 'onchange' => 'fUpdateStatus();'),
-		array('text', 'avatar_max_width_external', 'subtext' => $txt['zero_for_no_limit'], 6),
-		array('text', 'avatar_max_height_external', 'subtext' => $txt['zero_for_no_limit'], 6),
+		array('text', 'avatar_max_width_external', 'subtext' => Lang::$txt['zero_for_no_limit'], 6),
+		array('text', 'avatar_max_height_external', 'subtext' => Lang::$txt['zero_for_no_limit'], 6),
 		array('select', 'avatar_action_too_large',
 			array(
-				'option_refuse' => $txt['option_refuse'],
-				'option_css_resize' => $txt['option_css_resize'],
-				'option_download_and_resize' => $txt['option_download_and_resize'],
+				'option_refuse' => Lang::$txt['option_refuse'],
+				'option_css_resize' => Lang::$txt['option_css_resize'],
+				'option_download_and_resize' => Lang::$txt['option_download_and_resize'],
 			),
 		),
 		// Uploadable avatars?
 		array('title', 'avatar_upload'),
-		array('permissions', 'profile_upload_avatar', 0, $txt['avatar_upload_groups']),
-		array('text', 'avatar_max_width_upload', 'subtext' => $txt['zero_for_no_limit'], 6),
-		array('text', 'avatar_max_height_upload', 'subtext' => $txt['zero_for_no_limit'], 6),
-		array('check', 'avatar_resize_upload', 'subtext' => $txt['avatar_resize_upload_note']),
+		array('permissions', 'profile_upload_avatar', 0, Lang::$txt['avatar_upload_groups']),
+		array('text', 'avatar_max_width_upload', 'subtext' => Lang::$txt['zero_for_no_limit'], 6),
+		array('text', 'avatar_max_height_upload', 'subtext' => Lang::$txt['zero_for_no_limit'], 6),
+		array('check', 'avatar_resize_upload', 'subtext' => Lang::$txt['avatar_resize_upload_note']),
 		array('check', 'avatar_download_png'),
 		array('check', 'avatar_reencode'),
 		'',
@@ -313,7 +308,7 @@ function ManageAvatarSettings($return_config = false)
 		'',
 
 		array('warning', !Utils::$context['valid_custom_avatar_dir'] ? 'custom_avatar_dir_wrong' : ''),
-		array('text', 'custom_avatar_dir', 40, 'subtext' => $txt['custom_avatar_dir_desc'], 'invalid' => !Utils::$context['valid_custom_avatar_dir']),
+		array('text', 'custom_avatar_dir', 40, 'subtext' => Lang::$txt['custom_avatar_dir_desc'], 'invalid' => !Utils::$context['valid_custom_avatar_dir']),
 		array('text', 'custom_avatar_url', 40),
 		// Grvatars?
 		array('title', 'gravatar_settings'),
@@ -324,20 +319,20 @@ function ManageAvatarSettings($return_config = false)
 
 		array('select', 'gravatarMaxRating',
 			array(
-				'G' => $txt['gravatar_maxG'],
-				'PG' => $txt['gravatar_maxPG'],
-				'R' => $txt['gravatar_maxR'],
-				'X' => $txt['gravatar_maxX'],
+				'G' => Lang::$txt['gravatar_maxG'],
+				'PG' => Lang::$txt['gravatar_maxPG'],
+				'R' => Lang::$txt['gravatar_maxR'],
+				'X' => Lang::$txt['gravatar_maxX'],
 			),
 		),
 		array('select', 'gravatarDefault',
 			array(
-				'mm' => $txt['gravatar_mm'],
-				'identicon' => $txt['gravatar_identicon'],
-				'monsterid' => $txt['gravatar_monsterid'],
-				'wavatar' => $txt['gravatar_wavatar'],
-				'retro' => $txt['gravatar_retro'],
-				'blank' => $txt['gravatar_blank'],
+				'mm' => Lang::$txt['gravatar_mm'],
+				'identicon' => Lang::$txt['gravatar_identicon'],
+				'monsterid' => Lang::$txt['gravatar_monsterid'],
+				'wavatar' => Lang::$txt['gravatar_wavatar'],
+				'retro' => Lang::$txt['gravatar_retro'],
+				'blank' => Lang::$txt['gravatar_blank'],
 			),
 		),
 	);
@@ -376,7 +371,7 @@ function ManageAvatarSettings($return_config = false)
 	}
 
 	// Attempt to figure out if the admin is trying to break things.
-	Utils::$context['settings_save_onclick'] = 'return (document.getElementById(\'custom_avatar_dir\').value == \'\' || document.getElementById(\'custom_avatar_url\').value == \'\') ? confirm(\'' . $txt['custom_avatar_check_empty'] . '\') : true;';
+	Utils::$context['settings_save_onclick'] = 'return (document.getElementById(\'custom_avatar_dir\').value == \'\' || document.getElementById(\'custom_avatar_url\').value == \'\') ? confirm(\'' . Lang::$txt['custom_avatar_check_empty'] . '\') : true;';
 
 	// We need this for the in-line permissions
 	createToken('admin-mp');
@@ -399,7 +394,7 @@ function ManageAvatarSettings($return_config = false)
  */
 function BrowseFiles()
 {
-	global $txt, $settings;
+	global $settings;
 
 	// Attachments or avatars?
 	Utils::$context['browse_type'] = isset($_REQUEST['avatars']) ? 'avatars' : (isset($_REQUEST['thumbs']) ? 'thumbs' : 'attachments');
@@ -410,7 +405,7 @@ function BrowseFiles()
 		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 		'base_href' => Config::$scripturl . '?action=admin;area=manageattachments;sa=browse' . (Utils::$context['browse_type'] === 'avatars' ? ';avatars' : (Utils::$context['browse_type'] === 'thumbs' ? ';thumbs' : '')),
 		'default_sort_col' => 'name',
-		'no_items_label' => $txt['attachment_manager_' . (Utils::$context['browse_type'] === 'avatars' ? 'avatars' : (Utils::$context['browse_type'] === 'thumbs' ? 'thumbs' : 'attachments')) . '_no_entries'],
+		'no_items_label' => Lang::$txt['attachment_manager_' . (Utils::$context['browse_type'] === 'avatars' ? 'avatars' : (Utils::$context['browse_type'] === 'thumbs' ? 'thumbs' : 'attachments')) . '_no_entries'],
 		'get_items' => array(
 			'function' => 'list_getFiles',
 			'params' => array(
@@ -426,7 +421,7 @@ function BrowseFiles()
 		'columns' => array(
 			'name' => array(
 				'header' => array(
-					'value' => $txt['attachment_name'],
+					'value' => Lang::$txt['attachment_name'],
 				),
 				'data' => array(
 					'function' => function($rowData)
@@ -467,12 +462,12 @@ function BrowseFiles()
 			),
 			'filesize' => array(
 				'header' => array(
-					'value' => $txt['attachment_file_size'],
+					'value' => Lang::$txt['attachment_file_size'],
 				),
 				'data' => array(
-					'function' => function($rowData) use ($txt)
+					'function' => function($rowData)
 					{
-						return sprintf('%1$s%2$s', round($rowData['size'] / 1024, 2), $txt['kilobyte']);
+						return sprintf('%1$s%2$s', round($rowData['size'] / 1024, 2), Lang::$txt['kilobyte']);
 					},
 				),
 				'sort' => array(
@@ -482,7 +477,7 @@ function BrowseFiles()
 			),
 			'member' => array(
 				'header' => array(
-					'value' => Utils::$context['browse_type'] == 'avatars' ? $txt['attachment_manager_member'] : $txt['posted_by'],
+					'value' => Utils::$context['browse_type'] == 'avatars' ? Lang::$txt['attachment_manager_member'] : Lang::$txt['posted_by'],
 				),
 				'data' => array(
 					'function' => function($rowData)
@@ -503,17 +498,17 @@ function BrowseFiles()
 			),
 			'date' => array(
 				'header' => array(
-					'value' => Utils::$context['browse_type'] == 'avatars' ? $txt['attachment_manager_last_active'] : $txt['date'],
+					'value' => Utils::$context['browse_type'] == 'avatars' ? Lang::$txt['attachment_manager_last_active'] : Lang::$txt['date'],
 				),
 				'data' => array(
-					'function' => function($rowData) use ($txt)
+					'function' => function($rowData)
 					{
 						// The date the message containing the attachment was posted or the owner of the avatar was active.
-						$date = empty($rowData['poster_time']) ? $txt['never'] : timeformat($rowData['poster_time']);
+						$date = empty($rowData['poster_time']) ? Lang::$txt['never'] : timeformat($rowData['poster_time']);
 
 						// Add a link to the topic in case of an attachment.
 						if (Utils::$context['browse_type'] !== 'avatars')
-							$date .= sprintf('<br>%1$s <a href="%2$s?topic=%3$d.msg%4$d#msg%4$d">%5$s</a>', $txt['in'], Config::$scripturl, $rowData['id_topic'], $rowData['id_msg'], $rowData['subject']);
+							$date .= sprintf('<br>%1$s <a href="%2$s?topic=%3$d.msg%4$d#msg%4$d">%5$s</a>', Lang::$txt['in'], Config::$scripturl, $rowData['id_topic'], $rowData['id_msg'], $rowData['subject']);
 
 						return $date;
 					},
@@ -525,7 +520,7 @@ function BrowseFiles()
 			),
 			'downloads' => array(
 				'header' => array(
-					'value' => $txt['downloads'],
+					'value' => Lang::$txt['downloads'],
 				),
 				'data' => array(
 					'db' => 'downloads',
@@ -563,22 +558,22 @@ function BrowseFiles()
 		'additional_rows' => array(
 			array(
 				'position' => 'above_column_headers',
-				'value' => '<input type="submit" name="remove_submit" class="button you_sure" value="' . $txt['quickmod_delete_selected'] . '" data-confirm="' . $txt['confirm_delete_attachments'] . '">',
+				'value' => '<input type="submit" name="remove_submit" class="button you_sure" value="' . Lang::$txt['quickmod_delete_selected'] . '" data-confirm="' . Lang::$txt['confirm_delete_attachments'] . '">',
 			),
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="submit" name="remove_submit" class="button you_sure" value="' . $txt['quickmod_delete_selected'] . '" data-confirm="' . $txt['confirm_delete_attachments'] . '">',
+				'value' => '<input type="submit" name="remove_submit" class="button you_sure" value="' . Lang::$txt['quickmod_delete_selected'] . '" data-confirm="' . Lang::$txt['confirm_delete_attachments'] . '">',
 			),
 		),
 	);
 
 	$titles = array(
-		'attachments' => array('?action=admin;area=manageattachments;sa=browse', $txt['attachment_manager_attachments']),
-		'avatars' => array('?action=admin;area=manageattachments;sa=browse;avatars', $txt['attachment_manager_avatars']),
-		'thumbs' => array('?action=admin;area=manageattachments;sa=browse;thumbs', $txt['attachment_manager_thumbs']),
+		'attachments' => array('?action=admin;area=manageattachments;sa=browse', Lang::$txt['attachment_manager_attachments']),
+		'avatars' => array('?action=admin;area=manageattachments;sa=browse;avatars', Lang::$txt['attachment_manager_avatars']),
+		'thumbs' => array('?action=admin;area=manageattachments;sa=browse;thumbs', Lang::$txt['attachment_manager_thumbs']),
 	);
 
-	$list_title = $txt['attachment_manager_browse_files'] . ': ';
+	$list_title = Lang::$txt['attachment_manager_browse_files'] . ': ';
 
 	// Does a hook want to display their attachments better?
 	call_integration_hook('integrate_attachments_browse', array(&$listOptions, &$titles));
@@ -616,8 +611,6 @@ function BrowseFiles()
  */
 function list_getFiles($start, $items_per_page, $sort, $browse_type)
 {
-	global $txt;
-
 	// Choose a query depending on what we are viewing.
 	if ($browse_type === 'avatars')
 		$request = Db::$db->query('', '
@@ -633,7 +626,7 @@ function list_getFiles($start, $items_per_page, $sort, $browse_type)
 			array(
 				'guest_id' => 0,
 				'blank_text' => '',
-				'not_applicable_text' => $txt['not_applicable'],
+				'not_applicable_text' => Lang::$txt['not_applicable'],
 				'sort' => $sort,
 				'start' => $start,
 				'per_page' => $items_per_page,
@@ -736,7 +729,7 @@ function MaintainFiles()
 	);
 	list (Utils::$context['num_attachments']) = Db::$db->fetch_row($request);
 	Db::$db->free_result($request);
-	Utils::$context['num_attachments'] = comma_format(Utils::$context['num_attachments'], 0);
+	Utils::$context['num_attachments'] = Lang::numberFormat(Utils::$context['num_attachments'], 0);
 
 	// Also get the avatar amount....
 	$request = Db::$db->query('', '
@@ -749,7 +742,7 @@ function MaintainFiles()
 	);
 	list (Utils::$context['num_avatars']) = Db::$db->fetch_row($request);
 	Db::$db->free_result($request);
-	Utils::$context['num_avatars'] = comma_format(Utils::$context['num_avatars'], 0);
+	Utils::$context['num_avatars'] = Lang::numberFormat(Utils::$context['num_avatars'], 0);
 
 	// Check the size of all the directories.
 	$request = Db::$db->query('', '
@@ -765,7 +758,7 @@ function MaintainFiles()
 
 	// Divide it into kilobytes.
 	$attachmentDirSize /= 1024;
-	Utils::$context['attachment_total_size'] = comma_format($attachmentDirSize, 2);
+	Utils::$context['attachment_total_size'] = Lang::numberFormat($attachmentDirSize, 2);
 
 	$request = Db::$db->query('', '
 		SELECT COUNT(*), SUM(size)
@@ -783,12 +776,12 @@ function MaintainFiles()
 
 	// If they specified a limit only....
 	if (!empty(Config::$modSettings['attachmentDirSizeLimit']))
-		Utils::$context['attachment_space'] = comma_format(max(Config::$modSettings['attachmentDirSizeLimit'] - $current_dir_size, 0), 2);
-	Utils::$context['attachment_current_size'] = comma_format($current_dir_size, 2);
+		Utils::$context['attachment_space'] = Lang::numberFormat(max(Config::$modSettings['attachmentDirSizeLimit'] - $current_dir_size, 0), 2);
+	Utils::$context['attachment_current_size'] = Lang::numberFormat($current_dir_size, 2);
 
 	if (!empty(Config::$modSettings['attachmentDirFileLimit']))
-		Utils::$context['attachment_files'] = comma_format(max(Config::$modSettings['attachmentDirFileLimit'] - $current_dir_files, 0), 0);
-	Utils::$context['attachment_current_files'] = comma_format($current_dir_files, 0);
+		Utils::$context['attachment_files'] = Lang::numberFormat(max(Config::$modSettings['attachmentDirFileLimit'] - $current_dir_files, 0), 0);
+	Utils::$context['attachment_current_files'] = Lang::numberFormat($current_dir_files, 0);
 
 	Utils::$context['attach_multiple_dirs'] = count($attach_dirs) > 1 ? true : false;
 	Utils::$context['attach_dirs'] = $attach_dirs;
@@ -878,7 +871,7 @@ function RemoveAttachmentBySize()
  */
 function RemoveAttachment()
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	checkSession();
 
@@ -902,17 +895,17 @@ function RemoveAttachment()
 			// And change the message to reflect this.
 			if (!empty($messages))
 			{
-				loadLanguage('index', Config::$language, true);
+				Lang::load('index', Lang::$default, true);
 				Db::$db->query('', '
 					UPDATE {db_prefix}messages
 					SET body = CONCAT(body, {string:deleted_message})
 					WHERE id_msg IN ({array_int:messages_affected})',
 					array(
 						'messages_affected' => $messages,
-						'deleted_message' => '<br><br>' . $txt['attachment_delete_admin'],
+						'deleted_message' => '<br><br>' . Lang::$txt['attachment_delete_admin'],
 					)
 				);
-				loadLanguage('index', $user_info['language'], true);
+				Lang::load('index', $user_info['language'], true);
 			}
 		}
 	}
@@ -928,14 +921,12 @@ function RemoveAttachment()
  */
 function RemoveAllAttachments()
 {
-	global $txt;
-
 	checkSession('get', 'admin');
 
 	$messages = removeAttachments(array('attachment_type' => 0), '', true);
 
 	if (!isset($_POST['notice']))
-		$_POST['notice'] = $txt['attachment_delete_admin'];
+		$_POST['notice'] = Lang::$txt['attachment_delete_admin'];
 
 	// Add the notice on the end of the changed messages.
 	if (!empty($messages))
@@ -1120,8 +1111,6 @@ function removeAttachments($condition, $query_type = '', $return_affected_messag
  */
 function RepairAttachments()
 {
-	global $txt;
-
 	checkSession('get');
 
 	// If we choose cancel, redirect right back.
@@ -1671,7 +1660,7 @@ function RepairAttachments()
 	}
 
 	// Got here we must be doing well - just the template! :D
-	Utils::$context['page_title'] = $txt['repair_attachments'];
+	Utils::$context['page_title'] = Lang::$txt['repair_attachments'];
 	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'maintenance';
 	Utils::$context['sub_template'] = 'attachment_repair';
 
@@ -1691,8 +1680,6 @@ function RepairAttachments()
  */
 function pauseAttachmentMaintenance($to_fix, $max_substep = 0)
 {
-	global $txt;
-
 	// Try get more time...
 	@set_time_limit(600);
 	if (function_exists('apache_reset_timeout'))
@@ -1703,7 +1690,7 @@ function pauseAttachmentMaintenance($to_fix, $max_substep = 0)
 		return;
 
 	Utils::$context['continue_get_data'] = '?action=admin;area=manageattachments;sa=repair' . (isset($_GET['fixErrors']) ? ';fixErrors' : '') . ';step=' . $_GET['step'] . ';substep=' . $_GET['substep'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
-	Utils::$context['page_title'] = $txt['not_done_title'];
+	Utils::$context['page_title'] = Lang::$txt['not_done_title'];
 	Utils::$context['continue_post_data'] = '';
 	Utils::$context['continue_countdown'] = '2';
 	Utils::$context['sub_template'] = 'not_done';
@@ -1901,7 +1888,7 @@ function ApproveAttachments($attachments)
  */
 function ManageAttachmentPaths()
 {
-	global $txt, $settings;
+	global $settings;
 
 	// Since this needs to be done eventually.
 	if (!isset(Config::$modSettings['attachment_basedirectories']))
@@ -1930,7 +1917,7 @@ function ManageAttachmentPaths()
 			$invalid_dirs = array(Config::$boarddir, $settings['default_theme_dir'], Config::$sourcedir);
 			if (in_array($path, $invalid_dirs))
 			{
-				$errors[] = $path . ': ' . $txt['attach_dir_invalid'];
+				$errors[] = $path . ': ' . Lang::$txt['attach_dir_invalid'];
 				continue;
 			}
 
@@ -1941,7 +1928,7 @@ function ManageAttachmentPaths()
 				// or is it?
 				if (in_array($path, Config::$modSettings['attachmentUploadDir']) || in_array(Config::$boarddir . DIRECTORY_SEPARATOR . $path, Config::$modSettings['attachmentUploadDir']))
 				{
-					$errors[] = $path . ': ' . $txt['attach_dir_duplicate_msg'];
+					$errors[] = $path . ': ' . Lang::$txt['attach_dir_duplicate_msg'];
 					continue;
 				}
 				elseif (empty($path))
@@ -1955,7 +1942,7 @@ function ManageAttachmentPaths()
 				if (automanage_attachments_create_directory($path))
 					$_POST['current_dir'] = Config::$modSettings['currentAttachmentUploadDir'];
 				else
-					$errors[] = $path . ': ' . $txt[Utils::$context['dir_creation_error']];
+					$errors[] = $path . ': ' . Lang::$txt[Utils::$context['dir_creation_error']];
 			}
 
 			// Changing a directory name?
@@ -1965,13 +1952,13 @@ function ManageAttachmentPaths()
 				{
 					if (!@rename(Config::$modSettings['attachmentUploadDir'][$id], $path))
 					{
-						$errors[] = $path . ': ' . $txt['attach_dir_no_rename'];
+						$errors[] = $path . ': ' . Lang::$txt['attach_dir_no_rename'];
 						$path = Config::$modSettings['attachmentUploadDir'][$id];
 					}
 				}
 				else
 				{
-					$errors[] = $path . ': ' . $txt['attach_dir_exists_msg'];
+					$errors[] = $path . ': ' . Lang::$txt['attach_dir_exists_msg'];
 					$path = Config::$modSettings['attachmentUploadDir'][$id];
 				}
 
@@ -1995,10 +1982,10 @@ function ManageAttachmentPaths()
 
 				// It's not a good idea to delete the current directory.
 				if ($id == (!empty($_POST['current_dir']) ? $_POST['current_dir'] : Config::$modSettings['currentAttachmentUploadDir']))
-					$errors[] = $path . ': ' . $txt['attach_dir_is_current'];
+					$errors[] = $path . ': ' . Lang::$txt['attach_dir_is_current'];
 				// Or the current base directory
 				elseif (!empty(Config::$modSettings['basedirectory_for_attachments']) && Config::$modSettings['basedirectory_for_attachments'] == Config::$modSettings['attachmentUploadDir'][$id])
-					$errors[] = $path . ': ' . $txt['attach_dir_is_current_bd'];
+					$errors[] = $path . ': ' . Lang::$txt['attach_dir_is_current_bd'];
 				else
 				{
 					// Let's not try to delete a path with files in it.
@@ -2039,7 +2026,7 @@ function ManageAttachmentPaths()
 							unlink($path . '/.htaccess');
 							unlink($path . '/index.php');
 							if (!@rmdir($path))
-								$error = $path . ': ' . $txt['attach_dir_no_delete'];
+								$error = $path . ': ' . Lang::$txt['attach_dir_no_delete'];
 						}
 
 						// Remove it from the base directory list.
@@ -2051,7 +2038,7 @@ function ManageAttachmentPaths()
 						}
 					}
 					else
-						$error = $path . ': ' . $txt['attach_dir_no_remove'];
+						$error = $path . ': ' . Lang::$txt['attach_dir_no_remove'];
 
 					if (empty($error))
 						continue;
@@ -2188,7 +2175,7 @@ function ManageAttachmentPaths()
 				{
 					if ($id == $_POST['current_base_dir'])
 					{
-						$errors[] = Config::$modSettings['attachmentUploadDir'][$id] . ': ' . $txt['attach_dir_is_current'];
+						$errors[] = Config::$modSettings['attachmentUploadDir'][$id] . ': ' . Lang::$txt['attach_dir_is_current'];
 						continue;
 					}
 
@@ -2212,7 +2199,7 @@ function ManageAttachmentPaths()
 			if (!in_array($_POST['new_base_dir'], Config::$modSettings['attachmentUploadDir']))
 			{
 				if (!automanage_attachments_create_directory($_POST['new_base_dir']))
-					$errors[] = $_POST['new_base_dir'] . ': ' . $txt['attach_dir_base_no_create'];
+					$errors[] = $_POST['new_base_dir'] . ': ' . Lang::$txt['attach_dir_base_no_create'];
 			}
 
 			Config::$modSettings['currentAttachmentUploadDir'] = array_search($_POST['new_base_dir'], Config::$modSettings['attachmentUploadDir']);
@@ -2255,14 +2242,14 @@ function ManageAttachmentPaths()
 	$listOptions = array(
 		'id' => 'attach_paths',
 		'base_href' => Config::$scripturl . '?action=admin;area=manageattachments;sa=attachpaths;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-		'title' => $txt['attach_paths'],
+		'title' => Lang::$txt['attach_paths'],
 		'get_items' => array(
 			'function' => 'list_getAttachDirs',
 		),
 		'columns' => array(
 			'current_dir' => array(
 				'header' => array(
-					'value' => $txt['attach_current'],
+					'value' => Lang::$txt['attach_current'],
 					'class' => 'centercol',
 				),
 				'data' => array(
@@ -2276,7 +2263,7 @@ function ManageAttachmentPaths()
 			),
 			'path' => array(
 				'header' => array(
-					'value' => $txt['attach_path'],
+					'value' => Lang::$txt['attach_path'],
 				),
 				'data' => array(
 					'function' => function($rowData)
@@ -2288,7 +2275,7 @@ function ManageAttachmentPaths()
 			),
 			'current_size' => array(
 				'header' => array(
-					'value' => $txt['attach_current_size'],
+					'value' => Lang::$txt['attach_current_size'],
 				),
 				'data' => array(
 					'db' => 'current_size',
@@ -2297,7 +2284,7 @@ function ManageAttachmentPaths()
 			),
 			'num_files' => array(
 				'header' => array(
-					'value' => $txt['attach_num_files'],
+					'value' => Lang::$txt['attach_num_files'],
 				),
 				'data' => array(
 					'db' => 'num_files',
@@ -2306,7 +2293,7 @@ function ManageAttachmentPaths()
 			),
 			'status' => array(
 				'header' => array(
-					'value' => $txt['attach_dir_status'],
+					'value' => Lang::$txt['attach_dir_status'],
 					'class' => 'centercol',
 				),
 				'data' => array(
@@ -2324,16 +2311,16 @@ function ManageAttachmentPaths()
 				'position' => 'below_table_data',
 				'value' => '
 				<input type="hidden" name="' . Utils::$context['session_var'] . '" value="' . Utils::$context['session_id'] . '">
-				<input type="submit" name="save" value="' . $txt['save'] . '" class="button">
-				<input type="submit" name="new_path" value="' . $txt['attach_add_path'] . '" class="button">',
+				<input type="submit" name="save" value="' . Lang::$txt['save'] . '" class="button">
+				<input type="submit" name="new_path" value="' . Lang::$txt['attach_add_path'] . '" class="button">',
 			),
 			empty($errors['dir']) ? array(
 				'position' => 'top_of_list',
-				'value' => $txt['attach_dir_desc'],
+				'value' => Lang::$txt['attach_dir_desc'],
 				'class' => 'information'
 			) : array(
 				'position' => 'top_of_list',
-				'value' => $txt['attach_dir_save_problem'] . '<br>' . implode('<br>', $errors['dir']),
+				'value' => Lang::$txt['attach_dir_save_problem'] . '<br>' . implode('<br>', $errors['dir']),
 				'style' => 'padding-left: 35px;',
 				'class' => 'noticebox',
 			),
@@ -2347,14 +2334,14 @@ function ManageAttachmentPaths()
 		$listOptions2 = array(
 			'id' => 'base_paths',
 			'base_href' => Config::$scripturl . '?action=admin;area=manageattachments;sa=attachpaths;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-			'title' => $txt['attach_base_paths'],
+			'title' => Lang::$txt['attach_base_paths'],
 			'get_items' => array(
 				'function' => 'list_getBaseDirs',
 			),
 			'columns' => array(
 				'current_dir' => array(
 					'header' => array(
-						'value' => $txt['attach_current'],
+						'value' => Lang::$txt['attach_current'],
 						'class' => 'centercol',
 					),
 					'data' => array(
@@ -2368,7 +2355,7 @@ function ManageAttachmentPaths()
 				),
 				'path' => array(
 					'header' => array(
-						'value' => $txt['attach_path'],
+						'value' => Lang::$txt['attach_path'],
 					),
 					'data' => array(
 						'db' => 'path',
@@ -2378,7 +2365,7 @@ function ManageAttachmentPaths()
 				),
 				'num_dirs' => array(
 					'header' => array(
-						'value' => $txt['attach_num_dirs'],
+						'value' => Lang::$txt['attach_num_dirs'],
 					),
 					'data' => array(
 						'db' => 'num_dirs',
@@ -2387,7 +2374,7 @@ function ManageAttachmentPaths()
 				),
 				'status' => array(
 					'header' => array(
-						'value' => $txt['attach_dir_status'],
+						'value' => Lang::$txt['attach_dir_status'],
 					),
 					'data' => array(
 						'db' => 'status',
@@ -2402,17 +2389,17 @@ function ManageAttachmentPaths()
 			'additional_rows' => array(
 				array(
 					'position' => 'below_table_data',
-					'value' => '<input type="hidden" name="' . Utils::$context['session_var'] . '" value="' . Utils::$context['session_id'] . '"><input type="submit" name="save2" value="' . $txt['save'] . '" class="button">
-					<input type="submit" name="new_base_path" value="' . $txt['attach_add_path'] . '" class="button">',
+					'value' => '<input type="hidden" name="' . Utils::$context['session_var'] . '" value="' . Utils::$context['session_id'] . '"><input type="submit" name="save2" value="' . Lang::$txt['save'] . '" class="button">
+					<input type="submit" name="new_base_path" value="' . Lang::$txt['attach_add_path'] . '" class="button">',
 				),
 				empty($errors['base']) ? array(
 					'position' => 'top_of_list',
-					'value' => $txt['attach_dir_base_desc'],
+					'value' => Lang::$txt['attach_dir_base_desc'],
 					'style' => 'padding: 5px 10px;',
 					'class' => 'windowbg smalltext'
 				) : array(
 					'position' => 'top_of_list',
-					'value' => $txt['attach_dir_save_problem'] . '<br>' . implode('<br>', $errors['base']),
+					'value' => Lang::$txt['attach_dir_save_problem'] . '<br>' . implode('<br>', $errors['base']),
 					'style' => 'padding-left: 35px',
 					'class' => 'noticebox',
 				),
@@ -2423,7 +2410,7 @@ function ManageAttachmentPaths()
 
 	// Fix up our template.
 	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'attachpaths';
-	Utils::$context['page_title'] = $txt['attach_path_manage'];
+	Utils::$context['page_title'] = Lang::$txt['attach_path_manage'];
 	Utils::$context['sub_template'] = 'attachment_paths';
 }
 
@@ -2434,8 +2421,6 @@ function ManageAttachmentPaths()
  */
 function list_getAttachDirs()
 {
-	global $txt;
-
 	$request = Db::$db->query('', '
 		SELECT id_folder, COUNT(id_attach) AS num_attach, SUM(size) AS size_attach
 		FROM {db_prefix}attachments
@@ -2487,9 +2472,9 @@ function list_getAttachDirs()
 			'disable_current' => isset(Config::$modSettings['automanage_attachments']) && Config::$modSettings['automanage_attachments'] > 1,
 			'disable_base_dir' => $is_base_dir && $sub_dirs > 0 && !empty($files) && empty($error) && empty($save_errors),
 			'path' => $dir,
-			'current_size' => !empty($expected_size[$id]) ? comma_format($expected_size[$id] / 1024, 0) : 0,
-			'num_files' => comma_format($expected_files[$id] - $sub_dirs, 0) . ($sub_dirs > 0 ? ' (' . $sub_dirs . ')' : ''),
-			'status' => ($is_base_dir ? $txt['attach_dir_basedir'] . '<br>' : '') . ($error ? '<div class="error">' : '') . sprintf($txt['attach_dir_' . $status], Utils::$context['session_id'], Utils::$context['session_var'], Config::$scripturl) . ($error ? '</div>' : ''),
+			'current_size' => !empty($expected_size[$id]) ? Lang::numberFormat($expected_size[$id] / 1024, 0) : 0,
+			'num_files' => Lang::numberFormat($expected_files[$id] - $sub_dirs, 0) . ($sub_dirs > 0 ? ' (' . $sub_dirs . ')' : ''),
+			'status' => ($is_base_dir ? Lang::$txt['attach_dir_basedir'] . '<br>' : '') . ($error ? '<div class="error">' : '') . sprintf(Lang::$txt['attach_dir_' . $status], Utils::$context['session_id'], Utils::$context['session_var'], Config::$scripturl) . ($error ? '</div>' : ''),
 		);
 	}
 
@@ -2514,8 +2499,6 @@ function list_getAttachDirs()
  */
 function list_getBaseDirs()
 {
-	global $txt;
-
 	if (empty(Config::$modSettings['attachment_basedirectories']))
 		return;
 
@@ -2541,7 +2524,7 @@ function list_getBaseDirs()
 			'current' => $dir == Config::$modSettings['basedirectory_for_attachments'],
 			'path' => $expected_dirs > 0 ? $dir : ('<input type="text" name="base_dir[' . $id . ']" value="' . $dir . '" size="40">'),
 			'num_dirs' => $expected_dirs,
-			'status' => $status == 'ok' ? $txt['attach_dir_ok'] : ('<span class="error">' . $txt['attach_dir_' . $status] . '</span>'),
+			'status' => $status == 'ok' ? Lang::$txt['attach_dir_ok'] : ('<span class="error">' . Lang::$txt['attach_dir_' . $status] . '</span>'),
 		);
 	}
 
@@ -2601,8 +2584,6 @@ function attachDirStatus($dir, $expected_files)
  */
 function TransferAttachments()
 {
-	global $txt;
-
 	checkSession();
 
 	if (!empty(Config::$modSettings['attachment_basedirectories']))
@@ -2623,10 +2604,10 @@ function TransferAttachments()
 	$total_not_moved = 0;
 
 	if (empty($_POST['from']) || (empty($_POST['auto']) && empty($_POST['to'])))
-		$results[] = $txt['attachment_transfer_no_dir'];
+		$results[] = Lang::$txt['attachment_transfer_no_dir'];
 
 	if ($_POST['from'] == $_POST['to'])
-		$results[] = $txt['attachment_transfer_same_dir'];
+		$results[] = Lang::$txt['attachment_transfer_same_dir'];
 
 	if (empty($results))
 	{
@@ -2646,7 +2627,7 @@ function TransferAttachments()
 		$total_progress -= $start;
 
 		if ($total_progress < 1)
-			$results[] = $txt['attachment_transfer_no_find'];
+			$results[] = Lang::$txt['attachment_transfer_no_find'];
 	}
 
 	if (empty($results))
@@ -2710,7 +2691,7 @@ function TransferAttachments()
 			if (Db::$db->num_rows($request) === 0)
 			{
 				if (empty($current_progress))
-					$results[] = $txt['attachment_transfer_no_find'];
+					$results[] = Lang::$txt['attachment_transfer_no_find'];
 				break;
 			}
 
@@ -2738,9 +2719,9 @@ function TransferAttachments()
 							// Since we're in auto mode. Create a new folder and reset the counters.
 							automanage_attachments_by_space();
 
-							$results[] = sprintf($txt['attachments_transferred'], $total_moved, Config::$modSettings['attachmentUploadDir'][$new_dir]);
+							$results[] = sprintf(Lang::$txt['attachments_transferred'], $total_moved, Config::$modSettings['attachmentUploadDir'][$new_dir]);
 							if (!empty($total_not_moved))
-								$results[] = sprintf($txt['attachments_not_transferred'], $total_not_moved);
+								$results[] = sprintf(Lang::$txt['attachments_not_transferred'], $total_not_moved);
 
 							$dir_files = 0;
 							$total_moved = 0;
@@ -2752,7 +2733,7 @@ function TransferAttachments()
 						else
 						{
 							// Hmm, not in auto. Time to bail out then...
-							$results[] = $txt['attachment_transfer_no_room'];
+							$results[] = Lang::$txt['attachment_transfer_no_room'];
 							$break = true;
 							break;
 						}
@@ -2803,9 +2784,9 @@ function TransferAttachments()
 			}
 		}
 
-		$results[] = sprintf($txt['attachments_transferred'], $total_moved, Config::$modSettings['attachmentUploadDir'][$new_dir]);
+		$results[] = sprintf(Lang::$txt['attachments_transferred'], $total_moved, Config::$modSettings['attachmentUploadDir'][$new_dir]);
 		if (!empty($total_not_moved))
-			$results[] = sprintf($txt['attachments_not_transferred'], $total_not_moved);
+			$results[] = sprintf(Lang::$txt['attachments_not_transferred'], $total_not_moved);
 	}
 
 	$_SESSION['results'] = $results;

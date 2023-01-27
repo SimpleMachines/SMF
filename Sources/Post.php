@@ -17,6 +17,7 @@
 use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -38,13 +39,13 @@ if (!defined('SMF'))
  */
 function Post($post_errors = array())
 {
-	global $txt, $topic, $board;
+	global $topic, $board;
 	global $user_info, $settings;
 	global $options;
 
-	loadLanguage('Post');
+	Lang::load('Post');
 	if (!empty(Config::$modSettings['drafts_post_enabled']))
-		loadLanguage('Drafts');
+		Lang::load('Drafts');
 
 	// You can't reply with a poll... hacker.
 	if (isset($_REQUEST['poll']) && !empty($topic) && !isset($_REQUEST['msg']))
@@ -422,9 +423,9 @@ function Post($post_errors = array())
 			if (!empty(Utils::$context['new_replies']))
 			{
 				if (Utils::$context['new_replies'] == 1)
-					$txt['error_new_replies'] = isset($_GET['last_msg']) ? $txt['error_new_reply_reading'] : $txt['error_new_reply'];
+					Lang::$txt['error_new_replies'] = isset($_GET['last_msg']) ? Lang::$txt['error_new_reply_reading'] : Lang::$txt['error_new_reply'];
 				else
-					$txt['error_new_replies'] = sprintf(isset($_GET['last_msg']) ? $txt['error_new_replies_reading'] : $txt['error_new_replies'], Utils::$context['new_replies']);
+					Lang::$txt['error_new_replies'] = sprintf(isset($_GET['last_msg']) ? Lang::$txt['error_new_replies_reading'] : Lang::$txt['error_new_replies'], Utils::$context['new_replies']);
 
 				$post_errors[] = 'new_replies';
 
@@ -436,13 +437,13 @@ function Post($post_errors = array())
 	// Get a response prefix (like 'Re:') in the default forum language.
 	if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix')))
 	{
-		if (Config::$language === $user_info['language'])
-			Utils::$context['response_prefix'] = $txt['response_prefix'];
+		if (Lang::$default === $user_info['language'])
+			Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
 		else
 		{
-			loadLanguage('index', Config::$language, false);
-			Utils::$context['response_prefix'] = $txt['response_prefix'];
-			loadLanguage('index');
+			Lang::load('index', Lang::$default, false);
+			Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
+			Lang::load('index');
 		}
 		CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 	}
@@ -552,16 +553,16 @@ function Post($post_errors = array())
 
 			// Do all bulletin board code tags, with or without smileys.
 			Utils::$context['preview_message'] = BBCodeParser::load()->parse(Utils::$context['preview_message'], !isset($_REQUEST['ns']));
-			censorText(Utils::$context['preview_message']);
+			Lang::censorText(Utils::$context['preview_message']);
 
 			if ($form_subject != '')
 			{
 				Utils::$context['preview_subject'] = $form_subject;
 
-				censorText(Utils::$context['preview_subject']);
+				Lang::censorText(Utils::$context['preview_subject']);
 			}
 			else
-				Utils::$context['preview_subject'] = '<em>' . $txt['no_subject'] . '</em>';
+				Utils::$context['preview_subject'] = '<em>' . Lang::$txt['no_subject'] . '</em>';
 
 			call_integration_hook('integrate_preview_post', array(&$form_message, &$form_subject));
 
@@ -578,7 +579,7 @@ function Post($post_errors = array())
 
 		// Set the destination action for submission.
 		Utils::$context['destination'] = 'post2;start=' . $_REQUEST['start'] . (isset($_REQUEST['msg']) ? ';msg=' . $_REQUEST['msg'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] : '') . (isset($_REQUEST['poll']) ? ';poll' : '');
-		Utils::$context['submit_label'] = isset($_REQUEST['msg']) ? $txt['save'] : $txt['post'];
+		Utils::$context['submit_label'] = isset($_REQUEST['msg']) ? Lang::$txt['save'] : Lang::$txt['post'];
 
 		// Previewing an edit?
 		if (isset($_REQUEST['msg']) && !empty($topic))
@@ -632,8 +633,8 @@ function Post($post_errors = array())
 
 			if (Utils::$context['can_announce'] && !empty($row['id_action']) && $row['id_first_msg'] == $_REQUEST['msg'])
 			{
-				loadLanguage('Errors');
-				Utils::$context['post_error']['already_announced'] = $txt['error_topic_already_announced'];
+				Lang::load('Errors');
+				Utils::$context['post_error']['already_announced'] = Lang::$txt['error_topic_already_announced'];
 			}
 
 			if (!empty(Config::$modSettings['attachmentEnable']))
@@ -749,8 +750,8 @@ function Post($post_errors = array())
 
 		if (Utils::$context['can_announce'] && !empty($row['id_action']) && $row['id_first_msg'] == $_REQUEST['msg'])
 		{
-			loadLanguage('Errors');
-			Utils::$context['post_error']['already_announced'] = $txt['error_topic_already_announced'];
+			Lang::load('Errors');
+			Utils::$context['post_error']['already_announced'] = Lang::$txt['error_topic_already_announced'];
 		}
 
 		// When was it last modified?
@@ -758,16 +759,16 @@ function Post($post_errors = array())
 		{
 			$modified_reason = $row['modified_reason'];
 			Utils::$context['last_modified'] = timeformat($row['modified_time']);
-			Utils::$context['last_modified_reason'] = censorText($row['modified_reason']);
+			Utils::$context['last_modified_reason'] = Lang::censorText($row['modified_reason']);
 			Utils::$context['last_modified_name'] = $row['modified_name'];
-			Utils::$context['last_modified_text'] = sprintf($txt['last_edit_by'], Utils::$context['last_modified'], $row['modified_name']) . (empty($row['modified_reason']) ? '' : ' ' . sprintf($txt['last_edit_reason'], $row['modified_reason']));
+			Utils::$context['last_modified_text'] = sprintf(Lang::$txt['last_edit_by'], Utils::$context['last_modified'], $row['modified_name']) . (empty($row['modified_reason']) ? '' : ' ' . sprintf(Lang::$txt['last_edit_reason'], $row['modified_reason']));
 		}
 
 		// Get the stuff ready for the form.
 		$form_subject = $row['subject'];
 		$form_message = un_preparsecode($row['body']);
-		censorText($form_message);
-		censorText($form_subject);
+		Lang::censorText($form_message);
+		Lang::censorText($form_subject);
 
 		// Check the boxes that should be checked.
 		Utils::$context['use_smileys'] = !empty($row['smileys_enabled']);
@@ -809,7 +810,7 @@ function Post($post_errors = array())
 
 		// Set the destination.
 		Utils::$context['destination'] = 'post2;start=' . $_REQUEST['start'] . ';msg=' . $_REQUEST['msg'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . (isset($_REQUEST['poll']) ? ';poll' : '');
-		Utils::$context['submit_label'] = $txt['save'];
+		Utils::$context['submit_label'] = Lang::$txt['save'];
 	}
 	// Posting...
 	else
@@ -825,7 +826,7 @@ function Post($post_errors = array())
 		}
 		Utils::$context['destination'] = 'post2;start=' . $_REQUEST['start'] . (isset($_REQUEST['poll']) ? ';poll' : '');
 
-		Utils::$context['submit_label'] = $txt['post'];
+		Utils::$context['submit_label'] = Lang::$txt['post'];
 
 		// Posting a quoted reply?
 		if (!empty($topic) && !empty($_REQUEST['quote']))
@@ -856,8 +857,8 @@ function Post($post_errors = array())
 				$form_subject = Utils::$context['response_prefix'] . $form_subject;
 
 			// Censor the message and subject.
-			censorText($form_message);
-			censorText($form_subject);
+			Lang::censorText($form_message);
+			Lang::censorText($form_subject);
 
 			// But if it's in HTML world, turn them into htmlspecialchar's so they can be edited!
 			if (strpos($form_message, '[html]') !== false)
@@ -899,7 +900,7 @@ function Post($post_errors = array())
 				$form_subject = Utils::$context['response_prefix'] . $form_subject;
 
 			// Censor the subject.
-			censorText($form_subject);
+			Lang::censorText($form_subject);
 
 			$form_message = '';
 		}
@@ -959,7 +960,7 @@ function Post($post_errors = array())
 						if (file_exists($attachment['tmp_name']))
 						{
 							$post_errors[] = 'temp_attachments_new';
-							Utils::$context['files_in_session_warning'] = $txt['attached_files_in_session'];
+							Utils::$context['files_in_session_warning'] = Lang::$txt['attached_files_in_session'];
 							unset($_SESSION['temp_attachments']['post']['files']);
 							break;
 						}
@@ -1011,7 +1012,7 @@ function Post($post_errors = array())
 
 				if ($attachID == 'initial_error')
 				{
-					$txt['error_attach_initial_error'] = $txt['attach_no_upload'] . '<div style="padding: 0 1em;">' . (is_array($attachment) ? vsprintf($txt[$attachment[0]], (array) $attachment[1]) : $txt[$attachment]) . '</div>';
+					Lang::$txt['error_attach_initial_error'] = Lang::$txt['attach_no_upload'] . '<div style="padding: 0 1em;">' . (is_array($attachment) ? vsprintf(Lang::$txt[$attachment[0]], (array) $attachment[1]) : Lang::$txt[$attachment]) . '</div>';
 					$post_errors[] = 'attach_initial_error';
 					unset($_SESSION['temp_attachments']);
 					break;
@@ -1020,11 +1021,11 @@ function Post($post_errors = array())
 				// Show any errors which might have occurred.
 				if (!empty($attachment['errors']))
 				{
-					$txt['error_attach_errors'] = empty($txt['error_attach_errors']) ? '<br>' : '';
-					$txt['error_attach_errors'] .= sprintf($txt['attach_warning'], $attachment['name']) . '<div style="padding: 0 1em;">';
+					Lang::$txt['error_attach_errors'] = empty(Lang::$txt['error_attach_errors']) ? '<br>' : '';
+					Lang::$txt['error_attach_errors'] .= sprintf(Lang::$txt['attach_warning'], $attachment['name']) . '<div style="padding: 0 1em;">';
 					foreach ($attachment['errors'] as $error)
-						$txt['error_attach_errors'] .= (is_array($error) ? vsprintf($txt[$error[0]], (array) $error[1]) : $txt[$error]) . '<br >';
-					$txt['error_attach_errors'] .= '</div>';
+						Lang::$txt['error_attach_errors'] .= (is_array($error) ? vsprintf(Lang::$txt[$error[0]], (array) $error[1]) : Lang::$txt[$error]) . '<br >';
+					Lang::$txt['error_attach_errors'] .= '</div>';
 					$post_errors[] = 'attach_errors';
 
 					// Take out the trash.
@@ -1044,7 +1045,7 @@ function Post($post_errors = array())
 				Utils::$context['attachments']['quantity']++;
 				Utils::$context['attachments']['total_size'] += $attachment['size'];
 				if (!isset(Utils::$context['files_in_session_warning']))
-					Utils::$context['files_in_session_warning'] = $txt['attached_files_in_session'];
+					Utils::$context['files_in_session_warning'] = Lang::$txt['attached_files_in_session'];
 
 				Utils::$context['current_attachments'][$attachID] = array(
 					'name' => Utils::htmlspecialchars($attachment['name']),
@@ -1135,13 +1136,13 @@ function Post($post_errors = array())
 	// Any errors occurred?
 	if (!empty($post_errors))
 	{
-		loadLanguage('Errors');
+		Lang::load('Errors');
 		Utils::$context['error_type'] = 'minor';
 		foreach ($post_errors as $post_error)
 			if (is_array($post_error))
 			{
 				$post_error_id = $post_error[0];
-				Utils::$context['post_error'][$post_error_id] = vsprintf($txt['error_' . $post_error_id], (array) $post_error[1]);
+				Utils::$context['post_error'][$post_error_id] = vsprintf(Lang::$txt['error_' . $post_error_id], (array) $post_error[1]);
 
 				// If it's not a minor error flag it as such.
 				if (!in_array($post_error_id, $minor_errors))
@@ -1149,7 +1150,7 @@ function Post($post_errors = array())
 			}
 			else
 			{
-				Utils::$context['post_error'][$post_error] = $txt['error_' . $post_error];
+				Utils::$context['post_error'][$post_error] = Lang::$txt['error_' . $post_error];
 
 				// If it's not a minor error flag it as such.
 				if (!in_array($post_error, $minor_errors))
@@ -1159,22 +1160,22 @@ function Post($post_errors = array())
 
 	// What are you doing? Posting a poll, modifying, previewing, new post, or reply...
 	if (isset($_REQUEST['poll']))
-		Utils::$context['page_title'] = $txt['new_poll'];
+		Utils::$context['page_title'] = Lang::$txt['new_poll'];
 	elseif (Utils::$context['make_event'])
-		Utils::$context['page_title'] = Utils::$context['event']['id'] == -1 ? $txt['calendar_post_event'] : $txt['calendar_edit'];
+		Utils::$context['page_title'] = Utils::$context['event']['id'] == -1 ? Lang::$txt['calendar_post_event'] : Lang::$txt['calendar_edit'];
 	elseif (isset($_REQUEST['msg']))
-		Utils::$context['page_title'] = $txt['modify_msg'];
+		Utils::$context['page_title'] = Lang::$txt['modify_msg'];
 	elseif (isset($_REQUEST['subject'], Utils::$context['preview_subject']))
-		Utils::$context['page_title'] = $txt['preview'] . ' - ' . strip_tags(Utils::$context['preview_subject']);
+		Utils::$context['page_title'] = Lang::$txt['preview'] . ' - ' . strip_tags(Utils::$context['preview_subject']);
 	elseif (empty($topic))
-		Utils::$context['page_title'] = $txt['start_new_topic'];
+		Utils::$context['page_title'] = Lang::$txt['start_new_topic'];
 	else
-		Utils::$context['page_title'] = $txt['post_reply'];
+		Utils::$context['page_title'] = Lang::$txt['post_reply'];
 
 	// Build the link tree.
 	if (empty($topic))
 		Utils::$context['linktree'][] = array(
-			'name' => '<em>' . $txt['start_new_topic'] . '</em>'
+			'name' => '<em>' . Lang::$txt['start_new_topic'] . '</em>'
 		);
 	else
 		Utils::$context['linktree'][] = array(
@@ -1255,7 +1256,7 @@ function Post($post_errors = array())
 		Utils::$context['icon_url'] = $settings[file_exists($settings['theme_dir'] . '/images/post/' . Utils::$context['icon'] . '.png') ? 'images_url' : 'default_images_url'] . '/post/' . Utils::$context['icon'] . '.png';
 		array_unshift(Utils::$context['icons'], array(
 			'value' => Utils::$context['icon'],
-			'name' => $txt['current_icon'],
+			'name' => Lang::$txt['current_icon'],
 			'url' => Utils::$context['icon_url'],
 			'is_last' => empty(Utils::$context['icons']),
 			'selected' => true,
@@ -1277,16 +1278,16 @@ function Post($post_errors = array())
 		foreach ($attachmentRestrictionTypes as $type)
 			if (!empty(Config::$modSettings[$type]))
 			{
-				Utils::$context['attachment_restrictions'][$type] = sprintf($txt['attach_restrict_' . $type . (Config::$modSettings[$type] >= 1024 ? '_MB' : '')], comma_format(Config::$modSettings[$type] >= 1024 ? Config::$modSettings[$type] / 1024 : Config::$modSettings[$type], 2));
+				Utils::$context['attachment_restrictions'][$type] = sprintf(Lang::$txt['attach_restrict_' . $type . (Config::$modSettings[$type] >= 1024 ? '_MB' : '')], Lang::numberFormat(Config::$modSettings[$type] >= 1024 ? Config::$modSettings[$type] / 1024 : Config::$modSettings[$type], 2));
 
 				// Show the max number of attachments if not 0.
 				if ($type == 'attachmentNumPerPostLimit')
 				{
-					Utils::$context['attachment_restrictions'][$type] .= ' (' . sprintf($txt['attach_remaining'], max(Config::$modSettings['attachmentNumPerPostLimit'] - Utils::$context['attachments']['quantity'], 0)) . ')';
+					Utils::$context['attachment_restrictions'][$type] .= ' (' . sprintf(Lang::$txt['attach_remaining'], max(Config::$modSettings['attachmentNumPerPostLimit'] - Utils::$context['attachments']['quantity'], 0)) . ')';
 				}
 				elseif ($type == 'attachmentPostLimit' && Utils::$context['attachments']['total_size'] > 0)
 				{
- 					Utils::$context['attachment_restrictions'][$type] .= '<span class="attach_available"> (' . sprintf($txt['attach_available'], round(max(Config::$modSettings['attachmentPostLimit'] - (Utils::$context['attachments']['total_size'] / 1024), 0), 2)) . ')</span>';
+ 					Utils::$context['attachment_restrictions'][$type] .= '<span class="attach_available"> (' . sprintf(Lang::$txt['attach_available'], round(max(Config::$modSettings['attachmentPostLimit'] - (Utils::$context['attachments']['total_size'] / 1024), 0), 2)) . ')</span>';
 				}
 
 			}
@@ -1351,23 +1352,23 @@ function Post($post_errors = array())
 		addInlineJavaScript('
 	$(function() {
 		smf_fileUpload({
-			dictDefaultMessage : ' . JavaScriptEscape($txt['attach_drop_zone']) . ',
-			dictFallbackMessage : ' . JavaScriptEscape($txt['attach_drop_zone_no']) . ',
-			dictCancelUpload : ' . JavaScriptEscape($txt['modify_cancel']) . ',
-			genericError: ' . JavaScriptEscape($txt['attach_php_error']) . ',
-			text_attachDropzoneLabel: ' . JavaScriptEscape($txt['attach_drop_zone']) . ',
-			text_attachLimitNag: ' . JavaScriptEscape($txt['attach_limit_nag']) . ',
-			text_attachLeft: ' . JavaScriptEscape($txt['attachments_left']) . ',
-			text_deleteAttach: ' . JavaScriptEscape($txt['attached_file_delete']) . ',
-			text_attachDeleted: ' . JavaScriptEscape($txt['attached_file_deleted']) . ',
-			text_insertBBC: ' . JavaScriptEscape($txt['attached_insert_bbc']) . ',
-			text_attachUploaded: ' . JavaScriptEscape($txt['attached_file_uploaded']) . ',
-			text_attach_unlimited: ' . JavaScriptEscape($txt['attach_drop_unlimited']) . ',
-			text_totalMaxSize: ' . JavaScriptEscape($txt['attach_max_total_file_size_current']) . ',
-			text_max_size_progress: ' . JavaScriptEscape('{currentRemain} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? $txt['megabyte'] : $txt['kilobyte']) . ' / {currentTotal} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? $txt['megabyte'] : $txt['kilobyte'])) . ',
-			dictMaxFilesExceeded: ' . JavaScriptEscape($txt['more_attachments_error']) . ',
-			dictInvalidFileType: ' . JavaScriptEscape(sprintf($txt['cant_upload_type'], Utils::$context['allowed_extensions'])) . ',
-			dictFileTooBig: ' . JavaScriptEscape(sprintf($txt['file_too_big'], comma_format(Config::$modSettings['attachmentSizeLimit'], 0))) . ',
+			dictDefaultMessage : ' . JavaScriptEscape(Lang::$txt['attach_drop_zone']) . ',
+			dictFallbackMessage : ' . JavaScriptEscape(Lang::$txt['attach_drop_zone_no']) . ',
+			dictCancelUpload : ' . JavaScriptEscape(Lang::$txt['modify_cancel']) . ',
+			genericError: ' . JavaScriptEscape(Lang::$txt['attach_php_error']) . ',
+			text_attachDropzoneLabel: ' . JavaScriptEscape(Lang::$txt['attach_drop_zone']) . ',
+			text_attachLimitNag: ' . JavaScriptEscape(Lang::$txt['attach_limit_nag']) . ',
+			text_attachLeft: ' . JavaScriptEscape(Lang::$txt['attachments_left']) . ',
+			text_deleteAttach: ' . JavaScriptEscape(Lang::$txt['attached_file_delete']) . ',
+			text_attachDeleted: ' . JavaScriptEscape(Lang::$txt['attached_file_deleted']) . ',
+			text_insertBBC: ' . JavaScriptEscape(Lang::$txt['attached_insert_bbc']) . ',
+			text_attachUploaded: ' . JavaScriptEscape(Lang::$txt['attached_file_uploaded']) . ',
+			text_attach_unlimited: ' . JavaScriptEscape(Lang::$txt['attach_drop_unlimited']) . ',
+			text_totalMaxSize: ' . JavaScriptEscape(Lang::$txt['attach_max_total_file_size_current']) . ',
+			text_max_size_progress: ' . JavaScriptEscape('{currentRemain} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? Lang::$txt['megabyte'] : Lang::$txt['kilobyte']) . ' / {currentTotal} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? Lang::$txt['megabyte'] : Lang::$txt['kilobyte'])) . ',
+			dictMaxFilesExceeded: ' . JavaScriptEscape(Lang::$txt['more_attachments_error']) . ',
+			dictInvalidFileType: ' . JavaScriptEscape(sprintf(Lang::$txt['cant_upload_type'], Utils::$context['allowed_extensions'])) . ',
+			dictFileTooBig: ' . JavaScriptEscape(sprintf(Lang::$txt['file_too_big'], Lang::numberFormat(Config::$modSettings['attachmentSizeLimit'], 0))) . ',
 			acceptedFiles: ' . JavaScriptEscape($acceptedFiles) . ',
 			thumbnailWidth: ' . (!empty(Config::$modSettings['attachmentThumbWidth']) ? Config::$modSettings['attachmentThumbWidth'] : 'null') . ',
 			thumbnailHeight: ' . (!empty(Config::$modSettings['attachmentThumbHeight']) ? Config::$modSettings['attachmentThumbHeight'] : 'null') . ',
@@ -1390,7 +1391,7 @@ function Post($post_errors = array())
 
 		Utils::$context['posting_fields']['foo'] = array(
 			'label' => array(
-				'text' => $txt['foo'], // required
+				'text' => Lang::$txt['foo'], // required
 				'class' => 'foo', // optional
 			),
 			'input' => array(
@@ -1405,7 +1406,7 @@ function Post($post_errors = array())
 
 		Utils::$context['posting_fields']['bar'] = array(
 			'label' => array(
-				'text' => $txt['bar'], // required
+				'text' => Lang::$txt['bar'], // required
 				'class' => 'bar', // optional
 			),
 			'input' => array(
@@ -1415,25 +1416,25 @@ function Post($post_errors = array())
 				),
 				'options' => array(
 					'option_1' => array(
-						'label' => $txt['option_1'],
+						'label' => Lang::$txt['option_1'],
 						'value' => '1',
 						'selected' => true,
 					),
 					'option_2' => array(
-						'label' => $txt['option_2'],
+						'label' => Lang::$txt['option_2'],
 						'value' => '2',
 						'selected' => false,
 					),
 					'opt_group_1' => array(
-						'label' => $txt['opt_group_1'],
+						'label' => Lang::$txt['opt_group_1'],
 						'options' => array(
 							'option_3' => array(
-								'label' => $txt['option_3'],
+								'label' => Lang::$txt['option_3'],
 								'value' => '3',
 								'selected' => false,
 							),
 							'option_4' => array(
-								'label' => $txt['option_4'],
+								'label' => Lang::$txt['option_4'],
 								'value' => '4',
 								'selected' => false,
 							),
@@ -1445,7 +1446,7 @@ function Post($post_errors = array())
 
 		Utils::$context['posting_fields']['baz'] = array(
 			'label' => array(
-				'text' => $txt['baz'], // required
+				'text' => Lang::$txt['baz'], // required
 				'class' => 'baz', // optional
 			),
 			'input' => array(
@@ -1455,12 +1456,12 @@ function Post($post_errors = array())
 				),
 				'options' => array(
 					'option_1' => array(
-						'label' => $txt['option_1'],
+						'label' => Lang::$txt['option_1'],
 						'value' => '1',
 						'selected' => true,
 					),
 					'option_2' => array(
-						'label' => $txt['option_2'],
+						'label' => Lang::$txt['option_2'],
 						'value' => '2',
 						'selected' => false,
 					),
@@ -1512,7 +1513,7 @@ function Post($post_errors = array())
 	{
 		Utils::$context['posting_fields']['guestname'] = array(
 			'label' => array(
-				'text' => $txt['name'],
+				'text' => Lang::$txt['name'],
 				'class' => isset(Utils::$context['post_error']['long_name']) || isset(Utils::$context['post_error']['no_name']) || isset(Utils::$context['post_error']['bad_name']) ? 'error' : '',
 			),
 			'input' => array(
@@ -1530,7 +1531,7 @@ function Post($post_errors = array())
 		{
 			Utils::$context['posting_fields']['email'] = array(
 				'label' => array(
-					'text' => $txt['email'],
+					'text' => Lang::$txt['email'],
 					'class' => isset(Utils::$context['post_error']['no_email']) || isset(Utils::$context['post_error']['bad_email']) ? 'error' : '',
 				),
 				'input' => array(
@@ -1550,7 +1551,7 @@ function Post($post_errors = array())
 	{
 		Utils::$context['posting_fields']['board'] = array(
 			'label' => array(
-				'text' => $txt['calendar_post_in'],
+				'text' => Lang::$txt['calendar_post_in'],
 			),
 			'input' => array(
 				'type' => 'select',
@@ -1573,7 +1574,7 @@ function Post($post_errors = array())
 	// Gotta have a subject.
 	Utils::$context['posting_fields']['subject'] = array(
 		'label' => array(
-			'text' => $txt['subject'],
+			'text' => Lang::$txt['subject'],
 			'class' => isset(Utils::$context['post_error']['no_subject']) ? 'error' : '',
 		),
 		'input' => array(
@@ -1590,7 +1591,7 @@ function Post($post_errors = array())
 	// Icons are fun.
 	Utils::$context['posting_fields']['icon'] = array(
 		'label' => array(
-			'text' => $txt['message_icon'],
+			'text' => Lang::$txt['message_icon'],
 		),
 		'input' => array(
 			'type' => 'select',
@@ -1615,7 +1616,7 @@ function Post($post_errors = array())
 	{
 		Utils::$context['posting_fields']['modify_reason'] = array(
 			'label' => array(
-				'text' => $txt['reason_for_edit'],
+				'text' => Lang::$txt['reason_for_edit'],
 			),
 			'input' => array(
 				'type' => 'text',
@@ -1661,7 +1662,7 @@ function Post($post_errors = array())
  */
 function Post2()
 {
-	global $board, $topic, $txt;
+	global $board, $topic;
 	global $user_info, $board_info, $options, $settings;
 
 	// Sneaking off, are we?
@@ -1701,7 +1702,7 @@ function Post2()
 	}
 
 	require_once(Config::$sourcedir . '/Subs-Post.php');
-	loadLanguage('Post');
+	Lang::load('Post');
 
 	call_integration_hook('integrate_post2_start', array(&$post_errors));
 
@@ -2074,7 +2075,7 @@ function Post2()
 			}
 
 			// Now make sure this email address is not banned from posting.
-			isBannedEmail($_POST['email'], 'cannot_post', sprintf($txt['you_are_post_banned'], $txt['guest_title']));
+			isBannedEmail($_POST['email'], 'cannot_post', sprintf(Lang::$txt['you_are_post_banned'], Lang::$txt['guest_title']));
 		}
 
 		// In case they are making multiple posts this visit, help them along by storing their name.
@@ -2180,7 +2181,7 @@ function Post2()
 	{
 		if (checkSession('post', '', false) != '')
 		{
-			loadLanguage('Errors');
+			Lang::load('Errors');
 			$post_errors[] = 'session_timeout';
 			unset ($_POST['preview'], $_REQUEST['xml']); // just in case
 		}
@@ -2260,7 +2261,7 @@ function Post2()
 		$attachIDs = array();
 		$attach_errors = array();
 		if (!empty(Utils::$context['we_are_history']))
-			$attach_errors[] = '<dd>' . $txt['error_temp_attachments_flushed'] . '<br><br></dd>';
+			$attach_errors[] = '<dd>' . Lang::$txt['error_temp_attachments_flushed'] . '<br><br></dd>';
 
 		foreach ($_SESSION['temp_attachments'] as $attachID => $attachment)
 		{
@@ -2270,8 +2271,8 @@ function Post2()
 			// If there was an initial error just show that message.
 			if ($attachID == 'initial_error')
 			{
-				$attach_errors[] = '<dt>' . $txt['attach_no_upload'] . '</dt>';
-				$attach_errors[] = '<dd>' . (is_array($attachment) ? vsprintf($txt[$attachment[0]], (array) $attachment[1]) : $txt[$attachment]) . '</dd>';
+				$attach_errors[] = '<dt>' . Lang::$txt['attach_no_upload'] . '</dt>';
+				$attach_errors[] = '<dd>' . (is_array($attachment) ? vsprintf(Lang::$txt[$attachment[0]], (array) $attachment[1]) : Lang::$txt[$attachment]) . '</dd>';
 
 				unset($_SESSION['temp_attachments']);
 				break;
@@ -2304,18 +2305,18 @@ function Post2()
 			if (!empty($attachmentOptions['errors']))
 			{
 				// Sort out the errors for display and delete any associated files.
-				$attach_errors[] = '<dt>' . sprintf($txt['attach_warning'], $attachment['name']) . '</dt>';
+				$attach_errors[] = '<dt>' . sprintf(Lang::$txt['attach_warning'], $attachment['name']) . '</dt>';
 				$log_these = array('attachments_no_create', 'attachments_no_write', 'attach_timeout', 'ran_out_of_space', 'cant_access_upload_path', 'attach_0_byte_file');
 				foreach ($attachmentOptions['errors'] as $error)
 				{
 					if (!is_array($error))
 					{
-						$attach_errors[] = '<dd>' . $txt[$error] . '</dd>';
+						$attach_errors[] = '<dd>' . Lang::$txt[$error] . '</dd>';
 						if (in_array($error, $log_these))
-							log_error($attachment['name'] . ': ' . $txt[$error], 'critical');
+							log_error($attachment['name'] . ': ' . Lang::$txt[$error], 'critical');
 					}
 					else
-						$attach_errors[] = '<dd>' . vsprintf($txt[$error[0]], (array) $error[1]) . '</dd>';
+						$attach_errors[] = '<dd>' . vsprintf(Lang::$txt[$error[0]], (array) $error[1]) . '</dd>';
 				}
 				if (file_exists($attachment['tmp_name']))
 					unlink($attachment['tmp_name']);
@@ -2607,7 +2608,7 @@ function Post2()
  */
 function AnnounceTopic()
 {
-	global $txt, $topic;
+	global $topic;
 
 	isAllowedTo('announce_topic');
 
@@ -2616,7 +2617,7 @@ function AnnounceTopic()
 	if (empty($topic))
 		fatal_lang_error('topic_gone', false);
 
-	loadLanguage('Post');
+	Lang::load('Post');
 	loadTemplate('Post');
 
 	$subActions = array(
@@ -2624,7 +2625,7 @@ function AnnounceTopic()
 		'send' => 'AnnouncementSend',
 	);
 
-	Utils::$context['page_title'] = $txt['announce_topic'];
+	Utils::$context['page_title'] = Lang::$txt['announce_topic'];
 
 	// Call the function based on the sub-action.
 	$call = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'selectgroup';
@@ -2638,7 +2639,7 @@ function AnnounceTopic()
  */
 function AnnouncementSelectMembergroup()
 {
-	global $txt, $topic, $board_info;
+	global $topic, $board_info;
 
 	$groups = array_merge($board_info['groups'], array(1));
 	foreach ($groups as $id => $group)
@@ -2649,7 +2650,7 @@ function AnnouncementSelectMembergroup()
 	{
 		Utils::$context['groups'][0] = array(
 			'id' => 0,
-			'name' => $txt['announce_regular_members'],
+			'name' => Lang::$txt['announce_regular_members'],
 			'member_count' => 'n/a',
 		);
 	}
@@ -2702,7 +2703,7 @@ function AnnouncementSelectMembergroup()
 	list (Utils::$context['topic_subject']) = Db::$db->fetch_row($request);
 	Db::$db->free_result($request);
 
-	censorText(Utils::$context['announce_topic']['subject']);
+	Lang::censorText(Utils::$context['announce_topic']['subject']);
 
 	Utils::$context['move'] = isset($_REQUEST['move']) ? 1 : 0;
 	Utils::$context['go_back'] = isset($_REQUEST['goback']) ? 1 : 0;
@@ -2751,8 +2752,8 @@ function AnnouncementSend()
 	list ($id_msg, Utils::$context['topic_subject'], $message) = Db::$db->fetch_row($request);
 	Db::$db->free_result($request);
 
-	censorText(Utils::$context['topic_subject']);
-	censorText($message);
+	Lang::censorText(Utils::$context['topic_subject']);
+	Lang::censorText($message);
 
 	$message = trim(un_htmlspecialchars(strip_tags(strtr(BBCodeParser::load()->parse($message, false, $id_msg), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
 
@@ -2810,7 +2811,7 @@ function AnnouncementSend()
 		if (empty($prefs[$row['id_member']]['announcements']))
 			continue;
 
-		$cur_language = empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $row['lngfile'];
+		$cur_language = empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile'];
 
 		// If the language wasn't defined yet, load it and compose a notification message.
 		if (!isset($announcements[$cur_language]))
@@ -2858,7 +2859,7 @@ function AnnouncementSend()
 
 	// Go back to the correct language for the user ;).
 	if (!empty(Config::$modSettings['userLanguage']))
-		loadLanguage('Post');
+		Lang::load('Post');
 }
 
 /**
@@ -2900,7 +2901,7 @@ function getTopic()
 	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// Censor, BBC, ...
-		censorText($row['body']);
+		Lang::censorText($row['body']);
 		$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
 
 	 	call_integration_hook('integrate_getTopic_previous_post', array(&$row));
@@ -2933,7 +2934,7 @@ function QuoteFast()
 {
 	global $user_info;
 
-	loadLanguage('Post');
+	Lang::load('Post');
 	if (!isset($_REQUEST['xml']))
 		loadTemplate('Post');
 
@@ -2972,12 +2973,12 @@ function QuoteFast()
 		$row['body'] = un_preparsecode($row['body']);
 
 		// Censor the message!
-		censorText($row['body']);
+		Lang::censorText($row['body']);
 
 		// Want to modify a single message by double clicking it?
 		if (isset($_REQUEST['modify']))
 		{
-			censorText($row['subject']);
+			Lang::censorText($row['subject']);
 
 			Utils::$context['sub_template'] = 'modifyfast';
 			Utils::$context['message'] = array(
@@ -3037,7 +3038,7 @@ function QuoteFast()
  */
 function JavaScriptModify()
 {
-	global $board, $topic, $txt;
+	global $board, $topic;
 	global $user_info, $board_info;
 
 	// We have to have a topic!
@@ -3224,13 +3225,13 @@ function JavaScriptModify()
 			// Get the proper (default language) response prefix first.
 			if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix')))
 			{
-				if (Config::$language === $user_info['language'])
-					Utils::$context['response_prefix'] = $txt['response_prefix'];
+				if (Lang::$default === $user_info['language'])
+					Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
 				else
 				{
-					loadLanguage('index', Config::$language, false);
-					Utils::$context['response_prefix'] = $txt['response_prefix'];
-					loadLanguage('index');
+					Lang::load('index', Lang::$default, false);
+					Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
+					Lang::load('index');
 				}
 				CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 			}
@@ -3270,8 +3271,8 @@ function JavaScriptModify()
 				'body' => strtr($msgOptions['body'], array(']]>' => ']]]]><![CDATA[>')),
 			);
 
-			censorText(Utils::$context['message']['subject']);
-			censorText(Utils::$context['message']['body']);
+			Lang::censorText(Utils::$context['message']['subject']);
+			Lang::censorText(Utils::$context['message']['body']);
 
 			Utils::$context['message']['body'] = BBCodeParser::load()->parse(Utils::$context['message']['body'], $row['smileys_enabled'], $row['id_msg']);
 		}
@@ -3289,7 +3290,7 @@ function JavaScriptModify()
 				'subject' => isset($msgOptions['subject']) ? $msgOptions['subject'] : '',
 			);
 
-			censorText(Utils::$context['message']['subject']);
+			Lang::censorText(Utils::$context['message']['subject']);
 		}
 		else
 		{
@@ -3300,13 +3301,13 @@ function JavaScriptModify()
 				'error_in_body' => in_array('no_message', $post_errors) || in_array('long_message', $post_errors),
 			);
 
-			loadLanguage('Errors');
+			Lang::load('Errors');
 			foreach ($post_errors as $post_error)
 			{
 				if ($post_error == 'long_message')
-					Utils::$context['message']['errors'][] = sprintf($txt['error_' . $post_error], Config::$modSettings['max_messageLength']);
+					Utils::$context['message']['errors'][] = sprintf(Lang::$txt['error_' . $post_error], Config::$modSettings['max_messageLength']);
 				else
-					Utils::$context['message']['errors'][] = $txt['error_' . $post_error];
+					Utils::$context['message']['errors'][] = Lang::$txt['error_' . $post_error];
 			}
 		}
 

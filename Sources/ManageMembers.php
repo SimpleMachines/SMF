@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -31,8 +32,6 @@ if (!defined('SMF'))
  */
 function ViewMembers()
 {
-	global $txt;
-
 	$subActions = array(
 		'all' => array('ViewMemberlist', 'moderate_forum'),
 		'approve' => array('AdminApprove', 'moderate_forum'),
@@ -42,7 +41,7 @@ function ViewMembers()
 	);
 
 	// Load the essentials.
-	loadLanguage('ManageMembers');
+	Lang::load('ManageMembers');
 	loadTemplate('ManageMembers');
 
 	// Fetch our activation counts.
@@ -56,22 +55,22 @@ function ViewMembers()
 
 	// Setup the admin tabs.
 	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
-		'title' => $txt['admin_members'],
+		'title' => Lang::$txt['admin_members'],
 		'help' => 'view_members',
-		'description' => $txt['admin_members_list'],
+		'description' => Lang::$txt['admin_members_list'],
 		'tabs' => array(),
 	);
 
 	Utils::$context['tabs'] = array(
 		'viewmembers' => array(
-			'label' => $txt['view_all_members'],
-			'description' => $txt['admin_members_list'],
+			'label' => Lang::$txt['view_all_members'],
+			'description' => Lang::$txt['admin_members_list'],
 			'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=all',
 			'selected_actions' => array('all'),
 		),
 		'search' => array(
-			'label' => $txt['mlist_search'],
-			'description' => $txt['admin_members_list'],
+			'label' => Lang::$txt['mlist_search'],
+			'description' => Lang::$txt['admin_members_list'],
 			'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=search',
 			'selected_actions' => array('search', 'query'),
 		),
@@ -82,8 +81,8 @@ function ViewMembers()
 	if (Utils::$context['show_approve'])
 	{
 		Utils::$context['tabs']['approve'] = array(
-			'label' => sprintf($txt['admin_browse_awaiting_approval'], Utils::$context['awaiting_approval']),
-			'description' => $txt['admin_browse_approve_desc'],
+			'label' => sprintf(Lang::$txt['admin_browse_awaiting_approval'], Utils::$context['awaiting_approval']),
+			'description' => Lang::$txt['admin_browse_approve_desc'],
 			'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve',
 		);
 		Utils::$context['last_tab'] = 'approve';
@@ -93,8 +92,8 @@ function ViewMembers()
 	if (Utils::$context['show_activate'])
 	{
 		Utils::$context['tabs']['activate'] = array(
-			'label' => sprintf($txt['admin_browse_awaiting_activate'], Utils::$context['awaiting_activation']),
-			'description' => $txt['admin_browse_activate_desc'],
+			'label' => sprintf(Lang::$txt['admin_browse_awaiting_activate'], Utils::$context['awaiting_activation']),
+			'description' => Lang::$txt['admin_browse_activate_desc'],
 			'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=activate',
 		);
 		Utils::$context['last_tab'] = 'activate';
@@ -134,7 +133,7 @@ function ViewMembers()
  */
 function ViewMemberlist()
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	// Are we performing a delete?
 	if (isset($_POST['delete_members']) && !empty($_POST['delete']) && allowedTo('profile_remove_any'))
@@ -164,7 +163,7 @@ function ViewMemberlist()
 		Utils::$context['membergroups'] = array(
 			array(
 				'id' => 0,
-				'name' => $txt['membergroups_members'],
+				'name' => Lang::$txt['membergroups_members'],
 				'can_be_additional' => false
 			)
 		);
@@ -435,11 +434,11 @@ function ViewMemberlist()
 	Utils::$context['params_url'] = Utils::$context['current_subaction'] == 'query' ? ';sa=query;params=' . $search_url_params : '';
 
 	// Get the title and sub template ready..
-	Utils::$context['page_title'] = $txt['admin_members'];
+	Utils::$context['page_title'] = Lang::$txt['admin_members'];
 
 	$listOptions = array(
 		'id' => 'member_list',
-		'title' => $txt['members_list'],
+		'title' => Lang::$txt['members_list'],
 		'items_per_page' => Config::$modSettings['defaultMaxMembers'],
 		'base_href' => Config::$scripturl . '?action=admin;area=viewmembers' . Utils::$context['params_url'],
 		'default_sort_col' => 'user_name',
@@ -462,7 +461,7 @@ function ViewMemberlist()
 		'columns' => array(
 			'id_member' => array(
 				'header' => array(
-					'value' => $txt['member_id'],
+					'value' => Lang::$txt['member_id'],
 				),
 				'data' => array(
 					'db' => 'id_member',
@@ -474,7 +473,7 @@ function ViewMemberlist()
 			),
 			'user_name' => array(
 				'header' => array(
-					'value' => $txt['username'],
+					'value' => Lang::$txt['username'],
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -492,7 +491,7 @@ function ViewMemberlist()
 			),
 			'display_name' => array(
 				'header' => array(
-					'value' => $txt['display_name'],
+					'value' => Lang::$txt['display_name'],
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -510,7 +509,7 @@ function ViewMemberlist()
 			),
 			'email' => array(
 				'header' => array(
-					'value' => $txt['email_address'],
+					'value' => Lang::$txt['email_address'],
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -527,7 +526,7 @@ function ViewMemberlist()
 			),
 			'ip' => array(
 				'header' => array(
-					'value' => $txt['ip_address'],
+					'value' => Lang::$txt['ip_address'],
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -544,34 +543,34 @@ function ViewMemberlist()
 			),
 			'last_active' => array(
 				'header' => array(
-					'value' => $txt['viewmembers_online'],
+					'value' => Lang::$txt['viewmembers_online'],
 				),
 				'data' => array(
-					'function' => function($rowData) use ($txt)
+					'function' => function($rowData)
 					{
 						// Calculate number of days since last online.
 						if (empty($rowData['last_login']))
-							$difference = $txt['never'];
+							$difference = Lang::$txt['never'];
 						else
 						{
 							$num_days_difference = jeffsdatediff($rowData['last_login']);
 
 							// Today.
 							if (empty($num_days_difference))
-								$difference = $txt['viewmembers_today'];
+								$difference = Lang::$txt['viewmembers_today'];
 
 							// Yesterday.
 							elseif ($num_days_difference == 1)
-								$difference = sprintf('1 %1$s', $txt['viewmembers_day_ago']);
+								$difference = sprintf('1 %1$s', Lang::$txt['viewmembers_day_ago']);
 
 							// X days ago.
 							else
-								$difference = sprintf('%1$d %2$s', $num_days_difference, $txt['viewmembers_days_ago']);
+								$difference = sprintf('%1$d %2$s', $num_days_difference, Lang::$txt['viewmembers_days_ago']);
 						}
 
 						// Show it in italics if they're not activated...
 						if ($rowData['is_activated'] % 10 != 1)
-							$difference = sprintf('<em title="%1$s">%2$s</em>', $txt['not_activated'], $difference);
+							$difference = sprintf('<em title="%1$s">%2$s</em>', Lang::$txt['not_activated'], $difference);
 
 						return $difference;
 					},
@@ -583,7 +582,7 @@ function ViewMemberlist()
 			),
 			'posts' => array(
 				'header' => array(
-					'value' => $txt['member_postcount'],
+					'value' => Lang::$txt['member_postcount'],
 				),
 				'data' => array(
 					'db' => 'posts',
@@ -615,7 +614,7 @@ function ViewMemberlist()
 		'additional_rows' => array(
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="submit" name="delete_members" value="' . $txt['admin_delete_members'] . '" data-confirm="' . $txt['confirm_delete_members'] . '" class="button you_sure">',
+				'value' => '<input type="submit" name="delete_members" value="' . Lang::$txt['admin_delete_members'] . '" data-confirm="' . Lang::$txt['confirm_delete_members'] . '" class="button you_sure">',
 			),
 		),
 	);
@@ -641,13 +640,11 @@ function ViewMemberlist()
  */
 function SearchMembers()
 {
-	global $txt;
-
 	// Get a list of all the membergroups and postgroups that can be selected.
 	Utils::$context['membergroups'] = array(
 		array(
 			'id' => 0,
-			'name' => $txt['membergroups_members'],
+			'name' => Lang::$txt['membergroups_members'],
 			'can_be_additional' => false
 		)
 	);
@@ -679,7 +676,7 @@ function SearchMembers()
 	}
 	Db::$db->free_result($request);
 
-	Utils::$context['page_title'] = $txt['admin_members'];
+	Utils::$context['page_title'] = Lang::$txt['admin_members'];
 	Utils::$context['sub_template'] = 'search_members';
 }
 
@@ -695,10 +692,8 @@ function SearchMembers()
  */
 function MembersAwaitingActivation()
 {
-	global $txt;
-
 	// Not a lot here!
-	Utils::$context['page_title'] = $txt['admin_members'];
+	Utils::$context['page_title'] = Lang::$txt['admin_members'];
 	Utils::$context['sub_template'] = 'admin_browse';
 	Utils::$context['browse_type'] = isset($_REQUEST['type']) ? $_REQUEST['type'] : (!empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == 1 ? 'activate' : 'approve');
 	if (isset(Utils::$context['tabs'][Utils::$context['browse_type']]))
@@ -717,7 +712,7 @@ function MembersAwaitingActivation()
 			Utils::$context['available_filters'][] = array(
 				'type' => $type,
 				'amount' => $amount,
-				'desc' => isset($txt['admin_browse_filter_type_' . $type]) ? $txt['admin_browse_filter_type_' . $type] : '?',
+				'desc' => isset(Lang::$txt['admin_browse_filter_type_' . $type]) ? Lang::$txt['admin_browse_filter_type_' . $type] : '?',
 				'selected' => $type == Utils::$context['current_filter']
 			);
 	}
@@ -731,11 +726,11 @@ function MembersAwaitingActivation()
 
 	// The columns that can be sorted.
 	Utils::$context['columns'] = array(
-		'id_member' => array('label' => $txt['admin_browse_id']),
-		'member_name' => array('label' => $txt['admin_browse_username']),
-		'email_address' => array('label' => $txt['admin_browse_email']),
-		'member_ip' => array('label' => $txt['admin_browse_ip']),
-		'date_registered' => array('label' => $txt['admin_browse_registered']),
+		'id_member' => array('label' => Lang::$txt['admin_browse_id']),
+		'member_name' => array('label' => Lang::$txt['admin_browse_username']),
+		'email_address' => array('label' => Lang::$txt['admin_browse_email']),
+		'member_ip' => array('label' => Lang::$txt['admin_browse_ip']),
+		'date_registered' => array('label' => Lang::$txt['admin_browse_registered']),
 	);
 
 	// Are we showing duplicate information?
@@ -749,30 +744,30 @@ function MembersAwaitingActivation()
 		// If we are approving deleted accounts we have a slightly different list... actually a mirror ;)
 		if (Utils::$context['current_filter'] == 4)
 			Utils::$context['allowed_actions'] = array(
-				'reject' => $txt['admin_browse_w_approve_deletion'],
-				'ok' => $txt['admin_browse_w_reject'],
+				'reject' => Lang::$txt['admin_browse_w_approve_deletion'],
+				'ok' => Lang::$txt['admin_browse_w_reject'],
 			);
 		else
 			Utils::$context['allowed_actions'] = array(
-				'ok' => $txt['admin_browse_w_approve'] .' '. $txt['admin_browse_no_email'],
-				'okemail' => $txt['admin_browse_w_approve'] . ' ' . $txt['admin_browse_w_email'],
-				'require_activation' => $txt['admin_browse_w_approve_require_activate'],
-				'reject' => $txt['admin_browse_w_reject'],
-				'rejectemail' => $txt['admin_browse_w_reject'] . ' ' . $txt['admin_browse_w_email'],
+				'ok' => Lang::$txt['admin_browse_w_approve'] .' '. Lang::$txt['admin_browse_no_email'],
+				'okemail' => Lang::$txt['admin_browse_w_approve'] . ' ' . Lang::$txt['admin_browse_w_email'],
+				'require_activation' => Lang::$txt['admin_browse_w_approve_require_activate'],
+				'reject' => Lang::$txt['admin_browse_w_reject'],
+				'rejectemail' => Lang::$txt['admin_browse_w_reject'] . ' ' . Lang::$txt['admin_browse_w_email'],
 			);
 	}
 	elseif (Utils::$context['browse_type'] == 'activate')
 		Utils::$context['allowed_actions'] = array(
-			'ok' => $txt['admin_browse_w_activate'],
-			'okemail' => $txt['admin_browse_w_activate'] . ' ' . $txt['admin_browse_w_email'],
-			'delete' => $txt['admin_browse_w_delete'],
-			'deleteemail' => $txt['admin_browse_w_delete'] . ' ' . $txt['admin_browse_w_email'],
-			'remind' => $txt['admin_browse_w_remind'] . ' ' . $txt['admin_browse_w_email'],
+			'ok' => Lang::$txt['admin_browse_w_activate'],
+			'okemail' => Lang::$txt['admin_browse_w_activate'] . ' ' . Lang::$txt['admin_browse_w_email'],
+			'delete' => Lang::$txt['admin_browse_w_delete'],
+			'deleteemail' => Lang::$txt['admin_browse_w_delete'] . ' ' . Lang::$txt['admin_browse_w_email'],
+			'remind' => Lang::$txt['admin_browse_w_remind'] . ' ' . Lang::$txt['admin_browse_w_email'],
 		);
 
 	// Create an option list for actions allowed to be done with selected members.
 	$allowed_actions = '
-			<option selected value="">' . $txt['admin_browse_with_selected'] . ':</option>
+			<option selected value="">' . Lang::$txt['admin_browse_with_selected'] . ':</option>
 			<option value="" disabled>-----------------------------</option>';
 	foreach (Utils::$context['allowed_actions'] as $key => $desc)
 		$allowed_actions .= '
@@ -791,24 +786,24 @@ function MembersAwaitingActivation()
 	if (Utils::$context['current_filter'] == 4)
 		$javascript .= '
 			if (document.forms.postForm.todo.value.indexOf("reject") != -1)
-				message = "' . $txt['admin_browse_w_delete'] . '";
+				message = "' . Lang::$txt['admin_browse_w_delete'] . '";
 			else
-				message = "' . $txt['admin_browse_w_reject'] . '";';
+				message = "' . Lang::$txt['admin_browse_w_reject'] . '";';
 
 	// Otherwise a nice standard message.
 	else
 		$javascript .= '
 			if (document.forms.postForm.todo.value.indexOf("delete") != -1)
-				message = "' . $txt['admin_browse_w_delete'] . '";
+				message = "' . Lang::$txt['admin_browse_w_delete'] . '";
 			else if (document.forms.postForm.todo.value.indexOf("reject") != -1)
-				message = "' . $txt['admin_browse_w_reject'] . '";
+				message = "' . Lang::$txt['admin_browse_w_reject'] . '";
 			else if (document.forms.postForm.todo.value == "remind")
-				message = "' . $txt['admin_browse_w_remind'] . '";
+				message = "' . Lang::$txt['admin_browse_w_remind'] . '";
 			else
-				message = "' . (Utils::$context['browse_type'] == 'approve' ? $txt['admin_browse_w_approve'] : $txt['admin_browse_w_activate']) . '";';
+				message = "' . (Utils::$context['browse_type'] == 'approve' ? Lang::$txt['admin_browse_w_approve'] : Lang::$txt['admin_browse_w_activate']) . '";';
 
 	$javascript .= '
-			if (confirm(message + " ' . $txt['admin_browse_warn'] . '"))
+			if (confirm(message + " ' . Lang::$txt['admin_browse_warn'] . '"))
 				document.forms.postForm.submit();
 		}';
 
@@ -837,7 +832,7 @@ function MembersAwaitingActivation()
 		'columns' => array(
 			'id_member' => array(
 				'header' => array(
-					'value' => $txt['member_id'],
+					'value' => Lang::$txt['member_id'],
 				),
 				'data' => array(
 					'db' => 'id_member',
@@ -849,7 +844,7 @@ function MembersAwaitingActivation()
 			),
 			'user_name' => array(
 				'header' => array(
-					'value' => $txt['username'],
+					'value' => Lang::$txt['username'],
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -867,7 +862,7 @@ function MembersAwaitingActivation()
 			),
 			'email' => array(
 				'header' => array(
-					'value' => $txt['email_address'],
+					'value' => Lang::$txt['email_address'],
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -884,7 +879,7 @@ function MembersAwaitingActivation()
 			),
 			'ip' => array(
 				'header' => array(
-					'value' => $txt['ip_address'],
+					'value' => Lang::$txt['ip_address'],
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -901,7 +896,7 @@ function MembersAwaitingActivation()
 			),
 			'hostname' => array(
 				'header' => array(
-					'value' => $txt['hostname'],
+					'value' => Lang::$txt['hostname'],
 				),
 				'data' => array(
 					'function' => function($rowData)
@@ -913,7 +908,7 @@ function MembersAwaitingActivation()
 			),
 			'date_registered' => array(
 				'header' => array(
-					'value' => Utils::$context['current_filter'] == 4 ? $txt['viewmembers_online'] : $txt['date_registered'],
+					'value' => Utils::$context['current_filter'] == 4 ? Lang::$txt['viewmembers_online'] : Lang::$txt['date_registered'],
 				),
 				'data' => array(
 					'function' => function($rowData)
@@ -928,12 +923,12 @@ function MembersAwaitingActivation()
 			),
 			'duplicates' => array(
 				'header' => array(
-					'value' => $txt['duplicates'],
+					'value' => Lang::$txt['duplicates'],
 					// Make sure it doesn't go too wide.
 					'style' => 'width: 20%;',
 				),
 				'data' => array(
-					'function' => function($rowData) use ($txt)
+					'function' => function($rowData)
 					{
 						$member_links = array();
 						foreach ($rowData['duplicate_members'] as $member)
@@ -941,7 +936,7 @@ function MembersAwaitingActivation()
 							if ($member['id'])
 								$member_links[] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $member['id'] . '" ' . (!empty($member['is_banned']) ? 'class="red"' : '') . '>' . $member['name'] . '</a>';
 							else
-								$member_links[] = $member['name'] . ' (' . $txt['guest'] . ')';
+								$member_links[] = $member['name'] . ' (' . Lang::$txt['guest'] . ')';
 						}
 						return implode(', ', $member_links);
 					},
@@ -978,11 +973,11 @@ function MembersAwaitingActivation()
 			array(
 				'position' => 'below_table_data',
 				'value' => '
-					[<a href="' . Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;showdupes=' . (Utils::$context['show_duplicates'] ? 0 : 1) . ';type=' . Utils::$context['browse_type'] . (!empty(Utils::$context['show_filter']) ? ';filter=' . Utils::$context['current_filter'] : '') . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '">' . (Utils::$context['show_duplicates'] ? $txt['dont_check_for_duplicate'] : $txt['check_for_duplicate']) . '</a>]
+					[<a href="' . Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;showdupes=' . (Utils::$context['show_duplicates'] ? 0 : 1) . ';type=' . Utils::$context['browse_type'] . (!empty(Utils::$context['show_filter']) ? ';filter=' . Utils::$context['current_filter'] : '') . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '">' . (Utils::$context['show_duplicates'] ? Lang::$txt['dont_check_for_duplicate'] : Lang::$txt['check_for_duplicate']) . '</a>]
 					<select name="todo" onchange="onSelectChange();">
 						' . $allowed_actions . '
 					</select>
-					<noscript><input type="submit" value="' . $txt['go'] . '" class="button"><br class="clear_right"></noscript>
+					<noscript><input type="submit" value="' . Lang::$txt['go'] . '" class="button"><br class="clear_right"></noscript>
 				',
 				'class' => 'floatright',
 			),
@@ -1003,14 +998,14 @@ function MembersAwaitingActivation()
 	if (isset(Utils::$context['available_filters']) && count(Utils::$context['available_filters']) > 1)
 	{
 		$filterOptions = '
-			<strong>' . $txt['admin_browse_filter_by'] . ':</strong>
+			<strong>' . Lang::$txt['admin_browse_filter_by'] . ':</strong>
 			<select name="filter" onchange="this.form.submit();">';
 		foreach (Utils::$context['available_filters'] as $filter)
 			$filterOptions .= '
-				<option value="' . $filter['type'] . '"' . ($filter['selected'] ? ' selected' : '') . '>' . $filter['desc'] . ' - ' . $filter['amount'] . ' ' . ($filter['amount'] == 1 ? $txt['user'] : $txt['users']) . '</option>';
+				<option value="' . $filter['type'] . '"' . ($filter['selected'] ? ' selected' : '') . '>' . $filter['desc'] . ' - ' . $filter['amount'] . ' ' . ($filter['amount'] == 1 ? Lang::$txt['user'] : Lang::$txt['users']) . '</option>';
 		$filterOptions .= '
 			</select>
-			<noscript><input type="submit" value="' . $txt['go'] . '" name="filter" class="button"></noscript>';
+			<noscript><input type="submit" value="' . Lang::$txt['go'] . '" name="filter" class="button"></noscript>';
 		$listOptions['additional_rows'][] = array(
 			'position' => 'top_of_list',
 			'value' => $filterOptions,
@@ -1022,7 +1017,7 @@ function MembersAwaitingActivation()
 	if (!empty(Utils::$context['show_filter']) && !empty(Utils::$context['available_filters']))
 		$listOptions['additional_rows'][] = array(
 			'position' => 'above_column_headers',
-			'value' => '<strong>' . $txt['admin_browse_filter_show'] . ':</strong> ' . ((isset(Utils::$context['current_filter']) && isset($txt['admin_browse_filter_type_' . Utils::$context['current_filter']])) ? $txt['admin_browse_filter_type_' . Utils::$context['current_filter']] : Utils::$context['available_filters'][0]['desc']),
+			'value' => '<strong>' . Lang::$txt['admin_browse_filter_show'] . ':</strong> ' . ((isset(Utils::$context['current_filter']) && isset(Lang::$txt['admin_browse_filter_type_' . Utils::$context['current_filter']])) ? Lang::$txt['admin_browse_filter_type_' . Utils::$context['current_filter']] : Utils::$context['available_filters'][0]['desc']),
 			'class' => 'filter_row generic_list_wrapper smalltext',
 		);
 
@@ -1048,7 +1043,7 @@ function AdminApprove()
 	require_once(Config::$sourcedir . '/Subs-Post.php');
 
 	// We also need to the login languages here - for emails.
-	loadLanguage('Login');
+	Lang::load('Login');
 
 	// Sort out where we are going...
 	$current_filter = (int) $_REQUEST['orig_filter'];
@@ -1108,7 +1103,7 @@ function AdminApprove()
 			'username' => $row['member_name'],
 			'name' => $row['real_name'],
 			'email' => $row['email_address'],
-			'language' => empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $row['lngfile'],
+			'language' => empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile'],
 			'code' => $row['validation_code']
 		);
 	}
@@ -1255,8 +1250,8 @@ function AdminApprove()
 	// Back to the user's language!
 	if (isset($current_language) && $current_language != $user_info['language'])
 	{
-		loadLanguage('index');
-		loadLanguage('ManageMembers');
+		Lang::load('index');
+		Lang::load('ManageMembers');
 	}
 
 	// Log what we did?

@@ -16,6 +16,7 @@ namespace SMF\Cache\APIs;
 use GlobIterator;
 use FilesystemIterator;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Cache\CacheApiInterface;
@@ -215,13 +216,11 @@ class FileBased extends CacheApi implements CacheApiInterface
 	 */
 	public function cacheSettings(array &$config_vars)
 	{
-		global $txt;
-
 		$class_name = $this->getImplementationClassKeyName();
 		$class_name_txt_key = strtolower($class_name);
 
-		$config_vars[] = $txt['cache_'. $class_name_txt_key .'_settings'];
-		$config_vars[] = array('cachedir', $txt['cachedir'], 'file', 'text', 36, 'cache_cachedir');
+		$config_vars[] = Lang::$txt['cache_'. $class_name_txt_key .'_settings'];
+		$config_vars[] = array('cachedir', Lang::$txt['cachedir'], 'file', 'text', 36, 'cache_cachedir');
 
 		if (!isset(Utils::$context['settings_post_javascript']))
 			Utils::$context['settings_post_javascript'] = '';

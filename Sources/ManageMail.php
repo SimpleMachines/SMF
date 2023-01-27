@@ -17,6 +17,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -28,18 +29,16 @@ if (!defined('SMF'))
  */
 function ManageMail()
 {
-	global $txt;
-
 	// You need to be an admin to edit settings!
 	isAllowedTo('admin_forum');
 
-	loadLanguage('Help');
-	loadLanguage('ManageMail');
+	Lang::load('Help');
+	Lang::load('ManageMail');
 
 	// We'll need the utility functions from here.
 	require_once(Config::$sourcedir . '/ManageServer.php');
 
-	Utils::$context['page_title'] = $txt['mailqueue_title'];
+	Utils::$context['page_title'] = Lang::$txt['mailqueue_title'];
 	Utils::$context['sub_template'] = 'show_settings';
 
 	$subActions = array(
@@ -57,9 +56,9 @@ function ManageMail()
 
 	// Load up all the tabs...
 	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
-		'title' => $txt['mailqueue_title'],
+		'title' => Lang::$txt['mailqueue_title'],
 		'help' => '',
-		'description' => $txt['mailqueue_desc'],
+		'description' => Lang::$txt['mailqueue_desc'],
 	);
 
 	// Call the right function for this sub-action.
@@ -71,8 +70,6 @@ function ManageMail()
  */
 function BrowseMailQueue()
 {
-	global $txt;
-
 	// First, are we deleting something from the queue?
 	if (isset($_REQUEST['delete']))
 	{
@@ -97,16 +94,16 @@ function BrowseMailQueue()
 	list ($mailQueueSize, $mailOldest) = Db::$db->fetch_row($request);
 	Db::$db->free_result($request);
 
-	Utils::$context['oldest_mail'] = empty($mailOldest) ? $txt['mailqueue_oldest_not_available'] : time_since(time() - $mailOldest);
-	Utils::$context['mail_queue_size'] = comma_format($mailQueueSize);
+	Utils::$context['oldest_mail'] = empty($mailOldest) ? Lang::$txt['mailqueue_oldest_not_available'] : time_since(time() - $mailOldest);
+	Utils::$context['mail_queue_size'] = Lang::numberFormat($mailQueueSize);
 
 	$listOptions = array(
 		'id' => 'mail_queue',
-		'title' => $txt['mailqueue_browse'],
+		'title' => Lang::$txt['mailqueue_browse'],
 		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 		'base_href' => Config::$scripturl . '?action=admin;area=mailqueue',
 		'default_sort_col' => 'age',
-		'no_items_label' => $txt['mailqueue_no_items'],
+		'no_items_label' => Lang::$txt['mailqueue_no_items'],
 		'get_items' => array(
 			'function' => 'list_getMailQueue',
 		),
@@ -116,7 +113,7 @@ function BrowseMailQueue()
 		'columns' => array(
 			'subject' => array(
 				'header' => array(
-					'value' => $txt['mailqueue_subject'],
+					'value' => Lang::$txt['mailqueue_subject'],
 				),
 				'data' => array(
 					'function' => function($rowData)
@@ -132,7 +129,7 @@ function BrowseMailQueue()
 			),
 			'recipient' => array(
 				'header' => array(
-					'value' => $txt['mailqueue_recipient'],
+					'value' => Lang::$txt['mailqueue_recipient'],
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -150,16 +147,16 @@ function BrowseMailQueue()
 			),
 			'priority' => array(
 				'header' => array(
-					'value' => $txt['mailqueue_priority'],
+					'value' => Lang::$txt['mailqueue_priority'],
 				),
 				'data' => array(
-					'function' => function($rowData) use ($txt)
+					'function' => function($rowData)
 					{
 						// We probably have a text label with your priority.
 						$txtKey = sprintf('mq_mpriority_%1$s', $rowData['priority']);
 
 						// But if not, revert to priority 0.
-						return isset($txt[$txtKey]) ? $txt[$txtKey] : $txt['mq_mpriority_1'];
+						return isset(Lang::$txt[$txtKey]) ? Lang::$txt[$txtKey] : Lang::$txt['mq_mpriority_1'];
 					},
 					'class' => 'smalltext',
 				),
@@ -170,7 +167,7 @@ function BrowseMailQueue()
 			),
 			'age' => array(
 				'header' => array(
-					'value' => $txt['mailqueue_age'],
+					'value' => Lang::$txt['mailqueue_age'],
 				),
 				'data' => array(
 					'function' => function($rowData)
@@ -205,11 +202,11 @@ function BrowseMailQueue()
 		'additional_rows' => array(
 			array(
 				'position' => 'top_of_list',
-				'value' => '<input type="submit" name="delete_redirects" value="' . $txt['quickmod_delete_selected'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="button you_sure"><a class="button you_sure" href="' . Config::$scripturl . '?action=admin;area=mailqueue;sa=clear;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . $txt['mailqueue_clear_list_warning'] . '">' . $txt['mailqueue_clear_list'] . '</a> ',
+				'value' => '<input type="submit" name="delete_redirects" value="' . Lang::$txt['quickmod_delete_selected'] . '" data-confirm="' . Lang::$txt['quickmod_confirm'] . '" class="button you_sure"><a class="button you_sure" href="' . Config::$scripturl . '?action=admin;area=mailqueue;sa=clear;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . Lang::$txt['mailqueue_clear_list_warning'] . '">' . Lang::$txt['mailqueue_clear_list'] . '</a> ',
 			),
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '<input type="submit" name="delete_redirects" value="' . $txt['quickmod_delete_selected'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="button you_sure"><a class="button you_sure" href="' . Config::$scripturl . '?action=admin;area=mailqueue;sa=clear;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . $txt['mailqueue_clear_list_warning'] . '">' . $txt['mailqueue_clear_list'] . '</a> ',
+				'value' => '<input type="submit" name="delete_redirects" value="' . Lang::$txt['quickmod_delete_selected'] . '" data-confirm="' . Lang::$txt['quickmod_confirm'] . '" class="button you_sure"><a class="button you_sure" href="' . Config::$scripturl . '?action=admin;area=mailqueue;sa=clear;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . Lang::$txt['mailqueue_clear_list_warning'] . '">' . Lang::$txt['mailqueue_clear_list'] . '</a> ',
 			),
 		),
 	);
@@ -232,8 +229,6 @@ function BrowseMailQueue()
  */
 function list_getMailQueue($start, $items_per_page, $sort)
 {
-	global $txt;
-
 	$request = Db::$db->query('', '
 		SELECT
 			id_mail, time_sent, recipient, priority, private, subject
@@ -251,7 +246,7 @@ function list_getMailQueue($start, $items_per_page, $sort)
 	{
 		// Private PM/email subjects and similar shouldn't be shown in the mailbox area.
 		if (!empty($row['private']))
-			$row['subject'] = $txt['personal_message'];
+			$row['subject'] = Lang::$txt['personal_message'];
 		else
 			$row['subject'] = mb_decode_mimeheader($row['subject']);
 
@@ -291,16 +286,14 @@ function list_getMailQueueSize()
  */
 function ModifyMailSettings($return_config = false)
 {
-	global $txt, $txtBirthdayEmails;
+	Lang::load('EmailTemplates');
 
-	loadLanguage('EmailTemplates');
-
-	$body = $txtBirthdayEmails[(empty(Config::$modSettings['birthday_email']) ? 'happy_birthday' : Config::$modSettings['birthday_email']) . '_body'];
-	$subject = $txtBirthdayEmails[(empty(Config::$modSettings['birthday_email']) ? 'happy_birthday' : Config::$modSettings['birthday_email']) . '_subject'];
+	$body = Lang::$txtBirthdayEmails[(empty(Config::$modSettings['birthday_email']) ? 'happy_birthday' : Config::$modSettings['birthday_email']) . '_body'];
+	$subject = Lang::$txtBirthdayEmails[(empty(Config::$modSettings['birthday_email']) ? 'happy_birthday' : Config::$modSettings['birthday_email']) . '_subject'];
 
 	$emails = array();
 	$processedBirthdayEmails = array();
-	foreach ($txtBirthdayEmails as $key => $value)
+	foreach (Lang::$txtBirthdayEmails as $key => $value)
 	{
 		$index = substr($key, 0, strrpos($key, '_'));
 		$element = substr($key, strrpos($key, '_') + 1);
@@ -311,12 +304,12 @@ function ModifyMailSettings($return_config = false)
 
 	$config_vars = array(
 		// Mail queue stuff, this rocks ;)
-		array('int', 'mail_limit', 'subtext' => $txt['zero_to_disable']),
+		array('int', 'mail_limit', 'subtext' => Lang::$txt['zero_to_disable']),
 		array('int', 'mail_quantity'),
 		'',
 
 		// SMTP stuff.
-		array('select', 'mail_type', array($txt['mail_type_default'], 'SMTP', 'SMTP - STARTTLS')),
+		array('select', 'mail_type', array(Lang::$txt['mail_type_default'], 'SMTP', 'SMTP - STARTTLS')),
 		array('text', 'smtp_host'),
 		array('text', 'smtp_port'),
 		array('text', 'smtp_username'),
@@ -353,7 +346,7 @@ function ModifyMailSettings($return_config = false)
 	}
 
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=mailqueue;save;sa=settings';
-	Utils::$context['settings_title'] = $txt['mailqueue_settings'];
+	Utils::$context['settings_title'] = Lang::$txt['mailqueue_settings'];
 
 	prepareDBSettingContext($config_vars);
 
@@ -426,8 +419,6 @@ function ClearMailQueue()
  */
 function pauseMailQueueClear()
 {
-	global $txt;
-
 	// Try get more time...
 	@set_time_limit(600);
 	if (function_exists('apache_reset_timeout'))
@@ -438,7 +429,7 @@ function pauseMailQueueClear()
 		return;
 
 	Utils::$context['continue_get_data'] = '?action=admin;area=mailqueue;sa=clear;te=' . $_GET['te'] . ';sent=' . $_GET['sent'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
-	Utils::$context['page_title'] = $txt['not_done_title'];
+	Utils::$context['page_title'] = Lang::$txt['not_done_title'];
 	Utils::$context['continue_post_data'] = '';
 	Utils::$context['continue_countdown'] = '2';
 	Utils::$context['sub_template'] = 'not_done';
@@ -463,7 +454,7 @@ function TestMailSend()
 {
 	global $user_info;
 
-	loadLanguage('ManageMail');
+	Lang::load('ManageMail');
 	loadTemplate('ManageMail');
 	Utils::$context['sub_template'] = 'mailtest';
 	Utils::$context['base_url'] = Config::$scripturl . '?action=admin;area=mailqueue;sa=test';
@@ -496,8 +487,6 @@ function TestMailSend()
  */
 function time_since($time_diff)
 {
-	global $txt;
-
 	if ($time_diff < 0)
 		$time_diff = 0;
 
@@ -505,23 +494,23 @@ function time_since($time_diff)
 	if ($time_diff > 86400)
 	{
 		$days = round($time_diff / 86400, 1);
-		return sprintf($days == 1 ? $txt['mq_day'] : $txt['mq_days'], $time_diff / 86400);
+		return sprintf($days == 1 ? Lang::$txt['mq_day'] : Lang::$txt['mq_days'], $time_diff / 86400);
 	}
 	// Hours?
 	elseif ($time_diff > 3600)
 	{
 		$hours = round($time_diff / 3600, 1);
-		return sprintf($hours == 1 ? $txt['mq_hour'] : $txt['mq_hours'], $hours);
+		return sprintf($hours == 1 ? Lang::$txt['mq_hour'] : Lang::$txt['mq_hours'], $hours);
 	}
 	// Minutes?
 	elseif ($time_diff > 60)
 	{
 		$minutes = (int) ($time_diff / 60);
-		return sprintf($minutes == 1 ? $txt['mq_minute'] : $txt['mq_minutes'], $minutes);
+		return sprintf($minutes == 1 ? Lang::$txt['mq_minute'] : Lang::$txt['mq_minutes'], $minutes);
 	}
 	// Otherwise must be second
 	else
-		return sprintf($time_diff == 1 ? $txt['mq_second'] : $txt['mq_seconds'], $time_diff);
+		return sprintf($time_diff == 1 ? Lang::$txt['mq_second'] : Lang::$txt['mq_seconds'], $time_diff);
 }
 
 ?>

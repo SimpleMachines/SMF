@@ -247,15 +247,13 @@ class ServerSideIncludes
 	 */
 	public static function copyright($output_method = 'echo')
 	{
-		global $forum_copyright;
-
 		if (!self::$setup_done)
 			new self();
 
 		if ($output_method == 'echo')
-			printf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl);
+			printf(Lang::$forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl);
 		else
-			return sprintf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl);
+			return sprintf(Lang::$forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl);
 	}
 
 	/**
@@ -268,17 +266,15 @@ class ServerSideIncludes
 	 */
 	public static function welcome($output_method = 'echo')
 	{
-		global $txt;
-
 		if (!self::$setup_done)
 			new self();
 
 		if ($output_method == 'echo')
 		{
 			if (Utils::$context['user']['is_guest'])
-				echo sprintf($txt[Utils::$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], Utils::$context['forum_name_html_safe'], Config::$scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');', Config::$scripturl . '?action=signup');
+				echo sprintf(Lang::$txt[Utils::$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], Utils::$context['forum_name_html_safe'], Config::$scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape(Lang::$txt['login']) . ');', Config::$scripturl . '?action=signup');
 			else
-				echo $txt['hello_member'], ' <strong>', Utils::$context['user']['name'], '</strong>', allowedTo('pm_read') ? ', ' . (empty(Utils::$context['user']['messages']) ? $txt['msg_alert_no_messages'] : ((Utils::$context['user']['messages'] == 1 ? sprintf($txt['msg_alert_one_message'], Config::$scripturl . '?action=pm') : sprintf($txt['msg_alert_many_message'], Config::$scripturl . '?action=pm', Utils::$context['user']['messages'])) . ', ' . (Utils::$context['user']['unread_messages'] == 1 ? $txt['msg_alert_one_new'] : sprintf($txt['msg_alert_many_new'], Utils::$context['user']['unread_messages'])))) : '';
+				echo Lang::$txt['hello_member'], ' <strong>', Utils::$context['user']['name'], '</strong>', allowedTo('pm_read') ? ', ' . (empty(Utils::$context['user']['messages']) ? Lang::$txt['msg_alert_no_messages'] : ((Utils::$context['user']['messages'] == 1 ? sprintf(Lang::$txt['msg_alert_one_message'], Config::$scripturl . '?action=pm') : sprintf(Lang::$txt['msg_alert_many_message'], Config::$scripturl . '?action=pm', Utils::$context['user']['messages'])) . ', ' . (Utils::$context['user']['unread_messages'] == 1 ? Lang::$txt['msg_alert_one_new'] : sprintf(Lang::$txt['msg_alert_many_new'], Utils::$context['user']['unread_messages'])))) : '';
 		}
 		// Don't echo... then do what?!
 		else
@@ -316,8 +312,6 @@ class ServerSideIncludes
 	 */
 	public static function logout($redirect_to = '', $output_method = 'echo')
 	{
-		global $txt;
-
 		if (!self::$setup_done)
 			new self();
 
@@ -328,7 +322,7 @@ class ServerSideIncludes
 		if (Utils::$context['user']['is_guest'])
 			return false;
 
-		$link = '<a href="' . Config::$scripturl . '?action=logout;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '">' . $txt['logout'] . '</a>';
+		$link = '<a href="' . Config::$scripturl . '?action=logout;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '">' . Lang::$txt['logout'] . '</a>';
 
 		if ($output_method == 'echo')
 			echo $link;
@@ -441,7 +435,7 @@ class ServerSideIncludes
 	 */
 	public static function queryPosts($query_where = '', $query_where_params = array(), $query_limit = 10, $query_order = 'm.id_msg DESC', $output_method = 'echo', $limit_body = false, $override_permissions = false)
 	{
-		global $txt, $user_info;
+		global $user_info;
 		if (!self::$setup_done)
 			new self();
 
@@ -479,8 +473,8 @@ class ServerSideIncludes
 			$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
 
 			// Censor it!
-			censorText($row['subject']);
-			censorText($row['body']);
+			Lang::censorText($row['subject']);
+			Lang::censorText($row['body']);
 
 			$preview = strip_tags(strtr($row['body'], array('<br>' => '&#10;')));
 
@@ -540,8 +534,8 @@ class ServerSideIncludes
 					</td>
 					<td style="vertical-align: top">
 						<a href="', $post['href'], '">', $post['subject'], '</a>
-						', $txt['by'], ' ', $post['poster']['link'], '
-						', $post['is_new'] ? '<a href="' . Config::$scripturl . '?topic=' . $post['topic'] . '.msg' . $post['new_from'] . ';topicseen#new" rel="nofollow" class="new_posts">' . $txt['new'] . '</a>' : '', '
+						', Lang::$txt['by'], ' ', $post['poster']['link'], '
+						', $post['is_new'] ? '<a href="' . Config::$scripturl . '?topic=' . $post['topic'] . '.msg' . $post['new_from'] . ';topicseen#new" rel="nofollow" class="new_posts">' . Lang::$txt['new'] . '</a>' : '', '
 					</td>
 					<td style="text-align: right; white-space: nowrap">
 						', $post['time'], '
@@ -564,7 +558,7 @@ class ServerSideIncludes
 	 */
 	public static function recentTopics($num_recent = 8, $exclude_boards = null, $include_boards = null, $output_method = 'echo')
 	{
-		global $settings, $txt, $user_info;
+		global $settings, $user_info;
 		if (!self::$setup_done)
 			new self();
 
@@ -650,8 +644,8 @@ class ServerSideIncludes
 				$row['body'] = Utils::entitySubstr($row['body'], 0, 128) . '...';
 
 			// Censor the subject.
-			censorText($row['subject']);
-			censorText($row['body']);
+			Lang::censorText($row['subject']);
+			Lang::censorText($row['body']);
 
 			// Recycled icon
 			if (!empty($recycle_board) && $topics[$row['id_topic']]['id_board'] == $recycle_board)
@@ -712,8 +706,8 @@ class ServerSideIncludes
 					</td>
 					<td style="vertical-align: top">
 						<a href="', $post['href'], '">', $post['subject'], '</a>
-						', $txt['by'], ' ', $post['poster']['link'], '
-						', !$post['is_new'] ? '' : '<a href="' . Config::$scripturl . '?topic=' . $post['topic'] . '.msg' . $post['new_from'] . ';topicseen#new" rel="nofollow" class="new_posts">' . $txt['new'] . '</a>', '
+						', Lang::$txt['by'], ' ', $post['poster']['link'], '
+						', !$post['is_new'] ? '' : '<a href="' . Config::$scripturl . '?topic=' . $post['topic'] . '.msg' . $post['new_from'] . ';topicseen#new" rel="nofollow" class="new_posts">' . Lang::$txt['new'] . '</a>', '
 					</td>
 					<td style="text-align: right; white-space: nowrap">
 						', $post['time'], '
@@ -783,7 +777,7 @@ class ServerSideIncludes
 	 */
 	public static function topBoards($num_top = 10, $output_method = 'echo')
 	{
-		global $txt, $user_info;
+		global $user_info;
 
 		if (!self::$setup_done)
 			new self();
@@ -827,16 +821,16 @@ class ServerSideIncludes
 		echo '
 			<table class="ssi_table">
 				<tr>
-					<th style="text-align: left">', $txt['board'], '</th>
-					<th style="text-align: left">', $txt['board_topics'], '</th>
-					<th style="text-align: left">', $txt['posts'], '</th>
+					<th style="text-align: left">', Lang::$txt['board'], '</th>
+					<th style="text-align: left">', Lang::$txt['board_topics'], '</th>
+					<th style="text-align: left">', Lang::$txt['posts'], '</th>
 				</tr>';
 		foreach ($boards as $sBoard)
 			echo '
 				<tr>
-					<td>', $sBoard['link'], $sBoard['new'] ? ' <a href="' . $sBoard['href'] . '" class="new_posts">' . $txt['new'] . '</a>' : '', '</td>
-					<td style="text-align: right">', comma_format($sBoard['num_topics']), '</td>
-					<td style="text-align: right">', comma_format($sBoard['num_posts']), '</td>
+					<td>', $sBoard['link'], $sBoard['new'] ? ' <a href="' . $sBoard['href'] . '" class="new_posts">' . Lang::$txt['new'] . '</a>' : '', '</td>
+					<td style="text-align: right">', Lang::numberFormat($sBoard['num_topics']), '</td>
+					<td style="text-align: right">', Lang::numberFormat($sBoard['num_posts']), '</td>
 				</tr>';
 		echo '
 			</table>';
@@ -854,8 +848,6 @@ class ServerSideIncludes
 	 */
 	public static function topTopics($type = 'replies', $num_topics = 10, $output_method = 'echo')
 	{
-		global $txt;
-
 		if (!self::$setup_done)
 			new self();
 
@@ -903,7 +895,7 @@ class ServerSideIncludes
 		$topics = array();
 		while ($row = Db::$db->fetch_assoc($request))
 		{
-			censorText($row['subject']);
+			Lang::censorText($row['subject']);
 
 			$topics[] = array(
 				'id' => $row['id_topic'],
@@ -926,8 +918,8 @@ class ServerSideIncludes
 			<table class="ssi_table">
 				<tr>
 					<th style="text-align: left"></th>
-					<th style="text-align: left">', $txt['views'], '</th>
-					<th style="text-align: left">', $txt['replies'], '</th>
+					<th style="text-align: left">', Lang::$txt['views'], '</th>
+					<th style="text-align: left">', Lang::$txt['replies'], '</th>
 				</tr>';
 		foreach ($topics as $sTopic)
 			echo '
@@ -935,8 +927,8 @@ class ServerSideIncludes
 					<td style="text-align: left">
 						', $sTopic['link'], '
 					</td>
-					<td style="text-align: right">', comma_format($sTopic['num_views']), '</td>
-					<td style="text-align: right">', comma_format($sTopic['num_replies']), '</td>
+					<td style="text-align: right">', Lang::numberFormat($sTopic['num_views']), '</td>
+					<td style="text-align: right">', Lang::numberFormat($sTopic['num_replies']), '</td>
 				</tr>';
 		echo '
 			</table>';
@@ -986,14 +978,12 @@ class ServerSideIncludes
 	 */
 	public static function latestMember($output_method = 'echo')
 	{
-		global $txt;
-
 		if (!self::$setup_done)
 			new self();
 
 		if ($output_method == 'echo')
 			echo '
-		', sprintf($txt['welcome_newest_member'], Utils::$context['common_stats']['latest_member']['link']), '<br>';
+		', sprintf(Lang::$txt['welcome_newest_member'], Utils::$context['common_stats']['latest_member']['link']), '<br>';
 		else
 			return Utils::$context['common_stats']['latest_member'];
 	}
@@ -1209,8 +1199,6 @@ class ServerSideIncludes
 	 */
 	public static function boardStats($output_method = 'echo')
 	{
-		global $txt;
-
 		if (!self::$setup_done)
 			new self();
 
@@ -1248,11 +1236,11 @@ class ServerSideIncludes
 			return $totals;
 
 		echo '
-			', $txt['total_members'], ': <a href="', Config::$scripturl . '?action=mlist">', comma_format($totals['members']), '</a><br>
-			', $txt['total_posts'], ': ', comma_format($totals['posts']), '<br>
-			', $txt['total_topics'], ': ', comma_format($totals['topics']), ' <br>
-			', $txt['total_cats'], ': ', comma_format($totals['categories']), '<br>
-			', $txt['total_boards'], ': ', comma_format($totals['boards']);
+			', Lang::$txt['total_members'], ': <a href="', Config::$scripturl . '?action=mlist">', Lang::numberFormat($totals['members']), '</a><br>
+			', Lang::$txt['total_posts'], ': ', Lang::numberFormat($totals['posts']), '<br>
+			', Lang::$txt['total_topics'], ': ', Lang::numberFormat($totals['topics']), ' <br>
+			', Lang::$txt['total_cats'], ': ', Lang::numberFormat($totals['categories']), '<br>
+			', Lang::$txt['total_boards'], ': ', Lang::numberFormat($totals['boards']);
 	}
 
 	/**
@@ -1265,7 +1253,7 @@ class ServerSideIncludes
 	 */
 	public static function whosOnline($output_method = 'echo')
 	{
-		global $user_info, $txt, $settings;
+		global $user_info, $settings;
 
 		if (!self::$setup_done)
 			new self();
@@ -1291,15 +1279,15 @@ class ServerSideIncludes
 			);
 
 		echo '
-			', comma_format($return['num_guests']), ' ', $return['num_guests'] == 1 ? $txt['guest'] : $txt['guests'], ', ', comma_format($return['num_users_online']), ' ', $return['num_users_online'] == 1 ? $txt['user'] : $txt['users'];
+			', Lang::numberFormat($return['num_guests']), ' ', $return['num_guests'] == 1 ? Lang::$txt['guest'] : Lang::$txt['guests'], ', ', Lang::numberFormat($return['num_users_online']), ' ', $return['num_users_online'] == 1 ? Lang::$txt['user'] : Lang::$txt['users'];
 
 		$bracketList = array();
 		if (!empty($user_info['buddies']))
-			$bracketList[] = comma_format($return['num_buddies']) . ' ' . ($return['num_buddies'] == 1 ? $txt['buddy'] : $txt['buddies']);
+			$bracketList[] = Lang::numberFormat($return['num_buddies']) . ' ' . ($return['num_buddies'] == 1 ? Lang::$txt['buddy'] : Lang::$txt['buddies']);
 		if (!empty($return['num_spiders']))
-			$bracketList[] = comma_format($return['num_spiders']) . ' ' . ($return['num_spiders'] == 1 ? $txt['spider'] : $txt['spiders']);
+			$bracketList[] = Lang::numberFormat($return['num_spiders']) . ' ' . ($return['num_spiders'] == 1 ? Lang::$txt['spider'] : Lang::$txt['spiders']);
 		if (!empty($return['num_users_hidden']))
-			$bracketList[] = comma_format($return['num_users_hidden']) . ' ' . $txt['hidden'];
+			$bracketList[] = Lang::numberFormat($return['num_users_hidden']) . ' ' . Lang::$txt['hidden'];
 
 		if (!empty($bracketList))
 			echo ' (' . implode(', ', $bracketList) . ')';
@@ -1356,7 +1344,7 @@ class ServerSideIncludes
 	 */
 	public static function login($redirect_to = '', $output_method = 'echo')
 	{
-		global $txt, $user_info;
+		global $user_info;
 
 		if (!self::$setup_done)
 			new self();
@@ -1374,10 +1362,10 @@ class ServerSideIncludes
 			<form action="', Config::$scripturl, '?action=login2" method="post" accept-charset="', Utils::$context['character_set'], '">
 				<table style="border: none" class="ssi_table">
 					<tr>
-						<td style="text-align: right; border-spacing: 1"><label for="user">', $txt['username'], ':</label>&nbsp;</td>
+						<td style="text-align: right; border-spacing: 1"><label for="user">', Lang::$txt['username'], ':</label>&nbsp;</td>
 						<td><input type="text" id="user" name="user" size="9" value="', $user_info['username'], '"></td>
 					</tr><tr>
-						<td style="text-align: right; border-spacing: 1"><label for="passwrd">', $txt['password'], ':</label>&nbsp;</td>
+						<td style="text-align: right; border-spacing: 1"><label for="passwrd">', Lang::$txt['password'], ':</label>&nbsp;</td>
 						<td><input type="password" name="passwrd" id="passwrd" size="9"></td>
 					</tr>
 					<tr>
@@ -1386,7 +1374,7 @@ class ServerSideIncludes
 							<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '" />
 							<input type="hidden" name="', Utils::$context['login_token_var'], '" value="', Utils::$context['login_token'], '">
 						</td>
-						<td><input type="submit" value="', $txt['login'], '" class="button"></td>
+						<td><input type="submit" value="', Lang::$txt['login'], '" class="button"></td>
 					</tr>
 				</table>
 			</form>';
@@ -1421,7 +1409,7 @@ class ServerSideIncludes
 	 */
 	public static function recentPoll($topPollInstead = false, $output_method = 'echo')
 	{
-		global $txt, $user_info;
+		global $user_info;
 
 		if (!self::$setup_done)
 			new self();
@@ -1491,7 +1479,7 @@ class ServerSideIncludes
 		$sOptions = array();
 		while ($rowChoice = Db::$db->fetch_assoc($request))
 		{
-			censorText($rowChoice['label']);
+			Lang::censorText($rowChoice['label']);
 
 			$sOptions[$rowChoice['id_choice']] = array($rowChoice['label'], $rowChoice['votes']);
 		}
@@ -1526,7 +1514,7 @@ class ServerSideIncludes
 			);
 		}
 
-		$return['allowed_warning'] = $row['max_votes'] > 1 ? sprintf($txt['poll_options_limit'], min(count($sOptions), $row['max_votes'])) : '';
+		$return['allowed_warning'] = $row['max_votes'] > 1 ? sprintf(Lang::$txt['poll_options_limit'], min(count($sOptions), $row['max_votes'])) : '';
 
 		// If mods want to do something with this list of polls, let them do that now.
 		call_integration_hook('integrate_ssi_recentPoll', array(&$return, $topPollInstead));
@@ -1546,13 +1534,13 @@ class ServerSideIncludes
 				<label for="', $option['id'], '">', $option['vote_button'], ' ', $option['option'], '</label><br>';
 
 			echo '
-				<input type="submit" value="', $txt['poll_vote'], '" class="button">
+				<input type="submit" value="', Lang::$txt['poll_vote'], '" class="button">
 				<input type="hidden" name="poll" value="', $return['id'], '">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			</form>';
 		}
 		else
-			echo $txt['poll_cannot_see'];
+			echo Lang::$txt['poll_cannot_see'];
 	}
 
 	/**
@@ -1566,7 +1554,7 @@ class ServerSideIncludes
 	 */
 	public static function showPoll($topic = null, $output_method = 'echo')
 	{
-		global $txt, $user_info;
+		global $user_info;
 
 		if (!self::$setup_done)
 			new self();
@@ -1668,7 +1656,7 @@ class ServerSideIncludes
 		$total_votes = 0;
 		while ($rowChoice = Db::$db->fetch_assoc($request))
 		{
-			censorText($rowChoice['label']);
+			Lang::censorText($rowChoice['label']);
 
 			$sOptions[$rowChoice['id_choice']] = array($rowChoice['label'], $rowChoice['votes']);
 			$total_votes += $rowChoice['votes'];
@@ -1700,7 +1688,7 @@ class ServerSideIncludes
 			);
 		}
 
-		$return['allowed_warning'] = $row['max_votes'] > 1 ? sprintf($txt['poll_options_limit'], min(count($sOptions), $row['max_votes'])) : '';
+		$return['allowed_warning'] = $row['max_votes'] > 1 ? sprintf(Lang::$txt['poll_options_limit'], min(count($sOptions), $row['max_votes'])) : '';
 
 		// If mods want to do something with this poll, let them do that now.
 		call_integration_hook('integrate_ssi_showPoll', array(&$return));
@@ -1720,7 +1708,7 @@ class ServerSideIncludes
 					<label for="', $option['id'], '">', $option['vote_button'], ' ', $option['option'], '</label><br>';
 
 			echo '
-					<input type="submit" value="', $txt['poll_vote'], '" class="button">
+					<input type="submit" value="', Lang::$txt['poll_vote'], '" class="button">
 					<input type="hidden" name="poll" value="', $return['id'], '">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				</form>';
@@ -1754,7 +1742,7 @@ class ServerSideIncludes
 
 			echo '
 					</dl>', ($return['allow_view_results'] ? '
-					<strong>' . $txt['poll_total_voters'] . ': ' . $return['total_votes'] . '</strong>' : ''), '
+					<strong>' . Lang::$txt['poll_total_voters'] . ': ' . $return['total_votes'] . '</strong>' : ''), '
 				</div>';
 		}
 	}
@@ -1884,8 +1872,6 @@ class ServerSideIncludes
 	 */
 	public static function quickSearch($output_method = 'echo')
 	{
-		global $txt;
-
 		if (!self::$setup_done)
 			new self();
 
@@ -1897,7 +1883,7 @@ class ServerSideIncludes
 
 		echo '
 			<form action="', Config::$scripturl, '?action=search2" method="post" accept-charset="', Utils::$context['character_set'], '">
-				<input type="hidden" name="advanced" value="0"><input type="text" name="search" size="30"> <input type="submit" value="', $txt['search'], '" class="button">
+				<input type="hidden" name="advanced" value="0"><input type="text" name="search" size="30"> <input type="submit" value="', Lang::$txt['search'], '" class="button">
 			</form>';
 	}
 
@@ -2044,7 +2030,7 @@ class ServerSideIncludes
 	 */
 	public static function todaysCalendar($output_method = 'echo')
 	{
-		global $txt, $user_info;
+		global $user_info;
 
 		if (!self::$setup_done)
 			new self();
@@ -2068,11 +2054,11 @@ class ServerSideIncludes
 
 		if (!empty($return['calendar_holidays']))
 			echo '
-				<span class="holiday">' . $txt['calendar_prompt'] . ' ' . implode(', ', $return['calendar_holidays']) . '<br></span>';
+				<span class="holiday">' . Lang::$txt['calendar_prompt'] . ' ' . implode(', ', $return['calendar_holidays']) . '<br></span>';
 		if (!empty($return['calendar_birthdays']))
 		{
 			echo '
-				<span class="birthday">' . $txt['birthdays_upcoming'] . '</span> ';
+				<span class="birthday">' . Lang::$txt['birthdays_upcoming'] . '</span> ';
 			foreach ($return['calendar_birthdays'] as $member)
 				echo '
 				<a href="', Config::$scripturl, '?action=profile;u=', $member['id'], '"><span class="fix_rtl_names">', $member['name'], '</span>', isset($member['age']) ? ' (' . $member['age'] . ')' : '', '</a>', !$member['is_last'] ? ', ' : '';
@@ -2082,7 +2068,7 @@ class ServerSideIncludes
 		if (!empty($return['calendar_events']))
 		{
 			echo '
-				<span class="event">' . $txt['events_upcoming'] . '</span> ';
+				<span class="event">' . Lang::$txt['events_upcoming'] . '</span> ';
 			foreach ($return['calendar_events'] as $event)
 			{
 				if ($event['can_edit'])
@@ -2108,12 +2094,12 @@ class ServerSideIncludes
 	 */
 	public static function boardNews($board = null, $limit = null, $start = null, $length = null, $output_method = 'echo')
 	{
-		global $txt, $settings;
+		global $settings;
 
 		if (!self::$setup_done)
 			new self();
 
-		loadLanguage('Stats');
+		Lang::load('Stats');
 
 		// Must be integers....
 		if ($limit === null)
@@ -2153,7 +2139,7 @@ class ServerSideIncludes
 		if (Db::$db->num_rows($request) == 0)
 		{
 			if ($output_method == 'echo')
-				die($txt['ssi_no_guests']);
+				die(Lang::$txt['ssi_no_guests']);
 			else
 				return array();
 		}
@@ -2241,8 +2227,8 @@ class ServerSideIncludes
 			elseif (!isset($icon_sources[$row['icon']]))
 				$icon_sources[$row['icon']] = 'images_url';
 
-			censorText($row['subject']);
-			censorText($row['body']);
+			Lang::censorText($row['subject']);
+			Lang::censorText($row['body']);
 
 			$return[] = array(
 				'id' => $row['id_topic'],
@@ -2253,11 +2239,11 @@ class ServerSideIncludes
 				'timestamp' => $row['poster_time'],
 				'body' => $row['body'],
 				'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0',
-				'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['num_replies'] . ' ' . ($row['num_replies'] == 1 ? $txt['ssi_comment'] : $txt['ssi_comments']) . '</a>',
+				'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['num_replies'] . ' ' . ($row['num_replies'] == 1 ? Lang::$txt['ssi_comment'] : Lang::$txt['ssi_comments']) . '</a>',
 				'replies' => $row['num_replies'],
 				'comment_href' => !empty($row['locked']) ? '' : Config::$scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . ';last_msg=' . $row['id_last_msg'],
-				'comment_link' => !empty($row['locked']) ? '' : '<a href="' . Config::$scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . ';last_msg=' . $row['id_last_msg'] . '">' . $txt['ssi_write_comment'] . '</a>',
-				'new_comment' => !empty($row['locked']) ? '' : '<a href="' . Config::$scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . '">' . $txt['ssi_write_comment'] . '</a>',
+				'comment_link' => !empty($row['locked']) ? '' : '<a href="' . Config::$scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . ';last_msg=' . $row['id_last_msg'] . '">' . Lang::$txt['ssi_write_comment'] . '</a>',
+				'new_comment' => !empty($row['locked']) ? '' : '<a href="' . Config::$scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . '">' . Lang::$txt['ssi_write_comment'] . '</a>',
 				'poster' => array(
 					'id' => $row['id_member'],
 					'name' => $row['poster_name'],
@@ -2295,7 +2281,7 @@ class ServerSideIncludes
 						', $news['icon'], '
 						<a href="', $news['href'], '">', $news['subject'], '</a>
 					</h3>
-					<div class="news_timestamp">', $news['time'], ' ', $txt['by'], ' ', $news['poster']['link'], '</div>
+					<div class="news_timestamp">', $news['time'], ' ', Lang::$txt['by'], ' ', $news['poster']['link'], '</div>
 					<div class="news_body" style="padding: 2ex 0;">', $news['body'], '</div>
 					', $news['link'], $news['locked'] ? '' : ' | ' . $news['comment_link'], '';
 
@@ -2308,7 +2294,7 @@ class ServerSideIncludes
 				if (!empty($news['likes']['can_like']))
 				{
 					echo '
-							<li class="smflikebutton" id="msg_', $news['message_id'], '_likes"><a href="', Config::$scripturl, '?action=likes;ltype=msg;sa=like;like=', $news['message_id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="msg_like"><span class="', $news['likes']['you'] ? 'unlike' : 'like', '"></span>', $news['likes']['you'] ? $txt['unlike'] : $txt['like'], '</a></li>';
+							<li class="smflikebutton" id="msg_', $news['message_id'], '_likes"><a href="', Config::$scripturl, '?action=likes;ltype=msg;sa=like;like=', $news['message_id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="msg_like"><span class="', $news['likes']['you'] ? 'unlike' : 'like', '"></span>', $news['likes']['you'] ? Lang::$txt['unlike'] : Lang::$txt['like'], '</a></li>';
 				}
 
 				if (!empty($news['likes']['count']))
@@ -2321,10 +2307,10 @@ class ServerSideIncludes
 						$base = 'you_' . $base;
 						$count--;
 					}
-					$base .= (isset($txt[$base . $count])) ? $count : 'n';
+					$base .= (isset(Lang::$txt[$base . $count])) ? $count : 'n';
 
 					echo '
-							<li class="like_count smalltext">', sprintf($txt[$base], Config::$scripturl . '?action=likes;sa=view;ltype=msg;like=' . $news['message_id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], comma_format($count)), '</li>';
+							<li class="like_count smalltext">', sprintf(Lang::$txt[$base], Config::$scripturl . '?action=likes;sa=view;ltype=msg;like=' . $news['message_id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], Lang::numberFormat($count)), '</li>';
 				}
 
 				echo '
@@ -2352,7 +2338,7 @@ class ServerSideIncludes
 	 */
 	public static function recentEvents($max_events = 7, $output_method = 'echo')
 	{
-		global $user_info, $txt;
+		global $user_info;
 
 		if (!self::$setup_done)
 			new self();
@@ -2388,7 +2374,7 @@ class ServerSideIncludes
 				continue;
 
 			// Censor the title.
-			censorText($row['title']);
+			Lang::censorText($row['title']);
 
 			if ($row['start_date'] < smf_strftime('%Y-%m-%d', time()))
 				$date = smf_strftime('%Y-%m-%d', time());
@@ -2434,7 +2420,7 @@ class ServerSideIncludes
 
 		// Well the output method is echo.
 		echo '
-				<span class="event">' . $txt['events'] . '</span> ';
+				<span class="event">' . Lang::$txt['events'] . '</span> ';
 		foreach ($return as $mday => $array)
 			foreach ($array as $event)
 			{
@@ -2493,7 +2479,7 @@ class ServerSideIncludes
 	 */
 	public static function recentAttachments($num_attachments = 10, $attachment_ext = array(), $output_method = 'echo')
 	{
-		global $txt, $settings;
+		global $settings;
 
 		if (!self::$setup_done)
 			new self();
@@ -2551,7 +2537,7 @@ class ServerSideIncludes
 				),
 				'file' => array(
 					'filename' => $filename,
-					'filesize' => round($row['filesize'] / 1024, 2) . $txt['kilobyte'],
+					'filesize' => round($row['filesize'] / 1024, 2) . Lang::$txt['kilobyte'],
 					'downloads' => $row['downloads'],
 					'href' => Config::$scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $row['id_attach'],
 					'link' => '<img src="' . $settings['images_url'] . '/icons/clip.png" alt=""> <a href="' . Config::$scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $row['id_attach'] . '">' . $filename . '</a>',
@@ -2594,10 +2580,10 @@ class ServerSideIncludes
 		echo '
 			<table class="ssi_downloads">
 				<tr>
-					<th style="text-align: left; padding: 2">', $txt['file'], '</th>
-					<th style="text-align: left; padding: 2">', $txt['posted_by'], '</th>
-					<th style="text-align: left; padding: 2">', $txt['downloads'], '</th>
-					<th style="text-align: left; padding: 2">', $txt['filesize'], '</th>
+					<th style="text-align: left; padding: 2">', Lang::$txt['file'], '</th>
+					<th style="text-align: left; padding: 2">', Lang::$txt['posted_by'], '</th>
+					<th style="text-align: left; padding: 2">', Lang::$txt['downloads'], '</th>
+					<th style="text-align: left; padding: 2">', Lang::$txt['filesize'], '</th>
 				</tr>';
 		foreach ($attachments as $attach)
 			echo '
@@ -2624,7 +2610,7 @@ class ServerSideIncludes
 	public function __construct()
 	{
 		global $sc, $board, $topic;
-		global $txt, $user_info;
+		global $user_info;
 
 		foreach ($this->ssi_globals as $var)
 		{
@@ -2722,7 +2708,7 @@ class ServerSideIncludes
 
 		// @todo: probably not the best place, but somewhere it should be set...
 		if (!headers_sent())
-			header('content-type: text/html; charset=' . (empty(Config::$modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : Config::$modSettings['global_character_set']));
+			header('content-type: text/html; charset=' . (empty(Config::$modSettings['global_character_set']) ? (empty(Lang::$txt['lang_character_set']) ? 'ISO-8859-1' : Lang::$txt['lang_character_set']) : Config::$modSettings['global_character_set']));
 
 		// Take care of any banning that needs to be done.
 		if (isset($_REQUEST['ssi_ban']) || $this->ban === true)
@@ -2747,7 +2733,7 @@ class ServerSideIncludes
 
 		// Make sure they didn't muss around with the settings... but only if it's not cli.
 		if (isset($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['is_cli']) && session_id() == '')
-			trigger_error($txt['ssi_session_broken'], E_USER_NOTICE);
+			trigger_error(Lang::$txt['ssi_session_broken'], E_USER_NOTICE);
 
 		// Without visiting the forum this session variable might not be set on submit.
 		if (!isset($_SESSION['USER_AGENT']) && (!isset($_GET['ssi_function']) || $_GET['ssi_function'] !== 'pollVote'))
@@ -2766,14 +2752,14 @@ class ServerSideIncludes
 	 */
 	public function execute()
 	{
-		global $txt, $user_info;
+		global $user_info;
 
 		// Ignore a call to ssi_* functions if we are not accessing SSI.php directly.
 		if (basename($_SERVER['SCRIPT_FILENAME']) == 'SSI.php')
 		{
 			// You shouldn't just access SSI.php directly by URL!!
 			if (!isset($_GET['ssi_function']))
-				die(sprintf($txt['ssi_not_direct'], $user_info['is_admin'] ? '\'' . addslashes(__FILE__) . '\'' : '\'SSI.php\''));
+				die(sprintf(Lang::$txt['ssi_not_direct'], User::$me->is_admin ? '\'' . addslashes(__FILE__) . '\'' : '\'SSI.php\''));
 
 			// Call a function passed by GET.
 			if (method_exists(__CLASS__, $_GET['ssi_function']) && (!empty(Config::$modSettings['allow_guestAccess']) || !$user_info['is_guest']))

@@ -15,6 +15,7 @@ namespace SMF\Tasks;
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Mentions;
 use SMF\TaskRunner;
 use SMF\Utils;
@@ -91,7 +92,7 @@ class CreatePost_Notify extends BackgroundTask
 	 */
 	public function execute()
 	{
-		global $user_info, $txt;
+		global $user_info;
 
 		require_once(Config::$sourcedir . '/Subs-Post.php');
 		require_once(Config::$sourcedir . '/Subs-Notify.php');
@@ -108,8 +109,8 @@ class CreatePost_Notify extends BackgroundTask
 		if (!isset($topicOptions['board']))
 		{
 			require_once(Config::$sourcedir . '/Errors.php');
-			loadLanguage('Errors');
-			log_error($txt['missing_board_id'], 'general', __FILE__, __LINE__);
+			Lang::load('Errors');
+			log_error(Lang::$txt['missing_board_id'], 'general', __FILE__, __LINE__);
 			return true;
 		}
 
@@ -549,7 +550,7 @@ class CreatePost_Notify extends BackgroundTask
 
 			$user_info = $members_info[$member_id];
 
-			loadLanguage('index+Modifications', $member_data['lngfile'], false);
+			Lang::load('index+Modifications', $member_data['lngfile'], false);
 
 			// Censor and parse BBC in the receiver's localization. Don't repeat unnecessarily.
 			$localization = implode('|', array($member_data['lngfile'], $user_info['time_offset'], $user_info['time_format']));
@@ -558,8 +559,8 @@ class CreatePost_Notify extends BackgroundTask
 				$parsed_message[$localization]['subject'] = $msgOptions['subject'];
 				$parsed_message[$localization]['body'] = $msgOptions['body'];
 
-				censorText($parsed_message[$localization]['subject']);
-				censorText($parsed_message[$localization]['body']);
+				Lang::censorText($parsed_message[$localization]['subject']);
+				Lang::censorText($parsed_message[$localization]['body']);
 
 				$parsed_message[$localization]['subject'] = un_htmlspecialchars($parsed_message[$localization]['subject']);
 				$parsed_message[$localization]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(BBCodeParser::load(true)->parse($parsed_message[$localization]['body'], false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']', '&#39;' => '\'', '</tr>' => "\n", '</td>' => "\t", '<hr>' => "\n---------------------------------------------------------------\n")))));
@@ -680,7 +681,7 @@ class CreatePost_Notify extends BackgroundTask
 					'CONTENTLINK' => Config::$scripturl . '?msg=' . $msgOptions['id'],
 				);
 
-				$emaildata = loadEmailTemplate('msg_quote', $replacements, empty($member_data['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $member_data['lngfile']);
+				$emaildata = loadEmailTemplate('msg_quote', $replacements, empty($member_data['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $member_data['lngfile']);
 				$mail_result = sendmail($member_data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'msg_quote_' . $msgOptions['id'], $emaildata['is_html'], 2);
 
 				if ($mail_result !== false)
@@ -753,7 +754,7 @@ class CreatePost_Notify extends BackgroundTask
 					'CONTENTLINK' => Config::$scripturl . '?msg=' . $msgOptions['id'],
 				);
 
-				$emaildata = loadEmailTemplate('msg_mention', $replacements, empty($member_data['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $member_data['lngfile']);
+				$emaildata = loadEmailTemplate('msg_mention', $replacements, empty($member_data['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $member_data['lngfile']);
 				$mail_result = sendmail($member_data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'msg_mention_' . $msgOptions['id'], $emaildata['is_html'], 2);
 
 				if ($mail_result !== false)

@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -32,8 +33,6 @@ if (!defined('SMF'))
  */
 function ModifyMembergroups()
 {
-	global $txt;
-
 	$subActions = array(
 		'add' => array('AddMembergroup', 'manage_membergroups'),
 		'delete' => array('DeleteMembergroup', 'manage_membergroups'),
@@ -44,14 +43,14 @@ function ModifyMembergroups()
 	);
 
 	// Language and template stuff, the usual.
-	loadLanguage('ManageMembers');
+	Lang::load('ManageMembers');
 	loadTemplate('ManageMembergroups');
 
 	// Setup the admin tabs.
 	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
-		'title' => $txt['membergroups_title'],
+		'title' => Lang::$txt['membergroups_title'],
 		'help' => 'membergroups',
-		'description' => $txt['membergroups_description'],
+		'description' => Lang::$txt['membergroups_description'],
 	);
 
 	call_integration_hook('integrate_manage_membergroups', array(&$subActions));
@@ -81,14 +80,12 @@ function ModifyMembergroups()
  */
 function MembergroupIndex()
 {
-	global $txt;
-
-	Utils::$context['page_title'] = $txt['membergroups_title'];
+	Utils::$context['page_title'] = Lang::$txt['membergroups_title'];
 
 	// The first list shows the regular membergroups.
 	$listOptions = array(
 		'id' => 'regular_membergroups_list',
-		'title' => $txt['membergroups_regular'],
+		'title' => Lang::$txt['membergroups_regular'],
 		'base_href' => Config::$scripturl . '?action=admin;area=membergroups' . (isset($_REQUEST['sort2']) ? ';sort2=' . urlencode($_REQUEST['sort2']) : ''),
 		'default_sort_col' => 'name',
 		'get_items' => array(
@@ -101,7 +98,7 @@ function MembergroupIndex()
 		'columns' => array(
 			'name' => array(
 				'header' => array(
-					'value' => $txt['membergroups_name'],
+					'value' => Lang::$txt['membergroups_name'],
 				),
 				'data' => array(
 					'function' => function($rowData)
@@ -131,7 +128,7 @@ function MembergroupIndex()
 			),
 			'icons' => array(
 				'header' => array(
-					'value' => $txt['membergroups_icons'],
+					'value' => Lang::$txt['membergroups_icons'],
 				),
 				'data' => array(
 					'db' => 'icons',
@@ -143,14 +140,14 @@ function MembergroupIndex()
 			),
 			'members' => array(
 				'header' => array(
-					'value' => $txt['membergroups_members_top'],
+					'value' => Lang::$txt['membergroups_members_top'],
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => function($rowData) use ($txt)
+					'function' => function($rowData)
 					{
 						// No explicit members for the moderator group.
-						return $rowData['id_group'] == 3 ? $txt['membergroups_guests_na'] : comma_format($rowData['num_members']);
+						return $rowData['id_group'] == 3 ? Lang::$txt['membergroups_guests_na'] : Lang::numberFormat($rowData['num_members']);
 					},
 					'class' => 'centercol',
 				),
@@ -161,12 +158,12 @@ function MembergroupIndex()
 			),
 			'modify' => array(
 				'header' => array(
-					'value' => $txt['modify'],
+					'value' => Lang::$txt['modify'],
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<a href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=edit;group=%1$d">' . $txt['membergroups_modify'] . '</a>',
+						'format' => '<a href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=edit;group=%1$d">' . Lang::$txt['membergroups_modify'] . '</a>',
 						'params' => array(
 							'id_group' => false,
 						),
@@ -178,11 +175,11 @@ function MembergroupIndex()
 		'additional_rows' => array(
 			array(
 				'position' => 'above_column_headers',
-				'value' => '<a class="button" href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=add;generalgroup">' . $txt['membergroups_add_group'] . '</a>',
+				'value' => '<a class="button" href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=add;generalgroup">' . Lang::$txt['membergroups_add_group'] . '</a>',
 			),
 			array(
 				'position' => 'below_table_data',
-				'value' => '<a class="button" href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=add;generalgroup">' . $txt['membergroups_add_group'] . '</a>',
+				'value' => '<a class="button" href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=add;generalgroup">' . Lang::$txt['membergroups_add_group'] . '</a>',
 			),
 		),
 	);
@@ -193,7 +190,7 @@ function MembergroupIndex()
 	// The second list shows the post count based groups.
 	$listOptions = array(
 		'id' => 'post_count_membergroups_list',
-		'title' => $txt['membergroups_post'],
+		'title' => Lang::$txt['membergroups_post'],
 		'base_href' => Config::$scripturl . '?action=admin;area=membergroups' . (isset($_REQUEST['sort']) ? ';sort=' . urlencode($_REQUEST['sort']) : ''),
 		'default_sort_col' => 'required_posts',
 		'request_vars' => array(
@@ -210,7 +207,7 @@ function MembergroupIndex()
 		'columns' => array(
 			'name' => array(
 				'header' => array(
-					'value' => $txt['membergroups_name'],
+					'value' => Lang::$txt['membergroups_name'],
 				),
 				'data' => array(
 					'function' => function($rowData)
@@ -226,7 +223,7 @@ function MembergroupIndex()
 			),
 			'icons' => array(
 				'header' => array(
-					'value' => $txt['membergroups_icons'],
+					'value' => Lang::$txt['membergroups_icons'],
 				),
 				'data' => array(
 					'db' => 'icons',
@@ -238,7 +235,7 @@ function MembergroupIndex()
 			),
 			'members' => array(
 				'header' => array(
-					'value' => $txt['membergroups_members_top'],
+					'value' => Lang::$txt['membergroups_members_top'],
 					'class' => 'centercol',
 				),
 				'data' => array(
@@ -252,7 +249,7 @@ function MembergroupIndex()
 			),
 			'required_posts' => array(
 				'header' => array(
-					'value' => $txt['membergroups_min_posts'],
+					'value' => Lang::$txt['membergroups_min_posts'],
 					'class' => 'centercol',
 				),
 				'data' => array(
@@ -266,12 +263,12 @@ function MembergroupIndex()
 			),
 			'modify' => array(
 				'header' => array(
-					'value' => $txt['modify'],
+					'value' => Lang::$txt['modify'],
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<a href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=edit;group=%1$d">' . $txt['membergroups_modify'] . '</a>',
+						'format' => '<a href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=edit;group=%1$d">' . Lang::$txt['membergroups_modify'] . '</a>',
 						'params' => array(
 							'id_group' => false,
 						),
@@ -283,7 +280,7 @@ function MembergroupIndex()
 		'additional_rows' => array(
 			array(
 				'position' => 'below_table_data',
-				'value' => '<a class="button" href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=add;postgroup">' . $txt['membergroups_add_group'] . '</a>',
+				'value' => '<a class="button" href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=add;postgroup">' . Lang::$txt['membergroups_add_group'] . '</a>',
 			),
 		),
 	);
@@ -302,8 +299,6 @@ function MembergroupIndex()
  */
 function AddMembergroup()
 {
-	global $txt;
-
 	// A form was submitted, we can start adding.
 	if (isset($_POST['group_name']) && trim($_POST['group_name']) != '')
 	{
@@ -535,14 +530,14 @@ function AddMembergroup()
 	}
 
 	// Just show the 'add membergroup' screen.
-	Utils::$context['page_title'] = $txt['membergroups_new_group'];
+	Utils::$context['page_title'] = Lang::$txt['membergroups_new_group'];
 	Utils::$context['sub_template'] = 'new_group';
 	Utils::$context['post_group'] = isset($_REQUEST['postgroup']);
 	Utils::$context['undefined_group'] = !isset($_REQUEST['postgroup']) && !isset($_REQUEST['generalgroup']);
 	Utils::$context['allow_protected'] = allowedTo('admin_forum');
 
 	if (!empty(Config::$modSettings['deny_boards_access']))
-		loadLanguage('ManagePermissions');
+		Lang::load('ManagePermissions');
 
 	$result = Db::$db->query('', '
 		SELECT id_group, group_name
@@ -649,12 +644,12 @@ function DeleteMembergroup()
  */
 function EditMembergroup()
 {
-	global $txt, $settings;
+	global $settings;
 
 	$_REQUEST['group'] = isset($_REQUEST['group']) && $_REQUEST['group'] > 0 ? (int) $_REQUEST['group'] : 0;
 
 	if (!empty(Config::$modSettings['deny_boards_access']))
-		loadLanguage('ManagePermissions');
+		Lang::load('ManagePermissions');
 
 	// Make sure this group is editable.
 	if (!empty($_REQUEST['group']))
@@ -1219,7 +1214,7 @@ function EditMembergroup()
 	call_integration_hook('integrate_view_membergroup');
 
 	Utils::$context['sub_template'] = 'edit_group';
-	Utils::$context['page_title'] = $txt['membergroups_edit_group'];
+	Utils::$context['page_title'] = Lang::$txt['membergroups_edit_group'];
 
 	createToken('admin-mmg');
 }
@@ -1234,10 +1229,8 @@ function EditMembergroup()
  */
 function ModifyMembergroupsettings()
 {
-	global $txt;
-
 	Utils::$context['sub_template'] = 'show_settings';
-	Utils::$context['page_title'] = $txt['membergroups_settings'];
+	Utils::$context['page_title'] = Lang::$txt['membergroups_settings'];
 
 	// Needed for the settings functions.
 	require_once(Config::$sourcedir . '/ManageServer.php');
@@ -1262,7 +1255,7 @@ function ModifyMembergroupsettings()
 
 	// Some simple context.
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=membergroups;save;sa=settings';
-	Utils::$context['settings_title'] = $txt['membergroups_settings'];
+	Utils::$context['settings_title'] = Lang::$txt['membergroups_settings'];
 
 	// We need this for the in-line permissions
 	createToken('admin-mp');

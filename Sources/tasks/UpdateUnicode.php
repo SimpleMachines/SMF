@@ -14,6 +14,7 @@
 namespace SMF\Tasks;
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\TaskRunner;
 use SMF\DatabaseApi as Db;
 
@@ -411,8 +412,6 @@ class UpdateUnicode extends BackgroundTask
 	 */
 	public function execute()
 	{
-		global $txt;
-
 		/*****************
 		 * Part 1: Setup *
 		 *****************/
@@ -444,8 +443,8 @@ class UpdateUnicode extends BackgroundTask
 
 			if (!is_file($file_paths['final']) || !smf_chmod($file_paths['final']))
 			{
-				loadLanguage('Errors');
-				log_error(sprintf($txt['unicode_update_failed'], $this->unicodedir));
+				Lang::load('Errors');
+				log_error(sprintf(Lang::$txt['unicode_update_failed'], $this->unicodedir));
 				return true;
 			}
 
@@ -456,8 +455,8 @@ class UpdateUnicode extends BackgroundTask
 
 			if (!is_file($file_paths['temp']) || !smf_chmod($file_paths['temp']))
 			{
-				loadLanguage('Errors');
-				log_error(sprintf($txt['unicode_update_failed'], $this->temp_dir));
+				Lang::load('Errors');
+				log_error(sprintf(Lang::$txt['unicode_update_failed'], $this->temp_dir));
 				return true;
 			}
 

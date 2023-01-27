@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -27,7 +28,7 @@ if (!defined('SMF'))
  */
 function Groups()
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	// The sub-actions that we can do. Format "Function Name, Mod Bar Index if appropriate".
 	$subActions = array(
@@ -42,8 +43,8 @@ function Groups()
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'index';
 
 	// Get the template stuff up and running.
-	loadLanguage('ManageMembers');
-	loadLanguage('ModerationCenter');
+	Lang::load('ManageMembers');
+	Lang::load('ModerationCenter');
 	loadTemplate('ManageMembergroups');
 
 	// If we can see the moderation center, and this has a mod bar entry, add the mod center bar.
@@ -60,7 +61,7 @@ function Groups()
 
 		Utils::$context['linktree'][] = array(
 			'url' => Config::$scripturl . '?action=groups',
-			'name' => $txt['groups'],
+			'name' => Lang::$txt['groups'],
 		);
 	}
 
@@ -73,9 +74,7 @@ function Groups()
  */
 function GroupList()
 {
-	global $txt;
-
-	Utils::$context['page_title'] = $txt['viewing_groups'];
+	Utils::$context['page_title'] = Lang::$txt['viewing_groups'];
 
 	// Making a list is not hard with this beauty.
 	require_once(Config::$sourcedir . '/Subs-List.php');
@@ -96,7 +95,7 @@ function GroupList()
 		'columns' => array(
 			'group' => array(
 				'header' => array(
-					'value' => $txt['name'],
+					'value' => Lang::$txt['name'],
 				),
 				'data' => array(
 					'function' => function($rowData)
@@ -134,7 +133,7 @@ function GroupList()
 			),
 			'icons' => array(
 				'header' => array(
-					'value' => $txt['membergroups_icons'],
+					'value' => Lang::$txt['membergroups_icons'],
 				),
 				'data' => array(
 					'db' => 'icons',
@@ -146,24 +145,24 @@ function GroupList()
 			),
 			'moderators' => array(
 				'header' => array(
-					'value' => $txt['moderators'],
+					'value' => Lang::$txt['moderators'],
 				),
 				'data' => array(
-					'function' => function($group) use ($txt)
+					'function' => function($group)
 					{
-						return empty($group['moderators']) ? '<em>' . $txt['membergroups_new_copy_none'] . '</em>' : implode(', ', $group['moderators']);
+						return empty($group['moderators']) ? '<em>' . Lang::$txt['membergroups_new_copy_none'] . '</em>' : implode(', ', $group['moderators']);
 					},
 				),
 			),
 			'members' => array(
 				'header' => array(
-					'value' => $txt['membergroups_members_top'],
+					'value' => Lang::$txt['membergroups_members_top'],
 				),
 				'data' => array(
-					'function' => function($rowData) use ($txt)
+					'function' => function($rowData)
 					{
 						// No explicit members for the moderator group.
-						return $rowData['id_group'] == 3 ? $txt['membergroups_guests_na'] : comma_format($rowData['num_members']);
+						return $rowData['id_group'] == 3 ? Lang::$txt['membergroups_guests_na'] : Lang::numberFormat($rowData['num_members']);
 					},
 					'class' => 'centercol',
 				),
@@ -197,7 +196,7 @@ function GroupList()
  */
 function MembergroupMembers()
 {
-	global $txt, $user_info, $settings;
+	global $user_info, $settings;
 
 	$_REQUEST['group'] = isset($_REQUEST['group']) ? (int) $_REQUEST['group'] : 0;
 
@@ -403,7 +402,7 @@ function MembergroupMembers()
 
 	// Create the page index.
 	Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=' . (Utils::$context['group']['can_moderate'] ? 'moderate;area=viewgroups' : 'groups') . ';sa=members;group=' . $_REQUEST['group'] . ';sort=' . Utils::$context['sort_by'] . (isset($_REQUEST['desc']) ? ';desc' : ''), $_REQUEST['start'], Utils::$context['total_members'], Config::$modSettings['defaultMaxMembers']);
-	Utils::$context['total_members'] = comma_format(Utils::$context['total_members']);
+	Utils::$context['total_members'] = Lang::numberFormat(Utils::$context['total_members']);
 	Utils::$context['start'] = $_REQUEST['start'];
 	Utils::$context['can_moderate_forum'] = allowedTo('moderate_forum');
 
@@ -425,11 +424,11 @@ function MembergroupMembers()
 	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$row['member_ip'] = inet_dtop($row['member_ip']);
-		$last_online = empty($row['last_login']) ? $txt['never'] : timeformat($row['last_login']);
+		$last_online = empty($row['last_login']) ? Lang::$txt['never'] : timeformat($row['last_login']);
 
 		// Italicize the online note if they aren't activated.
 		if ($row['is_activated'] % 10 != 1)
-			$last_online = '<em title="' . $txt['not_activated'] . '">' . $last_online . '</em>';
+			$last_online = '<em title="' . Lang::$txt['not_activated'] . '">' . $last_online . '</em>';
 
 		Utils::$context['members'][] = array(
 			'id' => $row['id_member'],
@@ -438,7 +437,7 @@ function MembergroupMembers()
 			'ip' => '<a href="' . Config::$scripturl . '?action=trackip;searchip=' . $row['member_ip'] . '">' . $row['member_ip'] . '</a>',
 			'registered' => timeformat($row['date_registered']),
 			'last_online' => $last_online,
-			'posts' => comma_format($row['posts']),
+			'posts' => Lang::numberFormat($row['posts']),
 			'is_activated' => $row['is_activated'] % 10 == 1,
 		);
 	}
@@ -446,7 +445,7 @@ function MembergroupMembers()
 
 	// Select the template.
 	Utils::$context['sub_template'] = 'group_members';
-	Utils::$context['page_title'] = $txt['membergroups_members_title'] . ': ' . Utils::$context['group']['name'];
+	Utils::$context['page_title'] = Lang::$txt['membergroups_members_title'] . ': ' . Utils::$context['group']['name'];
 	createToken('mod-mgm');
 
 	if (Utils::$context['group']['assignable'])
@@ -458,10 +457,10 @@ function MembergroupMembers()
  */
 function GroupRequests()
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	// Set up the template stuff...
-	Utils::$context['page_title'] = $txt['mc_group_requests'];
+	Utils::$context['page_title'] = Lang::$txt['mc_group_requests'];
 	Utils::$context['sub_template'] = 'show_list';
 
 	// Verify we can be here.
@@ -573,7 +572,7 @@ function GroupRequests()
 		'id' => 'group_request_list',
 		'width' => '100%',
 		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-		'no_items_label' => $txt['mc_groupr_none_found'],
+		'no_items_label' => Lang::$txt['mc_groupr_none_found'],
 		'base_href' => Config::$scripturl . '?action=groups;sa=requests',
 		'default_sort_col' => 'member',
 		'get_items' => array(
@@ -593,7 +592,7 @@ function GroupRequests()
 		'columns' => array(
 			'member' => array(
 				'header' => array(
-					'value' => $txt['mc_groupr_member'],
+					'value' => Lang::$txt['mc_groupr_member'],
 				),
 				'data' => array(
 					'db' => 'member_link',
@@ -605,7 +604,7 @@ function GroupRequests()
 			),
 			'group' => array(
 				'header' => array(
-					'value' => $txt['mc_groupr_group'],
+					'value' => Lang::$txt['mc_groupr_group'],
 				),
 				'data' => array(
 					'db' => 'group_link',
@@ -617,7 +616,7 @@ function GroupRequests()
 			),
 			'reason' => array(
 				'header' => array(
-					'value' => $txt['mc_groupr_reason'],
+					'value' => Lang::$txt['mc_groupr_reason'],
 				),
 				'data' => array(
 					'db' => 'reason',
@@ -625,7 +624,7 @@ function GroupRequests()
 			),
 			'date' => array(
 				'header' => array(
-					'value' => $txt['date'],
+					'value' => Lang::$txt['date'],
 					'style' => 'width: 18%; white-space:nowrap;',
 				),
 				'data' => array(
@@ -662,14 +661,14 @@ function GroupRequests()
 			array(
 				'position' => 'bottom_of_list',
 				'value' => '
-					<select id="req_action" name="req_action" onchange="if (this.value != 0 &amp;&amp; (this.value == \'reason\' || confirm(\'' . $txt['mc_groupr_warning'] . '\'))) this.form.submit();">
-						<option value="0">' . $txt['with_selected'] . ':</option>
+					<select id="req_action" name="req_action" onchange="if (this.value != 0 &amp;&amp; (this.value == \'reason\' || confirm(\'' . Lang::$txt['mc_groupr_warning'] . '\'))) this.form.submit();">
+						<option value="0">' . Lang::$txt['with_selected'] . ':</option>
 						<option value="0" disabled>---------------------</option>
-						<option value="approve">' . $txt['mc_groupr_approve'] . '</option>
-						<option value="reject">' . $txt['mc_groupr_reject'] . '</option>
-						<option value="reason">' . $txt['mc_groupr_reject_w_reason'] . '</option>
+						<option value="approve">' . Lang::$txt['mc_groupr_approve'] . '</option>
+						<option value="reject">' . Lang::$txt['mc_groupr_reject'] . '</option>
+						<option value="reason">' . Lang::$txt['mc_groupr_reject_w_reason'] . '</option>
 					</select>
-					<input type="submit" name="go" value="' . $txt['go'] . '" onclick="var sel = document.getElementById(\'req_action\'); if (sel.value != 0 &amp;&amp; sel.value != \'reason\' &amp;&amp; !confirm(\'' . $txt['mc_groupr_warning'] . '\')) return false;" class="button">',
+					<input type="submit" name="go" value="' . Lang::$txt['go'] . '" onclick="var sel = document.getElementById(\'req_action\'); if (sel.value != 0 &amp;&amp; sel.value != \'reason\' &amp;&amp; !confirm(\'' . Lang::$txt['mc_groupr_warning'] . '\')) return false;" class="button">',
 				'class' => 'floatright',
 			),
 		),
@@ -688,7 +687,7 @@ function GroupRequests()
 
 	Utils::$context['default_list'] = 'group_request_list';
 	Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = array(
-		'title' => $txt['mc_group_requests'],
+		'title' => Lang::$txt['mc_group_requests'],
 	);
 }
 
@@ -732,8 +731,6 @@ function list_getGroupRequestCount($where, $where_parameters)
  */
 function list_getGroupRequests($start, $items_per_page, $sort, $where, $where_parameters)
 {
-	global $txt;
-
 	$request = Db::$db->query('', '
 		SELECT
 			lgr.id_request, lgr.id_member, lgr.id_group, lgr.time_applied, lgr.reason,
@@ -755,20 +752,20 @@ function list_getGroupRequests($start, $items_per_page, $sort, $where, $where_pa
 	while ($row = Db::$db->fetch_assoc($request))
 	{
 		if (empty($row['reason']))
-			$reason = '<em>(' . $txt['mc_groupr_no_reason'] . ')</em>';
+			$reason = '<em>(' . Lang::$txt['mc_groupr_no_reason'] . ')</em>';
 		else
-			$reason = censorText($row['reason']);
+			$reason = Lang::censorText($row['reason']);
 
 		if (isset($_GET['closed']))
 		{
 			if ($row['status'] == 1)
-				$reason .= '<br><br><strong>' . $txt['mc_groupr_approved'] . '</strong>';
+				$reason .= '<br><br><strong>' . Lang::$txt['mc_groupr_approved'] . '</strong>';
 			elseif ($row['status'] == 2)
-				$reason .= '<br><br><strong>' . $txt['mc_groupr_rejected'] . '</strong>';
+				$reason .= '<br><br><strong>' . Lang::$txt['mc_groupr_rejected'] . '</strong>';
 
 			$reason .= ' (' . timeformat($row['time_acted']) . ')';
 			if (!empty($row['act_reason']))
-				$reason .= '<br><br>' . censorText($row['act_reason']);
+				$reason .= '<br><br>' . Lang::censorText($row['act_reason']);
 		}
 
 		$group_requests[] = array(

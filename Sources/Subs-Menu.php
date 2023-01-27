@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 
 if (!defined('SMF'))
@@ -28,7 +29,7 @@ if (!defined('SMF'))
  */
 function createMenu($menuData, $menuOptions = array())
 {
-	global $settings, $txt, $user_info;
+	global $settings, $user_info;
 
 	/* Note menuData is array of form:
 
@@ -41,7 +42,7 @@ function createMenu($menuData, $menuOptions = array())
 
 			For Areas:
 				array $permission:	Array of permissions to determine who can access this area.
-				string $label:		Optional text string for link (Otherwise $txt[$index] will be used)
+				string $label:		Optional text string for link (Otherwise Lang::$txt[$index] will be used)
 				string $file:		Name of source file required for this area.
 				string $function:	Function to call when area is selected.
 				string $custom_url:	URL to use for this menu item.
@@ -107,7 +108,7 @@ function createMenu($menuData, $menuOptions = array())
 			if ((!isset($area['enabled']) || $area['enabled'] != false) && (empty($area['permission']) || allowedTo($area['permission'])))
 			{
 				// Add it to the context... if it has some form of name!
-				if (isset($area['label']) || (isset($txt[$area_id]) && !isset($area['select'])))
+				if (isset($area['label']) || (isset(Lang::$txt[$area_id]) && !isset($area['select'])))
 				{
 					// If we haven't got an area then the first valid one is our choice.
 					if (!isset($menu_context['current_area']))
@@ -127,7 +128,7 @@ function createMenu($menuData, $menuOptions = array())
 						if (!empty($section['amt']))
 							$menu_context['sections'][$section_id]['amt'] = $section['amt'];
 
-						$menu_context['sections'][$section_id]['areas'][$area_id] = array('label' => isset($area['label']) ? $area['label'] : $txt[$area_id]);
+						$menu_context['sections'][$section_id]['areas'][$area_id] = array('label' => isset($area['label']) ? $area['label'] : Lang::$txt[$area_id]);
 						// We'll need the ID as well...
 						$menu_context['sections'][$section_id]['id'] = $section_id;
 						// Does it have a custom URL?

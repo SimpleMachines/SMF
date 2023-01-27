@@ -15,6 +15,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -28,11 +29,9 @@ if (!defined('SMF'))
  */
 function ManageSmileys()
 {
-	global $txt;
-
 	isAllowedTo('manage_smileys');
 
-	loadLanguage('ManageSmileys');
+	Lang::load('ManageSmileys');
 	loadTemplate('ManageSmileys');
 
 	$subActions = array(
@@ -65,27 +64,27 @@ function ManageSmileys()
 
 	// Load up all the tabs...
 	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
-		'title' => $txt['smileys_manage'],
+		'title' => Lang::$txt['smileys_manage'],
 		'help' => 'smileys',
-		'description' => $txt['smiley_settings_explain'],
+		'description' => Lang::$txt['smiley_settings_explain'],
 		'tabs' => array(
 			'editsets' => array(
-				'description' => $txt['smiley_editsets_explain'],
+				'description' => Lang::$txt['smiley_editsets_explain'],
 			),
 			'addsmiley' => array(
-				'description' => $txt['smiley_addsmiley_explain'],
+				'description' => Lang::$txt['smiley_addsmiley_explain'],
 			),
 			'editsmileys' => array(
-				'description' => $txt['smiley_editsmileys_explain'],
+				'description' => Lang::$txt['smiley_editsmileys_explain'],
 			),
 			'setorder' => array(
-				'description' => $txt['smiley_setorder_explain'],
+				'description' => Lang::$txt['smiley_setorder_explain'],
 			),
 			'editicons' => array(
-				'description' => $txt['icons_edit_icons_explain'],
+				'description' => Lang::$txt['icons_edit_icons_explain'],
 			),
 			'settings' => array(
-				'description' => $txt['smiley_settings_explain'],
+				'description' => Lang::$txt['smiley_settings_explain'],
 			),
 		),
 	);
@@ -105,7 +104,7 @@ function ManageSmileys()
 	// Default the sub-action to 'edit smiley settings'.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'editsets';
 
-	Utils::$context['page_title'] = $txt['smileys_manage'];
+	Utils::$context['page_title'] = Lang::$txt['smileys_manage'];
 
 	Utils::$context['sub_template'] = Utils::$context['sub_action'] = $_REQUEST['sa'];
 
@@ -121,8 +120,6 @@ function ManageSmileys()
  */
 function EditSmileySettings($return_config = false)
 {
-	global $txt;
-
 	// The directories...
 	Utils::$context['smileys_dir'] = empty(Config::$modSettings['smileys_dir']) ? Config::$boarddir . '/Smileys' : Config::$modSettings['smileys_dir'];
 	Utils::$context['smileys_dir_found'] = is_dir(Utils::$context['smileys_dir']);
@@ -144,15 +141,15 @@ function EditSmileySettings($return_config = false)
 
 		array('select', 'smiley_sets_default', $smiley_context),
 		array('check', 'smiley_sets_enable'),
-		array('check', 'smiley_enable', 'subtext' => $txt['smileys_enable_note']),
+		array('check', 'smiley_enable', 'subtext' => Lang::$txt['smileys_enable_note']),
 		array('text', 'smileys_url', 40),
 		array('warning', !is_dir(Utils::$context['smileys_dir']) ? 'setting_smileys_dir_wrong' : ''),
 		array('text', 'smileys_dir', 'invalid' => !Utils::$context['smileys_dir_found'], 40),
 		'',
 
 		// Message icons.
-		array('check', 'messageIcons_enable', 'subtext' => $txt['setting_messageIcons_enable_note']),
-		array('check', 'messageIconChecks_enable', 'subtext' => $txt['setting_messageIconChecks_enable_note'])
+		array('check', 'messageIcons_enable', 'subtext' => Lang::$txt['setting_messageIcons_enable_note']),
+		array('check', 'messageIconChecks_enable', 'subtext' => Lang::$txt['setting_messageIconChecks_enable_note'])
 	);
 
 	call_integration_hook('integrate_modify_smiley_settings', array(&$config_vars));
@@ -200,7 +197,6 @@ function EditSmileySettings($return_config = false)
  */
 function EditSmileySets()
 {
-	global $txt;
 	// Set the right tab to be selected.
 	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'editsets';
 
@@ -415,13 +411,13 @@ function EditSmileySets()
 	if (isset(Utils::$context['current_set']['import_url']))
 	{
 		Utils::$context['current_set']['import_url'] .= ';' . Utils::$context['admin-mss_token_var'] . '=' . Utils::$context['admin-mss_token'];
-		Utils::$context['smiley_set_unused_message'] = sprintf($txt['smiley_set_unused'], Config::$scripturl . '?action=admin;area=smileys;sa=editsmileys', Config::$scripturl . '?action=admin;area=smileys;sa=addsmiley', Utils::$context['current_set']['import_url']);
+		Utils::$context['smiley_set_unused_message'] = sprintf(Lang::$txt['smiley_set_unused'], Config::$scripturl . '?action=admin;area=smileys;sa=editsmileys', Config::$scripturl . '?action=admin;area=smileys;sa=addsmiley', Utils::$context['current_set']['import_url']);
 	}
 
 	$listOptions = array(
 		'id' => 'smiley_set_list',
-		'title' => $txt['smiley_sets'],
-		'no_items_label' => $txt['smiley_sets_none'],
+		'title' => Lang::$txt['smiley_sets'],
+		'no_items_label' => Lang::$txt['smiley_sets_none'],
 		'base_href' => Config::$scripturl . '?action=admin;area=smileys;sa=editsets',
 		'default_sort_col' => 'name',
 		'get_items' => array(
@@ -433,7 +429,7 @@ function EditSmileySets()
 		'columns' => array(
 			'default' => array(
 				'header' => array(
-					'value' => $txt['smiley_sets_default'],
+					'value' => Lang::$txt['smiley_sets_default'],
 					'class' => 'centercol',
 				),
 				'data' => array(
@@ -450,7 +446,7 @@ function EditSmileySets()
 			),
 			'name' => array(
 				'header' => array(
-					'value' => $txt['smiley_sets_name'],
+					'value' => Lang::$txt['smiley_sets_name'],
 				),
 				'data' => array(
 					'db_htmlsafe' => 'name',
@@ -462,7 +458,7 @@ function EditSmileySets()
 			),
 			'url' => array(
 				'header' => array(
-					'value' => $txt['smiley_sets_url'],
+					'value' => Lang::$txt['smiley_sets_url'],
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -479,12 +475,12 @@ function EditSmileySets()
 			),
 			'modify' => array(
 				'header' => array(
-					'value' => $txt['smiley_set_modify'],
+					'value' => Lang::$txt['smiley_set_modify'],
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<a href="' . Config::$scripturl . '?action=admin;area=smileys;sa=modifyset;set=%1$d">' . $txt['smiley_set_modify'] . '</a>',
+						'format' => '<a href="' . Config::$scripturl . '?action=admin;area=smileys;sa=modifyset;set=%1$d">' . Lang::$txt['smiley_set_modify'] . '</a>',
 						'params' => array(
 							'id' => true,
 						),
@@ -513,11 +509,11 @@ function EditSmileySets()
 		'additional_rows' => array(
 			array(
 				'position' => 'above_column_headers',
-				'value' => '<input type="hidden" name="smiley_save"><input type="submit" name="delete" value="' . $txt['smiley_sets_delete'] . '" data-confirm="' . $txt['smiley_sets_confirm'] . '" class="button you_sure"> <a class="button" href="' . Config::$scripturl . '?action=admin;area=smileys;sa=modifyset' . '">' . $txt['smiley_sets_add'] . '</a> ',
+				'value' => '<input type="hidden" name="smiley_save"><input type="submit" name="delete" value="' . Lang::$txt['smiley_sets_delete'] . '" data-confirm="' . Lang::$txt['smiley_sets_confirm'] . '" class="button you_sure"> <a class="button" href="' . Config::$scripturl . '?action=admin;area=smileys;sa=modifyset' . '">' . Lang::$txt['smiley_sets_add'] . '</a> ',
 			),
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="hidden" name="smiley_save"><input type="submit" name="delete" value="' . $txt['smiley_sets_delete'] . '" data-confirm="' . $txt['smiley_sets_confirm'] . '" class="button you_sure"> <a class="button" href="' . Config::$scripturl . '?action=admin;area=smileys;sa=modifyset' . '">' . $txt['smiley_sets_add'] . '</a> ',
+				'value' => '<input type="hidden" name="smiley_save"><input type="submit" name="delete" value="' . Lang::$txt['smiley_sets_delete'] . '" data-confirm="' . Lang::$txt['smiley_sets_confirm'] . '" class="button you_sure"> <a class="button" href="' . Config::$scripturl . '?action=admin;area=smileys;sa=modifyset' . '">' . Lang::$txt['smiley_sets_add'] . '</a> ',
 			),
 		),
 	);
@@ -589,8 +585,6 @@ function list_getNumSmileySets()
  */
 function AddSmiley()
 {
-	global $txt;
-
 	// Get a list of all known smiley sets.
 	Utils::$context['smileys_dir'] = empty(Config::$modSettings['smileys_dir']) ? Config::$boarddir . '/Smileys' : Config::$modSettings['smileys_dir'];
 	Utils::$context['smileys_dir_found'] = is_dir(Utils::$context['smileys_dir']);
@@ -917,7 +911,7 @@ function AddSmiley()
 		'id' => 0,
 		'code' => '',
 		'filename' => Utils::$context['filenames'][Utils::htmlspecialchars(Utils::$context['selected_set'])]['smiley']['id'],
-		'description' => $txt['smileys_default_description'],
+		'description' => Lang::$txt['smileys_default_description'],
 		'location' => 0,
 		'is_new' => true,
 	);
@@ -928,7 +922,6 @@ function AddSmiley()
  */
 function EditSmileys()
 {
-	global $txt;
 	// Force the correct tab to be displayed.
 	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'editsmileys';
 	Utils::$context['smileys_dir'] = empty(Config::$modSettings['smileys_dir']) ? Config::$boarddir . '/Smileys' : Config::$modSettings['smileys_dir'];
@@ -1175,9 +1168,9 @@ function EditSmileys()
 	{
 		// Determine the language specific sort order of smiley locations.
 		$smiley_locations = array(
-			$txt['smileys_location_form'],
-			$txt['smileys_location_hidden'],
-			$txt['smileys_location_popup'],
+			Lang::$txt['smileys_location_form'],
+			Lang::$txt['smileys_location_hidden'],
+			Lang::$txt['smileys_location_popup'],
 		);
 		asort($smiley_locations);
 
@@ -1192,7 +1185,7 @@ function EditSmileys()
 
 		$listOptions = array(
 			'id' => 'smiley_list',
-			'title' => $txt['smileys_edit'],
+			'title' => Lang::$txt['smileys_edit'],
 			'items_per_page' => 40,
 			'base_href' => Config::$scripturl . '?action=admin;area=smileys;sa=editsmileys',
 			'default_sort_col' => 'filename',
@@ -1202,7 +1195,7 @@ function EditSmileys()
 			'get_count' => array(
 				'function' => 'list_getNumSmileys',
 			),
-			'no_items_label' => $txt['smileys_no_entries'],
+			'no_items_label' => Lang::$txt['smileys_no_entries'],
 			'columns' => array(
 				'picture' => array(
 					'data' => array(
@@ -1222,7 +1215,7 @@ function EditSmileys()
 				),
 				'smileys_code' => array(
 					'header' => array(
-						'value' => $txt['smileys_code'],
+						'value' => Lang::$txt['smileys_code'],
 					),
 					'data' => array(
 						'db_htmlsafe' => 'code',
@@ -1234,7 +1227,7 @@ function EditSmileys()
 				),
 				'filename' => array(
 					'header' => array(
-						'value' => $txt['smileys_filename'],
+						'value' => Lang::$txt['smileys_filename'],
 					),
 					'data' => array(
 						'function' => function($rowData)
@@ -1254,17 +1247,17 @@ function EditSmileys()
 				),
 				'location' => array(
 					'header' => array(
-						'value' => $txt['smileys_location'],
+						'value' => Lang::$txt['smileys_location'],
 					),
 					'data' => array(
-						'function' => function($rowData) use ($txt)
+						'function' => function($rowData)
 						{
 							if (empty($rowData['hidden']))
-								return $txt['smileys_location_form'];
+								return Lang::$txt['smileys_location_form'];
 							elseif ($rowData['hidden'] == 1)
-								return $txt['smileys_location_hidden'];
+								return Lang::$txt['smileys_location_hidden'];
 							else
-								return $txt['smileys_location_popup'];
+								return Lang::$txt['smileys_location_popup'];
 						},
 					),
 					'sort' => array(
@@ -1274,10 +1267,10 @@ function EditSmileys()
 				),
 				'description' => array(
 					'header' => array(
-						'value' => $txt['smileys_description'],
+						'value' => Lang::$txt['smileys_description'],
 					),
 					'data' => array(
-						'function' => function($rowData) use ($txt)
+						'function' => function($rowData)
 						{
 							if (empty(Config::$modSettings['smileys_dir']) || !is_dir(Config::$modSettings['smileys_dir']))
 								return Utils::htmlspecialchars($rowData['description']);
@@ -1291,7 +1284,7 @@ function EditSmileys()
 							$description = Utils::htmlspecialchars($rowData['description']);
 
 							if (!empty($missing_sets))
-								$description .= sprintf('<br><span class="smalltext"><strong>%1$s:</strong> %2$s</span>', $txt['smileys_not_found_in_set'], implode(', ', $missing_sets));
+								$description .= sprintf('<br><span class="smalltext"><strong>%1$s:</strong> %2$s</span>', Lang::$txt['smileys_not_found_in_set'], implode(', ', $missing_sets));
 
 							return $description;
 						},
@@ -1303,12 +1296,12 @@ function EditSmileys()
 				),
 				'modify' => array(
 					'header' => array(
-						'value' => $txt['smileys_modify'],
+						'value' => Lang::$txt['smileys_modify'],
 						'class' => 'centercol',
 					),
 					'data' => array(
 						'sprintf' => array(
-							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=smileys;sa=modifysmiley;smiley=%1$d">' . $txt['smileys_modify'] . '</a>',
+							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=smileys;sa=modifysmiley;smiley=%1$d">' . Lang::$txt['smileys_modify'] . '</a>',
 							'params' => array(
 								'id_smiley' => false,
 							),
@@ -1346,15 +1339,15 @@ function EditSmileys()
 					'position' => 'below_table_data',
 					'value' => '
 						<select name="smiley_action" onchange="makeChanges(this.value);">
-							<option value="-1">' . $txt['smileys_with_selected'] . ':</option>
+							<option value="-1">' . Lang::$txt['smileys_with_selected'] . ':</option>
 							<option value="-1" disabled>--------------</option>
-							<option value="hidden">' . $txt['smileys_make_hidden'] . '</option>
-							<option value="post">' . $txt['smileys_show_on_post'] . '</option>
-							<option value="popup">' . $txt['smileys_show_on_popup'] . '</option>
-							<option value="delete">' . $txt['smileys_remove'] . '</option>
+							<option value="hidden">' . Lang::$txt['smileys_make_hidden'] . '</option>
+							<option value="post">' . Lang::$txt['smileys_show_on_post'] . '</option>
+							<option value="popup">' . Lang::$txt['smileys_show_on_popup'] . '</option>
+							<option value="delete">' . Lang::$txt['smileys_remove'] . '</option>
 						</select>
 						<noscript>
-							<input type="submit" name="perform_action" value="' . $txt['go'] . '" class="button">
+							<input type="submit" name="perform_action" value="' . Lang::$txt['go'] . '" class="button">
 						</noscript>',
 					'class' => 'righttext',
 				),
@@ -1366,7 +1359,7 @@ function EditSmileys()
 						return false;
 					else if (action == \'delete\')
 					{
-						if (confirm(\'' . $txt['smileys_confirm'] . '\'))
+						if (confirm(\'' . Lang::$txt['smileys_confirm'] . '\'))
 							document.forms.smileyForm.submit();
 					}
 					else
@@ -1525,8 +1518,6 @@ function list_getNumSmileys()
  */
 function EditSmileyOrder()
 {
-	global $txt;
-
 	// Move smileys to another position.
 	if (isset($_REQUEST['reorder']))
 	{
@@ -1639,8 +1630,8 @@ function EditSmileyOrder()
 	foreach (array_keys(Utils::$context['smileys']) as $location)
 		Utils::$context['smileys'][$location] = array(
 			'id' => $location,
-			'title' => $location == 'postform' ? $txt['smileys_location_form'] : $txt['smileys_location_popup'],
-			'description' => $location == 'postform' ? $txt['smileys_location_form_description'] : $txt['smileys_location_popup_description'],
+			'title' => $location == 'postform' ? Lang::$txt['smileys_location_form'] : Lang::$txt['smileys_location_popup'],
+			'description' => $location == 'postform' ? Lang::$txt['smileys_location_form_description'] : Lang::$txt['smileys_location_popup_description'],
 			'last_row' => count(Utils::$context['smileys'][$location]['rows']),
 			'rows' => array_values(Utils::$context['smileys'][$location]['rows']),
 		);
@@ -1694,13 +1685,13 @@ function EditSmileyOrder()
  */
 function InstallSmileySet()
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	isAllowedTo('manage_smileys');
 	checkSession('request');
 	// One of these two may be necessary
-	loadLanguage('Errors');
-	loadLanguage('Packages');
+	Lang::load('Errors');
+	Lang::load('Packages');
 
 	// Installing unless proven otherwise
 	$testing = false;
@@ -1827,7 +1818,7 @@ function InstallSmileySet()
 		{
 			// Do this one...
 			$thisAction = array(
-				'type' => $txt['package_extract'] . ' ' . ($action['type'] == 'require-dir' ? $txt['package_tree'] : $txt['package_file']),
+				'type' => Lang::$txt['package_extract'] . ' ' . ($action['type'] == 'require-dir' ? Lang::$txt['package_tree'] : Lang::$txt['package_file']),
 				'action' => Utils::htmlspecialchars(strtr($action['destination'], array(Config::$boarddir => '.')))
 			);
 
@@ -1837,7 +1828,7 @@ function InstallSmileySet()
 				Utils::$context['has_failure'] = true;
 
 				$thisAction += array(
-					'description' => $txt['package_action_error'],
+					'description' => Lang::$txt['package_action_error'],
 					'failed' => true,
 				);
 			}
@@ -2165,7 +2156,7 @@ function ImportSmileys($smileyPath, $create = false)
  */
 function EditMessageIcons()
 {
-	global $settings, $txt;
+	global $settings;
 	// Get a list of icons.
 	Utils::$context['icons'] = array();
 	$request = Db::$db->query('', '
@@ -2187,7 +2178,7 @@ function EditMessageIcons()
 			'filename' => $row['filename'],
 			'image_url' => $settings[file_exists($settings['theme_dir'] . '/images/post/' . $row['filename'] . '.png') ? 'actual_images_url' : 'default_images_url'] . '/post/' . $row['filename'] . '.png',
 			'board_id' => $row['id_board'],
-			'board' => empty($row['board_name']) ? $txt['icons_edit_icons_all_boards'] : $row['board_name'],
+			'board' => empty($row['board_name']) ? Lang::$txt['icons_edit_icons_all_boards'] : $row['board_name'],
 			'order' => $row['icon_order'],
 			'true_order' => $trueOrder++,
 			'after' => $last_icon,
@@ -2306,12 +2297,12 @@ function EditMessageIcons()
 
 	$listOptions = array(
 		'id' => 'message_icon_list',
-		'title' => $txt['icons_edit_message_icons'],
+		'title' => Lang::$txt['icons_edit_message_icons'],
 		'base_href' => Config::$scripturl . '?action=admin;area=smileys;sa=editicons',
 		'get_items' => array(
 			'function' => 'list_getMessageIcons',
 		),
-		'no_items_label' => $txt['icons_no_entries'],
+		'no_items_label' => Lang::$txt['icons_no_entries'],
 		'columns' => array(
 			'icon' => array(
 				'data' => array(
@@ -2325,7 +2316,7 @@ function EditMessageIcons()
 			),
 			'filename' => array(
 				'header' => array(
-					'value' => $txt['smileys_filename'],
+					'value' => Lang::$txt['smileys_filename'],
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -2338,7 +2329,7 @@ function EditMessageIcons()
 			),
 			'description' => array(
 				'header' => array(
-					'value' => $txt['smileys_description'],
+					'value' => Lang::$txt['smileys_description'],
 				),
 				'data' => array(
 					'db_htmlsafe' => 'title',
@@ -2346,23 +2337,23 @@ function EditMessageIcons()
 			),
 			'board' => array(
 				'header' => array(
-					'value' => $txt['icons_board'],
+					'value' => Lang::$txt['icons_board'],
 				),
 				'data' => array(
-					'function' => function($rowData) use ($txt)
+					'function' => function($rowData)
 					{
-						return empty($rowData['board_name']) ? $txt['icons_edit_icons_all_boards'] : $rowData['board_name'];
+						return empty($rowData['board_name']) ? Lang::$txt['icons_edit_icons_all_boards'] : $rowData['board_name'];
 					},
 				),
 			),
 			'modify' => array(
 				'header' => array(
-					'value' => $txt['smileys_modify'],
+					'value' => Lang::$txt['smileys_modify'],
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<a href="' . Config::$scripturl . '?action=admin;area=smileys;sa=editicon;icon=%1$s">' . $txt['smileys_modify'] . '</a>',
+						'format' => '<a href="' . Config::$scripturl . '?action=admin;area=smileys;sa=editicon;icon=%1$s">' . Lang::$txt['smileys_modify'] . '</a>',
 						'params' => array(
 							'id_icon' => false,
 						),
@@ -2392,7 +2383,7 @@ function EditMessageIcons()
 		'additional_rows' => array(
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" class="button"> <a class="button" href="' . Config::$scripturl . '?action=admin;area=smileys;sa=editicon">' . $txt['icons_add_new'] . '</a>',
+				'value' => '<input type="submit" name="delete" value="' . Lang::$txt['quickmod_delete_selected'] . '" class="button"> <a class="button" href="' . Config::$scripturl . '?action=admin;area=smileys;sa=editicon">' . Lang::$txt['icons_add_new'] . '</a>',
 			),
 		),
 	);

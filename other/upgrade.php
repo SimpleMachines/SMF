@@ -12,6 +12,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -100,8 +101,6 @@ $disable_security = false;
  * @var int
  */
 $upcontext['inactive_timeout'] = 10;
-
-global $txt;
 
 // All the steps in detail.
 // Number,Name,Function,Progress Weight.
@@ -327,7 +326,7 @@ else
 load_lang_file();
 
 // Default title...
-$upcontext['page_title'] = $txt['updating_smf_installation'];
+$upcontext['page_title'] = Lang::$txt['updating_smf_installation'];
 
 // If this isn't the first stage see whether they are logging in and resuming.
 if ($upcontext['current_step'] != 0 || !empty($upcontext['user']['step']))
@@ -379,7 +378,7 @@ upgradeExit();
 // Exit the upgrade script.
 function upgradeExit($fallThrough = false)
 {
-	global $upcontext, $upgradeurl, $command_line, $is_debug, $txt;
+	global $upcontext, $upgradeurl, $command_line, $is_debug;
 
 	// Save where we are...
 	if (!empty($upcontext['current_step']) && !empty($upcontext['user']['id']))
@@ -411,7 +410,7 @@ function upgradeExit($fallThrough = false)
 			if (function_exists('debug_print_backtrace'))
 				debug_print_backtrace();
 
-			printf("\n" . $txt['error_unexpected_template_call'], isset($upcontext['sub_template']) ? $upcontext['sub_template'] : '');
+			printf("\n" . Lang::$txt['error_unexpected_template_call'], isset($upcontext['sub_template']) ? $upcontext['sub_template'] : '');
 			flush();
 			die();
 		}
@@ -447,7 +446,7 @@ function upgradeExit($fallThrough = false)
 			if (is_callable('template_' . $upcontext['sub_template']))
 				call_user_func('template_' . $upcontext['sub_template']);
 			else
-				die(sprintf($txt['error_invalid_template'], $upcontext['sub_template']));
+				die(sprintf(Lang::$txt['error_invalid_template'], $upcontext['sub_template']));
 		}
 
 		// Was there an error?
@@ -470,11 +469,11 @@ function upgradeExit($fallThrough = false)
 		$seconds = intval($active % 60);
 
 		if ($hours > 0)
-			echo "\n" . '', sprintf($txt['upgrade_completed_time_hms'], $hours, $minutes, $seconds), '' . "\n";
+			echo "\n" . '', sprintf(Lang::$txt['upgrade_completed_time_hms'], $hours, $minutes, $seconds), '' . "\n";
 		elseif ($minutes > 0)
-			echo "\n" . '', sprintf($txt['upgrade_completed_time_ms'], $minutes, $seconds), '' . "\n";
+			echo "\n" . '', sprintf(Lang::$txt['upgrade_completed_time_ms'], $minutes, $seconds), '' . "\n";
 		elseif ($seconds > 0)
-			echo "\n" . '', sprintf($txt['upgrade_completed_time_s'], $seconds), '' . "\n";
+			echo "\n" . '', sprintf(Lang::$txt['upgrade_completed_time_s'], $seconds), '' . "\n";
 	}
 
 	// Bang - gone!
@@ -527,7 +526,7 @@ function findSettingsFile()
 // Load the list of language files, and the current language file.
 function load_lang_file()
 {
-	global $txt, $upcontext, $upgrade_path, $command_line;
+	global $upcontext, $upgrade_path, $command_line;
 
 	static $lang_dir = '', $detected_languages = array(), $loaded_langfile = '';
 
@@ -575,11 +574,11 @@ function load_lang_file()
 		elseif (!isset(Config::$modSettings['theme_dir']))
 		{
 			// Define a few essential strings for now.
-			$txt['error_db_connect_settings'] = 'Cannot connect to the database server.<br><br>Please check that the database info variables are correct in Settings.php.';
-			$txt['error_sourcefile_missing'] = 'Unable to find the Sources/%1$s file. Please make sure it was uploaded properly, and then try again.';
+			Lang::$txt['error_db_connect_settings'] = 'Cannot connect to the database server.<br><br>Please check that the database info variables are correct in Settings.php.';
+			Lang::$txt['error_sourcefile_missing'] = 'Unable to find the Sources/%1$s file. Please make sure it was uploaded properly, and then try again.';
 
-			$txt['warning_lang_old'] = 'The language files for your selected language, %1$s, have not been updated to the latest version. Upgrade will continue with the forum default, %2$s.';
-			$txt['warning_lang_missing'] = 'The upgrader could not find the &quot;Install&quot; language file for your selected language, %1$s. Upgrade will continue with the forum default, %2$s.';
+			Lang::$txt['warning_lang_old'] = 'The language files for your selected language, %1$s, have not been updated to the latest version. Upgrade will continue with the forum default, %2$s.';
+			Lang::$txt['warning_lang_missing'] = 'The upgrader could not find the &quot;Install&quot; language file for your selected language, %1$s. Upgrade will continue with the forum default, %2$s.';
 
 			return;
 		}
@@ -667,16 +666,11 @@ function load_lang_file()
 			list (, $_SESSION['upgrader_langfile']) = array_keys($detected_languages);
 	}
 
-	// For backup we load English at first, then the second language will overwrite it.
-	if ($_SESSION['upgrader_langfile'] != 'Install.english.php')
-	{
-		require_once($lang_dir . '/index.english.php');
-		require_once($lang_dir . '/Install.english.php');
-	}
+	// Ensure SMF\Lang knows the path to the language directory.
+	Lang::addDirs($lang_dir);
 
-	// And now include the actual language file itself.
-	require_once($lang_dir . '/' . str_replace('Install.', 'index.', $_SESSION['upgrader_langfile']));
-	require_once($lang_dir . '/' . $_SESSION['upgrader_langfile']);
+	// And now load the language files.
+	Lang::load('index+Install', preg_replace('~^Install\.|\.php$~', '', $_SESSION['upgrader_langfile']));
 
 	// Remember what we've done
 	$loaded_langfile = $lang_dir . '/' . $_SESSION['upgrader_langfile'];
@@ -708,7 +702,7 @@ function redirectLocation($location, $addForm = true)
 // Load all essential data and connect to the DB as this is pre SSI.php
 function loadEssentialData()
 {
-	global $txt, $utf8;
+	global $utf8;
 
 	// Report all errors if admin wants them or this is a pre-release version.
 	if (!empty(Config::$db_show_debug) || strspn(SMF_VERSION, '1234567890.') !== strlen(SMF_VERSION))
@@ -738,7 +732,7 @@ function loadEssentialData()
 	// Initialize everything...
 	initialize_inputs();
 
-	$utf8 = (empty(Config::$modSettings['global_character_set']) ? $txt['lang_character_set'] : Config::$modSettings['global_character_set']) === 'UTF-8';
+	$utf8 = (empty(Config::$modSettings['global_character_set']) ? Lang::$txt['lang_character_set'] : Config::$modSettings['global_character_set']) === 'UTF-8';
 
 	// Get the database going!
 	if (empty(Config::$db_type) || Config::$db_type == 'mysqli')
@@ -775,7 +769,7 @@ function loadEssentialData()
 				$error_number = '';
 			$db_error = (!empty($error_number) ? $error_number . ': ' : '') . $error_message;
 
-			die($txt['error_db_connect_settings'] . '<br><br>' . $db_error);
+			die(Lang::$txt['error_db_connect_settings'] . '<br><br>' . $db_error);
 		}
 
 		if (Config::$db_type == 'mysql' && isset(Config::$db_character_set) && preg_match('~^\w+$~', Config::$db_character_set) === 1)
@@ -801,7 +795,7 @@ function loadEssentialData()
 		Db::$db->free_result($request);
 	}
 	else
-		return throw_error(sprintf($txt['error_sourcefile_missing'], 'Db/APIs/' . Config::$db_type . '.php'));
+		return throw_error(sprintf(Lang::$txt['error_sourcefile_missing'], 'Db/APIs/' . Config::$db_type . '.php'));
 
 	// If they don't have the file, they're going to get a warning anyway so we won't need to clean request vars.
 	if (file_exists(Config::$sourcedir . '/QueryString.php') && php_version_check())
@@ -888,9 +882,6 @@ function WelcomeLogin()
 	global $upgradeurl, $upcontext;
 	global $databases, $upgrade_path;
 
-	// We global $txt here so that the language files can add to them. This variable is NOT unused.
-	global $txt;
-
 	$upcontext['sub_template'] = 'welcome_message';
 
 	// Check for some key files - one template, one language, and a new and an old source file.
@@ -912,14 +903,14 @@ function WelcomeLogin()
 
 	if (!$check)
 		// Don't tell them what files exactly because it's a spot check - just like teachers don't tell which problems they are spot checking, that's dumb.
-		return throw_error($txt['error_upgrade_files_missing']);
+		return throw_error(Lang::$txt['error_upgrade_files_missing']);
 
 	// Do they meet the install requirements?
 	if (!php_version_check())
-		return throw_error($txt['error_php_too_low']);
+		return throw_error(Lang::$txt['error_php_too_low']);
 
 	if (!db_version_check())
-		return throw_error(sprintf($txt['error_db_too_low'], $databases[Config::$db_type]['name']));
+		return throw_error(sprintf(Lang::$txt['error_db_too_low'], $databases[Config::$db_type]['name']));
 
 	// CREATE
 	$create = Db::$db->create_table('{db_prefix}priv_check', array(array('name' => 'id_test', 'type' => 'int', 'size' => 10, 'unsigned' => true, 'auto' => true)), array(array('columns' => array('id_test'), 'type' => 'primary')), array(), 'overwrite');
@@ -932,13 +923,13 @@ function WelcomeLogin()
 
 	// Sorry... we need CREATE, ALTER and DROP
 	if (!$create || !$alter || !$drop)
-		return throw_error(sprintf($txt['error_db_privileges'], $databases[Config::$db_type]['name']));
+		return throw_error(sprintf(Lang::$txt['error_db_privileges'], $databases[Config::$db_type]['name']));
 
 	// Do a quick version spot check.
 	$temp = substr(@implode('', @file(Config::$boarddir . '/index.php')), 0, 4096);
 	preg_match('~\*\s@version\s+(.+)[\s]{2}~i', $temp, $match);
 	if (empty($match[1]) || (trim($match[1]) != SMF_VERSION))
-		return throw_error($txt['error_upgrade_old_files']);
+		return throw_error(Lang::$txt['error_upgrade_old_files']);
 
 	// What absolutely needs to be writable?
 	$writable_files = array(
@@ -965,7 +956,7 @@ function WelcomeLogin()
 
 	// Are we good now?
 	if (!is_writable($custom_av_dir))
-		return throw_error(sprintf($txt['error_dir_not_writable'], $custom_av_dir));
+		return throw_error(sprintf(Lang::$txt['error_dir_not_writable'], $custom_av_dir));
 	elseif ($need_settings_update)
 	{
 		if (!function_exists('cache_put_data'))
@@ -983,19 +974,19 @@ function WelcomeLogin()
 		@mkdir($cachedir_temp);
 
 	if (!file_exists($cachedir_temp))
-		return throw_error($txt['error_cache_not_found']);
+		return throw_error(Lang::$txt['error_cache_not_found']);
 
 	quickFileWritable($cachedir_temp . '/db_last_error.php');
 
 	if (!file_exists(Config::$modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php'))
-		return throw_error(sprintf($txt['error_lang_index_missing'], $upcontext['language'], $upgradeurl));
+		return throw_error(sprintf(Lang::$txt['error_lang_index_missing'], $upcontext['language'], $upgradeurl));
 	elseif (!isset($_GET['skiplang']))
 	{
 		$temp = substr(@implode('', @file(Config::$modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php')), 0, 4096);
 		preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*index(?:[\s]{2}|\*/)~i', $temp, $match);
 
 		if (empty($match[1]) || $match[1] != SMF_LANG_VERSION)
-			return throw_error(sprintf($txt['error_upgrade_old_lang_files'], $upcontext['language'], $upgradeurl));
+			return throw_error(sprintf(Lang::$txt['error_upgrade_old_lang_files'], $upcontext['language'], $upgradeurl));
 	}
 
 	if (!makeFilesWritable($writable_files))
@@ -1003,7 +994,7 @@ function WelcomeLogin()
 
 	// Check agreement.txt. (it may not exist, in which case $boarddir must be writable.)
 	if (isset(Config::$modSettings['agreement']) && (!is_writable(Config::$boarddir) || file_exists(Config::$boarddir . '/agreement.txt')) && !is_writable(Config::$boarddir . '/agreement.txt'))
-		return throw_error($txt['error_agreement_not_writable']);
+		return throw_error(Lang::$txt['error_agreement_not_writable']);
 
 	// Upgrade the agreement.
 	elseif (isset(Config::$modSettings['agreement']))
@@ -1016,26 +1007,26 @@ function WelcomeLogin()
 	// We're going to check that their board dir setting is right in case they've been moving stuff around.
 	if (strtr(Config::$boarddir, array('/' => '', '\\' => '')) != strtr($upgrade_path, array('/' => '', '\\' => '')))
 		$upcontext['warning'] = '
-			' . sprintf($txt['upgrade_forumdir_settings'], Config::$boarddir, $upgrade_path) . '<br>
+			' . sprintf(Lang::$txt['upgrade_forumdir_settings'], Config::$boarddir, $upgrade_path) . '<br>
 			<ul>
-				<li>' . $txt['upgrade_forumdir'] . '  ' . Config::$boarddir . '</li>
-				<li>' . $txt['upgrade_sourcedir'] . '  ' . Config::$boarddir . '</li>
-				<li>' . $txt['upgrade_cachedir'] . '  ' . $cachedir_temp . '</li>
+				<li>' . Lang::$txt['upgrade_forumdir'] . '  ' . Config::$boarddir . '</li>
+				<li>' . Lang::$txt['upgrade_sourcedir'] . '  ' . Config::$boarddir . '</li>
+				<li>' . Lang::$txt['upgrade_cachedir'] . '  ' . $cachedir_temp . '</li>
 			</ul>
-			' . $txt['upgrade_incorrect_settings'] . '';
+			' . Lang::$txt['upgrade_incorrect_settings'] . '';
 
 	// Confirm mbstring is loaded...
 	if (!extension_loaded('mbstring'))
-		return throw_error($txt['install_no_mbstring']);
+		return throw_error(Lang::$txt['install_no_mbstring']);
 
 	// Confirm fileinfo is loaded...
 	if (!extension_loaded('fileinfo'))
-		return throw_error($txt['install_no_fileinfo']);
+		return throw_error(Lang::$txt['install_no_fileinfo']);
 
 	// Check for https stream support.
 	$supported_streams = stream_get_wrappers();
 	if (!in_array('https', $supported_streams))
-		$upcontext['custom_warning'] = $txt['install_no_https'];
+		$upcontext['custom_warning'] = Lang::$txt['install_no_https'];
 
 	// Make sure attachment & avatar folders exist.  Big problem if folks move or restructure sites upon upgrade.
 	checkFolders();
@@ -1053,22 +1044,22 @@ function WelcomeLogin()
 // Display a warning if issues found.  Does not force a hard stop.
 function checkFolders()
 {
-	global $upcontext, $txt, $command_line;
+	global $upcontext, $command_line;
 
 	$warnings = '';
 
 	// First, check the avatar directory...
 	// Note it wasn't specified in yabbse, but there was no smfVersion either.
 	if (!empty(Config::$modSettings['smfVersion']) && !is_dir(Config::$modSettings['avatar_directory']))
-		$warnings .= $txt['warning_av_missing'];
+		$warnings .= Lang::$txt['warning_av_missing'];
 
 	// Next, check the custom avatar directory...  Note this is optional in 2.0.
 	if (!empty(Config::$modSettings['custom_avatar_dir']) && !is_dir(Config::$modSettings['custom_avatar_dir']))
 	{
 		if (empty($warnings))
-			$warnings = $txt['warning_custom_av_missing'];
+			$warnings = Lang::$txt['warning_custom_av_missing'];
 		else
-			$warnings .= '<br><br>' . $txt['warning_custom_av_missing'];
+			$warnings .= '<br><br>' . Lang::$txt['warning_custom_av_missing'];
 	}
 
 	// Finally, attachment folders.
@@ -1153,9 +1144,9 @@ function checkFolders()
 	if ($attdr_problem_found)
 	{
 		if (empty($warnings))
-			$warnings = $txt['warning_att_dir_missing'];
+			$warnings = Lang::$txt['warning_att_dir_missing'];
 		else
-			$warnings .= '<br><br>' . $txt['warning_att_dir_missing'];
+			$warnings .= '<br><br>' . Lang::$txt['warning_att_dir_missing'];
 	}
 
 	// Might be using CLI
@@ -1185,7 +1176,7 @@ function checkFolders()
 function checkLogin()
 {
 	global $upcontext, $disable_security;
-	global $support_js, $txt;
+	global $support_js;
 
 	// Are we trying to login?
 	if (isset($_POST['contbutt']) && (!empty($_POST['user']) || $disable_security))
@@ -1307,7 +1298,7 @@ function checkLogin()
 						)
 					);
 					if (Db::$db->num_rows($request) == 0)
-						return throw_error($txt['error_not_admin']);
+						return throw_error(Lang::$txt['error_not_admin']);
 					Db::$db->free_result($request);
 				}
 
@@ -1335,9 +1326,9 @@ function checkLogin()
 				preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*index(?:[\s]{2}|\*/)~i', $temp, $match);
 
 				if (empty($match[1]) || $match[1] != SMF_LANG_VERSION)
-					$upcontext['upgrade_options_warning'] = sprintf($txt['warning_lang_old'], $user_language, $upcontext['language']);
+					$upcontext['upgrade_options_warning'] = sprintf(Lang::$txt['warning_lang_old'], $user_language, $upcontext['language']);
 				elseif (!file_exists(Config::$modSettings['theme_dir'] . '/languages/Install.' . $user_language . '.php'))
-					$upcontext['upgrade_options_warning'] = sprintf($txt['warning_lang_missing'], $user_language, $upcontext['language']);
+					$upcontext['upgrade_options_warning'] = sprintf(Lang::$txt['warning_lang_missing'], $user_language, $upcontext['language']);
 				else
 				{
 					// Set this as the new language.
@@ -1366,11 +1357,11 @@ function checkLogin()
 // Step 1: Do the maintenance and backup.
 function UpgradeOptions()
 {
-	global $command_line, $is_debug, $txt;
+	global $command_line, $is_debug;
 	global $upcontext;
 
 	$upcontext['sub_template'] = 'upgrade_options';
-	$upcontext['page_title'] = $txt['upgrade_options'];
+	$upcontext['page_title'] = Lang::$txt['upgrade_options'];
 
 	$upcontext['karma_installed'] = array('good' => false, 'bad' => false);
 	$member_columns = Db::$db->list_columns('{db_prefix}members');
@@ -1492,8 +1483,8 @@ function UpgradeOptions()
 		}
 		else
 		{
-			$changes['mtitle'] = $txt['mtitle'];
-			$changes['mmessage'] = $txt['mmessage'];
+			$changes['mtitle'] = Lang::$txt['mtitle'];
+			$changes['mmessage'] = Lang::$txt['mmessage'];
 		}
 	}
 
@@ -1588,10 +1579,10 @@ function UpgradeOptions()
 // Backup the database - why not...
 function BackupDatabase()
 {
-	global $upcontext, $command_line, $support_js, $file_steps, $txt;
+	global $upcontext, $command_line, $support_js, $file_steps;
 
 	$upcontext['sub_template'] = isset($_GET['xml']) ? 'backup_xml' : 'backup_database';
-	$upcontext['page_title'] = $txt['backup_database'];
+	$upcontext['page_title'] = Lang::$txt['backup_database'];
 
 	// Done it already - js wise?
 	if (!empty($_POST['backup_done']))
@@ -1683,7 +1674,6 @@ function backupTable($table)
 // Step 2: Everything.
 function DatabaseChanges()
 {
-	global $txt;
 	global $upcontext, $support_js;
 
 	// Have we just completed this?
@@ -1691,7 +1681,7 @@ function DatabaseChanges()
 		return true;
 
 	$upcontext['sub_template'] = isset($_GET['xml']) ? 'database_xml' : 'database_changes';
-	$upcontext['page_title'] = $txt['database_changes'];
+	$upcontext['page_title'] = Lang::$txt['database_changes'];
 
 	$upcontext['delete_karma'] = !empty($_SESSION['delete_karma']);
 	$upcontext['empty_error'] = !empty($_SESSION['empty_error']);
@@ -1848,14 +1838,14 @@ function setSqlMode($strict = true)
 function DeleteUpgrade()
 {
 	global $command_line, $upcontext;
-	global $user_info, $txt, $settings;
+	global $user_info, $settings;
 
 	// Now it's nice to have some of the basic SMF source files.
 	if (!isset($_GET['ssi']) && !$command_line)
 		redirectLocation('&ssi=1');
 
 	$upcontext['sub_template'] = 'upgrade_complete';
-	$upcontext['page_title'] = $txt['upgrade_complete'];
+	$upcontext['page_title'] = Lang::$txt['upgrade_complete'];
 
 	$endl = $command_line ? "\n" : '<br>' . "\n";
 
@@ -2282,7 +2272,7 @@ function parse_sql($filename)
 				}
 
 				// @todo Update this to a try/catch for PHP 7+, because eval() now throws an exception for parse errors instead of returning false
-				if (eval('use SMF\Config; use SMF\Utils; use SMF\Db\DatabaseApi as Db; global $db_prefix, $modSettings, $smcFunc, $txt, $upcontext, $db_name; ' . $current_data) === false)
+				if (eval('use SMF\Config; use SMF\Utils; use SMF\Lang; use SMF\Db\DatabaseApi as Db; global $db_prefix, $modSettings, $smcFunc, $txt, $upcontext, $db_name; ' . $current_data) === false)
 				{
 					$upcontext['error_message'] = 'Error in upgrade script ' . basename($filename) . ' on line ' . $line_number . '!' . $endl;
 					if ($command_line)
@@ -2362,7 +2352,6 @@ function parse_sql($filename)
 function upgrade_query($string, $unbuffered = false)
 {
 	global $command_line, $upcontext, $upgradeurl;
-	global $txt;
 
 	// Get the query result - working around some SMF specific security - just this once!
 	Config::$modSettings['disableQueryCheck'] = true;
@@ -2470,18 +2459,18 @@ function upgrade_query($string, $unbuffered = false)
 
 	// Otherwise we have to display this somewhere appropriate if possible.
 	$upcontext['forced_error_message'] = '
-			<strong>' . $txt['upgrade_unsuccessful'] . '</strong><br>
+			<strong>' . Lang::$txt['upgrade_unsuccessful'] . '</strong><br>
 
 			<div style="margin: 2ex;">
-				' . $txt['upgrade_thisquery'] . '
+				' . Lang::$txt['upgrade_thisquery'] . '
 				<blockquote><pre>' . nl2br(htmlspecialchars(trim($string))) . ';</pre></blockquote>
 
-				' . $txt['upgrade_causerror'] . '
+				' . Lang::$txt['upgrade_causerror'] . '
 				<blockquote>' . nl2br(htmlspecialchars($db_error_message)) . '</blockquote>
 			</div>
 
 			<form action="' . $upgradeurl . $query_string . '" method="post">
-				<input type="submit" value="' . $txt['upgrade_respondtime_clickhere'] . '" class="button">
+				<input type="submit" value="' . Lang::$txt['upgrade_respondtime_clickhere'] . '" class="button">
 			</form>
 		</div>';
 
@@ -2726,7 +2715,7 @@ function nextSubstep($substep)
 function cmdStep0()
 {
 	global $start_time, $databases, $upcontext;
-	global $is_debug, $txt;
+	global $is_debug;
 	$start_time = time();
 
 	while (ob_get_level() > 0)
@@ -2870,7 +2859,7 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 
 	// Are we good now?
 	if (!is_writable($custom_av_dir))
-		print_error(sprintf($txt['error_dir_not_writable'], $custom_av_dir));
+		print_error(sprintf(Lang::$txt['error_dir_not_writable'], $custom_av_dir));
 	elseif ($need_settings_update)
 	{
 		if (!function_exists('cache_put_data'))
@@ -2894,7 +2883,7 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 function ConvertUtf8()
 {
 	global $upcontext;
-	global $command_line, $support_js, $txt;
+	global $command_line, $support_js;
 
 	// Done it already?
 	if (!empty($_POST['utf8_done']))
@@ -2921,7 +2910,7 @@ function ConvertUtf8()
 	}
 	else
 	{
-		$upcontext['page_title'] = $txt['converting_utf8'];
+		$upcontext['page_title'] = Lang::$txt['converting_utf8'];
 		$upcontext['sub_template'] = isset($_GET['xml']) ? 'convert_xml' : 'convert_utf8';
 
 		// The character sets used in SMF's language files with their db equivalent.
@@ -3405,7 +3394,7 @@ function ConvertUtf8()
 
 		if ($upcontext['dropping_index'] && $command_line)
 		{
-			echo "\n" . '', $txt['upgrade_fulltext_error'], '';
+			echo "\n" . '', Lang::$txt['upgrade_fulltext_error'], '';
 			flush();
 		}
 	}
@@ -3470,7 +3459,7 @@ function upgrade_unserialize($string)
 
 function serialize_to_json()
 {
-	global $command_line, $upcontext, $support_js, $txt;
+	global $command_line, $upcontext, $support_js;
 
 	$upcontext['sub_template'] = isset($_GET['xml']) ? 'serialize_json_xml' : 'serialize_json';
 	// First thing's first - did we already do this?
@@ -3517,7 +3506,7 @@ function serialize_to_json()
 	// Because we're not using numeric indices, we need this to figure out the current table name...
 	$keys = array_keys($tables);
 
-	$upcontext['page_title'] = $txt['converting_json'];
+	$upcontext['page_title'] = Lang::$txt['converting_json'];
 	$upcontext['table_count'] = count($keys);
 	$upcontext['cur_table_num'] = $_GET['substep'];
 	$upcontext['cur_table_name'] = isset($keys[$_GET['substep']]) ? $keys[$_GET['substep']] : $keys[0];
@@ -3758,7 +3747,7 @@ function serialize_to_json()
 // This is what is displayed if there's any chmod to be done. If not it returns nothing...
 function template_chmod()
 {
-	global $upcontext, $txt, $settings;
+	global $upcontext, $settings;
 
 	// Don't call me twice!
 	if (!empty($upcontext['chmod_called']))
@@ -3775,7 +3764,7 @@ function template_chmod()
 	{
 		echo '
 		<div class="error">
-			<p>', $txt['upgrade_writable_files'], '</p>
+			<p>', Lang::$txt['upgrade_writable_files'], '</p>
 			<ul class="error_content">
 				<li>' . implode('</li>
 				<li>', $upcontext['chmod']['files']) . '</li>
@@ -3787,23 +3776,23 @@ function template_chmod()
 
 	echo '
 		<div class="panel">
-			<h2>', $txt['upgrade_ftp_login'], '</h2>
-			<h3>', $txt['upgrade_ftp_perms'], '</h3>
+			<h2>', Lang::$txt['upgrade_ftp_login'], '</h2>
+			<h3>', Lang::$txt['upgrade_ftp_perms'], '</h3>
 			<script>
 				function warning_popup()
 				{
 					popup = window.open(\'\',\'popup\',\'height=150,width=400,scrollbars=yes\');
 					var content = popup.document;
 					content.write(\'<!DOCTYPE html>\n\');
-					content.write(\'<html', $txt['lang_rtl'] == '1' ? ' dir="rtl"' : '', '>\n\t<head>\n\t\t<meta name="robots" content="noindex">\n\t\t\');
-					content.write(\'<title>', $txt['upgrade_ftp_warning'], '</title>\n\t\t<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css">\n\t</head>\n\t<body id="popup">\n\t\t\');
-					content.write(\'<div class="windowbg description">\n\t\t\t<h4>', $txt['upgrade_ftp_files'], '</h4>\n\t\t\t\');
+					content.write(\'<html', Lang::$txt['lang_rtl'] == '1' ? ' dir="rtl"' : '', '>\n\t<head>\n\t\t<meta name="robots" content="noindex">\n\t\t\');
+					content.write(\'<title>', Lang::$txt['upgrade_ftp_warning'], '</title>\n\t\t<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css">\n\t</head>\n\t<body id="popup">\n\t\t\');
+					content.write(\'<div class="windowbg description">\n\t\t\t<h4>', Lang::$txt['upgrade_ftp_files'], '</h4>\n\t\t\t\');
 					content.write(\'<p>', implode('<br>\n\t\t\t', $upcontext['chmod']['files']), '</p>\n\t\t\t\');';
 
 	if (isset($upcontext['systemos']) && $upcontext['systemos'] == 'linux')
 		echo '
 					content.write(\'<hr>\n\t\t\t\');
-					content.write(\'<p>', $txt['upgrade_ftp_shell'], '</p>\n\t\t\t\');
+					content.write(\'<p>', Lang::$txt['upgrade_ftp_shell'], '</p>\n\t\t\t\');
 					content.write(\'<tt># chmod a+w ', implode(' ', $upcontext['chmod']['files']), '</tt>\n\t\t\t\');';
 
 	echo '
@@ -3815,7 +3804,7 @@ function template_chmod()
 	if (!empty($upcontext['chmod']['ftp_error']))
 		echo '
 			<div class="error">
-				<p>', $txt['upgrade_ftp_error'], '<p>
+				<p>', Lang::$txt['upgrade_ftp_error'], '<p>
 				<code>', $upcontext['chmod']['ftp_error'], '</code>
 			</div>';
 
@@ -3826,41 +3815,41 @@ function template_chmod()
 	echo '
 				<dl class="settings">
 					<dt>
-						<label for="ftp_server">', $txt['ftp_server'], ':</label>
+						<label for="ftp_server">', Lang::$txt['ftp_server'], ':</label>
 					</dt>
 					<dd>
 						<div class="floatright">
-							<label for="ftp_port" class="textbox"><strong>', $txt['ftp_port'], ':</strong></label>
+							<label for="ftp_port" class="textbox"><strong>', Lang::$txt['ftp_port'], ':</strong></label>
 							<input type="text" size="3" name="ftp_port" id="ftp_port" value="', isset($upcontext['chmod']['port']) ? $upcontext['chmod']['port'] : '21', '">
 						</div>
 						<input type="text" size="30" name="ftp_server" id="ftp_server" value="', isset($upcontext['chmod']['server']) ? $upcontext['chmod']['server'] : 'localhost', '">
-						<div class="smalltext">', $txt['ftp_server_info'], '</div>
+						<div class="smalltext">', Lang::$txt['ftp_server_info'], '</div>
 					</dd>
 					<dt>
-						<label for="ftp_username">', $txt['ftp_username'], ':</label>
+						<label for="ftp_username">', Lang::$txt['ftp_username'], ':</label>
 					</dt>
 					<dd>
 						<input type="text" size="30" name="ftp_username" id="ftp_username" value="', isset($upcontext['chmod']['username']) ? $upcontext['chmod']['username'] : '', '">
-						<div class="smalltext">', $txt['ftp_username_info'], '</div>
+						<div class="smalltext">', Lang::$txt['ftp_username_info'], '</div>
 					</dd>
 					<dt>
-						<label for="ftp_password">', $txt['ftp_password'], ':</label>
+						<label for="ftp_password">', Lang::$txt['ftp_password'], ':</label>
 					</dt>
 					<dd>
 						<input type="password" size="30" name="ftp_password" id="ftp_password">
-						<div class="smalltext">', $txt['ftp_password_info'], '</div>
+						<div class="smalltext">', Lang::$txt['ftp_password_info'], '</div>
 					</dd>
 					<dt>
-						<label for="ftp_path">', $txt['ftp_path'], ':</label>
+						<label for="ftp_path">', Lang::$txt['ftp_path'], ':</label>
 					</dt>
 					<dd>
 						<input type="text" size="30" name="ftp_path" id="ftp_path" value="', isset($upcontext['chmod']['path']) ? $upcontext['chmod']['path'] : '', '">
-						<div class="smalltext">', !empty($upcontext['chmod']['path']) ? $txt['ftp_path_found_info'] : $txt['ftp_path_info'], '</div>
+						<div class="smalltext">', !empty($upcontext['chmod']['path']) ? Lang::$txt['ftp_path_found_info'] : Lang::$txt['ftp_path_info'], '</div>
 					</dd>
 				</dl>
 
 				<div class="righttext buttons">
-					<input type="submit" value="', $txt['ftp_connect'], '" class="button">
+					<input type="submit" value="', Lang::$txt['ftp_connect'], '" class="button">
 				</div>';
 
 	if (empty($upcontext['chmod_in_form']))
@@ -3873,22 +3862,22 @@ function template_chmod()
 
 function template_upgrade_above()
 {
-	global $txt, $settings, $upcontext, $upgradeurl;
+	global $settings, $upcontext, $upgradeurl;
 
 	echo '<!DOCTYPE html>
-<html', $txt['lang_rtl'] == '1' ? ' dir="rtl"' : '', '>
+<html', Lang::$txt['lang_rtl'] == '1' ? ' dir="rtl"' : '', '>
 <head>
-	<meta charset="', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'UTF-8', '">
+	<meta charset="', isset(Lang::$txt['lang_character_set']) ? Lang::$txt['lang_character_set'] : 'UTF-8', '">
 	<meta name="robots" content="noindex">
-	<title>', $txt['upgrade_upgrade_utility'], '</title>
+	<title>', Lang::$txt['upgrade_upgrade_utility'], '</title>
 	<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css">
 	<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/install.css">
-	', $txt['lang_rtl'] == '1' ? '<link rel="stylesheet" href="' . $settings['default_theme_url'] . '/css/rtl.css">' : '', '
+	', Lang::$txt['lang_rtl'] == '1' ? '<link rel="stylesheet" href="' . $settings['default_theme_url'] . '/css/rtl.css">' : '', '
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/', JQUERY_VERSION, '/jquery.min.js"></script>
 	<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 	<script>
 		var smf_scripturl = \'', $upgradeurl, '\';
-		var smf_charset = \'', (empty(Config::$modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'UTF-8' : $txt['lang_character_set']) : Config::$modSettings['global_character_set']), '\';
+		var smf_charset = \'', (empty(Config::$modSettings['global_character_set']) ? (empty(Lang::$txt['lang_character_set']) ? 'UTF-8' : Lang::$txt['lang_character_set']) : Config::$modSettings['global_character_set']), '\';
 		var startPercent = ', $upcontext['overall_percent'], ';
 		var allow_xhjr_credentials = false;
 
@@ -3914,20 +3903,20 @@ function template_upgrade_above()
 <body>
 	<div id="footerfix">
 	<div id="header">
-		<h1 class="forumtitle">', $txt['upgrade_upgrade_utility'], '</h1>
+		<h1 class="forumtitle">', Lang::$txt['upgrade_upgrade_utility'], '</h1>
 		<img id="smflogo" src="', $settings['default_theme_url'], '/images/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">
 	</div>
 	<div id="wrapper">
 		<div id="content_section">
 			<div id="main_content_section">
 				<div id="main_steps">
-					<h2>', $txt['upgrade_progress'], '</h2>
+					<h2>', Lang::$txt['upgrade_progress'], '</h2>
 					<ul class="steps_list">';
 
 	foreach ($upcontext['steps'] as $num => $step)
 		echo '
 						<li', $num == $upcontext['current_step'] ? ' class="stepcurrent"' : '', '>
-							', $txt['upgrade_step'], ' ', $step[0], ': ', $txt[$step[1]], '
+							', Lang::$txt['upgrade_step'], ' ', $step[0], ': ', Lang::$txt[$step[1]], '
 						</li>';
 
 	echo '
@@ -3936,7 +3925,7 @@ function template_upgrade_above()
 
 				<div id="install_progress">
 					<div id="progress_bar" class="progress_bar progress_green">
-						<h3>', $txt['upgrade_overall_progress'], '</h3>
+						<h3>', Lang::$txt['upgrade_overall_progress'], '</h3>
 						<div id="overall_progress" class="bar" style="width: ', $upcontext['overall_percent'], '%;"></div>
 						<span id="overall_text">', $upcontext['overall_percent'], '%</span>
 					</div>';
@@ -3944,7 +3933,7 @@ function template_upgrade_above()
 	if (isset($upcontext['step_progress']))
 		echo '
 					<div id="progress_bar_step" class="progress_bar progress_yellow">
-						<h3>', $txt['upgrade_step_progress'], '</h3>
+						<h3>', Lang::$txt['upgrade_step_progress'], '</h3>
 						<div id="step_progress" class="bar" style="width: ', $upcontext['step_progress'], '%;"></div>
 						<span id="step_text">', $upcontext['step_progress'], '%</span>
 					</div>';
@@ -3962,8 +3951,8 @@ function template_upgrade_above()
 	$seconds = $elapsed - $mins * 60;
 	echo '
 					<div class="smalltext time_elapsed">
-						', $txt['upgrade_time_elapsed'], ':
-						<span id="mins_elapsed">', $mins, '</span> ', $txt['upgrade_time_mins'], ', <span id="secs_elapsed">', $seconds, '</span> ', $txt['upgrade_time_secs'], '.
+						', Lang::$txt['upgrade_time_elapsed'], ':
+						<span id="mins_elapsed">', $mins, '</span> ', Lang::$txt['upgrade_time_mins'], ', <span id="secs_elapsed">', $seconds, '</span> ', Lang::$txt['upgrade_time_secs'], '.
 					</div>';
 	echo '
 				</div><!-- #install_progress -->
@@ -3974,21 +3963,21 @@ function template_upgrade_above()
 
 function template_upgrade_below()
 {
-	global $upcontext, $txt;
+	global $upcontext;
 
 	if (!empty($upcontext['pause']))
 		echo '
-							<em>', $txt['upgrade_incomplete'], '.</em><br>
+							<em>', Lang::$txt['upgrade_incomplete'], '.</em><br>
 
-							<h2 style="margin-top: 2ex;">', $txt['upgrade_not_quite_done'], '</h2>
+							<h2 style="margin-top: 2ex;">', Lang::$txt['upgrade_not_quite_done'], '</h2>
 							<h3>
-								', $txt['upgrade_paused_overload'], '
+								', Lang::$txt['upgrade_paused_overload'], '
 							</h3>';
 
 	if (!empty($upcontext['custom_warning']))
 		echo '
 							<div class="errorbox">
-								<h3>', $txt['upgrade_note'], '</h3>
+								<h3>', Lang::$txt['upgrade_note'], '</h3>
 								', $upcontext['custom_warning'], '
 							</div>';
 
@@ -3997,10 +3986,10 @@ function template_upgrade_below()
 
 	if (!empty($upcontext['continue']))
 		echo '
-								<input type="submit" id="contbutt" name="contbutt" value="', $txt['upgrade_continue'], '"', $upcontext['continue'] == 2 ? ' disabled' : '', ' class="button">';
+								<input type="submit" id="contbutt" name="contbutt" value="', Lang::$txt['upgrade_continue'], '"', $upcontext['continue'] == 2 ? ' disabled' : '', ' class="button">';
 	if (!empty($upcontext['skip']))
 		echo '
-								<input type="submit" id="skip" name="skip" value="', $txt['upgrade_skip'], '" onclick="dontSubmit = true; document.getElementById(\'contbutt\').disabled = \'disabled\'; return true;" class="button">';
+								<input type="submit" id="skip" name="skip" value="', Lang::$txt['upgrade_skip'], '" onclick="dontSubmit = true; document.getElementById(\'contbutt\').disabled = \'disabled\'; return true;" class="button">';
 
 	echo '
 							</div>
@@ -4033,7 +4022,7 @@ function template_upgrade_below()
 			else if (countdown == -1)
 				return;
 
-			document.getElementById(\'contbutt\').value = "', $txt['upgrade_continue'], ' (" + countdown + ")";
+			document.getElementById(\'contbutt\').value = "', Lang::$txt['upgrade_continue'], ' (" + countdown + ")";
 			countdown--;
 
 			setTimeout("doAutoSubmit();", 1000);
@@ -4067,30 +4056,30 @@ function template_xml_below()
 
 function template_error_message()
 {
-	global $upcontext, $txt;
+	global $upcontext;
 
 	echo '
 	<div class="error">
 		', $upcontext['error_msg'], '
 		<br>
-		<a href="', $_SERVER['PHP_SELF'], '">', $txt['upgrade_respondtime_clickhere'], '</a>
+		<a href="', $_SERVER['PHP_SELF'], '">', Lang::$txt['upgrade_respondtime_clickhere'], '</a>
 	</div>';
 }
 
 function template_welcome_message()
 {
-	global $upcontext, $disable_security, $settings, $txt;
+	global $upcontext, $disable_security, $settings;
 
 	echo '
 				<script src="https://www.simplemachines.org/smf/current-version.js?version=' . SMF_VERSION . '"></script>
 
-				<h3>', sprintf($txt['upgrade_ready_proceed'], SMF_VERSION), '</h3>
+				<h3>', sprintf(Lang::$txt['upgrade_ready_proceed'], SMF_VERSION), '</h3>
 				<form action="', $upcontext['form_url'], '" method="post" name="upform" id="upform">
 					<input type="hidden" name="', $upcontext['login_token_var'], '" value="', $upcontext['login_token'], '">
 
 					<div id="version_warning" class="noticebox hidden">
-						<h3>', $txt['upgrade_warning'], '</h3>
-						', sprintf($txt['upgrade_warning_out_of_date'], SMF_VERSION, 'https://www.simplemachines.org'), '
+						<h3>', Lang::$txt['upgrade_warning'], '</h3>
+						', sprintf(Lang::$txt['upgrade_warning_out_of_date'], SMF_VERSION, 'https://www.simplemachines.org'), '
 					</div>';
 
 	$upcontext['chmod_in_form'] = true;
@@ -4100,23 +4089,23 @@ function template_welcome_message()
 	if ($upcontext['is_large_forum'])
 		echo '
 					<div class="errorbox">
-						<h3>', $txt['upgrade_warning'], '</h3>
-						', $txt['upgrade_warning_lots_data'], '
+						<h3>', Lang::$txt['upgrade_warning'], '</h3>
+						', Lang::$txt['upgrade_warning_lots_data'], '
 					</div>';
 
 	// A warning message?
 	if (!empty($upcontext['warning']))
 		echo '
 					<div class="errorbox">
-						<h3>', $txt['upgrade_warning'], '</h3>
+						<h3>', Lang::$txt['upgrade_warning'], '</h3>
 						', $upcontext['warning'], '
 					</div>';
 
 	// Paths are incorrect?
 	echo '
 					<div class="errorbox', (file_exists($settings['default_theme_dir'] . '/scripts/script.js') ? ' hidden' : ''), '" id="js_script_missing_error">
-						<h3>', $txt['upgrade_critical_error'], '</h3>
-						', sprintf($txt['upgrade_error_script_js'], 'https://download.simplemachines.org/?tools'), '
+						<h3>', Lang::$txt['upgrade_critical_error'], '</h3>
+						', sprintf(Lang::$txt['upgrade_error_script_js'], 'https://download.simplemachines.org/?tools'), '
 					</div>';
 
 	// Is there someone already doing this?
@@ -4136,54 +4125,54 @@ function template_welcome_message()
 
 		echo '
 					<div class="errorbox">
-						<h3>', $txt['upgrade_warning'], '</h3>
-						<p>', sprintf($txt['upgrade_time_user'], $upcontext['user']['name']), '</p>
-						<p>', sprintf($txt[$agoTxt], $ago_seconds, $ago_minutes, $ago_hours), '</p>
-						<p>', sprintf($txt[$updatedTxt], $updated_seconds, $updated_minutes, $updated_hours), '</p>';
+						<h3>', Lang::$txt['upgrade_warning'], '</h3>
+						<p>', sprintf(Lang::$txt['upgrade_time_user'], $upcontext['user']['name']), '</p>
+						<p>', sprintf(Lang::$txt[$agoTxt], $ago_seconds, $ago_minutes, $ago_hours), '</p>
+						<p>', sprintf(Lang::$txt[$updatedTxt], $updated_seconds, $updated_minutes, $updated_hours), '</p>';
 
 		if ($updated < 600)
 			echo '
-						<p>', $txt['upgrade_run_script'], ' ', $upcontext['user']['name'], ' ', $txt['upgrade_run_script2'], '</p>';
+						<p>', Lang::$txt['upgrade_run_script'], ' ', $upcontext['user']['name'], ' ', Lang::$txt['upgrade_run_script2'], '</p>';
 
 		if ($updated > $upcontext['inactive_timeout'])
 			echo '
-						<p>', $txt['upgrade_run'], '</p>';
+						<p>', Lang::$txt['upgrade_run'], '</p>';
 		elseif ($upcontext['inactive_timeout'] > 120)
 			echo '
-						<p>', sprintf($txt['upgrade_script_timeout_minutes'], $upcontext['user']['name'], round($upcontext['inactive_timeout'] / 60, 1)), '</p>';
+						<p>', sprintf(Lang::$txt['upgrade_script_timeout_minutes'], $upcontext['user']['name'], round($upcontext['inactive_timeout'] / 60, 1)), '</p>';
 		else
 			echo '
-						<p>', sprintf($txt['upgrade_script_timeout_seconds'], $upcontext['user']['name'], $upcontext['inactive_timeout']), '</p>';
+						<p>', sprintf(Lang::$txt['upgrade_script_timeout_seconds'], $upcontext['user']['name'], $upcontext['inactive_timeout']), '</p>';
 
 		echo '
 					</div>';
 	}
 
 	echo '
-					<strong>', $txt['upgrade_admin_login'], ' ', $disable_security ? $txt['upgrade_admin_disabled'] : '', '</strong>
-					<h3>', $txt['upgrade_sec_login'], '</h3>
+					<strong>', Lang::$txt['upgrade_admin_login'], ' ', $disable_security ? Lang::$txt['upgrade_admin_disabled'] : '', '</strong>
+					<h3>', Lang::$txt['upgrade_sec_login'], '</h3>
 					<dl class="settings adminlogin">
 						<dt>
-							<label for="user"', $disable_security ? ' disabled' : '', '>', $txt['upgrade_username'], '</label>
+							<label for="user"', $disable_security ? ' disabled' : '', '>', Lang::$txt['upgrade_username'], '</label>
 						</dt>
 						<dd>
 							<input type="text" name="user" value="', !empty($upcontext['username']) ? $upcontext['username'] : '', '"', $disable_security ? ' disabled' : '', '>';
 
 	if (!empty($upcontext['username_incorrect']))
 		echo '
-							<div class="smalltext red">', $txt['upgrade_wrong_username'], '</div>';
+							<div class="smalltext red">', Lang::$txt['upgrade_wrong_username'], '</div>';
 
 	echo '
 						</dd>
 						<dt>
-							<label for="passwrd"', $disable_security ? ' disabled' : '', '>', $txt['upgrade_password'], '</label>
+							<label for="passwrd"', $disable_security ? ' disabled' : '', '>', Lang::$txt['upgrade_password'], '</label>
 						</dt>
 						<dd>
 							<input type="password" name="passwrd" value=""', $disable_security ? ' disabled' : '', '>';
 
 	if (!empty($upcontext['password_failed']))
 		echo '
-							<div class="smalltext red">', $txt['upgrade_wrong_password'], '</div>';
+							<div class="smalltext red">', Lang::$txt['upgrade_wrong_password'], '</div>';
 
 	echo '
 						</dd>';
@@ -4193,14 +4182,14 @@ function template_welcome_message()
 	{
 		echo '
 						<dd>
-							<label for="cont"><input type="checkbox" id="cont" name="cont" checked>', $txt['upgrade_continue_step'], '</label>
+							<label for="cont"><input type="checkbox" id="cont" name="cont" checked>', Lang::$txt['upgrade_continue_step'], '</label>
 						</dd>';
 	}
 
 	echo '
 					</dl>
 					<span class="smalltext">
-						', $txt['upgrade_bypass'], '
+						', Lang::$txt['upgrade_bypass'], '
 					</span>
 					<input type="hidden" name="login_attempt" id="login_attempt" value="1">
 					<input type="hidden" name="js_works" id="js_works" value="0">';
@@ -4244,17 +4233,17 @@ function template_welcome_message()
 
 function template_upgrade_options()
 {
-	global $upcontext, $txt;
+	global $upcontext;
 
 	echo '
-				<h3>', $txt['upgrade_areyouready'], '</h3>
+				<h3>', Lang::$txt['upgrade_areyouready'], '</h3>
 				<form action="', $upcontext['form_url'], '" method="post" name="upform" id="upform">';
 
 	// Warning message?
 	if (!empty($upcontext['upgrade_options_warning']))
 		echo '
 				<div class="errorbox">
-					<h3>', $txt['upgrade_warning'], '</h3>
+					<h3>', Lang::$txt['upgrade_warning'], '</h3>
 					', $upcontext['upgrade_options_warning'], '
 				</div>';
 
@@ -4262,34 +4251,34 @@ function template_upgrade_options()
 				<ul class="upgrade_settings">
 					<li>
 						<input type="checkbox" name="backup" id="backup" value="1" checked>
-						<label for="backup">', $txt['upgrade_backup_table'], ' &quot;backup_' . Config::$db_prefix . '&quot;.</label>
-						(', $txt['upgrade_recommended'], ')
+						<label for="backup">', Lang::$txt['upgrade_backup_table'], ' &quot;backup_' . Config::$db_prefix . '&quot;.</label>
+						(', Lang::$txt['upgrade_recommended'], ')
 					</li>
 					<li>
 						<input type="checkbox" name="maint" id="maint" value="1" checked>
-						<label for="maint">', $txt['upgrade_maintenance'], '</label>
-						<span class="smalltext">(<a href="javascript:void(0)" onclick="document.getElementById(\'mainmess\').classList.toggle(\'hidden\')">', $txt['upgrade_customize'], '</a>)</span>
+						<label for="maint">', Lang::$txt['upgrade_maintenance'], '</label>
+						<span class="smalltext">(<a href="javascript:void(0)" onclick="document.getElementById(\'mainmess\').classList.toggle(\'hidden\')">', Lang::$txt['upgrade_customize'], '</a>)</span>
 						<div id="mainmess" class="hidden">
-							<strong class="smalltext">', $txt['upgrade_maintenance_title'], ' </strong><br>
+							<strong class="smalltext">', Lang::$txt['upgrade_maintenance_title'], ' </strong><br>
 							<input type="text" name="maintitle" size="30" value="', htmlspecialchars(Config::$mtitle), '"><br>
-							<strong class="smalltext">', $txt['upgrade_maintenance_message'], ' </strong><br>
+							<strong class="smalltext">', Lang::$txt['upgrade_maintenance_message'], ' </strong><br>
 							<textarea name="mainmessage" rows="3" cols="50">', htmlspecialchars(Config::$mmessage), '</textarea>
 						</div>
 					</li>
 					<li>
 						<input type="checkbox" name="debug" id="debug" value="1">
-						<label for="debug">'.$txt['upgrade_debug_info'], '</label>
+						<label for="debug">', Lang::$txt['upgrade_debug_info'], '</label>
 					</li>
 					<li>
 						<input type="checkbox" name="empty_error" id="empty_error" value="1">
-						<label for="empty_error">', $txt['upgrade_empty_errorlog'], '</label>
+						<label for="empty_error">', Lang::$txt['upgrade_empty_errorlog'], '</label>
 					</li>';
 
 	if (!empty($upcontext['karma_installed']['good']) || !empty($upcontext['karma_installed']['bad']))
 		echo '
 					<li>
 						<input type="checkbox" name="delete_karma" id="delete_karma" value="1">
-						<label for="delete_karma">', $txt['upgrade_delete_karma'], '</label>
+						<label for="delete_karma">', Lang::$txt['upgrade_delete_karma'], '</label>
 					</li>';
 
 	// If attachment step has been run previously, offer an option to do it again.
@@ -4298,21 +4287,21 @@ function template_upgrade_options()
 		echo '
 					<li>
 						<input type="checkbox" name="reprocess_attachments" id="reprocess_attachments" value="1">
-						<label for="reprocess_attachments">', $txt['upgrade_reprocess_attachments'], '</label>
+						<label for="reprocess_attachments">', Lang::$txt['upgrade_reprocess_attachments'], '</label>
 					</li>';
 
 	echo '
 					<li>
 						<input type="checkbox" name="stats" id="stats" value="1"', empty(Config::$modSettings['allow_sm_stats']) && empty(Config::$modSettings['enable_sm_stats']) ? '' : ' checked="checked"', '>
 						<label for="stat">
-							', $txt['upgrade_stats_collection'], '<br>
-							<span class="smalltext">', sprintf($txt['upgrade_stats_info'], 'https://www.simplemachines.org/about/stats.php'), '</a></span>
+							', Lang::$txt['upgrade_stats_collection'], '<br>
+							<span class="smalltext">', sprintf(Lang::$txt['upgrade_stats_info'], 'https://www.simplemachines.org/about/stats.php'), '</a></span>
 						</label>
 					</li>
 					<li>
 						<input type="checkbox" name="migrateSettings" id="migrateSettings" value="1"', empty($upcontext['migrate_settings_recommended']) ? '' : ' checked="checked"', '>
 						<label for="migrateSettings">
-							', $txt['upgrade_migrate_settings_file'], '
+							', Lang::$txt['upgrade_migrate_settings_file'], '
 						</label>
 					</li>
 				</ul>
@@ -4325,15 +4314,15 @@ function template_upgrade_options()
 // Template for the database backup tool/
 function template_backup_database()
 {
-	global $upcontext, $support_js, $is_debug, $txt;
+	global $upcontext, $support_js, $is_debug;
 
 	echo '
-				<h3>', $txt['upgrade_wait'], '</h3>';
+				<h3>', Lang::$txt['upgrade_wait'], '</h3>';
 
 	echo '
 				<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
 					<input type="hidden" name="backup_done" id="backup_done" value="0">
-					<strong>', sprintf($txt['upgrade_completedtables_outof'], $upcontext['cur_table_num'], $upcontext['table_count']), '</strong>
+					<strong>', sprintf(Lang::$txt['upgrade_completedtables_outof'], $upcontext['cur_table_num'], $upcontext['table_count']), '</strong>
 					<div id="debug_section">
 						<span id="debuginfo"></span>
 					</div>';
@@ -4342,13 +4331,13 @@ function template_backup_database()
 	if (!empty($upcontext['previous_tables']))
 		foreach ($upcontext['previous_tables'] as $table)
 			echo '
-					<br>', $txt['upgrade_completed_table'], ' &quot;', $table, '&quot;.';
+					<br>', Lang::$txt['upgrade_completed_table'], ' &quot;', $table, '&quot;.';
 
 	echo '
 					<h3 id="current_tab">
-						', $txt['upgrade_current_table'], ' &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;
+						', Lang::$txt['upgrade_current_table'], ' &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;
 					</h3>
-					<p id="commess" class="', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline_block' : 'hidden', '">', $txt['upgrade_backup_complete'], '</p>';
+					<p id="commess" class="', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline_block' : 'hidden', '">', Lang::$txt['upgrade_backup_complete'], '</p>';
 
 	// Continue please!
 	$upcontext['continue'] = $support_js ? 2 : 1;
@@ -4383,7 +4372,7 @@ function template_backup_database()
 		// If debug flood the screen.
 		if ($is_debug)
 			echo '
-							setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>', $txt['upgrade_completed_table'], ' &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');
+							setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>', Lang::$txt['upgrade_completed_table'], ' &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');
 
 							if (document.getElementById(\'debug_section\').scrollHeight)
 								document.getElementById(\'debug_section\').scrollTop = document.getElementById(\'debug_section\').scrollHeight';
@@ -4417,14 +4406,14 @@ function template_backup_xml()
 // Here is the actual "make the changes" template!
 function template_database_changes()
 {
-	global $upcontext, $support_js, $is_debug, $timeLimitThreshold, $txt;
+	global $upcontext, $support_js, $is_debug, $timeLimitThreshold;
 
 	if (empty($is_debug) && !empty($upcontext['upgrade_status']['debug']))
 		$is_debug = true;
 
 	echo '
-				<h3>', $txt['upgrade_db_changes'], '</h3>
-				<h4><em>', $txt['upgrade_db_patient'], '</em></h4>';
+				<h3>', Lang::$txt['upgrade_db_changes'], '</h3>
+				<h4><em>', Lang::$txt['upgrade_db_patient'], '</em></h4>';
 
 	echo '
 				<form action="', $upcontext['form_url'], '&amp;filecount=', $upcontext['file_count'], '" name="upform" id="upform" method="post">
@@ -4450,13 +4439,13 @@ function template_database_changes()
 				$minutes = intval(($active / 60) % 60);
 				$seconds = intval($active % 60);
 
-				echo '', sprintf($txt['upgrade_success_time_db'], $seconds, $minutes, $hours), '<br>';
+				echo '', sprintf(Lang::$txt['upgrade_success_time_db'], $seconds, $minutes, $hours), '<br>';
 			}
 			else
-				echo '', $txt['upgrade_success'], '<br>';
+				echo '', Lang::$txt['upgrade_success'], '<br>';
 
 			echo '
-					<p id="commess">', $txt['upgrade_db_complete'], '</p>';
+					<p id="commess">', Lang::$txt['upgrade_db_complete'], '</p>';
 		}
 	}
 	else
@@ -4464,13 +4453,13 @@ function template_database_changes()
 		// Tell them how many files we have in total.
 		if ($upcontext['file_count'] > 1)
 			echo '
-					<strong id="info1">', $txt['upgrade_script'], ' <span id="file_done">', $upcontext['cur_file_num'], '</span> of ', $upcontext['file_count'], '.</strong>';
+					<strong id="info1">', Lang::$txt['upgrade_script'], ' <span id="file_done">', $upcontext['cur_file_num'], '</span> of ', $upcontext['file_count'], '.</strong>';
 
 		echo '
 					<h3 id="info2">
-						<strong>', $txt['upgrade_executing'], '</strong> &quot;<span id="cur_item_name">', $upcontext['current_item_name'], '</span>&quot; (<span id="item_num">', $upcontext['current_item_num'], '</span> ', $txt['upgrade_of'], ' <span id="total_items"><span id="item_count">', $upcontext['total_items'], '</span>', $upcontext['file_count'] > 1 ? ' - of this script' : '', ')</span>
+						<strong>', Lang::$txt['upgrade_executing'], '</strong> &quot;<span id="cur_item_name">', $upcontext['current_item_name'], '</span>&quot; (<span id="item_num">', $upcontext['current_item_num'], '</span> ', Lang::$txt['upgrade_of'], ' <span id="total_items"><span id="item_count">', $upcontext['total_items'], '</span>', $upcontext['file_count'] > 1 ? ' - of this script' : '', ')</span>
 					</h3>
-					<p id="commess" class="', !empty($upcontext['changes_complete']) || $upcontext['current_debug_item_num'] == $upcontext['debug_items'] ? 'inline_block' : 'hidden', '">', $txt['upgrade_db_complete2'], '</p>';
+					<p id="commess" class="', !empty($upcontext['changes_complete']) || $upcontext['current_debug_item_num'] == $upcontext['debug_items'] ? 'inline_block' : 'hidden', '">', Lang::$txt['upgrade_db_complete2'], '</p>';
 
 		if ($is_debug)
 		{
@@ -4483,7 +4472,7 @@ function template_database_changes()
 				$seconds = intval($active % 60);
 
 				echo '
-					<p id="upgradeCompleted">', sprintf($txt['upgrade_success_time_db'], $seconds, $minutes, $hours), '</p>';
+					<p id="upgradeCompleted">', sprintf(Lang::$txt['upgrade_success_time_db'], $seconds, $minutes, $hours), '</p>';
 			}
 			else
 				echo '
@@ -4499,8 +4488,8 @@ function template_database_changes()
 	// Place for the XML error message.
 	echo '
 					<div id="error_block" class="errorbox', empty($upcontext['error_message']) ? ' hidden' : '', '">
-						<h3>', $txt['upgrade_error'], '</h3>
-						<div id="error_message">', isset($upcontext['error_message']) ? $upcontext['error_message'] : $txt['upgrade_unknown_error'], '</div>
+						<h3>', Lang::$txt['upgrade_error'], '</h3>
+						<div id="error_message">', isset($upcontext['error_message']) ? $upcontext['error_message'] : Lang::$txt['upgrade_unknown_error'], '</div>
 					</div>';
 
 	// We want to continue at some point!
@@ -4587,7 +4576,7 @@ function template_database_changes()
 								if (retryCount > 10)
 								{
 									document.getElementById("error_block").classList.remove("hidden");
-									setInnerHTML(document.getElementById("error_message"), "', $txt['upgrade_loop'], '" + sDebugName);';
+									setInnerHTML(document.getElementById("error_message"), "', Lang::$txt['upgrade_loop'], '" + sDebugName);';
 
 		if ($is_debug)
 			echo '
@@ -4660,7 +4649,7 @@ function template_database_changes()
 								var diffMinutes = parseInt((diffTime / 60) % 60);
 								var diffSeconds = parseInt(diffTime % 60);
 
-								var completedTxt = "', $txt['upgrade_success_time_db'], '";
+								var completedTxt = "', Lang::$txt['upgrade_success_time_db'], '";
 console.log(completedTxt, upgradeFinishedTime, diffTime, diffHours, diffMinutes, diffSeconds);
 
 								completedTxt = completedTxt.replace("%1$d", diffSeconds).replace("%2$d", diffMinutes).replace("%3$d", diffHours);
@@ -4770,7 +4759,7 @@ console.log(completedTxt, upgradeFinishedTime, diffTime, diffHours, diffMinutes,
 							if (!attemptAgain)
 							{
 								document.getElementById("error_block").classList.remove("hidden");
-								setInnerHTML(document.getElementById("error_message"), "', sprintf($txt['upgrade_respondtime'], ($timeLimitThreshold * 10)), '" + "<a href=\"#\" onclick=\"retTimeout(true); return false;\">', $txt['upgrade_respondtime_clickhere'], '</a>");
+								setInnerHTML(document.getElementById("error_message"), "', sprintf(Lang::$txt['upgrade_respondtime'], ($timeLimitThreshold * 10)), '" + "<a href=\"#\" onclick=\"retTimeout(true); return false;\">', Lang::$txt['upgrade_respondtime_clickhere'], '</a>");
 							}
 							else
 							{
@@ -4816,13 +4805,13 @@ function template_database_xml()
 // Template for the UTF-8 conversion step. Basically a copy of the backup stuff with slight modifications....
 function template_convert_utf8()
 {
-	global $upcontext, $support_js, $is_debug, $txt;
+	global $upcontext, $support_js, $is_debug;
 
 	echo '
-				<h3>', $txt['upgrade_wait2'], '</h3>
+				<h3>', Lang::$txt['upgrade_wait2'], '</h3>
 				<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
 					<input type="hidden" name="utf8_done" id="utf8_done" value="0">
-					<strong>', $txt['upgrade_completed'], ' <span id="tab_done">', $upcontext['cur_table_num'], '</span> ', $txt['upgrade_outof'], ' ', $upcontext['table_count'], ' ', $txt['upgrade_tables'], '</strong>
+					<strong>', Lang::$txt['upgrade_completed'], ' <span id="tab_done">', $upcontext['cur_table_num'], '</span> ', Lang::$txt['upgrade_outof'], ' ', $upcontext['table_count'], ' ', Lang::$txt['upgrade_tables'], '</strong>
 					<div id="debug_section">
 						<span id="debuginfo"></span>
 					</div>';
@@ -4831,21 +4820,21 @@ function template_convert_utf8()
 	if (!empty($upcontext['previous_tables']))
 		foreach ($upcontext['previous_tables'] as $table)
 			echo '
-					<br>', $txt['upgrade_completed_table'], ' &quot;', $table, '&quot;.';
+					<br>', Lang::$txt['upgrade_completed_table'], ' &quot;', $table, '&quot;.';
 
 	echo '
 					<h3 id="current_tab">
-						', $txt['upgrade_current_table'], ' &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;
+						', Lang::$txt['upgrade_current_table'], ' &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;
 					</h3>';
 
 	// If we dropped their index, let's let them know
 	if ($upcontext['dropping_index'])
 		echo '
-					<p id="indexmsg" class="', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline_block' : 'hidden', '>', $txt['upgrade_fulltext'], '</p>';
+					<p id="indexmsg" class="', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline_block' : 'hidden', '>', Lang::$txt['upgrade_fulltext'], '</p>';
 
 	// Completion notification
 	echo '
-					<p id="commess" class="', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline_block' : 'hidden', '">', $txt['upgrade_conversion_proceed'], '</p>';
+					<p id="commess" class="', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline_block' : 'hidden', '">', Lang::$txt['upgrade_conversion_proceed'], '</p>';
 
 	// Continue please!
 	$upcontext['continue'] = $support_js ? 2 : 1;
@@ -4880,7 +4869,7 @@ function template_convert_utf8()
 		// If debug flood the screen.
 		if ($is_debug)
 			echo '
-						setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>', $txt['upgrade_completed_table'], ' &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');
+						setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>', Lang::$txt['upgrade_completed_table'], ' &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');
 
 						if (document.getElementById(\'debug_section\').scrollHeight)
 							document.getElementById(\'debug_section\').scrollTop = document.getElementById(\'debug_section\').scrollHeight';
@@ -4917,13 +4906,13 @@ function template_convert_xml()
 // Template for the database backup tool/
 function template_serialize_json()
 {
-	global $upcontext, $support_js, $is_debug, $txt;
+	global $upcontext, $support_js, $is_debug;
 
 	echo '
-				<h3>', $txt['upgrade_convert_datajson'], '</h3>
+				<h3>', Lang::$txt['upgrade_convert_datajson'], '</h3>
 				<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
 					<input type="hidden" name="json_done" id="json_done" value="0">
-					<strong>', $txt['upgrade_completed'], ' <span id="tab_done">', $upcontext['cur_table_num'], '</span> ', $txt['upgrade_outof'], ' ', $upcontext['table_count'], ' ', $txt['upgrade_tables'], '</strong>
+					<strong>', Lang::$txt['upgrade_completed'], ' <span id="tab_done">', $upcontext['cur_table_num'], '</span> ', Lang::$txt['upgrade_outof'], ' ', $upcontext['table_count'], ' ', Lang::$txt['upgrade_tables'], '</strong>
 					<div id="debug_section">
 						<span id="debuginfo"></span>
 					</div>';
@@ -4932,13 +4921,13 @@ function template_serialize_json()
 	if (!empty($upcontext['previous_tables']))
 		foreach ($upcontext['previous_tables'] as $table)
 			echo '
-					<br>', $txt['upgrade_completed_table'], ' &quot;', $table, '&quot;.';
+					<br>', Lang::$txt['upgrade_completed_table'], ' &quot;', $table, '&quot;.';
 
 	echo '
 					<h3 id="current_tab">
-						', $txt['upgrade_current_table'], ' &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;
+						', Lang::$txt['upgrade_current_table'], ' &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;
 					</h3>
-					<p id="commess" class="', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline_block' : 'hidden', '">', $txt['upgrade_json_completed'], '</p>';
+					<p id="commess" class="', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline_block' : 'hidden', '">', Lang::$txt['upgrade_json_completed'], '</p>';
 
 	// Try to make sure substep was reset.
 	if ($upcontext['cur_table_num'] == $upcontext['table_count'])
@@ -4978,7 +4967,7 @@ function template_serialize_json()
 		// If debug flood the screen.
 		if ($is_debug)
 			echo '
-							setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>', $txt['upgrade_completed_table'], ' &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');
+							setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>', Lang::$txt['upgrade_completed_table'], ' &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');
 
 							if (document.getElementById(\'debug_section\').scrollHeight)
 								document.getElementById(\'debug_section\').scrollTop = document.getElementById(\'debug_section\').scrollHeight';
@@ -5011,18 +5000,18 @@ function template_serialize_json_xml()
 
 function template_upgrade_complete()
 {
-	global $upcontext, $upgradeurl, $settings, $is_debug, $txt;
+	global $upcontext, $upgradeurl, $settings, $is_debug;
 
 	echo '
-				<h3>', sprintf($txt['upgrade_done'], Config::$boardurl), '</h3>
+				<h3>', sprintf(Lang::$txt['upgrade_done'], Config::$boardurl), '</h3>
 				<form action="', Config::$boardurl, '/index.php">';
 
 	if (!empty($upcontext['can_delete_script']))
 		echo '
 					<label>
-						<input type="checkbox" id="delete_self" onclick="doTheDelete(this);"> ', $txt['upgrade_delete_now'], '
+						<input type="checkbox" id="delete_self" onclick="doTheDelete(this);"> ', Lang::$txt['upgrade_delete_now'], '
 					</label>
-					<em>', $txt['upgrade_delete_server'], '</em>
+					<em>', Lang::$txt['upgrade_delete_server'], '</em>
 					<script>
 						function doTheDelete(theCheck)
 						{
@@ -5042,18 +5031,18 @@ function template_upgrade_complete()
 		$seconds = intval((int) $active % 60);
 
 		if ($hours > 0)
-			echo '', sprintf($txt['upgrade_completed_time_hms'], $seconds, $minutes, $hours), '';
+			echo '', sprintf(Lang::$txt['upgrade_completed_time_hms'], $seconds, $minutes, $hours), '';
 		elseif ($minutes > 0)
-			echo '', sprintf($txt['upgrade_completed_time_ms'], $seconds, $minutes), '';
+			echo '', sprintf(Lang::$txt['upgrade_completed_time_ms'], $seconds, $minutes), '';
 		elseif ($seconds > 0)
-			echo '', sprintf($txt['upgrade_completed_time_s'], $seconds), '';
+			echo '', sprintf(Lang::$txt['upgrade_completed_time_s'], $seconds), '';
 	}
 
 	echo '
 					<p>
-						', sprintf($txt['upgrade_problems'], 'https://www.simplemachines.org'), '
+						', sprintf(Lang::$txt['upgrade_problems'], 'https://www.simplemachines.org'), '
 						<br>
-						', $txt['upgrade_luck'], '<br>
+						', Lang::$txt['upgrade_luck'], '<br>
 						Simple Machines
 					</p>';
 }

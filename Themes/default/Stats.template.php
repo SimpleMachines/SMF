@@ -11,6 +11,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 
 /**
@@ -18,7 +19,7 @@ use SMF\Utils;
  */
 function template_main()
 {
-	global $settings, $txt;
+	global $settings;
 
 	echo '
 	<div id="statistics" class="main_section">
@@ -28,54 +29,54 @@ function template_main()
 		<div class="roundframe">
 			<div class="title_bar">
 				<h4 class="titlebg">
-					<span class="main_icons general"></span> ', $txt['general_stats'], '
+					<span class="main_icons general"></span> ', Lang::$txt['general_stats'], '
 				</h4>
 			</div>
 			<dl class="stats half_content">
-				<dt>', $txt['total_members'], ':</dt>
+				<dt>', Lang::$txt['total_members'], ':</dt>
 				<dd>', Utils::$context['show_member_list'] ? '<a href="' . Config::$scripturl . '?action=mlist">' . Utils::$context['num_members'] . '</a>' : Utils::$context['num_members'], '</dd>
-				<dt>', $txt['total_posts'], ':</dt>
+				<dt>', Lang::$txt['total_posts'], ':</dt>
 				<dd>', Utils::$context['num_posts'], '</dd>
-				<dt>', $txt['total_topics'], ':</dt>
+				<dt>', Lang::$txt['total_topics'], ':</dt>
 				<dd>', Utils::$context['num_topics'], '</dd>
-				<dt>', $txt['total_cats'], ':</dt>
+				<dt>', Lang::$txt['total_cats'], ':</dt>
 				<dd>', Utils::$context['num_categories'], '</dd>
-				<dt>', $txt['users_online'], ':</dt>
+				<dt>', Lang::$txt['users_online'], ':</dt>
 				<dd>', Utils::$context['users_online'], '</dd>
-				<dt>', $txt['most_online'], ':</dt>
+				<dt>', Lang::$txt['most_online'], ':</dt>
 				<dd>', Utils::$context['most_members_online']['number'], ' - ', Utils::$context['most_members_online']['date'], '</dd>
-				<dt>', $txt['users_online_today'], ':</dt>
+				<dt>', Lang::$txt['users_online_today'], ':</dt>
 				<dd>', Utils::$context['online_today'], '</dd>';
 
 	if (!empty(Config::$modSettings['hitStats']))
 		echo '
-				<dt>', $txt['num_hits'], ':</dt>
+				<dt>', Lang::$txt['num_hits'], ':</dt>
 				<dd>', Utils::$context['num_hits'], '</dd>';
 
 	echo '
 			</dl>
 			<dl class="stats half_content">
-				<dt>', $txt['average_members'], ':</dt>
+				<dt>', Lang::$txt['average_members'], ':</dt>
 				<dd>', Utils::$context['average_members'], '</dd>
-				<dt>', $txt['average_posts'], ':</dt>
+				<dt>', Lang::$txt['average_posts'], ':</dt>
 				<dd>', Utils::$context['average_posts'], '</dd>
-				<dt>', $txt['average_topics'], ':</dt>
+				<dt>', Lang::$txt['average_topics'], ':</dt>
 				<dd>', Utils::$context['average_topics'], '</dd>
-				<dt>', $txt['total_boards'], ':</dt>
+				<dt>', Lang::$txt['total_boards'], ':</dt>
 				<dd>', Utils::$context['num_boards'], '</dd>
-				<dt>', $txt['latest_member'], ':</dt>
+				<dt>', Lang::$txt['latest_member'], ':</dt>
 				<dd>', Utils::$context['common_stats']['latest_member']['link'], '</dd>
-				<dt>', $txt['average_online'], ':</dt>
+				<dt>', Lang::$txt['average_online'], ':</dt>
 				<dd>', Utils::$context['average_online'], '</dd>';
 
 	if (!empty(Utils::$context['gender']))
 	{
 		echo '
-				<dt>', $txt['gender_stats'], ':</dt>
+				<dt>', Lang::$txt['gender_stats'], ':</dt>
 				<dd>';
 
 		foreach (Utils::$context['gender'] as $g => $n)
-			echo tokenTxtReplace($g), ': ', $n, '<br>';
+			echo Lang::tokenTxtReplace($g), ': ', $n, '<br>';
 
 		echo '
 				</dd>';
@@ -83,7 +84,7 @@ function template_main()
 
 	if (!empty(Config::$modSettings['hitStats']))
 		echo '
-				<dt>', $txt['average_hits'], ':</dt>
+				<dt>', Lang::$txt['average_hits'], ':</dt>
 				<dd>', Utils::$context['average_hits'], '</dd>';
 
 	echo '
@@ -95,7 +96,7 @@ function template_main()
 			<div class="half_content">
 				<div class="title_bar">
 					<h4 class="titlebg">
-						<span class="main_icons ', $name, '"></span> ', $txt['top_' . $name], '
+						<span class="main_icons ', $name, '"></span> ', Lang::$txt['top_' . $name], '
 					</h4>
 				</div>
 				<dl class="stats">';
@@ -130,7 +131,7 @@ function template_main()
 		<br class="clear">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="main_icons history"></span>', $txt['forum_history'], '
+				<span class="main_icons history"></span>', Lang::$txt['forum_history'], '
 			</h3>
 		</div>';
 
@@ -140,15 +141,15 @@ function template_main()
 		<table id="stats" class="table_grid">
 			<thead>
 				<tr class="title_bar">
-					<th class="lefttext">', $txt['yearly_summary'], '</th>
-					<th>', $txt['stats_new_topics'], '</th>
-					<th>', $txt['stats_new_posts'], '</th>
-					<th>', $txt['stats_new_members'], '</th>
-					<th>', $txt['most_online'], '</th>';
+					<th class="lefttext">', Lang::$txt['yearly_summary'], '</th>
+					<th>', Lang::$txt['stats_new_topics'], '</th>
+					<th>', Lang::$txt['stats_new_posts'], '</th>
+					<th>', Lang::$txt['stats_new_members'], '</th>
+					<th>', Lang::$txt['most_online'], '</th>';
 
 		if (!empty(Config::$modSettings['hitStats']))
 			echo '
-					<th>', $txt['page_views'], '</th>';
+					<th>', Lang::$txt['page_views'], '</th>';
 
 		echo '
 				</tr>

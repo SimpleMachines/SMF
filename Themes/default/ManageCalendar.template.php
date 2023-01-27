@@ -11,6 +11,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 
 /**
@@ -18,8 +19,6 @@ use SMF\Utils;
  */
 function template_edit_holiday()
 {
-	global $txt;
-
 	// Show a form for all the holiday information.
 	echo '
 		<form action="', Config::$scripturl, '?action=admin;area=managecalendar;sa=editholiday" method="post" accept-charset="', Utils::$context['character_set'], '">
@@ -29,17 +28,17 @@ function template_edit_holiday()
 			<div class="windowbg">
 				<dl class="settings">
 					<dt>
-						<strong>', $txt['holidays_title_label'], ':</strong>
+						<strong>', Lang::$txt['holidays_title_label'], ':</strong>
 					</dt>
 					<dd>
 						<input type="text" name="title" value="', Utils::$context['holiday']['title'], '" size="55" maxlength="60">
 					</dd>
 					<dt>
-						<strong>', $txt['calendar_year'], '</strong>
+						<strong>', Lang::$txt['calendar_year'], '</strong>
 					</dt>
 					<dd>
 						<select name="year" id="year" onchange="generateDays();">
-							<option value="0000"', Utils::$context['holiday']['year'] == '0000' ? ' selected' : '', '>', $txt['every_year'], '</option>';
+							<option value="0000"', Utils::$context['holiday']['year'] == '0000' ? ' selected' : '', '>', Lang::$txt['every_year'], '</option>';
 
 	// Show a list of all the years we allow...
 	for ($year = Config::$modSettings['cal_minyear']; $year <= Config::$modSettings['cal_maxyear']; $year++)
@@ -48,17 +47,17 @@ function template_edit_holiday()
 
 	echo '
 						</select>
-						<label for="month">', $txt['calendar_month'], '</label>
+						<label for="month">', Lang::$txt['calendar_month'], '</label>
 						<select name="month" id="month" onchange="generateDays();">';
 
 	// There are 12 months per year - ensure that they all get listed.
 	for ($month = 1; $month <= 12; $month++)
 		echo '
-							<option value="', $month, '"', $month == Utils::$context['holiday']['month'] ? ' selected' : '', '>', $txt['months'][$month], '</option>';
+							<option value="', $month, '"', $month == Utils::$context['holiday']['month'] ? ' selected' : '', '>', Lang::$txt['months'][$month], '</option>';
 
 	echo '
 						</select>
-						<label for="day">', $txt['calendar_day'], '</label>
+						<label for="day">', Lang::$txt['calendar_day'], '</label>
 						<select name="day" id="day" onchange="generateDays();">';
 
 	// This prints out all the days in the current month - this changes dynamically as we switch months.
@@ -73,11 +72,11 @@ function template_edit_holiday()
 
 	if (Utils::$context['is_new'])
 		echo '
-				<input type="submit" value="', $txt['holidays_button_add'], '" class="button">';
+				<input type="submit" value="', Lang::$txt['holidays_button_add'], '" class="button">';
 	else
 		echo '
-				<input type="submit" name="edit" value="', $txt['holidays_button_edit'], '" class="button">
-				<input type="submit" name="delete" value="', $txt['holidays_button_remove'], '" class="button">
+				<input type="submit" name="edit" value="', Lang::$txt['holidays_button_edit'], '" class="button">
+				<input type="submit" name="delete" value="', Lang::$txt['holidays_button_remove'], '" class="button">
 				<input type="hidden" name="holiday" value="', Utils::$context['holiday']['id'], '">';
 	echo '
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">

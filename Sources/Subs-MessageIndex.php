@@ -11,6 +11,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Lang;
 use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
@@ -25,12 +26,10 @@ if (!defined('SMF'))
  */
 function getBoardList($boardListOptions = array())
 {
-	global $txt;
-
 	if (isset($boardListOptions['excluded_boards']) && isset($boardListOptions['included_boards']))
 	{
-		loadLanguage('Errors');
-		trigger_error($txt['get_board_list_cannot_include_and_exclude'], E_USER_ERROR);
+		Lang::load('Errors');
+		trigger_error(Lang::$txt['get_board_list_cannot_include_and_exclude'], E_USER_ERROR);
 	}
 
 	$where = array();

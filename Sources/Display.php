@@ -16,6 +16,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -36,7 +37,7 @@ if (!defined('SMF'))
  */
 function Display()
 {
-	global $txt, $settings;
+	global $settings;
 	global $options, $user_info, $board_info, $topic, $board;
 	global $messages_request;
 
@@ -345,7 +346,7 @@ function Display()
 	}
 
 	// Create a previous next string if the selected theme has it as a selected option.
-	Utils::$context['previous_next'] = Config::$modSettings['enablePreviousNext'] ? '<a href="' . Config::$scripturl . '?topic=' . $topic . '.0;prev_next=prev#new">' . $txt['previous_next_back'] . '</a> - <a href="' . Config::$scripturl . '?topic=' . $topic . '.0;prev_next=next#new">' . $txt['previous_next_forward'] . '</a>' : '';
+	Utils::$context['previous_next'] = Config::$modSettings['enablePreviousNext'] ? '<a href="' . Config::$scripturl . '?topic=' . $topic . '.0;prev_next=prev#new">' . Lang::$txt['previous_next_back'] . '</a> - <a href="' . Config::$scripturl . '?topic=' . $topic . '.0;prev_next=next#new">' . Lang::$txt['previous_next_forward'] . '</a>' : '';
 
 	// Do we need to show the visual verification image?
 	Utils::$context['require_verification'] = !$user_info['is_mod'] && !$user_info['is_admin'] && !empty(Config::$modSettings['posts_require_captcha']) && ($user_info['posts'] < Config::$modSettings['posts_require_captcha'] || ($user_info['is_guest'] && Config::$modSettings['posts_require_captcha'] == -1));
@@ -375,7 +376,7 @@ function Display()
 	}
 
 	// Censor the title...
-	censorText(Utils::$context['topicinfo']['subject']);
+	Lang::censorText(Utils::$context['topicinfo']['subject']);
 	Utils::$context['page_title'] = Utils::$context['topicinfo']['subject'];
 
 	// Default this topic to not marked for notifications... of course...
@@ -485,14 +486,14 @@ function Display()
 		{
 			// No limit! (actually, there is a limit, but...)
 			Utils::$context['messages_per_page'] = -1;
-			Utils::$context['page_index'] .= sprintf(strtr($settings['page_index']['current_page'], array('%1$d' => '%1$s')), $txt['all']);
+			Utils::$context['page_index'] .= sprintf(strtr($settings['page_index']['current_page'], array('%1$d' => '%1$s')), Lang::$txt['all']);
 
 			// Set start back to 0...
 			$_REQUEST['start'] = 0;
 		}
 		// They aren't using it, but the *option* is there, at least.
 		else
-			Utils::$context['page_index'] .= sprintf(strtr($settings['page_index']['page'], array('{URL}' => Config::$scripturl . '?topic=' . $topic . '.0;all')), '', $txt['all']);
+			Utils::$context['page_index'] .= sprintf(strtr($settings['page_index']['page'], array('{URL}' => Config::$scripturl . '?topic=' . $topic . '.0;all')), '', Lang::$txt['all']);
 	}
 
 	// Build the link tree.
@@ -509,19 +510,19 @@ function Display()
 	{
 		// Add a link for each moderator...
 		foreach ($board_info['moderators'] as $mod)
-			Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $mod['id'] . '" title="' . $txt['board_moderator'] . '">' . $mod['name'] . '</a>';
+			Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $mod['id'] . '" title="' . Lang::$txt['board_moderator'] . '">' . $mod['name'] . '</a>';
 	}
 	if (!empty($board_info['moderator_groups']))
 	{
 		// Add a link for each moderator group as well...
 		foreach ($board_info['moderator_groups'] as $mod_group)
-			Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=groups;sa=viewmemberes;group=' . $mod_group['id'] . '" title="' . $txt['board_moderator'] . '">' . $mod_group['name'] . '</a>';
+			Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=groups;sa=viewmemberes;group=' . $mod_group['id'] . '" title="' . Lang::$txt['board_moderator'] . '">' . $mod_group['name'] . '</a>';
 	}
 
 	if (!empty(Utils::$context['link_moderators']))
 	{
 		// And show it after the board's name.
-		Utils::$context['linktree'][count(Utils::$context['linktree']) - 2]['extra_after'] = '<span class="board_moderators">(' . (count(Utils::$context['link_moderators']) == 1 ? $txt['moderator'] : $txt['moderators']) . ': ' . implode(', ', Utils::$context['link_moderators']) . ')</span>';
+		Utils::$context['linktree'][count(Utils::$context['linktree']) - 2]['extra_after'] = '<span class="board_moderators">(' . (count(Utils::$context['link_moderators']) == 1 ? Lang::$txt['moderator'] : Lang::$txt['moderators']) . ': ' . implode(', ', Utils::$context['link_moderators']) . ')</span>';
 	}
 
 	// Information about the current topic...
@@ -536,8 +537,8 @@ function Display()
 
 	// Set the topic's information for the template.
 	Utils::$context['subject'] = Utils::$context['topicinfo']['subject'];
-	Utils::$context['num_views'] = comma_format(Utils::$context['topicinfo']['num_views']);
-	Utils::$context['num_views_text'] = Utils::$context['num_views'] == 1 ? $txt['read_one_time'] : sprintf($txt['read_many_times'], Utils::$context['num_views']);
+	Utils::$context['num_views'] = Lang::numberFormat(Utils::$context['topicinfo']['num_views']);
+	Utils::$context['num_views_text'] = Utils::$context['num_views'] == 1 ? Lang::$txt['read_one_time'] : sprintf(Lang::$txt['read_many_times'], Utils::$context['num_views']);
 	Utils::$context['mark_unread_time'] = !empty($virtual_msg) ? $virtual_msg : Utils::$context['topicinfo']['new_from'];
 
 	// Set a canonical URL for this page.
@@ -546,13 +547,13 @@ function Display()
 	// For quick reply we need a response prefix in the default forum language.
 	if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix', 600)))
 	{
-		if (Config::$language === $user_info['language'])
-			Utils::$context['response_prefix'] = $txt['response_prefix'];
+		if (Lang::$default === $user_info['language'])
+			Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
 		else
 		{
-			loadLanguage('index', Config::$language, false);
-			Utils::$context['response_prefix'] = $txt['response_prefix'];
-			loadLanguage('index');
+			Lang::load('index', Lang::$default, false);
+			Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
+			Lang::load('index');
 		}
 		CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 	}
@@ -693,7 +694,7 @@ function Display()
 		$pollinfo['has_voted'] = false;
 		while ($row = Db::$db->fetch_assoc($request))
 		{
-			censorText($row['label']);
+			Lang::censorText($row['label']);
 			$pollOptions[$row['id_choice']] = $row;
 			$realtotal += $row['votes'];
 			$pollinfo['has_voted'] |= $row['voted_this'] != -1;
@@ -755,7 +756,7 @@ function Display()
 			'lock' => allowedTo('poll_lock_any') || (Utils::$context['user']['started'] && allowedTo('poll_lock_own')),
 			'edit' => allowedTo('poll_edit_any') || (Utils::$context['user']['started'] && allowedTo('poll_edit_own')),
 			'remove' => allowedTo('poll_remove_any') || (Utils::$context['user']['started'] && allowedTo('poll_remove_own')),
-			'allowed_warning' => $pollinfo['max_votes'] > 1 ? sprintf($txt['poll_options_limit'], min(count($pollOptions), $pollinfo['max_votes'])) : '',
+			'allowed_warning' => $pollinfo['max_votes'] > 1 ? sprintf(Lang::$txt['poll_options_limit'], min(count($pollOptions), $pollinfo['max_votes'])) : '',
 			'is_expired' => !empty($pollinfo['expire_time']) && $pollinfo['expire_time'] < time(),
 			'expire_time' => !empty($pollinfo['expire_time']) ? timeformat($pollinfo['expire_time']) : 0,
 			'has_voted' => !empty($pollinfo['has_voted']),
@@ -858,7 +859,7 @@ function Display()
 			Utils::$context['poll_buttons']['edit'] = array('text' => 'poll_edit', 'image' => 'poll_edit.png', 'url' => Config::$scripturl . '?action=editpoll;topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start']);
 
 		if (Utils::$context['can_remove_poll'])
-			Utils::$context['poll_buttons']['remove_poll'] = array('text' => 'poll_remove', 'image' => 'admin_remove_poll.png', 'custom' => 'data-confirm="' . $txt['poll_remove_warn'] . '"', 'class' => 'you_sure', 'url' => Config::$scripturl . '?action=removepoll;topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+			Utils::$context['poll_buttons']['remove_poll'] = array('text' => 'poll_remove', 'image' => 'admin_remove_poll.png', 'custom' => 'data-confirm="' . Lang::$txt['poll_remove_warn'] . '"', 'class' => 'you_sure', 'url' => Config::$scripturl . '?action=removepoll;topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 
 		// Allow mods to add additional buttons here
 		call_integration_hook('integrate_poll_buttons');
@@ -1133,7 +1134,7 @@ function Display()
 	}
 
 	Utils::$context['jump_to'] = array(
-		'label' => addslashes(un_htmlspecialchars($txt['jump_to'])),
+		'label' => addslashes(un_htmlspecialchars(Lang::$txt['jump_to'])),
 		'board_name' => strtr(Utils::htmlspecialchars(strip_tags($board_info['name'])), array('&amp;' => '&')),
 		'child_level' => $board_info['child_level'],
 	);
@@ -1219,7 +1220,7 @@ function Display()
 	Utils::$context['drafts_save'] = !empty(Config::$modSettings['drafts_post_enabled']) && allowedTo('post_draft') && Utils::$context['can_reply'];
 	Utils::$context['drafts_autosave'] = !empty(Utils::$context['drafts_save']) && !empty(Config::$modSettings['drafts_autosave_enabled']) && !empty($options['drafts_autosave_enabled']);
 	if (!empty(Utils::$context['drafts_save']))
-		loadLanguage('Drafts');
+		Lang::load('Drafts');
 
 	// When was the last time this topic was replied to?  Should we warn them about it?
 	if (!empty(Config::$modSettings['oldTopicDays']) && (Utils::$context['can_reply'] || Utils::$context['can_reply_unapproved']) && empty(Utils::$context['topicinfo']['is_sticky']))
@@ -1255,7 +1256,7 @@ function Display()
 		'id' => 'quickReply',
 		'value' => '',
 		'labels' => array(
-			'post_button' => $txt['post'],
+			'post_button' => Lang::$txt['post'],
 		),
 		// add height and width for the editor
 		'height' => '150px',
@@ -1325,7 +1326,7 @@ function Display()
 		Utils::$context['mod_buttons']['move'] = array('text' => 'move_topic', 'url' => Config::$scripturl . '?action=movetopic;current_board=' . Utils::$context['current_board'] . ';topic=' . Utils::$context['current_topic'] . '.0');
 
 	if (Utils::$context['can_delete'])
-		Utils::$context['mod_buttons']['delete'] = array('text' => 'remove_topic', 'custom' => 'data-confirm="' . $txt['are_sure_remove_topic'] . '"', 'class' => 'you_sure', 'url' => Config::$scripturl . '?action=removetopic2;topic=' . Utils::$context['current_topic'] . '.0;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+		Utils::$context['mod_buttons']['delete'] = array('text' => 'remove_topic', 'custom' => 'data-confirm="' . Lang::$txt['are_sure_remove_topic'] . '"', 'class' => 'you_sure', 'url' => Config::$scripturl . '?action=removetopic2;topic=' . Utils::$context['current_topic'] . '.0;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 
 	if (Utils::$context['can_lock'])
 		Utils::$context['mod_buttons']['lock'] = array('text' => empty(Utils::$context['is_locked']) ? 'set_lock' : 'set_unlock', 'url' => Config::$scripturl . '?action=lock;topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . ';sa=' . (Utils::$context['is_locked'] ? 'unlock' : 'lock') . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
@@ -1407,7 +1408,7 @@ function Display()
  */
 function prepareDisplayContext($reset = false)
 {
-	global $settings, $txt, $options, $user_info;
+	global $settings, $options, $user_info;
 	global $memberContext, $messages_request, $topic, $board_info;
 
 	static $counter = null;
@@ -1451,7 +1452,7 @@ function prepareDisplayContext($reset = false)
 		Utils::$context['icon_sources'][$message['icon']] = 'images_url';
 
 	// If you're a lazy bum, you probably didn't give a subject...
-	$message['subject'] = $message['subject'] != '' ? $message['subject'] : $txt['no_subject'];
+	$message['subject'] = $message['subject'] != '' ? $message['subject'] : Lang::$txt['no_subject'];
 
 	// Are you allowed to remove at least a single reply?
 	Utils::$context['can_remove_post'] |= allowedTo('delete_own') && (empty(Config::$modSettings['edit_disable_time']) || $message['poster_time'] + Config::$modSettings['edit_disable_time'] * 60 >= time()) && $message['id_member'] == $user_info['id'];
@@ -1468,7 +1469,7 @@ function prepareDisplayContext($reset = false)
 		// Notice this information isn't used anywhere else....
 		$memberContext[$message['id_member']]['name'] = $message['poster_name'];
 		$memberContext[$message['id_member']]['id'] = 0;
-		$memberContext[$message['id_member']]['group'] = $txt['guest_title'];
+		$memberContext[$message['id_member']]['group'] = Lang::$txt['guest_title'];
 		$memberContext[$message['id_member']]['link'] = $message['poster_name'];
 		$memberContext[$message['id_member']]['email'] = $message['poster_email'];
 		$memberContext[$message['id_member']]['show_email'] = allowedTo('moderate_forum');
@@ -1490,8 +1491,8 @@ function prepareDisplayContext($reset = false)
 	$memberContext[$message['id_member']]['show_profile_buttons'] = !empty(Config::$modSettings['show_profile_buttons']) && (!empty($memberContext[$message['id_member']]['can_view_profile']) || (!empty($memberContext[$message['id_member']]['website']['url']) && !isset(Utils::$context['disabled_fields']['website'])) || $memberContext[$message['id_member']]['show_email'] || Utils::$context['can_send_pm']);
 
 	// Do the censor thang.
-	censorText($message['body']);
-	censorText($message['subject']);
+	Lang::censorText($message['body']);
+	Lang::censorText($message['subject']);
 
 	// Run BBC interpreter on the message.
 	$message['body'] = BBCodeParser::load()->parse($message['body'], $message['smileys_enabled'], $message['id_msg']);
@@ -1552,11 +1553,11 @@ function prepareDisplayContext($reset = false)
 	// Is this user the message author?
 	$output['is_message_author'] = $message['id_member'] == $user_info['id'];
 	if (!empty($output['modified']['name']))
-		$output['modified']['last_edit_text'] = sprintf($txt['last_edit_by'], $output['modified']['time'], $output['modified']['name']);
+		$output['modified']['last_edit_text'] = sprintf(Lang::$txt['last_edit_by'], $output['modified']['time'], $output['modified']['name']);
 
 	// Did they give a reason for editing?
 	if (!empty($output['modified']['name']) && !empty($output['modified']['reason']))
-		$output['modified']['last_edit_text'] .= '&nbsp;' . sprintf($txt['last_edit_reason'], $output['modified']['reason']);
+		$output['modified']['last_edit_text'] .= '&nbsp;' . sprintf(Lang::$txt['last_edit_reason'], $output['modified']['reason']);
 
 	// Any custom profile fields?
 	if (!empty($memberContext[$message['id_member']]['custom_fields']))
@@ -1565,14 +1566,14 @@ function prepareDisplayContext($reset = false)
 
 	$output['quickbuttons'] = array(
 		'quote' => array(
-			'label' => $txt['quote_action'],
+			'label' => Lang::$txt['quote_action'],
 			'href' => Config::$scripturl.'?action=post;quote='.$output['id'].';topic='.Utils::$context['current_topic'], '.'.Utils::$context['start'].';last_msg='.Utils::$context['topic_last_message'],
 			'javascript' => 'onclick="return oQuickReply.quote('.$output['id'].');"',
 			'icon' => 'quote',
 			'show' => Utils::$context['can_quote']
 		),
 		'quote_selected' => array(
-			'label' => $txt['quote_selected_action'],
+			'label' => Lang::$txt['quote_selected_action'],
 			'id' => 'quoteSelected_'. $output['id'],
 			'href' => 'javascript:void(0)',
 			'custom' => 'style="display:none"',
@@ -1580,7 +1581,7 @@ function prepareDisplayContext($reset = false)
 			'show' => Utils::$context['can_quote']
 		),
 		'quick_edit' => array(
-			'label' => $txt['quick_edit'],
+			'label' => Lang::$txt['quick_edit'],
 			'class' => 'quick_edit',
 			'id' => 'modify_button_'. $output['id'],
 			'custom' => 'onclick="oQuickModify.modifyMsg(\''.$output['id'].'\', \''.!empty(Config::$modSettings['toggle_subject']).'\')"',
@@ -1589,59 +1590,59 @@ function prepareDisplayContext($reset = false)
 		),
 		'more' => array(
 			'modify' => array(
-				'label' => $txt['modify'],
+				'label' => Lang::$txt['modify'],
 				'href' => Config::$scripturl.'?action=post;msg='.$output['id'].';topic='.Utils::$context['current_topic'].'.'.Utils::$context['start'],
 				'icon' => 'modify_button',
 				'show' => $output['can_modify']
 			),
 			'remove_topic' => array(
-				'label' => $txt['remove_topic'],
+				'label' => Lang::$txt['remove_topic'],
 				'href' => Config::$scripturl.'?action=removetopic2;topic='.Utils::$context['current_topic'].'.'.Utils::$context['start'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'],
-				'javascript' => 'data-confirm="'.$txt['are_sure_remove_topic'].'"',
+				'javascript' => 'data-confirm="'.Lang::$txt['are_sure_remove_topic'].'"',
 				'class' => 'you_sure',
 				'icon' => 'remove_button',
 				'show' => Utils::$context['can_delete'] && (Utils::$context['topic_first_message'] == $output['id'])
 			),
 			'remove' => array(
-				'label' => $txt['remove'],
+				'label' => Lang::$txt['remove'],
 				'href' => Config::$scripturl.'?action=deletemsg;topic='.Utils::$context['current_topic'].'.'.Utils::$context['start'].';msg='.$output['id'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'],
-				'javascript' => 'data-confirm="'.$txt['remove_message_question'].'"',
+				'javascript' => 'data-confirm="'.Lang::$txt['remove_message_question'].'"',
 				'class' => 'you_sure',
 				'icon' => 'remove_button',
 				'show' => $output['can_remove'] && (Utils::$context['topic_first_message'] != $output['id'])
 			),
 			'split' => array(
-				'label' => $txt['split'],
+				'label' => Lang::$txt['split'],
 				'href' => Config::$scripturl.'?action=splittopics;topic='.Utils::$context['current_topic'].'.0;at='.$output['id'],
 				'icon' => 'split_button',
 				'show' => Utils::$context['can_split'] && !empty(Utils::$context['real_num_replies'])
 			),
 			'report' => array(
-				'label' => $txt['report_to_mod'],
+				'label' => Lang::$txt['report_to_mod'],
 				'href' => Config::$scripturl.'?action=reporttm;topic='.Utils::$context['current_topic'].'.'.$output['counter'].';msg='.$output['id'],
 				'icon' => 'error',
 				'show' => Utils::$context['can_report_moderator']
 			),
 			'warn' => array(
-				'label' => $txt['issue_warning'],
+				'label' => Lang::$txt['issue_warning'],
 				'href' => Config::$scripturl.'?action=profile;area=issuewarning;u='.$output['member']['id'].';msg='.$output['id'],
 				'icon' => 'warn_button',
 				'show' => Utils::$context['can_issue_warning'] && !$output['is_message_author'] && !$output['member']['is_guest']
 			),
 			'restore' => array(
-				'label' => $txt['restore_message'],
+				'label' => Lang::$txt['restore_message'],
 				'href' => Config::$scripturl.'?action=restoretopic;msgs='.$output['id'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'],
 				'icon' => 'restore_button',
 				'show' => Utils::$context['can_restore_msg']
 			),
 			'approve' => array(
-				'label' => $txt['approve'],
+				'label' => Lang::$txt['approve'],
 				'href' => Config::$scripturl.'?action=moderate;area=postmod;sa=approve;topic='.Utils::$context['current_topic'].'.'.Utils::$context['start'].';msg='.$output['id'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'],
 				'icon' => 'approve_button',
 				'show' => $output['can_approve']
 			),
 			'unapprove' => array(
-				'label' => $txt['unapprove'],
+				'label' => Lang::$txt['unapprove'],
 				'href' => Config::$scripturl.'?action=moderate;area=postmod;sa=approve;topic='.Utils::$context['current_topic'].'.'.Utils::$context['start'].';msg='.$output['id'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'],
 				'icon' => 'unapprove_button',
 				'show' => $output['can_unapprove']

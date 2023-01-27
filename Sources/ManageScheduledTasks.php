@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -30,11 +31,9 @@ if (!defined('SMF'))
  */
 function ManageScheduledTasks()
 {
-	global $txt;
-
 	isAllowedTo('admin_forum');
 
-	loadLanguage('ManageScheduledTasks');
+	Lang::load('ManageScheduledTasks');
 	loadTemplate('ManageScheduledTasks');
 
 	$subActions = array(
@@ -52,18 +51,18 @@ function ManageScheduledTasks()
 
 	// Now for the lovely tabs. That we all love.
 	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
-		'title' => $txt['scheduled_tasks_title'],
+		'title' => Lang::$txt['scheduled_tasks_title'],
 		'help' => '',
-		'description' => $txt['maintain_info'],
+		'description' => Lang::$txt['maintain_info'],
 		'tabs' => array(
 			'tasks' => array(
-				'description' => $txt['maintain_tasks_desc'],
+				'description' => Lang::$txt['maintain_tasks_desc'],
 			),
 			'tasklog' => array(
-				'description' => $txt['scheduled_log_desc'],
+				'description' => Lang::$txt['scheduled_log_desc'],
 			),
 			'settings' => array(
-				'description' => $txt['scheduled_tasks_settings_desc'],
+				'description' => Lang::$txt['scheduled_tasks_settings_desc'],
 			),
 		),
 	);
@@ -81,12 +80,10 @@ function ManageScheduledTasks()
  */
 function ScheduledTasks()
 {
-	global $txt;
-
 	// Mama, setup the template first - cause it's like the most important bit, like pickle in a sandwich.
 	// ... ironically I don't like pickle. </grudge>
 	Utils::$context['sub_template'] = 'view_scheduled_tasks';
-	Utils::$context['page_title'] = $txt['maintain_tasks'];
+	Utils::$context['page_title'] = Lang::$txt['maintain_tasks'];
 
 	// Saving changes?
 	if (isset($_REQUEST['save']) && isset($_POST['enable_task']))
@@ -219,7 +216,7 @@ function ScheduledTasks()
 
 	$listOptions = array(
 		'id' => 'scheduled_tasks',
-		'title' => $txt['maintain_tasks'],
+		'title' => Lang::$txt['maintain_tasks'],
 		'base_href' => Config::$scripturl . '?action=admin;area=scheduledtasks',
 		'get_items' => array(
 			'function' => 'list_getScheduledTasks',
@@ -227,7 +224,7 @@ function ScheduledTasks()
 		'columns' => array(
 			'name' => array(
 				'header' => array(
-					'value' => $txt['scheduled_tasks_name'],
+					'value' => Lang::$txt['scheduled_tasks_name'],
 					'style' => 'width: 40%;',
 				),
 				'data' => array(
@@ -244,7 +241,7 @@ function ScheduledTasks()
 			),
 			'next_due' => array(
 				'header' => array(
-					'value' => $txt['scheduled_tasks_next_time'],
+					'value' => Lang::$txt['scheduled_tasks_next_time'],
 				),
 				'data' => array(
 					'db' => 'next_time',
@@ -253,7 +250,7 @@ function ScheduledTasks()
 			),
 			'regularity' => array(
 				'header' => array(
-					'value' => $txt['scheduled_tasks_regularity'],
+					'value' => Lang::$txt['scheduled_tasks_regularity'],
 				),
 				'data' => array(
 					'db' => 'regularity',
@@ -262,7 +259,7 @@ function ScheduledTasks()
 			),
 			'run_now' => array(
 				'header' => array(
-					'value' => $txt['scheduled_tasks_run_now'],
+					'value' => Lang::$txt['scheduled_tasks_run_now'],
 					'style' => 'width: 12%;',
 					'class' => 'centercol',
 				),
@@ -279,7 +276,7 @@ function ScheduledTasks()
 			),
 			'enabled' => array(
 				'header' => array(
-					'value' => $txt['scheduled_tasks_enabled'],
+					'value' => Lang::$txt['scheduled_tasks_enabled'],
 					'style' => 'width: 6%;',
 					'class' => 'centercol',
 				),
@@ -303,12 +300,12 @@ function ScheduledTasks()
 			array(
 				'position' => 'below_table_data',
 				'value' => '
-					<input type="submit" name="save" value="' . $txt['scheduled_tasks_save_changes'] . '" class="button">
-					<input type="submit" name="run" value="' . $txt['scheduled_tasks_run_now'] . '" class="button">',
+					<input type="submit" name="save" value="' . Lang::$txt['scheduled_tasks_save_changes'] . '" class="button">
+					<input type="submit" name="run" value="' . Lang::$txt['scheduled_tasks_run_now'] . '" class="button">',
 			),
 			array(
 				'position' => 'after_title',
-				'value' => $txt['scheduled_tasks_time_offset'],
+				'value' => Lang::$txt['scheduled_tasks_time_offset'],
 			),
 		),
 	);
@@ -331,8 +328,6 @@ function ScheduledTasks()
  */
 function list_getScheduledTasks($start, $items_per_page, $sort)
 {
-	global $txt;
-
 	$request = Db::$db->query('', '
 		SELECT id_task, next_time, time_offset, time_regularity, time_unit, disabled, task
 		FROM {db_prefix}scheduled_tasks',
@@ -343,15 +338,15 @@ function list_getScheduledTasks($start, $items_per_page, $sort)
 	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// Find the next for regularity - don't offset as it's always server time!
-		$offset = sprintf($txt['scheduled_task_reg_starting'], date('H:i', $row['time_offset']));
-		$repeating = sprintf($txt['scheduled_task_reg_repeating'], $row['time_regularity'], $txt['scheduled_task_reg_unit_' . $row['time_unit']]);
+		$offset = sprintf(Lang::$txt['scheduled_task_reg_starting'], date('H:i', $row['time_offset']));
+		$repeating = sprintf(Lang::$txt['scheduled_task_reg_repeating'], $row['time_regularity'], Lang::$txt['scheduled_task_reg_unit_' . $row['time_unit']]);
 
 		$known_tasks[] = array(
 			'id' => $row['id_task'],
 			'function' => $row['task'],
-			'name' => isset($txt['scheduled_task_' . $row['task']]) ? $txt['scheduled_task_' . $row['task']] : $row['task'],
-			'desc' => isset($txt['scheduled_task_desc_' . $row['task']]) ? sprintf($txt['scheduled_task_desc_' . $row['task']], Config::$scripturl) : '',
-			'next_time' => $row['disabled'] ? $txt['scheduled_tasks_na'] : timeformat(($row['next_time'] == 0 ? time() : $row['next_time']), true, 'server'),
+			'name' => isset(Lang::$txt['scheduled_task_' . $row['task']]) ? Lang::$txt['scheduled_task_' . $row['task']] : $row['task'],
+			'desc' => isset(Lang::$txt['scheduled_task_desc_' . $row['task']]) ? sprintf(Lang::$txt['scheduled_task_desc_' . $row['task']], Config::$scripturl) : '',
+			'next_time' => $row['disabled'] ? Lang::$txt['scheduled_tasks_na'] : timeformat(($row['next_time'] == 0 ? time() : $row['next_time']), true, 'server'),
 			'disabled' => $row['disabled'],
 			'checked_state' => $row['disabled'] ? '' : 'checked',
 			'regularity' => $offset . ', ' . $repeating,
@@ -369,12 +364,10 @@ function list_getScheduledTasks($start, $items_per_page, $sort)
  */
 function EditTask()
 {
-	global $txt;
-
 	// Just set up some lovely context stuff.
 	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'tasks';
 	Utils::$context['sub_template'] = 'edit_scheduled_tasks';
-	Utils::$context['page_title'] = $txt['scheduled_task_edit'];
+	Utils::$context['page_title'] = Lang::$txt['scheduled_task_edit'];
 	Utils::$context['server_time'] = timeformat(time(), false, 'server');
 
 	// Cleaning...
@@ -455,9 +448,9 @@ function EditTask()
 		Utils::$context['task'] = array(
 			'id' => $row['id_task'],
 			'function' => $row['task'],
-			'name' => isset($txt['scheduled_task_' . $row['task']]) ? $txt['scheduled_task_' . $row['task']] : $row['task'],
-			'desc' => isset($txt['scheduled_task_desc_' . $row['task']]) ? sprintf($txt['scheduled_task_desc_' . $row['task']], Config::$scripturl) : '',
-			'next_time' => $row['disabled'] ? $txt['scheduled_tasks_na'] : timeformat($row['next_time'] == 0 ? time() : $row['next_time'], true, 'server'),
+			'name' => isset(Lang::$txt['scheduled_task_' . $row['task']]) ? Lang::$txt['scheduled_task_' . $row['task']] : $row['task'],
+			'desc' => isset(Lang::$txt['scheduled_task_desc_' . $row['task']]) ? sprintf(Lang::$txt['scheduled_task_desc_' . $row['task']], Config::$scripturl) : '',
+			'next_time' => $row['disabled'] ? Lang::$txt['scheduled_tasks_na'] : timeformat($row['next_time'] == 0 ? time() : $row['next_time'], true, 'server'),
 			'disabled' => $row['disabled'],
 			'offset' => $row['time_offset'],
 			'regularity' => $row['time_regularity'],
@@ -477,10 +470,8 @@ function EditTask()
  */
 function TaskLog()
 {
-	global $txt;
-
 	// Lets load the language just incase we are outside the Scheduled area.
-	loadLanguage('ManageScheduledTasks');
+	Lang::load('ManageScheduledTasks');
 
 	// Empty the log?
 	if (!empty($_POST['removeAll']))
@@ -499,8 +490,8 @@ function TaskLog()
 	$listOptions = array(
 		'id' => 'task_log',
 		'items_per_page' => 30,
-		'title' => $txt['scheduled_log'],
-		'no_items_label' => $txt['scheduled_log_empty'],
+		'title' => Lang::$txt['scheduled_log'],
+		'no_items_label' => Lang::$txt['scheduled_log_empty'],
 		'base_href' => Utils::$context['admin_area'] == 'scheduledtasks' ? Config::$scripturl . '?action=admin;area=scheduledtasks;sa=tasklog' : Config::$scripturl . '?action=admin;area=logs;sa=tasklog',
 		'default_sort_col' => 'date',
 		'get_items' => array(
@@ -512,7 +503,7 @@ function TaskLog()
 		'columns' => array(
 			'name' => array(
 				'header' => array(
-					'value' => $txt['scheduled_tasks_name'],
+					'value' => Lang::$txt['scheduled_tasks_name'],
 				),
 				'data' => array(
 					'db' => 'name'
@@ -520,7 +511,7 @@ function TaskLog()
 			),
 			'date' => array(
 				'header' => array(
-					'value' => $txt['scheduled_log_time_run'],
+					'value' => Lang::$txt['scheduled_log_time_run'],
 				),
 				'data' => array(
 					'function' => function($rowData)
@@ -535,11 +526,11 @@ function TaskLog()
 			),
 			'time_taken' => array(
 				'header' => array(
-					'value' => $txt['scheduled_log_time_taken'],
+					'value' => Lang::$txt['scheduled_log_time_taken'],
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => $txt['scheduled_log_time_taken_seconds'],
+						'format' => Lang::$txt['scheduled_log_time_taken_seconds'],
 						'params' => array(
 							'time_taken' => false,
 						),
@@ -559,11 +550,11 @@ function TaskLog()
 			array(
 				'position' => 'below_table_data',
 				'value' => '
-					<input type="submit" name="removeAll" value="' . $txt['scheduled_log_empty_log'] . '" data-confirm="' . $txt['scheduled_log_empty_log_confirm'] . '" class="button you_sure">',
+					<input type="submit" name="removeAll" value="' . Lang::$txt['scheduled_log_empty_log'] . '" data-confirm="' . Lang::$txt['scheduled_log_empty_log_confirm'] . '" class="button you_sure">',
 			),
 			array(
 				'position' => 'after_title',
-				'value' => $txt['scheduled_tasks_time_offset'],
+				'value' => Lang::$txt['scheduled_tasks_time_offset'],
 			),
 		),
 	);
@@ -578,7 +569,7 @@ function TaskLog()
 
 	// Make it all look tify.
 	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'tasklog';
-	Utils::$context['page_title'] = $txt['scheduled_log'];
+	Utils::$context['page_title'] = Lang::$txt['scheduled_log'];
 }
 
 /**
@@ -591,8 +582,6 @@ function TaskLog()
  */
 function list_getTaskLogEntries($start, $items_per_page, $sort)
 {
-	global $txt;
-
 	$request = Db::$db->query('', '
 		SELECT lst.id_log, lst.id_task, lst.time_run, lst.time_taken, st.task
 		FROM {db_prefix}log_scheduled_tasks AS lst
@@ -609,7 +598,7 @@ function list_getTaskLogEntries($start, $items_per_page, $sort)
 	while ($row = Db::$db->fetch_assoc($request))
 		$log_entries[] = array(
 			'id' => $row['id_log'],
-			'name' => isset($txt['scheduled_task_' . $row['task']]) ? $txt['scheduled_task_' . $row['task']] : $row['task'],
+			'name' => isset(Lang::$txt['scheduled_task_' . $row['task']]) ? Lang::$txt['scheduled_task_' . $row['task']] : $row['task'],
 			'time_run' => $row['time_run'],
 			'time_taken' => $row['time_taken'],
 		);
@@ -645,15 +634,13 @@ function list_getNumTaskLogEntries()
  */
 function TaskSettings($return_config = false)
 {
-	global $txt;
-
 	// We will need the utility functions from here.
 	require_once(Config::$sourcedir . '/ManageServer.php');
 
-	loadLanguage('Help');
+	Lang::load('Help');
 
 	$config_vars = array(
-		array('check', 'cron_is_real_cron', 'subtext' => $txt['cron_is_real_cron_desc'], 'help' => 'cron_is_real_cron'),
+		array('check', 'cron_is_real_cron', 'subtext' => Lang::$txt['cron_is_real_cron_desc'], 'help' => 'cron_is_real_cron'),
 	);
 
 	call_integration_hook('integrate_scheduled_tasks_settings', array(&$config_vars));
@@ -662,11 +649,11 @@ function TaskSettings($return_config = false)
 		return $config_vars;
 
 	// Set up the template.
-	Utils::$context['page_title'] = $txt['scheduled_tasks_settings'];
+	Utils::$context['page_title'] = Lang::$txt['scheduled_tasks_settings'];
 	Utils::$context['sub_template'] = 'show_settings';
 
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=scheduledtasks;save;sa=settings';
-	Utils::$context['settings_title'] = $txt['scheduled_tasks_settings'];
+	Utils::$context['settings_title'] = Lang::$txt['scheduled_tasks_settings'];
 
 	// Saving?
 	if (isset($_GET['save']))

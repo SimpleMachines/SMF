@@ -17,6 +17,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -32,7 +33,7 @@ if (!defined('SMF'))
  */
 function loadProfileFields($force_reload = false)
 {
-	global $profile_fields, $txt, $user_info, $cur_profile;
+	global $profile_fields, $user_info, $cur_profile;
 	global $profile_vars, $settings;
 
 	// Don't load this twice!
@@ -51,7 +52,7 @@ function loadProfileFields($force_reload = false)
 					- select:		A select box.
 					- text:			A string of some description.
 
-				string $label:			The label for this item - default will be $txt[$key] if this isn't set.
+				string $label:			The label for this item - default will be Lang::$txt[$key] if this isn't set.
 				string $subtext:		The subtext (Small label) for this item.
 				int $size:			Optional size for a text area.
 				array $input_attr:		An array of text strings to be added to the input box for this item.
@@ -144,21 +145,21 @@ function loadProfileFields($force_reload = false)
 		),
 		'date_registered' => array(
 			'type' => 'date',
-			'value' => empty($cur_profile['date_registered']) ? $txt['not_applicable'] : smf_strftime('%Y-%m-%d', $cur_profile['date_registered']),
-			'label' => $txt['date_registered'],
+			'value' => empty($cur_profile['date_registered']) ? Lang::$txt['not_applicable'] : smf_strftime('%Y-%m-%d', $cur_profile['date_registered']),
+			'label' => Lang::$txt['date_registered'],
 			'log_change' => true,
 			'permission' => 'moderate_forum',
-			'input_validate' => function(&$value) use ($txt, $user_info, $cur_profile)
+			'input_validate' => function(&$value) use ($user_info, $cur_profile)
 			{
 				// Bad date!  Go try again - please?
 				if (($value = strtotime($value)) === false)
 				{
 					$value = $cur_profile['date_registered'];
-					return $txt['invalid_registration'] . ' ' . smf_strftime('%d %b %Y ' . (strpos($user_info['time_format'], '%H') !== false ? '%I:%M:%S %p' : '%H:%M:%S'), time());
+					return Lang::$txt['invalid_registration'] . ' ' . smf_strftime('%d %b %Y ' . (strpos($user_info['time_format'], '%H') !== false ? '%I:%M:%S %p' : '%H:%M:%S'), time());
 				}
 
 				// As long as it doesn't equal "N/A"...
-				elseif ($value != $txt['not_applicable'] && $value != strtotime(smf_strftime('%Y-%m-%d', $cur_profile['date_registered'])))
+				elseif ($value != Lang::$txt['not_applicable'] && $value != strtotime(smf_strftime('%Y-%m-%d', $cur_profile['date_registered'])))
 				{
 					$diff = $cur_profile['date_registered'] - strtotime(smf_strftime('%Y-%m-%d', $cur_profile['date_registered']));
 					$value = $value + $diff;
@@ -172,8 +173,8 @@ function loadProfileFields($force_reload = false)
 		),
 		'email_address' => array(
 			'type' => 'email',
-			'label' => $txt['user_email_address'],
-			'subtext' => $txt['valid_email'],
+			'label' => Lang::$txt['user_email_address'],
+			'subtext' => Lang::$txt['valid_email'],
 			'log_change' => true,
 			'permission' => 'profile_password',
 			'js_submit' => !empty(Config::$modSettings['send_validation_onChange']) ? '
@@ -181,7 +182,7 @@ function loadProfileFields($force_reload = false)
 	{
 		if (this.email_address.value != "' . (!empty($cur_profile['email_address']) ? $cur_profile['email_address'] : '') . '")
 		{
-			alert(' . JavaScriptEscape($txt['email_change_logout']) . ');
+			alert(' . JavaScriptEscape(Lang::$txt['email_change_logout']) . ');
 			return true;
 		}
 	}, false);' : '',
@@ -221,7 +222,7 @@ function loadProfileFields($force_reload = false)
 			'callback_func' => 'theme_pick',
 			'permission' => 'profile_extra',
 			'enabled' => Config::$modSettings['theme_allow'] || allowedTo('admin_forum'),
-			'preload' => function() use ($cur_profile, $txt)
+			'preload' => function() use ($cur_profile)
 			{
 				$request = Db::$db->query('', '
 					SELECT value
@@ -238,7 +239,7 @@ function loadProfileFields($force_reload = false)
 
 				Utils::$context['member']['theme'] = array(
 					'id' => $cur_profile['id_theme'],
-					'name' => empty($cur_profile['id_theme']) ? $txt['theme_forum_default'] : $name
+					'name' => empty($cur_profile['id_theme']) ? Lang::$txt['theme_forum_default'] : $name
 				);
 				return true;
 			},
@@ -254,11 +255,11 @@ function loadProfileFields($force_reload = false)
 			{
 				return Utils::$context['profile_languages'];
 			},
-			'label' => $txt['preferred_language'],
+			'label' => Lang::$txt['preferred_language'],
 			'permission' => 'profile_identity',
 			'preload' => 'profileLoadLanguages',
 			'enabled' => !empty(Config::$modSettings['userLanguage']),
-			'value' => empty($cur_profile['lngfile']) ? Config::$language : $cur_profile['lngfile'],
+			'value' => empty($cur_profile['lngfile']) ? Lang::$default : $cur_profile['lngfile'],
 			'input_validate' => function(&$value) use ($cur_profile)
 			{
 				// Load the languages.
@@ -280,11 +281,11 @@ function loadProfileFields($force_reload = false)
 		// The username is not always editable - so adjust it as such.
 		'member_name' => array(
 			'type' => allowedTo('admin_forum') && isset($_GET['changeusername']) ? 'text' : 'label',
-			'label' => $txt['username'],
-			'subtext' => allowedTo('admin_forum') && !isset($_GET['changeusername']) ? '[<a href="' . Config::$scripturl . '?action=profile;u=' . Utils::$context['id_member'] . ';area=account;changeusername" style="font-style: italic;">' . $txt['username_change'] . '</a>]' : '',
+			'label' => Lang::$txt['username'],
+			'subtext' => allowedTo('admin_forum') && !isset($_GET['changeusername']) ? '[<a href="' . Config::$scripturl . '?action=profile;u=' . Utils::$context['id_member'] . ';area=account;changeusername" style="font-style: italic;">' . Lang::$txt['username_change'] . '</a>]' : '',
 			'log_change' => true,
 			'permission' => 'profile_identity',
-			'prehtml' => allowedTo('admin_forum') && isset($_GET['changeusername']) ? '<div class="alert">' . $txt['username_warning'] . '</div>' : '',
+			'prehtml' => allowedTo('admin_forum') && isset($_GET['changeusername']) ? '<div class="alert">' . Lang::$txt['username_warning'] . '</div>' : '',
 			'input_validate' => function(&$value) use ($user_info, $cur_profile)
 			{
 				if (allowedTo('admin_forum'))
@@ -314,8 +315,8 @@ function loadProfileFields($force_reload = false)
 		),
 		'passwrd1' => array(
 			'type' => 'password',
-			'label' => $txt['choose_pass'],
-			'subtext' => $txt['password_strength'],
+			'label' => Lang::$txt['choose_pass'],
+			'subtext' => Lang::$txt['password_strength'],
 			'size' => 20,
 			'value' => '',
 			'permission' => 'profile_password',
@@ -347,7 +348,7 @@ function loadProfileFields($force_reload = false)
 		),
 		'passwrd2' => array(
 			'type' => 'password',
-			'label' => $txt['verify_pass'],
+			'label' => Lang::$txt['verify_pass'],
 			'size' => 20,
 			'value' => '',
 			'permission' => 'profile_password',
@@ -355,7 +356,7 @@ function loadProfileFields($force_reload = false)
 		),
 		'personal_text' => array(
 			'type' => 'text',
-			'label' => $txt['personal_text'],
+			'label' => Lang::$txt['personal_text'],
 			'log_change' => true,
 			'input_attr' => array('maxlength="50"'),
 			'size' => 50,
@@ -392,7 +393,7 @@ function loadProfileFields($force_reload = false)
 		),
 		'posts' => array(
 			'type' => 'int',
-			'label' => $txt['profile_posts'],
+			'label' => Lang::$txt['profile_posts'],
 			'log_change' => true,
 			'size' => 7,
 			'min' => 0,
@@ -411,8 +412,8 @@ function loadProfileFields($force_reload = false)
 		),
 		'real_name' => array(
 			'type' => allowedTo('profile_displayed_name_own') || allowedTo('profile_displayed_name_any') || allowedTo('moderate_forum') ? 'text' : 'label',
-			'label' => $txt['name'],
-			'subtext' => $txt['display_name_desc'],
+			'label' => Lang::$txt['name'],
+			'subtext' => Lang::$txt['display_name_desc'],
 			'log_change' => true,
 			'input_attr' => array('maxlength="60"'),
 			'permission' => 'profile_displayed_name',
@@ -436,17 +437,17 @@ function loadProfileFields($force_reload = false)
 		),
 		'secret_question' => array(
 			'type' => 'text',
-			'label' => $txt['secret_question'],
-			'subtext' => $txt['secret_desc'],
+			'label' => Lang::$txt['secret_question'],
+			'subtext' => Lang::$txt['secret_desc'],
 			'size' => 50,
 			'permission' => 'profile_password',
 		),
 		'secret_answer' => array(
 			'type' => 'text',
-			'label' => $txt['secret_answer'],
-			'subtext' => $txt['secret_desc2'],
+			'label' => Lang::$txt['secret_answer'],
+			'subtext' => Lang::$txt['secret_desc2'],
 			'size' => 20,
-			'postinput' => '<span class="smalltext"><a href="' . Config::$scripturl . '?action=helpadmin;help=secret_why_blank" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help"></span> ' . $txt['secret_why_blank'] . '</a></span>',
+			'postinput' => '<span class="smalltext"><a href="' . Config::$scripturl . '?action=helpadmin;help=secret_why_blank" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help"></span> ' . Lang::$txt['secret_why_blank'] . '</a></span>',
 			'value' => '',
 			'permission' => 'profile_password',
 			'input_validate' => function(&$value) use ($cur_profile)
@@ -465,7 +466,7 @@ function loadProfileFields($force_reload = false)
 		),
 		'show_online' => array(
 			'type' => 'check',
-			'label' => $txt['show_online'],
+			'label' => Lang::$txt['show_online'],
 			'permission' => 'profile_identity',
 			'enabled' => !empty(Config::$modSettings['allow_hideOnline']) || allowedTo('moderate_forum'),
 		),
@@ -474,11 +475,11 @@ function loadProfileFields($force_reload = false)
 			'callback_func' => 'smiley_pick',
 			'enabled' => !empty(Config::$modSettings['smiley_sets_enable']),
 			'permission' => 'profile_extra',
-			'preload' => function() use (&$txt, $cur_profile, $settings)
+			'preload' => function() use ($cur_profile, $settings)
 			{
 				Utils::$context['member']['smiley_set']['id'] = empty($cur_profile['smiley_set']) ? '' : $cur_profile['smiley_set'];
 				Utils::$context['smiley_sets'] = explode(',', 'none,,' . Config::$modSettings['smiley_sets_known']);
-				$set_names = explode("\n", $txt['smileys_none'] . "\n" . $txt['smileys_forum_board_default'] . "\n" . Config::$modSettings['smiley_sets_names']);
+				$set_names = explode("\n", Lang::$txt['smileys_none'] . "\n" . Lang::$txt['smileys_forum_board_default'] . "\n" . Config::$modSettings['smiley_sets_names']);
 
 				$filenames = array();
 				$result = Db::$db->query('', '
@@ -510,8 +511,8 @@ function loadProfileFields($force_reload = false)
 					// No images at all? That's no good. Let the admin know, and quietly skip for this user.
 					else
 					{
-						loadLanguage('Errors', Config::$language);
-						log_error(sprintf($txt['smiley_set_dir_not_found'], $set_names[array_search($set, Utils::$context['smiley_sets'])]));
+						Lang::load('Errors', Lang::$default);
+						log_error(sprintf(Lang::$txt['smiley_set_dir_not_found'], $set_names[array_search($set, Utils::$context['smiley_sets'])]));
 
 						Utils::$context['smiley_sets'] = array_filter(Utils::$context['smiley_sets'], function($v) use ($set)
 							{
@@ -565,7 +566,7 @@ function loadProfileFields($force_reload = false)
 			'is_dummy' => true,
 			'preload' => function() use ($user_info)
 			{
-				loadLanguage('Settings');
+				Lang::load('Settings');
 
 				Utils::$context['allow_no_censored'] = false;
 				if ($user_info['is_admin'] || Utils::$context['user']['is_owner'])
@@ -590,15 +591,15 @@ function loadProfileFields($force_reload = false)
 			'type' => 'callback',
 			'callback_func' => 'timeformat_modify',
 			'permission' => 'profile_extra',
-			'preload' => function() use ($user_info, $txt, $cur_profile)
+			'preload' => function() use ($user_info, $cur_profile)
 			{
 				Utils::$context['easy_timeformats'] = array(
-					array('format' => '', 'title' => $txt['timeformat_default']),
-					array('format' => '%B %d, %Y, %I:%M:%S %p', 'title' => $txt['timeformat_easy1']),
-					array('format' => '%B %d, %Y, %H:%M:%S', 'title' => $txt['timeformat_easy2']),
-					array('format' => '%Y-%m-%d, %H:%M:%S', 'title' => $txt['timeformat_easy3']),
-					array('format' => '%d %B %Y, %H:%M:%S', 'title' => $txt['timeformat_easy4']),
-					array('format' => '%d-%m-%Y, %H:%M:%S', 'title' => $txt['timeformat_easy5'])
+					array('format' => '', 'title' => Lang::$txt['timeformat_default']),
+					array('format' => '%B %d, %Y, %I:%M:%S %p', 'title' => Lang::$txt['timeformat_easy1']),
+					array('format' => '%B %d, %Y, %H:%M:%S', 'title' => Lang::$txt['timeformat_easy2']),
+					array('format' => '%Y-%m-%d, %H:%M:%S', 'title' => Lang::$txt['timeformat_easy3']),
+					array('format' => '%d %B %Y, %H:%M:%S', 'title' => Lang::$txt['timeformat_easy4']),
+					array('format' => '%d-%m-%Y, %H:%M:%S', 'title' => Lang::$txt['timeformat_easy5'])
 				);
 
 				Utils::$context['member']['time_format'] = $cur_profile['time_format'];
@@ -613,7 +614,7 @@ function loadProfileFields($force_reload = false)
 			'options' => smf_list_timezones(),
 			'disabled_options' => array_filter(array_keys(smf_list_timezones()), 'is_int'),
 			'permission' => 'profile_extra',
-			'label' => $txt['timezone'],
+			'label' => Lang::$txt['timezone'],
 			'value' => empty($cur_profile['timezone']) ? Config::$modSettings['default_timezone'] : $cur_profile['timezone'],
 			'input_validate' => function($value)
 			{
@@ -626,7 +627,7 @@ function loadProfileFields($force_reload = false)
 		),
 		'usertitle' => array(
 			'type' => 'text',
-			'label' => $txt['custom_title'],
+			'label' => Lang::$txt['custom_title'],
 			'log_change' => true,
 			'input_attr' => array('maxlength="50"'),
 			'size' => 50,
@@ -642,8 +643,8 @@ function loadProfileFields($force_reload = false)
 		),
 		'website_title' => array(
 			'type' => 'text',
-			'label' => $txt['website_title'],
-			'subtext' => $txt['include_website_url'],
+			'label' => Lang::$txt['website_title'],
+			'subtext' => Lang::$txt['include_website_url'],
 			'size' => 50,
 			'permission' => 'profile_website',
 			'link_with' => 'website',
@@ -657,8 +658,8 @@ function loadProfileFields($force_reload = false)
 		),
 		'website_url' => array(
 			'type' => 'url',
-			'label' => $txt['website_url'],
-			'subtext' => $txt['complete_url'],
+			'label' => Lang::$txt['website_url'],
+			'subtext' => Lang::$txt['complete_url'],
 			'size' => 50,
 			'permission' => 'profile_website',
 			// Fix the URL...
@@ -702,7 +703,7 @@ function loadProfileFields($force_reload = false)
  */
 function setupProfileContext($fields)
 {
-	global $profile_fields, $cur_profile, $txt;
+	global $profile_fields, $cur_profile;
 
 	// Some default bits.
 	Utils::$context['profile_prehtml'] = '';
@@ -737,7 +738,7 @@ function setupProfileContext($fields)
 			if ($cur_field['type'] != 'callback' && $cur_field['type'] != 'hidden')
 			{
 				if (!isset($cur_field['label']))
-					$cur_field['label'] = isset($txt[$field]) ? $txt[$field] : $field;
+					$cur_field['label'] = isset(Lang::$txt[$field]) ? Lang::$txt[$field] : $field;
 
 				// Everything has a value!
 				if (!isset($cur_field['value']))
@@ -788,7 +789,7 @@ function setupProfileContext($fields)
 		if (this.oldpasswrd.value == "")
 		{
 			event.preventDefault();
-			alert(' . (JavaScriptEscape($txt['required_security_reasons'])) . ');
+			alert(' . (JavaScriptEscape(Lang::$txt['required_security_reasons'])) . ');
 			return false;
 		}
 	}, false);' : ''), true);
@@ -1398,8 +1399,6 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
  */
 function editBuddyIgnoreLists($memID)
 {
-	global $txt;
-
 	// Do a quick check to ensure people aren't getting here illegally!
 	if (!Utils::$context['user']['is_owner'] || empty(Config::$modSettings['enable_buddylist']))
 		fatal_lang_error('no_access', false);
@@ -1409,16 +1408,16 @@ function editBuddyIgnoreLists($memID)
 	Utils::$context['can_send_email'] = allowedTo('moderate_forum');
 
 	$subActions = array(
-		'buddies' => array('editBuddies', $txt['editBuddies']),
-		'ignore' => array('editIgnoreList', $txt['editIgnoreList']),
+		'buddies' => array('editBuddies', Lang::$txt['editBuddies']),
+		'ignore' => array('editIgnoreList', Lang::$txt['editIgnoreList']),
 	);
 
 	Utils::$context['list_area'] = isset($_GET['sa']) && isset($subActions[$_GET['sa']]) ? $_GET['sa'] : 'buddies';
 
 	// Create the tabs for the template.
 	Utils::$context[Utils::$context['profile_menu_name']]['tab_data'] = array(
-		'title' => $txt['editBuddyIgnoreLists'],
-		'description' => $txt['buddy_ignore_desc'],
+		'title' => Lang::$txt['editBuddyIgnoreLists'],
+		'description' => Lang::$txt['buddy_ignore_desc'],
 		'icon_class' => 'main_icons profile_hd',
 		'tabs' => array(
 			'buddies' => array(),
@@ -1443,7 +1442,7 @@ function editBuddyIgnoreLists($memID)
  */
 function editBuddies($memID)
 {
-	global $txt, $settings;
+	global $settings;
 	global $user_profile, $memberContext;
 
 	// For making changes!
@@ -1459,7 +1458,7 @@ function editBuddies($memID)
 
 		call_integration_hook('integrate_remove_buddy', array($memID));
 
-		$_SESSION['prf-save'] = $txt['could_not_remove_person'];
+		$_SESSION['prf-save'] = Lang::$txt['could_not_remove_person'];
 
 		// Heh, I'm lazy, do it the easy way...
 		foreach ($buddiesArray as $key => $buddy)
@@ -1495,7 +1494,7 @@ function editBuddies($memID)
 
 		call_integration_hook('integrate_add_buddies', array($memID, &$new_buddies));
 
-		$_SESSION['prf-save'] = $txt['could_not_add_person'];
+		$_SESSION['prf-save'] = Lang::$txt['could_not_add_person'];
 		if (!empty($new_buddies))
 		{
 			// Now find out the id_member of the buddy.
@@ -1552,7 +1551,7 @@ function editBuddies($memID)
 	while ($row = Db::$db->fetch_assoc($request))
 		if (!isset($disabled_fields[$row['col_name']]) && !empty($row['show_mlist']))
 			Utils::$context['custom_pf'][$row['col_name']] = array(
-				'label' => tokenTxtReplace($row['field_name']),
+				'label' => Lang::tokenTxtReplace($row['field_name']),
 				'type' => $row['field_type'],
 				'options' => !empty($row['field_options']) ? explode(',', $row['field_options']) : array(),
 				'bbc' => !empty($row['bbc']),
@@ -1617,7 +1616,7 @@ function editBuddies($memID)
 					Utils::$context['buddies'][$buddy]['options'][$key] = strip_tags(BBCodeParser::load()->parse(Utils::$context['buddies'][$buddy]['options'][$key]));
 
 				elseif ($column['type'] == 'check')
-					Utils::$context['buddies'][$buddy]['options'][$key] = Utils::$context['buddies'][$buddy]['options'][$key] == 0 ? $txt['no'] : $txt['yes'];
+					Utils::$context['buddies'][$buddy]['options'][$key] = Utils::$context['buddies'][$buddy]['options'][$key] == 0 ? Lang::$txt['no'] : Lang::$txt['yes'];
 
 				// Enclosing the user input within some other text?
 				if (!empty($column['enclose']) && !empty(Utils::$context['buddies'][$buddy]['options'][$key]))
@@ -1626,7 +1625,7 @@ function editBuddies($memID)
 						'{IMAGES_URL}' => $settings['images_url'],
 						'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
 						'{KEY}' => $currentKey,
-						'{INPUT}' => tokenTxtReplace(Utils::$context['buddies'][$buddy]['options'][$key]),
+						'{INPUT}' => Lang::tokenTxtReplace(Utils::$context['buddies'][$buddy]['options'][$key]),
 					));
 			}
 		}
@@ -1652,7 +1651,6 @@ function editBuddies($memID)
  */
 function editIgnoreList($memID)
 {
-	global $txt;
 	global $user_profile, $memberContext;
 
 	// For making changes!
@@ -1666,7 +1664,7 @@ function editIgnoreList($memID)
 	{
 		checkSession('get');
 
-		$_SESSION['prf-save'] = $txt['could_not_remove_person'];
+		$_SESSION['prf-save'] = Lang::$txt['could_not_remove_person'];
 
 		// Heh, I'm lazy, do it the easy way...
 		foreach ($ignoreArray as $key => $id_remove)
@@ -1699,7 +1697,7 @@ function editIgnoreList($memID)
 				unset($new_entries[$k]);
 		}
 
-		$_SESSION['prf-save'] = $txt['could_not_add_person'];
+		$_SESSION['prf-save'] = Lang::$txt['could_not_add_person'];
 		if (!empty($new_entries))
 		{
 			// Now find out the id_member for the members in question.
@@ -1788,14 +1786,12 @@ function editIgnoreList($memID)
  */
 function account($memID)
 {
-	global $txt;
-
 	loadThemeOptions($memID);
 	if (allowedTo(array('profile_identity_own', 'profile_identity_any', 'profile_password_own', 'profile_password_any')))
 		loadCustomFields($memID, 'account');
 
 	Utils::$context['sub_template'] = 'edit_options';
-	Utils::$context['page_desc'] = $txt['account_info'];
+	Utils::$context['page_desc'] = Lang::$txt['account_info'];
 
 	setupProfileContext(
 		array(
@@ -1816,14 +1812,12 @@ function account($memID)
  */
 function forumProfile($memID)
 {
-	global $txt;
-
 	loadThemeOptions($memID);
 	if (allowedTo(array('profile_forum_own', 'profile_forum_any')))
 		loadCustomFields($memID, 'forumprofile');
 
 	Utils::$context['sub_template'] = 'edit_options';
-	Utils::$context['page_desc'] = sprintf($txt['forumProfile_info'], Utils::$context['forum_name_html_safe']);
+	Utils::$context['page_desc'] = sprintf(Lang::$txt['forumProfile_info'], Utils::$context['forum_name_html_safe']);
 	Utils::$context['show_preview_button'] = true;
 
 	setupProfileContext(
@@ -1844,8 +1838,6 @@ function forumProfile($memID)
  */
 function getAvatars($directory, $level)
 {
-	global $txt;
-
 	$result = array();
 
 	// Open the directory..
@@ -1877,7 +1869,7 @@ function getAvatars($directory, $level)
 		$result[] = array(
 			'filename' => 'blank.png',
 			'checked' => in_array(Utils::$context['member']['avatar']['server_pic'], array('', 'blank.png')),
-			'name' => $txt['no_pic'],
+			'name' => Lang::$txt['no_pic'],
 			'is_dir' => false
 		);
 	}
@@ -1925,8 +1917,6 @@ function getAvatars($directory, $level)
  */
 function theme($memID)
 {
-	global $txt;
-
 	loadTemplate('Settings');
 	loadSubTemplate('options');
 
@@ -1938,7 +1928,7 @@ function theme($memID)
 		loadCustomFields($memID, 'theme');
 
 	Utils::$context['sub_template'] = 'edit_options';
-	Utils::$context['page_desc'] = $txt['theme_info'];
+	Utils::$context['page_desc'] = Lang::$txt['theme_info'];
 
 	setupProfileContext(
 		array(
@@ -1956,8 +1946,6 @@ function theme($memID)
  */
 function notification($memID)
 {
-	global $txt;
-
 	// Going to want this for consistency.
 	loadCSSFile('admin.css', array(), 'smf_admin');
 
@@ -1973,9 +1961,9 @@ function notification($memID)
 
 	Utils::$context['sub_template'] = $sa[$subAction];
 	Utils::$context[Utils::$context['profile_menu_name']]['tab_data'] = array(
-		'title' => $txt['notification'],
+		'title' => Lang::$txt['notification'],
 		'help' => '',
-		'description' => $txt['notification_info'],
+		'description' => Lang::$txt['notification_info'],
 	);
 	$sa[$subAction]($memID);
 }
@@ -1988,7 +1976,7 @@ function notification($memID)
  */
 function alert_configuration($memID, $defaultSettings = false)
 {
-	global $txt, $user_profile;
+	global $user_profile;
 
 	if (!isset(Utils::$context['token_check']))
 		Utils::$context['token_check'] = 'profile-nt' . $memID;
@@ -2065,23 +2053,23 @@ function alert_configuration($memID, $defaultSettings = false)
 			array('check', 'msg_auto_notify', 'label' => 'after'),
 			array(empty(Config::$modSettings['disallow_sendBody']) ? 'check' : 'hide', 'msg_receive_body', 'label' => 'after'),
 			array('select', 'msg_notify_pref', 'label' => 'before', 'opts' => array(
-				0 => $txt['alert_opt_msg_notify_pref_never'],
-				1 => $txt['alert_opt_msg_notify_pref_instant'],
-				2 => $txt['alert_opt_msg_notify_pref_first'],
-				3 => $txt['alert_opt_msg_notify_pref_daily'],
-				4 => $txt['alert_opt_msg_notify_pref_weekly'],
+				0 => Lang::$txt['alert_opt_msg_notify_pref_never'],
+				1 => Lang::$txt['alert_opt_msg_notify_pref_instant'],
+				2 => Lang::$txt['alert_opt_msg_notify_pref_first'],
+				3 => Lang::$txt['alert_opt_msg_notify_pref_daily'],
+				4 => Lang::$txt['alert_opt_msg_notify_pref_weekly'],
 			)),
 			array('select', 'msg_notify_type', 'label' => 'before', 'opts' => array(
-				1 => $txt['notify_send_type_everything'],
-				2 => $txt['notify_send_type_everything_own'],
-				3 => $txt['notify_send_type_only_replies'],
-				4 => $txt['notify_send_type_nothing'],
+				1 => Lang::$txt['notify_send_type_everything'],
+				2 => Lang::$txt['notify_send_type_everything_own'],
+				3 => Lang::$txt['notify_send_type_only_replies'],
+				4 => Lang::$txt['notify_send_type_nothing'],
 			)),
 		),
 		'pm' => array(
 			array('select', 'pm_notify', 'label' => 'before', 'opts' => array(
-				1 => $txt['email_notify_all'],
-				2 => $txt['email_notify_buddies'],
+				1 => Lang::$txt['email_notify_all'],
+				2 => Lang::$txt['email_notify_buddies'],
 			)),
 		),
 	);
@@ -2244,7 +2232,7 @@ function alert_configuration($memID, $defaultSettings = false)
 
 		makeNotificationChanges($memID);
 
-		Utils::$context['profile_updated'] = $txt['profile_updated_own'];
+		Utils::$context['profile_updated'] = Lang::$txt['profile_updated_own'];
 	}
 
 	createToken(Utils::$context['token_check'], 'post');
@@ -2264,7 +2252,7 @@ function alert_markread($memID)
 	Utils::$context['template_layers'] = array();
 	Utils::$context['sub_template'] = 'alerts_all_read';
 
-	loadLanguage('Alerts');
+	Lang::load('Alerts');
 
 	// Now we're all set up.
 	is_not_guest();
@@ -2556,8 +2544,6 @@ function alert_count($memID, $unread = false)
  */
 function alert_notifications_topics($memID)
 {
-	global $txt;
-
 	// Because of the way this stuff works, we want to do this ourselves.
 	if (isset($_POST['edit_notify_topics']) || isset($_POST['remove_notify_topics']))
 	{
@@ -2565,7 +2551,7 @@ function alert_notifications_topics($memID)
 		validateToken(str_replace('%u', $memID, 'profile-nt%u'), 'post');
 
 		makeNotificationChanges($memID);
-		Utils::$context['profile_updated'] = $txt['profile_updated_own'];
+		Utils::$context['profile_updated'] = Lang::$txt['profile_updated_own'];
 	}
 
 	// Now set up for the token check.
@@ -2580,7 +2566,7 @@ function alert_notifications_topics($memID)
 		'id' => 'topic_notification_list',
 		'width' => '100%',
 		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-		'no_items_label' => $txt['notifications_topics_none'] . '<br><br>' . $txt['notifications_topics_howto'],
+		'no_items_label' => Lang::$txt['notifications_topics_none'] . '<br><br>' . Lang::$txt['notifications_topics_howto'],
 		'no_items_align' => 'left',
 		'base_href' => Config::$scripturl . '?action=profile;u=' . $memID . ';area=notification;sa=topics',
 		'default_sort_col' => 'last_post',
@@ -2599,18 +2585,18 @@ function alert_notifications_topics($memID)
 		'columns' => array(
 			'subject' => array(
 				'header' => array(
-					'value' => $txt['notifications_topics'],
+					'value' => Lang::$txt['notifications_topics'],
 					'class' => 'lefttext',
 				),
 				'data' => array(
-					'function' => function($topic) use ($txt)
+					'function' => function($topic)
 					{
 						$link = $topic['link'];
 
 						if ($topic['new'])
-							$link .= ' <a href="' . $topic['new_href'] . '" class="new_posts">' . $txt['new'] . '</a>';
+							$link .= ' <a href="' . $topic['new_href'] . '" class="new_posts">' . Lang::$txt['new'] . '</a>';
 
-						$link .= '<br><span class="smalltext"><em>' . $txt['in'] . ' ' . $topic['board_link'] . '</em></span>';
+						$link .= '<br><span class="smalltext"><em>' . Lang::$txt['in'] . ' ' . $topic['board_link'] . '</em></span>';
 
 						return $link;
 					},
@@ -2622,7 +2608,7 @@ function alert_notifications_topics($memID)
 			),
 			'started_by' => array(
 				'header' => array(
-					'value' => $txt['started_by'],
+					'value' => Lang::$txt['started_by'],
 					'class' => 'lefttext',
 				),
 				'data' => array(
@@ -2635,12 +2621,12 @@ function alert_notifications_topics($memID)
 			),
 			'last_post' => array(
 				'header' => array(
-					'value' => $txt['last_post'],
+					'value' => Lang::$txt['last_post'],
 					'class' => 'lefttext',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<span class="smalltext">%1$s<br>' . $txt['by'] . ' %2$s</span>',
+						'format' => '<span class="smalltext">%1$s<br>' . Lang::$txt['by'] . ' %2$s</span>',
 						'params' => array(
 							'updated' => false,
 							'poster_updated_link' => false,
@@ -2654,15 +2640,15 @@ function alert_notifications_topics($memID)
 			),
 			'alert_pref' => array(
 				'header' => array(
-					'value' => $txt['notify_what_how'],
+					'value' => Lang::$txt['notify_what_how'],
 					'class' => 'lefttext',
 				),
 				'data' => array(
-					'function' => function($topic) use ($txt)
+					'function' => function($topic)
 					{
 						$pref = $topic['notify_pref'];
 						$mode = !empty($topic['unwatched']) ? 0 : ($pref & 0x02 ? 3 : ($pref & 0x01 ? 2 : 1));
-						return $txt['notify_topic_' . $mode];
+						return Lang::$txt['notify_topic_' . $mode];
 					},
 				),
 			),
@@ -2697,8 +2683,8 @@ function alert_notifications_topics($memID)
 		'additional_rows' => array(
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '<input type="submit" name="edit_notify_topics" value="' . $txt['notifications_update'] . '" class="button" />
-							<input type="submit" name="remove_notify_topics" value="' . $txt['notification_remove_pref'] . '" class="button" />',
+				'value' => '<input type="submit" name="edit_notify_topics" value="' . Lang::$txt['notifications_update'] . '" class="button" />
+							<input type="submit" name="remove_notify_topics" value="' . Lang::$txt['notification_remove_pref'] . '" class="button" />',
 				'class' => 'floatright',
 			),
 		),
@@ -2715,8 +2701,6 @@ function alert_notifications_topics($memID)
  */
 function alert_notifications_boards($memID)
 {
-	global $txt;
-
 	// Because of the way this stuff works, we want to do this ourselves.
 	if (isset($_POST['edit_notify_boards']) || isset($_POSt['remove_notify_boards']))
 	{
@@ -2724,7 +2708,7 @@ function alert_notifications_boards($memID)
 		validateToken(str_replace('%u', $memID, 'profile-nt%u'), 'post');
 
 		makeNotificationChanges($memID);
-		Utils::$context['profile_updated'] = $txt['profile_updated_own'];
+		Utils::$context['profile_updated'] = Lang::$txt['profile_updated_own'];
 	}
 
 	// Now set up for the token check.
@@ -2738,7 +2722,7 @@ function alert_notifications_boards($memID)
 	$listOptions = array(
 		'id' => 'board_notification_list',
 		'width' => '100%',
-		'no_items_label' => $txt['notifications_boards_none'] . '<br><br>' . $txt['notifications_boards_howto'],
+		'no_items_label' => Lang::$txt['notifications_boards_none'] . '<br><br>' . Lang::$txt['notifications_boards_howto'],
 		'no_items_align' => 'left',
 		'base_href' => Config::$scripturl . '?action=profile;u=' . $memID . ';area=notification;sa=boards',
 		'default_sort_col' => 'board_name',
@@ -2751,16 +2735,16 @@ function alert_notifications_boards($memID)
 		'columns' => array(
 			'board_name' => array(
 				'header' => array(
-					'value' => $txt['notifications_boards'],
+					'value' => Lang::$txt['notifications_boards'],
 					'class' => 'lefttext',
 				),
 				'data' => array(
-					'function' => function($board) use ($txt)
+					'function' => function($board)
 					{
 						$link = $board['link'];
 
 						if ($board['new'])
-							$link .= ' <a href="' . $board['href'] . '" class="new_posts">' . $txt['new'] . '</a>';
+							$link .= ' <a href="' . $board['href'] . '" class="new_posts">' . Lang::$txt['new'] . '</a>';
 
 						return $link;
 					},
@@ -2772,15 +2756,15 @@ function alert_notifications_boards($memID)
 			),
 			'alert_pref' => array(
 				'header' => array(
-					'value' => $txt['notify_what_how'],
+					'value' => Lang::$txt['notify_what_how'],
 					'class' => 'lefttext',
 				),
 				'data' => array(
-					'function' => function($board) use ($txt)
+					'function' => function($board)
 					{
 						$pref = $board['notify_pref'];
 						$mode = $pref & 0x02 ? 3 : ($pref & 0x01 ? 2 : 1);
-						return $txt['notify_board_' . $mode];
+						return Lang::$txt['notify_board_' . $mode];
 					},
 				),
 			),
@@ -2815,8 +2799,8 @@ function alert_notifications_boards($memID)
 		'additional_rows' => array(
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '<input type="submit" name="edit_notify_boards" value="' . $txt['notifications_update'] . '" class="button">
-							<input type="submit" name="remove_notify_boards" value="' . $txt['notification_remove_pref'] . '" class="button" />',
+				'value' => '<input type="submit" name="edit_notify_boards" value="' . Lang::$txt['notifications_update'] . '" class="button">
+							<input type="submit" name="remove_notify_boards" value="' . Lang::$txt['notification_remove_pref'] . '" class="button" />',
 				'class' => 'floatright',
 			),
 		),
@@ -2903,7 +2887,7 @@ function list_getTopicNotifications($start, $items_per_page, $sort, $memID)
 	$notification_topics = array();
 	while ($row = Db::$db->fetch_assoc($request))
 	{
-		censorText($row['subject']);
+		Lang::censorText($row['subject']);
 
 		$notification_topics[] = array(
 			'id' => $row['id_topic'],
@@ -3122,7 +3106,7 @@ function profileLoadLanguages()
 	Utils::$context['profile_languages'] = array();
 
 	// Get our languages!
-	getLanguages();
+	Lang::get();
 
 	// Setup our languages.
 	foreach (Utils::$context['languages'] as $lang)
@@ -3142,12 +3126,12 @@ function profileLoadLanguages()
  */
 function profileLoadGroups()
 {
-	global $cur_profile, $txt, $user_settings;
+	global $cur_profile, $user_settings;
 
 	Utils::$context['member_groups'] = array(
 		0 => array(
 			'id' => 0,
-			'name' => $txt['no_primary_membergroup'],
+			'name' => Lang::$txt['no_primary_membergroup'],
 			'is_primary' => $cur_profile['id_group'] == 0,
 			'can_be_additional' => false,
 			'can_be_primary' => true,
@@ -3199,7 +3183,7 @@ function profileLoadGroups()
  */
 function profileLoadSignatureData()
 {
-	global $txt, $cur_profile, $memberContext;
+	global $cur_profile, $memberContext;
 
 	// Signature limits.
 	list ($sig_limits, $sig_bbc) = explode(':', Config::$modSettings['signature_settings']);
@@ -3221,9 +3205,9 @@ function profileLoadSignatureData()
 	// Warning message for signature image limits?
 	Utils::$context['signature_warning'] = '';
 	if (Utils::$context['signature_limits']['max_image_width'] && Utils::$context['signature_limits']['max_image_height'])
-		Utils::$context['signature_warning'] = sprintf($txt['profile_error_signature_max_image_size'], Utils::$context['signature_limits']['max_image_width'], Utils::$context['signature_limits']['max_image_height']);
+		Utils::$context['signature_warning'] = sprintf(Lang::$txt['profile_error_signature_max_image_size'], Utils::$context['signature_limits']['max_image_width'], Utils::$context['signature_limits']['max_image_height']);
 	elseif (Utils::$context['signature_limits']['max_image_width'] || Utils::$context['signature_limits']['max_image_height'])
-		Utils::$context['signature_warning'] = sprintf($txt['profile_error_signature_max_image_' . (Utils::$context['signature_limits']['max_image_width'] ? 'width' : 'height')], Utils::$context['signature_limits'][Utils::$context['signature_limits']['max_image_width'] ? 'max_image_width' : 'max_image_height']);
+		Utils::$context['signature_warning'] = sprintf(Lang::$txt['profile_error_signature_max_image_' . (Utils::$context['signature_limits']['max_image_width'] ? 'width' : 'height')], Utils::$context['signature_limits'][Utils::$context['signature_limits']['max_image_width'] ? 'max_image_width' : 'max_image_height']);
 
 	if (empty(Utils::$context['do_preview']))
 		Utils::$context['member']['signature'] = empty($cur_profile['signature']) ? '' : str_replace(array('<br>', '<br/>', '<br />', '<', '>', '"', '\''), array("\n", "\n", "\n", '&lt;', '&gt;', '&quot;', '&#039;'), $cur_profile['signature']);
@@ -3233,16 +3217,16 @@ function profileLoadSignatureData()
 		$validation = profileValidateSignature($signature);
 		if (empty(Utils::$context['post_errors']))
 		{
-			loadLanguage('Errors');
+			Lang::load('Errors');
 			Utils::$context['post_errors'] = array();
 		}
 		Utils::$context['post_errors'][] = 'signature_not_yet_saved';
 		if ($validation !== true && $validation !== false)
 			Utils::$context['post_errors'][] = $validation;
 
-		censorText(Utils::$context['member']['signature']);
+		Lang::censorText(Utils::$context['member']['signature']);
 		Utils::$context['member']['current_signature'] = Utils::$context['member']['signature'];
-		censorText($signature);
+		Lang::censorText($signature);
 		Utils::$context['member']['signature_preview'] = BBCodeParser::load()->parse($signature, true, 'sig' . Utils::$context['id_member'], BBCodeParser::getSigTags());
 		Utils::$context['member']['signature'] = $_POST['signature'];
 	}
@@ -3784,8 +3768,6 @@ function profileSaveAvatarData(&$value)
  */
 function profileValidateSignature(&$value)
 {
-	global $txt;
-
 	require_once(Config::$sourcedir . '/Subs-Post.php');
 
 	// Admins can do whatever they hell they want!
@@ -3801,14 +3783,14 @@ function profileValidateSignature(&$value)
 		// Too many lines?
 		if (!empty($sig_limits[2]) && substr_count($unparsed_signature, "\n") >= $sig_limits[2])
 		{
-			$txt['profile_error_signature_max_lines'] = sprintf($txt['profile_error_signature_max_lines'], $sig_limits[2]);
+			Lang::$txt['profile_error_signature_max_lines'] = sprintf(Lang::$txt['profile_error_signature_max_lines'], $sig_limits[2]);
 			return 'signature_max_lines';
 		}
 
 		// Too many images?!
 		if (!empty($sig_limits[3]) && (substr_count(strtolower($unparsed_signature), '[img') + substr_count(strtolower($unparsed_signature), '<img')) > $sig_limits[3])
 		{
-			$txt['profile_error_signature_max_image_count'] = sprintf($txt['profile_error_signature_max_image_count'], $sig_limits[3]);
+			Lang::$txt['profile_error_signature_max_image_count'] = sprintf(Lang::$txt['profile_error_signature_max_image_count'], $sig_limits[3]);
 			return 'signature_max_image_count';
 		}
 
@@ -3819,7 +3801,7 @@ function profileValidateSignature(&$value)
 			return 'signature_allow_smileys';
 		elseif (!empty($sig_limits[4]) && $sig_limits[4] > 0 && $smiley_count > $sig_limits[4])
 		{
-			$txt['profile_error_signature_max_smileys'] = sprintf($txt['profile_error_signature_max_smileys'], $sig_limits[4]);
+			Lang::$txt['profile_error_signature_max_smileys'] = sprintf(Lang::$txt['profile_error_signature_max_smileys'], $sig_limits[4]);
 			return 'signature_max_smileys';
 		}
 
@@ -3841,7 +3823,7 @@ function profileValidateSignature(&$value)
 
 				if ($limit_broke)
 				{
-					$txt['profile_error_signature_max_font_size'] = sprintf($txt['profile_error_signature_max_font_size'], $limit_broke);
+					Lang::$txt['profile_error_signature_max_font_size'] = sprintf(Lang::$txt['profile_error_signature_max_font_size'], $limit_broke);
 					return 'signature_max_font_size';
 				}
 			}
@@ -3940,7 +3922,7 @@ function profileValidateSignature(&$value)
 			if (preg_match('~\[(' . $disabledSigBBC . '[ =\]/])~i', $unparsed_signature, $matches) !== false && isset($matches[1]))
 			{
 				$disabledTags = array_unique($disabledTags);
-				$txt['profile_error_signature_disabled_bbc'] = sprintf($txt['profile_error_signature_disabled_bbc'], implode(', ', $disabledTags));
+				Lang::$txt['profile_error_signature_disabled_bbc'] = sprintf(Lang::$txt['profile_error_signature_disabled_bbc'], implode(', ', $disabledTags));
 				return 'signature_disabled_bbc';
 			}
 		}
@@ -3952,7 +3934,7 @@ function profileValidateSignature(&$value)
 	if (!allowedTo('admin_forum') && !empty($sig_limits[1]) && Utils::entityStrlen(str_replace('<br>', "\n", $value)) > $sig_limits[1])
 	{
 		$_POST['signature'] = trim(Utils::htmlspecialchars(str_replace('<br>', "\n", $value), ENT_QUOTES));
-		$txt['profile_error_signature_max_length'] = sprintf($txt['profile_error_signature_max_length'], $sig_limits[1]);
+		Lang::$txt['profile_error_signature_max_length'] = sprintf(Lang::$txt['profile_error_signature_max_length'], $sig_limits[1]);
 		return 'signature_max_length';
 	}
 
@@ -4030,7 +4012,7 @@ function profileSendActivation()
 	);
 
 	// Send off the email.
-	$emaildata = loadEmailTemplate('activate_reactivate', $replacements, empty($cur_profile['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $cur_profile['lngfile']);
+	$emaildata = loadEmailTemplate('activate_reactivate', $replacements, empty($cur_profile['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $cur_profile['lngfile']);
 	sendmail($profile_vars['email_address'], $emaildata['subject'], $emaildata['body'], null, 'reactivate', $emaildata['is_html'], 0);
 
 	// Log the user out.
@@ -4062,7 +4044,7 @@ function profileSendActivation()
  */
 function groupMembership($memID)
 {
-	global $txt, $user_profile;
+	global $user_profile;
 
 	$curMember = $user_profile[$memID];
 	Utils::$context['primary_group'] = $curMember['id_group'];
@@ -4071,7 +4053,7 @@ function groupMembership($memID)
 	Utils::$context['can_manage_membergroups'] = allowedTo('manage_membergroups');
 	Utils::$context['can_manage_protected'] = allowedTo('admin_forum');
 	Utils::$context['can_edit_primary'] = Utils::$context['can_manage_protected'];
-	Utils::$context['update_message'] = isset($_GET['msg']) && isset($txt['group_membership_msg_' . $_GET['msg']]) ? $txt['group_membership_msg_' . $_GET['msg']] : '';
+	Utils::$context['update_message'] = isset($_GET['msg']) && isset(Lang::$txt['group_membership_msg_' . $_GET['msg']]) ? Lang::$txt['group_membership_msg_' . $_GET['msg']] : '';
 
 	// Get all the groups this user is a member of.
 	$groups = explode(',', $curMember['additional_groups']);
@@ -4137,8 +4119,8 @@ function groupMembership($memID)
 	// Add registered members on the end.
 	Utils::$context['groups']['member'][0] = array(
 		'id' => 0,
-		'name' => $txt['regular_members'],
-		'desc' => $txt['regular_members_desc'],
+		'name' => Lang::$txt['regular_members'],
+		'desc' => Lang::$txt['regular_members_desc'],
 		'type' => 0,
 		'is_primary' => Utils::$context['primary_group'] == 0 ? true : false,
 		'can_be_primary' => true,

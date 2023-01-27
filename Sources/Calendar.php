@@ -16,6 +16,7 @@
 
 use SMF\BrowserDetector;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -36,7 +37,7 @@ if (!defined('SMF'))
  */
 function CalendarMain()
 {
-	global $txt, $options, $user_info;
+	global $options, $user_info;
 
 	// Permissions, permissions, permissions.
 	isAllowedTo('calendar_view');
@@ -91,7 +92,7 @@ function CalendarMain()
 	}
 
 	// Set the page title to mention the calendar ;).
-	Utils::$context['page_title'] = $txt['calendar'];
+	Utils::$context['page_title'] = Lang::$txt['calendar'];
 
 	// Ensure a default view is defined
 	if (empty($options['calendar_default_view']))
@@ -238,17 +239,17 @@ function CalendarMain()
 
 	// Set the page title to mention the month or week, too
 	if (Utils::$context['calendar_view'] != 'viewlist')
-		Utils::$context['page_title'] .= ' - ' . (Utils::$context['calendar_view'] == 'viewweek' ? Utils::$context['calendar_grid_main']['week_title'] : $txt['months_titles'][Utils::$context['current_month']] . ' ' . Utils::$context['current_year']);
+		Utils::$context['page_title'] .= ' - ' . (Utils::$context['calendar_view'] == 'viewweek' ? Utils::$context['calendar_grid_main']['week_title'] : Lang::$txt['months_titles'][Utils::$context['current_month']] . ' ' . Utils::$context['current_year']);
 
 	// Load up the linktree!
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=calendar',
-		'name' => $txt['calendar']
+		'name' => Lang::$txt['calendar']
 	);
 	// Add the current month to the linktree.
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=calendar;year=' . Utils::$context['current_year'] . ';month=' . Utils::$context['current_month'],
-		'name' => $txt['months_titles'][Utils::$context['current_month']] . ' ' . Utils::$context['current_year']
+		'name' => Lang::$txt['months_titles'][Utils::$context['current_month']] . ' ' . Utils::$context['current_year']
 	);
 	// If applicable, add the current week to the linktree.
 	if (Utils::$context['calendar_view'] == 'viewweek')
@@ -279,7 +280,7 @@ function CalendarMain()
  */
 function CalendarPost()
 {
-	global $txt, $user_info;
+	global $user_info;
 	global $topic;
 
 	// Well - can they?
@@ -500,7 +501,7 @@ function CalendarPost()
 	loadTemplate('Calendar');
 	Utils::$context['sub_template'] = 'event_post';
 
-	Utils::$context['page_title'] = isset($_REQUEST['eventid']) ? $txt['calendar_edit'] : $txt['calendar_post_event'];
+	Utils::$context['page_title'] = isset($_REQUEST['eventid']) ? Lang::$txt['calendar_edit'] : Lang::$txt['calendar_post_event'];
 	Utils::$context['linktree'][] = array(
 		'name' => Utils::$context['page_title'],
 	);

@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -30,7 +31,7 @@ if (!defined('SMF'))
  */
 function RepairBoards()
 {
-	global $txt, $salvageBoardID;
+	global $salvageBoardID;
 
 	isAllowedTo('admin_forum');
 
@@ -38,18 +39,18 @@ function RepairBoards()
 	setMemoryLimit('128M');
 
 	// Print out the top of the webpage.
-	Utils::$context['page_title'] = $txt['admin_repair'];
+	Utils::$context['page_title'] = Lang::$txt['admin_repair'];
 	Utils::$context['sub_template'] = 'repair_boards';
 	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'general';
 
 	// Load the language file.
-	loadLanguage('ManageMaintenance');
+	Lang::load('ManageMaintenance');
 
 	// Make sure the tabs stay nice.
 	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
-		'title' => $txt['maintain_title'],
+		'title' => Lang::$txt['maintain_title'],
 		'help' => '',
-		'description' => $txt['maintain_info'],
+		'description' => Lang::$txt['maintain_info'],
 		'tabs' => array(),
 	);
 
@@ -134,7 +135,7 @@ function RepairBoards()
  */
 function pauseRepairProcess($to_fix, $current_step_description, $max_substep = 0, $force = false)
 {
-	global $txt, $db_temp_cache;
+	global $db_temp_cache;
 	static $loops = 0;
 	++$loops;
 
@@ -169,7 +170,7 @@ function pauseRepairProcess($to_fix, $current_step_description, $max_substep = 0
 		Db::$cache = $db_temp_cache;
 
 	Utils::$context['continue_get_data'] = '?action=admin;area=repairboards' . (isset($_GET['fixErrors']) ? ';fixErrors' : '') . ';step=' . $_GET['step'] . ';substep=' . $_GET['substep'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
-	Utils::$context['page_title'] = $txt['not_done_title'];
+	Utils::$context['page_title'] = Lang::$txt['not_done_title'];
 	Utils::$context['continue_post_data'] = '';
 	Utils::$context['continue_countdown'] = '2';
 	Utils::$context['sub_template'] = 'not_done';
@@ -185,7 +186,7 @@ function pauseRepairProcess($to_fix, $current_step_description, $max_substep = 0
 
 	// What about substeps?
 	Utils::$context['substep_enabled'] = $max_substep != 0;
-	Utils::$context['substep_title'] = sprintf($txt['repair_currently_' . (isset($_GET['fixErrors']) ? 'fixing' : 'checking')], (isset($txt['repair_operation_' . $current_step_description]) ? $txt['repair_operation_' . $current_step_description] : $current_step_description));
+	Utils::$context['substep_title'] = sprintf(Lang::$txt['repair_currently_' . (isset($_GET['fixErrors']) ? 'fixing' : 'checking')], (isset(Lang::$txt['repair_operation_' . $current_step_description]) ? Lang::$txt['repair_operation_' . $current_step_description] : $current_step_description));
 	Utils::$context['substep_continue_percent'] = $max_substep == 0 ? 0 : round(($_GET['substep'] * 100) / $max_substep, 1);
 
 	$_SESSION['repairboards_to_fix'] = $to_fix;
@@ -199,7 +200,7 @@ function pauseRepairProcess($to_fix, $current_step_description, $max_substep = 0
  */
 function loadForumTests()
 {
-	global $errorTests, $txt;
+	global $errorTests;
 
 	/* Here this array is defined like so:
 		string check_query:	Query to be executed when testing if errors exist.
@@ -391,11 +392,11 @@ function loadForumTests()
 				WHERE o.id_poll BETWEEN {STEP_LOW} AND {STEP_HIGH}
 					AND p.id_poll IS NULL
 				GROUP BY o.id_poll, t.id_topic, t.id_board, t.id_member_started, m.member_name',
-			'fix_processing' => function($row) use ($txt)
+			'fix_processing' => function($row)
 			{
 				global $salvageBoardID;
 
-				$row['poster_name'] = !empty($row['poster_name']) ? $row['poster_name'] : $txt['guest'];
+				$row['poster_name'] = !empty($row['poster_name']) ? $row['poster_name'] : Lang::$txt['guest'];
 				$row['id_poster'] = !empty($row['id_poster']) ? $row['id_poster'] : 0;
 
 				if (empty($row['id_board']))
@@ -428,12 +429,12 @@ function loadForumTests()
 							0,
 							time(),
 							$row['id_poster'],
-							$txt['salvaged_poll_topic_name'],
+							Lang::$txt['salvaged_poll_topic_name'],
 							$row['poster_name'],
-							$txt['salvaged_poll_topic_name'],
+							Lang::$txt['salvaged_poll_topic_name'],
 							'127.0.0.1',
 							1,
-							$txt['salvaged_poll_message_body'],
+							Lang::$txt['salvaged_poll_message_body'],
 							'xx',
 							1,
 						),
@@ -476,7 +477,7 @@ function loadForumTests()
 						)
 					);
 
-					updateStats('subject', $row['id_topic'], $txt['salvaged_poll_topic_name']);
+					updateStats('subject', $row['id_topic'], Lang::$txt['salvaged_poll_topic_name']);
 				}
 
 				Db::$db->insert('',
@@ -497,7 +498,7 @@ function loadForumTests()
 					),
 					array(
 						$row['id_poll'],
-						$txt['salvaged_poll_question'],
+						Lang::$txt['salvaged_poll_question'],
 						1,
 						0,
 						0,
@@ -528,7 +529,7 @@ function loadForumTests()
 					LEFT JOIN {db_prefix}topics AS t ON (t.id_poll = p.id_poll)
 				WHERE p.id_poll BETWEEN {STEP_LOW} AND {STEP_HIGH}
 					AND t.id_poll IS NULL',
-			'fix_processing' => function($row) use ($txt)
+			'fix_processing' => function($row)
 			{
 				global $salvageBoardID;
 
@@ -539,7 +540,7 @@ function loadForumTests()
 					$row['id_board'] = $_SESSION['salvageBoardID'] = (int) $salvageBoardID;
 				}
 
-				$row['poster_name'] = !empty($row['poster_name']) ? $row['poster_name'] : $txt['guest'];
+				$row['poster_name'] = !empty($row['poster_name']) ? $row['poster_name'] : Lang::$txt['guest'];
 
 				$newMessageID = Db::$db->insert('',
 					'{db_prefix}messages',
@@ -562,12 +563,12 @@ function loadForumTests()
 						0,
 						time(),
 						$row['id_member'],
-						$txt['salvaged_poll_topic_name'],
+						Lang::$txt['salvaged_poll_topic_name'],
 						$row['poster_name'],
 						'',
 						'127.0.0.1',
 						1,
-						$txt['salvaged_poll_message_body'],
+						Lang::$txt['salvaged_poll_message_body'],
 						'xx',
 						1,
 					),
@@ -610,7 +611,7 @@ function loadForumTests()
 					)
 				);
 
-				updateStats('subject', $newTopicID, $txt['salvaged_poll_topic_name']);
+				updateStats('subject', $newTopicID, Lang::$txt['salvaged_poll_topic_name']);
 			},
 			'force_fix' => array('stats_topics'),
 			'messages' => array('repair_polls_missing_topics', 'id_poll', 'id_topic'),
@@ -668,18 +669,18 @@ function loadForumTests()
 					)
 				);
 			},
-			'message_function' => function($row) use ($txt)
+			'message_function' => function($row)
 			{
 				// A pretend error?
 				if ($row['id_first_msg'] == $row['myid_first_msg'] && $row['id_last_msg'] == $row['myid_last_msg'] && $row['approved'] == $row['firstmsg_approved'])
 					return false;
 
 				if ($row['id_first_msg'] != $row['myid_first_msg'])
-					Utils::$context['repair_errors'][] = sprintf($txt['repair_topic_wrong_first_id'], $row['id_topic'], $row['id_first_msg']);
+					Utils::$context['repair_errors'][] = sprintf(Lang::$txt['repair_topic_wrong_first_id'], $row['id_topic'], $row['id_first_msg']);
 				if ($row['id_last_msg'] != $row['myid_last_msg'])
-					Utils::$context['repair_errors'][] = sprintf($txt['repair_topic_wrong_last_id'], $row['id_topic'], $row['id_last_msg']);
+					Utils::$context['repair_errors'][] = sprintf(Lang::$txt['repair_topic_wrong_last_id'], $row['id_topic'], $row['id_last_msg']);
 				if ($row['approved'] != $row['firstmsg_approved'])
-					Utils::$context['repair_errors'][] = sprintf($txt['repair_topic_wrong_approval'], $row['id_topic']);
+					Utils::$context['repair_errors'][] = sprintf(Lang::$txt['repair_topic_wrong_approval'], $row['id_topic']);
 
 				return true;
 			},
@@ -722,14 +723,12 @@ function loadForumTests()
 			},
 			'message_function' => function($row)
 			{
-				global $txt;
-
 				// Just joking?
 				if ($row['my_num_replies'] == $row['num_replies'])
 					return false;
 
 				if ($row['num_replies'] != $row['my_num_replies'])
-					Utils::$context['repair_errors'][] = sprintf($txt['repair_topic_wrong_replies'], $row['id_topic'], $row['num_replies']);
+					Utils::$context['repair_errors'][] = sprintf(Lang::$txt['repair_topic_wrong_replies'], $row['id_topic'], $row['num_replies']);
 
 				return true;
 			},
@@ -792,7 +791,7 @@ function loadForumTests()
 				GROUP BY t.id_board',
 			'fix_processing' => function($row)
 			{
-				global $salvageCatID, $txt;
+				global $salvageCatID;
 				createSalvageArea();
 
 				$row['my_num_topics'] = (int) $row['my_num_topics'];
@@ -801,7 +800,7 @@ function loadForumTests()
 				$newBoardID = Db::$db->insert('',
 					'{db_prefix}boards',
 					array('id_cat' => 'int', 'name' => 'string', 'description' => 'string', 'num_topics' => 'int', 'num_posts' => 'int', 'member_groups' => 'string'),
-					array($salvageCatID, $txt['salvaged_board_name'], $txt['salvaged_board_description'], $row['my_num_topics'], $row['my_num_posts'], '1'),
+					array($salvageCatID, Lang::$txt['salvaged_board_name'], Lang::$txt['salvaged_board_description'], $row['my_num_topics'], $row['my_num_posts'], '1'),
 					array('id_board'),
 					1
 				);
@@ -1315,11 +1314,9 @@ function loadForumTests()
 			},
 			'message_function' => function($row)
 			{
-				global $txt;
-
 				if (count(text2words($row['subject'])) != 0)
 				{
-					Utils::$context['repair_errors'][] = sprintf($txt['repair_missing_cached_subject'], $row['id_topic']);
+					Utils::$context['repair_errors'][] = sprintf(Lang::$txt['repair_missing_cached_subject'], $row['id_topic']);
 					return true;
 				}
 
@@ -1538,7 +1535,7 @@ function loadForumTests()
  */
 function findForumErrors($do_fix = false)
 {
-	global $txt, $errorTests, $db_temp_cache;
+	global $errorTests, $db_temp_cache;
 
 	// This may take some time...
 	@set_time_limit(600);
@@ -1626,7 +1623,7 @@ function findForumErrors($do_fix = false)
 					$found_errors = true;
 
 					if (isset($test['message']))
-						Utils::$context['repair_errors'][] = $txt[$test['message']];
+						Utils::$context['repair_errors'][] = Lang::$txt[$test['message']];
 
 					// One per row!
 					elseif (isset($test['messages']))
@@ -1636,8 +1633,8 @@ function findForumErrors($do_fix = false)
 							$variables = $test['messages'];
 							foreach ($variables as $k => $v)
 							{
-								if ($k == 0 && isset($txt[$v]))
-									$variables[$k] = $txt[$v];
+								if ($k == 0 && isset(Lang::$txt[$v]))
+									$variables[$k] = Lang::$txt[$v];
 								elseif ($k > 0 && isset($row[$v]))
 									$variables[$k] = $row[$v];
 							}
@@ -1759,7 +1756,7 @@ function findForumErrors($do_fix = false)
  */
 function createSalvageArea()
 {
-	global $txt, $salvageBoardID, $salvageCatID;
+	global $salvageBoardID, $salvageCatID;
 	static $createOnce = false;
 
 	// Have we already created it?
@@ -1769,7 +1766,7 @@ function createSalvageArea()
 		$createOnce = true;
 
 	// Back to the forum's default language.
-	loadLanguage('Admin', Config::$language);
+	Lang::load('Admin', Lang::$default);
 
 	// Check to see if a 'Salvage Category' exists, if not => insert one.
 	$result = Db::$db->query('', '
@@ -1778,7 +1775,7 @@ function createSalvageArea()
 		WHERE name = {string:cat_name}
 		LIMIT 1',
 		array(
-			'cat_name' => $txt['salvaged_category_name'],
+			'cat_name' => Lang::$txt['salvaged_category_name'],
 		)
 	);
 	if (Db::$db->num_rows($result) != 0)
@@ -1790,14 +1787,14 @@ function createSalvageArea()
 		$salvageCatID = Db::$db->insert('',
 			'{db_prefix}categories',
 			array('name' => 'string-255', 'cat_order' => 'int', 'description' => 'string-255'),
-			array($txt['salvaged_category_name'], -1, $txt['salvaged_category_description']),
+			array(Lang::$txt['salvaged_category_name'], -1, Lang::$txt['salvaged_category_description']),
 			array('id_cat'),
 			1
 		);
 
 		if (Db::$db->affected_rows() <= 0)
 		{
-			loadLanguage('Admin');
+			Lang::load('Admin');
 			fatal_lang_error('salvaged_category_error', false);
 		}
 	}
@@ -1811,7 +1808,7 @@ function createSalvageArea()
 		LIMIT 1',
 		array(
 			'id_cat' => $salvageCatID,
-			'board_name' => $txt['salvaged_board_name'],
+			'board_name' => Lang::$txt['salvaged_board_name'],
 		)
 	);
 	if (Db::$db->num_rows($result) != 0)
@@ -1823,20 +1820,20 @@ function createSalvageArea()
 		$salvageBoardID = Db::$db->insert('',
 			'{db_prefix}boards',
 			array('name' => 'string-255', 'description' => 'string-255', 'id_cat' => 'int', 'member_groups' => 'string', 'board_order' => 'int', 'redirect' => 'string'),
-			array($txt['salvaged_board_name'], $txt['salvaged_board_description'], $salvageCatID, '1', -1, ''),
+			array(Lang::$txt['salvaged_board_name'], Lang::$txt['salvaged_board_description'], $salvageCatID, '1', -1, ''),
 			array('id_board'),
 			1
 		);
 
 		if (Db::$db->affected_rows() <= 0)
 		{
-			loadLanguage('Admin');
+			Lang::load('Admin');
 			fatal_lang_error('salvaged_board_error', false);
 		}
 	}
 
 	// Restore the user's language.
-	loadLanguage('Admin');
+	Lang::load('Admin');
 }
 
 ?>

@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -31,7 +32,7 @@ if (!defined('SMF'))
  */
 function ViewQuery()
 {
-	global $settings, $txt;
+	global $settings;
 
 	// We should have debug mode enabled, as well as something to display!
 	if (!isset(Config::$db_show_debug) || Config::$db_show_debug !== true || !isset($_SESSION['debug']))
@@ -129,12 +130,12 @@ function ViewQuery()
 			</a><br>';
 
 		if (!empty($query_data['f']) && !empty($query_data['l']))
-			echo sprintf($txt['debug_query_in_line'], $query_data['f'], $query_data['l']);
+			echo sprintf(Lang::$txt['debug_query_in_line'], $query_data['f'], $query_data['l']);
 
-		if (isset($query_data['s'], $query_data['t']) && isset($txt['debug_query_which_took_at']))
-			echo sprintf($txt['debug_query_which_took_at'], round($query_data['t'], 8), round($query_data['s'], 8));
+		if (isset($query_data['s'], $query_data['t']) && isset(Lang::$txt['debug_query_which_took_at']))
+			echo sprintf(Lang::$txt['debug_query_which_took_at'], round($query_data['t'], 8), round($query_data['s'], 8));
 		else
-			echo sprintf($txt['debug_query_which_took'], round($query_data['t'], 8));
+			echo sprintf(Lang::$txt['debug_query_which_took'], round($query_data['t'], 8));
 
 		echo '
 		</div>';

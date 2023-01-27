@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -30,10 +31,8 @@ if (!defined('SMF'))
  */
 function ManageBoards()
 {
-	global $txt;
-
 	// Everything's gonna need this.
-	loadLanguage('ManageBoards');
+	Lang::load('ManageBoards');
 
 	// Format: 'sub-action' => array('function', 'permission')
 	$subActions = array(
@@ -50,16 +49,16 @@ function ManageBoards()
 
 	// Create the tabs for the template.
 	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
-		'title' => $txt['boards_and_cats'],
+		'title' => Lang::$txt['boards_and_cats'],
 		'help' => 'manage_boards',
-		'description' => $txt['boards_and_cats_desc'],
+		'description' => Lang::$txt['boards_and_cats_desc'],
 		'tabs' => array(
 			'main' => array(
 			),
 			'newcat' => array(
 			),
 			'settings' => array(
-				'description' => $txt['mboards_settings_desc'],
+				'description' => Lang::$txt['mboards_settings_desc'],
 			),
 		),
 	);
@@ -85,7 +84,7 @@ function ManageBoards()
  */
 function ManageBoardsMain()
 {
-	global $txt, $cat_tree, $boards, $boardList;
+	global $cat_tree, $boards, $boardList;
 
 	loadTemplate('ManageBoards');
 
@@ -142,7 +141,7 @@ function ManageBoardsMain()
 	{
 		createToken('admin-bm-' . Utils::$context['move_board'], 'request');
 
-		Utils::$context['move_title'] = sprintf($txt['mboards_select_destination'], Utils::htmlspecialchars($boards[Utils::$context['move_board']]['name']));
+		Utils::$context['move_title'] = sprintf(Lang::$txt['mboards_select_destination'], Utils::htmlspecialchars($boards[Utils::$context['move_board']]['name']));
 		foreach ($cat_tree as $catid => $tree)
 		{
 			$prev_child_level = 0;
@@ -155,7 +154,7 @@ function ManageBoardsMain()
 				if (!isset(Utils::$context['categories'][$catid]['move_link']))
 					Utils::$context['categories'][$catid]['move_link'] = array(
 						'child_level' => 0,
-						'label' => $txt['mboards_order_before'] . ' \'' . Utils::htmlspecialchars($boards[$boardid]['name']) . '\'',
+						'label' => Lang::$txt['mboards_order_before'] . ' \'' . Utils::htmlspecialchars($boards[$boardid]['name']) . '\'',
 						'href' => Config::$scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . Utils::$context['move_board'] . ';target_board=' . $boardid . ';move_to=before;' . $security,
 					);
 
@@ -163,13 +162,13 @@ function ManageBoardsMain()
 					Utils::$context['categories'][$catid]['boards'][$boardid]['move_links'] = array(
 						array(
 							'child_level' => $boards[$boardid]['level'],
-							'label' => $txt['mboards_order_after'] . '\'' . Utils::htmlspecialchars($boards[$boardid]['name']) . '\'',
+							'label' => Lang::$txt['mboards_order_after'] . '\'' . Utils::htmlspecialchars($boards[$boardid]['name']) . '\'',
 							'href' => Config::$scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . Utils::$context['move_board'] . ';target_board=' . $boardid . ';move_to=after;' . $security,
 							'class' => $boards[$boardid]['level'] > 0 ? 'above' : 'below',
 						),
 						array(
 							'child_level' => $boards[$boardid]['level'] + 1,
-							'label' => $txt['mboards_order_child_of'] . ' \'' . Utils::htmlspecialchars($boards[$boardid]['name']) . '\'',
+							'label' => Lang::$txt['mboards_order_child_of'] . ' \'' . Utils::htmlspecialchars($boards[$boardid]['name']) . '\'',
 							'href' => Config::$scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . Utils::$context['move_board'] . ';target_board=' . $boardid . ';move_to=child;' . $security,
 							'class' => 'here',
 						),
@@ -198,7 +197,7 @@ function ManageBoardsMain()
 			if (empty($boardList[$catid]))
 				Utils::$context['categories'][$catid]['move_link'] = array(
 					'child_level' => 0,
-					'label' => $txt['mboards_order_before'] . ' \'' . Utils::htmlspecialchars($tree['node']['name']) . '\'',
+					'label' => Lang::$txt['mboards_order_before'] . ' \'' . Utils::htmlspecialchars($tree['node']['name']) . '\'',
 					'href' => Config::$scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . Utils::$context['move_board'] . ';target_cat=' . $catid . ';move_to=top;' . $security,
 				);
 		}
@@ -206,7 +205,7 @@ function ManageBoardsMain()
 
 	call_integration_hook('integrate_boards_main');
 
-	Utils::$context['page_title'] = $txt['boards_and_cats'];
+	Utils::$context['page_title'] = Lang::$txt['boards_and_cats'];
 	Utils::$context['can_manage_permissions'] = allowedTo('manage_permissions');
 }
 
@@ -222,7 +221,7 @@ function ManageBoardsMain()
  */
 function EditCategory()
 {
-	global $txt, $cat_tree, $boardList, $boards;
+	global $cat_tree, $boardList, $boards;
 
 	loadTemplate('ManageBoards');
 	require_once(Config::$sourcedir . '/Subs-Boards.php');
@@ -236,7 +235,7 @@ function EditCategory()
 	Utils::$context['category_order'] = array(
 		array(
 			'id' => 0,
-			'name' => $txt['mboards_order_first'],
+			'name' => Lang::$txt['mboards_order_first'],
 			'selected' => !empty($_REQUEST['cat']) ? $cat_tree[$_REQUEST['cat']]['is_first'] : false,
 			'true_name' => ''
 		)
@@ -247,8 +246,8 @@ function EditCategory()
 	{
 		Utils::$context['category'] = array(
 			'id' => 0,
-			'name' => $txt['mboards_new_cat_name'],
-			'editable_name' => Utils::htmlspecialchars($txt['mboards_new_cat_name']),
+			'name' => Lang::$txt['mboards_new_cat_name'],
+			'editable_name' => Utils::htmlspecialchars(Lang::$txt['mboards_new_cat_name']),
 			'description' => '',
 			'can_collapse' => true,
 			'is_new' => true,
@@ -282,7 +281,7 @@ function EditCategory()
 		elseif ($catid != $_REQUEST['cat'])
 			Utils::$context['category_order'][$catid] = array(
 				'id' => $catid,
-				'name' => $txt['mboards_order_after'] . $tree['node']['name'],
+				'name' => Lang::$txt['mboards_order_after'] . $tree['node']['name'],
 				'selected' => false,
 				'true_name' => $tree['node']['name']
 			);
@@ -291,12 +290,12 @@ function EditCategory()
 	if (!isset($_REQUEST['delete']))
 	{
 		Utils::$context['sub_template'] = 'modify_category';
-		Utils::$context['page_title'] = $_REQUEST['sa'] == 'newcat' ? $txt['mboards_new_cat_name'] : $txt['cat_edit'];
+		Utils::$context['page_title'] = $_REQUEST['sa'] == 'newcat' ? Lang::$txt['mboards_new_cat_name'] : Lang::$txt['cat_edit'];
 	}
 	else
 	{
 		Utils::$context['sub_template'] = 'confirm_category_delete';
-		Utils::$context['page_title'] = $txt['mboards_delete_cat'];
+		Utils::$context['page_title'] = Lang::$txt['mboards_delete_cat'];
 	}
 
 	// Create a special token.
@@ -377,7 +376,7 @@ function EditCategory2()
  */
 function EditBoard()
 {
-	global $txt, $cat_tree, $boards, $boardList;
+	global $cat_tree, $boards, $boardList;
 
 	loadTemplate('ManageBoards');
 	require_once(Config::$sourcedir . '/Subs-Boards.php');
@@ -385,7 +384,7 @@ function EditBoard()
 	getBoardTree();
 
 	// For editing the profile we'll need this.
-	loadLanguage('ManagePermissions');
+	Lang::load('ManagePermissions');
 	require_once(Config::$sourcedir . '/ManagePermissions.php');
 	loadPermissionProfiles();
 
@@ -419,7 +418,7 @@ function EditBoard()
 		Utils::$context['board'] = array(
 			'is_new' => true,
 			'id' => 0,
-			'name' => $txt['mboards_new_board_name'],
+			'name' => Lang::$txt['mboards_new_board_name'],
 			'description' => '',
 			'count_posts' => 1,
 			'posts' => 0,
@@ -451,14 +450,14 @@ function EditBoard()
 	Utils::$context['groups'] = array(
 		-1 => array(
 			'id' => '-1',
-			'name' => $txt['parent_guests_only'],
+			'name' => Lang::$txt['parent_guests_only'],
 			'allow' => in_array('-1', $curBoard['member_groups']),
 			'deny' => in_array('-1', $curBoard['deny_groups']),
 			'is_post_group' => false,
 		),
 		0 => array(
 			'id' => '0',
-			'name' => $txt['parent_members_only'],
+			'name' => Lang::$txt['parent_members_only'],
 			'allow' => in_array('0', $curBoard['member_groups']),
 			'deny' => in_array('0', $curBoard['deny_groups']),
 			'is_post_group' => false,
@@ -501,7 +500,7 @@ function EditBoard()
 		{
 			Utils::$context['board_order'][] = array(
 				'id' => $boardid,
-				'name' => str_repeat('-', $boards[$boardid]['level']) . ' (' . $txt['mboards_current_position'] . ')',
+				'name' => str_repeat('-', $boards[$boardid]['level']) . ' (' . Lang::$txt['mboards_current_position'] . ')',
 				'children' => $boards[$boardid]['tree']['children'],
 				'no_children' => empty($boards[$boardid]['tree']['children']),
 				'is_child' => false,
@@ -595,13 +594,13 @@ function EditBoard()
 	if (!isset($_REQUEST['delete']))
 	{
 		Utils::$context['sub_template'] = 'modify_board';
-		Utils::$context['page_title'] = $txt['boards_edit'];
+		Utils::$context['page_title'] = Lang::$txt['boards_edit'];
 		loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
 	}
 	else
 	{
 		Utils::$context['sub_template'] = 'confirm_board_delete';
-		Utils::$context['page_title'] = $txt['mboards_delete_board'];
+		Utils::$context['page_title'] = Lang::$txt['mboards_delete_board'];
 	}
 
 	// Create a special token.
@@ -819,8 +818,6 @@ function ModifyCat()
  */
 function EditBoardSettings($return_config = false)
 {
-	global $txt;
-
 	// Load the boards list - for the recycle bin!
 	$request = Db::$db->query('order_by_board_order', '
 		SELECT b.id_board, b.name AS board_name, c.name AS cat_name
@@ -874,7 +871,7 @@ function EditBoardSettings($return_config = false)
 
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=manageboards;save;sa=settings';
 
-	Utils::$context['page_title'] = $txt['boards_and_cats'] . ' - ' . $txt['settings'];
+	Utils::$context['page_title'] = Lang::$txt['boards_and_cats'] . ' - ' . Lang::$txt['settings'];
 
 	loadTemplate('ManageBoards');
 	Utils::$context['sub_template'] = 'show_settings';
@@ -884,7 +881,7 @@ function EditBoardSettings($return_config = false)
 	document.getElementById("recycle_board").disabled = !document.getElementById("recycle_enable").checked;', true);
 
 	// Warn the admin against selecting the recycle topic without selecting a board.
-	Utils::$context['force_form_onsubmit'] = 'if(document.getElementById(\'recycle_enable\').checked && document.getElementById(\'recycle_board\').value == 0) { return confirm(\'' . $txt['recycle_board_unselected_notice'] . '\');} return true;';
+	Utils::$context['force_form_onsubmit'] = 'if(document.getElementById(\'recycle_enable\').checked && document.getElementById(\'recycle_board\').value == 0) { return confirm(\'' . Lang::$txt['recycle_board_unselected_notice'] . '\');} return true;';
 
 	// Doing a save?
 	if (isset($_GET['save']))
