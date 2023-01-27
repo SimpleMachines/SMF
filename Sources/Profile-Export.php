@@ -16,6 +16,7 @@
 
 use SMF\BrowserDetector;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -31,7 +32,6 @@ if (!defined('SMF'))
  */
 function export_profile_data($uid)
 {
-	global $txt;
 	global $query_this_board;
 
 	if (!isset(Utils::$context['token_check']))
@@ -65,7 +65,7 @@ function export_profile_data($uid)
 			// 'JSON' => array(),
 		),
 		'posts' => array(
-			'label' => $txt['export_include_posts'],
+			'label' => Lang::$txt['export_include_posts'],
 			'total' => Utils::$context['member']['real_posts'],
 			'latest' => function($uid)
 			{
@@ -111,7 +111,7 @@ function export_profile_data($uid)
 			// 'JSON' => array(),
 		),
 		'personal_messages' => array(
-			'label' => $txt['export_include_personal_messages'],
+			'label' => Lang::$txt['export_include_personal_messages'],
 			'total' => function($uid)
 			{
 				static $total_pms;
@@ -245,7 +245,7 @@ function export_profile_data($uid)
 
 		$included_desc = array();
 		foreach ($included as $datatype)
-			$included_desc[] = $txt[$datatype];
+			$included_desc[] = Lang::$txt[$datatype];
 
 		$dlfilename = array_merge(array(Utils::$context['forum_name'], Utils::$context['member']['username']), $included_desc);
 		$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}_]+/u', '-', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('_', $dlfilename)))));
@@ -299,7 +299,7 @@ function export_profile_data($uid)
 					'dlbasename' => $dlfilename . $suffix . '.' . $format_settings['extension'],
 					'dltoken' => $dltoken,
 					'included' => $included,
-					'included_desc' => sentence_list($included_desc),
+					'included_desc' => Lang::sentenceList($included_desc),
 					'format' => $format,
 					'mtime' => timeformat(filemtime($exportfilepath)),
 					'size' => $size,
@@ -315,7 +315,7 @@ function export_profile_data($uid)
 			Utils::$context['active_exports'][$idhash_ext] = array(
 				'dltoken' => $dltoken,
 				'included' => $included,
-				'included_desc' => sentence_list($included_desc),
+				'included_desc' => Lang::sentenceList($included_desc),
 				'format' => $format,
 			);
 
@@ -337,7 +337,7 @@ function export_profile_data($uid)
 			if ($datatype == 'profile' || !empty($_POST[$datatype]))
 			{
 				$included[$datatype] = $datatype_settings[$format];
-				$included_desc[] = $txt[$datatype];
+				$included_desc[] = Lang::$txt[$datatype];
 
 				$start[$datatype] = !empty($start[$datatype]) ? $start[$datatype] : 0;
 
@@ -384,14 +384,14 @@ function export_profile_data($uid)
 
 	createToken(Utils::$context['token_check'], 'post');
 
-	Utils::$context['page_title'] = $txt['export_profile_data'];
+	Utils::$context['page_title'] = Lang::$txt['export_profile_data'];
 
 	if (empty(Config::$modSettings['export_expiry']))
-		unset($txt['export_profile_data_desc_list']['expiry']);
+		unset(Lang::$txt['export_profile_data_desc_list']['expiry']);
 	else
-		$txt['export_profile_data_desc_list']['expiry'] = sprintf($txt['export_profile_data_desc_list']['expiry'], Config::$modSettings['export_expiry']);
+		Lang::$txt['export_profile_data_desc_list']['expiry'] = sprintf(Lang::$txt['export_profile_data_desc_list']['expiry'], Config::$modSettings['export_expiry']);
 
-	Utils::$context['export_profile_data_desc'] = sprintf($txt['export_profile_data_desc'], '<li>' . implode('</li><li>', $txt['export_profile_data_desc_list']) . '</li>');
+	Utils::$context['export_profile_data_desc'] = sprintf(Lang::$txt['export_profile_data_desc'], '<li>' . implode('</li><li>', Lang::$txt['export_profile_data_desc_list']) . '</li>');
 
 	addJavaScriptVar('completed_formats', '[\'' . implode('\', \'', array_unique($existing_export_formats)) . '\']', false);
 }
@@ -403,8 +403,6 @@ function export_profile_data($uid)
  */
 function download_export_file($uid)
 {
-	global $txt;
-
 	$export_formats = get_export_formats();
 
 	// This is done to clear any output that was made before now.
@@ -467,9 +465,9 @@ function download_export_file($uid)
 	// Figure out the filename we'll tell the browser.
 	$datatypes = file_exists($progressfile) ? array_keys(Utils::jsonDecode(file_get_contents($progressfile), true)) : array('profile');
 	$included_desc = array_map(
-		function ($datatype) use ($txt)
+		function ($datatype)
 		{
-			return $txt[$datatype];
+			return Lang::$txt[$datatype];
 		},
 		$datatypes
 	);
@@ -681,39 +679,37 @@ function export_attachment($uid)
  */
 function get_export_formats()
 {
-	global $txt;
-
-	loadLanguage('Profile');
+	Lang::load('Profile');
 
 	$export_formats = array(
 		'XML_XSLT' => array(
 			'extension' => 'styled.xml',
 			'mime' => 'text/xml',
-			'description' => $txt['export_format_xml_xslt'],
+			'description' => Lang::$txt['export_format_xml_xslt'],
 			'per_page' => 500,
 		),
 		'HTML' => array(
 			'extension' => 'html',
 			'mime' => 'text/html',
-			'description' => $txt['export_format_html'],
+			'description' => Lang::$txt['export_format_html'],
 			'per_page' => 500,
 		),
 		'XML' => array(
 			'extension' => 'xml',
 			'mime' => 'text/xml',
-			'description' => $txt['export_format_xml'],
+			'description' => Lang::$txt['export_format_xml'],
 			'per_page' => 2000,
 		),
 		// 'CSV' => array(
 		// 	'extension' => 'csv',
 		// 	'mime' => 'text/csv',
-		// 	'description' => $txt['export_format_csv'],
+		// 	'description' => Lang::$txt['export_format_csv'],
 		//	'per_page' => 2000,
 		// ),
 		// 'JSON' => array(
 		// 	'extension' => 'json',
 		// 	'mime' => 'application/json',
-		// 	'description' => $txt['export_format_json'],
+		// 	'description' => Lang::$txt['export_format_json'],
 		//	'per_page' => 2000,
 		// ),
 	);
@@ -736,8 +732,6 @@ function get_export_formats()
  */
 function create_export_dir($fallback = '')
 {
-	global $txt;
-
 	// No supplied fallback, so use the default location.
 	if (empty($fallback))
 		$fallback = Config::$boarddir . DIRECTORY_SEPARATOR . 'exports';
@@ -753,12 +747,12 @@ function create_export_dir($fallback = '')
 	// Make sure the directory has the correct permissions.
 	if (!is_dir(Config::$modSettings['export_dir']) || !smf_chmod(Config::$modSettings['export_dir']))
 	{
-		loadLanguage('Errors');
+		Lang::load('Errors');
 
 		// Try again at the fallback location.
 		if (Config::$modSettings['export_dir'] != $fallback)
 		{
-			log_error(sprintf($txt['export_dir_forced_change'], Config::$modSettings['export_dir'], $fallback));
+			log_error(sprintf(Lang::$txt['export_dir_forced_change'], Config::$modSettings['export_dir'], $fallback));
 			Config::updateModSettings(array('export_dir' => $fallback));
 
 			// Secondary fallback will be the default location, so no parameter this time.
@@ -767,7 +761,7 @@ function create_export_dir($fallback = '')
 		// Uh-oh. Even the default location failed.
 		else
 		{
-			log_error($txt['export_dir_not_writable']);
+			log_error(Lang::$txt['export_dir_not_writable']);
 			return false;
 		}
 	}
@@ -785,7 +779,7 @@ function create_export_dir($fallback = '')
  */
 function get_xslt_stylesheet($format, $uid)
 {
-	global $txt, $settings, $forum_copyright;
+	global $settings;
 
 	static $xslts = array();
 
@@ -851,34 +845,34 @@ function get_xslt_stylesheet($format, $uid)
 				'value' => $export_formats[$format]['extension'],
 			),
 			'forum_copyright' => array(
-				'value' => sprintf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl),
+				'value' => sprintf(Lang::$forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl),
 			),
 			'txt_summary_heading' => array(
-				'value' => $txt['summary'],
+				'value' => Lang::$txt['summary'],
 			),
 			'txt_posts_heading' => array(
-				'value' => $txt['posts'],
+				'value' => Lang::$txt['posts'],
 			),
 			'txt_personal_messages_heading' => array(
-				'value' => $txt['personal_messages'],
+				'value' => Lang::$txt['personal_messages'],
 			),
 			'txt_view_source_button' => array(
-				'value' => $txt['export_view_source_button'],
+				'value' => Lang::$txt['export_view_source_button'],
 			),
 			'txt_download_original' => array(
-				'value' => $txt['export_download_original'],
+				'value' => Lang::$txt['export_download_original'],
 			),
 			'txt_help' => array(
-				'value' => $txt['help'],
+				'value' => Lang::$txt['help'],
 			),
 			'txt_terms_rules' => array(
-				'value' => $txt['terms_and_rules'],
+				'value' => Lang::$txt['terms_and_rules'],
 			),
 			'txt_go_up' => array(
-				'value' => $txt['go_up'],
+				'value' => Lang::$txt['go_up'],
 			),
 			'txt_pages' => array(
-				'value' => $txt['pages'],
+				'value' => Lang::$txt['pages'],
 			),
 		);
 
@@ -899,7 +893,7 @@ function get_xslt_stylesheet($format, $uid)
 		{
 			$doctype = implode("\n", array(
 				'<!--',
-				"\t" . $txt['export_open_in_browser'],
+				"\t" . Lang::$txt['export_open_in_browser'],
 				'-->',
 				'<?xml-stylesheet type="text/xsl" href="#stylesheet"?>',
 				'<!DOCTYPE smf:xml-feed [',

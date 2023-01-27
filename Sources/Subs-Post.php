@@ -17,6 +17,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Mentions;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -568,8 +569,6 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
  */
 function sendmail($to, $subject, $message, $from = null, $message_id = null, $send_html = false, $priority = 3, $hotmail_fix = null, $is_private = false)
 {
-	global $txt;
-
 	// Use sendmail if it's set or if no SMTP server is set.
 	$use_sendmail = empty(Config::$modSettings['mail_type']) || Config::$modSettings['smtp_host'] == '';
 
@@ -741,14 +740,14 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 			{
 				if (!mail(strtr($to, array("\r" => '', "\n" => '')), $subject, $message, $headers))
 				{
-					log_error(sprintf($txt['mail_send_unable'], $to));
+					log_error(sprintf(Lang::$txt['mail_send_unable'], $to));
 					$mail_result = false;
 				}
 			}
 			catch (ErrorException $e)
 			{
 				log_error($e->getMessage(), 'general', $e->getFile(), $e->getLine());
-				log_error(sprintf($txt['mail_send_unable'], $to));
+				log_error(sprintf(Lang::$txt['mail_send_unable'], $to));
 				$mail_result = false;
 			}
 			restore_error_handler();
@@ -880,9 +879,10 @@ function AddMailQueue($flush = false, $to_array = array(), $subject = '', $messa
  */
 function sendpm($recipients, $subject, $message, $store_outbox = false, $from = null, $pm_head = 0)
 {
-	global $txt, $user_info;
+	global $user_info;
+
 	// Make sure the PM language file is loaded, we might need something out of it.
-	loadLanguage('PersonalMessage');
+	Lang::load('PersonalMessage');
 
 	// Initialize log array.
 	$log = array(
@@ -950,7 +950,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 					$recipients[$rec_type][$id] = $usernames[$member];
 				else
 				{
-					$log['failed'][$id] = sprintf($txt['pm_error_user_not_found'], $recipients[$rec_type][$id]);
+					$log['failed'][$id] = sprintf(Lang::$txt['pm_error_user_not_found'], $recipients[$rec_type][$id]);
 					unset($recipients[$rec_type][$id]);
 				}
 			}
@@ -1081,7 +1081,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 
 			if ($message_limit > 0 && $message_limit <= $row['instant_messages'])
 			{
-				$log['failed'][$row['id_member']] = sprintf($txt['pm_error_data_limit_reached'], $row['real_name']);
+				$log['failed'][$row['id_member']] = sprintf(Lang::$txt['pm_error_data_limit_reached'], $row['real_name']);
 				unset($all_to[array_search($row['id_member'], $all_to)]);
 				continue;
 			}
@@ -1089,7 +1089,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 			// Do they have any of the allowed groups?
 			if (count(array_intersect($pmReadGroups['allowed'], $groups)) == 0 || count(array_intersect($pmReadGroups['denied'], $groups)) != 0)
 			{
-				$log['failed'][$row['id_member']] = sprintf($txt['pm_error_user_cannot_read'], $row['real_name']);
+				$log['failed'][$row['id_member']] = sprintf(Lang::$txt['pm_error_user_cannot_read'], $row['real_name']);
 				unset($all_to[array_search($row['id_member'], $all_to)]);
 				continue;
 			}
@@ -1098,7 +1098,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		// Note that PostgreSQL can return a lowercase t/f for FIND_IN_SET
 		if (!empty($row['ignored']) && $row['ignored'] != 'f' && $row['id_member'] != $from['id'])
 		{
-			$log['failed'][$row['id_member']] = sprintf($txt['pm_error_ignored_by_user'], $row['real_name']);
+			$log['failed'][$row['id_member']] = sprintf(Lang::$txt['pm_error_ignored_by_user'], $row['real_name']);
 			unset($all_to[array_search($row['id_member'], $all_to)]);
 			continue;
 		}
@@ -1106,7 +1106,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		// If the receiving account is banned (>=10) or pending deletion (4), refuse to send the PM.
 		if ($row['is_activated'] >= 10 || ($row['is_activated'] == 4 && !$user_info['is_admin']))
 		{
-			$log['failed'][$row['id_member']] = sprintf($txt['pm_error_user_cannot_read'], $row['real_name']);
+			$log['failed'][$row['id_member']] = sprintf(Lang::$txt['pm_error_user_cannot_read'], $row['real_name']);
 			unset($all_to[array_search($row['id_member'], $all_to)]);
 			continue;
 		}
@@ -1116,10 +1116,10 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 			&& ((empty($pm_head) && $prefs['pm_new'] & 0x02) || (!empty($pm_head) && $prefs['pm_reply'] & 0x02))
 			&& ($prefs['pm_notify'] <= 1 || ($prefs['pm_notify'] > 1 && (!empty(Config::$modSettings['enable_buddylist']) && $row['is_buddy']))) && $row['is_activated'] == 1)
 		{
-			$notifications[empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $row['lngfile']][] = $row['email_address'];
+			$notifications[empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile']][] = $row['email_address'];
 		}
 
-		$log['sent'][$row['id_member']] = sprintf(isset($txt['pm_successfully_sent']) ? $txt['pm_successfully_sent'] : '', $row['real_name']);
+		$log['sent'][$row['id_member']] = sprintf(isset(Lang::$txt['pm_successfully_sent']) ? Lang::$txt['pm_successfully_sent'] : '', $row['real_name']);
 	}
 	Db::$db->free_result($request);
 
@@ -1219,16 +1219,16 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		if (empty($notification_texts[$lang]))
 		{
 			if ($lang != $user_info['language'])
-				loadLanguage('index+Modifications', $lang, false);
+				Lang::load('index+Modifications', $lang, false);
 
 			$notification_texts[$lang]['subject'] = $subject;
-			censorText($notification_texts[$lang]['subject']);
+			Lang::censorText($notification_texts[$lang]['subject']);
 
 			if (empty(Config::$modSettings['disallow_sendBody']))
 			{
 				$notification_texts[$lang]['body'] = $message;
 
-				censorText($notification_texts[$lang]['body']);
+				Lang::censorText($notification_texts[$lang]['body']);
 
 				$notification_texts[$lang]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(BBCodeParser::load()->parse(Utils::htmlspecialchars($notification_texts[$lang]['body']), false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
 			}
@@ -1237,7 +1237,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 
 
 			if ($lang != $user_info['language'])
-				loadLanguage('index+Modifications', $user_info['language'], false);
+				Lang::load('index+Modifications', $user_info['language'], false);
 		}
 
 		$replacements['SUBJECT'] = $notification_texts[$lang]['subject'];
@@ -1253,7 +1253,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 	call_integration_hook('integrate_personal_message_after', array(&$id_pm, &$log, &$recipients, &$from, &$subject, &$message));
 
 	// Back to what we were on before!
-	loadLanguage('index+PersonalMessage');
+	Lang::load('index+PersonalMessage');
 
 	// Add one to their unread and read message counts.
 	foreach ($all_to as $k => $id)
@@ -1383,8 +1383,6 @@ function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $
  */
 function smtp_mail($mail_to_array, $subject, $message, $headers)
 {
-	global $txt;
-
 	static $helo;
 
 	Config::$modSettings['smtp_host'] = trim(Config::$modSettings['smtp_host']);
@@ -1421,13 +1419,13 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 				Config::$modSettings['smtp_host'] = str_replace('ssl:', 'ss://', Config::$modSettings['smtp_host']);
 
 			if ($socket = fsockopen(Config::$modSettings['smtp_host'], 465, $errno, $errstr, 3))
-				log_error($txt['smtp_port_ssl']);
+				log_error(Lang::$txt['smtp_port_ssl']);
 		}
 
 		// Unable to connect!  Don't show any error message, but just log one and try to continue anyway.
 		if (!$socket)
 		{
-			log_error($txt['smtp_no_connect'] . ': ' . $errno . ' : ' . $errstr);
+			log_error(Lang::$txt['smtp_no_connect'] . ': ' . $errno . ' : ' . $errstr);
 			return false;
 		}
 	}
@@ -1565,8 +1563,6 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
  */
 function server_parse($message, $socket, $code, &$response = null)
 {
-	global $txt;
-
 	if ($message !== null)
 		fputs($socket, $message . "\r\n");
 
@@ -1578,7 +1574,7 @@ function server_parse($message, $socket, $code, &$response = null)
 		if (!($server_response = fgets($socket, 256)))
 		{
 			// @todo Change this message to reflect that it may mean bad user/password/server issues/etc.
-			log_error($txt['smtp_bad_response']);
+			log_error(Lang::$txt['smtp_bad_response']);
 			return false;
 		}
 		$response .= $server_response;
@@ -1597,7 +1593,7 @@ function server_parse($message, $socket, $code, &$response = null)
 		 * 451 - cPanel "Temporary local problem - please try later"
 		 */
 		if ($response_code < 500 && !in_array($response_code, array(450, 451)))
-			log_error($txt['smtp_error'] . $server_response);
+			log_error(Lang::$txt['smtp_error'] . $server_response);
 
 		return false;
 	}
@@ -1613,12 +1609,10 @@ function server_parse($message, $socket, $code, &$response = null)
  */
 function SpellCheck()
 {
-	global $txt;
-
 	// A list of "words" we know about but pspell doesn't.
 	$known_words = array('smf', 'php', 'mysql', 'www', 'gif', 'jpeg', 'png', 'http', 'smfisawesome', 'grandia', 'terranigma', 'rpgs');
 
-	loadLanguage('Post');
+	Lang::load('Post');
 	loadTemplate('Post');
 
 	// Create a pspell or enchant dictionary resource
@@ -1629,7 +1623,7 @@ function SpellCheck()
 
 	// Construct a bit of Javascript code.
 	Utils::$context['spell_js'] = '
-		var txt = {"done": "' . $txt['spellcheck_done'] . '"};
+		var txt = {"done": "' . Lang::$txt['spellcheck_done'] . '"};
 		var mispstr = window.opener.spellCheckGetText(spell_fieldname);
 		var misps = Array(';
 
@@ -1659,7 +1653,7 @@ function SpellCheck()
 		{
 			// But first check they aren't going to be censored - no naughty words!
 			foreach ($suggestions as $k => $word)
-				if ($suggestions[$k] != censorText($word))
+				if ($suggestions[$k] != Lang::censorText($word))
 					unset($suggestions[$k]);
 
 			if (!empty($suggestions))
@@ -1775,7 +1769,7 @@ function sendNotifications($topics, $type, $exclude = array(), $members_only = a
  */
 function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 {
-	global $user_info, $txt;
+	global $user_info;
 
 	// Set optional parameters to the default value.
 	$msgOptions['icon'] = empty($msgOptions['icon']) ? 'xx' : $msgOptions['icon'];
@@ -1819,7 +1813,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		if (empty($posterOptions['id']))
 		{
 			$posterOptions['id'] = 0;
-			$posterOptions['name'] = $txt['guest_title'];
+			$posterOptions['name'] = Lang::$txt['guest_title'];
 			$posterOptions['email'] = '';
 		}
 		elseif ($posterOptions['id'] != $user_info['id'])
@@ -1836,10 +1830,10 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 			// Couldn't find the current poster?
 			if (Db::$db->num_rows($request) == 0)
 			{
-				loadLanguage('Errors');
-				trigger_error(sprintf($txt['create_post_invalid_member_id'], $posterOptions['id']), E_USER_NOTICE);
+				Lang::load('Errors');
+				trigger_error(sprintf(Lang::$txt['create_post_invalid_member_id'], $posterOptions['id']), E_USER_NOTICE);
 				$posterOptions['id'] = 0;
-				$posterOptions['name'] = $txt['guest_title'];
+				$posterOptions['name'] = Lang::$txt['guest_title'];
 				$posterOptions['email'] = '';
 			}
 			else
@@ -2945,19 +2939,19 @@ function adminNotify($type, $memberID, $member_name = null)
  */
 function loadEmailTemplate($template, $replacements = array(), $lang = '', $loadLang = true)
 {
-	global $txt, $settings;
+	global $settings;
 
 	// First things first, load up the email templates language file, if we need to.
 	if ($loadLang)
-		loadLanguage('EmailTemplates', $lang);
+		Lang::load('EmailTemplates', $lang);
 
-	if (!isset($txt[$template . '_subject']) || !isset($txt[$template . '_body']))
+	if (!isset(Lang::$txt[$template . '_subject']) || !isset(Lang::$txt[$template . '_body']))
 		fatal_lang_error('email_no_template', 'template', array($template));
 
 	$ret = array(
-		'subject' => $txt[$template . '_subject'],
-		'body' => $txt[$template . '_body'],
-		'is_html' => !empty($txt[$template . '_html']),
+		'subject' => Lang::$txt[$template . '_subject'],
+		'body' => Lang::$txt[$template . '_body'],
+		'is_html' => !empty(Lang::$txt[$template . '_html']),
 	);
 
 	// Add in the default replacements.
@@ -2967,7 +2961,7 @@ function loadEmailTemplate($template, $replacements = array(), $lang = '', $load
 		'THEMEURL' => $settings['theme_url'],
 		'IMAGESURL' => $settings['images_url'],
 		'DEFAULT_THEMEURL' => $settings['default_theme_url'],
-		'REGARDS' => sprintf($txt['regards_team'], Utils::$context['forum_name']),
+		'REGARDS' => sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name']),
 	);
 
 	// Split the replacements up into two arrays, for use with str_replace
@@ -3031,11 +3025,9 @@ function user_info_callback($matches)
  */
 function spell_init()
 {
-	global $txt;
-
 	// Check for UTF-8 and strip ".utf8" off the lang_locale string for enchant
-	Utils::$context['spell_utf8'] = ($txt['lang_character_set'] == 'UTF-8');
-	$lang_locale = str_replace('.utf8', '', $txt['lang_locale']);
+	Utils::$context['spell_utf8'] = (Lang::$txt['lang_character_set'] == 'UTF-8');
+	$lang_locale = str_replace('.utf8', '', Lang::$txt['lang_locale']);
 
 	// Try enchant first since PSpell is (supposedly) deprecated as of PHP 5.3
 	// enchant only does UTF-8, so we need iconv if you aren't using UTF-8
@@ -3049,9 +3041,9 @@ function spell_init()
 		{
 			$enchant_link = enchant_broker_request_dict(Utils::$context['enchant_broker'], $lang_locale);
 		}
-		elseif (enchant_broker_dict_exists(Utils::$context['enchant_broker'], $txt['lang_dictionary']))
+		elseif (enchant_broker_dict_exists(Utils::$context['enchant_broker'], Lang::$txt['lang_dictionary']))
 		{
-			$enchant_link = enchant_broker_request_dict(Utils::$context['enchant_broker'], $txt['lang_dictionary']);
+			$enchant_link = enchant_broker_request_dict(Utils::$context['enchant_broker'], Lang::$txt['lang_dictionary']);
 		}
 
 		// Success
@@ -3078,7 +3070,7 @@ function spell_init()
 		pspell_new('en');
 
 		// Next, the dictionary in question may not exist. So, we try it... but...
-		$pspell_link = pspell_new($txt['lang_dictionary'], '', '', strtr(Utils::$context['character_set'], array('iso-' => 'iso', 'ISO-' => 'iso')), PSPELL_FAST | PSPELL_RUN_TOGETHER);
+		$pspell_link = pspell_new(Lang::$txt['lang_dictionary'], '', '', strtr(Utils::$context['character_set'], array('iso-' => 'iso', 'ISO-' => 'iso')), PSPELL_FAST | PSPELL_RUN_TOGETHER);
 
 		// Most people don't have anything but English installed... So we use English as a last resort.
 		if (!$pspell_link)
@@ -3110,8 +3102,6 @@ function spell_init()
  */
 function spell_check($dict, $word)
 {
-	global $txt;
-
 	// Enchant or pspell?
 	if (Utils::$context['provider'] == 'enchant')
 	{
@@ -3119,7 +3109,7 @@ function spell_check($dict, $word)
 		if (!Utils::$context['spell_utf8'])
 		{
 			// Convert the word to UTF-8 with iconv
-			$word = iconv($txt['lang_character_set'], 'UTF-8', $word);
+			$word = iconv(Lang::$txt['lang_character_set'], 'UTF-8', $word);
 		}
 		return enchant_dict_check($dict, $word);
 	}
@@ -3140,22 +3130,20 @@ function spell_check($dict, $word)
  */
 function spell_suggest($dict, $word)
 {
-	global $txt;
-
 	if (Utils::$context['provider'] == 'enchant')
 	{
 		// If we're not using UTF-8, we need iconv to handle some stuff...
 		if (!Utils::$context['spell_utf8'])
 		{
 			// Convert the word to UTF-8 before getting suggestions
-			$word = iconv($txt['lang_character_set'], 'UTF-8', $word);
+			$word = iconv(Lang::$txt['lang_character_set'], 'UTF-8', $word);
 			$suggestions = enchant_dict_suggest($dict, $word);
 
 			// Go through the suggestions and convert them back to the proper character set
 			foreach ($suggestions as $index => $suggestion)
 			{
 				// //TRANSLIT makes it use similar-looking characters for incompatible ones...
-				$suggestions[$index] = iconv('UTF-8', $txt['lang_character_set'] . '//TRANSLIT', $suggestion);
+				$suggestions[$index] = iconv('UTF-8', Lang::$txt['lang_character_set'] . '//TRANSLIT', $suggestion);
 			}
 
 			return $suggestions;

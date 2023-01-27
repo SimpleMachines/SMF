@@ -1,8 +1,6 @@
 <?php
 // Version: 3.0 Alpha 1; Timezones
 
-global $tztxt;
-
 // Standard Time or Daylight Saving Time
 $tztxt['daylight_saving_time_false'] = 'Standard';
 $tztxt['daylight_saving_time_true'] = 'Daylight Saving';

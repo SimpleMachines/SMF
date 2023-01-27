@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 use SMF\PackageManager\SubsPackage;
@@ -227,7 +228,6 @@ function get_installed_themes()
  */
 function get_theme_info($path)
 {
-	global $txt;
 	global $explicit_images;
 
 	if (empty($path))
@@ -239,13 +239,13 @@ function get_theme_info($path)
 	// Perhaps they are trying to install a mod, lets tell them nicely this is the wrong function.
 	if (file_exists($path . '/package-info.xml'))
 	{
-		loadLanguage('Errors');
+		Lang::load('Errors');
 
 		// We need to delete the dir otherwise the next time you try to install a theme you will get the same error.
 		remove_dir($path);
 
-		$txt['package_get_error_is_mod'] = str_replace('{MANAGEMODURL}', Config::$scripturl . '?action=admin;area=packages;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], $txt['package_get_error_is_mod']);
-		fatal_lang_error('package_theme_upload_error_broken', false, $txt['package_get_error_is_mod']);
+		Lang::$txt['package_get_error_is_mod'] = str_replace('{MANAGEMODURL}', Config::$scripturl . '?action=admin;area=packages;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], Lang::$txt['package_get_error_is_mod']);
+		fatal_lang_error('package_theme_upload_error_broken', false, Lang::$txt['package_get_error_is_mod']);
 	}
 
 	// Parse theme-info.xml into an XmlArray.
@@ -567,8 +567,6 @@ function remove_theme($themeID)
  */
 function get_file_listing($path, $relative)
 {
-	global $txt;
-
 	// Is it even a directory?
 	if (!is_dir($path))
 		fatal_lang_error('error_invalid_dir', 'critical');
@@ -605,9 +603,9 @@ function get_file_listing($path, $relative)
 		{
 			$size = filesize($path . '/' . $entry);
 			if ($size > 2048 || $size == 1024)
-				$size = comma_format($size / 1024) . ' ' . $txt['themeadmin_edit_kilobytes'];
+				$size = Lang::numberFormat($size / 1024) . ' ' . Lang::$txt['themeadmin_edit_kilobytes'];
 			else
-				$size = comma_format($size) . ' ' . $txt['themeadmin_edit_bytes'];
+				$size = Lang::numberFormat($size) . ' ' . Lang::$txt['themeadmin_edit_bytes'];
 
 			$listing2[] = array(
 				'filename' => $entry,

@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -30,9 +31,7 @@ if (!defined('SMF'))
 
 function ModifyPermissions()
 {
-	global $txt;
-
-	loadLanguage('ManagePermissions+ManageMembers');
+	Lang::load('ManagePermissions+ManageMembers');
 	loadTemplate('ManagePermissions');
 
 	// Format: 'sub-action' => array('function_to_call', 'permission_needed'),
@@ -50,24 +49,24 @@ function ModifyPermissions()
 
 	// Create the tabs for the template.
 	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
-		'title' => $txt['permissions_title'],
+		'title' => Lang::$txt['permissions_title'],
 		'help' => 'permissions',
 		'description' => '',
 		'tabs' => array(
 			'index' => array(
-				'description' => $txt['permissions_groups'],
+				'description' => Lang::$txt['permissions_groups'],
 			),
 			'board' => array(
-				'description' => $txt['permission_by_board_desc'],
+				'description' => Lang::$txt['permission_by_board_desc'],
 			),
 			'profiles' => array(
-				'description' => $txt['permissions_profiles_desc'],
+				'description' => Lang::$txt['permissions_profiles_desc'],
 			),
 			'postmod' => array(
-				'description' => $txt['permissions_post_moderation_desc'],
+				'description' => Lang::$txt['permissions_post_moderation_desc'],
 			),
 			'settings' => array(
-				'description' => $txt['permission_settings_desc'],
+				'description' => Lang::$txt['permission_settings_desc'],
 			),
 		),
 	);
@@ -92,9 +91,9 @@ function ModifyPermissions()
  */
 function PermissionIndex()
 {
-	global $txt, $settings;
+	global $settings;
 
-	Utils::$context['page_title'] = $txt['permissions_title'];
+	Utils::$context['page_title'] = Lang::$txt['permissions_title'];
 
 	// Load all the permissions. We'll need them in the template.
 	loadAllPermissions();
@@ -121,8 +120,8 @@ function PermissionIndex()
 	Utils::$context['groups'] = array(
 		-1 => array(
 			'id' => -1,
-			'name' => $txt['membergroups_guests'],
-			'num_members' => $txt['membergroups_guests_na'],
+			'name' => Lang::$txt['membergroups_guests'],
+			'num_members' => Lang::$txt['membergroups_guests_na'],
 			'allow_delete' => false,
 			'allow_modify' => true,
 			'can_search' => false,
@@ -136,13 +135,13 @@ function PermissionIndex()
 			'num_permissions' => array(
 				'allowed' => 0,
 				// Can't deny guest permissions!
-				'denied' => '(' . $txt['permissions_none'] . ')'
+				'denied' => '(' . Lang::$txt['permissions_none'] . ')'
 			),
 			'access' => false
 		),
 		0 => array(
 			'id' => 0,
-			'name' => $txt['membergroups_members'],
+			'name' => Lang::$txt['membergroups_members'],
 			'num_members' => $num_members,
 			'allow_delete' => false,
 			'allow_modify' => true,
@@ -190,7 +189,7 @@ function PermissionIndex()
 		Utils::$context['groups'][$row['id_group']] = array(
 			'id' => $row['id_group'],
 			'name' => $row['group_name'],
-			'num_members' => $row['id_group'] != 3 ? 0 : $txt['membergroups_guests_na'],
+			'num_members' => $row['id_group'] != 3 ? 0 : Lang::$txt['membergroups_guests_na'],
 			'allow_delete' => $row['id_group'] > 4,
 			'allow_modify' => $row['id_group'] > 1,
 			'can_search' => $row['id_group'] != 3,
@@ -201,8 +200,8 @@ function PermissionIndex()
 			'icons' => !empty($row['icons'][0]) && !empty($row['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/' . $row['icons'][1] . '" alt="*">', $row['icons'][0]) : '',
 			'children' => array(),
 			'num_permissions' => array(
-				'allowed' => $row['id_group'] == 1 ? '(' . $txt['permissions_all'] . ')' : 0,
-				'denied' => $row['id_group'] == 1 ? '(' . $txt['permissions_none'] . ')' : 0
+				'allowed' => $row['id_group'] == 1 ? '(' . Lang::$txt['permissions_all'] . ')' : 0,
+				'denied' => $row['id_group'] == 1 ? '(' . Lang::$txt['permissions_none'] . ')' : 0
 			),
 			'access' => false,
 		);
@@ -352,9 +351,9 @@ function PermissionIndex()
  */
 function PermissionByBoard()
 {
-	global $txt, $cat_tree, $boardList, $boards;
+	global $cat_tree, $boardList, $boards;
 
-	Utils::$context['page_title'] = $txt['permissions_boards'];
+	Utils::$context['page_title'] = Lang::$txt['permissions_boards'];
 	Utils::$context['edit_all'] = isset($_GET['edit']);
 
 	// Saving?
@@ -698,8 +697,6 @@ function SetQuickGroups()
  */
 function ModifyMembergroup()
 {
-	global $txt;
-
 	if (!isset($_GET['group']))
 		fatal_lang_error('no_access', false);
 
@@ -732,9 +729,9 @@ function ModifyMembergroup()
 			fatal_lang_error('cannot_edit_permissions_inherited');
 	}
 	elseif (Utils::$context['group']['id'] == -1)
-		Utils::$context['group']['name'] = $txt['membergroups_guests'];
+		Utils::$context['group']['name'] = Lang::$txt['membergroups_guests'];
 	else
-		Utils::$context['group']['name'] = $txt['membergroups_members'];
+		Utils::$context['group']['name'] = Lang::$txt['membergroups_members'];
 
 	Utils::$context['profile']['id'] = empty($_GET['pid']) ? 0 : (int) $_GET['pid'];
 
@@ -848,7 +845,7 @@ function ModifyMembergroup()
 		}
 	}
 	Utils::$context['sub_template'] = 'modify_group';
-	Utils::$context['page_title'] = $txt['permissions_modify_group'];
+	Utils::$context['page_title'] = Lang::$txt['permissions_modify_group'];
 
 	createToken('admin-mp');
 }
@@ -991,8 +988,6 @@ function ModifyMembergroup2()
  */
 function GeneralPermissionSettings($return_config = false)
 {
-	global $txt;
-
 	// All the setting variables
 	$config_vars = array(
 		array('title', 'settings'),
@@ -1001,8 +996,8 @@ function GeneralPermissionSettings($return_config = false)
 		'',
 
 		// A few useful settings
-		array('check', 'permission_enable_deny', 0, $txt['permission_settings_enable_deny'], 'help' => 'permissions_deny'),
-		array('check', 'permission_enable_postgroups', 0, $txt['permission_settings_enable_postgroups'], 'help' => 'permissions_postgroups'),
+		array('check', 'permission_enable_deny', 0, Lang::$txt['permission_settings_enable_deny'], 'help' => 'permissions_deny'),
+		array('check', 'permission_enable_postgroups', 0, Lang::$txt['permission_settings_enable_postgroups'], 'help' => 'permissions_postgroups'),
 	);
 
 	call_integration_hook('integrate_modify_permission_settings', array(&$config_vars));
@@ -1010,7 +1005,7 @@ function GeneralPermissionSettings($return_config = false)
 	if ($return_config)
 		return $config_vars;
 
-	Utils::$context['page_title'] = $txt['permission_settings_title'];
+	Utils::$context['page_title'] = Lang::$txt['permission_settings_title'];
 	Utils::$context['sub_template'] = 'show_settings';
 
 	// Needed for the inline permission functions, and the settings template.
@@ -1436,8 +1431,6 @@ function setPermissionLevel($level, $group, $profile = 'null')
  */
 function loadAllPermissions()
 {
-	global $txt;
-
 	// List of all the groups dependent on the currently selected view - for the order so it looks pretty, yea?
 	// Note to Mod authors - you don't need to stick your permission group here if you don't mind SMF sticking it the last group of the page.
 	$permissionGroups = array(
@@ -1554,7 +1547,7 @@ function loadAllPermissions()
 	foreach (Utils::$context['restricted_bbc'] as $bbc)
 	{
 		$permissionList['membergroup']['bbc_' . $bbc] = array(false, 'bbc');
-		$txt['permissionname_bbc_' . $bbc] = sprintf($txt['permissionname_bbc'], $bbc);
+		Lang::$txt['permissionname_bbc_' . $bbc] = sprintf(Lang::$txt['permissionname_bbc'], $bbc);
 	}
 
 	// All permission groups that will be shown in the left column on classic view.
@@ -1633,7 +1626,7 @@ function loadAllPermissions()
 
 	$permissionList['membergroup']['bbc_cowsay'] = array(false, 'bbc');
 	$hiddenPermissions[] = 'bbc_cowsay';
-	$txt['permissionname_bbc_cowsay'] = sprintf($txt['permissionname_bbc'], 'cowsay');
+	Lang::$txt['permissionname_bbc_cowsay'] = sprintf(Lang::$txt['permissionname_bbc'], 'cowsay');
 
 	Utils::$context['permissions'] = array();
 	Utils::$context['hidden_permissions'] = array();
@@ -1667,26 +1660,26 @@ function loadAllPermissions()
 					Utils::$context['permissions'][$permissionType]['columns'][$position][$group] = array(
 						'type' => $permissionType,
 						'id' => $group,
-						'name' => $txt['permissiongroup_' . $group],
-						'icon' => isset($txt['permissionicon_' . $group]) ? $txt['permissionicon_' . $group] : $txt['permissionicon'],
-						'help' => isset($txt['permissionhelp_' . $group]) ? $txt['permissionhelp_' . $group] : '',
+						'name' => Lang::$txt['permissiongroup_' . $group],
+						'icon' => isset(Lang::$txt['permissionicon_' . $group]) ? Lang::$txt['permissionicon_' . $group] : Lang::$txt['permissionicon'],
+						'help' => isset(Lang::$txt['permissionhelp_' . $group]) ? Lang::$txt['permissionhelp_' . $group] : '',
 						'hidden' => false,
 						'permissions' => array()
 					);
 
 			Utils::$context['permissions'][$permissionType]['columns'][$position][$own_group]['permissions'][$permission] = array(
 				'id' => $permission,
-				'name' => !isset($relabelPermissions[$permission]) ? $txt['permissionname_' . $permission] : $txt[$relabelPermissions[$permission]],
-				'show_help' => isset($txt['permissionhelp_' . $permission]),
-				'note' => isset($txt['permissionnote_' . $permission]) ? $txt['permissionnote_' . $permission] : '',
+				'name' => !isset($relabelPermissions[$permission]) ? Lang::$txt['permissionname_' . $permission] : Lang::$txt[$relabelPermissions[$permission]],
+				'show_help' => isset(Lang::$txt['permissionhelp_' . $permission]),
+				'note' => isset(Lang::$txt['permissionnote_' . $permission]) ? Lang::$txt['permissionnote_' . $permission] : '',
 				'has_own_any' => $permissionArray[0],
 				'own' => array(
 					'id' => $permission . '_own',
-					'name' => $permissionArray[0] ? $txt['permissionname_' . $permission . '_own'] : ''
+					'name' => $permissionArray[0] ? Lang::$txt['permissionname_' . $permission . '_own'] : ''
 				),
 				'any' => array(
 					'id' => $permission . '_any',
-					'name' => $permissionArray[0] ? $txt['permissionname_' . $permission . '_any'] : ''
+					'name' => $permissionArray[0] ? Lang::$txt['permissionname_' . $permission . '_any'] : ''
 				),
 				'hidden' => in_array($permission, $hiddenPermissions),
 			);
@@ -1744,9 +1737,7 @@ function loadAllPermissions()
  */
 function init_inline_permissions($permissions, $excluded_groups = array())
 {
-	global $txt;
-
-	loadLanguage('ManagePermissions');
+	Lang::load('ManagePermissions');
 	loadTemplate('ManagePermissions');
 	Utils::$context['can_change_permissions'] = allowedTo('manage_permissions');
 
@@ -1759,13 +1750,13 @@ function init_inline_permissions($permissions, $excluded_groups = array())
 		Utils::$context[$permission] = array(
 			-1 => array(
 				'id' => -1,
-				'name' => $txt['membergroups_guests'],
+				'name' => Lang::$txt['membergroups_guests'],
 				'is_postgroup' => false,
 				'status' => 'off',
 			),
 			0 => array(
 				'id' => 0,
-				'name' => $txt['membergroups_members'],
+				'name' => Lang::$txt['membergroups_members'],
 				'is_postgroup' => false,
 				'status' => 'off',
 			),
@@ -1958,8 +1949,6 @@ function save_inline_permissions($permissions)
  */
 function loadPermissionProfiles()
 {
-	global $txt;
-
 	$request = Db::$db->query('', '
 		SELECT id_profile, profile_name
 		FROM {db_prefix}permission_profiles
@@ -1971,8 +1960,8 @@ function loadPermissionProfiles()
 	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// Format the label nicely.
-		if (isset($txt['permissions_profile_' . $row['profile_name']]))
-			$name = $txt['permissions_profile_' . $row['profile_name']];
+		if (isset(Lang::$txt['permissions_profile_' . $row['profile_name']]))
+			$name = Lang::$txt['permissions_profile_' . $row['profile_name']];
 		else
 			$name = $row['profile_name'];
 
@@ -1991,10 +1980,8 @@ function loadPermissionProfiles()
  */
 function EditPermissionProfiles()
 {
-	global $txt;
-
 	// Setup the template, first for fun.
-	Utils::$context['page_title'] = $txt['permissions_profile_edit'];
+	Utils::$context['page_title'] = Lang::$txt['permissions_profile_edit'];
 	Utils::$context['sub_template'] = 'edit_profiles';
 
 	// If we're creating a new one do it first.
@@ -2120,7 +2107,7 @@ function EditPermissionProfiles()
 		{
 			Utils::$context['profiles'][$row['id_profile']]['in_use'] = true;
 			Utils::$context['profiles'][$row['id_profile']]['boards'] = $row['board_count'];
-			Utils::$context['profiles'][$row['id_profile']]['boards_text'] = $row['board_count'] > 1 ? sprintf($txt['permissions_profile_used_by_many'], $row['board_count']) : $txt['permissions_profile_used_by_' . ($row['board_count'] ? 'one' : 'none')];
+			Utils::$context['profiles'][$row['id_profile']]['boards_text'] = $row['board_count'] > 1 ? sprintf(Lang::$txt['permissions_profile_used_by_many'], $row['board_count']) : Lang::$txt['permissions_profile_used_by_' . ($row['board_count'] ? 'one' : 'none')];
 		}
 	Db::$db->free_result($request);
 
@@ -2129,7 +2116,7 @@ function EditPermissionProfiles()
 	foreach (Utils::$context['profiles'] as $id => $profile)
 	{
 		// Can't delete special ones.
-		Utils::$context['profiles'][$id]['can_edit'] = isset($txt['permissions_profile_' . $profile['unformatted_name']]) ? false : true;
+		Utils::$context['profiles'][$id]['can_edit'] = isset(Lang::$txt['permissions_profile_' . $profile['unformatted_name']]) ? false : true;
 		if (Utils::$context['profiles'][$id]['can_edit'])
 			Utils::$context['can_edit_something'] = true;
 
@@ -2426,12 +2413,10 @@ function updateBoardManagers()
  */
 function ModifyPostModeration()
 {
-	global $txt;
-
 	// Just in case.
 	checkSession('get');
 
-	Utils::$context['page_title'] = $txt['permissions_post_moderation'];
+	Utils::$context['page_title'] = Lang::$txt['permissions_post_moderation'];
 	Utils::$context['sub_template'] = 'postmod_permissions';
 	Utils::$context['current_profile'] = isset($_REQUEST['pid']) ? (int) $_REQUEST['pid'] : 1;
 
@@ -2452,7 +2437,7 @@ function ModifyPostModeration()
 	Utils::$context['profile_groups'] = array(
 		-1 => array(
 			'id' => -1,
-			'name' => $txt['membergroups_guests'],
+			'name' => Lang::$txt['membergroups_guests'],
 			'color' => '',
 			'new_topic' => 'disallow',
 			'replies_own' => 'disallow',
@@ -2462,7 +2447,7 @@ function ModifyPostModeration()
 		),
 		0 => array(
 			'id' => 0,
-			'name' => $txt['membergroups_members'],
+			'name' => Lang::$txt['membergroups_members'],
 			'color' => '',
 			'new_topic' => 'disallow',
 			'replies_own' => 'disallow',

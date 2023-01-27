@@ -15,6 +15,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -251,7 +252,7 @@ function countReports($closed = 0)
  */
 function getReports($closed = 0)
 {
-	global $user_info, $txt;
+	global $user_info;
 
 	// Lonely, standalone var.
 	$reports = array();
@@ -396,8 +397,8 @@ function getReports($closed = 0)
 				'time' => timeformat($row['time_sent']),
 				'member' => array(
 					'id' => $row['id_member'],
-					'name' => empty($row['reporter']) ? $txt['guest'] : $row['reporter'],
-					'link' => $row['id_member'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['reporter'] . '</a>' : (empty($row['reporter']) ? $txt['guest'] : $row['reporter']),
+					'name' => empty($row['reporter']) ? Lang::$txt['guest'] : $row['reporter'],
+					'link' => $row['id_member'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['reporter'] . '</a>' : (empty($row['reporter']) ? Lang::$txt['guest'] : $row['reporter']),
 					'href' => $row['id_member'] ? Config::$scripturl . '?action=profile;u=' . $row['id_member'] : '',
 				),
 			);
@@ -521,7 +522,7 @@ function getReportDetails($report_id)
  */
 function getReportComments($report_id)
 {
-	global $user_info, $txt;
+	global $user_info;
 
 	if (empty($report_id))
 		return false;
@@ -551,8 +552,8 @@ function getReportComments($report_id)
 			'time' => timeformat($row['time_sent']),
 			'member' => array(
 				'id' => $row['id_member'],
-				'name' => empty($row['reporter']) ? $txt['guest'] : $row['reporter'],
-				'link' => $row['id_member'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['reporter'] . '</a>' : (empty($row['reporter']) ? $txt['guest'] : $row['reporter']),
+				'name' => empty($row['reporter']) ? Lang::$txt['guest'] : $row['reporter'],
+				'link' => $row['id_member'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['reporter'] . '</a>' : (empty($row['reporter']) ? Lang::$txt['guest'] : $row['reporter']),
 				'href' => $row['id_member'] ? Config::$scripturl . '?action=profile;u=' . $row['id_member'] : '',
 				'ip' => !empty($row['member_ip']) && allowedTo('moderate_forum') ? '<a href="' . Config::$scripturl . '?action=trackip;searchip=' . inet_dtop($row['member_ip']) . '">' . inet_dtop($row['member_ip']) . '</a>' : '',
 			),

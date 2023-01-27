@@ -15,6 +15,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -71,7 +72,7 @@ function activateAccount($memID)
  */
 function issueWarning($memID)
 {
-	global $txt, $user_info;
+	global $user_info;
 	global $cur_profile;
 
 	// Get all the actual settings.
@@ -85,8 +86,8 @@ function issueWarning($memID)
 		fatal_lang_error('no_access', false);
 
 	// Get the base (errors related) stuff done.
-	loadLanguage('Errors');
-	Utils::$context['custom_error_title'] = $txt['profile_warning_errors_occured'];
+	Lang::load('Errors');
+	Utils::$context['custom_error_title'] = Lang::$txt['profile_warning_errors_occured'];
 
 	// Make sure things which are disabled stay disabled.
 	Config::$modSettings['warning_watch'] = !empty(Config::$modSettings['warning_watch']) ? Config::$modSettings['warning_watch'] : 110;
@@ -213,7 +214,7 @@ function issueWarning($memID)
 			updateMemberData($memID, array('warning' => $_POST['warning_level']));
 
 			// Leave a lovely message.
-			Utils::$context['profile_updated'] = Utils::$context['user']['is_owner'] ? $txt['profile_updated_own'] : $txt['profile_warning_success'];
+			Utils::$context['profile_updated'] = Utils::$context['user']['is_owner'] ? Lang::$txt['profile_updated_own'] : Lang::$txt['profile_warning_success'];
 		}
 		else
 		{
@@ -232,7 +233,7 @@ function issueWarning($memID)
 
 	if (isset($_POST['preview']))
 	{
-		$warning_body = !empty($_POST['warn_body']) ? trim(censorText($_POST['warn_body'])) : '';
+		$warning_body = !empty($_POST['warn_body']) ? trim(Lang::censorText($_POST['warn_body'])) : '';
 		Utils::$context['preview_subject'] = !empty($_POST['warn_sub']) ? trim(Utils::htmlspecialchars($_POST['warn_sub'])) : '';
 		if (empty($_POST['warn_sub']) || empty($_POST['warn_body']))
 			$issueErrors[] = 'warning_notify_blank';
@@ -260,20 +261,20 @@ function issueWarning($memID)
 		// Fill in the suite of errors.
 		Utils::$context['post_errors'] = array();
 		foreach ($issueErrors as $error)
-			Utils::$context['post_errors'][] = $txt[$error];
+			Utils::$context['post_errors'][] = Lang::$txt[$error];
 	}
 
-	Utils::$context['page_title'] = $txt['profile_issue_warning'];
+	Utils::$context['page_title'] = Lang::$txt['profile_issue_warning'];
 
 	// Let's use a generic list to get all the current warnings
 	require_once(Config::$sourcedir . '/Subs-List.php');
 
 	// Work our the various levels.
 	Utils::$context['level_effects'] = array(
-		0 => $txt['profile_warning_effect_none'],
-		Config::$modSettings['warning_watch'] => $txt['profile_warning_effect_watch'],
-		Config::$modSettings['warning_moderate'] => $txt['profile_warning_effect_moderation'],
-		Config::$modSettings['warning_mute'] => $txt['profile_warning_effect_mute'],
+		0 => Lang::$txt['profile_warning_effect_none'],
+		Config::$modSettings['warning_watch'] => Lang::$txt['profile_warning_effect_watch'],
+		Config::$modSettings['warning_moderate'] => Lang::$txt['profile_warning_effect_moderation'],
+		Config::$modSettings['warning_mute'] => Lang::$txt['profile_warning_effect_mute'],
 	);
 	Utils::$context['current_level'] = 0;
 	foreach (Utils::$context['level_effects'] as $limit => $dummy)
@@ -282,9 +283,9 @@ function issueWarning($memID)
 
 	$listOptions = array(
 		'id' => 'view_warnings',
-		'title' => $txt['profile_viewwarning_previous_warnings'],
+		'title' => Lang::$txt['profile_viewwarning_previous_warnings'],
 		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-		'no_items_label' => $txt['profile_viewwarning_no_warnings'],
+		'no_items_label' => Lang::$txt['profile_viewwarning_no_warnings'],
 		'base_href' => Config::$scripturl . '?action=profile;area=issuewarning;sa=user;u=' . $memID,
 		'default_sort_col' => 'log_time',
 		'get_items' => array(
@@ -302,7 +303,7 @@ function issueWarning($memID)
 		'columns' => array(
 			'issued_by' => array(
 				'header' => array(
-					'value' => $txt['profile_warning_previous_issued'],
+					'value' => Lang::$txt['profile_warning_previous_issued'],
 					'style' => 'width: 20%;',
 				),
 				'data' => array(
@@ -318,7 +319,7 @@ function issueWarning($memID)
 			),
 			'log_time' => array(
 				'header' => array(
-					'value' => $txt['profile_warning_previous_time'],
+					'value' => Lang::$txt['profile_warning_previous_time'],
 					'style' => 'width: 30%;',
 				),
 				'data' => array(
@@ -331,10 +332,10 @@ function issueWarning($memID)
 			),
 			'reason' => array(
 				'header' => array(
-					'value' => $txt['profile_warning_previous_reason'],
+					'value' => Lang::$txt['profile_warning_previous_reason'],
 				),
 				'data' => array(
-					'function' => function($warning) use ($txt)
+					'function' => function($warning)
 					{
 						$ret = '
 						<div class="floatleft">
@@ -344,7 +345,7 @@ function issueWarning($memID)
 						if (!empty($warning['id_notice']))
 							$ret .= '
 						<div class="floatright">
-							<a href="' . Config::$scripturl . '?action=moderate;area=notice;nid=' . $warning['id_notice'] . '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" rel="noopener" title="' . $txt['profile_warning_previous_notice'] . '"><span class="main_icons filter centericon"></span></a>
+							<a href="' . Config::$scripturl . '?action=moderate;area=notice;nid=' . $warning['id_notice'] . '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" rel="noopener" title="' . Lang::$txt['profile_warning_previous_notice'] . '"><span class="main_icons filter centericon"></span></a>
 						</div>';
 
 						return $ret;
@@ -353,7 +354,7 @@ function issueWarning($memID)
 			),
 			'level' => array(
 				'header' => array(
-					'value' => $txt['profile_warning_previous_level'],
+					'value' => Lang::$txt['profile_warning_previous_level'],
 					'style' => 'width: 6%;',
 				),
 				'data' => array(
@@ -428,13 +429,13 @@ function issueWarning($memID)
 	// Setup the "default" templates.
 	foreach (array('spamming', 'offence', 'insulting') as $type)
 		Utils::$context['notification_templates'][] = array(
-			'title' => $txt['profile_warning_notify_title_' . $type],
-			'body' => sprintf($txt['profile_warning_notify_template_outline' . (!empty(Utils::$context['warning_for_message']) ? '_post' : '')], $txt['profile_warning_notify_for_' . $type]),
+			'title' => Lang::$txt['profile_warning_notify_title_' . $type],
+			'body' => sprintf(Lang::$txt['profile_warning_notify_template_outline' . (!empty(Utils::$context['warning_for_message']) ? '_post' : '')], Lang::$txt['profile_warning_notify_for_' . $type]),
 		);
 
 	// Replace all the common variables in the templates.
 	foreach (Utils::$context['notification_templates'] as $k => $name)
-		Utils::$context['notification_templates'][$k]['body'] = strtr($name['body'], array('{MEMBER}' => un_htmlspecialchars(Utils::$context['member']['name']), '{MESSAGE}' => '[url=' . Config::$scripturl . '?msg=' . Utils::$context['warning_for_message'] . ']' . un_htmlspecialchars(Utils::$context['warned_message_subject']) . '[/url]', '{SCRIPTURL}' => Config::$scripturl, '{FORUMNAME}' => Config::$mbname, '{REGARDS}' => sprintf($txt['regards_team'], Utils::$context['forum_name'])));
+		Utils::$context['notification_templates'][$k]['body'] = strtr($name['body'], array('{MEMBER}' => un_htmlspecialchars(Utils::$context['member']['name']), '{MESSAGE}' => '[url=' . Config::$scripturl . '?msg=' . Utils::$context['warning_for_message'] . ']' . un_htmlspecialchars(Utils::$context['warned_message_subject']) . '[/url]', '{SCRIPTURL}' => Config::$scripturl, '{FORUMNAME}' => Config::$mbname, '{REGARDS}' => sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name'])));
 }
 
 /**
@@ -513,7 +514,7 @@ function list_getUserWarnings($start, $items_per_page, $sort, $memID)
  */
 function deleteAccount($memID)
 {
-	global $txt, $cur_profile;
+	global $cur_profile;
 
 	if (!Utils::$context['user']['is_owner'])
 		isAllowedTo('profile_remove_any');
@@ -528,7 +529,7 @@ function deleteAccount($memID)
 
 	// Can they do this, or will they need approval?
 	Utils::$context['needs_approval'] = Utils::$context['user']['is_owner'] && !empty(Config::$modSettings['approveAccountDeletion']) && !allowedTo('moderate_forum');
-	Utils::$context['page_title'] = $txt['deleteAccount'] . ': ' . $cur_profile['real_name'];
+	Utils::$context['page_title'] = Lang::$txt['deleteAccount'] . ': ' . $cur_profile['real_name'];
 }
 
 /**
@@ -717,11 +718,9 @@ function deleteAccount2($memID)
  */
 function subscriptions($memID)
 {
-	global $txt;
-
 	// Load the paid template anyway.
 	loadTemplate('ManagePaid');
-	loadLanguage('ManagePaid');
+	Lang::load('ManagePaid');
 
 	// Load all of the subscriptions.
 	require_once(Config::$sourcedir . '/ManagePaid.php');
@@ -769,7 +768,7 @@ function subscriptions($memID)
 
 	// No gateways yet?
 	if (empty($gateways))
-		fatal_error($txt['paid_admin_not_setup_gateway']);
+		fatal_error(Lang::$txt['paid_admin_not_setup_gateway']);
 
 	// Get the current subscriptions.
 	$request = Db::$db->query('', '
@@ -793,10 +792,10 @@ function subscriptions($memID)
 			'hide' => $row['status'] == 0 && $row['end_time'] == 0 && $row['payments_pending'] == 0,
 			'name' => Utils::$context['subscriptions'][$row['id_subscribe']]['name'],
 			'start' => timeformat($row['start_time'], false),
-			'end' => $row['end_time'] == 0 ? $txt['not_applicable'] : timeformat($row['end_time'], false),
+			'end' => $row['end_time'] == 0 ? Lang::$txt['not_applicable'] : timeformat($row['end_time'], false),
 			'pending_details' => $row['pending_details'],
 			'status' => $row['status'],
-			'status_text' => $row['status'] == 0 ? ($row['payments_pending'] ? $txt['paid_pending'] : $txt['paid_finished']) : $txt['paid_active'],
+			'status_text' => $row['status'] == 0 ? ($row['payments_pending'] ? Lang::$txt['paid_pending'] : Lang::$txt['paid_finished']) : Lang::$txt['paid_active'],
 		);
 
 		if ($row['status'] == 1)
@@ -875,7 +874,7 @@ function subscriptions($memID)
 		{
 			// Real cost...
 			Utils::$context['value'] = Utils::$context['sub']['costs'][$_POST['cur'][$ID_SUB]];
-			Utils::$context['cost'] = sprintf(Config::$modSettings['paid_currency_symbol'], Utils::$context['value']) . '/' . $txt[$_POST['cur'][$ID_SUB]];
+			Utils::$context['cost'] = sprintf(Config::$modSettings['paid_currency_symbol'], Utils::$context['value']) . '/' . Lang::$txt[$_POST['cur'][$ID_SUB]];
 			// The period value for paypal.
 			Utils::$context['paypal_period'] = strtoupper(substr($_POST['cur'][$ID_SUB], 0, 1));
 		}
@@ -902,7 +901,7 @@ function subscriptions($memID)
 
 		// Bugger?!
 		if (empty(Utils::$context['gateways']))
-			fatal_error($txt['paid_admin_not_setup_gateway']);
+			fatal_error(Lang::$txt['paid_admin_not_setup_gateway']);
 
 		// Now we are going to assume they want to take this out ;)
 		$new_data = array(Utils::$context['sub']['id'], Utils::$context['value'], $period, 'prepay');

@@ -15,6 +15,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -27,7 +28,7 @@ if (!defined('SMF'))
 function PostModerationMain()
 {
 	// @todo We'll shift these later bud.
-	loadLanguage('ModerationCenter');
+	Lang::load('ModerationCenter');
 	loadTemplate('ModerationCenter');
 
 	// Probably need this...
@@ -55,10 +56,10 @@ function PostModerationMain()
  */
 function UnapprovedPosts()
 {
-	global $txt, $user_info, $options;
+	global $user_info, $options;
 
 	Utils::$context['current_view'] = isset($_GET['sa']) && $_GET['sa'] == 'topics' ? 'topics' : 'replies';
-	Utils::$context['page_title'] = $txt['mc_unapproved_posts'];
+	Utils::$context['page_title'] = Lang::$txt['mc_unapproved_posts'];
 
 	// Work out what boards we can work in!
 	$approve_boards = boardsAllowedTo('approve_posts');
@@ -226,9 +227,9 @@ function UnapprovedPosts()
 
 	// We have enough to make some pretty tabs!
 	Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = array(
-		'title' => $txt['mc_unapproved_posts'],
+		'title' => Lang::$txt['mc_unapproved_posts'],
 		'help' => 'postmod',
-		'description' => $txt['mc_unapproved_posts_desc'],
+		'description' => Lang::$txt['mc_unapproved_posts_desc'],
 	);
 
 	// Update the tabs with the correct number of posts.
@@ -318,9 +319,7 @@ function UnapprovedPosts()
  */
 function UnapprovedAttachments()
 {
-	global $txt;
-
-	Utils::$context['page_title'] = $txt['mc_unapproved_attachments'];
+	Utils::$context['page_title'] = Lang::$txt['mc_unapproved_attachments'];
 
 	// Once again, permissions are king!
 	$approve_boards = boardsAllowedTo('approve_posts');
@@ -393,7 +392,7 @@ function UnapprovedAttachments()
 		'id' => 'mc_unapproved_attach',
 		'width' => '100%',
 		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-		'no_items_label' => $txt['mc_unapproved_attachments_none_found'],
+		'no_items_label' => Lang::$txt['mc_unapproved_attachments_none_found'],
 		'base_href' => Config::$scripturl . '?action=moderate;area=attachmod;sa=attachments',
 		'default_sort_col' => 'attach_name',
 		'get_items' => array(
@@ -411,7 +410,7 @@ function UnapprovedAttachments()
 		'columns' => array(
 			'attach_name' => array(
 				'header' => array(
-					'value' => $txt['mc_unapproved_attach_name'],
+					'value' => Lang::$txt['mc_unapproved_attach_name'],
 				),
 				'data' => array(
 					'db' => 'filename',
@@ -423,7 +422,7 @@ function UnapprovedAttachments()
 			),
 			'attach_size' => array(
 				'header' => array(
-					'value' => $txt['mc_unapproved_attach_size'],
+					'value' => Lang::$txt['mc_unapproved_attach_size'],
 				),
 				'data' => array(
 					'db' => 'size',
@@ -435,7 +434,7 @@ function UnapprovedAttachments()
 			),
 			'attach_poster' => array(
 				'header' => array(
-					'value' => $txt['mc_unapproved_attach_poster'],
+					'value' => Lang::$txt['mc_unapproved_attach_poster'],
 				),
 				'data' => array(
 					'function' => function($data)
@@ -450,7 +449,7 @@ function UnapprovedAttachments()
 			),
 			'date' => array(
 				'header' => array(
-					'value' => $txt['date'],
+					'value' => Lang::$txt['date'],
 					'style' => 'width: 18%;',
 				),
 				'data' => array(
@@ -465,7 +464,7 @@ function UnapprovedAttachments()
 			),
 			'message' => array(
 				'header' => array(
-					'value' => $txt['post'],
+					'value' => Lang::$txt['post'],
 				),
 				'data' => array(
 					'function' => function($data)
@@ -510,13 +509,13 @@ function UnapprovedAttachments()
 			array(
 				'position' => 'bottom_of_list',
 				'value' => '
-					<select name="do" onchange="if (this.value != 0 &amp;&amp; confirm(\'' . $txt['mc_unapproved_sure'] . '\')) submit();">
-						<option value="0">' . $txt['with_selected'] . ':</option>
+					<select name="do" onchange="if (this.value != 0 &amp;&amp; confirm(\'' . Lang::$txt['mc_unapproved_sure'] . '\')) submit();">
+						<option value="0">' . Lang::$txt['with_selected'] . ':</option>
 						<option value="0" disabled>-------------------</option>
-						<option value="approve">&nbsp;--&nbsp;' . $txt['approve'] . '</option>
-						<option value="delete">&nbsp;--&nbsp;' . $txt['delete'] . '</option>
+						<option value="approve">&nbsp;--&nbsp;' . Lang::$txt['approve'] . '</option>
+						<option value="delete">&nbsp;--&nbsp;' . Lang::$txt['delete'] . '</option>
 					</select>
-					<noscript><input type="submit" name="ml_go" value="' . $txt['go'] . '" class="button"></noscript>',
+					<noscript><input type="submit" name="ml_go" value="' . Lang::$txt['go'] . '" class="button"></noscript>',
 				'class' => 'floatright',
 			),
 		),
@@ -530,9 +529,9 @@ function UnapprovedAttachments()
 	Utils::$context['default_list'] = 'mc_unapproved_attach';
 
 	Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = array(
-		'title' => $txt['mc_unapproved_attachments'],
+		'title' => Lang::$txt['mc_unapproved_attachments'],
 		'help' => '',
-		'description' => $txt['mc_unapproved_attachments_desc']
+		'description' => Lang::$txt['mc_unapproved_attachments_desc']
 	);
 }
 

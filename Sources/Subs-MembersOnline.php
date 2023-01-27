@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -31,7 +32,7 @@ if (!defined('SMF'))
  */
 function getMembersOnlineStats($membersOnlineOptions)
 {
-	global $user_info, $txt;
+	global $user_info;
 
 	// The list can be sorted in several ways.
 	$allowed_sort_options = array(
@@ -52,8 +53,8 @@ function getMembersOnlineStats($membersOnlineOptions)
 	// Not allowed sort method? Bang! Error!
 	elseif (!in_array($membersOnlineOptions['sort'], $allowed_sort_options))
 	{
-		loadLanguage('Errors');
-		trigger_error($txt['get_members_online_stats_invalid_sort'], E_USER_NOTICE);
+		Lang::load('Errors');
+		trigger_error(Lang::$txt['get_members_online_stats_invalid_sort'], E_USER_NOTICE);
 	}
 
 	// Initialize the array that'll be returned later on.
@@ -163,7 +164,7 @@ function getMembersOnlineStats($membersOnlineOptions)
 				'id' => 0,
 				'username' => $spiders[$id],
 				'name' => $link,
-				'group' => $txt['spiders'],
+				'group' => Lang::$txt['spiders'],
 				'href' => '',
 				'link' => $link,
 				'is_buddy' => false,

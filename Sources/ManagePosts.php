@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -30,11 +31,9 @@ if (!defined('SMF'))
  */
 function ManagePostSettings()
 {
-	global $txt;
-
 	// Make sure you can be here.
 	isAllowedTo('admin_forum');
-	loadLanguage('Drafts');
+	Lang::load('Drafts');
 
 	$subActions = array(
 		'posts' => 'ModifyPostSettings',
@@ -43,25 +42,25 @@ function ManagePostSettings()
 		'drafts' => 'ModifyDraftSettings',
 	);
 
-	Utils::$context['page_title'] = $txt['manageposts_title'];
+	Utils::$context['page_title'] = Lang::$txt['manageposts_title'];
 
 	// Tabs for browsing the different post functions.
 	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
-		'title' => $txt['manageposts_title'],
+		'title' => Lang::$txt['manageposts_title'],
 		'help' => 'posts_and_topics',
-		'description' => $txt['manageposts_description'],
+		'description' => Lang::$txt['manageposts_description'],
 		'tabs' => array(
 			'posts' => array(
-				'description' => $txt['manageposts_settings_description'],
+				'description' => Lang::$txt['manageposts_settings_description'],
 			),
 			'censor' => array(
-				'description' => $txt['admin_censored_desc'],
+				'description' => Lang::$txt['admin_censored_desc'],
 			),
 			'topics' => array(
-				'description' => $txt['manageposts_topic_settings_description'],
+				'description' => Lang::$txt['manageposts_topic_settings_description'],
 			),
 			'drafts' => array(
-				'description' => $txt['managedrafts_settings_description'],
+				'description' => Lang::$txt['managedrafts_settings_description'],
 			),
 		),
 	);
@@ -86,8 +85,6 @@ function ManagePostSettings()
  */
 function SetCensor()
 {
-	global $txt;
-
 	if (!empty($_POST['save_censor']))
 	{
 		// Make sure censoring is something they can do.
@@ -145,7 +142,7 @@ function SetCensor()
 		require_once(Config::$sourcedir . '/Subs-Post.php');
 		$censorText = Utils::htmlspecialchars($_POST['censortest'], ENT_QUOTES);
 		preparsecode($censorText);
-		Utils::$context['censor_test'] = strtr(censorText($censorText), array('"' => '&quot;'));
+		Utils::$context['censor_test'] = strtr(Lang::censorText($censorText), array('"' => '&quot;'));
 	}
 
 	// Set everything up for the template to do its thang.
@@ -168,10 +165,10 @@ function SetCensor()
 	call_integration_hook('integrate_censors');
 
 	// Since the "Allow users to disable the word censor" stuff was moved from a theme setting to a global one, we need this...
-	loadLanguage('Themes');
+	Lang::load('Themes');
 
 	Utils::$context['sub_template'] = 'edit_censored';
-	Utils::$context['page_title'] = $txt['admin_censored_words'];
+	Utils::$context['page_title'] = Lang::$txt['admin_censored_words'];
 
 	createToken('admin-censor');
 }
@@ -187,8 +184,6 @@ function SetCensor()
  */
 function ModifyPostSettings($return_config = false)
 {
-	global $txt;
-
 	// All the settings...
 	$config_vars = array(
 		// Simple post options...
@@ -199,26 +194,26 @@ function ModifyPostSettings($return_config = false)
 		'',
 
 		// Posting limits...
-		array('int', 'max_messageLength', 'subtext' => $txt['max_messageLength_zero'], 'postinput' => $txt['manageposts_characters']),
-		array('int', 'topicSummaryPosts', 'postinput' => $txt['manageposts_posts']),
+		array('int', 'max_messageLength', 'subtext' => Lang::$txt['max_messageLength_zero'], 'postinput' => Lang::$txt['manageposts_characters']),
+		array('int', 'topicSummaryPosts', 'postinput' => Lang::$txt['manageposts_posts']),
 		'',
 
 		// Posting time limits...
-		array('int', 'spamWaitTime', 'postinput' => $txt['manageposts_seconds']),
-		array('int', 'edit_wait_time', 'postinput' => $txt['manageposts_seconds']),
-		array('int', 'edit_disable_time', 'subtext' => $txt['zero_to_disable'], 'postinput' => $txt['manageposts_minutes']),
+		array('int', 'spamWaitTime', 'postinput' => Lang::$txt['manageposts_seconds']),
+		array('int', 'edit_wait_time', 'postinput' => Lang::$txt['manageposts_seconds']),
+		array('int', 'edit_disable_time', 'subtext' => Lang::$txt['zero_to_disable'], 'postinput' => Lang::$txt['manageposts_minutes']),
 		'',
 
 		// Automagic image resizing.
-		array('int', 'max_image_width', 'subtext' => $txt['zero_for_no_limit']),
-		array('int', 'max_image_height', 'subtext' => $txt['zero_for_no_limit']),
+		array('int', 'max_image_width', 'subtext' => Lang::$txt['zero_for_no_limit']),
+		array('int', 'max_image_height', 'subtext' => Lang::$txt['zero_for_no_limit']),
 		'',
 
 		// First & Last message preview lengths
-		array('int', 'preview_characters', 'subtext' => $txt['zero_to_disable'], 'postinput' => $txt['preview_characters_units']),
+		array('int', 'preview_characters', 'subtext' => Lang::$txt['zero_to_disable'], 'postinput' => Lang::$txt['preview_characters_units']),
 
 		// Quote expand
-		array('int', 'quote_expand', 'subtext' => $txt['zero_to_disable'], 'postinput' => $txt['quote_expand_pixels_units']),
+		array('int', 'quote_expand', 'subtext' => Lang::$txt['zero_to_disable'], 'postinput' => Lang::$txt['quote_expand_pixels_units']),
 	);
 
 	call_integration_hook('integrate_modify_post_settings', array(&$config_vars));
@@ -230,7 +225,7 @@ function ModifyPostSettings($return_config = false)
 	require_once(Config::$sourcedir . '/ManageServer.php');
 
 	// Setup the template.
-	Utils::$context['page_title'] = $txt['manageposts_settings'];
+	Utils::$context['page_title'] = Lang::$txt['manageposts_settings'];
 	Utils::$context['sub_template'] = 'show_settings';
 
 	// Are we saving them - are we??
@@ -263,7 +258,7 @@ function ModifyPostSettings($return_config = false)
 
 	// Final settings...
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=postsettings;save;sa=posts';
-	Utils::$context['settings_title'] = $txt['manageposts_settings'];
+	Utils::$context['settings_title'] = Lang::$txt['manageposts_settings'];
 
 	// Prepare the settings...
 	prepareDBSettingContext($config_vars);
@@ -280,8 +275,6 @@ function ModifyPostSettings($return_config = false)
  */
 function ModifyTopicSettings($return_config = false)
 {
-	global $txt;
-
 	// Here are all the topic settings.
 	$config_vars = array(
 		// Some simple bools...
@@ -289,14 +282,14 @@ function ModifyTopicSettings($return_config = false)
 		'',
 
 		// Pagination etc...
-		array('int', 'oldTopicDays', 'postinput' => $txt['manageposts_days'], 'subtext' => $txt['zero_to_disable']),
-		array('int', 'defaultMaxTopics', 'postinput' => $txt['manageposts_topics']),
-		array('int', 'defaultMaxMessages', 'postinput' => $txt['manageposts_posts']),
+		array('int', 'oldTopicDays', 'postinput' => Lang::$txt['manageposts_days'], 'subtext' => Lang::$txt['zero_to_disable']),
+		array('int', 'defaultMaxTopics', 'postinput' => Lang::$txt['manageposts_topics']),
+		array('int', 'defaultMaxMessages', 'postinput' => Lang::$txt['manageposts_posts']),
 		array('check', 'disable_print_topic'),
 		'',
 
 		// All, next/prev...
-		array('int', 'enableAllMessages', 'postinput' => $txt['manageposts_posts'], 'subtext' => $txt['enableAllMessages_zero']),
+		array('int', 'enableAllMessages', 'postinput' => Lang::$txt['manageposts_posts'], 'subtext' => Lang::$txt['enableAllMessages_zero']),
 		array('check', 'disableCustomPerPage'),
 		array('check', 'enablePreviousNext'),
 		'',
@@ -307,12 +300,12 @@ function ModifyTopicSettings($return_config = false)
 		array('check', 'show_profile_buttons'),
 		array('check', 'show_user_images'),
 		array('check', 'show_blurb'),
-		array('check', 'hide_post_group', 'subtext' => $txt['hide_post_group_desc']),
+		array('check', 'hide_post_group', 'subtext' => Lang::$txt['hide_post_group_desc']),
 		'',
 
 		// First & Last message preview lengths
-		array('int', 'preview_characters', 'subtext' => $txt['zero_to_disable'], 'postinput' => $txt['preview_characters_units']),
-		array('check', 'message_index_preview_first', 'subtext' => $txt['message_index_preview_first_desc']),
+		array('int', 'preview_characters', 'subtext' => Lang::$txt['zero_to_disable'], 'postinput' => Lang::$txt['preview_characters_units']),
+		array('check', 'message_index_preview_first', 'subtext' => Lang::$txt['message_index_preview_first_desc']),
 	);
 
 	call_integration_hook('integrate_modify_topic_settings', array(&$config_vars));
@@ -324,7 +317,7 @@ function ModifyTopicSettings($return_config = false)
 	require_once(Config::$sourcedir . '/ManageServer.php');
 
 	// Setup the template.
-	Utils::$context['page_title'] = $txt['manageposts_topic_settings'];
+	Utils::$context['page_title'] = Lang::$txt['manageposts_topic_settings'];
 	Utils::$context['sub_template'] = 'show_settings';
 
 	// Are we saving them - are we??
@@ -340,7 +333,7 @@ function ModifyTopicSettings($return_config = false)
 
 	// Final settings...
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=postsettings;save;sa=topics';
-	Utils::$context['settings_title'] = $txt['manageposts_topic_settings'];
+	Utils::$context['settings_title'] = Lang::$txt['manageposts_topic_settings'];
 
 	// Prepare the settings...
 	prepareDBSettingContext($config_vars);
@@ -357,18 +350,16 @@ function ModifyTopicSettings($return_config = false)
  */
 function ModifyDraftSettings($return_config = false)
 {
-	global $txt;
-
 	// Here are all the draft settings, a bit lite for now, but we can add more :P
 	$config_vars = array(
 		// Draft settings ...
 		array('check', 'drafts_post_enabled'),
 		array('check', 'drafts_pm_enabled'),
-		array('check', 'drafts_show_saved_enabled', 'subtext' => $txt['drafts_show_saved_enabled_subnote']),
-		array('int', 'drafts_keep_days', 'postinput' => $txt['days_word'], 'subtext' => $txt['drafts_keep_days_subnote']),
+		array('check', 'drafts_show_saved_enabled', 'subtext' => Lang::$txt['drafts_show_saved_enabled_subnote']),
+		array('int', 'drafts_keep_days', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['drafts_keep_days_subnote']),
 		'',
-		array('check', 'drafts_autosave_enabled', 'subtext' => $txt['drafts_autosave_enabled_subnote']),
-		array('int', 'drafts_autosave_frequency', 'postinput' => $txt['manageposts_seconds'], 'subtext' => $txt['drafts_autosave_frequency_subnote']),
+		array('check', 'drafts_autosave_enabled', 'subtext' => Lang::$txt['drafts_autosave_enabled_subnote']),
+		array('int', 'drafts_autosave_frequency', 'postinput' => Lang::$txt['manageposts_seconds'], 'subtext' => Lang::$txt['drafts_autosave_frequency_subnote']),
 	);
 
 	if ($return_config)
@@ -378,7 +369,7 @@ function ModifyDraftSettings($return_config = false)
 	require_once(Config::$sourcedir . '/ManageServer.php');
 
 	// Setup the template.
-	Utils::$context['page_title'] = $txt['managedrafts_settings'];
+	Utils::$context['page_title'] = Lang::$txt['managedrafts_settings'];
 	Utils::$context['sub_template'] = 'show_settings';
 
 	// Saving them ?
@@ -421,7 +412,7 @@ function ModifyDraftSettings($return_config = false)
 
 	// Final settings...
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=postsettings;sa=drafts;save';
-	Utils::$context['settings_title'] = $txt['managedrafts_settings'];
+	Utils::$context['settings_title'] = Lang::$txt['managedrafts_settings'];
 
 	// Prepare the settings...
 	prepareDBSettingContext($config_vars);

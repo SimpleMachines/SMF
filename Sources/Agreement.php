@@ -15,6 +15,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -74,8 +75,8 @@ function prepareAgreementContext()
 		// Have we got a localized policy?
 		if (!empty(Config::$modSettings['policy_' . $user_info['language']]))
 			Utils::$context['privacy_policy'] = BBCodeParser::load()->parse(Config::$modSettings['policy_' . $user_info['language']]);
-		elseif (!empty(Config::$modSettings['policy_' . Config::$language]))
-			Utils::$context['privacy_policy'] = BBCodeParser::load()->parse(Config::$modSettings['policy_' . Config::$language]);
+		elseif (!empty(Config::$modSettings['policy_' . Lang::$default]))
+			Utils::$context['privacy_policy'] = BBCodeParser::load()->parse(Config::$modSettings['policy_' . Lang::$default]);
 		// Then I guess we've got nothing
 		elseif (Utils::$context['can_accept_privacy_policy'])
 			fatal_lang_error('error_no_privacy_policy', false);
@@ -108,7 +109,7 @@ function canRequirePrivacyPolicy()
 	if (!empty($user_info['is_guest']) || empty(Config::$modSettings['requirePolicyAgreement']))
 		return false;
 
-	$policy_lang = !empty(Config::$modSettings['policy_' . $user_info['language']]) ? $user_info['language'] : Config::$language;
+	$policy_lang = !empty(Config::$modSettings['policy_' . $user_info['language']]) ? $user_info['language'] : Lang::$default;
 
 	if (empty(Config::$modSettings['policy_updated_' . $policy_lang]))
 		return false;
@@ -121,20 +122,18 @@ function canRequirePrivacyPolicy()
 // Let's tell them there's a new agreement
 function Agreement()
 {
-	global $txt;
-
 	prepareAgreementContext();
 
-	loadLanguage('Agreement');
+	Lang::load('Agreement');
 	loadTemplate('Agreement');
 
 	$page_title = '';
 	if (!empty(Utils::$context['agreement']) && !empty(Utils::$context['privacy_policy']))
-		$page_title = $txt['agreement_and_privacy_policy'];
+		$page_title = Lang::$txt['agreement_and_privacy_policy'];
 	elseif (!empty(Utils::$context['agreement']))
-		$page_title = $txt['agreement'];
+		$page_title = Lang::$txt['agreement'];
 	elseif (!empty(Utils::$context['privacy_policy']))
-		$page_title = $txt['privacy_policy'];
+		$page_title = Lang::$txt['privacy_policy'];
 
 	Utils::$context['page_title'] = $page_title;
 	Utils::$context['linktree'][] = array(

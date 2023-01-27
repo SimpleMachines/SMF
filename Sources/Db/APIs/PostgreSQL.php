@@ -14,6 +14,7 @@
 namespace SMF\Db\APIs;
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi;
 use SMF\Db\DatabaseApiInterface;
@@ -366,8 +367,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function insert($method, $table, $columns, $data, $keys, $returnmode = 0, $connection = null)
 	{
-		global $txt;
-
 		$connection = $connection ?? $this->connection;
 
 		$replace = '';
@@ -498,8 +497,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 					else
 					{
 						$with_returning = false;
-						loadLanguage('Errors');
-						trigger_error($txt['postgres_id_not_int'], E_USER_ERROR);
+						Lang::load('Errors');
+						trigger_error(Lang::$txt['postgres_id_not_int'], E_USER_ERROR);
 					}
 				}
 			}

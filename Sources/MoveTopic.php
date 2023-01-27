@@ -15,6 +15,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -36,7 +37,7 @@ if (!defined('SMF'))
  */
 function MoveTopic()
 {
-	global $txt, $board, $topic, $user_info;
+	global $board, $topic, $user_info;
 
 	if (empty($topic))
 		fatal_lang_error('no_access', false);
@@ -99,7 +100,7 @@ function MoveTopic()
 	require_once($sourcedir . '/Subs-MessageIndex.php');
 	Utils::$context['categories'] = getBoardList($options);
 
-	Utils::$context['page_title'] = $txt['move_topic'];
+	Utils::$context['page_title'] = Lang::$txt['move_topic'];
 
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?topic=' . $topic . '.0',
@@ -107,18 +108,18 @@ function MoveTopic()
 	);
 
 	Utils::$context['linktree'][] = array(
-		'name' => $txt['move_topic'],
+		'name' => Lang::$txt['move_topic'],
 	);
 
 	Utils::$context['back_to_topic'] = isset($_REQUEST['goback']);
 
-	if ($user_info['language'] != Config::$language)
+	if ($user_info['language'] != Lang::$default)
 	{
-		loadLanguage('index', Config::$language);
-		$temp = $txt['movetopic_default'];
-		loadLanguage('index');
+		Lang::load('index', Lang::$default);
+		$temp = Lang::$txt['movetopic_default'];
+		Lang::load('index');
 
-		$txt['movetopic_default'] = $temp;
+		Lang::$txt['movetopic_default'] = $temp;
 	}
 
 	Utils::$context['sub_template'] = 'move';
@@ -142,7 +143,7 @@ function MoveTopic()
  */
 function MoveTopic2()
 {
-	global $txt, $topic;
+	global $topic;
 	global $board, $user_info;
 
 	if (empty($topic))
@@ -229,13 +230,13 @@ function MoveTopic2()
 				// Get a response prefix, but in the forum's default language.
 				if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix')))
 				{
-					if (Config::$language === $user_info['language'])
-						Utils::$context['response_prefix'] = $txt['response_prefix'];
+					if (Lang::$default === $user_info['language'])
+						Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
 					else
 					{
-						loadLanguage('index', Config::$language, false);
-						Utils::$context['response_prefix'] = $txt['response_prefix'];
-						loadLanguage('index');
+						Lang::load('index', Lang::$default, false);
+						Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
+						Lang::load('index');
 					}
 					CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 				}
@@ -272,19 +273,19 @@ function MoveTopic2()
 	{
 		// Replace tokens with links in the reason.
 		$reason_replacements = array(
-			$txt['movetopic_auto_board'] => '[url="' . Config::$scripturl . '?board=' . $_POST['toboard'] . '.0"]' . $board_name . '[/url]',
-			$txt['movetopic_auto_topic'] => '[iurl]' . Config::$scripturl . '?topic=' . $topic . '.0[/iurl]',
+			Lang::$txt['movetopic_auto_board'] => '[url="' . Config::$scripturl . '?board=' . $_POST['toboard'] . '.0"]' . $board_name . '[/url]',
+			Lang::$txt['movetopic_auto_topic'] => '[iurl]' . Config::$scripturl . '?topic=' . $topic . '.0[/iurl]',
 		);
 
 		// Should be in the boardwide language.
-		if ($user_info['language'] != Config::$language)
+		if ($user_info['language'] != Lang::$default)
 		{
-			loadLanguage('index', Config::$language);
+			Lang::load('index', Lang::$default);
 
 			// Make sure we catch both languages in the reason.
 			$reason_replacements += array(
-				$txt['movetopic_auto_board'] => '[url="' . Config::$scripturl . '?board=' . $_POST['toboard'] . '.0"]' . $board_name . '[/url]',
-				$txt['movetopic_auto_topic'] => '[iurl]' . Config::$scripturl . '?topic=' . $topic . '.0[/iurl]',
+				Lang::$txt['movetopic_auto_board'] => '[url="' . Config::$scripturl . '?board=' . $_POST['toboard'] . '.0"]' . $board_name . '[/url]',
+				Lang::$txt['movetopic_auto_topic'] => '[iurl]' . Config::$scripturl . '?topic=' . $topic . '.0[/iurl]',
 			);
 		}
 
@@ -301,7 +302,7 @@ function MoveTopic2()
 		$redirect_topic = isset($_POST['redirect_topic']) ? $topic : 0;
 
 		$msgOptions = array(
-			'subject' => $txt['moved'] . ': ' . $subject,
+			'subject' => Lang::$txt['moved'] . ': ' . $subject,
 			'body' => $_POST['reason'],
 			'icon' => 'moved',
 			'smileys_enabled' => 1,

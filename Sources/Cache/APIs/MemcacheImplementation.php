@@ -15,6 +15,7 @@ namespace SMF\Cache\APIs;
 
 use Memcache;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Cache\CacheApi;
 use SMF\Cache\CacheApiInterface;
 
@@ -166,18 +167,16 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	 */
 	public function cacheSettings(array &$config_vars)
 	{
-		global $txt;
-
-		if (!in_array($txt[self::CLASS_KEY .'_settings'], $config_vars))
+		if (!in_array(Lang::$txt[self::CLASS_KEY .'_settings'], $config_vars))
 		{
-			$config_vars[] = $txt[self::CLASS_KEY .'_settings'];
+			$config_vars[] = Lang::$txt[self::CLASS_KEY .'_settings'];
 			$config_vars[] = array(
 				self::CLASS_KEY,
-				$txt[self::CLASS_KEY .'_servers'],
+				Lang::$txt[self::CLASS_KEY .'_servers'],
 				'file',
 				'text',
 				0,
-				'subtext' => $txt[self::CLASS_KEY .'_servers_subtext']);
+				'subtext' => Lang::$txt[self::CLASS_KEY .'_servers_subtext']);
 		}
 
 		if (!isset(Utils::$context['settings_post_javascript']))

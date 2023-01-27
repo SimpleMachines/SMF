@@ -1,8 +1,6 @@
 <?php
 // Version: 3.0 Alpha 1; PersonalMessage
 
-global $context;
-
 // Things for the popup
 $txt['pm_unread'] = 'Unread';
 $txt['pm_sent_short'] = 'Sent';

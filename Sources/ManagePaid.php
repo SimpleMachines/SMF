@@ -15,6 +15,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -30,10 +31,8 @@ if (!defined('SMF'))
  */
 function ManagePaidSubscriptions()
 {
-	global $txt;
-
 	// Load the required language and template.
-	loadLanguage('ManagePaid');
+	Lang::load('ManagePaid');
 	loadTemplate('ManagePaid');
 
 	if (!empty(Config::$modSettings['paid_enabled']))
@@ -49,21 +48,21 @@ function ManagePaidSubscriptions()
 			'settings' => array('ModifySubscriptionSettings', 'admin_forum'),
 		);
 
-	Utils::$context['page_title'] = $txt['paid_subscriptions'];
+	Utils::$context['page_title'] = Lang::$txt['paid_subscriptions'];
 
 	// Tabs for browsing the different subscription functions.
 	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
-		'title' => $txt['paid_subscriptions'],
+		'title' => Lang::$txt['paid_subscriptions'],
 		'help' => '',
-		'description' => $txt['paid_subscriptions_desc'],
+		'description' => Lang::$txt['paid_subscriptions_desc'],
 	);
 	if (!empty(Config::$modSettings['paid_enabled']))
 		Utils::$context[Utils::$context['admin_menu_name']]['tab_data']['tabs'] = array(
 			'view' => array(
-				'description' => $txt['paid_subs_view_desc'],
+				'description' => Lang::$txt['paid_subs_view_desc'],
 			),
 			'settings' => array(
-				'description' => $txt['paid_subs_settings_desc'],
+				'description' => Lang::$txt['paid_subs_settings_desc'],
 			),
 		);
 
@@ -90,8 +89,6 @@ function ManagePaidSubscriptions()
  */
 function ModifySubscriptionSettings($return_config = false)
 {
-	global $txt;
-
 	if (!empty(Config::$modSettings['paid_enabled']))
 	{
 		// If the currency is set to something different then we need to set it to other for this to work and set it back shortly.
@@ -111,16 +108,16 @@ function ModifySubscriptionSettings($return_config = false)
 				'select',
 				'paid_email',
 				array(
-					0 => $txt['paid_email_no'],
-					1 => $txt['paid_email_error'],
-					2 => $txt['paid_email_all']
+					0 => Lang::$txt['paid_email_no'],
+					1 => Lang::$txt['paid_email_error'],
+					2 => Lang::$txt['paid_email_all']
 				),
-				'subtext' => $txt['paid_email_desc']
+				'subtext' => Lang::$txt['paid_email_desc']
 			),
 			array(
 				'email',
 				'paid_email_to',
-				'subtext' => $txt['paid_email_to_desc'],
+				'subtext' => Lang::$txt['paid_email_to_desc'],
 				'size' => 60
 			),
 			'',
@@ -129,34 +126,34 @@ function ModifySubscriptionSettings($return_config = false)
 				'select',
 				'paid_currency',
 				array(
-					'usd' => $txt['usd'],
-					'eur' => $txt['eur'],
-					'gbp' => $txt['gbp'],
-					'cad' => $txt['cad'],
-					'aud' => $txt['aud'],
-					'other' => $txt['other']
+					'usd' => Lang::$txt['usd'],
+					'eur' => Lang::$txt['eur'],
+					'gbp' => Lang::$txt['gbp'],
+					'cad' => Lang::$txt['cad'],
+					'aud' => Lang::$txt['aud'],
+					'other' => Lang::$txt['other']
 				),
 				'javascript' => 'onchange="toggleOther();"'
 			),
 			array(
 				'text',
 				'paid_currency_code',
-				'subtext' => $txt['paid_currency_code_desc'],
+				'subtext' => Lang::$txt['paid_currency_code_desc'],
 				'size' => 5,
 				'force_div_id' => 'custom_currency_code_div'
 			),
 			array(
 				'text',
 				'paid_currency_symbol',
-				'subtext' => $txt['paid_currency_symbol_desc'],
+				'subtext' => Lang::$txt['paid_currency_symbol_desc'],
 				'size' => 8,
 				'force_div_id' => 'custom_currency_symbol_div'
 			),
 			array(
 				'check',
 				'paidsubs_test',
-				'subtext' => $txt['paidsubs_test_desc'],
-				'onclick' => 'return document.getElementById(\'paidsubs_test\').checked ? confirm(\'' . $txt['paidsubs_test_confirm'] . '\') : true;'
+				'subtext' => Lang::$txt['paidsubs_test_desc'],
+				'onclick' => 'return document.getElementById(\'paidsubs_test\').checked ? confirm(\'' . Lang::$txt['paidsubs_test_confirm'] . '\') : true;'
 			),
 		);
 
@@ -168,14 +165,14 @@ function ModifySubscriptionSettings($return_config = false)
 			$setting_data = $gatewayClass->getGatewaySettings();
 			if (!empty($setting_data))
 			{
-				$config_vars[] = array('title', $gatewayClass->title, 'text_label' => (isset($txt['paidsubs_gateway_title_' . $gatewayClass->title]) ? $txt['paidsubs_gateway_title_' . $gatewayClass->title] : $gatewayClass->title));
+				$config_vars[] = array('title', $gatewayClass->title, 'text_label' => (isset(Lang::$txt['paidsubs_gateway_title_' . $gatewayClass->title]) ? Lang::$txt['paidsubs_gateway_title_' . $gatewayClass->title] : $gatewayClass->title));
 				$config_vars = array_merge($config_vars, $setting_data);
 			}
 		}
 
-		Utils::$context['settings_message'] = sprintf($txt['paid_note'], Config::$boardurl);
+		Utils::$context['settings_message'] = sprintf(Lang::$txt['paid_note'], Config::$boardurl);
 		Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'settings';
-		Utils::$context['settings_title'] = $txt['settings'];
+		Utils::$context['settings_title'] = Lang::$txt['settings'];
 
 		// We want javascript for our currency options.
 		addInlineJavaScript('
@@ -215,7 +212,7 @@ function ModifySubscriptionSettings($return_config = false)
 		$config_vars = array(
 			array('check', 'paid_enabled'),
 		);
-		Utils::$context['settings_title'] = $txt['paid_subscriptions'];
+		Utils::$context['settings_title'] = Lang::$txt['paid_subscriptions'];
 	}
 
 	// Just searching?
@@ -226,7 +223,7 @@ function ModifySubscriptionSettings($return_config = false)
 	require_once(Config::$sourcedir . '/ManageServer.php');
 
 	// Some important context stuff
-	Utils::$context['page_title'] = $txt['settings'];
+	Utils::$context['page_title'] = Lang::$txt['settings'];
 	Utils::$context['sub_template'] = 'show_settings';
 
 	// Get the final touches in place.
@@ -277,7 +274,7 @@ function ModifySubscriptionSettings($return_config = false)
 			if ($_POST['paid_currency'] != 'other')
 			{
 				$_POST['paid_currency_code'] = $_POST['paid_currency'];
-				$_POST['paid_currency_symbol'] = $txt[$_POST['paid_currency'] . '_symbol'];
+				$_POST['paid_currency_symbol'] = Lang::$txt[$_POST['paid_currency'] . '_symbol'];
 			}
 			unset($config_vars['dummy_currency']);
 		}
@@ -299,19 +296,17 @@ function ModifySubscriptionSettings($return_config = false)
  */
 function ViewSubscriptions()
 {
-	global $txt;
-
 	// Not made the settings yet?
 	if (empty(Config::$modSettings['paid_currency_symbol']))
 		fatal_lang_error('paid_not_set_currency', false, Config::$scripturl . '?action=admin;area=paidsubscribe;sa=settings');
 
 	// Some basic stuff.
-	Utils::$context['page_title'] = $txt['paid_subs_view'];
+	Utils::$context['page_title'] = Lang::$txt['paid_subs_view'];
 	loadSubscriptions();
 
 	$listOptions = array(
 		'id' => 'subscription_list',
-		'title' => $txt['subscriptions'],
+		'title' => Lang::$txt['subscriptions'],
 		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 		'base_href' => Config::$scripturl . '?action=admin;area=paidsubscribe;sa=view',
 		'get_items' => array(
@@ -339,11 +334,11 @@ function ViewSubscriptions()
 				return count(Utils::$context['subscriptions']);
 			},
 		),
-		'no_items_label' => $txt['paid_none_yet'],
+		'no_items_label' => Lang::$txt['paid_none_yet'],
 		'columns' => array(
 			'name' => array(
 				'header' => array(
-					'value' => $txt['paid_name'],
+					'value' => Lang::$txt['paid_name'],
 					'style' => 'width: 35%;',
 				),
 				'data' => array(
@@ -355,18 +350,18 @@ function ViewSubscriptions()
 			),
 			'cost' => array(
 				'header' => array(
-					'value' => $txt['paid_cost'],
+					'value' => Lang::$txt['paid_cost'],
 				),
 				'data' => array(
-					'function' => function($rowData) use ($txt)
+					'function' => function($rowData)
 					{
-						return $rowData['flexible'] ? '<em>' . $txt['flexible'] . '</em>' : $rowData['cost'] . ' / ' . $rowData['length'];
+						return $rowData['flexible'] ? '<em>' . Lang::$txt['flexible'] . '</em>' : $rowData['cost'] . ' / ' . $rowData['length'];
 					},
 				),
 			),
 			'pending' => array(
 				'header' => array(
-					'value' => $txt['paid_pending'],
+					'value' => Lang::$txt['paid_pending'],
 					'style' => 'width: 18%;',
 					'class' => 'centercol',
 				),
@@ -377,7 +372,7 @@ function ViewSubscriptions()
 			),
 			'finished' => array(
 				'header' => array(
-					'value' => $txt['paid_finished'],
+					'value' => Lang::$txt['paid_finished'],
 					'class' => 'centercol',
 				),
 				'data' => array(
@@ -387,7 +382,7 @@ function ViewSubscriptions()
 			),
 			'total' => array(
 				'header' => array(
-					'value' => $txt['paid_active'],
+					'value' => Lang::$txt['paid_active'],
 					'class' => 'centercol',
 				),
 				'data' => array(
@@ -397,31 +392,31 @@ function ViewSubscriptions()
 			),
 			'is_active' => array(
 				'header' => array(
-					'value' => $txt['paid_is_active'],
+					'value' => Lang::$txt['paid_is_active'],
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => function($rowData) use ($txt)
+					'function' => function($rowData)
 					{
-						return '<span style="color: ' . ($rowData['active'] ? 'green' : 'red') . '">' . ($rowData['active'] ? $txt['yes'] : $txt['no']) . '</span>';
+						return '<span style="color: ' . ($rowData['active'] ? 'green' : 'red') . '">' . ($rowData['active'] ? Lang::$txt['yes'] : Lang::$txt['no']) . '</span>';
 					},
 					'class' => 'centercol',
 				),
 			),
 			'modify' => array(
 				'data' => array(
-					'function' => function($rowData) use ($txt)
+					'function' => function($rowData)
 					{
-						return '<a href="' . Config::$scripturl . '?action=admin;area=paidsubscribe;sa=modify;sid=' . $rowData['id'] . '">' . $txt['modify'] . '</a>';
+						return '<a href="' . Config::$scripturl . '?action=admin;area=paidsubscribe;sa=modify;sid=' . $rowData['id'] . '">' . Lang::$txt['modify'] . '</a>';
 					},
 					'class' => 'centercol',
 				),
 			),
 			'delete' => array(
 				'data' => array(
-					'function' => function($rowData) use ($txt)
+					'function' => function($rowData)
 					{
-						return '<a href="' . Config::$scripturl . '?action=admin;area=paidsubscribe;sa=modify;delete;sid=' . $rowData['id'] . '">' . $txt['delete'] . '</a>';
+						return '<a href="' . Config::$scripturl . '?action=admin;area=paidsubscribe;sa=modify;delete;sid=' . $rowData['id'] . '">' . Lang::$txt['delete'] . '</a>';
 					},
 					'class' => 'centercol',
 				),
@@ -433,11 +428,11 @@ function ViewSubscriptions()
 		'additional_rows' => array(
 			array(
 				'position' => 'above_column_headers',
-				'value' => '<input type="submit" name="add" value="' . $txt['paid_add_subscription'] . '" class="button">',
+				'value' => '<input type="submit" name="add" value="' . Lang::$txt['paid_add_subscription'] . '" class="button">',
 			),
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="submit" name="add" value="' . $txt['paid_add_subscription'] . '" class="button">',
+				'value' => '<input type="submit" name="add" value="' . Lang::$txt['paid_add_subscription'] . '" class="button">',
 			),
 		),
 	);
@@ -460,7 +455,7 @@ function ModifySubscription()
 
 	// Setup the template.
 	Utils::$context['sub_template'] = Utils::$context['action_type'] == 'delete' ? 'delete_subscription' : 'modify_subscription';
-	Utils::$context['page_title'] = $txt['paid_' . Utils::$context['action_type'] . '_subscription'];
+	Utils::$context['page_title'] = Lang::$txt['paid_' . Utils::$context['action_type'] . '_subscription'];
 
 	// Delete it?
 	if (isset($_POST['delete_confirm']) && isset($_REQUEST['delete']))
@@ -819,10 +814,8 @@ function ModifySubscription()
  */
 function ViewSubscribedUsers()
 {
-	global $txt;
-
 	// Setup the template.
-	Utils::$context['page_title'] = $txt['viewing_users_subscribed'];
+	Utils::$context['page_title'] = Lang::$txt['viewing_users_subscribed'];
 
 	// ID of the subscription.
 	Utils::$context['sub_id'] = (int) $_REQUEST['sid'];
@@ -851,11 +844,11 @@ function ViewSubscribedUsers()
 
 	// Are we searching for people?
 	$search_string = isset($_POST['ssearch']) && !empty($_POST['sub_search']) ? ' AND COALESCE(mem.real_name, {string:guest}) LIKE {string:search}' : '';
-	$search_vars = empty($_POST['sub_search']) ? array() : array('search' => '%' . $_POST['sub_search'] . '%', 'guest' => $txt['guest']);
+	$search_vars = empty($_POST['sub_search']) ? array() : array('search' => '%' . $_POST['sub_search'] . '%', 'guest' => Lang::$txt['guest']);
 
 	$listOptions = array(
 		'id' => 'subscribed_users_list',
-		'title' => sprintf($txt['view_users_subscribed'], $row['name']),
+		'title' => sprintf(Lang::$txt['view_users_subscribed'], $row['name']),
 		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 		'base_href' => Config::$scripturl . '?action=admin;area=paidsubscribe;sa=viewsub;sid=' . Utils::$context['sub_id'],
 		'default_sort_col' => 'name',
@@ -875,17 +868,17 @@ function ViewSubscribedUsers()
 				$search_vars,
 			),
 		),
-		'no_items_label' => $txt['no_subscribers'],
+		'no_items_label' => Lang::$txt['no_subscribers'],
 		'columns' => array(
 			'name' => array(
 				'header' => array(
-					'value' => $txt['who_member'],
+					'value' => Lang::$txt['who_member'],
 					'style' => 'width: 20%;',
 				),
 				'data' => array(
-					'function' => function($rowData) use ($txt)
+					'function' => function($rowData)
 					{
-						return $rowData['id_member'] == 0 ? $txt['guest'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $rowData['id_member'] . '">' . $rowData['name'] . '</a>';
+						return $rowData['id_member'] == 0 ? Lang::$txt['guest'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $rowData['id_member'] . '">' . $rowData['name'] . '</a>';
 					},
 				),
 				'sort' => array(
@@ -895,7 +888,7 @@ function ViewSubscribedUsers()
 			),
 			'status' => array(
 				'header' => array(
-					'value' => $txt['paid_status'],
+					'value' => Lang::$txt['paid_status'],
 					'style' => 'width: 10%;',
 				),
 				'data' => array(
@@ -908,7 +901,7 @@ function ViewSubscribedUsers()
 			),
 			'payments_pending' => array(
 				'header' => array(
-					'value' => $txt['paid_payments_pending'],
+					'value' => Lang::$txt['paid_payments_pending'],
 					'style' => 'width: 15%;',
 				),
 				'data' => array(
@@ -921,7 +914,7 @@ function ViewSubscribedUsers()
 			),
 			'start_time' => array(
 				'header' => array(
-					'value' => $txt['start_date'],
+					'value' => Lang::$txt['start_date'],
 					'style' => 'width: 20%;',
 				),
 				'data' => array(
@@ -935,7 +928,7 @@ function ViewSubscribedUsers()
 			),
 			'end_time' => array(
 				'header' => array(
-					'value' => $txt['end_date'],
+					'value' => Lang::$txt['end_date'],
 					'style' => 'width: 20%;',
 				),
 				'data' => array(
@@ -953,9 +946,9 @@ function ViewSubscribedUsers()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => function($rowData) use ($txt)
+					'function' => function($rowData)
 					{
-						return '<a href="' . Config::$scripturl . '?action=admin;area=paidsubscribe;sa=modifyuser;lid=' . $rowData['id'] . '">' . $txt['modify'] . '</a>';
+						return '<a href="' . Config::$scripturl . '?action=admin;area=paidsubscribe;sa=modifyuser;lid=' . $rowData['id'] . '">' . Lang::$txt['modify'] . '</a>';
 					},
 					'class' => 'centercol',
 				),
@@ -981,16 +974,16 @@ function ViewSubscribedUsers()
 			array(
 				'position' => 'below_table_data',
 				'value' => '
-					<input type="submit" name="add" value="' . $txt['add_subscriber'] . '" class="button">
-					<input type="submit" name="finished" value="' . $txt['complete_selected'] . '" data-confirm="' . $txt['complete_are_sure'] . '" class="button you_sure">
-					<input type="submit" name="delete" value="' . $txt['delete_selected'] . '" data-confirm="' . $txt['delete_are_sure'] . '" class="button you_sure">
+					<input type="submit" name="add" value="' . Lang::$txt['add_subscriber'] . '" class="button">
+					<input type="submit" name="finished" value="' . Lang::$txt['complete_selected'] . '" data-confirm="' . Lang::$txt['complete_are_sure'] . '" class="button you_sure">
+					<input type="submit" name="delete" value="' . Lang::$txt['delete_selected'] . '" data-confirm="' . Lang::$txt['delete_are_sure'] . '" class="button you_sure">
 				',
 			),
 			array(
 				'position' => 'top_of_list',
 				'value' => '
 					<div class="flow_auto">
-						<input type="submit" name="ssearch" value="' . $txt['search_sub'] . '" class="button" style="margin-top: 3px;">
+						<input type="submit" name="ssearch" value="' . Lang::$txt['search_sub'] . '" class="button" style="margin-top: 3px;">
 						<input type="text" name="sub_search" value="" class="floatright">
 					</div>
 				',
@@ -1051,8 +1044,6 @@ function list_getSubscribedUserCount($id_sub, $search_string, $search_vars = arr
  */
 function list_getSubscribedUsers($start, $items_per_page, $sort, $id_sub, $search_string, $search_vars = array())
 {
-	global $txt;
-
 	$request = Db::$db->query('', '
 		SELECT ls.id_sublog, COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, {string:guest}) AS name, ls.start_time, ls.end_time,
 			ls.status, ls.payments_pending
@@ -1066,7 +1057,7 @@ function list_getSubscribedUsers($start, $items_per_page, $sort, $id_sub, $searc
 			'current_subscription' => $id_sub,
 			'no_end_time' => 0,
 			'no_payments_pending' => 0,
-			'guest' => $txt['guest'],
+			'guest' => Lang::$txt['guest'],
 			'sort' => $sort,
 			'start' => $start,
 			'max' => $items_per_page,
@@ -1082,7 +1073,7 @@ function list_getSubscribedUsers($start, $items_per_page, $sort, $id_sub, $searc
 			'end_date' => $row['end_time'] == 0 ? 'N/A' : timeformat($row['end_time'], false),
 			'pending' => $row['payments_pending'],
 			'status' => $row['status'],
-			'status_text' => $row['status'] == 0 ? ($row['payments_pending'] == 0 ? $txt['paid_finished'] : $txt['paid_pending']) : $txt['paid_active'],
+			'status_text' => $row['status'] == 0 ? ($row['payments_pending'] == 0 ? Lang::$txt['paid_finished'] : Lang::$txt['paid_pending']) : Lang::$txt['paid_active'],
 		);
 	Db::$db->free_result($request);
 
@@ -1095,8 +1086,6 @@ function list_getSubscribedUsers($start, $items_per_page, $sort, $id_sub, $searc
  */
 function ModifyUserSubscription()
 {
-	global $txt;
-
 	loadSubscriptions();
 
 	Utils::$context['log_id'] = isset($_REQUEST['lid']) ? (int) $_REQUEST['lid'] : 0;
@@ -1105,7 +1094,7 @@ function ModifyUserSubscription()
 
 	// Setup the template.
 	Utils::$context['sub_template'] = 'modify_user_subscription';
-	Utils::$context['page_title'] = $txt[Utils::$context['action_type'] . '_subscriber'];
+	Utils::$context['page_title'] = Lang::$txt[Utils::$context['action_type'] . '_subscriber'];
 
 	// If we haven't been passed the subscription ID get it.
 	if (Utils::$context['log_id'] && !Utils::$context['sub_id'])
@@ -1350,7 +1339,7 @@ function ModifyUserSubscription()
 						{
 							if ($cost != 0 && $cost == $pending[1] && $duration == $pending[2])
 								Utils::$context['pending_payments'][$id] = array(
-									'desc' => sprintf(Config::$modSettings['paid_currency_symbol'], $cost . '/' . $txt[$duration]),
+									'desc' => sprintf(Config::$modSettings['paid_currency_symbol'], $cost . '/' . Lang::$txt[$duration]),
 								);
 						}
 					}
@@ -1880,13 +1869,11 @@ function removeSubscription($id_subscribe, $id_member, $delete = false)
  */
 function loadSubscriptions()
 {
-	global $txt;
-
 	if (!empty(Utils::$context['subscriptions']))
 		return;
 
 	// Make sure this is loaded, just in case.
-	loadLanguage('ManagePaid');
+	Lang::load('ManagePaid');
 
 	$request = Db::$db->query('', '
 		SELECT id_subscribe, name, description, cost, length, id_group, add_groups, active, repeatable
@@ -1914,19 +1901,19 @@ function loadSubscriptions()
 			switch ($match[2])
 			{
 				case 'D':
-					$length .= $txt['paid_mod_span_days'];
+					$length .= Lang::$txt['paid_mod_span_days'];
 					$num_length *= 86400;
 					break;
 				case 'W':
-					$length .= $txt['paid_mod_span_weeks'];
+					$length .= Lang::$txt['paid_mod_span_weeks'];
 					$num_length *= 604800;
 					break;
 				case 'M':
-					$length .= $txt['paid_mod_span_months'];
+					$length .= Lang::$txt['paid_mod_span_months'];
 					$num_length *= 2629743;
 					break;
 				case 'Y':
-					$length .= $txt['paid_mod_span_years'];
+					$length .= Lang::$txt['paid_mod_span_years'];
 					$num_length *= 31556926;
 					break;
 			}

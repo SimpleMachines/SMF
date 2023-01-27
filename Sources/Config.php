@@ -1339,8 +1339,6 @@ class Config
 	 */
 	public static function getAuthSecret(): string
 	{
-		global $txt;
-
 		if (empty(self::$auth_secret))
 		{
 			if (!is_callable('random_bytes'))
@@ -1361,8 +1359,8 @@ class Config
 				if (empty(self::$db_last_error) || (self::$db_last_error + 60*15) <= time())
 				{
 					self::updateDbLastError(time());
-					loadLanguage('Errors');
-					log_error($txt['auth_secret_missing'], 'critical');
+					Lang::load('Errors');
+					log_error(Lang::$txt['auth_secret_missing'], 'critical');
 				}
 			}
 		}

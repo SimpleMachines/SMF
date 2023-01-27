@@ -14,6 +14,7 @@
 namespace SMF\Tasks;
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -30,8 +31,6 @@ class Birthday_Notify extends BackgroundTask
 	 */
 	public function execute()
 	{
-		global $txt, $txtBirthdayEmails;
-
 		$greeting = isset(Config::$modSettings['birthday_email']) ? Config::$modSettings['birthday_email'] : 'happy_birthday';
 
 		// Get the month and day of today.
@@ -79,9 +78,9 @@ class Birthday_Notify extends BackgroundTask
 			foreach ($birthdays as $lang => $members)
 			{
 				// We need to do some shuffling to make this work properly.
-				loadLanguage('EmailTemplates', $lang);
-				$txt['happy_birthday_subject'] = $txtBirthdayEmails[$greeting . '_subject'];
-				$txt['happy_birthday_body'] = $txtBirthdayEmails[$greeting . '_body'];
+				Lang::load('EmailTemplates', $lang);
+				Lang::$txt['happy_birthday_subject'] = Lang::$txtBirthdayEmails[$greeting . '_subject'];
+				Lang::$txt['happy_birthday_body'] = Lang::$txtBirthdayEmails[$greeting . '_body'];
 				require_once(Config::$sourcedir . '/Subs-Notify.php');
 
 				$prefs = getNotifyPrefs(array_keys($members), array('birthday'), true);

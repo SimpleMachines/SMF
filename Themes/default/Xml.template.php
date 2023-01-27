@@ -11,6 +11,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 
 /**
@@ -54,22 +55,20 @@ function template_modifyfast()
  */
 function template_modifydone()
 {
-	global $txt;
-
 	echo '<', '?xml version="1.0" encoding="', Utils::$context['character_set'], '"?', '>
 <smf>
 	<message id="msg_', Utils::$context['message']['id'], '">';
 	if (empty(Utils::$context['message']['errors']))
 	{
 		// Build our string of info about when and why it was modified
-		$modified = empty(Utils::$context['message']['modified']['time']) ? '' : sprintf($txt['last_edit_by'], Utils::$context['message']['modified']['time'], Utils::$context['message']['modified']['name']);
-		$modified .= empty(Utils::$context['message']['modified']['reason']) ? '' : ' ' . sprintf($txt['last_edit_reason'], Utils::$context['message']['modified']['reason']);
+		$modified = empty(Utils::$context['message']['modified']['time']) ? '' : sprintf(Lang::$txt['last_edit_by'], Utils::$context['message']['modified']['time'], Utils::$context['message']['modified']['name']);
+		$modified .= empty(Utils::$context['message']['modified']['reason']) ? '' : ' ' . sprintf(Lang::$txt['last_edit_reason'], Utils::$context['message']['modified']['reason']);
 
 		echo '
 		<modified><![CDATA[', empty($modified) ? '' : cleanXml($modified), ']]></modified>
 		<subject is_first="', Utils::$context['message']['first_in_topic'] ? '1' : '0', '"><![CDATA[', cleanXml(Utils::$context['message']['subject']), ']]></subject>
 		<body><![CDATA[', Utils::$context['message']['body'], ']]></body>
-		<success><![CDATA[', $txt['quick_modify_message'], ']]></success>';
+		<success><![CDATA[', Lang::$txt['quick_modify_message'], ']]></success>';
 	}
 	else
 		echo '
@@ -84,16 +83,14 @@ function template_modifydone()
  */
 function template_modifytopicdone()
 {
-	global $txt;
-
 	echo '<', '?xml version="1.0" encoding="', Utils::$context['character_set'], '"?', '>
 <smf>
 	<message id="msg_', Utils::$context['message']['id'], '">';
 	if (empty(Utils::$context['message']['errors']))
 	{
 		// Build our string of info about when and why it was modified
-		$modified = empty(Utils::$context['message']['modified']['time']) ? '' : sprintf($txt['last_edit_by'], Utils::$context['message']['modified']['time'], Utils::$context['message']['modified']['name']);
-		$modified .= empty(Utils::$context['message']['modified']['reason']) ? '' : sprintf($txt['last_edit_reason'], Utils::$context['message']['modified']['reason']);
+		$modified = empty(Utils::$context['message']['modified']['time']) ? '' : sprintf(Lang::$txt['last_edit_by'], Utils::$context['message']['modified']['time'], Utils::$context['message']['modified']['name']);
+		$modified .= empty(Utils::$context['message']['modified']['reason']) ? '' : sprintf(Lang::$txt['last_edit_reason'], Utils::$context['message']['modified']['reason']);
 
 		echo '
 		<modified><![CDATA[', empty($modified) ? '' : cleanXml('<em>' . $modified . '</em>'), ']]></modified>';
@@ -165,13 +162,11 @@ function template_post()
  */
 function template_pm()
 {
-	global $txt;
-
 	// @todo something could be removed...otherwise it can be merged again with template_post
 	echo '<', '?xml version="1.0" encoding="', Utils::$context['character_set'], '"?', '>
 <smf>
 	<preview>
-		<subject><![CDATA[', $txt['preview'], ' - ', !empty(Utils::$context['preview_subject']) ? Utils::$context['preview_subject'] : $txt['no_subject'], ']]></subject>
+		<subject><![CDATA[', Lang::$txt['preview'], ' - ', !empty(Utils::$context['preview_subject']) ? Utils::$context['preview_subject'] : Lang::$txt['no_subject'], ']]></subject>
 		<body><![CDATA[', Utils::$context['preview_message'], ']]></body>
 	</preview>
 	<errors serious="', empty(Utils::$context['error_type']) || Utils::$context['error_type'] != 'serious' ? '0' : '1', '">';
@@ -297,13 +292,12 @@ if (!function_exists('template_button_strip'))
  */
 function template_results()
 {
-	global $txt;
 	echo '<', '?xml version="1.0" encoding="', Utils::$context['character_set'], '"?', '>
 <smf>';
 
 	if (empty(Utils::$context['topics']))
 		echo '
-		<noresults>', $txt['search_no_results'], '</noresults>';
+		<noresults>', Lang::$txt['search_no_results'], '</noresults>';
 	else
 	{
 		echo '

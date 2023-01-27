@@ -1,8 +1,6 @@
 <?php
 // Version: 3.0 Alpha 1; Help
 
-global $helptxt, $scripturl;
-
 $txt['close_window'] = 'Close window';
 
 $helptxt['manage_boards'] = '

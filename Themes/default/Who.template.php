@@ -11,6 +11,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 
 /**
@@ -18,20 +19,20 @@ use SMF\Utils;
  */
 function template_main()
 {
-	global $settings, $txt;
+	global $settings;
 
 	// Display the table header and linktree.
 	echo '
 	<div class="main_section" id="whos_online">
 		<form action="', Config::$scripturl, '?action=who" method="post" id="whoFilter" accept-charset="', Utils::$context['character_set'], '">
 			<div class="cat_bar">
-				<h3 class="catbg">', $txt['who_title'], '</h3>
+				<h3 class="catbg">', Lang::$txt['who_title'], '</h3>
 			</div>
 			<div id="mlist">
 				<div class="pagesection">
 					<div class="pagelinks floatleft">', Utils::$context['page_index'], '</div>
 					<div class="selectbox floatright" id="upper_show">
-						', $txt['who_show'], '
+						', Lang::$txt['who_show'], '
 						<select name="show_top" onchange="document.forms.whoFilter.show.value = this.value; document.forms.whoFilter.submit();">';
 
 	foreach (Utils::$context['show_methods'] as $value => $label)
@@ -40,16 +41,16 @@ function template_main()
 	echo '
 						</select>
 						<noscript>
-							<input type="submit" name="submit_top" value="', $txt['go'], '" class="button">
+							<input type="submit" name="submit_top" value="', Lang::$txt['go'], '" class="button">
 						</noscript>
 					</div>
 				</div>
 				<table class="table_grid">
 					<thead>
 						<tr class="title_bar">
-							<th scope="col" class="lefttext" style="width: 40%;"><a href="', Config::$scripturl, '?action=who;start=', Utils::$context['start'], ';show=', Utils::$context['show_by'], ';sort=user', Utils::$context['sort_direction'] != 'down' && Utils::$context['sort_by'] == 'user' ? '' : ';asc', '" rel="nofollow">', $txt['who_user'], Utils::$context['sort_by'] == 'user' ? '<span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a></th>
-							<th scope="col" class="lefttext time" style="width: 10%;"><a href="', Config::$scripturl, '?action=who;start=', Utils::$context['start'], ';show=', Utils::$context['show_by'], ';sort=time', Utils::$context['sort_direction'] == 'down' && Utils::$context['sort_by'] == 'time' ? ';asc' : '', '" rel="nofollow">', $txt['who_time'], Utils::$context['sort_by'] == 'time' ? '<span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a></th>
-							<th scope="col" class="lefttext half_table">', $txt['who_action'], '</th>
+							<th scope="col" class="lefttext" style="width: 40%;"><a href="', Config::$scripturl, '?action=who;start=', Utils::$context['start'], ';show=', Utils::$context['show_by'], ';sort=user', Utils::$context['sort_direction'] != 'down' && Utils::$context['sort_by'] == 'user' ? '' : ';asc', '" rel="nofollow">', Lang::$txt['who_user'], Utils::$context['sort_by'] == 'user' ? '<span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a></th>
+							<th scope="col" class="lefttext time" style="width: 10%;"><a href="', Config::$scripturl, '?action=who;start=', Utils::$context['start'], ';show=', Utils::$context['show_by'], ';sort=time', Utils::$context['sort_direction'] == 'down' && Utils::$context['sort_by'] == 'time' ? ';asc' : '', '" rel="nofollow">', Lang::$txt['who_time'], Utils::$context['sort_by'] == 'time' ? '<span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a></th>
+							<th scope="col" class="lefttext half_table">', Lang::$txt['who_action'], '</th>
 						</tr>
 					</thead>
 					<tbody>';
@@ -64,12 +65,12 @@ function template_main()
 		if (!$member['is_guest'])
 			echo '
 								<span class="contact_info floatright">
-									', Utils::$context['can_send_pm'] ? '<a href="' . $member['online']['href'] . '" title="' . $txt['pm_online'] . '">' : '', $settings['use_image_buttons'] ? '<span class="main_icons im_' . ($member['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $txt['pm_online'] . '"></span>' : $member['online']['label'], Utils::$context['can_send_pm'] ? '</a>' : '', '
+									', Utils::$context['can_send_pm'] ? '<a href="' . $member['online']['href'] . '" title="' . Lang::$txt['pm_online'] . '">' : '', $settings['use_image_buttons'] ? '<span class="main_icons im_' . ($member['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . Lang::$txt['pm_online'] . '"></span>' : $member['online']['label'], Utils::$context['can_send_pm'] ? '</a>' : '', '
 								</span>';
 
 		echo '
 								<span class="member', $member['is_hidden'] ? ' hidden' : '', '">
-									', $member['is_guest'] ? $member['name'] : '<a href="' . $member['href'] . '" title="' . sprintf($txt['view_profile_of_username'], $member['name']) . '"' . (empty($member['color']) ? '' : ' style="color: ' . $member['color'] . ';"') . '>' . $member['name'] . '</a>', '
+									', $member['is_guest'] ? $member['name'] : '<a href="' . $member['href'] . '" title="' . sprintf(Lang::$txt['view_profile_of_username'], $member['name']) . '"' . (empty($member['color']) ? '' : ' style="color: ' . $member['color'] . ';"') . '>' . $member['name'] . '</a>', '
 								</span>';
 
 		if (!empty($member['ip']))
@@ -87,7 +88,7 @@ function template_main()
 
 			echo '
 								<', $tag, !empty($member['action']['class']) ? ' class="' . $member['action']['class'] . '"' : '', '>
-									', $txt[$member['action']['label']], (!empty($member['action']['error_message']) ? $member['action']['error_message'] : ''), '
+									', Lang::$txt[$member['action']['label']], (!empty($member['action']['error_message']) ? $member['action']['error_message'] : ''), '
 								</', $tag, '>';
 		}
 		else
@@ -103,7 +104,7 @@ function template_main()
 		echo '
 						<tr class="windowbg">
 							<td colspan="3">
-							', $txt['who_no_online_' . (Utils::$context['show_by'] == 'guests' || Utils::$context['show_by'] == 'spiders' ? Utils::$context['show_by'] : 'members')], '
+							', Lang::$txt['who_no_online_' . (Utils::$context['show_by'] == 'guests' || Utils::$context['show_by'] == 'spiders' ? Utils::$context['show_by'] : 'members')], '
 							</td>
 						</tr>';
 
@@ -113,7 +114,7 @@ function template_main()
 				<div class="pagesection" id="lower_pagesection">
 					<div class="pagelinks floatleft" id="lower_pagelinks">', Utils::$context['page_index'], '</div>
 					<div class="selectbox floatright">
-						', $txt['who_show'], '
+						', Lang::$txt['who_show'], '
 						<select name="show" onchange="document.forms.whoFilter.submit();">';
 
 	foreach (Utils::$context['show_methods'] as $value => $label)
@@ -122,7 +123,7 @@ function template_main()
 	echo '
 						</select>
 						<noscript>
-							<input type="submit" value="', $txt['go'], '" class="button">
+							<input type="submit" value="', Lang::$txt['go'], '" class="button">
 						</noscript>
 					</div>
 				</div><!-- #lower_pagesection -->
@@ -136,13 +137,11 @@ function template_main()
  */
 function template_credits()
 {
-	global $txt;
-
 	// The most important part - the credits :P.
 	echo '
 	<div class="main_section" id="credits">
 		<div class="cat_bar">
-			<h3 class="catbg">', $txt['credits'], '</h3>
+			<h3 class="catbg">', Lang::$txt['credits'], '</h3>
 		</div>';
 
 	foreach (Utils::$context['credits'] as $section)
@@ -171,8 +170,8 @@ function template_credits()
 				</dt>
 				<dd>';
 
-			$names = sentence_list($group['members']);
-			echo sprintf($txt['credits_list'], $names);
+			$names = Lang::sentenceList($group['members']);
+			echo sprintf(Lang::$txt['credits_list'], $names);
 
 			echo '
 				</dd>';
@@ -194,28 +193,28 @@ function template_credits()
 	{
 		echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', $txt['credits_software_graphics'], '</h3>
+			<h3 class="catbg">', Lang::$txt['credits_software_graphics'], '</h3>
 		</div>
 		<div class="windowbg">';
 
 		if (!empty(Utils::$context['credits_software_graphics']['graphics']))
 			echo '
 			<dl>
-				<dt><strong>', $txt['credits_graphics'], '</strong></dt>
+				<dt><strong>', Lang::$txt['credits_graphics'], '</strong></dt>
 				<dd>', implode('</dd><dd>', Utils::$context['credits_software_graphics']['graphics']), '</dd>
 			</dl>';
 
 		if (!empty(Utils::$context['credits_software_graphics']['software']))
 			echo '
 			<dl>
-				<dt><strong>', $txt['credits_software'], '</strong></dt>
+				<dt><strong>', Lang::$txt['credits_software'], '</strong></dt>
 				<dd>', implode('</dd><dd>', Utils::$context['credits_software_graphics']['software']), '</dd>
 			</dl>';
 
 		if (!empty(Utils::$context['credits_software_graphics']['fonts']))
 			echo '
 			<dl>
-				<dt><strong>', $txt['credits_fonts'], '</strong></dt>
+				<dt><strong>', Lang::$txt['credits_fonts'], '</strong></dt>
 				<dd>', implode('</dd><dd>', Utils::$context['credits_software_graphics']['fonts']), '</dd>
 			</dl>';
 		echo '
@@ -227,7 +226,7 @@ function template_credits()
 	{
 		echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', $txt['credits_modifications'], '</h3>
+			<h3 class="catbg">', Lang::$txt['credits_modifications'], '</h3>
 		</div>
 		<div class="windowbg">
 			<ul>';
@@ -250,7 +249,7 @@ function template_credits()
 	// SMF itself
 	echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', $txt['credits_forum'], ' ', $txt['credits_copyright'], '</h3>
+			<h3 class="catbg">', Lang::$txt['credits_forum'], ' ', Lang::$txt['credits_copyright'], '</h3>
 		</div>
 		<div class="windowbg">
 			', Utils::$context['copyrights']['smf'], '

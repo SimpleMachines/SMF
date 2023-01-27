@@ -11,6 +11,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 
 /**
@@ -18,7 +19,7 @@ use SMF\Utils;
  */
 function template_popup()
 {
-	global $settings, $txt;
+	global $settings;
 
 	// Since this is a popup of its own we need to start the html, etc.
 	echo '<!DOCTYPE html>
@@ -34,7 +35,7 @@ function template_popup()
 		<div class="windowbg description">
 			', Utils::$context['help_text'], '<br>
 			<br>
-			<a href="javascript:self.close();">', $txt['close_window'], '</a>
+			<a href="javascript:self.close();">', Lang::$txt['close_window'], '</a>
 		</div>
 	</body>
 </html>';
@@ -45,12 +46,12 @@ function template_popup()
  */
 function template_find_members()
 {
-	global $settings, $txt;
+	global $settings;
 
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<title>', $txt['find_members'], '</title>
+		<title>', Lang::$txt['find_members'], '</title>
 		<meta charset="', Utils::$context['character_set'], '">
 		<meta name="robots" content="noindex">
 		', template_css(), '
@@ -81,36 +82,36 @@ function template_find_members()
 		<form action="', Config::$scripturl, '?action=findmember;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="', Utils::$context['character_set'], '" class="padding description">
 			<div class="roundframe">
 				<div class="cat_bar">
-					<h3 class="catbg">', $txt['find_members'], '</h3>
+					<h3 class="catbg">', Lang::$txt['find_members'], '</h3>
 				</div>
 				<div class="padding">
-					<strong>', $txt['find_username'], ':</strong><br>
+					<strong>', Lang::$txt['find_username'], ':</strong><br>
 					<input type="text" name="search" id="search" value="', isset(Utils::$context['last_search']) ? Utils::$context['last_search'] : '', '" style="margin-top: 4px; width: 96%;"><br>
-					<span class="smalltext"><em>', $txt['find_wildcards'], '</em></span><br>';
+					<span class="smalltext"><em>', Lang::$txt['find_wildcards'], '</em></span><br>';
 
 	// Only offer to search for buddies if we have some!
 	if (!empty(Utils::$context['show_buddies']))
 		echo '
 					<span class="smalltext">
-						<label for="buddies"><input type="checkbox" name="buddies" id="buddies"', !empty(Utils::$context['buddy_search']) ? ' checked' : '', '> ', $txt['find_buddies'], '</label>
+						<label for="buddies"><input type="checkbox" name="buddies" id="buddies"', !empty(Utils::$context['buddy_search']) ? ' checked' : '', '> ', Lang::$txt['find_buddies'], '</label>
 					</span><br>';
 
 	echo '
 					<div class="padding righttext">
-						<input type="submit" value="', $txt['search'], '" class="button">
-						<input type="button" value="', $txt['find_close'], '" onclick="window.close();" class="button">
+						<input type="submit" value="', Lang::$txt['search'], '" class="button">
+						<input type="button" value="', Lang::$txt['find_close'], '" onclick="window.close();" class="button">
 					</div>
 				</div><!-- .padding -->
 			</div><!-- .roundframe -->
 			<br>
 			<div class="roundframe">
 				<div class="cat_bar">
-					<h3 class="catbg">', $txt['find_results'], '</h3>
+					<h3 class="catbg">', Lang::$txt['find_results'], '</h3>
 				</div>';
 
 	if (empty(Utils::$context['results']))
 		echo '
-				<p class="error">', $txt['find_no_results'], '</p>';
+				<p class="error">', Lang::$txt['find_no_results'], '</p>';
 	else
 	{
 		echo '
@@ -153,25 +154,23 @@ function template_find_members()
  */
 function template_manual()
 {
-	global $txt;
-
 	echo '
 			<div class="cat_bar">
-				<h3 class="catbg">', $txt['manual_smf_user_help'], '</h3>
+				<h3 class="catbg">', Lang::$txt['manual_smf_user_help'], '</h3>
 			</div>
 			<div id="help_container">
 				<div id="helpmain" class="windowbg">
-					<p>', sprintf($txt['manual_welcome'], Utils::$context['forum_name_html_safe']), '</p>
-					<p>', $txt['manual_introduction'], '</p>
+					<p>', sprintf(Lang::$txt['manual_welcome'], Utils::$context['forum_name_html_safe']), '</p>
+					<p>', Lang::$txt['manual_introduction'], '</p>
 					<ul>';
 
 	foreach (Utils::$context['manual_sections'] as $section_id => $wiki_id)
 		echo '
-						<li><a href="', Utils::$context['wiki_url'], '/', Utils::$context['wiki_prefix'], $wiki_id, ($txt['lang_dictionary'] != 'en' ? '/' . $txt['lang_dictionary'] : ''), '" target="_blank" rel="noopener">', $txt['manual_section_' . $section_id . '_title'], '</a> - ', $txt['manual_section_' . $section_id . '_desc'], '</li>';
+						<li><a href="', Utils::$context['wiki_url'], '/', Utils::$context['wiki_prefix'], $wiki_id, (Lang::$txt['lang_dictionary'] != 'en' ? '/' . Lang::$txt['lang_dictionary'] : ''), '" target="_blank" rel="noopener">', Lang::$txt['manual_section_' . $section_id . '_title'], '</a> - ', Lang::$txt['manual_section_' . $section_id . '_desc'], '</li>';
 
 	echo '
 					</ul>
-					<p>', sprintf($txt['manual_docs_and_credits'], Utils::$context['wiki_url'], Config::$scripturl . '?action=credits'), '</p>
+					<p>', sprintf(Lang::$txt['manual_docs_and_credits'], Utils::$context['wiki_url'], Config::$scripturl . '?action=credits'), '</p>
 				</div><!-- #helpmain -->
 			</div><!-- #help_container -->';
 }

@@ -15,6 +15,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -35,13 +36,13 @@ if (!defined('SMF'))
  */
 function PlushSearch1()
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	// Is the load average too high to allow searching just now?
 	if (!empty(Utils::$context['load_average']) && !empty(Config::$modSettings['loadavg_search']) && Utils::$context['load_average'] >= Config::$modSettings['loadavg_search'])
 		fatal_lang_error('loadavg_search_disabled', false);
 
-	loadLanguage('Search');
+	Lang::load('Search');
 	// Don't load this in XML mode.
 	if (!isset($_REQUEST['xml']))
 	{
@@ -55,7 +56,7 @@ function PlushSearch1()
 	// Link tree....
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=search',
-		'name' => $txt['search']
+		'name' => Lang::$txt['search']
 	);
 
 	// This is hard coded maximum string length.
@@ -111,7 +112,7 @@ function PlushSearch1()
 	// Load the error text strings if there were errors in the search.
 	if (!empty(Utils::$context['search_errors']))
 	{
-		loadLanguage('Errors');
+		Lang::load('Errors');
 		Utils::$context['search_errors']['messages'] = array();
 		foreach (Utils::$context['search_errors'] as $search_error => $dummy)
 		{
@@ -119,9 +120,9 @@ function PlushSearch1()
 				continue;
 
 			if ($search_error == 'string_too_long')
-				$txt['error_string_too_long'] = sprintf($txt['error_string_too_long'], Utils::$context['search_string_limit']);
+				Lang::$txt['error_string_too_long'] = sprintf(Lang::$txt['error_string_too_long'], Utils::$context['search_string_limit']);
 
-			Utils::$context['search_errors']['messages'][] = $txt['error_' . $search_error];
+			Utils::$context['search_errors']['messages'][] = Lang::$txt['error_' . $search_error];
 		}
 	}
 
@@ -232,7 +233,7 @@ function PlushSearch1()
 		Utils::$context['search_topic']['link'] = '<a href="' . Utils::$context['search_topic']['href'] . '">' . Utils::$context['search_topic']['subject'] . '</a>';
 	}
 
-	Utils::$context['page_title'] = $txt['set_parameters'];
+	Utils::$context['page_title'] = Lang::$txt['set_parameters'];
 
 	call_integration_hook('integrate_search');
 }
@@ -249,7 +250,6 @@ function PlushSearch1()
  */
 function PlushSearch2()
 {
-	global $txt;
 	global $user_info, $options, $messages_request, $boards_can;
 	global $excludedWords, $participants;
 
@@ -326,7 +326,7 @@ function PlushSearch2()
 	// Maximum length of the string.
 	Utils::$context['search_string_limit'] = 100;
 
-	loadLanguage('Search');
+	Lang::load('Search');
 	if (!isset($_REQUEST['xml']))
 		loadTemplate('Search');
 	//If we're doing XML we need to use the results template regardless really.
@@ -907,7 +907,7 @@ function PlushSearch2()
 					unset($suggestions[$i]);
 
 				// Plus, don't suggest something the user thinks is rude!
-				elseif ($suggestions[$i] != censorText($s))
+				elseif ($suggestions[$i] != Lang::censorText($s))
 					unset($suggestions[$i]);
 			}
 
@@ -1022,11 +1022,11 @@ function PlushSearch2()
 	// ... and add the links to the link tree.
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=search;params=' . Utils::$context['params'],
-		'name' => $txt['search']
+		'name' => Lang::$txt['search']
 	);
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=search2;params=' . Utils::$context['params'],
-		'name' => $txt['search_results']
+		'name' => Lang::$txt['search_results']
 	);
 
 	// *** A last error check
@@ -2020,14 +2020,14 @@ function PlushSearch2()
 		Utils::$context['icon_sources'][$icon] = 'images_url';
 
 	Utils::$context['sub_template'] = 'results';
-	Utils::$context['page_title'] = $txt['search_results'];
+	Utils::$context['page_title'] = Lang::$txt['search_results'];
 	Utils::$context['get_topics'] = 'prepareSearchContext';
 	Utils::$context['can_restore_perm'] = allowedTo('move_any') && !empty(Config::$modSettings['recycle_enable']);
 	Utils::$context['can_restore'] = false; // We won't know until we handle the context later whether we can actually restore...
 
 	Utils::$context['jump_to'] = array(
-		'label' => addslashes(un_htmlspecialchars($txt['jump_to'])),
-		'board_name' => addslashes(un_htmlspecialchars($txt['select_destination'])),
+		'label' => addslashes(un_htmlspecialchars(Lang::$txt['jump_to'])),
+		'board_name' => addslashes(un_htmlspecialchars(Lang::$txt['select_destination'])),
 	);
 }
 
@@ -2043,7 +2043,7 @@ function PlushSearch2()
  */
 function prepareSearchContext($reset = false)
 {
-	global $txt, $user_info;
+	global $user_info;
 	global $memberContext, $settings, $options, $messages_request;
 	global $boards_can, $participants;
 	static $recycle_board = null;
@@ -2070,10 +2070,10 @@ function prepareSearchContext($reset = false)
 		return false;
 
 	// Can't have an empty subject can we?
-	$message['subject'] = $message['subject'] != '' ? $message['subject'] : $txt['no_subject'];
+	$message['subject'] = $message['subject'] != '' ? $message['subject'] : Lang::$txt['no_subject'];
 
-	$message['first_subject'] = $message['first_subject'] != '' ? $message['first_subject'] : $txt['no_subject'];
-	$message['last_subject'] = $message['last_subject'] != '' ? $message['last_subject'] : $txt['no_subject'];
+	$message['first_subject'] = $message['first_subject'] != '' ? $message['first_subject'] : Lang::$txt['no_subject'];
+	$message['last_subject'] = $message['last_subject'] != '' ? $message['last_subject'] : Lang::$txt['no_subject'];
 
 	// If it couldn't load, or the user was a guest.... someday may be done with a guest table.
 	if (!loadMemberContext($message['id_member']))
@@ -2081,18 +2081,18 @@ function prepareSearchContext($reset = false)
 		// Notice this information isn't used anywhere else.... *cough guest table cough*.
 		$memberContext[$message['id_member']]['name'] = $message['poster_name'];
 		$memberContext[$message['id_member']]['id'] = 0;
-		$memberContext[$message['id_member']]['group'] = $txt['guest_title'];
+		$memberContext[$message['id_member']]['group'] = Lang::$txt['guest_title'];
 		$memberContext[$message['id_member']]['link'] = $message['poster_name'];
 		$memberContext[$message['id_member']]['email'] = $message['poster_email'];
 	}
 	$memberContext[$message['id_member']]['ip'] = inet_dtop($message['poster_ip']);
 
 	// Do the censor thang...
-	censorText($message['body']);
-	censorText($message['subject']);
+	Lang::censorText($message['body']);
+	Lang::censorText($message['subject']);
 
-	censorText($message['first_subject']);
-	censorText($message['last_subject']);
+	Lang::censorText($message['first_subject']);
+	Lang::censorText($message['last_subject']);
 
 	// Shorten this message if necessary.
 	if (Utils::$context['compact'])
@@ -2221,7 +2221,7 @@ function prepareSearchContext($reset = false)
 				'id' => $message['first_member_id'],
 				'name' => $message['first_member_name'],
 				'href' => !empty($message['first_member_id']) ? Config::$scripturl . '?action=profile;u=' . $message['first_member_id'] : '',
-				'link' => !empty($message['first_member_id']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $message['first_member_id'] . '" title="' . sprintf($txt['view_profile_of_username'], $message['first_member_name']) . '">' . $message['first_member_name'] . '</a>' : $message['first_member_name']
+				'link' => !empty($message['first_member_id']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $message['first_member_id'] . '" title="' . sprintf(Lang::$txt['view_profile_of_username'], $message['first_member_name']) . '">' . $message['first_member_name'] . '</a>' : $message['first_member_name']
 			)
 		),
 		'last_post' => array(
@@ -2237,7 +2237,7 @@ function prepareSearchContext($reset = false)
 				'id' => $message['last_member_id'],
 				'name' => $message['last_member_name'],
 				'href' => !empty($message['last_member_id']) ? Config::$scripturl . '?action=profile;u=' . $message['last_member_id'] : '',
-				'link' => !empty($message['last_member_id']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $message['last_member_id'] . '" title="' . sprintf($txt['view_profile_of_username'], $message['last_member_name']) . '">' . $message['last_member_name'] . '</a>' : $message['last_member_name']
+				'link' => !empty($message['last_member_id']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $message['last_member_id'] . '" title="' . sprintf(Lang::$txt['view_profile_of_username'], $message['last_member_name']) . '">' . $message['last_member_name'] . '</a>' : $message['last_member_name']
 			)
 		),
 		'board' => array(

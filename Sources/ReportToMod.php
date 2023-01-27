@@ -13,6 +13,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -29,7 +30,7 @@ if (!defined('SMF'))
  */
 function ReportToModerator()
 {
-	global $txt, $topic;
+	global $topic;
 
 	Utils::$context['robot_no_index'] = true;
 	Utils::$context['comment_body'] = '';
@@ -54,7 +55,7 @@ function ReportToModerator()
 		preparsecode(Utils::$context['preview_message']);
 
 		// We censor for your protection...
-		censorText(Utils::$context['preview_message']);
+		Lang::censorText(Utils::$context['preview_message']);
 	}
 
 	// If they're posting, it should be processed by ReportToModerator2.
@@ -126,11 +127,11 @@ function ReportToModerator()
 
 	Utils::$context['comment_body'] = Utils::htmlspecialchars((!isset($_POST['comment']) ? '' : trim($_POST['comment'])), ENT_QUOTES);
 
-	Utils::$context['page_title'] = Utils::$context['report_type'] == 'msg' ? $txt['report_to_mod'] : sprintf($txt['report_profile'], $display_name);
-	Utils::$context['notice'] = Utils::$context['report_type'] == 'msg' ? $txt['report_to_mod_func'] : $txt['report_profile_func'];
+	Utils::$context['page_title'] = Utils::$context['report_type'] == 'msg' ? Lang::$txt['report_to_mod'] : sprintf(Lang::$txt['report_profile'], $display_name);
+	Utils::$context['notice'] = Utils::$context['report_type'] == 'msg' ? Lang::$txt['report_to_mod_func'] : Lang::$txt['report_profile_func'];
 
 	// Show the inputs for the comment, etc.
-	loadLanguage('Post');
+	Lang::load('Post');
 	loadTemplate('ReportToMod');
 
 	addInlineJavaScript('
@@ -145,7 +146,7 @@ function ReportToModerator()
 				if ($.trim(error_box.html()) == \'\')
 					error_box.append("<ul id=\'error_list\'></ul>");
 
-				$("#error_list").append("<li id=\'error_post_too_long\' class=\'error\'>" + ' . JavaScriptEscape($txt['post_too_long']) . ' + "</li>");
+				$("#error_list").append("<li id=\'error_post_too_long\' class=\'error\'>" + ' . JavaScriptEscape(Lang::$txt['post_too_long']) . ' + "</li>");
 			}
 		}
 		else
@@ -166,8 +167,6 @@ function ReportToModerator()
  */
 function ReportToModerator2()
 {
-	global $txt;
-
 	// Sorry, no guests allowed... Probably just trying to spam us anyway
 	is_not_guest();
 
@@ -204,11 +203,11 @@ function ReportToModerator2()
 	// Any errors?
 	if (!empty($post_errors))
 	{
-		loadLanguage('Errors');
+		Lang::load('Errors');
 
 		Utils::$context['post_errors'] = array();
 		foreach ($post_errors as $post_error)
-			Utils::$context['post_errors'][$post_error] = $txt['error_' . $post_error];
+			Utils::$context['post_errors'][$post_error] = Lang::$txt['error_' . $post_error];
 
 		return ReportToModerator();
 	}

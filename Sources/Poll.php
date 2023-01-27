@@ -15,6 +15,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -38,7 +39,7 @@ function Vote()
 	// Make sure you can vote.
 	isAllowedTo('poll_vote');
 
-	loadLanguage('Post');
+	Lang::load('Post');
 
 	// Check if they have already voted, or voting is locked.
 	$request = Db::$db->query('', '
@@ -305,12 +306,12 @@ function LockVoting()
  */
 function EditPoll()
 {
-	global $txt, $user_info, $topic, $board;
+	global $user_info, $topic, $board;
 
 	if (empty($topic))
 		fatal_lang_error('no_access', false);
 
-	loadLanguage('Post');
+	Lang::load('Post');
 	loadTemplate('Poll');
 
 	Utils::$context['start'] = (int) $_REQUEST['start'];
@@ -399,7 +400,7 @@ function EditPoll()
 				if (!isset($_POST['options'][$row['id_choice']]) || $_POST['options'][$row['id_choice']] == '')
 					continue;
 
-				censorText($row['label']);
+				Lang::censorText($row['label']);
 
 				// Add the choice!
 				Utils::$context['choices'][$row['id_choice']] = array(
@@ -424,7 +425,7 @@ function EditPoll()
 		foreach ($_POST['options'] as $id => $label)
 		{
 			$label = Utils::htmlspecialchars($label);
-			censorText($label);
+			Lang::censorText($label);
 
 			if (isset(Utils::$context['choices'][$id]))
 				Utils::$context['choices'][$id]['label'] = $label;
@@ -477,13 +478,13 @@ function EditPoll()
 		// Take a check for any errors... assuming we haven't already done so!
 		if (!empty($poll_errors) && empty(Utils::$context['poll_error']))
 		{
-			loadLanguage('Errors');
+			Lang::load('Errors');
 
 			Utils::$context['poll_error'] = array('messages' => array());
 			foreach ($poll_errors as $poll_error)
 			{
 				Utils::$context['poll_error'][$poll_error] = true;
-				Utils::$context['poll_error']['messages'][] = $txt['error_' . $poll_error];
+				Utils::$context['poll_error']['messages'][] = Lang::$txt['error_' . $poll_error];
 			}
 		}
 	}
@@ -518,7 +519,7 @@ function EditPoll()
 			$number = 1;
 			while ($row = Db::$db->fetch_assoc($request))
 			{
-				censorText($row['label']);
+				Lang::censorText($row['label']);
 
 				Utils::$context['choices'][$row['id_choice']] = array(
 					'id' => $row['id_choice'],
@@ -568,10 +569,10 @@ function EditPoll()
 			Utils::$context['last_choice_id'] = 4;
 		}
 	}
-	Utils::$context['page_title'] = Utils::$context['is_edit'] ? $txt['poll_edit'] : $txt['add_poll'];
+	Utils::$context['page_title'] = Utils::$context['is_edit'] ? Lang::$txt['poll_edit'] : Lang::$txt['add_poll'];
 
 	// Build the link tree.
-	censorText($pollinfo['subject']);
+	Lang::censorText($pollinfo['subject']);
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?topic=' . $topic . '.0',
 		'name' => $pollinfo['subject'],
@@ -598,7 +599,7 @@ function EditPoll()
  */
 function EditPoll2()
 {
-	global $txt, $topic, $board;
+	global $topic, $board;
 	global $user_info;
 
 	// Sneaking off, are we?
@@ -670,7 +671,7 @@ function EditPoll2()
 	// Got any errors to report?
 	if (!empty($poll_errors))
 	{
-		loadLanguage('Errors');
+		Lang::load('Errors');
 		// Previewing.
 		$_POST['preview'] = true;
 
@@ -678,7 +679,7 @@ function EditPoll2()
 		foreach ($poll_errors as $poll_error)
 		{
 			Utils::$context['poll_error'][$poll_error] = true;
-			Utils::$context['poll_error']['messages'][] = $txt['error_' . $poll_error];
+			Utils::$context['poll_error']['messages'][] = Lang::$txt['error_' . $poll_error];
 		}
 
 		return EditPoll();

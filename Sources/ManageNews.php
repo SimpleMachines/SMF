@@ -15,6 +15,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -30,8 +31,6 @@ if (!defined('SMF'))
  */
 function ManageNews()
 {
-	global $txt;
-
 	// First, let's do a quick permissions check for the best error message possible.
 	isAllowedTo(array('edit_news', 'send_mail', 'admin_forum'));
 
@@ -48,17 +47,17 @@ function ManageNews()
 
 	// Create the tabs for the template.
 	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
-		'title' => $txt['news_title'],
+		'title' => Lang::$txt['news_title'],
 		'help' => 'edit_news',
-		'description' => $txt['admin_news_desc'],
+		'description' => Lang::$txt['admin_news_desc'],
 		'tabs' => array(
 			'editnews' => array(
 			),
 			'mailingmembers' => array(
-				'description' => $txt['news_mailing_desc'],
+				'description' => Lang::$txt['news_mailing_desc'],
 			),
 			'settings' => array(
-				'description' => $txt['news_settings_desc'],
+				'description' => Lang::$txt['news_settings_desc'],
 			),
 		),
 	);
@@ -90,8 +89,6 @@ function ManageNews()
  */
 function EditNews()
 {
-	global $txt;
-
 	require_once(Config::$sourcedir . '/Subs-Post.php');
 
 	// The 'remove selected' button was pressed.
@@ -142,7 +139,7 @@ function EditNews()
 	// We're going to want this for making our list.
 	require_once(Config::$sourcedir . '/Subs-List.php');
 
-	Utils::$context['page_title'] = $txt['admin_edit_news'];
+	Utils::$context['page_title'] = Lang::$txt['admin_edit_news'];
 
 	// Use the standard templates for showing this.
 	$listOptions = array(
@@ -153,7 +150,7 @@ function EditNews()
 		'columns' => array(
 			'news' => array(
 				'header' => array(
-					'value' => $txt['admin_edit_news'],
+					'value' => Lang::$txt['admin_edit_news'],
 					'class' => 'half_table',
 				),
 				'data' => array(
@@ -171,7 +168,7 @@ function EditNews()
 			),
 			'preview' => array(
 				'header' => array(
-					'value' => $txt['preview'],
+					'value' => Lang::$txt['preview'],
 					'class' => 'half_table',
 				),
 				'data' => array(
@@ -210,10 +207,10 @@ function EditNews()
 				'position' => 'bottom_of_list',
 				'value' => '
 				<span id="moreNewsItems_link" class="floatleft" style="display: none;">
-					<a class="button" href="javascript:void(0);" onclick="addNewsItem(); return false;">' . $txt['editnews_clickadd'] . '</a>
+					<a class="button" href="javascript:void(0);" onclick="addNewsItem(); return false;">' . Lang::$txt['editnews_clickadd'] . '</a>
 				</span>
-				<input type="submit" name="save_items" value="' . $txt['save'] . '" class="button">
-				<input type="submit" name="delete_selection" value="' . $txt['editnews_remove_selected'] . '" data-confirm="' . $txt['editnews_remove_confirm'] . '" class="button you_sure">',
+				<input type="submit" name="save_items" value="' . Lang::$txt['save'] . '" class="button">
+				<input type="submit" name="delete_selection" value="' . Lang::$txt['editnews_remove_selected'] . '" data-confirm="' . Lang::$txt['editnews_remove_confirm'] . '" class="button you_sure">',
 			),
 		),
 		'javascript' => '
@@ -233,7 +230,7 @@ function EditNews()
 					function make_preview_btn (preview_id)
 					{
 						$("#preview_" + preview_id).addClass("button");
-						$("#preview_" + preview_id).text(\'' . $txt['preview'] . '\').click(function () {
+						$("#preview_" + preview_id).text(\'' . Lang::$txt['preview'] . '\').click(function () {
 							$.ajax({
 								type: "POST",
 								headers: {
@@ -249,7 +246,7 @@ function EditNews()
 									if ($(request).find("error").text() == \'\')
 										$(document).find("#box_preview_" + preview_id).html($(request).text());
 									else
-										$(document).find("#box_preview_" + preview_id).text(\'' . $txt['news_error_no_news'] . '\');
+										$(document).find("#box_preview_" + preview_id).text(\'' . Lang::$txt['news_error_no_news'] . '\');
 								},
 							});
 						});
@@ -319,12 +316,10 @@ function list_getNews()
  */
 function SelectMailingMembers()
 {
-	global $txt;
-
 	// Is there any confirm message?
 	Utils::$context['newsletter_sent'] = isset($_SESSION['newsletter_sent']) ? $_SESSION['newsletter_sent'] : '';
 
-	Utils::$context['page_title'] = $txt['admin_newsletters'];
+	Utils::$context['page_title'] = Lang::$txt['admin_newsletters'];
 
 	Utils::$context['sub_template'] = 'email_members';
 
@@ -337,7 +332,7 @@ function SelectMailingMembers()
 	{
 		Utils::$context['groups'][0] = array(
 			'id' => 0,
-			'name' => $txt['membergroups_members'],
+			'name' => Lang::$txt['membergroups_members'],
 			'member_count' => 0,
 		);
 		$normalGroups[0] = 0;
@@ -444,8 +439,9 @@ function SelectMailingMembers()
  */
 function prepareMailingForPreview()
 {
-	global $user_info, $txt;
-	loadLanguage('Errors');
+	global $user_info;
+
+	Lang::load('Errors');
 
 	$processing = array('preview_subject' => 'subject', 'preview_message' => 'message');
 
@@ -470,7 +466,7 @@ function prepareMailingForPreview()
 		Utils::$context[$key] = !empty($_REQUEST[$post]) ? $_REQUEST[$post] : '';
 
 		if (empty(Utils::$context[$key]) && empty($_REQUEST['xml']))
-			Utils::$context['post_error']['messages'][] = $txt['error_no_' . $post];
+			Utils::$context['post_error']['messages'][] = Lang::$txt['error_no_' . $post];
 		elseif (!empty($_REQUEST['xml']))
 			continue;
 
@@ -505,14 +501,12 @@ function prepareMailingForPreview()
  */
 function ComposeMailing()
 {
-	global $txt;
-
 	// Setup the template!
-	Utils::$context['page_title'] = $txt['admin_newsletters'];
+	Utils::$context['page_title'] = Lang::$txt['admin_newsletters'];
 	Utils::$context['sub_template'] = 'email_members_compose';
 
-	Utils::$context['subject'] = !empty($_POST['subject']) ? $_POST['subject'] : Utils::htmlspecialchars(Utils::$context['forum_name'] . ': ' . $txt['subject']);
-	Utils::$context['message'] = !empty($_POST['message']) ? $_POST['message'] : Utils::htmlspecialchars($txt['message'] . "\n\n" . sprintf($txt['regards_team'], Utils::$context['forum_name']) . "\n\n" . '{$board_url}');
+	Utils::$context['subject'] = !empty($_POST['subject']) ? $_POST['subject'] : Utils::htmlspecialchars(Utils::$context['forum_name'] . ': ' . Lang::$txt['subject']);
+	Utils::$context['message'] = !empty($_POST['message']) ? $_POST['message'] : Utils::htmlspecialchars(Lang::$txt['message'] . "\n\n" . sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name']) . "\n\n" . '{$board_url}');
 
 	// Needed for the WYSIWYG editor.
 	require_once(Config::$sourcedir . '/Subs-Editor.php');
@@ -524,7 +518,7 @@ function ComposeMailing()
 		'height' => '150px',
 		'width' => '100%',
 		'labels' => array(
-			'post_button' => $txt['sendtopic_send'],
+			'post_button' => Lang::$txt['sendtopic_send'],
 		),
 		'preview_type' => 2,
 		'required' => true,
@@ -597,7 +591,7 @@ function ComposeMailing()
 	SendMailing(true);
 
 	// We need a couple strings from the email template file
-	loadLanguage('EmailTemplates');
+	Lang::load('EmailTemplates');
 
 	// Get a list of all full banned users.  Use their Username and email to find them.  Only get the ones that can't login to turn off notification.
 	$request = Db::$db->query('', '
@@ -704,7 +698,6 @@ function ComposeMailing()
  */
 function SendMailing($clean_only = false)
 {
-	global $txt;
 	global $user_info;
 
 	if (isset($_POST['preview']))
@@ -917,7 +910,7 @@ function SendMailing($clean_only = false)
 			continue;
 
 		// Non-members can't unsubscribe via the automated system.
-		$unsubscribe_link = sprintf($txt['unsubscribe_announcements_manual'], empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from']);
+		$unsubscribe_link = sprintf(Lang::$txt['unsubscribe_announcements_manual'], empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from']);
 
 		$to_member = array(
 			$email,
@@ -1031,7 +1024,7 @@ function SendMailing($clean_only = false)
 			if (!empty($include_unsubscribe))
 			{
 				$token = createUnsubscribeToken($row['id_member'], $row['email_address'], 'announcements');
-				$unsubscribe_link = sprintf($txt['unsubscribe_announcements_' . (!empty($_POST['send_html']) ? 'html' : 'plain')], Config::$scripturl . '?action=notifyannouncements;u=' . $row['id_member'] . ';token=' . $token);
+				$unsubscribe_link = sprintf(Lang::$txt['unsubscribe_announcements_' . (!empty($_POST['send_html']) ? 'html' : 'plain')], Config::$scripturl . '?action=notifyannouncements;u=' . $row['id_member'] . ';token=' . $token);
 			}
 			else
 				$unsubscribe_link = '';
@@ -1076,7 +1069,7 @@ function SendMailing($clean_only = false)
 	$percentMembers = (Utils::$context['start'] / Utils::$context['total_members']) * (Utils::$context['total_members'] / (Utils::$context['total_emails'] + Utils::$context['total_members']));
 	Utils::$context['percentage_done'] = round(($percentEmails + $percentMembers) * 100, 2);
 
-	Utils::$context['page_title'] = $txt['admin_newsletters'];
+	Utils::$context['page_title'] = Lang::$txt['admin_newsletters'];
 	Utils::$context['sub_template'] = 'email_members_send';
 }
 
@@ -1091,8 +1084,6 @@ function SendMailing($clean_only = false)
  */
 function ModifyNewsSettings($return_config = false)
 {
-	global $txt;
-
 	$config_vars = array(
 		array('title', 'settings'),
 		// Inline permissions.
@@ -1102,8 +1093,8 @@ function ModifyNewsSettings($return_config = false)
 
 		// Just the remaining settings.
 		array('check', 'xmlnews_enable', 'onclick' => 'document.getElementById(\'xmlnews_maxlen\').disabled = !this.checked;'),
-		array('int', 'xmlnews_maxlen', 'subtext' => $txt['xmlnews_maxlen_note'], 10),
-		array('check', 'xmlnews_attachments', 'subtext' => $txt['xmlnews_attachments_note']),
+		array('int', 'xmlnews_maxlen', 'subtext' => Lang::$txt['xmlnews_maxlen_note'], 10),
+		array('check', 'xmlnews_attachments', 'subtext' => Lang::$txt['xmlnews_attachments_note']),
 	);
 
 	call_integration_hook('integrate_modify_news_settings', array(&$config_vars));
@@ -1111,7 +1102,7 @@ function ModifyNewsSettings($return_config = false)
 	if ($return_config)
 		return $config_vars;
 
-	Utils::$context['page_title'] = $txt['admin_edit_news'] . ' - ' . $txt['settings'];
+	Utils::$context['page_title'] = Lang::$txt['admin_edit_news'] . ' - ' . Lang::$txt['settings'];
 	Utils::$context['sub_template'] = 'show_settings';
 
 	// Needed for the settings template.

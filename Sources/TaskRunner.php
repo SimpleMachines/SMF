@@ -108,6 +108,9 @@ class TaskRunner
 
 		// Now 'clean the request' (or more accurately, ignore everything we're not going to use)
 		$this->cleanRequest();
+
+		// Load the basic Lang::$txt strings.
+		Lang::load('index+Modifications');
 	}
 
 	/**

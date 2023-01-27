@@ -15,6 +15,8 @@
 
 namespace SMF\PackageManager;
 
+use SMF\Lang;
+
 /**
  * Class XmlArray
  * Represents an XML array
@@ -140,8 +142,6 @@ class XmlArray
 	 */
 	public function path($path, $return_full = false)
 	{
-		global $txt;
-
 		// Split up the path.
 		$path = explode('/', $path);
 
@@ -174,8 +174,8 @@ class XmlArray
 					// Cause an error.
 					if ($this->debug_level & E_NOTICE)
 					{
-						loadLanguage('Errors');
-						trigger_error(sprintf($txt['undefined_xml_attribute'], substr($el, 1) . $debug), E_USER_NOTICE);
+						Lang::load('Errors');
+						trigger_error(sprintf(Lang::$txt['undefined_xml_attribute'], substr($el, 1) . $debug), E_USER_NOTICE);
 					}
 					return false;
 				}
@@ -686,8 +686,6 @@ class XmlArray
 	 */
 	protected function _path($array, $path, $level, $no_error = false)
 	{
-		global $txt;
-
 		// Is $array even an array?  It might be false!
 		if (!is_array($array))
 			return false;
@@ -730,8 +728,8 @@ class XmlArray
 			// Cause an error.
 			if ($this->debug_level & E_NOTICE && !$no_error)
 			{
-				loadLanguage('Errors');
-				trigger_error(sprintf($txt['undefined_xml_element'], $path . $debug), E_USER_NOTICE);
+				Lang::load('Errors');
+				trigger_error(sprintf(Lang::$txt['undefined_xml_element'], $path . $debug), E_USER_NOTICE);
 			}
 			return false;
 		}

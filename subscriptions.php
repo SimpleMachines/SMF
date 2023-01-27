@@ -15,6 +15,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -35,13 +36,13 @@ require_once(Config::$sourcedir . '/Subs-Admin.php');
 // Ensure we don't trip over disabled internal functions
 require_once(Config::$sourcedir . '/Subs-Compat.php');
 
-loadLanguage('ManagePaid');
+Lang::load('ManagePaid');
 
 // If there's literally nothing coming in, let's take flight!
 if (empty($_POST))
 {
-	header('content-type: text/html; charset=' . (empty(Config::$modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : Config::$modSettings['global_character_set']));
-	die($txt['paid_no_data']);
+	header('content-type: text/html; charset=' . (empty(Config::$modSettings['global_character_set']) ? (empty(Lang::$txt['lang_character_set']) ? 'ISO-8859-1' : Lang::$txt['lang_character_set']) : Config::$modSettings['global_character_set']));
+	die(Lang::$txt['paid_no_data']);
 }
 
 // I assume we're even active?
@@ -55,7 +56,7 @@ if (!empty(Config::$modSettings['paid_email_to']))
 	foreach (explode(',', Config::$modSettings['paid_email_to']) as $email)
 		$notify_users[] = array(
 			'email' => $email,
-			'name' => $txt['who_member'],
+			'name' => Lang::$txt['who_member'],
 			'id' => 0,
 		);
 }
@@ -76,7 +77,7 @@ foreach ($gatewayHandles as $gateway)
 }
 
 if (empty($txnType))
-	generateSubscriptionError($txt['paid_unknown_transaction_type']);
+	generateSubscriptionError(Lang::$txt['paid_unknown_transaction_type']);
 
 // Get the subscription and member ID, amongst others...
 @list($subscription_id, $member_id) = $gatewayClass->precheck();
@@ -87,7 +88,7 @@ $member_id = (int) $member_id;
 
 // This would be bad...
 if (empty($member_id))
-	generateSubscriptionError($txt['paid_empty_member']);
+	generateSubscriptionError(Lang::$txt['paid_empty_member']);
 
 // Verify the member.
 $request = Db::$db->query('', '
@@ -100,7 +101,7 @@ $request = Db::$db->query('', '
 );
 // Didn't find them?
 if (Db::$db->num_rows($request) === 0)
-	generateSubscriptionError(sprintf($txt['paid_could_not_find_member'], $member_id));
+	generateSubscriptionError(sprintf(Lang::$txt['paid_could_not_find_member'], $member_id));
 $member_info = Db::$db->fetch_assoc($request);
 Db::$db->free_result($request);
 
@@ -116,7 +117,7 @@ $request = Db::$db->query('', '
 
 // Didn't find it?
 if (Db::$db->num_rows($request) === 0)
-	generateSubscriptionError(sprintf($txt['paid_count_not_find_subscription'], $member_id, $subscription_id));
+	generateSubscriptionError(sprintf(Lang::$txt['paid_count_not_find_subscription'], $member_id, $subscription_id));
 
 $subscription_info = Db::$db->fetch_assoc($request);
 Db::$db->free_result($request);
@@ -134,7 +135,7 @@ $request = Db::$db->query('', '
 	)
 );
 if (Db::$db->num_rows($request) === 0)
-	generateSubscriptionError(sprintf($txt['paid_count_not_find_subscription_log'], $member_id, $subscription_id));
+	generateSubscriptionError(sprintf(Lang::$txt['paid_count_not_find_subscription_log'], $member_id, $subscription_id));
 $subscription_info += Db::$db->fetch_assoc($request);
 Db::$db->free_result($request);
 
@@ -199,7 +200,7 @@ elseif ($gatewayClass->isPayment() || $gatewayClass->isSubscription())
 	{
 		$real_details = Utils::jsonDecode($subscription_info['pending_details'], true);
 		if (empty($real_details))
-			generateSubscriptionError(sprintf($txt['paid_count_not_find_outstanding_payment'], $member_id, $subscription_id));
+			generateSubscriptionError(sprintf(Lang::$txt['paid_count_not_find_outstanding_payment'], $member_id, $subscription_id));
 
 		// Now we just try to find anything pending.
 		// We don't really care which it is as security happens later.
@@ -297,7 +298,7 @@ $gatewayClass->close();
 
 // Hidden setting to log the IPN info for debugging purposes.
 if ($paid_debug === true)
-	generateSubscriptionError($txt['subscription'], true);
+	generateSubscriptionError(Lang::$txt['subscription'], true);
 
 /**
  * Log an error then exit

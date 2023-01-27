@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -28,12 +29,10 @@ if (!defined('SMF'))
  */
 function ManageCalendar()
 {
-	global $txt;
-
 	isAllowedTo('admin_forum');
 
 	// Everything's gonna need this.
-	loadLanguage('ManageCalendar');
+	Lang::load('ManageCalendar');
 
 	// Little short on the ground of functions here... but things can and maybe will change...
 	if (!empty(Config::$modSettings['cal_enabled']))
@@ -55,17 +54,17 @@ function ManageCalendar()
 
 	// Set up the two tabs here...
 	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
-		'title' => $txt['manage_calendar'],
+		'title' => Lang::$txt['manage_calendar'],
 		'help' => 'calendar',
-		'description' => $txt['calendar_settings_desc'],
+		'description' => Lang::$txt['calendar_settings_desc'],
 	);
 	if (!empty(Config::$modSettings['cal_enabled']))
 		Utils::$context[Utils::$context['admin_menu_name']]['tab_data']['tabs'] = array(
 			'holidays' => array(
-				'description' => $txt['manage_holidays_desc'],
+				'description' => Lang::$txt['manage_holidays_desc'],
 			),
 			'settings' => array(
-				'description' => $txt['calendar_settings_desc'],
+				'description' => Lang::$txt['calendar_settings_desc'],
 			),
 		);
 
@@ -81,8 +80,6 @@ function ManageCalendar()
  */
 function ModifyHolidays()
 {
-	global $txt;
-
 	// Submitting something...
 	if (isset($_REQUEST['delete']) && !empty($_REQUEST['holiday']))
 	{
@@ -100,7 +97,7 @@ function ModifyHolidays()
 	createToken('admin-mc');
 	$listOptions = array(
 		'id' => 'holiday_list',
-		'title' => $txt['current_holidays'],
+		'title' => Lang::$txt['current_holidays'],
 		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 		'base_href' => Config::$scripturl . '?action=admin;area=managecalendar;sa=holidays',
 		'default_sort_col' => 'name',
@@ -112,11 +109,11 @@ function ModifyHolidays()
 			'file' => Config::$sourcedir . '/Subs-Calendar.php',
 			'function' => 'list_getNumHolidays',
 		),
-		'no_items_label' => $txt['holidays_no_entries'],
+		'no_items_label' => Lang::$txt['holidays_no_entries'],
 		'columns' => array(
 			'name' => array(
 				'header' => array(
-					'value' => $txt['holidays_title'],
+					'value' => Lang::$txt['holidays_title'],
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -134,16 +131,16 @@ function ModifyHolidays()
 			),
 			'date' => array(
 				'header' => array(
-					'value' => $txt['date'],
+					'value' => Lang::$txt['date'],
 				),
 				'data' => array(
-					'function' => function($rowData) use ($txt)
+					'function' => function($rowData)
 					{
 						// Recurring every year or just a single year?
-						$year = $rowData['year'] == '1004' ? sprintf('(%1$s)', $txt['every_year']) : $rowData['year'];
+						$year = $rowData['year'] == '1004' ? sprintf('(%1$s)', Lang::$txt['every_year']) : $rowData['year'];
 
 						// Construct the date.
-						return sprintf('%1$d %2$s %3$s', $rowData['day'], $txt['months'][(int) $rowData['month']], $year);
+						return sprintf('%1$d %2$s %3$s', $rowData['day'], Lang::$txt['months'][(int) $rowData['month']], $year);
 					},
 				),
 				'sort' => array(
@@ -174,13 +171,13 @@ function ModifyHolidays()
 		'additional_rows' => array(
 			array(
 				'position' => 'above_column_headers',
-				'value' => '<input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" class="button">
-					<a class="button" href="' . Config::$scripturl . '?action=admin;area=managecalendar;sa=editholiday">' . $txt['holidays_add'] . '</a>',
+				'value' => '<input type="submit" name="delete" value="' . Lang::$txt['quickmod_delete_selected'] . '" class="button">
+					<a class="button" href="' . Config::$scripturl . '?action=admin;area=managecalendar;sa=editholiday">' . Lang::$txt['holidays_add'] . '</a>',
 			),
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" class="button">
-					<a class="button" href="' . Config::$scripturl . '?action=admin;area=managecalendar;sa=editholiday">' . $txt['holidays_add'] . '</a>',
+				'value' => '<input type="submit" name="delete" value="' . Lang::$txt['quickmod_delete_selected'] . '" class="button">
+					<a class="button" href="' . Config::$scripturl . '?action=admin;area=managecalendar;sa=editholiday">' . Lang::$txt['holidays_add'] . '</a>',
 			),
 		),
 	);
@@ -189,7 +186,7 @@ function ModifyHolidays()
 	createList($listOptions);
 
 	//loadTemplate('ManageCalendar');
-	Utils::$context['page_title'] = $txt['manage_holidays'];
+	Utils::$context['page_title'] = Lang::$txt['manage_holidays'];
 
 	// Since the list is the only thing to show, use the default list template.
 	Utils::$context['default_list'] = 'holiday_list';
@@ -201,12 +198,10 @@ function ModifyHolidays()
  */
 function EditHoliday()
 {
-	global $txt;
-
 	loadTemplate('ManageCalendar');
 
 	Utils::$context['is_new'] = !isset($_REQUEST['holiday']);
-	Utils::$context['page_title'] = Utils::$context['is_new'] ? $txt['holidays_add'] : $txt['holidays_edit'];
+	Utils::$context['page_title'] = Utils::$context['is_new'] ? Lang::$txt['holidays_add'] : Lang::$txt['holidays_edit'];
 	Utils::$context['sub_template'] = 'edit_holiday';
 
 	// Cast this for safety...
@@ -312,8 +307,6 @@ function EditHoliday()
  */
 function ModifyCalendarSettings($return_config = false)
 {
-	global $txt;
-
 	// Load the boards list.
 	$boards = array('');
 	$request = Db::$db->query('order_by_board_order', '
@@ -344,10 +337,10 @@ function ModifyCalendarSettings($return_config = false)
 			'',
 
 			// How many days to show on board index, and where to display events etc?
-			array('int', 'cal_days_for_index', 'help' => 'cal_maxdays_advance', 6, 'postinput' => $txt['days_word']),
-			array('select', 'cal_showholidays', array(0 => $txt['setting_cal_show_never'], 1 => $txt['setting_cal_show_cal'], 3 => $txt['setting_cal_show_index'], 2 => $txt['setting_cal_show_all'])),
-			array('select', 'cal_showbdays', array(0 => $txt['setting_cal_show_never'], 1 => $txt['setting_cal_show_cal'], 3 => $txt['setting_cal_show_index'], 2 => $txt['setting_cal_show_all'])),
-			array('select', 'cal_showevents', array(0 => $txt['setting_cal_show_never'], 1 => $txt['setting_cal_show_cal'], 3 => $txt['setting_cal_show_index'], 2 => $txt['setting_cal_show_all'])),
+			array('int', 'cal_days_for_index', 'help' => 'cal_maxdays_advance', 6, 'postinput' => Lang::$txt['days_word']),
+			array('select', 'cal_showholidays', array(0 => Lang::$txt['setting_cal_show_never'], 1 => Lang::$txt['setting_cal_show_cal'], 3 => Lang::$txt['setting_cal_show_index'], 2 => Lang::$txt['setting_cal_show_all'])),
+			array('select', 'cal_showbdays', array(0 => Lang::$txt['setting_cal_show_never'], 1 => Lang::$txt['setting_cal_show_cal'], 3 => Lang::$txt['setting_cal_show_index'], 2 => Lang::$txt['setting_cal_show_all'])),
+			array('select', 'cal_showevents', array(0 => Lang::$txt['setting_cal_show_never'], 1 => Lang::$txt['setting_cal_show_cal'], 3 => Lang::$txt['setting_cal_show_index'], 2 => Lang::$txt['setting_cal_show_all'])),
 			array('check', 'cal_export'),
 			'',
 
@@ -364,12 +357,12 @@ function ModifyCalendarSettings($return_config = false)
 			'',
 
 			// Calendar spanning...
-			array('int', 'cal_maxspan', 6, 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_for_no_limit'], 'help' => 'cal_maxevent_span'),
+			array('int', 'cal_maxspan', 6, 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['zero_for_no_limit'], 'help' => 'cal_maxevent_span'),
 			'',
 
 			// Miscellaneous layout settings...
 			array('check', 'cal_disable_prev_next'),
-			array('select', 'cal_week_links', array(0 => $txt['setting_cal_week_links_none'], 1 => $txt['setting_cal_week_links_mini'], 2 => $txt['setting_cal_week_links_main'], 3 => $txt['setting_cal_week_links_both'])),
+			array('select', 'cal_week_links', array(0 => Lang::$txt['setting_cal_week_links_none'], 1 => Lang::$txt['setting_cal_week_links_mini'], 2 => Lang::$txt['setting_cal_week_links_main'], 3 => Lang::$txt['setting_cal_week_links_both'])),
 			array('check', 'cal_prev_next_links'),
 			array('check', 'cal_short_days'),
 			array('check', 'cal_short_months'),
@@ -387,12 +380,12 @@ function ModifyCalendarSettings($return_config = false)
 	require_once(Config::$sourcedir . '/ManageServer.php');
 
 	// Some important context stuff
-	Utils::$context['page_title'] = $txt['calendar_settings'];
+	Utils::$context['page_title'] = Lang::$txt['calendar_settings'];
 	Utils::$context['sub_template'] = 'show_settings';
 
 	// Get the final touches in place.
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=managecalendar;save;sa=settings';
-	Utils::$context['settings_title'] = $txt['calendar_settings'];
+	Utils::$context['settings_title'] = Lang::$txt['calendar_settings'];
 
 	// Saving the settings?
 	if (isset($_GET['save']))

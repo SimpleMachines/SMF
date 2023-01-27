@@ -615,13 +615,11 @@ function template_homepage_sample1($method = 'source')
  */
 function template_homepage_sample1_php()
 {
-	global $txt;
-
 	$topics = SMF\ServerSideIncludes::recentTopics(8, null, null, 'array');
 
 	foreach ($topics as $topic)
 		echo '
-			<li><a href="', $topic['href'], '">', $topic['subject'], '</a> ', $txt['by'], ' ', $topic['poster']['link'], '</li>';
+			<li><a href="', $topic['href'], '">', $topic['subject'], '</a> ', SMF\Lang::$txt['by'], ' ', $topic['poster']['link'], '</li>';
 
 	unset($topics);
 
@@ -668,7 +666,7 @@ foreach ($topics as $topic)
 	// echo \'<pre>\', print_r($topic), \'</pre>\';
 
 	echo \'
-			<li><a href=\"\', $topic[\'href\'], \'\">\', $topic[\'subject\'], \'</a> \', $txt[\'by\'], \' \', $topics[$i][\'poster\'][\'link\'], \'</li>\';
+			<li><a href=\"\', $topic[\'href\'], \'\">\', $topic[\'subject\'], \'</a> \', SMF\Lang::$txt[\'by\'], \' \', $topics[$i][\'poster\'][\'link\'], \'</li>\';
 }
 
 unset($topics);

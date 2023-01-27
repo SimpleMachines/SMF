@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Lang;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -31,10 +33,8 @@ if (!defined('PHP_INT_MIN'))
  */
 function get_tzid_metazones($when = 'now')
 {
-	global $txt, $tztxt;
-
 	// This should already have been loaded, but just in case...
-	loadLanguage('Timezones');
+	Lang::load('Timezones');
 
 	/*
 		This array lists a series of representative time zones and their
@@ -582,7 +582,7 @@ function get_tzid_metazones($when = 'now')
 		if (!empty($alt_tzid) && empty($tzid_metazones[$alt_tzid]))
 		{
 			$tzid_metazones[$alt_tzid] = $tzid_metazones[$orig_tzid];
-			$txt[$alt_tzid] = $txt[$orig_tzid];
+			Lang::$txt[$alt_tzid] = Lang::$txt[$orig_tzid];
 		}
 
 		// Either way, get rid of the unknown time zone.

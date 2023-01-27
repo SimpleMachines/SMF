@@ -1,8 +1,6 @@
 <?php
 // Version: 3.0 Alpha 1; Admin
 
-global $settings, $scripturl;
-
 $txt['settings_saved'] = 'The settings were successfully saved';
 $txt['settings_not_saved'] = 'Your changes were not saved because: %1$s';
 

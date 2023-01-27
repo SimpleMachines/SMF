@@ -17,6 +17,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -75,7 +76,7 @@ function SplitTopics()
  */
 function SplitIndex()
 {
-	global $txt, $topic;
+	global $topic;
 
 	// Validate "at".
 	if (empty($_GET['at']))
@@ -124,7 +125,7 @@ function SplitIndex()
 		'subject' => $_REQUEST['subname']
 	);
 	Utils::$context['sub_template'] = 'ask';
-	Utils::$context['page_title'] = $txt['split'];
+	Utils::$context['page_title'] = Lang::$txt['split'];
 }
 
 /**
@@ -139,14 +140,14 @@ function SplitIndex()
  */
 function SplitExecute()
 {
-	global $txt, $topic;
+	global $topic;
 
 	// Check the session to make sure they meant to do this.
 	checkSession();
 
 	// Clean up the subject.
 	if (!isset($_POST['subname']) || $_POST['subname'] == '')
-		$_POST['subname'] = $txt['new_topic'];
+		$_POST['subname'] = Lang::$txt['new_topic'];
 
 	// Redirect to the selector if they chose selective.
 	if ($_POST['step2'] == 'selective')
@@ -182,7 +183,7 @@ function SplitExecute()
 
 	Utils::$context['old_topic'] = $topic;
 	Utils::$context['new_topic'] = splitTopic($topic, $messagesToBeSplit, $_POST['subname']);
-	Utils::$context['page_title'] = $txt['split'];
+	Utils::$context['page_title'] = Lang::$txt['split'];
 }
 
 /**
@@ -197,9 +198,9 @@ function SplitExecute()
  */
 function SplitSelectTopics()
 {
-	global $txt, $topic, $original_msgs, $options;
+	global $topic, $original_msgs, $options;
 
-	Utils::$context['page_title'] = $txt['split'] . ' - ' . $txt['select_split_posts'];
+	Utils::$context['page_title'] = Lang::$txt['split'] . ' - ' . Lang::$txt['select_split_posts'];
 
 	// Haven't selected anything have we?
 	$_SESSION['split_selection'][$topic] = empty($_SESSION['split_selection'][$topic]) ? array() : $_SESSION['split_selection'][$topic];
@@ -371,8 +372,8 @@ function SplitSelectTopics()
 	Utils::$context['messages'] = array();
 	for ($counter = 0; $row = Db::$db->fetch_assoc($request); $counter++)
 	{
-		censorText($row['subject']);
-		censorText($row['body']);
+		Lang::censorText($row['subject']);
+		Lang::censorText($row['body']);
 
 		$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
 
@@ -411,8 +412,8 @@ function SplitSelectTopics()
 		Utils::$context['messages'] = array();
 		for ($counter = 0; $row = Db::$db->fetch_assoc($request); $counter++)
 		{
-			censorText($row['subject']);
-			censorText($row['body']);
+			Lang::censorText($row['subject']);
+			Lang::censorText($row['body']);
 
 			$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
 
@@ -471,14 +472,14 @@ function SplitSelectTopics()
  */
 function SplitSelectionExecute()
 {
-	global $txt, $topic;
+	global $topic;
 
 	// Make sure the session id was passed with post.
 	checkSession();
 
 	// Default the subject in case it's blank.
 	if (!isset($_POST['subname']) || $_POST['subname'] == '')
-		$_POST['subname'] = $txt['new_topic'];
+		$_POST['subname'] = Lang::$txt['new_topic'];
 
 	// You must've selected some messages!  Can't split out none!
 	if (empty($_SESSION['split_selection'][$topic]))
@@ -486,7 +487,7 @@ function SplitSelectionExecute()
 
 	Utils::$context['old_topic'] = $topic;
 	Utils::$context['new_topic'] = splitTopic($topic, $_SESSION['split_selection'][$topic], $_POST['subname']);
-	Utils::$context['page_title'] = $txt['split'];
+	Utils::$context['page_title'] = Lang::$txt['split'];
 }
 
 /**
@@ -506,8 +507,6 @@ function SplitSelectionExecute()
  */
 function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 {
-	global $txt;
-
 	// Nothing to split?
 	if (empty($splitMessages))
 		fatal_lang_error('no_posts_selected', false);
@@ -676,7 +675,7 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 				'id_topic' => $split2_ID_TOPIC,
 				'new_subject' => $new_subject,
 				'split_first_msg' => $split2_first_msg,
-				'new_subject_replies' => $txt['response_prefix'] . $new_subject,
+				'new_subject_replies' => Lang::$txt['response_prefix'] . $new_subject,
 			)
 		);
 
@@ -859,7 +858,7 @@ function MergeTopics()
  */
 function MergeIndex()
 {
-	global $txt, $board;
+	global $board;
 	if (!isset($_GET['from']))
 		fatal_lang_error('no_access', false);
 
@@ -922,7 +921,7 @@ function MergeIndex()
 	Utils::$context['origin_topic'] = $_GET['from'];
 	Utils::$context['origin_subject'] = $subject;
 	Utils::$context['origin_js_subject'] = addcslashes(addslashes($subject), '/');
-	Utils::$context['page_title'] = $txt['merge'];
+	Utils::$context['page_title'] = Lang::$txt['merge'];
 
 	// Check which boards you have merge permissions on.
 	$merge_boards = boardsAllowedTo('merge_any');
@@ -973,7 +972,7 @@ function MergeIndex()
 	Utils::$context['topics'] = array();
 	while ($row = Db::$db->fetch_assoc($request))
 	{
-		censorText($row['subject']);
+		Lang::censorText($row['subject']);
 
 		Utils::$context['topics'][] = array(
 			'id' => $row['id_topic'],
@@ -1014,7 +1013,7 @@ function MergeIndex()
  */
 function MergeExecute($topics = array())
 {
-	global $user_info, $txt;
+	global $user_info;
 
 	// Check the session.
 	checkSession('request');
@@ -1242,7 +1241,7 @@ function MergeExecute($topics = array())
 		foreach ($topic_data as $id => $topic)
 			Utils::$context['topics'][$id]['selected'] = $topic['id'] == $firstTopic;
 
-		Utils::$context['page_title'] = $txt['merge'];
+		Utils::$context['page_title'] = Lang::$txt['merge'];
 		Utils::$context['sub_template'] = 'merge_extra_options';
 		return;
 	}
@@ -1405,17 +1404,17 @@ function MergeExecute($topics = array())
 	{
 		// Replace tokens with links in the reason.
 		$reason_replacements = array(
-			$txt['movetopic_auto_topic'] => '[iurl="' . Config::$scripturl . '?topic=' . $id_topic . '.0"]' . $target_subject . '[/iurl]',
+			Lang::$txt['movetopic_auto_topic'] => '[iurl="' . Config::$scripturl . '?topic=' . $id_topic . '.0"]' . $target_subject . '[/iurl]',
 		);
 
 		// Should be in the boardwide language.
-		if ($user_info['language'] != Config::$language)
+		if ($user_info['language'] != Lang::$default)
 		{
-			loadLanguage('index', Config::$language);
+			Lang::load('index', Lang::$default);
 
 			// Make sure we catch both languages in the reason.
 			$reason_replacements += array(
-				$txt['movetopic_auto_topic'] => '[iurl="' . Config::$scripturl . '?topic=' . $id_topic . '.0"]' . $target_subject . '[/iurl]',
+				Lang::$txt['movetopic_auto_topic'] => '[iurl="' . Config::$scripturl . '?topic=' . $id_topic . '.0"]' . $target_subject . '[/iurl]',
 			);
 		}
 
@@ -1433,7 +1432,7 @@ function MergeExecute($topics = array())
 
 		foreach ($deleted_topics as $this_old_topic)
 		{
-			$redirect_subject = sprintf($txt['merged_subject'], $topic_data[$this_old_topic]['subject']);
+			$redirect_subject = sprintf(Lang::$txt['merged_subject'], $topic_data[$this_old_topic]['subject']);
 
 			$msgOptions = array(
 				'icon' => 'moved',
@@ -1461,20 +1460,20 @@ function MergeExecute($topics = array())
 		}
 
 		// Restore language strings to normal.
-		if ($user_info['language'] != Config::$language)
-			loadLanguage('index');
+		if ($user_info['language'] != Lang::$default)
+			Lang::load('index');
 	}
 
 	// Grab the response prefix (like 'Re: ') in the default forum language.
 	if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix')))
 	{
-		if (Config::$language === $user_info['language'])
-			Utils::$context['response_prefix'] = $txt['response_prefix'];
+		if (Lang::$default === $user_info['language'])
+			Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
 		else
 		{
-			loadLanguage('index', Config::$language, false);
-			Utils::$context['response_prefix'] = $txt['response_prefix'];
-			loadLanguage('index');
+			Lang::load('index', Lang::$default, false);
+			Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
+			Lang::load('index');
 		}
 		CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 	}
@@ -1796,13 +1795,11 @@ function MergeExecute($topics = array())
  */
 function MergeDone()
 {
-	global $txt;
-
 	// Make sure the template knows everything...
 	Utils::$context['target_board'] = (int) $_GET['targetboard'];
 	Utils::$context['target_topic'] = (int) $_GET['to'];
 
-	Utils::$context['page_title'] = $txt['merge'];
+	Utils::$context['page_title'] = Lang::$txt['merge'];
 	Utils::$context['sub_template'] = 'merge_done';
 }
 

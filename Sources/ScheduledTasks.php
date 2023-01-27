@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\ProxyServer;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -302,7 +303,7 @@ function scheduled_daily_maintenance()
  */
 function scheduled_daily_digest()
 {
-	global $is_weekly, $txt;
+	global $is_weekly;
 
 	// We'll want this...
 	require_once(Config::$sourcedir . '/Subs-Post.php');
@@ -437,27 +438,27 @@ function scheduled_daily_digest()
 	$langtxt = array();
 	foreach ($langs as $lang)
 	{
-		loadLanguage('Post', $lang);
-		loadLanguage('index', $lang);
-		loadLanguage('EmailTemplates', $lang);
+		Lang::load('Post', $lang);
+		Lang::load('index', $lang);
+		Lang::load('EmailTemplates', $lang);
 		$langtxt[$lang] = array(
-			'subject' => $txt['digest_subject_' . ($is_weekly ? 'weekly' : 'daily')],
-			'char_set' => $txt['lang_character_set'],
-			'intro' => sprintf($txt['digest_intro_' . ($is_weekly ? 'weekly' : 'daily')], Config::$mbname),
-			'new_topics' => $txt['digest_new_topics'],
-			'topic_lines' => $txt['digest_new_topics_line'],
-			'new_replies' => $txt['digest_new_replies'],
-			'mod_actions' => $txt['digest_mod_actions'],
-			'replies_one' => $txt['digest_new_replies_one'],
-			'replies_many' => $txt['digest_new_replies_many'],
-			'sticky' => $txt['digest_mod_act_sticky'],
-			'lock' => $txt['digest_mod_act_lock'],
-			'unlock' => $txt['digest_mod_act_unlock'],
-			'remove' => $txt['digest_mod_act_remove'],
-			'move' => $txt['digest_mod_act_move'],
-			'merge' => $txt['digest_mod_act_merge'],
-			'split' => $txt['digest_mod_act_split'],
-			'bye' => sprintf($txt['regards_team'], Utils::$context['forum_name']),
+			'subject' => Lang::$txt['digest_subject_' . ($is_weekly ? 'weekly' : 'daily')],
+			'char_set' => Lang::$txt['lang_character_set'],
+			'intro' => sprintf(Lang::$txt['digest_intro_' . ($is_weekly ? 'weekly' : 'daily')], Config::$mbname),
+			'new_topics' => Lang::$txt['digest_new_topics'],
+			'topic_lines' => Lang::$txt['digest_new_topics_line'],
+			'new_replies' => Lang::$txt['digest_new_replies'],
+			'mod_actions' => Lang::$txt['digest_mod_actions'],
+			'replies_one' => Lang::$txt['digest_new_replies_one'],
+			'replies_many' => Lang::$txt['digest_new_replies_many'],
+			'sticky' => Lang::$txt['digest_mod_act_sticky'],
+			'lock' => Lang::$txt['digest_mod_act_lock'],
+			'unlock' => Lang::$txt['digest_mod_act_unlock'],
+			'remove' => Lang::$txt['digest_mod_act_remove'],
+			'move' => Lang::$txt['digest_mod_act_move'],
+			'merge' => Lang::$txt['digest_mod_act_merge'],
+			'split' => Lang::$txt['digest_mod_act_split'],
+			'bye' => sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name']),
 		);
 
 		call_integration_hook('integrate_daily_digest_lang', array(&$langtxt, $lang));
@@ -556,7 +557,7 @@ function scheduled_daily_digest()
 			$email['body'] .= "\n";
 
 		// Then just say our goodbyes!
-		$email['body'] .= "\n\n" . sprintf($txt['regards_team'], Utils::$context['forum_name']);
+		$email['body'] .= "\n\n" . sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name']);
 
 		// Send it - low priority!
 		sendmail($email['email'], $email['subject'], $email['body'], null, 'digest', false, 4);
@@ -645,18 +646,16 @@ function scheduled_weekly_digest()
  */
 function ReduceMailQueue($number = false, $override_limit = false, $force_send = false)
 {
-	global $txt;
-
 	// Are we intending another script to be sending out the queue?
 	if (!empty(Config::$modSettings['mail_queue_use_cron']) && empty($force_send))
 		return false;
 
 	// Just in case we run into a problem.
-	if (!isset($txt))
+	if (empty(Lang::$txt))
 	{
 		loadEssentialThemeData();
-		loadLanguage('Errors', Config::$language, false);
-		loadLanguage('index', Config::$language, false);
+		Lang::load('Errors', Lang::$default, false);
+		Lang::load('index', Lang::$default, false);
 	}
 
 	// By default send 5 at once.
@@ -1011,7 +1010,7 @@ function next_time($regularity, $unit, $offset)
  */
 function loadEssentialThemeData()
 {
-	global $settings, $txt;
+	global $settings;
 
 	// Get all the default theme variables.
 	$result = Db::$db->query('', '
@@ -1052,19 +1051,12 @@ function loadEssentialThemeData()
 	Utils::$context['forum_name'] = Config::$mbname;
 	Utils::$context['forum_name_html_safe'] = Utils::htmlspecialchars(Utils::$context['forum_name']);
 
-	// Check loadLanguage actually exists!
-	if (!function_exists('loadLanguage'))
-	{
-		require_once(Config::$sourcedir . '/Load.php');
-		require_once(Config::$sourcedir . '/Subs.php');
-	}
-
-	loadLanguage('index+Modifications');
+	Lang::load('index+Modifications');
 
 	// Just in case it wasn't already set elsewhere.
-	Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? $txt['lang_character_set'] : Config::$modSettings['global_character_set'];
+	Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? Lang::$txt['lang_character_set'] : Config::$modSettings['global_character_set'];
 	Utils::$context['utf8'] = Utils::$context['character_set'] === 'UTF-8';
-	Utils::$context['right_to_left'] = !empty($txt['lang_rtl']);
+	Utils::$context['right_to_left'] = !empty(Lang::$txt['lang_rtl']);
 
 	// Tell fatal_lang_error() to not reload the theme.
 	Utils::$context['theme_loaded'] = true;
@@ -1075,8 +1067,6 @@ function loadEssentialThemeData()
  */
 function scheduled_fetchSMfiles()
 {
-	global $txt;
-
 	// What files do we want to get
 	$request = Db::$db->query('', '
 		SELECT id_file, filename, path, parameters
@@ -1092,7 +1082,7 @@ function scheduled_fetchSMfiles()
 		$js_files[$row['id_file']] = array(
 			'filename' => $row['filename'],
 			'path' => $row['path'],
-			'parameters' => sprintf($row['parameters'], Config::$language, urlencode(Config::$modSettings['time_format']), urlencode(SMF_FULL_VERSION)),
+			'parameters' => sprintf($row['parameters'], Lang::$default, urlencode(Config::$modSettings['time_format']), urlencode(SMF_FULL_VERSION)),
 		);
 	}
 
@@ -1100,7 +1090,7 @@ function scheduled_fetchSMfiles()
 
 	// Just in case we run into a problem.
 	loadEssentialThemeData();
-	loadLanguage('Errors', Config::$language, false);
+	Lang::load('Errors', Lang::$default, false);
 
 	foreach ($js_files as $ID_FILE => $file)
 	{
@@ -1114,8 +1104,8 @@ function scheduled_fetchSMfiles()
 		// If we got an error - give up - the site might be down. And if we should happen to be coming from elsewhere, let's also make a note of it.
 		if ($file_data === false)
 		{
-			Utils::$context['scheduled_errors']['fetchSMfiles'][] = sprintf($txt['st_cannot_retrieve_file'], $url);
-			log_error(sprintf($txt['st_cannot_retrieve_file'], $url));
+			Utils::$context['scheduled_errors']['fetchSMfiles'][] = sprintf(Lang::$txt['st_cannot_retrieve_file'], $url);
+			log_error(sprintf(Lang::$txt['st_cannot_retrieve_file'], $url));
 			return false;
 		}
 
@@ -1427,7 +1417,7 @@ function scheduled_paid_subscriptions()
 			'END_DATE' => strip_tags(timeformat($row['end_time'])),
 		);
 
-		$emaildata = loadEmailTemplate('paid_subscription_reminder', $replacements, empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $row['lngfile']);
+		$emaildata = loadEmailTemplate('paid_subscription_reminder', $replacements, empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile']);
 
 		// Send the actual email.
 		if ($notifyPrefs[$row['id_member']] & 0x02)
@@ -1484,8 +1474,6 @@ function scheduled_paid_subscriptions()
  */
 function scheduled_remove_temp_attachments()
 {
-	global $txt;
-
 	// We need to know where this thing is going.
 	if (!empty(Config::$modSettings['currentAttachmentUploadDir']))
 	{
@@ -1506,9 +1494,9 @@ function scheduled_remove_temp_attachments()
 		if (!$dir)
 		{
 			loadEssentialThemeData();
-			loadLanguage('Post');
-			Utils::$context['scheduled_errors']['remove_temp_attachments'][] = $txt['cant_access_upload_path'] . ' (' . $attach_dir . ')';
-			log_error($txt['cant_access_upload_path'] . ' (' . $attach_dir . ')', 'critical');
+			Lang::load('Post');
+			Utils::$context['scheduled_errors']['remove_temp_attachments'][] = Lang::$txt['cant_access_upload_path'] . ' (' . $attach_dir . ')';
+			log_error(Lang::$txt['cant_access_upload_path'] . ' (' . $attach_dir . ')', 'critical');
 			return false;
 		}
 

@@ -16,6 +16,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -32,7 +33,7 @@ if (!defined('SMF'))
  */
 function ViewErrorLog()
 {
-	global $txt, $user_profile, $filter;
+	global $user_profile, $filter;
 
 	// Viewing contents of a file?
 	if (isset($_GET['file']))
@@ -46,48 +47,48 @@ function ViewErrorLog()
 	isAllowedTo('admin_forum');
 
 	// Templates, etc...
-	loadLanguage('ManageMaintenance');
+	Lang::load('ManageMaintenance');
 	loadTemplate('Errors');
 
 	// You can filter by any of the following columns:
 	$filters = array(
 		'id_member' => array(
-			'txt' => $txt['username'],
+			'txt' => Lang::$txt['username'],
 			'operator' => '=',
 			'datatype' => 'int',
 		),
 		'ip' => array(
-			'txt' => $txt['ip_address'],
+			'txt' => Lang::$txt['ip_address'],
 			'operator' => '=',
 			'datatype' => 'inet',
 		),
 		'session' => array(
-			'txt' => $txt['session'],
+			'txt' => Lang::$txt['session'],
 			'operator' => 'LIKE',
 			'datatype' => 'string',
 		),
 		'url' => array(
-			'txt' => $txt['error_url'],
+			'txt' => Lang::$txt['error_url'],
 			'operator' => 'LIKE',
 			'datatype' => 'string',
 		),
 		'message' => array(
-			'txt' => $txt['error_message'],
+			'txt' => Lang::$txt['error_message'],
 			'operator' => 'LIKE',
 			'datatype' => 'string',
 		),
 		'error_type' => array(
-			'txt' => $txt['error_type'],
+			'txt' => Lang::$txt['error_type'],
 			'operator' => 'LIKE',
 			'datatype' => 'string',
 		),
 		'file' => array(
-			'txt' => $txt['file'],
+			'txt' => Lang::$txt['file'],
 			'operator' => 'LIKE',
 			'datatype' => 'string',
 		),
 		'line' => array(
-			'txt' => $txt['line'],
+			'txt' => Lang::$txt['line'],
 			'operator' => '=',
 			'datatype' => 'int',
 		),
@@ -195,7 +196,7 @@ function ViewErrorLog()
 			'id' => $row['id_error'],
 			'error_type' => array(
 				'type' => $row['error_type'],
-				'name' => isset($txt['errortype_' . $row['error_type']]) ? $txt['errortype_' . $row['error_type']] : $row['error_type'],
+				'name' => isset(Lang::$txt['errortype_' . $row['error_type']]) ? Lang::$txt['errortype_' . $row['error_type']] : $row['error_type'],
 			),
 			'file' => array(),
 		);
@@ -240,7 +241,7 @@ function ViewErrorLog()
 		$members[0] = array(
 			'id_member' => 0,
 			'member_name' => '',
-			'real_name' => $txt['guest_title']
+			'real_name' => Lang::$txt['guest_title']
 		);
 
 		// Go through each error and tack the data on.
@@ -250,7 +251,7 @@ function ViewErrorLog()
 			Utils::$context['errors'][$id]['member']['username'] = $members[$memID]['member_name'];
 			Utils::$context['errors'][$id]['member']['name'] = $members[$memID]['real_name'];
 			Utils::$context['errors'][$id]['member']['href'] = empty($memID) ? '' : Config::$scripturl . '?action=profile;u=' . $memID;
-			Utils::$context['errors'][$id]['member']['link'] = empty($memID) ? $txt['guest_title'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $memID . '">' . Utils::$context['errors'][$id]['member']['name'] . '</a>';
+			Utils::$context['errors'][$id]['member']['link'] = empty($memID) ? Lang::$txt['guest_title'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $memID . '">' . Utils::$context['errors'][$id]['member']['name'] . '</a>';
 		}
 	}
 
@@ -264,7 +265,7 @@ function ViewErrorLog()
 		{
 			$id = $filter['value']['sql'];
 			loadMemberData($id, false, 'minimal');
-			Utils::$context['filter']['value']['html'] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $id . '">' . (isset($user_profile[$id]['real_name']) ? $user_profile[$id]['real_name'] : $txt['guest']) . '</a>';
+			Utils::$context['filter']['value']['html'] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $id . '">' . (isset($user_profile[$id]['real_name']) ? $user_profile[$id]['real_name'] : Lang::$txt['guest']) . '</a>';
 		}
 		elseif ($filter['variable'] == 'url')
 			Utils::$context['filter']['value']['html'] = '\'' . strtr(Utils::htmlspecialchars((substr($filter['value']['sql'], 0, 1) == '?' ? Config::$scripturl : '') . $filter['value']['sql']), array('\_' => '_')) . '\'';
@@ -284,9 +285,9 @@ function ViewErrorLog()
 	Utils::$context['error_types'] = array();
 
 	Utils::$context['error_types']['all'] = array(
-		'label' => $txt['errortype_all'],
+		'label' => Lang::$txt['errortype_all'],
 		'error_type' => 'all',
-		'description' => isset($txt['errortype_all_desc']) ? $txt['errortype_all_desc'] : '',
+		'description' => isset(Lang::$txt['errortype_all_desc']) ? Lang::$txt['errortype_all_desc'] : '',
 		'url' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog' . (Utils::$context['sort_direction'] == 'down' ? ';desc' : ''),
 		'is_selected' => empty($filter),
 	);
@@ -308,9 +309,9 @@ function ViewErrorLog()
 		$sum += $row['num_errors'];
 
 		Utils::$context['error_types'][$sum] = array(
-			'label' => (isset($txt['errortype_' . $row['error_type']]) ? $txt['errortype_' . $row['error_type']] : $row['error_type']) . ' (' . $row['num_errors'] . ')',
+			'label' => (isset(Lang::$txt['errortype_' . $row['error_type']]) ? Lang::$txt['errortype_' . $row['error_type']] : $row['error_type']) . ' (' . $row['num_errors'] . ')',
 			'error_type' => $row['error_type'],
-			'description' => isset($txt['errortype_' . $row['error_type'] . '_desc']) ? $txt['errortype_' . $row['error_type'] . '_desc'] : '',
+			'description' => isset(Lang::$txt['errortype_' . $row['error_type'] . '_desc']) ? Lang::$txt['errortype_' . $row['error_type'] . '_desc'] : '',
 			'url' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog' . (Utils::$context['sort_direction'] == 'down' ? ';desc' : '') . ';filter=error_type;value=' . $row['error_type'],
 			'is_selected' => isset($filter) && $filter['value']['sql'] == Db::$db->escape_wildcard_string($row['error_type']),
 		);
@@ -327,7 +328,7 @@ function ViewErrorLog()
 		Utils::$context['error_types']['all']['is_last'] = true;
 
 	// And this is pretty basic ;).
-	Utils::$context['page_title'] = $txt['errorlog'];
+	Utils::$context['page_title'] = Lang::$txt['errorlog'];
 	Utils::$context['has_filter'] = isset($filter);
 	Utils::$context['sub_template'] = 'error_log';
 
@@ -473,7 +474,7 @@ function ViewBacktrace()
 
 	loadCSSFile('admin.css', array(), 'smf_admin');
 	loadTemplate('Errors');
-	loadLanguage('ManageMaintenance');
+	Lang::load('ManageMaintenance');
 	Utils::$context['template_layers'] = array();
 	Utils::$context['sub_template'] = 'show_backtrace';
 

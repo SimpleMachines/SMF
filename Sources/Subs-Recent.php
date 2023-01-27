@@ -15,6 +15,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -71,8 +72,8 @@ function getLastPosts($latestPostOptions)
 	foreach ($rows as $row)
 	{
 		// Censor the subject and post for the preview ;).
-		censorText($row['subject']);
-		censorText($row['body']);
+		Lang::censorText($row['subject']);
+		Lang::censorText($row['body']);
 
 		$row['body'] = strip_tags(strtr(BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']), array('<br>' => '&#10;')));
 		if (Utils::entityStrlen($row['body']) > 128)

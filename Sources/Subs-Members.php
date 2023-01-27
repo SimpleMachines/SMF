@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -438,10 +439,9 @@ function deleteMembers($users, $check_not_admin = false)
  */
 function registerMember(&$regOptions, $return_errors = false)
 {
-	global $txt;
 	global $user_info;
 
-	loadLanguage('Login');
+	Lang::load('Login');
 
 	// We'll need some external functions.
 	require_once(Config::$sourcedir . '/Subs-Auth.php');
@@ -521,7 +521,7 @@ function registerMember(&$regOptions, $return_errors = false)
 
 	// You may not be allowed to register this email.
 	if (!empty($regOptions['check_email_ban']))
-		isBannedEmail($regOptions['email'], 'cannot_register', $txt['ban_register_prohibited']);
+		isBannedEmail($regOptions['email'], 'cannot_register', Lang::$txt['ban_register_prohibited']);
 
 	// Check if the email address is in use.
 	$request = Db::$db->query('', '
@@ -553,8 +553,8 @@ function registerMember(&$regOptions, $return_errors = false)
 			2 = Whether to log.
 			3 = sprintf data if necessary. */
 		if ($error[0] == 'lang')
-			loadLanguage('Errors');
-		$message = $error[0] == 'lang' ? (empty($error[3]) ? $txt[$error[1]] : vsprintf($txt[$error[1]], (array) $error[3])) : $error[1];
+			Lang::load('Errors');
+		$message = $error[0] == 'lang' ? (empty($error[3]) ? Lang::$txt[$error[1]] : vsprintf(Lang::$txt[$error[1]], (array) $error[3])) : $error[1];
 
 		// What to do, what to do, what to do.
 		if ($return_errors)
@@ -906,7 +906,7 @@ function isReservedName($name, $current_id_member = 0, $is_name = true, $fatal =
 		}
 
 		$censor_name = $name;
-		if (censorText($censor_name) != $name)
+		if (Lang::censorText($censor_name) != $name)
 			if ($fatal)
 				fatal_lang_error('name_censored', 'password', array($name));
 			else

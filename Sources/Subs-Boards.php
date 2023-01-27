@@ -16,6 +16,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -457,7 +458,7 @@ function getMsgMemberID($messageID)
  */
 function modifyBoard($board_id, &$boardOptions)
 {
-	global $cat_tree, $boards, $txt;
+	global $cat_tree, $boards;
 
 	// Get some basic information about all boards and categories.
 	getBoardTree();
@@ -530,8 +531,8 @@ function modifyBoard($board_id, &$boardOptions)
 		// Oops...?
 		else
 		{
-			loadLanguage('Errors');
-			trigger_error(sprintf($txt['modify_board_incorrect_move_to'], $boardOptions['move_to']), E_USER_ERROR);
+			Lang::load('Errors');
+			trigger_error(sprintf(Lang::$txt['modify_board_incorrect_move_to'], $boardOptions['move_to']), E_USER_ERROR);
 		}
 
 		// Get a list of children of this board.
@@ -877,19 +878,19 @@ function modifyBoard($board_id, &$boardOptions)
  */
 function createBoard($boardOptions)
 {
-	global $boards, $txt;
+	global $boards;
 
 	// Trigger an error if one of the required values is not set.
 	if (!isset($boardOptions['board_name']) || trim($boardOptions['board_name']) == '' || !isset($boardOptions['move_to']) || !isset($boardOptions['target_category']))
 	{
-		loadLanguage('Errors');
-		trigger_error($txt['create_board_missing_options'], E_USER_ERROR);
+		Lang::load('Errors');
+		trigger_error(Lang::$txt['create_board_missing_options'], E_USER_ERROR);
 	}
 
 	if (in_array($boardOptions['move_to'], array('child', 'before', 'after')) && !isset($boardOptions['target_board']))
 	{
-		loadLanguage('Errors');
-		trigger_error($txt['move_board_no_target'], E_USER_ERROR);
+		Lang::load('Errors');
+		trigger_error(Lang::$txt['move_board_no_target'], E_USER_ERROR);
 	}
 
 	// Set every optional value to its default value.
@@ -1318,8 +1319,6 @@ function sortCategories(array &$categories)
  */
 function getBoardModerators(array $boards)
 {
-	global $txt;
-
 	if (empty($boards))
 		return array();
 
@@ -1342,7 +1341,7 @@ function getBoardModerators(array $boards)
 			'id' => $row['id_member'],
 			'name' => $row['real_name'],
 			'href' => Config::$scripturl . '?action=profile;u=' . $row['id_member'],
-			'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '" title="' . $txt['board_moderator'] . '">' . $row['real_name'] . '</a>',
+			'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '" title="' . Lang::$txt['board_moderator'] . '">' . $row['real_name'] . '</a>',
 		);
 	}
 	Db::$db->free_result($request);
@@ -1358,8 +1357,6 @@ function getBoardModerators(array $boards)
  */
 function getBoardModeratorGroups(array $boards)
 {
-	global $txt;
-
 	if (empty($boards))
 		return array();
 
@@ -1382,7 +1379,7 @@ function getBoardModeratorGroups(array $boards)
 			'id' => $row['id_group'],
 			'name' => $row['group_name'],
 			'href' => Config::$scripturl . '?action=groups;sa=members;group=' . $row['id_group'],
-			'link' => '<a href="' . Config::$scripturl . '?action=groups;sa=members;group=' . $row['id_group'] . '" title="' . $txt['board_moderator'] . '">' . $row['group_name'] . '</a>',
+			'link' => '<a href="' . Config::$scripturl . '?action=groups;sa=members;group=' . $row['id_group'] . '" title="' . Lang::$txt['board_moderator'] . '">' . $row['group_name'] . '</a>',
 		);
 	}
 

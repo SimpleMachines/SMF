@@ -15,6 +15,7 @@ namespace SMF\PackageManager;
 
 use SMF\BackwardCompatibility;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -117,7 +118,7 @@ class SubsPackage
 	public static function read_tgz_data($data, $destination, $single_file = false, $overwrite = false, $files_to_extract = null)
 	{
 		// Make sure we have this loaded.
-		loadLanguage('Packages');
+		Lang::load('Packages');
 
 		// This function sorta needs gzinflate!
 		if (!function_exists('gzinflate'))
@@ -548,14 +549,12 @@ class SubsPackage
 	 */
 	public static function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $restore_write_status = false)
 	{
-		global $txt;
-
 		// If we're restoring the status of existing files prepare the data.
 		if ($restore_write_status && isset($_SESSION['pack_ftp']) && !empty($_SESSION['pack_ftp']['original_perms']))
 		{
 			$listOptions = array(
 				'id' => 'restore_file_permissions',
-				'title' => $txt['package_restore_permissions'],
+				'title' => Lang::$txt['package_restore_permissions'],
 				'get_items' => array(
 					'function' => array(__CLASS__, 'list_restoreFiles'),
 					'params' => array(
@@ -565,7 +564,7 @@ class SubsPackage
 				'columns' => array(
 					'path' => array(
 						'header' => array(
-							'value' => $txt['package_restore_permissions_filename'],
+							'value' => Lang::$txt['package_restore_permissions_filename'],
 						),
 						'data' => array(
 							'db' => 'path',
@@ -574,7 +573,7 @@ class SubsPackage
 					),
 					'old_perms' => array(
 						'header' => array(
-							'value' => $txt['package_restore_permissions_orig_status'],
+							'value' => Lang::$txt['package_restore_permissions_orig_status'],
 						),
 						'data' => array(
 							'db' => 'old_perms',
@@ -583,12 +582,12 @@ class SubsPackage
 					),
 					'cur_perms' => array(
 						'header' => array(
-							'value' => $txt['package_restore_permissions_cur_status'],
+							'value' => Lang::$txt['package_restore_permissions_cur_status'],
 						),
 						'data' => array(
-							'function' => function($rowData) use ($txt)
+							'function' => function($rowData)
 							{
-								$formatTxt = $rowData['result'] == '' || $rowData['result'] == 'skipped' ? $txt['package_restore_permissions_pre_change'] : $txt['package_restore_permissions_post_change'];
+								$formatTxt = $rowData['result'] == '' || $rowData['result'] == 'skipped' ? Lang::$txt['package_restore_permissions_pre_change'] : Lang::$txt['package_restore_permissions_post_change'];
 								return sprintf($formatTxt, $rowData['cur_perms'], $rowData['new_perms'], $rowData['writable_message']);
 							},
 							'class' => 'smalltext',
@@ -611,12 +610,12 @@ class SubsPackage
 					),
 					'result' => array(
 						'header' => array(
-							'value' => $txt['package_restore_permissions_result'],
+							'value' => Lang::$txt['package_restore_permissions_result'],
 						),
 						'data' => array(
-							'function' => function($rowData) use ($txt)
+							'function' => function($rowData)
 							{
-								return $txt['package_restore_permissions_action_' . $rowData['result']];
+								return Lang::$txt['package_restore_permissions_action_' . $rowData['result']];
 							},
 							'class' => 'smalltext',
 						),
@@ -628,12 +627,12 @@ class SubsPackage
 				'additional_rows' => array(
 					array(
 						'position' => 'below_table_data',
-						'value' => '<input type="submit" name="restore_perms" value="' . $txt['package_restore_permissions_restore'] . '" class="button">',
+						'value' => '<input type="submit" name="restore_perms" value="' . Lang::$txt['package_restore_permissions_restore'] . '" class="button">',
 						'class' => 'titlebg',
 					),
 					array(
 						'position' => 'after_title',
-						'value' => '<span class="smalltext">' . $txt['package_restore_permissions_desc'] . '</span>',
+						'value' => '<span class="smalltext">' . Lang::$txt['package_restore_permissions_desc'] . '</span>',
 						'class' => 'windowbg',
 					),
 				),
@@ -642,7 +641,7 @@ class SubsPackage
 			// Work out what columns and the like to show.
 			if (!empty($_POST['restore_perms']))
 			{
-				$listOptions['additional_rows'][1]['value'] = sprintf($txt['package_restore_permissions_action_done'], Config::$scripturl . '?action=admin;area=packages;sa=perms;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+				$listOptions['additional_rows'][1]['value'] = sprintf(Lang::$txt['package_restore_permissions_action_done'], Config::$scripturl . '?action=admin;area=packages;sa=perms;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 				unset($listOptions['columns']['check'], $listOptions['form'], $listOptions['additional_rows'][0]);
 
 				Utils::$context['sub_template'] = 'show_list';
@@ -780,7 +779,7 @@ class SubsPackage
 			// Sent here to die?
 			if (!empty($chmodOptions['crash_on_error']))
 			{
-				Utils::$context['page_title'] = $txt['package_ftp_necessary'];
+				Utils::$context['page_title'] = Lang::$txt['package_ftp_necessary'];
 				Utils::$context['sub_template'] = 'ftp_required';
 				obExit();
 			}
@@ -799,8 +798,6 @@ class SubsPackage
 	 */
 	public static function list_restoreFiles($dummy1, $dummy2, $dummy3, $do_change)
 	{
-		global $txt;
-
 		$restore_files = array();
 		foreach ($_SESSION['pack_ftp']['original_perms'] as $file => $perms)
 		{
@@ -843,7 +840,7 @@ class SubsPackage
 				'cur_perms' => substr(sprintf('%o', $file_permissions), -4),
 				'new_perms' => isset($new_permissions) ? substr(sprintf('%o', $new_permissions), -4) : '',
 				'result' => isset($result) ? $result : '',
-				'writable_message' => '<span style="color: ' . (@is_writable($file) ? 'green' : 'red') . '">' . (@is_writable($file) ? $txt['package_file_perms_writable'] : $txt['package_file_perms_not_writable']) . '</span>',
+				'writable_message' => '<span style="color: ' . (@is_writable($file) ? 'green' : 'red') . '">' . (@is_writable($file) ? Lang::$txt['package_file_perms_writable'] : Lang::$txt['package_file_perms_not_writable']) . '</span>',
 			);
 		}
 
@@ -860,8 +857,6 @@ class SubsPackage
 	 */
 	public static function packageRequireFTP($destination_url, $files = null, $return = false)
 	{
-		global $txt;
-
 		// Try to make them writable the manual way.
 		if ($files !== null)
 		{
@@ -1009,7 +1004,7 @@ class SubsPackage
 			if ($return)
 				return $files;
 
-			Utils::$context['page_title'] = $txt['package_ftp_necessary'];
+			Utils::$context['page_title'] = Lang::$txt['package_ftp_necessary'];
 			Utils::$context['sub_template'] = 'ftp_required';
 			obExit();
 		}
@@ -1647,7 +1642,7 @@ class SubsPackage
 	 */
 	public static function parse_path($path)
 	{
-		global $settings, $txt;
+		global $settings;
 
 		$dirs = array(
 			'\\' => '/',
@@ -1670,8 +1665,8 @@ class SubsPackage
 
 		if (strlen($path) == 0)
 		{
-			loadLanguage('Errors');
-			trigger_error($txt['parse_path_filename_required'], E_USER_ERROR);
+			Lang::load('Errors');
+			trigger_error(Lang::$txt['parse_path_filename_required'], E_USER_ERROR);
 		}
 
 		return strtr($path, $dirs);
@@ -1909,8 +1904,6 @@ class SubsPackage
 	 */
 	public static function parseModification($file, $testing = true, $undo = false, $theme_paths = array())
 	{
-		global $txt;
-
 		@set_time_limit(600);
 		$xml = new XmlArray(strtr($file, array("\r" => '')));
 		$actions = array();
@@ -1921,7 +1914,7 @@ class SubsPackage
 			$actions[] = array(
 				'type' => 'error',
 				'filename' => '-',
-				'debug' => $txt['package_modification_malformed']
+				'debug' => Lang::$txt['package_modification_malformed']
 			);
 			return $actions;
 		}
@@ -1997,8 +1990,8 @@ class SubsPackage
 			{
 				if ($working_file[0] != '/' && $working_file[1] != ':')
 				{
-					loadLanguage('Errors');
-					trigger_error(sprintf($txt['parse_modification_filename_not_full_path'], $working_file), E_USER_WARNING);
+					Lang::load('Errors');
+					trigger_error(sprintf(Lang::$txt['parse_modification_filename_not_full_path'], $working_file), E_USER_WARNING);
 
 					$working_file = Config::$boarddir . '/' . $working_file;
 				}
@@ -2009,7 +2002,7 @@ class SubsPackage
 					$actions[] = array(
 						'type' => 'missing',
 						'filename' => $working_file,
-						'debug' => $txt['package_modification_missing']
+						'debug' => Lang::$txt['package_modification_missing']
 					);
 
 					$everything_found = false;
@@ -2291,7 +2284,7 @@ class SubsPackage
 	 */
 	public static function parseBoardMod($file, $testing = true, $undo = false, $theme_paths = array())
 	{
-		global $settings, $txt;
+		global $settings;
 
 		@set_time_limit(600);
 		$file = strtr($file, array("\r" => ''));
@@ -2432,8 +2425,8 @@ class SubsPackage
 
 				if ($working_file[0] != '/' && $working_file[1] != ':')
 				{
-					loadLanguage('Errors');
-					trigger_error(sprintf($txt['parse_boardmod_filename_not_full_path'], $working_file), E_USER_WARNING);
+					Lang::load('Errors');
+					trigger_error(sprintf(Lang::$txt['parse_boardmod_filename_not_full_path'], $working_file), E_USER_WARNING);
 
 					$working_file = Config::$boarddir . '/' . $working_file;
 				}
@@ -2690,8 +2683,6 @@ class SubsPackage
 	 */
 	public static function package_flush_cache($trash = false)
 	{
-		global $txt;
-
 		static $text_filetypes = array('php', 'txt', '.js', 'css', 'vbs', 'tml', 'htm');
 
 		if (empty(self::$package_cache))
@@ -2719,8 +2710,8 @@ class SubsPackage
 				if (!$fp)
 				{
 					// We should have package_chmod()'d them before, no?!
-					loadLanguage('Errors');
-					trigger_error($txt['package_flush_cache_not_writable'], E_USER_WARNING);
+					Lang::load('Errors');
+					trigger_error(Lang::$txt['package_flush_cache_not_writable'], E_USER_WARNING);
 					return;
 				}
 				fclose($fp);

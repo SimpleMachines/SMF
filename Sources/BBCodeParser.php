@@ -228,8 +228,8 @@ class BBCodeParser
 	 *	  $1 is replaced with the content of the tag.  Parameters
 	 *	  are replaced in the form {param}.  For unparsed_commas_content,
 	 *	  $2, $3, ..., $n are replaced. The form {txt_*} can be used to
-	 *    insert $txt strings, e.g. {txt_code} will be replaced with the
-	 *    value of $txt['code'].
+	 *    insert Lang::$txt strings, e.g. {txt_code} will be replaced with
+	 *    the value of Lang::$txt['code'].
 	 *
 	 *	before: Only when content is not used, to go before any
 	 *	  content.  For unparsed_equals, $1 is replaced with the value.
@@ -1074,7 +1074,7 @@ class BBCodeParser
 	 */
 	public function __construct()
 	{
-		global $txt, $user_info;
+		global $user_info;
 
 		/**********************
 		 * Set up localization.
@@ -1086,13 +1086,13 @@ class BBCodeParser
 		}
 		else
 		{
-			$this->encoding = !empty(Config::$modSettings['global_character_set']) ? Config::$modSettings['global_character_set'] : (!empty($txt['lang_character_set']) ? $txt['lang_character_set'] : $this->encoding);
+			$this->encoding = !empty(Config::$modSettings['global_character_set']) ? Config::$modSettings['global_character_set'] : (!empty(Lang::$txt['lang_character_set']) ? Lang::$txt['lang_character_set'] : $this->encoding);
 
 			$this->utf8 = $this->encoding === 'UTF-8';
 		}
 
-		if (!empty($txt['lang_locale']))
-			$this->locale = $txt['lang_locale'];
+		if (!empty(Lang::$txt['lang_locale']))
+			$this->locale = Lang::$txt['lang_locale'];
 
 		$this->time_offset = $user_info['time_offset'];
 		$this->time_format = $user_info['time_format'];
@@ -1262,8 +1262,6 @@ class BBCodeParser
 	 */
 	public function parseSmileys(string $message): string
 	{
-		global $txt;
-
 		if ($this->smiley_set == 'none' || trim($message) == '')
 			return $message;
 
@@ -1296,7 +1294,7 @@ class BBCodeParser
 				{
 					$smileysfrom[] = $row['code'];
 					$smileysto[] = Utils::htmlspecialchars($row['filename']);
-					$smileysdescs[] = !empty($txt['icon_' . strtolower($row['description'])]) ? $txt['icon_' . strtolower($row['description'])] : $row['description'];
+					$smileysdescs[] = !empty(Lang::$txt['icon_' . strtolower($row['description'])]) ? Lang::$txt['icon_' . strtolower($row['description'])] : $row['description'];
 				}
 				Db::$db->free_result($result);
 
@@ -2478,8 +2476,6 @@ class BBCodeParser
 	 */
 	public static function attachValidate(&$tag, &$data, $disabled, $params): void
 	{
-		global $txt;
-
 		$return_context = '';
 
 		// BBC or the entire attachments feature is disabled
@@ -2494,10 +2490,10 @@ class BBCodeParser
 
 		$current_attachment = parseAttachBBC($attach_id);
 
-		// parseAttachBBC will return a string ($txt key) rather than dying with a fatal_error. Up to you to decide what to do.
+		// parseAttachBBC will return a string (Lang::$txt key) rather than dying with a fatal_error. Up to you to decide what to do.
 		if (is_string($current_attachment))
 		{
-			$data = '<span style="display:inline-block" class="errorbox">' . (!empty($txt[$current_attachment]) ? $txt[$current_attachment] : $current_attachment)  . '</span>';
+			$data = '<span style="display:inline-block" class="errorbox">' . (!empty(Lang::$txt[$current_attachment]) ? Lang::$txt[$current_attachment] : $current_attachment)  . '</span>';
 
 			return;
 		}
@@ -3701,10 +3697,10 @@ class BBCodeParser
 	}
 
 	/**
-	 * Replaces {txt_*} tokens with $txt strings.
+	 * Replaces {txt_*} tokens with Lang::$txt strings.
 	 *
 	 * @param string $data A string that might contain {txt_*} tokens.
-	 * @return string The string with $txt string values.
+	 * @return string The string with Lang::$txt string values.
 	 */
 	protected function insertTxt(string $string): string
 	{
@@ -3712,8 +3708,6 @@ class BBCodeParser
 			'/{(.*?)}/',
 			function ($matches)
 			{
-				global $txt;
-
 				if ($matches[0] === '{scripturl}')
 				{
 					return Config::$scripturl;
@@ -3728,9 +3722,9 @@ class BBCodeParser
 
 					return $this->hosturl;
 				}
-				elseif (strpos($matches[1], 'txt_') === 0 && isset($txt[substr($matches[1], 4)]))
+				elseif (strpos($matches[1], 'txt_') === 0 && isset(Lang::$txt[substr($matches[1], 4)]))
 				{
-					return $txt[substr($matches[1], 4)];
+					return Lang::$txt[substr($matches[1], 4)];
 				}
 				else
 				{
@@ -4297,7 +4291,7 @@ class BBCodeParser
 	 */
 	protected function transformToHtml(array $tag, array $params): void
 	{
-		// Insert $txt strings into the HTML output.
+		// Insert Lang::$txt strings into the HTML output.
 		foreach (array('content', 'before', 'after') as $key)
 		{
 			if (isset($tag[$key]))

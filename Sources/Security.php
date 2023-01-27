@@ -15,6 +15,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -101,7 +102,7 @@ function validateSession($type = 'admin', $force = false)
  */
 function is_not_guest($message = '')
 {
-	global $user_info, $txt;
+	global $user_info;
 
 	// Luckily, this person isn't a guest.
 	if (!$user_info['is_guest'])
@@ -125,7 +126,7 @@ function is_not_guest($message = '')
 		$_SESSION['login_url'] = $_SERVER['REQUEST_URL'];
 
 	// Load the Login template and language file.
-	loadLanguage('Login');
+	Lang::load('Login');
 
 	// Apparently we're not in a position to handle this now. Let's go to a safer location for now.
 	if (empty(Utils::$context['template_layers']))
@@ -142,7 +143,7 @@ function is_not_guest($message = '')
 
 	// Use the kick_guest sub template...
 	Utils::$context['kick_message'] = $message;
-	Utils::$context['page_title'] = $txt['login'];
+	Utils::$context['page_title'] = Lang::$txt['login'];
 
 	obExit();
 
@@ -159,7 +160,7 @@ function is_not_guest($message = '')
  */
 function is_not_banned($forceCheck = false)
 {
-	global $txt, $user_info;
+	global $user_info;
 	global $user_settings;
 
 	// You cannot be banned if you are an admin - doesn't help if you log out.
@@ -319,7 +320,7 @@ function is_not_banned($forceCheck = false)
 			die();
 
 		// 'Log' the user out.  Can't have any funny business... (save the name!)
-		$old_name = isset($user_info['name']) && $user_info['name'] != '' ? $user_info['name'] : $txt['guest_title'];
+		$old_name = isset($user_info['name']) && $user_info['name'] != '' ? $user_info['name'] : Lang::$txt['guest_title'];
 		$user_info['name'] = '';
 		$user_info['username'] = '';
 		$user_info['is_guest'] = true;
@@ -329,7 +330,7 @@ function is_not_banned($forceCheck = false)
 		Utils::$context['user'] = array(
 			'id' => 0,
 			'username' => '',
-			'name' => $txt['guest_title'],
+			'name' => Lang::$txt['guest_title'],
 			'is_guest' => true,
 			'is_logged' => false,
 			'is_admin' => false,
@@ -352,7 +353,7 @@ function is_not_banned($forceCheck = false)
 		Logout(true, false);
 
 		// You banned, sucka!
-		fatal_error(sprintf($txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_access']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_access']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf($txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : $txt['your_ban_expires_never']), false, 403);
+		fatal_error(sprintf(Lang::$txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_access']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_access']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf(Lang::$txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : Lang::$txt['your_ban_expires_never']), false, 403);
 
 		// If we get here, something's gone wrong.... but let's try anyway.
 		trigger_error('No direct access...', E_USER_ERROR);
@@ -370,7 +371,7 @@ function is_not_banned($forceCheck = false)
 		);
 
 		// 'Log' the user out.  Can't have any funny business... (save the name!)
-		$old_name = isset($user_info['name']) && $user_info['name'] != '' ? $user_info['name'] : $txt['guest_title'];
+		$old_name = isset($user_info['name']) && $user_info['name'] != '' ? $user_info['name'] : Lang::$txt['guest_title'];
 		$user_info['name'] = '';
 		$user_info['username'] = '';
 		$user_info['is_guest'] = true;
@@ -380,7 +381,7 @@ function is_not_banned($forceCheck = false)
 		Utils::$context['user'] = array(
 			'id' => 0,
 			'username' => '',
-			'name' => $txt['guest_title'],
+			'name' => Lang::$txt['guest_title'],
 			'is_guest' => true,
 			'is_logged' => false,
 			'is_admin' => false,
@@ -398,7 +399,7 @@ function is_not_banned($forceCheck = false)
 		require_once(Config::$sourcedir . '/LogInOut.php');
 		Logout(true, false);
 
-		fatal_error(sprintf($txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_login']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_login']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf($txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : $txt['your_ban_expires_never']) . '<br>' . $txt['ban_continue_browse'], false, 403);
+		fatal_error(sprintf(Lang::$txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_login']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_login']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf(Lang::$txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : Lang::$txt['your_ban_expires_never']) . '<br>' . Lang::$txt['ban_continue_browse'], false, 403);
 	}
 
 	// Fix up the banning permissions.
@@ -541,8 +542,6 @@ function log_ban($ban_ids = array(), $email = null)
  */
 function isBannedEmail($email, $restriction, $error)
 {
-	global $txt;
-
 	// Can't ban an empty email
 	if (empty($email) || trim($email) == '')
 		return;
@@ -586,7 +585,7 @@ function isBannedEmail($email, $restriction, $error)
 		log_ban($_SESSION['ban']['cannot_access']['ids']);
 		$_SESSION['ban']['last_checked'] = time();
 
-		fatal_error(sprintf($txt['your_ban'], $txt['guest_title']) . $_SESSION['ban']['cannot_access']['reason'], false);
+		fatal_error(sprintf(Lang::$txt['your_ban'], Lang::$txt['guest_title']) . $_SESSION['ban']['cannot_access']['reason'], false);
 	}
 
 	if (!empty($ban_ids))
@@ -844,8 +843,6 @@ function cleanTokens($complete = false)
  */
 function checkSubmitOnce($action, $is_fatal = true)
 {
-	global $txt;
-
 	if (!isset($_SESSION['forms']))
 		$_SESSION['forms'] = array();
 
@@ -876,8 +873,8 @@ function checkSubmitOnce($action, $is_fatal = true)
 		$_SESSION['forms'] = array_diff($_SESSION['forms'], array($_REQUEST['seqnum']));
 	elseif ($action != 'free')
 	{
-		loadLanguage('Errors');
-		trigger_error(sprintf($txt['check_submit_once_invalid_action'], $action), E_USER_WARNING);
+		Lang::load('Errors');
+		trigger_error(sprintf(Lang::$txt['check_submit_once_invalid_action'], $action), E_USER_WARNING);
 	}
 }
 
@@ -994,7 +991,7 @@ function allowedTo($permission, $boards = null, $any = false)
  * Uses allowedTo() to check if the user is allowed to do permission.
  * Checks the passed boards or current board for the permission.
  * If $any is true, the user only needs permission on at least one of the boards to pass
- * If they are not, it loads the Errors language file and shows an error using $txt['cannot_' . $permission].
+ * If they are not, it loads the Errors language file and shows an error using Lang::$txt['cannot_' . $permission].
  * If they are a guest and cannot do it, this calls is_not_guest().
  *
  * @param string|array $permission A single permission to check or an array of permissions to check
@@ -1003,7 +1000,7 @@ function allowedTo($permission, $boards = null, $any = false)
  */
 function isAllowedTo($permission, $boards = null, $any = false)
 {
-	global $user_info, $txt;
+	global $user_info;
 
 	$heavy_permissions = array(
 		'admin_forum',
@@ -1031,8 +1028,8 @@ function isAllowedTo($permission, $boards = null, $any = false)
 		// If they are a guest, show a login. (because the error might be gone if they do!)
 		if ($user_info['is_guest'])
 		{
-			loadLanguage('Errors');
-			is_not_guest($txt['cannot_' . $error_permission]);
+			Lang::load('Errors');
+			is_not_guest(Lang::$txt['cannot_' . $error_permission]);
 		}
 
 		// Clear the action because they aren't really doing that!
@@ -1163,7 +1160,7 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
  * This function attempts to protect from spammed messages and the like.
  * The time taken depends on error_type - generally uses the modSetting.
  *
- * @param string $error_type The error type. Also used as a $txt index (not an actual string).
+ * @param string $error_type The error type. Also used as a Lang::$txt index (not an actual string).
  * @param boolean $only_return_result Whether you want the function to die with a fatal_lang_error.
  * @return bool Whether they've posted within the limit
  */

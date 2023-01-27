@@ -1,8 +1,6 @@
 <?php
 // Version: 3.0 Alpha 1; Profile
 
-global $scripturl, $context;
-
 // Some of the things from the popup need their own descriptions
 $txt['popup_forumprofile'] = 'Profile Details';
 $txt['popup_showposts'] = 'My Posts';

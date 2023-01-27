@@ -16,6 +16,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -52,13 +53,13 @@ function loadGeneralSettingParameters($subActions = array(), $defaultAction = nu
  */
 function ModifyFeatureSettings()
 {
-	global $txt, $settings;
+	global $settings;
 
-	loadLanguage('Help');
-	loadLanguage('ManageSettings');
+	Lang::load('Help');
+	Lang::load('ManageSettings');
 
-	Utils::$context['page_title'] = $txt['modSettings_title'];
-	Utils::$context['show_privacy_policy_warning'] = empty(Config::$modSettings['policy_' . Config::$language]);
+	Utils::$context['page_title'] = Lang::$txt['modSettings_title'];
+	Utils::$context['show_privacy_policy_warning'] = empty(Config::$modSettings['policy_' . Lang::$default]);
 
 	$subActions = array(
 		'basic' => 'ModifyBasicSettings',
@@ -74,29 +75,29 @@ function ModifyFeatureSettings()
 
 	// Load up all the tabs...
 	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
-		'title' => $txt['modSettings_title'],
+		'title' => Lang::$txt['modSettings_title'],
 		'help' => 'featuresettings',
-		'description' => sprintf($txt['modSettings_desc'], $settings['theme_id'], Utils::$context['session_id'], Utils::$context['session_var'], Config::$scripturl),
+		'description' => sprintf(Lang::$txt['modSettings_desc'], $settings['theme_id'], Utils::$context['session_id'], Utils::$context['session_var'], Config::$scripturl),
 		'tabs' => array(
 			'basic' => array(
 			),
 			'bbc' => array(
-				'description' => $txt['manageposts_bbc_settings_description'],
+				'description' => Lang::$txt['manageposts_bbc_settings_description'],
 			),
 			'layout' => array(
 			),
 			'sig' => array(
-				'description' => $txt['signature_settings_desc'],
+				'description' => Lang::$txt['signature_settings_desc'],
 			),
 			'profile' => array(
-				'description' => $txt['custom_profile_desc'],
+				'description' => Lang::$txt['custom_profile_desc'],
 			),
 			'likes' => array(
 			),
 			'mentions' => array(
 			),
 			'alerts' => array(
-				'description' => $txt['notifications_desc'],
+				'description' => Lang::$txt['notifications_desc'],
 			),
 		),
 	);
@@ -114,12 +115,10 @@ function ModifyFeatureSettings()
  */
 function ModifyModSettings()
 {
-	global $txt;
+	Lang::load('Help');
+	Lang::load('ManageSettings');
 
-	loadLanguage('Help');
-	loadLanguage('ManageSettings');
-
-	Utils::$context['page_title'] = $txt['admin_modifications'];
+	Utils::$context['page_title'] = Lang::$txt['admin_modifications'];
 
 	$subActions = array(
 		'general' => 'ModifyGeneralModSettings',
@@ -128,9 +127,9 @@ function ModifyModSettings()
 
 	// Load up all the tabs...
 	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
-		'title' => $txt['admin_modifications'],
+		'title' => Lang::$txt['admin_modifications'],
 		'help' => 'modsettings',
-		'description' => $txt['modification_settings_desc'],
+		'description' => Lang::$txt['modification_settings_desc'],
 		'tabs' => array(
 			'general' => array(
 			),
@@ -155,8 +154,6 @@ function ModifyModSettings()
  */
 function ModifyBasicSettings($return_config = false)
 {
-	global $txt;
-
 	// We need to know if personal text is enabled, and if it's in the registration fields option.
 	// If admins have set it up as an on-registration thing, they can't set a default value (because it'll never be used)
 	$disabled_fields = isset(Config::$modSettings['disabled_profile_fields']) ? explode(',', Config::$modSettings['disabled_profile_fields']) : array();
@@ -165,7 +162,7 @@ function ModifyBasicSettings($return_config = false)
 
 	$config_vars = array(
 		// Big Options... polls, sticky, bbc....
-		array('select', 'pollMode', array($txt['disable_polls'], $txt['enable_polls'], $txt['polls_as_topics'])),
+		array('select', 'pollMode', array(Lang::$txt['disable_polls'], Lang::$txt['enable_polls'], Lang::$txt['polls_as_topics'])),
 		'',
 
 		// Basic stuff, titles, flash, permissions...
@@ -173,7 +170,7 @@ function ModifyBasicSettings($return_config = false)
 		array('check', 'enable_buddylist'),
 		array('check', 'allow_hideOnline'),
 		array('check', 'titlesEnable'),
-		array('text', 'default_personal_text', 'subtext' => $txt['default_personal_text_note'], 'disabled' => !$can_personal_text),
+		array('text', 'default_personal_text', 'subtext' => Lang::$txt['default_personal_text_note'], 'disabled' => !$can_personal_text),
 		array('check', 'topic_move_any'),
 		array('int', 'defaultMaxListItems', 'step' => 1, 'min' => 1, 'max' => 999),
 		'',
@@ -183,11 +180,11 @@ function ModifyBasicSettings($return_config = false)
 			'select',
 			'jquery_source',
 			array(
-				'cdn' => $txt['jquery_google_cdn'],
-				'jquery_cdn' => $txt['jquery_jquery_cdn'],
-				'microsoft_cdn' => $txt['jquery_microsoft_cdn'],
-				'local' => $txt['jquery_local'],
-				'custom' => $txt['jquery_custom']
+				'cdn' => Lang::$txt['jquery_google_cdn'],
+				'jquery_cdn' => Lang::$txt['jquery_jquery_cdn'],
+				'microsoft_cdn' => Lang::$txt['jquery_microsoft_cdn'],
+				'local' => Lang::$txt['jquery_local'],
+				'custom' => Lang::$txt['jquery_custom']
 			),
 			'onchange' => 'if (this.value == \'custom\'){document.getElementById(\'jquery_custom\').disabled = false; } else {document.getElementById(\'jquery_custom\').disabled = true;}'
 		),
@@ -203,19 +200,19 @@ function ModifyBasicSettings($return_config = false)
 		'',
 
 		// SEO stuff
-		array('check', 'queryless_urls', 'subtext' => '<strong>' . $txt['queryless_urls_note'] . '</strong>'),
-		array('text', 'meta_keywords', 'subtext' => $txt['meta_keywords_note'], 'size' => 50),
+		array('check', 'queryless_urls', 'subtext' => '<strong>' . Lang::$txt['queryless_urls_note'] . '</strong>'),
+		array('text', 'meta_keywords', 'subtext' => Lang::$txt['meta_keywords_note'], 'size' => 50),
 		'',
 
 		// Time zone and formatting.
 		array('text', 'time_format'),
 		array('select', 'default_timezone', array_filter(smf_list_timezones(), 'is_string', ARRAY_FILTER_USE_KEY)),
-		array('text', 'timezone_priority_countries', 'subtext' => $txt['setting_timezone_priority_countries_note']),
+		array('text', 'timezone_priority_countries', 'subtext' => Lang::$txt['setting_timezone_priority_countries_note']),
 		'',
 
 		// Who's online?
 		array('check', 'who_enabled'),
-		array('int', 'lastActive', 6, 'postinput' => $txt['minutes']),
+		array('int', 'lastActive', 6, 'postinput' => Lang::$txt['minutes']),
 		'',
 
 		// Statistics.
@@ -231,10 +228,10 @@ function ModifyBasicSettings($return_config = false)
 		array('check', 'enable_ajax_alerts'),
 		array('select', 'alerts_auto_purge',
 			array(
-				'0' => $txt['alerts_auto_purge_0'],
-				'7' => $txt['alerts_auto_purge_7'],
-				'30' => $txt['alerts_auto_purge_30'],
-				'90' => $txt['alerts_auto_purge_90'],
+				'0' => Lang::$txt['alerts_auto_purge_0'],
+				'7' => Lang::$txt['alerts_auto_purge_7'],
+				'30' => Lang::$txt['alerts_auto_purge_30'],
+				'90' => Lang::$txt['alerts_auto_purge_90'],
 			),
 		),
 		array('int', 'alerts_per_page', 'step' => 1, 'min' => 0, 'max' => 999),
@@ -276,7 +273,7 @@ function ModifyBasicSettings($return_config = false)
 	}
 
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=basic';
-	Utils::$context['settings_title'] = $txt['mods_cat_features'];
+	Utils::$context['settings_title'] = Lang::$txt['mods_cat_features'];
 
 	prepareDBSettingContext($config_vars);
 }
@@ -292,8 +289,6 @@ function ModifyBasicSettings($return_config = false)
  */
 function ModifyBBCSettings($return_config = false)
 {
-	global $txt;
-
 	$config_vars = array(
 		// Main tweaks
 		array('check', 'enableBBC'),
@@ -313,7 +308,7 @@ function ModifyBBCSettings($return_config = false)
 		$config_vars[] = '';
 
 	foreach (Utils::$context['restricted_bbc'] as $bbc)
-		$config_vars[] = array('permissions', 'bbc_' . $bbc, 'text_label' => sprintf($txt['groups_can_use'], '[' . $bbc . ']'));
+		$config_vars[] = array('permissions', 'bbc_' . $bbc, 'text_label' => sprintf(Lang::$txt['groups_can_use'], '[' . $bbc . ']'));
 
 	Utils::$context['settings_post_javascript'] = '
 		toggleBBCDisabled(\'disabledBBC\', ' . (empty(Config::$modSettings['enableBBC']) ? 'true' : 'false') . ');
@@ -327,7 +322,7 @@ function ModifyBBCSettings($return_config = false)
 	// Setup the template.
 	require_once(Config::$sourcedir . '/ManageServer.php');
 	Utils::$context['sub_template'] = 'show_settings';
-	Utils::$context['page_title'] = $txt['manageposts_bbc_settings_title'];
+	Utils::$context['page_title'] = Lang::$txt['manageposts_bbc_settings_title'];
 
 	// Make sure we check the right tags!
 	Config::$modSettings['bbc_disabled_disabledBBC'] = empty(Config::$modSettings['disabledBBC']) ? array() : explode(',', Config::$modSettings['disabledBBC']);
@@ -338,7 +333,7 @@ function ModifyBBCSettings($return_config = false)
 	$extra = '';
 	if (isset($_REQUEST['cowsay']))
 	{
-		$config_vars[] = array('permissions', 'bbc_cowsay', 'text_label' => sprintf($txt['groups_can_use'], '[cowsay]'));
+		$config_vars[] = array('permissions', 'bbc_cowsay', 'text_label' => sprintf(Lang::$txt['groups_can_use'], '[cowsay]'));
 		$extra = ';cowsay';
 	}
 
@@ -410,7 +405,7 @@ function ModifyBBCSettings($return_config = false)
 	}
 
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=bbc' . $extra;
-	Utils::$context['settings_title'] = $txt['manageposts_bbc_settings_title'];
+	Utils::$context['settings_title'] = Lang::$txt['manageposts_bbc_settings_title'];
 
 	prepareDBSettingContext($config_vars);
 }
@@ -424,8 +419,6 @@ function ModifyBBCSettings($return_config = false)
  */
 function ModifyLayoutSettings($return_config = false)
 {
-	global $txt;
-
 	$config_vars = array(
 		// Pagination stuff.
 		array('check', 'compactTopicPagesEnable'),
@@ -433,13 +426,13 @@ function ModifyLayoutSettings($return_config = false)
 			'int',
 			'compactTopicPagesContiguous',
 			null,
-			$txt['contiguous_page_display'] . '<div class="smalltext">' . str_replace(' ', '&nbsp;', '"3" ' . $txt['to_display'] . ': <strong>1 ... 4 [5] 6 ... 9</strong>') . '<br>' . str_replace(' ', '&nbsp;', '"5" ' . $txt['to_display'] . ': <strong>1 ... 3 4 [5] 6 7 ... 9</strong>') . '</div>'
+			Lang::$txt['contiguous_page_display'] . '<div class="smalltext">' . str_replace(' ', '&nbsp;', '"3" ' . Lang::$txt['to_display'] . ': <strong>1 ... 4 [5] 6 ... 9</strong>') . '<br>' . str_replace(' ', '&nbsp;', '"5" ' . Lang::$txt['to_display'] . ': <strong>1 ... 3 4 [5] 6 7 ... 9</strong>') . '</div>'
 		),
 		array('int', 'defaultMaxMembers'),
 		'',
 
 		// Stuff that just is everywhere - today, search, online, etc.
-		array('select', 'todayMod', array($txt['today_disabled'], $txt['today_only'], $txt['yesterday_today'])),
+		array('select', 'todayMod', array(Lang::$txt['today_disabled'], Lang::$txt['today_only'], Lang::$txt['yesterday_today'])),
 		array('check', 'onlineEnable'),
 		'',
 
@@ -467,7 +460,7 @@ function ModifyLayoutSettings($return_config = false)
 	}
 
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=layout';
-	Utils::$context['settings_title'] = $txt['mods_cat_layout'];
+	Utils::$context['settings_title'] = Lang::$txt['mods_cat_layout'];
 
 	prepareDBSettingContext($config_vars);
 }
@@ -481,8 +474,6 @@ function ModifyLayoutSettings($return_config = false)
  */
 function ModifyLikesSettings($return_config = false)
 {
-	global $txt;
-
 	$config_vars = array(
 		array('check', 'enable_likes'),
 		array('permissions', 'likes_like'),
@@ -506,7 +497,7 @@ function ModifyLikesSettings($return_config = false)
 	}
 
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=likes';
-	Utils::$context['settings_title'] = $txt['likes'];
+	Utils::$context['settings_title'] = Lang::$txt['likes'];
 
 	prepareDBSettingContext($config_vars);
 }
@@ -520,8 +511,6 @@ function ModifyLikesSettings($return_config = false)
  */
 function ModifyMentionsSettings($return_config = false)
 {
-	global $txt;
-
 	$config_vars = array(
 		array('check', 'enable_mentions'),
 		array('permissions', 'mention'),
@@ -545,7 +534,7 @@ function ModifyMentionsSettings($return_config = false)
 	}
 
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=mentions';
-	Utils::$context['settings_title'] = $txt['mentions'];
+	Utils::$context['settings_title'] = Lang::$txt['mentions'];
 
 	prepareDBSettingContext($config_vars);
 }
@@ -558,13 +547,11 @@ function ModifyMentionsSettings($return_config = false)
  */
 function ModifyWarningSettings($return_config = false)
 {
-	global $txt;
-
 	// You need to be an admin to edit settings!
 	isAllowedTo('admin_forum');
 
-	loadLanguage('Help');
-	loadLanguage('ManageSettings');
+	Lang::load('Help');
+	Lang::load('ManageSettings');
 
 	// We need the existing ones for this
 	list ($currently_enabled, Config::$modSettings['user_limit'], Config::$modSettings['warning_decrement']) = explode(',', Config::$modSettings['warning_settings']);
@@ -581,27 +568,27 @@ function ModifyWarningSettings($return_config = false)
 			array(
 				'int',
 				'warning_watch',
-				'subtext' => $txt['setting_warning_watch_note'] . ' ' . $txt['zero_to_disable']
+				'subtext' => Lang::$txt['setting_warning_watch_note'] . ' ' . Lang::$txt['zero_to_disable']
 			),
 			'moderate' => array(
 				'int',
 				'warning_moderate',
-				'subtext' => $txt['setting_warning_moderate_note'] . ' ' . $txt['zero_to_disable']
+				'subtext' => Lang::$txt['setting_warning_moderate_note'] . ' ' . Lang::$txt['zero_to_disable']
 			),
 			array(
 				'int',
 				'warning_mute',
-				'subtext' => $txt['setting_warning_mute_note'] . ' ' . $txt['zero_to_disable']
+				'subtext' => Lang::$txt['setting_warning_mute_note'] . ' ' . Lang::$txt['zero_to_disable']
 			),
 			'rem1' => array(
 				'int',
 				'user_limit',
-				'subtext' => $txt['setting_user_limit_note']
+				'subtext' => Lang::$txt['setting_user_limit_note']
 			),
 			'rem2' => array(
 				'int',
 				'warning_decrement',
-				'subtext' => $txt['setting_warning_decrement_note'] . ' ' . $txt['zero_to_disable']
+				'subtext' => Lang::$txt['setting_warning_decrement_note'] . ' ' . Lang::$txt['zero_to_disable']
 			),
 			array('permissions', 'view_warning_any'),
 			array('permissions', 'view_warning_own'),
@@ -677,13 +664,13 @@ function ModifyWarningSettings($return_config = false)
 
 	Utils::$context['sub_template'] = 'show_settings';
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=warnings;save';
-	Utils::$context['settings_title'] = $txt['warnings'];
-	Utils::$context['page_title'] = $txt['warnings'];
+	Utils::$context['settings_title'] = Lang::$txt['warnings'];
+	Utils::$context['page_title'] = Lang::$txt['warnings'];
 
 	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
-		'title' => $txt['warnings'],
+		'title' => Lang::$txt['warnings'],
 		'help' => '',
-		'description' => $txt['warnings_desc'],
+		'description' => Lang::$txt['warnings_desc'],
 	);
 
 	prepareDBSettingContext($config_vars);
@@ -697,10 +684,8 @@ function ModifyWarningSettings($return_config = false)
  */
 function ModifyAntispamSettings($return_config = false)
 {
-	global $txt;
-
-	loadLanguage('Help');
-	loadLanguage('ManageSettings');
+	Lang::load('Help');
+	Lang::load('ManageSettings');
 
 	// Generate a sample registration image.
 	Utils::$context['use_graphic_library'] = in_array('gd', get_loaded_extensions());
@@ -713,21 +698,21 @@ function ModifyAntispamSettings($return_config = false)
 		'guest_verify' => array(
 			'check',
 			'guests_require_captcha',
-			'subtext' => $txt['setting_guests_require_captcha_desc']
+			'subtext' => Lang::$txt['setting_guests_require_captcha_desc']
 		),
 		array(
 			'int',
 			'posts_require_captcha',
-			'subtext' => $txt['posts_require_captcha_desc'],
+			'subtext' => Lang::$txt['posts_require_captcha_desc'],
 			'min' => -1,
 			'onchange' => 'if (this.value > 0){ document.getElementById(\'guests_require_captcha\').checked = true; document.getElementById(\'guests_require_captcha\').disabled = true;} else {document.getElementById(\'guests_require_captcha\').disabled = false;}'
 		),
 		'',
 
 		// PM Settings
-		'pm1' => array('int', 'max_pm_recipients', 'subtext' => $txt['max_pm_recipients_note']),
-		'pm2' => array('int', 'pm_posts_verification', 'subtext' => $txt['pm_posts_verification_note']),
-		'pm3' => array('int', 'pm_posts_per_hour', 'subtext' => $txt['pm_posts_per_hour_note']),
+		'pm1' => array('int', 'max_pm_recipients', 'subtext' => Lang::$txt['max_pm_recipients_note']),
+		'pm2' => array('int', 'pm_posts_verification', 'subtext' => Lang::$txt['pm_posts_verification_note']),
+		'pm3' => array('int', 'pm_posts_per_hour', 'subtext' => Lang::$txt['pm_posts_per_hour_note']),
 		// Visual verification.
 		array('title', 'configure_verification_means'),
 		array('desc', 'configure_verification_means_desc'),
@@ -735,27 +720,27 @@ function ModifyAntispamSettings($return_config = false)
 			'select',
 			'visual_verification_type',
 			array(
-				$txt['setting_image_verification_off'],
-				$txt['setting_image_verification_vsimple'],
-				$txt['setting_image_verification_simple'],
-				$txt['setting_image_verification_medium'],
-				$txt['setting_image_verification_high'],
-				$txt['setting_image_verification_extreme']
+				Lang::$txt['setting_image_verification_off'],
+				Lang::$txt['setting_image_verification_vsimple'],
+				Lang::$txt['setting_image_verification_simple'],
+				Lang::$txt['setting_image_verification_medium'],
+				Lang::$txt['setting_image_verification_high'],
+				Lang::$txt['setting_image_verification_extreme']
 			),
-			'subtext' => $txt['setting_visual_verification_type_desc'],
+			'subtext' => Lang::$txt['setting_visual_verification_type_desc'],
 			'onchange' => Utils::$context['use_graphic_library'] ? 'refreshImages();' : ''
 		),
 		// reCAPTCHA
 		array('title', 'recaptcha_configure'),
 		array('desc', 'recaptcha_configure_desc', 'class' => 'windowbg'),
-		array('check', 'recaptcha_enabled', 'subtext' => $txt['recaptcha_enable_desc']),
-		array('text', 'recaptcha_site_key', 'subtext' => $txt['recaptcha_site_key_desc']),
-		array('text', 'recaptcha_secret_key', 'subtext' => $txt['recaptcha_secret_key_desc']),
-		array('select', 'recaptcha_theme', array('light' => $txt['recaptcha_theme_light'], 'dark' => $txt['recaptcha_theme_dark'])),
+		array('check', 'recaptcha_enabled', 'subtext' => Lang::$txt['recaptcha_enable_desc']),
+		array('text', 'recaptcha_site_key', 'subtext' => Lang::$txt['recaptcha_site_key_desc']),
+		array('text', 'recaptcha_secret_key', 'subtext' => Lang::$txt['recaptcha_secret_key_desc']),
+		array('select', 'recaptcha_theme', array('light' => Lang::$txt['recaptcha_theme_light'], 'dark' => Lang::$txt['recaptcha_theme_dark'])),
 		// Clever Thomas, who is looking sheepy now? Not I, the mighty sword swinger did say.
 		array('title', 'setup_verification_questions'),
 		array('desc', 'setup_verification_questions_desc'),
-		array('int', 'qa_verification_number', 'subtext' => $txt['setting_qa_verification_number_desc']),
+		array('int', 'qa_verification_number', 'subtext' => Lang::$txt['setting_qa_verification_number_desc']),
 		array('callback', 'question_answer_list'),
 	);
 
@@ -768,7 +753,7 @@ function ModifyAntispamSettings($return_config = false)
 	isAllowedTo('admin_forum');
 
 	// Firstly, figure out what languages we're dealing with, and do a little processing for the form's benefit.
-	getLanguages();
+	Lang::get();
 	Utils::$context['qa_languages'] = array();
 	foreach (Utils::$context['languages'] as $lang_id => $lang)
 	{
@@ -794,12 +779,12 @@ function ModifyAntispamSettings($return_config = false)
 		Utils::$context['qa_by_lang'][$lang][] = $row['id_question'];
 	}
 
-	if (empty(Utils::$context['qa_by_lang'][strtr(Config::$language, array('-utf8' => ''))]) && !empty(Utils::$context['question_answers']))
+	if (empty(Utils::$context['qa_by_lang'][strtr(Lang::$default, array('-utf8' => ''))]) && !empty(Utils::$context['question_answers']))
 	{
 		if (empty(Utils::$context['settings_insert_above']))
 			Utils::$context['settings_insert_above'] = '';
 
-		Utils::$context['settings_insert_above'] .= '<div class="noticebox">' . sprintf($txt['question_not_defined'], Utils::$context['languages'][Config::$language]['name']) . '</div>';
+		Utils::$context['settings_insert_above'] .= '<div class="noticebox">' . sprintf(Lang::$txt['question_not_defined'], Utils::$context['languages'][Lang::$default]['name']) . '</div>';
 	}
 
 	// Thirdly, push some JavaScript for the form to make it work.
@@ -817,7 +802,7 @@ function ModifyAntispamSettings($return_config = false)
 	});
 	$(".qa_add_question a").click(function() {
 		var id = $(this).closest("fieldset").attr("id").substring(6);
-		$(\'<dt><input type="text" name="question[\' + id + \'][\' + nextrow + \']" value="" size="50" class="verification_question"></dt><dd><input type="text" name="answer[\' + id + \'][\' + nextrow + \'][]" value="" size="50" class="verification_answer" / ><div class="qa_add_answer"><a href="javascript:void(0);">[ \' + ' . JavaScriptEscape($txt['setup_verification_add_answer']) . ' + \' ]</a></div></dd>\').insertBefore($(this).parent());
+		$(\'<dt><input type="text" name="question[\' + id + \'][\' + nextrow + \']" value="" size="50" class="verification_question"></dt><dd><input type="text" name="answer[\' + id + \'][\' + nextrow + \'][]" value="" size="50" class="verification_answer" / ><div class="qa_add_answer"><a href="javascript:void(0);">[ \' + ' . JavaScriptEscape(Lang::$txt['setup_verification_add_answer']) . ' + \' ]</a></div></dd>\').insertBefore($(this).parent());
 		nextrow++;
 	});
 	$(".qa_fieldset ").on("click", ".qa_add_answer a", function() {
@@ -825,7 +810,7 @@ function ModifyAntispamSettings($return_config = false)
 		$(\'<input type="text" name="\' + attr + \'" value="" size="50" class="verification_answer">\').insertBefore($(this).closest("div"));
 		return false;
 	});
-	$("#qa_dt_' . strtr(Config::$language, array('-utf8' => '')) . ' a").click();', true);
+	$("#qa_dt_' . strtr(Lang::$default, array('-utf8' => '')) . ' a").click();', true);
 
 	// Will need the utility functions from here.
 	require_once(Config::$sourcedir . '/ManageServer.php');
@@ -1000,9 +985,9 @@ function ModifyAntispamSettings($return_config = false)
 
 	// Show the image itself, or text saying we can't.
 	if (Utils::$context['use_graphic_library'])
-		$config_vars['vv']['postinput'] = '<br><img src="' . Utils::$context['verification_image_href'] . ';type=' . (empty(Config::$modSettings['visual_verification_type']) ? 0 : Config::$modSettings['visual_verification_type']) . '" alt="' . $txt['setting_image_verification_sample'] . '" id="verification_image"><br>';
+		$config_vars['vv']['postinput'] = '<br><img src="' . Utils::$context['verification_image_href'] . ';type=' . (empty(Config::$modSettings['visual_verification_type']) ? 0 : Config::$modSettings['visual_verification_type']) . '" alt="' . Lang::$txt['setting_image_verification_sample'] . '" id="verification_image"><br>';
 	else
-		$config_vars['vv']['postinput'] = '<br><span class="smalltext">' . $txt['setting_image_verification_nogd'] . '</span>';
+		$config_vars['vv']['postinput'] = '<br><span class="smalltext">' . Lang::$txt['setting_image_verification_nogd'] . '</span>';
 
 	// Hack for PM spam settings.
 	list (Config::$modSettings['max_pm_recipients'], Config::$modSettings['pm_posts_verification'], Config::$modSettings['pm_posts_per_hour']) = explode(',', Config::$modSettings['pm_spam_settings']);
@@ -1018,13 +1003,13 @@ function ModifyAntispamSettings($return_config = false)
 
 	// And everything else.
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=antispam;save';
-	Utils::$context['settings_title'] = $txt['antispam_Settings'];
-	Utils::$context['page_title'] = $txt['antispam_title'];
+	Utils::$context['settings_title'] = Lang::$txt['antispam_Settings'];
+	Utils::$context['page_title'] = Lang::$txt['antispam_title'];
 	Utils::$context['sub_template'] = 'show_settings';
 
 	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
-		'title' => $txt['antispam_title'],
-		'description' => $txt['antispam_Settings_desc'],
+		'title' => Lang::$txt['antispam_title'],
+		'description' => Lang::$txt['antispam_Settings_desc'],
 	);
 
 	prepareDBSettingContext($config_vars);
@@ -1038,7 +1023,7 @@ function ModifyAntispamSettings($return_config = false)
  */
 function ModifySignatureSettings($return_config = false)
 {
-	global $txt, $sig_start;
+	global $sig_start;
 
 	$config_vars = array(
 		// Are signatures even enabled?
@@ -1046,17 +1031,17 @@ function ModifySignatureSettings($return_config = false)
 		'',
 
 		// Tweaking settings!
-		array('int', 'signature_max_length', 'subtext' => $txt['zero_for_no_limit']),
-		array('int', 'signature_max_lines', 'subtext' => $txt['zero_for_no_limit']),
-		array('int', 'signature_max_font_size', 'subtext' => $txt['zero_for_no_limit']),
+		array('int', 'signature_max_length', 'subtext' => Lang::$txt['zero_for_no_limit']),
+		array('int', 'signature_max_lines', 'subtext' => Lang::$txt['zero_for_no_limit']),
+		array('int', 'signature_max_font_size', 'subtext' => Lang::$txt['zero_for_no_limit']),
 		array('check', 'signature_allow_smileys', 'onclick' => 'document.getElementById(\'signature_max_smileys\').disabled = !this.checked;'),
-		array('int', 'signature_max_smileys', 'subtext' => $txt['zero_for_no_limit']),
+		array('int', 'signature_max_smileys', 'subtext' => Lang::$txt['zero_for_no_limit']),
 		'',
 
 		// Image settings.
-		array('int', 'signature_max_images', 'subtext' => $txt['signature_max_images_note']),
-		array('int', 'signature_max_image_width', 'subtext' => $txt['zero_for_no_limit']),
-		array('int', 'signature_max_image_height', 'subtext' => $txt['zero_for_no_limit']),
+		array('int', 'signature_max_images', 'subtext' => Lang::$txt['signature_max_images_note']),
+		array('int', 'signature_max_image_width', 'subtext' => Lang::$txt['zero_for_no_limit']),
+		array('int', 'signature_max_image_height', 'subtext' => Lang::$txt['zero_for_no_limit']),
 		'',
 
 		array('bbc', 'signature_bbc'),
@@ -1068,7 +1053,7 @@ function ModifySignatureSettings($return_config = false)
 		return $config_vars;
 
 	// Setup the template.
-	Utils::$context['page_title'] = $txt['signature_settings'];
+	Utils::$context['page_title'] = Lang::$txt['signature_settings'];
 	Utils::$context['sub_template'] = 'show_settings';
 
 	// Disable the max smileys option if we don't allow smileys at all!
@@ -1372,17 +1357,17 @@ function ModifySignatureSettings($return_config = false)
 	}
 
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=sig';
-	Utils::$context['settings_title'] = $txt['signature_settings'];
+	Utils::$context['settings_title'] = Lang::$txt['signature_settings'];
 
 	if (!empty($settings_applied))
 		Utils::$context['settings_message'] = array(
-			'label' => $txt['signature_settings_applied'],
+			'label' => Lang::$txt['signature_settings_applied'],
 			'tag' => 'div',
 			'class' => 'infobox'
 		);
 	else
 		Utils::$context['settings_message'] = array(
-			'label' => sprintf($txt['signature_settings_warning'], Utils::$context['session_id'], Utils::$context['session_var'], Config::$scripturl),
+			'label' => sprintf(Lang::$txt['signature_settings_warning'], Utils::$context['session_id'], Utils::$context['session_var'], Config::$scripturl),
 			'tag' => 'div',
 			'class' => 'centertext'
 		);
@@ -1395,7 +1380,7 @@ function ModifySignatureSettings($return_config = false)
  */
 function pauseSignatureApplySettings()
 {
-	global $txt, $sig_start;
+	global $sig_start;
 
 	// Try get more time...
 	@set_time_limit(600);
@@ -1407,7 +1392,7 @@ function pauseSignatureApplySettings()
 		return;
 
 	Utils::$context['continue_get_data'] = '?action=admin;area=featuresettings;sa=sig;apply;step=' . $_GET['step'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
-	Utils::$context['page_title'] = $txt['not_done_title'];
+	Utils::$context['page_title'] = Lang::$txt['not_done_title'];
 	Utils::$context['continue_post_data'] = '';
 	Utils::$context['continue_countdown'] = '2';
 	Utils::$context['sub_template'] = 'not_done';
@@ -1429,9 +1414,7 @@ function pauseSignatureApplySettings()
  */
 function ShowCustomProfiles()
 {
-	global $txt;
-
-	Utils::$context['page_title'] = $txt['custom_profile_title'];
+	Utils::$context['page_title'] = Lang::$txt['custom_profile_title'];
 	Utils::$context['sub_template'] = 'show_custom_profile';
 
 	// What about standard fields they can tweak?
@@ -1481,7 +1464,7 @@ function ShowCustomProfiles()
 
 	$listOptions = array(
 		'id' => 'standard_profile_fields',
-		'title' => $txt['standard_profile_title'],
+		'title' => Lang::$txt['standard_profile_title'],
 		'base_href' => Config::$scripturl . '?action=admin;area=featuresettings;sa=profile',
 		'get_items' => array(
 			'function' => 'list_getProfileFields',
@@ -1492,7 +1475,7 @@ function ShowCustomProfiles()
 		'columns' => array(
 			'field' => array(
 				'header' => array(
-					'value' => $txt['standard_profile_field'],
+					'value' => Lang::$txt['standard_profile_field'],
 				),
 				'data' => array(
 					'db' => 'label',
@@ -1501,7 +1484,7 @@ function ShowCustomProfiles()
 			),
 			'active' => array(
 				'header' => array(
-					'value' => $txt['custom_edit_active'],
+					'value' => Lang::$txt['custom_edit_active'],
 					'class' => 'centercol',
 				),
 				'data' => array(
@@ -1517,7 +1500,7 @@ function ShowCustomProfiles()
 			),
 			'show_on_registration' => array(
 				'header' => array(
-					'value' => $txt['custom_edit_registration'],
+					'value' => Lang::$txt['custom_edit_registration'],
 					'class' => 'centercol',
 				),
 				'data' => array(
@@ -1540,7 +1523,7 @@ function ShowCustomProfiles()
 		'additional_rows' => array(
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="submit" name="save" value="' . $txt['save'] . '" class="button">',
+				'value' => '<input type="submit" name="save" value="' . Lang::$txt['save'] . '" class="button">',
 			),
 		),
 	);
@@ -1548,10 +1531,10 @@ function ShowCustomProfiles()
 
 	$listOptions = array(
 		'id' => 'custom_profile_fields',
-		'title' => $txt['custom_profile_title'],
+		'title' => Lang::$txt['custom_profile_title'],
 		'base_href' => Config::$scripturl . '?action=admin;area=featuresettings;sa=profile',
 		'default_sort_col' => 'field_order',
-		'no_items_label' => $txt['custom_profile_none'],
+		'no_items_label' => Lang::$txt['custom_profile_none'],
 		'items_per_page' => 25,
 		'get_items' => array(
 			'function' => 'list_getProfileFields',
@@ -1565,18 +1548,18 @@ function ShowCustomProfiles()
 		'columns' => array(
 			'field_order' => array(
 				'header' => array(
-					'value' => $txt['custom_profile_fieldorder'],
+					'value' => Lang::$txt['custom_profile_fieldorder'],
 				),
 				'data' => array(
-					'function' => function($rowData) use ($txt)
+					'function' => function($rowData)
 					{
 						$return = '<p class="centertext bold_text">';
 
 						if ($rowData['field_order'] > 1)
-							$return .= '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=up"><span class="toggle_up" title="' . $txt['custom_edit_order_move'] . ' ' . $txt['custom_edit_order_up'] . '"></span></a>';
+							$return .= '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=up"><span class="toggle_up" title="' . Lang::$txt['custom_edit_order_move'] . ' ' . Lang::$txt['custom_edit_order_up'] . '"></span></a>';
 
 						if ($rowData['field_order'] < Utils::$context['custFieldsMaxOrder'])
-							$return .= '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=down"><span class="toggle_down" title="' . $txt['custom_edit_order_move'] . ' ' . $txt['custom_edit_order_down'] . '"></span></a>';
+							$return .= '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=down"><span class="toggle_down" title="' . Lang::$txt['custom_edit_order_move'] . ' ' . Lang::$txt['custom_edit_order_down'] . '"></span></a>';
 
 						$return .= '</p>';
 
@@ -1591,13 +1574,13 @@ function ShowCustomProfiles()
 			),
 			'field_name' => array(
 				'header' => array(
-					'value' => $txt['custom_profile_fieldname'],
+					'value' => Lang::$txt['custom_profile_fieldname'],
 				),
 				'data' => array(
 					'function' => function($rowData)
 					{
-						$field_name = tokenTxtReplace($rowData['field_name']);
-						$field_desc = tokenTxtReplace($rowData['field_desc']);
+						$field_name = Lang::tokenTxtReplace($rowData['field_name']);
+						$field_desc = Lang::tokenTxtReplace($rowData['field_desc']);
 
 						return sprintf('<a href="%1$s?action=admin;area=featuresettings;sa=profileedit;fid=%2$d">%3$s</a><div class="smalltext">%4$s</div>',
 							Config::$scripturl,
@@ -1614,13 +1597,13 @@ function ShowCustomProfiles()
 			),
 			'field_type' => array(
 				'header' => array(
-					'value' => $txt['custom_profile_fieldtype'],
+					'value' => Lang::$txt['custom_profile_fieldtype'],
 				),
 				'data' => array(
-					'function' => function($rowData) use ($txt)
+					'function' => function($rowData)
 					{
 						$textKey = sprintf('custom_profile_type_%1$s', $rowData['field_type']);
-						return isset($txt[$textKey]) ? $txt[$textKey] : $textKey;
+						return isset(Lang::$txt[$textKey]) ? Lang::$txt[$textKey] : $textKey;
 					},
 					'style' => 'width: 15%;',
 				),
@@ -1631,12 +1614,12 @@ function ShowCustomProfiles()
 			),
 			'active' => array(
 				'header' => array(
-					'value' => $txt['custom_profile_active'],
+					'value' => Lang::$txt['custom_profile_active'],
 				),
 				'data' => array(
-					'function' => function($rowData) use ($txt)
+					'function' => function($rowData)
 					{
-						return $rowData['active'] ? $txt['yes'] : $txt['no'];
+						return $rowData['active'] ? Lang::$txt['yes'] : Lang::$txt['no'];
 					},
 					'style' => 'width: 8%;',
 				),
@@ -1647,14 +1630,12 @@ function ShowCustomProfiles()
 			),
 			'placement' => array(
 				'header' => array(
-					'value' => $txt['custom_profile_placement'],
+					'value' => Lang::$txt['custom_profile_placement'],
 				),
 				'data' => array(
 					'function' => function($rowData)
 					{
-						global $txt;
-
-						return $txt['custom_profile_placement_' . (empty($rowData['placement']) ? 'standard' : Utils::$context['cust_profile_fields_placement'][$rowData['placement']])];
+						return Lang::$txt['custom_profile_placement_' . (empty($rowData['placement']) ? 'standard' : Utils::$context['cust_profile_fields_placement'][$rowData['placement']])];
 					},
 					'style' => 'width: 8%;',
 				),
@@ -1666,7 +1647,7 @@ function ShowCustomProfiles()
 			'show_on_registration' => array(
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=%1$s">' . $txt['modify'] . '</a>',
+						'format' => '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=%1$s">' . Lang::$txt['modify'] . '</a>',
 						'params' => array(
 							'id_field' => false,
 						),
@@ -1682,7 +1663,7 @@ function ShowCustomProfiles()
 		'additional_rows' => array(
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="submit" name="new" value="' . $txt['custom_profile_make_new'] . '" class="button">',
+				'value' => '<input type="submit" name="new" value="' . Lang::$txt['custom_profile_make_new'] . '" class="button">',
 			),
 		),
 	);
@@ -1708,8 +1689,6 @@ function ShowCustomProfiles()
  */
 function list_getProfileFields($start, $items_per_page, $sort, $standardFields)
 {
-	global $txt;
-
 	$list = array();
 
 	if ($standardFields)
@@ -1722,7 +1701,7 @@ function list_getProfileFields($start, $items_per_page, $sort, $standardFields)
 		foreach ($standard_fields as $field)
 			$list[] = array(
 				'id' => $field,
-				'label' => isset($txt['standard_profile_field_' . $field]) ? $txt['standard_profile_field_' . $field] : (isset($txt[$field]) ? $txt[$field] : $field),
+				'label' => isset(Lang::$txt['standard_profile_field_' . $field]) ? Lang::$txt['standard_profile_field_' . $field] : (isset(Lang::$txt[$field]) ? Lang::$txt[$field] : $field),
 				'disabled' => in_array($field, $disabled_fields),
 				'on_register' => in_array($field, $registration_fields) && !in_array($field, $fields_no_registration),
 				'can_show_register' => !in_array($field, $fields_no_registration),
@@ -1775,16 +1754,14 @@ function list_getProfileFieldSize()
  */
 function EditCustomProfiles()
 {
-	global $txt;
-
 	// Sort out the context!
 	Utils::$context['fid'] = isset($_GET['fid']) ? (int) $_GET['fid'] : 0;
 	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'profile';
-	Utils::$context['page_title'] = Utils::$context['fid'] ? $txt['custom_edit_title'] : $txt['custom_add_title'];
+	Utils::$context['page_title'] = Utils::$context['fid'] ? Lang::$txt['custom_edit_title'] : Lang::$txt['custom_add_title'];
 	Utils::$context['sub_template'] = 'edit_profile_field';
 
 	// Load the profile language for section names.
-	loadLanguage('Profile');
+	Lang::load('Profile');
 
 	// There's really only a few places we can go...
 	$move_to = array('up', 'down');
@@ -2275,12 +2252,10 @@ function custFieldsMaxOrder()
  */
 function ModifyLogSettings($return_config = false)
 {
-	global $txt;
-
 	// Make sure we understand what's going on.
-	loadLanguage('ManageSettings');
+	Lang::load('ManageSettings');
 
-	Utils::$context['page_title'] = $txt['log_settings'];
+	Utils::$context['page_title'] = Lang::$txt['log_settings'];
 
 	$config_vars = array(
 		array('check', 'modlog_enabled', 'help' => 'modlog'),
@@ -2294,9 +2269,9 @@ function ModifyLogSettings($return_config = false)
 		// The 'mark read' log settings.
 		array('title', 'markread_title', 'force_div_id' => 'markread_title'),
 		array('desc', 'mark_read_desc'),
-		array('int', 'mark_read_beyond', 'step' => 1, 'min' => 0, 'max' => 18000, 'subtext' => $txt['zero_to_disable']),
-		array('int', 'mark_read_delete_beyond', 'step' => 1, 'min' => 0, 'max' => 18000, 'subtext' => $txt['zero_to_disable']),
-		array('int', 'mark_read_max_users', 'step' => 1, 'min' => 0, 'max' => 20000, 'subtext' => $txt['zero_to_disable']),
+		array('int', 'mark_read_beyond', 'step' => 1, 'min' => 0, 'max' => 18000, 'subtext' => Lang::$txt['zero_to_disable']),
+		array('int', 'mark_read_delete_beyond', 'step' => 1, 'min' => 0, 'max' => 18000, 'subtext' => Lang::$txt['zero_to_disable']),
+		array('int', 'mark_read_max_users', 'step' => 1, 'min' => 0, 'max' => 20000, 'subtext' => Lang::$txt['zero_to_disable']),
 		// Even do the pruning?
 		array('title', 'pruning_title', 'force_div_id' => 'pruning_title'),
 		array('desc', 'pruning_desc'),
@@ -2305,12 +2280,12 @@ function ModifyLogSettings($return_config = false)
 		'',
 
 		// Various logs that could be pruned.
-		array('int', 'pruneErrorLog', 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_to_disable']), // Error log.
-		array('int', 'pruneModLog', 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_to_disable']), // Moderation log.
-		array('int', 'pruneBanLog', 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_to_disable']), // Ban hit log.
-		array('int', 'pruneReportLog', 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_to_disable']), // Report to moderator log.
-		array('int', 'pruneScheduledTaskLog', 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_to_disable']), // Log of the scheduled tasks and how long they ran.
-		array('int', 'pruneSpiderHitLog', 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_to_disable']), // Log of the scheduled tasks and how long they ran.
+		array('int', 'pruneErrorLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['zero_to_disable']), // Error log.
+		array('int', 'pruneModLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['zero_to_disable']), // Moderation log.
+		array('int', 'pruneBanLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['zero_to_disable']), // Ban hit log.
+		array('int', 'pruneReportLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['zero_to_disable']), // Report to moderator log.
+		array('int', 'pruneScheduledTaskLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['zero_to_disable']), // Log of the scheduled tasks and how long they ran.
+		array('int', 'pruneSpiderHitLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['zero_to_disable']), // Log of the scheduled tasks and how long they ran.
 		// If you add any additional logs make sure to add them after this point.  Additionally, make sure you add them to the weekly scheduled task.
 		// Mod Developers: Do NOT use the pruningOptions master variable for this as SMF Core may overwrite your setting in the future!
 	);
@@ -2381,7 +2356,7 @@ function ModifyLogSettings($return_config = false)
 	}
 
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=logs;save;sa=settings';
-	Utils::$context['settings_title'] = $txt['log_settings'];
+	Utils::$context['settings_title'] = Lang::$txt['log_settings'];
 	Utils::$context['sub_template'] = 'show_settings';
 
 	// Get the actual values
@@ -2401,8 +2376,6 @@ function ModifyLogSettings($return_config = false)
  */
 function ModifyGeneralModSettings($return_config = false)
 {
-	global $txt;
-
 	$config_vars = array(
 		// Mod authors, add any settings UNDER this line. Include a comma at the end of the line and don't remove this statement!!
 	);
@@ -2414,14 +2387,14 @@ function ModifyGeneralModSettings($return_config = false)
 		return $config_vars;
 
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=modsettings;save;sa=general';
-	Utils::$context['settings_title'] = $txt['mods_cat_modifications_misc'];
+	Utils::$context['settings_title'] = Lang::$txt['mods_cat_modifications_misc'];
 
 	// No removing this line you, dirty unwashed mod authors. :p
 	if (empty($config_vars))
 	{
 		Utils::$context['settings_save_dont_show'] = true;
 		Utils::$context['settings_message'] = array(
-			'label' => $txt['modification_no_misc_settings'],
+			'label' => Lang::$txt['modification_no_misc_settings'],
 			'tag' => 'div',
 			'class' => 'centertext'
 		);
@@ -2457,8 +2430,6 @@ function ModifyGeneralModSettings($return_config = false)
  */
 function ModifyAlertsSettings()
 {
-	global $txt;
-
 	// Dummy settings for the template...
 	Utils::$context['user']['is_owner'] = false;
 	Utils::$context['member'] = array();
@@ -2470,15 +2441,15 @@ function ModifyAlertsSettings()
 	Utils::$context['action'] = 'action=admin;area=featuresettings;sa=alerts;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
 
 	loadTemplate('Profile');
-	loadLanguage('Profile');
+	Lang::load('Profile');
 
 	include_once(Config::$sourcedir . '/Profile-Modify.php');
 	alert_configuration(0, true);
 
-	Utils::$context['page_title'] = $txt['notify_settings'];
+	Utils::$context['page_title'] = Lang::$txt['notify_settings'];
 
 	// Override the description
-	Utils::$context['description'] = $txt['notifications_desc'];
+	Utils::$context['description'] = Lang::$txt['notifications_desc'];
 	Utils::$context['sub_template'] = 'alert_configuration';
 }
 

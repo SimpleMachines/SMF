@@ -16,6 +16,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -34,8 +35,6 @@ if (!defined('SMF'))
  */
 function Memberlist()
 {
-	global $txt;
-
 	// Make sure they can view the memberlist.
 	isAllowedTo('view_mlist');
 
@@ -46,8 +45,8 @@ function Memberlist()
 	// $subActions array format:
 	// 'subaction' => array('label', 'function', 'is_selected')
 	$subActions = array(
-		'all' => array($txt['view_all_members'], 'MLAll', Utils::$context['listing_by'] == 'all'),
-		'search' => array($txt['mlist_search'], 'MLSearch', Utils::$context['listing_by'] == 'search'),
+		'all' => array(Lang::$txt['view_all_members'], 'MLAll', Utils::$context['listing_by'] == 'all'),
+		'search' => array(Lang::$txt['mlist_search'], 'MLSearch', Utils::$context['listing_by'] == 'search'),
 	);
 
 	// Set up the sort links.
@@ -66,14 +65,14 @@ function Memberlist()
 	// Set up the columns...
 	Utils::$context['columns'] = array(
 		'is_online' => array(
-			'label' => $txt['status'],
+			'label' => Lang::$txt['status'],
 			'sort' => array(
 				'down' => allowedTo('moderate_forum') ? 'COALESCE(lo.log_time, 1) ASC, real_name ASC' : 'CASE WHEN mem.show_online THEN COALESCE(lo.log_time, 1) ELSE 1 END ASC, real_name ASC',
 				'up' => allowedTo('moderate_forum') ? 'COALESCE(lo.log_time, 1) DESC, real_name DESC' : 'CASE WHEN mem.show_online THEN COALESCE(lo.log_time, 1) ELSE 1 END DESC, real_name DESC'
 			),
 		),
 		'real_name' => array(
-			'label' => $txt['name'],
+			'label' => Lang::$txt['name'],
 			'class' => 'lefttext',
 			'sort' => array(
 				'down' => 'mem.real_name DESC',
@@ -81,7 +80,7 @@ function Memberlist()
 			),
 		),
 		'website_url' => array(
-			'label' => $txt['website'],
+			'label' => Lang::$txt['website'],
 			'link_with' => 'website',
 			'sort' => array(
 				'down' => Utils::$context['user']['is_guest'] ? '1=1' : 'mem.website_url = \'\', mem.website_url is null, mem.website_url DESC',
@@ -89,21 +88,21 @@ function Memberlist()
 			),
 		),
 		'id_group' => array(
-			'label' => $txt['position'],
+			'label' => Lang::$txt['position'],
 			'sort' => array(
 				'down' => 'mg.group_name is null, mg.group_name DESC',
 				'up' => 'mg.group_name is not null, mg.group_name ASC'
 			),
 		),
 		'registered' => array(
-			'label' => $txt['date_registered'],
+			'label' => Lang::$txt['date_registered'],
 			'sort' => array(
 				'down' => 'mem.date_registered DESC',
 				'up' => 'mem.date_registered ASC'
 			),
 		),
 		'post_count' => array(
-			'label' => $txt['posts'],
+			'label' => Lang::$txt['posts'],
 			'default_sort_rev' => true,
 			'sort' => array(
 				'down' => 'mem.posts DESC',
@@ -135,7 +134,7 @@ function Memberlist()
 
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=mlist',
-		'name' => $txt['members_list']
+		'name' => Lang::$txt['members_list']
 	);
 
 	Utils::$context['can_send_pm'] = allowedTo('pm_send');
@@ -166,7 +165,6 @@ function Memberlist()
  */
 function MLAll()
 {
-	global $txt;
 	// The chunk size for the cached index.
 	$cache_step_size = 500;
 
@@ -295,11 +293,11 @@ function MLAll()
 	Utils::$context['end'] = min($_REQUEST['start'] + Config::$modSettings['defaultMaxMembers'], Utils::$context['num_members']);
 
 	Utils::$context['can_moderate_forum'] = allowedTo('moderate_forum');
-	Utils::$context['page_title'] = sprintf($txt['viewing_members'], Utils::$context['start'], Utils::$context['end']);
+	Utils::$context['page_title'] = sprintf(Lang::$txt['viewing_members'], Utils::$context['start'], Utils::$context['end']);
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=mlist;sort=' . $_REQUEST['sort'] . ';start=' . $_REQUEST['start'],
 		'name' => &Utils::$context['page_title'],
-		'extra_after' => '(' . sprintf($txt['of_total_members'], Utils::$context['num_members']) . ')'
+		'extra_after' => '(' . sprintf(Lang::$txt['of_total_members'], Utils::$context['num_members']) . ')'
 	);
 
 	$limit = $_REQUEST['start'];
@@ -391,9 +389,7 @@ function MLAll()
  */
 function MLSearch()
 {
-	global $txt;
-
-	Utils::$context['page_title'] = $txt['mlist_search'];
+	Utils::$context['page_title'] = Lang::$txt['mlist_search'];
 	Utils::$context['can_moderate_forum'] = allowedTo('moderate_forum');
 
 	// Can they search custom fields?
@@ -570,10 +566,10 @@ function MLSearch()
 	{
 		// These are all the possible fields.
 		Utils::$context['search_fields'] = array(
-			'name' => $txt['mlist_search_name'],
-			'email' => $txt['mlist_search_email'],
-			'website' => $txt['mlist_search_website'],
-			'group' => $txt['mlist_search_group'],
+			'name' => Lang::$txt['mlist_search_name'],
+			'email' => Lang::$txt['mlist_search_email'],
+			'website' => Lang::$txt['mlist_search_website'],
+			'group' => Lang::$txt['mlist_search_group'],
 		);
 
 		// Sorry, but you can't search by email unless you can view emails
@@ -588,7 +584,7 @@ function MLSearch()
 		}
 
 		foreach (Utils::$context['custom_search_fields'] as $field)
-			Utils::$context['search_fields'][$field['colname']] = sprintf($txt['mlist_search_by'], tokenTxtReplace($field['name']));
+			Utils::$context['search_fields'][$field['colname']] = sprintf(Lang::$txt['mlist_search_by'], Lang::tokenTxtReplace($field['name']));
 
 		Utils::$context['sub_template'] = 'search';
 		Utils::$context['old_search'] = isset($_GET['search']) ? $_GET['search'] : (isset($_POST['search']) ? Utils::htmlspecialchars($_POST['search']) : '');
@@ -616,7 +612,7 @@ function MLSearch()
  */
 function printMemberListRows($request)
 {
-	global $memberContext, $txt;
+	global $memberContext;
 	global $settings;
 
 	// Get the most posts.
@@ -661,7 +657,7 @@ function printMemberListRows($request)
 					continue;
 				}
 
-				Utils::$context['members'][$member]['options'][$key] = tokenTxtReplace(Utils::$context['members'][$member]['options'][$key]);
+				Utils::$context['members'][$member]['options'][$key] = Lang::tokenTxtReplace(Utils::$context['members'][$member]['options'][$key]);
 				$currentKey = 0;
 				if (!empty($column['options']))
 				{
@@ -677,7 +673,7 @@ function printMemberListRows($request)
 					Utils::$context['members'][$member]['options'][$key] = strip_tags(BBCodeParser::load()->parse(Utils::$context['members'][$member]['options'][$key]));
 
 				elseif ($column['type'] == 'check')
-					Utils::$context['members'][$member]['options'][$key] = Utils::$context['members'][$member]['options'][$key] == 0 ? $txt['no'] : $txt['yes'];
+					Utils::$context['members'][$member]['options'][$key] = Utils::$context['members'][$member]['options'][$key] == 0 ? Lang::$txt['no'] : Lang::$txt['yes'];
 
 				// Enclosing the user input within some other text?
 				if (!empty($column['enclose']))
@@ -685,7 +681,7 @@ function printMemberListRows($request)
 						'{SCRIPTURL}' => Config::$scripturl,
 						'{IMAGES_URL}' => $settings['images_url'],
 						'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
-						'{INPUT}' => tokenTxtReplace(Utils::$context['members'][$member]['options'][$key]),
+						'{INPUT}' => Lang::tokenTxtReplace(Utils::$context['members'][$member]['options'][$key]),
 						'{KEY}' => $currentKey
 					));
 			}
@@ -719,12 +715,12 @@ function getCustFieldsMList()
 	{
 		// Get all the data we're gonna need.
 		$cpf['columns'][$row['col_name']] = array(
-			'label' => tokenTxtReplace($row['field_name']),
+			'label' => Lang::tokenTxtReplace($row['field_name']),
 			'type' => $row['field_type'],
-			'options' => tokenTxtReplace($row['field_options']),
+			'options' => Lang::tokenTxtReplace($row['field_options']),
 			'bbc' => !empty($row['bbc']),
 			'enclose' => $row['enclose'],
-			'default_value' => tokenTxtReplace($row['default_value']),
+			'default_value' => Lang::tokenTxtReplace($row['default_value']),
 		);
 
 		// Get the right sort method depending on the cust field type.

@@ -15,6 +15,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -32,7 +33,7 @@ if (!defined('SMF'))
  */
 function BoardNotify()
 {
-	global $board, $user_info, $txt;
+	global $board, $user_info;
 
 	require_once(Config::$sourcedir . '/Subs-Notify.php');
 
@@ -91,7 +92,7 @@ function BoardNotify()
 		// Set the template variables...
 		Utils::$context['board_href'] = Config::$scripturl . '?board=' . $board . '.' . $_REQUEST['start'];
 		Utils::$context['start'] = $_REQUEST['start'];
-		Utils::$context['page_title'] = $txt['notification'];
+		Utils::$context['page_title'] = Lang::$txt['notification'];
 		Utils::$context['sub_template'] = 'notify_board';
 
 		return;
@@ -147,9 +148,9 @@ function BoardNotify()
 	elseif (!empty($skipCheckSession) && isset($mode))
 	{
 		loadTemplate('Notify');
-		Utils::$context['page_title'] = $txt['notification'];
+		Utils::$context['page_title'] = Lang::$txt['notification'];
 		Utils::$context['sub_template'] = 'notify_pref_changed';
-		Utils::$context['notify_success_msg'] = sprintf($txt['notify_board' . ($mode == 3 ? '_subscribed' : '_unsubscribed')], $member_info['email']);
+		Utils::$context['notify_success_msg'] = sprintf(Lang::$txt['notify_board' . ($mode == 3 ? '_subscribed' : '_unsubscribed')], $member_info['email']);
 		return;
 	}
 	// Back to the board!
@@ -167,7 +168,7 @@ function BoardNotify()
  */
 function TopicNotify()
 {
-	global $user_info, $topic, $txt;
+	global $user_info, $topic;
 
 	require_once(Config::$sourcedir . '/Subs-Notify.php');
 
@@ -223,7 +224,7 @@ function TopicNotify()
 		// Set the template variables...
 		Utils::$context['topic_href'] = Config::$scripturl . '?topic=' . $topic . '.' . $_REQUEST['start'];
 		Utils::$context['start'] = $_REQUEST['start'];
-		Utils::$context['page_title'] = $txt['notification'];
+		Utils::$context['page_title'] = Lang::$txt['notification'];
 
 		return;
 	}
@@ -317,9 +318,9 @@ function TopicNotify()
 	elseif (!empty($skipCheckSession) && isset($mode))
 	{
 		loadTemplate('Notify');
-		Utils::$context['page_title'] = $txt['notification'];
+		Utils::$context['page_title'] = Lang::$txt['notification'];
 		Utils::$context['sub_template'] = 'notify_pref_changed';
-		Utils::$context['notify_success_msg'] = sprintf($txt['notify_topic' . ($mode == 3 ? '_subscribed' : '_unsubscribed')], $member_info['email']);
+		Utils::$context['notify_success_msg'] = sprintf(Lang::$txt['notify_topic' . ($mode == 3 ? '_subscribed' : '_unsubscribed')], $member_info['email']);
 		return;
 	}
 	// Back to the topic.
@@ -334,7 +335,7 @@ function TopicNotify()
  */
 function AnnouncementsNotify()
 {
-	global $txt, $board, $user_info;
+	global $board, $user_info;
 
 	require_once(Config::$sourcedir . '/Subs-Notify.php');
 
@@ -350,7 +351,7 @@ function AnnouncementsNotify()
 	}
 
 	loadTemplate('Notify');
-	Utils::$context['page_title'] = $txt['notification'];
+	Utils::$context['page_title'] = Lang::$txt['notification'];
 
 	// Backward compatibility.
 	if (!isset($_GET['mode']) && isset($_GET['sa']))
@@ -384,7 +385,7 @@ function AnnouncementsNotify()
 
 	// Show a confirmation message.
 	Utils::$context['sub_template'] = 'notify_pref_changed';
-	Utils::$context['notify_success_msg'] = sprintf($txt['notify_announcements' . (!empty($mode) ? '_subscribed' : '_unsubscribed')], $member_info['email']);
+	Utils::$context['notify_success_msg'] = sprintf(Lang::$txt['notify_announcements' . (!empty($mode) ? '_subscribed' : '_unsubscribed')], $member_info['email']);
 }
 
 ?>

@@ -1,8 +1,6 @@
 <?php
 // Version: 3.0 Alpha 1; Post
 
-global $context;
-
 $txt['post_reply'] = 'Post reply';
 $txt['message_icon'] = 'Message icon';
 $txt['subject_not_filled'] = 'The subject field was not filled out. It is required.';

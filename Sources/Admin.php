@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 use SMF\PackageManager\XmlArray;
@@ -29,11 +30,11 @@ if (!defined('SMF'))
  */
 function AdminMain()
 {
-	global $txt, $settings;
+	global $settings;
 	global $options;
 
 	// Load the language and templates....
-	loadLanguage('Admin');
+	Lang::load('Admin');
 	loadTemplate('Admin');
 	loadJavaScriptFile('admin.js', array('minimize' => true), 'smf_admin');
 	loadCSSFile('admin.css', array(), 'smf_admin');
@@ -49,41 +50,41 @@ function AdminMain()
 	/** @var array $admin_areas Defines the menu structure for the admin center. See {@link Subs-Menu.php Subs-Menu.php} for details! */
 	$admin_areas = array(
 		'forum' => array(
-			'title' => $txt['admin_main'],
+			'title' => Lang::$txt['admin_main'],
 			'permission' => array('admin_forum', 'manage_permissions', 'moderate_forum', 'manage_membergroups', 'manage_bans', 'send_mail', 'edit_news', 'manage_boards', 'manage_smileys', 'manage_attachments'),
 			'areas' => array(
 				'index' => array(
-					'label' => $txt['admin_center'],
+					'label' => Lang::$txt['admin_center'],
 					'function' => 'AdminHome',
 					'icon' => 'administration',
 				),
 				'credits' => array(
-					'label' => $txt['support_credits_title'],
+					'label' => Lang::$txt['support_credits_title'],
 					'function' => 'AdminHome',
 					'icon' => 'support',
 				),
 				'news' => array(
-					'label' => $txt['news_title'],
+					'label' => Lang::$txt['news_title'],
 					'file' => 'ManageNews.php',
 					'function' => 'ManageNews',
 					'icon' => 'news',
 					'permission' => array('edit_news', 'send_mail', 'admin_forum'),
 					'subsections' => array(
-						'editnews' => array($txt['admin_edit_news'], 'edit_news'),
-						'mailingmembers' => array($txt['admin_newsletters'], 'send_mail'),
-						'settings' => array($txt['settings'], 'admin_forum'),
+						'editnews' => array(Lang::$txt['admin_edit_news'], 'edit_news'),
+						'mailingmembers' => array(Lang::$txt['admin_newsletters'], 'send_mail'),
+						'settings' => array(Lang::$txt['settings'], 'admin_forum'),
 					),
 				),
 				'packages' => array(
-					'label' => $txt['package'],
+					'label' => Lang::$txt['package'],
 					'function' => 'SMF\\PackageManager\\PackageManager::call',
 					'permission' => array('admin_forum'),
 					'icon' => 'packages',
 					'subsections' => array(
-						'browse' => array($txt['browse_packages']),
-						'packageget' => array($txt['download_packages'], 'url' => Config::$scripturl . '?action=admin;area=packages;sa=packageget;get'),
-						'perms' => array($txt['package_file_perms']),
-						'options' => array($txt['package_settings']),
+						'browse' => array(Lang::$txt['browse_packages']),
+						'packageget' => array(Lang::$txt['download_packages'], 'url' => Config::$scripturl . '?action=admin;area=packages;sa=packageget;get'),
+						'perms' => array(Lang::$txt['package_file_perms']),
+						'options' => array(Lang::$txt['package_settings']),
 					),
 				),
 				'search' => array(
@@ -92,7 +93,7 @@ function AdminMain()
 					'select' => 'index'
 				),
 				'adminlogoff' => array(
-					'label' => $txt['admin_logoff'],
+					'label' => Lang::$txt['admin_logoff'],
 					'function' => 'AdminEndSession',
 					'enabled' => empty(Config::$modSettings['securityDisable']),
 					'icon' => 'exit',
@@ -101,231 +102,231 @@ function AdminMain()
 			),
 		),
 		'config' => array(
-			'title' => $txt['admin_config'],
+			'title' => Lang::$txt['admin_config'],
 			'permission' => array('admin_forum'),
 			'areas' => array(
 				'featuresettings' => array(
-					'label' => $txt['modSettings_title'],
+					'label' => Lang::$txt['modSettings_title'],
 					'file' => 'ManageSettings.php',
 					'function' => 'ModifyFeatureSettings',
 					'icon' => 'features',
 					'subsections' => array(
-						'basic' => array($txt['mods_cat_features']),
-						'bbc' => array($txt['manageposts_bbc_settings']),
-						'layout' => array($txt['mods_cat_layout']),
-						'sig' => array($txt['signature_settings_short']),
-						'profile' => array($txt['custom_profile_shorttitle']),
-						'likes' => array($txt['likes']),
-						'mentions' => array($txt['mentions']),
-						'alerts' => array($txt['notifications']),
+						'basic' => array(Lang::$txt['mods_cat_features']),
+						'bbc' => array(Lang::$txt['manageposts_bbc_settings']),
+						'layout' => array(Lang::$txt['mods_cat_layout']),
+						'sig' => array(Lang::$txt['signature_settings_short']),
+						'profile' => array(Lang::$txt['custom_profile_shorttitle']),
+						'likes' => array(Lang::$txt['likes']),
+						'mentions' => array(Lang::$txt['mentions']),
+						'alerts' => array(Lang::$txt['notifications']),
 					),
 				),
 				'antispam' => array(
-					'label' => $txt['antispam_title'],
+					'label' => Lang::$txt['antispam_title'],
 					'file' => 'ManageSettings.php',
 					'function' => 'ModifyAntispamSettings',
 					'icon' => 'security',
 				),
 				'languages' => array(
-					'label' => $txt['language_configuration'],
+					'label' => Lang::$txt['language_configuration'],
 					'file' => 'ManageLanguages.php',
 					'function' => 'ManageLanguages',
 					'icon' => 'languages',
 					'subsections' => array(
-						'edit' => array($txt['language_edit']),
-						'add' => array($txt['language_add']),
-						'settings' => array($txt['language_settings']),
+						'edit' => array(Lang::$txt['language_edit']),
+						'add' => array(Lang::$txt['language_add']),
+						'settings' => array(Lang::$txt['language_settings']),
 					),
 				),
 				'current_theme' => array(
-					'label' => $txt['theme_current_settings'],
+					'label' => Lang::$txt['theme_current_settings'],
 					'file' => 'Themes.php',
 					'function' => 'ThemesMain',
 					'custom_url' => Config::$scripturl . '?action=admin;area=theme;sa=list;th=' . $settings['theme_id'],
 					'icon' => 'current_theme',
 				),
 				'theme' => array(
-					'label' => $txt['theme_admin'],
+					'label' => Lang::$txt['theme_admin'],
 					'file' => 'Themes.php',
 					'function' => 'ThemesMain',
 					'custom_url' => Config::$scripturl . '?action=admin;area=theme',
 					'icon' => 'themes',
 					'subsections' => array(
-						'admin' => array($txt['themeadmin_admin_title']),
-						'list' => array($txt['themeadmin_list_title']),
-						'reset' => array($txt['themeadmin_reset_title']),
-						'edit' => array($txt['themeadmin_edit_title']),
+						'admin' => array(Lang::$txt['themeadmin_admin_title']),
+						'list' => array(Lang::$txt['themeadmin_list_title']),
+						'reset' => array(Lang::$txt['themeadmin_reset_title']),
+						'edit' => array(Lang::$txt['themeadmin_edit_title']),
 					),
 				),
 				'modsettings' => array(
-					'label' => $txt['admin_modifications'],
+					'label' => Lang::$txt['admin_modifications'],
 					'file' => 'ManageSettings.php',
 					'function' => 'ModifyModSettings',
 					'icon' => 'modifications',
 					'subsections' => array(
-						'general' => array($txt['mods_cat_modifications_misc']),
+						'general' => array(Lang::$txt['mods_cat_modifications_misc']),
 						// Mod Authors for a "ADD AFTER" on this line. Ensure you end your change with a comma. For example:
-						// 'shout' => array($txt['shout']),
+						// 'shout' => array(Lang::$txt['shout']),
 						// Note the comma!! The setting with automatically appear with the first mod to be added.
 					),
 				),
 			),
 		),
 		'layout' => array(
-			'title' => $txt['layout_controls'],
+			'title' => Lang::$txt['layout_controls'],
 			'permission' => array('manage_boards', 'admin_forum', 'manage_smileys', 'manage_attachments', 'moderate_forum'),
 			'areas' => array(
 				'manageboards' => array(
-					'label' => $txt['admin_boards'],
+					'label' => Lang::$txt['admin_boards'],
 					'file' => 'ManageBoards.php',
 					'function' => 'ManageBoards',
 					'icon' => 'boards',
 					'permission' => array('manage_boards'),
 					'subsections' => array(
-						'main' => array($txt['boards_edit']),
-						'newcat' => array($txt['mboards_new_cat']),
-						'settings' => array($txt['settings'], 'admin_forum'),
+						'main' => array(Lang::$txt['boards_edit']),
+						'newcat' => array(Lang::$txt['mboards_new_cat']),
+						'settings' => array(Lang::$txt['settings'], 'admin_forum'),
 					),
 				),
 				'postsettings' => array(
-					'label' => $txt['manageposts'],
+					'label' => Lang::$txt['manageposts'],
 					'file' => 'ManagePosts.php',
 					'function' => 'ManagePostSettings',
 					'permission' => array('admin_forum'),
 					'icon' => 'posts',
 					'subsections' => array(
-						'posts' => array($txt['manageposts_settings']),
-						'censor' => array($txt['admin_censored_words']),
-						'topics' => array($txt['manageposts_topic_settings']),
-						'drafts' => array($txt['manage_drafts']),
+						'posts' => array(Lang::$txt['manageposts_settings']),
+						'censor' => array(Lang::$txt['admin_censored_words']),
+						'topics' => array(Lang::$txt['manageposts_topic_settings']),
+						'drafts' => array(Lang::$txt['manage_drafts']),
 					),
 				),
 				'managecalendar' => array(
-					'label' => $txt['manage_calendar'],
+					'label' => Lang::$txt['manage_calendar'],
 					'file' => 'ManageCalendar.php',
 					'function' => 'ManageCalendar',
 					'icon' => 'calendar',
 					'permission' => array('admin_forum'),
 					'inactive' => empty(Config::$modSettings['cal_enabled']),
 					'subsections' => empty(Config::$modSettings['cal_enabled']) ? array() : array(
-						'holidays' => array($txt['manage_holidays'], 'admin_forum'),
-						'settings' => array($txt['calendar_settings'], 'admin_forum'),
+						'holidays' => array(Lang::$txt['manage_holidays'], 'admin_forum'),
+						'settings' => array(Lang::$txt['calendar_settings'], 'admin_forum'),
 					),
 				),
 				'managesearch' => array(
-					'label' => $txt['manage_search'],
+					'label' => Lang::$txt['manage_search'],
 					'file' => 'ManageSearch.php',
 					'function' => 'ManageSearch',
 					'icon' => 'search',
 					'permission' => array('admin_forum'),
 					'subsections' => array(
-						'weights' => array($txt['search_weights']),
-						'method' => array($txt['search_method']),
-						'settings' => array($txt['settings']),
+						'weights' => array(Lang::$txt['search_weights']),
+						'method' => array(Lang::$txt['search_method']),
+						'settings' => array(Lang::$txt['settings']),
 					),
 				),
 				'smileys' => array(
-					'label' => $txt['smileys_manage'],
+					'label' => Lang::$txt['smileys_manage'],
 					'file' => 'ManageSmileys.php',
 					'function' => 'ManageSmileys',
 					'icon' => 'smiley',
 					'permission' => array('manage_smileys'),
 					'subsections' => array(
-						'editsets' => array($txt['smiley_sets']),
-						'addsmiley' => array($txt['smileys_add'], 'enabled' => !empty(Config::$modSettings['smiley_enable'])),
-						'editsmileys' => array($txt['smileys_edit'], 'enabled' => !empty(Config::$modSettings['smiley_enable'])),
-						'setorder' => array($txt['smileys_set_order'], 'enabled' => !empty(Config::$modSettings['smiley_enable'])),
-						'editicons' => array($txt['icons_edit_message_icons'], 'enabled' => !empty(Config::$modSettings['messageIcons_enable'])),
-						'settings' => array($txt['settings']),
+						'editsets' => array(Lang::$txt['smiley_sets']),
+						'addsmiley' => array(Lang::$txt['smileys_add'], 'enabled' => !empty(Config::$modSettings['smiley_enable'])),
+						'editsmileys' => array(Lang::$txt['smileys_edit'], 'enabled' => !empty(Config::$modSettings['smiley_enable'])),
+						'setorder' => array(Lang::$txt['smileys_set_order'], 'enabled' => !empty(Config::$modSettings['smiley_enable'])),
+						'editicons' => array(Lang::$txt['icons_edit_message_icons'], 'enabled' => !empty(Config::$modSettings['messageIcons_enable'])),
+						'settings' => array(Lang::$txt['settings']),
 					),
 				),
 				'manageattachments' => array(
-					'label' => $txt['attachments_avatars'],
+					'label' => Lang::$txt['attachments_avatars'],
 					'file' => 'ManageAttachments.php',
 					'function' => 'ManageAttachments',
 					'icon' => 'attachment',
 					'permission' => array('manage_attachments'),
 					'subsections' => array(
-						'browse' => array($txt['attachment_manager_browse']),
-						'attachments' => array($txt['attachment_manager_settings']),
-						'avatars' => array($txt['attachment_manager_avatar_settings']),
-						'attachpaths' => array($txt['attach_directories']),
-						'maintenance' => array($txt['attachment_manager_maintenance']),
+						'browse' => array(Lang::$txt['attachment_manager_browse']),
+						'attachments' => array(Lang::$txt['attachment_manager_settings']),
+						'avatars' => array(Lang::$txt['attachment_manager_avatar_settings']),
+						'attachpaths' => array(Lang::$txt['attach_directories']),
+						'maintenance' => array(Lang::$txt['attachment_manager_maintenance']),
 					),
 				),
 				'sengines' => array(
-					'label' => $txt['search_engines'],
+					'label' => Lang::$txt['search_engines'],
 					'inactive' => empty(Config::$modSettings['spider_mode']),
 					'file' => 'ManageSearchEngines.php',
 					'icon' => 'engines',
 					'function' => 'SearchEngines',
 					'permission' => 'admin_forum',
 					'subsections' => empty(Config::$modSettings['spider_mode']) ? array() : array(
-						'stats' => array($txt['spider_stats']),
-						'logs' => array($txt['spider_logs']),
-						'spiders' => array($txt['spiders']),
-						'settings' => array($txt['settings']),
+						'stats' => array(Lang::$txt['spider_stats']),
+						'logs' => array(Lang::$txt['spider_logs']),
+						'spiders' => array(Lang::$txt['spiders']),
+						'settings' => array(Lang::$txt['settings']),
 					),
 				),
 			),
 		),
 		'members' => array(
-			'title' => $txt['admin_manage_members'],
+			'title' => Lang::$txt['admin_manage_members'],
 			'permission' => array('moderate_forum', 'manage_membergroups', 'manage_bans', 'manage_permissions', 'admin_forum'),
 			'areas' => array(
 				'viewmembers' => array(
-					'label' => $txt['admin_users'],
+					'label' => Lang::$txt['admin_users'],
 					'file' => 'ManageMembers.php',
 					'function' => 'ViewMembers',
 					'icon' => 'members',
 					'permission' => array('moderate_forum'),
 					'subsections' => array(
-						'all' => array($txt['view_all_members']),
-						'search' => array($txt['mlist_search']),
+						'all' => array(Lang::$txt['view_all_members']),
+						'search' => array(Lang::$txt['mlist_search']),
 					),
 				),
 				'membergroups' => array(
-					'label' => $txt['admin_groups'],
+					'label' => Lang::$txt['admin_groups'],
 					'file' => 'ManageMembergroups.php',
 					'function' => 'ModifyMembergroups',
 					'icon' => 'membergroups',
 					'permission' => array('manage_membergroups'),
 					'subsections' => array(
-						'index' => array($txt['membergroups_edit_groups'], 'manage_membergroups'),
-						'add' => array($txt['membergroups_new_group'], 'manage_membergroups'),
-						'settings' => array($txt['settings'], 'admin_forum'),
+						'index' => array(Lang::$txt['membergroups_edit_groups'], 'manage_membergroups'),
+						'add' => array(Lang::$txt['membergroups_new_group'], 'manage_membergroups'),
+						'settings' => array(Lang::$txt['settings'], 'admin_forum'),
 					),
 				),
 				'permissions' => array(
-					'label' => $txt['edit_permissions'],
+					'label' => Lang::$txt['edit_permissions'],
 					'file' => 'ManagePermissions.php',
 					'function' => 'ModifyPermissions',
 					'icon' => 'permissions',
 					'permission' => array('manage_permissions'),
 					'subsections' => array(
-						'index' => array($txt['permissions_groups'], 'manage_permissions'),
-						'board' => array($txt['permissions_boards'], 'manage_permissions'),
-						'profiles' => array($txt['permissions_profiles'], 'manage_permissions'),
-						'postmod' => array($txt['permissions_post_moderation'], 'manage_permissions'),
-						'settings' => array($txt['settings'], 'admin_forum'),
+						'index' => array(Lang::$txt['permissions_groups'], 'manage_permissions'),
+						'board' => array(Lang::$txt['permissions_boards'], 'manage_permissions'),
+						'profiles' => array(Lang::$txt['permissions_profiles'], 'manage_permissions'),
+						'postmod' => array(Lang::$txt['permissions_post_moderation'], 'manage_permissions'),
+						'settings' => array(Lang::$txt['settings'], 'admin_forum'),
 					),
 				),
 				'regcenter' => array(
-					'label' => $txt['registration_center'],
+					'label' => Lang::$txt['registration_center'],
 					'file' => 'ManageRegistration.php',
 					'function' => 'RegCenter',
 					'icon' => 'regcenter',
 					'permission' => array('admin_forum', 'moderate_forum'),
 					'subsections' => array(
-						'register' => array($txt['admin_browse_register_new'], 'moderate_forum'),
-						'agreement' => array($txt['registration_agreement'], 'admin_forum'),
-						'policy' => array($txt['privacy_policy'], 'admin_forum'),
-						'reservednames' => array($txt['admin_reserved_set'], 'admin_forum'),
-						'settings' => array($txt['settings'], 'admin_forum'),
+						'register' => array(Lang::$txt['admin_browse_register_new'], 'moderate_forum'),
+						'agreement' => array(Lang::$txt['registration_agreement'], 'admin_forum'),
+						'policy' => array(Lang::$txt['privacy_policy'], 'admin_forum'),
+						'reservednames' => array(Lang::$txt['admin_reserved_set'], 'admin_forum'),
+						'settings' => array(Lang::$txt['settings'], 'admin_forum'),
 					),
 				),
 				'warnings' => array(
-					'label' => $txt['warnings'],
+					'label' => Lang::$txt['warnings'],
 					'file' => 'ManageSettings.php',
 					'function' => 'ModifyWarningSettings',
 					'icon' => 'warning',
@@ -333,109 +334,109 @@ function AdminMain()
 					'permission' => array('admin_forum'),
 				),
 				'ban' => array(
-					'label' => $txt['ban_title'],
+					'label' => Lang::$txt['ban_title'],
 					'file' => 'ManageBans.php',
 					'function' => 'Ban',
 					'icon' => 'ban',
 					'permission' => 'manage_bans',
 					'subsections' => array(
-						'list' => array($txt['ban_edit_list']),
-						'add' => array($txt['ban_add_new']),
-						'browse' => array($txt['ban_trigger_browse']),
-						'log' => array($txt['ban_log']),
+						'list' => array(Lang::$txt['ban_edit_list']),
+						'add' => array(Lang::$txt['ban_add_new']),
+						'browse' => array(Lang::$txt['ban_trigger_browse']),
+						'log' => array(Lang::$txt['ban_log']),
 					),
 				),
 				'paidsubscribe' => array(
-					'label' => $txt['paid_subscriptions'],
+					'label' => Lang::$txt['paid_subscriptions'],
 					'inactive' => empty(Config::$modSettings['paid_enabled']),
 					'file' => 'ManagePaid.php',
 					'icon' => 'paid',
 					'function' => 'ManagePaidSubscriptions',
 					'permission' => 'admin_forum',
 					'subsections' => empty(Config::$modSettings['paid_enabled']) ? array() : array(
-						'view' => array($txt['paid_subs_view']),
-						'settings' => array($txt['settings']),
+						'view' => array(Lang::$txt['paid_subs_view']),
+						'settings' => array(Lang::$txt['settings']),
 					),
 				),
 			),
 		),
 		'maintenance' => array(
-			'title' => $txt['admin_maintenance'],
+			'title' => Lang::$txt['admin_maintenance'],
 			'permission' => array('admin_forum'),
 			'areas' => array(
 				'serversettings' => array(
-					'label' => $txt['admin_server_settings'],
+					'label' => Lang::$txt['admin_server_settings'],
 					'file' => 'ManageServer.php',
 					'function' => 'ModifySettings',
 					'icon' => 'server',
 					'subsections' => array(
-						'general' => array($txt['general_settings']),
-						'database' => array($txt['database_settings']),
-						'cookie' => array($txt['cookies_sessions_settings']),
-						'security' => array($txt['security_settings']),
-						'cache' => array($txt['caching_settings']),
-						'export' => array($txt['export_settings']),
-						'loads' => array($txt['load_balancing_settings']),
-						'phpinfo' => array($txt['phpinfo_settings']),
+						'general' => array(Lang::$txt['general_settings']),
+						'database' => array(Lang::$txt['database_settings']),
+						'cookie' => array(Lang::$txt['cookies_sessions_settings']),
+						'security' => array(Lang::$txt['security_settings']),
+						'cache' => array(Lang::$txt['caching_settings']),
+						'export' => array(Lang::$txt['export_settings']),
+						'loads' => array(Lang::$txt['load_balancing_settings']),
+						'phpinfo' => array(Lang::$txt['phpinfo_settings']),
 					),
 				),
 				'maintain' => array(
-					'label' => $txt['maintain_title'],
+					'label' => Lang::$txt['maintain_title'],
 					'file' => 'ManageMaintenance.php',
 					'icon' => 'maintain',
 					'function' => 'ManageMaintenance',
 					'subsections' => array(
-						'routine' => array($txt['maintain_sub_routine'], 'admin_forum'),
-						'database' => array($txt['maintain_sub_database'], 'admin_forum'),
-						'members' => array($txt['maintain_sub_members'], 'admin_forum'),
-						'topics' => array($txt['maintain_sub_topics'], 'admin_forum'),
-						'hooks' => array($txt['hooks_title_list'], 'admin_forum'),
+						'routine' => array(Lang::$txt['maintain_sub_routine'], 'admin_forum'),
+						'database' => array(Lang::$txt['maintain_sub_database'], 'admin_forum'),
+						'members' => array(Lang::$txt['maintain_sub_members'], 'admin_forum'),
+						'topics' => array(Lang::$txt['maintain_sub_topics'], 'admin_forum'),
+						'hooks' => array(Lang::$txt['hooks_title_list'], 'admin_forum'),
 					),
 				),
 				'scheduledtasks' => array(
-					'label' => $txt['maintain_tasks'],
+					'label' => Lang::$txt['maintain_tasks'],
 					'file' => 'ManageScheduledTasks.php',
 					'icon' => 'scheduled',
 					'function' => 'ManageScheduledTasks',
 					'subsections' => array(
-						'tasks' => array($txt['maintain_tasks'], 'admin_forum'),
-						'tasklog' => array($txt['scheduled_log'], 'admin_forum'),
-						'settings' => array($txt['scheduled_tasks_settings'], 'admin_forum'),
+						'tasks' => array(Lang::$txt['maintain_tasks'], 'admin_forum'),
+						'tasklog' => array(Lang::$txt['scheduled_log'], 'admin_forum'),
+						'settings' => array(Lang::$txt['scheduled_tasks_settings'], 'admin_forum'),
 					),
 				),
 				'mailqueue' => array(
-					'label' => $txt['mailqueue_title'],
+					'label' => Lang::$txt['mailqueue_title'],
 					'file' => 'ManageMail.php',
 					'function' => 'ManageMail',
 					'icon' => 'mail',
 					'subsections' => array(
-						'browse' => array($txt['mailqueue_browse'], 'admin_forum'),
-						'settings' => array($txt['mailqueue_settings'], 'admin_forum'),
-						'test' => array($txt['mailqueue_test'], 'admin_forum'),
+						'browse' => array(Lang::$txt['mailqueue_browse'], 'admin_forum'),
+						'settings' => array(Lang::$txt['mailqueue_settings'], 'admin_forum'),
+						'test' => array(Lang::$txt['mailqueue_test'], 'admin_forum'),
 					),
 				),
 				'reports' => array(
-					'label' => $txt['generate_reports'],
+					'label' => Lang::$txt['generate_reports'],
 					'file' => 'Reports.php',
 					'function' => 'ReportsMain',
 					'icon' => 'reports',
 				),
 				'logs' => array(
-					'label' => $txt['logs'],
+					'label' => Lang::$txt['logs'],
 					'function' => 'AdminLogs',
 					'icon' => 'logs',
 					'subsections' => array(
-						'errorlog' => array($txt['errorlog'], 'admin_forum', 'enabled' => !empty(Config::$modSettings['enableErrorLogging']), 'url' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog;desc'),
-						'adminlog' => array($txt['admin_log'], 'admin_forum', 'enabled' => !empty(Config::$modSettings['adminlog_enabled'])),
-						'modlog' => array($txt['moderation_log'], 'admin_forum', 'enabled' => !empty(Config::$modSettings['modlog_enabled'])),
-						'banlog' => array($txt['ban_log'], 'manage_bans'),
-						'spiderlog' => array($txt['spider_logs'], 'admin_forum', 'enabled' => !empty(Config::$modSettings['spider_mode'])),
-						'tasklog' => array($txt['scheduled_log'], 'admin_forum'),
-						'settings' => array($txt['log_settings'], 'admin_forum'),
+						'errorlog' => array(Lang::$txt['errorlog'], 'admin_forum', 'enabled' => !empty(Config::$modSettings['enableErrorLogging']), 'url' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog;desc'),
+						'adminlog' => array(Lang::$txt['admin_log'], 'admin_forum', 'enabled' => !empty(Config::$modSettings['adminlog_enabled'])),
+						'modlog' => array(Lang::$txt['moderation_log'], 'admin_forum', 'enabled' => !empty(Config::$modSettings['modlog_enabled'])),
+						'banlog' => array(Lang::$txt['ban_log'], 'manage_bans'),
+						'spiderlog' => array(Lang::$txt['spider_logs'], 'admin_forum', 'enabled' => !empty(Config::$modSettings['spider_mode'])),
+						'tasklog' => array(Lang::$txt['scheduled_log'], 'admin_forum'),
+						'settings' => array(Lang::$txt['log_settings'], 'admin_forum'),
 					),
 				),
 				'repairboards' => array(
-					'label' => $txt['admin_repair'],
+					'label' => Lang::$txt['admin_repair'],
 					'file' => 'RepairBoards.php',
 					'function' => 'RepairBoards',
 					'select' => 'maintain',
@@ -471,7 +472,7 @@ function AdminMain()
 	// Build the link tree.
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=admin',
-		'name' => $txt['admin_center'],
+		'name' => Lang::$txt['admin_center'],
 	);
 	if (isset($admin_include_data['current_area']) && $admin_include_data['current_area'] != 'index')
 		Utils::$context['linktree'][] = array(
@@ -515,7 +516,7 @@ function AdminMain()
  */
 function AdminHome()
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	// You have to be able to do at least one of the below to see this page.
 	isAllowedTo(array('admin_forum', 'manage_permissions', 'moderate_forum', 'manage_membergroups', 'manage_bans', 'send_mail', 'edit_news', 'manage_boards', 'manage_smileys', 'manage_attachments'));
@@ -525,7 +526,7 @@ function AdminHome()
 	if (listMembergroupMembers_Href(Utils::$context['administrators'], 1, 32) && allowedTo('manage_membergroups'))
 	{
 		// Add a 'more'-link if there are more than 32.
-		Utils::$context['more_admins_link'] = '<a href="' . Config::$scripturl . '?action=moderate;area=viewgroups;sa=members;group=1">' . $txt['more'] . '</a>';
+		Utils::$context['more_admins_link'] = '<a href="' . Config::$scripturl . '?action=moderate;area=viewgroups;sa=members;group=1">' . Lang::$txt['more'] . '</a>';
 	}
 
 	// Load the credits stuff.
@@ -557,24 +558,24 @@ function AdminHome()
 	Utils::$context['can_admin'] = allowedTo('admin_forum');
 
 	Utils::$context['sub_template'] = Utils::$context['admin_area'] == 'credits' ? 'credits' : 'admin';
-	Utils::$context['page_title'] = Utils::$context['admin_area'] == 'credits' ? $txt['support_credits_title'] : $txt['admin_center'];
+	Utils::$context['page_title'] = Utils::$context['admin_area'] == 'credits' ? Lang::$txt['support_credits_title'] : Lang::$txt['admin_center'];
 	if (Utils::$context['admin_area'] != 'credits')
 		Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
-			'title' => $txt['admin_center'],
+			'title' => Lang::$txt['admin_center'],
 			'help' => '',
-			'description' => '<strong>' . $txt['hello_guest'] . ' ' . Utils::$context['user']['name'] . '!</strong>
-				' . sprintf($txt['admin_main_welcome'], $txt['admin_center'], $txt['help'], $txt['help']),
+			'description' => '<strong>' . Lang::$txt['hello_guest'] . ' ' . Utils::$context['user']['name'] . '!</strong>
+				' . sprintf(Lang::$txt['admin_main_welcome'], Lang::$txt['admin_center'], Lang::$txt['help'], Lang::$txt['help']),
 		);
 
 	// Lastly, fill in the blanks in the support resources paragraphs.
-	$txt['support_resources_p1'] = sprintf($txt['support_resources_p1'],
+	Lang::$txt['support_resources_p1'] = sprintf(Lang::$txt['support_resources_p1'],
 		'https://wiki.simplemachines.org/',
 		'https://wiki.simplemachines.org/smf/features2',
 		'https://wiki.simplemachines.org/smf/options2',
 		'https://wiki.simplemachines.org/smf/themes2',
 		'https://wiki.simplemachines.org/smf/packages2'
 	);
-	$txt['support_resources_p2'] = sprintf($txt['support_resources_p2'],
+	Lang::$txt['support_resources_p2'] = sprintf(Lang::$txt['support_resources_p2'],
 		'https://www.simplemachines.org/community/',
 		'https://www.simplemachines.org/redirect/english_support',
 		'https://www.simplemachines.org/redirect/international_support_boards',
@@ -642,8 +643,6 @@ if (!(\'smfForum_sessionvar\' in window))
  */
 function AdminSearch()
 {
-	global $txt;
-
 	isAllowedTo('admin_forum');
 
 	// What can we search for?
@@ -657,7 +656,7 @@ function AdminSearch()
 	Utils::$context['search_term'] = isset($_REQUEST['search_term']) ? Utils::htmlspecialchars($_REQUEST['search_term'], ENT_QUOTES) : '';
 
 	Utils::$context['sub_template'] = 'admin_search_results';
-	Utils::$context['page_title'] = $txt['admin_search_results'];
+	Utils::$context['page_title'] = Lang::$txt['admin_search_results'];
 
 	// Keep track of what the admin wants.
 	if (empty(Utils::$context['admin_preferences']['sb']) || Utils::$context['admin_preferences']['sb'] != Utils::$context['search_type'])
@@ -680,8 +679,6 @@ function AdminSearch()
  */
 function AdminSearchInternal()
 {
-	global $txt, $helptxt;
-
 	// Try to get some more memory.
 	setMemoryLimit('128M');
 
@@ -735,7 +732,7 @@ function AdminSearchInternal()
 
 	call_integration_hook('integrate_admin_search', array(&$language_files, &$include_files, &$settings_search));
 
-	loadLanguage(implode('+', $language_files));
+	Lang::load(implode('+', $language_files));
 
 	foreach ($include_files as $file)
 		require_once(Config::$sourcedir . '/' . $file . '.php');
@@ -781,7 +778,7 @@ function AdminSearchInternal()
 				$search_data['settings'][] = array($var[(isset($var[2]) && in_array($var[2], array('file', 'db'))) ? 0 : 1], $setting_area[1], 'alttxt' => (isset($var[2]) && in_array($var[2], array('file', 'db'))) || isset($var[3]) ? (in_array($var[2], array('file', 'db')) ? $var[1] : $var[3]) : '');
 	}
 
-	Utils::$context['page_title'] = $txt['admin_search_results'];
+	Utils::$context['page_title'] = Lang::$txt['admin_search_results'];
 	Utils::$context['search_results'] = array();
 
 	$search_term = strtolower(un_htmlspecialchars(Utils::$context['search_term']));
@@ -795,7 +792,7 @@ function AdminSearchInternal()
 				$item[0] = array($item[0]);
 			foreach ($item[0] as $term)
 			{
-				if (stripos($term, $search_term) !== false || (isset($txt[$term]) && stripos($txt[$term], $search_term) !== false) || (isset($txt['setting_' . $term]) && stripos($txt['setting_' . $term], $search_term) !== false))
+				if (stripos($term, $search_term) !== false || (isset(Lang::$txt[$term]) && stripos(Lang::$txt[$term], $search_term) !== false) || (isset(Lang::$txt['setting_' . $term]) && stripos(Lang::$txt['setting_' . $term], $search_term) !== false))
 				{
 					$found = $term;
 					break;
@@ -805,14 +802,14 @@ function AdminSearchInternal()
 			if ($found)
 			{
 				// Format the name - and remove any descriptions the entry may have.
-				$name = isset($txt[$found]) ? $txt[$found] : (isset($txt['setting_' . $found]) ? $txt['setting_' . $found] : (!empty($item['alttxt']) ? $item['alttxt'] : $found));
+				$name = isset(Lang::$txt[$found]) ? Lang::$txt[$found] : (isset(Lang::$txt['setting_' . $found]) ? Lang::$txt['setting_' . $found] : (!empty($item['alttxt']) ? $item['alttxt'] : $found));
 				$name = preg_replace('~<(?:div|span)\sclass="smalltext">.+?</(?:div|span)>~', '', $name);
 
 				Utils::$context['search_results'][] = array(
 					'url' => (substr($item[1], 0, 4) == 'area' ? Config::$scripturl . '?action=admin;' . $item[1] : $item[1]) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ((substr($item[1], 0, 4) == 'area' && $section == 'settings' ? '#' . $item[0][0] : '')),
 					'name' => $name,
 					'type' => $section,
-					'help' => shorten_subject(isset($item[2]) ? strip_tags($helptxt[$item[2]]) : (isset($helptxt[$found]) ? strip_tags($helptxt[$found]) : ''), 255),
+					'help' => shorten_subject(isset($item[2]) ? strip_tags(Lang::$helptxt[$item[2]]) : (isset(Lang::$helptxt[$found]) ? strip_tags(Lang::$helptxt[$found]) : ''), 255),
 				);
 			}
 		}
@@ -893,8 +890,6 @@ function AdminSearchOM()
  */
 function AdminLogs()
 {
-	global $txt;
-
 	// These are the logs they can load.
 	$log_functions = array(
 		'errorlog' => array('ManageErrors.php', 'ViewErrorLog'),
@@ -912,31 +907,31 @@ function AdminLogs()
 
 	// Setup some tab stuff.
 	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
-		'title' => $txt['logs'],
+		'title' => Lang::$txt['logs'],
 		'help' => '',
-		'description' => $txt['maintain_info'],
+		'description' => Lang::$txt['maintain_info'],
 		'tabs' => array(
 			'errorlog' => array(
 				'url' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog;desc',
-				'description' => sprintf($txt['errorlog_desc'], $txt['remove']),
+				'description' => sprintf(Lang::$txt['errorlog_desc'], Lang::$txt['remove']),
 			),
 			'adminlog' => array(
-				'description' => $txt['admin_log_desc'],
+				'description' => Lang::$txt['admin_log_desc'],
 			),
 			'modlog' => array(
-				'description' => $txt['moderation_log_desc'],
+				'description' => Lang::$txt['moderation_log_desc'],
 			),
 			'banlog' => array(
-				'description' => $txt['ban_log_description'],
+				'description' => Lang::$txt['ban_log_description'],
 			),
 			'spiderlog' => array(
-				'description' => $txt['spider_log_desc'],
+				'description' => Lang::$txt['spider_log_desc'],
 			),
 			'tasklog' => array(
-				'description' => $txt['scheduled_log_desc'],
+				'description' => Lang::$txt['scheduled_log_desc'],
 			),
 			'settings' => array(
-				'description' => $txt['log_settings_desc'],
+				'description' => Lang::$txt['log_settings_desc'],
 			),
 		),
 	);

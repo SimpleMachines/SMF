@@ -11,6 +11,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 
 /**
@@ -18,7 +19,7 @@ use SMF\Utils;
  */
 function template_popup()
 {
-	global $settings, $txt;
+	global $settings;
 
 	// Since this is a popup of its own we need to start the html, etc.
 	echo '<!DOCTYPE html>
@@ -48,7 +49,7 @@ function template_popup()
 	echo '
 			</ul>
 			<br class="clear">
-			<a href="javascript:self.close();">', $txt['close_window'], '</a>
+			<a href="javascript:self.close();">', Lang::$txt['close_window'], '</a>
 		</div><!-- .windowbg -->
 	</body>
 </html>';
@@ -59,15 +60,13 @@ function template_popup()
  */
 function template_like()
 {
-	global $txt;
-
 	echo '
 	<ul class="floatleft">';
 
 	if (!empty(Utils::$context['data']['can_like']))
 		echo '
 		<li class="smflikebutton" id="', Utils::$context['data']['type'], '_', Utils::$context['data']['id_content'], '_likes"', '>
-			<a href="', Config::$scripturl, '?action=likes;ltype=', Utils::$context['data']['type'], ';sa=like;like=', Utils::$context['data']['id_content'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="', Utils::$context['data']['type'], '_like"><span class="main_icons ', Utils::$context['data']['already_liked'] ? 'unlike' : 'like', '"></span> ', Utils::$context['data']['already_liked'] ? $txt['unlike'] : $txt['like'], '</a>
+			<a href="', Config::$scripturl, '?action=likes;ltype=', Utils::$context['data']['type'], ';sa=like;like=', Utils::$context['data']['id_content'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="', Utils::$context['data']['type'], '_like"><span class="main_icons ', Utils::$context['data']['already_liked'] ? 'unlike' : 'like', '"></span> ', Utils::$context['data']['already_liked'] ? Lang::$txt['unlike'] : Lang::$txt['like'], '</a>
 		</li>';
 
 	if (!empty(Utils::$context['data']['count']))
@@ -82,10 +81,10 @@ function template_like()
 			$count--;
 		}
 
-		$base .= (isset($txt[$base . $count])) ? $count : 'n';
+		$base .= (isset(Lang::$txt[$base . $count])) ? $count : 'n';
 
 		echo '
-		<li class="like_count smalltext">', sprintf($txt[$base], Config::$scripturl . '?action=likes;sa=view;ltype=' . Utils::$context['data']['type'] . ';js=1;like=' . Utils::$context['data']['id_content'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], comma_format($count)), '</li>';
+		<li class="like_count smalltext">', sprintf(Lang::$txt[$base], Config::$scripturl . '?action=likes;sa=view;ltype=' . Utils::$context['data']['type'] . ';js=1;like=' . Utils::$context['data']['id_content'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], Lang::numberFormat($count)), '</li>';
 	}
 
 	echo '

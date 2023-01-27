@@ -15,6 +15,7 @@
 
 use SMF\BrowserDetector;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -32,10 +33,10 @@ if (!defined('SMF'))
  */
 function showAttachment()
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	// Some defaults that we need.
-	Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : Config::$modSettings['global_character_set'];
+	Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? (empty(Lang::$txt['lang_character_set']) ? 'ISO-8859-1' : Lang::$txt['lang_character_set']) : Config::$modSettings['global_character_set'];
 	Utils::$context['utf8'] = Utils::$context['character_set'] === 'UTF-8';
 
 	// An early hook to set up global vars, clean cache and other early process.

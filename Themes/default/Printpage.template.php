@@ -11,6 +11,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 
 /**
@@ -18,15 +19,13 @@ use SMF\Utils;
  */
 function template_print_above()
 {
-	global $txt;
-
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<meta charset="', Utils::$context['character_set'], '">
 		<meta name="robots" content="noindex">
 		<link rel="canonical" href="', Utils::$context['canonical_url'], '">
-		<title>', $txt['print_page'], ' - ', Utils::$context['topic_subject'], '</title>
+		<title>', Lang::$txt['print_page'], ' - ', Utils::$context['topic_subject'], '</title>
 		<style>
 			body, a {
 				color: #000;
@@ -143,7 +142,7 @@ function template_print_above()
 
 	echo '
 		<h1 id="title">', Utils::$context['forum_name_html_safe'], '</h1>
-		<h2 id="linktree">', Utils::$context['category_name'], ' => ', (!empty(Utils::$context['parent_boards']) ? implode(' => ', Utils::$context['parent_boards']) . ' => ' : ''), Utils::$context['board_name'], ' => ', $txt['topic_started'], ': ', Utils::$context['poster_name'], ' ', $txt['search_on'], ' ', Utils::$context['post_time'], '</h2>
+		<h2 id="linktree">', Utils::$context['category_name'], ' => ', (!empty(Utils::$context['parent_boards']) ? implode(' => ', Utils::$context['parent_boards']) . ' => ' : ''), Utils::$context['board_name'], ' => ', Lang::$txt['topic_started'], ': ', Utils::$context['poster_name'], ' ', Lang::$txt['search_on'], ' ', Utils::$context['post_time'], '</h2>
 		<div id="posts">';
 }
 
@@ -152,19 +151,19 @@ function template_print_above()
  */
 function template_main()
 {
-	global $options, $txt, $topic;
+	global $options, $topic;
 
 	if (!empty(Utils::$context['poll']))
 	{
 		echo '
-			<div id="poll_data">', $txt['poll'], '
-				<div class="question">', $txt['poll_question'], ': <strong>', Utils::$context['poll']['question'], '</strong>';
+			<div id="poll_data">', Lang::$txt['poll'], '
+				<div class="question">', Lang::$txt['poll_question'], ': <strong>', Utils::$context['poll']['question'], '</strong>';
 
 		$options = 1;
 		foreach (Utils::$context['poll']['options'] as $option)
 			echo '
-					<div class="', $option['voted_this'] ? 'voted' : '', '">', $txt['option'], ' ', $options++, ': <strong>', $option['option'], '</strong>
-						', Utils::$context['allow_poll_view'] ? $txt['votes'] . ': ' . $option['votes'] . '' : '', '
+					<div class="', $option['voted_this'] ? 'voted' : '', '">', Lang::$txt['option'], ' ', $options++, ': <strong>', $option['option'], '</strong>
+						', Utils::$context['allow_poll_view'] ? Lang::$txt['votes'] . ': ' . $option['votes'] . '' : '', '
 					</div>';
 
 		echo '
@@ -175,8 +174,8 @@ function template_main()
 	{
 		echo '
 			<div class="postheader">
-				', $txt['title'], ': <strong>', $post['subject'], '</strong><br>
-				', $txt['post_by'], ': <strong>', $post['member'], '</strong> ', $txt['search_on'], ' <strong>', $post['time'], '</strong>
+				', Lang::$txt['title'], ': <strong>', $post['subject'], '</strong><br>
+				', Lang::$txt['post_by'], ': <strong>', $post['member'], '</strong> ', Lang::$txt['search_on'], ' <strong>', $post['time'], '</strong>
 			</div>
 			<div class="postbody">
 				', $post['body'];
@@ -218,7 +217,7 @@ function template_print_below()
  */
 function template_print_options()
 {
-	global $topic, $txt;
+	global $topic;
 
 	$url_text = Config::$scripturl . '?action=printpage;topic=' . $topic . '.0';
 	$url_images = $url_text . ';images';
@@ -229,10 +228,10 @@ function template_print_options()
 	// Which option is set, text or text&images
 	if (isset($_REQUEST['images']))
 		echo '
-			<a href="', $url_text, '">', $txt['print_page_text'], '</a> | <strong><a href="', $url_images, '">', $txt['print_page_images'], '</a></strong>';
+			<a href="', $url_text, '">', Lang::$txt['print_page_text'], '</a> | <strong><a href="', $url_images, '">', Lang::$txt['print_page_images'], '</a></strong>';
 	else
 		echo '
-			<strong><a href="', $url_text, '">', $txt['print_page_text'], '</a></strong> | <a href="', $url_images, '">', $txt['print_page_images'], '</a>';
+			<strong><a href="', $url_text, '">', Lang::$txt['print_page_text'], '</a></strong> | <a href="', $url_images, '">', Lang::$txt['print_page_images'], '</a>';
 
 	echo '
 		</div><!-- .print_options -->';

@@ -12,6 +12,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -72,11 +73,9 @@ function utf8_casefold($string)
  */
 function utf8_convert_case($string, $case, $simple = false)
 {
-	global $txt;
-
 	$simple = !empty($simple);
 
-	$lang = empty($txt['lang_locale']) ? '' : substr($txt['lang_locale'], 0, 2);
+	$lang = empty(Lang::$txt['lang_locale']) ? '' : substr(Lang::$txt['lang_locale'], 0, 2);
 
 	// The main case conversion logic
 	if (in_array($case, array('upper', 'lower', 'fold')))
@@ -184,7 +183,7 @@ function utf8_convert_case($string, $case, $simple = false)
 	$replacements = array();
 
 	// Greek conditional casing, part 1: Fix lowercase sigma.
-	// Note that this rule doesn't depend on $txt['lang_locale'].
+	// Note that this rule doesn't depend on Lang::$txt['lang_locale'].
 	if ($case !== 'upper' && strpos($string, 'ς') !== false || strpos($string, 'σ') !== false)
 	{
 		require_once(Config::$sourcedir . '/Unicode/RegularExpressions.php');

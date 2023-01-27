@@ -17,6 +17,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Punycode;
 
 if (!defined('SMF'))
@@ -380,15 +381,13 @@ if (!function_exists('mb_chr'))
  */
 function mb_ord_chr_encoding($encoding = null)
 {
-	global $txt;
-
 	if (is_null($encoding))
 	{
 		if (isset(Config::$modSettings['global_character_set']))
 			$encoding = Config::$modSettings['global_character_set'];
 
-		elseif (isset($txt['lang_character_set']))
-			$encoding = $txt['lang_character_set'];
+		elseif (isset(Lang::$txt['lang_character_set']))
+			$encoding = Lang::$txt['lang_character_set'];
 
 		elseif (function_exists('mb_internal_encoding'))
 			$encoding = mb_internal_encoding();

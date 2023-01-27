@@ -15,6 +15,7 @@ namespace SMF\Search;
 
 use SMF\BackwardCompatibility;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 use SMF\PackageManager\SubsPackage;
@@ -221,8 +222,6 @@ abstract class SearchApi implements SearchApiInterface
 	 */
 	final public static function load()
 	{
-		global $txt;
-
 		// Load up the search API we are going to use.
 		Config::$modSettings['search_index'] = empty(Config::$modSettings['search_index']) ? 'standard' : Config::$modSettings['search_index'];
 
@@ -238,8 +237,8 @@ abstract class SearchApi implements SearchApiInterface
 		if (!self::$loadedApi || !(self::$loadedApi instanceof SearchApiInterface) || (self::$loadedApi->supportsMethod('isValid') && !self::$loadedApi->isValid()) || !SubsPackage::matchPackageVersion(SMF_VERSION, self::$loadedApi->min_smf_version . '-' . self::$loadedApi->version_compatible))
 		{
 			// Log the error.
-			loadLanguage('Errors');
-			log_error(sprintf($txt['search_api_not_compatible'], 'Search/APIs/' . ucwords(Config::$modSettings['search_index']) . '.php'), 'critical');
+			Lang::load('Errors');
+			log_error(sprintf(Lang::$txt['search_api_not_compatible'], 'Search/APIs/' . ucwords(Config::$modSettings['search_index']) . '.php'), 'critical');
 
 			// Fall back to standard search.
 			if (Config::$modSettings['search_index'] !== 'standard')
@@ -287,8 +286,8 @@ abstract class SearchApi implements SearchApiInterface
 				'filename' => 'Search/APIs/' . $file_info->getBasename(),
 				'setting_index' => $index_name,
 				'has_template' => in_array($index_name, array('custom', 'fulltext', 'standard')),
-				'label' => $index_name && isset($txt['search_index_' . $index_name]) ? $txt['search_index_' . $index_name] : '',
-				'desc' => $index_name && isset($txt['search_index_' . $index_name . '_desc']) ? $txt['search_index_' . $index_name . '_desc'] : '',
+				'label' => $index_name && isset(Lang::$txt['search_index_' . $index_name]) ? Lang::$txt['search_index_' . $index_name] : '',
+				'desc' => $index_name && isset(Lang::$txt['search_index_' . $index_name . '_desc']) ? Lang::$txt['search_index_' . $index_name . '_desc'] : '',
 			);
 		}
 
@@ -338,8 +337,8 @@ abstract class SearchApi implements SearchApiInterface
 				'filename' => $file_info->getFilename(),
 				'setting_index' => $index_name,
 				'has_template' => in_array($index_name, array('custom', 'fulltext', 'standard')),
-				'label' => $index_name && isset($txt['search_index_' . $index_name]) ? $txt['search_index_' . $index_name] : '',
-				'desc' => $index_name && isset($txt['search_index_' . $index_name . '_desc']) ? $txt['search_index_' . $index_name . '_desc'] : '',
+				'label' => $index_name && isset(Lang::$txt['search_index_' . $index_name]) ? Lang::$txt['search_index_' . $index_name] : '',
+				'desc' => $index_name && isset(Lang::$txt['search_index_' . $index_name . '_desc']) ? Lang::$txt['search_index_' . $index_name . '_desc'] : '',
 			);
 		}
 

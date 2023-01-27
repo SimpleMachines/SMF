@@ -13,6 +13,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -26,12 +27,10 @@ if (!defined('SMF'))
  */
 function RemindMe()
 {
-	global $txt;
-
-	loadLanguage('Profile');
+	Lang::load('Profile');
 	loadTemplate('Reminder');
 
-	Utils::$context['page_title'] = $txt['authentication_reminder'];
+	Utils::$context['page_title'] = Lang::$txt['authentication_reminder'];
 	Utils::$context['robot_no_index'] = true;
 
 	// Delegation can be useful sometimes.
@@ -56,7 +55,7 @@ function RemindMe()
  */
 function RemindPick()
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	checkSession();
 	validateToken('remind');
@@ -118,15 +117,15 @@ function RemindPick()
 	{
 		// Awaiting approval...
 		if (trim($row['validation_code']) == '')
-			fatal_error(sprintf($txt['registration_not_approved'], Config::$scripturl . '?action=activate;user=' . $_POST['user']), false);
+			fatal_error(sprintf(Lang::$txt['registration_not_approved'], Config::$scripturl . '?action=activate;user=' . $_POST['user']), false);
 		else
-			fatal_error(sprintf($txt['registration_not_activated'], Config::$scripturl . '?action=activate;user=' . $_POST['user']), false);
+			fatal_error(sprintf(Lang::$txt['registration_not_activated'], Config::$scripturl . '?action=activate;user=' . $_POST['user']), false);
 	}
 
 	// You can't get emailed if you have no email address.
 	$row['email_address'] = trim($row['email_address']);
 	if ($row['email_address'] == '')
-		fatal_error($txt['no_reminder_email'] . '<br>' . $txt['send_email_to'] . ' <a href="mailto:' . Config::$webmaster_email . '">' . $txt['webmaster'] . '</a> ' . $txt['to_ask_password']);
+		fatal_error(Lang::$txt['no_reminder_email'] . '<br>' . Lang::$txt['send_email_to'] . ' <a href="mailto:' . Config::$webmaster_email . '">' . Lang::$txt['webmaster'] . '</a> ' . Lang::$txt['to_ask_password']);
 
 	// If they have no secret question then they can only get emailed the item, or they are requesting the email, send them an email.
 	if (empty($row['secret_question']) || (isset($_POST['reminder_type']) && $_POST['reminder_type'] == 'email'))
@@ -143,8 +142,8 @@ function RemindPick()
 			'MEMBERNAME' => $row['member_name'],
 		);
 
-		$emaildata = loadEmailTemplate('forgot_password', $replacements, empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $row['lngfile']);
-		Utils::$context['description'] = $txt['reminder_sent'];
+		$emaildata = loadEmailTemplate('forgot_password', $replacements, empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile']);
+		Utils::$context['description'] = Lang::$txt['reminder_sent'];
 
 		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'reminder', $emaildata['is_html'], 1);
 
@@ -176,9 +175,7 @@ function RemindPick()
  */
 function setPassword()
 {
-	global $txt;
-
-	loadLanguage('Login');
+	Lang::load('Login');
 
 	// You need a code!
 	if (!isset($_REQUEST['code']))
@@ -186,7 +183,7 @@ function setPassword()
 
 	// Fill the context array.
 	Utils::$context += array(
-		'page_title' => $txt['reminder_set_password'],
+		'page_title' => Lang::$txt['reminder_set_password'],
 		'sub_template' => 'set_password',
 		'code' => $_REQUEST['code'],
 		'memID' => (int) $_REQUEST['u']
@@ -203,8 +200,6 @@ function setPassword()
  */
 function setPassword2()
 {
-	global $txt;
-
 	checkSession();
 	validateToken('remind-sp');
 
@@ -219,7 +214,7 @@ function setPassword2()
 	if ($_POST['passwrd1'] == '')
 		fatal_lang_error('no_password', false);
 
-	loadLanguage('Login');
+	Lang::load('Login');
 
 	// Get the code as it should be from the database.
 	$request = Db::$db->query('', '
@@ -262,7 +257,7 @@ function setPassword2()
 		// Stop brute force attacks like this.
 		validatePasswordFlood($_POST['u'], $flood_value, false);
 
-		fatal_error($txt['invalid_activation_code'], false);
+		fatal_error(Lang::$txt['invalid_activation_code'], false);
 	}
 
 	// Just in case, flood control.
@@ -275,12 +270,12 @@ function setPassword2()
 
 	loadTemplate('Login');
 	Utils::$context += array(
-		'page_title' => $txt['reminder_password_set'],
+		'page_title' => Lang::$txt['reminder_password_set'],
 		'sub_template' => 'login',
 		'default_username' => $username,
 		'default_password' => $_POST['passwrd1'],
 		'never_expire' => false,
-		'description' => $txt['reminder_password_set']
+		'description' => Lang::$txt['reminder_password_set']
 	);
 
 	createToken('login');
@@ -294,7 +289,7 @@ function SecretAnswerInput()
 	checkSession();
 
 	// Strings for the register auto javascript clever stuffy wuffy.
-	loadLanguage('Login');
+	Lang::load('Login');
 
 	// Check they entered something...
 	if (empty($_REQUEST['uid']))
@@ -335,8 +330,6 @@ function SecretAnswerInput()
  */
 function SecretAnswer2()
 {
-	global $txt;
-
 	checkSession();
 	validateToken('remind-sai');
 
@@ -344,7 +337,7 @@ function SecretAnswer2()
 	if (empty($_REQUEST['uid']))
 		fatal_lang_error('username_no_exist', false);
 
-	loadLanguage('Login');
+	Lang::load('Login');
 
 	// Get the information from the database.
 	$request = Db::$db->query('', '
@@ -370,7 +363,7 @@ function SecretAnswer2()
 	*/
 	if ($row['secret_question'] == '' || $row['secret_answer'] == '' || (!hash_verify_password($row['member_name'], $_POST['secret_answer'], $row['secret_answer']) && md5($_POST['secret_answer']) != $row['secret_answer']))
 	{
-		log_error(sprintf($txt['reminder_error'], $row['member_name']), 'user');
+		log_error(sprintf(Lang::$txt['reminder_error'], $row['member_name']), 'user');
 		fatal_lang_error('incorrect_answer', false);
 	}
 
@@ -401,12 +394,12 @@ function SecretAnswer2()
 	// Tell them it went fine.
 	loadTemplate('Login');
 	Utils::$context += array(
-		'page_title' => $txt['reminder_password_set'],
+		'page_title' => Lang::$txt['reminder_password_set'],
 		'sub_template' => 'login',
 		'default_username' => $row['member_name'],
 		'default_password' => $_POST['passwrd1'],
 		'never_expire' => false,
-		'description' => $txt['reminder_password_set']
+		'description' => Lang::$txt['reminder_password_set']
 	);
 
 	createToken('login');

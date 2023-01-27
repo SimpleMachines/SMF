@@ -16,6 +16,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -34,8 +35,6 @@ if (!defined('SMF'))
  */
 function Ban()
 {
-	global $txt;
-
 	isAllowedTo('manage_bans');
 
 	loadTemplate('ManageBans');
@@ -51,24 +50,24 @@ function Ban()
 
 	// Tabs for browsing the different ban functions.
 	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
-		'title' => $txt['ban_title'],
+		'title' => Lang::$txt['ban_title'],
 		'help' => 'ban_members',
-		'description' => $txt['ban_description'],
+		'description' => Lang::$txt['ban_description'],
 		'tabs' => array(
 			'list' => array(
-				'description' => $txt['ban_description'],
+				'description' => Lang::$txt['ban_description'],
 				'href' => Config::$scripturl . '?action=admin;area=ban;sa=list',
 			),
 			'add' => array(
-				'description' => $txt['ban_description'],
+				'description' => Lang::$txt['ban_description'],
 				'href' => Config::$scripturl . '?action=admin;area=ban;sa=add',
 			),
 			'browse' => array(
-				'description' => $txt['ban_trigger_browse_description'],
+				'description' => Lang::$txt['ban_trigger_browse_description'],
 				'href' => Config::$scripturl . '?action=admin;area=ban;sa=browse',
 			),
 			'log' => array(
-				'description' => $txt['ban_log_description'],
+				'description' => Lang::$txt['ban_log_description'],
 				'href' => Config::$scripturl . '?action=admin;area=ban;sa=log',
 				'is_last' => true,
 			),
@@ -84,7 +83,7 @@ function Ban()
 	if (array_key_exists($_REQUEST['sa'], Utils::$context[Utils::$context['admin_menu_name']]['tab_data']['tabs']))
 		Utils::$context[Utils::$context['admin_menu_name']]['tab_data']['tabs'][$_REQUEST['sa']]['is_selected'] = true;
 
-	Utils::$context['page_title'] = $txt['ban_title'];
+	Utils::$context['page_title'] = Lang::$txt['ban_title'];
 	Utils::$context['sub_action'] = $_REQUEST['sa'];
 
 	// Call the right function for this sub-action.
@@ -102,7 +101,6 @@ function Ban()
  */
 function BanList()
 {
-	global $txt;
 	global $user_info;
 
 	// User pressed the 'remove selection button'.
@@ -131,7 +129,7 @@ function BanList()
 
 	$listOptions = array(
 		'id' => 'ban_list',
-		'title' => $txt['ban_title'],
+		'title' => Lang::$txt['ban_title'],
 		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 		'base_href' => Config::$scripturl . '?action=admin;area=ban;sa=list',
 		'default_sort_col' => 'added',
@@ -142,11 +140,11 @@ function BanList()
 		'get_count' => array(
 			'function' => 'list_getNumBans',
 		),
-		'no_items_label' => $txt['ban_no_entries'],
+		'no_items_label' => Lang::$txt['ban_no_entries'],
 		'columns' => array(
 			'name' => array(
 				'header' => array(
-					'value' => $txt['ban_name'],
+					'value' => Lang::$txt['ban_name'],
 				),
 				'data' => array(
 					'db' => 'name',
@@ -158,7 +156,7 @@ function BanList()
 			),
 			'notes' => array(
 				'header' => array(
-					'value' => $txt['ban_notes'],
+					'value' => Lang::$txt['ban_notes'],
 				),
 				'data' => array(
 					'db' => 'notes',
@@ -171,7 +169,7 @@ function BanList()
 			),
 			'reason' => array(
 				'header' => array(
-					'value' => $txt['ban_reason'],
+					'value' => Lang::$txt['ban_reason'],
 				),
 				'data' => array(
 					'db' => 'reason',
@@ -184,7 +182,7 @@ function BanList()
 			),
 			'added' => array(
 				'header' => array(
-					'value' => $txt['ban_added'],
+					'value' => Lang::$txt['ban_added'],
 				),
 				'data' => array(
 					'function' => function($rowData)
@@ -199,22 +197,22 @@ function BanList()
 			),
 			'expires' => array(
 				'header' => array(
-					'value' => $txt['ban_expires'],
+					'value' => Lang::$txt['ban_expires'],
 				),
 				'data' => array(
-					'function' => function($rowData) use ($txt)
+					'function' => function($rowData)
 					{
 						// This ban never expires...whahaha.
 						if ($rowData['expire_time'] === null)
-							return $txt['never'];
+							return Lang::$txt['never'];
 
 						// This ban has already expired.
 						elseif ($rowData['expire_time'] < time())
-							return sprintf('<span class="red">%1$s</span>', $txt['ban_expired']);
+							return sprintf('<span class="red">%1$s</span>', Lang::$txt['ban_expired']);
 
 						// Still need to wait a few days for this ban to expire.
 						else
-							return sprintf('%1$d&nbsp;%2$s', ceil(($rowData['expire_time'] - time()) / (60 * 60 * 24)), $txt['ban_days']);
+							return sprintf('%1$d&nbsp;%2$s', ceil(($rowData['expire_time'] - time()) / (60 * 60 * 24)), Lang::$txt['ban_days']);
 					},
 				),
 				'sort' => array(
@@ -224,7 +222,7 @@ function BanList()
 			),
 			'num_triggers' => array(
 				'header' => array(
-					'value' => $txt['ban_triggers'],
+					'value' => Lang::$txt['ban_triggers'],
 				),
 				'data' => array(
 					'db' => 'num_triggers',
@@ -236,12 +234,12 @@ function BanList()
 			),
 			'actions' => array(
 				'header' => array(
-					'value' => $txt['ban_actions'],
+					'value' => Lang::$txt['ban_actions'],
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=%1$d">' . $txt['modify'] . '</a>',
+						'format' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=%1$d">' . Lang::$txt['modify'] . '</a>',
 						'params' => array(
 							'id_ban_group' => false,
 						),
@@ -271,11 +269,11 @@ function BanList()
 		'additional_rows' => array(
 			array(
 				'position' => 'top_of_list',
-				'value' => '<input type="submit" name="removeBans" value="' . $txt['ban_remove_selected'] . '" class="button">',
+				'value' => '<input type="submit" name="removeBans" value="' . Lang::$txt['ban_remove_selected'] . '" class="button">',
 			),
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '<input type="submit" name="removeBans" value="' . $txt['ban_remove_selected'] . '" class="button">',
+				'value' => '<input type="submit" name="removeBans" value="' . Lang::$txt['ban_remove_selected'] . '" class="button">',
 			),
 		),
 		'javascript' => '
@@ -287,11 +285,11 @@ function BanList()
 			if (removeItems == 0)
 			{
 				e.preventDefault();
-				return alert("' . $txt['select_item_check'] . '");
+				return alert("' . Lang::$txt['select_item_check'] . '");
 			}
 
 
-			return confirm("' . $txt['ban_remove_selected_confirm'] . '");
+			return confirm("' . Lang::$txt['ban_remove_selected_confirm'] . '");
 		});',
 	);
 
@@ -365,21 +363,19 @@ function list_getNumBans()
  */
 function BanEdit()
 {
-	global $txt;
-
 	if ((isset($_POST['add_ban']) || isset($_POST['modify_ban']) || isset($_POST['remove_selection'])) && empty(Utils::$context['ban_errors']))
 		BanEdit2();
 
 	$ban_group_id = isset(Utils::$context['ban']['id']) ? Utils::$context['ban']['id'] : (isset($_REQUEST['bg']) ? (int) $_REQUEST['bg'] : 0);
 
 	// Template needs this to show errors using javascript
-	loadLanguage('Errors');
+	Lang::load('Errors');
 	createToken('admin-bet');
 	Utils::$context['form_url'] = Config::$scripturl . '?action=admin;area=ban;sa=edit';
 
 	if (!empty(Utils::$context['ban_errors']))
 		foreach (Utils::$context['ban_errors'] as $error)
-			Utils::$context['error_messages'][$error] = $txt[$error];
+			Utils::$context['error_messages'][$error] = Lang::$txt[$error];
 
 	else
 	{
@@ -394,7 +390,7 @@ function BanEdit()
 			$listOptions = array(
 				'id' => 'ban_items',
 				'base_href' => Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=' . $ban_group_id,
-				'no_items_label' => $txt['ban_no_triggers'],
+				'no_items_label' => Lang::$txt['ban_no_triggers'],
 				'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 				'get_items' => array(
 					'function' => 'list_getBanItems',
@@ -411,25 +407,25 @@ function BanEdit()
 				'columns' => array(
 					'type' => array(
 						'header' => array(
-							'value' => $txt['ban_banned_entity'],
+							'value' => Lang::$txt['ban_banned_entity'],
 							'style' => 'width: 60%;text-align: left;',
 						),
 						'data' => array(
-							'function' => function($ban_item) use ($txt)
+							'function' => function($ban_item)
 							{
 								if (in_array($ban_item['type'], array('ip', 'hostname', 'email')))
-									return '<strong>' . $txt[$ban_item['type']] . ':</strong>&nbsp;' . $ban_item[$ban_item['type']];
+									return '<strong>' . Lang::$txt[$ban_item['type']] . ':</strong>&nbsp;' . $ban_item[$ban_item['type']];
 								elseif ($ban_item['type'] == 'user')
-									return '<strong>' . $txt['username'] . ':</strong>&nbsp;' . $ban_item['user']['link'];
+									return '<strong>' . Lang::$txt['username'] . ':</strong>&nbsp;' . $ban_item['user']['link'];
 								else
-									return '<strong>' . $txt['unknown'] . ':</strong>&nbsp;' . $ban_item['no_bantype_selected'];
+									return '<strong>' . Lang::$txt['unknown'] . ':</strong>&nbsp;' . $ban_item['no_bantype_selected'];
 							},
 							'style' => 'text-align: left;',
 						),
 					),
 					'hits' => array(
 						'header' => array(
-							'value' => $txt['ban_hits'],
+							'value' => Lang::$txt['ban_hits'],
 							'style' => 'width: 15%; text-align: center;',
 						),
 						'data' => array(
@@ -439,13 +435,13 @@ function BanEdit()
 					),
 					'id' => array(
 						'header' => array(
-							'value' => $txt['ban_actions'],
+							'value' => Lang::$txt['ban_actions'],
 							'style' => 'width: 15%; text-align: center;',
 						),
 						'data' => array(
-							'function' => function($ban_item) use ($txt)
+							'function' => function($ban_item)
 							{
-								return '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . Utils::$context['ban_group_id'] . ';bi=' . $ban_item['id'] . '">' . $txt['ban_edit_trigger'] . '</a>';
+								return '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . Utils::$context['ban_group_id'] . ';bi=' . $ban_item['id'] . '">' . Lang::$txt['ban_edit_trigger'] . '</a>';
 							},
 							'style' => 'text-align: center;',
 						),
@@ -473,7 +469,7 @@ function BanEdit()
 					array(
 						'position' => 'above_column_headers',
 						'value' => '
-						<input type="submit" name="remove_selection" value="' . $txt['ban_remove_selected_triggers'] . '" class="button"> <a class="button" href="' . Config::$scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . $txt['ban_add_trigger'] . '</a>',
+						<input type="submit" name="remove_selection" value="' . Lang::$txt['ban_remove_selected_triggers'] . '" class="button"> <a class="button" href="' . Config::$scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . Lang::$txt['ban_add_trigger'] . '</a>',
 						'style' => 'text-align: right;',
 					),
 					array(
@@ -486,7 +482,7 @@ function BanEdit()
 					array(
 						'position' => 'below_table_data',
 						'value' => '
-						<input type="submit" name="remove_selection" value="' . $txt['ban_remove_selected_triggers'] . '" class="button"> <a class="button" href="' . Config::$scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . $txt['ban_add_trigger'] . '</a>',
+						<input type="submit" name="remove_selection" value="' . Lang::$txt['ban_remove_selected_triggers'] . '" class="button"> <a class="button" href="' . Config::$scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . Lang::$txt['ban_add_trigger'] . '</a>',
 						'style' => 'text-align: right;',
 					),
 					array(
@@ -506,11 +502,11 @@ function BanEdit()
 			if (removeItems == 0)
 			{
 				e.preventDefault();
-				return alert("' . $txt['select_item_check'] . '");
+				return alert("' . Lang::$txt['select_item_check'] . '");
 			}
 
 
-			return confirm("' . $txt['ban_remove_selected_confirm'] . '");
+			return confirm("' . Lang::$txt['ban_remove_selected_confirm'] . '");
 		});',
 			);
 
@@ -756,7 +752,7 @@ function list_getNumBanItems()
 function banLoadAdditionalIPs($member_id)
 {
 	// Borrowing a few language strings from profile.
-	loadLanguage('Profile');
+	Lang::load('Profile');
 
 	$search_list = array();
 	call_integration_hook('integrate_load_addtional_ip_ban', array(&$search_list));
@@ -1725,7 +1721,7 @@ function BanEditTrigger()
  */
 function BanBrowseTriggers()
 {
-	global $txt, $settings;
+	global $settings;
 
 	if (!empty($_POST['remove_triggers']) && !empty($_POST['remove']) && is_array($_POST['remove']))
 	{
@@ -1745,11 +1741,11 @@ function BanBrowseTriggers()
 
 	$listOptions = array(
 		'id' => 'ban_trigger_list',
-		'title' => $txt['ban_trigger_browse'],
+		'title' => Lang::$txt['ban_trigger_browse'],
 		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 		'base_href' => Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=' . Utils::$context['selected_entity'],
 		'default_sort_col' => 'banned_entity',
-		'no_items_label' => $txt['ban_no_triggers'],
+		'no_items_label' => Lang::$txt['ban_no_triggers'],
 		'get_items' => array(
 			'function' => 'list_getBanTriggers',
 			'params' => array(
@@ -1765,12 +1761,12 @@ function BanBrowseTriggers()
 		'columns' => array(
 			'banned_entity' => array(
 				'header' => array(
-					'value' => $txt['ban_banned_entity'],
+					'value' => Lang::$txt['ban_banned_entity'],
 				),
 			),
 			'ban_name' => array(
 				'header' => array(
-					'value' => $txt['ban_name'],
+					'value' => Lang::$txt['ban_name'],
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -1788,7 +1784,7 @@ function BanBrowseTriggers()
 			),
 			'hits' => array(
 				'header' => array(
-					'value' => $txt['ban_hits'],
+					'value' => Lang::$txt['ban_hits'],
 				),
 				'data' => array(
 					'db' => 'hits',
@@ -1822,11 +1818,11 @@ function BanBrowseTriggers()
 		'additional_rows' => array(
 			array(
 				'position' => 'above_column_headers',
-				'value' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=ip">' . (Utils::$context['selected_entity'] == 'ip' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . $txt['ip'] . '</a>&nbsp;|&nbsp;<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=hostname">' . (Utils::$context['selected_entity'] == 'hostname' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . $txt['hostname'] . '</a>&nbsp;|&nbsp;<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=email">' . (Utils::$context['selected_entity'] == 'email' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . $txt['email'] . '</a>&nbsp;|&nbsp;<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=member">' . (Utils::$context['selected_entity'] == 'member' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . $txt['username'] . '</a>',
+				'value' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=ip">' . (Utils::$context['selected_entity'] == 'ip' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . Lang::$txt['ip'] . '</a>&nbsp;|&nbsp;<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=hostname">' . (Utils::$context['selected_entity'] == 'hostname' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . Lang::$txt['hostname'] . '</a>&nbsp;|&nbsp;<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=email">' . (Utils::$context['selected_entity'] == 'email' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . Lang::$txt['email'] . '</a>&nbsp;|&nbsp;<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=member">' . (Utils::$context['selected_entity'] == 'member' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . Lang::$txt['username'] . '</a>',
 			),
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '<input type="submit" name="remove_triggers" value="' . $txt['ban_remove_selected_triggers'] . '" data-confirm="' . $txt['ban_remove_selected_triggers_confirm'] . '" class="button you_sure">',
+				'value' => '<input type="submit" name="remove_triggers" value="' . Lang::$txt['ban_remove_selected_triggers'] . '" data-confirm="' . Lang::$txt['ban_remove_selected_triggers_confirm'] . '" class="button you_sure">',
 			),
 		),
 	);
@@ -1983,8 +1979,6 @@ function list_getNumBanTriggers($trigger_type)
  */
 function BanLog()
 {
-	global $txt;
-
 	// Delete one or more entries.
 	if (!empty($_POST['removeAll']) || (!empty($_POST['removeSelected']) && !empty($_POST['remove'])))
 	{
@@ -2004,7 +1998,7 @@ function BanLog()
 
 	$listOptions = array(
 		'id' => 'ban_log',
-		'title' => $txt['ban_log'],
+		'title' => Lang::$txt['ban_log'],
 		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 		'base_href' => Utils::$context['admin_area'] == 'ban' ? Config::$scripturl . '?action=admin;area=ban;sa=log' : Config::$scripturl . '?action=admin;area=logs;sa=banlog',
 		'default_sort_col' => 'date',
@@ -2014,11 +2008,11 @@ function BanLog()
 		'get_count' => array(
 			'function' => 'list_getNumBanLogEntries',
 		),
-		'no_items_label' => $txt['ban_log_no_entries'],
+		'no_items_label' => Lang::$txt['ban_log_no_entries'],
 		'columns' => array(
 			'ip' => array(
 				'header' => array(
-					'value' => $txt['ban_log_ip'],
+					'value' => Lang::$txt['ban_log_ip'],
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -2035,7 +2029,7 @@ function BanLog()
 			),
 			'email' => array(
 				'header' => array(
-					'value' => $txt['ban_log_email'],
+					'value' => Lang::$txt['ban_log_email'],
 				),
 				'data' => array(
 					'db_htmlsafe' => 'email',
@@ -2047,7 +2041,7 @@ function BanLog()
 			),
 			'member' => array(
 				'header' => array(
-					'value' => $txt['ban_log_member'],
+					'value' => Lang::$txt['ban_log_member'],
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -2065,7 +2059,7 @@ function BanLog()
 			),
 			'date' => array(
 				'header' => array(
-					'value' => $txt['ban_log_date'],
+					'value' => Lang::$txt['ban_log_date'],
 				),
 				'data' => array(
 					'function' => function($rowData)
@@ -2104,14 +2098,14 @@ function BanLog()
 			array(
 				'position' => 'after_title',
 				'value' => '
-					<input type="submit" name="removeSelected" value="' . $txt['ban_log_remove_selected'] . '" data-confirm="' . $txt['ban_log_remove_selected_confirm'] . '" class="button you_sure">
-					<input type="submit" name="removeAll" value="' . $txt['ban_log_remove_all'] . '" data-confirm="' . $txt['ban_log_remove_all_confirm'] . '" class="button you_sure">',
+					<input type="submit" name="removeSelected" value="' . Lang::$txt['ban_log_remove_selected'] . '" data-confirm="' . Lang::$txt['ban_log_remove_selected_confirm'] . '" class="button you_sure">
+					<input type="submit" name="removeAll" value="' . Lang::$txt['ban_log_remove_all'] . '" data-confirm="' . Lang::$txt['ban_log_remove_all_confirm'] . '" class="button you_sure">',
 			),
 			array(
 				'position' => 'bottom_of_list',
 				'value' => '
-					<input type="submit" name="removeSelected" value="' . $txt['ban_log_remove_selected'] . '" data-confirm="' . $txt['ban_log_remove_selected_confirm'] . '" class="button you_sure">
-					<input type="submit" name="removeAll" value="' . $txt['ban_log_remove_all'] . '" data-confirm="' . $txt['ban_log_remove_all_confirm'] . '" class="button you_sure">',
+					<input type="submit" name="removeSelected" value="' . Lang::$txt['ban_log_remove_selected'] . '" data-confirm="' . Lang::$txt['ban_log_remove_selected_confirm'] . '" class="button you_sure">
+					<input type="submit" name="removeAll" value="' . Lang::$txt['ban_log_remove_all'] . '" data-confirm="' . Lang::$txt['ban_log_remove_all_confirm'] . '" class="button you_sure">',
 			),
 		),
 	);
@@ -2121,7 +2115,7 @@ function BanLog()
 	require_once(Config::$sourcedir . '/Subs-List.php');
 	createList($listOptions);
 
-	Utils::$context['page_title'] = $txt['ban_log'];
+	Utils::$context['page_title'] = Lang::$txt['ban_log'];
 	Utils::$context['sub_template'] = 'show_list';
 	Utils::$context['default_list'] = 'ban_log';
 }

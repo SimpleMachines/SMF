@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -31,8 +32,6 @@ if (!defined('SMF'))
  */
 function DisplayStats()
 {
-	global $txt;
-
 	isAllowedTo('view_stats');
 	// Page disabled - redirect them out
 	if (empty(Config::$modSettings['trackStats']))
@@ -78,16 +77,16 @@ function DisplayStats()
 		return;
 	}
 
-	loadLanguage('Stats');
+	Lang::load('Stats');
 	loadTemplate('Stats');
 	loadJavaScriptFile('stats.js', array('default_theme' => true, 'defer' => false, 'minimize' => true), 'smf_stats');
 
 	// Build the link tree......
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=stats',
-		'name' => $txt['stats_center']
+		'name' => Lang::$txt['stats_center']
 	);
-	Utils::$context['page_title'] = Utils::$context['forum_name'] . ' - ' . $txt['stats_center'];
+	Utils::$context['page_title'] = Utils::$context['forum_name'] . ' - ' . Lang::$txt['stats_center'];
 
 	Utils::$context['show_member_list'] = allowedTo('view_mlist');
 
@@ -106,13 +105,13 @@ function DisplayStats()
 	// This would be the amount of time the forum has been up... in days...
 	$total_days_up = ceil((time() - strtotime($row['date'])) / (60 * 60 * 24));
 
-	Utils::$context['average_posts'] = comma_format(round($row['posts'] / $total_days_up, 2));
-	Utils::$context['average_topics'] = comma_format(round($row['topics'] / $total_days_up, 2));
-	Utils::$context['average_members'] = comma_format(round($row['registers'] / $total_days_up, 2));
-	Utils::$context['average_online'] = comma_format(round($row['most_on'] / $total_days_up, 2));
-	Utils::$context['average_hits'] = comma_format(round($row['hits'] / $total_days_up, 2));
+	Utils::$context['average_posts'] = Lang::numberFormat(round($row['posts'] / $total_days_up, 2));
+	Utils::$context['average_topics'] = Lang::numberFormat(round($row['topics'] / $total_days_up, 2));
+	Utils::$context['average_members'] = Lang::numberFormat(round($row['registers'] / $total_days_up, 2));
+	Utils::$context['average_online'] = Lang::numberFormat(round($row['most_on'] / $total_days_up, 2));
+	Utils::$context['average_hits'] = Lang::numberFormat(round($row['hits'] / $total_days_up, 2));
 
-	Utils::$context['num_hits'] = comma_format($row['hits'], 0);
+	Utils::$context['num_hits'] = Lang::numberFormat($row['hits'], 0);
 
 	// How many users are online now.
 	$result = Db::$db->query('', '
@@ -146,15 +145,15 @@ function DisplayStats()
 	Db::$db->free_result($result);
 
 	// Format the numbers nicely.
-	Utils::$context['users_online'] = comma_format(Utils::$context['users_online']);
-	Utils::$context['num_boards'] = comma_format(Utils::$context['num_boards']);
-	Utils::$context['num_categories'] = comma_format(Utils::$context['num_categories']);
+	Utils::$context['users_online'] = Lang::numberFormat(Utils::$context['users_online']);
+	Utils::$context['num_boards'] = Lang::numberFormat(Utils::$context['num_boards']);
+	Utils::$context['num_categories'] = Lang::numberFormat(Utils::$context['num_categories']);
 
-	Utils::$context['num_members'] = comma_format(Config::$modSettings['totalMembers']);
-	Utils::$context['num_posts'] = comma_format(Config::$modSettings['totalMessages']);
-	Utils::$context['num_topics'] = comma_format(Config::$modSettings['totalTopics']);
+	Utils::$context['num_members'] = Lang::numberFormat(Config::$modSettings['totalMembers']);
+	Utils::$context['num_posts'] = Lang::numberFormat(Config::$modSettings['totalMessages']);
+	Utils::$context['num_topics'] = Lang::numberFormat(Config::$modSettings['totalTopics']);
 	Utils::$context['most_members_online'] = array(
-		'number' => comma_format(Config::$modSettings['mostOnline']),
+		'number' => Lang::numberFormat(Config::$modSettings['mostOnline']),
 		'date' => timeformat(Config::$modSettings['mostDate'])
 	);
 	Utils::$context['latest_member'] = &Utils::$context['common_stats']['latest_member'];
@@ -222,7 +221,7 @@ function DisplayStats()
 	list (Utils::$context['online_today']) = Db::$db->fetch_row($result);
 	Db::$db->free_result($result);
 
-	Utils::$context['online_today'] = comma_format((int) Utils::$context['online_today']);
+	Utils::$context['online_today'] = Lang::numberFormat((int) Utils::$context['online_today']);
 
 	// Poster top 10.
 	$members_result = Db::$db->query('', '
@@ -255,7 +254,7 @@ function DisplayStats()
 	foreach (Utils::$context['stats_blocks']['posters'] as $i => $poster)
 	{
 		Utils::$context['stats_blocks']['posters'][$i]['percent'] = round(($poster['num'] * 100) / $max_num_posts);
-		Utils::$context['stats_blocks']['posters'][$i]['num'] = comma_format(Utils::$context['stats_blocks']['posters'][$i]['num']);
+		Utils::$context['stats_blocks']['posters'][$i]['num'] = Lang::numberFormat(Utils::$context['stats_blocks']['posters'][$i]['num']);
 	}
 
 	// Board top 10.
@@ -292,7 +291,7 @@ function DisplayStats()
 	foreach (Utils::$context['stats_blocks']['boards'] as $i => $board)
 	{
 		Utils::$context['stats_blocks']['boards'][$i]['percent'] = round(($board['num'] * 100) / $max_num_posts);
-		Utils::$context['stats_blocks']['boards'][$i]['num'] = comma_format(Utils::$context['stats_blocks']['boards'][$i]['num']);
+		Utils::$context['stats_blocks']['boards'][$i]['num'] = Lang::numberFormat(Utils::$context['stats_blocks']['boards'][$i]['num']);
 	}
 
 	// Are you on a larger forum?  If so, let's try to limit the number of topics we search through.
@@ -341,7 +340,7 @@ function DisplayStats()
 
 	while ($row_topic_reply = Db::$db->fetch_assoc($topic_reply_result))
 	{
-		censorText($row_topic_reply['subject']);
+		Lang::censorText($row_topic_reply['subject']);
 
 		Utils::$context['stats_blocks']['topics_replies'][] = array(
 			'id' => $row_topic_reply['id_topic'],
@@ -365,7 +364,7 @@ function DisplayStats()
 	foreach (Utils::$context['stats_blocks']['topics_replies'] as $i => $topic)
 	{
 		Utils::$context['stats_blocks']['topics_replies'][$i]['percent'] = round(($topic['num'] * 100) / $max_num_replies);
-		Utils::$context['stats_blocks']['topics_replies'][$i]['num'] = comma_format(Utils::$context['stats_blocks']['topics_replies'][$i]['num']);
+		Utils::$context['stats_blocks']['topics_replies'][$i]['num'] = Lang::numberFormat(Utils::$context['stats_blocks']['topics_replies'][$i]['num']);
 	}
 
 	// Large forums may need a bit more prodding...
@@ -411,7 +410,7 @@ function DisplayStats()
 	$max_num = 1;
 	while ($row_topic_views = Db::$db->fetch_assoc($topic_view_result))
 	{
-		censorText($row_topic_views['subject']);
+		Lang::censorText($row_topic_views['subject']);
 
 		Utils::$context['stats_blocks']['topics_views'][] = array(
 			'id' => $row_topic_views['id_topic'],
@@ -435,7 +434,7 @@ function DisplayStats()
 	foreach (Utils::$context['stats_blocks']['topics_views'] as $i => $topic)
 	{
 		Utils::$context['stats_blocks']['topics_views'][$i]['percent'] = round(($topic['num'] * 100) / $max_num);
-		Utils::$context['stats_blocks']['topics_views'][$i]['num'] = comma_format(Utils::$context['stats_blocks']['topics_views'][$i]['num']);
+		Utils::$context['stats_blocks']['topics_views'][$i]['num'] = Lang::numberFormat(Utils::$context['stats_blocks']['topics_views'][$i]['num']);
 	}
 
 	// Try to cache this when possible, because it's a little unavoidably slow.
@@ -498,7 +497,7 @@ function DisplayStats()
 	foreach (Utils::$context['stats_blocks']['starters'] as $i => $topic)
 	{
 		Utils::$context['stats_blocks']['starters'][$i]['percent'] = round(($topic['num'] * 100) / $max_num);
-		Utils::$context['stats_blocks']['starters'][$i]['num'] = comma_format(Utils::$context['stats_blocks']['starters'][$i]['num']);
+		Utils::$context['stats_blocks']['starters'][$i]['num'] = Lang::numberFormat(Utils::$context['stats_blocks']['starters'][$i]['num']);
 	}
 
 	// Time online top 10.
@@ -531,10 +530,10 @@ function DisplayStats()
 		// Figure out which things to show... (days, hours, minutes, etc.)
 		$timelogged = '';
 		if ($timeDays > 0)
-			$timelogged .= $timeDays . $txt['total_time_logged_d'];
+			$timelogged .= $timeDays . Lang::$txt['total_time_logged_d'];
 		if ($timeHours > 0)
-			$timelogged .= $timeHours . $txt['total_time_logged_h'];
-		$timelogged .= floor(($row_members['total_time_logged_in'] % 3600) / 60) . $txt['total_time_logged_m'];
+			$timelogged .= $timeHours . Lang::$txt['total_time_logged_h'];
+		$timelogged .= floor(($row_members['total_time_logged_in'] % 3600) / 60) . Lang::$txt['total_time_logged_m'];
 
 		Utils::$context['stats_blocks']['time_online'][] = array(
 			'id' => $row_members['id_member'],
@@ -586,7 +585,7 @@ function DisplayStats()
 
 		while ($row_liked_message = Db::$db->fetch_assoc($liked_messages))
 		{
-			censorText($row_liked_message['subject']);
+			Lang::censorText($row_liked_message['subject']);
 
 			Utils::$context['stats_blocks']['liked_messages'][] = array(
 				'id' => $row_liked_message['id_topic'],
@@ -679,14 +678,14 @@ function DisplayStats()
 				'year' => $row_months['stats_year']
 			),
 			'href' => Config::$scripturl . '?action=stats;' . ($expanded ? 'collapse' : 'expand') . '=' . $ID_MONTH . '#m' . $ID_MONTH,
-			'link' => '<a href="' . Config::$scripturl . '?action=stats;' . ($expanded ? 'collapse' : 'expand') . '=' . $ID_MONTH . '#m' . $ID_MONTH . '">' . $txt['months_titles'][(int) $row_months['stats_month']] . ' ' . $row_months['stats_year'] . '</a>',
-			'month' => $txt['months_titles'][(int) $row_months['stats_month']],
+			'link' => '<a href="' . Config::$scripturl . '?action=stats;' . ($expanded ? 'collapse' : 'expand') . '=' . $ID_MONTH . '#m' . $ID_MONTH . '">' . Lang::$txt['months_titles'][(int) $row_months['stats_month']] . ' ' . $row_months['stats_year'] . '</a>',
+			'month' => Lang::$txt['months_titles'][(int) $row_months['stats_month']],
 			'year' => $row_months['stats_year'],
-			'new_topics' => comma_format($row_months['topics']),
-			'new_posts' => comma_format($row_months['posts']),
-			'new_members' => comma_format($row_months['registers']),
-			'most_members_online' => comma_format($row_months['most_on']),
-			'hits' => comma_format($row_months['hits']),
+			'new_topics' => Lang::numberFormat($row_months['topics']),
+			'new_posts' => Lang::numberFormat($row_months['posts']),
+			'new_members' => Lang::numberFormat($row_months['registers']),
+			'most_members_online' => Lang::numberFormat($row_months['most_on']),
+			'hits' => Lang::numberFormat($row_months['hits']),
 			'num_days' => $row_months['num_days'],
 			'days' => array(),
 			'expanded' => $expanded
@@ -709,11 +708,11 @@ function DisplayStats()
 		// This gets rid of the filesort on the query ;).
 		krsort(Utils::$context['yearly'][$year]['months']);
 
-		Utils::$context['yearly'][$year]['new_topics'] = comma_format($data['new_topics']);
-		Utils::$context['yearly'][$year]['new_posts'] = comma_format($data['new_posts']);
-		Utils::$context['yearly'][$year]['new_members'] = comma_format($data['new_members']);
-		Utils::$context['yearly'][$year]['most_members_online'] = comma_format($data['most_members_online']);
-		Utils::$context['yearly'][$year]['hits'] = comma_format($data['hits']);
+		Utils::$context['yearly'][$year]['new_topics'] = Lang::numberFormat($data['new_topics']);
+		Utils::$context['yearly'][$year]['new_posts'] = Lang::numberFormat($data['new_posts']);
+		Utils::$context['yearly'][$year]['new_members'] = Lang::numberFormat($data['new_members']);
+		Utils::$context['yearly'][$year]['most_members_online'] = Lang::numberFormat($data['most_members_online']);
+		Utils::$context['yearly'][$year]['hits'] = Lang::numberFormat($data['hits']);
 
 		// Keep a list of collapsed years.
 		if (!$data['expanded'] && !$data['current_year'])
@@ -765,11 +764,11 @@ function getDailyStats($condition_string, $condition_parameters = array())
 			'day' => sprintf('%02d', $row_days['stats_day']),
 			'month' => sprintf('%02d', $row_days['stats_month']),
 			'year' => $row_days['stats_year'],
-			'new_topics' => comma_format($row_days['topics']),
-			'new_posts' => comma_format($row_days['posts']),
-			'new_members' => comma_format($row_days['registers']),
-			'most_members_online' => comma_format($row_days['most_on']),
-			'hits' => comma_format($row_days['hits'])
+			'new_topics' => Lang::numberFormat($row_days['topics']),
+			'new_posts' => Lang::numberFormat($row_days['posts']),
+			'new_members' => Lang::numberFormat($row_days['registers']),
+			'most_members_online' => Lang::numberFormat($row_days['most_on']),
+			'hits' => Lang::numberFormat($row_days['hits'])
 		);
 	Db::$db->free_result($days_result);
 }

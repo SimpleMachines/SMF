@@ -19,6 +19,7 @@ if (!defined('SMF'))
 	die('No direct access...');
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\ServerSideIncludes as SSI;
 use SMF\Cache\CacheApi;
@@ -172,14 +173,12 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
  */
 function fatal_error($error, $log = 'general', $status = 500)
 {
-	global $txt;
-
 	// Send the appropriate HTTP status header - set this to 0 or false if you don't want to send one at all
 	if (!empty($status))
 		send_http_status($status);
 
-	// We don't have $txt yet, but that's okay...
-	if (empty($txt))
+	// We don't have Lang::$txt yet, but that's okay...
+	if (empty(Lang::$txt))
 		die($error);
 
 	log_error_online($error);
@@ -203,7 +202,7 @@ function fatal_error($error, $log = 'general', $status = 500)
  */
 function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status = 403)
 {
-	global $txt, $user_info;
+	global $user_info;
 	static $fatal_error_called = false;
 
 	// Ensure this is an array.
@@ -221,11 +220,11 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status 
 	}
 
 	// Attempt to load the text string.
-	loadLanguage('Errors');
-	if (empty($txt[$error]))
+	Lang::load('Errors');
+	if (empty(Lang::$txt[$error]))
 		$error_message = $error;
 	else
-		$error_message = empty($sprintf) ? $txt[$error] : vsprintf($txt[$error], $sprintf);
+		$error_message = empty($sprintf) ? Lang::$txt[$error] : vsprintf(Lang::$txt[$error], $sprintf);
 
 	// Send a custom header if we have a custom message.
 	if (isset($_REQUEST['js']) || isset($_REQUEST['xml']) || isset($_RQEUEST['ajax']))
@@ -239,20 +238,20 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status 
 	// Log the error in the forum's language, but don't waste the time if we aren't logging
 	if ($log)
 	{
-		loadLanguage('Errors', $language);
-		$reload_lang_file = $language != $user_info['language'];
-		if (empty($txt[$error]))
+		Lang::load('Errors', Lang::$default);
+		$reload_lang_file = Lang::$default != $user_info['language'];
+		if (empty(Lang::$txt[$error]))
 			$error_message = $error;
 		else
-			$error_message = empty($sprintf) ? $txt[$error] : vsprintf($txt[$error], $sprintf);
+			$error_message = empty($sprintf) ? Lang::$txt[$error] : vsprintf(Lang::$txt[$error], $sprintf);
 		log_error($error_message, $log);
 	}
 
 	// Load the language file, only if it needs to be reloaded
 	if ($reload_lang_file && !empty($txt[$error]))
 	{
-		loadLanguage('Errors');
-		$error_message = empty($sprintf) ? $txt[$error] : vsprintf($txt[$error], $sprintf);
+		Lang::load('Errors');
+		$error_message = empty($sprintf) ? Lang::$txt[$error] : vsprintf(Lang::$txt[$error], $sprintf);
 	}
 
 	log_error_online($error, $sprintf);
@@ -354,7 +353,6 @@ function smf_error_handler($error_level, $error_string, $file, $line)
  */
 function setup_fatal_error_context($error_message, $error_code = null)
 {
-	global $txt;
 	static $level = 0;
 
 	// Attempt to prevent a recursive loop.
@@ -370,7 +368,7 @@ function setup_fatal_error_context($error_message, $error_code = null)
 	Utils::$context['robot_no_index'] = true;
 
 	if (!isset(Utils::$context['error_title']))
-		Utils::$context['error_title'] = $txt['error_occured'];
+		Utils::$context['error_title'] = Lang::$txt['error_occured'];
 	Utils::$context['error_message'] = isset(Utils::$context['error_message']) ? Utils::$context['error_message'] : $error_message;
 
 	Utils::$context['error_code'] = isset($error_code) ? 'id="' . $error_code . '" ' : '';

@@ -18,6 +18,7 @@
 use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -32,7 +33,7 @@ if (!defined('SMF'))
  */
 function MessageMain()
 {
-	global $txt, $user_info, $user_settings, $options;
+	global $user_info, $user_settings, $options;
 
 	// No guests!
 	is_not_guest();
@@ -43,7 +44,7 @@ function MessageMain()
 	// This file contains the basic functions for sending a PM.
 	require_once(Config::$sourcedir . '/Subs-Post.php');
 
-	loadLanguage('PersonalMessage+Drafts');
+	Lang::load('PersonalMessage+Drafts');
 
 	if (!isset($_REQUEST['xml']))
 		loadTemplate('PersonalMessage');
@@ -81,7 +82,7 @@ function MessageMain()
 			'allowed' => Utils::$context['message_limit'],
 			'percent' => $bar,
 			'bar' => min(100, (int) $bar),
-			'text' => sprintf($txt['pm_currently_using'], $user_info['messages'], round($bar, 1)),
+			'text' => sprintf(Lang::$txt['pm_currently_using'], $user_info['messages'], round($bar, 1)),
 		);
 	}
 
@@ -99,7 +100,7 @@ function MessageMain()
 		// Inbox "label"
 		Utils::$context['labels'][-1] = array(
 			'id' => -1,
-			'name' => $txt['pm_msg_label_inbox'],
+			'name' => Lang::$txt['pm_msg_label_inbox'],
 			'messages' => 0,
 			'unread_messages' => 0,
 		);
@@ -192,7 +193,7 @@ function MessageMain()
 	// Build the linktree for all the actions...
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=pm',
-		'name' => $txt['personal_messages']
+		'name' => Lang::$txt['personal_messages']
 	);
 
 	// Preferences...
@@ -235,30 +236,30 @@ function MessageMain()
  */
 function messageIndexBar($area)
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	$pm_areas = array(
 		'folders' => array(
-			'title' => $txt['pm_messages'],
+			'title' => Lang::$txt['pm_messages'],
 			'areas' => array(
 				'inbox' => array(
-					'label' => $txt['inbox'],
+					'label' => Lang::$txt['inbox'],
 					'custom_url' => Config::$scripturl . '?action=pm',
 					'amt' => 0,
 				),
 				'send' => array(
-					'label' => $txt['new_message'],
+					'label' => Lang::$txt['new_message'],
 					'custom_url' => Config::$scripturl . '?action=pm;sa=send',
 					'permission' => 'pm_send',
 					'amt' => 0,
 				),
 				'sent' => array(
-					'label' => $txt['sent_items'],
+					'label' => Lang::$txt['sent_items'],
 					'custom_url' => Config::$scripturl . '?action=pm;f=sent',
 					'amt' => 0,
 				),
 				'drafts' => array(
-					'label' => $txt['drafts_show'],
+					'label' => Lang::$txt['drafts_show'],
 					'custom_url' => Config::$scripturl . '?action=pm;sa=showpmdrafts',
 					'permission' => 'pm_draft',
 					'enabled' => !empty(Config::$modSettings['drafts_pm_enabled']),
@@ -268,36 +269,36 @@ function messageIndexBar($area)
 			'amt' => 0,
 		),
 		'labels' => array(
-			'title' => $txt['pm_labels'],
+			'title' => Lang::$txt['pm_labels'],
 			'areas' => array(),
 			'amt' => 0,
 		),
 		'actions' => array(
-			'title' => $txt['pm_actions'],
+			'title' => Lang::$txt['pm_actions'],
 			'areas' => array(
 				'search' => array(
-					'label' => $txt['pm_search_bar_title'],
+					'label' => Lang::$txt['pm_search_bar_title'],
 					'custom_url' => Config::$scripturl . '?action=pm;sa=search',
 				),
 				'prune' => array(
-					'label' => $txt['pm_prune'],
+					'label' => Lang::$txt['pm_prune'],
 					'custom_url' => Config::$scripturl . '?action=pm;sa=prune'
 				),
 			),
 		),
 		'pref' => array(
-			'title' => $txt['pm_preferences'],
+			'title' => Lang::$txt['pm_preferences'],
 			'areas' => array(
 				'manlabels' => array(
-					'label' => $txt['pm_manage_labels'],
+					'label' => Lang::$txt['pm_manage_labels'],
 					'custom_url' => Config::$scripturl . '?action=pm;sa=manlabels',
 				),
 				'manrules' => array(
-					'label' => $txt['pm_manage_rules'],
+					'label' => Lang::$txt['pm_manage_rules'],
 					'custom_url' => Config::$scripturl . '?action=pm;sa=manrules',
 				),
 				'settings' => array(
-					'label' => $txt['pm_settings'],
+					'label' => Lang::$txt['pm_settings'],
 					'custom_url' => Config::$scripturl . '?action=pm;sa=settings',
 				),
 			),
@@ -348,7 +349,7 @@ function messageIndexBar($area)
 			'allowed' => Utils::$context['message_limit'],
 			'percent' => $bar,
 			'bar' => $bar > 100 ? 100 : (int) $bar,
-			'text' => sprintf($txt['pm_currently_using'], $user_info['messages'], $bar)
+			'text' => sprintf(Lang::$txt['pm_currently_using'], $user_info['messages'], $bar)
 		);
 	}
 
@@ -468,7 +469,7 @@ function MessagePopup()
  */
 function MessageFolder()
 {
-	global $txt, $subjects_request;
+	global $subjects_request;
 	global $messages_request, $user_info, $recipients, $options, $user_settings;
 
 	// Changing view?
@@ -551,8 +552,8 @@ function MessageFolder()
 	Utils::$context['sort_direction'] = $descending ? 'down' : 'up';
 
 	// Set the text to resemble the current folder.
-	$pmbox = Utils::$context['folder'] != 'sent' ? $txt['inbox'] : $txt['sent_items'];
-	$txt['delete_all'] = str_replace('PMBOX', $pmbox, $txt['delete_all']);
+	$pmbox = Utils::$context['folder'] != 'sent' ? Lang::$txt['inbox'] : Lang::$txt['sent_items'];
+	Lang::$txt['delete_all'] = str_replace('PMBOX', $pmbox, Lang::$txt['delete_all']);
 
 	// Now, build the link tree!
 	if (Utils::$context['current_label_id'] == -1)
@@ -565,7 +566,7 @@ function MessageFolder()
 	if (Utils::$context['current_label_id'] != -1)
 		Utils::$context['linktree'][] = array(
 			'url' => Config::$scripturl . '?action=pm;f=' . Utils::$context['folder'] . ';l=' . Utils::$context['current_label_id'],
-			'name' => $txt['pm_current_label'] . ': ' . Utils::$context['current_label']
+			'name' => Lang::$txt['pm_current_label'] . ': ' . Utils::$context['current_label']
 		);
 
 	// Figure out how many messages there are.
@@ -849,7 +850,7 @@ function MessageFolder()
 		{
 			if (Utils::$context['folder'] == 'sent' || empty($row['bcc']))
 			{
-				$recipients[$row['id_pm']][empty($row['bcc']) ? 'to' : 'bcc'][] = empty($row['id_member_to']) ? $txt['guest_title'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member_to'] . '">' . $row['to_name'] . '</a>';
+				$recipients[$row['id_pm']][empty($row['bcc']) ? 'to' : 'bcc'][] = empty($row['id_member_to']) ? Lang::$txt['guest_title'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member_to'] . '">' . $row['to_name'] . '</a>';
 
 				Utils::$context['folder'] == 'sent' && Utils::$context['display_mode'] != 2 ? Utils::$context['message_replied'][$row['id_pm']] = $row['is_read'] & 2 : '';
 			}
@@ -949,7 +950,7 @@ function MessageFolder()
 		if (Utils::$context['display_mode'] == 2)
 		{
 			Utils::$context['conversation_buttons'] = array(
-				'delete' => array('text' => 'delete_conversation', 'image' => 'delete.png', 'url' => Config::$scripturl . '?action=pm;sa=pmactions;pm_actions[' . Utils::$context['current_pm'] . ']=delete;conversation;f=' . Utils::$context['folder'] . ';start=' . Utils::$context['start'] . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], 'custom' => 'data-confirm="' . $txt['remove_conversation'] . '"', 'class' => 'you_sure'),
+				'delete' => array('text' => 'delete_conversation', 'image' => 'delete.png', 'url' => Config::$scripturl . '?action=pm;sa=pmactions;pm_actions[' . Utils::$context['current_pm'] . ']=delete;conversation;f=' . Utils::$context['folder'] . ';start=' . Utils::$context['start'] . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], 'custom' => 'data-confirm="' . Lang::$txt['remove_conversation'] . '"', 'class' => 'you_sure'),
 			);
 
 			// Allow mods to add additional buttons here
@@ -962,7 +963,7 @@ function MessageFolder()
 	Utils::$context['can_send_pm'] = allowedTo('pm_send');
 	Utils::$context['can_send_email'] = allowedTo('moderate_forum');
 	Utils::$context['sub_template'] = 'folder';
-	Utils::$context['page_title'] = $txt['pm_inbox'];
+	Utils::$context['page_title'] = Lang::$txt['pm_inbox'];
 
 	// Finally mark the relevant messages as read.
 	if (Utils::$context['folder'] != 'sent' && !empty(Utils::$context['labels'][(int) Utils::$context['current_label_id']]['unread_messages']))
@@ -985,7 +986,7 @@ function MessageFolder()
  */
 function prepareMessageContext($type = 'subject', $reset = false)
 {
-	global $txt, $messages_request, $memberContext, $recipients;
+	global $messages_request, $memberContext, $recipients;
 	global $user_info, $subjects_request;
 
 	// Count the current message number....
@@ -1010,8 +1011,8 @@ function prepareMessageContext($type = 'subject', $reset = false)
 			return false;
 		}
 
-		$subject['subject'] = $subject['subject'] == '' ? $txt['no_subject'] : $subject['subject'];
-		censorText($subject['subject']);
+		$subject['subject'] = $subject['subject'] == '' ? Lang::$txt['no_subject'] : $subject['subject'];
+		Lang::censorText($subject['subject']);
 
 		$output = array(
 			'id' => $subject['id_pm'],
@@ -1054,7 +1055,7 @@ function prepareMessageContext($type = 'subject', $reset = false)
 	}
 
 	// Use '(no subject)' if none was specified.
-	$message['subject'] = $message['subject'] == '' ? $txt['no_subject'] : $message['subject'];
+	$message['subject'] = $message['subject'] == '' ? Lang::$txt['no_subject'] : $message['subject'];
 
 	// Load the message's information - if it's not there, load the guest information.
 	if (!loadMemberContext($message['id_member_from'], true))
@@ -1063,7 +1064,7 @@ function prepareMessageContext($type = 'subject', $reset = false)
 		$memberContext[$message['id_member_from']]['id'] = 0;
 
 		// Sometimes the forum sends messages itself (Warnings are an example) - in this case don't label it from a guest.
-		$memberContext[$message['id_member_from']]['group'] = $message['from_name'] == Utils::$context['forum_name_html_safe'] ? '' : $txt['guest_title'];
+		$memberContext[$message['id_member_from']]['group'] = $message['from_name'] == Utils::$context['forum_name_html_safe'] ? '' : Lang::$txt['guest_title'];
 		$memberContext[$message['id_member_from']]['link'] = $message['from_name'];
 		$memberContext[$message['id_member_from']]['email'] = '';
 		$memberContext[$message['id_member_from']]['show_email'] = false;
@@ -1080,8 +1081,8 @@ function prepareMessageContext($type = 'subject', $reset = false)
 	$memberContext[$message['id_member_from']]['show_profile_buttons'] = Config::$modSettings['show_profile_buttons'] && (!empty($memberContext[$message['id_member_from']]['can_view_profile']) || (!empty($memberContext[$message['id_member_from']]['website']['url']) && !isset(Utils::$context['disabled_fields']['website'])) || $memberContext[$message['id_member_from']]['show_email'] || Utils::$context['can_send_pm']);
 
 	// Censor all the important text...
-	censorText($message['body']);
-	censorText($message['subject']);
+	Lang::censorText($message['body']);
+	Lang::censorText($message['subject']);
 
 	// Run UBBC interpreter on the message.
 	$message['body'] = BBCodeParser::load()->parse($message['body'], true, 'pm' . $message['id_pm']);
@@ -1116,33 +1117,33 @@ function prepareMessageContext($type = 'subject', $reset = false)
 
 	$output['quickbuttons'] = array(
 		'reply_to_all' => array(
-			'label' => $txt['reply_to_all'],
+			'label' => Lang::$txt['reply_to_all'],
 			'href' => Config::$scripturl . '?action=pm;sa=send;f=' . Utils::$context['folder'] . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmsg=' . $output['id'] . ($output['member']['id'] != $user_info['id'] ? ';quote' : '') . ';u=all',
 			'icon' => 'reply_all_button',
 			'show' => Utils::$context['can_send_pm'] && !$output['member']['is_guest'] && ($output['number_recipients'] > 1 || $output['member']['id'] == $user_info['id']),
 		),
 		'reply' => array(
-			'label' => $txt['reply'],
+			'label' => Lang::$txt['reply'],
 			'href' => Config::$scripturl . '?action=pm;sa=send;f=' . Utils::$context['folder'] . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmsg=' . $output['id'] . ';u=' . $output['member']['id'],
 			'icon' => 'reply_button',
 			'show' => Utils::$context['can_send_pm'] && !$output['member']['is_guest'] && $output['member']['id'] != $user_info['id'],
 		),
 		'quote' => array(
-			'label' => $txt['quote_action'],
+			'label' => Lang::$txt['quote_action'],
 			'href' => Config::$scripturl . '?action=pm;sa=send;f=' . Utils::$context['folder'] . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmsg=' . $output['id'] . ';quote' . ($output['number_recipients'] > 1 || $output['member']['id'] == $user_info['id'] ? ';u=all' : (!$output['member']['is_guest'] ? ';u=' . $output['member']['id'] : '')),
 			'icon' => 'quote',
 			'show' => Utils::$context['can_send_pm'],
 		),
 		'delete' => array(
-			'label' => $txt['delete'],
+			'label' => Lang::$txt['delete'],
 			'href' => Config::$scripturl . '?action=pm;sa=pmactions;pm_actions%5b' . $output['id'] . '%5D=delete;f=' . Utils::$context['folder'] . ';start=' . Utils::$context['start'] . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-			'javascript' => 'data-confirm="' . JavaScriptEscape($txt['remove_message_question']) . '"',
+			'javascript' => 'data-confirm="' . JavaScriptEscape(Lang::$txt['remove_message_question']) . '"',
 			'class' => 'you_sure',
 			'icon' => 'remove_button',
 		),
 		'more' => array(
 			'report' => array(
-				'label' => $txt['pm_report_to_admin'],
+				'label' => Lang::$txt['pm_report_to_admin'],
 				'href' => Config::$scripturl . '?action=pm;sa=report;l=' . Utils::$context['current_label_id'] . ';pmsg=' . $output['id'],
 				'icon' => 'error',
 				'show' => $output['can_report']
@@ -1165,8 +1166,6 @@ function prepareMessageContext($type = 'subject', $reset = false)
  */
 function MessageSearch()
 {
-	global $txt;
-
 	if (isset($_REQUEST['params']))
 	{
 		$temp_params = explode('|"|', base64_decode(strtr($_REQUEST['params'], array(' ' => '+'))));
@@ -1215,22 +1214,22 @@ function MessageSearch()
 	// Load the error text strings if there were errors in the search.
 	if (!empty(Utils::$context['search_errors']))
 	{
-		loadLanguage('Errors');
+		Lang::load('Errors');
 		Utils::$context['search_errors']['messages'] = array();
 		foreach (Utils::$context['search_errors'] as $search_error => $dummy)
 		{
 			if ($search_error == 'messages')
 				continue;
 
-			Utils::$context['search_errors']['messages'][] = $txt['error_' . $search_error];
+			Utils::$context['search_errors']['messages'][] = Lang::$txt['error_' . $search_error];
 		}
 	}
 
-	Utils::$context['page_title'] = $txt['pm_search_title'];
+	Utils::$context['page_title'] = Lang::$txt['pm_search_title'];
 	Utils::$context['sub_template'] = 'search';
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=pm;sa=search',
-		'name' => $txt['pm_search_bar_title'],
+		'name' => Lang::$txt['pm_search_bar_title'],
 	);
 }
 
@@ -1239,7 +1238,7 @@ function MessageSearch()
  */
 function MessageSearch2()
 {
-	global $user_info, $txt;
+	global $user_info;
 	global $memberContext;
 
 	if (!empty(Utils::$context['load_average']) && !empty(Config::$modSettings['loadavg_search']) && Utils::$context['load_average'] >= Config::$modSettings['loadavg_search'])
@@ -1664,7 +1663,7 @@ function MessageSearch2()
 		while ($row = Db::$db->fetch_assoc($request))
 		{
 			if (Utils::$context['folder'] == 'sent' || empty($row['bcc']))
-				$recipients[$row['id_pm']][empty($row['bcc']) ? 'to' : 'bcc'][] = empty($row['id_member_to']) ? $txt['guest_title'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member_to'] . '">' . $row['to_name'] . '</a>';
+				$recipients[$row['id_pm']][empty($row['bcc']) ? 'to' : 'bcc'][] = empty($row['id_member_to']) ? Lang::$txt['guest_title'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member_to'] . '">' . $row['to_name'] . '</a>';
 
 			if ($row['id_member_to'] == $user_info['id'] && Utils::$context['folder'] != 'sent')
 			{
@@ -1723,14 +1722,14 @@ function MessageSearch2()
 		while ($row = Db::$db->fetch_assoc($request))
 		{
 			// If there's no message subject, use the default.
-			$row['subject'] = $row['subject'] == '' ? $txt['no_subject'] : $row['subject'];
+			$row['subject'] = $row['subject'] == '' ? Lang::$txt['no_subject'] : $row['subject'];
 
 			// Load this posters context info, if it ain't there then fill in the essentials...
 			if (!loadMemberContext($row['id_member_from'], true))
 			{
 				$memberContext[$row['id_member_from']]['name'] = $row['from_name'];
 				$memberContext[$row['id_member_from']]['id'] = 0;
-				$memberContext[$row['id_member_from']]['group'] = $txt['guest_title'];
+				$memberContext[$row['id_member_from']]['group'] = Lang::$txt['guest_title'];
 				$memberContext[$row['id_member_from']]['link'] = $row['from_name'];
 				$memberContext[$row['id_member_from']]['email'] = '';
 				$memberContext[$row['id_member_from']]['is_guest'] = true;
@@ -1746,8 +1745,8 @@ function MessageSearch2()
 			$memberContext[$row['id_member_from']]['show_profile_buttons'] = Config::$modSettings['show_profile_buttons'] && (!empty($memberContext[$row['id_member_from']]['can_view_profile']) || (!empty($memberContext[$row['id_member_from']]['website']['url']) && !isset(Utils::$context['disabled_fields']['website'])) || $memberContext[$row['id_member_from']]['show_email'] || Utils::$context['can_send_pm']);
 
 			// Censor anything we don't want to see...
-			censorText($row['body']);
-			censorText($row['subject']);
+			Lang::censorText($row['body']);
+			Lang::censorText($row['subject']);
 
 			// Parse out any BBC...
 			$row['body'] = BBCodeParser::load()->parse($row['body'], true, 'pm' . $row['id_pm']);
@@ -1769,33 +1768,33 @@ function MessageSearch2()
 				'can_see_ip' => allowedTo('moderate_forum') || ($row['id_member_from'] == $user_info['id'] && !empty($user_info['id'])),
 				'quickbuttons' => array(
 					'reply_to_all' => array(
-						'label' => $txt['reply_to_all'],
+						'label' => Lang::$txt['reply_to_all'],
 						'href' => Config::$scripturl . '?action=pm;sa=send;f=' . Utils::$context['folder'] . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmsg=' . $row['id_pm'] . ($row['id_member_from'] != $user_info['id'] ? ';quote' : '') . ';u=all',
 						'icon' => 'reply_all_button',
 						'show' => Utils::$context['can_send_pm'] && !$memberContext[$row['id_member_from']]['is_guest'] && (count($recipients[$row['id_pm']]['to']) > 1 || $row['id_member_from'] == $user_info['id']),
 					),
 					'reply' => array(
-						'label' => $txt['reply'],
+						'label' => Lang::$txt['reply'],
 						'href' => Config::$scripturl . '?action=pm;sa=send;f=' . Utils::$context['folder'] . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmsg=' . $row['id_pm'] . ';u=' . $row['id_member_from'],
 						'icon' => 'reply_button',
 						'show' => Utils::$context['can_send_pm'] && !$memberContext[$row['id_member_from']]['is_guest'] && $row['id_member_from'] != $user_info['id'],
 					),
 					'quote' => array(
-						'label' => $txt['quote_action'],
+						'label' => Lang::$txt['quote_action'],
 						'href' => Config::$scripturl . '?action=pm;sa=send;f=' . Utils::$context['folder'] . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmsg=' . $row['id_pm'] . ';quote' . (count($recipients[$row['id_pm']]['to']) > 1 || $row['id_member_from'] == $user_info['id'] ? ';u=all' : (!$memberContext[$row['id_member_from']]['is_guest'] ? ';u=' . $row['id_member_from'] : '')),
 						'icon' => 'quote',
 						'show' => Utils::$context['can_send_pm'],
 					),
 					'delete' => array(
-						'label' => $txt['delete'],
+						'label' => Lang::$txt['delete'],
 						'href' => Config::$scripturl . '?action=pm;sa=pmactions;pm_actions%5b' . $row['id_pm'] . '%5D=delete;f=' . Utils::$context['folder'] . ';start=' . Utils::$context['start'] . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-						'javascript' => 'data-confirm="' . JavaScriptEscape($txt['remove_message_question']) . '"',
+						'javascript' => 'data-confirm="' . JavaScriptEscape(Lang::$txt['remove_message_question']) . '"',
 						'class' => 'you_sure',
 						'icon' => 'remove_button',
 					),
 					'more' => array(
 						'report' => array(
-							'label' => $txt['pm_report_to_admin'],
+							'label' => Lang::$txt['pm_report_to_admin'],
 							'href' => Config::$scripturl . '?action=pm;sa=report;l=' . Utils::$context['current_label_id'] . ';pmsg=' . $row['id_pm'],
 							'icon' => 'error',
 							'show' => !empty(Config::$modSettings['enableReportPM']),
@@ -1810,12 +1809,12 @@ function MessageSearch2()
 	call_integration_hook('integrate_search_pm_context');
 
 	// Finish off the context.
-	Utils::$context['page_title'] = $txt['pm_search_title'];
+	Utils::$context['page_title'] = Lang::$txt['pm_search_title'];
 	Utils::$context['sub_template'] = 'search_results';
 	Utils::$context['menu_data_' . Utils::$context['pm_menu_id']]['current_area'] = 'search';
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=pm;sa=search',
-		'name' => $txt['pm_search_bar_title'],
+		'name' => Lang::$txt['pm_search_bar_title'],
 	);
 }
 
@@ -1824,12 +1823,11 @@ function MessageSearch2()
  */
 function MessagePost()
 {
-	global $txt;
 	global $user_info;
 
 	isAllowedTo('pm_send');
 
-	loadLanguage('PersonalMessage');
+	Lang::load('PersonalMessage');
 	// Just in case it was loaded from somewhere else.
 	loadTemplate('PersonalMessage');
 	loadJavaScriptFile('PersonalMessage.js', array('defer' => false, 'minimize' => true), 'smf_pms');
@@ -1842,7 +1840,7 @@ function MessagePost()
 	list (Config::$modSettings['max_pm_recipients'], Config::$modSettings['pm_posts_verification'], Config::$modSettings['pm_posts_per_hour']) = explode(',', Config::$modSettings['pm_spam_settings']);
 
 	// Set the title...
-	Utils::$context['page_title'] = $txt['send_message'];
+	Utils::$context['page_title'] = Lang::$txt['send_message'];
 
 	Utils::$context['reply'] = isset($_REQUEST['pmsg']) || isset($_REQUEST['quote']);
 
@@ -1918,19 +1916,19 @@ function MessagePost()
 		Db::$db->free_result($request);
 
 		// Censor the message.
-		censorText($row_quoted['subject']);
-		censorText($row_quoted['body']);
+		Lang::censorText($row_quoted['subject']);
+		Lang::censorText($row_quoted['body']);
 
 		// Add 'Re: ' to it....
 		if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix')))
 		{
-			if (Config::$language === $user_info['language'])
-				Utils::$context['response_prefix'] = $txt['response_prefix'];
+			if (Lang::$default === $user_info['language'])
+				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
 			else
 			{
-				loadLanguage('index', Config::$language, false);
-				Utils::$context['response_prefix'] = $txt['response_prefix'];
-				loadLanguage('index');
+				Lang::load('index', Lang::$default, false);
+				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
+				Lang::load('index');
 			}
 			CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 		}
@@ -2061,7 +2059,7 @@ function MessagePost()
 	// And build the link tree.
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=pm;sa=send',
-		'name' => $txt['new_message']
+		'name' => Lang::$txt['new_message']
 	);
 
 	// Generate a list of drafts that they can load in to the editor
@@ -2082,7 +2080,7 @@ function MessagePost()
 		'height' => '175px',
 		'width' => '100%',
 		'labels' => array(
-			'post_button' => $txt['send_message'],
+			'post_button' => Lang::$txt['send_message'],
 		),
 		'preview_type' => 2,
 		'required' => true,
@@ -2137,7 +2135,6 @@ function MessageDrafts()
  */
 function messagePostError($error_types, $named_recipients, $recipient_ids = array())
 {
-	global $txt;
 	global $user_info;
 
 	if (!isset($_REQUEST['xml']))
@@ -2150,7 +2147,7 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 	else
 		Utils::$context['sub_template'] = 'pm';
 
-	Utils::$context['page_title'] = $txt['send_message'];
+	Utils::$context['page_title'] = Lang::$txt['send_message'];
 
 	// Got some known members?
 	Utils::$context['recipients'] = array(
@@ -2217,8 +2214,8 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 		$row_quoted = Db::$db->fetch_assoc($request);
 		Db::$db->free_result($request);
 
-		censorText($row_quoted['subject']);
-		censorText($row_quoted['body']);
+		Lang::censorText($row_quoted['subject']);
+		Lang::censorText($row_quoted['body']);
 
 		Utils::$context['quoted_message'] = array(
 			'id' => $row_quoted['id_pm'],
@@ -2240,11 +2237,11 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 	// Build the link tree....
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=pm;sa=send',
-		'name' => $txt['new_message']
+		'name' => Lang::$txt['new_message']
 	);
 
 	// Set each of the errors for the template.
-	loadLanguage('Errors');
+	Lang::load('Errors');
 
 	Utils::$context['error_type'] = 'minor';
 
@@ -2257,12 +2254,12 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 	foreach ($error_types as $error_type)
 	{
 		Utils::$context['post_error'][$error_type] = true;
-		if (isset($txt['error_' . $error_type]))
+		if (isset(Lang::$txt['error_' . $error_type]))
 		{
 			if ($error_type == 'long_message')
-				$txt['error_' . $error_type] = sprintf($txt['error_' . $error_type], Config::$modSettings['max_messageLength']);
+				Lang::$txt['error_' . $error_type] = sprintf(Lang::$txt['error_' . $error_type], Config::$modSettings['max_messageLength']);
 
-			Utils::$context['post_error']['messages'][] = $txt['error_' . $error_type];
+			Utils::$context['post_error']['messages'][] = Lang::$txt['error_' . $error_type];
 		}
 
 		// If it's not a minor error flag it as such.
@@ -2280,7 +2277,7 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 		'width' => '90%',
 		'height' => '175px',
 		'labels' => array(
-			'post_button' => $txt['send_message'],
+			'post_button' => Lang::$txt['send_message'],
 		),
 		'preview_type' => 2,
 	);
@@ -2318,7 +2315,6 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
  */
 function MessagePost2()
 {
-	global $txt;
 	global $user_info;
 
 	isAllowedTo('pm_send');
@@ -2331,7 +2327,7 @@ function MessagePost2()
 		require_once(Config::$sourcedir . '/Drafts.php');
 	}
 
-	loadLanguage('PersonalMessage', '', false);
+	Lang::load('PersonalMessage', '', false);
 
 	// Extract out the spam settings - it saves database space!
 	list (Config::$modSettings['max_pm_recipients'], Config::$modSettings['pm_posts_verification'], Config::$modSettings['pm_posts_per_hour']) = explode(',', Config::$modSettings['pm_spam_settings']);
@@ -2463,7 +2459,7 @@ function MessagePost2()
 				$post_errors = array_diff($post_errors, array('no_to'));
 
 				foreach ($namesNotFound[$recipientType] as $name)
-					Utils::$context['send_log']['failed'][] = sprintf($txt['pm_error_user_not_found'], $name);
+					Utils::$context['send_log']['failed'][] = sprintf(Lang::$txt['pm_error_user_not_found'], $name);
 			}
 		}
 	}
@@ -2515,11 +2511,11 @@ function MessagePost2()
 		Utils::$context['preview_message'] = BBCodeParser::load()->parse(Utils::$context['preview_message']);
 
 		// Censor, as always.
-		censorText(Utils::$context['preview_subject']);
-		censorText(Utils::$context['preview_message']);
+		Lang::censorText(Utils::$context['preview_subject']);
+		Lang::censorText(Utils::$context['preview_message']);
 
 		// Set a descriptive title.
-		Utils::$context['page_title'] = $txt['preview'] . ' - ' . Utils::$context['preview_subject'];
+		Utils::$context['page_title'] = Lang::$txt['preview'] . ' - ' . Utils::$context['preview_subject'];
 
 		// Pretend they messed up but don't ignore if they really did :P.
 		return messagePostError($post_errors, $namedRecipientList, $recipientList);
@@ -2533,7 +2529,7 @@ function MessagePost2()
 		{
 			$post_errors[] = 'bad_' . $recipientType;
 			foreach ($names as $name)
-				Utils::$context['send_log']['failed'][] = sprintf($txt['pm_error_user_not_found'], $name);
+				Utils::$context['send_log']['failed'][] = sprintf(Lang::$txt['pm_error_user_not_found'], $name);
 		}
 
 		return messagePostError(array(), $namedRecipientList, $recipientList);
@@ -2551,7 +2547,7 @@ function MessagePost2()
 	{
 		Utils::$context['send_log'] = array(
 			'sent' => array(),
-			'failed' => array(sprintf($txt['pm_too_many_recipients'], Config::$modSettings['max_pm_recipients'])),
+			'failed' => array(sprintf(Lang::$txt['pm_too_many_recipients'], Config::$modSettings['max_pm_recipients'])),
 		);
 		return messagePostError($post_errors, $namedRecipientList, $recipientList);
 	}
@@ -2890,7 +2886,7 @@ function MessageKillAll()
  */
 function MessagePrune()
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	// Actually delete the messages.
 	if (isset($_REQUEST['age']))
@@ -2948,11 +2944,11 @@ function MessagePrune()
 	// Build the link tree elements.
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=pm;sa=prune',
-		'name' => $txt['pm_prune']
+		'name' => Lang::$txt['pm_prune']
 	);
 
 	Utils::$context['sub_template'] = 'prune';
-	Utils::$context['page_title'] = $txt['pm_prune'];
+	Utils::$context['page_title'] = Lang::$txt['pm_prune'];
 }
 
 /**
@@ -3264,15 +3260,15 @@ function markMessages($personal_messages = null, $label = null, $owner = null)
  */
 function ManageLabels()
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	// Build the link tree elements...
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=pm;sa=manlabels',
-		'name' => $txt['pm_manage_labels']
+		'name' => Lang::$txt['pm_manage_labels']
 	);
 
-	Utils::$context['page_title'] = $txt['pm_manage_labels'];
+	Utils::$context['page_title'] = Lang::$txt['pm_manage_labels'];
 	Utils::$context['sub_template'] = 'labels';
 
 	$the_labels = array();
@@ -3518,7 +3514,7 @@ function ManageLabels()
  */
 function MessageSettings()
 {
-	global $txt, $user_info;
+	global $user_info;
 	global $profile_vars, $cur_profile, $user_profile;
 
 	// Need this for the display.
@@ -3531,20 +3527,20 @@ function MessageSettings()
 	loadMemberData($user_info['id'], false, 'profile');
 	$cur_profile = $user_profile[$user_info['id']];
 
-	loadLanguage('Profile');
+	Lang::load('Profile');
 	loadTemplate('Profile');
 
 	// Since this is internally handled with the profile code because that's how it was done ages ago
 	// we have to set everything up for handling this...
-	Utils::$context['page_title'] = $txt['pm_settings'];
+	Utils::$context['page_title'] = Lang::$txt['pm_settings'];
 	Utils::$context['user']['is_owner'] = true;
 	Utils::$context['id_member'] = $user_info['id'];
 	Utils::$context['require_password'] = false;
 	Utils::$context['menu_item_selected'] = 'settings';
-	Utils::$context['submit_button_text'] = $txt['pm_settings'];
-	Utils::$context['profile_header_text'] = $txt['personal_messages'];
+	Utils::$context['submit_button_text'] = Lang::$txt['pm_settings'];
+	Utils::$context['profile_header_text'] = Lang::$txt['personal_messages'];
 	Utils::$context['sub_template'] = 'edit_options';
-	Utils::$context['page_desc'] = $txt['pm_settings_desc'];
+	Utils::$context['page_desc'] = Lang::$txt['pm_settings_desc'];
 
 	loadThemeOptions($user_info['id']);
 	loadCustomFields($user_info['id'], 'pmprefs');
@@ -3552,7 +3548,7 @@ function MessageSettings()
 	// Add our position to the linktree.
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=pm;sa=settings',
-		'name' => $txt['pm_settings']
+		'name' => Lang::$txt['pm_settings']
 	);
 
 	// Are they saving?
@@ -3589,7 +3585,6 @@ function MessageSettings()
  */
 function ReportMessage()
 {
-	global $txt;
 	global $user_info;
 
 	// Check that this feature is even enabled!
@@ -3602,7 +3597,7 @@ function ReportMessage()
 		fatal_lang_error('no_access', false);
 
 	Utils::$context['pm_id'] = $pmsg;
-	Utils::$context['page_title'] = $txt['pm_report_title'];
+	Utils::$context['page_title'] = Lang::$txt['pm_report_title'];
 
 	// If we're here, just send the user to the template, with a few useful context bits.
 	if (!isset($_POST['report']))
@@ -3684,7 +3679,7 @@ function ReportMessage()
 		Db::$db->free_result($request);
 
 		if ($hidden_recipients)
-			$recipients[] = sprintf($txt['pm_report_pm_hidden'], $hidden_recipients);
+			$recipients[] = sprintf(Lang::$txt['pm_report_pm_hidden'], $hidden_recipients);
 
 		// Now let's get out and loop through the admins.
 		$request = Db::$db->query('', '
@@ -3711,22 +3706,22 @@ function ReportMessage()
 		while ($row = Db::$db->fetch_assoc($request))
 		{
 			// Need to send in the correct language!
-			$cur_language = empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $row['lngfile'];
+			$cur_language = empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile'];
 
 			if (!isset($messagesToSend[$cur_language]))
 			{
-				loadLanguage('PersonalMessage', $cur_language, false);
+				Lang::load('PersonalMessage', $cur_language, false);
 
 				// Make the body.
-				$report_body = str_replace(array('{REPORTER}', '{SENDER}'), array(un_htmlspecialchars($user_info['name']), $memberFromName), $txt['pm_report_pm_user_sent']);
+				$report_body = str_replace(array('{REPORTER}', '{SENDER}'), array(un_htmlspecialchars($user_info['name']), $memberFromName), Lang::$txt['pm_report_pm_user_sent']);
 				$report_body .= "\n" . '[b]' . $_POST['reason'] . '[/b]' . "\n\n";
 				if (!empty($recipients))
-					$report_body .= $txt['pm_report_pm_other_recipients'] . ' ' . implode(', ', $recipients) . "\n\n";
-				$report_body .= $txt['pm_report_pm_unedited_below'] . "\n" . '[quote author=' . (empty($memberFromID) ? '"' . $memberFromName . '"' : $memberFromName . ' link=action=profile;u=' . $memberFromID . ' date=' . $time) . ']' . "\n" . un_htmlspecialchars($body) . '[/quote]';
+					$report_body .= Lang::$txt['pm_report_pm_other_recipients'] . ' ' . implode(', ', $recipients) . "\n\n";
+				$report_body .= Lang::$txt['pm_report_pm_unedited_below'] . "\n" . '[quote author=' . (empty($memberFromID) ? '"' . $memberFromName . '"' : $memberFromName . ' link=action=profile;u=' . $memberFromID . ' date=' . $time) . ']' . "\n" . un_htmlspecialchars($body) . '[/quote]';
 
 				// Plonk it in the array ;)
 				$messagesToSend[$cur_language] = array(
-					'subject' => (Utils::entityStrpos($subject, $txt['pm_report_pm_subject']) === false ? $txt['pm_report_pm_subject'] : '') . un_htmlspecialchars($subject),
+					'subject' => (Utils::entityStrpos($subject, Lang::$txt['pm_report_pm_subject']) === false ? Lang::$txt['pm_report_pm_subject'] : '') . un_htmlspecialchars($subject),
 					'body' => $report_body,
 					'recipients' => array(
 						'to' => array(),
@@ -3746,7 +3741,7 @@ function ReportMessage()
 
 		// Give the user their own language back!
 		if (!empty(Config::$modSettings['userLanguage']))
-			loadLanguage('PersonalMessage', '', false);
+			Lang::load('PersonalMessage', '', false);
 
 		// Leave them with a template.
 		Utils::$context['sub_template'] = 'report_message_complete';
@@ -3758,7 +3753,7 @@ function ReportMessage()
  */
 function ManageRules()
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	// Limit the Criteria and Actions to this.
 	Utils::$context['rule_limiters'] = array(
@@ -3769,10 +3764,10 @@ function ManageRules()
 	// The link tree - gotta have this :o
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=pm;sa=manrules',
-		'name' => $txt['pm_manage_rules']
+		'name' => Lang::$txt['pm_manage_rules']
 	);
 
-	Utils::$context['page_title'] = $txt['pm_manage_rules'];
+	Utils::$context['page_title'] = Lang::$txt['pm_manage_rules'];
 	Utils::$context['sub_template'] = 'rules';
 
 	// Load them... load them!!
@@ -3899,7 +3894,7 @@ function ManageRules()
 				);
 				if (Db::$db->num_rows($request) == 0)
 				{
-					loadLanguage('Errors');
+					Lang::load('Errors');
 					fatal_lang_error('invalid_username', false);
 				}
 				list ($memID) = Db::$db->fetch_row($request);
@@ -4170,7 +4165,7 @@ function LoadRules($reload = false)
  */
 function isAccessiblePM($pmID, $validFor = 'in_or_outbox')
 {
-	global $user_info, $txt;
+	global $user_info;
 
 	$request = Db::$db->query('', '
 		SELECT
@@ -4211,8 +4206,8 @@ function isAccessiblePM($pmID, $validFor = 'in_or_outbox')
 			break;
 
 		default:
-			loadLanguage('Errors');
-			trigger_error($txt['pm_invalid_validation_type'], E_USER_ERROR);
+			Lang::load('Errors');
+			trigger_error(Lang::$txt['pm_invalid_validation_type'], E_USER_ERROR);
 			break;
 	}
 }

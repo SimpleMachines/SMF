@@ -16,6 +16,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -33,7 +34,7 @@ if (!defined('SMF'))
 
 function PrintTopic()
 {
-	global $topic, $txt, $user_info;
+	global $topic, $user_info;
 	global $board_info;
 
 	// Redirect to the boardindex if no valid topic id is provided.
@@ -75,7 +76,7 @@ function PrintTopic()
 
 	if (!empty($row['id_poll']))
 	{
-		loadLanguage('Post');
+		Lang::load('Post');
 		// Get the question and if it's locked.
 		$request = Db::$db->query('', '
 			SELECT
@@ -125,7 +126,7 @@ function PrintTopic()
 		$pollinfo['has_voted'] = false;
 		while ($voterow = Db::$db->fetch_assoc($request))
 		{
-			censorText($voterow['label']);
+			Lang::censorText($voterow['label']);
 			$pollOptions[$voterow['id_choice']] = $voterow;
 			$realtotal += $voterow['votes'];
 			$pollinfo['has_voted'] |= $voterow['voted_this'] != -1;
@@ -183,7 +184,7 @@ function PrintTopic()
 			'options' => array(),
 			'lock' => allowedTo('poll_lock_any') || (Utils::$context['user']['started'] && allowedTo('poll_lock_own')),
 			'edit' => allowedTo('poll_edit_any') || (Utils::$context['user']['started'] && allowedTo('poll_edit_own')),
-			'allowed_warning' => $pollinfo['max_votes'] > 1 ? sprintf($txt['poll_options_limit'], min(count($pollOptions), $pollinfo['max_votes'])) : '',
+			'allowed_warning' => $pollinfo['max_votes'] > 1 ? sprintf(Lang::$txt['poll_options_limit'], min(count($pollOptions), $pollinfo['max_votes'])) : '',
 			'is_expired' => !empty($pollinfo['expire_time']) && $pollinfo['expire_time'] < time(),
 			'expire_time' => !empty($pollinfo['expire_time']) ? timeformat($pollinfo['expire_time']) : 0,
 			'has_voted' => !empty($pollinfo['has_voted']),
@@ -266,8 +267,8 @@ function PrintTopic()
 	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// Censor the subject and message.
-		censorText($row['subject']);
-		censorText($row['body']);
+		Lang::censorText($row['subject']);
+		Lang::censorText($row['body']);
 
 		Utils::$context['posts'][] = array(
 			'subject' => $row['subject'],

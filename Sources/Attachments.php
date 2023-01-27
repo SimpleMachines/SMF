@@ -162,7 +162,7 @@ class Attachments
 		require_once(Config::$sourcedir . '/Subs-Attachments.php');
 
 		// Need this. For reasons...
-		loadLanguage('Post');
+		Lang::load('Post');
 
 		$this->_sa = !empty($_REQUEST['sa']) ? Utils::htmlspecialchars(Utils::htmlTrim($_REQUEST['sa'])) : false;
 
@@ -242,7 +242,7 @@ class Attachments
 	 */
 	protected function processAttachments()
 	{
-		global $user_info, $txt;
+		global $user_info;
 
 		if (!isset($_FILES['attachment']['name']))
 			$_FILES['attachment']['tmp_name'] = array();
@@ -279,7 +279,7 @@ class Attachments
 		elseif (!is_dir($this->_attchDir))
 		{
 			$this->_generalErrors[] = 'attach_folder_warning';
-			log_error(sprintf($txt['attach_folder_admin_warning'], $this->_attchDir), 'critical');
+			log_error(sprintf(Lang::$txt['attach_folder_admin_warning'], $this->_attchDir), 'critical');
 		}
 
 		// If this isn't a new post, check the current attachments.
@@ -336,11 +336,11 @@ class Attachments
 					$errors[] = array('file_too_big', array(Config::$modSettings['attachmentSizeLimit']));
 
 				else
-					log_error($_FILES['attachment']['name'][$n] . ': ' . $txt['php_upload_error_' . $_FILES['attachment']['error'][$n]]);
+					log_error($_FILES['attachment']['name'][$n] . ': ' . Lang::$txt['php_upload_error_' . $_FILES['attachment']['error'][$n]]);
 
 				// Log this one, because...
 				if ($_FILES['attachment']['error'][$n] == 6)
-					log_error($_FILES['attachment']['name'][$n] . ': ' . $txt['php_upload_error_6'], 'critical');
+					log_error($_FILES['attachment']['name'][$n] . ': ' . Lang::$txt['php_upload_error_6'], 'critical');
 
 				// Weird, no errors were cached, still fill out a generic one.
 				if (empty($errors))
@@ -408,7 +408,7 @@ class Attachments
 		//   size => File size (required).
 		//   type => MIME type (optional if not available on upload).
 		//   id_folder => Config::$modSettings['currentAttachmentUploadDir']
-		//   errors => An array of errors (use the index of the $txt variable for that error).
+		//   errors => An array of errors (use the index of the Lang::$txt variable for that error).
 		// Template changes can be done using "integrate_upload_template".
 		call_integration_hook('integrate_attachment_upload', array());
 	}
@@ -418,7 +418,7 @@ class Attachments
 	 */
 	protected function createAttach()
 	{
-		global $txt, $user_info;
+		global $user_info;
 
 		// Create an empty session var to keep track of all the files we attached.
 		if (!isset($_SESSION['already_attached']))
@@ -462,16 +462,16 @@ class Attachments
 
 				foreach ($attachment['errors'] as $error)
 				{
-					$attachmentOptions['errors'][] = sprintf($txt['attach_warning'], $attachment['name']);
+					$attachmentOptions['errors'][] = sprintf(Lang::$txt['attach_warning'], $attachment['name']);
 
 					if (!is_array($error))
 					{
-						$attachmentOptions['errors'][] = $txt[$error];
+						$attachmentOptions['errors'][] = Lang::$txt[$error];
 						if (in_array($error, $log_these))
-							log_error($attachment['name'] . ': ' . $txt[$error], 'critical');
+							log_error($attachment['name'] . ': ' . Lang::$txt[$error], 'critical');
 					}
 					else
-						$attachmentOptions['errors'][] = vsprintf($txt[$error[0]], (array) $error[1]);
+						$attachmentOptions['errors'][] = vsprintf(Lang::$txt[$error[0]], (array) $error[1]);
 				}
 				if (file_exists($attachment['tmp_name']))
 					unlink($attachment['tmp_name']);
@@ -505,8 +505,6 @@ class Attachments
 	 */
 	protected function setResponse($data = array())
 	{
-		global $txt;
-
 		// Some default values in case something is missed or neglected :P
 		$this->_response = array(
 			'text' => 'attach_php_error',
@@ -520,7 +518,7 @@ class Attachments
 			// Is there any generic errors? made some sense out of them!
 			if ($this->_generalErrors)
 				foreach ($this->_generalErrors as $k => $v)
-					$this->_generalErrors[$k] = (is_array($v) ? vsprintf($txt[$v[0]], (array) $v[1]) : $txt[$v]);
+					$this->_generalErrors[$k] = (is_array($v) ? vsprintf(Lang::$txt[$v[0]], (array) $v[1]) : Lang::$txt[$v]);
 
 			// Gotta urlencode the filename.
 			if ($this->_attachResults)
@@ -535,8 +533,8 @@ class Attachments
 
 		// Rest of us mere mortals gets no special treatment...
 		elseif (!empty($data))
-			if (!empty($data['text']) && !empty($txt[$data['text']]))
-				$this->_response['text'] = $txt[$data['text']];
+			if (!empty($data['text']) && !empty(Lang::$txt[$data['text']]))
+				$this->_response['text'] = Lang::$txt[$data['text']];
 	}
 
 	/**

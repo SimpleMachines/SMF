@@ -15,6 +15,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -138,20 +139,18 @@ function newspreview()
  */
 function newsletterpreview()
 {
-	global $txt;
-
 	require_once(Config::$sourcedir . '/Subs-Post.php');
 	require_once(Config::$sourcedir . '/ManageNews.php');
-	loadLanguage('Errors');
+	Lang::load('Errors');
 
 	Utils::$context['post_error']['messages'] = array();
 	Utils::$context['send_pm'] = !empty($_POST['send_pm']) ? 1 : 0;
 	Utils::$context['send_html'] = !empty($_POST['send_html']) ? 1 : 0;
 
 	if (empty($_POST['subject']))
-		Utils::$context['post_error']['messages'][] = $txt['error_no_subject'];
+		Utils::$context['post_error']['messages'][] = Lang::$txt['error_no_subject'];
 	if (empty($_POST['message']))
-		Utils::$context['post_error']['messages'][] = $txt['error_no_message'];
+		Utils::$context['post_error']['messages'][] = Lang::$txt['error_no_message'];
 
 	prepareMailingForPreview();
 
@@ -163,11 +162,11 @@ function newsletterpreview()
  */
 function sig_preview()
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	require_once(Config::$sourcedir . '/Profile-Modify.php');
-	loadLanguage('Profile');
-	loadLanguage('Errors');
+	Lang::load('Profile');
+	Lang::load('Errors');
 
 	$user = isset($_POST['user']) ? (int) $_POST['user'] : 0;
 	$is_owner = $user == $user_info['id'];
@@ -190,28 +189,28 @@ function sig_preview()
 		);
 		list($current_signature) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
-		censorText($current_signature);
+		Lang::censorText($current_signature);
 		$allowedTags = BBCodeParser::getSigTags();
-		$current_signature = !empty($current_signature) ? BBCodeParser::load()->parse($current_signature, true, 'sig' . $user, $allowedTags) : $txt['no_signature_set'];
+		$current_signature = !empty($current_signature) ? BBCodeParser::load()->parse($current_signature, true, 'sig' . $user, $allowedTags) : Lang::$txt['no_signature_set'];
 
-		$preview_signature = !empty($_POST['signature']) ? Utils::htmlspecialchars($_POST['signature']) : $txt['no_signature_preview'];
+		$preview_signature = !empty($_POST['signature']) ? Utils::htmlspecialchars($_POST['signature']) : Lang::$txt['no_signature_preview'];
 		$validation = profileValidateSignature($preview_signature);
 
 		if ($validation !== true && $validation !== false)
-			$errors[] = array('value' => $txt['profile_error_' . $validation], 'attributes' => array('type' => 'error'));
+			$errors[] = array('value' => Lang::$txt['profile_error_' . $validation], 'attributes' => array('type' => 'error'));
 
-		censorText($preview_signature);
+		Lang::censorText($preview_signature);
 		$preview_signature = BBCodeParser::load()->parse($preview_signature, true, 'sig' . $user, $allowedTags);
 	}
 	elseif (!$can_change)
 	{
 		if ($is_owner)
-			$errors[] = array('value' => $txt['cannot_profile_extra_own'], 'attributes' => array('type' => 'error'));
+			$errors[] = array('value' => Lang::$txt['cannot_profile_extra_own'], 'attributes' => array('type' => 'error'));
 		else
-			$errors[] = array('value' => $txt['cannot_profile_extra_any'], 'attributes' => array('type' => 'error'));
+			$errors[] = array('value' => Lang::$txt['cannot_profile_extra_any'], 'attributes' => array('type' => 'error'));
 	}
 	else
-		$errors[] = array('value' => $txt['no_user_selected'], 'attributes' => array('type' => 'error'));
+		$errors[] = array('value' => Lang::$txt['no_user_selected'], 'attributes' => array('type' => 'error'));
 
 	Utils::$context['xml_data']['signatures'] = array(
 		'identifier' => 'signature',
@@ -233,7 +232,7 @@ function sig_preview()
 			'children' => array_merge(
 				array(
 					array(
-						'value' => $txt['profile_errors_occurred'],
+						'value' => Lang::$txt['profile_errors_occurred'],
 						'attributes' => array('type' => 'errors_occurred'),
 					),
 				),
@@ -247,28 +246,28 @@ function sig_preview()
  */
 function warning_preview()
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	require_once(Config::$sourcedir . '/Subs-Post.php');
-	loadLanguage('Errors');
-	loadLanguage('ModerationCenter');
+	Lang::load('Errors');
+	Lang::load('ModerationCenter');
 
 	Utils::$context['post_error']['messages'] = array();
 	if (allowedTo('issue_warning'))
 	{
-		$warning_body = !empty($_POST['body']) ? trim(censorText($_POST['body'])) : '';
+		$warning_body = !empty($_POST['body']) ? trim(Lang::censorText($_POST['body'])) : '';
 		Utils::$context['preview_subject'] = !empty($_POST['title']) ? trim(Utils::htmlspecialchars($_POST['title'])) : '';
 		if (isset($_POST['issuing']))
 		{
 			if (empty($_POST['title']) || empty($_POST['body']))
-				Utils::$context['post_error']['messages'][] = $txt['warning_notify_blank'];
+				Utils::$context['post_error']['messages'][] = Lang::$txt['warning_notify_blank'];
 		}
 		else
 		{
 			if (empty($_POST['title']))
-				Utils::$context['post_error']['messages'][] = $txt['mc_warning_template_error_no_title'];
+				Utils::$context['post_error']['messages'][] = Lang::$txt['mc_warning_template_error_no_title'];
 			if (empty($_POST['body']))
-				Utils::$context['post_error']['messages'][] = $txt['mc_warning_template_error_no_body'];
+				Utils::$context['post_error']['messages'][] = Lang::$txt['mc_warning_template_error_no_body'];
 			// Add in few replacements.
 			/**
 			 * These are the defaults:
@@ -288,7 +287,7 @@ function warning_preview()
 				$user_info['name'],
 				Config::$mbname,
 				Config::$scripturl,
-				sprintf($txt['regards_team'], Utils::$context['forum_name']),
+				sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name']),
 			);
 			$warning_body = str_replace($find, $replace, $warning_body);
 		}
@@ -301,7 +300,7 @@ function warning_preview()
 		Utils::$context['preview_message'] = $warning_body;
 	}
 	else
-		Utils::$context['post_error']['messages'][] = array('value' => $txt['cannot_issue_warning'], 'attributes' => array('type' => 'error'));
+		Utils::$context['post_error']['messages'][] = array('value' => Lang::$txt['cannot_issue_warning'], 'attributes' => array('type' => 'error'));
 
 	Utils::$context['sub_template'] = 'warning';
 }

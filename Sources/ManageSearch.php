@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
@@ -34,11 +35,9 @@ if (!defined('SMF'))
  */
 function ManageSearch()
 {
-	global $txt;
-
 	isAllowedTo('admin_forum');
 
-	loadLanguage('Search');
+	Lang::load('Search');
 	loadTemplate('ManageSearch');
 
 	$subActions = array(
@@ -53,18 +52,18 @@ function ManageSearch()
 
 	// Create the tabs for the template.
 	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
-		'title' => $txt['manage_search'],
+		'title' => Lang::$txt['manage_search'],
 		'help' => 'search',
-		'description' => $txt['search_settings_desc'],
+		'description' => Lang::$txt['search_settings_desc'],
 		'tabs' => array(
 			'weights' => array(
-				'description' => $txt['search_weights_desc'],
+				'description' => Lang::$txt['search_weights_desc'],
 			),
 			'method' => array(
-				'description' => $txt['search_method_desc'],
+				'description' => Lang::$txt['search_method_desc'],
 			),
 			'settings' => array(
-				'description' => $txt['search_settings_desc'],
+				'description' => Lang::$txt['search_settings_desc'],
 			),
 		),
 	);
@@ -91,19 +90,17 @@ function ManageSearch()
  */
 function EditSearchSettings($return_config = false)
 {
-	global $txt;
-
 	// What are we editing anyway?
 	$config_vars = array(
 		// Permission...
 		array('permissions', 'search_posts'),
 		// Some simple settings.
 		array('int', 'search_results_per_page'),
-		array('int', 'search_max_results', 'subtext' => $txt['search_max_results_disable']),
+		array('int', 'search_max_results', 'subtext' => Lang::$txt['search_max_results_disable']),
 		'',
 
 		// Some limitations.
-		array('int', 'search_floodcontrol_time', 'subtext' => $txt['search_floodcontrol_time_desc'], 6, 'postinput' => $txt['seconds']),
+		array('int', 'search_floodcontrol_time', 'subtext' => Lang::$txt['search_floodcontrol_time_desc'], 6, 'postinput' => Lang::$txt['seconds']),
 	);
 
 	call_integration_hook('integrate_modify_search_settings', array(&$config_vars));
@@ -117,7 +114,7 @@ function EditSearchSettings($return_config = false)
 	if ($return_config)
 		return $config_vars;
 
-	Utils::$context['page_title'] = $txt['search_settings_title'];
+	Utils::$context['page_title'] = Lang::$txt['search_settings_title'];
 	Utils::$context['sub_template'] = 'show_settings';
 
 	// We'll need this for the settings.
@@ -139,7 +136,7 @@ function EditSearchSettings($return_config = false)
 
 	// Prep the template!
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=managesearch;save;sa=settings';
-	Utils::$context['settings_title'] = $txt['search_settings_title'];
+	Utils::$context['settings_title'] = Lang::$txt['search_settings_title'];
 
 	// We need this for the in-line permissions
 	createToken('admin-mp');
@@ -156,9 +153,7 @@ function EditSearchSettings($return_config = false)
  */
 function EditWeights()
 {
-	global $txt;
-
-	Utils::$context['page_title'] = $txt['search_weights_title'];
+	Utils::$context['page_title'] = Lang::$txt['search_weights_title'];
 	Utils::$context['sub_template'] = 'modify_weights';
 
 	$factors = array(
@@ -208,9 +203,7 @@ function EditWeights()
  */
 function EditSearchMethod()
 {
-	global $txt;
-
-	Utils::$context['page_title'] = $txt['search_method_title'];
+	Utils::$context['page_title'] = Lang::$txt['search_method_title'];
 	Utils::$context['sub_template'] = 'select_search_method';
 	Utils::$context['supports_fulltext'] = Db::$db->search_support('fulltext');
 
@@ -453,18 +446,18 @@ function EditSearchMethod()
 		else
 			// Didn't work for some reason...
 			Utils::$context['table_info'] = array(
-				'data_length' => $txt['not_applicable'],
-				'index_length' => $txt['not_applicable'],
-				'fulltext_length' => $txt['not_applicable'],
-				'custom_index_length' => $txt['not_applicable'],
+				'data_length' => Lang::$txt['not_applicable'],
+				'index_length' => Lang::$txt['not_applicable'],
+				'fulltext_length' => Lang::$txt['not_applicable'],
+				'custom_index_length' => Lang::$txt['not_applicable'],
 			);
 	}
 	else
 		Utils::$context['table_info'] = array(
-			'data_length' => $txt['not_applicable'],
-			'index_length' => $txt['not_applicable'],
-			'fulltext_length' => $txt['not_applicable'],
-			'custom_index_length' => $txt['not_applicable'],
+			'data_length' => Lang::$txt['not_applicable'],
+			'index_length' => Lang::$txt['not_applicable'],
+			'fulltext_length' => Lang::$txt['not_applicable'],
+			'custom_index_length' => Lang::$txt['not_applicable'],
 		);
 
 	// Format the data and index length in kilobytes.
@@ -474,7 +467,7 @@ function EditSearchMethod()
 		if (!is_numeric($size))
 			break;
 
-		Utils::$context['table_info'][$type] = comma_format(Utils::$context['table_info'][$type] / 1024) . ' ' . $txt['search_method_kilobytes'];
+		Utils::$context['table_info'][$type] = Lang::numberFormat(Utils::$context['table_info'][$type] / 1024) . ' ' . Lang::$txt['search_method_kilobytes'];
 	}
 
 	Utils::$context['custom_index'] = !empty(Config::$modSettings['search_custom_index_config']);
@@ -498,15 +491,13 @@ function EditSearchMethod()
  */
 function CreateMessageIndex()
 {
-	global $txt;
-
 	// Scotty, we need more time...
 	@set_time_limit(600);
 	if (function_exists('apache_reset_timeout'))
 		@apache_reset_timeout();
 
 	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'method';
-	Utils::$context['page_title'] = $txt['search_index_custom'];
+	Utils::$context['page_title'] = Lang::$txt['search_index_custom'];
 
 	$messages_per_batch = 50;
 

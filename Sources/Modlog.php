@@ -15,6 +15,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -32,8 +33,6 @@ if (!defined('SMF'))
  */
 function ViewModlog()
 {
-	global $txt;
-
 	// Are we looking at the moderation log or the administration log.
 	Utils::$context['log_type'] = isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'adminlog' ? 3 : 1;
 	if (Utils::$context['log_type'] == 3)
@@ -47,9 +46,9 @@ function ViewModlog()
 
 	Utils::$context['can_delete'] = allowedTo('admin_forum');
 
-	loadLanguage('Admin+Modlog');
+	Lang::load('Admin+Modlog');
 
-	Utils::$context['page_title'] = Utils::$context['log_type'] == 3 ? $txt['modlog_admin_log'] : $txt['modlog_view'];
+	Utils::$context['page_title'] = Utils::$context['log_type'] == 3 ? Lang::$txt['modlog_admin_log'] : Lang::$txt['modlog_view'];
 
 	// The number of entries to show per page of log file.
 	Utils::$context['displaypage'] = 30;
@@ -118,10 +117,10 @@ function ViewModlog()
 
 	// This array houses all the valid search types.
 	$searchTypes = array(
-		'action' => array('sql' => 'lm.action', 'label' => $txt['modlog_action']),
-		'member' => array('sql' => 'mem.real_name', 'label' => $txt['modlog_member']),
-		'group' => array('sql' => 'mg.group_name', 'label' => $txt['modlog_position']),
-		'ip' => array('sql' => 'lm.ip', 'label' => $txt['modlog_ip'])
+		'action' => array('sql' => 'lm.action', 'label' => Lang::$txt['modlog_action']),
+		'member' => array('sql' => 'mem.real_name', 'label' => Lang::$txt['modlog_member']),
+		'group' => array('sql' => 'mg.group_name', 'label' => Lang::$txt['modlog_position']),
+		'ip' => array('sql' => 'lm.ip', 'label' => Lang::$txt['modlog_ip'])
 	);
 
 	if (!isset($search_params['string']) || (!empty($_REQUEST['search']) && $search_params['string'] != $_REQUEST['search']))
@@ -152,7 +151,7 @@ function ViewModlog()
 	if ($search_params['type'] == 'action' && !empty($search_params['string']))
 	{
 		// For the moment they can only search for ONE action!
-		foreach ($txt as $key => $text)
+		foreach (Lang::$txt as $key => $text)
 		{
 			if (substr($key, 0, 10) == 'modlog_ac_' && strpos($text, $search_params['string']) !== false)
 			{
@@ -167,10 +166,10 @@ function ViewModlog()
 	// This is all the information required for a watched user listing.
 	$listOptions = array(
 		'id' => 'moderation_log_list',
-		'title' => Utils::$context['log_type'] == 3 ? $txt['admin_log'] : $txt['moderation_log'],
+		'title' => Utils::$context['log_type'] == 3 ? Lang::$txt['admin_log'] : Lang::$txt['moderation_log'],
 		'width' => '100%',
 		'items_per_page' => Utils::$context['displaypage'],
-		'no_items_label' => $txt['modlog_' . (Utils::$context['log_type'] == 3 ? 'admin_log_' : '') . 'no_entries_found'],
+		'no_items_label' => Lang::$txt['modlog_' . (Utils::$context['log_type'] == 3 ? 'admin_log_' : '') . 'no_entries_found'],
 		'base_href' => Config::$scripturl . Utils::$context['url_start'] . (!empty(Utils::$context['search_params']) ? ';params=' . Utils::$context['search_params'] : ''),
 		'default_sort_col' => 'time',
 		'get_items' => array(
@@ -193,7 +192,7 @@ function ViewModlog()
 		'columns' => array(
 			'action' => array(
 				'header' => array(
-					'value' => $txt['modlog_action'],
+					'value' => Lang::$txt['modlog_action'],
 					'class' => 'lefttext',
 				),
 				'data' => array(
@@ -207,7 +206,7 @@ function ViewModlog()
 			),
 			'time' => array(
 				'header' => array(
-					'value' => $txt['modlog_date'],
+					'value' => Lang::$txt['modlog_date'],
 					'class' => 'lefttext',
 				),
 				'data' => array(
@@ -221,7 +220,7 @@ function ViewModlog()
 			),
 			'moderator' => array(
 				'header' => array(
-					'value' => $txt['modlog_member'],
+					'value' => Lang::$txt['modlog_member'],
 					'class' => 'lefttext',
 				),
 				'data' => array(
@@ -235,7 +234,7 @@ function ViewModlog()
 			),
 			'position' => array(
 				'header' => array(
-					'value' => $txt['modlog_position'],
+					'value' => Lang::$txt['modlog_position'],
 					'class' => 'lefttext',
 				),
 				'data' => array(
@@ -249,7 +248,7 @@ function ViewModlog()
 			),
 			'ip' => array(
 				'header' => array(
-					'value' => $txt['modlog_ip'],
+					'value' => Lang::$txt['modlog_ip'],
 					'class' => 'lefttext',
 				),
 				'data' => array(
@@ -289,19 +288,19 @@ function ViewModlog()
 			array(
 				'position' => 'after_title',
 				'value' => '
-					' . $txt['modlog_search'] . ' (' . $txt['modlog_by'] . ': ' . Utils::$context['search']['label'] . '):
+					' . Lang::$txt['modlog_search'] . ' (' . Lang::$txt['modlog_by'] . ': ' . Utils::$context['search']['label'] . '):
 					<input type="text" name="search" size="18" value="' . Utils::htmlspecialchars(Utils::$context['search']['string']) . '">
-					<input type="submit" name="is_search" value="' . $txt['modlog_go'] . '" class="button" style="float:none">
+					<input type="submit" name="is_search" value="' . Lang::$txt['modlog_go'] . '" class="button" style="float:none">
 					' . (Utils::$context['can_delete'] ? '
-					<input type="submit" name="remove" value="' . $txt['modlog_remove'] . '" data-confirm="' . $txt['modlog_remove_selected_confirm'] . '" class="button you_sure">
-					<input type="submit" name="removeall" value="' . $txt['modlog_removeall'] . '" data-confirm="' . $txt['modlog_remove_all_confirm'] . '" class="button you_sure">' : ''),
+					<input type="submit" name="remove" value="' . Lang::$txt['modlog_remove'] . '" data-confirm="' . Lang::$txt['modlog_remove_selected_confirm'] . '" class="button you_sure">
+					<input type="submit" name="removeall" value="' . Lang::$txt['modlog_removeall'] . '" data-confirm="' . Lang::$txt['modlog_remove_all_confirm'] . '" class="button you_sure">' : ''),
 				'class' => '',
 			),
 			array(
 				'position' => 'below_table_data',
 				'value' => Utils::$context['can_delete'] ? '
-					<input type="submit" name="remove" value="' . $txt['modlog_remove'] . '" data-confirm="' . $txt['modlog_remove_selected_confirm'] . '" class="button you_sure">
-					<input type="submit" name="removeall" value="' . $txt['modlog_removeall'] . '" data-confirm="' . $txt['modlog_remove_all_confirm'] . '" class="button you_sure">' : '',
+					<input type="submit" name="remove" value="' . Lang::$txt['modlog_remove'] . '" data-confirm="' . Lang::$txt['modlog_remove_selected_confirm'] . '" class="button you_sure">
+					<input type="submit" name="removeall" value="' . Lang::$txt['modlog_removeall'] . '" data-confirm="' . Lang::$txt['modlog_remove_all_confirm'] . '" class="button you_sure">' : '',
 				'class' => 'floatright',
 			),
 		),
@@ -324,9 +323,9 @@ function ViewModlog()
 		Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = $moderation_menu_name;
 	elseif (isset(Utils::$context['moderation_menu_name']))
 		Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = array(
-			'title' => $txt['modlog_' . (Utils::$context['log_type'] == 3 ? 'admin' : 'moderation') . '_log'],
+			'title' => Lang::$txt['modlog_' . (Utils::$context['log_type'] == 3 ? 'admin' : 'moderation') . '_log'],
 			'help' => Utils::$context['log_type'] == 3 ? 'adminlog' : 'modlog',
-			'description' => $txt['modlog_' . (Utils::$context['log_type'] == 3 ? 'admin' : 'moderation') . '_log_desc']
+			'description' => Lang::$txt['modlog_' . (Utils::$context['log_type'] == 3 ? 'admin' : 'moderation') . '_log_desc']
 		);
 }
 
@@ -383,7 +382,7 @@ function list_getModLogEntryCount($query_string = '', $query_params = array(), $
  */
 function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '', $query_params = array(), $log_type = 1, $ignore_boards = false)
 {
-	global $txt, $user_info;
+	global $user_info;
 
 	$modlog_query = allowedTo('admin_forum') || $user_info['mod_cache']['bq'] == '1=1' ? '1=1' : (($user_info['mod_cache']['bq'] == '0=1' || $ignore_boards) ? 'lm.id_board = 0 AND lm.id_topic = 0' : (strtr($user_info['mod_cache']['bq'], array('id_board' => 'b.id_board')) . ' AND ' . strtr($user_info['mod_cache']['bq'], array('id_board' => 't.id_board'))));
 
@@ -457,7 +456,7 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 		{
 			// Guests don't have names!
 			if (empty($row['extra']['member']))
-				$row['extra']['member'] = $txt['modlog_parameter_guest'];
+				$row['extra']['member'] = Lang::$txt['modlog_parameter_guest'];
 			else
 			{
 				// Try to find it...
@@ -482,7 +481,7 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 			if ($seeIP)
 				$row['extra']['ip_range'] = '<a href="' . Config::$scripturl . '?action=trackip;searchip=' . $row['extra']['ip_range'] . '">' . $row['extra']['ip_range'] . '</a>';
 			else
-				$row['extra']['ip_range'] = $txt['logged'];
+				$row['extra']['ip_range'] = Lang::$txt['logged'];
 
 		// Email?
 		if (isset($row['extra']['email']))
@@ -491,18 +490,18 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 		// Bans are complex.
 		if ($row['action'] == 'ban' || $row['action'] == 'banremove')
 		{
-			$row['action_text'] = $txt['modlog_ac_ban' . ($row['action'] == 'banremove' ? '_remove' : '')];
+			$row['action_text'] = Lang::$txt['modlog_ac_ban' . ($row['action'] == 'banremove' ? '_remove' : '')];
 			foreach (array('member', 'email', 'ip_range', 'hostname') as $type)
 				if (isset($row['extra'][$type]))
-					$row['action_text'] .= $txt['modlog_ac_ban_trigger_' . $type];
+					$row['action_text'] .= Lang::$txt['modlog_ac_ban_trigger_' . $type];
 		}
 
 		// The array to go to the template. Note here that action is set to a "default" value of the action doesn't match anything in the descriptions. Allows easy adding of logging events with basic details.
 		$entries[$row['id_action']] = array(
 			'id' => $row['id_action'],
-			'ip' => $seeIP ? inet_dtop($row['ip']) : $txt['logged'],
-			'position' => empty($row['real_name']) && empty($row['group_name']) ? $txt['guest'] : $row['group_name'],
-			'moderator_link' => $row['id_member'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>' : (empty($row['real_name']) ? ($txt['guest'] . (!empty($row['extra']['member_acted']) ? ' (' . $row['extra']['member_acted'] . ')' : '')) : $row['real_name']),
+			'ip' => $seeIP ? inet_dtop($row['ip']) : Lang::$txt['logged'],
+			'position' => empty($row['real_name']) && empty($row['group_name']) ? Lang::$txt['guest'] : $row['group_name'],
+			'moderator_link' => $row['id_member'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>' : (empty($row['real_name']) ? (Lang::$txt['guest'] . (!empty($row['extra']['member_acted']) ? ' (' . $row['extra']['member_acted'] . ')' : '')) : $row['real_name']),
 			'time' => timeformat($row['log_time']),
 			'timestamp' => $row['log_time'],
 			'editable' => substr($row['action'], 0, 8) !== 'clearlog' && !in_array($row['action'], Utils::$context['uneditable_actions']),
@@ -652,19 +651,19 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 		// Mark up any deleted members, topics and boards.
 		foreach (array('board', 'board_from', 'board_to', 'member', 'topic', 'new_topic') as $type)
 			if (!empty($entry['extra'][$type]) && is_numeric($entry['extra'][$type]))
-				$entries[$k]['extra'][$type] = sprintf($txt['modlog_id'], $entry['extra'][$type]);
+				$entries[$k]['extra'][$type] = sprintf(Lang::$txt['modlog_id'], $entry['extra'][$type]);
 
 		if (isset($entry['extra']['report']))
 		{
 			// Member profile reports go in a different area
 			if (stristr($entry['action'], 'user_report'))
-				$entries[$k]['extra']['report'] = '<a href="' . Config::$scripturl . '?action=moderate;area=reportedmembers;sa=details;rid=' . $entry['extra']['report'] . '">' . $txt['modlog_report'] . '</a>';
+				$entries[$k]['extra']['report'] = '<a href="' . Config::$scripturl . '?action=moderate;area=reportedmembers;sa=details;rid=' . $entry['extra']['report'] . '">' . Lang::$txt['modlog_report'] . '</a>';
 			else
-				$entries[$k]['extra']['report'] = '<a href="' . Config::$scripturl . '?action=moderate;area=reportedposts;sa=details;rid=' . $entry['extra']['report'] . '">' . $txt['modlog_report'] . '</a>';
+				$entries[$k]['extra']['report'] = '<a href="' . Config::$scripturl . '?action=moderate;area=reportedposts;sa=details;rid=' . $entry['extra']['report'] . '">' . Lang::$txt['modlog_report'] . '</a>';
 		}
 
 		if (empty($entries[$k]['action_text']))
-			$entries[$k]['action_text'] = isset($txt['modlog_ac_' . $entry['action']]) ? $txt['modlog_ac_' . $entry['action']] : $entry['action'];
+			$entries[$k]['action_text'] = isset(Lang::$txt['modlog_ac_' . $entry['action']]) ? Lang::$txt['modlog_ac_' . $entry['action']] : $entry['action'];
 
 		$entries[$k]['action_text'] = preg_replace_callback(
 			'~\{([A-Za-z\d_]+)\}~i',

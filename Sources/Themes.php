@@ -31,6 +31,7 @@
  */
 
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -49,12 +50,10 @@ if (!defined('SMF'))
  */
 function ThemesMain()
 {
-	global $txt;
-
 	// Load the important language files...
-	loadLanguage('Themes');
-	loadLanguage('Settings');
-	loadLanguage('Drafts');
+	Lang::load('Themes');
+	Lang::load('Settings');
+	Lang::load('Drafts');
 
 	// No funny business - guests only.
 	is_not_guest();
@@ -62,7 +61,7 @@ function ThemesMain()
 	require_once(Config::$sourcedir . '/Subs-Themes.php');
 
 	// Default the page title to Theme Administration by default.
-	Utils::$context['page_title'] = $txt['themeadmin_title'];
+	Utils::$context['page_title'] = Lang::$txt['themeadmin_title'];
 
 	// Theme administration, removal, choice, or installation...
 	$subActions = array(
@@ -82,20 +81,20 @@ function ThemesMain()
 	if (!empty(Utils::$context['admin_menu_name']))
 	{
 		Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
-			'title' => $txt['themeadmin_title'],
-			'description' => $txt['themeadmin_description'],
+			'title' => Lang::$txt['themeadmin_title'],
+			'description' => Lang::$txt['themeadmin_description'],
 			'tabs' => array(
 				'admin' => array(
-					'description' => $txt['themeadmin_admin_desc'],
+					'description' => Lang::$txt['themeadmin_admin_desc'],
 				),
 				'list' => array(
-					'description' => $txt['themeadmin_list_desc'],
+					'description' => Lang::$txt['themeadmin_list_desc'],
 				),
 				'reset' => array(
-					'description' => $txt['themeadmin_reset_desc'],
+					'description' => Lang::$txt['themeadmin_reset_desc'],
 				),
 				'edit' => array(
-					'description' => $txt['themeadmin_edit_desc'],
+					'description' => Lang::$txt['themeadmin_edit_desc'],
 				),
 			),
 		);
@@ -155,7 +154,7 @@ function ThemeAdmin()
 		redirectexit('action=admin;area=theme;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=admin');
 	}
 
-	loadLanguage('Admin');
+	Lang::load('Admin');
 	isAllowedTo('admin_forum');
 	loadTemplate('Themes');
 
@@ -187,7 +186,7 @@ function ThemeAdmin()
  */
 function ThemeList()
 {
-	loadLanguage('Admin');
+	Lang::load('Admin');
 	isAllowedTo('admin_forum');
 
 	if (isset($_REQUEST['th']))
@@ -253,7 +252,7 @@ function ThemeList()
  */
 function SetThemeOptions()
 {
-	global $txt, $settings;
+	global $settings;
 
 	$_GET['th'] = isset($_GET['th']) ? (int) $_GET['th'] : (isset($_GET['id']) ? (int) $_GET['id'] : 0);
 
@@ -552,9 +551,9 @@ function SetThemeOptions()
 
 	loadTheme($_GET['th'], false);
 
-	loadLanguage('Profile');
+	Lang::load('Profile');
 	// @todo Should we just move these options so they are no longer theme dependent?
-	loadLanguage('PersonalMessage');
+	Lang::load('PersonalMessage');
 
 	// Let the theme take care of the settings.
 	loadTemplate('Settings');
@@ -564,7 +563,7 @@ function SetThemeOptions()
 	call_integration_hook('integrate_theme_options');
 
 	Utils::$context['sub_template'] = 'set_options';
-	Utils::$context['page_title'] = $txt['theme_settings'];
+	Utils::$context['page_title'] = Lang::$txt['theme_settings'];
 
 	Utils::$context['options'] = Utils::$context['theme_options'];
 	Utils::$context['theme_settings'] = $settings;
@@ -638,7 +637,7 @@ function SetThemeOptions()
  */
 function SetThemeSettings()
 {
-	global $txt, $settings;
+	global $settings;
 
 	if (empty($_GET['th']) && empty($_GET['id']))
 		return ThemeAdmin();
@@ -648,7 +647,7 @@ function SetThemeSettings()
 	// Select the best fitting tab.
 	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'list';
 
-	loadLanguage('Admin');
+	Lang::load('Admin');
 	isAllowedTo('admin_forum');
 
 	// Validate inputs/user.
@@ -657,9 +656,9 @@ function SetThemeSettings()
 
 	// Fetch the smiley sets...
 	$sets = explode(',', 'none,' . Config::$modSettings['smiley_sets_known']);
-	$set_names = explode("\n", $txt['smileys_none'] . "\n" . Config::$modSettings['smiley_sets_names']);
+	$set_names = explode("\n", Lang::$txt['smileys_none'] . "\n" . Config::$modSettings['smiley_sets_names']);
 	Utils::$context['smiley_sets'] = array(
-		'' => $txt['smileys_no_default']
+		'' => Lang::$txt['smileys_no_default']
 	);
 	foreach ($sets as $i => $set)
 		Utils::$context['smiley_sets'][$set] = Utils::htmlspecialchars($set_names[$i]);
@@ -673,10 +672,11 @@ function SetThemeSettings()
 	loadSubTemplate('init', 'ignore');
 
 	// Also load the actual themes language file - in case of special settings.
-	loadLanguage('Settings', '', true, true);
+	Lang::addDirs();
+	Lang::load('Settings', '', true, true);
 
 	// And the custom language strings...
-	loadLanguage('ThemeStrings', '', false, true);
+	Lang::load('ThemeStrings', '', false, true);
 
 	// Let the theme take care of the settings.
 	loadTemplate('Settings');
@@ -752,7 +752,7 @@ function SetThemeSettings()
 	}
 
 	Utils::$context['sub_template'] = 'set_settings';
-	Utils::$context['page_title'] = $txt['theme_settings'];
+	Utils::$context['page_title'] = Lang::$txt['theme_settings'];
 
 	foreach ($settings as $setting => $dummy)
 	{
@@ -790,7 +790,7 @@ function SetThemeSettings()
 		{
 			// Have any text, old chap?
 			Utils::$context['theme_variants'][$variant] = array(
-				'label' => isset($txt['variant_' . $variant]) ? $txt['variant_' . $variant] : $variant,
+				'label' => isset(Lang::$txt['variant_' . $variant]) ? Lang::$txt['variant_' . $variant] : $variant,
 				'thumbnail' => !file_exists($settings['theme_dir'] . '/images/thumbnail.png') || file_exists($settings['theme_dir'] . '/images/thumbnail_' . $variant . '.png') ? $settings['images_url'] . '/thumbnail_' . $variant . '.png' : ($settings['images_url'] . '/thumbnail.png'),
 			);
 		}
@@ -902,15 +902,15 @@ function canPickTheme($id_member, $id_theme)
  */
 function PickTheme()
 {
-	global $txt, $user_info, $settings;
+	global $user_info, $settings;
 
-	loadLanguage('Profile');
+	Lang::load('Profile');
 	loadTemplate('Themes');
 
 	// Build the link tree.
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=theme;sa=pick;u=' . (!empty($_REQUEST['u']) ? (int) $_REQUEST['u'] : 0),
-		'name' => $txt['theme_pick'],
+		'name' => Lang::$txt['theme_pick'],
 	);
 	Utils::$context['default_theme_id'] = Config::$modSettings['theme_default'];
 	$_SESSION['id_theme'] = 0;
@@ -1067,6 +1067,10 @@ function PickTheme()
 	$current_images_url = $settings['images_url'];
 	$current_theme_variants = !empty($settings['theme_variants']) ? $settings['theme_variants'] : array();
 
+	$current_lang_dirs = Lang::$dirs;
+	$current_thumbnail = Lang::$txt['theme_thumbnail_href'];
+	$current_description = Lang::$txt['theme_description'];
+
 	foreach (Utils::$context['available_themes'] as $id_theme => $theme_data)
 	{
 		// Don't try to load the forum or board default theme's data... it doesn't have any!
@@ -1076,18 +1080,17 @@ function PickTheme()
 		// The thumbnail needs the correct path.
 		$settings['images_url'] = &$theme_data['images_url'];
 
-		if (file_exists($theme_data['theme_dir'] . '/languages/Settings.' . $user_info['language'] . '.php'))
-			include($theme_data['theme_dir'] . '/languages/Settings.' . $user_info['language'] . '.php');
-		elseif (file_exists($theme_data['theme_dir'] . '/languages/Settings.' . Config::$language . '.php'))
-			include($theme_data['theme_dir'] . '/languages/Settings.' . Config::$language . '.php');
-		else
-		{
-			$txt['theme_thumbnail_href'] = $theme_data['images_url'] . '/thumbnail.png';
-			$txt['theme_description'] = '';
-		}
+		Lang::addDirs(array($theme_data['theme_dir'] . '/languages'));
+		Lang::load('Settings', '', false, true);
 
-		Utils::$context['available_themes'][$id_theme]['thumbnail_href'] = sprintf($txt['theme_thumbnail_href'], $settings['images_url']);
-		Utils::$context['available_themes'][$id_theme]['description'] = $txt['theme_description'];
+		if (empty(Lang::$txt['theme_thumbnail_href']))
+			Lang::$txt['theme_thumbnail_href'] = $theme_data['images_url'] . '/thumbnail.png';
+
+		if (empty(Lang::$txt['theme_description']))
+			Lang::$txt['theme_description'] = '';
+
+		Utils::$context['available_themes'][$id_theme]['thumbnail_href'] = sprintf(Lang::$txt['theme_thumbnail_href'], $settings['images_url']);
+		Utils::$context['available_themes'][$id_theme]['description'] = Lang::$txt['theme_description'];
 
 		// Are there any variants?
 		Utils::$context['available_themes'][$id_theme]['variants'] = array();
@@ -1103,11 +1106,11 @@ function PickTheme()
 
 				if (!empty($settings['theme_variants']))
 				{
-					loadLanguage('Settings');
+					Lang::load('Settings');
 
 					foreach ($settings['theme_variants'] as $variant)
 						Utils::$context['available_themes'][$id_theme]['variants'][$variant] = array(
-							'label' => isset($txt['variant_' . $variant]) ? $txt['variant_' . $variant] : $variant,
+							'label' => isset(Lang::$txt['variant_' . $variant]) ? Lang::$txt['variant_' . $variant] : $variant,
 							'thumbnail' => !file_exists($theme_data['theme_dir'] . '/images/thumbnail.png') || file_exists($theme_data['theme_dir'] . '/images/thumbnail_' . $variant . '.png') ? $theme_data['images_url'] . '/thumbnail_' . $variant . '.png' : ($theme_data['images_url'] . '/thumbnail.png'),
 						);
 
@@ -1117,10 +1120,15 @@ function PickTheme()
 
 					Utils::$context['available_themes'][$id_theme]['thumbnail_href'] = Utils::$context['available_themes'][$id_theme]['variants'][Utils::$context['available_themes'][$id_theme]['selected_variant']]['thumbnail'];
 					// Allow themes to override the text.
-					Utils::$context['available_themes'][$id_theme]['pick_label'] = isset($txt['variant_pick']) ? $txt['variant_pick'] : $txt['theme_pick_variant'];
+					Utils::$context['available_themes'][$id_theme]['pick_label'] = isset(Lang::$txt['variant_pick']) ? Lang::$txt['variant_pick'] : Lang::$txt['theme_pick_variant'];
 				}
 			}
 		}
+
+		// Restore language stuff.
+		Lang::$dirs = $current_lang_dirs;
+		Lang::$txt['theme_thumbnail_href'] = $current_thumbnail;
+		Lang::$txt['theme_description'] = $current_description;
 	}
 	// Then return it.
 	addJavaScriptVar(
@@ -1144,14 +1152,14 @@ function PickTheme()
 			Utils::$context['available_themes'][0] = Utils::$context['available_themes'][$guest_theme];
 
 		Utils::$context['available_themes'][0]['id'] = 0;
-		Utils::$context['available_themes'][0]['name'] = $txt['theme_forum_default'];
+		Utils::$context['available_themes'][0]['name'] = Lang::$txt['theme_forum_default'];
 		Utils::$context['available_themes'][0]['selected'] = Utils::$context['current_theme'] == 0;
-		Utils::$context['available_themes'][0]['description'] = $txt['theme_global_description'];
+		Utils::$context['available_themes'][0]['description'] = Lang::$txt['theme_global_description'];
 	}
 
 	ksort(Utils::$context['available_themes']);
 
-	Utils::$context['page_title'] = $txt['theme_pick'];
+	Utils::$context['page_title'] = Lang::$txt['theme_pick'];
 	Utils::$context['sub_template'] = 'pick';
 	createToken('pick-th');
 }
@@ -1165,7 +1173,6 @@ function PickTheme()
  */
 function ThemeInstall()
 {
-	global $txt;
 	global $themedir, $themeurl;
 
 	checkSession('request');
@@ -1205,7 +1212,7 @@ function ThemeInstall()
 		if (!empty($result))
 		{
 			Utils::$context['sub_template'] = 'installed';
-			Utils::$context['page_title'] = $txt['theme_installed'];
+			Utils::$context['page_title'] = Lang::$txt['theme_installed'];
 			Utils::$context['installed_theme'] = $result;
 		}
 	}
@@ -1467,7 +1474,7 @@ function WrapAction()
 	{
 		// Load both the template and language file. (but don't fret if the language file isn't there...)
 		loadTemplate($settings['catch_action']['template']);
-		loadLanguage($settings['catch_action']['template'], '', false);
+		Lang::load($settings['catch_action']['template'], '', false);
 	}
 
 	// Any special layers?
@@ -1580,8 +1587,6 @@ function SetJavaScript()
  */
 function EditTheme()
 {
-	global $txt;
-
 	// @todo Should this be removed?
 	if (isset($_REQUEST['preview']))
 		die('die() with fire');
@@ -1615,7 +1620,7 @@ function EditTheme()
 	// Get the directory of the theme we are editing.
 	$currentTheme = get_single_theme($_GET['th']);
 	Utils::$context['theme_id'] = $currentTheme['id'];
-	Utils::$context['browse_title'] = sprintf($txt['themeadmin_browsing_theme'], $currentTheme['name']);
+	Utils::$context['browse_title'] = sprintf(Lang::$txt['themeadmin_browsing_theme'], $currentTheme['name']);
 
 	if (!file_exists($currentTheme['theme_dir'] . '/index.template.php') && !file_exists($currentTheme['theme_dir'] . '/css/index.css'))
 		fatal_lang_error('theme_edit_missing', false);
@@ -1717,7 +1722,7 @@ function EditTheme()
 		// Session timed out.
 		else
 		{
-			loadLanguage('Errors');
+			Lang::load('Errors');
 
 			Utils::$context['session_error'] = true;
 			Utils::$context['sub_template'] = 'edit_file';

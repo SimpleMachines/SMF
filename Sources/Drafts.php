@@ -16,13 +16,14 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Lang;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
 	die('No direct access...');
 
-loadLanguage('Drafts');
+Lang::load('Drafts');
 
 /**
  * Saves a post draft in the user_drafts table
@@ -430,8 +431,6 @@ function DeleteDraft($id_draft, $check = true)
  */
 function ShowDrafts($member_id, $topic = false, $draft_type = 0)
 {
-	global $txt;
-
 	// Permissions
 	if (($draft_type === 0 && empty(Utils::$context['drafts_save'])) || ($draft_type === 1 && empty(Utils::$context['drafts_pm_save'])) || empty($member_id))
 		return false;
@@ -464,14 +463,14 @@ function ShowDrafts($member_id, $topic = false, $draft_type = 0)
 	while ($row = Db::$db->fetch_assoc($request))
 	{
 		if (empty($row['subject']))
-			$row['subject'] = $txt['no_subject'];
+			$row['subject'] = Lang::$txt['no_subject'];
 
 		// Post drafts
 		if ($draft_type === 0)
 		{
 			$tmp_subject = shorten_subject(stripslashes($row['subject']), 24);
 			Utils::$context['drafts'][] = array(
-				'subject' => censorText($tmp_subject),
+				'subject' => Lang::censorText($tmp_subject),
 				'poster_time' => timeformat($row['poster_time']),
 				'link' => '<a href="' . Config::$scripturl . '?action=post;board=' . $row['id_board'] . ';' . (!empty($row['id_topic']) ? 'topic=' . $row['id_topic'] . '.0;' : '') . 'id_draft=' . $row['id_draft'] . '">' . $row['subject'] . '</a>',
 			);
@@ -481,9 +480,9 @@ function ShowDrafts($member_id, $topic = false, $draft_type = 0)
 		{
 			$tmp_subject = shorten_subject(stripslashes($row['subject']), 24);
 			Utils::$context['drafts'][] = array(
-				'subject' => censorText($tmp_subject),
+				'subject' => Lang::censorText($tmp_subject),
 				'poster_time' => timeformat($row['poster_time']),
-				'link' => '<a href="' . Config::$scripturl . '?action=pm;sa=send;id_draft=' . $row['id_draft'] . '">' . (!empty($row['subject']) ? $row['subject'] : $txt['drafts_none']) . '</a>',
+				'link' => '<a href="' . Config::$scripturl . '?action=pm;sa=send;id_draft=' . $row['id_draft'] . '">' . (!empty($row['subject']) ? $row['subject'] : Lang::$txt['drafts_none']) . '</a>',
 			);
 		}
 	}
@@ -498,13 +497,11 @@ function ShowDrafts($member_id, $topic = false, $draft_type = 0)
  */
 function XmlDraft($id_draft)
 {
-	global $txt;
-
 	header('content-type: text/xml; charset=' . (empty(Utils::$context['character_set']) ? 'ISO-8859-1' : Utils::$context['character_set']));
 
 	echo '<?xml version="1.0" encoding="', Utils::$context['character_set'], '"?>
 	<drafts>
-		<draft id="', $id_draft, '"><![CDATA[', $txt['draft_saved_on'], ': ', timeformat(Utils::$context['draft_saved_on']), ']]></draft>
+		<draft id="', $id_draft, '"><![CDATA[', Lang::$txt['draft_saved_on'], ': ', timeformat(Utils::$context['draft_saved_on']), ']]></draft>
 	</drafts>';
 
 	obExit(false);
@@ -520,7 +517,7 @@ function XmlDraft($id_draft)
  */
 function showProfileDrafts($memID, $draft_type = 0)
 {
-	global $txt, $options;
+	global $options;
 
 	// Some initial context.
 	Utils::$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
@@ -619,10 +616,10 @@ function showProfileDrafts($memID, $draft_type = 0)
 
 		$row['subject'] = Utils::htmlTrim($row['subject']);
 		if (empty($row['subject']))
-			$row['subject'] = $txt['no_subject'];
+			$row['subject'] = Lang::$txt['no_subject'];
 
-		censorText($row['body']);
-		censorText($row['subject']);
+		Lang::censorText($row['body']);
+		Lang::censorText($row['subject']);
 
 		// BBC-ilize the message.
 		$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], 'draft' . $row['id_draft']);
@@ -648,14 +645,14 @@ function showProfileDrafts($memID, $draft_type = 0)
 			'sticky' => $row['is_sticky'],
 			'quickbuttons' => array(
 				'edit' => array(
-					'label' => $txt['draft_edit'],
+					'label' => Lang::$txt['draft_edit'],
 					'href' => Config::$scripturl.'?action=post;'.(empty($row['id_topic']) ? 'board='.$row['id_board'] : 'topic='.$row['id_topic']).'.0;id_draft='.$row['id_draft'],
 					'icon' => 'modify_button'
 				),
 				'delete' => array(
-					'label' => $txt['draft_delete'],
+					'label' => Lang::$txt['draft_delete'],
 					'href' => Config::$scripturl.'?action=profile;u='.Utils::$context['member']['id'].';area=showdrafts;delete='.$row['id_draft'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'],
-					'javascript' => 'data-confirm="'.$txt['draft_remove'].'"',
+					'javascript' => 'data-confirm="'.Lang::$txt['draft_remove'].'"',
 					'class' => 'you_sure',
 					'icon' => 'remove_button'
 				),
@@ -670,8 +667,8 @@ function showProfileDrafts($memID, $draft_type = 0)
 
 	// Menu tab
 	Utils::$context[Utils::$context['profile_menu_name']]['tab_data'] = array(
-		'title' => $txt['drafts_show'],
-		'description' => $txt['drafts_show_desc'],
+		'title' => Lang::$txt['drafts_show'],
+		'description' => Lang::$txt['drafts_show_desc'],
 		'icon_class' => 'main_icons drafts'
 	);
 	Utils::$context['sub_template'] = 'showDrafts';
@@ -686,7 +683,7 @@ function showProfileDrafts($memID, $draft_type = 0)
  */
 function showPMDrafts($memID = -1)
 {
-	global $txt, $user_info, $options;
+	global $user_info, $options;
 
 	// init
 	$draft_type = 1;
@@ -789,10 +786,10 @@ function showPMDrafts($memID = -1)
 
 		$row['subject'] = Utils::htmlTrim($row['subject']);
 		if (empty($row['subject']))
-			$row['subject'] = $txt['no_subject'];
+			$row['subject'] = Lang::$txt['no_subject'];
 
-		censorText($row['body']);
-		censorText($row['subject']);
+		Lang::censorText($row['body']);
+		Lang::censorText($row['subject']);
 
 		// BBC-ilize the message.
 		$row['body'] = BBCodeParser::load()->parse($row['body'], true, 'draft' . $row['id_draft']);
@@ -841,14 +838,14 @@ function showPMDrafts($memID = -1)
 			'remaining' => (!empty(Config::$modSettings['drafts_keep_days']) ? floor(Config::$modSettings['drafts_keep_days'] - ((time() - $row['poster_time']) / 86400)) : 0),
 			'quickbuttons' => array(
 				'edit' => array(
-					'label' => $txt['draft_edit'],
+					'label' => Lang::$txt['draft_edit'],
 					'href' => Config::$scripturl.'?action=pm;sa=showpmdrafts;id_draft='.$row['id_draft'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'],
 					'icon' => 'modify_button'
 				),
 				'delete' => array(
-					'label' => $txt['draft_delete'],
+					'label' => Lang::$txt['draft_delete'],
 					'href' => Config::$scripturl.'?action=pm;sa=showpmdrafts;delete='.$row['id_draft'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'],
-					'javascript' => 'data-confirm="'.$txt['draft_remove'].'?"',
+					'javascript' => 'data-confirm="'.Lang::$txt['draft_remove'].'?"',
 					'class' => 'you_sure',
 					'icon' => 'remove_button'
 				),
@@ -862,11 +859,11 @@ function showPMDrafts($memID = -1)
 		Utils::$context['drafts'] = array_reverse(Utils::$context['drafts'], true);
 
 	// off to the template we go
-	Utils::$context['page_title'] = $txt['drafts'];
+	Utils::$context['page_title'] = Lang::$txt['drafts'];
 	Utils::$context['sub_template'] = 'showPMDrafts';
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=pm;sa=showpmdrafts',
-		'name' => $txt['drafts'],
+		'name' => Lang::$txt['drafts'],
 	);
 }
 
