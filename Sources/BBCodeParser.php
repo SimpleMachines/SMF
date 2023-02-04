@@ -1376,7 +1376,7 @@ class BBCodeParser
 		$string = preg_replace('~</p>\s*(?!<)~i', '</p><br>', $string);
 
 		// Safari/webkit wraps lines in Wysiwyg in <div>'s.
-		if (isBrowser('webkit'))
+		if (BrowserDetector::isBrowser('webkit'))
 		{
 			$string = preg_replace(array('~<div(?:\s(?:[^<>]*?))?' . '>~i', '</div>'), array('<br>', ''), $string);
 		}

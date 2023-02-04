@@ -10,6 +10,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BrowserDetector;
+
 /**
  * The main sub template - for theme administration.
  */
@@ -996,7 +998,7 @@ function template_edit_style()
 					{
 					';
 
-	if (isBrowser('is_ie'))
+	if (BrowserDetector::isBrowser('is_ie'))
 		echo '
 						var sheets = frames["css_preview_box"].document.styleSheets;
 						for (var j = 0; j < sheets.length; j++)

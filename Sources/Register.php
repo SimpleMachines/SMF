@@ -15,6 +15,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 
 if (!defined('SMF'))
@@ -804,7 +805,7 @@ function CoppaForm()
 			// Send the headers.
 			header('connection: close');
 			header('content-disposition: attachment; filename="approval.txt"');
-			header('content-type: ' . (isBrowser('ie') || isBrowser('opera') ? 'application/octetstream' : 'application/octet-stream'));
+			header('content-type: ' . (BrowserDetector::isBrowser('ie') || BrowserDetector::isBrowser('opera') ? 'application/octetstream' : 'application/octet-stream'));
 			header('content-length: ' . count($data));
 
 			echo $data;

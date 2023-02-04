@@ -13,6 +13,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 use SMF\Cache\CacheApi;
 
@@ -282,7 +283,7 @@ function ShowXmlFeed()
 	elseif ($xml_format == 'atom')
 		header('content-type: application/atom+xml; charset=' . (empty($context['character_set']) ? 'UTF-8' : $context['character_set']));
 	elseif ($xml_format == 'rdf')
-		header('content-type: ' . (isBrowser('ie') ? 'text/xml' : 'application/rdf+xml') . '; charset=' . (empty($context['character_set']) ? 'UTF-8' : $context['character_set']));
+		header('content-type: ' . (BrowserDetector::isBrowser('ie') ? 'text/xml' : 'application/rdf+xml') . '; charset=' . (empty($context['character_set']) ? 'UTF-8' : $context['character_set']));
 
 	header('content-disposition: ' . (isset($_GET['download']) ? 'attachment' : 'inline') . '; filename="' . $filename . '.xml"');
 

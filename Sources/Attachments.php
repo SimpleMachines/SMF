@@ -103,11 +103,42 @@ class Attachments
 	protected $_sa = false;
 
 	/**
+	 * @var object
+	 *
+	 * An instance of this class.
+	 */
+	protected static $obj;
+
+	/**
+	 * Wrapper for constructor. Ensures only one instance is created.
+	 *
+	 * @todo Add a reference to $context['instances'] as well?
+	 *
+	 * @return An instance of this class.
+	 */
+	final public static function load()
+	{
+		if (!isset(self::$obj))
+			self::$obj = new self();
+
+		return self::$obj;
+	}
+
+	/**
+	 * Convenience method to load() and execute() an instance of this class.
+	 */
+	public static function call()
+	{
+		self::load()->execute();
+	}
+
+	/**
 	 * Attachments constructor.
 	 *
 	 * Sets up some initial information - the message ID, board, current attachment upload dir, etc.
+	 * Protected to force instantiation via load().
 	 */
-	public function __construct()
+	protected function __construct()
 	{
 		global $modSettings, $context;
 
@@ -126,7 +157,7 @@ class Attachments
 	/**
 	 * Handles calling the appropriate function based on the sub-action
 	 */
-	public function call()
+	public function execute()
 	{
 		global $smcFunc, $sourcedir;
 

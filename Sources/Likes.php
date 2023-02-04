@@ -1,8 +1,6 @@
 <?php
 
 /**
- * This file contains liking posts and displaying the list of who liked a post.
- *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -18,12 +16,15 @@ namespace SMF;
 use SMF\Cache\CacheApi;
 
 /**
- * Class Likes
+ * Handles liking posts and displaying the list of who liked a post.
  */
 class Likes
 {
 	/**
-	 * @var boolean Know if a request comes from an ajax call or not, depends on $_GET['js'] been set.
+	 * @var boolean
+	 *
+	 * Know if a request comes from an ajax call or not,
+	 * depends on $_GET['js'] been set.
 	 */
 	protected $_js = false;
 
@@ -33,44 +34,76 @@ class Likes
 	protected $_sa = null;
 
 	/**
-	 * @var string If filled, its value will contain a string matching a key on a language var $txt[$this->_error]
+	 * @var string
+	 *
+	 * If filled, its value will contain a string matching a key
+	 * on a language var $txt[$this->_error]
 	 */
 	protected $_error = false;
 
 	/**
-	 * @var string The unique type to like, needs to be unique and it needs to be no longer than 6 characters, only numbers and letters are allowed.
+	 * @var string
+	 *
+	 * The unique type to like, needs to be unique and it needs to be no longer
+	 * than 6 characters, only numbers and letters are allowed.
 	 */
 	protected $_type = '';
 
 	/**
-	 * @var string A generic string used if you need to pass any extra info. It gets set via $_GET['extra'].
+	 * @var string
+	 *
+	 * A generic string used if you need to pass any extra info.
+	 * It gets set via $_GET['extra'].
 	 */
 	protected $_extra = false;
 
 	/**
-	 * @var integer a valid ID to identify your like content.
+	 * @var integer
+	 *
+	 * A valid ID to identify the content being liked.
 	 */
 	protected $_content = 0;
 
 	/**
-	 * @var integer The number of times your content has been liked.
+	 * @var integer
+	 *
+	 * The number of times the content has been liked.
 	 */
 	protected $_numLikes = 0;
 
 	/**
-	 * @var boolean If the current user has already liked this content.
+	 * @var boolean
+	 *
+	 * If the current user has already liked this content.
 	 */
 	protected $_alreadyLiked = false;
 
 	/**
-	 * @var array $_validLikes mostly used for external integration, needs to be filled as an array with the following keys:
-	 * => 'can_like' boolean|string whether or not the current user can actually like your content.
-	 * for can_like: Return a boolean true if the user can, otherwise return a string, the string will be used as key in a regular $txt language error var. The code assumes you already loaded your language file. If no value is returned or the $txt var isn't set, the code will use a generic error message.
-	 * => 'redirect' string To add support for non JS users, It is highly encouraged to set a valid URL to redirect the user to, if you don't provide any, the code will redirect the user to the main page. The code only performs a light check to see if the redirect is valid so be extra careful while building it.
-	 * => 'type' string 6 letters or numbers. The unique identifier for your content, the code doesn't check for duplicate entries, if there are 2 or more exact hook calls, the code will take the first registered one so make sure you provide a unique identifier. Must match with what you sent in $_GET['ltype'].
-	 * => 'flush_cache' boolean this is optional, it tells the code to reset your like content's cache entry after a new entry has been inserted.
-	 * => 'callback' callable optional, useful if you don't want to issue a separate hook for updating your data, it is called immediately after the data was inserted or deleted and before the actual hook. Uses call_helper(); so the same format for your function/method can be applied here.
-	 * => 'json' boolean optional defaults to false, if true the Like class will return a json object as response instead of HTML.
+	 * @var array
+	 *
+	 * Mostly used for external integration, needs to be filled as an array
+	 * with the following keys:
+	 *
+	 * 'can_like'   bool|string  True if the current user can actually like
+	 *                           this content, or a $txt key for an
+	 *                           error message if not.
+	 *
+	 * 'redirect'    string      URL to redirect to after the like is submitted.
+	 *                           If not set, will redirect to the forum index.
+	 *
+	 * 'type'        string      6 character Unique identifier for the content.
+	 *                           Must match what was sent in $_GET['ltype']
+	 *
+	 * 'flush_cache' bool        If true, reset the like content's cache entry
+	 *                           after a new entry has been inserted. Optional.
+	 *
+	 * 'callback'    callable    Optional function or method to call immediately
+	 *                           after like data has been inserted or deleted.
+	 *                           If set, the callback will be called before the
+	 *                           integrate_issue_like hook.
+	 *
+	 * 'json'        bool        If true, the class will return a JSON object as
+	 *                           a response instead of HTML. Default: false.
 	 */
 	protected $_validLikes = array(
 		'can_like' => false,
@@ -82,26 +115,73 @@ class Likes
 	);
 
 	/**
-	 * @var array The current user info ($user_info).
+	 * @var array
+	 *
+	 * The current user info ($user_info).
 	 */
 	protected $_user;
 
 	/**
-	 * @var integer The topic ID, used for liking messages.
+	 * @var integer
+	 *
+	 * The topic ID, used for liking messages.
 	 */
 	protected $_idTopic = 0;
 
 	/**
-	 * @var boolean to know if response(); will be executed as normal. If this is set to false it indicates the method already solved its own way to send back a response.
+	 * @var boolean
+	 *
+	 * Whether response(); will be executed as normal.
+	 *
+	 * If this is set to false it indicates the method already implemented
+	 * its own way to send back a response.
 	 */
 	protected $_setResponse = true;
+
+	/**
+	 * @var mixed
+	 *
+	 * Data for the response.
+	 */
+	protected $_data;
+
+	/**
+	 * @var object
+	 *
+	 * An instance of this class.
+	 */
+	protected static $obj;
+
+	/**
+	 * Wrapper for constructor. Ensures only one instance is created.
+	 *
+	 * @todo Add a reference to $context['instances'] as well?
+	 *
+	 * @return An instance of this class.
+	 */
+	final public static function load()
+	{
+		if (!isset(self::$obj))
+			self::$obj = new self();
+
+		return self::$obj;
+	}
+
+	/**
+	 * Convenience method to load() and execute() an instance of this class.
+	 */
+	public static function call()
+	{
+		self::load()->execute();
+	}
 
 	/**
 	 * Likes::__construct()
 	 *
 	 * Sets the basic data needed for the rest of the process.
+	 * Protected to force instantiation via load().
 	 */
-	public function __construct()
+	protected function __construct()
 	{
 		global $db_show_debug;
 
@@ -117,12 +197,12 @@ class Likes
 	}
 
 	/**
-	 * Likes::call()
+	 * Likes::execute()
 	 *
 	 * The main handler. Verifies permissions (whether the user can see the content in question), dispatch different method for different sub-actions.
 	 * Accessed from index.php?action=likes
 	 */
-	public function call()
+	public function execute()
 	{
 		global $context;
 

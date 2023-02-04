@@ -28,27 +28,84 @@ namespace SMF;
  */
 class BrowserDetector
 {
-	/**
-	 * @var array Holds all the browser information. Its contents will be placed into $context['browser']
-	 */
-	private $_browsers = null;
+	use BackwardCompatibility;
 
 	/**
-	 * @var boolean Whether or not this might be a mobile device
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
 	 */
-	private $_is_mobile = null;
+	private static $backcompat = array(
+		'func_names' => array(
+			'call' => 'detectBrowser',
+		),
+	);
+
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	/**
+	 * @var array
+	 *
+	 * Holds all the browser information.
+	 * Its contents will be placed into $context['browser']
+	 */
+	private array $_browsers = array();
+
+	/**
+	 * @var bool
+	 *
+	 * Whether or not this might be a mobile device
+	 */
+	private bool $_is_mobile = false;
+
+	/**
+	 * An instance of this class.
+	 */
+	protected static $obj;
+
+	/***********************
+	 * Public static methods
+	 ***********************/
+
+	/**
+	 * Convenience method.
+	 */
+	public static function call()
+	{
+		if (!isset(self::$obj))
+			self::$obj = new self();
+
+		self::$obj->detectBrowser();
+	}
+
+	/**
+	 * Are we using this browser?
+	 *
+	 * @param string $browser The browser we are checking for.
+	 * @return bool Whether or not the current browser is what we're looking for.
+	 */
+	public static function isBrowser($browser)
+	{
+		// Don't know any browser!
+		if (!isset(self::$obj) || empty(self::$obj->_browsers))
+			self::call();
+
+		return !empty(self::$obj->_browsers[$browser]) || !empty(self::$obj->_browsers['is_' . $browser]);
+	}
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * The main method of this class, you know the one that does the job: detect the thing.
 	 *  - determines the user agent (browser) as best it can.
 	 */
-	function detectBrowser()
+	public function detectBrowser()
 	{
 		global $context, $user_info;
-
-		// Init
-		$this->_browsers = array();
-		$this->_is_mobile = false;
 
 		// Initialize some values we'll set differently if necessary...
 		$this->_browsers['needs_size_fix'] = false;
@@ -107,7 +164,7 @@ class BrowserDetector
 	 *
 	 * @return boolean Whether or not this is Opera
 	 */
-	function isOpera()
+	public function isOpera()
 	{
 		if (!isset($this->_browsers['is_opera']))
 			$this->_browsers['is_opera'] = strpos($_SERVER['HTTP_USER_AGENT'], 'Opera') !== false;
@@ -119,7 +176,7 @@ class BrowserDetector
 	 *
 	 * @return boolean true Whether or not the browser is IE
 	 */
-	function isIe()
+	public function isIe()
 	{
 		// I'm IE, Yes I'm the real IE; All you other IEs are just imitating.
 		if (!isset($this->_browsers['is_ie']))
@@ -132,7 +189,7 @@ class BrowserDetector
 	 *
 	 * @return boolean Whether or not the browser is IE11
 	 */
-	function isIe11()
+	public function isIe11()
 	{
 		// IE11 is a bit different than earlier versions
 		// The isGecko() part is to ensure we get this right...
@@ -146,7 +203,7 @@ class BrowserDetector
 	 *
 	 * @return boolean Whether or not the browser is Edge
 	 */
-	function isEdge()
+	public function isEdge()
 	{
 		if (!isset($this->_browsers['is_edge']))
 			$this->_browsers['is_edge'] = strpos($_SERVER['HTTP_USER_AGENT'], 'Edge') !== false;
@@ -158,7 +215,7 @@ class BrowserDetector
 	 *
 	 * @return boolean Whether or not this is a Webkit-based browser
 	 */
-	function isWebkit()
+	public function isWebkit()
 	{
 		if (!isset($this->_browsers['is_webkit']))
 			$this->_browsers['is_webkit'] = strpos($_SERVER['HTTP_USER_AGENT'], 'AppleWebKit') !== false;
@@ -170,7 +227,7 @@ class BrowserDetector
 	 *
 	 * @return boolean Whether or not this is Firefox (or one of its variants)
 	 */
-	function isFirefox()
+	public function isFirefox()
 	{
 		if (!isset($this->_browsers['is_firefox']))
 			$this->_browsers['is_firefox'] = preg_match('~(?:Firefox|Ice[wW]easel|IceCat|Shiretoko|Minefield)/~', $_SERVER['HTTP_USER_AGENT']) === 1 && $this->isGecko();
@@ -182,7 +239,7 @@ class BrowserDetector
 	 *
 	 * @return boolean Whether or not this is WebTV
 	 */
-	function isWebTv()
+	public function isWebTv()
 	{
 		if (!isset($this->_browsers['is_web_tv']))
 			$this->_browsers['is_web_tv'] = strpos($_SERVER['HTTP_USER_AGENT'], 'WebTV') !== false;
@@ -194,7 +251,7 @@ class BrowserDetector
 	 *
 	 * @return boolean Whether or not this is Konqueror
 	 */
-	function isKonqueror()
+	public function isKonqueror()
 	{
 		if (!isset($this->_browsers['is_konqueror']))
 			$this->_browsers['is_konqueror'] = strpos($_SERVER['HTTP_USER_AGENT'], 'Konqueror') !== false;
@@ -206,7 +263,7 @@ class BrowserDetector
 	 *
 	 * @return boolean Whether or not this is a Gecko-based browser
 	 */
-	function isGecko()
+	public function isGecko()
 	{
 		if (!isset($this->_browsers['is_gecko']))
 			$this->_browsers['is_gecko'] = strpos($_SERVER['HTTP_USER_AGENT'], 'Gecko') !== false && !$this->isWebkit() && !$this->isKonqueror();
@@ -218,7 +275,7 @@ class BrowserDetector
 	 *
 	 * @return boolean Whether or not this is Opera Mini
 	 */
-	function isOperaMini()
+	public function isOperaMini()
 	{
 		if (!isset($this->_browsers['is_opera_mini']))
 			$this->_browsers['is_opera_mini'] = (isset($_SERVER['HTTP_X_OPERAMINI_PHONE_UA']) || stripos($_SERVER['HTTP_USER_AGENT'], 'opera mini') !== false);
@@ -232,7 +289,7 @@ class BrowserDetector
 	 *
 	 * @return boolean Whether or not this is Opera Mobile
 	 */
-	function isOperaMobi()
+	public function isOperaMobi()
 	{
 		if (!isset($this->_browsers['is_opera_mobi']))
 			$this->_browsers['is_opera_mobi'] = stripos($_SERVER['HTTP_USER_AGENT'], 'opera mobi') !== false;
@@ -240,6 +297,10 @@ class BrowserDetector
 			$this->_is_mobile = true;
 		return $this->_browsers['is_opera_mini'];
 	}
+
+	/******************
+	 * Internal methods
+	 ******************/
 
 	/**
 	 * Detect Safari / Chrome / iP[ao]d / iPhone / Android / Blackberry from webkit.
@@ -421,7 +482,7 @@ class BrowserDetector
 	 * Fill out the historical array
 	 *  - needed to support old mods that don't use isBrowser
 	 */
-	function fillInformation()
+	private function fillInformation()
 	{
 		$this->_browsers += array(
 			'is_opera' => false,
@@ -457,5 +518,9 @@ class BrowserDetector
 		);
 	}
 }
+
+// Export public static functions to global namespace for backward compatibility.
+if (is_callable(__NAMESPACE__ . '\BrowserDetector::exportStatic'))
+	BrowserDetector::exportStatic();
 
 ?>

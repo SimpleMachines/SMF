@@ -2003,36 +2003,6 @@ function loadMemberCustomFields($users, $params)
 }
 
 /**
- * Loads information about what browser the user is viewing with and places it in $context
- *  - uses the class from {@link Class-BrowserDetect.php}
- */
-function detectBrowser()
-{
-	// Load the current user's browser of choice
-	$detector = new BrowserDetector;
-	$detector->detectBrowser();
-}
-
-/**
- * Are we using this browser?
- *
- * Wrapper function for detectBrowser
- *
- * @param string $browser The browser we are checking for.
- * @return bool Whether or not the current browser is what we're looking for
- */
-function isBrowser($browser)
-{
-	global $context;
-
-	// Don't know any browser!
-	if (empty($context['browser']))
-		detectBrowser();
-
-	return !empty($context['browser'][$browser]) || !empty($context['browser']['is_' . $browser]) ? true : false;
-}
-
-/**
  * Load a theme, by ID.
  *
  * @param int $id_theme The ID of the theme to load
@@ -2383,7 +2353,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		$context['load_average'] = $modSettings['load_average'];
 
 	// Detect the browser. This is separated out because it's also used in attachment downloads
-	detectBrowser();
+	BrowserDetector::call();
 
 	// Set the top level linktree up.
 	// Note that if we're dealing with certain very early errors (e.g., login) the linktree might not be set yet...
@@ -2620,7 +2590,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	window.setTimeout(triggerCron, 1);', true);
 
 		// Robots won't normally trigger cron.php, so for them run the scheduled tasks directly.
-		if (isBrowser('possibly_robot') && (empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time() || (!empty($modSettings['mail_next_send']) && $modSettings['mail_next_send'] < time() && empty($modSettings['mail_queue_use_cron']))))
+		if (BrowserDetector::isBrowser('possibly_robot') && (empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time() || (!empty($modSettings['mail_next_send']) && $modSettings['mail_next_send'] < time() && empty($modSettings['mail_queue_use_cron']))))
 		{
 			require_once($sourcedir . '/ScheduledTasks.php');
 
@@ -3571,7 +3541,7 @@ function template_include($filename, $once = false)
 				$data2 = preg_split('~\<br( /)?\>~', $data2);
 
 				// Fix the PHP code stuff...
-				if (!isBrowser('gecko'))
+				if (!BrowserDetector::isBrowser('gecko'))
 					$data2 = str_replace("\t", '<span style="white-space: pre;">' . "\t" . '</span>', $data2);
 				else
 					$data2 = str_replace('<pre style="display: inline;">' . "\t" . '</pre>', "\t", $data2);

@@ -10,6 +10,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BrowserDetector;
+
 /**
  * The main template for the post page.
  */
@@ -23,7 +25,7 @@ function template_main()
 		<script>';
 
 	// When using Go Back due to fatal_error, allow the form to be re-submitted with changes.
-	if (isBrowser('is_firefox'))
+	if (BrowserDetector::isBrowser('is_firefox'))
 		echo '
 			window.addEventListener("pageshow", reActivate, false);';
 

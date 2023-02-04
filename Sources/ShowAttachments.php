@@ -13,6 +13,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BrowserDetector;
 use SMF\Cache\CacheApi;
 
 if (!defined('SMF'))
@@ -304,7 +305,7 @@ function showAttachment()
 	// Send the attachment headers.
 	header('pragma: ');
 
-	if (!isBrowser('gecko'))
+	if (!BrowserDetector::isBrowser('gecko'))
 		header('content-transfer-encoding: binary');
 
 	header('expires: ' . gmdate('D, d M Y H:i:s', time() + 525600 * 60) . ' GMT');
@@ -323,7 +324,7 @@ function showAttachment()
 
 	else
 	{
-		header('content-type: ' . (isBrowser('ie') || isBrowser('opera') ? 'application/octetstream' : 'application/octet-stream'));
+		header('content-type: ' . (BrowserDetector::isBrowser('ie') || BrowserDetector::isBrowser('opera') ? 'application/octetstream' : 'application/octet-stream'));
 		if (isset($_REQUEST['image']))
 			unset($_REQUEST['image']);
 	}
@@ -335,19 +336,19 @@ function showAttachment()
 		$utf8name = $_REQUEST['attach'] . ' - ' . $utf8name;
 
 	// On mobile devices, audio and video should be served inline so the browser can play them.
-	if (isset($_REQUEST['image']) || (isBrowser('is_mobile') && (strpos($file['mime_type'], 'audio/') !== 0 || strpos($file['mime_type'], 'video/') !== 0)))
+	if (isset($_REQUEST['image']) || (BrowserDetector::isBrowser('is_mobile') && (strpos($file['mime_type'], 'audio/') !== 0 || strpos($file['mime_type'], 'video/') !== 0)))
 		$disposition = 'inline';
 	else
 		$disposition = 'attachment';
 
 	// Different browsers like different standards...
-	if (isBrowser('firefox'))
+	if (BrowserDetector::isBrowser('firefox'))
 		header('content-disposition: ' . $disposition . '; filename*=UTF-8\'\'' . rawurlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name)));
 
-	elseif (isBrowser('opera'))
+	elseif (BrowserDetector::isBrowser('opera'))
 		header('content-disposition: ' . $disposition . '; filename="' . preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name) . '"');
 
-	elseif (isBrowser('ie'))
+	elseif (BrowserDetector::isBrowser('ie'))
 		header('content-disposition: ' . $disposition . '; filename="' . urlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name)) . '"');
 
 	else

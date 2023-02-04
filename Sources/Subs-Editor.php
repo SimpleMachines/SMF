@@ -14,6 +14,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 use SMF\Cache\CacheApi;
 
@@ -200,7 +201,7 @@ function create_control_richedit($editorOptions)
 		var bbc_quote = \'' . addcslashes($txt['quote'], "'") . '\';
 		var bbc_search_on = \'' . addcslashes($txt['search_on'], "'") . '\';');
 
-		$context['shortcuts_text'] = $txt['shortcuts' . (!empty($context['drafts_save']) ? '_drafts' : '') . (stripos($_SERVER['HTTP_USER_AGENT'], 'Macintosh') !== false ? '_mac' : (isBrowser('is_firefox') ? '_firefox' : ''))];
+		$context['shortcuts_text'] = $txt['shortcuts' . (!empty($context['drafts_save']) ? '_drafts' : '') . (stripos($_SERVER['HTTP_USER_AGENT'], 'Macintosh') !== false ? '_mac' : (BrowserDetector::isBrowser('is_firefox') ? '_firefox' : ''))];
 
 		if ($context['show_spellchecking'])
 		{
