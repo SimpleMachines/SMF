@@ -14,6 +14,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BrowserDetector;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -607,7 +609,7 @@ function iCalDownload()
 	// Send the file headers
 	header('pragma: ');
 	header('cache-control: no-cache');
-	if (!isBrowser('gecko'))
+	if (!BrowserDetector::isBrowser('gecko'))
 		header('content-transfer-encoding: binary');
 	header('expires: ' . gmdate('D, d M Y H:i:s', time() + 525600 * 60) . ' GMT');
 	header('last-modified: ' . gmdate('D, d M Y H:i:s', time()) . 'GMT');

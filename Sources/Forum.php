@@ -66,7 +66,7 @@ class Forum
 		'helpadmin' => array('Help.php', 'ShowAdminHelp'),
 		'jsmodify' => array('Post.php', 'JavaScriptModify'),
 		'jsoption' => array('Themes.php', 'SetJavaScript'),
-		'likes' => array('', 'SMF\\Likes::call#'),
+		'likes' => array('', 'SMF\\Likes::call'),
 		'lock' => array('Topic.php', 'LockTopic'),
 		'lockvoting' => array('Poll.php', 'LockVoting'),
 		'login' => array('LogInOut.php', 'Login'),
@@ -113,7 +113,7 @@ class Forum
 		'about:unknown' => array('', 'SMF\\Likes::BookOfUnknown'),
 		'unread' => array('Recent.php', 'UnreadTopics'),
 		'unreadreplies' => array('Recent.php', 'UnreadTopics'),
-		'uploadAttach' => array('', 'SMF\\Attachments::call#'),
+		'uploadAttach' => array('', 'SMF\\Attachments::call'),
 		'verificationcode' => array('Register.php', 'VerificationCode'),
 		'viewprofile' => array('Profile.php', 'ModifyProfile'),
 		'vote' => array('Poll.php', 'Vote'),
@@ -312,7 +312,7 @@ class Forum
 		// Attachments don't require the entire theme to be loaded.
 		if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'dlattach' && empty($maintenance))
 		{
-			detectBrowser();
+			BrowserDetector::call();
 		}
 		// Load the current theme.  (note that ?theme=1 will also work, may be used for guest theming.)
 		else

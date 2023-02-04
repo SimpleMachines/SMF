@@ -353,6 +353,8 @@ abstract class CacheApi
 	 * Try to load up a supported caching method.
 	 * This is saved in $loadedApi if we are not overriding it.
 	 *
+	 * @todo Add a reference to $context['instances'] as well?
+	 *
 	 * @param string $overrideCache Allows manually specifying a cache accelerator engine.
 	 * @param bool $fallbackSMF Use the default SMF method if the accelerator fails.
 	 * @return object|false An instance of a child class of this class, or false on failure.

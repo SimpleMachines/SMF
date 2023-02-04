@@ -10,6 +10,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BrowserDetector;
+
 /**
  * Before showing users a registration form, show them the registration agreement.
  */
@@ -458,7 +460,7 @@ function template_verification_sound()
 	<body style="margin: 1ex;">
 		<div class="windowbg description" style="text-align: center;">';
 
-	if (isBrowser('is_ie') || isBrowser('is_ie11'))
+	if (BrowserDetector::isBrowser('is_ie') || BrowserDetector::isBrowser('is_ie11'))
 		echo '
 			<object classid="clsid:22D6F312-B0F6-11D0-94AB-0080C74C7E95" type="audio/x-wav">
 				<param name="AutoStart" value="1">

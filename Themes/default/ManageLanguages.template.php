@@ -11,6 +11,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BrowserDetector;
+
 /**
  * Download a new language file.
  */
@@ -343,7 +345,7 @@ function template_add_language()
 
 	echo '
 				</fieldset>
-				', isBrowser('is_ie') ? '<input type="text" name="ie_fix" style="display: none;"> ' : '', '
+				', BrowserDetector::isBrowser('is_ie') ? '<input type="text" name="ie_fix" style="display: none;"> ' : '', '
 				<input type="submit" name="smf_add_sub" value="', $txt['search'], '" class="button">
 				<br>
 			</div><!-- .windowbg -->';

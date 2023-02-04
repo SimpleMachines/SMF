@@ -13,6 +13,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 use SMF\Forum;
 use SMF\Cache\CacheApi;
@@ -2006,7 +2007,7 @@ function template_header()
 		header('last-modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 
 		// Are we debugging the template/html content?
-		if (!isset($_REQUEST['xml']) && isset($_GET['debug']) && !isBrowser('ie'))
+		if (!isset($_REQUEST['xml']) && isset($_GET['debug']) && !BrowserDetector::isBrowser('ie'))
 			header('content-type: application/xhtml+xml');
 		elseif (!isset($_REQUEST['xml']))
 			header('content-type: text/html; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));

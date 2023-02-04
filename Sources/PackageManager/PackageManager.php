@@ -86,6 +86,8 @@ class PackageManager
 	/**
 	 * Instantiates this class, but never more than once.
 	 *
+	 * @todo Add a reference to $context['instances'] as well?
+	 *
 	 * @return An instance of this class.
 	 */
 	public static function load(): object

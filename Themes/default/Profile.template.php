@@ -10,6 +10,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BrowserDetector;
+
 /**
  * Minor stuff shown above the main profile - mostly used for error messages and showing that the profile update was successful.
  */
@@ -18,7 +20,7 @@ function template_profile_above()
 	global $context;
 
 	// Prevent Chrome from auto completing fields when viewing/editing other members profiles
-	if (isBrowser('is_chrome') && !$context['user']['is_owner'])
+	if (BrowserDetector::isBrowser('is_chrome') && !$context['user']['is_owner'])
 		echo '
 			<script>
 				disableAutoComplete();

@@ -14,6 +14,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BrowserDetector;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -526,7 +528,7 @@ function download_export_file($uid)
 
 	header('pragma: ');
 
-	if (!isBrowser('gecko'))
+	if (!BrowserDetector::isBrowser('gecko'))
 		header('content-transfer-encoding: binary');
 
 	header('expires: ' . gmdate('D, d M Y H:i:s', time() + 525600 * 60) . ' GMT');
@@ -540,13 +542,13 @@ function download_export_file($uid)
 	$utf8name = !$context['utf8'] && function_exists('iconv') ? iconv($context['character_set'], 'UTF-8', $dlbasename) : (!$context['utf8'] && function_exists('mb_convert_encoding') ? mb_convert_encoding($dlbasename, 'UTF-8', $context['character_set']) : $dlbasename);
 
 	// Different browsers like different standards...
-	if (isBrowser('firefox'))
+	if (BrowserDetector::isBrowser('firefox'))
 		header('content-disposition: attachment; filename*=UTF-8\'\'' . rawurlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name)));
 
-	elseif (isBrowser('opera'))
+	elseif (BrowserDetector::isBrowser('opera'))
 		header('content-disposition: attachment; filename="' . preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name) . '"');
 
-	elseif (isBrowser('ie'))
+	elseif (BrowserDetector::isBrowser('ie'))
 		header('content-disposition: attachment; filename="' . urlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name)) . '"');
 
 	else

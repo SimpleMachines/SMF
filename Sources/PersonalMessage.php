@@ -15,6 +15,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 use SMF\Cache\CacheApi;
 
@@ -2865,7 +2866,7 @@ function MessageActionsApply()
 
 	// Back to the folder.
 	$_SESSION['pm_selected'] = array_keys($to_label);
-	redirectexit($context['current_label_redirect'] . (count($to_label) == 1 ? '#msg' . $_SESSION['pm_selected'][0] : ''), count($to_label) == 1 && isBrowser('ie'));
+	redirectexit($context['current_label_redirect'] . (count($to_label) == 1 ? '#msg' . $_SESSION['pm_selected'][0] : ''), count($to_label) == 1 && BrowserDetector::isBrowser('ie'));
 }
 
 /**
