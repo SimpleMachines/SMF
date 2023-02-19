@@ -31,8 +31,6 @@ if (!defined('SMF'))
  */
 function RepairBoards()
 {
-	global $salvageBoardID;
-
 	isAllowedTo('admin_forum');
 
 	// Try secure more memory.
@@ -57,9 +55,6 @@ function RepairBoards()
 	// Start displaying errors without fixing them.
 	if (isset($_GET['fixErrors']))
 		checkSession('get');
-
-	// Will want this.
-	loadForumTests();
 
 	// Giant if/else. The first displays the forum errors if a variable is not set and asks
 	// if you would like to continue, the other fixes the errors.
@@ -107,7 +102,7 @@ function RepairBoards()
 		));
 
 		// If we created a salvage area, we may need to recount stats properly.
-		if (!empty($salvageBoardID) || !empty($_SESSION['salvageBoardID']))
+		if (!empty(Utils::$context['salvageBoardID']) || !empty($_SESSION['salvageBoardID']))
 		{
 			unset($_SESSION['salvageBoardID']);
 			Utils::$context['redirect_to_recount'] = true;
@@ -135,7 +130,6 @@ function RepairBoards()
  */
 function pauseRepairProcess($to_fix, $current_step_description, $max_substep = 0, $force = false)
 {
-	global $db_temp_cache;
 	static $loops = 0;
 	++$loops;
 
@@ -166,8 +160,8 @@ function pauseRepairProcess($to_fix, $current_step_description, $max_substep = 0
 		return;
 
 	// Restore the query cache if interested.
-	if (!empty($db_temp_cache))
-		Db::$cache = $db_temp_cache;
+	if (!empty(Utils::$context['db_cache']))
+		Db::$cache = Utils::$context['db_cache'];
 
 	Utils::$context['continue_get_data'] = '?action=admin;area=repairboards' . (isset($_GET['fixErrors']) ? ';fixErrors' : '') . ';step=' . $_GET['step'] . ';substep=' . $_GET['substep'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
 	Utils::$context['page_title'] = Lang::$txt['not_done_title'];
@@ -200,8 +194,6 @@ function pauseRepairProcess($to_fix, $current_step_description, $max_substep = 0
  */
 function loadForumTests()
 {
-	global $errorTests;
-
 	/* Here this array is defined like so:
 		string check_query:	Query to be executed when testing if errors exist.
 		string check_type:	Defines how it knows if a problem was found. If set to count looks for the first variable from check_query
@@ -220,7 +212,7 @@ function loadForumTests()
 	*/
 
 	// This great array contains all of our error checks, fixes, etc etc etc.
-	$errorTests = array(
+	return array(
 		// Make a last-ditch-effort check to get rid of topics with zeros..
 		'zero_topics' => array(
 			'check_query' => '
@@ -272,13 +264,11 @@ function loadForumTests()
 				GROUP BY m.id_topic, m.id_board',
 			'fix_processing' => function($row)
 			{
-				global $salvageBoardID;
-
 				// Only if we don't have a reasonable idea of where to put it.
 				if ($row['id_board'] == 0)
 				{
 					createSalvageArea();
-					$row['id_board'] = $_SESSION['salvageBoardID'] = (int) $salvageBoardID;
+					$row['id_board'] = $_SESSION['salvageBoardID'] = (int) Utils::$context['salvageBoardID'];
 				}
 
 				// Make sure that no topics claim the first/last message as theirs.
@@ -394,8 +384,6 @@ function loadForumTests()
 				GROUP BY o.id_poll, t.id_topic, t.id_board, t.id_member_started, m.member_name',
 			'fix_processing' => function($row)
 			{
-				global $salvageBoardID;
-
 				$row['poster_name'] = !empty($row['poster_name']) ? $row['poster_name'] : Lang::$txt['guest'];
 				$row['id_poster'] = !empty($row['id_poster']) ? $row['id_poster'] : 0;
 
@@ -403,7 +391,7 @@ function loadForumTests()
 				{
 					// Only if we don't have a reasonable idea of where to put it.
 					createSalvageArea();
-					$row['id_board'] = $_SESSION['salvageBoardID'] = (int) $salvageBoardID;
+					$row['id_board'] = $_SESSION['salvageBoardID'] = (int) Utils::$context['salvageBoardID'];
 				}
 
 				if (empty($row['id_topic']))
@@ -531,13 +519,11 @@ function loadForumTests()
 					AND t.id_poll IS NULL',
 			'fix_processing' => function($row)
 			{
-				global $salvageBoardID;
-
 				// Only if we don't have a reasonable idea of where to put it.
 				if ($row['id_board'] == 0)
 				{
 					createSalvageArea();
-					$row['id_board'] = $_SESSION['salvageBoardID'] = (int) $salvageBoardID;
+					$row['id_board'] = $_SESSION['salvageBoardID'] = (int) Utils::$context['salvageBoardID'];
 				}
 
 				$row['poster_name'] = !empty($row['poster_name']) ? $row['poster_name'] : Lang::$txt['guest'];
@@ -791,7 +777,6 @@ function loadForumTests()
 				GROUP BY t.id_board',
 			'fix_processing' => function($row)
 			{
-				global $salvageCatID;
 				createSalvageArea();
 
 				$row['my_num_topics'] = (int) $row['my_num_topics'];
@@ -800,7 +785,7 @@ function loadForumTests()
 				$newBoardID = Db::$db->insert('',
 					'{db_prefix}boards',
 					array('id_cat' => 'int', 'name' => 'string', 'description' => 'string', 'num_topics' => 'int', 'num_posts' => 'int', 'member_groups' => 'string'),
-					array($salvageCatID, Lang::$txt['salvaged_board_name'], Lang::$txt['salvaged_board_description'], $row['my_num_topics'], $row['my_num_posts'], '1'),
+					array(Utils::$context['salvageCatID'], Lang::$txt['salvaged_board_name'], Lang::$txt['salvaged_board_description'], $row['my_num_topics'], $row['my_num_posts'], '1'),
 					array('id_board'),
 					1
 				);
@@ -838,14 +823,13 @@ function loadForumTests()
 				'index' => 'id_cat',
 				'process' => function($cats)
 				{
-					global $salvageCatID;
 					createSalvageArea();
 					Db::$db->query('', '
 						UPDATE {db_prefix}boards
 						SET id_cat = {int:salvageCatID}
 						WHERE id_cat IN ({array_int:categories})',
 						array(
-							'salvageCatID' => $salvageCatID,
+							'salvageCatID' => Utils::$context['salvageCatID'],
 							'categories' => $cats,
 						)
 					);
@@ -900,18 +884,16 @@ function loadForumTests()
 				'index' => 'id_parent',
 				'process' => function($parents)
 				{
-					global $salvageBoardID, $salvageCatID;
-
 					createSalvageArea();
-					$_SESSION['salvageBoardID'] = (int) $salvageBoardID;
+					$_SESSION['salvageBoardID'] = (int) Utils::$context['salvageBoardID'];
 
 					Db::$db->query('', '
 						UPDATE {db_prefix}boards
 						SET id_parent = {int:salvageBoardID}, id_cat = {int:salvageCatID}, child_level = 1
 						WHERE id_parent IN ({array_int:parents})',
 						array(
-							'salvageBoardID' => $salvageBoardID,
-							'salvageCatID' => $salvageCatID,
+							'salvageBoardID' => Utils::$context['salvageBoardID'],
+							'salvageCatID' => Utils::$context['salvageCatID'],
 							'parents' => $parents,
 						)
 					);
@@ -1535,7 +1517,7 @@ function loadForumTests()
  */
 function findForumErrors($do_fix = false)
 {
-	global $errorTests, $db_temp_cache;
+	$errorTests = loadForumTests();
 
 	// This may take some time...
 	@set_time_limit(600);
@@ -1547,7 +1529,7 @@ function findForumErrors($do_fix = false)
 	$_GET['substep'] = empty($_GET['substep']) ? 0 : (int) $_GET['substep'];
 
 	// Don't allow the cache to get too full.
-	$db_temp_cache = Db::$cache;
+	Utils::$context['db_cache'] = Db::$cache;
 	Db::$cache = array();
 
 	Utils::$context['total_steps'] = count($errorTests);
@@ -1745,7 +1727,7 @@ function findForumErrors($do_fix = false)
 	}
 
 	// Restore the cache.
-	Db::$cache = $db_temp_cache;
+	Db::$cache = Utils::$context['db_cache'];
 
 	return $to_fix;
 }
@@ -1756,7 +1738,6 @@ function findForumErrors($do_fix = false)
  */
 function createSalvageArea()
 {
-	global $salvageBoardID, $salvageCatID;
 	static $createOnce = false;
 
 	// Have we already created it?
@@ -1779,12 +1760,12 @@ function createSalvageArea()
 		)
 	);
 	if (Db::$db->num_rows($result) != 0)
-		list ($salvageCatID) = Db::$db->fetch_row($result);
+		list (Utils::$context['salvageCatID']) = Db::$db->fetch_row($result);
 	Db::$db->free_result($result);
 
-	if (empty($salvageCatID))
+	if (empty(Utils::$context['salvageCatID']))
 	{
-		$salvageCatID = Db::$db->insert('',
+		Utils::$context['salvageCatID'] = Db::$db->insert('',
 			'{db_prefix}categories',
 			array('name' => 'string-255', 'cat_order' => 'int', 'description' => 'string-255'),
 			array(Lang::$txt['salvaged_category_name'], -1, Lang::$txt['salvaged_category_description']),
@@ -1807,20 +1788,20 @@ function createSalvageArea()
 			AND name = {string:board_name}
 		LIMIT 1',
 		array(
-			'id_cat' => $salvageCatID,
+			'id_cat' => Utils::$context['salvageCatID'],
 			'board_name' => Lang::$txt['salvaged_board_name'],
 		)
 	);
 	if (Db::$db->num_rows($result) != 0)
-		list ($salvageBoardID) = Db::$db->fetch_row($result);
+		list (Utils::$context['salvageBoardID']) = Db::$db->fetch_row($result);
 	Db::$db->free_result($result);
 
-	if (empty($salvageBoardID))
+	if (empty(Utils::$context['salvageBoardID']))
 	{
-		$salvageBoardID = Db::$db->insert('',
+		Utils::$context['salvageBoardID'] = Db::$db->insert('',
 			'{db_prefix}boards',
 			array('name' => 'string-255', 'description' => 'string-255', 'id_cat' => 'int', 'member_groups' => 'string', 'board_order' => 'int', 'redirect' => 'string'),
-			array(Lang::$txt['salvaged_board_name'], Lang::$txt['salvaged_board_description'], $salvageCatID, '1', -1, ''),
+			array(Lang::$txt['salvaged_board_name'], Lang::$txt['salvaged_board_description'], Utils::$context['salvageCatID'], '1', -1, ''),
 			array('id_board'),
 			1
 		);

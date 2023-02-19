@@ -467,8 +467,6 @@ function template_unapproved_posts()
  */
 function template_user_watch_post_callback($post)
 {
-	global $delete_button;
-
 	// We'll have a delete and a checkbox please bob.
 	// @todo Discuss this with the team and rewrite if required.
 	$quickbuttons = array(

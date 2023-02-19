@@ -40,7 +40,7 @@ use SMF\Db\DatabaseApi as Db;
  */
 function log_error($error_message, $error_type = 'general', $file = null, $line = null)
 {
-	global $last_error;
+	static $last_error;
 	static $tried_hook = false;
 	static $error_call = 0;
 

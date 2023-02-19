@@ -199,7 +199,7 @@ function SplitExecute()
  */
 function SplitSelectTopics()
 {
-	global $topic, $original_msgs, $options;
+	global $topic, $options;
 
 	Utils::$context['page_title'] = Lang::$txt['split'] . ' - ' . Lang::$txt['select_split_posts'];
 

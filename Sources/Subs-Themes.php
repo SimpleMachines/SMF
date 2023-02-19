@@ -228,13 +228,10 @@ function get_installed_themes()
  */
 function get_theme_info($path)
 {
-	global $explicit_images;
-
 	if (empty($path))
 		return false;
 
 	$xml_data = array();
-	$explicit_images = false;
 
 	// Perhaps they are trying to install a mod, lets tell them nicely this is the wrong function.
 	if (file_exists($path . '/package-info.xml'))
@@ -297,8 +294,10 @@ function get_theme_info($path)
 	if (!empty($theme_info_xml['images']))
 	{
 		$xml_data['images_url'] = $path . '/' . $theme_info_xml['images'];
-		$explicit_images = true;
+		$xml_data['explicit_images'] = true;
 	}
+	else
+		$xml_data['explicit_images'] = false;
 
 	if (!empty($theme_info_xml['extra']))
 		$xml_data += Utils::jsonDecode($theme_info_xml['extra'], true);
@@ -316,7 +315,7 @@ function get_theme_info($path)
  */
 function theme_install($to_install = array())
 {
-	global $settings, $explicit_images;
+	global $settings;
 
 	// External use? no problem!
 	if (!empty($to_install))
@@ -412,7 +411,7 @@ function theme_install($to_install = array())
 				Utils::$context['to_install']['base_theme_url'] = $temp['theme_url'];
 				Utils::$context['to_install']['base_theme_dir'] = $temp['theme_dir'];
 
-				if (empty($explicit_images) && !empty(Utils::$context['to_install']['base_theme_url']))
+				if (empty(Utils::$context['to_install']['explicit_images']) && !empty(Utils::$context['to_install']['base_theme_url']))
 					Utils::$context['to_install']['theme_url'] = Utils::$context['to_install']['base_theme_url'];
 			}
 
