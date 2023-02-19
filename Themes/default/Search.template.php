@@ -251,7 +251,7 @@ function template_main()
  */
 function template_results()
 {
-	global $options, $message;
+	global $options;
 
 	if (isset(Utils::$context['did_you_mean']) || empty(Utils::$context['topics']) || !empty(Utils::$context['search_ignored']))
 	{

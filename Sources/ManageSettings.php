@@ -1024,8 +1024,6 @@ function ModifyAntispamSettings($return_config = false)
  */
 function ModifySignatureSettings($return_config = false)
 {
-	global $sig_start;
-
 	$config_vars = array(
 		// Are signatures even enabled?
 		array('check', 'signature_enable'),
@@ -1071,7 +1069,7 @@ function ModifySignatureSettings($return_config = false)
 		// Security!
 		checkSession('get');
 
-		$sig_start = time();
+		Utils::$context['sig_start'] = time();
 		// This is horrid - but I suppose some people will want the option to do it.
 		$_GET['step'] = isset($_GET['step']) ? (int) $_GET['step'] : 0;
 		$done = false;
@@ -1381,15 +1379,13 @@ function ModifySignatureSettings($return_config = false)
  */
 function pauseSignatureApplySettings()
 {
-	global $sig_start;
-
 	// Try get more time...
 	@set_time_limit(600);
 	if (function_exists('apache_reset_timeout'))
 		@apache_reset_timeout();
 
 	// Have we exhausted all the time we allowed?
-	if (time() - array_sum(explode(' ', $sig_start)) < 3)
+	if (time() - array_sum(explode(' ', Utils::$context['sig_start'])) < 3)
 		return;
 
 	Utils::$context['continue_get_data'] = '?action=admin;area=featuresettings;sa=sig;apply;step=' . $_GET['step'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];

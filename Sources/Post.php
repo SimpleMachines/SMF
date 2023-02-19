@@ -2871,7 +2871,8 @@ function AnnouncementSend()
  */
 function getTopic()
 {
-	global $topic, $counter, $options;
+	global $topic, $options;
+	static $counter;
 
 	if (isset($_REQUEST['xml']))
 		$limit = '

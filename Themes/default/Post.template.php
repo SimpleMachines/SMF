@@ -21,7 +21,7 @@ use SMF\User;
  */
 function template_main()
 {
-	global $options, $counter;
+	global $options;
 	global $settings;
 
 	// Start the javascript... and boy is there a lot.
