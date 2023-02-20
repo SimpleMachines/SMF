@@ -3104,7 +3104,7 @@ function showPermissions($memID)
 	}
 	Db::$db->free_result($request);
 
-	require_once(Config::$sourcedir . '/Subs-Boards.php');
+	require_once(Config::$sourcedir . '/Board.php');
 	sortBoards(Utils::$context['boards']);
 
 	if (!empty(Utils::$context['no_access_boards']))

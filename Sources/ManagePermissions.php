@@ -389,7 +389,7 @@ function PermissionByBoard()
 	loadPermissionProfiles();
 
 	// Get the board tree.
-	require_once(Config::$sourcedir . '/Subs-Boards.php');
+	require_once(Config::$sourcedir . '/Board.php');
 
 	getBoardTree();
 

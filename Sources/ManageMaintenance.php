@@ -224,7 +224,7 @@ function MaintainTopics()
 	}
 	Db::$db->free_result($result);
 
-	require_once(Config::$sourcedir . '/Subs-Boards.php');
+	require_once(Config::$sourcedir . '/Board.php');
 	sortCategories(Utils::$context['categories']);
 
 	if (isset($_GET['done']) && $_GET['done'] == 'purgeold')

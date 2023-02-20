@@ -32,7 +32,7 @@ function MessageIndex()
 	global $board;
 	global $options, $settings, $board_info;
 
-	require_once(Config::$sourcedir . '/Subs-Boards.php');
+	require_once(Config::$sourcedir . '/Board.php');
 
 	// If this is a redirection board head off.
 	if ($board_info['redirect'])
