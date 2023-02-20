@@ -14,6 +14,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
@@ -972,7 +973,6 @@ function assignAttachments($attachIDs = array(), $msgID = 0)
  */
 function parseAttachBBC($attachID = 0)
 {
-	global $board;
 	static $view_attachment_boards;
 
 	if (!isset($view_attachment_boards))
@@ -1004,7 +1004,7 @@ function parseAttachBBC($attachID = 0)
 		return Utils::$context['current_attachments'][$attachID];
 
 	// Can the user view attachments on this board?
-	if ($check_board_perms && !empty($board) && !in_array($board, $view_attachment_boards))
+	if ($check_board_perms && !empty(Board::$info->id) && !in_array(Board::$info->id, $view_attachment_boards))
 		return 'attachments_not_allowed_to_see';
 
 	// Get the message info associated with this particular attach ID.

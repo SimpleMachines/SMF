@@ -15,6 +15,7 @@
  */
 
 use SMF\BrowserDetector;
+use SMF\Board;
 use SMF\Config;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -30,13 +31,13 @@ if (!defined('SMF'))
  * - makes sure the query string was parsed correctly.
  * - handles the URLs passed by the queryless URLs option.
  * - makes sure, regardless of php.ini, everything has slashes.
- * - sets up $board, $topic, and $_REQUEST['start'].
+ * - sets up Board::$board_id, $topic, and $_REQUEST['start'].
  * - determines, or rather tries to determine, the client's IP.
  */
 
 function cleanRequest()
 {
-	global $board, $topic;
+	global $topic;
 
 	// What function to use to reverse magic quotes - if sybase is on we assume that the database sensibly has the right unescape function!
 	$removeMagicQuoteFunction = ini_get('magic_quotes_sybase') || strtolower(ini_get('magic_quotes_sybase')) == 'on' ? 'unescapestring__recursive' : 'stripslashes__recursive';
@@ -156,7 +157,7 @@ function cleanRequest()
 	// Let's not depend on the ini settings... why even have COOKIE in there, anyway?
 	$_REQUEST = $_POST + $_GET;
 
-	// Make sure $board and $topic are numbers.
+	// Make sure Board::$board_id and $topic are numbers.
 	if (isset($_REQUEST['board']))
 	{
 		// Make sure it's a string and not something else like an array
@@ -169,15 +170,15 @@ function cleanRequest()
 		elseif (strpos($_REQUEST['board'], '.') !== false)
 			list ($_REQUEST['board'], $_REQUEST['start']) = explode('.', $_REQUEST['board']);
 		// Now make absolutely sure it's a number.
-		$board = (int) $_REQUEST['board'];
+		Board::$board_id = (int) $_REQUEST['board'];
 		$_REQUEST['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
 
 		// This is for "Who's Online" because it might come via POST - and it should be an int here.
-		$_GET['board'] = $board;
+		$_GET['board'] = Board::$board_id;
 	}
-	// Well, $board is going to be a number no matter what.
+	// Well, Board::$board_id is going to be a number no matter what.
 	else
-		$board = 0;
+		Board::$board_id = 0;
 
 	// If there's a threadid, it's probably an old YaBB SE link.  Flow with it.
 	if (isset($_REQUEST['threadid']) && !isset($_REQUEST['topic']))

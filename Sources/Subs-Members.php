@@ -13,6 +13,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
@@ -471,8 +472,6 @@ function registerMember(&$regOptions, $return_errors = false)
  */
 function groupsAllowedTo($permission, $board_id = null)
 {
-	global $board_info;
-
 	// Admins are allowed to do anything.
 	$member_groups = array(
 		'allowed' => array(1),
@@ -505,9 +504,9 @@ function groupsAllowedTo($permission, $board_id = null)
 		$board_id = (int) $board_id;
 
 		// First get the profile of the given board.
-		if (isset($board_info['id']) && $board_info['id'] == $board_id)
+		if (isset(Board::$info->id) && Board::$info->id == $board_id)
 		{
-			$profile_id = $board_info['profile'];
+			$profile_id = Board::$info->profile;
 		}
 		elseif ($board_id !== 0)
 		{
@@ -554,9 +553,9 @@ function groupsAllowedTo($permission, $board_id = null)
 		$moderator_groups = array();
 
 		// "Inherit" any moderator permissions as needed
-		if (isset($board_info['moderator_groups']))
+		if (isset(Board::$info->moderator_groups))
 		{
-			$moderator_groups = array_keys($board_info['moderator_groups']);
+			$moderator_groups = array_keys(Board::$info->moderator_groups);
 		}
 		elseif ($board_id !== 0)
 		{

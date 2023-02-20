@@ -73,7 +73,7 @@ class Forum
 		'login2' => array('LogInOut.php', 'Login2'),
 		'logintfa' => array('LogInOut.php', 'LoginTFA'),
 		'logout' => array('LogInOut.php', 'Logout'),
-		'markasread' => array('Subs-Boards.php', 'MarkRead'),
+		'markasread' => array('', 'SMF\\Board::MarkRead'),
 		'mergetopics' => array('SplitTopics.php', 'MergeTopics'),
 		'mlist' => array('Memberlist.php', 'Memberlist'),
 		'moderate' => array('ModerationCenter.php', 'ModerationMain'),
@@ -278,8 +278,7 @@ class Forum
 	 */
 	protected function main()
 	{
-		global $settings, $board, $topic;
-		global $board_info;
+		global $settings, $topic;
 
 		// Special case: session keep-alive, output a transparent pixel.
 		if (isset($_GET['action']) && $_GET['action'] == 'keepalive')
@@ -298,7 +297,7 @@ class Forum
 		User::load();
 
 		// Load the current board's information.
-		loadBoard();
+		Board::load();
 
 		// Load the current user's permissions.
 		User::$me->loadPermissions();
@@ -318,7 +317,7 @@ class Forum
 		is_not_banned();
 
 		// If we are in a topic and don't have permission to approve it then duck out now.
-		if (!empty($topic) && empty($board_info['cur_topic_approved']) && !allowedTo('approve_posts') && (User::$me->id != $board_info['cur_topic_starter'] || User::$me->is_guest))
+		if (!empty($topic) && empty(Board::$info->cur_topic_approved) && !allowedTo('approve_posts') && (User::$me->id != Board::$info->cur_topic_starter || User::$me->is_guest))
 		{
 			fatal_lang_error('not_a_topic', false);
 		}
@@ -358,7 +357,7 @@ class Forum
 		elseif (empty($_REQUEST['action']))
 		{
 			// Action and board are both empty... BoardIndex! Unless someone else wants to do something different.
-			if (empty($board) && empty($topic))
+			if (empty(Board::$info->id) && empty($topic))
 			{
 				if (!empty(Config::$modSettings['integrate_default_action']))
 				{

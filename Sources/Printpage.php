@@ -15,6 +15,7 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
@@ -36,8 +37,6 @@ if (!defined('SMF'))
 function PrintTopic()
 {
 	global $topic;
-	global $board_info;
-
 	// Redirect to the boardindex if no valid topic id is provided.
 	if (empty($topic))
 		redirectexit();
@@ -242,12 +241,12 @@ function PrintTopic()
 	// Lets "output" all that info.
 	loadTemplate('Printpage');
 	Utils::$context['template_layers'] = array('print');
-	Utils::$context['board_name'] = $board_info['name'];
-	Utils::$context['category_name'] = $board_info['cat']['name'];
+	Utils::$context['board_name'] = Board::$info->name;
+	Utils::$context['category_name'] = Board::$info->cat['name'];
 	Utils::$context['poster_name'] = $row['poster_name'];
 	Utils::$context['post_time'] = timeformat($row['poster_time'], false);
 	Utils::$context['parent_boards'] = array();
-	foreach ($board_info['parent_boards'] as $parent)
+	foreach (Board::$info->parent_boards as $parent)
 		Utils::$context['parent_boards'][] = $parent['name'];
 
 	// Split the topics up so we can print them.

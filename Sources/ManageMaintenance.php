@@ -13,6 +13,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
@@ -224,8 +225,7 @@ function MaintainTopics()
 	}
 	Db::$db->free_result($result);
 
-	require_once(Config::$sourcedir . '/Board.php');
-	sortCategories(Utils::$context['categories']);
+	Board::sortCategories(Utils::$context['categories']);
 
 	if (isset($_GET['done']) && $_GET['done'] == 'purgeold')
 		Utils::$context['maintenance_finished'] = Lang::$txt['maintain_old'];

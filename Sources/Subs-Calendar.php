@@ -13,6 +13,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
@@ -322,18 +323,18 @@ function getHolidayRange($low_date, $high_date)
  * Does permission checks to see if an event can be linked to a board/topic.
  * checks if the current user can link the current topic to the calendar, permissions et al.
  * this requires the calendar_post permission, a forum moderator, or a topic starter.
- * expects the $topic and $board variables to be set.
+ * expects the $topic and Board::$info->id variables to be set.
  * if the user doesn't have proper permissions, an error will be shown.
  */
 function canLinkEvent()
 {
-	global $topic, $board;
+	global $topic;
 
 	// If you can't post, you can't link.
 	isAllowedTo('calendar_post');
 
 	// No board?  No topic?!?
-	if (empty($board))
+	if (empty(Board::$info->id))
 		fatal_lang_error('missing_board_id', false);
 	if (empty($topic))
 		fatal_lang_error('missing_topic_id', false);

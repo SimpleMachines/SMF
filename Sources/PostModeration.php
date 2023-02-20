@@ -14,6 +14,7 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
@@ -648,7 +649,7 @@ function list_getNumUnapprovedAttachments($approve_query)
  */
 function ApproveMessage()
 {
-	global $topic, $board;
+	global $topic;
 
 	checkSession('get');
 
@@ -679,14 +680,14 @@ function ApproveMessage()
 		approveTopics($topic, !$approved);
 
 		if ($starter != User::$me->id)
-			logAction(($approved ? 'un' : '') . 'approve_topic', array('topic' => $topic, 'subject' => $subject, 'member' => $starter, 'board' => $board));
+			logAction(($approved ? 'un' : '') . 'approve_topic', array('topic' => $topic, 'subject' => $subject, 'member' => $starter, 'board' => Board::$info->id));
 	}
 	else
 	{
 		approvePosts($_REQUEST['msg'], !$approved);
 
 		if ($poster != User::$me->id)
-			logAction(($approved ? 'un' : '') . 'approve', array('topic' => $topic, 'subject' => $subject, 'member' => $poster, 'board' => $board));
+			logAction(($approved ? 'un' : '') . 'approve', array('topic' => $topic, 'subject' => $subject, 'member' => $poster, 'board' => Board::$info->id));
 	}
 
 	redirectexit('topic=' . $topic . '.msg' . $_REQUEST['msg'] . '#msg' . $_REQUEST['msg']);

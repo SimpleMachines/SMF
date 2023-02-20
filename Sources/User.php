@@ -867,8 +867,6 @@ class User implements \ArrayAccess
 	 */
 	public function loadPermissions(): void
 	{
-		global $board, $board_info;
-
 		if ($this->is_admin)
 		{
 			$this->can_mod = true;
@@ -890,8 +888,8 @@ class User implements \ArrayAccess
 
 			if (
 				CacheApi::$enable >= 2
-				&& !empty($board)
-				&& ($temp = CacheApi::get('permissions:' . $cache_groups . ':' . $board, 240)) != null
+				&& !empty(Board::$info->id)
+				&& ($temp = CacheApi::get('permissions:' . $cache_groups . ':' . Board::$info->id, 240)) != null
 				&& time() - 240 > Config::$modSettings['settings_updated']
 			)
 			{
@@ -946,10 +944,10 @@ class User implements \ArrayAccess
 		}
 
 		// Get the board permissions.
-		if (!empty($board))
+		if (!empty(Board::$info->id))
 		{
-			// Make sure the board (if any) has been loaded by loadBoard().
-			if (!isset($board_info['profile']))
+			// Make sure the board (if any) has been loaded by Board::load().
+			if (!isset(Board::$info->profile))
 				fatal_lang_error('no_board');
 
 			$request = Db::$db->query('', '
@@ -960,7 +958,7 @@ class User implements \ArrayAccess
 					AND id_profile = {int:id_profile}',
 				array(
 					'member_groups' => $this->groups,
-					'id_profile' => $board_info['profile'],
+					'id_profile' => Board::$info->profile,
 					'spider_group' => !empty(Config::$modSettings['spider_group']) ? Config::$modSettings['spider_group'] : 0,
 				)
 			);
@@ -984,9 +982,9 @@ class User implements \ArrayAccess
 			$this->permissions = array_diff($this->permissions, $removals);
 		}
 
-		if (isset($cache_groups) && !empty($board) && CacheApi::$enable >= 2)
+		if (isset($cache_groups) && !empty(Board::$info->id) && CacheApi::$enable >= 2)
 		{
-			CacheApi::put('permissions:' . $cache_groups . ':' . $board, array($this->permissions, null), 240);
+			CacheApi::put('permissions:' . $cache_groups . ':' . Board::$info->id, array($this->permissions, null), 240);
 		}
 
 		// Banned?  Watch, don't touch..
@@ -1310,9 +1308,7 @@ class User implements \ArrayAccess
 	 */
 	public static function setModerators(): void
 	{
-		global $board_info;
-
-		if (!empty($board_info) && ($moderator_group_info = CacheApi::get('moderator_group_info', 480)) == null)
+		if (isset(Board::$info) && ($moderator_group_info = CacheApi::get('moderator_group_info', 480)) == null)
 		{
 			$request = Db::$db->query('', '
 				SELECT group_name, online_color, icons
@@ -1343,15 +1339,15 @@ class User implements \ArrayAccess
 			$profile['is_mod'] = in_array(2, $user->groups);
 
 			// Can't do much else without a board.
-			if (empty($board_info))
+			if (!isset(Board::$info))
 				continue;
 
-			if (!empty($board_info['moderators']))
-				$profile['is_mod'] |= isset($board_info['moderators'][$id]);
+			if (!empty(Board::$info->moderators))
+				$profile['is_mod'] |= isset(Board::$info->moderators[$id]);
 
-			if (!empty($board_info['moderator_groups']))
+			if (!empty(Board::$info->moderator_groups))
 			{
-				$profile['is_mod'] |= array_intersect($user->groups, array_keys($board_info['moderator_groups'])) !== array();
+				$profile['is_mod'] |= array_intersect($user->groups, array_keys(Board::$info->moderator_groups)) !== array();
 			}
 
 			// By popular demand, don't show admins or global moderators as moderators.

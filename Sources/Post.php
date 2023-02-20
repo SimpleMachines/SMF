@@ -16,6 +16,7 @@
 
 use SMF\BrowserDetector;
 use SMF\BBCodeParser;
+use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
@@ -40,7 +41,7 @@ if (!defined('SMF'))
  */
 function Post($post_errors = array())
 {
-	global $topic, $board;
+	global $topic;
 	global $settings;
 	global $options;
 
@@ -66,7 +67,7 @@ function Post($post_errors = array())
 	Utils::$context['auto_notify'] = !empty(Utils::$context['notify_prefs']['msg_auto_notify']);
 
 	// Not in a board? Fine, but we'll make them pick one eventually.
-	if (empty($board) || Utils::$context['make_event'])
+	if (empty(Board::$info->id) || Utils::$context['make_event'])
 	{
 		// Get ids of all the boards they can post in.
 		$post_permissions = array('post_new');
@@ -83,13 +84,13 @@ function Post($post_errors = array())
 			'included_boards' => in_array(0, $boards) ? null : $boards,
 			'not_redirection' => true,
 			'use_permissions' => true,
-			'selected_board' => !empty($board) ? $board : (Utils::$context['make_event'] && !empty(Config::$modSettings['cal_defaultboard']) ? Config::$modSettings['cal_defaultboard'] : $boards[0]),
+			'selected_board' => !empty(Board::$info->id) ? Board::$info->id : (Utils::$context['make_event'] && !empty(Config::$modSettings['cal_defaultboard']) ? Config::$modSettings['cal_defaultboard'] : $boards[0]),
 		);
 		$board_list = getBoardList($boardListOptions);
 	}
 	// Let's keep things simple for ourselves below
 	else
-		$boards = array($board);
+		$boards = array(Board::$info->id);
 
 	require_once(Config::$sourcedir . '/Subs-Post.php');
 
@@ -246,10 +247,10 @@ function Post($post_errors = array())
 		else
 			isAllowedTo('poll_add_any');
 
-		if (!empty($board))
+		if (!empty(Board::$info->id))
 		{
 			require_once(Config::$sourcedir . '/Subs-Members.php');
-			$allowedVoteGroups = groupsAllowedTo('poll_vote', $board);
+			$allowedVoteGroups = groupsAllowedTo('poll_vote', Board::$info->id);
 			$guest_vote_enabled = in_array(-1, $allowedVoteGroups['allowed']);
 		}
 		// No board, so we'll have to check this again in Post2
@@ -394,7 +395,7 @@ function Post($post_errors = array())
 		$("#tz").attr("disabled", this.checked);
 	});	', true);
 
-		Utils::$context['event']['board'] = !empty($board) ? $board : Config::$modSettings['cal_defaultboard'];
+		Utils::$context['event']['board'] = !empty(Board::$info->id) ? Board::$info->id : Config::$modSettings['cal_defaultboard'];
 		Utils::$context['event']['topic'] = !empty($topic) ? $topic : 0;
 	}
 
@@ -950,7 +951,7 @@ function Post($post_errors = array())
 			elseif (Utils::$context['current_action'] != 'post2' || !empty($_POST['from_qr']))
 			{
 				// Let's be nice and see if they belong here first.
-				if ((empty($_REQUEST['msg']) && empty($_SESSION['temp_attachments']['post']['msg']) && $_SESSION['temp_attachments']['post']['board'] == (!empty($board) ? $board : 0)) || (!empty($_REQUEST['msg']) && $_SESSION['temp_attachments']['post']['msg'] == $_REQUEST['msg']))
+				if ((empty($_REQUEST['msg']) && empty($_SESSION['temp_attachments']['post']['msg']) && $_SESSION['temp_attachments']['post']['board'] == (!empty(Board::$info->id) ? Board::$info->id : 0)) || (!empty($_REQUEST['msg']) && $_SESSION['temp_attachments']['post']['msg'] == $_REQUEST['msg']))
 				{
 					// See if any files still exist before showing the warning message and the files attached.
 					foreach ($_SESSION['temp_attachments'] as $attachID => $attachment)
@@ -973,7 +974,7 @@ function Post($post_errors = array())
 					if (!empty($topic))
 						$delete_url = Config::$scripturl . '?action=post' . (!empty($_REQUEST['msg']) ? (';msg=' . $_REQUEST['msg']) : '') . (!empty($_REQUEST['last_msg']) ? (';last_msg=' . $_REQUEST['last_msg']) : '') . ';topic=' . $topic . ';delete_temp';
 					else
-						$delete_url = Config::$scripturl . '?action=post' . (!empty($board) ? ';board=' . $board : '') . ';delete_temp';
+						$delete_url = Config::$scripturl . '?action=post' . (!empty(Board::$info->id) ? ';board=' . Board::$info->id : '') . ';delete_temp';
 
 					// Compile a list of the files to show the user.
 					$file_list = array();
@@ -1226,7 +1227,7 @@ function Post($post_errors = array())
 	Utils::$context['make_poll'] = isset($_REQUEST['poll']);
 
 	// Message icons - customized icons are off?
-	Utils::$context['icons'] = getMessageIcons(!empty($board) ? $board : 0);
+	Utils::$context['icons'] = getMessageIcons(!empty(Board::$info->id) ? Board::$info->id : 0);
 
 	if (!empty(Utils::$context['icons']))
 		Utils::$context['icons'][count(Utils::$context['icons']) - 1]['is_last'] = true;
@@ -1548,7 +1549,7 @@ function Post($post_errors = array())
 	}
 
 	// Gotta post it somewhere.
-	if (empty($board))
+	if (empty(Board::$info->id))
 	{
 		Utils::$context['posting_fields']['board'] = array(
 			'label' => array(
@@ -1663,14 +1664,14 @@ function Post($post_errors = array())
  */
 function Post2()
 {
-	global $board, $topic;
-	global $board_info, $options, $settings;
+	global $topic;
+	global $options, $settings;
 
 	// Sneaking off, are we?
 	if (empty($_POST) && empty($topic))
 	{
 		if (empty($_SERVER['CONTENT_LENGTH']))
-			redirectexit('action=post;board=' . $board . '.0');
+			redirectexit('action=post;board=' . Board::$info->id . '.0');
 		else
 			fatal_lang_error('post_upload_error', false);
 	}
@@ -1763,7 +1764,7 @@ function Post2()
 
 		unset($_SESSION['already_attached']);
 
-		$post_errors[] = array('cannot_post_attachment', array($board_info['name']));
+		$post_errors[] = array('cannot_post_attachment', array(Board::$info->name));
 	}
 
 	$can_approve = allowedTo('approve_posts');
@@ -1788,7 +1789,7 @@ function Post2()
 			fatal_lang_error('topic_doesnt_exist', 404);
 
 		// Did this topic suddenly move? Just checking...
-		if ($topic_info['id_board'] != $board)
+		if ($topic_info['id_board'] != Board::$info->id)
 			fatal_lang_error('not_a_topic');
 
 		// Do the permissions and approval stuff...
@@ -2236,7 +2237,7 @@ function Post2()
 		if ($_POST['poll_guest_vote'])
 		{
 			require_once(Config::$sourcedir . '/Subs-Members.php');
-			$allowedVoteGroups = groupsAllowedTo('poll_vote', $board);
+			$allowedVoteGroups = groupsAllowedTo('poll_vote', Board::$info->id);
 			if (!in_array(-1, $allowedVoteGroups['allowed']))
 				$_POST['poll_guest_vote'] = 0;
 		}
@@ -2392,12 +2393,12 @@ function Post2()
 	);
 	$topicOptions = array(
 		'id' => empty($topic) ? 0 : $topic,
-		'board' => $board,
+		'board' => Board::$info->id,
 		'poll' => isset($_REQUEST['poll']) ? $id_poll : null,
 		'lock_mode' => isset($_POST['lock']) ? (int) $_POST['lock'] : null,
 		'sticky_mode' => isset($_POST['sticky']) ? (int) $_POST['sticky'] : null,
 		'mark_as_read' => true,
-		'is_approved' => !Config::$modSettings['postmod_active'] || empty($topic) || !empty($board_info['cur_topic_approved']),
+		'is_approved' => !Config::$modSettings['postmod_active'] || empty($topic) || !empty(Board::$info->cur_topic_approved),
 		'first_msg' => empty($topic_info['id_first_msg']) ? null : $topic_info['id_first_msg'],
 		'last_msg' => empty($topic_info['id_last_msg']) ? null : $topic_info['id_last_msg'],
 	);
@@ -2405,7 +2406,7 @@ function Post2()
 		'id' => User::$me->id,
 		'name' => $_POST['guestname'],
 		'email' => $_POST['email'],
-		'update_post_count' => !User::$me->is_guest && !isset($_REQUEST['msg']) && $board_info['posts_count'],
+		'update_post_count' => !User::$me->is_guest && !isset($_REQUEST['msg']) && Board::$info->posts_count,
 	);
 
 	// This is an already existing message. Edit it.
@@ -2453,7 +2454,7 @@ function Post2()
 
 		// Insert the event.
 		$eventOptions = array(
-			'board' => $board,
+			'board' => Board::$info->id,
 			'topic' => $topic,
 			'title' => $_POST['evtitle'],
 			'location' => $_POST['event_location'],
@@ -2502,7 +2503,7 @@ function Post2()
 		{
 			// Set up our options
 			$eventOptions = array(
-				'board' => $board,
+				'board' => Board::$info->id,
 				'topic' => $topic,
 				'title' => $_POST['evtitle'],
 				'location' => $_POST['event_location'],
@@ -2514,7 +2515,7 @@ function Post2()
 
 	// Marking read should be done even for editing messages....
 	// Mark all the parents read.  (since you just posted and they will be unread.)
-	if (!User::$me->is_guest && !empty($board_info['parent_boards']))
+	if (!User::$me->is_guest && !empty(Board::$info->parent_boards))
 	{
 		Db::$db->query('', '
 			UPDATE {db_prefix}log_boards
@@ -2523,7 +2524,7 @@ function Post2()
 				AND id_board IN ({array_int:board_list})',
 			array(
 				'current_member' => User::$me->id,
-				'board_list' => array_keys($board_info['parent_boards']),
+				'board_list' => array_keys(Board::$info->parent_boards),
 				'id_msg' => Config::$modSettings['maxMsgID'],
 			)
 		);
@@ -2552,7 +2553,7 @@ function Post2()
 
 	// Log an act of moderation - modifying.
 	if (!empty($moderationAction))
-		logAction('modify', array('topic' => $topic, 'message' => (int) $_REQUEST['msg'], 'member' => $row['id_member'], 'board' => $board));
+		logAction('modify', array('topic' => $topic, 'message' => (int) $_REQUEST['msg'], 'member' => $row['id_member'], 'board' => Board::$info->id));
 
 	if (isset($_POST['lock']) && $_POST['lock'] != 2)
 		logAction(empty($_POST['lock']) ? 'unlock' : 'lock', array('topic' => $topicOptions['id'], 'board' => $topicOptions['board']));
@@ -2570,15 +2571,15 @@ function Post2()
 			WHERE id_member = {int:current_member}
 				AND id_board = {int:current_board}',
 			array(
-				'current_board' => $board,
+				'current_board' => Board::$info->id,
 				'current_member' => User::$me->id,
 				'maxMsgID' => Config::$modSettings['maxMsgID'],
 			)
 		);
 	}
 
-	if ($board_info['num_topics'] == 0)
-		CacheApi::put('board-' . $board, null, 120);
+	if (Board::$info->num_topics == 0)
+		CacheApi::put('board-' . Board::$info->id, null, 120);
 
 	call_integration_hook('integrate_post2_end');
 
@@ -2595,7 +2596,7 @@ function Post2()
 		redirectexit('topic=' . $topic . '.new#new', BrowserDetector::isBrowser('ie'));
 	// Dut-dut-duh-duh-DUH-duh-dut-duh-duh!  *dances to the Final Fantasy Fanfare...*
 	else
-		redirectexit('board=' . $board . '.0');
+		redirectexit('board=' . Board::$info->id . '.0');
 }
 
 /**
@@ -2639,9 +2640,9 @@ function AnnounceTopic()
  */
 function AnnouncementSelectMembergroup()
 {
-	global $topic, $board_info;
+	global $topic;
 
-	$groups = array_merge($board_info['groups'], array(1));
+	$groups = array_merge(Board::$info->groups, array(1));
 	foreach ($groups as $id => $group)
 		$groups[$id] = (int) $group;
 
@@ -2721,12 +2722,12 @@ function AnnouncementSelectMembergroup()
  */
 function AnnouncementSend()
 {
-	global $topic, $board, $board_info;
+	global $topic;
 
 	checkSession();
 
 	Utils::$context['start'] = empty($_REQUEST['start']) ? 0 : (int) $_REQUEST['start'];
-	$groups = array_merge($board_info['groups'], array(1));
+	$groups = array_merge(Board::$info->groups, array(1));
 
 	if (isset($_POST['membergroups']))
 		$_POST['who'] = explode(',', $_POST['membergroups']);
@@ -2788,7 +2789,7 @@ function AnnouncementSend()
 		elseif (!empty($_REQUEST['goback']))
 			redirectexit('topic=' . $topic . '.new;boardseen#new', BrowserDetector::isBrowser('ie'));
 		else
-			redirectexit('board=' . $board . '.0');
+			redirectexit('board=' . Board::$info->id . '.0');
 	}
 
 	$announcements = array();
@@ -3037,9 +3038,7 @@ function QuoteFast()
  */
 function JavaScriptModify()
 {
-	global $board, $topic;
-	global $board_info;
-
+	global $topic;
 	// We have to have a topic!
 	if (empty($topic))
 		obExit(false);
@@ -3182,7 +3181,7 @@ function JavaScriptModify()
 		);
 		$topicOptions = array(
 			'id' => $topic,
-			'board' => $board,
+			'board' => Board::$info->id,
 			'lock_mode' => isset($_POST['lock']) ? (int) $_POST['lock'] : null,
 			'sticky_mode' => isset($_POST['sticky']) ? (int) $_POST['sticky'] : null,
 			'mark_as_read' => true,
@@ -3191,7 +3190,7 @@ function JavaScriptModify()
 			'id' => User::$me->id,
 			'name' => $row['poster_name'],
 			'email' => $row['poster_email'],
-			'update_post_count' => !User::$me->is_guest && !isset($_REQUEST['msg']) && $board_info['posts_count'],
+			'update_post_count' => !User::$me->is_guest && !isset($_REQUEST['msg']) && Board::$info->posts_count,
 		);
 
 		// Only consider marking as editing if they have edited the subject, message or icon.
@@ -3249,7 +3248,7 @@ function JavaScriptModify()
 		}
 
 		if (!empty($moderationAction))
-			logAction('modify', array('topic' => $topic, 'message' => $row['id_msg'], 'member' => $row['id_member'], 'board' => $board));
+			logAction('modify', array('topic' => $topic, 'message' => $row['id_msg'], 'member' => $row['id_member'], 'board' => Board::$info->id));
 	}
 
 	if (isset($_REQUEST['xml']))

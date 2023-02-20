@@ -13,6 +13,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Utils;
@@ -351,8 +352,6 @@ function PermissionIndex()
  */
 function PermissionByBoard()
 {
-	global $cat_tree, $boardList, $boards;
-
 	Utils::$context['page_title'] = Lang::$txt['permissions_boards'];
 	Utils::$context['edit_all'] = isset($_GET['edit']);
 
@@ -389,31 +388,29 @@ function PermissionByBoard()
 	loadPermissionProfiles();
 
 	// Get the board tree.
-	require_once(Config::$sourcedir . '/Board.php');
-
-	getBoardTree();
+	Board::getBoardTree();
 
 	// Build the list of the boards.
 	Utils::$context['categories'] = array();
-	foreach ($cat_tree as $catid => $tree)
+	foreach (Board::$cat_tree as $catid => $tree)
 	{
 		Utils::$context['categories'][$catid] = array(
 			'name' => &$tree['node']['name'],
 			'id' => &$tree['node']['id'],
 			'boards' => array()
 		);
-		foreach ($boardList[$catid] as $boardid)
+		foreach (Board::$boardList[$catid] as $boardid)
 		{
-			if (!isset(Utils::$context['profiles'][$boards[$boardid]['profile']]))
-				$boards[$boardid]['profile'] = 1;
+			if (!isset(Utils::$context['profiles'][Board::$loaded[$boardid]->profile]))
+				Board::$loaded[$boardid]->profile = 1;
 
 			Utils::$context['categories'][$catid]['boards'][$boardid] = array(
-				'id' => &$boards[$boardid]['id'],
-				'name' => &$boards[$boardid]['name'],
-				'description' => &$boards[$boardid]['description'],
-				'child_level' => &$boards[$boardid]['level'],
-				'profile' => &$boards[$boardid]['profile'],
-				'profile_name' => Utils::$context['profiles'][$boards[$boardid]['profile']]['name'],
+				'id' => &Board::$loaded[$boardid]->id,
+				'name' => &Board::$loaded[$boardid]->name,
+				'description' => &Board::$loaded[$boardid]->description,
+				'child_level' => &Board::$loaded[$boardid]->child_level,
+				'profile' => &Board::$loaded[$boardid]->profile,
+				'profile_name' => Utils::$context['profiles'][Board::$loaded[$boardid]->profile]['name'],
 			);
 		}
 	}

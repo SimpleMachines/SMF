@@ -14,6 +14,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
@@ -40,8 +41,6 @@ function getBoardIndex($board_index_options)
 {
 	global $user_info;
 	global $settings, $options;
-
-	require_once(Config::$sourcedir . '/Board.php');
 
 	// For performance, track the latest post while going through the boards.
 	if (!empty($board_index_options['set_latest_post']))
@@ -218,7 +217,7 @@ function getBoardIndex($board_index_options)
 		}
 
 		if (empty($boards_parsed_data))
-			$boards_parsed_data = getBoardsParsedDescription($row_board['id_cat']);
+			$boards_parsed_data = Board::getParsedDescriptions($row_board['id_cat']);
 
 		if (empty($to_parse_boards_info))
 			$to_parse_boards_info = array();
@@ -477,7 +476,7 @@ function getBoardIndex($board_index_options)
 			if (empty($board_unparsed_description))
 			continue;
 
-			$boards_parsed_data_by_cat_id[$unparsed_category_id] = setBoardParsedDescription(
+			$boards_parsed_data_by_cat_id[$unparsed_category_id] = Board::setParsedDescriptions(
 				$unparsed_category_id,
 				$board_unparsed_description
 			);
@@ -490,8 +489,8 @@ function getBoardIndex($board_index_options)
 	timeformat is a pricy call do it only for thos how get shown */
 	// Fetch the board's moderators and moderator groups
 	$boards = array_unique($boards);
-	$moderators = getBoardModerators($boards);
-	$groups = getBoardModeratorGroups($boards);
+	$moderators = Board::getModerators($boards);
+	$groups = Board::getModeratorGroups($boards);
 	if ($board_index_options['include_categories'])
 		foreach ($categories as &$category)
 		{
@@ -554,10 +553,10 @@ function getBoardIndex($board_index_options)
 	unset($category, $board);
 
 	if ($board_index_options['include_categories'])
-		sortCategories($categories);
+		Board::sortCategories($categories);
 
 	else
-		sortBoards($this_category);
+		Board::sort($this_category);
 
 	// By now we should know the most recent post...if we wanna know it that is.
 	if (!empty($board_index_options['set_latest_post']) && !empty($latest_post['ref']))

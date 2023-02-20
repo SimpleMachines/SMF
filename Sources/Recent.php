@@ -14,6 +14,7 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
@@ -81,8 +82,6 @@ function getLastPost()
  */
 function RecentPosts()
 {
-	global $board;
-
 	loadTemplate('Recent');
 	Utils::$context['page_title'] = Lang::$txt['recent_posts'];
 	Utils::$context['sub_template'] = 'recent';
@@ -95,7 +94,7 @@ function RecentPosts()
 	$_REQUEST['start'] = (int) $_REQUEST['start'];
 
 	$query_parameters = array();
-	if (!empty($_REQUEST['c']) && empty($board))
+	if (!empty($_REQUEST['c']) && empty(Board::$info->id))
 	{
 		$_REQUEST['c'] = explode(',', $_REQUEST['c']);
 		foreach ($_REQUEST['c'] as $i => $c)
@@ -208,7 +207,7 @@ function RecentPosts()
 
 		Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=recent;boards=' . implode(',', $_REQUEST['boards']), $_REQUEST['start'], min(100, $total_posts), 10, false);
 	}
-	elseif (!empty($board))
+	elseif (!empty(Board::$info->id))
 	{
 		$request = Db::$db->query('', '
 			SELECT num_posts, redirect
@@ -216,7 +215,7 @@ function RecentPosts()
 			WHERE id_board = {int:current_board}
 			LIMIT 1',
 			array(
-				'current_board' => $board,
+				'current_board' => Board::$info->id,
 			)
 		);
 		list ($total_posts, $redirect) = Db::$db->fetch_row($request);
@@ -230,7 +229,7 @@ function RecentPosts()
 		}
 
 		$query_this_board = 'm.id_board = {int:board}';
-		$query_parameters['board'] = $board;
+		$query_parameters['board'] = Board::$info->id;
 
 		// If this board has a significant number of posts in it...
 		if ($total_posts > 80 && $total_posts > Config::$modSettings['totalMessages'] / 10)
@@ -240,7 +239,7 @@ function RecentPosts()
 			$query_parameters['max_id_msg'] = max(0, Config::$modSettings['maxMsgID'] - 600 - $_REQUEST['start'] * 10);
 		}
 
-		Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=recent;board=' . $board . '.%1$d', $_REQUEST['start'], min(100, $total_posts), 10, true);
+		Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=recent;board=' . Board::$info->id . '.%1$d', $_REQUEST['start'], min(100, $total_posts), 10, true);
 	}
 	else
 	{
@@ -272,7 +271,7 @@ function RecentPosts()
 	}
 
 	Utils::$context['linktree'][] = array(
-		'url' => Config::$scripturl . '?action=recent' . (empty($board) ? (empty($_REQUEST['c']) ? '' : ';c=' . (int) $_REQUEST['c']) : ';board=' . $board . '.0'),
+		'url' => Config::$scripturl . '?action=recent' . (empty(Board::$info->id) ? (empty($_REQUEST['c']) ? '' : ';c=' . (int) $_REQUEST['c']) : ';board=' . Board::$info->id . '.0'),
 		'name' => Utils::$context['page_title']
 	);
 
@@ -502,7 +501,6 @@ function RecentPosts()
  */
 function UnreadTopics()
 {
-	global $board;
 	global $settings, $options;
 
 	// Guests can't have unread things, we don't know anything about them.
@@ -537,7 +535,7 @@ function UnreadTopics()
 	$query_parameters = array();
 
 	// Are we specifying any specific board?
-	if (isset($_REQUEST['children']) && (!empty($board) || !empty($_REQUEST['boards'])))
+	if (isset($_REQUEST['children']) && (!empty(Board::$info->id) || !empty($_REQUEST['boards'])))
 	{
 		$boards = array();
 
@@ -548,8 +546,8 @@ function UnreadTopics()
 				$boards[] = (int) $b;
 		}
 
-		if (!empty($board))
-			$boards[] = (int) $board;
+		if (!empty(Board::$info->id))
+			$boards[] = (int) Board::$info->id;
 
 		// The easiest thing is to just get all the boards they can see, but since we've specified the top of tree we ignore some of them
 		$request = Db::$db->query('', '
@@ -578,11 +576,11 @@ function UnreadTopics()
 		$query_parameters['boards'] = $boards;
 		Utils::$context['querystring_board_limits'] = ';boards=' . implode(',', $boards) . ';start=%d';
 	}
-	elseif (!empty($board))
+	elseif (!empty(Board::$info->id))
 	{
 		$query_this_board = 'id_board = {int:board}';
-		$query_parameters['board'] = $board;
-		Utils::$context['querystring_board_limits'] = ';board=' . $board . '.%1$d';
+		$query_parameters['board'] = Board::$info->id;
+		Utils::$context['querystring_board_limits'] = ';board=' . Board::$info->id . '.%1$d';
 	}
 	elseif (!empty($_REQUEST['boards']))
 	{
@@ -752,7 +750,7 @@ function UnreadTopics()
 
 	if (Utils::$context['showing_all_topics'])
 	{
-		if (!empty($board))
+		if (!empty(Board::$info->id))
 		{
 			$request = Db::$db->query('', '
 				SELECT MIN(id_msg)
@@ -760,7 +758,7 @@ function UnreadTopics()
 				WHERE id_member = {int:current_member}
 					AND id_board = {int:current_board}',
 				array(
-					'current_board' => $board,
+					'current_board' => Board::$info->id,
 					'current_member' => User::$me->id,
 				)
 			);
@@ -888,8 +886,7 @@ function UnreadTopics()
 		if ($num_topics == 0)
 		{
 			// Mark the boards as read if there are no unread topics!
-			require_once(Config::$sourcedir . '/Board.php');
-			markBoardsRead(empty($boards) ? $board : $boards);
+			Board::markBoardsRead(empty($boards) ? Board::$info->id : $boards);
 
 			Utils::$context['topics'] = array();
 			Utils::$context['no_topic_listing'] = true;
@@ -977,8 +974,7 @@ function UnreadTopics()
 			if (Utils::$context['showing_all_topics'])
 			{
 				// Since there are no unread topics, mark the boards as read!
-				require_once(Config::$sourcedir . '/Board.php');
-				markBoardsRead(empty($boards) ? $board : $boards);
+				Board::markBoardsRead(empty($boards) ? Board::$info->id : $boards);
 			}
 
 			Utils::$context['topics'] = array();
@@ -1060,13 +1056,13 @@ function UnreadTopics()
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 					LEFT JOIN {db_prefix}log_topics_unread AS lt ON (lt.id_topic = t.id_topic)
 					LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})' . (isset($sortKey_joins[$_REQUEST['sort']]) ? $sortKey_joins[$_REQUEST['sort']] : '') . '
-				WHERE m.id_member = {int:current_member}' . (!empty($board) ? '
+				WHERE m.id_member = {int:current_member}' . (!empty(Board::$info->id) ? '
 					AND t.id_board = {int:current_board}' : '') . (Config::$modSettings['postmod_active'] ? '
 					AND t.approved = {int:is_approved}' : '') . '
 					AND COALESCE(lt.unwatched, 0) != 1
 				GROUP BY m.id_topic',
 				array(
-					'current_board' => $board,
+					'current_board' => Board::$info->id,
 					'current_member' => User::$me->id,
 					'is_approved' => 1,
 					'string_zero' => '0',

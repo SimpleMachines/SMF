@@ -10,6 +10,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Utils;
@@ -67,8 +68,6 @@ function template_recent()
  */
 function template_unread()
 {
-	global $board_info;
-
 	// User action pop on mobile screen (or actually small screen), this uses responsive css does not check mobile device.
 	if (!empty(Utils::$context['recent_buttons']))
 		echo '
@@ -86,7 +85,7 @@ function template_unread()
 	<div id="recent" class="main_content">
 		<div id="display_head" class="information">
 			<h2 class="display_title">
-				<span>', (!empty($board_info['name']) ? $board_info['name'] . ' - ' : '') . Utils::$context['page_title'], '</span>
+				<span>', (!empty(Board::$info->name) ? Board::$info->name . ' - ' : '') . Utils::$context['page_title'], '</span>
 			</h2>
 		</div>';
 
@@ -254,8 +253,6 @@ function template_unread()
  */
 function template_replies()
 {
-	global $board_info;
-
 	// User action pop on mobile screen (or actually small screen), this uses responsive css does not check mobile device.
 	if (!empty(Utils::$context['recent_buttons']))
 		echo '
@@ -273,7 +270,7 @@ function template_replies()
 	<div id="recent">
 		<div id="display_head" class="information">
 			<h2 class="display_title">
-				<span>', (!empty($board_info['name']) ? $board_info['name'] . ' - ' : '') . Utils::$context['page_title'], '</span>
+				<span>', (!empty(Board::$info->name) ? Board::$info->name . ' - ' : '') . Utils::$context['page_title'], '</span>
 			</h2>
 		</div>';
 

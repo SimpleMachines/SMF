@@ -13,6 +13,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Utils;
@@ -85,8 +86,6 @@ function RepairBoards()
 
 		Utils::$context['error_search'] = false;
 		Utils::$context['to_fix'] = isset($_SESSION['repairboards_to_fix']) ? $_SESSION['repairboards_to_fix'] : array();
-
-		require_once(Config::$sourcedir . '/Board.php');
 
 		// Actually do the fix.
 		findForumErrors(true);
@@ -289,8 +288,8 @@ function loadForumTests()
 					)
 				);
 
-				$memberStartedID = (int) getMsgMemberID($row['myid_first_msg']);
-				$memberUpdatedID = (int) getMsgMemberID($row['myid_last_msg']);
+				$memberStartedID = (int) Board::getMsgMemberID($row['myid_first_msg']);
+				$memberUpdatedID = (int) Board::getMsgMemberID($row['myid_last_msg']);
 
 				$newTopicID = Db::$db->insert('',
 					'{db_prefix}topics',
@@ -636,8 +635,8 @@ function loadForumTests()
 				if ($row['id_first_msg'] == $row['myid_first_msg'] && $row['id_last_msg'] == $row['myid_last_msg'] && $row['approved'] == $row['firstmsg_approved'])
 					return false;
 
-				$memberStartedID = (int) getMsgMemberID($row['myid_first_msg']);
-				$memberUpdatedID = (int) getMsgMemberID($row['myid_last_msg']);
+				$memberStartedID = (int) Board::getMsgMemberID($row['myid_first_msg']);
+				$memberUpdatedID = (int) Board::getMsgMemberID($row['myid_last_msg']);
 
 				Db::$db->query('', '
 					UPDATE {db_prefix}topics

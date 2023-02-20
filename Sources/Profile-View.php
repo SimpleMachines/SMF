@@ -12,6 +12,7 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
@@ -826,7 +827,6 @@ function showAlerts($memID)
 function showPosts($memID)
 {
 	global $options;
-	global $board;
 
 	// Some initial context.
 	Utils::$context['start'] = (int) $_REQUEST['start'];
@@ -922,13 +922,13 @@ function showPosts($memID)
 			SELECT COUNT(*)
 			FROM {db_prefix}topics AS t' . '
 			WHERE {query_see_topic_board}
-				AND t.id_member_started = {int:current_member}' . (!empty($board) ? '
+				AND t.id_member_started = {int:current_member}' . (!empty(Board::$info->id) ? '
 				AND t.id_board = {int:board}' : '') . (!Config::$modSettings['postmod_active'] || User::$me->is_owner ? '' : '
 				AND t.approved = {int:is_approved}'),
 			array(
 				'current_member' => $memID,
 				'is_approved' => 1,
-				'board' => $board,
+				'board' => Board::$info->id,
 			)
 		);
 	else
@@ -936,14 +936,14 @@ function showPosts($memID)
 			SELECT COUNT(*)
 			FROM {db_prefix}messages AS m' . (!Config::$modSettings['postmod_active'] || User::$me->is_owner ? '' : '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)') . '
-			WHERE {query_see_message_board} AND m.id_member = {int:current_member}' . (!empty($board) ? '
+			WHERE {query_see_message_board} AND m.id_member = {int:current_member}' . (!empty(Board::$info->id) ? '
 				AND m.id_board = {int:board}' : '') . (!Config::$modSettings['postmod_active'] || User::$me->is_owner ? '' : '
 				AND m.approved = {int:is_approved}
 				AND t.approved = {int:is_approved}'),
 			array(
 				'current_member' => $memID,
 				'is_approved' => 1,
-				'board' => $board,
+				'board' => Board::$info->id,
 			)
 		);
 	list ($msgCount) = Db::$db->fetch_row($request);
@@ -953,14 +953,14 @@ function showPosts($memID)
 		SELECT MIN(id_msg), MAX(id_msg)
 		FROM {db_prefix}messages AS m' . (!Config::$modSettings['postmod_active'] || User::$me->is_owner ? '' : '
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)') . '
-		WHERE m.id_member = {int:current_member}' . (!empty($board) ? '
+		WHERE m.id_member = {int:current_member}' . (!empty(Board::$info->id) ? '
 			AND m.id_board = {int:board}' : '') . (!Config::$modSettings['postmod_active'] || User::$me->is_owner ? '' : '
 			AND m.approved = {int:is_approved}
 			AND t.approved = {int:is_approved}'),
 		array(
 			'current_member' => $memID,
 			'is_approved' => 1,
-			'board' => $board,
+			'board' => Board::$info->id,
 		)
 	);
 	list ($min_msg_member, $max_msg_member) = Db::$db->fetch_row($request);
@@ -976,7 +976,7 @@ function showPosts($memID)
 	$maxIndex = $maxPerPage;
 
 	// Make sure the starting place makes sense and construct our friend the page index.
-	Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=profile;u=' . $memID . ';area=showposts' . (Utils::$context['is_topics'] ? ';sa=topics' : '') . (!empty($board) ? ';board=' . $board : ''), Utils::$context['start'], $msgCount, $maxIndex);
+	Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=profile;u=' . $memID . ';area=showposts' . (Utils::$context['is_topics'] ? ';sa=topics' : '') . (!empty(Board::$info->id) ? ';board=' . Board::$info->id : ''), Utils::$context['start'], $msgCount, $maxIndex);
 	Utils::$context['current_page'] = Utils::$context['start'] / $maxIndex;
 
 	// Reverse the query if we're past 50% of the pages for better performance.
@@ -1016,7 +1016,7 @@ function showPosts($memID)
 					INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
 					LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
 					INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
-				WHERE t.id_member_started = {int:current_member}' . (!empty($board) ? '
+				WHERE t.id_member_started = {int:current_member}' . (!empty(Board::$info->id) ? '
 					AND t.id_board = {int:board}' : '') . (empty($range_limit) ? '' : '
 					AND ' . $range_limit) . '
 					AND {query_see_board}' . (!Config::$modSettings['postmod_active'] || User::$me->is_owner ? '' : '
@@ -1026,7 +1026,7 @@ function showPosts($memID)
 				array(
 					'current_member' => $memID,
 					'is_approved' => 1,
-					'board' => $board,
+					'board' => Board::$info->id,
 					'start' => $start,
 					'max' => $maxIndex,
 				)
@@ -1043,7 +1043,7 @@ function showPosts($memID)
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 					INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
 					LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
-				WHERE m.id_member = {int:current_member}' . (!empty($board) ? '
+				WHERE m.id_member = {int:current_member}' . (!empty(Board::$info->id) ? '
 					AND b.id_board = {int:board}' : '') . (empty($range_limit) ? '' : '
 					AND ' . $range_limit) . '
 					AND {query_see_board}' . (!Config::$modSettings['postmod_active'] || User::$me->is_owner ? '' : '
@@ -1053,7 +1053,7 @@ function showPosts($memID)
 				array(
 					'current_member' => $memID,
 					'is_approved' => 1,
-					'board' => $board,
+					'board' => Board::$info->id,
 					'start' => $start,
 					'max' => $maxIndex,
 				)
@@ -1341,8 +1341,6 @@ function showAttachments($memID)
  */
 function list_getAttachments($start, $items_per_page, $sort, $boardsAllowed, $memID)
 {
-	global $board;
-
 	// Retrieve some attachments.
 	$request = Db::$db->query('', '
 		SELECT a.id_attach, a.id_msg, a.filename, a.downloads, a.approved, m.id_msg, m.id_topic,
@@ -1352,7 +1350,7 @@ function list_getAttachments($start, $items_per_page, $sort, $boardsAllowed, $me
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
 		WHERE a.attachment_type = {int:attachment_type}
 			AND a.id_msg != {int:no_message}
-			AND m.id_member = {int:current_member}' . (!empty($board) ? '
+			AND m.id_member = {int:current_member}' . (!empty(Board::$info->id) ? '
 			AND b.id_board = {int:board}' : '') . (!in_array(0, $boardsAllowed) ? '
 			AND b.id_board IN ({array_int:boards_list})' : '') . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') || User::$me->is_owner ? '' : '
 			AND a.approved = {int:is_approved}') . '
@@ -1364,7 +1362,7 @@ function list_getAttachments($start, $items_per_page, $sort, $boardsAllowed, $me
 			'no_message' => 0,
 			'current_member' => $memID,
 			'is_approved' => 1,
-			'board' => $board,
+			'board' => Board::$info->id,
 			'sort' => $sort,
 			'offset' => $start,
 			'limit' => $items_per_page,
@@ -1400,8 +1398,6 @@ function list_getAttachments($start, $items_per_page, $sort, $boardsAllowed, $me
  */
 function list_getNumAttachments($boardsAllowed, $memID)
 {
-	global $board;
-
 	// Get the total number of attachments they have posted.
 	$request = Db::$db->query('', '
 		SELECT COUNT(*)
@@ -1411,7 +1407,7 @@ function list_getNumAttachments($boardsAllowed, $memID)
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)') . '
 		WHERE a.attachment_type = {int:attachment_type}
 			AND a.id_msg != {int:no_message}
-			AND m.id_member = {int:current_member}' . (!empty($board) ? '
+			AND m.id_member = {int:current_member}' . (!empty(Board::$info->id) ? '
 			AND b.id_board = {int:board}' : '') . (!in_array(0, $boardsAllowed) ? '
 			AND b.id_board IN ({array_int:boards_list})' : '') . (!Config::$modSettings['postmod_active'] || User::$me->is_owner || allowedTo('approve_posts') ? '' : '
 			AND m.approved = {int:is_approved}
@@ -1422,7 +1418,7 @@ function list_getNumAttachments($boardsAllowed, $memID)
 			'no_message' => 0,
 			'current_member' => $memID,
 			'is_approved' => 1,
-			'board' => $board,
+			'board' => Board::$info->id,
 		)
 	);
 	list ($attachCount) = Db::$db->fetch_row($request);
@@ -3047,8 +3043,6 @@ function list_getGroupRequests($start, $items_per_page, $sort, $memID)
  */
 function showPermissions($memID)
 {
-	global $board;
-
 	// Verify if the user has sufficient permissions.
 	isAllowedTo('manage_permissions');
 
@@ -3064,8 +3058,8 @@ function showPermissions($memID)
 	Utils::$context['member']['name'] = User::$loaded[$memID]->name;
 
 	Utils::$context['page_title'] = Lang::$txt['showPermissions'];
-	$board = empty($board) ? 0 : (int) $board;
-	Utils::$context['board'] = $board;
+	Board::$info->id = empty(Board::$info->id) ? 0 : (int) Board::$info->id;
+	Utils::$context['board'] = Board::$info->id;
 
 	// Determine which groups this user is in.
 	$curGroups = User::$loaded[$memID]->groups;
@@ -3097,15 +3091,14 @@ function showPermissions($memID)
 			Utils::$context['boards'][$row['id_board']] = array(
 				'id' => $row['id_board'],
 				'name' => $row['name'],
-				'selected' => $board == $row['id_board'],
+				'selected' => Board::$info->id == $row['id_board'],
 				'profile' => $row['id_profile'],
 				'profile_name' => Utils::$context['profiles'][$row['id_profile']]['name'],
 			);
 	}
 	Db::$db->free_result($request);
 
-	require_once(Config::$sourcedir . '/Board.php');
-	sortBoards(Utils::$context['boards']);
+	Board::sort(Utils::$context['boards']);
 
 	if (!empty(Utils::$context['no_access_boards']))
 		Utils::$context['no_access_boards'][count(Utils::$context['no_access_boards']) - 1]['is_last'] = true;
@@ -3172,21 +3165,21 @@ function showPermissions($memID)
 
 	$request = Db::$db->query('', '
 		SELECT
-			bp.add_deny, bp.permission, bp.id_group, mg.group_name' . (empty($board) ? '' : ',
+			bp.add_deny, bp.permission, bp.id_group, mg.group_name' . (empty(Board::$info->id) ? '' : ',
 			b.id_profile, CASE WHEN (mods.id_member IS NULL AND modgs.id_group IS NULL) THEN 0 ELSE 1 END AS is_moderator') . '
-		FROM {db_prefix}board_permissions AS bp' . (empty($board) ? '' : '
+		FROM {db_prefix}board_permissions AS bp' . (empty(Board::$info->id) ? '' : '
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = {int:current_board})
 			LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board AND mods.id_member = {int:current_member})
 			LEFT JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_board = b.id_board AND modgs.id_group IN ({array_int:group_list}))') . '
 			LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = bp.id_group)
 		WHERE bp.id_profile = {raw:current_profile}
-			AND bp.id_group IN ({array_int:group_list}' . (empty($board) ? ')' : ', {int:moderator_group})
+			AND bp.id_group IN ({array_int:group_list}' . (empty(Board::$info->id) ? ')' : ', {int:moderator_group})
 			AND (mods.id_member IS NOT NULL OR modgs.id_group IS NOT NULL OR bp.id_group != {int:moderator_group})'),
 		array(
-			'current_board' => $board,
+			'current_board' => Board::$info->id,
 			'group_list' => $curGroups,
 			'current_member' => $memID,
-			'current_profile' => empty($board) ? '1' : 'b.id_profile',
+			'current_profile' => empty(Board::$info->id) ? '1' : 'b.id_profile',
 			'moderator_group' => 3,
 		)
 	);
@@ -3213,7 +3206,7 @@ function showPermissions($memID)
 				),
 				'name' => $name,
 				'is_denied' => false,
-				'is_global' => empty($board),
+				'is_global' => empty(Board::$info->id),
 			);
 
 		Utils::$context['member']['permissions']['board'][$row['permission']]['groups'][empty($row['add_deny']) ? 'denied' : 'allowed'][$row['id_group']] = $row['id_group'] == 0 ? Lang::$txt['membergroups_members'] : $row['group_name'];

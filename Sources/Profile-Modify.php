@@ -16,6 +16,7 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
@@ -3052,8 +3053,7 @@ function ignoreboards($memID)
 	}
 	Db::$db->free_result($request);
 
-	require_once(Config::$sourcedir . '/Board.php');
-	sortCategories(Utils::$context['categories']);
+	Board::sortCategories(Utils::$context['categories']);
 
 	// Now, let's sort the list of categories into the boards for templates that like that.
 	$temp_boards = array();

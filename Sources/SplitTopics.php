@@ -16,6 +16,7 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
@@ -48,7 +49,6 @@ function SplitTopics()
 	// Load up the "dependencies" - the template, getMsgMemberID(), and sendNotifications().
 	if (!isset($_REQUEST['xml']))
 		loadTemplate('SplitTopics');
-	require_once(Config::$sourcedir . '/Board.php');
 	require_once(Config::$sourcedir . '/Subs-Post.php');
 
 	$subActions = array(
@@ -574,8 +574,8 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 		}
 	}
 	Db::$db->free_result($request);
-	$split1_firstMem = getMsgMemberID($split1_first_msg);
-	$split1_lastMem = getMsgMemberID($split1_last_msg);
+	$split1_firstMem = Board::getMsgMemberID($split1_first_msg);
+	$split1_lastMem = Board::getMsgMemberID($split1_last_msg);
 
 	// Find the first and last in the list. (new topic)
 	$request = Db::$db->query('', '
@@ -622,8 +622,8 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 		}
 	}
 	Db::$db->free_result($request);
-	$split2_firstMem = getMsgMemberID($split2_first_msg);
-	$split2_lastMem = getMsgMemberID($split2_last_msg);
+	$split2_firstMem = Board::getMsgMemberID($split2_first_msg);
+	$split2_lastMem = Board::getMsgMemberID($split2_last_msg);
 
 	// No database changes yet, so let's double check to see if everything makes at least a little sense.
 	if ($split1_first_msg <= 0 || $split1_last_msg <= 0 || $split2_first_msg <= 0 || $split2_last_msg <= 0 || $split1_replies < 0 || $split2_replies < 0 || $split1_unapprovedposts < 0 || $split2_unapprovedposts < 0 || !isset($split1_approved) || !isset($split2_approved))
@@ -859,13 +859,12 @@ function MergeTopics()
  */
 function MergeIndex()
 {
-	global $board;
 	if (!isset($_GET['from']))
 		fatal_lang_error('no_access', false);
 
 	$_GET['from'] = (int) $_GET['from'];
 
-	$_REQUEST['targetboard'] = isset($_REQUEST['targetboard']) ? (int) $_REQUEST['targetboard'] : $board;
+	$_REQUEST['targetboard'] = isset($_REQUEST['targetboard']) ? (int) $_REQUEST['targetboard'] : Board::$info->id;
 	Utils::$context['target_board'] = $_REQUEST['targetboard'];
 
 	// Prepare a handy query bit for approval...
@@ -894,7 +893,7 @@ function MergeIndex()
 	Db::$db->free_result($request);
 
 	// Make the page list.
-	Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=mergetopics;from=' . $_GET['from'] . ';targetboard=' . $_REQUEST['targetboard'] . ';board=' . $board . '.%1$d', $_REQUEST['start'], $topiccount, Config::$modSettings['defaultMaxTopics'], true);
+	Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=mergetopics;from=' . $_GET['from'] . ';targetboard=' . $_REQUEST['targetboard'] . ';board=' . Board::$info->id . '.%1$d', $_REQUEST['start'], $topiccount, Config::$modSettings['defaultMaxTopics'], true);
 
 	// Get the topic's subject.
 	$request = Db::$db->query('', '
@@ -906,7 +905,7 @@ function MergeIndex()
 			AND t.approved = {int:is_approved}' : '') . '
 		LIMIT 1',
 		array(
-			'current_board' => $board,
+			'current_board' => Board::$info->id,
 			'id_topic' => $_GET['from'],
 			'is_approved' => 1,
 		)
@@ -1000,7 +999,7 @@ function MergeIndex()
  *
  * the merge options screen:
  * * shows topics to be merged and allows to set some merge options.
- * * is accessed by ?action=mergetopics;sa=options.and can also internally be called by QuickModeration() (Subs-Boards.php).
+ * * is accessed by ?action=mergetopics;sa=options.and can also internally be called by SMF\\Board::QuickModeration().
  * * uses 'merge_extra_options' sub template of the MoveTopic template.
  *
  * the actual merge:

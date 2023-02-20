@@ -15,6 +15,7 @@
  */
 
 use SMF\BrowserDetector;
+use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
@@ -419,7 +420,7 @@ function CalendarPost()
 		{
 			// We load the board up, for a check on the board access rights...
 			$topic = Utils::$context['event']['topic']['id'];
-			loadBoard();
+			Board::load();
 		}
 
 		// Make sure the user is allowed to edit this event.

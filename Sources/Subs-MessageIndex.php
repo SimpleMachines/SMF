@@ -11,6 +11,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Board;
 use SMF\Lang;
 use SMF\Db\DatabaseApi as Db;
 
@@ -90,8 +91,7 @@ function getBoardList($boardListOptions = array())
 	}
 	Db::$db->free_result($request);
 
-	require_once(Config::$sourcedir . '/Board.php');
-	sortCategories($return_value);
+	Board::sortCategories($return_value);
 
 	return $return_value;
 }

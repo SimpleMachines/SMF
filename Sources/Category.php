@@ -14,6 +14,7 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Utils;
@@ -84,8 +85,7 @@ function modifyCategory($category_id, $catOptions)
 				);
 
 		// If the category order changed, so did the board order.
-		require_once(Config::$sourcedir . '/Board.php');
-		reorderBoards();
+		Board::reorderBoards();
 	}
 
 	if (isset($catOptions['cat_name']))
@@ -206,11 +206,7 @@ function createCategory($catOptions)
  */
 function deleteCategories($categories, $moveBoardsTo = null)
 {
-	global $cat_tree;
-
-	require_once(Config::$sourcedir . '/Board.php');
-
-	getBoardTree();
+	Board::getBoardTree();
 
 	call_integration_hook('integrate_delete_category', array($categories, &$moveBoardsTo));
 
@@ -231,7 +227,7 @@ function deleteCategories($categories, $moveBoardsTo = null)
 		Db::$db->free_result($request);
 
 		if (!empty($boards_inside))
-			deleteBoards($boards_inside, null);
+			Board::deleteBoards($boards_inside, null);
 	}
 
 	// Make sure the safe category is really safe.
@@ -264,10 +260,10 @@ function deleteCategories($categories, $moveBoardsTo = null)
 
 	// Log what we've done.
 	foreach ($categories as $category)
-		logAction('delete_cat', array('catname' => $cat_tree[$category]['node']['name']), 'admin');
+		logAction('delete_cat', array('catname' => Board::$cat_tree[$category]['node']['name']), 'admin');
 
 	// Get all boards back into the right order.
-	reorderBoards();
+	Board::reorderBoards();
 }
 
 function setCategoryParsedDescription($category_info = array())

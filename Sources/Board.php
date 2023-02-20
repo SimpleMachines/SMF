@@ -1,9 +1,6 @@
 <?php
 
 /**
- * This file is mainly concerned with minor tasks relating to boards, such as
- * marking them read, collapsing categories, or quick moderation.
- *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,759 +11,688 @@
  * @version 3.0 Alpha 1
  */
 
-use SMF\BBCodeParser;
-use SMF\Config;
-use SMF\Lang;
-use SMF\User;
-use SMF\Utils;
+namespace SMF;
+
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
-if (!defined('SMF'))
-	die('No direct access...');
-
 /**
- * Mark a board or multiple boards read.
+ * This class loads information about the current board, as well as other boards
+ * when needed. It also handles low-level tasks for managing boards, such as
+ * creating, deleting, and modifying them, as well as minor tasks relating to
+ * boards, such as marking them read, collapsing categories, or quick moderation.
  *
- * @param int|array $boards The ID of a single board or an array of boards
- * @param bool $unread Whether we're marking them as unread
+ * Implements the \ArrayAccess interface to ease backward compatibility with the
+ * deprecated global $board_info variable.
+ *
+ * @todo Refactor MessageIndex.php into an extension of this class.
  */
-function markBoardsRead($boards, $unread = false)
+class Board implements \ArrayAccess
 {
-	// Force $boards to be an array.
-	if (!is_array($boards))
-		$boards = array($boards);
-	else
-		$boards = array_unique($boards);
+	use BackwardCompatibility, ArrayAccessHelper;
 
-	// No boards, nothing to mark as read.
-	if (empty($boards))
-		return;
-
-	// Allow the user to mark a board as unread.
-	if ($unread)
-	{
-		// Clear out all the places where this lovely info is stored.
-		// @todo Maybe not log_mark_read?
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}log_mark_read
-			WHERE id_board IN ({array_int:board_list})
-				AND id_member = {int:current_member}',
-			array(
-				'current_member' => User::$me->id,
-				'board_list' => $boards,
-			)
-		);
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}log_boards
-			WHERE id_board IN ({array_int:board_list})
-				AND id_member = {int:current_member}',
-			array(
-				'current_member' => User::$me->id,
-				'board_list' => $boards,
-			)
-		);
-	}
-	// Otherwise mark the board as read.
-	else
-	{
-		$markRead = array();
-		foreach ($boards as $board)
-			$markRead[] = array(Config::$modSettings['maxMsgID'], User::$me->id, $board);
-
-		// Update log_mark_read and log_boards.
-		Db::$db->insert('replace',
-			'{db_prefix}log_mark_read',
-			array('id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'),
-			$markRead,
-			array('id_board', 'id_member')
-		);
-
-		Db::$db->insert('replace',
-			'{db_prefix}log_boards',
-			array('id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'),
-			$markRead,
-			array('id_board', 'id_member')
-		);
-	}
-
-	// Get rid of useless log_topics data, because log_mark_read is better for it - even if marking unread - I think so...
-	// @todo look at this...
-	// The call to markBoardsRead() in Display() used to be simply
-	// marking log_boards (the previous query only)
-	$result = Db::$db->query('', '
-		SELECT MIN(id_topic)
-		FROM {db_prefix}log_topics
-		WHERE id_member = {int:current_member}',
-		array(
-			'current_member' => User::$me->id,
-		)
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = array(
+		'func_names' => array(
+			'load' => 'loadBoard',
+			'init' => false,
+			'sort' => 'sortBoards',
+			'modify' => 'modifyBoard',
+			'create' => 'createBoard',
+			'delete' => 'deleteBoards',
+			'reorder' => 'reorderBoards',
+			'getParents' => 'getBoardParents',
+			'getModerators' => 'getBoardModerators',
+			'getModeratorGroups' => 'getBoardModeratorGroups',
+			'setParsedDescriptions' => 'setBoardParsedDescription',
+			'getParsedDescriptions' => 'getBoardsParsedDescription',
+		),
+		'prop_names' => array(
+			'board_id' => 'board',
+			'info' => 'board_info',
+			'cat_tree' => 'cat_tree',
+			'loaded' => 'boards',
+			'boardList' => 'boardList',
+		),
 	);
-	list ($lowest_topic) = Db::$db->fetch_row($result);
-	Db::$db->free_result($result);
 
-	if (empty($lowest_topic))
-		return;
+	/*******************
+	 * Public properties
+	 *******************/
 
-	// @todo SLOW This query seems to eat it sometimes.
-	$result = Db::$db->query('', '
-		SELECT lt.id_topic
-		FROM {db_prefix}log_topics AS lt
-			INNER JOIN {db_prefix}topics AS t /*!40000 USE INDEX (PRIMARY) */ ON (t.id_topic = lt.id_topic
-				AND t.id_board IN ({array_int:board_list}))
-		WHERE lt.id_member = {int:current_member}
-			AND lt.id_topic >= {int:lowest_topic}
-			AND lt.unwatched != 1',
-		array(
-			'current_member' => User::$me->id,
-			'board_list' => $boards,
-			'lowest_topic' => $lowest_topic,
-		)
+	/**
+	 * @var int
+	 *
+	 * This board's ID number.
+	 */
+	public int $id;
+
+	/**
+	 * @var array
+	 *
+	 * Info about this board's category.
+	 */
+	public array $cat = array(
+		'id' => null,
+		'name' => null,
 	);
-	$topics = array();
-	while ($row = Db::$db->fetch_assoc($result))
-		$topics[] = $row['id_topic'];
-	Db::$db->free_result($result);
 
-	if (!empty($topics))
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}log_topics
-			WHERE id_member = {int:current_member}
-				AND id_topic IN ({array_int:topic_list})',
-			array(
-				'current_member' => User::$me->id,
-				'topic_list' => $topics,
-			)
-		);
-}
+	/**
+	 * @var string
+	 *
+	 * This board's name.
+	 */
+	public string $name = '';
 
-/**
- * Mark one or more boards as read.
- */
-function MarkRead()
-{
-	global $board, $topic, $board_info;
+	/**
+	 * @var string
+	 *
+	 * This board's description.
+	 */
+	public string $description = '';
 
-	// No Guests allowed!
-	is_not_guest();
+	/**
+	 * @var array
+	 *
+	 * Info about individual members allowed to moderate this board.
+	 */
+	public array $moderators = array();
 
-	checkSession('get');
+	/**
+	 * @var array
+	 *
+	 * Info about member groups allowed to moderate this board.
+	 */
+	public array $moderator_groups = array();
 
-	if (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'all')
+	/**
+	 * @var array
+	 *
+	 * Info about member groups allowed to access this board.
+	 */
+	public array $member_groups = array();
+
+	/**
+	 * @var array
+	 *
+	 * Info about member groups forbidden from accessing this board.
+	 */
+	public array $deny_groups = array();
+
+	/**
+	 * @var int
+	 *
+	 * Number of posts in this board.
+	 */
+	public int $num_posts = 0;
+
+	/**
+	 * @var int
+	 *
+	 * Number of topics in this board.
+	 */
+	public int $num_topics = 0;
+
+	/**
+	 * @var int
+	 *
+	 * Number of unapproved topics in this board.
+	 */
+	public int $unapproved_topics = 0;
+
+	/**
+	 * @var int
+	 *
+	 * Number of unapproved posts in this board.
+	 */
+	public int $unapproved_posts = 0;
+
+	/**
+	 * @var int
+	 *
+	 * Number of unapproved topics in this board that were started by the
+	 * current user.
+	 */
+	public int $unapproved_user_topics = 0;
+
+	/**
+	 * @var array
+	 *
+	 * All of this board's ancestor boards.
+	 */
+	public array $parent_boards = array();
+
+	/**
+	 * @var int
+	 *
+	 * ID of this board's immediate ancestor.
+	 */
+	public int $parent = 0;
+
+	/**
+	 * @var int
+	 *
+	 * The hierarchy level of this board.
+	 */
+	public int $child_level = 0;
+
+	/**
+	 * @var int
+	 *
+	 * The positional order of this board.
+	 */
+	public int $order = 0;
+
+	/**
+	 * @var int
+	 *
+	 * ID of the board previous to this one in positional order.
+	 */
+	public int $prev_board = 0;
+
+	/**
+	 * @var array
+	 *
+	 * Boards that are children of this board.
+	 */
+	public array $children = array();
+
+	/**
+	 * @var array
+	 *
+	 * Hierarchical list of boards that are descendants of this board.
+	 */
+	public array $tree = array();
+
+	/**
+	 * @var int
+	 *
+	 * This board's theme.
+	 */
+	public int $theme = 0;
+
+	/**
+	 * @var bool
+	 *
+	 * Whether this board's theme overrides the default.
+	 */
+	public bool $override_theme = false;
+
+	/**
+	 * @var int
+	 *
+	 * The permission profile of this board.
+	 */
+	public int $profile = 1;
+
+	/**
+	 * @var string
+	 *
+	 * The redirection URL (if any) for this board.
+	 */
+	public string $redirect = '';
+
+	/**
+	 * @var bool
+	 *
+	 * Whether this board is the recycle bin board.
+	 */
+	public bool $recycle = false;
+
+	/**
+	 * @var bool
+	 *
+	 * Whether posts in this board count toward a user's total post count.
+	 */
+	public bool $count_posts = true;
+
+	/**
+	 * @var bool
+	 *
+	 * Whether the current topic (if any) is approved.
+	 */
+	public bool $cur_topic_approved = false;
+
+	/**
+	 * @var int
+	 *
+	 * User who started the current topic (if any).
+	 */
+	public int $cur_topic_starter = 0;
+
+	/**
+	 * @var string
+	 *
+	 * URL for this board.
+	 */
+	public string $url = '';
+
+	/**
+	 * @var string
+	 *
+	 * HTML anchor link for this board.
+	 */
+	public string $link = '';
+
+	/**
+	 * @var array
+	 *
+	 * HTML anchor links for this board's children.
+	 */
+	public array $link_children = array();
+
+	/**
+	 * @var array
+	 *
+	 * HTML anchor links for this board's moderators.
+	 */
+	public array $link_moderators = array();
+
+	/**
+	 * @var array
+	 *
+	 * HTML anchor links for this board's moderator groups.
+	 */
+	public array $link_moderator_groups = array();
+
+	/**
+	 * @var int
+	 *
+	 * ID number of the latest message posted in this board.
+	 */
+	public int $last_msg = 0;
+
+	/**
+	 * @var int
+	 *
+	 * ID number of the latest message in the forum at the time when this board
+	 * was last updated.
+	 */
+	public int $msg_updated = 0;
+
+	/**
+	 * @var array
+	 *
+	 * Info about the latest post in this board.
+	 */
+	public array $last_post = array();
+
+	/**
+	 * @var bool
+	 *
+	 * Whether the board contains posts that the current user has not read.
+	 */
+	public bool $new = false;
+
+	/**
+	 * @var string
+	 *
+	 * What error (if any) was encountered while loading this board.
+	 */
+	public string $error;
+
+	/**************************
+	 * Public static properties
+	 **************************/
+
+	/**
+	 * @var int
+	 *
+	 * ID number of the board being viewed.
+	 *
+	 * As a general rule, code outside this class should use Board::$info->id
+	 * rather than Board::$board_id. The only exception to this rule is in code
+	 * executed before Board::load() has been called.
+	 */
+	public static $board_id;
+
+	/**
+	 * @var object
+	 *
+	 * Instance of this class for board we are currently in.
+	 */
+	public static $info;
+
+	/**
+	 * @var array
+	 *
+	 * All loaded instances of this class.
+	 */
+	public static array $loaded = array();
+
+	/**
+	 * @var array
+	 *
+	 * Properties of each category.
+	 */
+	public static array $cat_tree = array();
+
+	/**
+	 * @var array
+	 *
+	 * A list of boards grouped by category ID.
+	 */
+	public static array $boardList = array();
+
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	/**
+	 * @var array
+	 *
+	 * IDs of groups that can access this board even though they are not
+	 * explicitly granted access according to the database. Basically, this
+	 * means any groups that have the manage_boards permission that aren't
+	 * in the board's list of allowed groups.
+	 */
+	protected array $overridden_access_groups = array();
+
+	/**
+	 * @var array
+	 *
+	 * IDs of groups that can access this board even though they are supposedly
+	 * denied access according to the database.  Basically, this means any
+	 * groups that have the manage_boards permission that are in the board's
+	 * list of denied groups.
+	 */
+	protected array $overridden_deny_groups = array();
+
+	/**
+	 * @var array
+	 *
+	 * Alternate names for some object properties.
+	 */
+	protected array $prop_aliases = array(
+		'id_board' => 'id',
+		'board_name' => 'name',
+		'board_description' => 'description',
+		'groups' => 'member_groups',
+		'access_groups' => 'member_groups',
+		'deny_member_groups' => 'deny_groups',
+		'posts' => 'num_posts',
+		'topics' => 'num_topics',
+		'id_parent' => 'parent',
+		'level' => 'child_level',
+		'board_order' => 'order',
+		'id_theme' => 'theme',
+		'board_theme' => 'theme',
+		'id_profile' => 'profile',
+		'posts_count' => 'count_posts',
+		'href' => 'url',
+		'id_last_msg' => 'last_msg',
+		'id_msg_updated' => 'msg_updated',
+
+		// Square brackets are parsed to find array elements.
+		'category' => 'cat[id]',
+		'id_cat' => 'cat[id]',
+
+		// Initial exclamation mark means inverse of the property.
+		'is_read' => '!new',
+	);
+
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * @var array
+	 *
+	 * Properties that should be cached in different situations.
+	 */
+	protected static array $cache_props = array(
+		// When caching Board::$info
+		'info' => array(
+			'id',
+			'cat',
+			'name',
+			'description',
+			'moderators',
+			'moderator_groups',
+			'member_groups',
+			'deny_groups',
+			'num_posts',
+			'num_topics',
+			'unapproved_topics',
+			'unapproved_posts',
+			'parent_boards',
+			'parent',
+			'child_level',
+			'order',
+			'prev_board',
+			'theme',
+			'override_theme',
+			'profile',
+			'redirect',
+			'recycle',
+			'count_posts',
+			'cur_topic_approved',
+			'cur_topic_starter',
+		),
+	);
+
+	/****************
+	 * Public methods
+	 ****************/
+
+	/**
+	 * Sets custom properties.
+	 *
+	 * @param string $prop The property name.
+	 * @param mixed $value The value to set.
+	 */
+	public function __set(string $prop, $value): void
 	{
-		// Find all the boards this user can see.
-		$result = Db::$db->query('', '
-			SELECT b.id_board
-			FROM {db_prefix}boards AS b
-			WHERE {query_see_board}',
-			array(
-			)
-		);
-		$boards = array();
-		while ($row = Db::$db->fetch_assoc($result))
-			$boards[] = $row['id_board'];
-		Db::$db->free_result($result);
-
-		if (!empty($boards))
-			markBoardsRead($boards, isset($_REQUEST['unread']));
-
-		$_SESSION['id_msg_last_visit'] = Config::$modSettings['maxMsgID'];
-		if (!empty($_SESSION['old_url']) && strpos($_SESSION['old_url'], 'action=unread') !== false)
-			redirectexit('action=unread');
-
-		if (isset($_SESSION['topicseen_cache']))
-			$_SESSION['topicseen_cache'] = array();
-
-		redirectexit();
-	}
-	elseif (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'unreadreplies')
-	{
-		// Make sure all the topics are integers!
-		$topics = array_map('intval', explode('-', $_REQUEST['topics']));
-
-		$request = Db::$db->query('', '
-			SELECT id_topic, unwatched
-			FROM {db_prefix}log_topics
-			WHERE id_topic IN ({array_int:selected_topics})
-				AND id_member = {int:current_user}',
-			array(
-				'selected_topics' => $topics,
-				'current_user' => User::$me->id,
-			)
-		);
-		$logged_topics = array();
-		while ($row = Db::$db->fetch_assoc($request))
-			$logged_topics[$row['id_topic']] = $row['unwatched'];
-		Db::$db->free_result($request);
-
-		$markRead = array();
-		foreach ($topics as $id_topic)
-			$markRead[] = array(Config::$modSettings['maxMsgID'], User::$me->id, $id_topic, (isset($logged_topics[$topic]) ? $logged_topics[$topic] : 0));
-
-		Db::$db->insert('replace',
-			'{db_prefix}log_topics',
-			array('id_msg' => 'int', 'id_member' => 'int', 'id_topic' => 'int', 'unwatched' => 'int'),
-			$markRead,
-			array('id_member', 'id_topic')
-		);
-
-		if (isset($_SESSION['topicseen_cache']))
-			$_SESSION['topicseen_cache'] = array();
-
-		redirectexit('action=unreadreplies');
-	}
-
-	// Special case: mark a topic unread!
-	elseif (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'topic')
-	{
-		// First, let's figure out what the latest message is.
-		$result = Db::$db->query('', '
-			SELECT t.id_first_msg, t.id_last_msg, COALESCE(lt.unwatched, 0) as unwatched
-			FROM {db_prefix}topics as t
-				LEFT JOIN {db_prefix}log_topics as lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
-			WHERE t.id_topic = {int:current_topic}',
-			array(
-				'current_topic' => $topic,
-				'current_member' => User::$me->id,
-			)
-		);
-		$topicinfo = Db::$db->fetch_assoc($result);
-		Db::$db->free_result($result);
-
-		if (!empty($_GET['t']))
+		if (in_array($this->prop_aliases[$prop] ?? $prop, array('member_groups', 'deny_groups')))
 		{
-			// If they read the whole topic, go back to the beginning.
-			if ($_GET['t'] >= $topicinfo['id_last_msg'])
-				$earlyMsg = 0;
-			// If they want to mark the whole thing read, same.
-			elseif ($_GET['t'] <= $topicinfo['id_first_msg'])
-				$earlyMsg = 0;
-			// Otherwise, get the latest message before the named one.
-			else
+			if (!is_array($value))
+				$value = explode(',', $value);
+
+			$value = array_map('intval', array_filter($value, 'strlen'));
+
+			// Special handling for access for board manager groups.
+			if (!empty(Config::$modSettings['board_manager_groups']) && in_array($this->prop_aliases[$prop] ?? $prop, array('member_groups', 'deny_groups')) && is_array($value))
 			{
-				$result = Db::$db->query('', '
-					SELECT MAX(id_msg)
-					FROM {db_prefix}messages
-					WHERE id_topic = {int:current_topic}
-						AND id_msg >= {int:id_first_msg}
-						AND id_msg < {int:topic_msg_id}',
-					array(
-						'current_topic' => $topic,
-						'topic_msg_id' => (int) $_GET['t'],
-						'id_first_msg' => $topicinfo['id_first_msg'],
-					)
-				);
-				list ($earlyMsg) = Db::$db->fetch_row($result);
-				Db::$db->free_result($result);
+				$board_manager_groups = array_map('intval', array_filter(explode(',', Config::$modSettings['board_manager_groups']), 'strlen'));
+
+				if (($this->prop_aliases[$prop] ?? $prop) === 'deny_groups')
+				{
+					$this->overridden_deny_groups = array_intersect($board_manager_groups, $value);
+					$value = array_diff($value, $board_manager_groups);
+				}
+				else
+				{
+					$this->overridden_access_groups = array_diff($board_manager_groups, $value);
+					$value = array_merge($board_manager_groups, $value);
+				}
 			}
-		}
-		// Marking read from first page?  That's the whole topic.
-		elseif ($_REQUEST['start'] == 0)
-			$earlyMsg = 0;
-		else
-		{
-			$result = Db::$db->query('', '
-				SELECT id_msg
-				FROM {db_prefix}messages
-				WHERE id_topic = {int:current_topic}
-				ORDER BY id_msg
-				LIMIT {int:start}, 1',
-				array(
-					'current_topic' => $topic,
-					'start' => (int) $_REQUEST['start'],
-				)
-			);
-			list ($earlyMsg) = Db::$db->fetch_row($result);
-			Db::$db->free_result($result);
 
-			$earlyMsg--;
+			$value = array_unique(array_diff($value, array(1)));
+
+			sort($value);
 		}
 
-		// Blam, unread!
-		Db::$db->insert('replace',
-			'{db_prefix}log_topics',
-			array('id_msg' => 'int', 'id_member' => 'int', 'id_topic' => 'int', 'unwatched' => 'int'),
-			array($earlyMsg, User::$me->id, $topic, $topicinfo['unwatched']),
-			array('id_member', 'id_topic')
-		);
-
-		redirectexit('board=' . $board . '.0');
+		$this->customPropertySet($prop, $value);
 	}
-	else
+
+	/**
+	 * Saves this board to the database.
+	 *
+	 * @param array $boardOptions An array of options related to the board.
+	 */
+	public function save(array $boardOptions = array()): void
 	{
-		$categories = array();
-		$boards = array();
+		isAllowedTo('manage_boards');
 
-		if (isset($_REQUEST['c']))
-		{
-			$_REQUEST['c'] = explode(',', $_REQUEST['c']);
-			foreach ($_REQUEST['c'] as $c)
-				$categories[] = (int) $c;
-		}
-		if (isset($_REQUEST['boards']))
-		{
-			$_REQUEST['boards'] = explode(',', $_REQUEST['boards']);
-			foreach ($_REQUEST['boards'] as $b)
-				$boards[] = (int) $b;
-		}
-		if (!empty($board))
-			$boards[] = (int) $board;
+		// Undo any overrides of the group access values.
+		$access_groups = array_unique(array_diff($this->member_groups, $this->overridden_access_groups, array(1)));
+		$deny_groups = array_unique(array_diff(array_merge($this->deny_groups, $this->overridden_deny_groups), array(1)));
 
-		if (isset($_REQUEST['children']) && !empty($boards))
-		{
-			// They want to mark the entire tree starting with the boards specified
-			// The easiest thing is to just get all the boards they can see, but since we've specified the top of tree we ignore some of them
+		sort($access_groups);
+		sort($deny_groups);
 
-			$request = Db::$db->query('', '
-				SELECT b.id_board, b.id_parent
-				FROM {db_prefix}boards AS b
-				WHERE {query_see_board}
-					AND b.child_level > {int:no_parents}
-					AND b.id_board NOT IN ({array_int:board_list})
-				ORDER BY child_level ASC',
-				array(
-					'no_parents' => 0,
-					'board_list' => $boards,
-				)
+		// Saving a new board.
+		if (empty($this->id))
+		{
+			$columns = array(
+				'id_cat' => 'int',
+				'child_level' => 'int',
+				'id_parent' => 'int',
+				'board_order' => 'int',
+				'id_last_msg' => 'int',
+				'id_msg_updated' => 'int',
+				'member_groups' => 'string-255',
+				'id_profile' => 'int',
+				'name' => 'string-255',
+				'description' => 'string',
+				'num_topics' => 'int',
+				'num_posts' => 'int',
+				'count_posts' => 'int',
+				'id_theme' => 'int',
+				'override_theme' => 'int',
+				'unapproved_posts' => 'int',
+				'unapproved_topics' => 'int',
+				'redirect' => 'string-255',
+				'deny_member_groups' => 'string-255',
 			);
-			while ($row = Db::$db->fetch_assoc($request))
-				if (in_array($row['id_parent'], $boards))
-					$boards[] = $row['id_board'];
 
-			Db::$db->free_result($request);
-		}
-
-		$clauses = array();
-		$clauseParameters = array();
-		if (!empty($categories))
-		{
-			$clauses[] = 'id_cat IN ({array_int:category_list})';
-			$clauseParameters['category_list'] = $categories;
-		}
-		if (!empty($boards))
-		{
-			$clauses[] = 'id_board IN ({array_int:board_list})';
-			$clauseParameters['board_list'] = $boards;
-		}
-
-		if (empty($clauses))
-			redirectexit();
-
-		$request = Db::$db->query('', '
-			SELECT b.id_board
-			FROM {db_prefix}boards AS b
-			WHERE {query_see_board}
-				AND b.' . implode(' OR b.', $clauses),
-			array_merge($clauseParameters, array(
-			))
-		);
-		$boards = array();
-		while ($row = Db::$db->fetch_assoc($request))
-			$boards[] = $row['id_board'];
-		Db::$db->free_result($request);
-
-		if (empty($boards))
-			redirectexit();
-
-		markBoardsRead($boards, isset($_REQUEST['unread']));
-
-		foreach ($boards as $b)
-		{
-			if (isset($_SESSION['topicseen_cache'][$b]))
-				$_SESSION['topicseen_cache'][$b] = array();
-		}
-
-		if (!isset($_REQUEST['unread']))
-		{
-			// Find all the boards this user can see.
-			$result = Db::$db->query('', '
-				SELECT b.id_board
-				FROM {db_prefix}boards AS b
-				WHERE b.id_parent IN ({array_int:parent_list})
-					AND {query_see_board}',
-				array(
-					'parent_list' => $boards,
-				)
+			$params = array(
+				$this->cat['id'],
+				$this->child_level,
+				$this->parent,
+				$this->order,
+				$this->last_msg,
+				$this->msg_updated,
+				implode(',', $access_groups),
+				$this->profile,
+				$this->name,
+				$this->description,
+				$this->num_topics,
+				$this->num_posts,
+				(int) $this->count_posts,
+				$this->theme,
+				(int) $this->override_theme,
+				$this->unapproved_posts,
+				$this->unapproved_topics,
+				$this->redirect,
+				implode(',', $deny_groups),
 			);
-			if (Db::$db->num_rows($result) > 0)
-			{
-				$logBoardInserts = array();
-				while ($row = Db::$db->fetch_assoc($result))
-					$logBoardInserts[] = array(Config::$modSettings['maxMsgID'], User::$me->id, $row['id_board']);
 
-				Db::$db->insert('replace',
-					'{db_prefix}log_boards',
-					array('id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'),
-					$logBoardInserts,
-					array('id_member', 'id_board')
-				);
-			}
-			Db::$db->free_result($result);
+			$this->id = Db::$db->insert('',
+				'{db_prefix}boards',
+				$columns,
+				$params,
+				array('id_board'),
+				1
+			);
 
-			if (empty($board))
-				redirectexit();
-			else
-				redirectexit('board=' . $board . '.0');
+			self::$loaded[$this->id] = $this;
 		}
+		// Updating an existing board.
 		else
 		{
-			if (empty($board_info['parent']))
-				redirectexit();
-			else
-				redirectexit('board=' . $board_info['parent'] . '.0');
-		}
-	}
-}
+			$set = array(
+				'id_cat = {int:id_cat}',
+				'child_level = {int:child_level}',
+				'id_parent = {int:id_parent}',
+				'board_order = {int:board_order}',
+				'id_last_msg = {int:last_msg}',
+				'id_msg_updated = {int:msg_updated}',
+				'member_groups = {string:member_groups}',
+				'id_profile = {int:profile}',
+				'name = {string:board_name}',
+				'description = {string:board_description}',
+				'num_topics = {int:num_topics}',
+				'num_posts = {int:num_posts}',
+				'count_posts = {int:count_posts}',
+				'id_theme = {int:board_theme}',
+				'override_theme = {int:override_theme}',
+				'unapproved_posts = {int:unapproved_posts}',
+				'unapproved_topics = {int:unapproved_topics}',
+				'redirect = {string:redirect}',
+				'deny_member_groups = {string:deny_groups}',
+			);
 
-/**
- * Get the id_member associated with the specified message.
- *
- * @param int $messageID The ID of the message
- * @return int The ID of the member associated with that post
- */
-function getMsgMemberID($messageID)
-{
-	// Find the topic and make sure the member still exists.
-	$result = Db::$db->query('', '
-		SELECT COALESCE(mem.id_member, 0)
-		FROM {db_prefix}messages AS m
-			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
-		WHERE m.id_msg = {int:selected_message}
-		LIMIT 1',
-		array(
-			'selected_message' => (int) $messageID,
-		)
-	);
-	if (Db::$db->num_rows($result) > 0)
-		list ($memberID) = Db::$db->fetch_row($result);
-	// The message doesn't even exist.
-	else
-		$memberID = 0;
+			$params = array(
+				'id' => $this->id,
+				'id_cat' => $this->cat['id'],
+				'child_level' => $this->child_level,
+				'id_parent' => $this->parent,
+				'board_order' => $this->order,
+				'last_msg' => $this->last_msg,
+				'msg_updated' => $this->msg_updated,
+				'member_groups' => implode(',', $access_groups),
+				'profile' => $this->profile,
+				'board_name' => $this->name,
+				'board_description' => $this->description,
+				'num_topics' => $this->num_topics,
+				'num_posts' => $this->num_posts,
+				'count_posts' => (int) $this->count_posts,
+				'board_theme' => $this->theme,
+				'override_theme' => (int) $this->override_theme,
+				'unapproved_posts' => $this->unapproved_posts,
+				'unapproved_topics' => $this->unapproved_topics,
+				'redirect' => $this->redirect,
+				'deny_groups' => implode(',', $deny_groups),
+			);
 
-	Db::$db->free_result($result);
+			// Do any hooks want to add or adjust anything?
+			call_integration_hook('integrate_modify_board', array($this->id, $boardOptions, &$set, &$params));
 
-	return (int) $memberID;
-}
-
-/**
- * Modify the settings and position of a board.
- * Used by ManageBoards.php to change the settings of a board.
- *
- * @param int $board_id The ID of the board
- * @param array &$boardOptions An array of options related to the board
- */
-function modifyBoard($board_id, &$boardOptions)
-{
-	global $cat_tree, $boards;
-
-	// Get some basic information about all boards and categories.
-	getBoardTree();
-
-	// Make sure given boards and categories exist.
-	if (!isset($boards[$board_id]) || (isset($boardOptions['target_board']) && !isset($boards[$boardOptions['target_board']])) || (isset($boardOptions['target_category']) && !isset($cat_tree[$boardOptions['target_category']])))
-		fatal_lang_error('no_board');
-
-	$id = $board_id;
-	call_integration_hook('integrate_pre_modify_board', array($id, &$boardOptions));
-
-	// All things that will be updated in the database will be in $boardUpdates.
-	$boardUpdates = array();
-	$boardUpdateParameters = array();
-
-	// In case the board has to be moved
-	if (isset($boardOptions['move_to']))
-	{
-		// Move the board to the top of a given category.
-		if ($boardOptions['move_to'] == 'top')
-		{
-			$id_cat = $boardOptions['target_category'];
-			$child_level = 0;
-			$id_parent = 0;
-			$after = $cat_tree[$id_cat]['last_board_order'];
-		}
-
-		// Move the board to the bottom of a given category.
-		elseif ($boardOptions['move_to'] == 'bottom')
-		{
-			$id_cat = $boardOptions['target_category'];
-			$child_level = 0;
-			$id_parent = 0;
-			$after = 0;
-			foreach ($cat_tree[$id_cat]['children'] as $id_board => $dummy)
-				$after = max($after, $boards[$id_board]['order']);
-		}
-
-		// Make the board a child of a given board.
-		elseif ($boardOptions['move_to'] == 'child')
-		{
-			$id_cat = $boards[$boardOptions['target_board']]['category'];
-			$child_level = $boards[$boardOptions['target_board']]['level'] + 1;
-			$id_parent = $boardOptions['target_board'];
-
-			// People can be creative, in many ways...
-			if (isChildOf($id_parent, $board_id))
-				fatal_lang_error('mboards_parent_own_child_error', false);
-
-			elseif ($id_parent == $board_id)
-				fatal_lang_error('mboards_board_own_child_error', false);
-
-			$after = $boards[$boardOptions['target_board']]['order'];
-
-			// Check if there are already children and (if so) get the max board order.
-			if (!empty($boards[$id_parent]['tree']['children']) && empty($boardOptions['move_first_child']))
-				foreach ($boards[$id_parent]['tree']['children'] as $childBoard_id => $dummy)
-					$after = max($after, $boards[$childBoard_id]['order']);
-		}
-
-		// Place a board before or after another board, on the same child level.
-		elseif (in_array($boardOptions['move_to'], array('before', 'after')))
-		{
-			$id_cat = $boards[$boardOptions['target_board']]['category'];
-			$child_level = $boards[$boardOptions['target_board']]['level'];
-			$id_parent = $boards[$boardOptions['target_board']]['parent'];
-			$after = $boards[$boardOptions['target_board']]['order'] - ($boardOptions['move_to'] == 'before' ? 1 : 0);
-		}
-
-		// Oops...?
-		else
-		{
-			Lang::load('Errors');
-			trigger_error(sprintf(Lang::$txt['modify_board_incorrect_move_to'], $boardOptions['move_to']), E_USER_ERROR);
-		}
-
-		// Get a list of children of this board.
-		$childList = array();
-		recursiveBoards($childList, $boards[$board_id]['tree']);
-
-		// See if there are changes that affect children.
-		$childUpdates = array();
-		$levelDiff = $child_level - $boards[$board_id]['level'];
-
-		if ($levelDiff != 0)
-			$childUpdates[] = 'child_level = child_level ' . ($levelDiff > 0 ? '+ ' : '') . '{int:level_diff}';
-
-		if ($id_cat != $boards[$board_id]['category'])
-			$childUpdates[] = 'id_cat = {int:category}';
-
-		// Fix the children of this board.
-		if (!empty($childList) && !empty($childUpdates))
 			Db::$db->query('', '
 				UPDATE {db_prefix}boards
-				SET ' . implode(',
-					', $childUpdates) . '
-				WHERE id_board IN ({array_int:board_list})',
-				array(
-					'board_list' => $childList,
-					'category' => $id_cat,
-					'level_diff' => $levelDiff,
-				)
+				SET ' . (implode(', ', $set)) . '
+				WHERE id_board = {int:id}',
+				$params
 			);
+		}
 
-		// Make some room for this spot.
-		Db::$db->query('', '
-			UPDATE {db_prefix}boards
-			SET board_order = board_order + {int:new_order}
-			WHERE board_order > {int:insert_after}
-				AND id_board != {int:selected_board}',
-			array(
-				'insert_after' => $after,
-				'selected_board' => $board_id,
-				'new_order' => 1 + count($childList),
-			)
-		);
-
-		$boardUpdates[] = 'id_cat = {int:id_cat}';
-		$boardUpdates[] = 'id_parent = {int:id_parent}';
-		$boardUpdates[] = 'child_level = {int:child_level}';
-		$boardUpdates[] = 'board_order = {int:board_order}';
-		$boardUpdateParameters += array(
-			'id_cat' => $id_cat,
-			'id_parent' => $id_parent,
-			'child_level' => $child_level,
-			'board_order' => $after + 1,
-		);
-	}
-
-	// This setting is a little twisted in the database...
-	if (isset($boardOptions['posts_count']))
-	{
-		$boardUpdates[] = 'count_posts = {int:count_posts}';
-		$boardUpdateParameters['count_posts'] = $boardOptions['posts_count'] ? 0 : 1;
-	}
-
-	// Set the theme for this board.
-	if (isset($boardOptions['board_theme']))
-	{
-		$boardUpdates[] = 'id_theme = {int:id_theme}';
-		$boardUpdateParameters['id_theme'] = (int) $boardOptions['board_theme'];
-	}
-
-	// Should the board theme override the user preferred theme?
-	if (isset($boardOptions['override_theme']))
-	{
-		$boardUpdates[] = 'override_theme = {int:override_theme}';
-		$boardUpdateParameters['override_theme'] = $boardOptions['override_theme'] ? 1 : 0;
-	}
-
-	// Who's allowed to access this board.
-	if (isset($boardOptions['access_groups']))
-	{
-		$boardUpdates[] = 'member_groups = {string:member_groups}';
-		$boardUpdateParameters['member_groups'] = implode(',', $boardOptions['access_groups']);
-	}
-
-	// And who isn't.
-	if (isset($boardOptions['deny_groups']))
-	{
-		$boardUpdates[] = 'deny_member_groups = {string:deny_groups}';
-		$boardUpdateParameters['deny_groups'] = implode(',', $boardOptions['deny_groups']);
-	}
-
-	if (isset($boardOptions['board_name']))
-	{
-		$boardUpdates[] = 'name = {string:board_name}';
-		$boardUpdateParameters['board_name'] = $boardOptions['board_name'];
-	}
-
-	if (isset($boardOptions['board_description']))
-	{
-		$boardUpdates[] = 'description = {string:board_description}';
-		$boardUpdateParameters['board_description'] = $boardOptions['board_description'];
-	}
-
-	if (isset($boardOptions['profile']))
-	{
-		$boardUpdates[] = 'id_profile = {int:profile}';
-		$boardUpdateParameters['profile'] = (int) $boardOptions['profile'];
-	}
-
-	if (isset($boardOptions['redirect']))
-	{
-		$boardUpdates[] = 'redirect = {string:redirect}';
-		$boardUpdateParameters['redirect'] = $boardOptions['redirect'];
-	}
-
-	if (isset($boardOptions['num_posts']))
-	{
-		$boardUpdates[] = 'num_posts = {int:num_posts}';
-		$boardUpdateParameters['num_posts'] = (int) $boardOptions['num_posts'];
-	}
-
-	$id = $board_id;
-	call_integration_hook('integrate_modify_board', array($id, $boardOptions, &$boardUpdates, &$boardUpdateParameters));
-
-	// Do the updates (if any).
-	if (!empty($boardUpdates))
-		Db::$db->query('', '
-			UPDATE {db_prefix}boards
-			SET
-				' . implode(',
-				', $boardUpdates) . '
-			WHERE id_board = {int:selected_board}',
-			array_merge($boardUpdateParameters, array(
-				'selected_board' => $board_id,
-			))
-		);
-
-	if (!empty($boardOptions['deny_groups']) || !empty($boardOptions['access_groups'])) {
-		// Before we add new access_groups or deny_groups, remove all of the old entries
+		// Before we add new access_groups or deny_groups, remove all of the old entries.
 		Db::$db->query('', '
 			DELETE FROM {db_prefix}board_permissions_view
-			WHERE id_board = {int:selected_board}',
+			WHERE id_board = {int:this_board}',
 			array(
-				'selected_board' => $board_id,
+				'this_board' => $this->id,
 			)
 		);
-	}
 
-	// Do permission sync
-	if (!empty($boardOptions['deny_groups']))
-	{
-		$insert = array();
-		foreach ($boardOptions['deny_groups'] as $value)
-			$insert[] = array($value, $board_id, 1);
+		$inserts = array();
 
-		Db::$db->insert('insert',
-			'{db_prefix}board_permissions_view',
-			array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
-			$insert,
-			array('id_group', 'id_board', 'deny')
-		);
-	}
+		foreach ($access_groups as $id_group)
+			$inserts[] = array($id_group, $this->id, 0);
 
-	if (!empty($boardOptions['access_groups']))
-	{
-		$insert = array();
-		foreach ($boardOptions['access_groups'] as $value)
-			$insert[] = array($value, $board_id, 0);
+		foreach ($deny_groups as $id_group)
+			$inserts[] = array($id_group, $this->id, 1);
 
-		Db::$db->insert('insert',
-			'{db_prefix}board_permissions_view',
-			array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
-			$insert,
-			array('id_group', 'id_board', 'deny')
-		);
-	}
+		if ($inserts != array())
+		{
+			Db::$db->insert('insert',
+				'{db_prefix}board_permissions_view',
+				array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
+				$inserts,
+				array('id_group', 'id_board', 'deny')
+			);
+		}
 
-	// Set moderators of this board.
-	if (isset($boardOptions['moderators']) || isset($boardOptions['moderator_string']) || isset($boardOptions['moderator_groups']) || isset($boardOptions['moderator_group_string']))
-	{
 		// Reset current moderators for this board - if there are any!
 		Db::$db->query('', '
 			DELETE FROM {db_prefix}moderators
-			WHERE id_board = {int:board_list}',
+			WHERE id_board = {int:this_board}',
 			array(
-				'board_list' => $board_id,
+				'this_board' => $this->id,
 			)
 		);
 
-		// Validate and get the IDs of the new moderators.
-		if (isset($boardOptions['moderator_string']) && trim($boardOptions['moderator_string']) != '')
+		if (!empty($this->moderators))
 		{
-			// Divvy out the usernames, remove extra space.
-			$moderator_string = strtr(Utils::htmlspecialchars($boardOptions['moderator_string'], ENT_QUOTES), array('&quot;' => '"'));
-			preg_match_all('~"([^"]+)"~', $moderator_string, $matches);
-			$moderators = array_merge($matches[1], explode(',', preg_replace('~"[^"]+"~', '', $moderator_string)));
-			for ($k = 0, $n = count($moderators); $k < $n; $k++)
-			{
-				$moderators[$k] = trim($moderators[$k]);
-
-				if (strlen($moderators[$k]) == 0)
-					unset($moderators[$k]);
-			}
-
-			// Find all the id_member's for the member_name's in the list.
-			if (empty($boardOptions['moderators']))
-				$boardOptions['moderators'] = array();
-			if (!empty($moderators))
-			{
-				$request = Db::$db->query('', '
-					SELECT id_member
-					FROM {db_prefix}members
-					WHERE member_name IN ({array_string:moderator_list}) OR real_name IN ({array_string:moderator_list})
-					LIMIT {int:limit}',
-					array(
-						'moderator_list' => $moderators,
-						'limit' => count($moderators),
-					)
-				);
-				while ($row = Db::$db->fetch_assoc($request))
-					$boardOptions['moderators'][] = $row['id_member'];
-				Db::$db->free_result($request);
-			}
-		}
-
-		// Add the moderators to the board.
-		if (!empty($boardOptions['moderators']))
-		{
-			$inserts = array();
-			foreach ($boardOptions['moderators'] as $moderator)
-				$inserts[] = array($board_id, $moderator);
-
 			Db::$db->insert('insert',
 				'{db_prefix}moderators',
 				array('id_board' => 'int', 'id_member' => 'int'),
-				$inserts,
+				array_map(fn($mod) => array($this->id, $mod['id']), $this->moderators),
 				array('id_board', 'id_member')
 			);
 		}
@@ -774,827 +700,2238 @@ function modifyBoard($board_id, &$boardOptions)
 		// Reset current moderator groups for this board - if there are any!
 		Db::$db->query('', '
 			DELETE FROM {db_prefix}moderator_groups
-			WHERE id_board = {int:board_list}',
+			WHERE id_board = {int:this_board}',
 			array(
-				'board_list' => $board_id,
+				'this_board' => $this->id,
 			)
 		);
 
-		// Validate and get the IDs of the new moderator groups.
-		if (isset($boardOptions['moderator_group_string']) && trim($boardOptions['moderator_group_string']) != '')
+		if (!empty($this->moderator_groups))
 		{
-			// Divvy out the group names, remove extra space.
-			$moderator_group_string = strtr(Utils::htmlspecialchars($boardOptions['moderator_group_string'], ENT_QUOTES), array('&quot;' => '"'));
-			preg_match_all('~"([^"]+)"~', $moderator_group_string, $matches);
-			$moderator_groups = array_merge($matches[1], explode(',', preg_replace('~"[^"]+"~', '', $moderator_group_string)));
-			for ($k = 0, $n = count($moderator_groups); $k < $n; $k++)
-			{
-				$moderator_groups[$k] = trim($moderator_groups[$k]);
-
-				if (strlen($moderator_groups[$k]) == 0)
-					unset($moderator_groups[$k]);
-			}
-
-			/* 	Find all the id_group's for all the group names in the list
-				But skip any invalid ones (invisible/post groups/Administrator/Moderator) */
-			if (empty($boardOptions['moderator_groups']))
-				$boardOptions['moderator_groups'] = array();
-			if (!empty($moderator_groups))
-			{
-				$request = Db::$db->query('', '
-					SELECT id_group
-					FROM {db_prefix}membergroups
-					WHERE group_name IN ({array_string:moderator_group_list})
-						AND hidden = {int:visible}
-						AND min_posts = {int:negative_one}
-						AND id_group NOT IN ({array_int:invalid_groups})
-					LIMIT {int:limit}',
-					array(
-						'visible' => 0,
-						'negative_one' => -1,
-						'invalid_groups' => array(1, 3),
-						'moderator_group_list' => $moderator_groups,
-						'limit' => count($moderator_groups),
-					)
-				);
-				while ($row = Db::$db->fetch_assoc($request))
-				{
-					$boardOptions['moderator_groups'][] = $row['id_group'];
-				}
-				Db::$db->free_result($request);
-			}
-		}
-
-		// Add the moderator groups to the board.
-		if (!empty($boardOptions['moderator_groups']))
-		{
-			$inserts = array();
-			foreach ($boardOptions['moderator_groups'] as $moderator_group)
-				$inserts[] = array($board_id, $moderator_group);
-
 			Db::$db->insert('insert',
 				'{db_prefix}moderator_groups',
 				array('id_board' => 'int', 'id_group' => 'int'),
-				$inserts,
+				array_map(fn($mod) => array($this->id, $mod['id']), $this->moderator_groups),
 				array('id_board', 'id_group')
 			);
 		}
 
-		// Note that caches can now be wrong!
+		// If we were moving boards, ensure that the order is correct.
+		if (isset($boardOptions['move_to']))
+			self::reorder();
+
+		// The caches might now be wrong.
 		Config::updateModSettings(array('settings_updated' => time()));
+		CacheApi::clean('data');
 	}
 
-	if (isset($boardOptions['move_to']))
-		reorderBoards();
-
-	$parsed_boards_cat_id = isset($id_cat) ? $id_cat : $boardOptions['old_id_cat'];
-	$already_parsed_boards = getBoardsParsedDescription($parsed_boards_cat_id);
-
-	if (isset($boardOptions['board_description']))
-		$already_parsed_boards[$board_id] = BBCodeParser::load()->parse(
-			$boardOptions['board_description'],
-			false,
-			'',
-			Utils::$context['description_allowed_tags']
-		);
-
-	CacheApi::clean('data');
-
-	CacheApi::put('parsed_boards_descriptions_'. $parsed_boards_cat_id, $already_parsed_boards, 864000);
-
-	if (empty($boardOptions['dont_log']))
-		logAction('edit_board', array('board' => $board_id), 'admin');
-}
-
-/**
- * Create a new board and set its properties and position.
- * Allows (almost) the same options as the modifyBoard() function.
- * With the option inherit_permissions set, the parent board permissions
- * will be inherited.
- *
- * @param array $boardOptions An array of information for the new board
- * @return int The ID of the new board
- */
-function createBoard($boardOptions)
-{
-	global $boards;
-
-	// Trigger an error if one of the required values is not set.
-	if (!isset($boardOptions['board_name']) || trim($boardOptions['board_name']) == '' || !isset($boardOptions['move_to']) || !isset($boardOptions['target_category']))
+	/**
+	 * Changes this board's position in the overall board tree.
+	 *
+	 * @param string $move_to Where to move the board. Value can be one of
+	 *    'top', 'bottom', 'child', 'before', or 'after'.
+	 * @param ?int $target_category ID of the board's new category.
+	 *    Only applicable when $move_to is 'top' or 'bottom'.
+	 * @param ?int $target_board ID of another board that this board is being
+	 *    moved next to or is becoming a child of. Only applicable when $move_to
+	 *    is 'child', 'before,' or 'after'.
+	 * @param bool $first_child Whether this should be the first or last child
+	 *    of its new parent. Only applicable when $move_to is 'child'.
+	 * @param bool $save Whether to call the save() method for affected boards.
+	 *    If set to false, the caller is responsible for calling the save()
+	 *    method for each of the affected boards.
+	 * @return array IDs of all boards that were affected by this move.
+	 */
+	public function move(
+		string $move_to,
+		?int $target_category = null,
+		?int $target_board = null,
+		bool $first_child = false,
+		bool $save = true
+	): array
 	{
-		Lang::load('Errors');
-		trigger_error(Lang::$txt['create_board_missing_options'], E_USER_ERROR);
-	}
-
-	if (in_array($boardOptions['move_to'], array('child', 'before', 'after')) && !isset($boardOptions['target_board']))
-	{
-		Lang::load('Errors');
-		trigger_error(Lang::$txt['move_board_no_target'], E_USER_ERROR);
-	}
-
-	// Set every optional value to its default value.
-	$boardOptions += array(
-		'posts_count' => true,
-		'override_theme' => false,
-		'board_theme' => 0,
-		'access_groups' => array(),
-		'board_description' => '',
-		'profile' => 1,
-		'moderators' => '',
-		'inherit_permissions' => true,
-		'dont_log' => true,
-	);
-
-	$default_memgrps = '-1,0';
-
-	$board_columns = array(
-		'id_cat' => 'int', 'name' => 'string-255', 'description' => 'string', 'board_order' => 'int',
-		'member_groups' => 'string', 'redirect' => 'string',
-	);
-	$board_parameters = array(
-		$boardOptions['target_category'], $boardOptions['board_name'], '', 0,
-		$default_memgrps, '',
-	);
-
-	call_integration_hook('integrate_create_board', array(&$boardOptions, &$board_columns, &$board_parameters));
-
-	// Insert a board, the settings are dealt with later.
-	$board_id = Db::$db->insert('',
-		'{db_prefix}boards',
-		$board_columns,
-		$board_parameters,
-		array('id_board'),
-		1
-	);
-
-	$insert = array();
-
-	foreach (explode(',', $default_memgrps) as $value)
-		$insert[] = array($value, $board_id, 0);
-
-	Db::$db->insert('',
-		'{db_prefix}board_permissions_view',
-		array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
-		$insert,
-		array('id_group', 'id_board', 'deny'),
-		1
-	);
-
-	if (empty($board_id))
-		return 0;
-
-	// Change the board according to the given specifications.
-	modifyBoard($board_id, $boardOptions);
-
-	// Do we want the parent permissions to be inherited?
-	if ($boardOptions['inherit_permissions'])
-	{
-		getBoardTree();
-
-		if (!empty($boards[$board_id]['parent']))
+		// Do we have what we need?
+		switch ($move_to)
 		{
-			$request = Db::$db->query('', '
-				SELECT id_profile
-				FROM {db_prefix}boards
-				WHERE id_board = {int:board_parent}
-				LIMIT 1',
+			case 'top':
+			case 'bottom':
+				if (!isset($target_category))
+				{
+					Lang::load('Errors');
+					trigger_error(sprintf(Lang::$txt['modify_board_incorrect_move_to'], $move_to), E_USER_ERROR);
+				}
+				break;
+
+			default:
+				if (!isset($target_board))
+				{
+					Lang::load('Errors');
+					trigger_error(sprintf(Lang::$txt['modify_board_incorrect_move_to'], $move_to), E_USER_ERROR);
+				}
+				break;
+		}
+
+		// IDs of all boards that were affected by this move.
+		$affected_boards = array($this->id);
+
+		// Ensure everything is loaded.
+		if ((isset($target_category) && !isset(self::$cat_tree[$target_category])) || (isset($target_board) && !isset(self::$loaded[$target_board])))
+		{
+			self::getBoardTree();
+		}
+
+		// Where are we moving this board to?
+		switch ($move_to)
+		{
+			case 'top':
+				$id_cat = $target_category;
+				$child_level = 0;
+				$id_parent = 0;
+				$after = self::$cat_tree[$id_cat]['last_board_order'];
+				break;
+
+			case 'bottom':
+				$id_cat = $target_category;
+				$child_level = 0;
+				$id_parent = 0;
+				$after = 0;
+
+				foreach (self::$cat_tree[$id_cat]['children'] as $id_board => $dummy)
+					$after = max($after, self::$loaded[$id_board]->order);
+
+				break;
+
+			case 'child':
+				$id_cat = self::$loaded[$target_board]->category;
+				$child_level = self::$loaded[$target_board]->child_level + 1;
+				$id_parent = $target_board;
+
+				// People can be creative, in many ways...
+				if (self::isChildOf($id_parent, $this->id))
+				{
+					fatal_lang_error('mboards_parent_own_child_error', false);
+				}
+				elseif ($id_parent == $this->id)
+				{
+					fatal_lang_error('mboards_board_own_child_error', false);
+				}
+
+				$after = self::$loaded[$target_board]->order;
+
+				// Check if there are already children and (if so) get the max board order.
+				if (!empty(self::$loaded[$id_parent]->tree['children']) && empty($first_child))
+				{
+					foreach (self::$loaded[$id_parent]->tree['children'] as $childBoard_id => $dummy)
+						$after = max($after, self::$loaded[$childBoard_id]->order);
+				}
+
+				break;
+
+			case 'before':
+			case 'after':
+				$id_cat = self::$loaded[$target_board]->category;
+				$child_level = self::$loaded[$target_board]->child_level;
+				$id_parent = self::$loaded[$target_board]->parent;
+				$after = self::$loaded[$target_board]->order - ($move_to == 'before' ? 1 : 0);
+				break;
+
+			default:
+				Lang::load('Errors');
+				trigger_error(sprintf(Lang::$txt['modify_board_incorrect_move_to'], $move_to), E_USER_ERROR);
+				break;
+		}
+
+		// Get a list of children of this board.
+		$child_list = array();
+		self::recursiveBoards($child_list, $this);
+
+		// See if there are changes that affect children.
+		foreach ($child_list as $child_id)
+		{
+			if ($child_level != $this->child_level)
+			{
+				self::$loaded[$child_id]->child_level += ($child_level - $this->child_level);
+				$affected_boards[] = $child_id;
+			}
+
+			if ($id_cat != self::$loaded[$child_id]->category)
+			{
+				self::$loaded[$child_id]->category = $id_cat;
+				$affected_boards[] = $child_id;
+			}
+		}
+
+		foreach (self::$loaded as $board)
+		{
+			if ($board->order <= $after)
+				continue;
+
+			if ($board->id === $this->id)
+				continue;
+
+			$board->order += (1 + count($child_list));
+			$affected_boards[] = $board->id;
+		}
+
+		// Now change the properties of this board itself.
+		$this->category = $id_cat;
+		$this->parent = $id_parent;
+		$this->child_level = $child_level;
+		$this->order = $after + 1;
+
+		// Are we saving the changes?
+		if ($save)
+		{
+			foreach ($affected_boards as $board_id)
+				self::$loaded[$board_id]->save();
+		}
+
+		return $affected_boards;
+	}
+
+	/***********************
+	 * Public static methods
+	 ***********************/
+
+	/**
+	 * Loads boards by ID number and/or by custom query.
+	 *
+	 * If both arguments are empty, loads the board in self::$board_id.
+	 *
+	 * @param array|int $ids The ID numbers of zero or more boards.
+	 * @param array $query_customizations Customizations to the SQL query.
+	 * @return array Instances of this class for the loaded boards.
+	 */
+	public static function load(array|int $ids = array(), array $query_customizations = array()): array
+	{
+		$loaded = array();
+
+		$ids = array_unique(array_map('intval', (array) $ids));
+
+		if (empty($query_customizations))
+		{
+			if (empty($ids))
+			{
+				$loaded[] = self::init();
+			}
+			else
+			{
+				foreach ($ids as $id)
+					$loaded[] = self::init($id);
+			}
+
+			return $loaded;
+		}
+
+		$selects = $query_customizations['selects'] ?? array('b.*');
+		$joins = $query_customizations['joins'] ?? array();
+		$where = $query_customizations['where'] ?? array();
+		$order = $query_customizations['order'] ?? array();
+		$group = $query_customizations['group'] ?? array();
+		$limit = $query_customizations['limit'] ?? 0;
+		$params = $query_customizations['params'] ?? array();
+
+		if ($ids !== array())
+		{
+			$where[] = 'b.id_board IN ({array_int:ids})';
+			$params['ids'] = $ids;
+		}
+
+		foreach (self::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row)
+		{
+			$row['id_board'] = (int) $row['id_board'];
+
+			if (isset(self::$loaded[$row['id_board']]))
+			{
+				self::$loaded[$row['id_board']]->set($row);
+				$loaded[] = self::$loaded[$row['id_board']];
+			}
+			else
+			{
+				$loaded[] = self::init($row['id_board'], $row);
+			}
+		}
+
+		// Return the instances we just loaded.
+		return $loaded;
+	}
+
+	/**
+	 * Creates a new instance of this class if necessary, or updates an existing
+	 * instance if one already exists for the given ID number. In either case,
+	 * the instance will be returned.
+	 *
+	 * If $id is empty but self::$board_id isn't, $id is set to self::$board_id.
+	 * If $id and self::$board_id are both empty, returns null.
+	 *
+	 * If an instance already exists for the given ID number, then $props will
+	 * simply be passed to the existing instance's set() method, and then the
+	 * existing instance will be returned.
+	 *
+	 * If an instance does not exist for the given ID number and $props is
+	 * empty, a query will be performed to populate the properties with data
+	 * from the boards table.
+	 *
+	 * @param ?int $id The ID number of a board, or null for current board.
+	 *    Default: null.
+	 * @param array $props Properties to set for this board. Only used when $id
+	 *    is not null.
+	 * @return object|null An instance of this class, or null on error.
+	 */
+	public static function init(?int $id = null, array $props = array()): object|null
+	{
+		// This should already have been set, but just in case...
+		if (!isset(self::$board_id))
+			self::$board_id = (int) ($_REQUEST['board'] ?? 0);
+
+		if (!isset(self::$loaded[$id]))
+		{
+			new self($id, $props);
+		}
+		else
+		{
+			self::$loaded[$id]->set($props);
+		}
+
+		return self::$loaded[$id] ?? null;
+	}
+
+	/**
+	 * Mark one or more boards as read.
+	 */
+	public static function markRead(): void
+	{
+		global $topic;
+
+		// No Guests allowed!
+		is_not_guest();
+
+		checkSession('get');
+
+		if (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'all')
+		{
+			// Find all the boards this user can see.
+			$boards = array();
+
+			$result = Db::$db->query('', '
+				SELECT b.id_board
+				FROM {db_prefix}boards AS b
+				WHERE {query_see_board}',
 				array(
-					'board_parent' => (int) $boards[$board_id]['parent'],
 				)
 			);
-			list ($boardOptions['profile']) = Db::$db->fetch_row($request);
+			while ($row = Db::$db->fetch_assoc($result))
+			{
+				$boards[] = $row['id_board'];
+			}
+			Db::$db->free_result($result);
+
+			if (!empty($boards))
+				self::markBoardsRead($boards, isset($_REQUEST['unread']));
+
+			$_SESSION['id_msg_last_visit'] = Config::$modSettings['maxMsgID'];
+
+			if (!empty($_SESSION['old_url']) && strpos($_SESSION['old_url'], 'action=unread') !== false)
+			{
+				redirectexit('action=unread');
+			}
+
+			if (isset($_SESSION['topicseen_cache']))
+				$_SESSION['topicseen_cache'] = array();
+
+			redirectexit();
+		}
+		elseif (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'unreadreplies')
+		{
+			// Make sure all the topics are integers!
+			$topics = array_map('intval', explode('-', $_REQUEST['topics']));
+
+			$logged_topics = array();
+
+			$request = Db::$db->query('', '
+				SELECT id_topic, unwatched
+				FROM {db_prefix}log_topics
+				WHERE id_topic IN ({array_int:selected_topics})
+					AND id_member = {int:current_user}',
+				array(
+					'selected_topics' => $topics,
+					'current_user' => User::$me->id,
+				)
+			);
+			while ($row = Db::$db->fetch_assoc($request))
+			{
+				$logged_topics[$row['id_topic']] = $row['unwatched'];
+			}
 			Db::$db->free_result($request);
 
-			Db::$db->query('', '
-				UPDATE {db_prefix}boards
-				SET id_profile = {int:new_profile}
-				WHERE id_board = {int:current_board}',
+			$markRead = array();
+
+			foreach ($topics as $id_topic)
+			{
+				$markRead[] = array(Config::$modSettings['maxMsgID'], User::$me->id, $id_topic, (isset($logged_topics[$topic]) ? $logged_topics[$topic] : 0));
+			}
+
+			Db::$db->insert('replace',
+				'{db_prefix}log_topics',
+				array('id_msg' => 'int', 'id_member' => 'int', 'id_topic' => 'int', 'unwatched' => 'int'),
+				$markRead,
+				array('id_member', 'id_topic')
+			);
+
+			if (isset($_SESSION['topicseen_cache']))
+				$_SESSION['topicseen_cache'] = array();
+
+			redirectexit('action=unreadreplies');
+		}
+		// Special case: mark a topic unread!
+		elseif (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'topic')
+		{
+			// First, let's figure out what the latest message is.
+			$result = Db::$db->query('', '
+				SELECT t.id_first_msg, t.id_last_msg, COALESCE(lt.unwatched, 0) as unwatched
+				FROM {db_prefix}topics as t
+					LEFT JOIN {db_prefix}log_topics as lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
+				WHERE t.id_topic = {int:current_topic}',
 				array(
-					'new_profile' => $boardOptions['profile'],
-					'current_board' => $board_id,
+					'current_topic' => $topic,
+					'current_member' => User::$me->id,
+				)
+			);
+			$topicinfo = Db::$db->fetch_assoc($result);
+			Db::$db->free_result($result);
+
+			if (!empty($_GET['t']))
+			{
+				// If they read the whole topic, go back to the beginning.
+				if ($_GET['t'] >= $topicinfo['id_last_msg'])
+				{
+					$earlyMsg = 0;
+				}
+				// If they want to mark the whole thing read, same.
+				elseif ($_GET['t'] <= $topicinfo['id_first_msg'])
+				{
+					$earlyMsg = 0;
+				}
+				// Otherwise, get the latest message before the named one.
+				else
+				{
+					$result = Db::$db->query('', '
+						SELECT MAX(id_msg)
+						FROM {db_prefix}messages
+						WHERE id_topic = {int:current_topic}
+							AND id_msg >= {int:id_first_msg}
+							AND id_msg < {int:topic_msg_id}',
+						array(
+							'current_topic' => $topic,
+							'topic_msg_id' => (int) $_GET['t'],
+							'id_first_msg' => $topicinfo['id_first_msg'],
+						)
+					);
+					list($earlyMsg) = Db::$db->fetch_row($result);
+					Db::$db->free_result($result);
+				}
+			}
+			// Marking read from first page?  That's the whole topic.
+			elseif ($_REQUEST['start'] == 0)
+			{
+				$earlyMsg = 0;
+			}
+			else
+			{
+				$result = Db::$db->query('', '
+					SELECT id_msg
+					FROM {db_prefix}messages
+					WHERE id_topic = {int:current_topic}
+					ORDER BY id_msg
+					LIMIT {int:start}, 1',
+					array(
+						'current_topic' => $topic,
+						'start' => (int) $_REQUEST['start'],
+					)
+				);
+				list($earlyMsg) = Db::$db->fetch_row($result);
+				Db::$db->free_result($result);
+
+				$earlyMsg--;
+			}
+
+			// Blam, unread!
+			Db::$db->insert('replace',
+				'{db_prefix}log_topics',
+				array('id_msg' => 'int', 'id_member' => 'int', 'id_topic' => 'int', 'unwatched' => 'int'),
+				array($earlyMsg, User::$me->id, $topic, $topicinfo['unwatched']),
+				array('id_member', 'id_topic')
+			);
+
+			redirectexit('board=' . self::$info->id . '.0');
+		}
+		else
+		{
+			$categories = array();
+			$boards = array();
+
+			if (isset($_REQUEST['c']))
+			{
+				$_REQUEST['c'] = explode(',', $_REQUEST['c']);
+
+				foreach ($_REQUEST['c'] as $c)
+					$categories[] = (int) $c;
+			}
+
+			if (isset($_REQUEST['boards']))
+			{
+				$_REQUEST['boards'] = explode(',', $_REQUEST['boards']);
+
+				foreach ($_REQUEST['boards'] as $b)
+					$boards[] = (int) $b;
+			}
+
+			if (!empty(self::$info->id))
+				$boards[] = (int) self::$info->id;
+
+			if (isset($_REQUEST['children']) && !empty($boards))
+			{
+				// They want to mark the entire tree starting with the boards specified
+				// The easiest thing is to just get all the boards they can see, but since we've specified the top of tree we ignore some of them
+				$request = Db::$db->query('', '
+					SELECT b.id_board, b.id_parent
+					FROM {db_prefix}boards AS b
+					WHERE {query_see_board}
+						AND b.child_level > {int:no_parents}
+						AND b.id_board NOT IN ({array_int:board_list})
+					ORDER BY child_level ASC',
+					array(
+						'no_parents' => 0,
+						'board_list' => $boards,
+					)
+				);
+				while ($row = Db::$db->fetch_assoc($request))
+				{
+					if (in_array($row['id_parent'], $boards))
+						$boards[] = $row['id_board'];
+				}
+				Db::$db->free_result($request);
+			}
+
+			$clauses = array();
+			$clauseParameters = array();
+
+			if (!empty($categories))
+			{
+				$clauses[] = 'id_cat IN ({array_int:category_list})';
+				$clauseParameters['category_list'] = $categories;
+			}
+
+			if (!empty($boards))
+			{
+				$clauses[] = 'id_board IN ({array_int:board_list})';
+				$clauseParameters['board_list'] = $boards;
+			}
+
+			if (empty($clauses))
+				redirectexit();
+
+			$boards = array();
+
+			$request = Db::$db->query('', '
+				SELECT b.id_board
+				FROM {db_prefix}boards AS b
+				WHERE {query_see_board}
+					AND b.' . implode(' OR b.', $clauses),
+				array_merge($clauseParameters, array(
+				))
+			);
+			while ($row = Db::$db->fetch_assoc($request))
+			{
+				$boards[] = $row['id_board'];
+			}
+			Db::$db->free_result($request);
+
+			if (empty($boards))
+				redirectexit();
+
+			self::markBoardsRead($boards, isset($_REQUEST['unread']));
+
+			foreach ($boards as $b)
+			{
+				if (isset($_SESSION['topicseen_cache'][$b]))
+					$_SESSION['topicseen_cache'][$b] = array();
+			}
+
+			if (!isset($_REQUEST['unread']))
+			{
+				// Find all the boards this user can see.
+				$result = Db::$db->query('', '
+					SELECT b.id_board
+					FROM {db_prefix}boards AS b
+					WHERE b.id_parent IN ({array_int:parent_list})
+						AND {query_see_board}',
+					array(
+						'parent_list' => $boards,
+					)
+				);
+				if (Db::$db->num_rows($result) > 0)
+				{
+					$logBoardInserts = array();
+
+					while ($row = Db::$db->fetch_assoc($result))
+					{
+						$logBoardInserts[] = array(Config::$modSettings['maxMsgID'], User::$me->id, $row['id_board']);
+					}
+
+					Db::$db->insert('replace',
+						'{db_prefix}log_boards',
+						array('id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'),
+						$logBoardInserts,
+						array('id_member', 'id_board')
+					);
+				}
+				Db::$db->free_result($result);
+
+				if (empty(self::$info->id))
+				{
+					redirectexit();
+				}
+				else
+				{
+					redirectexit('board=' . self::$info->id . '.0');
+				}
+			}
+			else
+			{
+				if (empty(self::$info->parent))
+				{
+					redirectexit();
+				}
+				else
+				{
+					redirectexit('board=' . self::$info->parent . '.0');
+				}
+			}
+		}
+	}
+
+	/**
+	 * Mark a board or multiple boards read.
+	 *
+	 * @param int|array $boards The ID of a single board or an array of boards
+	 * @param bool $unread Whether we're marking them as unread
+	 */
+	public static function markBoardsRead(int|array $boards, bool $unread = false): void
+	{
+		// Force $boards to be an array.
+		if (!is_array($boards))
+		{
+			$boards = array($boards);
+		}
+		else
+		{
+			$boards = array_unique($boards);
+		}
+
+		// No boards, nothing to mark as read.
+		if (empty($boards))
+			return;
+
+		// Allow the user to mark a board as unread.
+		if ($unread)
+		{
+			// Clear out all the places where this lovely info is stored.
+			// @todo Maybe not log_mark_read?
+			Db::$db->query('', '
+				DELETE FROM {db_prefix}log_mark_read
+				WHERE id_board IN ({array_int:board_list})
+					AND id_member = {int:current_member}',
+				array(
+					'current_member' => User::$me->id,
+					'board_list' => $boards,
+				)
+			);
+
+			Db::$db->query('', '
+				DELETE FROM {db_prefix}log_boards
+				WHERE id_board IN ({array_int:board_list})
+					AND id_member = {int:current_member}',
+				array(
+					'current_member' => User::$me->id,
+					'board_list' => $boards,
+				)
+			);
+		}
+		// Otherwise mark the board as read.
+		else
+		{
+			$markRead = array();
+
+			foreach ($boards as $board)
+			{
+				$markRead[] = array(Config::$modSettings['maxMsgID'], User::$me->id, $board);
+			}
+
+			// Update log_mark_read and log_boards.
+			Db::$db->insert('replace',
+				'{db_prefix}log_mark_read',
+				array('id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'),
+				$markRead,
+				array('id_board', 'id_member')
+			);
+
+			Db::$db->insert('replace',
+				'{db_prefix}log_boards',
+				array('id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'),
+				$markRead,
+				array('id_board', 'id_member')
+			);
+		}
+
+		// Get rid of useless log_topics data, because log_mark_read is better for it - even if marking unread - I think so...
+		// @todo look at this...
+		// The call to markBoardsRead() in Display() used to be simply
+		// marking log_boards (the previous query only)
+		$result = Db::$db->query('', '
+			SELECT MIN(id_topic)
+			FROM {db_prefix}log_topics
+			WHERE id_member = {int:current_member}',
+			array(
+				'current_member' => User::$me->id,
+			)
+		);
+		list($lowest_topic) = Db::$db->fetch_row($result);
+		Db::$db->free_result($result);
+
+		if (empty($lowest_topic))
+			return;
+
+		// @todo SLOW This query seems to eat it sometimes.
+		$topics = array();
+		$result = Db::$db->query('', '
+			SELECT lt.id_topic
+			FROM {db_prefix}log_topics AS lt
+				INNER JOIN {db_prefix}topics AS t /*!40000 USE INDEX (PRIMARY) */ ON (t.id_topic = lt.id_topic
+					AND t.id_board IN ({array_int:board_list}))
+			WHERE lt.id_member = {int:current_member}
+				AND lt.id_topic >= {int:lowest_topic}
+				AND lt.unwatched != 1',
+			array(
+				'current_member' => User::$me->id,
+				'board_list' => $boards,
+				'lowest_topic' => $lowest_topic,
+			)
+		);
+		while ($row = Db::$db->fetch_assoc($result))
+		{
+			$topics[] = $row['id_topic'];
+		}
+		Db::$db->free_result($result);
+
+		if (!empty($topics))
+		{
+			Db::$db->query('', '
+				DELETE FROM {db_prefix}log_topics
+				WHERE id_member = {int:current_member}
+					AND id_topic IN ({array_int:topic_list})',
+				array(
+					'current_member' => User::$me->id,
+					'topic_list' => $topics,
 				)
 			);
 		}
 	}
 
-	// Clean the data cache.
-	CacheApi::clean('data');
-
-	// Created it.
-	logAction('add_board', array('board' => $board_id), 'admin');
-
-	// Here you are, a new board, ready to be spammed.
-	return $board_id;
-}
-
-/**
- * Remove one or more boards.
- * Allows to move the children of the board before deleting it
- * if moveChildrenTo is set to null, the child boards will be deleted.
- * Deletes:
- *   - all topics that are on the given boards;
- *   - all information that's associated with the given boards;
- * updates the statistics to reflect the new situation.
- *
- * @param array $boards_to_remove The boards to remove
- * @param int $moveChildrenTo The ID of the board to move the child boards to (null to remove the child boards, 0 to make them a top-level board)
- */
-function deleteBoards($boards_to_remove, $moveChildrenTo = null)
-{
-	global $boards;
-
-	// No boards to delete? Return!
-	if (empty($boards_to_remove))
-		return;
-
-	getBoardTree();
-
-	call_integration_hook('integrate_delete_board', array($boards_to_remove, &$moveChildrenTo));
-
-	// If $moveChildrenTo is set to null, include the children in the removal.
-	if ($moveChildrenTo === null)
+	/**
+	 * Get the id_member associated with the specified message.
+	 *
+	 * @todo Move this? It's not really related to boards.
+	 *
+	 * @param int $messageID The ID of the message
+	 * @return int The ID of the member associated with that post
+	 */
+	public static function getMsgMemberID(int $messageID): int
 	{
-		// Get a list of the child boards that will also be removed.
-		$child_boards_to_remove = array();
-		foreach ($boards_to_remove as $board_to_remove)
-			recursiveBoards($child_boards_to_remove, $boards[$board_to_remove]['tree']);
-
-		// Merge the children with their parents.
-		if (!empty($child_boards_to_remove))
-			$boards_to_remove = array_unique(array_merge($boards_to_remove, $child_boards_to_remove));
-	}
-	// Move the children to a safe home.
-	else
-	{
-		foreach ($boards_to_remove as $id_board)
-		{
-			// @todo Separate category?
-			if ($moveChildrenTo === 0)
-				fixChildren($id_board, 0, 0);
-			else
-				fixChildren($id_board, $boards[$moveChildrenTo]['level'] + 1, $moveChildrenTo);
-		}
-	}
-
-	// Delete ALL topics in the selected boards (done first so topics can't be marooned.)
-	$request = Db::$db->query('', '
-		SELECT id_topic
-		FROM {db_prefix}topics
-		WHERE id_board IN ({array_int:boards_to_remove})',
-		array(
-			'boards_to_remove' => $boards_to_remove,
-		)
-	);
-	$topics = array();
-	while ($row = Db::$db->fetch_assoc($request))
-		$topics[] = $row['id_topic'];
-	Db::$db->free_result($request);
-
-	require_once(Config::$sourcedir . '/RemoveTopic.php');
-	removeTopics($topics, false);
-
-	// Delete the board's logs.
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}log_mark_read
-		WHERE id_board IN ({array_int:boards_to_remove})',
-		array(
-			'boards_to_remove' => $boards_to_remove,
-		)
-	);
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}log_boards
-		WHERE id_board IN ({array_int:boards_to_remove})',
-		array(
-			'boards_to_remove' => $boards_to_remove,
-		)
-	);
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}log_notify
-		WHERE id_board IN ({array_int:boards_to_remove})',
-		array(
-			'boards_to_remove' => $boards_to_remove,
-		)
-	);
-
-	// Delete this board's moderators.
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}moderators
-		WHERE id_board IN ({array_int:boards_to_remove})',
-		array(
-			'boards_to_remove' => $boards_to_remove,
-		)
-	);
-
-	// Delete this board's moderator groups.
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}moderator_groups
-		WHERE id_board IN ({array_int:boards_to_remove})',
-		array(
-			'boards_to_remove' => $boards_to_remove,
-		)
-	);
-
-	// Delete any extra events in the calendar.
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}calendar
-		WHERE id_board IN ({array_int:boards_to_remove})',
-		array(
-			'boards_to_remove' => $boards_to_remove,
-		)
-	);
-
-	// Delete any message icons that only appear on these boards.
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}message_icons
-		WHERE id_board IN ({array_int:boards_to_remove})',
-		array(
-			'boards_to_remove' => $boards_to_remove,
-		)
-	);
-
-	// Delete the boards.
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}boards
-		WHERE id_board IN ({array_int:boards_to_remove})',
-		array(
-			'boards_to_remove' => $boards_to_remove,
-		)
-	);
-
-	// Delete permissions
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}board_permissions_view
-		WHERE id_board IN ({array_int:boards_to_remove})',
-		array(
-			'boards_to_remove' => $boards_to_remove,
-		)
-	);
-
-	// Latest message/topic might not be there anymore.
-	updateStats('message');
-	updateStats('topic');
-	Config::updateModSettings(array(
-		'calendar_updated' => time(),
-	));
-
-	// Plus reset the cache to stop people getting odd results.
-	Config::updateModSettings(array('settings_updated' => time()));
-
-	// Clean the cache as well.
-	CacheApi::clean('data');
-
-	// Let's do some serious logging.
-	foreach ($boards_to_remove as $id_board)
-		logAction('delete_board', array('boardname' => $boards[$id_board]['name']), 'admin');
-
-	reorderBoards();
-}
-
-/**
- * Put all boards in the right order and sorts the records of the boards table.
- * Used by modifyBoard(), deleteBoards(), modifyCategory(), and deleteCategories() functions
- */
-function reorderBoards()
-{
-	global $cat_tree, $boardList, $boards;
-
-	getBoardTree();
-
-	// Set the board order for each category.
-	$board_order = 0;
-	foreach ($cat_tree as $catID => $dummy)
-	{
-		foreach ($boardList[$catID] as $boardID)
-			if ($boards[$boardID]['order'] != ++$board_order)
-				Db::$db->query('', '
-					UPDATE {db_prefix}boards
-					SET board_order = {int:new_order}
-					WHERE id_board = {int:selected_board}',
-					array(
-						'new_order' => $board_order,
-						'selected_board' => $boardID,
-					)
-				);
-	}
-
-	// Empty the board order cache
-	CacheApi::put('board_order', null, -3600);
-}
-
-/**
- * Fixes the children of a board by setting their child_levels to new values.
- * Used when a board is deleted or moved, to affect its children.
- *
- * @param int $parent The ID of the parent board
- * @param int $newLevel The new child level for each of the child boards
- * @param int $newParent The ID of the new parent board
- */
-function fixChildren($parent, $newLevel, $newParent)
-{
-	// Grab all children of $parent...
-	$result = Db::$db->query('', '
-		SELECT id_board
-		FROM {db_prefix}boards
-		WHERE id_parent = {int:parent_board}',
-		array(
-			'parent_board' => $parent,
-		)
-	);
-	$children = array();
-	while ($row = Db::$db->fetch_assoc($result))
-		$children[] = $row['id_board'];
-	Db::$db->free_result($result);
-
-	// ...and set it to a new parent and child_level.
-	Db::$db->query('', '
-		UPDATE {db_prefix}boards
-		SET id_parent = {int:new_parent}, child_level = {int:new_child_level}
-		WHERE id_parent = {int:parent_board}',
-		array(
-			'new_parent' => $newParent,
-			'new_child_level' => $newLevel,
-			'parent_board' => $parent,
-		)
-	);
-
-	// Recursively fix the children of the children.
-	foreach ($children as $child)
-		fixChildren($child, $newLevel + 1, $child);
-}
-
-/**
- * Tries to load up the entire board order and category very very quickly
- * Returns an array with two elements, cats and boards
- *
- * @return array An array of categories and boards
- */
-function getTreeOrder()
-{
-	static $tree_order = array(
-		'cats' => array(),
-		'boards' => array(),
-	);
-
-	if (!empty($tree_order['boards']))
-		return $tree_order;
-
-	if (($cached = CacheApi::get('board_order', 86400)) !== null)
-	{
-		$tree_order = $cached;
-		return $cached;
-	}
-
-	$request = Db::$db->query('', '
-		SELECT b.id_board, b.id_cat
-		FROM {db_prefix}categories AS c
-			JOIN {db_prefix}boards AS b ON (b.id_cat = c.id_cat)
-		ORDER BY c.cat_order, b.board_order'
-	);
-
-	foreach (Db::$db->fetch_all($request) as $row)
-	{
-		if (!in_array($row['id_cat'], $tree_order['cats']))
-			$tree_order['cats'][] = $row['id_cat'];
-		$tree_order['boards'][] = $row['id_board'];
-	}
-	Db::$db->free_result($request);
-
-	CacheApi::put('board_order', $tree_order, 86400);
-
-	return $tree_order;
-}
-
-/**
- * Takes a board array and sorts it
- *
- * @param array &$boards The boards
- */
-function sortBoards(array &$boards)
-{
-	$tree = getTreeOrder();
-
-	$ordered = array();
-	foreach ($tree['boards'] as $board)
-		if (!empty($boards[$board]))
-		{
-			$ordered[$board] = $boards[$board];
-
-			if (is_array($ordered[$board]) && !empty($ordered[$board]['boards']))
-				sortBoards($ordered[$board]['boards']);
-
-			if (is_array($ordered[$board]) && !empty($ordered[$board]['children']))
-				sortBoards($ordered[$board]['children']);
-		}
-
-	$boards = $ordered;
-}
-
-/**
- * Takes a category array and sorts it
- *
- * @param array &$categories The categories
- */
-function sortCategories(array &$categories)
-{
-	$tree = getTreeOrder();
-
-	$ordered = array();
-	foreach ($tree['cats'] as $cat)
-		if (!empty($categories[$cat]))
-		{
-			$ordered[$cat] = $categories[$cat];
-			if (!empty($ordered[$cat]['boards']))
-				sortBoards($ordered[$cat]['boards']);
-		}
-
-	$categories = $ordered;
-}
-
-/**
- * Returns the given board's moderators, with their names and links
- *
- * @param array $boards The boards to get moderators of
- * @return array An array containing information about the moderators of each board
- */
-function getBoardModerators(array $boards)
-{
-	if (empty($boards))
-		return array();
-
-	$request = Db::$db->query('', '
-		SELECT mem.id_member, mem.real_name, mo.id_board
-		FROM {db_prefix}moderators AS mo
-			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = mo.id_member)
-		WHERE mo.id_board IN ({array_int:boards})',
-		array(
-			'boards' => $boards,
-		)
-	);
-	$moderators = array();
-	while ($row = Db::$db->fetch_assoc($request))
-	{
-		if (empty($moderators[$row['id_board']]))
-			$moderators[$row['id_board']] = array();
-
-		$moderators[$row['id_board']][] = array(
-			'id' => $row['id_member'],
-			'name' => $row['real_name'],
-			'href' => Config::$scripturl . '?action=profile;u=' . $row['id_member'],
-			'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '" title="' . Lang::$txt['board_moderator'] . '">' . $row['real_name'] . '</a>',
+		// Find the topic and make sure the member still exists.
+		$result = Db::$db->query('', '
+			SELECT COALESCE(mem.id_member, 0)
+			FROM {db_prefix}messages AS m
+				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
+			WHERE m.id_msg = {int:selected_message}
+			LIMIT 1',
+			array(
+				'selected_message' => (int) $messageID,
+			)
 		);
-	}
-	Db::$db->free_result($request);
-
-	return $moderators;
-}
-
-/**
- * Returns board's moderator groups with their names and link
- *
- * @param array $boards The boards to get moderator groups of
- * @return array An array containing information about the groups assigned to moderate each board
- */
-function getBoardModeratorGroups(array $boards)
-{
-	if (empty($boards))
-		return array();
-
-	$request = Db::$db->query('', '
-		SELECT mg.id_group, mg.group_name, bg.id_board
-		FROM {db_prefix}moderator_groups AS bg
-			INNER JOIN {db_prefix}membergroups AS mg ON (mg.id_group = bg.id_group)
-		WHERE bg.id_board IN ({array_int:boards})',
-		array(
-			'boards' => $boards,
-		)
-	);
-	$groups = array();
-	while ($row = Db::$db->fetch_assoc($request))
-	{
-		if (empty($groups[$row['id_board']]))
-			$groups[$row['id_board']] = array();
-
-		$groups[$row['id_board']][] = array(
-			'id' => $row['id_group'],
-			'name' => $row['group_name'],
-			'href' => Config::$scripturl . '?action=groups;sa=members;group=' . $row['id_group'],
-			'link' => '<a href="' . Config::$scripturl . '?action=groups;sa=members;group=' . $row['id_group'] . '" title="' . Lang::$txt['board_moderator'] . '">' . $row['group_name'] . '</a>',
-		);
-	}
-
-	return $groups;
-}
-
-/**
- * Load a lot of useful information regarding the boards and categories.
- * The information retrieved is stored in globals:
- *  $boards		properties of each board.
- *  $boardList	a list of boards grouped by category ID.
- *  $cat_tree	properties of each category.
- */
-function getBoardTree()
-{
-	global $cat_tree, $boards, $boardList;
-
-	$boardColumns = array(
-		'COALESCE(b.id_board, 0) AS id_board', 'b.id_parent', 'b.name AS board_name',
-		'b.description', 'b.child_level', 'b.board_order', 'b.count_posts', 'b.member_groups',
-		'b.id_theme', 'b.override_theme', 'b.id_profile', 'b.redirect', 'b.num_posts',
-		'b.num_topics', 'b.deny_member_groups', 'c.id_cat', 'c.name AS cat_name',
-		'c.description AS cat_desc', 'c.cat_order', 'c.can_collapse',
-	);
-	$boardParameters = array();
-	$boardJoins = array();
-	$boardWhere = array();
-	$boardOrder = array('c.cat_order', 'b.child_level', 'b.board_order');
-
-	// Let mods add extra columns, parameters, etc., to the SELECT query
-	call_integration_hook('integrate_pre_boardtree', array(&$boardColumns, &$boardParameters, &$boardJoins, &$boardWhere, &$boardOrder));
-
-	$boardColumns = array_unique($boardColumns);
-	$boardParameters = array_unique($boardParameters);
-	$boardJoins = array_unique($boardJoins);
-	$boardWhere = array_unique($boardWhere);
-	$boardOrder = array_unique($boardOrder);
-
-	// Getting all the board and category information you'd ever wanted.
-	$request = Db::$db->query('', '
-		SELECT
-			' . implode(', ', $boardColumns) . '
-		FROM {db_prefix}categories AS c
-			LEFT JOIN {db_prefix}boards AS b ON (b.id_cat = c.id_cat)' . implode('
-			', $boardJoins) . '
-		WHERE {query_see_board}' . (empty($boardWhere) ? '' : '
-			AND (' . implode(') AND (', $boardWhere) . ')') . '
-		ORDER BY ' . implode(', ', $boardOrder),
-		$boardParameters
-	);
-	$cat_tree = array();
-	$boards = array();
-	$last_board_order = 0;
-	while ($row = Db::$db->fetch_assoc($request))
-	{
-		if (!isset($cat_tree[$row['id_cat']]))
+		if (Db::$db->num_rows($result) > 0)
 		{
-			$cat_tree[$row['id_cat']] = array(
-				'node' => array(
-					'id' => $row['id_cat'],
-					'name' => $row['cat_name'],
-					'description' => $row['cat_desc'],
-					'order' => $row['cat_order'],
-					'can_collapse' => $row['can_collapse']
-				),
-				'is_first' => empty($cat_tree),
-				'last_board_order' => $last_board_order,
-				'children' => array()
-			);
-			$prevBoard = 0;
-			$curLevel = 0;
+			list($memberID) = Db::$db->fetch_row($result);
+		}
+		// The message doesn't even exist.
+		else
+		{
+			$memberID = 0;
+		}
+		Db::$db->free_result($result);
+
+		return (int) $memberID;
+	}
+
+	/**
+	 * Modify the settings and position of a board.
+	 * Used by ManageBoards.php to change the settings of a board.
+	 *
+	 * @param int $board_id The ID of the board
+	 * @param array &$boardOptions An array of options related to the board
+	 */
+	public static function modify(int $board_id, array &$boardOptions): void
+	{
+		// Load and organize all boards and categories.
+		self::getBoardTree();
+
+		// Make sure given boards and categories exist.
+		if (
+			!isset(self::$loaded[$board_id])
+			|| (
+				isset($boardOptions['target_board'])
+				&& !isset(self::$loaded[$boardOptions['target_board']])
+			)
+			|| (
+				isset($boardOptions['target_category'])
+				&& !isset(self::$cat_tree[$boardOptions['target_category']])
+			)
+		)
+		{
+			fatal_lang_error('no_board');
 		}
 
-		if (!empty($row['id_board']))
+		call_integration_hook('integrate_pre_modify_board', array($board_id, &$boardOptions));
+
+		$board = self::$loaded[$board_id];
+
+		// In case the board has to be moved.
+		if (isset($boardOptions['move_to']))
 		{
-			if ($row['child_level'] != $curLevel)
-				$prevBoard = 0;
+			$moved_boards = $board->move($boardOptions['move_to'], $boardOptions['target_category'] ?? null, $boardOptions['target_board'] ?? null, !empty($boardOptions['move_first_child']), false);
+		}
 
-			$boards[$row['id_board']] = array(
-				'id' => $row['id_board'],
-				'category' => $row['id_cat'],
-				'parent' => $row['id_parent'],
-				'level' => $row['child_level'],
-				'order' => $row['board_order'],
-				'name' => $row['board_name'],
-				'member_groups' => explode(',', $row['member_groups']),
-				'deny_groups' => explode(',', $row['deny_member_groups']),
-				'description' => $row['description'],
-				'count_posts' => empty($row['count_posts']),
-				'posts' => $row['num_posts'],
-				'topics' => $row['num_topics'],
-				'theme' => $row['id_theme'],
-				'override_theme' => $row['override_theme'],
-				'profile' => $row['id_profile'],
-				'redirect' => $row['redirect'],
-				'prev_board' => $prevBoard
-			);
-			$prevBoard = $row['id_board'];
-			$last_board_order = $row['board_order'];
-
-			if (empty($row['child_level']))
+		// Set moderators of this board.
+		if (isset($boardOptions['moderators']) || isset($boardOptions['moderator_string']) || isset($boardOptions['moderator_groups']) || isset($boardOptions['moderator_group_string']))
+		{
+			// Validate and get the IDs of the new moderators.
+			// $boardOptions['moderator_string'] is only set if the admin has JavaScript disabled.
+			if (isset($boardOptions['moderator_string']) && trim($boardOptions['moderator_string']) != '')
 			{
-				$cat_tree[$row['id_cat']]['children'][$row['id_board']] = array(
-					'node' => &$boards[$row['id_board']],
-					'is_first' => empty($cat_tree[$row['id_cat']]['children']),
-					'children' => array()
-				);
-				$boards[$row['id_board']]['tree'] = &$cat_tree[$row['id_cat']]['children'][$row['id_board']];
+				if (empty($boardOptions['moderators']))
+					$boardOptions['moderators'] = array();
+
+				// Divvy out the usernames, remove extra space.
+				$moderator_string = strtr(Utils::htmlspecialchars($boardOptions['moderator_string'], ENT_QUOTES), array('&quot;' => '"'));
+
+				preg_match_all('~"([^"]+)"~', $moderator_string, $matches);
+
+				$moderators = array_filter(array_map('trim', array_merge($matches[1], explode(',', preg_replace('~"[^"]+"~', '', $moderator_string)))), 'strlen');
+
+				// Find all the id_member's for the member_name's in the list.
+				if (!empty($moderators))
+				{
+					foreach (User::load($moderators, User::LOAD_BY_NAME, 'minimal') as $moderator)
+						$boardOptions['moderators'][] = $moderator->id;
+				}
 			}
-			else
-			{
-				// Parent doesn't exist!
-				if (!isset($boards[$row['id_parent']]['tree']))
-					fatal_lang_error('no_valid_parent', false, array($row['board_name']));
 
-				// Wrong childlevel...we can silently fix this...
-				if ($boards[$row['id_parent']]['tree']['node']['level'] != $row['child_level'] - 1)
-					Db::$db->query('', '
-						UPDATE {db_prefix}boards
-						SET child_level = {int:new_child_level}
-						WHERE id_board = {int:selected_board}',
+			// Validate and get the IDs of the new moderator groups.
+			// $boardOptions['moderator_group_string'] is only set if the admin has JavaScript disabled.
+			if (isset($boardOptions['moderator_group_string']) && trim($boardOptions['moderator_group_string']) != '')
+			{
+				if (empty($boardOptions['moderator_groups']))
+					$boardOptions['moderator_groups'] = array();
+
+				// Divvy out the group names, remove extra space.
+				$moderator_group_string = strtr(Utils::htmlspecialchars($boardOptions['moderator_group_string'], ENT_QUOTES), array('&quot;' => '"'));
+
+				preg_match_all('~"([^"]+)"~', $moderator_group_string, $matches);
+
+				$moderator_groups = array_filter(array_map('trim', array_merge($matches[1], explode(',', preg_replace('~"[^"]+"~', '', $moderator_group_string)))), 'strlen');
+
+			 	// Find all the id_group's for all the group names in the list
+				// But skip any invalid ones (invisible/post groups/Administrator/Moderator)
+				if (!empty($moderator_groups))
+				{
+					$request = Db::$db->query('', '
+						SELECT id_group
+						FROM {db_prefix}membergroups
+						WHERE group_name IN ({array_string:moderator_group_list})
+							AND hidden = {int:visible}
+							AND min_posts = {int:negative_one}
+							AND id_group NOT IN ({array_int:invalid_groups})
+						LIMIT {int:limit}',
 						array(
-							'new_child_level' => $boards[$row['id_parent']]['tree']['node']['level'] + 1,
-							'selected_board' => $row['id_board'],
+							'visible' => 0,
+							'negative_one' => -1,
+							'invalid_groups' => array(1, 3),
+							'moderator_group_list' => $moderator_groups,
+							'limit' => count($moderator_groups),
 						)
 					);
+					while ($row = Db::$db->fetch_assoc($request))
+					{
+						$boardOptions['moderator_groups'][] = $row['id_group'];
+					}
+					Db::$db->free_result($request);
+				}
+			}
 
-				$boards[$row['id_parent']]['tree']['children'][$row['id_board']] = array(
-					'node' => &$boards[$row['id_board']],
-					'is_first' => empty($boards[$row['id_parent']]['tree']['children']),
-					'children' => array()
-				);
-				$boards[$row['id_board']]['tree'] = &$boards[$row['id_parent']]['tree']['children'][$row['id_board']];
+			if (isset($boardOptions['moderators']))
+			{
+				if (!is_array($boardOptions['moderators']))
+					$boardOptions['moderators'] = array_filter(explode(',', $boardOptions['moderators']), 'strlen');
+
+				$boardOptions['moderators'] = array_unique(array_map('intval', $boardOptions['moderators']));
+			}
+
+			if (isset($boardOptions['moderator_groups']))
+			{
+				if (!is_array($boardOptions['moderator_groups']))
+					$boardOptions['moderator_groups'] = array_filter(explode(',', $boardOptions['moderator_groups']), 'strlen');
+
+				$boardOptions['moderator_groups'] = array_unique(array_map('intval', $boardOptions['moderator_groups']));
 			}
 		}
 
-		// If mods want to do anything with this board before we move on, now's the time
-		call_integration_hook('integrate_boardtree_board', array($row));
-	}
-	Db::$db->free_result($request);
+		// String properties.
+		$board->name = (string) ($boardOptions['board_name'] ?? $board->name ?? '');
+		$board->description = (string) ($boardOptions['board_description'] ?? $board->description ?? '');
+		$board->redirect = (string) ($boardOptions['redirect'] ?? $board->redirect ?? '');
 
-	// Get a list of all the boards in each category (using recursion).
-	$boardList = array();
-	foreach ($cat_tree as $catID => $node)
+		// Integer properties.
+		$board->num_posts = (int) ($boardOptions['num_posts'] ?? $board->num_posts ?? 0);
+		$board->theme = (int) ($boardOptions['board_theme'] ?? $board->theme ?? 0);
+		$board->profile = (int) ($boardOptions['profile'] ?? $board->profile ?? 1);
+
+		// Boolean properties.
+		$board->count_posts = !empty($boardOptions['posts_count'] ?? $board->count_posts ?? true);
+		$board->override_theme = !empty($boardOptions['override_theme'] ?? $board->override_theme ?? false);
+
+		// Array properties.
+		$board->moderators = $boardOptions['moderators'] ?? $board->moderators;
+		$board->moderator_groups = $boardOptions['moderator_groups'] ?? $board->moderator_groups;
+		$board->member_groups = $boardOptions['access_groups'] ?? $board->member_groups;
+		$board->deny_groups = $boardOptions['deny_groups'] ?? $board->deny_groups;
+
+		// We're ready to save the changes now.
+		$board->save($boardOptions);
+
+		// If we moved any boards, save their changes too.
+		if (!empty($moved_boards))
+		{
+			foreach (array_diff($moved_boards, array($board->id)) as $moved)
+				self::$loaded[$moved]->save();
+		}
+
+		// Log the changes unless told otherwise.
+		if (empty($boardOptions['dont_log']))
+			logAction('edit_board', array('board' => $this->id), 'admin');
+	}
+
+	/**
+	 * Create a new board and set its properties and position.
+	 *
+	 * Allows (almost) the same options as the modifyBoard() function.
+	 * With the option inherit_permissions set, the parent board permissions
+	 * will be inherited.
+	 *
+	 * @param array $boardOptions An array of information for the new board
+	 * @return int The ID of the new board
+	 */
+	public static function create(array $boardOptions): int
 	{
-		$boardList[$catID] = array();
-		recursiveBoards($boardList[$catID], $node);
-	}
-}
+		// Trigger an error if one of the required values is not set.
+		if (!isset($boardOptions['board_name']) || trim($boardOptions['board_name']) == '' || !isset($boardOptions['move_to']) || !isset($boardOptions['target_category']))
+		{
+			Lang::load('Errors');
+			trigger_error(Lang::$txt['create_board_missing_options'], E_USER_ERROR);
+		}
 
-/**
- * Recursively get a list of boards.
- * Used by getBoardTree
- *
- * @param array &$_boardList The board list
- * @param array &$_tree The board tree
- */
-function recursiveBoards(&$_boardList, &$_tree)
-{
-	if (empty($_tree['children']))
-		return;
+		if (in_array($boardOptions['move_to'], array('child', 'before', 'after')) && !isset($boardOptions['target_board']))
+		{
+			Lang::load('Errors');
+			trigger_error(Lang::$txt['move_board_no_target'], E_USER_ERROR);
+		}
 
-	foreach ($_tree['children'] as $id => $node)
-	{
-		$_boardList[] = $id;
-		recursiveBoards($_boardList, $node);
-	}
-}
-
-/**
- * Returns whether the child board id is actually a child of the parent (recursive).
- *
- * @param int $child The ID of the child board
- * @param int $parent The ID of a parent board
- * @return boolean Whether the specified child board is actually a child of the specified parent board.
- */
-function isChildOf($child, $parent)
-{
-	global $boards;
-
-	if (empty($boards[$child]['parent']))
-		return false;
-
-	if ($boards[$child]['parent'] == $parent)
-		return true;
-
-	return isChildOf($boards[$child]['parent'], $parent);
-}
-
-function setBoardParsedDescription($category_id = 0, $boards_info = array())
-{
-	if (empty($category_id) || empty($boards_info))
-		return array();
-
-	// Get the data we already parsed
-	$already_parsed_boards = getBoardsParsedDescription($category_id);
-
-	foreach ($boards_info as $board_id => $board_description)
-		$already_parsed_boards[$board_id] = BBCodeParser::load()->parse(
-			$board_description,
-			false,
-			'',
-			Utils::$context['description_allowed_tags']
+		// Set every optional value to its default value.
+		$boardOptions += array(
+			'posts_count' => true,
+			'override_theme' => false,
+			'board_theme' => 0,
+			'access_groups' => array(),
+			'board_description' => '',
+			'profile' => 1,
+			'moderators' => '',
+			'inherit_permissions' => true,
+			'dont_log' => true,
 		);
 
-	CacheApi::put('parsed_boards_descriptions_'. $category_id, $already_parsed_boards, 864000);
+		// This used to be done via a direct query, which is why these look like
+		// arrays that would be passed to our database API. We keep them this
+		// way now merely in order to maintain the signature of the hook.
+		$board_columns = array(
+			'id_cat' => 'int',
+			'name' => 'string-255',
+			'description' => 'string',
+			'board_order' => 'int',
+			'member_groups' => 'string',
+			'redirect' => 'string',
+		);
 
-	return $already_parsed_boards;
+		$board_parameters = array(
+			$boardOptions['target_category'],
+			$boardOptions['board_name'],
+			'',
+			0,
+			'',
+			'',
+		);
+
+		call_integration_hook('integrate_create_board', array(&$boardOptions, &$board_columns, &$board_parameters));
+
+		// Make a new instance and save it.
+		$board = new self(0, array_combine(array_keys($board_columns), $board_parameters));
+		$board->save();
+
+		// Uh-oh...
+		if (empty($board->id))
+			return 0;
+
+		// Do we want the parent permissions to be inherited?
+		if ($boardOptions['inherit_permissions'] && !empty($board->parent))
+		{
+			self::load($board->parent);
+			$boardOptions['profile'] = self::$loaded[$board->parent]->profile;
+			unset($boardOptions['inherit_permissions']);
+		}
+
+		// Change the board according to the given specifications.
+		self::modify($board->id, $boardOptions);
+
+		// Created it.
+		logAction('add_board', array('board' => $board->id), 'admin');
+
+		// Here you are, a new board, ready to be spammed.
+		return $board->id;
+	}
+
+	/**
+	 * Remove one or more boards.
+	 * Allows to move the children of the board before deleting it
+	 * if moveChildrenTo is set to null, the child boards will be deleted.
+	 * Deletes:
+	 *   - all topics that are on the given boards;
+	 *   - all information that's associated with the given boards;
+	 * updates the statistics to reflect the new situation.
+	 *
+	 * @param array $boards_to_remove The boards to remove
+	 * @param int $moveChildrenTo The ID of the board to move the child boards to (null to remove the child boards, 0 to make them a top-level board)
+	 */
+	public static function delete(array $boards_to_remove, int $moveChildrenTo = null): void
+	{
+		// No boards to delete? Return!
+		if (empty($boards_to_remove))
+			return;
+
+		self::getBoardTree();
+
+		call_integration_hook('integrate_delete_board', array($boards_to_remove, &$moveChildrenTo));
+
+		// If $moveChildrenTo is set to null, include the children in the removal.
+		if ($moveChildrenTo === null)
+		{
+			// Get a list of the child boards that will also be removed.
+			$child_boards_to_remove = array();
+
+			foreach ($boards_to_remove as $board_to_remove)
+			{
+				self::recursiveBoards($child_boards_to_remove, self::$loaded[$board_to_remove]->tree);
+			}
+
+			// Merge the children with their parents.
+			if (!empty($child_boards_to_remove))
+			{
+				$boards_to_remove = array_unique(array_merge($boards_to_remove, $child_boards_to_remove));
+			}
+		}
+		// Move the children to a safe home.
+		else
+		{
+			foreach ($boards_to_remove as $id_board)
+			{
+				// @todo Separate category?
+				if ($moveChildrenTo === 0)
+				{
+					self::fixChildren($id_board, 0, 0);
+				}
+				else
+				{
+					self::fixChildren($id_board, self::$loaded[$moveChildrenTo]->child_level + 1, $moveChildrenTo);
+				}
+			}
+		}
+
+		// Delete ALL topics in the selected boards (done first so topics can't be marooned.)
+		$topics = array();
+
+		$request = Db::$db->query('', '
+			SELECT id_topic
+			FROM {db_prefix}topics
+			WHERE id_board IN ({array_int:boards_to_remove})',
+			array(
+				'boards_to_remove' => $boards_to_remove,
+			)
+		);
+		while ($row = Db::$db->fetch_assoc($request))
+		{
+			$topics[] = $row['id_topic'];
+		}
+		Db::$db->free_result($request);
+
+		require_once(Config::$sourcedir . '/RemoveTopic.php');
+		removeTopics($topics, false);
+
+		// Delete the board's logs.
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}log_mark_read
+			WHERE id_board IN ({array_int:boards_to_remove})',
+			array(
+				'boards_to_remove' => $boards_to_remove,
+			)
+		);
+
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}log_boards
+			WHERE id_board IN ({array_int:boards_to_remove})',
+			array(
+				'boards_to_remove' => $boards_to_remove,
+			)
+		);
+
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}log_notify
+			WHERE id_board IN ({array_int:boards_to_remove})',
+			array(
+				'boards_to_remove' => $boards_to_remove,
+			)
+		);
+
+		// Delete this board's moderators.
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}moderators
+			WHERE id_board IN ({array_int:boards_to_remove})',
+			array(
+				'boards_to_remove' => $boards_to_remove,
+			)
+		);
+
+		// Delete this board's moderator groups.
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}moderator_groups
+			WHERE id_board IN ({array_int:boards_to_remove})',
+			array(
+				'boards_to_remove' => $boards_to_remove,
+			)
+		);
+
+		// Delete any extra events in the calendar.
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}calendar
+			WHERE id_board IN ({array_int:boards_to_remove})',
+			array(
+				'boards_to_remove' => $boards_to_remove,
+			)
+		);
+
+		// Delete any message icons that only appear on these boards.
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}message_icons
+			WHERE id_board IN ({array_int:boards_to_remove})',
+			array(
+				'boards_to_remove' => $boards_to_remove,
+			)
+		);
+
+		// Delete the boards.
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}boards
+			WHERE id_board IN ({array_int:boards_to_remove})',
+			array(
+				'boards_to_remove' => $boards_to_remove,
+			)
+		);
+
+		// Delete permissions
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}board_permissions_view
+			WHERE id_board IN ({array_int:boards_to_remove})',
+			array(
+				'boards_to_remove' => $boards_to_remove,
+			)
+		);
+
+		// Latest message/topic might not be there anymore.
+		updateStats('message');
+		updateStats('topic');
+		Config::updateModSettings(array(
+			'calendar_updated' => time(),
+		));
+
+		// Plus reset the cache to stop people getting odd results.
+		Config::updateModSettings(array('settings_updated' => time()));
+
+		// Clean the cache as well.
+		CacheApi::clean('data');
+
+		// Let's do some serious logging.
+		foreach ($boards_to_remove as $id_board)
+		{
+			logAction('delete_board', array('boardname' => self::$loaded[$id_board]->name), 'admin');
+		}
+
+		self::reorder();
+	}
+
+	/**
+	 * Put all boards in the right order and sorts the records of the boards table.
+	 * Used by modify(), delete(), modifyCategory(), and deleteCategories() methods
+	 */
+	public static function reorder(): void
+	{
+		self::getBoardTree();
+
+		// Set the board order for each category.
+		$board_order = 0;
+
+		foreach (self::$cat_tree as $catID => $dummy)
+		{
+			foreach (self::$boardList[$catID] as $boardID)
+				if (self::$loaded[$boardID]->order != ++$board_order)
+					Db::$db->query('', '
+						UPDATE {db_prefix}boards
+						SET board_order = {int:new_order}
+						WHERE id_board = {int:selected_board}',
+						array(
+							'new_order' => $board_order,
+							'selected_board' => $boardID,
+						)
+					);
+		}
+
+		// Empty the board order cache
+		CacheApi::put('board_order', null, -3600);
+	}
+
+	/**
+	 * Fixes the children of a board by setting their child_levels to new values.
+	 * Used when a board is deleted or moved, to affect its children.
+	 *
+	 * @param int $parent The ID of the parent board
+	 * @param int $newLevel The new child level for each of the child boards
+	 * @param int $newParent The ID of the new parent board
+	 */
+	public static function fixChildren(int $parent, int $newLevel, int $newParent): void
+	{
+		// Grab all children of $parent...
+		$children = array();
+
+		$result = Db::$db->query('', '
+			SELECT id_board
+			FROM {db_prefix}boards
+			WHERE id_parent = {int:parent_board}',
+			array(
+				'parent_board' => $parent,
+			)
+		);
+		while ($row = Db::$db->fetch_assoc($result))
+		{
+			$children[] = $row['id_board'];
+		}
+		Db::$db->free_result($result);
+
+		// ...and set it to a new parent and child_level.
+		Db::$db->query('', '
+			UPDATE {db_prefix}boards
+			SET id_parent = {int:new_parent}, child_level = {int:new_child_level}
+			WHERE id_parent = {int:parent_board}',
+			array(
+				'new_parent' => $newParent,
+				'new_child_level' => $newLevel,
+				'parent_board' => $parent,
+			)
+		);
+
+		// Recursively fix the children of the children.
+		foreach ($children as $child)
+			self::fixChildren($child, $newLevel + 1, $child);
+	}
+
+	/**
+	 * Tries to load up the entire board order and category very very quickly
+	 * Returns an array with two elements, cats and boards
+	 *
+	 * @return array An array of categories and boards
+	 */
+	public static function getTreeOrder(): array
+	{
+		static $tree_order = array(
+			'cats' => array(),
+			'boards' => array(),
+		);
+
+		if (!empty($tree_order['boards']))
+			return $tree_order;
+
+		if (($cached = CacheApi::get('board_order', 86400)) !== null)
+		{
+			$tree_order = $cached;
+			return $cached;
+		}
+
+		$request = Db::$db->query('', '
+			SELECT b.id_board, b.id_cat
+			FROM {db_prefix}categories AS c
+				JOIN {db_prefix}boards AS b ON (b.id_cat = c.id_cat)
+			ORDER BY c.cat_order, b.board_order'
+		);
+		foreach (Db::$db->fetch_all($request) as $row)
+		{
+			if (!in_array($row['id_cat'], $tree_order['cats']))
+				$tree_order['cats'][] = $row['id_cat'];
+
+			$tree_order['boards'][] = $row['id_board'];
+		}
+		Db::$db->free_result($request);
+
+		CacheApi::put('board_order', $tree_order, 86400);
+
+		return $tree_order;
+	}
+
+	/**
+	 * Takes a board array and sorts it
+	 *
+	 * @param array &$boards The boards
+	 */
+	public static function sort(array &$boards): void
+	{
+		$tree = self::getTreeOrder();
+
+		$ordered = array();
+
+		foreach ($tree['boards'] as $board)
+		{
+			if (!empty($boards[$board]))
+			{
+				$ordered[$board] = $boards[$board];
+
+				if (is_array($ordered[$board]) && !empty($ordered[$board]['children']))
+					self::sort($ordered[$board]['children']);
+				elseif (is_object($ordered[$board]) && !empty($ordered[$board]->children))
+					Board::sort($ordered[$board]->children);
+			}
+		}
+
+		$boards = $ordered;
+	}
+
+	/**
+	 * Takes a category array and sorts it
+	 *
+	 * @param array &$categories The categories
+	 */
+	public static function sortCategories(array &$categories): void
+	{
+		$tree = self::getTreeOrder();
+
+		$ordered = array();
+
+		foreach ($tree['cats'] as $cat)
+		{
+			if (!empty($categories[$cat]))
+			{
+				$ordered[$cat] = $categories[$cat];
+				if (!empty($ordered[$cat]['boards']))
+					self::sort($ordered[$cat]['boards']);
+			}
+		}
+
+		$categories = $ordered;
+	}
+
+	/**
+	 * Returns the given board's moderators, with their names and links
+	 *
+	 * @param array $boards The boards to get moderators of
+	 * @return array An array containing information about the moderators of each board
+	 */
+	public static function getModerators(array $boards): array
+	{
+		if (empty($boards))
+			return array();
+
+		$moderators = array();
+
+		$request = Db::$db->query('', '
+			SELECT mem.id_member, mem.real_name, mo.id_board
+			FROM {db_prefix}moderators AS mo
+				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = mo.id_member)
+			WHERE mo.id_board IN ({array_int:boards})',
+			array(
+				'boards' => $boards,
+			)
+		);
+		while ($row = Db::$db->fetch_assoc($request))
+		{
+			$row['id_board'] = (int) $row['id_board'];
+			$row['id_member'] = (int) $row['id_member'];
+
+			if (empty($moderators[$row['id_board']]))
+				$moderators[$row['id_board']] = array();
+
+			$moderators[$row['id_board']][$row['id_member']] = array(
+				'id' => $row['id_member'],
+				'name' => $row['real_name'],
+				'href' => Config::$scripturl . '?action=profile;u=' . $row['id_member'],
+				'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
+			);
+		}
+		Db::$db->free_result($request);
+
+		// We might as well update the data in any loaded boards.
+		foreach (self::$loaded as $board)
+		{
+			if (isset($moderators[$board->id]))
+				$board->moderators = $moderators[$board->id];
+		}
+
+		return $moderators;
+	}
+
+	/**
+	 * Returns board's moderator groups with their names and link
+	 *
+	 * @param array $boards The boards to get moderator groups of
+	 * @return array An array containing information about the groups assigned to moderate each board
+	 */
+	public static function getModeratorGroups(array $boards): array
+	{
+		if (empty($boards))
+			return array();
+
+		$groups = array();
+
+		$request = Db::$db->query('', '
+			SELECT mg.id_group, mg.group_name, bg.id_board
+			FROM {db_prefix}moderator_groups AS bg
+				INNER JOIN {db_prefix}membergroups AS mg ON (mg.id_group = bg.id_group)
+			WHERE bg.id_board IN ({array_int:boards})',
+			array(
+				'boards' => $boards,
+			)
+		);
+		while ($row = Db::$db->fetch_assoc($request))
+		{
+			$row['id_board'] = (int) $row['id_board'];
+			$row['id_group'] = (int) $row['id_group'];
+
+			if (empty($groups[$row['id_board']]))
+				$groups[$row['id_board']] = array();
+
+			$groups[$row['id_board']][$row['id_group']] = array(
+				'id' => $row['id_group'],
+				'name' => $row['group_name'],
+				'href' => Config::$scripturl . '?action=groups;sa=members;group=' . $row['id_group'],
+				'link' => '<a href="' . Config::$scripturl . '?action=groups;sa=members;group=' . $row['id_group'] . '">' . $row['group_name'] . '</a>',
+			);
+		}
+
+		// We might as well update the data in any loaded boards.
+		foreach (self::$loaded as $board)
+		{
+			if (isset($groups[$board->id]))
+				$board->moderator_groups = $groups[$board->id];
+		}
+
+		return $groups;
+	}
+
+	/**
+	 * Load a lot of useful information regarding the boards and categories.
+	 * The information retrieved is stored in this class's static properties:
+	 *  $boards		properties of each board.
+	 *  $boardList	a list of boards grouped by category ID.
+	 *  $cat_tree	properties of each category.
+	 */
+	public static function getBoardTree(): void
+	{
+		$selects = array(
+			'COALESCE(b.id_board, 0) AS id_board', 'b.name', 'b.description',
+			'b.id_parent', 'b.child_level', 'b.board_order', 'b.redirect',
+			'b.member_groups', 'b.deny_member_groups', 'b.id_profile',
+			'b.id_theme', 'b.override_theme', 'b.count_posts', 'b.num_posts',
+			'b.num_topics', 'c.id_cat', 'c.cat_order', 'c.can_collapse',
+			'c.name AS cat_name', 'c.description AS cat_desc',
+		);
+		$params = array();
+		$joins = array('LEFT JOIN {db_prefix}categories AS c ON (b.id_cat = c.id_cat)');
+		$where = array('{query_see_board}');
+		$order = array('c.cat_order', 'b.child_level', 'b.board_order');
+
+		// Let mods add extra columns, parameters, etc., to the SELECT query
+		call_integration_hook('integrate_pre_boardtree', array(&$selects, &$params, &$joins, &$where, &$order));
+
+		$selects = array_unique($selects);
+		$params = array_unique($params);
+		$joins = array_unique($joins);
+		$where = array_unique($where);
+		$order = array_unique($order);
+
+		// Getting all the board and category information you'd ever wanted.
+		self::$cat_tree = array();
+		$last_board_order = 0;
+
+		foreach (self::queryData($selects, $params, $joins, $where, $order) as $row)
+		{
+			if (!isset(self::$cat_tree[$row['id_cat']]))
+			{
+				self::$cat_tree[$row['id_cat']] = array(
+					'node' => array(
+						'id' => $row['id_cat'],
+						'name' => $row['cat_name'],
+						'description' => $row['cat_desc'],
+						'order' => $row['cat_order'],
+						'can_collapse' => $row['can_collapse']
+					),
+					'is_first' => empty(self::$cat_tree),
+					'last_board_order' => $last_board_order,
+					'children' => array()
+				);
+				$prevBoard = 0;
+				$curLevel = 0;
+			}
+
+			if (!empty($row['id_board']))
+			{
+				if ($row['child_level'] != $curLevel)
+					$prevBoard = 0;
+
+				$row['member_groups'] = explode(',', $row['member_groups']);
+				$row['deny_member_groups'] = explode(',', $row['deny_member_groups']);
+				$row['prev_board'] = $prevBoard;
+
+				self::load($row['id_board'], $row);
+
+				$prevBoard = $row['id_board'];
+				$last_board_order = $row['board_order'];
+
+				if (empty($row['child_level']))
+				{
+					self::$cat_tree[$row['id_cat']]['children'][$row['id_board']] = array(
+						'node' => &self::$loaded[$row['id_board']],
+						'is_first' => empty(self::$cat_tree[$row['id_cat']]['children']),
+						'children' => array()
+					);
+
+					self::$loaded[$row['id_board']]->tree = &self::$cat_tree[$row['id_cat']]['children'][$row['id_board']];
+				}
+				else
+				{
+					// Parent doesn't exist!
+					if (!isset(self::$loaded[$row['id_parent']]))
+						fatal_lang_error('no_valid_parent', false, array($row['name']));
+
+					// Wrong childlevel...we can silently fix this...
+					if (self::$loaded[$row['id_parent']]->tree['node']->child_level != $row['child_level'] - 1)
+					{
+						Db::$db->query('', '
+							UPDATE {db_prefix}boards
+							SET child_level = {int:new_child_level}
+							WHERE id_board = {int:selected_board}',
+							array(
+								'new_child_level' => self::$loaded[$row['id_parent']]->tree['node']->child_level + 1,
+								'selected_board' => $row['id_board'],
+							)
+						);
+					}
+
+					self::$loaded[$row['id_parent']]->tree['children'][$row['id_board']] = array(
+						'node' => &self::$loaded[$row['id_board']],
+						'is_first' => empty(self::$loaded[$row['id_parent']]->tree['children']),
+						'children' => array()
+					);
+
+					self::$loaded[$row['id_board']]->tree = &self::$loaded[$row['id_parent']]->tree['children'][$row['id_board']];
+				}
+			}
+
+			// If mods want to do anything with this board before we move on, now's the time
+			call_integration_hook('integrate_boardtree_board', array($row));
+		}
+
+		// Get a list of all the boards in each category (using recursion).
+		self::$boardList = array();
+
+		foreach (self::$cat_tree as $catID => $node)
+		{
+			self::$boardList[$catID] = array();
+			self::recursiveBoards(self::$boardList[$catID], $node);
+		}
+	}
+
+	/**
+	 * Recursively get a list of boards.
+	 * Used by getBoardTree
+	 *
+	 * @param array &$_boardList The board list
+	 * @param array &$_tree The board tree
+	 */
+	public static function recursiveBoards(&$_boardList, &$_tree): void
+	{
+		if (empty($_tree['children']))
+			return;
+
+		foreach ($_tree['children'] as $id => $node)
+		{
+			$_boardList[] = $id;
+			self::recursiveBoards($_boardList, $node);
+		}
+	}
+
+	/**
+	 * Returns whether the child board id is a child of the parent (recursive).
+	 *
+	 * @param int $child The ID of the child board.
+	 * @param int $parent The ID of a parent board.
+	 * @return bool Whether the specified child board is a child of the
+	 *    specified parent board.
+	 */
+	public static function isChildOf($child, $parent): bool
+	{
+		if (empty(self::$loaded[$child]->parent))
+			return false;
+
+		if (self::$loaded[$child]->parent == $parent)
+			return true;
+
+		return self::isChildOf(self::$loaded[$child]->parent, $parent);
+	}
+
+	/**
+	 * Parses BBC in board descriptions, with caching support.
+	 *
+	 * @param int $category_id The category these boards belong to.
+	 * @param array $boards_info The boards to work with.
+	 * @return array The parsed descriptions.
+	 */
+	public static function setParsedDescriptions(int $category_id = 0, array $boards_info = array()): array
+	{
+		if (empty($category_id) || empty($boards_info))
+			return array();
+
+		// Get the data we already parsed
+		$parsed_descriptions = self::getParsedDescriptions($category_id);
+
+		foreach ($boards_info as $board_id => $board_description)
+		{
+			$parsed_descriptions[$board_id] = BBCodeParser::load()->parse(
+				$board_description,
+				false,
+				'',
+				Utils::$context['description_allowed_tags']
+			);
+		}
+
+		CacheApi::put('parsed_boards_descriptions_'. $category_id, $parsed_descriptions, 864000);
+
+		return $parsed_descriptions;
+	}
+
+	/**
+	 * Retrieves parsed board descriptions from the cache.
+	 *
+	 * @param int $category_id The category containing the boards we want.
+	 * @return array The parsed descriptions.
+	 */
+	public static function getParsedDescriptions(int $category_id = 0): array
+	{
+		if (empty($category_id))
+			return array();
+
+		return (array) CacheApi::get('parsed_boards_descriptions_' . $category_id, 864000);
+	}
+
+
+	/**
+	 * Get all parent boards (requires first parent as parameter)
+	 * It finds all the parents of id_parent, and that board itself.
+	 * Additionally, it detects the moderators of said boards.
+	 *
+	 * @param int $id_parent The ID of the parent board
+	 * @return array An array of information about the boards found.
+	 */
+	public static function getParents(int $id_parent): array
+	{
+		// First check if we have this cached already.
+		if (($boards = CacheApi::get('board_parents-' . $id_parent, 480)) === null)
+		{
+			$boards = array();
+			$original_parent = $id_parent;
+
+			// Loop while the parent is non-zero.
+			while ($id_parent != 0)
+			{
+				$selects = array(
+					'b.id_parent', 'b.name', 'b.id_board', 'b.child_level',
+					'b.member_groups', 'b.deny_member_groups',
+				);
+				$params = array('board_parent' => $id_parent);
+				$joins = array();
+				$where = array('b.id_board = {int:board_parent}');
+				$order = array();
+
+				foreach (self::queryData($selects, $params, $joins, $where, $order) as $row)
+				{
+					if (!isset($boards[$row['id_board']]))
+					{
+						$id_parent = $row['id_parent'];
+						$boards[$row['id_board']] = array(
+							'url' => Config::$scripturl . '?board=' . $row['id_board'] . '.0',
+							'name' => $row['name'],
+							'child_level' => $row['child_level'],
+							'parent' => $row['id_parent'],
+							'groups' => explode(',', $row['member_groups']),
+							'deny_groups' => explode(',', $row['deny_member_groups']),
+						);
+					}
+				}
+			}
+
+			CacheApi::put('board_parents-' . $original_parent, $boards, 480);
+		}
+
+		$loaded_boards = array();
+
+		foreach ($boards as $id => $props)
+			$loaded_boards[] = self::init($id, $props);
+
+		return $loaded_boards;
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
+	 * Constructor. Protected to force instantiation via Board::load().
+	 *
+	 * If $id is null, loads the current board:
+	 *  - Sets up the Board::$info object for current board information.
+	 *  - If cache is enabled, Board::$info is stored in cache.
+	 *  - Redirects to appropriate post if only a message ID was requested.
+	 *  - Is only used when inside a topic or board.
+	 *  - Determines the local moderators for the board and calls
+	 *    User::setModerators.
+	 *  - Prevents access if user is not in proper group nor a local moderator
+	 *    of the board.
+	 *
+	 * If $id is an integer, creates an instance for that ID, sets any supplied
+	 * properties in $props, and adds the instance to the Board::$loaded array.
+	 *
+	 * If $id is an integer and $props is empty, a query will be performed to
+	 * populate the properties with data from the boards table.
+	 *
+	 * @param ?int $id The ID number of a board, or null for current board.
+	 *    Default: null.
+	 * @param array $props Properties to set for this board. Only used when $id
+	 *    is not null.
+	 */
+	protected function __construct(?int $id = null, array $props = array())
+	{
+		global $topic;
+
+		// This should already have been set, but just in case...
+		if (!isset(self::$board_id))
+			self::$board_id = (int) ($_REQUEST['board'] ?? 0);
+
+		// No ID given, so load current board.
+		if (!isset($id) || (!empty($id) && $id === self::$board_id))
+		{
+			// Only do this once.
+			if (!isset(self::$info))
+			{
+				// Assume they are not a moderator.
+				if (isset(User::$me))
+					User::$me->is_mod = false;
+
+				// Start the linktree off empty..
+				Utils::$context['linktree'] = array();
+
+				// Have they by chance specified a message id but nothing else?
+				if (empty($_REQUEST['action']) && empty($topic) && empty(self::$board_id) && !empty($_REQUEST['msg']))
+				{
+					$this->redirectFromMsg();
+				}
+
+				// Load this board only if it is specified.
+				if (empty(self::$board_id) && empty($topic))
+					return;
+
+				// Load this board's info into the object properties.
+				$this->loadBoardInfo();
+
+				if (empty($this->id))
+					return;
+
+				// At this point, we know that self::$board_id won't change.
+				self::$loaded[self::$board_id] = $this;
+				self::$info = $this;
+
+				if (!empty($topic))
+					$_GET['board'] = (int) self::$board_id;
+
+				if (!empty(self::$board_id))
+				{
+					User::setModerators();
+					$this->checkAccess();
+					$this->buildLinkTree();
+				}
+
+				// Set the template contextual information.
+				Utils::$context['current_topic'] = $topic;
+				Utils::$context['current_board'] = self::$board_id;
+
+				// No posting in redirection boards!
+				if (!empty($_REQUEST['action']) && $_REQUEST['action'] == 'post' && !empty($this->redirect))
+				{
+					$this->error = 'post_in_redirect';
+				}
+
+				$this->blockOnError();
+			}
+		}
+		else
+		{
+			// No props provided, so get the standard ones.
+			if ($id > 0 && empty($props))
+			{
+				$request = Db::$db->query('', '
+					SELECT *
+					FROM {db_prefix}boards
+					WHERE id_board = {int:id}
+					LIMIT 1',
+					array(
+						'id' => $id,
+					)
+				);
+				$props = Db::$db->fetch_all($request);
+				Db::$db->free_result($request);
+			}
+
+			$this->id = $id;
+			$this->set($props);
+			self::$loaded[$this->id] = $this;
+		}
+
+		// Add this board as a child of its parent.
+		if (!empty($this->parent))
+		{
+			self::init($this->parent)->children[$this->id] = $this;
+		}
+	}
+
+	/**
+	 * Handles redirecting 'index.php?msg=123' links to the canonical URL.
+	 *
+	 * @todo Should this be moved somewhere else? It's not really board-related.
+	 */
+	protected function redirectFromMsg(): void
+	{
+		global $topic;
+
+		// Make sure the message id is really an int.
+		$_REQUEST['msg'] = (int) $_REQUEST['msg'];
+
+		// Looking through the message table can be slow, so try using the cache first.
+		if (($topic = CacheApi::get('msg_topic-' . $_REQUEST['msg'], 120)) === null)
+		{
+			$request = Db::$db->query('', '
+				SELECT id_topic
+				FROM {db_prefix}messages
+				WHERE id_msg = {int:id_msg}
+				LIMIT 1',
+				array(
+					'id_msg' => $_REQUEST['msg'],
+				)
+			);
+
+			// So did it find anything?
+			if (Db::$db->num_rows($request))
+			{
+				list($topic) = Db::$db->fetch_row($request);
+				Db::$db->free_result($request);
+
+				// Save save save.
+				CacheApi::put('msg_topic-' . $_REQUEST['msg'], $topic, 120);
+			}
+		}
+
+		// Remember redirection is the key to avoiding fallout from your bosses.
+		if (!empty($topic))
+		{
+			$redirect_url = 'topic=' . $topic . '.msg' . $_REQUEST['msg'];
+
+			if (($other_get_params = array_diff(array_keys($_GET), array('msg'))) !== array())
+				$redirect_url .= ';' . implode(';', $other_get_params);
+
+			$redirect_url .= '#msg' . $_REQUEST['msg'];
+
+			redirectexit($redirect_url);
+		}
+		else
+		{
+			User::$me->loadPermissions();
+			loadTheme();
+			fatal_lang_error('topic_gone', false);
+		}
+	}
+
+	/**
+	 * Loads information about the current board.
+	 *
+	 * The loaded info is stored in the Board::$info instance of this class.
+	 */
+	protected function loadBoardInfo(): void
+	{
+		global $topic;
+
+		// First, try the cache.
+		if (!empty(CacheApi::$enable) && (empty($topic) || CacheApi::$enable >= 3))
+		{
+			if (!empty($topic))
+			{
+				$temp = CacheApi::get('topic_board-' . $topic, 120);
+			}
+			else
+			{
+				$temp = CacheApi::get('board-' . self::$board_id, 120);
+			}
+
+			if (!empty($temp))
+			{
+				foreach ($temp as $key => $value)
+					$this->{$key} = $value;
+
+				self::$board_id = $this->id;
+			}
+		}
+
+		// Cache gave us nothing, so query the database.
+		if (empty($this->id))
+		{
+			// Set up all the query components.
+			$selects = array(
+				'b.id_board', 'b.id_cat', 'b.name', 'b.description',
+				'b.child_level', 'b.id_parent', 'b.board_order', 'b.redirect',
+				'b.member_groups', 'b.deny_member_groups', 'b.id_profile',
+				'b.num_topics', 'b.num_posts', 'b.count_posts', 'b.id_last_msg',
+				'b.id_msg_updated', 'b.id_theme', 'b.override_theme',
+				'b.unapproved_posts', 'b.unapproved_topics', 'c.name AS cat_name',
+				'COALESCE(mg.id_group, 0) AS id_moderator_group', 'mg.group_name',
+				'COALESCE(mem.id_member, 0) AS id_moderator', 'mem.real_name',
+			);
+
+			$params = array(
+				'board_link' => self::$board_id,
+			);
+
+			$joins = array(
+				'LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)',
+				'LEFT JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_board = {raw:board_link})',
+				'LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = modgs.id_group)',
+				'LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = {raw:board_link})',
+				'LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = mods.id_member)',
+			);
+
+			$where = array('b.id_board = {raw:board_link}');
+			$order = array();
+
+			if (!empty($topic))
+			{
+				$selects[] = 't.approved';
+				$selects[] = 't.id_member_started';
+
+				$params['current_topic'] = $topic;
+				$params['board_link'] = 't.id_board';
+
+				array_unshift($joins, 'INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})');
+			}
+
+			// Do any mods want to add some custom stuff to the query?
+			call_integration_hook('integrate_load_board', array(&$selects, &$params, &$joins, &$where, &$order));
+
+			$selects = array_unique($selects);
+			$params = array_unique($params);
+			$joins = array_unique($joins);
+			$where = array_unique($where);
+			$order = array_unique($order);
+
+			// Run the query and iterate over the returned rows.
+			foreach (self::queryData($selects, $params, $joins, $where, $order) as $row)
+			{
+				$row['id_board'] = (int) $row['id_board'];
+
+				// The query as currently constructed will return multiple rows if
+				// there are multiple moderators and/or moderator groups. To avoid
+				// redundancy, we only set the rest of the data the first time.
+				if (!isset($this->id))
+				{
+					// Set the current board.
+					if (!empty($row['id_board']))
+						self::$board_id = $row['id_board'];
+
+					$props = array(
+						'id' => $row['id_board'],
+						'moderators' => array(),
+						'moderator_groups' => array(),
+						'cat' => array(
+							'id' => $row['id_cat'],
+							'name' => $row['cat_name'],
+						),
+						'name' => $row['name'],
+						'description' => $row['description'],
+						'num_topics' => (int) $row['num_topics'],
+						'unapproved_topics' => (int) $row['unapproved_topics'],
+						'unapproved_posts' => (int) $row['unapproved_posts'],
+						'unapproved_user_topics' => 0,
+						'parent_boards' => self::getParents($row['id_parent']),
+						'parent' => (int) $row['id_parent'],
+						'child_level' => (int) $row['child_level'],
+						'theme' => (int) $row['id_theme'],
+						'override_theme' => !empty($row['override_theme']),
+						'profile' => (int) $row['id_profile'],
+						'redirect' => $row['redirect'],
+						'recycle' => !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) && Config::$modSettings['recycle_board'] == self::$board_id,
+						'count_posts' => empty($row['count_posts']),
+						'cur_topic_approved' => empty($topic) || $row['approved'],
+						'cur_topic_starter' => empty($topic) ? 0 : $row['id_member_started'],
+
+						// Load the membergroups allowed, and check permissions.
+						'member_groups' => $row['member_groups'] == '' ? array() : array_filter(explode(',', $row['member_groups']), 'strlen'),
+						'deny_groups' => $row['deny_member_groups'] == '' ? array() : array_filter(explode(',', $row['deny_member_groups']), 'strlen'),
+					);
+
+					call_integration_hook('integrate_board_info', array(&$props, $row));
+				}
+
+				// This row included an individual moderator.
+				if (!empty($row['id_moderator']))
+				{
+					$row['id_moderator'] = (int) $row['id_moderator'];
+
+					$props['moderators'][$row['id_moderator']] = array(
+						'id' => $row['id_moderator'],
+						'name' => $row['real_name'],
+						'href' => Config::$scripturl . '?action=profile;u=' . $row['id_moderator'],
+						'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_moderator'] . '">' . $row['real_name'] . '</a>'
+					);
+				}
+
+				// This row included a moderator group.
+				if (!empty($row['id_moderator_group']))
+				{
+					$row['id_moderator_group'] = (int) $row['id_moderator_group'];
+
+					$props['moderator_groups'][$row['id_moderator_group']] = array(
+						'id' => $row['id_moderator_group'],
+						'name' => $row['group_name'],
+						'href' => Config::$scripturl . '?action=groups;sa=members;group=' . $row['id_moderator_group'],
+						'link' => '<a href="' . Config::$scripturl . '?action=groups;sa=members;group=' . $row['id_moderator_group'] . '">' . $row['group_name'] . '</a>'
+					);
+				}
+
+				// Set the properties.
+				$this->set($props);
+			}
+
+			if (!empty($this->id) && !empty(CacheApi::$enable) && (empty($topic) || CacheApi::$enable >= 3))
+			{
+				$to_cache = array_intersect_key((array) $this, array_flip(self::$cache_props['info']));
+
+				if (!empty($topic))
+					CacheApi::put('topic_board-' . $topic, $to_cache, 120);
+
+				CacheApi::put('board-' . self::$board_id, $to_cache, 120);
+			}
+		}
+
+		// No board? Then the topic is invalid, there are no moderators, etc.
+		if (empty($this->id))
+		{
+			$this->moderators = array();
+			$this->moderator_groups = array();
+			$this->error = 'exist';
+			$topic = null;
+			self::$board_id = 0;
+		}
+		// If the board only contains unapproved posts and the user isn't an
+		// approver then they can't see any topics. If that is the case, do
+		// an additional check to see if they have any topics waiting to be
+		// approved. Note: this cannot be cached with the rest of the board
+		// info since it is user-specific.
+		elseif (
+			!User::$me->is_guest
+			&& $this->num_topics === 0
+			&& $this->unapproved_topics > 0
+			&& Config::$modSettings['postmod_active']
+			&& !allowedTo('approve_posts')
+		)
+		{
+			$request = Db::$db->query('', '
+				SELECT COUNT(*)
+				FROM {db_prefix}topics
+				WHERE id_member_started = {int:id_member}
+					AND approved = {int:unapproved}
+					AND id_board = {int:board}',
+				array(
+					'id_member' => User::$me->id,
+					'unapproved' => 0,
+					'board' => self::$board_id,
+				)
+			);
+
+			list($this->unapproved_user_topics) = Db::$db->fetch_row($request);
+		}
+	}
+
+	/**
+	 * Checks whether the current user can access the current board.
+	 */
+	protected function checkAccess(): void
+	{
+		if (User::$me->is_admin)
+			return;
+
+		if (count(array_intersect(User::$me->groups, $this->member_groups)) == 0)
+		{
+			$this->error = 'access';
+		}
+		elseif (!empty(Config::$modSettings['deny_boards_access']) && count(array_intersect(User::$me->groups, $this->deny_groups)) != 0)
+		{
+			$this->error = 'access';
+		}
+	}
+
+	/**
+	 * Builds the link tree path to the current board.
+	 */
+	protected function buildLinkTree(): void
+	{
+		// Build up the linktree.
+		Utils::$context['linktree'] = array_merge(
+			Utils::$context['linktree'],
+			array(array(
+				'url' => Config::$scripturl . '#c' . $this->cat['id'],
+				'name' => $this->cat['name']
+			)),
+			array_reverse($this->parent_boards),
+			array(array(
+				'url' => Config::$scripturl . '?board=' . $this->id . '.0',
+				'name' => $this->name
+			))
+		);
+	}
+
+	/**
+	 * Blocks access if an error occurred while loading the current board.
+	 */
+	protected function blockOnError(): void
+	{
+		// Hacker... you can't see this topic, I'll tell you that. (but moderators can!)
+		if (!empty($this->error) && (!empty(Config::$modSettings['deny_boards_access']) || $this->error != 'access' || !User::$me->is_mod))
+		{
+			// The permissions and theme need loading, just to make sure everything goes smoothly.
+			User::$me->loadPermissions();
+			loadTheme();
+
+			$_GET['board'] = '';
+			$_GET['topic'] = '';
+
+			// The linktree should not give the game away mate!
+			Utils::$context['linktree'] = array(
+				array(
+					'url' => Config::$scripturl,
+					'name' => Utils::$context['forum_name_html_safe']
+				)
+			);
+
+			// If it's a prefetching agent or we're requesting an attachment.
+			if ((isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch') || (!empty($_REQUEST['action']) && $_REQUEST['action'] === 'dlattach'))
+			{
+				ob_end_clean();
+				send_http_status(403);
+				die;
+			}
+			elseif ($this->error == 'post_in_redirect')
+			{
+				// Slightly different error message here...
+				fatal_lang_error('cannot_post_redirect', false);
+			}
+			elseif (User::$me->is_guest)
+			{
+				Lang::load('Errors');
+				is_not_guest(Lang::$txt['topic_gone']);
+			}
+			else
+			{
+				fatal_lang_error('topic_gone', false);
+			}
+		}
+	}
+
+	/*************************
+	 * Internal static methods
+	 *************************/
+
+	/**
+	 * Generator that runs queries about board data and yields the result rows.
+	 *
+	 * @param array $selects Table columns to select.
+	 * @param array $params Parameters to substitute into query text.
+	 * @param array $joins Zero or more *complete* JOIN clauses.
+	 *    E.g.: 'LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)'
+	 *    Note that 'FROM {db_prefix}boards AS b' is always part of the query.
+	 * @param array $where Zero or more conditions for the WHERE clause.
+	 *    Conditions will be placed in parentheses and concatenated with AND.
+	 *    If this is left empty, no WHERE clause will be used.
+	 * @param array $order Zero or more conditions for the ORDER BY clause.
+	 *    If this is left empty, no ORDER BY clause will be used.
+	 *
+	 * @return Generator<array> Iterating over the result gives database rows.
+	 */
+	protected static function queryData(array $selects, array $params, array $joins, array $where, array $order)
+	{
+		$request = Db::$db->query('', '
+			SELECT
+				' . implode(', ', $selects) . '
+			FROM {db_prefix}boards AS b' . (empty($joins) ? '' : '
+				' . implode("\n\t\t\t\t", $joins)) . (empty($where) ? '' : '
+			WHERE (' . implode(') AND (', $where) . ')') . (empty($order) ? '' : '
+			ORDER BY ' . implode(', ', $order)),
+			$params
+		);
+		while ($row = Db::$db->fetch_assoc($request))
+		{
+			yield $row;
+		}
+		Db::$db->free_result($request);
+	}
 }
 
-function getBoardsParsedDescription($category_id = 0)
-{
-	if (empty($category_id))
-		return array();
-
-	return (array) CacheApi::get('parsed_boards_descriptions_' . $category_id, 864000);
-}
+// Export public static functions and properties to global namespace for backward compatibility.
+if (is_callable(__NAMESPACE__ . '\Board::exportStatic'))
+	Board::exportStatic();
 
 ?>
