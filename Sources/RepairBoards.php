@@ -86,7 +86,7 @@ function RepairBoards()
 		Utils::$context['error_search'] = false;
 		Utils::$context['to_fix'] = isset($_SESSION['repairboards_to_fix']) ? $_SESSION['repairboards_to_fix'] : array();
 
-		require_once(Config::$sourcedir . '/Subs-Boards.php');
+		require_once(Config::$sourcedir . '/Board.php');
 
 		// Actually do the fix.
 		findForumErrors(true);

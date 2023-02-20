@@ -320,7 +320,7 @@ function ModifyCalendarSettings($return_config = false)
 		$boards[$row['id_board']] = $row['cat_name'] . ' - ' . $row['board_name'];
 	Db::$db->free_result($request);
 
-	require_once(Config::$sourcedir . '/Subs-Boards.php');
+	require_once(Config::$sourcedir . '/Board.php');
 	sortBoards($boards);
 
 	// Look, all the calendar settings - of which there are many!

@@ -3052,7 +3052,7 @@ function ignoreboards($memID)
 	}
 	Db::$db->free_result($request);
 
-	require_once(Config::$sourcedir . '/Subs-Boards.php');
+	require_once(Config::$sourcedir . '/Board.php');
 	sortCategories(Utils::$context['categories']);
 
 	// Now, let's sort the list of categories into the boards for templates that like that.

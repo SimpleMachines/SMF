@@ -48,7 +48,7 @@ function SplitTopics()
 	// Load up the "dependencies" - the template, getMsgMemberID(), and sendNotifications().
 	if (!isset($_REQUEST['xml']))
 		loadTemplate('SplitTopics');
-	require_once(Config::$sourcedir . '/Subs-Boards.php');
+	require_once(Config::$sourcedir . '/Board.php');
 	require_once(Config::$sourcedir . '/Subs-Post.php');
 
 	$subActions = array(

@@ -41,7 +41,7 @@ function getBoardIndex($board_index_options)
 	global $user_info;
 	global $settings, $options;
 
-	require_once(Config::$sourcedir . '/Subs-Boards.php');
+	require_once(Config::$sourcedir . '/Board.php');
 
 	// For performance, track the latest post while going through the boards.
 	if (!empty($board_index_options['set_latest_post']))
@@ -145,7 +145,7 @@ function getBoardIndex($board_index_options)
 
 	if ($board_index_options['include_categories'])
 	{
-		require_once Config::$sourcedir . '/Subs-Categories.php';
+		require_once Config::$sourcedir . '/Category.php';
 
 		$parsed_categories_description = getCategoriesParsedDescription();
 	}

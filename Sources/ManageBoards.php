@@ -88,7 +88,7 @@ function ManageBoardsMain()
 
 	loadTemplate('ManageBoards');
 
-	require_once(Config::$sourcedir . '/Subs-Boards.php');
+	require_once(Config::$sourcedir . '/Board.php');
 
 	if (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'move' && in_array($_REQUEST['move_to'], array('child', 'before', 'after', 'top')))
 	{
@@ -224,7 +224,7 @@ function EditCategory()
 	global $cat_tree, $boardList, $boards;
 
 	loadTemplate('ManageBoards');
-	require_once(Config::$sourcedir . '/Subs-Boards.php');
+	require_once(Config::$sourcedir . '/Board.php');
 	require_once(Config::$sourcedir . '/Subs-Editor.php');
 	getBoardTree();
 
@@ -318,7 +318,7 @@ function EditCategory2()
 	checkSession();
 	validateToken('admin-bc-' . $_REQUEST['cat']);
 
-	require_once(Config::$sourcedir . '/Subs-Categories.php');
+	require_once(Config::$sourcedir . '/Category.php');
 	require_once(Config::$sourcedir . '/Subs-Editor.php');
 
 	$_POST['cat'] = (int) $_POST['cat'];
@@ -379,7 +379,7 @@ function EditBoard()
 	global $cat_tree, $boards, $boardList;
 
 	loadTemplate('ManageBoards');
-	require_once(Config::$sourcedir . '/Subs-Boards.php');
+	require_once(Config::$sourcedir . '/Board.php');
 	require_once(Config::$sourcedir . '/Subs-Editor.php');
 	getBoardTree();
 
@@ -623,7 +623,7 @@ function EditBoard2()
 	checkSession();
 	validateToken('admin-be-' . $_REQUEST['boardid']);
 
-	require_once(Config::$sourcedir . '/Subs-Boards.php');
+	require_once(Config::$sourcedir . '/Board.php');
 	require_once(Config::$sourcedir . '/Subs-Editor.php');
 
 	// Mode: modify aka. don't delete.
@@ -776,7 +776,7 @@ function ModifyCat()
 	global $boards;
 
 	// Get some information about the boards and the cats.
-	require_once(Config::$sourcedir . '/Subs-Boards.php');
+	require_once(Config::$sourcedir . '/Board.php');
 	getBoardTree();
 
 	// Allowed sub-actions...
@@ -834,7 +834,7 @@ function EditBoardSettings($return_config = false)
 
 	if (!empty($recycle_boards))
 	{
-		require_once(Config::$sourcedir . '/Subs-Boards.php');
+		require_once(Config::$sourcedir . '/Board.php');
 		sortBoards($recycle_boards);
 		$recycle_boards = array('') + $recycle_boards;
 	}
