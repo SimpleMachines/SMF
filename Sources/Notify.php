@@ -14,6 +14,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
@@ -34,8 +35,6 @@ if (!defined('SMF'))
  */
 function BoardNotify()
 {
-	global $board;
-
 	require_once(Config::$sourcedir . '/Subs-Notify.php');
 
 	// Subscribing or unsubscribing with a token.
@@ -53,7 +52,7 @@ function BoardNotify()
 	}
 
 	// You have to specify a board to turn notifications on!
-	if (empty($board))
+	if (empty(Board::$info->id))
 		fatal_lang_error('no_board', false);
 
 	// sa=on/off is used for email subscribe/unsubscribe links
@@ -77,7 +76,7 @@ function BoardNotify()
 				AND id_board = {int:current_board}
 			LIMIT 1',
 			array(
-				'current_board' => $board,
+				'current_board' => Board::$info->id,
 				'current_member' => $member_info['id'],
 			)
 		);
@@ -91,7 +90,7 @@ function BoardNotify()
 			);
 
 		// Set the template variables...
-		Utils::$context['board_href'] = Config::$scripturl . '?board=' . $board . '.' . $_REQUEST['start'];
+		Utils::$context['board_href'] = Config::$scripturl . '?board=' . Board::$info->id . '.' . $_REQUEST['start'];
 		Utils::$context['start'] = $_REQUEST['start'];
 		Utils::$context['page_title'] = Lang::$txt['notification'];
 		Utils::$context['sub_template'] = 'notify_board';
@@ -107,18 +106,18 @@ function BoardNotify()
 
 		// -1 is used to turn off email notifications while leaving the alert pref unchanged.
 		if ($mode == -1)
-			$mode = min(2, getNotifyPrefs($member_info['id'], array('board_notify_' . $board), true));
+			$mode = min(2, getNotifyPrefs($member_info['id'], array('board_notify_' . Board::$info->id), true));
 
 		$alertPref = $mode <= 1 ? 0 : ($mode == 2 ? 1 : 3);
 
-		setNotifyPrefs((int) $member_info['id'], array('board_notify_' . $board => $alertPref));
+		setNotifyPrefs((int) $member_info['id'], array('board_notify_' . Board::$info->id => $alertPref));
 
 		if ($mode > 1)
 			// Turn notification on.  (note this just blows smoke if it's already on.)
 			Db::$db->insert('ignore',
 				'{db_prefix}log_notify',
 				array('id_member' => 'int', 'id_topic' => 'int', 'id_board' => 'int'),
-				array(User::$me->id, 0, $board),
+				array(User::$me->id, 0, Board::$info->id),
 				array('id_member', 'id_topic', 'id_board')
 			);
 		else
@@ -127,7 +126,7 @@ function BoardNotify()
 				WHERE id_member = {int:current_member}
 					AND id_board = {int:current_board}',
 				array(
-					'current_board' => $board,
+					'current_board' => Board::$info->id,
 					'current_member' => $member_info['id'],
 				)
 			);
@@ -156,7 +155,7 @@ function BoardNotify()
 	}
 	// Back to the board!
 	else
-		redirectexit('board=' . $board . '.' . $_REQUEST['start']);
+		redirectexit('board=' . Board::$info->id . '.' . $_REQUEST['start']);
 }
 
 /**
@@ -336,8 +335,6 @@ function TopicNotify()
  */
 function AnnouncementsNotify()
 {
-	global $board;
-
 	require_once(Config::$sourcedir . '/Subs-Notify.php');
 
 	if (isset($_REQUEST['u']) && isset($_REQUEST['token']))

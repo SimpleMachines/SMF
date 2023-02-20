@@ -2588,7 +2588,7 @@ class ServerSideIncludes
 	 */
 	public function __construct()
 	{
-		global $board, $topic;
+		global $topic;
 
 		foreach ($this->ssi_globals as $var)
 		{
@@ -2669,8 +2669,9 @@ class ServerSideIncludes
 			User::$sc = $_SESSION['session_value'];
 		}
 
-		// Get rid of $board and $topic... do stuff loadBoard would do.
-		unset($board, $topic);
+		// Get rid of Board::$board_id and $topic... do stuff loadBoard would do.
+		Board::$board_id = null;
+		unset($topic);
 		Utils::$context['linktree'] = array();
 
 		// Load the user and their cookie, as well as their settings.

@@ -14,6 +14,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
@@ -38,7 +39,7 @@ if (!defined('SMF'))
  */
 function MoveTopic()
 {
-	global $board, $topic;
+	global $topic;
 
 	if (empty($topic))
 		fatal_lang_error('no_access', false);
@@ -77,7 +78,7 @@ function MoveTopic()
 
 	if (!Utils::$context['move_any'])
 	{
-		$boards = array_diff(boardsAllowedTo('post_new', true), array($board));
+		$boards = array_diff(boardsAllowedTo('post_new', true), array(Board::$info->id));
 		if (empty($boards))
 		{
 			// No boards? Too bad...
@@ -92,7 +93,7 @@ function MoveTopic()
 		'use_permissions' => Utils::$context['move_any'],
 	);
 
-	if (!empty($_SESSION['move_to_topic']) && $_SESSION['move_to_topic'] != $board)
+	if (!empty($_SESSION['move_to_topic']) && $_SESSION['move_to_topic'] != Board::$info->id)
 		$options['selected_board'] = $_SESSION['move_to_topic'];
 
 	if (!Utils::$context['move_any'])
@@ -145,7 +146,6 @@ function MoveTopic()
 function MoveTopic2()
 {
 	global $topic;
-	global $board;
 
 	if (empty($topic))
 		fatal_lang_error('no_access', false);
@@ -309,7 +309,7 @@ function MoveTopic2()
 			'smileys_enabled' => 1,
 		);
 		$topicOptions = array(
-			'board' => $board,
+			'board' => Board::$info->id,
 			'lock_mode' => 1,
 			'mark_as_read' => true,
 			'redirect_expires' => $redirect_expires,
@@ -328,7 +328,7 @@ function MoveTopic2()
 		WHERE id_board = {int:current_board}
 		LIMIT 1',
 		array(
-			'current_board' => $board,
+			'current_board' => Board::$info->id,
 		)
 	);
 	list ($pcounter_from) = Db::$db->fetch_row($request);
@@ -372,7 +372,7 @@ function MoveTopic2()
 
 	// Log that they moved this topic.
 	if (!allowedTo('move_own') || $id_member_started != User::$me->id)
-		logAction('move', array('topic' => $topic, 'board_from' => $board, 'board_to' => $_POST['toboard']));
+		logAction('move', array('topic' => $topic, 'board_from' => Board::$info->id, 'board_to' => $_POST['toboard']));
 	// Notify people that this topic has been moved?
 	sendNotifications($topic, 'move');
 
@@ -380,7 +380,7 @@ function MoveTopic2()
 
 	// Why not go back to the original board in case they want to keep moving?
 	if (!isset($_REQUEST['goback']))
-		redirectexit('board=' . $board . '.0');
+		redirectexit('board=' . Board::$info->id . '.0');
 	else
 		redirectexit('topic=' . $topic . '.0');
 }
@@ -721,15 +721,15 @@ function moveTopics($topics, $toBoard)
  */
 function moveTopicConcurrence()
 {
-	global $board, $topic;
+	global $topic;
 
 	if (isset($_GET['current_board']))
 		$move_from = (int) $_GET['current_board'];
 
-	if (empty($move_from) || empty($board) || empty($topic))
+	if (empty($move_from) || empty(Board::$info->id) || empty($topic))
 		return true;
 
-	if ($move_from == $board)
+	if ($move_from == Board::$info->id)
 		return true;
 	else
 	{
@@ -746,7 +746,7 @@ function moveTopicConcurrence()
 		);
 		list($topic_subject, $board_name) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
-		$board_link = '<a href="' . Config::$scripturl . '?board=' . $board . '.0">' . $board_name . '</a>';
+		$board_link = '<a href="' . Config::$scripturl . '?board=' . Board::$info->id . '.0">' . $board_name . '</a>';
 		$topic_link = '<a href="' . Config::$scripturl . '?topic=' . $topic . '.0">' . $topic_subject . '</a>';
 		fatal_lang_error('topic_already_moved', false, array($topic_link, $board_link));
 	}

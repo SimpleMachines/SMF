@@ -14,6 +14,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
@@ -307,7 +308,7 @@ function LockVoting()
  */
 function EditPoll()
 {
-	global $topic, $board;
+	global $topic;
 
 	if (empty($topic))
 		fatal_lang_error('no_access', false);
@@ -357,7 +358,7 @@ function EditPoll()
 
 	// Do we enable guest voting?
 	require_once(Config::$sourcedir . '/Subs-Members.php');
-	$groupsAllowedVote = groupsAllowedTo('poll_vote', $board);
+	$groupsAllowedVote = groupsAllowedTo('poll_vote', Board::$info->id);
 
 	// Want to make sure before you actually submit?  Must be a lot of options, or something.
 	if (isset($_POST['preview']))
@@ -600,7 +601,7 @@ function EditPoll()
  */
 function EditPoll2()
 {
-	global $topic, $board;
+	global $topic;
 
 	// Sneaking off, are we?
 	if (empty($_POST))
@@ -701,7 +702,7 @@ function EditPoll2()
 	if ($_POST['poll_guest_vote'])
 	{
 		require_once(Config::$sourcedir . '/Subs-Members.php');
-		$allowedGroups = groupsAllowedTo('poll_vote', $board);
+		$allowedGroups = groupsAllowedTo('poll_vote', Board::$info->id);
 		if (!in_array(-1, $allowedGroups['allowed']))
 			$_POST['poll_guest_vote'] = 0;
 	}

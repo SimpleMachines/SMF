@@ -15,6 +15,7 @@
 
 use SMF\BrowserDetector;
 use SMF\BBCodeParser;
+use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
@@ -50,7 +51,6 @@ if (!defined('SMF'))
  */
 function ShowXmlFeed()
 {
-	global $board, $board_info;
 	global $query_this_board, $forum_version, $settings;
 
 	// List all the different types of data they can pull.
@@ -107,7 +107,7 @@ function ShowXmlFeed()
 	Utils::$context['optimize_msg'] = array(
 		'highest' => 'm.id_msg <= b.id_last_msg',
 	);
-	if (!empty($_GET['c']) && empty($board))
+	if (!empty($_GET['c']) && empty(Board::$info->id))
 	{
 		$_GET['c'] = explode(',', $_GET['c']);
 		foreach ($_GET['c'] as $i => $c)
@@ -194,7 +194,7 @@ function ShowXmlFeed()
 		if ($total_posts > 100 && $total_posts > Config::$modSettings['totalMessages'] / 12)
 			Utils::$context['optimize_msg']['lowest'] = 'm.id_msg >= ' . max(0, Config::$modSettings['maxMsgID'] - 500 - Utils::$context['xmlnews_limit'] * 5);
 	}
-	elseif (!empty($board))
+	elseif (!empty(Board::$info->id))
 	{
 		$request = Db::$db->query('', '
 			SELECT num_posts
@@ -203,7 +203,7 @@ function ShowXmlFeed()
 				AND {query_see_board}
 			LIMIT 1',
 			array(
-				'current_board' => $board,
+				'current_board' => Board::$info->id,
 			)
 		);
 
@@ -213,10 +213,10 @@ function ShowXmlFeed()
 		list ($total_posts) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		$feed_meta['title'] = $board_info['name'];
-		$feed_meta['source'] .= '?board=' . $board . '.0';
+		$feed_meta['title'] = Board::$info->name;
+		$feed_meta['source'] .= '?board=' . Board::$info->id . '.0';
 
-		$query_this_board = 'b.id_board = ' . $board;
+		$query_this_board = 'b.id_board = ' . Board::$info->id;
 
 		// Try to look through just a few messages, if at all possible.
 		if ($total_posts > 80 && $total_posts > Config::$modSettings['totalMessages'] / 10)
@@ -269,8 +269,8 @@ function ShowXmlFeed()
 		$filename[] = 'u=' . Utils::$context['xmlnews_uid'];
 	if (!empty($boards))
 		$filename[] = 'boards=' . implode(',', $boards);
-	elseif (!empty($board))
-		$filename[] = 'board=' . $board;
+	elseif (!empty(Board::$info->id))
+		$filename[] = 'board=' . Board::$info->id;
 	$filename[] = $xml_format;
 	$filename = preg_replace(Utils::$context['utf8'] ? '/[^\p{L}\p{M}\p{N}\-]+/u' : '/[\s_,.\/\\;:\'<>?|\[\]{}~!@#$%^&*()=+`]+/', '_', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('-', $filename)))));
 
@@ -843,7 +843,6 @@ function getXmlMembers($xml_format, $ascending = false)
  */
 function getXmlNews($xml_format, $ascending = false)
 {
-	global $board;
 	global $query_this_board;
 
 	/* Find the latest (or earliest) posts that:
@@ -869,13 +868,13 @@ function getXmlNews($xml_format, $ascending = false)
 				INNER JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
 				LEFT JOIN {db_prefix}members AS mem ON (m.id_member = mem.id_member )
 			WHERE ' . $query_this_board . (empty($optimize_msg) ? '' : '
-				AND {raw:optimize_msg}') . (empty($board) ? '' : '
+				AND {raw:optimize_msg}') . (empty(Board::$info->id) ? '' : '
 				AND t.id_board = {int:current_board}') . (Config::$modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved}' : '') . '
 			ORDER BY t.id_first_msg {raw:ascdesc}
 			LIMIT {int:limit}',
 			array(
-				'current_board' => $board,
+				'current_board' => Board::$info->id,
 				'is_approved' => 1,
 				'limit' => Utils::$context['xmlnews_limit'],
 				'optimize_msg' => $optimize_msg,
@@ -886,7 +885,7 @@ function getXmlNews($xml_format, $ascending = false)
 		if ($loops < 2 && Db::$db->num_rows($request) < Utils::$context['xmlnews_limit'])
 		{
 			Db::$db->free_result($request);
-			if (empty($_GET['boards']) && empty($board))
+			if (empty($_GET['boards']) && empty(Board::$info->id))
 				unset(Utils::$context['optimize_msg']['lowest']);
 			else
 				Utils::$context['optimize_msg']['lowest'] = 'm.id_msg >= t.id_first_msg';
@@ -1282,7 +1281,6 @@ function getXmlNews($xml_format, $ascending = false)
  */
 function getXmlRecent($xml_format)
 {
-	global $board;
 	global $query_this_board;
 
 	require_once(Config::$sourcedir . '/Subs-Attachments.php');
@@ -1298,7 +1296,7 @@ function getXmlRecent($xml_format)
 				INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
 				INNER JOIN {db_prefix}topics AS t ON (m.id_topic = t.id_topic)
 			WHERE ' . $query_this_board . (empty($optimize_msg) ? '' : '
-				AND {raw:optimize_msg}') . (empty($board) ? '' : '
+				AND {raw:optimize_msg}') . (empty(Board::$info->id) ? '' : '
 				AND m.id_board = {int:current_board}') . (Config::$modSettings['postmod_active'] ? '
 				AND m.approved = {int:is_approved}
 				AND t.approved = {int:is_approved}' : '') . '
@@ -1306,7 +1304,7 @@ function getXmlRecent($xml_format)
 			LIMIT {int:limit}',
 			array(
 				'limit' => Utils::$context['xmlnews_limit'],
-				'current_board' => $board,
+				'current_board' => Board::$info->id,
 				'is_approved' => 1,
 				'optimize_msg' => $optimize_msg,
 			)
@@ -1315,7 +1313,7 @@ function getXmlRecent($xml_format)
 		if ($loops < 2 && Db::$db->num_rows($request) < Utils::$context['xmlnews_limit'])
 		{
 			Db::$db->free_result($request);
-			if (empty($_GET['boards']) && empty($board))
+			if (empty($_GET['boards']) && empty(Board::$info->id))
 				unset(Utils::$context['optimize_msg']['lowest']);
 			else
 				Utils::$context['optimize_msg']['lowest'] = $loops ? 'm.id_msg >= t.id_first_msg' : 'm.id_msg >= (t.id_last_msg - t.id_first_msg) / 2';
@@ -1347,12 +1345,12 @@ function getXmlRecent($xml_format)
 			LEFT JOIN {db_prefix}members AS mem ON (m.id_member = mem.id_member)
 			LEFT JOIN {db_prefix}members AS memf ON (mf.id_member = memf.id_member)
 		WHERE m.id_msg IN ({array_int:message_list})
-			' . (empty($board) ? '' : 'AND t.id_board = {int:current_board}') . '
+			' . (empty(Board::$info->id) ? '' : 'AND t.id_board = {int:current_board}') . '
 		ORDER BY m.id_msg DESC
 		LIMIT {int:limit}',
 		array(
 			'limit' => Utils::$context['xmlnews_limit'],
-			'current_board' => $board,
+			'current_board' => Board::$info->id,
 			'message_list' => $messages,
 		)
 	);
@@ -2088,7 +2086,6 @@ function getXmlProfile($xml_format)
  */
 function getXmlPosts($xml_format, $ascending = false)
 {
-	global $board;
 	global $query_this_board;
 
 	if (empty(Utils::$context['xmlnews_uid']) || (Utils::$context['xmlnews_uid'] != User::$me->id && !allowedTo('profile_view')))
@@ -2590,8 +2587,6 @@ function getXmlPosts($xml_format, $ascending = false)
  */
 function getXmlPMs($xml_format, $ascending = false)
 {
-	global $board;
-
 	// Personal messages are supposed to be private
 	if (empty(Utils::$context['xmlnews_uid']) || (Utils::$context['xmlnews_uid'] != User::$me->id))
 		return array();

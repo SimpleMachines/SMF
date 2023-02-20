@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BBCodeParser;
+use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Utils;
@@ -84,11 +86,7 @@ function ManageBoards()
  */
 function ManageBoardsMain()
 {
-	global $cat_tree, $boards, $boardList;
-
 	loadTemplate('ManageBoards');
-
-	require_once(Config::$sourcedir . '/Board.php');
 
 	if (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'move' && in_array($_REQUEST['move_to'], array('child', 'before', 'after', 'top')))
 	{
@@ -107,32 +105,32 @@ function ManageBoardsMain()
 				'target_board' => (int) $_REQUEST['target_board'],
 				'move_first_child' => true,
 			);
-		modifyBoard((int) $_REQUEST['src_board'], $boardOptions);
+		Board::modify((int) $_REQUEST['src_board'], $boardOptions);
 	}
 
-	getBoardTree();
+	Board::getBoardTree();
 
-	Utils::$context['move_board'] = !empty($_REQUEST['move']) && isset($boards[(int) $_REQUEST['move']]) ? (int) $_REQUEST['move'] : 0;
+	Utils::$context['move_board'] = !empty($_REQUEST['move']) && isset(Board::$loaded[(int) $_REQUEST['move']]) ? (int) $_REQUEST['move'] : 0;
 
 	Utils::$context['categories'] = array();
-	foreach ($cat_tree as $catid => $tree)
+	foreach (Board::$cat_tree as $catid => $tree)
 	{
 		Utils::$context['categories'][$catid] = array(
 			'name' => &$tree['node']['name'],
 			'id' => &$tree['node']['id'],
 			'boards' => array()
 		);
-		$move_cat = !empty(Utils::$context['move_board']) && $boards[Utils::$context['move_board']]['category'] == $catid;
-		foreach ($boardList[$catid] as $boardid)
+		$move_cat = !empty(Utils::$context['move_board']) && Board::$loaded[Utils::$context['move_board']]->category == $catid;
+		foreach (Board::$boardList[$catid] as $boardid)
 		{
 			Utils::$context['categories'][$catid]['boards'][$boardid] = array(
-				'id' => &$boards[$boardid]['id'],
-				'name' => &$boards[$boardid]['name'],
-				'description' => &$boards[$boardid]['description'],
-				'child_level' => &$boards[$boardid]['level'],
-				'move' => $move_cat && ($boardid == Utils::$context['move_board'] || isChildOf($boardid, Utils::$context['move_board'])),
-				'permission_profile' => &$boards[$boardid]['profile'],
-				'is_redirect' => !empty($boards[$boardid]['redirect']),
+				'id' => &Board::$loaded[$boardid]->id,
+				'name' => &Board::$loaded[$boardid]->name,
+				'description' => &Board::$loaded[$boardid]->description,
+				'child_level' => &Board::$loaded[$boardid]->child_level,
+				'move' => $move_cat && ($boardid == Utils::$context['move_board'] || Board::isChildOf($boardid, Utils::$context['move_board'])),
+				'permission_profile' => &Board::$loaded[$boardid]->profile,
+				'is_redirect' => !empty(Board::$loaded[$boardid]->redirect),
 			);
 		}
 	}
@@ -141,40 +139,40 @@ function ManageBoardsMain()
 	{
 		createToken('admin-bm-' . Utils::$context['move_board'], 'request');
 
-		Utils::$context['move_title'] = sprintf(Lang::$txt['mboards_select_destination'], Utils::htmlspecialchars($boards[Utils::$context['move_board']]['name']));
-		foreach ($cat_tree as $catid => $tree)
+		Utils::$context['move_title'] = sprintf(Lang::$txt['mboards_select_destination'], Utils::htmlspecialchars(Board::$loaded[Utils::$context['move_board']]->name));
+		foreach (Board::$cat_tree as $catid => $tree)
 		{
 			$prev_child_level = 0;
 			$prev_board = 0;
 			$stack = array();
 			// Just a shortcut, this is the same for all the urls
 			$security = Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';' . Utils::$context['admin-bm-' . Utils::$context['move_board'] . '_token_var'] . '=' . Utils::$context['admin-bm-' . Utils::$context['move_board'] . '_token'];
-			foreach ($boardList[$catid] as $boardid)
+			foreach (Board::$boardList[$catid] as $boardid)
 			{
 				if (!isset(Utils::$context['categories'][$catid]['move_link']))
 					Utils::$context['categories'][$catid]['move_link'] = array(
 						'child_level' => 0,
-						'label' => Lang::$txt['mboards_order_before'] . ' \'' . Utils::htmlspecialchars($boards[$boardid]['name']) . '\'',
+						'label' => Lang::$txt['mboards_order_before'] . ' \'' . Utils::htmlspecialchars(Board::$loaded[$boardid]->name) . '\'',
 						'href' => Config::$scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . Utils::$context['move_board'] . ';target_board=' . $boardid . ';move_to=before;' . $security,
 					);
 
 				if (!Utils::$context['categories'][$catid]['boards'][$boardid]['move'])
 					Utils::$context['categories'][$catid]['boards'][$boardid]['move_links'] = array(
 						array(
-							'child_level' => $boards[$boardid]['level'],
-							'label' => Lang::$txt['mboards_order_after'] . '\'' . Utils::htmlspecialchars($boards[$boardid]['name']) . '\'',
+							'child_level' => Board::$loaded[$boardid]->child_level,
+							'label' => Lang::$txt['mboards_order_after'] . '\'' . Utils::htmlspecialchars(Board::$loaded[$boardid]->name) . '\'',
 							'href' => Config::$scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . Utils::$context['move_board'] . ';target_board=' . $boardid . ';move_to=after;' . $security,
-							'class' => $boards[$boardid]['level'] > 0 ? 'above' : 'below',
+							'class' => Board::$loaded[$boardid]->child_level > 0 ? 'above' : 'below',
 						),
 						array(
-							'child_level' => $boards[$boardid]['level'] + 1,
-							'label' => Lang::$txt['mboards_order_child_of'] . ' \'' . Utils::htmlspecialchars($boards[$boardid]['name']) . '\'',
+							'child_level' => Board::$loaded[$boardid]->child_level + 1,
+							'label' => Lang::$txt['mboards_order_child_of'] . ' \'' . Utils::htmlspecialchars(Board::$loaded[$boardid]->name) . '\'',
 							'href' => Config::$scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . Utils::$context['move_board'] . ';target_board=' . $boardid . ';move_to=child;' . $security,
 							'class' => 'here',
 						),
 					);
 
-				$difference = $boards[$boardid]['level'] - $prev_child_level;
+				$difference = Board::$loaded[$boardid]->child_level - $prev_child_level;
 				if ($difference == 1)
 					array_push($stack, !empty(Utils::$context['categories'][$catid]['boards'][$prev_board]['move_links']) ? array_shift(Utils::$context['categories'][$catid]['boards'][$prev_board]['move_links']) : null);
 				elseif ($difference < 0)
@@ -187,14 +185,14 @@ function ManageBoardsMain()
 				}
 
 				$prev_board = $boardid;
-				$prev_child_level = $boards[$boardid]['level'];
+				$prev_child_level = Board::$loaded[$boardid]->child_level;
 			}
 			if (!empty($stack) && !empty(Utils::$context['categories'][$catid]['boards'][$prev_board]['move_links']))
 				Utils::$context['categories'][$catid]['boards'][$prev_board]['move_links'] = array_merge($stack, Utils::$context['categories'][$catid]['boards'][$prev_board]['move_links']);
 			elseif (!empty($stack))
 				Utils::$context['categories'][$catid]['boards'][$prev_board]['move_links'] = $stack;
 
-			if (empty($boardList[$catid]))
+			if (empty(Board::$boardList[$catid]))
 				Utils::$context['categories'][$catid]['move_link'] = array(
 					'child_level' => 0,
 					'label' => Lang::$txt['mboards_order_before'] . ' \'' . Utils::htmlspecialchars($tree['node']['name']) . '\'',
@@ -221,12 +219,9 @@ function ManageBoardsMain()
  */
 function EditCategory()
 {
-	global $cat_tree, $boardList, $boards;
-
 	loadTemplate('ManageBoards');
-	require_once(Config::$sourcedir . '/Board.php');
 	require_once(Config::$sourcedir . '/Subs-Editor.php');
-	getBoardTree();
+	Board::getBoardTree();
 
 	// id_cat must be a number.... if it exists.
 	$_REQUEST['cat'] = isset($_REQUEST['cat']) ? (int) $_REQUEST['cat'] : 0;
@@ -236,7 +231,7 @@ function EditCategory()
 		array(
 			'id' => 0,
 			'name' => Lang::$txt['mboards_order_first'],
-			'selected' => !empty($_REQUEST['cat']) ? $cat_tree[$_REQUEST['cat']]['is_first'] : false,
+			'selected' => !empty($_REQUEST['cat']) ? Board::$cat_tree[$_REQUEST['cat']]['is_first'] : false,
 			'true_name' => ''
 		)
 	);
@@ -255,26 +250,26 @@ function EditCategory()
 		);
 	}
 	// Category doesn't exist, man... sorry.
-	elseif (!isset($cat_tree[$_REQUEST['cat']]))
+	elseif (!isset(Board::$cat_tree[$_REQUEST['cat']]))
 		redirectexit('action=admin;area=manageboards');
 	else
 	{
 		Utils::$context['category'] = array(
 			'id' => $_REQUEST['cat'],
-			'name' => $cat_tree[$_REQUEST['cat']]['node']['name'],
-			'editable_name' => $cat_tree[$_REQUEST['cat']]['node']['name'],
-			'description' => $cat_tree[$_REQUEST['cat']]['node']['description'],
-			'can_collapse' => !empty($cat_tree[$_REQUEST['cat']]['node']['can_collapse']),
+			'name' => Board::$cat_tree[$_REQUEST['cat']]['node']['name'],
+			'editable_name' => Board::$cat_tree[$_REQUEST['cat']]['node']['name'],
+			'description' => Board::$cat_tree[$_REQUEST['cat']]['node']['description'],
+			'can_collapse' => !empty(Board::$cat_tree[$_REQUEST['cat']]['node']['can_collapse']),
 			'children' => array(),
-			'is_empty' => empty($cat_tree[$_REQUEST['cat']]['children'])
+			'is_empty' => empty(Board::$cat_tree[$_REQUEST['cat']]['children'])
 		);
 
-		foreach ($boardList[$_REQUEST['cat']] as $child_board)
-			Utils::$context['category']['children'][] = str_repeat('-', $boards[$child_board]['level']) . ' ' . $boards[$child_board]['name'];
+		foreach (Board::$boardList[$_REQUEST['cat']] as $child_board)
+			Utils::$context['category']['children'][] = str_repeat('-', Board::$loaded[$child_board]->child_level) . ' ' . Board::$loaded[$child_board]->name;
 	}
 
 	$prevCat = 0;
-	foreach ($cat_tree as $catid => $tree)
+	foreach (Board::$cat_tree as $catid => $tree)
 	{
 		if ($catid == $_REQUEST['cat'] && $prevCat > 0)
 			Utils::$context['category_order'][$prevCat]['selected'] = true;
@@ -376,12 +371,9 @@ function EditCategory2()
  */
 function EditBoard()
 {
-	global $cat_tree, $boards, $boardList;
-
 	loadTemplate('ManageBoards');
-	require_once(Config::$sourcedir . '/Board.php');
 	require_once(Config::$sourcedir . '/Subs-Editor.php');
-	getBoardTree();
+	Board::getBoardTree();
 
 	// For editing the profile we'll need this.
 	Lang::load('ManagePermissions');
@@ -396,7 +388,7 @@ function EditBoard()
 	// id_board must be a number....
 	$_REQUEST['boardid'] = isset($_REQUEST['boardid']) ? (int) $_REQUEST['boardid'] : 0;
 
-	if (!isset($boards[$_REQUEST['boardid']]))
+	if (!isset(Board::$loaded[$_REQUEST['boardid']]))
 	{
 		$_REQUEST['boardid'] = 0;
 		$_REQUEST['sa'] = 'newboard';
@@ -415,29 +407,28 @@ function EditBoard()
 			'category' => (int) $_REQUEST['cat']
 		);
 		Utils::$context['board_order'] = array();
-		Utils::$context['board'] = array(
+		Utils::$context['board'] = Board::init(0, array(
 			'is_new' => true,
-			'id' => 0,
 			'name' => Lang::$txt['mboards_new_board_name'],
 			'description' => '',
-			'count_posts' => 1,
+			'count_posts' => true,
 			'posts' => 0,
 			'topics' => 0,
 			'theme' => 0,
 			'profile' => 1,
-			'override_theme' => 0,
+			'override_theme' => false,
 			'redirect' => '',
 			'category' => (int) $_REQUEST['cat'],
 			'no_children' => true,
-		);
+		));
 	}
 	else
 	{
 		// Just some easy shortcuts.
-		$curBoard = &$boards[$_REQUEST['boardid']];
-		Utils::$context['board'] = $boards[$_REQUEST['boardid']];
-		Utils::$context['board']['no_children'] = empty($boards[$_REQUEST['boardid']]['tree']['children']);
-		Utils::$context['board']['is_recycle'] = !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) && Config::$modSettings['recycle_board'] == Utils::$context['board']['id'];
+		$curBoard = &Board::$loaded[$_REQUEST['boardid']];
+		Utils::$context['board'] = Board::$loaded[$_REQUEST['boardid']];
+		Utils::$context['board']->no_children = empty(Board::$loaded[$_REQUEST['boardid']]->children);
+		Utils::$context['board']->is_recycle = !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) && Config::$modSettings['recycle_board'] == Utils::$context['board']->id;
 	}
 
 	// As we may have come from the permissions screen keep track of where we should go on save.
@@ -491,18 +482,18 @@ function EditBoard()
 	Db::$db->free_result($request);
 
 	// Category doesn't exist, man... sorry.
-	if (!isset($boardList[$curBoard['category']]))
+	if (!isset(Board::$boardList[$curBoard['category']]))
 		redirectexit('action=admin;area=manageboards');
 
-	foreach ($boardList[$curBoard['category']] as $boardid)
+	foreach (Board::$boardList[$curBoard['category']] as $boardid)
 	{
 		if ($boardid == $_REQUEST['boardid'])
 		{
 			Utils::$context['board_order'][] = array(
 				'id' => $boardid,
-				'name' => str_repeat('-', $boards[$boardid]['level']) . ' (' . Lang::$txt['mboards_current_position'] . ')',
-				'children' => $boards[$boardid]['tree']['children'],
-				'no_children' => empty($boards[$boardid]['tree']['children']),
+				'name' => str_repeat('-', Board::$loaded[$boardid]->child_level) . ' (' . Lang::$txt['mboards_current_position'] . ')',
+				'children' => Board::$loaded[$boardid]->children,
+				'no_children' => empty(Board::$loaded[$boardid]->children),
 				'is_child' => false,
 				'selected' => true
 			);
@@ -511,8 +502,8 @@ function EditBoard()
 		{
 			Utils::$context['board_order'][] = array(
 				'id' => $boardid,
-				'name' => str_repeat('-', $boards[$boardid]['level']) . ' ' . $boards[$boardid]['name'],
-				'is_child' => empty($_REQUEST['boardid']) ? false : isChildOf($boardid, $_REQUEST['boardid']),
+				'name' => str_repeat('-', Board::$loaded[$boardid]->child_level) . ' ' . Board::$loaded[$boardid]->name,
+				'is_child' => empty($_REQUEST['boardid']) ? false : Board::isChildOf($boardid, $_REQUEST['boardid']),
 				'selected' => false
 			);
 		}
@@ -522,7 +513,7 @@ function EditBoard()
 	if (!empty($_REQUEST['boardid']))
 	{
 		Utils::$context['can_move_children'] = false;
-		Utils::$context['children'] = $boards[$_REQUEST['boardid']]['tree']['children'];
+		Utils::$context['children'] = Board::$loaded[$_REQUEST['boardid']]->children;
 
 		foreach (Utils::$context['board_order'] as $lBoard)
 			if ($lBoard['is_child'] == false && $lBoard['selected'] == false)
@@ -531,7 +522,7 @@ function EditBoard()
 
 	// Get other available categories.
 	Utils::$context['categories'] = array();
-	foreach ($cat_tree as $catID => $tree)
+	foreach (Board::$cat_tree as $catID => $tree)
 		Utils::$context['categories'][] = array(
 			'id' => $catID == $curBoard['category'] ? 0 : $catID,
 			'name' => $tree['node']['name'],
@@ -547,15 +538,15 @@ function EditBoard()
 			'current_board' => $_REQUEST['boardid'],
 		)
 	);
-	Utils::$context['board']['moderators'] = array();
+	Utils::$context['board']->moderators = array();
 	while ($row = Db::$db->fetch_assoc($request))
-		Utils::$context['board']['moderators'][$row['id_member']] = $row['real_name'];
+		Utils::$context['board']->moderators[$row['id_member']] = $row['real_name'];
 	Db::$db->free_result($request);
 
-	Utils::$context['board']['moderator_list'] = empty(Utils::$context['board']['moderators']) ? '' : '&quot;' . implode('&quot;, &quot;', Utils::$context['board']['moderators']) . '&quot;';
+	Utils::$context['board']->moderator_list = empty(Utils::$context['board']->moderators) ? '' : '&quot;' . implode('&quot;, &quot;', Utils::$context['board']->moderators) . '&quot;';
 
-	if (!empty(Utils::$context['board']['moderators']))
-		list (Utils::$context['board']['last_moderator_id']) = array_slice(array_keys(Utils::$context['board']['moderators']), -1);
+	if (!empty(Utils::$context['board']->moderators))
+		list (Utils::$context['board']->last_moderator_id) = array_slice(array_keys(Utils::$context['board']->moderators), -1);
 
 	// Get all the groups assigned as moderators
 	$request = Db::$db->query('', '
@@ -566,15 +557,15 @@ function EditBoard()
 			'current_board' => $_REQUEST['boardid'],
 		)
 	);
-	Utils::$context['board']['moderator_groups'] = array();
+	Utils::$context['board']->moderator_groups = array();
 	while ($row = Db::$db->fetch_assoc($request))
-		Utils::$context['board']['moderator_groups'][$row['id_group']] = Utils::$context['groups'][$row['id_group']]['name'];
+		Utils::$context['board']->moderator_groups[$row['id_group']] = Utils::$context['groups'][$row['id_group']]['name'];
 	Db::$db->free_result($request);
 
-	Utils::$context['board']['moderator_groups_list'] = empty(Utils::$context['board']['moderator_groups']) ? '' : '&quot;' . implode('&quot;, &qout;', Utils::$context['board']['moderator_groups']) . '&quot;';
+	Utils::$context['board']->moderator_groups_list = empty(Utils::$context['board']->moderator_groups) ? '' : '&quot;' . implode('&quot;, &qout;', Utils::$context['board']->moderator_groups) . '&quot;';
 
-	if (!empty(Utils::$context['board']['moderator_groups']))
-		list (Utils::$context['board']['last_moderator_group_id']) = array_slice(array_keys(Utils::$context['board']['moderator_groups']), -1);
+	if (!empty(Utils::$context['board']->moderator_groups))
+		list (Utils::$context['board']->last_moderator_group_id) = array_slice(array_keys(Utils::$context['board']->moderator_groups), -1);
 
 	// Get all the themes...
 	$request = Db::$db->query('', '
@@ -623,7 +614,6 @@ function EditBoard2()
 	checkSession();
 	validateToken('admin-be-' . $_REQUEST['boardid']);
 
-	require_once(Config::$sourcedir . '/Board.php');
 	require_once(Config::$sourcedir . '/Subs-Editor.php');
 
 	// Mode: modify aka. don't delete.
@@ -736,12 +726,12 @@ function EditBoard2()
 			if (!isset($boardOptions['move_to']))
 				$boardOptions['move_to'] = 'bottom';
 
-			createBoard($boardOptions);
+			Board::create($boardOptions);
 		}
 
 		// ...or update an existing board.
 		else
-			modifyBoard($_POST['boardid'], $boardOptions);
+			Board::modify($_POST['boardid'], $boardOptions);
 	}
 	elseif (isset($_POST['delete']) && !isset($_POST['confirmation']) && !isset($_POST['no_children']))
 	{
@@ -756,10 +746,10 @@ function EditBoard2()
 			if (empty($_POST['board_to']))
 				fatal_lang_error('mboards_delete_board_error');
 
-			deleteBoards(array($_POST['boardid']), (int) $_POST['board_to']);
+			Board::delete(array($_POST['boardid']), (int) $_POST['board_to']);
 		}
 		else
-			deleteBoards(array($_POST['boardid']), 0);
+			Board::delete(array($_POST['boardid']), 0);
 	}
 
 	if (isset($_REQUEST['rid']) && $_REQUEST['rid'] == 'permissions')
@@ -773,17 +763,14 @@ function EditBoard2()
  */
 function ModifyCat()
 {
-	global $boards;
-
 	// Get some information about the boards and the cats.
-	require_once(Config::$sourcedir . '/Board.php');
-	getBoardTree();
+	Board::getBoardTree();
 
 	// Allowed sub-actions...
 	$allowed_sa = array('add', 'modify', 'cut');
 
 	// Check our input.
-	$_POST['id'] = empty($_POST['id']) ? array_keys(current($boards)) : (int) $_POST['id'];
+	$_POST['id'] = empty($_POST['id']) ? array_keys((array) Board::$info) : (int) $_POST['id'];
 	$_POST['id'] = substr($_POST['id'][1], 0, 3);
 
 	// Select the stuff we need from the DB.
@@ -834,8 +821,7 @@ function EditBoardSettings($return_config = false)
 
 	if (!empty($recycle_boards))
 	{
-		require_once(Config::$sourcedir . '/Board.php');
-		sortBoards($recycle_boards);
+		Board::sort($recycle_boards);
 		$recycle_boards = array('') + $recycle_boards;
 	}
 	else

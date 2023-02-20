@@ -14,6 +14,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Board;
 use SMF\Config;
 use SMF\User;
 use SMF\Utils;
@@ -34,7 +35,7 @@ if (!defined('SMF'))
  */
 function RemoveTopic2()
 {
-	global $topic, $board;
+	global $topic;
 
 	// Make sure they aren't being lead around by someone. (:@)
 	checkSession('get');
@@ -84,9 +85,9 @@ function RemoveTopic2()
 
 	// Note, only log topic ID in native form if it's not gone forever.
 	if (allowedTo('remove_any') || (allowedTo('remove_own') && $starter == User::$me->id))
-		logAction('remove', array((empty(Config::$modSettings['recycle_enable']) || Config::$modSettings['recycle_board'] != $board ? 'topic' : 'old_topic_id') => $topic, 'subject' => $subject, 'member' => $starter, 'board' => $board));
+		logAction('remove', array((empty(Config::$modSettings['recycle_enable']) || Config::$modSettings['recycle_board'] != Board::$info->id ? 'topic' : 'old_topic_id') => $topic, 'subject' => $subject, 'member' => $starter, 'board' => Board::$info->id));
 
-	redirectexit('board=' . $board . '.0');
+	redirectexit('board=' . Board::$info->id . '.0');
 }
 
 /**
@@ -95,7 +96,7 @@ function RemoveTopic2()
  */
 function DeleteMessage()
 {
-	global $topic, $board;
+	global $topic;
 
 	checkSession('get');
 
@@ -146,7 +147,7 @@ function DeleteMessage()
 	$full_topic = removeMessage($_REQUEST['msg']);
 
 	if (allowedTo('delete_any') && (!allowedTo('delete_own') || $poster != User::$me->id))
-		logAction('delete', array('topic' => $topic, 'subject' => $subject, 'member' => $poster, 'board' => $board));
+		logAction('delete', array('topic' => $topic, 'subject' => $subject, 'member' => $poster, 'board' => Board::$info->id));
 
 	// We want to redirect back to recent action.
 	if (isset($_REQUEST['modcenter']))
@@ -156,7 +157,7 @@ function DeleteMessage()
 	elseif (isset($_REQUEST['profile'], $_REQUEST['start'], $_REQUEST['u']))
 		redirectexit('action=profile;u=' . $_REQUEST['u'] . ';area=showposts;start=' . $_REQUEST['start']);
 	elseif ($full_topic)
-		redirectexit('board=' . $board . '.0');
+		redirectexit('board=' . Board::$info->id . '.0');
 	else
 		redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
 }
@@ -588,8 +589,6 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
  */
 function removeMessage($message, $decreasePostCount = true)
 {
-	global $board;
-
 	if (empty($message) || !is_numeric($message))
 		return false;
 
@@ -619,7 +618,7 @@ function removeMessage($message, $decreasePostCount = true)
 	// Give mods a heads-up before we do anything.
 	call_integration_hook('integrate_pre_remove_message', array($message, $decreasePostCount, $row));
 
-	if (empty($board) || $row['id_board'] != $board)
+	if (empty(Board::$info->id) || $row['id_board'] != Board::$info->id)
 	{
 		$delete_any = boardsAllowedTo('delete_any');
 
@@ -689,7 +688,7 @@ function removeMessage($message, $decreasePostCount = true)
 	// Delete the *whole* topic, but only if the topic consists of one message.
 	if ($row['id_first_msg'] == $message)
 	{
-		if (empty($board) || $row['id_board'] != $board)
+		if (empty(Board::$info->id) || $row['id_board'] != Board::$info->id)
 		{
 			$remove_any = boardsAllowedTo('remove_any');
 			$remove_any = in_array(0, $remove_any) || in_array($row['id_board'], $remove_any);
@@ -1500,8 +1499,6 @@ function mergePosts($msgs, $from_topic, $target_topic)
  */
 function removeDeleteConcurrence()
 {
-	global $board;
-
 	// No recycle no need to go further
 	if (empty(Config::$modSettings['recycle_enable']) || empty(Config::$modSettings['recycle_board']))
 		return false;
@@ -1510,10 +1507,10 @@ function removeDeleteConcurrence()
 	if (isset($_GET['confirm_delete']))
 		return true;
 
-	if (empty($board))
+	if (empty(Board::$info->id))
 		return false;
 
-	if (Config::$modSettings['recycle_board'] != $board)
+	if (Config::$modSettings['recycle_board'] != Board::$info->id)
 		return true;
 	elseif (isset($_REQUEST['msg']))
 		$confirm_url = Config::$scripturl . '?action=deletemsg;confirm_delete;topic=' . Utils::$context['current_topic'] . '.0;msg=' . $_REQUEST['msg'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];

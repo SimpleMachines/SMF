@@ -121,7 +121,7 @@ function deleteNotifyPrefs($memID, array $prefs)
  */
 function getMemberWithToken($type)
 {
-	global $board, $topic;
+	global $topic;
 
 	// Keep it sanitary, folks
 	$id_member = !empty($_REQUEST['u']) ? (int) $_REQUEST['u'] : 0;

@@ -14,6 +14,7 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
@@ -74,10 +75,8 @@ function GetJumpTo()
  */
 function ListMessageIcons()
 {
-	global $board;
-
 	require_once(Config::$sourcedir . '/Subs-Editor.php');
-	Utils::$context['icons'] = getMessageIcons($board);
+	Utils::$context['icons'] = getMessageIcons(Board::$info->id);
 
 	Utils::$context['sub_template'] = 'message_icons';
 }

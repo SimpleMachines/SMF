@@ -14,6 +14,7 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Board;
 use SMF\BrowserDetector;
 use SMF\Config;
 use SMF\Lang;
@@ -26,317 +27,6 @@ if (!defined('SMF'))
 	die('No direct access...');
 
 /**
- * Check for moderators and see if they have access to the board.
- * What it does:
- * - sets up the $board_info array for current board information.
- * - if cache is enabled, the $board_info array is stored in cache.
- * - redirects to appropriate post if only message id is requested.
- * - is only used when inside a topic or board.
- * - determines the local moderators for the board.
- * - adds group id 3 if the user is a local moderator for the board they are in.
- * - prevents access if user is not in proper group nor a local moderator of the board.
- */
-function loadBoard()
-{
-	global $board_info, $board, $topic;
-
-	// Assume they are not a moderator.
-	User::$me->is_mod = false;
-
-	// Start the linktree off empty..
-	Utils::$context['linktree'] = array();
-
-	// Have they by chance specified a message id but nothing else?
-	if (empty($_REQUEST['action']) && empty($topic) && empty($board) && !empty($_REQUEST['msg']))
-	{
-		// Make sure the message id is really an int.
-		$_REQUEST['msg'] = (int) $_REQUEST['msg'];
-
-		// Looking through the message table can be slow, so try using the cache first.
-		if (($topic = CacheApi::get('msg_topic-' . $_REQUEST['msg'], 120)) === null)
-		{
-			$request = Db::$db->query('', '
-				SELECT id_topic
-				FROM {db_prefix}messages
-				WHERE id_msg = {int:id_msg}
-				LIMIT 1',
-				array(
-					'id_msg' => $_REQUEST['msg'],
-				)
-			);
-
-			// So did it find anything?
-			if (Db::$db->num_rows($request))
-			{
-				list ($topic) = Db::$db->fetch_row($request);
-				Db::$db->free_result($request);
-				// Save save save.
-				CacheApi::put('msg_topic-' . $_REQUEST['msg'], $topic, 120);
-			}
-		}
-
-		// Remember redirection is the key to avoiding fallout from your bosses.
-		if (!empty($topic))
-			redirectexit('topic=' . $topic . '.msg' . $_REQUEST['msg'] . '#msg' . $_REQUEST['msg']);
-		else
-		{
-			User::$me->loadPermissions();
-			loadTheme();
-			fatal_lang_error('topic_gone', false);
-		}
-	}
-
-	// Load this board only if it is specified.
-	if (empty($board) && empty($topic))
-	{
-		$board_info = array('moderators' => array(), 'moderator_groups' => array());
-		return;
-	}
-
-	if (!empty(CacheApi::$enable) && (empty($topic) || CacheApi::$enable >= 3))
-	{
-		// @todo SLOW?
-		if (!empty($topic))
-			$temp = CacheApi::get('topic_board-' . $topic, 120);
-		else
-			$temp = CacheApi::get('board-' . $board, 120);
-
-		if (!empty($temp))
-		{
-			$board_info = $temp;
-			$board = $board_info['id'];
-		}
-	}
-
-	if (empty($temp))
-	{
-		$custom_column_selects = array();
-		$custom_column_parameters = [
-			'current_topic' => $topic,
-			'board_link' => empty($topic) ? Db::$db->quote('{int:current_board}', array('current_board' => $board)) : 't.id_board',
-		];
-
-		call_integration_hook('integrate_load_board', array(&$custom_column_selects, &$custom_column_parameters));
-
-		$request = Db::$db->query('load_board_info', '
-			SELECT
-				c.id_cat, b.name AS bname, b.description, b.num_topics, b.member_groups, b.deny_member_groups,
-				b.id_parent, c.name AS cname, COALESCE(mg.id_group, 0) AS id_moderator_group, mg.group_name,
-				COALESCE(mem.id_member, 0) AS id_moderator,
-				mem.real_name' . (!empty($topic) ? ', b.id_board' : '') . ', b.child_level,
-				b.id_theme, b.override_theme, b.count_posts, b.id_profile, b.redirect,
-				b.unapproved_topics, b.unapproved_posts' . (!empty($topic) ? ', t.approved, t.id_member_started' : '') . '
-				' . (!empty($custom_column_selects) ? (', ' . implode(', ', $custom_column_selects)) : '') . '
-			FROM {db_prefix}boards AS b' . (!empty($topic) ? '
-				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})' : '') . '
-				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
-				LEFT JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_board = {raw:board_link})
-				LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = modgs.id_group)
-				LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = {raw:board_link})
-				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = mods.id_member)
-			WHERE b.id_board = {raw:board_link}',
-			$custom_column_parameters
-		);
-
-		// If there aren't any, skip.
-		if (Db::$db->num_rows($request) > 0)
-		{
-			$row = Db::$db->fetch_assoc($request);
-
-			// Set the current board.
-			if (!empty($row['id_board']))
-				$board = $row['id_board'];
-
-			// Basic operating information. (globals... :/)
-			$board_info = array(
-				'id' => $board,
-				'moderators' => array(),
-				'moderator_groups' => array(),
-				'cat' => array(
-					'id' => $row['id_cat'],
-					'name' => $row['cname']
-				),
-				'name' => $row['bname'],
-				'description' => $row['description'],
-				'num_topics' => $row['num_topics'],
-				'unapproved_topics' => $row['unapproved_topics'],
-				'unapproved_posts' => $row['unapproved_posts'],
-				'unapproved_user_topics' => 0,
-				'parent_boards' => getBoardParents($row['id_parent']),
-				'parent' => $row['id_parent'],
-				'child_level' => $row['child_level'],
-				'theme' => $row['id_theme'],
-				'override_theme' => !empty($row['override_theme']),
-				'profile' => $row['id_profile'],
-				'redirect' => $row['redirect'],
-				'recycle' => !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) && Config::$modSettings['recycle_board'] == $board,
-				'posts_count' => empty($row['count_posts']),
-				'cur_topic_approved' => empty($topic) || $row['approved'],
-				'cur_topic_starter' => empty($topic) ? 0 : $row['id_member_started'],
-			);
-
-			// Load the membergroups allowed, and check permissions.
-			$board_info['groups'] = $row['member_groups'] == '' ? array() : explode(',', $row['member_groups']);
-			$board_info['deny_groups'] = $row['deny_member_groups'] == '' ? array() : explode(',', $row['deny_member_groups']);
-
-			call_integration_hook('integrate_board_info', array(&$board_info, $row));
-
-			if (!empty(Config::$modSettings['board_manager_groups']))
-			{
-				$board_info['groups'] = array_unique(array_merge($board_info['groups'], explode(',', Config::$modSettings['board_manager_groups'])));
-				$board_info['deny_groups'] = array_diff($board_info['deny_groups'], explode(',', Config::$modSettings['board_manager_groups']));
-			}
-
-			do
-			{
-				if (!empty($row['id_moderator']))
-					$board_info['moderators'][$row['id_moderator']] = array(
-						'id' => $row['id_moderator'],
-						'name' => $row['real_name'],
-						'href' => Config::$scripturl . '?action=profile;u=' . $row['id_moderator'],
-						'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_moderator'] . '">' . $row['real_name'] . '</a>'
-					);
-
-				if (!empty($row['id_moderator_group']))
-					$board_info['moderator_groups'][$row['id_moderator_group']] = array(
-						'id' => $row['id_moderator_group'],
-						'name' => $row['group_name'],
-						'href' => Config::$scripturl . '?action=groups;sa=members;group=' . $row['id_moderator_group'],
-						'link' => '<a href="' . Config::$scripturl . '?action=groups;sa=members;group=' . $row['id_moderator_group'] . '">' . $row['group_name'] . '</a>'
-					);
-			}
-			while ($row = Db::$db->fetch_assoc($request));
-
-			// If the board only contains unapproved posts and the user isn't an approver then they can't see any topics.
-			// If that is the case do an additional check to see if they have any topics waiting to be approved.
-			if ($board_info['num_topics'] == 0 && Config::$modSettings['postmod_active'] && !allowedTo('approve_posts'))
-			{
-				// Free the previous result
-				Db::$db->free_result($request);
-
-				// @todo why is this using id_topic?
-				// @todo Can this get cached?
-				$request = Db::$db->query('', '
-					SELECT COUNT(id_topic)
-					FROM {db_prefix}topics
-					WHERE id_member_started={int:id_member}
-						AND approved = {int:unapproved}
-						AND id_board = {int:board}',
-					array(
-						'id_member' => User::$me->id,
-						'unapproved' => 0,
-						'board' => $board,
-					)
-				);
-
-				list ($board_info['unapproved_user_topics']) = Db::$db->fetch_row($request);
-			}
-
-			if (!empty(CacheApi::$enable) && (empty($topic) || CacheApi::$enable >= 3))
-			{
-				// @todo SLOW?
-				if (!empty($topic))
-					CacheApi::put('topic_board-' . $topic, $board_info, 120);
-				CacheApi::put('board-' . $board, $board_info, 120);
-			}
-		}
-		else
-		{
-			// Otherwise the topic is invalid, there are no moderators, etc.
-			$board_info = array(
-				'moderators' => array(),
-				'moderator_groups' => array(),
-				'error' => 'exist'
-			);
-			$topic = null;
-			$board = 0;
-		}
-		Db::$db->free_result($request);
-	}
-
-	if (!empty($topic))
-		$_GET['board'] = (int) $board;
-
-	if (!empty($board))
-	{
-		// Get this into an array of keys for array_intersect
-		$moderator_groups = array_keys($board_info['moderator_groups']);
-
-		// Now check if the user is a moderator.
-		User::$me->is_mod = isset($board_info['moderators'][User::$me->id]) || count(array_intersect(User::$me->groups, $moderator_groups)) != 0;
-
-		if (count(array_intersect(User::$me->groups, $board_info['groups'])) == 0 && !User::$me->is_admin)
-			$board_info['error'] = 'access';
-		if (!empty(Config::$modSettings['deny_boards_access']) && count(array_intersect(User::$me->groups, $board_info['deny_groups'])) != 0 && !User::$me->is_admin)
-			$board_info['error'] = 'access';
-
-		// Build up the linktree.
-		Utils::$context['linktree'] = array_merge(
-			Utils::$context['linktree'],
-			array(array(
-				'url' => Config::$scripturl . '#c' . $board_info['cat']['id'],
-				'name' => $board_info['cat']['name']
-			)),
-			array_reverse($board_info['parent_boards']),
-			array(array(
-				'url' => Config::$scripturl . '?board=' . $board . '.0',
-				'name' => $board_info['name']
-			))
-		);
-	}
-
-	// Set the template contextual information.
-	Utils::$context['current_topic'] = $topic;
-	Utils::$context['current_board'] = $board;
-
-	// No posting in redirection boards!
-	if (!empty($_REQUEST['action']) && $_REQUEST['action'] == 'post' && !empty($board_info['redirect']))
-		$board_info['error'] = 'post_in_redirect';
-
-	// Hacker... you can't see this topic, I'll tell you that. (but moderators can!)
-	if (!empty($board_info['error']) && (!empty(Config::$modSettings['deny_boards_access']) || $board_info['error'] != 'access' || !User::$me->is_mod))
-	{
-		// The permissions and theme need loading, just to make sure everything goes smoothly.
-		User::$me->loadPermissions();
-		loadTheme();
-
-		$_GET['board'] = '';
-		$_GET['topic'] = '';
-
-		// The linktree should not give the game away mate!
-		Utils::$context['linktree'] = array(
-			array(
-				'url' => Config::$scripturl,
-				'name' => Utils::$context['forum_name_html_safe']
-			)
-		);
-
-		// If it's a prefetching agent or we're requesting an attachment.
-		if ((isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch') || (!empty($_REQUEST['action']) && $_REQUEST['action'] === 'dlattach'))
-		{
-			ob_end_clean();
-			send_http_status(403);
-			die;
-		}
-		elseif ($board_info['error'] == 'post_in_redirect')
-		{
-			// Slightly different error message here...
-			fatal_lang_error('cannot_post_redirect', false);
-		}
-		elseif (User::$me->is_guest)
-		{
-			Lang::load('Errors');
-			is_not_guest(Lang::$txt['topic_gone']);
-		}
-		else
-			fatal_lang_error('topic_gone', false);
-	}
-
-	if (User::$me->is_mod)
-		User::$me->groups[] = 3;
-}
-
-/**
  * Load a theme, by ID.
  *
  * @param int $id_theme The ID of the theme to load
@@ -344,14 +34,13 @@ function loadBoard()
  */
 function loadTheme($id_theme = 0, $initialize = true)
 {
-	global $board_info;
-	global $settings, $options, $board;
+	global $settings, $options;
 
 	if (empty($id_theme))
 	{
 		// The theme was specified by the board.
-		if (!empty($board_info['theme']))
-			$id_theme = $board_info['theme'];
+		if (!empty(Board::$info->theme))
+			$id_theme = Board::$info->theme;
 		// The theme is the forum's default.
 		else
 			$id_theme = Config::$modSettings['theme_guests'];
@@ -375,8 +64,8 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 		// Verify the id_theme... no foul play.
 		// Always allow the board specific theme, if they are overriding.
-		if (!empty($board_info['theme']) && $board_info['override_theme'])
-			$id_theme = $board_info['theme'];
+		if (!empty(Board::$info->theme) && Board::$info->override_theme)
+			$id_theme = Board::$info->theme;
 		elseif (!empty(Config::$modSettings['enableThemes']))
 		{
 			$themes = explode(',', Config::$modSettings['enableThemes']);
@@ -585,13 +274,13 @@ function loadTheme($id_theme = 0, $initialize = true)
 			Config::$modSettings['avatar_url'] = strtr(Config::$modSettings['avatar_url'], array($oldurl => Config::$boardurl));
 			Config::$modSettings['custom_avatar_url'] = strtr(Config::$modSettings['custom_avatar_url'], array($oldurl => Config::$boardurl));
 
-			// Clean up after loadBoard().
-			if (isset($board_info['moderators']))
+			// Clean up after Board::load().
+			if (isset(Board::$info->moderators))
 			{
-				foreach ($board_info['moderators'] as $k => $dummy)
+				foreach (Board::$info->moderators as $k => $dummy)
 				{
-					$board_info['moderators'][$k]['href'] = strtr($dummy['href'], array($oldurl => Config::$boardurl));
-					$board_info['moderators'][$k]['link'] = strtr($dummy['link'], array('"' . $oldurl => '"' . Config::$boardurl));
+					Board::$info->moderators[$k]['href'] = strtr($dummy['href'], array($oldurl => Config::$boardurl));
+					Board::$info->moderators[$k]['link'] = strtr($dummy['link'], array('"' . $oldurl => '"' . Config::$boardurl));
 				}
 			}
 			foreach (Utils::$context['linktree'] as $k => $dummy)
@@ -882,7 +571,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	}
 
 	// Filter out the restricted boards from the linktree
-	if (!User::$me->is_admin && !empty($board))
+	if (!User::$me->is_admin && !empty(Board::$info->id))
 	{
 		foreach (Utils::$context['linktree'] as $k => $element)
 		{
@@ -1303,91 +992,6 @@ function addInlineJavaScript($javascript, $defer = false)
 		return false;
 
 	Utils::$context['javascript_inline'][($defer === true ? 'defer' : 'standard')][] = $javascript;
-}
-
-/**
- * Get all parent boards (requires first parent as parameter)
- * It finds all the parents of id_parent, and that board itself.
- * Additionally, it detects the moderators of said boards.
- *
- * @param int $id_parent The ID of the parent board
- * @return array An array of information about the boards found.
- */
-function getBoardParents($id_parent)
-{
-	// First check if we have this cached already.
-	if (($boards = CacheApi::get('board_parents-' . $id_parent, 480)) === null)
-	{
-		$boards = array();
-		$original_parent = $id_parent;
-
-		// Loop while the parent is non-zero.
-		while ($id_parent != 0)
-		{
-			$result = Db::$db->query('', '
-				SELECT
-					b.id_parent, b.name, {int:board_parent} AS id_board, b.member_groups, b.deny_member_groups,
-					b.child_level, COALESCE(mem.id_member, 0) AS id_moderator, mem.real_name,
-					COALESCE(mg.id_group, 0) AS id_moderator_group, mg.group_name
-				FROM {db_prefix}boards AS b
-					LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board)
-					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = mods.id_member)
-					LEFT JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_board = b.id_board)
-					LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = modgs.id_group)
-				WHERE b.id_board = {int:board_parent}',
-				array(
-					'board_parent' => $id_parent,
-				)
-			);
-			// In the EXTREMELY unlikely event this happens, give an error message.
-			if (Db::$db->num_rows($result) == 0)
-				fatal_lang_error('parent_not_found', 'critical');
-			while ($row = Db::$db->fetch_assoc($result))
-			{
-				if (!isset($boards[$row['id_board']]))
-				{
-					$id_parent = $row['id_parent'];
-					$boards[$row['id_board']] = array(
-						'url' => Config::$scripturl . '?board=' . $row['id_board'] . '.0',
-						'name' => $row['name'],
-						'level' => $row['child_level'],
-						'groups' => explode(',', $row['member_groups']),
-						'deny_groups' => explode(',', $row['deny_member_groups']),
-						'moderators' => array(),
-						'moderator_groups' => array()
-					);
-				}
-				// If a moderator exists for this board, add that moderator for all children too.
-				if (!empty($row['id_moderator']))
-					foreach ($boards as $id => $dummy)
-					{
-						$boards[$id]['moderators'][$row['id_moderator']] = array(
-							'id' => $row['id_moderator'],
-							'name' => $row['real_name'],
-							'href' => Config::$scripturl . '?action=profile;u=' . $row['id_moderator'],
-							'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_moderator'] . '">' . $row['real_name'] . '</a>'
-						);
-					}
-
-				// If a moderator group exists for this board, add that moderator group for all children too
-				if (!empty($row['id_moderator_group']))
-					foreach ($boards as $id => $dummy)
-					{
-						$boards[$id]['moderator_groups'][$row['id_moderator_group']] = array(
-							'id' => $row['id_moderator_group'],
-							'name' => $row['group_name'],
-							'href' => Config::$scripturl . '?action=groups;sa=members;group=' . $row['id_moderator_group'],
-							'link' => '<a href="' . Config::$scripturl . '?action=groups;sa=members;group=' . $row['id_moderator_group'] . '">' . $row['group_name'] . '</a>'
-						);
-					}
-			}
-			Db::$db->free_result($result);
-		}
-
-		CacheApi::put('board_parents-' . $original_parent, $boards, 480);
-	}
-
-	return $boards;
 }
 
 /**

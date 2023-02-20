@@ -13,6 +13,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Utils;
@@ -320,8 +321,7 @@ function ModifyCalendarSettings($return_config = false)
 		$boards[$row['id_board']] = $row['cat_name'] . ' - ' . $row['board_name'];
 	Db::$db->free_result($request);
 
-	require_once(Config::$sourcedir . '/Board.php');
-	sortBoards($boards);
+	Board::sort($boards);
 
 	// Look, all the calendar settings - of which there are many!
 	if (!empty(Config::$modSettings['cal_enabled']))

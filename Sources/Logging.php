@@ -13,6 +13,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
@@ -30,10 +31,10 @@ if (!defined('SMF'))
  */
 function writeLog($force = false)
 {
-	global $settings, $topic, $board;
+	global $settings, $topic;
 
 	// If we are showing who is viewing a topic, let's see if we are, and force an update if so - to make it accurate.
-	if (!empty($settings['display_who_viewing']) && ($topic || $board))
+	if (!empty($settings['display_who_viewing']) && ($topic || Board::$info->id))
 	{
 		// Take the opposite approach!
 		$force = true;

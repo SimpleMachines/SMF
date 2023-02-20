@@ -16,6 +16,7 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Mentions;
@@ -2751,8 +2752,6 @@ function clearApprovalAlerts($content_ids, $content_action)
  */
 function updateLastMessages($setboards, $id_msg = 0)
 {
-	global $board_info, $board;
-
 	// Please - let's be sane.
 	if (empty($setboards))
 		return false;
@@ -2799,10 +2798,10 @@ function updateLastMessages($setboards, $id_msg = 0)
 			$lastModified[$id_board] = 0;
 		}
 
-		if (!empty($board) && $id_board == $board)
-			$parents = $board_info['parent_boards'];
+		if (!empty(Board::$info->id) && $id_board == Board::$info->id)
+			$parents = Board::$info->parent_boards;
 		else
-			$parents = getBoardParents($id_board);
+			$parents = Board::getParents($id_board);
 
 		// Ignore any parents on the top child level.
 		// @todo Why?

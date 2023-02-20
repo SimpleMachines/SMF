@@ -15,6 +15,7 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
@@ -37,8 +38,6 @@ Lang::load('Drafts');
  */
 function SaveDraft(&$post_errors)
 {
-	global $board;
-
 	// can you be, should you be ... here?
 	if (empty(Config::$modSettings['drafts_post_enabled']) || !allowedTo('post_draft') || !isset($_POST['save_draft']) || !isset($_POST['id_draft']))
 		return false;
@@ -94,7 +93,7 @@ function SaveDraft(&$post_errors)
 			WHERE id_draft = {int:id_draft}',
 			array(
 				'id_topic' => $topic_id,
-				'id_board' => $board,
+				'id_board' => Board::$info->id,
 				'poster_time' => time(),
 				'subject' => $draft['subject'],
 				'smileys_enabled' => (int) $draft['smileys_enabled'],
@@ -133,7 +132,7 @@ function SaveDraft(&$post_errors)
 			),
 			array(
 				$topic_id,
-				$board,
+				Board::$info->id,
 				0,
 				time(),
 				User::$me->id,

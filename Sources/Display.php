@@ -15,6 +15,7 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
@@ -39,7 +40,7 @@ if (!defined('SMF'))
 function Display()
 {
 	global $settings;
-	global $options, $board_info, $topic, $board;
+	global $options, $topic;
 	global $messages_request;
 
 	// What are you gonna display if these are empty?!
@@ -76,7 +77,7 @@ function Display()
 	if (isset($_REQUEST['prev_next']) && ($_REQUEST['prev_next'] == 'prev' || $_REQUEST['prev_next'] == 'next'))
 	{
 		// No use in calculating the next topic if there's only one.
-		if ($board_info['num_topics'] > 1)
+		if (Board::$info->num_topics > 1)
 		{
 			// Just prepare some variables that are used in the query.
 			$gt_lt = $_REQUEST['prev_next'] == 'prev' ? '>' : '<';
@@ -93,7 +94,7 @@ function Display()
 				ORDER BY t2.is_sticky' . $order . ', t2.id_last_msg' . $order . '
 				LIMIT 1',
 				array(
-					'current_board' => $board,
+					'current_board' => Board::$info->id,
 					'current_member' => User::$me->id,
 					'current_topic' => $topic,
 					'is_approved' => 1,
@@ -115,7 +116,7 @@ function Display()
 					ORDER BY is_sticky' . $order . ', id_last_msg' . $order . '
 					LIMIT 1',
 					array(
-						'current_board' => $board,
+						'current_board' => Board::$info->id,
 						'current_member' => User::$me->id,
 						'is_approved' => 1,
 						'id_member_started' => 0,
@@ -152,7 +153,7 @@ function Display()
 	$topic_parameters = array(
 		'current_member' => User::$me->id,
 		'current_topic' => $topic,
-		'current_board' => $board,
+		'current_board' => Board::$info->id,
 	);
 	$topic_selects = array();
 	$topic_tables = array();
@@ -168,7 +169,7 @@ function Display()
 			t.id_member_started, t.id_first_msg, t.id_last_msg, t.approved, t.unapproved_posts, t.id_redirect_topic,
 			COALESCE(mem.real_name, ms.poster_name) AS topic_started_name, ms.poster_time AS topic_started_time,
 			' . (User::$me->is_guest ? 't.id_last_msg + 1' : 'COALESCE(lt.id_msg, lmr.id_msg, -1) + 1') . ' AS new_from
-			' . (!empty($board_info['recycle']) ? ', id_previous_board, id_previous_topic' : '') . '
+			' . (!empty(Board::$info->recycle) ? ', id_previous_board, id_previous_topic' : '') . '
 			' . (!empty($topic_selects) ? (', ' . implode(', ', $topic_selects)) : '') . '
 			' . (!User::$me->is_guest ? ', COALESCE(lt.unwatched, 0) as unwatched' : '') . '
 		FROM {db_prefix}topics AS t
@@ -269,7 +270,7 @@ function Display()
 					WHERE t.id_topic = {int:current_topic}
 					LIMIT 1',
 					array(
-						'current_board' => $board,
+						'current_board' => Board::$info->id,
 						'current_member' => User::$me->id,
 						'current_topic' => $topic,
 					)
@@ -476,7 +477,7 @@ function Display()
 			'prev' => $_REQUEST['start'] >= Utils::$context['messages_per_page'] ? Config::$scripturl . '?topic=' . $topic . '.' . ($_REQUEST['start'] - Utils::$context['messages_per_page']) : '',
 			'next' => $_REQUEST['start'] + Utils::$context['messages_per_page'] < Utils::$context['total_visible_posts'] ? Config::$scripturl . '?topic=' . $topic . '.' . ($_REQUEST['start'] + Utils::$context['messages_per_page']) : '',
 			'last' => $_REQUEST['start'] + Utils::$context['messages_per_page'] < Utils::$context['total_visible_posts'] ? Config::$scripturl . '?topic=' . $topic . '.' . (floor(Utils::$context['total_visible_posts'] / Utils::$context['messages_per_page']) * Utils::$context['messages_per_page']) : '',
-			'up' => Config::$scripturl . '?board=' . $board . '.0'
+			'up' => Config::$scripturl . '?board=' . Board::$info->id . '.0'
 		);
 	}
 
@@ -504,19 +505,19 @@ function Display()
 	);
 
 	// Build a list of this board's moderators.
-	Utils::$context['moderators'] = &$board_info['moderators'];
-	Utils::$context['moderator_groups'] = &$board_info['moderator_groups'];
+	Utils::$context['moderators'] = &Board::$info->moderators;
+	Utils::$context['moderator_groups'] = &Board::$info->moderator_groups;
 	Utils::$context['link_moderators'] = array();
-	if (!empty($board_info['moderators']))
+	if (!empty(Board::$info->moderators))
 	{
 		// Add a link for each moderator...
-		foreach ($board_info['moderators'] as $mod)
+		foreach (Board::$info->moderators as $mod)
 			Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $mod['id'] . '" title="' . Lang::$txt['board_moderator'] . '">' . $mod['name'] . '</a>';
 	}
-	if (!empty($board_info['moderator_groups']))
+	if (!empty(Board::$info->moderator_groups))
 	{
 		// Add a link for each moderator group as well...
-		foreach ($board_info['moderator_groups'] as $mod_group)
+		foreach (Board::$info->moderator_groups as $mod_group)
 			Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=groups;sa=viewmemberes;group=' . $mod_group['id'] . '" title="' . Lang::$txt['board_moderator'] . '">' . $mod_group['name'] . '</a>';
 	}
 
@@ -948,7 +949,7 @@ function Display()
 				AND id_member = {int:current_member}
 			LIMIT 2',
 			array(
-				'current_board' => $board,
+				'current_board' => Board::$info->id,
 				'current_member' => User::$me->id,
 				'current_topic' => $topic,
 			)
@@ -969,7 +970,7 @@ function Display()
 					WHERE (id_topic = {int:current_topic} OR id_board = {int:current_board})
 						AND id_member = {int:current_member}',
 					array(
-						'current_board' => $board,
+						'current_board' => Board::$info->id,
 						'current_member' => User::$me->id,
 						'current_topic' => $topic,
 						'is_not_sent' => 0,
@@ -980,8 +981,8 @@ function Display()
 		}
 
 		// Have we recently cached the number of new topics in this board, and it's still a lot?
-		if (isset($_REQUEST['topicseen']) && isset($_SESSION['topicseen_cache'][$board]) && $_SESSION['topicseen_cache'][$board] > 5)
-			$_SESSION['topicseen_cache'][$board]--;
+		if (isset($_REQUEST['topicseen']) && isset($_SESSION['topicseen_cache'][Board::$info->id]) && $_SESSION['topicseen_cache'][Board::$info->id] > 5)
+			$_SESSION['topicseen_cache'][Board::$info->id]--;
 		// Mark board as seen if this is the only new topic.
 		elseif (isset($_REQUEST['topicseen']))
 		{
@@ -996,7 +997,7 @@ function Display()
 					AND t.id_last_msg > COALESCE(lt.id_msg, 0)' . (empty($_SESSION['id_msg_last_visit']) ? '' : '
 					AND t.id_last_msg > {int:id_msg_last_visit}'),
 				array(
-					'current_board' => $board,
+					'current_board' => Board::$info->id,
 					'current_member' => User::$me->id,
 					'id_msg_last_visit' => (int) $_SESSION['id_msg_last_visit'],
 				)
@@ -1008,11 +1009,11 @@ function Display()
 			if (empty($numNewTopics))
 				$_REQUEST['boardseen'] = true;
 			else
-				$_SESSION['topicseen_cache'][$board] = $numNewTopics;
+				$_SESSION['topicseen_cache'][Board::$info->id] = $numNewTopics;
 		}
 		// Probably one less topic - maybe not, but even if we decrease this too fast it will only make us look more often.
-		elseif (isset($_SESSION['topicseen_cache'][$board]))
-			$_SESSION['topicseen_cache'][$board]--;
+		elseif (isset($_SESSION['topicseen_cache'][Board::$info->id]))
+			$_SESSION['topicseen_cache'][Board::$info->id]--;
 
 		// Mark board as seen if we came using last post link from BoardIndex. (or other places...)
 		if (isset($_REQUEST['boardseen']))
@@ -1020,7 +1021,7 @@ function Display()
 			Db::$db->insert('replace',
 				'{db_prefix}log_boards',
 				array('id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'),
-				array(Config::$modSettings['maxMsgID'], User::$me->id, $board),
+				array(Config::$modSettings['maxMsgID'], User::$me->id, Board::$info->id),
 				array('id_member', 'id_board')
 			);
 		}
@@ -1136,8 +1137,8 @@ function Display()
 
 	Utils::$context['jump_to'] = array(
 		'label' => addslashes(un_htmlspecialchars(Lang::$txt['jump_to'])),
-		'board_name' => strtr(Utils::htmlspecialchars(strip_tags($board_info['name'])), array('&amp;' => '&')),
-		'child_level' => $board_info['child_level'],
+		'board_name' => strtr(Utils::htmlspecialchars(strip_tags(Board::$info->name)), array('&amp;' => '&')),
+		'child_level' => Board::$info->child_level,
 	);
 
 	// Set the callback.  (do you REALIZE how much memory all the messages would take?!?)
@@ -1179,7 +1180,7 @@ function Display()
 	if (!User::$me->is_admin && Utils::$context['can_move'] && !Config::$modSettings['topic_move_any'])
 	{
 		// We'll use this in a minute
-		$boards_allowed = array_diff(boardsAllowedTo('post_new'), array($board));
+		$boards_allowed = array_diff(boardsAllowedTo('post_new'), array(Board::$info->id));
 
 		/* You can't move this unless you have permission
 			to start new topics on at least one other board */
@@ -1214,8 +1215,8 @@ function Display()
 	Utils::$context['can_remove_post'] = allowedTo('delete_any') || (allowedTo('delete_replies') && User::$me->started);
 
 	// Can restore topic?  That's if the topic is in the recycle board and has a previous restore state.
-	Utils::$context['can_restore_topic'] &= !empty($board_info['recycle']) && !empty(Utils::$context['topicinfo']['id_previous_board']);
-	Utils::$context['can_restore_msg'] &= !empty($board_info['recycle']) && !empty(Utils::$context['topicinfo']['id_previous_topic']);
+	Utils::$context['can_restore_topic'] &= !empty(Board::$info->recycle) && !empty(Utils::$context['topicinfo']['id_previous_board']);
+	Utils::$context['can_restore_msg'] &= !empty(Board::$info->recycle) && !empty(Utils::$context['topicinfo']['id_previous_topic']);
 
 	// Check if the draft functions are enabled and that they have permission to use them (for quick reply.)
 	Utils::$context['drafts_save'] = !empty(Config::$modSettings['drafts_post_enabled']) && allowedTo('post_draft') && Utils::$context['can_reply'];
@@ -1276,7 +1277,7 @@ function Display()
 	Utils::$context['make_poll'] = isset($_REQUEST['poll']);
 
 	// Message icons - customized icons are off?
-	Utils::$context['icons'] = getMessageIcons($board);
+	Utils::$context['icons'] = getMessageIcons(Board::$info->id);
 
 	if (!empty(Utils::$context['icons']))
 		Utils::$context['icons'][count(Utils::$context['icons']) - 1]['is_last'] = true;
@@ -1410,7 +1411,7 @@ function Display()
 function prepareDisplayContext($reset = false)
 {
 	global $settings, $options;
-	global $messages_request, $topic, $board_info;
+	global $messages_request, $topic;
 
 	static $counter = null;
 
@@ -1503,7 +1504,7 @@ function prepareDisplayContext($reset = false)
 	$message['body'] = BBCodeParser::load()->parse($message['body'], $message['smileys_enabled'], $message['id_msg']);
 
 	// If it's in the recycle bin we need to override whatever icon we did have.
-	if (!empty($board_info['recycle']))
+	if (!empty(Board::$info->recycle))
 		$message['icon'] = 'recycled';
 
 	require_once(Config::$sourcedir . '/Subs-Attachments.php');
@@ -1688,7 +1689,7 @@ function Download()
  */
 function QuickInTopicModeration()
 {
-	global $topic, $board;
+	global $topic;
 
 	// Check the session = get or post.
 	checkSession('request');
@@ -1801,10 +1802,10 @@ function QuickInTopicModeration()
 
 		// Log this moderation action ;).
 		if (allowedTo('delete_any') && (!allowedTo('delete_own') || $info[1] != User::$me->id))
-			logAction('delete', array('topic' => $topic, 'subject' => $info[0], 'member' => $info[1], 'board' => $board));
+			logAction('delete', array('topic' => $topic, 'subject' => $info[0], 'member' => $info[1], 'board' => Board::$info->id));
 	}
 
-	redirectexit(!empty($topicGone) ? 'board=' . $board : 'topic=' . $topic . '.' . $_REQUEST['start']);
+	redirectexit(!empty($topicGone) ? 'board=' . Board::$info->id : 'topic=' . $topic . '.' . $_REQUEST['start']);
 }
 
 ?>
