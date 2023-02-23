@@ -15,6 +15,7 @@
  */
 
 use SMF\Board;
+use SMF\Category;
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
@@ -144,9 +145,7 @@ function getBoardIndex($board_index_options)
 
 	if ($board_index_options['include_categories'])
 	{
-		require_once Config::$sourcedir . '/Category.php';
-
-		$parsed_categories_description = getCategoriesParsedDescription();
+		$parsed_categories_description = Category::getParsedDescriptions();
 	}
 
 	$boards = array();
@@ -461,7 +460,7 @@ function getBoardIndex($board_index_options)
 
 	if (!empty($to_parse_categories_description))
 	{
-		$already_parsed_categories = setCategoryParsedDescription($to_parse_categories_description);
+		$already_parsed_categories = Category::setParsedDescriptions($to_parse_categories_description);
 
 		foreach ($to_parse_categories_description as $category_id => $category_description)
 			$categories[$category_id]['description'] = $already_parsed_categories[$category_id];
@@ -553,7 +552,7 @@ function getBoardIndex($board_index_options)
 	unset($category, $board);
 
 	if ($board_index_options['include_categories'])
-		Board::sortCategories($categories);
+		Category::sort($categories);
 
 	else
 		Board::sort($this_category);

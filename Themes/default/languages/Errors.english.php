@@ -469,8 +469,8 @@ $txt['move_board_no_target'] = 'Board::create(): Target board is not set';
 $txt['modify_board_move_to_incorrect'] = 'Board::modify(): the move_to value \'%s\' is incorrect';
 
 // Category errors
-$txt['create_category_no_name'] = 'createCategory(): A category name is required';
-$txt['cannot_move_to_deleted_category'] = 'deleteCategories(): You cannot move the boards to a category that\'s being deleted';
+$txt['create_category_no_name'] = 'Category::create(): A category name is required';
+$txt['cannot_move_to_deleted_category'] = 'Category::delete(): You cannot move the boards to a category that\'s being deleted';
 
 // Package manager error
 $txt['undefined_xml_attribute'] = 'Undefined XML attribute: %s';

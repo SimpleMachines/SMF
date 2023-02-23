@@ -14,6 +14,7 @@
  */
 
 use SMF\Board;
+use SMF\Category;
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
@@ -225,7 +226,7 @@ function MaintainTopics()
 	}
 	Db::$db->free_result($result);
 
-	Board::sortCategories(Utils::$context['categories']);
+	Category::sort(Utils::$context['categories']);
 
 	if (isset($_GET['done']) && $_GET['done'] == 'purgeold')
 		Utils::$context['maintenance_finished'] = Lang::$txt['maintain_old'];
