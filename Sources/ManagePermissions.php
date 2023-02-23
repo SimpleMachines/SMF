@@ -14,6 +14,7 @@
  */
 
 use SMF\Board;
+use SMF\Category;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Utils;
@@ -388,18 +389,18 @@ function PermissionByBoard()
 	loadPermissionProfiles();
 
 	// Get the board tree.
-	Board::getBoardTree();
+	Category::getTree();
 
 	// Build the list of the boards.
 	Utils::$context['categories'] = array();
-	foreach (Board::$cat_tree as $catid => $tree)
+	foreach (Category::$loaded as $catid => $tree)
 	{
 		Utils::$context['categories'][$catid] = array(
-			'name' => &$tree['node']['name'],
-			'id' => &$tree['node']['id'],
+			'name' => &$tree->name,
+			'id' => &$tree->id,
 			'boards' => array()
 		);
-		foreach (Board::$boardList[$catid] as $boardid)
+		foreach (Category::$boardList[$catid] as $boardid)
 		{
 			if (!isset(Utils::$context['profiles'][Board::$loaded[$boardid]->profile]))
 				Board::$loaded[$boardid]->profile = 1;

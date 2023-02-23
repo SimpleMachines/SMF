@@ -20,7 +20,7 @@ use SMF\Db\DatabaseApi as Db;
  * This class loads information about the current board, as well as other boards
  * when needed. It also handles low-level tasks for managing boards, such as
  * creating, deleting, and modifying them, as well as minor tasks relating to
- * boards, such as marking them read, collapsing categories, or quick moderation.
+ * boards, such as marking them read.
  *
  * Implements the \ArrayAccess interface to ease backward compatibility with the
  * deprecated global $board_info variable.
@@ -54,9 +54,7 @@ class Board implements \ArrayAccess
 		'prop_names' => array(
 			'board_id' => 'board',
 			'info' => 'board_info',
-			'cat_tree' => 'cat_tree',
 			'loaded' => 'boards',
-			'boardList' => 'boardList',
 		),
 	);
 
@@ -72,14 +70,12 @@ class Board implements \ArrayAccess
 	public int $id;
 
 	/**
-	 * @var array
+	 * @var object
 	 *
-	 * Info about this board's category.
+	 * This board's category.
+	 * An instance of SMF\Category.
 	 */
-	public array $cat = array(
-		'id' => null,
-		'name' => null,
-	);
+	public object $cat;
 
 	/**
 	 * @var string
@@ -200,13 +196,6 @@ class Board implements \ArrayAccess
 	 * Boards that are children of this board.
 	 */
 	public array $children = array();
-
-	/**
-	 * @var array
-	 *
-	 * Hierarchical list of boards that are descendants of this board.
-	 */
-	public array $tree = array();
 
 	/**
 	 * @var int
@@ -364,20 +353,6 @@ class Board implements \ArrayAccess
 	 */
 	public static array $loaded = array();
 
-	/**
-	 * @var array
-	 *
-	 * Properties of each category.
-	 */
-	public static array $cat_tree = array();
-
-	/**
-	 * @var array
-	 *
-	 * A list of boards grouped by category ID.
-	 */
-	public static array $boardList = array();
-
 	/*********************
 	 * Internal properties
 	 *********************/
@@ -514,6 +489,13 @@ class Board implements \ArrayAccess
 			$value = array_unique(array_diff($value, array(1)));
 
 			sort($value);
+		}
+
+		// Special handling for the category.
+		if (($this->prop_aliases[$prop] ?? null) === 'cat[id]')
+		{
+			$this->cat = Category::init($value);
+			return;
 		}
 
 		$this->customPropertySet($prop, $value);
@@ -775,9 +757,9 @@ class Board implements \ArrayAccess
 		$affected_boards = array($this->id);
 
 		// Ensure everything is loaded.
-		if ((isset($target_category) && !isset(self::$cat_tree[$target_category])) || (isset($target_board) && !isset(self::$loaded[$target_board])))
+		if ((isset($target_category) && !isset(Category::$loaded[$target_category])) || (isset($target_board) && !isset(self::$loaded[$target_board])))
 		{
-			self::getBoardTree();
+			Category::getTree();
 		}
 
 		// Where are we moving this board to?
@@ -787,7 +769,7 @@ class Board implements \ArrayAccess
 				$id_cat = $target_category;
 				$child_level = 0;
 				$id_parent = 0;
-				$after = self::$cat_tree[$id_cat]['last_board_order'];
+				$after = Category::$loaded[$id_cat]->last_board_order;
 				break;
 
 			case 'bottom':
@@ -796,7 +778,7 @@ class Board implements \ArrayAccess
 				$id_parent = 0;
 				$after = 0;
 
-				foreach (self::$cat_tree[$id_cat]['children'] as $id_board => $dummy)
+				foreach (Category::$loaded[$id_cat]->children as $id_board => $dummy)
 					$after = max($after, self::$loaded[$id_board]->order);
 
 				break;
@@ -819,9 +801,9 @@ class Board implements \ArrayAccess
 				$after = self::$loaded[$target_board]->order;
 
 				// Check if there are already children and (if so) get the max board order.
-				if (!empty(self::$loaded[$id_parent]->tree['children']) && empty($first_child))
+				if (!empty(self::$loaded[$id_parent]->children) && empty($first_child))
 				{
-					foreach (self::$loaded[$id_parent]->tree['children'] as $childBoard_id => $dummy)
+					foreach (self::$loaded[$id_parent]->children as $childBoard_id => $dummy)
 						$after = max($after, self::$loaded[$childBoard_id]->order);
 				}
 
@@ -843,7 +825,7 @@ class Board implements \ArrayAccess
 
 		// Get a list of children of this board.
 		$child_list = array();
-		self::recursiveBoards($child_list, $this);
+		Category::recursiveBoards($child_list, $this);
 
 		// See if there are changes that affect children.
 		foreach ($child_list as $child_id)
@@ -1483,7 +1465,7 @@ class Board implements \ArrayAccess
 	public static function modify(int $board_id, array &$boardOptions): void
 	{
 		// Load and organize all boards and categories.
-		self::getBoardTree();
+		Category::getTree();
 
 		// Make sure given boards and categories exist.
 		if (
@@ -1494,8 +1476,7 @@ class Board implements \ArrayAccess
 			)
 			|| (
 				isset($boardOptions['target_category'])
-				&& !isset(self::$cat_tree[$boardOptions['target_category']])
-			)
+				&& !isset(Category::$loaded[$boardOptions['target_category']]))
 		)
 		{
 			fatal_lang_error('no_board');
@@ -1735,7 +1716,7 @@ class Board implements \ArrayAccess
 		if (empty($boards_to_remove))
 			return;
 
-		self::getBoardTree();
+		Category::getTree();
 
 		call_integration_hook('integrate_delete_board', array($boards_to_remove, &$moveChildrenTo));
 
@@ -1747,7 +1728,7 @@ class Board implements \ArrayAccess
 
 			foreach ($boards_to_remove as $board_to_remove)
 			{
-				self::recursiveBoards($child_boards_to_remove, self::$loaded[$board_to_remove]->tree);
+				Category::recursiveBoards($child_boards_to_remove, self::$loaded[$board_to_remove]);
 			}
 
 			// Merge the children with their parents.
@@ -1896,28 +1877,32 @@ class Board implements \ArrayAccess
 
 	/**
 	 * Put all boards in the right order and sorts the records of the boards table.
-	 * Used by modify(), delete(), modifyCategory(), and deleteCategories() methods
+	 * Used by Board::modify(), Board::delete(), Category::modify(), and Category::delete()
 	 */
 	public static function reorder(): void
 	{
-		self::getBoardTree();
+		Category::getTree();
 
 		// Set the board order for each category.
 		$board_order = 0;
 
-		foreach (self::$cat_tree as $catID => $dummy)
+		foreach (Category::$loaded as $cat_id => $dummy)
 		{
-			foreach (self::$boardList[$catID] as $boardID)
-				if (self::$loaded[$boardID]->order != ++$board_order)
+			foreach (Category::$boardList[$cat_id] as $board_id)
+			{
+				if (self::$loaded[$board_id]->order != ++$board_order)
+				{
 					Db::$db->query('', '
 						UPDATE {db_prefix}boards
 						SET board_order = {int:new_order}
 						WHERE id_board = {int:selected_board}',
 						array(
 							'new_order' => $board_order,
-							'selected_board' => $boardID,
+							'selected_board' => $board_id,
 						)
 					);
+				}
+			}
 		}
 
 		// Empty the board order cache
@@ -1969,55 +1954,13 @@ class Board implements \ArrayAccess
 	}
 
 	/**
-	 * Tries to load up the entire board order and category very very quickly
-	 * Returns an array with two elements, cats and boards
-	 *
-	 * @return array An array of categories and boards
-	 */
-	public static function getTreeOrder(): array
-	{
-		static $tree_order = array(
-			'cats' => array(),
-			'boards' => array(),
-		);
-
-		if (!empty($tree_order['boards']))
-			return $tree_order;
-
-		if (($cached = CacheApi::get('board_order', 86400)) !== null)
-		{
-			$tree_order = $cached;
-			return $cached;
-		}
-
-		$request = Db::$db->query('', '
-			SELECT b.id_board, b.id_cat
-			FROM {db_prefix}categories AS c
-				JOIN {db_prefix}boards AS b ON (b.id_cat = c.id_cat)
-			ORDER BY c.cat_order, b.board_order'
-		);
-		foreach (Db::$db->fetch_all($request) as $row)
-		{
-			if (!in_array($row['id_cat'], $tree_order['cats']))
-				$tree_order['cats'][] = $row['id_cat'];
-
-			$tree_order['boards'][] = $row['id_board'];
-		}
-		Db::$db->free_result($request);
-
-		CacheApi::put('board_order', $tree_order, 86400);
-
-		return $tree_order;
-	}
-
-	/**
 	 * Takes a board array and sorts it
 	 *
 	 * @param array &$boards The boards
 	 */
 	public static function sort(array &$boards): void
 	{
-		$tree = self::getTreeOrder();
+		$tree = Category::getTreeOrder();
 
 		$ordered = array();
 
@@ -2035,30 +1978,6 @@ class Board implements \ArrayAccess
 		}
 
 		$boards = $ordered;
-	}
-
-	/**
-	 * Takes a category array and sorts it
-	 *
-	 * @param array &$categories The categories
-	 */
-	public static function sortCategories(array &$categories): void
-	{
-		$tree = self::getTreeOrder();
-
-		$ordered = array();
-
-		foreach ($tree['cats'] as $cat)
-		{
-			if (!empty($categories[$cat]))
-			{
-				$ordered[$cat] = $categories[$cat];
-				if (!empty($ordered[$cat]['boards']))
-					self::sort($ordered[$cat]['boards']);
-			}
-		}
-
-		$categories = $ordered;
 	}
 
 	/**
@@ -2156,148 +2075,6 @@ class Board implements \ArrayAccess
 		}
 
 		return $groups;
-	}
-
-	/**
-	 * Load a lot of useful information regarding the boards and categories.
-	 * The information retrieved is stored in this class's static properties:
-	 *  $boards		properties of each board.
-	 *  $boardList	a list of boards grouped by category ID.
-	 *  $cat_tree	properties of each category.
-	 */
-	public static function getBoardTree(): void
-	{
-		$selects = array(
-			'COALESCE(b.id_board, 0) AS id_board', 'b.name', 'b.description',
-			'b.id_parent', 'b.child_level', 'b.board_order', 'b.redirect',
-			'b.member_groups', 'b.deny_member_groups', 'b.id_profile',
-			'b.id_theme', 'b.override_theme', 'b.count_posts', 'b.num_posts',
-			'b.num_topics', 'c.id_cat', 'c.cat_order', 'c.can_collapse',
-			'c.name AS cat_name', 'c.description AS cat_desc',
-		);
-		$params = array();
-		$joins = array('LEFT JOIN {db_prefix}categories AS c ON (b.id_cat = c.id_cat)');
-		$where = array('{query_see_board}');
-		$order = array('c.cat_order', 'b.child_level', 'b.board_order');
-
-		// Let mods add extra columns, parameters, etc., to the SELECT query
-		call_integration_hook('integrate_pre_boardtree', array(&$selects, &$params, &$joins, &$where, &$order));
-
-		$selects = array_unique($selects);
-		$params = array_unique($params);
-		$joins = array_unique($joins);
-		$where = array_unique($where);
-		$order = array_unique($order);
-
-		// Getting all the board and category information you'd ever wanted.
-		self::$cat_tree = array();
-		$last_board_order = 0;
-
-		foreach (self::queryData($selects, $params, $joins, $where, $order) as $row)
-		{
-			if (!isset(self::$cat_tree[$row['id_cat']]))
-			{
-				self::$cat_tree[$row['id_cat']] = array(
-					'node' => array(
-						'id' => $row['id_cat'],
-						'name' => $row['cat_name'],
-						'description' => $row['cat_desc'],
-						'order' => $row['cat_order'],
-						'can_collapse' => $row['can_collapse']
-					),
-					'is_first' => empty(self::$cat_tree),
-					'last_board_order' => $last_board_order,
-					'children' => array()
-				);
-				$prevBoard = 0;
-				$curLevel = 0;
-			}
-
-			if (!empty($row['id_board']))
-			{
-				if ($row['child_level'] != $curLevel)
-					$prevBoard = 0;
-
-				$row['member_groups'] = explode(',', $row['member_groups']);
-				$row['deny_member_groups'] = explode(',', $row['deny_member_groups']);
-				$row['prev_board'] = $prevBoard;
-
-				self::load($row['id_board'], $row);
-
-				$prevBoard = $row['id_board'];
-				$last_board_order = $row['board_order'];
-
-				if (empty($row['child_level']))
-				{
-					self::$cat_tree[$row['id_cat']]['children'][$row['id_board']] = array(
-						'node' => &self::$loaded[$row['id_board']],
-						'is_first' => empty(self::$cat_tree[$row['id_cat']]['children']),
-						'children' => array()
-					);
-
-					self::$loaded[$row['id_board']]->tree = &self::$cat_tree[$row['id_cat']]['children'][$row['id_board']];
-				}
-				else
-				{
-					// Parent doesn't exist!
-					if (!isset(self::$loaded[$row['id_parent']]))
-						fatal_lang_error('no_valid_parent', false, array($row['name']));
-
-					// Wrong childlevel...we can silently fix this...
-					if (self::$loaded[$row['id_parent']]->tree['node']->child_level != $row['child_level'] - 1)
-					{
-						Db::$db->query('', '
-							UPDATE {db_prefix}boards
-							SET child_level = {int:new_child_level}
-							WHERE id_board = {int:selected_board}',
-							array(
-								'new_child_level' => self::$loaded[$row['id_parent']]->tree['node']->child_level + 1,
-								'selected_board' => $row['id_board'],
-							)
-						);
-					}
-
-					self::$loaded[$row['id_parent']]->tree['children'][$row['id_board']] = array(
-						'node' => &self::$loaded[$row['id_board']],
-						'is_first' => empty(self::$loaded[$row['id_parent']]->tree['children']),
-						'children' => array()
-					);
-
-					self::$loaded[$row['id_board']]->tree = &self::$loaded[$row['id_parent']]->tree['children'][$row['id_board']];
-				}
-			}
-
-			// If mods want to do anything with this board before we move on, now's the time
-			call_integration_hook('integrate_boardtree_board', array($row));
-		}
-
-		// Get a list of all the boards in each category (using recursion).
-		self::$boardList = array();
-
-		foreach (self::$cat_tree as $catID => $node)
-		{
-			self::$boardList[$catID] = array();
-			self::recursiveBoards(self::$boardList[$catID], $node);
-		}
-	}
-
-	/**
-	 * Recursively get a list of boards.
-	 * Used by getBoardTree
-	 *
-	 * @param array &$_boardList The board list
-	 * @param array &$_tree The board tree
-	 */
-	public static function recursiveBoards(&$_boardList, &$_tree): void
-	{
-		if (empty($_tree['children']))
-			return;
-
-		foreach ($_tree['children'] as $id => $node)
-		{
-			$_boardList[] = $id;
-			self::recursiveBoards($_boardList, $node);
-		}
 	}
 
 	/**
@@ -2420,6 +2197,43 @@ class Board implements \ArrayAccess
 		return $loaded_boards;
 	}
 
+	/**
+	 * Generator that runs queries about board data and yields the result rows.
+	 *
+	 * @param array $selects Table columns to select.
+	 * @param array $params Parameters to substitute into query text.
+	 * @param array $joins Zero or more *complete* JOIN clauses.
+	 *    E.g.: 'LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)'
+	 *    Note that 'FROM {db_prefix}boards AS b' is always part of the query.
+	 * @param array $where Zero or more conditions for the WHERE clause.
+	 *    Conditions will be placed in parentheses and concatenated with AND.
+	 *    If this is left empty, no WHERE clause will be used.
+	 * @param array $order Zero or more conditions for the ORDER BY clause.
+	 *    If this is left empty, no ORDER BY clause will be used.
+	 * @param int $limit Maximum number of results to retrieve.
+	 *    If this is left empty, all results will be retrieved.
+	 *
+	 * @return Generator<array> Iterating over the result gives database rows.
+	 */
+	public static function queryData(array $selects, array $params = array(), array $joins = array(), array $where = array(), array $order = array(), int $limit = 0)
+	{
+		$request = Db::$db->query('', '
+			SELECT
+				' . implode(', ', $selects) . '
+			FROM {db_prefix}boards AS b' . (empty($joins) ? '' : '
+				' . implode("\n\t\t\t\t", $joins)) . (empty($where) ? '' : '
+			WHERE (' . implode(') AND (', $where) . ')') . (empty($order) ? '' : '
+			ORDER BY ' . implode(', ', $order)) . ($limit > 0 ? '
+			LIMIT ' . $limit : ''),
+			$params
+		);
+		while ($row = Db::$db->fetch_assoc($request))
+		{
+			yield $row;
+		}
+		Db::$db->free_result($request);
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
@@ -2539,6 +2353,12 @@ class Board implements \ArrayAccess
 		if (!empty($this->parent))
 		{
 			self::init($this->parent)->children[$this->id] = $this;
+		}
+
+		// Plug this board into its category.
+		if (!empty($this->cat) && $this->child_level == 0)
+		{
+			$this->cat->children[$this->id] = $this;
 		}
 	}
 
@@ -2696,10 +2516,7 @@ class Board implements \ArrayAccess
 						'id' => $row['id_board'],
 						'moderators' => array(),
 						'moderator_groups' => array(),
-						'cat' => array(
-							'id' => $row['id_cat'],
-							'name' => $row['cat_name'],
-						),
+						'cat' => Category::init($row['id_cat'], array('name' => $row['cat_name'])),
 						'name' => $row['name'],
 						'description' => $row['description'],
 						'num_topics' => (int) $row['num_topics'],
@@ -2889,44 +2706,6 @@ class Board implements \ArrayAccess
 				fatal_lang_error('topic_gone', false);
 			}
 		}
-	}
-
-	/*************************
-	 * Internal static methods
-	 *************************/
-
-	/**
-	 * Generator that runs queries about board data and yields the result rows.
-	 *
-	 * @param array $selects Table columns to select.
-	 * @param array $params Parameters to substitute into query text.
-	 * @param array $joins Zero or more *complete* JOIN clauses.
-	 *    E.g.: 'LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)'
-	 *    Note that 'FROM {db_prefix}boards AS b' is always part of the query.
-	 * @param array $where Zero or more conditions for the WHERE clause.
-	 *    Conditions will be placed in parentheses and concatenated with AND.
-	 *    If this is left empty, no WHERE clause will be used.
-	 * @param array $order Zero or more conditions for the ORDER BY clause.
-	 *    If this is left empty, no ORDER BY clause will be used.
-	 *
-	 * @return Generator<array> Iterating over the result gives database rows.
-	 */
-	protected static function queryData(array $selects, array $params, array $joins, array $where, array $order)
-	{
-		$request = Db::$db->query('', '
-			SELECT
-				' . implode(', ', $selects) . '
-			FROM {db_prefix}boards AS b' . (empty($joins) ? '' : '
-				' . implode("\n\t\t\t\t", $joins)) . (empty($where) ? '' : '
-			WHERE (' . implode(') AND (', $where) . ')') . (empty($order) ? '' : '
-			ORDER BY ' . implode(', ', $order)),
-			$params
-		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			yield $row;
-		}
-		Db::$db->free_result($request);
 	}
 }
 

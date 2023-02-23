@@ -15,6 +15,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Board;
+use SMF\Category;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Utils;
@@ -108,20 +109,20 @@ function ManageBoardsMain()
 		Board::modify((int) $_REQUEST['src_board'], $boardOptions);
 	}
 
-	Board::getBoardTree();
+	Category::getTree();
 
 	Utils::$context['move_board'] = !empty($_REQUEST['move']) && isset(Board::$loaded[(int) $_REQUEST['move']]) ? (int) $_REQUEST['move'] : 0;
 
 	Utils::$context['categories'] = array();
-	foreach (Board::$cat_tree as $catid => $tree)
+	foreach (Category::$loaded as $catid => $tree)
 	{
 		Utils::$context['categories'][$catid] = array(
-			'name' => &$tree['node']['name'],
-			'id' => &$tree['node']['id'],
+			'name' => &$tree->name,
+			'id' => &$tree->id,
 			'boards' => array()
 		);
 		$move_cat = !empty(Utils::$context['move_board']) && Board::$loaded[Utils::$context['move_board']]->category == $catid;
-		foreach (Board::$boardList[$catid] as $boardid)
+		foreach (Category::$boardList[$catid] as $boardid)
 		{
 			Utils::$context['categories'][$catid]['boards'][$boardid] = array(
 				'id' => &Board::$loaded[$boardid]->id,
@@ -140,14 +141,14 @@ function ManageBoardsMain()
 		createToken('admin-bm-' . Utils::$context['move_board'], 'request');
 
 		Utils::$context['move_title'] = sprintf(Lang::$txt['mboards_select_destination'], Utils::htmlspecialchars(Board::$loaded[Utils::$context['move_board']]->name));
-		foreach (Board::$cat_tree as $catid => $tree)
+		foreach (Category::$loaded as $catid => $tree)
 		{
 			$prev_child_level = 0;
 			$prev_board = 0;
 			$stack = array();
 			// Just a shortcut, this is the same for all the urls
 			$security = Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';' . Utils::$context['admin-bm-' . Utils::$context['move_board'] . '_token_var'] . '=' . Utils::$context['admin-bm-' . Utils::$context['move_board'] . '_token'];
-			foreach (Board::$boardList[$catid] as $boardid)
+			foreach (Category::$boardList[$catid] as $boardid)
 			{
 				if (!isset(Utils::$context['categories'][$catid]['move_link']))
 					Utils::$context['categories'][$catid]['move_link'] = array(
@@ -192,10 +193,10 @@ function ManageBoardsMain()
 			elseif (!empty($stack))
 				Utils::$context['categories'][$catid]['boards'][$prev_board]['move_links'] = $stack;
 
-			if (empty(Board::$boardList[$catid]))
+			if (empty(Category::$boardList[$catid]))
 				Utils::$context['categories'][$catid]['move_link'] = array(
 					'child_level' => 0,
-					'label' => Lang::$txt['mboards_order_before'] . ' \'' . Utils::htmlspecialchars($tree['node']['name']) . '\'',
+					'label' => Lang::$txt['mboards_order_before'] . ' \'' . Utils::htmlspecialchars($tree->name) . '\'',
 					'href' => Config::$scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . Utils::$context['move_board'] . ';target_cat=' . $catid . ';move_to=top;' . $security,
 				);
 		}
@@ -221,7 +222,7 @@ function EditCategory()
 {
 	loadTemplate('ManageBoards');
 	require_once(Config::$sourcedir . '/Subs-Editor.php');
-	Board::getBoardTree();
+	Category::getTree();
 
 	// id_cat must be a number.... if it exists.
 	$_REQUEST['cat'] = isset($_REQUEST['cat']) ? (int) $_REQUEST['cat'] : 0;
@@ -231,7 +232,7 @@ function EditCategory()
 		array(
 			'id' => 0,
 			'name' => Lang::$txt['mboards_order_first'],
-			'selected' => !empty($_REQUEST['cat']) ? Board::$cat_tree[$_REQUEST['cat']]['is_first'] : false,
+			'selected' => !empty($_REQUEST['cat']) ? Category::$loaded[$_REQUEST['cat']]->is_first : false,
 			'true_name' => ''
 		)
 	);
@@ -250,35 +251,35 @@ function EditCategory()
 		);
 	}
 	// Category doesn't exist, man... sorry.
-	elseif (!isset(Board::$cat_tree[$_REQUEST['cat']]))
+	elseif (!isset(Category::$loaded[$_REQUEST['cat']]))
 		redirectexit('action=admin;area=manageboards');
 	else
 	{
 		Utils::$context['category'] = array(
 			'id' => $_REQUEST['cat'],
-			'name' => Board::$cat_tree[$_REQUEST['cat']]['node']['name'],
-			'editable_name' => Board::$cat_tree[$_REQUEST['cat']]['node']['name'],
-			'description' => Board::$cat_tree[$_REQUEST['cat']]['node']['description'],
-			'can_collapse' => !empty(Board::$cat_tree[$_REQUEST['cat']]['node']['can_collapse']),
+			'name' => Category::$loaded[$_REQUEST['cat']]->name,
+			'editable_name' => Category::$loaded[$_REQUEST['cat']]->name,
+			'description' => Category::$loaded[$_REQUEST['cat']]->description,
+			'can_collapse' => !empty(Category::$loaded[$_REQUEST['cat']]->can_collapse),
 			'children' => array(),
-			'is_empty' => empty(Board::$cat_tree[$_REQUEST['cat']]['children'])
+			'is_empty' => empty(Category::$loaded[$_REQUEST['cat']]->children)
 		);
 
-		foreach (Board::$boardList[$_REQUEST['cat']] as $child_board)
+		foreach (Category::$boardList[$_REQUEST['cat']] as $child_board)
 			Utils::$context['category']['children'][] = str_repeat('-', Board::$loaded[$child_board]->child_level) . ' ' . Board::$loaded[$child_board]->name;
 	}
 
 	$prevCat = 0;
-	foreach (Board::$cat_tree as $catid => $tree)
+	foreach (Category::$loaded as $catid => $tree)
 	{
 		if ($catid == $_REQUEST['cat'] && $prevCat > 0)
 			Utils::$context['category_order'][$prevCat]['selected'] = true;
 		elseif ($catid != $_REQUEST['cat'])
 			Utils::$context['category_order'][$catid] = array(
 				'id' => $catid,
-				'name' => Lang::$txt['mboards_order_after'] . $tree['node']['name'],
+				'name' => Lang::$txt['mboards_order_after'] . $tree->name,
 				'selected' => false,
-				'true_name' => $tree['node']['name']
+				'true_name' => $tree->name
 			);
 		$prevCat = $catid;
 	}
@@ -313,7 +314,6 @@ function EditCategory2()
 	checkSession();
 	validateToken('admin-bc-' . $_REQUEST['cat']);
 
-	require_once(Config::$sourcedir . '/Category.php');
 	require_once(Config::$sourcedir . '/Subs-Editor.php');
 
 	$_POST['cat'] = (int) $_POST['cat'];
@@ -332,10 +332,10 @@ function EditCategory2()
 		$catOptions['is_collapsible'] = isset($_POST['collapse']);
 
 		if (isset($_POST['add']))
-			createCategory($catOptions);
+			Category::create($catOptions);
 
 		else
-			modifyCategory($_POST['cat'], $catOptions);
+			Category::modify($_POST['cat'], $catOptions);
 	}
 	// If they want to delete - first give them confirmation.
 	elseif (isset($_POST['delete']) && !isset($_POST['confirmation']) && !isset($_POST['empty']))
@@ -352,10 +352,10 @@ function EditCategory2()
 			if (empty($_POST['cat_to']))
 				fatal_lang_error('mboards_delete_error');
 
-			deleteCategories(array($_POST['cat']), (int) $_POST['cat_to']);
+			Category::delete(array($_POST['cat']), (int) $_POST['cat_to']);
 		}
 		else
-			deleteCategories(array($_POST['cat']));
+			Category::delete(array($_POST['cat']));
 	}
 
 	redirectexit('action=admin;area=manageboards');
@@ -373,7 +373,7 @@ function EditBoard()
 {
 	loadTemplate('ManageBoards');
 	require_once(Config::$sourcedir . '/Subs-Editor.php');
-	Board::getBoardTree();
+	Category::getTree();
 
 	// For editing the profile we'll need this.
 	Lang::load('ManagePermissions');
@@ -482,10 +482,10 @@ function EditBoard()
 	Db::$db->free_result($request);
 
 	// Category doesn't exist, man... sorry.
-	if (!isset(Board::$boardList[$curBoard['category']]))
+	if (!isset(Category::$boardList[$curBoard['category']]))
 		redirectexit('action=admin;area=manageboards');
 
-	foreach (Board::$boardList[$curBoard['category']] as $boardid)
+	foreach (Category::$boardList[$curBoard['category']] as $boardid)
 	{
 		if ($boardid == $_REQUEST['boardid'])
 		{
@@ -522,10 +522,10 @@ function EditBoard()
 
 	// Get other available categories.
 	Utils::$context['categories'] = array();
-	foreach (Board::$cat_tree as $catID => $tree)
+	foreach (Category::$loaded as $catID => $tree)
 		Utils::$context['categories'][] = array(
 			'id' => $catID == $curBoard['category'] ? 0 : $catID,
-			'name' => $tree['node']['name'],
+			'name' => $tree->name,
 			'selected' => $catID == $curBoard['category']
 		);
 
@@ -764,7 +764,7 @@ function EditBoard2()
 function ModifyCat()
 {
 	// Get some information about the boards and the cats.
-	Board::getBoardTree();
+	Category::getTree();
 
 	// Allowed sub-actions...
 	$allowed_sa = array('add', 'modify', 'cut');
