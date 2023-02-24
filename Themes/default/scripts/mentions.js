@@ -4,6 +4,7 @@ var atwhoConfig = {
 	at: '@',
 	data: [],
 	show_the_at: true,
+	startWithSpace: true,
 	limit: 10,
 	callbacks: {
 		remoteFilter: function (query, callback) {
