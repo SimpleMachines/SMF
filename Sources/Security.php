@@ -311,6 +311,9 @@ function is_not_banned($forceCheck = false)
 				)
 			);
 
+		if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'dlattach')
+			die();
+
 		// 'Log' the user out.  Can't have any funny business... (save the name!)
 		$old_name = isset($user_info['name']) && $user_info['name'] != '' ? $user_info['name'] : $txt['guest_title'];
 		$user_info['name'] = '';
