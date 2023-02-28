@@ -680,7 +680,7 @@ function modifyBoard($board_id, &$boardOptions)
 		)
 	);
 
-	if ($board_permissions_inserts != [])
+	if ($board_permissions_inserts != array())
 		$smcFunc['db_insert']('insert',
 			'{db_prefix}board_permissions_view',
 			array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
