@@ -17,6 +17,7 @@
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;

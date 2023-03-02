@@ -16,6 +16,7 @@
 
 use SMF\Board;
 use SMF\Config;
+use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -35,8 +36,6 @@ if (!defined('SMF'))
  */
 function RemoveTopic2()
 {
-	global $topic;
-
 	// Make sure they aren't being lead around by someone. (:@)
 	checkSession('get');
 
@@ -44,7 +43,7 @@ function RemoveTopic2()
 	require_once(Config::$sourcedir . '/Subs-Post.php');
 
 	// Trying to fool us around, are we?
-	if (empty($topic))
+	if (empty(Topic::$topic_id))
 		redirectexit();
 
 	removeDeleteConcurrence();
@@ -56,7 +55,7 @@ function RemoveTopic2()
 		WHERE t.id_topic = {int:current_topic}
 		LIMIT 1',
 		array(
-			'current_topic' => $topic,
+			'current_topic' => Topic::$topic_id,
 		)
 	);
 	list ($starter, $subject, $approved, $locked) = Db::$db->fetch_row($request);
@@ -79,13 +78,13 @@ function RemoveTopic2()
 	}
 
 	// Notify people that this topic has been removed.
-	sendNotifications($topic, 'remove');
+	sendNotifications(Topic::$topic_id, 'remove');
 
-	removeTopics($topic);
+	removeTopics(Topic::$topic_id);
 
 	// Note, only log topic ID in native form if it's not gone forever.
 	if (allowedTo('remove_any') || (allowedTo('remove_own') && $starter == User::$me->id))
-		logAction('remove', array((empty(Config::$modSettings['recycle_enable']) || Config::$modSettings['recycle_board'] != Board::$info->id ? 'topic' : 'old_topic_id') => $topic, 'subject' => $subject, 'member' => $starter, 'board' => Board::$info->id));
+		logAction('remove', array((empty(Config::$modSettings['recycle_enable']) || Config::$modSettings['recycle_board'] != Board::$info->id ? 'topic' : 'old_topic_id') => Topic::$topic_id, 'subject' => $subject, 'member' => $starter, 'board' => Board::$info->id));
 
 	redirectexit('board=' . Board::$info->id . '.0');
 }
@@ -96,15 +95,13 @@ function RemoveTopic2()
  */
 function DeleteMessage()
 {
-	global $topic;
-
 	checkSession('get');
 
 	$_REQUEST['msg'] = (int) $_REQUEST['msg'];
 
-	// Is $topic set?
-	if (empty($topic) && isset($_REQUEST['topic']))
-		$topic = (int) $_REQUEST['topic'];
+	// Is Topic::$topic_id set?
+	if (empty(Topic::$topic_id) && isset($_REQUEST['topic']))
+		Topic::$topic_id = (int) $_REQUEST['topic'];
 
 	removeDeleteConcurrence();
 
@@ -115,7 +112,7 @@ function DeleteMessage()
 		WHERE t.id_topic = {int:current_topic}
 		LIMIT 1',
 		array(
-			'current_topic' => $topic,
+			'current_topic' => Topic::$topic_id,
 			'id_msg' => $_REQUEST['msg'],
 		)
 	);
@@ -147,7 +144,7 @@ function DeleteMessage()
 	$full_topic = removeMessage($_REQUEST['msg']);
 
 	if (allowedTo('delete_any') && (!allowedTo('delete_own') || $poster != User::$me->id))
-		logAction('delete', array('topic' => $topic, 'subject' => $subject, 'member' => $poster, 'board' => Board::$info->id));
+		logAction('delete', array('topic' => Topic::$topic_id, 'subject' => $subject, 'member' => $poster, 'board' => Board::$info->id));
 
 	// We want to redirect back to recent action.
 	if (isset($_REQUEST['modcenter']))
@@ -159,7 +156,7 @@ function DeleteMessage()
 	elseif ($full_topic)
 		redirectexit('board=' . Board::$info->id . '.0');
 	else
-		redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
+		redirectexit('topic=' . Topic::$topic_id . '.' . $_REQUEST['start']);
 }
 
 /**

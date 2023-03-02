@@ -18,6 +18,7 @@ use SMF\BrowserDetector;
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -282,8 +283,6 @@ function CalendarMain()
  */
 function CalendarPost()
 {
-	global $topic;
-
 	// Well - can they?
 	isAllowedTo('calendar_post');
 
@@ -419,7 +418,7 @@ function CalendarPost()
 		if (!empty(Utils::$context['event']['topic']['id']) && !empty(Utils::$context['event']['topic']['first_msg']))
 		{
 			// We load the board up, for a check on the board access rights...
-			$topic = Utils::$context['event']['topic']['id'];
+			Topic::$topic_id = Utils::$context['event']['topic']['id'];
 			Board::load();
 		}
 

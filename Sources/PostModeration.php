@@ -17,6 +17,7 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -649,8 +650,6 @@ function list_getNumUnapprovedAttachments($approve_query)
  */
 function ApproveMessage()
 {
-	global $topic;
-
 	checkSession('get');
 
 	$_REQUEST['msg'] = (int) $_REQUEST['msg'];
@@ -667,7 +666,7 @@ function ApproveMessage()
 			AND m.id_topic = {int:current_topic}
 		LIMIT 1',
 		array(
-			'current_topic' => $topic,
+			'current_topic' => Topic::$topic_id,
 			'id_msg' => $_REQUEST['msg'],
 		)
 	);
@@ -677,20 +676,20 @@ function ApproveMessage()
 	// If it's the first in a topic then the whole topic gets approved!
 	if ($first_msg == $_REQUEST['msg'])
 	{
-		approveTopics($topic, !$approved);
+		approveTopics(Topic::$topic_id, !$approved);
 
 		if ($starter != User::$me->id)
-			logAction(($approved ? 'un' : '') . 'approve_topic', array('topic' => $topic, 'subject' => $subject, 'member' => $starter, 'board' => Board::$info->id));
+			logAction(($approved ? 'un' : '') . 'approve_topic', array('topic' => Topic::$topic_id, 'subject' => $subject, 'member' => $starter, 'board' => Board::$info->id));
 	}
 	else
 	{
 		approvePosts($_REQUEST['msg'], !$approved);
 
 		if ($poster != User::$me->id)
-			logAction(($approved ? 'un' : '') . 'approve', array('topic' => $topic, 'subject' => $subject, 'member' => $poster, 'board' => Board::$info->id));
+			logAction(($approved ? 'un' : '') . 'approve', array('topic' => Topic::$topic_id, 'subject' => $subject, 'member' => $poster, 'board' => Board::$info->id));
 	}
 
-	redirectexit('topic=' . $topic . '.msg' . $_REQUEST['msg'] . '#msg' . $_REQUEST['msg']);
+	redirectexit('topic=' . Topic::$topic_id . '.msg' . $_REQUEST['msg'] . '#msg' . $_REQUEST['msg']);
 }
 
 /**

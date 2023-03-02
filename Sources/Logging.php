@@ -16,6 +16,7 @@
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -31,19 +32,19 @@ if (!defined('SMF'))
  */
 function writeLog($force = false)
 {
-	global $settings, $topic;
+	global $settings;
 
 	// If we are showing who is viewing a topic, let's see if we are, and force an update if so - to make it accurate.
-	if (!empty($settings['display_who_viewing']) && ($topic || Board::$info->id))
+	if (!empty($settings['display_who_viewing']) && (Topic::$topic_id || Board::$info->id))
 	{
 		// Take the opposite approach!
 		$force = true;
 		// Don't update for every page - this isn't wholly accurate but who cares.
-		if ($topic)
+		if (Topic::$topic_id)
 		{
-			if (isset($_SESSION['last_topic_id']) && $_SESSION['last_topic_id'] == $topic)
+			if (isset($_SESSION['last_topic_id']) && $_SESSION['last_topic_id'] == Topic::$topic_id)
 				$force = false;
-			$_SESSION['last_topic_id'] = $topic;
+			$_SESSION['last_topic_id'] = Topic::$topic_id;
 		}
 	}
 

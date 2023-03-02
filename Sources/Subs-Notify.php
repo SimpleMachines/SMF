@@ -12,6 +12,7 @@
  */
 
 use SMF\Config;
+use SMF\Topic;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -121,8 +122,6 @@ function deleteNotifyPrefs($memID, array $prefs)
  */
 function getMemberWithToken($type)
 {
-	global $topic;
-
 	// Keep it sanitary, folks
 	$id_member = !empty($_REQUEST['u']) ? (int) $_REQUEST['u'] : 0;
 

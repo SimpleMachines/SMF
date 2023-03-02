@@ -17,6 +17,7 @@
 use SMF\BrowserDetector;
 use SMF\Board;
 use SMF\Config;
+use SMF\Topic;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -31,14 +32,12 @@ if (!defined('SMF'))
  * - makes sure the query string was parsed correctly.
  * - handles the URLs passed by the queryless URLs option.
  * - makes sure, regardless of php.ini, everything has slashes.
- * - sets up Board::$board_id, $topic, and $_REQUEST['start'].
+ * - sets up Board::$board_id, Topic::$topic_id, and $_REQUEST['start'].
  * - determines, or rather tries to determine, the client's IP.
  */
 
 function cleanRequest()
 {
-	global $topic;
-
 	// What function to use to reverse magic quotes - if sybase is on we assume that the database sensibly has the right unescape function!
 	$removeMagicQuoteFunction = ini_get('magic_quotes_sybase') || strtolower(ini_get('magic_quotes_sybase')) == 'on' ? 'unescapestring__recursive' : 'stripslashes__recursive';
 	$magicQuotesEnabled = version_compare(PHP_VERSION, '7.4.0') == -1 && function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc() != 0 && empty(Config::$modSettings['integrate_magic_quotes']);
@@ -157,7 +156,7 @@ function cleanRequest()
 	// Let's not depend on the ini settings... why even have COOKIE in there, anyway?
 	$_REQUEST = $_POST + $_GET;
 
-	// Make sure Board::$board_id and $topic are numbers.
+	// Make sure Board::$board_id and Topic::$topic_id are numbers.
 	if (isset($_REQUEST['board']))
 	{
 		// Make sure it's a string and not something else like an array
@@ -198,7 +197,7 @@ function cleanRequest()
 			list ($_REQUEST['topic'], $_REQUEST['start']) = explode('.', $_REQUEST['topic']);
 
 		// Topic should always be an integer
-		$topic = $_GET['topic'] = $_REQUEST['topic'] = (int) $_REQUEST['topic'];
+		Topic::$topic_id = $_GET['topic'] = $_REQUEST['topic'] = (int) $_REQUEST['topic'];
 
 		// Start could be a lot of things...
 		// ... empty ...
@@ -233,7 +232,7 @@ function cleanRequest()
 			$_REQUEST['start'] = 0;
 	}
 	else
-		$topic = 0;
+		Topic::$topic_id = 0;
 
 	// There should be a $_REQUEST['start'], some at least.  If you need to default to other than 0, use $_GET['start'].
 	if (empty($_REQUEST['start']) || $_REQUEST['start'] < 0 || (int) $_REQUEST['start'] > 2147473647)

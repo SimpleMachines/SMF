@@ -18,6 +18,7 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -36,9 +37,8 @@ if (!defined('SMF'))
 
 function PrintTopic()
 {
-	global $topic;
 	// Redirect to the boardindex if no valid topic id is provided.
-	if (empty($topic))
+	if (empty(Topic::$topic_id))
 		redirectexit();
 
 	if (!empty(Config::$modSettings['disable_print_topic']))
@@ -61,7 +61,7 @@ function PrintTopic()
 		ORDER BY m.id_msg
 		LIMIT 1',
 		array(
-			'current_topic' => $topic,
+			'current_topic' => Topic::$topic_id,
 		)
 	);
 	// Redirect to the boardindex if no valid topic id is provided.
@@ -258,7 +258,7 @@ function PrintTopic()
 			AND (m.approved = {int:is_approved}' . (User::$me->is_guest ? '' : ' OR m.id_member = {int:current_member}') . ')' : '') . '
 		ORDER BY m.id_msg',
 		array(
-			'current_topic' => $topic,
+			'current_topic' => Topic::$topic_id,
 			'is_approved' => 1,
 			'current_member' => User::$me->id,
 		)
@@ -348,7 +348,7 @@ function PrintTopic()
 	}
 
 	// Set a canonical URL for this page.
-	Utils::$context['canonical_url'] = Config::$scripturl . '?topic=' . $topic . '.0';
+	Utils::$context['canonical_url'] = Config::$scripturl . '?topic=' . Topic::$topic_id . '.0';
 }
 
 ?>

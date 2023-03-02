@@ -17,6 +17,7 @@
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -29,7 +30,7 @@ if (!defined('SMF'))
 /**
  * This function allows to move a topic, making sure to ask the moderator
  * to give reason for topic move.
- * It must be called with a topic specified. (that is, global $topic must
+ * It must be called with a topic specified. (that is, Topic::$topic_id must
  * be set... @todo fix this thing.)
  * If the member is the topic starter requires the move_own permission,
  * otherwise the move_any permission.
@@ -39,9 +40,7 @@ if (!defined('SMF'))
  */
 function MoveTopic()
 {
-	global $topic;
-
-	if (empty($topic))
+	if (empty(Topic::$topic_id))
 		fatal_lang_error('no_access', false);
 
 	$request = Db::$db->query('', '
@@ -51,7 +50,7 @@ function MoveTopic()
 		WHERE t.id_topic = {int:current_topic}
 		LIMIT 1',
 		array(
-			'current_topic' => $topic,
+			'current_topic' => Topic::$topic_id,
 		)
 	);
 	list ($id_member_started, Utils::$context['subject'], Utils::$context['is_approved']) = Db::$db->fetch_row($request);
@@ -105,7 +104,7 @@ function MoveTopic()
 	Utils::$context['page_title'] = Lang::$txt['move_topic'];
 
 	Utils::$context['linktree'][] = array(
-		'url' => Config::$scripturl . '?topic=' . $topic . '.0',
+		'url' => Config::$scripturl . '?topic=' . Topic::$topic_id . '.0',
 		'name' => Utils::$context['subject'],
 	);
 
@@ -145,9 +144,7 @@ function MoveTopic()
  */
 function MoveTopic2()
 {
-	global $topic;
-
-	if (empty($topic))
+	if (empty(Topic::$topic_id))
 		fatal_lang_error('no_access', false);
 
 	// You can't choose to have a redirection topic and use an empty reason.
@@ -165,7 +162,7 @@ function MoveTopic2()
 		WHERE id_topic = {int:current_topic}
 		LIMIT 1',
 		array(
-			'current_topic' => $topic,
+			'current_topic' => Topic::$topic_id,
 		)
 	);
 	list ($id_member_started, $id_first_msg, Utils::$context['is_approved']) = Db::$db->fetch_row($request);
@@ -201,7 +198,7 @@ function MoveTopic2()
 			AND b.redirect = {string:blank_redirect}
 		LIMIT 1',
 		array(
-			'current_topic' => $topic,
+			'current_topic' => Topic::$topic_id,
 			'to_board' => $_POST['toboard'],
 			'blank_redirect' => '',
 		)
@@ -247,7 +244,7 @@ function MoveTopic2()
 					SET subject = {string:subject}
 					WHERE id_topic = {int:current_topic}',
 					array(
-						'current_topic' => $topic,
+						'current_topic' => Topic::$topic_id,
 						'subject' => Utils::$context['response_prefix'] . $_POST['custom_subject'],
 					)
 				);
@@ -264,7 +261,7 @@ function MoveTopic2()
 			);
 
 			// Fix the subject cache.
-			updateStats('subject', $topic, $_POST['custom_subject']);
+			updateStats('subject', Topic::$topic_id, $_POST['custom_subject']);
 		}
 	}
 
@@ -275,7 +272,7 @@ function MoveTopic2()
 		// Replace tokens with links in the reason.
 		$reason_replacements = array(
 			Lang::$txt['movetopic_auto_board'] => '[url="' . Config::$scripturl . '?board=' . $_POST['toboard'] . '.0"]' . $board_name . '[/url]',
-			Lang::$txt['movetopic_auto_topic'] => '[iurl]' . Config::$scripturl . '?topic=' . $topic . '.0[/iurl]',
+			Lang::$txt['movetopic_auto_topic'] => '[iurl]' . Config::$scripturl . '?topic=' . Topic::$topic_id . '.0[/iurl]',
 		);
 
 		// Should be in the boardwide language.
@@ -286,7 +283,7 @@ function MoveTopic2()
 			// Make sure we catch both languages in the reason.
 			$reason_replacements += array(
 				Lang::$txt['movetopic_auto_board'] => '[url="' . Config::$scripturl . '?board=' . $_POST['toboard'] . '.0"]' . $board_name . '[/url]',
-				Lang::$txt['movetopic_auto_topic'] => '[iurl]' . Config::$scripturl . '?topic=' . $topic . '.0[/iurl]',
+				Lang::$txt['movetopic_auto_topic'] => '[iurl]' . Config::$scripturl . '?topic=' . Topic::$topic_id . '.0[/iurl]',
 			);
 		}
 
@@ -300,7 +297,7 @@ function MoveTopic2()
 		$redirect_expires = !empty($_POST['redirect_expires']) ? ((int) ($_POST['redirect_expires'] * 60) + time()) : 0;
 
 		// redirect to the MOVED topic from topic list?
-		$redirect_topic = isset($_POST['redirect_topic']) ? $topic : 0;
+		$redirect_topic = isset($_POST['redirect_topic']) ? Topic::$topic_id : 0;
 
 		$msgOptions = array(
 			'subject' => Lang::$txt['moved'] . ': ' . $subject,
@@ -342,7 +339,7 @@ function MoveTopic2()
 			WHERE id_topic = {int:current_topic}
 				AND approved = {int:is_approved}',
 			array(
-				'current_topic' => $topic,
+				'current_topic' => Topic::$topic_id,
 				'is_approved' => 1,
 			)
 		);
@@ -368,13 +365,13 @@ function MoveTopic2()
 	}
 
 	// Do the move (includes statistics update needed for the redirect topic).
-	moveTopics($topic, $_POST['toboard']);
+	moveTopics(Topic::$topic_id, $_POST['toboard']);
 
 	// Log that they moved this topic.
 	if (!allowedTo('move_own') || $id_member_started != User::$me->id)
-		logAction('move', array('topic' => $topic, 'board_from' => Board::$info->id, 'board_to' => $_POST['toboard']));
+		logAction('move', array('topic' => Topic::$topic_id, 'board_from' => Board::$info->id, 'board_to' => $_POST['toboard']));
 	// Notify people that this topic has been moved?
-	sendNotifications($topic, 'move');
+	sendNotifications(Topic::$topic_id, 'move');
 
 	call_integration_hook('integrate_movetopic2_end');
 
@@ -382,7 +379,7 @@ function MoveTopic2()
 	if (!isset($_REQUEST['goback']))
 		redirectexit('board=' . Board::$info->id . '.0');
 	else
-		redirectexit('topic=' . $topic . '.0');
+		redirectexit('topic=' . Topic::$topic_id . '.0');
 }
 
 /**
@@ -721,12 +718,10 @@ function moveTopics($topics, $toBoard)
  */
 function moveTopicConcurrence()
 {
-	global $topic;
-
 	if (isset($_GET['current_board']))
 		$move_from = (int) $_GET['current_board'];
 
-	if (empty($move_from) || empty(Board::$info->id) || empty($topic))
+	if (empty($move_from) || empty(Board::$info->id) || empty(Topic::$topic_id))
 		return true;
 
 	if ($move_from == Board::$info->id)
@@ -741,13 +736,13 @@ function moveTopicConcurrence()
 			WHERE t.id_topic = {int:topic_id}
 			LIMIT 1',
 			array(
-				'topic_id' => $topic,
+				'topic_id' => Topic::$topic_id,
 			)
 		);
 		list($topic_subject, $board_name) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 		$board_link = '<a href="' . Config::$scripturl . '?board=' . Board::$info->id . '.0">' . $board_name . '</a>';
-		$topic_link = '<a href="' . Config::$scripturl . '?topic=' . $topic . '.0">' . $topic_subject . '</a>';
+		$topic_link = '<a href="' . Config::$scripturl . '?topic=' . Topic::$topic_id . '.0">' . $topic_subject . '</a>';
 		fatal_lang_error('topic_already_moved', false, array($topic_link, $board_link));
 	}
 }

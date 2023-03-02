@@ -17,6 +17,7 @@
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -36,8 +37,6 @@ if (!defined('SMF'))
  */
 function Vote()
 {
-	global $topic;
-
 	// Make sure you can vote.
 	isAllowedTo('poll_vote');
 
@@ -54,7 +53,7 @@ function Vote()
 		LIMIT 1',
 		array(
 			'current_member' => User::$me->id,
-			'current_topic' => $topic,
+			'current_topic' => Topic::$topic_id,
 			'not_guest' => 0,
 		)
 	);
@@ -157,7 +156,7 @@ function Vote()
 
 		// Redirect back to the topic so the user can vote again!
 		if (empty($_POST['options']))
-			redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
+			redirectexit('topic=' . Topic::$topic_id . '.' . $_REQUEST['start']);
 	}
 
 	checkSession('request');
@@ -226,7 +225,7 @@ function Vote()
 	call_integration_hook('integrate_poll_vote', array(&$row['id_poll'], &$pollOptions));
 
 	// Return to the post...
-	redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
+	redirectexit('topic=' . Topic::$topic_id . '.' . $_REQUEST['start']);
 }
 
 /**
@@ -240,8 +239,6 @@ function Vote()
  */
 function LockVoting()
 {
-	global $topic;
-
 	checkSession('get');
 
 	// Get the poll starter, ID, and whether or not it is locked.
@@ -252,7 +249,7 @@ function LockVoting()
 		WHERE t.id_topic = {int:current_topic}
 		LIMIT 1',
 		array(
-			'current_topic' => $topic,
+			'current_topic' => Topic::$topic_id,
 		)
 	);
 	list ($memberID, $pollID, $voting_locked) = Db::$db->fetch_row($request);
@@ -288,9 +285,9 @@ function LockVoting()
 		)
 	);
 
-	logAction(($voting_locked ? '' : 'un') . 'lock_poll', array('topic' => $topic));
+	logAction(($voting_locked ? '' : 'un') . 'lock_poll', array('topic' => Topic::$topic_id));
 
-	redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
+	redirectexit('topic=' . Topic::$topic_id . '.' . $_REQUEST['start']);
 }
 
 /**
@@ -308,9 +305,7 @@ function LockVoting()
  */
 function EditPoll()
 {
-	global $topic;
-
-	if (empty($topic))
+	if (empty(Topic::$topic_id))
 		fatal_lang_error('no_access', false);
 
 	Lang::load('Post');
@@ -330,7 +325,7 @@ function EditPoll()
 		WHERE t.id_topic = {int:current_topic}
 		LIMIT 1',
 		array(
-			'current_topic' => $topic,
+			'current_topic' => Topic::$topic_id,
 		)
 	);
 
@@ -576,7 +571,7 @@ function EditPoll()
 	// Build the link tree.
 	Lang::censorText($pollinfo['subject']);
 	Utils::$context['linktree'][] = array(
-		'url' => Config::$scripturl . '?topic=' . $topic . '.0',
+		'url' => Config::$scripturl . '?topic=' . Topic::$topic_id . '.0',
 		'name' => $pollinfo['subject'],
 	);
 	Utils::$context['linktree'][] = array(
@@ -601,11 +596,9 @@ function EditPoll()
  */
 function EditPoll2()
 {
-	global $topic;
-
 	// Sneaking off, are we?
 	if (empty($_POST))
-		redirectexit('action=editpoll;topic=' . $topic . '.0');
+		redirectexit('action=editpoll;topic=' . Topic::$topic_id . '.0');
 
 	if (checkSession('post', '', false) != '')
 		$poll_errors[] = 'session_timeout';
@@ -614,7 +607,7 @@ function EditPoll2()
 		return EditPoll();
 
 	// HACKERS (!!) can't edit :P.
-	if (empty($topic))
+	if (empty(Topic::$topic_id))
 		fatal_lang_error('no_access', false);
 
 	// Is this a new poll, or editing an existing?
@@ -628,7 +621,7 @@ function EditPoll2()
 		WHERE t.id_topic = {int:current_topic}
 		LIMIT 1',
 		array(
-			'current_topic' => $topic,
+			'current_topic' => Topic::$topic_id,
 		)
 	);
 	if (Db::$db->num_rows($request) == 0)
@@ -771,7 +764,7 @@ function EditPoll2()
 			SET id_poll = {int:id_poll}
 			WHERE id_topic = {int:current_topic}',
 			array(
-				'current_topic' => $topic,
+				'current_topic' => Topic::$topic_id,
 				'id_poll' => $bcinfo['id_poll'],
 			)
 		);
@@ -899,21 +892,21 @@ function EditPoll2()
 	if (isset($_REQUEST['add']))
 	{
 		// Added a poll
-		logAction('add_poll', array('topic' => $topic));
+		logAction('add_poll', array('topic' => Topic::$topic_id));
 	}
 	elseif (isset($_REQUEST['deletevotes']))
 	{
 		// Reset votes
-		logAction('reset_poll', array('topic' => $topic));
+		logAction('reset_poll', array('topic' => Topic::$topic_id));
 	}
 	else
 	{
 		// Something else
-		logAction('edit_poll', array('topic' => $topic));
+		logAction('edit_poll', array('topic' => Topic::$topic_id));
 	}
 
 	// Off we go.
-	redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
+	redirectexit('topic=' . Topic::$topic_id . '.' . $_REQUEST['start']);
 }
 
 /**
@@ -926,10 +919,8 @@ function EditPoll2()
  */
 function RemovePoll()
 {
-	global $topic;
-
 	// Make sure the topic is not empty.
-	if (empty($topic))
+	if (empty(Topic::$topic_id))
 		fatal_lang_error('no_access', false);
 
 	// Verify the session.
@@ -945,7 +936,7 @@ function RemovePoll()
 			WHERE t.id_topic = {int:current_topic}
 			LIMIT 1',
 			array(
-				'current_topic' => $topic,
+				'current_topic' => Topic::$topic_id,
 			)
 		);
 		if (Db::$db->num_rows($request) == 0)
@@ -963,7 +954,7 @@ function RemovePoll()
 		WHERE id_topic = {int:current_topic}
 		LIMIT 1',
 		array(
-			'current_topic' => $topic,
+			'current_topic' => Topic::$topic_id,
 		)
 	);
 	list ($pollID) = Db::$db->fetch_row($request);
@@ -999,7 +990,7 @@ function RemovePoll()
 		SET id_poll = {int:no_poll}
 		WHERE id_topic = {int:current_topic}',
 		array(
-			'current_topic' => $topic,
+			'current_topic' => Topic::$topic_id,
 			'no_poll' => 0,
 		)
 	);
@@ -1008,10 +999,10 @@ function RemovePoll()
 	call_integration_hook('integrate_poll_remove', array($pollID));
 
 	// Log this!
-	logAction('remove_poll', array('topic' => $topic));
+	logAction('remove_poll', array('topic' => Topic::$topic_id));
 
 	// Take the moderator back to the topic.
-	redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
+	redirectexit('topic=' . Topic::$topic_id . '.' . $_REQUEST['start']);
 }
 
 ?>

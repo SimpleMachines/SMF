@@ -19,6 +19,7 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -37,10 +38,8 @@ if (!defined('SMF'))
  */
 function SplitTopics()
 {
-	global $topic;
-
 	// And... which topic were you splitting, again?
-	if (empty($topic))
+	if (empty(Topic::$topic_id))
 		fatal_lang_error('numbers_one_to_nine', false);
 
 	// Are you allowed to split topics?
@@ -77,8 +76,6 @@ function SplitTopics()
  */
 function SplitIndex()
 {
-	global $topic;
-
 	// Validate "at".
 	if (empty($_GET['at']))
 		fatal_lang_error('numbers_one_to_nine', false);
@@ -94,7 +91,7 @@ function SplitIndex()
 			AND m.id_topic = {int:current_topic}
 		LIMIT 1',
 		array(
-			'current_topic' => $topic,
+			'current_topic' => Topic::$topic_id,
 			'split_at' => $_GET['at'],
 		)
 	);
@@ -141,8 +138,6 @@ function SplitIndex()
  */
 function SplitExecute()
 {
-	global $topic;
-
 	// Check the session to make sure they meant to do this.
 	checkSession();
 
@@ -152,7 +147,7 @@ function SplitExecute()
 
 	// Redirect to the selector if they chose selective.
 	if ($_POST['step2'] == 'selective')
-		redirectexit ('action=splittopics;sa=selectTopics;subname=' . $_POST['subname'] . ';topic=' . $topic . '.0;start2=0');
+		redirectexit ('action=splittopics;sa=selectTopics;subname=' . $_POST['subname'] . ';topic=' . Topic::$topic_id . '.0;start2=0');
 
 	$_POST['at'] = (int) $_POST['at'];
 	$messagesToBeSplit = array();
@@ -166,7 +161,7 @@ function SplitExecute()
 			WHERE id_topic = {int:current_topic}
 				AND id_msg >= {int:split_at}',
 			array(
-				'current_topic' => $topic,
+				'current_topic' => Topic::$topic_id,
 				'split_at' => $_POST['at'],
 			)
 		);
@@ -182,8 +177,8 @@ function SplitExecute()
 	else
 		fatal_lang_error('no_access', false);
 
-	Utils::$context['old_topic'] = $topic;
-	Utils::$context['new_topic'] = splitTopic($topic, $messagesToBeSplit, $_POST['subname']);
+	Utils::$context['old_topic'] = Topic::$topic_id;
+	Utils::$context['new_topic'] = splitTopic(Topic::$topic_id, $messagesToBeSplit, $_POST['subname']);
 	Utils::$context['page_title'] = Lang::$txt['split'];
 }
 
@@ -199,12 +194,12 @@ function SplitExecute()
  */
 function SplitSelectTopics()
 {
-	global $topic, $options;
+	global $options;
 
 	Utils::$context['page_title'] = Lang::$txt['split'] . ' - ' . Lang::$txt['select_split_posts'];
 
 	// Haven't selected anything have we?
-	$_SESSION['split_selection'][$topic] = empty($_SESSION['split_selection'][$topic]) ? array() : $_SESSION['split_selection'][$topic];
+	$_SESSION['split_selection'][Topic::$topic_id] = empty($_SESSION['split_selection'][Topic::$topic_id]) ? array() : $_SESSION['split_selection'][Topic::$topic_id];
 
 	// This is a special case for split topics from quick-moderation checkboxes
 	if (isset($_REQUEST['subname_enc']))
@@ -223,7 +218,7 @@ function SplitSelectTopics()
 	);
 
 	Utils::$context['topic'] = array(
-		'id' => $topic,
+		'id' => Topic::$topic_id,
 		'subject' => urlencode($_REQUEST['subname']),
 	);
 
@@ -246,14 +241,14 @@ function SplitSelectTopics()
 		$request = Db::$db->query('', '
 			SELECT id_msg
 			FROM {db_prefix}messages
-			WHERE id_topic = {int:current_topic}' . (empty($_SESSION['split_selection'][$topic]) ? '' : '
+			WHERE id_topic = {int:current_topic}' . (empty($_SESSION['split_selection'][Topic::$topic_id]) ? '' : '
 				AND id_msg NOT IN ({array_int:no_split_msgs})') . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 				AND approved = {int:is_approved}') . '
 				' . (empty($options['view_newest_first']) ? '' : 'ORDER BY id_msg DESC') . '
 				LIMIT {int:start}, {int:messages_per_page}',
 			array(
-				'current_topic' => $topic,
-				'no_split_msgs' => empty($_SESSION['split_selection'][$topic]) ? array() : $_SESSION['split_selection'][$topic],
+				'current_topic' => Topic::$topic_id,
+				'no_split_msgs' => empty($_SESSION['split_selection'][Topic::$topic_id]) ? array() : $_SESSION['split_selection'][Topic::$topic_id],
 				'is_approved' => 1,
 				'start' => Utils::$context['not_selected']['start'],
 				'messages_per_page' => Utils::$context['messages_per_page'],
@@ -265,7 +260,7 @@ function SplitSelectTopics()
 		while ($row = Db::$db->fetch_assoc($request))
 			$original_msgs['not_selected'][] = $row['id_msg'];
 		Db::$db->free_result($request);
-		if (!empty($_SESSION['split_selection'][$topic]))
+		if (!empty($_SESSION['split_selection'][Topic::$topic_id]))
 		{
 			$request = Db::$db->query('', '
 				SELECT id_msg
@@ -276,8 +271,8 @@ function SplitSelectTopics()
 				' . (empty($options['view_newest_first']) ? '' : 'ORDER BY id_msg DESC') . '
 				LIMIT {int:start}, {int:messages_per_page}',
 				array(
-					'current_topic' => $topic,
-					'split_msgs' => $_SESSION['split_selection'][$topic],
+					'current_topic' => Topic::$topic_id,
+					'split_msgs' => $_SESSION['split_selection'][Topic::$topic_id],
 					'is_approved' => 1,
 					'start' => Utils::$context['selected']['start'],
 					'messages_per_page' => Utils::$context['messages_per_page'],
@@ -296,15 +291,15 @@ function SplitSelectTopics()
 		$_REQUEST['msg'] = (int) $_REQUEST['msg'];
 
 		if ($_REQUEST['move'] == 'reset')
-			$_SESSION['split_selection'][$topic] = array();
+			$_SESSION['split_selection'][Topic::$topic_id] = array();
 		elseif ($_REQUEST['move'] == 'up')
-			$_SESSION['split_selection'][$topic] = array_diff($_SESSION['split_selection'][$topic], array($_REQUEST['msg']));
+			$_SESSION['split_selection'][Topic::$topic_id] = array_diff($_SESSION['split_selection'][Topic::$topic_id], array($_REQUEST['msg']));
 		else
-			$_SESSION['split_selection'][$topic][] = $_REQUEST['msg'];
+			$_SESSION['split_selection'][Topic::$topic_id][] = $_REQUEST['msg'];
 	}
 
 	// Make sure the selection is still accurate.
-	if (!empty($_SESSION['split_selection'][$topic]))
+	if (!empty($_SESSION['split_selection'][Topic::$topic_id]))
 	{
 		$request = Db::$db->query('', '
 			SELECT id_msg
@@ -313,29 +308,29 @@ function SplitSelectTopics()
 				AND id_msg IN ({array_int:split_msgs})' . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 				AND approved = {int:is_approved}'),
 			array(
-				'current_topic' => $topic,
-				'split_msgs' => $_SESSION['split_selection'][$topic],
+				'current_topic' => Topic::$topic_id,
+				'split_msgs' => $_SESSION['split_selection'][Topic::$topic_id],
 				'is_approved' => 1,
 			)
 		);
-		$_SESSION['split_selection'][$topic] = array();
+		$_SESSION['split_selection'][Topic::$topic_id] = array();
 
 		while ($row = Db::$db->fetch_assoc($request))
-			$_SESSION['split_selection'][$topic][] = $row['id_msg'];
+			$_SESSION['split_selection'][Topic::$topic_id][] = $row['id_msg'];
 
 		Db::$db->free_result($request);
 	}
 
 	// Get the number of messages (not) selected to be split.
 	$request = Db::$db->query('', '
-		SELECT ' . (empty($_SESSION['split_selection'][$topic]) ? '0' : 'm.id_msg IN ({array_int:split_msgs})') . ' AS is_selected, COUNT(*) AS num_messages
+		SELECT ' . (empty($_SESSION['split_selection'][Topic::$topic_id]) ? '0' : 'm.id_msg IN ({array_int:split_msgs})') . ' AS is_selected, COUNT(*) AS num_messages
 		FROM {db_prefix}messages AS m
 		WHERE m.id_topic = {int:current_topic}' . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
-			AND approved = {int:is_approved}') . (empty($_SESSION['split_selection'][$topic]) ? '' : '
+			AND approved = {int:is_approved}') . (empty($_SESSION['split_selection'][Topic::$topic_id]) ? '' : '
 		GROUP BY is_selected'),
 		array(
-			'current_topic' => $topic,
-			'split_msgs' => !empty($_SESSION['split_selection'][$topic]) ? $_SESSION['split_selection'][$topic] : array(),
+			'current_topic' => Topic::$topic_id,
+			'split_msgs' => !empty($_SESSION['split_selection'][Topic::$topic_id]) ? $_SESSION['split_selection'][Topic::$topic_id] : array(),
 			'is_approved' => 1,
 		)
 	);
@@ -348,23 +343,23 @@ function SplitSelectTopics()
 		Utils::$context['selected']['start'] = Utils::$context['selected']['num_messages'] <= Utils::$context['messages_per_page'] ? 0 : (Utils::$context['selected']['num_messages'] - ((Utils::$context['selected']['num_messages'] % Utils::$context['messages_per_page']) == 0 ? Utils::$context['messages_per_page'] : (Utils::$context['selected']['num_messages'] % Utils::$context['messages_per_page'])));
 
 	// Build a page list of the not-selected topics...
-	Utils::$context['not_selected']['page_index'] = constructPageIndex(Config::$scripturl . '?action=splittopics;sa=selectTopics;subname=' . strtr(urlencode($_REQUEST['subname']), array('%' => '%%')) . ';topic=' . $topic . '.%1$d;start2=' . Utils::$context['selected']['start'], Utils::$context['not_selected']['start'], Utils::$context['not_selected']['num_messages'], Utils::$context['messages_per_page'], true);
+	Utils::$context['not_selected']['page_index'] = constructPageIndex(Config::$scripturl . '?action=splittopics;sa=selectTopics;subname=' . strtr(urlencode($_REQUEST['subname']), array('%' => '%%')) . ';topic=' . Topic::$topic_id . '.%1$d;start2=' . Utils::$context['selected']['start'], Utils::$context['not_selected']['start'], Utils::$context['not_selected']['num_messages'], Utils::$context['messages_per_page'], true);
 	// ...and one of the selected topics.
-	Utils::$context['selected']['page_index'] = constructPageIndex(Config::$scripturl . '?action=splittopics;sa=selectTopics;subname=' . strtr(urlencode($_REQUEST['subname']), array('%' => '%%')) . ';topic=' . $topic . '.' . Utils::$context['not_selected']['start'] . ';start2=%1$d', Utils::$context['selected']['start'], Utils::$context['selected']['num_messages'], Utils::$context['messages_per_page'], true);
+	Utils::$context['selected']['page_index'] = constructPageIndex(Config::$scripturl . '?action=splittopics;sa=selectTopics;subname=' . strtr(urlencode($_REQUEST['subname']), array('%' => '%%')) . ';topic=' . Topic::$topic_id . '.' . Utils::$context['not_selected']['start'] . ';start2=%1$d', Utils::$context['selected']['start'], Utils::$context['selected']['num_messages'], Utils::$context['messages_per_page'], true);
 
 	// Get the messages and stick them into an array.
 	$request = Db::$db->query('', '
 		SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS real_name, m.poster_time, m.body, m.id_msg, m.smileys_enabled
 		FROM {db_prefix}messages AS m
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
-		WHERE m.id_topic = {int:current_topic}' . (empty($_SESSION['split_selection'][$topic]) ? '' : '
+		WHERE m.id_topic = {int:current_topic}' . (empty($_SESSION['split_selection'][Topic::$topic_id]) ? '' : '
 			AND id_msg NOT IN ({array_int:no_split_msgs})') . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 			AND approved = {int:is_approved}') . '
 			' . (empty($options['view_newest_first']) ? '' : 'ORDER BY m.id_msg DESC') . '
 			LIMIT {int:start}, {int:messages_per_page}',
 		array(
-			'current_topic' => $topic,
-			'no_split_msgs' => !empty($_SESSION['split_selection'][$topic]) ? $_SESSION['split_selection'][$topic] : array(),
+			'current_topic' => Topic::$topic_id,
+			'no_split_msgs' => !empty($_SESSION['split_selection'][Topic::$topic_id]) ? $_SESSION['split_selection'][Topic::$topic_id] : array(),
 			'is_approved' => 1,
 			'start' => Utils::$context['not_selected']['start'],
 			'messages_per_page' => Utils::$context['messages_per_page'],
@@ -390,7 +385,7 @@ function SplitSelectTopics()
 	Db::$db->free_result($request);
 
 	// Now get the selected messages.
-	if (!empty($_SESSION['split_selection'][$topic]))
+	if (!empty($_SESSION['split_selection'][Topic::$topic_id]))
 	{
 		// Get the messages and stick them into an array.
 		$request = Db::$db->query('', '
@@ -403,8 +398,8 @@ function SplitSelectTopics()
 			' . (empty($options['view_newest_first']) ? '' : 'ORDER BY m.id_msg DESC') . '
 			LIMIT {int:start}, {int:messages_per_page}',
 			array(
-				'current_topic' => $topic,
-				'split_msgs' => $_SESSION['split_selection'][$topic],
+				'current_topic' => Topic::$topic_id,
+				'split_msgs' => $_SESSION['split_selection'][Topic::$topic_id],
 				'is_approved' => 1,
 				'start' => Utils::$context['selected']['start'],
 				'messages_per_page' => Utils::$context['messages_per_page'],
@@ -473,8 +468,6 @@ function SplitSelectTopics()
  */
 function SplitSelectionExecute()
 {
-	global $topic;
-
 	// Make sure the session id was passed with post.
 	checkSession();
 
@@ -483,11 +476,11 @@ function SplitSelectionExecute()
 		$_POST['subname'] = Lang::$txt['new_topic'];
 
 	// You must've selected some messages!  Can't split out none!
-	if (empty($_SESSION['split_selection'][$topic]))
+	if (empty($_SESSION['split_selection'][Topic::$topic_id]))
 		fatal_lang_error('no_posts_selected', false);
 
-	Utils::$context['old_topic'] = $topic;
-	Utils::$context['new_topic'] = splitTopic($topic, $_SESSION['split_selection'][$topic], $_POST['subname']);
+	Utils::$context['old_topic'] = Topic::$topic_id;
+	Utils::$context['new_topic'] = splitTopic(Topic::$topic_id, $_SESSION['split_selection'][Topic::$topic_id], $_POST['subname']);
 	Utils::$context['page_title'] = Lang::$txt['split'];
 }
 
