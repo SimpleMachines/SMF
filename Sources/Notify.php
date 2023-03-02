@@ -17,6 +17,7 @@
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -168,8 +169,6 @@ function BoardNotify()
  */
 function TopicNotify()
 {
-	global $topic;
-
 	require_once(Config::$sourcedir . '/Subs-Notify.php');
 
 	if (isset($_REQUEST['u']) && isset($_REQUEST['token']))
@@ -184,7 +183,7 @@ function TopicNotify()
 	}
 
 	// Make sure the topic has been specified.
-	if (empty($topic))
+	if (empty(Topic::$topic_id))
 		fatal_lang_error('not_a_topic', false);
 
 	// sa=on/off is used to toggle email notifications
@@ -209,7 +208,7 @@ function TopicNotify()
 			LIMIT 1',
 			array(
 				'current_member' => $member_info['id'],
-				'current_topic' => $topic,
+				'current_topic' => Topic::$topic_id,
 			)
 		);
 		Utils::$context['notification_set'] = Db::$db->num_rows($request) != 0;
@@ -222,7 +221,7 @@ function TopicNotify()
 			);
 
 		// Set the template variables...
-		Utils::$context['topic_href'] = Config::$scripturl . '?topic=' . $topic . '.' . $_REQUEST['start'];
+		Utils::$context['topic_href'] = Config::$scripturl . '?topic=' . Topic::$topic_id . '.' . $_REQUEST['start'];
 		Utils::$context['start'] = $_REQUEST['start'];
 		Utils::$context['page_title'] = Lang::$txt['notification'];
 
@@ -237,7 +236,7 @@ function TopicNotify()
 
 		// Turn off email notifications while leaving the alert pref alone.
 		if ($mode == -1)
-			$mode = min(2, getNotifyPrefs($member_info['id'], array('topic_notify_' . $topic), true));
+			$mode = min(2, getNotifyPrefs($member_info['id'], array('topic_notify_' . Topic::$topic_id), true));
 
 		$alertPref = $mode <= 1 ? 0 : ($mode == 2 ? 1 : 3);
 
@@ -248,7 +247,7 @@ function TopicNotify()
 				AND id_topic = {int:current_topic}',
 			array(
 				'current_user' => $member_info['id'],
-				'current_topic' => $topic,
+				'current_topic' => Topic::$topic_id,
 			)
 		);
 		$log = Db::$db->fetch_assoc($request);
@@ -258,7 +257,7 @@ function TopicNotify()
 			$insert = true;
 			$log = array(
 				'id_member' => $member_info['id'],
-				'id_topic' => $topic,
+				'id_topic' => Topic::$topic_id,
 				'id_msg' => 0,
 				'unwatched' => empty($mode) ? 1 : 0,
 			);
@@ -325,7 +324,7 @@ function TopicNotify()
 	}
 	// Back to the topic.
 	else
-		redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
+		redirectexit('topic=' . Topic::$topic_id . '.' . $_REQUEST['start']);
 }
 
 /**

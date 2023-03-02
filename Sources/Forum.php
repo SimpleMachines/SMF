@@ -67,7 +67,7 @@ class Forum
 		'jsmodify' => array('Post.php', 'JavaScriptModify'),
 		'jsoption' => array('Themes.php', 'SetJavaScript'),
 		'likes' => array('', 'SMF\\Likes::call'),
-		'lock' => array('Topic.php', 'LockTopic'),
+		'lock' => array('', 'SMF\\Topic::lock'),
 		'lockvoting' => array('Poll.php', 'LockVoting'),
 		'login' => array('LogInOut.php', 'Login'),
 		'login2' => array('LogInOut.php', 'Login2'),
@@ -107,7 +107,7 @@ class Forum
 		'suggest' => array('Subs-Editor.php', 'AutoSuggestHandler'),
 		'splittopics' => array('SplitTopics.php', 'SplitTopics'),
 		'stats' => array('Stats.php', 'DisplayStats'),
-		'sticky' => array('Topic.php', 'Sticky'),
+		'sticky' => array('', 'SMF\\Topic::sticky'),
 		'theme' => array('Themes.php', 'ThemesMain'),
 		'trackip' => array('Profile-View.php', 'trackIP'),
 		'about:unknown' => array('', 'SMF\\Likes::BookOfUnknown'),
@@ -278,7 +278,7 @@ class Forum
 	 */
 	protected function main()
 	{
-		global $settings, $topic;
+		global $settings;
 
 		// Special case: session keep-alive, output a transparent pixel.
 		if (isset($_GET['action']) && $_GET['action'] == 'keepalive')
@@ -317,7 +317,7 @@ class Forum
 		is_not_banned();
 
 		// If we are in a topic and don't have permission to approve it then duck out now.
-		if (!empty($topic) && empty(Board::$info->cur_topic_approved) && !allowedTo('approve_posts') && (User::$me->id != Board::$info->cur_topic_starter || User::$me->is_guest))
+		if (!empty(Topic::$topic_id) && empty(Board::$info->cur_topic_approved) && !allowedTo('approve_posts') && (User::$me->id != Board::$info->cur_topic_starter || User::$me->is_guest))
 		{
 			fatal_lang_error('not_a_topic', false);
 		}
@@ -357,7 +357,7 @@ class Forum
 		elseif (empty($_REQUEST['action']))
 		{
 			// Action and board are both empty... BoardIndex! Unless someone else wants to do something different.
-			if (empty(Board::$info->id) && empty($topic))
+			if (empty(Board::$info->id) && empty(Topic::$topic_id))
 			{
 				if (!empty(Config::$modSettings['integrate_default_action']))
 				{
@@ -381,7 +381,7 @@ class Forum
 			}
 
 			// Topic is empty, and action is empty.... MessageIndex!
-			elseif (empty($topic))
+			elseif (empty(Topic::$topic_id))
 			{
 				require_once(Config::$sourcedir . '/MessageIndex.php');
 				return 'MessageIndex';

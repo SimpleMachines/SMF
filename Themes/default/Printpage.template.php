@@ -12,6 +12,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Topic;
 use SMF\Utils;
 
 /**
@@ -151,7 +152,7 @@ function template_print_above()
  */
 function template_main()
 {
-	global $options, $topic;
+	global $options;
 
 	if (!empty(Utils::$context['poll']))
 	{
@@ -188,7 +189,7 @@ function template_main()
 
 			foreach (Utils::$context['printattach'][$post['id_msg']] as $attach)
 				echo '
-					<img width="' . $attach['width'] . '" height="' . $attach['height'] . '" src="', Config::$scripturl . '?action=dlattach;topic=' . $topic . '.0;attach=' . $attach['id_attach'] . '" alt="">';
+					<img width="' . $attach['width'] . '" height="' . $attach['height'] . '" src="', Config::$scripturl . '?action=dlattach;topic=' . Topic::$topic_id . '.0;attach=' . $attach['id_attach'] . '" alt="">';
 		}
 
 		echo '
@@ -217,9 +218,7 @@ function template_print_below()
  */
 function template_print_options()
 {
-	global $topic;
-
-	$url_text = Config::$scripturl . '?action=printpage;topic=' . $topic . '.0';
+	$url_text = Config::$scripturl . '?action=printpage;topic=' . Topic::$topic_id . '.0';
 	$url_images = $url_text . ';images';
 
 	echo '

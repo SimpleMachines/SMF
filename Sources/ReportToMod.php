@@ -14,6 +14,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -31,8 +32,6 @@ if (!defined('SMF'))
  */
 function ReportToModerator()
 {
-	global $topic;
-
 	Utils::$context['robot_no_index'] = true;
 	Utils::$context['comment_body'] = '';
 
@@ -89,7 +88,7 @@ function ReportToModerator()
 				AND m.id_topic = {int:current_topic}
 			LIMIT 1',
 			array(
-				'current_topic' => $topic,
+				'current_topic' => Topic::$topic_id,
 				'id_msg' => $_REQUEST['msg'],
 			)
 		);
@@ -104,7 +103,7 @@ function ReportToModerator()
 		Utils::$context['message_id'] = $_REQUEST['msg'];
 
 		// The submit URL is different for users than it is for posts
-		Utils::$context['submit_url'] = Config::$scripturl . '?action=reporttm;msg=' . $_REQUEST['msg'] . ';topic=' . $topic;
+		Utils::$context['submit_url'] = Config::$scripturl . '?action=reporttm;msg=' . $_REQUEST['msg'] . ';topic=' . Topic::$topic_id;
 	}
 	else
 	{
@@ -232,8 +231,6 @@ function ReportToModerator2()
  */
 function reportPost($msg, $reason)
 {
-	global $topic;
-
 	// Get the basic topic information, and make sure they can see it.
 	$_POST['msg'] = (int) $msg;
 
@@ -245,7 +242,7 @@ function reportPost($msg, $reason)
 			AND m.id_topic = {int:current_topic}
 		LIMIT 1',
 		array(
-			'current_topic' => $topic,
+			'current_topic' => Topic::$topic_id,
 			'id_msg' => $_POST['msg'],
 		)
 	);
@@ -273,7 +270,7 @@ function reportPost($msg, $reason)
 
 	// If we're just going to ignore these, then who gives a monkeys...
 	if (!empty($ignore))
-		redirectexit('topic=' . $topic . '.msg' . $_POST['msg'] . '#msg' . $_POST['msg']);
+		redirectexit('topic=' . Topic::$topic_id . '.msg' . $_POST['msg'] . '#msg' . $_POST['msg']);
 
 	// Already reported? My god, we could be dealing with a real rogue here...
 	if (!empty($id_report))
@@ -347,7 +344,7 @@ function reportPost($msg, $reason)
 	Config::updateModSettings(array('last_mod_report_action' => time()));
 
 	// Back to the post we reported!
-	redirectexit('reportsent;topic=' . $topic . '.msg' . $_POST['msg'] . '#msg' . $_POST['msg']);
+	redirectexit('reportsent;topic=' . Topic::$topic_id . '.msg' . $_POST['msg'] . '#msg' . $_POST['msg']);
 }
 
 /**

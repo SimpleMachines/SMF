@@ -983,8 +983,6 @@ class Board implements \ArrayAccess
 	 */
 	public static function markRead(): void
 	{
-		global $topic;
-
 		// No Guests allowed!
 		is_not_guest();
 
@@ -1050,7 +1048,7 @@ class Board implements \ArrayAccess
 
 			foreach ($topics as $id_topic)
 			{
-				$markRead[] = array(Config::$modSettings['maxMsgID'], User::$me->id, $id_topic, (isset($logged_topics[$topic]) ? $logged_topics[$topic] : 0));
+				$markRead[] = array(Config::$modSettings['maxMsgID'], User::$me->id, $id_topic, (isset($logged_topics[Topic::$topic_id]) ? $logged_topics[Topic::$topic_id] : 0));
 			}
 
 			Db::$db->insert('replace',
@@ -1075,7 +1073,7 @@ class Board implements \ArrayAccess
 					LEFT JOIN {db_prefix}log_topics as lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
 				WHERE t.id_topic = {int:current_topic}',
 				array(
-					'current_topic' => $topic,
+					'current_topic' => Topic::$topic_id,
 					'current_member' => User::$me->id,
 				)
 			);
@@ -1104,7 +1102,7 @@ class Board implements \ArrayAccess
 							AND id_msg >= {int:id_first_msg}
 							AND id_msg < {int:topic_msg_id}',
 						array(
-							'current_topic' => $topic,
+							'current_topic' => Topic::$topic_id,
 							'topic_msg_id' => (int) $_GET['t'],
 							'id_first_msg' => $topicinfo['id_first_msg'],
 						)
@@ -1127,7 +1125,7 @@ class Board implements \ArrayAccess
 					ORDER BY id_msg
 					LIMIT {int:start}, 1',
 					array(
-						'current_topic' => $topic,
+						'current_topic' => Topic::$topic_id,
 						'start' => (int) $_REQUEST['start'],
 					)
 				);
@@ -1141,7 +1139,7 @@ class Board implements \ArrayAccess
 			Db::$db->insert('replace',
 				'{db_prefix}log_topics',
 				array('id_msg' => 'int', 'id_member' => 'int', 'id_topic' => 'int', 'unwatched' => 'int'),
-				array($earlyMsg, User::$me->id, $topic, $topicinfo['unwatched']),
+				array($earlyMsg, User::$me->id, Topic::$topic_id, $topicinfo['unwatched']),
 				array('id_member', 'id_topic')
 			);
 
@@ -2264,8 +2262,6 @@ class Board implements \ArrayAccess
 	 */
 	protected function __construct(?int $id = null, array $props = array())
 	{
-		global $topic;
-
 		// This should already have been set, but just in case...
 		if (!isset(self::$board_id))
 			self::$board_id = (int) ($_REQUEST['board'] ?? 0);
@@ -2284,13 +2280,13 @@ class Board implements \ArrayAccess
 				Utils::$context['linktree'] = array();
 
 				// Have they by chance specified a message id but nothing else?
-				if (empty($_REQUEST['action']) && empty($topic) && empty(self::$board_id) && !empty($_REQUEST['msg']))
+				if (empty($_REQUEST['action']) && empty(Topic::$topic_id) && empty(self::$board_id) && !empty($_REQUEST['msg']))
 				{
 					$this->redirectFromMsg();
 				}
 
 				// Load this board only if it is specified.
-				if (empty(self::$board_id) && empty($topic))
+				if (empty(self::$board_id) && empty(Topic::$topic_id))
 					return;
 
 				// Load this board's info into the object properties.
@@ -2303,7 +2299,7 @@ class Board implements \ArrayAccess
 				self::$loaded[self::$board_id] = $this;
 				self::$info = $this;
 
-				if (!empty($topic))
+				if (!empty(Topic::$topic_id))
 					$_GET['board'] = (int) self::$board_id;
 
 				if (!empty(self::$board_id))
@@ -2314,7 +2310,7 @@ class Board implements \ArrayAccess
 				}
 
 				// Set the template contextual information.
-				Utils::$context['current_topic'] = $topic;
+				Utils::$context['current_topic'] = Topic::$topic_id;
 				Utils::$context['current_board'] = self::$board_id;
 
 				// No posting in redirection boards!
@@ -2369,13 +2365,11 @@ class Board implements \ArrayAccess
 	 */
 	protected function redirectFromMsg(): void
 	{
-		global $topic;
-
 		// Make sure the message id is really an int.
 		$_REQUEST['msg'] = (int) $_REQUEST['msg'];
 
 		// Looking through the message table can be slow, so try using the cache first.
-		if (($topic = CacheApi::get('msg_topic-' . $_REQUEST['msg'], 120)) === null)
+		if ((Topic::$topic_id = CacheApi::get('msg_topic-' . $_REQUEST['msg'], 120)) === null)
 		{
 			$request = Db::$db->query('', '
 				SELECT id_topic
@@ -2390,18 +2384,18 @@ class Board implements \ArrayAccess
 			// So did it find anything?
 			if (Db::$db->num_rows($request))
 			{
-				list($topic) = Db::$db->fetch_row($request);
+				list(Topic::$topic_id) = Db::$db->fetch_row($request);
 				Db::$db->free_result($request);
 
 				// Save save save.
-				CacheApi::put('msg_topic-' . $_REQUEST['msg'], $topic, 120);
+				CacheApi::put('msg_topic-' . $_REQUEST['msg'], Topic::$topic_id, 120);
 			}
 		}
 
 		// Remember redirection is the key to avoiding fallout from your bosses.
-		if (!empty($topic))
+		if (!empty(Topic::$topic_id))
 		{
-			$redirect_url = 'topic=' . $topic . '.msg' . $_REQUEST['msg'];
+			$redirect_url = 'topic=' . Topic::$topic_id . '.msg' . $_REQUEST['msg'];
 
 			if (($other_get_params = array_diff(array_keys($_GET), array('msg'))) !== array())
 				$redirect_url .= ';' . implode(';', $other_get_params);
@@ -2425,14 +2419,12 @@ class Board implements \ArrayAccess
 	 */
 	protected function loadBoardInfo(): void
 	{
-		global $topic;
-
 		// First, try the cache.
-		if (!empty(CacheApi::$enable) && (empty($topic) || CacheApi::$enable >= 3))
+		if (!empty(CacheApi::$enable) && (empty(Topic::$topic_id) || CacheApi::$enable >= 3))
 		{
-			if (!empty($topic))
+			if (!empty(Topic::$topic_id))
 			{
-				$temp = CacheApi::get('topic_board-' . $topic, 120);
+				$temp = CacheApi::get('topic_board-' . Topic::$topic_id, 120);
 			}
 			else
 			{
@@ -2478,12 +2470,12 @@ class Board implements \ArrayAccess
 			$where = array('b.id_board = {raw:board_link}');
 			$order = array();
 
-			if (!empty($topic))
+			if (!empty(Topic::$topic_id))
 			{
 				$selects[] = 't.approved';
 				$selects[] = 't.id_member_started';
 
-				$params['current_topic'] = $topic;
+				$params['current_topic'] = Topic::$topic_id;
 				$params['board_link'] = 't.id_board';
 
 				array_unshift($joins, 'INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})');
@@ -2532,8 +2524,8 @@ class Board implements \ArrayAccess
 						'redirect' => $row['redirect'],
 						'recycle' => !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) && Config::$modSettings['recycle_board'] == self::$board_id,
 						'count_posts' => empty($row['count_posts']),
-						'cur_topic_approved' => empty($topic) || $row['approved'],
-						'cur_topic_starter' => empty($topic) ? 0 : $row['id_member_started'],
+						'cur_topic_approved' => empty(Topic::$topic_id) || $row['approved'],
+						'cur_topic_starter' => empty(Topic::$topic_id) ? 0 : $row['id_member_started'],
 
 						// Load the membergroups allowed, and check permissions.
 						'member_groups' => $row['member_groups'] == '' ? array() : array_filter(explode(',', $row['member_groups']), 'strlen'),
@@ -2573,12 +2565,12 @@ class Board implements \ArrayAccess
 				$this->set($props);
 			}
 
-			if (!empty($this->id) && !empty(CacheApi::$enable) && (empty($topic) || CacheApi::$enable >= 3))
+			if (!empty($this->id) && !empty(CacheApi::$enable) && (empty(Topic::$topic_id) || CacheApi::$enable >= 3))
 			{
 				$to_cache = array_intersect_key((array) $this, array_flip(self::$cache_props['info']));
 
-				if (!empty($topic))
-					CacheApi::put('topic_board-' . $topic, $to_cache, 120);
+				if (!empty(Topic::$topic_id))
+					CacheApi::put('topic_board-' . Topic::$topic_id, $to_cache, 120);
 
 				CacheApi::put('board-' . self::$board_id, $to_cache, 120);
 			}
@@ -2590,7 +2582,7 @@ class Board implements \ArrayAccess
 			$this->moderators = array();
 			$this->moderator_groups = array();
 			$this->error = 'exist';
-			$topic = null;
+			Topic::$topic_id = null;
 			self::$board_id = 0;
 		}
 		// If the board only contains unapproved posts and the user isn't an

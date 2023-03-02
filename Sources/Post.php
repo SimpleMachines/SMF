@@ -19,6 +19,7 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -41,7 +42,6 @@ if (!defined('SMF'))
  */
 function Post($post_errors = array())
 {
-	global $topic;
 	global $settings;
 	global $options;
 
@@ -50,7 +50,7 @@ function Post($post_errors = array())
 		Lang::load('Drafts');
 
 	// You can't reply with a poll... hacker.
-	if (isset($_REQUEST['poll']) && !empty($topic) && !isset($_REQUEST['msg']))
+	if (isset($_REQUEST['poll']) && !empty(Topic::$topic_id) && !isset($_REQUEST['msg']))
 		unset($_REQUEST['poll']);
 
 	// Posting an event?
@@ -104,7 +104,7 @@ function Post($post_errors = array())
 	}
 
 	// No message is complete without a topic.
-	if (empty($topic) && !empty($_REQUEST['msg']))
+	if (empty(Topic::$topic_id) && !empty($_REQUEST['msg']))
 	{
 		$request = Db::$db->query('', '
 			SELECT id_topic
@@ -117,12 +117,12 @@ function Post($post_errors = array())
 		if (Db::$db->num_rows($request) != 1)
 			unset($_REQUEST['msg'], $_POST['msg'], $_GET['msg']);
 		else
-			list ($topic) = Db::$db->fetch_row($request);
+			list (Topic::$topic_id) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 	}
 
 	// Check if it's locked. It isn't locked if no topic is specified.
-	if (!empty($topic))
+	if (!empty(Topic::$topic_id))
 	{
 		$request = Db::$db->query('', '
 			SELECT
@@ -137,7 +137,7 @@ function Post($post_errors = array())
 			LIMIT 1',
 			array(
 				'current_member' => User::$me->id,
-				'current_topic' => $topic,
+				'current_topic' => Topic::$topic_id,
 			)
 		);
 		list ($locked, $topic_approved, Utils::$context['notify'], $sticky, $pollID, Utils::$context['topic_last_message'], $id_member_poster, $id_first_msg, $first_subject, $editReason, $lastPostTime) = Db::$db->fetch_row($request);
@@ -238,7 +238,7 @@ function Post($post_errors = array())
 	if (isset($_REQUEST['poll']) && Config::$modSettings['pollMode'] == '1')
 	{
 		// New topic, new poll.
-		if (empty($topic))
+		if (empty(Topic::$topic_id))
 			isAllowedTo('poll_post');
 		// This is an old topic - but it is yours!  Can you add to it?
 		elseif (User::$me->id == $id_member_poster && !allowedTo('poll_add_any'))
@@ -396,13 +396,13 @@ function Post($post_errors = array())
 	});	', true);
 
 		Utils::$context['event']['board'] = !empty(Board::$info->id) ? Board::$info->id : Config::$modSettings['cal_defaultboard'];
-		Utils::$context['event']['topic'] = !empty($topic) ? $topic : 0;
+		Utils::$context['event']['topic'] = !empty(Topic::$topic_id) ? Topic::$topic_id : 0;
 	}
 
 	// See if any new replies have come along.
 	// Huh, $_REQUEST['msg'] is set upon submit, so this doesn't get executed at submit
 	// only at preview
-	if (empty($_REQUEST['msg']) && !empty($topic))
+	if (empty($_REQUEST['msg']) && !empty(Topic::$topic_id))
 	{
 		if (empty($options['no_new_reply_warning']) && isset($_REQUEST['last_msg']) && Utils::$context['topic_last_message'] > $_REQUEST['last_msg'])
 		{
@@ -414,7 +414,7 @@ function Post($post_errors = array())
 					AND approved = {int:approved}') . '
 				LIMIT 1',
 				array(
-					'current_topic' => $topic,
+					'current_topic' => Topic::$topic_id,
 					'last_msg' => (int) $_REQUEST['last_msg'],
 					'approved' => 1,
 				)
@@ -584,7 +584,7 @@ function Post($post_errors = array())
 		Utils::$context['submit_label'] = isset($_REQUEST['msg']) ? Lang::$txt['save'] : Lang::$txt['post'];
 
 		// Previewing an edit?
-		if (isset($_REQUEST['msg']) && !empty($topic))
+		if (isset($_REQUEST['msg']) && !empty(Topic::$topic_id))
 		{
 			// Get the existing message. Previewing.
 			$request = Db::$db->query('', '
@@ -601,7 +601,7 @@ function Post($post_errors = array())
 				WHERE m.id_msg = {int:id_msg}
 					AND m.id_topic = {int:current_topic}',
 				array(
-					'current_topic' => $topic,
+					'current_topic' => Topic::$topic_id,
 					'attachment_type' => 0,
 					'id_msg' => $_REQUEST['msg'],
 					'announce_action' => 'announce_topic',
@@ -670,7 +670,7 @@ function Post($post_errors = array())
 			}
 
 			// Allow moderators to change names....
-			if (allowedTo('moderate_forum') && !empty($topic))
+			if (allowedTo('moderate_forum') && !empty(Topic::$topic_id))
 			{
 				$request = Db::$db->query('', '
 					SELECT id_member, poster_name, poster_email
@@ -679,7 +679,7 @@ function Post($post_errors = array())
 						AND id_topic = {int:current_topic}
 					LIMIT 1',
 					array(
-						'current_topic' => $topic,
+						'current_topic' => Topic::$topic_id,
 						'id_msg' => (int) $_REQUEST['msg'],
 					)
 				);
@@ -698,7 +698,7 @@ function Post($post_errors = array())
 		checkSubmitOnce('free');
 	}
 	// Editing a message...
-	elseif (isset($_REQUEST['msg']) && !empty($topic))
+	elseif (isset($_REQUEST['msg']) && !empty(Topic::$topic_id))
 	{
 		Utils::$context['editing'] = true;
 
@@ -719,7 +719,7 @@ function Post($post_errors = array())
 			WHERE m.id_msg = {int:id_msg}
 				AND m.id_topic = {int:current_topic}',
 			array(
-				'current_topic' => $topic,
+				'current_topic' => Topic::$topic_id,
 				'attachment_type' => 0,
 				'id_msg' => $_REQUEST['msg'],
 				'announce_action' => 'announce_topic',
@@ -831,7 +831,7 @@ function Post($post_errors = array())
 		Utils::$context['submit_label'] = Lang::$txt['post'];
 
 		// Posting a quoted reply?
-		if (!empty($topic) && !empty($_REQUEST['quote']))
+		if (!empty(Topic::$topic_id) && !empty($_REQUEST['quote']))
 		{
 			// Make sure they _can_ quote this post, and if so get it.
 			$request = Db::$db->query('', '
@@ -892,7 +892,7 @@ function Post($post_errors = array())
 			$form_message = '[quote author=' . $mname . ' link=msg=' . (int) $_REQUEST['quote'] . ' date=' . $mdate . ']' . "\n" . rtrim($form_message) . "\n" . '[/quote]';
 		}
 		// Posting a reply without a quote?
-		elseif (!empty($topic) && empty($_REQUEST['quote']))
+		elseif (!empty(Topic::$topic_id) && empty($_REQUEST['quote']))
 		{
 			// Get the first message's subject.
 			$form_subject = $first_subject;
@@ -971,8 +971,8 @@ function Post($post_errors = array())
 				else
 				{
 					// Since, they don't belong here. Let's inform the user that they exist..
-					if (!empty($topic))
-						$delete_url = Config::$scripturl . '?action=post' . (!empty($_REQUEST['msg']) ? (';msg=' . $_REQUEST['msg']) : '') . (!empty($_REQUEST['last_msg']) ? (';last_msg=' . $_REQUEST['last_msg']) : '') . ';topic=' . $topic . ';delete_temp';
+					if (!empty(Topic::$topic_id))
+						$delete_url = Config::$scripturl . '?action=post' . (!empty($_REQUEST['msg']) ? (';msg=' . $_REQUEST['msg']) : '') . (!empty($_REQUEST['last_msg']) ? (';last_msg=' . $_REQUEST['last_msg']) : '') . ';topic=' . Topic::$topic_id . ';delete_temp';
 					else
 						$delete_url = Config::$scripturl . '?action=post' . (!empty(Board::$info->id) ? ';board=' . Board::$info->id : '') . ';delete_temp';
 
@@ -1169,19 +1169,19 @@ function Post($post_errors = array())
 		Utils::$context['page_title'] = Lang::$txt['modify_msg'];
 	elseif (isset($_REQUEST['subject'], Utils::$context['preview_subject']))
 		Utils::$context['page_title'] = Lang::$txt['preview'] . ' - ' . strip_tags(Utils::$context['preview_subject']);
-	elseif (empty($topic))
+	elseif (empty(Topic::$topic_id))
 		Utils::$context['page_title'] = Lang::$txt['start_new_topic'];
 	else
 		Utils::$context['page_title'] = Lang::$txt['post_reply'];
 
 	// Build the link tree.
-	if (empty($topic))
+	if (empty(Topic::$topic_id))
 		Utils::$context['linktree'][] = array(
 			'name' => '<em>' . Lang::$txt['start_new_topic'] . '</em>'
 		);
 	else
 		Utils::$context['linktree'][] = array(
-			'url' => Config::$scripturl . '?topic=' . $topic . '.' . $_REQUEST['start'],
+			'url' => Config::$scripturl . '?topic=' . Topic::$topic_id . '.' . $_REQUEST['start'],
 			'name' => $form_subject,
 			'extra_before' => '<span><strong class="nav">' . Utils::$context['page_title'] . ' (</strong></span>',
 			'extra_after' => '<span><strong class="nav">)</strong></span>'
@@ -1198,7 +1198,7 @@ function Post($post_errors = array())
 	if (!empty(Utils::$context['drafts_save']))
 	{
 		require_once(Config::$sourcedir . '/Drafts.php');
-		ShowDrafts(User::$me->id, $topic);
+		ShowDrafts(User::$me->id, Topic::$topic_id);
 	}
 
 	// Needed for the editor and message icons.
@@ -1265,7 +1265,7 @@ function Post($post_errors = array())
 		));
 	}
 
-	if (!empty($topic) && !empty(Config::$modSettings['topicSummaryPosts']))
+	if (!empty(Topic::$topic_id) && !empty(Config::$modSettings['topicSummaryPosts']))
 		getTopic();
 
 	// If the user can post attachments prepare the warning labels.
@@ -1298,7 +1298,7 @@ function Post($post_errors = array())
 	Utils::$context['back_to_topic'] = isset($_REQUEST['goback']) || (isset($_REQUEST['msg']) && !isset($_REQUEST['subject']));
 	Utils::$context['show_additional_options'] = !empty($_POST['additional_options']) || isset($_SESSION['temp_attachments']['post']) || isset($_GET['additionalOptions']);
 
-	Utils::$context['is_new_topic'] = empty($topic);
+	Utils::$context['is_new_topic'] = empty(Topic::$topic_id);
 	Utils::$context['is_new_post'] = !isset($_REQUEST['msg']);
 	Utils::$context['is_first_post'] = Utils::$context['is_new_topic'] || (isset($_REQUEST['msg']) && $_REQUEST['msg'] == $id_first_msg);
 
@@ -1583,7 +1583,7 @@ function Post($post_errors = array())
 			'type' => 'text',
 			'attributes' => array(
 				'size' => 80,
-				'maxlength' => 80 + (!empty($topic) ? Utils::entityStrlen(Utils::$context['response_prefix']) : 0),
+				'maxlength' => 80 + (!empty(Topic::$topic_id) ? Utils::entityStrlen(Utils::$context['response_prefix']) : 0),
 				'value' => Utils::$context['subject'],
 				'required' => true,
 			),
@@ -1664,19 +1664,18 @@ function Post($post_errors = array())
  */
 function Post2()
 {
-	global $topic;
 	global $options, $settings;
 
 	// Sneaking off, are we?
-	if (empty($_POST) && empty($topic))
+	if (empty($_POST) && empty(Topic::$topic_id))
 	{
 		if (empty($_SERVER['CONTENT_LENGTH']))
 			redirectexit('action=post;board=' . Board::$info->id . '.0');
 		else
 			fatal_lang_error('post_upload_error', false);
 	}
-	elseif (empty($_POST) && !empty($topic))
-		redirectexit('action=post;topic=' . $topic . '.0');
+	elseif (empty($_POST) && !empty(Topic::$topic_id))
+		redirectexit('action=post;topic=' . Topic::$topic_id . '.0');
 
 	// No need!
 	Utils::$context['robot_no_index'] = true;
@@ -1770,7 +1769,7 @@ function Post2()
 	$can_approve = allowedTo('approve_posts');
 
 	// If this isn't a new topic load the topic info that we need.
-	if (!empty($topic))
+	if (!empty(Topic::$topic_id))
 	{
 		$request = Db::$db->query('', '
 			SELECT locked, is_sticky, id_poll, approved, id_first_msg, id_last_msg, id_member_started, id_board
@@ -1778,7 +1777,7 @@ function Post2()
 			WHERE id_topic = {int:current_topic}
 			LIMIT 1',
 			array(
-				'current_topic' => $topic,
+				'current_topic' => Topic::$topic_id,
 			)
 		);
 		$topic_info = Db::$db->fetch_assoc($request);
@@ -1806,7 +1805,7 @@ function Post2()
 	}
 
 	// Replying to a topic?
-	if (!empty($topic) && !isset($_REQUEST['msg']))
+	if (!empty(Topic::$topic_id) && !isset($_REQUEST['msg']))
 	{
 		// Don't allow a post if it's locked.
 		if ($topic_info['locked'] != 0 && !allowedTo('moderate_board'))
@@ -1893,7 +1892,7 @@ function Post2()
 		Utils::$context['poster_id'] = User::$me->id;
 	}
 	// Posting a new topic.
-	elseif (empty($topic))
+	elseif (empty(Topic::$topic_id))
 	{
 		// Now don't be silly, new topics will get their own id_msg soon enough.
 		unset($_REQUEST['msg'], $_POST['msg'], $_GET['msg']);
@@ -1933,7 +1932,7 @@ function Post2()
 		Utils::$context['poster_id'] = User::$me->id;
 	}
 	// Modifying an existing message?
-	elseif (isset($_REQUEST['msg']) && !empty($topic))
+	elseif (isset($_REQUEST['msg']) && !empty(Topic::$topic_id))
 	{
 		$_REQUEST['msg'] = (int) $_REQUEST['msg'];
 
@@ -2123,11 +2122,11 @@ function Post2()
 	// Validate the poll...
 	if (isset($_REQUEST['poll']) && Config::$modSettings['pollMode'] == '1')
 	{
-		if (!empty($topic) && !isset($_REQUEST['msg']))
+		if (!empty(Topic::$topic_id) && !isset($_REQUEST['msg']))
 			fatal_lang_error('no_access', false);
 
 		// This is a new topic... so it's a new poll.
-		if (empty($topic))
+		if (empty(Topic::$topic_id))
 			isAllowedTo('poll_post');
 		// Can you add to your own topics?
 		elseif (User::$me->id == $topic_info['id_member_started'] && !allowedTo('poll_add_any'))
@@ -2366,7 +2365,7 @@ function Post2()
 		$id_poll = 0;
 
 	// Creating a new topic?
-	$newTopic = empty($_REQUEST['msg']) && empty($topic);
+	$newTopic = empty($_REQUEST['msg']) && empty(Topic::$topic_id);
 
 	// Check the icon.
 	if (!isset($_POST['icon']))
@@ -2392,13 +2391,13 @@ function Post2()
 		'approved' => $becomesApproved,
 	);
 	$topicOptions = array(
-		'id' => empty($topic) ? 0 : $topic,
+		'id' => empty(Topic::$topic_id) ? 0 : Topic::$topic_id,
 		'board' => Board::$info->id,
 		'poll' => isset($_REQUEST['poll']) ? $id_poll : null,
 		'lock_mode' => isset($_POST['lock']) ? (int) $_POST['lock'] : null,
 		'sticky_mode' => isset($_POST['sticky']) ? (int) $_POST['sticky'] : null,
 		'mark_as_read' => true,
-		'is_approved' => !Config::$modSettings['postmod_active'] || empty($topic) || !empty(Board::$info->cur_topic_approved),
+		'is_approved' => !Config::$modSettings['postmod_active'] || empty(Topic::$topic_id) || !empty(Board::$info->cur_topic_approved),
 		'first_msg' => empty($topic_info['id_first_msg']) ? null : $topic_info['id_first_msg'],
 		'last_msg' => empty($topic_info['id_last_msg']) ? null : $topic_info['id_last_msg'],
 	);
@@ -2429,7 +2428,7 @@ function Post2()
 		createPost($msgOptions, $topicOptions, $posterOptions);
 
 		if (isset($topicOptions['id']))
-			$topic = $topicOptions['id'];
+			Topic::$topic_id = $topicOptions['id'];
 	}
 
 	// Are there attachments already uploaded and waiting to be assigned?
@@ -2455,7 +2454,7 @@ function Post2()
 		// Insert the event.
 		$eventOptions = array(
 			'board' => Board::$info->id,
-			'topic' => $topic,
+			'topic' => Topic::$topic_id,
 			'title' => $_POST['evtitle'],
 			'location' => $_POST['event_location'],
 			'member' => User::$me->id,
@@ -2504,7 +2503,7 @@ function Post2()
 			// Set up our options
 			$eventOptions = array(
 				'board' => Board::$info->id,
-				'topic' => $topic,
+				'topic' => Topic::$topic_id,
 				'title' => $_POST['evtitle'],
 				'location' => $_POST['event_location'],
 				'member' => User::$me->id,
@@ -2536,7 +2535,7 @@ function Post2()
 		Db::$db->insert('ignore',
 			'{db_prefix}log_notify',
 			array('id_member' => 'int', 'id_topic' => 'int', 'id_board' => 'int'),
-			array(User::$me->id, $topic, 0),
+			array(User::$me->id, Topic::$topic_id, 0),
 			array('id_member', 'id_topic', 'id_board')
 		);
 	}
@@ -2547,13 +2546,13 @@ function Post2()
 				AND id_topic = {int:current_topic}',
 			array(
 				'current_member' => User::$me->id,
-				'current_topic' => $topic,
+				'current_topic' => Topic::$topic_id,
 			)
 		);
 
 	// Log an act of moderation - modifying.
 	if (!empty($moderationAction))
-		logAction('modify', array('topic' => $topic, 'message' => (int) $_REQUEST['msg'], 'member' => $row['id_member'], 'board' => Board::$info->id));
+		logAction('modify', array('topic' => Topic::$topic_id, 'message' => (int) $_REQUEST['msg'], 'member' => $row['id_member'], 'board' => Board::$info->id));
 
 	if (isset($_POST['lock']) && $_POST['lock'] != 2)
 		logAction(empty($_POST['lock']) ? 'unlock' : 'lock', array('topic' => $topicOptions['id'], 'board' => $topicOptions['board']));
@@ -2584,16 +2583,16 @@ function Post2()
 	call_integration_hook('integrate_post2_end');
 
 	if (!empty($_POST['announce_topic']) && allowedTo('announce_topic'))
-		redirectexit('action=announce;sa=selectgroup;topic=' . $topic . (!empty($_POST['move']) && allowedTo('move_any') ? ';move' : '') . (empty($_REQUEST['goback']) ? '' : ';goback'));
+		redirectexit('action=announce;sa=selectgroup;topic=' . Topic::$topic_id . (!empty($_POST['move']) && allowedTo('move_any') ? ';move' : '') . (empty($_REQUEST['goback']) ? '' : ';goback'));
 
 	if (!empty($_POST['move']) && allowedTo('move_any'))
-		redirectexit('action=movetopic;topic=' . $topic . '.0' . (empty($_REQUEST['goback']) ? '' : ';goback'));
+		redirectexit('action=movetopic;topic=' . Topic::$topic_id . '.0' . (empty($_REQUEST['goback']) ? '' : ';goback'));
 
 	// Return to post if the mod is on.
 	if (isset($_REQUEST['msg']) && !empty($_REQUEST['goback']))
-		redirectexit('topic=' . $topic . '.msg' . $_REQUEST['msg'] . '#msg' . $_REQUEST['msg'], BrowserDetector::isBrowser('ie'));
+		redirectexit('topic=' . Topic::$topic_id . '.msg' . $_REQUEST['msg'] . '#msg' . $_REQUEST['msg'], BrowserDetector::isBrowser('ie'));
 	elseif (!empty($_REQUEST['goback']))
-		redirectexit('topic=' . $topic . '.new#new', BrowserDetector::isBrowser('ie'));
+		redirectexit('topic=' . Topic::$topic_id . '.new#new', BrowserDetector::isBrowser('ie'));
 	// Dut-dut-duh-duh-DUH-duh-dut-duh-duh!  *dances to the Final Fantasy Fanfare...*
 	else
 		redirectexit('board=' . Board::$info->id . '.0');
@@ -2609,13 +2608,11 @@ function Post2()
  */
 function AnnounceTopic()
 {
-	global $topic;
-
 	isAllowedTo('announce_topic');
 
 	validateSession();
 
-	if (empty($topic))
+	if (empty(Topic::$topic_id))
 		fatal_lang_error('topic_gone', false);
 
 	Lang::load('Post');
@@ -2640,8 +2637,6 @@ function AnnounceTopic()
  */
 function AnnouncementSelectMembergroup()
 {
-	global $topic;
-
 	$groups = array_merge(Board::$info->groups, array(1));
 	foreach ($groups as $id => $group)
 		$groups[$id] = (int) $group;
@@ -2698,7 +2693,7 @@ function AnnouncementSelectMembergroup()
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
 		WHERE t.id_topic = {int:current_topic}',
 		array(
-			'current_topic' => $topic,
+			'current_topic' => Topic::$topic_id,
 		)
 	);
 	list (Utils::$context['topic_subject']) = Db::$db->fetch_row($request);
@@ -2722,8 +2717,6 @@ function AnnouncementSelectMembergroup()
  */
 function AnnouncementSend()
 {
-	global $topic;
-
 	checkSession();
 
 	Utils::$context['start'] = empty($_REQUEST['start']) ? 0 : (int) $_REQUEST['start'];
@@ -2747,7 +2740,7 @@ function AnnouncementSend()
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
 		WHERE t.id_topic = {int:current_topic}',
 		array(
-			'current_topic' => $topic,
+			'current_topic' => Topic::$topic_id,
 		)
 	);
 	list ($id_msg, Utils::$context['topic_subject'], $message) = Db::$db->fetch_row($request);
@@ -2783,11 +2776,11 @@ function AnnouncementSend()
 	// All members have received a mail. Go to the next screen.
 	if (Db::$db->num_rows($request) == 0)
 	{
-		logAction('announce_topic', array('topic' => $topic), 'user');
+		logAction('announce_topic', array('topic' => Topic::$topic_id), 'user');
 		if (!empty($_REQUEST['move']) && allowedTo('move_any'))
-			redirectexit('action=movetopic;topic=' . $topic . '.0' . (empty($_REQUEST['goback']) ? '' : ';goback'));
+			redirectexit('action=movetopic;topic=' . Topic::$topic_id . '.0' . (empty($_REQUEST['goback']) ? '' : ';goback'));
 		elseif (!empty($_REQUEST['goback']))
-			redirectexit('topic=' . $topic . '.new;boardseen#new', BrowserDetector::isBrowser('ie'));
+			redirectexit('topic=' . Topic::$topic_id . '.new;boardseen#new', BrowserDetector::isBrowser('ie'));
 		else
 			redirectexit('board=' . Board::$info->id . '.0');
 	}
@@ -2820,7 +2813,7 @@ function AnnouncementSend()
 			$replacements = array(
 				'TOPICSUBJECT' => Utils::$context['topic_subject'],
 				'MESSAGE' => $message,
-				'TOPICLINK' => Config::$scripturl . '?topic=' . $topic . '.0',
+				'TOPICLINK' => Config::$scripturl . '?topic=' . Topic::$topic_id . '.0',
 				'UNSUBSCRIBELINK' => Config::$scripturl . '?action=notifyannouncements;u={UNSUBSCRIBE_ID};token={UNSUBSCRIBE_TOKEN}',
 			);
 
@@ -2872,7 +2865,7 @@ function AnnouncementSend()
  */
 function getTopic()
 {
-	global $topic, $options;
+	global $options;
 	static $counter;
 
 	if (isset($_REQUEST['xml']))
@@ -2894,7 +2887,7 @@ function getTopic()
 			AND m.approved = {int:approved}') . '
 		ORDER BY m.id_msg DESC' . $limit,
 		array(
-			'current_topic' => $topic,
+			'current_topic' => Topic::$topic_id,
 			'id_msg' => isset($_REQUEST['msg']) ? (int) $_REQUEST['msg'] : 0,
 			'approved' => 1,
 		)
@@ -3038,9 +3031,8 @@ function QuoteFast()
  */
 function JavaScriptModify()
 {
-	global $topic;
 	// We have to have a topic!
-	if (empty($topic))
+	if (empty(Topic::$topic_id))
 		obExit(false);
 
 	checkSession('get');
@@ -3061,7 +3053,7 @@ function JavaScriptModify()
 			AND (m.approved = {int:is_approved} OR (m.id_member != {int:guest_id} AND m.id_member = {int:current_member}))')),
 		array(
 			'current_member' => User::$me->id,
-			'current_topic' => $topic,
+			'current_topic' => Topic::$topic_id,
 			'id_msg' => empty($_REQUEST['msg']) ? 't.id_first_msg' : (int) $_REQUEST['msg'],
 			'is_approved' => 1,
 			'guest_id' => 0,
@@ -3180,7 +3172,7 @@ function JavaScriptModify()
 			'approved' => (isset($row['approved']) ? $row['approved'] : null),
 		);
 		$topicOptions = array(
-			'id' => $topic,
+			'id' => Topic::$topic_id,
 			'board' => Board::$info->id,
 			'lock_mode' => isset($_POST['lock']) ? (int) $_POST['lock'] : null,
 			'sticky_mode' => isset($_POST['sticky']) ? (int) $_POST['sticky'] : null,
@@ -3240,7 +3232,7 @@ function JavaScriptModify()
 				WHERE id_topic = {int:current_topic}
 					AND id_msg != {int:id_first_msg}',
 				array(
-					'current_topic' => $topic,
+					'current_topic' => Topic::$topic_id,
 					'id_first_msg' => $row['id_first_msg'],
 					'subject' => Utils::$context['response_prefix'] . $_POST['subject'],
 				)
@@ -3248,7 +3240,7 @@ function JavaScriptModify()
 		}
 
 		if (!empty($moderationAction))
-			logAction('modify', array('topic' => $topic, 'message' => $row['id_msg'], 'member' => $row['id_member'], 'board' => Board::$info->id));
+			logAction('modify', array('topic' => Topic::$topic_id, 'message' => $row['id_msg'], 'member' => $row['id_member'], 'board' => Board::$info->id));
 	}
 
 	if (isset($_REQUEST['xml']))
