@@ -17,6 +17,8 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Mentions;
+use SMF\Msg;
+use SMF\Mail;
 use SMF\TaskRunner;
 use SMF\User;
 use SMF\Utils;
@@ -93,7 +95,6 @@ class CreatePost_Notify extends BackgroundTask
 	 */
 	public function execute()
 	{
-		require_once(Config::$sourcedir . '/Msg.php');
 		require_once(Config::$sourcedir . '/Subs-Notify.php');
 		require_once(Config::$sourcedir . '/Subs.php');
 		require_once(Config::$sourcedir . '/ScheduledTasks.php');
@@ -601,8 +602,8 @@ class CreatePost_Notify extends BackgroundTask
 					'UNSUBSCRIBELINK' => Config::$scripturl . '?action=notify' . $content_type . ';' . $content_type . '=' . $itemID . ';sa=off;u=' . $member_data['id_member'] . ';token=' . $token,
 				);
 
-				$emaildata = loadEmailTemplate($message_type, $replacements, $member_data['lngfile']);
-				$mail_result = sendmail($member_data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'm' . $topicOptions['id'], $emaildata['is_html']);
+				$emaildata = Mail::loadEmailTemplate($message_type, $replacements, $member_data['lngfile']);
+				$mail_result = Mail::send($member_data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'm' . $topicOptions['id'], $emaildata['is_html']);
 
 				if ($mail_result !== false)
 					$this->members['emailed'][] = $member_id;
@@ -670,8 +671,8 @@ class CreatePost_Notify extends BackgroundTask
 					'CONTENTLINK' => Config::$scripturl . '?msg=' . $msgOptions['id'],
 				);
 
-				$emaildata = loadEmailTemplate('msg_quote', $replacements, empty($member_data['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $member_data['lngfile']);
-				$mail_result = sendmail($member_data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'msg_quote_' . $msgOptions['id'], $emaildata['is_html'], 2);
+				$emaildata = Mail::loadEmailTemplate('msg_quote', $replacements, empty($member_data['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $member_data['lngfile']);
+				$mail_result = Mail::send($member_data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'msg_quote_' . $msgOptions['id'], $emaildata['is_html'], 2);
 
 				if ($mail_result !== false)
 				{
@@ -743,8 +744,8 @@ class CreatePost_Notify extends BackgroundTask
 					'CONTENTLINK' => Config::$scripturl . '?msg=' . $msgOptions['id'],
 				);
 
-				$emaildata = loadEmailTemplate('msg_mention', $replacements, empty($member_data['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $member_data['lngfile']);
-				$mail_result = sendmail($member_data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'msg_mention_' . $msgOptions['id'], $emaildata['is_html'], 2);
+				$emaildata = Mail::loadEmailTemplate('msg_mention', $replacements, empty($member_data['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $member_data['lngfile']);
+				$mail_result = Mail::send($member_data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'msg_mention_' . $msgOptions['id'], $emaildata['is_html'], 2);
 
 				if ($mail_result !== false)
 				{

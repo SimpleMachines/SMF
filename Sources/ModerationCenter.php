@@ -16,6 +16,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Msg;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -1694,9 +1695,6 @@ function ModifyWarningTemplate()
 		checkSession();
 		validateToken('mod-wt');
 
-		// To check the BBC is pretty good...
-		require_once(Config::$sourcedir . '/Msg.php');
-
 		// Bit of cleaning!
 		$_POST['template_body'] = trim($_POST['template_body']);
 		$_POST['template_title'] = trim($_POST['template_title']);
@@ -1708,7 +1706,7 @@ function ModifyWarningTemplate()
 			$_POST['template_title'] = Utils::htmlspecialchars($_POST['template_title']);
 
 			// Clean up BBC.
-			preparsecode($_POST['template_body']);
+			Msg::preparsecode($_POST['template_body']);
 			// But put line breaks back!
 			$_POST['template_body'] = strtr($_POST['template_body'], array('<br>' => "\n"));
 

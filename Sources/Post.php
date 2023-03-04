@@ -19,6 +19,8 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Msg;
+use SMF\Mail;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -91,8 +93,6 @@ function Post($post_errors = array())
 	// Let's keep things simple for ourselves below
 	else
 		$boards = array(Board::$info->id);
-
-	require_once(Config::$sourcedir . '/Msg.php');
 
 	if (isset($_REQUEST['xml']))
 	{
@@ -550,8 +550,8 @@ function Post($post_errors = array())
 		{
 			// Set up the preview message and subject and censor them...
 			Utils::$context['preview_message'] = $form_message;
-			preparsecode($form_message, true);
-			preparsecode(Utils::$context['preview_message']);
+			Msg::preparsecode($form_message, true);
+			Msg::preparsecode(Utils::$context['preview_message']);
 
 			// Do all bulletin board code tags, with or without smileys.
 			Utils::$context['preview_message'] = BBCodeParser::load()->parse(Utils::$context['preview_message'], !isset($_REQUEST['ns']));
@@ -768,7 +768,7 @@ function Post($post_errors = array())
 
 		// Get the stuff ready for the form.
 		$form_subject = $row['subject'];
-		$form_message = un_preparsecode($row['body']);
+		$form_message = Msg::un_preparsecode($row['body']);
 		Lang::censorText($form_message);
 		Lang::censorText($form_subject);
 
@@ -1702,7 +1702,6 @@ function Post2()
 			$post_errors = array_merge($post_errors, Utils::$context['require_verification']);
 	}
 
-	require_once(Config::$sourcedir . '/Msg.php');
 	Lang::load('Post');
 
 	call_integration_hook('integrate_post2_start', array(&$post_errors));
@@ -2106,7 +2105,7 @@ function Post2()
 		// Preparse code. (Zef)
 		if (User::$me->is_guest)
 			User::$me->name = $_POST['guestname'];
-		preparsecode($_POST['message']);
+		Msg::preparsecode($_POST['message']);
 
 		// Let's see if there's still some content left without the tags.
 		if (Utils::htmlTrim(strip_tags(BBCodeParser::load()->parse($_POST['message'], false), implode('', Utils::$context['allowed_html_tags']))) === '' && (!allowedTo('bbc_html') || strpos($_POST['message'], '[html]') === false))
@@ -2420,12 +2419,12 @@ function Post2()
 			$msgOptions['poster_time'] = $row['poster_time'];
 		}
 
-		modifyPost($msgOptions, $topicOptions, $posterOptions);
+		Msg::modify($msgOptions, $topicOptions, $posterOptions);
 	}
 	// This is a new topic or an already existing one. Save it.
 	else
 	{
-		createPost($msgOptions, $topicOptions, $posterOptions);
+		Msg::create($msgOptions, $topicOptions, $posterOptions);
 
 		if (isset($topicOptions['id']))
 			Topic::$topic_id = $topicOptions['id'];
@@ -2751,9 +2750,6 @@ function AnnouncementSend()
 
 	$message = trim(un_htmlspecialchars(strip_tags(strtr(BBCodeParser::load()->parse($message, false, $id_msg), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
 
-	// We need this in order to be able send emails.
-	require_once(Config::$sourcedir . '/Msg.php');
-
 	// Select the email addresses for this batch.
 	$request = Db::$db->query('', '
 		SELECT mem.id_member, mem.email_address, mem.lngfile
@@ -2817,7 +2813,7 @@ function AnnouncementSend()
 				'UNSUBSCRIBELINK' => Config::$scripturl . '?action=notifyannouncements;u={UNSUBSCRIBE_ID};token={UNSUBSCRIBE_TOKEN}',
 			);
 
-			$emaildata = loadEmailTemplate('new_announcement', $replacements, $cur_language);
+			$emaildata = Mail::loadEmailTemplate('new_announcement', $replacements, $cur_language);
 
 			$announcements[$cur_language] = array(
 				'subject' => $emaildata['subject'],
@@ -2839,7 +2835,7 @@ function AnnouncementSend()
 
 			$body = str_replace(array('{UNSUBSCRIBE_ID}', '{UNSUBSCRIBE_TOKEN}'), array($member_id, $token), $mail['body']);
 
-			sendmail($member_email, $mail['subject'], $body, null, null, false, 5);
+			Mail::send($member_email, $mail['subject'], $body, null, null, false, 5);
 		}
 
 	}
@@ -2931,8 +2927,6 @@ function QuoteFast()
 	if (!isset($_REQUEST['xml']))
 		loadTemplate('Post');
 
-	include_once(Config::$sourcedir . '/Msg.php');
-
 	$moderate_boards = boardsAllowedTo('moderate_board');
 
 	$request = Db::$db->query('', '
@@ -2963,7 +2957,7 @@ function QuoteFast()
 	if (!empty($can_view_post))
 	{
 		// Remove special formatting we don't want anymore.
-		$row['body'] = un_preparsecode($row['body']);
+		$row['body'] = Msg::un_preparsecode($row['body']);
 
 		// Censor the message!
 		Lang::censorText($row['body']);
@@ -3036,7 +3030,6 @@ function JavaScriptModify()
 		obExit(false);
 
 	checkSession('get');
-	require_once(Config::$sourcedir . '/Msg.php');
 
 	// Assume the first message if no message ID was given.
 	$request = Db::$db->query('', '
@@ -3120,7 +3113,7 @@ function JavaScriptModify()
 		{
 			$_POST['message'] = Utils::htmlspecialchars($_POST['message'], ENT_QUOTES);
 
-			preparsecode($_POST['message']);
+			Msg::preparsecode($_POST['message']);
 
 			if (Utils::htmlTrim(strip_tags(BBCodeParser::load()->parse($_POST['message'], false), implode('', Utils::$context['allowed_html_tags']))) === '')
 			{
@@ -3199,7 +3192,7 @@ function JavaScriptModify()
 		else
 			$moderationAction = false;
 
-		modifyPost($msgOptions, $topicOptions, $posterOptions);
+		Msg::modify($msgOptions, $topicOptions, $posterOptions);
 
 		// If we didn't change anything this time but had before put back the old info.
 		if (!isset($msgOptions['modify_time']) && !empty($row['modified_time']))

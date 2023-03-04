@@ -19,6 +19,8 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Msg;
+use SMF\Mail;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -45,10 +47,9 @@ function SplitTopics()
 	// Are you allowed to split topics?
 	isAllowedTo('split_any');
 
-	// Load up the "dependencies" - the template, getMsgMemberID(), and sendNotifications().
+	// Load up the "dependencies" - the template and getMsgMemberID().
 	if (!isset($_REQUEST['xml']))
 		loadTemplate('SplitTopics');
-	require_once(Config::$sourcedir . '/Msg.php');
 
 	$subActions = array(
 		'selectTopics' => 'SplitSelectTopics',
@@ -778,12 +779,12 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 
 	// Housekeeping.
 	updateStats('topic');
-	updateLastMessages($id_board);
+	Msg::updateLastMessages($id_board);
 
 	logAction('split', array('topic' => $split1_ID_TOPIC, 'new_topic' => $split2_ID_TOPIC, 'board' => $id_board));
 
 	// Notify people that this topic has been split?
-	sendNotifications($split1_ID_TOPIC, 'split');
+	Mail::sendNotifications($split1_ID_TOPIC, 'split');
 
 	// If there's a search index that needs updating, update it...
 	$searchAPI = SearchApi::load();
@@ -1384,7 +1385,6 @@ function MergeExecute($topics = array())
 		);
 	}
 
-	require_once(Config::$sourcedir . '/Msg.php');
 	$posterOptions = array(
 		'id' => User::$me->id,
 		'update_post_count' => false,
@@ -1410,7 +1410,7 @@ function MergeExecute($topics = array())
 		}
 
 		$_POST['reason'] = Utils::htmlspecialchars($_POST['reason'], ENT_QUOTES);
-		preparsecode($_POST['reason']);
+		Msg::preparsecode($_POST['reason']);
 
 		// Add a URL onto the message.
 		$reason = strtr($_POST['reason'], $reason_replacements);
@@ -1441,7 +1441,7 @@ function MergeExecute($topics = array())
 
 			// So we have to make the post. We need to do *this* here so we don't foul up indexes later
 			// and we have to fix them up later once everything else has happened.
-			if (createPost($msgOptions, $topicOptions, $posterOptions))
+			if (Msg::create($msgOptions, $topicOptions, $posterOptions))
 			{
 				$updated_topics[$this_old_topic] = $msgOptions['id'];
 			}
@@ -1744,12 +1744,12 @@ function MergeExecute($topics = array())
 	// Update all the statistics.
 	updateStats('topic');
 	updateStats('subject', $id_topic, $target_subject);
-	updateLastMessages($boards);
+	Msg::updateLastMessages($boards);
 
 	logAction('merge', array('topic' => $id_topic, 'board' => $id_board));
 
 	// Notify people that these topics have been merged?
-	sendNotifications($id_topic, 'merge');
+	Mail::sendNotifications($id_topic, 'merge');
 
 	// If there's a search index that needs updating, update it...
 	$searchAPI = SearchApi::load();

@@ -19,6 +19,7 @@ use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Msg;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -41,9 +42,6 @@ function MessageMain()
 
 	// You're not supposed to be here at all, if you can't even read PMs.
 	isAllowedTo('pm_read');
-
-	// This file contains the basic functions for sending a PM.
-	require_once(Config::$sourcedir . '/Msg.php');
 
 	Lang::load('PersonalMessage+Drafts');
 
@@ -2462,7 +2460,7 @@ function MessagePost2()
 	{
 		// Preparse the message.
 		$message = $_REQUEST['message'];
-		preparsecode($message);
+		Msg::preparsecode($message);
 
 		// Make sure there's still some content left without the tags.
 		if (Utils::htmlTrim(strip_tags(BBCodeParser::load()->parse(Utils::htmlspecialchars($message, ENT_QUOTES), false), '<img>')) === '' && (!allowedTo('bbc_html') || strpos($message, '[html]') === false))
@@ -2492,7 +2490,7 @@ function MessagePost2()
 		// Set everything up to be displayed.
 		Utils::$context['preview_subject'] = Utils::htmlspecialchars($_REQUEST['subject']);
 		Utils::$context['preview_message'] = Utils::htmlspecialchars($_REQUEST['message'], ENT_QUOTES);
-		preparsecode(Utils::$context['preview_message'], true);
+		Msg::preparsecode(Utils::$context['preview_message'], true);
 
 		// Parse out the BBC if it is enabled.
 		Utils::$context['preview_message'] = BBCodeParser::load()->parse(Utils::$context['preview_message']);
@@ -2547,7 +2545,7 @@ function MessagePost2()
 
 	// Do the actual sending of the PM.
 	if (!empty($recipientList['to']) || !empty($recipientList['bcc']))
-		Utils::$context['send_log'] = sendpm($recipientList, $_REQUEST['subject'], $_REQUEST['message'], true, null, !empty($_REQUEST['pm_head']) ? (int) $_REQUEST['pm_head'] : 0);
+		Utils::$context['send_log'] = Msg::sendpm($recipientList, $_REQUEST['subject'], $_REQUEST['message'], true, null, !empty($_REQUEST['pm_head']) ? (int) $_REQUEST['pm_head'] : 0);
 	else
 		Utils::$context['send_log'] = array(
 			'sent' => array(),
@@ -3717,7 +3715,7 @@ function ReportMessage()
 
 		// Send a different email for each language.
 		foreach ($messagesToSend as $lang => $message)
-			sendpm($message['recipients'], $message['subject'], $message['body']);
+			Msg::sendpm($message['recipients'], $message['subject'], $message['body']);
 
 		// Give the user their own language back!
 		if (!empty(Config::$modSettings['userLanguage']))

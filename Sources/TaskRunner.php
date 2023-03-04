@@ -147,7 +147,7 @@ class TaskRunner
 			}
 			elseif (!empty(Config::$modSettings['mail_next_send']) && Config::$modSettings['mail_next_send'] < time())
 			{
-				ReduceMailQueue();
+				Mail::reduceQueue();
 			}
 		}
 

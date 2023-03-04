@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Mail;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -1036,8 +1037,6 @@ function AdminApprove()
 	// First, check our session.
 	checkSession();
 
-	require_once(Config::$sourcedir . '/Msg.php');
-
 	// We also need to the login languages here - for emails.
 	Lang::load('Login');
 
@@ -1141,8 +1140,8 @@ function AdminApprove()
 					'FORGOTPASSWORDLINK' => Config::$scripturl . '?action=reminder',
 				);
 
-				$emaildata = loadEmailTemplate('admin_approve_accept', $replacements, $member['language']);
-				sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'accapp' . $member['id'], $emaildata['is_html'], 0);
+				$emaildata = Mail::loadEmailTemplate('admin_approve_accept', $replacements, $member['language']);
+				Mail::send($member['email'], $emaildata['subject'], $emaildata['body'], null, 'accapp' . $member['id'], $emaildata['is_html'], 0);
 			}
 		}
 	}
@@ -1179,8 +1178,8 @@ function AdminApprove()
 				'ACTIVATIONCODE' => $validation_code,
 			);
 
-			$emaildata = loadEmailTemplate('admin_approve_activation', $replacements, $member['language']);
-			sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'accact' . $member['id'], $emaildata['is_html'], 0);
+			$emaildata = Mail::loadEmailTemplate('admin_approve_activation', $replacements, $member['language']);
+			Mail::send($member['email'], $emaildata['subject'], $emaildata['body'], null, 'accact' . $member['id'], $emaildata['is_html'], 0);
 		}
 	}
 	// Are we rejecting them?
@@ -1197,8 +1196,8 @@ function AdminApprove()
 					'USERNAME' => $member['name'],
 				);
 
-				$emaildata = loadEmailTemplate('admin_approve_reject', $replacements, $member['language']);
-				sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'accrej', $emaildata['is_html'], 1);
+				$emaildata = Mail::loadEmailTemplate('admin_approve_reject', $replacements, $member['language']);
+				Mail::send($member['email'], $emaildata['subject'], $emaildata['body'], null, 'accrej', $emaildata['is_html'], 1);
 			}
 		}
 	}
@@ -1216,8 +1215,8 @@ function AdminApprove()
 					'USERNAME' => $member['name'],
 				);
 
-				$emaildata = loadEmailTemplate('admin_approve_delete', $replacements, $member['language']);
-				sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'accdel', $emaildata['is_html'], 1);
+				$emaildata = Mail::loadEmailTemplate('admin_approve_delete', $replacements, $member['language']);
+				Mail::send($member['email'], $emaildata['subject'], $emaildata['body'], null, 'accdel', $emaildata['is_html'], 1);
 			}
 		}
 	}
@@ -1233,8 +1232,8 @@ function AdminApprove()
 				'ACTIVATIONCODE' => $member['code'],
 			);
 
-			$emaildata = loadEmailTemplate('admin_approve_remind', $replacements, $member['language']);
-			sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'accrem' . $member['id'], $emaildata['is_html'], 1);
+			$emaildata = Mail::loadEmailTemplate('admin_approve_remind', $replacements, $member['language']);
+			Mail::send($member['email'], $emaildata['subject'], $emaildata['body'], null, 'accrem' . $member['id'], $emaildata['is_html'], 1);
 		}
 	}
 

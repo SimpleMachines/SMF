@@ -16,6 +16,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Msg;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -158,13 +159,12 @@ function issueWarning($memID)
 			// Send the PM?
 			else
 			{
-				require_once(Config::$sourcedir . '/Msg.php');
 				$from = array(
 					'id' => 0,
 					'name' => Utils::$context['forum_name_html_safe'],
 					'username' => Utils::$context['forum_name_html_safe'],
 				);
-				sendpm(array('to' => array($memID), 'bcc' => array()), $_POST['warn_sub'], $_POST['warn_body'], false, $from);
+				Msg::sendpm(array('to' => array($memID), 'bcc' => array()), $_POST['warn_sub'], $_POST['warn_body'], false, $from);
 
 				// Log the notice!
 				$id_notice = Db::$db->insert('',
@@ -235,9 +235,7 @@ function issueWarning($memID)
 
 		if (!empty($_POST['warn_body']))
 		{
-			require_once(Config::$sourcedir . '/Msg.php');
-
-			preparsecode($warning_body);
+			Msg::preparsecode($warning_body);
 			$warning_body = BBCodeParser::load()->parse($warning_body);
 		}
 

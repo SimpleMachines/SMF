@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Mail;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -579,9 +580,8 @@ function RequestMembers()
  */
 function resetPassword($memID, $username = null)
 {
-	// Language... and a required file.
+	// Language...
 	Lang::load('Login');
-	require_once(Config::$sourcedir . '/Msg.php');
 
 	// Get some important details.
 	$request = Db::$db->query('', '
@@ -623,10 +623,10 @@ function resetPassword($memID, $username = null)
 		'PASSWORD' => $newPassword,
 	);
 
-	$emaildata = loadEmailTemplate('change_password', $replacements, empty($lngfile) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $lngfile);
+	$emaildata = Mail::loadEmailTemplate('change_password', $replacements, empty($lngfile) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $lngfile);
 
 	// Send them the email informing them of the change - then we're done!
-	sendmail($email, $emaildata['subject'], $emaildata['body'], null, 'chgpass' . $memID, $emaildata['is_html'], 0);
+	Mail::send($email, $emaildata['subject'], $emaildata['body'], null, 'chgpass' . $memID, $emaildata['is_html'], 0);
 }
 
 /**

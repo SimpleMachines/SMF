@@ -772,9 +772,6 @@ function QuickModeration()
 	if (isset($_SESSION['topicseen_cache']))
 		$_SESSION['topicseen_cache'] = array();
 
-	// This is going to be needed to send off the notifications and for updateLastMessages().
-	require_once(Config::$sourcedir . '/Msg.php');
-
 	// Remember the last board they moved things to.
 	if (isset($_REQUEST['move_to']))
 		$_SESSION['move_to_topic'] = $_REQUEST['move_to'];
@@ -1165,7 +1162,7 @@ function QuickModeration()
 			{
 				// Only log the topic ID if it's not in the recycle board.
 				logAction('remove', array((empty(Config::$modSettings['recycle_enable']) || Config::$modSettings['recycle_board'] != $removeCacheBoards[$topic] ? 'topic' : 'old_topic_id') => $topic, 'board' => $removeCacheBoards[$topic]));
-				sendNotifications($topic, 'remove');
+				Mail::sendNotifications($topic, 'remove');
 			}
 
 			require_once(Config::$sourcedir . '/RemoveTopic.php');
@@ -1202,7 +1199,7 @@ function QuickModeration()
 		if (!empty($approveCache))
 		{
 			// Handle the approval part...
-			approveTopics($approveCache);
+			Topic::approve($approveCache);
 
 			// Time for some logging!
 			foreach ($approveCache as $topic)
@@ -1316,17 +1313,17 @@ function QuickModeration()
 			break;
 
 		logAction('move', array('topic' => $topic[0], 'board_from' => $topic[1], 'board_to' => $topic[2]));
-		sendNotifications($topic[0], 'move');
+		Mail::sendNotifications($topic[0], 'move');
 	}
 	foreach ($lockCache as $topic)
 	{
 		logAction($lockStatus[$topic] ? 'lock' : 'unlock', array('topic' => $topic, 'board' => $lockCacheBoards[$topic]));
-		sendNotifications($topic, $lockStatus[$topic] ? 'lock' : 'unlock');
+		Mail::sendNotifications($topic, $lockStatus[$topic] ? 'lock' : 'unlock');
 	}
 	foreach ($stickyCache as $topic)
 	{
 		logAction($stickyCacheStatus[$topic] ? 'unsticky' : 'sticky', array('topic' => $topic, 'board' => $stickyCacheBoards[$topic]));
-		sendNotifications($topic, 'sticky');
+		Mail::sendNotifications($topic, 'sticky');
 	}
 
 	updateStats('topic');
@@ -1336,7 +1333,7 @@ function QuickModeration()
 	));
 
 	if (!empty($affectedBoards))
-		updateLastMessages(array_keys($affectedBoards));
+		Msg::updateLastMessages(array_keys($affectedBoards));
 
 	redirectexit($redirect_url);
 }

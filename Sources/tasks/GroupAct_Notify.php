@@ -14,6 +14,8 @@
 namespace SMF\Tasks;
 
 use SMF\Config;
+use SMF\Msg;
+use SMF\Mail;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -128,7 +130,6 @@ class GroupAct_Notify extends BackgroundTask
 				if ($pref & self::RECEIVE_NOTIFY_EMAIL)
 				{
 					// Emails are a bit complicated. We have to do language stuff.
-					require_once(Config::$sourcedir . '/Msg.php');
 					require_once(Config::$sourcedir . '/ScheduledTasks.php');
 					loadEssentialThemeData();
 
@@ -140,9 +141,9 @@ class GroupAct_Notify extends BackgroundTask
 					if (!empty($custom_reason))
 						$replacements['REASON'] = $custom_reason;
 
-					$emaildata = loadEmailTemplate($email_template_name, $replacements, $user['language']);
+					$emaildata = Mail::loadEmailTemplate($email_template_name, $replacements, $user['language']);
 
-					sendmail($user['email'], $emaildata['subject'], $emaildata['body'], null, $email_message_id_prefix . $user['rid'], $emaildata['is_html'], 2);
+					Mail::send($user['email'], $emaildata['subject'], $emaildata['body'], null, $email_message_id_prefix . $user['rid'], $emaildata['is_html'], 2);
 				}
 			}
 

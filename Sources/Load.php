@@ -18,6 +18,7 @@ use SMF\Board;
 use SMF\BrowserDetector;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Mail;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -566,7 +567,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 			if (empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time())
 				AutoTask();
 			else
-				ReduceMailQueue();
+				Mail::reduceQueue();
 		}
 	}
 

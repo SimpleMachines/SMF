@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Msg;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -139,9 +140,8 @@ function SetCensor()
 
 	if (isset($_POST['censortest']))
 	{
-		require_once(Config::$sourcedir . '/Msg.php');
 		$censorText = Utils::htmlspecialchars($_POST['censortest'], ENT_QUOTES);
-		preparsecode($censorText);
+		Msg::preparsecode($censorText);
 		Utils::$context['censor_test'] = strtr(Lang::censorText($censorText), array('"' => '&quot;'));
 	}
 

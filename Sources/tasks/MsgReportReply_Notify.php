@@ -14,6 +14,8 @@
 namespace SMF\Tasks;
 
 use SMF\Config;
+use SMF\Msg;
+use SMF\Mail;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -159,7 +161,6 @@ class MsgReportReply_Notify extends BackgroundTask
 		if (!empty($notifies['email']))
 		{
 			// Emails are a bit complicated. We have to do language stuff.
-			require_once(Config::$sourcedir . '/Msg.php');
 			require_once(Config::$sourcedir . '/ScheduledTasks.php');
 			loadEssentialThemeData();
 
@@ -205,11 +206,11 @@ class MsgReportReply_Notify extends BackgroundTask
 					'REPORTLINK' => Config::$scripturl . '?action=moderate;area=reportedposts;sa=details;rid=' . $this->_details['report_id'],
 				);
 
-				$emaildata = loadEmailTemplate('reply_to_moderator', $replacements, empty(Config::$modSettings['userLanguage']) ? Config::$language : $this_lang);
+				$emaildata = Mail::loadEmailTemplate('reply_to_moderator', $replacements, empty(Config::$modSettings['userLanguage']) ? Config::$language : $this_lang);
 
 				// And do the actual sending...
 				foreach ($recipients as $id_member => $email_address)
-					sendmail($email_address, $emaildata['subject'], $emaildata['body'], null, 'rptrpy' . $this->_details['comment_id'], $emaildata['is_html'], 3);
+					Mail::send($email_address, $emaildata['subject'], $emaildata['body'], null, 'rptrpy' . $this->_details['comment_id'], $emaildata['is_html'], 3);
 			}
 		}
 

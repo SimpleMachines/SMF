@@ -14,6 +14,8 @@
 namespace SMF\Tasks;
 
 use SMF\Config;
+use SMF\Msg;
+use SMF\Mail;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -103,7 +105,6 @@ class GroupReq_Notify extends BackgroundTask
 			if (!empty($data['email']))
 			{
 				require_once(Config::$sourcedir . '/ScheduledTasks.php');
-				require_once(Config::$sourcedir . '/Msg.php');
 				loadEssentialThemeData();
 
 				$request = Db::$db->query('', '
@@ -126,8 +127,8 @@ class GroupReq_Notify extends BackgroundTask
 						'MODLINK' => Config::$scripturl . '?action=moderate;area=groups;sa=requests',
 					);
 
-					$emaildata = loadEmailTemplate('request_membership', $replacements, empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $row['lngfile']);
-					sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'groupreq' . $this->_details['id_group'], $emaildata['is_html'], 2);
+					$emaildata = Mail::loadEmailTemplate('request_membership', $replacements, empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $row['lngfile']);
+					Mail::send($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'groupreq' . $this->_details['id_group'], $emaildata['is_html'], 2);
 				}
 			}
 		}

@@ -16,6 +16,8 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Msg;
+use SMF\Mail;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -90,8 +92,6 @@ function ManageNews()
  */
 function EditNews()
 {
-	require_once(Config::$sourcedir . '/Msg.php');
-
 	// The 'remove selected' button was pressed.
 	if (!empty($_POST['delete_selection']) && !empty($_POST['remove']))
 	{
@@ -124,7 +124,7 @@ function EditNews()
 			else
 			{
 				$_POST['news'][$i] = Utils::htmlspecialchars($_POST['news'][$i], ENT_QUOTES);
-				preparsecode($_POST['news'][$i]);
+				Msg::preparsecode($_POST['news'][$i]);
 			}
 		}
 
@@ -292,7 +292,7 @@ function list_getNews()
 	foreach (explode("\n", Config::$modSettings['news']) as $id => $line)
 		$admin_current_news[$id] = array(
 			'id' => $id,
-			'unparsed' => un_preparsecode($line),
+			'unparsed' => Msg::un_preparsecode($line),
 			'parsed' => preg_replace('~<([/]?)form[^>]*?[>]*>~i', '<em class="smalltext">&lt;$1form&gt;</em>', BBCodeParser::load()->parse($line)),
 		);
 
@@ -469,7 +469,7 @@ function prepareMailingForPreview()
 		elseif (!empty($_REQUEST['xml']))
 			continue;
 
-		preparsecode(Utils::$context[$key]);
+		Msg::preparsecode(Utils::$context[$key]);
 		if ($html)
 		{
 			$enablePostHTML = Config::$modSettings['enablePostHTML'];
@@ -528,7 +528,6 @@ function ComposeMailing()
 
 	if (isset(Utils::$context['preview']))
 	{
-		require_once(Config::$sourcedir . '/Msg.php');
 		Utils::$context['recipients']['members'] = !empty($_POST['members']) ? explode(',', $_POST['members']) : array();
 		Utils::$context['recipients']['exclude_members'] = !empty($_POST['exclude_members']) ? explode(',', $_POST['exclude_members']) : array();
 		Utils::$context['recipients']['groups'] = !empty($_POST['groups']) ? explode(',', $_POST['groups']) : array();
@@ -811,8 +810,6 @@ function SendMailing($clean_only = false)
 	if ($clean_only)
 		return;
 
-	require_once(Config::$sourcedir . '/Msg.php');
-
 	// We are relying too much on writing to superglobals...
 	$_POST['subject'] = !empty($_POST['subject']) ? $_POST['subject'] : '';
 	$_POST['message'] = !empty($_POST['message']) ? $_POST['message'] : '';
@@ -917,7 +914,7 @@ function SendMailing($clean_only = false)
 			$unsubscribe_link,
 		);
 
-		sendmail($email, str_replace($from_member, $to_member, $_POST['subject']), str_replace($from_member, $to_member, $_POST['message']), null, 'news', !empty($_POST['send_html']), 5);
+		Mail::send($email, str_replace($from_member, $to_member, $_POST['subject']), str_replace($from_member, $to_member, $_POST['message']), null, 'news', !empty($_POST['send_html']), 5);
 
 		// Done another...
 		$i++;
@@ -1046,9 +1043,9 @@ function SendMailing($clean_only = false)
 
 			// Send the actual email - or a PM!
 			if (!Utils::$context['send_pm'])
-				sendmail($row['email_address'], $subject, $message, null, 'news', !empty($_POST['send_html']), 5);
+				Mail::send($row['email_address'], $subject, $message, null, 'news', !empty($_POST['send_html']), 5);
 			else
-				sendpm(array('to' => array($row['id_member']), 'bcc' => array()), $subject, $message);
+				Msg::sendpm(array('to' => array($row['id_member']), 'bcc' => array()), $subject, $message);
 		}
 	}
 

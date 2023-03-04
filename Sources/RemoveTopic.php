@@ -16,6 +16,8 @@
 
 use SMF\Board;
 use SMF\Config;
+use SMF\Msg;
+use SMF\Mail;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -38,9 +40,6 @@ function RemoveTopic2()
 {
 	// Make sure they aren't being lead around by someone. (:@)
 	checkSession('get');
-
-	// This file needs to be included for sendNotifications().
-	require_once(Config::$sourcedir . '/Msg.php');
 
 	// Trying to fool us around, are we?
 	if (empty(Topic::$topic_id))
@@ -78,7 +77,7 @@ function RemoveTopic2()
 	}
 
 	// Notify people that this topic has been removed.
-	sendNotifications(Topic::$topic_id, 'remove');
+	Mail::sendNotifications(Topic::$topic_id, 'remove');
 
 	removeTopics(Topic::$topic_id);
 
@@ -570,11 +569,10 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 		'calendar_updated' => time(),
 	));
 
-	require_once(Config::$sourcedir . '/Msg.php');
 	$updates = array();
 	foreach ($adjustBoards as $stats)
 		$updates[] = $stats['id_board'];
-	updateLastMessages($updates);
+	Msg::updateLastMessages($updates);
 }
 
 /**
@@ -999,11 +997,10 @@ function removeMessage($message, $decreasePostCount = true)
 	));
 
 	// And now to update the last message of each board we messed with.
-	require_once(Config::$sourcedir . '/Msg.php');
 	if ($recycle)
-		updateLastMessages(array($row['id_board'], Config::$modSettings['recycle_board']));
+		Msg::updateLastMessages(array($row['id_board'], Config::$modSettings['recycle_board']));
 	else
-		updateLastMessages($row['id_board']);
+		Msg::updateLastMessages($row['id_board']);
 
 	// Close any moderation reports for this message.
 	Db::$db->query('', '
@@ -1457,9 +1454,6 @@ function mergePosts($msgs, $from_topic, $target_topic)
 		)
 	);
 
-	// Need it to update some stats.
-	require_once(Config::$sourcedir . '/Msg.php');
-
 	// Update stats.
 	updateStats('topic');
 	updateStats('message');
@@ -1486,7 +1480,7 @@ function mergePosts($msgs, $from_topic, $target_topic)
 		Db::$db->free_result($request);
 	}
 
-	updateLastMessages(array($from_board, $target_board));
+	Msg::updateLastMessages(array($from_board, $target_board));
 }
 
 /**

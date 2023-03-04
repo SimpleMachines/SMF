@@ -13,6 +13,8 @@
 
 namespace SMF\Search;
 
+use SMF\Msg;
+
 /**
  * Interface SearchApiInterface
  */
@@ -74,7 +76,7 @@ interface SearchApiInterface
 	/**
 	 * Callback when a post is created.
 	 *
-	 * @see createPost()
+	 * @see Msg::create()
 	 *
 	 * @access public
 	 * @param array $msgOptions An array of post data
@@ -87,7 +89,7 @@ interface SearchApiInterface
 	/**
 	 * Callback when a post is modified.
 	 *
-	 * @see modifyPost()
+	 * @see Msg::modify()
 	 *
 	 * @access public
 	 * @param array $msgOptions An array of post data

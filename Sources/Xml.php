@@ -17,6 +17,7 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Msg;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -109,14 +110,12 @@ function RetrievePreview()
  */
 function newspreview()
 {
-	require_once(Config::$sourcedir . '/Msg.php');
-
 	$errors = array();
 	$news = !isset($_POST['news']) ? '' : Utils::htmlspecialchars($_POST['news'], ENT_QUOTES);
 	if (empty($news))
 		$errors[] = array('value' => 'no_news');
 	else
-		preparsecode($news);
+		Msg::preparsecode($news);
 
 	Utils::$context['xml_data'] = array(
 		'news' => array(
@@ -139,7 +138,6 @@ function newspreview()
  */
 function newsletterpreview()
 {
-	require_once(Config::$sourcedir . '/Msg.php');
 	require_once(Config::$sourcedir . '/ManageNews.php');
 	Lang::load('Errors');
 
@@ -244,7 +242,6 @@ function sig_preview()
  */
 function warning_preview()
 {
-	require_once(Config::$sourcedir . '/Msg.php');
 	Lang::load('Errors');
 	Lang::load('ModerationCenter');
 
@@ -290,7 +287,7 @@ function warning_preview()
 
 		if (!empty($_POST['body']))
 		{
-			preparsecode($warning_body);
+			Msg::preparsecode($warning_body);
 			$warning_body = BBCodeParser::load()->parse($warning_body);
 		}
 		Utils::$context['preview_message'] = $warning_body;

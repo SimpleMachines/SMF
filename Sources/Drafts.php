@@ -18,6 +18,7 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Msg;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -71,7 +72,7 @@ function SaveDraft(&$post_errors)
 	$draft['body'] = Utils::htmlspecialchars($_POST['message'], ENT_QUOTES);
 
 	// message and subject still need a bit more work
-	preparsecode($draft['body']);
+	Msg::preparsecode($draft['body']);
 	if (Utils::entityStrlen($draft['subject']) > 100)
 		$draft['subject'] = Utils::entitySubstr($draft['subject'], 0, 100);
 
@@ -218,7 +219,7 @@ function SavePMDraft(&$post_errors, $recipientList)
 	$draft['subject'] = strtr(Utils::htmlspecialchars($_POST['subject']), array("\r" => '', "\n" => '', "\t" => ''));
 
 	// message and subject always need a bit more work
-	preparsecode($draft['body']);
+	Msg::preparsecode($draft['body']);
 	if (Utils::entityStrlen($draft['subject']) > 100)
 		$draft['subject'] = Utils::entitySubstr($draft['subject'], 0, 100);
 

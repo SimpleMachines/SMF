@@ -16,6 +16,7 @@
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Mail;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -46,7 +47,6 @@ function registerMember(&$regOptions, $return_errors = false)
 
 	// We'll need some external functions.
 	require_once(Config::$sourcedir . '/Subs-Auth.php');
-	require_once(Config::$sourcedir . '/Msg.php');
 
 	// Put any errors in here.
 	$reg_errors = array();
@@ -379,9 +379,9 @@ function registerMember(&$regOptions, $return_errors = false)
 				'ACTIVATIONCODE' => $validation_code,
 			);
 
-			$emaildata = loadEmailTemplate($email_message, $replacements);
+			$emaildata = Mail::loadEmailTemplate($email_message, $replacements);
 
-			sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, $email_message . $memberID, $emaildata['is_html'], 0);
+			Mail::send($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, $email_message . $memberID, $emaildata['is_html'], 0);
 		}
 
 		// All admins are finished here.
@@ -399,12 +399,12 @@ function registerMember(&$regOptions, $return_errors = false)
 				'PASSWORD' => $regOptions['password'],
 				'FORGOTPASSWORDLINK' => Config::$scripturl . '?action=reminder',
 			);
-			$emaildata = loadEmailTemplate('register_immediate', $replacements);
-			sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, 'register', $emaildata['is_html'], 0);
+			$emaildata = Mail::loadEmailTemplate('register_immediate', $replacements);
+			Mail::send($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, 'register', $emaildata['is_html'], 0);
 		}
 
 		// Send admin their notification.
-		adminNotify('standard', $memberID, $regOptions['username']);
+		Mail::adminNotify('standard', $memberID, $regOptions['username']);
 	}
 	// Need to activate their account - or fall under COPPA.
 	elseif ($regOptions['require'] == 'activation' || $regOptions['require'] == 'coppa')
@@ -428,9 +428,9 @@ function registerMember(&$regOptions, $return_errors = false)
 				'COPPALINK' => Config::$scripturl . '?action=coppa;member=' . $memberID,
 			);
 
-		$emaildata = loadEmailTemplate('register_' . ($regOptions['require'] == 'activation' ? 'activate' : 'coppa'), $replacements);
+		$emaildata = Mail::loadEmailTemplate('register_' . ($regOptions['require'] == 'activation' ? 'activate' : 'coppa'), $replacements);
 
-		sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, 'reg_' . $regOptions['require'] . $memberID, $emaildata['is_html'], 0);
+		Mail::send($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, 'reg_' . $regOptions['require'] . $memberID, $emaildata['is_html'], 0);
 	}
 	// Must be awaiting approval.
 	else
@@ -442,12 +442,12 @@ function registerMember(&$regOptions, $return_errors = false)
 			'FORGOTPASSWORDLINK' => Config::$scripturl . '?action=reminder',
 		);
 
-		$emaildata = loadEmailTemplate('register_pending', $replacements);
+		$emaildata = Mail::loadEmailTemplate('register_pending', $replacements);
 
-		sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, 'reg_pending', $emaildata['is_html'], 0);
+		Mail::send($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, 'reg_pending', $emaildata['is_html'], 0);
 
 		// Admin gets informed here...
-		adminNotify('approval', $memberID, $regOptions['username']);
+		Mail::adminNotify('approval', $memberID, $regOptions['username']);
 	}
 
 	// Okay, they're for sure registered... make sure the session is aware of this for security. (Just married :P!)

@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Mail;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -337,9 +338,6 @@ function updateAdminPreferences()
  */
 function emailAdmins($template, $replacements = array(), $additional_recipients = array())
 {
-	// We certainly want this.
-	require_once(Config::$sourcedir . '/Msg.php');
-
 	// Load all members which are effectively admins.
 	require_once(Config::$sourcedir . '/Subs-Members.php');
 	$members = membersAllowedTo('admin_forum');
@@ -368,10 +366,10 @@ function emailAdmins($template, $replacements = array(), $additional_recipients 
 		$replacements['USERNAME'] = $row['real_name'];
 
 		// Load the data from the template.
-		$emaildata = loadEmailTemplate($template, $replacements, empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile']);
+		$emaildata = Mail::loadEmailTemplate($template, $replacements, empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile']);
 
 		// Then send the actual email.
-		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, $template, $emaildata['is_html'], 1);
+		Mail::send($row['email_address'], $emaildata['subject'], $emaildata['body'], null, $template, $emaildata['is_html'], 1);
 
 		// Track who we emailed so we don't do it twice.
 		$emails_sent[] = $row['email_address'];
@@ -390,10 +388,10 @@ function emailAdmins($template, $replacements = array(), $additional_recipients 
 			$replacements['USERNAME'] = $recipient['name'];
 
 			// Load the template again.
-			$emaildata = loadEmailTemplate($template, $replacements, empty($recipient['lang']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $recipient['lang']);
+			$emaildata = Mail::loadEmailTemplate($template, $replacements, empty($recipient['lang']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $recipient['lang']);
 
 			// Send off the email.
-			sendmail($recipient['email'], $emaildata['subject'], $emaildata['body'], null, $template, $emaildata['is_html'], 1);
+			Mail::send($recipient['email'], $emaildata['subject'], $emaildata['body'], null, $template, $emaildata['is_html'], 1);
 		}
 }
 

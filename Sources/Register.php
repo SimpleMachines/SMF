@@ -19,6 +19,7 @@ use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Mail;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -676,8 +677,6 @@ function Activate()
 	// Resend the password, but only if the account wasn't activated yet.
 	if (!empty($_REQUEST['sa']) && $_REQUEST['sa'] == 'resend' && ($row['is_activated'] == 0 || $row['is_activated'] == 2) && (!isset($_REQUEST['code']) || $_REQUEST['code'] == ''))
 	{
-		require_once(Config::$sourcedir . '/Msg.php');
-
 		$replacements = array(
 			'REALNAME' => $row['real_name'],
 			'USERNAME' => $row['member_name'],
@@ -687,9 +686,9 @@ function Activate()
 			'FORGOTPASSWORDLINK' => Config::$scripturl . '?action=reminder',
 		);
 
-		$emaildata = loadEmailTemplate('resend_activate_message', $replacements, empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile']);
+		$emaildata = Mail::loadEmailTemplate('resend_activate_message', $replacements, empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile']);
 
-		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'resendact', $emaildata['is_html'], 0);
+		Mail::send($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'resendact', $emaildata['is_html'], 0);
 
 		Utils::$context['page_title'] = Lang::$txt['invalid_activation_resend'];
 
@@ -729,9 +728,7 @@ function Activate()
 	// Notify the admin about new activations, but not re-activations.
 	if (empty($row['is_activated']))
 	{
-		require_once(Config::$sourcedir . '/Msg.php');
-
-		adminNotify('activation', $row['id_member'], $row['member_name']);
+		Mail::adminNotify('activation', $row['id_member'], $row['member_name']);
 	}
 
 	Utils::$context += array(

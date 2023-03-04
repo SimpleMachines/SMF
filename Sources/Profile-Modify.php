@@ -20,6 +20,8 @@ use SMF\Board;
 use SMF\Category;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Msg;
+use SMF\Mail;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -3771,8 +3773,6 @@ function profileSaveAvatarData(&$value, $memID)
  */
 function profileValidateSignature(&$value)
 {
-	require_once(Config::$sourcedir . '/Msg.php');
-
 	// Admins can do whatever they hell they want!
 	if (!allowedTo('admin_forum'))
 	{
@@ -3931,7 +3931,7 @@ function profileValidateSignature(&$value)
 		}
 	}
 
-	preparsecode($value);
+	Msg::preparsecode($value);
 
 	// Too long?
 	if (!allowedTo('admin_forum') && !empty($sig_limits[1]) && Utils::entityStrlen(str_replace('<br>', "\n", $value)) > $sig_limits[1])
@@ -4001,8 +4001,6 @@ function profileSendActivation($memID)
 {
 	global $profile_vars;
 
-	require_once(Config::$sourcedir . '/Msg.php');
-
 	// Shouldn't happen but just in case.
 	if (empty($profile_vars['email_address']))
 		return;
@@ -4014,8 +4012,8 @@ function profileSendActivation($memID)
 	);
 
 	// Send off the email.
-	$emaildata = loadEmailTemplate('activate_reactivate', $replacements, empty(User::$profiles[$memID]['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : User::$profiles[$memID]['lngfile']);
-	sendmail($profile_vars['email_address'], $emaildata['subject'], $emaildata['body'], null, 'reactivate', $emaildata['is_html'], 0);
+	$emaildata = Mail::loadEmailTemplate('activate_reactivate', $replacements, empty(User::$profiles[$memID]['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : User::$profiles[$memID]['lngfile']);
+	Mail::send($profile_vars['email_address'], $emaildata['subject'], $emaildata['body'], null, 'reactivate', $emaildata['is_html'], 0);
 
 	// Log the user out.
 	Db::$db->query('', '

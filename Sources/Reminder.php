@@ -14,6 +14,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Mail;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -132,7 +133,6 @@ function RemindPick()
 		// Randomly generate a new password, with only alpha numeric characters that is a max length of 10 chars.
 		$password = User::generateValidationCode();
 
-		require_once(Config::$sourcedir . '/Msg.php');
 		$replacements = array(
 			'REALNAME' => $row['real_name'],
 			'REMINDLINK' => Config::$scripturl . '?action=reminder;sa=setpassword;u=' . $row['id_member'] . ';code=' . $password,
@@ -140,10 +140,10 @@ function RemindPick()
 			'MEMBERNAME' => $row['member_name'],
 		);
 
-		$emaildata = loadEmailTemplate('forgot_password', $replacements, empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile']);
+		$emaildata = Mail::loadEmailTemplate('forgot_password', $replacements, empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile']);
 		Utils::$context['description'] = Lang::$txt['reminder_sent'];
 
-		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'reminder', $emaildata['is_html'], 1);
+		Mail::send($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'reminder', $emaildata['is_html'], 1);
 
 		// Set the password in the database.
 		User::updateMemberData($row['id_member'], array('validation_code' => substr(md5($password), 0, 10)));
