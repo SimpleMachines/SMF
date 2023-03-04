@@ -16,6 +16,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Msg;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -1804,8 +1805,7 @@ function InstallSmileySet()
 
 			if (!empty($action['parse_bbc']))
 			{
-				require_once(Config::$sourcedir . '/Msg.php');
-				preparsecode(Utils::$context[$type]);
+				Msg::preparsecode(Utils::$context[$type]);
 				Utils::$context[$type] = BBCodeParser::load()->parse(Utils::$context[$type]);
 			}
 			else

@@ -14,6 +14,8 @@
 namespace SMF\Tasks;
 
 use SMF\Config;
+use SMF\Msg;
+use SMF\Mail;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -93,11 +95,10 @@ class CreateAttachment_Notify extends BackgroundTask
 			if ($pref & self::RECEIVE_NOTIFY_EMAIL)
 			{
 				// Emails are a bit complicated. (That's what she said)
-				require_once(Config::$sourcedir . '/Msg.php');
 				require_once(Config::$sourcedir . '/ScheduledTasks.php');
 				loadEssentialThemeData();
 
-				$emaildata = loadEmailTemplate(
+				$emaildata = Mail::loadEmailTemplate(
 					'unapproved_attachment',
 					array(
 						'SUBJECT' => $subject,
@@ -105,7 +106,7 @@ class CreateAttachment_Notify extends BackgroundTask
 					),
 					empty($data['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $data['lngfile']
 				);
-				sendmail(
+				Mail::send(
 					$data['email_address'],
 					$emaildata['subject'],
 					$emaildata['body'],

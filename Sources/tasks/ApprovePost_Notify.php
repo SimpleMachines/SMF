@@ -14,6 +14,8 @@
 namespace SMF\Tasks;
 
 use SMF\Config;
+use SMF\Msg;
+use SMF\Mail;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -74,7 +76,6 @@ class ApprovePost_Notify extends BackgroundTask
 			if ($pref & self::RECEIVE_NOTIFY_EMAIL)
 			{
 				// Emails are a bit complicated. We have to do language stuff.
-				require_once(Config::$sourcedir . '/Msg.php');
 				require_once(Config::$sourcedir . '/ScheduledTasks.php');
 				loadEssentialThemeData();
 
@@ -83,8 +84,8 @@ class ApprovePost_Notify extends BackgroundTask
 					'LINK' => Config::$scripturl . '?topic=' . $topicOptions['id'] . '.new#new',
 				);
 
-				$emaildata = loadEmailTemplate('alert_unapproved_post', $replacements, empty($data['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $data['lngfile']);
-				sendmail($data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'm' . $topicOptions['id'], $emaildata['is_html']);
+				$emaildata = Mail::loadEmailTemplate('alert_unapproved_post', $replacements, empty($data['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $data['lngfile']);
+				Mail::send($data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'm' . $topicOptions['id'], $emaildata['is_html']);
 			}
 
 			if ($pref & self::RECEIVE_NOTIFY_ALERT)

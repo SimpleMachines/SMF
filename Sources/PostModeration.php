@@ -17,6 +17,7 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Msg;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -654,8 +655,6 @@ function ApproveMessage()
 
 	$_REQUEST['msg'] = (int) $_REQUEST['msg'];
 
-	require_once(Config::$sourcedir . '/Msg.php');
-
 	isAllowedTo('approve_posts');
 
 	$request = Db::$db->query('', '
@@ -676,14 +675,14 @@ function ApproveMessage()
 	// If it's the first in a topic then the whole topic gets approved!
 	if ($first_msg == $_REQUEST['msg'])
 	{
-		approveTopics(Topic::$topic_id, !$approved);
+		Topic::approve(Topic::$topic_id, !$approved);
 
 		if ($starter != User::$me->id)
 			logAction(($approved ? 'un' : '') . 'approve_topic', array('topic' => Topic::$topic_id, 'subject' => $subject, 'member' => $starter, 'board' => Board::$info->id));
 	}
 	else
 	{
-		approvePosts($_REQUEST['msg'], !$approved);
+		Msg::approve($_REQUEST['msg'], !$approved);
 
 		if ($poster != User::$me->id)
 			logAction(($approved ? 'un' : '') . 'approve', array('topic' => Topic::$topic_id, 'subject' => $subject, 'member' => $poster, 'board' => Board::$info->id));
@@ -701,10 +700,9 @@ function ApproveMessage()
  */
 function approveMessages($messages, $messageDetails, $current_view = 'replies')
 {
-	require_once(Config::$sourcedir . '/Msg.php');
 	if ($current_view == 'topics')
 	{
-		approveTopics($messages);
+		Topic::approve($messages);
 		// and tell the world about it
 		foreach ($messages as $topic)
 		{
@@ -713,7 +711,7 @@ function approveMessages($messages, $messageDetails, $current_view = 'replies')
 	}
 	else
 	{
-		approvePosts($messages);
+		Msg::approve($messages);
 		// and tell the world about it again
 		foreach ($messages as $post)
 		{
@@ -743,8 +741,7 @@ function approveAllData()
 
 	if (!empty($msgs))
 	{
-		require_once(Config::$sourcedir . '/Msg.php');
-		approvePosts($msgs);
+		Msg::approve($msgs);
 	}
 
 	// Now do attachments

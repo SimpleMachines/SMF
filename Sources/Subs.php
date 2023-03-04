@@ -18,6 +18,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Forum;
 use SMF\Lang;
+use SMF\Mail;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -1053,8 +1054,8 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 {
 	// In case we have mail to send, better do that - as obExit doesn't always quite make it...
 	if (!empty(Utils::$context['flush_mail']))
-		// @todo this relies on 'flush_mail' being only set in AddMailQueue itself... :\
-		AddMailQueue(true);
+		// @todo this relies on 'flush_mail' being only set in Mail::addToQueue itself... :\
+		Mail::addToQueue(true);
 
 	$add = preg_match('~^(ftp|http)[s]?://~', $setLocation) == 0 && substr($setLocation, 0, 6) != 'about:';
 
@@ -1128,9 +1129,9 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 		trackStats();
 
 	// If we have mail to send, send it.
-	if (function_exists('AddMailQueue') && !empty(Utils::$context['flush_mail']))
-		// @todo this relies on 'flush_mail' being only set in AddMailQueue itself... :\
-		AddMailQueue(true);
+	if (class_exists('SMF\\Mail', false) && !empty(Utils::$context['flush_mail']))
+		// @todo this relies on 'flush_mail' being only set in Mail::addToQueue itself... :\
+		Mail::addToQueue(true);
 
 	$do_header = $header === null ? !$header_done : $header;
 	if ($do_footer === null)

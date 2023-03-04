@@ -18,6 +18,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Mail;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -383,9 +384,6 @@ function ClearMailQueue()
 {
 	checkSession('get');
 
-	// This is certainly needed!
-	require_once(Config::$sourcedir . '/ScheduledTasks.php');
-
 	// If we don't yet have the total to clear, find it.
 	if (!isset($_GET['te']))
 	{
@@ -405,7 +403,7 @@ function ClearMailQueue()
 	$_GET['sent'] = isset($_GET['sent']) ? (int) $_GET['sent'] : 0;
 
 	// Send 50 at a time, then go for a break...
-	while (ReduceMailQueue(50, true, true) === true)
+	while (Mail::reduceQueue(50, true, true) === true)
 	{
 		// Sent another 50.
 		$_GET['sent'] += 50;
@@ -462,14 +460,12 @@ function TestMailSend()
 	// Sending the test message now.
 	if (isset($_GET['save']))
 	{
-		require_once(Config::$sourcedir . '/Msg.php');
-
 		// Send to the current user, no options.
 		$to = User::$me->email;
 		$subject = Utils::htmlspecialchars($_POST['subject']);
 		$message = Utils::htmlspecialchars($_POST['message']);
 
-		$result = sendmail($to, $subject, $message, null, null, false, 0);
+		$result = Mail::send($to, $subject, $message, null, null, false, 0);
 		redirectexit(Utils::$context['base_url'] . ';result=' . ($result ? 'success' : 'failure'));
 	}
 

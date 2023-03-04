@@ -14,6 +14,8 @@
 namespace SMF\Tasks;
 
 use SMF\Config;
+use SMF\Msg;
+use SMF\Mail;
 use SMF\User;
 use SMF\Db\DatabaseApi as Db;
 
@@ -89,7 +91,6 @@ class Register_Notify extends BackgroundTask
 		if (!empty($notifies['email']))
 		{
 			// Emails are a bit complicated. We have to do language stuff.
-			require_once(Config::$sourcedir . '/Msg.php');
 			require_once(Config::$sourcedir . '/ScheduledTasks.php');
 			loadEssentialThemeData();
 
@@ -127,11 +128,11 @@ class Register_Notify extends BackgroundTask
 					$emailtype .= '_approval';
 				}
 
-				$emaildata = loadEmailTemplate($emailtype, $replacements, empty(Config::$modSettings['userLanguage']) ? Config::$language : $this_lang);
+				$emaildata = Mail::loadEmailTemplate($emailtype, $replacements, empty(Config::$modSettings['userLanguage']) ? Config::$language : $this_lang);
 
 				// And do the actual sending...
 				foreach ($recipients as $id_member => $email_address)
-					sendmail($email_address, $emaildata['subject'], $emaildata['body'], null, 'newmember' . $this->_details['new_member_id'], $emaildata['is_html'], 0);
+					Mail::send($email_address, $emaildata['subject'], $emaildata['body'], null, 'newmember' . $this->_details['new_member_id'], $emaildata['is_html'], 0);
 			}
 		}
 

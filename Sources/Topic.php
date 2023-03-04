@@ -34,6 +34,7 @@ class Topic implements \ArrayAccess
 		'func_names' => array(
 			'load' => false,
 			'lock' => 'LockTopic',
+			'approve' => 'approveTopics',
 		),
 		'prop_names' => array(
 			'topic_id' => 'topic',
@@ -543,9 +544,6 @@ class Topic implements \ArrayAccess
 
 		checkSession('get');
 
-		// Get Msg.php for sendNotifications.
-		require_once(Config::$sourcedir . '/Msg.php');
-
 		// Find out who started the topic - in case User Topic Locking is enabled.
 		$request = Db::$db->query('', '
 			SELECT id_member_started, locked
@@ -620,7 +618,7 @@ class Topic implements \ArrayAccess
 		}
 
 		// Notify people that this topic has been locked?
-		sendNotifications(self::$topic_id, empty($locked) ? 'unlock' : 'lock');
+		Mail::sendNotifications(self::$topic_id, empty($locked) ? 'unlock' : 'lock');
 
 		// Back to the topic!
 		redirectexit('topic=' . self::$topic_id . '.' . $_REQUEST['start'] . ';moderate');
@@ -646,9 +644,6 @@ class Topic implements \ArrayAccess
 			fatal_lang_error('not_a_topic', false);
 
 		checkSession('get');
-
-		// We need Msg.php for the sendNotifications() function.
-		require_once(Config::$sourcedir . '/Msg.php');
 
 		// Is this topic already stickied, or no?
 		$request = Db::$db->query('', '
@@ -689,10 +684,46 @@ class Topic implements \ArrayAccess
 
 		// Notify people that this topic has been stickied?
 		if (empty($is_sticky))
-			sendNotifications(self::$topic_id, 'sticky');
+			Mail::sendNotifications(self::$topic_id, 'sticky');
 
 		// Take them back to the now stickied topic.
 		redirectexit('topic=' . self::$topic_id . '.' . $_REQUEST['start'] . ';moderate');
+	}
+
+	/**
+	 * Approves or unapproves topics.
+	 *
+	 * @param array $topics Array of topic ids.
+	 * @param bool $approve Whether to approve the topics. If false, unapproves them instead.
+	 * @return bool Whether the operation was successful.
+	 */
+	public static function approve($topics, $approve = true)
+	{
+		if (!is_array($topics))
+			$topics = array($topics);
+
+		if (empty($topics))
+			return false;
+
+		$approve_type = $approve ? 0 : 1;
+
+		// Just get the messages to be approved and pass through...
+		$request = Db::$db->query('', '
+			SELECT id_first_msg
+			FROM {db_prefix}topics
+			WHERE id_topic IN ({array_int:topic_list})
+				AND approved = {int:approve_type}',
+			array(
+				'topic_list' => $topics,
+				'approve_type' => $approve_type,
+			)
+		);
+		$msgs = array();
+		while ($row = Db::$db->fetch_assoc($request))
+			$msgs[] = $row['id_first_msg'];
+		Db::$db->free_result($request);
+
+		return Msg::approve($msgs, $approve);
 	}
 
 	/******************

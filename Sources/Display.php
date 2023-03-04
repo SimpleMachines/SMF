@@ -18,6 +18,7 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Msg;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -42,7 +43,6 @@ function Display()
 {
 	global $settings;
 	global $options;
-	global $messages_request;
 
 	// What are you gonna display if these are empty?!
 	if (empty(Topic::$topic_id))
@@ -1017,28 +1017,7 @@ function Display()
 			prepareAttachsByMsg($messages);
 		}
 
-		$msg_parameters = array(
-			'message_list' => $messages,
-			'new_from' => Topic::$info->new_from,
-		);
-		$msg_selects = array();
-		$msg_tables = array();
-		call_integration_hook('integrate_query_message', array(&$msg_selects, &$msg_tables, &$msg_parameters));
-
-		// What?  It's not like it *couldn't* be only guests in this topic...
-		User::load($posters);
-		$messages_request = Db::$db->query('', '
-			SELECT
-				id_msg, icon, subject, poster_time, poster_ip, id_member, modified_time, modified_name, modified_reason, body,
-				smileys_enabled, poster_name, poster_email, approved, likes,
-				id_msg_modified < {int:new_from} AS is_read
-				' . (!empty($msg_selects) ? (', ' . implode(', ', $msg_selects)) : '') . '
-			FROM {db_prefix}messages
-				' . (!empty($msg_tables) ? implode("\n\t", $msg_tables) : '') . '
-			WHERE id_msg IN ({array_int:message_list})
-			ORDER BY id_msg' . (empty($options['view_newest_first']) ? '' : ' DESC'),
-			$msg_parameters
-		);
+		Msg::$getter = Msg::get($messages);
 
 		// And the likes
 		if (!empty(Config::$modSettings['enable_likes']))
@@ -1057,7 +1036,7 @@ function Display()
 	}
 	else
 	{
-		$messages_request = false;
+		Msg::$getter = array();
 		Utils::$context['first_message'] = 0;
 		Utils::$context['first_new_message'] = false;
 
@@ -1076,7 +1055,7 @@ function Display()
 
 	// Now set all the wonderful, wonderful permissions... like moderation ones...
 	foreach (Topic::$info->doPermissions() as $perm => $val)
-		Utils::$context[$perm] = $val;
+		Utils::$context[$perm] = &Topic::$info->permissions[$perm];
 
 	if (!empty(Utils::$context['drafts_save']))
 		Lang::load('Drafts');
@@ -1256,274 +1235,136 @@ function Display()
 /**
  * Callback for the message display.
  * It actually gets and prepares the message context.
- * This function will start over from the beginning if reset is set to true, which is
- * useful for showing an index before or after the posts.
  *
- * @param bool $reset Whether or not to reset the db seek pointer
- * @return array A large array of contextual data for the posts
+ * This function internally relies on Msg::get(). Therefore, in order for this
+ * function to return any data, you must first initialize the Msg::$getter
+ * generator like this: `Msg::$getter = Msg::get($message_ids);`
+ *
+ * @return array|bool Contextual data about a post, or false on failure.
  */
-function prepareDisplayContext($reset = false)
+function prepareDisplayContext()
 {
-	global $settings, $options;
-	global $messages_request;
+	global $options;
 
 	static $counter = null;
 
-	// If the query returned false, bail.
-	if ($messages_request == false)
-		return false;
-
 	// Remember which message this is.  (ie. reply #83)
-	if ($counter === null || $reset)
+	if ($counter === null)
+	{
 		$counter = empty($options['view_newest_first']) ? Utils::$context['start'] : Utils::$context['total_visible_posts'] - Utils::$context['start'];
+	}
 
-	// Start from the beginning...
-	if ($reset)
-		return @Db::$db->data_seek($messages_request, 0);
-
-	// Attempt to get the next message.
-	$message = Db::$db->fetch_assoc($messages_request);
-	if (!$message)
-	{
-		Db::$db->free_result($messages_request);
+	if (!(Msg::$getter instanceof \Generator))
 		return false;
-	}
 
-	// Utils::$context['icon_sources'] says where each icon should come from - here we set up the ones which will always exist!
-	if (empty(Utils::$context['icon_sources']))
-	{
-		Utils::$context['icon_sources'] = array();
-		foreach (Utils::$context['stable_icons'] as $icon)
-			Utils::$context['icon_sources'][$icon] = 'images_url';
-	}
+	$message = Msg::$getter->current();
+	Msg::$getter->next();
 
-	// Message Icon Management... check the images exist.
-	if (!empty(Config::$modSettings['messageIconChecks_enable']))
-	{
-		// If the current icon isn't known, then we need to do something...
-		if (!isset(Utils::$context['icon_sources'][$message['icon']]))
-			Utils::$context['icon_sources'][$message['icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $message['icon'] . '.png') ? 'images_url' : 'default_images_url';
-	}
-	elseif (!isset(Utils::$context['icon_sources'][$message['icon']]))
-		Utils::$context['icon_sources'][$message['icon']] = 'images_url';
+	if (!$message)
+		return false;
 
-	// If you're a lazy bum, you probably didn't give a subject...
-	$message['subject'] = $message['subject'] != '' ? $message['subject'] : Lang::$txt['no_subject'];
+	$output = $message->format($counter);
 
-	// Are you allowed to remove at least a single reply?
-	Utils::$context['can_remove_post'] |= allowedTo('delete_own') && (empty(Config::$modSettings['edit_disable_time']) || $message['poster_time'] + Config::$modSettings['edit_disable_time'] * 60 >= time()) && $message['id_member'] == User::$me->id;
-
-	// If the topic is locked, you might not be able to delete the post...
-	if (Utils::$context['is_locked'])
-	{
-		Utils::$context['can_remove_post'] &= (User::$me->started && Utils::$context['is_locked'] == 1) || allowedTo('lock_any');
-	}
-
-	// If it couldn't load, or the user was a guest.... someday may be done with a guest table.
-	if (empty($message['id_member']) || !isset(User::$loaded[$message['id_member']]))
-	{
-		// Notice this information isn't used anywhere else....
-		$author = array(
-			'name' => $message['poster_name'],
-			'id' => 0,
-			'group' => Lang::$txt['guest_title'],
-			'link' => $message['poster_name'],
-			'email' => $message['poster_email'],
-			'show_email' => allowedTo('moderate_forum'),
-			'is_guest' => true,
-		);
-	}
-	else
-	{
-		$author = User::$loaded[$message['id_member']]->format(true);
-
-		// Define this here to make things a bit more readable
-		$can_view_warning = User::$me->is_mod || allowedTo('moderate_forum') || allowedTo('view_warning_any') || ($message['id_member'] == User::$me->id && allowedTo('view_warning_own'));
-
-		$author['can_view_profile'] = allowedTo('profile_view') || ($message['id_member'] == User::$me->id && !User::$me->is_guest);
-		$author['is_topic_starter'] = $message['id_member'] == Utils::$context['topic_starter_id'];
-		$author['can_see_warning'] = !isset(Utils::$context['disabled_fields']['warning_status']) && $author['warning_status'] && $can_view_warning;
-		// Show the email if it's your post...
-		$author['show_email'] |= ($message['id_member'] == User::$me->id);
-	}
-
-	$author['ip'] = inet_dtop($message['poster_ip']);
-	$author['show_profile_buttons'] = !empty(Config::$modSettings['show_profile_buttons']) && (!empty($author['can_view_profile']) || (!empty($author['website']['url']) && !isset(Utils::$context['disabled_fields']['website'])) || $author['show_email'] || Utils::$context['can_send_pm']);
-
-	// Do the censor thang.
-	Lang::censorText($message['body']);
-	Lang::censorText($message['subject']);
-
-	// Run BBC interpreter on the message.
-	$message['body'] = BBCodeParser::load()->parse($message['body'], $message['smileys_enabled'], $message['id_msg']);
-
-	// If it's in the recycle bin we need to override whatever icon we did have.
-	if (!empty(Board::$info->recycle))
-		$message['icon'] = 'recycled';
-
-	require_once(Config::$sourcedir . '/Subs-Attachments.php');
-
-	// Compose the memory eat- I mean message array.
-	$output = array(
-		'attachment' => loadAttachmentContext($message['id_msg'], Utils::$context['loaded_attachments']),
-		'id' => $message['id_msg'],
-		'href' => Config::$scripturl . '?msg=' . $message['id_msg'],
-		'link' => '<a href="' . Config::$scripturl . '?msg=' . $message['id_msg'] . '" rel="nofollow">' . $message['subject'] . '</a>',
-		'member' => $author,
-		'icon' => $message['icon'],
-		'icon_url' => $settings[Utils::$context['icon_sources'][$message['icon']]] . '/post/' . $message['icon'] . '.png',
-		'subject' => $message['subject'],
-		'time' => timeformat($message['poster_time']),
-		'timestamp' => $message['poster_time'],
-		'counter' => $counter,
-		'modified' => array(
-			'time' => timeformat($message['modified_time']),
-			'timestamp' => $message['modified_time'],
-			'name' => $message['modified_name'],
-			'reason' => $message['modified_reason']
-		),
-		'body' => $message['body'],
-		'new' => empty($message['is_read']),
-		'approved' => $message['approved'],
-		'first_new' => isset(Utils::$context['start_from']) && Utils::$context['start_from'] == $counter,
-		'is_ignored' => !empty(Config::$modSettings['enable_buddylist']) && !empty($options['posts_apply_ignore_list']) && in_array($message['id_member'], User::$me->ignoreusers),
-		'can_approve' => !$message['approved'] && Utils::$context['can_approve'],
-		'can_unapprove' => !empty(Config::$modSettings['postmod_active']) && Utils::$context['can_approve'] && $message['approved'],
-		'can_modify' => (!Utils::$context['is_locked'] || allowedTo('moderate_board')) && (allowedTo('modify_any') || (allowedTo('modify_replies') && User::$me->started) || (allowedTo('modify_own') && $message['id_member'] == User::$me->id && (empty(Config::$modSettings['edit_disable_time']) || !$message['approved'] || $message['poster_time'] + Config::$modSettings['edit_disable_time'] * 60 > time()))),
-		'can_remove' => allowedTo('delete_any') || (allowedTo('delete_replies') && User::$me->started) || (allowedTo('delete_own') && $message['id_member'] == User::$me->id && (empty(Config::$modSettings['edit_disable_time']) || $message['poster_time'] + Config::$modSettings['edit_disable_time'] * 60 > time())),
-		'can_see_ip' => allowedTo('moderate_forum') || ($message['id_member'] == User::$me->id && !empty(User::$me->id)),
-		'css_class' => $message['approved'] ? 'windowbg' : 'approvebg',
-	);
-
-	// Does the file contains any attachments? if so, change the icon.
-	if (!empty($output['attachment']))
-	{
-		$output['icon'] = 'clip';
-		$output['icon_url'] = $settings[Utils::$context['icon_sources'][$output['icon']]] . '/post/' . $output['icon'] . '.png';
-	}
-
-	// Are likes enable?
-	if (!empty(Config::$modSettings['enable_likes']))
-		$output['likes'] = array(
-			'count' => $message['likes'],
-			'you' => in_array($message['id_msg'], Utils::$context['my_likes']),
-			'can_like' => !User::$me->is_guest && $message['id_member'] != User::$me->id && !empty(Utils::$context['can_like']),
-		);
-
-	// Is this user the message author?
-	$output['is_message_author'] = $message['id_member'] == User::$me->id;
-	if (!empty($output['modified']['name']))
-		$output['modified']['last_edit_text'] = sprintf(Lang::$txt['last_edit_by'], $output['modified']['time'], $output['modified']['name']);
-
-	// Did they give a reason for editing?
-	if (!empty($output['modified']['name']) && !empty($output['modified']['reason']))
-		$output['modified']['last_edit_text'] .= '&nbsp;' . sprintf(Lang::$txt['last_edit_reason'], $output['modified']['reason']);
-
-	// Any custom profile fields?
-	if (!empty($author['custom_fields']))
-		foreach ($author['custom_fields'] as $custom)
-			$output['custom_fields'][Utils::$context['cust_profile_fields_placement'][$custom['placement']]][] = $custom;
-
+	// Set up the quick buttons.
 	$output['quickbuttons'] = array(
 		'quote' => array(
 			'label' => Lang::$txt['quote_action'],
-			'href' => Config::$scripturl.'?action=post;quote='.$output['id'].';topic='.Utils::$context['current_topic'], '.'.Utils::$context['start'].';last_msg='.Utils::$context['topic_last_message'],
-			'javascript' => 'onclick="return oQuickReply.quote('.$output['id'].');"',
+			'href' => Config::$scripturl . '?action=post;quote=' . $output['id'] . ';topic=' . Utils::$context['current_topic'], '.' . Utils::$context['start'] . ';last_msg=' . Utils::$context['topic_last_message'],
+			'javascript' => 'onclick="return oQuickReply.quote(' . $output['id'] . ');"',
 			'icon' => 'quote',
-			'show' => Utils::$context['can_quote']
+			'show' => Utils::$context['can_quote'],
 		),
 		'quote_selected' => array(
 			'label' => Lang::$txt['quote_selected_action'],
-			'id' => 'quoteSelected_'. $output['id'],
+			'id' => 'quoteSelected_' . $output['id'],
 			'href' => 'javascript:void(0)',
 			'custom' => 'style="display:none"',
 			'icon' => 'quote_selected',
-			'show' => Utils::$context['can_quote']
+			'show' => Utils::$context['can_quote'],
 		),
 		'quick_edit' => array(
 			'label' => Lang::$txt['quick_edit'],
 			'class' => 'quick_edit',
-			'id' => 'modify_button_'. $output['id'],
-			'custom' => 'onclick="oQuickModify.modifyMsg(\''.$output['id'].'\', \''.!empty(Config::$modSettings['toggle_subject']).'\')"',
+			'id' => 'modify_button_' . $output['id'],
+			'custom' => 'onclick="oQuickModify.modifyMsg(\'' . $output['id'] . '\', \'' . !empty(Config::$modSettings['toggle_subject']) . '\')"',
 			'icon' => 'quick_edit_button',
-			'show' => $output['can_modify']
+			'show' => $output['can_modify'],
 		),
 		'more' => array(
 			'modify' => array(
 				'label' => Lang::$txt['modify'],
-				'href' => Config::$scripturl.'?action=post;msg='.$output['id'].';topic='.Utils::$context['current_topic'].'.'.Utils::$context['start'],
+				'href' => Config::$scripturl . '?action=post;msg=' . $output['id'] . ';topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'],
 				'icon' => 'modify_button',
-				'show' => $output['can_modify']
+				'show' => $output['can_modify'],
 			),
 			'remove_topic' => array(
 				'label' => Lang::$txt['remove_topic'],
-				'href' => Config::$scripturl.'?action=removetopic2;topic='.Utils::$context['current_topic'].'.'.Utils::$context['start'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'],
-				'javascript' => 'data-confirm="'.Lang::$txt['are_sure_remove_topic'].'"',
+				'href' => Config::$scripturl . '?action=removetopic2;topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
+				'javascript' => 'data-confirm="' . Lang::$txt['are_sure_remove_topic'] . '"',
 				'class' => 'you_sure',
 				'icon' => 'remove_button',
-				'show' => Utils::$context['can_delete'] && (Utils::$context['topic_first_message'] == $output['id'])
+				'show' => Utils::$context['can_delete'] && (Utils::$context['topic_first_message'] == $output['id']),
 			),
 			'remove' => array(
 				'label' => Lang::$txt['remove'],
-				'href' => Config::$scripturl.'?action=deletemsg;topic='.Utils::$context['current_topic'].'.'.Utils::$context['start'].';msg='.$output['id'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'],
-				'javascript' => 'data-confirm="'.Lang::$txt['remove_message_question'].'"',
+				'href' => Config::$scripturl . '?action=deletemsg;topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . ';msg=' . $output['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
+				'javascript' => 'data-confirm="' . Lang::$txt['remove_message_question'] . '"',
 				'class' => 'you_sure',
 				'icon' => 'remove_button',
-				'show' => $output['can_remove'] && (Utils::$context['topic_first_message'] != $output['id'])
+				'show' => $output['can_remove'] && (Utils::$context['topic_first_message'] != $output['id']),
 			),
 			'split' => array(
 				'label' => Lang::$txt['split'],
-				'href' => Config::$scripturl.'?action=splittopics;topic='.Utils::$context['current_topic'].'.0;at='.$output['id'],
+				'href' => Config::$scripturl . '?action=splittopics;topic=' . Utils::$context['current_topic'] . '.0;at=' . $output['id'],
 				'icon' => 'split_button',
-				'show' => Utils::$context['can_split'] && !empty(Utils::$context['real_num_replies'])
+				'show' => Utils::$context['can_split'] && !empty(Utils::$context['real_num_replies']),
 			),
 			'report' => array(
 				'label' => Lang::$txt['report_to_mod'],
-				'href' => Config::$scripturl.'?action=reporttm;topic='.Utils::$context['current_topic'].'.'.$output['counter'].';msg='.$output['id'],
+				'href' => Config::$scripturl . '?action=reporttm;topic=' . Utils::$context['current_topic'] . '.' . $output['counter'] . ';msg=' . $output['id'],
 				'icon' => 'error',
-				'show' => Utils::$context['can_report_moderator']
+				'show' => Utils::$context['can_report_moderator'],
 			),
 			'warn' => array(
 				'label' => Lang::$txt['issue_warning'],
-				'href' => Config::$scripturl.'?action=profile;area=issuewarning;u='.$output['member']['id'].';msg='.$output['id'],
+				'href' => Config::$scripturl . '?action=profile;area=issuewarning;u=' . $output['member']['id'] . ';msg=' . $output['id'],
 				'icon' => 'warn_button',
-				'show' => Utils::$context['can_issue_warning'] && !$output['is_message_author'] && !$output['member']['is_guest']
+				'show' => Utils::$context['can_issue_warning'] && !$output['is_message_author'] && !$output['member']['is_guest'],
 			),
 			'restore' => array(
 				'label' => Lang::$txt['restore_message'],
-				'href' => Config::$scripturl.'?action=restoretopic;msgs='.$output['id'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'],
+				'href' => Config::$scripturl . '?action=restoretopic;msgs=' . $output['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 				'icon' => 'restore_button',
-				'show' => Utils::$context['can_restore_msg']
+				'show' => Utils::$context['can_restore_msg'],
 			),
 			'approve' => array(
 				'label' => Lang::$txt['approve'],
-				'href' => Config::$scripturl.'?action=moderate;area=postmod;sa=approve;topic='.Utils::$context['current_topic'].'.'.Utils::$context['start'].';msg='.$output['id'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'],
+				'href' => Config::$scripturl . '?action=moderate;area=postmod;sa=approve;topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . ';msg=' . $output['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 				'icon' => 'approve_button',
-				'show' => $output['can_approve']
+				'show' => $output['can_approve'],
 			),
 			'unapprove' => array(
 				'label' => Lang::$txt['unapprove'],
-				'href' => Config::$scripturl.'?action=moderate;area=postmod;sa=approve;topic='.Utils::$context['current_topic'].'.'.Utils::$context['start'].';msg='.$output['id'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'],
+				'href' => Config::$scripturl . '?action=moderate;area=postmod;sa=approve;topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . ';msg=' . $output['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 				'icon' => 'unapprove_button',
-				'show' => $output['can_unapprove']
+				'show' => $output['can_unapprove'],
 			),
 		),
 		'quickmod' => array(
 			'class' => 'inline_mod_check',
-			'id' => 'in_topic_mod_check_'. $output['id'],
+			'id' => 'in_topic_mod_check_' . $output['id'],
 			'custom' => 'style="display: none;"',
 			'content' => '',
-			'show' => !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $output['can_remove']
-		)
+			'show' => !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $output['can_remove'],
+		),
 	);
 
 	if (empty($options['view_newest_first']))
 		$counter++;
-
 	else
 		$counter--;
 
-	call_integration_hook('integrate_prepare_display_context', array(&$output, &$message, $counter));
+	call_integration_hook('integrate_prepare_display_context', array(&$output, $message, $counter));
 
 	return $output;
 }

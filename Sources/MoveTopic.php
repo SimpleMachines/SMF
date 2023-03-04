@@ -17,6 +17,8 @@
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Msg;
+use SMF\Mail;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -139,8 +141,6 @@ function MoveTopic()
  * otherwise requires the move_any permission.
  * Upon successful completion redirects to message index.
  * Accessed via ?action=movetopic2.
- *
- * Uses Msg.php
  */
 function MoveTopic2()
 {
@@ -182,7 +182,6 @@ function MoveTopic2()
 	}
 
 	checkSession();
-	require_once(Config::$sourcedir . '/Msg.php');
 
 	// The destination board must be numeric.
 	$_POST['toboard'] = (int) $_POST['toboard'];
@@ -288,7 +287,7 @@ function MoveTopic2()
 		}
 
 		$_POST['reason'] = Utils::htmlspecialchars($_POST['reason'], ENT_QUOTES);
-		preparsecode($_POST['reason']);
+		Msg::preparsecode($_POST['reason']);
 
 		// Insert real links into the reason.
 		$_POST['reason'] = strtr($_POST['reason'], $reason_replacements);
@@ -316,7 +315,7 @@ function MoveTopic2()
 			'id' => User::$me->id,
 			'update_post_count' => empty($pcounter),
 		);
-		createPost($msgOptions, $topicOptions, $posterOptions);
+		Msg::create($msgOptions, $topicOptions, $posterOptions);
 	}
 
 	$request = Db::$db->query('', '
@@ -371,7 +370,7 @@ function MoveTopic2()
 	if (!allowedTo('move_own') || $id_member_started != User::$me->id)
 		logAction('move', array('topic' => Topic::$topic_id, 'board_from' => Board::$info->id, 'board_to' => $_POST['toboard']));
 	// Notify people that this topic has been moved?
-	sendNotifications(Topic::$topic_id, 'move');
+	Mail::sendNotifications(Topic::$topic_id, 'move');
 
 	call_integration_hook('integrate_movetopic2_end');
 
@@ -698,12 +697,10 @@ function moveTopics($topics, $toBoard)
 		foreach ($topics as $topic_id)
 			CacheApi::put('topic_board-' . $topic_id, null, 120);
 
-	require_once(Config::$sourcedir . '/Msg.php');
-
 	$updates = array_keys($fromBoards);
 	$updates[] = $toBoard;
 
-	updateLastMessages(array_unique($updates));
+	Msg::updateLastMessages(array_unique($updates));
 
 	// Update 'em pesky stats.
 	updateStats('topic');

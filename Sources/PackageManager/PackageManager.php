@@ -16,6 +16,7 @@ namespace SMF\PackageManager;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Msg;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -407,9 +408,8 @@ class PackageManager
 
 				if (!empty($action['parse_bbc']))
 				{
-					require_once(Config::$sourcedir . '/Msg.php');
 					Utils::$context[$type] = preg_replace('~\[[/]?html\]~i', '', Utils::$context[$type]);
-					preparsecode(Utils::$context[$type]);
+					Msg::preparsecode(Utils::$context[$type]);
 					Utils::$context[$type] = BBCodeParser::load()->parse(Utils::$context[$type]);
 				}
 				else
@@ -1172,9 +1172,8 @@ class PackageManager
 					Utils::$context['redirect_timeout'] = empty($action['redirect_timeout']) ? 5 : (int) ceil($action['redirect_timeout'] / 1000);
 					if (!empty($action['parse_bbc']))
 					{
-						require_once(Config::$sourcedir . '/Msg.php');
 						Utils::$context['redirect_text'] = preg_replace('~\[[/]?html\]~i', '', Utils::$context['redirect_text']);
-						preparsecode(Utils::$context['redirect_text']);
+						Msg::preparsecode(Utils::$context['redirect_text']);
 						Utils::$context['redirect_text'] = BBCodeParser::load()->parse(Utils::$context['redirect_text']);
 					}
 

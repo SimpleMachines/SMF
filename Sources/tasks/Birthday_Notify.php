@@ -15,6 +15,8 @@ namespace SMF\Tasks;
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Msg;
+use SMF\Mail;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -72,8 +74,6 @@ class Birthday_Notify extends BackgroundTask
 		{
 			require_once(Config::$sourcedir . '/ScheduledTasks.php');
 			loadEssentialThemeData();
-			// We need this for sendmail and AddMailQueue
-			require_once(Config::$sourcedir . '/Msg.php');
 
 			// Send out the greetings!
 			foreach ($birthdays as $lang => $members)
@@ -97,7 +97,7 @@ class Birthday_Notify extends BackgroundTask
 
 					if ($pref & self::RECEIVE_NOTIFY_ALERT)
 					{
-						$alertdata = loadEmailTemplate('happy_birthday', $replacements, $lang, false);
+						$alertdata = Mail::loadEmailTemplate('happy_birthday', $replacements, $lang, false);
 						// For the alerts, we need to replace \n line breaks with <br> line breaks.
 						// For space saving sake, we'll be removing extra line breaks
 						$alertdata['body'] = preg_replace("~\s*[\r\n]+\s*~", '<br>', $alertdata['body']);
@@ -114,14 +114,14 @@ class Birthday_Notify extends BackgroundTask
 
 					if ($pref & self::RECEIVE_NOTIFY_EMAIL)
 					{
-						$emaildata = loadEmailTemplate('happy_birthday', $replacements, $lang, false);
-						sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'birthday', $emaildata['is_html'], 4);
+						$emaildata = Mail::loadEmailTemplate('happy_birthday', $replacements, $lang, false);
+						Mail::send($member['email'], $emaildata['subject'], $emaildata['body'], null, 'birthday', $emaildata['is_html'], 4);
 					}
 				}
 			}
 
 			// Flush the mail queue, just in case.
-			AddMailQueue(true);
+			Mail::addToQueue(true);
 
 			// Insert the alerts if any
 			if (!empty($alert_rows))

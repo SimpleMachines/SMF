@@ -18,6 +18,7 @@ use SMF\Board;
 use SMF\Category;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Msg;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -866,10 +867,8 @@ function PlushSearch2()
 	// *** Spell checking
 	if (Utils::$context['show_spellchecking'])
 	{
-		require_once(Config::$sourcedir . '/Msg.php');
-
 		// Don't hardcode spellchecking functions!
-		$link = spell_init();
+		$link = Msg::spell_init();
 
 		$did_you_mean = array('search' => array(), 'display' => array());
 		$found_misspelling = false;
@@ -892,14 +891,14 @@ function PlushSearch2()
 				$did_you_mean['display'][] = Utils::htmlspecialchars($word);
 				continue;
 			}
-			elseif (spell_check($link, $word))
+			elseif (Msg::spell_check($link, $word))
 			{
 				$did_you_mean['search'][] = $word;
 				$did_you_mean['display'][] = Utils::htmlspecialchars($word);
 				continue;
 			}
 
-			$suggestions = spell_suggest($link, $word);
+			$suggestions = Msg::spell_suggest($link, $word);
 			foreach ($suggestions as $i => $s)
 			{
 				// Search is case insensitive.
