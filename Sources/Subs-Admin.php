@@ -338,7 +338,7 @@ function updateAdminPreferences()
 function emailAdmins($template, $replacements = array(), $additional_recipients = array())
 {
 	// We certainly want this.
-	require_once(Config::$sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Msg.php');
 
 	// Load all members which are effectively admins.
 	require_once(Config::$sourcedir . '/Subs-Members.php');

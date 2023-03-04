@@ -73,7 +73,7 @@ class Birthday_Notify extends BackgroundTask
 			require_once(Config::$sourcedir . '/ScheduledTasks.php');
 			loadEssentialThemeData();
 			// We need this for sendmail and AddMailQueue
-			require_once(Config::$sourcedir . '/Subs-Post.php');
+			require_once(Config::$sourcedir . '/Msg.php');
 
 			// Send out the greetings!
 			foreach ($birthdays as $lang => $members)

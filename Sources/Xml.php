@@ -109,7 +109,7 @@ function RetrievePreview()
  */
 function newspreview()
 {
-	require_once(Config::$sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Msg.php');
 
 	$errors = array();
 	$news = !isset($_POST['news']) ? '' : Utils::htmlspecialchars($_POST['news'], ENT_QUOTES);
@@ -139,7 +139,7 @@ function newspreview()
  */
 function newsletterpreview()
 {
-	require_once(Config::$sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Msg.php');
 	require_once(Config::$sourcedir . '/ManageNews.php');
 	Lang::load('Errors');
 
@@ -244,7 +244,7 @@ function sig_preview()
  */
 function warning_preview()
 {
-	require_once(Config::$sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Msg.php');
 	Lang::load('Errors');
 	Lang::load('ModerationCenter');
 

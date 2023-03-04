@@ -48,7 +48,7 @@ function ReportToModerator()
 	// Previewing or modifying?
 	if (isset($_POST['preview']) && !isset($_POST['save']))
 	{
-		require_once(Config::$sourcedir . '/Subs-Post.php');
+		require_once(Config::$sourcedir . '/Msg.php');
 
 		// Set up the preview message.
 		Utils::$context['preview_message'] = Utils::htmlspecialchars($_POST['comment'], ENT_QUOTES);
@@ -179,7 +179,7 @@ function ReportToModerator2()
 	// Make sure they aren't spamming.
 	spamProtection('reporttm');
 
-	require_once(Config::$sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Msg.php');
 
 	// Prevent double submission of this form.
 	checkSubmitOnce('check');

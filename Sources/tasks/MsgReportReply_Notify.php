@@ -159,7 +159,7 @@ class MsgReportReply_Notify extends BackgroundTask
 		if (!empty($notifies['email']))
 		{
 			// Emails are a bit complicated. We have to do language stuff.
-			require_once(Config::$sourcedir . '/Subs-Post.php');
+			require_once(Config::$sourcedir . '/Msg.php');
 			require_once(Config::$sourcedir . '/ScheduledTasks.php');
 			loadEssentialThemeData();
 

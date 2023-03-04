@@ -1695,7 +1695,7 @@ function ModifyWarningTemplate()
 		validateToken('mod-wt');
 
 		// To check the BBC is pretty good...
-		require_once(Config::$sourcedir . '/Subs-Post.php');
+		require_once(Config::$sourcedir . '/Msg.php');
 
 		// Bit of cleaning!
 		$_POST['template_body'] = trim($_POST['template_body']);

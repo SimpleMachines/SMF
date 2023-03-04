@@ -307,7 +307,7 @@ function scheduled_daily_digest()
 	global $is_weekly;
 
 	// We'll want this...
-	require_once(Config::$sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Msg.php');
 	loadEssentialThemeData();
 
 	$is_weekly = !empty($is_weekly) ? 1 : 0;
@@ -770,7 +770,7 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 		return false;
 
 	if (!empty(Config::$modSettings['mail_type']) && Config::$modSettings['smtp_host'] != '')
-		require_once(Config::$sourcedir . '/Subs-Post.php');
+		require_once(Config::$sourcedir . '/Msg.php');
 
 	// Send each email, yea!
 	$failed_emails = array();
@@ -1395,7 +1395,7 @@ function scheduled_paid_subscriptions()
 		// If this is the first one load the important bits.
 		if (empty($subs_reminded))
 		{
-			require_once(Config::$sourcedir . '/Subs-Post.php');
+			require_once(Config::$sourcedir . '/Msg.php');
 			// Need the below for loadLanguage to work!
 			loadEssentialThemeData();
 		}

@@ -93,7 +93,7 @@ class CreatePost_Notify extends BackgroundTask
 	 */
 	public function execute()
 	{
-		require_once(Config::$sourcedir . '/Subs-Post.php');
+		require_once(Config::$sourcedir . '/Msg.php');
 		require_once(Config::$sourcedir . '/Subs-Notify.php');
 		require_once(Config::$sourcedir . '/Subs.php');
 		require_once(Config::$sourcedir . '/ScheduledTasks.php');

@@ -128,7 +128,7 @@ class GroupAct_Notify extends BackgroundTask
 				if ($pref & self::RECEIVE_NOTIFY_EMAIL)
 				{
 					// Emails are a bit complicated. We have to do language stuff.
-					require_once(Config::$sourcedir . '/Subs-Post.php');
+					require_once(Config::$sourcedir . '/Msg.php');
 					require_once(Config::$sourcedir . '/ScheduledTasks.php');
 					loadEssentialThemeData();
 

@@ -46,7 +46,7 @@ function registerMember(&$regOptions, $return_errors = false)
 
 	// We'll need some external functions.
 	require_once(Config::$sourcedir . '/Subs-Auth.php');
-	require_once(Config::$sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Msg.php');
 
 	// Put any errors in here.
 	$reg_errors = array();

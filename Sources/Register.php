@@ -676,7 +676,7 @@ function Activate()
 	// Resend the password, but only if the account wasn't activated yet.
 	if (!empty($_REQUEST['sa']) && $_REQUEST['sa'] == 'resend' && ($row['is_activated'] == 0 || $row['is_activated'] == 2) && (!isset($_REQUEST['code']) || $_REQUEST['code'] == ''))
 	{
-		require_once(Config::$sourcedir . '/Subs-Post.php');
+		require_once(Config::$sourcedir . '/Msg.php');
 
 		$replacements = array(
 			'REALNAME' => $row['real_name'],
@@ -729,7 +729,7 @@ function Activate()
 	// Notify the admin about new activations, but not re-activations.
 	if (empty($row['is_activated']))
 	{
-		require_once(Config::$sourcedir . '/Subs-Post.php');
+		require_once(Config::$sourcedir . '/Msg.php');
 
 		adminNotify('activation', $row['id_member'], $row['member_name']);
 	}

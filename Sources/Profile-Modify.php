@@ -3771,7 +3771,7 @@ function profileSaveAvatarData(&$value, $memID)
  */
 function profileValidateSignature(&$value)
 {
-	require_once(Config::$sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Msg.php');
 
 	// Admins can do whatever they hell they want!
 	if (!allowedTo('admin_forum'))
@@ -4001,7 +4001,7 @@ function profileSendActivation($memID)
 {
 	global $profile_vars;
 
-	require_once(Config::$sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Msg.php');
 
 	// Shouldn't happen but just in case.
 	if (empty($profile_vars['email_address']))

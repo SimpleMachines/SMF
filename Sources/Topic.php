@@ -543,8 +543,8 @@ class Topic implements \ArrayAccess
 
 		checkSession('get');
 
-		// Get Subs-Post.php for sendNotifications.
-		require_once(Config::$sourcedir . '/Subs-Post.php');
+		// Get Msg.php for sendNotifications.
+		require_once(Config::$sourcedir . '/Msg.php');
 
 		// Find out who started the topic - in case User Topic Locking is enabled.
 		$request = Db::$db->query('', '
@@ -647,8 +647,8 @@ class Topic implements \ArrayAccess
 
 		checkSession('get');
 
-		// We need Subs-Post.php for the sendNotifications() function.
-		require_once(Config::$sourcedir . '/Subs-Post.php');
+		// We need Msg.php for the sendNotifications() function.
+		require_once(Config::$sourcedir . '/Msg.php');
 
 		// Is this topic already stickied, or no?
 		$request = Db::$db->query('', '

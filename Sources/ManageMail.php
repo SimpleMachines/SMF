@@ -462,7 +462,7 @@ function TestMailSend()
 	// Sending the test message now.
 	if (isset($_GET['save']))
 	{
-		require_once(Config::$sourcedir . '/Subs-Post.php');
+		require_once(Config::$sourcedir . '/Msg.php');
 
 		// Send to the current user, no options.
 		$to = User::$me->email;

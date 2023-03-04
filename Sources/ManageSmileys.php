@@ -1804,7 +1804,7 @@ function InstallSmileySet()
 
 			if (!empty($action['parse_bbc']))
 			{
-				require_once(Config::$sourcedir . '/Subs-Post.php');
+				require_once(Config::$sourcedir . '/Msg.php');
 				preparsecode(Utils::$context[$type]);
 				Utils::$context[$type] = BBCodeParser::load()->parse(Utils::$context[$type]);
 			}
