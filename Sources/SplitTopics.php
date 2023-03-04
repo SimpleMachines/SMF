@@ -48,7 +48,7 @@ function SplitTopics()
 	// Load up the "dependencies" - the template, getMsgMemberID(), and sendNotifications().
 	if (!isset($_REQUEST['xml']))
 		loadTemplate('SplitTopics');
-	require_once(Config::$sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Msg.php');
 
 	$subActions = array(
 		'selectTopics' => 'SplitSelectTopics',
@@ -1384,7 +1384,7 @@ function MergeExecute($topics = array())
 		);
 	}
 
-	require_once(Config::$sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Msg.php');
 	$posterOptions = array(
 		'id' => User::$me->id,
 		'update_post_count' => false,

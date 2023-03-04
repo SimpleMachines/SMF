@@ -866,7 +866,7 @@ function PlushSearch2()
 	// *** Spell checking
 	if (Utils::$context['show_spellchecking'])
 	{
-		require_once(Config::$sourcedir . '/Subs-Post.php');
+		require_once(Config::$sourcedir . '/Msg.php');
 
 		// Don't hardcode spellchecking functions!
 		$link = spell_init();

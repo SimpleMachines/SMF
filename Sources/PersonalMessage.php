@@ -43,7 +43,7 @@ function MessageMain()
 	isAllowedTo('pm_read');
 
 	// This file contains the basic functions for sending a PM.
-	require_once(Config::$sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Msg.php');
 
 	Lang::load('PersonalMessage+Drafts');
 

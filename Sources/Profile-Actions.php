@@ -158,7 +158,7 @@ function issueWarning($memID)
 			// Send the PM?
 			else
 			{
-				require_once(Config::$sourcedir . '/Subs-Post.php');
+				require_once(Config::$sourcedir . '/Msg.php');
 				$from = array(
 					'id' => 0,
 					'name' => Utils::$context['forum_name_html_safe'],
@@ -235,7 +235,7 @@ function issueWarning($memID)
 
 		if (!empty($_POST['warn_body']))
 		{
-			require_once(Config::$sourcedir . '/Subs-Post.php');
+			require_once(Config::$sourcedir . '/Msg.php');
 
 			preparsecode($warning_body);
 			$warning_body = BBCodeParser::load()->parse($warning_body);

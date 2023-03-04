@@ -140,7 +140,7 @@ function MoveTopic()
  * Upon successful completion redirects to message index.
  * Accessed via ?action=movetopic2.
  *
- * Uses Subs-Post.php
+ * Uses Msg.php
  */
 function MoveTopic2()
 {
@@ -182,7 +182,7 @@ function MoveTopic2()
 	}
 
 	checkSession();
-	require_once(Config::$sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Msg.php');
 
 	// The destination board must be numeric.
 	$_POST['toboard'] = (int) $_POST['toboard'];
@@ -698,7 +698,7 @@ function moveTopics($topics, $toBoard)
 		foreach ($topics as $topic_id)
 			CacheApi::put('topic_board-' . $topic_id, null, 120);
 
-	require_once(Config::$sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Msg.php');
 
 	$updates = array_keys($fromBoards);
 	$updates[] = $toBoard;

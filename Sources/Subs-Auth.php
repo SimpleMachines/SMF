@@ -581,7 +581,7 @@ function resetPassword($memID, $username = null)
 {
 	// Language... and a required file.
 	Lang::load('Login');
-	require_once(Config::$sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Msg.php');
 
 	// Get some important details.
 	$request = Db::$db->query('', '

@@ -93,7 +93,7 @@ class CreateAttachment_Notify extends BackgroundTask
 			if ($pref & self::RECEIVE_NOTIFY_EMAIL)
 			{
 				// Emails are a bit complicated. (That's what she said)
-				require_once(Config::$sourcedir . '/Subs-Post.php');
+				require_once(Config::$sourcedir . '/Msg.php');
 				require_once(Config::$sourcedir . '/ScheduledTasks.php');
 				loadEssentialThemeData();
 

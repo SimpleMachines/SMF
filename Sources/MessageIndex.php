@@ -773,7 +773,7 @@ function QuickModeration()
 		$_SESSION['topicseen_cache'] = array();
 
 	// This is going to be needed to send off the notifications and for updateLastMessages().
-	require_once(Config::$sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Msg.php');
 
 	// Remember the last board they moved things to.
 	if (isset($_REQUEST['move_to']))

@@ -1036,7 +1036,7 @@ function AdminApprove()
 	// First, check our session.
 	checkSession();
 
-	require_once(Config::$sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Msg.php');
 
 	// We also need to the login languages here - for emails.
 	Lang::load('Login');

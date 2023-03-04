@@ -103,7 +103,7 @@ class GroupReq_Notify extends BackgroundTask
 			if (!empty($data['email']))
 			{
 				require_once(Config::$sourcedir . '/ScheduledTasks.php');
-				require_once(Config::$sourcedir . '/Subs-Post.php');
+				require_once(Config::$sourcedir . '/Msg.php');
 				loadEssentialThemeData();
 
 				$request = Db::$db->query('', '

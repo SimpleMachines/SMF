@@ -654,7 +654,7 @@ function ApproveMessage()
 
 	$_REQUEST['msg'] = (int) $_REQUEST['msg'];
 
-	require_once(Config::$sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Msg.php');
 
 	isAllowedTo('approve_posts');
 
@@ -701,7 +701,7 @@ function ApproveMessage()
  */
 function approveMessages($messages, $messageDetails, $current_view = 'replies')
 {
-	require_once(Config::$sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Msg.php');
 	if ($current_view == 'topics')
 	{
 		approveTopics($messages);
@@ -743,7 +743,7 @@ function approveAllData()
 
 	if (!empty($msgs))
 	{
-		require_once(Config::$sourcedir . '/Subs-Post.php');
+		require_once(Config::$sourcedir . '/Msg.php');
 		approvePosts($msgs);
 	}
 

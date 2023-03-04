@@ -132,7 +132,7 @@ function RemindPick()
 		// Randomly generate a new password, with only alpha numeric characters that is a max length of 10 chars.
 		$password = User::generateValidationCode();
 
-		require_once(Config::$sourcedir . '/Subs-Post.php');
+		require_once(Config::$sourcedir . '/Msg.php');
 		$replacements = array(
 			'REALNAME' => $row['real_name'],
 			'REMINDLINK' => Config::$scripturl . '?action=reminder;sa=setpassword;u=' . $row['id_member'] . ';code=' . $password,

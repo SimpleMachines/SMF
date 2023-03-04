@@ -40,7 +40,7 @@ function RemoveTopic2()
 	checkSession('get');
 
 	// This file needs to be included for sendNotifications().
-	require_once(Config::$sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Msg.php');
 
 	// Trying to fool us around, are we?
 	if (empty(Topic::$topic_id))
@@ -570,7 +570,7 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 		'calendar_updated' => time(),
 	));
 
-	require_once(Config::$sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Msg.php');
 	$updates = array();
 	foreach ($adjustBoards as $stats)
 		$updates[] = $stats['id_board'];
@@ -999,7 +999,7 @@ function removeMessage($message, $decreasePostCount = true)
 	));
 
 	// And now to update the last message of each board we messed with.
-	require_once(Config::$sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Msg.php');
 	if ($recycle)
 		updateLastMessages(array($row['id_board'], Config::$modSettings['recycle_board']));
 	else
@@ -1458,7 +1458,7 @@ function mergePosts($msgs, $from_topic, $target_topic)
 	);
 
 	// Need it to update some stats.
-	require_once(Config::$sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Msg.php');
 
 	// Update stats.
 	updateStats('topic');

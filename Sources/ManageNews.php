@@ -90,7 +90,7 @@ function ManageNews()
  */
 function EditNews()
 {
-	require_once(Config::$sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Msg.php');
 
 	// The 'remove selected' button was pressed.
 	if (!empty($_POST['delete_selection']) && !empty($_POST['remove']))
@@ -528,7 +528,7 @@ function ComposeMailing()
 
 	if (isset(Utils::$context['preview']))
 	{
-		require_once(Config::$sourcedir . '/Subs-Post.php');
+		require_once(Config::$sourcedir . '/Msg.php');
 		Utils::$context['recipients']['members'] = !empty($_POST['members']) ? explode(',', $_POST['members']) : array();
 		Utils::$context['recipients']['exclude_members'] = !empty($_POST['exclude_members']) ? explode(',', $_POST['exclude_members']) : array();
 		Utils::$context['recipients']['groups'] = !empty($_POST['groups']) ? explode(',', $_POST['groups']) : array();
@@ -811,7 +811,7 @@ function SendMailing($clean_only = false)
 	if ($clean_only)
 		return;
 
-	require_once(Config::$sourcedir . '/Subs-Post.php');
+	require_once(Config::$sourcedir . '/Msg.php');
 
 	// We are relying too much on writing to superglobals...
 	$_POST['subject'] = !empty($_POST['subject']) ? $_POST['subject'] : '';

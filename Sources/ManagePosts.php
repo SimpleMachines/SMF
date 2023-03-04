@@ -139,7 +139,7 @@ function SetCensor()
 
 	if (isset($_POST['censortest']))
 	{
-		require_once(Config::$sourcedir . '/Subs-Post.php');
+		require_once(Config::$sourcedir . '/Msg.php');
 		$censorText = Utils::htmlspecialchars($_POST['censortest'], ENT_QUOTES);
 		preparsecode($censorText);
 		Utils::$context['censor_test'] = strtr(Lang::censorText($censorText), array('"' => '&quot;'));
