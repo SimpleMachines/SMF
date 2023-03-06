@@ -8093,7 +8093,7 @@ function url_to_iri($url)
 }
 
 /**
- * Ensures SMF's scheduled tasks are being run as intended
+ * Ensures SMF's background tasks are being run as intended.
  *
  * If the admin activated the cron_is_real_cron setting, but the cron job is
  * not running things at least once per day, we need to go back to SMF's default
@@ -8106,27 +8106,31 @@ function check_cron()
 	if (!empty($modSettings['cron_is_real_cron']) && time() - @intval($modSettings['cron_last_checked']) > 84600)
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT COUNT(*)
-			FROM {db_prefix}scheduled_tasks
-			WHERE disabled = {int:not_disabled}
-				AND next_time < {int:yesterday}',
-			array(
-				'not_disabled' => 0,
-				'yesterday' => time() - 84600,
-			)
+			SELECT id_task
+			FROM {db_prefix}background_tasks
+			ORDER BY id_task
+			LIMIT 1',
+			array()
 		);
-		list($overdue) = $smcFunc['db_fetch_row']($request);
+		list($oldest_task) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		// If we have tasks more than a day overdue, cron isn't doing its job.
-		if (!empty($overdue))
+		if (!empty($oldest_task) && !empty($modSettings['cron_last_checked_task']) && $oldest_task == $modSettings['cron_last_checked_task'])
 		{
 			loadLanguage('ManageScheduledTasks');
 			log_error($txt['cron_not_working']);
-			updateSettings(array('cron_is_real_cron' => 0));
+			updateSettings(array(
+				'cron_is_real_cron' => 0,
+				'cron_last_checked' => null,
+				'cron_last_checked_task' => null,
+			));
 		}
 		else
-			updateSettings(array('cron_last_checked' => time()));
+			updateSettings(array(
+				'cron_last_checked' => time(),
+				'cron_last_checked_task' => !empty($oldest_task) ? $oldest_task : 0,
+			));
 	}
 }
 
