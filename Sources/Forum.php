@@ -382,8 +382,7 @@ class Forum
 			// Topic is empty, and action is empty.... MessageIndex!
 			elseif (empty(Topic::$topic_id))
 			{
-				require_once(Config::$sourcedir . '/MessageIndex.php');
-				return 'MessageIndex';
+				return 'SMF\\MessageIndex::call';
 			}
 
 			// Board is not empty... topic is not empty... action is empty.. Display!

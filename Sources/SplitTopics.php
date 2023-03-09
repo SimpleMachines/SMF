@@ -19,6 +19,7 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\MessageIndex;
 use SMF\Msg;
 use SMF\Mail;
 use SMF\Topic;
@@ -926,8 +927,6 @@ function MergeIndex()
 	// No sense in loading this if you can only merge on this board
 	if (count($merge_boards) > 1 || in_array(0, $merge_boards))
 	{
-		require_once($sourcedir . '/Subs-MessageIndex.php');
-
 		// Set up a couple of options for our board list
 		$options = array(
 			'not_redirection' => true,
@@ -938,7 +937,7 @@ function MergeIndex()
 		if (!in_array(0, $merge_boards))
 			$options['included_boards'] = $merge_boards;
 
-		Utils::$context['merge_categories'] = getBoardList($options);
+		Utils::$context['merge_categories'] = MessageIndex::getBoardList($options);
 	}
 
 	// Get some topics to merge it with.

@@ -18,6 +18,7 @@ use SMF\BrowserDetector;
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\MessageIndex;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -487,14 +488,13 @@ function CalendarPost()
 	else
 	{
 		// Load the list of boards and categories in the context.
-		require_once($sourcedir . '/Subs-MessageIndex.php');
 		$boardListOptions = array(
 			'included_boards' => in_array(0, $boards) ? null : $boards,
 			'not_redirection' => true,
 			'use_permissions' => true,
 			'selected_board' => Config::$modSettings['cal_defaultboard'],
 		);
-		Utils::$context['event']['categories'] = getBoardList($boardListOptions);
+		Utils::$context['event']['categories'] = MessageIndex::getBoardList($boardListOptions);
 	}
 
 	// Template, sub template, etc.

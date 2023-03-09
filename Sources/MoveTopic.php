@@ -17,6 +17,7 @@
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\MessageIndex;
 use SMF\Msg;
 use SMF\Mail;
 use SMF\Topic;
@@ -100,8 +101,7 @@ function MoveTopic()
 	if (!Utils::$context['move_any'])
 		$options['included_boards'] = $boards;
 
-	require_once($sourcedir . '/Subs-MessageIndex.php');
-	Utils::$context['categories'] = getBoardList($options);
+	Utils::$context['categories'] = MessageIndex::getBoardList($options);
 
 	Utils::$context['page_title'] = Lang::$txt['move_topic'];
 

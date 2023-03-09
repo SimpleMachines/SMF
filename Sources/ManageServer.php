@@ -62,6 +62,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\MessageIndex;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -1296,8 +1297,7 @@ function prepareDBSettingContext(&$config_vars)
 
 	if ($board_list)
 	{
-		require_once($sourcedir . '/Subs-MessageIndex.php');
-		Utils::$context['board_list'] = getBoardList();
+		Utils::$context['board_list'] = MessageIndex::getBoardList();
 	}
 
 	// What about any BBC selection boxes?
