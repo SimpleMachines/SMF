@@ -16,6 +16,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Board;
+use SMF\BoardIndex;
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
@@ -63,15 +64,10 @@ function MessageIndex()
 		}
 	}
 
-	$boards_parsed_data = getBoardsParsedDescription(Board::$info->cat['id']);
-
-	if (!isset($boards_parsed_data[Board::$info->id]))
-		$boards_parsed_data = setBoardParsedDescription(Board::$info->cat['id'], array(
-			Board::$info->id => Board::$info->description
-		));
+	Board::$info->parseDescription();
 
 	Utils::$context['name'] = Board::$info->name;
-	Utils::$context['description'] = $boards_parsed_data[Board::$info->id];
+	Utils::$context['description'] = Board::$info->description;
 
 	if (!empty(Board::$info->description))
 		Utils::$context['meta_description'] = strip_tags(Board::$info->description);
@@ -202,7 +198,6 @@ function MessageIndex()
 	Utils::$context['can_moderate_forum'] = allowedTo('moderate_forum');
 	Utils::$context['can_approve_posts'] = allowedTo('approve_posts');
 
-	require_once(Config::$sourcedir . '/Subs-BoardIndex.php');
 	$boardIndexOptions = array(
 		'include_categories' => false,
 		'base_level' => Board::$info->child_level + 1,
@@ -210,7 +205,7 @@ function MessageIndex()
 		'set_latest_post' => false,
 		'countChildPosts' => !empty(Config::$modSettings['countChildPosts']),
 	);
-	Utils::$context['boards'] = getBoardIndex($boardIndexOptions);
+	Utils::$context['boards'] = BoardIndex::get($boardIndexOptions);
 
 	// Nosey, nosey - who's viewing this topic?
 	if (!empty($settings['display_who_viewing']))

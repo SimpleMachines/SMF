@@ -204,6 +204,58 @@ class Category implements \ArrayAccess
 		'boards' => array(),
 	);
 
+	/**
+	 * @var array
+	 *
+	 * Holds parsed versions of category descriptions.
+	 */
+	protected static array $parsed_descriptions = array();
+
+	/****************
+	 * Public methods
+	 ****************/
+
+	/**
+	 * Parses BBCode in $this->description and updates it with the result.
+	 */
+	public function parseDescription(): void
+	{
+		if (empty($this->description))
+			return;
+
+		// Save the unparsed description in case we need it later.
+		if (!isset($this->custom['unparsed_description']))
+			$this->custom['unparsed_description'] = $this->description;
+
+		if (!empty(CacheApi::$enable))
+		{
+			if (empty(self::$parsed_descriptions))
+				self::$parsed_descriptions = CacheApi::get('parsed_category_descriptions', 864000) ?? array();
+
+			if (!isset(self::$parsed_descriptions[$this->id]))
+			{
+				self::$parsed_descriptions[$this->id] = BBCodeParser::load()->parse($this->description, false, '', Utils::$context['description_allowed_tags']);
+
+				CacheApi::put('parsed_category_descriptions', self::$parsed_descriptions, 864000);
+			}
+
+			$this->description = self::$parsed_descriptions[$this->id];
+		}
+		else
+		{
+			$this->description = BBCodeParser::load()->parse($this->description, false, '', Utils::$context['description_allowed_tags']);
+		}
+	}
+
+	/**
+	 * Restores $this->description to its unparsed value.
+	 */
+	public function unparseDescription(): void
+	{
+		if (isset($this->custom['unparsed_description']))
+			$this->description = $this->custom['unparsed_description'];
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -369,9 +421,8 @@ class Category implements \ArrayAccess
 			$catUpdates[] = 'description = {string:cat_desc}';
 			$catParameters['cat_desc'] = $catOptions['cat_desc'];
 
-			self::setParsedDescriptions(array(
-				$category_id => $catOptions['cat_desc']
-			));
+			if (!empty(CacheApi::$enable))
+				CacheApi::put('parsed_category_descriptions', null);
 		}
 
 		// Can a user collapse this category or is it too important?
@@ -746,45 +797,6 @@ class Category implements \ArrayAccess
 			$list[] = $child->id;
 			self::recursiveBoards($list, $child);
 		}
-	}
-
-	/**
-	 * Parses BBC in category descriptions, with caching support.
-	 *
-	 * @param array $category_info The categories to work with.
-	 * @return array The parsed descriptions.
-	 */
-	public static function setParsedDescriptions(array $category_info = array()): array
-	{
-		if (empty($category_info))
-			return $category_info;
-
-		// Get the data we already parsed
-		$parsed_descriptions = self::getParsedDescriptions();
-
-		foreach ($category_info as $category_id => $category_description)
-		{
-			$parsed_descriptions[$category_id] = !empty($category_description) ?
-				BBCodeParser::load()->parse($category_description, false, '', Utils::$context['description_allowed_tags']) : '';
-		}
-
-		if (!empty(CacheApi::$enable))
-			CacheApi::put('parsed_category_descriptions', $parsed_descriptions, 864000);
-
-		return $parsed_descriptions;
-	}
-
-	/**
-	 * Retrieves parsed category descriptions from the cache.
-	 *
-	 * @return array The parsed descriptions.
-	 */
-	public static function getParsedDescriptions(): array
-	{
-		if (empty(CacheApi::$enable))
-			return array();
-
-		return CacheApi::get('parsed_category_descriptions', 864000);
 	}
 
 	/******************

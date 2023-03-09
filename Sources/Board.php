@@ -450,6 +450,13 @@ class Board implements \ArrayAccess
 		),
 	);
 
+	/**
+	 * @var array
+	 *
+	 * Holds parsed versions of board descriptions.
+	 */
+	protected static array $parsed_descriptions = array();
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -869,6 +876,47 @@ class Board implements \ArrayAccess
 		}
 
 		return $affected_boards;
+	}
+
+	/**
+	 * Parses BBCode in $this->description and updates it with the result.
+	 */
+	public function parseDescription(): void
+	{
+		if (empty($this->description))
+			return;
+
+		// Save the unparsed description in case we need it later.
+		if (!isset($this->custom['unparsed_description']))
+			$this->custom['unparsed_description'] = $this->description;
+
+		if (!empty(CacheApi::$enable))
+		{
+			if (empty(self::$parsed_descriptions))
+				self::$parsed_descriptions = CacheApi::get('parsed_boards_descriptions', 864000) ?? array();
+
+			if (!isset(self::$parsed_descriptions[$this->id]))
+			{
+				self::$parsed_descriptions[$this->id] = BBCodeParser::load()->parse($this->description, false, '', Utils::$context['description_allowed_tags']);
+
+				CacheApi::put('parsed_boards_descriptions', self::$parsed_descriptions, 864000);
+			}
+
+			$this->description = self::$parsed_descriptions[$this->id];
+		}
+		else
+		{
+			$this->description = BBCodeParser::load()->parse($this->description, false, '', Utils::$context['description_allowed_tags']);
+		}
+	}
+
+	/**
+	 * Restores $this->description to its unparsed value.
+	 */
+	public function unparseDescription(): void
+	{
+		if (isset($this->custom['unparsed_description']))
+			$this->description = $this->custom['unparsed_description'];
 	}
 
 	/***********************
@@ -2095,51 +2143,6 @@ class Board implements \ArrayAccess
 	}
 
 	/**
-	 * Parses BBC in board descriptions, with caching support.
-	 *
-	 * @param int $category_id The category these boards belong to.
-	 * @param array $boards_info The boards to work with.
-	 * @return array The parsed descriptions.
-	 */
-	public static function setParsedDescriptions(int $category_id = 0, array $boards_info = array()): array
-	{
-		if (empty($category_id) || empty($boards_info))
-			return array();
-
-		// Get the data we already parsed
-		$parsed_descriptions = self::getParsedDescriptions($category_id);
-
-		foreach ($boards_info as $board_id => $board_description)
-		{
-			$parsed_descriptions[$board_id] = BBCodeParser::load()->parse(
-				$board_description,
-				false,
-				'',
-				Utils::$context['description_allowed_tags']
-			);
-		}
-
-		CacheApi::put('parsed_boards_descriptions_'. $category_id, $parsed_descriptions, 864000);
-
-		return $parsed_descriptions;
-	}
-
-	/**
-	 * Retrieves parsed board descriptions from the cache.
-	 *
-	 * @param int $category_id The category containing the boards we want.
-	 * @return array The parsed descriptions.
-	 */
-	public static function getParsedDescriptions(int $category_id = 0): array
-	{
-		if (empty($category_id))
-			return array();
-
-		return (array) CacheApi::get('parsed_boards_descriptions_' . $category_id, 864000);
-	}
-
-
-	/**
 	 * Get all parent boards (requires first parent as parameter)
 	 * It finds all the parents of id_parent, and that board itself.
 	 * Additionally, it detects the moderators of said boards.
@@ -2215,16 +2218,95 @@ class Board implements \ArrayAccess
 	 */
 	public static function queryData(array $selects, array $params = array(), array $joins = array(), array $where = array(), array $order = array(), int $limit = 0)
 	{
-		$request = Db::$db->query('', '
-			SELECT
-				' . implode(', ', $selects) . '
-			FROM {db_prefix}boards AS b' . (empty($joins) ? '' : '
-				' . implode("\n\t\t\t\t", $joins)) . (empty($where) ? '' : '
-			WHERE (' . implode(') AND (', $where) . ')') . (empty($order) ? '' : '
-			ORDER BY ' . implode(', ', $order)) . ($limit > 0 ? '
-			LIMIT ' . $limit : ''),
-			$params
-		);
+		// If we only want some child boards, use a CTE query for improved performance.
+		if (!empty($params['id_parent']) && in_array('b.id_parent != 0', $where) && Db::$db->cte_support())
+		{
+			// Ensure we include all the necessary fields for the CTE query.
+			preg_match_all('/\bb\.(\w+)/', implode(', ', $selects), $matches);
+
+			$cte_fields = array_unique(array_merge(
+				$matches[1],
+				array(
+					'child_level',
+					'id_board',
+					'name',
+					'description',
+					'redirect',
+					'num_posts',
+					'num_topics',
+					'unapproved_posts',
+					'unapproved_topics',
+					'id_parent',
+					'id_msg_updated',
+					'id_cat',
+					'id_last_msg',
+					'board_order',
+				)
+			));
+
+			$cte_selects = array_map(
+				function ($field)
+				{
+					return 'b.' . $field;
+				},
+				$cte_fields
+			);
+
+			$cte_where1 = array('b.id_board = {int:id_parent}');
+			$cte_where2 = array();
+
+			if (in_array('{query_see_board}', $where))
+			{
+				array_unshift($cte_where1, '{query_see_board}');
+				$cte_where2[] = '{query_see_board}';
+				$where = array_diff($where, array('{query_see_board}'));
+			}
+
+			if (in_array('b.child_level BETWEEN {int:child_level} AND {int:max_child_level}', $where))
+			{
+				$cte_where2[] = 'b.child_level BETWEEN {int:child_level} AND {int:max_child_level}';
+				$where = array_diff($where, array('b.child_level BETWEEN {int:child_level} AND {int:max_child_level}'));
+			}
+
+			$request = Db::$db->query('', '
+				WITH RECURSIVE
+					boards_cte (' . implode(', ', $cte_fields) . ')
+				AS
+				(
+					SELECT ' . implode(', ', $cte_selects) . '
+					FROM {db_prefix}boards AS b
+					WHERE ' . implode(' AND ', $cte_where1) . '
+						UNION ALL
+					SELECT ' . implode(', ', $cte_selects) . '
+					FROM {db_prefix}boards AS b
+						JOIN boards_cte AS bc ON (b.id_parent = bc.id_board)
+					WHERE ' . implode(' AND ', $cte_where2) . '
+				)
+				SELECT
+					' . (!empty($selects) ? implode(', ', $selects) : '') . '
+				FROM boards_cte AS b' . (empty($joins) ? '' : '
+					' . implode("\n\t\t\t\t", $joins)) . (empty($where) ? '' : '
+				WHERE (' . implode(') AND (', $where) . ')') . (empty($order) ? '' : '
+				ORDER BY ' . implode(', ', $order)) . ($limit > 0 ? '
+				LIMIT ' . $limit : ''),
+				$params
+			);
+		}
+		else
+		{
+			$request = Db::$db->query('', '
+				SELECT
+					' . implode(', ', $selects) . '
+				FROM {db_prefix}boards AS b' . (empty($joins) ? '' : '
+					' . implode("\n\t\t\t\t", $joins)) . (empty($where) ? '' : '
+				WHERE (' . implode(') AND (', $where) . ')') . (empty($order) ? '' : '
+				ORDER BY ' . implode(', ', $order)) . ($limit > 0 ? '
+				LIMIT ' . $limit : ''),
+				$params
+			);
+
+		}
+
 		while ($row = Db::$db->fetch_assoc($request))
 		{
 			yield $row;

@@ -458,7 +458,7 @@ function template_ic_block_stats()
 	echo '
 			<div class="sub_bar">
 				<h4 class="subbg">
-					<a href="', Config::$scripturl, '?action=stats" title="', Lang::$txt['more_stats'], '"><span class="main_icons stats"></span> ', Lang::$txt['forum_stats'], '</a>
+					', Utils::$context['show_stats'] ? '<a href="' . Config::$scripturl . '?action=stats" title="' . Lang::$txt['more_stats'] . '">' : '', '<span class="main_icons stats"></span> ', Lang::$txt['forum_stats'], Utils::$context['show_stats'] ? '</a>' : '', '
 				</h4>
 			</div>
 			<p class="inline">

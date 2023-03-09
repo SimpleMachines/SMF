@@ -375,8 +375,7 @@ class Forum
 				// No default action huh? then go to our good old BoardIndex.
 				else
 				{
-					require_once(Config::$sourcedir . '/BoardIndex.php');
-					return 'BoardIndex';
+					return 'SMF\\BoardIndex::call';
 				}
 			}
 
