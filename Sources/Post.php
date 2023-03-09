@@ -19,6 +19,7 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\MessageIndex;
 use SMF\Msg;
 use SMF\Mail;
 use SMF\Topic;
@@ -81,14 +82,13 @@ function Post($post_errors = array())
 			fatal_lang_error('cannot_post_new', false);
 
 		// Get a list of boards for the select menu
-		require_once($sourcedir . '/Subs-MessageIndex.php');
 		$boardListOptions = array(
 			'included_boards' => in_array(0, $boards) ? null : $boards,
 			'not_redirection' => true,
 			'use_permissions' => true,
 			'selected_board' => !empty(Board::$info->id) ? Board::$info->id : (Utils::$context['make_event'] && !empty(Config::$modSettings['cal_defaultboard']) ? Config::$modSettings['cal_defaultboard'] : $boards[0]),
 		);
-		$board_list = getBoardList($boardListOptions);
+		$board_list = MessageIndex::getBoardList($boardListOptions);
 	}
 	// Let's keep things simple for ourselves below
 	else

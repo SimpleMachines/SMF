@@ -17,6 +17,7 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\MessageIndex;
 use SMF\Msg;
 use SMF\User;
 use SMF\Utils;
@@ -53,12 +54,11 @@ function XMLhttpMain()
 function GetJumpTo()
 {
 	// Find the boards/categories they can see.
-	require_once($sourcedir . '/Subs-MessageIndex.php');
 	$boardListOptions = array(
 		'use_permissions' => true,
 		'selected_board' => isset(Utils::$context['current_board']) ? Utils::$context['current_board'] : 0,
 	);
-	Utils::$context['jump_to'] = getBoardList($boardListOptions);
+	Utils::$context['jump_to'] = MessageIndex::getBoardList($boardListOptions);
 
 	// Make the board safe for display.
 	foreach (Utils::$context['jump_to'] as $id_cat => $cat)

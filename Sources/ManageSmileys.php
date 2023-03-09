@@ -16,6 +16,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\MessageIndex;
 use SMF\Msg;
 use SMF\User;
 use SMF\Utils;
@@ -2407,8 +2408,7 @@ function EditMessageIcons()
 			'use_permissions' => true,
 			'selected_board' => isset(Utils::$context['icon']['board_id']) ? Utils::$context['icon']['board_id'] : 0,
 		);
-		require_once($sourcedir . '/Subs-MessageIndex.php');
-		Utils::$context['categories'] = getBoardList($boardListOptions);
+		Utils::$context['categories'] = MessageIndex::getBoardList($boardListOptions);
 	}
 }
 
