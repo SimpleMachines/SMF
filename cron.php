@@ -140,6 +140,18 @@ while ($task_details = fetch_task())
 		);
 	}
 }
+
+// If we have time, check the scheduled tasks.
+if (time() - TIME_START > ceil(MAX_CRON_TIME / 2))
+{
+	require_once($sourcedir . '/ScheduledTasks.php');
+
+	if (empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time())
+		AutoTask();
+	elseif (!empty($modSettings['mail_next_send']) && $modSettings['mail_next_send'] < time())
+		ReduceMailQueue();
+}
+
 obExit_cron();
 exit;
 

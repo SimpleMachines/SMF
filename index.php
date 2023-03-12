@@ -160,13 +160,6 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS
 	die;
 }
 
-// Before we get carried away, are we doing a scheduled task? If so save CPU cycles by jumping out!
-if (isset($_GET['scheduled']))
-{
-	require_once($sourcedir . '/ScheduledTasks.php');
-	AutoTask();
-}
-
 // Check if compressed output is enabled, supported, and not already being done.
 if (!empty($modSettings['enableCompressedOutput']) && !headers_sent())
 {
