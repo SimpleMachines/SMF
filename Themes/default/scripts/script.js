@@ -954,6 +954,8 @@ smc_Toggle.prototype.changeState = function(bCollapse, bInit)
 	{
 		for (var i = 0, n = this.opt.aSwapImages.length; i < n; i++)
 		{
+			this.opt.aSwapImages[i].altExpanded = this.opt.aSwapImages[i].altExpanded ? this.opt.aSwapImages[i].altExpanded : smf_collapseAlt;
+			this.opt.aSwapImages[i].altCollapsed = this.opt.aSwapImages[i].altCollapsed ? this.opt.aSwapImages[i].altCollapsed : smf_expandAlt;
 			if (this.opt.aSwapImages[i].isCSS)
 			{
 				$('#' + this.opt.aSwapImages[i].sId).toggleClass(this.opt.aSwapImages[i].cssCollapsed, bCollapse).toggleClass(this.opt.aSwapImages[i].cssExpanded, !bCollapse).attr('title', bCollapse ? this.opt.aSwapImages[i].altCollapsed : this.opt.aSwapImages[i].altExpanded);
