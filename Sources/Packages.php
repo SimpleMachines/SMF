@@ -1400,7 +1400,7 @@ function PackageBrowse()
 
 	$context['forum_version'] = SMF_FULL_VERSION;
 	$context['available_packages'] = 0;
-	$context['modification_types'] = array('modification', 'avatar', 'language', 'unknown');
+	$context['modification_types'] = array('modification', 'avatar', 'language', 'unknown', 'smiley');
 
 	call_integration_hook('integrate_modification_types');
 
@@ -1619,6 +1619,7 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 			'avatar' => 1,
 			'language' => 1,
 			'unknown' => 1,
+			'smiley' => 1,
 		);
 		call_integration_hook('integrate_packages_sort_id', array(&$sort_id, &$packages));
 
