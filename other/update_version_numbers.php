@@ -25,7 +25,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1.2
@@ -37,18 +37,25 @@ $release_branch = 'release-2.1';
 // The root directory of the working tree for this Git repository
 $basedir = dirname(__DIR__);
 
+// Make sure we are working in the right directory
+chdir($basedir);
+
 // Do nothing if on wrong branch or working tree is dirty
-if (trim(shell_exec('cd "' . $basedir . '"; if [[ "$(git rev-parse --abbrev-ref HEAD)" != "' . $release_branch . '" || -n "$(git status --porcelain)" ]]; then echo "abort"; else echo; fi')) !== '')
-{
-	die('Could not continue. Wrong branch or dirty working tree.');
-}
+if (trim((string) shell_exec('git status --porcelain')) !== '')
+	die('Could not continue. Dirty working tree.');
+
+if (trim(shell_exec('git rev-parse --abbrev-ref HEAD')) !== $release_branch)
+	shell_exec('git checkout "' . $release_branch . '"');
+
+if (trim(shell_exec('git rev-parse --abbrev-ref HEAD')) !== $release_branch)
+	die('Could not continue. Wrong branch is checked out.');
 
 // Matches all standard SMF version strings
 $version_regex = '\d+\.\d+[. ]?(?:(?:(?<= )(?>RC|Beta |Alpha ))?\d+)?';
 
 // Get previous version based on the most recent Git tag
 // This assumes we are using proper sematic versioning in our tags
-$prev_version = ltrim(trim(shell_exec('cd "' . $basedir . '"; git checkout "' . $release_branch . '" &>/dev/null; git describe --tags --abbrev=0')), 'v');
+$prev_version = ltrim(trim(shell_exec('git describe --tags --abbrev=0')), 'v');
 
 // Was the new version passed as a command line argument?
 if (!empty($argv[1]))
@@ -104,7 +111,14 @@ $license_pattern = '~(' . preg_quote('* @package SMF
 
 $lang_pattern = '~// Version: \K' . $version_regex . '~';
 
-$files = array_unique(array_merge($always_update, array_filter(explode("\n", shell_exec('cd "' . $basedir . '"; git diff --name-only v' . $prev_version . '...HEAD | grep -E \'\.php$\' | sort')), 'strlen')));
+$files = array_unique(array_merge($always_update, array_filter(
+	explode("\n", shell_exec('git diff --name-only v' . $prev_version . '...HEAD')),
+	function ($filename)
+	{
+		return file_exists($filename) && strpos(mime_content_type($filename), 'text/') === 0;
+	}
+)));
+
 foreach ($files as $file)
 {
 	$content = $original_content = file_get_contents("$basedir/$file");
@@ -119,7 +133,6 @@ foreach ($files as $file)
 	}
 	else
 	{
-		echo "Could not update $file\n";
 		continue;
 	}
 
@@ -137,5 +150,13 @@ $content = preg_replace("~define\('SMF_LANG_VERSION', '" . $version_regex . "'\)
 
 if ($content !== $original_content)
 	file_put_contents("$basedir/other/upgrade.php", $content);
+
+// Update LICENCE file
+$content = $original_content = file_get_contents("$basedir/LICENSE");
+$content = preg_replace("~Copyright © \d+ Simple Machines.~", "Copyright © $year Simple Machines.", $content);
+$content = preg_replace("~http://www.simplemachines.org\b~", "https://www.simplemachines.org", $content);
+
+if ($content !== $original_content)
+	file_put_contents("$basedir/LICENSE", $content);
 
 ?>

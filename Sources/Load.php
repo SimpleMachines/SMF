@@ -10,7 +10,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.2
+ * @version 2.1.3
  */
 
 use SMF\Cache\CacheApi;
@@ -2582,6 +2582,8 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'banned_text' => JavaScriptEscape(sprintf($txt['your_ban'], $context['user']['name'])),
 		'smf_txt_expand' => JavaScriptEscape($txt['code_expand']),
 		'smf_txt_shrink' => JavaScriptEscape($txt['code_shrink']),
+		'smf_collapseAlt' => JavaScriptEscape($txt['hide']),
+		'smf_expandAlt' => JavaScriptEscape($txt['show']),
 		'smf_quote_expand' => !empty($modSettings['quote_expand']) ? $modSettings['quote_expand'] : 'false',
 		'allow_xhjr_credentials' => !empty($modSettings['allow_cors_credentials']) ? 'true' : 'false',
 	);
@@ -2614,34 +2616,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 	loadJavaScriptFile('script.js', array('defer' => false, 'minimize' => true), 'smf_script');
 	loadJavaScriptFile('theme.js', array('minimize' => true), 'smf_theme');
 
-	// If we think we have mail to send, let's offer up some possibilities... robots get pain (Now with scheduled task support!)
-	if ((!empty($modSettings['mail_next_send']) && $modSettings['mail_next_send'] < time() && empty($modSettings['mail_queue_use_cron'])) || empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time())
-	{
-		if (isBrowser('possibly_robot'))
-		{
-			// @todo Maybe move this somewhere better?!
-			require_once($sourcedir . '/ScheduledTasks.php');
-
-			// What to do, what to do?!
-			if (empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time())
-				AutoTask();
-			else
-				ReduceMailQueue();
-		}
-		else
-		{
-			$type = empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time() ? 'task' : 'mailq';
-			$ts = $type == 'mailq' ? $modSettings['mail_next_send'] : $modSettings['next_task_time'];
-
-			addInlineJavaScript('
-		function smfAutoTask()
-		{
-			$.get(smf_scripturl + "?scheduled=' . $type . ';ts=' . $ts . '");
-		}
-		window.setTimeout("smfAutoTask();", 1);');
-		}
-	}
-
 	// And we should probably trigger the cron too.
 	if (empty($modSettings['cron_is_real_cron']))
 	{
@@ -2653,6 +2627,18 @@ function loadTheme($id_theme = 0, $initialize = true)
 		$.get(' . JavaScriptEscape($boardurl) . ' + "/cron.php?ts=' . $ts . '");
 	}
 	window.setTimeout(triggerCron, 1);', true);
+
+		// Robots won't normally trigger cron.php, so for them run the scheduled tasks directly.
+		if (isBrowser('possibly_robot') && (empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time() || (!empty($modSettings['mail_next_send']) && $modSettings['mail_next_send'] < time() && empty($modSettings['mail_queue_use_cron']))))
+		{
+			require_once($sourcedir . '/ScheduledTasks.php');
+
+			// What to do, what to do?!
+			if (empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time())
+				AutoTask();
+			else
+				ReduceMailQueue();
+		}
 	}
 
 	// Filter out the restricted boards from the linktree

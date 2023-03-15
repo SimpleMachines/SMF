@@ -11,7 +11,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -310,6 +310,9 @@ function is_not_banned($forceCheck = false)
 					'current_member' => $user_info['id'],
 				)
 			);
+
+		if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'dlattach')
+			die();
 
 		// 'Log' the user out.  Can't have any funny business... (save the name!)
 		$old_name = isset($user_info['name']) && $user_info['name'] != '' ? $user_info['name'] : $txt['guest_title'];

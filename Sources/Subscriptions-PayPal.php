@@ -210,7 +210,6 @@ class paypal_payment
 		{
 			// Set the post data.
 			curl_setopt($curl, CURLOPT_POST, true);
-			curl_setopt($curl, CURLOPT_POSTFIELDSIZE, 0);
 			curl_setopt($curl, CURLOPT_POSTFIELDS, $requestString);
 
 			// Set up the headers so paypal will accept the post

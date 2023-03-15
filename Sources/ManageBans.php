@@ -12,7 +12,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -54,22 +54,18 @@ function Ban()
 			'list' => array(
 				'description' => $txt['ban_description'],
 				'href' => $scripturl . '?action=admin;area=ban;sa=list',
-				'is_selected' => $_REQUEST['sa'] == 'list' || $_REQUEST['sa'] == 'edit' || $_REQUEST['sa'] == 'edittrigger',
 			),
 			'add' => array(
 				'description' => $txt['ban_description'],
 				'href' => $scripturl . '?action=admin;area=ban;sa=add',
-				'is_selected' => $_REQUEST['sa'] == 'add',
 			),
 			'browse' => array(
 				'description' => $txt['ban_trigger_browse_description'],
 				'href' => $scripturl . '?action=admin;area=ban;sa=browse',
-				'is_selected' => $_REQUEST['sa'] == 'browse',
 			),
 			'log' => array(
 				'description' => $txt['ban_log_description'],
 				'href' => $scripturl . '?action=admin;area=ban;sa=log',
-				'is_selected' => $_REQUEST['sa'] == 'log',
 				'is_last' => true,
 			),
 		),
@@ -79,6 +75,10 @@ function Ban()
 
 	// Default the sub-action to 'view ban list'.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'list';
+
+	// Mark the appropriate menu entry as selected
+	if (array_key_exists($_REQUEST['sa'], $context[$context['admin_menu_name']]['tab_data']['tabs']))
+		$context[$context['admin_menu_name']]['tab_data']['tabs'][$_REQUEST['sa']]['is_selected'] = true;
 
 	$context['page_title'] = $txt['ban_title'];
 	$context['sub_action'] = $_REQUEST['sa'];

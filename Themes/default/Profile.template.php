@@ -7,7 +7,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.2
+ * @version 2.1.3
  */
 
 /**
@@ -2069,7 +2069,7 @@ function template_groupMembership()
 	if (!empty($context['update_message']))
 		echo '
 			<div class="infobox">
-				', $context['update_message'], '.
+				', $context['update_message'], '
 			</div>';
 
 	echo '

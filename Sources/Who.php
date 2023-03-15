@@ -11,7 +11,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.2
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -611,12 +611,10 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_dev'],
 					'members' => array(
 						// Lead Developer
-						'Jon "Sesquipedalian" Stovell',
+						'Shawn Bulen',
 						// Developers
-						'Jessica "Suki" González',
 						'John "live627" Rayes',
 						'Oscar "Ozp" Rydhé',
-						'Shawn Bulen',
 
 						// Former Developers
 						'Aaron van Geffen',
@@ -626,6 +624,8 @@ function Credits($in_admin = false)
 						'Colin Schoen',
 						'emanuele',
 						'Hendrik Jan "Compuart" Visser',
+						'Jessica "Suki" González',
+						'Jon "Sesquipedalian" Stovell',
 						'Juan "JayBachatero" Hernandez',
 						'Karl "RegularExpression" Benson',
 						'Matthew "Labradoodle-360" Kerle',
@@ -685,15 +685,17 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_customize'],
 					'members' => array(
 						// Lead Customizer
-						'Gary M. Gadsdon',
-						// Customizers
 						'Diego Andrés',
+						// Customizers
+						'GL700Wing',
+						'Johnnie "TwitchisMental" Ballew',
 						'Jonathan "vbgamer45" Valentin',
 						'Michael "Mick." Gomez',
 
 						// Former Customizers
 						'Sami "SychO" Mazouz',
 						'Brannon "B" Hall',
+						'Gary M. Gadsdon',
 						'Jack "akabugeyes" Thorsen',
 						'Jason "JBlaze" Clemons',
 						'Joey "Tyrsson" Smith',

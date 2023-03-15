@@ -10,7 +10,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -350,15 +350,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 
 	// Special queries that need processing.
 	$replacements = array(
-		'insert_log_search_topics' => array(
-			'~NOT RLIKE~' => '!~',
-		),
-		'insert_log_search_results_no_index' => array(
-			'~NOT RLIKE~' => '!~',
-		),
-		'insert_log_search_results_subject' => array(
-			'~NOT RLIKE~' => '!~',
-		),
 		'profile_board_stats' => array(
 			'~COUNT\(\*\) \/ MAX\(b.num_posts\)~' => 'CAST(COUNT(*) AS DECIMAL) / CAST(b.num_posts AS DECIMAL)',
 		),

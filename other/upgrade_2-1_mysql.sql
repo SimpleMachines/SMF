@@ -432,11 +432,15 @@ $step_progress['name'] = 'Converting legacy attachments';
 $step_progress['current'] = $_GET['a'];
 
 // We may be using multiple attachment directories.
-if (!empty($modSettings['currentAttachmentUploadDir']) && !is_array($modSettings['attachmentUploadDir']) && empty($modSettings['json_done']))
-	$modSettings['attachmentUploadDir'] = @unserialize($modSettings['attachmentUploadDir']);
+// Allow for reruns - it's possible it's json...
+if (!empty($modSettings['currentAttachmentUploadDir']) && !is_array($modSettings['attachmentUploadDir']))
+	if (empty($modSettings['json_done']))
+		$modSettings['attachmentUploadDir'] = @unserialize($modSettings['attachmentUploadDir']);
+	else
+		$modSettings['attachmentUploadDir'] = @json_decode($modSettings['attachmentUploadDir'], true);
 
-// No need to do this if we already did it previously...
-if (empty($modSettings['attachments_21_done']))
+// No need to do this if we already did it previously...  Unless requested...
+if (empty($modSettings['attachments_21_done']) || !empty($upcontext['reprocess_attachments'])) 
   $is_done = false;
 else
   $is_done = true;

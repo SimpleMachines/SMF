@@ -212,6 +212,7 @@ function KickGuest()
 {
 	global $txt, $context;
 
+	loadTheme();
 	loadLanguage('Login');
 	loadTemplate('Login');
 	createToken('login');
