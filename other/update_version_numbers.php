@@ -89,6 +89,14 @@ $year = date_format(date_create(), 'Y');
 // These need to be updated for every new version, even if they have not otherwise changed
 $always_update = array('index.php', 'cron.php', 'proxy.php', 'SSI.php', 'other/install.php', 'other/upgrade.php', 'other/upgrade-helper.php', 'other/Settings.php', 'other/Settings_bak.php');
 
+// Checkout a new branch to work in.
+$new_branch = 'update_version_numbers_to_' . preg_replace('/\s+/', '-', strtolower($new_version));
+
+shell_exec('git checkout -b "' . $new_branch . '"');
+
+if (trim(shell_exec('git rev-parse --abbrev-ref HEAD')) !== $new_branch)
+	die('Failed to create branch "' . $new_branch . '"');
+
 // Update SMF_VERSION and SMF_SOFTWARE_YEAR
 foreach ($always_update as $file)
 {
