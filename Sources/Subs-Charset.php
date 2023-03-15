@@ -297,6 +297,9 @@ function utf8_normalize_d($string)
 			return normalizer_normalize($string, Normalizer::FORM_D);
 	}
 
+	if (utf8_is_normalized($string, 'd'))
+		return $string;
+
 	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 	if ($chars === false)
@@ -323,6 +326,9 @@ function utf8_normalize_kd($string)
 		if (is_callable('normalizer_normalize'))
 			return normalizer_normalize($string, Normalizer::FORM_KD);
 	}
+
+	if (utf8_is_normalized($string, 'kd'))
+		return $string;
 
 	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
@@ -351,6 +357,9 @@ function utf8_normalize_c($string)
 			return normalizer_normalize($string, Normalizer::FORM_C);
 	}
 
+	if (utf8_is_normalized($string, 'c'))
+		return $string;
+
 	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 	if ($chars === false)
@@ -378,6 +387,9 @@ function utf8_normalize_kc($string)
 			return normalizer_normalize($string, Normalizer::FORM_KC);
 	}
 
+	if (utf8_is_normalized($string, 'kc'))
+		return $string;
+
 	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 	if ($chars === false)
@@ -398,6 +410,9 @@ function utf8_normalize_kc_casefold($string)
 	global $sourcedir;
 
 	$string = (string) $string;
+
+	if (utf8_is_normalized($string, 'kc_casefold'))
+		return $string;
 
 	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
@@ -422,6 +437,86 @@ function utf8_normalize_kc_casefold($string)
 	}
 
 	return implode('', utf8_compose($chars));
+}
+
+/**
+ * Checks whether a string is already normalized to a given form.
+ *
+ * @param string|array $string A string of UTF-8 characters.
+ * @param string $form One of 'd', 'c', 'kd', 'kc', or 'kc_casefold'
+ * @return bool Whether the string is already normalized to the given form.
+ */
+function utf8_is_normalized($string, $form)
+{
+	global $sourcedir;
+
+	// Check whether string contains characters that are disallowed in this form.
+	switch ($form)
+	{
+		case 'd':
+			$prop = 'NFD_QC';
+			break;
+
+		case 'kd':
+			$prop = 'NFKD_QC';
+			break;
+
+		case 'c':
+			$prop = 'NFC_QC';
+			break;
+
+		case 'kc':
+			$prop = 'NFKC_QC';
+			break;
+
+		case 'kc_casefold':
+			$prop = 'Changes_When_NFKC_Casefolded';
+			break;
+
+		default:
+			return false;
+			break;
+	}
+
+	require_once($sourcedir . '/Unicode/QuickCheck.php');
+	$qc = utf8_regex_quick_check();
+
+	if (preg_match('/[' . $qc[$prop] . ']/u', $string))
+		return false;
+
+	// Check whether all combining marks are in canonical order.
+	// Note: Because PCRE's Unicode data might be outdated compared to ours,
+	// this regex checks for marks and anything PCRE thinks is not a character.
+	// That means the more thorough checks will occasionally be performed on
+	// strings that don't need them, but building and running a perfect regex
+	// would be more expensive in the vast majority of cases, so meh.
+	if (preg_match_all('/([\p{M}\p{Cn}])/u', $string, $matches, PREG_OFFSET_CAPTURE))
+	{
+		require_once($sourcedir . '/Unicode/CombiningClasses.php');
+
+		$combining_classes = utf8_combining_classes();
+
+		$last_pos = 0;
+		$last_len = 0;
+		$last_ccc = 0;
+		foreach ($matches[1] as $match)
+		{
+			$char = $match[0];
+			$pos = $match[1];
+			$ccc = isset($combining_classes[$char]) ? $combining_classes[$char] : 0;
+
+			// Not in canonical order, so return false.
+			if ($pos === $last_pos + $last_len && $ccc > 0 && $last_ccc > $ccc)
+				return false;
+
+			$last_pos = $pos;
+			$last_len = strlen($char);
+			$last_ccc = $ccc;
+		}
+	}
+
+	// If we get here, the string is normalized correctly.
+	return true;
 }
 
 /**

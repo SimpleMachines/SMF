@@ -147,6 +147,12 @@ $funcs = array(
 		'val_type' => 'string',
 		'data' => array(),
 	),
+	'utf8_regex_quick_check' => array(
+		'file' => 'QuickCheck.php',
+		'key_type' => 'string',
+		'val_type' => 'string',
+		'data' => array(),
+	),
 	'idna_maps' => array(
 		'file' => 'Idna.php',
 		'key_type' => 'hexchar',
@@ -448,7 +454,7 @@ while ($changed)
 }
 
 $funcs['utf8_normalize_kd_maps']['data'] = array_diff_assoc($full_decomposition_maps, $funcs['utf8_normalize_d_maps']['data']);
-unset($full_decomposition_maps, $derived_normalization_props);
+unset($full_decomposition_maps);
 
 // Now update the files with the data we've got so far.
 foreach ($funcs as $func_name => $func_info)
@@ -470,6 +476,53 @@ foreach ($funcs as $func_name => $func_info)
 /***********************************
  * Part 2: Regular expression data *
  ***********************************/
+
+foreach (array('NFC_QC', 'NFKC_QC', 'NFD_QC', 'NFKD_QC', 'Changes_When_NFKC_Casefolded') as $prop)
+{
+	$current_range = array('start' => null, 'end' => null);
+	foreach ($derived_normalization_props[$prop] as $entity => $nm)
+	{
+		$range_string = '';
+
+		$ord = hexdec(trim($entity, '&#x;'));
+
+		if (!isset($current_range['start']))
+		{
+			$current_range['start'] = $ord;
+		}
+
+		if (!isset($current_range['end']) || $ord == $current_range['end'] + 1)
+		{
+			$current_range['end'] = $ord;
+		}
+		else
+		{
+			$range_string .= '\\x{' . strtoupper(sprintf('%04s', dechex($current_range['start']))) . '}';
+
+			if ($current_range['start'] != $current_range['end'])
+			{
+				$range_string .= '-\\x{' . strtoupper(sprintf('%04s', dechex($current_range['end']))) . '}';
+			}
+
+			$current_range = array('start' => $ord, 'end' => $ord);
+
+			$funcs['utf8_regex_quick_check']['data'][$prop][] = $range_string;
+		}
+	}
+
+	if (isset($current_range['start']))
+	{
+		$range_string = '\\x{' . strtoupper(sprintf('%04s', dechex($current_range['start']))) . '}';
+
+		if ($current_range['start'] != $current_range['end'])
+		{
+			$range_string .= '-\\x{' . strtoupper(sprintf('%04s', dechex($current_range['end']))) . '}';
+		}
+
+		$funcs['utf8_regex_quick_check']['data'][$prop][] = $range_string;
+	}
+}
+unset($derived_normalization_props);
 
 // Build regular expression classes for extended Unicode properties.
 foreach ($funcs['utf8_regex_properties']['propfiles'] as $filename)
