@@ -796,7 +796,7 @@ class Update_Unicode extends SMF_BackgroundTask
 				empty($this->funcs[$func_name]['return']) ? array() : array(
 					'',
 					'@return ' . implode(' ', $this->funcs[$func_name]['return'])
-				),
+				)
 			)) . "\n */\n";
 
 			// The code for this function.
@@ -1326,6 +1326,8 @@ class Update_Unicode extends SMF_BackgroundTask
 				$this->funcs['utf8_regex_quick_check']['data'][$prop][] = $range_string;
 			}
 		}
+
+		return true;
 	}
 
 	/**
