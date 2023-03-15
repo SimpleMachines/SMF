@@ -40,6 +40,7 @@ function Display()
 
 	// Load the proper template.
 	loadTemplate('Display');
+	loadCSSFile('attachments.css', array('minimize' => true, 'order_pos' => 450), 'smf_attachments');
 
 	// Not only does a prefetch make things slower for the server, but it makes it impossible to know if they read it.
 	if (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch')

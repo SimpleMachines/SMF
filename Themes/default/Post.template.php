@@ -16,6 +16,7 @@
 function template_main()
 {
 	global $context, $options, $txt, $scripturl, $modSettings, $counter;
+	global $settings;
 
 	// Start the javascript... and boy is there a lot.
 	echo '
@@ -270,30 +271,152 @@ function template_main()
 	echo '
 					', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message');
 
-	// If we're editing and displaying edit details, show a box where they can say why
-	if (isset($context['editing']) && $modSettings['show_modify'])
+	// Show attachments.
+	if (!empty($context['current_attachments']) || $context['can_post_attachment'])
+	{
 		echo '
-					<dl>
-						<dt class="clear">
-							<span id="caption_edit_reason">', $txt['reason_for_edit'], ':</span>
-						</dt>
-						<dd>
-							<input type="text" name="modify_reason"', isset($context['last_modified_reason']) ? ' value="' . $context['last_modified_reason'] . '"' : '', ' tabindex="', $context['tabindex']++, '" size="80" maxlength="80">
-						</dd>
-					</dl>';
+					<div id="post_attachments_area" class="roundframe noup">';
 
-	// If this message has been edited in the past - display when it was.
-	if (isset($context['last_modified']))
+		// The non-JavaScript UI.
 		echo '
-					<div class="padding smalltext">
-						', $context['last_modified_text'], '
+							<div id="postAttachment">
+								<div class="padding">
+									<div>
+										<strong>', $txt['attachments'], '</strong>:';
+
+		if ($context['can_post_attachment'])
+			echo '
+										<input type="file" multiple="multiple" name="attachment[]" id="attachment1">
+										<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">(', $txt['clean_attach'], ')</a>';
+
+		if (!empty($modSettings['attachmentSizeLimit']))
+			echo '
+										<input type="hidden" name="MAX_FILE_SIZE" value="' . $modSettings['attachmentSizeLimit'] * 1024 . '">';
+
+		echo '
+									</div>';
+
+		if (!empty($context['attachment_restrictions']))
+			echo '
+									<div class="smalltext">', $txt['attach_restrictions'], ' ', implode(', ', $context['attachment_restrictions']), '</div>';
+
+		echo '
+									<div class="smalltext">
+										<input type="hidden" name="attach_del[]" value="0">
+										', $txt['uncheck_unwatchd_attach'], '
+									</div>
+								</div>
+								<div class="attachments">';
+
+		// If this post already has attachments on it - give information about them.
+		if (!empty($context['current_attachments']))
+		{
+			foreach ($context['current_attachments'] as $attachment)
+			{
+				echo '
+									<div class="attached">
+										<input type="checkbox" id="attachment_', $attachment['attachID'], '" name="attach_del[]" value="', $attachment['attachID'], '"', empty($attachment['unchecked']) ? ' checked' : '', '>';
+
+				if (!empty($modSettings['attachmentShowImages']))
+				{
+					if (strpos($attachment['mime_type'], 'image') === 0)
+						$src = $scripturl . '?action=dlattach;attach=' . (!empty($attachment['thumb']) ? $attachment['thumb'] : $attachment['attachID']) . ';preview;image';
+					else
+						$src = $settings['images_url'] . '/generic_attach.png';
+
+					echo '
+										<div class="attachments_top">
+											<img src="', $src, '" alt="" loading="lazy" class="atc_img">
+										</div>';
+				}
+
+				echo '
+										<div class="attachments_bot">
+											<span class="name">' . $attachment['name'] . '</span>', (empty($attachment['approved']) ? '
+											<br>(' . $txt['awaiting_approval'] . ')' : ''), '
+											<br>', $attachment['size'] < 1024000 ? round($attachment['size'] / 1024, 2) . ' ' . $txt['kilobyte'] : round($attachment['size'] / 1024 / 1024, 2) . ' ' . $txt['megabyte'], '
+										</div>
+									</div>';
+			}
+		}
+
+		echo '
+								</div>
+							</div>';
+
+		if (!empty($context['files_in_session_warning']))
+			echo '
+							<div class="smalltext"><em>', $context['files_in_session_warning'], '</em></div>';
+
+		// Is the user allowed to post any additional ones? If so give them the boxes to do it!
+		if ($context['can_post_attachment'])
+		{
+			// Print dropzone UI.
+			echo '
+						<div id="attachment_upload">
+							<div id="drop_zone_ui" class="centertext">
+								<div class="attach_drop_zone_label">
+									', $context['num_allowed_attachments'] <= count($context['current_attachments']) ? $txt['attach_limit_nag'] : $txt['attach_drop_zone'], '
+								</div>
+							</div>
+							<div class="files" id="attachment_previews">
+								<div id="au-template">
+									<div class="attachment_preview_wrapper">
+										<div class="attach-ui">
+											<a data-dz-remove class="main_icons delete floatright cancel"></a>
+											<div class="attached_BBC_width_height">
+												<div class="attached_BBC_width">
+													<label for="attached_BBC_width">', $txt['attached_insert_width'], '</label>
+													<input type="number" name="attached_BBC_width" min="0" value="">
+												</div>
+												<div class="attached_BBC_height">
+													<label for="attached_BBC_height">', $txt['attached_insert_height'], '</label>
+													<input type="number" name="attached_BBC_height" min="0" value="">
+												</div>
+											</div>
+										</div>
+										<div class="attach-preview">
+											<img data-dz-thumbnail />
+										</div>
+										<div class="attachment_info">
+											<span class="name" data-dz-name></span>
+											<span class="error" data-dz-errormessage></span>
+											<span class="size" data-dz-size></span>
+											<span class="message" data-dz-message></span>
+											<div class="progress_bar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+												<div class="bar"></div>
+											</div>
+										</div><!-- .attachment_info -->
+									</div>
+								</div><!-- #au-template -->
+								<div class="attachment_spacer">
+									<div class="fallback">
+											<input type="file" multiple="multiple" name="attachment[]" id="attachment1" class="fallback"> (<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">', $txt['clean_attach'], '</a>)';
+
+			if (!empty($modSettings['attachmentSizeLimit']))
+				echo '
+											<input type="hidden" name="MAX_FILE_SIZE" value="' . $modSettings['attachmentSizeLimit'] * 1024 . '">';
+
+			echo '
+									</div><!-- .fallback -->
+								</div>
+							</div><!-- #attachment_previews -->
+						</div>
+						<div id="max_files_progress" class="max_files_progress progress_bar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+							<div class="bar"></div>
+							<div id="max_files_progress_text"></div>
+						</div>';
+		}
+
+		echo '
 					</div>';
+	}
 
 	// If the admin has enabled the hiding of the additional options - show a link and image for it.
 	if (!empty($modSettings['additional_options_collapsable']))
 		echo '
 					<div id="post_additional_options_header">
-						<strong><a href="#" id="postMoreExpandLink"> ', $context['can_post_attachment'] ? $txt['post_additionalopt_attach'] : $txt['post_additionalopt'], '</a></strong>
+						<strong><a href="#" id="postMoreExpandLink"> ', $txt['post_additionalopt'], '</a></strong>
 					</div>';
 
 	echo '
@@ -313,139 +436,6 @@ function template_main()
 								', $context['show_approval'] ? '<li><label for="approve"><input type="checkbox" name="approve" id="approve" value="2"' . ($context['show_approval'] === 2 ? ' checked' : '') . '> ' . $txt['approve_this_post'] . '</label></li>' : '', '
 							</ul>
 						</div><!-- #post_settings -->';
-
-	// If this post already has attachments on it - give information about them.
-	if (!empty($context['current_attachments']))
-	{
-		echo '
-						<dl id="postAttachment">
-							<dt>
-								', $txt['attachments'], ':
-							</dt>
-							<dd class="smalltext" style="width: 100%;">
-								<input type="hidden" name="attach_del[]" value="0">
-								', $txt['uncheck_unwatchd_attach'], ':
-							</dd>';
-
-		foreach ($context['current_attachments'] as $attachment)
-			echo '
-							<dd class="smalltext">
-								<label for="attachment_', $attachment['attachID'], '"><input type="checkbox" id="attachment_', $attachment['attachID'], '" name="attach_del[]" value="', $attachment['attachID'], '"', empty($attachment['unchecked']) ? ' checked' : '', '> ', $attachment['name'], (empty($attachment['approved']) ? ' (' . $txt['awaiting_approval'] . ')' : ''),
-								!empty($modSettings['attachmentPostLimit']) || !empty($modSettings['attachmentSizeLimit']) ? sprintf($txt['attach_kb'], comma_format(round(max($attachment['size'], 1024) / 1024), 0)) : '', '</label>
-							</dd>';
-
-		echo '
-						</dl>';
-
-		if (!empty($context['files_in_session_warning']))
-			echo '
-						<div class="smalltext"><em>', $context['files_in_session_warning'], '</em></div>';
-	}
-
-	// Is the user allowed to post any additional ones? If so give them the boxes to do it!
-	if ($context['can_post_attachment'])
-	{
-		// Print dropzone UI.
-		echo '
-						<div class="files" id="attachment_previews">
-							<div>
-								<strong>', $txt['attachments'], ':</strong>
-							</div>
-							<div id="au-template">
-								<div class="attach-preview">
-									<img data-dz-thumbnail />
-								</div>
-								<div class="attachment_info">
-									<div>
-										<span class="name" data-dz-name></span>
-										<span class="error" data-dz-errormessage></span>
-										<span class="size" data-dz-size></span>
-										<span class="message" data-dz-message></span>
-									</div>
-									<div class="attached_BBC">
-										<input type="text" name="attachBBC" value="" readonly>
-										<div class="attached_BBC_width_height">
-											<div class="attached_BBC_width">
-												<label for="attached_BBC_width">', $txt['attached_insert_width'], '</label>
-												<input type="number" name="attached_BBC_width" min="0" value="" placeholder="auto">
-											</div>
-											<div class="attached_BBC_height">
-												<label for="attached_BBC_height">', $txt['attached_insert_height'], '</label>
-												<input type="number" name="attached_BBC_height" min="0" value="" placeholder="auto">
-											</div>
-										</div>
-									</div><!-- .attached_BBC -->
-									<div class="progress_bar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-										<div class="bar"></div>
-									</div>
-									<div class="attach-ui">
-										<a data-dz-remove class="button cancel">', $txt['modify_cancel'], '</a>
-										<a class="button upload">', $txt['upload'], '</a>
-									</div>
-								</div><!-- .attachment_info -->
-							</div><!-- #au-template -->
-						</div><!-- #attachment_previews -->
-						<div id ="max_files_progress" class="max_files_progress progress_bar">
-							<div class="bar"></div>
-						</div>
-						<div id ="max_files_progress_text"></div>';
-
-		echo '
-						<dl id="postAttachment2">
-							<dd class="fallback">
-								<div id="attachment_upload" class="descbox">
-									<div id="drop_zone_ui">
-										<div>
-											<strong>', $txt['attach_drop_zone'], '</strong>
-										</div>
-										<div class="righttext">
-											<a class="button" id="attach_cancel_all">', $txt['attached_cancel_all'], '</a>
-											<a class="button" id="attach_upload_all">', $txt['attached_upload_all'], '</a>
-											<a class="button fileinput-button">', $txt['attach_add'], '</a>
-										</div>
-									</div>
-									<div id="total_progress" class="progress_bar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-										<div class="bar"></div>
-									</div>
-									<div class="fallback">
-										<input type="file" multiple="multiple" name="attachment[]" id="attachment1" class="fallback"> (<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">', $txt['clean_attach'], '</a>)';
-
-		if (!empty($modSettings['attachmentSizeLimit']))
-			echo '
-										<input type="hidden" name="MAX_FILE_SIZE" value="' . $modSettings['attachmentSizeLimit'] * 1024 . '">';
-
-		echo '
-									</div><!-- .fallback -->
-								</div><!-- #attachment_upload -->
-							</dd>';
-
-		// Add any template changes for an alternative upload system here.
-		call_integration_hook('integrate_upload_template');
-
-		echo '
-							<dd class="smalltext">';
-
-		// Show some useful information such as allowed extensions, maximum size and amount of attachments allowed.
-		if (!empty($modSettings['attachmentCheckExtensions']))
-			echo '
-								', $txt['allowed_types'], ': ', $context['allowed_extensions'], '<br>';
-
-		if (!empty($context['attachment_restrictions']))
-			echo '
-								', $txt['attach_restrictions'], ' ', implode(', ', $context['attachment_restrictions']), '<br>';
-
-		if ($context['num_allowed_attachments'] <= count($context['current_attachments']))
-			echo '
-								', $txt['attach_limit_nag'], '<br>';
-
-		if (!$context['can_post_attachment_unapproved'])
-			echo '
-								<span class="alert">', $txt['attachment_requires_approval'], '</span>', '<br>';
-
-		echo '
-							</dd>
-						</dl>';
-	}
 
 	echo '
 					</div><!-- #post_additional_options -->';
@@ -587,8 +577,8 @@ function template_main()
 				aSwapLinks: [
 					{
 						sId: \'postMoreExpandLink\',
-						msgExpanded: ', JavaScriptEscape($context['can_post_attachment'] ? $txt['post_additionalopt_attach'] : $txt['post_additionalopt']), ',
-						msgCollapsed: ', JavaScriptEscape($context['can_post_attachment'] ? $txt['post_additionalopt_attach'] : $txt['post_additionalopt']), '
+						msgExpanded: ', JavaScriptEscape($txt['post_additionalopt']), ',
+						msgCollapsed: ', JavaScriptEscape($txt['post_additionalopt']), '
 					}
 				]
 			});';

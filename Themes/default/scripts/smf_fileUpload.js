@@ -7,6 +7,8 @@ function smf_fileUpload(oOptions) {
 		previewTemplate = tmp.innerHTML;
 		previewNode.parentNode.removeChild(previewNode);
 
+	var isNewTemplate = !!document.getElementById('post_attachments_area');
+
 	if (typeof current_board == 'undefined')
 		current_board = false;
 
@@ -22,8 +24,8 @@ function smf_fileUpload(oOptions) {
 		acceptedFiles: '.doc,.gif,.jpg,.pdf,.png,.txt,.zip',
 		thumbnailWidth: 100,
 		thumbnailHeight: null,
-		autoQueue: false,
-		clickable: '.fileinput-button',
+		autoQueue: isNewTemplate,
+		clickable: isNewTemplate ? ['.attachment_spacer', '#drop_zone_ui'] : '.fileinput-button',
 		currentUsedSize: 0,
 		timeout: null,
 		smf_insertBBC: function (file, w, h) {
@@ -42,6 +44,11 @@ function smf_fileUpload(oOptions) {
 			var currentSize = Math.round(myDropzone.options.currentUsedSize / 1024),
 				maxSize = myDropzone.options.maxTotalSize,
 				usedPercentage = Math.round($.fn.percentToRange($.fn.rangeToPercent(currentSize, 0, maxSize), 0, 100));
+
+			if (isNewTemplate && maxSize > 1024) {
+				maxSize = Math.round(((maxSize / 1024) + Number.EPSILON) * 100) / 100;
+				currentSize = Math.round(((currentSize / 1024) + Number.EPSILON) * 10) / 10;
+			}
 
 			// 3 basic colors.
 			if (usedPercentage <= 33)
@@ -74,7 +81,12 @@ function smf_fileUpload(oOptions) {
 
 			// Check against the max amount of files setting.
 			if ((myDropzone.options.maxFileAmount != null) && (myDropzone.getAcceptedFiles().length) >= myDropzone.options.maxFileAmount)
+			{
+				$('.attach_drop_zone_label').text(myDropzone.options.text_attachLimitNag);
 				done(this.options.dictMaxFilesExceeded);
+			}
+			else
+				$('.attach_drop_zone_label').text(myDropzone.options.text_attachDropzoneLabel);
 
 			// Need to check if the added file doesn't surpass the total max size setting.
 			myDropzone.options.currentUsedSize = myDropzone.options.currentUsedSize + file.size;
@@ -132,6 +144,24 @@ function smf_fileUpload(oOptions) {
 
 	var myDropzone = new Dropzone('div#attachment_upload', dOptions);
 
+	// Highlight the dropzone target as soon as a file is dragged onto the window.
+	if (isNewTemplate)
+	{
+		var dragTimer;
+		$(document).on('dragover', function(e) {
+			var dt = e.originalEvent.dataTransfer;
+			if (dt.types && (dt.types.indexOf ? dt.types.indexOf('Files') != -1 : dt.types.contains('Files'))) {
+				$("#attachment_upload").addClass('dz-drag-hover');
+				window.clearTimeout(dragTimer);
+			}
+		});
+		$(document).on('dragleave dragend', function(e) {
+			dragTimer = window.setTimeout(function() {
+				$("#attachment_upload").removeClass('dz-drag-hover');
+			}, 25);
+		});
+	}
+
 	myDropzone.on('addedfile', function (file) {
 
 		_thisElement = $(file.previewElement);
@@ -149,40 +179,101 @@ function smf_fileUpload(oOptions) {
 		file.name = file.name.php_to8bit().php_urlencode();
 
 		// Show the file info.
-		_thisElement.find('.attach-ui').fadeIn();
+		_thisElement.find('.attach-ui').show();
 
 		// Show the progress bar
 		$('#max_files_progress').show();
 
 		// Create a function to insert the BBC attach tag.
 		file.insertAttachment = function (_innerElement, response) {
-			insertButton = $('<a />')
-				.addClass('button')
-				.addClass('insertBBC')
-				.prop('disabled', false)
-				.text(myDropzone.options.text_insertBBC)
-				.on('click', function (e) {
-					e.preventDefault();
+			// Backward compatibility for themes based on the pre-2.1.4 templates.
+			if (!isNewTemplate) {
+				insertButton = $('<a />')
+					.addClass('button')
+					.addClass('insertBBC')
+					.prop('disabled', false)
+					.text(myDropzone.options.text_insertBBC)
+					.on('click', function (e) {
+						e.preventDefault();
 
-					w = _innerElement.find('input[name="attached_BBC_width"]').val();
-					h = _innerElement.find('input[name="attached_BBC_height"]').val();
+						w = _innerElement.find('input[name="attached_BBC_width"]').val();
+						h = _innerElement.find('input[name="attached_BBC_height"]').val();
 
-					// Get the editor stuff.
-					var e = $('#' + oEditorID).get(0);
-					var oEditor = sceditor.instance(e);
+						// Get the editor stuff.
+						var e = $('#' + oEditorID).get(0);
+						var oEditor = sceditor.instance(e);
 
-					oEditor.insert(myDropzone.options.smf_insertBBC(response, w, h), ' ');
-				})
-				.appendTo(_innerElement.find('.attach-ui'));
+						oEditor.insert(myDropzone.options.smf_insertBBC(response, w, h), ' ');
+					})
+					.appendTo(_innerElement.find('.attach-ui'));
+			}
+			// Insert as an image.
+			else if (file.type.match(/image.*/)) {
+				let attached_BBC_width_height = _innerElement.find('.attached_BBC_width_height');
+
+				insertPanelButton = $('<a />')
+					.addClass('main_icons')
+					.addClass('select_above')
+					.addClass('floatright')
+					.addClass('insertBBC')
+					.prop('disabled', false)
+					.prop('title', myDropzone.options.text_insertBBC)
+					.on('click', function (e) {
+						attached_BBC_width_height.toggle();
+					})
+					.insertBefore(attached_BBC_width_height);
+
+				insertButton = $('<a />')
+					.addClass('button')
+					.addClass('insertBBC')
+					.addClass('floatright')
+					.prop('disabled', false)
+					.text(myDropzone.options.text_insertBBC)
+					.on('click', function (e) {
+						e.preventDefault();
+
+						w = _innerElement.find('input[name="attached_BBC_width"]').val();
+						h = _innerElement.find('input[name="attached_BBC_height"]').val();
+
+						// Get the editor stuff.
+						var e = $('#' + oEditorID).get(0);
+						var oEditor = sceditor.instance(e);
+
+						oEditor.insert(myDropzone.options.smf_insertBBC(response, w, h), '');
+
+						attached_BBC_width_height.hide();
+					})
+					.appendTo(attached_BBC_width_height);
+			}
+			// Insert as a plain link.
+			else {
+				insertButton = $('<a />')
+					.addClass('main_icons')
+					.addClass('select_above')
+					.addClass('floatright')
+					.addClass('insertBBC')
+					.prop('disabled', false)
+					.prop('title', myDropzone.options.text_insertBBC)
+					.on('click', function (e) {
+						e.preventDefault();
+
+						// Get the editor stuff.
+						var e = $('#' + oEditorID).get(0);
+						var oEditor = sceditor.instance(e);
+
+						oEditor.insert(myDropzone.options.smf_insertBBC(response, null, null), ' ');
+					})
+					.appendTo(_innerElement.find('.attach-ui'));
+			}
 		};
 
 		// Replace the file with a message when the attachment has been deleted.
 		file.deleteAttachment = function (_innerElement, attachmentId, file) {
-
 			deleteButton = $('<a />')
-				.addClass('button')
+				.addClass(!isNewTemplate ? 'button' : 'main_icons delete floatright')
 				.prop('disabled', false)
-				.text(myDropzone.options.text_deleteAttach)
+				.prop('title', myDropzone.options.text_deleteAttach)
+				.text(!isNewTemplate ? myDropzone.options.text_deleteAttach : '')
 				.one('click', function (e) {
 
 					$this = $(this);
@@ -210,16 +301,18 @@ function smf_fileUpload(oOptions) {
 							ajax_indicator(false);
 
 							// Delete the button.
-							$this.fadeOutAndRemove();
+							if (!isNewTemplate)
+								$this.fadeOutAndRemove();
 						},
 						success: function (data, textStatus, xhr) {
+							if (!isNewTemplate) {
+								// For dramatic purposes only!
+								_innerElement.removeClass('infobox').addClass(data.type + 'box');
 
-							// For dramatic purposes only!
-							_innerElement.removeClass('infobox').addClass(data.type + 'box');
-
-							// Remove the text fields and insert button.
-							_innerElement.find('.attached_BBC').fadeOut();
-							_innerElement.find('.attachment_info a.insertBBC').fadeOut();
+								// Remove the text fields and insert button.
+								_innerElement.find('.attached_BBC').fadeOut();
+								_innerElement.find('.attachment_info a.insertBBC').fadeOut();
+							}
 
 							// Do stuff only if the file was actually accepted and it doesn't have an error status.
 							if (file.accepted && file.status != Dropzone.ERROR) {
@@ -235,7 +328,18 @@ function smf_fileUpload(oOptions) {
 								// Show the current amount of remaining files
 								$('.attach_remaining').html(Math.max(myDropzone.options.maxFileAmount - myDropzone.getAcceptedFiles().length, 0));
 
+								// Check against the max amount of files setting.
+								if (myDropzone.getAcceptedFiles().length >= myDropzone.options.maxFileAmount)
+								{
+									$('.attach_drop_zone_label').text(myDropzone.options.text_attachLimitNag);
+								}
+								else
+									$('.attach_drop_zone_label').text(myDropzone.options.text_attachDropzoneLabel);
+
 								myDropzone.options.hideFileProgressAndAllButtonsIfNeeded();
+
+								if (isNewTemplate)
+									_innerElement.remove();
 							}
 						},
 						error: function (xhr, textStatus, errorThrown) {
@@ -258,8 +362,20 @@ function smf_fileUpload(oOptions) {
 					var newEditorVal = oEditor.val().replace(attachBbcRegex, '');
 
 					oEditor.val(newEditorVal);
-				})
-				.appendTo(_innerElement.find('.attach-ui'));
+				});
+
+				if (!isNewTemplate)
+					deleteButton.appendTo(_innerElement.find('.attach-ui'));
+				else
+					deleteButton.prependTo(_innerElement.find('.attach-ui'));
+
+				// Check against the max amount of files setting.
+				if (myDropzone.getAcceptedFiles().length >= myDropzone.options.maxFileAmount)
+				{
+					$('.attach_drop_zone_label').text(myDropzone.options.text_attachLimitNag);
+				}
+				else
+					$('.attach_drop_zone_label').text(myDropzone.options.text_attachDropzoneLabel);
 
 				// Show the current amount of remaining files
 				$('.attach_remaining').html(Math.max(myDropzone.options.maxFileAmount - myDropzone.getAcceptedFiles().length, 0));
@@ -384,7 +500,9 @@ function smf_fileUpload(oOptions) {
 		}
 
 		// If there wasn't any error, change the current cover.
-		_thisElement.addClass('infobox').removeClass('descbox');
+		_thisElement.removeClass('descbox');
+		if (!isNewTemplate)
+			_thisElement.addClass('infobox');
 
 		// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
 		_thisElement.find('a.cancel').fadeOutAndRemove();
@@ -431,13 +549,15 @@ function smf_fileUpload(oOptions) {
 			}
 
 			// If there wasn't any error, change the current cover.
-			_thisElement.addClass('infobox').removeClass('descbox');
+			_thisElement.removeClass('descbox');
+			if (!isNewTemplate)
+				_thisElement.addClass('infobox');
 
 			// Remove the 'upload' button.
 			_thisElement.find('.upload').fadeOutAndRemove();
 
 			// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
-			_thisElement.find('a.cancel').fadeOutAndRemove();
+			_thisElement.find('a.cancel').remove();
 
 			// Fire up the delete button.
 			file.deleteAttachment(_thisElement, file.attachID, file);
@@ -522,13 +642,13 @@ function smf_fileUpload(oOptions) {
 	// Hide the default way to show already attached files.
 	$('#postAttachment').remove();
 
-	$('#attachment_previews').show();
+	$('#attachment_previews').css('display', !isNewTemplate ? 'block' : 'flex');
 
 	// Hide this, too. The progress bar does a better job.
 	$('.attach_available').remove();
 
 	// Show the drag-and-drop instructions and buttons
-	$('#drop_zone_ui').show();
+	$('#drop_zone_ui').css('display', !isNewTemplate ? 'block' : 'flex');
 
 	// Show any attachments already uploaded.
 	if (typeof current_attachments !== "undefined") {

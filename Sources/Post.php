@@ -1258,7 +1258,7 @@ function Post($post_errors = array())
 	if ($context['can_post_attachment'])
 	{
 		// If they've unchecked an attachment, they may still want to attach that many more files, but don't allow more than num_allowed_attachments.
-		$context['num_allowed_attachments'] = !isset($modSettings['attachmentNumPerPostLimit']) ? 4 : $modSettings['attachmentNumPerPostLimit'];
+		$context['num_allowed_attachments'] = empty($modSettings['attachmentNumPerPostLimit']) ? PHP_INT_MAX : $modSettings['attachmentNumPerPostLimit'];
 		$context['can_post_attachment_unapproved'] = allowedTo('post_attachment');
 		$context['attachment_restrictions'] = array();
 		$context['allowed_extensions'] = !empty($modSettings['attachmentCheckExtensions']) ? (strtr(strtolower($modSettings['attachmentExtensions']), array(',' => ', '))) : '';
@@ -1275,7 +1275,7 @@ function Post($post_errors = array())
 				}
 				elseif ($type == 'attachmentPostLimit' && $context['attachments']['total_size'] > 0)
 				{
- 					$context['attachment_restrictions'][$type] .= '<span class="attach_available"> (' . sprintf($txt['attach_available'], max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)) . ')</span>';
+ 					$context['attachment_restrictions'][$type] .= '<span class="attach_available"> (' . sprintf($txt['attach_available'], round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0), 2)) . ')</span>';
 				}
 
 			}
@@ -1344,6 +1344,8 @@ function Post($post_errors = array())
 			dictFallbackMessage : ' . JavaScriptEscape($txt['attach_drop_zone_no']) . ',
 			dictCancelUpload : ' . JavaScriptEscape($txt['modify_cancel']) . ',
 			genericError: ' . JavaScriptEscape($txt['attach_php_error']) . ',
+			text_attachDropzoneLabel: ' . JavaScriptEscape($txt['attach_drop_zone']) . ',
+			text_attachLimitNag: ' . JavaScriptEscape($txt['attach_limit_nag']) . ',
 			text_attachLeft: ' . JavaScriptEscape($txt['attachments_left']) . ',
 			text_deleteAttach: ' . JavaScriptEscape($txt['attached_file_delete']) . ',
 			text_attachDeleted: ' . JavaScriptEscape($txt['attached_file_deleted']) . ',
@@ -1351,7 +1353,7 @@ function Post($post_errors = array())
 			text_attachUploaded: ' . JavaScriptEscape($txt['attached_file_uploaded']) . ',
 			text_attach_unlimited: ' . JavaScriptEscape($txt['attach_drop_unlimited']) . ',
 			text_totalMaxSize: ' . JavaScriptEscape($txt['attach_max_total_file_size_current']) . ',
-			text_max_size_progress: ' . JavaScriptEscape($txt['attach_max_size_progress']) . ',
+			text_max_size_progress: ' . JavaScriptEscape('{currentRemain} ' . ($modSettings[$type] >= 1024 ? $txt['megabyte'] : $txt['kilobyte']) . ' / {currentTotal} ' . ($modSettings[$type] >= 1024 ? $txt['megabyte'] : $txt['kilobyte'])) . ',
 			dictMaxFilesExceeded: ' . JavaScriptEscape($txt['more_attachments_error']) . ',
 			dictInvalidFileType: ' . JavaScriptEscape(sprintf($txt['cant_upload_type'], $context['allowed_extensions'])) . ',
 			dictFileTooBig: ' . JavaScriptEscape(sprintf($txt['file_too_big'], comma_format($modSettings['attachmentSizeLimit'], 0))) . ',
@@ -1597,9 +1599,54 @@ function Post($post_errors = array())
 		);
 	}
 
+	// If we're editing and displaying edit details, show a box where they can say why.
+	if (isset($context['editing']) && $modSettings['show_modify'])
+	{
+		$context['posting_fields']['modify_reason'] = array(
+			'label' => array(
+				'text' => $txt['reason_for_edit'],
+			),
+			'input' => array(
+				'type' => 'text',
+				'attributes' => array(
+					'size' => 80,
+					'maxlength' => 80,
+					'value' => isset($context['last_modified_reason']) ? $context['last_modified_reason'] : '',
+				),
+			),
+		);
+
+		// If this message has been edited in the past - display when it was.
+		if (!empty($context['last_modified_text']))
+		{
+			$context['posting_fields']['modified_time'] = array(
+				'label' => array(
+					'text' => $txt['modified_time'],
+				),
+				'input' => array(
+					'type' => '',
+					'html' => !empty($context['last_modified_text']) ? ltrim(preg_replace('~<span[^>]*>[^<]*</span>~u', '', $context['last_modified_text']), ': ') : '',
+				),
+			);
+		}
+
+		// Prior to 2.1.4, the edit reason was not handled as a posting field,
+		// but instead using a hardcoded input in the template file. We've fixed
+		// that in the default theme, but to support any custom themes based on
+		// the old verison, we do this to fix it for them.
+		addInlineCss("\n\t" . '#caption_edit_reason, dl:not(#post_header) input[name="modify_reason"] { display: none; }');
+		addInlineJavaScript("\n\t" . '$("#caption_edit_reason").remove(); $("dl:not(#post_header) input[name=\"modify_reason\"]").remove();', true);
+	}
+
 	// Finally, load the template.
 	if (!isset($_REQUEST['xml']))
+	{
 		loadTemplate('Post');
+
+		// These two lines are for the revamped attachments UI add in 2.1.4.
+		loadCSSFile('attachments.css', array('minimize' => true, 'order_pos' => 450), 'smf_attachments');
+		addInlineJavaScript("\n\t" . '$("#post_attachments_area #postAttachment").remove();', true);
+	}
 
 	call_integration_hook('integrate_post_end');
 }
