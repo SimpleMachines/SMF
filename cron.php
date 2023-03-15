@@ -142,7 +142,7 @@ while ($task_details = fetch_task())
 }
 
 // If we have time, check the scheduled tasks.
-if (time() - TIME_START > ceil(MAX_CRON_TIME / 2))
+if (time() - TIME_START < ceil(MAX_CRON_TIME / 2))
 {
 	require_once($sourcedir . '/ScheduledTasks.php');
 
