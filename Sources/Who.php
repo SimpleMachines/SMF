@@ -651,7 +651,6 @@ function Credits($in_admin = false)
 						// Support Specialists
 						'Doug Heffernan',
 						'lurkalot',
-						'shadav',
 						'Steve',
 
 						// Former Support Specialists
@@ -676,6 +675,7 @@ function Credits($in_admin = false)
 						'Michael Colin Blaber',
 						'Old Fossil',
 						'S-Ace',
+						'shadav',
 						'Storman™',
 						'Wade "sησω" Poulsen',
 						'xenovanis',
@@ -690,7 +690,6 @@ function Credits($in_admin = false)
 						'GL700Wing',
 						'Johnnie "TwitchisMental" Ballew',
 						'Jonathan "vbgamer45" Valentin',
-						'Michael "Mick." Gomez',
 
 						// Former Customizers
 						'Sami "SychO" Mazouz',
@@ -700,6 +699,7 @@ function Credits($in_admin = false)
 						'Jason "JBlaze" Clemons',
 						'Joey "Tyrsson" Smith',
 						'Kays',
+						'Michael "Mick." Gomez',
 						'NanoSector',
 						'Ricky.',
 						'Russell "NEND" Najar',
