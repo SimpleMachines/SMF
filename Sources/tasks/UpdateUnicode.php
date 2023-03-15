@@ -311,6 +311,22 @@ class Update_Unicode extends SMF_BackgroundTask
 			),
 			'data' => array(),
 		),
+		'utf8_regex_quick_check' => array(
+			'file' => 'QuickCheck.php',
+			'key_type' => 'string',
+			'val_type' => 'string',
+			'desc' => array(
+				'Helper function for utf8_is_normalized.',
+				'',
+				'Character class lists compiled from:',
+				'https://unicode.org/Public/UNIDATA/extracted/DerivedNormalizationProps.txt',
+			),
+			'return' => array(
+				'type' => 'array',
+				'desc' => 'Character classes for disallowed characters in normalization forms.',
+			),
+			'data' => array(),
+		),
 		'idna_maps' => array(
 			'file' => 'Idna.php',
 			'key_type' => 'hexchar',
@@ -496,13 +512,16 @@ class Update_Unicode extends SMF_BackgroundTask
 		$success = $this->finalize_decomposition_forms() & $success;
 
 		$this->full_decomposition_maps = array();
-		$this->derived_normalization_props = array();
 
 		$this->export_funcs_to_file();
 
 		/***********************************
 		 * Part 3: Regular expression data *
 		 ***********************************/
+		$success = $this->build_quick_check() & $success;
+
+		$this->derived_normalization_props = array();
+
 		$success = $this->build_regex_properties() & $success;
 		$success = $this->build_regex_variation_selectors() & $success;
 		$success = $this->build_script_stats() & $success;
@@ -1255,6 +1274,58 @@ class Update_Unicode extends SMF_BackgroundTask
 		$this->funcs['utf8_normalize_kd_maps']['data'] = array_diff_assoc($this->full_decomposition_maps, $this->funcs['utf8_normalize_d_maps']['data']);
 
 		return true;
+	}
+
+	/**
+	 * Builds regular expressions for normalization quick check.
+	 */
+	private function build_quick_check()
+	{
+		foreach (array('NFC_QC', 'NFKC_QC', 'NFD_QC', 'NFKD_QC', 'Changes_When_NFKC_Casefolded') as $prop)
+		{
+			$current_range = array('start' => null, 'end' => null);
+			foreach ($this->derived_normalization_props[$prop] as $entity => $nm)
+			{
+				$range_string = '';
+
+				$ord = hexdec(trim($entity, '&#x;'));
+
+				if (!isset($current_range['start']))
+				{
+					$current_range['start'] = $ord;
+				}
+
+				if (!isset($current_range['end']) || $ord == $current_range['end'] + 1)
+				{
+					$current_range['end'] = $ord;
+				}
+				else
+				{
+					$range_string .= '\\x{' . strtoupper(sprintf('%04s', dechex($current_range['start']))) . '}';
+
+					if ($current_range['start'] != $current_range['end'])
+					{
+						$range_string .= '-\\x{' . strtoupper(sprintf('%04s', dechex($current_range['end']))) . '}';
+					}
+
+					$current_range = array('start' => $ord, 'end' => $ord);
+
+					$this->funcs['utf8_regex_quick_check']['data'][$prop][] = $range_string;
+				}
+			}
+
+			if (isset($current_range['start']))
+			{
+				$range_string = '\\x{' . strtoupper(sprintf('%04s', dechex($current_range['start']))) . '}';
+
+				if ($current_range['start'] != $current_range['end'])
+				{
+					$range_string .= '-\\x{' . strtoupper(sprintf('%04s', dechex($current_range['end']))) . '}';
+				}
+
+				$this->funcs['utf8_regex_quick_check']['data'][$prop][] = $range_string;
+			}
+		}
 	}
 
 	/**
