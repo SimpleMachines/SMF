@@ -1271,7 +1271,14 @@ $step_progress['current'] = $_GET['a'];
 $limit = 100000;
 $is_done = false;
 
-$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}themes WHERE variable = \'auto_notify\'');
+$request = $smcFunc['db_query']('', '
+	SELECT COUNT(*)
+	FROM {db_prefix}themes
+	WHERE variable = {string:auto_notify}',
+	array(
+		'auto_notify' => 'auto_notify',
+	)
+);
 list($maxMembers) = $smcFunc['db_fetch_row']($request);
 $smcFunc['db_free_result']($request);
 
@@ -1284,10 +1291,11 @@ while (!$is_done)
 	$request = $smcFunc['db_query']('', '
 		SELECT id_member, value
 		FROM {db_prefix}themes
-		WHERE variable = \'auto_notify\'
+		WHERE variable = {string:auto_notify}
 		ORDER BY id_member
 		LIMIT {int:start}, {int:limit}',
 		array(
+			'auto_notify' => 'auto_notify',
 			'start' => $_GET['a'],
 			'limit' => $limit,
 		)
