@@ -4130,6 +4130,9 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 		if (!empty($context['page_title']) && empty($context['page_title_html_safe']))
 			$context['page_title_html_safe'] = $smcFunc['htmlspecialchars'](html_entity_decode($context['page_title'])) . (!empty($context['current_page']) ? ' - ' . $txt['page'] . ' ' . ($context['current_page'] + 1) : '');
 
+		if (!empty($modSettings['title_separator']) && $modSettings['title_separator'] !== '-')
+			$context['page_title_html_safe'] = str_replace('-', $modSettings['title_separator'], $context['page_title_html_safe']);
+
 		// Start up the session URL fixer.
 		ob_start('ob_sessrewrite');
 
@@ -4415,6 +4418,9 @@ function setupThemeContext($forceload = false)
 	// Set some specific vars.
 	$context['page_title_html_safe'] = $smcFunc['htmlspecialchars'](html_entity_decode($context['page_title'])) . (!empty($context['current_page']) ? ' - ' . $txt['page'] . ' ' . ($context['current_page'] + 1) : '');
 	$context['meta_keywords'] = !empty($modSettings['meta_keywords']) ? $smcFunc['htmlspecialchars']($modSettings['meta_keywords']) : '';
+
+	if (!empty($modSettings['title_separator']) && $modSettings['title_separator'] !== '-')
+		$context['page_title_html_safe'] = str_replace('-', $modSettings['title_separator'], $context['page_title_html_safe']);
 
 	// Content related meta tags, including Open Graph
 	$context['meta_tags'][] = array('property' => 'og:site_name', 'content' => $context['forum_name']);
