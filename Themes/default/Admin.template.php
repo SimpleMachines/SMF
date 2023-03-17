@@ -709,7 +709,7 @@ function template_not_done()
  */
 function template_show_settings()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt, $scripturl, $settings;
 
 	if (!empty($context['saved_successful']))
 		echo '
@@ -859,7 +859,7 @@ function template_show_settings()
 				$subtext = !empty($config_var['subtext']) ? '<br><span class="smalltext"> ' . $config_var['subtext'] . '</span>' : '';
 
 				// Various HTML5 input types that are basically enhanced textboxes
-				$text_types = array('color', 'date', 'datetime', 'datetime-local', 'email', 'month', 'time');
+				$text_types = array('color', 'date', 'datetime', 'datetime-local', 'email', 'month', 'time', 'url');
 
 				// Show the [?] button.
 				if ($config_var['help'])
@@ -892,6 +892,14 @@ function template_show_settings()
 											<option value="', $option[0], '"', (!empty($config_var['value']) && ($option[0] == $config_var['value'] || (!empty($config_var['multiple']) && in_array($option[0], $config_var['value']))) ? ' selected' : ''), '>', $option[1], '</option>';
 					echo '
 										</select>';
+				}
+				// Show a color box.
+				elseif ($config_var['type'] == 'color')
+				{
+					$load_color_js = true;
+
+					echo '
+										<input name="', $config_var['name'], '" id="', $config_var['name'], '" data-jscolor="{}" value="', $config_var['value'], '">';
 				}
 
 				// List of boards? This requires getBoardList() having been run and the results in $context['board_list'].
@@ -1054,6 +1062,10 @@ function template_show_settings()
 			$(this).closest("fieldset").hide().prev("a").show();
 		});
 	', true);
+
+	if (!empty($load_color_js))
+		echo '
+		<script src="', $settings['default_theme_url'] . '/scripts/jscolor.min.js" defer></script>';
 }
 
 /**

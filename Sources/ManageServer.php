@@ -159,7 +159,7 @@ function ModifyGeneralSettings($return_config = false)
 		array('mtitle', $txt['maintenance_subject'], 'file', 'text', 36),
 		array('mmessage', $txt['maintenance_message'], 'file', 'text', 36),
 		'',
-		array('webmaster_email', $txt['admin_webmaster_email'], 'file', 'text', 30),
+		array('webmaster_email', $txt['admin_webmaster_email'], 'file', 'email', 30),
 		'',
 		array('enableCompressedOutput', $txt['enableCompressedOutput'], 'db', 'check', null, 'enableCompressedOutput'),
 		array('disableHostnameLookup', $txt['disableHostnameLookup'], 'db', 'check', null, 'disableHostnameLookup'),
@@ -1689,8 +1689,14 @@ function saveDBSettings(&$config_vars)
 				$setArray[$var[1]] = min($var['max'], $setArray[$var[1]]);
 		}
 		// Text!
-		elseif (in_array($var[0], array('text', 'large_text', 'color', 'date', 'datetime', 'datetime-local', 'email', 'month', 'time')))
+		elseif (in_array($var[0], array('text', 'large_text', 'color', 'date', 'datetime', 'datetime-local', 'month', 'time')))
 			$setArray[$var[1]] = $_POST[$var[1]];
+		// Email
+		elseif ($var[0] == 'email')
+			$setArray[$var[1]] = filter_var($_POST[$var[1]], FILTER_VALIDATE_EMAIL);
+		// Url
+		elseif ($var[0] == 'url')
+			$setArray[$var[1]] = filter_var($_POST[$var[1]], FILTER_VALIDATE_URL);
 		// Passwords!
 		elseif ($var[0] == 'password')
 		{
