@@ -28,7 +28,7 @@
  * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.2
+ * @version 2.1.4
  */
 
 // Obviously, set this to the name of the release branch in question
