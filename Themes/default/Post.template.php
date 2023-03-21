@@ -362,7 +362,7 @@ function template_main()
 							<div class="files" id="attachment_previews">
 								<div id="au-template">
 									<div class="attachment_preview_wrapper">
-										<div class="attach-ui">
+										<div class="attach-ui roundframe">
 											<a data-dz-remove class="main_icons delete floatright cancel"></a>
 											<div class="attached_BBC_width_height">
 												<div class="attached_BBC_width">
