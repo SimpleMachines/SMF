@@ -150,10 +150,11 @@ div#post_attachments_area.roundframe {
 	position: absolute;
 	right: 5px;
 	top: 5px;
-	background: white;
 	border-radius: 4px;
 	padding: 0.5ch;
 	min-height: initial;
+	margin: 0;
+	box-shadow: none;
 }
 #post_attachments_area .attached_BBC_width_height {
 	display: none;
