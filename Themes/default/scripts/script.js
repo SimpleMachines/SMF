@@ -1537,6 +1537,7 @@ function expandThumb(thumbID)
 	img.src = link.href;
 	img.style.width = link.style.width;
 	img.style.height = link.style.height;
+	img.classList.toggle('original_size');
 
 	// place the image attributes back
 	link.href = tmp_src;
