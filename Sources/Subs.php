@@ -5801,7 +5801,7 @@ function call_integration_hook($hook, $parameters = array())
  */
 function add_integration_function($hook, $function, $permanent = true, $file = '', $object = false)
 {
-	global $smcFunc, $modSettings;
+	global $smcFunc, $modSettings, $context;
 
 	// Any objects?
 	if ($object)
@@ -5853,6 +5853,14 @@ function add_integration_function($hook, $function, $permanent = true, $file = '
 
 	$functions = array_unique(array_merge($functions, array($integration_call)));
 	$modSettings[$hook] = implode(',', $functions);
+
+	// It is handy to be able to know which hooks are temporary...
+	if ($permanent !== true)
+	{
+		if (!isset($context['integration_hooks_temporary']))
+			$context['integration_hooks_temporary'] = array();
+		$context['integration_hooks_temporary'][$hook][$function] = true;
+	}
 }
 
 /**
