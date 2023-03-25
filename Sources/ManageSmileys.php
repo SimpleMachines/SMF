@@ -1027,7 +1027,7 @@ function EditSmileys()
 				foreach ($_FILES['smiley_upload']['name'] as $set => $name)
 				{
 					if (!empty($name) && !is_writable($context['smileys_dir'] . '/' . $set))
-						$writeErrors[] = "Directory for smiley set \"$set\" not writable!";
+						$writeErrors[] = $set;
 				}
 
 				if (!empty($writeErrors))
