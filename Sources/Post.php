@@ -750,7 +750,8 @@ function Post($post_errors = array())
 		{
 			$context['last_modified'] = timeformat($row['modified_time']);
 			$context['last_modified_reason'] = censorText($row['modified_reason']);
-			$context['last_modified_text'] = sprintf($txt['last_edit_by'], $context['last_modified'], $row['modified_name']) . empty($row['modified_reason']) ? '' : '&nbsp;' . $txt['last_edit_reason'] . ':&nbsp;' . $row['modified_reason'];
+			$context['last_modified_name'] = $row['modified_name'];
+			$context['last_modified_text'] = sprintf($txt['last_edit_by'], $context['last_modified'], $row['modified_name']) . (empty($row['modified_reason']) ? '' : ' ' . sprintf($txt['last_edit_reason'], $row['modified_reason']));
 		}
 
 		// Get the stuff ready for the form.
@@ -1611,24 +1612,13 @@ function Post($post_errors = array())
 				'attributes' => array(
 					'size' => 80,
 					'maxlength' => 80,
-					'value' => isset($context['last_modified_reason']) ? $context['last_modified_reason'] : '',
+					// If same user is editing again, keep the previous edit reason by default.
+					'value' => isset($context['last_modified_reason']) && isset($context['last_modified_name']) && $context['last_modified_name'] === $user_info['name'] ? $context['last_modified_reason'] : '',
 				),
+				// If message has been edited before, show info about that.
+				'after' => empty($context['last_modified_text']) ? '' : '<div class="smalltext em">' . $context['last_modified_text'] . '</div>',
 			),
 		);
-
-		// If this message has been edited in the past - display when it was.
-		if (!empty($context['last_modified_text']))
-		{
-			$context['posting_fields']['modified_time'] = array(
-				'label' => array(
-					'text' => $txt['modified_time'],
-				),
-				'input' => array(
-					'type' => '',
-					'html' => !empty($context['last_modified_text']) ? ltrim(preg_replace('~<span[^>]*>[^<]*</span>~u', '', $context['last_modified_text']), ': ') : '',
-				),
-			);
-		}
 
 		// Prior to 2.1.4, the edit reason was not handled as a posting field,
 		// but instead using a hardcoded input in the template file. We've fixed
