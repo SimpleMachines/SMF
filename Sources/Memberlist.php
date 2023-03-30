@@ -445,7 +445,7 @@ function MLSearch()
 				$context['columns'][$col]['href'] .= ';desc';
 
 			if (isset($_POST['search']) && isset($_POST['fields']))
-				$context['columns'][$col]['href'] .= ';search=' . $_POST['search'] . ';fields=' . implode(',', $_POST['fields']);
+				$context['columns'][$col]['href'] .= ';search=' . urlencode($_POST['search']) . ';fields=' . implode(',', $_POST['fields']);
 
 			$context['columns'][$col]['link'] = '<a href="' . $context['columns'][$col]['href'] . '" rel="nofollow">' . $context['columns'][$col]['label'] . '</a>';
 			$context['columns'][$col]['selected'] = $_REQUEST['sort'] == $col;
