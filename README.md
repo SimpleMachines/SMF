@@ -34,5 +34,3 @@ Lastly, if you have a security issue you would like to notify us about regarding
 please file a [security report](https://www.simplemachines.org/about/smf/security.php) on our website: https://www.simplemachines.org/about/smf/security.php
 
 This will enable the team to review it and prepare patches as appropriate before exploits are widely known, which helps keep everyone safe.
-
-TEST
