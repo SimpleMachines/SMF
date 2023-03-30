@@ -388,8 +388,7 @@ class Forum
 			// Board is not empty... topic is not empty... action is empty.. Display!
 			else
 			{
-				require_once(Config::$sourcedir . '/Display.php');
-				return 'Display';
+				return 'SMF\\Display::call';
 			}
 		}
 
