@@ -16,6 +16,7 @@ namespace SMF\Tasks;
 use SMF\Config;
 use SMF\Msg;
 use SMF\Mail;
+use SMF\Theme;
 use SMF\User;
 use SMF\Db\DatabaseApi as Db;
 
@@ -91,8 +92,7 @@ class Register_Notify extends BackgroundTask
 		if (!empty($notifies['email']))
 		{
 			// Emails are a bit complicated. We have to do language stuff.
-			require_once(Config::$sourcedir . '/ScheduledTasks.php');
-			loadEssentialThemeData();
+			Theme::loadEssential();
 
 			// First, get everyone's language and details.
 			$emails = array();

@@ -13,6 +13,7 @@
 use SMF\BrowserDetector;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 
 /**
@@ -449,8 +450,6 @@ function template_set_options()
  */
 function template_set_settings()
 {
-	global $settings;
-
 	echo '
 	<div id="admin_form_wrapper">
 		<form action="', Config::$scripturl, '?action=admin;area=theme;sa=list;th=', Utils::$context['theme_settings']['theme_id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
@@ -914,8 +913,6 @@ function template_edit_browse()
  */
 function template_edit_style()
 {
-	global $settings;
-
 	if (Utils::$context['session_error'])
 		echo '
 	<div class="errorbox">
@@ -945,7 +942,7 @@ function template_edit_style()
 
 						// Revert to the theme they actually use ;).
 						var tempImage = new Image();
-						tempImage.src = smf_prepareScriptUrl(smf_scripturl) + "action=admin;area=theme;sa=edit;theme=', $settings['theme_id'], ';preview;" + (new Date().getTime());
+						tempImage.src = smf_prepareScriptUrl(smf_scripturl) + "action=admin;area=theme;sa=edit;theme=', Theme::$current->settings['theme_id'], ';preview;" + (new Date().getTime());
 
 						refreshPreviewCache = null;
 						refreshPreview(false);

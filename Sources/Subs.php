@@ -19,6 +19,7 @@ use SMF\Config;
 use SMF\Forum;
 use SMF\Lang;
 use SMF\Mail;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -29,6 +30,7 @@ if (!defined('SMF'))
 	die('No direct access...');
 
 class_exists('SMF\\BBCodeParser');
+class_exists('SMF\\Theme');
 class_exists('SMF\\User');
 class_exists('SMF\\Utils');
 
@@ -296,8 +298,6 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
  */
 function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flexible_start = false, $show_prevnext = true)
 {
-	global $settings;
-
 	// Save whether $start was less than 0 or not.
 	$start = (int) $start;
 	$start_invalid = $start < 0;
@@ -310,9 +310,9 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 		Utils::$context['current_page'] = $start / $num_per_page;
 
 	// Define some default page index settings for compatibility with old themes.
-	// !!! Should this be moved to loadTheme()?
-	if (!isset($settings['page_index']))
-		$settings['page_index'] = array(
+	// !!! Should this be moved to Theme::load()?
+	if (!isset(Theme::$current->settings['page_index']))
+		Theme::$current->settings['page_index'] = array(
 			'extra_before' => '<span class="pages">' . Lang::$txt['pages'] . '</span>',
 			'previous_page' => '<span class="main_icons previous_page"></span>',
 			'current_page' => '<span class="current_page">%1$d</span> ',
@@ -323,12 +323,12 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 		);
 
 	$last_page_value = (int) (($max_value - 1) / $num_per_page) * $num_per_page;
-	$base_link = strtr($settings['page_index']['page'], array('{URL}' => $flexible_start ? $base_url : strtr($base_url, array('%' => '%%')) . ';start=%1$d'));
-	$pageindex = $settings['page_index']['extra_before'];
+	$base_link = strtr(Theme::$current->settings['page_index']['page'], array('{URL}' => $flexible_start ? $base_url : strtr($base_url, array('%' => '%%')) . ';start=%1$d'));
+	$pageindex = Theme::$current->settings['page_index']['extra_before'];
 
 	// Show the "prev page" link. (>prev page< 1 ... 6 7 [8] 9 10 ... 15 next page)
 	if ($start != 0 && !$start_invalid && $show_prevnext)
-		$pageindex .= sprintf($base_link, $start - $num_per_page, $settings['page_index']['previous_page']);
+		$pageindex .= sprintf($base_link, $start - $num_per_page, Theme::$current->settings['page_index']['previous_page']);
 
 	// Compact pages is off or on?
 	if (empty(Config::$modSettings['compactTopicPagesEnable']))
@@ -336,7 +336,7 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 		// Show all the pages.
 		$display_page = 1;
 		for ($counter = 0; $counter < $max_value; $counter += $num_per_page)
-			$pageindex .= $start == $counter && !$start_invalid ? sprintf($settings['page_index']['current_page'], $display_page++) : sprintf($base_link, $counter, $display_page++);
+			$pageindex .= $start == $counter && !$start_invalid ? sprintf(Theme::$current->settings['page_index']['current_page'], $display_page++) : sprintf($base_link, $counter, $display_page++);
 	}
 	else
 	{
@@ -349,7 +349,7 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 
 		// Show the ... after the first page.  (prev page 1 >...< 6 7 [8] 9 10 ... 15 next page)
 		if ($start > $num_per_page * ($page_contiguous + 1))
-			$pageindex .= strtr($settings['page_index']['expand_pages'], array(
+			$pageindex .= strtr(Theme::$current->settings['page_index']['expand_pages'], array(
 				'{LINK}' => JavaScriptEscape(Utils::htmlspecialchars($base_link)),
 				'{FIRST_PAGE}' => $num_per_page,
 				'{LAST_PAGE}' => $start - $num_per_page * $page_contiguous,
@@ -363,7 +363,7 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 			{
 				// Show the current page. (prev page 1 ... 6 7 >[8]< 9 10 ... 15 next page)
 				if (!$start_invalid)
-					$pageindex .= sprintf($settings['page_index']['current_page'], $start / $num_per_page + 1);
+					$pageindex .= sprintf(Theme::$current->settings['page_index']['current_page'], $start / $num_per_page + 1);
 				else
 					$pageindex .= sprintf($base_link, $start, $start / $num_per_page + 1);
 			}
@@ -376,7 +376,7 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 
 		// Show the '...' part near the end. (prev page 1 ... 6 7 [8] 9 10 >...< 15 next page)
 		if ($start + $num_per_page * ($page_contiguous + 1) < $last_page_value)
-			$pageindex .= strtr($settings['page_index']['expand_pages'], array(
+			$pageindex .= strtr(Theme::$current->settings['page_index']['expand_pages'], array(
 				'{LINK}' => JavaScriptEscape(Utils::htmlspecialchars($base_link)),
 				'{FIRST_PAGE}' => $start + $num_per_page * ($page_contiguous + 1),
 				'{LAST_PAGE}' => $last_page_value,
@@ -390,9 +390,9 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 
 	// Show the "next page" link. (prev page 1 ... 6 7 [8] 9 10 ... 15 >next page<)
 	if ($start != $last_page_value && !$start_invalid && $show_prevnext)
-		$pageindex .= sprintf($base_link, $start + $num_per_page, $settings['page_index']['next_page']);
+		$pageindex .= sprintf($base_link, $start + $num_per_page, Theme::$current->settings['page_index']['next_page']);
 
-	$pageindex .= $settings['page_index']['extra_after'];
+	$pageindex .= Theme::$current->settings['page_index']['extra_after'];
 
 	return $pageindex;
 }
@@ -1114,7 +1114,6 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
  */
 function obExit($header = null, $do_footer = null, $from_index = false, $from_fatal_error = false)
 {
-	global $settings;
 	static $header_done = false, $footer_done = false, $level = 0, $has_fatal_error = false;
 
 	// Attempt to prevent a recursive loop.
@@ -1147,10 +1146,10 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 		// Start up the session URL fixer.
 		ob_start('ob_sessrewrite');
 
-		if (!empty($settings['output_buffers']) && is_string($settings['output_buffers']))
-			$buffers = explode(',', $settings['output_buffers']);
-		elseif (!empty($settings['output_buffers']))
-			$buffers = $settings['output_buffers'];
+		if (!empty(Theme::$current->settings['output_buffers']) && is_string(Theme::$current->settings['output_buffers']))
+			$buffers = explode(',', Theme::$current->settings['output_buffers']);
+		elseif (!empty(Theme::$current->settings['output_buffers']))
+			$buffers = Theme::$current->settings['output_buffers'];
 		else
 			$buffers = array();
 
@@ -1168,12 +1167,12 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 			}
 
 		// Display the screen in the logical order.
-		template_header();
+		Theme::template_header();
 		$header_done = true;
 	}
 	if ($do_footer)
 	{
-		loadSubTemplate(isset(Utils::$context['sub_template']) ? Utils::$context['sub_template'] : 'main');
+		Theme::loadSubTemplate(isset(Utils::$context['sub_template']) ? Utils::$context['sub_template'] : 'main');
 
 		// Anything special to put out?
 		if (!empty(Utils::$context['insert_after_template']) && !isset($_REQUEST['xml']))
@@ -1183,7 +1182,7 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 		if (!$footer_done)
 		{
 			$footer_done = true;
-			template_footer();
+			Theme::template_footer();
 
 			// (since this is just debugging... it's okay that it's after </html>.)
 			if (!isset($_REQUEST['xml']))
@@ -1287,154 +1286,6 @@ function url_image_size($url)
 }
 
 /**
- * Sets up the basic theme context stuff.
- *
- * @param bool $forceload Whether to load the theme even if it's already loaded
- */
-function setupThemeContext($forceload = false)
-{
-	global $settings, $options;
-
-	static $loaded = false;
-
-	// Under SSI this function can be called more then once.  That can cause some problems.
-	//   So only run the function once unless we are forced to run it again.
-	if ($loaded && !$forceload)
-		return;
-
-	$loaded = true;
-
-	Utils::$context['in_maintenance'] = !empty(Config::$maintenance);
-	Utils::$context['current_time'] = timeformat(time(), false);
-	Utils::$context['current_action'] = isset($_GET['action']) ? Utils::htmlspecialchars($_GET['action']) : '';
-	Utils::$context['random_news_line'] = array();
-
-	// Get some news...
-	Utils::$context['news_lines'] = array_filter(explode("\n", str_replace("\r", '', trim(addslashes(Config::$modSettings['news'])))));
-	for ($i = 0, $n = count(Utils::$context['news_lines']); $i < $n; $i++)
-	{
-		if (trim(Utils::$context['news_lines'][$i]) == '')
-			continue;
-
-		// Clean it up for presentation ;).
-		Utils::$context['news_lines'][$i] = BBCodeParser::load()->parse(stripslashes(trim(Utils::$context['news_lines'][$i])), true, 'news' . $i);
-	}
-
-	if (!empty(Utils::$context['news_lines']) && (!empty(Config::$modSettings['allow_guestAccess']) || User::$me->is_logged))
-		Utils::$context['random_news_line'] = Utils::$context['news_lines'][mt_rand(0, count(Utils::$context['news_lines']) - 1)];
-
-	if (!User::$me->is_guest)
-	{
-		// Personal message popup...
-		if (User::$me->unread_messages > (isset($_SESSION['unread_messages']) ? $_SESSION['unread_messages'] : 0))
-			User::$me->popup_messages = true;
-		else
-			User::$me->popup_messages = false;
-		$_SESSION['unread_messages'] = User::$me->unread_messages;
-
-		if (allowedTo('moderate_forum'))
-			Utils::$context['unapproved_members'] = !empty(Config::$modSettings['unapprovedMembers']) ? Config::$modSettings['unapprovedMembers'] : 0;
-	}
-	else
-	{
-		User::$me->popup_messages = false;
-
-		// If we've upgraded recently, go easy on the passwords.
-		if (!empty(Config::$modSettings['disableHashTime']) && (Config::$modSettings['disableHashTime'] == 1 || time() < Config::$modSettings['disableHashTime']))
-			Utils::$context['disable_login_hashing'] = true;
-	}
-
-	// Setup the main menu items.
-	setupMenuContext();
-
-	// This is here because old index templates might still use it.
-	Utils::$context['show_news'] = !empty($settings['enable_news']);
-
-	// This is done to allow theme authors to customize it as they want.
-	Utils::$context['show_pm_popup'] = User::$me->popup_messages && !empty($options['popup_messages']) && (!isset($_REQUEST['action']) || $_REQUEST['action'] != 'pm');
-
-	// 2.1+: Add the PM popup here instead. Theme authors can still override it simply by editing/removing the 'fPmPopup' in the array.
-	if (Utils::$context['show_pm_popup'])
-		addInlineJavaScript('
-		jQuery(document).ready(function($) {
-			new smc_Popup({
-				heading: ' . JavaScriptEscape(Lang::$txt['show_personal_messages_heading']) . ',
-				content: ' . JavaScriptEscape(sprintf(Lang::$txt['show_personal_messages'], User::$me->unread_messages, Config::$scripturl . '?action=pm')) . ',
-				icon_class: \'main_icons mail_new\'
-			});
-		});');
-
-	// Add a generic "Are you sure?" confirmation message.
-	addInlineJavaScript('
-	var smf_you_sure =' . JavaScriptEscape(Lang::$txt['quickmod_confirm']) . ';');
-
-	// Now add the capping code for avatars.
-	if (!empty(Config::$modSettings['avatar_max_width_external']) && !empty(Config::$modSettings['avatar_max_height_external']) && !empty(Config::$modSettings['avatar_action_too_large']) && Config::$modSettings['avatar_action_too_large'] == 'option_css_resize')
-		addInlineCss('
-	img.avatar { max-width: ' . Config::$modSettings['avatar_max_width_external'] . 'px !important; max-height: ' . Config::$modSettings['avatar_max_height_external'] . 'px !important; }');
-
-	// Add max image limits
-	if (!empty(Config::$modSettings['max_image_width']))
-		addInlineCss('
-	.postarea .bbc_img, .list_posts .bbc_img, .post .inner .bbc_img, form#reported_posts .bbc_img, #preview_body .bbc_img { max-width: min(100%,' . Config::$modSettings['max_image_width'] . 'px); }');
-
-	if (!empty(Config::$modSettings['max_image_height']))
-		addInlineCss('
-	.postarea .bbc_img, .list_posts .bbc_img, .post .inner .bbc_img, form#reported_posts .bbc_img, #preview_body .bbc_img { max-height: ' . Config::$modSettings['max_image_height'] . 'px; }');
-
-	// This looks weird, but it's because BoardIndex.php references the variable.
-	Utils::$context['common_stats']['latest_member'] = array(
-		'id' => Config::$modSettings['latestMember'],
-		'name' => Config::$modSettings['latestRealName'],
-		'href' => Config::$scripturl . '?action=profile;u=' . Config::$modSettings['latestMember'],
-		'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . Config::$modSettings['latestMember'] . '">' . Config::$modSettings['latestRealName'] . '</a>',
-	);
-	Utils::$context['common_stats'] = array(
-		'total_posts' => Lang::numberFormat(Config::$modSettings['totalMessages']),
-		'total_topics' => Lang::numberFormat(Config::$modSettings['totalTopics']),
-		'total_members' => Lang::numberFormat(Config::$modSettings['totalMembers']),
-		'latest_member' => Utils::$context['common_stats']['latest_member'],
-	);
-	Utils::$context['common_stats']['boardindex_total_posts'] = sprintf(Lang::$txt['boardindex_total_posts'], Utils::$context['common_stats']['total_posts'], Utils::$context['common_stats']['total_topics'], Utils::$context['common_stats']['total_members']);
-
-	if (empty($settings['theme_version']))
-		addJavaScriptVar('smf_scripturl', Config::$scripturl);
-
-	if (!isset(Utils::$context['page_title']))
-		Utils::$context['page_title'] = '';
-
-	// Set some specific vars.
-	Utils::$context['page_title_html_safe'] = Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title'])) . (!empty(Utils::$context['current_page']) ? ' - ' . Lang::$txt['page'] . ' ' . (Utils::$context['current_page'] + 1) : '');
-	Utils::$context['meta_keywords'] = !empty(Config::$modSettings['meta_keywords']) ? Utils::htmlspecialchars(Config::$modSettings['meta_keywords']) : '';
-
-	// Content related meta tags, including Open Graph
-	Utils::$context['meta_tags'][] = array('property' => 'og:site_name', 'content' => Utils::$context['forum_name']);
-	Utils::$context['meta_tags'][] = array('property' => 'og:title', 'content' => Utils::$context['page_title_html_safe']);
-
-	if (!empty(Utils::$context['meta_keywords']))
-		Utils::$context['meta_tags'][] = array('name' => 'keywords', 'content' => Utils::$context['meta_keywords']);
-
-	if (!empty(Utils::$context['canonical_url']))
-		Utils::$context['meta_tags'][] = array('property' => 'og:url', 'content' => Utils::$context['canonical_url']);
-
-	if (!empty($settings['og_image']))
-		Utils::$context['meta_tags'][] = array('property' => 'og:image', 'content' => $settings['og_image']);
-
-	if (!empty(Utils::$context['meta_description']))
-	{
-		Utils::$context['meta_tags'][] = array('property' => 'og:description', 'content' => Utils::$context['meta_description']);
-		Utils::$context['meta_tags'][] = array('name' => 'description', 'content' => Utils::$context['meta_description']);
-	}
-	else
-	{
-		Utils::$context['meta_tags'][] = array('property' => 'og:description', 'content' => Utils::$context['page_title_html_safe']);
-		Utils::$context['meta_tags'][] = array('name' => 'description', 'content' => Utils::$context['page_title_html_safe']);
-	}
-
-	call_integration_hook('integrate_theme_context');
-}
-
-/**
  * Helper function to set the system memory to a needed value
  * - If the needed memory is greater than current, will attempt to get more
  * - if in_use is set to true, will also try to take the current memory usage in to account
@@ -1493,571 +1344,6 @@ function memoryReturnBytes($val)
 			$num *= 1024;
 	}
 	return $num;
-}
-
-/**
- * The header template
- */
-function template_header()
-{
-	setupThemeContext();
-
-	// Print stuff to prevent caching of pages (except on attachment errors, etc.)
-	if (empty(Utils::$context['no_last_modified']))
-	{
-		header('expires: Mon, 26 Jul 1997 05:00:00 GMT');
-		header('last-modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-
-		// Are we debugging the template/html content?
-		if (!isset($_REQUEST['xml']) && isset($_GET['debug']) && !BrowserDetector::isBrowser('ie'))
-			header('content-type: application/xhtml+xml');
-		elseif (!isset($_REQUEST['xml']))
-			header('content-type: text/html; charset=' . (empty(Utils::$context['character_set']) ? 'ISO-8859-1' : Utils::$context['character_set']));
-	}
-
-	header('content-type: text/' . (isset($_REQUEST['xml']) ? 'xml' : 'html') . '; charset=' . (empty(Utils::$context['character_set']) ? 'ISO-8859-1' : Utils::$context['character_set']));
-
-	// We need to splice this in after the body layer, or after the main layer for older stuff.
-	if (Utils::$context['in_maintenance'] && User::$me->is_admin)
-	{
-		$position = array_search('body', Utils::$context['template_layers']);
-		if ($position === false)
-			$position = array_search('main', Utils::$context['template_layers']);
-
-		if ($position !== false)
-		{
-			$before = array_slice(Utils::$context['template_layers'], 0, $position + 1);
-			$after = array_slice(Utils::$context['template_layers'], $position + 1);
-			Utils::$context['template_layers'] = array_merge($before, array('maint_warning'), $after);
-		}
-	}
-
-	$checked_securityFiles = false;
-	$showed_banned = false;
-	foreach (Utils::$context['template_layers'] as $layer)
-	{
-		loadSubTemplate($layer . '_above', true);
-
-		// May seem contrived, but this is done in case the body and main layer aren't there...
-		if (in_array($layer, array('body', 'main')) && allowedTo('admin_forum') && !User::$me->is_guest && !$checked_securityFiles)
-		{
-			$checked_securityFiles = true;
-
-			$securityFiles = array('install.php', 'upgrade.php', 'convert.php', 'repair_paths.php', 'repair_settings.php', 'Settings.php~', 'Settings_bak.php~');
-
-			// Add your own files.
-			call_integration_hook('integrate_security_files', array(&$securityFiles));
-
-			foreach ($securityFiles as $i => $securityFile)
-			{
-				if (!file_exists(Config::$boarddir . '/' . $securityFile))
-					unset($securityFiles[$i]);
-			}
-
-			// We are already checking so many files...just few more doesn't make any difference! :P
-			if (!empty(Config::$modSettings['currentAttachmentUploadDir']))
-				$path = Config::$modSettings['attachmentUploadDir'][Config::$modSettings['currentAttachmentUploadDir']];
-
-			else
-				$path = Config::$modSettings['attachmentUploadDir'];
-
-			secureDirectory($path, true);
-			secureDirectory(Config::$cachedir);
-
-			// If agreement is enabled, at least the english version shall exist
-			if (!empty(Config::$modSettings['requireAgreement']))
-				$agreement = !file_exists(Config::$boarddir . '/agreement.txt');
-
-			// If privacy policy is enabled, at least the default language version shall exist
-			if (!empty(Config::$modSettings['requirePolicyAgreement']))
-				$policy_agreement = empty(Config::$modSettings['policy_' . Lang::$default]);
-
-			if (!empty($securityFiles) ||
-				(!empty(CacheApi::$enable) && !is_writable(Config::$cachedir)) ||
-				!empty($agreement) ||
-				!empty($policy_agreement) ||
-				!empty(Utils::$context['auth_secret_missing']))
-			{
-				echo '
-		<div class="errorbox">
-			<p class="alert">!!</p>
-			<h3>', empty($securityFiles) && empty(Utils::$context['auth_secret_missing']) ? Lang::$txt['generic_warning'] : Lang::$txt['security_risk'], '</h3>
-			<p>';
-
-				foreach ($securityFiles as $securityFile)
-				{
-					echo '
-				', Lang::$txt['not_removed'], '<strong>', $securityFile, '</strong>!<br>';
-
-					if ($securityFile == 'Settings.php~' || $securityFile == 'Settings_bak.php~')
-						echo '
-				', sprintf(Lang::$txt['not_removed_extra'], $securityFile, substr($securityFile, 0, -1)), '<br>';
-				}
-
-				if (!empty(CacheApi::$enable) && !is_writable(Config::$cachedir))
-					echo '
-				<strong>', Lang::$txt['cache_writable'], '</strong><br>';
-
-				if (!empty($agreement))
-					echo '
-				<strong>', Lang::$txt['agreement_missing'], '</strong><br>';
-
-				if (!empty($policy_agreement))
-					echo '
-				<strong>', Lang::$txt['policy_agreement_missing'], '</strong><br>';
-
-				if (!empty(Utils::$context['auth_secret_missing']))
-					echo '
-				<strong>', Lang::$txt['auth_secret_missing'], '</strong><br>';
-
-				echo '
-			</p>
-		</div>';
-			}
-		}
-		// If the user is banned from posting inform them of it.
-		elseif (in_array($layer, array('main', 'body')) && isset($_SESSION['ban']['cannot_post']) && !$showed_banned)
-		{
-			$showed_banned = true;
-			echo '
-				<div class="windowbg alert" style="margin: 2ex; padding: 2ex; border: 2px dashed red;">
-					', sprintf(Lang::$txt['you_are_post_banned'], User::$me->is_guest ? Lang::$txt['guest_title'] : User::$me->name);
-
-			if (!empty($_SESSION['ban']['cannot_post']['reason']))
-				echo '
-					<div style="padding-left: 4ex; padding-top: 1ex;">', $_SESSION['ban']['cannot_post']['reason'], '</div>';
-
-			if (!empty($_SESSION['ban']['expire_time']))
-				echo '
-					<div>', sprintf(Lang::$txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)), '</div>';
-			else
-				echo '
-					<div>', Lang::$txt['your_ban_expires_never'], '</div>';
-
-			echo '
-				</div>';
-		}
-	}
-}
-
-/**
- * Show the copyright.
- */
-function theme_copyright()
-{
-	// Don't display copyright for things like SSI.
-	if (SMF !== 1)
-		return;
-
-	// Put in the version...
-	printf(Lang::$forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl);
-}
-
-/**
- * The template footer
- */
-function template_footer()
-{
-	// Show the load time?  (only makes sense for the footer.)
-	Utils::$context['show_load_time'] = !empty(Config::$modSettings['timeLoadPageEnable']);
-	Utils::$context['load_time'] = round(microtime(true) - TIME_START, 3);
-	Utils::$context['load_queries'] = Db::$count;
-
-	if (!empty(Utils::$context['template_layers']) && is_array(Utils::$context['template_layers']))
-		foreach (array_reverse(Utils::$context['template_layers']) as $layer)
-			loadSubTemplate($layer . '_below', true);
-}
-
-/**
- * Output the Javascript files
- * 	- tabbing in this function is to make the HTML source look good and proper
- *  - if deferred is set function will output all JS set to load at page end
- *
- * @param bool $do_deferred If true will only output the deferred JS (the stuff that goes right before the closing body tag)
- */
-function template_javascript($do_deferred = false)
-{
-	global $settings;
-
-	// Use this hook to minify/optimize Javascript files and vars
-	call_integration_hook('integrate_pre_javascript_output', array(&$do_deferred));
-
-	$toMinify = array(
-		'standard' => array(),
-		'defer' => array(),
-		'async' => array(),
-	);
-
-	// Output the declared Javascript variables.
-	if (!empty(Utils::$context['javascript_vars']) && !$do_deferred)
-	{
-		echo '
-	<script>';
-
-		foreach (Utils::$context['javascript_vars'] as $key => $value)
-		{
-			if (!is_string($key) || is_numeric($key))
-				continue;
-
-			if (!is_string($value) && !is_numeric($value))
-				$value = null;
-
-			echo "\n\t\t", 'var ', $key, isset($value) ? ' = ' . $value : '', ';';
-		}
-
-		echo '
-	</script>';
-	}
-
-	// In the dark days before HTML5, deferred JS files needed to be loaded at the end of the body.
-	// Now we load them in the head and use 'async' and/or 'defer' attributes. Much better performance.
-	if (!$do_deferred)
-	{
-		// While we have JavaScript files to place in the template.
-		foreach (Utils::$context['javascript_files'] as $id => $js_file)
-		{
-			// Last minute call! allow theme authors to disable single files.
-			if (!empty($settings['disable_files']) && in_array($id, $settings['disable_files']))
-				continue;
-
-			// By default files don't get minimized unless the file explicitly says so!
-			if (!empty($js_file['options']['minimize']) && !empty(Config::$modSettings['minimize_files']))
-			{
-				if (!empty($js_file['options']['async']))
-					$toMinify['async'][] = $js_file;
-
-				elseif (!empty($js_file['options']['defer']))
-					$toMinify['defer'][] = $js_file;
-
-				else
-					$toMinify['standard'][] = $js_file;
-
-				// Grab a random seed.
-				if (!isset($minSeed) && isset($js_file['options']['seed']))
-					$minSeed = $js_file['options']['seed'];
-			}
-
-			else
-			{
-				echo '
-	<script src="', $js_file['fileUrl'], isset($js_file['options']['seed']) ? $js_file['options']['seed'] : '', '"', !empty($js_file['options']['async']) ? ' async' : '', !empty($js_file['options']['defer']) ? ' defer' : '';
-
-				if (!empty($js_file['options']['attributes']))
-					foreach ($js_file['options']['attributes'] as $key => $value)
-					{
-						if (is_bool($value))
-							echo !empty($value) ? ' ' . $key : '';
-
-						else
-							echo ' ', $key, '="', $value, '"';
-					}
-
-				echo '></script>';
-			}
-		}
-
-		foreach ($toMinify as $js_files)
-		{
-			if (!empty($js_files))
-			{
-				$result = custMinify($js_files, 'js');
-
-				$minSuccessful = array_keys($result) === array('smf_minified');
-
-				foreach ($result as $minFile)
-					echo '
-	<script src="', $minFile['fileUrl'], $minSuccessful && isset($minSeed) ? $minSeed : '', '"', !empty($minFile['options']['async']) ? ' async' : '', !empty($minFile['options']['defer']) ? ' defer' : '', '></script>';
-			}
-		}
-	}
-
-	// Inline JavaScript - Actually useful some times!
-	if (!empty(Utils::$context['javascript_inline']))
-	{
-		if (!empty(Utils::$context['javascript_inline']['defer']) && $do_deferred)
-		{
-			echo '
-<script>
-window.addEventListener("DOMContentLoaded", function() {';
-
-			foreach (Utils::$context['javascript_inline']['defer'] as $js_code)
-				echo $js_code;
-
-			echo '
-});
-</script>';
-		}
-
-		if (!empty(Utils::$context['javascript_inline']['standard']) && !$do_deferred)
-		{
-			echo '
-	<script>';
-
-			foreach (Utils::$context['javascript_inline']['standard'] as $js_code)
-				echo $js_code;
-
-			echo '
-	</script>';
-		}
-	}
-}
-
-/**
- * Output the CSS files
- */
-function template_css()
-{
-	global $settings;
-
-	// Use this hook to minify/optimize CSS files
-	call_integration_hook('integrate_pre_css_output');
-
-	$toMinify = array();
-	$normal = array();
-
-	uasort(
-		Utils::$context['css_files'],
-		function ($a, $b)
-		{
-			return $a['options']['order_pos'] < $b['options']['order_pos'] ? -1 : ($a['options']['order_pos'] > $b['options']['order_pos'] ? 1 : 0);
-		}
-	);
-
-	foreach (Utils::$context['css_files'] as $id => $file)
-	{
-		// Last minute call! allow theme authors to disable single files.
-		if (!empty($settings['disable_files']) && in_array($id, $settings['disable_files']))
-			continue;
-
-		// Files are minimized unless they explicitly opt out.
-		if (!isset($file['options']['minimize']))
-			$file['options']['minimize'] = true;
-
-		if (!empty($file['options']['minimize']) && !empty(Config::$modSettings['minimize_files']) && !isset($_REQUEST['normalcss']))
-		{
-			$toMinify[] = $file;
-
-			// Grab a random seed.
-			if (!isset($minSeed) && isset($file['options']['seed']))
-				$minSeed = $file['options']['seed'];
-		}
-		else
-			$normal[] = array(
-				'url' => $file['fileUrl'] . (isset($file['options']['seed']) ? $file['options']['seed'] : ''),
-				'attributes' => !empty($file['options']['attributes']) ? $file['options']['attributes'] : array()
-			);
-	}
-
-	if (!empty($toMinify))
-	{
-		$result = custMinify($toMinify, 'css');
-
-		$minSuccessful = array_keys($result) === array('smf_minified');
-
-		foreach ($result as $minFile)
-			echo '
-	<link rel="stylesheet" href="', $minFile['fileUrl'], $minSuccessful && isset($minSeed) ? $minSeed : '', '">';
-	}
-
-	// Print the rest after the minified files.
-	if (!empty($normal))
-		foreach ($normal as $nf)
-		{
-			echo '
-	<link rel="stylesheet" href="', $nf['url'], '"';
-
-			if (!empty($nf['attributes']))
-				foreach ($nf['attributes'] as $key => $value)
-				{
-					if (is_bool($value))
-						echo !empty($value) ? ' ' . $key : '';
-					else
-						echo ' ', $key, '="', $value, '"';
-				}
-
-			echo '>';
-		}
-
-	if (Config::$db_show_debug === true)
-	{
-		// Try to keep only what's useful.
-		$repl = array(Config::$boardurl . '/Themes/' => '', Config::$boardurl . '/' => '');
-		foreach (Utils::$context['css_files'] as $file)
-			Utils::$context['debug']['sheets'][] = strtr($file['fileName'], $repl);
-	}
-
-	if (!empty(Utils::$context['css_header']))
-	{
-		echo '
-	<style>';
-
-		foreach (Utils::$context['css_header'] as $css)
-			echo $css . '
-	';
-
-		echo '
-	</style>';
-	}
-}
-
-/**
- * Get an array of previously defined files and adds them to our main minified files.
- * Sets a one day cache to avoid re-creating a file on every request.
- *
- * @param array $data The files to minify.
- * @param string $type either css or js.
- * @return array Info about the minified file, or about the original files if the minify process failed.
- */
-function custMinify($data, $type)
-{
-	global $settings;
-
-	$types = array('css', 'js');
-	$type = !empty($type) && in_array($type, $types) ? $type : false;
-	$data = is_array($data) ? $data : array();
-
-	if (empty($type) || empty($data))
-		return $data;
-
-	// Different pages include different files, so we use a hash to label the different combinations
-	$hash = md5(implode(' ', array_map(
-		function($file)
-		{
-			return $file['filePath'] . '-' . $file['mtime'];
-		},
-		$data
-	)));
-
-	// Is this a deferred or asynchronous JavaScript file?
-	$async = $type === 'js';
-	$defer = $type === 'js';
-	if ($type === 'js')
-	{
-		foreach ($data as $id => $file)
-		{
-			// A minified script should only be loaded asynchronously if all its components wanted to be.
-			if (empty($file['options']['async']))
-				$async = false;
-
-			// A minified script should only be deferred if all its components wanted to be.
-			if (empty($file['options']['defer']))
-				$defer = false;
-		}
-	}
-
-	// Did we already do this?
-	$minified_file = $settings['theme_dir'] . '/' . ($type == 'css' ? 'css' : 'scripts') . '/minified_' . $hash . '.' . $type;
-	$already_exists = file_exists($minified_file);
-
-	// Already done?
-	if ($already_exists)
-	{
-		return array('smf_minified' => array(
-			'fileUrl' => $settings['theme_url'] . '/' . ($type == 'css' ? 'css' : 'scripts') . '/' . basename($minified_file),
-			'filePath' => $minified_file,
-			'fileName' => basename($minified_file),
-			'options' => array('async' => !empty($async), 'defer' => !empty($defer)),
-		));
-	}
-	// File has to exist. If it doesn't, try to create it.
-	elseif (@fopen($minified_file, 'w') === false || !smf_chmod($minified_file))
-	{
-		Lang::load('Errors');
-		log_error(sprintf(Lang::$txt['file_not_created'], $minified_file), 'general');
-
-		// The process failed, so roll back to print each individual file.
-		return $data;
-	}
-
-	// No namespaces, sorry!
-	$classType = 'MatthiasMullie\\Minify\\' . strtoupper($type);
-
-	$minifier = new $classType();
-
-	foreach ($data as $id => $file)
-	{
-		$toAdd = !empty($file['filePath']) && file_exists($file['filePath']) ? $file['filePath'] : false;
-
-		// The file couldn't be located so it won't be added. Log this error.
-		if (empty($toAdd))
-		{
-			Lang::load('Errors');
-			log_error(sprintf(Lang::$txt['file_minimize_fail'], !empty($file['fileName']) ? $file['fileName'] : $id), 'general');
-			continue;
-		}
-
-		// Add this file to the list.
-		$minifier->add($toAdd);
-	}
-
-	// Create the file.
-	$minifier->minify($minified_file);
-	unset($minifier);
-	clearstatcache();
-
-	// Minify process failed.
-	if (!filesize($minified_file))
-	{
-		Lang::load('Errors');
-		log_error(sprintf(Lang::$txt['file_not_created'], $minified_file), 'general');
-
-		// The process failed so roll back to print each individual file.
-		return $data;
-	}
-
-	return array('smf_minified' => array(
-		'fileUrl' => $settings['theme_url'] . '/' . ($type == 'css' ? 'css' : 'scripts') . '/' . basename($minified_file),
-		'filePath' => $minified_file,
-		'fileName' => basename($minified_file),
-		'options' => array('async' => $async, 'defer' => $defer),
-	));
-}
-
-/**
- * Clears out old minimized CSS and JavaScript files and ensures Config::$modSettings['browser_cache'] is up to date
- */
-function deleteAllMinified()
-{
-	$not_deleted = array();
-	$most_recent = 0;
-
-	// Kinda sucks that we need to do another query to get all the theme dirs, but c'est la vie.
-	$request = Db::$db->query('', '
-		SELECT id_theme AS id, value AS dir
-		FROM {db_prefix}themes
-		WHERE variable = {string:var}',
-		array(
-			'var' => 'theme_dir',
-		)
-	);
-	while ($theme = Db::$db->fetch_assoc($request))
-	{
-		foreach (array('css', 'js') as $type)
-		{
-			foreach (glob(rtrim($theme['dir'], '/') . '/' . ($type == 'css' ? 'css' : 'scripts') . '/*.' . $type) as $filename)
-			{
-				// We want to find the most recent mtime of non-minified files
-				if (strpos(pathinfo($filename, PATHINFO_BASENAME), 'minified') === false)
-					$most_recent = max($most_recent, (int) @filemtime($filename));
-
-				// Try to delete minified files. Add them to our error list if that fails.
-				elseif (!@unlink($filename))
-					$not_deleted[] = $filename;
-			}
-		}
-	}
-	Db::$db->free_result($request);
-
-	// This setting tracks the most recent modification time of any of our CSS and JS files
-	if ($most_recent != Config::$modSettings['browser_cache'])
-		Config::updateModSettings(array('browser_cache' => $most_recent));
-
-	// If any of the files could not be deleted, log an error about it.
-	if (!empty($not_deleted))
-	{
-		Lang::load('Errors');
-		log_error(sprintf(Lang::$txt['unlink_minimized_fail'], implode('<br>', $not_deleted)), 'general');
-	}
 }
 
 /**
@@ -2307,395 +1593,6 @@ function text2words($text, $max_chars = 20, $encrypt = false)
 }
 
 /**
- * Creates an image/text button
- *
- * @deprecated since 2.1
- * @param string $name The name of the button (should be a main_icons class or the name of an image)
- * @param string $alt The alt text
- * @param string $label The Lang::$txt string to use as the label
- * @param string $custom Custom text/html to add to the img tag (only when using an actual image)
- * @param boolean $force_use Whether to force use of this when template_create_button is available
- * @return string The HTML to display the button
- */
-function create_button($name, $alt, $label = '', $custom = '', $force_use = false)
-{
-	global $settings;
-
-	// Does the current loaded theme have this and we are not forcing the usage of this function?
-	if (function_exists('template_create_button') && !$force_use)
-		return template_create_button($name, $alt, $label = '', $custom = '');
-
-	if (!$settings['use_image_buttons'])
-		return Lang::$txt[$alt];
-	elseif (!empty($settings['use_buttons']))
-		return '<span class="main_icons ' . $name . '" alt="' . Lang::$txt[$alt] . '"></span>' . ($label != '' ? '&nbsp;<strong>' . Lang::$txt[$label] . '</strong>' : '');
-	else
-		return '<img src="' . $settings['lang_images_url'] . '/' . $name . '" alt="' . Lang::$txt[$alt] . '" ' . $custom . '>';
-}
-
-/**
- * Sets up all of the top menu buttons
- * Saves them in the cache if it is available and on
- * Places the results in Utils::$context
- */
-function setupMenuContext()
-{
-	global $settings;
-
-	// Set up the menu privileges.
-	Utils::$context['allow_search'] = !empty(Config::$modSettings['allow_guestAccess']) ? allowedTo('search_posts') : (!User::$me->is_guest && allowedTo('search_posts'));
-	Utils::$context['allow_admin'] = allowedTo(array('admin_forum', 'manage_boards', 'manage_permissions', 'moderate_forum', 'manage_membergroups', 'manage_bans', 'send_mail', 'edit_news', 'manage_attachments', 'manage_smileys'));
-
-	Utils::$context['allow_memberlist'] = allowedTo('view_mlist');
-	Utils::$context['allow_calendar'] = allowedTo('calendar_view') && !empty(Config::$modSettings['cal_enabled']);
-	Utils::$context['allow_moderation_center'] = User::$me->can_mod;
-	Utils::$context['allow_pm'] = allowedTo('pm_read');
-
-	$cacheTime = Config::$modSettings['lastActive'] * 60;
-
-	// Initial "can you post an event in the calendar" option - but this might have been set in the calendar already.
-	if (!isset(Utils::$context['allow_calendar_event']))
-	{
-		Utils::$context['allow_calendar_event'] = Utils::$context['allow_calendar'] && allowedTo('calendar_post');
-
-		// If you don't allow events not linked to posts and you're not an admin, we have more work to do...
-		if (Utils::$context['allow_calendar'] && Utils::$context['allow_calendar_event'] && empty(Config::$modSettings['cal_allow_unlinked']) && !User::$me->is_admin)
-		{
-			$boards_can_post = boardsAllowedTo('post_new');
-			Utils::$context['allow_calendar_event'] &= !empty($boards_can_post);
-		}
-	}
-
-	// There is some menu stuff we need to do if we're coming at this from a non-guest perspective.
-	if (!User::$me->is_guest)
-	{
-		addInlineJavaScript('
-	var user_menus = new smc_PopupMenu();
-	user_menus.add("profile", "' . Config::$scripturl . '?action=profile;area=popup");
-	user_menus.add("alerts", "' . Config::$scripturl . '?action=profile;area=alerts_popup;u=' . User::$me->id . '");', true);
-		if (Utils::$context['allow_pm'])
-			addInlineJavaScript('
-	user_menus.add("pm", "' . Config::$scripturl . '?action=pm;sa=popup");', true);
-
-		if (!empty(Config::$modSettings['enable_ajax_alerts']))
-		{
-			require_once(Config::$sourcedir . '/Subs-Notify.php');
-
-			$timeout = getNotifyPrefs(User::$me->id, 'alert_timeout', true);
-			$timeout = empty($timeout) ? 10000 : $timeout[User::$me->id]['alert_timeout'] * 1000;
-
-			addInlineJavaScript('
-	var new_alert_title = "' . Utils::$context['forum_name_html_safe'] . '";
-	var alert_timeout = ' . $timeout . ';');
-			loadJavaScriptFile('alerts.js', array('minimize' => true), 'smf_alerts');
-		}
-	}
-
-	// All the buttons we can possible want and then some, try pulling the final list of buttons from cache first.
-	if (($menu_buttons = CacheApi::get('menu_buttons-' . implode('_', User::$me->groups) . '-' . User::$me->language, $cacheTime)) === null || time() - $cacheTime <= Config::$modSettings['settings_updated'])
-	{
-		$buttons = array(
-			'home' => array(
-				'title' => Lang::$txt['home'],
-				'href' => Config::$scripturl,
-				'show' => true,
-				'sub_buttons' => array(
-				),
-				'is_last' => Utils::$context['right_to_left'],
-			),
-			'search' => array(
-				'title' => Lang::$txt['search'],
-				'href' => Config::$scripturl . '?action=search',
-				'show' => Utils::$context['allow_search'],
-				'sub_buttons' => array(
-				),
-			),
-			'admin' => array(
-				'title' => Lang::$txt['admin'],
-				'href' => Config::$scripturl . '?action=admin',
-				'show' => Utils::$context['allow_admin'],
-				'sub_buttons' => array(
-					'featuresettings' => array(
-						'title' => Lang::$txt['modSettings_title'],
-						'href' => Config::$scripturl . '?action=admin;area=featuresettings',
-						'show' => allowedTo('admin_forum'),
-					),
-					'packages' => array(
-						'title' => Lang::$txt['package'],
-						'href' => Config::$scripturl . '?action=admin;area=packages',
-						'show' => allowedTo('admin_forum'),
-					),
-					'errorlog' => array(
-						'title' => Lang::$txt['errorlog'],
-						'href' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog;desc',
-						'show' => allowedTo('admin_forum') && !empty(Config::$modSettings['enableErrorLogging']),
-					),
-					'permissions' => array(
-						'title' => Lang::$txt['edit_permissions'],
-						'href' => Config::$scripturl . '?action=admin;area=permissions',
-						'show' => allowedTo('manage_permissions'),
-					),
-					'memberapprove' => array(
-						'title' => Lang::$txt['approve_members_waiting'],
-						'href' => Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve',
-						'show' => !empty(Utils::$context['unapproved_members']),
-						'is_last' => true,
-					),
-				),
-			),
-			'moderate' => array(
-				'title' => Lang::$txt['moderate'],
-				'href' => Config::$scripturl . '?action=moderate',
-				'show' => Utils::$context['allow_moderation_center'],
-				'sub_buttons' => array(
-					'modlog' => array(
-						'title' => Lang::$txt['modlog_view'],
-						'href' => Config::$scripturl . '?action=moderate;area=modlog',
-						'show' => !empty(Config::$modSettings['modlog_enabled']) && !empty(User::$me->mod_cache) && User::$me->mod_cache['bq'] != '0=1',
-					),
-					'poststopics' => array(
-						'title' => Lang::$txt['mc_unapproved_poststopics'],
-						'href' => Config::$scripturl . '?action=moderate;area=postmod;sa=posts',
-						'show' => Config::$modSettings['postmod_active'] && !empty(User::$me->mod_cache['ap']),
-					),
-					'attachments' => array(
-						'title' => Lang::$txt['mc_unapproved_attachments'],
-						'href' => Config::$scripturl . '?action=moderate;area=attachmod;sa=attachments',
-						'show' => Config::$modSettings['postmod_active'] && !empty(User::$me->mod_cache['ap']),
-					),
-					'reports' => array(
-						'title' => Lang::$txt['mc_reported_posts'],
-						'href' => Config::$scripturl . '?action=moderate;area=reportedposts',
-						'show' => !empty(User::$me->mod_cache) && User::$me->mod_cache['bq'] != '0=1',
-					),
-					'reported_members' => array(
-						'title' => Lang::$txt['mc_reported_members'],
-						'href' => Config::$scripturl . '?action=moderate;area=reportedmembers',
-						'show' => allowedTo('moderate_forum'),
-						'is_last' => true,
-					)
-				),
-			),
-			'calendar' => array(
-				'title' => Lang::$txt['calendar'],
-				'href' => Config::$scripturl . '?action=calendar',
-				'show' => Utils::$context['allow_calendar'],
-				'sub_buttons' => array(
-					'view' => array(
-						'title' => Lang::$txt['calendar_menu'],
-						'href' => Config::$scripturl . '?action=calendar',
-						'show' => Utils::$context['allow_calendar_event'],
-					),
-					'post' => array(
-						'title' => Lang::$txt['calendar_post_event'],
-						'href' => Config::$scripturl . '?action=calendar;sa=post',
-						'show' => Utils::$context['allow_calendar_event'],
-						'is_last' => true,
-					),
-				),
-			),
-			'mlist' => array(
-				'title' => Lang::$txt['members_title'],
-				'href' => Config::$scripturl . '?action=mlist',
-				'show' => Utils::$context['allow_memberlist'],
-				'sub_buttons' => array(
-					'mlist_view' => array(
-						'title' => Lang::$txt['mlist_menu_view'],
-						'href' => Config::$scripturl . '?action=mlist',
-						'show' => true,
-					),
-					'mlist_search' => array(
-						'title' => Lang::$txt['mlist_search'],
-						'href' => Config::$scripturl . '?action=mlist;sa=search',
-						'show' => true,
-						'is_last' => true,
-					),
-				),
-				'is_last' => !Utils::$context['right_to_left'] && empty($settings['login_main_menu']),
-			),
-			// Theme authors: If you want the login and register buttons to appear in
-			// the main forum menu on your theme, set $settings['login_main_menu'] to
-			// true in your theme's template_init() function in index.template.php.
-			'login' => array(
-				'title' => Lang::$txt['login'],
-				'href' => Config::$scripturl . '?action=login',
-				'onclick' => 'return reqOverlayDiv(this.href, ' . JavaScriptEscape(Lang::$txt['login']) . ', \'login\');',
-				'show' => User::$me->is_guest && !empty($settings['login_main_menu']),
-				'sub_buttons' => array(
-				),
-				'is_last' => !Utils::$context['right_to_left'],
-			),
-			'logout' => array(
-				'title' => Lang::$txt['logout'],
-				'href' => Config::$scripturl . '?action=logout;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-				'show' => !User::$me->is_guest && !empty($settings['login_main_menu']),
-				'sub_buttons' => array(
-				),
-				'is_last' => !Utils::$context['right_to_left'],
-			),
-			'signup' => array(
-				'title' => Lang::$txt['register'],
-				'href' => Config::$scripturl . '?action=signup',
-				'icon' => 'regcenter',
-				'show' => User::$me->is_guest && Utils::$context['can_register'] && !empty($settings['login_main_menu']),
-				'sub_buttons' => array(
-				),
-				'is_last' => !Utils::$context['right_to_left'],
-			),
-		);
-
-		// Allow editing menu buttons easily.
-		call_integration_hook('integrate_menu_buttons', array(&$buttons));
-
-		// Now we put the buttons in the context so the theme can use them.
-		$menu_buttons = array();
-		foreach ($buttons as $act => $button)
-			if (!empty($button['show']))
-			{
-				$button['active_button'] = false;
-
-				// Make sure the last button truly is the last button.
-				if (!empty($button['is_last']))
-				{
-					if (isset($last_button))
-						unset($menu_buttons[$last_button]['is_last']);
-					$last_button = $act;
-				}
-
-				// Go through the sub buttons if there are any.
-				if (!empty($button['sub_buttons']))
-					foreach ($button['sub_buttons'] as $key => $subbutton)
-					{
-						if (empty($subbutton['show']))
-							unset($button['sub_buttons'][$key]);
-
-						// 2nd level sub buttons next...
-						if (!empty($subbutton['sub_buttons']))
-						{
-							foreach ($subbutton['sub_buttons'] as $key2 => $sub_button2)
-							{
-								if (empty($sub_button2['show']))
-									unset($button['sub_buttons'][$key]['sub_buttons'][$key2]);
-							}
-						}
-					}
-
-				// Does this button have its own icon?
-				if (isset($button['icon']) && file_exists($settings['theme_dir'] . '/images/' . $button['icon']))
-					$button['icon'] = '<img src="' . $settings['images_url'] . '/' . $button['icon'] . '" alt="">';
-				elseif (isset($button['icon']) && file_exists($settings['default_theme_dir'] . '/images/' . $button['icon']))
-					$button['icon'] = '<img src="' . $settings['default_images_url'] . '/' . $button['icon'] . '" alt="">';
-				elseif (isset($button['icon']))
-					$button['icon'] = '<span class="main_icons ' . $button['icon'] . '"></span>';
-				else
-					$button['icon'] = '<span class="main_icons ' . $act . '"></span>';
-
-				$menu_buttons[$act] = $button;
-			}
-
-		if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2)
-			CacheApi::put('menu_buttons-' . implode('_', User::$me->groups) . '-' . User::$me->language, $menu_buttons, $cacheTime);
-	}
-
-	Utils::$context['menu_buttons'] = $menu_buttons;
-
-	// Logging out requires the session id in the url.
-	if (isset(Utils::$context['menu_buttons']['logout']))
-		Utils::$context['menu_buttons']['logout']['href'] = sprintf(Utils::$context['menu_buttons']['logout']['href'], Utils::$context['session_var'], Utils::$context['session_id']);
-
-	// Figure out which action we are doing so we can set the active tab.
-	// Default to home.
-	$current_action = 'home';
-
-	if (isset(Utils::$context['menu_buttons'][Utils::$context['current_action']]))
-		$current_action = Utils::$context['current_action'];
-	elseif (Utils::$context['current_action'] == 'search2')
-		$current_action = 'search';
-	elseif (Utils::$context['current_action'] == 'theme')
-		$current_action = isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'pick' ? 'profile' : 'admin';
-	elseif (Utils::$context['current_action'] == 'signup2')
-		$current_action = 'signup';
-	elseif (Utils::$context['current_action'] == 'login2' || (User::$me->is_guest && Utils::$context['current_action'] == 'reminder'))
-		$current_action = 'login';
-	elseif (Utils::$context['current_action'] == 'groups' && Utils::$context['allow_moderation_center'])
-		$current_action = 'moderate';
-
-	// There are certain exceptions to the above where we don't want anything on the menu highlighted.
-	if (Utils::$context['current_action'] == 'profile' && !empty(User::$me->is_owner))
-	{
-		$current_action = !empty($_GET['area']) && $_GET['area'] == 'showalerts' ? 'self_alerts' : 'self_profile';
-		Utils::$context[$current_action] = true;
-	}
-	elseif (Utils::$context['current_action'] == 'pm')
-	{
-		$current_action = 'self_pm';
-		Utils::$context['self_pm'] = true;
-	}
-
-	Utils::$context['total_mod_reports'] = 0;
-	Utils::$context['total_admin_reports'] = 0;
-
-	if (!empty(User::$me->mod_cache) && User::$me->mod_cache['bq'] != '0=1' && !empty(Utils::$context['open_mod_reports']) && !empty(Utils::$context['menu_buttons']['moderate']['sub_buttons']['reports']))
-	{
-		Utils::$context['total_mod_reports'] = Utils::$context['open_mod_reports'];
-		Utils::$context['menu_buttons']['moderate']['sub_buttons']['reports']['amt'] = Utils::$context['open_mod_reports'];
-	}
-
-	// Show how many errors there are
-	if (!empty(Utils::$context['menu_buttons']['admin']['sub_buttons']['errorlog']))
-	{
-		// Get an error count, if necessary
-		if (!isset(Utils::$context['num_errors']))
-		{
-			$query = Db::$db->query('', '
-				SELECT COUNT(*)
-				FROM {db_prefix}log_errors',
-				array()
-			);
-
-			list(Utils::$context['num_errors']) = Db::$db->fetch_row($query);
-			Db::$db->free_result($query);
-		}
-
-		if (!empty(Utils::$context['num_errors']))
-		{
-			Utils::$context['total_admin_reports'] += Utils::$context['num_errors'];
-			Utils::$context['menu_buttons']['admin']['sub_buttons']['errorlog']['amt'] = Utils::$context['num_errors'];
-		}
-	}
-
-	// Show number of reported members
-	if (!empty(Utils::$context['open_member_reports']) && !empty(Utils::$context['menu_buttons']['moderate']['sub_buttons']['reported_members']))
-	{
-		Utils::$context['total_mod_reports'] += Utils::$context['open_member_reports'];
-		Utils::$context['menu_buttons']['moderate']['sub_buttons']['reported_members']['amt'] = Utils::$context['open_member_reports'];
-	}
-
-	if (!empty(Utils::$context['unapproved_members']) && !empty(Utils::$context['menu_buttons']['admin']))
-	{
-		Utils::$context['menu_buttons']['admin']['sub_buttons']['memberapprove']['amt'] = Utils::$context['unapproved_members'];
-		Utils::$context['total_admin_reports'] += Utils::$context['unapproved_members'];
-	}
-
-	if (Utils::$context['total_admin_reports'] > 0 && !empty(Utils::$context['menu_buttons']['admin']))
-	{
-		Utils::$context['menu_buttons']['admin']['amt'] = Utils::$context['total_admin_reports'];
-	}
-
-	// Do we have any open reports?
-	if (Utils::$context['total_mod_reports'] > 0 && !empty(Utils::$context['menu_buttons']['moderate']))
-	{
-		Utils::$context['menu_buttons']['moderate']['amt'] = Utils::$context['total_mod_reports'];
-	}
-
-	// Not all actions are simple.
-	call_integration_hook('integrate_current_action', array(&$current_action));
-
-	if (isset(Utils::$context['menu_buttons'][$current_action]))
-		Utils::$context['menu_buttons'][$current_action]['active_button'] = true;
-}
-
-/**
  * Generate a random seed and ensure it's stored in settings.
  */
 function smf_seed_generator()
@@ -2713,8 +1610,6 @@ function smf_seed_generator()
  */
 function call_integration_hook($hook, $parameters = array())
 {
-	global $settings;
-
 	if (!class_exists('SMF\\Utils', false))
 		return;
 
@@ -2754,7 +1649,7 @@ function call_integration_hook($hook, $parameters = array())
 			if (strpos($function, '|') !== false)
 			{
 				list ($file, $string) = explode('|', $function);
-				$absPath = empty($settings['theme_dir']) ? (strtr(trim($file), array('$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir))) : (strtr(trim($file), array('$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir, '$themedir' => $settings['theme_dir'])));
+				$absPath = empty(Theme::$current->settings['theme_dir']) ? (strtr(trim($file), array('$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir))) : (strtr(trim($file), array('$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir, '$themedir' => Theme::$current->settings['theme_dir'])));
 				log_error(sprintf(Lang::$txt['hook_fail_call_to'], $string, $absPath), 'general');
 			}
 			// "Assume" the file resides on Config::$boarddir somewhere...
@@ -3014,8 +1909,6 @@ function call_helper($string, $return = false)
  */
 function load_file($string)
 {
-	global $settings;
-
 	if (empty($string))
 		return false;
 
@@ -3024,11 +1917,11 @@ function load_file($string)
 		list ($file, $string) = explode('|', $string);
 
 		// Match the wildcards to their regular vars.
-		if (empty($settings['theme_dir']))
+		if (empty(Theme::$current->settings['theme_dir']))
 			$absPath = strtr(trim($file), array('$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir));
 
 		else
-			$absPath = strtr(trim($file), array('$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir, '$themedir' => $settings['theme_dir']));
+			$absPath = strtr(trim($file), array('$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir, '$themedir' => Theme::$current->settings['theme_dir']));
 
 		// Load the file if it can be loaded.
 		if (file_exists($absPath))

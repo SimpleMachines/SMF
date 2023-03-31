@@ -12,6 +12,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 
 /**
@@ -19,8 +20,6 @@ use SMF\Utils;
  */
 function template_popup()
 {
-	global $settings;
-
 	// Since this is a popup of its own we need to start the html, etc.
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
@@ -28,8 +27,8 @@ function template_popup()
 		<meta charset="', Utils::$context['character_set'], '">
 		<meta name="robots" content="noindex">
 		<title>', Utils::$context['page_title'], '</title>
-		', template_css(), '
-		<script src="', $settings['default_theme_url'], '/scripts/script.js', Utils::$context['browser_cache'], '"></script>
+		', Theme::template_css(), '
+		<script src="', Theme::$current->settings['default_theme_url'], '/scripts/script.js', Utils::$context['browser_cache'], '"></script>
 	</head>
 	<body id="help_popup">
 		<div class="windowbg description">
@@ -46,16 +45,14 @@ function template_popup()
  */
 function template_find_members()
 {
-	global $settings;
-
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<title>', Lang::$txt['find_members'], '</title>
 		<meta charset="', Utils::$context['character_set'], '">
 		<meta name="robots" content="noindex">
-		', template_css(), '
-		<script src="', $settings['default_theme_url'], '/scripts/script.js', Utils::$context['browser_cache'], '"></script>
+		', Theme::template_css(), '
+		<script src="', Theme::$current->settings['default_theme_url'], '/scripts/script.js', Utils::$context['browser_cache'], '"></script>
 		<script>
 			var membersAdded = [];
 			function addMember(name)

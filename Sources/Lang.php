@@ -162,8 +162,6 @@ class Lang
 	 */
 	public static function load(string $template_name, string $lang = '', bool $fatal = true, bool $force_reload = false)
 	{
-		global $settings;
-
 		if (!isset(self::$default))
 			self::$default = &Config::$language;
 
@@ -291,7 +289,7 @@ class Lang
 
 		// Keep track of what we're up to, soldier.
 		if (!empty(Config::$db_show_debug))
-			Utils::$context['debug']['language_files'][] = $template_name . '.' . $lang . ' (' . basename($settings['theme_url'] ?? 'unknown') . ')';
+			Utils::$context['debug']['language_files'][] = $template_name . '.' . $lang . ' (' . basename(Theme::$current->settings['theme_url'] ?? 'unknown') . ')';
 
 		// Remember what we have loaded, and in which language.
 		self::$already_loaded[$template_name] = $lang;
@@ -314,8 +312,6 @@ class Lang
 	 */
 	public static function addDirs($custom_dirs = array())
 	{
-		global $settings;
-
 		// We only accept real directories.
 		if (!empty($custom_dirs))
 			$custom_dirs = array_filter(array_map('realpath', (array) $custom_dirs), 'is_dir');
@@ -326,17 +322,14 @@ class Lang
 		}
 		else
 		{
-			// Make sure we have $settings - if not we're in trouble and need to find it!
-			if (empty($settings['default_theme_dir']))
-			{
-				require_once(Config::$sourcedir . '/ScheduledTasks.php');
-				loadEssentialThemeData();
-			}
+			// Make sure we have Theme::$current->settings - if not we're in trouble and need to find it!
+			if (empty(Theme::$current->settings['default_theme_dir']))
+				Theme::loadEssential();
 
 			foreach (array('theme_dir', 'base_theme_dir', 'default_theme_dir') as $var)
 			{
-				if (isset($settings[$var]))
-					self::$dirs[] = $settings[$var] . '/languages';
+				if (isset(Theme::$current->settings[$var]))
+					self::$dirs[] = Theme::$current->settings[$var] . '/languages';
 			}
 
 			// Don't count this as loading the theme.
@@ -355,25 +348,23 @@ class Lang
 	 */
 	public static function get($use_cache = true)
 	{
-		global $settings;
-
 		// Either we don't use the cache, or its expired.
 		if (!$use_cache || (Utils::$context['languages'] = CacheApi::get('known_languages', !empty(CacheApi::$enable) && CacheApi::$enable < 1 ? 86400 : 3600)) == null)
 		{
 			// If we don't have our theme information yet, let's get it.
-			if (empty($settings['default_theme_dir']))
-				loadTheme(0, false);
+			if (empty(Theme::$current->settings['default_theme_dir']))
+				Theme::load(0, false);
 
 			// Default language directories to try.
 			$language_directories = array(
-				$settings['default_theme_dir'] . '/languages',
+				Theme::$current->settings['default_theme_dir'] . '/languages',
 			);
-			if (!empty($settings['actual_theme_dir']) && $settings['actual_theme_dir'] != $settings['default_theme_dir'])
-				$language_directories[] = $settings['actual_theme_dir'] . '/languages';
+			if (!empty(Theme::$current->settings['actual_theme_dir']) && Theme::$current->settings['actual_theme_dir'] != Theme::$current->settings['default_theme_dir'])
+				$language_directories[] = Theme::$current->settings['actual_theme_dir'] . '/languages';
 
 			// We possibly have a base theme directory.
-			if (!empty($settings['base_theme_dir']))
-				$language_directories[] = $settings['base_theme_dir'] . '/languages';
+			if (!empty(Theme::$current->settings['base_theme_dir']))
+				$language_directories[] = Theme::$current->settings['base_theme_dir'] . '/languages';
 
 			// Remove any duplicates.
 			$language_directories = array_unique($language_directories);
@@ -462,10 +453,9 @@ class Lang
 	 */
 	public static function censorText(&$text, $force = false)
 	{
-		global $options;
 		static $censor_vulgar = null, $censor_proper;
 
-		if ((!empty($options['show_no_censored']) && !empty(Config::$modSettings['allow_no_censored']) && !$force) || empty(Config::$modSettings['censor_vulgar']) || !is_string($text) || trim($text) === '')
+		if ((!empty(Theme::$current->options['show_no_censored']) && !empty(Config::$modSettings['allow_no_censored']) && !$force) || empty(Config::$modSettings['censor_vulgar']) || !is_string($text) || trim($text) === '')
 			return $text;
 
 		call_integration_hook('integrate_word_censor', array(&$text));

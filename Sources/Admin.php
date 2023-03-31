@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -31,14 +32,11 @@ if (!defined('SMF'))
  */
 function AdminMain()
 {
-	global $settings;
-	global $options;
-
 	// Load the language and templates....
 	Lang::load('Admin');
-	loadTemplate('Admin');
-	loadJavaScriptFile('admin.js', array('minimize' => true), 'smf_admin');
-	loadCSSFile('admin.css', array(), 'smf_admin');
+	Theme::loadTemplate('Admin');
+	Theme::loadJavaScriptFile('admin.js', array('minimize' => true), 'smf_admin');
+	Theme::loadCSSFile('admin.css', array(), 'smf_admin');
 
 	// No indexing evil stuff.
 	Utils::$context['robot_no_index'] = true;
@@ -46,7 +44,7 @@ function AdminMain()
 	require_once(Config::$sourcedir . '/Subs-Menu.php');
 
 	// Some preferences.
-	Utils::$context['admin_preferences'] = !empty($options['admin_preferences']) ? Utils::jsonDecode($options['admin_preferences'], true) : array();
+	Utils::$context['admin_preferences'] = !empty(Theme::$current->options['admin_preferences']) ? Utils::jsonDecode(Theme::$current->options['admin_preferences'], true) : array();
 
 	/** @var array $admin_areas Defines the menu structure for the admin center. See {@link Subs-Menu.php Subs-Menu.php} for details! */
 	$admin_areas = array(
@@ -141,14 +139,14 @@ function AdminMain()
 				),
 				'current_theme' => array(
 					'label' => Lang::$txt['theme_current_settings'],
-					'file' => 'Themes.php',
+					'file' => 'ManageThemes.php',
 					'function' => 'ThemesMain',
-					'custom_url' => Config::$scripturl . '?action=admin;area=theme;sa=list;th=' . $settings['theme_id'],
+					'custom_url' => Config::$scripturl . '?action=admin;area=theme;sa=list;th=' . Theme::$current->settings['theme_id'],
 					'icon' => 'current_theme',
 				),
 				'theme' => array(
 					'label' => Lang::$txt['theme_admin'],
-					'file' => 'Themes.php',
+					'file' => 'ManageThemes.php',
 					'function' => 'ThemesMain',
 					'custom_url' => Config::$scripturl . '?action=admin;area=theme',
 					'icon' => 'themes',
@@ -453,7 +451,7 @@ function AdminMain()
 		$admin_includes = explode(',', Config::$modSettings['integrate_admin_include']);
 		foreach ($admin_includes as $include)
 		{
-			$include = strtr(trim($include), array('$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir, '$themedir' => $settings['theme_dir']));
+			$include = strtr(trim($include), array('$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir, '$themedir' => Theme::$current->settings['theme_dir']));
 			if (file_exists($include))
 				require_once($include);
 		}
@@ -583,7 +581,7 @@ function AdminHome()
 	);
 
 	if (Utils::$context['admin_area'] == 'admin')
-		loadJavaScriptFile('admin.js', array('defer' => false, 'minimize' => true), 'smf_admin');
+		Theme::loadJavaScriptFile('admin.js', array('defer' => false, 'minimize' => true), 'smf_admin');
 }
 
 /**

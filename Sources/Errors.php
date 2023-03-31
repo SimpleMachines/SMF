@@ -20,6 +20,7 @@ if (!defined('SMF'))
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\ServerSideIncludes as SSI;
@@ -210,7 +211,7 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status 
 	if (empty(Utils::$context['theme_loaded']) && empty($fatal_error_called))
 	{
 		$fatal_error_called = true;
-		loadTheme();
+		Theme::load();
 	}
 
 	// Attempt to load the text string.
@@ -263,8 +264,6 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status 
  */
 function smf_error_handler($error_level, $error_string, $file, $line)
 {
-	global $settings;
-
 	// Error was suppressed with the @-operator.
 	if (error_reporting() == 0 || error_reporting() == (E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR))
 		return true;
@@ -274,13 +273,13 @@ function smf_error_handler($error_level, $error_string, $file, $line)
 	if (empty($error_match) || empty(Config::$modSettings['enableErrorLogging']))
 		return false;
 
-	if (strpos($file, 'eval()') !== false && !empty($settings['current_include_filename']))
+	if (strpos($file, 'eval()') !== false && !empty(Theme::$current->settings['current_include_filename']))
 	{
 		$array = debug_backtrace();
 		$count = count($array);
 		for ($i = 0; $i < $count; $i++)
 		{
-			if ($array[$i]['function'] != 'loadSubTemplate')
+			if ($array[$i]['function'] != 'SMF\\Theme::loadSubTemplate')
 				continue;
 
 			// This is a bug in PHP, with eval, it seems!
@@ -290,9 +289,9 @@ function smf_error_handler($error_level, $error_string, $file, $line)
 		}
 
 		if (isset($array[$i]) && !empty($array[$i]['args']))
-			$file = realpath($settings['current_include_filename']) . ' (' . $array[$i]['args'][0] . ' sub template - eval?)';
+			$file = realpath(Theme::$current->settings['current_include_filename']) . ' (' . $array[$i]['args'][0] . ' sub template - eval?)';
 		else
-			$file = realpath($settings['current_include_filename']) . ' (eval?)';
+			$file = realpath(Theme::$current->settings['current_include_filename']) . ' (eval?)';
 	}
 
 	if (isset(Config::$db_show_debug) && Config::$db_show_debug === true)
@@ -356,7 +355,7 @@ function setup_fatal_error_context($error_message, $error_code = null)
 
 	// Maybe they came from dlattach or similar?
 	if (SMF != 'SSI' && SMF != 'BACKGROUND' && empty(Utils::$context['theme_loaded']))
-		loadTheme();
+		Theme::load();
 
 	// Don't bother indexing errors mate...
 	Utils::$context['robot_no_index'] = true;
@@ -372,7 +371,7 @@ function setup_fatal_error_context($error_message, $error_code = null)
 	if (empty(Utils::$context['page_title']))
 		Utils::$context['page_title'] = Utils::$context['error_title'];
 
-	loadTemplate('Errors');
+	Theme::loadTemplate('Errors');
 	Utils::$context['sub_template'] = 'fatal_error';
 
 	// If this is SSI, what do they want us to do?
@@ -381,7 +380,7 @@ function setup_fatal_error_context($error_message, $error_code = null)
 		if (!empty(SSI::$on_error_method) && SSI::$on_error_method !== true && is_callable(SSI::$on_error_method))
 			call_user_func(SSI::$on_error_method);
 		elseif (empty(SSI::$on_error_method) || SSI::$on_error_method !== true)
-			loadSubTemplate('fatal_error');
+			Theme::loadSubTemplate('fatal_error');
 
 		// No layers?
 		if (empty(SSI::$on_error_method) || SSI::$on_error_method !== true)

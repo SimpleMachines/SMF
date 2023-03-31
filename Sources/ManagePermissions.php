@@ -17,6 +17,7 @@ use SMF\Board;
 use SMF\Category;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -34,7 +35,7 @@ if (!defined('SMF'))
 function ModifyPermissions()
 {
 	Lang::load('ManagePermissions+ManageMembers');
-	loadTemplate('ManagePermissions');
+	Theme::loadTemplate('ManagePermissions');
 
 	// Format: 'sub-action' => array('function_to_call', 'permission_needed'),
 	$subActions = array(
@@ -93,8 +94,6 @@ function ModifyPermissions()
  */
 function PermissionIndex()
 {
-	global $settings;
-
 	Utils::$context['page_title'] = Lang::$txt['permissions_title'];
 
 	// Load all the permissions. We'll need them in the template.
@@ -199,7 +198,7 @@ function PermissionIndex()
 			'help' => $row['id_group'] == 1 ? 'membergroup_administrator' : ($row['id_group'] == 3 ? 'membergroup_moderator' : ''),
 			'is_post_group' => $row['min_posts'] != -1,
 			'color' => empty($row['online_color']) ? '' : $row['online_color'],
-			'icons' => !empty($row['icons'][0]) && !empty($row['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/' . $row['icons'][1] . '" alt="*">', $row['icons'][0]) : '',
+			'icons' => !empty($row['icons'][0]) && !empty($row['icons'][1]) ? str_repeat('<img src="' . Theme::$current->settings['images_url'] . '/' . $row['icons'][1] . '" alt="*">', $row['icons'][0]) : '',
 			'children' => array(),
 			'num_permissions' => array(
 				'allowed' => $row['id_group'] == 1 ? '(' . Lang::$txt['permissions_all'] . ')' : 0,
@@ -1736,7 +1735,7 @@ function loadAllPermissions()
 function init_inline_permissions($permissions, $excluded_groups = array())
 {
 	Lang::load('ManagePermissions');
-	loadTemplate('ManagePermissions');
+	Theme::loadTemplate('ManagePermissions');
 	Utils::$context['can_change_permissions'] = allowedTo('manage_permissions');
 
 	// Nothing to initialize here.

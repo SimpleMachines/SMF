@@ -18,6 +18,7 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -51,7 +52,7 @@ if (!defined('SMF'))
  */
 function ShowXmlFeed()
 {
-	global $query_this_board, $forum_version, $settings;
+	global $query_this_board, $forum_version;
 
 	// List all the different types of data they can pull.
 	$subActions = array(
@@ -94,7 +95,7 @@ function ShowXmlFeed()
 		'author' => Utils::$context['forum_name'],
 		'source' => Config::$scripturl,
 		'rights' => '© ' . date('Y') . ' ' . Utils::$context['forum_name'],
-		'icon' => !empty($settings['og_image']) ? $settings['og_image'] : Config::$boardurl . '/favicon.ico',
+		'icon' => !empty(Theme::$current->settings['og_image']) ? Theme::$current->settings['og_image'] : Config::$boardurl . '/favicon.ico',
 		'language' => !empty(Lang::$txt['lang_locale']) ? str_replace("_", "-", substr(Lang::$txt['lang_locale'], 0, strcspn(Lang::$txt['lang_locale'], "."))) : 'en',
 		'self' => Config::$scripturl,
 	);

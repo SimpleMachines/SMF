@@ -12,6 +12,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 
 /**
@@ -26,8 +27,6 @@ function template_main()
  */
 function template_view_package()
 {
-	global $settings;
-
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', Lang::$txt[(Utils::$context['uninstalling'] ? 'uninstall' : ('install_' . Utils::$context['extract_type']))], '</h3>
@@ -197,7 +196,7 @@ function template_view_package()
 
 			echo '
 					<tr class="bg ', $i % 2 == 0 ? 'even' : 'odd', '">
-						<td>', isset($packageaction['operations']) ? '<img id="operation_img_' . $action_num . '" src="' . $settings['images_url'] . '/selected_open.png" alt="*" style="display: none;">' : '', '</td>
+						<td>', isset($packageaction['operations']) ? '<img id="operation_img_' . $action_num . '" src="' . Theme::$current->settings['images_url'] . '/selected_open.png" alt="*" style="display: none;">' : '', '</td>
 						<td style="width: 30px;">', $i++, '.</td>
 						<td style="width: 23%;">', $packageaction['type'], '</td>
 						<td style="width: 50%;">', $packageaction['action'], '</td>
@@ -288,7 +287,7 @@ function template_view_package()
 					echo '
 					<tr class="bg ', $j++ % 2 == 0 ? 'even' : 'odd', '">
 						<td colspan="2">', isset($packageaction['operations']) ?
-							'<img id="operation_img_' . $action_num . '" src="' . $settings['images_url'] . '/selected_open.png" alt="*" style="display: none;">' : '', '
+							'<img id="operation_img_' . $action_num . '" src="' . Theme::$current->settings['images_url'] . '/selected_open.png" alt="*" style="display: none;">' : '', '
 							<input type="checkbox" name="theme_changes[]" value="', !empty($action['value']) ? $action['value'] : '', '" id="dummy_theme_', $id, '"', (!empty($action['not_mod']) ? '' : ' disabled'), !empty(Utils::$context['themes_locked']) ? ' checked' : '', ' class="floatright">
 						</td>
 						<td width="23%">', $action['type'], '</td>
@@ -1291,16 +1290,14 @@ function template_ftp_required()
  */
 function template_view_operations()
 {
-	global $settings;
-
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<meta charset="', Utils::$context['character_set'], '">
 		<title>', Lang::$txt['operation_title'], '</title>
-		', template_css();
+		', Theme::template_css();
 
-	template_javascript();
+	Theme::template_javascript();
 
 	echo '
 	</head>

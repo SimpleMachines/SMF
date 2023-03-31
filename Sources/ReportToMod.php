@@ -15,6 +15,7 @@
 use SMF\Config;
 use SMF\Lang;
 use SMF\Msg;
+use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -131,9 +132,9 @@ function ReportToModerator()
 
 	// Show the inputs for the comment, etc.
 	Lang::load('Post');
-	loadTemplate('ReportToMod');
+	Theme::loadTemplate('ReportToMod');
 
-	addInlineJavaScript('
+	Theme::addInlineJavaScript('
 	var error_box = $("#error_box");
 	$("#report_comment").keyup(function() {
 		var post_too_long = $("#error_post_too_long");

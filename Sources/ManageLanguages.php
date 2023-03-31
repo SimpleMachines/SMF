@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -35,7 +36,7 @@ if (!defined('SMF'))
  */
 function ManageLanguages()
 {
-	loadTemplate('ManageLanguages');
+	Theme::loadTemplate('ManageLanguages');
 	Lang::load('ManageSettings');
 
 	Utils::$context['page_title'] = Lang::$txt['edit_languages'];
@@ -611,7 +612,7 @@ function ModifyLanguages()
 	);
 
 	// We want to highlight the selected language. Need some Javascript for this.
-	addInlineJavaScript('
+	Theme::addInlineJavaScript('
 	function highlightSelected(box)
 	{
 		$("tr.highlight2").removeClass("highlight2");
@@ -655,30 +656,28 @@ function list_getNumLanguages()
  */
 function list_getLanguages()
 {
-	global $settings;
-
 	$languages = array();
 	// Keep our old entries.
 	$old_txt = Lang::$txt;
-	$backup_actual_theme_dir = $settings['actual_theme_dir'];
-	$backup_base_theme_dir = !empty($settings['base_theme_dir']) ? $settings['base_theme_dir'] : '';
+	$backup_actual_theme_dir = Theme::$current->settings['actual_theme_dir'];
+	$backup_base_theme_dir = !empty(Theme::$current->settings['base_theme_dir']) ? Theme::$current->settings['base_theme_dir'] : '';
 
 	// Override these for now.
-	$settings['actual_theme_dir'] = $settings['base_theme_dir'] = $settings['default_theme_dir'];
+	Theme::$current->settings['actual_theme_dir'] = Theme::$current->settings['base_theme_dir'] = Theme::$current->settings['default_theme_dir'];
 	Lang::get();
 
 	// Put them back.
-	$settings['actual_theme_dir'] = $backup_actual_theme_dir;
+	Theme::$current->settings['actual_theme_dir'] = $backup_actual_theme_dir;
 	if (!empty($backup_base_theme_dir))
-		$settings['base_theme_dir'] = $backup_base_theme_dir;
+		Theme::$current->settings['base_theme_dir'] = $backup_base_theme_dir;
 	else
-		unset($settings['base_theme_dir']);
+		unset(Theme::$current->settings['base_theme_dir']);
 
 	// Get the language files and data...
 	foreach (Utils::$context['languages'] as $lang)
 	{
 		// Load the file to get the character set.
-		require($settings['default_theme_dir'] . '/languages/index.' . $lang['filename'] . '.php');
+		require(Theme::$current->settings['default_theme_dir'] . '/languages/index.' . $lang['filename'] . '.php');
 
 		$languages[$lang['filename']] = array(
 			'id' => $lang['filename'],
@@ -793,8 +792,6 @@ function ModifyLanguageSettings($return_config = false)
  */
 function ModifyLanguage()
 {
-	global $settings;
-
 	Lang::load('ManageSettings');
 
 	// Select the languages tab.
@@ -826,7 +823,7 @@ function ModifyLanguage()
 	$themes = array(
 		1 => array(
 			'name' => Lang::$txt['dvc_default'],
-			'theme_dir' => $settings['default_theme_dir'],
+			'theme_dir' => Theme::$current->settings['default_theme_dir'],
 		),
 	);
 	while ($row = Db::$db->fetch_assoc($request))
@@ -989,7 +986,7 @@ function ModifyLanguage()
 		validateToken('admin-mlang');
 
 		// Read in the current file.
-		$current_data = implode('', file($settings['default_theme_dir'] . '/languages/index.' . Utils::$context['lang_id'] . '.php'));
+		$current_data = implode('', file(Theme::$current->settings['default_theme_dir'] . '/languages/index.' . Utils::$context['lang_id'] . '.php'));
 
 		// Build the replacements. old => new
 		$replace_array = array();
@@ -997,7 +994,7 @@ function ModifyLanguage()
 			$replace_array['~\$txt\[\'' . $setting . '\'\]\s*=\s*[^\r\n]+~'] = '$txt[\'' . $setting . '\'] = ' . ($type === 'bool' ? (!empty($_POST[$setting]) ? 'true' : 'false') : '\'' . ($setting = 'native_name' ? htmlentities(un_htmlspecialchars($_POST[$setting]), ENT_QUOTES, Utils::$context['character_set']) : preg_replace('~[^\w-]~i', '', $_POST[$setting])) . '\'') . ';';
 
 		$current_data = preg_replace(array_keys($replace_array), array_values($replace_array), $current_data);
-		$fp = fopen($settings['default_theme_dir'] . '/languages/index.' . Utils::$context['lang_id'] . '.php', 'w+');
+		$fp = fopen(Theme::$current->settings['default_theme_dir'] . '/languages/index.' . Utils::$context['lang_id'] . '.php', 'w+');
 		fwrite($fp, $current_data);
 		fclose($fp);
 
@@ -1006,8 +1003,8 @@ function ModifyLanguage()
 
 	// Quickly load index language entries.
 	$old_txt = Lang::$txt;
-	require($settings['default_theme_dir'] . '/languages/index.' . Utils::$context['lang_id'] . '.php');
-	Utils::$context['lang_file_not_writable_message'] = is_writable($settings['default_theme_dir'] . '/languages/index.' . Utils::$context['lang_id'] . '.php') ? '' : sprintf(Lang::$txt['lang_file_not_writable'], $settings['default_theme_dir'] . '/languages/index.' . Utils::$context['lang_id'] . '.php');
+	require(Theme::$current->settings['default_theme_dir'] . '/languages/index.' . Utils::$context['lang_id'] . '.php');
+	Utils::$context['lang_file_not_writable_message'] = is_writable(Theme::$current->settings['default_theme_dir'] . '/languages/index.' . Utils::$context['lang_id'] . '.php') ? '' : sprintf(Lang::$txt['lang_file_not_writable'], Theme::$current->settings['default_theme_dir'] . '/languages/index.' . Utils::$context['lang_id'] . '.php');
 	// Setup the primary settings context.
 	Utils::$context['primary_settings']['name'] = Utils::ucwords(strtr(Utils::$context['lang_id'], array('_' => ' ', '-utf8' => '')));
 	foreach ($primary_settings as $setting => $type)
@@ -1441,7 +1438,7 @@ function ModifyLanguage()
 					Utils::$context['file_entries'][$group] = array();
 			}
 
-			addInlineJavaScript('
+			Theme::addInlineJavaScript('
 				function add_lang_entry(group) {
 					var key = prompt("' . Lang::$txt['languages_enter_key'] . '");
 
@@ -1467,7 +1464,7 @@ function ModifyLanguage()
 					}
 				};');
 
-			addInlineJavaScript('
+			Theme::addInlineJavaScript('
 				$(".add_lang_entry_button").show();', true);
 		}
 
@@ -1475,7 +1472,7 @@ function ModifyLanguage()
 		// Also make it obvious that they cannot submit changes to both the primary settings and the entries at the same time.
 		if (!empty(Utils::$context['file_entries']))
 		{
-			addInlineJavaScript('
+			Theme::addInlineJavaScript('
 				max_inputs = ' . Utils::$context['max_inputs'] . ';
 				num_inputs = 0;
 

@@ -22,6 +22,7 @@ use SMF\Config;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\Mail;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -41,7 +42,7 @@ if (!defined('SMF'))
 function loadProfileFields($force_reload = false, int $memID = null)
 {
 	global $profile_fields;
-	global $profile_vars, $settings;
+	global $profile_vars;
 
 	// Don't load this twice!
 	if (!empty($profile_fields) && !$force_reload)
@@ -483,7 +484,7 @@ function loadProfileFields($force_reload = false, int $memID = null)
 			'callback_func' => 'smiley_pick',
 			'enabled' => !empty(Config::$modSettings['smiley_sets_enable']),
 			'permission' => 'profile_extra',
-			'preload' => function() use ($settings, $memID)
+			'preload' => function() use ($memID)
 			{
 				Utils::$context['member']['smiley_set']['id'] = empty(User::$profiles[$memID]['smiley_set']) ? '' : User::$profiles[$memID]['smiley_set'];
 				Utils::$context['smiley_sets'] = explode(',', 'none,,' . Config::$modSettings['smiley_sets_known']);
@@ -538,10 +539,10 @@ function loadProfileFields($force_reload = false, int $memID = null)
 					);
 
 					if ($set === 'none')
-						Utils::$context['smiley_sets'][$i]['preview'] = $settings['images_url'] . '/blank.png';
+						Utils::$context['smiley_sets'][$i]['preview'] = Theme::$current->settings['images_url'] . '/blank.png';
 					elseif ($set === '')
 					{
-						$default_set = !empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : Config::$modSettings['smiley_sets_default'];
+						$default_set = !empty(Theme::$current->settings['smiley_sets_default']) ? Theme::$current->settings['smiley_sets_default'] : Config::$modSettings['smiley_sets_default'];
 						Utils::$context['smiley_sets'][$i]['preview'] = implode('/', array(Config::$modSettings['smileys_url'], $default_set, $filenames[$default_set]));
 					}
 					else
@@ -795,7 +796,7 @@ function setupProfileContext($fields, int $memID = null)
 	}
 
 	// Some spicy JS.
-	addInlineJavaScript('
+	Theme::addInlineJavaScript('
 	var form_handle = document.forms.creator;
 	createEventListener(form_handle);
 	' . (!empty(Utils::$context['require_password']) ? '
@@ -811,11 +812,11 @@ function setupProfileContext($fields, int $memID = null)
 
 	// Any onsubmit javascript?
 	if (!empty(Utils::$context['profile_onsubmit_javascript']))
-		addInlineJavaScript(Utils::$context['profile_onsubmit_javascript'], true);
+		Theme::addInlineJavaScript(Utils::$context['profile_onsubmit_javascript'], true);
 
 	// Any totally custom stuff?
 	if (!empty(Utils::$context['profile_javascript']))
-		addInlineJavaScript(Utils::$context['profile_javascript'], true);
+		Theme::addInlineJavaScript(Utils::$context['profile_javascript'], true);
 
 	// Free up some memory.
 	unset($profile_fields);
@@ -1434,7 +1435,7 @@ function editBuddyIgnoreLists($memID)
 		),
 	);
 
-	loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
+	Theme::loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
 
 	// Pass on to the actual function.
 	Utils::$context['sub_template'] = $subActions[Utils::$context['list_area']][0];
@@ -1451,8 +1452,6 @@ function editBuddyIgnoreLists($memID)
  */
 function editBuddies($memID)
 {
-	global $settings;
-
 	// For making changes!
 	$buddiesArray = explode(',', User::$profiles[$memID]['buddy_list']);
 	foreach ($buddiesArray as $k => $dummy)
@@ -1629,8 +1628,8 @@ function editBuddies($memID)
 				if (!empty($column['enclose']) && !empty(Utils::$context['buddies'][$buddy]['options'][$key]))
 					Utils::$context['buddies'][$buddy]['options'][$key] = strtr($column['enclose'], array(
 						'{SCRIPTURL}' => Config::$scripturl,
-						'{IMAGES_URL}' => $settings['images_url'],
-						'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
+						'{IMAGES_URL}' => Theme::$current->settings['images_url'],
+						'{DEFAULT_IMAGES_URL}' => Theme::$current->settings['default_images_url'],
 						'{KEY}' => $currentKey,
 						'{INPUT}' => Lang::tokenTxtReplace(Utils::$context['buddies'][$buddy]['options'][$key]),
 					));
@@ -1923,8 +1922,8 @@ function getAvatars($directory, $level)
  */
 function theme($memID)
 {
-	loadTemplate('Settings');
-	loadSubTemplate('options');
+	Theme::loadTemplate('Settings');
+	Theme::loadSubTemplate('options');
 
 	// Let mods hook into the theme options.
 	call_integration_hook('integrate_theme_options');
@@ -1954,7 +1953,7 @@ function theme($memID)
 function notification($memID)
 {
 	// Going to want this for consistency.
-	loadCSSFile('admin.css', array(), 'smf_admin');
+	Theme::loadCSSFile('admin.css', array(), 'smf_admin');
 
 	// This is just a bootstrap for everything else.
 	$sa = array(
@@ -1996,7 +1995,7 @@ function alert_configuration($memID, $defaultSettings = false)
 
 	// What options are set
 	loadThemeOptions($memID, $defaultSettings);
-	loadJavaScriptFile('alertSettings.js', array('minimize' => true), 'smf_alertSettings');
+	Theme::loadJavaScriptFile('alertSettings.js', array('minimize' => true), 'smf_alertSettings');
 
 	// Now load all the values for this user.
 	require_once(Config::$sourcedir . '/Subs-Notify.php');
@@ -2962,14 +2961,12 @@ function list_getBoardNotifications($start, $items_per_page, $sort, $memID)
  */
 function loadThemeOptions($memID, $defaultSettings = false)
 {
-	global $options;
-
 	if (isset($_POST['default_options']))
 		$_POST['options'] = isset($_POST['options']) ? $_POST['options'] + $_POST['default_options'] : $_POST['default_options'];
 
 	if (User::$me->is_owner)
 	{
-		Utils::$context['member']['options'] = $options;
+		Utils::$context['member']['options'] = Theme::$current->options;
 		if (isset($_POST['options']) && is_array($_POST['options']))
 			foreach ($_POST['options'] as $k => $v)
 				Utils::$context['member']['options'][$k] = $v;
@@ -3233,7 +3230,7 @@ function profileLoadSignatureData(int $memID = null)
 
 	// Load the spell checker?
 	if (Utils::$context['show_spellchecking'])
-		loadJavaScriptFile('spellcheck.js', array('defer' => false, 'minimize' => true), 'smf_spellcheck');
+		Theme::loadJavaScriptFile('spellcheck.js', array('defer' => false, 'minimize' => true), 'smf_spellcheck');
 
 	return true;
 }
@@ -4364,7 +4361,7 @@ function tfasetup($memID)
 	require_once(Config::$sourcedir . '/Subs-Auth.php');
 
 	// load JS lib for QR
-	loadJavaScriptFile('qrcode.js', array('force_current' => false, 'validate' => true));
+	Theme::loadJavaScriptFile('qrcode.js', array('force_current' => false, 'validate' => true));
 
 	// If TFA has not been setup, allow them to set it up
 	if (empty(User::$me->tfa_secret) && User::$me->is_owner)

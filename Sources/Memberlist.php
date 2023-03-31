@@ -17,6 +17,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -39,7 +40,7 @@ function Memberlist()
 	// Make sure they can view the memberlist.
 	isAllowedTo('view_mlist');
 
-	loadTemplate('Memberlist');
+	Theme::loadTemplate('Memberlist');
 
 	Utils::$context['listing_by'] = !empty($_GET['sa']) ? $_GET['sa'] : 'all';
 
@@ -591,7 +592,7 @@ function MLSearch()
 		Utils::$context['old_search'] = isset($_GET['search']) ? $_GET['search'] : (isset($_POST['search']) ? Utils::htmlspecialchars($_POST['search']) : '');
 
 		// Since we're nice we also want to default focus on to the search field.
-		addInlineJavaScript('
+		Theme::addInlineJavaScript('
 	$(\'input[name="search"]\').focus();', true);
 	}
 
@@ -613,8 +614,6 @@ function MLSearch()
  */
 function printMemberListRows($request)
 {
-	global $settings;
-
 	// Get the most posts.
 	$result = Db::$db->query('', '
 		SELECT MAX(posts)
@@ -679,8 +678,8 @@ function printMemberListRows($request)
 				if (!empty($column['enclose']))
 					Utils::$context['members'][$member]['options'][$key] = strtr($column['enclose'], array(
 						'{SCRIPTURL}' => Config::$scripturl,
-						'{IMAGES_URL}' => $settings['images_url'],
-						'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
+						'{IMAGES_URL}' => Theme::$current->settings['images_url'],
+						'{DEFAULT_IMAGES_URL}' => Theme::$current->settings['default_images_url'],
 						'{INPUT}' => Lang::tokenTxtReplace(Utils::$context['members'][$member]['options'][$key]),
 						'{KEY}' => $currentKey
 					));

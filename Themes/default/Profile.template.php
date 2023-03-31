@@ -13,6 +13,7 @@
 use SMF\BrowserDetector;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 use SMF\User;
 
@@ -152,8 +153,6 @@ function template_alerts_all_read()
  */
 function template_summary()
 {
-	global $settings;
-
 	// Display the basic information about the user
 	echo '
 	<div id="profileview" class="roundframe flow_auto noup">
@@ -229,7 +228,7 @@ function template_summary()
 	// Don't show an icon if they haven't specified a website.
 	if (Utils::$context['member']['website']['url'] !== '' && !isset(Utils::$context['disabled_fields']['website']))
 		echo '
-				<li><a href="', Utils::$context['member']['website']['url'], '" title="' . Utils::$context['member']['website']['title'] . '" target="_blank" rel="noopener">', ($settings['use_image_buttons'] ? '<span class="main_icons www" title="' . Utils::$context['member']['website']['title'] . '"></span>' : Lang::$txt['www']), '</a></li>';
+				<li><a href="', Utils::$context['member']['website']['url'], '" title="' . Utils::$context['member']['website']['title'] . '" target="_blank" rel="noopener">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons www" title="' . Utils::$context['member']['website']['title'] . '"></span>' : Lang::$txt['www']), '</a></li>';
 
 	// Are there any custom profile fields as icons?
 	if (!empty(Utils::$context['print_custom_fields']['icons']))
@@ -243,7 +242,7 @@ function template_summary()
 	echo '
 			</ul>
 			<span id="userstatus">
-				', Utils::$context['can_send_pm'] ? '<a href="' . Utils::$context['member']['online']['href'] . '" title="' . Utils::$context['member']['online']['text'] . '" rel="nofollow">' : '', $settings['use_image_buttons'] ? '<span class="' . (Utils::$context['member']['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . Utils::$context['member']['online']['text'] . '"></span>' : Utils::$context['member']['online']['label'], Utils::$context['can_send_pm'] ? '</a>' : '', $settings['use_image_buttons'] ? '<span class="smalltext"> ' . Utils::$context['member']['online']['label'] . '</span>' : '';
+				', Utils::$context['can_send_pm'] ? '<a href="' . Utils::$context['member']['online']['href'] . '" title="' . Utils::$context['member']['online']['text'] . '" rel="nofollow">' : '', Theme::$current->settings['use_image_buttons'] ? '<span class="' . (Utils::$context['member']['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . Utils::$context['member']['online']['text'] . '"></span>' : Utils::$context['member']['online']['label'], Utils::$context['can_send_pm'] ? '</a>' : '', Theme::$current->settings['use_image_buttons'] ? '<span class="smalltext"> ' . Utils::$context['member']['online']['label'] . '</span>' : '';
 
 	// Can they add this member as a buddy?
 	if (!empty(Utils::$context['can_have_buddy']) && !User::$me->is_owner)
@@ -318,7 +317,7 @@ function template_summary()
 
 	echo '
 				<dt>', Lang::$txt['age'], ':</dt>
-				<dd>', Utils::$context['member']['age'] . (Utils::$context['member']['today_is_birthday'] ? ' &nbsp; <img src="' . $settings['images_url'] . '/cake.png" alt="">' : ''), '</dd>';
+				<dd>', Utils::$context['member']['age'] . (Utils::$context['member']['today_is_birthday'] ? ' &nbsp; <img src="' . Theme::$current->settings['images_url'] . '/cake.png" alt="">' : ''), '</dd>';
 
 	echo '
 			</dl>';
@@ -3078,8 +3077,6 @@ function template_profile_theme_pick()
  */
 function template_profile_smiley_pick()
 {
-	global $settings;
-
 	echo '
 							<dt>
 								<strong><label for="smiley_set">', Lang::$txt['smileys_current'], '</label></strong>

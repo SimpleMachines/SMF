@@ -19,6 +19,7 @@ use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Msg;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -512,8 +513,6 @@ function XmlDraft($id_draft)
  */
 function showProfileDrafts($memID, $draft_type = 0)
 {
-	global $options;
-
 	// Some initial context.
 	Utils::$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
 	Utils::$context['current_member'] = $memID;
@@ -561,7 +560,7 @@ function showProfileDrafts($memID, $draft_type = 0)
 	list ($msgCount) = Db::$db->fetch_row($request);
 	Db::$db->free_result($request);
 
-	$maxPerPage = empty(Config::$modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) ? $options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
+	$maxPerPage = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
 	$maxIndex = $maxPerPage;
 
 	// Make sure the starting place makes sense and construct our friend the page index.
@@ -678,8 +677,6 @@ function showProfileDrafts($memID, $draft_type = 0)
  */
 function showPMDrafts($memID = -1)
 {
-	global $options;
-
 	// init
 	$draft_type = 1;
 	Utils::$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
@@ -735,7 +732,7 @@ function showPMDrafts($memID = -1)
 	list ($msgCount) = Db::$db->fetch_row($request);
 	Db::$db->free_result($request);
 
-	$maxPerPage = empty(Config::$modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) ? $options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
+	$maxPerPage = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
 	$maxIndex = $maxPerPage;
 
 	// Make sure the starting place makes sense and construct our friend the page index.

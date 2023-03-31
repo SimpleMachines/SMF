@@ -12,6 +12,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 use SMF\User;
 
@@ -45,27 +46,25 @@ use SMF\User;
  */
 function template_init()
 {
-	global $settings;
-
 	/* $context, $options and $txt may be available for use, but may not be fully populated yet. */
 
 	// The version this template/theme is for. This should probably be the version of SMF it was created for.
-	$settings['theme_version'] = '2.1';
+	Theme::$current->settings['theme_version'] = '2.1';
 
 	// Set the following variable to true if this theme requires the optional theme strings file to be loaded.
-	$settings['require_theme_strings'] = false;
+	Theme::$current->settings['require_theme_strings'] = false;
 
 	// Set the following variable to true if this theme wants to display the avatar of the user that posted the last and the first post on the message index and recent pages.
-	$settings['avatars_on_indexes'] = false;
+	Theme::$current->settings['avatars_on_indexes'] = false;
 
 	// Set the following variable to true if this theme wants to display the avatar of the user that posted the last post on the board index.
-	$settings['avatars_on_boardIndex'] = false;
+	Theme::$current->settings['avatars_on_boardIndex'] = false;
 
 	// Set the following variable to true if this theme wants to display the login and register buttons in the main forum menu.
-	$settings['login_main_menu'] = false;
+	Theme::$current->settings['login_main_menu'] = false;
 
 	// This defines the formatting for the page indexes used throughout the forum.
-	$settings['page_index'] = array(
+	Theme::$current->settings['page_index'] = array(
 		'extra_before' => '<span class="pages">' . Lang::$txt['pages'] . '</span>',
 		'previous_page' => '<span class="main_icons previous_page"></span>',
 		'current_page' => '<span class="current_page">%1$d</span> ',
@@ -77,8 +76,8 @@ function template_init()
 
 	// Allow css/js files to be disabled for this specific theme.
 	// Add the identifier as an array key. IE array('smf_script'); Some external files might not add identifiers, on those cases SMF uses its filename as reference.
-	if (!isset($settings['disable_files']))
-		$settings['disable_files'] = array();
+	if (!isset(Theme::$current->settings['disable_files']))
+		Theme::$current->settings['disable_files'] = array();
 }
 
 /**
@@ -96,21 +95,21 @@ function template_html_above()
 		You don't need to manually load index.css, this will be set up for you.
 		Note that RTL will also be loaded for you.
 		To load other CSS and JS files you should use the functions
-		loadCSSFile() and loadJavaScriptFile() respectively.
+		Theme::loadCSSFile() and Theme::loadJavaScriptFile() respectively.
 		This approach will let you take advantage of SMF's automatic CSS
 		minimization and other benefits. You can, of course, manually add any
-		other files you want after template_css() has been run.
+		other files you want after Theme::template_css() has been run.
 
 	*	Short example:
-			- CSS: loadCSSFile('filename.css', array('minimize' => true));
-			- JS:  loadJavaScriptFile('filename.js', array('minimize' => true));
+			- CSS: Theme::loadCSSFile('filename.css', array('minimize' => true));
+			- JS:  Theme::loadJavaScriptFile('filename.js', array('minimize' => true));
 			You can also read more detailed usages of the parameters for these
 			functions on the SMF wiki.
 
 	*	Themes:
 			The most efficient way of writing multi themes is to use a master
 			index.css plus variant.css files. If you've set them up properly
-			(through $settings['theme_variants']), the variant files will be loaded
+			(through Theme::$current->settings['theme_variants']), the variant files will be loaded
 			for you automatically.
 			Additionally, tweaking the CSS for the editor requires you to include
 			a custom 'jquery.sceditor.theme.css' file in the css folder if you need it.
@@ -122,10 +121,10 @@ function template_html_above()
 	*/
 
 	// load in any css from mods or themes so they can overwrite if wanted
-	template_css();
+	Theme::template_css();
 
 	// load in any javascript files from mods and themes
-	template_javascript();
+	Theme::template_javascript();
 
 	echo '
 	<title>', Utils::$context['page_title_html_safe'], '</title>
@@ -199,8 +198,6 @@ function template_html_above()
  */
 function template_body_above()
 {
-	global $settings;
-
 	// Wrapper div now echoes permanently for better layout options. h1 a is now target for "Go up" links.
 	echo '
 	<div id="top_section">
@@ -246,7 +243,7 @@ function template_body_above()
 				</li>';
 
 		// A logout button for people without JavaScript.
-		if (empty($settings['login_main_menu']))
+		if (empty(Theme::$current->settings['login_main_menu']))
 			echo '
 				<li id="nojs_logout">
 					<a href="', Config::$scripturl, '?action=logout;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::$txt['logout'], '</a>
@@ -261,7 +258,7 @@ function template_body_above()
 	elseif (empty(Config::$maintenance))
 	{
 		// Some people like to do things the old-fashioned way.
-		if (!empty($settings['login_main_menu']))
+		if (!empty(Theme::$current->settings['login_main_menu']))
 		{
 			echo '
 			<ul class="floatleft">
@@ -378,7 +375,7 @@ function template_body_above()
 		</h1>';
 
 	echo '
-		', empty($settings['site_slogan']) ? '<img id="smflogo" src="' . $settings['images_url'] . '/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">' : '<div id="siteslogan">' . $settings['site_slogan'] . '</div>', '';
+		', empty(Theme::$current->settings['site_slogan']) ? '<img id="smflogo" src="' . Theme::$current->settings['images_url'] . '/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">' : '<div id="siteslogan">' . Theme::$current->settings['site_slogan'] . '</div>', '';
 
 	echo '
 	</div>
@@ -404,7 +401,7 @@ function template_body_above()
 					</div>';
 
 	// Show a random news item? (or you could pick one from news_lines...)
-	if (!empty($settings['enable_news']) && !empty(Utils::$context['random_news_line']))
+	if (!empty(Theme::$current->settings['enable_news']) && !empty(Utils::$context['random_news_line']))
 		echo '
 					<div class="news">
 						<h2>', Lang::$txt['news'], ': </h2>
@@ -464,7 +461,7 @@ function template_body_below()
 	echo '
 		<ul>
 			<li class="floatright"><a href="', Config::$scripturl, '?action=help">', Lang::$txt['help'], '</a> ', (!empty(Config::$modSettings['requireAgreement'])) ? '| <a href="' . Config::$scripturl . '?action=agreement">' . Lang::$txt['terms_and_rules'] . '</a>' : '', ' | <a href="#top_section">', Lang::$txt['go_up'], ' &#9650;</a></li>
-			<li class="copyright">', theme_copyright(), '</li>
+			<li class="copyright">', Theme::copyright(), '</li>
 		</ul>';
 
 	// Show the load time?
@@ -484,7 +481,7 @@ function template_body_below()
 function template_html_below()
 {
 	// Load in any javascipt that could be deferred to the end of the page
-	template_javascript(true);
+	Theme::template_javascript(true);
 
 	echo '
 </body>

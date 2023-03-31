@@ -18,6 +18,7 @@ use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Msg;
+use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -33,7 +34,7 @@ function PostModerationMain()
 {
 	// @todo We'll shift these later bud.
 	Lang::load('ModerationCenter');
-	loadTemplate('ModerationCenter');
+	Theme::loadTemplate('ModerationCenter');
 
 	// Probably need this...
 	require_once(Config::$sourcedir . '/ModerationCenter.php');
@@ -60,8 +61,6 @@ function PostModerationMain()
  */
 function UnapprovedPosts()
 {
-	global $options;
-
 	Utils::$context['current_view'] = isset($_GET['sa']) && $_GET['sa'] == 'topics' ? 'topics' : 'replies';
 	Utils::$context['page_title'] = Lang::$txt['mc_unapproved_posts'];
 
@@ -224,7 +223,7 @@ function UnapprovedPosts()
 	Db::$db->free_result($request);
 
 	// Limit to how many? (obey the user setting)
-	$limit = !empty($options['messages_per_page']) ? $options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
+	$limit = !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
 
 	Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=moderate;area=postmod;sa=' . Utils::$context['current_view'] . (isset($_REQUEST['brd']) ? ';brd=' . (int) $_REQUEST['brd'] : ''), $_GET['start'], Utils::$context['current_view'] == 'topics' ? Utils::$context['total_unapproved_topics'] : Utils::$context['total_unapproved_posts'], $limit);
 	Utils::$context['start'] = $_GET['start'];

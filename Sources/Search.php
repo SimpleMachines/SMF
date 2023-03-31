@@ -19,6 +19,7 @@ use SMF\Category;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Msg;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -48,8 +49,8 @@ function PlushSearch1()
 	// Don't load this in XML mode.
 	if (!isset($_REQUEST['xml']))
 	{
-		loadTemplate('Search');
-		loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
+		Theme::loadTemplate('Search');
+		Theme::loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
 	}
 
 	// Check the user's permissions.
@@ -251,7 +252,7 @@ function PlushSearch1()
  */
 function PlushSearch2()
 {
-	global $options, $messages_request, $boards_can;
+	global $messages_request, $boards_can;
 	global $excludedWords, $participants;
 
 	// if coming from the quick search box, and we want to search on members, well we need to do that ;)
@@ -329,7 +330,7 @@ function PlushSearch2()
 
 	Lang::load('Search');
 	if (!isset($_REQUEST['xml']))
-		loadTemplate('Search');
+		Theme::loadTemplate('Search');
 	//If we're doing XML we need to use the results template regardless really.
 	else
 		Utils::$context['sub_template'] = 'results';
@@ -1887,13 +1888,13 @@ function PlushSearch2()
 		// Create an array for the permissions.
 		$perms = array('post_reply_own', 'post_reply_any');
 
-		if (!empty($options['display_quick_mod']))
+		if (!empty(Theme::$current->options['display_quick_mod']))
 			$perms = array_merge($perms, array('lock_any', 'lock_own', 'make_sticky', 'move_any', 'move_own', 'remove_any', 'remove_own', 'merge_any'));
 
 		$boards_can = boardsAllowedTo($perms, true, false);
 
 		// How's about some quick moderation?
-		if (!empty($options['display_quick_mod']))
+		if (!empty(Theme::$current->options['display_quick_mod']))
 		{
 			Utils::$context['can_lock'] = in_array(0, $boards_can['lock_any']);
 			Utils::$context['can_sticky'] = in_array(0, $boards_can['make_sticky']);
@@ -2042,7 +2043,7 @@ function PlushSearch2()
  */
 function prepareSearchContext($reset = false)
 {
-	global $settings, $options, $messages_request;
+	global $messages_request;
 	global $boards_can, $participants;
 	static $recycle_board = null;
 
@@ -2168,11 +2169,11 @@ function prepareSearchContext($reset = false)
 	if (!empty(Config::$modSettings['messageIconChecks_enable']))
 	{
 		if (!isset(Utils::$context['icon_sources'][$message['first_icon']]))
-			Utils::$context['icon_sources'][$message['first_icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $message['first_icon'] . '.png') ? 'images_url' : 'default_images_url';
+			Utils::$context['icon_sources'][$message['first_icon']] = file_exists(Theme::$current->settings['theme_dir'] . '/images/post/' . $message['first_icon'] . '.png') ? 'images_url' : 'default_images_url';
 		if (!isset(Utils::$context['icon_sources'][$message['last_icon']]))
-			Utils::$context['icon_sources'][$message['last_icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $message['last_icon'] . '.png') ? 'images_url' : 'default_images_url';
+			Utils::$context['icon_sources'][$message['last_icon']] = file_exists(Theme::$current->settings['theme_dir'] . '/images/post/' . $message['last_icon'] . '.png') ? 'images_url' : 'default_images_url';
 		if (!isset(Utils::$context['icon_sources'][$message['icon']]))
-			Utils::$context['icon_sources'][$message['icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $message['icon'] . '.png') ? 'images_url' : 'default_images_url';
+			Utils::$context['icon_sources'][$message['icon']] = file_exists(Theme::$current->settings['theme_dir'] . '/images/post/' . $message['icon'] . '.png') ? 'images_url' : 'default_images_url';
 	}
 	else
 	{
@@ -2217,7 +2218,7 @@ function prepareSearchContext($reset = false)
 			'href' => Config::$scripturl . '?topic=' . $message['id_topic'] . '.0',
 			'link' => '<a href="' . Config::$scripturl . '?topic=' . $message['id_topic'] . '.0">' . $message['first_subject'] . '</a>',
 			'icon' => $message['first_icon'],
-			'icon_url' => $settings[Utils::$context['icon_sources'][$message['first_icon']]] . '/post/' . $message['first_icon'] . '.png',
+			'icon_url' => Theme::$current->settings[Utils::$context['icon_sources'][$message['first_icon']]] . '/post/' . $message['first_icon'] . '.png',
 			'member' => array(
 				'id' => $message['first_member_id'],
 				'name' => $message['first_member_name'],
@@ -2233,7 +2234,7 @@ function prepareSearchContext($reset = false)
 			'href' => Config::$scripturl . '?topic=' . $message['id_topic'] . ($message['num_replies'] == 0 ? '.0' : '.msg' . $message['last_msg']) . '#msg' . $message['last_msg'],
 			'link' => '<a href="' . Config::$scripturl . '?topic=' . $message['id_topic'] . ($message['num_replies'] == 0 ? '.0' : '.msg' . $message['last_msg']) . '#msg' . $message['last_msg'] . '">' . $message['last_subject'] . '</a>',
 			'icon' => $message['last_icon'],
-			'icon_url' => $settings[Utils::$context['icon_sources'][$message['last_icon']]] . '/post/' . $message['last_icon'] . '.png',
+			'icon_url' => Theme::$current->settings[Utils::$context['icon_sources'][$message['last_icon']]] . '/post/' . $message['last_icon'] . '.png',
 			'member' => array(
 				'id' => $message['last_member_id'],
 				'name' => $message['last_member_name'],
@@ -2255,7 +2256,7 @@ function prepareSearchContext($reset = false)
 		)
 	));
 
-	if (!empty($options['display_quick_mod']))
+	if (!empty(Theme::$current->options['display_quick_mod']))
 	{
 		$started = $output['first_post']['member']['id'] == User::$me->id;
 
@@ -2284,7 +2285,7 @@ function prepareSearchContext($reset = false)
 		'attachment' => array(),
 		'member' => &$author,
 		'icon' => $message['icon'],
-		'icon_url' => $settings[Utils::$context['icon_sources'][$message['icon']]] . '/post/' . $message['icon'] . '.png',
+		'icon_url' => Theme::$current->settings[Utils::$context['icon_sources'][$message['icon']]] . '/post/' . $message['icon'] . '.png',
 		'subject' => $message['subject'],
 		'subject_highlighted' => $message['subject_highlighted'],
 		'time' => timeformat($message['poster_time']),

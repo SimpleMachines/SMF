@@ -16,6 +16,7 @@ namespace SMF\Tasks;
 use SMF\Config;
 use SMF\Lang;
 use SMF\TaskRunner;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -146,7 +147,6 @@ class ExportProfileData extends BackgroundTask
 	 */
 	protected function exportXml()
 	{
-		global $settings;
 		global $query_this_board;
 
 		// For convenience...
@@ -161,7 +161,6 @@ class ExportProfileData extends BackgroundTask
 			return;
 
 		require_once(Config::$sourcedir . DIRECTORY_SEPARATOR . 'News.php');
-		require_once(Config::$sourcedir . DIRECTORY_SEPARATOR . 'ScheduledTasks.php');
 
 		// Setup.
 		$done = false;
@@ -171,8 +170,8 @@ class ExportProfileData extends BackgroundTask
 		Utils::$context[$datatype . '_start'] = $start[$datatype];
 		$datatypes = array_keys($included);
 
-		loadEssentialThemeData();
-		$settings['actual_theme_dir'] = $settings['theme_dir'];
+		Theme::loadEssential();
+		Theme::$current->settings['actual_theme_dir'] = Theme::$current->settings['theme_dir'];
 		User::$me->language = $lang;
 		Lang::load(implode('+', array_unique(array('index', 'Modifications', 'Stats', 'Profile', $included[$datatype]['langfile']))), $lang);
 

@@ -16,6 +16,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -84,8 +85,6 @@ function prepareAgreementContext()
 
 function canRequireAgreement()
 {
-	global $options;
-
 	// Guests can't agree
 	if (!empty(User::$me->is_guest) || empty(Config::$modSettings['requireAgreement']))
 		return false;
@@ -95,16 +94,14 @@ function canRequireAgreement()
 	if (empty(Config::$modSettings['agreement_updated_' . $agreement_lang]))
 		return false;
 
-	Utils::$context['agreement_accepted_date'] = empty($options['agreement_accepted']) ? 0 : $options['agreement_accepted'];
+	Utils::$context['agreement_accepted_date'] = empty(Theme::$current->options['agreement_accepted']) ? 0 : Theme::$current->options['agreement_accepted'];
 
 	// A new timestamp means that there are new changes to the registration agreement and must therefore be shown.
-	return empty($options['agreement_accepted']) || Config::$modSettings['agreement_updated_' . $agreement_lang] > $options['agreement_accepted'];
+	return empty(Theme::$current->options['agreement_accepted']) || Config::$modSettings['agreement_updated_' . $agreement_lang] > Theme::$current->options['agreement_accepted'];
 }
 
 function canRequirePrivacyPolicy()
 {
-	global $options;
-
 	if (!empty(User::$me->is_guest) || empty(Config::$modSettings['requirePolicyAgreement']))
 		return false;
 
@@ -113,9 +110,9 @@ function canRequirePrivacyPolicy()
 	if (empty(Config::$modSettings['policy_updated_' . $policy_lang]))
 		return false;
 
-	Utils::$context['privacy_policy_accepted_date'] = empty($options['policy_accepted']) ? 0 : $options['policy_accepted'];
+	Utils::$context['privacy_policy_accepted_date'] = empty(Theme::$current->options['policy_accepted']) ? 0 : Theme::$current->options['policy_accepted'];
 
-	return empty($options['policy_accepted']) || Config::$modSettings['policy_updated_' . $policy_lang] > $options['policy_accepted'];
+	return empty(Theme::$current->options['policy_accepted']) || Config::$modSettings['policy_updated_' . $policy_lang] > Theme::$current->options['policy_accepted'];
 }
 
 // Let's tell them there's a new agreement
@@ -124,7 +121,7 @@ function Agreement()
 	prepareAgreementContext();
 
 	Lang::load('Agreement');
-	loadTemplate('Agreement');
+	Theme::loadTemplate('Agreement');
 
 	$page_title = '';
 	if (!empty(Utils::$context['agreement']) && !empty(Utils::$context['privacy_policy']))

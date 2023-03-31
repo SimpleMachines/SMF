@@ -13,6 +13,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 
 /**
@@ -20,8 +21,6 @@ use SMF\Utils;
  */
 function template_permission_index()
 {
-	global $settings;
-
 	// Not allowed to edit?
 	if (!Utils::$context['can_modify'])
 		echo '
@@ -73,7 +72,7 @@ function template_permission_index()
 		echo '
 					<tr class="windowbg">
 						<td>
-							', !empty($group['help']) ? ' <a class="help" href="' . Config::$scripturl . '?action=helpadmin;help=' . $group['help'] . '" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="' . Lang::$txt['help'] . '"></span></a> ' : '<img class="icon" src="' . $settings['images_url'] . '/blank.png" alt="' . Lang::$txt['help'] . '">', '<span>', $group['name'], '</span>';
+							', !empty($group['help']) ? ' <a class="help" href="' . Config::$scripturl . '?action=helpadmin;help=' . $group['help'] . '" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="' . Lang::$txt['help'] . '"></span></a> ' : '<img class="icon" src="' . Theme::$current->settings['images_url'] . '/blank.png" alt="' . Lang::$txt['help'] . '">', '<span>', $group['name'], '</span>';
 
 		if (!empty($group['children']))
 			echo '

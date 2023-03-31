@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -44,7 +45,7 @@ function Groups()
 	// Get the template stuff up and running.
 	Lang::load('ManageMembers');
 	Lang::load('ModerationCenter');
-	loadTemplate('ManageMembergroups');
+	Theme::loadTemplate('ManageMembergroups');
 
 	// If we can see the moderation center, and this has a mod bar entry, add the mod center bar.
 	if (allowedTo('access_mod_center') || User::$me->mod_cache['bq'] != '0=1' || User::$me->mod_cache['gq'] != '0=1' || allowedTo('manage_membergroups'))
@@ -195,8 +196,6 @@ function GroupList()
  */
 function MembergroupMembers()
 {
-	global $settings;
-
 	$_REQUEST['group'] = isset($_REQUEST['group']) ? (int) $_REQUEST['group'] : 0;
 
 	// No browsing of guests, membergroup 0 or moderators.
@@ -223,7 +222,7 @@ function MembergroupMembers()
 
 	// Fix the membergroup icons.
 	Utils::$context['group']['icons'] = explode('#', Utils::$context['group']['icons']);
-	Utils::$context['group']['icons'] = !empty(Utils::$context['group']['icons'][0]) && !empty(Utils::$context['group']['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/membericons/' . Utils::$context['group']['icons'][1] . '" alt="*">', Utils::$context['group']['icons'][0]) : '';
+	Utils::$context['group']['icons'] = !empty(Utils::$context['group']['icons'][0]) && !empty(Utils::$context['group']['icons'][1]) ? str_repeat('<img src="' . Theme::$current->settings['images_url'] . '/membericons/' . Utils::$context['group']['icons'][1] . '" alt="*">', Utils::$context['group']['icons'][0]) : '';
 	Utils::$context['group']['can_moderate'] = allowedTo('manage_membergroups') && (allowedTo('admin_forum') || Utils::$context['group']['group_type'] != 1);
 
 	Utils::$context['linktree'][] = array(
@@ -448,7 +447,7 @@ function MembergroupMembers()
 	createToken('mod-mgm');
 
 	if (Utils::$context['group']['assignable'])
-		loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
+		Theme::loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
 }
 
 /**

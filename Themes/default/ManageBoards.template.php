@@ -12,6 +12,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 
 /**
@@ -19,8 +20,6 @@ use SMF\Utils;
  */
 function template_main()
 {
-	global $settings;
-
 	// Table header.
 	echo '
 	<div id="manage_boards">
@@ -62,8 +61,8 @@ function template_main()
 			echo '
 					<li><a href="', $category['move_link']['href'], '" title="', $category['move_link']['label'], '"><span class="main_icons select_above"></span></a></li>';
 
-		$recycle_board = '<a href="' . Config::$scripturl . '?action=admin;area=manageboards;sa=settings"> <img src="' . $settings['images_url'] . '/post/recycled.png" alt="' . Lang::$txt['recycle_board'] . '" title="' . Lang::$txt['recycle_board'] . '"></a>';
-		$redirect_board = '<img src="' . $settings['images_url'] . '/new_redirect.png" alt="' . Lang::$txt['redirect_board_desc'] . '" title="' . Lang::$txt['redirect_board_desc'] . '">';
+		$recycle_board = '<a href="' . Config::$scripturl . '?action=admin;area=manageboards;sa=settings"> <img src="' . Theme::$current->settings['images_url'] . '/post/recycled.png" alt="' . Lang::$txt['recycle_board'] . '" title="' . Lang::$txt['recycle_board'] . '"></a>';
+		$redirect_board = '<img src="' . Theme::$current->settings['images_url'] . '/new_redirect.png" alt="' . Lang::$txt['redirect_board_desc'] . '" title="' . Lang::$txt['redirect_board_desc'] . '">';
 
 		// List through every board in the category, printing its name and link to modify the board.
 		foreach ($category['boards'] as $board)

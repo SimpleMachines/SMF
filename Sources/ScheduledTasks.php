@@ -17,6 +17,7 @@ use SMF\Config;
 use SMF\ProxyServer;
 use SMF\Lang;
 use SMF\Mail;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -26,6 +27,7 @@ if (!defined('SMF'))
 	die('No direct access...');
 
 class_exists('SMF\\Mail');
+class_exists('SMF\\Theme');
 
 /**
  * This function works out what to do!
@@ -309,7 +311,7 @@ function scheduled_daily_digest()
 {
 	global $is_weekly;
 
-	loadEssentialThemeData();
+	Theme::loadEssential();
 
 	$is_weekly = !empty($is_weekly) ? 1 : 0;
 
@@ -774,63 +776,6 @@ function next_time($regularity, $unit, $offset)
 }
 
 /**
- * This loads the bare minimum data to allow us to load language files!
- */
-function loadEssentialThemeData()
-{
-	global $settings;
-
-	// Get all the default theme variables.
-	$result = Db::$db->query('', '
-		SELECT id_theme, variable, value
-		FROM {db_prefix}themes
-		WHERE id_member = {int:no_member}
-			AND id_theme IN (1, {int:theme_guests})',
-		array(
-			'no_member' => 0,
-			'theme_guests' => !empty(Config::$modSettings['theme_guests']) ? Config::$modSettings['theme_guests'] : 1,
-		)
-	);
-	while ($row = Db::$db->fetch_assoc($result))
-	{
-		$settings[$row['variable']] = $row['value'];
-
-		// Is this the default theme?
-		if (in_array($row['variable'], array('theme_dir', 'theme_url', 'images_url')) && $row['id_theme'] == '1')
-			$settings['default_' . $row['variable']] = $row['value'];
-	}
-	Db::$db->free_result($result);
-
-	// Check we have some directories setup.
-	if (empty($settings['template_dirs']))
-	{
-		$settings['template_dirs'] = array($settings['theme_dir']);
-
-		// Based on theme (if there is one).
-		if (!empty($settings['base_theme_dir']))
-			$settings['template_dirs'][] = $settings['base_theme_dir'];
-
-		// Lastly the default theme.
-		if ($settings['theme_dir'] != $settings['default_theme_dir'])
-			$settings['template_dirs'][] = $settings['default_theme_dir'];
-	}
-
-	// Assume we want this.
-	Utils::$context['forum_name'] = Config::$mbname;
-	Utils::$context['forum_name_html_safe'] = Utils::htmlspecialchars(Utils::$context['forum_name']);
-
-	Lang::load('index+Modifications');
-
-	// Just in case it wasn't already set elsewhere.
-	Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? Lang::$txt['lang_character_set'] : Config::$modSettings['global_character_set'];
-	Utils::$context['utf8'] = Utils::$context['character_set'] === 'UTF-8';
-	Utils::$context['right_to_left'] = !empty(Lang::$txt['lang_rtl']);
-
-	// Tell fatal_lang_error() to not reload the theme.
-	Utils::$context['theme_loaded'] = true;
-}
-
-/**
  * This retrieves data (e.g. last version of SMF) from sm.org
  */
 function scheduled_fetchSMfiles()
@@ -857,7 +802,7 @@ function scheduled_fetchSMfiles()
 	Db::$db->free_result($request);
 
 	// Just in case we run into a problem.
-	loadEssentialThemeData();
+	Theme::loadEssential();
 	Lang::load('Errors', Lang::$default, false);
 
 	foreach ($js_files as $ID_FILE => $file)
@@ -1107,7 +1052,7 @@ function scheduled_weekly_maintenance()
 		CacheApi::$loadedApi->housekeeping();
 
 	// Prevent stale minimized CSS and JavaScript from cluttering up the theme directories
-	deleteAllMinified();
+	Theme::deleteAllMinified();
 
 	// Maybe there's more to do.
 	call_integration_hook('integrate_weekly_maintenance');
@@ -1163,7 +1108,7 @@ function scheduled_paid_subscriptions()
 		if (empty($subs_reminded))
 		{
 			// Need the below for loadLanguage to work!
-			loadEssentialThemeData();
+			Theme::loadEssential();
 		}
 
 		$subs_reminded[] = $row['id_sublog'];
@@ -1260,7 +1205,7 @@ function scheduled_remove_temp_attachments()
 		$dir = @opendir($attach_dir);
 		if (!$dir)
 		{
-			loadEssentialThemeData();
+			Theme::loadEssential();
 			Lang::load('Post');
 			Utils::$context['scheduled_errors']['remove_temp_attachments'][] = Lang::$txt['cant_access_upload_path'] . ' (' . $attach_dir . ')';
 			log_error(Lang::$txt['cant_access_upload_path'] . ' (' . $attach_dir . ')', 'critical');
@@ -1294,7 +1239,7 @@ function scheduled_remove_topic_redirect()
 	$topics = array();
 
 	// We will need this for language files
-	loadEssentialThemeData();
+	Theme::loadEssential();
 
 	// Find all of the old MOVE topic notices that were set to expire
 	$request = Db::$db->query('', '
@@ -1333,7 +1278,7 @@ function scheduled_remove_old_drafts()
 	$drafts = array();
 
 	// We need this for language items
-	loadEssentialThemeData();
+	Theme::loadEssential();
 
 	// Find all of the old drafts
 	$request = Db::$db->query('', '

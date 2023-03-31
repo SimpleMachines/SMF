@@ -17,6 +17,7 @@
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
+use SMF\Theme;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -34,7 +35,7 @@ function ManagePaidSubscriptions()
 {
 	// Load the required language and template.
 	Lang::load('ManagePaid');
-	loadTemplate('ManagePaid');
+	Theme::loadTemplate('ManagePaid');
 
 	if (!empty(Config::$modSettings['paid_enabled']))
 		$subActions = array(
@@ -176,7 +177,7 @@ function ModifySubscriptionSettings($return_config = false)
 		Utils::$context['settings_title'] = Lang::$txt['settings'];
 
 		// We want javascript for our currency options.
-		addInlineJavaScript('
+		Theme::addInlineJavaScript('
 		function toggleOther()
 		{
 			var otherOn = document.getElementById("paid_currency").value == \'other\';
@@ -205,7 +206,7 @@ function ModifySubscriptionSettings($return_config = false)
 				}
 			}
 		}');
-		addInlineJavaScript('
+		Theme::addInlineJavaScript('
 		toggleOther();', true);
 	}
 	else
@@ -1412,7 +1413,7 @@ function ModifyUserSubscription()
 		Utils::$context['sub']['end']['last_day'] = (int) smf_strftime('%d', mktime(0, 0, 0, Utils::$context['sub']['end']['month'] == 12 ? 1 : Utils::$context['sub']['end']['month'] + 1, 0, Utils::$context['sub']['end']['month'] == 12 ? Utils::$context['sub']['end']['year'] + 1 : Utils::$context['sub']['end']['year']));
 	}
 
-	loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
+	Theme::loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
 }
 
 /**

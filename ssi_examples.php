@@ -90,7 +90,7 @@ template_ssi_above();
 						<li><a href="#" onclick="showSSIBlock('ssi_recentAttachments'); return false;">Recent Attachments</a></li>
 					</ul>
 					<?php if (SMF\User::$me->is_admin) { ?>
-					<h3>Advanced Functions <img class="help" title="Functions that require additional tweaking, not just copy and paste." src="<?php echo $settings['images_url']; ?>/helptopics.png" alt=""></h3>
+					<h3>Advanced Functions <img class="help" title="Functions that require additional tweaking, not just copy and paste." src="<?php echo SMF\Theme::$current->settings['images_url']; ?>/helptopics.png" alt=""></h3>
 					<ul>
 						<li><a href="#" onclick="showSSIBlock('ssi_showPoll'); return false;">Show Single Poll</a></li>
 						<li><a href="#" onclick="showSSIBlock('ssi_fetchPosts'); return false;">Show Single Post</a></li>
@@ -413,15 +413,13 @@ template_ssi_below();
  */
 function template_ssi_above()
 {
-	global $settings;
-
 	echo '<!DOCTYPE html>
 <html>
 	<head>
 		<title>', SMF_FULL_VERSION, ' SSI.php Examples</title>
-		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css">
+		<link rel="stylesheet" href="', SMF\Theme::$current->settings['default_theme_url'], '/css/index.css">
 		<script src="', !empty(SMF\Utils::$context['javascript_files']['smf_jquery']['fileUrl']) ? SMF\Utils::$context['javascript_files']['smf_jquery']['fileUrl'] : 'https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', '"></script>
-		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
+		<script src="', SMF\Theme::$current->settings['default_theme_url'], '/scripts/script.js"></script>
 		<style>
 			#wrapper {
 				width: 90%;

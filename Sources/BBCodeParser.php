@@ -3282,7 +3282,7 @@ class BBCodeParser
 
 				if ($moo)
 				{
-					addInlineJavaScript("\n\t" . base64_decode(
+					Theme::addInlineJavaScript("\n\t" . base64_decode(
 						'aWYoZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoImJvdmluZV9vcmFjbGU
 						iKT09PW51bGwpe2xldCBzdHlsZU5vZGU9ZG9jdW1lbnQuY3JlYXRlRWx
 						lbWVudCgic3R5bGUiKTtzdHlsZU5vZGUuaWQ9ImJvdmluZV9vcmFjbGU

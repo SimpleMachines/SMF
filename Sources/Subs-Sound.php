@@ -15,6 +15,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Theme;
 use SMF\User;
 use SMF\Cache\CacheApi;
 
@@ -32,8 +33,6 @@ if (!defined('SMF'))
 
 function createWaveFile($word)
 {
-	global $settings;
-
 	// Allow max 2 requests per 20 seconds.
 	if (($ip = CacheApi::get('wave_file/' . User::$me->ip, 20)) > 2 || ($ip2 = CacheApi::get('wave_file/' . User::$me->ip2, 20)) > 2)
 		die(send_http_status(400));
@@ -45,11 +44,11 @@ function createWaveFile($word)
 	mt_srand(end($tmp));
 
 	// Try to see if there's a sound font in the user's language.
-	if (file_exists($settings['default_theme_dir'] . '/fonts/sound/a.' . User::$me->language . '.wav'))
+	if (file_exists(Theme::$current->settings['default_theme_dir'] . '/fonts/sound/a.' . User::$me->language . '.wav'))
 		$sound_language = User::$me->language;
 
 	// English should be there.
-	elseif (file_exists($settings['default_theme_dir'] . '/fonts/sound/a.english.wav'))
+	elseif (file_exists(Theme::$current->settings['default_theme_dir'] . '/fonts/sound/a.english.wav'))
 		$sound_language = 'english';
 
 	// Guess not...
@@ -63,7 +62,7 @@ function createWaveFile($word)
 	$sound_word = '';
 	for ($i = 0; $i < strlen($word); $i++)
 	{
-		$sound_letter = implode('', file($settings['default_theme_dir'] . '/fonts/sound/' . $word[$i] . '.' . $sound_language . '.wav'));
+		$sound_letter = implode('', file(Theme::$current->settings['default_theme_dir'] . '/fonts/sound/' . $word[$i] . '.' . $sound_language . '.wav'));
 		if (strpos($sound_letter, 'data') === false)
 			return false;
 

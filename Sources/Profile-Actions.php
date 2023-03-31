@@ -17,6 +17,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Msg;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -703,7 +704,7 @@ function deleteAccount2($memID)
 function subscriptions($memID)
 {
 	// Load the paid template anyway.
-	loadTemplate('ManagePaid');
+	Theme::loadTemplate('ManagePaid');
 	Lang::load('ManagePaid');
 
 	// Load all of the subscriptions.

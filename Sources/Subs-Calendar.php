@@ -16,6 +16,7 @@
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -716,8 +717,6 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
  */
 function loadDatePicker($selector = 'input.date_input', $date_format = '')
 {
-	global $options;
-
 	if (empty($date_format))
 		$date_format = get_date_or_time_format('date');
 
@@ -740,9 +739,9 @@ function loadDatePicker($selector = 'input.date_input', $date_format = '')
 		'%n' => ' ', '%t' => ' ', '%%' => '%',
 	));
 
-	loadCSSFile('jquery-ui.datepicker.css', array(), 'smf_datepicker');
-	loadJavaScriptFile('jquery-ui.datepicker.min.js', array('defer' => true), 'smf_datepicker');
-	addInlineJavaScript('
+	Theme::loadCSSFile('jquery-ui.datepicker.css', array(), 'smf_datepicker');
+	Theme::loadJavaScriptFile('jquery-ui.datepicker.min.js', array('defer' => true), 'smf_datepicker');
+	Theme::addInlineJavaScript('
 	$("' . $selector . '").datepicker({
 		dateFormat: "' . $date_format . '",
 		autoSize: true,
@@ -759,7 +758,7 @@ function loadDatePicker($selector = 'input.date_input', $date_format = '')
 		dayNamesMin: ["' . implode('", "', Lang::$txt['days_short']) . '"],
 		prevText: "' . Lang::$txt['prev_month'] . '",
 		nextText: "' . Lang::$txt['next_month'] . '",
-		firstDay: ' . (!empty($options['calendar_start_day']) ? $options['calendar_start_day'] : 0) . ',
+		firstDay: ' . (!empty(Theme::$current->options['calendar_start_day']) ? Theme::$current->options['calendar_start_day'] : 0) . ',
 	});', true);
 }
 
@@ -790,9 +789,9 @@ function loadTimePicker($selector = 'input.time_input', $time_format = '')
 		'%X' => 'H:i:s',
 	));
 
-	loadCSSFile('jquery.timepicker.css', array(), 'smf_timepicker');
-	loadJavaScriptFile('jquery.timepicker.min.js', array('defer' => true), 'smf_timepicker');
-	addInlineJavaScript('
+	Theme::loadCSSFile('jquery.timepicker.css', array(), 'smf_timepicker');
+	Theme::loadJavaScriptFile('jquery.timepicker.min.js', array('defer' => true), 'smf_timepicker');
+	Theme::addInlineJavaScript('
 	$("' . $selector . '").timepicker({
 		timeFormat: "' . $time_format . '",
 		showDuration: true,
@@ -828,7 +827,7 @@ function loadDatePair($container, $date_class = '', $time_class = '')
 	if ($container == '')
 		return;
 
-	loadJavaScriptFile('jquery.datepair.min.js', array('defer' => true), 'smf_datepair');
+	Theme::loadJavaScriptFile('jquery.datepair.min.js', array('defer' => true), 'smf_datepair');
 
 	$datepair_options = '';
 
@@ -873,7 +872,7 @@ function loadDatePair($container, $date_class = '', $time_class = '')
 		timeClass: "' . $time_class . '",';
 	}
 
-	addInlineJavaScript('
+	Theme::addInlineJavaScript('
 	$("' . $container . '").datepair({' . $datepair_options . "\n\t});", true);
 
 }

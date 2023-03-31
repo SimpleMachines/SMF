@@ -18,6 +18,7 @@ use SMF\Board;
 use SMF\Category;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -87,7 +88,7 @@ function ManageBoards()
  */
 function ManageBoardsMain()
 {
-	loadTemplate('ManageBoards');
+	Theme::loadTemplate('ManageBoards');
 
 	if (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'move' && in_array($_REQUEST['move_to'], array('child', 'before', 'after', 'top')))
 	{
@@ -220,7 +221,7 @@ function ManageBoardsMain()
  */
 function EditCategory()
 {
-	loadTemplate('ManageBoards');
+	Theme::loadTemplate('ManageBoards');
 	require_once(Config::$sourcedir . '/Subs-Editor.php');
 	Category::getTree();
 
@@ -371,7 +372,7 @@ function EditCategory2()
  */
 function EditBoard()
 {
-	loadTemplate('ManageBoards');
+	Theme::loadTemplate('ManageBoards');
 	require_once(Config::$sourcedir . '/Subs-Editor.php');
 	Category::getTree();
 
@@ -586,7 +587,7 @@ function EditBoard()
 	{
 		Utils::$context['sub_template'] = 'modify_board';
 		Utils::$context['page_title'] = Lang::$txt['boards_edit'];
-		loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
+		Theme::loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
 	}
 	else
 	{
@@ -859,11 +860,11 @@ function EditBoardSettings($return_config = false)
 
 	Utils::$context['page_title'] = Lang::$txt['boards_and_cats'] . ' - ' . Lang::$txt['settings'];
 
-	loadTemplate('ManageBoards');
+	Theme::loadTemplate('ManageBoards');
 	Utils::$context['sub_template'] = 'show_settings';
 
 	// Add some javascript stuff for the recycle box.
-	addInlineJavaScript('
+	Theme::addInlineJavaScript('
 	document.getElementById("recycle_board").disabled = !document.getElementById("recycle_enable").checked;', true);
 
 	// Warn the admin against selecting the recycle topic without selecting a board.

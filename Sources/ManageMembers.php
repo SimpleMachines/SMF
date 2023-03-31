@@ -16,6 +16,7 @@
 use SMF\Config;
 use SMF\Lang;
 use SMF\Mail;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -44,7 +45,7 @@ function ViewMembers()
 
 	// Load the essentials.
 	Lang::load('ManageMembers');
-	loadTemplate('ManageMembers');
+	Theme::loadTemplate('ManageMembers');
 
 	// Fetch our activation counts.
 	GetMemberActivationCounts();

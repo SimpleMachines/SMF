@@ -400,8 +400,6 @@ class Topic implements \ArrayAccess
 	 */
 	public function doPermissions(): array
 	{
-		global $options;
-
 		if (!empty($this->permissions))
 			return $this->permissions;
 
@@ -456,7 +454,7 @@ class Topic implements \ArrayAccess
 
 		// Check whether the draft functions are enabled and that they have permission to use them (for quick reply.)
 		$this->permissions['drafts_save'] = !empty(Config::$modSettings['drafts_post_enabled']) && allowedTo('post_draft') && $this->permissions['can_reply'];
-		$this->permissions['drafts_autosave'] = !empty($this->permissions['drafts_save']) && !empty(Config::$modSettings['drafts_autosave_enabled']) && !empty($options['drafts_autosave_enabled']);
+		$this->permissions['drafts_autosave'] = !empty($this->permissions['drafts_save']) && !empty(Config::$modSettings['drafts_autosave_enabled']) && !empty(Theme::$current->options['drafts_autosave_enabled']);
 
 		// They can't link an existing topic to the calendar unless they can modify the first post...
 		$this->permissions['calendar_post'] &= allowedTo('modify_any') || (allowedTo('modify_own') && User::$me->started);

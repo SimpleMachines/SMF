@@ -16,6 +16,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -47,7 +48,7 @@ function Who()
 	Utils::$context['robot_no_index'] = true;
 
 	// Load the 'Who' template.
-	loadTemplate('Who');
+	Theme::loadTemplate('Who');
 	Lang::load('Who');
 
 	// Sort out... the column sorting.
@@ -914,7 +915,7 @@ function Credits($in_admin = false)
 
 	if (!$in_admin)
 	{
-		loadTemplate('Who');
+		Theme::loadTemplate('Who');
 		Utils::$context['sub_template'] = 'credits';
 		Utils::$context['robot_no_index'] = true;
 		Utils::$context['page_title'] = Lang::$txt['credits'];

@@ -17,6 +17,7 @@
 use SMF\BrowserDetector;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -394,7 +395,7 @@ function export_profile_data($uid)
 
 	Utils::$context['export_profile_data_desc'] = sprintf(Lang::$txt['export_profile_data_desc'], '<li>' . implode('</li><li>', Lang::$txt['export_profile_data_desc_list']) . '</li>');
 
-	addJavaScriptVar('completed_formats', '[\'' . implode('\', \'', array_unique($existing_export_formats)) . '\']', false);
+	Theme::addJavaScriptVar('completed_formats', '[\'' . implode('\', \'', array_unique($existing_export_formats)) . '\']', false);
 }
 
 /**
@@ -780,8 +781,6 @@ function create_export_dir($fallback = '')
  */
 function get_xslt_stylesheet($format, $uid)
 {
-	global $settings;
-
 	static $xslts = array();
 
 	$doctype = '';
@@ -828,7 +827,7 @@ function get_xslt_stylesheet($format, $uid)
 				'value' => Config::$scripturl,
 			),
 			'themeurl' => array(
-				'value' => $settings['default_theme_url'],
+				'value' => Theme::$current->settings['default_theme_url'],
 			),
 			'member_id' => array(
 				'value' => $uid,
@@ -1817,16 +1816,16 @@ function export_load_css_js()
 	}
 
 	// Load our standard CSS files.
-	loadCSSFile('index.css', array('minimize' => true, 'order_pos' => 1), 'smf_index');
-	loadCSSFile('responsive.css', array('force_current' => false, 'validate' => true, 'minimize' => true, 'order_pos' => 9000), 'smf_responsive');
+	Theme::loadCSSFile('index.css', array('minimize' => true, 'order_pos' => 1), 'smf_index');
+	Theme::loadCSSFile('responsive.css', array('force_current' => false, 'validate' => true, 'minimize' => true, 'order_pos' => 9000), 'smf_responsive');
 
 	if (Utils::$context['right_to_left'])
-		loadCSSFile('rtl.css', array('order_pos' => 4000), 'smf_rtl');
+		Theme::loadCSSFile('rtl.css', array('order_pos' => 4000), 'smf_rtl');
 
 	// In case any mods added relevant CSS.
 	call_integration_hook('integrate_pre_css_output');
 
-	// This next chunk mimics some of template_css()
+	// This next chunk mimics some of Theme::template_css()
 	$css_to_minify = array();
 	$normal_css_files = array();
 
@@ -1849,7 +1848,7 @@ function export_load_css_js()
 			$normal_css_files[] = $css_file;
 	}
 
-	$minified_css_files = !empty($css_to_minify) ? custMinify($css_to_minify, 'css') : array();
+	$minified_css_files = !empty($css_to_minify) ? Theme::custMinify($css_to_minify, 'css') : array();
 
 	Utils::$context['css_files'] = array();
 	foreach (array_merge($minified_css_files, $normal_css_files) as $css_file)
@@ -1863,7 +1862,7 @@ function export_load_css_js()
 	}
 
 	// Next, we need to do for JavaScript what we just did for CSS.
-	loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', array('external' => true, 'seed' => false), 'smf_jquery');
+	Theme::loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', array('external' => true, 'seed' => false), 'smf_jquery');
 
 	// There might be JavaScript that we need to add in order to support custom BBC or something.
 	call_integration_hook('integrate_pre_javascript_output', array(false));
@@ -1894,7 +1893,7 @@ function export_load_css_js()
 	{
 		if (!empty($js_files))
 		{
-			$minified_js_files = custMinify($js_files, 'js');
+			$minified_js_files = Theme::custMinify($js_files, 'js');
 			$all_js_files = array_merge($all_js_files, $minified_js_files);
 		}
 	}

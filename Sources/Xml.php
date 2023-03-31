@@ -19,6 +19,7 @@ use SMF\Config;
 use SMF\Lang;
 use SMF\MessageIndex;
 use SMF\Msg;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -31,7 +32,7 @@ if (!defined('SMF'))
  */
 function XMLhttpMain()
 {
-	loadTemplate('Xml');
+	Theme::loadTemplate('Xml');
 
 	$subActions = array(
 		'jumpto' => 'GetJumpTo',

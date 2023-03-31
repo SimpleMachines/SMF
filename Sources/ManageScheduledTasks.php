@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -34,7 +35,7 @@ function ManageScheduledTasks()
 	isAllowedTo('admin_forum');
 
 	Lang::load('ManageScheduledTasks');
-	loadTemplate('ManageScheduledTasks');
+	Theme::loadTemplate('ManageScheduledTasks');
 
 	$subActions = array(
 		'taskedit' => 'EditTask',

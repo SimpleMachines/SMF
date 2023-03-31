@@ -17,6 +17,7 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -82,7 +83,7 @@ function getLastPost()
  */
 function RecentPosts()
 {
-	loadTemplate('Recent');
+	Theme::loadTemplate('Recent');
 	Utils::$context['page_title'] = Lang::$txt['recent_posts'];
 	Utils::$context['sub_template'] = 'recent';
 
@@ -501,8 +502,6 @@ function RecentPosts()
  */
 function UnreadTopics()
 {
-	global $settings, $options;
-
 	// Guests can't have unread things, we don't know anything about them.
 	is_not_guest();
 
@@ -514,11 +513,11 @@ function UnreadTopics()
 		die;
 	}
 
-	Utils::$context['showCheckboxes'] = !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1;
+	Utils::$context['showCheckboxes'] = !empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1;
 
 	Utils::$context['showing_all_topics'] = isset($_GET['all']);
 	Utils::$context['start'] = (int) $_REQUEST['start'];
-	Utils::$context['topics_per_page'] = empty(Config::$modSettings['disableCustomPerPage']) && !empty($options['topics_per_page']) ? $options['topics_per_page'] : Config::$modSettings['defaultMaxTopics'];
+	Utils::$context['topics_per_page'] = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['topics_per_page']) ? Theme::$current->options['topics_per_page'] : Config::$modSettings['defaultMaxTopics'];
 	if ($_REQUEST['action'] == 'unread')
 		Utils::$context['page_title'] = Utils::$context['showing_all_topics'] ? Lang::$txt['unread_topics_all'] : Lang::$txt['unread_topics_visit'];
 	else
@@ -727,8 +726,8 @@ function UnreadTopics()
 	else
 		Lang::$txt['unread_topics_visit_none'] = strtr(sprintf(Lang::$txt['unread_topics_visit_none'], Config::$scripturl), array('?action=unread;all' => '?action=unread;all' . sprintf(Utils::$context['querystring_board_limits'], 0) . Utils::$context['querystring_sort_limits']));
 
-	loadTemplate('Recent');
-	loadTemplate('MessageIndex');
+	Theme::loadTemplate('Recent');
+	Theme::loadTemplate('MessageIndex');
 	Utils::$context['sub_template'] = $_REQUEST['action'] == 'unread' ? 'unread' : 'replies';
 
 	// Setup the default topic icons... for checking they exist and the like ;)
@@ -741,7 +740,7 @@ function UnreadTopics()
 	// This part is the same for each query.
 	$select_clause = '
 		ms.subject AS first_subject, ms.poster_time AS first_poster_time, ms.id_topic, t.id_board, b.name AS bname,
-		t.num_replies, t.num_views, ms.id_member AS id_first_member, ml.id_member AS id_last_member,' . (!empty($settings['avatars_on_indexes']) ? ' meml.avatar, meml.email_address, mems.avatar AS first_poster_avatar, mems.email_address AS first_poster_email, COALESCE(af.id_attach, 0) AS first_poster_id_attach, af.filename AS first_poster_filename, af.attachment_type AS first_poster_attach_type, COALESCE(al.id_attach, 0) AS last_poster_id_attach, al.filename AS last_poster_filename, al.attachment_type AS last_poster_attach_type,' : '') . '
+		t.num_replies, t.num_views, ms.id_member AS id_first_member, ml.id_member AS id_last_member,' . (!empty(Theme::$current->settings['avatars_on_indexes']) ? ' meml.avatar, meml.email_address, mems.avatar AS first_poster_avatar, mems.email_address AS first_poster_email, COALESCE(af.id_attach, 0) AS first_poster_id_attach, af.filename AS first_poster_filename, af.attachment_type AS first_poster_attach_type, COALESCE(al.id_attach, 0) AS last_poster_id_attach, al.filename AS last_poster_filename, al.attachment_type AS last_poster_attach_type,' : '') . '
 		ml.poster_time AS last_poster_time, COALESCE(mems.real_name, ms.poster_name) AS first_poster_name,
 		COALESCE(meml.real_name, ml.poster_name) AS last_poster_name, ml.subject AS last_subject,
 		ml.icon AS last_icon, ms.icon AS first_icon, t.id_poll, t.is_sticky, t.locked, ml.modified_time AS last_modified_time,
@@ -906,7 +905,7 @@ function UnreadTopics()
 				INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
 				LEFT JOIN {db_prefix}boards AS b ON (b.id_board = ms.id_board)
 				LEFT JOIN {db_prefix}members AS mems ON (mems.id_member = ms.id_member)
-				LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)' . (!empty($settings['avatars_on_indexes']) ? '
+				LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)' . (!empty(Theme::$current->settings['avatars_on_indexes']) ? '
 				LEFT JOIN {db_prefix}attachments AS af ON (af.id_member = mems.id_member)
 				LEFT JOIN {db_prefix}attachments AS al ON (al.id_member = meml.id_member)' : '') . '
 				LEFT JOIN {db_prefix}log_topics_unread AS lt ON (lt.id_topic = t.id_topic)
@@ -995,7 +994,7 @@ function UnreadTopics()
 				INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
 				LEFT JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
 				LEFT JOIN {db_prefix}members AS mems ON (mems.id_member = ms.id_member)
-				LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)' . (!empty($settings['avatars_on_indexes']) ? '
+				LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)' . (!empty(Theme::$current->settings['avatars_on_indexes']) ? '
 				LEFT JOIN {db_prefix}attachments AS af ON (af.id_member = mems.id_member)
 				LEFT JOIN {db_prefix}attachments AS al ON (al.id_member = meml.id_member)' : '') . '' . (!empty($have_temp_table) ? '
 				LEFT JOIN {db_prefix}log_topics_unread AS lt ON (lt.id_topic = t.id_topic)' : '
@@ -1216,7 +1215,7 @@ function UnreadTopics()
 				INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
 				LEFT JOIN {db_prefix}members AS mems ON (mems.id_member = ms.id_member)
-				LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)' . (!empty($settings['avatars_on_indexes']) ? '
+				LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)' . (!empty(Theme::$current->settings['avatars_on_indexes']) ? '
 				LEFT JOIN {db_prefix}attachments AS af ON (af.id_member = mems.id_member)
 				LEFT JOIN {db_prefix}attachments AS al ON (al.id_member = meml.id_member)' : '') . '
 				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
@@ -1284,7 +1283,7 @@ function UnreadTopics()
 
 		// Decide how many pages the topic should have.
 		$topic_length = $row['num_replies'] + 1;
-		$messages_per_page = empty(Config::$modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) ? $options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
+		$messages_per_page = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
 		if ($topic_length > $messages_per_page)
 		{
 			$start = -1;
@@ -1292,7 +1291,7 @@ function UnreadTopics()
 
 			// If we can use all, show all.
 			if (!empty(Config::$modSettings['enableAllMessages']) && $topic_length < Config::$modSettings['enableAllMessages'])
-				$pages .= sprintf(strtr($settings['page_index']['page'], array('{URL}' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0;all')), '', Lang::$txt['all']);
+				$pages .= sprintf(strtr(Theme::$current->settings['page_index']['page'], array('{URL}' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0;all')), '', Lang::$txt['all']);
 		}
 
 		else
@@ -1303,10 +1302,10 @@ function UnreadTopics()
 		{
 			// First icon first... as you'd expect.
 			if (!isset(Utils::$context['icon_sources'][$row['first_icon']]))
-				Utils::$context['icon_sources'][$row['first_icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $row['first_icon'] . '.png') ? 'images_url' : 'default_images_url';
+				Utils::$context['icon_sources'][$row['first_icon']] = file_exists(Theme::$current->settings['theme_dir'] . '/images/post/' . $row['first_icon'] . '.png') ? 'images_url' : 'default_images_url';
 			// Last icon... last... duh.
 			if (!isset(Utils::$context['icon_sources'][$row['last_icon']]))
-				Utils::$context['icon_sources'][$row['last_icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $row['last_icon'] . '.png') ? 'images_url' : 'default_images_url';
+				Utils::$context['icon_sources'][$row['last_icon']] = file_exists(Theme::$current->settings['theme_dir'] . '/images/post/' . $row['last_icon'] . '.png') ? 'images_url' : 'default_images_url';
 		}
 		else
 		{
@@ -1350,7 +1349,7 @@ function UnreadTopics()
 				'subject' => $row['first_subject'],
 				'preview' => $row['first_body'],
 				'icon' => $row['first_icon'],
-				'icon_url' => $settings[Utils::$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
+				'icon_url' => Theme::$current->settings[Utils::$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
 				'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0;topicseen',
 				'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.0;topicseen">' . $row['first_subject'] . '</a>'
 			),
@@ -1367,7 +1366,7 @@ function UnreadTopics()
 				'subject' => $row['last_subject'],
 				'preview' => $row['last_body'],
 				'icon' => $row['last_icon'],
-				'icon_url' => $settings[Utils::$context['icon_sources'][$row['last_icon']]] . '/post/' . $row['last_icon'] . '.png',
+				'icon_url' => Theme::$current->settings[Utils::$context['icon_sources'][$row['last_icon']]] . '/post/' . $row['last_icon'] . '.png',
 				'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . ($row['num_replies'] == 0 ? '.0' : '.msg' . $row['id_last_msg']) . ';topicseen#msg' . $row['id_last_msg'],
 				'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . ($row['num_replies'] == 0 ? '.0' : '.msg' . $row['id_last_msg']) . ';topicseen#msg' . $row['id_last_msg'] . '" rel="nofollow">' . $row['last_subject'] . '</a>'
 			),
@@ -1381,7 +1380,7 @@ function UnreadTopics()
 			'is_poll' => Config::$modSettings['pollMode'] == '1' && $row['id_poll'] > 0,
 			'is_posted_in' => false,
 			'icon' => $row['first_icon'],
-			'icon_url' => $settings[Utils::$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
+			'icon_url' => Theme::$current->settings[Utils::$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
 			'subject' => $row['first_subject'],
 			'pages' => $pages,
 			'replies' => Lang::numberFormat($row['num_replies']),
@@ -1393,7 +1392,7 @@ function UnreadTopics()
 				'link' => '<a href="' . Config::$scripturl . '?board=' . $row['id_board'] . '.0">' . $row['bname'] . '</a>'
 			)
 		);
-		if (!empty($settings['avatars_on_indexes']))
+		if (!empty(Theme::$current->settings['avatars_on_indexes']))
 		{
 			Utils::$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = User::setAvatarData(array(
 				'avatar' => $row['avatar'],

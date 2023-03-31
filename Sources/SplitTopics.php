@@ -22,6 +22,7 @@ use SMF\Lang;
 use SMF\MessageIndex;
 use SMF\Msg;
 use SMF\Mail;
+use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -50,7 +51,7 @@ function SplitTopics()
 
 	// Load up the "dependencies" - the template and getMsgMemberID().
 	if (!isset($_REQUEST['xml']))
-		loadTemplate('SplitTopics');
+		Theme::loadTemplate('SplitTopics');
 
 	$subActions = array(
 		'selectTopics' => 'SplitSelectTopics',
@@ -196,8 +197,6 @@ function SplitExecute()
  */
 function SplitSelectTopics()
 {
-	global $options;
-
 	Utils::$context['page_title'] = Lang::$txt['split'] . ' - ' . Lang::$txt['select_split_posts'];
 
 	// Haven't selected anything have we?
@@ -231,7 +230,7 @@ function SplitSelectTopics()
 	Utils::$context['sub_template'] = isset($_REQUEST['xml']) ? 'split' : 'select';
 
 	// Are we using a custom messages per page?
-	Utils::$context['messages_per_page'] = empty(Config::$modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) ? $options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
+	Utils::$context['messages_per_page'] = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
 
 	// Get the message ID's from before the move.
 	if (isset($_REQUEST['xml']))
@@ -246,7 +245,7 @@ function SplitSelectTopics()
 			WHERE id_topic = {int:current_topic}' . (empty($_SESSION['split_selection'][Topic::$topic_id]) ? '' : '
 				AND id_msg NOT IN ({array_int:no_split_msgs})') . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 				AND approved = {int:is_approved}') . '
-				' . (empty($options['view_newest_first']) ? '' : 'ORDER BY id_msg DESC') . '
+				' . (empty(Theme::$current->options['view_newest_first']) ? '' : 'ORDER BY id_msg DESC') . '
 				LIMIT {int:start}, {int:messages_per_page}',
 			array(
 				'current_topic' => Topic::$topic_id,
@@ -270,7 +269,7 @@ function SplitSelectTopics()
 				WHERE id_topic = {int:current_topic}
 					AND id_msg IN ({array_int:split_msgs})' . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 					AND approved = {int:is_approved}') . '
-				' . (empty($options['view_newest_first']) ? '' : 'ORDER BY id_msg DESC') . '
+				' . (empty(Theme::$current->options['view_newest_first']) ? '' : 'ORDER BY id_msg DESC') . '
 				LIMIT {int:start}, {int:messages_per_page}',
 				array(
 					'current_topic' => Topic::$topic_id,
@@ -357,7 +356,7 @@ function SplitSelectTopics()
 		WHERE m.id_topic = {int:current_topic}' . (empty($_SESSION['split_selection'][Topic::$topic_id]) ? '' : '
 			AND id_msg NOT IN ({array_int:no_split_msgs})') . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 			AND approved = {int:is_approved}') . '
-			' . (empty($options['view_newest_first']) ? '' : 'ORDER BY m.id_msg DESC') . '
+			' . (empty(Theme::$current->options['view_newest_first']) ? '' : 'ORDER BY m.id_msg DESC') . '
 			LIMIT {int:start}, {int:messages_per_page}',
 		array(
 			'current_topic' => Topic::$topic_id,
@@ -397,7 +396,7 @@ function SplitSelectTopics()
 			WHERE m.id_topic = {int:current_topic}
 				AND m.id_msg IN ({array_int:split_msgs})' . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 				AND approved = {int:is_approved}') . '
-			' . (empty($options['view_newest_first']) ? '' : 'ORDER BY m.id_msg DESC') . '
+			' . (empty(Theme::$current->options['view_newest_first']) ? '' : 'ORDER BY m.id_msg DESC') . '
 			LIMIT {int:start}, {int:messages_per_page}',
 			array(
 				'current_topic' => Topic::$topic_id,
@@ -828,7 +827,7 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 function MergeTopics()
 {
 	// Load the template....
-	loadTemplate('MoveTopic');
+	Theme::loadTemplate('MoveTopic');
 
 	$subActions = array(
 		'done' => 'MergeDone',
@@ -1151,7 +1150,7 @@ function MergeExecute($topics = array())
 	if (!empty($topics))
 	{
 		isAllowedTo('merge_any', $boards);
-		loadTemplate('MoveTopic');
+		Theme::loadTemplate('MoveTopic');
 	}
 
 	// Get the boards a user is allowed to merge in.

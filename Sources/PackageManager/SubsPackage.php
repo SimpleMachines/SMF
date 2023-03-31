@@ -16,6 +16,7 @@ namespace SMF\PackageManager;
 use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -1642,19 +1643,17 @@ class SubsPackage
 	 */
 	public static function parse_path($path)
 	{
-		global $settings;
-
 		$dirs = array(
 			'\\' => '/',
 			'$boarddir' => Config::$boarddir,
 			'$sourcedir' => Config::$sourcedir,
 			'$avatardir' => Config::$modSettings['avatar_directory'],
 			'$avatars_dir' => Config::$modSettings['avatar_directory'],
-			'$themedir' => $settings['default_theme_dir'],
-			'$imagesdir' => $settings['default_theme_dir'] . '/' . basename($settings['default_images_url']),
+			'$themedir' => Theme::$current->settings['default_theme_dir'],
+			'$imagesdir' => Theme::$current->settings['default_theme_dir'] . '/' . basename(Theme::$current->settings['default_images_url']),
 			'$themes_dir' => Config::$boarddir . '/Themes',
-			'$languagedir' => $settings['default_theme_dir'] . '/languages',
-			'$languages_dir' => $settings['default_theme_dir'] . '/languages',
+			'$languagedir' => Theme::$current->settings['default_theme_dir'] . '/languages',
+			'$languages_dir' => Theme::$current->settings['default_theme_dir'] . '/languages',
 			'$smileysdir' => Config::$modSettings['smileys_dir'],
 			'$smileys_dir' => Config::$modSettings['smileys_dir'],
 		);
@@ -2284,8 +2283,6 @@ class SubsPackage
 	 */
 	public static function parseBoardMod($file, $testing = true, $undo = false, $theme_paths = array())
 	{
-		global $settings;
-
 		@set_time_limit(600);
 		$file = strtr($file, array("\r" => ''));
 
@@ -2433,7 +2430,7 @@ class SubsPackage
 
 				if (!file_exists($working_file))
 				{
-					$places_to_check = array(Config::$boarddir, Config::$sourcedir, $settings['default_theme_dir'], $settings['default_theme_dir'] . '/languages');
+					$places_to_check = array(Config::$boarddir, Config::$sourcedir, Theme::$current->settings['default_theme_dir'], Theme::$current->settings['default_theme_dir'] . '/languages');
 
 					foreach ($places_to_check as $place)
 						if (file_exists($place . '/' . $working_file))

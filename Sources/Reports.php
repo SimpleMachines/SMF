@@ -23,6 +23,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -49,7 +50,7 @@ function ReportsMain()
 	isAllowedTo('admin_forum');
 
 	// Let's get our things running...
-	loadTemplate('Reports');
+	Theme::loadTemplate('Reports');
 	Lang::load('Reports');
 
 	Utils::$context['page_title'] = Lang::$txt['generate_reports'];
@@ -501,8 +502,6 @@ function BoardPermissionsReport()
  */
 function MemberGroupsReport()
 {
-	global $settings;
-
 	// Fetch all the board names.
 	$request = Db::$db->query('', '
 		SELECT id_board, name, member_groups, id_profile, deny_member_groups
@@ -603,7 +602,7 @@ function MemberGroupsReport()
 			'color' => empty($row['online_color']) ? '-' : '<span style="color: ' . $row['online_color'] . ';">' . $row['online_color'] . '</span>',
 			'min_posts' => $row['min_posts'] == -1 ? 'N/A' : $row['min_posts'],
 			'max_messages' => $row['max_messages'],
-			'icons' => !empty($row['icons'][0]) && !empty($row['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/membericons/' . $row['icons'][1] . '" alt="*">', $row['icons'][0]) : '',
+			'icons' => !empty($row['icons'][0]) && !empty($row['icons'][1]) ? str_repeat('<img src="' . Theme::$current->settings['images_url'] . '/membericons/' . $row['icons'][1] . '" alt="*">', $row['icons'][0]) : '',
 		);
 
 		// Board permissions.

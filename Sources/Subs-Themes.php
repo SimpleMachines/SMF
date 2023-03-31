@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 use SMF\PackageManager\SubsPackage;
@@ -315,8 +316,6 @@ function get_theme_info($path)
  */
 function theme_install($to_install = array())
 {
-	global $settings;
-
 	// External use? no problem!
 	if (!empty($to_install))
 		Utils::$context['to_install'] = $to_install;
@@ -378,8 +377,8 @@ function theme_install($to_install = array())
 		// No need for elaborated stuff when the theme is based on the default one.
 		if (Utils::$context['to_install']['based_on'] == 'default')
 		{
-			Utils::$context['to_install']['theme_url'] = $settings['default_theme_url'];
-			Utils::$context['to_install']['images_url'] = $settings['default_images_url'];
+			Utils::$context['to_install']['theme_url'] = Theme::$current->settings['default_theme_url'];
+			Utils::$context['to_install']['images_url'] = Theme::$current->settings['default_images_url'];
 		}
 
 		// Custom theme based on another custom theme, lets get some info.

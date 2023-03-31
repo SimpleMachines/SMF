@@ -19,6 +19,7 @@
  */
 
 use SMF\Config;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -913,7 +914,7 @@ function gif_outputAsPng($gif, $lpszFileName, $background_color = -1)
  */
 function showCodeImage($code)
 {
-	global $gd2, $settings;
+	global $gd2;
 
 	// Note: The higher the value of visual_verification_type the harder the verification is - from 0 as disabled through to 4 as "Very hard".
 
@@ -958,7 +959,7 @@ function showCodeImage($code)
 	if ($simpleBGColor)
 		$background_color = array(255, 255, 255);
 	else
-		$background_color = isset($settings['verification_background']) ? $settings['verification_background'] : array(236, 237, 243);
+		$background_color = isset(Theme::$current->settings['verification_background']) ? Theme::$current->settings['verification_background'] : array(236, 237, 243);
 
 	// The color of the characters shown (red, green, blue).
 	if ($simpleFGColor)
@@ -968,15 +969,15 @@ function showCodeImage($code)
 		$foreground_color = array(64, 101, 136);
 
 		// Has the theme author requested a custom color?
-		if (isset($settings['verification_foreground']))
-			$foreground_color = $settings['verification_foreground'];
+		if (isset(Theme::$current->settings['verification_foreground']))
+			$foreground_color = Theme::$current->settings['verification_foreground'];
 	}
 
-	if (!is_dir($settings['default_theme_dir'] . '/fonts'))
+	if (!is_dir(Theme::$current->settings['default_theme_dir'] . '/fonts'))
 		return false;
 
 	// Get a list of the available fonts.
-	$font_dir = dir($settings['default_theme_dir'] . '/fonts');
+	$font_dir = dir(Theme::$current->settings['default_theme_dir'] . '/fonts');
 	$font_list = array();
 	$ttfont_list = array();
 	$endian = unpack('v', pack('S', 0x00FF)) === 0x00FF;
@@ -1020,7 +1021,7 @@ function showCodeImage($code)
 
 	// Load all fonts and determine the maximum font height.
 	foreach ($loaded_fonts as $font_index => $dummy)
-		$loaded_fonts[$font_index] = imageloadfont($settings['default_theme_dir'] . '/fonts/' . $font_list[$font_index]);
+		$loaded_fonts[$font_index] = imageloadfont(Theme::$current->settings['default_theme_dir'] . '/fonts/' . $font_list[$font_index]);
 
 	// Determine the dimensions of each character.
 	if ($imageType == 4 || $imageType == 5)
@@ -1123,7 +1124,7 @@ function showCodeImage($code)
 
 				// What font face?
 				if (!empty($ttfont_list))
-					$fontface = $settings['default_theme_dir'] . '/fonts/' . $ttfont_list[mt_rand(0, count($ttfont_list) - 1)];
+					$fontface = Theme::$current->settings['default_theme_dir'] . '/fonts/' . $ttfont_list[mt_rand(0, count($ttfont_list) - 1)];
 
 				// What color are we to do it in?
 				$is_reverse = $showReverseChars ? mt_rand(0, 1) : false;
@@ -1251,16 +1252,14 @@ function showCodeImage($code)
  */
 function showLetterImage($letter)
 {
-	global $settings;
-
-	if (!is_dir($settings['default_theme_dir'] . '/fonts'))
+	if (!is_dir(Theme::$current->settings['default_theme_dir'] . '/fonts'))
 		return false;
 
 	// Get a list of the available font directories.
-	$font_dir = dir($settings['default_theme_dir'] . '/fonts');
+	$font_dir = dir(Theme::$current->settings['default_theme_dir'] . '/fonts');
 	$font_list = array();
 	while ($entry = $font_dir->read())
-		if ($entry[0] !== '.' && is_dir($settings['default_theme_dir'] . '/fonts/' . $entry) && file_exists($settings['default_theme_dir'] . '/fonts/' . $entry . '.gdf'))
+		if ($entry[0] !== '.' && is_dir(Theme::$current->settings['default_theme_dir'] . '/fonts/' . $entry) && file_exists(Theme::$current->settings['default_theme_dir'] . '/fonts/' . $entry . '.gdf'))
 			$font_list[] = $entry;
 
 	if (empty($font_list))
@@ -1270,12 +1269,12 @@ function showLetterImage($letter)
 	$random_font = $font_list[array_rand($font_list)];
 
 	// Check if the given letter exists.
-	if (!file_exists($settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . strtoupper($letter) . '.png'))
+	if (!file_exists(Theme::$current->settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . strtoupper($letter) . '.png'))
 		return false;
 
 	// Include it!
 	header('content-type: image/png');
-	include($settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . strtoupper($letter) . '.png');
+	include(Theme::$current->settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . strtoupper($letter) . '.png');
 
 	// Nothing more to come.
 	die();

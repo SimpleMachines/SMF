@@ -12,6 +12,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 
 /**
@@ -19,8 +20,6 @@ use SMF\Utils;
  */
 function template_reported_posts()
 {
-	global $options;
-
 	// Let them know the action was a success.
 	if (!empty(Utils::$context['report_post_action']))
 		echo '
@@ -37,7 +36,7 @@ function template_reported_posts()
 		</div>
 		<div class="pagesection">';
 
-	if (!empty(Utils::$context['reports']) && !Utils::$context['view_closed'] && !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
+	if (!empty(Utils::$context['reports']) && !Utils::$context['view_closed'] && !empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1)
 		echo '
 			<ul class="buttonlist floatright">
 				<li class="inline_mod_check">
@@ -89,7 +88,7 @@ function template_reported_posts()
 		<div class="pagesection">
 			<div class="pagelinks floatleft">' . Utils::$context['page_index'] . '</div>';
 
-	if (!empty(Utils::$context['reports']) && !Utils::$context['view_closed'] && !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
+	if (!empty(Utils::$context['reports']) && !Utils::$context['view_closed'] && !empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1)
 		echo '
 			<div class="floatright">
 				<input type="hidden" name="' . Utils::$context['mod-report-close-all_token_var'] . '" value="' . Utils::$context['mod-report-close-all_token'] . '">
@@ -382,8 +381,6 @@ function template_reported_members_block()
  */
 function template_reported_members()
 {
-	global $options;
-
 	// Let them know the action was a success.
 	if (!empty(Utils::$context['report_post_action']) && !empty(Lang::$txt['report_action_' . Utils::$context['report_post_action']]))
 		echo '
@@ -400,7 +397,7 @@ function template_reported_members()
 		</div>
 		<div class="pagesection">';
 
-	if (!empty(Utils::$context['reports']) && !Utils::$context['view_closed'] && !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
+	if (!empty(Utils::$context['reports']) && !Utils::$context['view_closed'] && !empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1)
 		echo '
 			<ul class="buttonlist floatright">
 				<li class="inline_mod_check">

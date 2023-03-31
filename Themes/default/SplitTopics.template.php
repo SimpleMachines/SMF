@@ -12,6 +12,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 
 /**
@@ -84,8 +85,6 @@ function template_main()
  */
 function template_select()
 {
-	global $options;
-
 	echo '
 	<div id="split_topics">
 		<form action="', Config::$scripturl, '?action=splittopics;sa=splitSelection;board=', Utils::$context['current_board'], '.0" method="post" accept-charset="', Utils::$context['character_set'], '">
@@ -192,7 +191,7 @@ function template_select()
 					oListItems = curList.getElementsByTagName("LI");
 					for (j = 0; j < oListItems.length; j++)
 					{
-						if (parseInt(oListItems[j].id.substr(curSection.length + 1)) ' . (empty($options['view_newest_first']) ? '>' : '<') . ' curId)
+						if (parseInt(oListItems[j].id.substr(curSection.length + 1)) ' . (empty(Theme::$current->options['view_newest_first']) ? '>' : '<') . ' curId)
 						{
 							// This would be a nice place to insert the row.
 							sInsertBeforeId = oListItems[j].id;

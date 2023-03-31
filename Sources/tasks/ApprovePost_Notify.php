@@ -16,6 +16,7 @@ namespace SMF\Tasks;
 use SMF\Config;
 use SMF\Msg;
 use SMF\Mail;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -76,8 +77,7 @@ class ApprovePost_Notify extends BackgroundTask
 			if ($pref & self::RECEIVE_NOTIFY_EMAIL)
 			{
 				// Emails are a bit complicated. We have to do language stuff.
-				require_once(Config::$sourcedir . '/ScheduledTasks.php');
-				loadEssentialThemeData();
+				Theme::loadEssential();
 
 				$replacements = array(
 					'SUBJECT' => $msgOptions['subject'],

@@ -12,6 +12,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 
 /**
@@ -273,8 +274,6 @@ function template_folder()
  */
 function template_single_pm($message)
 {
-	global $settings, $options;
-
 	echo '
 	<div class="windowbg" id="msg', $message['id'],'">
 		<div class="post_wrapper">
@@ -337,7 +336,7 @@ function template_single_pm($message)
 					<li class="membergroup">', $message['member']['group'], '</li>';
 
 	// Show the user's avatar.
-	if (!empty(Config::$modSettings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
+	if (!empty(Config::$modSettings['show_user_images']) && empty(Theme::$current->options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
 		echo '
 					<li class="avatar">
 						<a href="', Config::$scripturl, '?action=profile;u=', $message['member']['id'], '">', $message['member']['avatar']['image'], '</a>
@@ -418,22 +417,22 @@ function template_single_pm($message)
 			// Show the profile button
 			if ($message['member']['can_view_profile'])
 				echo '
-							<li><a href="', $message['member']['href'], '" title="' . Lang::$txt['view_profile'] . '">', ($settings['use_image_buttons'] ? '<span class="main_icons members"></span>' : Lang::$txt['view_profile']), '</a></li>';
+							<li><a href="', $message['member']['href'], '" title="' . Lang::$txt['view_profile'] . '">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons members"></span>' : Lang::$txt['view_profile']), '</a></li>';
 
 			// Don't show an icon if they haven't specified a website.
 			if ($message['member']['website']['url'] != '' && !isset(Utils::$context['disabled_fields']['website']))
 				echo '
-							<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener">', ($settings['use_image_buttons'] ? '<span class="main_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : Lang::$txt['www']), '</a></li>';
+							<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : Lang::$txt['www']), '</a></li>';
 
 			// Don't show the email address if they want it hidden.
 			if ($message['member']['show_email'])
 				echo '
-							<li><a href="mailto:', $message['member']['email'], '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::$txt['email'] . '"></span>' : Lang::$txt['email']), '</a></li>';
+							<li><a href="mailto:', $message['member']['email'], '" rel="nofollow">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::$txt['email'] . '"></span>' : Lang::$txt['email']), '</a></li>';
 
 			// Since we know this person isn't a guest, you *can* message them.
 			if (Utils::$context['can_send_pm'] && $message['member']['id'] != 0)
 				echo '
-							<li><a href="', Config::$scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline'], '">', $settings['use_image_buttons'] ? '<span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . ($message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline']) . '"></span> ' : ($message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline']), '</a></li>';
+							<li><a href="', Config::$scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline'], '">', Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . ($message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline']) . '"></span> ' : ($message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline']), '</a></li>';
 
 			echo '
 						</ol>
@@ -575,7 +574,7 @@ function template_single_pm($message)
 	}
 
 	// Show the member's signature?
-	if (!empty($message['member']['signature']) && empty($options['show_no_signatures']) && Utils::$context['signature_enabled'])
+	if (!empty($message['member']['signature']) && empty(Theme::$current->options['show_no_signatures']) && Utils::$context['signature_enabled'])
 		echo '
 				<div class="signature">
 					', $message['member']['signature'], '
@@ -608,8 +607,6 @@ function template_single_pm($message)
  */
 function template_subject_list()
 {
-	global $settings;
-
 	echo '
 	<div class="cat_bar">
 		<h3 class="catbg">
@@ -678,7 +675,7 @@ function template_subject_list()
 				</td>
 				<td class="pm_time">', $message['time'], '</td>
 				<td class="pm_subject">
-					', (Utils::$context['display_mode'] != 0 && Utils::$context['current_pm'] == $message['id'] ? '<img src="' . $settings['images_url'] . '/selected.png" alt="*">' : ''), '<a href="', (Utils::$context['display_mode'] == 0 || Utils::$context['current_pm'] == $message['id'] ? '' : (Config::$scripturl . '?action=pm;pmid=' . $message['id'] . ';kstart;f=' . Utils::$context['folder'] . ';start=' . Utils::$context['start'] . ';sort=' . Utils::$context['sort_by'] . (Utils::$context['sort_direction'] == 'up' ? ';' : ';desc') . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : ''))), '#msg', $message['id'], '">', $message['subject'], $message['is_unread'] ? '&nbsp;<span class="new_posts">' . Lang::$txt['new'] . '</span>' : '', '</a>
+					', (Utils::$context['display_mode'] != 0 && Utils::$context['current_pm'] == $message['id'] ? '<img src="' . Theme::$current->settings['images_url'] . '/selected.png" alt="*">' : ''), '<a href="', (Utils::$context['display_mode'] == 0 || Utils::$context['current_pm'] == $message['id'] ? '' : (Config::$scripturl . '?action=pm;pmid=' . $message['id'] . ';kstart;f=' . Utils::$context['folder'] . ';start=' . Utils::$context['start'] . ';sort=' . Utils::$context['sort_by'] . (Utils::$context['sort_direction'] == 'up' ? ';' : ';desc') . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : ''))), '#msg', $message['id'], '">', $message['subject'], $message['is_unread'] ? '&nbsp;<span class="new_posts">' . Lang::$txt['new'] . '</span>' : '', '</a>
 					<span class="pm_inline_time"><span class="main_icons ', (Utils::$context['from_or_to'] == 'to' && count($message['recipients']['to']) > 1) ? 'people' : 'members', '"></span> ', (Utils::$context['from_or_to'] == 'from' ? $message['member']['link'] : (empty($message['recipients']['to']) ? '' : implode(', ', $message['recipients']['to']))), '  <span class="main_icons time_online"></span> ', $message['time'], '</span>
 				</td>
 				<td class="pm_from_to">
@@ -957,8 +954,6 @@ function template_search_results()
  */
 function template_send()
 {
-	global $options;
-
 	// Show which messages were sent successfully and which failed.
 	if (!empty(Utils::$context['send_log']))
 	{
@@ -1079,7 +1074,7 @@ function template_send()
 				', template_control_richedit(Utils::$context['post_box_name'], 'smileyBox_message', 'bbcBox_message');
 
 	// If the admin enabled the pm drafts feature, show a draft selection box
-	if (!empty(Utils::$context['drafts_pm_save']) && !empty(Utils::$context['drafts']) && !empty($options['drafts_show_saved_enabled']))
+	if (!empty(Utils::$context['drafts_pm_save']) && !empty(Utils::$context['drafts']) && !empty(Theme::$current->options['drafts_show_saved_enabled']))
 	{
 		echo '
 				<div id="post_draft_options_header" class="title_bar">

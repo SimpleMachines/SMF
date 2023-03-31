@@ -2489,7 +2489,7 @@ class Board implements \ArrayAccess
 		else
 		{
 			User::$me->loadPermissions();
-			loadTheme();
+			Theme::load();
 			fatal_lang_error('topic_gone', false);
 		}
 	}
@@ -2745,7 +2745,7 @@ class Board implements \ArrayAccess
 		{
 			// The permissions and theme need loading, just to make sure everything goes smoothly.
 			User::$me->loadPermissions();
-			loadTheme();
+			Theme::load();
 
 			$_GET['board'] = '';
 			$_GET['topic'] = '';

@@ -279,8 +279,6 @@ class Msg implements \ArrayAccess
 	 */
 	public function format(int $counter = 0, array $format_options = array()): array
 	{
-		global $settings, $options;
-
 		require_once(Config::$sourcedir . '/Subs-Attachments.php');
 
 		// These options are enabled by default.
@@ -315,7 +313,7 @@ class Msg implements \ArrayAccess
 			'body' => $this->body ?? '',
 			'new' => empty($this->is_read),
 			'first_new' => isset(Utils::$context['start_from']) && Utils::$context['start_from'] == $counter,
-			'is_ignored' => !empty(Config::$modSettings['enable_buddylist']) && !empty($options['posts_apply_ignore_list']) && in_array($this->id_member, User::$me->ignoreusers),
+			'is_ignored' => !empty(Config::$modSettings['enable_buddylist']) && !empty(Theme::$current->options['posts_apply_ignore_list']) && in_array($this->id_member, User::$me->ignoreusers),
 		);
 
 		// Are we showing the icon?
@@ -336,7 +334,7 @@ class Msg implements \ArrayAccess
 				// If the current icon isn't known, then we need to do something...
 				if (!isset(Utils::$context['icon_sources'][$this->icon]))
 				{
-					Utils::$context['icon_sources'][$this->icon] = file_exists($settings['theme_dir'] . '/images/post/' . $this->icon . '.png') ? 'images_url' : 'default_images_url';
+					Utils::$context['icon_sources'][$this->icon] = file_exists(Theme::$current->settings['theme_dir'] . '/images/post/' . $this->icon . '.png') ? 'images_url' : 'default_images_url';
 				}
 			}
 			elseif (!isset(Utils::$context['icon_sources'][$this->icon]))
@@ -358,7 +356,7 @@ class Msg implements \ArrayAccess
 				$this->formatted['icon'] = 'clip';
 
 			// Set the full URL of the icon image.
-			$this->formatted['icon_url'] = $settings[Utils::$context['icon_sources'][$this->formatted['icon']]] . '/post/' . $this->formatted['icon'] . '.png';
+			$this->formatted['icon_url'] = Theme::$current->settings[Utils::$context['icon_sources'][$this->formatted['icon']]] . '/post/' . $this->formatted['icon'] . '.png';
 		}
 
 		// What is the user allowed to do with this message?
@@ -577,8 +575,6 @@ class Msg implements \ArrayAccess
 	 */
 	public static function get($ids, array $query_customizations = array())
 	{
-		global $options;
-
 		$selects = $query_customizations['selects'] ?? array(
 			'm.*',
 			'm.id_msg_modified < {int:new_from} AS is_read',
@@ -588,7 +584,7 @@ class Msg implements \ArrayAccess
 			'm.id_msg IN ({array_int:message_list})',
 		);
 		$order = $query_customizations['order'] ?? array(
-			'm.id_msg' . (empty($options['view_newest_first']) ? '' : ' DESC'),
+			'm.id_msg' . (empty(Theme::$current->options['view_newest_first']) ? '' : ' DESC'),
 		);
 		$limit = $query_customizations['limit'] ?? 0;
 		$params = $query_customizations['params'] ?? array(
@@ -1618,7 +1614,7 @@ class Msg implements \ArrayAccess
 		$known_words = array('smf', 'php', 'mysql', 'www', 'gif', 'jpeg', 'png', 'http', 'smfisawesome', 'grandia', 'terranigma', 'rpgs');
 
 		Lang::load('Post');
-		loadTemplate('Post');
+		Theme::loadTemplate('Post');
 
 		// Create a pspell or enchant dictionary resource
 		$dict = spell_init();

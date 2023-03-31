@@ -20,6 +20,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Mail;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -50,7 +51,7 @@ function Register($reg_errors = array())
 		redirectexit();
 
 	Lang::load('Login');
-	loadTemplate('Register');
+	Theme::loadTemplate('Register');
 
 	// How many steps have we done so far today?
 	$current_step = isset($_REQUEST['step']) ? (int) $_REQUEST['step'] : (!empty(Config::$modSettings['requireAgreement']) || !empty(Config::$modSettings['requirePolicyAgreement']) ? 1 : 2);
@@ -109,7 +110,7 @@ function Register($reg_errors = array())
 
 	// Kinda need this.
 	if (Utils::$context['sub_template'] == 'registration_form')
-		loadJavaScriptFile('register.js', array('defer' => false, 'minimize' => true), 'smf_register');
+		Theme::loadJavaScriptFile('register.js', array('defer' => false, 'minimize' => true), 'smf_register');
 
 	// Add the register chain to the link tree.
 	Utils::$context['linktree'][] = array(
@@ -196,7 +197,7 @@ function Register($reg_errors = array())
 
 		// Setup some important context.
 		Lang::load('Profile');
-		loadTemplate('Profile');
+		Theme::loadTemplate('Profile');
 
 		User::$me->is_owner = true;
 
@@ -568,7 +569,7 @@ function Register2()
 	// Basic template variable setup.
 	elseif (!empty(Config::$modSettings['registration_method']))
 	{
-		loadTemplate('Register');
+		Theme::loadTemplate('Register');
 
 		Utils::$context += array(
 			'page_title' => Lang::$txt['register'],
@@ -599,7 +600,7 @@ function Activate()
 		redirectexit();
 
 	Lang::load('Login');
-	loadTemplate('Login');
+	Theme::loadTemplate('Login');
 
 	if (empty($_REQUEST['u']) && empty($_POST['user']))
 	{
@@ -747,7 +748,7 @@ function Activate()
 function CoppaForm()
 {
 	Lang::load('Login');
-	loadTemplate('Register');
+	Theme::loadTemplate('Register');
 
 	// No User ID??
 	if (!isset($_GET['member']))
@@ -841,7 +842,7 @@ function VerificationCode()
 	elseif (isset($_REQUEST['sound']))
 	{
 		Lang::load('Login');
-		loadTemplate('Register');
+		Theme::loadTemplate('Register');
 
 		Utils::$context['verification_sound_href'] = Config::$scripturl . '?action=verificationcode;rand=' . md5(mt_rand()) . ($verification_id ? ';vid=' . $verification_id : '') . ';format=.wav';
 		Utils::$context['sub_template'] = 'verification_sound';
@@ -894,7 +895,7 @@ function VerificationCode()
 function RegisterCheckUsername()
 {
 	// This is XML!
-	loadTemplate('Xml');
+	Theme::loadTemplate('Xml');
 	Utils::$context['sub_template'] = 'check_username';
 	Utils::$context['checked_username'] = isset($_GET['username']) ? un_htmlspecialchars($_GET['username']) : '';
 	Utils::$context['valid_username'] = true;
@@ -916,7 +917,7 @@ function SendActivation()
 	User::$me->is_guest = true;
 
 	// Send them to the done-with-registration-login screen.
-	loadTemplate('Register');
+	Theme::loadTemplate('Register');
 
 	Utils::$context['page_title'] = Lang::$txt['profile'];
 	Utils::$context['sub_template'] = 'after';

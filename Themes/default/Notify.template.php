@@ -59,8 +59,6 @@ function template_notify_board()
  */
 function template_notify_announcements()
 {
-	global $settings, $options;
-
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
@@ -81,8 +79,6 @@ function template_notify_announcements()
  */
 function template_notify_pref_changed()
 {
-	global $settings, $options;
-
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">

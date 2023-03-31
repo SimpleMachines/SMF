@@ -32,6 +32,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -51,6 +52,17 @@ if (!defined('SMF'))
  */
 function ThemesMain()
 {
+	// PickTheme() has been migrated to SMF\Theme::pickTheme()
+	if (isset($_GET['sa']) && $_GET['sa'] === 'pick')
+	{
+		redirectexit('action=theme;sa=pick' . (isset($_GET['u']) ? ';u=' . $_GET['u'] : ''));
+	}
+	// Everything in this file should be accessed via the ACP, not the 'theme' action.
+	elseif ($_REQUEST['action'] === 'theme')
+	{
+		redirectexit('action=admin;area=theme;' . (isset($_GET['sa']) ? ';sa=' . $_GET['sa'] : '') . (isset($_GET['u']) ? ';u=' . $_GET['u'] : ''));
+	}
+
 	// Load the important language files...
 	Lang::load('Themes');
 	Lang::load('Settings');
@@ -72,7 +84,6 @@ function ThemesMain()
 		'options' => 'SetThemeOptions',
 		'install' => 'ThemeInstall',
 		'remove' => 'RemoveTheme',
-		'pick' => 'PickTheme',
 		'edit' => 'EditTheme',
 		'enable' => 'EnableTheme',
 		'copy' => 'CopyTemplate',
@@ -157,7 +168,7 @@ function ThemeAdmin()
 
 	Lang::load('Admin');
 	isAllowedTo('admin_forum');
-	loadTemplate('Themes');
+	Theme::loadTemplate('Themes');
 
 	// List all enabled themes.
 	get_all_themes(true);
@@ -234,7 +245,7 @@ function ThemeList()
 		redirectexit('action=admin;area=theme;sa=list;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 	}
 
-	loadTemplate('Themes');
+	Theme::loadTemplate('Themes');
 
 	// Get all installed themes.
 	get_installed_themes();
@@ -253,8 +264,6 @@ function ThemeList()
  */
 function SetThemeOptions()
 {
-	global $settings;
-
 	$_GET['th'] = isset($_GET['th']) ? (int) $_GET['th'] : (isset($_GET['id']) ? (int) $_GET['id'] : 0);
 
 	isAllowedTo('admin_forum');
@@ -331,7 +340,7 @@ function SetThemeOptions()
 			if (empty($v['theme_dir']) || (!file_exists($v['theme_dir'] . '/Settings.template.php') && empty($v['num_members'])))
 				unset(Utils::$context['themes'][$k]);
 
-		loadTemplate('Themes');
+		Theme::loadTemplate('Themes');
 		Utils::$context['sub_template'] = 'reset_list';
 
 		createToken('admin-stor', 'request');
@@ -547,18 +556,18 @@ function SetThemeOptions()
 		redirectexit('action=admin;area=theme;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=reset');
 	}
 
-	$old_id = $settings['theme_id'];
-	$old_settings = $settings;
+	$old_id = Theme::$current->settings['theme_id'];
+	$old_settings = Theme::$current->settings;
 
-	loadTheme($_GET['th'], false);
+	Theme::load($_GET['th'], false);
 
 	Lang::load('Profile');
 	// @todo Should we just move these options so they are no longer theme dependent?
 	Lang::load('PersonalMessage');
 
 	// Let the theme take care of the settings.
-	loadTemplate('Settings');
-	loadSubTemplate('options');
+	Theme::loadTemplate('Settings');
+	Theme::loadSubTemplate('options');
 
 	// Let mods hook into the theme options.
 	call_integration_hook('integrate_theme_options');
@@ -567,7 +576,7 @@ function SetThemeOptions()
 	Utils::$context['page_title'] = Lang::$txt['theme_settings'];
 
 	Utils::$context['options'] = Utils::$context['theme_options'];
-	Utils::$context['theme_settings'] = $settings;
+	Utils::$context['theme_settings'] = Theme::$current->settings;
 
 	if (empty($_REQUEST['who']))
 	{
@@ -621,16 +630,16 @@ function SetThemeOptions()
 	}
 
 	// Restore the existing theme.
-	loadTheme($old_id, false);
-	$settings = $old_settings;
+	Theme::load($old_id, false);
+	Theme::$current->settings = $old_settings;
 
-	loadTemplate('Themes');
+	Theme::loadTemplate('Themes');
 	createToken('admin-sto');
 }
 
 /**
  * Administrative global settings.
- * - saves and requests global theme settings. ($settings)
+ * - saves and requests global theme settings. (Theme::$current->settings)
  * - loads the Admin language file.
  * - calls ThemeAdmin() if no theme is specified. (the theme center.)
  * - requires admin_forum permission.
@@ -638,8 +647,6 @@ function SetThemeOptions()
  */
 function SetThemeSettings()
 {
-	global $settings;
-
 	if (empty($_GET['th']) && empty($_GET['id']))
 		return ThemeAdmin();
 
@@ -664,32 +671,30 @@ function SetThemeSettings()
 	foreach ($sets as $i => $set)
 		Utils::$context['smiley_sets'][$set] = Utils::htmlspecialchars($set_names[$i]);
 
-	$old_id = $settings['theme_id'];
-	$old_settings = $settings;
+	$old_id = Theme::$current->id;
 
-	loadTheme($_GET['th'], false);
+	Theme::load($_GET['th'], false);
 
 	// Sadly we really do need to init the template.
-	loadSubTemplate('init', 'ignore');
+	Theme::loadSubTemplate('init', 'ignore');
 
 	// Also load the actual themes language file - in case of special settings.
-	Lang::addDirs();
 	Lang::load('Settings', '', true, true);
 
 	// And the custom language strings...
 	Lang::load('ThemeStrings', '', false, true);
 
 	// Let the theme take care of the settings.
-	loadTemplate('Settings');
-	loadSubTemplate('settings');
+	Theme::loadTemplate('Settings');
+	Theme::loadSubTemplate('settings');
 
 	// Load the variants separately...
-	$settings['theme_variants'] = array();
-	if (file_exists($settings['theme_dir'] . '/index.template.php'))
+	Theme::$current->settings['theme_variants'] = array();
+	if (file_exists(Theme::$current->settings['theme_dir'] . '/index.template.php'))
 	{
-		$file_contents = implode('', file($settings['theme_dir'] . '/index.template.php'));
-		if (preg_match('~\$settings\[\'theme_variants\'\]\s*=(.+?);~', $file_contents, $matches))
-			eval('global $settings;' . $matches[0]);
+		$file_contents = implode('', file(Theme::$current->settings['theme_dir'] . '/index.template.php'));
+		if (preg_match('~((?:SMF\\\\)?Theme::\$current(?:->|_)|\$)settings\[\'theme_variants\'\]\s*=(.+?);~', $file_contents, $matches))
+			eval('use SMF\Theme; global $settings; ' . $matches[0]);
 	}
 
 	// Let mods hook into the theme settings.
@@ -755,14 +760,14 @@ function SetThemeSettings()
 	Utils::$context['sub_template'] = 'set_settings';
 	Utils::$context['page_title'] = Lang::$txt['theme_settings'];
 
-	foreach ($settings as $setting => $dummy)
+	foreach (Theme::$current->settings as $setting => $dummy)
 	{
 		if (!in_array($setting, array('theme_url', 'theme_dir', 'images_url', 'template_dirs')))
-			$settings[$setting] = htmlspecialchars__recursive($settings[$setting]);
+			Theme::$current->settings[$setting] = htmlspecialchars__recursive(Theme::$current->settings[$setting]);
 	}
 
 	Utils::$context['settings'] = Utils::$context['theme_settings'];
-	Utils::$context['theme_settings'] = $settings;
+	Utils::$context['theme_settings'] = Theme::$current->settings;
 
 	foreach (Utils::$context['settings'] as $i => $setting)
 	{
@@ -780,33 +785,31 @@ function SetThemeSettings()
 		if (isset($setting['options']))
 			Utils::$context['settings'][$i]['type'] = 'list';
 
-		Utils::$context['settings'][$i]['value'] = !isset($settings[$setting['id']]) ? '' : $settings[$setting['id']];
+		Utils::$context['settings'][$i]['value'] = !isset(Theme::$current->settings[$setting['id']]) ? '' : Theme::$current->settings[$setting['id']];
 	}
 
 	// Do we support variants?
-	if (!empty($settings['theme_variants']))
+	if (!empty(Theme::$current->settings['theme_variants']))
 	{
 		Utils::$context['theme_variants'] = array();
-		foreach ($settings['theme_variants'] as $variant)
+		foreach (Theme::$current->settings['theme_variants'] as $variant)
 		{
 			// Have any text, old chap?
 			Utils::$context['theme_variants'][$variant] = array(
 				'label' => isset(Lang::$txt['variant_' . $variant]) ? Lang::$txt['variant_' . $variant] : $variant,
-				'thumbnail' => !file_exists($settings['theme_dir'] . '/images/thumbnail.png') || file_exists($settings['theme_dir'] . '/images/thumbnail_' . $variant . '.png') ? $settings['images_url'] . '/thumbnail_' . $variant . '.png' : ($settings['images_url'] . '/thumbnail.png'),
+				'thumbnail' => !file_exists(Theme::$current->settings['theme_dir'] . '/images/thumbnail.png') || file_exists(Theme::$current->settings['theme_dir'] . '/images/thumbnail_' . $variant . '.png') ? Theme::$current->settings['images_url'] . '/thumbnail_' . $variant . '.png' : (Theme::$current->settings['images_url'] . '/thumbnail.png'),
 			);
 		}
-		Utils::$context['default_variant'] = !empty($settings['default_variant']) && isset(Utils::$context['theme_variants'][$settings['default_variant']]) ? $settings['default_variant'] : $settings['theme_variants'][0];
+		Utils::$context['default_variant'] = !empty(Theme::$current->settings['default_variant']) && isset(Utils::$context['theme_variants'][Theme::$current->settings['default_variant']]) ? Theme::$current->settings['default_variant'] : Theme::$current->settings['theme_variants'][0];
 	}
 
 	// Restore the current theme.
-	loadTheme($old_id, false);
+	Theme::load($old_id, false);
 
 	// Reinit just incase.
-	loadSubTemplate('init', 'ignore');
+	Theme::loadSubTemplate('init', 'ignore');
 
-	$settings = $old_settings;
-
-	loadTemplate('Themes');
+	Theme::loadTemplate('Themes');
 
 	// We like Kenny better than Token.
 	createToken('admin-sts');
@@ -878,292 +881,6 @@ function EnableTheme()
 }
 
 /**
- * Determines if a user can change their theme.
- *
- * @param int $id_member
- * @param int $id_theme
- *
- * @return bool
- */
-function canPickTheme($id_member, $id_theme)
-{
-	return
-		allowedTo(User::$me->id == $id_member ? 'profile_extra_own' : 'profile_extra_any')
-		&& ($id_theme == 0 || (allowedTo('admin_forum') || in_array($id_theme, explode(',', Config::$modSettings['knownThemes']))) && in_array($id_theme, explode(',', Config::$modSettings['enableThemes'])))
-		&& (!empty(Config::$modSettings['theme_allow']) || allowedTo('admin_forum'));
-}
-
-/**
- * Choose a theme from a list.
- * allows a user to pick a new theme with an interface.
- * - uses the Themes template. (pick sub template.)
- * - accessed with ?action=theme;sa=pick.
- */
-function PickTheme()
-{
-	global $settings;
-
-	Lang::load('Profile');
-	loadTemplate('Themes');
-
-	// Build the link tree.
-	Utils::$context['linktree'][] = array(
-		'url' => Config::$scripturl . '?action=theme;sa=pick;u=' . (!empty($_REQUEST['u']) ? (int) $_REQUEST['u'] : 0),
-		'name' => Lang::$txt['theme_pick'],
-	);
-	Utils::$context['default_theme_id'] = Config::$modSettings['theme_default'];
-	$_SESSION['id_theme'] = 0;
-	if (!isset($_REQUEST['u']))
-		$_REQUEST['u'] = User::$me->id;
-
-	// Have we made a decision, or are we just browsing?
-	if (isset($_POST['save']))
-	{
-		checkSession();
-		validateToken('pick-th');
-
-		$id_theme = (int) key($_POST['save']);
-		if (isset($_POST['vrt'][$id_theme]))
-			$variant = $_POST['vrt'][$id_theme];
-
-		if (canPickTheme((int) $_REQUEST['u'], $id_theme))
-		{
-			// An identifier of zero means that the user wants the forum default theme.
-			User::updateMemberData((int) $_REQUEST['u'], array('id_theme' => $id_theme));
-
-			if (!empty($variant))
-			{
-				// Set the identifier to the forum default.
-				if (isset($id_theme) && $id_theme == 0)
-					$id_theme = Config::$modSettings['theme_guests'];
-
-				Db::$db->insert('replace',
-					'{db_prefix}themes',
-					array('id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'),
-					array($id_theme, (int) $_REQUEST['u'], 'theme_variant', $variant),
-					array('id_theme', 'id_member', 'variable')
-				);
-				CacheApi::put('theme_settings-' . $id_theme . ':' . (int) $_REQUEST['u'], null, 90);
-
-				if (User::$me->id == $_REQUEST['u'])
-					$_SESSION['id_variant'] = 0;
-			}
-
-			redirectexit('action=profile;u=' . (int) $_REQUEST['u'] . ';area=theme');
-		}
-	}
-
-	// Figure out who the member of the minute is, and what theme they've chosen.
-	if (!isset($_REQUEST['u']) || !allowedTo('admin_forum'))
-	{
-		Utils::$context['current_member'] = User::$me->id;
-		Utils::$context['current_theme'] = User::$me->theme;
-	}
-	else
-	{
-		Utils::$context['current_member'] = (int) $_REQUEST['u'];
-
-		$request = Db::$db->query('', '
-			SELECT id_theme
-			FROM {db_prefix}members
-			WHERE id_member = {int:current_member}
-			LIMIT 1',
-			array(
-				'current_member' => Utils::$context['current_member'],
-			)
-		);
-		list (Utils::$context['current_theme']) = Db::$db->fetch_row($request);
-		Db::$db->free_result($request);
-	}
-
-	// Get the theme name and descriptions.
-	Utils::$context['available_themes'] = array();
-	if (!empty(Config::$modSettings['knownThemes']))
-	{
-		$request = Db::$db->query('', '
-			SELECT id_theme, variable, value
-			FROM {db_prefix}themes
-			WHERE variable IN ({literal:name}, {literal:theme_url}, {literal:theme_dir}, {literal:images_url}, {literal:disable_user_variant})' . (!allowedTo('admin_forum') ? '
-				AND id_theme IN ({array_int:known_themes})' : '') . '
-				AND id_theme != {int:default_theme}
-				AND id_member = {int:no_member}
-				AND id_theme IN ({array_int:enable_themes})',
-			array(
-				'default_theme' => 0,
-				'no_member' => 0,
-				'known_themes' => explode(',', Config::$modSettings['knownThemes']),
-				'enable_themes' => explode(',', Config::$modSettings['enableThemes']),
-			)
-		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			if (!isset(Utils::$context['available_themes'][$row['id_theme']]))
-				Utils::$context['available_themes'][$row['id_theme']] = array(
-					'id' => $row['id_theme'],
-					'selected' => Utils::$context['current_theme'] == $row['id_theme'],
-					'num_users' => 0
-				);
-			Utils::$context['available_themes'][$row['id_theme']][$row['variable']] = $row['value'];
-		}
-		Db::$db->free_result($request);
-	}
-
-	// Okay, this is a complicated problem: the default theme is 1, but they aren't allowed to access 1!
-	if (!isset(Utils::$context['available_themes'][Config::$modSettings['theme_guests']]))
-	{
-		Utils::$context['available_themes'][0] = array(
-			'num_users' => 0
-		);
-		$guest_theme = 0;
-	}
-	else
-		$guest_theme = Config::$modSettings['theme_guests'];
-
-	$request = Db::$db->query('', '
-		SELECT id_theme, COUNT(*) AS the_count
-		FROM {db_prefix}members
-		GROUP BY id_theme
-		ORDER BY id_theme DESC',
-		array(
-		)
-	);
-	while ($row = Db::$db->fetch_assoc($request))
-	{
-		// Figure out which theme it is they are REALLY using.
-		if (!empty(Config::$modSettings['knownThemes']) && !in_array($row['id_theme'], explode(',', Config::$modSettings['knownThemes'])))
-			$row['id_theme'] = $guest_theme;
-		elseif (empty(Config::$modSettings['theme_allow']))
-			$row['id_theme'] = $guest_theme;
-
-		if (isset(Utils::$context['available_themes'][$row['id_theme']]))
-			Utils::$context['available_themes'][$row['id_theme']]['num_users'] += $row['the_count'];
-		else
-			Utils::$context['available_themes'][$guest_theme]['num_users'] += $row['the_count'];
-	}
-	Db::$db->free_result($request);
-
-	// Get any member variant preferences.
-	$variant_preferences = array();
-	if (Utils::$context['current_member'] > 0)
-	{
-		$request = Db::$db->query('', '
-			SELECT id_theme, value
-			FROM {db_prefix}themes
-			WHERE variable = {string:theme_variant}
-				AND id_member IN ({array_int:id_member})
-			ORDER BY id_member ASC',
-			array(
-				'theme_variant' => 'theme_variant',
-				'id_member' => isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'pick' ? array(-1, Utils::$context['current_member']) : array(-1),
-			)
-		);
-		while ($row = Db::$db->fetch_assoc($request))
-			$variant_preferences[$row['id_theme']] = $row['value'];
-		Db::$db->free_result($request);
-	}
-
-	// Save the setting first.
-	$current_images_url = $settings['images_url'];
-	$current_theme_variants = !empty($settings['theme_variants']) ? $settings['theme_variants'] : array();
-
-	$current_lang_dirs = Lang::$dirs;
-	$current_thumbnail = Lang::$txt['theme_thumbnail_href'];
-	$current_description = Lang::$txt['theme_description'];
-
-	foreach (Utils::$context['available_themes'] as $id_theme => $theme_data)
-	{
-		// Don't try to load the forum or board default theme's data... it doesn't have any!
-		if ($id_theme == 0)
-			continue;
-
-		// The thumbnail needs the correct path.
-		$settings['images_url'] = &$theme_data['images_url'];
-
-		Lang::addDirs(array($theme_data['theme_dir'] . '/languages'));
-		Lang::load('Settings', '', false, true);
-
-		if (empty(Lang::$txt['theme_thumbnail_href']))
-			Lang::$txt['theme_thumbnail_href'] = $theme_data['images_url'] . '/thumbnail.png';
-
-		if (empty(Lang::$txt['theme_description']))
-			Lang::$txt['theme_description'] = '';
-
-		Utils::$context['available_themes'][$id_theme]['thumbnail_href'] = sprintf(Lang::$txt['theme_thumbnail_href'], $settings['images_url']);
-		Utils::$context['available_themes'][$id_theme]['description'] = Lang::$txt['theme_description'];
-
-		// Are there any variants?
-		Utils::$context['available_themes'][$id_theme]['variants'] = array();
-		if (file_exists($theme_data['theme_dir'] . '/index.template.php') && (empty($theme_data['disable_user_variant']) || allowedTo('admin_forum')))
-		{
-			$file_contents = implode('', file($theme_data['theme_dir'] . '/index.template.php'));
-			if (preg_match('~\$settings\[\'theme_variants\'\]\s*=(.+?);~', $file_contents, $matches))
-			{
-				$settings['theme_variants'] = array();
-
-				// Fill settings up.
-				eval('global $settings;' . $matches[0]);
-
-				if (!empty($settings['theme_variants']))
-				{
-					Lang::load('Settings');
-
-					foreach ($settings['theme_variants'] as $variant)
-						Utils::$context['available_themes'][$id_theme]['variants'][$variant] = array(
-							'label' => isset(Lang::$txt['variant_' . $variant]) ? Lang::$txt['variant_' . $variant] : $variant,
-							'thumbnail' => !file_exists($theme_data['theme_dir'] . '/images/thumbnail.png') || file_exists($theme_data['theme_dir'] . '/images/thumbnail_' . $variant . '.png') ? $theme_data['images_url'] . '/thumbnail_' . $variant . '.png' : ($theme_data['images_url'] . '/thumbnail.png'),
-						);
-
-					Utils::$context['available_themes'][$id_theme]['selected_variant'] = isset($_GET['vrt']) ? $_GET['vrt'] : (!empty($variant_preferences[$id_theme]) ? $variant_preferences[$id_theme] : (!empty($settings['default_variant']) ? $settings['default_variant'] : $settings['theme_variants'][0]));
-					if (!isset(Utils::$context['available_themes'][$id_theme]['variants'][Utils::$context['available_themes'][$id_theme]['selected_variant']]['thumbnail']))
-						Utils::$context['available_themes'][$id_theme]['selected_variant'] = $settings['theme_variants'][0];
-
-					Utils::$context['available_themes'][$id_theme]['thumbnail_href'] = Utils::$context['available_themes'][$id_theme]['variants'][Utils::$context['available_themes'][$id_theme]['selected_variant']]['thumbnail'];
-					// Allow themes to override the text.
-					Utils::$context['available_themes'][$id_theme]['pick_label'] = isset(Lang::$txt['variant_pick']) ? Lang::$txt['variant_pick'] : Lang::$txt['theme_pick_variant'];
-				}
-			}
-		}
-
-		// Restore language stuff.
-		Lang::$dirs = $current_lang_dirs;
-		Lang::$txt['theme_thumbnail_href'] = $current_thumbnail;
-		Lang::$txt['theme_description'] = $current_description;
-	}
-	// Then return it.
-	addJavaScriptVar(
-		'oThemeVariants',
-		json_encode(array_map(
-			function($theme)
-			{
-				return $theme['variants'];
-			},
-			Utils::$context['available_themes']
-		))
-	);
-	loadJavaScriptFile('profile.js', array('defer' => false, 'minimize' => true), 'smf_profile');
-	$settings['images_url'] = $current_images_url;
-	$settings['theme_variants'] = $current_theme_variants;
-
-	// As long as we're not doing the default theme...
-	if (!isset($_REQUEST['u']) || $_REQUEST['u'] >= 0)
-	{
-		if ($guest_theme != 0)
-			Utils::$context['available_themes'][0] = Utils::$context['available_themes'][$guest_theme];
-
-		Utils::$context['available_themes'][0]['id'] = 0;
-		Utils::$context['available_themes'][0]['name'] = Lang::$txt['theme_forum_default'];
-		Utils::$context['available_themes'][0]['selected'] = Utils::$context['current_theme'] == 0;
-		Utils::$context['available_themes'][0]['description'] = Lang::$txt['theme_global_description'];
-	}
-
-	ksort(Utils::$context['available_themes']);
-
-	Utils::$context['page_title'] = Lang::$txt['theme_pick'];
-	Utils::$context['sub_template'] = 'pick';
-	createToken('pick-th');
-}
-
-/**
  * Installs new themes, calls the respective function according to the install type.
  * - puts themes in Config::$boardurl/Themes.
  * - assumes the gzip has a root directory in it. (ie default.)
@@ -1172,16 +889,14 @@ function PickTheme()
  */
 function ThemeInstall()
 {
-	global $themedir, $themeurl;
-
 	checkSession('request');
 	isAllowedTo('admin_forum');
 
 	// Make it easier to change the path and url.
-	$themedir = Config::$boarddir . '/Themes';
-	$themeurl = Config::$boardurl . '/Themes';
+	Utils::$context['themedir'] = Config::$boarddir . '/Themes';
+	Utils::$context['themeurl'] = Config::$boardurl . '/Themes';
 
-	loadTemplate('Themes');
+	Theme::loadTemplate('Themes');
 
 	$subActions = array(
 		'file' => 'InstallFile',
@@ -1201,7 +916,7 @@ function ThemeInstall()
 		validateToken('admin-t-' . $action);
 
 		// Hopefully the themes directory is writable, or we might have a problem.
-		if (!is_writable($themedir))
+		if (!is_writable(Utils::$context['themedir']))
 			fatal_lang_error('theme_install_write_error', 'critical');
 
 		// Call the function and handle the result.
@@ -1230,10 +945,8 @@ function ThemeInstall()
  */
 function InstallFile()
 {
-	global $themedir, $themeurl;
-
 	// Set a temp dir for dumping all required files on it.
-	$dirtemp = $themedir . '/temp';
+	$dirtemp = Utils::$context['themedir'] . '/temp';
 
 	// Make sure the temp dir doesn't already exist
 	if (file_exists($dirtemp))
@@ -1267,9 +980,9 @@ function InstallFile()
 
 	// Start setting some vars.
 	Utils::$context['to_install'] = array(
-		'theme_dir' => $themedir . '/' . $name,
-		'theme_url' => $themeurl . '/' . $name,
-		'images_url' => $themeurl . '/' . $name . '/images',
+		'theme_dir' => Utils::$context['themedir'] . '/' . $name,
+		'theme_url' => Utils::$context['themeurl'] . '/' . $name,
+		'images_url' => Utils::$context['themeurl'] . '/' . $name . '/images',
 		'name' => $name,
 	);
 
@@ -1305,8 +1018,6 @@ function InstallFile()
  */
 function InstallCopy()
 {
-	global $themedir, $themeurl, $settings;
-
 	// There's gotta be something to work with.
 	if (!isset($_REQUEST['copy']) || empty($_REQUEST['copy']))
 		fatal_lang_error('theme_install_error_title', false);
@@ -1315,19 +1026,19 @@ function InstallCopy()
 	$name = preg_replace('~[^A-Za-z0-9_\- ]~', '', $_REQUEST['copy']);
 
 	// Is there a theme already named like this?
-	if (file_exists($themedir . '/' . $name))
+	if (file_exists(Utils::$context['themedir'] . '/' . $name))
 		fatal_lang_error('theme_install_already_dir', false);
 
 	// This is a brand new theme so set all possible values.
 	Utils::$context['to_install'] = array(
-		'theme_dir' => $themedir . '/' . $name,
-		'theme_url' => $themeurl . '/' . $name,
+		'theme_dir' => Utils::$context['themedir'] . '/' . $name,
+		'theme_url' => Utils::$context['themeurl'] . '/' . $name,
 		'name' => $name,
-		'images_url' => $themeurl . '/' . $name . '/images',
+		'images_url' => Utils::$context['themeurl'] . '/' . $name . '/images',
 		'version' => '1.0',
 		'install_for' => '3.0 - 3.0.99, ' . SMF_VERSION,
 		'based_on' => '',
-		'based_on_dir' => $themedir . '/default',
+		'based_on_dir' => Utils::$context['themedir'] . '/default',
 		'theme_layers' => 'html,body',
 		'theme_templates' => 'index',
 	);
@@ -1365,12 +1076,12 @@ function InstallCopy()
 
 	foreach ($to_copy as $file)
 	{
-		copy($settings['default_theme_dir'] . $file, Utils::$context['to_install']['theme_dir'] . $file);
+		copy(Theme::$current->settings['default_theme_dir'] . $file, Utils::$context['to_install']['theme_dir'] . $file);
 		smf_chmod(Utils::$context['to_install']['theme_dir'] . $file, 0777);
 	}
 
 	// And now the entire images directory!
-	SubsPackage::copytree($settings['default_theme_dir'] . '/images', Utils::$context['to_install']['theme_dir'] . '/images');
+	SubsPackage::copytree(Theme::$current->settings['default_theme_dir'] . '/images', Utils::$context['to_install']['theme_dir'] . '/images');
 	SubsPackage::package_flush_cache();
 
 	// Any data from the default theme that we want?
@@ -1425,10 +1136,8 @@ function InstallCopy()
  */
 function InstallDir()
 {
-	global $themedir, $themeurl;
-
 	// Cannot use the theme dir as a theme dir.
-	if (!isset($_REQUEST['theme_dir']) || empty($_REQUEST['theme_dir']) || rtrim(realpath($_REQUEST['theme_dir']), '/\\') == realpath($themedir))
+	if (!isset($_REQUEST['theme_dir']) || empty($_REQUEST['theme_dir']) || rtrim(realpath($_REQUEST['theme_dir']), '/\\') == realpath(Utils::$context['themedir']))
 		fatal_lang_error('theme_install_invalid_dir', false);
 
 	// Check is there is "something" on the dir.
@@ -1441,9 +1150,9 @@ function InstallDir()
 	// All good! set some needed vars.
 	Utils::$context['to_install'] = array(
 		'theme_dir' => $_REQUEST['theme_dir'],
-		'theme_url' => $themeurl . '/' . $name,
+		'theme_url' => Utils::$context['themeurl'] . '/' . $name,
 		'name' => $name,
-		'images_url' => $themeurl . '/' . $name . '/images',
+		'images_url' => Utils::$context['themeurl'] . '/' . $name . '/images',
 	);
 
 	// Read its info form the XML file.
@@ -1458,128 +1167,6 @@ function InstallDir()
 }
 
 /**
- * Possibly the simplest and best example of how to use the template system.
- *  - allows the theme to take care of actions.
- *  - happens if $settings['catch_action'] is set and action isn't found
- *   in the action array.
- *  - can use a template, layers, sub_template, filename, and/or function.
- */
-function WrapAction()
-{
-	global $settings;
-
-	// Load any necessary template(s)?
-	if (isset($settings['catch_action']['template']))
-	{
-		// Load both the template and language file. (but don't fret if the language file isn't there...)
-		loadTemplate($settings['catch_action']['template']);
-		Lang::load($settings['catch_action']['template'], '', false);
-	}
-
-	// Any special layers?
-	if (isset($settings['catch_action']['layers']))
-		Utils::$context['template_layers'] = $settings['catch_action']['layers'];
-
-	// Any function to call?
-	if (isset($settings['catch_action']['function']))
-	{
-		$hook = $settings['catch_action']['function'];
-
-		if (!isset($settings['catch_action']['filename']))
-			$settings['catch_action']['filename'] = '';
-
-		add_integration_function('integrate_wrap_action', $hook, false, $settings['catch_action']['filename'], false);
-		call_integration_hook('integrate_wrap_action');
-	}
-	// And finally, the main sub template ;).
-	if (isset($settings['catch_action']['sub_template']))
-		Utils::$context['sub_template'] = $settings['catch_action']['sub_template'];
-}
-
-/**
- * Set an option via javascript.
- * - sets a theme option without outputting anything.
- * - can be used with javascript, via a dummy image... (which doesn't require
- * the page to reload.)
- * - requires someone who is logged in.
- * - accessed via ?action=jsoption;var=variable;val=value;session_var=sess_id.
- * - does not log access to the Who's Online log. (in index.php..)
- */
-function SetJavaScript()
-{
-	global $settings, $options;
-
-	// Check the session id.
-	checkSession('get');
-
-	// This good-for-nothing pixel is being used to keep the session alive.
-	if (empty($_GET['var']) || !isset($_GET['val']))
-		redirectexit($settings['images_url'] . '/blank.png');
-
-	// Sorry, guests can't go any further than this.
-	if (User::$me->is_guest || User::$me->id == 0)
-		obExit(false);
-
-	$reservedVars = array(
-		'actual_theme_url',
-		'actual_images_url',
-		'base_theme_dir',
-		'base_theme_url',
-		'default_images_url',
-		'default_theme_dir',
-		'default_theme_url',
-		'default_template',
-		'images_url',
-		'number_recent_posts',
-		'smiley_sets_default',
-		'theme_dir',
-		'theme_id',
-		'theme_layers',
-		'theme_templates',
-		'theme_url',
-		'name',
-	);
-
-	// Can't change reserved vars.
-	if (in_array(strtolower($_GET['var']), $reservedVars))
-		redirectexit($settings['images_url'] . '/blank.png');
-
-	// Use a specific theme?
-	if (isset($_GET['th']) || isset($_GET['id']))
-	{
-		// Invalidate the current themes cache too.
-		CacheApi::put('theme_settings-' . $settings['theme_id'] . ':' . User::$me->id, null, 60);
-
-		$settings['theme_id'] = isset($_GET['th']) ? (int) $_GET['th'] : (int) $_GET['id'];
-	}
-
-	// If this is the admin preferences the passed value will just be an element of it.
-	if ($_GET['var'] == 'admin_preferences')
-	{
-		$options['admin_preferences'] = !empty($options['admin_preferences']) ? Utils::jsonDecode($options['admin_preferences'], true) : array();
-		// New thingy...
-		if (isset($_GET['admin_key']) && strlen($_GET['admin_key']) < 5)
-			$options['admin_preferences'][$_GET['admin_key']] = $_GET['val'];
-
-		// Change the value to be something nice,
-		$_GET['val'] = Utils::jsonEncode($options['admin_preferences']);
-	}
-
-	// Update the option.
-	Db::$db->insert('replace',
-		'{db_prefix}themes',
-		array('id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'),
-		array($settings['theme_id'], User::$me->id, $_GET['var'], is_array($_GET['val']) ? implode(',', $_GET['val']) : $_GET['val']),
-		array('id_theme', 'id_member', 'variable')
-	);
-
-	CacheApi::put('theme_settings-' . $settings['theme_id'] . ':' . User::$me->id, null, 60);
-
-	// Don't output anything...
-	redirectexit($settings['images_url'] . '/blank.png');
-}
-
-/**
  * Shows an interface for editing the templates.
  * - uses the Themes template and edit_template/edit_style sub template.
  * - accessed via ?action=admin;area=theme;sa=edit
@@ -1591,7 +1178,7 @@ function EditTheme()
 		die('die() with fire');
 
 	isAllowedTo('admin_forum');
-	loadTemplate('Themes');
+	Theme::loadTemplate('Themes');
 
 	$_GET['th'] = isset($_GET['th']) ? (int) $_GET['th'] : (int) @$_GET['id'];
 
@@ -1713,7 +1300,7 @@ function EditTheme()
 				Config::safeFileWrite($currentTheme['theme_dir'] . '/' . $_REQUEST['filename'], $_POST['entire_file']);
 
 				// Nuke any minified files and update Config::$modSettings['browser_cache']
-				deleteAllMinified();
+				Theme::deleteAllMinified();
 
 				redirectexit('action=admin;area=theme;th=' . $_GET['th'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=edit;directory=' . dirname($_REQUEST['filename']));
 			}
@@ -1806,10 +1393,8 @@ function EditTheme()
  */
 function CopyTemplate()
 {
-	global $settings;
-
 	isAllowedTo('admin_forum');
-	loadTemplate('Themes');
+	Theme::loadTemplate('Themes');
 
 	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'edit';
 
@@ -1824,8 +1409,8 @@ function CopyTemplate()
 
 	if (isset($_REQUEST['template']) && preg_match('~[\./\\\\:\0]~', $_REQUEST['template']) == 0)
 	{
-		if (file_exists($settings['default_theme_dir'] . '/' . $_REQUEST['template'] . '.template.php'))
-			$filename = $settings['default_theme_dir'] . '/' . $_REQUEST['template'] . '.template.php';
+		if (file_exists(Theme::$current->settings['default_theme_dir'] . '/' . $_REQUEST['template'] . '.template.php'))
+			$filename = Theme::$current->settings['default_theme_dir'] . '/' . $_REQUEST['template'] . '.template.php';
 
 		else
 			fatal_lang_error('no_access', false);
@@ -1838,8 +1423,8 @@ function CopyTemplate()
 	}
 	elseif (isset($_REQUEST['lang_file']) && preg_match('~^[^\./\\\\:\0]\.[^\./\\\\:\0]$~', $_REQUEST['lang_file']) != 0)
 	{
-		if (file_exists($settings['default_theme_dir'] . '/languages/' . $_REQUEST['template'] . '.php'))
-			$filename = $settings['default_theme_dir'] . '/languages/' . $_REQUEST['template'] . '.php';
+		if (file_exists(Theme::$current->settings['default_theme_dir'] . '/languages/' . $_REQUEST['template'] . '.php'))
+			$filename = Theme::$current->settings['default_theme_dir'] . '/languages/' . $_REQUEST['template'] . '.php';
 
 		else
 			fatal_lang_error('no_access', false);
@@ -1854,7 +1439,7 @@ function CopyTemplate()
 	$templates = array();
 	$lang_files = array();
 
-	$dir = dir($settings['default_theme_dir']);
+	$dir = dir(Theme::$current->settings['default_theme_dir']);
 	while ($entry = $dir->read())
 	{
 		if (substr($entry, -13) == '.template.php')
@@ -1862,7 +1447,7 @@ function CopyTemplate()
 	}
 	$dir->close();
 
-	$dir = dir($settings['default_theme_dir'] . '/languages');
+	$dir = dir(Theme::$current->settings['default_theme_dir'] . '/languages');
 	while ($entry = $dir->read())
 	{
 		if (preg_match('~^([^\.]+\.[^\.]+)\.php$~', $entry, $matches))

@@ -17,6 +17,7 @@
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -67,7 +68,7 @@ function BoardNotify()
 	if (!isset($_GET['mode']) && !isset($_GET['xml']))
 	{
 		// We're gonna need the notify template...
-		loadTemplate('Notify');
+		Theme::loadTemplate('Notify');
 
 		// Find out if they have notification set for this board already.
 		$request = Db::$db->query('', '
@@ -148,7 +149,7 @@ function BoardNotify()
 	// Probably followed an unsubscribe link, so just show a confirmation message.
 	elseif (!empty($skipCheckSession) && isset($mode))
 	{
-		loadTemplate('Notify');
+		Theme::loadTemplate('Notify');
 		Utils::$context['page_title'] = Lang::$txt['notification'];
 		Utils::$context['sub_template'] = 'notify_pref_changed';
 		Utils::$context['notify_success_msg'] = sprintf(Lang::$txt['notify_board' . ($mode == 3 ? '_subscribed' : '_unsubscribed')], $member_info['email']);
@@ -197,7 +198,7 @@ function TopicNotify()
 	if (!isset($_GET['mode']) && !isset($_GET['xml']))
 	{
 		// Load the template, but only if it is needed.
-		loadTemplate('Notify');
+		Theme::loadTemplate('Notify');
 
 		// Find out if they have notification set for this topic already.
 		$request = Db::$db->query('', '
@@ -316,7 +317,7 @@ function TopicNotify()
 	// Probably followed an unsubscribe link, so just show a confirmation message.
 	elseif (!empty($skipCheckSession) && isset($mode))
 	{
-		loadTemplate('Notify');
+		Theme::loadTemplate('Notify');
 		Utils::$context['page_title'] = Lang::$txt['notification'];
 		Utils::$context['sub_template'] = 'notify_pref_changed';
 		Utils::$context['notify_success_msg'] = sprintf(Lang::$txt['notify_topic' . ($mode == 3 ? '_subscribed' : '_unsubscribed')], $member_info['email']);
@@ -347,7 +348,7 @@ function AnnouncementsNotify()
 		$member_info = (array) User::$me;
 	}
 
-	loadTemplate('Notify');
+	Theme::loadTemplate('Notify');
 	Utils::$context['page_title'] = Lang::$txt['notification'];
 
 	// Backward compatibility.

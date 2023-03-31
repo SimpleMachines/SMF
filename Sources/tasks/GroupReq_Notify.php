@@ -16,6 +16,7 @@ namespace SMF\Tasks;
 use SMF\Config;
 use SMF\Msg;
 use SMF\Mail;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -104,8 +105,7 @@ class GroupReq_Notify extends BackgroundTask
 
 			if (!empty($data['email']))
 			{
-				require_once(Config::$sourcedir . '/ScheduledTasks.php');
-				loadEssentialThemeData();
+				Theme::loadEssential();
 
 				$request = Db::$db->query('', '
 					SELECT id_member, email_address, lngfile, member_name, mod_prefs

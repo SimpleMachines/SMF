@@ -17,6 +17,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -49,7 +50,7 @@ function ViewErrorLog()
 
 	// Templates, etc...
 	Lang::load('ManageMaintenance');
-	loadTemplate('Errors');
+	Theme::loadTemplate('Errors');
 
 	// You can filter by any of the following columns:
 	$filters = array(
@@ -439,7 +440,7 @@ function ViewFile()
 		'file' => strtr($file, array('"' => '\\"')),
 	);
 
-	loadTemplate('Errors');
+	Theme::loadTemplate('Errors');
 	Utils::$context['template_layers'] = array();
 	Utils::$context['sub_template'] = 'show_file';
 
@@ -473,8 +474,8 @@ function ViewBacktrace()
 	}
 	Db::$db->free_result($request);
 
-	loadCSSFile('admin.css', array(), 'smf_admin');
-	loadTemplate('Errors');
+	Theme::loadCSSFile('admin.css', array(), 'smf_admin');
+	Theme::loadTemplate('Errors');
 	Lang::load('ManageMaintenance');
 	Utils::$context['template_layers'] = array();
 	Utils::$context['sub_template'] = 'show_backtrace';
