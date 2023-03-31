@@ -16,6 +16,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 
@@ -32,14 +33,12 @@ if (!defined('SMF'))
  */
 function ReportedContent()
 {
-	global $options;
-
 	// First order of business - what are these reports about?
 	// area=reported{type}
 	Utils::$context['report_type'] = substr($_GET['area'], 8);
 
 	Lang::load('ModerationCenter');
-	loadTemplate('ReportedContent');
+	Theme::loadTemplate('ReportedContent');
 
 	// We need this little rough gem.
 	require_once(Config::$sourcedir . '/Subs-ReportedContent.php');
@@ -137,7 +136,7 @@ function ReportedContent()
 				'quickmod' => array(
 					'class' => 'inline_mod_check',
 					'content' => '<input type="checkbox" name="close[]" value="'.$report['id'].'">',
-					'show' => !Utils::$context['view_closed'] && !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1
+					'show' => !Utils::$context['view_closed'] && !empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1
 				)
 			);
 		}

@@ -12,6 +12,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 
 // @todo
@@ -201,14 +202,12 @@ function template_error_log()
  */
 function template_show_file()
 {
-	global $settings;
-
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<meta charset="', Utils::$context['character_set'], '">
 		<title>', Utils::$context['file_data']['file'], '</title>
-		', template_css(), '
+		', Theme::template_css(), '
 	</head>
 	<body>
 		<table class="errorfile_table">';
@@ -264,15 +263,13 @@ function template_attachment_errors()
  */
 function template_show_backtrace()
 {
-	global $settings;
-
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<meta charset="', Utils::$context['character_set'], '">
 		<title>', Lang::$txt['backtrace_title'], '</title>';
 
-	template_css();
+	Theme::template_css();
 
 	echo '
 	</head>

@@ -15,6 +15,7 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -146,7 +147,7 @@ function summary($memID)
 		$sig_limits = explode(',', $sig_limits);
 
 		if (!empty($sig_limits[5]) || !empty($sig_limits[6]))
-			addInlineCss('
+			Theme::addInlineCss('
 	.signature img { ' . (!empty($sig_limits[5]) ? 'max-width: ' . (int) $sig_limits[5] . 'px; ' : '') . (!empty($sig_limits[6]) ? 'max-height: ' . (int) $sig_limits[6] . 'px; ' : '') . '}');
 	}
 
@@ -670,8 +671,6 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
  */
 function showAlerts($memID)
 {
-	global $options;
-
 	require_once(Config::$sourcedir . '/Profile-Modify.php');
 
 	// Are we opening a specific alert? (i.e.: ?action=profile;area=showalerts;alert=12345)
@@ -716,14 +715,14 @@ function showAlerts($memID)
 	$action = '';
 
 	//  Are we using checkboxes?
-	Utils::$context['showCheckboxes'] = !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1;
+	Utils::$context['showCheckboxes'] = !empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1;
 
 	// Create the pagination.
 	Utils::$context['pagination'] = constructPageIndex(Config::$scripturl . '?action=profile;area=showalerts;u=' . $memID, Utils::$context['start'], $count, $maxIndex, false);
 
 	// Set some JavaScript for checking all alerts at once.
 	if (Utils::$context['showCheckboxes'])
-		addInlineJavaScript('
+		Theme::addInlineJavaScript('
 		$(function(){
 			$(\'#select_all\').on(\'change\', function() {
 				var checkboxes = $(\'ul.quickbuttons\').find(\':checkbox\');
@@ -826,8 +825,6 @@ function showAlerts($memID)
  */
 function showPosts($memID)
 {
-	global $options;
-
 	// Some initial context.
 	Utils::$context['start'] = (int) $_REQUEST['start'];
 	Utils::$context['current_member'] = $memID;
@@ -969,9 +966,9 @@ function showPosts($memID)
 	$range_limit = '';
 
 	if (Utils::$context['is_topics'])
-		$maxPerPage = empty(Config::$modSettings['disableCustomPerPage']) && !empty($options['topics_per_page']) ? $options['topics_per_page'] : Config::$modSettings['defaultMaxTopics'];
+		$maxPerPage = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['topics_per_page']) ? Theme::$current->options['topics_per_page'] : Config::$modSettings['defaultMaxTopics'];
 	else
-		$maxPerPage = empty(Config::$modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) ? $options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
+		$maxPerPage = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
 
 	$maxIndex = $maxPerPage;
 
@@ -1434,8 +1431,6 @@ function list_getNumAttachments($boardsAllowed, $memID)
  */
 function showUnwatched($memID)
 {
-	global $options;
-
 	// Only the owner can see the list (if the function is enabled of course)
 	if (User::$me->id != $memID)
 		return;
@@ -1446,7 +1441,7 @@ function showUnwatched($memID)
 	$listOptions = array(
 		'id' => 'unwatched_topics',
 		'width' => '100%',
-		'items_per_page' => (empty(Config::$modSettings['disableCustomPerPage']) && !empty($options['topics_per_page'])) ? $options['topics_per_page'] : Config::$modSettings['defaultMaxTopics'],
+		'items_per_page' => (empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['topics_per_page'])) ? Theme::$current->options['topics_per_page'] : Config::$modSettings['defaultMaxTopics'],
 		'no_items_label' => Lang::$txt['unwatched_topics_none'],
 		'base_href' => Config::$scripturl . '?action=profile;area=showposts;sa=unwatchedtopics;u=' . $memID,
 		'default_sort_col' => 'started_on',
@@ -2268,15 +2263,13 @@ function list_getIPMessages($start, $items_per_page, $sort, $where, $where_vars 
  */
 function TrackIP($memID = 0)
 {
-	global $options;
-
 	// Can the user do this?
 	isAllowedTo('moderate_forum');
 
 	if ($memID == 0)
 	{
 		Utils::$context['ip'] = ip2range(User::$me->ip);
-		loadTemplate('Profile');
+		Theme::loadTemplate('Profile');
 		Lang::load('Profile');
 		Utils::$context['sub_template'] = 'trackIP';
 		Utils::$context['page_title'] = Lang::$txt['profile'];
@@ -2325,7 +2318,7 @@ function TrackIP($memID = 0)
 	ksort(Utils::$context['ips']);
 
 	// For messages we use the "messages per page" option
-	$maxPerPage = empty(Config::$modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) ? $options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
+	$maxPerPage = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
 
 	// Gonna want this for the list.
 	require_once(Config::$sourcedir . '/Subs-List.php');
@@ -3048,7 +3041,7 @@ function showPermissions($memID)
 
 	Lang::load('ManagePermissions');
 	Lang::load('Admin');
-	loadTemplate('ManageMembers');
+	Theme::loadTemplate('ManageMembers');
 
 	// Load all the permission profiles.
 	require_once(Config::$sourcedir . '/ManagePermissions.php');
@@ -3324,8 +3317,6 @@ function viewWarning($memID)
  */
 function set_alert_icon($alert)
 {
-	global $settings;
-
 	switch ($alert['content_type'])
 	{
 		case 'topic':
@@ -3339,7 +3330,7 @@ function set_alert_icon($alert)
 						break;
 
 					case 'move':
-						$src = $settings['images_url'] . '/post/moved.png';
+						$src = Theme::$current->settings['images_url'] . '/post/moved.png';
 						break;
 
 					case 'remove':
@@ -3451,7 +3442,7 @@ function set_alert_icon($alert)
 			break;
 
 		case 'birthday':
-			$src = $settings['images_url'] . '/cake.png';
+			$src = Theme::$current->settings['images_url'] . '/cake.png';
 			break;
 
 		default:

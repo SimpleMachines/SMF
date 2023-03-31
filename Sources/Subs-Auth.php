@@ -16,6 +16,7 @@
 use SMF\Config;
 use SMF\Lang;
 use SMF\Mail;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -211,9 +212,9 @@ function url_parts($local, $global)
  */
 function KickGuest()
 {
-	loadTheme();
+	Theme::load();
 	Lang::load('Login');
-	loadTemplate('Login');
+	Theme::loadTemplate('Login');
 	createToken('login');
 
 	// Never redirect to an attachment
@@ -232,7 +233,7 @@ function KickGuest()
 function InMaintenance()
 {
 	Lang::load('Login');
-	loadTemplate('Login');
+	Theme::loadTemplate('Login');
 	createToken('login');
 
 	// Send a 503 header, so search engines don't bother indexing while we're in maintenance mode.
@@ -256,7 +257,7 @@ function InMaintenance()
 function adminLogin($type = 'admin')
 {
 	Lang::load('Admin');
-	loadTemplate('Login');
+	Theme::loadTemplate('Login');
 
 	// Validate what type of session check this is.
 	$types = array();
@@ -465,7 +466,7 @@ function JSMembers()
 	checkSession('get');
 
 	// Why is this in the Help template, you ask?  Well, erm... it helps you.  Does that work?
-	loadTemplate('Help');
+	Theme::loadTemplate('Help');
 
 	Utils::$context['template_layers'] = array();
 	Utils::$context['sub_template'] = 'find_members';

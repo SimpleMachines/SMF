@@ -12,6 +12,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 use SMF\User;
 
@@ -28,10 +29,8 @@ function template_boardindex_outer_above()
  */
 function template_newsfader()
 {
-	global $settings;
-
 	// Show the news fader?  (assuming there are things to show...)
-	if (!empty($settings['show_newsfader']) && !empty(Utils::$context['news_lines']))
+	if (!empty(Theme::$current->settings['show_newsfader']) && !empty(Utils::$context['news_lines']))
 	{
 		echo '
 		<ul id="smf_slider" class="roundframe">';
@@ -44,7 +43,7 @@ function template_newsfader()
 		</ul>
 		<script>
 			jQuery("#smf_slider").slippry({
-				pause: ', $settings['newsfader_time'], ',
+				pause: ', Theme::$current->settings['newsfader_time'], ',
 				adaptiveHeight: 0,
 				captions: 0,
 				controls: 0,
@@ -276,8 +275,6 @@ function template_boardindex_outer_below()
  */
 function template_info_center()
 {
-	global $options;
-
 	if (empty(Utils::$context['info_center']))
 		return;
 
@@ -290,7 +287,7 @@ function template_info_center()
 				<a href="#" id="upshrink_link">', sprintf(Lang::$txt['info_center_title'], Utils::$context['forum_name_html_safe']), '</a>
 			</h3>
 		</div>
-		<div id="upshrink_stats"', empty($options['collapse_header_ic']) ? '' : ' style="display: none;"', '>';
+		<div id="upshrink_stats"', empty(Theme::$current->options['collapse_header_ic']) ? '' : ' style="display: none;"', '>';
 
 	foreach (Utils::$context['info_center'] as $block)
 	{
@@ -307,7 +304,7 @@ function template_info_center()
 	<script>
 		var oInfoCenterToggle = new smc_Toggle({
 			bToggleEnabled: true,
-			bCurrentlyCollapsed: ', empty($options['collapse_header_ic']) ? 'false' : 'true', ',
+			bCurrentlyCollapsed: ', empty(Theme::$current->options['collapse_header_ic']) ? 'false' : 'true', ',
 			aSwappableContainers: [
 				\'upshrink_stats\'
 			],
@@ -344,8 +341,6 @@ function template_info_center()
  */
 function template_ic_block_recent()
 {
-	global $settings;
-
 	// This is the "Recent Posts" bar.
 	echo '
 			<div class="sub_bar">
@@ -356,7 +351,7 @@ function template_ic_block_recent()
 			<div id="recent_posts_content">';
 
 	// Only show one post.
-	if ($settings['number_recent_posts'] == 1)
+	if (Theme::$current->settings['number_recent_posts'] == 1)
 	{
 		// latest_post has link, href, time, subject, short_subject (shortened with...), and topic. (its id.)
 		echo '
@@ -452,8 +447,6 @@ function template_ic_block_calendar()
  */
 function template_ic_block_stats()
 {
-	global $settings;
-
 	// Show statistical style information...
 	echo '
 			<div class="sub_bar">
@@ -462,7 +455,7 @@ function template_ic_block_stats()
 				</h4>
 			</div>
 			<p class="inline">
-				', Utils::$context['common_stats']['boardindex_total_posts'], '', !empty($settings['show_latest_member']) ? ' - ' . Lang::$txt['latest_member'] . ': <strong> ' . Utils::$context['common_stats']['latest_member']['link'] . '</strong>' : '', '<br>
+				', Utils::$context['common_stats']['boardindex_total_posts'], '', !empty(Theme::$current->settings['show_latest_member']) ? ' - ' . Lang::$txt['latest_member'] . ': <strong> ' . Utils::$context['common_stats']['latest_member']['link'] . '</strong>' : '', '<br>
 				', (!empty(Utils::$context['latest_post']) ? Lang::$txt['latest_post'] . ': <strong>&quot;' . Utils::$context['latest_post']['link'] . '&quot;</strong>  (' . Utils::$context['latest_post']['time'] . ')<br>' : ''), '
 				<a href="', Config::$scripturl, '?action=recent">', Lang::$txt['recent_view'], '</a>
 			</p>';
@@ -473,7 +466,6 @@ function template_ic_block_stats()
  */
 function template_ic_block_online()
 {
-	global $settings;
 	// "Users online" - in order of activity.
 	echo '
 			<div class="sub_bar">
@@ -511,7 +503,7 @@ function template_ic_block_online()
 				', sprintf(Lang::$txt['users_active'], Config::$modSettings['lastActive']), ': ', implode(', ', Utils::$context['list_users_online']);
 
 		// Showing membergroups?
-		if (!empty($settings['show_group_key']) && !empty(Utils::$context['membergroups']))
+		if (!empty(Theme::$current->settings['show_group_key']) && !empty(Utils::$context['membergroups']))
 			echo '
 				<span class="membergroups">' . implode(', ', Utils::$context['membergroups']) . '</span>';
 	}

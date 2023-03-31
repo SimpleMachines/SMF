@@ -12,6 +12,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 
 /**
@@ -19,8 +20,6 @@ use SMF\Utils;
  */
 function template_main()
 {
-	global $settings;
-
 	// Display the table header and linktree.
 	echo '
 	<div class="main_section" id="whos_online">
@@ -65,7 +64,7 @@ function template_main()
 		if (!$member['is_guest'])
 			echo '
 								<span class="contact_info floatright">
-									', Utils::$context['can_send_pm'] ? '<a href="' . $member['online']['href'] . '" title="' . Lang::$txt['pm_online'] . '">' : '', $settings['use_image_buttons'] ? '<span class="main_icons im_' . ($member['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . Lang::$txt['pm_online'] . '"></span>' : $member['online']['label'], Utils::$context['can_send_pm'] ? '</a>' : '', '
+									', Utils::$context['can_send_pm'] ? '<a href="' . $member['online']['href'] . '" title="' . Lang::$txt['pm_online'] . '">' : '', Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons im_' . ($member['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . Lang::$txt['pm_online'] . '"></span>' : $member['online']['label'], Utils::$context['can_send_pm'] ? '</a>' : '', '
 								</span>';
 
 		echo '

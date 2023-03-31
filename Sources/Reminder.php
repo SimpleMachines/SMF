@@ -15,6 +15,7 @@
 use SMF\Config;
 use SMF\Lang;
 use SMF\Mail;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -30,7 +31,7 @@ if (!defined('SMF'))
 function RemindMe()
 {
 	Lang::load('Profile');
-	loadTemplate('Reminder');
+	Theme::loadTemplate('Reminder');
 
 	Utils::$context['page_title'] = Lang::$txt['authentication_reminder'];
 	Utils::$context['robot_no_index'] = true;
@@ -187,7 +188,7 @@ function setPassword()
 		'memID' => (int) $_REQUEST['u']
 	);
 
-	loadJavaScriptFile('register.js', array('defer' => false, 'minimize' => true), 'smf_register');
+	Theme::loadJavaScriptFile('register.js', array('defer' => false, 'minimize' => true), 'smf_register');
 
 	// Tokens!
 	createToken('remind-sp');
@@ -266,7 +267,7 @@ function setPassword2()
 
 	call_integration_hook('integrate_reset_pass', array($username, $username, $_POST['passwrd1']));
 
-	loadTemplate('Login');
+	Theme::loadTemplate('Login');
 	Utils::$context += array(
 		'page_title' => Lang::$txt['reminder_password_set'],
 		'sub_template' => 'login',
@@ -320,7 +321,7 @@ function SecretAnswerInput()
 
 	Utils::$context['sub_template'] = 'ask';
 	createToken('remind-sai');
-	loadJavaScriptFile('register.js', array('defer' => false, 'minimize' => true), 'smf_register');
+	Theme::loadJavaScriptFile('register.js', array('defer' => false, 'minimize' => true), 'smf_register');
 }
 
 /**
@@ -390,7 +391,7 @@ function SecretAnswer2()
 	call_integration_hook('integrate_reset_pass', array($row['member_name'], $row['member_name'], $_POST['passwrd1']));
 
 	// Tell them it went fine.
-	loadTemplate('Login');
+	Theme::loadTemplate('Login');
 	Utils::$context += array(
 		'page_title' => Lang::$txt['reminder_password_set'],
 		'sub_template' => 'login',

@@ -17,6 +17,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -54,8 +55,6 @@ function loadGeneralSettingParameters($subActions = array(), $defaultAction = nu
  */
 function ModifyFeatureSettings()
 {
-	global $settings;
-
 	Lang::load('Help');
 	Lang::load('ManageSettings');
 
@@ -78,7 +77,7 @@ function ModifyFeatureSettings()
 	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
 		'title' => Lang::$txt['modSettings_title'],
 		'help' => 'featuresettings',
-		'description' => sprintf(Lang::$txt['modSettings_desc'], $settings['theme_id'], Utils::$context['session_id'], Utils::$context['session_var'], Config::$scripturl),
+		'description' => sprintf(Lang::$txt['modSettings_desc'], Theme::$current->settings['theme_id'], Utils::$context['session_id'], Utils::$context['session_var'], Config::$scripturl),
 		'tabs' => array(
 			'basic' => array(
 			),
@@ -267,7 +266,7 @@ function ModifyBasicSettings($return_config = false)
 
 		// Do a bit of housekeeping
 		if (empty($_POST['minimize_files']) || $_POST['minimize_files'] != Config::$modSettings['minimize_files'])
-			deleteAllMinified();
+			Theme::deleteAllMinified();
 
 		writeLog();
 		redirectexit('action=admin;area=featuresettings;sa=basic');
@@ -789,7 +788,7 @@ function ModifyAntispamSettings($return_config = false)
 	}
 
 	// Thirdly, push some JavaScript for the form to make it work.
-	addInlineJavaScript('
+	Theme::addInlineJavaScript('
 	var nextrow = ' . (!empty(Utils::$context['question_answers']) ? max(array_keys(Utils::$context['question_answers'])) + 1 : 1) . ';
 	$(".qa_link a").click(function() {
 		var id = $(this).parent().attr("id").substring(6);
@@ -2299,7 +2298,7 @@ function ModifyLogSettings($return_config = false)
 	if ($return_config)
 		return $config_vars;
 
-	addInlineJavaScript('
+	Theme::addInlineJavaScript('
 	function togglePruned()
 	{
 		var newval = $("#pruningOptions").prop("checked");
@@ -2437,7 +2436,7 @@ function ModifyAlertsSettings()
 	// Specify our action since we'll want to post back here instead of the profile
 	Utils::$context['action'] = 'action=admin;area=featuresettings;sa=alerts;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
 
-	loadTemplate('Profile');
+	Theme::loadTemplate('Profile');
 	Lang::load('Profile');
 
 	include_once(Config::$sourcedir . '/Profile-Modify.php');

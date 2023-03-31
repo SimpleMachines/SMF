@@ -12,6 +12,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 use SMF\User;
 
@@ -155,8 +156,6 @@ function template_admin()
  */
 function template_credits()
 {
-	global $settings;
-
 	// Show the user version information from their server.
 	echo '
 					<div class="roundframe noup">
@@ -166,7 +165,7 @@ function template_credits()
 							</h3>
 						</div>
 						<div class="padding">
-							<img src="', $settings['images_url'], '/smflogo.svg" class="floatright" alt="">
+							<img src="', Theme::$current->settings['images_url'], '/smflogo.svg" class="floatright" alt="">
 							<strong>', Lang::$txt['support_versions'], ':</strong><br>
 								', Lang::$txt['support_versions_forum'], ':
 							<em id="yourVersion">', Utils::$context['forum_version'], '</em>', Utils::$context['can_admin'] ? ' <a href="' . Config::$scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . Lang::$txt['version_check_more'] . '</a>' : '', '<br>
@@ -1038,7 +1037,7 @@ function template_show_settings()
 		echo Utils::$context['settings_insert_below'];
 
 	// We may have added a board listing. If we did, we need to make it work.
-	addInlineJavascript('
+	Theme::addInlineJavascript('
 		$("legend.board_selector").closest("fieldset").hide();
 		$("a.board_selector").click(function(e) {
 			e.preventDefault();

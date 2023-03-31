@@ -17,6 +17,7 @@
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -309,7 +310,7 @@ function EditPoll()
 		fatal_lang_error('no_access', false);
 
 	Lang::load('Post');
-	loadTemplate('Poll');
+	Theme::loadTemplate('Poll');
 
 	Utils::$context['start'] = (int) $_REQUEST['start'];
 	Utils::$context['is_edit'] = isset($_REQUEST['add']) ? 0 : 1;

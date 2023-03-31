@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -45,7 +46,7 @@ function ModifyMembergroups()
 
 	// Language and template stuff, the usual.
 	Lang::load('ManageMembers');
-	loadTemplate('ManageMembergroups');
+	Theme::loadTemplate('ManageMembergroups');
 
 	// Setup the admin tabs.
 	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
@@ -645,8 +646,6 @@ function DeleteMembergroup()
  */
 function EditMembergroup()
 {
-	global $settings;
-
 	$_REQUEST['group'] = isset($_REQUEST['group']) && $_REQUEST['group'] > 0 ? (int) $_REQUEST['group'] : 0;
 
 	if (!empty(Config::$modSettings['deny_boards_access']))
@@ -1170,13 +1169,13 @@ function EditMembergroup()
 
 	// Scan the directory.
 	Utils::$context['possible_icons'] = array();
-	if ($files = scandir($settings['default_theme_dir'] . '/images/membericons'))
+	if ($files = scandir(Theme::$current->settings['default_theme_dir'] . '/images/membericons'))
 	{
 		// Loop through every file in the directory.
 		foreach ($files as $value)
 		{
 			// Grab the image extension.
-			$ext = pathinfo($settings['default_theme_dir'] . '/images/membericons/' . $value, PATHINFO_EXTENSION);
+			$ext = pathinfo(Theme::$current->settings['default_theme_dir'] . '/images/membericons/' . $value, PATHINFO_EXTENSION);
 
 			// If the extension is not empty, and it is valid
 			if (!empty($ext) && in_array($ext, $imageExts))
@@ -1186,9 +1185,9 @@ function EditMembergroup()
 
 	// Insert our JS, if we have possible icons.
 	if (!empty(Utils::$context['possible_icons']))
-		loadJavaScriptFile('icondropdown.js', array('validate' => true, 'minimize' => true), 'smf_icondropdown');
+		Theme::loadJavaScriptFile('icondropdown.js', array('validate' => true, 'minimize' => true), 'smf_icondropdown');
 
-	loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
+	Theme::loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
 
 	// Finally, get all the groups this could be inherited off.
 	$request = Db::$db->query('', '

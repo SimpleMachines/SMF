@@ -12,6 +12,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 use SMF\User;
 
@@ -20,8 +21,6 @@ use SMF\User;
  */
 function template_main()
 {
-	global $settings, $options;
-
 	echo '<div id="display_head" class="information">
 			<h2 class="display_title">', Utils::$context['name'], '</h2>';
 
@@ -33,13 +32,13 @@ function template_main()
 		echo '
 			<p>', count(Utils::$context['moderators']) === 1 ? Lang::$txt['moderator'] : Lang::$txt['moderators'], ': ', implode(', ', Utils::$context['link_moderators']), '.</p>';
 
-	if (!empty($settings['display_who_viewing']))
+	if (!empty(Theme::$current->settings['display_who_viewing']))
 	{
 		echo '
 			<p>';
 
 		// Show just numbers...?
-		if ($settings['display_who_viewing'] == 1)
+		if (Theme::$current->settings['display_who_viewing'] == 1)
 			echo count(Utils::$context['view_members']), ' ', count(Utils::$context['view_members']) == 1 ? Lang::$txt['who_member'] : Lang::$txt['members'];
 		// Or show the actual people viewing the topic?
 		else
@@ -53,7 +52,7 @@ function template_main()
 	echo '
 		</div>';
 
-	if (!empty(Utils::$context['boards']) && (!empty($options['show_children']) || Utils::$context['start'] == 0))
+	if (!empty(Utils::$context['boards']) && (!empty(Theme::$current->options['show_children']) || Utils::$context['start'] == 0))
 	{
 		echo '
 	<div id="board_', Utils::$context['current_board'], '_childboards" class="boardindex_table main_container">
@@ -134,7 +133,7 @@ function template_main()
 	</div>';
 
 		// If Quick Moderation is enabled start the form.
-		if (!empty(Utils::$context['can_quick_mod']) && $options['display_quick_mod'] > 0 && !empty(Utils::$context['topics']))
+		if (!empty(Utils::$context['can_quick_mod']) && Theme::$current->options['display_quick_mod'] > 0 && !empty(Utils::$context['topics']))
 			echo '
 	<form action="', Config::$scripturl, '?action=quickmod;board=', Utils::$context['current_board'], '.', Utils::$context['start'], '" method="post" accept-charset="', Utils::$context['character_set'], '" class="clear" name="quickModForm" id="quickModForm">';
 
@@ -154,7 +153,7 @@ function template_main()
 				<div class="lastpost">', Utils::$context['topics_headers']['last_post'], '</div>';
 
 			// Show a "select all" box for quick moderation?
-			if (!empty(Utils::$context['can_quick_mod']) && $options['display_quick_mod'] == 1)
+			if (!empty(Utils::$context['can_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1)
 				echo '
 				<div class="moderation">
 					<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');">
@@ -242,7 +241,7 @@ function template_main()
 				echo '
 					<div class="moderation">';
 
-				if ($options['display_quick_mod'] == 1)
+				if (Theme::$current->options['display_quick_mod'] == 1)
 					echo '
 						<input type="checkbox" name="topics[]" value="', $topic['id'], '">';
 				else
@@ -272,7 +271,7 @@ function template_main()
 		echo '
 			</div><!-- #topic_container -->';
 
-		if (!empty(Utils::$context['can_quick_mod']) && $options['display_quick_mod'] == 1 && !empty(Utils::$context['topics']))
+		if (!empty(Utils::$context['can_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1 && !empty(Utils::$context['topics']))
 		{
 			echo '
 			<div class="righttext" id="quick_actions">
@@ -301,7 +300,7 @@ function template_main()
 		</div><!-- #messageindex -->';
 
 		// Finish off the form - again.
-		if (!empty(Utils::$context['can_quick_mod']) && $options['display_quick_mod'] > 0 && !empty(Utils::$context['topics']))
+		if (!empty(Utils::$context['can_quick_mod']) && Theme::$current->options['display_quick_mod'] > 0 && !empty(Utils::$context['topics']))
 			echo '
 		<input type="hidden" name="' . Utils::$context['session_var'] . '" value="' . Utils::$context['session_id'] . '">
 	</form>';
@@ -329,7 +328,7 @@ function template_main()
 	// Show breadcrumbs at the bottom too.
 	theme_linktree();
 
-	if (!empty(Utils::$context['can_quick_mod']) && $options['display_quick_mod'] == 1 && !empty(Utils::$context['topics']) && Utils::$context['can_move'])
+	if (!empty(Utils::$context['can_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1 && !empty(Utils::$context['topics']) && Utils::$context['can_move'])
 		echo '
 	<script>
 		if (typeof(window.XMLHttpRequest) != "undefined")
@@ -500,8 +499,6 @@ function template_bi_board_children($board)
  */
 function template_topic_legend()
 {
-	global $settings;
-
 	echo '
 	<div class="tborder" id="topic_icons">
 		<div class="information">

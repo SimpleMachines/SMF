@@ -20,6 +20,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Msg;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -35,8 +36,6 @@ if (!defined('SMF'))
  */
 function MessageMain()
 {
-	global $options;
-
 	// No guests!
 	is_not_guest();
 
@@ -46,7 +45,7 @@ function MessageMain()
 	Lang::load('PersonalMessage+Drafts');
 
 	if (!isset($_REQUEST['xml']))
-		loadTemplate('PersonalMessage');
+		Theme::loadTemplate('PersonalMessage');
 
 	// Load up the members maximum message capacity.
 	if (User::$me->is_admin)
@@ -187,7 +186,7 @@ function MessageMain()
 
 	// Are PM drafts enabled?
 	Utils::$context['drafts_pm_save'] = !empty(Config::$modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
-	Utils::$context['drafts_autosave'] = !empty(Utils::$context['drafts_pm_save']) && !empty(Config::$modSettings['drafts_autosave_enabled']) && !empty($options['drafts_autosave_enabled']);
+	Utils::$context['drafts_autosave'] = !empty(Utils::$context['drafts_pm_save']) && !empty(Config::$modSettings['drafts_autosave_enabled']) && !empty(Theme::$current->options['drafts_autosave_enabled']);
 
 	// Build the linktree for all the actions...
 	Utils::$context['linktree'][] = array(
@@ -465,7 +464,7 @@ function MessagePopup()
 function MessageFolder()
 {
 	global $subjects_request;
-	global $messages_request, $recipients, $options;
+	global $messages_request, $recipients;
 
 	// Changing view?
 	if (isset($_GET['view']))
@@ -477,7 +476,7 @@ function MessageFolder()
 	// Make sure the starting location is valid.
 	if (isset($_GET['start']) && $_GET['start'] != 'new')
 		$_GET['start'] = (int) $_GET['start'];
-	elseif (!isset($_GET['start']) && !empty($options['view_newest_pm_first']))
+	elseif (!isset($_GET['start']) && !empty(Theme::$current->options['view_newest_pm_first']))
 		$_GET['start'] = 0;
 	else
 		$_GET['start'] = 'new';
@@ -495,7 +494,7 @@ function MessageFolder()
 		$sig_limits = explode(',', $sig_limits);
 
 		if (!empty($sig_limits[5]) || !empty($sig_limits[6]))
-			addInlineCss('
+			Theme::addInlineCss('
 	.signature img { ' . (!empty($sig_limits[5]) ? 'max-width: ' . (int) $sig_limits[5] . 'px; ' : '') . (!empty($sig_limits[6]) ? 'max-height: ' . (int) $sig_limits[6] . 'px; ' : '') . '}');
 	}
 
@@ -534,7 +533,7 @@ function MessageFolder()
 		Utils::$context['sort_by'] = 'date';
 		$_GET['sort'] = 'pm.id_pm';
 		// An overriding setting?
-		$descending = !empty($options['view_newest_pm_first']);
+		$descending = !empty(Theme::$current->options['view_newest_pm_first']);
 	}
 	// Otherwise use the defaults: ascending, by date.
 	else
@@ -593,7 +592,7 @@ function MessageFolder()
 
 	// Only show the button if there are messages to delete.
 	Utils::$context['show_delete'] = $max_messages > 0;
-	$maxPerPage = empty(Config::$modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) ? $options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
+	$maxPerPage = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
 
 	// Start on the last page.
 	if (!is_numeric($_GET['start']) || $_GET['start'] >= $max_messages)
@@ -764,7 +763,7 @@ function MessageFolder()
 		}
 
 		// Keep track of the last message so we know what the head is without another query!
-		if ((empty($pmID) && (empty($options['view_newest_pm_first']) || !isset($lastData))) || empty($lastData) || (!empty($pmID) && $pmID == $row['id_pm']))
+		if ((empty($pmID) && (empty(Theme::$current->options['view_newest_pm_first']) || !isset($lastData))) || empty($lastData) || (!empty($pmID) && $pmID == $row['id_pm']))
 			$lastData = array(
 				'id' => $row['id_pm'],
 				'head' => $row['id_pm_head'],
@@ -1823,11 +1822,11 @@ function MessagePost()
 
 	Lang::load('PersonalMessage');
 	// Just in case it was loaded from somewhere else.
-	loadTemplate('PersonalMessage');
-	loadJavaScriptFile('PersonalMessage.js', array('defer' => false, 'minimize' => true), 'smf_pms');
-	loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
+	Theme::loadTemplate('PersonalMessage');
+	Theme::loadJavaScriptFile('PersonalMessage.js', array('defer' => false, 'minimize' => true), 'smf_pms');
+	Theme::loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
 	if (Utils::$context['drafts_autosave'])
-		loadJavaScriptFile('drafts.js', array('defer' => false, 'minimize' => true), 'smf_drafts');
+		Theme::loadJavaScriptFile('drafts.js', array('defer' => false, 'minimize' => true), 'smf_drafts');
 	Utils::$context['sub_template'] = 'send';
 
 	// Extract out the spam settings - cause it's neat.
@@ -2128,8 +2127,8 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 	{
 		Utils::$context['menu_data_' . Utils::$context['pm_menu_id']]['current_area'] = 'send';
 		Utils::$context['sub_template'] = 'send';
-		loadJavaScriptFile('PersonalMessage.js', array('defer' => false, 'minimize' => true), 'smf_pms');
-		loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
+		Theme::loadJavaScriptFile('PersonalMessage.js', array('defer' => false, 'minimize' => true), 'smf_pms');
+		Theme::loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
 	}
 	else
 		Utils::$context['sub_template'] = 'pm';
@@ -2593,8 +2592,6 @@ function MessagePost2()
  */
 function MessageActionsApply()
 {
-	global $options;
-
 	checkSession('request');
 
 	if (isset($_REQUEST['del_selected']))
@@ -2788,7 +2785,7 @@ function MessageActionsApply()
 			if ($type == 'rem' && empty($labels))
 				$in_inbox = (empty(Utils::$context['can_remove_inbox']) ? 1 : 0);
 			// Adding new labels, but removing inbox and applying new ones
-			elseif ($type == 'add' && !empty($options['pm_remove_inbox_label']) && !empty($labels))
+			elseif ($type == 'add' && !empty(Theme::$current->options['pm_remove_inbox_label']) && !empty($labels))
 				$in_inbox = 0;
 			// Just adding it to the inbox
 			else
@@ -3507,7 +3504,7 @@ function MessageSettings()
 	User::setCurProfile(User::$me->id);
 
 	Lang::load('Profile');
-	loadTemplate('Profile');
+	Theme::loadTemplate('Profile');
 
 	// Since this is internally handled with the profile code because that's how it was done ages ago
 	// we have to set everything up for handling this...
@@ -3978,8 +3975,6 @@ function ManageRules()
  */
 function ApplyRules($all_messages = false)
 {
-	global $options;
-
 	// Want this - duh!
 	loadRules();
 
@@ -4064,7 +4059,7 @@ function ApplyRules($all_messages = false)
 				if (in_array($label['id'], $labels))
 					$realLabels[] = $label['id'];
 
-			if (!empty($options['pm_remove_inbox_label']))
+			if (!empty(Theme::$current->options['pm_remove_inbox_label']))
 				Db::$db->query('', '
 					UPDATE {db_prefix}pm_recipients
 					SET in_inbox = {int:in_inbox}

@@ -12,6 +12,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 
 /**
@@ -176,8 +177,6 @@ function template_maintain_routine()
  */
 function template_maintain_members()
 {
-	global $settings;
-
 	echo '
 	<script>
 		var warningMessage = \'\';
@@ -295,7 +294,7 @@ function template_maintain_members()
 					<input type="number" name="maxdays" value="30" size="3">', Lang::$txt['maintain_members_since3'], '
 				</p>
 				<p>
-					<a href="#membersLink" onclick="swapMembers();"><img src="', $settings['images_url'], '/selected.png" alt="+" id="membersIcon"></a> <a href="#membersLink" onclick="swapMembers();" id="membersText" style="font-weight: bold;">', Lang::$txt['maintain_members_all'], '</a>
+					<a href="#membersLink" onclick="swapMembers();"><img src="', Theme::$current->settings['images_url'], '/selected.png" alt="+" id="membersIcon"></a> <a href="#membersLink" onclick="swapMembers();" id="membersText" style="font-weight: bold;">', Lang::$txt['maintain_members_all'], '</a>
 				</p>
 				<div style="display: none;" id="membersPanel">';
 
@@ -342,8 +341,6 @@ function template_maintain_members()
  */
 function template_maintain_topics()
 {
-	global $settings;
-
 	// If maintenance has finished tell the user.
 	if (!empty(Utils::$context['maintenance_finished']))
 		echo '
@@ -400,7 +397,7 @@ function template_maintain_topics()
 						<label for="delete_old_not_sticky"><input type="checkbox" name="delete_old_not_sticky" id="delete_old_not_sticky" checked> ', Lang::$txt['maintain_old_are_not_stickied'], '</label><br>
 					</p>
 					<p>
-						<a href="#rotLink" onclick="swapRot();"><img src="', $settings['images_url'], '/selected.png" alt="+" id="rotIcon"></a> <a href="#rotLink" onclick="swapRot();" id="rotText" style="font-weight: bold;">', Lang::$txt['maintain_old_all'], '</a>
+						<a href="#rotLink" onclick="swapRot();"><img src="', Theme::$current->settings['images_url'], '/selected.png" alt="+" id="rotIcon"></a> <a href="#rotLink" onclick="swapRot();" id="rotText" style="font-weight: bold;">', Lang::$txt['maintain_old_all'], '</a>
 					</p>
 					<div style="display: none;" id="rotPanel" class="flow_hidden">
 						<div class="floatleft" style="width: 49%">';

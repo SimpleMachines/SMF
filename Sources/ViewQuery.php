@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -32,8 +33,6 @@ if (!defined('SMF'))
  */
 function ViewQuery()
 {
-	global $settings;
-
 	// We should have debug mode enabled, as well as something to display!
 	if (!isset(Config::$db_show_debug) || Config::$db_show_debug !== true || !isset($_SESSION['debug']))
 		fatal_lang_error('no_access', false);
@@ -60,7 +59,7 @@ function ViewQuery()
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<title>', Utils::$context['forum_name_html_safe'], '</title>
-		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', Utils::$context['theme_variant'], '.css?alp21">
+		<link rel="stylesheet" href="', Theme::$current->settings['theme_url'], '/css/index', Utils::$context['theme_variant'], '.css?alp21">
 		<style>
 			body
 			{

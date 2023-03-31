@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -30,7 +31,7 @@ function SearchEngines()
 	isAllowedTo('admin_forum');
 
 	Lang::load('Search');
-	loadTemplate('ManageSearch');
+	Theme::loadTemplate('ManageSearch');
 
 	if (!empty(Config::$modSettings['spider_mode']))
 	{
@@ -148,7 +149,7 @@ function ManageSearchEngineSettings($return_config = false)
 	// Final settings...
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=sengines;save;sa=settings';
 	Utils::$context['settings_title'] = Lang::$txt['settings'];
-	addInlineJavaScript($javascript_function, true);
+	Theme::addInlineJavaScript($javascript_function, true);
 
 	// Prepare the settings...
 	prepareDBSettingContext($config_vars);
@@ -670,7 +671,7 @@ function SpiderLogs()
 {
 	// Load the template and language just incase.
 	Lang::load('Search');
-	loadTemplate('ManageSearch');
+	Theme::loadTemplate('ManageSearch');
 
 	// Did they want to delete some entries?
 	if ((!empty($_POST['delete_entries']) && isset($_POST['older'])) || !empty($_POST['removeAll']))

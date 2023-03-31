@@ -17,6 +17,7 @@ use SMF\Config;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\Mail;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -72,8 +73,7 @@ class Birthday_Notify extends BackgroundTask
 
 		if (!empty($birthdays))
 		{
-			require_once(Config::$sourcedir . '/ScheduledTasks.php');
-			loadEssentialThemeData();
+			Theme::loadEssential();
 
 			// Send out the greetings!
 			foreach ($birthdays as $lang => $members)

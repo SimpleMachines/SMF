@@ -13,6 +13,7 @@
 use SMF\BrowserDetector;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 use SMF\User;
 
@@ -21,9 +22,6 @@ use SMF\User;
  */
 function template_main()
 {
-	global $options;
-	global $settings;
-
 	// Start the javascript... and boy is there a lot.
 	echo '
 		<script>';
@@ -328,7 +326,7 @@ function template_main()
 					if (strpos($attachment['mime_type'], 'image') === 0)
 						$src = Config::$scripturl . '?action=dlattach;attach=' . (!empty($attachment['thumb']) ? $attachment['thumb'] : $attachment['attachID']) . ';preview;image';
 					else
-						$src = $settings['images_url'] . '/generic_attach.png';
+						$src = Theme::$current->settings['images_url'] . '/generic_attach.png';
 
 					echo '
 										<div class="attachments_top">
@@ -432,9 +430,9 @@ function template_main()
 	echo '
 						<div id="post_settings" class="smalltext">
 							<ul class="post_options">
-								', Utils::$context['can_notify'] ? '<li><input type="hidden" name="notify" value="0"><label for="check_notify"><input type="checkbox" name="notify" id="check_notify"' . (Utils::$context['notify'] || !empty($options['auto_notify']) || Utils::$context['auto_notify'] ? ' checked' : '') . ' value="1"> ' . Lang::$txt['notify_replies'] . '</label></li>' : '', '
+								', Utils::$context['can_notify'] ? '<li><input type="hidden" name="notify" value="0"><label for="check_notify"><input type="checkbox" name="notify" id="check_notify"' . (Utils::$context['notify'] || !empty(Theme::$current->options['auto_notify']) || Utils::$context['auto_notify'] ? ' checked' : '') . ' value="1"> ' . Lang::$txt['notify_replies'] . '</label></li>' : '', '
 								', Utils::$context['can_lock'] ? '<li><input type="hidden" name="already_locked" value="' . Utils::$context['already_locked'] . '"><input type="hidden" name="lock" value="0"><label for="check_lock"><input type="checkbox" name="lock" id="check_lock"' . (Utils::$context['locked'] ? ' checked' : '') . ' value="1"> ' . Lang::$txt['lock_topic'] . '</label></li>' : '', '
-								<li><label for="check_back"><input type="checkbox" name="goback" id="check_back"' . (Utils::$context['back_to_topic'] || !empty($options['return_to_post']) ? ' checked' : '') . ' value="1"> ' . Lang::$txt['back_to_topic'] . '</label></li>
+								<li><label for="check_back"><input type="checkbox" name="goback" id="check_back"' . (Utils::$context['back_to_topic'] || !empty(Theme::$current->options['return_to_post']) ? ' checked' : '') . ' value="1"> ' . Lang::$txt['back_to_topic'] . '</label></li>
 								', Utils::$context['can_sticky'] ? '<li><input type="hidden" name="already_sticky" value="' . Utils::$context['already_sticky'] . '"><input type="hidden" name="sticky" value="0"><label for="check_sticky"><input type="checkbox" name="sticky" id="check_sticky"' . (Utils::$context['sticky'] ? ' checked' : '') . ' value="1"> ' . Lang::$txt['sticky_after_posting'] . '</label></li>' : '', '
 								<li><label for="check_smileys"><input type="checkbox" name="ns" id="check_smileys"', Utils::$context['use_smileys'] ? '' : ' checked', ' value="NS"> ', Lang::$txt['dont_use_smileys'], '</label></li>', '
 								', Utils::$context['can_move'] ? '<li><input type="hidden" name="move" value="0"><label for="check_move"><input type="checkbox" name="move" id="check_move" value="1"' . (!empty(Utils::$context['move']) ? ' checked" ' : '') . '> ' . Lang::$txt['move_after_posting'] . '</label></li>' : '', '
@@ -447,7 +445,7 @@ function template_main()
 					</div><!-- #post_additional_options -->';
 
 	// If the admin enabled the drafts feature, show a draft selection box
-	if (!empty(Config::$modSettings['drafts_post_enabled']) && !empty(Utils::$context['drafts']) && !empty(Config::$modSettings['drafts_show_saved_enabled']) && !empty($options['drafts_show_saved_enabled']))
+	if (!empty(Config::$modSettings['drafts_post_enabled']) && !empty(Utils::$context['drafts']) && !empty(Config::$modSettings['drafts_show_saved_enabled']) && !empty(Theme::$current->options['drafts_show_saved_enabled']))
 	{
 		echo '
 					<div id="post_draft_options_header" class="title_bar">
@@ -715,15 +713,13 @@ function template_main()
  */
 function template_spellcheck()
 {
-	global $settings;
-
 	// The style information that makes the spellchecker look... like the forum hopefully!
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<meta charset="', Utils::$context['character_set'], '">
 		<title>', Lang::$txt['spell_check'], '</title>
-		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', Utils::$context['theme_variant'], '.css', Utils::$context['browser_cache'], '">
+		<link rel="stylesheet" href="', Theme::$current->settings['theme_url'], '/css/index', Utils::$context['theme_variant'], '.css', Utils::$context['browser_cache'], '">
 		<style>
 			body, td {
 				font-size: small;
@@ -753,8 +749,8 @@ function template_spellcheck()
 			var spell_formname = window.opener.spell_formname;
 			var spell_fieldname = window.opener.spell_fieldname;
 		</script>
-		<script src="', $settings['default_theme_url'], '/scripts/spellcheck.js', Utils::$context['browser_cache'], '"></script>
-		<script src="', $settings['default_theme_url'], '/scripts/script.js', Utils::$context['browser_cache'], '"></script>
+		<script src="', Theme::$current->settings['default_theme_url'], '/scripts/spellcheck.js', Utils::$context['browser_cache'], '"></script>
+		<script src="', Theme::$current->settings['default_theme_url'], '/scripts/script.js', Utils::$context['browser_cache'], '"></script>
 		<script>
 			', Utils::$context['spell_js'], '
 		</script>
@@ -791,14 +787,12 @@ function template_spellcheck()
  */
 function template_quotefast()
 {
-	global $settings;
-
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<meta charset="', Utils::$context['character_set'], '">
 		<title>', Lang::$txt['retrieving_quote'], '</title>
-		<script src="', $settings['default_theme_url'], '/scripts/script.js', Utils::$context['browser_cache'], '"></script>
+		<script src="', Theme::$current->settings['default_theme_url'], '/scripts/script.js', Utils::$context['browser_cache'], '"></script>
 	</head>
 	<body>
 		', Lang::$txt['retrieving_quote'], '

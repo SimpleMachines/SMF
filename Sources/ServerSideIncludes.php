@@ -177,7 +177,7 @@ class ServerSideIncludes
 			new self();
 
 		if (!isset($_GET['ssi_function']) || $_GET['ssi_function'] != 'shutdown')
-			template_footer();
+			Theme::template_footer();
 	}
 
 	/**
@@ -557,8 +557,6 @@ class ServerSideIncludes
 	 */
 	public static function recentTopics($num_recent = 8, $exclude_boards = null, $include_boards = null, $output_method = 'echo')
 	{
-		global $settings;
-
 		if (!self::$setup_done)
 			new self();
 
@@ -652,7 +650,7 @@ class ServerSideIncludes
 				$row['icon'] = 'recycled';
 
 			if (!empty(Config::$modSettings['messageIconChecks_enable']) && !isset($icon_sources[$row['icon']]))
-				$icon_sources[$row['icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $row['icon'] . '.png') ? 'images_url' : 'default_images_url';
+				$icon_sources[$row['icon']] = file_exists(Theme::$current->settings['theme_dir'] . '/images/post/' . $row['icon'] . '.png') ? 'images_url' : 'default_images_url';
 			elseif (!isset($icon_sources[$row['icon']]))
 				$icon_sources[$row['icon']] = 'images_url';
 
@@ -684,7 +682,7 @@ class ServerSideIncludes
 				'new' => !empty($row['is_read']),
 				'is_new' => empty($row['is_read']),
 				'new_from' => $row['new_from'],
-				'icon' => '<img src="' . $settings[$icon_sources[$row['icon']]] . '/post/' . $row['icon'] . '.png" style="vertical-align:middle;" alt="' . $row['icon'] . '">',
+				'icon' => '<img src="' . Theme::$current->settings[$icon_sources[$row['icon']]] . '/post/' . $row['icon'] . '.png" style="vertical-align:middle;" alt="' . $row['icon'] . '">',
 			);
 		}
 		Db::$db->free_result($request);
@@ -1249,8 +1247,6 @@ class ServerSideIncludes
 	 */
 	public static function whosOnline($output_method = 'echo')
 	{
-		global $settings;
-
 		if (!self::$setup_done)
 			new self();
 
@@ -1292,7 +1288,7 @@ class ServerSideIncludes
 				', implode(', ', $return['list_users_online']);
 
 		// Showing membergroups?
-		if (!empty($settings['show_group_key']) && !empty($return['online_groups']))
+		if (!empty(Theme::$current->settings['show_group_key']) && !empty($return['online_groups']))
 		{
 			$membergroups = CacheApi::quickGet('membergroup_list', 'Subs-Membergroups.php', 'cache_getMembergroupList', array());
 
@@ -2075,8 +2071,6 @@ class ServerSideIncludes
 	 */
 	public static function boardNews($board = null, $limit = null, $start = null, $length = null, $output_method = 'echo')
 	{
-		global $settings;
-
 		if (!self::$setup_done)
 			new self();
 
@@ -2204,7 +2198,7 @@ class ServerSideIncludes
 
 			// Check that this message icon is there...
 			if (!empty(Config::$modSettings['messageIconChecks_enable']) && !isset($icon_sources[$row['icon']]))
-				$icon_sources[$row['icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $row['icon'] . '.png') ? 'images_url' : 'default_images_url';
+				$icon_sources[$row['icon']] = file_exists(Theme::$current->settings['theme_dir'] . '/images/post/' . $row['icon'] . '.png') ? 'images_url' : 'default_images_url';
 			elseif (!isset($icon_sources[$row['icon']]))
 				$icon_sources[$row['icon']] = 'images_url';
 
@@ -2214,7 +2208,7 @@ class ServerSideIncludes
 			$return[] = array(
 				'id' => $row['id_topic'],
 				'message_id' => $row['id_msg'],
-				'icon' => '<img src="' . $settings[$icon_sources[$row['icon']]] . '/post/' . $row['icon'] . '.png" alt="' . $row['icon'] . '">',
+				'icon' => '<img src="' . Theme::$current->settings[$icon_sources[$row['icon']]] . '/post/' . $row['icon'] . '.png" alt="' . $row['icon'] . '">',
 				'subject' => $row['subject'],
 				'time' => timeformat($row['poster_time']),
 				'timestamp' => $row['poster_time'],
@@ -2458,8 +2452,6 @@ class ServerSideIncludes
 	 */
 	public static function recentAttachments($num_attachments = 10, $attachment_ext = array(), $output_method = 'echo')
 	{
-		global $settings;
-
 		if (!self::$setup_done)
 			new self();
 
@@ -2519,7 +2511,7 @@ class ServerSideIncludes
 					'filesize' => round($row['filesize'] / 1024, 2) . Lang::$txt['kilobyte'],
 					'downloads' => $row['downloads'],
 					'href' => Config::$scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $row['id_attach'],
-					'link' => '<img src="' . $settings['images_url'] . '/icons/clip.png" alt=""> <a href="' . Config::$scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $row['id_attach'] . '">' . $filename . '</a>',
+					'link' => '<img src="' . Theme::$current->settings['images_url'] . '/icons/clip.png" alt=""> <a href="' . Config::$scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $row['id_attach'] . '">' . $filename . '</a>',
 					'is_image' => !empty($row['width']) && !empty($row['height']) && !empty(Config::$modSettings['attachmentShowImages']),
 				),
 				'topic' => array(
@@ -2682,7 +2674,7 @@ class ServerSideIncludes
 		User::$me->loadPermissions();
 
 		// Load the current or SSI theme. (just use $this->theme = id_theme;)
-		loadTheme((int) $this->theme);
+		Theme::load((int) $this->theme);
 
 		// @todo: probably not the best place, but somewhere it should be set...
 		if (!headers_sent())
@@ -2704,10 +2696,10 @@ class ServerSideIncludes
 		if (isset($this->layers))
 		{
 			Utils::$context['template_layers'] = $this->layers;
-			template_header();
+			Theme::template_header();
 		}
 		else
-			setupThemeContext();
+			Theme::setupContext();
 
 		// Make sure they didn't muss around with the settings... but only if it's not cli.
 		if (isset($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['is_cli']) && session_id() == '')

@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 
@@ -30,8 +31,6 @@ if (!defined('SMF'))
  */
 function createMenu($menuData, $menuOptions = array())
 {
-	global $settings;
-
 	/* Note menuData is array of form:
 
 		Possible fields:
@@ -147,13 +146,13 @@ function createMenu($menuData, $menuOptions = array())
 						}
 						elseif (isset($area['icon']))
 						{
-							if (file_exists($settings['theme_dir'] . '/images/admin/' . $area['icon']))
+							if (file_exists(Theme::$current->settings['theme_dir'] . '/images/admin/' . $area['icon']))
 							{
-								$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<img src="' . $settings['images_url'] . '/admin/' . $area['icon'] . '" alt="">';
+								$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<img src="' . Theme::$current->settings['images_url'] . '/admin/' . $area['icon'] . '" alt="">';
 							}
-							elseif (file_exists($settings['default_theme_dir'] . '/images/admin/' . $area['icon']))
+							elseif (file_exists(Theme::$current->settings['default_theme_dir'] . '/images/admin/' . $area['icon']))
 							{
-								$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<img src="' . $settings['default_images_url'] . '/admin/' . $area['icon'] . '" alt="">';
+								$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<img src="' . Theme::$current->settings['default_images_url'] . '/admin/' . $area['icon'] . '" alt="">';
 							}
 							else
 								$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<span class="main_icons ' . $area['icon'] . '"></span>';
@@ -169,13 +168,13 @@ function createMenu($menuData, $menuOptions = array())
 						{
 							if (substr($area['icon'], -4) === '.png' || substr($area['icon'], -4) === '.gif')
 							{
-								if (file_exists($settings['theme_dir'] . '/images/admin/big/' . $area['icon']))
+								if (file_exists(Theme::$current->settings['theme_dir'] . '/images/admin/big/' . $area['icon']))
 								{
-									$menu_context['sections'][$section_id]['areas'][$area_id]['icon_file'] = $settings['theme_url'] . '/images/admin/big/' . $area['icon'];
+									$menu_context['sections'][$section_id]['areas'][$area_id]['icon_file'] = Theme::$current->settings['theme_url'] . '/images/admin/big/' . $area['icon'];
 								}
-								elseif (file_exists($settings['default_theme_dir'] . '/images/admin/big/' . $area['icon']))
+								elseif (file_exists(Theme::$current->settings['default_theme_dir'] . '/images/admin/big/' . $area['icon']))
 								{
-									$menu_context['sections'][$section_id]['areas'][$area_id]['icon_file'] = $settings['default_theme_url'] . '/images/admin/big/' . $area['icon'];
+									$menu_context['sections'][$section_id]['areas'][$area_id]['icon_file'] = Theme::$current->settings['default_theme_url'] . '/images/admin/big/' . $area['icon'];
 								}
 							}
 
@@ -333,7 +332,7 @@ function createMenu($menuData, $menuOptions = array())
 	}
 
 	// Almost there - load the template and add to the template layers.
-	loadTemplate(isset($menuOptions['template_name']) ? $menuOptions['template_name'] : 'GenericMenu');
+	Theme::loadTemplate(isset($menuOptions['template_name']) ? $menuOptions['template_name'] : 'GenericMenu');
 	$menu_context['layer_name'] = (isset($menuOptions['layer_name']) ? $menuOptions['layer_name'] : 'generic_menu') . '_dropdown';
 	Utils::$context['template_layers'][] = $menu_context['layer_name'];
 

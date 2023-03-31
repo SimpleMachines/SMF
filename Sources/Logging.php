@@ -16,6 +16,7 @@
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -32,10 +33,8 @@ if (!defined('SMF'))
  */
 function writeLog($force = false)
 {
-	global $settings;
-
 	// If we are showing who is viewing a topic, let's see if we are, and force an update if so - to make it accurate.
-	if (!empty($settings['display_who_viewing']) && (Topic::$topic_id || Board::$info->id))
+	if (!empty(Theme::$current->settings['display_who_viewing']) && (Topic::$topic_id || Board::$info->id))
 	{
 		// Take the opposite approach!
 		$force = true;
@@ -212,8 +211,6 @@ function logLastDatabaseError()
  */
 function displayDebug()
 {
-	global $settings;
-
 	// Add to Settings.php if you want to show the debugging information.
 	if (!isset(Config::$db_show_debug) || Config::$db_show_debug !== true || (isset($_GET['action']) && $_GET['action'] == 'viewquery'))
 		return;
@@ -231,7 +228,7 @@ function displayDebug()
 	{
 		if (file_exists($files[$i]))
 			$total_size += filesize($files[$i]);
-		$files[$i] = strtr($files[$i], array(Config::$boarddir => '.', Config::$sourcedir => '(Sources)', Config::$cachedir => '(Cache)', $settings['actual_theme_dir'] => '(Current Theme)'));
+		$files[$i] = strtr($files[$i], array(Config::$boarddir => '.', Config::$sourcedir => '(Sources)', Config::$cachedir => '(Cache)', Theme::$current->settings['actual_theme_dir'] => '(Current Theme)'));
 	}
 
 	$warnings = 0;

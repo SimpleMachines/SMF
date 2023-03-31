@@ -12,6 +12,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 
 /**
@@ -355,8 +356,6 @@ function template_notes()
  */
 function template_unapproved_posts()
 {
-	global $options;
-
 	// Just a big table of it all really...
 	echo '
 	<div id="modcenter">
@@ -380,7 +379,7 @@ function template_unapproved_posts()
 		echo '
 			<div class="pagesection">';
 
-		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
+		if (!empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1)
 			echo '
 				<ul class="buttonlist floatright">
 					<li class="inline_mod_check">
@@ -412,7 +411,7 @@ function template_unapproved_posts()
 			'quickmod' => array(
 				'class' => 'inline_mod_check',
 				'content' => '<input type="checkbox" name="item[]" value="'.$item['id'].'" checked>',
-				'show' => !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1
+				'show' => !empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1
 			),
 		);
 		echo '
@@ -434,7 +433,7 @@ function template_unapproved_posts()
 	echo '
 			<div class="pagesection">';
 
-	if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
+	if (!empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1)
 		echo '
 				<div class="floatright">
 					<select name="do" onchange="if (this.value != 0 &amp;&amp; confirm(\'', Lang::$txt['mc_unapproved_sure'], '\')) submit();">
@@ -526,15 +525,13 @@ function template_moderation_settings()
  */
 function template_show_notice()
 {
-	global $settings;
-
 	// We do all the HTML for this one!
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<meta charset="', Utils::$context['character_set'], '">
 		<title>', Utils::$context['page_title'], '</title>
-		', template_css(), '
+		', Theme::template_css(), '
 	</head>
 	<body>
 		<div class="cat_bar">

@@ -370,7 +370,7 @@ class Mail
 		// Just in case we run into a problem.
 		if (empty(Lang::$txt))
 		{
-			loadEssentialThemeData();
+			Theme::loadEssential();
 			Lang::load('Errors', Lang::$default, false);
 			Lang::load('index', Lang::$default, false);
 		}
@@ -1088,8 +1088,6 @@ class Mail
 	 */
 	public static function loadEmailTemplate($template, $replacements = array(), $lang = '', $loadLang = true)
 	{
-		global $settings;
-
 		// First things first, load up the email templates language file, if we need to.
 		if ($loadLang)
 			Lang::load('EmailTemplates', $lang);
@@ -1107,9 +1105,9 @@ class Mail
 		$replacements += array(
 			'FORUMNAME' => Config::$mbname,
 			'SCRIPTURL' => Config::$scripturl,
-			'THEMEURL' => $settings['theme_url'],
-			'IMAGESURL' => $settings['images_url'],
-			'DEFAULT_THEMEURL' => $settings['default_theme_url'],
+			'THEMEURL' => Theme::$current->settings['theme_url'],
+			'IMAGESURL' => Theme::$current->settings['images_url'],
+			'DEFAULT_THEMEURL' => Theme::$current->settings['default_theme_url'],
 			'REGARDS' => sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name']),
 		);
 

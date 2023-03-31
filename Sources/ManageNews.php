@@ -18,6 +18,7 @@ use SMF\Config;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\Mail;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -37,7 +38,7 @@ function ManageNews()
 	// First, let's do a quick permissions check for the best error message possible.
 	isAllowedTo(array('edit_news', 'send_mail', 'admin_forum'));
 
-	loadTemplate('ManageNews');
+	Theme::loadTemplate('ManageNews');
 
 	// Format: 'sub-action' => array('function', 'permission')
 	$subActions = array(
@@ -276,7 +277,7 @@ function EditNews()
 	createList($listOptions);
 
 	// And go!
-	loadTemplate('ManageNews');
+	Theme::loadTemplate('ManageNews');
 	Utils::$context['sub_template'] = 'news_lists';
 }
 
@@ -431,7 +432,7 @@ function SelectMailingMembers()
 
 	Utils::$context['can_send_pm'] = allowedTo('pm_send');
 
-	loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
+	Theme::loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
 }
 
 /**
@@ -1106,7 +1107,7 @@ function ModifyNewsSettings($return_config = false)
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=news;save;sa=settings';
 
 	// Add some javascript at the bottom...
-	addInlineJavaScript('
+	Theme::addInlineJavaScript('
 	document.getElementById("xmlnews_maxlen").disabled = !document.getElementById("xmlnews_enable").checked;', true);
 
 	// Saving the settings?

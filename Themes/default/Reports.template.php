@@ -12,6 +12,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 
 /**
@@ -137,14 +138,12 @@ function template_main()
  */
 function template_print_above()
 {
-	global $settings;
-
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<meta charset="', Utils::$context['character_set'], '">
 		<title>', Utils::$context['page_title'], '</title>
-		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/report.css', Utils::$context['browser_cache'], '">
+		<link rel="stylesheet" href="', Theme::$current->settings['default_theme_url'], '/css/report.css', Utils::$context['browser_cache'], '">
 	</head>
 	<body>';
 }
@@ -227,7 +226,7 @@ function template_print()
 function template_print_below()
 {
 	echo '
-		<div class="copyright">', theme_copyright(), '</div>
+		<div class="copyright">', Theme::copyright(), '</div>
 	</body>
 </html>';
 }

@@ -18,6 +18,7 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -239,7 +240,7 @@ function PrintTopic()
 	$bbcparser->for_print = true;
 
 	// Lets "output" all that info.
-	loadTemplate('Printpage');
+	Theme::loadTemplate('Printpage');
 	Utils::$context['template_layers'] = array('print');
 	Utils::$context['board_name'] = Board::$info->name;
 	Utils::$context['category_name'] = Board::$info->cat['name'];

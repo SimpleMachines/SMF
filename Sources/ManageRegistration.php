@@ -17,6 +17,7 @@
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
+use SMF\Theme;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -54,7 +55,7 @@ function RegCenter()
 
 	// Loading, always loading.
 	Lang::load('Login');
-	loadTemplate('Register');
+	Theme::loadTemplate('Register');
 
 	// Next create the tabs for the template.
 	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
@@ -177,7 +178,7 @@ function AdminRegister()
 	Utils::$context['sub_template'] = 'admin_register';
 	Utils::$context['page_title'] = Lang::$txt['registration_center'];
 	createToken('admin-regc');
-	loadJavaScriptFile('register.js', array('defer' => false, 'minimize' => true), 'smf_register');
+	Theme::loadJavaScriptFile('register.js', array('defer' => false, 'minimize' => true), 'smf_register');
 }
 
 /**

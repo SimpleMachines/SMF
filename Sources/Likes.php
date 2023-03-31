@@ -607,7 +607,7 @@ class Likes
 		Utils::$context['page_title'] = strip_tags(sprintf(Lang::$txt[$title_base], '', Lang::numberFormat($count)));
 
 		// Lastly, setting up for display.
-		loadTemplate('Likes');
+		Theme::loadTemplate('Likes');
 		Lang::load('Help'); // For the close window button.
 		Utils::$context['template_layers'] = array();
 		Utils::$context['sub_template'] = 'popup';
@@ -634,7 +634,7 @@ class Likes
 			return $this->jsonResponse();
 
 		// Set everything up for display.
-		loadTemplate('Likes');
+		Theme::loadTemplate('Likes');
 		Utils::$context['template_layers'] = array();
 
 		// If there are any errors, process them first.

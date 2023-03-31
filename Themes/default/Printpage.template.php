@@ -12,6 +12,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Topic;
 use SMF\Utils;
 
@@ -152,8 +153,6 @@ function template_print_above()
  */
 function template_main()
 {
-	global $options;
-
 	if (!empty(Utils::$context['poll']))
 	{
 		echo '
@@ -208,7 +207,7 @@ function template_print_below()
 	template_print_options();
 
 	echo '
-		<div id="footer" class="smalltext">', theme_copyright(), '</div>
+		<div id="footer" class="smalltext">', Theme::copyright(), '</div>
 	</body>
 </html>';
 }

@@ -13,6 +13,7 @@
 use SMF\BrowserDetector;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 
 /**
@@ -435,15 +436,13 @@ function template_coppa_form()
  */
 function template_verification_sound()
 {
-	global $settings;
-
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<meta charset="', Utils::$context['character_set'], '">
 		<title>', Lang::$txt['visual_verification_sound'], '</title>
 		<meta name="robots" content="noindex">
-		', template_css(), '
+		', Theme::template_css(), '
 		<style>';
 
 	// Just show the help text and a "close window" link.
@@ -712,8 +711,6 @@ function template_edit_reserved_words()
 // Form for editing the privacy policy shown to people registering to the forum.
 function template_edit_privacy_policy()
 {
-	global $settings, $options;
-
 	if (!empty(Utils::$context['saved_successful']))
 		echo '
 		<div class="infobox">', Lang::$txt['settings_saved'], '</div>';

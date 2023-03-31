@@ -16,6 +16,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -699,8 +700,6 @@ function cache_getMembergroupList()
  */
 function list_getMembergroups($start, $items_per_page, $sort, $membergroup_type)
 {
-	global $settings;
-
 	$request = Db::$db->query('substring_membergroups', '
 		SELECT mg.id_group, mg.group_name, mg.min_posts, mg.description, mg.group_type, mg.online_color, mg.hidden,
 			mg.icons, COALESCE(gm.id_member, 0) AS can_moderate, 0 AS num_members
@@ -738,7 +737,7 @@ function list_getMembergroups($start, $items_per_page, $sort, $membergroup_type)
 			'type' => $row['group_type'],
 			'num_members' => $row['num_members'],
 			'moderators' => array(),
-			'icons' => !empty($row['icons'][0]) && !empty($row['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/membericons/' . $row['icons'][1] . '" alt="*">', $row['icons'][0]) : '',
+			'icons' => !empty($row['icons'][0]) && !empty($row['icons'][1]) ? str_repeat('<img src="' . Theme::$current->settings['images_url'] . '/membericons/' . $row['icons'][1] . '" alt="*">', $row['icons'][0]) : '',
 		);
 
 		Utils::$context['can_moderate'] |= $row['can_moderate'];

@@ -65,7 +65,7 @@ class Forum
 		'help' => array('Help.php', 'ShowHelp'),
 		'helpadmin' => array('Help.php', 'ShowAdminHelp'),
 		'jsmodify' => array('Post.php', 'JavaScriptModify'),
-		'jsoption' => array('Themes.php', 'SetJavaScript'),
+		'jsoption' => array('', 'SMF\\Theme::setJavaScript'),
 		'likes' => array('', 'SMF\\Likes::call'),
 		'lock' => array('', 'SMF\\Topic::lock'),
 		'lockvoting' => array('Poll.php', 'LockVoting'),
@@ -108,7 +108,7 @@ class Forum
 		'splittopics' => array('SplitTopics.php', 'SplitTopics'),
 		'stats' => array('Stats.php', 'DisplayStats'),
 		'sticky' => array('', 'SMF\\Topic::sticky'),
-		'theme' => array('Themes.php', 'ThemesMain'),
+		'theme' => array('', 'SMF\\Theme::dispatch'),
 		'trackip' => array('Profile-View.php', 'trackIP'),
 		'about:unknown' => array('', 'SMF\\Likes::BookOfUnknown'),
 		'unread' => array('Recent.php', 'UnreadTopics'),
@@ -278,8 +278,6 @@ class Forum
 	 */
 	protected function main()
 	{
-		global $settings;
-
 		// Special case: session keep-alive, output a transparent pixel.
 		if (isset($_GET['action']) && $_GET['action'] == 'keepalive')
 		{
@@ -310,7 +308,7 @@ class Forum
 		// Load the current theme.  (note that ?theme=1 will also work, may be used for guest theming.)
 		else
 		{
-			loadTheme();
+			Theme::load();
 		}
 
 		// Check if the user should be disallowed access.
@@ -396,10 +394,9 @@ class Forum
 		if (!isset($_REQUEST['action']) || !isset(self::$actions[$_REQUEST['action']]))
 		{
 			// Catch the action with the theme?
-			if (!empty($settings['catch_action']))
+			if (!empty(Theme::$current->settings['catch_action']))
 			{
-				require_once(Config::$sourcedir . '/Themes.php');
-				return 'WrapAction';
+				return 'SMF\\Theme::wrapAction';
 			}
 
 			if (!empty(Config::$modSettings['integrate_fallback_action']))

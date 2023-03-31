@@ -147,14 +147,12 @@ class Display
 	 */
 	public function prepareDisplayContext()
 	{
-		global $options;
-
 		static $counter = null;
 
 		// Remember which message this is.  (ie. reply #83)
 		if ($counter === null)
 		{
-			$counter = empty($options['view_newest_first']) ? Utils::$context['start'] : Topic::$info->total_visible_posts - Utils::$context['start'];
+			$counter = empty(Theme::$current->options['view_newest_first']) ? Utils::$context['start'] : Topic::$info->total_visible_posts - Utils::$context['start'];
 		}
 
 		if (!(Msg::$getter instanceof \Generator))
@@ -258,11 +256,11 @@ class Display
 				'id' => 'in_topic_mod_check_' . $output['id'],
 				'custom' => 'style="display: none;"',
 				'content' => '',
-				'show' => !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $output['can_remove'],
+				'show' => !empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1 && $output['can_remove'],
 			),
 		);
 
-		if (empty($options['view_newest_first']))
+		if (empty(Theme::$current->options['view_newest_first']))
 			$counter++;
 		else
 			$counter--;
@@ -767,8 +765,6 @@ class Display
 	 */
 	protected function setStart(): void
 	{
-		global $options;
-
 		// The start isn't a number; it's information about what to do, where to go.
 		if (!is_numeric($_REQUEST['start']))
 		{
@@ -779,7 +775,7 @@ class Display
 				if (User::$me->is_guest)
 				{
 					Utils::$context['start_from'] = Topic::$info->total_visible_posts - 1;
-					$_REQUEST['start'] = empty($options['view_newest_first']) ? Utils::$context['start_from'] : 0;
+					$_REQUEST['start'] = empty(Theme::$current->options['view_newest_first']) ? Utils::$context['start_from'] : 0;
 				}
 				else
 				{
@@ -831,7 +827,7 @@ class Display
 					Db::$db->free_result($request);
 
 					// Handle view_newest_first options, and get the correct start value.
-					$_REQUEST['start'] = empty($options['view_newest_first']) ? Utils::$context['start_from'] : Topic::$info->total_visible_posts - Utils::$context['start_from'] - 1;
+					$_REQUEST['start'] = empty(Theme::$current->options['view_newest_first']) ? Utils::$context['start_from'] : Topic::$info->total_visible_posts - Utils::$context['start_from'] - 1;
 				}
 			}
 
@@ -865,7 +861,7 @@ class Display
 				}
 
 				// We need to reverse the start as well in this case.
-				$_REQUEST['start'] = empty($options['view_newest_first']) ? Utils::$context['start_from'] : Topic::$info->total_visible_posts - Utils::$context['start_from'] - 1;
+				$_REQUEST['start'] = empty(Theme::$current->options['view_newest_first']) ? Utils::$context['start_from'] : Topic::$info->total_visible_posts - Utils::$context['start_from'] - 1;
 			}
 		}
 	}
@@ -875,9 +871,7 @@ class Display
 	 */
 	protected function getWhoViewing(): void
 	{
-		global $settings;
-
-		if (!empty($settings['display_who_viewing']))
+		if (!empty(Theme::$current->settings['display_who_viewing']))
 		{
 			// Start out with no one at all viewing it.
 			Utils::$context['view_members'] = array();
@@ -951,10 +945,8 @@ class Display
 	 */
 	protected function setPaginationAndLinks(): void
 	{
-		global $options, $settings;
-
 		// How much are we sticking on each page?
-		Utils::$context['messages_per_page'] = empty(Config::$modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) ? $options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
+		Utils::$context['messages_per_page'] = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
 
 		// Create a previous next string if the selected theme has it as a selected option.
 		Utils::$context['previous_next'] = Config::$modSettings['enablePreviousNext'] ? '<a href="' . Config::$scripturl . '?topic=' . Topic::$info->id . '.0;prev_next=prev#new">' . Lang::$txt['previous_next_back'] . '</a> - <a href="' . Config::$scripturl . '?topic=' . Topic::$info->id . '.0;prev_next=next#new">' . Lang::$txt['previous_next_forward'] . '</a>' : '';
@@ -997,7 +989,7 @@ class Display
 			{
 				// No limit! (actually, there is a limit, but...)
 				Utils::$context['messages_per_page'] = -1;
-				Utils::$context['page_index'] .= sprintf(strtr($settings['page_index']['current_page'], array('%1$d' => '%1$s')), Lang::$txt['all']);
+				Utils::$context['page_index'] .= sprintf(strtr(Theme::$current->settings['page_index']['current_page'], array('%1$d' => '%1$s')), Lang::$txt['all']);
 
 				// Set start back to 0...
 				$_REQUEST['start'] = 0;
@@ -1005,7 +997,7 @@ class Display
 			// They aren't using it, but the *option* is there, at least.
 			else
 			{
-				Utils::$context['page_index'] .= sprintf(strtr($settings['page_index']['page'], array('{URL}' => Config::$scripturl . '?topic=' . Topic::$info->id . '.0;all')), '', Lang::$txt['all']);
+				Utils::$context['page_index'] .= sprintf(strtr(Theme::$current->settings['page_index']['page'], array('{URL}' => Config::$scripturl . '?topic=' . Topic::$info->id . '.0;all')), '', Lang::$txt['all']);
 			}
 		}
 
@@ -1056,8 +1048,8 @@ class Display
 	protected function setupTemplate(): void
 	{
 		// Load the proper template.
-		loadTemplate('Display');
-		loadCSSFile('attachments.css', array('minimize' => true, 'order_pos' => 450), 'smf_attachments');
+		Theme::loadTemplate('Display');
+		Theme::loadCSSFile('attachments.css', array('minimize' => true, 'order_pos' => 450), 'smf_attachments');
 
 		// Set a canonical URL for this page.
 		Utils::$context['canonical_url'] = Config::$scripturl . '?topic=' . Topic::$info->id . '.' . ($this->can_show_all ? '0;all' : Utils::$context['start']);
@@ -1129,12 +1121,12 @@ class Display
 			$sig_limits = explode(',', $sig_limits);
 
 			if (!empty($sig_limits[5]) || !empty($sig_limits[6]))
-				addInlineCss('.signature img { ' . (!empty($sig_limits[5]) ? 'max-width: ' . (int) $sig_limits[5] . 'px; ' : '') . (!empty($sig_limits[6]) ? 'max-height: ' . (int) $sig_limits[6] . 'px; ' : '') . '}');
+				Theme::addInlineCss('.signature img { ' . (!empty($sig_limits[5]) ? 'max-width: ' . (int) $sig_limits[5] . 'px; ' : '') . (!empty($sig_limits[6]) ? 'max-height: ' . (int) $sig_limits[6] . 'px; ' : '') . '}');
 		}
 
 		// Load the drafts js file.
 		if (!empty(Topic::$info->permissions['drafts_autosave']))
-			loadJavaScriptFile('drafts.js', array('defer' => false, 'minimize' => true), 'smf_drafts');
+			Theme::loadJavaScriptFile('drafts.js', array('defer' => false, 'minimize' => true), 'smf_drafts');
 
 		// And the drafts language file.
 		if (!empty(Topic::$info->permissions['drafts_save']))
@@ -1142,20 +1134,20 @@ class Display
 
 		// Spellcheck
 		if (Utils::$context['show_spellchecking'])
-			loadJavaScriptFile('spellcheck.js', array('defer' => false, 'minimize' => true), 'smf_spellcheck');
+			Theme::loadJavaScriptFile('spellcheck.js', array('defer' => false, 'minimize' => true), 'smf_spellcheck');
 
 		// topic.js
-		loadJavaScriptFile('topic.js', array('defer' => false, 'minimize' => true), 'smf_topic');
+		Theme::loadJavaScriptFile('topic.js', array('defer' => false, 'minimize' => true), 'smf_topic');
 
 		// quotedText.js
-		loadJavaScriptFile('quotedText.js', array('defer' => true, 'minimize' => true), 'smf_quotedText');
+		Theme::loadJavaScriptFile('quotedText.js', array('defer' => true, 'minimize' => true), 'smf_quotedText');
 
 		// Mentions
 		if (!empty(Config::$modSettings['enable_mentions']) && allowedTo('mention'))
 		{
-			loadJavaScriptFile('jquery.atwho.min.js', array('defer' => true), 'smf_atwho');
-			loadJavaScriptFile('jquery.caret.min.js', array('defer' => true), 'smf_caret');
-			loadJavaScriptFile('mentions.js', array('defer' => true, 'minimize' => true), 'smf_mentions');
+			Theme::loadJavaScriptFile('jquery.atwho.min.js', array('defer' => true), 'smf_atwho');
+			Theme::loadJavaScriptFile('jquery.caret.min.js', array('defer' => true), 'smf_caret');
+			Theme::loadJavaScriptFile('mentions.js', array('defer' => true, 'minimize' => true), 'smf_mentions');
 		}
 
 		// Did we report a post to a moderator just now?
@@ -1519,11 +1511,9 @@ class Display
 	 */
 	protected function getMessagesAndPosters(): void
 	{
-		global $options;
-
 		$limit = Utils::$context['messages_per_page'];
 		$start = $_REQUEST['start'];
-		$ascending = empty($options['view_newest_first']);
+		$ascending = empty(Theme::$current->options['view_newest_first']);
 		$this->firstIndex = 0;
 
 		// Jump to page
@@ -1533,7 +1523,7 @@ class Display
 			$DBascending = !$ascending;
 			$limit = Topic::$info->total_visible_posts <= $start + $limit ? Topic::$info->total_visible_posts - $start : $limit;
 			$start = Topic::$info->total_visible_posts <= $start + $limit ? 0 : Topic::$info->total_visible_posts - $start - $limit;
-			$this->firstIndex = empty($options['view_newest_first']) ? $start - 1 : $limit - 1;
+			$this->firstIndex = empty(Theme::$current->options['view_newest_first']) ? $start - 1 : $limit - 1;
 		}
 		else
 			$DBascending = $ascending;
@@ -1581,8 +1571,6 @@ class Display
 	 */
 	protected function initDisplayContext(): void
 	{
-		global $options;
-
 		Utils::$context['loaded_attachments'] = array();
 
 		// If there _are_ messages here... (probably an error otherwise :!)
@@ -1608,7 +1596,7 @@ class Display
 			// Since the anchor information is needed on the top of the page we load these variables beforehand.
 			Utils::$context['first_message'] = isset($this->messages[$this->firstIndex]) ? $this->messages[$this->firstIndex] : $this->messages[0];
 
-			if (empty($options['view_newest_first']))
+			if (empty(Theme::$current->options['view_newest_first']))
 			{
 				Utils::$context['first_new_message'] = isset(Utils::$context['start_from']) && $_REQUEST['start'] == Utils::$context['start_from'];
 			}

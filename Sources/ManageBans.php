@@ -17,6 +17,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -38,7 +39,7 @@ function Ban()
 {
 	isAllowedTo('manage_bans');
 
-	loadTemplate('ManageBans');
+	Theme::loadTemplate('ManageBans');
 
 	$subActions = array(
 		'add' => 'BanEdit',
@@ -609,7 +610,7 @@ function BanEdit()
 		}
 	}
 
-	loadJavaScriptFile('suggest.js', array('minimize' => true), 'smf_suggest');
+	Theme::loadJavaScriptFile('suggest.js', array('minimize' => true), 'smf_suggest');
 	Utils::$context['sub_template'] = 'ban_edit';
 
 }
@@ -1637,7 +1638,7 @@ function BanEditTrigger()
 		redirectexit('action=admin;area=ban;sa=edit' . (!empty($ban_group) ? ';bg=' . $ban_group : ''));
 	}
 
-	loadJavaScriptFile('suggest.js', array('minimize' => true), 'smf_suggest');
+	Theme::loadJavaScriptFile('suggest.js', array('minimize' => true), 'smf_suggest');
 
 	if (empty($ban_id))
 	{
@@ -1720,8 +1721,6 @@ function BanEditTrigger()
  */
 function BanBrowseTriggers()
 {
-	global $settings;
-
 	if (!empty($_POST['remove_triggers']) && !empty($_POST['remove']) && is_array($_POST['remove']))
 	{
 		checkSession();
@@ -1817,7 +1816,7 @@ function BanBrowseTriggers()
 		'additional_rows' => array(
 			array(
 				'position' => 'above_column_headers',
-				'value' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=ip">' . (Utils::$context['selected_entity'] == 'ip' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . Lang::$txt['ip'] . '</a>&nbsp;|&nbsp;<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=hostname">' . (Utils::$context['selected_entity'] == 'hostname' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . Lang::$txt['hostname'] . '</a>&nbsp;|&nbsp;<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=email">' . (Utils::$context['selected_entity'] == 'email' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . Lang::$txt['email'] . '</a>&nbsp;|&nbsp;<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=member">' . (Utils::$context['selected_entity'] == 'member' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . Lang::$txt['username'] . '</a>',
+				'value' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=ip">' . (Utils::$context['selected_entity'] == 'ip' ? '<img src="' . Theme::$current->settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . Lang::$txt['ip'] . '</a>&nbsp;|&nbsp;<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=hostname">' . (Utils::$context['selected_entity'] == 'hostname' ? '<img src="' . Theme::$current->settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . Lang::$txt['hostname'] . '</a>&nbsp;|&nbsp;<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=email">' . (Utils::$context['selected_entity'] == 'email' ? '<img src="' . Theme::$current->settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . Lang::$txt['email'] . '</a>&nbsp;|&nbsp;<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=member">' . (Utils::$context['selected_entity'] == 'member' ? '<img src="' . Theme::$current->settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . Lang::$txt['username'] . '</a>',
 			),
 			array(
 				'position' => 'bottom_of_list',

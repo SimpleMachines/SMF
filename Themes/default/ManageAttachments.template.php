@@ -12,6 +12,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 
 /**
@@ -43,8 +44,6 @@ function template_avatar_settings_below()
  */
 function template_maintenance()
 {
-	global $settings;
-
 	echo '
 	<div id="manage_attachments">
 		<div class="cat_bar">
@@ -192,7 +191,7 @@ function template_maintenance()
 			}
 
 			function show_msg() {
-				$(\'#progress_msg\').html(\'<div><img src="', $settings['actual_images_url'], '/loading_sm.gif" alt="', Lang::$txt['ajax_in_progress'], '" width="35" height="35"> ', Lang::$txt['attachment_transfer_progress'], '<\/div>\');
+				$(\'#progress_msg\').html(\'<div><img src="', Theme::$current->settings['actual_images_url'], '/loading_sm.gif" alt="', Lang::$txt['ajax_in_progress'], '" width="35" height="35"> ', Lang::$txt['attachment_transfer_progress'], '<\/div>\');
 				show_progress();
 			}
 

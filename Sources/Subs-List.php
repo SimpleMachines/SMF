@@ -12,7 +12,7 @@
  * @version 3.0 Alpha 1
  */
 
-use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 
 if (!defined('SMF'))
@@ -268,7 +268,7 @@ function createList($listOptions)
 		$list_context['javascript'] = $listOptions['javascript'];
 
 	// Make sure the template is loaded.
-	loadTemplate('GenericList');
+	Theme::loadTemplate('GenericList');
 }
 
 ?>

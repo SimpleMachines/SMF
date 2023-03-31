@@ -17,6 +17,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Msg;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -32,8 +33,6 @@ if (!defined('SMF'))
  */
 function ModerationMain($dont_call = false)
 {
-	global $options;
-
 	// Don't run this twice... and don't conflict with the admin bar.
 	if (isset(Utils::$context['admin_area']))
 		return;
@@ -52,9 +51,9 @@ function ModerationMain($dont_call = false)
 
 	// Load the language, and the template.
 	Lang::load('ModerationCenter');
-	loadTemplate(false, 'admin');
+	Theme::loadTemplate(false, 'admin');
 
-	Utils::$context['admin_preferences'] = !empty($options['admin_preferences']) ? Utils::jsonDecode($options['admin_preferences'], true) : array();
+	Utils::$context['admin_preferences'] = !empty(Theme::$current->options['admin_preferences']) ? Utils::jsonDecode(Theme::$current->options['admin_preferences'], true) : array();
 	Utils::$context['robot_no_index'] = true;
 
 	// This is the menu structure - refer to Subs-Menu.php for the details.
@@ -254,10 +253,8 @@ function ModerationMain($dont_call = false)
  */
 function ModerationHome()
 {
-	global $options;
-
-	loadTemplate('ModerationCenter');
-	loadJavaScriptFile('admin.js', array('minimize' => true), 'smf_admin');
+	Theme::loadTemplate('ModerationCenter');
+	Theme::loadJavaScriptFile('admin.js', array('minimize' => true), 'smf_admin');
 
 	Utils::$context['page_title'] = Lang::$txt['moderation_center'];
 	Utils::$context['sub_template'] = 'moderation_center';
@@ -294,7 +291,7 @@ function ModerationHome()
 			Utils::$context['mod_blocks'][] = $block();
 	}
 
-	Utils::$context['admin_prefs'] = !empty($options['admin_preferences']) ? Utils::jsonDecode($options['admin_preferences'], true) : array();
+	Utils::$context['admin_prefs'] = !empty(Theme::$current->options['admin_preferences']) ? Utils::jsonDecode(Theme::$current->options['admin_preferences'], true) : array();
 }
 
 /**
@@ -683,7 +680,7 @@ function ModerateGroups()
 		isAllowedTo('manage_membergroups');
 
 	// Load the group templates.
-	loadTemplate('ModerationCenter');
+	Theme::loadTemplate('ModerationCenter');
 
 	// Setup the subactions...
 	$subActions = array(
@@ -708,7 +705,7 @@ function ShowNotice()
 	Utils::$context['sub_template'] = 'show_notice';
 	Utils::$context['template_layers'] = array();
 
-	loadTemplate('ModerationCenter');
+	Theme::loadTemplate('ModerationCenter');
 
 	// @todo Assumes nothing needs permission more than accessing moderation center!
 	$id_notice = (int) $_GET['nid'];
@@ -738,7 +735,7 @@ function ViewWatchedUsers()
 	Utils::$context['view_posts'] = isset($_GET['sa']) && $_GET['sa'] == 'post';
 	Utils::$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
 
-	loadTemplate('ModerationCenter');
+	Theme::loadTemplate('ModerationCenter');
 
 	// Get some key settings!
 	Config::$modSettings['warning_watch'] = empty(Config::$modSettings['warning_watch']) ? 1 : Config::$modSettings['warning_watch'];
@@ -1179,7 +1176,7 @@ function ViewWarnings()
 	}
 
 	// Some of this stuff is overseas, so to speak.
-	loadTemplate('ModerationCenter');
+	Theme::loadTemplate('ModerationCenter');
 	Lang::load('Profile');
 
 	// Setup the admin tabs.
@@ -1789,7 +1786,7 @@ function ModifyWarningTemplate()
 function ModerationSettings()
 {
 	// Some useful context stuff.
-	loadTemplate('ModerationCenter');
+	Theme::loadTemplate('ModerationCenter');
 	Utils::$context['page_title'] = Lang::$txt['mc_settings'];
 	Utils::$context['sub_template'] = 'moderation_settings';
 	Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = array(

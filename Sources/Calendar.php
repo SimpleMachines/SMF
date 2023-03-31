@@ -19,6 +19,7 @@ use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\MessageIndex;
+use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -41,8 +42,6 @@ if (!defined('SMF'))
  */
 function CalendarMain()
 {
-	global $options;
-
 	// Permissions, permissions, permissions.
 	isAllowedTo('calendar_view');
 
@@ -66,8 +65,8 @@ function CalendarMain()
 		fatal_lang_error('calendar_off', false);
 
 	// This is gonna be needed...
-	loadTemplate('Calendar');
-	loadCSSFile('calendar.css', array('force_current' => false, 'validate' => true, 'rtl' => 'calendar.rtl.css'), 'smf_calendar');
+	Theme::loadTemplate('Calendar');
+	Theme::loadCSSFile('calendar.css', array('force_current' => false, 'validate' => true, 'rtl' => 'calendar.rtl.css'), 'smf_calendar');
 
 	// Did the specify an individual event ID? If so, let's splice the year/month in to what we would otherwise be doing.
 	if (isset($_GET['event']))
@@ -99,8 +98,8 @@ function CalendarMain()
 	Utils::$context['page_title'] = Lang::$txt['calendar'];
 
 	// Ensure a default view is defined
-	if (empty($options['calendar_default_view']))
-		$options['calendar_default_view'] = 'viewlist';
+	if (empty(Theme::$current->options['calendar_default_view']))
+		Theme::$current->options['calendar_default_view'] = 'viewlist';
 
 	// What view do we want?
 	if (isset($_GET['viewweek']))
@@ -110,10 +109,10 @@ function CalendarMain()
 	elseif (isset($_GET['viewlist']))
 		Utils::$context['calendar_view'] = 'viewlist';
 	else
-		Utils::$context['calendar_view'] = $options['calendar_default_view'];
+		Utils::$context['calendar_view'] = Theme::$current->options['calendar_default_view'];
 
 	// Don't let search engines index the non-default calendar pages
-	if (Utils::$context['calendar_view'] !== $options['calendar_default_view'])
+	if (Utils::$context['calendar_view'] !== Theme::$current->options['calendar_default_view'])
 		Utils::$context['robot_no_index'] = true;
 
 	// Get the current day of month...
@@ -194,7 +193,7 @@ function CalendarMain()
 
 	// Load all the context information needed to show the calendar grid.
 	$calendarOptions = array(
-		'start_day' => !empty($options['calendar_start_day']) ? $options['calendar_start_day'] : 0,
+		'start_day' => !empty(Theme::$current->options['calendar_start_day']) ? Theme::$current->options['calendar_start_day'] : 0,
 		'show_birthdays' => in_array(Config::$modSettings['cal_showbdays'], array(1, 2)),
 		'show_events' => in_array(Config::$modSettings['cal_showevents'], array(1, 2)),
 		'show_holidays' => in_array(Config::$modSettings['cal_showholidays'], array(1, 2)),
@@ -498,7 +497,7 @@ function CalendarPost()
 	}
 
 	// Template, sub template, etc.
-	loadTemplate('Calendar');
+	Theme::loadTemplate('Calendar');
 	Utils::$context['sub_template'] = 'event_post';
 
 	Utils::$context['page_title'] = isset($_REQUEST['eventid']) ? Lang::$txt['calendar_edit'] : Lang::$txt['calendar_post_event'];
@@ -509,7 +508,7 @@ function CalendarPost()
 	loadDatePicker('#event_time_input .date_input');
 	loadTimePicker('#event_time_input .time_input', $time_string);
 	loadDatePair('#event_time_input', 'date_input', 'time_input');
-	addInlineJavaScript('
+	Theme::addInlineJavaScript('
 	$("#allday").click(function(){
 		$("#start_time").attr("disabled", this.checked);
 		$("#end_time").attr("disabled", this.checked);
@@ -636,10 +635,8 @@ function iCalDownload()
  */
 function clock()
 {
-	global $settings;
-
-	Utils::$context['onimg'] = $settings['images_url'] . '/bbc/bbc_hoverbg.png';
-	Utils::$context['offimg'] = $settings['images_url'] . '/bbc/bbc_bg.png';
+	Utils::$context['onimg'] = Theme::$current->settings['images_url'] . '/bbc/bbc_hoverbg.png';
+	Utils::$context['offimg'] = Theme::$current->settings['images_url'] . '/bbc/bbc_bg.png';
 
 	Utils::$context['page_title'] = 'Anyone know what time it is?';
 	Utils::$context['linktree'][] = array(
@@ -651,7 +648,7 @@ function clock()
 	$omfg = isset($_REQUEST['omfg']);
 	$bcd = !isset($_REQUEST['rb']) && !isset($_REQUEST['omfg']) && !isset($_REQUEST['time']);
 
-	loadTemplate('Calendar');
+	Theme::loadTemplate('Calendar');
 
 	if ($bcd)
 	{

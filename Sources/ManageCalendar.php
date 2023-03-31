@@ -16,6 +16,7 @@
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -199,7 +200,7 @@ function ModifyHolidays()
  */
 function EditHoliday()
 {
-	loadTemplate('ManageCalendar');
+	Theme::loadTemplate('ManageCalendar');
 
 	Utils::$context['is_new'] = !isset($_REQUEST['holiday']);
 	Utils::$context['page_title'] = Utils::$context['is_new'] ? Lang::$txt['holidays_add'] : Lang::$txt['holidays_edit'];

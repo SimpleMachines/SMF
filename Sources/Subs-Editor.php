@@ -18,6 +18,7 @@ use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -41,8 +42,6 @@ class_exists('SMF\\BBCodeParser');
  */
 function getMessageIcons($board_id)
 {
-	global $settings;
-
 	if (empty(Config::$modSettings['messageIcons_enable']))
 	{
 		Lang::load('Post');
@@ -65,7 +64,7 @@ function getMessageIcons($board_id)
 
 		foreach ($icons as $k => $dummy)
 		{
-			$icons[$k]['url'] = $settings['images_url'] . '/post/' . $dummy['value'] . '.png';
+			$icons[$k]['url'] = Theme::$current->settings['images_url'] . '/post/' . $dummy['value'] . '.png';
 			$icons[$k]['is_last'] = false;
 		}
 	}
@@ -94,7 +93,7 @@ function getMessageIcons($board_id)
 				$icons[$icon['filename']] = array(
 					'value' => $icon['filename'],
 					'name' => $icon['title'],
-					'url' => $settings[file_exists($settings['theme_dir'] . '/images/post/' . $icon['filename'] . '.png') ? 'images_url' : 'default_images_url'] . '/post/' . $icon['filename'] . '.png',
+					'url' => Theme::$current->settings[file_exists(Theme::$current->settings['theme_dir'] . '/images/post/' . $icon['filename'] . '.png') ? 'images_url' : 'default_images_url'] . '/post/' . $icon['filename'] . '.png',
 					'is_last' => false,
 				);
 			}
@@ -116,9 +115,6 @@ function getMessageIcons($board_id)
  */
 function create_control_richedit($editorOptions)
 {
-	global $options;
-	global $settings;
-
 	// Load the Post language file... for the moment at least.
 	Lang::load('Post');
 	Lang::load('Editor');
@@ -162,25 +158,25 @@ function create_control_richedit($editorOptions)
 	if (empty(Utils::$context['controls']['richedit']))
 	{
 		// Some general stuff.
-		$settings['smileys_url'] = Config::$modSettings['smileys_url'] . '/' . User::$me->smiley_set;
+		Theme::$current->settings['smileys_url'] = Config::$modSettings['smileys_url'] . '/' . User::$me->smiley_set;
 		if (!empty(Utils::$context['drafts_autosave']))
 			Utils::$context['drafts_autosave_frequency'] = empty(Config::$modSettings['drafts_autosave_frequency']) ? 60000 : Config::$modSettings['drafts_autosave_frequency'] * 1000;
 
 		// This really has some WYSIWYG stuff.
-		loadCSSFile('jquery.sceditor.css', array('default_theme' => true, 'validate' => true), 'smf_jquery_sceditor');
-		loadTemplate('GenericControls');
+		Theme::loadCSSFile('jquery.sceditor.css', array('default_theme' => true, 'validate' => true), 'smf_jquery_sceditor');
+		Theme::loadTemplate('GenericControls');
 
 		/*
 		 *		THEME AUTHORS:
 		 			If you want to change or tweak the CSS for the editor,
 					include a file named 'jquery.sceditor.theme.css' in your theme.
 		*/
-		loadCSSFile('jquery.sceditor.theme.css', array('force_current' => true, 'validate' => true,), 'smf_jquery_sceditor_theme');
+		Theme::loadCSSFile('jquery.sceditor.theme.css', array('force_current' => true, 'validate' => true,), 'smf_jquery_sceditor_theme');
 
 		// JS makes the editor go round
-		loadJavaScriptFile('editor.js', array('minimize' => true), 'smf_editor');
-		loadJavaScriptFile('jquery.sceditor.bbcode.min.js', array(), 'smf_sceditor_bbcode');
-		loadJavaScriptFile('jquery.sceditor.smf.js', array('minimize' => true), 'smf_sceditor_smf');
+		Theme::loadJavaScriptFile('editor.js', array('minimize' => true), 'smf_editor');
+		Theme::loadJavaScriptFile('jquery.sceditor.bbcode.min.js', array(), 'smf_sceditor_bbcode');
+		Theme::loadJavaScriptFile('jquery.sceditor.smf.js', array('minimize' => true), 'smf_sceditor_smf');
 
 		$scExtraLangs = '
 		$.sceditor.locale["' . Lang::$txt['lang_dictionary'] . '"] = {
@@ -198,10 +194,10 @@ function create_control_richedit($editorOptions)
 			dateFormat: "' . Lang::$editortxt['dateformat'] . '"
 		};';
 
-		addInlineJavaScript($scExtraLangs, true);
+		Theme::addInlineJavaScript($scExtraLangs, true);
 
-		addInlineJavaScript('
-		var smf_smileys_url = \'' . $settings['smileys_url'] . '\';
+		Theme::addInlineJavaScript('
+		var smf_smileys_url = \'' . Theme::$current->settings['smileys_url'] . '\';
 		var bbc_quote_from = \'' . addcslashes(Lang::$txt['quote_from'], "'") . '\';
 		var bbc_quote = \'' . addcslashes(Lang::$txt['quote'], "'") . '\';
 		var bbc_search_on = \'' . addcslashes(Lang::$txt['search_on'], "'") . '\';');
@@ -210,7 +206,7 @@ function create_control_richedit($editorOptions)
 
 		if (Utils::$context['show_spellchecking'])
 		{
-			loadJavaScriptFile('spellcheck.js', array('minimize' => true), 'smf_spellcheck');
+			Theme::loadJavaScriptFile('spellcheck.js', array('minimize' => true), 'smf_spellcheck');
 
 			// Some hidden information is needed in order to make the spell checking work.
 			if (!isset($_REQUEST['xml']))
@@ -231,7 +227,7 @@ function create_control_richedit($editorOptions)
 		'id' => $editorOptions['id'],
 		'value' => $editorOptions['value'],
 		'rich_value' => $editorOptions['value'], // 2.0 editor compatibility
-		'rich_active' => empty(Config::$modSettings['disable_wysiwyg']) && (!empty($options['wysiwyg_default']) || !empty($editorOptions['force_rich']) || !empty($_REQUEST[$editorOptions['id'] . '_mode'])),
+		'rich_active' => empty(Config::$modSettings['disable_wysiwyg']) && (!empty(Theme::$current->options['wysiwyg_default']) || !empty($editorOptions['force_rich']) || !empty($_REQUEST[$editorOptions['id'] . '_mode'])),
 		'disable_smiley_box' => !empty($editorOptions['disable_smiley_box']),
 		'columns' => isset($editorOptions['columns']) ? $editorOptions['columns'] : 60,
 		'rows' => isset($editorOptions['rows']) ? $editorOptions['rows'] : 18,
@@ -466,7 +462,7 @@ function create_control_richedit($editorOptions)
 					{
 						$bbcodes_styles .= '
 						.sceditor-button-' . $tag['code'] . ' div {
-							background: url(\'' . $settings['default_theme_url'] . '/images/bbc/' . $tag['image'] . '.png\');
+							background: url(\'' . Theme::$current->settings['default_theme_url'] . '/images/bbc/' . $tag['image'] . '.png\');
 						}';
 					}
 
@@ -495,7 +491,7 @@ function create_control_richedit($editorOptions)
 		}
 
 		if (!empty($bbcodes_styles))
-			addInlineCss($bbcodes_styles);
+			Theme::addInlineCss($bbcodes_styles);
 	}
 
 	// Initialize smiley array... if not loaded before.
@@ -554,7 +550,7 @@ function create_control_richedit($editorOptions)
 	$sce_options = array(
 		'width' => isset($editorOptions['width']) ? $editorOptions['width'] : '100%',
 		'height' => isset($editorOptions['height']) ? $editorOptions['height'] : '175px',
-		'style' => $settings[file_exists($settings['theme_dir'] . '/css/jquery.sceditor.default.css') ? 'theme_url' : 'default_theme_url'] . '/css/jquery.sceditor.default.css' . Utils::$context['browser_cache'],
+		'style' => Theme::$current->settings[file_exists(Theme::$current->settings['theme_dir'] . '/css/jquery.sceditor.default.css') ? 'theme_url' : 'default_theme_url'] . '/css/jquery.sceditor.default.css' . Utils::$context['browser_cache'],
 		'emoticonsCompat' => true,
 		'colors' => 'black,maroon,brown,green,navy,grey,red,orange,teal,blue,white,hotpink,yellow,limegreen,purple',
 		'format' => 'bbcode',
@@ -596,7 +592,7 @@ function create_control_richedit($editorOptions)
 			{
 				foreach ($smileyRow['smileys'] as $smiley)
 				{
-					$smiley_location[$smiley['code']] = $settings['smileys_url'] . '/' . $smiley['filename'];
+					$smiley_location[$smiley['code']] = Theme::$current->settings['smileys_url'] . '/' . $smiley['filename'];
 					$sce_options['emoticonsDescriptions'][$smiley['code']] = $smiley['description'];
 				}
 
@@ -643,11 +639,11 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 	if (empty(Utils::$context['controls']['verification']))
 	{
 		// The template
-		loadTemplate('GenericControls');
+		Theme::loadTemplate('GenericControls');
 
 		// Some javascript ma'am?
 		if (!empty($verificationOptions['override_visual']) || (!empty(Config::$modSettings['visual_verification_type']) && !isset($verificationOptions['override_visual'])))
-			loadJavaScriptFile('captcha.js', array('minimize' => true), 'smf_captcha');
+			Theme::loadJavaScriptFile('captcha.js', array('minimize' => true), 'smf_captcha');
 
 		Utils::$context['use_graphic_library'] = in_array('gd', get_loaded_extensions());
 
@@ -955,7 +951,7 @@ function AutoSuggestHandler($checkRegistered = null)
 		return isset($searchTypes[$checkRegistered]) && function_exists('AutoSuggest_Search_' . $checkRegistered);
 
 	checkSession('get');
-	loadTemplate('Xml');
+	Theme::loadTemplate('Xml');
 
 	// Any parameters?
 	Utils::$context['search_param'] = isset($_REQUEST['search_param']) ? Utils::jsonDecode(base64_decode($_REQUEST['search_param']), true) : array();

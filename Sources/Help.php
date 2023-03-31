@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\Theme;
 use SMF\Lang;
 use SMF\Utils;
 
@@ -29,7 +30,7 @@ if (!defined('SMF'))
  */
 function ShowHelp()
 {
-	loadTemplate('Help');
+	Theme::loadTemplate('Help');
 	Lang::load('Manual');
 
 	$subActions = array(
@@ -101,7 +102,7 @@ function ShowAdminHelp()
 	if (isset($_GET['help']) && substr($_GET['help'], 0, 14) == 'permissionhelp')
 		Lang::load('ManagePermissions');
 
-	loadTemplate('Help');
+	Theme::loadTemplate('Help');
 
 	// Allow mods to load their own language file here
 	call_integration_hook('integrate_helpadmin');

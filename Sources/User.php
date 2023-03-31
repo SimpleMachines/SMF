@@ -1027,8 +1027,6 @@ class User implements \ArrayAccess
 	 */
 	public function format(bool $display_custom_fields = false): array
 	{
-		global $settings;
-
 		static $loadedLanguages = array();
 
 		Lang::load('index+Modifications');
@@ -1074,8 +1072,8 @@ class User implements \ArrayAccess
 			{
 				foreach (array('actual_theme_dir' => 'images_url', 'default_theme_dir' => 'default_images_url') as $dir => $url)
 				{
-					if (file_exists($settings[$dir] . '/images/membericons/' . $this->icons[1]))
-						$group_icon_url = $settings[$url] . '/membericons/' . $this->icons[1];
+					if (file_exists(Theme::$current->settings[$dir] . '/images/membericons/' . $this->icons[1]))
+						$group_icon_url = Theme::$current->settings[$url] . '/membericons/' . $this->icons[1];
 				}
 			}
 
@@ -1189,8 +1187,8 @@ class User implements \ArrayAccess
 				{
 					$value = strtr($custom['enclose'], array(
 						'{SCRIPTURL}' => Config::$scripturl,
-						'{IMAGES_URL}' => $settings['images_url'],
-						'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
+						'{IMAGES_URL}' => Theme::$current->settings['images_url'],
+						'{DEFAULT_IMAGES_URL}' => Theme::$current->settings['default_images_url'],
 						'{INPUT}' => Lang::tokenTxtReplace($value),
 						'{KEY}' => $currentKey,
 					));

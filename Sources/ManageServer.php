@@ -63,6 +63,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
 use SMF\MessageIndex;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -225,7 +226,7 @@ function ModifyGeneralSettings($return_config = false)
 
 	// Some javascript for SSL
 	if (empty(Utils::$context['settings_not_writable']))
-		addInlineJavaScript('
+		Theme::addInlineJavaScript('
 $(function()
 {
 	$("#force_ssl").change(function()
@@ -433,7 +434,7 @@ function ModifyDatabaseSettings($return_config = false)
 	Utils::$context['save_disabled'] = Utils::$context['settings_not_writable'];
 
 	if (!Db::$db->allow_persistent())
-		addInlineJavaScript('
+		Theme::addInlineJavaScript('
 			$(function()
 			{
 				$("#db_persist").prop("disabled", true);
@@ -500,7 +501,7 @@ function ModifyCookieSettings($return_config = false)
 		)), 'subtext' => Lang::$txt['tfa_mode_subtext'] . (empty(User::$me->tfa_secret) ? '<br><strong>' . Lang::$txt['tfa_mode_forced_help'] . '</strong>' : ''), 'tfa_mode'),
 	);
 
-	addInlineJavaScript('
+	Theme::addInlineJavaScript('
 	function hideGlobalCookies()
 	{
 		var usingLocal = $("#localCookies").prop("checked");

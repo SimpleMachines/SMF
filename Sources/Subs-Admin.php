@@ -16,6 +16,7 @@
 use SMF\Config;
 use SMF\Lang;
 use SMF\Mail;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -133,10 +134,8 @@ function getServerVersions($checkFor)
  */
 function getFileVersions(&$versionOptions)
 {
-	global $settings;
-
 	// Default place to find the languages would be the default theme dir.
-	$lang_dir = $settings['default_theme_dir'] . '/languages';
+	$lang_dir = Theme::$current->settings['default_theme_dir'] . '/languages';
 
 	$version_info = array(
 		'file_versions' => array(),
@@ -222,9 +221,9 @@ function getFileVersions(&$versionOptions)
 	}
 
 	// Load all the files in the default template directory - and the current theme if applicable.
-	$directories = array('default_template_versions' => $settings['default_theme_dir']);
-	if ($settings['theme_id'] != 1)
-		$directories += array('template_versions' => $settings['theme_dir']);
+	$directories = array('default_template_versions' => Theme::$current->settings['default_theme_dir']);
+	if (Theme::$current->settings['theme_id'] != 1)
+		$directories += array('template_versions' => Theme::$current->settings['theme_dir']);
 
 	foreach ($directories as $type => $dirname)
 	{
@@ -294,14 +293,12 @@ function getFileVersions(&$versionOptions)
  */
 function updateAdminPreferences()
 {
-	global $options, $settings;
-
 	// This must exist!
 	if (!isset(Utils::$context['admin_preferences']))
 		return false;
 
 	// This is what we'll be saving.
-	$options['admin_preferences'] = Utils::jsonEncode(Utils::$context['admin_preferences']);
+	Theme::$current->options['admin_preferences'] = Utils::jsonEncode(Utils::$context['admin_preferences']);
 
 	// Just check we haven't ended up with something theme exclusive somehow.
 	Db::$db->query('', '
@@ -318,12 +315,12 @@ function updateAdminPreferences()
 	Db::$db->insert('replace',
 		'{db_prefix}themes',
 		array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'),
-		array(User::$me->id, 1, 'admin_preferences', $options['admin_preferences']),
+		array(User::$me->id, 1, 'admin_preferences', Theme::$current->options['admin_preferences']),
 		array('id_member', 'id_theme', 'variable')
 	);
 
 	// Make sure we invalidate any cache.
-	CacheApi::put('theme_settings-' . $settings['theme_id'] . ':' . User::$me->id, null, 0);
+	CacheApi::put('theme_settings-' . Theme::$current->settings['theme_id'] . ':' . User::$me->id, null, 0);
 }
 
 /**

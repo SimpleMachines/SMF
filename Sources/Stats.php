@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -79,8 +80,8 @@ function DisplayStats()
 	}
 
 	Lang::load('Stats');
-	loadTemplate('Stats');
-	loadJavaScriptFile('stats.js', array('default_theme' => true, 'defer' => false, 'minimize' => true), 'smf_stats');
+	Theme::loadTemplate('Stats');
+	Theme::loadJavaScriptFile('stats.js', array('default_theme' => true, 'defer' => false, 'minimize' => true), 'smf_stats');
 
 	// Build the link tree......
 	Utils::$context['linktree'][] = array(

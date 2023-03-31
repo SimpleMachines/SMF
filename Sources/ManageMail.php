@@ -19,6 +19,7 @@
 use SMF\Config;
 use SMF\Lang;
 use SMF\Mail;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -216,7 +217,7 @@ function BrowseMailQueue()
 	require_once(Config::$sourcedir . '/Subs-List.php');
 	createList($listOptions);
 
-	loadTemplate('ManageMail');
+	Theme::loadTemplate('ManageMail');
 	Utils::$context['sub_template'] = 'browse';
 }
 
@@ -452,7 +453,7 @@ function pauseMailQueueClear()
 function TestMailSend()
 {
 	Lang::load('ManageMail');
-	loadTemplate('ManageMail');
+	Theme::loadTemplate('ManageMail');
 	Utils::$context['sub_template'] = 'mailtest';
 	Utils::$context['base_url'] = Config::$scripturl . '?action=admin;area=mailqueue;sa=test';
 	Utils::$context['post_url'] = Utils::$context['base_url'] . ';save';

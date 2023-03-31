@@ -949,15 +949,13 @@ class MessageIndex
 	 */
 	protected function setPaginationAndLinks(): void
 	{
-		global $options;
-
 		// How many topics do we have in total?
 		Board::$info->total_topics = allowedTo('approve_posts') ? Board::$info->num_topics + Board::$info->unapproved_topics : Board::$info->num_topics + Board::$info->unapproved_user_topics;
 
 		// View all the topics, or just a few?
-		Utils::$context['topics_per_page'] = empty(Config::$modSettings['disableCustomPerPage']) && !empty($options['topics_per_page']) ? $options['topics_per_page'] : Config::$modSettings['defaultMaxTopics'];
+		Utils::$context['topics_per_page'] = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['topics_per_page']) ? Theme::$current->options['topics_per_page'] : Config::$modSettings['defaultMaxTopics'];
 
-		Utils::$context['messages_per_page'] = $context['pageindex_multiplier'] = empty(Config::$modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) ? $options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
+		Utils::$context['messages_per_page'] = $context['pageindex_multiplier'] = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
 
 		Utils::$context['maxindex'] = isset($_REQUEST['all']) && !empty(Config::$modSettings['enableAllMessages']) ? Board::$info->total_topics : Utils::$context['topics_per_page'];
 
@@ -1003,8 +1001,6 @@ class MessageIndex
 	 */
 	protected function buildTopicList(): void
 	{
-		global $settings, $options;
-
 		// Set up the default topic icons. We'll need them below.
 		Utils::$context['icon_sources'] = array();
 		foreach (Utils::$context['stable_icons'] as $icon)
@@ -1069,7 +1065,7 @@ class MessageIndex
 				' : '') . '
 				t.id_last_msg, t.approved, t.unapproved_posts, ml.poster_time AS last_poster_time, t.id_redirect_topic,
 				ml.id_msg_modified, ml.subject AS last_subject, ml.icon AS last_icon,
-				ml.poster_name AS last_member_name, ml.id_member AS last_id_member,' . (!empty($settings['avatars_on_indexes']) ? ' meml.avatar, meml.email_address, memf.avatar AS first_member_avatar, memf.email_address AS first_member_mail, COALESCE(af.id_attach, 0) AS first_member_id_attach, af.filename AS first_member_filename, af.attachment_type AS first_member_attach_type, COALESCE(al.id_attach, 0) AS last_member_id_attach, al.filename AS last_member_filename, al.attachment_type AS last_member_attach_type,' : '') . '
+				ml.poster_name AS last_member_name, ml.id_member AS last_id_member,' . (!empty(Theme::$current->settings['avatars_on_indexes']) ? ' meml.avatar, meml.email_address, memf.avatar AS first_member_avatar, memf.email_address AS first_member_mail, COALESCE(af.id_attach, 0) AS first_member_id_attach, af.filename AS first_member_filename, af.attachment_type AS first_member_attach_type, COALESCE(al.id_attach, 0) AS last_member_id_attach, al.filename AS last_member_filename, al.attachment_type AS last_member_attach_type,' : '') . '
 				COALESCE(meml.real_name, ml.poster_name) AS last_display_name, t.id_first_msg,
 				mf.poster_time AS first_poster_time, mf.subject AS first_subject, mf.icon AS first_icon,
 				mf.poster_name AS first_member_name, mf.id_member AS first_id_member,
@@ -1082,7 +1078,7 @@ class MessageIndex
 				JOIN {db_prefix}messages AS ml ON (ml.id_msg = st.id_last_msg)
 				JOIN {db_prefix}messages AS mf ON (mf.id_msg = st.id_first_msg)
 				LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)
-				LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = mf.id_member)' . (!empty($settings['avatars_on_indexes']) ? '
+				LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = mf.id_member)' . (!empty(Theme::$current->settings['avatars_on_indexes']) ? '
 				LEFT JOIN {db_prefix}attachments AS af ON (af.id_member = memf.id_member)
 				LEFT JOIN {db_prefix}attachments AS al ON (al.id_member = meml.id_member)' : '') . '' . (User::$me->is_guest ? '' : '
 				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
@@ -1153,7 +1149,7 @@ class MessageIndex
 
 				// If we can use all, show all.
 				if (!empty(Config::$modSettings['enableAllMessages']) && $row['num_replies'] + 1 < Config::$modSettings['enableAllMessages'])
-					$pages .= sprintf(strtr($settings['page_index']['page'], array('{URL}' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0;all')), '', Lang::$txt['all']);
+					$pages .= sprintf(strtr(Theme::$current->settings['page_index']['page'], array('{URL}' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0;all')), '', Lang::$txt['all']);
 			}
 			else
 				$pages = '';
@@ -1162,9 +1158,9 @@ class MessageIndex
 			if (!empty(Config::$modSettings['messageIconChecks_enable']))
 			{
 				if (!isset(Utils::$context['icon_sources'][$row['first_icon']]))
-					Utils::$context['icon_sources'][$row['first_icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $row['first_icon'] . '.png') ? 'images_url' : 'default_images_url';
+					Utils::$context['icon_sources'][$row['first_icon']] = file_exists(Theme::$current->settings['theme_dir'] . '/images/post/' . $row['first_icon'] . '.png') ? 'images_url' : 'default_images_url';
 				if (!isset(Utils::$context['icon_sources'][$row['last_icon']]))
-					Utils::$context['icon_sources'][$row['last_icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $row['last_icon'] . '.png') ? 'images_url' : 'default_images_url';
+					Utils::$context['icon_sources'][$row['last_icon']] = file_exists(Theme::$current->settings['theme_dir'] . '/images/post/' . $row['last_icon'] . '.png') ? 'images_url' : 'default_images_url';
 			}
 			else
 			{
@@ -1206,7 +1202,7 @@ class MessageIndex
 					'subject' => $row['first_subject'],
 					'preview' => $row['first_body'],
 					'icon' => $row['first_icon'],
-					'icon_url' => $settings[Utils::$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
+					'icon_url' => Theme::$current->settings[Utils::$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
 					'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0',
 					'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['first_subject'] . '</a>',
 				),
@@ -1224,9 +1220,9 @@ class MessageIndex
 					'subject' => $row['last_subject'],
 					'preview' => $row['last_body'],
 					'icon' => $row['last_icon'],
-					'icon_url' => $settings[Utils::$context['icon_sources'][$row['last_icon']]] . '/post/' . $row['last_icon'] . '.png',
-					'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . (User::$me->is_guest ? ('.' . (!empty($options['view_newest_first']) ? 0 : ((int) (($row['num_replies']) / Utils::$context['messages_per_page'])) * Utils::$context['messages_per_page']) . '#msg' . $row['id_last_msg']) : (($row['num_replies'] == 0 ? '.0' : '.msg' . $row['id_last_msg']) . '#new')),
-					'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . (User::$me->is_guest ? ('.' . (!empty($options['view_newest_first']) ? 0 : ((int) (($row['num_replies']) / Utils::$context['messages_per_page'])) * Utils::$context['messages_per_page']) . '#msg' . $row['id_last_msg']) : (($row['num_replies'] == 0 ? '.0' : '.msg' . $row['id_last_msg']) . '#new')) . '" ' . ($row['num_replies'] == 0 ? '' : 'rel="nofollow"') . '>' . $row['last_subject'] . '</a>'
+					'icon_url' => Theme::$current->settings[Utils::$context['icon_sources'][$row['last_icon']]] . '/post/' . $row['last_icon'] . '.png',
+					'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . (User::$me->is_guest ? ('.' . (!empty(Theme::$current->options['view_newest_first']) ? 0 : ((int) (($row['num_replies']) / Utils::$context['messages_per_page'])) * Utils::$context['messages_per_page']) . '#msg' . $row['id_last_msg']) : (($row['num_replies'] == 0 ? '.0' : '.msg' . $row['id_last_msg']) . '#new')),
+					'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . (User::$me->is_guest ? ('.' . (!empty(Theme::$current->options['view_newest_first']) ? 0 : ((int) (($row['num_replies']) / Utils::$context['messages_per_page'])) * Utils::$context['messages_per_page']) . '#msg' . $row['id_last_msg']) : (($row['num_replies'] == 0 ? '.0' : '.msg' . $row['id_last_msg']) . '#new')) . '" ' . ($row['num_replies'] == 0 ? '' : 'rel="nofollow"') . '>' . $row['last_subject'] . '</a>'
 				),
 				'is_sticky' => !empty($row['is_sticky']),
 				'is_locked' => !empty($row['locked']),
@@ -1235,7 +1231,7 @@ class MessageIndex
 				'is_posted_in' => ($enableParticipation ? $row['is_posted_in'] : false),
 				'is_watched' => false,
 				'icon' => $row['first_icon'],
-				'icon_url' => $settings[Utils::$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
+				'icon_url' => Theme::$current->settings[Utils::$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
 				'subject' => $row['first_subject'],
 				'new' => $row['new_from'] <= $row['id_msg_modified'],
 				'new_from' => $row['new_from'],
@@ -1248,7 +1244,7 @@ class MessageIndex
 				'unapproved_posts' => $row['unapproved_posts'],
 				'css_class' => $colorClass,
 			));
-			if (!empty($settings['avatars_on_indexes']))
+			if (!empty(Theme::$current->settings['avatars_on_indexes']))
 			{
 				// Last post member avatar
 				Utils::$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = User::setAvatarData(array(
@@ -1381,9 +1377,7 @@ class MessageIndex
 	 */
 	protected function getWhoViewing(): void
 	{
-		global $settings;
-
-		if (!empty($settings['display_who_viewing']))
+		if (!empty(Theme::$current->settings['display_who_viewing']))
 		{
 			Utils::$context['view_members'] = array();
 			Utils::$context['view_members_list'] = array();
@@ -1504,10 +1498,10 @@ class MessageIndex
 	 */
 	protected function setupTemplate(): void
 	{
-		loadTemplate('MessageIndex');
+		Theme::loadTemplate('MessageIndex');
 
 		// Javascript for inline editing.
-		loadJavaScriptFile('topic.js', array('defer' => false, 'minimize' => true), 'smf_topic');
+		Theme::loadJavaScriptFile('topic.js', array('defer' => false, 'minimize' => true), 'smf_topic');
 
 		// 'Print' the header and board info.
 		Utils::$context['page_title'] = strip_tags(Board::$info->name);
@@ -1561,10 +1555,8 @@ class MessageIndex
 	 */
 	protected function buildQuickMod(): void
 	{
-		global $options;
-
 		// Is Quick Moderation active/needed?
-		if (!empty($options['display_quick_mod']) && !empty(Utils::$context['topics']))
+		if (!empty(Theme::$current->options['display_quick_mod']) && !empty(Utils::$context['topics']))
 		{
 			Utils::$context['can_markread'] = User::$me->is_logged;
 			Utils::$context['can_lock'] = allowedTo('lock_any');
@@ -1606,14 +1598,14 @@ class MessageIndex
 			}
 
 			// Can we use quick moderation checkboxes?
-			if ($options['display_quick_mod'] == 1)
+			if (Theme::$current->options['display_quick_mod'] == 1)
 				Utils::$context['can_quick_mod'] = User::$me->is_logged || Utils::$context['can_approve'] || Utils::$context['can_remove'] || Utils::$context['can_lock'] || Utils::$context['can_sticky'] || Utils::$context['can_move'] || Utils::$context['can_merge'] || Utils::$context['can_restore'];
 			// Or the icons?
 			else
 				Utils::$context['can_quick_mod'] = Utils::$context['can_remove'] || Utils::$context['can_lock'] || Utils::$context['can_sticky'] || Utils::$context['can_move'];
 		}
 
-		if (!empty(Utils::$context['can_quick_mod']) && $options['display_quick_mod'] == 1)
+		if (!empty(Utils::$context['can_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1)
 		{
 			Utils::$context['qmod_actions'] = array('approve', 'remove', 'lock', 'sticky', 'move', 'merge', 'restore', 'markread');
 			call_integration_hook('integrate_quick_mod_actions');

@@ -12,6 +12,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 use SMF\User;
 
@@ -20,8 +21,6 @@ use SMF\User;
  */
 function template_main()
 {
-	global $settings, $options;
-
 	// Let them know, if their report was a success!
 	if (Utils::$context['report_sent'])
 		echo '
@@ -48,13 +47,13 @@ function template_main()
 	echo '
 			<span class="nextlinks floatright">', Utils::$context['previous_next'], '</span>';
 
-	if (!empty($settings['display_who_viewing']))
+	if (!empty(Theme::$current->settings['display_who_viewing']))
 	{
 		echo '
 			<p>';
 
 		// Show just numbers...?
-		if ($settings['display_who_viewing'] == 1)
+		if (Theme::$current->settings['display_who_viewing'] == 1)
 			echo count(Utils::$context['view_members']), ' ', count(Utils::$context['view_members']) == 1 ? Lang::$txt['who_member'] : Lang::$txt['members'];
 		// Or show the actual people viewing the topic?
 		else
@@ -333,7 +332,7 @@ function template_main()
 	echo '
 		<script>';
 
-	if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && Utils::$context['can_remove_post'])
+	if (!empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1 && Utils::$context['can_remove_post'])
 	{
 		echo '
 			var oInTopicModeration = new InTopicModeration({
@@ -467,8 +466,6 @@ function template_main()
  */
 function template_single_post($message)
 {
-	global $settings, $options;
-
 	$ignoring = false;
 
 	if ($message['can_remove'])
@@ -548,7 +545,7 @@ function template_single_post($message)
 								<li class="membergroup">', $message['member']['group'], '</li>';
 
 	// Show the user's avatar.
-	if (!empty(Config::$modSettings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
+	if (!empty(Config::$modSettings['show_user_images']) && empty(Theme::$current->options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
 		echo '
 								<li class="avatar">
 									<a href="', $message['member']['href'], '">', $message['member']['avatar']['image'], '</a>
@@ -608,17 +605,17 @@ function template_single_post($message)
 			// Don't show an icon if they haven't specified a website.
 			if (!empty($message['member']['website']['url']) && !isset(Utils::$context['disabled_fields']['website']))
 				echo '
-										<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener">', ($settings['use_image_buttons'] ? '<span class="main_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : Lang::$txt['www']), '</a></li>';
+										<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : Lang::$txt['www']), '</a></li>';
 
 			// Since we know this person isn't a guest, you *can* message them.
 			if (Utils::$context['can_send_pm'])
 				echo '
-										<li><a href="', Config::$scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline'], '">', $settings['use_image_buttons'] ? '<span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . ($message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline']) . '"></span> ' : ($message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline']), '</a></li>';
+										<li><a href="', Config::$scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline'], '">', Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . ($message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline']) . '"></span> ' : ($message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline']), '</a></li>';
 
 			// Show the email if necessary
 			if (!empty($message['member']['email']) && $message['member']['show_email'])
 				echo '
-										<li class="email"><a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::$txt['email'] . '"></span>' : Lang::$txt['email']), '</a></li>';
+										<li class="email"><a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::$txt['email'] . '"></span>' : Lang::$txt['email']), '</a></li>';
 
 			echo '
 									</ol>
@@ -635,7 +632,7 @@ function template_single_post($message)
 	elseif (!empty($message['member']['email']) && $message['member']['show_email'])
 		echo '
 								<li class="email">
-									<a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::$txt['email'] . '"></span>' : Lang::$txt['email']), '</a>
+									<a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::$txt['email'] . '"></span>' : Lang::$txt['email']), '</a>
 								</li>';
 
 	// Show the IP to this user for this post - because you can moderate?
@@ -694,7 +691,7 @@ function template_single_post($message)
 	echo '
 								', !empty($message['counter']) ? '<span class="page_number floatright">#' . $message['counter'] . '</span>' : '', '
 								<div class="postinfo">
-									<span class="messageicon" ', ($message['icon_url'] === $settings['images_url'] . '/post/xx.png' && !$message['can_modify']) ? ' style="position: absolute; z-index: -1;"' : '', '>
+									<span class="messageicon" ', ($message['icon_url'] === Theme::$current->settings['images_url'] . '/post/xx.png' && !$message['can_modify']) ? ' style="position: absolute; z-index: -1;"' : '', '>
 										<img src="', $message['icon_url'] . '" alt=""', $message['can_modify'] ? ' id="msg_icon_' . $message['id'] . '"' : '', '>
 									</span>
 									<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? sprintf(Lang::$txt['reply_number'], $message['counter'], ' - ') : '', $message['subject'], '" class="smalltext">', $message['time'], '</a>
@@ -796,7 +793,7 @@ function template_single_post($message)
 
 			echo '
 										<div class="attachments_bot">
-											<a href="' . $attachment['href'] . '"><img src="' . $settings['images_url'] . '/icons/clip.png" class="centericon" alt="*">&nbsp;' . $attachment['name'] . '</a> ';
+											<a href="' . $attachment['href'] . '"><img src="' . Theme::$current->settings['images_url'] . '/icons/clip.png" class="centericon" alt="*">&nbsp;' . $attachment['name'] . '</a> ';
 
 			if (!$attachment['is_approved'] && Utils::$context['can_approve'])
 				echo '
@@ -886,7 +883,7 @@ function template_single_post($message)
 	}
 
 	// Show the member's signature?
-	if (!empty($message['member']['signature']) && empty($options['show_no_signatures']) && Utils::$context['signature_enabled'])
+	if (!empty($message['member']['signature']) && empty(Theme::$current->options['show_no_signatures']) && Utils::$context['signature_enabled'])
 		echo '
 							<div class="signature" id="msg_', $message['id'], '_signature"', $ignoring ? ' style="display:none;"' : '', '>
 								', $message['member']['signature'], '
@@ -920,8 +917,6 @@ function template_single_post($message)
  */
 function template_quickreply()
 {
-	global $options;
-
 	echo '
 		<a id="quickreply_anchor"></a>
 		<div class="tborder" id="quickreply">
@@ -954,9 +949,9 @@ function template_quickreply()
 						<input type="hidden" name="subject" value="', Utils::$context['response_prefix'], Utils::$context['subject'], '">
 						<input type="hidden" name="icon" value="xx">
 						<input type="hidden" name="from_qr" value="1">
-						<input type="hidden" name="notify" value="', Utils::$context['is_marked_notify'] || !empty($options['auto_notify']) ? '1' : '0', '">
+						<input type="hidden" name="notify" value="', Utils::$context['is_marked_notify'] || !empty(Theme::$current->options['auto_notify']) ? '1' : '0', '">
 						<input type="hidden" name="not_approved" value="', !Utils::$context['can_reply_approved'], '">
-						<input type="hidden" name="goback" value="', empty($options['return_to_post']) ? '0' : '1', '">
+						<input type="hidden" name="goback" value="', empty(Theme::$current->options['return_to_post']) ? '0' : '1', '">
 						<input type="hidden" name="last_msg" value="', Utils::$context['topic_last_message'], '">
 						<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 						<input type="hidden" name="seqnum" value="', Utils::$context['form_sequence_number'], '">';

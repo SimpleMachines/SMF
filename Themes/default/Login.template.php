@@ -12,6 +12,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 
 /**
@@ -19,8 +20,6 @@ use SMF\Utils;
  */
 function template_login()
 {
-	global $settings;
-
 	echo '
 		<div class="login">
 			<div class="cat_bar">
@@ -251,8 +250,6 @@ function template_login_tfa()
  */
 function template_kick_guest()
 {
-	global $settings;
-
 	// This isn't that much... just like normal login but with a message at the top.
 	echo '
 	<form action="', Utils::$context['login_url'], '" method="post" accept-charset="', Utils::$context['character_set'], '" name="frmLogin" id="frmLogin">
@@ -320,8 +317,6 @@ function template_kick_guest()
  */
 function template_maintenance()
 {
-	global $settings;
-
 	// Display the administrator's message at the top.
 	echo '
 	<form action="', Utils::$context['login_url'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
@@ -330,7 +325,7 @@ function template_maintenance()
 				<h3 class="catbg">', Utils::$context['title'], '</h3>
 			</div>
 			<div class="information">
-				<img class="floatleft" src="', $settings['images_url'], '/construction.png" width="40" height="40" alt="', Lang::$txt['in_maintain_mode'], '">
+				<img class="floatleft" src="', Theme::$current->settings['images_url'], '/construction.png" width="40" height="40" alt="', Lang::$txt['in_maintain_mode'], '">
 				', Utils::$context['description'], '<br class="clear">
 			</div>
 			<div class="title_bar">
@@ -368,8 +363,6 @@ function template_maintenance()
  */
 function template_admin_login()
 {
-	global $settings;
-
 	// Since this should redirect to whatever they were doing, send all the get data.
 	echo '
 	<form action="', !empty(Config::$modSettings['force_ssl']) ? strtr(Config::$scripturl, array('http://' => 'https://')) : Config::$scripturl, Utils::$context['get_data'], '" method="post" accept-charset="', Utils::$context['character_set'], '" name="frmLogin" id="frmLogin">
@@ -479,8 +472,6 @@ function template_resend()
  */
 function template_logout()
 {
-	global $settings;
-
 	// This isn't that much... just like normal login but with a message at the top.
 	echo '
 	<form action="', Config::$scripturl . '?action=logout;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="', Utils::$context['character_set'], '" name="frmLogout" id="frmLogout">

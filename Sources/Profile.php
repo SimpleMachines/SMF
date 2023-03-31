@@ -18,6 +18,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -38,7 +39,7 @@ function ModifyProfile($post_errors = array())
 	// Don't reload this as we may have processed error strings.
 	if (empty($post_errors))
 		Lang::load('Profile+Drafts');
-	loadTemplate('Profile');
+	Theme::loadTemplate('Profile');
 
 	require_once(Config::$sourcedir . '/Subs-Menu.php');
 
@@ -663,7 +664,7 @@ function ModifyProfile($post_errors = array())
 	$check_password = User::$me->is_owner && in_array($profile_include_data['current_area'], Utils::$context['password_areas']);
 	Utils::$context['require_password'] = $check_password;
 
-	loadJavaScriptFile('profile.js', array('defer' => false, 'minimize' => true), 'smf_profile');
+	Theme::loadJavaScriptFile('profile.js', array('defer' => false, 'minimize' => true), 'smf_profile');
 
 	// These will get populated soon!
 	$post_errors = array();
@@ -951,8 +952,6 @@ function alerts_popup($memID)
  */
 function loadCustomFields($memID, $area = 'summary')
 {
-	global $settings;
-
 	// Get the right restrictions in place...
 	$where = 'active = 1';
 	if (!allowedTo('admin_forum') && $area != 'register')
@@ -1068,8 +1067,8 @@ function loadCustomFields($memID, $area = 'summary')
 		if (!empty($row['enclose']) && !empty($output_html))
 			$output_html = strtr($row['enclose'], array(
 				'{SCRIPTURL}' => Config::$scripturl,
-				'{IMAGES_URL}' => $settings['images_url'],
-				'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
+				'{IMAGES_URL}' => Theme::$current->settings['images_url'],
+				'{DEFAULT_IMAGES_URL}' => Theme::$current->settings['default_images_url'],
 				'{INPUT}' => un_htmlspecialchars($output_html),
 				'{KEY}' => $currentKey
 			));

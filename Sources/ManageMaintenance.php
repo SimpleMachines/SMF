@@ -17,6 +17,7 @@ use SMF\Board;
 use SMF\Category;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -36,7 +37,7 @@ function ManageMaintenance()
 
 	// Need something to talk about?
 	Lang::load('ManageMaintenance');
-	loadTemplate('ManageMaintenance');
+	Theme::loadTemplate('ManageMaintenance');
 
 	// This uses admin tabs - as it should!
 	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
@@ -190,7 +191,7 @@ function MaintainMembers()
 	if (isset($_GET['done']) && $_GET['done'] == 'recountposts')
 		Utils::$context['maintenance_finished'] = Lang::$txt['maintain_recountposts'];
 
-	loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
+	Theme::loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
 }
 
 /**
@@ -2045,8 +2046,6 @@ function get_files_recursive(string $dirname): array
  */
 function get_integration_hooks_data($start, $per_page, $sort, $filtered_hooks, $normalized_boarddir, $normalized_sourcedir)
 {
-	global $settings;
-
 	$function_list = $sort_array = $temp_data = array();
 	$files = get_files_recursive($normalized_sourcedir);
 	foreach ($files as $currentFile => $fileInfo)
@@ -2127,8 +2126,6 @@ function get_integration_hooks()
  */
 function parse_integration_hook(string $hook, string $rawData)
 {
-	global $settings;
-
 	// A single string can hold tons of info!
 	$hookData = array(
 		'object' => false,
@@ -2154,7 +2151,7 @@ function parse_integration_hook(string $hook, string $rawData)
 	if (strpos($modFunc, '|') !== false)
 	{
 		list ($hookData['hookFile'], $modFunc) = explode('|', $modFunc);
-		$hookData['absPath'] = strtr(strtr(trim($hookData['hookFile']), array('$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir, '$themedir' => $settings['theme_dir'] ?? '')), '\\', '/');
+		$hookData['absPath'] = strtr(strtr(trim($hookData['hookFile']), array('$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir, '$themedir' => Theme::$current->settings['theme_dir'] ?? '')), '\\', '/');
 	}
 
 	// Hook is an instance.

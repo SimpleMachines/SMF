@@ -135,7 +135,6 @@ switch (SMF)
 	default:
 		require_once(SMF\Config::$sourcedir . '/Subs.php');
 		require_once(SMF\Config::$sourcedir . '/Errors.php');
-		require_once(SMF\Config::$sourcedir . '/Load.php');
 		break;
 }
 

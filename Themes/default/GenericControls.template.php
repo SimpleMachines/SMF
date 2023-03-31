@@ -12,6 +12,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 
 /**
@@ -23,8 +24,6 @@ use SMF\Utils;
  */
 function template_control_richedit($editor_id, $smileyContainer = null, $bbcContainer = null)
 {
-	global $settings;
-
 	$editor_context = &Utils::$context['controls']['richedit'][$editor_id];
 
 	if ($smileyContainer === null)
@@ -81,8 +80,6 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
  */
 function template_control_richedit_buttons($editor_id)
 {
-	global $settings;
-
 	$editor_context = &Utils::$context['controls']['richedit'][$editor_id];
 
 	echo '
@@ -130,7 +127,7 @@ function template_control_richedit_buttons($editor_id)
 	if (!empty(Utils::$context['drafts_pm_save']) && !empty(Utils::$context['drafts_autosave']))
 		echo '
 		<span class="righttext padding" style="display: block">
-			<span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon"></span>
+			<span id="throbber" style="display:none"><img src="' . Theme::$current->settings['images_url'] . '/loading_sm.gif" alt="" class="centericon"></span>
 			<span id="draft_lastautosave" ></span>
 		</span>
 		<script>
@@ -150,7 +147,7 @@ function template_control_richedit_buttons($editor_id)
 	if (!empty(Utils::$context['drafts_save']) && !empty(Utils::$context['drafts_autosave']))
 		echo '
 		<span class="righttext padding" style="display: block">
-			<span id="throbber" style="display:none"><img src="', $settings['images_url'], '/loading_sm.gif" alt="" class="centericon"></span>
+			<span id="throbber" style="display:none"><img src="', Theme::$current->settings['images_url'], '/loading_sm.gif" alt="" class="centericon"></span>
 			<span id="draft_lastautosave" ></span>
 		</span>
 		<script>

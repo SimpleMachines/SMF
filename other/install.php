@@ -1704,7 +1704,6 @@ function DeleteInstall()
 	require_once(Config::$sourcedir . '/Errors.php');
 	require_once(Config::$sourcedir . '/Logging.php');
 	require_once(Config::$sourcedir . '/Subs.php');
-	require_once(Config::$sourcedir . '/Load.php');
 	require_once(Config::$sourcedir . '/Security.php');
 	require_once(Config::$sourcedir . '/Subs-Auth.php');
 

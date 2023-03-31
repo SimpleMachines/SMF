@@ -17,6 +17,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -41,7 +42,7 @@ function ManageAttachments()
 	isAllowedTo('manage_attachments');
 
 	// Setup the template stuff we'll probably need.
-	loadTemplate('ManageAttachments');
+	Theme::loadTemplate('ManageAttachments');
 
 	// If they want to delete attachment(s), delete them. (otherwise fall through..)
 	$subActions = array(
@@ -395,8 +396,6 @@ function ManageAvatarSettings($return_config = false)
  */
 function BrowseFiles()
 {
-	global $settings;
-
 	// Attachments or avatars?
 	Utils::$context['browse_type'] = isset($_REQUEST['avatars']) ? 'avatars' : (isset($_REQUEST['thumbs']) ? 'thumbs' : 'attachments');
 
@@ -585,7 +584,7 @@ function BrowseFiles()
 			$list_title .= ' | ';
 
 		if (Utils::$context['browse_type'] == $browse_type)
-			$list_title .= '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ';
+			$list_title .= '<img src="' . Theme::$current->settings['images_url'] . '/selected.png" alt="&gt;"> ';
 
 		$list_title .= '<a href="' . Config::$scripturl . $details[0] . '">' . $details[1] . '</a>';
 	}
@@ -1887,8 +1886,6 @@ function ApproveAttachments($attachments)
  */
 function ManageAttachmentPaths()
 {
-	global $settings;
-
 	// Since this needs to be done eventually.
 	if (!isset(Config::$modSettings['attachment_basedirectories']))
 		Config::$modSettings['attachment_basedirectories'] = array();
@@ -1913,7 +1910,7 @@ function ManageAttachmentPaths()
 				continue;
 
 			// Sorry, these dirs are NOT valid
-			$invalid_dirs = array(Config::$boarddir, $settings['default_theme_dir'], Config::$sourcedir);
+			$invalid_dirs = array(Config::$boarddir, Theme::$current->settings['default_theme_dir'], Config::$sourcedir);
 			if (in_array($path, $invalid_dirs))
 			{
 				$errors[] = $path . ': ' . Lang::$txt['attach_dir_invalid'];

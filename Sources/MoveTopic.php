@@ -20,6 +20,7 @@ use SMF\Lang;
 use SMF\MessageIndex;
 use SMF\Msg;
 use SMF\Mail;
+use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -88,7 +89,7 @@ function MoveTopic()
 		}
 	}
 
-	loadTemplate('MoveTopic');
+	Theme::loadTemplate('MoveTopic');
 
 	$options = array(
 		'not_redirection' => true,

@@ -22,6 +22,7 @@ use SMF\Lang;
 use SMF\MessageIndex;
 use SMF\Msg;
 use SMF\Mail;
+use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -45,9 +46,6 @@ if (!defined('SMF'))
  */
 function Post($post_errors = array())
 {
-	global $settings;
-	global $options;
-
 	Lang::load('Post');
 	if (!empty(Config::$modSettings['drafts_post_enabled']))
 		Lang::load('Drafts');
@@ -388,7 +386,7 @@ function Post($post_errors = array())
 		loadDatePicker('#event_time_input .date_input');
 		loadTimePicker('#event_time_input .time_input', $time_string);
 		loadDatePair('#event_time_input', 'date_input', 'time_input');
-		addInlineJavaScript('
+		Theme::addInlineJavaScript('
 	$("#allday").click(function(){
 		$("#start_time").attr("disabled", this.checked);
 		$("#end_time").attr("disabled", this.checked);
@@ -404,7 +402,7 @@ function Post($post_errors = array())
 	// only at preview
 	if (empty($_REQUEST['msg']) && !empty(Topic::$topic_id))
 	{
-		if (empty($options['no_new_reply_warning']) && isset($_REQUEST['last_msg']) && Utils::$context['topic_last_message'] > $_REQUEST['last_msg'])
+		if (empty(Theme::$current->options['no_new_reply_warning']) && isset($_REQUEST['last_msg']) && Utils::$context['topic_last_message'] > $_REQUEST['last_msg'])
 		{
 			$request = Db::$db->query('', '
 				SELECT COUNT(*)
@@ -1192,7 +1190,7 @@ function Post($post_errors = array())
 
 	// Are post drafts enabled?
 	Utils::$context['drafts_save'] = !empty(Config::$modSettings['drafts_post_enabled']) && allowedTo('post_draft');
-	Utils::$context['drafts_autosave'] = !empty(Utils::$context['drafts_save']) && !empty(Config::$modSettings['drafts_autosave_enabled']) && allowedTo('post_autosave_draft') && !empty($options['drafts_autosave_enabled']);
+	Utils::$context['drafts_autosave'] = !empty(Utils::$context['drafts_save']) && !empty(Config::$modSettings['drafts_autosave_enabled']) && allowedTo('post_autosave_draft') && !empty(Theme::$current->options['drafts_autosave_enabled']);
 
 	// Build a list of drafts that they can load in to the editor
 	if (!empty(Utils::$context['drafts_save']))
@@ -1255,7 +1253,7 @@ function Post($post_errors = array())
 	}
 	if (empty(Utils::$context['icon_url']))
 	{
-		Utils::$context['icon_url'] = $settings[file_exists($settings['theme_dir'] . '/images/post/' . Utils::$context['icon'] . '.png') ? 'images_url' : 'default_images_url'] . '/post/' . Utils::$context['icon'] . '.png';
+		Utils::$context['icon_url'] = Theme::$current->settings[file_exists(Theme::$current->settings['theme_dir'] . '/images/post/' . Utils::$context['icon'] . '.png') ? 'images_url' : 'default_images_url'] . '/post/' . Utils::$context['icon'] . '.png';
 		array_unshift(Utils::$context['icons'], array(
 			'value' => Utils::$context['icon'],
 			'name' => Lang::$txt['current_icon'],
@@ -1308,26 +1306,26 @@ function Post($post_errors = array())
 	// Mentions
 	if (!empty(Config::$modSettings['enable_mentions']) && allowedTo('mention'))
 	{
-		loadJavaScriptFile('jquery.caret.min.js', array('defer' => true), 'smf_caret');
-		loadJavaScriptFile('jquery.atwho.min.js', array('defer' => true), 'smf_atwho');
-		loadJavaScriptFile('mentions.js', array('defer' => true, 'minimize' => true), 'smf_mentions');
+		Theme::loadJavaScriptFile('jquery.caret.min.js', array('defer' => true), 'smf_caret');
+		Theme::loadJavaScriptFile('jquery.atwho.min.js', array('defer' => true), 'smf_atwho');
+		Theme::loadJavaScriptFile('mentions.js', array('defer' => true, 'minimize' => true), 'smf_mentions');
 	}
 
 	// Load the drafts js file
 	if (Utils::$context['drafts_autosave'])
-		loadJavaScriptFile('drafts.js', array('defer' => false, 'minimize' => true), 'smf_drafts');
+		Theme::loadJavaScriptFile('drafts.js', array('defer' => false, 'minimize' => true), 'smf_drafts');
 
 	// quotedText.js
-	loadJavaScriptFile('quotedText.js', array('defer' => true, 'minimize' => true), 'smf_quotedText');
+	Theme::loadJavaScriptFile('quotedText.js', array('defer' => true, 'minimize' => true), 'smf_quotedText');
 
-	addInlineJavaScript('
+	Theme::addInlineJavaScript('
 	var current_attachments = [];');
 
 	if (!empty(Utils::$context['current_attachments']))
 	{
 		// Mock files to show already attached files.
 		foreach (Utils::$context['current_attachments'] as $key => $mock)
-			addInlineJavaScript('
+			Theme::addInlineJavaScript('
 	current_attachments.push({
 		name: ' . JavaScriptEscape($mock['name']) . ',
 		size: ' . $mock['size'] . ',
@@ -1349,9 +1347,9 @@ function Post($post_errors = array())
 			explode(',', Utils::$context['allowed_extensions'])
 		));
 
-		loadJavaScriptFile('dropzone.min.js', array('defer' => true), 'smf_dropzone');
-		loadJavaScriptFile('smf_fileUpload.js', array('defer' => true, 'minimize' => true), 'smf_fileUpload');
-		addInlineJavaScript('
+		Theme::loadJavaScriptFile('dropzone.min.js', array('defer' => true), 'smf_dropzone');
+		Theme::loadJavaScriptFile('smf_fileUpload.js', array('defer' => true, 'minimize' => true), 'smf_fileUpload');
+		Theme::addInlineJavaScript('
 	$(function() {
 		smf_fileUpload({
 			dictDefaultMessage : ' . JavaScriptEscape(Lang::$txt['attach_drop_zone']) . ',
@@ -1383,7 +1381,7 @@ function Post($post_errors = array())
 	}
 
 	// Knowing the current board ID might be handy.
-	addInlineJavaScript('
+	Theme::addInlineJavaScript('
 	var current_board = ' . (empty(Utils::$context['current_board']) ? 'null' : Utils::$context['current_board']) . ';', false);
 
 	/* Now let's set up the fields for the posting form header...
@@ -1637,18 +1635,18 @@ function Post($post_errors = array())
 		// but instead using a hardcoded input in the template file. We've fixed
 		// that in the default theme, but to support any custom themes based on
 		// the old verison, we do this to fix it for them.
-		addInlineCss("\n\t" . '#caption_edit_reason, dl:not(#post_header) input[name="modify_reason"] { display: none; }');
-		addInlineJavaScript("\n\t" . '$("#caption_edit_reason").remove(); $("dl:not(#post_header) input[name=\"modify_reason\"]").remove();', true);
+		Theme::addInlineCss("\n\t" . '#caption_edit_reason, dl:not(#post_header) input[name="modify_reason"] { display: none; }');
+		Theme::addInlineJavaScript("\n\t" . '$("#caption_edit_reason").remove(); $("dl:not(#post_header) input[name=\"modify_reason\"]").remove();', true);
 	}
 
 	// Finally, load the template.
 	if (!isset($_REQUEST['xml']))
 	{
-		loadTemplate('Post');
+		Theme::loadTemplate('Post');
 
 		// These two lines are for the revamped attachments UI add in 2.1.4.
-		loadCSSFile('attachments.css', array('minimize' => true, 'order_pos' => 450), 'smf_attachments');
-		addInlineJavaScript("\n\t" . '$("#post_attachments_area #postAttachment").remove();', true);
+		Theme::loadCSSFile('attachments.css', array('minimize' => true, 'order_pos' => 450), 'smf_attachments');
+		Theme::addInlineJavaScript("\n\t" . '$("#post_attachments_area #postAttachment").remove();', true);
 	}
 
 	call_integration_hook('integrate_post_end');
@@ -1664,8 +1662,6 @@ function Post($post_errors = array())
  */
 function Post2()
 {
-	global $options, $settings;
-
 	// Sneaking off, are we?
 	if (empty($_POST) && empty(Topic::$topic_id))
 	{
@@ -1880,7 +1876,7 @@ function Post2()
 		}
 
 		// If the number of replies has changed, if the setting is enabled, go back to Post() - which handles the error.
-		if (empty($options['no_new_reply_warning']) && isset($_POST['last_msg']) && $topic_info['id_last_msg'] > $_POST['last_msg'])
+		if (empty(Theme::$current->options['no_new_reply_warning']) && isset($_POST['last_msg']) && $topic_info['id_last_msg'] > $_POST['last_msg'])
 		{
 			$_REQUEST['preview'] = true;
 			return Post();
@@ -2375,7 +2371,7 @@ function Post2()
 		$_POST['icon'] = Utils::htmlspecialchars($_POST['icon']);
 
 		// Need to figure it out if this is a valid icon name.
-		if ((!file_exists($settings['theme_dir'] . '/images/post/' . $_POST['icon'] . '.png')) && (!file_exists($settings['default_theme_dir'] . '/images/post/' . $_POST['icon'] . '.png')))
+		if ((!file_exists(Theme::$current->settings['theme_dir'] . '/images/post/' . $_POST['icon'] . '.png')) && (!file_exists(Theme::$current->settings['default_theme_dir'] . '/images/post/' . $_POST['icon'] . '.png')))
 			$_POST['icon'] = 'xx';
 	}
 
@@ -2615,7 +2611,7 @@ function AnnounceTopic()
 		fatal_lang_error('topic_gone', false);
 
 	Lang::load('Post');
-	loadTemplate('Post');
+	Theme::loadTemplate('Post');
 
 	$subActions = array(
 		'selectgroup' => 'AnnouncementSelectMembergroup',
@@ -2861,7 +2857,6 @@ function AnnouncementSend()
  */
 function getTopic()
 {
-	global $options;
 	static $counter;
 
 	if (isset($_REQUEST['xml']))
@@ -2906,7 +2901,7 @@ function getTopic()
 			'timestamp' => $row['poster_time'],
 			'id' => $row['id_msg'],
 			'is_new' => !empty(Utils::$context['new_replies']),
-			'is_ignored' => !empty(Config::$modSettings['enable_buddylist']) && !empty($options['posts_apply_ignore_list']) && in_array($row['id_member'], User::$me->ignoreusers),
+			'is_ignored' => !empty(Config::$modSettings['enable_buddylist']) && !empty(Theme::$current->options['posts_apply_ignore_list']) && in_array($row['id_member'], User::$me->ignoreusers),
 		);
 
 		if (!empty(Utils::$context['new_replies']))
@@ -2925,7 +2920,7 @@ function QuoteFast()
 {
 	Lang::load('Post');
 	if (!isset($_REQUEST['xml']))
-		loadTemplate('Post');
+		Theme::loadTemplate('Post');
 
 	$moderate_boards = boardsAllowedTo('moderate_board');
 

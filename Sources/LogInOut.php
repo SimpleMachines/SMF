@@ -16,6 +16,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -46,7 +47,7 @@ function Login()
 
 	// We need to load the Login template/language file.
 	Lang::load('Login');
-	loadTemplate('Login');
+	Theme::loadTemplate('Login');
 
 	Utils::$context['sub_template'] = 'login';
 
@@ -239,7 +240,7 @@ function Login2()
 
 	Lang::load('Login');
 	// Load the template stuff.
-	loadTemplate('Login');
+	Theme::loadTemplate('Login');
 	Utils::$context['sub_template'] = 'login';
 
 	// Create a one time token.
@@ -555,7 +556,7 @@ function LoginTFA()
 		}
 	}
 
-	loadTemplate('Login');
+	Theme::loadTemplate('Login');
 	Utils::$context['sub_template'] = 'login_tfa';
 	Utils::$context['page_title'] = Lang::$txt['login'];
 	Utils::$context['tfa_url'] = Config::$scripturl . '?action=logintfa';
@@ -699,7 +700,7 @@ function Logout($internal = false, $redirect = true)
 	elseif (!$internal && !isset($_GET[Utils::$context['session_var']]))
 	{
 		Lang::load('Login');
-		loadTemplate('Login');
+		Theme::loadTemplate('Login');
 		Utils::$context['sub_template'] = 'logout';
 
 		// This came from a valid hashed return url.  Or something that knows our secrets...

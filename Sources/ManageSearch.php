@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
@@ -38,7 +39,7 @@ function ManageSearch()
 	isAllowedTo('admin_forum');
 
 	Lang::load('Search');
-	loadTemplate('ManageSearch');
+	Theme::loadTemplate('ManageSearch');
 
 	$subActions = array(
 		'settings' => 'EditSearchSettings',

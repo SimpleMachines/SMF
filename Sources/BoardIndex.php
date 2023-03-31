@@ -58,8 +58,6 @@ class BoardIndex
 	 */
 	public function execute(): void
 	{
-		global $settings;
-
 		// Retrieve the categories and boards.
 		$boardIndexOptions = array(
 			'include_categories' => true,
@@ -74,12 +72,12 @@ class BoardIndex
 		Utils::$context['info_center'] = array();
 
 		// Retrieve the latest posts if the theme settings require it.
-		if (!empty($settings['number_recent_posts']))
+		if (!empty(Theme::$current->settings['number_recent_posts']))
 		{
-			if ($settings['number_recent_posts'] > 1)
+			if (Theme::$current->settings['number_recent_posts'] > 1)
 			{
 				$latestPostOptions = array(
-					'number_posts' => $settings['number_recent_posts'],
+					'number_posts' => Theme::$current->settings['number_recent_posts'],
 				);
 
 				Utils::$context['latest_posts'] = CacheApi::quickGet('boardindex-latest_posts:' . md5(User::$me->query_wanna_see_board . User::$me->language), 'Subs-Recent.php', 'cache_getLastPosts', array($latestPostOptions));
@@ -123,7 +121,7 @@ class BoardIndex
 		}
 
 		// And stats.
-		if ($settings['show_stats_index'])
+		if (Theme::$current->settings['show_stats_index'])
 		{
 			Utils::$context['info_center'][] = array(
 				'tpl' => 'stats',
@@ -152,7 +150,7 @@ class BoardIndex
 		}
 
 		// Are we showing all membergroups on the board index?
-		if (!empty($settings['show_group_key']))
+		if (!empty(Theme::$current->settings['show_group_key']))
 		{
 			Utils::$context['membergroups'] = CacheApi::quickGet('membergroup_list', 'Subs-Membergroups.php', 'cache_getMembergroupList', array());
 		}
@@ -207,8 +205,6 @@ class BoardIndex
 	 */
 	public static function get($board_index_options): array
 	{
-		global $settings, $options;
-
 		// These should always be set.
 		$board_index_options['include_categories'] = $board_index_options['include_categories'] ?? false;
 		$board_index_options['base_level'] = $board_index_options['base_level'] ?? 0;
@@ -303,7 +299,7 @@ class BoardIndex
 			$joins[] = 'LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})';
 		}
 
-		if (!empty($settings['avatars_on_boardIndex']))
+		if (!empty(Theme::$current->settings['avatars_on_boardIndex']))
 		{
 			$selects[] = 'mem.email_address';
 			$selects[] = 'mem.avatar';
@@ -343,7 +339,7 @@ class BoardIndex
 						'description' => $row_board['cat_desc'],
 						'order' => $row_board['cat_order'],
 						'can_collapse' => !empty($row_board['can_collapse']),
-						'is_collapsed' => !empty($row_board['can_collapse']) && !empty($options['collapse_category_' . $row_board['id_cat']]),
+						'is_collapsed' => !empty($row_board['can_collapse']) && !empty(Theme::$current->options['collapse_category_' . $row_board['id_cat']]),
 						'href' => Config::$scripturl . '#c' . $row_board['id_cat'],
 						'new' => false,
 						'css_class' => '',
@@ -575,9 +571,7 @@ class BoardIndex
 	 */
 	protected function __construct()
 	{
-		global $settings;
-
-		loadTemplate('BoardIndex');
+		Theme::loadTemplate('BoardIndex');
 		Utils::$context['template_layers'][] = 'boardindex_outer';
 
 		Utils::$context['page_title'] = sprintf(Lang::$txt['forum_index'], Utils::$context['forum_name']);
@@ -590,13 +584,13 @@ class BoardIndex
 			Utils::$context['robot_no_index'] = true;
 
 		// Replace the collapse and expand default alts.
-		addJavaScriptVar('smf_expandAlt', Lang::$txt['show_category'], true);
-		addJavaScriptVar('smf_collapseAlt', Lang::$txt['hide_category'], true);
+		Theme::addJavaScriptVar('smf_expandAlt', Lang::$txt['show_category'], true);
+		Theme::addJavaScriptVar('smf_collapseAlt', Lang::$txt['hide_category'], true);
 
-		if (!empty($settings['show_newsfader']))
+		if (!empty(Theme::$current->settings['show_newsfader']))
 		{
-			loadJavaScriptFile('slippry.min.js', array(), 'smf_jquery_slippry');
-			loadCSSFile('slider.min.css', array(), 'smf_jquery_slider');
+			Theme::loadJavaScriptFile('slippry.min.js', array(), 'smf_jquery_slippry');
+			Theme::loadCSSFile('slider.min.css', array(), 'smf_jquery_slider');
 		}
 
 		// Set a few minor things.
@@ -671,8 +665,6 @@ class BoardIndex
 	 */
 	protected static function prepareLastPost($row_board): array
 	{
-		global $settings;
-
 		if (empty($row_board['id_msg']))
 		{
 			return array(
@@ -717,7 +709,7 @@ class BoardIndex
 
 		unset($msg, Msg::$loaded[$row_board['id_msg']]);
 
-		if (!empty($settings['avatars_on_boardIndex']))
+		if (!empty(Theme::$current->settings['avatars_on_boardIndex']))
 		{
 			$last_post['member']['avatar'] = User::setAvatarData(array(
 				'avatar' => $row_board['avatar'],

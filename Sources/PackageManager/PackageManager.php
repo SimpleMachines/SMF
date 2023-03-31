@@ -17,6 +17,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Msg;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -122,7 +123,7 @@ class PackageManager
 	{
 		// Load all the basic stuff.
 		Lang::load('Packages');
-		loadTemplate('Packages', 'admin');
+		Theme::loadTemplate('Packages', 'admin');
 
 		Utils::$context['page_title'] = Lang::$txt['package'];
 
@@ -153,7 +154,7 @@ class PackageManager
 		);
 
 		if (Utils::$context['sub_action'] == 'browse')
-			loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
+			Theme::loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
 
 		// We need to force the "Download" tab as selected.
 		if (in_array(Utils::$context['sub_action'], $this->packageget_subactions))
@@ -171,8 +172,6 @@ class PackageManager
 	 */
 	public function installTest()
 	{
-		global $settings;
-
 		// You have to specify a file!!
 		if (!isset($_REQUEST['package']) || $_REQUEST['package'] == '')
 			redirectexit('action=admin;area=packages');
@@ -761,7 +760,7 @@ class PackageManager
 				preg_match('~^\$(languagedir|languages_dir|imagesdir|themedir)(\\|/)*(.+)*~i', $action_data['unparsed_destination'], $matches);
 
 				if ($matches[1] == 'imagesdir')
-					$path = '/' . basename($settings['default_images_url']);
+					$path = '/' . basename(Theme::$current->settings['default_images_url']);
 				elseif ($matches[1] == 'languagedir' || $matches[1] == 'languages_dir')
 					$path = '/languages';
 				else
@@ -844,8 +843,6 @@ class PackageManager
 	 */
 	public function install()
 	{
-		global $settings;
-
 		// Make sure we don't install this mod twice.
 		checkSubmitOnce('check');
 		checkSession();
@@ -1106,6 +1103,7 @@ class PackageManager
 								'smcFunc' => &Utils::$smcFunc,
 								'txt' => &Lang::$txt,
 								'user_info' => &User::$me,
+								'settings' => &Theme::$current->settings,
 							);
 
 							extract($backcompat_globals, EXTR_REFS | EXTR_SKIP);
@@ -1156,6 +1154,7 @@ class PackageManager
 								'smcFunc' => &Utils::$smcFunc,
 								'txt' => &Lang::$txt,
 								'user_info' => &User::$me,
+								'settings' => &Theme::$current->settings,
 							);
 
 							extract($backcompat_globals, EXTR_REFS | EXTR_SKIP);
@@ -1353,7 +1352,7 @@ class PackageManager
 
 		// Just in case, let's clear the whole cache and any minimized CSS and JS to avoid anything going up the swanny.
 		CacheApi::clean();
-		deleteAllMinified();
+		Theme::deleteAllMinified();
 
 		foreach (array('css_files', 'javascript_files') as $file_type)
 		{
@@ -1677,8 +1676,6 @@ class PackageManager
 	 */
 	public function showOperations()
 	{
-		global $settings;
-
 		// Can't be in here buddy.
 		isAllowedTo('admin_forum');
 
@@ -1795,7 +1792,7 @@ class PackageManager
 		);
 
 		// Since the alerts code is loaded very late in the process, it must be disabled separately.
-		$settings['disable_files'] = ['smf_alerts'];
+		Theme::$current->settings['disable_files'] = ['smf_alerts'];
 	}
 
 	/**
@@ -2103,7 +2100,7 @@ class PackageManager
 		// Is this actually xml?
 		if (isset($_GET['xml']))
 		{
-			loadTemplate('Xml');
+			Theme::loadTemplate('Xml');
 			Utils::$context['sub_template'] = 'generic_xml';
 			Utils::$context['template_layers'] = array();
 		}
@@ -2335,7 +2332,7 @@ class PackageManager
 		SubsPackage::create_chmod_control(array(), array('force_find_error' => true));
 
 		// Deal with the template stuff.
-		loadTemplate('Xml');
+		Theme::loadTemplate('Xml');
 		Utils::$context['sub_template'] = 'generic_xml';
 		Utils::$context['template_layers'] = array();
 
@@ -2442,7 +2439,7 @@ class PackageManager
 			}
 		}
 
-		addInlineJavaScript('
+		Theme::addInlineJavaScript('
 		$(\'.new_package_content\').hide();
 		$(\'.download_new_package\').on(\'click\', function() {
 			var collapseState = $(\'.new_package_content\').css(\'display\');

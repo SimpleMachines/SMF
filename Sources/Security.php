@@ -16,6 +16,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -116,7 +117,7 @@ function is_not_guest($message = '')
 
 	// Attempt to detect if they came from dlattach.
 	if (SMF != 'SSI' && empty(Utils::$context['theme_loaded']))
-		loadTheme();
+		Theme::load();
 
 	// Never redirect to an attachment
 	if (strpos($_SERVER['REQUEST_URL'], 'dlattach') === false)
@@ -133,7 +134,7 @@ function is_not_guest($message = '')
 	}
 	else
 	{
-		loadTemplate('Login');
+		Theme::loadTemplate('Login');
 		Utils::$context['sub_template'] = 'kick_guest';
 		Utils::$context['robot_no_index'] = true;
 	}

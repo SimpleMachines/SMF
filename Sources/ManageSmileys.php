@@ -18,6 +18,7 @@ use SMF\Config;
 use SMF\Lang;
 use SMF\MessageIndex;
 use SMF\Msg;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -2156,7 +2157,6 @@ function ImportSmileys($smileyPath, $create = false)
  */
 function EditMessageIcons()
 {
-	global $settings;
 	// Get a list of icons.
 	Utils::$context['icons'] = array();
 	$request = Db::$db->query('', '
@@ -2176,7 +2176,7 @@ function EditMessageIcons()
 			'id' => $row['id_icon'],
 			'title' => $row['title'],
 			'filename' => $row['filename'],
-			'image_url' => $settings[file_exists($settings['theme_dir'] . '/images/post/' . $row['filename'] . '.png') ? 'actual_images_url' : 'default_images_url'] . '/post/' . $row['filename'] . '.png',
+			'image_url' => Theme::$current->settings[file_exists(Theme::$current->settings['theme_dir'] . '/images/post/' . $row['filename'] . '.png') ? 'actual_images_url' : 'default_images_url'] . '/post/' . $row['filename'] . '.png',
 			'board_id' => $row['id_board'],
 			'board' => empty($row['board_name']) ? Lang::$txt['icons_edit_icons_all_boards'] : $row['board_name'],
 			'order' => $row['icon_order'],
@@ -2219,7 +2219,7 @@ function EditMessageIcons()
 			// Do some preperation with the data... like check the icon exists *somewhere*
 			if (strpos($_POST['icon_filename'], '.png') !== false)
 				$_POST['icon_filename'] = substr($_POST['icon_filename'], 0, -4);
-			if (!file_exists($settings['default_theme_dir'] . '/images/post/' . $_POST['icon_filename'] . '.png'))
+			if (!file_exists(Theme::$current->settings['default_theme_dir'] . '/images/post/' . $_POST['icon_filename'] . '.png'))
 				fatal_lang_error('icon_not_found', false);
 			// There is a 16 character limit on message icons...
 			elseif (strlen($_POST['icon_filename']) > 16)
@@ -2306,9 +2306,9 @@ function EditMessageIcons()
 		'columns' => array(
 			'icon' => array(
 				'data' => array(
-					'function' => function($rowData) use ($settings)
+					'function' => function($rowData)
 					{
-						$images_url = $settings[file_exists(sprintf('%1$s/images/post/%2$s.png', $settings['theme_dir'], $rowData['filename'])) ? 'actual_images_url' : 'default_images_url'];
+						$images_url = Theme::$current->settings[file_exists(sprintf('%1$s/images/post/%2$s.png', Theme::$current->settings['theme_dir'], $rowData['filename'])) ? 'actual_images_url' : 'default_images_url'];
 						return sprintf('<img src="%1$s/post/%2$s.png" alt="%3$s">', $images_url, $rowData['filename'], Utils::htmlspecialchars($rowData['title']));
 					},
 					'class' => 'centercol',

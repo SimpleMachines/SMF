@@ -20,6 +20,7 @@ use SMF\Mentions;
 use SMF\Msg;
 use SMF\Mail;
 use SMF\TaskRunner;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -97,8 +98,7 @@ class CreatePost_Notify extends BackgroundTask
 	{
 		require_once(Config::$sourcedir . '/Subs-Notify.php');
 		require_once(Config::$sourcedir . '/Subs.php');
-		require_once(Config::$sourcedir . '/ScheduledTasks.php');
-		loadEssentialThemeData();
+		Theme::loadEssential();
 
 		$msgOptions = &$this->_details['msgOptions'];
 		$topicOptions = &$this->_details['topicOptions'];
