@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BBCodeParser;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -1823,7 +1825,7 @@ function InstallSmileySet()
 			{
 				require_once($sourcedir . '/Subs-Post.php');
 				preparsecode($context[$type]);
-				$context[$type] = parse_bbc($context[$type]);
+				$context[$type] = BBCodeParser::load()->parse($context[$type]);
 			}
 			else
 				$context[$type] = nl2br($context[$type]);

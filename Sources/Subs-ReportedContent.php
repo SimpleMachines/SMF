@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BBCodeParser;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -339,7 +341,7 @@ function getReports($closed = 0)
 					'href' => $scripturl . '?action=profile;u=' . $row['id_author'],
 				),
 				'subject' => $row['subject'],
-				'body' => parse_bbc($row['body']),
+				'body' => BBCodeParser::load()->parse($row['body']),
 			);
 		}
 
@@ -574,7 +576,7 @@ function getReportComments($report_id)
 	{
 		$report['mod_comments'][] = array(
 			'id' => $row['id_comment'],
-			'message' => parse_bbc($row['body']),
+			'message' => BBCodeParser::load()->parse($row['body']),
 			'time' => timeformat($row['log_time']),
 			'can_edit' => allowedTo('admin_forum') || (($user_info['id'] == $row['id_member'])),
 			'member' => array(

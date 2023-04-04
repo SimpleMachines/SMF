@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BBCodeParser;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -907,7 +909,7 @@ function getXmlNews($xml_format, $ascending = false)
 		if (!empty($modSettings['xmlnews_maxlen']) && $smcFunc['strlen'](str_replace('<br>', "\n", $row['body'])) > $modSettings['xmlnews_maxlen'])
 			$row['body'] = strtr($smcFunc['substr'](str_replace('<br>', "\n", $row['body']), 0, $modSettings['xmlnews_maxlen'] - 3), array("\n" => '<br>')) . '...';
 
-		$row['body'] = parse_bbc($row['body'], $row['smileys_enabled'], $row['id_msg']);
+		$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
 
 		censorText($row['body']);
 		censorText($row['subject']);
@@ -1367,7 +1369,7 @@ function getXmlRecent($xml_format)
 		if (!empty($modSettings['xmlnews_maxlen']) && $smcFunc['strlen'](str_replace('<br>', "\n", $row['body'])) > $modSettings['xmlnews_maxlen'])
 			$row['body'] = strtr($smcFunc['substr'](str_replace('<br>', "\n", $row['body']), 0, $modSettings['xmlnews_maxlen'] - 3), array("\n" => '<br>')) . '...';
 
-		$row['body'] = parse_bbc($row['body'], $row['smileys_enabled'], $row['id_msg']);
+		$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
 
 		censorText($row['body']);
 		censorText($row['subject']);
@@ -2170,7 +2172,7 @@ function getXmlPosts($xml_format, $ascending = false)
 		$row = filter_var($row, FILTER_CALLBACK, array('options' => 'cleanXml'));
 
 		// If using our own format, we want both the raw and the parsed content.
-		$row[$xml_format === 'smf' ? 'body_html' : 'body'] = parse_bbc($row['body'], $row['smileys_enabled'], $row['id_msg']);
+		$row[$xml_format === 'smf' ? 'body_html' : 'body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
 
 		// Do we want to include any attachments?
 		if (!empty($modSettings['attachmentEnable']) && !empty($modSettings['xmlnews_attachments']))
@@ -2648,7 +2650,7 @@ function getXmlPMs($xml_format, $ascending = false)
 		$row = filter_var($row, FILTER_CALLBACK, array('options' => 'cleanXml'));
 
 		// If using our own format, we want both the raw and the parsed content.
-		$row[$xml_format === 'smf' ? 'body_html' : 'body'] = parse_bbc($row['body']);
+		$row[$xml_format === 'smf' ? 'body_html' : 'body'] = BBCodeParser::load()->parse($row['body']);
 
 		$recipients = array_combine(explode(',', $row['id_members_to']), explode($separator, $row['to_names']));
 

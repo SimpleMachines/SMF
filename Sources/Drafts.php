@@ -14,6 +14,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BBCodeParser;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -620,7 +622,7 @@ function showProfileDrafts($memID, $draft_type = 0)
 		censorText($row['subject']);
 
 		// BBC-ilize the message.
-		$row['body'] = parse_bbc($row['body'], $row['smileys_enabled'], 'draft' . $row['id_draft']);
+		$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], 'draft' . $row['id_draft']);
 
 		// And the array...
 		$context['drafts'][$counter += $reverse ? -1 : 1] = array(
@@ -790,7 +792,7 @@ function showPMDrafts($memID = -1)
 		censorText($row['subject']);
 
 		// BBC-ilize the message.
-		$row['body'] = parse_bbc($row['body'], true, 'draft' . $row['id_draft']);
+		$row['body'] = BBCodeParser::load()->parse($row['body'], true, 'draft' . $row['id_draft']);
 
 		// Have they provide who this will go to?
 		$recipients = array(

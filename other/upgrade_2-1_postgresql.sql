@@ -392,8 +392,8 @@ if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<
     while ($row = $smcFunc['db_fetch_assoc']($request))
     {
         $inserts[] = array(
-            'name' => $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($row['name']))),
-            'description' => $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($row['description']))),
+            'name' => $smcFunc['htmlspecialchars'](strip_tags(SMF\BBCodeParser::load()->unparse($row['name']))),
+            'description' => $smcFunc['htmlspecialchars'](strip_tags(SMF\BBCodeParser::load()->unparse($row['description']))),
             'id' => $row['id'],
         );
     }

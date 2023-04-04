@@ -13,6 +13,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BBCodeParser;
 use SMF\Search\SearchApiInterface;
 use SMF\Search\APIs\Standard as SearchStandard;
 
@@ -2098,7 +2099,7 @@ function prepareSearchContext($reset = false)
 		$charLimit = 50;
 
 		$message['body'] = strtr($message['body'], array("\n" => ' ', '<br>' => "\n", '<br/>' => "\n", '<br />' => "\n"));
-		$message['body'] = parse_bbc($message['body'], $message['smileys_enabled'], $message['id_msg']);
+		$message['body'] = BBCodeParser::load()->parse($message['body'], $message['smileys_enabled'], $message['id_msg']);
 		$message['body'] = strip_tags(strtr($message['body'], array('</div>' => '<br>', '</li>' => '<br>')), '<br>');
 
 		if ($smcFunc['strlen']($message['body']) > $charLimit)
@@ -2144,7 +2145,7 @@ function prepareSearchContext($reset = false)
 	else
 	{
 		// Run BBC interpreter on the message.
-		$message['body'] = parse_bbc($message['body'], $message['smileys_enabled'], $message['id_msg']);
+		$message['body'] = BBCodeParser::load()->parse($message['body'], $message['smileys_enabled'], $message['id_msg']);
 
 		$message['subject_highlighted'] = highlight($message['subject'], $context['key_words']);
 		$message['body_highlighted'] = highlight($message['body'], $context['key_words']);

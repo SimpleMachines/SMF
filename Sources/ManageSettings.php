@@ -14,6 +14,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BBCodeParser;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -346,7 +348,7 @@ function ModifyBBCSettings($return_config = false)
 		// Clean up the tags.
 		$bbcTags = array();
 		$bbcTagsChildren = array();
-		foreach (parse_bbc(false) as $tag)
+		foreach (BBCodeParser::getCodes() as $tag)
 		{
 			$bbcTags[] = $tag['tag'];
 			if (isset($tag['require_children']))
@@ -1335,7 +1337,7 @@ function ModifySignatureSettings($return_config = false)
 
 		// Clean up the tag stuff!
 		$bbcTags = array();
-		foreach (parse_bbc(false) as $tag)
+		foreach (BBCodeParser::getCodes() as $tag)
 			$bbcTags[] = $tag['tag'];
 
 		if (!isset($_POST['signature_bbc_enabledTags']))

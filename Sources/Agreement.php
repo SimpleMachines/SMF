@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BBCodeParser;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -58,7 +60,7 @@ function prepareAgreementContext()
 		if (!empty($context['agreement_file']))
 		{
 			$cache_id = strtr($context['agreement_file'], array($boarddir => '', '.txt' => '', '.' => '_'));
-			$context['agreement'] = parse_bbc(file_get_contents($context['agreement_file']), true, $cache_id);
+			$context['agreement'] = BBCodeParser::load()->parse(file_get_contents($context['agreement_file']), true, $cache_id);
 		}
 		elseif ($context['can_accept_agreement'])
 			fatal_lang_error('error_no_agreement', false);
@@ -68,9 +70,9 @@ function prepareAgreementContext()
 	{
 		// Have we got a localized policy?
 		if (!empty($modSettings['policy_' . $user_info['language']]))
-			$context['privacy_policy'] = parse_bbc($modSettings['policy_' . $user_info['language']]);
+			$context['privacy_policy'] = BBCodeParser::load()->parse($modSettings['policy_' . $user_info['language']]);
 		elseif (!empty($modSettings['policy_' . $language]))
-			$context['privacy_policy'] = parse_bbc($modSettings['policy_' . $language]);
+			$context['privacy_policy'] = BBCodeParser::load()->parse($modSettings['policy_' . $language]);
 		// Then I guess we've got nothing
 		elseif ($context['can_accept_privacy_policy'])
 			fatal_lang_error('error_no_privacy_policy', false);

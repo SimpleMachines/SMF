@@ -462,7 +462,7 @@ class Mentions
 			$excluded_bbc = array('quote');
 
 			// Exclude everything with unparsed content.
-			foreach (parse_bbc(false) as $code)
+			foreach (BBCodeParser::getCodes() as $code)
 			{
 				if (!empty($code['type']) && in_array($code['type'], array('unparsed_content', 'unparsed_commas_content', 'unparsed_equals_content')))
 					$excluded_bbc[] = $code['tag'];

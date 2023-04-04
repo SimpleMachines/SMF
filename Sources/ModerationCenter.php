@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BBCodeParser;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -481,7 +483,7 @@ function ModBlockNotes()
 				'link' => $note['id_member'] ? ('<a href="' . $scripturl . '?action=profile;u=' . $note['id_member'] . '">' . $note['member_name'] . '</a>') : $note['member_name'],
 			),
 			'time' => timeformat($note['log_time']),
-			'text' => parse_bbc($note['body']),
+			'text' => BBCodeParser::load()->parse($note['body']),
 			'delete_href' => $scripturl . '?action=moderate;area=index;notes;delete=' . $note['id_note'] . ';' . $context['session_var'] . '=' . $context['session_id'],
 			'can_delete' => allowedTo('admin_forum') || $note['id_member'] == $user_info['id'],
 		);
@@ -727,7 +729,7 @@ function ShowNotice()
 	list ($context['notice_body'], $context['notice_subject']) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
-	$context['notice_body'] = parse_bbc($context['notice_body'], false);
+	$context['notice_body'] = BBCodeParser::load()->parse($context['notice_body'], false);
 }
 
 /**
@@ -1142,7 +1144,7 @@ function list_getWatchedUserPosts($start, $items_per_page, $sort, $approve_query
 			'id_topic' => $row['id_topic'],
 			'author_link' => '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
 			'subject' => $row['subject'],
-			'body' => parse_bbc($row['body'], $row['smileys_enabled'], $row['id_msg']),
+			'body' => BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']),
 			'poster_time' => timeformat($row['poster_time']),
 			'approved' => $row['approved'],
 			'can_delete' => $delete_boards == array(0) || in_array($row['id_board'], $delete_boards),

@@ -14,6 +14,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BBCodeParser;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -831,12 +833,12 @@ function modifyBoard($board_id, &$boardOptions)
 	$already_parsed_boards = getBoardsParsedDescription($parsed_boards_cat_id);
 
 	if (isset($boardOptions['board_description']))
-		$already_parsed_boards[$board_id] = parse_bbc(
+		$already_parsed_boards[$board_id] = BBCodeParser::load()->parse(
 			$boardOptions['board_description'],
 			false,
-
 			'',
-			$context['description_allowed_tags']);
+			$context['description_allowed_tags']
+		);
 
 	clean_cache('data');
 
@@ -1552,7 +1554,7 @@ function setBoardParsedDescription($category_id = 0, $boards_info = array())
 	$already_parsed_boards = getBoardsParsedDescription($category_id);
 
 	foreach ($boards_info as $board_id => $board_description)
-		$already_parsed_boards[$board_id] = parse_bbc(
+		$already_parsed_boards[$board_id] = BBCodeParser::load()->parse(
 			$board_description,
 			false,
 			'',

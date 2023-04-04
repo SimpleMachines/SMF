@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BBCodeParser;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -286,7 +288,7 @@ function ReportDetails()
 				'href' => $scripturl . '?action=profile;u=' . $report['id_author'],
 			),
 			'subject' => $report['subject'],
-			'body' => parse_bbc($report['body']),
+			'body' => BBCodeParser::load()->parse($report['body']),
 		);
 	}
 

@@ -13,6 +13,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BBCodeParser;
 use SMF\PackageManager\FtpConnection;
 use SMF\PackageManager\XmlArray;
 
@@ -405,7 +406,7 @@ function PackageGBrowse()
 				if ($package['description'] == '')
 					$package['description'] = $txt['package_no_description'];
 				else
-					$package['description'] = parse_bbc(preg_replace('~\[[/]?html\]~i', '', $smcFunc['htmlspecialchars']($package['description'])));
+					$package['description'] = BBCodeParser::load()->parse(preg_replace('~\[[/]?html\]~i', '', $smcFunc['htmlspecialchars']($package['description'])));
 
 				$package['is_installed'] = isset($installed_mods[$package['id']]);
 				$package['is_current'] = $package['is_installed'] && ($installed_mods[$package['id']] == $package['version']);

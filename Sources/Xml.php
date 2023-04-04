@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BBCodeParser;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -123,7 +125,7 @@ function newspreview()
 			'identifier' => 'parsedNews',
 			'children' => array(
 				array(
-					'value' => parse_bbc($news),
+					'value' => BBCodeParser::load()->parse($news),
 				),
 			),
 		),
@@ -192,8 +194,8 @@ function sig_preview()
 		list($current_signature) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 		censorText($current_signature);
-		$allowedTags = get_signature_allowed_bbc_tags();
-		$current_signature = !empty($current_signature) ? parse_bbc($current_signature, true, 'sig' . $user, $allowedTags) : $txt['no_signature_set'];
+		$allowedTags = BBCodeParser::getSigTags();
+		$current_signature = !empty($current_signature) ? BBCodeParser::load()->parse($current_signature, true, 'sig' . $user, $allowedTags) : $txt['no_signature_set'];
 
 		$preview_signature = !empty($_POST['signature']) ? $smcFunc['htmlspecialchars']($_POST['signature']) : $txt['no_signature_preview'];
 		$validation = profileValidateSignature($preview_signature);
@@ -202,7 +204,7 @@ function sig_preview()
 			$errors[] = array('value' => $txt['profile_error_' . $validation], 'attributes' => array('type' => 'error'));
 
 		censorText($preview_signature);
-		$preview_signature = parse_bbc($preview_signature, true, 'sig' . $user, $allowedTags);
+		$preview_signature = BBCodeParser::load()->parse($preview_signature, true, 'sig' . $user, $allowedTags);
 	}
 	elseif (!$can_change)
 	{
@@ -297,7 +299,7 @@ function warning_preview()
 		if (!empty($_POST['body']))
 		{
 			preparsecode($warning_body);
-			$warning_body = parse_bbc($warning_body, true);
+			$warning_body = BBCodeParser::load()->parse($warning_body);
 		}
 		$context['preview_message'] = $warning_body;
 	}

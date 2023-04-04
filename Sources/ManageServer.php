@@ -59,6 +59,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BBCodeParser;
 use SMF\Cache\CacheApi;
 use SMF\Cache\CacheApiInterface;
 
@@ -1323,7 +1324,7 @@ function prepareDBSettingContext(&$config_vars)
 	if (!empty($bbcChoice))
 	{
 		// What are the options, eh?
-		$temp = parse_bbc(false);
+		$temp = BBCodeParser::getCodes();
 		$bbcTags = array();
 		foreach ($temp as $tag)
 			if (!isset($tag['require_parents']))
@@ -1700,7 +1701,7 @@ function saveDBSettings(&$config_vars)
 		elseif ($var[0] == 'bbc')
 		{
 			$bbcTags = array();
-			foreach (parse_bbc(false) as $tag)
+			foreach (BBCodeParser::getCodes() as $tag)
 				$bbcTags[] = $tag['tag'];
 
 			if (!isset($_POST[$var[1] . '_enabledTags']))
