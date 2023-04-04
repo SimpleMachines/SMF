@@ -14,6 +14,7 @@ use SMF\BrowserDetector;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Utils;
+use SMF\User;
 
 /**
  * The main template for the post page.
@@ -133,7 +134,7 @@ function template_main()
 	if (!empty(Config::$modSettings['drafts_post_enabled']))
 		echo '
 					<div id="draft_section" class="infobox"', isset(Utils::$context['draft_saved']) ? '' : ' style="display: none;"', '>',
-						sprintf(Lang::$txt['draft_saved'], Config::$scripturl . '?action=profile;u=' . Utils::$context['user']['id'] . ';area=showdrafts'), '
+						sprintf(Lang::$txt['draft_saved'], Config::$scripturl . '?action=profile;u=' . User::$me->id . ';area=showdrafts'), '
 						', (!empty(Config::$modSettings['drafts_keep_days']) ? ' <strong>' . sprintf(Lang::$txt['draft_save_warning'], Config::$modSettings['drafts_keep_days']) . '</strong>' : ''), '
 					</div>';
 

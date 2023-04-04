@@ -15,6 +15,7 @@
  */
 
 use SMF\Config;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
@@ -33,7 +34,7 @@ if (!defined('SMF'))
  */
 function RemoveTopic2()
 {
-	global $user_info, $topic, $board;
+	global $topic, $board;
 
 	// Make sure they aren't being lead around by someone. (:@)
 	checkSession('get');
@@ -60,19 +61,19 @@ function RemoveTopic2()
 	list ($starter, $subject, $approved, $locked) = Db::$db->fetch_row($request);
 	Db::$db->free_result($request);
 
-	if ($starter == $user_info['id'] && !allowedTo('remove_any'))
+	if ($starter == User::$me->id && !allowedTo('remove_any'))
 		isAllowedTo('remove_own');
 	else
 		isAllowedTo('remove_any');
 
 	// Can they see the topic?
-	if (Config::$modSettings['postmod_active'] && !$approved && $starter != $user_info['id'])
+	if (Config::$modSettings['postmod_active'] && !$approved && $starter != User::$me->id)
 		isAllowedTo('approve_posts');
 
 	// Ok, we got that far, but is it locked?
 	if ($locked)
 	{
-		if (!($locked == 1 && $starter == $user_info['id'] || allowedTo('lock_any')))
+		if (!($locked == 1 && $starter == User::$me->id || allowedTo('lock_any')))
 			fatal_lang_error('cannot_remove_locked', 'user');
 	}
 
@@ -82,7 +83,7 @@ function RemoveTopic2()
 	removeTopics($topic);
 
 	// Note, only log topic ID in native form if it's not gone forever.
-	if (allowedTo('remove_any') || (allowedTo('remove_own') && $starter == $user_info['id']))
+	if (allowedTo('remove_any') || (allowedTo('remove_own') && $starter == User::$me->id))
 		logAction('remove', array((empty(Config::$modSettings['recycle_enable']) || Config::$modSettings['recycle_board'] != $board ? 'topic' : 'old_topic_id') => $topic, 'subject' => $subject, 'member' => $starter, 'board' => $board));
 
 	redirectexit('board=' . $board . '.0');
@@ -94,7 +95,7 @@ function RemoveTopic2()
  */
 function DeleteMessage()
 {
-	global $user_info, $topic, $board;
+	global $topic, $board;
 
 	checkSession('get');
 
@@ -121,22 +122,22 @@ function DeleteMessage()
 	Db::$db->free_result($request);
 
 	// Verify they can see this!
-	if (Config::$modSettings['postmod_active'] && !$approved && !empty($poster) && $poster != $user_info['id'])
+	if (Config::$modSettings['postmod_active'] && !$approved && !empty($poster) && $poster != User::$me->id)
 		isAllowedTo('approve_posts');
 
-	if ($poster == $user_info['id'])
+	if ($poster == User::$me->id)
 	{
 		if (!allowedTo('delete_own'))
 		{
-			if ($starter == $user_info['id'] && !allowedTo('delete_any'))
+			if ($starter == User::$me->id && !allowedTo('delete_any'))
 				isAllowedTo('delete_replies');
 			elseif (!allowedTo('delete_any'))
 				isAllowedTo('delete_own');
 		}
-		elseif (!allowedTo('delete_any') && ($starter != $user_info['id'] || !allowedTo('delete_replies')) && !empty(Config::$modSettings['edit_disable_time']) && $post_time + Config::$modSettings['edit_disable_time'] * 60 < time())
+		elseif (!allowedTo('delete_any') && ($starter != User::$me->id || !allowedTo('delete_replies')) && !empty(Config::$modSettings['edit_disable_time']) && $post_time + Config::$modSettings['edit_disable_time'] * 60 < time())
 			fatal_lang_error('modify_post_time_passed', false);
 	}
-	elseif ($starter == $user_info['id'] && !allowedTo('delete_any'))
+	elseif ($starter == User::$me->id && !allowedTo('delete_any'))
 		isAllowedTo('delete_replies');
 	else
 		isAllowedTo('delete_any');
@@ -144,7 +145,7 @@ function DeleteMessage()
 	// If the full topic was removed go back to the board.
 	$full_topic = removeMessage($_REQUEST['msg']);
 
-	if (allowedTo('delete_any') && (!allowedTo('delete_own') || $poster != $user_info['id']))
+	if (allowedTo('delete_any') && (!allowedTo('delete_own') || $poster != User::$me->id))
 		logAction('delete', array('topic' => $topic, 'subject' => $subject, 'member' => $poster, 'board' => $board));
 
 	// We want to redirect back to recent action.
@@ -281,7 +282,7 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 		if (Db::$db->num_rows($requestMembers) > 0)
 		{
 			while ($rowMembers = Db::$db->fetch_assoc($requestMembers))
-				updateMemberData($rowMembers['id_member'], array('posts' => 'posts - ' . $rowMembers['posts']));
+				User::updateMemberData($rowMembers['id_member'], array('posts' => 'posts - ' . $rowMembers['posts']));
 		}
 		Db::$db->free_result($requestMembers);
 	}
@@ -587,7 +588,7 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
  */
 function removeMessage($message, $decreasePostCount = true)
 {
-	global $board, $user_info;
+	global $board;
 
 	if (empty($message) || !is_numeric($message))
 		return false;
@@ -629,11 +630,11 @@ function removeMessage($message, $decreasePostCount = true)
 			$delete_replies = boardsAllowedTo('delete_replies');
 			$delete_replies = in_array(0, $delete_replies) || in_array($row['id_board'], $delete_replies);
 
-			if ($row['id_member'] == $user_info['id'])
+			if ($row['id_member'] == User::$me->id)
 			{
 				if (!$delete_own)
 				{
-					if ($row['id_member_poster'] == $user_info['id'])
+					if ($row['id_member_poster'] == User::$me->id)
 					{
 						if (!$delete_replies)
 							fatal_lang_error('cannot_delete_replies', 'permission');
@@ -641,10 +642,10 @@ function removeMessage($message, $decreasePostCount = true)
 					else
 						fatal_lang_error('cannot_delete_own', 'permission');
 				}
-				elseif (($row['id_member_poster'] != $user_info['id'] || !$delete_replies) && !empty(Config::$modSettings['edit_disable_time']) && $row['poster_time'] + Config::$modSettings['edit_disable_time'] * 60 < time())
+				elseif (($row['id_member_poster'] != User::$me->id || !$delete_replies) && !empty(Config::$modSettings['edit_disable_time']) && $row['poster_time'] + Config::$modSettings['edit_disable_time'] * 60 < time())
 					fatal_lang_error('modify_post_time_passed', false);
 			}
-			elseif ($row['id_member_poster'] == $user_info['id'])
+			elseif ($row['id_member_poster'] == User::$me->id)
 			{
 				if (!$delete_replies)
 					fatal_lang_error('cannot_delete_replies', 'permission');
@@ -654,7 +655,7 @@ function removeMessage($message, $decreasePostCount = true)
 		}
 
 		// Can't delete an unapproved message, if you can't see it!
-		if (Config::$modSettings['postmod_active'] && !$row['approved'] && $row['id_member'] != $user_info['id'] && !(in_array(0, $delete_any) || in_array($row['id_board'], $delete_any)))
+		if (Config::$modSettings['postmod_active'] && !$row['approved'] && $row['id_member'] != User::$me->id && !(in_array(0, $delete_any) || in_array($row['id_board'], $delete_any)))
 		{
 			$approve_posts = boardsAllowedTo('approve_posts');
 			if (!in_array(0, $approve_posts) && !in_array($row['id_board'], $approve_posts))
@@ -664,24 +665,24 @@ function removeMessage($message, $decreasePostCount = true)
 	else
 	{
 		// Check permissions to delete this message.
-		if ($row['id_member'] == $user_info['id'])
+		if ($row['id_member'] == User::$me->id)
 		{
 			if (!allowedTo('delete_own'))
 			{
-				if ($row['id_member_poster'] == $user_info['id'] && !allowedTo('delete_any'))
+				if ($row['id_member_poster'] == User::$me->id && !allowedTo('delete_any'))
 					isAllowedTo('delete_replies');
 				elseif (!allowedTo('delete_any'))
 					isAllowedTo('delete_own');
 			}
-			elseif (!allowedTo('delete_any') && ($row['id_member_poster'] != $user_info['id'] || !allowedTo('delete_replies')) && !empty(Config::$modSettings['edit_disable_time']) && $row['poster_time'] + Config::$modSettings['edit_disable_time'] * 60 < time())
+			elseif (!allowedTo('delete_any') && ($row['id_member_poster'] != User::$me->id || !allowedTo('delete_replies')) && !empty(Config::$modSettings['edit_disable_time']) && $row['poster_time'] + Config::$modSettings['edit_disable_time'] * 60 < time())
 				fatal_lang_error('modify_post_time_passed', false);
 		}
-		elseif ($row['id_member_poster'] == $user_info['id'] && !allowedTo('delete_any'))
+		elseif ($row['id_member_poster'] == User::$me->id && !allowedTo('delete_any'))
 			isAllowedTo('delete_replies');
 		else
 			isAllowedTo('delete_any');
 
-		if (Config::$modSettings['postmod_active'] && !$row['approved'] && $row['id_member'] != $user_info['id'] && !allowedTo('delete_own'))
+		if (Config::$modSettings['postmod_active'] && !$row['approved'] && $row['id_member'] != User::$me->id && !allowedTo('delete_own'))
 			isAllowedTo('approve_posts');
 	}
 
@@ -698,7 +699,7 @@ function removeMessage($message, $decreasePostCount = true)
 				$remove_own = in_array(0, $remove_own) || in_array($row['id_board'], $remove_own);
 			}
 
-			if ($row['id_member'] != $user_info['id'] && !$remove_any)
+			if ($row['id_member'] != User::$me->id && !$remove_any)
 				fatal_lang_error('cannot_remove_any', 'permission');
 			elseif (!$remove_any && !$remove_own)
 				fatal_lang_error('cannot_remove_own', 'permission');
@@ -706,7 +707,7 @@ function removeMessage($message, $decreasePostCount = true)
 		else
 		{
 			// Check permissions to delete a whole topic.
-			if ($row['id_member'] != $user_info['id'])
+			if ($row['id_member'] != User::$me->id)
 				isAllowedTo('remove_any');
 			elseif (!allowedTo('remove_any'))
 				isAllowedTo('remove_own');
@@ -789,7 +790,7 @@ function removeMessage($message, $decreasePostCount = true)
 				LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})
 			WHERE b.id_board = {int:recycle_board}',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'recycle_board' => Config::$modSettings['recycle_board'],
 			)
 		);
@@ -864,20 +865,20 @@ function removeMessage($message, $decreasePostCount = true)
 			);
 
 			// Mark recycled topic as read.
-			if (!$user_info['is_guest'])
+			if (!User::$me->is_guest)
 				Db::$db->insert('replace',
 					'{db_prefix}log_topics',
 					array('id_topic' => 'int', 'id_member' => 'int', 'id_msg' => 'int', 'unwatched' => 'int'),
-					array($topicID, $user_info['id'], Config::$modSettings['maxMsgID'], 0),
+					array($topicID, User::$me->id, Config::$modSettings['maxMsgID'], 0),
 					array('id_topic', 'id_member')
 				);
 
 			// Mark recycle board as seen, if it was marked as seen before.
-			if (!empty($isRead) && !$user_info['is_guest'])
+			if (!empty($isRead) && !User::$me->is_guest)
 				Db::$db->insert('replace',
 					'{db_prefix}log_boards',
 					array('id_board' => 'int', 'id_member' => 'int', 'id_msg' => 'int'),
-					array(Config::$modSettings['recycle_board'], $user_info['id'], Config::$modSettings['maxMsgID']),
+					array(Config::$modSettings['recycle_board'], User::$me->id, Config::$modSettings['maxMsgID']),
 					array('id_board', 'id_member')
 				);
 
@@ -946,7 +947,7 @@ function removeMessage($message, $decreasePostCount = true)
 	// If the poster was registered and the board this message was on incremented
 	// the member's posts when it was posted, decrease his or her post count.
 	if (!empty($row['id_member']) && $decreasePostCount && empty($row['count_posts']) && $row['approved'])
-		updateMemberData($row['id_member'], array('posts' => '-'));
+		User::updateMemberData($row['id_member'], array('posts' => '-'));
 
 	// Only remove posts if they're not recycled.
 	if (!$recycle)
@@ -1219,7 +1220,7 @@ function RestoreTopic()
 				);
 
 				while ($member = Db::$db->fetch_assoc($request2))
-					updateMemberData($member['id_member'], array('posts' => 'posts + ' . $member['post_count']));
+					User::updateMemberData($member['id_member'], array('posts' => 'posts + ' . $member['post_count']));
 				Db::$db->free_result($request2);
 			}
 
@@ -1298,7 +1299,7 @@ function mergePosts($msgs, $from_topic, $target_topic)
 		);
 
 		while ($row = Db::$db->fetch_assoc($request))
-			updateMemberData($row['id_member'], array('posts' => '+'));
+			User::updateMemberData($row['id_member'], array('posts' => '+'));
 	}
 
 	// Time to move the messages.

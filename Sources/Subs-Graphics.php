@@ -19,6 +19,7 @@
  */
 
 use SMF\Config;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Graphics\Gif;
@@ -912,14 +913,14 @@ function gif_outputAsPng($gif, $lpszFileName, $background_color = -1)
  */
 function showCodeImage($code)
 {
-	global $gd2, $settings, $user_info;
+	global $gd2, $settings;
 
 	// Note: The higher the value of visual_verification_type the harder the verification is - from 0 as disabled through to 4 as "Very hard".
 
 	// What type are we going to be doing?
 	$imageType = Config::$modSettings['visual_verification_type'];
 	// Special case to allow the admin center to show samples.
-	if ($user_info['is_admin'] && isset($_GET['type']))
+	if (User::$me->is_admin && isset($_GET['type']))
 		$imageType = (int) $_GET['type'];
 
 	// Some quick references for what we do.

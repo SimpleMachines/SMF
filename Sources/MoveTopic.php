@@ -16,6 +16,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -37,7 +38,7 @@ if (!defined('SMF'))
  */
 function MoveTopic()
 {
-	global $board, $topic, $user_info;
+	global $board, $topic;
 
 	if (empty($topic))
 		fatal_lang_error('no_access', false);
@@ -63,7 +64,7 @@ function MoveTopic()
 	// @todo
 	if (!allowedTo('move_any'))
 	{
-		if ($id_member_started == $user_info['id'])
+		if ($id_member_started == User::$me->id)
 		{
 			isAllowedTo('move_own');
 		}
@@ -71,7 +72,7 @@ function MoveTopic()
 			isAllowedTo('move_any');
 	}
 
-	Utils::$context['move_any'] = $user_info['is_admin'] || Config::$modSettings['topic_move_any'];
+	Utils::$context['move_any'] = User::$me->is_admin || Config::$modSettings['topic_move_any'];
 	$boards = array();
 
 	if (!Utils::$context['move_any'])
@@ -113,7 +114,7 @@ function MoveTopic()
 
 	Utils::$context['back_to_topic'] = isset($_REQUEST['goback']);
 
-	if ($user_info['language'] != Lang::$default)
+	if (User::$me->language != Lang::$default)
 	{
 		Lang::load('index', Lang::$default);
 		$temp = Lang::$txt['movetopic_default'];
@@ -144,7 +145,7 @@ function MoveTopic()
 function MoveTopic2()
 {
 	global $topic;
-	global $board, $user_info;
+	global $board;
 
 	if (empty($topic))
 		fatal_lang_error('no_access', false);
@@ -177,7 +178,7 @@ function MoveTopic2()
 	// Can they move topics on this board?
 	if (!allowedTo('move_any'))
 	{
-		if ($id_member_started == $user_info['id'])
+		if ($id_member_started == User::$me->id)
 			isAllowedTo('move_own');
 		else
 			isAllowedTo('move_any');
@@ -230,7 +231,7 @@ function MoveTopic2()
 				// Get a response prefix, but in the forum's default language.
 				if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix')))
 				{
-					if (Lang::$default === $user_info['language'])
+					if (Lang::$default === User::$me->language)
 						Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
 					else
 					{
@@ -278,7 +279,7 @@ function MoveTopic2()
 		);
 
 		// Should be in the boardwide language.
-		if ($user_info['language'] != Lang::$default)
+		if (User::$me->language != Lang::$default)
 		{
 			Lang::load('index', Lang::$default);
 
@@ -315,7 +316,7 @@ function MoveTopic2()
 			'redirect_topic' => $redirect_topic,
 		);
 		$posterOptions = array(
-			'id' => $user_info['id'],
+			'id' => User::$me->id,
 			'update_post_count' => empty($pcounter),
 		);
 		createPost($msgOptions, $topicOptions, $posterOptions);
@@ -359,10 +360,10 @@ function MoveTopic2()
 		{
 			// The board we're moving from counted posts, but not to.
 			if (empty($pcounter_from))
-				updateMemberData($id_member, array('posts' => 'posts - ' . $posts));
+				User::updateMemberData($id_member, array('posts' => 'posts - ' . $posts));
 			// The reverse: from didn't, to did.
 			else
-				updateMemberData($id_member, array('posts' => 'posts + ' . $posts));
+				User::updateMemberData($id_member, array('posts' => 'posts + ' . $posts));
 		}
 	}
 
@@ -370,7 +371,7 @@ function MoveTopic2()
 	moveTopics($topic, $_POST['toboard']);
 
 	// Log that they moved this topic.
-	if (!allowedTo('move_own') || $id_member_started != $user_info['id'])
+	if (!allowedTo('move_own') || $id_member_started != User::$me->id)
 		logAction('move', array('topic' => $topic, 'board_from' => $board, 'board_to' => $_POST['toboard']));
 	// Notify people that this topic has been moved?
 	sendNotifications($topic, 'move');
@@ -395,8 +396,6 @@ function MoveTopic2()
  */
 function moveTopics($topics, $toBoard)
 {
-	global $user_info;
-
 	// Empty array?
 	if (empty($topics))
 		return;
@@ -680,19 +679,19 @@ function moveTopics($topics, $toBoard)
 			LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})
 		WHERE b.id_board = {int:id_board}',
 		array(
-			'current_member' => $user_info['id'],
+			'current_member' => User::$me->id,
 			'id_board' => $toBoard,
 		)
 	);
 	list ($isSeen) = Db::$db->fetch_row($request);
 	Db::$db->free_result($request);
 
-	if (!empty($isSeen) && !$user_info['is_guest'])
+	if (!empty($isSeen) && !User::$me->is_guest)
 	{
 		Db::$db->insert('replace',
 			'{db_prefix}log_boards',
 			array('id_board' => 'int', 'id_member' => 'int', 'id_msg' => 'int'),
-			array($toBoard, $user_info['id'], Config::$modSettings['maxMsgID']),
+			array($toBoard, User::$me->id, Config::$modSettings['maxMsgID']),
 			array('id_board', 'id_member')
 		);
 	}

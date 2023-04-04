@@ -13,6 +13,7 @@
 use SMF\Config;
 use SMF\Lang;
 use SMF\Utils;
+use SMF\User;
 
 /**
  * The top part of the outer layer of the boardindex
@@ -133,7 +134,7 @@ function template_main()
 	</div><!-- #boardindex_table -->';
 
 	// Show the mark all as read button?
-	if (Utils::$context['user']['is_logged'] && !empty(Utils::$context['categories']))
+	if (User::$me->is_logged && !empty(Utils::$context['categories']))
 		echo '
 	<div class="mark_read">
 		', template_button_strip(Utils::$context['mark_read_button'], 'right'), '
@@ -148,7 +149,7 @@ function template_main()
 function template_bi_board_icon($board)
 {
 	echo '
-		<a href="', (Utils::$context['user']['is_guest'] ? $board['href'] : Config::$scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '" class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></a>';
+		<a href="', (User::$me->is_guest ? $board['href'] : Config::$scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '" class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></a>';
 }
 
 /**
@@ -325,13 +326,13 @@ function template_info_center()
 				}
 			],
 			oThemeOptions: {
-				bUseThemeSettings: ', Utils::$context['user']['is_guest'] ? 'false' : 'true', ',
+				bUseThemeSettings: ', User::$me->is_guest ? 'false' : 'true', ',
 				sOptionName: \'collapse_header_ic\',
 				sSessionId: smf_session_id,
 				sSessionVar: smf_session_var,
 			},
 			oCookieOptions: {
-				bUseCookie: ', Utils::$context['user']['is_guest'] ? 'true' : 'false', ',
+				bUseCookie: ', User::$me->is_guest ? 'true' : 'false', ',
 				sCookieName: \'upshrinkIC\'
 			}
 		});

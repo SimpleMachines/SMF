@@ -13,6 +13,7 @@
 use SMF\Config;
 use SMF\Lang;
 use SMF\Utils;
+use SMF\User;
 
 /**
  * The main messageindex.
@@ -217,7 +218,7 @@ function template_main()
 
 			echo '
 							<div class="message_index_title">
-								', $topic['new'] && Utils::$context['user']['is_logged'] ? '<a href="' . $topic['new_href'] . '" id="newicon' . $topic['first_post']['id'] . '" class="new_posts">' . Lang::$txt['new'] . '</a>' : '', '
+								', $topic['new'] && User::$me->is_logged ? '<a href="' . $topic['new_href'] . '" id="newicon' . $topic['first_post']['id'] . '" class="new_posts">' . Lang::$txt['new'] . '</a>' : '', '
 								<span class="preview', $topic['is_sticky'] ? ' bold_text' : '', '" title="', $topic[(empty(Config::$modSettings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '">
 									<span id="msg_', $topic['first_post']['id'], '">', $topic['first_post']['link'], (!$topic['approved'] ? '&nbsp;<em>(' . Lang::$txt['awaiting_approval'] . ')</em>' : ''), '</span>
 								</span>
@@ -380,7 +381,7 @@ function template_main()
 function template_bi_board_icon($board)
 {
 	echo '
-		<a href="', (Utils::$context['user']['is_guest'] ? $board['href'] : Config::$scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '" class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></a>';
+		<a href="', (User::$me->is_guest ? $board['href'] : Config::$scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '" class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></a>';
 }
 
 /**
@@ -508,7 +509,7 @@ function template_topic_legend()
 
 	if (empty(Utils::$context['no_topic_listing']))
 		echo '
-			<p class="floatleft">', !empty(Config::$modSettings['enableParticipation']) && Utils::$context['user']['is_logged'] ? '
+			<p class="floatleft">', !empty(Config::$modSettings['enableParticipation']) && User::$me->is_logged ? '
 				<span class="main_icons profile_sm"></span> ' . Lang::$txt['participation_caption'] . '<br>' : '', '
 				' . (Config::$modSettings['pollMode'] == '1' ? '<span class="main_icons poll"></span> ' . Lang::$txt['poll'] . '<br>' : '') . '
 				<span class="main_icons move"></span> ' . Lang::$txt['moved_topic'] . '<br>

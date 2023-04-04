@@ -16,6 +16,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -531,7 +532,7 @@ function ModifySubscription()
 			// We're going through changes...
 			if (!empty($changes))
 				foreach ($changes as $id_member => $new_values)
-					updateMemberData($id_member, $new_values);
+					User::updateMemberData($id_member, $new_values);
 		}
 
 		// Delete the subscription

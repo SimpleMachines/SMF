@@ -14,6 +14,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -231,7 +232,7 @@ function ReportToModerator2()
  */
 function reportPost($msg, $reason)
 {
-	global $user_info, $topic;
+	global $topic;
 
 	// Get the basic topic information, and make sure they can see it.
 	$_POST['msg'] = (int) $msg;
@@ -317,8 +318,8 @@ function reportPost($msg, $reason)
 				'member_ip' => 'inet', 'comment' => 'string', 'time_sent' => 'int',
 			),
 			array(
-				$id_report, $user_info['id'], $user_info['name'],
-				$user_info['ip'], $reason, time(),
+				$id_report, User::$me->id, User::$me->name,
+				User::$me->ip, $reason, time(),
 			),
 			array('id_comment'),
 			1
@@ -333,8 +334,8 @@ function reportPost($msg, $reason)
 				'msg_id' => $_POST['msg'],
 				'topic_id' => $message['id_topic'],
 				'board_id' => $message['id_board'],
-				'sender_id' => Utils::$context['user']['id'],
-				'sender_name' => Utils::$context['user']['name'],
+				'sender_id' => User::$me->id,
+				'sender_name' => User::$me->name,
 				'time' => time(),
 				'comment_id' => $id_comment,
 			)), 0),
@@ -357,8 +358,6 @@ function reportPost($msg, $reason)
  */
 function reportUser($id_member, $reason)
 {
-	global $user_info;
-
 	// Get the basic topic information, and make sure they can see it.
 	$_POST['u'] = (int) $id_member;
 
@@ -440,8 +439,8 @@ function reportUser($id_member, $reason)
 				'member_ip' => 'inet', 'comment' => 'string', 'time_sent' => 'int',
 			),
 			array(
-				$id_report, $user_info['id'], $user_info['name'],
-				$user_info['ip'], $reason, time(),
+				$id_report, User::$me->id, User::$me->name,
+				User::$me->ip, $reason, time(),
 			),
 			array('id_comment')
 		);
@@ -454,8 +453,8 @@ function reportUser($id_member, $reason)
 				'report_id' => $id_report,
 				'user_id' => $user['id_member'],
 				'user_name' => $user_name,
-				'sender_id' => Utils::$context['user']['id'],
-				'sender_name' => Utils::$context['user']['name'],
+				'sender_id' => User::$me->id,
+				'sender_name' => User::$me->name,
 				'comment' => $reason,
 				'time' => time(),
 			)), 0),

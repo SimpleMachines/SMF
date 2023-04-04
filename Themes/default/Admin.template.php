@@ -13,6 +13,7 @@
 use SMF\Config;
 use SMF\Lang;
 use SMF\Utils;
+use SMF\User;
 
 /**
  * This is the administration center home.
@@ -1633,7 +1634,7 @@ function template_clean_cache_button_below()
  */
 function template_admin_quick_search()
 {
-	if (Utils::$context['user']['is_admin'])
+	if (User::$me->is_admin)
 		echo '
 								<form action="' . Config::$scripturl . '?action=admin;area=search" method="post" accept-charset="' . Utils::$context['character_set'] . '" class="admin_search">
 									<span class="main_icons filter centericon"></span>

@@ -14,6 +14,7 @@
 namespace SMF\Tasks;
 
 use SMF\Config;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -96,7 +97,7 @@ class GroupReq_Notify extends BackgroundTask
 					$alert_rows, array()
 				);
 
-				updateMemberData($data['alert'], array('alerts' => '+'));
+				User::updateMemberData($data['alert'], array('alerts' => '+'));
 			}
 
 			if (!empty($data['email']))

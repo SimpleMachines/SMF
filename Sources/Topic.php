@@ -15,6 +15,7 @@
  */
 
 use SMF\Config;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -33,7 +34,7 @@ if (!defined('SMF'))
  */
 function LockTopic()
 {
-	global $topic, $user_info, $board;
+	global $topic, $board;
 
 	// Just quit if there's no topic to lock.
 	if (empty($topic))
@@ -59,7 +60,7 @@ function LockTopic()
 
 	// Can you lock topics here, mister?
 	$user_lock = !allowedTo('lock_any');
-	if ($user_lock && $starter == $user_info['id'])
+	if ($user_lock && $starter == User::$me->id)
 		isAllowedTo('lock_own');
 	else
 		isAllowedTo('lock_any');

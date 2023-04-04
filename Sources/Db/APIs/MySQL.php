@@ -15,6 +15,7 @@ namespace SMF\Db\APIs;
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi;
 use SMF\Db\DatabaseApiInterface;
@@ -2015,7 +2016,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 * Callback for preg_replace_callback on the query.
 	 *
 	 * It replaces on the fly a few pre-defined strings ('query_see_board',
-	 * 'query_wanna_see_board', etc.) with their current values from $user_info.
+	 * 'query_wanna_see_board', etc.) with their current values from User::$me.
 	 *
 	 * In addition, it performs checks and sanitization on the values sent to
 	 * the database.
@@ -2025,16 +2026,14 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	protected function replacement__callback($matches)
 	{
-		global $user_info;
-
 		if (!is_object($this->temp_connection))
 			display_db_error();
 
 		if ($matches[1] === 'db_prefix')
 			return $this->prefix;
 
-		if (isset($user_info[$matches[1]]) && strpos($matches[1], 'query_') !== false)
-			return $user_info[$matches[1]];
+		if (isset(User::$me->{$matches[1]}) && strpos($matches[1], 'query_') !== false)
+			return User::$me->{$matches[1]};
 
 		if ($matches[1] === 'empty')
 			return '\'\'';

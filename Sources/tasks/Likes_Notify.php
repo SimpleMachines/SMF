@@ -14,6 +14,7 @@
 namespace SMF\Tasks;
 
 use SMF\Config;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -126,7 +127,7 @@ class Likes_Notify extends BackgroundTask
 			array('id_alert')
 		);
 
-		updateMemberData($author, array('alerts' => '+'));
+		User::updateMemberData($author, array('alerts' => '+'));
 
 		return true;
 	}

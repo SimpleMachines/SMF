@@ -17,6 +17,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -36,7 +37,7 @@ Lang::load('Drafts');
  */
 function SaveDraft(&$post_errors)
 {
-	global $user_info, $board;
+	global $board;
 
 	// can you be, should you be ... here?
 	if (empty(Config::$modSettings['drafts_post_enabled']) || !allowedTo('post_draft') || !isset($_POST['save_draft']) || !isset($_POST['id_draft']))
@@ -135,7 +136,7 @@ function SaveDraft(&$post_errors)
 				$board,
 				0,
 				time(),
-				$user_info['id'],
+				User::$me->id,
 				$draft['subject'],
 				$draft['smileys_enabled'],
 				$draft['body'],
@@ -183,8 +184,6 @@ function SaveDraft(&$post_errors)
  */
 function SavePMDraft(&$post_errors, $recipientList)
 {
-	global $user_info;
-
 	// PM survey says ... can you stay or must you go
 	if (empty(Config::$modSettings['drafts_pm_enabled']) || !allowedTo('pm_draft') || !isset($_POST['save_draft']))
 		return false;
@@ -269,7 +268,7 @@ function SavePMDraft(&$post_errors, $recipientList)
 				$reply_id,
 				1,
 				time(),
-				$user_info['id'],
+				User::$me->id,
 				$draft['subject'],
 				$draft['body'],
 				Utils::jsonEncode($recipientList),
@@ -313,8 +312,6 @@ function SavePMDraft(&$post_errors, $recipientList)
  */
 function ReadDraft($id_draft, $type = 0, $check = true, $load = false)
 {
-	global $user_info;
-
 	// like purell always clean to be sure
 	$id_draft = (int) $id_draft;
 	$type = (int) $type;
@@ -334,7 +331,7 @@ function ReadDraft($id_draft, $type = 0, $check = true, $load = false)
 			AND poster_time > {int:time}' : '') . '
 		LIMIT 1',
 		array(
-			'id_member' => $user_info['id'],
+			'id_member' => User::$me->id,
 			'id_draft' => $id_draft,
 			'type' => $type,
 			'time' => (!empty(Config::$modSettings['drafts_keep_days']) ? (time() - (Config::$modSettings['drafts_keep_days'] * 86400)) : 0),
@@ -397,14 +394,12 @@ function ReadDraft($id_draft, $type = 0, $check = true, $load = false)
  */
 function DeleteDraft($id_draft, $check = true)
 {
-	global $user_info;
-
 	// Only a single draft.
 	if (is_numeric($id_draft))
 		$id_draft = array($id_draft);
 
 	// can't delete nothing
-	if (empty($id_draft) || ($check && empty($user_info['id'])))
+	if (empty($id_draft) || ($check && empty(User::$me->id)))
 		return false;
 
 	Db::$db->query('', '
@@ -413,7 +408,7 @@ function DeleteDraft($id_draft, $check = true)
 			AND  id_member = {int:id_member}' : ''),
 		array(
 			'id_draft' => $id_draft,
-			'id_member' => empty($user_info['id']) ? -1 : $user_info['id'],
+			'id_member' => empty(User::$me->id) ? -1 : User::$me->id,
 		)
 	);
 }
@@ -683,7 +678,7 @@ function showProfileDrafts($memID, $draft_type = 0)
  */
 function showPMDrafts($memID = -1)
 {
-	global $user_info, $options;
+	global $options;
 
 	// init
 	$draft_type = 1;
@@ -713,7 +708,7 @@ function showPMDrafts($memID = -1)
 	}
 
 	// perhaps a draft was selected for editing? if so pass this off
-	if (!empty($_REQUEST['id_draft']) && !empty(Utils::$context['drafts_pm_save']) && $memID == $user_info['id'])
+	if (!empty($_REQUEST['id_draft']) && !empty(Utils::$context['drafts_pm_save']) && $memID == User::$me->id)
 	{
 		checkSession('get');
 		$id_draft = (int) $_REQUEST['id_draft'];

@@ -14,6 +14,7 @@
 namespace SMF\Tasks;
 
 use SMF\Config;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -31,8 +32,6 @@ class EventNew_Notify extends BackgroundTask
 	 */
 	public function execute()
 	{
-		global $user_profile;
-
 		// Get everyone who could be notified - those are the people who can see the calendar.
 		require_once(Config::$sourcedir . '/Subs-Members.php');
 		$members = membersAllowedTo('calendar_view');
@@ -49,9 +48,9 @@ class EventNew_Notify extends BackgroundTask
 		// If a guest creates the event, we wouldn't be capturing a username or anything.
 		if (!empty($this->_details['sender_id']) && empty($this->_details['sender_name']))
 		{
-			loadMemberData($this->_details['sender_id'], false, 'minimal');
-			if (!empty($user_profile[$this->_details['sender_id']]))
-				$this->_details['sender_name'] = $user_profile[$this->_details['sender_id']]['real_name'];
+			User::load($this->_details['sender_id'], User::LOAD_BY_ID, 'minimal');
+			if (!empty(User::$loaded[$this->_details['sender_id']]))
+				$this->_details['sender_name'] = User::$loaded[$this->_details['sender_id']]->name;
 			else
 				$this->_details['sender_id'] = 0;
 		}
@@ -105,7 +104,7 @@ class EventNew_Notify extends BackgroundTask
 			);
 
 			// And update the count of alerts for those people.
-			updateMemberData($notifies['alert'], array('alerts' => '+'));
+			User::updateMemberData($notifies['alert'], array('alerts' => '+'));
 		}
 
 		return true;

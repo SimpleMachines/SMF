@@ -16,6 +16,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -56,7 +57,7 @@ function PostModerationMain()
  */
 function UnapprovedPosts()
 {
-	global $user_info, $options;
+	global $options;
 
 	Utils::$context['current_view'] = isset($_GET['sa']) && $_GET['sa'] == 'topics' ? 'topics' : 'replies';
 	Utils::$context['page_title'] = Lang::$txt['mc_unapproved_posts'];
@@ -152,13 +153,13 @@ function UnapprovedPosts()
 			elseif ($curAction == 'delete')
 			{
 				// Own post is easy!
-				if ($row['id_member'] == $user_info['id'] && ($delete_own_boards == array(0) || in_array($row['id_board'], $delete_own_boards)))
+				if ($row['id_member'] == User::$me->id && ($delete_own_boards == array(0) || in_array($row['id_board'], $delete_own_boards)))
 					$can_add = true;
 				// Is it a reply to their own topic?
 				elseif ($row['id_member'] == $row['id_member_started'] && $row['id_msg'] != $row['id_first_msg'] && ($delete_own_replies == array(0) || in_array($row['id_board'], $delete_own_replies)))
 					$can_add = true;
 				// Someone elses?
-				elseif ($row['id_member'] != $user_info['id'] && ($delete_any_boards == array(0) || in_array($row['id_board'], $delete_any_boards)))
+				elseif ($row['id_member'] != User::$me->id && ($delete_any_boards == array(0) || in_array($row['id_board'], $delete_any_boards)))
 					$can_add = true;
 			}
 
@@ -268,13 +269,13 @@ function UnapprovedPosts()
 	for ($i = 1; $row = Db::$db->fetch_assoc($request); $i++)
 	{
 		// Can delete is complicated, let's solve it first... is it their own post?
-		if ($row['id_member'] == $user_info['id'] && ($delete_own_boards == array(0) || in_array($row['id_board'], $delete_own_boards)))
+		if ($row['id_member'] == User::$me->id && ($delete_own_boards == array(0) || in_array($row['id_board'], $delete_own_boards)))
 			$can_delete = true;
 		// Is it a reply to their own topic?
 		elseif ($row['id_member'] == $row['id_member_started'] && $row['id_msg'] != $row['id_first_msg'] && ($delete_own_replies == array(0) || in_array($row['id_board'], $delete_own_replies)))
 			$can_delete = true;
 		// Someone elses?
-		elseif ($row['id_member'] != $user_info['id'] && ($delete_any_boards == array(0) || in_array($row['id_board'], $delete_any_boards)))
+		elseif ($row['id_member'] != User::$me->id && ($delete_any_boards == array(0) || in_array($row['id_board'], $delete_any_boards)))
 			$can_delete = true;
 		else
 			$can_delete = false;
@@ -647,7 +648,7 @@ function list_getNumUnapprovedAttachments($approve_query)
  */
 function ApproveMessage()
 {
-	global $user_info, $topic, $board;
+	global $topic, $board;
 
 	checkSession('get');
 
@@ -677,14 +678,14 @@ function ApproveMessage()
 	{
 		approveTopics($topic, !$approved);
 
-		if ($starter != $user_info['id'])
+		if ($starter != User::$me->id)
 			logAction(($approved ? 'un' : '') . 'approve_topic', array('topic' => $topic, 'subject' => $subject, 'member' => $starter, 'board' => $board));
 	}
 	else
 	{
 		approvePosts($_REQUEST['msg'], !$approved);
 
-		if ($poster != $user_info['id'])
+		if ($poster != User::$me->id)
 			logAction(($approved ? 'un' : '') . 'approve', array('topic' => $topic, 'subject' => $subject, 'member' => $poster, 'board' => $board));
 	}
 

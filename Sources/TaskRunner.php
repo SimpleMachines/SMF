@@ -53,8 +53,6 @@ class TaskRunner
 	 */
 	public function __construct()
 	{
-		global $sc;
-
 		define('FROM_CLI', empty($_SERVER['REQUEST_METHOD']));
 
 		// For backward compatibility.
@@ -101,7 +99,7 @@ class TaskRunner
 		// Just in case there's a problem...
 		set_error_handler(__CLASS__ . '::handleError');
 
-		$sc = '';
+		User::$sc = '';
 
 		$_SERVER['QUERY_STRING'] = '';
 		$_SERVER['REQUEST_URL'] = FROM_CLI ? 'CLI cron.php' : Config::$boardurl . '/cron.php';

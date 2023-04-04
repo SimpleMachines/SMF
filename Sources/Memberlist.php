@@ -17,6 +17,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -83,8 +84,8 @@ function Memberlist()
 			'label' => Lang::$txt['website'],
 			'link_with' => 'website',
 			'sort' => array(
-				'down' => Utils::$context['user']['is_guest'] ? '1=1' : 'mem.website_url = \'\', mem.website_url is null, mem.website_url DESC',
-				'up' => Utils::$context['user']['is_guest'] ? ' 1=1' : 'mem.website_url != \'\', mem.website_url is not null, mem.website_url ASC'
+				'down' => User::$me->is_guest ? '1=1' : 'mem.website_url = \'\', mem.website_url is null, mem.website_url DESC',
+				'up' => User::$me->is_guest ? ' 1=1' : 'mem.website_url != \'\', mem.website_url is not null, mem.website_url ASC'
 			),
 		),
 		'id_group' => array(
@@ -275,7 +276,7 @@ function MLAll()
 	}
 
 	// Don't offer website sort to guests
-	if (Utils::$context['user']['is_guest'])
+	if (User::$me->is_guest)
 	{
 		Utils::$context['columns']['website_url']['href'] = '';
 		Utils::$context['columns']['website_url']['link'] = Utils::$context['columns']['website_url']['label'];
@@ -612,7 +613,6 @@ function MLSearch()
  */
 function printMemberListRows($request)
 {
-	global $memberContext;
 	global $settings;
 
 	// Get the most posts.
@@ -634,15 +634,15 @@ function printMemberListRows($request)
 		$members[] = $row['id_member'];
 
 	// Load all the members for display.
-	loadMemberData($members);
+	User::load($members);
 
 	Utils::$context['members'] = array();
 	foreach ($members as $member)
 	{
-		if (!loadMemberContext($member))
+		if (!isset(User::$loaded[$member]))
 			continue;
 
-		Utils::$context['members'][$member] = $memberContext[$member];
+		Utils::$context['members'][$member] = User::$loaded[$member]->format();
 		Utils::$context['members'][$member]['post_percent'] = round((Utils::$context['members'][$member]['real_posts'] * 100) / $most_posts);
 		Utils::$context['members'][$member]['registered_date'] = smf_strftime('%Y-%m-%d', Utils::$context['members'][$member]['registered_timestamp']);
 

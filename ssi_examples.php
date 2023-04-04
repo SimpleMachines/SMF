@@ -38,7 +38,7 @@ template_ssi_above();
 
 			<h2>Include Code</h2>
 			<p>To use SSI.php in your page add at the very top of your page before the &lt;html&gt; tag on line 1 of your php file:</p>
-			<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php require(&quot;<?php echo addslashes($user_info['is_admin'] ? realpath(SMF\Config::$boarddir . '/SSI.php') : 'SSI.php'); ?>&quot;); ?&gt;</code>
+			<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php require(&quot;<?php echo addslashes(SMF\User::$me->is_admin ? realpath(SMF\Config::$boarddir . '/SSI.php') : 'SSI.php'); ?>&quot;); ?&gt;</code>
 
 			<h2>Some notes on usage</h2>
 			<p>All the functions have an output method parameter.  This can either be &quot;echo&quot; (the default) or &quot;array&quot;</p>
@@ -89,7 +89,7 @@ template_ssi_above();
 						<li><a href="#" onclick="showSSIBlock('ssi_quickSearch'); return false;">Quick Search Box</a></li>
 						<li><a href="#" onclick="showSSIBlock('ssi_recentAttachments'); return false;">Recent Attachments</a></li>
 					</ul>
-					<?php if ($user_info['is_admin']) { ?>
+					<?php if (SMF\User::$me->is_admin) { ?>
 					<h3>Advanced Functions <img class="help" title="Functions that require additional tweaking, not just copy and paste." src="<?php echo $settings['images_url']; ?>/helptopics.png" alt=""></h3>
 					<ul>
 						<li><a href="#" onclick="showSSIBlock('ssi_showPoll'); return false;">Show Single Poll</a></li>
@@ -550,8 +550,6 @@ function template_ssi_below()
  */
 function template_homepage_sample1($method = 'source')
 {
-	global $user_info;
-
 	$header = '<!DOCTYPE html>
 <html>
 <head>
@@ -596,7 +594,7 @@ function template_homepage_sample1($method = 'source')
 
 	if ($method == 'source')
 	{
-		$header = '<?php require("' . ($user_info['is_admin'] ? addslashes(realpath(SMF\Config::$boarddir . '/SSI.php')) : 'SSI.php') . '"); ?>' . "\n" . $header;
+		$header = '<?php require("' . (SMF\User::$me->is_admin ? addslashes(realpath(SMF\Config::$boarddir . '/SSI.php')) : 'SSI.php') . '"); ?>' . "\n" . $header;
 		return $header . template_homepage_sample1_html() . $footer;
 	}
 	else

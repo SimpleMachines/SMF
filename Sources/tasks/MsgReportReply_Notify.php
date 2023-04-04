@@ -14,6 +14,7 @@
 namespace SMF\Tasks;
 
 use SMF\Config;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -151,7 +152,7 @@ class MsgReportReply_Notify extends BackgroundTask
 			);
 
 			// And update the count of alerts for those people.
-			updateMemberData($notifies['alert'], array('alerts' => '+'));
+			User::updateMemberData($notifies['alert'], array('alerts' => '+'));
 		}
 
 		// Secondly, anyone who wants emails.

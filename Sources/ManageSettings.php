@@ -17,6 +17,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -2431,7 +2432,7 @@ function ModifyGeneralModSettings($return_config = false)
 function ModifyAlertsSettings()
 {
 	// Dummy settings for the template...
-	Utils::$context['user']['is_owner'] = false;
+	User::$me->is_owner = false;
 	Utils::$context['member'] = array();
 	Utils::$context['id_member'] = 0;
 	Utils::$context['menu_item_selected'] = 'alerts';

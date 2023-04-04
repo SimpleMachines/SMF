@@ -476,11 +476,8 @@ $txt['cannot_move_to_deleted_category'] = 'deleteCategories(): You cannot move t
 $txt['undefined_xml_attribute'] = 'Undefined XML attribute: %s';
 $txt['undefined_xml_element'] = 'Undefined XML element: %s';
 
-// loadMemberData() error
-$txt['invalid_member_data_set'] = 'loadMemberData(): Invalid member set: \'%s\'';
-
-// loadMemberContext() error
-$txt['user_not_loaded'] = 'loadMemberContext(): member id \'%d\' not previously loaded by loadMemberData()';
+// User::load() error
+$txt['invalid_member_data_set'] = 'SMF\User::load(): Invalid member set: \'%s\'';
 
 // logActions() errors
 $txt['logActions_not_array'] = 'logActions(): data is not an array with action \'%s\'';

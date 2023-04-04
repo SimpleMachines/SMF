@@ -18,6 +18,7 @@
  */
 
 use SMF\Config;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -30,8 +31,6 @@ if (!defined('SMF'))
  */
 function loadSession()
 {
-	global $sc;
-
 	// Attempt to change a few PHP settings.
 	@ini_set('session.use_cookies', true);
 	@ini_set('session.use_only_cookies', false);
@@ -96,7 +95,7 @@ function loadSession()
 		$_SESSION['session_value'] = md5(session_id() . Utils::randomInt());
 		$_SESSION['session_var'] = substr(preg_replace('~^\d+~', '', sha1(Utils::randomInt() . session_id() . Utils::randomInt())), 0, Utils::randomInt(7, 12));
 	}
-	$sc = $_SESSION['session_value'];
+	User::$sc = $_SESSION['session_value'];
 }
 
 /**

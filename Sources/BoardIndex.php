@@ -16,6 +16,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 
@@ -30,7 +31,7 @@ if (!defined('SMF'))
  */
 function BoardIndex()
 {
-	global $user_info, $settings;
+	global $settings;
 
 	loadTemplate('BoardIndex');
 	Utils::$context['template_layers'][] = 'boardindex_outer';
@@ -64,7 +65,7 @@ function BoardIndex()
 			$latestPostOptions = array(
 				'number_posts' => $settings['number_recent_posts'],
 			);
-			Utils::$context['latest_posts'] = CacheApi::quickGet('boardindex-latest_posts:' . md5($user_info['query_wanna_see_board'] . $user_info['language']), 'Subs-Recent.php', 'cache_getLastPosts', array($latestPostOptions));
+			Utils::$context['latest_posts'] = CacheApi::quickGet('boardindex-latest_posts:' . md5(User::$me->query_wanna_see_board . User::$me->language), 'Subs-Recent.php', 'cache_getLastPosts', array($latestPostOptions));
 		}
 
 		if (!empty(Utils::$context['latest_posts']) || !empty(Utils::$context['latest_post']))
@@ -84,7 +85,7 @@ function BoardIndex()
 			'include_events' => Config::$modSettings['cal_showevents'] > 1,
 			'num_days_shown' => empty(Config::$modSettings['cal_days_for_index']) || Config::$modSettings['cal_days_for_index'] < 1 ? 1 : Config::$modSettings['cal_days_for_index'],
 		);
-		Utils::$context += CacheApi::quickGet('calendar_index_offset_' . $user_info['time_offset'], 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
+		Utils::$context += CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
 
 		// Whether one or multiple days are shown on the board index.
 		Utils::$context['calendar_only_today'] = Config::$modSettings['cal_days_for_index'] == 1;
@@ -115,7 +116,7 @@ function BoardIndex()
 		'reverse_sort' => true,
 	);
 	Utils::$context += getMembersOnlineStats($membersOnlineOptions);
-	Utils::$context['show_buddies'] = !empty($user_info['buddies']);
+	Utils::$context['show_buddies'] = !empty(User::$me->buddies);
 	Utils::$context['show_who'] = allowedTo('who_view') && !empty(Config::$modSettings['who_enabled']);
 	Utils::$context['info_center'][] = array(
 		'tpl' => 'online',

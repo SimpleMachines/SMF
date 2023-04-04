@@ -13,6 +13,7 @@
 use SMF\Config;
 use SMF\Lang;
 use SMF\Utils;
+use SMF\User;
 
 /*	This template is, perhaps, the most important template in the theme. It
 	contains the main template layer that displays the header and footer of
@@ -164,7 +165,7 @@ function template_html_above()
 	<link rel="search" href="' . Config::$scripturl . '?action=search">' : '');
 
 	// If RSS feeds are enabled, advertise the presence of one.
-	if (!empty(Config::$modSettings['xmlnews_enable']) && (!empty(Config::$modSettings['allow_guestAccess']) || Utils::$context['user']['is_logged']))
+	if (!empty(Config::$modSettings['xmlnews_enable']) && (!empty(Config::$modSettings['allow_guestAccess']) || User::$me->is_logged))
 		echo '
 	<link rel="alternate" type="application/rss+xml" title="', Utils::$context['forum_name_html_safe'], ' - ', Lang::$txt['rss'], '" href="', Config::$scripturl, '?action=.xml;type=rss2', !empty(Utils::$context['current_board']) ? ';board=' . Utils::$context['current_board'] : '', '">
 	<link rel="alternate" type="application/atom+xml" title="', Utils::$context['forum_name_html_safe'], ' - ', Lang::$txt['atom'], '" href="', Config::$scripturl, '?action=.xml;type=atom', !empty(Utils::$context['current_board']) ? ';board=' . Utils::$context['current_board'] : '', '">';
@@ -206,7 +207,7 @@ function template_body_above()
 		<div class="inner_wrap">';
 
 	// If the user is logged in, display some things that might be useful.
-	if (Utils::$context['user']['is_logged'])
+	if (User::$me->is_logged)
 	{
 		// Firstly, the user's menu
 		echo '
@@ -214,10 +215,10 @@ function template_body_above()
 				<li>
 					<a href="', Config::$scripturl, '?action=profile"', !empty(Utils::$context['self_profile']) ? ' class="active"' : '', ' id="profile_menu_top">';
 
-		if (!empty(Utils::$context['user']['avatar']))
-			echo Utils::$context['user']['avatar']['image'];
+		if (!empty(User::$me->avatar))
+			echo User::$me->avatar['image'];
 
-		echo '<span class="textmenu">', Utils::$context['user']['name'], '</span></a>
+		echo '<span class="textmenu">', User::$me->name, '</span></a>
 					<div id="profile_menu" class="top_menu"></div>
 				</li>';
 
@@ -227,8 +228,8 @@ function template_body_above()
 				<li>
 					<a href="', Config::$scripturl, '?action=pm"', !empty(Utils::$context['self_pm']) ? ' class="active"' : '', ' id="pm_menu_top">
 						<span class="main_icons inbox"></span>
-						<span class="textmenu">', Lang::$txt['pm_short'], '</span>', !empty(Utils::$context['user']['unread_messages']) ? '
-						<span class="amt">' . Utils::$context['user']['unread_messages'] . '</span>' : '', '
+						<span class="textmenu">', Lang::$txt['pm_short'], '</span>', !empty(User::$me->unread_messages) ? '
+						<span class="amt">' . User::$me->unread_messages . '</span>' : '', '
 					</a>
 					<div id="pm_menu" class="top_menu scrollable"></div>
 				</li>';
@@ -236,10 +237,10 @@ function template_body_above()
 		// Thirdly, alerts
 		echo '
 				<li>
-					<a href="', Config::$scripturl, '?action=profile;area=showalerts;u=', Utils::$context['user']['id'], '"', !empty(Utils::$context['self_alerts']) ? ' class="active"' : '', ' id="alerts_menu_top">
+					<a href="', Config::$scripturl, '?action=profile;area=showalerts;u=', User::$me->id, '"', !empty(Utils::$context['self_alerts']) ? ' class="active"' : '', ' id="alerts_menu_top">
 						<span class="main_icons alerts"></span>
-						<span class="textmenu">', Lang::$txt['alerts'], '</span>', !empty(Utils::$context['user']['alerts']) ? '
-						<span class="amt">' . Utils::$context['user']['alerts'] . '</span>' : '', '
+						<span class="textmenu">', Lang::$txt['alerts'], '</span>', !empty(User::$me->alerts) ? '
+						<span class="amt">' . User::$me->alerts . '</span>' : '', '
 					</a>
 					<div id="alerts_menu" class="top_menu scrollable"></div>
 				</li>';
@@ -309,7 +310,7 @@ function template_body_above()
 
 		foreach (Utils::$context['languages'] as $language)
 			echo '
-					<option value="', $language['filename'], '"', isset(Utils::$context['user']['language']) && Utils::$context['user']['language'] == $language['filename'] ? ' selected="selected"' : '', '>', str_replace('-utf8', '', $language['name']), '</option>';
+					<option value="', $language['filename'], '"', isset(User::$me->language) && User::$me->language == $language['filename'] ? ' selected="selected"' : '', '>', str_replace('-utf8', '', $language['name']), '</option>';
 
 		echo '
 				</select>
@@ -384,11 +385,11 @@ function template_body_above()
 	<div id="wrapper">
 		<div id="upper_section">
 			<div id="inner_section">
-				<div id="inner_wrap"', !Utils::$context['user']['is_logged'] ? ' class="hide_720"' : '', '>
+				<div id="inner_wrap"', !User::$me->is_logged ? ' class="hide_720"' : '', '>
 					<div class="user">
 						<time datetime="', smf_gmstrftime('%FT%TZ'), '">', Utils::$context['current_time'], '</time>';
 
-	if (Utils::$context['user']['is_logged'])
+	if (User::$me->is_logged)
 		echo '
 						<ul class="unread_links">
 							<li>

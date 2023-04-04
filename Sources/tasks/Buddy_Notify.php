@@ -14,6 +14,7 @@
 namespace SMF\Tasks;
 
 use SMF\Config;
+use SMF\User;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -54,7 +55,7 @@ class Buddy_Notify extends BackgroundTask
 				$alert_row, array()
 			);
 
-			updateMemberData($this->_details['receiver_id'], array('alerts' => '+'));
+			User::updateMemberData($this->_details['receiver_id'], array('alerts' => '+'));
 		}
 
 		return true;

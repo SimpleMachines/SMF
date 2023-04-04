@@ -16,6 +16,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -197,7 +198,7 @@ function deleteMembergroups($groups)
 	Db::$db->free_result($request);
 
 	foreach ($updates as $additional_groups => $memberArray)
-		updateMemberData($memberArray, array('additional_groups' => implode(',', array_diff(explode(',', $additional_groups), $groups))));
+		User::updateMemberData($memberArray, array('additional_groups' => implode(',', array_diff(explode(',', $additional_groups), $groups))));
 
 	// No boards can provide access to these membergroups anymore.
 	$request = Db::$db->query('', '
@@ -698,7 +699,7 @@ function cache_getMembergroupList()
  */
 function list_getMembergroups($start, $items_per_page, $sort, $membergroup_type)
 {
-	global $settings, $user_info;
+	global $settings;
 
 	$request = Db::$db->query('substring_membergroups', '
 		SELECT mg.id_group, mg.group_name, mg.min_posts, mg.description, mg.group_type, mg.online_color, mg.hidden,
@@ -709,7 +710,7 @@ function list_getMembergroups($start, $items_per_page, $sort, $membergroup_type)
 			AND mg.id_group != {int:mod_group}') . '
 		ORDER BY {raw:sort}',
 		array(
-			'current_member' => $user_info['id'],
+			'current_member' => User::$me->id,
 			'min_posts' => ($membergroup_type === 'post_count' ? '!= ' : '= ') . -1,
 			'mod_group' => 3,
 			'sort' => $sort,

@@ -16,6 +16,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -67,7 +68,7 @@ function getBoardIndex($board_index_options)
 	);
 
 	$board_index_parameters = array(
-		'current_member' => $user_info['id'],
+		'current_member' => User::$me->id,
 		'child_level' => $board_index_options['base_level'],
 		'max_child_level' => $board_index_options['base_level'] + Config::$modSettings['boardindex_max_depth'],
 		'blank_string' => ''
@@ -97,7 +98,7 @@ function getBoardIndex($board_index_options)
 				' . (!empty($board_index_selects) ? implode(', ', $board_index_selects) : '') . ',
 				COALESCE(m.poster_time, 0) AS poster_time, COALESCE(mem.member_name, m.poster_name) AS poster_name,
 				m.subject, m.id_topic, COALESCE(mem.real_name, m.poster_name) AS real_name,
-				' . ($user_info['is_guest'] ? ' 1 AS is_read, 0 AS new_from,' : '
+				' . (User::$me->is_guest ? ' 1 AS is_read, 0 AS new_from,' : '
 				(CASE WHEN COALESCE(lb.id_msg, 0) >= b.id_last_msg THEN 1 ELSE 0 END) AS is_read, COALESCE(lb.id_msg, -1) + 1 AS new_from,' . ($board_index_options['include_categories'] ? '
 				c.can_collapse,' : '')) . '
 				COALESCE(mem.id_member, 0) AS id_member, mem.avatar, m.id_msg' . (!empty($settings['avatars_on_boardIndex']) ? ',  mem.email_address, mem.avatar, COALESCE(am.id_attach, 0) AS member_id_attach, am.filename AS member_filename, am.attachment_type AS member_attach_type' : '') . '
@@ -105,7 +106,7 @@ function getBoardIndex($board_index_options)
 				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)' : '') . '
 				LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = b.id_last_msg)
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (!empty($settings['avatars_on_boardIndex']) ? '
-				LEFT JOIN {db_prefix}attachments AS am ON (am.id_member = m.id_member)' : '') . '' . ($user_info['is_guest'] ? '' : '
+				LEFT JOIN {db_prefix}attachments AS am ON (am.id_member = m.id_member)' : '') . '' . (User::$me->is_guest ? '' : '
 				LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})') . '
 			WHERE b.id_parent != 0
 			ORDER BY ' . (!empty($board_index_options['include_categories']) ? 'c.cat_order, ' : '') . 'b.child_level DESC, b.board_order DESC',
@@ -120,7 +121,7 @@ function getBoardIndex($board_index_options)
 				' . (!empty($board_index_selects) ? implode(', ', $board_index_selects) : '') . ',
 				COALESCE(m.poster_time, 0) AS poster_time, COALESCE(mem.member_name, m.poster_name) AS poster_name,
 				m.subject, m.id_topic, COALESCE(mem.real_name, m.poster_name) AS real_name,
-				' . ($user_info['is_guest'] ? ' 1 AS is_read, 0 AS new_from,' : '
+				' . (User::$me->is_guest ? ' 1 AS is_read, 0 AS new_from,' : '
 				(CASE WHEN COALESCE(lb.id_msg, 0) >= b.id_last_msg THEN 1 ELSE 0 END) AS is_read, COALESCE(lb.id_msg, -1) + 1 AS new_from,' . ($board_index_options['include_categories'] ? '
 				c.can_collapse,' : '')) . '
 				COALESCE(mem.id_member, 0) AS id_member, mem.avatar, m.id_msg' . (!empty($settings['avatars_on_boardIndex']) ? ',  mem.email_address, mem.avatar, COALESCE(am.id_attach, 0) AS member_id_attach, am.filename AS member_filename, am.attachment_type AS member_attach_type' : '') . '
@@ -128,7 +129,7 @@ function getBoardIndex($board_index_options)
 				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)' : '') . '
 				LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = b.id_last_msg)
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (!empty($settings['avatars_on_boardIndex']) ? '
-				LEFT JOIN {db_prefix}attachments AS am ON (am.id_member = m.id_member)' : '') . '' . ($user_info['is_guest'] ? '' : '
+				LEFT JOIN {db_prefix}attachments AS am ON (am.id_member = m.id_member)' : '') . '' . (User::$me->is_guest ? '' : '
 				LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})') . '
 			WHERE {query_see_board}
 				AND b.child_level BETWEEN {int:child_level} AND {int:max_child_level}
@@ -166,7 +167,7 @@ function getBoardIndex($board_index_options)
 		$row_board = current($row_boards);
 
 		// Perhaps we are ignoring this board?
-		$ignoreThisBoard = in_array($row_board['id_board'], $user_info['ignoreboards']);
+		$ignoreThisBoard = in_array($row_board['id_board'], User::$me->ignoreboards);
 		$row_board['is_read'] = !empty($row_board['is_read']) || $ignoreThisBoard ? '1' : '0';
 
 		// Add parent boards to the $boards list later used to fetch moderators
@@ -263,7 +264,7 @@ function getBoardIndex($board_index_options)
 					'is_redirect' => $row_board['is_redirect'],
 					'unapproved_topics' => $row_board['unapproved_topics'],
 					'unapproved_posts' => $row_board['unapproved_posts'] - $row_board['unapproved_topics'],
-					'can_approve_posts' => !empty($user_info['mod_cache']['ap']) && ($user_info['mod_cache']['ap'] == array(0) || in_array($row_board['id_board'], $user_info['mod_cache']['ap'])),
+					'can_approve_posts' => !empty(User::$me->mod_cache['ap']) && (User::$me->mod_cache['ap'] == array(0) || in_array($row_board['id_board'], User::$me->mod_cache['ap'])),
 					'href' => Config::$scripturl . '?board=' . $row_board['id_board'] . '.0',
 					'link' => '<a href="' . Config::$scripturl . '?board=' . $row_board['id_board'] . '.0">' . $row_board['board_name'] . '</a>',
 					'board_class' => 'off',
@@ -324,7 +325,7 @@ function getBoardIndex($board_index_options)
 				'is_redirect' => $row_board['is_redirect'],
 				'unapproved_topics' => $row_board['unapproved_topics'],
 				'unapproved_posts' => $row_board['unapproved_posts'] - $row_board['unapproved_topics'],
-				'can_approve_posts' => !empty($user_info['mod_cache']['ap']) && ($user_info['mod_cache']['ap'] == array(0) || in_array($row_board['id_board'], $user_info['mod_cache']['ap'])),
+				'can_approve_posts' => !empty(User::$me->mod_cache['ap']) && (User::$me->mod_cache['ap'] == array(0) || in_array($row_board['id_board'], User::$me->mod_cache['ap'])),
 				'href' => Config::$scripturl . '?board=' . $row_board['id_board'] . '.0',
 				'link' => '<a href="' . Config::$scripturl . '?board=' . $row_board['id_board'] . '.0">' . $row_board['board_name'] . '</a>'
 			);
@@ -418,7 +419,7 @@ function getBoardIndex($board_index_options)
 		// Provide the href and link.
 		if ($row_board['subject'] != '')
 		{
-			$this_last_post['href'] = Config::$scripturl . '?topic=' . $row_board['id_topic'] . '.msg' . ($user_info['is_guest'] ? $row_board['id_msg'] : $row_board['new_from']) . (empty($row_board['is_read']) ? ';boardseen' : '') . '#new';
+			$this_last_post['href'] = Config::$scripturl . '?topic=' . $row_board['id_topic'] . '.msg' . (User::$me->is_guest ? $row_board['id_msg'] : $row_board['new_from']) . (empty($row_board['is_read']) ? ';boardseen' : '') . '#new';
 			$this_last_post['link'] = '<a href="' . $this_last_post['href'] . '" title="' . $row_board['subject'] . '">' . $row_board['short_subject'] . '</a>';
 		}
 

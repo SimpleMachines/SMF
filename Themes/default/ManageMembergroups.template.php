@@ -13,6 +13,7 @@
 use SMF\Config;
 use SMF\Lang;
 use SMF\Utils;
+use SMF\User;
 
 /**
  * The main page listing all the groups.
@@ -642,7 +643,7 @@ function template_group_members()
 
 		if (!empty(Utils::$context['group']['assignable']))
 			echo '
-						<td class="quick_moderation" style="width: 4%"><input type="checkbox" name="rem[]" value="', $member['id'], '" ', (Utils::$context['user']['id'] == $member['id'] && Utils::$context['group']['id'] == 1 ? 'onclick="if (this.checked) return confirm(\'' . Lang::$txt['membergroups_members_deadmin_confirm'] . '\')" ' : ''), '/></td>';
+						<td class="quick_moderation" style="width: 4%"><input type="checkbox" name="rem[]" value="', $member['id'], '" ', (User::$me->id == $member['id'] && Utils::$context['group']['id'] == 1 ? 'onclick="if (this.checked) return confirm(\'' . Lang::$txt['membergroups_members_deadmin_confirm'] . '\')" ' : ''), '/></td>';
 
 		echo '
 					</tr>';

@@ -13,6 +13,8 @@
 
 namespace SMF\Tasks;
 
+use SMF\User;
+
 /**
  * Base class for all background tasks.
  */
@@ -30,22 +32,13 @@ abstract class BackgroundTask
 	protected $_details;
 
 	/**
-	 * @var array Temp property to hold the current user info while tasks make use of $user_info
-	 */
-	private $current_user_info = array();
-
-	/**
 	 * The constructor.
 	 *
 	 * @param array $details The details for the task
 	 */
 	public function __construct($details)
 	{
-		global $user_info;
-
 		$this->_details = $details;
-
-		$this->current_user_info = $user_info;
 	}
 
 	/**
@@ -64,14 +57,9 @@ abstract class BackgroundTask
 	 */
 	public function getMinUserInfo($user_ids = array())
 	{
-		return loadMinUserInfo($user_ids);
-	}
+		$loaded_ids = array_map(fn($member) => $member->id, User::load($user_ids, User::LOAD_BY_ID, 'minimal'));
 
-	public function __destruct()
-	{
-		global $user_info;
-
-		$user_info = $this->current_user_info;
+		return array_intersect_key(User::$profiles, array_flip($loaded_ids));
 	}
 }
 

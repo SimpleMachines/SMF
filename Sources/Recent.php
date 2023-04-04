@@ -16,6 +16,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -80,7 +81,7 @@ function getLastPost()
  */
 function RecentPosts()
 {
-	global $user_info, $board;
+	global $board;
 
 	loadTemplate('Recent');
 	Utils::$context['page_title'] = Lang::$txt['recent_posts'];
@@ -279,7 +280,7 @@ function RecentPosts()
 	if (Utils::$context['is_redirect'])
 		$messages = 0;
 
-	$key = 'recent-' . $user_info['id'] . '-' . md5(Utils::jsonEncode(array_diff_key($query_parameters, array('max_id_msg' => 0)))) . '-' . (int) $_REQUEST['start'];
+	$key = 'recent-' . User::$me->id . '-' . md5(Utils::jsonEncode(array_diff_key($query_parameters, array('max_id_msg' => 0)))) . '-' . (int) $_REQUEST['start'];
 	if (!Utils::$context['is_redirect'] && (empty(CacheApi::$enable) || ($messages = CacheApi::get($key, 120)) == null))
 	{
 		$done = false;
@@ -405,7 +406,7 @@ function RecentPosts()
 			'css_class' => 'windowbg',
 		);
 
-		if ($user_info['id'] == $row['id_first_member'])
+		if (User::$me->id == $row['id_first_member'])
 			$board_ids['own'][$row['id_board']][] = $row['id_msg'];
 		$board_ids['any'][$row['id_board']][] = $row['id_msg'];
 	}
@@ -449,7 +450,7 @@ function RecentPosts()
 
 				// Okay, looks like they can do it for these posts.
 				foreach ($board_ids[$type][$board_id] as $counter)
-					if ($type == 'any' || Utils::$context['posts'][$counter]['poster']['id'] == $user_info['id'])
+					if ($type == 'any' || Utils::$context['posts'][$counter]['poster']['id'] == User::$me->id)
 						Utils::$context['posts'][$counter][$allowed] = true;
 			}
 		}
@@ -502,7 +503,7 @@ function RecentPosts()
 function UnreadTopics()
 {
 	global $board;
-	global $user_info, $settings, $options;
+	global $settings, $options;
 
 	// Guests can't have unread things, we don't know anything about them.
 	is_not_guest();
@@ -621,7 +622,7 @@ function UnreadTopics()
 		$request = Db::$db->query('', '
 			SELECT b.id_board
 			FROM {db_prefix}boards AS b
-			WHERE ' . $user_info[$see_board] . '
+			WHERE ' . User::$me->{$see_board} . '
 				AND b.id_cat IN ({array_int:id_cat})',
 			array(
 				'id_cat' => $_REQUEST['c'],
@@ -646,7 +647,7 @@ function UnreadTopics()
 		$request = Db::$db->query('', '
 			SELECT b.id_board
 			FROM {db_prefix}boards AS b
-			WHERE ' . $user_info[$see_board] . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? '
+			WHERE ' . User::$me->{$see_board} . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? '
 				AND b.id_board != {int:recycle_board}' : ''),
 			array(
 				'recycle_board' => (int) Config::$modSettings['recycle_board'],
@@ -760,7 +761,7 @@ function UnreadTopics()
 					AND id_board = {int:current_board}',
 				array(
 					'current_board' => $board,
-					'current_member' => $user_info['id'],
+					'current_member' => User::$me->id,
 				)
 			);
 			list ($earliest_msg) = Db::$db->fetch_row($request);
@@ -774,7 +775,7 @@ function UnreadTopics()
 					LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = b.id_board AND lmr.id_member = {int:current_member})
 				WHERE {query_see_board}',
 				array(
-					'current_member' => $user_info['id'],
+					'current_member' => User::$me->id,
 				)
 			);
 			list ($earliest_msg) = Db::$db->fetch_row($request);
@@ -797,7 +798,7 @@ function UnreadTopics()
 					FROM {db_prefix}log_topics
 					WHERE id_member = {int:current_member}',
 					array(
-						'current_member' => $user_info['id'],
+						'current_member' => User::$me->id,
 					)
 				);
 				list ($earliest_msg2) = Db::$db->fetch_row($request);
@@ -837,7 +838,7 @@ function UnreadTopics()
 				AND t.id_last_msg > {int:earliest_msg}') . (Config::$modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved}' : ''),
 			array_merge($query_parameters, array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'earliest_msg' => !empty($earliest_msg) ? $earliest_msg : 0,
 				'is_approved' => 1,
 				'db_error_skip' => true,
@@ -860,7 +861,7 @@ function UnreadTopics()
 				AND t.approved = {int:is_approved}' : '') . '
 				AND COALESCE(lt.unwatched, 0) != 1',
 			array_merge($query_parameters, array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'earliest_msg' => !empty($earliest_msg) ? $earliest_msg : 0,
 				'is_approved' => 1,
 			))
@@ -921,7 +922,7 @@ function UnreadTopics()
 			ORDER BY {raw:sort}
 			LIMIT {int:offset}, {int:limit}',
 			array_merge($query_parameters, array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'min_message' => $min_message,
 				'is_approved' => 1,
 				'sort' => $_REQUEST['sort'] . ($ascending ? '' : ' DESC'),
@@ -945,7 +946,7 @@ function UnreadTopics()
 				AND t.approved = {int:is_approved}' : '') . '
 				AND COALESCE(lt.unwatched, 0) != 1',
 			array_merge($query_parameters, array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'earliest_msg' => !empty($earliest_msg) ? $earliest_msg : 0,
 				'id_msg_last_visit' => $_SESSION['id_msg_last_visit'],
 				'is_approved' => 1,
@@ -1012,7 +1013,7 @@ function UnreadTopics()
 			ORDER BY {raw:order}
 			LIMIT {int:offset}, {int:limit}',
 			array_merge($query_parameters, array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'min_message' => $min_message,
 				'is_approved' => 1,
 				'order' => $_REQUEST['sort'] . ($ascending ? '' : ' DESC'),
@@ -1066,7 +1067,7 @@ function UnreadTopics()
 				GROUP BY m.id_topic',
 				array(
 					'current_board' => $board,
-					'current_member' => $user_info['id'],
+					'current_member' => User::$me->id,
 					'is_approved' => 1,
 					'string_zero' => '0',
 					'db_error_skip' => true,
@@ -1084,7 +1085,7 @@ function UnreadTopics()
 						INNER JOIN {db_prefix}topics_posted_in AS pi ON (pi.id_topic = lt.id_topic)
 					WHERE lt.id_member = {int:current_member}',
 					array(
-						'current_member' => $user_info['id'],
+						'current_member' => User::$me->id,
 						'db_error_skip' => true,
 					)
 				) !== false;
@@ -1118,7 +1119,7 @@ function UnreadTopics()
 					AND t.approved = {int:is_approved}' : '') . '
 					AND COALESCE(lt.unwatched, 0) != 1',
 				array_merge($query_parameters, array(
-					'current_member' => $user_info['id'],
+					'current_member' => User::$me->id,
 					'is_approved' => 1,
 				))
 			);
@@ -1185,7 +1186,7 @@ function UnreadTopics()
 				ORDER BY {raw:order}
 				LIMIT {int:offset}, {int:limit}',
 				array_merge($query_parameters, array(
-					'current_member' => $user_info['id'],
+					'current_member' => User::$me->id,
 					'min_message' => (int) $min_message,
 					'is_approved' => 1,
 					'order' => $_REQUEST['sort'] . ($ascending ? '' : ' DESC'),
@@ -1228,7 +1229,7 @@ function UnreadTopics()
 			ORDER BY {raw:sort}' . ($ascending ? '' : ' DESC') . '
 			LIMIT {int:limit}',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'topic_list' => $topics,
 				'sort' => $_REQUEST['sort'],
 				'limit' => count($topics),
@@ -1398,13 +1399,13 @@ function UnreadTopics()
 		);
 		if (!empty($settings['avatars_on_indexes']))
 		{
-			Utils::$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = set_avatar_data(array(
+			Utils::$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = User::setAvatarData(array(
 				'avatar' => $row['avatar'],
 				'email' => $row['email_address'],
 				'filename' => $row['last_poster_filename'],
 			));
 
-			Utils::$context['topics'][$row['id_topic']]['first_post']['member']['avatar'] = set_avatar_data(array(
+			Utils::$context['topics'][$row['id_topic']]['first_post']['member']['avatar'] = User::setAvatarData(array(
 				'avatar' => $row['first_poster_avatar'],
 				'email' => $row['first_poster_email'],
 				'filename' => $row['first_poster_filename'],
@@ -1425,7 +1426,7 @@ function UnreadTopics()
 			GROUP BY id_topic
 			LIMIT {int:limit}',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'topic_list' => $topic_ids,
 				'limit' => count($topic_ids),
 			)

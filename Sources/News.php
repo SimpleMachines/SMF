@@ -17,6 +17,7 @@ use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -49,7 +50,7 @@ if (!defined('SMF'))
  */
 function ShowXmlFeed()
 {
-	global $board, $board_info, $user_info;
+	global $board, $board_info;
 	global $query_this_board, $forum_version, $settings;
 
 	// List all the different types of data they can pull.
@@ -68,13 +69,13 @@ function ShowXmlFeed()
 	$subaction = empty($_GET['sa']) || !isset($subActions[$_GET['sa']]) ? 'recent' : $_GET['sa'];
 
 	// Make sure the id is a number and not "I like trying to hack the database".
-	Utils::$context['xmlnews_uid'] = isset($_GET['u']) ? (int) $_GET['u'] : $user_info['id'];
+	Utils::$context['xmlnews_uid'] = isset($_GET['u']) ? (int) $_GET['u'] : User::$me->id;
 
 	// Default to latest 5.  No more than 255, please.
 	Utils::$context['xmlnews_limit'] = empty($_GET['limit']) || (int) $_GET['limit'] < 1 ? 5 : min((int) $_GET['limit'], 255);
 
 	// Users can always export their own profile data
-	if (in_array($subaction, array('profile', 'posts', 'personal_messages')) && !$user_info['is_guest'] && Utils::$context['xmlnews_uid'] == $user_info['id'])
+	if (in_array($subaction, array('profile', 'posts', 'personal_messages')) && !User::$me->is_guest && Utils::$context['xmlnews_uid'] == User::$me->id)
 		Config::$modSettings['xmlnews_enable'] = true;
 
 	// If it's not enabled, die.
@@ -243,9 +244,9 @@ function ShowXmlFeed()
 	$cache_t = microtime(true);
 
 	// Get the associative array representing the xml.
-	if (!empty(CacheApi::$enable) && (!$user_info['is_guest'] || CacheApi::$enable >= 3))
+	if (!empty(CacheApi::$enable) && (!User::$me->is_guest || CacheApi::$enable >= 3))
 	{
-		$xml_data = CacheApi::get('xmlfeed-' . $xml_format . ':' . ($user_info['is_guest'] ? '' : $user_info['id'] . '-') . $cachekey, 240);
+		$xml_data = CacheApi::get('xmlfeed-' . $xml_format . ':' . (User::$me->is_guest ? '' : User::$me->id . '-') . $cachekey, 240);
 	}
 	if (empty($xml_data))
 	{
@@ -254,9 +255,9 @@ function ShowXmlFeed()
 		if (!empty($call))
 			$xml_data = call_user_func($call, $xml_format);
 
-		if (!empty(CacheApi::$enable) && (($user_info['is_guest'] && CacheApi::$enable >= 3)
-		|| (!$user_info['is_guest'] && (microtime(true) - $cache_t > 0.2))))
-			CacheApi::put('xmlfeed-' . $xml_format . ':' . ($user_info['is_guest'] ? '' : $user_info['id'] . '-') . $cachekey, $xml_data, 240);
+		if (!empty(CacheApi::$enable) && ((User::$me->is_guest && CacheApi::$enable >= 3)
+		|| (!User::$me->is_guest && (microtime(true) - $cache_t > 0.2))))
+			CacheApi::put('xmlfeed-' . $xml_format . ':' . (User::$me->is_guest ? '' : User::$me->id . '-') . $cachekey, $xml_data, 240);
 	}
 
 	buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction);
@@ -842,7 +843,7 @@ function getXmlMembers($xml_format, $ascending = false)
  */
 function getXmlNews($xml_format, $ascending = false)
 {
-	global $board, $user_info;
+	global $board;
 	global $query_this_board;
 
 	/* Find the latest (or earliest) posts that:
@@ -993,7 +994,7 @@ function getXmlNews($xml_format, $ascending = false)
 					),
 					array(
 						'tag' => 'author',
-						'content' => (allowedTo('moderate_forum') || $row['id_member'] == $user_info['id']) ? $row['poster_email'] . ' (' . $row['poster_name'] . ')' : null,
+						'content' => (allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? $row['poster_email'] . ' (' . $row['poster_name'] . ')' : null,
 						'cdata' => true,
 					),
 					array(
@@ -1103,7 +1104,7 @@ function getXmlNews($xml_format, $ascending = false)
 							),
 							array(
 								'tag' => 'email',
-								'content' => (allowedTo('moderate_forum') || $row['id_member'] == $user_info['id']) ? $row['poster_email'] : null,
+								'content' => (allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? $row['poster_email'] : null,
 								'cdata' => true,
 							),
 							array(
@@ -1282,7 +1283,7 @@ function getXmlNews($xml_format, $ascending = false)
 function getXmlRecent($xml_format)
 {
 	global $board;
-	global $query_this_board, $user_info;
+	global $query_this_board;
 
 	require_once(Config::$sourcedir . '/Subs-Attachments.php');
 
@@ -1453,7 +1454,7 @@ function getXmlRecent($xml_format)
 					),
 					array(
 						'tag' => 'author',
-						'content' => (allowedTo('moderate_forum') || (!empty($row['id_member']) && $row['id_member'] == $user_info['id'])) ? $row['poster_email'] : null,
+						'content' => (allowedTo('moderate_forum') || (!empty($row['id_member']) && $row['id_member'] == User::$me->id)) ? $row['poster_email'] : null,
 						'cdata' => true,
 					),
 					array(
@@ -1563,7 +1564,7 @@ function getXmlRecent($xml_format)
 							),
 							array(
 								'tag' => 'email',
-								'content' => (allowedTo('moderate_forum') || (!empty($row['id_member']) && $row['id_member'] == $user_info['id'])) ? $row['poster_email'] : null,
+								'content' => (allowedTo('moderate_forum') || (!empty($row['id_member']) && $row['id_member'] == User::$me->id)) ? $row['poster_email'] : null,
 								'cdata' => true,
 							),
 							array(
@@ -1778,17 +1779,12 @@ function getXmlRecent($xml_format)
  */
 function getXmlProfile($xml_format)
 {
-	global $memberContext, $user_info;
-
 	// You must input a valid user, and you must be allowed to view that user's profile.
-	if (empty(Utils::$context['xmlnews_uid']) || (Utils::$context['xmlnews_uid'] != $user_info['id'] && !allowedTo('profile_view')) || !loadMemberData(Utils::$context['xmlnews_uid']))
+	if (empty(Utils::$context['xmlnews_uid']) || (Utils::$context['xmlnews_uid'] != User::$me->id && !allowedTo('profile_view')) || (User::load(Utils::$context['xmlnews_uid']) === array()))
 		return array();
 
 	// Load the member's contextual information! (Including custom fields for our proprietary XML type)
-	if (!loadMemberContext(Utils::$context['xmlnews_uid'], ($xml_format == 'smf')))
-		return array();
-
-	$profile = &$memberContext[Utils::$context['xmlnews_uid']];
+	$profile = User::$loaded[Utils::$context['xmlnews_uid']]->format($xml_format == 'smf');
 
 	// If any control characters slipped in somehow, kill the evil things
 	$profile = filter_var($profile, FILTER_CALLBACK, array('options' => 'cleanXml'));
@@ -1926,8 +1922,8 @@ function getXmlProfile($xml_format)
 		$data = array(
 			array(
 				'tag' => 'username',
-				'attributes' => $user_info['is_admin'] || $user_info['id'] == $profile['id'] ? array('label' => Lang::$txt['username']) : null,
-				'content' => $user_info['is_admin'] || $user_info['id'] == $profile['id'] ? $profile['username'] : null,
+				'attributes' => User::$me->is_admin || User::$me->id == $profile['id'] ? array('label' => Lang::$txt['username']) : null,
+				'content' => User::$me->is_admin || User::$me->id == $profile['id'] ? $profile['username'] : null,
 				'cdata' => true,
 			),
 			array(
@@ -2000,8 +1996,8 @@ function getXmlProfile($xml_format)
 			),
 			array(
 				'tag' => 'email',
-				'attributes' => !empty($profile['show_email']) || $user_info['is_admin'] || $user_info['id'] == $profile['id'] ? array('label' => Lang::$txt['user_email_address']) : null,
-				'content' => !empty($profile['show_email']) || $user_info['is_admin'] || $user_info['id'] == $profile['id'] ? $profile['email'] : null,
+				'attributes' => !empty($profile['show_email']) || User::$me->is_admin || User::$me->id == $profile['id'] ? array('label' => Lang::$txt['user_email_address']) : null,
+				'content' => !empty($profile['show_email']) || User::$me->is_admin || User::$me->id == $profile['id'] ? $profile['email'] : null,
 				'cdata' => true,
 			),
 			array(
@@ -2030,7 +2026,7 @@ function getXmlProfile($xml_format)
 			array(
 				'tag' => 'ip_addresses',
 				'attributes' => array('label' => Lang::$txt['ip_address']),
-				'content' => allowedTo('moderate_forum') || $user_info['id'] == $profile['id'] ? array(
+				'content' => allowedTo('moderate_forum') || User::$me->id == $profile['id'] ? array(
 					array(
 						'tag' => 'ip',
 						'attributes' => array('label' => Lang::$txt['most_recent_ip']),
@@ -2077,7 +2073,7 @@ function getXmlProfile($xml_format)
 	}
 
 	// Save some memory.
-	unset($profile, $memberContext[Utils::$context['xmlnews_uid']]);
+	unset($profile);
 
 	return $data;
 }
@@ -2092,13 +2088,13 @@ function getXmlProfile($xml_format)
  */
 function getXmlPosts($xml_format, $ascending = false)
 {
-	global $board, $user_info;
+	global $board;
 	global $query_this_board;
 
-	if (empty(Utils::$context['xmlnews_uid']) || (Utils::$context['xmlnews_uid'] != $user_info['id'] && !allowedTo('profile_view')))
+	if (empty(Utils::$context['xmlnews_uid']) || (Utils::$context['xmlnews_uid'] != User::$me->id && !allowedTo('profile_view')))
 		return array();
 
-	$show_all = !empty($user_info['is_admin']) || defined('EXPORTING');
+	$show_all = !empty(User::$me->is_admin) || defined('EXPORTING');
 
 	$query_this_message_board = str_replace(array('{query_see_board}', 'b.'), array('{query_see_message_board}', 'm.'), $query_this_board);
 
@@ -2118,8 +2114,8 @@ function getXmlPosts($xml_format, $ascending = false)
 		$boardnames[$row['id_board']] = $row['name'];
 	Db::$db->free_result($request);
 
-	if (Utils::$context['xmlnews_uid'] == $user_info['id'])
-		$poster_name = $user_info['name'];
+	if (Utils::$context['xmlnews_uid'] == User::$me->id)
+		$poster_name = User::$me->name;
 	else
 	{
 		$request = Db::$db->query('', '
@@ -2252,7 +2248,7 @@ function getXmlPosts($xml_format, $ascending = false)
 					),
 					array(
 						'tag' => 'author',
-						'content' => (allowedTo('moderate_forum') || ($row['id_member'] == $user_info['id'])) ? $row['poster_email'] : null,
+						'content' => (allowedTo('moderate_forum') || ($row['id_member'] == User::$me->id)) ? $row['poster_email'] : null,
 						'cdata' => true,
 					),
 					array(
@@ -2357,7 +2353,7 @@ function getXmlPosts($xml_format, $ascending = false)
 							),
 							array(
 								'tag' => 'email',
-								'content' => (allowedTo('moderate_forum') || ($row['id_member'] == $user_info['id'])) ? $row['poster_email'] : null,
+								'content' => (allowedTo('moderate_forum') || ($row['id_member'] == User::$me->id)) ? $row['poster_email'] : null,
 								'cdata' => true,
 							),
 							array(
@@ -2487,14 +2483,14 @@ function getXmlPosts($xml_format, $ascending = false)
 							),
 							array(
 								'tag' => 'email',
-								'attributes' => (allowedTo('moderate_forum') || $row['id_member'] == $user_info['id']) ? array('label' => Lang::$txt['user_email_address']) : null,
-								'content' => (allowedTo('moderate_forum') || $row['id_member'] == $user_info['id']) ? $row['poster_email'] : null,
+								'attributes' => (allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? array('label' => Lang::$txt['user_email_address']) : null,
+								'content' => (allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? $row['poster_email'] : null,
 								'cdata' => true,
 							),
 							array(
 								'tag' => 'ip',
-								'attributes' => (allowedTo('moderate_forum') || $row['id_member'] == $user_info['id']) ? array('label' => Lang::$txt['ip']) : null,
-								'content' => (allowedTo('moderate_forum') || $row['id_member'] == $user_info['id']) ? $row['poster_ip'] : null,
+								'attributes' => (allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? array('label' => Lang::$txt['ip']) : null,
+								'content' => (allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? $row['poster_ip'] : null,
 							),
 						),
 					),
@@ -2594,10 +2590,10 @@ function getXmlPosts($xml_format, $ascending = false)
  */
 function getXmlPMs($xml_format, $ascending = false)
 {
-	global $board, $user_info;
+	global $board;
 
 	// Personal messages are supposed to be private
-	if (empty(Utils::$context['xmlnews_uid']) || (Utils::$context['xmlnews_uid'] != $user_info['id']))
+	if (empty(Utils::$context['xmlnews_uid']) || (Utils::$context['xmlnews_uid'] != User::$me->id))
 		return array();
 
 	// Use a private-use Unicode character to separate member names.

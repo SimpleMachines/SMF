@@ -16,6 +16,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -29,32 +30,29 @@ if (!defined('SMF'))
  */
 function activateAccount($memID)
 {
-	global $user_profile;
-
 	isAllowedTo('moderate_forum');
 
-	if (isset($_REQUEST['save']) && isset($user_profile[$memID]['is_activated']) && $user_profile[$memID]['is_activated'] != 1)
+	if (isset($_REQUEST['save']) && isset(User::$loaded[$memID]->is_activated) && User::$loaded[$memID]->is_activated != 1)
 	{
 		// If we are approving the deletion of an account, we do something special ;)
-		if ($user_profile[$memID]['is_activated'] == 4)
+		if (User::$loaded[$memID]->is_activated == 4)
 		{
-			require_once(Config::$sourcedir . '/Subs-Members.php');
-			deleteMembers(Utils::$context['id_member']);
+			User::delete(Utils::$context['id_member']);
 			redirectexit();
 		}
 
 		// Let the integrations know of the activation.
-		call_integration_hook('integrate_activate', array($user_profile[$memID]['member_name']));
+		call_integration_hook('integrate_activate', array(User::$loaded[$memID]->username));
 
 		// Actually update this member now, as it guarantees the unapproved count can't get corrupted.
-		updateMemberData(Utils::$context['id_member'], array('is_activated' => $user_profile[$memID]['is_activated'] >= 10 ? 11 : 1, 'validation_code' => ''));
+		User::updateMemberData(Utils::$context['id_member'], array('is_activated' => User::$loaded[$memID]->is_activated >= 10 ? 11 : 1, 'validation_code' => ''));
 
 		// Log what we did?
 		require_once(Config::$sourcedir . '/Logging.php');
 		logAction('approve_member', array('member' => $memID), 'admin');
 
 		// If we are doing approval, update the stats for the member just in case.
-		if (in_array($user_profile[$memID]['is_activated'], array(3, 4, 5, 13, 14, 15)))
+		if (in_array(User::$loaded[$memID]->is_activated, array(3, 4, 5, 13, 14, 15)))
 			Config::updateModSettings(array('unapprovedMembers' => (Config::$modSettings['unapprovedMembers'] > 1 ? Config::$modSettings['unapprovedMembers'] - 1 : 0)));
 
 		// Make sure we update the stats too.
@@ -72,9 +70,6 @@ function activateAccount($memID)
  */
 function issueWarning($memID)
 {
-	global $user_info;
-	global $cur_profile;
-
 	// Get all the actual settings.
 	list (Config::$modSettings['warning_enable'], Config::$modSettings['user_limit']) = explode(',', Config::$modSettings['warning_settings']);
 
@@ -82,7 +77,7 @@ function issueWarning($memID)
 	$issueErrors = array();
 
 	// Doesn't hurt to be overly cautious.
-	if (empty(Config::$modSettings['warning_enable']) || (Utils::$context['user']['is_owner'] && !$cur_profile['warning']) || !allowedTo('issue_warning'))
+	if (empty(Config::$modSettings['warning_enable']) || (User::$me->is_owner && !User::$profiles[$memID]['warning']) || !allowedTo('issue_warning'))
 		fatal_lang_error('no_access', false);
 
 	// Get the base (errors related) stuff done.
@@ -95,8 +90,8 @@ function issueWarning($memID)
 	Config::$modSettings['warning_mute'] = !empty(Config::$modSettings['warning_mute']) ? Config::$modSettings['warning_mute'] : 110;
 
 	Utils::$context['warning_limit'] = allowedTo('admin_forum') ? 0 : Config::$modSettings['user_limit'];
-	Utils::$context['member']['warning'] = $cur_profile['warning'];
-	Utils::$context['member']['name'] = $cur_profile['real_name'];
+	Utils::$context['member']['warning'] = User::$profiles[$memID]['warning'];
+	Utils::$context['member']['name'] = User::$profiles[$memID]['real_name'];
 
 	// What are the limits we can apply?
 	Utils::$context['min_allowed'] = 0;
@@ -112,7 +107,7 @@ function issueWarning($memID)
 				AND comment_type = {string:warning}
 				AND log_time > {int:day_time_period}',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'selected_member' => $memID,
 				'day_time_period' => time() - 86400,
 				'warning' => 'warning',
@@ -121,8 +116,8 @@ function issueWarning($memID)
 		list ($current_applied) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		Utils::$context['min_allowed'] = max(0, $cur_profile['warning'] - $current_applied - Utils::$context['warning_limit']);
-		Utils::$context['max_allowed'] = min(100, $cur_profile['warning'] - $current_applied + Utils::$context['warning_limit']);
+		Utils::$context['min_allowed'] = max(0, User::$profiles[$memID]['warning'] - $current_applied - Utils::$context['warning_limit']);
+		Utils::$context['max_allowed'] = min(100, User::$profiles[$memID]['warning'] - $current_applied + Utils::$context['warning_limit']);
 	}
 
 	// Defaults.
@@ -141,7 +136,7 @@ function issueWarning($memID)
 
 		// This cannot be empty!
 		$_POST['warn_reason'] = isset($_POST['warn_reason']) ? trim($_POST['warn_reason']) : '';
-		if ($_POST['warn_reason'] == '' && !Utils::$context['user']['is_owner'])
+		if ($_POST['warn_reason'] == '' && !User::$me->is_owner)
 			$issueErrors[] = 'warning_no_reason';
 		$_POST['warn_reason'] = Utils::htmlspecialchars($_POST['warn_reason']);
 
@@ -190,13 +185,13 @@ function issueWarning($memID)
 		$id_notice = (int) $id_notice;
 
 		// What have we changed?
-		$level_change = $_POST['warning_level'] - $cur_profile['warning'];
+		$level_change = $_POST['warning_level'] - User::$profiles[$memID]['warning'];
 
 		// No errors? Proceed! Only log if you're not the owner.
 		if (empty($issueErrors))
 		{
 			// Log what we've done!
-			if (!Utils::$context['user']['is_owner'])
+			if (!User::$me->is_owner)
 				Db::$db->insert('',
 					'{db_prefix}log_comments',
 					array(
@@ -204,17 +199,17 @@ function issueWarning($memID)
 						'log_time' => 'int', 'id_notice' => 'int', 'counter' => 'int', 'body' => 'string-65534',
 					),
 					array(
-						$user_info['id'], $user_info['name'], 'warning', $memID, $cur_profile['real_name'],
+						User::$me->id, User::$me->name, 'warning', $memID, User::$profiles[$memID]['real_name'],
 						time(), $id_notice, $level_change, $_POST['warn_reason'],
 					),
 					array('id_comment')
 				);
 
 			// Make the change.
-			updateMemberData($memID, array('warning' => $_POST['warning_level']));
+			User::updateMemberData($memID, array('warning' => $_POST['warning_level']));
 
 			// Leave a lovely message.
-			Utils::$context['profile_updated'] = Utils::$context['user']['is_owner'] ? Lang::$txt['profile_updated_own'] : Lang::$txt['profile_warning_success'];
+			Utils::$context['profile_updated'] = User::$me->is_owner ? Lang::$txt['profile_updated_own'] : Lang::$txt['profile_warning_success'];
 		}
 		else
 		{
@@ -410,7 +405,7 @@ function issueWarning($memID)
 			AND (id_recipient = {int:generic} OR id_recipient = {int:current_member})',
 		array(
 			'generic' => 0,
-			'current_member' => $user_info['id'],
+			'current_member' => User::$me->id,
 		)
 	);
 	while ($row = Db::$db->fetch_assoc($request))
@@ -514,22 +509,20 @@ function list_getUserWarnings($start, $items_per_page, $sort, $memID)
  */
 function deleteAccount($memID)
 {
-	global $cur_profile;
-
-	if (!Utils::$context['user']['is_owner'])
+	if (!User::$me->is_owner)
 		isAllowedTo('profile_remove_any');
 	elseif (!allowedTo('profile_remove_any'))
 		isAllowedTo('profile_remove_own');
 
 	// Permissions for removing stuff...
-	Utils::$context['can_delete_posts'] = !Utils::$context['user']['is_owner'] && allowedTo('moderate_forum');
+	Utils::$context['can_delete_posts'] = !User::$me->is_owner && allowedTo('moderate_forum');
 
 	// Show an extra option if recycling is enabled...
 	Utils::$context['show_perma_delete'] = !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']);
 
 	// Can they do this, or will they need approval?
-	Utils::$context['needs_approval'] = Utils::$context['user']['is_owner'] && !empty(Config::$modSettings['approveAccountDeletion']) && !allowedTo('moderate_forum');
-	Utils::$context['page_title'] = Lang::$txt['deleteAccount'] . ': ' . $cur_profile['real_name'];
+	Utils::$context['needs_approval'] = User::$me->is_owner && !empty(Config::$modSettings['approveAccountDeletion']) && !allowedTo('moderate_forum');
+	Utils::$context['page_title'] = Lang::$txt['deleteAccount'] . ': ' . User::$profiles[$memID]['real_name'];
 }
 
 /**
@@ -539,24 +532,20 @@ function deleteAccount($memID)
  */
 function deleteAccount2($memID)
 {
-	global $user_info, $cur_profile;
-
 	// Try get more time...
 	@set_time_limit(600);
 
 	// @todo Add a way to delete pms as well?
 
-	if (!Utils::$context['user']['is_owner'])
+	if (!User::$me->is_owner)
 		isAllowedTo('profile_remove_any');
 	elseif (!allowedTo('profile_remove_any'))
 		isAllowedTo('profile_remove_own');
 
 	checkSession();
 
-	$old_profile = &$cur_profile;
-
 	// Too often, people remove/delete their own only account.
-	if (in_array(1, explode(',', $old_profile['additional_groups'])) || $old_profile['id_group'] == 1)
+	if (in_array(1, User::$loaded[$memID]->groups))
 	{
 		// Are you allowed to administrate the forum, as they are?
 		isAllowedTo('admin_forum');
@@ -579,11 +568,8 @@ function deleteAccount2($memID)
 			fatal_lang_error('at_least_one_admin', 'critical');
 	}
 
-	// This file is needed for the deleteMembers function.
-	require_once(Config::$sourcedir . '/Subs-Members.php');
-
 	// Do you have permission to delete others profiles, or is that your profile you wanna delete?
-	if ($memID != $user_info['id'])
+	if ($memID != User::$me->id)
 	{
 		isAllowedTo('profile_remove_any');
 
@@ -689,20 +675,20 @@ function deleteAccount2($memID)
 
 		// Only delete this poor members account if they are actually being booted out of camp.
 		if (isset($_POST['deleteAccount']))
-			deleteMembers($memID);
+			User::delete($memID);
 	}
 	// Do they need approval to delete?
 	elseif (!empty(Config::$modSettings['approveAccountDeletion']) && !allowedTo('moderate_forum'))
 	{
 		// Setup their account for deletion ;)
-		updateMemberData($memID, array('is_activated' => 4));
+		User::updateMemberData($memID, array('is_activated' => 4));
 		// Another account needs approval...
 		Config::updateModSettings(array('unapprovedMembers' => true), true);
 	}
 	// Also check if you typed your password correctly.
 	else
 	{
-		deleteMembers($memID);
+		User::delete($memID);
 
 		require_once(Config::$sourcedir . '/LogInOut.php');
 		LogOut(true);

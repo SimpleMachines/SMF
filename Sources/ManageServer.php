@@ -62,6 +62,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -459,8 +460,6 @@ function ModifyDatabaseSettings($return_config = false)
  */
 function ModifyCookieSettings($return_config = false)
 {
-	global $user_settings;
-
 	// Define the variables we want to edit.
 	$config_vars = array(
 		// Cookies...
@@ -493,11 +492,11 @@ function ModifyCookieSettings($return_config = false)
 		array('tfa_mode', Lang::$txt['tfa_mode'], 'db', 'select', array(
 			0 => Lang::$txt['tfa_mode_disabled'],
 			1 => Lang::$txt['tfa_mode_enabled'],
-		) + (empty($user_settings['tfa_secret']) ? array() : array(
+		) + (empty(User::$me->tfa_secret) ? array() : array(
 			2 => Lang::$txt['tfa_mode_forced'],
-		)) + (empty($user_settings['tfa_secret']) ? array() : array(
+		)) + (empty(User::$me->tfa_secret) ? array() : array(
 			3 => Lang::$txt['tfa_mode_forcedall'],
-		)), 'subtext' => Lang::$txt['tfa_mode_subtext'] . (empty($user_settings['tfa_secret']) ? '<br><strong>' . Lang::$txt['tfa_mode_forced_help'] . '</strong>' : ''), 'tfa_mode'),
+		)), 'subtext' => Lang::$txt['tfa_mode_subtext'] . (empty(User::$me->tfa_secret) ? '<br><strong>' . Lang::$txt['tfa_mode_forced_help'] . '</strong>' : ''), 'tfa_mode'),
 	);
 
 	addInlineJavaScript('
@@ -517,9 +516,6 @@ function ModifyCookieSettings($return_config = false)
 		hideGlobalCookies();
 	});
 	', true);
-
-	if (empty($user_settings['tfa_secret']))
-		addInlineJavaScript('');
 
 	call_integration_hook('integrate_cookie_settings', array(&$config_vars));
 
@@ -569,7 +565,7 @@ function ModifyCookieSettings($return_config = false)
 
 			// Set the new one.
 			Config::$cookiename = !empty($_POST['cookiename']) ? $_POST['cookiename'] : Config::$cookiename;
-			setLoginCookie(60 * Config::$modSettings['cookieTime'], $user_settings['id_member'], hash_salt($user_settings['passwd'], $user_settings['password_salt']));
+			setLoginCookie(60 * Config::$modSettings['cookieTime'], User::$me->id, hash_salt(User::$me->passwd, User::$me->password_salt));
 
 			redirectexit('action=admin;area=serversettings;sa=cookie;' . Utils::$context['session_var'] . '=' . $original_session_id, Utils::$context['server']['needs_login_fix']);
 		}

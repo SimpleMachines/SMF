@@ -16,6 +16,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -33,7 +34,7 @@ if (!defined('SMF'))
  */
 function BoardNotify()
 {
-	global $board, $user_info;
+	global $board;
 
 	require_once(Config::$sourcedir . '/Subs-Notify.php');
 
@@ -48,7 +49,7 @@ function BoardNotify()
 	{
 		// Permissions are an important part of anything ;).
 		is_not_guest();
-		$member_info = $user_info;
+		$member_info = (array) User::$me;
 	}
 
 	// You have to specify a board to turn notifications on!
@@ -83,7 +84,7 @@ function BoardNotify()
 		Utils::$context['notification_set'] = Db::$db->num_rows($request) != 0;
 		Db::$db->free_result($request);
 
-		if ($member_info['id'] !== $user_info['id'])
+		if ($member_info['id'] !== User::$me->id)
 			Utils::$context['notify_info'] = array(
 				'u' => $member_info['id'],
 				'token' => $_REQUEST['token'],
@@ -117,7 +118,7 @@ function BoardNotify()
 			Db::$db->insert('ignore',
 				'{db_prefix}log_notify',
 				array('id_member' => 'int', 'id_topic' => 'int', 'id_board' => 'int'),
-				array($user_info['id'], 0, $board),
+				array(User::$me->id, 0, $board),
 				array('id_member', 'id_topic', 'id_board')
 			);
 		else
@@ -168,7 +169,7 @@ function BoardNotify()
  */
 function TopicNotify()
 {
-	global $user_info, $topic;
+	global $topic;
 
 	require_once(Config::$sourcedir . '/Subs-Notify.php');
 
@@ -180,7 +181,7 @@ function TopicNotify()
 	else
 	{
 		is_not_guest();
-		$member_info = $user_info;
+		$member_info = (array) User::$me;
 	}
 
 	// Make sure the topic has been specified.
@@ -215,7 +216,7 @@ function TopicNotify()
 		Utils::$context['notification_set'] = Db::$db->num_rows($request) != 0;
 		Db::$db->free_result($request);
 
-		if ($member_info['id'] !== $user_info['id'])
+		if ($member_info['id'] !== User::$me->id)
 			Utils::$context['notify_info'] = array(
 				'u' => $member_info['id'],
 				'token' => $_REQUEST['token'],
@@ -286,7 +287,7 @@ function TopicNotify()
 			Db::$db->insert('ignore',
 				'{db_prefix}log_notify',
 				array('id_member' => 'int', 'id_topic' => 'int', 'id_board' => 'int'),
-				array($user_info['id'], $log['id_topic'], 0),
+				array(User::$me->id, $log['id_topic'], 0),
 				array('id_member','id_topic', 'id_board')
 			);
 		}
@@ -335,7 +336,7 @@ function TopicNotify()
  */
 function AnnouncementsNotify()
 {
-	global $board, $user_info;
+	global $board;
 
 	require_once(Config::$sourcedir . '/Subs-Notify.php');
 
@@ -347,7 +348,7 @@ function AnnouncementsNotify()
 	else
 	{
 		is_not_guest();
-		$member_info = $user_info;
+		$member_info = (array) User::$me;
 	}
 
 	loadTemplate('Notify');
@@ -365,7 +366,7 @@ function AnnouncementsNotify()
 	{
 		Utils::$context['sub_template'] = 'notify_announcements';
 
-		if ($member_info['id'] !== $user_info['id'])
+		if ($member_info['id'] !== User::$me->id)
 			Utils::$context['notify_info'] = array(
 				'u' => $member_info['id'],
 				'token' => $_REQUEST['token'],

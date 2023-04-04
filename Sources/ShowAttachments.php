@@ -16,6 +16,7 @@
 use SMF\BrowserDetector;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -33,8 +34,6 @@ if (!defined('SMF'))
  */
 function showAttachment()
 {
-	global $user_info;
-
 	// Some defaults that we need.
 	Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? (empty(Lang::$txt['lang_character_set']) ? 'ISO-8859-1' : Lang::$txt['lang_character_set']) : Config::$modSettings['global_character_set'];
 	Utils::$context['utf8'] = Utils::$context['character_set'] === 'UTF-8';
@@ -180,10 +179,10 @@ function showAttachment()
 			$boards_allowed = array(0);
 		}
 		// Check permissions and board access.
-		elseif (($boards_allowed = CacheApi::get('view_attachment_boards_id-' . $user_info['id'])) == null)
+		elseif (($boards_allowed = CacheApi::get('view_attachment_boards_id-' . User::$me->id)) == null)
 		{
 			$boards_allowed = boardsAllowedTo('view_attachments');
-			CacheApi::put('view_attachment_boards_id-' . $user_info['id'], $boards_allowed, mt_rand(850, 900));
+			CacheApi::put('view_attachment_boards_id-' . User::$me->id, $boards_allowed, mt_rand(850, 900));
 		}
 	}
 
@@ -237,7 +236,7 @@ function showAttachment()
 		Db::$db->free_result($request);
 
 		// Let users see own unapproved attachments
-		if ($id_member != $user_info['id'])
+		if ($id_member != User::$me->id)
 		{
 			send_http_status(403, 'Forbidden');
 			die('403 Forbidden');

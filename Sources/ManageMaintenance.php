@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -1123,7 +1124,7 @@ function AdminBoardRecount()
 			)
 		);
 		while ($row = Db::$db->fetch_assoc($request))
-			updateMemberData($row['id_member'], array('instant_messages' => $row['real_num']));
+			User::updateMemberData($row['id_member'], array('instant_messages' => $row['real_num']));
 		Db::$db->free_result($request);
 
 		$request = Db::$db->query('', '
@@ -1139,7 +1140,7 @@ function AdminBoardRecount()
 			)
 		);
 		while ($row = Db::$db->fetch_assoc($request))
-			updateMemberData($row['id_member'], array('unread_messages' => $row['real_num']));
+			User::updateMemberData($row['id_member'], array('unread_messages' => $row['real_num']));
 		Db::$db->free_result($request);
 
 		if (microtime(true) - TIME_START > 3)
@@ -1419,8 +1420,7 @@ function MaintainPurgeInactiveMembers()
 		}
 		Db::$db->free_result($request);
 
-		require_once(Config::$sourcedir . '/Subs-Members.php');
-		deleteMembers($members);
+		User::delete($members);
 	}
 
 	Utils::$context['maintenance_finished'] = Lang::$txt['maintain_members'];

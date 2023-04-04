@@ -242,8 +242,6 @@ class Attachments
 	 */
 	protected function processAttachments()
 	{
-		global $user_info;
-
 		if (!isset($_FILES['attachment']['name']))
 			$_FILES['attachment']['tmp_name'] = array();
 
@@ -348,7 +346,7 @@ class Attachments
 			}
 
 			// Try to move and rename the file before doing any more checks on it.
-			$attachID = 'post_tmp_' . $user_info['id'] . '_' . md5(mt_rand());
+			$attachID = 'post_tmp_' . User::$me->id . '_' . md5(mt_rand());
 			$destName = $this->_attchDir . '/' . $attachID;
 
 			// No errors, YAY!
@@ -401,7 +399,7 @@ class Attachments
 		}
 
 		// Mod authors, finally a hook to hang an alternate attachment upload system upon
-		// Upload to the current attachment folder with the file name $attachID or 'post_tmp_' . $user_info['id'] . '_' . md5(mt_rand())
+		// Upload to the current attachment folder with the file name $attachID or 'post_tmp_' . User::$me->id . '_' . md5(mt_rand())
 		// Populate $_SESSION['temp_attachments'][$attachID] with the following:
 		//   name => The file name
 		//   tmp_name => Path to the temp file ($this->_attchDir . '/' . $attachID).
@@ -418,8 +416,6 @@ class Attachments
 	 */
 	protected function createAttach()
 	{
-		global $user_info;
-
 		// Create an empty session var to keep track of all the files we attached.
 		if (!isset($_SESSION['already_attached']))
 			$_SESSION['already_attached'] = array();
@@ -428,7 +424,7 @@ class Attachments
 		{
 			$attachmentOptions = array(
 				'post' => $this->_msg,
-				'poster' => $user_info['id'],
+				'poster' => User::$me->id,
 				'name' => $attachment['name'],
 				'tmp_name' => $attachment['tmp_name'],
 				'size' => isset($attachment['size']) ? $attachment['size'] : 0,

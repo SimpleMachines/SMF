@@ -1074,8 +1074,6 @@ class BBCodeParser
 	 */
 	public function __construct()
 	{
-		global $user_info;
-
 		/**********************
 		 * Set up localization.
 		 **********************/
@@ -1094,8 +1092,8 @@ class BBCodeParser
 		if (!empty(Lang::$txt['lang_locale']))
 			$this->locale = Lang::$txt['lang_locale'];
 
-		$this->time_offset = $user_info['time_offset'];
-		$this->time_format = $user_info['time_format'];
+		$this->time_offset = User::$me->time_offset;
+		$this->time_format = User::$me->time_format;
 
 		/************************
 		 * Set up BBCode parsing.
@@ -1130,7 +1128,7 @@ class BBCodeParser
 		 *************************/
 		$this->custom_smileys_enabled = !empty(Config::$modSettings['smiley_enable']);
 		$this->smileys_url = Config::$modSettings['smileys_url'];
-		$this->smiley_set = !empty($user_info['smiley_set']) ? $user_info['smiley_set'] : (!empty(Config::$modSettings['smiley_sets_default']) ? Config::$modSettings['smiley_sets_default'] : 'none');
+		$this->smiley_set = !empty(User::$me->smiley_set) ? User::$me->smiley_set : (!empty(Config::$modSettings['smiley_sets_default']) ? Config::$modSettings['smiley_sets_default'] : 'none');
 
 		// Maybe a mod wants to implement an alternative method for smileys
 		// (e.g. emojis instead of images)

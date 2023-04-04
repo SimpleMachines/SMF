@@ -18,6 +18,7 @@ use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -116,7 +117,7 @@ function getMessageIcons($board_id)
 function create_control_richedit($editorOptions)
 {
 	global $options;
-	global $settings, $user_info;
+	global $settings;
 
 	// Load the Post language file... for the moment at least.
 	Lang::load('Post');
@@ -161,7 +162,7 @@ function create_control_richedit($editorOptions)
 	if (empty(Utils::$context['controls']['richedit']))
 	{
 		// Some general stuff.
-		$settings['smileys_url'] = Config::$modSettings['smileys_url'] . '/' . $user_info['smiley_set'];
+		$settings['smileys_url'] = Config::$modSettings['smileys_url'] . '/' . User::$me->smiley_set;
 		if (!empty(Utils::$context['drafts_autosave']))
 			Utils::$context['drafts_autosave_frequency'] = empty(Config::$modSettings['drafts_autosave_frequency']) ? 60000 : Config::$modSettings['drafts_autosave_frequency'] * 1000;
 
@@ -505,12 +506,12 @@ function create_control_richedit($editorOptions)
 			'popup' => array(),
 		);
 
-		if ($user_info['smiley_set'] != 'none')
+		if (User::$me->smiley_set != 'none')
 		{
 			// Cache for longer when customized smiley codes aren't enabled
 			$cache_time = empty(Config::$modSettings['smiley_enable']) ? 7200 : 480;
 
-			if (($temp = CacheApi::get('posting_smileys_' . $user_info['smiley_set'], $cache_time)) == null)
+			if (($temp = CacheApi::get('posting_smileys_' . User::$me->smiley_set, $cache_time)) == null)
 			{
 				$request = Db::$db->query('', '
 					SELECT s.code, f.filename, s.description, s.smiley_row, s.hidden
@@ -522,7 +523,7 @@ function create_control_richedit($editorOptions)
 					ORDER BY s.smiley_row, s.smiley_order',
 					array(
 						'default_codes' => array('>:D', ':D', '::)', '>:(', ':))', ':)', ';)', ';D', ':(', ':o', '8)', ':P', '???', ':-[', ':-X', ':-*', ':\'(', ':-\\', '^-^', 'O0', 'C:-)', 'O:-)'),
-						'smiley_set' => $user_info['smiley_set'],
+						'smiley_set' => User::$me->smiley_set,
 					)
 				);
 				while ($row = Db::$db->fetch_assoc($request))
@@ -542,7 +543,7 @@ function create_control_richedit($editorOptions)
 						Utils::$context['smileys'][$section][count($smileyRows) - 1]['isLast'] = true;
 				}
 
-				CacheApi::put('posting_smileys_' . $user_info['smiley_set'], Utils::$context['smileys'], $cache_time);
+				CacheApi::put('posting_smileys_' . User::$me->smiley_set, Utils::$context['smileys'], $cache_time);
 			}
 			else
 				Utils::$context['smileys'] = $temp;
@@ -638,8 +639,6 @@ function create_control_richedit($editorOptions)
  */
 function create_control_verification(&$verificationOptions, $do_test = false)
 {
-	global $user_info;
-
 	// First verification means we need to set up some bits...
 	if (empty(Utils::$context['controls']['verification']))
 	{
@@ -768,7 +767,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 			// Was there a reCAPTCHA response?
 			if (isset($_POST['g-recaptcha-response']))
 			{
-				$resp = $reCaptcha->verify($_POST['g-recaptcha-response'], $user_info['ip']);
+				$resp = $reCaptcha->verify($_POST['g-recaptcha-response'], User::$me->ip);
 
 				if (!$resp->isSuccess())
 					$verification_errors[] = 'wrong_verification_recaptcha';
@@ -861,8 +860,8 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 			$possible_langs = array();
 			if (isset($_SESSION['language']))
 				$possible_langs[] = strtr($_SESSION['language'], array('-utf8' => ''));
-			if (!empty($user_info['language']))
-				$possible_langs[] = $user_info['language'];
+			if (!empty(User::$me->language))
+				$possible_langs[] = User::$me->language;
 
 			$possible_langs[] = Lang::$default;
 
@@ -976,8 +975,6 @@ function AutoSuggestHandler($checkRegistered = null)
  */
 function AutoSuggest_Search_Member()
 {
-	global $user_info;
-
 	$_REQUEST['search'] = trim(Utils::strtolower($_REQUEST['search'])) . '*';
 	$_REQUEST['search'] = strtr($_REQUEST['search'], array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_', '&#038;' => '&amp;'));
 
@@ -991,7 +988,7 @@ function AutoSuggest_Search_Member()
 		LIMIT ' . (Utils::entityStrlen($_REQUEST['search']) <= 2 ? '100' : '800'),
 		array(
 			'real_name' => Db::$db->case_sensitive ? 'LOWER(real_name)' : 'real_name',
-			'buddy_list' => $user_info['buddies'],
+			'buddy_list' => User::$me->buddies,
 			'search' => $_REQUEST['search'],
 		)
 	);

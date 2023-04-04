@@ -18,6 +18,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -452,8 +453,6 @@ function pauseMailQueueClear()
  */
 function TestMailSend()
 {
-	global $user_info;
-
 	Lang::load('ManageMail');
 	loadTemplate('ManageMail');
 	Utils::$context['sub_template'] = 'mailtest';
@@ -466,7 +465,7 @@ function TestMailSend()
 		require_once(Config::$sourcedir . '/Subs-Post.php');
 
 		// Send to the current user, no options.
-		$to = $user_info['email'];
+		$to = User::$me->email;
 		$subject = Utils::htmlspecialchars($_POST['subject']);
 		$message = Utils::htmlspecialchars($_POST['message']);
 

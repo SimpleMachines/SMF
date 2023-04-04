@@ -16,6 +16,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -33,8 +34,6 @@ if (!defined('SMF'))
  */
 function updateReport($action, $value, $report_id)
 {
-	global $user_info;
-
 	// Don't bother.
 	if (empty($action) || empty($report_id))
 		return false;
@@ -50,7 +49,7 @@ function updateReport($action, $value, $report_id)
 	}
 	else
 	{
-		$board_query = ' AND ' . $user_info['mod_cache']['bq'];
+		$board_query = ' AND ' . User::$me->mod_cache['bq'];
 	}
 
 	// Update the report...
@@ -195,7 +194,7 @@ function clearReportAlerts($log_report, $extra)
 			)
 		);
 		// Decrement counter for each moderator who had an unread alert
-		updateMemberData($moderators, array('alerts' => '-'));
+		User::updateMemberData($moderators, array('alerts' => '-'));
 	}
 }
 
@@ -207,8 +206,6 @@ function clearReportAlerts($log_report, $extra)
  */
 function countReports($closed = 0)
 {
-	global $user_info;
-
 	// Skip entries with id_board = 0 if we're viewing member reports
 	if (Utils::$context['report_type'] == 'members')
 	{
@@ -216,13 +213,13 @@ function countReports($closed = 0)
 	}
 	else
 	{
-		if ($user_info['mod_cache']['bq'] == '1=1' || $user_info['mod_cache']['bq'] == '0=1')
+		if (User::$me->mod_cache['bq'] == '1=1' || User::$me->mod_cache['bq'] == '0=1')
 		{
-			$bq = $user_info['mod_cache']['bq'];
+			$bq = User::$me->mod_cache['bq'];
 		}
 		else
 		{
-			$bq = 'lr.' . $user_info['mod_cache']['bq'];
+			$bq = 'lr.' . User::$me->mod_cache['bq'];
 		}
 
 		$and = $bq . ' AND lr.id_board != 0';
@@ -252,8 +249,6 @@ function countReports($closed = 0)
  */
 function getReports($closed = 0)
 {
-	global $user_info;
-
 	// Lonely, standalone var.
 	$reports = array();
 
@@ -287,7 +282,7 @@ function getReports($closed = 0)
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lr.id_member)
 			WHERE lr.closed = {int:view_closed}
 				AND lr.id_board != 0
-				AND ' . ($user_info['mod_cache']['bq'] == '1=1' || $user_info['mod_cache']['bq'] == '0=1' ? $user_info['mod_cache']['bq'] : 'lr.' . $user_info['mod_cache']['bq']) . '
+				AND ' . (User::$me->mod_cache['bq'] == '1=1' || User::$me->mod_cache['bq'] == '0=1' ? User::$me->mod_cache['bq'] : 'lr.' . User::$me->mod_cache['bq']) . '
 			ORDER BY lr.time_updated DESC
 			LIMIT {int:start}, {int:max}',
 			array(
@@ -407,7 +402,7 @@ function getReports($closed = 0)
 	}
 
 	// Get the boards where the current user can remove any message.
-	Utils::$context['report_remove_any_boards'] = $user_info['is_admin'] ? $report_boards_ids : array_intersect($report_boards_ids, boardsAllowedTo('remove_any'));
+	Utils::$context['report_remove_any_boards'] = User::$me->is_admin ? $report_boards_ids : array_intersect($report_boards_ids, boardsAllowedTo('remove_any'));
 	Utils::$context['report_manage_bans'] = allowedTo('manage_bans');
 
 	return $reports;
@@ -421,12 +416,10 @@ function getReports($closed = 0)
  */
 function recountOpenReports($type)
 {
-	global $user_info;
-
 	if ($type == 'members')
 		$bq = '';
 	else
-		$bq = '	AND ' . $user_info['mod_cache']['bq'];
+		$bq = '	AND ' . User::$me->mod_cache['bq'];
 
 	$request = Db::$db->query('', '
 		SELECT COUNT(*)
@@ -447,7 +440,7 @@ function recountOpenReports($type)
 	$arr = ($type == 'members' ? 'member_reports' : 'reports');
 	$_SESSION['rc'] = array_merge(!empty($_SESSION['rc']) ? $_SESSION['rc'] : array(),
 		array(
-			'id' => $user_info['id'],
+			'id' => User::$me->id,
 			'time' => time(),
 			$arr => $open_reports,
 		));
@@ -463,8 +456,6 @@ function recountOpenReports($type)
  */
 function getReportDetails($report_id)
 {
-	global $user_info;
-
 	if (empty($report_id))
 		return false;
 
@@ -495,7 +486,7 @@ function getReportDetails($report_id)
 			FROM {db_prefix}log_reported AS lr
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lr.id_member)
 			WHERE lr.id_report = {int:id_report}
-				AND ' . ($user_info['mod_cache']['bq'] == '1=1' || $user_info['mod_cache']['bq'] == '0=1' ? $user_info['mod_cache']['bq'] : 'lr.' . $user_info['mod_cache']['bq']) . '
+				AND ' . (User::$me->mod_cache['bq'] == '1=1' || User::$me->mod_cache['bq'] == '0=1' ? User::$me->mod_cache['bq'] : 'lr.' . User::$me->mod_cache['bq']) . '
 			LIMIT 1',
 			array(
 				'id_report' => $report_id,
@@ -522,8 +513,6 @@ function getReportDetails($report_id)
  */
 function getReportComments($report_id)
 {
-	global $user_info;
-
 	if (empty($report_id))
 		return false;
 
@@ -580,7 +569,7 @@ function getReportComments($report_id)
 			'id' => $row['id_comment'],
 			'message' => BBCodeParser::load()->parse($row['body']),
 			'time' => timeformat($row['log_time']),
-			'can_edit' => allowedTo('admin_forum') || (($user_info['id'] == $row['id_member'])),
+			'can_edit' => allowedTo('admin_forum') || ((User::$me->id == $row['id_member'])),
 			'member' => array(
 				'id' => $row['id_member'],
 				'name' => $row['moderator'],
@@ -604,8 +593,6 @@ function getReportComments($report_id)
  */
 function getCommentModDetails($comment_id)
 {
-	global $user_info;
-
 	if (empty($comment_id))
 		return false;
 
@@ -625,7 +612,7 @@ function getCommentModDetails($comment_id)
 
 	// Add the permission
 	if (!empty($comment))
-		$comment['can_edit'] = allowedTo('admin_forum') || (($user_info['id'] == $comment['id_member']));
+		$comment['can_edit'] = allowedTo('admin_forum') || ((User::$me->id == $comment['id_member']));
 
 	return $comment;
 }
@@ -639,12 +626,10 @@ function getCommentModDetails($comment_id)
  */
 function saveModComment($report_id, $data)
 {
-	global $user_info;
-
 	if (empty($data))
 		return false;
 
-	$data = array_merge(array($user_info['id'], $user_info['name'], 'reportc', ''), $data);
+	$data = array_merge(array(User::$me->id, User::$me->name, 'reportc', ''), $data);
 
 	$last_comment = Db::$db->insert('',
 		'{db_prefix}log_comments',
@@ -666,8 +651,8 @@ function saveModComment($report_id, $data)
 			'report_id' => $report_id,
 			'user_id' => $report['id_user'],
 			'user_name' => $report['user_name'],
-			'sender_id' => Utils::$context['user']['id'],
-			'sender_name' => Utils::$context['user']['name'],
+			'sender_id' => User::$me->id,
+			'sender_name' => User::$me->name,
 			'comment_id' => $last_comment,
 			'time' => time(),
 		);
@@ -681,8 +666,8 @@ function saveModComment($report_id, $data)
 			'msg_id' => $report['id_msg'],
 			'topic_id' => $report['id_topic'],
 			'board_id' => $report['id_board'],
-			'sender_id' => $user_info['id'],
-			'sender_name' => $user_info['name'],
+			'sender_id' => User::$me->id,
+			'sender_name' => User::$me->name,
 			'time' => time(),
 		);
 	}

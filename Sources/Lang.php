@@ -162,14 +162,14 @@ class Lang
 	 */
 	public static function load(string $template_name, string $lang = '', bool $fatal = true, bool $force_reload = false)
 	{
-		global $settings, $user_info;
+		global $settings;
 
 		if (!isset(self::$default))
 			self::$default = &Config::$language;
 
 		// Default to the user's language.
 		if ($lang == '')
-			$lang = isset($user_info['language']) ? $user_info['language'] : self::$default;
+			$lang = isset(User::$me->language) ? User::$me->language : self::$default;
 
 		// Don't repeat this unnecessarily.
 		if (!$force_reload && isset(self::$already_loaded[$template_name]) && self::$already_loaded[$template_name] == $lang)

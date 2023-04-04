@@ -13,6 +13,7 @@
 use SMF\Config;
 use SMF\Lang;
 use SMF\Utils;
+use SMF\User;
 
 /**
  * The template for adding or editing a subscription.
@@ -412,7 +413,7 @@ function template_user_subscription()
 				echo '
 				<div><strong>', Lang::$txt['paid_duration'], ':</strong> ', $subscription['length'], '</div>';
 
-			if (Utils::$context['user']['is_owner'])
+			if (User::$me->is_owner)
 			{
 				echo '
 				<strong>', Lang::$txt['paid_cost'], ':</strong>';
@@ -481,7 +482,7 @@ function template_user_subscription()
 			echo '
 				<tr class="windowbg">
 					<td>
-						', (Utils::$context['user']['is_admin'] ? '<a href="' . Config::$scripturl . '?action=admin;area=paidsubscribe;sa=modifyuser;lid=' . $sub['id'] . '">' . $sub['name'] . '</a>' : $sub['name']), '
+						', (User::$me->is_admin ? '<a href="' . Config::$scripturl . '?action=admin;area=paidsubscribe;sa=modifyuser;lid=' . $sub['id'] . '">' . $sub['name'] . '</a>' : $sub['name']), '
 					</td>
 					<td>
 						<span style="color: ', ($sub['status'] == 2 ? 'green' : ($sub['status'] == 1 ? 'red' : 'orange')), '"><strong>', $sub['status_text'], '</strong></span>

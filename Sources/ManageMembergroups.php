@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -874,7 +875,7 @@ function EditMembergroup()
 			Db::$db->free_result($request);
 
 			foreach ($updates as $additional_groups => $memberArray)
-				updateMemberData($memberArray, array('additional_groups' => implode(',', array_diff(explode(',', $additional_groups), array((int) $_REQUEST['group'])))));
+				User::updateMemberData($memberArray, array('additional_groups' => implode(',', array_diff(explode(',', $additional_groups), array((int) $_REQUEST['group'])))));
 
 			// Sorry, but post groups can't moderate boards
 			Db::$db->query('', '
@@ -907,7 +908,7 @@ function EditMembergroup()
 				foreach ($updates as $additional_groups => $memberArray)
 				{
 					$new_groups = (!empty($additional_groups) ? $additional_groups . ',' : '') . $_REQUEST['group']; // We already validated this a while ago.
-					updateMemberData($memberArray, array('additional_groups' => $new_groups));
+					User::updateMemberData($memberArray, array('additional_groups' => $new_groups));
 				}
 
 				Db::$db->query('', '

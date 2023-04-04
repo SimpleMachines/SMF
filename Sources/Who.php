@@ -16,6 +16,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -35,8 +36,6 @@ if (!defined('SMF'))
  */
 function Who()
 {
-	global $memberContext;
-
 	// Permissions, permissions, permissions.
 	isAllowedTo('who_view');
 
@@ -187,32 +186,18 @@ function Who()
 	Db::$db->free_result($request);
 
 	// Load the user data for these members.
-	loadMemberData($member_ids);
-
-	// Load up the guest user.
-	$memberContext[0] = array(
-		'id' => 0,
-		'name' => Lang::$txt['guest_title'],
-		'group' => Lang::$txt['guest_title'],
-		'href' => '',
-		'link' => Lang::$txt['guest_title'],
-		'email' => Lang::$txt['guest_title'],
-		'is_guest' => true
-	);
+	User::load($member_ids);
 
 	// Are we showing spiders?
-	$spiderContext = array();
+	$spiderFormatted = array();
 	if (!empty(Config::$modSettings['show_spider_online']) && (Config::$modSettings['show_spider_online'] == 2 || allowedTo('admin_forum')) && !empty(Config::$modSettings['spider_name_cache']))
 	{
 		foreach (Utils::jsonDecode(Config::$modSettings['spider_name_cache'], true) as $id => $name)
-			$spiderContext[$id] = array(
-				'id' => 0,
+			$spiderFormatted[$id] = array(
 				'name' => $name,
 				'group' => Lang::$txt['spiders'],
-				'href' => '',
 				'link' => $name,
 				'email' => $name,
-				'is_guest' => true
 			);
 	}
 
@@ -228,16 +213,31 @@ function Who()
 	// Put it in the context variables.
 	foreach (Utils::$context['members'] as $i => $member)
 	{
-		if ($member['id'] != 0)
-			$member['id'] = loadMemberContext($member['id']) ? $member['id'] : 0;
+		$member['id'] = isset(User::$loaded[$member['id']]) ? $member['id'] : 0;
+
+		$formatted = User::$loaded[$member['id']]->format();
 
 		// Keep the IP that came from the database.
-		$memberContext[$member['id']]['ip'] = $member['ip'];
+		$formatted['ip'] = $member['ip'];
+
+		if ($member['id'] == 0)
+		{
+			if (isset($spiderFormatted[$member['id_spider']]))
+			{
+				$formatted = array_merge($formatted, $spiderFormatted[$member['id_spider']]);
+			}
+			else
+			{
+				$formatted = array_merge($formatted, array(
+					'link' => Lang::$txt['guest_title'],
+					'email' => Lang::$txt['guest_title'],
+				));
+			}
+		}
+
+		Utils::$context['members'][$i] = array_merge(Utils::$context['members'][$i], $formatted);
+
 		Utils::$context['members'][$i]['action'] = isset($url_data[$i]) ? $url_data[$i] : array('label' => 'who_hidden', 'class' => 'em');
-		if ($member['id'] == 0 && isset($spiderContext[$member['id_spider']]))
-			Utils::$context['members'][$i] += $spiderContext[$member['id_spider']];
-		else
-			Utils::$context['members'][$i] += $memberContext[$member['id']];
 	}
 
 	// Some people can't send personal messages...
@@ -270,8 +270,6 @@ function Who()
  */
 function determineActions($urls, $preferred_prefix = false)
 {
-	global $user_info;
-
 	if (!allowedTo('who_view'))
 		return array();
 	Lang::load('Who');
@@ -324,7 +322,7 @@ function determineActions($urls, $preferred_prefix = false)
 	call_integration_hook('who_allowed', array(&$allowedActions));
 
 	if (!is_array($urls))
-		$url_list = array(array($urls, $user_info['id']));
+		$url_list = array(array($urls, User::$me->id));
 	else
 		$url_list = $urls;
 
@@ -556,7 +554,7 @@ function determineActions($urls, $preferred_prefix = false)
 		while ($row = Db::$db->fetch_assoc($result))
 		{
 			// If they aren't allowed to view this person's profile, skip it.
-			if (!$allow_view_any && ($user_info['id'] != $row['id_member']))
+			if (!$allow_view_any && (User::$me->id != $row['id_member']))
 				continue;
 
 			// Set their action on each - session/text to sprintf.
@@ -581,8 +579,6 @@ function determineActions($urls, $preferred_prefix = false)
  */
 function Credits($in_admin = false)
 {
-	global $user_info;
-
 	// Don't blink. Don't even blink. Blink and you're dead.
 	Lang::load('Who');
 
@@ -635,7 +631,7 @@ function Credits($in_admin = false)
 						'Juan "JayBachatero" Hernandez',
 						'Karl "RegularExpression" Benson',
 						'Matthew "Labradoodle-360" Kerle',
-						$user_info['is_admin'] ? 'Matt "Grudge" Wolf' : 'Grudge',
+						User::$me->is_admin ? 'Matt "Grudge" Wolf' : 'Grudge',
 						'Michael "Oldiesmann" Eshom',
 						'Michael "Thantos" Miller',
 						'Norv',

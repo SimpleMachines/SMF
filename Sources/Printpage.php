@@ -17,6 +17,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -34,7 +35,7 @@ if (!defined('SMF'))
 
 function PrintTopic()
 {
-	global $topic, $user_info;
+	global $topic;
 	global $board_info;
 
 	// Redirect to the boardindex if no valid topic id is provided.
@@ -116,7 +117,7 @@ function PrintTopic()
 				LEFT JOIN {db_prefix}log_polls AS lp ON (lp.id_choice = pc.id_choice AND lp.id_poll = {int:id_poll} AND lp.id_member = {int:current_member} AND lp.id_member != {int:not_guest})
 			WHERE pc.id_poll = {int:id_poll}',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'id_poll' => $row['id_poll'],
 				'not_guest' => 0,
 			)
@@ -134,7 +135,7 @@ function PrintTopic()
 		Db::$db->free_result($request);
 
 		// If this is a guest we need to do our best to work out if they have voted, and what they voted for.
-		if ($user_info['is_guest'] && $pollinfo['guest_vote'] && allowedTo('poll_vote'))
+		if (User::$me->is_guest && $pollinfo['guest_vote'] && allowedTo('poll_vote'))
 		{
 			if (!empty($_COOKIE['guest_poll_vote']) && preg_match('~^[0-9,;]+$~', $_COOKIE['guest_poll_vote']) && strpos($_COOKIE['guest_poll_vote'], ';' . $row['id_poll'] . ',') !== false)
 			{
@@ -172,7 +173,7 @@ function PrintTopic()
 			}
 		}
 
-		Utils::$context['user']['started'] = $user_info['id'] == $row['id_member'] && !$user_info['is_guest'];
+		User::$me->started = User::$me->id == $row['id_member'] && !User::$me->is_guest;
 		// Set up the basic poll information.
 		Utils::$context['poll'] = array(
 			'id' => $row['id_poll'],
@@ -182,8 +183,8 @@ function PrintTopic()
 			'change_vote' => !empty($pollinfo['change_vote']),
 			'is_locked' => !empty($pollinfo['voting_locked']),
 			'options' => array(),
-			'lock' => allowedTo('poll_lock_any') || (Utils::$context['user']['started'] && allowedTo('poll_lock_own')),
-			'edit' => allowedTo('poll_edit_any') || (Utils::$context['user']['started'] && allowedTo('poll_edit_own')),
+			'lock' => allowedTo('poll_lock_any') || (User::$me->started && allowedTo('poll_lock_own')),
+			'edit' => allowedTo('poll_edit_any') || (User::$me->started && allowedTo('poll_edit_own')),
 			'allowed_warning' => $pollinfo['max_votes'] > 1 ? sprintf(Lang::$txt['poll_options_limit'], min(count($pollOptions), $pollinfo['max_votes'])) : '',
 			'is_expired' => !empty($pollinfo['expire_time']) && $pollinfo['expire_time'] < time(),
 			'expire_time' => !empty($pollinfo['expire_time']) ? timeformat($pollinfo['expire_time']) : 0,
@@ -255,12 +256,12 @@ function PrintTopic()
 		FROM {db_prefix}messages AS m
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 		WHERE m.id_topic = {int:current_topic}' . (Config::$modSettings['postmod_active'] && !allowedTo('approve_posts') ? '
-			AND (m.approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR m.id_member = {int:current_member}') . ')' : '') . '
+			AND (m.approved = {int:is_approved}' . (User::$me->is_guest ? '' : ' OR m.id_member = {int:current_member}') . ')' : '') . '
 		ORDER BY m.id_msg',
 		array(
 			'current_topic' => $topic,
 			'is_approved' => 1,
-			'current_member' => $user_info['id'],
+			'current_member' => User::$me->id,
 		)
 	);
 	Utils::$context['posts'] = array();

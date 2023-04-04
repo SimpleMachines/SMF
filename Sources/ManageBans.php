@@ -17,6 +17,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -101,8 +102,6 @@ function Ban()
  */
 function BanList()
 {
-	global $user_info;
-
 	// User pressed the 'remove selection button'.
 	if (!empty($_POST['removeBans']) && !empty($_POST['remove']) && is_array($_POST['remove']))
 	{
@@ -122,8 +121,8 @@ function BanList()
 	}
 
 	// Create a date string so we don't overload them with date info.
-	if (preg_match('~%[AaBbCcDdeGghjmuYy](?:[^%]*%[AaBbCcDdeGghjmuYy])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
-		Utils::$context['ban_time_format'] = $user_info['time_format'];
+	if (preg_match('~%[AaBbCcDdeGghjmuYy](?:[^%]*%[AaBbCcDdeGghjmuYy])*~', User::$me->time_format, $matches) == 0 || empty($matches[0]))
+		Utils::$context['ban_time_format'] = User::$me->time_format;
 	else
 		Utils::$context['ban_time_format'] = $matches[0];
 
@@ -2363,7 +2362,7 @@ function updateBanMembers()
 
 	if (!empty($updates))
 		foreach ($updates as $newStatus => $members)
-			updateMemberData($members, array('is_activated' => $newStatus));
+			User::updateMemberData($members, array('is_activated' => $newStatus));
 
 	// Update the latest member and our total members as banning may change them.
 	updateStats('member');

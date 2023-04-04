@@ -16,6 +16,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -36,8 +37,6 @@ if (!defined('SMF'))
  */
 function PlushSearch1()
 {
-	global $user_info;
-
 	// Is the load average too high to allow searching just now?
 	if (!empty(Utils::$context['load_average']) && !empty(Config::$modSettings['loadavg_search']) && Utils::$context['load_average'] >= Config::$modSettings['loadavg_search'])
 		fatal_lang_error('loadavg_search_disabled', false);
@@ -62,7 +61,7 @@ function PlushSearch1()
 	// This is hard coded maximum string length.
 	Utils::$context['search_string_limit'] = 100;
 
-	Utils::$context['require_verification'] = $user_info['is_guest'] && !empty(Config::$modSettings['search_enable_captcha']) && empty($_SESSION['ss_vv_passed']);
+	Utils::$context['require_verification'] = User::$me->is_guest && !empty(Config::$modSettings['search_enable_captcha']) && empty($_SESSION['ss_vv_passed']);
 	if (Utils::$context['require_verification'])
 	{
 		require_once(Config::$sourcedir . '/Subs-Editor.php');
@@ -155,7 +154,7 @@ function PlushSearch1()
 			'id' => $row['id_board'],
 			'name' => $row['name'],
 			'child_level' => $row['child_level'],
-			'selected' => (empty(Utils::$context['search_params']['brd']) && (empty(Config::$modSettings['recycle_enable']) || $row['id_board'] != Config::$modSettings['recycle_board']) && !in_array($row['id_board'], $user_info['ignoreboards'])) || (!empty(Utils::$context['search_params']['brd']) && in_array($row['id_board'], Utils::$context['search_params']['brd']))
+			'selected' => (empty(Utils::$context['search_params']['brd']) && (empty(Config::$modSettings['recycle_enable']) || $row['id_board'] != Config::$modSettings['recycle_board']) && !in_array($row['id_board'], User::$me->ignoreboards)) || (!empty(Utils::$context['search_params']['brd']) && in_array($row['id_board'], Utils::$context['search_params']['brd']))
 		);
 
 		// If a board wasn't checked that probably should have been ensure the board selection is selected, yo!
@@ -250,7 +249,7 @@ function PlushSearch1()
  */
 function PlushSearch2()
 {
-	global $user_info, $options, $messages_request, $boards_can;
+	global $options, $messages_request, $boards_can;
 	global $excludedWords, $participants;
 
 	// if coming from the quick search box, and we want to search on members, well we need to do that ;)
@@ -540,7 +539,7 @@ function PlushSearch2()
 		Db::$db->free_result($request);
 	}
 	// Select all boards you've selected AND are allowed to see.
-	elseif ($user_info['is_admin'] && (!empty($search_params['advanced']) || !empty($_REQUEST['brd'])))
+	elseif (User::$me->is_admin && (!empty($search_params['advanced']) || !empty($_REQUEST['brd'])))
 	{
 		$search_params['brd'] = empty($_REQUEST['brd']) ? array() : $_REQUEST['brd'];
 	}
@@ -556,7 +555,7 @@ function PlushSearch2()
 				AND b.id_board != {int:recycle_board_id}' : '') : '
 				AND b.id_board IN ({array_int:selected_search_boards})'),
 			array(
-				'boards_allowed_to_see' => $user_info[$see_board],
+				'boards_allowed_to_see' => User::$me->{$see_board},
 				'empty_string' => '',
 				'selected_search_boards' => empty($_REQUEST['brd']) ? array() : $_REQUEST['brd'],
 				'recycle_board_id' => Config::$modSettings['recycle_board'],
@@ -974,7 +973,7 @@ function PlushSearch2()
 		Utils::$context['search_params']['userspec'] = Utils::htmlspecialchars(Utils::$context['search_params']['userspec']);
 
 	// Do we have captcha enabled?
-	if ($user_info['is_guest'] && !empty(Config::$modSettings['search_enable_captcha']) && empty($_SESSION['ss_vv_passed']) && (empty($_SESSION['last_ss']) || $_SESSION['last_ss'] != $search_params['search']))
+	if (User::$me->is_guest && !empty(Config::$modSettings['search_enable_captcha']) && empty($_SESSION['ss_vv_passed']) && (empty($_SESSION['last_ss']) || $_SESSION['last_ss'] != $search_params['search']))
 	{
 		require_once(Config::$sourcedir . '/Subs-Editor.php');
 
@@ -1839,12 +1838,12 @@ function PlushSearch2()
 		if (!empty(Config::$modSettings['postmod_active']))
 		{
 			// Exclude unapproved topics, but show ones they started.
-			if (empty($user_info['mod_cache']['ap']))
+			if (empty(User::$me->mod_cache['ap']))
 				$approve_query = '
 				AND (t.approved = {int:is_approved} OR t.id_member_started = {int:current_member})';
 
 			// Show unapproved topics in boards they have access to.
-			elseif ($user_info['mod_cache']['ap'] !== array(0))
+			elseif (User::$me->mod_cache['ap'] !== array(0))
 				$approve_query = '
 				AND (t.approved = {int:is_approved} OR t.id_member_started = {int:current_member} OR t.id_board IN ({array_int:approve_boards}))';
 		}
@@ -1865,8 +1864,8 @@ function PlushSearch2()
 				'start' => $_REQUEST['start'],
 				'max' => Config::$modSettings['search_results_per_page'],
 				'is_approved' => 1,
-				'current_member' => $user_info['id'],
-				'approve_boards' => !empty(Config::$modSettings['postmod_active']) ? $user_info['mod_cache']['ap'] : array(),
+				'current_member' => User::$me->id,
+				'approve_boards' => !empty(Config::$modSettings['postmod_active']) ? User::$me->mod_cache['ap'] : array(),
 			)
 		);
 		while ($row = Db::$db->fetch_assoc($request))
@@ -1906,11 +1905,11 @@ function PlushSearch2()
 		$approve_query = '';
 		if (!empty(Config::$modSettings['postmod_active']))
 		{
-			if (empty($user_info['mod_cache']['ap']))
+			if (empty(User::$me->mod_cache['ap']))
 				$approve_query = '
 				AND (m.approved = {int:is_approved} OR m.id_member = {int:current_member})';
 
-			elseif ($user_info['mod_cache']['ap'] !== array(0))
+			elseif (User::$me->mod_cache['ap'] !== array(0))
 				$approve_query = '
 				AND (m.approved = {int:is_approved} OR m.id_member = {int:current_member} OR m.id_board IN ({array_int:approve_boards}))';
 		}
@@ -1939,7 +1938,7 @@ function PlushSearch2()
 		call_integration_hook('integrate_search_message_list', array(&$msg_list, &$posters));
 
 		if (!empty($posters))
-			loadMemberData(array_unique($posters));
+			User::load(array_unique($posters));
 
 		// Get the messages out for the callback - select enough that it can be made to look just like Display.
 		$messages_request = Db::$db->query('', '
@@ -1966,8 +1965,8 @@ function PlushSearch2()
 			array(
 				'message_list' => $msg_list,
 				'is_approved' => 1,
-				'current_member' => $user_info['id'],
-				'approve_boards' => !empty(Config::$modSettings['postmod_active']) ? $user_info['mod_cache']['ap'] : array(),
+				'current_member' => User::$me->id,
+				'approve_boards' => !empty(Config::$modSettings['postmod_active']) ? User::$me->mod_cache['ap'] : array(),
 				'limit' => count(Utils::$context['topics']),
 			)
 		);
@@ -1983,7 +1982,7 @@ function PlushSearch2()
 			Utils::$context['topics'] = array();
 
 		// If we want to know who participated in what then load this now.
-		if (!empty(Config::$modSettings['enableParticipation']) && !$user_info['is_guest'])
+		if (!empty(Config::$modSettings['enableParticipation']) && !User::$me->is_guest)
 		{
 			$result = Db::$db->query('', '
 				SELECT id_topic
@@ -1993,7 +1992,7 @@ function PlushSearch2()
 				GROUP BY id_topic
 				LIMIT {int:limit}',
 				array(
-					'current_member' => $user_info['id'],
+					'current_member' => User::$me->id,
 					'topic_list' => array_keys($participants),
 					'limit' => count($participants),
 				)
@@ -2010,7 +2009,7 @@ function PlushSearch2()
 
 	// Consider the search complete!
 	if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2)
-		CacheApi::put('search_start:' . ($user_info['is_guest'] ? $user_info['ip'] : $user_info['id']), null, 90);
+		CacheApi::put('search_start:' . (User::$me->is_guest ? User::$me->ip : User::$me->id), null, 90);
 
 	Utils::$context['key_words'] = &$searchArray;
 
@@ -2043,8 +2042,7 @@ function PlushSearch2()
  */
 function prepareSearchContext($reset = false)
 {
-	global $user_info;
-	global $memberContext, $settings, $options, $messages_request;
+	global $settings, $options, $messages_request;
 	global $boards_can, $participants;
 	static $recycle_board = null;
 
@@ -2076,16 +2074,19 @@ function prepareSearchContext($reset = false)
 	$message['last_subject'] = $message['last_subject'] != '' ? $message['last_subject'] : Lang::$txt['no_subject'];
 
 	// If it couldn't load, or the user was a guest.... someday may be done with a guest table.
-	if (!loadMemberContext($message['id_member']))
+	if (empty($message['id_member']) || !isset(User::$loaded[$message['id_member']]))
 	{
 		// Notice this information isn't used anywhere else.... *cough guest table cough*.
-		$memberContext[$message['id_member']]['name'] = $message['poster_name'];
-		$memberContext[$message['id_member']]['id'] = 0;
-		$memberContext[$message['id_member']]['group'] = Lang::$txt['guest_title'];
-		$memberContext[$message['id_member']]['link'] = $message['poster_name'];
-		$memberContext[$message['id_member']]['email'] = $message['poster_email'];
+		$author['name'] = $message['poster_name'];
+		$author['id'] = 0;
+		$author['group'] = Lang::$txt['guest_title'];
+		$author['link'] = $message['poster_name'];
+		$author['email'] = $message['poster_email'];
 	}
-	$memberContext[$message['id_member']]['ip'] = inet_dtop($message['poster_ip']);
+	else
+		$author = User::$loaded[$message['id_member']]->format(true);
+
+	$author['ip'] = inet_dtop($message['poster_ip']);
 
 	// Do the censor thang...
 	Lang::censorText($message['body']);
@@ -2256,7 +2257,7 @@ function prepareSearchContext($reset = false)
 
 	if (!empty($options['display_quick_mod']))
 	{
-		$started = $output['first_post']['member']['id'] == $user_info['id'];
+		$started = $output['first_post']['member']['id'] == User::$me->id;
 
 		$output['quick_mod'] = array(
 			'lock' => in_array(0, $boards_can['lock_any']) || in_array($output['board']['id'], $boards_can['lock_any']) || ($started && (in_array(0, $boards_can['lock_own']) || in_array($output['board']['id'], $boards_can['lock_own']))),
@@ -2272,7 +2273,7 @@ function prepareSearchContext($reset = false)
 		Utils::$context['can_remove'] |= $output['quick_mod']['remove'];
 		Utils::$context['can_merge'] |= in_array($output['board']['id'], $boards_can['merge_any']);
 		Utils::$context['can_restore'] |= $output['quick_mod']['restore'];
-		Utils::$context['can_markread'] = Utils::$context['user']['is_logged'];
+		Utils::$context['can_markread'] = User::$me->is_logged;
 
 		Utils::$context['qmod_actions'] = array('remove', 'lock', 'sticky', 'move', 'merge', 'restore', 'markread');
 		call_integration_hook('integrate_quick_mod_actions_search');
@@ -2281,7 +2282,7 @@ function prepareSearchContext($reset = false)
 	$output['matches'][] = array(
 		'id' => $message['id_msg'],
 		'attachment' => array(),
-		'member' => &$memberContext[$message['id_member']],
+		'member' => &$author,
 		'icon' => $message['icon'],
 		'icon_url' => $settings[Utils::$context['icon_sources'][$message['icon']]] . '/post/' . $message['icon'] . '.png',
 		'subject' => $message['subject'],
