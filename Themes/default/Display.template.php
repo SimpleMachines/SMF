@@ -13,6 +13,7 @@
 use SMF\Config;
 use SMF\Lang;
 use SMF\Utils;
+use SMF\User;
 
 /**
  * This template handles displaying a topic
@@ -652,7 +653,7 @@ function template_single_post($message)
 								</li>';
 
 	// Okay, are you at least logged in? Then we can show something about why IPs are logged...
-	elseif (!Utils::$context['user']['is_guest'])
+	elseif (!User::$me->is_guest)
 		echo '
 								<li class="poster_ip">
 									<a href="', Config::$scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', Lang::$txt['logged'], '</a>
@@ -726,7 +727,7 @@ function template_single_post($message)
 	echo '
 							<div class="post">';
 
-	if (!$message['approved'] && $message['member']['id'] != 0 && $message['member']['id'] == Utils::$context['user']['id'])
+	if (!$message['approved'] && $message['member']['id'] != 0 && $message['member']['id'] == User::$me->id)
 		echo '
 								<div class="noticebox">
 									', Lang::$txt['post_awaiting_approval'], '
@@ -961,7 +962,7 @@ function template_quickreply()
 						<input type="hidden" name="seqnum" value="', Utils::$context['form_sequence_number'], '">';
 
 	// Guests just need more.
-	if (Utils::$context['user']['is_guest'])
+	if (User::$me->is_guest)
 	{
 		echo '
 						<dl id="post_header">

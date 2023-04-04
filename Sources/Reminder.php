@@ -14,6 +14,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -55,8 +56,6 @@ function RemindMe()
  */
 function RemindPick()
 {
-	global $user_info;
-
 	checkSession();
 	validateToken('remind');
 	createToken('remind');
@@ -131,14 +130,13 @@ function RemindPick()
 	if (empty($row['secret_question']) || (isset($_POST['reminder_type']) && $_POST['reminder_type'] == 'email'))
 	{
 		// Randomly generate a new password, with only alpha numeric characters that is a max length of 10 chars.
-		require_once(Config::$sourcedir . '/Subs-Members.php');
-		$password = generateValidationCode();
+		$password = User::generateValidationCode();
 
 		require_once(Config::$sourcedir . '/Subs-Post.php');
 		$replacements = array(
 			'REALNAME' => $row['real_name'],
 			'REMINDLINK' => Config::$scripturl . '?action=reminder;sa=setpassword;u=' . $row['id_member'] . ';code=' . $password,
-			'IP' => $user_info['ip'],
+			'IP' => User::$me->ip,
 			'MEMBERNAME' => $row['member_name'],
 		);
 
@@ -148,7 +146,7 @@ function RemindPick()
 		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'reminder', $emaildata['is_html'], 1);
 
 		// Set the password in the database.
-		updateMemberData($row['id_member'], array('validation_code' => substr(md5($password), 0, 10)));
+		User::updateMemberData($row['id_member'], array('validation_code' => substr(md5($password), 0, 10)));
 
 		// Set up the template.
 		Utils::$context['sub_template'] = 'sent';
@@ -264,7 +262,7 @@ function setPassword2()
 	validatePasswordFlood($_POST['u'], $flood_value, true);
 
 	// User validated.  Update the database!
-	updateMemberData($_POST['u'], array('validation_code' => '', 'passwd' => hash_password($username, $_POST['passwrd1'])));
+	User::updateMemberData($_POST['u'], array('validation_code' => '', 'passwd' => hash_password($username, $_POST['passwrd1'])));
 
 	call_integration_hook('integrate_reset_pass', array($username, $username, $_POST['passwrd1']));
 
@@ -387,7 +385,7 @@ function SecretAnswer2()
 			fatal_lang_error('profile_error_password_' . $passwordError, false);
 
 	// Alright, so long as 'yer sure.
-	updateMemberData($row['id_member'], array('passwd' => hash_password($row['member_name'], $_POST['passwrd1'])));
+	User::updateMemberData($row['id_member'], array('passwd' => hash_password($row['member_name'], $_POST['passwrd1'])));
 
 	call_integration_hook('integrate_reset_pass', array($row['member_name'], $row['member_name'], $_POST['passwrd1']));
 

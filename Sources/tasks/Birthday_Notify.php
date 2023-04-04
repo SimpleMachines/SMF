@@ -15,6 +15,7 @@ namespace SMF\Tasks;
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -135,7 +136,7 @@ class Birthday_Notify extends BackgroundTask
 					array()
 				);
 
-				updateMemberData(array_keys($members), array('alerts' => '+'));
+				User::updateMemberData(array_keys($members), array('alerts' => '+'));
 			}
 		}
 

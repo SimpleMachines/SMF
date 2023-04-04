@@ -16,6 +16,7 @@
 use SMF\Config;
 use SMF\ProxyServer;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -1439,7 +1440,7 @@ function scheduled_paid_subscriptions()
 					'end_time' => $row['end_time'],
 				)),
 			);
-			updateMemberData($row['id_member'], array('alerts' => '+'));
+			User::updateMemberData($row['id_member'], array('alerts' => '+'));
 		}
 	}
 

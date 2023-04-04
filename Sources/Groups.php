@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -28,8 +29,6 @@ if (!defined('SMF'))
  */
 function Groups()
 {
-	global $user_info;
-
 	// The sub-actions that we can do. Format "Function Name, Mod Bar Index if appropriate".
 	$subActions = array(
 		'index' => array('GroupList', 'view_groups'),
@@ -48,7 +47,7 @@ function Groups()
 	loadTemplate('ManageMembergroups');
 
 	// If we can see the moderation center, and this has a mod bar entry, add the mod center bar.
-	if (allowedTo('access_mod_center') || $user_info['mod_cache']['bq'] != '0=1' || $user_info['mod_cache']['gq'] != '0=1' || allowedTo('manage_membergroups'))
+	if (allowedTo('access_mod_center') || User::$me->mod_cache['bq'] != '0=1' || User::$me->mod_cache['gq'] != '0=1' || allowedTo('manage_membergroups'))
 	{
 		require_once(Config::$sourcedir . '/ModerationCenter.php');
 		$_GET['area'] = $_REQUEST['sa'] == 'requests' ? 'groups' : 'viewgroups';
@@ -196,7 +195,7 @@ function GroupList()
  */
 function MembergroupMembers()
 {
-	global $user_info, $settings;
+	global $settings;
 
 	$_REQUEST['group'] = isset($_REQUEST['group']) ? (int) $_REQUEST['group'] : 0;
 
@@ -251,7 +250,7 @@ function MembergroupMembers()
 			'name' => $row['real_name']
 		);
 
-		if ($user_info['id'] == $row['id_member'] && Utils::$context['group']['group_type'] != 1)
+		if (User::$me->id == $row['id_member'] && Utils::$context['group']['group_type'] != 1)
 			Utils::$context['group']['can_moderate'] = true;
 	}
 	Db::$db->free_result($request);
@@ -457,18 +456,16 @@ function MembergroupMembers()
  */
 function GroupRequests()
 {
-	global $user_info;
-
 	// Set up the template stuff...
 	Utils::$context['page_title'] = Lang::$txt['mc_group_requests'];
 	Utils::$context['sub_template'] = 'show_list';
 
 	// Verify we can be here.
-	if ($user_info['mod_cache']['gq'] == '0=1')
+	if (User::$me->mod_cache['gq'] == '0=1')
 		isAllowedTo('manage_membergroups');
 
 	// Normally, we act normally...
-	$where = ($user_info['mod_cache']['gq'] == '1=1' || $user_info['mod_cache']['gq'] == '0=1' ? $user_info['mod_cache']['gq'] : 'lgr.' . $user_info['mod_cache']['gq']);
+	$where = (User::$me->mod_cache['gq'] == '1=1' || User::$me->mod_cache['gq'] == '0=1' ? User::$me->mod_cache['gq'] : 'lgr.' . User::$me->mod_cache['gq']);
 
 	if (isset($_GET['closed']))
 		$where .= ' AND lgr.status != {int:status_open}';
@@ -528,8 +525,8 @@ function GroupRequests()
 					$log_changes[$row['id_request']] = array(
 						'id_request' => $row['id_request'],
 						'status' => $_POST['req_action'] == 'approve' ? 1 : 2, // 1 = approved, 2 = rejected
-						'id_member_acted' => $user_info['id'],
-						'member_name_acted' => $user_info['name'],
+						'id_member_acted' => User::$me->id,
+						'member_name_acted' => User::$me->name,
 						'time_acted' => time(),
 						'act_reason' => $_POST['req_action'] != 'approve' && !empty($_POST['groupreason']) && !empty($_POST['groupreason'][$row['id_request']]) ? Utils::htmlspecialchars($_POST['groupreason'][$row['id_request']], ENT_QUOTES) : '',
 					);
@@ -538,7 +535,7 @@ function GroupRequests()
 			Db::$db->free_result($request);
 
 			// Add a background task to handle notifying people of this request
-			$data = Utils::jsonEncode(array('member_id' => $user_info['id'], 'member_ip' => $user_info['ip'], 'request_list' => $request_list, 'status' => $_POST['req_action'], 'reason' => isset($_POST['groupreason']) ? $_POST['groupreason'] : '', 'time' => time()));
+			$data = Utils::jsonEncode(array('member_id' => User::$me->id, 'member_ip' => User::$me->ip, 'request_list' => $request_list, 'status' => $_POST['req_action'], 'reason' => isset($_POST['groupreason']) ? $_POST['groupreason'] : '', 'time' => time()));
 			Db::$db->insert('insert', '{db_prefix}background_tasks',
 				array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
 				array('$sourcedir/tasks/GroupAct_Notify.php', 'SMF\Tasks\GroupAct_Notify', $data, 0), array()

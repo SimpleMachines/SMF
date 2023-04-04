@@ -14,6 +14,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -27,22 +28,22 @@ if (!defined('SMF'))
  */
 function summary($memID)
 {
-	global $memberContext, $user_profile;
-
 	// Attempt to load the member's profile data.
-	if (!loadMemberContext($memID) || !isset($memberContext[$memID]))
+	if (!isset(User::$loaded[$memID]))
 		fatal_lang_error('not_a_user', false, 404);
+
+	User::$loaded[$memID]->format();
 
 	// Set up the stuff and load the user.
 	Utils::$context += array(
-		'page_title' => sprintf(Lang::$txt['profile_of_username'], $memberContext[$memID]['name']),
+		'page_title' => sprintf(Lang::$txt['profile_of_username'], User::$loaded[$memID]->formatted['name']),
 		'can_send_pm' => allowedTo('pm_send'),
 		'can_have_buddy' => allowedTo('profile_extra_own') && !empty(Config::$modSettings['enable_buddylist']),
 		'can_issue_warning' => allowedTo('issue_warning') && Config::$modSettings['warning_settings'][0] == 1,
-		'can_view_warning' => (allowedTo('moderate_forum') || allowedTo('issue_warning') || allowedTo('view_warning_any') || (Utils::$context['user']['is_owner'] && allowedTo('view_warning_own'))) && Config::$modSettings['warning_settings'][0] === '1'
+		'can_view_warning' => (allowedTo('moderate_forum') || allowedTo('issue_warning') || allowedTo('view_warning_any') || (User::$me->is_owner && allowedTo('view_warning_own'))) && Config::$modSettings['warning_settings'][0] === '1'
 	);
 
-	Utils::$context['member'] = &$memberContext[$memID];
+	Utils::$context['member'] = User::$loaded[$memID]->formatted;
 
 	// Set a canonical URL for this page.
 	Utils::$context['canonical_url'] = Config::$scripturl . '?action=profile;u=' . $memID;
@@ -65,8 +66,8 @@ function summary($memID)
 		Utils::$context['warning_status'] = Lang::$txt['profile_warning_is_watch'];
 
 	// They haven't even been registered for a full day!?
-	$days_registered = (int) ((time() - $user_profile[$memID]['date_registered']) / (3600 * 24));
-	if (empty($user_profile[$memID]['date_registered']) || $days_registered < 1)
+	$days_registered = (int) ((time() - User::$loaded[$memID]->date_registered) / (3600 * 24));
+	if (empty(User::$loaded[$memID]->date_registered) || $days_registered < 1)
 		Utils::$context['member']['posts_per_day'] = Lang::$txt['not_applicable'];
 	else
 		Utils::$context['member']['posts_per_day'] = Lang::numberFormat(Utils::$context['member']['real_posts'] / $days_registered, 3);
@@ -92,8 +93,8 @@ function summary($memID)
 	if (allowedTo('moderate_forum'))
 	{
 		// Make sure it's a valid ip address; otherwise, don't bother...
-		if (preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/', $memberContext[$memID]['ip']) == 1 && empty(Config::$modSettings['disableHostnameLookup']))
-			Utils::$context['member']['hostname'] = host_from_ip($memberContext[$memID]['ip']);
+		if (preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/', User::$loaded[$memID]->formatted['ip']) == 1 && empty(Config::$modSettings['disableHostnameLookup']))
+			Utils::$context['member']['hostname'] = host_from_ip(User::$loaded[$memID]->formatted['ip']);
 		else
 			Utils::$context['member']['hostname'] = '';
 
@@ -103,13 +104,13 @@ function summary($memID)
 		Utils::$context['can_see_ip'] = false;
 
 	// Are they hidden?
-	Utils::$context['member']['is_hidden'] = empty($user_profile[$memID]['show_online']);
+	Utils::$context['member']['is_hidden'] = empty(User::$loaded[$memID]->show_online);
 	Utils::$context['member']['show_last_login'] = allowedTo('admin_forum') || !Utils::$context['member']['is_hidden'];
 
 	if (!empty(Config::$modSettings['who_enabled']) && Utils::$context['member']['show_last_login'])
 	{
 		include_once(Config::$sourcedir . '/Who.php');
-		$action = determineActions($user_profile[$memID]['url']);
+		$action = determineActions(User::$loaded[$memID]->url);
 
 		if ($action !== false)
 			Utils::$context['member']['action'] = $action;
@@ -161,7 +162,7 @@ function summary($memID)
 		);
 		$ban_query[] = 'id_member = ' . Utils::$context['member']['id'];
 		$ban_query[] = ' {inet:ip} BETWEEN bi.ip_low and bi.ip_high';
-		$ban_query_vars['ip'] = $memberContext[$memID]['ip'];
+		$ban_query_vars['ip'] = User::$loaded[$memID]->formatted['ip'];
 		// Do we have a hostname already?
 		if (!empty(Utils::$context['member']['hostname']))
 		{
@@ -235,8 +236,6 @@ function summary($memID)
  */
 function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_avatar = false, $show_links = false)
 {
-	global $user_info, $user_profile;
-
 	// Are we being asked for some specific alerts?
 	$alertIDs = is_bool($to_fetch) ? array() : array_filter(array_map('intval', (array) $to_fetch));
 
@@ -328,13 +327,13 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 
 	// Look up member info of anyone we need it for.
 	if (!empty($profiles))
-		loadMemberData($profiles, false, 'minimal');
+		User::load($profiles, User::LOAD_BY_ID, 'minimal');
 
 	// Get the senders' avatars.
 	if ($with_avatar)
 	{
 		foreach ($senders as $sender_id => $sender)
-			$senders[$sender_id]['avatar'] = set_avatar_data($sender);
+			$senders[$sender_id]['avatar'] = User::setAvatarData($sender);
 
 		Utils::$context['avatar_url'] = Config::$modSettings['avatar_url'];
 	}
@@ -382,8 +381,8 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 	);
 
 	// If we need to check board access, use the correct board access filter for the member in question.
-	if ((!isset($user_info['query_see_board']) || $user_info['id'] != $memID) && (!empty($possible_msgs) || !empty($possible_topics)))
-		$qb = build_query_board($memID);
+	if ((!isset(User::$me->query_see_board) || User::$me->id != $memID) && (!empty($possible_msgs) || !empty($possible_topics)))
+		$qb = User::buildQueryBoard($memID);
 	else
 		$qb['query_see_board'] = '{query_see_board}';
 
@@ -521,14 +520,14 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 			if (empty($alert['extra']['user_id']))
 				$alert['extra']['user_id'] = $alert['content_id'];
 
-			if (isset($user_profile[$alert['extra']['user_id']]))
-				$alert['extra']['user_name'] = $user_profile[$alert['extra']['user_id']]['real_name'];
+			if (isset(User::$loaded[$alert['extra']['user_id']]))
+				$alert['extra']['user_name'] = User::$loaded[$alert['extra']['user_id']]->name;
 		}
 
 		// If we loaded the sender's profile, we may as well use it.
 		$sender_id = !empty($alert['sender_id']) ? $alert['sender_id'] : 0;
-		if (isset($user_profile[$sender_id]))
-			$alert['sender_name'] = $user_profile[$sender_id]['real_name'];
+		if (isset(User::$loaded[$sender_id]))
+			$alert['sender_name'] = User::$loaded[$sender_id]->name;
 
 		// If requested, include the sender's avatar data.
 		if ($with_avatar && !empty($senders[$sender_id]))
@@ -826,8 +825,8 @@ function showAlerts($memID)
  */
 function showPosts($memID)
 {
-	global $user_info, $options;
-	global $user_profile, $board;
+	global $options;
+	global $board;
 
 	// Some initial context.
 	Utils::$context['start'] = (int) $_REQUEST['start'];
@@ -856,7 +855,7 @@ function showPosts($memID)
 		'topics' => 'Topics'
 	);
 
-	if (Utils::$context['user']['is_owner'])
+	if (User::$me->is_owner)
 		$title['unwatchedtopics'] = 'Unwatched';
 
 	// Set the page title
@@ -865,7 +864,7 @@ function showPosts($memID)
 	else
 		Utils::$context['page_title'] = Lang::$txt['showPosts'];
 
-	Utils::$context['page_title'] .= ' - ' . $user_profile[$memID]['real_name'];
+	Utils::$context['page_title'] .= ' - ' . User::$loaded[$memID]->name;
 
 	// Is the load average too high to allow searching just now?
 	if (!empty(Utils::$context['load_average']) && !empty(Config::$modSettings['loadavg_show_posts']) && Utils::$context['load_average'] >= Config::$modSettings['loadavg_show_posts'])
@@ -875,7 +874,7 @@ function showPosts($memID)
 	if (isset($_GET['sa']) && $_GET['sa'] == 'attach')
 		return showAttachments($memID);
 	// Instead, if we're dealing with unwatched topics (and the feature is enabled) use that other function.
-	elseif (isset($_GET['sa']) && $_GET['sa'] == 'unwatchedtopics' && Utils::$context['user']['is_owner'])
+	elseif (isset($_GET['sa']) && $_GET['sa'] == 'unwatchedtopics' && User::$me->is_owner)
 		return showUnwatched($memID);
 
 	// Are we just viewing topics?
@@ -907,7 +906,7 @@ function showPosts($memID)
 		removeMessage((int) $_GET['delete']);
 
 		// Add it to the mod log.
-		if (allowedTo('delete_any') && (!allowedTo('delete_own') || $info[1] != $user_info['id']))
+		if (allowedTo('delete_any') && (!allowedTo('delete_own') || $info[1] != User::$me->id))
 			logAction('delete', array('topic' => $info[2], 'subject' => $info[0], 'member' => $info[1], 'board' => $info[3]));
 
 		// Back to... where we are now ;).
@@ -924,7 +923,7 @@ function showPosts($memID)
 			FROM {db_prefix}topics AS t' . '
 			WHERE {query_see_topic_board}
 				AND t.id_member_started = {int:current_member}' . (!empty($board) ? '
-				AND t.id_board = {int:board}' : '') . (!Config::$modSettings['postmod_active'] || Utils::$context['user']['is_owner'] ? '' : '
+				AND t.id_board = {int:board}' : '') . (!Config::$modSettings['postmod_active'] || User::$me->is_owner ? '' : '
 				AND t.approved = {int:is_approved}'),
 			array(
 				'current_member' => $memID,
@@ -935,10 +934,10 @@ function showPosts($memID)
 	else
 		$request = Db::$db->query('', '
 			SELECT COUNT(*)
-			FROM {db_prefix}messages AS m' . (!Config::$modSettings['postmod_active'] || Utils::$context['user']['is_owner'] ? '' : '
+			FROM {db_prefix}messages AS m' . (!Config::$modSettings['postmod_active'] || User::$me->is_owner ? '' : '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)') . '
 			WHERE {query_see_message_board} AND m.id_member = {int:current_member}' . (!empty($board) ? '
-				AND m.id_board = {int:board}' : '') . (!Config::$modSettings['postmod_active'] || Utils::$context['user']['is_owner'] ? '' : '
+				AND m.id_board = {int:board}' : '') . (!Config::$modSettings['postmod_active'] || User::$me->is_owner ? '' : '
 				AND m.approved = {int:is_approved}
 				AND t.approved = {int:is_approved}'),
 			array(
@@ -952,10 +951,10 @@ function showPosts($memID)
 
 	$request = Db::$db->query('', '
 		SELECT MIN(id_msg), MAX(id_msg)
-		FROM {db_prefix}messages AS m' . (!Config::$modSettings['postmod_active'] || Utils::$context['user']['is_owner'] ? '' : '
+		FROM {db_prefix}messages AS m' . (!Config::$modSettings['postmod_active'] || User::$me->is_owner ? '' : '
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)') . '
 		WHERE m.id_member = {int:current_member}' . (!empty($board) ? '
-			AND m.id_board = {int:board}' : '') . (!Config::$modSettings['postmod_active'] || Utils::$context['user']['is_owner'] ? '' : '
+			AND m.id_board = {int:board}' : '') . (!Config::$modSettings['postmod_active'] || User::$me->is_owner ? '' : '
 			AND m.approved = {int:is_approved}
 			AND t.approved = {int:is_approved}'),
 		array(
@@ -1020,7 +1019,7 @@ function showPosts($memID)
 				WHERE t.id_member_started = {int:current_member}' . (!empty($board) ? '
 					AND t.id_board = {int:board}' : '') . (empty($range_limit) ? '' : '
 					AND ' . $range_limit) . '
-					AND {query_see_board}' . (!Config::$modSettings['postmod_active'] || Utils::$context['user']['is_owner'] ? '' : '
+					AND {query_see_board}' . (!Config::$modSettings['postmod_active'] || User::$me->is_owner ? '' : '
 					AND t.approved = {int:is_approved} AND m.approved = {int:is_approved}') . '
 				ORDER BY t.id_first_msg ' . ($reverse ? 'ASC' : 'DESC') . '
 				LIMIT {int:start}, {int:max}',
@@ -1047,7 +1046,7 @@ function showPosts($memID)
 				WHERE m.id_member = {int:current_member}' . (!empty($board) ? '
 					AND b.id_board = {int:board}' : '') . (empty($range_limit) ? '' : '
 					AND ' . $range_limit) . '
-					AND {query_see_board}' . (!Config::$modSettings['postmod_active'] || Utils::$context['user']['is_owner'] ? '' : '
+					AND {query_see_board}' . (!Config::$modSettings['postmod_active'] || User::$me->is_owner ? '' : '
 					AND t.approved = {int:is_approved} AND m.approved = {int:is_approved}') . '
 				ORDER BY m.id_msg ' . ($reverse ? 'ASC' : 'DESC') . '
 				LIMIT {int:start}, {int:max}',
@@ -1100,14 +1099,14 @@ function showPosts($memID)
 			'timestamp' => $row['poster_time'],
 			'id' => $row['id_msg'],
 			'can_reply' => false,
-			'can_mark_notify' => !Utils::$context['user']['is_guest'],
+			'can_mark_notify' => !User::$me->is_guest,
 			'can_delete' => false,
 			'delete_possible' => ($row['id_first_msg'] != $row['id_msg'] || $row['id_last_msg'] == $row['id_msg']) && (empty(Config::$modSettings['edit_disable_time']) || $row['poster_time'] + Config::$modSettings['edit_disable_time'] * 60 >= time()),
 			'approved' => $row['approved'],
 			'css_class' => $row['approved'] ? 'windowbg' : 'approvebg',
 		);
 
-		if ($user_info['id'] == $row['id_member_started'])
+		if (User::$me->id == $row['id_member_started'])
 			$board_ids['own'][$row['id_board']][] = $counter;
 		$board_ids['any'][$row['id_board']][] = $counter;
 	}
@@ -1355,7 +1354,7 @@ function list_getAttachments($start, $items_per_page, $sort, $boardsAllowed, $me
 			AND a.id_msg != {int:no_message}
 			AND m.id_member = {int:current_member}' . (!empty($board) ? '
 			AND b.id_board = {int:board}' : '') . (!in_array(0, $boardsAllowed) ? '
-			AND b.id_board IN ({array_int:boards_list})' : '') . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') || Utils::$context['user']['is_owner'] ? '' : '
+			AND b.id_board IN ({array_int:boards_list})' : '') . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') || User::$me->is_owner ? '' : '
 			AND a.approved = {int:is_approved}') . '
 		ORDER BY {raw:sort}
 		LIMIT {int:offset}, {int:limit}',
@@ -1408,13 +1407,13 @@ function list_getNumAttachments($boardsAllowed, $memID)
 		SELECT COUNT(*)
 		FROM {db_prefix}attachments AS a
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})' . (!Config::$modSettings['postmod_active'] || Utils::$context['user']['is_owner'] || allowedTo('approve_posts') ? '' : '
+			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})' . (!Config::$modSettings['postmod_active'] || User::$me->is_owner || allowedTo('approve_posts') ? '' : '
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)') . '
 		WHERE a.attachment_type = {int:attachment_type}
 			AND a.id_msg != {int:no_message}
 			AND m.id_member = {int:current_member}' . (!empty($board) ? '
 			AND b.id_board = {int:board}' : '') . (!in_array(0, $boardsAllowed) ? '
-			AND b.id_board IN ({array_int:boards_list})' : '') . (!Config::$modSettings['postmod_active'] || Utils::$context['user']['is_owner'] || allowedTo('approve_posts') ? '' : '
+			AND b.id_board IN ({array_int:boards_list})' : '') . (!Config::$modSettings['postmod_active'] || User::$me->is_owner || allowedTo('approve_posts') ? '' : '
 			AND m.approved = {int:is_approved}
 			AND t.approved = {int:is_approved}'),
 		array(
@@ -1439,10 +1438,10 @@ function list_getNumAttachments($boardsAllowed, $memID)
  */
 function showUnwatched($memID)
 {
-	global $user_info, $options;
+	global $options;
 
 	// Only the owner can see the list (if the function is enabled of course)
-	if ($user_info['id'] != $memID)
+	if (User::$me->id != $memID)
 		return;
 
 	require_once(Config::$sourcedir . '/Subs-List.php');
@@ -1648,19 +1647,17 @@ function list_getNumUnwatched($memID)
  */
 function statPanel($memID)
 {
-	global $user_profile, $user_info;
-
-	Utils::$context['page_title'] = Lang::$txt['statPanel_showStats'] . ' ' . $user_profile[$memID]['real_name'];
+	Utils::$context['page_title'] = Lang::$txt['statPanel_showStats'] . ' ' . User::$loaded[$memID]->name;
 
 	// Is the load average too high to allow searching just now?
 	if (!empty(Utils::$context['load_average']) && !empty(Config::$modSettings['loadavg_userstats']) && Utils::$context['load_average'] >= Config::$modSettings['loadavg_userstats'])
 		fatal_lang_error('loadavg_userstats_disabled', false);
 
 	// General user statistics.
-	$timeDays = floor($user_profile[$memID]['total_time_logged_in'] / 86400);
-	$timeHours = floor(($user_profile[$memID]['total_time_logged_in'] % 86400) / 3600);
-	Utils::$context['time_logged_in'] = ($timeDays > 0 ? $timeDays . Lang::$txt['total_time_logged_days'] : '') . ($timeHours > 0 ? $timeHours . Lang::$txt['total_time_logged_hours'] : '') . floor(($user_profile[$memID]['total_time_logged_in'] % 3600) / 60) . Lang::$txt['total_time_logged_minutes'];
-	Utils::$context['num_posts'] = Lang::numberFormat($user_profile[$memID]['posts']);
+	Utils::$context['time_logged_in'] = User::$loaded[$memID]->time_logged_in;
+
+	Utils::$context['num_posts'] = Lang::numberFormat(User::$loaded[$memID]->posts);
+
 	// Menu tab
 	Utils::$context[Utils::$context['profile_menu_name']]['tab_data'] = array(
 		'title' => Lang::$txt['statPanel_generalStats'] . ' - ' . Utils::$context['member']['name'],
@@ -1724,9 +1721,9 @@ function statPanel($memID)
 			'posts' => $row['message_count'],
 			'href' => Config::$scripturl . '?board=' . $row['id_board'] . '.0',
 			'link' => '<a href="' . Config::$scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>',
-			'posts_percent' => $user_profile[$memID]['posts'] == 0 ? 0 : ($row['message_count'] * 100) / $user_profile[$memID]['posts'],
+			'posts_percent' => User::$loaded[$memID]->posts == 0 ? 0 : ($row['message_count'] * 100) / User::$loaded[$memID]->posts,
 			'total_posts' => $row['num_posts'],
-			'total_posts_member' => $user_profile[$memID]['posts'],
+			'total_posts_member' => User::$loaded[$memID]->posts,
 		);
 	}
 	Db::$db->free_result($result);
@@ -1776,7 +1773,7 @@ function statPanel($memID)
 		GROUP BY hour',
 		array(
 			'current_member' => $memID,
-			'time_offset' => $user_info['time_offset'] * 3600,
+			'time_offset' => User::$me->time_offset * 3600,
 			'max_messages' => 1001,
 		)
 	);
@@ -1792,7 +1789,7 @@ function statPanel($memID)
 
 		Utils::$context['posts_by_time'][$row['hour']] = array(
 			'hour' => $row['hour'],
-			'hour_format' => stripos($user_info['time_format'], '%p') === false ? $row['hour'] : date('g a', mktime($row['hour'])),
+			'hour_format' => stripos(User::$me->time_format, '%p') === false ? $row['hour'] : date('g a', mktime($row['hour'])),
 			'posts' => $row['post_count'],
 			'posts_percent' => 0,
 			'is_last' => $row['hour'] == 23,
@@ -1806,7 +1803,7 @@ function statPanel($memID)
 			if (!isset(Utils::$context['posts_by_time'][$hour]))
 				Utils::$context['posts_by_time'][$hour] = array(
 					'hour' => $hour,
-					'hour_format' => stripos($user_info['time_format'], '%p') === false ? $hour : date('g a', mktime($hour)),
+					'hour_format' => stripos(User::$me->time_format, '%p') === false ? $hour : date('g a', mktime($hour)),
 					'posts' => 0,
 					'posts_percent' => 0,
 					'relative_percent' => 0,
@@ -1863,8 +1860,6 @@ function statPanel($memID)
  */
 function tracking($memID)
 {
-	global $user_profile;
-
 	$subActions = array(
 		'activity' => array('trackActivity', Lang::$txt['trackActivity'], 'moderate_forum'),
 		'ip' => array('TrackIP', Lang::$txt['trackIP'], 'moderate_forum'),
@@ -1909,7 +1904,7 @@ function tracking($memID)
 	Utils::$context['tracking_area'] = isset($_GET['sa']) && isset($subActions[$_GET['sa']]) ? $_GET['sa'] : $default;
 
 	// Set a page title.
-	Utils::$context['page_title'] = Lang::$txt['trackUser'] . ' - ' . $subActions[Utils::$context['tracking_area']][1] . ' - ' . $user_profile[$memID]['real_name'];
+	Utils::$context['page_title'] = Lang::$txt['trackUser'] . ' - ' . $subActions[Utils::$context['tracking_area']][1] . ' - ' . User::$loaded[$memID]->name;
 
 	// Pass on to the actual function.
 	Utils::$context['sub_template'] = $subActions[Utils::$context['tracking_area']][0];
@@ -1926,15 +1921,13 @@ function tracking($memID)
  */
 function trackActivity($memID)
 {
-	global $user_profile;
-
 	// Verify if the user has sufficient permissions.
 	isAllowedTo('moderate_forum');
 
-	Utils::$context['last_ip'] = $user_profile[$memID]['member_ip'];
-	if (Utils::$context['last_ip'] != $user_profile[$memID]['member_ip2'])
-		Utils::$context['last_ip2'] = $user_profile[$memID]['member_ip2'];
-	Utils::$context['member']['name'] = $user_profile[$memID]['real_name'];
+	Utils::$context['last_ip'] = User::$loaded[$memID]->ip;
+	if (Utils::$context['last_ip'] != User::$loaded[$memID]->ip2)
+		Utils::$context['last_ip2'] = User::$loaded[$memID]->ip2;
+	Utils::$context['member']['name'] = User::$loaded[$memID]->name;
 
 	// Set the options for the list component.
 	$listOptions = array(
@@ -2017,7 +2010,7 @@ function trackActivity($memID)
 
 	// @todo cache this
 	// If this is a big forum, or a large posting user, let's limit the search.
-	if (Config::$modSettings['totalMessages'] > 50000 && $user_profile[$memID]['posts'] > 500)
+	if (Config::$modSettings['totalMessages'] > 50000 && User::$loaded[$memID]->posts > 500)
 	{
 		$request = Db::$db->query('', '
 			SELECT MAX(id_msg)
@@ -2031,13 +2024,13 @@ function trackActivity($memID)
 		Db::$db->free_result($request);
 
 		// There's no point worrying ourselves with messages made yonks ago, just get recent ones!
-		$min_msg_member = max(0, $max_msg_member - $user_profile[$memID]['posts'] * 3);
+		$min_msg_member = max(0, $max_msg_member - User::$loaded[$memID]->posts * 3);
 	}
 
 	// Default to at least the ones we know about.
 	$ips = array(
-		$user_profile[$memID]['member_ip'],
-		$user_profile[$memID]['member_ip2'],
+		User::$loaded[$memID]->ip,
+		User::$loaded[$memID]->ip2,
 	);
 
 	// @todo cache this
@@ -2211,8 +2204,6 @@ function list_getUserErrors($start, $items_per_page, $sort, $where, $where_vars 
  */
 function list_getIPMessageCount($where, $where_vars = array())
 {
-	global $user_info;
-
 	$request = Db::$db->query('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}messages AS m
@@ -2237,7 +2228,6 @@ function list_getIPMessageCount($where, $where_vars = array())
  */
 function list_getIPMessages($start, $items_per_page, $sort, $where, $where_vars = array())
 {
-	global $user_info;
 
 	// Get all the messages fitting this where clause.
 	$request = Db::$db->query('', '
@@ -2282,7 +2272,6 @@ function list_getIPMessages($start, $items_per_page, $sort, $where, $where_vars 
  */
 function TrackIP($memID = 0)
 {
-	global $user_profile, $user_info;
 	global $options;
 
 	// Can the user do this?
@@ -2290,7 +2279,7 @@ function TrackIP($memID = 0)
 
 	if ($memID == 0)
 	{
-		Utils::$context['ip'] = ip2range($user_info['ip']);
+		Utils::$context['ip'] = ip2range(User::$me->ip);
 		loadTemplate('Profile');
 		Lang::load('Profile');
 		Utils::$context['sub_template'] = 'trackIP';
@@ -2299,7 +2288,7 @@ function TrackIP($memID = 0)
 	}
 	else
 	{
-		Utils::$context['ip'] = ip2range($user_profile[$memID]['member_ip']);
+		Utils::$context['ip'] = ip2range(User::$loaded[$memID]->ip);
 		Utils::$context['base_url'] = Config::$scripturl . '?action=profile;area=tracking;sa=ip;u=' . $memID;
 	}
 
@@ -2976,13 +2965,11 @@ function trackGroupReq($memID)
  */
 function list_getGroupRequestsCount($memID)
 {
-	global $user_info;
-
 	$request = Db::$db->query('', '
 		SELECT COUNT(*) AS req_count
 		FROM {db_prefix}log_group_requests AS lgr
 		WHERE id_member = {int:memID}
-			AND ' . ($user_info['mod_cache']['gq'] == '1=1' ? $user_info['mod_cache']['gq'] : 'lgr.' . $user_info['mod_cache']['gq']),
+			AND ' . (User::$me->mod_cache['gq'] == '1=1' ? User::$me->mod_cache['gq'] : 'lgr.' . User::$me->mod_cache['gq']),
 		array(
 			'memID' => $memID,
 		)
@@ -3004,8 +2991,6 @@ function list_getGroupRequestsCount($memID)
  */
 function list_getGroupRequests($start, $items_per_page, $sort, $memID)
 {
-	global $user_info;
-
 	$groupreq = array();
 
 	$request = Db::$db->query('', '
@@ -3016,7 +3001,7 @@ function list_getGroupRequests($start, $items_per_page, $sort, $memID)
 			LEFT JOIN {db_prefix}members AS ma ON (lgr.id_member_acted = ma.id_member)
 			INNER JOIN {db_prefix}membergroups AS mg ON (lgr.id_group = mg.id_group)
 		WHERE lgr.id_member = {int:memID}
-			AND ' . ($user_info['mod_cache']['gq'] == '1=1' ? $user_info['mod_cache']['gq'] : 'lgr.' . $user_info['mod_cache']['gq']) . '
+			AND ' . (User::$me->mod_cache['gq'] == '1=1' ? User::$me->mod_cache['gq'] : 'lgr.' . User::$me->mod_cache['gq']) . '
 		ORDER BY {raw:sort}
 		LIMIT {int:start}, {int:max}',
 		array(
@@ -3063,7 +3048,6 @@ function list_getGroupRequests($start, $items_per_page, $sort, $memID)
 function showPermissions($memID)
 {
 	global $board;
-	global $user_profile;
 
 	// Verify if the user has sufficient permissions.
 	isAllowedTo('manage_permissions');
@@ -3077,19 +3061,14 @@ function showPermissions($memID)
 	loadPermissionProfiles();
 
 	Utils::$context['member']['id'] = $memID;
-	Utils::$context['member']['name'] = $user_profile[$memID]['real_name'];
+	Utils::$context['member']['name'] = User::$loaded[$memID]->name;
 
 	Utils::$context['page_title'] = Lang::$txt['showPermissions'];
 	$board = empty($board) ? 0 : (int) $board;
 	Utils::$context['board'] = $board;
 
 	// Determine which groups this user is in.
-	if (empty($user_profile[$memID]['additional_groups']))
-		$curGroups = array();
-	else
-		$curGroups = explode(',', $user_profile[$memID]['additional_groups']);
-	$curGroups[] = $user_profile[$memID]['id_group'];
-	$curGroups[] = $user_profile[$memID]['id_post_group'];
+	$curGroups = User::$loaded[$memID]->groups;
 
 	// Load a list of boards for the jump box - except the defaults.
 	$request = Db::$db->query('order_by_board_order', '
@@ -3252,7 +3231,7 @@ function showPermissions($memID)
 function viewWarning($memID)
 {
 	// Firstly, can we actually even be here?
-	if (!(Utils::$context['user']['is_owner'] && allowedTo('view_warning_own')) && !allowedTo('view_warning_any') && !allowedTo('issue_warning') && !allowedTo('moderate_forum'))
+	if (!(User::$me->is_owner && allowedTo('view_warning_own')) && !allowedTo('view_warning_any') && !allowedTo('issue_warning') && !allowedTo('moderate_forum'))
 		fatal_lang_error('no_access', false);
 
 	// Make sure things which are disabled stay disabled.

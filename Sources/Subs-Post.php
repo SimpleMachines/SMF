@@ -19,6 +19,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Mentions;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
@@ -36,8 +37,6 @@ if (!defined('SMF'))
  */
 function preparsecode(&$message, $previewing = false)
 {
-	global $user_info;
-
 	static $tags_regex, $disallowed_tags_regex;
 
 	// Convert control characters (except \t, \r, and \n) to harmless Unicode symbols
@@ -145,10 +144,10 @@ function preparsecode(&$message, $previewing = false)
 	fixTags($message);
 
 	// Replace /me.+?\n with [me=name]dsf[/me]\n.
-	if (strpos($user_info['name'], '[') !== false || strpos($user_info['name'], ']') !== false || strpos($user_info['name'], '\'') !== false || strpos($user_info['name'], '"') !== false)
-		$message = preg_replace('~(\A|\n)/me(?: |&nbsp;)([^\n]*)(?:\z)?~i', '$1[me=&quot;' . $user_info['name'] . '&quot;]$2[/me]', $message);
+	if (strpos(User::$me->name, '[') !== false || strpos(User::$me->name, ']') !== false || strpos(User::$me->name, '\'') !== false || strpos(User::$me->name, '"') !== false)
+		$message = preg_replace('~(\A|\n)/me(?: |&nbsp;)([^\n]*)(?:\z)?~i', '$1[me=&quot;' . User::$me->name . '&quot;]$2[/me]', $message);
 	else
-		$message = preg_replace('~(\A|\n)/me(?: |&nbsp;)([^\n]*)(?:\z)?~i', '$1[me=' . $user_info['name'] . ']$2[/me]', $message);
+		$message = preg_replace('~(\A|\n)/me(?: |&nbsp;)([^\n]*)(?:\z)?~i', '$1[me=' . User::$me->name . ']$2[/me]', $message);
 
 	if (!$previewing && strpos($message, '[html]') !== false)
 	{
@@ -173,9 +172,9 @@ function preparsecode(&$message, $previewing = false)
 	// Let's look at the time tags...
 	$message = preg_replace_callback(
 		'~\[time(?:=(absolute))*\](.+?)\[/time\]~i',
-		function($m) use ($user_info)
+		function($m)
 		{
-			return "[time]" . (is_numeric("$m[2]") || @strtotime("$m[2]") == 0 ? "$m[2]" : strtotime("$m[2]") - ("$m[1]" == "absolute" ? 0 : ((Config::$modSettings["time_offset"] + $user_info["time_offset"]) * 3600))) . "[/time]";
+			return "[time]" . (is_numeric("$m[2]") || @strtotime("$m[2]") == 0 ? "$m[2]" : strtotime("$m[2]") - ("$m[1]" == "absolute" ? 0 : ((Config::$modSettings['time_offset'] + User::$me->time_offset) * 3600))) . "[/time]";
 		},
 		$message
 	);
@@ -879,8 +878,6 @@ function AddMailQueue($flush = false, $to_array = array(), $subject = '', $messa
  */
 function sendpm($recipients, $subject, $message, $store_outbox = false, $from = null, $pm_head = 0)
 {
-	global $user_info;
-
 	// Make sure the PM language file is loaded, we might need something out of it.
 	Lang::load('PersonalMessage');
 
@@ -892,9 +889,9 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 
 	if ($from === null)
 		$from = array(
-			'id' => $user_info['id'],
-			'name' => $user_info['name'],
-			'username' => $user_info['username']
+			'id' => User::$me->id,
+			'name' => User::$me->name,
+			'username' => User::$me->username
 		);
 
 	// This is the one that will go in their inbox.
@@ -986,7 +983,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		$delete = false;
 		foreach ($criteria as $criterium)
 		{
-			if (($criterium['t'] == 'mid' && $criterium['v'] == $from['id']) || ($criterium['t'] == 'gid' && in_array($criterium['v'], $user_info['groups'])) || ($criterium['t'] == 'sub' && strpos($subject, $criterium['v']) !== false) || ($criterium['t'] == 'msg' && strpos($message, $criterium['v']) !== false))
+			if (($criterium['t'] == 'mid' && $criterium['v'] == $from['id']) || ($criterium['t'] == 'gid' && in_array($criterium['v'], User::$me->groups)) || ($criterium['t'] == 'sub' && strpos($subject, $criterium['v']) !== false) || ($criterium['t'] == 'msg' && strpos($message, $criterium['v']) !== false))
 				$delete = true;
 			// If we're adding and one criteria don't match then we stop!
 			elseif (!$row['is_or'])
@@ -1104,7 +1101,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		}
 
 		// If the receiving account is banned (>=10) or pending deletion (4), refuse to send the PM.
-		if ($row['is_activated'] >= 10 || ($row['is_activated'] == 4 && !$user_info['is_admin']))
+		if ($row['is_activated'] >= 10 || ($row['is_activated'] == 4 && !User::$me->is_admin))
 		{
 			$log['failed'][$row['id_member']] = sprintf(Lang::$txt['pm_error_user_cannot_read'], $row['real_name']);
 			unset($all_to[array_search($row['id_member'], $all_to)]);
@@ -1218,7 +1215,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		// Censor and parse BBC in the receiver's language. Only do each language once.
 		if (empty($notification_texts[$lang]))
 		{
-			if ($lang != $user_info['language'])
+			if ($lang != User::$me->language)
 				Lang::load('index+Modifications', $lang, false);
 
 			$notification_texts[$lang]['subject'] = $subject;
@@ -1236,8 +1233,8 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 				$notification_texts[$lang]['body'] = '';
 
 
-			if ($lang != $user_info['language'])
-				Lang::load('index+Modifications', $user_info['language'], false);
+			if ($lang != User::$me->language)
+				Lang::load('index+Modifications', User::$me->language, false);
 		}
 
 		$replacements['SUBJECT'] = $notification_texts[$lang]['subject'];
@@ -1260,7 +1257,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		if (isset($deletes[$id]))
 			unset($all_to[$k]);
 	if (!empty($all_to))
-		updateMemberData($all_to, array('instant_messages' => '+', 'unread_messages' => '+', 'new_pm' => 1));
+		User::updateMemberData($all_to, array('instant_messages' => '+', 'unread_messages' => '+', 'new_pm' => 1));
 
 	return $log;
 }
@@ -1697,8 +1694,6 @@ function SpellCheck()
  */
 function sendNotifications($topics, $type, $exclude = array(), $members_only = array())
 {
-	global $user_info;
-
 	// Can't do it if there's no topics.
 	if (empty($topics))
 		return;
@@ -1736,8 +1731,8 @@ function sendNotifications($topics, $type, $exclude = array(), $members_only = a
 				),
 				// Kinda cheeky, but for any action the originator is usually the current user
 				'posterOptions' => array(
-					'id' => $user_info['id'],
-					'name' => $user_info['name'],
+					'id' => User::$me->id,
+					'name' => User::$me->name,
 				),
 				'type' => $type,
 				'members_only' => $members_only,
@@ -1769,8 +1764,6 @@ function sendNotifications($topics, $type, $exclude = array(), $members_only = a
  */
 function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 {
-	global $user_info;
-
 	// Set optional parameters to the default value.
 	$msgOptions['icon'] = empty($msgOptions['icon']) ? 'xx' : $msgOptions['icon'];
 	$msgOptions['smileys_enabled'] = !empty($msgOptions['smileys_enabled']);
@@ -1784,7 +1777,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	$topicOptions['redirect_expires'] = isset($topicOptions['redirect_expires']) ? $topicOptions['redirect_expires'] : null;
 	$topicOptions['redirect_topic'] = isset($topicOptions['redirect_topic']) ? $topicOptions['redirect_topic'] : null;
 	$posterOptions['id'] = empty($posterOptions['id']) ? 0 : (int) $posterOptions['id'];
-	$posterOptions['ip'] = empty($posterOptions['ip']) ? $user_info['ip'] : $posterOptions['ip'];
+	$posterOptions['ip'] = empty($posterOptions['ip']) ? User::$me->ip : $posterOptions['ip'];
 
 	// Not exactly a post option but it allows hooks and/or other sources to skip sending notifications if they don't want to
 	$msgOptions['send_notifications'] = isset($msgOptions['send_notifications']) ? (bool) $msgOptions['send_notifications'] : true;
@@ -1816,7 +1809,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 			$posterOptions['name'] = Lang::$txt['guest_title'];
 			$posterOptions['email'] = '';
 		}
-		elseif ($posterOptions['id'] != $user_info['id'])
+		elseif ($posterOptions['id'] != User::$me->id)
 		{
 			$request = Db::$db->query('', '
 				SELECT member_name, email_address
@@ -1842,8 +1835,8 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		}
 		else
 		{
-			$posterOptions['name'] = $user_info['name'];
-			$posterOptions['email'] = $user_info['email'];
+			$posterOptions['name'] = User::$me->name;
+			$posterOptions['email'] = User::$me->email;
 		}
 	}
 
@@ -2074,7 +2067,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	}
 
 	// Mark inserted topic as read (only for the user calling this function).
-	if (!empty($topicOptions['mark_as_read']) && !$user_info['is_guest'])
+	if (!empty($topicOptions['mark_as_read']) && !User::$me->is_guest)
 	{
 		// Since it's likely they *read* it before replying, let's try an UPDATE first.
 		if (!$new_topic)
@@ -2105,7 +2098,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		}
 	}
 
-	if ($msgOptions['approved'] && empty($topicOptions['is_approved']) && $posterOptions['id'] != $user_info['id'])
+	if ($msgOptions['approved'] && empty($topicOptions['is_approved']) && $posterOptions['id'] != User::$me->id)
 		Db::$db->insert('',
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
@@ -2129,9 +2122,9 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	if (!empty($posterOptions['update_post_count']) && !empty($posterOptions['id']) && $msgOptions['approved'])
 	{
 		// Are you the one that happened to create this post?
-		if ($user_info['id'] == $posterOptions['id'])
-			$user_info['posts']++;
-		updateMemberData($posterOptions['id'], array('posts' => '+'));
+		if (User::$me->id == $posterOptions['id'])
+			User::$me->posts++;
+		User::updateMemberData($posterOptions['id'], array('posts' => '+'));
 	}
 
 	// They've posted, so they can make the view count go up one if they really want. (this is to keep views >= replies...)
@@ -2185,8 +2178,6 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
  */
 function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 {
-	global $user_info;
-
 	$topicOptions['poll'] = isset($topicOptions['poll']) ? (int) $topicOptions['poll'] : null;
 	$topicOptions['lock_mode'] = isset($topicOptions['lock_mode']) ? $topicOptions['lock_mode'] : null;
 	$topicOptions['sticky_mode'] = isset($topicOptions['sticky_mode']) ? $topicOptions['sticky_mode'] : null;
@@ -2251,7 +2242,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		$msgOptions['quoted_members'] = array_intersect_key($quoted_members, array_flip(array_keys($quoted_modifications['added'])));
 
 		// You don't need a notification about quoting yourself.
-		unset($msgOptions['quoted_members'][$user_info['id']]);
+		unset($msgOptions['quoted_members'][User::$me->id]);
 	}
 
 	if (!empty(Config::$modSettings['enable_mentions']) && isset($msgOptions['body']))
@@ -2269,7 +2260,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 			$msgOptions['mentioned_members'] = array_intersect_key($mentions, array_flip(array_keys($mention_modifications['added'])));
 
 			// Mentioning yourself is silly, and we aren't going to notify you about it.
-			unset($msgOptions['mentioned_members'][$user_info['id']]);
+			unset($msgOptions['mentioned_members'][User::$me->id]);
 		}
 	}
 
@@ -2317,7 +2308,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	}
 
 	// Mark the edited post as read.
-	if (!empty($topicOptions['mark_as_read']) && !$user_info['is_guest'])
+	if (!empty($topicOptions['mark_as_read']) && !User::$me->is_guest)
 	{
 		// Since it's likely they *read* it before editing, let's try an UPDATE first.
 		Db::$db->query('', '
@@ -2326,7 +2317,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 			WHERE id_member = {int:current_member}
 				AND id_topic = {int:id_topic}',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'id_msg' => Config::$modSettings['maxMsgID'],
 				'id_topic' => $topicOptions['id'],
 			)
@@ -2339,7 +2330,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 			Db::$db->insert('ignore',
 				'{db_prefix}log_topics',
 				array('id_topic' => 'int', 'id_member' => 'int', 'id_msg' => 'int'),
-				array($topicOptions['id'], $user_info['id'], Config::$modSettings['maxMsgID']),
+				array($topicOptions['id'], User::$me->id, Config::$modSettings['maxMsgID']),
 				array('id_topic', 'id_member')
 			);
 		}
@@ -2643,7 +2634,7 @@ function approvePosts($msgs, $approve = true, $notify = true)
 	// Post count for the members?
 	if (!empty($member_post_changes))
 		foreach ($member_post_changes as $id_member => $count_change)
-			updateMemberData($id_member, array('posts' => 'posts ' . ($approve ? '+' : '-') . ' ' . $count_change));
+			User::updateMemberData($id_member, array('posts' => 'posts ' . ($approve ? '+' : '-') . ' ' . $count_change));
 
 	// In case an external CMS needs to know about this approval/unapproval.
 	call_integration_hook('integrate_after_approve_posts', array($approve, $msgs, $topic_changes, $member_post_changes));
@@ -2742,7 +2733,7 @@ function clearApprovalAlerts($content_ids, $content_action)
 			)
 		);
 		// Decrement counter for each moderator who received an alert
-		updateMemberData($moderators, array('alerts' => '-'));
+		User::updateMemberData($moderators, array('alerts' => '-'));
 	}
 }
 
@@ -2995,17 +2986,15 @@ function loadEmailTemplate($template, $replacements = array(), $lang = '', $load
  */
 function user_info_callback($matches)
 {
-	global $user_info;
 	if (empty($matches[1]))
 		return '';
 
 	$use_ref = true;
-	$ref = &$user_info;
 
 	foreach (explode('.', $matches[1]) as $index)
 	{
-		if ($use_ref && isset($ref[$index]))
-			$ref = &$ref[$index];
+		if ($use_ref && isset(User::$me->{$index}))
+			$ref = &User::$me->{$index};
 		else
 		{
 			$use_ref = false;

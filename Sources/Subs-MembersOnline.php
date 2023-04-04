@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -32,8 +33,6 @@ if (!defined('SMF'))
  */
 function getMembersOnlineStats($membersOnlineOptions)
 {
-	global $user_info;
-
 	// The list can be sorted in several ways.
 	$allowed_sort_options = array(
 		'', // No sorting.
@@ -117,7 +116,7 @@ function getMembersOnlineStats($membersOnlineOptions)
 			$link = '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>';
 
 		// Buddies get counted and highlighted.
-		$is_buddy = in_array($row['id_member'], $user_info['buddies']);
+		$is_buddy = in_array($row['id_member'], User::$me->buddies);
 		if ($is_buddy)
 		{
 			$membersOnlineStats['num_buddies']++;

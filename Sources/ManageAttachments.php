@@ -17,6 +17,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -871,8 +872,6 @@ function RemoveAttachmentBySize()
  */
 function RemoveAttachment()
 {
-	global $user_info;
-
 	checkSession();
 
 	if (!empty($_POST['remove']))
@@ -905,7 +904,7 @@ function RemoveAttachment()
 						'deleted_message' => '<br><br>' . Lang::$txt['attachment_delete_admin'],
 					)
 				);
-				Lang::load('index', $user_info['language'], true);
+				Lang::load('index', User::$me->language, true);
 			}
 		}
 	}

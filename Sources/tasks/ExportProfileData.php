@@ -16,6 +16,7 @@ namespace SMF\Tasks;
 use SMF\Config;
 use SMF\Lang;
 use SMF\TaskRunner;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -98,17 +99,18 @@ class ExportProfileData extends BackgroundTask
 		// Inform static functions of the export format, etc.
 		self::$export_details = $this->_details;
 
+		// TaskRunner class doesn't create a User::$me, but this job needs one.
+		User::load($this->_details['uid'], User::LOAD_BY_ID, 'profile');
+		User::setMe($this->_details['uid']);
+
 		// For exports only, members can always see their own posts, even in boards that they can no longer access.
-		$member_info = $this->getMinUserInfo(array($this->_details['uid']));
-		$member_info = array_merge($member_info[$this->_details['uid']], array(
-			'buddies' => array(),
-			'query_see_board' => '1=1',
-			'query_see_message_board' => '1=1',
-			'query_see_topic_board' => '1=1',
-			'query_wanna_see_board' => '1=1',
-			'query_wanna_see_message_board' => '1=1',
-			'query_wanna_see_topic_board' => '1=1',
-		));
+		User::$me->buddies = array();
+		User::$me->query_see_board = '1=1';
+		User::$me->query_see_message_board = '1=1';
+		User::$me->query_see_topic_board = '1=1';
+		User::$me->query_wanna_see_board = '1=1';
+		User::$me->query_wanna_see_message_board = '1=1';
+		User::$me->query_wanna_see_topic_board = '1=1';
 
 		// Use some temporary integration hooks to manipulate BBC parsing during export.
 		foreach (array('pre_parsebbc', 'post_parsebbc', 'bbc_codes', 'post_parseAttachBBC', 'attach_bbc_validate') as $hook)
@@ -116,13 +118,13 @@ class ExportProfileData extends BackgroundTask
 
 		// Perform the export.
 		if ($this->_details['format'] == 'XML')
-			$this->exportXml($member_info);
+			$this->exportXml();
 
 		elseif ($this->_details['format'] == 'HTML')
-			$this->exportHtml($member_info);
+			$this->exportHtml();
 
 		elseif ($this->_details['format'] == 'XML_XSLT')
-			$this->exportXmlXslt($member_info);
+			$this->exportXmlXslt();
 
 		// If necessary, create a new background task to continue the export process.
 		if (!empty($this->next_task))
@@ -141,13 +143,11 @@ class ExportProfileData extends BackgroundTask
 
 	/**
 	 * The workhorse of this class. Compiles profile data to XML files.
-	 *
-	 * @param array $member_info Minimal $user_info about the relevant member.
 	 */
-	protected function exportXml($member_info)
+	protected function exportXml()
 	{
-		global $settings, $user_info;
-		global $user_profile, $query_this_board;
+		global $settings;
+		global $query_this_board;
 
 		// For convenience...
 		$uid = $this->_details['uid'];
@@ -171,14 +171,9 @@ class ExportProfileData extends BackgroundTask
 		Utils::$context[$datatype . '_start'] = $start[$datatype];
 		$datatypes = array_keys($included);
 
-		// Fake a wee bit of $user_info so that loading the member data & language doesn't choke.
-		$user_info = $member_info;
-
 		loadEssentialThemeData();
 		$settings['actual_theme_dir'] = $settings['theme_dir'];
-		Utils::$context['user']['id'] = $uid;
-		Utils::$context['user']['language'] = $lang;
-		loadMemberData($uid);
+		User::$me->language = $lang;
 		Lang::load(implode('+', array_unique(array('index', 'Modifications', 'Stats', 'Profile', $included[$datatype]['langfile']))), $lang);
 
 		// @todo Ask lawyers whether the GDPR requires us to include posts in the recycle bin.
@@ -207,7 +202,7 @@ class ExportProfileData extends BackgroundTask
 		$progressfile = $export_dir_slash . $idhash_ext . '.progress.json';
 
 		$feed_meta = array(
-			'title' => sprintf(Lang::$txt['profile_of_username'], $user_profile[$uid]['real_name']),
+			'title' => sprintf(Lang::$txt['profile_of_username'], User::$me->name),
 			'desc' => Lang::sentenceList(array_map(
 				function ($datatype)
 				{
@@ -456,16 +451,14 @@ class ExportProfileData extends BackgroundTask
 	 *
 	 * Internally calls exportXml() and then uses an XSLT stylesheet to
 	 * transform the XML files into HTML.
-	 *
-	 * @param array $member_info Minimal $user_info about the relevant member.
 	 */
-	protected function exportHtml($member_info)
+	protected function exportHtml()
 	{
 		Utils::$context['export_last_page'] = $this->_details['last_page'];
 		Utils::$context['export_dlfilename'] = $this->_details['dlfilename'];
 
 		// Perform the export to XML.
-		$this->exportXml($member_info);
+		$this->exportXml();
 
 		// Determine which files, if any, are ready to be transformed.
 		$export_dir_slash = Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR;
@@ -538,10 +531,8 @@ class ExportProfileData extends BackgroundTask
 	 *
 	 * Internally calls exportXml() and then embeds an XSLT stylesheet into
 	 * the XML so that it can be processed by the client.
-	 *
-	 * @param array $member_info Minimal $user_info about the relevant member.
 	 */
-	protected function exportXmlXslt($member_info)
+	protected function exportXmlXslt()
 	{
 		Utils::$context['export_last_page'] = $this->_details['last_page'];
 		Utils::$context['export_dlfilename'] = $this->_details['dlfilename'];
@@ -550,7 +541,7 @@ class ExportProfileData extends BackgroundTask
 		add_integration_function('integrate_xml_data', __CLASS__ . '::add_dtd', false);
 
 		// Perform the export to XML.
-		$this->exportXml($member_info);
+		$this->exportXml();
 
 		// Make sure we have everything we need.
 		if (empty(self::$xslt_info['stylesheet']))
@@ -627,8 +618,6 @@ class ExportProfileData extends BackgroundTask
 	 */
 	public static function pre_parsebbc(&$message, &$smileys, &$cache_id, &$parse_tags, &$cache_key_extras)
 	{
-		global $user_info;
-
 		$cache_id = '';
 
 		$cache_key_extras[__CLASS__] = 1;

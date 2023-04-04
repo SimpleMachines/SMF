@@ -278,7 +278,7 @@ class Forum
 	 */
 	protected function main()
 	{
-		global $settings, $user_info, $board, $topic;
+		global $settings, $board, $topic;
 		global $board_info;
 
 		// Special case: session keep-alive, output a transparent pixel.
@@ -295,13 +295,13 @@ class Forum
 		corsPolicyHeader();
 
 		// Load the user's cookie (or set as guest) and load their settings.
-		loadUserSettings();
+		User::load();
 
 		// Load the current board's information.
 		loadBoard();
 
 		// Load the current user's permissions.
-		loadPermissions();
+		User::$me->loadPermissions();
 
 		// Attachments don't require the entire theme to be loaded.
 		if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'dlattach' && empty(Config::$maintenance))
@@ -318,7 +318,7 @@ class Forum
 		is_not_banned();
 
 		// If we are in a topic and don't have permission to approve it then duck out now.
-		if (!empty($topic) && empty($board_info['cur_topic_approved']) && !allowedTo('approve_posts') && ($user_info['id'] != $board_info['cur_topic_starter'] || $user_info['is_guest']))
+		if (!empty($topic) && empty($board_info['cur_topic_approved']) && !allowedTo('approve_posts') && (User::$me->id != $board_info['cur_topic_starter'] || User::$me->is_guest))
 		{
 			fatal_lang_error('not_a_topic', false);
 		}
@@ -351,7 +351,7 @@ class Forum
 				return 'InMaintenance';
 		}
 		// If guest access is off, a guest can only do one of the very few following actions.
-		elseif (empty(Config::$modSettings['allow_guestAccess']) && $user_info['is_guest'] && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], self::$guest_access_actions)))
+		elseif (empty(Config::$modSettings['allow_guestAccess']) && User::$me->is_guest && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], self::$guest_access_actions)))
 		{
 			return 'KickGuest';
 		}

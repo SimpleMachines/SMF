@@ -16,6 +16,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -162,14 +163,12 @@ function newsletterpreview()
  */
 function sig_preview()
 {
-	global $user_info;
-
 	require_once(Config::$sourcedir . '/Profile-Modify.php');
 	Lang::load('Profile');
 	Lang::load('Errors');
 
 	$user = isset($_POST['user']) ? (int) $_POST['user'] : 0;
-	$is_owner = $user == $user_info['id'];
+	$is_owner = $user == User::$me->id;
 
 	// @todo Temporary
 	// Borrowed from loadAttachmentContext in Display.php
@@ -246,8 +245,6 @@ function sig_preview()
  */
 function warning_preview()
 {
-	global $user_info;
-
 	require_once(Config::$sourcedir . '/Subs-Post.php');
 	Lang::load('Errors');
 	Lang::load('ModerationCenter');
@@ -284,7 +281,7 @@ function warning_preview()
 				'{REGARDS}',
 			);
 			$replace = array(
-				$user_info['name'],
+				User::$me->name,
 				Config::$mbname,
 				Config::$scripturl,
 				sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name']),

@@ -16,6 +16,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -325,8 +326,6 @@ function attachments_init_dir(&$tree, &$count)
  */
 function processAttachments()
 {
-	global $user_info;
-
 	// Make sure we're uploading to the right place.
 	if (!empty(Config::$modSettings['automanage_attachments']))
 		automanage_attachments_check_directory();
@@ -388,7 +387,7 @@ function processAttachments()
 		if (!$ignore_temp)
 		{
 			foreach ($_SESSION['temp_attachments'] as $attachID => $attachment)
-				if (strpos($attachID, 'post_tmp_' . $user_info['id']) !== false)
+				if (strpos($attachID, 'post_tmp_' . User::$me->id) !== false)
 					unlink($attachment['tmp_name']);
 
 			Utils::$context['we_are_history'] = Lang::$txt['error_temp_attachments_flushed'];
@@ -445,7 +444,7 @@ function processAttachments()
 		}
 
 		// Try to move and rename the file before doing any more checks on it.
-		$attachID = 'post_tmp_' . $user_info['id'] . '_' . md5(mt_rand());
+		$attachID = 'post_tmp_' . User::$me->id . '_' . md5(mt_rand());
 		$destName = Utils::$context['attach_dir'] . '/' . $attachID;
 		if (empty($errors))
 		{
@@ -489,7 +488,7 @@ function processAttachments()
 			attachmentChecks($attachID);
 	}
 	// Mod authors, finally a hook to hang an alternate attachment upload system upon
-	// Upload to the current attachment folder with the file name $attachID or 'post_tmp_' . $user_info['id'] . '_' . md5(mt_rand())
+	// Upload to the current attachment folder with the file name $attachID or 'post_tmp_' . User::$me->id . '_' . md5(mt_rand())
 	// Populate $_SESSION['temp_attachments'][$attachID] with the following:
 	//   name => The file name
 	//   tmp_name => Path to the temp file (Utils::$context['attach_dir'] . '/' . $attachID).
@@ -973,7 +972,7 @@ function assignAttachments($attachIDs = array(), $msgID = 0)
  */
 function parseAttachBBC($attachID = 0)
 {
-	global $board, $user_info;
+	global $board;
 	static $view_attachment_boards;
 
 	if (!isset($view_attachment_boards))
@@ -1049,7 +1048,7 @@ function parseAttachBBC($attachID = 0)
 		// Skip unapproved attachment, unless they belong to the user or the user can approve them.
 		if (!Utils::$context['loaded_attachments'][$attachInfo['msg']][$attachID]['approved'] &&
 			Config::$modSettings['postmod_active'] && !allowedTo('approve_posts') &&
-			Utils::$context['loaded_attachments'][$attachInfo['msg']][$attachID]['id_member'] != $user_info['id'])
+			Utils::$context['loaded_attachments'][$attachInfo['msg']][$attachID]['id_member'] != User::$me->id)
 		{
 			unset(Utils::$context['loaded_attachments'][$attachInfo['msg']][$attachID]);
 			return 'attachments_unapproved';

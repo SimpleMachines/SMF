@@ -16,6 +16,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -1685,8 +1686,6 @@ function EditSmileyOrder()
  */
 function InstallSmileySet()
 {
-	global $user_info;
-
 	isAllowedTo('manage_smileys');
 	checkSession('request');
 	// One of these two may be necessary
@@ -1885,7 +1884,7 @@ function InstallSmileySet()
 			),
 			array(
 				$smileyInfo['filename'], $smileyInfo['name'], $smileyInfo['id'], $smileyInfo['version'],
-				$user_info['id'], $user_info['name'], time(),
+				User::$me->id, User::$me->name, time(),
 				1, '', '',
 				0, '', $credits_tag,
 			),

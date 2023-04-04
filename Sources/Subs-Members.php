@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -22,406 +23,7 @@ use SMF\Db\DatabaseApi as Db;
 if (!defined('SMF'))
 	die('No direct access...');
 
-/**
- * Delete one or more members.
- * Requires profile_remove_own or profile_remove_any permission for
- * respectively removing your own account or any account.
- * Non-admins cannot delete admins.
- * The function:
- *   - changes author of messages, topics and polls to guest authors.
- *   - removes all log entries concerning the deleted members, except the
- * error logs, ban logs and moderation logs.
- *   - removes these members' personal messages (only the inbox), avatars,
- * ban entries, theme settings, moderator positions, poll and votes.
- *   - updates member statistics afterwards.
- *
- * @param int|array $users The ID of a user or an array of user IDs
- * @param bool $check_not_admin Whether to verify that the users aren't admins
- */
-function deleteMembers($users, $check_not_admin = false)
-{
-	global $user_info;
-
-	// Try give us a while to sort this out...
-	@set_time_limit(600);
-
-	// Try to get some more memory.
-	setMemoryLimit('128M');
-
-	// If it's not an array, make it so!
-	if (!is_array($users))
-		$users = array($users);
-	else
-		$users = array_unique($users);
-
-	// Make sure there's no void user in here.
-	$users = array_diff($users, array(0));
-
-	// How many are they deleting?
-	if (empty($users))
-		return;
-	elseif (count($users) == 1)
-	{
-		list ($user) = $users;
-
-		if ($user == $user_info['id'])
-			isAllowedTo('profile_remove_own');
-		else
-			isAllowedTo('profile_remove_any');
-	}
-	else
-	{
-		foreach ($users as $k => $v)
-			$users[$k] = (int) $v;
-
-		// Deleting more than one?  You can't have more than one account...
-		isAllowedTo('profile_remove_any');
-	}
-
-	// Get their names for logging purposes.
-	$request = Db::$db->query('', '
-		SELECT id_member, member_name, CASE WHEN id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0 THEN 1 ELSE 0 END AS is_admin
-		FROM {db_prefix}members
-		WHERE id_member IN ({array_int:user_list})
-		LIMIT {int:limit}',
-		array(
-			'user_list' => $users,
-			'admin_group' => 1,
-			'limit' => count($users),
-		)
-	);
-	$admins = array();
-	$user_log_details = array();
-	while ($row = Db::$db->fetch_assoc($request))
-	{
-		if ($row['is_admin'])
-			$admins[] = $row['id_member'];
-		$user_log_details[$row['id_member']] = array($row['id_member'], $row['member_name']);
-	}
-	Db::$db->free_result($request);
-
-	if (empty($user_log_details))
-		return;
-
-	// Make sure they aren't trying to delete administrators if they aren't one.  But don't bother checking if it's just themself.
-	if (!empty($admins) && ($check_not_admin || (!allowedTo('admin_forum') && (count($users) != 1 || $users[0] != $user_info['id']))))
-	{
-		$users = array_diff($users, $admins);
-		foreach ($admins as $id)
-			unset($user_log_details[$id]);
-	}
-
-	// No one left?
-	if (empty($users))
-		return;
-
-	// Log the action - regardless of who is deleting it.
-	$log_changes = array();
-	foreach ($user_log_details as $user)
-	{
-		$log_changes[] = array(
-			'action' => 'delete_member',
-			'log_type' => 'admin',
-			'extra' => array(
-				'member' => $user[0],
-				'name' => $user[1],
-				'member_acted' => $user_info['name'],
-			),
-		);
-
-		// Remove any cached data if enabled.
-		if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2)
-			CacheApi::put('user_settings-' . $user[0], null, 60);
-	}
-
-	// Make these peoples' posts guest posts.
-	Db::$db->query('', '
-		UPDATE {db_prefix}messages
-		SET id_member = {int:guest_id}' . (!empty(Config::$modSettings['deleteMembersRemovesEmail']) ? ',
-			poster_email = {string:blank_email}' : '') . '
-		WHERE id_member IN ({array_int:users})',
-		array(
-			'guest_id' => 0,
-			'blank_email' => '',
-			'users' => $users,
-		)
-	);
-	Db::$db->query('', '
-		UPDATE {db_prefix}polls
-		SET id_member = {int:guest_id}
-		WHERE id_member IN ({array_int:users})',
-		array(
-			'guest_id' => 0,
-			'users' => $users,
-		)
-	);
-
-	// Make these peoples' posts guest first posts and last posts.
-	Db::$db->query('', '
-		UPDATE {db_prefix}topics
-		SET id_member_started = {int:guest_id}
-		WHERE id_member_started IN ({array_int:users})',
-		array(
-			'guest_id' => 0,
-			'users' => $users,
-		)
-	);
-	Db::$db->query('', '
-		UPDATE {db_prefix}topics
-		SET id_member_updated = {int:guest_id}
-		WHERE id_member_updated IN ({array_int:users})',
-		array(
-			'guest_id' => 0,
-			'users' => $users,
-		)
-	);
-
-	Db::$db->query('', '
-		UPDATE {db_prefix}log_actions
-		SET id_member = {int:guest_id}
-		WHERE id_member IN ({array_int:users})',
-		array(
-			'guest_id' => 0,
-			'users' => $users,
-		)
-	);
-
-	Db::$db->query('', '
-		UPDATE {db_prefix}log_banned
-		SET id_member = {int:guest_id}
-		WHERE id_member IN ({array_int:users})',
-		array(
-			'guest_id' => 0,
-			'users' => $users,
-		)
-	);
-
-	Db::$db->query('', '
-		UPDATE {db_prefix}log_errors
-		SET id_member = {int:guest_id}
-		WHERE id_member IN ({array_int:users})',
-		array(
-			'guest_id' => 0,
-			'users' => $users,
-		)
-	);
-
-	// Delete the member.
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}members
-		WHERE id_member IN ({array_int:users})',
-		array(
-			'users' => $users,
-		)
-	);
-
-	// Delete any drafts...
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}user_drafts
-		WHERE id_member IN ({array_int:users})',
-		array(
-			'users' => $users,
-		)
-	);
-
-	// Delete anything they liked.
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}user_likes
-		WHERE id_member IN ({array_int:users})',
-		array(
-			'users' => $users,
-		)
-	);
-
-	// Delete their mentions
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}mentions
-		WHERE id_member IN ({array_int:members})',
-		array(
-			'members' => $users,
-		)
-	);
-
-	// Delete the logs...
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}log_actions
-		WHERE id_log = {int:log_type}
-			AND id_member IN ({array_int:users})',
-		array(
-			'log_type' => 2,
-			'users' => $users,
-		)
-	);
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}log_boards
-		WHERE id_member IN ({array_int:users})',
-		array(
-			'users' => $users,
-		)
-	);
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}log_comments
-		WHERE id_recipient IN ({array_int:users})
-			AND comment_type = {string:warntpl}',
-		array(
-			'users' => $users,
-			'warntpl' => 'warntpl',
-		)
-	);
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}log_group_requests
-		WHERE id_member IN ({array_int:users})',
-		array(
-			'users' => $users,
-		)
-	);
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}log_mark_read
-		WHERE id_member IN ({array_int:users})',
-		array(
-			'users' => $users,
-		)
-	);
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}log_notify
-		WHERE id_member IN ({array_int:users})',
-		array(
-			'users' => $users,
-		)
-	);
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}log_online
-		WHERE id_member IN ({array_int:users})',
-		array(
-			'users' => $users,
-		)
-	);
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}log_subscribed
-		WHERE id_member IN ({array_int:users})',
-		array(
-			'users' => $users,
-		)
-	);
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}log_topics
-		WHERE id_member IN ({array_int:users})',
-		array(
-			'users' => $users,
-		)
-	);
-
-	// Make their votes appear as guest votes - at least it keeps the totals right.
-	// @todo Consider adding back in cookie protection.
-	Db::$db->query('', '
-		UPDATE {db_prefix}log_polls
-		SET id_member = {int:guest_id}
-		WHERE id_member IN ({array_int:users})',
-		array(
-			'guest_id' => 0,
-			'users' => $users,
-		)
-	);
-
-	// Delete personal messages.
-	require_once(Config::$sourcedir . '/PersonalMessage.php');
-	deleteMessages(null, null, $users);
-
-	Db::$db->query('', '
-		UPDATE {db_prefix}personal_messages
-		SET id_member_from = {int:guest_id}
-		WHERE id_member_from IN ({array_int:users})',
-		array(
-			'guest_id' => 0,
-			'users' => $users,
-		)
-	);
-
-	// They no longer exist, so we don't know who it was sent to.
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}pm_recipients
-		WHERE id_member IN ({array_int:users})',
-		array(
-			'users' => $users,
-		)
-	);
-
-	// Delete avatar.
-	require_once(Config::$sourcedir . '/ManageAttachments.php');
-	removeAttachments(array('id_member' => $users));
-
-	// It's over, no more moderation for you.
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}moderators
-		WHERE id_member IN ({array_int:users})',
-		array(
-			'users' => $users,
-		)
-	);
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}group_moderators
-		WHERE id_member IN ({array_int:users})',
-		array(
-			'users' => $users,
-		)
-	);
-
-	// If you don't exist we can't ban you.
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}ban_items
-		WHERE id_member IN ({array_int:users})',
-		array(
-			'users' => $users,
-		)
-	);
-
-	// Remove individual theme settings.
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}themes
-		WHERE id_member IN ({array_int:users})',
-		array(
-			'users' => $users,
-		)
-	);
-
-	// These users are nobody's buddy nomore.
-	$request = Db::$db->query('', '
-		SELECT id_member, pm_ignore_list, buddy_list
-		FROM {db_prefix}members
-		WHERE FIND_IN_SET({raw:pm_ignore_list}, pm_ignore_list) != 0 OR FIND_IN_SET({raw:buddy_list}, buddy_list) != 0',
-		array(
-			'pm_ignore_list' => implode(', pm_ignore_list) != 0 OR FIND_IN_SET(', $users),
-			'buddy_list' => implode(', buddy_list) != 0 OR FIND_IN_SET(', $users),
-		)
-	);
-	while ($row = Db::$db->fetch_assoc($request))
-		Db::$db->query('', '
-			UPDATE {db_prefix}members
-			SET
-				pm_ignore_list = {string:pm_ignore_list},
-				buddy_list = {string:buddy_list}
-			WHERE id_member = {int:id_member}',
-			array(
-				'id_member' => $row['id_member'],
-				'pm_ignore_list' => implode(',', array_diff(explode(',', $row['pm_ignore_list']), $users)),
-				'buddy_list' => implode(',', array_diff(explode(',', $row['buddy_list']), $users)),
-			)
-		);
-	Db::$db->free_result($request);
-
-	// Make sure no member's birthday is still sticking in the calendar...
-	Config::updateModSettings(array(
-		'calendar_updated' => time(),
-	));
-
-	// Integration rocks!
-	call_integration_hook('integrate_delete_members', array($users));
-
-	updateStats('member');
-
-	require_once(Config::$sourcedir . '/Logging.php');
-	logActions($log_changes);
-}
+class_exists('SMF\\User');
 
 /**
  * Registers a member to the forum.
@@ -439,8 +41,6 @@ function deleteMembers($users, $check_not_admin = false)
  */
 function registerMember(&$regOptions, $return_errors = false)
 {
-	global $user_info;
-
 	Lang::load('Login');
 
 	// We'll need some external functions.
@@ -460,7 +60,7 @@ function registerMember(&$regOptions, $return_errors = false)
 	elseif ($regOptions['interface'] == 'guest')
 	{
 		// You cannot register twice...
-		if (empty($user_info['is_guest']))
+		if (empty(User::$me->is_guest))
 			redirectexit();
 
 		// Make sure they didn't just register with this session.
@@ -485,13 +85,13 @@ function registerMember(&$regOptions, $return_errors = false)
 	// Generate a validation code if it's supposed to be emailed.
 	$validation_code = '';
 	if ($regOptions['require'] == 'activation')
-		$validation_code = generateValidationCode();
+		$validation_code = User::generateValidationCode();
 
 	// If you haven't put in a password generate one.
 	if ($regOptions['interface'] == 'admin' && $regOptions['password'] == '')
 	{
 		mt_srand(time() + 1277);
-		$regOptions['password'] = generateValidationCode();
+		$regOptions['password'] = User::generateValidationCode();
 		$regOptions['password_check'] = $regOptions['password'];
 	}
 	// Does the first password match the second?
@@ -602,7 +202,7 @@ function registerMember(&$regOptions, $return_errors = false)
 		'password_salt' => bin2hex(Utils::randomBytes(16)),
 		'posts' => 0,
 		'date_registered' => time(),
-		'member_ip' => $regOptions['interface'] == 'admin' ? '127.0.0.1' : $user_info['ip'],
+		'member_ip' => $regOptions['interface'] == 'admin' ? '127.0.0.1' : User::$me->ip,
 		'member_ip2' => $regOptions['interface'] == 'admin' ? '127.0.0.1' : $_SERVER['BAN_CHECK_IP'],
 		'validation_code' => $validation_code,
 		'real_name' => $regOptions['username'],
@@ -859,115 +459,6 @@ function registerMember(&$regOptions, $return_errors = false)
 }
 
 /**
- * Check if a name is in the reserved words list.
- * (name, current member id, name/username?.)
- * - checks if name is a reserved name or username.
- * - if is_name is false, the name is assumed to be a username.
- * - the id_member variable is used to ignore duplicate matches with the
- * current member.
- *
- * @param string $name The name to check
- * @param int $current_id_member The ID of the current member (to avoid false positives with the current member)
- * @param bool $is_name Whether we're checking against reserved names or just usernames
- * @param bool $fatal Whether to die with a fatal error if the name is reserved
- * @return bool|void False if name is not reserved, otherwise true if $fatal is false or dies with a fatal_lang_error if $fatal is true
- */
-function isReservedName($name, $current_id_member = 0, $is_name = true, $fatal = true)
-{
-	$name = Utils::entityDecode($name, true);
-	$checkName = Utils::strtolower($name);
-
-	// Administrators are never restricted ;).
-	if (!allowedTo('moderate_forum') && ((!empty(Config::$modSettings['reserveName']) && $is_name) || !empty(Config::$modSettings['reserveUser']) && !$is_name))
-	{
-		$reservedNames = explode("\n", Config::$modSettings['reserveNames']);
-		// Case sensitive check?
-		$checkMe = empty(Config::$modSettings['reserveCase']) ? $checkName : $name;
-
-		// Check each name in the list...
-		foreach ($reservedNames as $reserved)
-		{
-			if ($reserved == '')
-				continue;
-
-			// The admin might've used entities too, level the playing field.
-			$reservedCheck = Utils::entityDecode($reserved, true);
-
-			// Case sensitive name?
-			if (empty(Config::$modSettings['reserveCase']))
-				$reservedCheck = Utils::strtolower($reservedCheck);
-
-			// If it's not just entire word, check for it in there somewhere...
-			if ($checkMe == $reservedCheck || (Utils::entityStrpos($checkMe, $reservedCheck) !== false && empty(Config::$modSettings['reserveWord'])))
-				if ($fatal)
-					fatal_lang_error('username_reserved', 'password', array($reserved));
-				else
-					return true;
-		}
-
-		$censor_name = $name;
-		if (Lang::censorText($censor_name) != $name)
-			if ($fatal)
-				fatal_lang_error('name_censored', 'password', array($name));
-			else
-				return true;
-	}
-
-	// Characters we just shouldn't allow, regardless.
-	foreach (array('*') as $char)
-		if (strpos($checkName, $char) !== false)
-			if ($fatal)
-				fatal_lang_error('username_reserved', 'password', array($char));
-			else
-				return true;
-
-	$request = Db::$db->query('', '
-		SELECT id_member
-		FROM {db_prefix}members
-		WHERE ' . (empty($current_id_member) ? '' : 'id_member != {int:current_member}
-			AND ') . '({raw:real_name} {raw:operator} LOWER({string:check_name}) OR {raw:member_name} {raw:operator} LOWER({string:check_name}))
-		LIMIT 1',
-		array(
-			'real_name' => Db::$db->case_sensitive ? 'LOWER(real_name)' : 'real_name',
-			'member_name' => Db::$db->case_sensitive ? 'LOWER(member_name)' : 'member_name',
-			'current_member' => $current_id_member,
-			'check_name' => $checkName,
-			'operator' => strpos($checkName, '%') || strpos($checkName, '_') ? 'LIKE' : '=',
-		)
-	);
-	if (Db::$db->num_rows($request) > 0)
-	{
-		Db::$db->free_result($request);
-		return true;
-	}
-
-	// Does name case insensitive match a member group name?
-	$request = Db::$db->query('', '
-		SELECT id_group
-		FROM {db_prefix}membergroups
-		WHERE {raw:group_name} LIKE {string:check_name}
-		LIMIT 1',
-		array(
-			'group_name' => Db::$db->case_sensitive ? 'LOWER(group_name)' : 'group_name',
-			'check_name' => $checkName,
-		)
-	);
-	if (Db::$db->num_rows($request) > 0)
-	{
-		Db::$db->free_result($request);
-		return true;
-	}
-
-	// Okay, they passed.
-	$is_reserved = false;
-
-	// Maybe a mod wants to perform further checks?
-	call_integration_hook('integrate_check_name', array($checkName, &$is_reserved, $current_id_member, $is_name));
-
-	return $is_reserved;
-}
-
-/**
  * Retrieves a list of membergroups that have the given permission, either on
  * a given board or in general.
  *
@@ -1220,7 +711,7 @@ function reattributePosts($memID, $email = false, $membername = false, $post_cou
 		list ($messageCount) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		updateMemberData($memID, array('posts' => 'posts + ' . $messageCount));
+		User::updateMemberData($memID, array('posts' => 'posts + ' . $messageCount));
 	}
 
 	$query_parts = array();
@@ -1299,8 +790,6 @@ function reattributePosts($memID, $email = false, $membername = false, $post_cou
  */
 function BuddyListToggle()
 {
-	global $user_info;
-
 	checkSession('get');
 
 	isAllowedTo('profile_extra_own');
@@ -1312,36 +801,36 @@ function BuddyListToggle()
 		fatal_lang_error('no_access', false);
 
 	// Remove if it's already there...
-	if (in_array($userReceiver, $user_info['buddies']))
-		$user_info['buddies'] = array_diff($user_info['buddies'], array($userReceiver));
+	if (in_array($userReceiver, User::$me->buddies))
+		User::$me->buddies = array_diff(User::$me->buddies, array($userReceiver));
 
 	// ...or add if it's not and if it's not you.
-	elseif ($user_info['id'] != $userReceiver)
+	elseif (User::$me->id != $userReceiver)
 	{
-		$user_info['buddies'][] = $userReceiver;
+		User::$me->buddies[] = $userReceiver;
 
 		// And add a nice alert. Don't abuse though!
-		if ((CacheApi::get('Buddy-sent-' . $user_info['id'] . '-' . $userReceiver, 86400)) == null)
+		if ((CacheApi::get('Buddy-sent-' . User::$me->id . '-' . $userReceiver, 86400)) == null)
 		{
 			Db::$db->insert('insert',
 				'{db_prefix}background_tasks',
 				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
 				array('$sourcedir/tasks/Buddy_Notify.php', 'SMF\Tasks\Buddy_Notify', Utils::jsonEncode(array(
 					'receiver_id' => $userReceiver,
-					'id_member' => $user_info['id'],
-					'member_name' => $user_info['username'],
+					'id_member' => User::$me->id,
+					'member_name' => User::$me->username,
 					'time' => time(),
 				)), 0),
 				array('id_task')
 			);
 
 			// Store this in a cache entry to avoid creating multiple alerts. Give it a long life cycle.
-			CacheApi::put('Buddy-sent-' . $user_info['id'] . '-' . $userReceiver, '1', 86400);
+			CacheApi::put('Buddy-sent-' . User::$me->id . '-' . $userReceiver, '1', 86400);
 		}
 	}
 
 	// Update the settings.
-	updateMemberData($user_info['id'], array('buddy_list' => implode(',', $user_info['buddies'])));
+	User::updateMemberData(User::$me->id, array('buddy_list' => implode(',', User::$me->buddies)));
 
 	// Redirect back to the profile
 	redirectexit('action=profile;u=' . $userReceiver);
@@ -1541,16 +1030,6 @@ function populateDuplicateMembers(&$members)
 				$member_track[] = $duplicate_member['id'];
 			}
 		}
-}
-
-/**
- * Generate a random validation code.
- *
- * @return string A random validation code
- */
-function generateValidationCode()
-{
-	return bin2hex(Utils::randomBytes(5));
 }
 
 ?>

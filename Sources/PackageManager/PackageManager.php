@@ -16,6 +16,7 @@ namespace SMF\PackageManager;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -843,7 +844,7 @@ class PackageManager
 	 */
 	public function install()
 	{
-		global $settings, $user_info;
+		global $settings;
 
 		// Make sure we don't install this mod twice.
 		checkSubmitOnce('check');
@@ -1104,6 +1105,7 @@ class PackageManager
 								'context' => &Utils::$context,
 								'smcFunc' => &Utils::$smcFunc,
 								'txt' => &Lang::$txt,
+								'user_info' => &User::$me,
 							);
 
 							extract($backcompat_globals, EXTR_REFS | EXTR_SKIP);
@@ -1153,6 +1155,7 @@ class PackageManager
 								'context' => &Utils::$context,
 								'smcFunc' => &Utils::$smcFunc,
 								'txt' => &Lang::$txt,
+								'user_info' => &User::$me,
 							);
 
 							extract($backcompat_globals, EXTR_REFS | EXTR_SKIP);
@@ -1217,11 +1220,11 @@ class PackageManager
 						WHERE package_id = {string:package_id}
 							AND id_install = {int:install_id}',
 						array(
-							'current_member' => $user_info['id'],
+							'current_member' => User::$me->id,
 							'not_installed' => 0,
 							'current_time' => time(),
 							'package_id' => $row['package_id'],
-							'member_name' => $user_info['name'],
+							'member_name' => User::$me->name,
 							'install_id' => Utils::$context['install_id'],
 							'package_hash' => Utils::$context['package_sha256_hash'],
 						)
@@ -1241,11 +1244,11 @@ class PackageManager
 						WHERE package_id = {string:package_id}
 							AND version = {string:old_version}',
 						array(
-							'current_member' => $user_info['id'],
+							'current_member' => User::$me->id,
 							'not_installed' => 0,
 							'current_time' => time(),
 							'package_id' => $row['package_id'],
-							'member_name' => $user_info['name'],
+							'member_name' => User::$me->name,
 							'old_version' => $old_version,
 							'package_hash' => Utils::$context['package_sha256_hash'],
 						)
@@ -1316,7 +1319,7 @@ class PackageManager
 					),
 					array(
 						$package_filename, $package_name, $package_id, $package_version,
-						$user_info['id'], $user_info['name'], time(),
+						User::$me->id, User::$me->name, time(),
 						$is_upgrade ? 2 : 1, $failed_step_insert, $themes_installed,
 						0, $db_changes, $credits_tag, Utils::$context['package_sha256_hash']
 					),
@@ -2514,7 +2517,7 @@ class PackageManager
 			$server = '';
 			$url = $_GET['absolute'];
 			$name = '';
-			$_GET['package'] = $url . '/packages.xml?language=' . Utils::$context['user']['language'];
+			$_GET['package'] = $url . '/packages.xml?language=' . User::$me->language;
 
 			// Clear any "relative" URL.  Since "server" is not present, "relative" is garbage.
 			unset($_GET['relative']);
@@ -2537,7 +2540,7 @@ class PackageManager
 
 		// Attempt to connect.  If unsuccessful... try the URL.
 		if (!isset($_GET['package']) || file_exists($_GET['package']))
-			$_GET['package'] = $url . '/packages.xml?language=' . Utils::$context['user']['language'];
+			$_GET['package'] = $url . '/packages.xml?language=' . User::$me->language;
 
 		// Check to be sure the packages.xml file actually exists where it is should be... or dump out.
 		if ((isset($_GET['absolute']) || isset($_GET['relative'])) && !SubsPackage::url_exists($_GET['package']))

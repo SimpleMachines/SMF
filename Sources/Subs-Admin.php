@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Cache\CacheApiInterface;
@@ -292,7 +293,7 @@ function getFileVersions(&$versionOptions)
  */
 function updateAdminPreferences()
 {
-	global $options, $settings, $user_info;
+	global $options, $settings;
 
 	// This must exist!
 	if (!isset(Utils::$context['admin_preferences']))
@@ -316,12 +317,12 @@ function updateAdminPreferences()
 	Db::$db->insert('replace',
 		'{db_prefix}themes',
 		array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'),
-		array($user_info['id'], 1, 'admin_preferences', $options['admin_preferences']),
+		array(User::$me->id, 1, 'admin_preferences', $options['admin_preferences']),
 		array('id_member', 'id_theme', 'variable')
 	);
 
 	// Make sure we invalidate any cache.
-	CacheApi::put('theme_settings-' . $settings['theme_id'] . ':' . $user_info['id'], null, 0);
+	CacheApi::put('theme_settings-' . $settings['theme_id'] . ':' . User::$me->id, null, 0);
 }
 
 /**

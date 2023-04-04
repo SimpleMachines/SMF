@@ -122,7 +122,7 @@ function ManageSearchEngineSettings($return_config = false)
 		$config_vars['spider_group'][2][$row['id_group']] = $row['group_name'];
 	Db::$db->free_result($request);
 
-	// Make sure it's valid - note that regular members are given id_group = 1 which is reversed in Load.php - no admins here!
+	// Make sure it's valid - note that regular members are given id_group = 1 which is reversed in SMF\User - no admins here!
 	if (isset($_POST['spider_group']) && !isset($config_vars['spider_group'][2][$_POST['spider_group']]))
 		$_POST['spider_group'] = 0;
 

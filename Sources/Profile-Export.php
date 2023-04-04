@@ -17,6 +17,7 @@
 use SMF\BrowserDetector;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -1776,8 +1777,6 @@ function get_xslt_stylesheet($format, $uid)
  */
 function export_load_css_js()
 {
-	global $user_info;
-
 	// If we're not running a background task, we need to preserve any existing CSS and JavaScript.
 	if (SMF != 'BACKGROUND')
 	{
@@ -1920,7 +1919,7 @@ function export_load_css_js()
 		'svg' => 'image/svg+xml',
 	);
 
-	foreach (glob(implode(DIRECTORY_SEPARATOR, array(Config::$modSettings['smileys_dir'], $user_info['smiley_set'], '*.*'))) as $smiley_file)
+	foreach (glob(implode(DIRECTORY_SEPARATOR, array(Config::$modSettings['smileys_dir'], User::$me->smiley_set, '*.*'))) as $smiley_file)
 	{
 		$pathinfo = pathinfo($smiley_file);
 

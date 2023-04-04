@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -29,7 +30,7 @@ if (!defined('SMF'))
  */
 function writeLog($force = false)
 {
-	global $user_info, $user_settings, $settings, $topic, $board;
+	global $settings, $topic, $board;
 
 	// If we are showing who is viewing a topic, let's see if we are, and force an update if so - to make it accurate.
 	if (!empty($settings['display_who_viewing']) && ($topic || $board))
@@ -46,7 +47,7 @@ function writeLog($force = false)
 	}
 
 	// Are they a spider we should be tracking? Mode = 1 gets tracked on its spider check...
-	if (!empty($user_info['possibly_robot']) && !empty(Config::$modSettings['spider_mode']) && Config::$modSettings['spider_mode'] > 1)
+	if (!empty(User::$me->possibly_robot) && !empty(Config::$modSettings['spider_mode']) && Config::$modSettings['spider_mode'] > 1)
 	{
 		require_once(Config::$sourcedir . '/ManageSearchEngines.php');
 		logSpider();
@@ -74,8 +75,8 @@ function writeLog($force = false)
 	else
 		$encoded_get = '';
 
-	// Guests use 0, members use their session ID.
-	$session_id = $user_info['is_guest'] ? 'ip' . $user_info['ip'] : session_id();
+	// Guests use their IP address, members use their session ID.
+	$session_id = User::$me->is_guest ? 'ip' . User::$me->ip : session_id();
 
 	// Grab the last all-of-SMF-specific log_online deletion time.
 	$do_delete = CacheApi::get('log_online-update', 30) < time() - 30;
@@ -105,7 +106,7 @@ function writeLog($force = false)
 			WHERE session = {string:session}',
 			array(
 				'log_time' => time(),
-				'ip' => $user_info['ip'],
+				'ip' => User::$me->ip,
 				'url' => $encoded_get,
 				'session' => $session_id,
 			)
@@ -121,12 +122,12 @@ function writeLog($force = false)
 	// Otherwise, we have to delete and insert.
 	if (empty($_SESSION['log_time']))
 	{
-		if ($do_delete || !empty($user_info['id']))
+		if ($do_delete || !empty(User::$me->id))
 			Db::$db->query('', '
 				DELETE FROM {db_prefix}log_online
-				WHERE ' . ($do_delete ? 'log_time < {int:log_time}' : '') . ($do_delete && !empty($user_info['id']) ? ' OR ' : '') . (empty($user_info['id']) ? '' : 'id_member = {int:current_member}'),
+				WHERE ' . ($do_delete ? 'log_time < {int:log_time}' : '') . ($do_delete && !empty(User::$me->id) ? ' OR ' : '') . (empty(User::$me->id) ? '' : 'id_member = {int:current_member}'),
 				array(
-					'current_member' => $user_info['id'],
+					'current_member' => User::$me->id,
 					'log_time' => time() - Config::$modSettings['lastActive'] * 60,
 				)
 			);
@@ -134,7 +135,7 @@ function writeLog($force = false)
 		Db::$db->insert($do_delete ? 'ignore' : 'replace',
 			'{db_prefix}log_online',
 			array('session' => 'string', 'id_member' => 'int', 'id_spider' => 'int', 'log_time' => 'int', 'ip' => 'inet', 'url' => 'string'),
-			array($session_id, $user_info['id'], empty($_SESSION['id_robot']) ? 0 : $_SESSION['id_robot'], time(), $user_info['ip'], $encoded_get),
+			array($session_id, User::$me->id, empty($_SESSION['id_robot']) ? 0 : $_SESSION['id_robot'], time(), User::$me->ip, $encoded_get),
 			array('session')
 		);
 	}
@@ -147,19 +148,19 @@ function writeLog($force = false)
 		$_SESSION['timeOnlineUpdated'] = time();
 
 	// Set their login time, if not already done within the last minute.
-	if (SMF != 'SSI' && !empty($user_info['last_login']) && $user_info['last_login'] < time() - 60 && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], array('.xml', 'login2', 'logintfa'))))
+	if (SMF != 'SSI' && !empty(User::$me->last_login) && User::$me->last_login < time() - 60 && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], array('.xml', 'login2', 'logintfa'))))
 	{
 		// Don't count longer than 15 minutes.
 		if (time() - $_SESSION['timeOnlineUpdated'] > 60 * 15)
 			$_SESSION['timeOnlineUpdated'] = time();
 
-		$user_settings['total_time_logged_in'] += time() - $_SESSION['timeOnlineUpdated'];
-		updateMemberData($user_info['id'], array('last_login' => time(), 'member_ip' => $user_info['ip'], 'member_ip2' => $_SERVER['BAN_CHECK_IP'], 'total_time_logged_in' => $user_settings['total_time_logged_in']));
+		User::$me->total_time_logged_in += (time() - $_SESSION['timeOnlineUpdated']);
+
+		User::updateMemberData(User::$me->id, array('last_login' => time(), 'member_ip' => User::$me->ip, 'member_ip2' => $_SERVER['BAN_CHECK_IP'], 'total_time_logged_in' => User::$me->total_time_logged_in));
 
 		if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2)
-			CacheApi::put('user_settings-' . $user_info['id'], $user_settings, 60);
+			CacheApi::put('user_settings-' . User::$me->id, User::$profiles[User::$me->id], 60);
 
-		$user_info['total_time_logged_in'] += time() - $_SESSION['timeOnlineUpdated'];
 		$_SESSION['timeOnlineUpdated'] = time();
 	}
 }
@@ -434,8 +435,6 @@ function logAction($action, array $extra = array(), $log_type = 'moderate')
  */
 function logActions(array $logs)
 {
-	global $user_info;
-
 	$inserts = array();
 	$log_types = array(
 		'moderate' => 1,
@@ -545,10 +544,10 @@ function logActions(array $logs)
 		if (isset($log['extra']['member_affected']))
 			$memID = $log['extra']['member_affected'];
 		else
-			$memID = $user_info['id'] ?? $log['extra']['member'] ?? 0;
+			$memID = User::$me->id ?? $log['extra']['member'] ?? 0;
 
-		if (isset($user_info['ip']))
-			$memIP = $user_info['ip'];
+		if (isset(User::$me->ip))
+			$memIP = User::$me->ip;
 		else
 			$memIP = 'null';
 

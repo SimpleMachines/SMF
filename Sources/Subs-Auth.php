@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -253,8 +254,6 @@ function InMaintenance()
  */
 function adminLogin($type = 'admin')
 {
-	global $user_info;
-
 	Lang::load('Admin');
 	loadTemplate('Login');
 
@@ -266,7 +265,7 @@ function adminLogin($type = 'admin')
 	// They used a wrong password, log it and unset that.
 	if (isset($_POST[$type . '_hash_pass']) || isset($_POST[$type . '_pass']))
 	{
-		Lang::$txt['security_wrong'] = sprintf(Lang::$txt['security_wrong'], isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : Lang::$txt['unknown'], $_SERVER['HTTP_USER_AGENT'], $user_info['ip']);
+		Lang::$txt['security_wrong'] = sprintf(Lang::$txt['security_wrong'], isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : Lang::$txt['unknown'], $_SERVER['HTTP_USER_AGENT'], User::$me->ip);
 		log_error(Lang::$txt['security_wrong'], 'critical');
 
 		if (isset($_POST[$type . '_hash_pass']))
@@ -377,7 +376,6 @@ function construct_query_string($get)
  */
 function findMembers($names, $use_wildcards = false, $buddies_only = false, $max = 500)
 {
-	global $user_info;
 
 	// If it's not already an array, make it one.
 	if (!is_array($names))
@@ -433,7 +431,7 @@ function findMembers($names, $use_wildcards = false, $buddies_only = false, $max
 			AND is_activated IN (1, 11)
 		LIMIT {int:limit}',
 		array_merge($where_params, array(
-			'buddy_list' => $user_info['buddies'],
+			'buddy_list' => User::$me->buddies,
 			'limit' => $max,
 		))
 	);
@@ -462,7 +460,6 @@ function findMembers($names, $use_wildcards = false, $buddies_only = false, $max
  */
 function JSMembers()
 {
-	global $user_info;
 
 	checkSession('get');
 
@@ -488,7 +485,7 @@ function JSMembers()
 	Utils::$context['results'] = array();
 
 	// Some buddy related settings ;)
-	Utils::$context['show_buddies'] = !empty($user_info['buddies']);
+	Utils::$context['show_buddies'] = !empty(User::$me->buddies);
 	Utils::$context['buddy_search'] = isset($_REQUEST['buddies']);
 
 	// If the user has done a search, well - search.
@@ -527,8 +524,6 @@ function JSMembers()
  */
 function RequestMembers()
 {
-	global $user_info;
-
 	checkSession('get');
 
 	$_REQUEST['search'] = Utils::htmlspecialchars($_REQUEST['search']) . '*';
@@ -547,7 +542,7 @@ function RequestMembers()
 		LIMIT ' . (Utils::entityStrlen($_REQUEST['search']) <= 2 ? '100' : '800'),
 		array(
 			'real_name' => Db::$db->case_sensitive ? 'LOWER(real_name)' : 'real_name',
-			'buddy_list' => $user_info['buddies'],
+			'buddy_list' => User::$me->buddies,
 			'search' => $_REQUEST['search'],
 		)
 	);
@@ -616,10 +611,10 @@ function resetPassword($memID, $username = null)
 		validateUsername($memID, $user);
 
 		// Update the database...
-		updateMemberData($memID, array('member_name' => $user, 'passwd' => $newPassword_sha1));
+		User::updateMemberData($memID, array('member_name' => $user, 'passwd' => $newPassword_sha1));
 	}
 	else
-		updateMemberData($memID, array('passwd' => $newPassword_sha1));
+		User::updateMemberData($memID, array('passwd' => $newPassword_sha1));
 
 	call_integration_hook('integrate_reset_pass', array($old_user, $user, $newPassword));
 
@@ -645,8 +640,6 @@ function resetPassword($memID, $username = null)
  */
 function validateUsername($memID, $username, $return_error = false, $check_reserved_name = true)
 {
-	global $user_info;
-
 	$errors = array();
 
 	// Don't use too long a name.
@@ -666,8 +659,7 @@ function validateUsername($memID, $username, $return_error = false, $check_reser
 
 	if ($check_reserved_name)
 	{
-		require_once(Config::$sourcedir . '/Subs-Members.php');
-		if (isReservedName($username, $memID, false))
+		if (User::isReservedName($username, $memID, false))
 			$errors[] = array('done', '(' . Utils::htmlspecialchars($username) . ') ' . Lang::$txt['name_in_use']);
 	}
 
@@ -683,7 +675,7 @@ function validateUsername($memID, $username, $return_error = false, $check_reser
 	$error = $errors[0];
 
 	$message = $error[0] == 'lang' ? (empty($error[3]) ? Lang::$txt[$error[1]] : vsprintf(Lang::$txt[$error[1]], (array) $error[3])) : $error[1];
-	fatal_error($message, empty($error[2]) || $user_info['is_admin'] ? false : $error[2]);
+	fatal_error($message, empty($error[2]) || User::$me->is_admin ? false : $error[2]);
 }
 
 /**
@@ -734,23 +726,21 @@ function validatePassword($password, $username, $restrict_in = array())
 /**
  * Quickly find out what moderation authority this user has
  * - builds the moderator, group and board level querys for the user
- * - stores the information on the current users moderation powers in $user_info['mod_cache'] and $_SESSION['mc']
+ * - stores the information on the current users moderation powers in User::$me->mod_cache and $_SESSION['mc']
  */
 function rebuildModCache()
 {
-	global $user_info;
-
 	// What groups can they moderate?
 	$group_query = allowedTo('manage_membergroups') ? '1=1' : '0=1';
 
-	if ($group_query == '0=1' && !$user_info['is_guest'])
+	if ($group_query == '0=1' && !User::$me->is_guest)
 	{
 		$request = Db::$db->query('', '
 			SELECT id_group
 			FROM {db_prefix}group_moderators
 			WHERE id_member = {int:current_member}',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 			)
 		);
 		$groups = array();
@@ -767,7 +757,7 @@ function rebuildModCache()
 	// Then, same again, just the boards this time!
 	$board_query = allowedTo('moderate_forum') ? '1=1' : '0=1';
 
-	if ($board_query == '0=1' && !$user_info['is_guest'])
+	if ($board_query == '0=1' && !User::$me->is_guest)
 	{
 		$boards = boardsAllowedTo('moderate_board', true);
 
@@ -779,14 +769,14 @@ function rebuildModCache()
 
 	// What boards are they the moderator of?
 	$boards_mod = array();
-	if (!$user_info['is_guest'])
+	if (!User::$me->is_guest)
 	{
 		$request = Db::$db->query('', '
 			SELECT id_board
 			FROM {db_prefix}moderators
 			WHERE id_member = {int:current_member}',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 			)
 		);
 		while ($row = Db::$db->fetch_assoc($request))
@@ -799,7 +789,7 @@ function rebuildModCache()
 			FROM {db_prefix}moderator_groups
 			WHERE id_group IN({array_int:groups})',
 			array(
-				'groups' => $user_info['groups'],
+				'groups' => User::$me->groups,
 			)
 		);
 		while ($row = Db::$db->fetch_assoc($request))
@@ -815,8 +805,8 @@ function rebuildModCache()
 	$_SESSION['mc'] = array(
 		'time' => time(),
 		// This looks a bit funny but protects against the login redirect.
-		'id' => $user_info['id'] && $user_info['name'] ? $user_info['id'] : 0,
-		// If you change the format of 'gq' and/or 'bq' make sure to adjust 'can_mod' in Load.php.
+		'id' => User::$me->id && User::$me->name ? User::$me->id : 0,
+		// If you change the format of 'gq' and/or 'bq' make sure to adjust 'can_mod' in SMF\User.
 		'gq' => $group_query,
 		'bq' => $board_query,
 		'ap' => boardsAllowedTo('approve_posts'),
@@ -825,7 +815,7 @@ function rebuildModCache()
 	);
 	call_integration_hook('integrate_mod_cache');
 
-	$user_info['mod_cache'] = $_SESSION['mc'];
+	User::$me->mod_cache = $_SESSION['mc'];
 
 	// Might as well clean up some tokens while we are at it.
 	cleanTokens();

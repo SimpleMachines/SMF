@@ -18,6 +18,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -32,8 +33,7 @@ if (!defined('SMF'))
  */
 function ModifyProfile($post_errors = array())
 {
-	global $user_info, $user_profile, $cur_profile;
-	global $memberContext, $profile_vars, $post_errors;
+	global $profile_vars, $post_errors;
 
 	// Don't reload this as we may have processed error strings.
 	if (empty($post_errors))
@@ -44,39 +44,41 @@ function ModifyProfile($post_errors = array())
 
 	// Did we get the user by name...
 	if (isset($_REQUEST['user']))
-		$memberResult = loadMemberData($_REQUEST['user'], true, 'profile');
+		$memberResult = User::load($_REQUEST['user'], User::LOAD_BY_NAME, 'profile');
 	// ... or by id_member?
 	elseif (!empty($_REQUEST['u']))
-		$memberResult = loadMemberData((int) $_REQUEST['u'], false, 'profile');
+		$memberResult = User::load((int) $_REQUEST['u'], User::LOAD_BY_ID, 'profile');
 	// If it was just ?action=profile, edit your own profile, but only if you're not a guest.
 	else
 	{
 		// Members only...
 		is_not_guest();
-		$memberResult = loadMemberData($user_info['id'], false, 'profile');
+		$memberResult = User::load(User::$me->id, User::LOAD_BY_ID, 'profile');
 	}
 
-	// Check if loadMemberData() has returned a valid result.
-	if (!$memberResult)
+	// Check if User::load() has returned a valid result.
+	if (empty($memberResult))
 		fatal_lang_error('not_a_user', false, 404);
 
 	// If all went well, we have a valid member ID!
-	list ($memID) = $memberResult;
-	$memID = (int) $memID;
-	Utils::$context['id_member'] = $memID;
-	$cur_profile = $user_profile[$memID];
+	list($member) = $memberResult;
+	$memID = $member->id;
+	Utils::$context['id_member'] = $member->id;
+
+	// This is just for backward compatibility with mods.
+	// SMF itself no longer uses $cur_profile.
+	User::setCurProfile($memID);
 
 	// Let's have some information about this member ready, too.
-	loadMemberContext($memID);
-	Utils::$context['member'] = $memberContext[$memID];
+	Utils::$context['member'] = User::$loaded[$memID]->format();
 
 	// Is this the profile of the user himself or herself?
-	Utils::$context['user']['is_owner'] = $memID == $user_info['id'];
+	User::$me->is_owner = $memID == User::$me->id;
 
 	// Group management isn't actually a permission. But we need it to be for this, so we need a phantom permission.
 	// And we care about what the current user can do, not what the user whose profile it is.
-	if ($user_info['mod_cache']['gq'] != '0=1')
-		$user_info['permissions'][] = 'approve_group_requests';
+	if (User::$me->mod_cache['gq'] != '0=1')
+		User::$me->permissions[] = 'approve_group_requests';
 
 	// If paid subscriptions are enabled, make sure we actually have at least one subscription available...
 	Utils::$context['subs_available'] = false;
@@ -166,7 +168,7 @@ function ModifyProfile($post_errors = array())
 					'subsections' => array(
 						'messages' => array(Lang::$txt['showMessages'], array('is_not_guest', 'profile_view')),
 						'topics' => array(Lang::$txt['showTopics'], array('is_not_guest', 'profile_view')),
-						'unwatchedtopics' => array(Lang::$txt['showUnwatched'], array('is_not_guest', 'profile_view'), 'enabled' => Utils::$context['user']['is_owner']),
+						'unwatchedtopics' => array(Lang::$txt['showUnwatched'], array('is_not_guest', 'profile_view'), 'enabled' => User::$me->is_owner),
 						'attach' => array(Lang::$txt['showAttachments'], array('is_not_guest', 'profile_view')),
 					),
 					'permission' => array(
@@ -179,7 +181,7 @@ function ModifyProfile($post_errors = array())
 					'file' => 'Drafts.php',
 					'function' => 'showProfileDrafts',
 					'icon' => 'drafts',
-					'enabled' => !empty(Config::$modSettings['drafts_post_enabled']) && Utils::$context['user']['is_owner'],
+					'enabled' => !empty(Config::$modSettings['drafts_post_enabled']) && User::$me->is_owner,
 					'permission' => array(
 						'own' => 'is_not_guest',
 						'any' => array(),
@@ -224,7 +226,7 @@ function ModifyProfile($post_errors = array())
 				),
 				'viewwarning' => array(
 					'label' => Lang::$txt['profile_view_warnings'],
-					'enabled' => Config::$modSettings['warning_settings'][0] == 1 && $cur_profile['warning'],
+					'enabled' => Config::$modSettings['warning_settings'][0] == 1 && User::$profiles[$memID]['warning'],
 					'file' => 'Profile-View.php',
 					'function' => 'viewWarning',
 					'icon' => 'warning',
@@ -243,7 +245,7 @@ function ModifyProfile($post_errors = array())
 					'file' => 'Profile-Modify.php',
 					'function' => 'account',
 					'icon' => 'maintain',
-					'enabled' => Utils::$context['user']['is_admin'] || ($cur_profile['id_group'] != 1 && !in_array(1, explode(',', $cur_profile['additional_groups']))),
+					'enabled' => User::$me->is_admin || (User::$profiles[$memID]['id_group'] != 1 && !in_array(1, explode(',', User::$profiles[$memID]['additional_groups']))),
 					'sc' => 'post',
 					'token' => 'profile-ac%u',
 					'password' => true,
@@ -339,7 +341,7 @@ function ModifyProfile($post_errors = array())
 					'file' => 'Profile-Modify.php',
 					'function' => 'editBuddyIgnoreLists',
 					'icon' => 'frenemy',
-					'enabled' => !empty(Config::$modSettings['enable_buddylist']) && Utils::$context['user']['is_owner'],
+					'enabled' => !empty(Config::$modSettings['enable_buddylist']) && User::$me->is_owner,
 					'sc' => 'post',
 					'subsections' => array(
 						'buddies' => array(Lang::$txt['editBuddies']),
@@ -355,7 +357,7 @@ function ModifyProfile($post_errors = array())
 					'file' => 'Profile-Modify.php',
 					'function' => 'groupMembership',
 					'icon' => 'people',
-					'enabled' => !empty(Config::$modSettings['show_group_membership']) && Utils::$context['user']['is_owner'],
+					'enabled' => !empty(Config::$modSettings['show_group_membership']) && User::$me->is_owner,
 					'sc' => 'request',
 					'token' => 'profile-gm%u',
 					'token_type' => 'request',
@@ -405,7 +407,7 @@ function ModifyProfile($post_errors = array())
 					'label' => Lang::$txt['profileBanUser'],
 					'custom_url' => Config::$scripturl . '?action=admin;area=ban;sa=add',
 					'icon' => 'ban',
-					'enabled' => $cur_profile['id_group'] != 1 && !in_array(1, explode(',', $cur_profile['additional_groups'])),
+					'enabled' => User::$profiles[$memID]['id_group'] != 1 && !in_array(1, explode(',', User::$profiles[$memID]['additional_groups'])),
 					'permission' => array(
 						'own' => array(),
 						'any' => array('manage_bans'),
@@ -514,11 +516,11 @@ function ModifyProfile($post_errors = array())
 		foreach ($section['areas'] as $area_id => $area)
 		{
 			// If it said no permissions that meant it wasn't valid!
-			if (empty($area['permission'][Utils::$context['user']['is_owner'] ? 'own' : 'any']))
+			if (empty($area['permission'][User::$me->is_owner ? 'own' : 'any']))
 				$profile_areas[$section_id]['areas'][$area_id]['enabled'] = false;
 			// Otherwise pick the right set.
 			else
-				$profile_areas[$section_id]['areas'][$area_id]['permission'] = $area['permission'][Utils::$context['user']['is_owner'] ? 'own' : 'any'];
+				$profile_areas[$section_id]['areas'][$area_id]['permission'] = $area['permission'][User::$me->is_owner ? 'own' : 'any'];
 
 			// Password required in most cases
 			if (!empty($area['password']))
@@ -547,7 +549,7 @@ function ModifyProfile($post_errors = array())
 	$profile_include_data = createMenu($profile_areas, $menuOptions);
 
 	// No menu means no access.
-	if (!$profile_include_data && (!$user_info['is_guest'] || validateSession()))
+	if (!$profile_include_data && (!User::$me->is_guest || validateSession()))
 		fatal_lang_error('no_access', false);
 
 	// Make a note of the Unique ID for this menu.
@@ -594,7 +596,7 @@ function ModifyProfile($post_errors = array())
 				}
 
 				// Does this require session validating?
-				if (!empty($area['validate']) || (isset($_REQUEST['save']) && !Utils::$context['user']['is_owner'] && ($area_id != 'issuewarning' || empty(Config::$modSettings['securityDisable_moderate']))))
+				if (!empty($area['validate']) || (isset($_REQUEST['save']) && !User::$me->is_owner && ($area_id != 'issuewarning' || empty(Config::$modSettings['securityDisable_moderate']))))
 					$security_checks['validate'] = true;
 
 				// Permissions for good measure.
@@ -637,19 +639,19 @@ function ModifyProfile($post_errors = array())
 
 	// Build the link tree.
 	Utils::$context['linktree'][] = array(
-		'url' => Config::$scripturl . '?action=profile' . ($memID != $user_info['id'] ? ';u=' . $memID : ''),
+		'url' => Config::$scripturl . '?action=profile' . ($memID != User::$me->id ? ';u=' . $memID : ''),
 		'name' => sprintf(Lang::$txt['profile_of_username'], Utils::$context['member']['name']),
 	);
 
 	if (!empty($profile_include_data['label']))
 		Utils::$context['linktree'][] = array(
-			'url' => Config::$scripturl . '?action=profile' . ($memID != $user_info['id'] ? ';u=' . $memID : '') . ';area=' . $profile_include_data['current_area'],
+			'url' => Config::$scripturl . '?action=profile' . ($memID != User::$me->id ? ';u=' . $memID : '') . ';area=' . $profile_include_data['current_area'],
 			'name' => $profile_include_data['label'],
 		);
 
 	if (!empty($profile_include_data['current_subsection']) && $profile_include_data['subsections'][$profile_include_data['current_subsection']][0] != $profile_include_data['label'])
 		Utils::$context['linktree'][] = array(
-			'url' => Config::$scripturl . '?action=profile' . ($memID != $user_info['id'] ? ';u=' . $memID : '') . ';area=' . $profile_include_data['current_area'] . ';sa=' . $profile_include_data['current_subsection'],
+			'url' => Config::$scripturl . '?action=profile' . ($memID != User::$me->id ? ';u=' . $memID : '') . ';area=' . $profile_include_data['current_area'] . ';sa=' . $profile_include_data['current_subsection'],
 			'name' => $profile_include_data['subsections'][$profile_include_data['current_subsection']][0],
 		);
 
@@ -658,7 +660,7 @@ function ModifyProfile($post_errors = array())
 	Utils::$context['template_layers'][] = 'profile';
 
 	// All the subactions that require a user password in order to validate.
-	$check_password = Utils::$context['user']['is_owner'] && in_array($profile_include_data['current_area'], Utils::$context['password_areas']);
+	$check_password = User::$me->is_owner && in_array($profile_include_data['current_area'], Utils::$context['password_areas']);
 	Utils::$context['require_password'] = $check_password;
 
 	loadJavaScriptFile('profile.js', array('defer' => false, 'minimize' => true), 'smf_profile');
@@ -690,10 +692,10 @@ function ModifyProfile($post_errors = array())
 			$password = un_htmlspecialchars($password);
 
 			// Does the integration want to check passwords?
-			$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($cur_profile['member_name'], $password, false)), true);
+			$good_password = in_array(true, call_integration_hook('integrate_verify_password', array(User::$profiles[$memID]['member_name'], $password, false)), true);
 
 			// Bad password!!!
-			if (!$good_password && !hash_verify_password($user_profile[$memID]['member_name'], $password, $user_info['passwd']))
+			if (!$good_password && !hash_verify_password(User::$profiles[$memID]['member_name'], $password, User::$profiles[$memID]['passwd']))
 				$post_errors[] = 'bad_password';
 
 			// Warn other elements not to jump the gun and do custom changes!
@@ -702,8 +704,8 @@ function ModifyProfile($post_errors = array())
 		}
 
 		// Change the IP address in the database.
-		if (Utils::$context['user']['is_owner'] && $menuOptions['current_area'] != 'tfasetup')
-			$profile_vars['member_ip'] = $user_info['ip'];
+		if (User::$me->is_owner && $menuOptions['current_area'] != 'tfasetup')
+			$profile_vars['member_ip'] = User::$me->ip;
 
 		// Now call the sub-action function...
 		if ($current_area == 'activateaccount')
@@ -732,10 +734,10 @@ function ModifyProfile($post_errors = array())
 			$msg = groupMembership2($profile_vars, $post_errors, $memID);
 
 			// Whatever we've done, we have nothing else to do here...
-			redirectexit('action=profile' . (Utils::$context['user']['is_owner'] ? '' : ';u=' . $memID) . ';area=groupmembership' . (!empty($msg) ? ';msg=' . $msg : ''));
+			redirectexit('action=profile' . (User::$me->is_owner ? '' : ';u=' . $memID) . ';area=groupmembership' . (!empty($msg) ? ';msg=' . $msg : ''));
 		}
 		elseif (in_array($current_area, array('account', 'forumprofile', 'theme')))
-			saveProfileFields();
+			saveProfileFields($memID);
 		else
 		{
 			$force_redirect = true;
@@ -744,7 +746,7 @@ function ModifyProfile($post_errors = array())
 			saveProfileChanges($profile_vars, $post_errors, $memID);
 		}
 
-		call_integration_hook('integrate_profile_save', array(&$profile_vars, &$post_errors, $memID, $cur_profile, $current_area));
+		call_integration_hook('integrate_profile_save', array(&$profile_vars, &$post_errors, $memID, User::$profiles[$memID], $current_area));
 
 		// There was a problem, let them try to re-enter.
 		if (!empty($post_errors))
@@ -757,9 +759,9 @@ function ModifyProfile($post_errors = array())
 		{
 			// If we've changed the password, notify any integration that may be listening in.
 			if (isset($profile_vars['passwd']))
-				call_integration_hook('integrate_reset_pass', array($cur_profile['member_name'], $cur_profile['member_name'], $_POST['passwrd2']));
+				call_integration_hook('integrate_reset_pass', array(User::$profiles[$memID]['member_name'], User::$profiles[$memID]['member_name'], $_POST['passwrd2']));
 
-			updateMemberData($memID, $profile_vars);
+			User::updateMemberData($memID, $profile_vars);
 
 			// What if this is the newest member?
 			if (Config::$modSettings['latestMember'] == $memID)
@@ -783,7 +785,7 @@ function ModifyProfile($post_errors = array())
 						'action' => $k,
 						'log_type' => 'user',
 						'extra' => array_merge($v, array(
-							'applicator' => $user_info['id'],
+							'applicator' => User::$me->id,
 							'member_affected' => $memID,
 						)),
 					);
@@ -794,10 +796,10 @@ function ModifyProfile($post_errors = array())
 			// Have we got any post save functions to execute?
 			if (!empty(Utils::$context['profile_execute_on_save']))
 				foreach (Utils::$context['profile_execute_on_save'] as $saveFunc)
-					$saveFunc();
+					call_user_func(...((array) $saveFunc));
 
 			// Let them know it worked!
-			Utils::$context['profile_updated'] = Utils::$context['user']['is_owner'] ? Lang::$txt['profile_updated_own'] : sprintf(Lang::$txt['profile_updated_else'], $cur_profile['member_name']);
+			Utils::$context['profile_updated'] = User::$me->is_owner ? Lang::$txt['profile_updated_own'] : sprintf(Lang::$txt['profile_updated_else'], User::$profiles[$memID]['member_name']);
 
 			// Invalidate any cached data.
 			CacheApi::put('member_data-profile-' . $memID, null, 0);
@@ -812,10 +814,10 @@ function ModifyProfile($post_errors = array())
 			Utils::$context['modify_error'][$error_type] = true;
 	}
 	// If it's you then we should redirect upon save.
-	elseif (!empty($profile_vars) && Utils::$context['user']['is_owner'] && !Utils::$context['do_preview'])
+	elseif (!empty($profile_vars) && User::$me->is_owner && !Utils::$context['do_preview'])
 		redirectexit('action=profile;area=' . $current_area . (!empty($current_sa) ? ';sa=' . $current_sa : '') . ';updated');
 	elseif (!empty($force_redirect))
-		redirectexit('action=profile' . (Utils::$context['user']['is_owner'] ? '' : ';u=' . $memID) . ';area=' . $current_area);
+		redirectexit('action=profile' . (User::$me->is_owner ? '' : ';u=' . $memID) . ';area=' . $current_area);
 
 	// Get the right callable.
 	$call = call_helper($profile_include_data['function'], true);
@@ -919,8 +921,6 @@ function profile_popup($memID)
  */
 function alerts_popup($memID)
 {
-	global $cur_profile;
-
 	// Load the Alerts language file.
 	Lang::load('Alerts');
 
@@ -935,11 +935,11 @@ function alerts_popup($memID)
 	$limit = !empty(Config::$modSettings['alerts_per_page']) && (int) Config::$modSettings['alerts_per_page'] < 1000 ? min((int) Config::$modSettings['alerts_per_page'], 1000) : 25;
 
 	Utils::$context['unread_alerts'] = array();
-	if ($counter < $cur_profile['alerts'])
+	if ($counter < User::$profiles[$memID]['alerts'])
 	{
 		// Now fetch me my unread alerts, pronto!
 		require_once(Config::$sourcedir . '/Profile-View.php');
-		Utils::$context['unread_alerts'] = fetch_alerts($memID, false, !empty($counter) ? $cur_profile['alerts'] - $counter : $limit, 0, !isset($_REQUEST['counter']));
+		Utils::$context['unread_alerts'] = fetch_alerts($memID, false, !empty($counter) ? User::$profiles[$memID]['alerts'] - $counter : $limit, 0, !isset($_REQUEST['counter']));
 	}
 }
 
@@ -951,14 +951,14 @@ function alerts_popup($memID)
  */
 function loadCustomFields($memID, $area = 'summary')
 {
-	global $user_profile, $user_info, $settings;
+	global $settings;
 
 	// Get the right restrictions in place...
 	$where = 'active = 1';
 	if (!allowedTo('admin_forum') && $area != 'register')
 	{
 		// If it's the owner they can see two types of private fields, regardless.
-		if ($memID == $user_info['id'])
+		if ($memID == User::$me->id)
 			$where .= $area == 'summary' ? ' AND private < 3' : ' AND (private = 0 OR private = 2)';
 		else
 			$where .= $area == 'summary' ? ' AND private < 2' : ' AND private = 0';
@@ -986,8 +986,8 @@ function loadCustomFields($memID, $area = 'summary')
 	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// Shortcut.
-		$exists = $memID && isset($user_profile[$memID], $user_profile[$memID]['options'][$row['col_name']]);
-		$value = $exists ? $user_profile[$memID]['options'][$row['col_name']] : '';
+		$exists = $memID && isset(User::$loaded[$memID], User::$loaded[$memID]->options[$row['col_name']]);
+		$value = $exists ? User::$loaded[$memID]->options[$row['col_name']] : '';
 
 		$currentKey = 0;
 		if (!empty($row['field_options']))

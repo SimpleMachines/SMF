@@ -16,6 +16,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -439,14 +440,12 @@ function SelectMailingMembers()
  */
 function prepareMailingForPreview()
 {
-	global $user_info;
-
 	Lang::load('Errors');
 
 	$processing = array('preview_subject' => 'subject', 'preview_message' => 'message');
 
 	// Use the default time format.
-	$user_info['time_format'] = Config::$modSettings['time_format'];
+	User::$me->time_format = Config::$modSettings['time_format'];
 
 	$variables = array(
 		'{$board_url}',
@@ -698,8 +697,6 @@ function ComposeMailing()
  */
 function SendMailing($clean_only = false)
 {
-	global $user_info;
-
 	if (isset($_POST['preview']))
 	{
 		Utils::$context['preview'] = true;
@@ -855,7 +852,7 @@ function SendMailing($clean_only = false)
 	}
 
 	// Use the default time format.
-	$user_info['time_format'] = Config::$modSettings['time_format'];
+	User::$me->time_format = Config::$modSettings['time_format'];
 
 	$variables = array(
 		'{$board_url}',

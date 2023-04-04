@@ -18,6 +18,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Forum;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -27,6 +28,7 @@ if (!defined('SMF'))
 	die('No direct access...');
 
 class_exists('SMF\\BBCodeParser');
+class_exists('SMF\\User');
 class_exists('SMF\\Utils');
 
 /**
@@ -233,6 +235,15 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 			$lastMin = 0;
 			foreach ($postgroups as $id => $min_posts)
 			{
+				foreach (User::$loaded as $member)
+				{
+					if ($member->posts < $min_posts)
+						continue;
+
+					if (empty($lastMin) || $member->posts <= $lastMin)
+						$member->post_group_id = $id;
+				}
+
 				$conditions .= '
 					WHEN posts >= ' . $min_posts . (!empty($lastMin) ? ' AND posts <= ' . $lastMin : '') . ' THEN ' . $id;
 
@@ -255,198 +266,6 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 		default:
 			Lang::load('Errors');
 			trigger_error(sprintf(Lang::$txt['invalid_statistic_type'], $type), E_USER_NOTICE);
-	}
-}
-
-/**
- * Updates the columns in the members table.
- * Assumes the data has been htmlspecialchar'd.
- * this function should be used whenever member data needs to be
- * updated in place of an UPDATE query.
- *
- * id_member is either an int or an array of ints to be updated.
- *
- * data is an associative array of the columns to be updated and their respective values.
- * any string values updated should be quoted and slashed.
- *
- * the value of any column can be '+' or '-', which mean 'increment'
- * and decrement, respectively.
- *
- * if the member's post number is updated, updates their post groups.
- *
- * @param mixed $members An array of member IDs, the ID of a single member, or null to update this for all members
- * @param array $data The info to update for the members
- */
-function updateMemberData($members, $data)
-{
-	global $user_info;
-
-	// An empty array means there's nobody to update.
-	if ($members === array())
-		return;
-
-	$parameters = array();
-	if (is_array($members))
-	{
-		$condition = 'id_member IN ({array_int:members})';
-		$parameters['members'] = $members;
-	}
-
-	elseif ($members === null)
-		$condition = '1=1';
-
-	else
-	{
-		$condition = 'id_member = {int:member}';
-		$parameters['member'] = $members;
-	}
-
-	// Everything is assumed to be a string unless it's in the below.
-	$knownInts = array(
-		'date_registered', 'posts', 'id_group', 'last_login', 'instant_messages', 'unread_messages',
-		'new_pm', 'pm_prefs', 'gender', 'show_online', 'pm_receive_from', 'alerts',
-		'id_theme', 'is_activated', 'id_msg_last_visit', 'id_post_group', 'total_time_logged_in', 'warning',
-	);
-	$knownFloats = array(
-		'time_offset',
-	);
-
-	if (!empty(Config::$modSettings['integrate_change_member_data']))
-	{
-		// Only a few member variables are really interesting for integration.
-		$integration_vars = array(
-			'member_name',
-			'real_name',
-			'email_address',
-			'id_group',
-			'gender',
-			'birthdate',
-			'website_title',
-			'website_url',
-			'location',
-			'time_format',
-			'timezone',
-			'time_offset',
-			'avatar',
-			'lngfile',
-		);
-		$vars_to_integrate = array_intersect($integration_vars, array_keys($data));
-
-		// Only proceed if there are any variables left to call the integration function.
-		if (count($vars_to_integrate) != 0)
-		{
-			// Fetch a list of member_names if necessary
-			if ((!is_array($members) && $members === $user_info['id']) || (is_array($members) && count($members) == 1 && in_array($user_info['id'], $members)))
-				$member_names = array($user_info['username']);
-			else
-			{
-				$member_names = array();
-				$request = Db::$db->query('', '
-					SELECT member_name
-					FROM {db_prefix}members
-					WHERE ' . $condition,
-					$parameters
-				);
-				while ($row = Db::$db->fetch_assoc($request))
-					$member_names[] = $row['member_name'];
-				Db::$db->free_result($request);
-			}
-
-			if (!empty($member_names))
-				foreach ($vars_to_integrate as $var)
-					call_integration_hook('integrate_change_member_data', array($member_names, $var, &$data[$var], &$knownInts, &$knownFloats));
-		}
-	}
-
-	$setString = '';
-	foreach ($data as $var => $val)
-	{
-		switch ($var)
-		{
-			case  'birthdate':
-				$type = 'date';
-				break;
-
-			case 'member_ip':
-			case 'member_ip2':
-				$type = 'inet';
-				break;
-
-			default:
-				$type = 'string';
-		}
-
-		if (in_array($var, $knownInts))
-			$type = 'int';
-
-		elseif (in_array($var, $knownFloats))
-			$type = 'float';
-
-		// Doing an increment?
-		if ($var == 'alerts' && ($val === '+' || $val === '-'))
-		{
-			include_once(Config::$sourcedir . '/Profile-Modify.php');
-			if (is_array($members))
-			{
-				$val = 'CASE ';
-				foreach ($members as $k => $v)
-					$val .= 'WHEN id_member = ' . $v . ' THEN '. alert_count($v, true) . ' ';
-
-				$val = $val . ' END';
-				$type = 'raw';
-			}
-
-			else
-				$val = alert_count($members, true);
-		}
-
-		elseif ($type == 'int' && ($val === '+' || $val === '-'))
-		{
-			$val = $var . ' ' . $val . ' 1';
-			$type = 'raw';
-		}
-
-		// Ensure posts, instant_messages, and unread_messages don't overflow or underflow.
-		if (in_array($var, array('posts', 'instant_messages', 'unread_messages')))
-		{
-			if (preg_match('~^' . $var . ' (\+ |- |\+ -)([\d]+)~', $val, $match))
-			{
-				if ($match[1] != '+ ')
-					$val = 'CASE WHEN ' . $var . ' <= ' . abs($match[2]) . ' THEN 0 ELSE ' . $val . ' END';
-
-				$type = 'raw';
-			}
-		}
-
-		$setString .= ' ' . $var . ' = {' . $type . ':p_' . $var . '},';
-		$parameters['p_' . $var] = $val;
-	}
-
-	Db::$db->query('', '
-		UPDATE {db_prefix}members
-		SET' . substr($setString, 0, -1) . '
-		WHERE ' . $condition,
-		$parameters
-	);
-
-	updateStats('postgroups', $members, array_keys($data));
-
-	// Clear any caching?
-	if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2 && !empty($members))
-	{
-		if (!is_array($members))
-			$members = array($members);
-
-		foreach ($members as $member)
-		{
-			if (CacheApi::$enable >= 3)
-			{
-				CacheApi::put('member_data-profile-' . $member, null, 120);
-				CacheApi::put('member_data-normal-' . $member, null, 120);
-				CacheApi::put('member_data-minimal-' . $member, null, 120);
-			}
-			CacheApi::put('user_settings-' . $member, null, 60);
-		}
 	}
 }
 
@@ -580,7 +399,7 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 /**
  * Format a time to make it look purdy.
  *
- * - returns a pretty formatted version of time based on the user's format in $user_info['time_format'].
+ * - returns a pretty formatted version of time based on the user's format in User::$me->time_format.
  * - applies all necessary time offsets to the timestamp, unless offset_type is set.
  * - if todayMod is set and show_today was not not specified or true, an
  *   alternate format string is used to show the date with something to show it is "today" or "yesterday".
@@ -598,15 +417,14 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
  */
 function timeformat($log_time, $show_today = true, $tzid = null)
 {
-	global $user_info;
 	static $today;
 
 	// Ensure required values are set
-	$user_info['time_format'] = !empty($user_info['time_format']) ? $user_info['time_format'] : (!empty(Config::$modSettings['time_format']) ? Config::$modSettings['time_format'] : '%F %H:%M');
+	User::$me->time_format = !empty(User::$me->time_format) ? User::$me->time_format : (!empty(Config::$modSettings['time_format']) ? Config::$modSettings['time_format'] : '%F %H:%M');
 
 	// For backward compatibility, replace empty values with user's time zone
 	// and replace 'forum' with forum's default time zone.
-	$tzid = empty($tzid) ? getUserTimezone() : (($tzid === 'forum' || @timezone_open((string) $tzid) === false) ? Config::$modSettings['default_timezone'] : (string) $tzid);
+	$tzid = empty($tzid) ? User::getTimezone() : (($tzid === 'forum' || @timezone_open((string) $tzid) === false) ? Config::$modSettings['default_timezone'] : (string) $tzid);
 
 	// Today and Yesterday?
 	$prefix = '';
@@ -632,8 +450,8 @@ function timeformat($log_time, $show_today = true, $tzid = null)
 		}
 	}
 
-	// If $show_today is not a bool, use it as the date format & don't use $user_info. Allows for temp override of the format.
-	$format = !is_bool($show_today) ? $show_today : $user_info['time_format'];
+	// If $show_today is not a bool, use it as the date format & don't use User::$me->time_format. Allows for temp override of the format.
+	$format = !is_bool($show_today) ? $show_today : User::$me->time_format;
 
 	$format = !empty($prefix) ? get_date_or_time_format('time', $format) : $format;
 
@@ -645,17 +463,16 @@ function timeformat($log_time, $show_today = true, $tzid = null)
  * Gets a version of a strftime() format that only shows the date or time components
  *
  * @param string $type Either 'date' or 'time'.
- * @param string $format A strftime() format to process. Defaults to $user_info['time_format'].
+ * @param string $format A strftime() format to process. Defaults to User::$me->time_format.
  * @return string A strftime() format string
  */
 function get_date_or_time_format($type = '', $format = '')
 {
-	global $user_info;
 	static $formats;
 
 	// If the format is invalid, fall back to defaults.
 	if (strpos($format, '%') === false)
-		$format = !empty($user_info['time_format']) ? $user_info['time_format'] : (!empty(Config::$modSettings['time_format']) ? Config::$modSettings['time_format'] : '%F %k:%M');
+		$format = !empty(User::$me->time_format) ? User::$me->time_format : (!empty(Config::$modSettings['time_format']) ? Config::$modSettings['time_format'] : '%F %k:%M');
 
 	$orig_format = $format;
 
@@ -1199,10 +1016,9 @@ function permute($array)
  */
 function get_proxied_url($url)
 {
-	global $user_info;
 
 	// Only use the proxy if enabled, and never for robots
-	if (empty(Config::$image_proxy_enabled) || !empty($user_info['possibly_robot']))
+	if (empty(Config::$image_proxy_enabled) || !empty(User::$me->possibly_robot))
 		return $url;
 
 	$parsedurl = parse_iri($url);
@@ -1476,7 +1292,7 @@ function url_image_size($url)
  */
 function setupThemeContext($forceload = false)
 {
-	global $user_info, $settings, $options;
+	global $settings, $options;
 
 	static $loaded = false;
 
@@ -1503,45 +1319,24 @@ function setupThemeContext($forceload = false)
 		Utils::$context['news_lines'][$i] = BBCodeParser::load()->parse(stripslashes(trim(Utils::$context['news_lines'][$i])), true, 'news' . $i);
 	}
 
-	if (!empty(Utils::$context['news_lines']) && (!empty(Config::$modSettings['allow_guestAccess']) || Utils::$context['user']['is_logged']))
+	if (!empty(Utils::$context['news_lines']) && (!empty(Config::$modSettings['allow_guestAccess']) || User::$me->is_logged))
 		Utils::$context['random_news_line'] = Utils::$context['news_lines'][mt_rand(0, count(Utils::$context['news_lines']) - 1)];
 
-	if (!$user_info['is_guest'])
+	if (!User::$me->is_guest)
 	{
-		Utils::$context['user']['messages'] = &$user_info['messages'];
-		Utils::$context['user']['unread_messages'] = &$user_info['unread_messages'];
-		Utils::$context['user']['alerts'] = &$user_info['alerts'];
-
 		// Personal message popup...
-		if ($user_info['unread_messages'] > (isset($_SESSION['unread_messages']) ? $_SESSION['unread_messages'] : 0))
-			Utils::$context['user']['popup_messages'] = true;
+		if (User::$me->unread_messages > (isset($_SESSION['unread_messages']) ? $_SESSION['unread_messages'] : 0))
+			User::$me->popup_messages = true;
 		else
-			Utils::$context['user']['popup_messages'] = false;
-		$_SESSION['unread_messages'] = $user_info['unread_messages'];
+			User::$me->popup_messages = false;
+		$_SESSION['unread_messages'] = User::$me->unread_messages;
 
 		if (allowedTo('moderate_forum'))
 			Utils::$context['unapproved_members'] = !empty(Config::$modSettings['unapprovedMembers']) ? Config::$modSettings['unapprovedMembers'] : 0;
-
-		Utils::$context['user']['avatar'] = set_avatar_data(array(
-			'filename' => $user_info['avatar']['filename'],
-			'avatar' => $user_info['avatar']['url'],
-			'email' => $user_info['email'],
-		));
-
-		// Figure out how long they've been logged in.
-		Utils::$context['user']['total_time_logged_in'] = array(
-			'days' => floor($user_info['total_time_logged_in'] / 86400),
-			'hours' => floor(($user_info['total_time_logged_in'] % 86400) / 3600),
-			'minutes' => floor(($user_info['total_time_logged_in'] % 3600) / 60)
-		);
 	}
 	else
 	{
-		Utils::$context['user']['messages'] = 0;
-		Utils::$context['user']['unread_messages'] = 0;
-		Utils::$context['user']['avatar'] = array();
-		Utils::$context['user']['total_time_logged_in'] = array('days' => 0, 'hours' => 0, 'minutes' => 0);
-		Utils::$context['user']['popup_messages'] = false;
+		User::$me->popup_messages = false;
 
 		// If we've upgraded recently, go easy on the passwords.
 		if (!empty(Config::$modSettings['disableHashTime']) && (Config::$modSettings['disableHashTime'] == 1 || time() < Config::$modSettings['disableHashTime']))
@@ -1555,7 +1350,7 @@ function setupThemeContext($forceload = false)
 	Utils::$context['show_news'] = !empty($settings['enable_news']);
 
 	// This is done to allow theme authors to customize it as they want.
-	Utils::$context['show_pm_popup'] = Utils::$context['user']['popup_messages'] && !empty($options['popup_messages']) && (!isset($_REQUEST['action']) || $_REQUEST['action'] != 'pm');
+	Utils::$context['show_pm_popup'] = User::$me->popup_messages && !empty($options['popup_messages']) && (!isset($_REQUEST['action']) || $_REQUEST['action'] != 'pm');
 
 	// 2.1+: Add the PM popup here instead. Theme authors can still override it simply by editing/removing the 'fPmPopup' in the array.
 	if (Utils::$context['show_pm_popup'])
@@ -1563,7 +1358,7 @@ function setupThemeContext($forceload = false)
 		jQuery(document).ready(function($) {
 			new smc_Popup({
 				heading: ' . JavaScriptEscape(Lang::$txt['show_personal_messages_heading']) . ',
-				content: ' . JavaScriptEscape(sprintf(Lang::$txt['show_personal_messages'], Utils::$context['user']['unread_messages'], Config::$scripturl . '?action=pm')) . ',
+				content: ' . JavaScriptEscape(sprintf(Lang::$txt['show_personal_messages'], User::$me->unread_messages, Config::$scripturl . '?action=pm')) . ',
 				icon_class: \'main_icons mail_new\'
 			});
 		});');
@@ -1704,8 +1499,6 @@ function memoryReturnBytes($val)
  */
 function template_header()
 {
-	global $user_info;
-
 	setupThemeContext();
 
 	// Print stuff to prevent caching of pages (except on attachment errors, etc.)
@@ -1724,7 +1517,7 @@ function template_header()
 	header('content-type: text/' . (isset($_REQUEST['xml']) ? 'xml' : 'html') . '; charset=' . (empty(Utils::$context['character_set']) ? 'ISO-8859-1' : Utils::$context['character_set']));
 
 	// We need to splice this in after the body layer, or after the main layer for older stuff.
-	if (Utils::$context['in_maintenance'] && Utils::$context['user']['is_admin'])
+	if (Utils::$context['in_maintenance'] && User::$me->is_admin)
 	{
 		$position = array_search('body', Utils::$context['template_layers']);
 		if ($position === false)
@@ -1745,7 +1538,7 @@ function template_header()
 		loadSubTemplate($layer . '_above', true);
 
 		// May seem contrived, but this is done in case the body and main layer aren't there...
-		if (in_array($layer, array('body', 'main')) && allowedTo('admin_forum') && !$user_info['is_guest'] && !$checked_securityFiles)
+		if (in_array($layer, array('body', 'main')) && allowedTo('admin_forum') && !User::$me->is_guest && !$checked_securityFiles)
 		{
 			$checked_securityFiles = true;
 
@@ -1827,7 +1620,7 @@ function template_header()
 			$showed_banned = true;
 			echo '
 				<div class="windowbg alert" style="margin: 2ex; padding: 2ex; border: 2px dashed red;">
-					', sprintf(Lang::$txt['you_are_post_banned'], $user_info['is_guest'] ? Lang::$txt['guest_title'] : $user_info['name']);
+					', sprintf(Lang::$txt['you_are_post_banned'], User::$me->is_guest ? Lang::$txt['guest_title'] : User::$me->name);
 
 			if (!empty($_SESSION['ban']['cannot_post']['reason']))
 				echo '
@@ -2546,15 +2339,15 @@ function create_button($name, $alt, $label = '', $custom = '', $force_use = fals
  */
 function setupMenuContext()
 {
-	global $user_info, $settings;
+	global $settings;
 
 	// Set up the menu privileges.
-	Utils::$context['allow_search'] = !empty(Config::$modSettings['allow_guestAccess']) ? allowedTo('search_posts') : (!$user_info['is_guest'] && allowedTo('search_posts'));
+	Utils::$context['allow_search'] = !empty(Config::$modSettings['allow_guestAccess']) ? allowedTo('search_posts') : (!User::$me->is_guest && allowedTo('search_posts'));
 	Utils::$context['allow_admin'] = allowedTo(array('admin_forum', 'manage_boards', 'manage_permissions', 'moderate_forum', 'manage_membergroups', 'manage_bans', 'send_mail', 'edit_news', 'manage_attachments', 'manage_smileys'));
 
 	Utils::$context['allow_memberlist'] = allowedTo('view_mlist');
 	Utils::$context['allow_calendar'] = allowedTo('calendar_view') && !empty(Config::$modSettings['cal_enabled']);
-	Utils::$context['allow_moderation_center'] = Utils::$context['user']['can_mod'];
+	Utils::$context['allow_moderation_center'] = User::$me->can_mod;
 	Utils::$context['allow_pm'] = allowedTo('pm_read');
 
 	$cacheTime = Config::$modSettings['lastActive'] * 60;
@@ -2565,7 +2358,7 @@ function setupMenuContext()
 		Utils::$context['allow_calendar_event'] = Utils::$context['allow_calendar'] && allowedTo('calendar_post');
 
 		// If you don't allow events not linked to posts and you're not an admin, we have more work to do...
-		if (Utils::$context['allow_calendar'] && Utils::$context['allow_calendar_event'] && empty(Config::$modSettings['cal_allow_unlinked']) && !$user_info['is_admin'])
+		if (Utils::$context['allow_calendar'] && Utils::$context['allow_calendar_event'] && empty(Config::$modSettings['cal_allow_unlinked']) && !User::$me->is_admin)
 		{
 			$boards_can_post = boardsAllowedTo('post_new');
 			Utils::$context['allow_calendar_event'] &= !empty($boards_can_post);
@@ -2573,12 +2366,12 @@ function setupMenuContext()
 	}
 
 	// There is some menu stuff we need to do if we're coming at this from a non-guest perspective.
-	if (!Utils::$context['user']['is_guest'])
+	if (!User::$me->is_guest)
 	{
 		addInlineJavaScript('
 	var user_menus = new smc_PopupMenu();
 	user_menus.add("profile", "' . Config::$scripturl . '?action=profile;area=popup");
-	user_menus.add("alerts", "' . Config::$scripturl . '?action=profile;area=alerts_popup;u=' . Utils::$context['user']['id'] . '");', true);
+	user_menus.add("alerts", "' . Config::$scripturl . '?action=profile;area=alerts_popup;u=' . User::$me->id . '");', true);
 		if (Utils::$context['allow_pm'])
 			addInlineJavaScript('
 	user_menus.add("pm", "' . Config::$scripturl . '?action=pm;sa=popup");', true);
@@ -2587,8 +2380,8 @@ function setupMenuContext()
 		{
 			require_once(Config::$sourcedir . '/Subs-Notify.php');
 
-			$timeout = getNotifyPrefs(Utils::$context['user']['id'], 'alert_timeout', true);
-			$timeout = empty($timeout) ? 10000 : $timeout[Utils::$context['user']['id']]['alert_timeout'] * 1000;
+			$timeout = getNotifyPrefs(User::$me->id, 'alert_timeout', true);
+			$timeout = empty($timeout) ? 10000 : $timeout[User::$me->id]['alert_timeout'] * 1000;
 
 			addInlineJavaScript('
 	var new_alert_title = "' . Utils::$context['forum_name_html_safe'] . '";
@@ -2598,7 +2391,7 @@ function setupMenuContext()
 	}
 
 	// All the buttons we can possible want and then some, try pulling the final list of buttons from cache first.
-	if (($menu_buttons = CacheApi::get('menu_buttons-' . implode('_', $user_info['groups']) . '-' . $user_info['language'], $cacheTime)) === null || time() - $cacheTime <= Config::$modSettings['settings_updated'])
+	if (($menu_buttons = CacheApi::get('menu_buttons-' . implode('_', User::$me->groups) . '-' . User::$me->language, $cacheTime)) === null || time() - $cacheTime <= Config::$modSettings['settings_updated'])
 	{
 		$buttons = array(
 			'home' => array(
@@ -2657,22 +2450,22 @@ function setupMenuContext()
 					'modlog' => array(
 						'title' => Lang::$txt['modlog_view'],
 						'href' => Config::$scripturl . '?action=moderate;area=modlog',
-						'show' => !empty(Config::$modSettings['modlog_enabled']) && !empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1',
+						'show' => !empty(Config::$modSettings['modlog_enabled']) && !empty(User::$me->mod_cache) && User::$me->mod_cache['bq'] != '0=1',
 					),
 					'poststopics' => array(
 						'title' => Lang::$txt['mc_unapproved_poststopics'],
 						'href' => Config::$scripturl . '?action=moderate;area=postmod;sa=posts',
-						'show' => Config::$modSettings['postmod_active'] && !empty($user_info['mod_cache']['ap']),
+						'show' => Config::$modSettings['postmod_active'] && !empty(User::$me->mod_cache['ap']),
 					),
 					'attachments' => array(
 						'title' => Lang::$txt['mc_unapproved_attachments'],
 						'href' => Config::$scripturl . '?action=moderate;area=attachmod;sa=attachments',
-						'show' => Config::$modSettings['postmod_active'] && !empty($user_info['mod_cache']['ap']),
+						'show' => Config::$modSettings['postmod_active'] && !empty(User::$me->mod_cache['ap']),
 					),
 					'reports' => array(
 						'title' => Lang::$txt['mc_reported_posts'],
 						'href' => Config::$scripturl . '?action=moderate;area=reportedposts',
-						'show' => !empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1',
+						'show' => !empty(User::$me->mod_cache) && User::$me->mod_cache['bq'] != '0=1',
 					),
 					'reported_members' => array(
 						'title' => Lang::$txt['mc_reported_members'],
@@ -2726,7 +2519,7 @@ function setupMenuContext()
 				'title' => Lang::$txt['login'],
 				'href' => Config::$scripturl . '?action=login',
 				'onclick' => 'return reqOverlayDiv(this.href, ' . JavaScriptEscape(Lang::$txt['login']) . ', \'login\');',
-				'show' => $user_info['is_guest'] && !empty($settings['login_main_menu']),
+				'show' => User::$me->is_guest && !empty($settings['login_main_menu']),
 				'sub_buttons' => array(
 				),
 				'is_last' => !Utils::$context['right_to_left'],
@@ -2734,7 +2527,7 @@ function setupMenuContext()
 			'logout' => array(
 				'title' => Lang::$txt['logout'],
 				'href' => Config::$scripturl . '?action=logout;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-				'show' => !$user_info['is_guest'] && !empty($settings['login_main_menu']),
+				'show' => !User::$me->is_guest && !empty($settings['login_main_menu']),
 				'sub_buttons' => array(
 				),
 				'is_last' => !Utils::$context['right_to_left'],
@@ -2743,7 +2536,7 @@ function setupMenuContext()
 				'title' => Lang::$txt['register'],
 				'href' => Config::$scripturl . '?action=signup',
 				'icon' => 'regcenter',
-				'show' => $user_info['is_guest'] && Utils::$context['can_register'] && !empty($settings['login_main_menu']),
+				'show' => User::$me->is_guest && Utils::$context['can_register'] && !empty($settings['login_main_menu']),
 				'sub_buttons' => array(
 				),
 				'is_last' => !Utils::$context['right_to_left'],
@@ -2800,7 +2593,7 @@ function setupMenuContext()
 			}
 
 		if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2)
-			CacheApi::put('menu_buttons-' . implode('_', $user_info['groups']) . '-' . $user_info['language'], $menu_buttons, $cacheTime);
+			CacheApi::put('menu_buttons-' . implode('_', User::$me->groups) . '-' . User::$me->language, $menu_buttons, $cacheTime);
 	}
 
 	Utils::$context['menu_buttons'] = $menu_buttons;
@@ -2821,13 +2614,13 @@ function setupMenuContext()
 		$current_action = isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'pick' ? 'profile' : 'admin';
 	elseif (Utils::$context['current_action'] == 'signup2')
 		$current_action = 'signup';
-	elseif (Utils::$context['current_action'] == 'login2' || ($user_info['is_guest'] && Utils::$context['current_action'] == 'reminder'))
+	elseif (Utils::$context['current_action'] == 'login2' || (User::$me->is_guest && Utils::$context['current_action'] == 'reminder'))
 		$current_action = 'login';
 	elseif (Utils::$context['current_action'] == 'groups' && Utils::$context['allow_moderation_center'])
 		$current_action = 'moderate';
 
 	// There are certain exceptions to the above where we don't want anything on the menu highlighted.
-	if (Utils::$context['current_action'] == 'profile' && !empty(Utils::$context['user']['is_owner']))
+	if (Utils::$context['current_action'] == 'profile' && !empty(User::$me->is_owner))
 	{
 		$current_action = !empty($_GET['area']) && $_GET['area'] == 'showalerts' ? 'self_alerts' : 'self_profile';
 		Utils::$context[$current_action] = true;
@@ -2841,7 +2634,7 @@ function setupMenuContext()
 	Utils::$context['total_mod_reports'] = 0;
 	Utils::$context['total_admin_reports'] = 0;
 
-	if (!empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1' && !empty(Utils::$context['open_mod_reports']) && !empty(Utils::$context['menu_buttons']['moderate']['sub_buttons']['reports']))
+	if (!empty(User::$me->mod_cache) && User::$me->mod_cache['bq'] != '0=1' && !empty(Utils::$context['open_mod_reports']) && !empty(Utils::$context['menu_buttons']['moderate']['sub_buttons']['reports']))
 	{
 		Utils::$context['total_mod_reports'] = Utils::$context['open_mod_reports'];
 		Utils::$context['menu_buttons']['moderate']['sub_buttons']['reports']['amt'] = Utils::$context['open_mod_reports'];
@@ -3544,14 +3337,12 @@ function check_mime_type($data, $type_pattern, $is_path = false)
  */
 function prepareLikesContext($topic)
 {
-	global $user_info;
-
 	// Make sure we have something to work with.
 	if (empty($topic))
 		return array();
 
 	// We already know the number of likes per message, we just want to know whether the current user liked it or not.
-	$user = $user_info['id'];
+	$user = User::$me->id;
 	$cache_key = 'likes_topic_' . $topic . '_' . $user;
 	$ttl = 180;
 
@@ -3687,7 +3478,6 @@ function get_gravatar_url($email_address)
  */
 function smf_list_timezones($when = 'now')
 {
-	global $cur_profile;
 	static $timezones_when = array();
 
 	require_once(Config::$sourcedir . '/Subs-Timezones.php');
@@ -3822,7 +3612,7 @@ function smf_list_timezones($when = 'now')
 		$labels[$tzkey] = !empty($zones[$tzkey]['metazone']) && !empty(Lang::$tztxt[$zones[$tzkey]['metazone']]) ? Lang::$tztxt[$zones[$tzkey]['metazone']] : '';
 
 		// Remember this for later
-		if (isset($cur_profile['timezone']) && $cur_profile['timezone'] == $tzid)
+		if (isset(User::$me->timezone) && User::$me->timezone == $tzid)
 			$member_tzkey = $tzkey;
 		if (isset(Utils::$context['event']['tz']) && Utils::$context['event']['tz'] == $tzid)
 			$event_tzkey = $tzkey;
@@ -3888,7 +3678,7 @@ function smf_list_timezones($when = 'now')
 
 		// Automatically fix orphaned time zones.
 		if (isset($member_tzkey) && $member_tzkey == $tzkey)
-			$cur_profile['timezone'] = $tzvalue['tzid'];
+			User::$me->timezone = $tzvalue['tzid'];
 		if (isset($event_tzkey) && $event_tzkey == $tzkey)
 			Utils::$context['event']['tz'] = $tzvalue['tzid'];
 		if (isset($default_tzkey) && $default_tzkey == $tzkey && Config::$modSettings['default_timezone'] != $tzvalue['tzid'])
@@ -3907,58 +3697,6 @@ function smf_list_timezones($when = 'now')
 	$timezones_when[$when] = $timezones;
 
 	return $timezones_when[$when];
-}
-
-/**
- * Gets a member's selected time zone identifier
- *
- * @param int $id_member The member id to look up. If not provided, the current user's id will be used.
- * @return string The time zone identifier string for the user's time zone.
- */
-function getUserTimezone($id_member = null)
-{
-	global $user_info, $user_settings;
-	static $member_cache = array();
-
-	if (is_null($id_member))
-		$id_member = empty($user_info['id']) ? 0 : (int) $user_info['id'];
-	else
-		$id_member = (int) $id_member;
-
-	// Did we already look this up?
-	if (isset($member_cache[$id_member]))
-		return $member_cache[$id_member];
-
-	// Check if we already have this in $user_settings.
-	if (isset($user_settings['id_member']) && $user_settings['id_member'] == $id_member && !empty($user_settings['timezone']))
-	{
-		$member_cache[$id_member] = $user_settings['timezone'];
-		return $user_settings['timezone'];
-	}
-
-	if (!empty($id_member))
-	{
-		// Look it up in the database.
-		$request = Db::$db->query('', '
-			SELECT timezone
-			FROM {db_prefix}members
-			WHERE id_member = {int:id_member}',
-			array(
-				'id_member' => $id_member,
-			)
-		);
-		list($timezone) = Db::$db->fetch_row($request);
-		Db::$db->free_result($request);
-	}
-
-	// If it is invalid, fall back to the default.
-	if (empty($timezone) || !in_array($timezone, timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
-		$timezone = isset(Config::$modSettings['default_timezone']) ? Config::$modSettings['default_timezone'] : date_default_timezone_get();
-
-	// Save for later.
-	$member_cache[$id_member] = $timezone;
-
-	return $timezone;
 }
 
 /**
@@ -4726,107 +4464,6 @@ function https_redirect_active($url)
 		}
 	}
 	return $result;
-}
-
-/**
- * Build query_wanna_see_board and query_see_board for a userid
- *
- * Returns array with keys query_wanna_see_board and query_see_board
- *
- * @param int $userid of the user
- */
-function build_query_board($userid)
-{
-	global $user_info;
-
-	$query_part = array();
-
-	// If we come from cron, we can't have a $user_info.
-	if (isset($user_info['id']) && $user_info['id'] == $userid && SMF != 'BACKGROUND')
-	{
-		$groups = $user_info['groups'];
-		$can_see_all_boards = $user_info['is_admin'] || $user_info['can_manage_boards'];
-		$ignoreboards = !empty($user_info['ignoreboards']) ? $user_info['ignoreboards'] : null;
-	}
-	else
-	{
-		$request = Db::$db->query('', '
-			SELECT mem.ignore_boards, mem.id_group, mem.additional_groups, mem.id_post_group
-			FROM {db_prefix}members AS mem
-			WHERE mem.id_member = {int:id_member}
-			LIMIT 1',
-			array(
-				'id_member' => $userid,
-			)
-		);
-
-		$row = Db::$db->fetch_assoc($request);
-
-		if (empty($row['additional_groups']))
-			$groups = array($row['id_group'], $row['id_post_group']);
-		else
-			$groups = array_merge(
-				array($row['id_group'], $row['id_post_group']),
-				explode(',', $row['additional_groups'])
-			);
-
-		// Because history has proven that it is possible for groups to go bad - clean up in case.
-		foreach ($groups as $k => $v)
-			$groups[$k] = (int) $v;
-
-		$can_see_all_boards = in_array(1, $groups) || (!empty(Config::$modSettings['board_manager_groups']) && count(array_intersect($groups, explode(',', Config::$modSettings['board_manager_groups']))) > 0);
-
-		$ignoreboards = !empty($row['ignore_boards']) && !empty(Config::$modSettings['allow_ignore_boards']) ? explode(',', $row['ignore_boards']) : array();
-	}
-
-	// Just build this here, it makes it easier to change/use - administrators can see all boards.
-	if ($can_see_all_boards)
-		$query_part['query_see_board'] = '1=1';
-	// Otherwise just the groups in $user_info['groups'].
-	else
-	{
-		$query_part['query_see_board'] = '
-			EXISTS (
-				SELECT bpv.id_board
-				FROM ' . Db::$db->prefix . 'board_permissions_view AS bpv
-				WHERE bpv.id_group IN ('. implode(',', $groups) .')
-					AND bpv.deny = 0
-					AND bpv.id_board = b.id_board
-			)';
-
-		if (!empty(Config::$modSettings['deny_boards_access']))
-			$query_part['query_see_board'] .= '
-			AND NOT EXISTS (
-				SELECT bpv.id_board
-				FROM ' . Db::$db->prefix . 'board_permissions_view AS bpv
-				WHERE bpv.id_group IN ( '. implode(',', $groups) .')
-					AND bpv.deny = 1
-					AND bpv.id_board = b.id_board
-			)';
-	}
-
-	$query_part['query_see_message_board'] = str_replace('b.', 'm.', $query_part['query_see_board']);
-	$query_part['query_see_topic_board'] = str_replace('b.', 't.', $query_part['query_see_board']);
-
-	// Build the list of boards they WANT to see.
-	// This will take the place of query_see_boards in certain spots, so it better include the boards they can see also
-
-	// If they aren't ignoring any boards then they want to see all the boards they can see
-	if (empty($ignoreboards))
-	{
-		$query_part['query_wanna_see_board'] = $query_part['query_see_board'];
-		$query_part['query_wanna_see_message_board'] = $query_part['query_see_message_board'];
-		$query_part['query_wanna_see_topic_board'] = $query_part['query_see_topic_board'];
-	}
-	// Ok I guess they don't want to see all the boards
-	else
-	{
-		$query_part['query_wanna_see_board'] = '(' . $query_part['query_see_board'] . ' AND b.id_board NOT IN (' . implode(',', $ignoreboards) . '))';
-		$query_part['query_wanna_see_message_board'] = '(' . $query_part['query_see_message_board'] . ' AND m.id_board NOT IN (' . implode(',', $ignoreboards) . '))';
-		$query_part['query_wanna_see_topic_board'] = '(' . $query_part['query_see_topic_board'] . ' AND t.id_board NOT IN (' . implode(',', $ignoreboards) . '))';
-	}
-
-	return $query_part;
 }
 
 /**

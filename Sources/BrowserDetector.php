@@ -105,8 +105,6 @@ class BrowserDetector
 	 */
 	public function detectBrowser()
 	{
-		global $user_info;
-
 		// Initialize some values we'll set differently if necessary...
 		$this->_browsers['needs_size_fix'] = false;
 
@@ -134,13 +132,13 @@ class BrowserDetector
 		$this->isIe11();
 
 		// Be you robot or human?
-		if ($user_info['possibly_robot'])
+		if (User::$me->possibly_robot)
 		{
 			// This isn't meant to be reliable, it's just meant to catch most bots to prevent PHPSESSID from showing up.
-			$this->_browsers['possibly_robot'] = !empty($user_info['possibly_robot']);
+			$this->_browsers['possibly_robot'] = !empty(User::$me->possibly_robot);
 
 			// Robots shouldn't be logging in or registering.  So, they aren't a bot.  Better to be wrong than sorry (or people won't be able to log in!), anyway.
-			if ((isset($_REQUEST['action']) && in_array($_REQUEST['action'], array('login', 'login2', 'register', 'signup'))) || !$user_info['is_guest'])
+			if ((isset($_REQUEST['action']) && in_array($_REQUEST['action'], array('login', 'login2', 'register', 'signup'))) || !User::$me->is_guest)
 				$this->_browsers['possibly_robot'] = false;
 		}
 		else

@@ -18,6 +18,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -1013,8 +1014,6 @@ function MergeIndex()
  */
 function MergeExecute($topics = array())
 {
-	global $user_info;
-
 	// Check the session.
 	checkSession('request');
 
@@ -1395,7 +1394,7 @@ function MergeExecute($topics = array())
 
 	require_once(Config::$sourcedir . '/Subs-Post.php');
 	$posterOptions = array(
-		'id' => $user_info['id'],
+		'id' => User::$me->id,
 		'update_post_count' => false,
 	);
 
@@ -1408,7 +1407,7 @@ function MergeExecute($topics = array())
 		);
 
 		// Should be in the boardwide language.
-		if ($user_info['language'] != Lang::$default)
+		if (User::$me->language != Lang::$default)
 		{
 			Lang::load('index', Lang::$default);
 
@@ -1460,14 +1459,14 @@ function MergeExecute($topics = array())
 		}
 
 		// Restore language strings to normal.
-		if ($user_info['language'] != Lang::$default)
+		if (User::$me->language != Lang::$default)
 			Lang::load('index');
 	}
 
 	// Grab the response prefix (like 'Re: ') in the default forum language.
 	if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix')))
 	{
-		if (Lang::$default === $user_info['language'])
+		if (Lang::$default === User::$me->language)
 			Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
 		else
 		{
@@ -1690,7 +1689,7 @@ function MergeExecute($topics = array())
 					redirect_expires = {int:redirect_expires}
 				WHERE id_topic = {int:old_topic}',
 				array(
-					'current_user' => $user_info['id'],
+					'current_user' => User::$me->id,
 					'old_topic' => $old_topic,
 					'redirect_topic' => $redirect_topic,
 					'redirect_expires' => $redirect_expires

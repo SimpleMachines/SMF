@@ -16,6 +16,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -191,8 +192,6 @@ function AdminRegister()
 function EditAgreement()
 {
 	// I hereby agree not to be a lazy bum.
-	global $user_info;
-
 	// By default we look at agreement.txt.
 	Utils::$context['current_agreement'] = '';
 
@@ -242,11 +241,11 @@ function EditAgreement()
 		Db::$db->insert('replace',
 			'{db_prefix}themes',
 			array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
-			array($user_info['id'], 1, 'agreement_accepted', time()),
+			array(User::$me->id, 1, 'agreement_accepted', time()),
 			array('id_member', 'id_theme', 'variable')
 		);
 		logAction('agreement_updated', array('language' => Utils::$context['editable_agreements'][Utils::$context['current_agreement']]), 'admin');
-		logAction('agreement_accepted', array('applicator' => $user_info['id']), 'user');
+		logAction('agreement_accepted', array('applicator' => User::$me->id), 'user');
 
 		Config::updateModSettings($agreement_settings);
 
@@ -394,10 +393,8 @@ function ModifyRegistrationSettings($return_config = false)
 // Sure, you can sell my personal info for profit (...or not)
 function EditPrivacyPolicy()
 {
-	global $user_info;
-
 	// By default, edit the current language's policy
-	Utils::$context['current_policy_lang'] = $user_info['language'];
+	Utils::$context['current_policy_lang'] = User::$me->language;
 
 	// We need a policy for every language
 	Lang::get();
@@ -431,11 +428,11 @@ function EditPrivacyPolicy()
 		Db::$db->insert('replace',
 			'{db_prefix}themes',
 			array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
-			array($user_info['id'], 1, 'policy_accepted', time()),
+			array(User::$me->id, 1, 'policy_accepted', time()),
 			array('id_member', 'id_theme', 'variable')
 		);
 		logAction('policy_updated', array('language' => Utils::$context['editable_policies'][Utils::$context['current_policy_lang']]), 'admin');
-		logAction('policy_accepted', array('applicator' => $user_info['id']), 'user');
+		logAction('policy_accepted', array('applicator' => User::$me->id), 'user');
 
 		if (Utils::$context['privacy_policy'] !== $policy_text)
 			Utils::$context['saved_successful'] = true;

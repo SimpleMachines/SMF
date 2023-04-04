@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -784,18 +785,16 @@ function getDailyStats($condition_string, $condition_parameters = array())
  */
 function SMStats()
 {
-	global $user_info;
-
 	// First, is it disabled?
 	if (empty(Config::$modSettings['enable_sm_stats']) || empty(Config::$modSettings['sm_stats_key']))
 		die();
 
 	// Are we saying who we are, and are we right? (OR an admin)
-	if (!$user_info['is_admin'] && (!isset($_GET['sid']) || $_GET['sid'] != Config::$modSettings['sm_stats_key']))
+	if (!User::$me->is_admin && (!isset($_GET['sid']) || $_GET['sid'] != Config::$modSettings['sm_stats_key']))
 		die();
 
 	// Verify the referer...
-	if (!$user_info['is_admin'] && (!isset($_SERVER['HTTP_REFERER']) || md5($_SERVER['HTTP_REFERER']) != '746cb59a1a0d5cf4bd240e5a67c73085'))
+	if (!User::$me->is_admin && (!isset($_SERVER['HTTP_REFERER']) || md5($_SERVER['HTTP_REFERER']) != '746cb59a1a0d5cf4bd240e5a67c73085'))
 		die();
 
 	// Get some server versions.
@@ -829,7 +828,7 @@ function SMStats()
 	$stats_to_send = implode('&', $stats_to_send);
 
 	// If we're an admin, just plonk them out.
-	if ($user_info['is_admin'])
+	if (User::$me->is_admin)
 		echo $stats_to_send;
 	else
 	{

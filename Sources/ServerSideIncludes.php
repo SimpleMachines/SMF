@@ -271,14 +271,14 @@ class ServerSideIncludes
 
 		if ($output_method == 'echo')
 		{
-			if (Utils::$context['user']['is_guest'])
+			if (User::$me->is_guest)
 				echo sprintf(Lang::$txt[Utils::$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], Utils::$context['forum_name_html_safe'], Config::$scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape(Lang::$txt['login']) . ');', Config::$scripturl . '?action=signup');
 			else
-				echo Lang::$txt['hello_member'], ' <strong>', Utils::$context['user']['name'], '</strong>', allowedTo('pm_read') ? ', ' . (empty(Utils::$context['user']['messages']) ? Lang::$txt['msg_alert_no_messages'] : ((Utils::$context['user']['messages'] == 1 ? sprintf(Lang::$txt['msg_alert_one_message'], Config::$scripturl . '?action=pm') : sprintf(Lang::$txt['msg_alert_many_message'], Config::$scripturl . '?action=pm', Utils::$context['user']['messages'])) . ', ' . (Utils::$context['user']['unread_messages'] == 1 ? Lang::$txt['msg_alert_one_new'] : sprintf(Lang::$txt['msg_alert_many_new'], Utils::$context['user']['unread_messages'])))) : '';
+				echo Lang::$txt['hello_member'], ' <strong>', User::$me->name, '</strong>', allowedTo('pm_read') ? ', ' . (empty(User::$me->messages) ? Lang::$txt['msg_alert_no_messages'] : ((User::$me->messages == 1 ? sprintf(Lang::$txt['msg_alert_one_message'], Config::$scripturl . '?action=pm') : sprintf(Lang::$txt['msg_alert_many_message'], Config::$scripturl . '?action=pm', User::$me->messages)) . ', ' . (User::$me->unread_messages == 1 ? Lang::$txt['msg_alert_one_new'] : sprintf(Lang::$txt['msg_alert_many_new'], User::$me->unread_messages)))) : '';
 		}
 		// Don't echo... then do what?!
 		else
-			return Utils::$context['user'];
+			return User::$me;
 	}
 
 	/**
@@ -319,7 +319,7 @@ class ServerSideIncludes
 			$_SESSION['logout_url'] = $redirect_to;
 
 		// Guests can't log out.
-		if (Utils::$context['user']['is_guest'])
+		if (User::$me->is_guest)
 			return false;
 
 		$link = '<a href="' . Config::$scripturl . '?action=logout;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '">' . Lang::$txt['logout'] . '</a>';
@@ -435,7 +435,6 @@ class ServerSideIncludes
 	 */
 	public static function queryPosts($query_where = '', $query_where_params = array(), $query_limit = 10, $query_order = 'm.id_msg DESC', $output_method = 'echo', $limit_body = false, $override_permissions = false)
 	{
-		global $user_info;
 		if (!self::$setup_done)
 			new self();
 
@@ -446,13 +445,13 @@ class ServerSideIncludes
 		$request = Db::$db->query('substring', '
 			SELECT
 				m.poster_time, m.subject, m.id_topic, m.id_member, m.id_msg, m.id_board, m.likes, b.name AS board_name,
-				COALESCE(mem.real_name, m.poster_name) AS poster_name, ' . ($user_info['is_guest'] ? '1 AS is_read, 0 AS new_from' : '
+				COALESCE(mem.real_name, m.poster_name) AS poster_name, ' . (User::$me->is_guest ? '1 AS is_read, 0 AS new_from' : '
 				COALESCE(lt.id_msg, lmr.id_msg, 0) >= m.id_msg_modified AS is_read,
 				COALESCE(lt.id_msg, lmr.id_msg, -1) + 1 AS new_from') . ', ' . ($limit_body ? 'SUBSTRING(m.body, 1, 384) AS body' : 'm.body') . ', m.smileys_enabled
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)' . (Config::$modSettings['postmod_active'] ? '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)' : '') . '
-				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (!$user_info['is_guest'] ? '
+				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (!User::$me->is_guest ? '
 				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = m.id_topic AND lt.id_member = {int:current_member})
 				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = m.id_board AND lmr.id_member = {int:current_member})' : '') . '
 			WHERE 1=1 ' . ($override_permissions ? '' : '
@@ -463,7 +462,7 @@ class ServerSideIncludes
 			ORDER BY ' . $query_order . '
 			' . ($query_limit == '' ? '' : 'LIMIT ' . $query_limit),
 			array_merge($query_where_params, array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'is_approved' => 1,
 			))
 		);
@@ -512,7 +511,7 @@ class ServerSideIncludes
 				$posts[$row['id_msg']]['likes'] = array(
 					'count' => $row['likes'],
 					'you' => in_array($row['id_msg'], prepareLikesContext($row['id_topic'])),
-					'can_like' => !Utils::$context['user']['is_guest'] && $row['id_member'] != Utils::$context['user']['id'] && !empty(Utils::$context['can_like']),
+					'can_like' => !User::$me->is_guest && $row['id_member'] != User::$me->id && !empty(Utils::$context['can_like']),
 				);
 		}
 		Db::$db->free_result($request);
@@ -558,7 +557,8 @@ class ServerSideIncludes
 	 */
 	public static function recentTopics($num_recent = 8, $exclude_boards = null, $include_boards = null, $output_method = 'echo')
 	{
-		global $settings, $user_info;
+		global $settings;
+
 		if (!self::$setup_done)
 			new self();
 
@@ -619,20 +619,20 @@ class ServerSideIncludes
 		$request = Db::$db->query('substring', '
 			SELECT
 				ml.poster_time, mf.subject, mf.id_topic, ml.id_member, ml.id_msg, t.num_replies, t.num_views, mg.online_color, t.id_last_msg,
-				COALESCE(mem.real_name, ml.poster_name) AS poster_name, ' . ($user_info['is_guest'] ? '1 AS is_read, 0 AS new_from' : '
+				COALESCE(mem.real_name, ml.poster_name) AS poster_name, ' . (User::$me->is_guest ? '1 AS is_read, 0 AS new_from' : '
 				COALESCE(lt.id_msg, lmr.id_msg, 0) >= ml.id_msg_modified AS is_read,
 				COALESCE(lt.id_msg, lmr.id_msg, -1) + 1 AS new_from') . ', SUBSTRING(ml.body, 1, 384) AS body, ml.smileys_enabled, ml.icon
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
 				INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)
-				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = ml.id_member)' . (!$user_info['is_guest'] ? '
+				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = ml.id_member)' . (!User::$me->is_guest ? '
 				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
 				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})' : '') . '
 				LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = mem.id_group)
 			WHERE t.id_topic IN ({array_int:topic_list})
 			ORDER BY t.id_last_msg DESC',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'topic_list' => array_keys($topics),
 			)
 		);
@@ -777,15 +777,13 @@ class ServerSideIncludes
 	 */
 	public static function topBoards($num_top = 10, $output_method = 'echo')
 	{
-		global $user_info;
-
 		if (!self::$setup_done)
 			new self();
 
 		// Find boards with lots of posts.
 		$request = Db::$db->query('', '
 			SELECT
-				b.name, b.num_topics, b.num_posts, b.id_board,' . (!$user_info['is_guest'] ? ' 1 AS is_read' : '
+				b.name, b.num_topics, b.num_posts, b.id_board,' . (!User::$me->is_guest ? ' 1 AS is_read' : '
 				(COALESCE(lb.id_msg, 0) >= b.id_last_msg) AS is_read') . '
 			FROM {db_prefix}boards AS b
 				LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})
@@ -794,7 +792,7 @@ class ServerSideIncludes
 			ORDER BY b.num_posts DESC
 			LIMIT ' . $num_top,
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'recycle_board' => !empty(Config::$modSettings['recycle_board']) ? (int) Config::$modSettings['recycle_board'] : null,
 			)
 		);
@@ -1121,8 +1119,6 @@ class ServerSideIncludes
 	 */
 	public static function queryMembers($query_where = null, $query_where_params = array(), $query_limit = '', $query_order = 'id_member DESC', $output_method = 'echo')
 	{
-		global $memberContext;
-
 		if (!self::$setup_done)
 			new self();
 
@@ -1151,7 +1147,7 @@ class ServerSideIncludes
 		call_integration_hook('integrate_ssi_queryMembers', array(&$members));
 
 		// Load the members.
-		loadMemberData($members);
+		User::load($members);
 
 		// Draw the table!
 		if ($output_method == 'echo')
@@ -1162,11 +1158,11 @@ class ServerSideIncludes
 		foreach ($members as $member)
 		{
 			// Load their context data.
-			if (!loadMemberContext($member))
+			if (!isset(User::$loaded[$member]))
 				continue;
 
 			// Store this member's information.
-			$query_members[$member] = $memberContext[$member];
+			$query_members[$member] = User::$loaded[$member]->format();
 
 			// Only do something if we're echo'ing.
 			if ($output_method == 'echo')
@@ -1253,7 +1249,7 @@ class ServerSideIncludes
 	 */
 	public static function whosOnline($output_method = 'echo')
 	{
-		global $user_info, $settings;
+		global $settings;
 
 		if (!self::$setup_done)
 			new self();
@@ -1282,7 +1278,7 @@ class ServerSideIncludes
 			', Lang::numberFormat($return['num_guests']), ' ', $return['num_guests'] == 1 ? Lang::$txt['guest'] : Lang::$txt['guests'], ', ', Lang::numberFormat($return['num_users_online']), ' ', $return['num_users_online'] == 1 ? Lang::$txt['user'] : Lang::$txt['users'];
 
 		$bracketList = array();
-		if (!empty($user_info['buddies']))
+		if (!empty(User::$me->buddies))
 			$bracketList[] = Lang::numberFormat($return['num_buddies']) . ' ' . ($return['num_buddies'] == 1 ? Lang::$txt['buddy'] : Lang::$txt['buddies']);
 		if (!empty($return['num_spiders']))
 			$bracketList[] = Lang::numberFormat($return['num_spiders']) . ' ' . ($return['num_spiders'] == 1 ? Lang::$txt['spider'] : Lang::$txt['spiders']);
@@ -1344,16 +1340,14 @@ class ServerSideIncludes
 	 */
 	public static function login($redirect_to = '', $output_method = 'echo')
 	{
-		global $user_info;
-
 		if (!self::$setup_done)
 			new self();
 
 		if ($redirect_to != '')
 			$_SESSION['login_url'] = $redirect_to;
 
-		if ($output_method != 'echo' || !$user_info['is_guest'])
-			return $user_info['is_guest'];
+		if ($output_method != 'echo' || !User::$me->is_guest)
+			return User::$me->is_guest;
 
 		// Create a login token
 		createToken('login');
@@ -1363,7 +1357,7 @@ class ServerSideIncludes
 				<table style="border: none" class="ssi_table">
 					<tr>
 						<td style="text-align: right; border-spacing: 1"><label for="user">', Lang::$txt['username'], ':</label>&nbsp;</td>
-						<td><input type="text" id="user" name="user" size="9" value="', $user_info['username'], '"></td>
+						<td><input type="text" id="user" name="user" size="9" value="', User::$me->username, '"></td>
 					</tr><tr>
 						<td style="text-align: right; border-spacing: 1"><label for="passwrd">', Lang::$txt['password'], ':</label>&nbsp;</td>
 						<td><input type="password" name="passwrd" id="passwrd" size="9"></td>
@@ -1409,8 +1403,6 @@ class ServerSideIncludes
 	 */
 	public static function recentPoll($topPollInstead = false, $output_method = 'echo')
 	{
-		global $user_info;
-
 		if (!self::$setup_done)
 			new self();
 
@@ -1428,14 +1420,14 @@ class ServerSideIncludes
 				LEFT JOIN {db_prefix}log_polls AS lp ON (lp.id_poll = p.id_poll AND lp.id_member > {int:no_member} AND lp.id_member = {int:current_member})
 			WHERE p.voting_locked = {int:voting_opened}
 				AND (p.expire_time = {int:no_expiration} OR {int:current_time} < p.expire_time)
-				AND ' . ($user_info['is_guest'] ? 'p.guest_vote = {int:guest_vote_allowed}' : 'lp.id_choice IS NULL') . '
+				AND ' . (User::$me->is_guest ? 'p.guest_vote = {int:guest_vote_allowed}' : 'lp.id_choice IS NULL') . '
 				AND {query_wanna_see_board}' . (!in_array(0, $boardsAllowed) ? '
 				AND b.id_board IN ({array_int:boards_allowed_list})' : '') . (!empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) ? '
 				AND b.id_board != {int:recycle_board}' : '') . '
 			ORDER BY ' . ($topPollInstead ? 'pc.votes' : 'p.id_poll') . ' DESC
 			LIMIT 1',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'boards_allowed_list' => $boardsAllowed,
 				'is_approved' => 1,
 				'guest_vote_allowed' => 1,
@@ -1454,7 +1446,7 @@ class ServerSideIncludes
 			return array();
 
 		// If this is a guest who's voted we'll through ourselves to show poll to show the results.
-		if ($user_info['is_guest'] && (!$row['guest_vote'] || (isset($_COOKIE['guest_poll_vote']) && in_array($row['id_poll'], explode(',', $_COOKIE['guest_poll_vote'])))))
+		if (User::$me->is_guest && (!$row['guest_vote'] || (isset($_COOKIE['guest_poll_vote']) && in_array($row['id_poll'], explode(',', $_COOKIE['guest_poll_vote'])))))
 			return self::showPoll($row['id_topic'], $output_method);
 
 		$request = Db::$db->query('', '
@@ -1554,8 +1546,6 @@ class ServerSideIncludes
 	 */
 	public static function showPoll($topic = null, $output_method = 'echo')
 	{
-		global $user_info;
-
 		if (!self::$setup_done)
 			new self();
 
@@ -1598,7 +1588,7 @@ class ServerSideIncludes
 		$already_voted = false;
 		if (!empty($row['expire_time']) && $row['expire_time'] < time())
 			$allow_vote = false;
-		elseif ($user_info['is_guest'])
+		elseif (User::$me->is_guest)
 		{
 			// There's a difference between "allowed to vote" and "already voted"...
 			$allow_vote = $row['guest_vote'];
@@ -1620,7 +1610,7 @@ class ServerSideIncludes
 					AND id_member = {int:current_member}
 				LIMIT 1',
 				array(
-					'current_member' => $user_info['id'],
+					'current_member' => User::$me->id,
 					'current_poll' => $row['id_poll'],
 				)
 			);
@@ -1754,12 +1744,10 @@ class ServerSideIncludes
 	 */
 	public static function pollVote()
 	{
-		global $user_info, $sc;
-
 		if (!self::$setup_done)
 			new self();
 
-		if (!isset($_POST[Utils::$context['session_var']]) || $_POST[Utils::$context['session_var']] != $sc || empty($_POST['options']) || !isset($_POST['poll']))
+		if (!isset($_POST[Utils::$context['session_var']]) || $_POST[Utils::$context['session_var']] != User::$sc || empty($_POST['options']) || !isset($_POST['poll']))
 		{
 			echo '<!DOCTYPE html>
 	<html>
@@ -1793,7 +1781,7 @@ class ServerSideIncludes
 				AND t.approved = {int:is_approved}' : '') . '
 			LIMIT 1',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'current_poll' => $_POST['poll'],
 				'is_approved' => 1,
 			)
@@ -1803,7 +1791,7 @@ class ServerSideIncludes
 		$row = Db::$db->fetch_assoc($request);
 		Db::$db->free_result($request);
 
-		if (!empty($row['voting_locked']) || ($row['selected'] != -1 && !$user_info['is_guest']) || (!empty($row['expire_time']) && time() > $row['expire_time']))
+		if (!empty($row['voting_locked']) || ($row['selected'] != -1 && !User::$me->is_guest) || (!empty($row['expire_time']) && time() > $row['expire_time']))
 			redirectexit('topic=' . $row['id_topic'] . '.0');
 
 		// Too many options checked?
@@ -1811,7 +1799,7 @@ class ServerSideIncludes
 			redirectexit('topic=' . $row['id_topic'] . '.0');
 
 		// It's a guest who has already voted?
-		if ($user_info['is_guest'])
+		if (User::$me->is_guest)
 		{
 			// Guest voting disabled?
 			if (!$row['guest_vote'])
@@ -1828,7 +1816,7 @@ class ServerSideIncludes
 			$id = (int) $id;
 
 			$sOptions[] = $id;
-			$inserts[] = array($_POST['poll'], $user_info['id'], $id);
+			$inserts[] = array($_POST['poll'], User::$me->id, $id);
 		}
 
 		// Add their vote in to the tally.
@@ -1850,7 +1838,7 @@ class ServerSideIncludes
 		);
 
 		// Track the vote if a guest.
-		if ($user_info['is_guest'])
+		if (User::$me->is_guest)
 		{
 			$_COOKIE['guest_poll_vote'] = !empty($_COOKIE['guest_poll_vote']) ? ($_COOKIE['guest_poll_vote'] . ',' . $row['id_poll']) : $row['id_poll'];
 
@@ -1921,7 +1909,6 @@ class ServerSideIncludes
 	 */
 	public static function todaysBirthdays($output_method = 'echo')
 	{
-		global $user_info;
 
 		if (!self::$setup_done)
 			new self();
@@ -1933,7 +1920,7 @@ class ServerSideIncludes
 			'include_birthdays' => true,
 			'num_days_shown' => empty(Config::$modSettings['cal_days_for_index']) || Config::$modSettings['cal_days_for_index'] < 1 ? 1 : Config::$modSettings['cal_days_for_index'],
 		);
-		$return = CacheApi::quickGet('calendar_index_offset_' . $user_info['time_offset'], 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
+		$return = CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
 
 		// The self::todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
 		call_integration_hook('integrate_ssi_calendar', array(&$return, $eventOptions));
@@ -1956,8 +1943,6 @@ class ServerSideIncludes
 	 */
 	public static function todaysHolidays($output_method = 'echo')
 	{
-		global $user_info;
-
 		if (!self::$setup_done)
 			new self();
 
@@ -1968,7 +1953,7 @@ class ServerSideIncludes
 			'include_holidays' => true,
 			'num_days_shown' => empty(Config::$modSettings['cal_days_for_index']) || Config::$modSettings['cal_days_for_index'] < 1 ? 1 : Config::$modSettings['cal_days_for_index'],
 		);
-		$return = CacheApi::quickGet('calendar_index_offset_' . $user_info['time_offset'], 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
+		$return = CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
 
 		// The self::todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
 		call_integration_hook('integrate_ssi_calendar', array(&$return, $eventOptions));
@@ -1990,8 +1975,6 @@ class ServerSideIncludes
 	 */
 	public static function todaysEvents($output_method = 'echo')
 	{
-		global $user_info;
-
 		if (!self::$setup_done)
 			new self();
 
@@ -2002,7 +1985,7 @@ class ServerSideIncludes
 			'include_events' => true,
 			'num_days_shown' => empty(Config::$modSettings['cal_days_for_index']) || Config::$modSettings['cal_days_for_index'] < 1 ? 1 : Config::$modSettings['cal_days_for_index'],
 		);
-		$return = CacheApi::quickGet('calendar_index_offset_' . $user_info['time_offset'], 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
+		$return = CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
 
 		// The self::todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
 		call_integration_hook('integrate_ssi_calendar', array(&$return, $eventOptions));
@@ -2030,8 +2013,6 @@ class ServerSideIncludes
 	 */
 	public static function todaysCalendar($output_method = 'echo')
 	{
-		global $user_info;
-
 		if (!self::$setup_done)
 			new self();
 
@@ -2044,7 +2025,7 @@ class ServerSideIncludes
 			'include_events' => true,
 			'num_days_shown' => empty(Config::$modSettings['cal_days_for_index']) || Config::$modSettings['cal_days_for_index'] < 1 ? 1 : Config::$modSettings['cal_days_for_index'],
 		);
-		$return = CacheApi::quickGet('calendar_index_offset_' . $user_info['time_offset'], 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
+		$return = CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
 
 		// The self::todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
 		call_integration_hook('integrate_ssi_calendar', array(&$return, $eventOptions));
@@ -2256,7 +2237,7 @@ class ServerSideIncludes
 				'likes' => !empty(Config::$modSettings['enable_likes']) ? array(
 					'count' => $row['likes'],
 					'you' => in_array($row['id_msg'], prepareLikesContext((int) $row['id_topic'])),
-					'can_like' => !Utils::$context['user']['is_guest'] && $row['id_member'] != Utils::$context['user']['id'] && !empty(Utils::$context['can_like']),
+					'can_like' => !User::$me->is_guest && $row['id_member'] != User::$me->id && !empty(Utils::$context['can_like']),
 				) : array(),
 			);
 		}
@@ -2338,8 +2319,6 @@ class ServerSideIncludes
 	 */
 	public static function recentEvents($max_events = 7, $output_method = 'echo')
 	{
-		global $user_info;
-
 		if (!self::$setup_done)
 			new self();
 
@@ -2391,7 +2370,7 @@ class ServerSideIncludes
 				'id' => $row['id_event'],
 				'title' => $row['title'],
 				'location' => $row['location'],
-				'can_edit' => allowedTo('calendar_edit_any') || ($row['id_member'] == $user_info['id'] && allowedTo('calendar_edit_own')),
+				'can_edit' => allowedTo('calendar_edit_any') || ($row['id_member'] == User::$me->id && allowedTo('calendar_edit_own')),
 				'modify_href' => Config::$scripturl . '?action=' . ($row['id_board'] == 0 ? 'calendar;sa=post;' : 'post;msg=' . $row['id_first_msg'] . ';topic=' . $row['id_topic'] . '.0;calendar;') . 'eventid=' . $row['id_event'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 				'href' => $row['id_board'] == 0 ? '' : Config::$scripturl . '?topic=' . $row['id_topic'] . '.0',
 				'link' => $row['id_board'] == 0 ? $row['title'] : '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['title'] . '</a>',
@@ -2609,8 +2588,7 @@ class ServerSideIncludes
 	 */
 	public function __construct()
 	{
-		global $sc, $board, $topic;
-		global $user_info;
+		global $board, $topic;
 
 		foreach ($this->ssi_globals as $var)
 		{
@@ -2688,20 +2666,21 @@ class ServerSideIncludes
 				$_SESSION['session_var'] = substr(md5(Utils::randomInt() . session_id() . Utils::randomInt()), 0, rand(7, 12));
 				$_SESSION['session_value'] = md5(session_id() . Utils::randomInt());
 			}
-			$sc = $_SESSION['session_value'];
+			User::$sc = $_SESSION['session_value'];
 		}
 
 		// Get rid of $board and $topic... do stuff loadBoard would do.
 		unset($board, $topic);
-		$user_info['is_mod'] = false;
-		Utils::$context['user']['is_mod'] = &$user_info['is_mod'];
 		Utils::$context['linktree'] = array();
 
 		// Load the user and their cookie, as well as their settings.
-		loadUserSettings();
+		User::load();
+
+		// No one is a moderator outside the forum.
+		User::$me->is_mod = false;
 
 		// Load the current user's permissions....
-		loadPermissions();
+		User::$me->loadPermissions();
 
 		// Load the current or SSI theme. (just use $this->theme = id_theme;)
 		loadTheme((int) $this->theme);
@@ -2715,7 +2694,7 @@ class ServerSideIncludes
 			is_not_banned();
 
 		// Do we allow guests in here?
-		if (empty($this->guest_access) && empty(Config::$modSettings['allow_guestAccess']) && $user_info['is_guest'] && basename($_SERVER['PHP_SELF']) != 'SSI.php')
+		if (empty($this->guest_access) && empty(Config::$modSettings['allow_guestAccess']) && User::$me->is_guest && basename($_SERVER['PHP_SELF']) != 'SSI.php')
 		{
 			require_once(Config::$sourcedir . '/Subs-Auth.php');
 			KickGuest();
@@ -2752,8 +2731,6 @@ class ServerSideIncludes
 	 */
 	public function execute()
 	{
-		global $user_info;
-
 		// Ignore a call to ssi_* functions if we are not accessing SSI.php directly.
 		if (basename($_SERVER['SCRIPT_FILENAME']) == 'SSI.php')
 		{
@@ -2762,7 +2739,7 @@ class ServerSideIncludes
 				die(sprintf(Lang::$txt['ssi_not_direct'], User::$me->is_admin ? '\'' . addslashes(__FILE__) . '\'' : '\'SSI.php\''));
 
 			// Call a function passed by GET.
-			if (method_exists(__CLASS__, $_GET['ssi_function']) && (!empty(Config::$modSettings['allow_guestAccess']) || !$user_info['is_guest']))
+			if (method_exists(__CLASS__, $_GET['ssi_function']) && (!empty(Config::$modSettings['allow_guestAccess']) || !User::$me->is_guest))
 				call_user_func(array(__CLASS__, $_GET['ssi_function']));
 
 			exit;

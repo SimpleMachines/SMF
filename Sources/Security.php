@@ -16,6 +16,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -34,8 +35,6 @@ if (!defined('SMF'))
  */
 function validateSession($type = 'admin', $force = false)
 {
-	global $user_info;
-
 	// We don't care if the option is off, because Guests should NEVER get past here.
 	is_not_guest();
 
@@ -69,10 +68,10 @@ function validateSession($type = 'admin', $force = false)
 
 		checkSession();
 
-		$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($user_info['username'], $_POST[$type . '_pass'], false)), true);
+		$good_password = in_array(true, call_integration_hook('integrate_verify_password', array(User::$me->username, $_POST[$type . '_pass'], false)), true);
 
 		// Password correct?
-		if ($good_password || hash_verify_password($user_info['username'], $_POST[$type . '_pass'], $user_info['passwd']))
+		if ($good_password || hash_verify_password(User::$me->username, $_POST[$type . '_pass'], User::$me->passwd))
 		{
 			$_SESSION[$type . '_time'] = time();
 			unset($_SESSION['request_referer']);
@@ -102,10 +101,8 @@ function validateSession($type = 'admin', $force = false)
  */
 function is_not_guest($message = '')
 {
-	global $user_info;
-
 	// Luckily, this person isn't a guest.
-	if (!$user_info['is_guest'])
+	if (!User::$me->is_guest)
 		return;
 
 	// Log what they were trying to do didn't work)
@@ -160,23 +157,20 @@ function is_not_guest($message = '')
  */
 function is_not_banned($forceCheck = false)
 {
-	global $user_info;
-	global $user_settings;
-
 	// You cannot be banned if you are an admin - doesn't help if you log out.
-	if ($user_info['is_admin'])
+	if (User::$me->is_admin)
 		return;
 
 	// Only check the ban every so often. (to reduce load.)
-	if ($forceCheck || !isset($_SESSION['ban']) || empty(Config::$modSettings['banLastUpdated']) || ($_SESSION['ban']['last_checked'] < Config::$modSettings['banLastUpdated']) || $_SESSION['ban']['id_member'] != $user_info['id'] || $_SESSION['ban']['ip'] != $user_info['ip'] || $_SESSION['ban']['ip2'] != $user_info['ip2'] || (isset($user_info['email'], $_SESSION['ban']['email']) && $_SESSION['ban']['email'] != $user_info['email']))
+	if ($forceCheck || !isset($_SESSION['ban']) || empty(Config::$modSettings['banLastUpdated']) || ($_SESSION['ban']['last_checked'] < Config::$modSettings['banLastUpdated']) || $_SESSION['ban']['id_member'] != User::$me->id || $_SESSION['ban']['ip'] != User::$me->ip || $_SESSION['ban']['ip2'] != User::$me->ip2 || (isset(User::$me->email, $_SESSION['ban']['email']) && $_SESSION['ban']['email'] != User::$me->email))
 	{
 		// Innocent until proven guilty.  (but we know you are! :P)
 		$_SESSION['ban'] = array(
 			'last_checked' => time(),
-			'id_member' => $user_info['id'],
-			'ip' => $user_info['ip'],
-			'ip2' => $user_info['ip2'],
-			'email' => $user_info['email'],
+			'id_member' => User::$me->id,
+			'ip' => User::$me->ip,
+			'ip2' => User::$me->ip2,
+			'email' => User::$me->email,
 		);
 
 		$ban_query = array();
@@ -186,14 +180,14 @@ function is_not_banned($forceCheck = false)
 		// Check both IP addresses.
 		foreach (array('ip', 'ip2') as $ip_number)
 		{
-			if ($ip_number == 'ip2' && $user_info['ip2'] == $user_info['ip'])
+			if ($ip_number == 'ip2' && User::$me->ip2 == User::$me->ip)
 				continue;
 			$ban_query[] = ' {inet:' . $ip_number . '} BETWEEN bi.ip_low and bi.ip_high';
-			$ban_query_vars[$ip_number] = $user_info[$ip_number];
+			$ban_query_vars[$ip_number] = User::$me->{$ip_number};
 			// IP was valid, maybe there's also a hostname...
-			if (empty(Config::$modSettings['disableHostnameLookup']) && $user_info[$ip_number] != 'unknown')
+			if (empty(Config::$modSettings['disableHostnameLookup']) && User::$me->$ip_number != 'unknown')
 			{
-				$hostname = host_from_ip($user_info[$ip_number]);
+				$hostname = host_from_ip(User::$me->{$ip_number});
 				if (strlen($hostname) > 0)
 				{
 					$ban_query[] = '({string:hostname' . $ip_number . '} LIKE bi.hostname)';
@@ -203,17 +197,17 @@ function is_not_banned($forceCheck = false)
 		}
 
 		// Is their email address banned?
-		if (strlen($user_info['email']) != 0)
+		if (strlen(User::$me->email) != 0)
 		{
 			$ban_query[] = '({string:email} LIKE bi.email_address)';
-			$ban_query_vars['email'] = $user_info['email'];
+			$ban_query_vars['email'] = User::$me->email;
 		}
 
 		// How about this user?
-		if (!$user_info['is_guest'] && !empty($user_info['id']))
+		if (!User::$me->is_guest && !empty(User::$me->id))
 		{
 			$ban_query[] = 'bi.id_member = {int:id_member}';
-			$ban_query_vars['id_member'] = $user_info['id'];
+			$ban_query_vars['id_member'] = User::$me->id;
 		}
 
 		// Check the ban, if there's information.
@@ -245,7 +239,7 @@ function is_not_banned($forceCheck = false)
 						if (!isset($_SESSION['ban']['expire_time']) || ($_SESSION['ban']['expire_time'] != 0 && ($row['expire_time'] == 0 || $row['expire_time'] > $_SESSION['ban']['expire_time'])))
 							$_SESSION['ban']['expire_time'] = $row['expire_time'];
 
-						if (!$user_info['is_guest'] && $restriction == 'cannot_access' && ($row['id_member'] == $user_info['id'] || $row['email_address'] == $user_info['email']))
+						if (!User::$me->is_guest && $restriction == 'cannot_access' && ($row['id_member'] == User::$me->id || $row['email_address'] == User::$me->email))
 							$flag_is_activated = true;
 					}
 			}
@@ -257,8 +251,8 @@ function is_not_banned($forceCheck = false)
 			log_ban(array_merge(isset($_SESSION['ban']['cannot_access']) ? $_SESSION['ban']['cannot_access']['ids'] : array(), isset($_SESSION['ban']['cannot_post']) ? $_SESSION['ban']['cannot_post']['ids'] : array(), isset($_SESSION['ban']['cannot_login']) ? $_SESSION['ban']['cannot_login']['ids'] : array()));
 
 		// If for whatever reason the is_activated flag seems wrong, do a little work to clear it up.
-		if ($user_info['id'] && (($user_settings['is_activated'] >= 10 && !$flag_is_activated)
-			|| ($user_settings['is_activated'] < 10 && $flag_is_activated)))
+		if (User::$me->id && ((User::$me->is_activated >= 10 && !$flag_is_activated)
+			|| (User::$me->is_activated < 10 && $flag_is_activated)))
 		{
 			require_once(Config::$sourcedir . '/ManageBans.php');
 			updateBanMembers();
@@ -307,12 +301,12 @@ function is_not_banned($forceCheck = false)
 	if (isset($_SESSION['ban']['cannot_access']))
 	{
 		// We don't wanna see you!
-		if (!$user_info['is_guest'])
+		if (!User::$me->is_guest)
 			Db::$db->query('', '
 				DELETE FROM {db_prefix}log_online
 				WHERE id_member = {int:current_member}',
 				array(
-					'current_member' => $user_info['id'],
+					'current_member' => User::$me->id,
 				)
 			);
 
@@ -320,24 +314,8 @@ function is_not_banned($forceCheck = false)
 			die();
 
 		// 'Log' the user out.  Can't have any funny business... (save the name!)
-		$old_name = isset($user_info['name']) && $user_info['name'] != '' ? $user_info['name'] : Lang::$txt['guest_title'];
-		$user_info['name'] = '';
-		$user_info['username'] = '';
-		$user_info['is_guest'] = true;
-		$user_info['is_admin'] = false;
-		$user_info['permissions'] = array();
-		$user_info['id'] = 0;
-		Utils::$context['user'] = array(
-			'id' => 0,
-			'username' => '',
-			'name' => Lang::$txt['guest_title'],
-			'is_guest' => true,
-			'is_logged' => false,
-			'is_admin' => false,
-			'is_mod' => false,
-			'can_mod' => false,
-			'language' => $user_info['language'],
-		);
+		$old_name = isset(User::$me->name) && User::$me->name != '' ? User::$me->name : Lang::$txt['guest_title'];
+		User::setMe(0);
 
 		// A goodbye present.
 		require_once(Config::$sourcedir . '/Subs-Auth.php');
@@ -359,36 +337,20 @@ function is_not_banned($forceCheck = false)
 		trigger_error('No direct access...', E_USER_ERROR);
 	}
 	// You're not allowed to log in but yet you are. Let's fix that.
-	elseif (isset($_SESSION['ban']['cannot_login']) && !$user_info['is_guest'])
+	elseif (isset($_SESSION['ban']['cannot_login']) && !User::$me->is_guest)
 	{
 		// We don't wanna see you!
 		Db::$db->query('', '
 			DELETE FROM {db_prefix}log_online
 			WHERE id_member = {int:current_member}',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 			)
 		);
 
 		// 'Log' the user out.  Can't have any funny business... (save the name!)
-		$old_name = isset($user_info['name']) && $user_info['name'] != '' ? $user_info['name'] : Lang::$txt['guest_title'];
-		$user_info['name'] = '';
-		$user_info['username'] = '';
-		$user_info['is_guest'] = true;
-		$user_info['is_admin'] = false;
-		$user_info['permissions'] = array();
-		$user_info['id'] = 0;
-		Utils::$context['user'] = array(
-			'id' => 0,
-			'username' => '',
-			'name' => Lang::$txt['guest_title'],
-			'is_guest' => true,
-			'is_logged' => false,
-			'is_admin' => false,
-			'is_mod' => false,
-			'can_mod' => false,
-			'language' => $user_info['language'],
-		);
+		$old_name = isset(User::$me->name) && User::$me->name != '' ? User::$me->name : Lang::$txt['guest_title'];
+		User::setMe(0);
 
 		// SMF's Wipe 'n Clean(r) erases all traces.
 		$_GET['action'] = '';
@@ -403,7 +365,7 @@ function is_not_banned($forceCheck = false)
 	}
 
 	// Fix up the banning permissions.
-	if (isset($user_info['permissions']))
+	if (isset(User::$me->permissions))
 		banPermissions();
 }
 
@@ -413,13 +375,11 @@ function is_not_banned($forceCheck = false)
  */
 function banPermissions()
 {
-	global $user_info;
-
 	// Somehow they got here, at least take away all permissions...
 	if (isset($_SESSION['ban']['cannot_access']))
-		$user_info['permissions'] = array();
+		User::$me->permissions = array();
 	// Okay, well, you can watch, but don't touch a thing.
-	elseif (isset($_SESSION['ban']['cannot_post']) || (!empty(Config::$modSettings['warning_mute']) && Config::$modSettings['warning_mute'] <= $user_info['warning']))
+	elseif (isset($_SESSION['ban']['cannot_post']) || (!empty(Config::$modSettings['warning_mute']) && Config::$modSettings['warning_mute'] <= User::$me->warning))
 	{
 		$denied_permissions = array(
 			'pm_send',
@@ -444,10 +404,10 @@ function banPermissions()
 			'post_unapproved_topics', 'post_unapproved_replies_own', 'post_unapproved_replies_any',
 		);
 		call_integration_hook('integrate_post_ban_permissions', array(&$denied_permissions));
-		$user_info['permissions'] = array_diff($user_info['permissions'], $denied_permissions);
+		User::$me->permissions = array_diff(User::$me->permissions, $denied_permissions);
 	}
 	// Are they absolutely under moderation?
-	elseif (!empty(Config::$modSettings['warning_moderate']) && Config::$modSettings['warning_moderate'] <= $user_info['warning'])
+	elseif (!empty(Config::$modSettings['warning_moderate']) && Config::$modSettings['warning_moderate'] <= User::$me->warning)
 	{
 		// Work out what permissions should change...
 		$permission_change = array(
@@ -459,18 +419,18 @@ function banPermissions()
 		call_integration_hook('integrate_warn_permissions', array(&$permission_change));
 		foreach ($permission_change as $old => $new)
 		{
-			if (!in_array($old, $user_info['permissions']))
+			if (!in_array($old, User::$me->permissions))
 				unset($permission_change[$old]);
 			else
-				$user_info['permissions'][] = $new;
+				User::$me->permissions[] = $new;
 		}
-		$user_info['permissions'] = array_diff($user_info['permissions'], array_keys($permission_change));
+		User::$me->permissions = array_diff(User::$me->permissions, array_keys($permission_change));
 	}
 
 	// @todo Find a better place to call this? Needs to be after permissions loaded!
 	// Finally, some bits we cache in the session because it saves queries.
-	if (isset($_SESSION['mc']) && $_SESSION['mc']['time'] > Config::$modSettings['settings_updated'] && $_SESSION['mc']['id'] == $user_info['id'])
-		$user_info['mod_cache'] = $_SESSION['mc'];
+	if (isset($_SESSION['mc']) && $_SESSION['mc']['time'] > Config::$modSettings['settings_updated'] && $_SESSION['mc']['id'] == User::$me->id)
+		User::$me->mod_cache = $_SESSION['mc'];
 	else
 	{
 		require_once(Config::$sourcedir . '/Subs-Auth.php');
@@ -478,7 +438,7 @@ function banPermissions()
 	}
 
 	// Now that we have the mod cache taken care of lets setup a cache for the number of mod reports still open
-	if (isset($_SESSION['rc']['reports']) && isset($_SESSION['rc']['member_reports']) && $_SESSION['rc']['time'] > Config::$modSettings['last_mod_report_action'] && $_SESSION['rc']['id'] == $user_info['id'])
+	if (isset($_SESSION['rc']['reports']) && isset($_SESSION['rc']['member_reports']) && $_SESSION['rc']['time'] > Config::$modSettings['last_mod_report_action'] && $_SESSION['rc']['id'] == User::$me->id)
 	{
 		Utils::$context['open_mod_reports'] = $_SESSION['rc']['reports'];
 		Utils::$context['open_member_reports'] = $_SESSION['rc']['member_reports'];
@@ -506,8 +466,6 @@ function banPermissions()
  */
 function log_ban($ban_ids = array(), $email = null)
 {
-	global $user_info;
-
 	// Don't log web accelerators, it's very confusing...
 	if (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch')
 		return;
@@ -515,7 +473,7 @@ function log_ban($ban_ids = array(), $email = null)
 	Db::$db->insert('',
 		'{db_prefix}log_banned',
 		array('id_member' => 'int', 'ip' => 'inet', 'email' => 'string', 'log_time' => 'int'),
-		array($user_info['id'], $user_info['ip'], ($email === null ? ($user_info['is_guest'] ? '' : $user_info['email']) : $email), time()),
+		array(User::$me->id, User::$me->ip, ($email === null ? (User::$me->is_guest ? '' : User::$me->email) : $email), time()),
 		array('id_ban_log')
 	);
 
@@ -611,13 +569,11 @@ function isBannedEmail($email, $restriction, $error)
  */
 function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 {
-	global $sc;
-
 	// Is it in as $_POST['sc']?
 	if ($type == 'post')
 	{
 		$check = isset($_POST[$_SESSION['session_var']]) ? $_POST[$_SESSION['session_var']] : (empty(Config::$modSettings['strictSessionCheck']) && isset($_POST['sc']) ? $_POST['sc'] : null);
-		if ($check !== $sc)
+		if ($check !== User::$sc)
 			$error = 'session_timeout';
 	}
 
@@ -625,7 +581,7 @@ function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 	elseif ($type == 'get')
 	{
 		$check = isset($_GET[$_SESSION['session_var']]) ? $_GET[$_SESSION['session_var']] : (empty(Config::$modSettings['strictSessionCheck']) && isset($_GET['sesc']) ? $_GET['sesc'] : null);
-		if ($check !== $sc)
+		if ($check !== User::$sc)
 			$error = 'session_verify_fail';
 	}
 
@@ -634,7 +590,7 @@ function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 	{
 		$check = isset($_GET[$_SESSION['session_var']]) ? $_GET[$_SESSION['session_var']] : (empty(Config::$modSettings['strictSessionCheck']) && isset($_GET['sesc']) ? $_GET['sesc'] : (isset($_POST[$_SESSION['session_var']]) ? $_POST[$_SESSION['session_var']] : (empty(Config::$modSettings['strictSessionCheck']) && isset($_POST['sc']) ? $_POST['sc'] : null)));
 
-		if ($check !== $sc)
+		if ($check !== User::$sc)
 			$error = 'session_verify_fail';
 	}
 
@@ -892,7 +848,6 @@ function checkSubmitOnce($action, $is_fatal = true)
  */
 function allowedTo($permission, $boards = null, $any = false)
 {
-	global $user_info;
 	static $perm_cache = array();
 
 	// You're always allowed to do nothing. (unless you're a working man, MR. LAZY :P!)
@@ -900,11 +855,11 @@ function allowedTo($permission, $boards = null, $any = false)
 		return true;
 
 	// You're never allowed to do something if your data hasn't been loaded yet!
-	if (empty($user_info) || !isset($user_info['permissions']))
+	if (!isset(User::$me))
 		return false;
 
 	// Administrators are supermen :P.
-	if ($user_info['is_admin'])
+	if (User::$me->is_admin)
 		return true;
 
 	// Let's ensure this is an array.
@@ -916,7 +871,7 @@ function allowedTo($permission, $boards = null, $any = false)
 	// Are we checking the _current_ board, or some other boards?
 	if ($boards === null)
 	{
-		$user_permissions = (array) $user_info['permissions'];
+		$user_permissions = (array) User::$me->permissions;
 
 		// Allow temporary overrides for general permissions?
 		call_integration_hook('integrate_allowed_to_general', array(&$user_permissions, $permission));
@@ -926,7 +881,7 @@ function allowedTo($permission, $boards = null, $any = false)
 	elseif (!is_array($boards))
 		$boards = array($boards);
 
-	$cache_key = hash('md5', $user_info['id'] . '-' . implode(',', $permission) . '-' . implode(',', $boards) . '-' . (int) $any);
+	$cache_key = hash('md5', User::$me->id . '-' . implode(',', $permission) . '-' . implode(',', $boards) . '-' . (int) $any);
 
 	if (isset($perm_cache[$cache_key]))
 		return $perm_cache[$cache_key];
@@ -943,9 +898,9 @@ function allowedTo($permission, $boards = null, $any = false)
 			AND (mods.id_member IS NOT NULL OR modgs.id_group IS NOT NULL OR bp.id_group != {int:moderator_group})
 		GROUP BY b.id_board',
 		array(
-			'current_member' => $user_info['id'],
+			'current_member' => User::$me->id,
 			'board_list' => $boards,
-			'group_list' => $user_info['groups'],
+			'group_list' => User::$me->groups,
 			'moderator_group' => 3,
 			'permission_list' => $permission,
 		)
@@ -1000,8 +955,6 @@ function allowedTo($permission, $boards = null, $any = false)
  */
 function isAllowedTo($permission, $boards = null, $any = false)
 {
-	global $user_info;
-
 	$heavy_permissions = array(
 		'admin_forum',
 		'manage_attachments',
@@ -1026,7 +979,7 @@ function isAllowedTo($permission, $boards = null, $any = false)
 		$error_permission = array_shift($permission);
 
 		// If they are a guest, show a login. (because the error might be gone if they do!)
-		if ($user_info['is_guest'])
+		if (User::$me->is_guest)
 		{
 			Lang::load('Errors');
 			is_not_guest(Lang::$txt['cannot_' . $error_permission]);
@@ -1064,8 +1017,6 @@ function isAllowedTo($permission, $boards = null, $any = false)
  */
 function boardsAllowedTo($permissions, $check_access = true, $simple = true)
 {
-	global $user_info;
-
 	// Arrays are nice, most of the time.
 	$permissions = (array) $permissions;
 
@@ -1077,7 +1028,7 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
 	 */
 
 	// Administrators are all powerful, sorry.
-	if ($user_info['is_admin'])
+	if (User::$me->is_admin)
 	{
 		if ($simple)
 			return array(0);
@@ -1092,7 +1043,7 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
 	}
 
 	// All groups the user is in except 'moderator'.
-	$groups = array_diff($user_info['groups'], array(3));
+	$groups = array_diff(User::$me->groups, array(3));
 
 	$request = Db::$db->query('', '
 		SELECT b.id_board, bp.add_deny' . ($simple ? '' : ', bp.permission') . '
@@ -1105,7 +1056,7 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
 			AND (mods.id_member IS NOT NULL OR modgs.id_group IS NOT NULL OR bp.id_group != {int:moderator_group})' .
 			($check_access ? ' AND {query_see_board}' : ''),
 		array(
-			'current_member' => $user_info['id'],
+			'current_member' => User::$me->id,
 			'group_list' => $groups,
 			'moderator_group' => 3,
 			'permissions' => $permissions,
@@ -1166,8 +1117,6 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
  */
 function spamProtection($error_type, $only_return_result = false)
 {
-	global $user_info;
-
 	// Certain types take less/more time.
 	$timeOverrides = array(
 		'login' => 2,
@@ -1201,7 +1150,7 @@ function spamProtection($error_type, $only_return_result = false)
 	Db::$db->insert('replace',
 		'{db_prefix}log_floodcontrol',
 		array('ip' => 'inet', 'log_time' => 'int', 'log_type' => 'string'),
-		array($user_info['ip'], time(), $error_type),
+		array(User::$me->ip, time(), $error_type),
 		array('ip', 'log_type')
 	);
 

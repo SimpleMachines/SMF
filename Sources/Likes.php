@@ -116,13 +116,6 @@ class Likes
 	);
 
 	/**
-	 * @var array
-	 *
-	 * The current user info ($user_info).
-	 */
-	protected $_user;
-
-	/**
 	 * @var integer
 	 *
 	 * The topic ID, used for liking messages.
@@ -203,8 +196,6 @@ class Likes
 	 */
 	public function execute()
 	{
-		$this->_user = Utils::$context['user'];
-
 		// Make sure the user can see and like your content.
 		$this->check();
 
@@ -298,10 +289,10 @@ class Likes
 			// So we know what topic it's in and more importantly we know the user can see it.
 			// If we're not viewing, we need some info set up.
 			$this->_validLikes['type'] = 'msg';
-			$this->_validLikes['flush_cache'] = 'likes_topic_' . $this->_idTopic . '_' . $this->_user['id'];
+			$this->_validLikes['flush_cache'] = 'likes_topic_' . $this->_idTopic . '_' . User::$me->id;
 			$this->_validLikes['redirect'] = 'topic=' . $this->_idTopic . '.msg' . $this->_content . '#msg' . $this->_content;
 
-			$this->_validLikes['can_like'] = ($this->_user['id'] == $topicOwner ? 'cannot_like_content' : (allowedTo('likes_like') ? true : 'cannot_like_content'));
+			$this->_validLikes['can_like'] = (User::$me->id == $topicOwner ? 'cannot_like_content' : (allowedTo('likes_like') ? true : 'cannot_like_content'));
 		}
 
 		else
@@ -358,7 +349,7 @@ class Likes
 			array(
 				'like_content' => $this->_content,
 				'like_type' => $this->_type,
-				'id_member' => $this->_user['id'],
+				'id_member' => User::$me->id,
 			)
 		);
 
@@ -377,7 +368,7 @@ class Likes
 			array(
 				'like_content' => $this->_content,
 				'like_type' => $this->_type,
-				'id_member_started' => $this->_user['id'],
+				'id_member_started' => User::$me->id,
 				'content_action' => 'like',
 				'unread' => 0,
 			)
@@ -396,7 +387,7 @@ class Likes
 				)
 			);
 			// Decrement counter for member who received the like
-			updateMemberData($member, array('alerts' => '-'));
+			User::updateMemberData($member, array('alerts' => '-'));
 		}
 	}
 
@@ -410,7 +401,7 @@ class Likes
 		// Any last minute changes? Temporarily turn the passed properties to normal vars to prevent unexpected behaviour with other methods using these properties.
 		$type = $this->_type;
 		$content = $this->_content;
-		$user = $this->_user;
+		$user = clone User::$me;
 		$time = time();
 
 		call_integration_hook('integrate_issue_like_before', array(&$type, &$content, &$user, &$time));
@@ -490,7 +481,7 @@ class Likes
 			array(
 				'like_content' => $this->_content,
 				'like_type' => $this->_type,
-				'id_member' => $this->_user['id'],
+				'id_member' => User::$me->id,
 			)
 		);
 		$this->_alreadyLiked = (bool) Db::$db->num_rows($request) != 0;
@@ -573,8 +564,6 @@ class Likes
 	 */
 	function view()
 	{
-		global $memberContext;
-
 		// Firstly, load what we need. We already know we can see this, so that's something.
 		Utils::$context['likers'] = array();
 		$request = Db::$db->query('', '
@@ -593,24 +582,23 @@ class Likes
 
 		// Now to get member data, including avatars and so on.
 		$members = array_keys(Utils::$context['likers']);
-		$loaded = loadMemberData($members);
+		$loaded = User::load($members);
 		if (count($loaded) != count($members))
 		{
-			$members = array_diff($members, $loaded);
+			$members = array_diff($members, array_map(fn($member) => $member->id, $loaded));
 			foreach ($members as $not_loaded)
-				unset (Utils::$context['likers'][$not_loaded]);
+				unset(Utils::$context['likers'][$not_loaded]);
 		}
 
 		foreach (Utils::$context['likers'] as $liker => $dummy)
 		{
-			$loaded = loadMemberContext($liker);
-			if (!$loaded)
+			if (!isset(User::$loaded[$liker]))
 			{
-				unset (Utils::$context['likers'][$liker]);
+				unset(Utils::$context['likers'][$liker]);
 				continue;
 			}
 
-			Utils::$context['likers'][$liker]['profile'] = &$memberContext[$liker];
+			Utils::$context['likers'][$liker]['profile'] = User::$loaded[$liker]->format();
 			Utils::$context['likers'][$liker]['time'] = !empty($dummy['timestamp']) ? timeformat($dummy['timestamp']) : '';
 		}
 

@@ -14,6 +14,7 @@
 namespace SMF\Tasks;
 
 use SMF\Config;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -111,7 +112,7 @@ class ApproveReply_Notify extends BackgroundTask
 				array()
 			);
 
-			updateMemberData(array_keys($watched), array('alerts' => '+'));
+			User::updateMemberData(array_keys($watched), array('alerts' => '+'));
 		}
 
 		return true;

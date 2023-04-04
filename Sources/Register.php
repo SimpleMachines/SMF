@@ -19,6 +19,7 @@ use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -32,9 +33,6 @@ if (!defined('SMF'))
  */
 function Register($reg_errors = array())
 {
-	global $user_info;
-	global $cur_profile;
-
 	// Is this an incoming AJAX check?
 	if (isset($_GET['sa']) && $_GET['sa'] == 'usernamecheck')
 		return RegisterCheckUsername();
@@ -44,10 +42,10 @@ function Register($reg_errors = array())
 		fatal_lang_error('registration_disabled', false);
 
 	// If this user is an admin - redirect them to the admin registration page.
-	if (allowedTo('moderate_forum') && !$user_info['is_guest'])
+	if (allowedTo('moderate_forum') && !User::$me->is_guest)
 		redirectexit('action=admin;area=regcenter;sa=register');
 	// You are not a guest, so you are a member - and members don't get to register twice!
-	elseif (empty($user_info['is_guest']))
+	elseif (empty(User::$me->is_guest))
 		redirectexit();
 
 	Lang::load('Login');
@@ -131,8 +129,8 @@ function Register($reg_errors = array())
 	if (!empty(Config::$modSettings['requireAgreement']))
 	{
 		// Have we got a localized one?
-		if (file_exists(Config::$boarddir . '/agreement.' . $user_info['language'] . '.txt'))
-			Utils::$context['agreement'] = BBCodeParser::load()->parse(file_get_contents(Config::$boarddir . '/agreement.' . $user_info['language'] . '.txt'), true, 'agreement_' . $user_info['language']);
+		if (file_exists(Config::$boarddir . '/agreement.' . User::$me->language . '.txt'))
+			Utils::$context['agreement'] = BBCodeParser::load()->parse(file_get_contents(Config::$boarddir . '/agreement.' . User::$me->language . '.txt'), true, 'agreement_' . User::$me->language);
 		elseif (file_exists(Config::$boarddir . '/agreement.txt'))
 			Utils::$context['agreement'] = BBCodeParser::load()->parse(file_get_contents(Config::$boarddir . '/agreement.txt'), true, 'agreement');
 		else
@@ -174,8 +172,8 @@ function Register($reg_errors = array())
 	if (!empty(Config::$modSettings['requirePolicyAgreement']))
 	{
 		// Have we got a localized one?
-		if (!empty(Config::$modSettings['policy_' . $user_info['language']]))
-			Utils::$context['privacy_policy'] = BBCodeParser::load()->parse(Config::$modSettings['policy_' . $user_info['language']]);
+		if (!empty(Config::$modSettings['policy_' . User::$me->language]))
+			Utils::$context['privacy_policy'] = BBCodeParser::load()->parse(Config::$modSettings['policy_' . User::$me->language]);
 		elseif (!empty(Config::$modSettings['policy_' . Lang::$default]))
 			Utils::$context['privacy_policy'] = BBCodeParser::load()->parse(Config::$modSettings['policy_' . Lang::$default]);
 		else
@@ -199,10 +197,10 @@ function Register($reg_errors = array())
 		Lang::load('Profile');
 		loadTemplate('Profile');
 
-		Utils::$context['user']['is_owner'] = true;
+		User::$me->is_owner = true;
 
 		// Here, and here only, emulate the permissions the user would have to do this.
-		$user_info['permissions'] = array_merge($user_info['permissions'], array('profile_account_own', 'profile_extra_own', 'profile_other_own', 'profile_password_own', 'profile_website_own', 'profile_blurb'));
+		User::$me->permissions = array_merge(User::$me->permissions, array('profile_account_own', 'profile_extra_own', 'profile_other_own', 'profile_password_own', 'profile_website_own', 'profile_blurb'));
 		$reg_fields = explode(',', Config::$modSettings['registration_fields']);
 
 		// Website is a little different
@@ -210,18 +208,18 @@ function Register($reg_errors = array())
 		{
 			unset($reg_fields['website']);
 			if (isset($_POST['website_title']))
-				$cur_profile['website_title'] = Utils::htmlspecialchars($_POST['website_title']);
+				User::$profiles[User::$me->id]['website_title'] = Utils::htmlspecialchars($_POST['website_title']);
 			if (isset($_POST['website_url']))
-				$cur_profile['website_url'] = Utils::htmlspecialchars($_POST['website_url']);
+				User::$profiles[User::$me->id]['website_url'] = Utils::htmlspecialchars($_POST['website_url']);
 		}
 
 		// We might have had some submissions on this front - go check.
 		foreach ($reg_fields as $field)
 			if (isset($_POST[$field]))
-				$cur_profile[$field] = Utils::htmlspecialchars($_POST[$field]);
+				User::$profiles[User::$me->id][$field] = Utils::htmlspecialchars($_POST[$field]);
 
 		// Load all the fields in question.
-		setupProfileContext($reg_fields);
+		setupProfileContext($reg_fields, User::$me->id);
 	}
 
 	// Generate a visual verification code to make sure the user is no bot.
@@ -396,7 +394,7 @@ function Register2()
 		}
 
 		// Only set it if you can and if we are sure it is good
-		if ($canEditDisplayName && Utils::htmlTrim($_POST['real_name']) != '' && !isReservedName($_POST['real_name']) && Utils::entityStrlen($_POST['real_name']) < 60)
+		if ($canEditDisplayName && Utils::htmlTrim($_POST['real_name']) != '' && !User::isReservedName($_POST['real_name']) && Utils::entityStrlen($_POST['real_name']) < 60)
 			$possible_strings[] = 'real_name';
 	}
 
@@ -595,10 +593,8 @@ function Register2()
  */
 function Activate()
 {
-	global $user_info;
-
 	// Logged in users should not bother to activate their accounts
-	if (!empty($user_info['id']))
+	if (!empty(User::$me->id))
 		redirectexit();
 
 	Lang::load('Login');
@@ -671,7 +667,7 @@ function Activate()
 			fatal_lang_error('email_in_use', false, array(Utils::htmlspecialchars($_POST['new_email'])));
 		Db::$db->free_result($request);
 
-		updateMemberData($row['id_member'], array('email_address' => $_POST['new_email']));
+		User::updateMemberData($row['id_member'], array('email_address' => $_POST['new_email']));
 		$row['email_address'] = $_POST['new_email'];
 
 		$email_change = true;
@@ -725,7 +721,7 @@ function Activate()
 	call_integration_hook('integrate_activate', array($row['member_name']));
 
 	// Validation complete - update the database!
-	updateMemberData($row['id_member'], array('is_activated' => 1, 'validation_code' => ''));
+	User::updateMemberData($row['id_member'], array('is_activated' => 1, 'validation_code' => ''));
 
 	// Also do a proper member stat re-evaluation.
 	updateStats('member', false);
@@ -920,8 +916,7 @@ function RegisterCheckUsername()
  */
 function SendActivation()
 {
-	Utils::$context['user']['is_logged'] = false;
-	Utils::$context['user']['is_guest'] = true;
+	User::$me->is_guest = true;
 
 	// Send them to the done-with-registration-login screen.
 	loadTemplate('Register');

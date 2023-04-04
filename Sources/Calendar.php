@@ -17,6 +17,7 @@
 use SMF\BrowserDetector;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -37,7 +38,7 @@ if (!defined('SMF'))
  */
 function CalendarMain()
 {
-	global $options, $user_info;
+	global $options;
 
 	// Permissions, permissions, permissions.
 	isAllowedTo('calendar_view');
@@ -131,7 +132,7 @@ function CalendarMain()
 	$month = !empty($_REQUEST['month']) ? (int) $_REQUEST['month'] : $today['month'];
 	$day = !empty($_REQUEST['day']) ? (int) $_REQUEST['day'] : (!empty($_REQUEST['month']) ? 1 : $today['day']);
 
-	$start_object = checkdate($month, $day, $year) === true ? date_create(implode('-', array($year, $month, $day)) . ' ' . getUserTimezone()) : date_create(implode('-', array($today['year'], $today['month'], $today['day'])) . ' ' . getUserTimezone());
+	$start_object = checkdate($month, $day, $year) === true ? date_create(implode('-', array($year, $month, $day)) . ' ' . User::getTimezone()) : date_create(implode('-', array($today['year'], $today['month'], $today['day'])) . ' ' . User::getTimezone());
 
 	// Need an end date for the list view
 	if (!empty($_REQUEST['end_date']))
@@ -152,14 +153,14 @@ function CalendarMain()
 
 	if (isset($end_month, $end_day, $end_year) && checkdate($end_month, $end_day, $end_year))
 	{
-		$end_object = date_create(implode('-', array($end_year, $end_month, $end_day)) . ' ' . getUserTimezone());
+		$end_object = date_create(implode('-', array($end_year, $end_month, $end_day)) . ' ' . User::getTimezone());
 	}
 
 	if (empty($end_object) || $start_object >= $end_object)
 	{
 		$num_days_shown = empty(Config::$modSettings['cal_days_for_index']) || Config::$modSettings['cal_days_for_index'] < 1 ? 1 : Config::$modSettings['cal_days_for_index'];
 
-		$end_object = date_create(date_format($start_object, 'Y-m-d') . ' ' . getUserTimezone());
+		$end_object = date_create(date_format($start_object, 'Y-m-d') . ' ' . User::getTimezone());
 
 		date_add($end_object, date_interval_create_from_date_string($num_days_shown . ' days'));
 	}
@@ -224,7 +225,7 @@ function CalendarMain()
 	Utils::$context['allow_calendar_event'] = allowedTo('calendar_post');
 
 	// If you don't allow events not linked to posts and you're not an admin, we have more work to do...
-	if (Utils::$context['allow_calendar_event'] && empty(Config::$modSettings['cal_allow_unlinked']) && !$user_info['is_admin'])
+	if (Utils::$context['allow_calendar_event'] && empty(Config::$modSettings['cal_allow_unlinked']) && !User::$me->is_admin)
 	{
 		$boards_can_post = boardsAllowedTo('post_new');
 		Utils::$context['allow_calendar_event'] &= !empty($boards_can_post);
@@ -280,7 +281,6 @@ function CalendarMain()
  */
 function CalendarPost()
 {
-	global $user_info;
 	global $topic;
 
 	// Well - can they?
@@ -317,7 +317,7 @@ function CalendarPost()
 
 		// If you're not allowed to edit any events, you have to be the poster.
 		if ($_REQUEST['eventid'] > 0 && !allowedTo('calendar_edit_any'))
-			isAllowedTo('calendar_edit_' . (!empty($user_info['id']) && getEventPoster($_REQUEST['eventid']) == $user_info['id'] ? 'own' : 'any'));
+			isAllowedTo('calendar_edit_' . (!empty(User::$me->id) && getEventPoster($_REQUEST['eventid']) == User::$me->id ? 'own' : 'any'));
 
 		// New - and directing?
 		if (isset($_POST['link_to_board']) || empty(Config::$modSettings['cal_allow_unlinked']))
@@ -334,7 +334,7 @@ function CalendarPost()
 				'topic' => 0,
 				'title' => Utils::entitySubstr($_REQUEST['evtitle'], 0, 100),
 				'location' => Utils::entitySubstr($_REQUEST['event_location'], 0, 255),
-				'member' => $user_info['id'],
+				'member' => User::$me->id,
 			);
 			insertEvent($eventOptions);
 		}
@@ -423,7 +423,7 @@ function CalendarPost()
 		}
 
 		// Make sure the user is allowed to edit this event.
-		if (Utils::$context['event']['member'] != $user_info['id'])
+		if (Utils::$context['event']['member'] != User::$me->id)
 			isAllowedTo('calendar_edit_any');
 		elseif (!allowedTo('calendar_edit_any'))
 			isAllowedTo('calendar_edit_own');
@@ -432,7 +432,7 @@ function CalendarPost()
 	// An all day event? Set up some nice defaults in case the user wants to change that
 	if (Utils::$context['event']['allday'] == true)
 	{
-		Utils::$context['event']['tz'] = getUserTimezone();
+		Utils::$context['event']['tz'] = User::getTimezone();
 		Utils::$context['event']['start_time'] = timeformat(time(), $time_string);
 		Utils::$context['event']['end_time'] = timeformat(time() + 3600, $time_string);
 	}

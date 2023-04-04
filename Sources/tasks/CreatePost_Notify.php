@@ -18,6 +18,7 @@ use SMF\Config;
 use SMF\Lang;
 use SMF\Mentions;
 use SMF\TaskRunner;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -92,8 +93,6 @@ class CreatePost_Notify extends BackgroundTask
 	 */
 	public function execute()
 	{
-		global $user_info;
-
 		require_once(Config::$sourcedir . '/Subs-Post.php');
 		require_once(Config::$sourcedir . '/Subs-Notify.php');
 		require_once(Config::$sourcedir . '/Subs.php');
@@ -417,7 +416,7 @@ class CreatePost_Notify extends BackgroundTask
 					);
 
 					foreach ($old_alerts as $member_ids)
-						updateMemberData($member_ids, array('alerts' => '-'));
+						User::updateMemberData($member_ids, array('alerts' => '-'));
 				}
 			}
 		}
@@ -442,7 +441,7 @@ class CreatePost_Notify extends BackgroundTask
 				array()
 			);
 
-			updateMemberData(array_column($this->alert_rows, 'id_member'), array('alerts' => '+'));
+			User::updateMemberData(array_column($this->alert_rows, 'id_member'), array('alerts' => '+'));
 		}
 	}
 
@@ -452,7 +451,6 @@ class CreatePost_Notify extends BackgroundTask
 	 */
 	protected function handleWatchedNotifications()
 	{
-		global $user_info;
 
 		$msgOptions = &$this->_details['msgOptions'];
 		$topicOptions = &$this->_details['topicOptions'];
@@ -462,7 +460,7 @@ class CreatePost_Notify extends BackgroundTask
 		$user_ids = array_keys($this->members['watching']);
 		if (!in_array($posterOptions['id'], $user_ids))
 			$user_ids[] = $posterOptions['id'];
-		$members_info = $this->getMinUserInfo($user_ids);
+		User::load($user_ids, User::LOAD_BY_ID, 'minimal');
 
 		$parsed_message = array();
 		foreach ($this->members['watching'] as $member_id => $member_data)
@@ -544,18 +542,18 @@ class CreatePost_Notify extends BackgroundTask
 			else
 				continue;
 
-			// We need to fake some of $user_info to make BBC parsing work correctly.
-			if (isset($user_info))
-				$real_user_info = $user_info;
-
-			$user_info = $members_info[$member_id];
-
+			// Censor and parse BBC in the receiver's localization. Don't repeat unnecessarily.
 			Lang::load('index+Modifications', $member_data['lngfile'], false);
 
-			// Censor and parse BBC in the receiver's localization. Don't repeat unnecessarily.
-			$localization = implode('|', array($member_data['lngfile'], $user_info['time_offset'], $user_info['time_format']));
+			$localization = implode('|', array($member_data['lngfile'], $member_data['time_offset'], $member_data['time_format']));
+
 			if (empty($parsed_message[$localization]))
 			{
+				$bbcparser = new BBCodeParser();
+				$bbcparser->time_offset = $member_data['time_offset'];
+				$bbcparser->time_format = $member_data['time_format'];
+				$bbcparser->smiley_set = $member_data['smiley_set'];
+
 				$parsed_message[$localization]['subject'] = $msgOptions['subject'];
 				$parsed_message[$localization]['body'] = $msgOptions['body'];
 
@@ -563,17 +561,8 @@ class CreatePost_Notify extends BackgroundTask
 				Lang::censorText($parsed_message[$localization]['body']);
 
 				$parsed_message[$localization]['subject'] = un_htmlspecialchars($parsed_message[$localization]['subject']);
-				$parsed_message[$localization]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(BBCodeParser::load(true)->parse($parsed_message[$localization]['body'], false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']', '&#39;' => '\'', '</tr>' => "\n", '</td>' => "\t", '<hr>' => "\n---------------------------------------------------------------\n")))));
+				$parsed_message[$localization]['body'] = trim(un_htmlspecialchars(strip_tags(strtr($bbcparser->parse($parsed_message[$localization]['body'], false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']', '&#39;' => '\'', '</tr>' => "\n", '</td>' => "\t", '<hr>' => "\n---------------------------------------------------------------\n")))));
 			}
-
-			// Put $user_info back the way we found it.
-			if (isset($real_user_info))
-			{
-				$user_info = $real_user_info;
-				unset($real_user_info);
-			}
-			else
-				$user_info = null;
 
 			// Bitwise check: Receiving a alert?
 			if ($pref & self::RECEIVE_NOTIFY_ALERT)
@@ -606,7 +595,7 @@ class CreatePost_Notify extends BackgroundTask
 
 				$replacements = array(
 					'TOPICSUBJECT' => $parsed_message[$localization]['subject'],
-					'POSTERNAME' => un_htmlspecialchars(isset($members_info[$posterOptions['id']]['name']) ? $members_info[$posterOptions['id']]['name'] : $posterOptions['name']),
+					'POSTERNAME' => un_htmlspecialchars(isset(User::$loaded[$posterOptions['id']]->name) ? User::$loaded[$posterOptions['id']]->name : $posterOptions['name']),
 					'TOPICLINK' => Config::$scripturl . '?topic=' . $topicOptions['id'] . '.new#new',
 					'MESSAGE' => $parsed_message[$localization]['body'],
 					'UNSUBSCRIBELINK' => Config::$scripturl . '?action=notify' . $content_type . ';' . $content_type . '=' . $itemID . ';sa=off;u=' . $member_data['id_member'] . ';token=' . $token,
@@ -631,7 +620,7 @@ class CreatePost_Notify extends BackgroundTask
 		$msgOptions = &$this->_details['msgOptions'];
 		$posterOptions = &$this->_details['posterOptions'];
 
-		$members_info = $this->getMinUserInfo([$posterOptions['id']]);
+		User::load($posterOptions['id'], User::LOAD_BY_ID, 'minimal');
 
 		foreach ($this->members['quoted'] as $member_id => $member_data)
 		{
@@ -676,7 +665,7 @@ class CreatePost_Notify extends BackgroundTask
 			{
 				$replacements = array(
 					'CONTENTSUBJECT' => $msgOptions['subject'],
-					'QUOTENAME' => un_htmlspecialchars(isset($members_info[$posterOptions['id']]['name']) ? $members_info[$posterOptions['id']]['name'] : $posterOptions['name']),
+					'QUOTENAME' => un_htmlspecialchars(isset(User::$loaded[$posterOptions['id']]->name) ? User::$loaded[$posterOptions['id']]->name : $posterOptions['name']),
 					'MEMBERNAME' => $member_data['real_name'],
 					'CONTENTLINK' => Config::$scripturl . '?msg=' . $msgOptions['id'],
 				);

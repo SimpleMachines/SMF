@@ -13,6 +13,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 use SMF\PackageManager\FtpConnection;
@@ -309,7 +310,7 @@ function initialize_inputs()
 // Load the list of language files, and the current language file.
 function load_lang_file()
 {
-	global $incontext, $user_info;
+	global $incontext;
 
 	$incontext['detected_languages'] = array();
 
@@ -385,7 +386,7 @@ function load_lang_file()
 	}
 
 	// Which language are we loading? Assume that the admin likes that language.
-	$user_info['language'] = Config::$language = preg_replace('~^Install\.|(-utf8)?\.php$~', '', $_SESSION['installer_temp_lang']);
+	Config::$language = preg_replace('~^Install\.|(-utf8)?\.php$~', '', $_SESSION['installer_temp_lang']);
 
 	// Ensure SMF\Lang knows the path to the language directory.
 	Lang::addDirs(Config::$boarddir . '/Themes/default/languages');
@@ -1689,7 +1690,7 @@ function AdminAccount()
 function DeleteInstall()
 {
 	global $incontext;
-	global $databases, $user_info;
+	global $databases;
 
 	$incontext['page_title'] = Lang::$txt['congratulations'];
 	$incontext['sub_template'] = 'delete_install';
@@ -1808,8 +1809,13 @@ function DeleteInstall()
 		scheduled_fetchSMfiles(); // Now go get those files!
 
 		// We've just installed!
-		$user_info['ip'] = $_SERVER['REMOTE_ADDR'];
-		$user_info['id'] = isset($incontext['member_id']) ? $incontext['member_id'] : 0;
+		if (isset($incontext['member_id']))
+			User::setMe($incontext['member_id']);
+		else
+			User::load();
+
+		User::$me->ip = $_SERVER['REMOTE_ADDR'];
+
 		logAction('install', array('version' => SMF_FULL_VERSION), 'admin');
 	}
 

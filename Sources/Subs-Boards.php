@@ -17,6 +17,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -32,8 +33,6 @@ if (!defined('SMF'))
  */
 function markBoardsRead($boards, $unread = false)
 {
-	global $user_info;
-
 	// Force $boards to be an array.
 	if (!is_array($boards))
 		$boards = array($boards);
@@ -54,7 +53,7 @@ function markBoardsRead($boards, $unread = false)
 			WHERE id_board IN ({array_int:board_list})
 				AND id_member = {int:current_member}',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'board_list' => $boards,
 			)
 		);
@@ -63,7 +62,7 @@ function markBoardsRead($boards, $unread = false)
 			WHERE id_board IN ({array_int:board_list})
 				AND id_member = {int:current_member}',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'board_list' => $boards,
 			)
 		);
@@ -73,7 +72,7 @@ function markBoardsRead($boards, $unread = false)
 	{
 		$markRead = array();
 		foreach ($boards as $board)
-			$markRead[] = array(Config::$modSettings['maxMsgID'], $user_info['id'], $board);
+			$markRead[] = array(Config::$modSettings['maxMsgID'], User::$me->id, $board);
 
 		// Update log_mark_read and log_boards.
 		Db::$db->insert('replace',
@@ -100,7 +99,7 @@ function markBoardsRead($boards, $unread = false)
 		FROM {db_prefix}log_topics
 		WHERE id_member = {int:current_member}',
 		array(
-			'current_member' => $user_info['id'],
+			'current_member' => User::$me->id,
 		)
 	);
 	list ($lowest_topic) = Db::$db->fetch_row($result);
@@ -119,7 +118,7 @@ function markBoardsRead($boards, $unread = false)
 			AND lt.id_topic >= {int:lowest_topic}
 			AND lt.unwatched != 1',
 		array(
-			'current_member' => $user_info['id'],
+			'current_member' => User::$me->id,
 			'board_list' => $boards,
 			'lowest_topic' => $lowest_topic,
 		)
@@ -135,7 +134,7 @@ function markBoardsRead($boards, $unread = false)
 			WHERE id_member = {int:current_member}
 				AND id_topic IN ({array_int:topic_list})',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'topic_list' => $topics,
 			)
 		);
@@ -146,7 +145,7 @@ function markBoardsRead($boards, $unread = false)
  */
 function MarkRead()
 {
-	global $board, $topic, $user_info, $board_info;
+	global $board, $topic, $board_info;
 
 	// No Guests allowed!
 	is_not_guest();
@@ -192,7 +191,7 @@ function MarkRead()
 				AND id_member = {int:current_user}',
 			array(
 				'selected_topics' => $topics,
-				'current_user' => $user_info['id'],
+				'current_user' => User::$me->id,
 			)
 		);
 		$logged_topics = array();
@@ -202,7 +201,7 @@ function MarkRead()
 
 		$markRead = array();
 		foreach ($topics as $id_topic)
-			$markRead[] = array(Config::$modSettings['maxMsgID'], $user_info['id'], $id_topic, (isset($logged_topics[$topic]) ? $logged_topics[$topic] : 0));
+			$markRead[] = array(Config::$modSettings['maxMsgID'], User::$me->id, $id_topic, (isset($logged_topics[$topic]) ? $logged_topics[$topic] : 0));
 
 		Db::$db->insert('replace',
 			'{db_prefix}log_topics',
@@ -228,7 +227,7 @@ function MarkRead()
 			WHERE t.id_topic = {int:current_topic}',
 			array(
 				'current_topic' => $topic,
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 			)
 		);
 		$topicinfo = Db::$db->fetch_assoc($result);
@@ -287,7 +286,7 @@ function MarkRead()
 		Db::$db->insert('replace',
 			'{db_prefix}log_topics',
 			array('id_msg' => 'int', 'id_member' => 'int', 'id_topic' => 'int', 'unwatched' => 'int'),
-			array($earlyMsg, $user_info['id'], $topic, $topicinfo['unwatched']),
+			array($earlyMsg, User::$me->id, $topic, $topicinfo['unwatched']),
 			array('id_member', 'id_topic')
 		);
 
@@ -393,7 +392,7 @@ function MarkRead()
 			{
 				$logBoardInserts = array();
 				while ($row = Db::$db->fetch_assoc($result))
-					$logBoardInserts[] = array(Config::$modSettings['maxMsgID'], $user_info['id'], $row['id_board']);
+					$logBoardInserts[] = array(Config::$modSettings['maxMsgID'], User::$me->id, $row['id_board']);
 
 				Db::$db->insert('replace',
 					'{db_prefix}log_boards',

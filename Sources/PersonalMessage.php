@@ -19,6 +19,7 @@ use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -33,7 +34,7 @@ if (!defined('SMF'))
  */
 function MessageMain()
 {
-	global $user_info, $user_settings, $options;
+	global $options;
 
 	// No guests!
 	is_not_guest();
@@ -50,9 +51,9 @@ function MessageMain()
 		loadTemplate('PersonalMessage');
 
 	// Load up the members maximum message capacity.
-	if ($user_info['is_admin'])
+	if (User::$me->is_admin)
 		Utils::$context['message_limit'] = 0;
-	elseif ((Utils::$context['message_limit'] = CacheApi::get('msgLimit:' . $user_info['id'], 360)) === null)
+	elseif ((Utils::$context['message_limit'] = CacheApi::get('msgLimit:' . User::$me->id, 360)) === null)
 	{
 		// @todo Why do we do this?  It seems like if they have any limit we should use it.
 		$request = Db::$db->query('', '
@@ -60,7 +61,7 @@ function MessageMain()
 			FROM {db_prefix}membergroups
 			WHERE id_group IN ({array_int:users_groups})',
 			array(
-				'users_groups' => $user_info['groups'],
+				'users_groups' => User::$me->groups,
 			)
 		);
 		list ($maxMessage, $minMessage) = Db::$db->fetch_row($request);
@@ -69,20 +70,20 @@ function MessageMain()
 		Utils::$context['message_limit'] = $minMessage == 0 ? 0 : $maxMessage;
 
 		// Save us doing it again!
-		CacheApi::put('msgLimit:' . $user_info['id'], Utils::$context['message_limit'], 360);
+		CacheApi::put('msgLimit:' . User::$me->id, Utils::$context['message_limit'], 360);
 	}
 
 	// Prepare the context for the capacity bar.
 	if (!empty(Utils::$context['message_limit']))
 	{
-		$bar = ($user_info['messages'] * 100) / Utils::$context['message_limit'];
+		$bar = (User::$me->messages * 100) / Utils::$context['message_limit'];
 
 		Utils::$context['limit_bar'] = array(
-			'messages' => $user_info['messages'],
+			'messages' => User::$me->messages,
 			'allowed' => Utils::$context['message_limit'],
 			'percent' => $bar,
 			'bar' => min(100, (int) $bar),
-			'text' => sprintf(Lang::$txt['pm_currently_using'], $user_info['messages'], round($bar, 1)),
+			'text' => sprintf(Lang::$txt['pm_currently_using'], User::$me->messages, round($bar, 1)),
 		);
 	}
 
@@ -93,7 +94,7 @@ function MessageMain()
 	Utils::$context['labels'] = array();
 
 	// Load the label data.
-	if ($user_settings['new_pm'] || (Utils::$context['labels'] = CacheApi::get('labelCounts:' . $user_info['id'], 720)) === null)
+	if (User::$me->new_pm || (Utils::$context['labels'] = CacheApi::get('labelCounts:' . User::$me->id, 720)) === null)
 	{
 		// Looks like we need to reseek!
 
@@ -114,7 +115,7 @@ function MessageMain()
 				AND in_inbox = {int:in_inbox}
 				AND deleted = {int:not_deleted}',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'in_inbox' => 1,
 				'not_deleted' => 0,
 			)
@@ -137,7 +138,7 @@ function MessageMain()
 			WHERE l.id_member = {int:current_member}
 			GROUP BY l.id_label, l.name',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 			)
 		);
 
@@ -154,20 +155,20 @@ function MessageMain()
 		Db::$db->free_result($result);
 
 		// Store it please!
-		CacheApi::put('labelCounts:' . $user_info['id'], Utils::$context['labels'], 720);
+		CacheApi::put('labelCounts:' . User::$me->id, Utils::$context['labels'], 720);
 	}
 
 	// Now we have the labels, and assuming we have unsorted mail, apply our rules!
-	if ($user_settings['new_pm'])
+	if (User::$me->new_pm)
 	{
 		ApplyRules();
-		updateMemberData($user_info['id'], array('new_pm' => 0));
+		User::updateMemberData(User::$me->id, array('new_pm' => 0));
 		Db::$db->query('', '
 			UPDATE {db_prefix}pm_recipients
 			SET is_new = {int:not_new}
 			WHERE id_member = {int:current_member}',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'not_new' => 0,
 			)
 		);
@@ -197,7 +198,7 @@ function MessageMain()
 	);
 
 	// Preferences...
-	Utils::$context['display_mode'] = $user_settings['pm_prefs'] & 3;
+	Utils::$context['display_mode'] = User::$me->pm_prefs & 3;
 
 	$subActions = array(
 		'popup' => 'MessagePopup',
@@ -236,8 +237,6 @@ function MessageMain()
  */
 function messageIndexBar($area)
 {
-	global $user_info;
-
 	$pm_areas = array(
 		'folders' => array(
 			'title' => Lang::$txt['pm_messages'],
@@ -342,14 +341,14 @@ function messageIndexBar($area)
 	// Do we have a limit on the amount of messages we can keep?
 	if (!empty(Utils::$context['message_limit']))
 	{
-		$bar = round(($user_info['messages'] * 100) / Utils::$context['message_limit'], 1);
+		$bar = round((User::$me->messages * 100) / Utils::$context['message_limit'], 1);
 
 		Utils::$context['limit_bar'] = array(
-			'messages' => $user_info['messages'],
+			'messages' => User::$me->messages,
 			'allowed' => Utils::$context['message_limit'],
 			'percent' => $bar,
 			'bar' => $bar > 100 ? 100 : (int) $bar,
-			'text' => sprintf(Lang::$txt['pm_currently_using'], $user_info['messages'], $bar)
+			'text' => sprintf(Lang::$txt['pm_currently_using'], User::$me->messages, $bar)
 		);
 	}
 
@@ -366,7 +365,7 @@ function messageIndexBar($area)
 	unset($pm_areas);
 
 	// No menu means no access.
-	if (!$pm_include_data && (!$user_info['is_guest'] || validateSession()))
+	if (!$pm_include_data && (!User::$me->is_guest || validateSession()))
 		fatal_lang_error('no_access', false);
 
 	// Make a note of the Unique ID for this menu.
@@ -387,8 +386,6 @@ function messageIndexBar($area)
  */
 function MessagePopup()
 {
-	global $memberContext, $user_settings;
-
 	// We do not want to output debug information here.
 	Config::$db_show_debug = false;
 
@@ -408,7 +405,7 @@ function MessagePopup()
 			AND deleted = {int:not_deleted}
 		ORDER BY id_pm',
 		array(
-			'current_member' => Utils::$context['user']['id'],
+			'current_member' => User::$me->id,
 			'not_read' => 0,
 			'not_deleted' => 0,
 		)
@@ -422,10 +419,10 @@ function MessagePopup()
 	{
 		// Just quickly, it's possible that the number of PMs can get out of sync.
 		$count_unread = count($pms);
-		if ($count_unread != $user_settings['unread_messages'])
+		if ($count_unread != User::$me->unread_messages)
 		{
-			updateMemberData(Utils::$context['user']['id'], array('unread_messages' => $count_unread));
-			Utils::$context['user']['unread_messages'] = count($pms);
+			User::updateMemberData(User::$me->id, array('unread_messages' => $count_unread));
+			User::$me->unread_messages = count($pms);
 		}
 
 		// Now, actually fetch me some PMs. Make sure we track the senders, got some work to do for them.
@@ -453,14 +450,14 @@ function MessagePopup()
 		}
 		Db::$db->free_result($request);
 
-		$senders = loadMemberData($senders);
-		foreach ($senders as $member)
-			loadMemberContext($member);
+		$senders = User::load($senders);
+		foreach ($senders as $sender)
+			$sender->format();
 
 		// Having loaded everyone, attach them to the PMs.
 		foreach (Utils::$context['unread_pms'] as $id_pm => $details)
-			if (!empty($memberContext[$details['id_member_from']]))
-				Utils::$context['unread_pms'][$id_pm]['member'] = &$memberContext[$details['id_member_from']];
+			if (!empty(User::$loaded[$details['id_member_from']]->formatted))
+				Utils::$context['unread_pms'][$id_pm]['member'] = &User::$loaded[$details['id_member_from']]->formatted;
 	}
 }
 
@@ -470,13 +467,13 @@ function MessagePopup()
 function MessageFolder()
 {
 	global $subjects_request;
-	global $messages_request, $user_info, $recipients, $options, $user_settings;
+	global $messages_request, $recipients, $options;
 
 	// Changing view?
 	if (isset($_GET['view']))
 	{
 		Utils::$context['display_mode'] = Utils::$context['display_mode'] > 1 ? 0 : Utils::$context['display_mode'] + 1;
-		updateMemberData($user_info['id'], array('pm_prefs' => ($user_settings['pm_prefs'] & 252) | Utils::$context['display_mode']));
+		User::updateMemberData(User::$me->id, array('pm_prefs' => (User::$me->pm_prefs & 252) | Utils::$context['display_mode']));
 	}
 
 	// Make sure the starting location is valid.
@@ -577,7 +574,7 @@ function MessageFolder()
 			WHERE pm.id_member_from = {int:current_member}
 				AND pm.deleted_by_sender = {int:not_deleted}',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'not_deleted' => 0,
 			)
 		);
@@ -589,7 +586,7 @@ function MessageFolder()
 			WHERE pmr.id_member = {int:current_member}
 				AND pmr.deleted = {int:not_deleted}' . $labelQuery . $labelQuery2,
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'not_deleted' => 0,
 			)
 		);
@@ -631,7 +628,7 @@ function MessageFolder()
 						AND deleted_by_sender = {int:not_deleted}
 						AND id_pm ' . ($descending ? '>' : '<') . ' {int:id_pm}',
 					array(
-						'current_member' => $user_info['id'],
+						'current_member' => User::$me->id,
 						'not_deleted' => 0,
 						'id_pm' => $pmID,
 					)
@@ -645,7 +642,7 @@ function MessageFolder()
 						AND pmr.deleted = {int:not_deleted}' . $labelQuery . $labelQuery2 . '
 						AND pmr.id_pm ' . ($descending ? '>' : '<') . ' {int:id_pm}',
 					array(
-						'current_member' => $user_info['id'],
+						'current_member' => User::$me->id,
 						'not_deleted' => 0,
 						'id_pm' => $pmID,
 					)
@@ -714,7 +711,7 @@ function MessageFolder()
 			ORDER BY ' . ($_GET['sort'] == 'pm.id_pm' ? 'id_pm' : '{raw:sort}') . ($descending ? ' DESC' : ' ASC') . (empty($_GET['pmsg']) ? '
 			LIMIT ' . $_GET['start'] . ', ' . $maxPerPage : ''),
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'deleted_by' => 0,
 				'sort' => $_GET['sort'],
 				'pm_member' => Utils::$context['folder'] == 'sent' ? 'pmr.id_member' : 'pm.id_member_from',
@@ -741,7 +738,7 @@ function MessageFolder()
 			ORDER BY ' . ($_GET['sort'] == 'pm.id_pm' && Utils::$context['folder'] != 'sent' ? 'pmr.id_pm' : '{raw:sort}') . ($descending ? ' DESC' : ' ASC') . (empty($pmsg) ? '
 			LIMIT ' . $_GET['start'] . ', ' . $maxPerPage : ''),
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'is_deleted' => 0,
 				'sort' => $_GET['sort'],
 				'pm_member' => Utils::$context['folder'] == 'sent' ? 'pmr.id_member' : 'pm.id_member_from',
@@ -752,7 +749,7 @@ function MessageFolder()
 	// Load the id_pms and initialize recipients.
 	$pms = array();
 	$lastData = array();
-	$posters = Utils::$context['folder'] == 'sent' ? array($user_info['id']) : array();
+	$posters = Utils::$context['folder'] == 'sent' ? array(User::$me->id) : array();
 	$recipients = array();
 
 	while ($row = Db::$db->fetch_assoc($request))
@@ -805,7 +802,7 @@ function MessageFolder()
 					OR (pmr.id_member = {int:current_member} AND pmr.deleted = {int:not_deleted}))
 				ORDER BY pm.id_pm',
 				array(
-					'current_member' => $user_info['id'],
+					'current_member' => User::$me->id,
 					'id_pm_head' => $lastData['head'],
 					'not_deleted' => 0,
 				)
@@ -813,9 +810,9 @@ function MessageFolder()
 			while ($row = Db::$db->fetch_assoc($request))
 			{
 				// This is, frankly, a joke. We will put in a workaround for people sending to themselves - yawn!
-				if (Utils::$context['folder'] == 'sent' && $row['id_member_from'] == $user_info['id'] && $row['deleted_by_sender'] == 1)
+				if (Utils::$context['folder'] == 'sent' && $row['id_member_from'] == User::$me->id && $row['deleted_by_sender'] == 1)
 					continue;
-				elseif ($row['id_member'] == $user_info['id'] & $row['deleted'] == 1)
+				elseif ($row['id_member'] == User::$me->id & $row['deleted'] == 1)
 					continue;
 
 				if (!isset($recipients[$row['id_pm']]))
@@ -855,7 +852,7 @@ function MessageFolder()
 				Utils::$context['folder'] == 'sent' && Utils::$context['display_mode'] != 2 ? Utils::$context['message_replied'][$row['id_pm']] = $row['is_read'] & 2 : '';
 			}
 
-			if ($row['id_member_to'] == $user_info['id'] && Utils::$context['folder'] != 'sent')
+			if ($row['id_member_to'] == User::$me->id && Utils::$context['folder'] != 'sent')
 			{
 				Utils::$context['message_replied'][$row['id_pm']] = $row['is_read'] & 2;
 				Utils::$context['message_unread'][$row['id_pm']] = $row['is_read'] == 0;
@@ -897,7 +894,7 @@ function MessageFolder()
 		}
 
 		// Load any users....
-		loadMemberData($posters);
+		User::load($posters);
 
 		// If we're on grouped/restricted view get a restricted list of messages.
 		if (Utils::$context['display_mode'] != 0)
@@ -986,8 +983,8 @@ function MessageFolder()
  */
 function prepareMessageContext($type = 'subject', $reset = false)
 {
-	global $messages_request, $memberContext, $recipients;
-	global $user_info, $subjects_request;
+	global $messages_request, $recipients;
+	global $subjects_request;
 
 	// Count the current message number....
 	static $counter = null;
@@ -1058,27 +1055,29 @@ function prepareMessageContext($type = 'subject', $reset = false)
 	$message['subject'] = $message['subject'] == '' ? Lang::$txt['no_subject'] : $message['subject'];
 
 	// Load the message's information - if it's not there, load the guest information.
-	if (!loadMemberContext($message['id_member_from'], true))
+	if (empty($message['id_member_from']) || !isset(User::$loaded[$message['id_member_from']]))
 	{
-		$memberContext[$message['id_member_from']]['name'] = $message['from_name'];
-		$memberContext[$message['id_member_from']]['id'] = 0;
+		$author['name'] = $message['from_name'];
+		$author['id'] = 0;
 
 		// Sometimes the forum sends messages itself (Warnings are an example) - in this case don't label it from a guest.
-		$memberContext[$message['id_member_from']]['group'] = $message['from_name'] == Utils::$context['forum_name_html_safe'] ? '' : Lang::$txt['guest_title'];
-		$memberContext[$message['id_member_from']]['link'] = $message['from_name'];
-		$memberContext[$message['id_member_from']]['email'] = '';
-		$memberContext[$message['id_member_from']]['show_email'] = false;
-		$memberContext[$message['id_member_from']]['is_guest'] = true;
+		$author['group'] = $message['from_name'] == Utils::$context['forum_name_html_safe'] ? '' : Lang::$txt['guest_title'];
+		$author['link'] = $message['from_name'];
+		$author['email'] = '';
+		$author['show_email'] = false;
+		$author['is_guest'] = true;
 	}
 	else
 	{
-		$memberContext[$message['id_member_from']]['can_view_profile'] = allowedTo('profile_view') || ($message['id_member_from'] == $user_info['id'] && !$user_info['is_guest']);
-		$memberContext[$message['id_member_from']]['can_see_warning'] = !isset(Utils::$context['disabled_fields']['warning_status']) && $memberContext[$message['id_member_from']]['warning_status'] && (Utils::$context['user']['can_mod'] || (!empty(Config::$modSettings['warning_show']) && (Config::$modSettings['warning_show'] > 1 || $message['id_member_from'] == $user_info['id'])));
+		$author = User::$loaded[$message['id_member_from']]->format(true);
+
+		$author['can_view_profile'] = allowedTo('profile_view') || ($message['id_member_from'] == User::$me->id && !User::$me->is_guest);
+		$author['can_see_warning'] = !isset(Utils::$context['disabled_fields']['warning_status']) && $author['warning_status'] && (User::$me->can_mod || (!empty(Config::$modSettings['warning_show']) && (Config::$modSettings['warning_show'] > 1 || $message['id_member_from'] == User::$me->id)));
 		// Show the email if it's your own PM
-		$memberContext[$message['id_member_from']]['show_email'] |= $message['id_member_from'] == $user_info['id'];
+		$author['show_email'] |= $message['id_member_from'] == User::$me->id;
 	}
 
-	$memberContext[$message['id_member_from']]['show_profile_buttons'] = Config::$modSettings['show_profile_buttons'] && (!empty($memberContext[$message['id_member_from']]['can_view_profile']) || (!empty($memberContext[$message['id_member_from']]['website']['url']) && !isset(Utils::$context['disabled_fields']['website'])) || $memberContext[$message['id_member_from']]['show_email'] || Utils::$context['can_send_pm']);
+	$author['show_profile_buttons'] = Config::$modSettings['show_profile_buttons'] && (!empty($author['can_view_profile']) || (!empty($author['website']['url']) && !isset(Utils::$context['disabled_fields']['website'])) || $author['show_email'] || Utils::$context['can_send_pm']);
 
 	// Censor all the important text...
 	Lang::censorText($message['body']);
@@ -1090,7 +1089,7 @@ function prepareMessageContext($type = 'subject', $reset = false)
 	// Send the array.
 	$output = array(
 		'id' => $message['id_pm'],
-		'member' => &$memberContext[$message['id_member_from']],
+		'member' => $author,
 		'subject' => $message['subject'],
 		'time' => timeformat($message['msgtime']),
 		'timestamp' => $message['msgtime'],
@@ -1103,34 +1102,34 @@ function prepareMessageContext($type = 'subject', $reset = false)
 		'is_replied_to' => &Utils::$context['message_replied'][$message['id_pm']],
 		'is_unread' => &Utils::$context['message_unread'][$message['id_pm']],
 		'is_selected' => !empty($temp_pm_selected) && in_array($message['id_pm'], $temp_pm_selected),
-		'is_message_author' => $message['id_member_from'] == $user_info['id'],
+		'is_message_author' => $message['id_member_from'] == User::$me->id,
 		'can_report' => !empty(Config::$modSettings['enableReportPM']),
-		'can_see_ip' => allowedTo('moderate_forum') || ($message['id_member_from'] == $user_info['id'] && !empty($user_info['id'])),
+		'can_see_ip' => allowedTo('moderate_forum') || ($message['id_member_from'] == User::$me->id && !empty(User::$me->id)),
 	);
 
 	$counter++;
 
 	// Any custom profile fields?
-	if (!empty($memberContext[$message['id_member_from']]['custom_fields']))
-		foreach ($memberContext[$message['id_member_from']]['custom_fields'] as $custom)
+	if (!empty($author['custom_fields']))
+		foreach ($author['custom_fields'] as $custom)
 			$output['custom_fields'][Utils::$context['cust_profile_fields_placement'][$custom['placement']]][] = $custom;
 
 	$output['quickbuttons'] = array(
 		'reply_to_all' => array(
 			'label' => Lang::$txt['reply_to_all'],
-			'href' => Config::$scripturl . '?action=pm;sa=send;f=' . Utils::$context['folder'] . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmsg=' . $output['id'] . ($output['member']['id'] != $user_info['id'] ? ';quote' : '') . ';u=all',
+			'href' => Config::$scripturl . '?action=pm;sa=send;f=' . Utils::$context['folder'] . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmsg=' . $output['id'] . ($output['member']['id'] != User::$me->id ? ';quote' : '') . ';u=all',
 			'icon' => 'reply_all_button',
-			'show' => Utils::$context['can_send_pm'] && !$output['member']['is_guest'] && ($output['number_recipients'] > 1 || $output['member']['id'] == $user_info['id']),
+			'show' => Utils::$context['can_send_pm'] && !$output['member']['is_guest'] && ($output['number_recipients'] > 1 || $output['member']['id'] == User::$me->id),
 		),
 		'reply' => array(
 			'label' => Lang::$txt['reply'],
 			'href' => Config::$scripturl . '?action=pm;sa=send;f=' . Utils::$context['folder'] . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmsg=' . $output['id'] . ';u=' . $output['member']['id'],
 			'icon' => 'reply_button',
-			'show' => Utils::$context['can_send_pm'] && !$output['member']['is_guest'] && $output['member']['id'] != $user_info['id'],
+			'show' => Utils::$context['can_send_pm'] && !$output['member']['is_guest'] && $output['member']['id'] != User::$me->id,
 		),
 		'quote' => array(
 			'label' => Lang::$txt['quote_action'],
-			'href' => Config::$scripturl . '?action=pm;sa=send;f=' . Utils::$context['folder'] . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmsg=' . $output['id'] . ';quote' . ($output['number_recipients'] > 1 || $output['member']['id'] == $user_info['id'] ? ';u=all' : (!$output['member']['is_guest'] ? ';u=' . $output['member']['id'] : '')),
+			'href' => Config::$scripturl . '?action=pm;sa=send;f=' . Utils::$context['folder'] . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmsg=' . $output['id'] . ';quote' . ($output['number_recipients'] > 1 || $output['member']['id'] == User::$me->id ? ';u=all' : (!$output['member']['is_guest'] ? ';u=' . $output['member']['id'] : '')),
 			'icon' => 'quote',
 			'show' => Utils::$context['can_send_pm'],
 		),
@@ -1238,9 +1237,6 @@ function MessageSearch()
  */
 function MessageSearch2()
 {
-	global $user_info;
-	global $memberContext;
-
 	if (!empty(Utils::$context['load_average']) && !empty(Config::$modSettings['loadavg_search']) && Utils::$context['load_average'] >= Config::$modSettings['loadavg_search'])
 		fatal_lang_error('loadavg_search_disabled', false);
 
@@ -1566,7 +1562,7 @@ function MessageSearch2()
 			' . $userQuery . $labelQuery . $timeQuery . '
 			AND (' . $searchQuery . ')',
 		array_merge($searchq_parameters, array(
-			'current_member' => $user_info['id'],
+			'current_member' => User::$me->id,
 			'not_deleted' => 0,
 		))
 	);
@@ -1590,7 +1586,7 @@ function MessageSearch2()
 		ORDER BY {raw:sort} {raw:sort_dir}
 		LIMIT {int:start}, {int:max}',
 		array_merge($searchq_parameters, array(
-			'current_member' => $user_info['id'],
+			'current_member' => User::$me->id,
 			'not_deleted' => 0,
 			'sort' => $search_params['sort'],
 			'sort_dir' => $search_params['sort_dir'],
@@ -1623,7 +1619,7 @@ function MessageSearch2()
 			LIMIT {int:limit}',
 			array(
 				'head_pms' => array_unique($head_pms),
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'not_deleted' => 0,
 				'limit' => count($head_pms),
 			)
@@ -1635,7 +1631,7 @@ function MessageSearch2()
 	}
 
 	// Load the users...
-	loadMemberData($posters);
+	User::load($posters);
 
 	// Sort out the page index.
 	Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=pm;sa=search2;params=' . Utils::$context['params'], $_GET['start'], $numResults, Config::$modSettings['search_results_per_page'], false);
@@ -1665,7 +1661,7 @@ function MessageSearch2()
 			if (Utils::$context['folder'] == 'sent' || empty($row['bcc']))
 				$recipients[$row['id_pm']][empty($row['bcc']) ? 'to' : 'bcc'][] = empty($row['id_member_to']) ? Lang::$txt['guest_title'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member_to'] . '">' . $row['to_name'] . '</a>';
 
-			if ($row['id_member_to'] == $user_info['id'] && Utils::$context['folder'] != 'sent')
+			if ($row['id_member_to'] == User::$me->id && Utils::$context['folder'] != 'sent')
 			{
 				Utils::$context['message_replied'][$row['id_pm']] = $row['is_read'] & 2;
 
@@ -1725,24 +1721,26 @@ function MessageSearch2()
 			$row['subject'] = $row['subject'] == '' ? Lang::$txt['no_subject'] : $row['subject'];
 
 			// Load this posters context info, if it ain't there then fill in the essentials...
-			if (!loadMemberContext($row['id_member_from'], true))
+			if (!isset(User::$loaded[$row['id_member_from']]))
 			{
-				$memberContext[$row['id_member_from']]['name'] = $row['from_name'];
-				$memberContext[$row['id_member_from']]['id'] = 0;
-				$memberContext[$row['id_member_from']]['group'] = Lang::$txt['guest_title'];
-				$memberContext[$row['id_member_from']]['link'] = $row['from_name'];
-				$memberContext[$row['id_member_from']]['email'] = '';
-				$memberContext[$row['id_member_from']]['is_guest'] = true;
+				$author['name'] = $row['from_name'];
+				$author['id'] = 0;
+				$author['group'] = Lang::$txt['guest_title'];
+				$author['link'] = $row['from_name'];
+				$author['email'] = '';
+				$author['is_guest'] = true;
 			}
 			else
 			{
-				$memberContext[$row['id_member_from']]['can_view_profile'] = allowedTo('profile_view') || ($row['id_member_from'] == $user_info['id'] && !$user_info['is_guest']);
-				$memberContext[$row['id_member_from']]['can_see_warning'] = !isset(Utils::$context['disabled_fields']['warning_status']) && $memberContext[$row['id_member_from']]['warning_status'] && (Utils::$context['user']['can_mod'] || (!empty(Config::$modSettings['warning_show']) && (Config::$modSettings['warning_show'] > 1 || $row['id_member_from'] == $user_info['id'])));
+				$author = User::$loaded[$row['id_member_from']]->format();
+
+				$author['can_view_profile'] = allowedTo('profile_view') || ($row['id_member_from'] == User::$me->id && !User::$me->is_guest);
+				$author['can_see_warning'] = !isset(Utils::$context['disabled_fields']['warning_status']) && $author['warning_status'] && (User::$me->can_mod || (!empty(Config::$modSettings['warning_show']) && (Config::$modSettings['warning_show'] > 1 || $row['id_member_from'] == User::$me->id)));
 				// Show the email if it's your own PM
-				$memberContext[$row['id_member_from']]['show_email'] |= $row['id_member_from'] == $user_info['id'];
+				$author['show_email'] |= $row['id_member_from'] == User::$me->id;
 			}
 
-			$memberContext[$row['id_member_from']]['show_profile_buttons'] = Config::$modSettings['show_profile_buttons'] && (!empty($memberContext[$row['id_member_from']]['can_view_profile']) || (!empty($memberContext[$row['id_member_from']]['website']['url']) && !isset(Utils::$context['disabled_fields']['website'])) || $memberContext[$row['id_member_from']]['show_email'] || Utils::$context['can_send_pm']);
+			$author['show_profile_buttons'] = Config::$modSettings['show_profile_buttons'] && (!empty($author['can_view_profile']) || (!empty($author['website']['url']) && !isset(Utils::$context['disabled_fields']['website'])) || $author['show_email'] || Utils::$context['can_send_pm']);
 
 			// Censor anything we don't want to see...
 			Lang::censorText($row['body']);
@@ -1754,7 +1752,7 @@ function MessageSearch2()
 			$href = Config::$scripturl . '?action=pm;f=' . Utils::$context['folder'] . (isset(Utils::$context['first_label'][$row['id_pm']]) ? ';l=' . Utils::$context['first_label'][$row['id_pm']] : '') . ';pmid=' . (Utils::$context['display_mode'] == 2 && isset($real_pm_ids[$head_pms[$row['id_pm']]]) ? $real_pm_ids[$head_pms[$row['id_pm']]] : $row['id_pm']) . '#msg' . $row['id_pm'];
 			Utils::$context['personal_messages'][] = array(
 				'id' => $row['id_pm'],
-				'member' => &$memberContext[$row['id_member_from']],
+				'member' => &$author,
 				'subject' => $row['subject'],
 				'body' => $row['body'],
 				'time' => timeformat($row['msgtime']),
@@ -1765,23 +1763,23 @@ function MessageSearch2()
 				'href' => $href,
 				'link' => '<a href="' . $href . '">' . $row['subject'] . '</a>',
 				'counter' => ++$counter,
-				'can_see_ip' => allowedTo('moderate_forum') || ($row['id_member_from'] == $user_info['id'] && !empty($user_info['id'])),
+				'can_see_ip' => allowedTo('moderate_forum') || ($row['id_member_from'] == User::$me->id && !empty(User::$me->id)),
 				'quickbuttons' => array(
 					'reply_to_all' => array(
 						'label' => Lang::$txt['reply_to_all'],
-						'href' => Config::$scripturl . '?action=pm;sa=send;f=' . Utils::$context['folder'] . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmsg=' . $row['id_pm'] . ($row['id_member_from'] != $user_info['id'] ? ';quote' : '') . ';u=all',
+						'href' => Config::$scripturl . '?action=pm;sa=send;f=' . Utils::$context['folder'] . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmsg=' . $row['id_pm'] . ($row['id_member_from'] != User::$me->id ? ';quote' : '') . ';u=all',
 						'icon' => 'reply_all_button',
-						'show' => Utils::$context['can_send_pm'] && !$memberContext[$row['id_member_from']]['is_guest'] && (count($recipients[$row['id_pm']]['to']) > 1 || $row['id_member_from'] == $user_info['id']),
+						'show' => Utils::$context['can_send_pm'] && !$author['is_guest'] && (count($recipients[$row['id_pm']]['to']) > 1 || $row['id_member_from'] == User::$me->id),
 					),
 					'reply' => array(
 						'label' => Lang::$txt['reply'],
 						'href' => Config::$scripturl . '?action=pm;sa=send;f=' . Utils::$context['folder'] . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmsg=' . $row['id_pm'] . ';u=' . $row['id_member_from'],
 						'icon' => 'reply_button',
-						'show' => Utils::$context['can_send_pm'] && !$memberContext[$row['id_member_from']]['is_guest'] && $row['id_member_from'] != $user_info['id'],
+						'show' => Utils::$context['can_send_pm'] && !$author['is_guest'] && $row['id_member_from'] != User::$me->id,
 					),
 					'quote' => array(
 						'label' => Lang::$txt['quote_action'],
-						'href' => Config::$scripturl . '?action=pm;sa=send;f=' . Utils::$context['folder'] . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmsg=' . $row['id_pm'] . ';quote' . (count($recipients[$row['id_pm']]['to']) > 1 || $row['id_member_from'] == $user_info['id'] ? ';u=all' : (!$memberContext[$row['id_member_from']]['is_guest'] ? ';u=' . $row['id_member_from'] : '')),
+						'href' => Config::$scripturl . '?action=pm;sa=send;f=' . Utils::$context['folder'] . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmsg=' . $row['id_pm'] . ';quote' . (count($recipients[$row['id_pm']]['to']) > 1 || $row['id_member_from'] == User::$me->id ? ';u=all' : (!$author['is_guest'] ? ';u=' . $row['id_member_from'] : '')),
 						'icon' => 'quote',
 						'show' => Utils::$context['can_send_pm'],
 					),
@@ -1823,8 +1821,6 @@ function MessageSearch2()
  */
 function MessagePost()
 {
-	global $user_info;
-
 	isAllowedTo('pm_send');
 
 	Lang::load('PersonalMessage');
@@ -1845,7 +1841,7 @@ function MessagePost()
 	Utils::$context['reply'] = isset($_REQUEST['pmsg']) || isset($_REQUEST['quote']);
 
 	// Check whether we've gone over the limit of messages we can send per hour.
-	if (!empty(Config::$modSettings['pm_posts_per_hour']) && !allowedTo(array('admin_forum', 'moderate_forum', 'send_mail')) && $user_info['mod_cache']['bq'] == '0=1' && $user_info['mod_cache']['gq'] == '0=1')
+	if (!empty(Config::$modSettings['pm_posts_per_hour']) && !allowedTo(array('admin_forum', 'moderate_forum', 'send_mail')) && User::$me->mod_cache['bq'] == '0=1' && User::$me->mod_cache['gq'] == '0=1')
 	{
 		// How many messages have they sent this last hour?
 		$request = Db::$db->query('', '
@@ -1855,7 +1851,7 @@ function MessagePost()
 			WHERE pm.id_member_from = {int:current_member}
 				AND pm.msgtime > {int:msgtime}',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'msgtime' => time() - 3600,
 			)
 		);
@@ -1884,7 +1880,7 @@ function MessagePost()
 				AND id_member = {int:current_member}
 			LIMIT 1',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'id_pm' => $pmsg,
 			)
 		);
@@ -1905,7 +1901,7 @@ function MessagePost()
 				AND pmr.id_member = {int:current_member}') . '
 			LIMIT 1',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'id_pm_head_empty' => 0,
 				'id_pm' => $pmsg,
 			)
@@ -1922,7 +1918,7 @@ function MessagePost()
 		// Add 'Re: ' to it....
 		if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix')))
 		{
-			if (Lang::$default === $user_info['language'])
+			if (Lang::$default === User::$me->language)
 				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
 			else
 			{
@@ -1989,7 +1985,7 @@ function MessagePost()
 		if ($_REQUEST['u'] == 'all' && isset($row_quoted))
 		{
 			// Firstly, to reply to all we clearly already have $row_quoted - so have the original member from.
-			if ($row_quoted['id_member'] != $user_info['id'])
+			if ($row_quoted['id_member'] != User::$me->id)
 				Utils::$context['recipients']['to'][] = array(
 					'id' => $row_quoted['id_member'],
 					'name' => Utils::htmlspecialchars($row_quoted['real_name']),
@@ -2004,7 +2000,7 @@ function MessagePost()
 					AND pmr.id_member != {int:current_member}
 					AND pmr.bcc = {int:not_bcc}',
 				array(
-					'current_member' => $user_info['id'],
+					'current_member' => User::$me->id,
 					'id_pm' => $pmsg,
 					'not_bcc' => 0,
 				)
@@ -2067,7 +2063,7 @@ function MessagePost()
 	{
 		require_once(Config::$sourcedir . '/Drafts.php');
 		$pm_seed = isset($_REQUEST['pmsg']) ? $_REQUEST['pmsg'] : (isset($_REQUEST['quote']) ? $_REQUEST['quote'] : 0);
-		ShowDrafts($user_info['id'], $pm_seed, 1);
+		ShowDrafts(User::$me->id, $pm_seed, 1);
 	}
 
 	// Needed for the WYSIWYG editor.
@@ -2092,7 +2088,7 @@ function MessagePost()
 
 	Utils::$context['bcc_value'] = '';
 
-	Utils::$context['require_verification'] = !$user_info['is_admin'] && !empty(Config::$modSettings['pm_posts_verification']) && $user_info['posts'] < Config::$modSettings['pm_posts_verification'];
+	Utils::$context['require_verification'] = !User::$me->is_admin && !empty(Config::$modSettings['pm_posts_verification']) && User::$me->posts < Config::$modSettings['pm_posts_verification'];
 	if (Utils::$context['require_verification'])
 	{
 		$verificationOptions = array(
@@ -2113,17 +2109,12 @@ function MessagePost()
  */
 function MessageDrafts()
 {
-	global $user_info;
-
-	// validate with loadMemberData()
-	$memberResult = loadMemberData($user_info['id'], false);
-	if (!$memberResult)
+	if (empty(User::$me->id))
 		fatal_lang_error('not_a_user', false);
-	list ($memID) = $memberResult;
 
 	// drafts is where the functions reside
 	require_once(Config::$sourcedir . '/Drafts.php');
-	showPMDrafts($memID);
+	showPMDrafts(User::$me->id);
 }
 
 /**
@@ -2135,8 +2126,6 @@ function MessageDrafts()
  */
 function messagePostError($error_types, $named_recipients, $recipient_ids = array())
 {
-	global $user_info;
-
 	if (!isset($_REQUEST['xml']))
 	{
 		Utils::$context['menu_data_' . Utils::$context['pm_menu_id']]['current_area'] = 'send';
@@ -2199,7 +2188,7 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 				AND pmr.id_member = {int:current_member}') . '
 			LIMIT 1',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'no_id_pm_head' => 0,
 				'replied_to' => $_REQUEST['replied_to'],
 			)
@@ -2287,7 +2276,7 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 	Utils::$context['post_box_name'] = $editorOptions['id'];
 
 	// Check whether we need to show the code again.
-	Utils::$context['require_verification'] = !$user_info['is_admin'] && !empty(Config::$modSettings['pm_posts_verification']) && $user_info['posts'] < Config::$modSettings['pm_posts_verification'];
+	Utils::$context['require_verification'] = !User::$me->is_admin && !empty(Config::$modSettings['pm_posts_verification']) && User::$me->posts < Config::$modSettings['pm_posts_verification'];
 	if (Utils::$context['require_verification'] && !isset($_REQUEST['xml']))
 	{
 		require_once(Config::$sourcedir . '/Subs-Editor.php');
@@ -2315,8 +2304,6 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
  */
 function MessagePost2()
 {
-	global $user_info;
-
 	isAllowedTo('pm_send');
 	require_once(Config::$sourcedir . '/Subs-Auth.php');
 
@@ -2336,7 +2323,7 @@ function MessagePost2()
 	$post_errors = array();
 
 	// Check whether we've gone over the limit of messages we can send per hour - fatal error if fails!
-	if (!empty(Config::$modSettings['pm_posts_per_hour']) && !allowedTo(array('admin_forum', 'moderate_forum', 'send_mail')) && $user_info['mod_cache']['bq'] == '0=1' && $user_info['mod_cache']['gq'] == '0=1')
+	if (!empty(Config::$modSettings['pm_posts_per_hour']) && !allowedTo(array('admin_forum', 'moderate_forum', 'send_mail')) && User::$me->mod_cache['bq'] == '0=1' && User::$me->mod_cache['gq'] == '0=1')
 	{
 		// How many have they sent this last hour?
 		$request = Db::$db->query('', '
@@ -2346,7 +2333,7 @@ function MessagePost2()
 			WHERE pm.id_member_from = {int:current_member}
 				AND pm.msgtime > {int:msgtime}',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'msgtime' => time() - 3600,
 			)
 		);
@@ -2483,7 +2470,7 @@ function MessagePost2()
 	}
 
 	// Wrong verification code?
-	if (!$user_info['is_admin'] && !isset($_REQUEST['xml']) && !empty(Config::$modSettings['pm_posts_verification']) && $user_info['posts'] < Config::$modSettings['pm_posts_verification'])
+	if (!User::$me->is_admin && !isset($_REQUEST['xml']) && !empty(Config::$modSettings['pm_posts_verification']) && User::$me->posts < Config::$modSettings['pm_posts_verification'])
 	{
 		require_once(Config::$sourcedir . '/Subs-Editor.php');
 		$verificationOptions = array(
@@ -2576,7 +2563,7 @@ function MessagePost2()
 			WHERE id_pm = {int:replied_to}
 				AND id_member = {int:current_member}',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'replied_to' => (int) $_REQUEST['replied_to'],
 			)
 		);
@@ -2608,7 +2595,7 @@ function MessagePost2()
  */
 function MessageActionsApply()
 {
-	global $user_info, $options;
+	global $options;
 
 	checkSession('request');
 
@@ -2711,7 +2698,7 @@ function MessageActionsApply()
 					AND pmr.id_member = {int:current_member}',
 				array(
 					'head_pms' => array_keys($to_label),
-					'current_member' => $user_info['id'],
+					'current_member' => User::$me->id,
 				)
 			);
 
@@ -2731,7 +2718,7 @@ function MessageActionsApply()
 				AND id_pm IN ({array_int:to_label})
 			LIMIT ' . count($to_label),
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'to_label' => array_keys($to_label),
 			)
 		);
@@ -2749,7 +2736,7 @@ function MessageActionsApply()
 					WHERE l.id_member = {int:current_member}
 						AND pml.id_pm = {int:current_pm}',
 					array(
-						'current_member' => $user_info['id'],
+						'current_member' => User::$me->id,
 						'current_pm' => $row['id_pm'],
 					)
 				);
@@ -2772,7 +2759,7 @@ function MessageActionsApply()
 					WHERE l.id_member = {int:current_member}
 						AND pml.id_pm = {int:current_pm}',
 					array(
-						'current_member' => $user_info['id'],
+						'current_member' => User::$me->id,
 						'current_pm' => $row['id_pm'],
 					)
 				);
@@ -2818,7 +2805,7 @@ function MessageActionsApply()
 					WHERE id_pm = {int:id_pm}
 						AND id_member = {int:current_member}',
 					array(
-						'current_member' => $user_info['id'],
+						'current_member' => User::$me->id,
 						'id_pm' => $row['id_pm'],
 						'in_inbox' => $in_inbox,
 					)
@@ -2886,8 +2873,6 @@ function MessageKillAll()
  */
 function MessagePrune()
 {
-	global $user_info;
-
 	// Actually delete the messages.
 	if (isset($_REQUEST['age']))
 	{
@@ -2907,7 +2892,7 @@ function MessagePrune()
 				AND id_member_from = {int:current_member}
 				AND msgtime < {int:msgtime}',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'not_deleted' => 0,
 				'msgtime' => $deleteTime,
 			)
@@ -2925,7 +2910,7 @@ function MessagePrune()
 				AND pmr.id_member = {int:current_member}
 				AND pm.msgtime < {int:msgtime}',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'not_deleted' => 0,
 				'msgtime' => $deleteTime,
 			)
@@ -2960,10 +2945,8 @@ function MessagePrune()
  */
 function deleteMessages($personal_messages, $folder = null, $owner = null)
 {
-	global $user_info;
-
 	if ($owner === null)
-		$owner = array($user_info['id']);
+		$owner = array(User::$me->id);
 	elseif (empty($owner))
 		return;
 	elseif (!is_array($owner))
@@ -3017,16 +3000,16 @@ function deleteMessages($personal_messages, $folder = null, $owner = null)
 		while ($row = Db::$db->fetch_assoc($request))
 		{
 			if ($row['is_read'])
-				updateMemberData($row['id_member'], array('instant_messages' => $where == '' ? 0 : 'instant_messages - ' . $row['num_deleted_messages']));
+				User::updateMemberData($row['id_member'], array('instant_messages' => $where == '' ? 0 : 'instant_messages - ' . $row['num_deleted_messages']));
 			else
-				updateMemberData($row['id_member'], array('instant_messages' => $where == '' ? 0 : 'instant_messages - ' . $row['num_deleted_messages'], 'unread_messages' => $where == '' ? 0 : 'unread_messages - ' . $row['num_deleted_messages']));
+				User::updateMemberData($row['id_member'], array('instant_messages' => $where == '' ? 0 : 'instant_messages - ' . $row['num_deleted_messages'], 'unread_messages' => $where == '' ? 0 : 'unread_messages - ' . $row['num_deleted_messages']));
 
 			// If this is the current member we need to make their message count correct.
-			if ($user_info['id'] == $row['id_member'])
+			if (User::$me->id == $row['id_member'])
 			{
-				$user_info['messages'] -= $row['num_deleted_messages'];
+				User::$me->messages -= $row['num_deleted_messages'];
 				if (!($row['is_read']))
-					$user_info['unread_messages'] -= $row['num_deleted_messages'];
+					User::$me->unread_messages -= $row['num_deleted_messages'];
 			}
 		}
 		Db::$db->free_result($request);
@@ -3126,7 +3109,7 @@ function deleteMessages($personal_messages, $folder = null, $owner = null)
 	}
 
 	// Any cached numbers may be wrong now.
-	CacheApi::put('labelCounts:' . $user_info['id'], null, 720);
+	CacheApi::put('labelCounts:' . User::$me->id, null, 720);
 }
 
 /**
@@ -3138,10 +3121,8 @@ function deleteMessages($personal_messages, $folder = null, $owner = null)
  */
 function markMessages($personal_messages = null, $label = null, $owner = null)
 {
-	global $user_info;
-
 	if ($owner === null)
-		$owner = $user_info['id'];
+		$owner = User::$me->id;
 
 	$in_inbox = '';
 
@@ -3189,7 +3170,7 @@ function markMessages($personal_messages = null, $label = null, $owner = null)
 	// If something wasn't marked as read, get the number of unread messages remaining.
 	if (Db::$db->affected_rows() > 0)
 	{
-		if ($owner == $user_info['id'])
+		if ($owner == User::$me->id)
 		{
 			foreach (Utils::$context['labels'] as $label)
 				Utils::$context['labels'][(int) $label['id']]['unread_messages'] = 0;
@@ -3212,7 +3193,7 @@ function markMessages($personal_messages = null, $label = null, $owner = null)
 		{
 			$total_unread += $row['num'];
 
-			if ($owner != $user_info['id'] || empty($row['id_pm']))
+			if ($owner != User::$me->id || empty($row['id_pm']))
 				continue;
 
 			$this_labels = array();
@@ -3247,11 +3228,11 @@ function markMessages($personal_messages = null, $label = null, $owner = null)
 
 		// Need to store all this.
 		CacheApi::put('labelCounts:' . $owner, Utils::$context['labels'], 720);
-		updateMemberData($owner, array('unread_messages' => $total_unread));
+		User::updateMemberData($owner, array('unread_messages' => $total_unread));
 
-		// If it was for the current member, reflect this in the $user_info array too.
-		if ($owner == $user_info['id'])
-			$user_info['unread_messages'] = $total_unread;
+		// If it was for the current member, reflect this in User::$me as well.
+		if ($owner == User::$me->id)
+			User::$me->unread_messages = $total_unread;
 	}
 }
 
@@ -3260,8 +3241,6 @@ function markMessages($personal_messages = null, $label = null, $owner = null)
  */
 function ManageLabels()
 {
-	global $user_info;
-
 	// Build the link tree elements...
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=pm;sa=manlabels',
@@ -3355,7 +3334,7 @@ function ManageLabels()
 		{
 			$inserts = array();
 			foreach ($labels_to_add AS $label)
-				$inserts[] = array($user_info['id'], $label);
+				$inserts[] = array(User::$me->id, $label);
 
 			Db::$db->insert('', '{db_prefix}pm_labels', array('id_member' => 'int', 'name' => 'string-30'), $inserts, array());
 		}
@@ -3373,7 +3352,7 @@ function ManageLabels()
 					array(
 						'name' => $name,
 						'id_label' => $id,
-						'current_member' => $user_info['id'],
+						'current_member' => User::$me->id,
 					)
 				);
 			}
@@ -3389,7 +3368,7 @@ function ManageLabels()
 				AND id_member = {int:current_member}',
 				array(
 					'labels_to_delete' => $labels_to_remove,
-					'current_member' => $user_info['id'],
+					'current_member' => User::$me->id,
 				)
 			);
 
@@ -3414,7 +3393,7 @@ function ManageLabels()
 				array(
 					'not_in_inbox' => 0,
 					'not_deleted' => 0,
-					'current_member' => $user_info['id'],
+					'current_member' => User::$me->id,
 				)
 			);
 
@@ -3439,7 +3418,7 @@ function ManageLabels()
 					array(
 						'stranded_messages' => $stranded_messages,
 						'in_inbox' => 1,
-						'current_member' => $user_info['id'],
+						'current_member' => User::$me->id,
 					)
 				);
 			}
@@ -3475,7 +3454,7 @@ function ManageLabels()
 						WHERE id_rule = {int:id_rule}
 							AND id_member = {int:current_member}',
 						array(
-							'current_member' => $user_info['id'],
+							'current_member' => User::$me->id,
 							'id_rule' => $id,
 							'actions' => Utils::jsonEncode(Utils::$context['rules'][$id]['actions']),
 						)
@@ -3490,14 +3469,14 @@ function ManageLabels()
 					WHERE id_rule IN ({array_int:rule_list})
 						AND id_member = {int:current_member}',
 					array(
-						'current_member' => $user_info['id'],
+						'current_member' => User::$me->id,
 						'rule_list' => $rule_changes,
 					)
 				);
 		}
 
 		// Make sure we're not caching this!
-		CacheApi::put('labelCounts:' . $user_info['id'], null, 720);
+		CacheApi::put('labelCounts:' . User::$me->id, null, 720);
 
 		// To make the changes appear right away, redirect.
 		redirectexit('action=pm;sa=manlabels');
@@ -3514,8 +3493,7 @@ function ManageLabels()
  */
 function MessageSettings()
 {
-	global $user_info;
-	global $profile_vars, $cur_profile, $user_profile;
+	global $profile_vars;
 
 	// Need this for the display.
 	require_once(Config::$sourcedir . '/Profile.php');
@@ -3524,8 +3502,11 @@ function MessageSettings()
 	// We want them to submit back to here.
 	Utils::$context['profile_custom_submit_url'] = Config::$scripturl . '?action=pm;sa=settings;save';
 
-	loadMemberData($user_info['id'], false, 'profile');
-	$cur_profile = $user_profile[$user_info['id']];
+	User::load(User::$me->id, User::LOAD_BY_ID, 'profile');
+
+	// This is just for backward compatibility with mods.
+	// SMF itself no longer uses $cur_profile.
+	User::setCurProfile(User::$me->id);
 
 	Lang::load('Profile');
 	loadTemplate('Profile');
@@ -3533,8 +3514,8 @@ function MessageSettings()
 	// Since this is internally handled with the profile code because that's how it was done ages ago
 	// we have to set everything up for handling this...
 	Utils::$context['page_title'] = Lang::$txt['pm_settings'];
-	Utils::$context['user']['is_owner'] = true;
-	Utils::$context['id_member'] = $user_info['id'];
+	User::$me->is_owner = true;
+	Utils::$context['id_member'] = User::$me->id;
 	Utils::$context['require_password'] = false;
 	Utils::$context['menu_item_selected'] = 'settings';
 	Utils::$context['submit_button_text'] = Lang::$txt['pm_settings'];
@@ -3542,8 +3523,8 @@ function MessageSettings()
 	Utils::$context['sub_template'] = 'edit_options';
 	Utils::$context['page_desc'] = Lang::$txt['pm_settings_desc'];
 
-	loadThemeOptions($user_info['id']);
-	loadCustomFields($user_info['id'], 'pmprefs');
+	loadThemeOptions(User::$me->id);
+	loadCustomFields(User::$me->id, 'pmprefs');
 
 	// Add our position to the linktree.
 	Utils::$context['linktree'][] = array(
@@ -3561,16 +3542,17 @@ function MessageSettings()
 		$_POST = htmlspecialchars__recursive($_POST);
 
 		// Save the fields.
-		saveProfileFields();
+		saveProfileFields(User::$me->id);
 
 		if (!empty($profile_vars))
-			updateMemberData($user_info['id'], $profile_vars);
+			User::updateMemberData(User::$me->id, $profile_vars);
 	}
 
 	setupProfileContext(
 		array(
 			'pm_prefs',
-		)
+		),
+		User::$me->id
 	);
 }
 
@@ -3585,8 +3567,6 @@ function MessageSettings()
  */
 function ReportMessage()
 {
-	global $user_info;
-
 	// Check that this feature is even enabled!
 	if (empty(Config::$modSettings['enableReportPM']) || empty($_REQUEST['pmsg']))
 		fatal_lang_error('no_access', false);
@@ -3640,7 +3620,7 @@ function ReportMessage()
 				AND pmr.deleted = {int:not_deleted}
 			LIMIT 1',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'id_pm' => Utils::$context['pm_id'],
 				'not_deleted' => 0,
 			)
@@ -3662,7 +3642,7 @@ function ReportMessage()
 			WHERE pmr.id_pm = {int:id_pm}
 				AND pmr.id_member != {int:current_member}',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'id_pm' => Utils::$context['pm_id'],
 			)
 		);
@@ -3713,7 +3693,7 @@ function ReportMessage()
 				Lang::load('PersonalMessage', $cur_language, false);
 
 				// Make the body.
-				$report_body = str_replace(array('{REPORTER}', '{SENDER}'), array(un_htmlspecialchars($user_info['name']), $memberFromName), Lang::$txt['pm_report_pm_user_sent']);
+				$report_body = str_replace(array('{REPORTER}', '{SENDER}'), array(un_htmlspecialchars(User::$me->name), $memberFromName), Lang::$txt['pm_report_pm_user_sent']);
 				$report_body .= "\n" . '[b]' . $_POST['reason'] . '[/b]' . "\n\n";
 				if (!empty($recipients))
 					$report_body .= Lang::$txt['pm_report_pm_other_recipients'] . ' ' . implode(', ', $recipients) . "\n\n";
@@ -3753,8 +3733,6 @@ function ReportMessage()
  */
 function ManageRules()
 {
-	global $user_info;
-
 	// Limit the Criteria and Actions to this.
 	Utils::$context['rule_limiters'] = array(
 		'criteria' => 10,
@@ -3783,7 +3761,7 @@ function ManageRules()
 			AND mg.hidden = {int:not_hidden}
 		ORDER BY mg.group_name',
 		array(
-			'current_member' => $user_info['id'],
+			'current_member' => User::$me->id,
 			'min_posts' => -1,
 			'moderator_group' => 3,
 			'not_hidden' => 0,
@@ -3948,7 +3926,7 @@ function ManageRules()
 					'delete_pm' => 'int', 'is_or' => 'int',
 				),
 				array(
-					$user_info['id'], $ruleName, $criteria, $actions, $doDelete, $isOr,
+					User::$me->id, $ruleName, $criteria, $actions, $doDelete, $isOr,
 				),
 				array('id_rule')
 			);
@@ -3960,7 +3938,7 @@ function ManageRules()
 				WHERE id_rule = {int:id_rule}
 					AND id_member = {int:current_member}',
 				array(
-					'current_member' => $user_info['id'],
+					'current_member' => User::$me->id,
 					'delete_pm' => $doDelete,
 					'is_or' => $isOr,
 					'id_rule' => Utils::$context['rid'],
@@ -3986,7 +3964,7 @@ function ManageRules()
 				WHERE id_rule IN ({array_int:delete_list})
 					AND id_member = {int:current_member}',
 				array(
-					'current_member' => $user_info['id'],
+					'current_member' => User::$me->id,
 					'delete_list' => $toDelete,
 				)
 			);
@@ -4002,7 +3980,7 @@ function ManageRules()
  */
 function ApplyRules($all_messages = false)
 {
-	global $user_info, $options;
+	global $options;
 
 	// Want this - duh!
 	loadRules();
@@ -4026,7 +4004,7 @@ function ApplyRules($all_messages = false)
 			AND pmr.deleted = {int:not_deleted}
 			' . $ruleQuery,
 		array(
-			'current_member' => $user_info['id'],
+			'current_member' => User::$me->id,
 			'not_deleted' => 0,
 		)
 	);
@@ -4097,7 +4075,7 @@ function ApplyRules($all_messages = false)
 					array(
 						'in_inbox' => 0,
 						'id_pm' => $pm,
-						'current_member' => $user_info['id'],
+						'current_member' => User::$me->id,
 					)
 				);
 
@@ -4123,8 +4101,6 @@ function ApplyRules($all_messages = false)
  */
 function LoadRules($reload = false)
 {
-	global $user_info;
-
 	if (isset(Utils::$context['rules']) && !$reload)
 		return;
 
@@ -4134,7 +4110,7 @@ function LoadRules($reload = false)
 		FROM {db_prefix}pm_rules
 		WHERE id_member = {int:current_member}',
 		array(
-			'current_member' => $user_info['id'],
+			'current_member' => User::$me->id,
 		)
 	);
 	Utils::$context['rules'] = array();
@@ -4165,8 +4141,6 @@ function LoadRules($reload = false)
  */
 function isAccessiblePM($pmID, $validFor = 'in_or_outbox')
 {
-	global $user_info;
-
 	$request = Db::$db->query('', '
 		SELECT
 			pm.id_member_from = {int:id_current_member} AND pm.deleted_by_sender = {int:not_deleted} AS valid_for_outbox,
@@ -4177,7 +4151,7 @@ function isAccessiblePM($pmID, $validFor = 'in_or_outbox')
 			AND ((pm.id_member_from = {int:id_current_member} AND pm.deleted_by_sender = {int:not_deleted}) OR pmr.id_pm IS NOT NULL)',
 		array(
 			'id_pm' => $pmID,
-			'id_current_member' => $user_info['id'],
+			'id_current_member' => User::$me->id,
 			'not_deleted' => 0,
 		)
 	);

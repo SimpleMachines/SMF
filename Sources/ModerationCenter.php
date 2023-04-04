@@ -16,6 +16,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -30,15 +31,15 @@ if (!defined('SMF'))
  */
 function ModerationMain($dont_call = false)
 {
-	global $user_info, $options;
+	global $options;
 
 	// Don't run this twice... and don't conflict with the admin bar.
 	if (isset(Utils::$context['admin_area']))
 		return;
 
-	Utils::$context['can_moderate_boards'] = $user_info['mod_cache']['bq'] != '0=1';
-	Utils::$context['can_moderate_groups'] = $user_info['mod_cache']['gq'] != '0=1';
-	Utils::$context['can_moderate_approvals'] = Config::$modSettings['postmod_active'] && !empty($user_info['mod_cache']['ap']);
+	Utils::$context['can_moderate_boards'] = User::$me->mod_cache['bq'] != '0=1';
+	Utils::$context['can_moderate_groups'] = User::$me->mod_cache['gq'] != '0=1';
+	Utils::$context['can_moderate_approvals'] = Config::$modSettings['postmod_active'] && !empty(User::$me->mod_cache['ap']);
 	Utils::$context['can_moderate_users'] = allowedTo('moderate_forum');
 
 	// Everyone using this area must be allowed here!
@@ -214,7 +215,7 @@ function ModerationMain($dont_call = false)
 		'title' => Lang::$txt['moderation_center'],
 		'help' => '',
 		'description' => '
-			<strong>' . Lang::$txt['hello_guest'] . ' ' . Utils::$context['user']['name'] . '!</strong>
+			<strong>' . Lang::$txt['hello_guest'] . ' ' . User::$me->name . '!</strong>
 			<br><br>
 			' . Lang::$txt['mc_description']);
 
@@ -341,7 +342,6 @@ function ModBlockWatchedUsers()
  */
 function ModBlockNotes()
 {
-	global $user_info;
 
 	// Set a nice and informative message.
 	Utils::$context['report_post_action'] = !empty($_SESSION['rc_confirmation']) ? $_SESSION['rc_confirmation'] : array();
@@ -365,7 +365,7 @@ function ModBlockNotes()
 					'body' => 'string', 'log_time' => 'int',
 				),
 				array(
-					$user_info['id'], $user_info['name'], 'modnote', '', $_POST['new_note'], time(),
+					User::$me->id, User::$me->name, 'modnote', '', $_POST['new_note'], time(),
 				),
 				array('id_comment')
 			);
@@ -400,7 +400,7 @@ function ModBlockNotes()
 					AND id_member = {int:user}',
 				array(
 					'note' => $_GET['delete'],
-					'user' => $user_info['id'],
+					'user' => User::$me->id,
 				)
 			);
 
@@ -488,7 +488,7 @@ function ModBlockNotes()
 			'time' => timeformat($note['log_time']),
 			'text' => BBCodeParser::load()->parse($note['body']),
 			'delete_href' => Config::$scripturl . '?action=moderate;area=index;notes;delete=' . $note['id_note'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-			'can_delete' => allowedTo('admin_forum') || $note['id_member'] == $user_info['id'],
+			'can_delete' => allowedTo('admin_forum') || $note['id_member'] == User::$me->id,
 		);
 	}
 
@@ -504,12 +504,11 @@ function ModBlockNotes()
  */
 function ModBlockReportedPosts()
 {
-	global $user_info;
 
 	// Got the info already?
-	$cachekey = md5(Utils::jsonEncode($user_info['mod_cache']['bq']));
+	$cachekey = md5(Utils::jsonEncode(User::$me->mod_cache['bq']));
 	Utils::$context['reported_posts'] = array();
-	if ($user_info['mod_cache']['bq'] == '0=1')
+	if (User::$me->mod_cache['bq'] == '0=1')
 		return 'reported_posts_block';
 
 	if (($reported_posts = CacheApi::get('reported_posts_' . $cachekey, 90)) === null)
@@ -521,7 +520,7 @@ function ModBlockReportedPosts()
 				COALESCE(mem.id_member, 0) AS id_author
 			FROM {db_prefix}log_reported AS lr
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lr.id_member)
-			WHERE ' . ($user_info['mod_cache']['bq'] == '1=1' || $user_info['mod_cache']['bq'] == '0=1' ? $user_info['mod_cache']['bq'] : 'lr.' . $user_info['mod_cache']['bq']) . '
+			WHERE ' . (User::$me->mod_cache['bq'] == '1=1' || User::$me->mod_cache['bq'] == '0=1' ? User::$me->mod_cache['bq'] : 'lr.' . User::$me->mod_cache['bq']) . '
 				AND lr.id_board != {int:not_a_reported_post}
 				AND lr.closed = {int:not_closed}
 				AND lr.ignore_all = {int:not_ignored}
@@ -569,11 +568,10 @@ function ModBlockReportedPosts()
  */
 function ModBlockGroupRequests()
 {
-	global $user_info;
 
 	Utils::$context['group_requests'] = array();
 	// Make sure they can even moderate someone!
-	if ($user_info['mod_cache']['gq'] == '0=1')
+	if (User::$me->mod_cache['gq'] == '0=1')
 		return 'group_requests_block';
 
 	// What requests are outstanding?
@@ -582,7 +580,7 @@ function ModBlockGroupRequests()
 		FROM {db_prefix}log_group_requests AS lgr
 			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = lgr.id_member)
 			INNER JOIN {db_prefix}membergroups AS mg ON (mg.id_group = lgr.id_group)
-		WHERE ' . ($user_info['mod_cache']['gq'] == '1=1' || $user_info['mod_cache']['gq'] == '0=1' ? $user_info['mod_cache']['gq'] : 'lgr.' . $user_info['mod_cache']['gq']) . '
+		WHERE ' . (User::$me->mod_cache['gq'] == '1=1' || User::$me->mod_cache['gq'] == '0=1' ? User::$me->mod_cache['gq'] : 'lgr.' . User::$me->mod_cache['gq']) . '
 			AND lgr.status = {int:status_open}
 		ORDER BY lgr.id_request DESC
 		LIMIT 10',
@@ -679,10 +677,8 @@ function ModBlockReportedMembers()
  */
 function ModerateGroups()
 {
-	global $user_info;
-
 	// You need to be allowed to moderate groups...
-	if ($user_info['mod_cache']['gq'] == '0=1')
+	if (User::$me->mod_cache['gq'] == '0=1')
 		isAllowedTo('manage_membergroups');
 
 	// Load the group templates.
@@ -973,8 +969,6 @@ function list_getWatchedUserCount($approve_query)
  */
 function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $dummy)
 {
-	global $user_info;
-
 	$request = Db::$db->query('', '
 		SELECT id_member, real_name, last_login, posts, warning
 		FROM {db_prefix}members
@@ -1434,8 +1428,6 @@ function list_getWarnings($start, $items_per_page, $sort)
  */
 function ViewWarningTemplates()
 {
-	global $user_info;
-
 	// Submitting a new one?
 	if (isset($_POST['add']))
 		return ModifyWarningTemplate();
@@ -1455,7 +1447,7 @@ function ViewWarningTemplates()
 				'delete_ids' => $_POST['deltpl'],
 				'warntpl' => 'warntpl',
 				'generic' => 0,
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 			)
 		);
 		while ($row = Db::$db->fetch_assoc($request))
@@ -1472,7 +1464,7 @@ function ViewWarningTemplates()
 				'delete_ids' => $_POST['deltpl'],
 				'warntpl' => 'warntpl',
 				'generic' => 0,
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 			)
 		);
 	}
@@ -1587,8 +1579,6 @@ function ViewWarningTemplates()
  */
 function list_getWarningTemplateCount()
 {
-	global $user_info;
-
 	$request = Db::$db->query('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}log_comments
@@ -1597,7 +1587,7 @@ function list_getWarningTemplateCount()
 		array(
 			'warntpl' => 'warntpl',
 			'generic' => 0,
-			'current_member' => $user_info['id'],
+			'current_member' => User::$me->id,
 		)
 	);
 	list ($totalWarns) = Db::$db->fetch_row($request);
@@ -1616,7 +1606,6 @@ function list_getWarningTemplateCount()
  */
 function list_getWarningTemplates($start, $items_per_page, $sort)
 {
-	global $user_info;
 
 	$request = Db::$db->query('', '
 		SELECT lc.id_comment, COALESCE(mem.id_member, 0) AS id_member,
@@ -1631,7 +1620,7 @@ function list_getWarningTemplates($start, $items_per_page, $sort)
 		array(
 			'warntpl' => 'warntpl',
 			'generic' => 0,
-			'current_member' => $user_info['id'],
+			'current_member' => User::$me->id,
 		)
 	);
 	$templates = array();
@@ -1655,8 +1644,6 @@ function list_getWarningTemplates($start, $items_per_page, $sort)
  */
 function ModifyWarningTemplate()
 {
-	global $user_info;
-
 	Utils::$context['id_template'] = isset($_REQUEST['tid']) ? (int) $_REQUEST['tid'] : 0;
 	Utils::$context['is_edit'] = Utils::$context['id_template'];
 
@@ -1686,7 +1673,7 @@ function ModifyWarningTemplate()
 				'id' => Utils::$context['id_template'],
 				'warntpl' => 'warntpl',
 				'generic' => 0,
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 			)
 		);
 		while ($row = Db::$db->fetch_assoc($request))
@@ -1695,7 +1682,7 @@ function ModifyWarningTemplate()
 				'title' => $row['template_title'],
 				'body' => Utils::htmlspecialchars($row['body']),
 				'personal' => $row['id_recipient'],
-				'can_edit_personal' => $row['id_member'] == $user_info['id'],
+				'can_edit_personal' => $row['id_member'] == User::$me->id,
 			);
 		}
 		Db::$db->free_result($request);
@@ -1726,7 +1713,7 @@ function ModifyWarningTemplate()
 			$_POST['template_body'] = strtr($_POST['template_body'], array('<br>' => "\n"));
 
 			// Is this personal?
-			$recipient_id = !empty($_POST['make_personal']) ? $user_info['id'] : 0;
+			$recipient_id = !empty($_POST['make_personal']) ? User::$me->id : 0;
 
 			// If we are this far it's save time.
 			if (Utils::$context['is_edit'])
@@ -1746,7 +1733,7 @@ function ModifyWarningTemplate()
 						'id' => Utils::$context['id_template'],
 						'warntpl' => 'warntpl',
 						'generic' => 0,
-						'current_member' => $user_info['id'],
+						'current_member' => User::$me->id,
 					)
 				);
 
@@ -1769,7 +1756,7 @@ function ModifyWarningTemplate()
 						'recipient_name' => 'string-255', 'body' => 'string-65535', 'log_time' => 'int',
 					),
 					array(
-						$user_info['id'], $user_info['name'], 'warntpl', $recipient_id,
+						User::$me->id, User::$me->name, 'warntpl', $recipient_id,
 						$_POST['template_title'], $_POST['template_body'], time(),
 					),
 					array('id_comment')
@@ -1803,8 +1790,6 @@ function ModifyWarningTemplate()
  */
 function ModerationSettings()
 {
-	global $user_info;
-
 	// Some useful context stuff.
 	loadTemplate('ModerationCenter');
 	Utils::$context['page_title'] = Lang::$txt['mc_settings'];
@@ -1838,7 +1823,7 @@ function ModerationSettings()
 
 		// Put it all together.
 		$mod_prefs = '0||' . $pref_binary;
-		updateMemberData($user_info['id'], array('mod_prefs' => $mod_prefs));
+		User::updateMemberData(User::$me->id, array('mod_prefs' => $mod_prefs));
 	}
 
 	// What blocks does the user currently have selected?

@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 use SMF\PackageManager\XmlArray;
@@ -516,8 +517,6 @@ function AdminMain()
  */
 function AdminHome()
 {
-	global $user_info;
-
 	// You have to be able to do at least one of the below to see this page.
 	isAllowedTo(array('admin_forum', 'manage_permissions', 'moderate_forum', 'manage_membergroups', 'manage_bans', 'send_mail', 'edit_news', 'manage_boards', 'manage_smileys', 'manage_attachments'));
 
@@ -534,7 +533,7 @@ function AdminHome()
 	Credits(true);
 
 	// This makes it easier to get the latest news with your time format.
-	Utils::$context['time_format'] = urlencode($user_info['time_format']);
+	Utils::$context['time_format'] = urlencode(User::$me->time_format);
 	Utils::$context['forum_version'] = SMF_FULL_VERSION;
 
 	// Get a list of current server versions.
@@ -563,7 +562,7 @@ function AdminHome()
 		Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
 			'title' => Lang::$txt['admin_center'],
 			'help' => '',
-			'description' => '<strong>' . Lang::$txt['hello_guest'] . ' ' . Utils::$context['user']['name'] . '!</strong>
+			'description' => '<strong>' . Lang::$txt['hello_guest'] . ' ' . User::$me->name . '!</strong>
 				' . sprintf(Lang::$txt['admin_main_welcome'], Lang::$txt['admin_center'], Lang::$txt['help'], Lang::$txt['help']),
 		);
 

@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -133,8 +134,6 @@ function ViewMembers()
  */
 function ViewMemberlist()
 {
-	global $user_info;
-
 	// Are we performing a delete?
 	if (isset($_POST['delete_members']) && !empty($_POST['delete']) && allowedTo('profile_remove_any'))
 	{
@@ -144,15 +143,14 @@ function ViewMemberlist()
 		foreach ($_POST['delete'] as $key => $value)
 		{
 			// Don't delete yourself, idiot.
-			if ($value != $user_info['id'])
+			if ($value != User::$me->id)
 				$delete[$key] = (int) $value;
 		}
 
 		if (!empty($delete))
 		{
 			// Delete all the selected members.
-			require_once(Config::$sourcedir . '/Subs-Members.php');
-			deleteMembers($delete, true);
+			User::delete($delete, true);
 		}
 	}
 
@@ -292,7 +290,7 @@ function ViewMemberlist()
 			// Date values have to match a date format that PHP recognizes.
 			elseif ($param_info['type'] == 'date')
 			{
-				$search_params[$param_name] = strtotime($search_params[$param_name] . ' ' . getUserTimezone());
+				$search_params[$param_name] = strtotime($search_params[$param_name] . ' ' . User::getTimezone());
 				if (!is_int($search_params[$param_name]))
 					continue;
 			}
@@ -598,9 +596,9 @@ function ViewMemberlist()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => function($rowData) use ($user_info)
+					'function' => function($rowData)
 					{
-						return '<input type="checkbox" name="delete[]" value="' . $rowData['id_member'] . '"' . ($rowData['id_member'] == $user_info['id'] || $rowData['id_group'] == 1 || in_array(1, explode(',', $rowData['additional_groups'])) ? ' disabled' : '') . '>';
+						return '<input type="checkbox" name="delete[]" value="' . $rowData['id_member'] . '"' . ($rowData['id_member'] == User::$me->id || $rowData['id_group'] == 1 || in_array(1, explode(',', $rowData['additional_groups'])) ? ' disabled' : '') . '>';
 					},
 					'class' => 'centercol',
 				),
@@ -1035,8 +1033,6 @@ function MembersAwaitingActivation()
  */
 function AdminApprove()
 {
-	global $user_info;
-
 	// First, check our session.
 	checkSession();
 
@@ -1153,13 +1149,11 @@ function AdminApprove()
 	// Maybe we're sending it off for activation?
 	elseif ($_POST['todo'] == 'require_activation')
 	{
-		require_once(Config::$sourcedir . '/Subs-Members.php');
-
 		// We have to do this for each member I'm afraid.
 		foreach ($member_info as $member)
 		{
 			// Generate a random activation code.
-			$validation_code = generateValidationCode();
+			$validation_code = User::generateValidationCode();
 
 			// Set these members for activation - I know this includes two id_member checks but it's safer than bodging $condition ;).
 			Db::$db->query('', '
@@ -1192,8 +1186,7 @@ function AdminApprove()
 	// Are we rejecting them?
 	elseif ($_POST['todo'] == 'reject' || $_POST['todo'] == 'rejectemail')
 	{
-		require_once(Config::$sourcedir . '/Subs-Members.php');
-		deleteMembers($members);
+		User::delete($members);
 
 		// Send email telling them they aren't welcome?
 		if ($_POST['todo'] == 'rejectemail')
@@ -1212,8 +1205,7 @@ function AdminApprove()
 	// A simple delete?
 	elseif ($_POST['todo'] == 'delete' || $_POST['todo'] == 'deleteemail')
 	{
-		require_once(Config::$sourcedir . '/Subs-Members.php');
-		deleteMembers($members);
+		User::delete($members);
 
 		// Send email telling them they aren't welcome?
 		if ($_POST['todo'] == 'deleteemail')
@@ -1248,7 +1240,7 @@ function AdminApprove()
 
 	// @todo current_language is never set, no idea what this is for. Remove?
 	// Back to the user's language!
-	if (isset($current_language) && $current_language != $user_info['language'])
+	if (isset($current_language) && $current_language != User::$me->language)
 	{
 		Lang::load('index');
 		Lang::load('ManageMembers');

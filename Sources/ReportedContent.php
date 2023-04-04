@@ -16,6 +16,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 
 if (!defined('SMF'))
@@ -31,7 +32,6 @@ if (!defined('SMF'))
  */
 function ReportedContent()
 {
-	global $user_info;
 	global $options;
 
 	// First order of business - what are these reports about?
@@ -59,7 +59,7 @@ function ReportedContent()
 	);
 
 	// This comes under the umbrella of moderating posts.
-	if (Utils::$context['report_type'] == 'members' || $user_info['mod_cache']['bq'] == '0=1')
+	if (Utils::$context['report_type'] == 'members' || User::$me->mod_cache['bq'] == '0=1')
 		isAllowedTo('moderate_forum');
 
 	$subActions = array(
@@ -445,7 +445,6 @@ function ReportDetails()
  */
 function HandleComment()
 {
-	global $user_info;
 
 	// The report ID is a must.
 	if (empty($_REQUEST['rid']))
@@ -487,7 +486,7 @@ function HandleComment()
 			fatal_lang_error('report_action_message_delete_issue');
 
 		// Can you actually do this?
-		$comment_owner = $user_info['id'] == $comment['id_member'];
+		$comment_owner = User::$me->id == $comment['id_member'];
 
 		// Nope! sorry.
 		if (!allowedTo('admin_forum') && !$comment_owner)
@@ -511,8 +510,6 @@ function HandleComment()
  */
 function EditComment()
 {
-	global $user_info;
-
 	checkSession(isset($_REQUEST['save']) ? 'post' : 'get');
 
 	// The report ID is a must.
@@ -544,7 +541,7 @@ function EditComment()
 			fatal_lang_error('report_action_message_edit_issue');
 
 		// Still there, good, now lets see if you can actually edit it...
-		$comment_owner = $user_info['id'] == Utils::$context['comment']['id_member'];
+		$comment_owner = User::$me->id == Utils::$context['comment']['id_member'];
 
 		// So, you aren't neither an admin or the comment owner huh? that's too bad.
 		if (!allowedTo('admin_forum') && !$comment_owner)

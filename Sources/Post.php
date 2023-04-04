@@ -18,6 +18,7 @@ use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -40,7 +41,7 @@ if (!defined('SMF'))
 function Post($post_errors = array())
 {
 	global $topic, $board;
-	global $user_info, $settings;
+	global $settings;
 	global $options;
 
 	Lang::load('Post');
@@ -60,7 +61,7 @@ function Post($post_errors = array())
 	// Get notification preferences for later
 	require_once(Config::$sourcedir . '/Subs-Notify.php');
 	// use $temp to get around "Only variables should be passed by reference"
-	$temp = getNotifyPrefs($user_info['id']);
+	$temp = getNotifyPrefs(User::$me->id);
 	Utils::$context['notify_prefs'] = (array) array_pop($temp);
 	Utils::$context['auto_notify'] = !empty(Utils::$context['notify_prefs']['msg_auto_notify']);
 
@@ -134,7 +135,7 @@ function Post($post_errors = array())
 			WHERE t.id_topic = {int:current_topic}
 			LIMIT 1',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'current_topic' => $topic,
 			)
 		);
@@ -147,12 +148,12 @@ function Post($post_errors = array())
 
 		if (empty($_REQUEST['msg']))
 		{
-			if ($user_info['is_guest'] && !allowedTo('post_reply_any') && (!Config::$modSettings['postmod_active'] || !allowedTo('post_unapproved_replies_any')))
+			if (User::$me->is_guest && !allowedTo('post_reply_any') && (!Config::$modSettings['postmod_active'] || !allowedTo('post_unapproved_replies_any')))
 				is_not_guest();
 
 			// By default the reply will be approved...
 			Utils::$context['becomes_approved'] = true;
-			if ($id_member_poster != $user_info['id'] || $user_info['is_guest'])
+			if ($id_member_poster != User::$me->id || User::$me->is_guest)
 			{
 				if (Config::$modSettings['postmod_active'] && allowedTo('post_unapproved_replies_any') && !allowedTo('post_reply_any'))
 					Utils::$context['becomes_approved'] = false;
@@ -170,7 +171,7 @@ function Post($post_errors = array())
 		else
 			Utils::$context['becomes_approved'] = true;
 
-		Utils::$context['can_lock'] = allowedTo('lock_any') || ($user_info['id'] == $id_member_poster && allowedTo('lock_own'));
+		Utils::$context['can_lock'] = allowedTo('lock_any') || (User::$me->id == $id_member_poster && allowedTo('lock_own'));
 		Utils::$context['can_sticky'] = allowedTo('make_sticky');
 		Utils::$context['can_move'] = allowedTo('move_any');
 		// You can only announce topics that will get approved...
@@ -210,7 +211,7 @@ function Post($post_errors = array())
 
 	Utils::$context['notify'] = !empty(Utils::$context['notify']);
 
-	Utils::$context['can_notify'] = !Utils::$context['user']['is_guest'];
+	Utils::$context['can_notify'] = !User::$me->is_guest;
 	Utils::$context['move'] = !empty($_REQUEST['move']);
 	Utils::$context['announce'] = !empty($_REQUEST['announce']);
 	Utils::$context['locked'] = !empty($locked) || !empty($_REQUEST['lock']);
@@ -239,7 +240,7 @@ function Post($post_errors = array())
 		if (empty($topic))
 			isAllowedTo('poll_post');
 		// This is an old topic - but it is yours!  Can you add to it?
-		elseif ($user_info['id'] == $id_member_poster && !allowedTo('poll_add_any'))
+		elseif (User::$me->id == $id_member_poster && !allowedTo('poll_add_any'))
 			isAllowedTo('poll_add_own');
 		// If you're not the owner, can you add to any poll?
 		else
@@ -311,7 +312,7 @@ function Post($post_errors = array())
 		if (empty(Utils::$context['event']['new']) && !isset($_REQUEST['subject']))
 		{
 			// If the user doesn't have permission to edit the post in this topic, redirect them.
-			if ((empty($id_member_poster) || $id_member_poster != $user_info['id'] || !allowedTo('modify_own')) && !allowedTo('modify_any'))
+			if ((empty($id_member_poster) || $id_member_poster != User::$me->id || !allowedTo('modify_own')) && !allowedTo('modify_any'))
 			{
 				require_once(Config::$sourcedir . '/Calendar.php');
 				return CalendarPost();
@@ -342,7 +343,7 @@ function Post($post_errors = array())
 		// An all day event? Set up some nice defaults in case the user wants to change that
 		if (Utils::$context['event']['allday'] == true)
 		{
-			Utils::$context['event']['tz'] = getUserTimezone();
+			Utils::$context['event']['tz'] = User::getTimezone();
 			Utils::$context['event']['start_time'] = timeformat(time(), $time_string);
 			Utils::$context['event']['end_time'] = timeformat(time() + 3600, $time_string);
 		}
@@ -437,7 +438,7 @@ function Post($post_errors = array())
 	// Get a response prefix (like 'Re:') in the default forum language.
 	if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix')))
 	{
-		if (Lang::$default === $user_info['language'])
+		if (Lang::$default === User::$me->language)
 			Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
 		else
 		{
@@ -530,7 +531,7 @@ function Post($post_errors = array())
 		}
 
 		// Are you... a guest?
-		if ($user_info['is_guest'])
+		if (User::$me->is_guest)
 		{
 			$_REQUEST['guestname'] = !isset($_REQUEST['guestname']) ? '' : trim($_REQUEST['guestname']);
 			$_REQUEST['email'] = !isset($_REQUEST['email']) ? '' : trim($_REQUEST['email']);
@@ -540,7 +541,7 @@ function Post($post_errors = array())
 			$_REQUEST['email'] = Utils::htmlspecialchars($_REQUEST['email']);
 			Utils::$context['email'] = $_REQUEST['email'];
 
-			$user_info['name'] = $_REQUEST['guestname'];
+			User::$me->name = $_REQUEST['guestname'];
 		}
 
 		// Only show the preview stuff if they hit Preview.
@@ -616,17 +617,17 @@ function Post($post_errors = array())
 				$attachment_stuff[] = $row2;
 			Db::$db->free_result($request);
 
-			if ($row['id_member'] == $user_info['id'] && !allowedTo('modify_any'))
+			if ($row['id_member'] == User::$me->id && !allowedTo('modify_any'))
 			{
 				// Give an extra five minutes over the disable time threshold, so they can type - assuming the post is public.
 				if ($row['approved'] && !empty(Config::$modSettings['edit_disable_time']) && $row['poster_time'] + (Config::$modSettings['edit_disable_time'] + 5) * 60 < time())
 					fatal_lang_error('modify_post_time_passed', false);
-				elseif ($row['id_member_poster'] == $user_info['id'] && !allowedTo('modify_own'))
+				elseif ($row['id_member_poster'] == User::$me->id && !allowedTo('modify_own'))
 					isAllowedTo('modify_replies');
 				else
 					isAllowedTo('modify_own');
 			}
-			elseif ($row['id_member_poster'] == $user_info['id'] && !allowedTo('modify_any'))
+			elseif ($row['id_member_poster'] == User::$me->id && !allowedTo('modify_any'))
 				isAllowedTo('modify_replies');
 			else
 				isAllowedTo('modify_any');
@@ -733,17 +734,17 @@ function Post($post_errors = array())
 			$attachment_stuff[] = $row2;
 		Db::$db->free_result($request);
 
-		if ($row['id_member'] == $user_info['id'] && !allowedTo('modify_any'))
+		if ($row['id_member'] == User::$me->id && !allowedTo('modify_any'))
 		{
 			// Give an extra five minutes over the disable time threshold, so they can type - assuming the post is public.
 			if ($row['approved'] && !empty(Config::$modSettings['edit_disable_time']) && $row['poster_time'] + (Config::$modSettings['edit_disable_time'] + 5) * 60 < time())
 				fatal_lang_error('modify_post_time_passed', false);
-			elseif ($row['id_member_poster'] == $user_info['id'] && !allowedTo('modify_own'))
+			elseif ($row['id_member_poster'] == User::$me->id && !allowedTo('modify_own'))
 				isAllowedTo('modify_replies');
 			else
 				isAllowedTo('modify_own');
 		}
-		elseif ($row['id_member_poster'] == $user_info['id'] && !allowedTo('modify_any'))
+		elseif ($row['id_member_poster'] == User::$me->id && !allowedTo('modify_any'))
 			isAllowedTo('modify_replies');
 		else
 			isAllowedTo('modify_any');
@@ -819,7 +820,7 @@ function Post($post_errors = array())
 		Utils::$context['use_smileys'] = true;
 		Utils::$context['icon'] = 'xx';
 
-		if ($user_info['is_guest'])
+		if (User::$me->is_guest)
 		{
 			Utils::$context['name'] = isset($_SESSION['guest_name']) ? $_SESSION['guest_name'] : '';
 			Utils::$context['email'] = isset($_SESSION['guest_email']) ? $_SESSION['guest_email'] : '';
@@ -938,7 +939,7 @@ function Post($post_errors = array())
 			{
 				foreach ($_SESSION['temp_attachments'] as $attachID => $attachment)
 				{
-					if (strpos($attachID, 'post_tmp_' . $user_info['id']) !== false)
+					if (strpos($attachID, 'post_tmp_' . User::$me->id) !== false)
 						if (file_exists($attachment['tmp_name']))
 							unlink($attachment['tmp_name']);
 				}
@@ -954,7 +955,7 @@ function Post($post_errors = array())
 					// See if any files still exist before showing the warning message and the files attached.
 					foreach ($_SESSION['temp_attachments'] as $attachID => $attachment)
 					{
-						if (strpos($attachID, 'post_tmp_' . $user_info['id']) === false)
+						if (strpos($attachID, 'post_tmp_' . User::$me->id) === false)
 							continue;
 
 						if (file_exists($attachment['tmp_name']))
@@ -977,7 +978,7 @@ function Post($post_errors = array())
 					// Compile a list of the files to show the user.
 					$file_list = array();
 					foreach ($_SESSION['temp_attachments'] as $attachID => $attachment)
-						if (strpos($attachID, 'post_tmp_' . $user_info['id']) !== false)
+						if (strpos($attachID, 'post_tmp_' . User::$me->id) !== false)
 							$file_list[] = $attachment['name'];
 
 					$_SESSION['temp_attachments']['post']['files'] = $file_list;
@@ -1007,7 +1008,7 @@ function Post($post_errors = array())
 				if (isset(Utils::$context['ignore_temp_attachments']) || isset($_SESSION['temp_attachments']['post']['files']))
 					break;
 
-				if ($attachID != 'initial_error' && strpos($attachID, 'post_tmp_' . $user_info['id']) === false)
+				if ($attachID != 'initial_error' && strpos($attachID, 'post_tmp_' . User::$me->id) === false)
 					continue;
 
 				if ($attachID == 'initial_error')
@@ -1108,7 +1109,7 @@ function Post($post_errors = array())
 	}
 
 	// Do we need to show the visual verification image?
-	Utils::$context['require_verification'] = !$user_info['is_mod'] && !$user_info['is_admin'] && !empty(Config::$modSettings['posts_require_captcha']) && ($user_info['posts'] < Config::$modSettings['posts_require_captcha'] || ($user_info['is_guest'] && Config::$modSettings['posts_require_captcha'] == -1));
+	Utils::$context['require_verification'] = !User::$me->is_mod && !User::$me->is_admin && !empty(Config::$modSettings['posts_require_captcha']) && (User::$me->posts < Config::$modSettings['posts_require_captcha'] || (User::$me->is_guest && Config::$modSettings['posts_require_captcha'] == -1));
 	if (Utils::$context['require_verification'])
 	{
 		require_once(Config::$sourcedir . '/Subs-Editor.php');
@@ -1196,7 +1197,7 @@ function Post($post_errors = array())
 	if (!empty(Utils::$context['drafts_save']))
 	{
 		require_once(Config::$sourcedir . '/Drafts.php');
-		ShowDrafts($user_info['id'], $topic);
+		ShowDrafts(User::$me->id, $topic);
 	}
 
 	// Needed for the editor and message icons.
@@ -1624,7 +1625,7 @@ function Post($post_errors = array())
 					'size' => 80,
 					'maxlength' => 80,
 					// If same user is editing again, keep the previous edit reason by default.
-					'value' => isset($modified_reason) && isset(Utils::$context['last_modified_name']) && Utils::$context['last_modified_name'] === $user_info['name'] ? $modified_reason : '',
+					'value' => isset($modified_reason) && isset(Utils::$context['last_modified_name']) && Utils::$context['last_modified_name'] === User::$me->name ? $modified_reason : '',
 				),
 				// If message has been edited before, show info about that.
 				'after' => empty(Utils::$context['last_modified_text']) ? '' : '<div class="smalltext em">' . Utils::$context['last_modified_text'] . '</div>',
@@ -1663,7 +1664,7 @@ function Post($post_errors = array())
 function Post2()
 {
 	global $board, $topic;
-	global $user_info, $board_info, $options, $settings;
+	global $board_info, $options, $settings;
 
 	// Sneaking off, are we?
 	if (empty($_POST) && empty($topic))
@@ -1690,7 +1691,7 @@ function Post2()
 		$post_errors[] = 'session_timeout';
 
 	// Wrong verification code?
-	if (!$user_info['is_admin'] && !$user_info['is_mod'] && !empty(Config::$modSettings['posts_require_captcha']) && ($user_info['posts'] < Config::$modSettings['posts_require_captcha'] || ($user_info['is_guest'] && Config::$modSettings['posts_require_captcha'] == -1)))
+	if (!User::$me->is_admin && !User::$me->is_mod && !empty(Config::$modSettings['posts_require_captcha']) && (User::$me->posts < Config::$modSettings['posts_require_captcha'] || (User::$me->is_guest && Config::$modSettings['posts_require_captcha'] == -1)))
 	{
 		require_once(Config::$sourcedir . '/Subs-Editor.php');
 		$verificationOptions = array(
@@ -1716,7 +1717,7 @@ function Post2()
 		$keep_temp = array();
 		$keep_ids = array();
 		foreach ($_POST['attach_del'] as $dummy)
-			if (strpos($dummy, 'post_tmp_' . $user_info['id']) !== false)
+			if (strpos($dummy, 'post_tmp_' . User::$me->id) !== false)
 				$keep_temp[] = $dummy;
 			else
 				$keep_ids[] = (int) $dummy;
@@ -1724,7 +1725,7 @@ function Post2()
 		if (isset($_SESSION['temp_attachments']))
 			foreach ($_SESSION['temp_attachments'] as $attachID => $attachment)
 			{
-				if ((isset($_SESSION['temp_attachments']['post']['files'], $attachment['name']) && in_array($attachment['name'], $_SESSION['temp_attachments']['post']['files'])) || in_array($attachID, $keep_temp) || strpos($attachID, 'post_tmp_' . $user_info['id']) === false)
+				if ((isset($_SESSION['temp_attachments']['post']['files'], $attachment['name']) && in_array($attachment['name'], $_SESSION['temp_attachments']['post']['files'])) || in_array($attachID, $keep_temp) || strpos($attachID, 'post_tmp_' . User::$me->id) === false)
 					continue;
 
 				unset($_SESSION['temp_attachments'][$attachID]);
@@ -1814,7 +1815,7 @@ function Post2()
 		if (isset($_REQUEST['poll']) && $topic_info['id_poll'] > 0)
 			unset($_REQUEST['poll']);
 
-		elseif ($topic_info['id_member_started'] != $user_info['id'])
+		elseif ($topic_info['id_member_started'] != User::$me->id)
 		{
 			if (Config::$modSettings['postmod_active'] && allowedTo('post_unapproved_replies_any') && !allowedTo('post_reply_any'))
 				$becomesApproved = false;
@@ -1838,7 +1839,7 @@ function Post2()
 				unset($_POST['lock']);
 
 			// You're have no permission to lock this topic.
-			elseif (!allowedTo(array('lock_any', 'lock_own')) || (!allowedTo('lock_any') && $user_info['id'] != $topic_info['id_member_started']))
+			elseif (!allowedTo(array('lock_any', 'lock_own')) || (!allowedTo('lock_any') && User::$me->id != $topic_info['id_member_started']))
 				unset($_POST['lock']);
 
 			// You are allowed to (un)lock your own topic only.
@@ -1886,9 +1887,9 @@ function Post2()
 			return Post();
 		}
 
-		$posterIsGuest = $user_info['is_guest'];
+		$posterIsGuest = User::$me->is_guest;
 		Utils::$context['is_own_post'] = true;
-		Utils::$context['poster_id'] = $user_info['id'];
+		Utils::$context['poster_id'] = User::$me->id;
 	}
 	// Posting a new topic.
 	elseif (empty($topic))
@@ -1926,9 +1927,9 @@ function Post2()
 			return Post();
 		}
 
-		$posterIsGuest = $user_info['is_guest'];
+		$posterIsGuest = User::$me->is_guest;
 		Utils::$context['is_own_post'] = true;
-		Utils::$context['poster_id'] = $user_info['id'];
+		Utils::$context['poster_id'] = User::$me->id;
 	}
 	// Modifying an existing message?
 	elseif (isset($_REQUEST['msg']) && !empty($topic))
@@ -1958,7 +1959,7 @@ function Post2()
 			if ((empty($_POST['lock']) && empty($topic_info['locked'])) || (!empty($_POST['lock']) && !empty($topic_info['locked'])))
 				unset($_POST['lock']);
 			// You're simply not allowed to (un)lock this.
-			elseif (!allowedTo(array('lock_any', 'lock_own')) || (!allowedTo('lock_any') && $user_info['id'] != $topic_info['id_member_started']))
+			elseif (!allowedTo(array('lock_any', 'lock_own')) || (!allowedTo('lock_any') && User::$me->id != $topic_info['id_member_started']))
 				unset($_POST['lock']);
 			// You're only allowed to lock your own topics.
 			elseif (!allowedTo('lock_any'))
@@ -1991,16 +1992,16 @@ function Post2()
 				$post_errors[] = 'topic_' . (empty($topic_info['locked']) ? 'un' : '') . 'stickied';
 		}
 
-		if ($row['id_member'] == $user_info['id'] && !allowedTo('modify_any'))
+		if ($row['id_member'] == User::$me->id && !allowedTo('modify_any'))
 		{
 			if ((!Config::$modSettings['postmod_active'] || $row['approved']) && !empty(Config::$modSettings['edit_disable_time']) && $row['poster_time'] + (Config::$modSettings['edit_disable_time'] + 5) * 60 < time())
 				fatal_lang_error('modify_post_time_passed', false);
-			elseif ($topic_info['id_member_started'] == $user_info['id'] && !allowedTo('modify_own'))
+			elseif ($topic_info['id_member_started'] == User::$me->id && !allowedTo('modify_own'))
 				isAllowedTo('modify_replies');
 			else
 				isAllowedTo('modify_own');
 		}
-		elseif ($topic_info['id_member_started'] == $user_info['id'] && !allowedTo('modify_any'))
+		elseif ($topic_info['id_member_started'] == User::$me->id && !allowedTo('modify_any'))
 		{
 			isAllowedTo('modify_replies');
 
@@ -2012,7 +2013,7 @@ function Post2()
 			isAllowedTo('modify_any');
 
 			// Log it, assuming you're not modifying your own post.
-			if ($row['id_member'] != $user_info['id'])
+			if ($row['id_member'] != User::$me->id)
 				$moderationAction = true;
 		}
 
@@ -2024,7 +2025,7 @@ function Post2()
 		}
 
 		$posterIsGuest = empty($row['id_member']);
-		Utils::$context['is_own_post'] = $user_info['id'] === (int) $row['id_member'];
+		Utils::$context['is_own_post'] = User::$me->id === (int) $row['id_member'];
 		Utils::$context['poster_id'] = (int) $row['id_member'];
 
 		// Can they approve it?
@@ -2103,8 +2104,8 @@ function Post2()
 		$_POST['message'] = Utils::htmlspecialchars($_POST['message'], ENT_QUOTES);
 
 		// Preparse code. (Zef)
-		if ($user_info['is_guest'])
-			$user_info['name'] = $_POST['guestname'];
+		if (User::$me->is_guest)
+			User::$me->name = $_POST['guestname'];
 		preparsecode($_POST['message']);
 
 		// Let's see if there's still some content left without the tags.
@@ -2115,7 +2116,7 @@ function Post2()
 	if (isset($_POST['calendar']) && !isset($_REQUEST['deleteevent']) && Utils::htmlTrim($_POST['evtitle']) === '')
 		$post_errors[] = 'no_event';
 	// You are not!
-	if (isset($_POST['message']) && strtolower($_POST['message']) == 'i am the administrator.' && !$user_info['is_admin'])
+	if (isset($_POST['message']) && strtolower($_POST['message']) == 'i am the administrator.' && !User::$me->is_admin)
 		fatal_error('Knave! Masquerader! Charlatan!', false);
 
 	// Validate the poll...
@@ -2128,7 +2129,7 @@ function Post2()
 		if (empty($topic))
 			isAllowedTo('poll_post');
 		// Can you add to your own topics?
-		elseif ($user_info['id'] == $topic_info['id_member_started'] && !allowedTo('poll_add_any'))
+		elseif (User::$me->id == $topic_info['id_member_started'] && !allowedTo('poll_add_any'))
 			isAllowedTo('poll_add_own');
 		// Can you add polls to any topic, then?
 		else
@@ -2154,15 +2155,14 @@ function Post2()
 	if ($posterIsGuest)
 	{
 		// If user is a guest, make sure the chosen name isn't taken.
-		require_once(Config::$sourcedir . '/Subs-Members.php');
-		if (isReservedName($_POST['guestname'], 0, true, false) && (!isset($row['poster_name']) || $_POST['guestname'] != $row['poster_name']))
+		if (User::isReservedName($_POST['guestname'], 0, true, false) && (!isset($row['poster_name']) || $_POST['guestname'] != $row['poster_name']))
 			$post_errors[] = 'bad_name';
 	}
 	// If the user isn't a guest, get his or her name and email.
 	elseif (!isset($_REQUEST['msg']))
 	{
-		$_POST['guestname'] = $user_info['username'];
-		$_POST['email'] = $user_info['email'];
+		$_POST['guestname'] = User::$me->username;
+		$_POST['email'] = User::$me->email;
 	}
 
  	call_integration_hook('integrate_post2_pre', array(&$post_errors));
@@ -2265,7 +2265,7 @@ function Post2()
 
 		foreach ($_SESSION['temp_attachments'] as $attachID => $attachment)
 		{
-			if ($attachID != 'initial_error' && strpos($attachID, 'post_tmp_' . $user_info['id']) === false)
+			if ($attachID != 'initial_error' && strpos($attachID, 'post_tmp_' . User::$me->id) === false)
 				continue;
 
 			// If there was an initial error just show that message.
@@ -2280,7 +2280,7 @@ function Post2()
 
 			$attachmentOptions = array(
 				'post' => isset($_REQUEST['msg']) ? $_REQUEST['msg'] : 0,
-				'poster' => $user_info['id'],
+				'poster' => User::$me->id,
 				'name' => $attachment['name'],
 				'tmp_name' => $attachment['tmp_name'],
 				'size' => isset($attachment['size']) ? $attachment['size'] : 0,
@@ -2336,7 +2336,7 @@ function Post2()
 				'poster_name' => 'string-255', 'change_vote' => 'int', 'guest_vote' => 'int'
 			),
 			array(
-				$_POST['question'], $_POST['poll_hide'], $_POST['poll_max_votes'], (empty($_POST['poll_expire']) ? 0 : time() + $_POST['poll_expire'] * 3600 * 24), $user_info['id'],
+				$_POST['question'], $_POST['poll_hide'], $_POST['poll_max_votes'], (empty($_POST['poll_expire']) ? 0 : time() + $_POST['poll_expire'] * 3600 * 24), User::$me->id,
 				$_POST['guestname'], $_POST['poll_change_vote'], $_POST['poll_guest_vote'],
 			),
 			array('id_poll'),
@@ -2402,20 +2402,20 @@ function Post2()
 		'last_msg' => empty($topic_info['id_last_msg']) ? null : $topic_info['id_last_msg'],
 	);
 	$posterOptions = array(
-		'id' => $user_info['id'],
+		'id' => User::$me->id,
 		'name' => $_POST['guestname'],
 		'email' => $_POST['email'],
-		'update_post_count' => !$user_info['is_guest'] && !isset($_REQUEST['msg']) && $board_info['posts_count'],
+		'update_post_count' => !User::$me->is_guest && !isset($_REQUEST['msg']) && $board_info['posts_count'],
 	);
 
 	// This is an already existing message. Edit it.
 	if (!empty($_REQUEST['msg']))
 	{
 		// Have admins allowed people to hide their screwups?
-		if (time() - $row['poster_time'] > Config::$modSettings['edit_wait_time'] || $user_info['id'] != $row['id_member'])
+		if (time() - $row['poster_time'] > Config::$modSettings['edit_wait_time'] || User::$me->id != $row['id_member'])
 		{
 			$msgOptions['modify_time'] = time();
-			$msgOptions['modify_name'] = $user_info['name'];
+			$msgOptions['modify_name'] = User::$me->name;
 			$msgOptions['modify_reason'] = $_POST['modify_reason'];
 			$msgOptions['poster_time'] = $row['poster_time'];
 		}
@@ -2457,7 +2457,7 @@ function Post2()
 			'topic' => $topic,
 			'title' => $_POST['evtitle'],
 			'location' => $_POST['event_location'],
-			'member' => $user_info['id'],
+			'member' => User::$me->id,
 		);
 		insertEvent($eventOptions);
 	}
@@ -2485,7 +2485,7 @@ function Post2()
 			Db::$db->free_result($request);
 
 			// Silly hacker, Trix are for kids. ...probably trademarked somewhere, this is FAIR USE! (parody...)
-			isAllowedTo('calendar_edit_' . ($row2['id_member'] == $user_info['id'] ? 'own' : 'any'));
+			isAllowedTo('calendar_edit_' . ($row2['id_member'] == User::$me->id ? 'own' : 'any'));
 		}
 
 		// Delete it?
@@ -2506,7 +2506,7 @@ function Post2()
 				'topic' => $topic,
 				'title' => $_POST['evtitle'],
 				'location' => $_POST['event_location'],
-				'member' => $user_info['id'],
+				'member' => User::$me->id,
 			);
 			modifyEvent($_REQUEST['eventid'], $eventOptions);
 		}
@@ -2514,7 +2514,7 @@ function Post2()
 
 	// Marking read should be done even for editing messages....
 	// Mark all the parents read.  (since you just posted and they will be unread.)
-	if (!$user_info['is_guest'] && !empty($board_info['parent_boards']))
+	if (!User::$me->is_guest && !empty($board_info['parent_boards']))
 	{
 		Db::$db->query('', '
 			UPDATE {db_prefix}log_boards
@@ -2522,7 +2522,7 @@ function Post2()
 			WHERE id_member = {int:current_member}
 				AND id_board IN ({array_int:board_list})',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'board_list' => array_keys($board_info['parent_boards']),
 				'id_msg' => Config::$modSettings['maxMsgID'],
 			)
@@ -2530,12 +2530,12 @@ function Post2()
 	}
 
 	// Turn notification on or off.  (note this just blows smoke if it's already on or off.)
-	if (!empty($_POST['notify']) && !Utils::$context['user']['is_guest'])
+	if (!empty($_POST['notify']) && !User::$me->is_guest)
 	{
 		Db::$db->insert('ignore',
 			'{db_prefix}log_notify',
 			array('id_member' => 'int', 'id_topic' => 'int', 'id_board' => 'int'),
-			array($user_info['id'], $topic, 0),
+			array(User::$me->id, $topic, 0),
 			array('id_member', 'id_topic', 'id_board')
 		);
 	}
@@ -2545,7 +2545,7 @@ function Post2()
 			WHERE id_member = {int:current_member}
 				AND id_topic = {int:current_topic}',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'current_topic' => $topic,
 			)
 		);
@@ -2571,7 +2571,7 @@ function Post2()
 				AND id_board = {int:current_board}',
 			array(
 				'current_board' => $board,
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'maxMsgID' => Config::$modSettings['maxMsgID'],
 			)
 		);
@@ -2915,7 +2915,7 @@ function getTopic()
 			'timestamp' => $row['poster_time'],
 			'id' => $row['id_msg'],
 			'is_new' => !empty(Utils::$context['new_replies']),
-			'is_ignored' => !empty(Config::$modSettings['enable_buddylist']) && !empty($options['posts_apply_ignore_list']) && in_array($row['id_member'], Utils::$context['user']['ignoreusers']),
+			'is_ignored' => !empty(Config::$modSettings['enable_buddylist']) && !empty($options['posts_apply_ignore_list']) && in_array($row['id_member'], User::$me->ignoreusers),
 		);
 
 		if (!empty(Utils::$context['new_replies']))
@@ -2932,8 +2932,6 @@ function getTopic()
  */
 function QuoteFast()
 {
-	global $user_info;
-
 	Lang::load('Post');
 	if (!isset($_REQUEST['xml']))
 		loadTemplate('Post');
@@ -2953,7 +2951,7 @@ function QuoteFast()
 			AND (t.locked = {int:not_locked}' . (empty($moderate_boards) ? '' : ' OR m.id_board IN ({array_int:moderation_board_list})') . ')') . '
 		LIMIT 1',
 		array(
-			'current_member' => $user_info['id'],
+			'current_member' => User::$me->id,
 			'moderation_board_list' => $moderate_boards,
 			'id_msg' => (int) $_REQUEST['quote'],
 			'not_locked' => 0,
@@ -2965,7 +2963,7 @@ function QuoteFast()
 
 	Utils::$context['sub_template'] = 'quotefast';
 	if (!empty($row))
-		$can_view_post = $row['approved'] || ($row['id_member'] != 0 && $row['id_member'] == $user_info['id']) || allowedTo('approve_posts', $row['id_board']);
+		$can_view_post = $row['approved'] || ($row['id_member'] != 0 && $row['id_member'] == User::$me->id) || allowedTo('approve_posts', $row['id_board']);
 
 	if (!empty($can_view_post))
 	{
@@ -3039,7 +3037,7 @@ function QuoteFast()
 function JavaScriptModify()
 {
 	global $board, $topic;
-	global $user_info, $board_info;
+	global $board_info;
 
 	// We have to have a topic!
 	if (empty($topic))
@@ -3062,7 +3060,7 @@ function JavaScriptModify()
 			AND (m.id_member != {int:guest_id} AND m.id_member = {int:current_member})' : '
 			AND (m.approved = {int:is_approved} OR (m.id_member != {int:guest_id} AND m.id_member = {int:current_member}))')),
 		array(
-			'current_member' => $user_info['id'],
+			'current_member' => User::$me->id,
 			'current_topic' => $topic,
 			'id_msg' => empty($_REQUEST['msg']) ? 't.id_first_msg' : (int) $_REQUEST['msg'],
 			'is_approved' => 1,
@@ -3080,23 +3078,23 @@ function JavaScriptModify()
 		if (!empty($row['locked']))
 			isAllowedTo('moderate_board');
 
-		if ($row['id_member'] == $user_info['id'] && !allowedTo('modify_any'))
+		if ($row['id_member'] == User::$me->id && !allowedTo('modify_any'))
 		{
 			if ((!Config::$modSettings['postmod_active'] || $row['approved']) && !empty(Config::$modSettings['edit_disable_time']) && $row['poster_time'] + (Config::$modSettings['edit_disable_time'] + 5) * 60 < time())
 				fatal_lang_error('modify_post_time_passed', false);
-			elseif ($row['id_member_started'] == $user_info['id'] && !allowedTo('modify_own'))
+			elseif ($row['id_member_started'] == User::$me->id && !allowedTo('modify_own'))
 				isAllowedTo('modify_replies');
 			else
 				isAllowedTo('modify_own');
 		}
 		// Otherwise, they're locked out; someone who can modify the replies is needed.
-		elseif ($row['id_member_started'] == $user_info['id'] && !allowedTo('modify_any'))
+		elseif ($row['id_member_started'] == User::$me->id && !allowedTo('modify_any'))
 			isAllowedTo('modify_replies');
 		else
 			isAllowedTo('modify_any');
 
 		// Only log this action if it wasn't your message.
-		$moderationAction = $row['id_member'] != $user_info['id'];
+		$moderationAction = $row['id_member'] != User::$me->id;
 	}
 
 	$post_errors = array();
@@ -3144,7 +3142,7 @@ function JavaScriptModify()
 
 	if (isset($_POST['lock']))
 	{
-		if (!allowedTo(array('lock_any', 'lock_own')) || (!allowedTo('lock_any') && $user_info['id'] != $row['id_member']))
+		if (!allowedTo(array('lock_any', 'lock_own')) || (!allowedTo('lock_any') && User::$me->id != $row['id_member']))
 			unset($_POST['lock']);
 		elseif (!allowedTo('lock_any'))
 		{
@@ -3189,20 +3187,20 @@ function JavaScriptModify()
 			'mark_as_read' => true,
 		);
 		$posterOptions = array(
-			'id' => $user_info['id'],
+			'id' => User::$me->id,
 			'name' => $row['poster_name'],
 			'email' => $row['poster_email'],
-			'update_post_count' => !$user_info['is_guest'] && !isset($_REQUEST['msg']) && $board_info['posts_count'],
+			'update_post_count' => !User::$me->is_guest && !isset($_REQUEST['msg']) && $board_info['posts_count'],
 		);
 
 		// Only consider marking as editing if they have edited the subject, message or icon.
 		if ((isset($_POST['subject']) && $_POST['subject'] != $row['subject']) || (isset($_POST['message']) && $_POST['message'] != $row['body']) || (isset($_REQUEST['icon']) && $_REQUEST['icon'] != $row['icon']))
 		{
 			// And even then only if the time has passed...
-			if (time() - $row['poster_time'] > Config::$modSettings['edit_wait_time'] || $user_info['id'] != $row['id_member'])
+			if (time() - $row['poster_time'] > Config::$modSettings['edit_wait_time'] || User::$me->id != $row['id_member'])
 			{
 				$msgOptions['modify_time'] = time();
-				$msgOptions['modify_name'] = $user_info['name'];
+				$msgOptions['modify_name'] = User::$me->name;
 			}
 		}
 		// If nothing was changed there's no need to add an entry to the moderation log.
@@ -3220,12 +3218,12 @@ function JavaScriptModify()
 		}
 
 		// Changing the first subject updates other subjects to 'Re: new_subject'.
-		if (isset($_POST['subject']) && isset($_REQUEST['change_all_subjects']) && $row['id_first_msg'] == $row['id_msg'] && !empty($row['num_replies']) && (allowedTo('modify_any') || ($row['id_member_started'] == $user_info['id'] && allowedTo('modify_replies'))))
+		if (isset($_POST['subject']) && isset($_REQUEST['change_all_subjects']) && $row['id_first_msg'] == $row['id_msg'] && !empty($row['num_replies']) && (allowedTo('modify_any') || ($row['id_member_started'] == User::$me->id && allowedTo('modify_replies'))))
 		{
 			// Get the proper (default language) response prefix first.
 			if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix')))
 			{
-				if (Lang::$default === $user_info['language'])
+				if (Lang::$default === User::$me->language)
 					Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
 				else
 				{

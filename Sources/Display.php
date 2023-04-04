@@ -17,6 +17,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -38,7 +39,7 @@ if (!defined('SMF'))
 function Display()
 {
 	global $settings;
-	global $options, $user_info, $board_info, $topic, $board;
+	global $options, $board_info, $topic, $board;
 	global $messages_request;
 
 	// What are you gonna display if these are empty?!
@@ -93,7 +94,7 @@ function Display()
 				LIMIT 1',
 				array(
 					'current_board' => $board,
-					'current_member' => $user_info['id'],
+					'current_member' => User::$me->id,
 					'current_topic' => $topic,
 					'is_approved' => 1,
 					'id_member_started' => 0,
@@ -115,7 +116,7 @@ function Display()
 					LIMIT 1',
 					array(
 						'current_board' => $board,
-						'current_member' => $user_info['id'],
+						'current_member' => User::$me->id,
 						'is_approved' => 1,
 						'id_member_started' => 0,
 					)
@@ -134,7 +135,7 @@ function Display()
 	}
 
 	// Add 1 to the number of views of this topic (except for robots).
-	if (!$user_info['possibly_robot'] && (empty($_SESSION['last_read_topic']) || $_SESSION['last_read_topic'] != $topic))
+	if (!User::$me->possibly_robot && (empty($_SESSION['last_read_topic']) || $_SESSION['last_read_topic'] != $topic))
 	{
 		Db::$db->query('', '
 			UPDATE {db_prefix}topics
@@ -149,7 +150,7 @@ function Display()
 	}
 
 	$topic_parameters = array(
-		'current_member' => $user_info['id'],
+		'current_member' => User::$me->id,
 		'current_topic' => $topic,
 		'current_board' => $board,
 	);
@@ -166,13 +167,13 @@ function Display()
 			t.num_replies, t.num_views, t.locked, ms.subject, t.is_sticky, t.id_poll,
 			t.id_member_started, t.id_first_msg, t.id_last_msg, t.approved, t.unapproved_posts, t.id_redirect_topic,
 			COALESCE(mem.real_name, ms.poster_name) AS topic_started_name, ms.poster_time AS topic_started_time,
-			' . ($user_info['is_guest'] ? 't.id_last_msg + 1' : 'COALESCE(lt.id_msg, lmr.id_msg, -1) + 1') . ' AS new_from
+			' . (User::$me->is_guest ? 't.id_last_msg + 1' : 'COALESCE(lt.id_msg, lmr.id_msg, -1) + 1') . ' AS new_from
 			' . (!empty($board_info['recycle']) ? ', id_previous_board, id_previous_topic' : '') . '
 			' . (!empty($topic_selects) ? (', ' . implode(', ', $topic_selects)) : '') . '
-			' . (!$user_info['is_guest'] ? ', COALESCE(lt.unwatched, 0) as unwatched' : '') . '
+			' . (!User::$me->is_guest ? ', COALESCE(lt.unwatched, 0) as unwatched' : '') . '
 		FROM {db_prefix}topics AS t
 			INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)
-			LEFT JOIN {db_prefix}members AS mem on (mem.id_member = t.id_member_started)' . ($user_info['is_guest'] ? '' : '
+			LEFT JOIN {db_prefix}members AS mem on (mem.id_member = t.id_member_started)' . (User::$me->is_guest ? '' : '
 			LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = {int:current_topic} AND lt.id_member = {int:current_member})
 			LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = {int:current_board} AND lmr.id_member = {int:current_member})') . '
 			' . (!empty($topic_tables) ? implode("\n\t", $topic_tables) : '') . '
@@ -190,7 +191,7 @@ function Display()
 	if (!empty(Utils::$context['topicinfo']['id_redirect_topic']))
 	{
 		// Mark this as read...
-		if (!$user_info['is_guest'] && Utils::$context['topicinfo']['new_from'] != Utils::$context['topicinfo']['id_first_msg'])
+		if (!User::$me->is_guest && Utils::$context['topicinfo']['new_from'] != Utils::$context['topicinfo']['id_first_msg'])
 		{
 			// Mark this as read first
 			Db::$db->insert(Utils::$context['topicinfo']['new_from'] == 0 ? 'ignore' : 'replace',
@@ -199,7 +200,7 @@ function Display()
 					'id_member' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'unwatched' => 'int',
 				),
 				array(
-					$user_info['id'], $topic, Utils::$context['topicinfo']['id_first_msg'], Utils::$context['topicinfo']['unwatched'],
+					User::$me->id, $topic, Utils::$context['topicinfo']['id_first_msg'], Utils::$context['topicinfo']['unwatched'],
 				),
 				array('id_member', 'id_topic')
 			);
@@ -222,7 +223,7 @@ function Display()
 		Utils::$context['real_num_replies'] += Utils::$context['topicinfo']['unapproved_posts'] - (Utils::$context['topicinfo']['approved'] ? 0 : 1);
 
 	// If this topic has unapproved posts, we need to work out how many posts the user can see, for page indexing.
-	if (Config::$modSettings['postmod_active'] && Utils::$context['topicinfo']['unapproved_posts'] && !$user_info['is_guest'] && !$can_approve_posts)
+	if (Config::$modSettings['postmod_active'] && Utils::$context['topicinfo']['unapproved_posts'] && !User::$me->is_guest && !$can_approve_posts)
 	{
 		$request = Db::$db->query('', '
 			SELECT COUNT(id_member) AS my_unapproved_posts
@@ -232,7 +233,7 @@ function Display()
 				AND approved = 0',
 			array(
 				'current_topic' => $topic,
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 			)
 		);
 		list ($myUnapprovedPosts) = Db::$db->fetch_row($request);
@@ -240,7 +241,7 @@ function Display()
 
 		Utils::$context['total_visible_posts'] = Utils::$context['num_replies'] + $myUnapprovedPosts + (Utils::$context['topicinfo']['approved'] ? 1 : 0);
 	}
-	elseif ($user_info['is_guest'])
+	elseif (User::$me->is_guest)
 		Utils::$context['total_visible_posts'] = Utils::$context['num_replies'] + (Utils::$context['topicinfo']['approved'] ? 1 : 0);
 	else
 		Utils::$context['total_visible_posts'] = Utils::$context['num_replies'] + Utils::$context['topicinfo']['unapproved_posts'] + (Utils::$context['topicinfo']['approved'] ? 1 : 0);
@@ -252,7 +253,7 @@ function Display()
 		if ($_REQUEST['start'] == 'new')
 		{
 			// Guests automatically go to the last post.
-			if ($user_info['is_guest'])
+			if (User::$me->is_guest)
 			{
 				Utils::$context['start_from'] = Utils::$context['total_visible_posts'] - 1;
 				$_REQUEST['start'] = empty($options['view_newest_first']) ? Utils::$context['start_from'] : 0;
@@ -269,7 +270,7 @@ function Display()
 					LIMIT 1',
 					array(
 						'current_board' => $board,
-						'current_member' => $user_info['id'],
+						'current_member' => User::$me->id,
 						'current_topic' => $topic,
 					)
 				);
@@ -295,10 +296,10 @@ function Display()
 					FROM {db_prefix}messages
 					WHERE poster_time < {int:timestamp}
 						AND id_topic = {int:current_topic}' . (Config::$modSettings['postmod_active'] && Utils::$context['topicinfo']['unapproved_posts'] && !allowedTo('approve_posts') ? '
-						AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')' : ''),
+						AND (approved = {int:is_approved}' . (User::$me->is_guest ? '' : ' OR id_member = {int:current_member}') . ')' : ''),
 					array(
 						'current_topic' => $topic,
-						'current_member' => $user_info['id'],
+						'current_member' => User::$me->id,
 						'is_approved' => 1,
 						'timestamp' => $timestamp,
 					)
@@ -327,9 +328,9 @@ function Display()
 					FROM {db_prefix}messages
 					WHERE id_msg < {int:virtual_msg}
 						AND id_topic = {int:current_topic}' . (Config::$modSettings['postmod_active'] && Utils::$context['topicinfo']['unapproved_posts'] && !allowedTo('approve_posts') ? '
-						AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')' : ''),
+						AND (approved = {int:is_approved}' . (User::$me->is_guest ? '' : ' OR id_member = {int:current_member}') . ')' : ''),
 					array(
-						'current_member' => $user_info['id'],
+						'current_member' => User::$me->id,
 						'current_topic' => $topic,
 						'virtual_msg' => $virtual_msg,
 						'is_approved' => 1,
@@ -349,7 +350,7 @@ function Display()
 	Utils::$context['previous_next'] = Config::$modSettings['enablePreviousNext'] ? '<a href="' . Config::$scripturl . '?topic=' . $topic . '.0;prev_next=prev#new">' . Lang::$txt['previous_next_back'] . '</a> - <a href="' . Config::$scripturl . '?topic=' . $topic . '.0;prev_next=next#new">' . Lang::$txt['previous_next_forward'] . '</a>' : '';
 
 	// Do we need to show the visual verification image?
-	Utils::$context['require_verification'] = !$user_info['is_mod'] && !$user_info['is_admin'] && !empty(Config::$modSettings['posts_require_captcha']) && ($user_info['posts'] < Config::$modSettings['posts_require_captcha'] || ($user_info['is_guest'] && Config::$modSettings['posts_require_captcha'] == -1));
+	Utils::$context['require_verification'] = !User::$me->is_mod && !User::$me->is_admin && !empty(Config::$modSettings['posts_require_captcha']) && (User::$me->posts < Config::$modSettings['posts_require_captcha'] || (User::$me->is_guest && Config::$modSettings['posts_require_captcha'] == -1));
 	if (Utils::$context['require_verification'])
 	{
 		require_once(Config::$sourcedir . '/Subs-Editor.php');
@@ -405,7 +406,7 @@ function Display()
 			array(
 				'reg_id_group' => 0,
 				'in_url_string' => '"topic":' . $topic,
-				'session' => $user_info['is_guest'] ? 'ip' . $user_info['ip'] : session_id(),
+				'session' => User::$me->is_guest ? 'ip' . User::$me->ip : session_id(),
 			)
 		);
 		while ($row = Db::$db->fetch_assoc($request))
@@ -418,7 +419,7 @@ function Display()
 			else
 				$link = '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>';
 
-			$is_buddy = in_array($row['id_member'], $user_info['buddies']);
+			$is_buddy = in_array($row['id_member'], User::$me->buddies);
 			if ($is_buddy)
 				$link = '<strong>' . $link . '</strong>';
 
@@ -532,7 +533,7 @@ function Display()
 	Utils::$context['is_poll'] = Utils::$context['topicinfo']['id_poll'] > 0 && Config::$modSettings['pollMode'] == '1' && allowedTo('poll_view');
 
 	// Did this user start the topic or not?
-	Utils::$context['user']['started'] = $user_info['id'] == Utils::$context['topicinfo']['id_member_started'] && !$user_info['is_guest'];
+	User::$me->started = User::$me->id == Utils::$context['topicinfo']['id_member_started'] && !User::$me->is_guest;
 	Utils::$context['topic_starter_id'] = Utils::$context['topicinfo']['id_member_started'];
 
 	// Set the topic's information for the template.
@@ -547,7 +548,7 @@ function Display()
 	// For quick reply we need a response prefix in the default forum language.
 	if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix', 600)))
 	{
-		if (Lang::$default === $user_info['language'])
+		if (Lang::$default === User::$me->language)
 			Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
 		else
 		{
@@ -587,9 +588,9 @@ function Display()
 			$linked_calendar_event = array(
 				'id' => $row['id_event'],
 				'title' => $row['title'],
-				'can_edit' => allowedTo('calendar_edit_any') || ($row['id_member'] == $user_info['id'] && allowedTo('calendar_edit_own')),
+				'can_edit' => allowedTo('calendar_edit_any') || ($row['id_member'] == User::$me->id && allowedTo('calendar_edit_own')),
 				'modify_href' => Config::$scripturl . '?action=post;msg=' . Utils::$context['topicinfo']['id_first_msg'] . ';topic=' . $topic . '.0;calendar;eventid=' . $row['id_event'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-				'can_export' => allowedTo('calendar_edit_any') || ($row['id_member'] == $user_info['id'] && allowedTo('calendar_edit_own')),
+				'can_export' => allowedTo('calendar_edit_any') || ($row['id_member'] == User::$me->id && allowedTo('calendar_edit_own')),
 				'export_href' => Config::$scripturl . '?action=calendar;sa=ical;eventid=' . $row['id_event'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 				'year' => $start['year'],
 				'month' => $start['month'],
@@ -684,7 +685,7 @@ function Display()
 			WHERE pc.id_poll = {int:id_poll}
 			ORDER BY pc.id_choice',
 			array(
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'id_poll' => Utils::$context['topicinfo']['id_poll'],
 				'not_guest' => 0,
 			)
@@ -706,7 +707,7 @@ function Display()
 			$realtotal = $pollinfo['total'];
 
 		// If this is a guest we need to do our best to work out if they have voted, and what they voted for.
-		if ($user_info['is_guest'] && $pollinfo['guest_vote'] && allowedTo('poll_vote'))
+		if (User::$me->is_guest && $pollinfo['guest_vote'] && allowedTo('poll_vote'))
 		{
 			if (!empty($_COOKIE['guest_poll_vote']) && preg_match('~^[0-9,;]+$~', $_COOKIE['guest_poll_vote']) && strpos($_COOKIE['guest_poll_vote'], ';' . Utils::$context['topicinfo']['id_poll'] . ',') !== false)
 			{
@@ -753,9 +754,9 @@ function Display()
 			'change_vote' => !empty($pollinfo['change_vote']),
 			'is_locked' => !empty($pollinfo['voting_locked']),
 			'options' => array(),
-			'lock' => allowedTo('poll_lock_any') || (Utils::$context['user']['started'] && allowedTo('poll_lock_own')),
-			'edit' => allowedTo('poll_edit_any') || (Utils::$context['user']['started'] && allowedTo('poll_edit_own')),
-			'remove' => allowedTo('poll_remove_any') || (Utils::$context['user']['started'] && allowedTo('poll_remove_own')),
+			'lock' => allowedTo('poll_lock_any') || (User::$me->started && allowedTo('poll_lock_own')),
+			'edit' => allowedTo('poll_edit_any') || (User::$me->started && allowedTo('poll_edit_own')),
+			'remove' => allowedTo('poll_remove_any') || (User::$me->started && allowedTo('poll_remove_own')),
 			'allowed_warning' => $pollinfo['max_votes'] > 1 ? sprintf(Lang::$txt['poll_options_limit'], min(count($pollOptions), $pollinfo['max_votes'])) : '',
 			'is_expired' => !empty($pollinfo['expire_time']) && $pollinfo['expire_time'] < time(),
 			'expire_time' => !empty($pollinfo['expire_time']) ? timeformat($pollinfo['expire_time']) : 0,
@@ -780,7 +781,7 @@ function Display()
 		// 4. the poll is not locked, and
 		// 5. you have the proper permissions, and
 		// 6. you haven't already voted before.
-		Utils::$context['allow_vote'] = !Utils::$context['poll']['is_expired'] && (!$user_info['is_guest'] || ($pollinfo['guest_vote'] && allowedTo('poll_vote'))) && empty($pollinfo['voting_locked']) && allowedTo('poll_vote') && !Utils::$context['poll']['has_voted'];
+		Utils::$context['allow_vote'] = !Utils::$context['poll']['is_expired'] && (!User::$me->is_guest || ($pollinfo['guest_vote'] && allowedTo('poll_vote'))) && empty($pollinfo['voting_locked']) && allowedTo('poll_vote') && !Utils::$context['poll']['has_voted'];
 
 		// You're allowed to view the results if:
 		// 1. you're just a super-nice-guy, or
@@ -807,7 +808,7 @@ function Display()
 		// 4. you have the proper permissions, and
 		// 5. you have already voted, and
 		// 6. the poll creator has said you can!
-		Utils::$context['allow_change_vote'] = !Utils::$context['poll']['is_expired'] && !$user_info['is_guest'] && empty($pollinfo['voting_locked']) && allowedTo('poll_vote') && Utils::$context['poll']['has_voted'] && Utils::$context['poll']['change_vote'];
+		Utils::$context['allow_change_vote'] = !Utils::$context['poll']['is_expired'] && !User::$me->is_guest && empty($pollinfo['voting_locked']) && allowedTo('poll_vote') && Utils::$context['poll']['has_voted'] && Utils::$context['poll']['change_vote'];
 
 		// You're allowed to return to voting options if:
 		// 1. you are (still) allowed to vote.
@@ -887,11 +888,11 @@ function Display()
 		SELECT id_msg, id_member, approved
 		FROM {db_prefix}messages
 		WHERE id_topic = {int:current_topic}' . (!Config::$modSettings['postmod_active'] || $can_approve_posts ? '' : '
-			AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
+			AND (approved = {int:is_approved}' . (User::$me->is_guest ? '' : ' OR id_member = {int:current_member}') . ')') . '
 		ORDER BY id_msg ' . ($DBascending ? '' : 'DESC') . (Utils::$context['messages_per_page'] == -1 ? '' : '
 		LIMIT {int:start}, {int:max}'),
 		array(
-			'current_member' => $user_info['id'],
+			'current_member' => User::$me->id,
 			'current_topic' => $topic,
 			'is_approved' => 1,
 			'blank_id_member' => 0,
@@ -920,7 +921,7 @@ function Display()
 	call_integration_hook('integrate_display_message_list', array(&$messages, &$posters));
 
 	// Guests can't mark topics read or for notifications, just can't sorry.
-	if (!$user_info['is_guest'] && !empty($messages))
+	if (!User::$me->is_guest && !empty($messages))
 	{
 		$mark_at_msg = max($messages);
 		if ($mark_at_msg >= Utils::$context['topicinfo']['id_last_msg'])
@@ -933,7 +934,7 @@ function Display()
 					'id_member' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'unwatched' => 'int',
 				),
 				array(
-					$user_info['id'], $topic, $mark_at_msg, Utils::$context['topicinfo']['unwatched'],
+					User::$me->id, $topic, $mark_at_msg, Utils::$context['topicinfo']['unwatched'],
 				),
 				array('id_member', 'id_topic')
 			);
@@ -948,7 +949,7 @@ function Display()
 			LIMIT 2',
 			array(
 				'current_board' => $board,
-				'current_member' => $user_info['id'],
+				'current_member' => User::$me->id,
 				'current_topic' => $topic,
 			)
 		);
@@ -969,7 +970,7 @@ function Display()
 						AND id_member = {int:current_member}',
 					array(
 						'current_board' => $board,
-						'current_member' => $user_info['id'],
+						'current_member' => User::$me->id,
 						'current_topic' => $topic,
 						'is_not_sent' => 0,
 					)
@@ -996,7 +997,7 @@ function Display()
 					AND t.id_last_msg > {int:id_msg_last_visit}'),
 				array(
 					'current_board' => $board,
-					'current_member' => $user_info['id'],
+					'current_member' => User::$me->id,
 					'id_msg_last_visit' => (int) $_SESSION['id_msg_last_visit'],
 				)
 			);
@@ -1019,13 +1020,13 @@ function Display()
 			Db::$db->insert('replace',
 				'{db_prefix}log_boards',
 				array('id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'),
-				array(Config::$modSettings['maxMsgID'], $user_info['id'], $board),
+				array(Config::$modSettings['maxMsgID'], User::$me->id, $board),
 				array('id_member', 'id_board')
 			);
 		}
 
 		// Mark any alerts about this topic or the posts on this page as read.
-		if (!empty($user_info['alerts']))
+		if (!empty(User::$me->alerts))
 		{
 			Db::$db->query('', '
 				UPDATE {db_prefix}user_alerts
@@ -1041,7 +1042,7 @@ function Display()
 					'topic' => 'topic',
 					'board' => 'board',
 					'msg' => 'msg',
-					'current_member' => $user_info['id'],
+					'current_member' => User::$me->id,
 					'current_topic' => $topic,
 					'messages' => $messages,
 					'now' => time(),
@@ -1051,28 +1052,28 @@ function Display()
 			if (Db::$db->affected_rows() > 0)
 			{
 				require_once(Config::$sourcedir . '/Profile-Modify.php');
-				$user_info['alerts'] = alert_count($user_info['id'], true);
-				updateMemberData($user_info['id'], array('alerts' => $user_info['alerts']));
+				User::$me->alerts = alert_count(User::$me->id, true);
+				User::updateMemberData(User::$me->id, array('alerts' => User::$me->alerts));
 			}
 		}
 	}
 
 	// Get notification preferences
 	Utils::$context['topicinfo']['notify_prefs'] = array();
-	if (!empty($user_info['id']))
+	if (!empty(User::$me->id))
 	{
 		require_once(Config::$sourcedir . '/Subs-Notify.php');
-		$prefs = getNotifyPrefs($user_info['id'], array('topic_notify', 'topic_notify_' . Utils::$context['current_topic']), true);
-		$pref = !empty($prefs[$user_info['id']]) && Utils::$context['is_marked_notify'] ? $prefs[$user_info['id']] : array();
+		$prefs = getNotifyPrefs(User::$me->id, array('topic_notify', 'topic_notify_' . Utils::$context['current_topic']), true);
+		$pref = !empty($prefs[User::$me->id]) && Utils::$context['is_marked_notify'] ? $prefs[User::$me->id] : array();
 		Utils::$context['topicinfo']['notify_prefs'] = array(
 			'is_custom' => isset($pref['topic_notify_' . $topic]),
 			'pref' => isset($pref['topic_notify_' . Utils::$context['current_topic']]) ? $pref['topic_notify_' . Utils::$context['current_topic']] : (!empty($pref['topic_notify']) ? $pref['topic_notify'] : 0),
 		);
 	}
 
-	Utils::$context['topic_notification'] = !empty($user_info['id']) ? Utils::$context['topicinfo']['notify_prefs'] : array();
+	Utils::$context['topic_notification'] = !empty(User::$me->id) ? Utils::$context['topicinfo']['notify_prefs'] : array();
 	// 0 => unwatched, 1 => normal, 2 => receive alerts, 3 => receive emails
-	Utils::$context['topic_notification_mode'] = !$user_info['is_guest'] ? (Utils::$context['topic_unwatched'] ? 0 : (Utils::$context['topicinfo']['notify_prefs']['pref'] & 0x02 ? 3 : (Utils::$context['topicinfo']['notify_prefs']['pref'] & 0x01 ? 2 : 1))) : 0;
+	Utils::$context['topic_notification_mode'] = !User::$me->is_guest ? (Utils::$context['topic_unwatched'] ? 0 : (Utils::$context['topicinfo']['notify_prefs']['pref'] & 0x02 ? 3 : (Utils::$context['topicinfo']['notify_prefs']['pref'] & 0x01 ? 2 : 1))) : 0;
 
 	Utils::$context['loaded_attachments'] = array();
 
@@ -1095,7 +1096,7 @@ function Display()
 		call_integration_hook('integrate_query_message', array(&$msg_selects, &$msg_tables, &$msg_parameters));
 
 		// What?  It's not like it *couldn't* be only guests in this topic...
-		loadMemberData($posters);
+		User::load($posters);
 		$messages_request = Db::$db->query('', '
 			SELECT
 				id_msg, icon, subject, poster_time, poster_ip, id_member, modified_time, modified_name, modified_reason, body,
@@ -1111,7 +1112,7 @@ function Display()
 
 		// And the likes
 		if (!empty(Config::$modSettings['enable_likes']))
-			Utils::$context['my_likes'] = Utils::$context['user']['is_guest'] ? array() : prepareLikesContext($topic);
+			Utils::$context['my_likes'] = User::$me->is_guest ? array() : prepareLikesContext($topic);
 
 		// Go to the last message if the given time is beyond the time of the last message.
 		if (isset(Utils::$context['start_from']) && Utils::$context['start_from'] >= Utils::$context['topicinfo']['num_replies'])
@@ -1173,9 +1174,9 @@ function Display()
 		'can_reply_unapproved' => 'post_unapproved_replies',
 	);
 	foreach ($anyown_permissions as $contextual => $perm)
-		Utils::$context[$contextual] = allowedTo($perm . '_any') || (Utils::$context['user']['started'] && allowedTo($perm . '_own'));
+		Utils::$context[$contextual] = allowedTo($perm . '_any') || (User::$me->started && allowedTo($perm . '_own'));
 
-	if (!$user_info['is_admin'] && Utils::$context['can_move'] && !Config::$modSettings['topic_move_any'])
+	if (!User::$me->is_admin && Utils::$context['can_move'] && !Config::$modSettings['topic_move_any'])
 	{
 		// We'll use this in a minute
 		$boards_allowed = array_diff(boardsAllowedTo('post_new'), array($board));
@@ -1188,11 +1189,11 @@ function Display()
 	// If a topic is locked, you can't remove it unless it's yours and you locked it or you can lock_any
 	if (Utils::$context['topicinfo']['locked'])
 	{
-		Utils::$context['can_delete'] &= ((Utils::$context['topicinfo']['locked'] == 1 && Utils::$context['user']['started']) || allowedTo('lock_any'));
+		Utils::$context['can_delete'] &= ((Utils::$context['topicinfo']['locked'] == 1 && User::$me->started) || allowedTo('lock_any'));
 	}
 
 	// Cleanup all the permissions with extra stuff...
-	Utils::$context['can_mark_notify'] = !Utils::$context['user']['is_guest'];
+	Utils::$context['can_mark_notify'] = !User::$me->is_guest;
 	Utils::$context['calendar_post'] &= !empty(Config::$modSettings['cal_enabled']);
 	Utils::$context['can_add_poll'] &= Config::$modSettings['pollMode'] == '1' && Utils::$context['topicinfo']['id_poll'] <= 0;
 	Utils::$context['can_remove_poll'] &= Config::$modSettings['pollMode'] == '1' && Utils::$context['topicinfo']['id_poll'] > 0;
@@ -1203,14 +1204,14 @@ function Display()
 	Utils::$context['can_reply_approved'] = Utils::$context['can_reply'];
 	Utils::$context['can_reply'] |= Utils::$context['can_reply_unapproved'];
 	Utils::$context['can_quote'] = Utils::$context['can_reply'] && (empty(Config::$modSettings['disabledBBC']) || !in_array('quote', explode(',', Config::$modSettings['disabledBBC'])));
-	Utils::$context['can_mark_unread'] = !$user_info['is_guest'];
-	Utils::$context['can_unwatch'] = !$user_info['is_guest'];
-	Utils::$context['can_set_notify'] = !$user_info['is_guest'];
+	Utils::$context['can_mark_unread'] = !User::$me->is_guest;
+	Utils::$context['can_unwatch'] = !User::$me->is_guest;
+	Utils::$context['can_set_notify'] = !User::$me->is_guest;
 
 	Utils::$context['can_print'] = empty(Config::$modSettings['disable_print_topic']);
 
 	// Start this off for quick moderation - it will be or'd for each post.
-	Utils::$context['can_remove_post'] = allowedTo('delete_any') || (allowedTo('delete_replies') && Utils::$context['user']['started']);
+	Utils::$context['can_remove_post'] = allowedTo('delete_any') || (allowedTo('delete_replies') && User::$me->started);
 
 	// Can restore topic?  That's if the topic is in the recycle board and has a previous restore state.
 	Utils::$context['can_restore_topic'] &= !empty($board_info['recycle']) && !empty(Utils::$context['topicinfo']['id_previous_board']);
@@ -1242,7 +1243,7 @@ function Display()
 	}
 
 	// You can't link an existing topic to the calendar unless you can modify the first post...
-	Utils::$context['calendar_post'] &= allowedTo('modify_any') || (allowedTo('modify_own') && Utils::$context['user']['started']);
+	Utils::$context['calendar_post'] &= allowedTo('modify_any') || (allowedTo('modify_own') && User::$me->started);
 
 	// Load up the "double post" sequencing magic.
 	checkSubmitOnce('register');
@@ -1408,8 +1409,8 @@ function Display()
  */
 function prepareDisplayContext($reset = false)
 {
-	global $settings, $options, $user_info;
-	global $memberContext, $messages_request, $topic, $board_info;
+	global $settings, $options;
+	global $messages_request, $topic, $board_info;
 
 	static $counter = null;
 
@@ -1455,40 +1456,44 @@ function prepareDisplayContext($reset = false)
 	$message['subject'] = $message['subject'] != '' ? $message['subject'] : Lang::$txt['no_subject'];
 
 	// Are you allowed to remove at least a single reply?
-	Utils::$context['can_remove_post'] |= allowedTo('delete_own') && (empty(Config::$modSettings['edit_disable_time']) || $message['poster_time'] + Config::$modSettings['edit_disable_time'] * 60 >= time()) && $message['id_member'] == $user_info['id'];
+	Utils::$context['can_remove_post'] |= allowedTo('delete_own') && (empty(Config::$modSettings['edit_disable_time']) || $message['poster_time'] + Config::$modSettings['edit_disable_time'] * 60 >= time()) && $message['id_member'] == User::$me->id;
 
 	// If the topic is locked, you might not be able to delete the post...
 	if (Utils::$context['is_locked'])
 	{
-		Utils::$context['can_remove_post'] &= (Utils::$context['user']['started'] && Utils::$context['is_locked'] == 1) || allowedTo('lock_any');
+		Utils::$context['can_remove_post'] &= (User::$me->started && Utils::$context['is_locked'] == 1) || allowedTo('lock_any');
 	}
 
 	// If it couldn't load, or the user was a guest.... someday may be done with a guest table.
-	if (!loadMemberContext($message['id_member'], true))
+	if (empty($message['id_member']) || !isset(User::$loaded[$message['id_member']]))
 	{
 		// Notice this information isn't used anywhere else....
-		$memberContext[$message['id_member']]['name'] = $message['poster_name'];
-		$memberContext[$message['id_member']]['id'] = 0;
-		$memberContext[$message['id_member']]['group'] = Lang::$txt['guest_title'];
-		$memberContext[$message['id_member']]['link'] = $message['poster_name'];
-		$memberContext[$message['id_member']]['email'] = $message['poster_email'];
-		$memberContext[$message['id_member']]['show_email'] = allowedTo('moderate_forum');
-		$memberContext[$message['id_member']]['is_guest'] = true;
+		$author = array(
+			'name' => $message['poster_name'],
+			'id' => 0,
+			'group' => Lang::$txt['guest_title'],
+			'link' => $message['poster_name'],
+			'email' => $message['poster_email'],
+			'show_email' => allowedTo('moderate_forum'),
+			'is_guest' => true,
+		);
 	}
 	else
 	{
-		// Define this here to make things a bit more readable
-		$can_view_warning = $user_info['is_mod'] || allowedTo('moderate_forum') || allowedTo('view_warning_any') || ($message['id_member'] == $user_info['id'] && allowedTo('view_warning_own'));
+		$author = User::$loaded[$message['id_member']]->format(true);
 
-		$memberContext[$message['id_member']]['can_view_profile'] = allowedTo('profile_view') || ($message['id_member'] == $user_info['id'] && !$user_info['is_guest']);
-		$memberContext[$message['id_member']]['is_topic_starter'] = $message['id_member'] == Utils::$context['topic_starter_id'];
-		$memberContext[$message['id_member']]['can_see_warning'] = !isset(Utils::$context['disabled_fields']['warning_status']) && $memberContext[$message['id_member']]['warning_status'] && $can_view_warning;
+		// Define this here to make things a bit more readable
+		$can_view_warning = User::$me->is_mod || allowedTo('moderate_forum') || allowedTo('view_warning_any') || ($message['id_member'] == User::$me->id && allowedTo('view_warning_own'));
+
+		$author['can_view_profile'] = allowedTo('profile_view') || ($message['id_member'] == User::$me->id && !User::$me->is_guest);
+		$author['is_topic_starter'] = $message['id_member'] == Utils::$context['topic_starter_id'];
+		$author['can_see_warning'] = !isset(Utils::$context['disabled_fields']['warning_status']) && $author['warning_status'] && $can_view_warning;
 		// Show the email if it's your post...
-		$memberContext[$message['id_member']]['show_email'] |= ($message['id_member'] == $user_info['id']);
+		$author['show_email'] |= ($message['id_member'] == User::$me->id);
 	}
 
-	$memberContext[$message['id_member']]['ip'] = inet_dtop($message['poster_ip']);
-	$memberContext[$message['id_member']]['show_profile_buttons'] = !empty(Config::$modSettings['show_profile_buttons']) && (!empty($memberContext[$message['id_member']]['can_view_profile']) || (!empty($memberContext[$message['id_member']]['website']['url']) && !isset(Utils::$context['disabled_fields']['website'])) || $memberContext[$message['id_member']]['show_email'] || Utils::$context['can_send_pm']);
+	$author['ip'] = inet_dtop($message['poster_ip']);
+	$author['show_profile_buttons'] = !empty(Config::$modSettings['show_profile_buttons']) && (!empty($author['can_view_profile']) || (!empty($author['website']['url']) && !isset(Utils::$context['disabled_fields']['website'])) || $author['show_email'] || Utils::$context['can_send_pm']);
 
 	// Do the censor thang.
 	Lang::censorText($message['body']);
@@ -1509,7 +1514,7 @@ function prepareDisplayContext($reset = false)
 		'id' => $message['id_msg'],
 		'href' => Config::$scripturl . '?msg=' . $message['id_msg'],
 		'link' => '<a href="' . Config::$scripturl . '?msg=' . $message['id_msg'] . '" rel="nofollow">' . $message['subject'] . '</a>',
-		'member' => &$memberContext[$message['id_member']],
+		'member' => $author,
 		'icon' => $message['icon'],
 		'icon_url' => $settings[Utils::$context['icon_sources'][$message['icon']]] . '/post/' . $message['icon'] . '.png',
 		'subject' => $message['subject'],
@@ -1526,12 +1531,12 @@ function prepareDisplayContext($reset = false)
 		'new' => empty($message['is_read']),
 		'approved' => $message['approved'],
 		'first_new' => isset(Utils::$context['start_from']) && Utils::$context['start_from'] == $counter,
-		'is_ignored' => !empty(Config::$modSettings['enable_buddylist']) && !empty($options['posts_apply_ignore_list']) && in_array($message['id_member'], Utils::$context['user']['ignoreusers']),
+		'is_ignored' => !empty(Config::$modSettings['enable_buddylist']) && !empty($options['posts_apply_ignore_list']) && in_array($message['id_member'], User::$me->ignoreusers),
 		'can_approve' => !$message['approved'] && Utils::$context['can_approve'],
 		'can_unapprove' => !empty(Config::$modSettings['postmod_active']) && Utils::$context['can_approve'] && $message['approved'],
-		'can_modify' => (!Utils::$context['is_locked'] || allowedTo('moderate_board')) && (allowedTo('modify_any') || (allowedTo('modify_replies') && Utils::$context['user']['started']) || (allowedTo('modify_own') && $message['id_member'] == $user_info['id'] && (empty(Config::$modSettings['edit_disable_time']) || !$message['approved'] || $message['poster_time'] + Config::$modSettings['edit_disable_time'] * 60 > time()))),
-		'can_remove' => allowedTo('delete_any') || (allowedTo('delete_replies') && Utils::$context['user']['started']) || (allowedTo('delete_own') && $message['id_member'] == $user_info['id'] && (empty(Config::$modSettings['edit_disable_time']) || $message['poster_time'] + Config::$modSettings['edit_disable_time'] * 60 > time())),
-		'can_see_ip' => allowedTo('moderate_forum') || ($message['id_member'] == $user_info['id'] && !empty($user_info['id'])),
+		'can_modify' => (!Utils::$context['is_locked'] || allowedTo('moderate_board')) && (allowedTo('modify_any') || (allowedTo('modify_replies') && User::$me->started) || (allowedTo('modify_own') && $message['id_member'] == User::$me->id && (empty(Config::$modSettings['edit_disable_time']) || !$message['approved'] || $message['poster_time'] + Config::$modSettings['edit_disable_time'] * 60 > time()))),
+		'can_remove' => allowedTo('delete_any') || (allowedTo('delete_replies') && User::$me->started) || (allowedTo('delete_own') && $message['id_member'] == User::$me->id && (empty(Config::$modSettings['edit_disable_time']) || $message['poster_time'] + Config::$modSettings['edit_disable_time'] * 60 > time())),
+		'can_see_ip' => allowedTo('moderate_forum') || ($message['id_member'] == User::$me->id && !empty(User::$me->id)),
 		'css_class' => $message['approved'] ? 'windowbg' : 'approvebg',
 	);
 
@@ -1547,11 +1552,11 @@ function prepareDisplayContext($reset = false)
 		$output['likes'] = array(
 			'count' => $message['likes'],
 			'you' => in_array($message['id_msg'], Utils::$context['my_likes']),
-			'can_like' => !Utils::$context['user']['is_guest'] && $message['id_member'] != Utils::$context['user']['id'] && !empty(Utils::$context['can_like']),
+			'can_like' => !User::$me->is_guest && $message['id_member'] != User::$me->id && !empty(Utils::$context['can_like']),
 		);
 
 	// Is this user the message author?
-	$output['is_message_author'] = $message['id_member'] == $user_info['id'];
+	$output['is_message_author'] = $message['id_member'] == User::$me->id;
 	if (!empty($output['modified']['name']))
 		$output['modified']['last_edit_text'] = sprintf(Lang::$txt['last_edit_by'], $output['modified']['time'], $output['modified']['name']);
 
@@ -1560,8 +1565,8 @@ function prepareDisplayContext($reset = false)
 		$output['modified']['last_edit_text'] .= '&nbsp;' . sprintf(Lang::$txt['last_edit_reason'], $output['modified']['reason']);
 
 	// Any custom profile fields?
-	if (!empty($memberContext[$message['id_member']]['custom_fields']))
-		foreach ($memberContext[$message['id_member']]['custom_fields'] as $custom)
+	if (!empty($author['custom_fields']))
+		foreach ($author['custom_fields'] as $custom)
 			$output['custom_fields'][Utils::$context['cust_profile_fields_placement'][$custom['placement']]][] = $custom;
 
 	$output['quickbuttons'] = array(
@@ -1683,7 +1688,7 @@ function Download()
  */
 function QuickInTopicModeration()
 {
-	global $topic, $board, $user_info;
+	global $topic, $board;
 
 	// Check the session = get or post.
 	checkSession('request');
@@ -1735,7 +1740,7 @@ function QuickInTopicModeration()
 		list ($starter) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		$allowed_all = $starter == $user_info['id'];
+		$allowed_all = $starter == User::$me->id;
 	}
 	else
 		$allowed_all = false;
@@ -1753,7 +1758,7 @@ function QuickInTopicModeration()
 			AND id_member = {int:current_member}' : '') . '
 		LIMIT {int:limit}',
 		array(
-			'current_member' => $user_info['id'],
+			'current_member' => User::$me->id,
 			'current_topic' => $topic,
 			'message_list' => $messages,
 			'limit' => count($messages),
@@ -1795,7 +1800,7 @@ function QuickInTopicModeration()
 		removeMessage($message);
 
 		// Log this moderation action ;).
-		if (allowedTo('delete_any') && (!allowedTo('delete_own') || $info[1] != $user_info['id']))
+		if (allowedTo('delete_any') && (!allowedTo('delete_own') || $info[1] != User::$me->id))
 			logAction('delete', array('topic' => $topic, 'subject' => $info[0], 'member' => $info[1], 'board' => $board));
 	}
 

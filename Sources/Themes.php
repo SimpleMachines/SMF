@@ -32,6 +32,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -149,7 +150,7 @@ function ThemeAdmin()
 			'knownThemes' => implode(',', $_POST['options']['known_themes']),
 		));
 		if ((int) $_POST['theme_reset'] == 0 || in_array($_POST['theme_reset'], $_POST['options']['known_themes']))
-			updateMemberData(null, array('id_theme' => (int) $_POST['theme_reset']));
+			User::updateMemberData(null, array('id_theme' => (int) $_POST['theme_reset']));
 
 		redirectexit('action=admin;area=theme;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=admin');
 	}
@@ -886,10 +887,8 @@ function EnableTheme()
  */
 function canPickTheme($id_member, $id_theme)
 {
-	global $user_info;
-
 	return
-		allowedTo($user_info['id'] == $id_member ? 'profile_extra_own' : 'profile_extra_any')
+		allowedTo(User::$me->id == $id_member ? 'profile_extra_own' : 'profile_extra_any')
 		&& ($id_theme == 0 || (allowedTo('admin_forum') || in_array($id_theme, explode(',', Config::$modSettings['knownThemes']))) && in_array($id_theme, explode(',', Config::$modSettings['enableThemes'])))
 		&& (!empty(Config::$modSettings['theme_allow']) || allowedTo('admin_forum'));
 }
@@ -902,7 +901,7 @@ function canPickTheme($id_member, $id_theme)
  */
 function PickTheme()
 {
-	global $user_info, $settings;
+	global $settings;
 
 	Lang::load('Profile');
 	loadTemplate('Themes');
@@ -915,7 +914,7 @@ function PickTheme()
 	Utils::$context['default_theme_id'] = Config::$modSettings['theme_default'];
 	$_SESSION['id_theme'] = 0;
 	if (!isset($_REQUEST['u']))
-		$_REQUEST['u'] = $user_info['id'];
+		$_REQUEST['u'] = User::$me->id;
 
 	// Have we made a decision, or are we just browsing?
 	if (isset($_POST['save']))
@@ -930,7 +929,7 @@ function PickTheme()
 		if (canPickTheme((int) $_REQUEST['u'], $id_theme))
 		{
 			// An identifier of zero means that the user wants the forum default theme.
-			updateMemberData((int) $_REQUEST['u'], array('id_theme' => $id_theme));
+			User::updateMemberData((int) $_REQUEST['u'], array('id_theme' => $id_theme));
 
 			if (!empty($variant))
 			{
@@ -946,7 +945,7 @@ function PickTheme()
 				);
 				CacheApi::put('theme_settings-' . $id_theme . ':' . (int) $_REQUEST['u'], null, 90);
 
-				if ($user_info['id'] == $_REQUEST['u'])
+				if (User::$me->id == $_REQUEST['u'])
 					$_SESSION['id_variant'] = 0;
 			}
 
@@ -957,8 +956,8 @@ function PickTheme()
 	// Figure out who the member of the minute is, and what theme they've chosen.
 	if (!isset($_REQUEST['u']) || !allowedTo('admin_forum'))
 	{
-		Utils::$context['current_member'] = $user_info['id'];
-		Utils::$context['current_theme'] = $user_info['theme'];
+		Utils::$context['current_member'] = User::$me->id;
+		Utils::$context['current_theme'] = User::$me->theme;
 	}
 	else
 	{
@@ -1508,7 +1507,7 @@ function WrapAction()
  */
 function SetJavaScript()
 {
-	global $settings, $user_info, $options;
+	global $settings, $options;
 
 	// Check the session id.
 	checkSession('get');
@@ -1518,7 +1517,7 @@ function SetJavaScript()
 		redirectexit($settings['images_url'] . '/blank.png');
 
 	// Sorry, guests can't go any further than this.
-	if ($user_info['is_guest'] || $user_info['id'] == 0)
+	if (User::$me->is_guest || User::$me->id == 0)
 		obExit(false);
 
 	$reservedVars = array(
@@ -1549,7 +1548,7 @@ function SetJavaScript()
 	if (isset($_GET['th']) || isset($_GET['id']))
 	{
 		// Invalidate the current themes cache too.
-		CacheApi::put('theme_settings-' . $settings['theme_id'] . ':' . $user_info['id'], null, 60);
+		CacheApi::put('theme_settings-' . $settings['theme_id'] . ':' . User::$me->id, null, 60);
 
 		$settings['theme_id'] = isset($_GET['th']) ? (int) $_GET['th'] : (int) $_GET['id'];
 	}
@@ -1570,11 +1569,11 @@ function SetJavaScript()
 	Db::$db->insert('replace',
 		'{db_prefix}themes',
 		array('id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'),
-		array($settings['theme_id'], $user_info['id'], $_GET['var'], is_array($_GET['val']) ? implode(',', $_GET['val']) : $_GET['val']),
+		array($settings['theme_id'], User::$me->id, $_GET['var'], is_array($_GET['val']) ? implode(',', $_GET['val']) : $_GET['val']),
 		array('id_theme', 'id_member', 'variable')
 	);
 
-	CacheApi::put('theme_settings-' . $settings['theme_id'] . ':' . $user_info['id'], null, 60);
+	CacheApi::put('theme_settings-' . $settings['theme_id'] . ':' . User::$me->id, null, 60);
 
 	// Don't output anything...
 	redirectexit($settings['images_url'] . '/blank.png');

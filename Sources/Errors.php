@@ -20,6 +20,7 @@ if (!defined('SMF'))
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\ServerSideIncludes as SSI;
 use SMF\Cache\CacheApi;
@@ -39,7 +40,7 @@ use SMF\Db\DatabaseApi as Db;
  */
 function log_error($error_message, $error_type = 'general', $file = null, $line = null)
 {
-	global $sc, $user_info, $last_error;
+	global $last_error;
 	static $tried_hook = false;
 	static $error_call = 0;
 
@@ -84,12 +85,6 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 	else
 		$line = (int) $line;
 
-	// Just in case there's no id_member or IP set yet.
-	if (empty($user_info['id']))
-		$user_info['id'] = 0;
-	if (empty($user_info['ip']))
-		$user_info['ip'] = '';
-
 	// Find the best query string we can...
 	$query_string = empty($_SERVER['QUERY_STRING']) ? (empty($_SERVER['REQUEST_URL']) ? '' : str_replace(Config::$scripturl, '', $_SERVER['REQUEST_URL'])) : $_SERVER['QUERY_STRING'];
 
@@ -133,7 +128,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 	$backtrace = Utils::jsonEncode($backtrace);
 
 	// Don't log the same error countless times, as we can get in a cycle of depression...
-	$error_info = array($user_info['id'], time(), $user_info['ip'], $query_string, $error_message, (string) $sc, $error_type, $file, $line, $backtrace);
+	$error_info = array(User::$me->id ?? User::$my_id ?? 0, time(), User::$me->ip ?? $_SERVER['REMOTE_ADDR'] ?? '', $query_string, $error_message, (string) (User::$sc ?? ''), $error_type, $file, $line, $backtrace);
 	if (empty($last_error) || $last_error != $error_info)
 	{
 		// Insert the error into the database.
@@ -202,7 +197,6 @@ function fatal_error($error, $log = 'general', $status = 500)
  */
 function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status = 403)
 {
-	global $user_info;
 	static $fatal_error_called = false;
 
 	// Ensure this is an array.
@@ -239,7 +233,7 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status 
 	if ($log)
 	{
 		Lang::load('Errors', Lang::$default);
-		$reload_lang_file = Lang::$default != $user_info['language'];
+		$reload_lang_file = Lang::$default != User::$me->language;
 		if (empty(Lang::$txt[$error]))
 			$error_message = $error;
 		else
@@ -544,8 +538,6 @@ function set_fatal_error_headers()
  */
 function log_error_online($error, $sprintf = array())
 {
-	global $user_info;
-
 	// Don't bother if Who's Online is disabled.
 	if (empty(Config::$modSettings['who_enabled']))
 		return;
@@ -554,7 +546,7 @@ function log_error_online($error, $sprintf = array())
 	if (SMF == 'SSI' || SMF == 'BACKGROUND')
 		return;
 
-	$session_id = !empty($user_info['is_guest']) ? 'ip' . $user_info['ip'] : session_id();
+	$session_id = !empty(User::$me->is_guest) ? 'ip' . User::$me->ip : session_id();
 
 	// First, we have to get the online log, because we need to break apart the serialized string.
 	$request = Db::$db->query('', '

@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -121,12 +122,11 @@ function getBirthdayRange($low_date, $high_date)
  */
 function getEventRange($low_date, $high_date, $use_permissions = true)
 {
-	global $user_info;
 	static $timezone_array = array();
 	require_once(Config::$sourcedir . '/Subs.php');
 
 	if (empty($timezone_array['default']))
-		$timezone_array['default'] = timezone_open(getUserTimezone());
+		$timezone_array['default'] = timezone_open(User::getTimezone());
 
 	$low_object = date_create($low_date, $timezone_array['default']);
 	$high_object = date_create($high_date, $timezone_array['default']);
@@ -235,7 +235,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 				$events[date_format($cal_date, 'Y-m-d')][] = array_merge($eventProperties, array(
 					'href' => $row['id_board'] == 0 ? '' : Config::$scripturl . '?topic=' . $row['id_topic'] . '.0',
 					'link' => $row['id_board'] == 0 ? $row['title'] : '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['title'] . '</a>',
-					'can_edit' => allowedTo('calendar_edit_any') || ($row['id_member'] == $user_info['id'] && allowedTo('calendar_edit_own')),
+					'can_edit' => allowedTo('calendar_edit_any') || ($row['id_member'] == User::$me->id && allowedTo('calendar_edit_own')),
 					'modify_href' => Config::$scripturl . '?action=' . ($row['id_board'] == 0 ? 'calendar;sa=post;' : 'post;msg=' . $row['id_first_msg'] . ';topic=' . $row['id_topic'] . '.0;calendar;') . 'eventid=' . $row['id_event'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 					'can_export' => !empty(Config::$modSettings['cal_export']) ? true : false,
 					'export_href' => Config::$scripturl . '?action=calendar;sa=ical;eventid=' . $row['id_event'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
@@ -327,7 +327,7 @@ function getHolidayRange($low_date, $high_date)
  */
 function canLinkEvent()
 {
-	global $user_info, $topic, $board;
+	global $topic, $board;
 
 	// If you can't post, you can't link.
 	isAllowedTo('calendar_post');
@@ -354,7 +354,7 @@ function canLinkEvent()
 		if ($row = Db::$db->fetch_assoc($result))
 		{
 			// Not the owner of the topic.
-			if ($row['id_member_started'] != $user_info['id'])
+			if ($row['id_member_started'] != User::$me->id)
 				fatal_lang_error('not_your_topic', 'user');
 		}
 		// Topic/Board doesn't exist.....
@@ -374,10 +374,10 @@ function canLinkEvent()
 function getTodayInfo()
 {
 	return array(
-		'day' => (int) smf_strftime('%d', time(), getUserTimezone()),
-		'month' => (int) smf_strftime('%m', time(), getUserTimezone()),
-		'year' => (int) smf_strftime('%Y', time(), getUserTimezone()),
-		'date' => smf_strftime('%Y-%m-%d', time(), getUserTimezone()),
+		'day' => (int) smf_strftime('%d', time(), User::getTimezone()),
+		'month' => (int) smf_strftime('%m', time(), User::getTimezone()),
+		'year' => (int) smf_strftime('%Y', time(), User::getTimezone()),
+		'date' => smf_strftime('%Y-%m-%d', time(), User::getTimezone()),
 	);
 }
 
@@ -392,12 +392,12 @@ function getTodayInfo()
  */
 function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false, $has_picker = true)
 {
-	$selected_object = date_create($selected_date . ' ' . getUserTimezone());
+	$selected_object = date_create($selected_date . ' ' . User::getTimezone());
 
-	$next_object = date_create($selected_date . ' ' . getUserTimezone());
+	$next_object = date_create($selected_date . ' ' . User::getTimezone());
 	$next_object->modify('first day of next month');
 
-	$prev_object = date_create($selected_date . ' ' . getUserTimezone());
+	$prev_object = date_create($selected_date . ' ' . User::getTimezone());
 	$prev_object->modify('first day of previous month');
 
 	// Eventually this is what we'll be returning.
@@ -431,8 +431,8 @@ function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false,
 	// Get today's date.
 	$today = getTodayInfo();
 
-	$first_day_object = date_create(date_format($selected_object, 'Y-m-01') . ' ' . getUserTimezone());
-	$last_day_object = date_create(date_format($selected_object, 'Y-m-t') . ' ' . getUserTimezone());
+	$first_day_object = date_create(date_format($selected_object, 'Y-m-01') . ' ' . User::getTimezone());
+	$last_day_object = date_create(date_format($selected_object, 'Y-m-t') . ' ' . User::getTimezone());
 
 	// Get information about this month.
 	$month_info = array(
@@ -445,8 +445,8 @@ function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false,
 			'day_of_month' => date_format($last_day_object, 't'),
 			'date' => date_format($last_day_object, 'Y-m-d'),
 		),
-		'first_day_of_year' => date_format(date_create(date_format($selected_object, 'Y-01-01') . ' ' . getUserTimezone()), 'w'),
-		'first_day_of_next_year' => date_format(date_create((date_format($selected_object, 'Y') + 1) . '-01-01' . ' ' . getUserTimezone()), 'w'),
+		'first_day_of_year' => date_format(date_create(date_format($selected_object, 'Y-01-01') . ' ' . User::getTimezone()), 'w'),
+		'first_day_of_next_year' => date_format(date_create((date_format($selected_object, 'Y') + 1) . '-01-01' . ' ' . User::getTimezone()), 'w'),
 	);
 
 	// The number of days the first row is shifted to the right for the starting day.
@@ -543,7 +543,7 @@ function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false,
  */
 function getCalendarWeek($selected_date, $calendarOptions)
 {
-	$selected_object = date_create($selected_date . ' ' . getUserTimezone());
+	$selected_object = date_create($selected_date . ' ' . User::getTimezone());
 
 	// Get today's date.
 	$today = getTodayInfo();
@@ -551,7 +551,7 @@ function getCalendarWeek($selected_date, $calendarOptions)
 	// What is the actual "start date" for the passed day.
 	$calendarOptions['start_day'] = empty($calendarOptions['start_day']) ? 0 : (int) $calendarOptions['start_day'];
 	$day_of_week = date_format($selected_object, 'w');
-	$first_day_object = date_create($selected_date . ' ' . getUserTimezone());
+	$first_day_object = date_create($selected_date . ' ' . User::getTimezone());
 	if ($day_of_week != $calendarOptions['start_day'])
 	{
 		// Here we offset accordingly to get things to the real start of a week.
@@ -562,17 +562,17 @@ function getCalendarWeek($selected_date, $calendarOptions)
 		date_sub($first_day_object, date_interval_create_from_date_string($date_diff . ' days'));
 	}
 
-	$last_day_object = date_create(date_format($first_day_object, 'Y-m-d') . ' ' . getUserTimezone());
+	$last_day_object = date_create(date_format($first_day_object, 'Y-m-d') . ' ' . User::getTimezone());
 	date_add($last_day_object, date_interval_create_from_date_string('1 week'));
 
 	$month = date_format($first_day_object, 'n');
 	$year = date_format($first_day_object, 'Y');
 	$day = date_format($first_day_object, 'd');
 
-	$next_object = date_create($selected_date . ' ' . getUserTimezone());
+	$next_object = date_create($selected_date . ' ' . User::getTimezone());
 	date_add($next_object, date_interval_create_from_date_string('1 week'));
 
-	$prev_object = date_create($selected_date . ' ' . getUserTimezone());
+	$prev_object = date_create($selected_date . ' ' . User::getTimezone());
 	date_sub($prev_object, date_interval_create_from_date_string('1 week'));
 
 	// Now start filling in the calendar grid.
@@ -607,7 +607,7 @@ function getCalendarWeek($selected_date, $calendarOptions)
 
 	// This holds all the main data - there is at least one month!
 	$calendarGrid['months'] = array();
-	$current_day_object = date_create(date_format($first_day_object, 'Y-m-d') . ' ' . getUserTimezone());
+	$current_day_object = date_create(date_format($first_day_object, 'Y-m-d') . ' ' . User::getTimezone());
 	for ($i = 0; $i < 7; $i++)
 	{
 		$current_month = date_format($current_day_object, 'n');
@@ -654,12 +654,11 @@ function getCalendarWeek($selected_date, $calendarOptions)
  */
 function getCalendarList($start_date, $end_date, $calendarOptions)
 {
-	global $user_info;
 	require_once(Config::$sourcedir . '/Subs.php');
 
 	// DateTime objects make life easier
-	$start_object = date_create($start_date . ' ' . getUserTimezone());
-	$end_object = date_create($end_date . ' ' . getUserTimezone());
+	$start_object = date_create($start_date . ' ' . User::getTimezone());
+	$end_object = date_create($end_date . ' ' . User::getTimezone());
 
 	$calendarGrid = array(
 		'start_date' => timeformat(date_format($start_object, 'U'), get_date_or_time_format('date')),
@@ -717,7 +716,7 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
  */
 function loadDatePicker($selector = 'input.date_input', $date_format = '')
 {
-	global $user_info, $options;
+	global $options;
 
 	if (empty($date_format))
 		$date_format = get_date_or_time_format('date');
@@ -1008,17 +1007,16 @@ function cache_getRecentEvents($eventOptions)
 		'expires' => time() + 3600,
 		'refresh_eval' => 'return \'' . smf_strftime('%Y%m%d', time()) . '\' != smf_strftime(\'%Y%m%d\', time()) || (!empty(\SMF\Config::$modSettings[\'calendar_updated\']) && ' . time() . ' < \SMF\Config::$modSettings[\'calendar_updated\']);',
 		'post_retri_eval' => '
-			global $user_info;
 
 			foreach ($cache_block[\'data\'][\'calendar_events\'] as $k => $event)
 			{
 				// Remove events that the user may not see or wants to ignore.
-				if ((count(array_intersect($user_info[\'groups\'], $event[\'allowed_groups\'])) === 0 && !allowedTo(\'admin_forum\') && !empty($event[\'id_board\'])) || in_array($event[\'id_board\'], $user_info[\'ignoreboards\']))
+				if ((count(array_intersect(\SMF\User::$me->groups, $event[\'allowed_groups\'])) === 0 && !allowedTo(\'admin_forum\') && !empty($event[\'id_board\'])) || in_array($event[\'id_board\'], \SMF\User::$me->ignoreboards))
 					unset($cache_block[\'data\'][\'calendar_events\'][$k]);
 				else
 				{
 					// Whether the event can be edited depends on the permissions.
-					$cache_block[\'data\'][\'calendar_events\'][$k][\'can_edit\'] = allowedTo(\'calendar_edit_any\') || ($event[\'poster\'] == $user_info[\'id\'] && allowedTo(\'calendar_edit_own\'));
+					$cache_block[\'data\'][\'calendar_events\'][$k][\'can_edit\'] = allowedTo(\'calendar_edit_any\') || ($event[\'poster\'] == \SMF\User::$me->id && allowedTo(\'calendar_edit_own\'));
 
 					// The added session code makes this URL not cachable.
 					$cache_block[\'data\'][\'calendar_events\'][$k][\'modify_href\'] = \SMF\Config::$scripturl . \'?action=\' . ($event[\'topic\'] == 0 ? \'calendar;sa=post;\' : \'post;msg=\' . $event[\'msg\'] . \';topic=\' . $event[\'topic\'] . \'.0;calendar;\') . \'eventid=\' . $event[\'id\'] . \';\' . \SMF\Utils::$context[\'session_var\'] . \'=\' . \SMF\Utils::$context[\'session_id\'];
@@ -1210,7 +1208,7 @@ function insertEvent(&$eventOptions)
 				'event_title' => $eventOptions['title'],
 				'event_id' => $eventOptions['id'],
 				'sender_id' => $eventOptions['member'],
-				'sender_name' => $eventOptions['member'] == Utils::$context['user']['id'] ? Utils::$context['user']['name'] : '',
+				'sender_name' => $eventOptions['member'] == User::$me->id ? User::$me->name : '',
 				'time' => time(),
 			)), 0),
 			array('id_task')
@@ -1430,7 +1428,7 @@ function getNewEventDatetimes()
 {
 	// Ensure setEventStartEnd() has something to work with
 	$now = date_create();
-	$tz = getUserTimezone();
+	$tz = User::getTimezone();
 	date_timezone_set($now, timezone_open($tz));
 
 	$_POST['year'] = !empty($_POST['year']) ? $_POST['year'] : date_format($now, 'Y');
@@ -1510,7 +1508,7 @@ function setEventStartEnd($eventOptions = array())
 	elseif (!empty($_POST['tz']) && in_array($_POST['tz'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
 		$tz = $_POST['tz'];
 	else
-		$tz = getUserTimezone();
+		$tz = User::getTimezone();
 
 	// Is this supposed to be an all day event, or should it have specific start and end times?
 	if (isset($eventOptions['allday']))
@@ -1682,7 +1680,6 @@ function setEventStartEnd($eventOptions = array())
  */
 function buildEventDatetimes($row)
 {
-	global $user_info;
 	static $date_format = '', $time_format = '';
 
 	require_once(Config::$sourcedir . '/Subs.php');
@@ -1715,7 +1712,7 @@ function buildEventDatetimes($row)
 
 	// We need to have a defined timezone in the steps below
 	if (empty($row['timezone']))
-		$row['timezone'] = getUserTimezone();
+		$row['timezone'] = User::getTimezone();
 
 	if (empty($timezone_array[$row['timezone']]))
 		$timezone_array[$row['timezone']] = timezone_open($row['timezone']);
@@ -1836,7 +1833,7 @@ function removeHolidays($holiday_ids)
  */
 function convertDateToEnglish($date)
 {
-	if (Utils::$context['user']['language'] == 'english')
+	if (User::$me->language == 'english')
 		return $date;
 
 	$replacements = array_combine(array_map('strtolower', Lang::$txt['months_titles']), array(

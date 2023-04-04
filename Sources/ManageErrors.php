@@ -17,6 +17,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -33,7 +34,7 @@ if (!defined('SMF'))
  */
 function ViewErrorLog()
 {
-	global $user_profile, $filter;
+	global $filter;
 
 	// Viewing contents of a file?
 	if (isset($_GET['file']))
@@ -264,8 +265,8 @@ function ViewErrorLog()
 		if ($filter['variable'] == 'id_member')
 		{
 			$id = $filter['value']['sql'];
-			loadMemberData($id, false, 'minimal');
-			Utils::$context['filter']['value']['html'] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $id . '">' . (isset($user_profile[$id]['real_name']) ? $user_profile[$id]['real_name'] : Lang::$txt['guest']) . '</a>';
+			User::load($id, User::LOAD_BY_ID, 'minimal');
+			Utils::$context['filter']['value']['html'] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $id . '">' . (isset(User::$loaded[$id]) ? User::$loaded[$id]->name : Lang::$txt['guest']) . '</a>';
 		}
 		elseif ($filter['variable'] == 'url')
 			Utils::$context['filter']['value']['html'] = '\'' . strtr(Utils::htmlspecialchars((substr($filter['value']['sql'], 0, 1) == '?' ? Config::$scripturl : '') . $filter['value']['sql']), array('\_' => '_')) . '\'';

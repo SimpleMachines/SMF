@@ -14,6 +14,7 @@
 namespace SMF\Tasks;
 
 use SMF\Config;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -57,11 +58,11 @@ class GroupAct_Notify extends BackgroundTask
 			{
 				// Hack in blank permissions so that allowedTo() will fail.
 				require_once(Config::$sourcedir . '/Security.php');
-				$user_info['permissions'] = array();
+				User::$me->permissions = array();
 
 				// For the modlog
-				$user_info['id'] = $this->_details['member_id'];
-				$user_info['ip'] = $this->_details['member_ip'];
+				User::$me->id = $this->_details['member_id'];
+				User::$me->ip = $this->_details['member_ip'];
 
 				require_once(Config::$sourcedir . '/Subs-Membergroups.php');
 				addMembersToGroup($row['id_member'], $row['id_group'], $row['hidden'] == 2 ? 'only_additional' : 'auto', true);
@@ -158,7 +159,7 @@ class GroupAct_Notify extends BackgroundTask
 					array()
 				);
 
-				updateMemberData(array_keys($affected_users), array('alerts' => '+'));
+				User::updateMemberData(array_keys($affected_users), array('alerts' => '+'));
 			}
 		}
 

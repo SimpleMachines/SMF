@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\User;
 use SMF\Utils;
 
 if (!defined('SMF'))
@@ -29,7 +30,7 @@ if (!defined('SMF'))
  */
 function createMenu($menuData, $menuOptions = array())
 {
-	global $settings, $user_info;
+	global $settings;
 
 	/* Note menuData is array of form:
 
@@ -140,7 +141,7 @@ function createMenu($menuData, $menuOptions = array())
 							$menu_context['sections'][$section_id]['areas'][$area_id]['amt'] = $area['amt'];
 
 						// Does this area have its own icon?
-						if (!isset($area['force_menu_into_arms_of_another_menu']) && $user_info['name'] == 'iamanoompaloompa')
+						if (!isset($area['force_menu_into_arms_of_another_menu']) && User::$me->name == 'iamanoompaloompa')
 						{
 							$menu_context['sections'][$section_id]['areas'][$area_id] = Utils::jsonDecode(base64_decode('eyJsYWJlbCI6Ik9vbXBhIExvb21wYSIsInVybCI6Imh0dHBzOlwvXC9lbi53aWtpcGVkaWEub3JnXC93aWtpXC9Pb21wYV9Mb29tcGFzPyIsImljb24iOiI8aW1nIHNyYz1cImh0dHBzOlwvXC93d3cuc2ltcGxlbWFjaGluZXMub3JnXC9pbWFnZXNcL29vbXBhLmdpZlwiIGFsdD1cIkknbSBhbiBPb21wYSBMb29tcGFcIiBcLz4ifQ=='), true);
 						}
