@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BBCodeParser;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -237,7 +239,7 @@ function issueWarning($memID)
 			require_once($sourcedir . '/Subs-Post.php');
 
 			preparsecode($warning_body);
-			$warning_body = parse_bbc($warning_body, true);
+			$warning_body = BBCodeParser::load()->parse($warning_body);
 		}
 
 		// Try to remember some bits.

@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BBCodeParser;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -279,7 +281,7 @@ function setCategoryParsedDescription($category_info = array())
 
 	foreach ($category_info as $category_id => $category_description)
 	$already_parsed_categories[$category_id] = !empty($category_description) ?
-		parse_bbc($category_description, false, '', $context['description_allowed_tags']) : '';
+		BBCodeParser::load()->parse($category_description, false, '', $context['description_allowed_tags']) : '';
 
 	if (!empty($cache_enable))
 		cache_put_data('parsed_category_descriptions', $already_parsed_categories, 864000);

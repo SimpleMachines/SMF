@@ -15,6 +15,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BBCodeParser;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -125,9 +127,9 @@ function Register($reg_errors = array())
 	{
 		// Have we got a localized one?
 		if (file_exists($boarddir . '/agreement.' . $user_info['language'] . '.txt'))
-			$context['agreement'] = parse_bbc(file_get_contents($boarddir . '/agreement.' . $user_info['language'] . '.txt'), true, 'agreement_' . $user_info['language']);
+			$context['agreement'] = BBCodeParser::load()->parse(file_get_contents($boarddir . '/agreement.' . $user_info['language'] . '.txt'), true, 'agreement_' . $user_info['language']);
 		elseif (file_exists($boarddir . '/agreement.txt'))
-			$context['agreement'] = parse_bbc(file_get_contents($boarddir . '/agreement.txt'), true, 'agreement');
+			$context['agreement'] = BBCodeParser::load()->parse(file_get_contents($boarddir . '/agreement.txt'), true, 'agreement');
 		else
 			$context['agreement'] = '';
 
@@ -168,9 +170,9 @@ function Register($reg_errors = array())
 	{
 		// Have we got a localized one?
 		if (!empty($modSettings['policy_' . $user_info['language']]))
-			$context['privacy_policy'] = parse_bbc($modSettings['policy_' . $user_info['language']]);
+			$context['privacy_policy'] = BBCodeParser::load()->parse($modSettings['policy_' . $user_info['language']]);
 		elseif (!empty($modSettings['policy_' . $language]))
-			$context['privacy_policy'] = parse_bbc($modSettings['policy_' . $language]);
+			$context['privacy_policy'] = BBCodeParser::load()->parse($modSettings['policy_' . $language]);
 		else
 		{
 			// None was found; log the error so the admin knows there is a problem!

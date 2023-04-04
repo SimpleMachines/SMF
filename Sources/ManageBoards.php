@@ -332,7 +332,7 @@ function EditCategory2()
 
 		// Try and get any valid HTML to BBC first, add a naive attempt to strip it off, htmlspecialchars for the rest
 		$catOptions['cat_name'] = $smcFunc['htmlspecialchars'](strip_tags($_POST['cat_name']));
-		$catOptions['cat_desc'] = $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($_POST['cat_desc'])));
+		$catOptions['cat_desc'] = $smcFunc['htmlspecialchars'](strip_tags(BBCodeParser::load()->unparse($_POST['cat_desc'])));
 		$catOptions['is_collapsible'] = isset($_POST['collapse']);
 
 		if (isset($_POST['add']))
@@ -670,7 +670,7 @@ function EditBoard2()
 
 		// Try and get any valid HTML to BBC first, add a naive attempt to strip it off, htmlspecialchars for the rest
 		$boardOptions['board_name'] = $smcFunc['htmlspecialchars'](strip_tags($_POST['board_name']));
-		$boardOptions['board_description'] = $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($_POST['desc'])));
+		$boardOptions['board_description'] = $smcFunc['htmlspecialchars'](strip_tags(BBCodeParser::load()->unparse($_POST['desc'])));
 
 		$boardOptions['moderator_string'] = $_POST['moderators'];
 

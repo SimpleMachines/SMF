@@ -15,6 +15,8 @@
  * Original module by Mach8 - We'll never forget you.
  */
 
+use SMF\BBCodeParser;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -367,7 +369,7 @@ function SplitSelectTopics()
 		censorText($row['subject']);
 		censorText($row['body']);
 
-		$row['body'] = parse_bbc($row['body'], $row['smileys_enabled'], $row['id_msg']);
+		$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
 
 		$context['not_selected']['messages'][$row['id_msg']] = array(
 			'id' => $row['id_msg'],
@@ -407,7 +409,7 @@ function SplitSelectTopics()
 			censorText($row['subject']);
 			censorText($row['body']);
 
-			$row['body'] = parse_bbc($row['body'], $row['smileys_enabled'], $row['id_msg']);
+			$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
 
 			$context['selected']['messages'][$row['id_msg']] = array(
 				'id' => $row['id_msg'],

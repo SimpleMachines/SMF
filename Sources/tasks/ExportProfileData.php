@@ -628,11 +628,13 @@ class ExportProfileData extends BackgroundTask
 	/**
 	 * Adjusts some parse_bbc() parameters for the special case of exports.
 	 */
-	public static function pre_parsebbc(&$message, &$smileys, &$cache_id, &$parse_tags)
+	public static function pre_parsebbc(&$message, &$smileys, &$cache_id, &$parse_tags, &$cache_key_extras)
 	{
 		global $modSettings, $context, $user_info;
 
 		$cache_id = '';
+
+		$cache_key_extras[__CLASS__] = 1;
 
 		if (in_array(self::$export_details['format'], array('HTML', 'XML_XSLT')))
 		{

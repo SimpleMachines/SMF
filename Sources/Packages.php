@@ -13,6 +13,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BBCodeParser;
 use SMF\PackageManager\FtpConnection;
 
 if (!defined('SMF'))
@@ -340,7 +341,7 @@ function PackageInstallTest()
 				require_once($sourcedir . '/Subs-Post.php');
 				$context[$type] = preg_replace('~\[[/]?html\]~i', '', $context[$type]);
 				preparsecode($context[$type]);
-				$context[$type] = parse_bbc($context[$type]);
+				$context[$type] = BBCodeParser::load()->parse($context[$type]);
 			}
 			else
 				$context[$type] = nl2br($context[$type]);
@@ -1073,7 +1074,7 @@ function PackageInstall()
 					require_once($sourcedir . '/Subs-Post.php');
 					$context['redirect_text'] = preg_replace('~\[[/]?html\]~i', '', $context['redirect_text']);
 					preparsecode($context['redirect_text']);
-					$context['redirect_text'] = parse_bbc($context['redirect_text']);
+					$context['redirect_text'] = BBCodeParser::load()->parse($context['redirect_text']);
 				}
 
 				// Parse out a couple of common urls.
@@ -1349,7 +1350,7 @@ function ExamineFile()
 			$context['filedata'] = $smcFunc['htmlspecialchars'](file_get_contents($packagesdir . '/' . $_REQUEST['package'] . '/' . $_REQUEST['file']));
 
 		if (strtolower(strrchr($_REQUEST['file'], '.')) == '.php')
-			$context['filedata'] = highlight_php_code($context['filedata']);
+			$context['filedata'] = BBCodeParser::highlightPhpCode($context['filedata']);
 	}
 }
 
@@ -1929,8 +1930,8 @@ function ViewOperations()
 
 	// Let's do some formatting...
 	$operation_text = $context['operations']['position'] == 'replace' ? 'operation_replace' : ($context['operations']['position'] == 'before' ? 'operation_after' : 'operation_before');
-	$context['operations']['search'] = parse_bbc('[code=' . $txt['operation_find'] . ']' . ($context['operations']['position'] == 'end' ? '?&gt;' : $context['operations']['search']) . '[/code]');
-	$context['operations']['replace'] = parse_bbc('[code=' . $txt[$operation_text] . ']' . $context['operations']['replace'] . '[/code]');
+	$context['operations']['search'] = BBCodeParser::load()->parse('[code=' . $txt['operation_find'] . ']' . ($context['operations']['position'] == 'end' ? '?&gt;' : $context['operations']['search']) . '[/code]');
+	$context['operations']['replace'] = BBCodeParser::load()->parse('[code=' . $txt[$operation_text] . ']' . $context['operations']['replace'] . '[/code]');
 
 	// No layers
 	$context['template_layers'] = array();

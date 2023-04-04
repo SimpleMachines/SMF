@@ -15,6 +15,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BBCodeParser;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -1054,7 +1056,7 @@ function loadCustomFields($memID, $area = 'summary')
 
 		// Parse BBCode
 		if ($row['bbc'])
-			$output_html = parse_bbc($output_html);
+			$output_html = BBCodeParser::load()->parse($output_html);
 		elseif ($row['field_type'] == 'textarea')
 			// Allow for newlines at least
 			$output_html = strtr($output_html, array("\n" => '<br>'));

@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BBCodeParser;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -293,7 +295,7 @@ function list_getNews()
 		$admin_current_news[$id] = array(
 			'id' => $id,
 			'unparsed' => un_preparsecode($line),
-			'parsed' => preg_replace('~<([/]?)form[^>]*?[>]*>~i', '<em class="smalltext">&lt;$1form&gt;</em>', parse_bbc($line)),
+			'parsed' => preg_replace('~<([/]?)form[^>]*?[>]*>~i', '<em class="smalltext">&lt;$1form&gt;</em>', BBCodeParser::load()->parse($line)),
 		);
 
 	$admin_current_news['last'] = array(
@@ -477,7 +479,7 @@ function prepareMailingForPreview()
 		{
 			$enablePostHTML = $modSettings['enablePostHTML'];
 			$modSettings['enablePostHTML'] = $context['send_html'];
-			$context[$key] = parse_bbc($context[$key]);
+			$context[$key] = BBCodeParser::load()->parse($context[$key]);
 			$modSettings['enablePostHTML'] = $enablePostHTML;
 		}
 

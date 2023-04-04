@@ -15,6 +15,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BBCodeParser;
 use SMF\Mentions;
 
 if (!defined('SMF'))
@@ -274,7 +275,7 @@ function preparsecode(&$message, $previewing = false)
 		$allowed_empty = array('anchor', 'td',);
 
 		$tags = array();
-		foreach (($codes = parse_bbc(false)) as $code)
+		foreach (BBCodeParser::getCodes() as $code)
 			if (!in_array($code['tag'], $allowed_empty))
 				$tags[] = $code['tag'];
 
@@ -1235,7 +1236,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 
 				censorText($notification_texts[$lang]['body']);
 
-				$notification_texts[$lang]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($smcFunc['htmlspecialchars']($notification_texts[$lang]['body']), false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
+				$notification_texts[$lang]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(BBCodeParser::load()->parse($smcFunc['htmlspecialchars']($notification_texts[$lang]['body']), false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
 			}
 			else
 				$notification_texts[$lang]['body'] = '';

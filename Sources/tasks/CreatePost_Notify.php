@@ -13,6 +13,7 @@
 
 namespace SMF\Tasks;
 
+use SMF\BBCodeParser;
 use SMF\Mentions;
 use SMF\TaskRunner;
 
@@ -560,7 +561,7 @@ class CreatePost_Notify extends BackgroundTask
 				censorText($parsed_message[$localization]['body']);
 
 				$parsed_message[$localization]['subject'] = un_htmlspecialchars($parsed_message[$localization]['subject']);
-				$parsed_message[$localization]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($parsed_message[$localization]['body'], false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']', '&#39;' => '\'', '</tr>' => "\n", '</td>' => "\t", '<hr>' => "\n---------------------------------------------------------------\n")))));
+				$parsed_message[$localization]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(BBCodeParser::load(true)->parse($parsed_message[$localization]['body'], false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']', '&#39;' => '\'', '</tr>' => "\n", '</td>' => "\t", '<hr>' => "\n---------------------------------------------------------------\n")))));
 			}
 
 			// Put $user_info back the way we found it.

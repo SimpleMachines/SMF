@@ -14,6 +14,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BBCodeParser;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -63,6 +65,10 @@ function PrintTopic()
 		redirectexit();
 	$row = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
+
+	// We want a separate BBCodeParser instance for this, not the reusable one
+	// that would be returned by BBCodeParser::load().
+	$bbcparser = new BBCodeParser();
 
 	if (!empty($row['id_poll']))
 	{
@@ -167,7 +173,7 @@ function PrintTopic()
 		$context['poll'] = array(
 			'id' => $row['id_poll'],
 			'image' => 'normal_' . (empty($pollinfo['voting_locked']) ? 'poll' : 'locked_poll'),
-			'question' => parse_bbc($pollinfo['question']),
+			'question' => $bbcparser->parse($pollinfo['question']),
 			'total_votes' => $pollinfo['total'],
 			'change_vote' => !empty($pollinfo['change_vote']),
 			'is_locked' => !empty($pollinfo['voting_locked']),
@@ -219,11 +225,14 @@ function PrintTopic()
 				// Note: IE < 8 requires us to set a width on the container, too.
 				'bar_ndt' => $bar > 0 ? '<div class="bar" style="width: ' . ($bar * 3.5 + 4) . 'px;"><div style="width: ' . $bar * 3.5 . 'px;"></div></div>' : '',
 				'bar_width' => $barWide,
-				'option' => parse_bbc($option['label']),
+				'option' => $bbcparser->parse($option['label']),
 				'vote_button' => '<input type="' . ($pollinfo['max_votes'] > 1 ? 'checkbox' : 'radio') . '" name="options[]" id="options-' . $i . '" value="' . $i . '">'
 			);
 		}
 	}
+
+	// Set the BBCodeParser to print mode.
+	$bbcparser->for_print = true;
 
 	// Lets "output" all that info.
 	loadTemplate('Printpage');
@@ -262,7 +271,7 @@ function PrintTopic()
 			'member' => $row['poster_name'],
 			'time' => timeformat($row['poster_time'], false),
 			'timestamp' => $row['poster_time'],
-			'body' => parse_bbc($row['body'], 'print'),
+			'body' => $bbcparser->parse($row['body']),
 			'id_msg' => $row['id_msg'],
 		);
 

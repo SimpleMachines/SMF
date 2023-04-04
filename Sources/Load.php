@@ -13,6 +13,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BBCodeParser;
 use SMF\BrowserDetector;
 use SMF\Cache\CacheApi;
 use SMF\Cache\CacheApiInterface;
@@ -1742,7 +1743,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 
 		// Set things up to be used before hand.
 		$profile['signature'] = str_replace(array("\n", "\r"), array('<br>', ''), $profile['signature']);
-		$profile['signature'] = parse_bbc($profile['signature'], true, 'sig' . $profile['id_member'], get_signature_allowed_bbc_tags());
+		$profile['signature'] = BBCodeParser::load()->parse($profile['signature'], true, 'sig' . $profile['id_member'], get_signature_allowed_bbc_tags());
 
 		$profile['is_online'] = (!empty($profile['show_online']) || allowedTo('moderate_forum')) && $profile['is_online'] > 0;
 		$profile['icons'] = empty($profile['icons']) ? array('', '') : explode('#', $profile['icons']);
@@ -1880,7 +1881,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 
 			// BBC?
 			if ($custom['bbc'])
-				$value = parse_bbc($value);
+				$value = BBCodeParser::load()->parse($value);
 
 			// ... or checkbox?
 			elseif (isset($custom['type']) && $custom['type'] == 'check')
@@ -1967,7 +1968,7 @@ function loadMemberCustomFields($users, $params)
 
 		// BBC?
 		if (!empty($row['bbc']))
-			$row['value'] = parse_bbc($row['value']);
+			$row['value'] = BBCodeParser::load()->parse($row['value']);
 
 		// ... or checkbox?
 		elseif (isset($row['type']) && $row['type'] == 'check')
@@ -3567,7 +3568,7 @@ function template_include($filename, $once = false)
 			if (preg_match('~ <strong>(\d+)</strong><br( /)?' . '>$~i', $error, $match) != 0)
 			{
 				$data = file($filename);
-				$data2 = highlight_php_code(implode('', $data));
+				$data2 = BBCodeParser::highlightPhpCode(implode('', $data));
 				$data2 = preg_split('~\<br( /)?\>~', $data2);
 
 				// Fix the PHP code stuff...

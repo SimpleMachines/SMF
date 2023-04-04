@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BBCodeParser;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -281,7 +283,7 @@ function UnapprovedPosts()
 			'href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
 			'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '">' . $row['subject'] . '</a>',
 			'subject' => $row['subject'],
-			'body' => parse_bbc($row['body'], $row['smileys_enabled'], $row['id_msg']),
+			'body' => BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']),
 			'time' => timeformat($row['poster_time']),
 			'poster' => array(
 				'id' => $row['id_member'],
@@ -591,7 +593,7 @@ function list_getUnapprovedAttachments($start, $items_per_page, $sort, $approve_
 			'message' => array(
 				'id' => $row['id_msg'],
 				'subject' => $row['subject'],
-				'body' => parse_bbc($row['body']),
+				'body' => BBCodeParser::load()->parse($row['body']),
 				'time' => timeformat($row['poster_time']),
 				'href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
 			),

@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BBCodeParser;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -53,7 +55,7 @@ function getLastPost()
 	censorText($row['subject']);
 	censorText($row['body']);
 
-	$row['body'] = strip_tags(strtr(parse_bbc($row['body'], $row['smileys_enabled']), array('<br>' => '&#10;')));
+	$row['body'] = strip_tags(strtr(BBCodeParser::load()->parse($row['body'], $row['smileys_enabled']), array('<br>' => '&#10;')));
 	if ($smcFunc['strlen']($row['body']) > 128)
 		$row['body'] = $smcFunc['substr']($row['body'], 0, 128) . '...';
 
@@ -355,7 +357,7 @@ function RecentPosts()
 		censorText($row['subject']);
 
 		// BBC-atize the message.
-		$row['body'] = parse_bbc($row['body'], $row['smileys_enabled'], $row['id_msg']);
+		$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
 
 		// And build the array.
 		$context['posts'][$row['id_msg']] = array(
@@ -1245,10 +1247,10 @@ function UnreadTopics()
 		if (!empty($modSettings['preview_characters']))
 		{
 			// Limit them to 128 characters - do this FIRST because it's a lot of wasted censoring otherwise.
-			$row['first_body'] = strip_tags(strtr(parse_bbc($row['first_body'], $row['first_smileys'], $row['id_first_msg']), array('<br>' => '&#10;')));
+			$row['first_body'] = strip_tags(strtr(BBCodeParser::load()->parse($row['first_body'], $row['first_smileys'], $row['id_first_msg']), array('<br>' => '&#10;')));
 			if ($smcFunc['strlen']($row['first_body']) > 128)
 				$row['first_body'] = $smcFunc['substr']($row['first_body'], 0, 128) . '...';
-			$row['last_body'] = strip_tags(strtr(parse_bbc($row['last_body'], $row['last_smileys'], $row['id_last_msg']), array('<br>' => '&#10;')));
+			$row['last_body'] = strip_tags(strtr(BBCodeParser::load()->parse($row['last_body'], $row['last_smileys'], $row['id_last_msg']), array('<br>' => '&#10;')));
 			if ($smcFunc['strlen']($row['last_body']) > 128)
 				$row['last_body'] = $smcFunc['substr']($row['last_body'], 0, 128) . '...';
 

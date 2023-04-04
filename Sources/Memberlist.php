@@ -14,6 +14,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BBCodeParser;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -671,7 +673,7 @@ function printMemberListRows($request)
 				}
 
 				if ($column['bbc'] && !empty($context['members'][$member]['options'][$key]))
-					$context['members'][$member]['options'][$key] = strip_tags(parse_bbc($context['members'][$member]['options'][$key]));
+					$context['members'][$member]['options'][$key] = strip_tags(BBCodeParser::load()->parse($context['members'][$member]['options'][$key]));
 
 				elseif ($column['type'] == 'check')
 					$context['members'][$member]['options'][$key] = $context['members'][$member]['options'][$key] == 0 ? $txt['no'] : $txt['yes'];
