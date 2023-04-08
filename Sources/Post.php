@@ -783,6 +783,7 @@ function Post($post_errors = array())
 				'name' => $smcFunc['htmlspecialchars']($attachment['filename']),
 				'size' => $attachment['filesize'],
 				'attachID' => $attachment['id_attach'],
+				'href' => $scripturl . '?action=dlattach;attach=' . $attachment['id_attach'],
 				'approved' => $attachment['attachment_approved'],
 				'mime_type' => $attachment['mime_type'],
 				'thumb' => $attachment['id_thumb'],
