@@ -1884,7 +1884,7 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 				'tzid' => 'Asia/Novokuznetsk',
 			),
 			array(
-				'ts' => strtotime('1995-05-27T17:00:00+0000'),
+				'ts' => strtotime('1995-05-27T16:00:00+0000'),
 				'tzid' => 'Asia/Novosibirsk',
 			),
 			array(
@@ -1908,7 +1908,7 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 				'tzid' => 'Asia/Novokuznetsk',
 			),
 			array(
-				'ts' => strtotime('2002-04-30T20:00:00+0000'),
+				'ts' => strtotime('2002-04-30T19:00:00+0000'),
 				'tzid' => 'Asia/Novosibirsk',
 			),
 			array(
