@@ -30,7 +30,7 @@ if (!defined('TIME_START'))
  *
  * @var string
  */
-$GLOBALS['required_php_version'] = '7.0.0';
+$GLOBALS['required_php_version'] = '8.0.0';
 
 /**
  * A list of supported database systems.
@@ -687,9 +687,7 @@ function loadEssentialData()
 		$smcFunc = array();
 
 	require_once($sourcedir . '/Subs.php');
-
-	if (version_compare(PHP_VERSION, '8.0.0', '>='))
-		require_once($sourcedir . '/Subs-Compat.php');
+	require_once($sourcedir . '/Subs-Compat.php');
 
 	@set_time_limit(600);
 
