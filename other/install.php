@@ -24,7 +24,7 @@ define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m')
 if (!defined('TIME_START'))
 	define('TIME_START', microtime(true));
 
-$GLOBALS['required_php_version'] = '7.0.0';
+$GLOBALS['required_php_version'] = '8.0.0';
 
 // Don't have PHP support, do you?
 // ><html dir="ltr"><head><title>Error!</title></head><body>Sorry, this installer requires PHP!<div style="display: none;">
@@ -34,9 +34,7 @@ if (!defined('SMF'))
 	define('SMF', 1);
 
 require_once('Sources/Class-Package.php');
-
-if (version_compare(PHP_VERSION, '8.0.0', '>='))
-	require_once('Sources/Subs-Compat.php');
+require_once('Sources/Subs-Compat.php');
 
 // Database info.
 $databases = array(

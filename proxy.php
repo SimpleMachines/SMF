@@ -82,8 +82,7 @@ class ProxyServer
 		require_once($sourcedir . '/Subs.php');
 
 		// Ensure we don't trip over disabled internal functions
-		if (version_compare(PHP_VERSION, '8.0.0', '>='))
-			require_once($sourcedir . '/Subs-Compat.php');
+		require_once($sourcedir . '/Subs-Compat.php');
 
 		// Make absolutely sure the cache directory is defined and writable.
 		if (empty($cachedir) || !is_dir($cachedir) || !is_writable($cachedir))
