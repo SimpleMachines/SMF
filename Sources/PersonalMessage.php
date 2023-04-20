@@ -18,6 +18,7 @@
 use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\DraftPM;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\Theme;
@@ -185,8 +186,9 @@ function MessageMain()
 	Utils::$context['can_moderate_forum'] = allowedTo('moderate_forum');
 
 	// Are PM drafts enabled?
-	Utils::$context['drafts_pm_save'] = !empty(Config::$modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
-	Utils::$context['drafts_autosave'] = !empty(Utils::$context['drafts_pm_save']) && !empty(Config::$modSettings['drafts_autosave_enabled']) && !empty(Theme::$current->options['drafts_autosave_enabled']);
+	Utils::$context['drafts_type'] = 'pm';
+	Utils::$context['drafts_save'] = !empty(Config::$modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
+	Utils::$context['drafts_autosave'] = !empty(Utils::$context['drafts_save']) && !empty(Config::$modSettings['drafts_autosave_enabled']) && !empty(Theme::$current->options['drafts_autosave_enabled']);
 
 	// Build the linktree for all the actions...
 	Utils::$context['linktree'][] = array(
@@ -2056,11 +2058,18 @@ function MessagePost()
 	);
 
 	// Generate a list of drafts that they can load in to the editor
-	if (!empty(Utils::$context['drafts_pm_save']))
+	if (!empty(Utils::$context['drafts_save']))
 	{
-		require_once(Config::$sourcedir . '/Draft.php');
-		$pm_seed = isset($_REQUEST['pmsg']) ? $_REQUEST['pmsg'] : (isset($_REQUEST['quote']) ? $_REQUEST['quote'] : 0);
-		ShowDrafts(User::$me->id, $pm_seed, 1);
+		$reply_to = isset($_REQUEST['pmsg']) ? $_REQUEST['pmsg'] : (isset($_REQUEST['quote']) ? $_REQUEST['quote'] : 0);
+		DraftPM::showInEditor(User::$me->id, $reply_to);
+
+		// Has a specific draft has been selected?
+		// Load its data if there is not a message already in the editor.
+		if (isset($_REQUEST['id_draft']) && empty($_POST['subject']) && empty($_POST['message']))
+		{
+			$draft = new DraftPM((int) $_REQUEST['id_draft'], true);
+			$draft->prepare();
+		}
 	}
 
 	// Needed for the WYSIWYG editor.
@@ -2110,8 +2119,7 @@ function MessageDrafts()
 		fatal_lang_error('not_a_user', false);
 
 	// drafts is where the functions reside
-	require_once(Config::$sourcedir . '/Draft.php');
-	showPMDrafts(User::$me->id);
+	DraftPM::showInProfile(User::$me->id);
 }
 
 /**
@@ -2305,10 +2313,9 @@ function MessagePost2()
 	require_once(Config::$sourcedir . '/Subs-Auth.php');
 
 	// PM Drafts enabled and needed?
-	if (Utils::$context['drafts_pm_save'] && (isset($_POST['save_draft']) || isset($_POST['id_pm_draft'])))
+	if (Utils::$context['drafts_save'] && (isset($_POST['save_draft']) || isset($_POST['id_draft'])))
 	{
-		Utils::$context['id_pm_draft'] = !empty($_POST['id_pm_draft']) ? (int) $_POST['id_pm_draft'] : 0;
-		require_once(Config::$sourcedir . '/Draft.php');
+		Utils::$context['id_draft'] = !empty($_POST['id_draft']) ? (int) $_POST['id_draft'] : 0;
 	}
 
 	Lang::load('PersonalMessage', '', false);
@@ -2520,9 +2527,10 @@ function MessagePost2()
 	}
 
 	// Want to save this as a draft and think about it some more?
-	if (Utils::$context['drafts_pm_save'] && isset($_POST['save_draft']))
+	if (Utils::$context['drafts_save'] && isset($_POST['save_draft']))
 	{
-		SavePMDraft($post_errors, $recipientList);
+		$draft = new DraftPM((int) $_POST['id_draft'], true, $recipientList);
+		$draft->save($post_errors);
 		return messagePostError($post_errors, $namedRecipientList, $recipientList);
 	}
 
@@ -2579,8 +2587,8 @@ function MessagePost2()
 		Utils::$context['current_label_redirect'] = Utils::$context['current_label_redirect'] . ';done=sent';
 
 		// If we had a PM draft for this one, then its time to remove it since it was just sent
-		if (Utils::$context['drafts_pm_save'] && !empty($_POST['id_pm_draft']))
-			DeleteDraft($_POST['id_pm_draft']);
+		if (Utils::$context['drafts_save'] && !empty($_POST['id_draft']))
+			DraftPM::delete($_POST['id_draft']);
 	}
 
 	// Go back to the where they sent from, if possible...

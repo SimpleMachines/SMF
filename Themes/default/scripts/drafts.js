@@ -147,7 +147,7 @@ smf_DraftAutoSave.prototype.draftPMSave = function ()
 	// Get the rest of the form elements that we want to save, and load them up
 	var aSections = [
 		'replied_to=' + parseInt(document.forms.postmodify.elements['replied_to'].value),
-		'id_pm_draft=' + (('id_pm_draft' in document.forms.postmodify.elements) ? parseInt(document.forms.postmodify.elements['id_pm_draft'].value) : 0),
+		'id_draft=' + (('id_draft' in document.forms.postmodify.elements) ? parseInt(document.forms.postmodify.elements['id_draft'].value) : 0),
 		'subject=' + escape(document.forms.postmodify['subject'].value.php_to8bit()).replace(/\+/g, "%2B"),
 		'message=' + escape(sPostdata.php_to8bit()).replace(/\+/g, "%2B"),
 		'recipient_to=' + aTo,

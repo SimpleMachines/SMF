@@ -179,8 +179,7 @@ function ModifyProfile($post_errors = array())
 				),
 				'showdrafts' => array(
 					'label' => Lang::$txt['drafts_show'],
-					'file' => 'Draft.php',
-					'function' => 'showProfileDrafts',
+					'function' => 'SMF\\Draft::showInProfile',
 					'icon' => 'drafts',
 					'enabled' => !empty(Config::$modSettings['drafts_post_enabled']) && User::$me->is_owner,
 					'permission' => array(
