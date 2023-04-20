@@ -90,9 +90,7 @@ function template_control_richedit_buttons($editor_id)
 
 	$tempTab = Utils::$context['tabindex'];
 
-	if (!empty(Utils::$context['drafts_pm_save']))
-		$tempTab++;
-	elseif (!empty(Utils::$context['drafts_save']))
+	if (!empty(Utils::$context['drafts_save']))
 		$tempTab++;
 	elseif ($editor_context['preview_type'])
 		$tempTab++;
@@ -123,26 +121,6 @@ function template_control_richedit_buttons($editor_id)
 		<input type="submit" value="', isset($editor_context['labels']['post_button']) ? $editor_context['labels']['post_button'] : Lang::$txt['post'], '" name="post" tabindex="', --$tempTab, '" onclick="return submitThisOnce(this);" accesskey="s" class="button">
 		</span>';
 
-	// Load in the PM autosaver if it's enabled
-	if (!empty(Utils::$context['drafts_pm_save']) && !empty(Utils::$context['drafts_autosave']))
-		echo '
-		<span class="righttext padding" style="display: block">
-			<span id="throbber" style="display:none"><img src="' . Theme::$current->settings['images_url'] . '/loading_sm.gif" alt="" class="centericon"></span>
-			<span id="draft_lastautosave" ></span>
-		</span>
-		<script>
-			var oDraftAutoSave = new smf_DraftAutoSave({
-				sSelf: \'oDraftAutoSave\',
-				sLastNote: \'draft_lastautosave\',
-				sLastID: \'id_pm_draft\',
-				sSceditorID: \'', $editor_id, '\',
-				sType: \'post\',
-				bPM: true,
-				iBoard: 0,
-				iFreq: ', (empty(Config::$modSettings['drafts_autosave_frequency']) ? 60000 : Config::$modSettings['drafts_autosave_frequency'] * 1000), '
-			});
-		</script>';
-
 	// Start an instance of the auto saver if its enabled
 	if (!empty(Utils::$context['drafts_save']) && !empty(Utils::$context['drafts_autosave']))
 		echo '
@@ -157,6 +135,7 @@ function template_control_richedit_buttons($editor_id)
 				sLastID: \'id_draft\',
 				sSceditorID: \'', $editor_id, '\',
 				sType: \'post\',
+				bPM: ', isset(Utils::$context['drafts_type']) && Utils::$context['drafts_type'] === 'pm' ? 'true' : 'false', ',
 				iBoard: ', (empty(Utils::$context['current_board']) ? 0 : Utils::$context['current_board']), ',
 				iFreq: ', Utils::$context['drafts_autosave_frequency'], '
 			});

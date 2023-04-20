@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\Draft;
 use SMF\ProxyServer;
 use SMF\Lang;
 use SMF\Mail;
@@ -1297,8 +1298,7 @@ function scheduled_remove_old_drafts()
 	// If we have old one, remove them
 	if (count($drafts) > 0)
 	{
-		require_once(Config::$sourcedir . '/Draft.php');
-		DeleteDraft($drafts, false);
+		Draft::delete($drafts, false);
 	}
 
 	return true;

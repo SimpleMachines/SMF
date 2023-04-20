@@ -1074,7 +1074,7 @@ function template_send()
 				', template_control_richedit(Utils::$context['post_box_name'], 'smileyBox_message', 'bbcBox_message');
 
 	// If the admin enabled the pm drafts feature, show a draft selection box
-	if (!empty(Utils::$context['drafts_pm_save']) && !empty(Utils::$context['drafts']) && !empty(Theme::$current->options['drafts_show_saved_enabled']))
+	if (!empty(Utils::$context['drafts_save']) && !empty(Utils::$context['drafts']) && !empty(Theme::$current->options['drafts_show_saved_enabled']))
 	{
 		echo '
 				<div id="post_draft_options_header" class="title_bar">

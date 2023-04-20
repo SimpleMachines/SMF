@@ -16,6 +16,7 @@
 use SMF\Board;
 use SMF\Category;
 use SMF\Config;
+use SMF\Draft;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -1466,10 +1467,7 @@ function MaintainRemoveOldDrafts()
 
 	// If we have old drafts, remove them
 	if (count($drafts) > 0)
-	{
-		require_once(Config::$sourcedir . '/Draft.php');
-		DeleteDraft($drafts, false);
-	}
+		Draft::delete($drafts, false);
 }
 
 /**

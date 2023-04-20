@@ -18,6 +18,7 @@ use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
+use SMF\Draft;
 use SMF\Lang;
 use SMF\MessageIndex;
 use SMF\Msg;
@@ -1189,14 +1190,22 @@ function Post($post_errors = array())
 	Utils::$context['message'] = str_replace(array('"', '<', '>', '&nbsp;'), array('&quot;', '&lt;', '&gt;', ' '), $form_message);
 
 	// Are post drafts enabled?
+	Utils::$context['drafts_type'] = 'post';
 	Utils::$context['drafts_save'] = !empty(Config::$modSettings['drafts_post_enabled']) && allowedTo('post_draft');
 	Utils::$context['drafts_autosave'] = !empty(Utils::$context['drafts_save']) && !empty(Config::$modSettings['drafts_autosave_enabled']) && allowedTo('post_autosave_draft') && !empty(Theme::$current->options['drafts_autosave_enabled']);
 
 	// Build a list of drafts that they can load in to the editor
 	if (!empty(Utils::$context['drafts_save']))
 	{
-		require_once(Config::$sourcedir . '/Draft.php');
-		ShowDrafts(User::$me->id, Topic::$topic_id);
+		Draft::showInEditor(User::$me->id, Topic::$topic_id);
+
+		// Has a specific draft has been selected?
+		// Load its data if there is not a message already in the editor.
+		if (isset($_REQUEST['id_draft']) && empty($_POST['subject']) && empty($_POST['message']))
+		{
+			$draft = new Draft((int) $_REQUEST['id_draft'], true);
+			$draft->prepare();
+		}
 	}
 
 	// Needed for the editor and message icons.
@@ -1702,10 +1711,6 @@ function Post2()
 
 	call_integration_hook('integrate_post2_start', array(&$post_errors));
 
-	// Drafts enabled and needed?
-	if (!empty(Config::$modSettings['drafts_post_enabled']) && (isset($_POST['save_draft']) || isset($_POST['id_draft'])))
-		require_once(Config::$sourcedir . '/Draft.php');
-
 	// First check to see if they are trying to delete any current attachments.
 	if (isset($_POST['attach_del']))
 	{
@@ -1871,7 +1876,8 @@ function Post2()
 		// If drafts are enabled, then pass this off
 		if (!empty(Config::$modSettings['drafts_post_enabled']) && isset($_POST['save_draft']))
 		{
-			SaveDraft($post_errors);
+			$draft = new Draft((int) $_POST['id_draft']);
+			$draft->save($post_errors);
 			return Post();
 		}
 
@@ -1918,7 +1924,8 @@ function Post2()
 		// Saving your new topic as a draft first?
 		if (!empty(Config::$modSettings['drafts_post_enabled']) && isset($_POST['save_draft']))
 		{
-			SaveDraft($post_errors);
+			$draft = new Draft((int) $_POST['id_draft']);
+			$draft->save($post_errors);
 			return Post();
 		}
 
@@ -2015,7 +2022,8 @@ function Post2()
 		// If drafts are enabled, then lets send this off to save
 		if (!empty(Config::$modSettings['drafts_post_enabled']) && isset($_POST['save_draft']))
 		{
-			SaveDraft($post_errors);
+			$draft = new Draft((int) $_POST['id_draft']);
+			$draft->save($post_errors);
 			return Post();
 		}
 
@@ -2436,7 +2444,7 @@ function Post2()
 
 	// If we had a draft for this, its time to remove it since it was just posted
 	if (!empty(Config::$modSettings['drafts_post_enabled']) && !empty($_POST['id_draft']))
-		DeleteDraft($_POST['id_draft']);
+		Draft::delete($_POST['id_draft']);
 
 	// Editing or posting an event?
 	if (isset($_POST['calendar']) && (!isset($_REQUEST['eventid']) || $_REQUEST['eventid'] == -1))

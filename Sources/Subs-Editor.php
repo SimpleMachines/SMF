@@ -124,14 +124,9 @@ function create_control_richedit($editorOptions)
 		'save_draft' => array(
 			'type' => 'submit',
 			'value' => Lang::$txt['draft_save'],
-			'onclick' => !empty(Utils::$context['drafts_pm_save']) ? 'submitThisOnce(this);' : (!empty(Utils::$context['drafts_save']) ? 'return confirm(' . JavaScriptEscape(Lang::$txt['draft_save_note']) . ') && submitThisOnce(this);' : ''),
+			'onclick' => !empty(Utils::$context['drafts_save']) ? 'submitThisOnce(this);' : (!empty(Utils::$context['drafts_save']) ? 'return confirm(' . JavaScriptEscape(Lang::$txt['draft_save_note']) . ') && submitThisOnce(this);' : ''),
 			'accessKey' => 'd',
-			'show' => !empty(Utils::$context['drafts_pm_save']) || !empty(Utils::$context['drafts_save'])
-		),
-		'id_pm_draft' => array(
-			'type' => 'hidden',
-			'value' => empty(Utils::$context['id_pm_draft']) ? 0 : Utils::$context['id_pm_draft'],
-			'show' => !empty(Utils::$context['drafts_pm_save'])
+			'show' => !empty(Utils::$context['drafts_save'])
 		),
 		'id_draft' => array(
 			'type' => 'hidden',
