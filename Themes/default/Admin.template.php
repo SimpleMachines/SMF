@@ -709,7 +709,7 @@ function template_not_done()
  */
 function template_show_settings()
 {
-	global $context, $txt, $scripturl, $settings;
+	global $context, $txt, $scripturl;
 
 	if (!empty($context['saved_successful']))
 		echo '
@@ -897,10 +897,8 @@ function template_show_settings()
 				// Show a color box
 				elseif ($config_var['type'] == 'color')
 				{
-					$load_color_js = true;
-
 					echo '
-										<input name="', $config_var['name'], '" id="', $config_var['name'], '" data-jscolor="{}" value="', $config_var['value'], '">';
+										<input name="', $config_var['name'], '" id="', $config_var['name'], '" data-coloris value="', $config_var['value'], '">';
 				}
 
 				// List of boards? This requires getBoardList() having been run and the results in $context['board_list'].
@@ -1063,10 +1061,6 @@ function template_show_settings()
 			$(this).closest("fieldset").hide().prev("a").show();
 		});
 	', true);
-
-	if (!empty($load_color_js))
-		echo '
-		<script src="', $settings['default_theme_url'], '/scripts/jscolor.min.js" defer></script>';
 }
 
 /**
