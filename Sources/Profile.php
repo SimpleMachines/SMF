@@ -179,7 +179,7 @@ function ModifyProfile($post_errors = array())
 				),
 				'showdrafts' => array(
 					'label' => Lang::$txt['drafts_show'],
-					'file' => 'Drafts.php',
+					'file' => 'Draft.php',
 					'function' => 'showProfileDrafts',
 					'icon' => 'drafts',
 					'enabled' => !empty(Config::$modSettings['drafts_post_enabled']) && User::$me->is_owner,

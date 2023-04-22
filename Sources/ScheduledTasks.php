@@ -1297,7 +1297,7 @@ function scheduled_remove_old_drafts()
 	// If we have old one, remove them
 	if (count($drafts) > 0)
 	{
-		require_once(Config::$sourcedir . '/Drafts.php');
+		require_once(Config::$sourcedir . '/Draft.php');
 		DeleteDraft($drafts, false);
 	}
 
