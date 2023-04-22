@@ -1195,7 +1195,7 @@ function Post($post_errors = array())
 	// Build a list of drafts that they can load in to the editor
 	if (!empty(Utils::$context['drafts_save']))
 	{
-		require_once(Config::$sourcedir . '/Drafts.php');
+		require_once(Config::$sourcedir . '/Draft.php');
 		ShowDrafts(User::$me->id, Topic::$topic_id);
 	}
 
@@ -1704,7 +1704,7 @@ function Post2()
 
 	// Drafts enabled and needed?
 	if (!empty(Config::$modSettings['drafts_post_enabled']) && (isset($_POST['save_draft']) || isset($_POST['id_draft'])))
-		require_once(Config::$sourcedir . '/Drafts.php');
+		require_once(Config::$sourcedir . '/Draft.php');
 
 	// First check to see if they are trying to delete any current attachments.
 	if (isset($_POST['attach_del']))

@@ -1467,7 +1467,7 @@ function MaintainRemoveOldDrafts()
 	// If we have old drafts, remove them
 	if (count($drafts) > 0)
 	{
-		require_once(Config::$sourcedir . '/Drafts.php');
+		require_once(Config::$sourcedir . '/Draft.php');
 		DeleteDraft($drafts, false);
 	}
 }

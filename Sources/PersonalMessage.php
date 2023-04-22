@@ -2058,7 +2058,7 @@ function MessagePost()
 	// Generate a list of drafts that they can load in to the editor
 	if (!empty(Utils::$context['drafts_pm_save']))
 	{
-		require_once(Config::$sourcedir . '/Drafts.php');
+		require_once(Config::$sourcedir . '/Draft.php');
 		$pm_seed = isset($_REQUEST['pmsg']) ? $_REQUEST['pmsg'] : (isset($_REQUEST['quote']) ? $_REQUEST['quote'] : 0);
 		ShowDrafts(User::$me->id, $pm_seed, 1);
 	}
@@ -2110,7 +2110,7 @@ function MessageDrafts()
 		fatal_lang_error('not_a_user', false);
 
 	// drafts is where the functions reside
-	require_once(Config::$sourcedir . '/Drafts.php');
+	require_once(Config::$sourcedir . '/Draft.php');
 	showPMDrafts(User::$me->id);
 }
 
@@ -2308,7 +2308,7 @@ function MessagePost2()
 	if (Utils::$context['drafts_pm_save'] && (isset($_POST['save_draft']) || isset($_POST['id_pm_draft'])))
 	{
 		Utils::$context['id_pm_draft'] = !empty($_POST['id_pm_draft']) ? (int) $_POST['id_pm_draft'] : 0;
-		require_once(Config::$sourcedir . '/Drafts.php');
+		require_once(Config::$sourcedir . '/Draft.php');
 	}
 
 	Lang::load('PersonalMessage', '', false);
