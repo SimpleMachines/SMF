@@ -160,7 +160,7 @@ class ExportProfileData extends BackgroundTask
 		if (!isset($included[$datatype]['func']) || !isset($included[$datatype]['langfile']))
 			return;
 
-		require_once(Config::$sourcedir . DIRECTORY_SEPARATOR . 'News.php');
+		require_once(Config::$sourcedir . DIRECTORY_SEPARATOR . 'Actions' . DIRECTORY_SEPARATOR . 'Feed.php');
 
 		// Setup.
 		$done = false;
@@ -550,7 +550,7 @@ class ExportProfileData extends BackgroundTask
 		}
 		if (empty(Utils::$context['feed']['footer']))
 		{
-			require_once(Config::$sourcedir . DIRECTORY_SEPARATOR . 'News.php');
+			require_once(Config::$sourcedir . DIRECTORY_SEPARATOR . 'Actions' . DIRECTORY_SEPARATOR . 'Feed.php');
 			buildXmlFeed('smf', array(), array_fill_keys(array('title', 'desc', 'source', 'self'), ''), 'profile');
 		}
 
