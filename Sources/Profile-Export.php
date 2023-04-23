@@ -792,7 +792,7 @@ function get_xslt_stylesheet($format, $uid)
 	$xslt_ns = 'htt'.'p:/'.'/ww'.'w.w3.o'.'rg/1999/XSL/Transform';
 	$html_ns = 'htt'.'p:/'.'/ww'.'w.w3.o'.'rg/1999/xhtml';
 
-	require_once(Config::$sourcedir . DIRECTORY_SEPARATOR . 'News.php');
+	require_once(Config::$sourcedir . DIRECTORY_SEPARATOR . 'Actions' . DIRECTORY_SEPARATOR . 'Feed.php');
 
 	if (in_array($format, array('HTML', 'XML_XSLT')))
 	{
