@@ -427,13 +427,13 @@ function template_show_month_grid($grid_name, $is_mini = false)
 							$event_icons_needed = ($event['can_edit'] || $event['can_export']) ? true : false;
 
 							echo '
-							<div class="event_wrapper', $event['starts_today'] == true ? ' event_starts_today' : '', $event['ends_today'] == true ? ' event_ends_today' : '', $event['allday'] == true ? ' allday' : '', $event['is_selected'] ? ' sel_event' : '', '">
+							<div class="event_wrapper', $event['start_date'] == $day['date'] ? ' event_starts_today' : '', $event['end_date'] == $day['date'] ? ' event_ends_today' : '', $event['allday'] == true ? ' allday' : '', $event['is_selected'] ? ' sel_event' : '', '">
 								', $event['link'], '<br>
 								<span class="event_time', empty($event_icons_needed) ? ' floatright' : '', '">';
 
-							if (!empty($event['start_time_local']) && $event['starts_today'] == true)
+							if (!empty($event['start_time_local']) && $event['start_date'] == $day['date'])
 								echo trim(str_replace(':00 ', ' ', $event['start_time_local']));
-							elseif (!empty($event['end_time_local']) && $event['ends_today'] == true)
+							elseif (!empty($event['end_time_local']) && $event['end_date'] == $day['date'])
 								echo strtolower(Lang::$txt['ends']), ' ', trim(str_replace(':00 ', ' ', $event['end_time_local']));
 							elseif (!empty($event['allday']))
 								echo Lang::$txt['calendar_allday'];
