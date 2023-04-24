@@ -120,7 +120,7 @@ class Forum
 		'viewquery' => array('ViewQuery.php', 'ViewQuery'),
 		'viewsmfile' => array('Admin.php', 'DisplayAdminFile'),
 		'who' => array('Who.php', 'Who'),
-		'.xml' => array('Actions/Feed.php', 'ShowXmlFeed'),
+		'.xml' => array('', 'SMF\\Actions\\Feed::call'),
 		'xmlhttp' => array('Xml.php', 'XMLhttpMain'),
 	);
 

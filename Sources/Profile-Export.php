@@ -20,6 +20,7 @@ use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Feed;
 use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
@@ -34,8 +35,6 @@ if (!defined('SMF'))
  */
 function export_profile_data($uid)
 {
-	global $query_this_board;
-
 	if (!isset(Utils::$context['token_check']))
 		Utils::$context['token_check'] = 'profile-ex' . $uid;
 
@@ -188,8 +187,6 @@ function export_profile_data($uid)
 
 	$idhash = hash_hmac('sha1', $uid, Config::getAuthSecret());
 	$dltoken = hash_hmac('sha1', $idhash, Config::getAuthSecret());
-
-	$query_this_board = !empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? 'b.id_board != ' . Config::$modSettings['recycle_board'] : '1=1';
 
 	Utils::$context['completed_exports'] = array();
 	Utils::$context['active_exports'] = array();
@@ -787,12 +784,10 @@ function get_xslt_stylesheet($format, $uid)
 	$stylesheet = array();
 	$xslt_variables = array();
 
-	// Do not change any of these to HTTPS URLs. For explanation, see comments in the buildXmlFeed() function.
+	// Do not change any of these to HTTPS URLs. For explanation, see comments on Feed::XML_NAMESPACES.
 	$smf_ns = 'htt'.'p:/'.'/ww'.'w.simple'.'machines.o'.'rg/xml/profile';
 	$xslt_ns = 'htt'.'p:/'.'/ww'.'w.w3.o'.'rg/1999/XSL/Transform';
 	$html_ns = 'htt'.'p:/'.'/ww'.'w.w3.o'.'rg/1999/xhtml';
-
-	require_once(Config::$sourcedir . DIRECTORY_SEPARATOR . 'Actions' . DIRECTORY_SEPARATOR . 'Feed.php');
 
 	if (in_array($format, array('HTML', 'XML_XSLT')))
 	{
@@ -936,7 +931,7 @@ function get_xslt_stylesheet($format, $uid)
 			if (isset($var['xpath']))
 				$stylesheet['variables'] .= ' select="' . $var['value'] . '"/>';
 			else
-				$stylesheet['variables'] .= '>' . (!empty($var['no_cdata_parse']) ? $var['value'] : cdata_parse($var['value'])) . '</xsl:' . $element . '>';
+				$stylesheet['variables'] .= '>' . (!empty($var['no_cdata_parse']) ? $var['value'] : Feed::cdataParse($var['value'])) . '</xsl:' . $element . '>';
 		}
 
 		// The top-level template. Creates the shell of the HTML document.
