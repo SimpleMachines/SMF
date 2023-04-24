@@ -19,6 +19,7 @@ use SMF\TaskRunner;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Feed;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
@@ -147,8 +148,6 @@ class ExportProfileData extends BackgroundTask
 	 */
 	protected function exportXml()
 	{
-		global $query_this_board;
-
 		// For convenience...
 		$uid = $this->_details['uid'];
 		$lang = $this->_details['lang'];
@@ -160,15 +159,16 @@ class ExportProfileData extends BackgroundTask
 		if (!isset($included[$datatype]['func']) || !isset($included[$datatype]['langfile']))
 			return;
 
-		require_once(Config::$sourcedir . DIRECTORY_SEPARATOR . 'Actions' . DIRECTORY_SEPARATOR . 'Feed.php');
-
 		// Setup.
 		$done = false;
 		$delay = 0;
-		Utils::$context['xmlnews_uid'] = $uid;
-		Utils::$context['xmlnews_limit'] = !empty(Config::$modSettings['export_rate']) ? Config::$modSettings['export_rate'] : 250;
-		Utils::$context[$datatype . '_start'] = $start[$datatype];
 		$datatypes = array_keys($included);
+
+		$feed = new Feed($datatype, $uid);
+		$feed->format = 'smf';
+		$feed->ascending = true;
+		$feed->limit = !empty(Config::$modSettings['export_rate']) ? Config::$modSettings['export_rate'] : 250;
+		$feed->start_after = $start[$datatype];
 
 		Theme::loadEssential();
 		Theme::$current->settings['actual_theme_dir'] = Theme::$current->settings['theme_dir'];
@@ -176,7 +176,7 @@ class ExportProfileData extends BackgroundTask
 		Lang::load(implode('+', array_unique(array('index', 'Modifications', 'Stats', 'Profile', $included[$datatype]['langfile']))), $lang);
 
 		// @todo Ask lawyers whether the GDPR requires us to include posts in the recycle bin.
-		$query_this_board = '{query_see_message_board}' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? ' AND m.id_board != ' . Config::$modSettings['recycle_board'] : '');
+		$feed->query_this_board = '{query_see_message_board}' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? ' AND m.id_board != ' . Config::$modSettings['recycle_board'] : '');
 
 		// We need a valid export directory.
 		if (empty(Config::$modSettings['export_dir']) || !is_dir(Config::$modSettings['export_dir']) || !smf_chmod(Config::$modSettings['export_dir']))
@@ -200,7 +200,7 @@ class ExportProfileData extends BackgroundTask
 		$tempfile = $export_dir_slash . $idhash_ext . '.tmp';
 		$progressfile = $export_dir_slash . $idhash_ext . '.progress.json';
 
-		$feed_meta = array(
+		$feed->metadata = array(
 			'title' => sprintf(Lang::$txt['profile_of_username'], User::$me->name),
 			'desc' => Lang::sentenceList(array_map(
 				function ($datatype)
@@ -211,6 +211,7 @@ class ExportProfileData extends BackgroundTask
 			)),
 			'author' => Config::$mbname,
 			'source' => Config::$scripturl . '?action=profile;u=' . $uid,
+			'language' => !empty(Lang::$txt['lang_locale']) ? str_replace("_", "-", substr(Lang::$txt['lang_locale'], 0, strcspn(Lang::$txt['lang_locale'], "."))) : 'en',
 			'self' => '', // Unused, but can't be null.
 			'page' => &$filenum,
 		);
@@ -228,7 +229,7 @@ class ExportProfileData extends BackgroundTask
 			$filenum = 1;
 			$realfile = $export_dir_slash . $filenum . '_' . $idhash_ext;
 
-			buildXmlFeed('smf', array(), $feed_meta, 'profile');
+			Feed::build('smf', array(), $feed->metadata, 'profile');
 			file_put_contents($tempfile, implode('', Utils::$context['feed']), LOCK_EX);
 
 			$progress = array_fill_keys($datatypes, 0);
@@ -237,17 +238,18 @@ class ExportProfileData extends BackgroundTask
 		else
 			$progress = Utils::jsonDecode(file_get_contents($progressfile), true);
 
-		// Get the data, always in ascending order.
-		$xml_data = call_user_func($included[$datatype]['func'], 'smf', true);
+		// Get the data.
+		$xml_data = call_user_func(array($feed, $included[$datatype]['func']));
 
 		// No data retrieved? Just move on then.
 		if (empty($xml_data))
+		{
 			$datatype_done = true;
-
+		}
 		// Basic profile data is quick and easy.
 		elseif ($datatype == 'profile')
 		{
-			buildXmlFeed('smf', $xml_data, $feed_meta, 'profile');
+			Feed::build('smf', $xml_data, $feed->metadata, 'profile');
 			file_put_contents($tempfile, implode('', Utils::$context['feed']), LOCK_EX);
 
 			$progress[$datatype] = time();
@@ -257,7 +259,6 @@ class ExportProfileData extends BackgroundTask
 			$profile_basic_items = Utils::$context['feed']['items'];
 			CacheApi::put('export_profile_basic-' . $uid, $profile_basic_items, Taskrunner::MAX_CLAIM_THRESHOLD);
 		}
-
 		// Posts and PMs...
 		else
 		{
@@ -265,8 +266,8 @@ class ExportProfileData extends BackgroundTask
 			$profile_basic_items = CacheApi::get('export_profile_basic-' . $uid, Taskrunner::MAX_CLAIM_THRESHOLD);
 			if (empty($profile_basic_items))
 			{
-				$profile_data = call_user_func($included['profile']['func'], 'smf', true);
-				buildXmlFeed('smf', $profile_data, $feed_meta, 'profile');
+				$profile_data = call_user_func(array($feed, $included['profile']['func']));
+				Feed::build('smf', $profile_data, $feed->metadata, 'profile');
 				$profile_basic_items = Utils::$context['feed']['items'];
 				CacheApi::put('export_profile_basic-' . $uid, $profile_basic_items, Taskrunner::MAX_CLAIM_THRESHOLD);
 				unset(Utils::$context['feed']);
@@ -283,7 +284,7 @@ class ExportProfileData extends BackgroundTask
 				$realfile = $export_dir_slash . ++$filenum . '_' . $idhash_ext;
 
 				if (empty(Utils::$context['feed']['header']))
-					buildXmlFeed('smf', array(), $feed_meta, 'profile');
+					Feed::build('smf', array(), $feed->metadata, 'profile');
 
 				file_put_contents($tempfile, implode('', array(Utils::$context['feed']['header'], $profile_basic_items, Utils::$context['feed']['footer'])), LOCK_EX);
 
@@ -312,7 +313,7 @@ class ExportProfileData extends BackgroundTask
 					$last_id = $last_item['content'][0]['content'];
 
 				// Build the XML string from the data.
-				buildXmlFeed('smf', $items, $feed_meta, 'profile');
+				Feed::build('smf', $items, $feed->metadata, 'profile');
 
 				// If disk space is insufficient, pause for a day so the admin can fix it.
 				if ($check_diskspace && disk_free_space(Config::$modSettings['export_dir']) - $minspace <= strlen(implode('', Utils::$context['feed']) . self::$xslt_info['stylesheet']))
@@ -437,7 +438,7 @@ class ExportProfileData extends BackgroundTask
 
 			if (!file_exists($tempfile))
 			{
-				buildXmlFeed('smf', array(), $feed_meta, 'profile');
+				Feed::build('smf', array(), $feed->metadata, 'profile');
 				file_put_contents($tempfile, implode('', array(Utils::$context['feed']['header'], !empty($profile_basic_items) ? $profile_basic_items : '', Utils::$context['feed']['footer'])), LOCK_EX);
 			}
 		}
@@ -550,8 +551,7 @@ class ExportProfileData extends BackgroundTask
 		}
 		if (empty(Utils::$context['feed']['footer']))
 		{
-			require_once(Config::$sourcedir . DIRECTORY_SEPARATOR . 'Actions' . DIRECTORY_SEPARATOR . 'Feed.php');
-			buildXmlFeed('smf', array(), array_fill_keys(array('title', 'desc', 'source', 'self'), ''), 'profile');
+			Feed::build('smf', array(), array_fill_keys(array('title', 'desc', 'source', 'self'), ''), 'profile');
 		}
 
 		// Find any completed files that don't yet have the stylesheet embedded in them.
@@ -604,7 +604,7 @@ class ExportProfileData extends BackgroundTask
 	 * Adds a custom DOCTYPE definition and an XSLT processing instruction to
 	 * the main XML file's header.
 	 */
-	public static function add_dtd(&$xml_data, &$feed_meta, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $subaction, &$doctype)
+	public static function add_dtd(&$xml_data, &$metadata, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $subaction, &$doctype)
 	{
 		require_once(Config::$sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
 		self::$xslt_info = get_xslt_stylesheet(self::$export_details['format'], self::$export_details['uid']);
