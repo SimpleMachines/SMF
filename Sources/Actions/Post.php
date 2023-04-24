@@ -819,7 +819,7 @@ class Post implements ActionInterface
 			// If the user doesn't have permission to edit the post in this topic, redirect them.
 			if ((empty(Topic::$info->id_member_started) || Topic::$info->id_member_started != User::$me->id || !allowedTo('modify_own')) && !allowedTo('modify_any'))
 			{
-				require_once(Config::$sourcedir . '/Calendar.php');
+				require_once(Config::$sourcedir . '/Actions/Calendar.php');
 				CalendarPost();
 				return;
 			}
