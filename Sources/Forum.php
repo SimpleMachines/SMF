@@ -45,8 +45,8 @@ class Forum
 	 * Mod authors can add new actions to this via the integrate_actions hook.
 	 */
 	public static $actions = array(
-		'agreement' => array('Agreement.php', 'Agreement'),
-		'acceptagreement' => array('Agreement.php', 'AcceptAgreement'),
+		'agreement' => array('Actions/Agreement.php', 'Agreement'),
+		'acceptagreement' => array('Actions/Agreement.php', 'AcceptAgreement'),
 		'activate' => array('Register.php', 'Activate'),
 		'admin' => array('Admin.php', 'AdminMain'),
 		'announce' => array('Post.php', 'AnnounceTopic'),
