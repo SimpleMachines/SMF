@@ -2650,7 +2650,7 @@ class Theme
 		// 4c. Get a feed (RSS, ATOM, etc.)
 		if (!empty(User::$me->id) && empty(User::$me->is_admin) && SMF != 'SSI' && !isset($_REQUEST['xml']) && !is_filtered_request($this->agreement_actions, 'action'))
 		{
-			require_once(Config::$sourcedir . '/Agreement.php');
+			require_once(Config::$sourcedir . '/Actions/Agreement.php');
 
 			$can_accept_agreement = !empty(Config::$modSettings['requireAgreement']) && canRequireAgreement();
 
