@@ -158,7 +158,6 @@ $txt['event_year_missing'] = 'Event year is missing.';
 $txt['event_day_missing'] = 'Event day is missing.';
 $txt['event_title_missing'] = 'Event title is missing.';
 $txt['invalid_date'] = 'Invalid date.';
-$txt['no_event_title'] = 'No event title was entered.';
 $txt['missing_event_id'] = 'Missing event ID.';
 $txt['cant_edit_event'] = 'You do not have permission to edit this event.';
 $txt['missing_board_id'] = 'Board ID is missing.';

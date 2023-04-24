@@ -18,6 +18,7 @@ use SMF\Config;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\Utils;
+use SMF\Actions\Calendar;
 use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
@@ -92,8 +93,7 @@ function ModifyHolidays()
 			$_REQUEST['holiday'][$id] = (int) $id;
 
 		// Now the IDs are "safe" do the delete...
-		require_once(Config::$sourcedir . '/Subs-Calendar.php');
-		removeHolidays($_REQUEST['holiday']);
+		Calendar::removeHolidays($_REQUEST['holiday']);
 	}
 
 	createToken('admin-mc');
@@ -104,12 +104,12 @@ function ModifyHolidays()
 		'base_href' => Config::$scripturl . '?action=admin;area=managecalendar;sa=holidays',
 		'default_sort_col' => 'name',
 		'get_items' => array(
-			'file' => Config::$sourcedir . '/Subs-Calendar.php',
-			'function' => 'list_getHolidays',
+			'file' => Config::$sourcedir . '/Actions/Calendar.php',
+			'function' => 'SMF\\Actions\\Calendar::list_getHolidays',
 		),
 		'get_count' => array(
-			'file' => Config::$sourcedir . '/Subs-Calendar.php',
-			'function' => 'list_getNumHolidays',
+			'file' => Config::$sourcedir . '/Actions/Calendar.php',
+			'function' => 'SMF\\Actions\\Calendar::list_getNumHolidays',
 		),
 		'no_items_label' => Lang::$txt['holidays_no_entries'],
 		'columns' => array(

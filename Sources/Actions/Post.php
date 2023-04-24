@@ -20,11 +20,13 @@ use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
+use SMF\Event;
 use SMF\Draft;
 use SMF\Lang;
 use SMF\MessageIndex;
 use SMF\Msg;
 use SMF\Theme;
+use SMF\Time;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -789,115 +791,63 @@ class Post implements ActionInterface
 			Utils::$context['current_board'] = 0;
 
 		// Start loading up the event info.
-		Utils::$context['event'] = array();
-		Utils::$context['event']['title'] = isset($_REQUEST['evtitle']) ? Utils::htmlspecialchars(stripslashes($_REQUEST['evtitle'])) : '';
-		Utils::$context['event']['location'] = isset($_REQUEST['event_location']) ? Utils::htmlspecialchars(stripslashes($_REQUEST['event_location'])) : '';
+		if (isset($_REQUEST['eventid']))
+			list(Utils::$context['event']) = Event::load((int) $_REQUEST['eventid']);
 
-		Utils::$context['event']['id'] = isset($_REQUEST['eventid']) ? (int) $_REQUEST['eventid'] : -1;
-		Utils::$context['event']['new'] = Utils::$context['event']['id'] == -1;
+		if (!(Utils::$context['event'] instanceof Event))
+			Utils::$context['event'] = new Event(-1);
 
 		// Permissions check!
 		isAllowedTo('calendar_post');
 
-		require_once(Config::$sourcedir . '/Subs-Calendar.php');
-
 		// We want a fairly compact version of the time, but as close as possible to the user's settings.
-		$time_string = strtr(get_date_or_time_format('time'), array(
-			'%I' => '%l',
-			'%H' => '%k',
-			'%S' => '',
-			'%r' => '%l:%M %p',
-			'%R' => '%k:%M',
-			'%T' => '%l:%M',
-		));
-
-		$time_string = preg_replace('~:(?=\s|$|%[pPzZ])~', '', $time_string);
+		$time_string = Time::getShortTimeFormat();
 
 		// Editing an event?  (but NOT previewing!?)
-		if (empty(Utils::$context['event']['new']) && !isset($_REQUEST['subject']))
+		if (empty(Utils::$context['event']->new) && !isset($_REQUEST['subject']))
 		{
 			// If the user doesn't have permission to edit the post in this topic, redirect them.
 			if ((empty(Topic::$info->id_member_started) || Topic::$info->id_member_started != User::$me->id || !allowedTo('modify_own')) && !allowedTo('modify_any'))
 			{
-				require_once(Config::$sourcedir . '/Actions/Calendar.php');
-				CalendarPost();
+				$calendar_action = Calendar::load();
+				$calendar_action->subaction = 'post';
+				$calendar_action->execute();
 				return;
 			}
-
-			// Get the current event information.
-			$eventProperties = getEventProperties(Utils::$context['event']['id']);
-			Utils::$context['event'] = array_merge(Utils::$context['event'], $eventProperties);
 		}
 		else
 		{
-			// Get the current event information.
-			$eventProperties = getNewEventDatetimes();
-			Utils::$context['event'] = array_merge(Utils::$context['event'], $eventProperties);
-
 			// Make sure the year and month are in the valid range.
-			if (Utils::$context['event']['month'] < 1 || Utils::$context['event']['month'] > 12)
+			if (Utils::$context['event']->month < 1 || Utils::$context['event']->month > 12)
 			{
 				fatal_lang_error('invalid_month', false);
 			}
 
-			if (Utils::$context['event']['year'] < Config::$modSettings['cal_minyear'] || Utils::$context['event']['year'] > Config::$modSettings['cal_maxyear'])
+			if (Utils::$context['event']->year < Config::$modSettings['cal_minyear'] || Utils::$context['event']->year > Config::$modSettings['cal_maxyear'])
 			{
 				fatal_lang_error('invalid_year', false);
 			}
 
-			Utils::$context['event']['categories'] = $this->board_list;
+			Utils::$context['event']->categories = $this->board_list;
 		}
-
-		// Find the last day of the month.
-		Utils::$context['event']['last_day'] = (int) smf_strftime('%d', mktime(0, 0, 0, Utils::$context['event']['month'] == 12 ? 1 : Utils::$context['event']['month'] + 1, 0, Utils::$context['event']['month'] == 12 ? Utils::$context['event']['year'] + 1 : Utils::$context['event']['year']));
 
 		// An all day event? Set up some nice defaults in case the user wants to change that
-		if (Utils::$context['event']['allday'] == true)
+		if (Utils::$context['event']->allday == true)
 		{
-			Utils::$context['event']['tz'] = User::getTimezone();
-			Utils::$context['event']['start_time'] = timeformat(time(), $time_string);
-			Utils::$context['event']['end_time'] = timeformat(time() + 3600, $time_string);
-		}
-		// Otherwise, just adjust these to look nice on the input form
-		else
-		{
-			Utils::$context['event']['start_time'] = Utils::$context['event']['start_time_orig'];
-			Utils::$context['event']['end_time'] = Utils::$context['event']['end_time_orig'];
+			Utils::$context['event']->tz = User::getTimezone();
+			Utils::$context['event']->start->modify(timeformat(time(), '%H:%M:%S'));
+			Utils::$context['event']->end->modify(timeformat(time() + 3600, '%H:%M:%S'));
 		}
 
 		// Need this so the user can select a timezone for the event.
-		Utils::$context['all_timezones'] = smf_list_timezones(Utils::$context['event']['start_date']);
+		Utils::$context['all_timezones'] = smf_list_timezones(Utils::$context['event']->start_date);
 
 		// If the event's timezone is not in SMF's standard list of time zones, try to fix it.
-		if (!isset(Utils::$context['all_timezones'][Utils::$context['event']['tz']]))
-		{
-			$later = strtotime('@' . Utils::$context['event']['start_timestamp'] . ' + 1 year');
-			$tzinfo = timezone_transitions_get(timezone_open(Utils::$context['event']['tz']), Utils::$context['event']['start_timestamp'], $later);
+		Utils::$context['event']->fixTimezone();
 
-			$found = false;
-			foreach (Utils::$context['all_timezones'] as $possible_tzid => $dummy)
-			{
-				$possible_tzinfo = timezone_transitions_get(timezone_open($possible_tzid), Utils::$context['event']['start_timestamp'], $later);
-
-				if ($tzinfo === $possible_tzinfo)
-				{
-					Utils::$context['event']['tz'] = $possible_tzid;
-					$found = true;
-					break;
-				}
-			}
-
-			// Hm. That's weird. Well, just prepend it to the list and let the user deal with it.
-			if (!$found)
-			{
-				$d = date_create(Utils::$context['event']['start_datetime'] . ' ' . Utils::$context['event']['tz']);
-				Utils::$context['all_timezones'] = array(Utils::$context['event']['tz'] => '[UTC' . date_format($d, 'P') . '] - ' . Utils::$context['event']['tz']) + Utils::$context['all_timezones'];
-			}
-		}
-
-		loadDatePicker('#event_time_input .date_input');
-		loadTimePicker('#event_time_input .time_input', $time_string);
-		loadDatePair('#event_time_input', 'date_input', 'time_input');
+		Calendar::loadDatePicker('#event_time_input .date_input');
+		Calendar::loadTimePicker('#event_time_input .time_input', $time_string);
+		Calendar::loadDatePair('#event_time_input', 'date_input', 'time_input');
 		Theme::addInlineJavaScript('
 		$("#allday").click(function(){
 			$("#start_time").attr("disabled", this.checked);
@@ -905,8 +855,8 @@ class Post implements ActionInterface
 			$("#tz").attr("disabled", this.checked);
 		});	', true);
 
-		Utils::$context['event']['board'] = !empty(Board::$info->id) ? Board::$info->id : Config::$modSettings['cal_defaultboard'];
-		Utils::$context['event']['topic'] = !empty(Topic::$info->id) ? Topic::$info->id : 0;
+		Utils::$context['event']->board = !empty(Board::$info->id) ? Board::$info->id : Config::$modSettings['cal_defaultboard'];
+		Utils::$context['event']->topic = !empty(Topic::$info->id) ? Topic::$info->id : 0;
 	}
 
 	/**
@@ -1826,7 +1776,7 @@ class Post implements ActionInterface
 		}
 		elseif (Utils::$context['make_event'])
 		{
-			Utils::$context['page_title'] = Utils::$context['event']['id'] == -1 ? Lang::$txt['calendar_post_event'] : Lang::$txt['calendar_edit'];
+			Utils::$context['page_title'] = Utils::$context['event']->id == -1 ? Lang::$txt['calendar_post_event'] : Lang::$txt['calendar_edit'];
 		}
 		elseif (isset($_REQUEST['msg']))
 		{

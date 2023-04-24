@@ -20,6 +20,7 @@ use SMF\Forum;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -32,6 +33,7 @@ if (!defined('SMF'))
 class_exists('SMF\\Attachment');
 class_exists('SMF\\BBCodeParser');
 class_exists('SMF\\Theme');
+class_exists('SMF\\Time');
 class_exists('SMF\\User');
 class_exists('SMF\\Utils');
 
@@ -455,134 +457,10 @@ function timeformat($log_time, $show_today = true, $tzid = null)
 	// If $show_today is not a bool, use it as the date format & don't use User::$me->time_format. Allows for temp override of the format.
 	$format = !is_bool($show_today) ? $show_today : User::$me->time_format;
 
-	$format = !empty($prefix) ? get_date_or_time_format('time', $format) : $format;
+	$format = !empty($prefix) ? Time::getDateOrTimeFormat('time', $format) : $format;
 
 	// And now, the moment we've all be waiting for...
 	return $prefix . smf_strftime($format, $log_time, $tzid);
-}
-
-/**
- * Gets a version of a strftime() format that only shows the date or time components
- *
- * @param string $type Either 'date' or 'time'.
- * @param string $format A strftime() format to process. Defaults to User::$me->time_format.
- * @return string A strftime() format string
- */
-function get_date_or_time_format($type = '', $format = '')
-{
-	static $formats;
-
-	// If the format is invalid, fall back to defaults.
-	if (strpos($format, '%') === false)
-		$format = !empty(User::$me->time_format) ? User::$me->time_format : (!empty(Config::$modSettings['time_format']) ? Config::$modSettings['time_format'] : '%F %k:%M');
-
-	$orig_format = $format;
-
-	// Have we already done this?
-	if (isset($formats[$orig_format][$type]))
-		return $formats[$orig_format][$type];
-
-	if ($type === 'date')
-	{
-		$specifications = array(
-			// Day
-			'%a' => '%a', '%A' => '%A', '%e' => '%e', '%d' => '%d', '%j' => '%j', '%u' => '%u', '%w' => '%w',
-			// Week
-			'%U' => '%U', '%V' => '%V', '%W' => '%W',
-			// Month
-			'%b' => '%b', '%B' => '%B', '%h' => '%h', '%m' => '%m',
-			// Year
-			'%C' => '%C', '%g' => '%g', '%G' => '%G', '%y' => '%y', '%Y' => '%Y',
-			// Time
-			'%H' => '', '%k' => '', '%I' => '', '%l' => '', '%M' => '', '%p' => '', '%P' => '',
-			'%r' => '', '%R' => '', '%S' => '', '%T' => '', '%X' => '', '%z' => '', '%Z' => '',
-			// Time and Date Stamps
-			'%c' => '%x', '%D' => '%D', '%F' => '%F', '%s' => '%s', '%x' => '%x',
-			// Miscellaneous
-			'%n' => '', '%t' => '', '%%' => '%%',
-		);
-
-		$default_format = '%F';
-	}
-	elseif ($type === 'time')
-	{
-		$specifications = array(
-			// Day
-			'%a' => '', '%A' => '', '%e' => '', '%d' => '', '%j' => '', '%u' => '', '%w' => '',
-			// Week
-			'%U' => '', '%V' => '', '%W' => '',
-			// Month
-			'%b' => '', '%B' => '', '%h' => '', '%m' => '',
-			// Year
-			'%C' => '', '%g' => '', '%G' => '', '%y' => '', '%Y' => '',
-			// Time
-			'%H' => '%H', '%k' => '%k', '%I' => '%I', '%l' => '%l', '%M' => '%M', '%p' => '%p', '%P' => '%P',
-			'%r' => '%r', '%R' => '%R', '%S' => '%S', '%T' => '%T', '%X' => '%X', '%z' => '%z', '%Z' => '%Z',
-			// Time and Date Stamps
-			'%c' => '%X', '%D' => '', '%F' => '', '%s' => '%s', '%x' => '',
-			// Miscellaneous
-			'%n' => '', '%t' => '', '%%' => '%%',
-		);
-
-		$default_format = '%k:%M';
-	}
-	// Invalid type requests just get the full format string.
-	else
-		return $format;
-
-	// Separate the specifications we want from the ones we don't.
-	$wanted = array_filter($specifications);
-	$unwanted = array_diff(array_keys($specifications), $wanted);
-
-	// First, make any necessary substitutions in the format.
-	$format = strtr($format, $wanted);
-
-	// Next, strip out any specifications and literal text that we don't want.
-	$format_parts = preg_split('~%[' . (strtr(implode('', $unwanted), array('%' => ''))) . ']~u', $format);
-
-	foreach ($format_parts as $p => $f)
-	{
-		if (strpos($f, '%') === false)
-			unset($format_parts[$p]);
-	}
-
-	$format = implode('', $format_parts);
-
-	// Finally, strip out any unwanted leftovers.
-	// For info on the charcter classes used here, see https://www.php.net/manual/en/regexp.reference.unicode.php and https://www.regular-expressions.info/unicode.html
-	$format = preg_replace(
-		array(
-			// Anything that isn't a specification, punctuation mark, or whitespace.
-			'~(?<!%)\p{L}|[^\p{L}\p{P}\s]~u',
-			// Repeated punctuation marks (except %), possibly separated by whitespace.
-			'~(?'.'>([^%\P{P}])\s*(?=\1))*~u',
-			'~([^%\P{P}])(?'.'>\1(?!$))*~u',
-			// Unwanted trailing punctuation and whitespace.
-			'~(?'.'>([\p{Pd}\p{Ps}\p{Pi}\p{Pc}]|[^%\P{Po}])\s*)*$~u',
-			// Unwanted opening punctuation and whitespace.
-			'~^\s*(?'.'>([\p{Pd}\p{Pe}\p{Pf}\p{Pc}]|[^%\P{Po}])\s*)*~u',
-			// Runs of horizontal whitespace.
-			'~\s+~',
-		),
-		array(
-			'',
-			'$1',
-			'$1$2',
-			'',
-			'',
-			' ',
-		),
-		$format
-	);
-
-	// Gotta have something...
-	if (empty($format))
-		$format = $default_format;
-
-	// Remember what we've done.
-	$formats[$orig_format][$type] = trim($format);
-
-	return $formats[$orig_format][$type];
 }
 
 /**

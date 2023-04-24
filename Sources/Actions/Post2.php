@@ -21,6 +21,7 @@ use SMF\BrowserDetector;
 use SMF\Board;
 use SMF\Config;
 use SMF\Draft;
+use SMF\Event;
 use SMF\Lang;
 use SMF\MessageIndex;
 use SMF\Msg;
@@ -680,10 +681,8 @@ class Post2 extends Post
 		// Editing or posting an event?
 		if (isset($_POST['calendar']) && (!isset($_REQUEST['eventid']) || $_REQUEST['eventid'] == -1))
 		{
-			require_once(Config::$sourcedir . '/Subs-Calendar.php');
-
 			// Make sure they can link an event to this post.
-			canLinkEvent();
+			Calendar::canLinkEvent();
 
 			// Insert the event.
 			$eventOptions = array(
@@ -693,33 +692,19 @@ class Post2 extends Post
 				'location' => $_POST['event_location'],
 				'member' => User::$me->id,
 			);
-			insertEvent($eventOptions);
+			Event::create($eventOptions);
 		}
 		elseif (isset($_POST['calendar']))
 		{
 			$_REQUEST['eventid'] = (int) $_REQUEST['eventid'];
 
 			// Validate the post...
-			require_once(Config::$sourcedir . '/Subs-Calendar.php');
-			validateEventPost();
+			Calendar::validateEventPost();
 
-			// If you're not allowed to edit any events, you have to be the poster.
+			// If you're not allowed to edit any and all events, you have to be the poster.
 			if (!allowedTo('calendar_edit_any'))
 			{
-				// Get the event's poster.
-				$request = Db::$db->query('', '
-					SELECT id_member
-					FROM {db_prefix}calendar
-					WHERE id_event = {int:id_event}',
-					array(
-						'id_event' => $_REQUEST['eventid'],
-					)
-				);
-				$row2 = Db::$db->fetch_assoc($request);
-				Db::$db->free_result($request);
-
-				// Silly hacker, Trix are for kids. ...probably trademarked somewhere, this is FAIR USE! (parody...)
-				isAllowedTo('calendar_edit_' . ($row2['id_member'] == User::$me->id ? 'own' : 'any'));
+				isAllowedTo('calendar_edit_' . (!empty(User::$me->id) && self::getEventPoster($_REQUEST['eventid']) == User::$me->id ? 'own' : 'any'));
 			}
 
 			// Delete it?
@@ -744,7 +729,7 @@ class Post2 extends Post
 					'location' => $_POST['event_location'],
 					'member' => User::$me->id,
 				);
-				modifyEvent($_REQUEST['eventid'], $eventOptions);
+				Event::modify($_REQUEST['eventid'], $eventOptions);
 			}
 		}
 

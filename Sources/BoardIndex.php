@@ -13,6 +13,7 @@
 
 namespace SMF;
 
+use SMF\Actions\Calendar;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
@@ -103,7 +104,7 @@ class BoardIndex
 				'num_days_shown' => empty(Config::$modSettings['cal_days_for_index']) || Config::$modSettings['cal_days_for_index'] < 1 ? 1 : Config::$modSettings['cal_days_for_index'],
 			);
 
-			Utils::$context += CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
+			Utils::$context += CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', 'SMF\\Actions\\Calendar::cache_getRecentEvents', array($eventOptions));
 
 			// Whether one or multiple days are shown on the board index.
 			Utils::$context['calendar_only_today'] = Config::$modSettings['cal_days_for_index'] == 1;
