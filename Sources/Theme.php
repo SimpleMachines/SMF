@@ -13,6 +13,7 @@
 
 namespace SMF;
 
+use SMF\Actions\Agreement;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
@@ -2650,11 +2651,9 @@ class Theme
 		// 4c. Get a feed (RSS, ATOM, etc.)
 		if (!empty(User::$me->id) && empty(User::$me->is_admin) && SMF != 'SSI' && !isset($_REQUEST['xml']) && !is_filtered_request($this->agreement_actions, 'action'))
 		{
-			require_once(Config::$sourcedir . '/Actions/Agreement.php');
+			$can_accept_agreement = !empty(Config::$modSettings['requireAgreement']) && Agreement::canRequireAgreement();
 
-			$can_accept_agreement = !empty(Config::$modSettings['requireAgreement']) && canRequireAgreement();
-
-			$can_accept_privacy_policy = !empty(Config::$modSettings['requirePolicyAgreement']) && canRequirePrivacyPolicy();
+			$can_accept_privacy_policy = !empty(Config::$modSettings['requirePolicyAgreement']) && Agreement::canRequirePrivacyPolicy();
 
 			if ($can_accept_agreement || $can_accept_privacy_policy)
 				redirectexit('action=agreement');
