@@ -129,7 +129,7 @@ div#post_attachments_area.roundframe {
 	display: flex;
 	justify-content: center;
 	margin: 0.5em 0;
-	min-height: 175px;
+	min-height: 75px;
 	max-height: 200px;
 	width: auto;
 }
