@@ -30,7 +30,7 @@
 }
 .attachments_bot a,
 .attachments_bot .name,
-.attachments_info .name, {
+.attachments_info .name {
 	white-space: nowrap;
 }
 
