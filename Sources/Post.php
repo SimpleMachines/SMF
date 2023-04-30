@@ -1748,7 +1748,7 @@ function Post2()
 	Utils::$context['can_post_attachment'] = !empty(Config::$modSettings['attachmentEnable']) && Config::$modSettings['attachmentEnable'] == 1 && (allowedTo('post_attachment') || (Config::$modSettings['postmod_active'] && allowedTo('post_unapproved_attachments')));
 	if (Utils::$context['can_post_attachment'] && empty($_POST['from_qr']))
 	{
-		require_once(Config::$sourcedir . '/Subs-Attachments.php');
+		require_once(Config::$sourcedir . '/Attachment.php');
 		processAttachments();
 	}
 
@@ -2437,7 +2437,7 @@ function Post2()
 	// Are there attachments already uploaded and waiting to be assigned?
 	if (!empty($msgOptions['id']) && !empty($_SESSION['already_attached']))
 	{
-		require_once(Config::$sourcedir . '/Subs-Attachments.php');
+		require_once(Config::$sourcedir . '/Attachment.php');
 		assignAttachments($_SESSION['already_attached'], $msgOptions['id']);
 		unset($_SESSION['already_attached']);
 	}

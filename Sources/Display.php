@@ -1581,7 +1581,7 @@ class Display
 			// Fetch attachments.
 			if (!empty(Config::$modSettings['attachmentEnable']) && allowedTo('view_attachments'))
 			{
-				require_once(Config::$sourcedir . '/Subs-Attachments.php');
+				require_once(Config::$sourcedir . '/Attachment.php');
 				prepareAttachsByMsg($this->messages);
 			}
 

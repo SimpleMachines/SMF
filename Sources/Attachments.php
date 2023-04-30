@@ -159,7 +159,7 @@ class Attachments
 	 */
 	public function execute()
 	{
-		require_once(Config::$sourcedir . '/Subs-Attachments.php');
+		require_once(Config::$sourcedir . '/Attachment.php');
 
 		// Need this. For reasons...
 		Lang::load('Post');

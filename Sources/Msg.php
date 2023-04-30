@@ -279,7 +279,7 @@ class Msg implements \ArrayAccess
 	 */
 	public function format(int $counter = 0, array $format_options = array()): array
 	{
-		require_once(Config::$sourcedir . '/Subs-Attachments.php');
+		require_once(Config::$sourcedir . '/Attachment.php');
 
 		// These options are enabled by default.
 		$format_options['do_permissions'] = $format_options['do_permissions'] ?? true;
