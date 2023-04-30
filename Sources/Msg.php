@@ -279,8 +279,6 @@ class Msg implements \ArrayAccess
 	 */
 	public function format(int $counter = 0, array $format_options = array()): array
 	{
-		require_once(Config::$sourcedir . '/Attachment.php');
-
 		// These options are enabled by default.
 		$format_options['do_permissions'] = $format_options['do_permissions'] ?? true;
 		$format_options['do_icon'] = $format_options['do_icon'] ?? true;
@@ -294,7 +292,7 @@ class Msg implements \ArrayAccess
 
 		// Compose the memory eat- I mean message array.
 		$this->formatted += array(
-			'attachment' => !empty(Utils::$context['loaded_attachments']) ? loadAttachmentContext($this->id, Utils::$context['loaded_attachments']) : array(),
+			'attachment' => !empty(Utils::$context['loaded_attachments']) ? Attachment::loadAttachmentContext($this->id, Utils::$context['loaded_attachments']) : array(),
 			'id' => $this->id,
 			'topic' => $this->id_topic,
 			'board' => $format_options['load_board'] ? Board::init($this->id_board) : $this->id_board,

@@ -13,6 +13,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Attachment;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
@@ -64,8 +65,7 @@ function getLastPosts($latestPostOptions)
 		foreach ($rows as $row)
 			$msgIDs[] = $row['id_msg'];
 
-		require_once(Config::$sourcedir . '/Attachment.php');
-		prepareAttachsByMsg($msgIDs);
+		Attachment::prepareByMsg($msgIDs);
 	}
 
 	$posts = array();

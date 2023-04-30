@@ -159,8 +159,6 @@ class Attachments
 	 */
 	public function execute()
 	{
-		require_once(Config::$sourcedir . '/Attachment.php');
-
 		// Need this. For reasons...
 		Lang::load('Post');
 
@@ -267,7 +265,7 @@ class Attachments
 
 		// Make sure we're uploading to the right place.
 		if (!empty(Config::$modSettings['automanage_attachments']))
-			automanage_attachments_check_directory();
+			Attachment::automanageCheckDirectory();
 
 		// Is the attachments folder actually there?
 		if (!empty(Utils::$context['dir_creation_error']))
@@ -395,7 +393,7 @@ class Attachments
 
 			// If there's no errors to this point. We still do need to apply some additional checks before we are finished.
 			if (empty($_SESSION['temp_attachments'][$attachID]['errors']))
-				attachmentChecks($attachID);
+				Attachment::check($attachID);
 		}
 
 		// Mod authors, finally a hook to hang an alternate attachment upload system upon
@@ -436,7 +434,7 @@ class Attachments
 
 			if (empty($attachment['errors']))
 			{
-				if (createAttachment($attachmentOptions))
+				if (Attachment::create($attachmentOptions))
 				{
 					// Avoid JS getting confused.
 					$attachmentOptions['attachID'] = $attachmentOptions['id'];
@@ -448,7 +446,7 @@ class Attachments
 						$_SESSION['already_attached'][$attachmentOptions['thumb']] = $attachmentOptions['thumb'];
 
 					if ($this->_msg)
-						assignAttachments($_SESSION['already_attached'], $this->_msg);
+						Attachment::assign($_SESSION['already_attached'], $this->_msg);
 				}
 			}
 			else

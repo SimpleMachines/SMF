@@ -14,6 +14,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Attachment;
 use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 use SMF\Board;
@@ -590,18 +591,15 @@ function Post($post_errors = array())
 				SELECT
 					m.id_member, m.modified_time, m.smileys_enabled, m.body,
 					m.poster_name, m.poster_email, m.subject, m.icon, m.approved,
-					COALESCE(a.size, -1) AS filesize, a.filename, a.id_attach,
-					a.approved AS attachment_approved, t.id_member_started AS id_member_poster,
+					t.id_member_started AS id_member_poster,
 					m.poster_time, log.id_action, t.id_first_msg
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
-					LEFT JOIN {db_prefix}attachments AS a ON (a.id_msg = m.id_msg AND a.attachment_type = {int:attachment_type})
 					LEFT JOIN {db_prefix}log_actions AS log ON (m.id_topic = log.id_topic AND log.action = {string:announce_action})
 				WHERE m.id_msg = {int:id_msg}
 					AND m.id_topic = {int:current_topic}',
 				array(
 					'current_topic' => Topic::$topic_id,
-					'attachment_type' => 0,
 					'id_msg' => $_REQUEST['msg'],
 					'announce_action' => 'announce_topic',
 				)
@@ -611,11 +609,6 @@ function Post($post_errors = array())
 			if (Db::$db->num_rows($request) == 0)
 				fatal_lang_error('no_board', false);
 			$row = Db::$db->fetch_assoc($request);
-
-			$attachment_stuff = array($row);
-			while ($row2 = Db::$db->fetch_assoc($request))
-				$attachment_stuff[] = $row2;
-			Db::$db->free_result($request);
 
 			if ($row['id_member'] == User::$me->id && !allowedTo('modify_any'))
 			{
@@ -640,32 +633,7 @@ function Post($post_errors = array())
 
 			if (!empty(Config::$modSettings['attachmentEnable']))
 			{
-				$request = Db::$db->query('', '
-					SELECT COALESCE(size, -1) AS filesize, filename, id_attach, approved, mime_type, id_thumb
-					FROM {db_prefix}attachments
-					WHERE id_msg = {int:id_msg}
-						AND attachment_type = {int:attachment_type}
-					ORDER BY id_attach',
-					array(
-						'id_msg' => (int) $_REQUEST['msg'],
-						'attachment_type' => 0,
-					)
-				);
-
-				while ($row = Db::$db->fetch_assoc($request))
-				{
-					if ($row['filesize'] <= 0)
-						continue;
-					Utils::$context['current_attachments'][$row['id_attach']] = array(
-						'name' => Utils::htmlspecialchars($row['filename']),
-						'size' => $row['filesize'],
-						'attachID' => $row['id_attach'],
-						'approved' => $row['approved'],
-						'mime_type' => $row['mime_type'],
-						'thumb' => $row['id_thumb'],
-					);
-				}
-				Db::$db->free_result($request);
+				Utils::$context['current_attachments'] = Attachment::loadByMsg($_REQUEST['msg'], Attachment::APPROVED_ANY);
 			}
 
 			// Allow moderators to change names....
@@ -708,18 +676,15 @@ function Post($post_errors = array())
 			SELECT
 				m.id_member, m.modified_time, m.modified_name, m.modified_reason, m.smileys_enabled, m.body,
 				m.poster_name, m.poster_email, m.subject, m.icon, m.approved,
-				COALESCE(a.size, -1) AS filesize, a.filename, a.id_attach, a.mime_type, a.id_thumb,
-				a.approved AS attachment_approved, t.id_member_started AS id_member_poster,
+				t.id_member_started AS id_member_poster,
 				m.poster_time, log.id_action, t.id_first_msg
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
-				LEFT JOIN {db_prefix}attachments AS a ON (a.id_msg = m.id_msg AND a.attachment_type = {int:attachment_type})
-					LEFT JOIN {db_prefix}log_actions AS log ON (m.id_topic = log.id_topic AND log.action = {string:announce_action})
+				LEFT JOIN {db_prefix}log_actions AS log ON (m.id_topic = log.id_topic AND log.action = {string:announce_action})
 			WHERE m.id_msg = {int:id_msg}
 				AND m.id_topic = {int:current_topic}',
 			array(
 				'current_topic' => Topic::$topic_id,
-				'attachment_type' => 0,
 				'id_msg' => $_REQUEST['msg'],
 				'announce_action' => 'announce_topic',
 			)
@@ -729,10 +694,10 @@ function Post($post_errors = array())
 			fatal_lang_error('no_message', false);
 		$row = Db::$db->fetch_assoc($request);
 
-		$attachment_stuff = array($row);
-		while ($row2 = Db::$db->fetch_assoc($request))
-			$attachment_stuff[] = $row2;
-		Db::$db->free_result($request);
+		if (!empty(Config::$modSettings['attachmentEnable']))
+		{
+			Utils::$context['current_attachments'] = Attachment::loadByMsg($_REQUEST['msg'], Attachment::APPROVED_ANY);
+		}
 
 		if ($row['id_member'] == User::$me->id && !allowedTo('modify_any'))
 		{
@@ -779,27 +744,10 @@ function Post($post_errors = array())
 		if (!$row['approved'] && !empty(Utils::$context['show_approval']))
 			Utils::$context['show_approval'] = 1;
 
-		// Sort the attachments so they are in the order saved
-		$temp = array();
-		foreach ($attachment_stuff as $attachment)
-		{
-			if ($attachment['filesize'] >= 0 && !empty(Config::$modSettings['attachmentEnable']))
-				$temp[$attachment['id_attach']] = $attachment;
-		}
-		ksort($temp);
-
 		// Load up 'em attachments!
-		foreach ($temp as $attachment)
+		if (!empty(Config::$modSettings['attachmentEnable']))
 		{
-			Utils::$context['current_attachments'][$attachment['id_attach']] = array(
-				'name' => Utils::htmlspecialchars($attachment['filename']),
-				'size' => $attachment['filesize'],
-				'attachID' => $attachment['id_attach'],
-				'href' => $scripturl . '?action=dlattach;attach=' . $attachment['id_attach'],
-				'approved' => $attachment['attachment_approved'],
-				'mime_type' => $attachment['mime_type'],
-				'thumb' => $attachment['id_thumb'],
-			);
+			Utils::$context['current_attachments'] = Attachment::loadByMsg($_REQUEST['msg'], Attachment::APPROVED_ANY);
 		}
 
 		// Allow moderators to change names....
@@ -1049,9 +997,10 @@ function Post($post_errors = array())
 					Utils::$context['files_in_session_warning'] = Lang::$txt['attached_files_in_session'];
 
 				Utils::$context['current_attachments'][$attachID] = array(
-					'name' => Utils::htmlspecialchars($attachment['name']),
+					'name' => $attachment['name'],
 					'size' => $attachment['size'],
 					'attachID' => $attachID,
+					'href' => Config::$scripturl . '?action=dlattach;attach=' . $attachID,
 					'unchecked' => false,
 					'approved' => 1,
 					'mime_type' => '',
@@ -1082,30 +1031,7 @@ function Post($post_errors = array())
 	// We need to make sure *all* of these are in Utils::$context['current_attachments'], otherwise they won't show in dropzone during edits.
 	if (!empty($_SESSION['already_attached']))
 	{
-		$request = Db::$db->query('', '
-			SELECT
-				a.id_attach, a.filename, COALESCE(a.size, 0) AS filesize, a.approved, a.mime_type, a.id_thumb
-			FROM {db_prefix}attachments AS a
-			WHERE a.attachment_type = {int:attachment_type}
-				AND a.id_attach IN ({array_int:just_uploaded})',
-			array(
-				'attachment_type' => 0,
-				'just_uploaded' => $_SESSION['already_attached']
-			)
-		);
-
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			Utils::$context['current_attachments'][$row['id_attach']] = array(
-				'name' => Utils::htmlspecialchars($row['filename']),
-				'size' => $row['filesize'],
-				'attachID' => $row['id_attach'],
-				'approved' => $row['approved'],
-				'mime_type' => $row['mime_type'],
-				'thumb' => $row['id_thumb'],
-			);
-		}
-		Db::$db->free_result($request);
+		Utils::$context['current_attachments'] = Attachment::load($_SESSION['already_attached'], Attachment::APPROVED_ANY, Attachment::TYPE_STANDARD);
 	}
 
 	// Do we need to show the visual verification image?
@@ -1748,8 +1674,7 @@ function Post2()
 	Utils::$context['can_post_attachment'] = !empty(Config::$modSettings['attachmentEnable']) && Config::$modSettings['attachmentEnable'] == 1 && (allowedTo('post_attachment') || (Config::$modSettings['postmod_active'] && allowedTo('post_unapproved_attachments')));
 	if (Utils::$context['can_post_attachment'] && empty($_POST['from_qr']))
 	{
-		require_once(Config::$sourcedir . '/Attachment.php');
-		processAttachments();
+		Attachment::process();
 	}
 
 	// They've already uploaded some attachments, but they don't have permission to post them
@@ -2295,7 +2220,7 @@ function Post2()
 
 			if (empty($attachment['errors']))
 			{
-				if (createAttachment($attachmentOptions))
+				if (Attachment::create($attachmentOptions))
 				{
 					$attachIDs[] = $attachmentOptions['id'];
 					if (!empty($attachmentOptions['thumb']))
@@ -2437,8 +2362,7 @@ function Post2()
 	// Are there attachments already uploaded and waiting to be assigned?
 	if (!empty($msgOptions['id']) && !empty($_SESSION['already_attached']))
 	{
-		require_once(Config::$sourcedir . '/Attachment.php');
-		assignAttachments($_SESSION['already_attached'], $msgOptions['id']);
+		Attachment::assign($_SESSION['already_attached'], $msgOptions['id']);
 		unset($_SESSION['already_attached']);
 	}
 

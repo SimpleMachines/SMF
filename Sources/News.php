@@ -13,6 +13,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Attachment;
 use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 use SMF\Board;
@@ -914,27 +915,7 @@ function getXmlNews($xml_format, $ascending = false)
 		// Do we want to include any attachments?
 		if (!empty(Config::$modSettings['attachmentEnable']) && !empty(Config::$modSettings['xmlnews_attachments']) && allowedTo('view_attachments', $row['id_board']))
 		{
-			$attach_request = Db::$db->query('', '
-				SELECT
-					a.id_attach, a.filename, COALESCE(a.size, 0) AS filesize, a.mime_type, a.downloads, a.approved, m.id_topic AS topic
-				FROM {db_prefix}attachments AS a
-					LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
-				WHERE a.attachment_type = {int:attachment_type}
-					AND a.id_msg = {int:message_id}',
-				array(
-					'message_id' => $row['id_msg'],
-					'attachment_type' => 0,
-					'is_approved' => 1,
-				)
-			);
-			$loaded_attachments = array();
-			while ($attach = Db::$db->fetch_assoc($attach_request))
-			{
-				// Include approved attachments only
-				if ($attach['approved'])
-					$loaded_attachments['attachment_' . $attach['id_attach']] = $attach;
-			}
-			Db::$db->free_result($attach_request);
+			$loaded_attachments = Attachment::loadByMsg($row['id_msg'], Attachment::APPROVED_TRUE);
 
 			// Sort the attachments by size to make things easier below
 			if (!empty($loaded_attachments))
@@ -943,10 +924,10 @@ function getXmlNews($xml_format, $ascending = false)
 					$loaded_attachments,
 					function($a, $b)
 					{
-						if ($a['filesize'] == $b['filesize'])
+						if ($a->size == $b->size)
 							return 0;
 
-						return ($a['filesize'] < $b['filesize']) ? -1 : 1;
+						return ($a->size < $b->size) ? -1 : 1;
 					}
 				);
 			}
@@ -967,9 +948,9 @@ function getXmlNews($xml_format, $ascending = false)
 			{
 				$attachment = array_pop($loaded_attachments);
 				$enclosure = array(
-					'url' => fix_possible_url(Config::$scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach']),
-					'length' => $attachment['filesize'],
-					'type' => $attachment['mime_type'],
+					'url' => fix_possible_url(Config::$scripturl . '?action=dlattach;topic=' . $attachment->topic . '.0;attach=' . $attachment->id),
+					'length' => $attachment->size,
+					'type' => $attachment->mime_type,
 				);
 			}
 			else
@@ -1059,9 +1040,9 @@ function getXmlNews($xml_format, $ascending = false)
 				$attachment = array_pop($loaded_attachments);
 				$enclosure = array(
 					'rel' => 'enclosure',
-					'href' => fix_possible_url(Config::$scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach']),
-					'length' => $attachment['filesize'],
-					'type' => $attachment['mime_type'],
+					'href' => fix_possible_url(Config::$scripturl . '?action=dlattach;topic=' . $attachment->topic . '.0;attach=' . $attachment->id),
+					'length' => $attachment->size,
+					'type' => $attachment->mime_type,
 				);
 			}
 			else
@@ -1148,32 +1129,32 @@ function getXmlNews($xml_format, $ascending = false)
 						'content' => array(
 							array(
 								'tag' => 'id',
-								'content' => $attachment['id_attach'],
+								'content' => $attachment->id,
 							),
 							array(
 								'tag' => 'name',
 								'attributes' => array('label' => Lang::$txt['name']),
-								'content' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', Utils::htmlspecialchars($attachment['filename'])),
+								'content' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $attachment->name),
 							),
 							array(
 								'tag' => 'downloads',
 								'attributes' => array('label' => Lang::$txt['downloads']),
-								'content' => $attachment['downloads'],
+								'content' => $attachment->downloads,
 							),
 							array(
 								'tag' => 'size',
 								'attributes' => array('label' => Lang::$txt['filesize']),
-								'content' => ($attachment['filesize'] < 1024000) ? round($attachment['filesize'] / 1024, 2) . ' ' . Lang::$txt['kilobyte'] : round($attachment['filesize'] / 1024 / 1024, 2) . ' ' . Lang::$txt['megabyte'],
+								'content' => ($attachment->size < 1024000) ? round($attachment->size / 1024, 2) . ' ' . Lang::$txt['kilobyte'] : round($attachment->size / 1024 / 1024, 2) . ' ' . Lang::$txt['megabyte'],
 							),
 							array(
 								'tag' => 'byte_size',
 								'attributes' => array('label' => Lang::$txt['filesize']),
-								'content' => $attachment['filesize'],
+								'content' => $attachment->size,
 							),
 							array(
 								'tag' => 'link',
 								'attributes' => array('label' => Lang::$txt['url']),
-								'content' => Config::$scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'],
+								'content' => Config::$scripturl . '?action=dlattach;topic=' . $attachment->topic . '.0;attach=' . $attachment->id,
 							),
 						)
 					);
@@ -1284,8 +1265,6 @@ function getXmlRecent($xml_format)
 {
 	global $query_this_board;
 
-	require_once(Config::$sourcedir . '/Attachment.php');
-
 	$done = false;
 	$loops = 0;
 	while (!$done)
@@ -1373,27 +1352,7 @@ function getXmlRecent($xml_format)
 		// Do we want to include any attachments?
 		if (!empty(Config::$modSettings['attachmentEnable']) && !empty(Config::$modSettings['xmlnews_attachments']) && allowedTo('view_attachments', $row['id_board']))
 		{
-			$attach_request = Db::$db->query('', '
-				SELECT
-					a.id_attach, a.filename, COALESCE(a.size, 0) AS filesize, a.mime_type, a.downloads, a.approved, m.id_topic AS topic
-				FROM {db_prefix}attachments AS a
-					LEFT JOIN {db_prefix}messages AS m ON (a.id_msg = m.id_msg)
-				WHERE a.attachment_type = {int:attachment_type}
-					AND a.id_msg = {int:message_id}',
-				array(
-					'message_id' => $row['id_msg'],
-					'attachment_type' => 0,
-					'is_approved' => 1,
-				)
-			);
-			$loaded_attachments = array();
-			while ($attach = Db::$db->fetch_assoc($attach_request))
-			{
-				// Include approved attachments only
-				if ($attach['approved'])
-					$loaded_attachments['attachment_' . $attach['id_attach']] = $attach;
-			}
-			Db::$db->free_result($attach_request);
+			$loaded_attachments = Attachment::loadByMsg($row['id_msg'], Attachment::APPROVED_TRUE);
 
 			// Sort the attachments by size to make things easier below
 			if (!empty($loaded_attachments))
@@ -1402,10 +1361,10 @@ function getXmlRecent($xml_format)
 					$loaded_attachments,
 					function($a, $b)
 					{
-						if ($a['filesize'] == $b['filesize'])
+						if ($a->size == $b->size)
 							return 0;
 
-						return ($a['filesize'] < $b['filesize']) ? -1 : 1;
+						return ($a->size < $b->size) ? -1 : 1;
 					}
 				);
 			}
@@ -1426,9 +1385,9 @@ function getXmlRecent($xml_format)
 			{
 				$attachment = array_pop($loaded_attachments);
 				$enclosure = array(
-					'url' => fix_possible_url(Config::$scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach']),
-					'length' => $attachment['filesize'],
-					'type' => $attachment['mime_type'],
+					'url' => fix_possible_url(Config::$scripturl . '?action=dlattach;topic=' . $attachment->topic . '.0;attach=' . $attachment->id),
+					'length' => $attachment->size,
+					'type' => $attachment->mime_type,
 				);
 			}
 			else
@@ -1518,9 +1477,9 @@ function getXmlRecent($xml_format)
 				$attachment = array_pop($loaded_attachments);
 				$enclosure = array(
 					'rel' => 'enclosure',
-					'href' => fix_possible_url(Config::$scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach']),
-					'length' => $attachment['filesize'],
-					'type' => $attachment['mime_type'],
+					'href' => fix_possible_url(Config::$scripturl . '?action=dlattach;topic=' . $attachment->topic . '.0;attach=' . $attachment->id),
+					'length' => $attachment->size,
+					'type' => $attachment->mime_type,
 				);
 			}
 			else
@@ -1607,32 +1566,32 @@ function getXmlRecent($xml_format)
 						'content' => array(
 							array(
 								'tag' => 'id',
-								'content' => $attachment['id_attach'],
+								'content' => $attachment->id,
 							),
 							array(
 								'tag' => 'name',
 								'attributes' => array('label' => Lang::$txt['name']),
-								'content' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', Utils::htmlspecialchars($attachment['filename'])),
+								'content' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $attachment->name),
 							),
 							array(
 								'tag' => 'downloads',
 								'attributes' => array('label' => Lang::$txt['downloads']),
-								'content' => $attachment['downloads'],
+								'content' => $attachment->downloads,
 							),
 							array(
 								'tag' => 'size',
 								'attributes' => array('label' => Lang::$txt['filesize']),
-								'content' => ($attachment['filesize'] < 1024000) ? round($attachment['filesize'] / 1024, 2) . ' ' . Lang::$txt['kilobyte'] : round($attachment['filesize'] / 1024 / 1024, 2) . ' ' . Lang::$txt['megabyte'],
+								'content' => ($attachment->size < 1024000) ? round($attachment->size / 1024, 2) . ' ' . Lang::$txt['kilobyte'] : round($attachment->size / 1024 / 1024, 2) . ' ' . Lang::$txt['megabyte'],
 							),
 							array(
 								'tag' => 'byte_size',
 								'attributes' => array('label' => Lang::$txt['filesize']),
-								'content' => $attachment['filesize'],
+								'content' => $attachment->size,
 							),
 							array(
 								'tag' => 'link',
 								'attributes' => array('label' => Lang::$txt['url']),
-								'content' => Config::$scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'],
+								'content' => Config::$scripturl . '?action=dlattach;topic=' . $attachment->topic . '.0;attach=' . $attachment->id,
 							),
 						)
 					);
@@ -2096,8 +2055,6 @@ function getXmlPosts($xml_format, $ascending = false)
 
 	$query_this_message_board = str_replace(array('{query_see_board}', 'b.'), array('{query_see_message_board}', 'm.'), $query_this_board);
 
-	require_once(Config::$sourcedir . '/Attachment.php');
-
 	/* MySQL can choke if we use joins in the main query when the user has
 	 * massively long posts. To avoid that, we get the names of the boards
 	 * and the user's displayed name in separate queries.
@@ -2167,27 +2124,7 @@ function getXmlPosts($xml_format, $ascending = false)
 		// Do we want to include any attachments?
 		if (!empty(Config::$modSettings['attachmentEnable']) && !empty(Config::$modSettings['xmlnews_attachments']))
 		{
-			$attach_request = Db::$db->query('', '
-				SELECT
-					a.id_attach, a.filename, COALESCE(a.size, 0) AS filesize, a.mime_type, a.downloads, a.approved, m.id_topic AS topic
-				FROM {db_prefix}attachments AS a
-					LEFT JOIN {db_prefix}messages AS m ON (a.id_msg = m.id_msg)
-				WHERE a.attachment_type = {int:attachment_type}
-					AND a.id_msg = {int:message_id}',
-				array(
-					'message_id' => $row['id_msg'],
-					'attachment_type' => 0,
-					'is_approved' => 1,
-				)
-			);
-			$loaded_attachments = array();
-			while ($attach = Db::$db->fetch_assoc($attach_request))
-			{
-				// Include approved attachments only, unless showing all.
-				if ($attach['approved'] || $show_all)
-					$loaded_attachments['attachment_' . $attach['id_attach']] = $attach;
-			}
-			Db::$db->free_result($attach_request);
+			$loaded_attachments = Attachment::loadByMsg($row['id_msg'], Attachment::APPROVED_TRUE);
 
 			// Sort the attachments by size to make things easier below
 			if (!empty($loaded_attachments))
@@ -2196,10 +2133,10 @@ function getXmlPosts($xml_format, $ascending = false)
 					$loaded_attachments,
 					function($a, $b)
 					{
-						if ($a['filesize'] == $b['filesize'])
+						if ($a->size == $b->size)
 					        return 0;
 
-						return ($a['filesize'] < $b['filesize']) ? -1 : 1;
+						return ($a->size < $b->size) ? -1 : 1;
 					}
 				);
 			}
@@ -2219,9 +2156,9 @@ function getXmlPosts($xml_format, $ascending = false)
 			{
 				$attachment = array_pop($loaded_attachments);
 				$enclosure = array(
-					'url' => fix_possible_url(Config::$scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach']),
-					'length' => $attachment['filesize'],
-					'type' => $attachment['mime_type'],
+					'url' => fix_possible_url(Config::$scripturl . '?action=dlattach;topic=' . $attachment->topic . '.0;attach=' . $attachment->id),
+					'length' => $attachment->size,
+					'type' => $attachment->mime_type,
 				);
 			}
 			else
@@ -2311,9 +2248,9 @@ function getXmlPosts($xml_format, $ascending = false)
 				$attachment = array_pop($loaded_attachments);
 				$enclosure = array(
 					'rel' => 'enclosure',
-					'href' => fix_possible_url(Config::$scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach']),
-					'length' => $attachment['filesize'],
-					'type' => $attachment['mime_type'],
+					'href' => fix_possible_url(Config::$scripturl . '?action=dlattach;topic=' . $attachment->topic . '.0;attach=' . $attachment->id),
+					'length' => $attachment->size,
+					'type' => $attachment->mime_type,
 				);
 			}
 			else
@@ -2395,37 +2332,37 @@ function getXmlPosts($xml_format, $ascending = false)
 						'content' => array(
 							array(
 								'tag' => 'id',
-								'content' => $attachment['id_attach'],
+								'content' => $attachment->id,
 							),
 							array(
 								'tag' => 'name',
 								'attributes' => array('label' => Lang::$txt['name']),
-								'content' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', Utils::htmlspecialchars($attachment['filename'])),
+								'content' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $attachment->name),
 							),
 							array(
 								'tag' => 'downloads',
 								'attributes' => array('label' => Lang::$txt['downloads']),
-								'content' => $attachment['downloads'],
+								'content' => $attachment->downloads,
 							),
 							array(
 								'tag' => 'size',
 								'attributes' => array('label' => Lang::$txt['filesize']),
-								'content' => ($attachment['filesize'] < 1024000) ? round($attachment['filesize'] / 1024, 2) . ' ' . Lang::$txt['kilobyte'] : round($attachment['filesize'] / 1024 / 1024, 2) . ' ' . Lang::$txt['megabyte'],
+								'content' => ($attachment->size < 1024000) ? round($attachment->size / 1024, 2) . ' ' . Lang::$txt['kilobyte'] : round($attachment->size / 1024 / 1024, 2) . ' ' . Lang::$txt['megabyte'],
 							),
 							array(
 								'tag' => 'byte_size',
 								'attributes' => array('label' => Lang::$txt['filesize']),
-								'content' => $attachment['filesize'],
+								'content' => $attachment->size,
 							),
 							array(
 								'tag' => 'link',
 								'attributes' => array('label' => Lang::$txt['url']),
-								'content' => Config::$scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'],
+								'content' => Config::$scripturl . '?action=dlattach;topic=' . $attachment->topic . '.0;attach=' . $attachment->id,
 							),
 							array(
 								'tag' => 'approval_status',
 								'attributes' => $show_all ? array('label' => Lang::$txt['approval_status']) : null,
-								'content' => $show_all ? $attachment['approved'] : null,
+								'content' => $show_all ? $attachment->approved : null,
 							),
 						)
 					);

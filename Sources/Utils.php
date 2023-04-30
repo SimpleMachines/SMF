@@ -51,6 +51,7 @@ class Utils
 			'jsonEncode' => false,
 			'randomInt' => false,
 			'randomBytes' => false,
+			'emitFile' => false,
 		),
 		'prop_names' => array(
 			'context' => 'context',
@@ -871,6 +872,175 @@ class Utils
 		$length = max(1, $length);
 
 		return random_bytes($length);
+	}
+
+	/**
+	 * Emits a file for download. Mostly used for attachments.
+	 *
+	 * @param array|object $file Information about the file. Must be either an
+	 *    array or an object that implements the \ArrayAccess interface.
+	 */
+	public static function emitFile(\ArrayAccess|array $file): void
+	{
+		// If headers were already sent, anything we send now will be corrupted.
+		if (headers_sent())
+			exit;
+
+		// We always need a file size.
+		if (!isset($file['size']))
+		{
+			if (isset($file['content']))
+			{
+				$file['size'] = strlen($file['content']);
+			}
+			elseif (isset($file['path']) && file_exists($file['path']))
+			{
+				$file['size'] = filesize($file['path']);
+			}
+			else
+			{
+				exit;
+			}
+		}
+
+		// The file needs some sort of name.
+		if (!isset($file['filename']))
+		{
+			$file['filename'] = hash_hmac('md5', var_export($file, true), Config::$image_proxy_secret) . '.' . ltrim($file['fileext'] ?? 'dat', '.');
+		}
+
+		// Convert the filename to UTF-8, cuz most browsers dig that.
+		$file['filename'] = !self::$context['utf8'] ? mb_convert_encoding($file['filename'], 'UTF-8', self::$context['character_set']) : $file['filename'];
+
+		// Also provide a plain ASCII name for the sake of old browsers.
+		$file['asciiname'] = preg_replace('/[\x{80}-\x{10FFFF}]+/u', '?', Utils::entityDecode($file['filename'], true));
+
+		// Replace ASCII names like ??????.jpg with something more unique.
+		if (strspn($file['asciiname'], '?') === strpos($file['asciiname'], '.'))
+		{
+			$file['asciiname'] = md5($file['filename']) . substr($file['asciiname'], strpos($file['asciiname'], '.'));
+		}
+
+		// Clear any output that was made before now.
+		header_remove();
+
+		while (@ob_get_level() > 0)
+			@ob_end_clean();
+
+		// Start a new output buffer.
+		$output_already_compressed = @ini_get('zlib.output_compression') > 0 || @ini_get('output_handler') == 'ob_gzhandler';
+		$ob_handler = !$output_already_compressed && !empty(Config::$modSettings['enableCompressedOutput']) ? 'ob_gzhandler' : null;
+		ob_start($ob_handler);
+
+		// Send the attachment headers.
+		header('Pragma: ');
+		header('Expires: ' . gmdate('D, d M Y H:i:s', ($file['expires'] ?? time() + 525600 * 60)) . ' GMT');
+		header('Last-Modified: ' . gmdate('D, d M Y H:i:s', ($file['mtime'] ?? time())) . ' GMT');
+		header('Accept-Ranges: bytes');
+		header('Connection: close');
+		header('Content-Type: ' . ($file['content_type'] ?? ($file['mime_type'] ?? 'application/octet-stream')));
+		header('Content-Disposition: ' . ($file['disposition'] ?? 'attachment') . '; filename*=UTF-8\'\'' . rawurlencode($file['filename']) . '; filename="' . $file['asciiname'] . '"');
+
+		if (isset($file['etag']))
+			header('ETag: "' . $file['etag'] . '"');
+
+		// If this has an "image extension" - but isn't actually an image - then ensure it isn't cached cause of silly IE.
+		if (isset($file['mime_type'], $file['fileext']) && strpos($file['mime_type'], 'image/') !== 0 && in_array($file['fileext'], array('gif', 'jpg', 'bmp', 'png', 'jpeg', 'tiff')))
+		{
+			header('Cache-Control: no-cache');
+		}
+		else
+		{
+			header('Cache-Control: max-age=' . (525600 * 60) . ', private');
+		}
+
+		// Multipart and resuming support
+		if (isset($_SERVER['HTTP_RANGE']))
+		{
+			list($a, $range) = explode('=', $_SERVER['HTTP_RANGE'], 2);
+			list($range) = explode(',', $range, 2);
+			list($range, $range_end) = explode('-', $range);
+			$range = intval($range);
+			$range_end = !$range_end ? $file['size'] - 1 : intval($range_end);
+			$length = $range_end - $range + 1;
+
+			send_http_status(206);
+			header('Content-Length: ' . $length);
+			header('Content-Range: bytes ' . $range . '-' . $range_end . '/' . $file['size']);
+		}
+		else
+		{
+			header('Content-Length: ' . $file['size']);
+		}
+
+		// Allow customizations to hook in here before we send anything to
+		// modify any headers needed or to change the process of how we output.
+		call_integration_hook('integrate_download_headers');
+
+		// Try to buy some time...
+		@set_time_limit(600);
+
+		// For multipart/resumable downloads, send the requested chunk(s) of the file
+		if (isset($_SERVER['HTTP_RANGE']))
+		{
+			// 40 kilobytes is a good-ish amount
+			$chunksize = 40 * 1024;
+			$bytes_sent = 0;
+
+			if (isset($file['content']))
+			{
+				$offset = $range;
+
+				while ($offset < $file['size'] && !connection_aborted() && $bytes_sent < $length)
+				{
+					$buffer = substr($file['content'], $offset, $chunksize);
+					echo $buffer;
+					flush();
+					$bytes_sent += strlen($buffer);
+					$offset += strlen($buffer);
+				}
+			}
+			else
+			{
+				$fp = fopen($file['path'], 'rb');
+
+				fseek($fp, $range);
+
+				while (!feof($fp) && !connection_aborted() && $bytes_sent < $length)
+				{
+					$buffer = fread($fp, $chunksize);
+					echo $buffer;
+					flush();
+					$bytes_sent += strlen($buffer);
+				}
+				fclose($fp);
+			}
+		}
+		else
+		{
+			// Since we don't do output compression for files this large...
+			if (!is_null($ob_handler) && $file['size'] > 4194304)
+			{
+				header_remove('Content-Encoding');
+
+				while (@ob_get_level() > 0)
+					@ob_end_clean();
+			}
+
+			// We were given the file content directly.
+			if (isset($file['content']))
+			{
+				echo $file['content'];
+			}
+			else
+			{
+				$fp = fopen($file['path'], 'rb');
+				fpassthru($fp);
+				fclose($fp);
+			}
+		}
+
+		die();
 	}
 
 	/*************************

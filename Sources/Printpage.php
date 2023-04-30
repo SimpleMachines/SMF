@@ -14,6 +14,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Attachment;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
@@ -340,7 +341,7 @@ function PrintTopic()
 					}
 				}
 
-				$row['filename'] = getAttachmentFilename($row['filename'], $row['id_attach'], $row['id_folder'], false, $row['file_hash']);
+				$row['filename'] = Attachment::getFilePath($row['id_attach']);
 
 				// save for the template
 				Utils::$context['printattach'][$row['id_msg']][] = $row;

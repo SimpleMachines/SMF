@@ -29,6 +29,7 @@ use SMF\Fetchers\CurlFetcher;
 if (!defined('SMF'))
 	die('No direct access...');
 
+class_exists('SMF\\Attachment');
 class_exists('SMF\\BBCodeParser');
 class_exists('SMF\\Theme');
 class_exists('SMF\\User');
@@ -1344,64 +1345,6 @@ function memoryReturnBytes($val)
 			$num *= 1024;
 	}
 	return $num;
-}
-
-/**
- * Get an attachment's encrypted filename. If $new is true, won't check for file existence.
- *
- * @todo this currently returns the hash if new, and the full filename otherwise.
- * Something messy like that.
- * @todo and of course everything relies on this behavior and work around it. :P.
- * Converters included.
- *
- * @param string $filename The name of the file
- * @param int $attachment_id The ID of the attachment
- * @param string|null $dir Which directory it should be in (null to use current one)
- * @param bool $new Whether this is a new attachment
- * @param string $file_hash The file hash
- * @return string The path to the file
- */
-function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = false, $file_hash = '')
-{
-	// Just make up a nice hash...
-	if ($new)
-		return sha1(md5($filename . time()) . mt_rand());
-
-	// Just make sure that attachment id is only a int
-	$attachment_id = (int) $attachment_id;
-
-	// Grab the file hash if it wasn't added.
-	// Left this for legacy.
-	if ($file_hash === '')
-	{
-		$request = Db::$db->query('', '
-			SELECT file_hash
-			FROM {db_prefix}attachments
-			WHERE id_attach = {int:id_attach}',
-			array(
-				'id_attach' => $attachment_id,
-			)
-		);
-
-		if (Db::$db->num_rows($request) === 0)
-			return false;
-
-		list ($file_hash) = Db::$db->fetch_row($request);
-		Db::$db->free_result($request);
-	}
-
-	// Still no hash? mmm...
-	if (empty($file_hash))
-		$file_hash = sha1(md5($filename . time()) . mt_rand());
-
-	// Are we using multiple directories?
-	if (is_array(Config::$modSettings['attachmentUploadDir']))
-		$path = Config::$modSettings['attachmentUploadDir'][$dir];
-
-	else
-		$path = Config::$modSettings['attachmentUploadDir'];
-
-	return $path . '/' . $attachment_id . '_' . $file_hash . '.dat';
 }
 
 /**
