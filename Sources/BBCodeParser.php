@@ -2484,7 +2484,7 @@ class BBCodeParser
 		$attach_id = $params['{id}'];
 
 		// Kinda need this.
-		require_once(Config::$sourcedir . '/Subs-Attachments.php');
+		require_once(Config::$sourcedir . '/Attachment.php');
 
 		$current_attachment = parseAttachBBC($attach_id);
 

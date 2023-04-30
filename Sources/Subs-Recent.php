@@ -64,7 +64,7 @@ function getLastPosts($latestPostOptions)
 		foreach ($rows as $row)
 			$msgIDs[] = $row['id_msg'];
 
-		require_once(Config::$sourcedir . '/Subs-Attachments.php');
+		require_once(Config::$sourcedir . '/Attachment.php');
 		prepareAttachsByMsg($msgIDs);
 	}
 

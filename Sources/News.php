@@ -1284,7 +1284,7 @@ function getXmlRecent($xml_format)
 {
 	global $query_this_board;
 
-	require_once(Config::$sourcedir . '/Subs-Attachments.php');
+	require_once(Config::$sourcedir . '/Attachment.php');
 
 	$done = false;
 	$loops = 0;
@@ -2096,7 +2096,7 @@ function getXmlPosts($xml_format, $ascending = false)
 
 	$query_this_message_board = str_replace(array('{query_see_board}', 'b.'), array('{query_see_message_board}', 'm.'), $query_this_board);
 
-	require_once(Config::$sourcedir . '/Subs-Attachments.php');
+	require_once(Config::$sourcedir . '/Attachment.php');
 
 	/* MySQL can choke if we use joins in the main query when the user has
 	 * massively long posts. To avoid that, we get the names of the boards

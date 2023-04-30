@@ -93,7 +93,7 @@ function ManageAttachments()
 
 function ManageAttachmentSettings($return_config = false)
 {
-	require_once(Config::$sourcedir . '/Subs-Attachments.php');
+	require_once(Config::$sourcedir . '/Attachment.php');
 
 	Utils::$context['attachmentUploadDir'] = Config::$modSettings['attachmentUploadDir'][Config::$modSettings['currentAttachmentUploadDir']];
 
@@ -1934,7 +1934,7 @@ function ManageAttachmentPaths()
 				}
 
 				// OK, so let's try to create it then.
-				require_once(Config::$sourcedir . '/Subs-Attachments.php');
+				require_once(Config::$sourcedir . '/Attachment.php');
 				if (automanage_attachments_create_directory($path))
 					$_POST['current_dir'] = Config::$modSettings['currentAttachmentUploadDir'];
 				else
@@ -2187,7 +2187,7 @@ function ManageAttachmentPaths()
 		// Or adding a new one?
 		if (!empty($_POST['new_base_dir']))
 		{
-			require_once(Config::$sourcedir . '/Subs-Attachments.php');
+			require_once(Config::$sourcedir . '/Attachment.php');
 			$_POST['new_base_dir'] = Utils::htmlspecialchars($_POST['new_base_dir'], ENT_QUOTES);
 
 			$current_dir = Config::$modSettings['currentAttachmentUploadDir'];
@@ -2631,7 +2631,7 @@ function TransferAttachments()
 		// Where are they going?
 		if (!empty($_POST['auto']))
 		{
-			require_once(Config::$sourcedir . '/Subs-Attachments.php');
+			require_once(Config::$sourcedir . '/Attachment.php');
 
 			Config::$modSettings['automanage_attachments'] = 1;
 			Config::$modSettings['use_subdirectories_for_attachments'] = $_POST['auto'] == -1 ? 0 : 1;
