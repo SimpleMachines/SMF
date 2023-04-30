@@ -15,6 +15,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Attachment;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Theme;
@@ -93,8 +94,6 @@ function ManageAttachments()
 
 function ManageAttachmentSettings($return_config = false)
 {
-	require_once(Config::$sourcedir . '/Attachment.php');
-
 	Utils::$context['attachmentUploadDir'] = Config::$modSettings['attachmentUploadDir'][Config::$modSettings['currentAttachmentUploadDir']];
 
 	// If not set, show a default path for the base directory
@@ -226,7 +225,7 @@ function ManageAttachmentSettings($return_config = false)
 
 				if (!in_array($_POST['basedirectory_for_attachments'], Config::$modSettings['attachmentUploadDir']))
 				{
-					if (!automanage_attachments_create_directory($_POST['basedirectory_for_attachments']))
+					if (!Attachment::automanageCreateDirectory($_POST['basedirectory_for_attachments']))
 						$_POST['basedirectory_for_attachments'] = Config::$modSettings['basedirectory_for_attachments'];
 				}
 
@@ -1026,7 +1025,7 @@ function removeAttachments($condition, $query_type = '', $return_affected_messag
 		}
 		else
 		{
-			$filename = getAttachmentFilename($row['filename'], $row['id_attach'], $row['id_folder'], false, $row['file_hash']);
+			$filename = Attachment::getFilePath($row['id_attach']);
 			@unlink($filename);
 
 			// If this was a thumb, the parent attachment should know about it.
@@ -1036,7 +1035,7 @@ function removeAttachments($condition, $query_type = '', $return_affected_messag
 			// If this attachments has a thumb, remove it as well.
 			if (!empty($row['id_thumb']) && $autoThumbRemoval)
 			{
-				$thumb_filename = getAttachmentFilename($row['thumb_filename'], $row['id_thumb'], $row['thumb_folder'], false, $row['thumb_file_hash']);
+				$thumb_filename = Attachment::getFilePath($row['id_thumb']);
 				@unlink($thumb_filename);
 				$attach[] = $row['id_thumb'];
 			}
@@ -1198,7 +1197,7 @@ function RepairAttachments()
 					// If we are repairing remove the file from disk now.
 					if ($fix_errors && in_array('missing_thumbnail_parent', $to_fix))
 					{
-						$filename = getAttachmentFilename($row['filename'], $row['id_attach'], $row['id_folder'], false, $row['file_hash']);
+						$filename = Attachment::getFilePath($row['id_attach']);
 						@unlink($filename);
 					}
 				}
@@ -1317,7 +1316,7 @@ function RepairAttachments()
 				if ($row['attachment_type'] == 1)
 					$filename = Config::$modSettings['custom_avatar_dir'] . '/' . $row['filename'];
 				else
-					$filename = getAttachmentFilename($row['filename'], $row['id_attach'], $row['id_folder'], false, $row['file_hash']);
+					$filename = Attachment::getFilePath($row['id_attach']);
 
 				// File doesn't exist?
 				if (!file_exists($filename))
@@ -1468,7 +1467,7 @@ function RepairAttachments()
 					if ($row['attachment_type'] == 1)
 						$filename = Config::$modSettings['custom_avatar_dir'] . '/' . $row['filename'];
 					else
-						$filename = getAttachmentFilename($row['filename'], $row['id_attach'], $row['id_folder'], false, $row['file_hash']);
+						$filename = Attachment::getFilePath($row['id_attach']);
 					@unlink($filename);
 				}
 			}
@@ -1544,7 +1543,7 @@ function RepairAttachments()
 				// If we are repairing remove the file from disk now.
 				if ($fix_errors && in_array('attachment_no_msg', $to_fix))
 				{
-					$filename = getAttachmentFilename($row['filename'], $row['id_attach'], $row['id_folder'], false, $row['file_hash']);
+					$filename = Attachment::getFilePath($row['id_attach']);
 					@unlink($filename);
 				}
 			}
@@ -1934,8 +1933,7 @@ function ManageAttachmentPaths()
 				}
 
 				// OK, so let's try to create it then.
-				require_once(Config::$sourcedir . '/Attachment.php');
-				if (automanage_attachments_create_directory($path))
+				if (Attachment::automanageCreateDirectory($path))
 					$_POST['current_dir'] = Config::$modSettings['currentAttachmentUploadDir'];
 				else
 					$errors[] = $path . ': ' . Lang::$txt[Utils::$context['dir_creation_error']];
@@ -2187,14 +2185,13 @@ function ManageAttachmentPaths()
 		// Or adding a new one?
 		if (!empty($_POST['new_base_dir']))
 		{
-			require_once(Config::$sourcedir . '/Attachment.php');
 			$_POST['new_base_dir'] = Utils::htmlspecialchars($_POST['new_base_dir'], ENT_QUOTES);
 
 			$current_dir = Config::$modSettings['currentAttachmentUploadDir'];
 
 			if (!in_array($_POST['new_base_dir'], Config::$modSettings['attachmentUploadDir']))
 			{
-				if (!automanage_attachments_create_directory($_POST['new_base_dir']))
+				if (!Attachment::automanageCreateDirectory($_POST['new_base_dir']))
 					$errors[] = $_POST['new_base_dir'] . ': ' . Lang::$txt['attach_dir_base_no_create'];
 			}
 
@@ -2631,13 +2628,11 @@ function TransferAttachments()
 		// Where are they going?
 		if (!empty($_POST['auto']))
 		{
-			require_once(Config::$sourcedir . '/Attachment.php');
-
 			Config::$modSettings['automanage_attachments'] = 1;
 			Config::$modSettings['use_subdirectories_for_attachments'] = $_POST['auto'] == -1 ? 0 : 1;
 			Config::$modSettings['basedirectory_for_attachments'] = $_POST['auto'] > 0 ? Config::$modSettings['attachmentUploadDir'][$_POST['auto']] : Config::$modSettings['basedirectory_for_attachments'];
 
-			automanage_attachments_check_directory();
+			Attachment::automanageCheckDirectory();
 			$new_dir = Config::$modSettings['currentAttachmentUploadDir'];
 		}
 		else
@@ -2698,7 +2693,7 @@ function TransferAttachments()
 			$moved = array();
 			while ($row = Db::$db->fetch_assoc($request))
 			{
-				$source = getAttachmentFilename($row['filename'], $row['id_attach'], $row['id_folder'], false, $row['file_hash']);
+				$source = Attachment::getFilePath($row['id_attach']);
 				$dest = Config::$modSettings['attachmentUploadDir'][$new_dir] . '/' . basename($source);
 
 				// Size and file count check
@@ -2713,7 +2708,7 @@ function TransferAttachments()
 						if (!empty($_POST['auto']))
 						{
 							// Since we're in auto mode. Create a new folder and reset the counters.
-							automanage_attachments_by_space();
+							Attachment::automanageBySpace();
 
 							$results[] = sprintf(Lang::$txt['attachments_transferred'], $total_moved, Config::$modSettings['attachmentUploadDir'][$new_dir]);
 							if (!empty($total_not_moved))

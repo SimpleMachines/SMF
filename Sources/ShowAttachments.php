@@ -13,6 +13,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Attachment;
 use SMF\BrowserDetector;
 use SMF\Config;
 use SMF\Lang;
@@ -35,8 +36,11 @@ if (!defined('SMF'))
 function showAttachment()
 {
 	// Some defaults that we need.
-	Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? (empty(Lang::$txt['lang_character_set']) ? 'ISO-8859-1' : Lang::$txt['lang_character_set']) : Config::$modSettings['global_character_set'];
-	Utils::$context['utf8'] = Utils::$context['character_set'] === 'UTF-8';
+	if (!isset(Utils::$context['character_set']))
+		Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? (empty(Lang::$txt['lang_character_set']) ? 'ISO-8859-1' : Lang::$txt['lang_character_set']) : Config::$modSettings['global_character_set'];
+
+	if (!isset(Utils::$context['utf8']))
+		Utils::$context['utf8'] = Utils::$context['character_set'] === 'UTF-8';
 
 	// An early hook to set up global vars, clean cache and other early process.
 	call_integration_hook('integrate_pre_download_request');
@@ -45,22 +49,7 @@ function showAttachment()
 	ob_end_clean();
 	header_remove('content-encoding');
 
-	if (!empty(Config::$modSettings['enableCompressedOutput']) && !headers_sent() && ob_get_length() == 0)
-	{
-		if (@ini_get('zlib.output_compression') == '1' || @ini_get('output_handler') == 'ob_gzhandler')
-			Config::$modSettings['enableCompressedOutput'] = 0;
-
-		else
-			ob_start('ob_gzhandler');
-	}
-
-	if (empty(Config::$modSettings['enableCompressedOutput']))
-	{
-		ob_start();
-		header('content-encoding: none');
-	}
-
-	// Better handling.
+	// Which attachment was requested?
 	$attachId = $_REQUEST['attach'] = isset($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : (int) (isset($_REQUEST['id']) ? (int) $_REQUEST['id'] : 0);
 
 	// We need a valid ID.
@@ -82,96 +71,70 @@ function showAttachment()
 
 	// Use cache when possible.
 	if (($cache = CacheApi::get('attachment_lookup_id-' . $attachId)) != null)
+	{
 		list ($file, $thumbFile) = $cache;
 
+		$file = @unserialize($file);
+		$thumbFile = @unserialize($thumbFile);
+	}
+
 	// Get the info from the DB.
-	if (empty($file) || empty($thumbFile) && !empty($file['id_thumb']))
+	if (empty($file) || empty($thumbFile) && !empty($file->thumb))
 	{
-		// Do we have a hook wanting to use our attachment system? We use $attachRequest to prevent accidental usage of $request.
-		$attachRequest = null;
-		call_integration_hook('integrate_download_request', array(&$attachRequest));
-		if (!is_null($attachRequest) && Db::$db->is_resource($attachRequest))
-			$request = $attachRequest;
-		else
+		/*
+		 * Do we have a hook wanting to use our attachment system?
+		 *
+		 * NOTE TO MOD AUTHORS: This hook is deprecated. You should rewrite
+		 * your code to use the integrate_attachment_load hook in the
+		 * SMF\Attachment::load() method.
+		 */
+		$request = null;
+		call_integration_hook('integrate_download_request', array(&$request));
+		if (!is_null($request) && Db::$db->is_resource($request))
 		{
-			// Make sure this attachment is on this board and load its info while we are at it.
-			$request = Db::$db->query('', '
-				SELECT
-					{string:source} AS source,
-					a.id_folder, a.filename, a.file_hash, a.fileext, a.id_attach,
-					a.id_thumb, a.attachment_type, a.mime_type, a.approved, a.id_msg,
-					m.id_board
-				FROM {db_prefix}attachments AS a
-					LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
-				WHERE a.id_attach = {int:attach}
-				LIMIT 1',
-				array(
-					'source' => 'SMF',
-					'attach' => $attachId,
-				)
-			);
-		}
+			// No attachment has been found.
+			if (Db::$db->num_rows($request) == 0)
+			{
+				send_http_status(404, 'File Not Found');
+				die('404 File Not Found');
+			}
 
-		// No attachment has been found.
-		if (Db::$db->num_rows($request) == 0)
-		{
-			send_http_status(404, 'File Not Found');
-			die('404 File Not Found');
-		}
-
-		$file = Db::$db->fetch_assoc($request);
-		Db::$db->free_result($request);
-
-		// set filePath and ETag time
-		$file['filePath'] = getAttachmentFilename($file['filename'], $attachId, $file['id_folder'], false, $file['file_hash']);
-		// ensure variant attachment compatibility
-		$filePath = pathinfo($file['filePath']);
-
-		$file['exists'] = file_exists($file['filePath']);
-		$file['filePath'] = !$file['exists'] && isset($filePath['extension']) ? substr($file['filePath'], 0, -(strlen($filePath['extension']) + 1)) : $file['filePath'];
-		$file['mtime'] = $file['exists'] ? filemtime($file['filePath']) : 0;
-		$file['size'] = $file['exists'] ? filesize($file['filePath']) : 0;
-		$file['etag'] = $file['exists'] ? sha1_file($file['filePath']) : '';
-
-		// now get the thumbfile!
-		$thumbFile = array();
-		if (!empty($file['id_thumb']))
-		{
-			$request = Db::$db->query('', '
-				SELECT id_folder, filename, file_hash, fileext, id_attach, attachment_type, mime_type, approved, id_member
-				FROM {db_prefix}attachments
-				WHERE id_attach = {int:thumb_id}
-				LIMIT 1',
-				array(
-					'thumb_id' => $file['id_thumb'],
-				)
-			);
-
-			$thumbFile = Db::$db->fetch_assoc($request);
+			$row = Db::$db->fetch_assoc($request);
 			Db::$db->free_result($request);
 
-			// Got something! replace the $file var with the thumbnail info.
-			if ($thumbFile)
-			{
-				$thumbFile['filePath'] = getAttachmentFilename($thumbFile['filename'], $thumbFile['id_attach'], $thumbFile['id_folder'], false, $thumbFile['file_hash']);
-				$thumbPath = pathinfo($thumbFile['filePath']);
+			$file = new Attachment(0, $row);
+			$file->setFileProperties();
+		}
+		else
+		{
+			Attachment::load($attachId);
 
-				// set filePath and ETag time
-				$thumbFile['exists'] = file_exists($thumbFile['filePath']);
-				$thumbFile['filePath'] = !$thumbFile['exists'] && isset($thumbPath['extension']) ? substr($thumbFile['filePath'], 0, -(strlen($thumbPath['extension']) + 1)) : $thumbFile['filePath'];
-				$thumbFile['mtime'] = $thumbFile['exists'] ? filemtime($thumbFile['filePath']) : 0;
-				$thumbFile['size'] = $thumbFile['exists'] ? filesize($thumbFile['filePath']) : 0;
-				$thumbFile['etag'] = $thumbFile['exists'] ? sha1_file($thumbFile['filePath']) : '';
+			if (!isset(Attachment::$loaded[$attachId]))
+			{
+				send_http_status(404, 'File Not Found');
+				die('404 File Not Found');
 			}
+
+			$file = Attachment::$loaded[$attachId];
+			$file->set(array('source' => 'SMF'));
+			$file->setFileProperties();
+		}
+
+		if (!empty($file->thumb))
+		{
+			Attachment::load($file->thumb);
+			$thumbFile = Attachment::$loaded[$file->thumb];
+			$thumbFile->set(array('source' => 'SMF'));
+			$thumbFile->setFileProperties();
 		}
 
 		// Cache it.
 		if (!empty($file) || !empty($thumbFile))
-			CacheApi::put('attachment_lookup_id-' . $file['id_attach'], array($file, $thumbFile), mt_rand(850, 900));
+			CacheApi::put('attachment_lookup_id-' . $attachId, array(serialize($file ?? null), serialize($thumbFile ?? null)), mt_rand(850, 900));
 	}
 
 	// Can they see attachments on this board?
-	if (!empty($file['id_msg']))
+	if (!empty($file->msg))
 	{
 		// Special case for profile exports.
 		if (!empty(Utils::$context['attachment_allow_hidden_boards']))
@@ -191,23 +154,23 @@ function showAttachment()
 	(
 		// This was from SMF or a hook didn't claim it.
 		(
-			empty($file['source'])
-			|| $file['source'] == 'SMF'
+			empty($file->source)
+			|| $file->source == 'SMF'
 		)
 		&& (
 			// No id_msg and no id_member, so we don't know where its from.
 			// Avatars will have id_msg = 0 and id_member > 0.
 			(
-				empty($file['id_msg'])
-				&& empty($file['id_member'])
+				empty($file->msg)
+				&& empty($file->member)
 			)
 			// When we have a message, we need a board and that board needs to
 			// let us view the attachment.
 			|| (
-				!empty($file['id_msg'])
+				!empty($file->msg)
 				&& (
-					empty($file['id_board'])
-					|| ($boards_allowed !== array(0) && !in_array($file['id_board'], $boards_allowed))
+					empty($file->board)
+					|| ($boards_allowed !== array(0) && !in_array($file->board, $boards_allowed))
 				)
 			)
 		)
@@ -220,7 +183,7 @@ function showAttachment()
 	}
 
 	// If attachment is unapproved, see if user is allowed to approve
-	if (!$file['approved'] && Config::$modSettings['postmod_active'] && !allowedTo('approve_posts'))
+	if (!$file->approved && Config::$modSettings['postmod_active'] && !allowedTo('approve_posts'))
 	{
 		$request = Db::$db->query('', '
 			SELECT id_member
@@ -228,7 +191,7 @@ function showAttachment()
 			WHERE id_msg = {int:id_msg}
 			LIMIT 1',
 			array(
-				'id_msg' => $file['id_msg'],
+				'id_msg' => $file->msg,
 			)
 		);
 
@@ -248,20 +211,17 @@ function showAttachment()
 		$file = $thumbFile;
 
 	// No point in a nicer message, because this is supposed to be an attachment anyway...
-	if (empty($file['exists']))
+	if (empty($file->exists))
 	{
-		send_http_status(404);
-		header('content-type: text/plain; charset=' . (empty(Utils::$context['character_set']) ? 'ISO-8859-1' : Utils::$context['character_set']));
-
-		// We need to die like this *before* we send any anti-caching headers as below.
-		die('File not found.');
+		send_http_status(404, 'File Not Found');
+		die('404 File Not Found');
 	}
 
 	// If it hasn't been modified since the last time this attachment was retrieved, there's no need to display it again.
 	if (!empty($_SERVER['HTTP_IF_MODIFIED_SINCE']))
 	{
 		list($modified_since) = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE']);
-		if (!empty($file['mtime']) && strtotime($modified_since) >= $file['mtime'])
+		if (!empty($file->mtime) && strtotime($modified_since) >= $file->mtime)
 		{
 			ob_end_clean();
 			header_remove('content-encoding');
@@ -273,7 +233,7 @@ function showAttachment()
 	}
 
 	// Check whether the ETag was sent back, and cache based on that...
-	if (!empty($file['etag']) && !empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $file['etag']) !== false)
+	if (!empty($file->etag) && !empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $file->etag) !== false)
 	{
 		ob_end_clean();
 		header_remove('content-encoding');
@@ -290,12 +250,12 @@ function showAttachment()
 		list($range) = explode(",", $range, 2);
 		list($range, $range_end) = explode("-", $range);
 		$range = intval($range);
-		$range_end = !$range_end ? $file['size'] - 1 : intval($range_end);
-		$new_length = $range_end - $range + 1;
+		$range_end = !$range_end ? $file->size - 1 : intval($range_end);
+		$length = $range_end - $range + 1;
 	}
 
 	// Update the download counter (unless it's a thumbnail or resuming an incomplete download).
-	if ($file['attachment_type'] != 3 && empty($showThumb) && empty($_REQUEST['preview']) && $range === 0 && empty(Utils::$context['skip_downloads_increment']))
+	if ($file->type != 3 && empty($showThumb) && empty($_REQUEST['preview']) && $range === 0 && empty(Utils::$context['skip_downloads_increment']))
 		Db::$db->query('', '
 			UPDATE {db_prefix}attachments
 			SET downloads = downloads + 1
@@ -305,130 +265,27 @@ function showAttachment()
 			)
 		);
 
-	// Send the attachment headers.
-	header('pragma: ');
-
-	if (!BrowserDetector::isBrowser('gecko'))
-		header('content-transfer-encoding: binary');
-
-	header('expires: ' . gmdate('D, d M Y H:i:s', time() + 525600 * 60) . ' GMT');
-	header('last-modified: ' . gmdate('D, d M Y H:i:s', $file['mtime']) . ' GMT');
-	header('accept-ranges: bytes');
-	header('connection: close');
-	header('etag: "' . $file['etag'] . '"');
-
 	// Make sure the mime type warrants an inline display.
-	if (isset($_REQUEST['image']) && !empty($file['mime_type']) && strpos($file['mime_type'], 'image/') !== 0)
+	if (empty($file->mime_type))
+		$file->mime_type = 'application/octet-stream';
+
+	if (BrowserDetector::isBrowser('ie') || BrowserDetector::isBrowser('opera'))
+		$file->mime_type = strtr($file->mime_type, array('application/octet-stream' => 'application/octetstream'));
+
+	if (strpos($file->mime_type, 'image/') !== 0)
 		unset($_REQUEST['image']);
 
-	// Does this have a mime type?
-	elseif (!empty($file['mime_type']) && (isset($_REQUEST['image']) || !in_array($file['fileext'], array('jpg', 'gif', 'jpeg', 'x-ms-bmp', 'png', 'psd', 'tiff', 'iff'))))
-		header('content-type: ' . strtr($file['mime_type'], array('image/bmp' => 'image/x-ms-bmp')));
-
-	else
-	{
-		header('content-type: ' . (BrowserDetector::isBrowser('ie') || BrowserDetector::isBrowser('opera') ? 'application/octetstream' : 'application/octet-stream'));
-		if (isset($_REQUEST['image']))
-			unset($_REQUEST['image']);
-	}
-
-	// Convert the file to UTF-8, cuz most browsers dig that.
-	$utf8name = !Utils::$context['utf8'] && function_exists('iconv') ? iconv(Utils::$context['character_set'], 'UTF-8', $file['filename']) : (!Utils::$context['utf8'] && function_exists('mb_convert_encoding') ? mb_convert_encoding($file['filename'], 'UTF-8', Utils::$context['character_set']) : $file['filename']);
-
-	if (!empty(Utils::$context['prepend_attachment_id']))
-		$utf8name = $_REQUEST['attach'] . ' - ' . $utf8name;
-
 	// On mobile devices, audio and video should be served inline so the browser can play them.
-	if (isset($_REQUEST['image']) || (BrowserDetector::isBrowser('is_mobile') && (strpos($file['mime_type'], 'audio/') !== 0 || strpos($file['mime_type'], 'video/') !== 0)))
-		$disposition = 'inline';
+	if (isset($_REQUEST['image']) || (BrowserDetector::isBrowser('is_mobile') && (strpos($file->mime_type, 'audio/') === 0 || strpos($file->mime_type, 'video/') === 0)))
+		$file->disposition = 'inline';
 	else
-		$disposition = 'attachment';
+		$file->disposition = 'attachment';
 
-	// Different browsers like different standards...
-	if (BrowserDetector::isBrowser('firefox'))
-		header('content-disposition: ' . $disposition . '; filename*=UTF-8\'\'' . rawurlencode(Utils::entityDecode($utf8name, true)));
+	// If necessary, prepend the attachment ID to the file name.
+	if (!empty(Utils::$context['prepend_attachment_id']))
+		$file->filename = $_REQUEST['attach'] . ' - ' . $file->filename;
 
-	elseif (BrowserDetector::isBrowser('opera'))
-		header('content-disposition: ' . $disposition . '; filename="' . Utils::entityDecode($utf8name, true) . '"');
-
-	elseif (BrowserDetector::isBrowser('ie'))
-		header('content-disposition: ' . $disposition . '; filename="' . urlencode(Utils::entityDecode($utf8name, true)) . '"');
-
-	else
-		header('content-disposition: ' . $disposition . '; filename="' . $utf8name . '"');
-
-	// If this has an "image extension" - but isn't actually an image - then ensure it isn't cached cause of silly IE.
-	if (!isset($_REQUEST['image']) && in_array($file['fileext'], array('gif', 'jpg', 'bmp', 'png', 'jpeg', 'tiff')))
-		header('cache-control: no-cache');
-
-	else
-		header('cache-control: max-age=' . (525600 * 60) . ', private');
-
-	// Multipart and resuming support
-	if (isset($_SERVER['HTTP_RANGE']))
-	{
-		send_http_status(206);
-		header("content-length: $new_length");
-		header("content-range: bytes $range-$range_end/$file[size]");
-	}
-	else
-		header("content-length: " . $file['size']);
-
-	// Allow customizations to hook in here before we send anything to modify any headers needed.  Or to change the process of how we output.
-	call_integration_hook('integrate_download_headers');
-
-	// Try to buy some time...
-	@set_time_limit(600);
-
-	// For multipart/resumable downloads, send the requested chunk(s) of the file
-	if (isset($_SERVER['HTTP_RANGE']))
-	{
-		while (@ob_get_level() > 0)
-			@ob_end_clean();
-
-		header_remove('content-encoding');
-
-		// 40 kilobytes is a good-ish amount
-		$chunksize = 40 * 1024;
-		$bytes_sent = 0;
-
-		$fp = fopen($file['filePath'], 'rb');
-
-		fseek($fp, $range);
-
-		while (!feof($fp) && (!connection_aborted()) && ($bytes_sent < $new_length))
-		{
-			$buffer = fread($fp, $chunksize);
-			echo($buffer);
-			flush();
-			$bytes_sent += strlen($buffer);
-		}
-		fclose($fp);
-	}
-
-	// Since we don't do output compression for files this large...
-	elseif ($file['size'] > 4194304)
-	{
-		// Forcibly end any output buffering going on.
-		while (@ob_get_level() > 0)
-			@ob_end_clean();
-
-		header_remove('content-encoding');
-
-		$fp = fopen($file['filePath'], 'rb');
-		while (!feof($fp))
-		{
-			echo fread($fp, 8192);
-			flush();
-		}
-		fclose($fp);
-	}
-
-	// On some of the less-bright hosts, readfile() is disabled.  It's just a faster, more byte safe, version of what's in the if.
-	elseif (@readfile($file['filePath']) === null)
-		echo file_get_contents($file['filePath']);
-
-	die();
+	Utils::emitFile($file);
 }
 
 ?>

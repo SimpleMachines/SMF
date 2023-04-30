@@ -2483,10 +2483,7 @@ class BBCodeParser
 		// Save the attach ID.
 		$attach_id = $params['{id}'];
 
-		// Kinda need this.
-		require_once(Config::$sourcedir . '/Attachment.php');
-
-		$current_attachment = parseAttachBBC($attach_id);
+		$current_attachment = Attachment::parseAttachBBC($attach_id);
 
 		// parseAttachBBC will return a string (Lang::$txt key) rather than dying with a fatal_error. Up to you to decide what to do.
 		if (is_string($current_attachment))

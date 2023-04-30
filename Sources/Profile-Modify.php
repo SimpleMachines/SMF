@@ -15,6 +15,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Attachment;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Category;
@@ -3456,7 +3457,7 @@ function profileSaveAvatarData(&$value, $memID)
 		$url = parse_iri($_POST['userpicpersonal']);
 		$contents = fetch_web_data($url['scheme'] . '://' . $url['host'] . (empty($url['port']) ? '' : ':' . $url['port']) . str_replace(' ', '%20', trim($url['path'])));
 
-		$new_filename = $uploadDir . '/' . getAttachmentFilename('avatar_tmp_' . $memID, false, null, true);
+		$new_filename = $uploadDir . '/' . Attachment::createHash();
 		if ($contents != false && $tmpAvatar = fopen($new_filename, 'wb'))
 		{
 			fwrite($tmpAvatar, $contents);
@@ -3581,7 +3582,7 @@ function profileSaveAvatarData(&$value, $memID)
 				if (!is_writable($uploadDir))
 					fatal_lang_error('avatars_no_write', 'critical');
 
-				$new_filename = $uploadDir . '/' . getAttachmentFilename('avatar_tmp_' . $memID, false, null, true);
+				$new_filename = $uploadDir . '/' . Attachment::createHash();
 				if (!move_uploaded_file($_FILES['attachment']['tmp_name'], $new_filename))
 					fatal_lang_error('attach_timeout', 'critical');
 
@@ -3702,7 +3703,6 @@ function profileSaveAvatarData(&$value, $memID)
 				);
 
 				$extension = isset($extensions[$sizes[2]]) ? $extensions[$sizes[2]] : 'bmp';
-				$mime_type = str_replace('image/bmp', 'image/x-ms-bmp', $mime_type);
 				$destName = 'avatar_' . $memID . '_' . time() . '.' . $extension;
 				list ($width, $height) = getimagesize($_FILES['attachment']['tmp_name']);
 				$file_hash = '';
