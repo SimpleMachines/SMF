@@ -57,7 +57,7 @@ class Forum
 		'coppa' => array('Register.php', 'CoppaForm'),
 		'credits' => array('Who.php', 'Credits'),
 		'deletemsg' => array('RemoveTopic.php', 'DeleteMessage'),
-		'dlattach' => array('Actions/AttachmentDownload.php', 'showAttachment'),
+		'dlattach' => array('', 'SMF\\Actions\\AttachmentDownload::call'),
 		'editpoll' => array('Poll.php', 'EditPoll'),
 		'editpoll2' => array('Poll.php', 'EditPoll2'),
 		'findmember' => array('Subs-Auth.php', 'JSMembers'),
