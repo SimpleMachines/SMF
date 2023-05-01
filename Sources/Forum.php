@@ -113,7 +113,7 @@ class Forum
 		'about:unknown' => array('', 'SMF\\Likes::BookOfUnknown'),
 		'unread' => array('Recent.php', 'UnreadTopics'),
 		'unreadreplies' => array('Recent.php', 'UnreadTopics'),
-		'uploadAttach' => array('', 'SMF\\Attachments::call'),
+		'uploadAttach' => array('', 'SMF\\Actions\\AttachmentUpload::call'),
 		'verificationcode' => array('Register.php', 'VerificationCode'),
 		'viewprofile' => array('Profile.php', 'ModifyProfile'),
 		'vote' => array('Poll.php', 'Vote'),
