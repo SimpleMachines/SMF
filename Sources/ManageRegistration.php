@@ -19,6 +19,7 @@ use SMF\Lang;
 use SMF\User;
 use SMF\Theme;
 use SMF\Utils;
+use SMF\Actions\Register2;
 use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
@@ -124,8 +125,7 @@ function AdminRegister()
 			'memberGroup' => empty($_POST['group']) || !allowedTo('manage_membergroups') ? 0 : (int) $_POST['group'],
 		);
 
-		require_once(Config::$sourcedir . '/Subs-Members.php');
-		$memberID = registerMember($regOptions);
+		$memberID = Register2::registerMember($regOptions);
 		if (!empty($memberID))
 		{
 			// We'll do custom fields after as then we get to use the helper function!
