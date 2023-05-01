@@ -1,8 +1,6 @@
 <?php
 
 /**
- * This file contains handling attachments.
- *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -13,19 +11,19 @@
  * @version 3.0 Alpha 1
  */
 
-namespace SMF;
+namespace SMF\Actions;
 
+use SMF\Attachment;
+use SMF\Config;
+use SMF\Lang;
+use SMF\User;
+use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
-if (!defined('SMF'))
-	die('No direct access...');
-
 /**
- * Class Attachments
- *
  * This class handles adding/deleting attachments
  */
-class Attachments
+class AttachmentUpload implements ActionInterface
 {
 	/**
 	 * @var int $_msg The ID of the message this attachment is associated with
@@ -118,7 +116,7 @@ class Attachments
 	 *
 	 * @return An instance of this class.
 	 */
-	final public static function load()
+	public static function load(): object
 	{
 		if (!isset(self::$obj))
 			self::$obj = new self();
@@ -129,7 +127,7 @@ class Attachments
 	/**
 	 * Convenience method to load() and execute() an instance of this class.
 	 */
-	public static function call()
+	public static function call(): void
 	{
 		self::load()->execute();
 	}
@@ -157,7 +155,7 @@ class Attachments
 	/**
 	 * Handles calling the appropriate function based on the sub-action
 	 */
-	public function execute()
+	public function execute(): void
 	{
 		// Need this. For reasons...
 		Lang::load('Post');
@@ -165,15 +163,18 @@ class Attachments
 		$this->_sa = !empty($_REQUEST['sa']) ? Utils::htmlspecialchars(Utils::htmlTrim($_REQUEST['sa'])) : false;
 
 		if ($this->_canPostAttachment && $this->_sa && in_array($this->_sa, $this->_subActions))
+		{
 			$this->{$this->_sa}();
-
+		}
 		// Just send a generic message.
 		else
+		{
 			$this->setResponse(array(
 				'text' => $this->_sa == 'add' ? 'attach_error_title' : 'attached_file_deleted_error',
 				'type' => 'error',
 				'data' => false,
 			));
+		}
 
 		// Back to the future, oh, to the browser!
 		$this->sendResponse();
@@ -182,7 +183,7 @@ class Attachments
 	/**
 	 * Handles deleting the attachment
 	 */
-	public function delete()
+	public function delete(): void
 	{
 		// Need this, don't ask why just nod your head.
 		require_once(Config::$sourcedir . '/ManageAttachments.php');
@@ -191,11 +192,14 @@ class Attachments
 
 		// Need something to work with.
 		if (!$attachID || (!empty($_SESSION['already_attached']) && !isset($_SESSION['already_attached'][$attachID])))
-			return $this->setResponse(array(
+		{
+			$this->setResponse(array(
 				'text' => 'attached_file_deleted_error',
 				'type' => 'error',
 				'data' => false,
 			));
+			return;
+		}
 
 		// Lets pass some params and see what happens :P
 		$affectedMessage = removeAttachments(array('id_attach' => $attachID), '', true, true);
@@ -214,15 +218,19 @@ class Attachments
 	/**
 	 * Handles adding an attachment
 	 */
-	public function add()
+	public function add(): void
 	{
 		// You gotta be able to post attachments.
 		if (!$this->_canPostAttachment)
-			return $this->setResponse(array(
+		{
+			$this->setResponse(array(
 				'text' => 'attached_file_cannot',
 				'type' => 'error',
 				'data' => false,
 			));
+
+			return;
+		}
 
 		// Process them at once!
 		$this->processAttachments();
@@ -238,7 +246,7 @@ class Attachments
 	/**
 	 * Moves an attachment to the proper directory and set the relevant data into $_SESSION['temp_attachments']
 	 */
-	protected function processAttachments()
+	protected function processAttachments(): void
 	{
 		if (!isset($_FILES['attachment']['name']))
 			$_FILES['attachment']['tmp_name'] = array();
@@ -251,6 +259,7 @@ class Attachments
 		if (isset($_REQUEST['msg']))
 		{
 			Utils::$context['attachments']['quantity'] = count(Utils::$context['current_attachments']);
+
 			foreach (Utils::$context['current_attachments'] as $attachment)
 				Utils::$context['attachments']['total_size'] += $attachment['size'];
 		}
@@ -269,12 +278,14 @@ class Attachments
 
 		// Is the attachments folder actually there?
 		if (!empty(Utils::$context['dir_creation_error']))
+		{
 			$this->_generalErrors[] = Utils::$context['dir_creation_error'];
-
-		// The current attach folder ha some issues...
+		}
+		// The current attach folder has some issues...
 		elseif (!is_dir($this->_attchDir))
 		{
 			$this->_generalErrors[] = 'attach_folder_warning';
+
 			log_error(sprintf(Lang::$txt['attach_folder_admin_warning'], $this->_attchDir), 'critical');
 		}
 
@@ -282,6 +293,7 @@ class Attachments
 		if (empty($this->_generalErrors) && $this->_msg)
 		{
 			Utils::$context['attachments'] = array();
+
 			$request = Db::$db->query('', '
 				SELECT COUNT(*), SUM(size)
 				FROM {db_prefix}attachments
@@ -292,15 +304,16 @@ class Attachments
 					'attachment_type' => 0,
 				)
 			);
-			list (Utils::$context['attachments']['quantity'], Utils::$context['attachments']['total_size']) = Db::$db->fetch_row($request);
+			list(Utils::$context['attachments']['quantity'], Utils::$context['attachments']['total_size']) = Db::$db->fetch_row($request);
 			Db::$db->free_result($request);
 		}
-
 		else
+		{
 			Utils::$context['attachments'] = array(
 				'quantity' => 0,
 				'total_size' => 0,
 			);
+		}
 
 		// Check for other general errors here.
 
@@ -309,8 +322,10 @@ class Attachments
 		{
 			// And delete the files 'cos they ain't going nowhere.
 			foreach ($_FILES['attachment']['tmp_name'] as $n => $dummy)
+			{
 				if (file_exists($_FILES['attachment']['tmp_name'][$n]))
 					unlink($_FILES['attachment']['tmp_name'][$n]);
+			}
 
 			$_FILES['attachment']['tmp_name'] = array();
 
@@ -329,14 +344,19 @@ class Attachments
 			if (!empty($_FILES['attachment']['error'][$n]))
 			{
 				if ($_FILES['attachment']['error'][$n] == 2)
+				{
 					$errors[] = array('file_too_big', array(Config::$modSettings['attachmentSizeLimit']));
-
+				}
 				else
+				{
 					log_error($_FILES['attachment']['name'][$n] . ': ' . Lang::$txt['php_upload_error_' . $_FILES['attachment']['error'][$n]]);
+				}
 
 				// Log this one, because...
 				if ($_FILES['attachment']['error'][$n] == 6)
+				{
 					log_error($_FILES['attachment']['name'][$n] . ': ' . Lang::$txt['php_upload_error_6'], 'critical');
+				}
 
 				// Weird, no errors were cached, still fill out a generic one.
 				if (empty($errors))
@@ -352,6 +372,7 @@ class Attachments
 			{
 				// The reported MIME type of the attachment might not be reliable.
 				$detected_mime_type = get_mime_type($_FILES['attachment']['tmp_name'][$n], true);
+
 				if ($detected_mime_type !== false)
 					$_FILES['attachment']['type'][$n] = $detected_mime_type;
 
@@ -366,18 +387,19 @@ class Attachments
 
 				// Move the file to the attachments folder with a temp name for now.
 				if (@move_uploaded_file($_FILES['attachment']['tmp_name'][$n], $destName))
+				{
 					smf_chmod($destName, 0644);
-
+				}
 				// This is madness!!
 				else
 				{
 					// File couldn't be moved.
 					$_SESSION['temp_attachments'][$attachID]['errors'][] = 'attach_timeout';
+
 					if (file_exists($_FILES['attachment']['tmp_name'][$n]))
 						unlink($_FILES['attachment']['tmp_name'][$n]);
 				}
 			}
-
 			// Fill up a nice array with some data from the file and the errors encountered so far.
 			else
 			{
@@ -412,7 +434,7 @@ class Attachments
 	/**
 	 * Actually attaches the file
 	 */
-	protected function createAttach()
+	protected function createAttach(): void
 	{
 		// Create an empty session var to keep track of all the files we attached.
 		if (!isset($_SESSION['already_attached']))
@@ -443,7 +465,9 @@ class Attachments
 					$_SESSION['already_attached'][$attachmentOptions['attachID']] = $attachmentOptions['attachID'];
 
 					if (!empty($attachmentOptions['thumb']))
+					{
 						$_SESSION['already_attached'][$attachmentOptions['thumb']] = $attachmentOptions['thumb'];
+					}
 
 					if ($this->_msg)
 						Attachment::assign($_SESSION['already_attached'], $this->_msg);
@@ -461,12 +485,16 @@ class Attachments
 					if (!is_array($error))
 					{
 						$attachmentOptions['errors'][] = Lang::$txt[$error];
+
 						if (in_array($error, $log_these))
 							log_error($attachment['name'] . ': ' . Lang::$txt[$error], 'critical');
 					}
 					else
+					{
 						$attachmentOptions['errors'][] = vsprintf(Lang::$txt[$error[0]], (array) $error[1]);
+					}
 				}
+
 				if (file_exists($attachment['tmp_name']))
 					unlink($attachment['tmp_name']);
 			}
@@ -488,8 +516,11 @@ class Attachments
 		// Allow user to see previews for all of this post's attachments, even if the post hasn't been submitted yet.
 		if (!isset($_SESSION['attachments_can_preview']))
 			$_SESSION['attachments_can_preview'] = array();
+
 		if (!empty($_SESSION['already_attached']))
+		{
 			$_SESSION['attachments_can_preview'] += array_fill_keys(array_keys($_SESSION['already_attached']), true);
+		}
 	}
 
 	/**
@@ -497,7 +528,7 @@ class Attachments
 	 *
 	 * @param array $data Data for the response if we're not adding an attachment
 	 */
-	protected function setResponse($data = array())
+	protected function setResponse($data = array()): void
 	{
 		// Some default values in case something is missed or neglected :P
 		$this->_response = array(
@@ -511,37 +542,50 @@ class Attachments
 		{
 			// Is there any generic errors? made some sense out of them!
 			if ($this->_generalErrors)
+			{
 				foreach ($this->_generalErrors as $k => $v)
+				{
 					$this->_generalErrors[$k] = (is_array($v) ? vsprintf(Lang::$txt[$v[0]], (array) $v[1]) : Lang::$txt[$v]);
+				}
+			}
 
 			// Gotta urlencode the filename.
 			if ($this->_attachResults)
+			{
 				foreach ($this->_attachResults as $k => $v)
+				{
 					$this->_attachResults[$k]['name'] = urlencode($this->_attachResults[$k]['name']);
+				}
+			}
 
 			$this->_response = array(
 				'files' => $this->_attachResults ? $this->_attachResults : false,
 				'generalErrors' => $this->_generalErrors ? $this->_generalErrors : false,
 			);
 		}
-
 		// Rest of us mere mortals gets no special treatment...
 		elseif (!empty($data))
+		{
 			if (!empty($data['text']) && !empty(Lang::$txt[$data['text']]))
 				$this->_response['text'] = Lang::$txt[$data['text']];
+		}
 	}
 
 	/**
 	 * Sends the response data
 	 */
-	protected function sendResponse()
+	protected function sendResponse(): void
 	{
 		ob_end_clean();
 
 		if (!empty(Config::$modSettings['enableCompressedOutput']))
+		{
 			@ob_start('ob_gzhandler');
+		}
 		else
+		{
 			ob_start();
+		}
 
 		// Set the header.
 		header('content-type: application/json; charset=' . Utils::$context['character_set'] . '');
