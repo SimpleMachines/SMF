@@ -667,7 +667,7 @@ function export_attachment($uid)
 	Utils::$context['attachment_allow_hidden_boards'] = true;
 
 	// We should now have what we need to serve the file.
-	require_once(Config::$sourcedir . DIRECTORY_SEPARATOR . 'ShowAttachments.php');
+	require_once(implode(DIRECTORY_SEPARATOR, array(Config::$sourcedir, 'Actions', 'AttachmentDownload.php')));
 	showAttachment();
 }
 
