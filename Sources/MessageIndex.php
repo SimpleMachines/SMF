@@ -446,7 +446,7 @@ class MessageIndex
 				$stickyCache[] = $topic;
 			elseif ($action == 'move')
 			{
-				require_once(Config::$sourcedir . '/MoveTopic.php');
+				require_once(Config::$sourcedir . '/Actions/MoveTopic2.php');
 				moveTopicConcurrence();
 
 				// $moveCache[0] is the topic, $moveCache[1] is the board to move to.
@@ -563,7 +563,7 @@ class MessageIndex
 
 			$moveCache = $moveCache2;
 
-			require_once(Config::$sourcedir . '/MoveTopic.php');
+			require_once(Config::$sourcedir . '/Actions/MoveTopic2.php');
 
 			// Do the actual moves...
 			foreach ($moveTos as $to => $topics)
