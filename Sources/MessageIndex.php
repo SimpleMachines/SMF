@@ -13,6 +13,7 @@
 
 namespace SMF;
 
+use SMF\Actions\TopicMove2;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -446,8 +447,7 @@ class MessageIndex
 				$stickyCache[] = $topic;
 			elseif ($action == 'move')
 			{
-				require_once(Config::$sourcedir . '/Actions/MoveTopic2.php');
-				moveTopicConcurrence();
+				TopicMove2::moveTopicConcurrence();
 
 				// $moveCache[0] is the topic, $moveCache[1] is the board to move to.
 				$moveCache[1][$topic] = (int) (isset($_REQUEST['move_tos'][$topic]) ? $_REQUEST['move_tos'][$topic] : $_REQUEST['move_to']);
@@ -563,11 +563,9 @@ class MessageIndex
 
 			$moveCache = $moveCache2;
 
-			require_once(Config::$sourcedir . '/Actions/MoveTopic2.php');
-
 			// Do the actual moves...
 			foreach ($moveTos as $to => $topics)
-				moveTopics($topics, $to);
+				Topic::move($topics, $to);
 
 			// Does the post counts need to be updated?
 			if (!empty($moveTos))

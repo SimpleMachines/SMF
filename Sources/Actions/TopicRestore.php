@@ -72,9 +72,6 @@ class TopicRestore implements ActionInterface
 		// Can we be in here?
 		isAllowedTo('move_any', Config::$modSettings['recycle_board']);
 
-		// We need this file.
-		require_once(Config::$sourcedir . '/Actions/MoveTopic2.php');
-
 		$unfound_messages = array();
 		$topics_to_restore = array();
 
@@ -218,7 +215,7 @@ class TopicRestore implements ActionInterface
 				}
 
 				// Ok we got here so me move them from here to there.
-				moveTopics($row['id_topic'], $row['id_previous_board']);
+				Topic::move($row['id_topic'], $row['id_previous_board']);
 
 				// Lets see if the board that we are returning to has post count enabled.
 				$request2 = Db::$db->query('', '

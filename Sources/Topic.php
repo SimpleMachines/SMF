@@ -13,6 +13,7 @@
 
 namespace SMF;
 
+use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
 
@@ -36,6 +37,7 @@ class Topic implements \ArrayAccess
 			'load' => false,
 			'lock' => 'LockTopic',
 			'approve' => 'approveTopics',
+			'move' => 'moveTopics',
 			'remove' => 'removeTopics',
 		),
 		'prop_names' => array(
@@ -727,6 +729,335 @@ class Topic implements \ArrayAccess
 	}
 
 	/**
+	 * Moves one or more topics to a specific board. (doesn't check permissions.)
+	 * Determines the source boards for the supplied topics
+	 * Handles the moving of mark_read data
+	 * Updates the posts count of the affected boards
+	 *
+	 * @param array|int $topics The ID of a single topic to move or an array containing the IDs of multiple topics to move
+	 * @param int $toBoard The ID of the board to move the topics to
+	 */
+	public static function move($topics, $toBoard)
+	{
+		// Empty array?
+		if (empty($topics))
+			return;
+
+		// Only a single topic.
+		if (is_numeric($topics))
+			$topics = array($topics);
+
+		$fromBoards = array();
+
+		// Destination board empty or equal to 0?
+		if (empty($toBoard))
+			return;
+
+		// Are we moving to the recycle board?
+		$isRecycleDest = !empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] == $toBoard;
+
+		// Callback for search APIs to do their thing
+		$searchAPI = SearchApi::load();
+
+		if ($searchAPI->supportsMethod('topicsMoved'))
+			$searchAPI->topicsMoved($topics, $toBoard);
+
+		// Determine the source boards...
+		$request = Db::$db->query('', '
+			SELECT id_board, approved, COUNT(*) AS num_topics, SUM(unapproved_posts) AS unapproved_posts,
+				SUM(num_replies) AS num_replies
+			FROM {db_prefix}topics
+			WHERE id_topic IN ({array_int:topics})
+			GROUP BY id_board, approved',
+			array(
+				'topics' => $topics,
+			)
+		);
+		// Num of rows = 0 -> no topics found. Num of rows > 1 -> topics are on multiple boards.
+		if (Db::$db->num_rows($request) == 0)
+			return;
+		while ($row = Db::$db->fetch_assoc($request))
+		{
+			if (!isset($fromBoards[$row['id_board']]['num_posts']))
+			{
+				$fromBoards[$row['id_board']] = array(
+					'num_posts' => 0,
+					'num_topics' => 0,
+					'unapproved_posts' => 0,
+					'unapproved_topics' => 0,
+					'id_board' => $row['id_board']
+				);
+			}
+			// Posts = (num_replies + 1) for each approved topic.
+			$fromBoards[$row['id_board']]['num_posts'] += $row['num_replies'] + ($row['approved'] ? $row['num_topics'] : 0);
+			$fromBoards[$row['id_board']]['unapproved_posts'] += $row['unapproved_posts'];
+
+			// Add the topics to the right type.
+			if ($row['approved'])
+				$fromBoards[$row['id_board']]['num_topics'] += $row['num_topics'];
+			else
+				$fromBoards[$row['id_board']]['unapproved_topics'] += $row['num_topics'];
+		}
+		Db::$db->free_result($request);
+
+		// Move over the mark_read data. (because it may be read and now not by some!)
+		$SaveAServer = max(0, Config::$modSettings['maxMsgID'] - 50000);
+		$request = Db::$db->query('', '
+			SELECT lmr.id_member, lmr.id_msg, t.id_topic, COALESCE(lt.unwatched, 0) AS unwatched
+			FROM {db_prefix}topics AS t
+				INNER JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board
+					AND lmr.id_msg > t.id_first_msg AND lmr.id_msg > {int:protect_lmr_msg})
+				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = lmr.id_member)
+			WHERE t.id_topic IN ({array_int:topics})
+				AND lmr.id_msg > COALESCE(lt.id_msg, 0)',
+			array(
+				'protect_lmr_msg' => $SaveAServer,
+				'topics' => $topics,
+			)
+		);
+		$log_topics = array();
+		while ($row = Db::$db->fetch_assoc($request))
+		{
+			$log_topics[] = array($row['id_topic'], $row['id_member'], $row['id_msg'], (is_null($row['unwatched']) ? 0 : $row['unwatched']));
+
+			// Prevent queries from getting too big. Taking some steam off.
+			if (count($log_topics) > 500)
+			{
+				Db::$db->insert('replace',
+					'{db_prefix}log_topics',
+					array('id_topic' => 'int', 'id_member' => 'int', 'id_msg' => 'int', 'unwatched' => 'int'),
+					$log_topics,
+					array('id_topic', 'id_member')
+				);
+
+				$log_topics = array();
+			}
+		}
+		Db::$db->free_result($request);
+
+		// Now that we have all the topics that *should* be marked read, and by which members...
+		if (!empty($log_topics))
+		{
+			// Insert that information into the database!
+			Db::$db->insert('replace',
+				'{db_prefix}log_topics',
+				array('id_topic' => 'int', 'id_member' => 'int', 'id_msg' => 'int', 'unwatched' => 'int'),
+				$log_topics,
+				array('id_topic', 'id_member')
+			);
+		}
+
+		// Update the number of posts on each board.
+		$totalTopics = 0;
+		$totalPosts = 0;
+		$totalUnapprovedTopics = 0;
+		$totalUnapprovedPosts = 0;
+		foreach ($fromBoards as $stats)
+		{
+			Db::$db->query('', '
+				UPDATE {db_prefix}boards
+				SET
+					num_posts = CASE WHEN {int:num_posts} > num_posts THEN 0 ELSE num_posts - {int:num_posts} END,
+					num_topics = CASE WHEN {int:num_topics} > num_topics THEN 0 ELSE num_topics - {int:num_topics} END,
+					unapproved_posts = CASE WHEN {int:unapproved_posts} > unapproved_posts THEN 0 ELSE unapproved_posts - {int:unapproved_posts} END,
+					unapproved_topics = CASE WHEN {int:unapproved_topics} > unapproved_topics THEN 0 ELSE unapproved_topics - {int:unapproved_topics} END
+				WHERE id_board = {int:id_board}',
+				array(
+					'id_board' => $stats['id_board'],
+					'num_posts' => $stats['num_posts'],
+					'num_topics' => $stats['num_topics'],
+					'unapproved_posts' => $stats['unapproved_posts'],
+					'unapproved_topics' => $stats['unapproved_topics'],
+				)
+			);
+			$totalTopics += $stats['num_topics'];
+			$totalPosts += $stats['num_posts'];
+			$totalUnapprovedTopics += $stats['unapproved_topics'];
+			$totalUnapprovedPosts += $stats['unapproved_posts'];
+		}
+		Db::$db->query('', '
+			UPDATE {db_prefix}boards
+			SET
+				num_topics = num_topics + {int:total_topics},
+				num_posts = num_posts + {int:total_posts},' . ($isRecycleDest ? '
+				unapproved_posts = {int:no_unapproved}, unapproved_topics = {int:no_unapproved}' : '
+				unapproved_posts = unapproved_posts + {int:total_unapproved_posts},
+				unapproved_topics = unapproved_topics + {int:total_unapproved_topics}') . '
+			WHERE id_board = {int:id_board}',
+			array(
+				'id_board' => $toBoard,
+				'total_topics' => $totalTopics,
+				'total_posts' => $totalPosts,
+				'total_unapproved_topics' => $totalUnapprovedTopics,
+				'total_unapproved_posts' => $totalUnapprovedPosts,
+				'no_unapproved' => 0,
+			)
+		);
+
+		// Move the topic.  Done.  :P
+		Db::$db->query('', '
+			UPDATE {db_prefix}topics
+			SET id_board = {int:id_board}' . ($isRecycleDest ? ',
+				unapproved_posts = {int:no_unapproved}, approved = {int:is_approved}' : '') . '
+			WHERE id_topic IN ({array_int:topics})',
+			array(
+				'id_board' => $toBoard,
+				'topics' => $topics,
+				'is_approved' => 1,
+				'no_unapproved' => 0,
+			)
+		);
+
+		// If this was going to the recycle bin, check what messages are being recycled, and remove them from the queue.
+		if ($isRecycleDest && ($totalUnapprovedTopics || $totalUnapprovedPosts))
+		{
+			$request = Db::$db->query('', '
+				SELECT id_msg
+				FROM {db_prefix}messages
+				WHERE id_topic IN ({array_int:topics})
+					AND approved = {int:not_approved}',
+				array(
+					'topics' => $topics,
+					'not_approved' => 0,
+				)
+			);
+			$approval_msgs = array();
+			while ($row = Db::$db->fetch_assoc($request))
+				$approval_msgs[] = $row['id_msg'];
+
+			Db::$db->free_result($request);
+
+			// Empty the approval queue for these, as we're going to approve them next.
+			if (!empty($approval_msgs))
+				Db::$db->query('', '
+					DELETE FROM {db_prefix}approval_queue
+					WHERE id_msg IN ({array_int:message_list})
+						AND id_attach = {int:id_attach}',
+					array(
+						'message_list' => $approval_msgs,
+						'id_attach' => 0,
+					)
+				);
+
+			// Get all the current max and mins.
+			$request = Db::$db->query('', '
+				SELECT id_topic, id_first_msg, id_last_msg
+				FROM {db_prefix}topics
+				WHERE id_topic IN ({array_int:topics})',
+				array(
+					'topics' => $topics,
+				)
+			);
+			$topicMaxMin = array();
+			while ($row = Db::$db->fetch_assoc($request))
+			{
+				$topicMaxMin[$row['id_topic']] = array(
+					'min' => $row['id_first_msg'],
+					'max' => $row['id_last_msg'],
+				);
+			}
+			Db::$db->free_result($request);
+
+			// Check the MAX and MIN are correct.
+			$request = Db::$db->query('', '
+				SELECT id_topic, MIN(id_msg) AS first_msg, MAX(id_msg) AS last_msg
+				FROM {db_prefix}messages
+				WHERE id_topic IN ({array_int:topics})
+				GROUP BY id_topic',
+				array(
+					'topics' => $topics,
+				)
+			);
+			while ($row = Db::$db->fetch_assoc($request))
+			{
+				// If not, update.
+				if ($row['first_msg'] != $topicMaxMin[$row['id_topic']]['min'] || $row['last_msg'] != $topicMaxMin[$row['id_topic']]['max'])
+					Db::$db->query('', '
+						UPDATE {db_prefix}topics
+						SET id_first_msg = {int:first_msg}, id_last_msg = {int:last_msg}
+						WHERE id_topic = {int:selected_topic}',
+						array(
+							'first_msg' => $row['first_msg'],
+							'last_msg' => $row['last_msg'],
+							'selected_topic' => $row['id_topic'],
+						)
+					);
+			}
+			Db::$db->free_result($request);
+		}
+
+		Db::$db->query('', '
+			UPDATE {db_prefix}messages
+			SET id_board = {int:id_board}' . ($isRecycleDest ? ',approved = {int:is_approved}' : '') . '
+			WHERE id_topic IN ({array_int:topics})',
+			array(
+				'id_board' => $toBoard,
+				'topics' => $topics,
+				'is_approved' => 1,
+			)
+		);
+		Db::$db->query('', '
+			UPDATE {db_prefix}log_reported
+			SET id_board = {int:id_board}
+			WHERE id_topic IN ({array_int:topics})',
+			array(
+				'id_board' => $toBoard,
+				'topics' => $topics,
+			)
+		);
+		Db::$db->query('', '
+			UPDATE {db_prefix}calendar
+			SET id_board = {int:id_board}
+			WHERE id_topic IN ({array_int:topics})',
+			array(
+				'id_board' => $toBoard,
+				'topics' => $topics,
+			)
+		);
+
+		// Mark target board as seen, if it was already marked as seen before.
+		$request = Db::$db->query('', '
+			SELECT (COALESCE(lb.id_msg, 0) >= b.id_msg_updated) AS isSeen
+			FROM {db_prefix}boards AS b
+				LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})
+			WHERE b.id_board = {int:id_board}',
+			array(
+				'current_member' => User::$me->id,
+				'id_board' => $toBoard,
+			)
+		);
+		list ($isSeen) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
+
+		if (!empty($isSeen) && !User::$me->is_guest)
+		{
+			Db::$db->insert('replace',
+				'{db_prefix}log_boards',
+				array('id_board' => 'int', 'id_member' => 'int', 'id_msg' => 'int'),
+				array($toBoard, User::$me->id, Config::$modSettings['maxMsgID']),
+				array('id_board', 'id_member')
+			);
+		}
+
+		// Update the cache?
+		if (!empty(CacheApi::$enable) && CacheApi::$enable >= 3)
+			foreach ($topics as $topic_id)
+				CacheApi::put('topic_board-' . $topic_id, null, 120);
+
+		$updates = array_keys($fromBoards);
+		$updates[] = $toBoard;
+
+		Msg::updateLastMessages(array_unique($updates));
+
+		// Update 'em pesky stats.
+		updateStats('topic');
+		updateStats('message');
+		Config::updateModSettings(array(
+			'calendar_updated' => time(),
+		));
+	}
+
+	/**
 	 * Removes the passed id_topic's. (permissions are NOT checked here!).
 	 *
 	 * @param array|int $topics The topics to remove (can be an id or an array of ids).
@@ -816,8 +1147,7 @@ class Topic implements \ArrayAccess
 				Db::$db->free_result($request);
 
 				// Move the topics to the recycle board.
-				require_once(Config::$sourcedir . '/Actions/MoveTopic2.php');
-				moveTopics($recycleTopics, Config::$modSettings['recycle_board']);
+				self::move($recycleTopics, Config::$modSettings['recycle_board']);
 
 				// Close reports that are being recycled.
 				require_once(Config::$sourcedir . '/ModerationCenter.php');
