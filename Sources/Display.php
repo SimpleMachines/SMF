@@ -304,7 +304,7 @@ class Display
 		// Check the session = get or post.
 		checkSession('request');
 
-		require_once(Config::$sourcedir . '/RemoveTopic.php');
+		require_once(Config::$sourcedir . '/Actions/RemoveTopic.php');
 
 		if (empty($_REQUEST['msgs']))
 			redirectexit('topic=' . Topic::$topic_id . '.' . $_REQUEST['start']);

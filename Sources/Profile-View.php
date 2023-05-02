@@ -899,7 +899,7 @@ function showPosts($memID)
 			redirectexit('action=profile;u=' . $memID . ';area=showposts;start=' . $_GET['start']);
 
 		// We can be lazy, since removeMessage() will check the permissions for us.
-		require_once(Config::$sourcedir . '/RemoveTopic.php');
+		require_once(Config::$sourcedir . '/Actions/RemoveTopic.php');
 		removeMessage((int) $_GET['delete']);
 
 		// Add it to the mod log.

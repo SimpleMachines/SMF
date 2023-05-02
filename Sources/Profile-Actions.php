@@ -621,7 +621,7 @@ function deleteAccount2($memID)
 		if (!empty($_POST['deletePosts']) && in_array($_POST['remove_type'], array('posts', 'topics')) && allowedTo('moderate_forum'))
 		{
 			// Include RemoveTopics - essential for this type of work!
-			require_once(Config::$sourcedir . '/RemoveTopic.php');
+			require_once(Config::$sourcedir . '/Actions/RemoveTopic.php');
 
 			$extra = empty($_POST['perma_delete']) ? ' AND t.id_board != {int:recycle_board}' : '';
 			$recycle_board = empty(Config::$modSettings['recycle_board']) ? 0 : Config::$modSettings['recycle_board'];

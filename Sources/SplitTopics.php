@@ -1702,7 +1702,7 @@ function MergeExecute($topics = array())
 	if (!isset($_POST['postRedirect']))
 	{
 		// Remove any remaining info about these topics...
-		include_once(Config::$sourcedir . '/RemoveTopic.php');
+		include_once(Config::$sourcedir . '/Actions/RemoveTopic.php');
 		// We do not need to remove the counts of the deleted topics, as we already removed these.
 		removeTopics($deleted_topics, false, true, false);
 	}
