@@ -19,6 +19,7 @@ use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Actions\Credits;
+use SMF\Actions\Groups;
 use SMF\Db\DatabaseApi as Db;
 use SMF\PackageManager\XmlArray;
 
@@ -520,8 +521,7 @@ function AdminHome()
 	isAllowedTo(array('admin_forum', 'manage_permissions', 'moderate_forum', 'manage_membergroups', 'manage_bans', 'send_mail', 'edit_news', 'manage_boards', 'manage_smileys', 'manage_attachments'));
 
 	// Find all of this forum's administrators...
-	require_once(Config::$sourcedir . '/Subs-Membergroups.php');
-	if (listMembergroupMembers_Href(Utils::$context['administrators'], 1, 32) && allowedTo('manage_membergroups'))
+	if (Groups::listMembergroupMembers_Href(Utils::$context['administrators'], 1, 32) && allowedTo('manage_membergroups'))
 	{
 		// Add a 'more'-link if there are more than 32.
 		Utils::$context['more_admins_link'] = '<a href="' . Config::$scripturl . '?action=moderate;area=viewgroups;sa=members;group=1">' . Lang::$txt['more'] . '</a>';

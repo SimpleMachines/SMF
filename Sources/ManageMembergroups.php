@@ -91,8 +91,7 @@ function MembergroupIndex()
 		'base_href' => Config::$scripturl . '?action=admin;area=membergroups' . (isset($_REQUEST['sort2']) ? ';sort2=' . urlencode($_REQUEST['sort2']) : ''),
 		'default_sort_col' => 'name',
 		'get_items' => array(
-			'file' => Config::$sourcedir . '/Subs-Membergroups.php',
-			'function' => 'list_getMembergroups',
+			'function' => '\\SMF\\Actions\\Groups::list_getMembergroups',
 			'params' => array(
 				'regular',
 			),
