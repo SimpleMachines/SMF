@@ -149,14 +149,14 @@ function ModerationMain($dont_call = false)
 			'areas' => array(
 				'groups' => array(
 					'label' => Lang::$txt['mc_group_requests'],
-					'file' => 'Groups.php',
+					'file' => 'Actions/Groups.php',
 					'function' => 'Groups',
 					'icon' => 'members_request',
 					'custom_url' => Config::$scripturl . '?action=moderate;area=groups;sa=requests',
 				),
 				'viewgroups' => array(
 					'label' => Lang::$txt['mc_view_groups'],
-					'file' => 'Groups.php',
+					'file' => 'Actions/Groups.php',
 					'function' => 'Groups',
 					'icon' => 'membergroups',
 				),

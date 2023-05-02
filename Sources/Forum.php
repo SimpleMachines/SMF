@@ -61,7 +61,7 @@ class Forum
 		'editpoll' => array('Poll.php', 'EditPoll'),
 		'editpoll2' => array('Poll.php', 'EditPoll2'),
 		'findmember' => array('Subs-Auth.php', 'JSMembers'),
-		'groups' => array('Groups.php', 'Groups'),
+		'groups' => array('Actions/Groups.php', 'Groups'),
 		'help' => array('', 'SMF\\Actions\\Help::call'),
 		'helpadmin' => array('', 'SMF\\Actions\\HelpAdmin::call'),
 		'jsmodify' => array('', 'SMF\\Actions\\JavaScriptModify::call'),
