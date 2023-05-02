@@ -351,60 +351,6 @@ function reattributePosts($memID, $email = false, $membername = false, $post_cou
 }
 
 /**
- * This simple function adds/removes the passed user from the current users buddy list.
- * Requires profile_identity_own permission.
- * Called by ?action=buddy;u=x;session_id=y.
- * Redirects to ?action=profile;u=x.
- */
-function BuddyListToggle()
-{
-	checkSession('get');
-
-	isAllowedTo('profile_extra_own');
-	is_not_guest();
-
-	$userReceiver = (int) !empty($_REQUEST['u']) ? $_REQUEST['u'] : 0;
-
-	if (empty($userReceiver))
-		fatal_lang_error('no_access', false);
-
-	// Remove if it's already there...
-	if (in_array($userReceiver, User::$me->buddies))
-		User::$me->buddies = array_diff(User::$me->buddies, array($userReceiver));
-
-	// ...or add if it's not and if it's not you.
-	elseif (User::$me->id != $userReceiver)
-	{
-		User::$me->buddies[] = $userReceiver;
-
-		// And add a nice alert. Don't abuse though!
-		if ((CacheApi::get('Buddy-sent-' . User::$me->id . '-' . $userReceiver, 86400)) == null)
-		{
-			Db::$db->insert('insert',
-				'{db_prefix}background_tasks',
-				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-				array('$sourcedir/tasks/Buddy_Notify.php', 'SMF\Tasks\Buddy_Notify', Utils::jsonEncode(array(
-					'receiver_id' => $userReceiver,
-					'id_member' => User::$me->id,
-					'member_name' => User::$me->username,
-					'time' => time(),
-				)), 0),
-				array('id_task')
-			);
-
-			// Store this in a cache entry to avoid creating multiple alerts. Give it a long life cycle.
-			CacheApi::put('Buddy-sent-' . User::$me->id . '-' . $userReceiver, '1', 86400);
-		}
-	}
-
-	// Update the settings.
-	User::updateMemberData(User::$me->id, array('buddy_list' => implode(',', User::$me->buddies)));
-
-	// Redirect back to the profile
-	redirectexit('action=profile;u=' . $userReceiver);
-}
-
-/**
  * Callback for createList().
  *
  * @param int $start Which item to start with (for pagination purposes)

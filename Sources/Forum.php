@@ -51,7 +51,7 @@ class Forum
 		'admin' => array('Admin.php', 'AdminMain'),
 		'announce' => array('', 'SMF\\Actions\\Announce::call'),
 		'attachapprove' => array('ManageAttachments.php', 'ApproveAttach'),
-		'buddy' => array('Subs-Members.php', 'BuddyListToggle'),
+		'buddy' => array('', 'SMF\\Actions\\BuddyListToggle::call'),
 		'calendar' => array('', 'SMF\\Actions\\Calendar::call'),
 		'clock' => array('', 'SMF\\Actions\\Calendar::call'), // Deprecated; is now a sub-action
 		'coppa' => array('', 'SMF\\Actions\\CoppaForm::call'),
