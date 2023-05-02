@@ -75,7 +75,7 @@ class Forum
 		'logout' => array('LogInOut.php', 'Logout'),
 		'markasread' => array('', 'SMF\\Board::MarkRead'),
 		'mergetopics' => array('SplitTopics.php', 'MergeTopics'),
-		'mlist' => array('Actions/Memberlist.php', 'Memberlist'),
+		'mlist' => array('', 'SMF\\Actions\\Memberlist::call'),
 		'moderate' => array('ModerationCenter.php', 'ModerationMain'),
 		'modifycat' => array('ManageBoards.php', 'ModifyCat'),
 		'movetopic' => array('MoveTopic.php', 'MoveTopic'),
