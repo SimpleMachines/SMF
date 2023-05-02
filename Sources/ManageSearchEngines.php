@@ -789,7 +789,7 @@ function SpiderLogs()
 		}
 
 		// Now stick in the new URLs.
-		require_once(Config::$sourcedir . '/Who.php');
+		require_once(Config::$sourcedir . '/Actions/Who.php');
 		$urls = determineActions($urls, 'whospider_');
 		foreach ($urls as $k => $new_url)
 		{

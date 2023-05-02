@@ -111,7 +111,7 @@ function summary($memID)
 
 	if (!empty(Config::$modSettings['who_enabled']) && Utils::$context['member']['show_last_login'])
 	{
-		include_once(Config::$sourcedir . '/Who.php');
+		include_once(Config::$sourcedir . '/Actions/Who.php');
 		$action = determineActions(User::$loaded[$memID]->url);
 
 		if ($action !== false)
