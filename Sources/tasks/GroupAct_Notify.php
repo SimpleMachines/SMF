@@ -19,11 +19,15 @@ use SMF\Mail;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Groups;
 use SMF\Db\DatabaseApi as Db;
 
 /**
  * This class contains code used to notify a member when a group moderator has
  * taken action on that member's request to join a group.
+ *
+ * @todo This is supposed to just send notifications, but it appears that it
+ * actually adds members to groups!
  */
 class GroupAct_Notify extends BackgroundTask
 {
@@ -67,8 +71,7 @@ class GroupAct_Notify extends BackgroundTask
 				User::$me->id = $this->_details['member_id'];
 				User::$me->ip = $this->_details['member_ip'];
 
-				require_once(Config::$sourcedir . '/Subs-Membergroups.php');
-				addMembersToGroup($row['id_member'], $row['id_group'], $row['hidden'] == 2 ? 'only_additional' : 'auto', true);
+				Groups::addMembers($row['id_member'], $row['id_group'], $row['hidden'] == 2 ? 'only_additional' : 'auto', true);
 			}
 
 			// Build the required information array
