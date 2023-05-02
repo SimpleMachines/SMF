@@ -40,7 +40,7 @@ function ModifyMembergroups()
 		'delete' => array('DeleteMembergroup', 'manage_membergroups'),
 		'edit' => array('EditMembergroup', 'manage_membergroups'),
 		'index' => array('MembergroupIndex', 'manage_membergroups'),
-		'members' => array('MembergroupMembers', 'manage_membergroups', 'Groups.php'),
+		'members' => array('MembergroupMembers', 'manage_membergroups', 'Actions/Groups.php'),
 		'settings' => array('ModifyMembergroupsettings', 'admin_forum'),
 	);
 
