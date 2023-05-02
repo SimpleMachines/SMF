@@ -362,7 +362,7 @@ class MessageIndex
 				if (empty($_REQUEST['topics']) || count($_REQUEST['topics']) < 2)
 					redirectexit($redirect_url);
 
-				require_once(Config::$sourcedir . '/SplitTopics.php');
+				require_once(Config::$sourcedir . '/Actions/SplitTopics.php');
 				MergeExecute($_REQUEST['topics']);
 
 				return;
