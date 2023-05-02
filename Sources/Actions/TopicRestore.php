@@ -73,7 +73,7 @@ class TopicRestore implements ActionInterface
 		isAllowedTo('move_any', Config::$modSettings['recycle_board']);
 
 		// We need this file.
-		require_once(Config::$sourcedir . '/MoveTopic.php');
+		require_once(Config::$sourcedir . '/Actions/MoveTopic2.php');
 
 		$unfound_messages = array();
 		$topics_to_restore = array();

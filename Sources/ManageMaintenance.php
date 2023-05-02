@@ -1592,7 +1592,7 @@ function MaintainMassMoveTopics()
 			}
 
 			// Lets move them.
-			require_once(Config::$sourcedir . '/MoveTopic.php');
+			require_once(Config::$sourcedir . '/Actions/MoveTopic2.php');
 			moveTopics($topics, $id_board_to);
 
 			// We've done at least ten more topics.

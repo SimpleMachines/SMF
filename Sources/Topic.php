@@ -816,7 +816,7 @@ class Topic implements \ArrayAccess
 				Db::$db->free_result($request);
 
 				// Move the topics to the recycle board.
-				require_once(Config::$sourcedir . '/MoveTopic.php');
+				require_once(Config::$sourcedir . '/Actions/MoveTopic2.php');
 				moveTopics($recycleTopics, Config::$modSettings['recycle_board']);
 
 				// Close reports that are being recycled.
