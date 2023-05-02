@@ -527,7 +527,7 @@ function AdminHome()
 	}
 
 	// Load the credits stuff.
-	require_once(Config::$sourcedir . '/Who.php');
+	require_once(Config::$sourcedir . '/Actions/Who.php');
 	Credits(true);
 
 	// This makes it easier to get the latest news with your time format.
