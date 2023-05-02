@@ -1260,7 +1260,7 @@ function scheduled_remove_topic_redirect()
 	// Zap, your gone
 	if (count($topics) > 0)
 	{
-		require_once(Config::$sourcedir . '/RemoveTopic.php');
+		require_once(Config::$sourcedir . '/Actions/RemoveTopic.php');
 		removeTopics($topics, false, true);
 	}
 

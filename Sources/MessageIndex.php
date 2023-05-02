@@ -671,7 +671,7 @@ class MessageIndex
 					Mail::sendNotifications($topic, 'remove');
 				}
 
-				require_once(Config::$sourcedir . '/RemoveTopic.php');
+				require_once(Config::$sourcedir . '/Actions/RemoveTopic.php');
 				removeTopics($removeCache);
 			}
 		}
