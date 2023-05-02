@@ -39,6 +39,7 @@ class Msg implements \ArrayAccess
 			'create' => 'createPost',
 			'modify' => 'modifyPost',
 			'approve' => 'approvePosts',
+			'remove' => 'removeMessage',
 		),
 	);
 
@@ -2882,6 +2883,510 @@ class Msg implements \ArrayAccess
 				)
 			);
 		}
+	}
+
+	/**
+	 * Remove a specific message (including permission checks).
+	 *
+	 * @param int $message The message id
+	 * @param bool $decreasePostCount Whether to decrease users' post counts
+	 * @return bool Whether the operation succeeded
+	 */
+	public static function remove($message, $decreasePostCount = true)
+	{
+		if (empty($message) || !is_numeric($message))
+			return false;
+
+		$recycle_board = !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) ? (int) Config::$modSettings['recycle_board'] : 0;
+
+		$request = Db::$db->query('', '
+			SELECT
+				m.id_member, m.icon, m.poster_time, m.subject,' . (empty(Config::$modSettings['search_custom_index_config']) ? '' : ' m.body,') . '
+				m.approved, t.id_topic, t.id_first_msg, t.id_last_msg, t.num_replies, t.id_board,
+				t.id_member_started AS id_member_poster,
+				b.count_posts
+			FROM {db_prefix}messages AS m
+				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
+				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
+			WHERE m.id_msg = {int:id_msg}
+			LIMIT 1',
+			array(
+				'id_msg' => $message,
+			)
+		);
+		if (Db::$db->num_rows($request) == 0)
+		{
+			Db::$db->free_result($request);
+			return false;
+		}
+		$row = Db::$db->fetch_assoc($request);
+		Db::$db->free_result($request);
+
+		// Give mods a heads-up before we do anything.
+		call_integration_hook('integrate_pre_remove_message', array($message, $decreasePostCount, $row));
+
+		if (empty(Board::$info->id) || $row['id_board'] != Board::$info->id)
+		{
+			$delete_any = boardsAllowedTo('delete_any');
+
+			if (!in_array(0, $delete_any) && !in_array($row['id_board'], $delete_any))
+			{
+				$delete_own = boardsAllowedTo('delete_own');
+				$delete_own = in_array(0, $delete_own) || in_array($row['id_board'], $delete_own);
+				$delete_replies = boardsAllowedTo('delete_replies');
+				$delete_replies = in_array(0, $delete_replies) || in_array($row['id_board'], $delete_replies);
+
+				if ($row['id_member'] == User::$me->id)
+				{
+					if (!$delete_own)
+					{
+						if ($row['id_member_poster'] == User::$me->id)
+						{
+							if (!$delete_replies)
+								fatal_lang_error('cannot_delete_replies', 'permission');
+						}
+						else
+						{
+							fatal_lang_error('cannot_delete_own', 'permission');
+						}
+					}
+					elseif (($row['id_member_poster'] != User::$me->id || !$delete_replies) && !empty(Config::$modSettings['edit_disable_time']) && $row['poster_time'] + Config::$modSettings['edit_disable_time'] * 60 < time())
+					{
+						fatal_lang_error('modify_post_time_passed', false);
+					}
+				}
+				elseif ($row['id_member_poster'] == User::$me->id)
+				{
+					if (!$delete_replies)
+						fatal_lang_error('cannot_delete_replies', 'permission');
+				}
+				else
+				{
+					fatal_lang_error('cannot_delete_any', 'permission');
+				}
+			}
+
+			// Can't delete an unapproved message, if you can't see it!
+			if (Config::$modSettings['postmod_active'] && !$row['approved'] && $row['id_member'] != User::$me->id && !(in_array(0, $delete_any) || in_array($row['id_board'], $delete_any)))
+			{
+				$approve_posts = boardsAllowedTo('approve_posts');
+
+				if (!in_array(0, $approve_posts) && !in_array($row['id_board'], $approve_posts))
+					return false;
+			}
+		}
+		else
+		{
+			// Check permissions to delete this message.
+			if ($row['id_member'] == User::$me->id)
+			{
+				if (!allowedTo('delete_own'))
+				{
+					if ($row['id_member_poster'] == User::$me->id && !allowedTo('delete_any'))
+					{
+						isAllowedTo('delete_replies');
+					}
+					elseif (!allowedTo('delete_any'))
+					{
+						isAllowedTo('delete_own');
+					}
+				}
+				elseif (!allowedTo('delete_any') && ($row['id_member_poster'] != User::$me->id || !allowedTo('delete_replies')) && !empty(Config::$modSettings['edit_disable_time']) && $row['poster_time'] + Config::$modSettings['edit_disable_time'] * 60 < time())
+				{
+					fatal_lang_error('modify_post_time_passed', false);
+				}
+			}
+			elseif ($row['id_member_poster'] == User::$me->id && !allowedTo('delete_any'))
+			{
+				isAllowedTo('delete_replies');
+			}
+			else
+			{
+				isAllowedTo('delete_any');
+			}
+
+			if (Config::$modSettings['postmod_active'] && !$row['approved'] && $row['id_member'] != User::$me->id && !allowedTo('delete_own'))
+			{
+				isAllowedTo('approve_posts');
+			}
+		}
+
+		// Delete the *whole* topic, but only if the topic consists of one message.
+		if ($row['id_first_msg'] == $message)
+		{
+			if (empty(Board::$info->id) || $row['id_board'] != Board::$info->id)
+			{
+				$remove_any = boardsAllowedTo('remove_any');
+				$remove_any = in_array(0, $remove_any) || in_array($row['id_board'], $remove_any);
+
+				if (!$remove_any)
+				{
+					$remove_own = boardsAllowedTo('remove_own');
+					$remove_own = in_array(0, $remove_own) || in_array($row['id_board'], $remove_own);
+				}
+
+				if ($row['id_member'] != User::$me->id && !$remove_any)
+				{
+					fatal_lang_error('cannot_remove_any', 'permission');
+				}
+				elseif (!$remove_any && !$remove_own)
+				{
+					fatal_lang_error('cannot_remove_own', 'permission');
+				}
+			}
+			else
+			{
+				// Check permissions to delete a whole topic.
+				if ($row['id_member'] != User::$me->id)
+				{
+					isAllowedTo('remove_any');
+				}
+				elseif (!allowedTo('remove_any'))
+				{
+					isAllowedTo('remove_own');
+				}
+			}
+
+			// ...if there is only one post.
+			if (!empty($row['num_replies']))
+				fatal_lang_error('delFirstPost', false);
+
+			Topic::remove($row['id_topic']);
+
+			return true;
+		}
+
+		// Deleting a recycled message can not lower anyone's post count.
+		if (!empty($recycle_board) && $row['id_board'] == $recycle_board)
+			$decreasePostCount = false;
+
+		// This is the last post, update the last post on the board.
+		if ($row['id_last_msg'] == $message)
+		{
+			// Find the last message, set it, and decrease the post count.
+			$request = Db::$db->query('', '
+				SELECT id_msg, id_member
+				FROM {db_prefix}messages
+				WHERE id_topic = {int:id_topic}
+					AND id_msg != {int:id_msg}
+				ORDER BY ' . (Config::$modSettings['postmod_active'] ? 'approved DESC, ' : '') . 'id_msg DESC
+				LIMIT 1',
+				array(
+					'id_topic' => $row['id_topic'],
+					'id_msg' => $message,
+				)
+			);
+			$row2 = Db::$db->fetch_assoc($request);
+			Db::$db->free_result($request);
+
+			Db::$db->query('', '
+				UPDATE {db_prefix}topics
+				SET
+					id_last_msg = {int:id_last_msg},
+					id_member_updated = {int:id_member_updated}' . (!Config::$modSettings['postmod_active'] || $row['approved'] ? ',
+					num_replies = CASE WHEN num_replies = {int:no_replies} THEN 0 ELSE num_replies - 1 END' : ',
+					unapproved_posts = CASE WHEN unapproved_posts = {int:no_unapproved} THEN 0 ELSE unapproved_posts - 1 END') . '
+				WHERE id_topic = {int:id_topic}',
+				array(
+					'id_last_msg' => $row2['id_msg'],
+					'id_member_updated' => $row2['id_member'],
+					'no_replies' => 0,
+					'no_unapproved' => 0,
+					'id_topic' => $row['id_topic'],
+				)
+			);
+		}
+		// Only decrease post counts.
+		else
+		{
+			Db::$db->query('', '
+				UPDATE {db_prefix}topics
+				SET ' . ($row['approved'] ? '
+					num_replies = CASE WHEN num_replies = {int:no_replies} THEN 0 ELSE num_replies - 1 END' : '
+					unapproved_posts = CASE WHEN unapproved_posts = {int:no_unapproved} THEN 0 ELSE unapproved_posts - 1 END') . '
+				WHERE id_topic = {int:id_topic}',
+				array(
+					'no_replies' => 0,
+					'no_unapproved' => 0,
+					'id_topic' => $row['id_topic'],
+				)
+			);
+		}
+
+		// Default recycle to false.
+		$recycle = false;
+
+		// If recycle topics has been set, make a copy of this message in the recycle board.
+		// Make sure we're not recycling messages that are already on the recycle board.
+		if (!empty(Config::$modSettings['recycle_enable']) && $row['id_board'] != Config::$modSettings['recycle_board'] && $row['icon'] != 'recycled')
+		{
+			// Check if the recycle board exists and if so get the read status.
+			$request = Db::$db->query('', '
+				SELECT (COALESCE(lb.id_msg, 0) >= b.id_msg_updated) AS is_seen, id_last_msg
+				FROM {db_prefix}boards AS b
+					LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})
+				WHERE b.id_board = {int:recycle_board}',
+				array(
+					'current_member' => User::$me->id,
+					'recycle_board' => Config::$modSettings['recycle_board'],
+				)
+			);
+			if (Db::$db->num_rows($request) == 0)
+			{
+				fatal_lang_error('recycle_no_valid_board');
+			}
+			list($isRead, $last_board_msg) = Db::$db->fetch_row($request);
+			Db::$db->free_result($request);
+
+			// Is there an existing topic in the recycle board to group this post with?
+			$request = Db::$db->query('', '
+				SELECT id_topic, id_first_msg, id_last_msg
+				FROM {db_prefix}topics
+				WHERE id_previous_topic = {int:id_previous_topic}
+					AND id_board = {int:recycle_board}',
+				array(
+					'id_previous_topic' => $row['id_topic'],
+					'recycle_board' => Config::$modSettings['recycle_board'],
+				)
+			);
+			list($id_recycle_topic, $first_topic_msg, $last_topic_msg) = Db::$db->fetch_row($request);
+			Db::$db->free_result($request);
+
+			// Insert a new topic in the recycle board if $id_recycle_topic is empty.
+			if (empty($id_recycle_topic))
+			{
+				$id_topic = Db::$db->insert('',
+					'{db_prefix}topics',
+					array(
+						'id_board' => 'int', 'id_member_started' => 'int', 'id_member_updated' => 'int', 'id_first_msg' => 'int',
+						'id_last_msg' => 'int', 'unapproved_posts' => 'int', 'approved' => 'int', 'id_previous_topic' => 'int',
+					),
+					array(
+						Config::$modSettings['recycle_board'], $row['id_member'], $row['id_member'], $message,
+						$message, 0, 1, $row['id_topic'],
+					),
+					array('id_topic'),
+					1
+				);
+			}
+
+			// Capture the ID of the new topic...
+			$topicID = empty($id_recycle_topic) ? $id_topic : $id_recycle_topic;
+
+			// If the topic creation went successful, move the message.
+			if ($topicID > 0)
+			{
+				Db::$db->query('', '
+					UPDATE {db_prefix}messages
+					SET
+						id_topic = {int:id_topic},
+						id_board = {int:recycle_board},
+						approved = {int:is_approved}
+					WHERE id_msg = {int:id_msg}',
+					array(
+						'id_topic' => $topicID,
+						'recycle_board' => Config::$modSettings['recycle_board'],
+						'id_msg' => $message,
+						'is_approved' => 1,
+					)
+				);
+
+				// Take any reported posts with us...
+				Db::$db->query('', '
+					UPDATE {db_prefix}log_reported
+					SET
+						id_topic = {int:id_topic},
+						id_board = {int:recycle_board}
+					WHERE id_msg = {int:id_msg}',
+					array(
+						'id_topic' => $topicID,
+						'recycle_board' => Config::$modSettings['recycle_board'],
+						'id_msg' => $message,
+					)
+				);
+
+				// Mark recycled topic as read.
+				if (!User::$me->is_guest)
+				{
+					Db::$db->insert('replace',
+						'{db_prefix}log_topics',
+						array('id_topic' => 'int', 'id_member' => 'int', 'id_msg' => 'int', 'unwatched' => 'int'),
+						array($topicID, User::$me->id, Config::$modSettings['maxMsgID'], 0),
+						array('id_topic', 'id_member')
+					);
+				}
+
+				// Mark recycle board as seen, if it was marked as seen before.
+				if (!empty($isRead) && !User::$me->is_guest)
+				{
+					Db::$db->insert('replace',
+						'{db_prefix}log_boards',
+						array('id_board' => 'int', 'id_member' => 'int', 'id_msg' => 'int'),
+						array(Config::$modSettings['recycle_board'], User::$me->id, Config::$modSettings['maxMsgID']),
+						array('id_board', 'id_member')
+					);
+				}
+
+				// Add one topic and post to the recycle bin board.
+				Db::$db->query('', '
+					UPDATE {db_prefix}boards
+					SET
+						num_topics = num_topics + {int:num_topics_inc},
+						num_posts = num_posts + 1' .
+							($message > $last_board_msg ? ', id_last_msg = {int:id_merged_msg}' : '') . '
+					WHERE id_board = {int:recycle_board}',
+					array(
+						'num_topics_inc' => empty($id_recycle_topic) ? 1 : 0,
+						'recycle_board' => Config::$modSettings['recycle_board'],
+						'id_merged_msg' => $message,
+					)
+				);
+
+				// Lets increase the num_replies, and the first/last message ID as appropriate.
+				if (!empty($id_recycle_topic))
+				{
+					Db::$db->query('', '
+						UPDATE {db_prefix}topics
+						SET num_replies = num_replies + 1' .
+							($message > $last_topic_msg ? ', id_last_msg = {int:id_merged_msg}' : '') .
+							($message < $first_topic_msg ? ', id_first_msg = {int:id_merged_msg}' : '') . '
+						WHERE id_topic = {int:id_recycle_topic}',
+						array(
+							'id_recycle_topic' => $id_recycle_topic,
+							'id_merged_msg' => $message,
+						)
+					);
+				}
+
+				// Make sure this message isn't getting deleted later on.
+				$recycle = true;
+
+				// Make sure we update the search subject index.
+				updateStats('subject', $topicID, $row['subject']);
+			}
+
+			// If it wasn't approved don't keep it in the queue.
+			if (!$row['approved'])
+			{
+				Db::$db->query('', '
+					DELETE FROM {db_prefix}approval_queue
+					WHERE id_msg = {int:id_msg}
+						AND id_attach = {int:id_attach}',
+					array(
+						'id_msg' => $message,
+						'id_attach' => 0,
+					)
+				);
+			}
+		}
+
+		Db::$db->query('', '
+			UPDATE {db_prefix}boards
+			SET ' . ($row['approved'] ? '
+				num_posts = CASE WHEN num_posts = {int:no_posts} THEN 0 ELSE num_posts - 1 END' : '
+				unapproved_posts = CASE WHEN unapproved_posts = {int:no_unapproved} THEN 0 ELSE unapproved_posts - 1 END') . '
+			WHERE id_board = {int:id_board}',
+			array(
+				'no_posts' => 0,
+				'no_unapproved' => 0,
+				'id_board' => $row['id_board'],
+			)
+		);
+
+		// If the poster was registered and the board this message was on incremented
+		// the member's posts when it was posted, decrease his or her post count.
+		if (!empty($row['id_member']) && $decreasePostCount && empty($row['count_posts']) && $row['approved'])
+		{
+			User::updateMemberData($row['id_member'], array('posts' => '-'));
+		}
+
+		// Only remove posts if they're not recycled.
+		if (!$recycle)
+		{
+			// Callback for search APIs to do their thing
+			$searchAPI = SearchApi::load();
+
+			if ($searchAPI->supportsMethod('postRemoved'))
+				$searchAPI->postRemoved($message);
+
+			// Remove the message!
+			Db::$db->query('', '
+				DELETE FROM {db_prefix}messages
+				WHERE id_msg = {int:id_msg}',
+				array(
+					'id_msg' => $message,
+				)
+			);
+
+			if (!empty(Config::$modSettings['search_custom_index_config']))
+			{
+				$customIndexSettings = Utils::jsonDecode(Config::$modSettings['search_custom_index_config'], true);
+
+				$words = text2words($row['body'], $customIndexSettings['bytes_per_word'], true);
+
+				if (!empty($words))
+				{
+					Db::$db->query('', '
+						DELETE FROM {db_prefix}log_search_words
+						WHERE id_word IN ({array_int:word_list})
+							AND id_msg = {int:id_msg}',
+						array(
+							'word_list' => $words,
+							'id_msg' => $message,
+						)
+					);
+				}
+			}
+
+			// Delete attachment(s) if they exist.
+			require_once(Config::$sourcedir . '/ManageAttachments.php');
+			$attachmentQuery = array(
+				'attachment_type' => 0,
+				'id_msg' => $message,
+			);
+
+			removeAttachments($attachmentQuery);
+		}
+
+		// Allow mods to remove message related data of their own (likes, maybe?)
+		call_integration_hook('integrate_remove_message', array($message, $row, $recycle));
+
+		// Update the pesky statistics.
+		updateStats('message');
+		updateStats('topic');
+		Config::updateModSettings(array(
+			'calendar_updated' => time(),
+		));
+
+		// And now to update the last message of each board we messed with.
+		if ($recycle)
+		{
+			Msg::updateLastMessages(array($row['id_board'], Config::$modSettings['recycle_board']));
+		}
+		else
+		{
+			Msg::updateLastMessages($row['id_board']);
+		}
+
+		// Close any moderation reports for this message.
+		Db::$db->query('', '
+			UPDATE {db_prefix}log_reported
+			SET closed = {int:is_closed}
+			WHERE id_msg = {int:id_msg}',
+			array(
+				'is_closed' => 1,
+				'id_msg' => $message,
+			)
+		);
+
+		if (Db::$db->affected_rows() != 0)
+		{
+			require_once(Config::$sourcedir . '/Subs-ReportedContent.php');
+			Config::updateModSettings(array('last_mod_report_action' => time()));
+			recountOpenReports('posts');
+		}
+
+		return false;
 	}
 
 	/**

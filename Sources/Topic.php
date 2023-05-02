@@ -14,6 +14,7 @@
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Search\SearchApi;
 
 /**
  * Represents a topic.
@@ -35,6 +36,7 @@ class Topic implements \ArrayAccess
 			'load' => false,
 			'lock' => 'LockTopic',
 			'approve' => 'approveTopics',
+			'remove' => 'removeTopics',
 		),
 		'prop_names' => array(
 			'topic_id' => 'topic',
@@ -722,6 +724,346 @@ class Topic implements \ArrayAccess
 		Db::$db->free_result($request);
 
 		return Msg::approve($msgs, $approve);
+	}
+
+	/**
+	 * Removes the passed id_topic's. (permissions are NOT checked here!).
+	 *
+	 * @param array|int $topics The topics to remove (can be an id or an array of ids).
+	 * @param bool $decreasePostCount Whether to decrease the users' post counts
+	 * @param bool $ignoreRecycling Whether to ignore recycling board settings
+	 * @param bool $updateBoardCount Whether to adjust topic counts for the boards
+	 */
+	public static function remove($topics, $decreasePostCount = true, $ignoreRecycling = false, $updateBoardCount = true)
+	{
+		// Nothing to do?
+		if (empty($topics))
+			return;
+		// Only a single topic.
+		if (is_numeric($topics))
+			$topics = array($topics);
+
+		$recycle_board = !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) ? (int) Config::$modSettings['recycle_board'] : 0;
+
+		// Do something before?
+		call_integration_hook('integrate_remove_topics_before', array($topics, $recycle_board));
+
+		// Decrease the post counts.
+		if ($decreasePostCount)
+		{
+			$requestMembers = Db::$db->query('', '
+				SELECT m.id_member, COUNT(*) AS posts
+				FROM {db_prefix}messages AS m
+					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
+				WHERE m.id_topic IN ({array_int:topics})' . (!empty($recycle_board) ? '
+					AND m.id_board != {int:recycled_board}' : '') . '
+					AND b.count_posts = {int:do_count_posts}
+					AND m.approved = {int:is_approved}
+				GROUP BY m.id_member',
+				array(
+					'do_count_posts' => 0,
+					'recycled_board' => $recycle_board,
+					'topics' => $topics,
+					'is_approved' => 1,
+				)
+			);
+			if (Db::$db->num_rows($requestMembers) > 0)
+			{
+				while ($rowMembers = Db::$db->fetch_assoc($requestMembers))
+					User::updateMemberData($rowMembers['id_member'], array('posts' => 'posts - ' . $rowMembers['posts']));
+			}
+			Db::$db->free_result($requestMembers);
+		}
+
+		// Recycle topics that aren't in the recycle board...
+		if (!empty($recycle_board) && !$ignoreRecycling)
+		{
+			$request = Db::$db->query('', '
+				SELECT id_topic, id_board, unapproved_posts, approved
+				FROM {db_prefix}topics
+				WHERE id_topic IN ({array_int:topics})
+					AND id_board != {int:recycle_board}
+				LIMIT {int:limit}',
+				array(
+					'recycle_board' => $recycle_board,
+					'topics' => $topics,
+					'limit' => count($topics),
+				)
+			);
+			if (Db::$db->num_rows($request) > 0)
+			{
+				// Get topics that will be recycled.
+				$recycleTopics = array();
+				while ($row = Db::$db->fetch_assoc($request))
+				{
+					if (function_exists('apache_reset_timeout'))
+						@apache_reset_timeout();
+
+					$recycleTopics[] = $row['id_topic'];
+
+					// Set the id_previous_board for this topic - and make it not sticky.
+					Db::$db->query('', '
+						UPDATE {db_prefix}topics
+						SET id_previous_board = {int:id_previous_board}, is_sticky = {int:not_sticky}
+						WHERE id_topic = {int:id_topic}',
+						array(
+							'id_previous_board' => $row['id_board'],
+							'id_topic' => $row['id_topic'],
+							'not_sticky' => 0,
+						)
+					);
+				}
+				Db::$db->free_result($request);
+
+				// Move the topics to the recycle board.
+				require_once(Config::$sourcedir . '/MoveTopic.php');
+				moveTopics($recycleTopics, Config::$modSettings['recycle_board']);
+
+				// Close reports that are being recycled.
+				require_once(Config::$sourcedir . '/ModerationCenter.php');
+
+				Db::$db->query('', '
+					UPDATE {db_prefix}log_reported
+					SET closed = {int:is_closed}
+					WHERE id_topic IN ({array_int:recycle_topics})',
+					array(
+						'recycle_topics' => $recycleTopics,
+						'is_closed' => 1,
+					)
+				);
+
+				Config::updateModSettings(array('last_mod_report_action' => time()));
+
+				require_once(Config::$sourcedir . '/Subs-ReportedContent.php');
+				recountOpenReports('posts');
+
+				// Topics that were recycled don't need to be deleted, so subtract them.
+				$topics = array_diff($topics, $recycleTopics);
+			}
+			else
+				Db::$db->free_result($request);
+		}
+
+		// Still topics left to delete?
+		if (empty($topics))
+			return;
+
+		// Callback for search APIs to do their thing
+		$searchAPI = SearchApi::load();
+
+		if ($searchAPI->supportsMethod('topicsRemoved'))
+			$searchAPI->topicsRemoved($topics);
+
+		$adjustBoards = array();
+
+		// Find out how many posts we are deleting.
+		$request = Db::$db->query('', '
+			SELECT id_board, approved, COUNT(*) AS num_topics, SUM(unapproved_posts) AS unapproved_posts,
+				SUM(num_replies) AS num_replies
+			FROM {db_prefix}topics
+			WHERE id_topic IN ({array_int:topics})
+			GROUP BY id_board, approved',
+			array(
+				'topics' => $topics,
+			)
+		);
+		while ($row = Db::$db->fetch_assoc($request))
+		{
+			if (!isset($adjustBoards[$row['id_board']]['num_posts']))
+			{
+				$adjustBoards[$row['id_board']] = array(
+					'num_posts' => 0,
+					'num_topics' => 0,
+					'unapproved_posts' => 0,
+					'unapproved_topics' => 0,
+					'id_board' => $row['id_board']
+				);
+			}
+			// Posts = (num_replies + 1) for each approved topic.
+			$adjustBoards[$row['id_board']]['num_posts'] += $row['num_replies'] + ($row['approved'] ? $row['num_topics'] : 0);
+			$adjustBoards[$row['id_board']]['unapproved_posts'] += $row['unapproved_posts'];
+
+			// Add the topics to the right type.
+			if ($row['approved'])
+				$adjustBoards[$row['id_board']]['num_topics'] += $row['num_topics'];
+			else
+				$adjustBoards[$row['id_board']]['unapproved_topics'] += $row['num_topics'];
+		}
+		Db::$db->free_result($request);
+
+		if ($updateBoardCount)
+		{
+			// Decrease the posts/topics...
+			foreach ($adjustBoards as $stats)
+			{
+				if (function_exists('apache_reset_timeout'))
+					@apache_reset_timeout();
+
+				Db::$db->query('', '
+					UPDATE {db_prefix}boards
+					SET
+						num_posts = CASE WHEN {int:num_posts} > num_posts THEN 0 ELSE num_posts - {int:num_posts} END,
+						num_topics = CASE WHEN {int:num_topics} > num_topics THEN 0 ELSE num_topics - {int:num_topics} END,
+						unapproved_posts = CASE WHEN {int:unapproved_posts} > unapproved_posts THEN 0 ELSE unapproved_posts - {int:unapproved_posts} END,
+						unapproved_topics = CASE WHEN {int:unapproved_topics} > unapproved_topics THEN 0 ELSE unapproved_topics - {int:unapproved_topics} END
+					WHERE id_board = {int:id_board}',
+					array(
+						'id_board' => $stats['id_board'],
+						'num_posts' => $stats['num_posts'],
+						'num_topics' => $stats['num_topics'],
+						'unapproved_posts' => $stats['unapproved_posts'],
+						'unapproved_topics' => $stats['unapproved_topics'],
+					)
+				);
+			}
+		}
+		// Remove Polls.
+		$request = Db::$db->query('', '
+			SELECT id_poll
+			FROM {db_prefix}topics
+			WHERE id_topic IN ({array_int:topics})
+				AND id_poll > {int:no_poll}
+			LIMIT {int:limit}',
+			array(
+				'no_poll' => 0,
+				'topics' => $topics,
+				'limit' => count($topics),
+			)
+		);
+		$polls = array();
+		while ($row = Db::$db->fetch_assoc($request))
+			$polls[] = $row['id_poll'];
+		Db::$db->free_result($request);
+
+		if (!empty($polls))
+		{
+			Db::$db->query('', '
+				DELETE FROM {db_prefix}polls
+				WHERE id_poll IN ({array_int:polls})',
+				array(
+					'polls' => $polls,
+				)
+			);
+			Db::$db->query('', '
+				DELETE FROM {db_prefix}poll_choices
+				WHERE id_poll IN ({array_int:polls})',
+				array(
+					'polls' => $polls,
+				)
+			);
+			Db::$db->query('', '
+				DELETE FROM {db_prefix}log_polls
+				WHERE id_poll IN ({array_int:polls})',
+				array(
+					'polls' => $polls,
+				)
+			);
+		}
+
+		// Get rid of the attachment, if it exists.
+		require_once(Config::$sourcedir . '/ManageAttachments.php');
+		$attachmentQuery = array(
+			'attachment_type' => 0,
+			'id_topic' => $topics,
+		);
+		removeAttachments($attachmentQuery, 'messages');
+
+		// Delete possible search index entries.
+		if (!empty(Config::$modSettings['search_custom_index_config']))
+		{
+			$customIndexSettings = Utils::jsonDecode(Config::$modSettings['search_custom_index_config'], true);
+
+			$words = array();
+			$messages = array();
+			$request = Db::$db->query('', '
+				SELECT id_msg, body
+				FROM {db_prefix}messages
+				WHERE id_topic IN ({array_int:topics})',
+				array(
+					'topics' => $topics,
+				)
+			);
+			while ($row = Db::$db->fetch_assoc($request))
+			{
+				if (function_exists('apache_reset_timeout'))
+					@apache_reset_timeout();
+
+				$words = array_merge($words, text2words($row['body'], $customIndexSettings['bytes_per_word'], true));
+				$messages[] = $row['id_msg'];
+			}
+			Db::$db->free_result($request);
+			$words = array_unique($words);
+
+			if (!empty($words) && !empty($messages))
+				Db::$db->query('', '
+					DELETE FROM {db_prefix}log_search_words
+					WHERE id_word IN ({array_int:word_list})
+						AND id_msg IN ({array_int:message_list})',
+					array(
+						'word_list' => $words,
+						'message_list' => $messages,
+					)
+				);
+		}
+
+		// Delete anything related to the topic.
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}messages
+			WHERE id_topic IN ({array_int:topics})',
+			array(
+				'topics' => $topics,
+			)
+		);
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}calendar
+			WHERE id_topic IN ({array_int:topics})',
+			array(
+				'topics' => $topics,
+			)
+		);
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}log_topics
+			WHERE id_topic IN ({array_int:topics})',
+			array(
+				'topics' => $topics,
+			)
+		);
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}log_notify
+			WHERE id_topic IN ({array_int:topics})',
+			array(
+				'topics' => $topics,
+			)
+		);
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}topics
+			WHERE id_topic IN ({array_int:topics})',
+			array(
+				'topics' => $topics,
+			)
+		);
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}log_search_subjects
+			WHERE id_topic IN ({array_int:topics})',
+			array(
+				'topics' => $topics,
+			)
+		);
+
+		// Maybe there's a mod that wants to delete topic related data of its own
+		call_integration_hook('integrate_remove_topics', array($topics));
+
+		// Update the totals...
+		updateStats('message');
+		updateStats('topic');
+		Config::updateModSettings(array(
+			'calendar_updated' => time(),
+		));
+
+		$updates = array();
+		foreach ($adjustBoards as $stats)
+			$updates[] = $stats['id_board'];
+		Msg::updateLastMessages($updates);
 	}
 
 	/******************

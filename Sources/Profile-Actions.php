@@ -620,9 +620,6 @@ function deleteAccount2($memID)
 		// @todo Should this check board permissions?
 		if (!empty($_POST['deletePosts']) && in_array($_POST['remove_type'], array('posts', 'topics')) && allowedTo('moderate_forum'))
 		{
-			// Include RemoveTopics - essential for this type of work!
-			require_once(Config::$sourcedir . '/Actions/RemoveTopic.php');
-
 			$extra = empty($_POST['perma_delete']) ? ' AND t.id_board != {int:recycle_board}' : '';
 			$recycle_board = empty(Config::$modSettings['recycle_board']) ? 0 : Config::$modSettings['recycle_board'];
 
@@ -646,7 +643,7 @@ function deleteAccount2($memID)
 
 				// Actually remove the topics. Ignore recycling if we want to perma-delete things...
 				// @todo This needs to check permissions, but we'll let it slide for now because of moderate_forum already being had.
-				removeTopics($topicIDs, true, !empty($extra));
+				Topic::remove($topicIDs, true, !empty($extra));
 			}
 
 			// Now delete the remaining messages.
@@ -667,7 +664,7 @@ function deleteAccount2($memID)
 				if (function_exists('apache_reset_timeout'))
 					@apache_reset_timeout();
 
-				removeMessage($row['id_msg']);
+				Msg::remove($row['id_msg']);
 			}
 			Db::$db->free_result($request);
 		}

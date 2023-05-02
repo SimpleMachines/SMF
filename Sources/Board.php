@@ -1817,8 +1817,7 @@ class Board implements \ArrayAccess
 		}
 		Db::$db->free_result($request);
 
-		require_once(Config::$sourcedir . '/Actions/RemoveTopic.php');
-		removeTopics($topics, false);
+		Topic::remove($topics, false);
 
 		// Delete the board's logs.
 		Db::$db->query('', '

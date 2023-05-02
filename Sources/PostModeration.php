@@ -773,12 +773,11 @@ function approveAllData()
  */
 function removeMessages($messages, $messageDetails, $current_view = 'replies')
 {
-	// @todo something's not right, removeMessage() does check permissions,
-	// removeTopics() doesn't
-	require_once(Config::$sourcedir . '/Actions/RemoveTopic.php');
+	// @todo something's not right, Msg::remove() does check permissions,
+	// Topic::remove() doesn't
 	if ($current_view == 'topics')
 	{
-		removeTopics($messages);
+		Topic::remove($messages);
 		// and tell the world about it
 		foreach ($messages as $topic)
 			// Note, only log topic ID in native form if it's not gone forever.
@@ -789,7 +788,7 @@ function removeMessages($messages, $messageDetails, $current_view = 'replies')
 	{
 		foreach ($messages as $post)
 		{
-			removeMessage($post);
+			Msg::remove($post);
 			logAction('delete', array(
 				(empty(Config::$modSettings['recycle_enable']) || Config::$modSettings['recycle_board'] != $messageDetails[$post]['board'] ? 'topic' : 'old_topic_id') => $messageDetails[$post]['topic'], 'subject' => $messageDetails[$post]['subject'], 'member' => $messageDetails[$post]['member'], 'board' => $messageDetails[$post]['board']));
 		}

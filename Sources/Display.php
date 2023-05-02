@@ -304,8 +304,6 @@ class Display
 		// Check the session = get or post.
 		checkSession('request');
 
-		require_once(Config::$sourcedir . '/Actions/RemoveTopic.php');
-
 		if (empty($_REQUEST['msgs']))
 			redirectexit('topic=' . Topic::$topic_id . '.' . $_REQUEST['start']);
 
@@ -408,7 +406,7 @@ class Display
 			elseif ($message == $first_message)
 				$topicGone = true;
 
-			removeMessage($message);
+			Msg::remove($message);
 
 			// Log this moderation action ;).
 			if (allowedTo('delete_any') && (!allowedTo('delete_own') || $info[1] != User::$me->id))
