@@ -18,6 +18,7 @@ use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Credits;
 use SMF\Db\DatabaseApi as Db;
 use SMF\PackageManager\XmlArray;
 
@@ -527,8 +528,7 @@ function AdminHome()
 	}
 
 	// Load the credits stuff.
-	require_once(Config::$sourcedir . '/Actions/Who.php');
-	Credits(true);
+	Credits::call(true);
 
 	// This makes it easier to get the latest news with your time format.
 	Utils::$context['time_format'] = urlencode(User::$me->time_format);

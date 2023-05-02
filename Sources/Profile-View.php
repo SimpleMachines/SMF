@@ -18,6 +18,7 @@ use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Who;
 use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
@@ -111,8 +112,7 @@ function summary($memID)
 
 	if (!empty(Config::$modSettings['who_enabled']) && Utils::$context['member']['show_last_login'])
 	{
-		include_once(Config::$sourcedir . '/Actions/Who.php');
-		$action = determineActions(User::$loaded[$memID]->url);
+		$action = Who::determineActions(User::$loaded[$memID]->url);
 
 		if ($action !== false)
 			Utils::$context['member']['action'] = $action;

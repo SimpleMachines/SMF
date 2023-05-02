@@ -55,7 +55,7 @@ class Forum
 		'calendar' => array('', 'SMF\\Actions\\Calendar::call'),
 		'clock' => array('', 'SMF\\Actions\\Calendar::call'), // Deprecated; is now a sub-action
 		'coppa' => array('', 'SMF\\Actions\\CoppaForm::call'),
-		'credits' => array('Actions/Who.php', 'Credits'),
+		'credits' => array('', 'SMF\\Actions\\Credits::call'),
 		'deletemsg' => array('RemoveTopic.php', 'DeleteMessage'),
 		'dlattach' => array('', 'SMF\\Actions\\AttachmentDownload::call'),
 		'editpoll' => array('Poll.php', 'EditPoll'),
@@ -119,7 +119,7 @@ class Forum
 		'vote' => array('Poll.php', 'Vote'),
 		'viewquery' => array('ViewQuery.php', 'ViewQuery'),
 		'viewsmfile' => array('Admin.php', 'DisplayAdminFile'),
-		'who' => array('Actions/Who.php', 'Who'),
+		'who' => array('', 'SMF\\Actions\\Who::call'),
 		'.xml' => array('', 'SMF\\Actions\\Feed::call'),
 		'xmlhttp' => array('Xml.php', 'XMLhttpMain'),
 	);
