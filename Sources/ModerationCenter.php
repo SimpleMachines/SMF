@@ -761,10 +761,9 @@ function ViewWatchedUsers()
 
 		if (!empty($toDelete))
 		{
-			require_once(Config::$sourcedir . '/Actions/RemoveTopic.php');
 			// If they don't have permission we'll let it error - either way no chance of a security slip here!
 			foreach ($toDelete as $did)
-				removeMessage($did);
+				Msg::remove($did);
 		}
 	}
 

@@ -1438,8 +1438,7 @@ function MaintainRemoveOldPosts()
 	validateToken('admin-maint');
 
 	// Actually do what we're told!
-	require_once(Config::$sourcedir . '/Actions/RemoveTopic.php');
-	RemoveOldTopics2();
+	TopicRemove::old();
 }
 
 /**

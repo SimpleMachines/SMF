@@ -19,6 +19,7 @@ use SMF\ProxyServer;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\Theme;
+use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -1260,8 +1261,7 @@ function scheduled_remove_topic_redirect()
 	// Zap, your gone
 	if (count($topics) > 0)
 	{
-		require_once(Config::$sourcedir . '/Actions/RemoveTopic.php');
-		removeTopics($topics, false, true);
+		Topic::remove($topics, false, true);
 	}
 
 	return true;
