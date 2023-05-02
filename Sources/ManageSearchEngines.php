@@ -17,6 +17,7 @@ use SMF\Config;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\Utils;
+use SMF\Actions\Who;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
@@ -789,8 +790,7 @@ function SpiderLogs()
 		}
 
 		// Now stick in the new URLs.
-		require_once(Config::$sourcedir . '/Actions/Who.php');
-		$urls = determineActions($urls, 'whospider_');
+		$urls = Who::determineActions($urls, 'whospider_');
 		foreach ($urls as $k => $new_url)
 		{
 			if (is_array($new_url))
