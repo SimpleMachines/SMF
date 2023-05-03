@@ -14,6 +14,7 @@
 namespace SMF;
 
 use SMF\Actions\TopicMove2;
+use SMF\Actions\TopicMerge;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -362,8 +363,7 @@ class MessageIndex
 				if (empty($_REQUEST['topics']) || count($_REQUEST['topics']) < 2)
 					redirectexit($redirect_url);
 
-				require_once(Config::$sourcedir . '/Actions/SplitTopics.php');
-				MergeExecute($_REQUEST['topics']);
+				TopicMerge::initiate($_REQUEST['topics']);
 
 				return;
 			}

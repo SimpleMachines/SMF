@@ -282,7 +282,7 @@ function template_merge_extra_options()
 {
 	echo '
 	<div id="merge_topics">
-		<form action="', Config::$scripturl, '?action=mergetopics;sa=execute;" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=mergetopics;sa=merge;" method="post" accept-charset="', Utils::$context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', Lang::$txt['merge_topic_list'], '</h3>
 			</div>
