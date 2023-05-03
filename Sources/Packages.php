@@ -2304,6 +2304,10 @@ function fetchPerms__recursive($path, &$data, $level)
 	$dh = opendir($path);
 	while ($entry = readdir($dh))
 	{
+		// Bypass directory abbreviations altogether...
+		if ($entry == '.' || $entry == '..')
+			continue;
+
 		// Some kind of file?
 		if (is_file($path . '/' . $entry))
 		{
@@ -2315,7 +2319,7 @@ function fetchPerms__recursive($path, &$data, $level)
 				$foundData['files'][$entry] = true;
 		}
 		// It's a directory - we're interested one way or another, probably...
-		elseif ($entry != '.' && $entry != '..')
+		else
 		{
 			// Going further?
 			if ((!empty($data['type']) && $data['type'] == 'dir_recursive') || (isset($data['contents'][$entry]) && (!empty($data['contents'][$entry]['list_contents']) || (!empty($data['contents'][$entry]['type']) && $data['contents'][$entry]['type'] == 'dir_recursive'))))

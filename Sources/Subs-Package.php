@@ -158,8 +158,11 @@ function read_tgz_data($data, $destination, $single_file = false, $overwrite = f
 		$current['data'] = substr($data, ++$offset << 9, $current['size']);
 		$offset += $size;
 
+		// If hunting for a file in subdirectories, pass to subsequent write test...
+		if ($single_file && $destination !== null && (substr($destination, 0, 2) == '*/'))
+			$write_this = true;
 		// Not a directory and doesn't exist already...
-		if (substr($current['filename'], -1, 1) != '/' && $destination !== null && !file_exists($destination . '/' . $current['filename']))
+		elseif (substr($current['filename'], -1, 1) != '/' && $destination !== null && !file_exists($destination . '/' . $current['filename']))
 			$write_this = true;
 		// File exists... check if it is newer.
 		elseif (substr($current['filename'], -1, 1) != '/')
@@ -230,7 +233,7 @@ function read_tgz_data($data, $destination, $single_file = false, $overwrite = f
 function read_zip_data($data, $destination, $single_file = false, $overwrite = false, $files_to_extract = null)
 {
 	umask(0);
-	if ($destination !== null && !file_exists($destination) && !$single_file)
+	if ($destination !== null && (substr($destination, 0, 2) != '*/') && !file_exists($destination) && !$single_file)
 		mktree($destination, 0777);
 
 	// Search for the end of directory signature 0x06054b50.
@@ -291,8 +294,11 @@ function read_zip_data($data, $destination, $single_file = false, $overwrite = f
 		$write_this = false;
 		if ($destination !== null)
 		{
+			// If hunting for a file in subdirectories, pass to subsequent write test...
+			if ($single_file && $destination !== null && (substr($destination, 0, 2) == '*/'))
+				$write_this = true;
 			// If this is a file, and it doesn't exist.... happy days!
-			if ($is_file)
+			elseif ($is_file)
 				$write_this = !file_exists($destination . '/' . $file_info['filename']) || $overwrite;
 			// This is a directory, so we're gonna want to create it. (probably...)
 			elseif (!$single_file)
