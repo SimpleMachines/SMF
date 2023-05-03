@@ -22,7 +22,7 @@ function template_ask()
 {
 	echo '
 	<div id="split_topics">
-		<form action="', Config::$scripturl, '?action=splittopics;sa=execute;topic=', Utils::$context['current_topic'], '.0" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=splittopics;sa=split;topic=', Utils::$context['current_topic'], '.0" method="post" accept-charset="', Utils::$context['character_set'], '">
 			<input type="hidden" name="at" value="', Utils::$context['message']['id'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', Lang::$txt['split'], '</h3>
