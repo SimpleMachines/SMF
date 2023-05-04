@@ -82,7 +82,7 @@ class Birthday_Notify extends BackgroundTask
 				Lang::load('EmailTemplates', $lang);
 				Lang::$txt['happy_birthday_subject'] = Lang::$txtBirthdayEmails[$greeting . '_subject'];
 				Lang::$txt['happy_birthday_body'] = Lang::$txtBirthdayEmails[$greeting . '_body'];
-				require_once(Config::$sourcedir . '/Subs-Notify.php');
+				require_once(Config::$sourcedir . '/Actions/Notify.php');
 
 				$prefs = getNotifyPrefs(array_keys($members), array('birthday'), true);
 

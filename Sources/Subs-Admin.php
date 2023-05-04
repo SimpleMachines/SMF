@@ -340,7 +340,7 @@ function emailAdmins($template, $replacements = array(), $additional_recipients 
 	$members = membersAllowedTo('admin_forum');
 
 	// Load their alert preferences
-	require_once(Config::$sourcedir . '/Subs-Notify.php');
+	require_once(Config::$sourcedir . '/Actions/Notify.php');
 	$prefs = getNotifyPrefs($members, 'announcements', true);
 
 	$request = Db::$db->query('', '

@@ -41,7 +41,7 @@ class EventNew_Notify extends BackgroundTask
 			$members = array_diff($members, array($this->_details['sender_id']));
 
 		// Having successfully figured this out, now let's get the preferences of everyone.
-		require_once(Config::$sourcedir . '/Subs-Notify.php');
+		require_once(Config::$sourcedir . '/Actions/Notify.php');
 		$prefs = getNotifyPrefs($members, 'event_new', true);
 
 		// Just before we go any further, we may not have the sender's name. Let's just quickly fix that.

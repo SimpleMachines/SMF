@@ -525,7 +525,7 @@ class Post implements ActionInterface
 		}
 		else
 		{
-			require_once(Config::$sourcedir . '/Subs-Notify.php');
+			require_once(Config::$sourcedir . '/Actions/Notify.php');
 
 			Utils::$context['notify_prefs'] = getNotifyPrefs(User::$me->id, array('topic_notify', 'msg_auto_notify'), true);
 			Utils::$context['auto_notify'] = !empty(Utils::$context['notify_prefs']['msg_auto_notify']);

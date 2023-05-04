@@ -37,7 +37,7 @@ if (!defined('SMF'))
  */
 function BoardNotify()
 {
-	require_once(Config::$sourcedir . '/Subs-Notify.php');
+	require_once(Config::$sourcedir . '/Actions/Notify.php');
 
 	// Subscribing or unsubscribing with a token.
 	if (isset($_REQUEST['u']) && isset($_REQUEST['token']))
@@ -170,7 +170,7 @@ function BoardNotify()
  */
 function TopicNotify()
 {
-	require_once(Config::$sourcedir . '/Subs-Notify.php');
+	require_once(Config::$sourcedir . '/Actions/Notify.php');
 
 	if (isset($_REQUEST['u']) && isset($_REQUEST['token']))
 	{
@@ -335,7 +335,7 @@ function TopicNotify()
  */
 function AnnouncementsNotify()
 {
-	require_once(Config::$sourcedir . '/Subs-Notify.php');
+	require_once(Config::$sourcedir . '/Actions/Notify.php');
 
 	if (isset($_REQUEST['u']) && isset($_REQUEST['token']))
 	{

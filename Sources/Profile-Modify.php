@@ -1164,7 +1164,7 @@ function makeThemeChanges($memID, $id_theme)
  */
 function makeNotificationChanges($memID)
 {
-	require_once(Config::$sourcedir . '/Subs-Notify.php');
+	require_once(Config::$sourcedir . '/Actions/Notify.php');
 
 	// Update the boards they are being notified on.
 	if (isset($_POST['edit_notify_boards']) && !empty($_POST['notify_boards']))
@@ -1999,7 +1999,7 @@ function alert_configuration($memID, $defaultSettings = false)
 	Theme::loadJavaScriptFile('alertSettings.js', array('minimize' => true), 'smf_alertSettings');
 
 	// Now load all the values for this user.
-	require_once(Config::$sourcedir . '/Subs-Notify.php');
+	require_once(Config::$sourcedir . '/Actions/Notify.php');
 	$prefs = getNotifyPrefs($memID, '', $memID != 0);
 
 	Utils::$context['alert_prefs'] = !empty($prefs[$memID]) ? $prefs[$memID] : array();
@@ -2849,7 +2849,7 @@ function list_getTopicNotificationCount($memID)
 function list_getTopicNotifications($start, $items_per_page, $sort, $memID)
 {
 
-	require_once(Config::$sourcedir . '/Subs-Notify.php');
+	require_once(Config::$sourcedir . '/Actions/Notify.php');
 	$prefs = getNotifyPrefs($memID);
 	$prefs = isset($prefs[$memID]) ? $prefs[$memID] : array();
 
@@ -2921,7 +2921,7 @@ function list_getTopicNotifications($start, $items_per_page, $sort, $memID)
 function list_getBoardNotifications($start, $items_per_page, $sort, $memID)
 {
 
-	require_once(Config::$sourcedir . '/Subs-Notify.php');
+	require_once(Config::$sourcedir . '/Actions/Notify.php');
 	$prefs = getNotifyPrefs($memID);
 	$prefs = isset($prefs[$memID]) ? $prefs[$memID] : array();
 

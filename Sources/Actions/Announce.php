@@ -267,7 +267,7 @@ class Announce implements ActionInterface
 		Db::$db->free_result($request);
 
 		// Load their alert preferences
-		require_once(Config::$sourcedir . '/Subs-Notify.php');
+		require_once(Config::$sourcedir . '/Actions/Notify.php');
 		$prefs = getNotifyPrefs(array_keys($rows), 'announcements', true);
 
 		foreach ($rows as $row)

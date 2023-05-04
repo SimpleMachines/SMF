@@ -777,7 +777,7 @@ class MessageIndex
 				);
 			}
 
-			require_once(Config::$sourcedir . '/Subs-Notify.php');
+			require_once(Config::$sourcedir . '/Actions/Notify.php');
 			$pref = getNotifyPrefs(User::$me->id, array('board_notify', 'board_notify_' . Board::$info->id), true);
 			$pref = !empty($pref[User::$me->id]) ? $pref[User::$me->id] : array();
 			$pref = isset($pref['board_notify_' . Board::$info->id]) ? $pref['board_notify_' . Board::$info->id] : (!empty($pref['board_notify']) ? $pref['board_notify'] : 0);

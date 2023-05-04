@@ -994,7 +994,7 @@ class Theme
 
 			if (!empty(Config::$modSettings['enable_ajax_alerts']))
 			{
-				require_once(Config::$sourcedir . '/Subs-Notify.php');
+				require_once(Config::$sourcedir . '/Actions/Notify.php');
 
 				$timeout = getNotifyPrefs(User::$me->id, 'alert_timeout', true);
 				$timeout = empty($timeout) ? 10000 : $timeout[User::$me->id]['alert_timeout'] * 1000;

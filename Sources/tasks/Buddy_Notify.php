@@ -32,7 +32,7 @@ class Buddy_Notify extends BackgroundTask
 	public function execute()
 	{
 		// Figure out if the user wants to be notified.
-		require_once(Config::$sourcedir . '/Subs-Notify.php');
+		require_once(Config::$sourcedir . '/Actions/Notify.php');
 		$prefs = getNotifyPrefs($this->_details['receiver_id'], 'buddy_request', true);
 
 		if ($prefs[$this->_details['receiver_id']]['buddy_request'])

@@ -471,7 +471,7 @@ function scheduled_daily_digest()
 	}
 
 	// The preferred way...
-	require_once(Config::$sourcedir . '/Subs-Notify.php');
+	require_once(Config::$sourcedir . '/Actions/Notify.php');
 	$prefs = getNotifyPrefs(array_keys($members), array('msg_notify_type', 'msg_notify_pref'), true);
 
 	// Right - send out the silly things - this will take quite some space!
@@ -1119,7 +1119,7 @@ function scheduled_paid_subscriptions()
 	Db::$db->free_result($request);
 
 	// Load alert preferences
-	require_once(Config::$sourcedir . '/Subs-Notify.php');
+	require_once(Config::$sourcedir . '/Actions/Notify.php');
 	$notifyPrefs = getNotifyPrefs(array_keys($members), 'paidsubs_expiring', true);
 	$alert_rows = array();
 	foreach ($members as $row)

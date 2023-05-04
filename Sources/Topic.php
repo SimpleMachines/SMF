@@ -478,7 +478,7 @@ class Topic implements \ArrayAccess
 	{
 		if (!empty(User::$me->id))
 		{
-			require_once(Config::$sourcedir . '/Subs-Notify.php');
+			require_once(Config::$sourcedir . '/Actions/Notify.php');
 
 			$prefs = getNotifyPrefs(User::$me->id, array('topic_notify', 'topic_notify_' . $this->id, 'msg_auto_notify'), true);
 
