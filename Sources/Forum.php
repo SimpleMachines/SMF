@@ -90,7 +90,7 @@ class Forum
 		'profile' => array('Profile.php', 'ModifyProfile'),
 		'quotefast' => array('', 'SMF\\Actions\\QuoteFast::call'),
 		'quickmod' => array('', 'SMF\\Actions\\QuickModeration::call'),
-		'quickmod2' => array('Display.php', 'QuickInTopicModeration'),
+		'quickmod2' => array('', 'SMF\\Actions\\QuickModerationInTopic::call'),
 		'recent' => array('Recent.php', 'RecentPosts'),
 		'reminder' => array('Reminder.php', 'RemindMe'),
 		'removepoll' => array('Poll.php', 'RemovePoll'),
