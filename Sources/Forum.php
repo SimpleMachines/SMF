@@ -89,7 +89,7 @@ class Forum
 		'printpage' => array('Printpage.php', 'PrintTopic'),
 		'profile' => array('Profile.php', 'ModifyProfile'),
 		'quotefast' => array('', 'SMF\\Actions\\QuoteFast::call'),
-		'quickmod' => array('MessageIndex.php', 'QuickModeration'),
+		'quickmod' => array('', 'SMF\\Actions\\QuickModeration::call'),
 		'quickmod2' => array('Display.php', 'QuickInTopicModeration'),
 		'recent' => array('Recent.php', 'RecentPosts'),
 		'reminder' => array('Reminder.php', 'RemindMe'),

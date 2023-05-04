@@ -1177,8 +1177,8 @@ class TopicMerge implements ActionInterface
 			$this->topics = array((int) $_GET['from'], (int) $_GET['to']);
 
 		// If we came from a form, the topic IDs came by post.
-		if (!empty($_POST['topics']) && is_array($_POST['topics']))
-			$this->topics = (array) $_POST['topics'];
+		if (!empty($_REQUEST['topics']) && is_array($_REQUEST['topics']))
+			$this->topics = (array) $_REQUEST['topics'];
 	}
 
 	/**

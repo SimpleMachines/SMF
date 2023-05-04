@@ -22,6 +22,7 @@ use SMF\Msg;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\QuickModeration;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
@@ -2276,8 +2277,9 @@ function prepareSearchContext($reset = false)
 		Utils::$context['can_restore'] |= $output['quick_mod']['restore'];
 		Utils::$context['can_markread'] = User::$me->is_logged;
 
-		Utils::$context['qmod_actions'] = array('remove', 'lock', 'sticky', 'move', 'merge', 'restore', 'markread');
-		call_integration_hook('integrate_quick_mod_actions_search');
+		// Sets Utils::$context['qmod_actions']
+		// This is also where the integrate_quick_mod_actions_search hook now lives.
+		QuickModeration::getActions(true);
 	}
 
 	$output['matches'][] = array(
