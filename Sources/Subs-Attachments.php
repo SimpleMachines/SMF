@@ -559,6 +559,16 @@ function attachmentChecks($attachID)
 				$_SESSION['temp_attachments'][$attachID]['type'] = 'image/' . $context['valid_image_types'][$size[2]];
 		}
 	}
+	// SVGs have their own set of security checks.
+	elseif ($_SESSION['temp_attachments'][$attachID]['type'] === 'image/svg+xml')
+	{
+		require_once($sourcedir . '/Subs-Graphics.php');
+		if (!checkSVGContents($_SESSION['temp_attachments'][$attachID]['tmp_name']))
+		{
+			$_SESSION['temp_attachments'][$attachID]['errors'][] = 'bad_attachment';
+			return false;
+		}
+	}
 
 	// Is there room for this sucker?
 	if (!empty($modSettings['attachmentDirSizeLimit']) || !empty($modSettings['attachmentDirFileLimit']))

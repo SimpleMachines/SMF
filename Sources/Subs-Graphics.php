@@ -238,6 +238,70 @@ function checkImageContents($fileName, $extensiveCheck = false)
 }
 
 /**
+ * Searches through an SVG file to see if there's potentially harmful content.
+ *
+ * @param string $fileName The path to the file.
+ * @return bool Whether the image appears to be safe.
+ */
+function checkSvgContents($fileName)
+{
+	$fp = fopen($fileName, 'rb');
+	if (!$fp)
+		fatal_lang_error('attach_timeout');
+
+	$patterns = array(
+		// No external or embedded scripts allowed.
+		'/<(\S*:)?script\b/i',
+		'/\b(\S:)?href\s*=\s*["\']\s*javascript:/i',
+
+		// No SVG event attributes allowed, since they execute scripts.
+		'/\bon\w+\s*=\s*["\']/',
+		'/<(\S*:)?set\b[^>]*\battributeName\s*=\s*(["\'])\s*on\w+\\1/i',
+
+		// No XML Events allowed, since they execute scripts.
+		'~\bhttp://www\.w3\.org/2001/xml-events\b~i',
+
+		// No data URIs allowed, since they contain arbitrary data.
+		'/\b(\S*:)?href\s*=\s*["\']\s*data:/i',
+
+		// No foreignObjects allowed, since they allow embedded HTML.
+		'/<(\S*:)?foreignObject\b/i',
+
+		// No custom entities allowed, since they can be used for entity
+		// recursion attacks.
+		'/<!ENTITY\b/',
+
+		// Embedded external images can't have custom cross-origin rules.
+		'/<\b(\S*:)?image\b[^>]*\bcrossorigin\s*=/',
+
+		// No embedded PHP tags allowed.
+		// Harmless if the SVG is just the src of an img element, but very bad
+		// if the SVG is embedded inline into the HTML document.
+		'/<(php)?[?]|[?]>/i',
+	);
+
+	$prev_chunk = '';
+	while (!feof($fp))
+	{
+		$cur_chunk = fread($fp, 8192);
+
+		foreach ($patterns as $pattern)
+		{
+			if (preg_match($pattern, $prev_chunk . $cur_chunk))
+			{
+				fclose($fp);
+				return false;
+			}
+		}
+
+		$prev_chunk = $cur_chunk;
+	}
+	fclose($fp);
+
+	return true;
+}
+
+/**
  * Sets a global $gd2 variable needed by some functions to determine
  * whether the GD2 library is present.
  *
