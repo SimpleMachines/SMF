@@ -190,6 +190,7 @@ $txt['attached_upload_all'] = 'Upload all';
 $txt['attachments_left'] = 'There are a few attachments left, please upload them or cancel them before posting.';
 $txt['attached_insert_width'] = 'Insert width (px):';
 $txt['attached_insert_height'] = 'Insert height (px):';
+$txt['attached_insert_placeholder'] = 'auto';
 
 $txt['attach_php_error'] = 'Due to an error, your attachment could not be uploaded. Please contact the forum administrator if this problem continues.';
 $txt['php_upload_error_1'] = 'The uploaded file exceeds the upload_max_filesize directive in php.ini. Please contact your host if you are unable to correct this issue.';
