@@ -14,6 +14,7 @@
 namespace SMF;
 
 use SMF\Actions\Agreement;
+use SMF\Actions\Notify;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
@@ -994,9 +995,7 @@ class Theme
 
 			if (!empty(Config::$modSettings['enable_ajax_alerts']))
 			{
-				require_once(Config::$sourcedir . '/Actions/Notify.php');
-
-				$timeout = getNotifyPrefs(User::$me->id, 'alert_timeout', true);
+				$timeout = Notify::getNotifyPrefs(User::$me->id, 'alert_timeout', true);
 				$timeout = empty($timeout) ? 10000 : $timeout[User::$me->id]['alert_timeout'] * 1000;
 
 				self::addInlineJavaScript("\n\t" . 'var new_alert_title = "' . Utils::$context['forum_name_html_safe'] . '";' . "\n\t" . 'var alert_timeout = ' . $timeout . ';');

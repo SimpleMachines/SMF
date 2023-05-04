@@ -19,6 +19,7 @@ use SMF\Mail;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Notify;
 use SMF\Cache\CacheApi;
 use SMF\Cache\CacheApiInterface;
 use SMF\Db\DatabaseApi as Db;
@@ -340,8 +341,7 @@ function emailAdmins($template, $replacements = array(), $additional_recipients 
 	$members = membersAllowedTo('admin_forum');
 
 	// Load their alert preferences
-	require_once(Config::$sourcedir . '/Actions/Notify.php');
-	$prefs = getNotifyPrefs($members, 'announcements', true);
+	$prefs = Notify::getNotifyPrefs($members, 'announcements', true);
 
 	$request = Db::$db->query('', '
 		SELECT id_member, member_name, real_name, lngfile, email_address

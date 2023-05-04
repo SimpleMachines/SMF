@@ -19,6 +19,7 @@ use SMF\Mail;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Notify;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -86,9 +87,8 @@ class CreateAttachment_Notify extends BackgroundTask
 		if (empty($members))
 			return true;
 
-		require_once(Config::$sourcedir . '/Actions/Notify.php');
 		$members = array_unique($members);
-		$prefs = getNotifyPrefs($members, 'unapproved_attachment', true);
+		$prefs = Notify::getNotifyPrefs($members, 'unapproved_attachment', true);
 		foreach ($watched as $member => $data)
 		{
 			$pref = !empty($prefs[$member]['unapproved_attachment']) ? $prefs[$member]['unapproved_attachment'] : 0;

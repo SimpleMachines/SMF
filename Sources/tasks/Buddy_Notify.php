@@ -15,6 +15,7 @@ namespace SMF\Tasks;
 
 use SMF\Config;
 use SMF\User;
+use SMF\Actions\Notify;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -32,8 +33,7 @@ class Buddy_Notify extends BackgroundTask
 	public function execute()
 	{
 		// Figure out if the user wants to be notified.
-		require_once(Config::$sourcedir . '/Actions/Notify.php');
-		$prefs = getNotifyPrefs($this->_details['receiver_id'], 'buddy_request', true);
+		$prefs = Notify::getNotifyPrefs($this->_details['receiver_id'], 'buddy_request', true);
 
 		if ($prefs[$this->_details['receiver_id']]['buddy_request'])
 		{

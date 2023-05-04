@@ -20,6 +20,7 @@ use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Actions\Groups;
+use SMF\Actions\Notify;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -92,9 +93,7 @@ class GroupAct_Notify extends BackgroundTask
 
 		if (!empty($affected_users))
 		{
-			require_once(Config::$sourcedir . '/Actions/Notify.php');
-
-			$prefs = getNotifyPrefs($members, array('groupr_approved', 'groupr_rejected'), true);
+			$prefs = Notify::getNotifyPrefs($members, array('groupr_approved', 'groupr_rejected'), true);
 
 			// Same as for approving, kind of.
 			foreach ($affected_users as $user)

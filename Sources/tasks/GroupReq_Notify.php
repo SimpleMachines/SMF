@@ -19,6 +19,7 @@ use SMF\Mail;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Notify;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -59,8 +60,7 @@ class GroupReq_Notify extends BackgroundTask
 			// Figure out who wants to be alerted/emailed about this
 			$data = array('alert' => array(), 'email' => array());
 
-			require_once(Config::$sourcedir . '/Actions/Notify.php');
-			$prefs = getNotifyPrefs($moderators, 'request_group', true);
+			$prefs = Notify::getNotifyPrefs($moderators, 'request_group', true);
 
 			// Bitwise comparisons are fun...
 			foreach ($moderators as $mod)

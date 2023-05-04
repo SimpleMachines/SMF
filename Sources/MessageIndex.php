@@ -13,6 +13,7 @@
 
 namespace SMF;
 
+use SMF\Actions\Notify;
 use SMF\Actions\QuickModeration;
 use SMF\Actions\TopicMove2;
 use SMF\Actions\TopicMerge;
@@ -777,8 +778,7 @@ class MessageIndex
 				);
 			}
 
-			require_once(Config::$sourcedir . '/Actions/Notify.php');
-			$pref = getNotifyPrefs(User::$me->id, array('board_notify', 'board_notify_' . Board::$info->id), true);
+			$pref = Notify::getNotifyPrefs(User::$me->id, array('board_notify', 'board_notify_' . Board::$info->id), true);
 			$pref = !empty($pref[User::$me->id]) ? $pref[User::$me->id] : array();
 			$pref = isset($pref['board_notify_' . Board::$info->id]) ? $pref['board_notify_' . Board::$info->id] : (!empty($pref['board_notify']) ? $pref['board_notify'] : 0);
 			Utils::$context['board_notification_mode'] = !Utils::$context['is_marked_notify'] ? 1 : ($pref & 0x02 ? 3 : ($pref & 0x01 ? 2 : 1));

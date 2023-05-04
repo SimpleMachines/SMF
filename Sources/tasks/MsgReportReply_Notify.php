@@ -19,6 +19,7 @@ use SMF\Mail;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Notify;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -102,8 +103,7 @@ class MsgReportReply_Notify extends BackgroundTask
 		$members = array_intersect($possible_members, $members);
 
 		// Having successfully figured this out, now let's get the preferences of everyone.
-		require_once(Config::$sourcedir . '/Actions/Notify.php');
-		$prefs = getNotifyPrefs($members, 'msg_report_reply', true);
+		$prefs = Notify::getNotifyPrefs($members, 'msg_report_reply', true);
 
 		// So now we find out who wants what.
 		$alert_bits = array(

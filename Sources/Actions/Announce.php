@@ -97,7 +97,7 @@ class Announce implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		call_user_func(array($this, self::$subactions[$this->subaction]));
+		call_helper(method_exists($this, self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : self::$subactions[$this->subaction]);
 	}
 
 	/**
@@ -267,8 +267,7 @@ class Announce implements ActionInterface
 		Db::$db->free_result($request);
 
 		// Load their alert preferences
-		require_once(Config::$sourcedir . '/Actions/Notify.php');
-		$prefs = getNotifyPrefs(array_keys($rows), 'announcements', true);
+		$prefs = Notify::getNotifyPrefs(array_keys($rows), 'announcements', true);
 
 		foreach ($rows as $row)
 		{
@@ -308,7 +307,7 @@ class Announce implements ActionInterface
 		{
 			foreach ($mail['recipients'] as $member_id => $member_email)
 			{
-				$token = createUnsubscribeToken($member_id, $member_email, 'announcements');
+				$token = Notify::createUnsubscribeToken($member_id, $member_email, 'announcements');
 
 				$body = str_replace(array('{UNSUBSCRIBE_ID}', '{UNSUBSCRIBE_TOKEN}'), array($member_id, $token), $mail['body']);
 

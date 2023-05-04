@@ -29,7 +29,7 @@ function template_main()
 		<div class="roundframe centertext">
 			<p>', Lang::$txt['notify_topic_prompt'], '</p>
 			<p>
-				<strong><a href="', Config::$scripturl, '?action=notify;sa=on;topic=', Utils::$context['current_topic'], '.', Utils::$context['start'], ';', (!empty(Utils::$context['notify_info']['token']) ? 'u=' . Utils::$context['notify_info']['u'] . ';token=' . Utils::$context['notify_info']['token'] : Utils::$context['session_var'] . '=' . Utils::$context['session_id']), '">', Lang::$txt['yes'], '</a> - <a href="', Config::$scripturl, '?action=notify;sa=off;topic=', Utils::$context['current_topic'], '.', Utils::$context['start'], ';', (!empty(Utils::$context['notify_info']['token']) ? 'u=' . Utils::$context['notify_info']['u'] . ';token=' . Utils::$context['notify_info']['token'] : Utils::$context['session_var'] . '=' . Utils::$context['session_id']), '">', Lang::$txt['no'], '</a></strong>
+				<strong><a href="', Config::$scripturl, '?action=notifytopic;sa=on;topic=', Utils::$context['current_topic'], '.', Utils::$context['start'], ';', (!empty(Utils::$context['notify_info']['token']) ? 'u=' . Utils::$context['notify_info']['u'] . ';token=' . Utils::$context['notify_info']['token'] : Utils::$context['session_var'] . '=' . Utils::$context['session_id']), '">', Lang::$txt['yes'], '</a> - <a href="', Config::$scripturl, '?action=notifytopic;sa=off;topic=', Utils::$context['current_topic'], '.', Utils::$context['start'], ';', (!empty(Utils::$context['notify_info']['token']) ? 'u=' . Utils::$context['notify_info']['u'] . ';token=' . Utils::$context['notify_info']['token'] : Utils::$context['session_var'] . '=' . Utils::$context['session_id']), '">', Lang::$txt['no'], '</a></strong>
 			</p>
 		</div>';
 }

@@ -26,6 +26,7 @@ use SMF\Mail;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Notify;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\TOTP\Auth as Tfa;
@@ -1164,8 +1165,6 @@ function makeThemeChanges($memID, $id_theme)
  */
 function makeNotificationChanges($memID)
 {
-	require_once(Config::$sourcedir . '/Actions/Notify.php');
-
 	// Update the boards they are being notified on.
 	if (isset($_POST['edit_notify_boards']) && !empty($_POST['notify_boards']))
 	{
@@ -1206,7 +1205,7 @@ function makeNotificationChanges($memID)
 			)
 		);
 		foreach ($_POST['notify_topics'] as $topic)
-			setNotifyPrefs((int) $memID, array('topic_notify_' . $topic => 0));
+			Notify::setNotifyPrefs((int) $memID, array('topic_notify_' . $topic => 0));
 	}
 
 	// We are removing topic preferences
@@ -1215,7 +1214,7 @@ function makeNotificationChanges($memID)
 		$prefs = array();
 		foreach ($_POST['notify_topics'] as $topic)
 			$prefs[] = 'topic_notify_' . $topic;
-		deleteNotifyPrefs($memID, $prefs);
+		Notify::deleteNotifyPrefs($memID, $prefs);
 	}
 
 	// We are removing board preferences
@@ -1224,7 +1223,7 @@ function makeNotificationChanges($memID)
 		$prefs = array();
 		foreach ($_POST['notify_boards'] as $board)
 			$prefs[] = 'board_notify_' . $board;
-		deleteNotifyPrefs($memID, $prefs);
+		Notify::deleteNotifyPrefs($memID, $prefs);
 	}
 }
 
@@ -1999,8 +1998,7 @@ function alert_configuration($memID, $defaultSettings = false)
 	Theme::loadJavaScriptFile('alertSettings.js', array('minimize' => true), 'smf_alertSettings');
 
 	// Now load all the values for this user.
-	require_once(Config::$sourcedir . '/Actions/Notify.php');
-	$prefs = getNotifyPrefs($memID, '', $memID != 0);
+	$prefs = Notify::getNotifyPrefs($memID, '', $memID != 0);
 
 	Utils::$context['alert_prefs'] = !empty($prefs[$memID]) ? $prefs[$memID] : array();
 
@@ -2231,7 +2229,9 @@ function alert_configuration($memID, $defaultSettings = false)
 		else
 			$update_prefs['announcements'] = Utils::$context['alert_prefs']['announcements'];
 
-		setNotifyPrefs((int) $memID, $update_prefs);
+		$update_prefs['announcements'] = !empty($update_prefs['announcements']) ? 2 : 0;
+
+		Notify::setNotifyPrefs((int) $memID, $update_prefs);
 		foreach ($update_prefs as $pref => $value)
 			Utils::$context['alert_prefs'][$pref] = $value;
 
@@ -2849,8 +2849,7 @@ function list_getTopicNotificationCount($memID)
 function list_getTopicNotifications($start, $items_per_page, $sort, $memID)
 {
 
-	require_once(Config::$sourcedir . '/Actions/Notify.php');
-	$prefs = getNotifyPrefs($memID);
+	$prefs = Notify::getNotifyPrefs($memID);
 	$prefs = isset($prefs[$memID]) ? $prefs[$memID] : array();
 
 	// All the topics with notification on...
@@ -2921,8 +2920,7 @@ function list_getTopicNotifications($start, $items_per_page, $sort, $memID)
 function list_getBoardNotifications($start, $items_per_page, $sort, $memID)
 {
 
-	require_once(Config::$sourcedir . '/Actions/Notify.php');
-	$prefs = getNotifyPrefs($memID);
+	$prefs = Notify::getNotifyPrefs($memID);
 	$prefs = isset($prefs[$memID]) ? $prefs[$memID] : array();
 
 	$request = Db::$db->query('', '

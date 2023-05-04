@@ -21,6 +21,7 @@ use SMF\Mail;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Notify;
 use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
@@ -991,8 +992,7 @@ function SendMailing($clean_only = false)
 		Db::$db->free_result($result);
 
 		// Load their alert preferences
-		require_once(Config::$sourcedir . '/Actions/Notify.php');
-		$prefs = getNotifyPrefs(array_keys($rows), 'announcements', true);
+		$prefs = Notify::getNotifyPrefs(array_keys($rows), 'announcements', true);
 
 		foreach ($rows as $row)
 		{
@@ -1018,7 +1018,7 @@ function SendMailing($clean_only = false)
 
 			if (!empty($include_unsubscribe))
 			{
-				$token = createUnsubscribeToken($row['id_member'], $row['email_address'], 'announcements');
+				$token = Notify::createUnsubscribeToken($row['id_member'], $row['email_address'], 'announcements');
 				$unsubscribe_link = sprintf(Lang::$txt['unsubscribe_announcements_' . (!empty($_POST['send_html']) ? 'html' : 'plain')], Config::$scripturl . '?action=notifyannouncements;u=' . $row['id_member'] . ';token=' . $token);
 			}
 			else
