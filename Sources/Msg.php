@@ -1360,7 +1360,7 @@ class Msg implements \ArrayAccess
 			$pmReadGroups['denied'] = array();
 
 		// Load their alert preferences
-		require_once(Config::$sourcedir . '/Subs-Notify.php');
+		require_once(Config::$sourcedir . '/Actions/Notify.php');
 		$notifyPrefs = getNotifyPrefs($all_to, array('pm_new', 'pm_reply', 'pm_notify'), true);
 
 		$request = Db::$db->query('', '

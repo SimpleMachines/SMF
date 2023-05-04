@@ -85,7 +85,7 @@ class Likes_Notify extends BackgroundTask
 		if (!empty($ignored_members) && in_array($this->_details['sender_id'], $ignored_members))
 			return true;
 
-		require_once(Config::$sourcedir . '/Subs-Notify.php');
+		require_once(Config::$sourcedir . '/Actions/Notify.php');
 		$prefs = getNotifyPrefs($author, $this->_details['content_type'] . '_like', true);
 
 		// The likes setup doesn't support email notifications because that would be too many emails.

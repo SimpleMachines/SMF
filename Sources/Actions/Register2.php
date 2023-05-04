@@ -414,7 +414,7 @@ class Register2 extends Register
 		spamProtection('register');
 
 		// Do they want to receive announcements?
-		require_once(Config::$sourcedir . '/Subs-Notify.php');
+		require_once(Config::$sourcedir . '/Actions/Notify.php');
 		$prefs = getNotifyPrefs($member_id, 'announcements', true);
 		$var = !empty($_POST['notify_announcements']);
 		$pref = !empty($prefs[$member_id]['announcements']);

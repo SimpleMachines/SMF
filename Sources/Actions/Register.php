@@ -212,7 +212,7 @@ class Register implements ActionInterface
 			}
 		}
 
-		require_once(Config::$sourcedir . '/Subs-Notify.php');
+		require_once(Config::$sourcedir . '/Actions/Notify.php');
 		$prefs = getNotifyPrefs(0, 'announcements');
 		Utils::$context['notify_announcements'] = !empty($prefs[0]['announcements']);
 

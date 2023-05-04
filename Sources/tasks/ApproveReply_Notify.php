@@ -60,7 +60,7 @@ class ApproveReply_Notify extends BackgroundTask
 		}
 		Db::$db->free_result($request);
 
-		require_once(Config::$sourcedir . '/Subs-Notify.php');
+		require_once(Config::$sourcedir . '/Actions/Notify.php');
 		$prefs = getNotifyPrefs($members, 'unapproved_reply', true);
 		foreach ($watched as $member => $data)
 		{

@@ -92,7 +92,7 @@ class GroupAct_Notify extends BackgroundTask
 
 		if (!empty($affected_users))
 		{
-			require_once(Config::$sourcedir . '/Subs-Notify.php');
+			require_once(Config::$sourcedir . '/Actions/Notify.php');
 
 			$prefs = getNotifyPrefs($members, array('groupr_approved', 'groupr_rejected'), true);
 

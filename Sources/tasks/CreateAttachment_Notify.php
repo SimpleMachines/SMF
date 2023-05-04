@@ -86,7 +86,7 @@ class CreateAttachment_Notify extends BackgroundTask
 		if (empty($members))
 			return true;
 
-		require_once(Config::$sourcedir . '/Subs-Notify.php');
+		require_once(Config::$sourcedir . '/Actions/Notify.php');
 		$members = array_unique($members);
 		$prefs = getNotifyPrefs($members, 'unapproved_attachment', true);
 		foreach ($watched as $member => $data)

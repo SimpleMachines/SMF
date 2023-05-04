@@ -96,7 +96,7 @@ class CreatePost_Notify extends BackgroundTask
 	 */
 	public function execute()
 	{
-		require_once(Config::$sourcedir . '/Subs-Notify.php');
+		require_once(Config::$sourcedir . '/Actions/Notify.php');
 		require_once(Config::$sourcedir . '/Subs.php');
 		Theme::loadEssential();
 

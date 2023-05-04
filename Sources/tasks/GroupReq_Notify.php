@@ -59,7 +59,7 @@ class GroupReq_Notify extends BackgroundTask
 			// Figure out who wants to be alerted/emailed about this
 			$data = array('alert' => array(), 'email' => array());
 
-			require_once(Config::$sourcedir . '/Subs-Notify.php');
+			require_once(Config::$sourcedir . '/Actions/Notify.php');
 			$prefs = getNotifyPrefs($moderators, 'request_group', true);
 
 			// Bitwise comparisons are fun...
