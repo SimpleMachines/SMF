@@ -414,14 +414,15 @@ class Register2 extends Register
 		spamProtection('register');
 
 		// Do they want to receive announcements?
-		require_once(Config::$sourcedir . '/Actions/Notify.php');
-		$prefs = getNotifyPrefs($member_id, 'announcements', true);
+		$prefs = Notify::getNotifyPrefs($member_id, 'announcements', true);
 		$var = !empty($_POST['notify_announcements']);
 		$pref = !empty($prefs[$member_id]['announcements']);
 
 		// Don't update if the default is the same.
 		if ($var != $pref)
+		{
 			setNotifyPrefs($member_id, array('announcements' => (int) !empty($_POST['notify_announcements'])));
+		}
 
 		// We'll do custom fields after as then we get to use the helper function!
 		if (!empty($_POST['customfield']))

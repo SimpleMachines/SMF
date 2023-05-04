@@ -212,8 +212,7 @@ class Register implements ActionInterface
 			}
 		}
 
-		require_once(Config::$sourcedir . '/Actions/Notify.php');
-		$prefs = getNotifyPrefs(0, 'announcements');
+		$prefs = Notify::getNotifyPrefs(0, 'announcements');
 		Utils::$context['notify_announcements'] = !empty($prefs[0]['announcements']);
 
 		if (!empty(Config::$modSettings['userLanguage']))

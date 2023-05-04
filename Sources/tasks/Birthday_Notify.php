@@ -20,6 +20,7 @@ use SMF\Mail;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Notify;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -82,9 +83,8 @@ class Birthday_Notify extends BackgroundTask
 				Lang::load('EmailTemplates', $lang);
 				Lang::$txt['happy_birthday_subject'] = Lang::$txtBirthdayEmails[$greeting . '_subject'];
 				Lang::$txt['happy_birthday_body'] = Lang::$txtBirthdayEmails[$greeting . '_body'];
-				require_once(Config::$sourcedir . '/Actions/Notify.php');
 
-				$prefs = getNotifyPrefs(array_keys($members), array('birthday'), true);
+				$prefs = Notify::getNotifyPrefs(array_keys($members), array('birthday'), true);
 
 				foreach ($members as $member_id => $member)
 				{

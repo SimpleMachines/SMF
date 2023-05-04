@@ -19,6 +19,7 @@ use SMF\Mail;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Notify;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -60,8 +61,7 @@ class ApproveReply_Notify extends BackgroundTask
 		}
 		Db::$db->free_result($request);
 
-		require_once(Config::$sourcedir . '/Actions/Notify.php');
-		$prefs = getNotifyPrefs($members, 'unapproved_reply', true);
+		$prefs = Notify::getNotifyPrefs($members, 'unapproved_reply', true);
 		foreach ($watched as $member => $data)
 		{
 			$pref = !empty($prefs[$member]['unapproved_reply']) ? $prefs[$member]['unapproved_reply'] : 0;

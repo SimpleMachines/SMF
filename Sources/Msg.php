@@ -13,6 +13,7 @@
 
 namespace SMF;
 
+use SMF\Actions\Notify;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
 
@@ -1360,8 +1361,7 @@ class Msg implements \ArrayAccess
 			$pmReadGroups['denied'] = array();
 
 		// Load their alert preferences
-		require_once(Config::$sourcedir . '/Actions/Notify.php');
-		$notifyPrefs = getNotifyPrefs($all_to, array('pm_new', 'pm_reply', 'pm_notify'), true);
+		$notifyPrefs = Notify::getNotifyPrefs($all_to, array('pm_new', 'pm_reply', 'pm_notify'), true);
 
 		$request = Db::$db->query('', '
 			SELECT

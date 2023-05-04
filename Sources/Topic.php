@@ -13,6 +13,7 @@
 
 namespace SMF;
 
+use SMF\Actions\Notify;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
@@ -478,9 +479,7 @@ class Topic implements \ArrayAccess
 	{
 		if (!empty(User::$me->id))
 		{
-			require_once(Config::$sourcedir . '/Actions/Notify.php');
-
-			$prefs = getNotifyPrefs(User::$me->id, array('topic_notify', 'topic_notify_' . $this->id, 'msg_auto_notify'), true);
+			$prefs = Notify::getNotifyPrefs(User::$me->id, array('topic_notify', 'topic_notify_' . $this->id, 'msg_auto_notify'), true);
 
 			// Only pay attention to Utils::$context['is_marked_notify'] if it is set.
 			$pref = !empty($prefs[User::$me->id]) && (!isset(Utils::$context['is_marked_notify']) || Utils::$context['is_marked_notify'] == true) ? $prefs[User::$me->id] : array();

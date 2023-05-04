@@ -11,170 +11,493 @@
  * @version 3.0 Alpha 1
  */
 
+namespace SMF\Actions;
+
+use SMF\BackwardCompatibility;
+
 use SMF\Config;
-use SMF\Topic;
+use SMF\Lang;
+use SMF\Theme;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
-if (!defined('SMF'))
-	die('No direct access...');
-
 /**
- * Fetches the list of preferences (or a single/subset of preferences) for
- * notifications for one or more users.
+ * This abstract class contains the main functionality to toggle email
+ * notification preferences for topics, boards and announcements.
  *
- * @param int|array $members A user id or an array of (integer) user ids to load preferences for
- * @param string|array $prefs An empty string to load all preferences, or a string (or array) of preference name(s) to load
- * @param bool $process_default Whether to apply the default values to the members' values or not.
- * @return array An array of user ids => array (pref name -> value), with user id 0 representing the defaults
+ * It is extended by concrete classes that deal with each of those.
+ *
+ * Mods can add support for more notification types by extending this class.
  */
-function getNotifyPrefs($members, $prefs = '', $process_default = false)
+abstract class Notify
 {
-	// We want this as an array whether it is or not.
-	$members = is_array($members) ? $members : (array) $members;
+	use BackwardCompatibility;
 
-	if (!empty($prefs))
-		$prefs = is_array($prefs) ? $prefs : (array) $prefs;
-
-	$result = array();
-
-	// We want to now load the default, which is stored with a member id of 0.
-	$members[] = 0;
-
-	$request = Db::$db->query('', '
-		SELECT id_member, alert_pref, alert_value
-		FROM {db_prefix}user_alerts_prefs
-		WHERE id_member IN ({array_int:members})' . (!empty($prefs) ? '
-			AND alert_pref IN ({array_string:prefs})' : ''),
-		array(
-			'members' => $members,
-			'prefs' => $prefs,
-		)
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = array(
+		'func_names' => array(
+		),
 	);
-	while ($row = Db::$db->fetch_assoc($request))
-		$result[$row['id_member']][$row['alert_pref']] = $row['alert_value'];
 
-	// We may want to keep the default values separate from a given user's. Or we might not.
-	if ($process_default && isset($result[0]))
+	/*****************
+	 * Class constants
+	 *****************/
+
+	// Pref refers to the value that will be saved to user_alerts_prefs table.
+	const PREF_NONE = 0;
+	const PREF_ALERT = 1;
+	const PREF_EMAIL = 2;
+	const PREF_BOTH = 3;
+
+	// Mode refers to the input submitted by $_GET or $_POST.
+	// Unfortunately, mode != pref.
+	const MODE_NO_EMAIL = -2;
+	const MODE_NO_ALERT = -1;
+	const MODE_IGNORE = 0;
+	const MODE_NONE = 1;
+	const MODE_ALERT = 2;
+	const MODE_BOTH = 3;
+
+	/*******************
+	 * Public properties
+	 *******************/
+
+	/**
+	 * @var string
+	 *
+	 * The notification type that this action handles.
+	 */
+	public string $type;
+
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	/**
+	 * @var int
+	 *
+	 * ID of the topic or board.
+	 */
+	protected int $id;
+
+	/**
+	 * @var int
+	 *
+	 * Requested notification mode.
+	 */
+	protected int $mode;
+
+	/**
+	 * @var int
+	 *
+	 * Preference value to save to the table.
+	 */
+	protected int $alert_pref;
+
+	/**
+	 * @var string
+	 *
+	 * The unsubscribe token that the user supplied, if any.
+	 */
+	protected string $token;
+
+	/**
+	 * @var array
+	 *
+	 * Information about the user whose notifications preferences are changing.
+	 * Will include ID number and email address.
+	 */
+	protected array $member_info;
+
+	/****************
+	 * Public methods
+	 ****************/
+
+	/**
+	 * Dispatcher to whichever sub-action method is necessary.
+	 */
+	public function execute(): void
 	{
-		foreach ($members as $member)
-			if (isset($result[$member]))
-				$result[$member] += $result[0];
-			else
-				$result[$member] = $result[0];
+		$this->setMemberInfo();
+		$this->setId();
+		$this->setMode();
 
-		unset ($result[0]);
+		if (!isset($this->mode))
+			return;
+
+		// We don't tolerate imposters around here.
+		if (empty($this->token))
+			checkSession('get');
+
+		$this->changePref();
+
+		// AJAX call.
+		if (isset($_GET['xml']))
+		{
+			$this->prepareAjaxResponse();
+		}
+		// Nothing to redirect to or they got here via an unsubscribe link,
+		// so just show a confirmation message.
+		elseif (!isset($this->id) || !empty($this->token))
+		{
+			$this->showConfirmation();
+		}
+		// Send them back to wherever they came from.
+		else
+			redirectexit($this->type . '=' . $this->id . '.' . ($_REQUEST['start'] ?? 0));
 	}
 
-	return $result;
+	/***********************
+	 * Public static methods
+	 ***********************/
+
+	/**
+	 * Fetches the list of preferences (or a single/subset of preferences) for
+	 * notifications for one or more users.
+	 *
+	 * @param int|array $members A user id or an array of (integer) user ids to load preferences for
+	 * @param string|array $prefs An empty string to load all preferences, or a string (or array) of preference name(s) to load
+	 * @param bool $process_default Whether to apply the default values to the members' values or not.
+	 * @return array An array of user ids => array (pref name -> value), with user id 0 representing the defaults
+	 */
+	public static function getNotifyPrefs($members, $prefs = '', $process_default = false)
+	{
+		// We want this as an array whether it is or not.
+		$members = is_array($members) ? $members : (array) $members;
+
+		if (!empty($prefs))
+			$prefs = is_array($prefs) ? $prefs : (array) $prefs;
+
+		$result = array();
+
+		// We want to now load the default, which is stored with a member id of 0.
+		$members[] = 0;
+
+		$request = Db::$db->query('', '
+			SELECT id_member, alert_pref, alert_value
+			FROM {db_prefix}user_alerts_prefs
+			WHERE id_member IN ({array_int:members})' . (!empty($prefs) ? '
+				AND alert_pref IN ({array_string:prefs})' : ''),
+			array(
+				'members' => $members,
+				'prefs' => $prefs,
+			)
+		);
+		while ($row = Db::$db->fetch_assoc($request))
+			$result[$row['id_member']][$row['alert_pref']] = $row['alert_value'];
+
+		// We may want to keep the default values separate from a given user's. Or we might not.
+		if ($process_default && isset($result[0]))
+		{
+			foreach ($members as $member)
+				if (isset($result[$member]))
+					$result[$member] += $result[0];
+				else
+					$result[$member] = $result[0];
+
+			unset ($result[0]);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Sets the list of preferences for a single user.
+	 *
+	 * @param int $memID The user whose preferences you are setting
+	 * @param array $prefs An array key of pref -> value
+	 */
+	public static function setNotifyPrefs($memID, $prefs = array())
+	{
+		if (empty($prefs) || !is_int($memID))
+			return;
+
+		$update_rows = array();
+		foreach ($prefs as $k => $v)
+			$update_rows[] = array($memID, $k, min(max((int) $v, -128), 127));
+
+		Db::$db->insert('replace',
+			'{db_prefix}user_alerts_prefs',
+			array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'int'),
+			$update_rows,
+			array('id_member', 'alert_pref')
+		);
+	}
+
+	/**
+	 * Deletes notification preference.
+	 *
+	 * @param int $memID The user whose preference you're setting
+	 * @param array $prefs The preferences to delete
+	 */
+	public static function deleteNotifyPrefs($memID, array $prefs)
+	{
+		if (empty($prefs) || empty($memID))
+			return;
+
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}user_alerts_prefs
+			WHERE id_member = {int:member}
+				AND alert_pref IN ({array_string:prefs})',
+			array(
+				'member' => $memID,
+				'prefs' => $prefs,
+			)
+		);
+	}
+
+	/**
+	 * Verifies a member's unsubscribe token, then returns some member info.
+	 *
+	 * @param string $type The type of notification the token is for (e.g. 'board', 'topic', etc.)
+	 * @return array The id and email address of the specified member
+	 */
+	public static function getMemberWithToken($type)
+	{
+		// Keep it sanitary, folks
+		$id_member = !empty($_REQUEST['u']) ? (int) $_REQUEST['u'] : 0;
+
+		// We can't do anything without these
+		if (empty($id_member) || empty($_REQUEST['token']))
+			fatal_lang_error('unsubscribe_invalid', false);
+
+		// Get the user info we need
+		$request = Db::$db->query('', '
+			SELECT id_member AS id, email_address AS email
+			FROM {db_prefix}members
+			WHERE id_member = {int:id_member}',
+			array(
+				'id_member' => $id_member,
+			)
+		);
+		if (Db::$db->num_rows($request) == 0)
+		{
+			fatal_lang_error('unsubscribe_invalid', false);
+		}
+		$this->member_info = Db::$db->fetch_assoc($request);
+		Db::$db->free_result($request);
+
+		// What token are we expecting?
+		$expected_token = Notify::createUnsubscribeToken($this->member_info['id'], $this->member_info['email'], $type, in_array($type, array('board', 'topic')) && !empty($$type) ? $$type : 0);
+
+		// Don't do anything if the token they gave is wrong
+		if ($_REQUEST['token'] !== $expected_token)
+			fatal_lang_error('unsubscribe_invalid', false);
+
+		// At this point, we know we have a legitimate unsubscribe request
+		return $this->member_info;
+	}
+
+	/**
+	 * Builds an unsubscribe token.
+	 *
+	 * @param int $memID The id of the member that this token is for
+	 * @param string $email The member's email address
+	 * @param string $type The type of notification the token is for (e.g. 'board', 'topic', etc.)
+	 * @param int $itemID The id of the notification item, if applicable.
+	 * @return string The unsubscribe token
+	 */
+	public static function createUnsubscribeToken($memID, $email, $type = '', $itemID = 0)
+	{
+		$token_items = implode(' ', array($memID, $email, $type, $itemID));
+
+		// When the message is public and the key is secret, an HMAC is the appropriate tool.
+		$token = hash_hmac('sha256', $token_items, Config::getAuthSecret(), true);
+
+		// When using an HMAC, 80 bits (10 bytes) is plenty for security.
+		$token = substr($token, 0, 10);
+
+		// Use base64 (with URL-friendly characters) to make the token shorter.
+		return strtr(base64_encode($token), array('+' => '_', '/' => '-', '=' => ''));
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
+	 * Sets $this->member_info with info about the member in question.
+	 */
+	protected function setMemberInfo()
+	{
+		if (isset($_REQUEST['u']) && isset($_REQUEST['token']))
+		{
+			$this->member_info = self::getMemberWithToken($this->type);
+			$this->token = $_REQUEST['token'];
+		}
+		// No token, so try with the current user.
+		else
+		{
+			// Permissions are an important part of anything ;).
+			is_not_guest();
+			$this->member_info = (array) User::$me;
+		}
+	}
+
+	/**
+	 * For board and topic, make sure we have the necessary ID.
+	 */
+	abstract protected function setId();
+
+	/**
+	 * Converts $_GET['sa'] to $_GET['mode'].
+	 *
+	 * sa=on/off is used for email subscribe/unsubscribe links.
+	 */
+	abstract protected function saToMode();
+
+	/**
+	 * Sets $this->mode.
+	 */
+	protected function setMode()
+	{
+		$this->saToMode();
+
+		// What do we do?  Better ask if they didn't say..
+		if (!isset($_GET['mode']) && !isset($_GET['xml']))
+			$this->ask();
+
+		if (isset($_GET['mode']))
+			$this->mode = (int) $_GET['mode'];
+	}
+
+	/**
+	 *
+	 */
+	protected function ask()
+	{
+		Theme::loadTemplate('Notify');
+		Utils::$context['page_title'] = Lang::$txt['notification'];
+
+		if ($this->member_info['id'] !== User::$me->id)
+		{
+			Utils::$context['notify_info'] = array(
+				'u' => $this->member_info['id'],
+				'token' => $_REQUEST['token'],
+			);
+		}
+
+		$this->askTemplateData();
+
+		obExit();
+	}
+
+	/**
+	 * Sets any additional data needed for the ask template.
+	 */
+	abstract protected function askTemplateData();
+
+	/**
+	 * Updates the notification preference in the database.
+	 */
+	abstract protected function changePref();
+
+	/**
+	 * Sets $this->alert_pref.
+	 */
+	protected function setAlertPref()
+	{
+		switch ($this->mode)
+		{
+			case self::MODE_IGNORE:
+			case self::MODE_NONE:
+				$this->alert_pref = self::PREF_NONE;
+				break;
+
+			case self::MODE_ALERT:
+				$this->alert_pref = self::PREF_ALERT;
+				break;
+
+			case self::MODE_BOTH:
+				$this->alert_pref = self::PREF_BOTH;
+				break;
+
+			// self::MODE_NO_EMAIL is used to turn off email notifications
+			// while leaving the alert preference unchanged.
+			case self::MODE_NO_EMAIL:
+				// Use bitwise operator to turn off the email part of the setting.
+				$this->alert_pref = self::getNotifyPrefs($this->member_info['id'], array($this->type . '_notify_' . $this->id), true) & self::PREF_ALERT;
+				break;
+		}
+	}
+
+	/**
+	 * Updates notification preferences for the board or topic.
+	 */
+	protected function changeBoardTopicPref()
+	{
+		self::setNotifyPrefs((int) $this->member_info['id'], array($this->type . '_notify_' . $this->id => $this->alert_pref));
+
+		if ($this->alert_pref > self::PREF_NONE)
+		{
+			$id_board = $this->type === 'board' ? $this->id : 0;
+			$id_topic = $this->type === 'topic' ? $this->id : 0;
+
+			// Turn notification on.  (note this just blows smoke if it's already on.)
+			Db::$db->insert('ignore',
+				'{db_prefix}log_notify',
+				array('id_member' => 'int', 'id_topic' => 'int', 'id_board' => 'int'),
+				array(User::$me->id, $id_topic, $id_board),
+				array('id_member', 'id_topic', 'id_board')
+			);
+		}
+		else
+		{
+			Db::$db->query('', '
+				DELETE FROM {db_prefix}log_notify
+				WHERE id_member = {int:member}
+					AND {raw:column} = {int:id}',
+				array(
+					'column' => 'id_' . $this->type,
+					'id' => $this->id,
+					'member' => $this->member_info['id'],
+				)
+			);
+		}
+	}
+
+	/**
+	 * Adds some stuff to Utils::$context for AJAX output.
+	 */
+	protected function prepareAjaxResponse()
+	{
+		Utils::$context['xml_data']['errors'] = array(
+			'identifier' => 'error',
+			'children' => array(
+				array(
+					'value' => 0,
+				),
+			),
+		);
+
+		Utils::$context['sub_template'] = 'generic_xml';
+	}
+
+	/**
+	 * Shows a confirmation message.
+	 */
+	protected function showConfirmation()
+	{
+		Theme::loadTemplate('Notify');
+		Utils::$context['page_title'] = Lang::$txt['notification'];
+		Utils::$context['sub_template'] = 'notify_pref_changed';
+
+		Utils::$context['notify_success_msg'] = $this->getSuccessMsg();
+	}
+
+	/**
+	 * Gets the success message to display.
+	 */
+	abstract protected function getSuccessMsg();
 }
 
-/**
- * Sets the list of preferences for a single user.
- *
- * @param int $memID The user whose preferences you are setting
- * @param array $prefs An array key of pref -> value
- */
-function setNotifyPrefs($memID, $prefs = array())
-{
-	if (empty($prefs) || !is_int($memID))
-		return;
-
-	$update_rows = array();
-	foreach ($prefs as $k => $v)
-		$update_rows[] = array($memID, $k, min(max((int) $v, -128), 127));
-
-	Db::$db->insert('replace',
-		'{db_prefix}user_alerts_prefs',
-		array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'int'),
-		$update_rows,
-		array('id_member', 'alert_pref')
-	);
-}
-
-/**
- * Deletes notification preference
- *
- * @param int $memID The user whose preference you're setting
- * @param array $prefs The preferences to delete
- */
-function deleteNotifyPrefs($memID, array $prefs)
-{
-	if (empty($prefs) || empty($memID))
-		return;
-
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}user_alerts_prefs
-		WHERE id_member = {int:member}
-			AND alert_pref IN ({array_string:prefs})',
-		array(
-			'member' => $memID,
-			'prefs' => $prefs,
-		)
-	);
-}
-
-/**
- * Verifies a member's unsubscribe token, then returns some member info
- *
- * @param string $type The type of notification the token is for (e.g. 'board', 'topic', etc.)
- * @return array The id and email address of the specified member
- */
-function getMemberWithToken($type)
-{
-	// Keep it sanitary, folks
-	$id_member = !empty($_REQUEST['u']) ? (int) $_REQUEST['u'] : 0;
-
-	// We can't do anything without these
-	if (empty($id_member) || empty($_REQUEST['token']))
-		fatal_lang_error('unsubscribe_invalid', false);
-
-	// Get the user info we need
-	$request = Db::$db->query('', '
-		SELECT id_member AS id, email_address AS email
-		FROM {db_prefix}members
-		WHERE id_member = {int:id_member}',
-		array(
-			'id_member' => $id_member,
-		)
-	);
-	if (Db::$db->num_rows($request) == 0)
-		fatal_lang_error('unsubscribe_invalid', false);
-	$member_info = Db::$db->fetch_assoc($request);
-	Db::$db->free_result($request);
-
-	// What token are we expecting?
-	$expected_token = createUnsubscribeToken($member_info['id'], $member_info['email'], $type, in_array($type, array('board', 'topic')) && !empty($$type) ? $$type : 0);
-
-	// Don't do anything if the token they gave is wrong
-	if ($_REQUEST['token'] !== $expected_token)
-		fatal_lang_error('unsubscribe_invalid', false);
-
-	// At this point, we know we have a legitimate unsubscribe request
-	return $member_info;
-}
-
-/**
- * Builds an unsubscribe token
- *
- * @param int $memID The id of the member that this token is for
- * @param string $email The member's email address
- * @param string $type The type of notification the token is for (e.g. 'board', 'topic', etc.)
- * @param int $itemID The id of the notification item, if applicable.
- * @return string The unsubscribe token
- */
-function createUnsubscribeToken($memID, $email, $type = '', $itemID = 0)
-{
-	$token_items = implode(' ', array($memID, $email, $type, $itemID));
-
-	// When the message is public and the key is secret, an HMAC is the appropriate tool.
-	$token = hash_hmac('sha256', $token_items, Config::getAuthSecret(), true);
-
-	// When using an HMAC, 80 bits (10 bytes) is plenty for security.
-	$token = substr($token, 0, 10);
-
-	// Use base64 (with URL-friendly characters) to make the token shorter.
-	return strtr(base64_encode($token), array('+' => '_', '/' => '-', '=' => ''));
-}
+// Export public static functions and properties to global namespace for backward compatibility.
+if (is_callable(__NAMESPACE__ . '\Notify::exportStatic'))
+	Notify::exportStatic();
 
 ?>

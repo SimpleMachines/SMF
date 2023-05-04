@@ -23,6 +23,7 @@ use SMF\TaskRunner;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Notify;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -96,7 +97,6 @@ class CreatePost_Notify extends BackgroundTask
 	 */
 	public function execute()
 	{
-		require_once(Config::$sourcedir . '/Actions/Notify.php');
 		require_once(Config::$sourcedir . '/Subs.php');
 		Theme::loadEssential();
 
@@ -253,7 +253,7 @@ class CreatePost_Notify extends BackgroundTask
 		if (empty($this->members['all']))
 			return true;
 
-		$this->prefs = getNotifyPrefs($this->members['all'], '', true);
+		$this->prefs = Notify::getNotifyPrefs($this->members['all'], '', true);
 
 		// May as well disable these, since they'll be stripped out anyway.
 		$disable = array('attach', 'img', 'iurl', 'url', 'youtube');
@@ -592,7 +592,7 @@ class CreatePost_Notify extends BackgroundTask
 			{
 				$itemID = $content_type == 'board' ? $topicOptions['board'] : $topicOptions['id'];
 
-				$token = createUnsubscribeToken($member_data['id_member'], $member_data['email_address'], $content_type, $itemID);
+				$token = Notify::createUnsubscribeToken($member_data['id_member'], $member_data['email_address'], $content_type, $itemID);
 
 				$replacements = array(
 					'TOPICSUBJECT' => $parsed_message[$localization]['subject'],

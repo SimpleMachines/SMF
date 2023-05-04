@@ -19,6 +19,7 @@ use SMF\Mail;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Notify;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -78,8 +79,7 @@ class MsgReport_Notify extends BackgroundTask
 		$members = array_diff($members, array($this->_details['sender_id']));
 
 		// Having successfully figured this out, now let's get the preferences of everyone.
-		require_once(Config::$sourcedir . '/Actions/Notify.php');
-		$prefs = getNotifyPrefs($members, 'msg_report', true);
+		$prefs = Notify::getNotifyPrefs($members, 'msg_report', true);
 
 		// So now we find out who wants what.
 		$alert_bits = array(
