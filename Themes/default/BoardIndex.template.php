@@ -372,13 +372,13 @@ function template_ic_block_recent()
 					</tr>';
 
 		/* Each post in latest_posts has:
-			board (with an id, name, and link.), topic (the topic's id.), poster (with id, name, and link.),
+			board (with an id, name, and link.), topic (the topic's id.), member (with id, name, and link.),
 			subject, short_subject (shortened with...), time, link, and href. */
 		foreach (Utils::$context['latest_posts'] as $post)
 			echo '
 					<tr class="windowbg">
 						<td class="recentpost"><strong>', $post['link'], '</strong></td>
-						<td class="recentposter">', $post['poster']['link'], '</td>
+						<td class="recentposter">', $post['member']['link'], '</td>
 						<td class="recentboard">', $post['board']['link'], '</td>
 						<td class="recenttime">', $post['time'], '</td>
 					</tr>';

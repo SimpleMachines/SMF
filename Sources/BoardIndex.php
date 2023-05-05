@@ -77,11 +77,7 @@ class BoardIndex
 		{
 			if (Theme::$current->settings['number_recent_posts'] > 1)
 			{
-				$latestPostOptions = array(
-					'number_posts' => Theme::$current->settings['number_recent_posts'],
-				);
-
-				Utils::$context['latest_posts'] = CacheApi::quickGet('boardindex-latest_posts:' . md5(User::$me->query_wanna_see_board . User::$me->language), 'Subs-Recent.php', 'cache_getLastPosts', array($latestPostOptions));
+				Utils::$context['latest_posts'] = CacheApi::quickGet('boardindex-latest_posts:' . md5(User::$me->query_wanna_see_board . User::$me->language), basename(__FILE__), array($this, 'cache_getLastPosts'), array(Theme::$current->settings['number_recent_posts']));
 			}
 
 			if (!empty(Utils::$context['latest_posts']) || !empty(Utils::$context['latest_post']))
@@ -163,6 +159,93 @@ class BoardIndex
 
 		// Allow mods to add additional buttons here
 		call_integration_hook('integrate_mark_read_button');
+	}
+
+	/**
+	 * Get the latest posts of a forum.
+	 *
+	 * @param int $number_posts How many posts to get.
+	 * @return array Info about the posts.
+	 */
+	public function getLastPosts(int $number_posts = 5)
+	{
+		$msg_load_options = array(
+			'selects' => array(
+				'm.id_msg',
+				'm.id_topic',
+				'm.id_board',
+				'm.id_member',
+				'COALESCE(mem.real_name, m.poster_name) AS poster_name',
+				'm.poster_time',
+				'm.subject',
+				'm.body',
+				'm.smileys_enabled',
+			),
+			'joins' => array(
+				'LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)',
+			),
+			'where' => array(
+				'm.id_msg >= {int:likely_max_msg}',
+				'{query_wanna_see_message_board}',
+			),
+			'order' => array('m.id_msg DESC'),
+			'limit' => $number_posts,
+			'params' => array(
+				'likely_max_msg' => max(0, Config::$modSettings['maxMsgID'] - 50 * $number_posts),
+			),
+		);
+
+		if (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0)
+		{
+			$msg_load_options['where'][] = 'm.id_board != {int:recycle_board}';
+			$msg_load_options['params']['recycle_board'] = Config::$modSettings['recycle_board'];
+		}
+
+		if (Config::$modSettings['postmod_active'])
+		{
+			$msg_load_options['joins'][] = 'INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)';
+			$msg_load_options['where'][] = 't.approved = {int:is_approved}';
+			$msg_load_options['where'][] = 'm.approved = {int:is_approved}';
+			$msg_load_options['params']['is_approved'] = 1;
+		}
+
+		foreach (Msg::get(0, $msg_load_options) as $msg)
+		{
+			$posts[$msg->id] = $msg->format(0, array(
+				'do_permissions' => false,
+				'do_icon' => false,
+				'load_author' => false,
+				'load_board' => true,
+				'make_preview' => true,
+				'shorten_subject' => 24,
+				// Going to the last post counts as viewing the whole topic.
+				'url_params' => array('topicseen'),
+			));
+
+			// Backward compatibility.
+			$posts[$msg->id]['poster'] = &$posts[$msg->id]['member'];
+		}
+
+		return $posts;
+	}
+
+	/**
+	 * Callback-function for the cache for getLastPosts().
+	 *
+	 * @param int $number_posts
+	 */
+	public function cache_getLastPosts(int $number_posts = 5)
+	{
+		return array(
+			'data' => $this->getLastPosts($number_posts),
+			'expires' => time() + 60,
+			'post_retri_eval' => '
+				foreach ($cache_block[\'data\'] as $k => $post)
+				{
+					$cache_block[\'data\'][$k][\'time\'] = timeformat($post[\'raw_timestamp\']);
+					$cache_block[\'data\'][$k][\'timestamp\'] = $post[\'raw_timestamp\'];
+				}',
+		);
 	}
 
 	/***********************

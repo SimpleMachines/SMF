@@ -289,7 +289,7 @@ class Msg implements \ArrayAccess
 		// These options are disabled by default.
 		$format_options['load_board'] = !empty($format_options['load_board']);
 		$format_options['make_preview'] = !empty($format_options['make_preview']);
-		$format_options['shorten_subject'] = !empty($format_options['shorten_subject']);
+		$format_options['shorten_subject'] = empty($format_options['shorten_subject']) ? 0 : (!is_numeric($format_options['shorten_subject']) ? 24 : (int) $format_options['shorten_subject']);
 		$format_options['url_params'] = isset($format_options['url_params']) ? (array) $format_options['url_params'] : array();
 
 		// Compose the memory eat- I mean message array.
@@ -483,7 +483,7 @@ class Msg implements \ArrayAccess
 		// Make a short version of the subject?
 		if (!empty($format_options['shorten_subject']))
 		{
-			$this->formatted['short_subject'] = shorten_subject($this->formatted['subject'], 24);
+			$this->formatted['short_subject'] = shorten_subject($this->formatted['subject'], $format_options['shorten_subject']);
 		}
 
 		// Are likes enabled?
