@@ -86,7 +86,7 @@ class Forum
 		'pm' => array('PersonalMessage.php', 'MessageMain'),
 		'post' => array('', 'SMF\\Actions\\Post::call'),
 		'post2' => array('', 'SMF\\Actions\\Post2::call'),
-		'printpage' => array('Printpage.php', 'PrintTopic'),
+		'printpage' => array('Actions/TopicPrint.php', 'PrintTopic'),
 		'profile' => array('Profile.php', 'ModifyProfile'),
 		'quotefast' => array('', 'SMF\\Actions\\QuoteFast::call'),
 		'quickmod' => array('', 'SMF\\Actions\\QuickModeration::call'),
