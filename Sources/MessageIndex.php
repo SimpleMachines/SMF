@@ -263,6 +263,183 @@ class MessageIndex
 		return $return_value;
 	}
 
+	/**
+	 * Processes information about topics.
+	 * Populates Utils:$context['topics'] with the results.
+	 *
+	 * This is static so that it can be called by SMF\Actions\Unread, etc.
+	 */
+	public static function buildTopicContext(array $row)
+	{
+		// Reference the main color class.
+		$colorClass = 'windowbg';
+
+		// Does the theme support message previews?
+		if (!empty(Config::$modSettings['preview_characters']))
+		{
+			// Limit them to Config::$modSettings['preview_characters'] characters
+			$row['first_body'] = strip_tags(strtr(BBCodeParser::load()->parse($row['first_body'], $row['first_smileys'], $row['id_first_msg']), array('<br>' => '&#10;')));
+			if (Utils::entityStrlen($row['first_body']) > Config::$modSettings['preview_characters'])
+				$row['first_body'] = Utils::entitySubstr($row['first_body'], 0, Config::$modSettings['preview_characters']) . '...';
+
+			// Censor the subject and message preview.
+			Lang::censorText($row['first_subject']);
+			Lang::censorText($row['first_body']);
+
+			// Don't censor them twice!
+			if ($row['id_first_msg'] == $row['id_last_msg'])
+			{
+				$row['last_subject'] = $row['first_subject'];
+				$row['last_body'] = $row['first_body'];
+			}
+			else
+			{
+				$row['last_body'] = strip_tags(strtr(BBCodeParser::load()->parse($row['last_body'], $row['last_smileys'], $row['id_last_msg']), array('<br>' => '&#10;')));
+				if (Utils::entityStrlen($row['last_body']) > Config::$modSettings['preview_characters'])
+					$row['last_body'] = Utils::entitySubstr($row['last_body'], 0, Config::$modSettings['preview_characters']) . '...';
+
+				Lang::censorText($row['last_subject']);
+				Lang::censorText($row['last_body']);
+			}
+		}
+		else
+		{
+			$row['first_body'] = '';
+			$row['last_body'] = '';
+			Lang::censorText($row['first_subject']);
+
+			if ($row['id_first_msg'] == $row['id_last_msg'])
+				$row['last_subject'] = $row['first_subject'];
+			else
+				Lang::censorText($row['last_subject']);
+		}
+
+		// Decide how many pages the topic should have.
+		if ($row['num_replies'] + 1 > Utils::$context['messages_per_page'])
+		{
+			// We can't pass start by reference.
+			$start = -1;
+			$pages = constructPageIndex(Config::$scripturl . '?topic=' . $row['id_topic'] . '.%1$d', $start, $row['num_replies'] + 1, Utils::$context['messages_per_page'], true, false);
+
+			// If we can use all, show all.
+			if (!empty(Config::$modSettings['enableAllMessages']) && $row['num_replies'] + 1 < Config::$modSettings['enableAllMessages'])
+				$pages .= sprintf(strtr(Theme::$current->settings['page_index']['page'], array('{URL}' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0;all')), '', Lang::$txt['all']);
+		}
+		else
+			$pages = '';
+
+		// We need to check the topic icons exist...
+		if (!empty(Config::$modSettings['messageIconChecks_enable']))
+		{
+			if (!isset(Utils::$context['icon_sources'][$row['first_icon']]))
+				Utils::$context['icon_sources'][$row['first_icon']] = file_exists(Theme::$current->settings['theme_dir'] . '/images/post/' . $row['first_icon'] . '.png') ? 'images_url' : 'default_images_url';
+			if (!isset(Utils::$context['icon_sources'][$row['last_icon']]))
+				Utils::$context['icon_sources'][$row['last_icon']] = file_exists(Theme::$current->settings['theme_dir'] . '/images/post/' . $row['last_icon'] . '.png') ? 'images_url' : 'default_images_url';
+		}
+		else
+		{
+			if (!isset(Utils::$context['icon_sources'][$row['first_icon']]))
+				Utils::$context['icon_sources'][$row['first_icon']] = 'images_url';
+			if (!isset(Utils::$context['icon_sources'][$row['last_icon']]))
+				Utils::$context['icon_sources'][$row['last_icon']] = 'images_url';
+		}
+
+		// Force the recycling icon if appropriate
+		if (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] == $row['id_board'])
+		{
+			$row['first_icon'] = 'recycled';
+			$row['last_icon'] = 'recycled';
+		}
+
+		// Is this topic pending approval, or does it have any posts pending approval?
+		if (!empty($row['unapproved_posts']) && allowedTo('approve_posts'))
+			$colorClass .= (!$row['approved'] ? ' approvetopic' : ' approvepost');
+
+		// Sticky topics should get a different color, too.
+		if ($row['is_sticky'])
+			$colorClass .= ' sticky';
+
+		// Locked topics get special treatment as well.
+		if ($row['locked'])
+			$colorClass .= ' locked';
+
+		// 'Print' the topic info.
+		Utils::$context['topics'][$row['id_topic']] = array_merge($row, array(
+			'id' => $row['id_topic'],
+			'first_post' => array(
+				'id' => $row['id_first_msg'],
+				'member' => array(
+					'username' => $row['first_member_name'],
+					'name' => $row['first_display_name'],
+					'id' => $row['first_id_member'],
+					'href' => !empty($row['first_id_member']) ? Config::$scripturl . '?action=profile;u=' . $row['first_id_member'] : '',
+					'link' => !empty($row['first_id_member']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['first_id_member'] . '" title="' . sprintf(Lang::$txt['view_profile_of_username'], $row['first_display_name']) . '" class="preview">' . $row['first_display_name'] . '</a>' : $row['first_display_name']
+				),
+				'time' => timeformat($row['first_poster_time']),
+				'timestamp' => $row['first_poster_time'],
+				'subject' => $row['first_subject'],
+				'preview' => $row['first_body'],
+				'icon' => $row['first_icon'],
+				'icon_url' => Theme::$current->settings[Utils::$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
+				'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0',
+				'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['first_subject'] . '</a>',
+			),
+			'last_post' => array(
+				'id' => $row['id_last_msg'],
+				'member' => array(
+					'username' => $row['last_member_name'],
+					'name' => $row['last_display_name'],
+					'id' => $row['last_id_member'],
+					'href' => !empty($row['last_id_member']) ? Config::$scripturl . '?action=profile;u=' . $row['last_id_member'] : '',
+					'link' => !empty($row['last_id_member']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['last_id_member'] . '">' . $row['last_display_name'] . '</a>' : $row['last_display_name']
+				),
+				'time' => timeformat($row['last_poster_time']),
+				'timestamp' => $row['last_poster_time'],
+				'subject' => $row['last_subject'],
+				'preview' => $row['last_body'],
+				'icon' => $row['last_icon'],
+				'icon_url' => Theme::$current->settings[Utils::$context['icon_sources'][$row['last_icon']]] . '/post/' . $row['last_icon'] . '.png',
+				'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . (User::$me->is_guest ? ('.' . (!empty(Theme::$current->options['view_newest_first']) ? 0 : ((int) (($row['num_replies']) / Utils::$context['messages_per_page'])) * Utils::$context['messages_per_page']) . '#msg' . $row['id_last_msg']) : (($row['num_replies'] == 0 ? '.0' : '.msg' . $row['id_last_msg']) . '#new')),
+				'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . (User::$me->is_guest ? ('.' . (!empty(Theme::$current->options['view_newest_first']) ? 0 : ((int) (($row['num_replies']) / Utils::$context['messages_per_page'])) * Utils::$context['messages_per_page']) . '#msg' . $row['id_last_msg']) : (($row['num_replies'] == 0 ? '.0' : '.msg' . $row['id_last_msg']) . '#new')) . '" ' . ($row['num_replies'] == 0 ? '' : 'rel="nofollow"') . '>' . $row['last_subject'] . '</a>'
+			),
+			'is_sticky' => !empty($row['is_sticky']),
+			'is_locked' => !empty($row['locked']),
+			'is_redirect' => !empty($row['id_redirect_topic']),
+			'is_poll' => Config::$modSettings['pollMode'] == '1' && $row['id_poll'] > 0,
+			'is_posted_in' => !empty($row['is_posted_in']),
+			'is_watched' => false,
+			'icon' => $row['first_icon'],
+			'icon_url' => Theme::$current->settings[Utils::$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
+			'subject' => $row['first_subject'],
+			'new' => $row['new_from'] <= $row['id_msg_modified'],
+			'new_from' => $row['new_from'],
+			'newtime' => $row['new_from'],
+			'new_href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['new_from'] . '#new',
+			'pages' => $pages,
+			'replies' => Lang::numberFormat($row['num_replies']),
+			'views' => Lang::numberFormat($row['num_views']),
+			'approved' => $row['approved'],
+			'unapproved_posts' => $row['unapproved_posts'],
+			'css_class' => $colorClass,
+		));
+		if (!empty(Theme::$current->settings['avatars_on_indexes']))
+		{
+			// Last post member avatar
+			Utils::$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = User::setAvatarData(array(
+				'avatar' => $row['avatar'],
+				'email' => $row['email_address'],
+				'filename' => !empty($row['last_member_filename']) ? $row['last_member_filename'] : '',
+			));
+
+			// First post member avatar
+			Utils::$context['topics'][$row['id_topic']]['first_post']['member']['avatar'] = User::setAvatarData(array(
+				'avatar' => $row['first_member_avatar'],
+				'email' => $row['first_member_mail'],
+				'filename' => !empty($row['first_member_filename']) ? $row['first_member_filename'] : '',
+			));
+		}
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
@@ -478,7 +655,7 @@ class MessageIndex
 
 		$result = Db::$db->query('substring', '
 			SELECT
-				t.id_topic, t.num_replies, t.locked, t.num_views, t.is_sticky, t.id_poll, t.id_previous_board,
+				t.id_topic, t.num_replies, t.locked, t.num_views, t.is_sticky, t.id_poll, t.id_board, t.id_previous_board,
 				' . (User::$me->is_guest ? '0' : 'COALESCE(lt.id_msg, COALESCE(lmr.id_msg, -1)) + 1') . ' AS new_from,
 				' . ($enableParticipation ? ' COALESCE(( SELECT 1 FROM {db_prefix}messages AS parti WHERE t.id_topic = parti.id_topic and parti.id_member = {int:current_member} LIMIT 1) , 0) as is_posted_in,
 				' : '') . '
@@ -516,169 +693,7 @@ class MessageIndex
 
 			$topic_ids[] = $row['id_topic'];
 
-			// Reference the main color class.
-			$colorClass = 'windowbg';
-
-			// Does the theme support message previews?
-			if (!empty(Config::$modSettings['preview_characters']))
-			{
-				// Limit them to Config::$modSettings['preview_characters'] characters
-				$row['first_body'] = strip_tags(strtr(BBCodeParser::load()->parse($row['first_body'], $row['first_smileys'], $row['id_first_msg']), array('<br>' => '&#10;')));
-				if (Utils::entityStrlen($row['first_body']) > Config::$modSettings['preview_characters'])
-					$row['first_body'] = Utils::entitySubstr($row['first_body'], 0, Config::$modSettings['preview_characters']) . '...';
-
-				// Censor the subject and message preview.
-				Lang::censorText($row['first_subject']);
-				Lang::censorText($row['first_body']);
-
-				// Don't censor them twice!
-				if ($row['id_first_msg'] == $row['id_last_msg'])
-				{
-					$row['last_subject'] = $row['first_subject'];
-					$row['last_body'] = $row['first_body'];
-				}
-				else
-				{
-					$row['last_body'] = strip_tags(strtr(BBCodeParser::load()->parse($row['last_body'], $row['last_smileys'], $row['id_last_msg']), array('<br>' => '&#10;')));
-					if (Utils::entityStrlen($row['last_body']) > Config::$modSettings['preview_characters'])
-						$row['last_body'] = Utils::entitySubstr($row['last_body'], 0, Config::$modSettings['preview_characters']) . '...';
-
-					Lang::censorText($row['last_subject']);
-					Lang::censorText($row['last_body']);
-				}
-			}
-			else
-			{
-				$row['first_body'] = '';
-				$row['last_body'] = '';
-				Lang::censorText($row['first_subject']);
-
-				if ($row['id_first_msg'] == $row['id_last_msg'])
-					$row['last_subject'] = $row['first_subject'];
-				else
-					Lang::censorText($row['last_subject']);
-			}
-
-			// Decide how many pages the topic should have.
-			if ($row['num_replies'] + 1 > Utils::$context['messages_per_page'])
-			{
-				// We can't pass start by reference.
-				$start = -1;
-				$pages = constructPageIndex(Config::$scripturl . '?topic=' . $row['id_topic'] . '.%1$d', $start, $row['num_replies'] + 1, Utils::$context['messages_per_page'], true, false);
-
-				// If we can use all, show all.
-				if (!empty(Config::$modSettings['enableAllMessages']) && $row['num_replies'] + 1 < Config::$modSettings['enableAllMessages'])
-					$pages .= sprintf(strtr(Theme::$current->settings['page_index']['page'], array('{URL}' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0;all')), '', Lang::$txt['all']);
-			}
-			else
-				$pages = '';
-
-			// We need to check the topic icons exist...
-			if (!empty(Config::$modSettings['messageIconChecks_enable']))
-			{
-				if (!isset(Utils::$context['icon_sources'][$row['first_icon']]))
-					Utils::$context['icon_sources'][$row['first_icon']] = file_exists(Theme::$current->settings['theme_dir'] . '/images/post/' . $row['first_icon'] . '.png') ? 'images_url' : 'default_images_url';
-				if (!isset(Utils::$context['icon_sources'][$row['last_icon']]))
-					Utils::$context['icon_sources'][$row['last_icon']] = file_exists(Theme::$current->settings['theme_dir'] . '/images/post/' . $row['last_icon'] . '.png') ? 'images_url' : 'default_images_url';
-			}
-			else
-			{
-				if (!isset(Utils::$context['icon_sources'][$row['first_icon']]))
-					Utils::$context['icon_sources'][$row['first_icon']] = 'images_url';
-				if (!isset(Utils::$context['icon_sources'][$row['last_icon']]))
-					Utils::$context['icon_sources'][$row['last_icon']] = 'images_url';
-			}
-
-			if (!empty(Board::$info->recycle))
-				$row['first_icon'] = 'recycled';
-
-			// Is this topic pending approval, or does it have any posts pending approval?
-			if (allowedTo('approve_posts') && $row['unapproved_posts'])
-				$colorClass .= (!$row['approved'] ? ' approvetopic' : ' approvepost');
-
-			// Sticky topics should get a different color, too.
-			if ($row['is_sticky'])
-				$colorClass .= ' sticky';
-
-			// Locked topics get special treatment as well.
-			if ($row['locked'])
-				$colorClass .= ' locked';
-
-			// 'Print' the topic info.
-			Utils::$context['topics'][$row['id_topic']] = array_merge($row, array(
-				'id' => $row['id_topic'],
-				'first_post' => array(
-					'id' => $row['id_first_msg'],
-					'member' => array(
-						'username' => $row['first_member_name'],
-						'name' => $row['first_display_name'],
-						'id' => $row['first_id_member'],
-						'href' => !empty($row['first_id_member']) ? Config::$scripturl . '?action=profile;u=' . $row['first_id_member'] : '',
-						'link' => !empty($row['first_id_member']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['first_id_member'] . '" title="' . sprintf(Lang::$txt['view_profile_of_username'], $row['first_display_name']) . '" class="preview">' . $row['first_display_name'] . '</a>' : $row['first_display_name']
-					),
-					'time' => timeformat($row['first_poster_time']),
-					'timestamp' => $row['first_poster_time'],
-					'subject' => $row['first_subject'],
-					'preview' => $row['first_body'],
-					'icon' => $row['first_icon'],
-					'icon_url' => Theme::$current->settings[Utils::$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
-					'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0',
-					'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['first_subject'] . '</a>',
-				),
-				'last_post' => array(
-					'id' => $row['id_last_msg'],
-					'member' => array(
-						'username' => $row['last_member_name'],
-						'name' => $row['last_display_name'],
-						'id' => $row['last_id_member'],
-						'href' => !empty($row['last_id_member']) ? Config::$scripturl . '?action=profile;u=' . $row['last_id_member'] : '',
-						'link' => !empty($row['last_id_member']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['last_id_member'] . '">' . $row['last_display_name'] . '</a>' : $row['last_display_name']
-					),
-					'time' => timeformat($row['last_poster_time']),
-					'timestamp' => $row['last_poster_time'],
-					'subject' => $row['last_subject'],
-					'preview' => $row['last_body'],
-					'icon' => $row['last_icon'],
-					'icon_url' => Theme::$current->settings[Utils::$context['icon_sources'][$row['last_icon']]] . '/post/' . $row['last_icon'] . '.png',
-					'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . (User::$me->is_guest ? ('.' . (!empty(Theme::$current->options['view_newest_first']) ? 0 : ((int) (($row['num_replies']) / Utils::$context['messages_per_page'])) * Utils::$context['messages_per_page']) . '#msg' . $row['id_last_msg']) : (($row['num_replies'] == 0 ? '.0' : '.msg' . $row['id_last_msg']) . '#new')),
-					'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . (User::$me->is_guest ? ('.' . (!empty(Theme::$current->options['view_newest_first']) ? 0 : ((int) (($row['num_replies']) / Utils::$context['messages_per_page'])) * Utils::$context['messages_per_page']) . '#msg' . $row['id_last_msg']) : (($row['num_replies'] == 0 ? '.0' : '.msg' . $row['id_last_msg']) . '#new')) . '" ' . ($row['num_replies'] == 0 ? '' : 'rel="nofollow"') . '>' . $row['last_subject'] . '</a>'
-				),
-				'is_sticky' => !empty($row['is_sticky']),
-				'is_locked' => !empty($row['locked']),
-				'is_redirect' => !empty($row['id_redirect_topic']),
-				'is_poll' => Config::$modSettings['pollMode'] == '1' && $row['id_poll'] > 0,
-				'is_posted_in' => ($enableParticipation ? $row['is_posted_in'] : false),
-				'is_watched' => false,
-				'icon' => $row['first_icon'],
-				'icon_url' => Theme::$current->settings[Utils::$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
-				'subject' => $row['first_subject'],
-				'new' => $row['new_from'] <= $row['id_msg_modified'],
-				'new_from' => $row['new_from'],
-				'newtime' => $row['new_from'],
-				'new_href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['new_from'] . '#new',
-				'pages' => $pages,
-				'replies' => Lang::numberFormat($row['num_replies']),
-				'views' => Lang::numberFormat($row['num_views']),
-				'approved' => $row['approved'],
-				'unapproved_posts' => $row['unapproved_posts'],
-				'css_class' => $colorClass,
-			));
-			if (!empty(Theme::$current->settings['avatars_on_indexes']))
-			{
-				// Last post member avatar
-				Utils::$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = User::setAvatarData(array(
-					'avatar' => $row['avatar'],
-					'email' => $row['email_address'],
-					'filename' => !empty($row['last_member_filename']) ? $row['last_member_filename'] : '',
-				));
-
-				// First post member avatar
-				Utils::$context['topics'][$row['id_topic']]['first_post']['member']['avatar'] = User::setAvatarData(array(
-					'avatar' => $row['first_member_avatar'],
-					'email' => $row['first_member_mail'],
-					'filename' => !empty($row['first_member_filename']) ? $row['first_member_filename'] : '',
-				));
-			}
+			self::buildTopicContext($row);
 		}
 		Db::$db->free_result($result);
 

@@ -47,7 +47,7 @@ function template_recent()
 				<h5>', $post['board']['link'], ' / ', $post['link'], '</h5>
 				<span class="smalltext">', Lang::$txt['last_poster'], ' <strong>', $post['poster']['link'], ' </strong> - ', $post['time'], '</span>
 			</div>
-			<div class="list_posts">', $post['message'], '</div>';
+			<div class="list_posts">', $post['body'], '</div>';
 
 		// Post options
 		template_quickbuttons($post['quickbuttons'], 'recent');
@@ -121,15 +121,9 @@ function template_unread()
 			<div id="unread">
 				<div id="topic_header" class="title_bar">
 					<div class="board_icon"></div>
-					<div class="info">
-						<a href="', Config::$scripturl, '?action=unread', Utils::$context['showing_all_topics'] ? ';all' : '', Utils::$context['querystring_board_limits'], ';sort=subject', Utils::$context['sort_by'] == 'subject' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', '">', Lang::$txt['subject'], Utils::$context['sort_by'] == 'subject' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
-					</div>
-					<div class="board_stats centertext">
-						<a href="', Config::$scripturl, '?action=unread', Utils::$context['showing_all_topics'] ? ';all' : '', Utils::$context['querystring_board_limits'], ';sort=replies', Utils::$context['sort_by'] == 'replies' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', '">', Lang::$txt['replies'], Utils::$context['sort_by'] == 'replies' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
-					</div>
-					<div class="lastpost">
-						<a href="', Config::$scripturl, '?action=unread', Utils::$context['showing_all_topics'] ? ';all' : '', Utils::$context['querystring_board_limits'], ';sort=last_post', Utils::$context['sort_by'] == 'last_post' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', '">', Lang::$txt['last_post'], Utils::$context['sort_by'] == 'last_post' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
-					</div>';
+					<div class="info">', Utils::$context['topics_headers']['subject'], ' / ', Utils::$context['topics_headers']['starter'], '</div>
+					<div class="board_stats centertext">', Utils::$context['topics_headers']['replies'], ' / ', Utils::$context['topics_headers']['views'], '</div>
+					<div class="lastpost">', Utils::$context['topics_headers']['last_post'],'</div>';
 
 		// Show a "select all" box for quick moderation?
 		if (Utils::$context['showCheckboxes'])
@@ -306,15 +300,9 @@ function template_replies()
 			<div id="unreadreplies">
 				<div id="topic_header" class="title_bar">
 					<div class="board_icon"></div>
-					<div class="info">
-						<a href="', Config::$scripturl, '?action=unreadreplies', Utils::$context['querystring_board_limits'], ';sort=subject', Utils::$context['sort_by'] === 'subject' && Utils::$context['sort_direction'] === 'up' ? ';desc' : '', '">', Lang::$txt['subject'], Utils::$context['sort_by'] === 'subject' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
-					</div>
-					<div class="board_stats centertext">
-						<a href="', Config::$scripturl, '?action=unreadreplies', Utils::$context['querystring_board_limits'], ';sort=replies', Utils::$context['sort_by'] === 'replies' && Utils::$context['sort_direction'] === 'up' ? ';desc' : '', '">', Lang::$txt['replies'], Utils::$context['sort_by'] === 'replies' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
-					</div>
-					<div class="lastpost">
-						<a href="', Config::$scripturl, '?action=unreadreplies', Utils::$context['querystring_board_limits'], ';sort=last_post', Utils::$context['sort_by'] === 'last_post' && Utils::$context['sort_direction'] === 'up' ? ';desc' : '', '">', Lang::$txt['last_post'], Utils::$context['sort_by'] === 'last_post' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
-					</div>';
+					<div class="info">', Utils::$context['topics_headers']['subject'], ' / ', Utils::$context['topics_headers']['starter'], '</div>
+					<div class="board_stats centertext">', Utils::$context['topics_headers']['replies'], ' / ', Utils::$context['topics_headers']['views'], '</div>
+					<div class="lastpost">', Utils::$context['topics_headers']['last_post'],'</div>';
 
 		// Show a "select all" box for quick moderation?
 		if (Utils::$context['showCheckboxes'])
