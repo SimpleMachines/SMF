@@ -19,15 +19,15 @@ preserve_hierarchy: true
 #
 files: [
  {
-  source: "Themes/default/languages/Admin.english.php",
+  source: "/Themes/default/languages/Admin.english.php",
   translation: "%locale%/Themes/default/languages/Admin.%language%.php",
  },
  {
-  source: "Themes/default/languages/Agreement.english.php",
+  source: "/Themes/default/languages/Agreement.english.php",
   translation: "%locale%/Themes/default/languages/Agreement.%language%.php",
  },
  {
-  source: "Themes/default/languages/Alerts.english.php",
+  source: "/Themes/default/languages/Alerts.english.php",
   translation: "%locale%/Themes/default/languages/Alerts.%language%.php",
  },
  {
