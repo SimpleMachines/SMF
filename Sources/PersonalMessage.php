@@ -3275,7 +3275,7 @@ function ManageLabels()
 	$labels_to_remove = array();
 	$label_updates = array();
 
-	// Add all existing labels to the array to save, slashing them as necessary...
+	// Add all of the current user's existing labels to the array to save, slashing them as necessary...
 	foreach ($context['labels'] as $label)
 	{
 		if ($label['id'] != -1)
@@ -3311,8 +3311,11 @@ function ManageLabels()
 		{
 			foreach ($_POST['delete_label'] AS $label => $dummy)
 			{
-				unset($the_labels[$label]);
-				$labels_to_remove[] = $label;
+				if (array_key_exists($label, $the_labels))
+				{
+					unset($the_labels[$label]);
+					$labels_to_remove[] = $label;
+				}
 			}
 		}
 		// The hardest one to deal with... changes.
@@ -3364,10 +3367,12 @@ function ManageLabels()
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}pm_labels
 					SET name = {string:name}
-					WHERE id_label = {int:id_label}',
+					WHERE id_label = {int:id_label}
+					AND id_member = {int:current_member}',
 					array(
 						'name' => $name,
-						'id_label' => $id
+						'id_label' => $id,
+						'current_member' => $user_info['id'],
 					)
 				);
 			}
@@ -3379,9 +3384,11 @@ function ManageLabels()
 			// First delete the labels
 			$smcFunc['db_query']('', '
 				DELETE FROM {db_prefix}pm_labels
-				WHERE id_label IN ({array_int:labels_to_delete})',
+				WHERE id_label IN ({array_int:labels_to_delete})
+				AND id_member = {int:current_member}',
 				array(
 					'labels_to_delete' => $labels_to_remove,
+					'current_member' => $user_info['id'],
 				)
 			);
 
