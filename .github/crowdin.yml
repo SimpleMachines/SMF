@@ -5,7 +5,7 @@
 #
 project_id_env: CROWDIN_PROJECT_ID
 api_token_env: CROWDIN_API_TOKEN
-base_path : "."
+base_path : "../."
 base_url : "https://api.crowdin.com"
 
 #
@@ -19,15 +19,15 @@ preserve_hierarchy: true
 #
 files: [
  {
-  source: "/Themes/default/languages/Admin.english.php",
+  source: "Themes/default/languages/Admin.english.php",
   translation: "%locale%/Themes/default/languages/Admin.%language%.php",
  },
  {
-  source: "/Themes/default/languages/Agreement.english.php",
+  source: "Themes/default/languages/Agreement.english.php",
   translation: "%locale%/Themes/default/languages/Agreement.%language%.php",
  },
  {
-  source: "/Themes/default/languages/Alerts.english.php",
+  source: "Themes/default/languages/Alerts.english.php",
   translation: "%locale%/Themes/default/languages/Alerts.%language%.php",
  },
  {
