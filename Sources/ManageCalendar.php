@@ -184,7 +184,7 @@ function ModifyHolidays()
 		),
 	);
 
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 	createList($listOptions);
 
 	//loadTemplate('ManageCalendar');

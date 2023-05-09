@@ -140,7 +140,7 @@ function EditNews()
 	}
 
 	// We're going to want this for making our list.
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 
 	Utils::$context['page_title'] = Lang::$txt['admin_edit_news'];
 

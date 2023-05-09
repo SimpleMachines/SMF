@@ -1999,7 +1999,7 @@ function list_integration_hooks()
 		'name' => 'list_integration_hooks',
 	);
 
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 	createList($list_options);
 
 	Utils::$context['page_title'] = Lang::$txt['hooks_title_list'];

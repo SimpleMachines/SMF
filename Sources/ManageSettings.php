@@ -1456,7 +1456,7 @@ function ShowCustomProfiles()
 	// Need to know the max order for custom fields
 	Utils::$context['custFieldsMaxOrder'] = custFieldsMaxOrder();
 
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 
 	$listOptions = array(
 		'id' => 'standard_profile_fields',

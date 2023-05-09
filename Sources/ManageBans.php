@@ -293,7 +293,7 @@ function BanList()
 		});',
 	);
 
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 	createList($listOptions);
 
 	Utils::$context['sub_template'] = 'show_list';
@@ -385,7 +385,7 @@ function BanEdit()
 			Utils::$context['ban_group_id'] = $ban_group_id;
 
 			// We're going to want this for making our list.
-			require_once(Config::$sourcedir . '/Subs-List.php');
+			require_once(Config::$sourcedir . '/ItemList.php');
 
 			$listOptions = array(
 				'id' => 'ban_items',
@@ -1887,7 +1887,7 @@ function BanBrowseTriggers()
 	}
 
 	// Create the list.
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 	createList($listOptions);
 
 	// The list is the only thing to show, so make it the default sub template.
@@ -2110,7 +2110,7 @@ function BanLog()
 
 	createToken('admin-bl');
 
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 	createList($listOptions);
 
 	Utils::$context['page_title'] = Lang::$txt['ban_log'];

@@ -214,7 +214,7 @@ function BrowseMailQueue()
 		),
 	);
 
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 	createList($listOptions);
 
 	Theme::loadTemplate('ManageMail');

@@ -185,7 +185,7 @@ function MembergroupIndex()
 		),
 	);
 
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 	createList($listOptions);
 
 	// The second list shows the post count based groups.

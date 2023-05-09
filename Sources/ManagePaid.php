@@ -439,7 +439,7 @@ function ViewSubscriptions()
 		),
 	);
 
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 	createList($listOptions);
 
 	Utils::$context['sub_template'] = 'show_list';
@@ -993,7 +993,7 @@ function ViewSubscribedUsers()
 		),
 	);
 
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 	createList($listOptions);
 
 	Utils::$context['sub_template'] = 'show_list';

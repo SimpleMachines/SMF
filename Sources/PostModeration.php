@@ -389,7 +389,7 @@ function UnapprovedAttachments()
 		}
 	}
 
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 
 	$listOptions = array(
 		'id' => 'mc_unapproved_attach',

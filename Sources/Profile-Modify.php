@@ -2560,7 +2560,7 @@ function alert_notifications_topics($memID)
 	createToken(Utils::$context['token_check'], 'post');
 
 	// Gonna want this for the list.
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 
 	// Do the topic notifications.
 	$listOptions = array(
@@ -2717,7 +2717,7 @@ function alert_notifications_boards($memID)
 	createToken(Utils::$context['token_check'], 'post');
 
 	// Gonna want this for the list.
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 
 	// Fine, start with the board list.
 	$listOptions = array(
