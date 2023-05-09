@@ -788,7 +788,7 @@ function ViewWatchedUsers()
 			$approve_query = ' AND 1=0';
 	}
 
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 
 	// This is all the information required for a watched user listing.
 	$listOptions = array(
@@ -1245,7 +1245,7 @@ function ViewWarningLog()
 		'label' => $searchTypes[$search_params_type]['label'],
 	);
 
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 
 	// This is all the information required for a watched user listing.
 	$listOptions = array(
@@ -1469,7 +1469,7 @@ function ViewWarningTemplates()
 	// Setup context as always.
 	Utils::$context['page_title'] = Lang::$txt['mc_warning_templates_title'];
 
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 
 	// This is all the information required for a watched user listing.
 	$listOptions = array(

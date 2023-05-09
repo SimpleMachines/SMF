@@ -127,7 +127,7 @@ class Groups implements ActionInterface
 		Utils::$context['page_title'] = Lang::$txt['viewing_groups'];
 
 		// Making a list is not hard with this beauty.
-		require_once(Config::$sourcedir . '/Subs-List.php');
+		require_once(Config::$sourcedir . '/ItemList.php');
 
 		// Use the standard templates for showing this.
 		$listOptions = array(
@@ -637,7 +637,7 @@ class Groups implements ActionInterface
 		}
 
 		// We're going to want this for making our list.
-		require_once(Config::$sourcedir . '/Subs-List.php');
+		require_once(Config::$sourcedir . '/ItemList.php');
 
 		// This is all the information required for a group listing.
 		$listOptions = array(

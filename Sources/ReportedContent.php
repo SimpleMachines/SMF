@@ -297,7 +297,7 @@ function ReportDetails()
 
 	// What have the other moderators done to this message?
 	require_once(Config::$sourcedir . '/Modlog.php');
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 	Lang::load('Modlog');
 
 	// Parameters are slightly different depending on what we're doing here...

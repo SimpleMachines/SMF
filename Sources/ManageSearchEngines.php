@@ -318,7 +318,7 @@ function ViewSpiders()
 		),
 	);
 
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 	createList($listOptions);
 
 	Utils::$context['sub_template'] = 'show_list';
@@ -771,7 +771,7 @@ function SpiderLogs()
 
 	createToken('admin-sl');
 
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 	createList($listOptions);
 
 	// Now determine the actions of the URLs.
@@ -1020,7 +1020,7 @@ function SpiderStats()
 
 	createToken('admin-ss');
 
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 	createList($listOptions);
 
 	Utils::$context['sub_template'] = 'show_spider_stats';

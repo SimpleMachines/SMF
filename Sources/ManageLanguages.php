@@ -129,7 +129,7 @@ function AddLanguage()
 			),
 		);
 
-		require_once(Config::$sourcedir . '/Subs-List.php');
+		require_once(Config::$sourcedir . '/ItemList.php');
 		createList($listOptions);
 
 		Utils::$context['default_list'] = 'smf_languages';
@@ -480,7 +480,7 @@ function DownloadLanguage()
 		CacheApi::put('known_languages_all', null, !empty(CacheApi::$enable) && CacheApi::$enable < 1 ? 86400 : 3600);
 	}
 
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 	createList($listOptions);
 
 	Utils::$context['default_list'] = 'lang_main_files_list';
@@ -628,7 +628,7 @@ function ModifyLanguages()
 			'class' => 'smalltext alert',
 		);
 
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 	createList($listOptions);
 
 	Utils::$context['sub_template'] = 'show_list';

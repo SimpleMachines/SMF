@@ -654,7 +654,7 @@ class SubsPackage
 			}
 
 			// Create the list for display.
-			require_once(Config::$sourcedir . '/Subs-List.php');
+			require_once(Config::$sourcedir . '/ItemList.php');
 			createList($listOptions);
 
 			// If we just restored permissions then whereever we are, we are now done and dusted.

@@ -1488,7 +1488,7 @@ class PackageManager
 
 		call_integration_hook('integrate_modification_types');
 
-		require_once(Config::$sourcedir . '/Subs-List.php');
+		require_once(Config::$sourcedir . '/ItemList.php');
 
 		foreach (Utils::$context['modification_types'] as $type)
 		{

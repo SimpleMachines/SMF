@@ -522,7 +522,7 @@ function EditSmileySets()
 		),
 	);
 
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 	createList($listOptions);
 }
 
@@ -1377,7 +1377,7 @@ function EditSmileys()
 				}',
 		);
 
-		require_once(Config::$sourcedir . '/Subs-List.php');
+		require_once(Config::$sourcedir . '/ItemList.php');
 		createList($listOptions);
 
 		// The list is the only thing to show, so make it the main template.
@@ -2388,7 +2388,7 @@ function EditMessageIcons()
 		),
 	);
 
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 	createList($listOptions);
 
 	// If we're adding/editing an icon we'll need a list of boards

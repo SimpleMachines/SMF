@@ -623,7 +623,7 @@ function ViewMemberlist()
 	if (!allowedTo('profile_remove_any'))
 		unset($listOptions['cols']['check'], $listOptions['form'], $listOptions['additional_rows']);
 
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 	createList($listOptions);
 
 	Utils::$context['sub_template'] = 'show_list';
@@ -1022,7 +1022,7 @@ function MembersAwaitingActivation()
 		);
 
 	// Now that we have all the options, create the list.
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 	createList($listOptions);
 }
 

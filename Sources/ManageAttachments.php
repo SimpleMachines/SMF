@@ -591,7 +591,7 @@ function BrowseFiles()
 	$listOptions['title'] = $list_title;
 
 	// Create the list.
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 	createList($listOptions);
 
 	Utils::$context['sub_template'] = 'show_list';
@@ -2319,7 +2319,7 @@ function ManageAttachmentPaths()
 			),
 		),
 	);
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 	createList($listOptions);
 
 	if (!empty(Config::$modSettings['attachment_basedirectories']))

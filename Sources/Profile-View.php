@@ -1217,7 +1217,7 @@ function showAttachments($memID)
 	if (empty($boardsAllowed))
 		$boardsAllowed = array(-1);
 
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 
 	// This is all the information required to list attachments.
 	$listOptions = array(
@@ -1434,7 +1434,7 @@ function showUnwatched($memID)
 	if (User::$me->id != $memID)
 		return;
 
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 
 	// And here they are: the topics you don't like
 	$listOptions = array(
@@ -1995,7 +1995,7 @@ function trackActivity($memID)
 	);
 
 	// Create the list for viewing.
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 	createList($listOptions);
 
 	// @todo cache this
@@ -2320,7 +2320,7 @@ function TrackIP($memID = 0)
 	$maxPerPage = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
 
 	// Gonna want this for the list.
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 
 	// Start with the user messages.
 	$listOptions = array(
@@ -2534,7 +2534,7 @@ function TrackIP($memID = 0)
 function TrackLogins($memID = 0)
 {
 	// Gonna want this for the list.
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 
 	if ($memID == 0)
 		Utils::$context['base_url'] = Config::$scripturl . '?action=trackip';
@@ -2663,7 +2663,7 @@ function list_getLogins($start, $items_per_page, $sort, $where, $where_vars = ar
  */
 function trackEdits($memID)
 {
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 
 	// Get the names of any custom fields.
 	$request = Db::$db->query('', '
@@ -2875,7 +2875,7 @@ function list_getProfileEdits($start, $items_per_page, $sort, $memID)
  */
 function trackGroupReq($memID)
 {
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 
 	// Set the options for the error lists.
 	$listOptions = array(
@@ -3225,7 +3225,7 @@ function viewWarning($memID)
 	Config::$modSettings['warning_mute'] = !empty(Config::$modSettings['warning_mute']) ? Config::$modSettings['warning_mute'] : 110;
 
 	// Let's use a generic list to get all the current warnings, and use the issue warnings grab-a-granny thing.
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 	require_once(Config::$sourcedir . '/Profile-Actions.php');
 
 	$listOptions = array(
@@ -3293,7 +3293,7 @@ function viewWarning($memID)
 	);
 
 	// Create the list for viewing.
-	require_once(Config::$sourcedir . '/Subs-List.php');
+	require_once(Config::$sourcedir . '/ItemList.php');
 	createList($listOptions);
 
 	// Create some common text bits for the template.
