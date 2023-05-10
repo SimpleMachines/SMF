@@ -15,6 +15,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\ItemList;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\Theme;
@@ -260,9 +261,6 @@ function issueWarning($memID)
 
 	Utils::$context['page_title'] = Lang::$txt['profile_issue_warning'];
 
-	// Let's use a generic list to get all the current warnings
-	require_once(Config::$sourcedir . '/ItemList.php');
-
 	// Work our the various levels.
 	Utils::$context['level_effects'] = array(
 		0 => Lang::$txt['profile_warning_effect_none'],
@@ -363,8 +361,7 @@ function issueWarning($memID)
 	);
 
 	// Create the list for viewing.
-	require_once(Config::$sourcedir . '/ItemList.php');
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	// Are they warning because of a message?
 	if (isset($_REQUEST['msg']) && 0 < (int) $_REQUEST['msg'])

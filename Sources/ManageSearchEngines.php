@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\ItemList;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\Utils;
@@ -318,15 +319,14 @@ function ViewSpiders()
 		),
 	);
 
-	require_once(Config::$sourcedir . '/ItemList.php');
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	Utils::$context['sub_template'] = 'show_list';
 	Utils::$context['default_list'] = 'spider_list';
 }
 
 /**
- * Callback function for createList()
+ * Callback function for SMF\ItemList()
  *
  * @param int $start The item to start with (for pagination purposes)
  * @param int $items_per_page The number of items to show per page
@@ -355,7 +355,7 @@ function list_getSpiders($start, $items_per_page, $sort)
 }
 
 /**
- * Callback function for createList()
+ * Callback function for SMF\ItemList()
  *
  * @return int The number of known spiders
  */
@@ -771,8 +771,7 @@ function SpiderLogs()
 
 	createToken('admin-sl');
 
-	require_once(Config::$sourcedir . '/ItemList.php');
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	// Now determine the actions of the URLs.
 	if (!empty(Utils::$context['spider_logs']['rows']))
@@ -808,7 +807,7 @@ function SpiderLogs()
 }
 
 /**
- * Callback function for createList()
+ * Callback function for SMF\ItemList()
  *
  * @param int $start The item to start with (for pagination purposes)
  * @param int $items_per_page How many items to show per page
@@ -838,7 +837,7 @@ function list_getSpiderLogs($start, $items_per_page, $sort)
 }
 
 /**
- * Callback function for createList()
+ * Callback function for SMF\ItemList()
  *
  * @return int The number of spider log entries
  */
@@ -1020,15 +1019,14 @@ function SpiderStats()
 
 	createToken('admin-ss');
 
-	require_once(Config::$sourcedir . '/ItemList.php');
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	Utils::$context['sub_template'] = 'show_spider_stats';
 	Utils::$context['default_list'] = 'spider_stat_list';
 }
 
 /**
- * Callback function for createList()
+ * Callback function for SMF\ItemList()
  * Get a list of spider stats from the log_spider table
  *
  * @param int $start The item to start with (for pagination purposes)
@@ -1059,7 +1057,7 @@ function list_getSpiderStats($start, $items_per_page, $sort)
 }
 
 /**
- * Callback function for createList()
+ * Callback function for SMF\ItemList()
  * Get the number of spider stat rows from the log spider stats table
  *
  * @return int The number of rows in the log_spider_stats table

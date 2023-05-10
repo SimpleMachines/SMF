@@ -15,6 +15,7 @@ namespace SMF\PackageManager;
 
 use SMF\BackwardCompatibility;
 use SMF\Config;
+use SMF\ItemList;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\Utils;
@@ -654,8 +655,7 @@ class SubsPackage
 			}
 
 			// Create the list for display.
-			require_once(Config::$sourcedir . '/ItemList.php');
-			createList($listOptions);
+			new ItemList($listOptions);
 
 			// If we just restored permissions then whereever we are, we are now done and dusted.
 			if (!empty($_POST['restore_perms']))

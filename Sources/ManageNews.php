@@ -15,6 +15,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\ItemList;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\Mail;
@@ -90,7 +91,7 @@ function ManageNews()
  * Requires the edit_news permission.
  * Can be accessed with ?action=admin;sa=editnews.
  *
- * Uses a standard list (@see createList())
+ * Uses a standard list (@see SMF\ItemList())
  */
 function EditNews()
 {
@@ -138,9 +139,6 @@ function EditNews()
 		// Log this into the moderation log.
 		logAction('news');
 	}
-
-	// We're going to want this for making our list.
-	require_once(Config::$sourcedir . '/ItemList.php');
 
 	Utils::$context['page_title'] = Lang::$txt['admin_edit_news'];
 
@@ -275,7 +273,7 @@ function EditNews()
 	);
 
 	// Create the request list.
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	// And go!
 	Theme::loadTemplate('ManageNews');

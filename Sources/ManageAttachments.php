@@ -17,6 +17,7 @@
 
 use SMF\Attachment;
 use SMF\Config;
+use SMF\ItemList;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -591,8 +592,7 @@ function BrowseFiles()
 	$listOptions['title'] = $list_title;
 
 	// Create the list.
-	require_once(Config::$sourcedir . '/ItemList.php');
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	Utils::$context['sub_template'] = 'show_list';
 	Utils::$context['default_list'] = 'file_list';
@@ -2319,8 +2319,7 @@ function ManageAttachmentPaths()
 			),
 		),
 	);
-	require_once(Config::$sourcedir . '/ItemList.php');
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	if (!empty(Config::$modSettings['attachment_basedirectories']))
 	{
@@ -2398,7 +2397,7 @@ function ManageAttachmentPaths()
 				),
 			),
 		);
-		createList($listOptions2);
+		new ItemList($listOptions2);
 	}
 
 	// Fix up our template.

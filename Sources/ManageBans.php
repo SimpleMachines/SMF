@@ -16,6 +16,7 @@
  */
 
 use SMF\Config;
+use SMF\ItemList;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -293,8 +294,7 @@ function BanList()
 		});',
 	);
 
-	require_once(Config::$sourcedir . '/ItemList.php');
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	Utils::$context['sub_template'] = 'show_list';
 	Utils::$context['default_list'] = 'ban_list';
@@ -383,9 +383,6 @@ function BanEdit()
 		if (!empty($ban_group_id))
 		{
 			Utils::$context['ban_group_id'] = $ban_group_id;
-
-			// We're going to want this for making our list.
-			require_once(Config::$sourcedir . '/ItemList.php');
 
 			$listOptions = array(
 				'id' => 'ban_items',
@@ -512,7 +509,7 @@ function BanEdit()
 
 			call_integration_hook('integrate_ban_edit_list', array(&$listOptions));
 
-			createList($listOptions);
+			new ItemList($listOptions);
 		}
 		// Not an existing one, then it's probably a new one.
 		else
@@ -1717,7 +1714,7 @@ function BanEditTrigger()
  * It is accessed by ?action=admin;area=ban;sa=browse
  * It uses sub-tabs for browsing by IP, hostname, email or username.
  *
- * Uses a standard list (@see createList())
+ * Uses a standard list (@see SMF\ItemList())
  */
 function BanBrowseTriggers()
 {
@@ -1887,8 +1884,7 @@ function BanBrowseTriggers()
 	}
 
 	// Create the list.
-	require_once(Config::$sourcedir . '/ItemList.php');
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	// The list is the only thing to show, so make it the default sub template.
 	Utils::$context['sub_template'] = 'show_list';
@@ -2110,8 +2106,7 @@ function BanLog()
 
 	createToken('admin-bl');
 
-	require_once(Config::$sourcedir . '/ItemList.php');
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	Utils::$context['page_title'] = Lang::$txt['ban_log'];
 	Utils::$context['sub_template'] = 'show_list';

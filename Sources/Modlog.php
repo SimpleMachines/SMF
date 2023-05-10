@@ -15,6 +15,7 @@
  */
 
 use SMF\Config;
+use SMF\ItemList;
 use SMF\Lang;
 use SMF\User;
 use SMF\Utils;
@@ -161,8 +162,6 @@ function ViewModlog()
 			}
 		}
 	}
-
-	require_once(Config::$sourcedir . '/ItemList.php');
 
 	// This is all the information required for a watched user listing.
 	$listOptions = array(
@@ -314,7 +313,7 @@ function ViewModlog()
 	createToken('mod-ml');
 
 	// Create the watched user list.
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	Utils::$context['sub_template'] = 'show_list';
 	Utils::$context['default_list'] = 'moderation_log_list';
@@ -332,7 +331,7 @@ function ViewModlog()
 
 /**
  * Get the number of mod log entries.
- * Callback for createList() in ViewModlog().
+ * Callback for SMF\ItemList() in ViewModlog().
  *
  * @param string $query_string An extra string for the WHERE clause in the query to further filter results
  * @param array $query_params An array of parameters for the query_string
@@ -368,7 +367,7 @@ function list_getModLogEntryCount($query_string = '', $query_params = array(), $
 
 /**
  * Gets the moderation log entries that match the specified parameters.
- * Callback for createList() in ViewModlog().
+ * Callback for SMF\ItemList() in ViewModlog().
  *
  * @param int $start The item to start with (for pagination purposes)
  * @param int $items_per_page The number of items to show per page

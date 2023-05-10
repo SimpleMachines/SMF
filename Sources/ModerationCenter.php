@@ -15,6 +15,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\ItemList;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\Theme;
@@ -788,8 +789,6 @@ function ViewWatchedUsers()
 			$approve_query = ' AND 1=0';
 	}
 
-	require_once(Config::$sourcedir . '/ItemList.php');
-
 	// This is all the information required for a watched user listing.
 	$listOptions = array(
 		'id' => 'watch_user_list',
@@ -927,14 +926,14 @@ function ViewWatchedUsers()
 	}
 
 	// Create the watched user list.
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	Utils::$context['sub_template'] = 'show_list';
 	Utils::$context['default_list'] = 'watch_user_list';
 }
 
 /**
- * Callback for createList().
+ * Callback for SMF\ItemList().
  *
  * @param string $approve_query Not used here
  * @return int The number of users on the watch list
@@ -956,7 +955,7 @@ function list_getWatchedUserCount($approve_query)
 }
 
 /**
- * Callback for createList().
+ * Callback for SMF\ItemList().
  *
  * @param int $start The item to start with (for pagination purposes)
  * @param int $items_per_page The number of items to show per page
@@ -1061,7 +1060,7 @@ function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $d
 }
 
 /**
- * Callback for createList().
+ * Callback for SMF\ItemList().
  *
  * @param string $approve_query A query to pull only approved items
  * @return int The total number of posts by watched users
@@ -1087,7 +1086,7 @@ function list_getWatchedUserPostsCount($approve_query)
 }
 
 /**
- * Callback for createList().
+ * Callback for SMF\ItemList().
  *
  * @param int $start The item to start with (for pagination purposes)
  * @param int $items_per_page The number of items to show per page
@@ -1245,8 +1244,6 @@ function ViewWarningLog()
 		'label' => $searchTypes[$search_params_type]['label'],
 	);
 
-	require_once(Config::$sourcedir . '/ItemList.php');
-
 	// This is all the information required for a watched user listing.
 	$listOptions = array(
 		'id' => 'warning_list',
@@ -1349,14 +1346,14 @@ function ViewWarningLog()
 	);
 
 	// Create the watched user list.
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	Utils::$context['sub_template'] = 'show_list';
 	Utils::$context['default_list'] = 'warning_list';
 }
 
 /**
- * Callback for createList().
+ * Callback for SMF\ItemList().
  *
  * @return int The total number of warnings that have been issued
  */
@@ -1377,7 +1374,7 @@ function list_getWarningCount()
 }
 
 /**
- * Callback for createList().
+ * Callback for SMF\ItemList().
  *
  * @param int $start The item to start with (for pagination purposes)
  * @param int $items_per_page The number of items to show per page
@@ -1468,8 +1465,6 @@ function ViewWarningTemplates()
 
 	// Setup context as always.
 	Utils::$context['page_title'] = Lang::$txt['mc_warning_templates_title'];
-
-	require_once(Config::$sourcedir . '/ItemList.php');
 
 	// This is all the information required for a watched user listing.
 	$listOptions = array(
@@ -1563,14 +1558,14 @@ function ViewWarningTemplates()
 
 	// Create the watched user list.
 	createToken('mod-wt');
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	Utils::$context['sub_template'] = 'show_list';
 	Utils::$context['default_list'] = 'warning_template_list';
 }
 
 /**
- * Callback for createList().
+ * Callback for SMF\ItemList().
  *
  * @return int The total number of warning templates
  */
@@ -1594,7 +1589,7 @@ function list_getWarningTemplateCount()
 }
 
 /**
- * Callback for createList().
+ * Callback for SMF\ItemList().
  *
  * @param int $start The item to start with (for pagination purposes)
  * @param int $items_per_page The number of items to show per page

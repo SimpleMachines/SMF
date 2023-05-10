@@ -14,6 +14,7 @@
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
+use SMF\ItemList;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -1217,8 +1218,6 @@ function showAttachments($memID)
 	if (empty($boardsAllowed))
 		$boardsAllowed = array(-1);
 
-	require_once(Config::$sourcedir . '/ItemList.php');
-
 	// This is all the information required to list attachments.
 	$listOptions = array(
 		'id' => 'attachments',
@@ -1322,7 +1321,7 @@ function showAttachments($memID)
 	);
 
 	// Create the request list.
-	createList($listOptions);
+	new ItemList($listOptions);
 }
 
 /**
@@ -1434,8 +1433,6 @@ function showUnwatched($memID)
 	if (User::$me->id != $memID)
 		return;
 
-	require_once(Config::$sourcedir . '/ItemList.php');
-
 	// And here they are: the topics you don't like
 	$listOptions = array(
 		'id' => 'unwatched_topics',
@@ -1537,7 +1534,7 @@ function showUnwatched($memID)
 	);
 
 	// Create the request list.
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	Utils::$context['sub_template'] = 'show_list';
 	Utils::$context['default_list'] = 'unwatched_topics';
@@ -1995,8 +1992,7 @@ function trackActivity($memID)
 	);
 
 	// Create the list for viewing.
-	require_once(Config::$sourcedir . '/ItemList.php');
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	// @todo cache this
 	// If this is a big forum, or a large posting user, let's limit the search.
@@ -2319,9 +2315,6 @@ function TrackIP($memID = 0)
 	// For messages we use the "messages per page" option
 	$maxPerPage = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
 
-	// Gonna want this for the list.
-	require_once(Config::$sourcedir . '/ItemList.php');
-
 	// Start with the user messages.
 	$listOptions = array(
 		'id' => 'track_message_list',
@@ -2408,7 +2401,7 @@ function TrackIP($memID = 0)
 	);
 
 	// Create the messages list.
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	// Set the options for the error lists.
 	$listOptions = array(
@@ -2496,7 +2489,7 @@ function TrackIP($memID = 0)
 	);
 
 	// Create the error list.
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	// Allow 3rd party integrations to add in their own lists or whatever.
 	Utils::$context['additional_track_lists'] = array();
@@ -2533,9 +2526,6 @@ function TrackIP($memID = 0)
  */
 function TrackLogins($memID = 0)
 {
-	// Gonna want this for the list.
-	require_once(Config::$sourcedir . '/ItemList.php');
-
 	if ($memID == 0)
 		Utils::$context['base_url'] = Config::$scripturl . '?action=trackip';
 	else
@@ -2594,7 +2584,7 @@ function TrackLogins($memID = 0)
 	);
 
 	// Create the messages list.
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	Utils::$context['sub_template'] = 'show_list';
 	Utils::$context['default_list'] = 'track_logins_list';
@@ -2663,8 +2653,6 @@ function list_getLogins($start, $items_per_page, $sort, $where, $where_vars = ar
  */
 function trackEdits($memID)
 {
-	require_once(Config::$sourcedir . '/ItemList.php');
-
 	// Get the names of any custom fields.
 	$request = Db::$db->query('', '
 		SELECT col_name, field_name, bbc
@@ -2749,7 +2737,7 @@ function trackEdits($memID)
 	);
 
 	// Create the error list.
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	Utils::$context['sub_template'] = 'show_list';
 	Utils::$context['default_list'] = 'edit_list';
@@ -2875,8 +2863,6 @@ function list_getProfileEdits($start, $items_per_page, $sort, $memID)
  */
 function trackGroupReq($memID)
 {
-	require_once(Config::$sourcedir . '/ItemList.php');
-
 	// Set the options for the error lists.
 	$listOptions = array(
 		'id' => 'request_list',
@@ -2939,7 +2925,7 @@ function trackGroupReq($memID)
 	);
 
 	// Create the error list.
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	Utils::$context['sub_template'] = 'show_list';
 	Utils::$context['default_list'] = 'request_list';
@@ -3225,7 +3211,6 @@ function viewWarning($memID)
 	Config::$modSettings['warning_mute'] = !empty(Config::$modSettings['warning_mute']) ? Config::$modSettings['warning_mute'] : 110;
 
 	// Let's use a generic list to get all the current warnings, and use the issue warnings grab-a-granny thing.
-	require_once(Config::$sourcedir . '/ItemList.php');
 	require_once(Config::$sourcedir . '/Profile-Actions.php');
 
 	$listOptions = array(
@@ -3293,8 +3278,7 @@ function viewWarning($memID)
 	);
 
 	// Create the list for viewing.
-	require_once(Config::$sourcedir . '/ItemList.php');
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	// Create some common text bits for the template.
 	Utils::$context['level_effects'] = array(

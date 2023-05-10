@@ -16,6 +16,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\ItemList;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -1456,8 +1457,6 @@ function ShowCustomProfiles()
 	// Need to know the max order for custom fields
 	Utils::$context['custFieldsMaxOrder'] = custFieldsMaxOrder();
 
-	require_once(Config::$sourcedir . '/ItemList.php');
-
 	$listOptions = array(
 		'id' => 'standard_profile_fields',
 		'title' => Lang::$txt['standard_profile_title'],
@@ -1523,7 +1522,7 @@ function ShowCustomProfiles()
 			),
 		),
 	);
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	$listOptions = array(
 		'id' => 'custom_profile_fields',
@@ -1663,7 +1662,7 @@ function ShowCustomProfiles()
 			),
 		),
 	);
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	// There are two different ways we could get to this point. To keep it simple, they both do
 	// the same basic thing.
@@ -1675,7 +1674,7 @@ function ShowCustomProfiles()
 }
 
 /**
- * Callback for createList().
+ * Callback for SMF\ItemList().
  *
  * @param int $start The item to start with (used for pagination purposes)
  * @param int $items_per_page The number of items to display per page
@@ -1726,7 +1725,7 @@ function list_getProfileFields($start, $items_per_page, $sort, $standardFields)
 }
 
 /**
- * Callback for createList().
+ * Callback for SMF\ItemList().
  *
  * @return int The total number of custom profile fields
  */

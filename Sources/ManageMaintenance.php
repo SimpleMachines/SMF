@@ -17,6 +17,7 @@ use SMF\Board;
 use SMF\Category;
 use SMF\Config;
 use SMF\Draft;
+use SMF\ItemList;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -1999,8 +2000,7 @@ function list_integration_hooks()
 		'name' => 'list_integration_hooks',
 	);
 
-	require_once(Config::$sourcedir . '/ItemList.php');
-	createList($list_options);
+	new ItemList($list_options);
 
 	Utils::$context['page_title'] = Lang::$txt['hooks_title_list'];
 	Utils::$context['sub_template'] = 'show_list';
