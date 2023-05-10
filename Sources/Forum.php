@@ -95,7 +95,7 @@ class Forum
 		'reminder' => array('', 'SMF\\Actions\\Reminder::call'),
 		'removepoll' => array('Poll.php', 'RemovePoll'),
 		'removetopic2' => array('', 'SMF\\Actions\\TopicRemove::call'),
-		'reporttm' => array('ReportToMod.php', 'ReportToModerator'),
+		'reporttm' => array('Actions/ReportToMod.php', 'ReportToModerator'),
 		'requestmembers' => array('Subs-Auth.php', 'RequestMembers'),
 		'restoretopic' => array('', 'SMF\\Actions\\TopicRestore::call'),
 		'search' => array('Search.php', 'PlushSearch1'),
