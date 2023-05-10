@@ -84,7 +84,7 @@ function template_main()
 						<label for="report_comment">', Lang::$txt['enter_comment'], '</label>:
 					</dt>
 					<dd>
-						<textarea type="text" id="report_comment" name="comment" rows="5">', Utils::$context['comment_body'], '</textarea>
+						<textarea type="text" id="report_comment" name="comment" maxlength="254">', Utils::$context['comment_body'], '</textarea>
 					</dd>
 				</dl>
 				<input type="submit" name="preview" value="', Lang::$txt['preview'], '" class="button">
