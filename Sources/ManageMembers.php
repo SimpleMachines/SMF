@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\ItemList;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\Theme;
@@ -132,7 +133,7 @@ function ViewMembers()
  * Called by ?action=admin;area=viewmembers;sa=all or ?action=admin;area=viewmembers;sa=query.
  * Requires the moderate_forum permission.
  *
- * Uses a standard list (@see createList())
+ * Uses a standard list (@see SMF\ItemList())
  */
 function ViewMemberlist()
 {
@@ -623,8 +624,7 @@ function ViewMemberlist()
 	if (!allowedTo('profile_remove_any'))
 		unset($listOptions['cols']['check'], $listOptions['form'], $listOptions['additional_rows']);
 
-	require_once(Config::$sourcedir . '/ItemList.php');
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	Utils::$context['sub_template'] = 'show_list';
 	Utils::$context['default_list'] = 'member_list';
@@ -1022,8 +1022,7 @@ function MembersAwaitingActivation()
 		);
 
 	// Now that we have all the options, create the list.
-	require_once(Config::$sourcedir . '/ItemList.php');
-	createList($listOptions);
+	new ItemList($listOptions);
 }
 
 /**

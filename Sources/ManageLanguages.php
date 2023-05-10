@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\ItemList;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\Utils;
@@ -129,8 +130,7 @@ function AddLanguage()
 			),
 		);
 
-		require_once(Config::$sourcedir . '/ItemList.php');
-		createList($listOptions);
+		new ItemList($listOptions);
 
 		Utils::$context['default_list'] = 'smf_languages';
 	}
@@ -192,7 +192,7 @@ function list_getLanguagesList()
  * Uses a standard list to display information about all the files and where they'll be put.
  *
  * @uses template_download_language()
- * Uses a standard list for displaying languages (@see createList())
+ * Uses a standard list for displaying languages (@see SMF\ItemList())
  */
 function DownloadLanguage()
 {
@@ -480,8 +480,7 @@ function DownloadLanguage()
 		CacheApi::put('known_languages_all', null, !empty(CacheApi::$enable) && CacheApi::$enable < 1 ? 86400 : 3600);
 	}
 
-	require_once(Config::$sourcedir . '/ItemList.php');
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	Utils::$context['default_list'] = 'lang_main_files_list';
 	createToken('admin-dlang');
@@ -628,8 +627,7 @@ function ModifyLanguages()
 			'class' => 'smalltext alert',
 		);
 
-	require_once(Config::$sourcedir . '/ItemList.php');
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	Utils::$context['sub_template'] = 'show_list';
 	Utils::$context['default_list'] = 'language_list';

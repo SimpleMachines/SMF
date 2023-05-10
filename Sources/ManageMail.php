@@ -17,6 +17,7 @@
  */
 
 use SMF\Config;
+use SMF\ItemList;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\Theme;
@@ -214,8 +215,7 @@ function BrowseMailQueue()
 		),
 	);
 
-	require_once(Config::$sourcedir . '/ItemList.php');
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	Theme::loadTemplate('ManageMail');
 	Utils::$context['sub_template'] = 'browse';

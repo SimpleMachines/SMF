@@ -351,7 +351,7 @@ function reattributePosts($memID, $email = false, $membername = false, $post_cou
 }
 
 /**
- * Callback for createList().
+ * Callback for SMF\ItemList().
  *
  * @param int $start Which item to start with (for pagination purposes)
  * @param int $items_per_page How many items to show per page
@@ -396,7 +396,7 @@ function list_getMembers($start, $items_per_page, $sort, $where, $where_params =
 }
 
 /**
- * Callback for createList().
+ * Callback for SMF\ItemList().
  *
  * @param string $where An SQL query to filter the results
  * @param array $where_params An array of parameters for $where

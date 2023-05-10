@@ -15,6 +15,7 @@ namespace SMF\PackageManager;
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\ItemList;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\Theme;
@@ -1488,8 +1489,6 @@ class PackageManager
 
 		call_integration_hook('integrate_modification_types');
 
-		require_once(Config::$sourcedir . '/ItemList.php');
-
 		foreach (Utils::$context['modification_types'] as $type)
 		{
 			// Use the standard templates for showing this.
@@ -1595,7 +1594,7 @@ class PackageManager
 				),
 			);
 
-			createList($listOptions);
+			new ItemList($listOptions);
 		}
 
 		Utils::$context['sub_template'] = 'browse';

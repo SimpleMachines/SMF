@@ -15,6 +15,7 @@
  */
 
 use SMF\Config;
+use SMF\ItemList;
 use SMF\Lang;
 use SMF\User;
 use SMF\Theme;
@@ -439,8 +440,7 @@ function ViewSubscriptions()
 		),
 	);
 
-	require_once(Config::$sourcedir . '/ItemList.php');
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	Utils::$context['sub_template'] = 'show_list';
 	Utils::$context['default_list'] = 'subscription_list';
@@ -993,8 +993,7 @@ function ViewSubscribedUsers()
 		),
 	);
 
-	require_once(Config::$sourcedir . '/ItemList.php');
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	Utils::$context['sub_template'] = 'show_list';
 	Utils::$context['default_list'] = 'subscribed_users_list';

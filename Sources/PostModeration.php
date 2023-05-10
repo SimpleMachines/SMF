@@ -16,6 +16,7 @@
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
+use SMF\ItemList;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\Theme;
@@ -389,8 +390,6 @@ function UnapprovedAttachments()
 		}
 	}
 
-	require_once(Config::$sourcedir . '/ItemList.php');
-
 	$listOptions = array(
 		'id' => 'mc_unapproved_attach',
 		'width' => '100%',
@@ -526,7 +525,7 @@ function UnapprovedAttachments()
 
 	// Create the request list.
 	createToken('mod-ap');
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	Utils::$context['sub_template'] = 'show_list';
 	Utils::$context['default_list'] = 'mc_unapproved_attach';

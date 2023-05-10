@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\ItemList;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\Utils;
@@ -311,8 +312,7 @@ function ScheduledTasks()
 		),
 	);
 
-	require_once(Config::$sourcedir . '/ItemList.php');
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	Utils::$context['sub_template'] = 'view_scheduled_tasks';
 
@@ -320,7 +320,7 @@ function ScheduledTasks()
 }
 
 /**
- * Callback function for createList() in ScheduledTasks().
+ * Callback function for SMF\ItemList() in ScheduledTasks().
  *
  * @param int $start The item to start with (not used here)
  * @param int $items_per_page The number of items to display per page (not used here)
@@ -562,8 +562,7 @@ function TaskLog()
 
 	createToken('admin-tl');
 
-	require_once(Config::$sourcedir . '/ItemList.php');
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	Utils::$context['sub_template'] = 'show_list';
 	Utils::$context['default_list'] = 'task_log';
@@ -574,7 +573,7 @@ function TaskLog()
 }
 
 /**
- * Callback function for createList() in TaskLog().
+ * Callback function for SMF\ItemList() in TaskLog().
  *
  * @param int $start The item to start with (for pagination purposes)
  * @param int $items_per_page How many items to display per page
@@ -609,7 +608,7 @@ function list_getTaskLogEntries($start, $items_per_page, $sort)
 }
 
 /**
- * Callback function for createList() in TaskLog().
+ * Callback function for SMF\ItemList() in TaskLog().
  *
  * @return int The number of log entries
  */

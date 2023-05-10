@@ -15,6 +15,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\ItemList;
 use SMF\Lang;
 use SMF\MessageIndex;
 use SMF\Msg;
@@ -522,12 +523,11 @@ function EditSmileySets()
 		),
 	);
 
-	require_once(Config::$sourcedir . '/ItemList.php');
-	createList($listOptions);
+	new ItemList($listOptions);
 }
 
 /**
- * Callback function for createList().
+ * Callback function for SMF\ItemList().
  *
  * @todo to be moved to Subs-Smileys?
  *
@@ -574,7 +574,7 @@ function list_getSmileySets($start, $items_per_page, $sort)
 }
 
 /**
- * Callback function for createList().
+ * Callback function for SMF\ItemList().
  *
  * @todo to be moved to Subs-Smileys?
  * @return int The total number of known smiley sets
@@ -1377,8 +1377,7 @@ function EditSmileys()
 				}',
 		);
 
-		require_once(Config::$sourcedir . '/ItemList.php');
-		createList($listOptions);
+		new ItemList($listOptions);
 
 		// The list is the only thing to show, so make it the main template.
 		Utils::$context['default_list'] = 'smiley_list';
@@ -1456,7 +1455,7 @@ function EditSmileys()
 }
 
 /**
- * Callback function for createList().
+ * Callback function for SMF\ItemList().
  *
  * @param int $start The item to start with (not used here)
  * @param int $items_per_page The number of items to show per page (not used here)
@@ -1500,7 +1499,7 @@ function list_getSmileys($start, $items_per_page, $sort)
 }
 
 /**
- * Callback function for createList().
+ * Callback function for SMF\ItemList().
  *
  * @return int The number of smileys
  */
@@ -2388,8 +2387,7 @@ function EditMessageIcons()
 		),
 	);
 
-	require_once(Config::$sourcedir . '/ItemList.php');
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	// If we're adding/editing an icon we'll need a list of boards
 	if (Utils::$context['sub_action'] == 'editicon' || isset($_POST['add']))
@@ -2413,7 +2411,7 @@ function EditMessageIcons()
 }
 
 /**
- * Callback function for createList().
+ * Callback function for SMF\ItemList().
  *
  * @param int $start The item to start with (not used here)
  * @param int $items_per_page The number of items to display per page (not used here)

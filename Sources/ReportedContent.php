@@ -15,6 +15,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\ItemList;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -297,7 +298,6 @@ function ReportDetails()
 
 	// What have the other moderators done to this message?
 	require_once(Config::$sourcedir . '/Modlog.php');
-	require_once(Config::$sourcedir . '/ItemList.php');
 	Lang::load('Modlog');
 
 	// Parameters are slightly different depending on what we're doing here...
@@ -412,7 +412,7 @@ function ReportDetails()
 	);
 
 	// Create the watched user list.
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	// Make sure to get the correct tab selected.
 	if (Utils::$context['report']['closed'])

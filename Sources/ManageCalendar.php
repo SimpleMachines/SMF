@@ -15,6 +15,7 @@
 
 use SMF\Board;
 use SMF\Config;
+use SMF\ItemList;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\Utils;
@@ -184,8 +185,7 @@ function ModifyHolidays()
 		),
 	);
 
-	require_once(Config::$sourcedir . '/ItemList.php');
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	//loadTemplate('ManageCalendar');
 	Utils::$context['page_title'] = Lang::$txt['manage_holidays'];

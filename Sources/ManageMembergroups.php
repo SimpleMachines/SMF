@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\ItemList;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -185,8 +186,7 @@ function MembergroupIndex()
 		),
 	);
 
-	require_once(Config::$sourcedir . '/ItemList.php');
-	createList($listOptions);
+	new ItemList($listOptions);
 
 	// The second list shows the post count based groups.
 	$listOptions = array(
@@ -286,7 +286,7 @@ function MembergroupIndex()
 		),
 	);
 
-	createList($listOptions);
+	new ItemList($listOptions);
 }
 
 /**

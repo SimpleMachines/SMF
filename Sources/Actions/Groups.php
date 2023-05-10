@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\ItemList;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -126,9 +127,6 @@ class Groups implements ActionInterface
 	{
 		Utils::$context['page_title'] = Lang::$txt['viewing_groups'];
 
-		// Making a list is not hard with this beauty.
-		require_once(Config::$sourcedir . '/ItemList.php');
-
 		// Use the standard templates for showing this.
 		$listOptions = array(
 			'id' => 'group_lists',
@@ -230,7 +228,7 @@ class Groups implements ActionInterface
 		);
 
 		// Create the request list.
-		createList($listOptions);
+		new ItemList($listOptions);
 
 		Utils::$context['sub_template'] = 'show_list';
 		Utils::$context['default_list'] = 'group_lists';
@@ -247,7 +245,7 @@ class Groups implements ActionInterface
 	 * It allows sorting on several columns.
 	 * It redirects to itself.
 	 *
-	 * @todo use createList
+	 * @todo use SMF\ItemList
 	 */
 	public function members(): void
 	{
@@ -636,9 +634,6 @@ class Groups implements ActionInterface
 			}
 		}
 
-		// We're going to want this for making our list.
-		require_once(Config::$sourcedir . '/ItemList.php');
-
 		// This is all the information required for a group listing.
 		$listOptions = array(
 			'id' => 'group_request_list',
@@ -755,7 +750,7 @@ class Groups implements ActionInterface
 
 		// Create the request list.
 		createToken('mod-gr');
-		createList($listOptions);
+		new ItemList($listOptions);
 
 		Utils::$context['default_list'] = 'group_request_list';
 		Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = array(
@@ -1157,7 +1152,7 @@ class Groups implements ActionInterface
 	}
 
 	/**
-	 * Callback function for createList().
+	 * Callback function for SMF\ItemList().
 	 *
 	 * @param string $where The WHERE clause for the query
 	 * @param array $where_parameters The parameters for the WHERE clause
@@ -1179,7 +1174,7 @@ class Groups implements ActionInterface
 	}
 
 	/**
-	 * Callback function for createList().
+	 * Callback function for SMF\ItemList().
 	 *
 	 * @param int $start The result to start with.
 	 * @param int $items_per_page The number of items per page.

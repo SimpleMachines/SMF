@@ -20,6 +20,7 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Category;
 use SMF\Config;
+use SMF\ItemList;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\Mail;
@@ -2559,9 +2560,6 @@ function alert_notifications_topics($memID)
 	Utils::$context['token_check'] = str_replace('%u', $memID, 'profile-nt%u');
 	createToken(Utils::$context['token_check'], 'post');
 
-	// Gonna want this for the list.
-	require_once(Config::$sourcedir . '/ItemList.php');
-
 	// Do the topic notifications.
 	$listOptions = array(
 		'id' => 'topic_notification_list',
@@ -2692,7 +2690,7 @@ function alert_notifications_topics($memID)
 	);
 
 	// Create the notification list.
-	createList($listOptions);
+	new ItemList($listOptions);
 }
 
 /**
@@ -2715,9 +2713,6 @@ function alert_notifications_boards($memID)
 	// Now set up for the token check.
 	Utils::$context['token_check'] = str_replace('%u', $memID, 'profile-nt%u');
 	createToken(Utils::$context['token_check'], 'post');
-
-	// Gonna want this for the list.
-	require_once(Config::$sourcedir . '/ItemList.php');
 
 	// Fine, start with the board list.
 	$listOptions = array(
@@ -2808,7 +2803,7 @@ function alert_notifications_boards($memID)
 	);
 
 	// Create the board notification list.
-	createList($listOptions);
+	new ItemList($listOptions);
 }
 
 /**
