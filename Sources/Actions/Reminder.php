@@ -1,7 +1,6 @@
 <?php
 
 /**
- * Handle sending out reminders, and checking the secret answer and question.  It uses just a few functions to do this, which are:
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -12,6 +11,10 @@
  * @version 3.0 Alpha 1
  */
 
+namespace SMF\Actions;
+
+use SMF\BackwardCompatibility;
+
 use SMF\Config;
 use SMF\Lang;
 use SMF\Mail;
@@ -20,388 +23,476 @@ use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
-if (!defined('SMF'))
-	die('No direct access...');
-
 /**
- * This is the controlling delegator
- *
- * Uses Profile language files and Reminder template
+ * Handle sending out reminders, and checking the secret answer and question.
  */
-function RemindMe()
+class Reminder implements ActionInterface
 {
-	Lang::load('Profile');
-	Theme::loadTemplate('Reminder');
+	use BackwardCompatibility;
 
-	Utils::$context['page_title'] = Lang::$txt['authentication_reminder'];
-	Utils::$context['robot_no_index'] = true;
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = array(
+		'func_names' => array(
+			'load' => false,
+			'call' => 'RemindMe',
+		),
+	);
 
-	// Delegation can be useful sometimes.
-	$subActions = array(
-		'picktype' => 'RemindPick',
-		'secret2' => 'SecretAnswer2',
+	/*******************
+	 * Public properties
+	 *******************/
+
+	/**
+	 * @var string
+	 *
+	 * The requested sub-action.
+	 * This should be set by the constructor.
+	 */
+	public string $subaction = 'main';
+
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	/**
+	 * @var object
+	 *
+	 * SMF\User object for the member.
+	 */
+	public object $member;
+
+	/**************************
+	 * Public static properties
+	 **************************/
+
+	/**
+	 * @var array
+	 *
+	 * Available sub-actions.
+	 */
+	public static array $subactions = array(
+		'main' => 'main',
+		'picktype' => 'pickType',
+		'secret2' => 'secretAnswer2',
 		'setpassword' => 'setPassword',
 		'setpassword2' => 'setPassword2'
 	);
 
-	// Any subaction?  If none, fall through to the main template, which will ask for one.
-	if (isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]))
-		call_helper($subActions[$_REQUEST['sa']]);
+	/****************************
+	 * Internal static properties
+	 ****************************/
 
-	// Creating a one time token.
-	else
+	/**
+	 * @var object
+	 *
+	 * An instance of this class.
+	 * This is used by the load() method to prevent mulitple instantiations.
+	 */
+	protected static object $obj;
+
+	/****************
+	 * Public methods
+	 ****************/
+
+	/**
+	 * Dispatcher to whichever sub-action method is necessary.
+	 */
+	public function execute(): void
+	{
+		call_helper(isset(self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : $this->subaction);
+	}
+
+	/**
+	 * Just shows the main template to ask for a more specific sub-action.
+	 */
+	public function main()
+	{
 		createToken('remind');
-}
-
-/**
- * Allows the user to pick how they wish to be reminded
- */
-function RemindPick()
-{
-	checkSession();
-	validateToken('remind');
-	createToken('remind');
-
-	// Coming with a known ID?
-	if (!empty($_REQUEST['uid']))
-	{
-		$where = 'id_member = {int:id_member}';
-		$where_params['id_member'] = (int) $_REQUEST['uid'];
-	}
-	elseif (isset($_POST['user']) && $_POST['user'] != '')
-	{
-		$where = 'member_name = {string:member_name}';
-		$where_params['member_name'] = $_POST['user'];
-		$where_params['email_address'] = $_POST['user'];
 	}
 
-	// You must enter a username/email address.
-	if (empty($where))
-		fatal_lang_error('username_no_exist', false);
-
-	// Make sure we are not being slammed
-	// Don't call this if you're coming from the "Choose a reminder type" page - otherwise you'll likely get an error
-	if (!isset($_POST['reminder_type']) || !in_array($_POST['reminder_type'], array('email', 'secret')))
+	/**
+	 * Allows the user to pick how they wish to be reminded.
+	 */
+	public function pickType()
 	{
-		spamProtection('remind');
-	}
+		checkSession();
+		validateToken('remind');
+		createToken('remind');
 
-	// Find the user!
-	$request = Db::$db->query('', '
-		SELECT id_member, real_name, member_name, email_address, is_activated, validation_code, lngfile, secret_question
-		FROM {db_prefix}members
-		WHERE ' . $where . '
-		LIMIT 1',
-		$where_params
-	);
-	// Maybe email?
-	if (Db::$db->num_rows($request) == 0 && empty($_REQUEST['uid']))
-	{
-		Db::$db->free_result($request);
+		// Make sure we are not being slammed
+		// Don't call this if you're coming from the "Choose a reminder type" page - otherwise you'll likely get an error
+		if (!in_array($_POST['reminder_type'] ?? null, array('email', 'secret')))
+			spamProtection('remind');
 
-		$request = Db::$db->query('', '
-			SELECT id_member, real_name, member_name, email_address, is_activated, validation_code, lngfile, secret_question
-			FROM {db_prefix}members
-			WHERE email_address = {string:email_address}
-			LIMIT 1',
-			$where_params
+		$this->loadMember();
+
+		// If the user isn't activated/approved, give them some feedback on what to do next.
+		if ($this->member->is_activated != 1)
+		{
+			// Awaiting approval...
+			if (trim($this->member->validation_code) == '')
+			{
+				fatal_error(sprintf(Lang::$txt['registration_not_approved'], Config::$scripturl . '?action=activate;user=' . $_POST['user']), false);
+			}
+			else
+			{
+				fatal_error(sprintf(Lang::$txt['registration_not_activated'], Config::$scripturl . '?action=activate;user=' . $_POST['user']), false);
+			}
+		}
+
+		// You can't get emailed if you have no email address.
+		$this->member->email = trim($this->member->email);
+		if ($this->member->email == '')
+		{
+			fatal_error(Lang::$txt['no_reminder_email'] . '<br>' . Lang::$txt['send_email_to'] . ' <a href="mailto:' . Config::$webmaster_email . '">' . Lang::$txt['webmaster'] . '</a> ' . Lang::$txt['to_ask_password']);
+		}
+
+		// If they have no secret question then they can only get emailed the item, or they are requesting the email, send them an email.
+		if (empty($this->member->secret_question) || (isset($_POST['reminder_type']) && $_POST['reminder_type'] == 'email'))
+		{
+			// Randomly generate a validation code with a max length of 10 chars.
+			$code = User::generateValidationCode();
+
+			$replacements = array(
+				'REALNAME' => $this->member->name,
+				'REMINDLINK' => Config::$scripturl . '?action=reminder;sa=setpassword;u=' . $this->member->id . ';code=' . $code,
+				'IP' => User::$me->ip,
+				'MEMBERNAME' => $this->member->username,
+			);
+
+			$emaildata = Mail::loadEmailTemplate('forgot_password', $replacements, empty($this->member->lngfile) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $this->member->lngfile);
+
+			Mail::send($this->member->email, $emaildata['subject'], $emaildata['body'], null, 'reminder', $emaildata['is_html'], 1);
+
+			// Set the validation code in the database.
+			User::updateMemberData($this->member->id, array('validation_code' => substr(md5($code), 0, 10)));
+
+			// Set up the template.
+			Utils::$context['description'] = Lang::$txt['reminder_sent'];
+			Utils::$context['sub_template'] = 'sent';
+
+			// Don't really.
+			return;
+		}
+		// Otherwise are ready to answer the question?
+		elseif (isset($_POST['reminder_type']) && $_POST['reminder_type'] == 'secret')
+		{
+			return self::secretAnswerInput();
+		}
+
+		// Now we're here setup the context for template number 2!
+		Utils::$context['sub_template'] = 'reminder_pick';
+		Utils::$context['current_member'] = array(
+			'id' => $this->member->id,
+			'name' => $this->member->username,
 		);
-		if (Db::$db->num_rows($request) == 0)
-			fatal_lang_error('no_user_with_email', false);
 	}
 
-	$row = Db::$db->fetch_assoc($request);
-	Db::$db->free_result($request);
-
-	// If the user isn't activated/approved, give them some feedback on what to do next.
-	if ($row['is_activated'] != 1)
+	/**
+	 * Allows the user to set their new password.
+	 */
+	public function setPassword()
 	{
-		// Awaiting approval...
-		if (trim($row['validation_code']) == '')
-			fatal_error(sprintf(Lang::$txt['registration_not_approved'], Config::$scripturl . '?action=activate;user=' . $_POST['user']), false);
-		else
-			fatal_error(sprintf(Lang::$txt['registration_not_activated'], Config::$scripturl . '?action=activate;user=' . $_POST['user']), false);
-	}
+		Lang::load('Login');
 
-	// You can't get emailed if you have no email address.
-	$row['email_address'] = trim($row['email_address']);
-	if ($row['email_address'] == '')
-		fatal_error(Lang::$txt['no_reminder_email'] . '<br>' . Lang::$txt['send_email_to'] . ' <a href="mailto:' . Config::$webmaster_email . '">' . Lang::$txt['webmaster'] . '</a> ' . Lang::$txt['to_ask_password']);
+		// You need a code!
+		if (!isset($_REQUEST['code']))
+			fatal_lang_error('no_access', false);
 
-	// If they have no secret question then they can only get emailed the item, or they are requesting the email, send them an email.
-	if (empty($row['secret_question']) || (isset($_POST['reminder_type']) && $_POST['reminder_type'] == 'email'))
-	{
-		// Randomly generate a new password, with only alpha numeric characters that is a max length of 10 chars.
-		$password = User::generateValidationCode();
-
-		$replacements = array(
-			'REALNAME' => $row['real_name'],
-			'REMINDLINK' => Config::$scripturl . '?action=reminder;sa=setpassword;u=' . $row['id_member'] . ';code=' . $password,
-			'IP' => User::$me->ip,
-			'MEMBERNAME' => $row['member_name'],
+		// Fill the context array.
+		Utils::$context += array(
+			'page_title' => Lang::$txt['reminder_set_password'],
+			'sub_template' => 'set_password',
+			'code' => $_REQUEST['code'],
+			'memID' => (int) $_REQUEST['u']
 		);
 
-		$emaildata = Mail::loadEmailTemplate('forgot_password', $replacements, empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile']);
-		Utils::$context['description'] = Lang::$txt['reminder_sent'];
+		Theme::loadJavaScriptFile('register.js', array('defer' => false, 'minimize' => true), 'smf_register');
 
-		Mail::send($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'reminder', $emaildata['is_html'], 1);
-
-		// Set the password in the database.
-		User::updateMemberData($row['id_member'], array('validation_code' => substr(md5($password), 0, 10)));
-
-		// Set up the template.
-		Utils::$context['sub_template'] = 'sent';
-
-		// Don't really.
-		return;
+		// Tokens!
+		createToken('remind-sp');
 	}
-	// Otherwise are ready to answer the question?
-	elseif (isset($_POST['reminder_type']) && $_POST['reminder_type'] == 'secret')
+
+	/**
+	 * Actually sets the new password.
+	 */
+	public function setPassword2()
 	{
-		return SecretAnswerInput();
+		checkSession();
+		validateToken('remind-sp');
+
+		if (empty($_POST['u']) || !isset($_POST['passwrd1']) || !isset($_POST['passwrd2']))
+			fatal_lang_error('no_access', false);
+
+		$_POST['u'] = (int) $_POST['u'];
+
+		if ($_POST['passwrd1'] != $_POST['passwrd2'])
+			fatal_lang_error('passwords_dont_match', false);
+
+		if ($_POST['passwrd1'] == '')
+			fatal_lang_error('no_password', false);
+
+		Lang::load('Login');
+
+		$this->loadMember();
+
+		// Is the password actually valid?
+		require_once(Config::$sourcedir . '/Subs-Auth.php');
+		$passwordError = validatePassword($_POST['passwrd1'], $this->member->username, array($this->member->email));
+
+		// What - it's not?
+		if ($passwordError != null)
+		{
+			if ($passwordError == 'short')
+			{
+				fatal_lang_error('profile_error_password_' . $passwordError, false, array(empty(Config::$modSettings['password_strength']) ? 4 : 8));
+			}
+			else
+			{
+				fatal_lang_error('profile_error_password_' . $passwordError, false);
+			}
+		}
+
+		require_once(Config::$sourcedir . '/LogInOut.php');
+
+		// Quit if this code is not right.
+		if (empty($_POST['code']) || substr($this->member->validation_code, 0, 10) !== substr(md5($_POST['code']), 0, 10))
+		{
+			// Stop brute force attacks like this.
+			validatePasswordFlood($this->member->id, $this->member->username, $this->member->passwd_flood, false);
+
+			fatal_error(Lang::$txt['invalid_activation_code'], false);
+		}
+
+		// Just in case, flood control.
+		validatePasswordFlood($this->member->id, $this->member->username, $this->member->passwd_flood, true);
+
+		// User validated.  Update the database!
+		User::updateMemberData($this->member->id, array('validation_code' => '', 'passwd' => hash_password($this->member->username, $_POST['passwrd1'])));
+
+		call_integration_hook('integrate_reset_pass', array($this->member->username, $this->member->username, $_POST['passwrd1']));
+
+		Theme::loadTemplate('Login');
+		Utils::$context += array(
+			'page_title' => Lang::$txt['reminder_password_set'],
+			'sub_template' => 'login',
+			'default_username' => $this->member->username,
+			'default_password' => $_POST['passwrd1'],
+			'never_expire' => false,
+			'description' => Lang::$txt['reminder_password_set']
+		);
+
+		createToken('login');
 	}
 
-	// No we're here setup the context for template number 2!
-	Utils::$context['sub_template'] = 'reminder_pick';
-	Utils::$context['current_member'] = array(
-		'id' => $row['id_member'],
-		'name' => $row['member_name'],
-	);
-}
-
-/**
- * Allows the user to set their new password
- */
-function setPassword()
-{
-	Lang::load('Login');
-
-	// You need a code!
-	if (!isset($_REQUEST['code']))
-		fatal_lang_error('no_access', false);
-
-	// Fill the context array.
-	Utils::$context += array(
-		'page_title' => Lang::$txt['reminder_set_password'],
-		'sub_template' => 'set_password',
-		'code' => $_REQUEST['code'],
-		'memID' => (int) $_REQUEST['u']
-	);
-
-	Theme::loadJavaScriptFile('register.js', array('defer' => false, 'minimize' => true), 'smf_register');
-
-	// Tokens!
-	createToken('remind-sp');
-}
-
-/**
- * Actually sets the new password
- */
-function setPassword2()
-{
-	checkSession();
-	validateToken('remind-sp');
-
-	if (empty($_POST['u']) || !isset($_POST['passwrd1']) || !isset($_POST['passwrd2']))
-		fatal_lang_error('no_access', false);
-
-	$_POST['u'] = (int) $_POST['u'];
-
-	if ($_POST['passwrd1'] != $_POST['passwrd2'])
-		fatal_lang_error('passwords_dont_match', false);
-
-	if ($_POST['passwrd1'] == '')
-		fatal_lang_error('no_password', false);
-
-	Lang::load('Login');
-
-	// Get the code as it should be from the database.
-	$request = Db::$db->query('', '
-		SELECT validation_code, member_name, email_address, passwd_flood
-		FROM {db_prefix}members
-		WHERE id_member = {int:id_member}
-			AND is_activated = {int:is_activated}
-			AND validation_code != {string:blank_string}
-		LIMIT 1',
-		array(
-			'id_member' => $_POST['u'],
-			'is_activated' => 1,
-			'blank_string' => '',
-		)
-	);
-
-	// Does this user exist at all?
-	if (Db::$db->num_rows($request) == 0)
-		fatal_lang_error('invalid_userid', false);
-
-	list ($realCode, $username, $email, $flood_value) = Db::$db->fetch_row($request);
-	Db::$db->free_result($request);
-
-	// Is the password actually valid?
-	require_once(Config::$sourcedir . '/Subs-Auth.php');
-	$passwordError = validatePassword($_POST['passwrd1'], $username, array($email));
-
-	// What - it's not?
-	if ($passwordError != null)
-		if ($passwordError == 'short')
-			fatal_lang_error('profile_error_password_' . $passwordError, false, array(empty(Config::$modSettings['password_strength']) ? 4 : 8));
-		else
-			fatal_lang_error('profile_error_password_' . $passwordError, false);
-
-	require_once(Config::$sourcedir . '/LogInOut.php');
-
-	// Quit if this code is not right.
-	if (empty($_POST['code']) || substr($realCode, 0, 10) !== substr(md5($_POST['code']), 0, 10))
+	/**
+	 * Allows the user to enter their secret answer.
+	 */
+	public function secretAnswerInput()
 	{
-		// Stop brute force attacks like this.
-		validatePasswordFlood($_POST['u'], $flood_value, false);
+		checkSession();
 
-		fatal_error(Lang::$txt['invalid_activation_code'], false);
+		// Strings for the register auto javascript clever stuffy wuffy.
+		Lang::load('Login');
+
+		// This should never happen, but just in case...
+		if (!isset($this->member))
+			$this->loadMember();
+
+		// If there is NO secret question - then throw an error.
+		if (trim($this->member->secret_question) == '')
+			fatal_lang_error('registration_no_secret_question', false);
+
+		// Ask for the answer...
+		Utils::$context['remind_user'] = $this->member->id_member;
+		Utils::$context['remind_type'] = '';
+		Utils::$context['secret_question'] = $this->member->secret_question;
+
+		Utils::$context['sub_template'] = 'ask';
+		createToken('remind-sai');
+		Theme::loadJavaScriptFile('register.js', array('defer' => false, 'minimize' => true), 'smf_register');
 	}
 
-	// Just in case, flood control.
-	validatePasswordFlood($_POST['u'], $flood_value, true);
-
-	// User validated.  Update the database!
-	User::updateMemberData($_POST['u'], array('validation_code' => '', 'passwd' => hash_password($username, $_POST['passwrd1'])));
-
-	call_integration_hook('integrate_reset_pass', array($username, $username, $_POST['passwrd1']));
-
-	Theme::loadTemplate('Login');
-	Utils::$context += array(
-		'page_title' => Lang::$txt['reminder_password_set'],
-		'sub_template' => 'login',
-		'default_username' => $username,
-		'default_password' => $_POST['passwrd1'],
-		'never_expire' => false,
-		'description' => Lang::$txt['reminder_password_set']
-	);
-
-	createToken('login');
-}
-
-/**
- * Allows the user to enter their secret answer
- */
-function SecretAnswerInput()
-{
-	checkSession();
-
-	// Strings for the register auto javascript clever stuffy wuffy.
-	Lang::load('Login');
-
-	// Check they entered something...
-	if (empty($_REQUEST['uid']))
-		fatal_lang_error('username_no_exist', false);
-
-	// Get the stuff....
-	$request = Db::$db->query('', '
-		SELECT id_member, real_name, member_name, secret_question
-		FROM {db_prefix}members
-		WHERE id_member = {int:id_member}
-		LIMIT 1',
-		array(
-			'id_member' => (int) $_REQUEST['uid'],
-		)
-	);
-	if (Db::$db->num_rows($request) == 0)
-		fatal_lang_error('username_no_exist', false);
-
-	$row = Db::$db->fetch_assoc($request);
-	Db::$db->free_result($request);
-
-	// If there is NO secret question - then throw an error.
-	if (trim($row['secret_question']) == '')
-		fatal_lang_error('registration_no_secret_question', false);
-
-	// Ask for the answer...
-	Utils::$context['remind_user'] = $row['id_member'];
-	Utils::$context['remind_type'] = '';
-	Utils::$context['secret_question'] = $row['secret_question'];
-
-	Utils::$context['sub_template'] = 'ask';
-	createToken('remind-sai');
-	Theme::loadJavaScriptFile('register.js', array('defer' => false, 'minimize' => true), 'smf_register');
-}
-
-/**
- * Validates the secret answer input by the user
- */
-function SecretAnswer2()
-{
-	checkSession();
-	validateToken('remind-sai');
-
-	// Hacker?  How did you get this far without an email or username?
-	if (empty($_REQUEST['uid']))
-		fatal_lang_error('username_no_exist', false);
-
-	Lang::load('Login');
-
-	// Get the information from the database.
-	$request = Db::$db->query('', '
-		SELECT id_member, real_name, member_name, secret_answer, secret_question, email_address
-		FROM {db_prefix}members
-		WHERE id_member = {int:id_member}
-		LIMIT 1',
-		array(
-			'id_member' => $_REQUEST['uid'],
-		)
-	);
-	if (Db::$db->num_rows($request) == 0)
-		fatal_lang_error('username_no_exist', false);
-
-	$row = Db::$db->fetch_assoc($request);
-	Db::$db->free_result($request);
-
-	/*
-	 * Check if the secret answer is correct.
-	 * In 2.1 this was changed to use hash_(verify_)passsword, same as the password. The length of the hash is 60 characters.
-	 * Prior to 2.1 this was a simple md5.  The length of the hash is 32 characters.
-	 * For compatibility with older answers, we still check if a match occurs on md5.  As there is a difference in the hash lengths, there isn't a possibility of a cross match between the hashes.  This will ensure in future answer updates will prevent md5 methods from working.
-	*/
-	if ($row['secret_question'] == '' || $row['secret_answer'] == '' || (!hash_verify_password($row['member_name'], $_POST['secret_answer'], $row['secret_answer']) && md5($_POST['secret_answer']) != $row['secret_answer']))
+	/**
+	 * Validates the secret answer input by the user.
+	 */
+	public function secretAnswer2()
 	{
-		log_error(sprintf(Lang::$txt['reminder_error'], $row['member_name']), 'user');
-		fatal_lang_error('incorrect_answer', false);
+		checkSession();
+		validateToken('remind-sai');
+
+		// Hacker?  How did you get this far without an email or username?
+		if (empty($_REQUEST['uid']))
+			fatal_lang_error('username_no_exist', false);
+
+		Lang::load('Login');
+
+		$this->loadMember();
+
+		/*
+		 * Check if the secret answer is correct.
+		 *
+		 * In 2.1 this was changed to use hash_(verify_)passsword, same as the
+		 * password. The length of the hash is 60 characters.
+		 *
+		 * Prior to 2.1 this was a simple md5. The length of the hash is 32
+		 * characters.
+		 *
+		 * For compatibility with older answers, we still check if a match
+		 * occurs on md5. If it does, we automatically upgrade the stored
+		 * version from md5 to hash_password.
+		 */
+		if (
+			$this->member->secret_question == ''
+			|| $this->member->secret_answer == ''
+			|| (
+				!hash_verify_password($this->member->username, $_POST['secret_answer'], $this->member->secret_answer)
+				&& md5($_POST['secret_answer']) != $this->member->secret_answer
+			)
+		)
+		{
+			log_error(sprintf(Lang::$txt['reminder_error'], $this->member->username), 'user');
+			fatal_lang_error('incorrect_answer', false);
+		}
+
+		// If the secret answer was right, but stored using md5, upgrade it now.
+		if (md5($_POST['secret_answer']) === $this->member->secret_answer)
+		{
+			User::updateMemberData($this->member->id_member, array('secret_answer' => hash_password($this->member->username, $_POST['secret_answer'])));
+		}
+
+		// You can't use a blank one!
+		if (strlen(trim($_POST['passwrd1'])) === 0)
+			fatal_lang_error('no_password', false);
+
+		// They have to be the same too.
+		if ($_POST['passwrd1'] != $_POST['passwrd2'])
+			fatal_lang_error('passwords_dont_match', false);
+
+		// Make sure they have a strong enough password.
+		require_once(Config::$sourcedir . '/Subs-Auth.php');
+		$passwordError = validatePassword($_POST['passwrd1'], $this->member->username, array($this->member->email));
+
+		// Invalid?
+		if ($passwordError != null)
+		{
+			if ($passwordError == 'short')
+			{
+				fatal_lang_error('profile_error_password_' . $passwordError, false, array(empty(Config::$modSettings['password_strength']) ? 4 : 8));
+			}
+			else
+			{
+				fatal_lang_error('profile_error_password_' . $passwordError, false);
+			}
+		}
+
+		// Alright, so long as 'yer sure.
+		User::updateMemberData($this->member->id_member, array('passwd' => hash_password($this->member->username, $_POST['passwrd1'])));
+
+		call_integration_hook('integrate_reset_pass', array($this->member->username, $this->member->username, $_POST['passwrd1']));
+
+		// Tell them it went fine.
+		Theme::loadTemplate('Login');
+		Utils::$context += array(
+			'page_title' => Lang::$txt['reminder_password_set'],
+			'sub_template' => 'login',
+			'default_username' => $this->member->username,
+			'default_password' => $_POST['passwrd1'],
+			'never_expire' => false,
+			'description' => Lang::$txt['reminder_password_set']
+		);
+
+		createToken('login');
 	}
 
-	// You can't use a blank one!
-	if (strlen(trim($_POST['passwrd1'])) === 0)
-		fatal_lang_error('no_password', false);
+	/***********************
+	 * Public static methods
+	 ***********************/
 
-	// They have to be the same too.
-	if ($_POST['passwrd1'] != $_POST['passwrd2'])
-		fatal_lang_error('passwords_dont_match', false);
+	/**
+	 * Static wrapper for constructor.
+	 *
+	 * @return object An instance of this class.
+	 */
+	public static function load(): object
+	{
+		if (!isset(self::$obj))
+			self::$obj = new self();
 
-	// Make sure they have a strong enough password.
-	require_once(Config::$sourcedir . '/Subs-Auth.php');
-	$passwordError = validatePassword($_POST['passwrd1'], $row['member_name'], array($row['email_address']));
+		return self::$obj;
+	}
 
-	// Invalid?
-	if ($passwordError != null)
-		if ($passwordError == 'short')
-			fatal_lang_error('profile_error_password_' . $passwordError, false, array(empty(Config::$modSettings['password_strength']) ? 4 : 8));
-		else
-			fatal_lang_error('profile_error_password_' . $passwordError, false);
+	/**
+	 * Convenience method to load() and execute() an instance of this class.
+	 */
+	public static function call(): void
+	{
+		self::load()->execute();
+	}
 
-	// Alright, so long as 'yer sure.
-	User::updateMemberData($row['id_member'], array('passwd' => hash_password($row['member_name'], $_POST['passwrd1'])));
+	/******************
+	 * Internal methods
+	 ******************/
 
-	call_integration_hook('integrate_reset_pass', array($row['member_name'], $row['member_name'], $_POST['passwrd1']));
+	/**
+	 * Constructor. Protected to force instantiation via self::load().
+	 */
+	protected function __construct()
+	{
+		Lang::load('Profile');
+		Theme::loadTemplate('Reminder');
 
-	// Tell them it went fine.
-	Theme::loadTemplate('Login');
-	Utils::$context += array(
-		'page_title' => Lang::$txt['reminder_password_set'],
-		'sub_template' => 'login',
-		'default_username' => $row['member_name'],
-		'default_password' => $_POST['passwrd1'],
-		'never_expire' => false,
-		'description' => Lang::$txt['reminder_password_set']
-	);
+		Utils::$context['page_title'] = Lang::$txt['authentication_reminder'];
+		Utils::$context['robot_no_index'] = true;
 
-	createToken('login');
+		if (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']]))
+			$this->subaction = $_GET['sa'];
+	}
+
+	/**
+	 * Loads the requested member.
+	 */
+	protected function loadMember()
+	{
+		$loaded = array();
+		$err_msg = 'username_no_exist';
+
+		// Coming with a known ID?
+		$uid = intval(!empty($_REQUEST['uid']) ? $_REQUEST['uid'] : (!empty($_POST['u']) ? $_POST['u'] : 0));
+
+		// If given a name or email, clean it up like we do during registration.
+		if (isset($_POST['user']))
+			$_POST['user'] = Utils::htmlTrim(Utils::normalizeSpaces(Utils::sanitizeChars($_POST['user'], 1, ' '), true, true, array('no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true)));
+
+		// Load by ID.
+		if (!empty($uid))
+		{
+			$err_msg = 'invalid_userid';
+			$loaded = User::load($uid, User::LOAD_BY_ID, 'minimal');
+		}
+		// Load by name or email.
+		elseif (isset($_POST['user']) && $_POST['user'] != '')
+		{
+			$loaded = User::load($_POST['user'], User::LOAD_BY_NAME, 'minimal');
+
+			if (empty($loaded))
+				$loaded = User::load($_POST['user'], User::LOAD_BY_EMAIL, 'minimal');
+		}
+
+		// Nothing found.
+		if (empty($loaded))
+			fatal_lang_error($err_msg, false);
+
+		$this->member = reset($loaded);
+	}
 }
+
+// Export public static functions and properties to global namespace for backward compatibility.
+if (is_callable(__NAMESPACE__ . '\Reminder::exportStatic'))
+	Reminder::exportStatic();
 
 ?>
