@@ -92,7 +92,7 @@ class Forum
 		'quickmod' => array('', 'SMF\\Actions\\QuickModeration::call'),
 		'quickmod2' => array('', 'SMF\\Actions\\QuickModerationInTopic::call'),
 		'recent' => array('', 'SMF\\Actions\\Recent::call'),
-		'reminder' => array('Reminder.php', 'RemindMe'),
+		'reminder' => array('Actions/Reminder.php', 'RemindMe'),
 		'removepoll' => array('Poll.php', 'RemovePoll'),
 		'removetopic2' => array('', 'SMF\\Actions\\TopicRemove::call'),
 		'reporttm' => array('ReportToMod.php', 'ReportToModerator'),
