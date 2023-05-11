@@ -112,7 +112,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 		$tried_hook = true;
 		// Allow the hook to change the error_type and know about the error.
 		call_integration_hook('integrate_error_types', array(&$other_error_types, &$error_type, $error_message, $file, $line));
-		$known_error_types += $other_error_types;
+		$known_error_types = array_merge($known_error_types, $other_error_types);
 	}
 	// Make sure the category that was specified is a valid one
 	$error_type = in_array($error_type, $known_error_types) && $error_type !== true ? $error_type : 'general';
