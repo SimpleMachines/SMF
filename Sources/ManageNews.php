@@ -436,7 +436,7 @@ function SelectMailingMembers()
 
 /**
  * Prepare subject and message of an email for the preview box
- * Used in ComposeMailing and RetrievePreview (Xml.php)
+ * Used in ComposeMailing and RetrievePreview (XmlHttp.php)
  */
 function prepareMailingForPreview()
 {

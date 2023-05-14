@@ -121,7 +121,7 @@ class Forum
 		'viewsmfile' => array('Admin.php', 'DisplayAdminFile'),
 		'who' => array('', 'SMF\\Actions\\Who::call'),
 		'.xml' => array('', 'SMF\\Actions\\Feed::call'),
-		'xmlhttp' => array('Xml.php', 'XMLhttpMain'),
+		'xmlhttp' => array('Actions/XmlHttp.php', 'XMLhttpMain'),
 	);
 
 	/**
