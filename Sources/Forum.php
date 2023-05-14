@@ -117,7 +117,7 @@ class Forum
 		'verificationcode' => array('', 'SMF\\Actions\\VerificationCode::call'),
 		'viewprofile' => array('Profile.php', 'ModifyProfile'),
 		'vote' => array('Poll.php', 'Vote'),
-		'viewquery' => array('Actions/ViewQuery.php', 'ViewQuery'),
+		'viewquery' => array('', 'SMF\\Actions\\ViewQuery::call'),
 		'viewsmfile' => array('Admin.php', 'DisplayAdminFile'),
 		'who' => array('', 'SMF\\Actions\\Who::call'),
 		'.xml' => array('', 'SMF\\Actions\\Feed::call'),
