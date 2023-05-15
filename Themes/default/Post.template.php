@@ -239,7 +239,7 @@ function template_main()
 									<em class="smalltext">', Lang::$txt['poll_run_limit'], '</em>
 								</dt>
 								<dd>
-									<input type="text" name="poll_expire" id="poll_expire" size="2" value="', Utils::$context['poll_options']['expire'], '" onchange="pollOptions();" maxlength="4"> ', Lang::$txt['days_word'], '
+									<input type="text" name="poll_expire" id="poll_expire" size="2" value="', !empty(Utils::$context['poll_options']['expire']) ? Utils::$context['poll_options']['expire'] : '', '" onchange="pollOptions();" maxlength="4"> ', Lang::$txt['days_word'], '
 								</dd>
 								<dt>
 									<label for="poll_change_vote">', Lang::$txt['poll_do_change_vote'], ':</label>

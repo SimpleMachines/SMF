@@ -163,7 +163,7 @@ function template_main()
 		foreach (Utils::$context['poll']['options'] as $option)
 			echo '
 					<div class="', $option['voted_this'] ? 'voted' : '', '">', Lang::$txt['option'], ' ', $options++, ': <strong>', $option['option'], '</strong>
-						', Utils::$context['allow_poll_view'] ? Lang::$txt['votes'] . ': ' . $option['votes'] . '' : '', '
+						', Utils::$context['allow_results_view'] ? Lang::$txt['votes'] . ': ' . $option['votes'] . '' : '', '
 					</div>';
 
 		echo '
