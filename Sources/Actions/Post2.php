@@ -25,6 +25,7 @@ use SMF\Event;
 use SMF\Lang;
 use SMF\MessageIndex;
 use SMF\Msg;
+use SMF\Poll;
 use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
@@ -310,47 +311,13 @@ class Post2 extends Post
 			fatal_error('Knave! Masquerader! Charlatan!', false);
 		}
 
-		// Validate the poll...
+		// Build the poll...
 		if (isset($_REQUEST['poll']) && Config::$modSettings['pollMode'] == '1')
 		{
 			if (!empty(Topic::$topic_id) && !isset($_REQUEST['msg']))
 				fatal_lang_error('no_access', false);
 
-			// This is a new topic... so it's a new poll.
-			if (empty(Topic::$topic_id))
-			{
-				isAllowedTo('poll_post');
-			}
-			// Can you add to your own topics?
-			elseif (User::$me->id == Topic::$info->id_member_started && !allowedTo('poll_add_any'))
-			{
-				isAllowedTo('poll_add_own');
-			}
-			// Can you add polls to any topic, then?
-			else
-				isAllowedTo('poll_add_any');
-
-			if (!isset($_POST['question']) || trim($_POST['question']) == '')
-				$this->errors[] = 'no_question';
-
-			$_POST['options'] = empty($_POST['options']) ? array() : htmltrim__recursive($_POST['options']);
-
-			// Get rid of empty ones.
-			foreach ($_POST['options'] as $k => $option)
-			{
-				if ($option == '')
-					unset($_POST['options'][$k], $_POST['options'][$k]);
-			}
-
-			// What are you going to vote between with one choice?!?
-			if (count($_POST['options']) < 2)
-			{
-				$this->errors[] = 'poll_few';
-			}
-			elseif (count($_POST['options']) > 256)
-			{
-				$this->errors[] = 'poll_many';
-			}
+			$poll = Poll::create($this->errors);
 		}
 
 		if ($this->authorIsGuest)
@@ -415,66 +382,7 @@ class Post2 extends Post
 		if (Utils::entityStrlen($_POST['modify_reason']) > 100)
 			$_POST['modify_reason'] = Utils::entitySubstr($_POST['modify_reason'], 0, 100);
 
-		// Make the poll...
-		if (isset($_REQUEST['poll']))
-		{
-			// Make sure that the user has not entered a ridiculous number of options..
-			if (empty($_POST['poll_max_votes']) || $_POST['poll_max_votes'] <= 0)
-			{
-				$_POST['poll_max_votes'] = 1;
-			}
-			elseif ($_POST['poll_max_votes'] > count($_POST['options']))
-			{
-				$_POST['poll_max_votes'] = count($_POST['options']);
-			}
-			else
-				$_POST['poll_max_votes'] = (int) $_POST['poll_max_votes'];
-
-			$_POST['poll_expire'] = (int) $_POST['poll_expire'];
-			$_POST['poll_expire'] = $_POST['poll_expire'] > 9999 ? 9999 : ($_POST['poll_expire'] < 0 ? 0 : $_POST['poll_expire']);
-
-			// Just set it to zero if it's not there..
-			if (!isset($_POST['poll_hide']))
-			{
-				$_POST['poll_hide'] = 0;
-			}
-			else
-				$_POST['poll_hide'] = (int) $_POST['poll_hide'];
-
-			$_POST['poll_change_vote'] = isset($_POST['poll_change_vote']) ? 1 : 0;
-
-			$_POST['poll_guest_vote'] = isset($_POST['poll_guest_vote']) ? 1 : 0;
-
-			// Make sure guests are actually allowed to vote generally.
-			if ($_POST['poll_guest_vote'])
-			{
-				require_once(Config::$sourcedir . '/Subs-Members.php');
-
-				$allowedVoteGroups = groupsAllowedTo('poll_vote', Board::$info->id);
-
-				if (!in_array(-1, $allowedVoteGroups['allowed']))
-					$_POST['poll_guest_vote'] = 0;
-			}
-
-			// If the user tries to set the poll too far in advance, don't let them.
-			if (!empty($_POST['poll_expire']) && $_POST['poll_expire'] < 1)
-			{
-				fatal_lang_error('poll_range_error', false);
-			}
-			// Don't allow them to select option 2 for hidden results if it's not time limited.
-			elseif (empty($_POST['poll_expire']) && $_POST['poll_hide'] == 2)
-			{
-				$_POST['poll_hide'] = 1;
-			}
-
-			// Clean up the question and answers.
-			$_POST['question'] = Utils::htmlspecialchars($_POST['question']);
-			$_POST['question'] = Utils::truncate($_POST['question'], 255);
-			$_POST['question'] = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $_POST['question']);
-			$_POST['options'] = htmlspecialchars__recursive($_POST['options']);
-		}
-
-		// ...or attach a new file...
+		// Attach any new files.
 		if (Utils::$context['can_post_attachment'] && !empty($_SESSION['temp_attachments']) && empty($_POST['from_qr']))
 		{
 			$attachIDs = array();
@@ -558,44 +466,9 @@ class Post2 extends Post
 		}
 		unset($_SESSION['temp_attachments']);
 
-		// Make the poll...
-		if (isset($_REQUEST['poll']))
-		{
-			// Create the poll.
-			$id_poll = Db::$db->insert('',
-				'{db_prefix}polls',
-				array(
-					'question' => 'string-255', 'hide_results' => 'int', 'max_votes' => 'int', 'expire_time' => 'int', 'id_member' => 'int',
-					'poster_name' => 'string-255', 'change_vote' => 'int', 'guest_vote' => 'int'
-				),
-				array(
-					$_POST['question'], $_POST['poll_hide'], $_POST['poll_max_votes'], (empty($_POST['poll_expire']) ? 0 : time() + $_POST['poll_expire'] * 3600 * 24), User::$me->id,
-					$_POST['guestname'], $_POST['poll_change_vote'], $_POST['poll_guest_vote'],
-				),
-				array('id_poll'),
-				1
-			);
-
-			// Create each answer choice.
-			$i = 0;
-			$pollOptions = array();
-			foreach ($_POST['options'] as $option)
-			{
-				$pollOptions[] = array($id_poll, $i, $option);
-				$i++;
-			}
-
-			Db::$db->insert('insert',
-				'{db_prefix}poll_choices',
-				array('id_poll' => 'int', 'id_choice' => 'int', 'label' => 'string-255'),
-				$pollOptions,
-				array('id_poll', 'id_choice')
-			);
-
-			call_integration_hook('integrate_poll_add_edit', array($id_poll, false));
-		}
-		else
-			$id_poll = 0;
+		// Save the poll to the database.
+		if (isset($poll))
+			$poll->save();
 
 		// Creating a new topic?
 		$newTopic = empty($_REQUEST['msg']) && empty(Topic::$topic_id);
@@ -629,7 +502,7 @@ class Post2 extends Post
 		$topicOptions = array(
 			'id' => empty(Topic::$topic_id) ? 0 : Topic::$topic_id,
 			'board' => Board::$info->id,
-			'poll' => isset($_REQUEST['poll']) ? $id_poll : null,
+			'poll' => isset($poll) ? $poll->id : null,
 			'lock_mode' => isset($_POST['lock']) ? (int) $_POST['lock'] : null,
 			'sticky_mode' => isset($_POST['sticky']) ? (int) $_POST['sticky'] : null,
 			'mark_as_read' => true,

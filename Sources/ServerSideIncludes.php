@@ -1402,282 +1402,15 @@ class ServerSideIncludes
 		if (!self::$setup_done)
 			new self();
 
-		$boardsAllowed = array_intersect(boardsAllowedTo('poll_view'), boardsAllowedTo('poll_vote'));
+		$poll = Poll::load(0, ($topPollInstead ? Poll::LOAD_BY_VOTES : Poll::LOAD_BY_RECENT) | Poll::CHECK_ACCESS | Poll::CHECK_IGNORE | Poll::CHECK_LOCKED | Poll::CHECK_EXPIRY);
 
-		if (empty($boardsAllowed))
+		if (empty($poll))
 			return array();
 
-		$request = Db::$db->query('', '
-			SELECT p.id_poll, p.question, t.id_topic, p.max_votes, p.guest_vote, p.hide_results, p.expire_time
-			FROM {db_prefix}polls AS p
-				INNER JOIN {db_prefix}topics AS t ON (t.id_poll = p.id_poll' . (Config::$modSettings['postmod_active'] ? ' AND t.approved = {int:is_approved}' : '') . ')
-				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)' . ($topPollInstead ? '
-				INNER JOIN {db_prefix}poll_choices AS pc ON (pc.id_poll = p.id_poll)' : '') . '
-				LEFT JOIN {db_prefix}log_polls AS lp ON (lp.id_poll = p.id_poll AND lp.id_member > {int:no_member} AND lp.id_member = {int:current_member})
-			WHERE p.voting_locked = {int:voting_opened}
-				AND (p.expire_time = {int:no_expiration} OR {int:current_time} < p.expire_time)
-				AND ' . (User::$me->is_guest ? 'p.guest_vote = {int:guest_vote_allowed}' : 'lp.id_choice IS NULL') . '
-				AND {query_wanna_see_board}' . (!in_array(0, $boardsAllowed) ? '
-				AND b.id_board IN ({array_int:boards_allowed_list})' : '') . (!empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) ? '
-				AND b.id_board != {int:recycle_board}' : '') . '
-			ORDER BY ' . ($topPollInstead ? 'pc.votes' : 'p.id_poll') . ' DESC
-			LIMIT 1',
-			array(
-				'current_member' => User::$me->id,
-				'boards_allowed_list' => $boardsAllowed,
-				'is_approved' => 1,
-				'guest_vote_allowed' => 1,
-				'no_member' => 0,
-				'voting_opened' => 0,
-				'no_expiration' => 0,
-				'current_time' => time(),
-				'recycle_board' => !empty(Config::$modSettings['recycle_board']) ? (int) Config::$modSettings['recycle_board'] : null,
-			)
-		);
-		$row = Db::$db->fetch_assoc($request);
-		Db::$db->free_result($request);
-
-		// This user has voted on all the polls.
-		if (empty($row) || !is_array($row))
-			return array();
-
-		// If this is a guest who's voted we'll through ourselves to show poll to show the results.
-		if (User::$me->is_guest && (!$row['guest_vote'] || (isset($_COOKIE['guest_poll_vote']) && in_array($row['id_poll'], explode(',', $_COOKIE['guest_poll_vote'])))))
-			return self::showPoll($row['id_topic'], $output_method);
-
-		$request = Db::$db->query('', '
-			SELECT COUNT(DISTINCT id_member)
-			FROM {db_prefix}log_polls
-			WHERE id_poll = {int:current_poll}',
-			array(
-				'current_poll' => $row['id_poll'],
-			)
-		);
-		list ($total) = Db::$db->fetch_row($request);
-		Db::$db->free_result($request);
-
-		$request = Db::$db->query('', '
-			SELECT id_choice, label, votes
-			FROM {db_prefix}poll_choices
-			WHERE id_poll = {int:current_poll}',
-			array(
-				'current_poll' => $row['id_poll'],
-			)
-		);
-		$sOptions = array();
-		while ($rowChoice = Db::$db->fetch_assoc($request))
-		{
-			Lang::censorText($rowChoice['label']);
-
-			$sOptions[$rowChoice['id_choice']] = array($rowChoice['label'], $rowChoice['votes']);
-		}
-		Db::$db->free_result($request);
-
-		// Can they view it?
-		$is_expired = !empty($row['expire_time']) && $row['expire_time'] < time();
-		$allow_view_results = allowedTo('moderate_board') || $row['hide_results'] == 0 || $is_expired;
-
-		$return = array(
-			'id' => $row['id_poll'],
-			'image' => 'poll',
-			'question' => $row['question'],
-			'total_votes' => $total,
-			'is_locked' => false,
-			'topic' => $row['id_topic'],
-			'allow_view_results' => $allow_view_results,
-			'options' => array()
-		);
-
-		// Calculate the percentages and bar lengths...
-		$divisor = $return['total_votes'] == 0 ? 1 : $return['total_votes'];
-		foreach ($sOptions as $i => $option)
-		{
-			$bar = floor(($option[1] * 100) / $divisor);
-			$return['options'][$i] = array(
-				'id' => 'options-' . ($topPollInstead ? 'top-' : 'recent-') . $i,
-				'percent' => $bar,
-				'votes' => $option[1],
-				'option' => BBCodeParser::load()->parse($option[0]),
-				'vote_button' => '<input type="' . ($row['max_votes'] > 1 ? 'checkbox' : 'radio') . '" name="options[]" id="options-' . ($topPollInstead ? 'top-' : 'recent-') . $i . '" value="' . $i . '">'
-			);
-		}
-
-		$return['allowed_warning'] = $row['max_votes'] > 1 ? sprintf(Lang::$txt['poll_options_limit'], min(count($sOptions), $row['max_votes'])) : '';
-
-		// If mods want to do something with this list of polls, let them do that now.
-		call_integration_hook('integrate_ssi_recentPoll', array(&$return, $topPollInstead));
-
-		if ($output_method != 'echo')
-			return $return;
-
-		if ($allow_view_results)
-		{
-			echo '
-			<form class="ssi_poll" action="', Config::$boardurl, '/SSI.php?ssi_function=pollVote" method="post" accept-charset="', Utils::$context['character_set'], '">
-				<strong>', $return['question'], '</strong><br>
-				', !empty($return['allowed_warning']) ? $return['allowed_warning'] . '<br>' : '';
-
-			foreach ($return['options'] as $option)
-				echo '
-				<label for="', $option['id'], '">', $option['vote_button'], ' ', $option['option'], '</label><br>';
-
-			echo '
-				<input type="submit" value="', Lang::$txt['poll_vote'], '" class="button">
-				<input type="hidden" name="poll" value="', $return['id'], '">
-				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-			</form>';
-		}
-		else
-			echo Lang::$txt['poll_cannot_see'];
-	}
-
-	/**
-	 * Shows the poll from the specified topic
-	 *
-	 * Alias: ssi_showPoll()
-	 *
-	 * @param null|int $topic The topic to show the poll from. If null, $_REQUEST['ssi_topic'] will be used instead.
-	 * @param string $output_method The output method. If 'echo', displays the poll, otherwise returns an array of info about it.
-	 * @return void|array Either displays the poll or returns an array of info about it, depending on output_method.
-	 */
-	public static function showPoll($topic = null, $output_method = 'echo')
-	{
-		if (!self::$setup_done)
-			new self();
-
-		$boardsAllowed = boardsAllowedTo('poll_view');
-
-		if (empty($boardsAllowed))
-			return array();
-
-		if ($topic === null && isset($_REQUEST['ssi_topic']))
-			$topic = (int) $_REQUEST['ssi_topic'];
-		else
-			$topic = (int) $topic;
-
-		$request = Db::$db->query('', '
-			SELECT
-				p.id_poll, p.question, p.voting_locked, p.hide_results, p.expire_time, p.max_votes, p.guest_vote, b.id_board
-			FROM {db_prefix}topics AS t
-				INNER JOIN {db_prefix}polls AS p ON (p.id_poll = t.id_poll)
-				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
-			WHERE t.id_topic = {int:current_topic}
-				AND {query_see_board}' . (!in_array(0, $boardsAllowed) ? '
-				AND b.id_board IN ({array_int:boards_allowed_see})' : '') . (Config::$modSettings['postmod_active'] ? '
-				AND t.approved = {int:is_approved}' : '') . '
-			LIMIT 1',
-			array(
-				'current_topic' => $topic,
-				'boards_allowed_see' => $boardsAllowed,
-				'is_approved' => 1,
-			)
-		);
-
-		// Either this topic has no poll, or the user cannot view it.
-		if (Db::$db->num_rows($request) == 0)
-			return array();
-
-		$row = Db::$db->fetch_assoc($request);
-		Db::$db->free_result($request);
-
-		// Check if they can vote.
-		$already_voted = false;
-		if (!empty($row['expire_time']) && $row['expire_time'] < time())
-			$allow_vote = false;
-		elseif (User::$me->is_guest)
-		{
-			// There's a difference between "allowed to vote" and "already voted"...
-			$allow_vote = $row['guest_vote'];
-
-			// Did you already vote?
-			if (isset($_COOKIE['guest_poll_vote']) && in_array($row['id_poll'], explode(',', $_COOKIE['guest_poll_vote'])))
-			{
-				$already_voted = true;
-			}
-		}
-		elseif (!empty($row['voting_locked']) || !allowedTo('poll_vote', $row['id_board']))
-			$allow_vote = false;
-		else
-		{
-			$request = Db::$db->query('', '
-				SELECT id_member
-				FROM {db_prefix}log_polls
-				WHERE id_poll = {int:current_poll}
-					AND id_member = {int:current_member}
-				LIMIT 1',
-				array(
-					'current_member' => User::$me->id,
-					'current_poll' => $row['id_poll'],
-				)
-			);
-			$allow_vote = Db::$db->num_rows($request) == 0;
-			$already_voted = $allow_vote;
-			Db::$db->free_result($request);
-		}
-
-		// Can they view?
-		$is_expired = !empty($row['expire_time']) && $row['expire_time'] < time();
-		$allow_view_results = allowedTo('moderate_board') || $row['hide_results'] == 0 || ($row['hide_results'] == 1 && $already_voted) || $is_expired;
-
-		$request = Db::$db->query('', '
-			SELECT COUNT(DISTINCT id_member)
-			FROM {db_prefix}log_polls
-			WHERE id_poll = {int:current_poll}',
-			array(
-				'current_poll' => $row['id_poll'],
-			)
-		);
-		list ($total) = Db::$db->fetch_row($request);
-		Db::$db->free_result($request);
-
-		$request = Db::$db->query('', '
-			SELECT id_choice, label, votes
-			FROM {db_prefix}poll_choices
-			WHERE id_poll = {int:current_poll}',
-			array(
-				'current_poll' => $row['id_poll'],
-			)
-		);
-		$sOptions = array();
-		$total_votes = 0;
-		while ($rowChoice = Db::$db->fetch_assoc($request))
-		{
-			Lang::censorText($rowChoice['label']);
-
-			$sOptions[$rowChoice['id_choice']] = array($rowChoice['label'], $rowChoice['votes']);
-			$total_votes += $rowChoice['votes'];
-		}
-		Db::$db->free_result($request);
-
-		$return = array(
-			'id' => $row['id_poll'],
-			'image' => empty($row['voting_locked']) ? 'poll' : 'locked_poll',
-			'question' => $row['question'],
-			'total_votes' => $total,
-			'is_locked' => !empty($row['voting_locked']),
-			'allow_vote' => $allow_vote,
-			'allow_view_results' => $allow_view_results,
-			'topic' => $topic
-		);
-
-		// Calculate the percentages and bar lengths...
-		$divisor = $total_votes == 0 ? 1 : $total_votes;
-		foreach ($sOptions as $i => $option)
-		{
-			$bar = floor(($option[1] * 100) / $divisor);
-			$return['options'][$i] = array(
-				'id' => 'options-' . $i,
-				'percent' => $bar,
-				'votes' => $option[1],
-				'option' => BBCodeParser::load()->parse($option[0]),
-				'vote_button' => '<input type="' . ($row['max_votes'] > 1 ? 'checkbox' : 'radio') . '" name="options[]" id="options-' . $i . '" value="' . $i . '">'
-			);
-		}
-
-		$return['allowed_warning'] = $row['max_votes'] > 1 ? sprintf(Lang::$txt['poll_options_limit'], min(count($sOptions), $row['max_votes'])) : '';
+		$return = $poll->format();
 
 		// If mods want to do something with this poll, let them do that now.
-		call_integration_hook('integrate_ssi_showPoll', array(&$return));
+		call_integration_hook('integrate_ssi_recentPoll', array(&$return, $topPollInstead));
 
 		if ($output_method != 'echo')
 			return $return;
@@ -1699,7 +1432,7 @@ class ServerSideIncludes
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				</form>';
 		}
-		else
+		elseif ($return['allow_view_results'])
 		{
 			echo '
 				<div class="ssi_poll">
@@ -1731,6 +1464,93 @@ class ServerSideIncludes
 					<strong>' . Lang::$txt['poll_total_voters'] . ': ' . $return['total_votes'] . '</strong>' : ''), '
 				</div>';
 		}
+		else
+			echo Lang::$txt['poll_cannot_see'];
+	}
+
+	/**
+	 * Shows the poll from the specified topic
+	 *
+	 * Alias: ssi_showPoll()
+	 *
+	 * @param null|int $topic The topic to show the poll from. If null, $_REQUEST['ssi_topic'] will be used instead.
+	 * @param string $output_method The output method. If 'echo', displays the poll, otherwise returns an array of info about it.
+	 * @return void|array Either displays the poll or returns an array of info about it, depending on output_method.
+	 */
+	public static function showPoll($topic = null, $output_method = 'echo')
+	{
+		if (!self::$setup_done)
+			new self();
+
+		$topic = (int) ($topic ?? ($_REQUEST['ssi_topic'] ?? 0));
+
+		if (empty($topic))
+			return array();
+
+		$poll = Poll::load($topic, Poll::LOAD_BY_TOPIC | Poll::CHECK_ACCESS);
+
+		if (empty($poll))
+			return array();
+
+		$return = $poll->format();
+
+		// If mods want to do something with this poll, let them do that now.
+		call_integration_hook('integrate_ssi_showPoll', array(&$return));
+
+		if ($output_method != 'echo')
+			return $return;
+
+		if ($return['allow_vote'])
+		{
+			echo '
+				<form class="ssi_poll" action="', Config::$boardurl, '/SSI.php?ssi_function=pollVote" method="post" accept-charset="', Utils::$context['character_set'], '">
+					<strong>', $return['question'], '</strong><br>
+					', !empty($return['allowed_warning']) ? $return['allowed_warning'] . '<br>' : '';
+
+			foreach ($return['options'] as $option)
+				echo '
+					<label for="', $option['id'], '">', $option['vote_button'], ' ', $option['option'], '</label><br>';
+
+			echo '
+					<input type="submit" value="', Lang::$txt['poll_vote'], '" class="button">
+					<input type="hidden" name="poll" value="', $return['id'], '">
+					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+				</form>';
+		}
+		elseif ($return['allow_view_results'])
+		{
+			echo '
+				<div class="ssi_poll">
+					<strong>', $return['question'], '</strong>
+					<dl>';
+
+			foreach ($return['options'] as $option)
+			{
+				echo '
+						<dt>', $option['option'], '</dt>
+						<dd>';
+
+				if ($return['allow_view_results'])
+				{
+					echo '
+							<div class="ssi_poll_bar" style="border: 1px solid #666; height: 1em">
+								<div class="ssi_poll_bar_fill" style="background: #ccf; height: 1em; width: ', $option['percent'], '%;">
+								</div>
+							</div>
+							', $option['votes'], ' (', $option['percent'], '%)';
+				}
+
+				echo '
+						</dd>';
+			}
+
+			echo '
+					</dl>', ($return['allow_view_results'] ? '
+					<strong>' . Lang::$txt['poll_total_voters'] . ': ' . $return['total_votes'] . '</strong>' : ''), '
+				</div>';
+		}
+		else
+			echo Lang::$txt['poll_cannot_see'];
 	}
 
 	/**

@@ -25,6 +25,7 @@ use SMF\Draft;
 use SMF\Lang;
 use SMF\MessageIndex;
 use SMF\Msg;
+use SMF\Poll;
 use SMF\Theme;
 use SMF\Time;
 use SMF\Topic;
@@ -728,50 +729,11 @@ class Post implements ActionInterface
 			return;
 		}
 
-		// New topic, new poll.
-		if (empty(Topic::$info->id))
-		{
-			isAllowedTo('poll_post');
-		}
-		// This is an old topic - but it is yours!  Can you add to it?
-		elseif (User::$me->id == Topic::$info->id_member_started && !allowedTo('poll_add_any'))
-		{
-			isAllowedTo('poll_add_own');
-		}
-		// If you're not the owner, can you add to any poll?
-		else
-			isAllowedTo('poll_add_any');
+		// Make a new empty poll.
+		$poll = Poll::create();
 
-		// Can guests vote on polls in this board?
-		if (!empty(Board::$info->id))
-		{
-			require_once(Config::$sourcedir . '/Subs-Members.php');
-			$allowedVoteGroups = groupsAllowedTo('poll_vote', Board::$info->id);
-			$guest_vote_enabled = in_array(-1, $allowedVoteGroups['allowed']);
-		}
-		// No board, so we'll have to check this again in Post2::submit().
-		else
-			$guest_vote_enabled = true;
-
-		// Set up the poll options.
-		Utils::$context['poll_options'] = array(
-			'max_votes' => empty($_POST['poll_max_votes']) ? '1' : max(1, $_POST['poll_max_votes']),
-			'hide' => empty($_POST['poll_hide']) ? 0 : $_POST['poll_hide'],
-			'expire' => !isset($_POST['poll_expire']) ? '' : $_POST['poll_expire'],
-			'change_vote' => isset($_POST['poll_change_vote']),
-			'guest_vote' => isset($_POST['poll_guest_vote']),
-			'guest_vote_enabled' => $guest_vote_enabled,
-		);
-
-		// Make all five poll choices empty.
-		Utils::$context['choices'] = array(
-			array('id' => 0, 'number' => 1, 'label' => '', 'is_last' => false),
-			array('id' => 1, 'number' => 2, 'label' => '', 'is_last' => false),
-			array('id' => 2, 'number' => 3, 'label' => '', 'is_last' => false),
-			array('id' => 3, 'number' => 4, 'label' => '', 'is_last' => false),
-			array('id' => 4, 'number' => 5, 'label' => '', 'is_last' => true),
-		);
-		Utils::$context['last_choice_id'] = 4;
+		Utils::$context['poll_options'] = $poll->format();
+		Utils::$context['choices'] = &$poll->formatted['choices'];
 
 		Utils::$context['make_poll'] = true;
 	}

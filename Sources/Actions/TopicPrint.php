@@ -20,6 +20,7 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Poll;
 use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
@@ -106,170 +107,16 @@ class TopicPrint implements ActionInterface
 		$row = Db::$db->fetch_assoc($request);
 		Db::$db->free_result($request);
 
-		// We want a separate BBCodeParser instance for this, not the reusable one
-		// that would be returned by BBCodeParser::load().
-		$bbcparser = new BBCodeParser();
-
 		if (!empty($row['id_poll']))
 		{
 			Lang::load('Post');
-			// Get the question and if it's locked.
-			$request = Db::$db->query('', '
-				SELECT
-					p.question, p.voting_locked, p.hide_results, p.expire_time, p.max_votes, p.change_vote,
-					p.guest_vote, p.id_member, COALESCE(mem.real_name, p.poster_name) AS poster_name, p.num_guest_voters, p.reset_poll
-				FROM {db_prefix}polls AS p
-					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = p.id_member)
-				WHERE p.id_poll = {int:id_poll}
-				LIMIT 1',
-				array(
-					'id_poll' => $row['id_poll'],
-				)
-			);
-			$pollinfo = Db::$db->fetch_assoc($request);
-			Db::$db->free_result($request);
-
-			$request = Db::$db->query('', '
-				SELECT COUNT(DISTINCT id_member) AS total
-				FROM {db_prefix}log_polls
-				WHERE id_poll = {int:id_poll}
-					AND id_member != {int:not_guest}',
-				array(
-					'id_poll' => $row['id_poll'],
-					'not_guest' => 0,
-				)
-			);
-			list ($pollinfo['total']) = Db::$db->fetch_row($request);
-			Db::$db->free_result($request);
-
-			// Total voters needs to include guest voters
-			$pollinfo['total'] += $pollinfo['num_guest_voters'];
-
-			// Get all the options, and calculate the total votes.
-			$request = Db::$db->query('', '
-				SELECT pc.id_choice, pc.label, pc.votes, COALESCE(lp.id_choice, -1) AS voted_this
-				FROM {db_prefix}poll_choices AS pc
-					LEFT JOIN {db_prefix}log_polls AS lp ON (lp.id_choice = pc.id_choice AND lp.id_poll = {int:id_poll} AND lp.id_member = {int:current_member} AND lp.id_member != {int:not_guest})
-				WHERE pc.id_poll = {int:id_poll}',
-				array(
-					'current_member' => User::$me->id,
-					'id_poll' => $row['id_poll'],
-					'not_guest' => 0,
-				)
-			);
-			$pollOptions = array();
-			$realtotal = 0;
-			$pollinfo['has_voted'] = false;
-			while ($voterow = Db::$db->fetch_assoc($request))
-			{
-				Lang::censorText($voterow['label']);
-				$pollOptions[$voterow['id_choice']] = $voterow;
-				$realtotal += $voterow['votes'];
-				$pollinfo['has_voted'] |= $voterow['voted_this'] != -1;
-			}
-			Db::$db->free_result($request);
-
-			// If this is a guest we need to do our best to work out if they have voted, and what they voted for.
-			if (User::$me->is_guest && $pollinfo['guest_vote'] && allowedTo('poll_vote'))
-			{
-				if (!empty($_COOKIE['guest_poll_vote']) && preg_match('~^[0-9,;]+$~', $_COOKIE['guest_poll_vote']) && strpos($_COOKIE['guest_poll_vote'], ';' . $row['id_poll'] . ',') !== false)
-				{
-					// ;id,timestamp,[vote,vote...]; etc
-					$guestinfo = explode(';', $_COOKIE['guest_poll_vote']);
-					// Find the poll we're after.
-					foreach ($guestinfo as $i => $guestvoted)
-					{
-						$guestvoted = explode(',', $guestvoted);
-						if ($guestvoted[0] == $row['id_poll'])
-							break;
-					}
-					// Has the poll been reset since guest voted?
-					if ($pollinfo['reset_poll'] > $guestvoted[1])
-					{
-						// Remove the poll info from the cookie to allow guest to vote again
-						unset($guestinfo[$i]);
-						if (!empty($guestinfo))
-							$_COOKIE['guest_poll_vote'] = ';' . implode(';', $guestinfo);
-						else
-							unset($_COOKIE['guest_poll_vote']);
-					}
-					else
-					{
-						// What did they vote for?
-						unset($guestvoted[0], $guestvoted[1]);
-						foreach ($pollOptions as $choice => $details)
-						{
-							$pollOptions[$choice]['voted_this'] = in_array($choice, $guestvoted) ? 1 : -1;
-							$pollinfo['has_voted'] |= $pollOptions[$choice]['voted_this'] != -1;
-						}
-						unset($choice, $details, $guestvoted);
-					}
-					unset($guestinfo, $guestvoted, $i);
-				}
-			}
-
-			User::$me->started = User::$me->id == $row['id_member'] && !User::$me->is_guest;
-			// Set up the basic poll information.
-			Utils::$context['poll'] = array(
-				'id' => $row['id_poll'],
-				'image' => 'normal_' . (empty($pollinfo['voting_locked']) ? 'poll' : 'locked_poll'),
-				'question' => $bbcparser->parse($pollinfo['question']),
-				'total_votes' => $pollinfo['total'],
-				'change_vote' => !empty($pollinfo['change_vote']),
-				'is_locked' => !empty($pollinfo['voting_locked']),
-				'options' => array(),
-				'lock' => allowedTo('poll_lock_any') || (User::$me->started && allowedTo('poll_lock_own')),
-				'edit' => allowedTo('poll_edit_any') || (User::$me->started && allowedTo('poll_edit_own')),
-				'allowed_warning' => $pollinfo['max_votes'] > 1 ? sprintf(Lang::$txt['poll_options_limit'], min(count($pollOptions), $pollinfo['max_votes'])) : '',
-				'is_expired' => !empty($pollinfo['expire_time']) && $pollinfo['expire_time'] < time(),
-				'expire_time' => !empty($pollinfo['expire_time']) ? timeformat($pollinfo['expire_time']) : 0,
-				'has_voted' => !empty($pollinfo['has_voted']),
-				'starter' => array(
-					'id' => $pollinfo['id_member'],
-					'name' => $row['poster_name'],
-					'href' => $pollinfo['id_member'] == 0 ? '' : Config::$scripturl . '?action=profile;u=' . $pollinfo['id_member'],
-					'link' => $pollinfo['id_member'] == 0 ? $row['poster_name'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $pollinfo['id_member'] . '">' . $row['poster_name'] . '</a>'
-				)
-			);
-
-			// Make the lock and edit permissions defined above more directly accessible.
-			Utils::$context['allow_lock_poll'] = Utils::$context['poll']['lock'];
-			Utils::$context['allow_edit_poll'] = Utils::$context['poll']['edit'];
-
-			// You're allowed to view the results if:
-			// 1. you're just a super-nice-guy, or
-			// 2. anyone can see them (hide_results == 0), or
-			// 3. you can see them after you voted (hide_results == 1), or
-			// 4. you've waited long enough for the poll to expire. (whether hide_results is 1 or 2.)
-			Utils::$context['allow_poll_view'] = allowedTo('moderate_board') || $pollinfo['hide_results'] == 0 || ($pollinfo['hide_results'] == 1 && Utils::$context['poll']['has_voted']) || Utils::$context['poll']['is_expired'];
-
-			// Calculate the percentages and bar lengths...
-			$divisor = $realtotal == 0 ? 1 : $realtotal;
-
-			// Determine if a decimal point is needed in order for the options to add to 100%.
-			$precision = $realtotal == 100 ? 0 : 1;
-
-			// Now look through each option, and...
-			foreach ($pollOptions as $i => $option)
-			{
-				// First calculate the percentage, and then the width of the bar...
-				$bar = round(($option['votes'] * 100) / $divisor, $precision);
-				$barWide = $bar == 0 ? 1 : floor(($bar * 8) / 3);
-
-				// Now add it to the poll's contextual theme data.
-				Utils::$context['poll']['options'][$i] = array(
-					'id' => 'options-' . $i,
-					'percent' => $bar,
-					'votes' => $option['votes'],
-					'voted_this' => $option['voted_this'] != -1,
-					// Note: IE < 8 requires us to set a width on the container, too.
-					'bar_ndt' => $bar > 0 ? '<div class="bar" style="width: ' . ($bar * 3.5 + 4) . 'px;"><div style="width: ' . $bar * 3.5 . 'px;"></div></div>' : '',
-					'bar_width' => $barWide,
-					'option' => $bbcparser->parse($option['label']),
-					'vote_button' => '<input type="' . ($pollinfo['max_votes'] > 1 ? 'checkbox' : 'radio') . '" name="options[]" id="options-' . $i . '" value="' . $i . '">'
-				);
-			}
+			$poll = Poll::load(Topic::$topic_id, Poll::LOAD_BY_TOPIC);
+			Utils::$context['poll'] = $poll->format(array('no_buttons' => true));
 		}
+
+		// We want a separate BBCodeParser instance for this, not the reusable one
+		// that would be returned by BBCodeParser::load().
+		$bbcparser = new BBCodeParser();
 
 		// Set the BBCodeParser to print mode.
 		$bbcparser->for_print = true;
