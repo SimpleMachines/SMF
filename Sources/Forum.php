@@ -69,10 +69,10 @@ class Forum
 		'likes' => array('', 'SMF\\Likes::call'),
 		'lock' => array('', 'SMF\\Topic::lock'),
 		'lockvoting' => array('', 'SMF\\Poll::lock'),
-		'login' => array('LogInOut.php', 'Login'),
-		'login2' => array('LogInOut.php', 'Login2'),
-		'logintfa' => array('LogInOut.php', 'LoginTFA'),
-		'logout' => array('LogInOut.php', 'Logout'),
+		'login' => array('Actions/Login2.php', 'Login'),
+		'login2' => array('Actions/Login2.php', 'Login2'),
+		'logintfa' => array('Actions/Login2.php', 'LoginTFA'),
+		'logout' => array('Actions/Login2.php', 'Logout'),
 		'markasread' => array('', 'SMF\\Board::MarkRead'),
 		'mergetopics' => array('', 'SMF\\Actions\\TopicMerge::call'),
 		'mlist' => array('', 'SMF\\Actions\\Memberlist::call'),
@@ -340,7 +340,7 @@ class Forum
 			// You can only login.... otherwise, you're getting the "maintenance mode" display.
 			if (isset($_REQUEST['action']) && (in_array($_REQUEST['action'], array('login2', 'logintfa', 'logout'))))
 			{
-				require_once(Config::$sourcedir . '/LogInOut.php');
+				require_once(Config::$sourcedir . '/Actions/Login2.php');
 				return ($_REQUEST['action'] == 'login2' ? 'Login2' : ($_REQUEST['action'] == 'logintfa' ? 'LoginTFA' : 'Logout'));
 			}
 			// Don't even try it, sonny.

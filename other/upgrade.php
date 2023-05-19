@@ -236,7 +236,7 @@ if (isset($_GET['ssi']))
 
 // Include our helper functions.
 require_once(Config::$sourcedir . '/Subs.php');
-require_once(Config::$sourcedir . '/LogInOut.php');
+require_once(Config::$sourcedir . '/Actions/Login2.php');
 require_once(Config::$sourcedir . '/Subs-Editor.php');
 
 // Don't do security check if on Yabbse
