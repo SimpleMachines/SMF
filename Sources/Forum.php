@@ -60,7 +60,7 @@ class Forum
 		'dlattach' => array('', 'SMF\\Actions\\AttachmentDownload::call'),
 		'editpoll' => array('', 'SMF\\Poll::edit'),
 		'editpoll2' => array('', 'SMF\\Poll::edit2'),
-		'findmember' => array('Subs-Auth.php', 'JSMembers'),
+		'findmember' => array('', 'SMF\\Actions\\FindMember::call'),
 		'groups' => array('', 'SMF\\Actions\\Groups::call'),
 		'help' => array('', 'SMF\\Actions\\Help::call'),
 		'helpadmin' => array('', 'SMF\\Actions\\HelpAdmin::call'),
