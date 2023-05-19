@@ -104,7 +104,7 @@ class Forum
 		'signup' => array('', 'SMF\\Actions\\Register::call'),
 		'signup2' => array('', 'SMF\\Actions\\Register2::call'),
 		'smstats' => array('', 'SMF\\Actions\\SmStats::call'),
-		'suggest' => array('Subs-Editor.php', 'AutoSuggestHandler'),
+		'suggest' => array('', 'SMF\\Actions\\AutoSuggest::call'),
 		'splittopics' => array('', 'SMF\\Actions\\TopicSplit::call'),
 		'stats' => array('', 'SMF\\Actions\\Stats::call'),
 		'sticky' => array('', 'SMF\\Topic::sticky'),
