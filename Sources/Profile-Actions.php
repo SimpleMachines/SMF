@@ -683,7 +683,7 @@ function deleteAccount2($memID)
 	{
 		User::delete($memID);
 
-		require_once(Config::$sourcedir . '/LogInOut.php');
+		require_once(Config::$sourcedir . '/Actions/Login2.php');
 		LogOut(true);
 
 		redirectexit();

@@ -257,7 +257,7 @@ class Reminder implements ActionInterface
 			}
 		}
 
-		require_once(Config::$sourcedir . '/LogInOut.php');
+		require_once(Config::$sourcedir . '/Actions/Login2.php');
 
 		// Quit if this code is not right.
 		if (empty($_POST['code']) || substr($this->member->validation_code, 0, 10) !== substr(md5($_POST['code']), 0, 10))
