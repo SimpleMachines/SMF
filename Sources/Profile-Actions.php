@@ -21,6 +21,7 @@ use SMF\Msg;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Logout;
 use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
@@ -683,8 +684,7 @@ function deleteAccount2($memID)
 	{
 		User::delete($memID);
 
-		require_once(Config::$sourcedir . '/Actions/Login2.php');
-		LogOut(true);
+		Logout::call(true);
 
 		redirectexit();
 	}
