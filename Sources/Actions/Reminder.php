@@ -103,7 +103,7 @@ class Reminder implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		call_helper(isset(self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : $this->subaction);
+		call_helper(method_exists($this, self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : self::$subactions[$this->subaction]);
 	}
 
 	/**
@@ -257,19 +257,17 @@ class Reminder implements ActionInterface
 			}
 		}
 
-		require_once(Config::$sourcedir . '/Actions/Login2.php');
-
 		// Quit if this code is not right.
 		if (empty($_POST['code']) || substr($this->member->validation_code, 0, 10) !== substr(md5($_POST['code']), 0, 10))
 		{
 			// Stop brute force attacks like this.
-			validatePasswordFlood($this->member->id, $this->member->username, $this->member->passwd_flood, false);
+			Login2::validatePasswordFlood($this->member->id, $this->member->username, $this->member->passwd_flood, false);
 
 			fatal_error(Lang::$txt['invalid_activation_code'], false);
 		}
 
 		// Just in case, flood control.
-		validatePasswordFlood($this->member->id, $this->member->username, $this->member->passwd_flood, true);
+		Login2::validatePasswordFlood($this->member->id, $this->member->username, $this->member->passwd_flood, true);
 
 		// User validated.  Update the database!
 		User::updateMemberData($this->member->id, array('validation_code' => '', 'passwd' => hash_password($this->member->username, $_POST['passwrd1'])));

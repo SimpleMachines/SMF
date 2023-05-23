@@ -19,6 +19,7 @@ use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Logout;
 use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
@@ -320,7 +321,6 @@ function is_not_banned($forceCheck = false)
 
 		// A goodbye present.
 		require_once(Config::$sourcedir . '/Subs-Auth.php');
-		require_once(Config::$sourcedir . '/Actions/Login2.php');
 		$cookie_url = url_parts(!empty(Config::$modSettings['localCookies']), !empty(Config::$modSettings['globalCookies']));
 		smf_setcookie(Config::$cookiename . '_', implode(',', $_SESSION['ban']['cannot_access']['ids']), time() + 3153600, $cookie_url[1], $cookie_url[0], false, false);
 
@@ -329,7 +329,7 @@ function is_not_banned($forceCheck = false)
 		$_GET['board'] = '';
 		$_GET['topic'] = '';
 		writeLog(true);
-		Logout(true, false);
+		Logout::call(true, false);
 
 		// You banned, sucka!
 		fatal_error(sprintf(Lang::$txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_access']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_access']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf(Lang::$txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : Lang::$txt['your_ban_expires_never']), false, 403);
@@ -359,8 +359,7 @@ function is_not_banned($forceCheck = false)
 		$_GET['topic'] = '';
 		writeLog(true);
 
-		require_once(Config::$sourcedir . '/Actions/Login2.php');
-		Logout(true, false);
+		Logout::call(true, false);
 
 		fatal_error(sprintf(Lang::$txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_login']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_login']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf(Lang::$txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : Lang::$txt['your_ban_expires_never']) . '<br>' . Lang::$txt['ban_continue_browse'], false, 403);
 	}

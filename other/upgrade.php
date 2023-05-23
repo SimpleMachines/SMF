@@ -236,7 +236,6 @@ if (isset($_GET['ssi']))
 
 // Include our helper functions.
 require_once(Config::$sourcedir . '/Subs.php');
-require_once(Config::$sourcedir . '/Actions/Login2.php');
 require_once(Config::$sourcedir . '/Subs-Editor.php');
 
 // Don't do security check if on Yabbse
@@ -1267,7 +1266,7 @@ function checkLogin()
 		if (!$disable_security && (empty($sha_passwd) || (!empty($password) ? $password : '') != $sha_passwd) && !hash_verify_password((!empty($name) ? $name : ''), $_REQUEST['passwrd'], (!empty($password) ? $password : '')) && empty($upcontext['username_incorrect']))
 		{
 			// MD5?
-			$md5pass = md5_hmac($_REQUEST['passwrd'], strtolower($_POST['user']));
+			$md5pass = hash_hmac('md5', $_REQUEST['passwrd'], strtolower($_POST['user']));
 			if ($md5pass != $password)
 			{
 				$upcontext['password_failed'] = true;

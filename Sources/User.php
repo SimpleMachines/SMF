@@ -13,6 +13,7 @@
 
 namespace SMF;
 
+use SMF\Actions\Login2;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
@@ -2851,9 +2852,7 @@ class User implements \ArrayAccess
 		// If we no longer have the member maybe they're being all hackey, stop brute force!
 		if (empty(self::$my_id))
 		{
-			require_once(Config::$sourcedir . '/Actions/Login2.php');
-
-			validatePasswordFlood(
+			Login2::validatePasswordFlood(
 				!empty(self::$profiles[self::$my_id]['id_member']) ? self::$profiles[self::$my_id]['id_member'] : self::$my_id,
 				!empty(self::$profiles[self::$my_id]['member_name']) ? self::$profiles[self::$my_id]['member_name'] : '',
 				!empty(self::$profiles[self::$my_id]['passwd_flood']) ? self::$profiles[self::$my_id]['passwd_flood'] : false,
