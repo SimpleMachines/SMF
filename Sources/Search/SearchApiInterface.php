@@ -128,7 +128,20 @@ interface SearchApiInterface
 	public function topicsMoved(array $topics, $board_to): void;
 
 	/**
-	 * Callback for actually performing the search query
+	 * Sets whatever properties are necessary in order to perform the search.
+	 *
+	 * This is separate from the constructor because there are a number of other
+	 * places where the search API will be loaded for other purposes.
+	 *
+	 * @return void
+	 */
+	public function initializeSearch(): void;
+
+	/**
+	 * Callback for actually performing the search query.
+	 *
+	 * All of the arguments for this method are deprecated as of SMF 3.0.
+	 * The relevant data is directly accessible in the properties of SearchApi.
 	 *
 	 * @access public
 	 * @param array $query_params An array of parameters for the query
@@ -139,6 +152,20 @@ interface SearchApiInterface
 	 * @return mixed
 	 */
 	public function searchQuery(array $query_params, array $searchWords, array $excludedIndexWords, array &$participants, array &$searchArray);
+
+	/**
+	 * Figures out which search result topics the user participated in.
+	 *
+	 * @return void
+	 */
+	public function setParticipants(): void;
+
+	/**
+	 * Compresses $this->params to a string for use as an URL parameter.
+	 *
+	 * @return string URL-safe variant of a Base64 string.
+	 */
+	public function compressParams(): string;
 }
 
 ?>

@@ -53,6 +53,8 @@ class Fulltext extends SearchApi
 
 		$this->bannedWords = empty(Config::$modSettings['search_banned_words']) ? array() : explode(',', Config::$modSettings['search_banned_words']);
 		$this->min_word_length = $this->_getMinWordLength();
+
+		parent::__construct();
 	}
 
 	/**
@@ -168,18 +170,6 @@ class Fulltext extends SearchApi
 	 */
 	public function indexedWordQuery(array $words, array $search_data)
 	{
-		// Specify the function to search with. Regex is for word boundaries.
-		$is_search_regex = !empty(Config::$modSettings['search_match_words']) && !$search_data['no_regexp'];
-		$query_match_type = $is_search_regex ? 'RLIKE' : 'LIKE';
-		$word_boundary_wrapper = function(string $str): string
-		{
-			return sprintf(Db::$db->supports_pcre ? '\\b%s\\b' : '[[:<:]]%s[[:>:]]', $str);
-		};
-		$escape_sql_regex = function(string $str): string
-		{
-			return addcslashes(preg_replace('/[\[\]$.+*?&^|{}()]/', '[$0]', $str), '\\\'');
-		};
-
 		$query_select = array(
 			'id_msg' => 'm.id_msg',
 		);
@@ -197,12 +187,12 @@ class Fulltext extends SearchApi
 			foreach ($words['words'] as $regularWord)
 			{
 				if (in_array($regularWord, $query_params['excluded_words']))
-					$query_where[] = 'm.body NOT ' . $query_match_type . ' {string:complex_body_' . $count . '}';
+					$query_where[] = 'm.body NOT ' . $this->query_match_type . ' {string:complex_body_' . $count . '}';
 				else
-					$query_where[] = 'm.body ' . $query_match_type . ' {string:complex_body_' . $count . '}';
+					$query_where[] = 'm.body ' . $this->query_match_type . ' {string:complex_body_' . $count . '}';
 
-				if ($is_search_regex)
-					$query_params['complex_body_' . $count++] = $word_boundary_wrapper($escape_sql_regex($regularWord));
+				if ($this->query_match_type === 'RLIKE')
+					$query_params['complex_body_' . $count++] = self::wordBoundaryWrapper(self::escapeSqlRegex($regularWord));
 				else
 					$query_params['complex_body_' . $count++] = '%' . Db::$db->escape_wildcard_string($regularWord) . '%';
 			}
@@ -223,10 +213,10 @@ class Fulltext extends SearchApi
 		if (!empty($query_params['excluded_phrases']) && empty(Config::$modSettings['search_force_index']))
 			foreach ($query_params['excluded_phrases'] as $phrase)
 			{
-				$query_where[] = 'subject NOT ' . $query_match_type . ' {string:exclude_subject_phrase_' . $count . '}';
+				$query_where[] = 'subject NOT ' . $this->query_match_type . ' {string:exclude_subject_phrase_' . $count . '}';
 
-				if ($is_search_regex)
-					$query_params['exclude_subject_phrase_' . $count++] = $word_boundary_wrapper($escape_sql_regex($phrase));
+				if ($this->query_match_type === 'RLIKE')
+					$query_params['exclude_subject_phrase_' . $count++] = self::wordBoundaryWrapper(self::escapeSqlRegex($phrase));
 				else
 					$query_params['exclude_subject_phrase_' . $count++] = '%' . Db::$db->escape_wildcard_string($phrase) . '%';
 			}
@@ -234,10 +224,10 @@ class Fulltext extends SearchApi
 		if (!empty($query_params['excluded_subject_words']) && empty(Config::$modSettings['search_force_index']))
 			foreach ($query_params['excluded_subject_words'] as $excludedWord)
 			{
-				$query_where[] = 'subject NOT ' . $query_match_type . ' {string:exclude_subject_words_' . $count . '}';
+				$query_where[] = 'subject NOT ' . $this->query_match_type . ' {string:exclude_subject_words_' . $count . '}';
 
-				if ($is_search_regex)
-					$query_params['exclude_subject_words_' . $count++] = $word_boundary_wrapper($escape_sql_regex($excludedWord));
+				if ($this->query_match_type === 'RLIKE')
+					$query_params['exclude_subject_words_' . $count++] = self::wordBoundaryWrapper(self::escapeSqlRegex($excludedWord));
 				else
 					$query_params['exclude_subject_words_' . $count++] = '%' . Db::$db->escape_wildcard_string($excludedWord) . '%';
 			}
