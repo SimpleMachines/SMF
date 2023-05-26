@@ -23,7 +23,7 @@ class Standard extends SearchApi
 	/**
 	 * {@inheritDoc}
 	 */
-	public function supportsMethod($methodName, $query_params = null)
+	public function supportsMethod($methodName, $query_params = null): bool
 	{
 		$return = false;
 
@@ -33,6 +33,15 @@ class Standard extends SearchApi
 
 		return $return;
 	}
+
+	/**
+	 * Constructor.
+	 */
+	public function __construct()
+	{
+		parent::__construct();
+	}
+
 }
 
 ?>
