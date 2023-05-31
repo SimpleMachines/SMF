@@ -307,18 +307,28 @@ div.sceditor-smileyPopup, div.sceditor-dropdown {
 }
 
 div.sceditor-smileyPopup {
-	bottom: 0;
+	top: unset;
+	left: 0;
+	right: 0;
+	transform: unset;
 	position: absolute;
-	height: fit-content;
+	min-height: 100px;
 	width: 250px;
 	margin-inline: auto;
+	display: flex;
+	box-sizing: border-box;
 }
 div.sceditor-smileyPopup #sceditor-popup {
+	width: 100%;
 	display: flex;
 	flex-direction: column;
 }
+div.sceditor-smileyPopup #sceditor-popup div#sceditor-popup-smiley {
+	flex-grow: 1;
+	align-self: flex-start;
+}
 div.sceditor-smileyPopup #sceditor-popup span.button {
-	margin-top: 10px;
+	margin-top: 20px;
 	align-self: center;
 }
 /**
