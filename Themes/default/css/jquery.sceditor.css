@@ -305,25 +305,21 @@ div.sceditor-smileyPopup, div.sceditor-dropdown {
 	box-shadow: 1px 2px 4px rgba(0, 0, 0, .2);
 	overflow-y: auto;
 }
-@media screen and (min-width: 1024px) {
-	div.sceditor-smileyPopup {
-		max-height: 50%;
-		width: 50%;
-		position: fixed;
-	}
-	#sceditor-popup {
-		height: 100%;
-	}
-	#sceditor-popup-smiley {
-		height: 90%;
-		overflow: auto;
-	}
+
+div.sceditor-smileyPopup {
+	bottom: 0;
+	position: absolute;
+	height: fit-content;
+	width: 250px;
+	margin-inline: auto;
 }
-@media screen and (max-width: 1024px) {
-	div.sceditor-smileyPopup {
-		width: 90%;
-		position: absolute;
-	}
+div.sceditor-smileyPopup #sceditor-popup {
+	display: flex;
+	flex-direction: column;
+}
+div.sceditor-smileyPopup #sceditor-popup span.button {
+	margin-top: 10px;
+	align-self: center;
 }
 /**
 	 * Dropdown styleing
