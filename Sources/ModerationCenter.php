@@ -48,7 +48,7 @@ function ModerationMain($dont_call = false)
 		isAllowedTo('access_mod_center');
 
 	// We're gonna want a menu of some kind.
-	require_once(Config::$sourcedir . '/Subs-Menu.php');
+	require_once(Config::$sourcedir . '/Menu.php');
 
 	// Load the language, and the template.
 	Lang::load('ModerationCenter');
@@ -57,7 +57,7 @@ function ModerationMain($dont_call = false)
 	Utils::$context['admin_preferences'] = !empty(Theme::$current->options['admin_preferences']) ? Utils::jsonDecode(Theme::$current->options['admin_preferences'], true) : array();
 	Utils::$context['robot_no_index'] = true;
 
-	// This is the menu structure - refer to Subs-Menu.php for the details.
+	// This is the menu structure - refer to Menu.php for the details.
 	$moderation_areas = array(
 		'main' => array(
 			'title' => Lang::$txt['mc_main'],

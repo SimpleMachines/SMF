@@ -351,7 +351,7 @@ function messageIndexBar($area)
 		);
 	}
 
-	require_once(Config::$sourcedir . '/Subs-Menu.php');
+	require_once(Config::$sourcedir . '/Menu.php');
 
 	// Set a few options for the menu.
 	$menuOptions = array(

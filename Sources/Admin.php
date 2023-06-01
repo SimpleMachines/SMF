@@ -43,12 +43,12 @@ function AdminMain()
 	// No indexing evil stuff.
 	Utils::$context['robot_no_index'] = true;
 
-	require_once(Config::$sourcedir . '/Subs-Menu.php');
+	require_once(Config::$sourcedir . '/Menu.php');
 
 	// Some preferences.
 	Utils::$context['admin_preferences'] = !empty(Theme::$current->options['admin_preferences']) ? Utils::jsonDecode(Theme::$current->options['admin_preferences'], true) : array();
 
-	/** @var array $admin_areas Defines the menu structure for the admin center. See {@link Subs-Menu.php Subs-Menu.php} for details! */
+	/** @var array $admin_areas Defines the menu structure for the admin center. See {@link Menu.php Menu.php} for details! */
 	$admin_areas = array(
 		'forum' => array(
 			'title' => Lang::$txt['admin_main'],
