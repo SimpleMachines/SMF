@@ -41,7 +41,7 @@ function ModifyProfile($post_errors = array())
 		Lang::load('Profile+Drafts');
 	Theme::loadTemplate('Profile');
 
-	require_once(Config::$sourcedir . '/Subs-Menu.php');
+	require_once(Config::$sourcedir . '/Menu.php');
 
 	// Did we get the user by name...
 	if (isset($_REQUEST['user']))
