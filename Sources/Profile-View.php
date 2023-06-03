@@ -16,6 +16,7 @@ use SMF\Board;
 use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -55,7 +56,7 @@ function summary($memID)
 	// Are there things we don't show?
 	Utils::$context['disabled_fields'] = isset(Config::$modSettings['disabled_profile_fields']) ? array_flip(explode(',', Config::$modSettings['disabled_profile_fields'])) : array();
 	// Menu tab
-	Utils::$context[Utils::$context['profile_menu_name']]['tab_data'] = array(
+	Menu::$loaded['profile']->tab_data = array(
 		'title' => Lang::$txt['summary'],
 		'icon_class' => 'main_icons profile_hd'
 	);
@@ -831,7 +832,7 @@ function showPosts($memID)
 	Utils::$context['current_member'] = $memID;
 
 	// Create the tabs for the template.
-	Utils::$context[Utils::$context['profile_menu_name']]['tab_data'] = array(
+	Menu::$loaded['profile']->tab_data = array(
 		'title' => Lang::$txt['showPosts'],
 		'description' => Lang::$txt['showPosts_help'],
 		'icon_class' => 'main_icons profile_hd',
@@ -1646,7 +1647,7 @@ function statPanel($memID)
 	Utils::$context['num_posts'] = Lang::numberFormat(User::$loaded[$memID]->posts);
 
 	// Menu tab
-	Utils::$context[Utils::$context['profile_menu_name']]['tab_data'] = array(
+	Menu::$loaded['profile']->tab_data = array(
 		'title' => Lang::$txt['statPanel_generalStats'] . ' - ' . Utils::$context['member']['name'],
 		'icon' => 'stats_info.png'
 	);
@@ -1862,7 +1863,7 @@ function tracking($memID)
 	}
 
 	// Create the tabs for the template.
-	Utils::$context[Utils::$context['profile_menu_name']]['tab_data'] = array(
+	Menu::$loaded['profile']->tab_data = array(
 		'title' => Lang::$txt['tracking'],
 		'description' => Lang::$txt['tracking_description'],
 		'icon_class' => 'main_icons profile_hd',
@@ -1877,11 +1878,11 @@ function tracking($memID)
 
 	// Moderation must be on to track edits.
 	if (empty(Config::$modSettings['userlog_enabled']))
-		unset(Utils::$context[Utils::$context['profile_menu_name']]['tab_data']['edits'], $subActions['edits']);
+		unset(Menu::$loaded['profile']->tab_data['edits'], $subActions['edits']);
 
 	// Group requests must be active to show it...
 	if (empty(Config::$modSettings['show_group_membership']))
-		unset(Utils::$context[Utils::$context['profile_menu_name']]['tab_data']['groupreq'], $subActions['groupreq']);
+		unset(Menu::$loaded['profile']->tab_data['groupreq'], $subActions['groupreq']);
 
 	if (empty($subActions))
 		fatal_lang_error('no_access', false);

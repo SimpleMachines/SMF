@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\Msg;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -46,7 +47,7 @@ function ManagePostSettings()
 	Utils::$context['page_title'] = Lang::$txt['manageposts_title'];
 
 	// Tabs for browsing the different post functions.
-	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
+	Menu::$loaded['admin']->tab_data = array(
 		'title' => Lang::$txt['manageposts_title'],
 		'help' => 'posts_and_topics',
 		'description' => Lang::$txt['manageposts_description'],

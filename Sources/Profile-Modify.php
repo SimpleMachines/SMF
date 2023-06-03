@@ -22,6 +22,7 @@ use SMF\Category;
 use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\Msg;
 use SMF\Mail;
 use SMF\Theme;
@@ -1426,7 +1427,7 @@ function editBuddyIgnoreLists($memID)
 	Utils::$context['list_area'] = isset($_GET['sa']) && isset($subActions[$_GET['sa']]) ? $_GET['sa'] : 'buddies';
 
 	// Create the tabs for the template.
-	Utils::$context[Utils::$context['profile_menu_name']]['tab_data'] = array(
+	Menu::$loaded['profile']->tab_data = array(
 		'title' => Lang::$txt['editBuddyIgnoreLists'],
 		'description' => Lang::$txt['buddy_ignore_desc'],
 		'icon_class' => 'main_icons profile_hd',
@@ -1967,7 +1968,7 @@ function notification($memID)
 	$subAction = !empty($_GET['sa']) && isset($sa[$_GET['sa']]) ? $_GET['sa'] : 'alerts';
 
 	Utils::$context['sub_template'] = $sa[$subAction];
-	Utils::$context[Utils::$context['profile_menu_name']]['tab_data'] = array(
+	Menu::$loaded['profile']->tab_data = array(
 		'title' => Lang::$txt['notification'],
 		'help' => '',
 		'description' => Lang::$txt['notification_info'],

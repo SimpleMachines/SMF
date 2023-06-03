@@ -17,6 +17,7 @@
 use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -320,9 +321,9 @@ function ViewModlog()
 
 	// If a hook has changed this, respect it.
 	if (!empty($moderation_menu_name))
-		Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = $moderation_menu_name;
+		Menu::$loaded['moderate']->tab_data = $moderation_menu_name;
 	elseif (isset(Utils::$context['moderation_menu_name']))
-		Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = array(
+		Menu::$loaded['moderate']->tab_data = array(
 			'title' => Lang::$txt['modlog_' . (Utils::$context['log_type'] == 3 ? 'admin' : 'moderation') . '_log'],
 			'help' => Utils::$context['log_type'] == 3 ? 'adminlog' : 'modlog',
 			'description' => Lang::$txt['modlog_' . (Utils::$context['log_type'] == 3 ? 'admin' : 'moderation') . '_log_desc']

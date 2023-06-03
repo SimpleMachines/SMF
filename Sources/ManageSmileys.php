@@ -17,6 +17,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\MessageIndex;
 use SMF\Msg;
 use SMF\Theme;
@@ -68,7 +69,7 @@ function ManageSmileys()
 	}
 
 	// Load up all the tabs...
-	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
+	Menu::$loaded['admin']->tab_data = array(
 		'title' => Lang::$txt['smileys_manage'],
 		'help' => 'smileys',
 		'description' => Lang::$txt['smiley_settings_explain'],
@@ -96,12 +97,12 @@ function ManageSmileys()
 
 	// Some settings may not be enabled, disallow these from the tabs as appropriate.
 	if (empty(Config::$modSettings['messageIcons_enable']))
-		Utils::$context[Utils::$context['admin_menu_name']]['tab_data']['tabs']['editicons']['disabled'] = true;
+		Menu::$loaded['admin']->tab_data['tabs']['editicons']['disabled'] = true;
 	if (empty(Config::$modSettings['smiley_enable']))
 	{
-		Utils::$context[Utils::$context['admin_menu_name']]['tab_data']['tabs']['addsmiley']['disabled'] = true;
-		Utils::$context[Utils::$context['admin_menu_name']]['tab_data']['tabs']['editsmileys']['disabled'] = true;
-		Utils::$context[Utils::$context['admin_menu_name']]['tab_data']['tabs']['setorder']['disabled'] = true;
+		Menu::$loaded['admin']->tab_data['tabs']['addsmiley']['disabled'] = true;
+		Menu::$loaded['admin']->tab_data['tabs']['editsmileys']['disabled'] = true;
+		Menu::$loaded['admin']->tab_data['tabs']['setorder']['disabled'] = true;
 	}
 
 	call_integration_hook('integrate_manage_smileys', array(&$subActions));
@@ -203,7 +204,7 @@ function EditSmileySettings($return_config = false)
 function EditSmileySets()
 {
 	// Set the right tab to be selected.
-	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'editsets';
+	Menu::$loaded['admin']['current_subsection'] = 'editsets';
 
 	$allowedTypes = array('gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg');
 
@@ -927,7 +928,7 @@ function AddSmiley()
 function EditSmileys()
 {
 	// Force the correct tab to be displayed.
-	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'editsmileys';
+	Menu::$loaded['admin']['current_subsection'] = 'editsmileys';
 	Utils::$context['smileys_dir'] = empty(Config::$modSettings['smileys_dir']) ? Config::$boarddir . '/Smileys' : Config::$modSettings['smileys_dir'];
 
 	$allowedTypes = array('gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg');
@@ -2292,7 +2293,7 @@ function EditMessageIcons()
 			redirectexit('action=admin;area=smileys;sa=editicons');
 	}
 
-	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'editicons';
+	Menu::$loaded['admin']['current_subsection'] = 'editicons';
 
 	$listOptions = array(
 		'id' => 'message_icon_list',

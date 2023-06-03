@@ -17,6 +17,7 @@
 use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\User;
 use SMF\Theme;
 use SMF\Utils;
@@ -54,13 +55,13 @@ function ManagePaidSubscriptions()
 	Utils::$context['page_title'] = Lang::$txt['paid_subscriptions'];
 
 	// Tabs for browsing the different subscription functions.
-	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
+	Menu::$loaded['admin']->tab_data = array(
 		'title' => Lang::$txt['paid_subscriptions'],
 		'help' => '',
 		'description' => Lang::$txt['paid_subscriptions_desc'],
 	);
 	if (!empty(Config::$modSettings['paid_enabled']))
-		Utils::$context[Utils::$context['admin_menu_name']]['tab_data']['tabs'] = array(
+		Menu::$loaded['admin']->tab_data['tabs'] = array(
 			'view' => array(
 				'description' => Lang::$txt['paid_subs_view_desc'],
 			),
@@ -174,7 +175,7 @@ function ModifySubscriptionSettings($return_config = false)
 		}
 
 		Utils::$context['settings_message'] = sprintf(Lang::$txt['paid_note'], Config::$boardurl);
-		Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'settings';
+		Menu::$loaded['admin']['current_subsection'] = 'settings';
 		Utils::$context['settings_title'] = Lang::$txt['settings'];
 
 		// We want javascript for our currency options.

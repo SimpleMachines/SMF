@@ -19,6 +19,7 @@ use SMF\Attachment;
 use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -62,7 +63,7 @@ function ManageAttachments()
 	);
 
 	// This uses admin tabs - as it should!
-	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
+	Menu::$loaded['admin']->tab_data = array(
 		'title' => Lang::$txt['attachments_avatars'],
 		'help' => 'manage_files',
 		'description' => Lang::$txt['attachments_desc'],
@@ -1658,7 +1659,7 @@ function RepairAttachments()
 
 	// Got here we must be doing well - just the template! :D
 	Utils::$context['page_title'] = Lang::$txt['repair_attachments'];
-	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'maintenance';
+	Menu::$loaded['admin']['current_subsection'] = 'maintenance';
 	Utils::$context['sub_template'] = 'attachment_repair';
 
 	// What stage are we at?
@@ -1693,7 +1694,7 @@ function pauseAttachmentMaintenance($to_fix, $max_substep = 0)
 	Utils::$context['sub_template'] = 'not_done';
 
 	// Specific stuff to not break this template!
-	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'maintenance';
+	Menu::$loaded['admin']['current_subsection'] = 'maintenance';
 
 	// Change these two if more steps are added!
 	if (empty($max_substep))
@@ -2401,7 +2402,7 @@ function ManageAttachmentPaths()
 	}
 
 	// Fix up our template.
-	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'attachpaths';
+	Menu::$loaded['admin']['current_subsection'] = 'attachpaths';
 	Utils::$context['page_title'] = Lang::$txt['attach_path_manage'];
 	Utils::$context['sub_template'] = 'attachment_paths';
 }

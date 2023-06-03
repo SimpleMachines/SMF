@@ -15,6 +15,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\Theme;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -52,7 +53,7 @@ function ManageSearch()
 	);
 
 	// Create the tabs for the template.
-	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
+	Menu::$loaded['admin']->tab_data = array(
 		'title' => Lang::$txt['manage_search'],
 		'help' => 'search',
 		'description' => Lang::$txt['search_settings_desc'],
@@ -497,7 +498,7 @@ function CreateMessageIndex()
 	if (function_exists('apache_reset_timeout'))
 		@apache_reset_timeout();
 
-	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'method';
+	Menu::$loaded['admin']['current_subsection'] = 'method';
 	Utils::$context['page_title'] = Lang::$txt['search_index_custom'];
 
 	$messages_per_batch = 50;

@@ -19,6 +19,7 @@ use SMF\Config;
 use SMF\Draft;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -42,7 +43,7 @@ function ManageMaintenance()
 	Theme::loadTemplate('ManageMaintenance');
 
 	// This uses admin tabs - as it should!
-	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
+	Menu::$loaded['admin']->tab_data = array(
 		'title' => Lang::$txt['maintain_title'],
 		'description' => Lang::$txt['maintain_info'],
 		'tabs' => array(

@@ -561,7 +561,7 @@ class Draft
 			Utils::$context['drafts'] = array_reverse(Utils::$context['drafts'], true);
 
 		// Menu tab
-		Utils::$context[Utils::$context['profile_menu_name']]['tab_data'] = array(
+		Menu::$loaded['profile']->tab_data = array(
 			'title' => Lang::$txt['drafts_show'],
 			'description' => Lang::$txt['drafts_show_desc'],
 			'icon_class' => 'main_icons drafts'

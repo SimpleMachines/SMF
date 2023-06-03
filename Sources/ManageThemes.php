@@ -32,6 +32,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -92,7 +93,7 @@ function ThemesMain()
 	// @todo Layout Settings?  huh?
 	if (!empty(Utils::$context['admin_menu_name']))
 	{
-		Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
+		Menu::$loaded['admin']->tab_data = array(
 			'title' => Lang::$txt['themeadmin_title'],
 			'description' => Lang::$txt['themeadmin_description'],
 			'tabs' => array(
@@ -653,7 +654,7 @@ function SetThemeSettings()
 	$_GET['th'] = isset($_GET['th']) ? (int) $_GET['th'] : (int) $_GET['id'];
 
 	// Select the best fitting tab.
-	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'list';
+	Menu::$loaded['admin']['current_subsection'] = 'list';
 
 	Lang::load('Admin');
 	isAllowedTo('admin_forum');
@@ -1396,7 +1397,7 @@ function CopyTemplate()
 	isAllowedTo('admin_forum');
 	Theme::loadTemplate('Themes');
 
-	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'edit';
+	Menu::$loaded['admin']['current_subsection'] = 'edit';
 
 	$_GET['th'] = isset($_GET['th']) ? (int) $_GET['th'] : (int) $_GET['id'];
 

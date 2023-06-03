@@ -18,6 +18,7 @@ use SMF\Board;
 use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\Msg;
 use SMF\Theme;
 use SMF\Topic;
@@ -230,21 +231,22 @@ function UnapprovedPosts()
 	Utils::$context['start'] = $_GET['start'];
 
 	// We have enough to make some pretty tabs!
-	Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = array(
+	$menu = Menu::$loaded['moderate'];
+	$menu->tab_data = array(
 		'title' => Lang::$txt['mc_unapproved_posts'],
 		'help' => 'postmod',
 		'description' => Lang::$txt['mc_unapproved_posts_desc'],
 	);
 
 	// Update the tabs with the correct number of posts.
-	Utils::$context['menu_data_' . Utils::$context['moderation_menu_id']]['sections']['posts']['areas']['postmod']['subsections']['posts']['label'] .= ' (' . Utils::$context['total_unapproved_posts'] . ')';
-	Utils::$context['menu_data_' . Utils::$context['moderation_menu_id']]['sections']['posts']['areas']['postmod']['subsections']['topics']['label'] .= ' (' . Utils::$context['total_unapproved_topics'] . ')';
+	$menu->sections['posts']['areas']['postmod']['subsections']['posts']['label'] .= ' (' . Utils::$context['total_unapproved_posts'] . ')';
+	$menu->sections['posts']['areas']['postmod']['subsections']['topics']['label'] .= ' (' . Utils::$context['total_unapproved_topics'] . ')';
 
 	// If we are filtering some boards out then make sure to send that along with the links.
 	if (isset($_REQUEST['brd']))
 	{
-		Utils::$context['menu_data_' . Utils::$context['moderation_menu_id']]['sections']['posts']['areas']['postmod']['subsections']['posts']['add_params'] = ';brd=' . (int) $_REQUEST['brd'];
-		Utils::$context['menu_data_' . Utils::$context['moderation_menu_id']]['sections']['posts']['areas']['postmod']['subsections']['topics']['add_params'] = ';brd=' . (int) $_REQUEST['brd'];
+		$menu->sections['posts']['areas']['postmod']['subsections']['posts']['add_params'] = ';brd=' . (int) $_REQUEST['brd'];
+		$menu->sections['posts']['areas']['postmod']['subsections']['topics']['add_params'] = ';brd=' . (int) $_REQUEST['brd'];
 	}
 
 	// Get all unapproved posts.
@@ -530,7 +532,7 @@ function UnapprovedAttachments()
 	Utils::$context['sub_template'] = 'show_list';
 	Utils::$context['default_list'] = 'mc_unapproved_attach';
 
-	Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = array(
+	Menu::$loaded['moderate']->tab_data = array(
 		'title' => Lang::$txt['mc_unapproved_attachments'],
 		'help' => '',
 		'description' => Lang::$txt['mc_unapproved_attachments_desc']

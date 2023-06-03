@@ -16,6 +16,7 @@
 use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\Theme;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -52,7 +53,7 @@ function ManageScheduledTasks()
 		Utils::$context['sub_action'] = 'tasks';
 
 	// Now for the lovely tabs. That we all love.
-	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
+	Menu::$loaded['admin']->tab_data = array(
 		'title' => Lang::$txt['scheduled_tasks_title'],
 		'help' => '',
 		'description' => Lang::$txt['maintain_info'],
@@ -366,7 +367,7 @@ function list_getScheduledTasks($start, $items_per_page, $sort)
 function EditTask()
 {
 	// Just set up some lovely context stuff.
-	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'tasks';
+	Menu::$loaded['admin']['current_subsection'] = 'tasks';
 	Utils::$context['sub_template'] = 'edit_scheduled_tasks';
 	Utils::$context['page_title'] = Lang::$txt['scheduled_task_edit'];
 	Utils::$context['server_time'] = timeformat(time(), false, 'server');
@@ -568,7 +569,7 @@ function TaskLog()
 	Utils::$context['default_list'] = 'task_log';
 
 	// Make it all look tify.
-	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'tasklog';
+	Menu::$loaded['admin']['current_subsection'] = 'tasklog';
 	Utils::$context['page_title'] = Lang::$txt['scheduled_log'];
 }
 

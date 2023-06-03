@@ -18,6 +18,7 @@ use SMF\Board;
 use SMF\Category;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\Theme;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -52,7 +53,7 @@ function ManageBoards()
 	);
 
 	// Create the tabs for the template.
-	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
+	Menu::$loaded['admin']->tab_data = array(
 		'title' => Lang::$txt['boards_and_cats'],
 		'help' => 'manage_boards',
 		'description' => Lang::$txt['boards_and_cats_desc'],

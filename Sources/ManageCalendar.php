@@ -17,6 +17,7 @@ use SMF\Board;
 use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\Theme;
 use SMF\Utils;
 use SMF\Actions\Calendar;
@@ -57,13 +58,13 @@ function ManageCalendar()
 	}
 
 	// Set up the two tabs here...
-	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
+	Menu::$loaded['admin']->tab_data = array(
 		'title' => Lang::$txt['manage_calendar'],
 		'help' => 'calendar',
 		'description' => Lang::$txt['calendar_settings_desc'],
 	);
 	if (!empty(Config::$modSettings['cal_enabled']))
-		Utils::$context[Utils::$context['admin_menu_name']]['tab_data']['tabs'] = array(
+		Menu::$loaded['admin']->tab_data['tabs'] = array(
 			'holidays' => array(
 				'description' => Lang::$txt['manage_holidays_desc'],
 			),

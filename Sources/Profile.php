@@ -18,6 +18,7 @@
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -40,8 +41,6 @@ function ModifyProfile($post_errors = array())
 	if (empty($post_errors))
 		Lang::load('Profile+Drafts');
 	Theme::loadTemplate('Profile');
-
-	require_once(Config::$sourcedir . '/Menu.php');
 
 	// Did we get the user by name...
 	if (isset($_REQUEST['user']))
@@ -167,10 +166,23 @@ function ModifyProfile($post_errors = array())
 					'function' => 'showPosts',
 					'icon' => 'posts',
 					'subsections' => array(
-						'messages' => array(Lang::$txt['showMessages'], array('is_not_guest', 'profile_view')),
-						'topics' => array(Lang::$txt['showTopics'], array('is_not_guest', 'profile_view')),
-						'unwatchedtopics' => array(Lang::$txt['showUnwatched'], array('is_not_guest', 'profile_view'), 'enabled' => User::$me->is_owner),
-						'attach' => array(Lang::$txt['showAttachments'], array('is_not_guest', 'profile_view')),
+						'messages' => array(
+							'label' => Lang::$txt['showMessages'],
+							'permission' => array('is_not_guest', 'profile_view'),
+						),
+						'topics' => array(
+							'label' => Lang::$txt['showTopics'],
+							'permission' => array('is_not_guest', 'profile_view'),
+						),
+						'unwatchedtopics' => array(
+							'label' => Lang::$txt['showUnwatched'],
+							'permission' => array('is_not_guest', 'profile_view'),
+							'enabled' => User::$me->is_owner,
+						),
+						'attach' => array(
+							'label' => Lang::$txt['showAttachments'],
+							'permission' => array('is_not_guest', 'profile_view'),
+						),
 					),
 					'permission' => array(
 						'own' => 'is_not_guest',
@@ -213,11 +225,29 @@ function ModifyProfile($post_errors = array())
 					'function' => 'tracking',
 					'icon' => 'logs',
 					'subsections' => array(
-						'activity' => array(Lang::$txt['trackActivity'], 'moderate_forum'),
-						'ip' => array(Lang::$txt['trackIP'], 'moderate_forum'),
-						'edits' => array(Lang::$txt['trackEdits'], 'moderate_forum', 'enabled' => !empty(Config::$modSettings['userlog_enabled'])),
-						'groupreq' => array(Lang::$txt['trackGroupRequests'], 'approve_group_requests', 'enabled' => !empty(Config::$modSettings['show_group_membership'])),
-						'logins' => array(Lang::$txt['trackLogins'], 'moderate_forum', 'enabled' => !empty(Config::$modSettings['loginHistoryDays'])),
+						'activity' => array(
+							'label' => Lang::$txt['trackActivity'],
+							'permission' => 'moderate_forum',
+						),
+						'ip' => array(
+							'label' => Lang::$txt['trackIP'],
+							'permission' => 'moderate_forum',
+						),
+						'edits' => array(
+							'label' => Lang::$txt['trackEdits'],
+							'permission' => 'moderate_forum',
+							'enabled' => !empty(Config::$modSettings['userlog_enabled']),
+						),
+						'groupreq' => array(
+							'label' => Lang::$txt['trackGroupRequests'],
+							'permission' => 'approve_group_requests',
+							'enabled' => !empty(Config::$modSettings['show_group_membership']),
+						),
+						'logins' => array(
+							'label' => Lang::$txt['trackLogins'],
+							'permission' => 'moderate_forum',
+							'enabled' => !empty(Config::$modSettings['loginHistoryDays']),
+						),
 					),
 					'permission' => array(
 						'own' => array('moderate_forum', 'approve_group_requests'),
@@ -314,9 +344,18 @@ function ModifyProfile($post_errors = array())
 					'sc' => 'post',
 					//'token' => 'profile-nt%u', This is not checked here. We do it in the function itself - but if it was checked, this is what it'd be.
 					'subsections' => array(
-						'alerts' => array(Lang::$txt['alert_prefs'], array('is_not_guest', 'profile_extra_any')),
-						'topics' => array(Lang::$txt['watched_topics'], array('is_not_guest', 'profile_extra_any')),
-						'boards' => array(Lang::$txt['watched_boards'], array('is_not_guest', 'profile_extra_any')),
+						'alerts' => array(
+							'label' => Lang::$txt['alert_prefs'],
+							'permission' => array('is_not_guest', 'profile_extra_any'),
+						),
+						'topics' => array(
+							'label' => Lang::$txt['watched_topics'],
+							'permission' => array('is_not_guest', 'profile_extra_any'),
+						),
+						'boards' => array(
+							'label' => Lang::$txt['watched_boards'],
+							'permission' => array('is_not_guest', 'profile_extra_any'),
+						),
 					),
 					'permission' => array(
 						'own' => array('is_not_guest'),
@@ -344,8 +383,12 @@ function ModifyProfile($post_errors = array())
 					'enabled' => !empty(Config::$modSettings['enable_buddylist']) && User::$me->is_owner,
 					'sc' => 'post',
 					'subsections' => array(
-						'buddies' => array(Lang::$txt['editBuddies']),
-						'ignore' => array(Lang::$txt['editIgnoreList']),
+						'buddies' => array(
+							'label' => Lang::$txt['editBuddies'],
+						),
+						'ignore' => array(
+							'label' => Lang::$txt['editIgnoreList'],
+						),
 					),
 					'permission' => array(
 						'own' => array('profile_extra_any', 'profile_extra_own'),
@@ -508,7 +551,6 @@ function ModifyProfile($post_errors = array())
 
 	// Do some cleaning ready for the menu function.
 	Utils::$context['password_areas'] = array();
-	$current_area = isset($_REQUEST['area']) ? $_REQUEST['area'] : '';
 
 	foreach ($profile_areas as $section_id => $section)
 	{
@@ -517,10 +559,14 @@ function ModifyProfile($post_errors = array())
 		{
 			// If it said no permissions that meant it wasn't valid!
 			if (empty($area['permission'][User::$me->is_owner ? 'own' : 'any']))
+			{
 				$profile_areas[$section_id]['areas'][$area_id]['enabled'] = false;
+			}
 			// Otherwise pick the right set.
 			else
+			{
 				$profile_areas[$section_id]['areas'][$area_id]['permission'] = $area['permission'][User::$me->is_owner ? 'own' : 'any'];
+			}
 
 			// Password required in most cases
 			if (!empty($area['password']))
@@ -536,7 +582,7 @@ function ModifyProfile($post_errors = array())
 	$menuOptions = array(
 		'disable_hook_call' => true,
 		'disable_url_session_check' => true,
-		'current_area' => $current_area,
+		'current_area' => isset($_REQUEST['area']) ? $_REQUEST['area'] : '',
 		'extra_url_parameters' => array(
 			'u' => Utils::$context['id_member'],
 		),
@@ -546,20 +592,18 @@ function ModifyProfile($post_errors = array())
 	$profile_areas['profile_action']['areas']['logout']['custom_url'] = sprintf($profile_areas['profile_action']['areas']['logout']['custom_url'], Utils::$context['session_var'], Utils::$context['session_id']);
 
 	// Actually create the menu!
-	$profile_include_data = createMenu($profile_areas, $menuOptions);
+	$menu = new Menu($profile_areas, $menuOptions);
 
 	// No menu means no access.
-	if (!$profile_include_data && (!User::$me->is_guest || validateSession()))
+	if (empty($menu->include_data) && (!User::$me->is_guest || validateSession()))
 		fatal_lang_error('no_access', false);
 
 	// Make a note of the Unique ID for this menu.
-	Utils::$context['profile_menu_id'] = Utils::$context['max_menu_id'];
-	Utils::$context['profile_menu_name'] = 'menu_data_' . Utils::$context['profile_menu_id'];
+	Utils::$context['profile_menu_id'] = $menu->id;
+	Utils::$context['profile_menu_name'] = $menu->name;
 
 	// Set the selected item - now it's been validated.
-	$current_area = $profile_include_data['current_area'];
-	$current_sa = $profile_include_data['current_subsection'];
-	Utils::$context['menu_item_selected'] = $current_area;
+	Utils::$context['menu_item_selected'] = $menu->current_area;
 
 	// Before we go any further, let's work on the area we've said is valid. Note this is done here just in case we ever compromise the menu function in error!
 	Utils::$context['completed_save'] = false;
@@ -573,7 +617,7 @@ function ModifyProfile($post_errors = array())
 		foreach ($section['areas'] as $area_id => $area)
 		{
 			// Is this our area?
-			if ($current_area == $area_id)
+			if ($menu->current_area == $area_id)
 			{
 				// This can't happen - but is a security check.
 				if ((isset($section['enabled']) && $section['enabled'] == false) || (isset($area['enabled']) && $area['enabled'] == false))
@@ -600,8 +644,8 @@ function ModifyProfile($post_errors = array())
 					$security_checks['validate'] = true;
 
 				// Permissions for good measure.
-				if (!empty($profile_include_data['permission']))
-					$security_checks['permission'] = $profile_include_data['permission'];
+				if (!empty($menu->include_data['permission']))
+					$security_checks['permission'] = $menu->include_data['permission'];
 
 				// Either way got something.
 				$found_area = true;
@@ -619,10 +663,13 @@ function ModifyProfile($post_errors = array())
 	// Now the context is setup have we got any security checks to carry out additional to that above?
 	if (isset($security_checks['session']))
 		checkSession($security_checks['session']);
+
 	if (isset($security_checks['validate']))
 		validateSession();
+
 	if (isset($security_checks['validateToken']))
 		validateToken($token_name, $token_type);
+
 	if (isset($security_checks['permission']))
 		isAllowedTo($security_checks['permission']);
 
@@ -634,8 +681,8 @@ function ModifyProfile($post_errors = array())
 	}
 
 	// File to include?
-	if (isset($profile_include_data['file']))
-		require_once(Config::$sourcedir . '/' . $profile_include_data['file']);
+	if (isset($menu->include_data['file']))
+		require_once(Config::$sourcedir . '/' . $menu->include_data['file']);
 
 	// Build the link tree.
 	Utils::$context['linktree'][] = array(
@@ -643,24 +690,24 @@ function ModifyProfile($post_errors = array())
 		'name' => sprintf(Lang::$txt['profile_of_username'], Utils::$context['member']['name']),
 	);
 
-	if (!empty($profile_include_data['label']))
+	if (!empty($menu->include_data['label']))
 		Utils::$context['linktree'][] = array(
-			'url' => Config::$scripturl . '?action=profile' . ($memID != User::$me->id ? ';u=' . $memID : '') . ';area=' . $profile_include_data['current_area'],
-			'name' => $profile_include_data['label'],
+			'url' => Config::$scripturl . '?action=profile' . ($memID != User::$me->id ? ';u=' . $memID : '') . ';area=' . $menu->current_area,
+			'name' => $menu->include_data['label'],
 		);
 
-	if (!empty($profile_include_data['current_subsection']) && $profile_include_data['subsections'][$profile_include_data['current_subsection']][0] != $profile_include_data['label'])
+	if (!empty($menu->current_subsection) && $menu->include_data['subsections'][$menu->current_subsection]['label'] != $menu->include_data['label'])
 		Utils::$context['linktree'][] = array(
-			'url' => Config::$scripturl . '?action=profile' . ($memID != User::$me->id ? ';u=' . $memID : '') . ';area=' . $profile_include_data['current_area'] . ';sa=' . $profile_include_data['current_subsection'],
-			'name' => $profile_include_data['subsections'][$profile_include_data['current_subsection']][0],
+			'url' => Config::$scripturl . '?action=profile' . ($memID != User::$me->id ? ';u=' . $memID : '') . ';area=' . $menu->current_area . ';sa=' . $menu->current_subsection,
+			'name' => $menu->include_data['subsections'][$menu->current_subsection]['label'],
 		);
 
 	// Set the template for this area and add the profile layer.
-	Utils::$context['sub_template'] = $profile_include_data['function'];
+	Utils::$context['sub_template'] = $menu->include_data['function'];
 	Utils::$context['template_layers'][] = 'profile';
 
 	// All the subactions that require a user password in order to validate.
-	$check_password = User::$me->is_owner && in_array($profile_include_data['current_area'], Utils::$context['password_areas']);
+	$check_password = User::$me->is_owner && in_array($menu->current_area, Utils::$context['password_areas']);
 	Utils::$context['require_password'] = $check_password;
 
 	Theme::loadJavaScriptFile('profile.js', array('defer' => false, 'minimize' => true), 'smf_profile');
@@ -708,12 +755,12 @@ function ModifyProfile($post_errors = array())
 			$profile_vars['member_ip'] = User::$me->ip;
 
 		// Now call the sub-action function...
-		if ($current_area == 'activateaccount')
+		if ($menu->current_area == 'activateaccount')
 		{
 			if (empty($post_errors))
 				activateAccount($memID);
 		}
-		elseif ($current_area == 'deleteaccount')
+		elseif ($menu->current_area == 'deleteaccount')
 		{
 			if (empty($post_errors))
 			{
@@ -729,24 +776,25 @@ function ModifyProfile($post_errors = array())
 				'tfa_backup' => '',
 			);
 		}
-		elseif ($current_area == 'groupmembership' && empty($post_errors))
+		elseif ($menu->current_area == 'groupmembership' && empty($post_errors))
 		{
 			$msg = groupMembership2($profile_vars, $post_errors, $memID);
 
 			// Whatever we've done, we have nothing else to do here...
 			redirectexit('action=profile' . (User::$me->is_owner ? '' : ';u=' . $memID) . ';area=groupmembership' . (!empty($msg) ? ';msg=' . $msg : ''));
 		}
-		elseif (in_array($current_area, array('account', 'forumprofile', 'theme')))
+		elseif (in_array($menu->current_area, array('account', 'forumprofile', 'theme')))
 			saveProfileFields($memID);
 		else
 		{
 			$force_redirect = true;
+
 			// Ensure we include this.
 			require_once(Config::$sourcedir . '/Profile-Modify.php');
 			saveProfileChanges($profile_vars, $post_errors, $memID);
 		}
 
-		call_integration_hook('integrate_profile_save', array(&$profile_vars, &$post_errors, $memID, User::$profiles[$memID], $current_area));
+		call_integration_hook('integrate_profile_save', array(&$profile_vars, &$post_errors, $memID, User::$profiles[$memID], $menu->current_area));
 
 		// There was a problem, let them try to re-enter.
 		if (!empty($post_errors))
@@ -759,28 +807,39 @@ function ModifyProfile($post_errors = array())
 		{
 			// If we've changed the password, notify any integration that may be listening in.
 			if (isset($profile_vars['passwd']))
+			{
 				call_integration_hook('integrate_reset_pass', array(User::$profiles[$memID]['member_name'], User::$profiles[$memID]['member_name'], $_POST['passwrd2']));
+			}
 
 			User::updateMemberData($memID, $profile_vars);
 
 			// What if this is the newest member?
 			if (Config::$modSettings['latestMember'] == $memID)
+			{
 				updateStats('member');
+			}
 			elseif (isset($profile_vars['real_name']))
+			{
 				Config::updateModSettings(array('memberlist_updated' => time()));
+			}
 
 			// If the member changed his/her birthdate, update calendar statistics.
 			if (isset($profile_vars['birthdate']) || isset($profile_vars['real_name']))
+			{
 				Config::updateModSettings(array(
 					'calendar_updated' => time(),
 				));
+			}
 
 			// Anything worth logging?
 			if (!empty(Utils::$context['log_changes']) && !empty(Config::$modSettings['modlog_enabled']))
 			{
 				$log_changes = array();
+
 				require_once(Config::$sourcedir . '/Logging.php');
+
 				foreach (Utils::$context['log_changes'] as $k => $v)
+				{
 					$log_changes[] = array(
 						'action' => $k,
 						'log_type' => 'user',
@@ -789,14 +848,17 @@ function ModifyProfile($post_errors = array())
 							'member_affected' => $memID,
 						)),
 					);
+				}
 
 				logActions($log_changes);
 			}
 
 			// Have we got any post save functions to execute?
 			if (!empty(Utils::$context['profile_execute_on_save']))
+			{
 				foreach (Utils::$context['profile_execute_on_save'] as $saveFunc)
 					call_user_func(...((array) $saveFunc));
+			}
 
 			// Let them know it worked!
 			Utils::$context['profile_updated'] = User::$me->is_owner ? Lang::$txt['profile_updated_own'] : sprintf(Lang::$txt['profile_updated_else'], User::$profiles[$memID]['member_name']);
@@ -815,20 +877,28 @@ function ModifyProfile($post_errors = array())
 	}
 	// If it's you then we should redirect upon save.
 	elseif (!empty($profile_vars) && User::$me->is_owner && !Utils::$context['do_preview'])
-		redirectexit('action=profile;area=' . $current_area . (!empty($current_sa) ? ';sa=' . $current_sa : '') . ';updated');
+	{
+		redirectexit('action=profile;area=' . $menu->current_area . (!empty($menu->current_subsection) ? ';sa=' . $menu->current_subsection : '') . ';updated');
+	}
 	elseif (!empty($force_redirect))
-		redirectexit('action=profile' . (User::$me->is_owner ? '' : ';u=' . $memID) . ';area=' . $current_area);
+	{
+		redirectexit('action=profile' . (User::$me->is_owner ? '' : ';u=' . $memID) . ';area=' . $menu->current_area);
+	}
 
 	// Get the right callable.
-	$call = call_helper($profile_include_data['function'], true);
+	$call = call_helper($menu->include_data['function'], true);
 
 	// Is it valid?
 	if (!empty($call))
+	{
 		call_user_func($call, $memID);
+	}
 
 	// Set the page title if it's not already set...
 	if (!isset(Utils::$context['page_title']))
-		Utils::$context['page_title'] = Lang::$txt['profile'] . (isset(Lang::$txt[$current_area]) ? ' - ' . Lang::$txt[$current_area] : '');
+	{
+		Utils::$context['page_title'] = Lang::$txt['profile'] . (isset(Lang::$txt[$menu->current_area]) ? ' - ' . Lang::$txt[$menu->current_area] : '');
+	}
 }
 
 /**
@@ -904,7 +974,7 @@ function profile_popup($memID)
 
 	// Now check if these items are available
 	Utils::$context['profile_items'] = array();
-	$menu_context = &Utils::$context[Utils::$context['profile_menu_name']]['sections'];
+	$menu_context = Menu::$loaded['profile']['sections'];
 	foreach ($profile_items as $item)
 	{
 		if (isset($menu_context[$item['menu']]['areas'][$item['area']]))

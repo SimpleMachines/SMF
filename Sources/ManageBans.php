@@ -18,6 +18,7 @@
 use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -52,7 +53,7 @@ function Ban()
 	);
 
 	// Tabs for browsing the different ban functions.
-	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
+	Menu::$loaded['admin']->tab_data = array(
 		'title' => Lang::$txt['ban_title'],
 		'help' => 'ban_members',
 		'description' => Lang::$txt['ban_description'],
@@ -83,8 +84,8 @@ function Ban()
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'list';
 
 	// Mark the appropriate menu entry as selected
-	if (array_key_exists($_REQUEST['sa'], Utils::$context[Utils::$context['admin_menu_name']]['tab_data']['tabs']))
-		Utils::$context[Utils::$context['admin_menu_name']]['tab_data']['tabs'][$_REQUEST['sa']]['is_selected'] = true;
+	if (array_key_exists($_REQUEST['sa'], Menu::$loaded['admin']->tab_data['tabs']))
+		Menu::$loaded['admin']->tab_data['tabs'][$_REQUEST['sa']]['is_selected'] = true;
 
 	Utils::$context['page_title'] = Lang::$txt['ban_title'];
 	Utils::$context['sub_action'] = $_REQUEST['sa'];

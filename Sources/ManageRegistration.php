@@ -16,6 +16,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\User;
 use SMF\Theme;
 use SMF\Utils;
@@ -59,7 +60,7 @@ function RegCenter()
 	Theme::loadTemplate('Register');
 
 	// Next create the tabs for the template.
-	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
+	Menu::$loaded['admin']->tab_data = array(
 		'title' => Lang::$txt['registration_center'],
 		'help' => 'registrations',
 		'description' => Lang::$txt['admin_settings_desc'],

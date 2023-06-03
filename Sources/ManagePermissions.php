@@ -17,6 +17,7 @@ use SMF\Board;
 use SMF\Category;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\Theme;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -51,7 +52,7 @@ function ModifyPermissions()
 	);
 
 	// Create the tabs for the template.
-	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
+	Menu::$loaded['admin']->tab_data = array(
 		'title' => Lang::$txt['permissions_title'],
 		'help' => 'permissions',
 		'description' => '',
@@ -315,7 +316,7 @@ function PermissionIndex()
 			fatal_lang_error('no_access', false);
 
 		// Change the selected tab to better reflect that this really is a board profile.
-		Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'profiles';
+		Menu::$loaded['admin']['current_subsection'] = 'profiles';
 
 		$request = Db::$db->query('', '
 			SELECT id_profile, id_group, COUNT(*) AS num_permissions, add_deny
@@ -754,7 +755,7 @@ function ModifyMembergroup()
 	if (Utils::$context['permission_type'] == 'board')
 	{
 		Utils::$context['profile']['name'] = Utils::$context['profiles'][Utils::$context['profile']['id']]['name'];
-		Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'profiles';
+		Menu::$loaded['admin']['current_subsection'] = 'profiles';
 	}
 
 	// Fetch the current permissions.

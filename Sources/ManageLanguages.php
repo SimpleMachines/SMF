@@ -16,6 +16,7 @@
 use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\Theme;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -52,7 +53,7 @@ function ManageLanguages()
 	);
 
 	// Load up all the tabs...
-	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
+	Menu::$loaded['admin']->tab_data = array(
 		'title' => Lang::$txt['language_configuration'],
 		'description' => Lang::$txt['language_description'],
 	);
