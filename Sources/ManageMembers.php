@@ -17,6 +17,7 @@ use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Mail;
+use SMF\Menu;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -58,7 +59,7 @@ function ViewMembers()
 	Utils::$context['show_approve'] = (!empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == 2) || !empty(Utils::$context['awaiting_approval']) || !empty(Config::$modSettings['approveAccountDeletion']);
 
 	// Setup the admin tabs.
-	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
+	Menu::$loaded['admin']->tab_data = array(
 		'title' => Lang::$txt['admin_members'],
 		'help' => 'view_members',
 		'description' => Lang::$txt['admin_members_list'],

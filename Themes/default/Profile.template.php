@@ -69,7 +69,7 @@ function template_profile_popup()
 	$menu_context = &Utils::$context[Utils::$context['profile_menu_name']];
 	foreach (Utils::$context['profile_items'] as $item)
 	{
-		$area = &$menu_context['sections'][$item['menu']]['areas'][$item['area']];
+		$area = $menu_context['sections'][$item['menu']]['areas'][$item['area']];
 		$item_url = (isset($item['url']) ? $item['url'] : (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $item['area'])) . $menu_context['extra_parameters'];
 		echo '
 				<li>

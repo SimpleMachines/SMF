@@ -17,6 +17,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\Msg;
 use SMF\Mail;
 use SMF\Theme;
@@ -52,7 +53,7 @@ function ManageNews()
 	);
 
 	// Create the tabs for the template.
-	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
+	Menu::$loaded['admin']->tab_data = array(
 		'title' => Lang::$txt['news_title'],
 		'help' => 'edit_news',
 		'description' => Lang::$txt['admin_news_desc'],
@@ -78,7 +79,7 @@ function ManageNews()
 
 	// Force the right area...
 	if (substr($_REQUEST['sa'], 0, 7) == 'mailing')
-		Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'mailingmembers';
+		Menu::$loaded['admin']['current_subsection'] = 'mailingmembers';
 
 	call_helper($subActions[$_REQUEST['sa']][0]);
 }

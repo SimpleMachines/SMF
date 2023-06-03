@@ -17,6 +17,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -52,7 +53,7 @@ function ReportedContent()
 	Utils::$context['page_title'] = Lang::$txt['mc_reported_' . Utils::$context['report_type']];
 
 	// Put the open and closed options into tabs, because we can...
-	Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = array(
+	Menu::$loaded['moderate']->tab_data = array(
 		'title' => Lang::$txt['mc_reported_' . Utils::$context['report_type']],
 		'help' => '',
 		'description' => Lang::$txt['mc_reported_' . Utils::$context['report_type'] . '_desc'],
@@ -416,7 +417,7 @@ function ReportDetails()
 
 	// Make sure to get the correct tab selected.
 	if (Utils::$context['report']['closed'])
-		Utils::$context[Utils::$context['moderation_menu_name']]['current_subsection'] = 'closed';
+		Menu::$loaded['moderate']['current_subsection'] = 'closed';
 
 	// Finally we are done :P
 	if (Utils::$context['report_type'] == 'members')

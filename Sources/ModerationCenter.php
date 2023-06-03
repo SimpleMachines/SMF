@@ -17,6 +17,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\Msg;
 use SMF\Theme;
 use SMF\User;
@@ -46,9 +47,6 @@ function ModerationMain($dont_call = false)
 	// Everyone using this area must be allowed here!
 	if (!Utils::$context['can_moderate_boards'] && !Utils::$context['can_moderate_groups'] && !Utils::$context['can_moderate_approvals'] && !Utils::$context['can_moderate_users'])
 		isAllowedTo('access_mod_center');
-
-	// We're gonna want a menu of some kind.
-	require_once(Config::$sourcedir . '/Menu.php');
 
 	// Load the language, and the template.
 	Lang::load('ModerationCenter');
@@ -101,8 +99,14 @@ function ModerationMain($dont_call = false)
 					'function' => 'ViewWarnings',
 					'icon' => 'warning',
 					'subsections' => array(
-						'log' => array(Lang::$txt['mc_warning_log'], array('view_warning_any', 'moderate_forum')),
-						'templates' => array(Lang::$txt['mc_warning_templates'], 'issue_warning'),
+						'log' => array(
+							'label' => Lang::$txt['mc_warning_log'],
+							'permission' => array('view_warning_any', 'moderate_forum'),
+						),
+						'templates' => array(
+							'label' => Lang::$txt['mc_warning_templates'],
+							'permission' => 'issue_warning',
+						),
 					),
 				),
 			),
@@ -119,8 +123,12 @@ function ModerationMain($dont_call = false)
 					'icon' => 'posts',
 					'custom_url' => Config::$scripturl . '?action=moderate;area=postmod',
 					'subsections' => array(
-						'posts' => array(Lang::$txt['mc_unapproved_replies']),
-						'topics' => array(Lang::$txt['mc_unapproved_topics']),
+						'posts' => array(
+							'label' => Lang::$txt['mc_unapproved_replies'],
+						),
+						'topics' => array(
+							'label' => Lang::$txt['mc_unapproved_topics'],
+						),
 					),
 				),
 				'attachmod' => array(
@@ -138,8 +146,12 @@ function ModerationMain($dont_call = false)
 					'function' => 'ReportedContent',
 					'icon' => 'reports',
 					'subsections' => array(
-						'show' => array(Lang::$txt['mc_reportedp_active']),
-						'closed' => array(Lang::$txt['mc_reportedp_closed']),
+						'show' => array(
+							'label' => Lang::$txt['mc_reportedp_active'],
+						),
+						'closed' => array(
+							'label' => Lang::$txt['mc_reportedp_closed'],
+						),
 					),
 				),
 			),
@@ -173,8 +185,12 @@ function ModerationMain($dont_call = false)
 					'function' => 'ViewWatchedUsers',
 					'icon' => 'members_watched',
 					'subsections' => array(
-						'member' => array(Lang::$txt['mc_watched_users_member']),
-						'post' => array(Lang::$txt['mc_watched_users_post']),
+						'member' => array(
+							'label' => Lang::$txt['mc_watched_users_member'],
+						),
+						'post' => array(
+							'label' => Lang::$txt['mc_watched_users_post'],
+						),
 					),
 				),
 				'reportedmembers' => array(
@@ -184,8 +200,12 @@ function ModerationMain($dont_call = false)
 					'function' => 'ReportedContent',
 					'icon' => 'members_watched',
 					'subsections' => array(
-						'open' => array(Lang::$txt['mc_reportedp_active']),
-						'closed' => array(Lang::$txt['mc_reportedp_closed']),
+						'open' => array(
+							'label' => Lang::$txt['mc_reportedp_active'],
+						),
+						'closed' => array(
+							'label' => Lang::$txt['mc_reportedp_closed'],
+						),
 					),
 				),
 			),
@@ -200,52 +220,61 @@ function ModerationMain($dont_call = false)
 		'action' => 'moderate',
 		'disable_url_session_check' => true,
 	);
-	$mod_include_data = createMenu($moderation_areas, $menuOptions);
+
+	$menu = new Menu($moderation_areas, $menuOptions);
+
 	unset($moderation_areas);
 
 	// We got something - didn't we? DIDN'T WE!
-	if ($mod_include_data == false)
+	if (empty($menu->include_data))
 		fatal_lang_error('no_access', false);
 
 	// Retain the ID information in case required by a subaction.
-	Utils::$context['moderation_menu_id'] = Utils::$context['max_menu_id'];
-	Utils::$context['moderation_menu_name'] = 'menu_data_' . Utils::$context['moderation_menu_id'];
+	Utils::$context['moderation_menu_id'] = $menu->id;
+	Utils::$context['moderation_menu_name'] = $menu->name;
 
 	// @todo: html in here is not good
-	Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = array(
+	$menu->tab_data = array(
 		'title' => Lang::$txt['moderation_center'],
 		'help' => '',
 		'description' => '
 			<strong>' . Lang::$txt['hello_guest'] . ' ' . User::$me->name . '!</strong>
 			<br><br>
-			' . Lang::$txt['mc_description']);
+			' . Lang::$txt['mc_description']
+	);
 
 	// What a pleasant shortcut - even tho we're not *really* on the admin screen who cares...
-	Utils::$context['admin_area'] = $mod_include_data['current_area'];
+	Utils::$context['admin_area'] = $menu->current_area;
 
 	// Build the link tree.
 	Utils::$context['linktree'][] = array(
 		'url' => Config::$scripturl . '?action=moderate',
 		'name' => Lang::$txt['moderation_center'],
 	);
-	if (isset($mod_include_data['current_area']) && $mod_include_data['current_area'] != 'index')
+
+	if (isset($menu->current_area) && $menu->current_area != 'index')
+	{
 		Utils::$context['linktree'][] = array(
-			'url' => Config::$scripturl . '?action=moderate;area=' . $mod_include_data['current_area'],
-			'name' => $mod_include_data['label'],
+			'url' => Config::$scripturl . '?action=moderate;area=' . $menu->current_area,
+			'name' => $menu->include_data['label'],
 		);
-	if (!empty($mod_include_data['current_subsection']) && $mod_include_data['subsections'][$mod_include_data['current_subsection']][0] != $mod_include_data['label'])
+	}
+
+	if (!empty($menu->current_subsection) && $menu->include_data['subsections'][$menu->current_subsection]['label'] != $menu->include_data['label'])
+	{
 		Utils::$context['linktree'][] = array(
-			'url' => Config::$scripturl . '?action=moderate;area=' . $mod_include_data['current_area'] . ';sa=' . $mod_include_data['current_subsection'],
-			'name' => $mod_include_data['subsections'][$mod_include_data['current_subsection']][0],
+			'url' => Config::$scripturl . '?action=moderate;area=' . $menu->current_area . ';sa=' . $menu->current_subsection,
+			'name' => $menu->include_data['subsections'][$menu->current_subsection]['label'],
 		);
+	}
 
 	// Now - finally - the bit before the encore - the main performance of course!
 	if (!$dont_call)
 	{
-		if (isset($mod_include_data['file']))
-			require_once(Config::$sourcedir . '/' . $mod_include_data['file']);
+		if (isset($menu->include_data['file']))
+			require_once(Config::$sourcedir . '/' . $menu->include_data['file']);
 
-		call_helper($mod_include_data['function']);
+		call_helper($menu->include_data['function']);
 	}
 }
 
@@ -742,7 +771,7 @@ function ViewWatchedUsers()
 	Config::$modSettings['warning_watch'] = empty(Config::$modSettings['warning_watch']) ? 1 : Config::$modSettings['warning_watch'];
 
 	// Put some pretty tabs on cause we're gonna be doing hot stuff here...
-	Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = array(
+	Menu::$loaded['moderate']->tab_data = array(
 		'title' => Lang::$txt['mc_watched_users_title'],
 		'help' => '',
 		'description' => Lang::$txt['mc_watched_users_desc'],
@@ -1178,7 +1207,7 @@ function ViewWarnings()
 	Lang::load('Profile');
 
 	// Setup the admin tabs.
-	Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = array(
+	Menu::$loaded['moderate']->tab_data = array(
 		'title' => Lang::$txt['mc_warnings'],
 		'description' => Lang::$txt['mc_warnings_description'],
 	);
@@ -1642,7 +1671,7 @@ function ModifyWarningTemplate()
 	// Standard template things.
 	Utils::$context['page_title'] = Utils::$context['is_edit'] ? Lang::$txt['mc_warning_template_modify'] : Lang::$txt['mc_warning_template_add'];
 	Utils::$context['sub_template'] = 'warn_template';
-	Utils::$context[Utils::$context['moderation_menu_name']]['current_subsection'] = 'templates';
+	Menu::$loaded['moderate']['current_subsection'] = 'templates';
 
 	// Defaults.
 	Utils::$context['template_data'] = array(
@@ -1783,7 +1812,7 @@ function ModerationSettings()
 	Theme::loadTemplate('ModerationCenter');
 	Utils::$context['page_title'] = Lang::$txt['mc_settings'];
 	Utils::$context['sub_template'] = 'moderation_settings';
-	Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = array(
+	Menu::$loaded['moderate']->tab_data = array(
 		'title' => Lang::$txt['mc_prefs_title'],
 		'help' => '',
 		'description' => Lang::$txt['mc_prefs_desc']

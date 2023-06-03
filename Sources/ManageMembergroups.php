@@ -16,6 +16,7 @@
 use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -50,7 +51,7 @@ function ModifyMembergroups()
 	Theme::loadTemplate('ManageMembergroups');
 
 	// Setup the admin tabs.
-	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
+	Menu::$loaded['admin']->tab_data = array(
 		'title' => Lang::$txt['membergroups_title'],
 		'help' => 'membergroups',
 		'description' => Lang::$txt['membergroups_description'],

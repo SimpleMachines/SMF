@@ -16,6 +16,7 @@
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -40,13 +41,13 @@ function RepairBoards()
 	// Print out the top of the webpage.
 	Utils::$context['page_title'] = Lang::$txt['admin_repair'];
 	Utils::$context['sub_template'] = 'repair_boards';
-	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'general';
+	Menu::$loaded['admin']['current_subsection'] = 'general';
 
 	// Load the language file.
 	Lang::load('ManageMaintenance');
 
 	// Make sure the tabs stay nice.
-	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
+	Menu::$loaded['admin']->tab_data = array(
 		'title' => Lang::$txt['maintain_title'],
 		'help' => '',
 		'description' => Lang::$txt['maintain_info'],

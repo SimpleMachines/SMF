@@ -18,6 +18,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -75,7 +76,7 @@ function ModifyFeatureSettings()
 	);
 
 	// Load up all the tabs...
-	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
+	Menu::$loaded['admin']->tab_data = array(
 		'title' => Lang::$txt['modSettings_title'],
 		'help' => 'featuresettings',
 		'description' => sprintf(Lang::$txt['modSettings_desc'], Theme::$current->settings['theme_id'], Utils::$context['session_id'], Utils::$context['session_var'], Config::$scripturl),
@@ -127,7 +128,7 @@ function ModifyModSettings()
 	);
 
 	// Load up all the tabs...
-	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
+	Menu::$loaded['admin']->tab_data = array(
 		'title' => Lang::$txt['admin_modifications'],
 		'help' => 'modsettings',
 		'description' => Lang::$txt['modification_settings_desc'],
@@ -668,7 +669,7 @@ function ModifyWarningSettings($return_config = false)
 	Utils::$context['settings_title'] = Lang::$txt['warnings'];
 	Utils::$context['page_title'] = Lang::$txt['warnings'];
 
-	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
+	Menu::$loaded['admin']->tab_data = array(
 		'title' => Lang::$txt['warnings'],
 		'help' => '',
 		'description' => Lang::$txt['warnings_desc'],
@@ -1008,7 +1009,7 @@ function ModifyAntispamSettings($return_config = false)
 	Utils::$context['page_title'] = Lang::$txt['antispam_title'];
 	Utils::$context['sub_template'] = 'show_settings';
 
-	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
+	Menu::$loaded['admin']->tab_data = array(
 		'title' => Lang::$txt['antispam_title'],
 		'description' => Lang::$txt['antispam_Settings_desc'],
 	);
@@ -1395,7 +1396,7 @@ function pauseSignatureApplySettings()
 	Utils::$context['sub_template'] = 'not_done';
 
 	// Specific stuff to not break this template!
-	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'sig';
+	Menu::$loaded['admin']['current_subsection'] = 'sig';
 
 	// Get the right percent.
 	Utils::$context['continue_percent'] = round(($_GET['step'] / Utils::$context['max_member']) * 100);
@@ -1751,7 +1752,7 @@ function EditCustomProfiles()
 {
 	// Sort out the context!
 	Utils::$context['fid'] = isset($_GET['fid']) ? (int) $_GET['fid'] : 0;
-	Utils::$context[Utils::$context['admin_menu_name']]['current_subsection'] = 'profile';
+	Menu::$loaded['admin']['current_subsection'] = 'profile';
 	Utils::$context['page_title'] = Utils::$context['fid'] ? Lang::$txt['custom_edit_title'] : Lang::$txt['custom_add_title'];
 	Utils::$context['sub_template'] = 'edit_profile_field';
 

@@ -23,6 +23,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\Theme;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -66,7 +67,7 @@ function ReportsMain()
 
 	call_integration_hook('integrate_report_types');
 	// Load up all the tabs...
-	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
+	Menu::$loaded['admin']->tab_data = array(
 		'title' => Lang::$txt['generate_reports'],
 		'help' => '',
 		'description' => Lang::$txt['generate_reports_desc'],

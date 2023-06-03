@@ -16,6 +16,7 @@
 use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\Theme;
 use SMF\Utils;
 use SMF\Actions\Who;
@@ -60,7 +61,7 @@ function SearchEngines()
 	Utils::$context['page_title'] = Lang::$txt['search_engines'];
 
 	// Some more tab data.
-	Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
+	Menu::$loaded['admin']->tab_data = array(
 		'title' => Lang::$txt['search_engines'],
 		'description' => Lang::$txt['search_engines_description'],
 	);

@@ -17,6 +17,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\Msg;
 use SMF\Theme;
 use SMF\User;
@@ -135,7 +136,7 @@ class PackageManager
 			Utils::$context['sub_action'] = 'browse';
 
 		// Set up some tabs...
-		Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
+		Menu::$loaded['admin']->tab_data = array(
 			'title' => Lang::$txt['package_manager'],
 			// @todo 'help' => 'registrations',
 			'description' => Lang::$txt['package_manager_desc'],

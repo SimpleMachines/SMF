@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -80,7 +81,7 @@ class Credits implements ActionInterface
 
 		if ($this->in_admin)
 		{
-			Utils::$context[Utils::$context['admin_menu_name']]['tab_data'] = array(
+			Menu::$loaded['admin']->tab_data = array(
 				'title' => Lang::$txt['support_credits_title'],
 				'help' => '',
 				'description' => '',

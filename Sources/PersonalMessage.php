@@ -20,6 +20,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\DraftPM;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\Msg;
 use SMF\Theme;
 use SMF\User;
@@ -351,8 +352,6 @@ function messageIndexBar($area)
 		);
 	}
 
-	require_once(Config::$sourcedir . '/Menu.php');
-
 	// Set a few options for the menu.
 	$menuOptions = array(
 		'current_area' => $area,
@@ -360,20 +359,19 @@ function messageIndexBar($area)
 	);
 
 	// Actually create the menu!
-	$pm_include_data = createMenu($pm_areas, $menuOptions);
+	$menu = new Menu($pm_areas, $menuOptions);
 	unset($pm_areas);
 
 	// No menu means no access.
-	if (!$pm_include_data && (!User::$me->is_guest || validateSession()))
+	if (empty($menu->include_data) && (!User::$me->is_guest || validateSession()))
 		fatal_lang_error('no_access', false);
 
 	// Make a note of the Unique ID for this menu.
-	Utils::$context['pm_menu_id'] = Utils::$context['max_menu_id'];
-	Utils::$context['pm_menu_name'] = 'menu_data_' . Utils::$context['pm_menu_id'];
+	Utils::$context['pm_menu_id'] = $menu->id;
+	Utils::$context['pm_menu_name'] = $menu->name;
 
 	// Set the selected item.
-	$current_area = $pm_include_data['current_area'];
-	Utils::$context['menu_item_selected'] = $current_area;
+	Utils::$context['menu_item_selected'] = $menu->current_area;
 
 	// Set the template for this area and add the profile layer.
 	if (!isset($_REQUEST['xml']))

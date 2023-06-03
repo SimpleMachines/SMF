@@ -19,6 +19,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Menu;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -753,7 +754,7 @@ class Groups implements ActionInterface
 		new ItemList($listOptions);
 
 		Utils::$context['default_list'] = 'group_request_list';
-		Utils::$context[Utils::$context['moderation_menu_name']]['tab_data'] = array(
+		Menu::$loaded['moderate']->tab_data = array(
 			'title' => Lang::$txt['mc_group_requests'],
 		);
 	}

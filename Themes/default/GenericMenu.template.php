@@ -148,7 +148,7 @@ function template_generic_menu(&$menu_context)
 function template_generic_menu_tabs(&$menu_context)
 {
 	// Handy shortcut.
-	$tab_context = &$menu_context['tab_data'];
+	$tab_context = $menu_context['tab_data'];
 
 	if (!empty($tab_context['title']))
 	{
