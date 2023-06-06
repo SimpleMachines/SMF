@@ -118,7 +118,7 @@ class Forum
 		'viewprofile' => array('Profile.php', 'ModifyProfile'),
 		'vote' => array('', 'SMF\\Poll::vote'),
 		'viewquery' => array('', 'SMF\\Actions\\ViewQuery::call'),
-		'viewsmfile' => array('Admin.php', 'DisplayAdminFile'),
+		'viewsmfile' => array('', 'SMF\\Actions\\DisplayAdminFile::call'),
 		'who' => array('', 'SMF\\Actions\\Who::call'),
 		'.xml' => array('', 'SMF\\Actions\\Feed::call'),
 		'xmlhttp' => array('', 'SMF\\Actions\\XmlHttp::call'),
