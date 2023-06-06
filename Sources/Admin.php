@@ -824,57 +824,6 @@ function AdminHome()
 }
 
 /**
- * Get one of the admin information files from Simple Machines.
- */
-function DisplayAdminFile()
-{
-	setMemoryLimit('32M');
-
-	if (empty($_REQUEST['filename']) || !is_string($_REQUEST['filename']))
-		fatal_lang_error('no_access', false);
-
-	// Strip off the forum cache part or we won't find it...
-	$_REQUEST['filename'] = str_replace(Utils::$context['browser_cache'], '', $_REQUEST['filename']);
-
-	$request = Db::$db->query('', '
-		SELECT data, filetype
-		FROM {db_prefix}admin_info_files
-		WHERE filename = {string:current_filename}
-		LIMIT 1',
-		array(
-			'current_filename' => $_REQUEST['filename'],
-		)
-	);
-
-	if (Db::$db->num_rows($request) == 0)
-		fatal_lang_error('admin_file_not_found', true, array($_REQUEST['filename']), 404);
-
-	list ($file_data, $filetype) = Db::$db->fetch_row($request);
-	Db::$db->free_result($request);
-
-	// @todo Temp
-	// Figure out if sesc is still being used.
-	if (strpos($file_data, ';sesc=') !== false && $filetype == 'text/javascript')
-		$file_data = '
-if (!(\'smfForum_sessionvar\' in window))
-	window.smfForum_sessionvar = \'sesc\';
-' . strtr($file_data, array(';sesc=' => ';\' + window.smfForum_sessionvar + \'='));
-
-	Utils::$context['template_layers'] = array();
-	// Lets make sure we aren't going to output anything nasty.
-	@ob_end_clean();
-	if (!empty(Config::$modSettings['enableCompressedOutput']))
-		@ob_start('ob_gzhandler');
-	else
-		@ob_start();
-
-	// Make sure they know what type of file we are.
-	header('content-type: ' . $filetype);
-	echo $file_data;
-	obExit(false);
-}
-
-/**
  * This function allocates out all the search stuff.
  */
 function AdminSearch()
