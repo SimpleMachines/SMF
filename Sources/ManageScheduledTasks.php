@@ -19,6 +19,7 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\Theme;
 use SMF\Utils;
+use SMF\Actions\Admin\ACP;
 use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
@@ -635,9 +636,6 @@ function list_getNumTaskLogEntries()
  */
 function TaskSettings($return_config = false)
 {
-	// We will need the utility functions from here.
-	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
-
 	Lang::load('Help');
 
 	$config_vars = array(
@@ -665,14 +663,14 @@ function TaskSettings($return_config = false)
 
 		call_integration_hook('integrate_save_scheduled_tasks_settings', array(&$save_vars));
 
-		saveDBSettings($save_vars);
+		ACP::saveDBSettings($save_vars);
 
 		$_SESSION['adm-save'] = true;
 
 		redirectexit('action=admin;area=scheduledtasks;sa=settings');
 	}
 
-	prepareDBSettingContext($config_vars);
+	ACP::prepareDBSettingContext($config_vars);
 }
 
 ?>

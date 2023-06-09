@@ -20,6 +20,7 @@ use SMF\Menu;
 use SMF\Theme;
 use SMF\Utils;
 use SMF\Actions\Who;
+use SMF\Actions\Admin\ACP;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
@@ -130,9 +131,6 @@ function ManageSearchEngineSettings($return_config = false)
 	if (isset($_POST['spider_group']) && !isset($config_vars['spider_group'][2][$_POST['spider_group']]))
 		$_POST['spider_group'] = 0;
 
-	// We'll want this for our easy save.
-	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
-
 	// Setup the template.
 	Utils::$context['page_title'] = Lang::$txt['settings'];
 	Utils::$context['sub_template'] = 'show_settings';
@@ -143,7 +141,7 @@ function ManageSearchEngineSettings($return_config = false)
 		checkSession();
 
 		call_integration_hook('integrate_save_search_engine_settings');
-		saveDBSettings($config_vars);
+		ACP::saveDBSettings($config_vars);
 		recacheSpiderNames();
 		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=sengines;sa=settings');
@@ -155,7 +153,7 @@ function ManageSearchEngineSettings($return_config = false)
 	Theme::addInlineJavaScript($javascript_function, true);
 
 	// Prepare the settings...
-	prepareDBSettingContext($config_vars);
+	ACP::prepareDBSettingContext($config_vars);
 }
 
 /**

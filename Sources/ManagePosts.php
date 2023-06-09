@@ -18,6 +18,7 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\Msg;
 use SMF\Utils;
+use SMF\Actions\Admin\ACP;
 use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
@@ -222,9 +223,6 @@ function ModifyPostSettings($return_config = false)
 	if ($return_config)
 		return $config_vars;
 
-	// We'll want this for our easy save.
-	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
-
 	// Setup the template.
 	Utils::$context['page_title'] = Lang::$txt['manageposts_settings'];
 	Utils::$context['sub_template'] = 'show_settings';
@@ -252,7 +250,7 @@ function ModifyPostSettings($return_config = false)
 
 		call_integration_hook('integrate_save_post_settings');
 
-		saveDBSettings($config_vars);
+		ACP::saveDBSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=postsettings;sa=posts');
 	}
@@ -262,7 +260,7 @@ function ModifyPostSettings($return_config = false)
 	Utils::$context['settings_title'] = Lang::$txt['manageposts_settings'];
 
 	// Prepare the settings...
-	prepareDBSettingContext($config_vars);
+	ACP::prepareDBSettingContext($config_vars);
 }
 
 /**
@@ -314,9 +312,6 @@ function ModifyTopicSettings($return_config = false)
 	if ($return_config)
 		return $config_vars;
 
-	// Get the settings template ready.
-	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
-
 	// Setup the template.
 	Utils::$context['page_title'] = Lang::$txt['manageposts_topic_settings'];
 	Utils::$context['sub_template'] = 'show_settings';
@@ -327,7 +322,7 @@ function ModifyTopicSettings($return_config = false)
 		checkSession();
 		call_integration_hook('integrate_save_topic_settings');
 
-		saveDBSettings($config_vars);
+		ACP::saveDBSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=postsettings;sa=topics');
 	}
@@ -337,7 +332,7 @@ function ModifyTopicSettings($return_config = false)
 	Utils::$context['settings_title'] = Lang::$txt['manageposts_topic_settings'];
 
 	// Prepare the settings...
-	prepareDBSettingContext($config_vars);
+	ACP::prepareDBSettingContext($config_vars);
 }
 
 /**
@@ -366,9 +361,6 @@ function ModifyDraftSettings($return_config = false)
 	if ($return_config)
 		return $config_vars;
 
-	// Get the settings template ready.
-	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
-
 	// Setup the template.
 	Utils::$context['page_title'] = Lang::$txt['managedrafts_settings'];
 	Utils::$context['sub_template'] = 'show_settings';
@@ -395,7 +387,7 @@ function ModifyDraftSettings($return_config = false)
 		CalculateNextTrigger();
 
 		// Save everything else and leave.
-		saveDBSettings($config_vars);
+		ACP::saveDBSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=postsettings;sa=drafts');
 	}
@@ -416,7 +408,7 @@ function ModifyDraftSettings($return_config = false)
 	Utils::$context['settings_title'] = Lang::$txt['managedrafts_settings'];
 
 	// Prepare the settings...
-	prepareDBSettingContext($config_vars);
+	ACP::prepareDBSettingContext($config_vars);
 }
 
 ?>

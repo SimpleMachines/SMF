@@ -23,6 +23,7 @@ use SMF\Menu;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Admin\ACP;
 use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
@@ -198,7 +199,6 @@ function ManageAttachmentSettings($return_config = false)
 
 	// These are very likely to come in handy! (i.e. without them we're doomed!)
 	require_once(Config::$sourcedir . '/ManagePermissions.php');
-	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
 
 	// Saving settings?
 	if (isset($_GET['save']))
@@ -247,13 +247,13 @@ function ManageAttachmentSettings($return_config = false)
 
 		call_integration_hook('integrate_save_attachment_settings');
 
-		saveDBSettings($config_vars);
+		ACP::saveDBSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=manageattachments;sa=attachments');
 	}
 
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=manageattachments;save;sa=attachments';
-	prepareDBSettingContext($config_vars);
+	ACP::prepareDBSettingContext($config_vars);
 
 	Utils::$context['sub_template'] = 'show_settings';
 }
@@ -345,9 +345,6 @@ function ManageAvatarSettings($return_config = false)
 	if ($return_config)
 		return $config_vars;
 
-	// We need this file for the settings template.
-	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
-
 	// Saving avatar settings?
 	if (isset($_GET['save']))
 	{
@@ -368,7 +365,7 @@ function ManageAvatarSettings($return_config = false)
 
 		call_integration_hook('integrate_save_avatar_settings');
 
-		saveDBSettings($config_vars);
+		ACP::saveDBSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=manageattachments;sa=avatars');
 	}
@@ -381,7 +378,7 @@ function ManageAvatarSettings($return_config = false)
 
 	// Prepare the context.
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=manageattachments;save;sa=avatars';
-	prepareDBSettingContext($config_vars);
+	ACP::prepareDBSettingContext($config_vars);
 
 	// Add a layer for the javascript.
 	Utils::$context['template_layers'][] = 'avatar_settings';

@@ -21,6 +21,7 @@ use SMF\User;
 use SMF\Theme;
 use SMF\Utils;
 use SMF\Actions\Register2;
+use SMF\Actions\Admin\ACP;
 use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
@@ -319,9 +320,6 @@ function SetReserved()
  */
 function ModifyRegistrationSettings($return_config = false)
 {
-	// This is really quite wanting.
-	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
-
 	// Do we have at least default versions of the agreement and privacy policy?
 	$agreement = file_exists(Config::$boarddir . '/agreement.' . Lang::$default . '.txt') || file_exists(Config::$boarddir . '/agreement.txt');
 	$policy = !empty(Config::$modSettings['policy_' . Lang::$default]);
@@ -364,7 +362,7 @@ function ModifyRegistrationSettings($return_config = false)
 
 		call_integration_hook('integrate_save_registration_settings');
 
-		saveDBSettings($config_vars);
+		ACP::saveDBSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=regcenter;sa=settings');
 	}
@@ -389,7 +387,7 @@ function ModifyRegistrationSettings($return_config = false)
 	// Turn the postal address into something suitable for a textbox.
 	Config::$modSettings['coppaPost'] = !empty(Config::$modSettings['coppaPost']) ? preg_replace('~<br ?/?' . '>~', "\n", Config::$modSettings['coppaPost']) : '';
 
-	prepareDBSettingContext($config_vars);
+	ACP::prepareDBSettingContext($config_vars);
 }
 
 // Sure, you can sell my personal info for profit (...or not)

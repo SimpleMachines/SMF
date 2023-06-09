@@ -21,6 +21,7 @@ use SMF\Menu;
 use SMF\Theme;
 use SMF\Utils;
 use SMF\Actions\Calendar;
+use SMF\Actions\Admin\ACP;
 use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
@@ -378,9 +379,6 @@ function ModifyCalendarSettings($return_config = false)
 	if ($return_config)
 		return $config_vars;
 
-	// Get the settings template fired up.
-	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
-
 	// Some important context stuff
 	Utils::$context['page_title'] = Lang::$txt['calendar_settings'];
 	Utils::$context['sub_template'] = 'show_settings';
@@ -394,7 +392,7 @@ function ModifyCalendarSettings($return_config = false)
 	{
 		checkSession();
 		call_integration_hook('integrate_save_calendar_settings');
-		saveDBSettings($config_vars);
+		ACP::saveDBSettings($config_vars);
 
 		// Update the stats in case.
 		Config::updateModSettings(array(
@@ -409,7 +407,7 @@ function ModifyCalendarSettings($return_config = false)
 	createToken('admin-mp');
 
 	// Prepare the settings...
-	prepareDBSettingContext($config_vars);
+	ACP::prepareDBSettingContext($config_vars);
 }
 
 ?>

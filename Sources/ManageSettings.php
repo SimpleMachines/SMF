@@ -22,6 +22,7 @@ use SMF\Menu;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Admin\ACP;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
@@ -38,9 +39,6 @@ function loadGeneralSettingParameters($subActions = array(), $defaultAction = nu
 {
 	// You need to be an admin to edit settings!
 	isAllowedTo('admin_forum');
-
-	// Will need the utility functions from here.
-	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
 
 	Utils::$context['sub_template'] = 'show_settings';
 
@@ -263,7 +261,7 @@ function ModifyBasicSettings($return_config = false)
 
 		call_integration_hook('integrate_save_basic_settings');
 
-		saveDBSettings($config_vars);
+		ACP::saveDBSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 
 		// Do a bit of housekeeping
@@ -277,7 +275,7 @@ function ModifyBasicSettings($return_config = false)
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=basic';
 	Utils::$context['settings_title'] = Lang::$txt['mods_cat_features'];
 
-	prepareDBSettingContext($config_vars);
+	ACP::prepareDBSettingContext($config_vars);
 }
 
 /**
@@ -322,7 +320,6 @@ function ModifyBBCSettings($return_config = false)
 		return $config_vars;
 
 	// Setup the template.
-	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
 	Utils::$context['sub_template'] = 'show_settings';
 	Utils::$context['page_title'] = Lang::$txt['manageposts_bbc_settings_title'];
 
@@ -401,7 +398,7 @@ function ModifyBBCSettings($return_config = false)
 
 		call_integration_hook('integrate_save_bbc_settings', array($bbcTags));
 
-		saveDBSettings($config_vars);
+		ACP::saveDBSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=featuresettings;sa=bbc' . $extra);
 	}
@@ -409,7 +406,7 @@ function ModifyBBCSettings($return_config = false)
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=bbc' . $extra;
 	Utils::$context['settings_title'] = Lang::$txt['manageposts_bbc_settings_title'];
 
-	prepareDBSettingContext($config_vars);
+	ACP::prepareDBSettingContext($config_vars);
 }
 
 /**
@@ -454,7 +451,7 @@ function ModifyLayoutSettings($return_config = false)
 
 		call_integration_hook('integrate_save_layout_settings');
 
-		saveDBSettings($config_vars);
+		ACP::saveDBSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 		writeLog();
 
@@ -464,7 +461,7 @@ function ModifyLayoutSettings($return_config = false)
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=layout';
 	Utils::$context['settings_title'] = Lang::$txt['mods_cat_layout'];
 
-	prepareDBSettingContext($config_vars);
+	ACP::prepareDBSettingContext($config_vars);
 }
 
 /**
@@ -493,7 +490,7 @@ function ModifyLikesSettings($return_config = false)
 
 		call_integration_hook('integrate_save_likes_settings');
 
-		saveDBSettings($config_vars);
+		ACP::saveDBSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=featuresettings;sa=likes');
 	}
@@ -501,7 +498,7 @@ function ModifyLikesSettings($return_config = false)
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=likes';
 	Utils::$context['settings_title'] = Lang::$txt['likes'];
 
-	prepareDBSettingContext($config_vars);
+	ACP::prepareDBSettingContext($config_vars);
 }
 
 /**
@@ -530,7 +527,7 @@ function ModifyMentionsSettings($return_config = false)
 
 		call_integration_hook('integrate_save_mentions_settings');
 
-		saveDBSettings($config_vars);
+		ACP::saveDBSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=featuresettings;sa=mentions');
 	}
@@ -538,7 +535,7 @@ function ModifyMentionsSettings($return_config = false)
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=mentions';
 	Utils::$context['settings_title'] = Lang::$txt['mentions'];
 
-	prepareDBSettingContext($config_vars);
+	ACP::prepareDBSettingContext($config_vars);
 }
 
 /**
@@ -605,9 +602,6 @@ function ModifyWarningSettings($return_config = false)
 	if (!Config::$modSettings['postmod_active'])
 		unset($config_vars['moderate']);
 
-	// Will need the utility functions from here.
-	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
-
 	// Saving?
 	if (isset($_GET['save']))
 	{
@@ -656,7 +650,7 @@ function ModifyWarningSettings($return_config = false)
 
 		call_integration_hook('integrate_save_warning_settings', array(&$save_vars));
 
-		saveDBSettings($save_vars);
+		ACP::saveDBSettings($save_vars);
 		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=warnings');
 	}
@@ -675,7 +669,7 @@ function ModifyWarningSettings($return_config = false)
 		'description' => Lang::$txt['warnings_desc'],
 	);
 
-	prepareDBSettingContext($config_vars);
+	ACP::prepareDBSettingContext($config_vars);
 }
 
 /**
@@ -813,9 +807,6 @@ function ModifyAntispamSettings($return_config = false)
 		return false;
 	});
 	$("#qa_dt_' . strtr(Lang::$default, array('-utf8' => '')) . ' a").click();', true);
-
-	// Will need the utility functions from here.
-	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
 
 	// Saving?
 	if (isset($_GET['save']))
@@ -962,7 +953,7 @@ function ModifyAntispamSettings($return_config = false)
 		call_integration_hook('integrate_save_spam_settings', array(&$save_vars));
 
 		// Now save.
-		saveDBSettings($save_vars);
+		ACP::saveDBSettings($save_vars);
 		$_SESSION['adm-save'] = true;
 
 		CacheApi::put('verificationQuestions', null, 300);
@@ -1014,7 +1005,7 @@ function ModifyAntispamSettings($return_config = false)
 		'description' => Lang::$txt['antispam_Settings_desc'],
 	);
 
-	prepareDBSettingContext($config_vars);
+	ACP::prepareDBSettingContext($config_vars);
 }
 
 /**
@@ -1351,7 +1342,7 @@ function ModifySignatureSettings($return_config = false)
 		$save_vars = array();
 		$save_vars[] = array('text', 'signature_settings');
 
-		saveDBSettings($save_vars);
+		ACP::saveDBSettings($save_vars);
 		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=featuresettings;sa=sig');
 	}
@@ -1372,7 +1363,7 @@ function ModifySignatureSettings($return_config = false)
 			'class' => 'centertext'
 		);
 
-	prepareDBSettingContext($config_vars);
+	ACP::prepareDBSettingContext($config_vars);
 }
 
 /**
@@ -2308,9 +2299,6 @@ function ModifyLogSettings($return_config = false)
 	togglePruned();
 	$("#pruningOptions").click(function() { togglePruned(); });', true);
 
-	// We'll need this in a bit.
-	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
-
 	// Saving?
 	if (isset($_GET['save']))
 	{
@@ -2346,7 +2334,7 @@ function ModifyLogSettings($return_config = false)
 		else
 			$_POST['pruningOptions'] = '';
 
-		saveDBSettings($savevar);
+		ACP::saveDBSettings($savevar);
 		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=logs;sa=settings');
 	}
@@ -2361,7 +2349,7 @@ function ModifyLogSettings($return_config = false)
 	else
 		Config::$modSettings['pruneErrorLog'] = Config::$modSettings['pruneModLog'] = Config::$modSettings['pruneBanLog'] = Config::$modSettings['pruneReportLog'] = Config::$modSettings['pruneScheduledTaskLog'] = Config::$modSettings['pruneSpiderHitLog'] = 0;
 
-	prepareDBSettingContext($config_vars);
+	ACP::prepareDBSettingContext($config_vars);
 }
 
 /**
@@ -2395,7 +2383,7 @@ function ModifyGeneralModSettings($return_config = false)
 			'class' => 'centertext'
 		);
 
-		return prepareDBSettingContext($config_vars);
+		return ACP::prepareDBSettingContext($config_vars);
 	}
 
 	// Saving?
@@ -2408,7 +2396,7 @@ function ModifyGeneralModSettings($return_config = false)
 		call_integration_hook('integrate_save_general_mod_settings', array(&$save_vars));
 
 		// This line is to help mod authors do a search/add after if you want to add something here. Keyword: FOOT TAPPING SUCKS!
-		saveDBSettings($save_vars);
+		ACP::saveDBSettings($save_vars);
 
 		// This line is to remind mod authors that it's nice to let the users know when something has been saved.
 		$_SESSION['adm-save'] = true;
@@ -2418,7 +2406,7 @@ function ModifyGeneralModSettings($return_config = false)
 	}
 
 	// This line is to help mod authors do a search/add after if you want to add something here. Keyword: RED INK IS FOR TEACHERS AND THOSE WHO LIKE PAIN!
-	prepareDBSettingContext($config_vars);
+	ACP::prepareDBSettingContext($config_vars);
 }
 
 /**

@@ -23,6 +23,7 @@ use SMF\Msg;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Admin\ACP;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\PackageManager\SubsPackage;
@@ -164,7 +165,6 @@ function EditSmileySettings($return_config = false)
 		return $config_vars;
 
 	// Setup the basics of the settings template.
-	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
 	Utils::$context['sub_template'] = 'show_settings';
 
 	// Finish up the form...
@@ -180,7 +180,7 @@ function EditSmileySettings($return_config = false)
 
 		call_integration_hook('integrate_save_smiley_settings');
 
-		saveDBSettings($config_vars);
+		ACP::saveDBSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 
 		foreach (explode(',', Config::$modSettings['smiley_sets_known']) as $smiley_set)
@@ -195,7 +195,7 @@ function EditSmileySettings($return_config = false)
 	// We need this for the in-line permissions
 	createToken('admin-mp');
 
-	prepareDBSettingContext($config_vars);
+	ACP::prepareDBSettingContext($config_vars);
 }
 
 /**
