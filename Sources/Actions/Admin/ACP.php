@@ -20,7 +20,6 @@ use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Actions\Credits;
-use SMF\Actions\Groups;
 use SMF\Db\DatabaseApi as Db;
 use SMF\PackageManager\XmlArray;
 
@@ -55,12 +54,12 @@ function AdminMain()
 			'areas' => array(
 				'index' => array(
 					'label' => Lang::$txt['admin_center'],
-					'function' => 'AdminHome',
+					'function' => '\\SMF\\Actions\\Admin\\Home::call',
 					'icon' => 'administration',
 				),
 				'credits' => array(
 					'label' => Lang::$txt['support_credits_title'],
-					'function' => 'AdminHome',
+					'function' => '\\SMF\\Actions\\Admin\\Home::call',
 					'icon' => 'support',
 				),
 				'news' => array(
@@ -742,85 +741,6 @@ function AdminMain()
 	// Is it valid?
 	if (!empty($call))
 		call_user_func($call);
-}
-
-/**
- * The main administration section.
- * It prepares all the data necessary for the administration front page.
- * It uses the Admin template along with the admin sub template.
- * It requires the moderate_forum, manage_membergroups, manage_bans,
- *  admin_forum, manage_permissions, manage_attachments, manage_smileys,
- *  manage_boards, edit_news, or send_mail permission.
- *  It uses the index administrative area.
- *  It can be found by going to ?action=admin.
- */
-function AdminHome()
-{
-	// You have to be able to do at least one of the below to see this page.
-	isAllowedTo(array('admin_forum', 'manage_permissions', 'moderate_forum', 'manage_membergroups', 'manage_bans', 'send_mail', 'edit_news', 'manage_boards', 'manage_smileys', 'manage_attachments'));
-
-	// Find all of this forum's administrators...
-	if (Groups::listMembergroupMembers_Href(Utils::$context['administrators'], 1, 32) && allowedTo('manage_membergroups'))
-	{
-		// Add a 'more'-link if there are more than 32.
-		Utils::$context['more_admins_link'] = '<a href="' . Config::$scripturl . '?action=moderate;area=viewgroups;sa=members;group=1">' . Lang::$txt['more'] . '</a>';
-	}
-
-	// Load the credits stuff.
-	Credits::call(true);
-
-	// This makes it easier to get the latest news with your time format.
-	Utils::$context['time_format'] = urlencode(User::$me->time_format);
-	Utils::$context['forum_version'] = SMF_FULL_VERSION;
-
-	// Get a list of current server versions.
-	require_once(Config::$sourcedir . '/Subs-Admin.php');
-	$checkFor = array(
-		'gd',
-		'imagemagick',
-		'db_server',
-		'apcu',
-		'memcacheimplementation',
-		'memcachedimplementation',
-		'postgres',
-		'sqlite',
-		'zend',
-		'filebased',
-		'php',
-		'server',
-	);
-	Utils::$context['current_versions'] = getServerVersions($checkFor);
-
-	Utils::$context['can_admin'] = allowedTo('admin_forum');
-
-	Utils::$context['sub_template'] = Utils::$context['admin_area'] == 'credits' ? 'credits' : 'admin';
-	Utils::$context['page_title'] = Utils::$context['admin_area'] == 'credits' ? Lang::$txt['support_credits_title'] : Lang::$txt['admin_center'];
-	if (Utils::$context['admin_area'] != 'credits')
-		Menu::$loaded['admin']->tab_data = array(
-			'title' => Lang::$txt['admin_center'],
-			'help' => '',
-			'description' => '<strong>' . Lang::$txt['hello_guest'] . ' ' . User::$me->name . '!</strong>
-				' . sprintf(Lang::$txt['admin_main_welcome'], Lang::$txt['admin_center'], Lang::$txt['help'], Lang::$txt['help']),
-		);
-
-	// Lastly, fill in the blanks in the support resources paragraphs.
-	Lang::$txt['support_resources_p1'] = sprintf(Lang::$txt['support_resources_p1'],
-		'https://wiki.simplemachines.org/',
-		'https://wiki.simplemachines.org/smf/features2',
-		'https://wiki.simplemachines.org/smf/options2',
-		'https://wiki.simplemachines.org/smf/themes2',
-		'https://wiki.simplemachines.org/smf/packages2'
-	);
-	Lang::$txt['support_resources_p2'] = sprintf(Lang::$txt['support_resources_p2'],
-		'https://www.simplemachines.org/community/',
-		'https://www.simplemachines.org/redirect/english_support',
-		'https://www.simplemachines.org/redirect/international_support_boards',
-		'https://www.simplemachines.org/redirect/smf_support',
-		'https://www.simplemachines.org/redirect/customize_support'
-	);
-
-	if (Utils::$context['admin_area'] == 'admin')
-		Theme::loadJavaScriptFile('admin.js', array('defer' => false, 'minimize' => true), 'smf_admin');
 }
 
 /**
