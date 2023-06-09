@@ -111,7 +111,7 @@ function AdminMain()
 				),
 				'adminlogoff' => array(
 					'label' => Lang::$txt['admin_logoff'],
-					'function' => 'AdminEndSession',
+					'function' => '\\SMF\\Actions\\Admin\\EndSession::call',
 					'enabled' => empty(Config::$modSettings['securityDisable']),
 					'icon' => 'exit',
 				),
@@ -800,22 +800,6 @@ function AdminLogs()
 
 	require_once(Config::$sourcedir . '/' . $log_functions[$subAction][0]);
 	call_helper($log_functions[$subAction][1]);
-}
-
-/**
- * This ends a admin session, requiring authentication to access the ACP again.
- */
-function AdminEndSession()
-{
-	// This is so easy!
-	unset($_SESSION['admin_time']);
-
-	// Clean any admin tokens as well.
-	foreach ($_SESSION['token'] as $key => $token)
-		if (strpos($key, '-admin') !== false)
-			unset($_SESSION['token'][$key]);
-
-	redirectexit();
 }
 
 ?>
