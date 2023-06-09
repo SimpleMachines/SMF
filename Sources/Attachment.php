@@ -13,6 +13,7 @@
 
 namespace SMF;
 
+use SMF\Actions\Admin\ACP;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
@@ -1304,8 +1305,7 @@ class Attachment implements \ArrayAccess
 				)
 			)
 			{
-				require_once(Config::$sourcedir . '/Subs-Admin.php');
-				emailAdmins('admin_attachments_full');
+				ACP::emailAdmins('admin_attachments_full');
 				Config::updateModSettings(array('attachment_full_notified' => 1));
 			}
 

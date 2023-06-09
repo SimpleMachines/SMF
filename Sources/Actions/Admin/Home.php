@@ -129,8 +129,7 @@ class Home implements ActionInterface
 		Utils::$context['forum_version'] = SMF_FULL_VERSION;
 
 		// Get a list of current server versions.
-		require_once(Config::$sourcedir . '/Subs-Admin.php');
-		Utils::$context['current_versions'] = getServerVersions($this->checkFor);
+		Utils::$context['current_versions'] = ACP::getServerVersions($this->checkFor);
 
 		Utils::$context['can_admin'] = allowedTo('admin_forum');
 

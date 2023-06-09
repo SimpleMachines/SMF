@@ -189,8 +189,7 @@ class Find implements ActionInterface
 			Utils::$context['admin_preferences']['sb'] = $this->subaction;
 
 			// Update the preferences.
-			require_once(Config::$sourcedir . '/Subs-Admin.php');
-			updateAdminPreferences();
+			ACP::updateAdminPreferences();
 		}
 
 		if (trim(Utils::$context['search_term']) == '')

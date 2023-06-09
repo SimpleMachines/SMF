@@ -1,8 +1,6 @@
 <?php
 
 /**
- * Backward compatibility file.
- *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -16,6 +14,7 @@
 if (!defined('SMF'))
 	die('No direct access...');
 
-class_exists('SMF\\Actions\\Admin\\ACP');
+// Just an alias to help people looking for the package manager in the wrong namespace.
+class_alias('SMF\\PackageManager\\PackageManager', 'SMF\\Actions\\Admin\\PackageManager');
 
 ?>

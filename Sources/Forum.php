@@ -48,7 +48,7 @@ class Forum
 		'agreement' => array('', 'SMF\\Actions\\Agreement::call'),
 		'acceptagreement' => array('', 'SMF\\Actions\\AgreementAccept::call'),
 		'activate' => array('', 'SMF\\Actions\\Activate::call'),
-		'admin' => array('Actions/Admin/ACP.php', 'AdminMain'),
+		'admin' => array('', 'SMF\\Actions\\Admin\\ACP::call'),
 		'announce' => array('', 'SMF\\Actions\\Announce::call'),
 		'attachapprove' => array('ManageAttachments.php', 'ApproveAttach'),
 		'buddy' => array('', 'SMF\\Actions\\BuddyListToggle::call'),

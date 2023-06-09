@@ -511,7 +511,6 @@ function ModifyLanguages()
 
 		if ($_POST['def_language'] != Lang::$default && $lang_exists)
 		{
-			require_once(Config::$sourcedir . '/Subs-Admin.php');
 			Config::updateSettingsFile(array('language' => $_POST['def_language']));
 			Lang::$default = $_POST['def_language'];
 		}
@@ -967,7 +966,6 @@ function ModifyLanguage()
 		// Sixth, if we deleted the default language, set us back to english?
 		if (Utils::$context['lang_id'] == Lang::$default)
 		{
-			require_once(Config::$sourcedir . '/Subs-Admin.php');
 			Lang::$default = 'english';
 			Config::updateSettingsFile(array('language' => Lang::$default));
 		}

@@ -267,8 +267,6 @@ $(function()
  */
 function AlignURLsWithSSLSetting($new_force_ssl = 0)
 {
-	require_once(Config::$sourcedir . '/Subs-Admin.php');
-
 	// Check Config::$boardurl
 	if (!empty($new_force_ssl))
 		$newval = strtr(Config::$boardurl, array('http://' => 'https://'));
@@ -1386,8 +1384,6 @@ function saveSettings(&$config_vars)
 
 		$_POST['boardurl'] = normalize_iri($_POST['boardurl']);
 	}
-
-	require_once(Config::$sourcedir . '/Subs-Admin.php');
 
 	// Any passwords?
 	$config_passwords = array();

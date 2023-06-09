@@ -17,6 +17,7 @@
 use SMF\Config;
 use SMF\Lang;
 use SMF\Utils;
+use SMF\Actions\Admin\ACP;
 use SMF\Db\DatabaseApi as Db;
 
 // Set this to true to always log $_POST info received from payment gateways.
@@ -29,9 +30,6 @@ if (!file_exists(dirname(__FILE__) . '/SSI.php'))
 
 require_once(dirname(__FILE__) . '/SSI.php');
 require_once(Config::$sourcedir . '/ManagePaid.php');
-
-// For any admin emailing.
-require_once(Config::$sourcedir . '/Subs-Admin.php');
 
 // Ensure we don't trip over disabled internal functions
 require_once(Config::$sourcedir . '/Subs-Compat.php');
@@ -184,7 +182,7 @@ if ($gatewayClass->isRefund())
 			'DATE' => timeformat(time(), false),
 		);
 
-		emailAdmins('paid_subscription_refund', $replacements, $notify_users);
+		ACP::emailAdmins('paid_subscription_refund', $replacements, $notify_users);
 	}
 
 }
@@ -273,7 +271,7 @@ elseif ($gatewayClass->isPayment() || $gatewayClass->isSubscription())
 			'DATE' => timeformat(time(), false),
 		);
 
-		emailAdmins('paid_subscription_new', $replacements, $notify_users);
+		ACP::emailAdmins('paid_subscription_new', $replacements, $notify_users);
 	}
 }
 // Maybe they're cancelling. Some subscriptions may require actively doing something, but PayPal doesn't, for example.
@@ -318,7 +316,7 @@ function generateSubscriptionError($text, $debug = false)
 			'ERROR' => $text,
 		);
 
-		emailAdmins('paid_subscription_error', $replacements, $notify_users);
+		ACP::emailAdmins('paid_subscription_error', $replacements, $notify_users);
 	}
 
 	// Maybe we can try to give them the post data?
