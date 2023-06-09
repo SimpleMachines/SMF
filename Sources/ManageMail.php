@@ -24,6 +24,7 @@ use SMF\Mail;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Admin\ACP;
 use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
@@ -39,9 +40,6 @@ function ManageMail()
 
 	Lang::load('Help');
 	Lang::load('ManageMail');
-
-	// We'll need the utility functions from here.
-	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
 
 	Utils::$context['page_title'] = Lang::$txt['mailqueue_title'];
 	Utils::$context['sub_template'] = 'show_settings';
@@ -345,14 +343,14 @@ function ModifyMailSettings($return_config = false)
 		unset($config_vars['birthday_subject'], $config_vars['birthday_body']);
 		call_integration_hook('integrate_save_mail_settings');
 
-		saveDBSettings($config_vars);
+		ACP::saveDBSettings($config_vars);
 		redirectexit('action=admin;area=mailqueue;sa=settings');
 	}
 
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=mailqueue;save;sa=settings';
 	Utils::$context['settings_title'] = Lang::$txt['mailqueue_settings'];
 
-	prepareDBSettingContext($config_vars);
+	ACP::prepareDBSettingContext($config_vars);
 
 	Utils::$context['settings_insert_above'] = '
 	<script>

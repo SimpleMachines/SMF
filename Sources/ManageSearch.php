@@ -18,6 +18,7 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\Theme;
 use SMF\Utils;
+use SMF\Actions\Admin\ACP;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
 
@@ -119,9 +120,6 @@ function EditSearchSettings($return_config = false)
 	Utils::$context['page_title'] = Lang::$txt['search_settings_title'];
 	Utils::$context['sub_template'] = 'show_settings';
 
-	// We'll need this for the settings.
-	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
-
 	// A form was submitted.
 	if (isset($_REQUEST['save']))
 	{
@@ -131,7 +129,7 @@ function EditSearchSettings($return_config = false)
 
 		if (empty($_POST['search_results_per_page']))
 			$_POST['search_results_per_page'] = !empty(Config::$modSettings['search_results_per_page']) ? Config::$modSettings['search_results_per_page'] : Config::$modSettings['defaultMaxMessages'];
-		saveDBSettings($config_vars);
+		ACP::saveDBSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=managesearch;sa=settings;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 	}
@@ -143,7 +141,7 @@ function EditSearchSettings($return_config = false)
 	// We need this for the in-line permissions
 	createToken('admin-mp');
 
-	prepareDBSettingContext($config_vars);
+	ACP::prepareDBSettingContext($config_vars);
 }
 
 /**

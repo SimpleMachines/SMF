@@ -19,6 +19,7 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\Theme;
 use SMF\Utils;
+use SMF\Actions\Admin\ACP;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\PackageManager\SubsPackage;
@@ -723,9 +724,6 @@ function list_getLanguages()
  */
 function ModifyLanguageSettings($return_config = false)
 {
-	// We'll want to save them someday.
-	require_once Config::$sourcedir . '/Actions/Admin/Server.php';
-
 	// Warn the user if the backup of Settings.php failed.
 	$settings_not_writable = !is_writable(SMF_SETTINGS_FILE);
 	$settings_backup_fail = !@is_writable(SMF_SETTINGS_BACKUP_FILE) || !@copy(SMF_SETTINGS_FILE, SMF_SETTINGS_BACKUP_FILE);
@@ -757,7 +755,7 @@ function ModifyLanguageSettings($return_config = false)
 
 		call_integration_hook('integrate_save_language_settings', array(&$config_vars));
 
-		saveSettings($config_vars);
+		ACP::saveSettings($config_vars);
 		if (!$settings_not_writable && !$settings_backup_fail)
 			$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=languages;sa=settings');

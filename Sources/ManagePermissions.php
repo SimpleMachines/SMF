@@ -20,6 +20,7 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\Theme;
 use SMF\Utils;
+use SMF\Actions\Admin\ACP;
 use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
@@ -1006,9 +1007,6 @@ function GeneralPermissionSettings($return_config = false)
 	Utils::$context['page_title'] = Lang::$txt['permission_settings_title'];
 	Utils::$context['sub_template'] = 'show_settings';
 
-	// Needed for the inline permission functions, and the settings template.
-	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
-
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=permissions;save;sa=settings';
 
 	// Saving the settings?
@@ -1016,7 +1014,7 @@ function GeneralPermissionSettings($return_config = false)
 	{
 		checkSession();
 		call_integration_hook('integrate_save_permission_settings');
-		saveDBSettings($config_vars);
+		ACP::saveDBSettings($config_vars);
 
 		// Clear all deny permissions...if we want that.
 		if (empty(Config::$modSettings['permission_enable_deny']))
@@ -1087,7 +1085,7 @@ function GeneralPermissionSettings($return_config = false)
 	// We need this for the in-line permissions
 	createToken('admin-mp');
 
-	prepareDBSettingContext($config_vars);
+	ACP::prepareDBSettingContext($config_vars);
 }
 
 /**

@@ -21,6 +21,7 @@ use SMF\Menu;
 use SMF\User;
 use SMF\Theme;
 use SMF\Utils;
+use SMF\Actions\Admin\ACP;
 use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
@@ -223,9 +224,6 @@ function ModifySubscriptionSettings($return_config = false)
 	if ($return_config)
 		return $config_vars;
 
-	// Get the settings template fired up.
-	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
-
 	// Some important context stuff
 	Utils::$context['page_title'] = Lang::$txt['settings'];
 	Utils::$context['sub_template'] = 'show_settings';
@@ -283,14 +281,14 @@ function ModifySubscriptionSettings($return_config = false)
 			unset($config_vars['dummy_currency']);
 		}
 
-		saveDBSettings($config_vars);
+		ACP::saveDBSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 
 		redirectexit('action=admin;area=paidsubscribe;sa=settings');
 	}
 
 	// Prepare the settings...
-	prepareDBSettingContext($config_vars);
+	ACP::prepareDBSettingContext($config_vars);
 }
 
 /**

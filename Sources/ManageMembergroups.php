@@ -20,6 +20,7 @@ use SMF\Menu;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Admin\ACP;
 use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
@@ -1232,9 +1233,6 @@ function ModifyMembergroupsettings()
 	Utils::$context['sub_template'] = 'show_settings';
 	Utils::$context['page_title'] = Lang::$txt['membergroups_settings'];
 
-	// Needed for the settings functions.
-	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
-
 	// Only one thing here!
 	$config_vars = array(
 		array('permissions', 'manage_membergroups'),
@@ -1248,7 +1246,7 @@ function ModifyMembergroupsettings()
 		call_integration_hook('integrate_save_membergroup_settings');
 
 		// Yeppers, saving this...
-		saveDBSettings($config_vars);
+		ACP::saveDBSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=membergroups;sa=settings');
 	}
@@ -1260,7 +1258,7 @@ function ModifyMembergroupsettings()
 	// We need this for the in-line permissions
 	createToken('admin-mp');
 
-	prepareDBSettingContext($config_vars);
+	ACP::prepareDBSettingContext($config_vars);
 }
 
 ?>

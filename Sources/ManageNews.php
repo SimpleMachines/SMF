@@ -23,6 +23,7 @@ use SMF\Mail;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Admin\ACP;
 use SMF\Actions\Notify;
 use SMF\Db\DatabaseApi as Db;
 
@@ -1099,9 +1100,6 @@ function ModifyNewsSettings($return_config = false)
 	Utils::$context['page_title'] = Lang::$txt['admin_edit_news'] . ' - ' . Lang::$txt['settings'];
 	Utils::$context['sub_template'] = 'show_settings';
 
-	// Needed for the settings template.
-	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
-
 	// Wrap it all up nice and warm...
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=news;save;sa=settings';
 
@@ -1116,7 +1114,7 @@ function ModifyNewsSettings($return_config = false)
 
 		call_integration_hook('integrate_save_news_settings');
 
-		saveDBSettings($config_vars);
+		ACP::saveDBSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=news;sa=settings');
 	}
@@ -1124,7 +1122,7 @@ function ModifyNewsSettings($return_config = false)
 	// We need this for the in-line permissions
 	createToken('admin-mp');
 
-	prepareDBSettingContext($config_vars);
+	ACP::prepareDBSettingContext($config_vars);
 }
 
 ?>
