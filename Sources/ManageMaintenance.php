@@ -23,6 +23,7 @@ use SMF\Menu;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Admin\ACP;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
@@ -1294,14 +1295,13 @@ function VersionDetail()
 	isAllowedTo('admin_forum');
 
 	// Call the function that'll get all the version info we need.
-	require_once(Config::$sourcedir . '/Subs-Admin.php');
 	$versionOptions = array(
 		'include_ssi' => true,
 		'include_subscriptions' => true,
 		'include_tasks' => true,
 		'sort_results' => true,
 	);
-	$version_info = getFileVersions($versionOptions);
+	$version_info = ACP::getFileVersions($versionOptions);
 
 	// Add the new info to the template context.
 	Utils::$context += array(
@@ -1787,7 +1787,6 @@ function RebuildSettingsFile()
 {
 	isAllowedTo('admin_forum');
 
-	require_once(Config::$sourcedir . '/Subs-Admin.php');
 	Config::updateSettingsFile(array(), false, true);
 
 	redirectexit('action=admin;area=maintain;sa=routine;done=rebuild_settings');

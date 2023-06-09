@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\Config;
 use SMF\User;
+use SMF\Actions\Admin\ACP;
 
 /**
  * Lets simplemachines.org gather statistics if, and only if, the admin allows.
@@ -80,12 +81,11 @@ class SmStats implements ActionInterface
 			die();
 
 		// Get some server versions.
-		require_once(Config::$sourcedir . '/Subs-Admin.php');
 		$checkFor = array(
 			'php',
 			'db_server',
 		);
-		$serverVersions = getServerVersions($checkFor);
+		$serverVersions = ACP::getServerVersions($checkFor);
 
 		// Get the actual stats.
 		$stats_to_send = array(

@@ -307,7 +307,6 @@ class Menu implements \ArrayAccess
 		 * Allow extending *any* menu with a single hook.
 		 *
 		 * For the sake of people searching for specific hooks, here are some common examples:
-		 *		integrate_admin_areas
 		 *		integrate_moderate_areas
 		 *		integrate_pm_areas
 		 */

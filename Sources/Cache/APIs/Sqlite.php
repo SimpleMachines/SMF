@@ -173,7 +173,6 @@ class Sqlite extends CacheApi implements CacheApiInterface
 			{
 				Config::$cachedir_sqlite = Config::$cachedir;
 
-				require_once(Config::$sourcedir . '/Subs-Admin.php');
 				Config::updateSettingsFile(array('cachedir_sqlite' => Config::$cachedir_sqlite));
 			}
 
