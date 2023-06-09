@@ -198,7 +198,7 @@ function ManageAttachmentSettings($return_config = false)
 
 	// These are very likely to come in handy! (i.e. without them we're doomed!)
 	require_once(Config::$sourcedir . '/ManagePermissions.php');
-	require_once(Config::$sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
 
 	// Saving settings?
 	if (isset($_GET['save']))
@@ -346,7 +346,7 @@ function ManageAvatarSettings($return_config = false)
 		return $config_vars;
 
 	// We need this file for the settings template.
-	require_once(Config::$sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
 
 	// Saving avatar settings?
 	if (isset($_GET['save']))

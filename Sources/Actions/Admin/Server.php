@@ -1750,7 +1750,7 @@ function ShowPHPinfoSettings()
 
 /**
  * Registers the site with the Simple Machines Stat collection. This function
- * purposely does not use updateSettings.php as it will be called shortly after
+ * purposely does not use updateSettings() as it will be called shortly after
  * this process completes by the saveSettings() function.
  *
  * @see SMStats() for more information.

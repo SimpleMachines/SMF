@@ -724,7 +724,7 @@ function list_getLanguages()
 function ModifyLanguageSettings($return_config = false)
 {
 	// We'll want to save them someday.
-	require_once Config::$sourcedir . '/ManageServer.php';
+	require_once Config::$sourcedir . '/Actions/Admin/Server.php';
 
 	// Warn the user if the backup of Settings.php failed.
 	$settings_not_writable = !is_writable(SMF_SETTINGS_FILE);

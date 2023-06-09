@@ -40,7 +40,7 @@ function loadGeneralSettingParameters($subActions = array(), $defaultAction = nu
 	isAllowedTo('admin_forum');
 
 	// Will need the utility functions from here.
-	require_once(Config::$sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
 
 	Utils::$context['sub_template'] = 'show_settings';
 
@@ -322,7 +322,7 @@ function ModifyBBCSettings($return_config = false)
 		return $config_vars;
 
 	// Setup the template.
-	require_once(Config::$sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
 	Utils::$context['sub_template'] = 'show_settings';
 	Utils::$context['page_title'] = Lang::$txt['manageposts_bbc_settings_title'];
 
@@ -606,7 +606,7 @@ function ModifyWarningSettings($return_config = false)
 		unset($config_vars['moderate']);
 
 	// Will need the utility functions from here.
-	require_once(Config::$sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
 
 	// Saving?
 	if (isset($_GET['save']))
@@ -815,7 +815,7 @@ function ModifyAntispamSettings($return_config = false)
 	$("#qa_dt_' . strtr(Lang::$default, array('-utf8' => '')) . ' a").click();', true);
 
 	// Will need the utility functions from here.
-	require_once(Config::$sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
 
 	// Saving?
 	if (isset($_GET['save']))
@@ -2309,7 +2309,7 @@ function ModifyLogSettings($return_config = false)
 	$("#pruningOptions").click(function() { togglePruned(); });', true);
 
 	// We'll need this in a bit.
-	require_once(Config::$sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
 
 	// Saving?
 	if (isset($_GET['save']))

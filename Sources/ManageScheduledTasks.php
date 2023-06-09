@@ -636,7 +636,7 @@ function list_getNumTaskLogEntries()
 function TaskSettings($return_config = false)
 {
 	// We will need the utility functions from here.
-	require_once(Config::$sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
 
 	Lang::load('Help');
 

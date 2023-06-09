@@ -1007,7 +1007,7 @@ function GeneralPermissionSettings($return_config = false)
 	Utils::$context['sub_template'] = 'show_settings';
 
 	// Needed for the inline permission functions, and the settings template.
-	require_once(Config::$sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
 
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=permissions;save;sa=settings';
 
