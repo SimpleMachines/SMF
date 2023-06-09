@@ -164,7 +164,7 @@ function EditSmileySettings($return_config = false)
 		return $config_vars;
 
 	// Setup the basics of the settings template.
-	require_once(Config::$sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
 	Utils::$context['sub_template'] = 'show_settings';
 
 	// Finish up the form...

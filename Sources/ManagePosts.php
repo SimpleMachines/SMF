@@ -223,7 +223,7 @@ function ModifyPostSettings($return_config = false)
 		return $config_vars;
 
 	// We'll want this for our easy save.
-	require_once(Config::$sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
 
 	// Setup the template.
 	Utils::$context['page_title'] = Lang::$txt['manageposts_settings'];
@@ -315,7 +315,7 @@ function ModifyTopicSettings($return_config = false)
 		return $config_vars;
 
 	// Get the settings template ready.
-	require_once(Config::$sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
 
 	// Setup the template.
 	Utils::$context['page_title'] = Lang::$txt['manageposts_topic_settings'];
@@ -367,7 +367,7 @@ function ModifyDraftSettings($return_config = false)
 		return $config_vars;
 
 	// Get the settings template ready.
-	require_once(Config::$sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
 
 	// Setup the template.
 	Utils::$context['page_title'] = Lang::$txt['managedrafts_settings'];

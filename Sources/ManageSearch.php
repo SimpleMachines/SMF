@@ -120,7 +120,7 @@ function EditSearchSettings($return_config = false)
 	Utils::$context['sub_template'] = 'show_settings';
 
 	// We'll need this for the settings.
-	require_once(Config::$sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
 
 	// A form was submitted.
 	if (isset($_REQUEST['save']))

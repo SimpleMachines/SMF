@@ -41,7 +41,7 @@ function ManageMail()
 	Lang::load('ManageMail');
 
 	// We'll need the utility functions from here.
-	require_once(Config::$sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
 
 	Utils::$context['page_title'] = Lang::$txt['mailqueue_title'];
 	Utils::$context['sub_template'] = 'show_settings';

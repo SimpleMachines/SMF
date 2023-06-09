@@ -131,7 +131,7 @@ function ManageSearchEngineSettings($return_config = false)
 		$_POST['spider_group'] = 0;
 
 	// We'll want this for our easy save.
-	require_once(Config::$sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
 
 	// Setup the template.
 	Utils::$context['page_title'] = Lang::$txt['settings'];

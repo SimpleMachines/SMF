@@ -1233,7 +1233,7 @@ function ModifyMembergroupsettings()
 	Utils::$context['page_title'] = Lang::$txt['membergroups_settings'];
 
 	// Needed for the settings functions.
-	require_once(Config::$sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
 
 	// Only one thing here!
 	$config_vars = array(

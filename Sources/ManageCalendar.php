@@ -379,7 +379,7 @@ function ModifyCalendarSettings($return_config = false)
 		return $config_vars;
 
 	// Get the settings template fired up.
-	require_once(Config::$sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
 
 	// Some important context stuff
 	Utils::$context['page_title'] = Lang::$txt['calendar_settings'];

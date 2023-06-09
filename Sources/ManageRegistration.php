@@ -320,7 +320,7 @@ function SetReserved()
 function ModifyRegistrationSettings($return_config = false)
 {
 	// This is really quite wanting.
-	require_once(Config::$sourcedir . '/ManageServer.php');
+	require_once(Config::$sourcedir . '/Actions/Admin/Server.php');
 
 	// Do we have at least default versions of the agreement and privacy policy?
 	$agreement = file_exists(Config::$boarddir . '/agreement.' . Lang::$default . '.txt') || file_exists(Config::$boarddir . '/agreement.txt');

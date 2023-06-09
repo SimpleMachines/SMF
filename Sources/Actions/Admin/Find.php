@@ -89,7 +89,7 @@ class Find implements ActionInterface
 		'ManageRegistration',
 		'ManageSearch',
 		'ManageSearchEngines',
-		'ManageServer',
+		'Actions/Admin/Server',
 		'ManageSettings',
 		'ManageSmileys',
 	);
