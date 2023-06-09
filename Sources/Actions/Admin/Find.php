@@ -1,0 +1,431 @@
+<?php
+
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2023 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 1
+ */
+
+namespace SMF\Actions\Admin;
+
+use SMF\BackwardCompatibility;
+use SMF\Actions\ActionInterface;
+
+use SMF\Config;
+use SMF\Lang;
+use SMF\Menu;
+use SMF\Utils;
+
+/**
+ * Provides the search functionality inside the admin control panel.
+ */
+class Find implements ActionInterface
+{
+	use BackwardCompatibility;
+
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = array(
+		'func_names' => array(
+			'load' => false,
+			'call' => 'AdminSearch',
+		),
+	);
+
+	/*******************
+	 * Public properties
+	 *******************/
+
+	/**
+	 * @var string
+	 *
+	 * The requested sub-action.
+	 * This should be set by the constructor.
+	 */
+	public string $subaction = 'internal';
+
+	/**
+	 * @var array
+	 *
+	 * Load a lot of language files.
+	 */
+	public array $language_files = array(
+		'Drafts',
+		'Help',
+		'Login',
+		'ManageBoards',
+		'ManageCalendar',
+		'ManageMail',
+		'ManagePaid',
+		'ManagePermissions',
+		'ManageSettings',
+		'ManageSmileys',
+		'Search',
+	);
+
+	/**
+	 * @var array
+	 *
+	 * All the files we need to include.
+	 */
+	public array $include_files = array(
+		'ManageAttachments',
+		'ManageBoards',
+		'ManageCalendar',
+		'ManageLanguages',
+		'ManageMail',
+		'ManageNews',
+		'ManagePaid',
+		'ManagePermissions',
+		'ManagePosts',
+		'ManageRegistration',
+		'ManageSearch',
+		'ManageSearchEngines',
+		'ManageServer',
+		'ManageSettings',
+		'ManageSmileys',
+	);
+
+	/**
+	 * @var array
+	 *
+	 * This is a special array of functions that contain setting data.
+	 * We query all these simply to find all the settings.
+	 *
+	 * Mod authors: if you want to be "real freaking good" then add any settings
+	 * pages for your mod to this array via the integrate_admin_search hook!
+	 *
+	 * Format: array('function_to_get_config_vars', 'url_for_admin_area_and_sa')
+	 */
+	public array $settings_search = array(
+		array('ModifyBasicSettings', 'area=featuresettings;sa=basic'),
+		array('ModifyBBCSettings', 'area=featuresettings;sa=bbc'),
+		array('ModifyLayoutSettings', 'area=featuresettings;sa=layout'),
+		array('ModifyLikesSettings', 'area=featuresettings;sa=likes'),
+		array('ModifyMentionsSettings', 'area=featuresettings;sa=mentions'),
+		array('ModifySignatureSettings', 'area=featuresettings;sa=sig'),
+		array('ModifyAntispamSettings', 'area=antispam'),
+		array('ModifyWarningSettings', 'area=warnings'),
+		array('ModifyGeneralModSettings', 'area=modsettings;sa=general'),
+		array('ManageAttachmentSettings', 'area=manageattachments;sa=attachments'),
+		array('ManageAvatarSettings', 'area=manageattachments;sa=avatars'),
+		array('ModifyCalendarSettings', 'area=managecalendar;sa=settings'),
+		array('EditBoardSettings', 'area=manageboards;sa=settings'),
+		array('ModifyMailSettings', 'area=mailqueue;sa=settings'),
+		array('ModifyNewsSettings', 'area=news;sa=settings'),
+		array('GeneralPermissionSettings', 'area=permissions;sa=settings'),
+		array('ModifyPostSettings', 'area=postsettings;sa=posts'),
+		array('ModifyTopicSettings', 'area=postsettings;sa=topics'),
+		array('ModifyDraftSettings', 'area=postsettings;sa=drafts'),
+		array('EditSearchSettings', 'area=managesearch;sa=settings'),
+		array('EditSmileySettings', 'area=smileys;sa=settings'),
+		array('ModifyGeneralSettings', 'area=serversettings;sa=general'),
+		array('ModifyDatabaseSettings', 'area=serversettings;sa=database'),
+		array('ModifyCookieSettings', 'area=serversettings;sa=cookie'),
+		array('ModifyGeneralSecuritySettings', 'area=serversettings;sa=security'),
+		array('ModifyCacheSettings', 'area=serversettings;sa=cache'),
+		array('ModifyLanguageSettings', 'area=languages;sa=settings'),
+		array('ModifyRegistrationSettings', 'area=regcenter;sa=settings'),
+		array('ManageSearchEngineSettings', 'area=sengines;sa=settings'),
+		array('ModifySubscriptionSettings', 'area=paidsubscribe;sa=settings'),
+		array('ModifyLogSettings', 'area=logs;sa=settings'),
+	);
+
+	/**************************
+	 * Public static properties
+	 **************************/
+
+	/**
+	 * @var array
+	 *
+	 * Available sub-actions.
+	 */
+	public static array $subactions = array(
+		'internal' => 'internal',
+		'online' => 'online',
+		'member' => 'member',
+	);
+
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * @var object
+	 *
+	 * An instance of this class.
+	 * This is used by the load() method to prevent mulitple instantiations.
+	 */
+	protected static object $obj;
+
+	/****************
+	 * Public methods
+	 ****************/
+
+	/**
+	 * This function allocates out all the search stuff.
+	 */
+	public function execute(): void
+	{
+		isAllowedTo('admin_forum');
+
+		Utils::$context['search_type'] = $this->subaction;
+		Utils::$context['search_term'] = isset($_REQUEST['search_term']) ? Utils::htmlspecialchars($_REQUEST['search_term'], ENT_QUOTES) : '';
+
+		Utils::$context['sub_template'] = 'admin_search_results';
+		Utils::$context['page_title'] = Lang::$txt['admin_search_results'];
+
+		// Keep track of what the admin wants.
+		if (empty(Utils::$context['admin_preferences']['sb']) || Utils::$context['admin_preferences']['sb'] != $this->subaction)
+		{
+			Utils::$context['admin_preferences']['sb'] = $this->subaction;
+
+			// Update the preferences.
+			require_once(Config::$sourcedir . '/Subs-Admin.php');
+			updateAdminPreferences();
+		}
+
+		if (trim(Utils::$context['search_term']) == '')
+			Utils::$context['search_results'] = array();
+		else
+			call_helper(array($this, self::$subactions[$this->subaction]));
+	}
+
+
+	/**
+	 * A complicated but relatively quick internal search.
+	 */
+	public function internal()
+	{
+		// Try to get some more memory.
+		setMemoryLimit('128M');
+
+		call_integration_hook('integrate_admin_search', array(&$this->language_files, &$this->include_files, &$this->settings_search));
+
+		Lang::load(implode('+', $this->language_files));
+
+		foreach ($this->include_files as $file)
+			require_once(Config::$sourcedir . '/' . $file . '.php');
+
+		/* This is the huge array that defines everything... it's a huge array of items formatted as follows:
+			0 = Language index (Can be array of indexes) to search through for this setting.
+			1 = URL for this indexes page.
+			2 = Help index for help associated with this item (If different from 0)
+		*/
+
+		$search_data = array(
+			// All the major sections of the forum.
+			'sections' => array(
+			),
+			'settings' => array(
+				array('COPPA', 'area=regcenter;sa=settings'),
+				array('CAPTCHA', 'area=antispam'),
+			),
+		);
+
+		// Go through the admin menu structure trying to find suitably named areas!
+		foreach (Menu::$loaded['admin']['sections'] as $section)
+		{
+			foreach ($section['areas'] as $menu_key => $menu_item)
+			{
+				$search_data['sections'][] = array($menu_item['label'], 'area=' . $menu_key);
+
+				if (!empty($menu_item['subsections']))
+				{
+					foreach ($menu_item['subsections'] as $key => $sublabel)
+					{
+						if (isset($sublabel['label']))
+						{
+							$search_data['sections'][] = array($sublabel['label'], 'area=' . $menu_key . ';sa=' . $key);
+						}
+					}
+				}
+			}
+		}
+
+		foreach ($this->settings_search as $setting_area)
+		{
+			// Get a list of their variables.
+			$config_vars = call_user_func($setting_area[0], true);
+
+			foreach ($config_vars as $var)
+			{
+				if (!empty($var[1]) && !in_array($var[0], array('permissions', 'switch', 'desc')))
+				{
+					$search_data['settings'][] = array($var[(isset($var[2]) && in_array($var[2], array('file', 'db'))) ? 0 : 1], $setting_area[1], 'alttxt' => (isset($var[2]) && in_array($var[2], array('file', 'db'))) || isset($var[3]) ? (in_array($var[2], array('file', 'db')) ? $var[1] : $var[3]) : '');
+				}
+			}
+		}
+
+		Utils::$context['page_title'] = Lang::$txt['admin_search_results'];
+		Utils::$context['search_results'] = array();
+
+		$search_term = strtolower(un_htmlspecialchars(Utils::$context['search_term']));
+
+		// Go through all the search data trying to find this text!
+		foreach ($search_data as $section => $data)
+		{
+			foreach ($data as $item)
+			{
+				$found = false;
+
+				if (!is_array($item[0]))
+					$item[0] = array($item[0]);
+
+				foreach ($item[0] as $term)
+				{
+					if (
+						stripos($term, $search_term) !== false
+						|| (
+							isset(Lang::$txt[$term])
+							&& stripos(Lang::$txt[$term], $search_term) !== false
+						)
+						|| (
+							isset(Lang::$txt['setting_' . $term])
+							&& stripos(Lang::$txt['setting_' . $term], $search_term) !== false
+						)
+					)
+					{
+						$found = $term;
+						break;
+					}
+				}
+
+				if ($found)
+				{
+					// Format the name - and remove any descriptions the entry may have.
+					$name = isset(Lang::$txt[$found]) ? Lang::$txt[$found] : (isset(Lang::$txt['setting_' . $found]) ? Lang::$txt['setting_' . $found] : (!empty($item['alttxt']) ? $item['alttxt'] : $found));
+
+					$name = preg_replace('~<(?:div|span)\sclass="smalltext">.+?</(?:div|span)>~', '', $name);
+
+					Utils::$context['search_results'][] = array(
+						'url' => (substr($item[1], 0, 4) == 'area' ? Config::$scripturl . '?action=admin;' . $item[1] : $item[1]) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ((substr($item[1], 0, 4) == 'area' && $section == 'settings' ? '#' . $item[0][0] : '')),
+						'name' => $name,
+						'type' => $section,
+						'help' => shorten_subject(isset($item[2]) ? strip_tags(Lang::$helptxt[$item[2]]) : (isset(Lang::$helptxt[$found]) ? strip_tags(Lang::$helptxt[$found]) : ''), 255),
+					);
+				}
+			}
+		}
+	}
+
+	/**
+	 * All this does is pass through to manage members.
+	 * {@see ViewMembers()}
+	 */
+	public function member()
+	{
+		require_once(Config::$sourcedir . '/ManageMembers.php');
+		$_REQUEST['sa'] = 'query';
+
+		$_POST['membername'] = un_htmlspecialchars(Utils::$context['search_term']);
+		$_POST['types'] = '';
+
+		ViewMembers();
+	}
+
+	/**
+	 * This file allows the user to search the SM online manual for a little of help.
+	 */
+	public function online()
+	{
+		Utils::$context['doc_apiurl'] = 'https://wiki.simplemachines.org/api.php';
+		Utils::$context['doc_scripturl'] = 'https://wiki.simplemachines.org/smf/';
+
+		// Set all the parameters search might expect.
+		$postVars = explode(' ', Utils::$context['search_term']);
+
+		// Encode the search data.
+		foreach ($postVars as $k => $v)
+			$postVars[$k] = urlencode($v);
+
+		// This is what we will send.
+		$postVars = implode('+', $postVars);
+
+		// Get the results from the doc site.
+		// Demo URL:
+		// https://wiki.simplemachines.org/api.php?action=query&list=search&srprop=timestamp|snippet&format=xml&srwhat=text&srsearch=template+eval
+		$search_results = fetch_web_data(Utils::$context['doc_apiurl'] . '?action=query&list=search&srprop=timestamp|snippet&format=xml&srwhat=text&srsearch=' . $postVars);
+
+		// If we didn't get any xml back we are in trouble - perhaps the doc site is overloaded?
+		if (!$search_results || preg_match('~<' . '\?xml\sversion="\d+\.\d+"\?' . '>\s*(<api\b[^>]*>.+?</api>)~is', $search_results, $matches) != true)
+			fatal_lang_error('cannot_connect_doc_site');
+
+		$search_results = $matches[1];
+
+		// Otherwise we simply walk through the XML and stick it in context for display.
+		Utils::$context['search_results'] = array();
+
+		// Get the results loaded into an array for processing!
+		$results = new XmlArray($search_results, false);
+
+		// Move through the api layer.
+		if (!$results->exists('api'))
+			fatal_lang_error('cannot_connect_doc_site');
+
+		// Are there actually some results?
+		if ($results->exists('api/query/search/p'))
+		{
+			$relevance = 0;
+			foreach ($results->set('api/query/search/p') as $result)
+			{
+				Utils::$context['search_results'][$result->fetch('@title')] = array(
+					'title' => $result->fetch('@title'),
+					'relevance' => $relevance++,
+					'snippet' => str_replace('class=\'searchmatch\'', 'class="highlight"', un_htmlspecialchars($result->fetch('@snippet'))),
+				);
+			}
+		}
+	}
+
+	/***********************
+	 * Public static methods
+	 ***********************/
+
+	/**
+	 * Static wrapper for constructor.
+	 *
+	 * @return object An instance of this class.
+	 */
+	public static function load(): object
+	{
+		if (!isset(self::$obj))
+			self::$obj = new self();
+
+		return self::$obj;
+	}
+
+	/**
+	 * Convenience method to load() and execute() an instance of this class.
+	 */
+	public static function call(): void
+	{
+		self::load()->execute();
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
+	 * Constructor. Protected to force instantiation via self::load().
+	 */
+	protected function __construct()
+	{
+		$this->subaction = !isset($_REQUEST['search_type']) || !isset(self::$subactions[$_REQUEST['search_type']]) ? 'internal' : $_REQUEST['search_type'];
+	}
+}
+
+// Export public static functions and properties to global namespace for backward compatibility.
+if (is_callable(__NAMESPACE__ . '\Find::exportStatic'))
+	Find::exportStatic();
+
+?>
