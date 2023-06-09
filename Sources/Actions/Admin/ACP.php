@@ -636,7 +636,7 @@ function AdminMain()
 				),
 				'logs' => array(
 					'label' => Lang::$txt['logs'],
-					'function' => 'AdminLogs',
+					'function' => '\\SMF\\Actions\\Admin\\Logs::call',
 					'icon' => 'logs',
 					'subsections' => array(
 						'errorlog' => array(
@@ -741,65 +741,6 @@ function AdminMain()
 	// Is it valid?
 	if (!empty($call))
 		call_user_func($call);
-}
-
-/**
- * This function decides which log to load.
- */
-function AdminLogs()
-{
-	// These are the logs they can load.
-	$log_functions = array(
-		'errorlog' => array('ManageErrors.php', 'ViewErrorLog'),
-		'adminlog' => array('Modlog.php', 'ViewModlog', 'disabled' => empty(Config::$modSettings['adminlog_enabled'])),
-		'modlog' => array('Modlog.php', 'ViewModlog', 'disabled' => empty(Config::$modSettings['modlog_enabled'])),
-		'banlog' => array('ManageBans.php', 'BanLog'),
-		'spiderlog' => array('ManageSearchEngines.php', 'SpiderLogs'),
-		'tasklog' => array('ManageScheduledTasks.php', 'TaskLog'),
-		'settings' => array('ManageSettings.php', 'ModifyLogSettings'),
-	);
-
-	// If it's not got a sa set it must have come here for first time, pretend error log should be reversed.
-	if (!isset($_REQUEST['sa']))
-		$_REQUEST['desc'] = true;
-
-	// Setup some tab stuff.
-	Menu::$loaded['admin']->tab_data = array(
-		'title' => Lang::$txt['logs'],
-		'help' => '',
-		'description' => Lang::$txt['maintain_info'],
-		'tabs' => array(
-			'errorlog' => array(
-				'url' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog;desc',
-				'description' => sprintf(Lang::$txt['errorlog_desc'], Lang::$txt['remove']),
-			),
-			'adminlog' => array(
-				'description' => Lang::$txt['admin_log_desc'],
-			),
-			'modlog' => array(
-				'description' => Lang::$txt['moderation_log_desc'],
-			),
-			'banlog' => array(
-				'description' => Lang::$txt['ban_log_description'],
-			),
-			'spiderlog' => array(
-				'description' => Lang::$txt['spider_log_desc'],
-			),
-			'tasklog' => array(
-				'description' => Lang::$txt['scheduled_log_desc'],
-			),
-			'settings' => array(
-				'description' => Lang::$txt['log_settings_desc'],
-			),
-		),
-	);
-
-	call_integration_hook('integrate_manage_logs', array(&$log_functions));
-
-	$subAction = isset($_REQUEST['sa']) && isset($log_functions[$_REQUEST['sa']]) && empty($log_functions[$_REQUEST['sa']]['disabled']) ? $_REQUEST['sa'] : 'errorlog';
-
-	require_once(Config::$sourcedir . '/' . $log_functions[$subAction][0]);
-	call_helper($log_functions[$subAction][1]);
 }
 
 ?>
