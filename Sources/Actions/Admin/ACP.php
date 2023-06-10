@@ -106,8 +106,7 @@ class ACP implements ActionInterface
 				),
 				'news' => array(
 					'label' => 'news_title',
-					'file' => 'Actions/Admin/News.php',
-					'function' => 'ManageNews',
+					'function' => __NAMESPACE__ . '\\News::call',
 					'icon' => 'news',
 					'permission' => array(
 						'edit_news',

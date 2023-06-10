@@ -24,6 +24,7 @@ use SMF\Msg;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Admin\News;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -199,8 +200,6 @@ class XmlHttp implements ActionInterface
 	 */
 	function newsletterpreview()
 	{
-		require_once(Config::$sourcedir . '/Actions/Admin/News.php');
-
 		Lang::load('Errors');
 
 		Utils::$context['post_error']['messages'] = array();
@@ -213,7 +212,7 @@ class XmlHttp implements ActionInterface
 		if (empty($_POST['message']))
 			Utils::$context['post_error']['messages'][] = Lang::$txt['error_no_message'];
 
-		prepareMailingForPreview();
+		News::prepareMailingForPreview();
 
 		Utils::$context['sub_template'] = 'pm';
 	}
