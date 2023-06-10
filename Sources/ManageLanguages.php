@@ -20,6 +20,7 @@ use SMF\Menu;
 use SMF\Theme;
 use SMF\Utils;
 use SMF\Actions\Admin\ACP;
+use SMF\Actions\Admin\Server;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\PackageManager\SubsPackage;
@@ -725,8 +726,7 @@ function list_getLanguages()
 function ModifyLanguageSettings($return_config = false)
 {
 	// Warn the user if the backup of Settings.php failed.
-	$settings_not_writable = !is_writable(SMF_SETTINGS_FILE);
-	$settings_backup_fail = !@is_writable(SMF_SETTINGS_BACKUP_FILE) || !@copy(SMF_SETTINGS_FILE, SMF_SETTINGS_BACKUP_FILE);
+	Server::checkSettingsFileWriteSafe();
 
 	/* If you're writing a mod, it's a bad idea to add things here....
 	For each option:
@@ -734,7 +734,7 @@ function ModifyLanguageSettings($return_config = false)
 	OR	an empty string for a horizontal rule.
 	OR	a string for a titled section. */
 	$config_vars = array(
-		'language' => array('language', Lang::$txt['default_language'], 'file', 'select', array(), null, 'disabled' => $settings_not_writable),
+		'language' => array('language', Lang::$txt['default_language'], 'file', 'select', array(), null, 'disabled' => Server::$settings_not_writable),
 		array('userLanguage', Lang::$txt['userLanguage'], 'db', 'check', null, 'userLanguage'),
 	);
 
@@ -756,7 +756,7 @@ function ModifyLanguageSettings($return_config = false)
 		call_integration_hook('integrate_save_language_settings', array(&$config_vars));
 
 		ACP::saveSettings($config_vars);
-		if (!$settings_not_writable && !$settings_backup_fail)
+		if (!Server::$settings_not_writable && !Server::$settings_backup_fail)
 			$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=languages;sa=settings');
 	}
@@ -764,15 +764,15 @@ function ModifyLanguageSettings($return_config = false)
 	// Setup the template stuff.
 	Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=languages;sa=settings;save';
 	Utils::$context['settings_title'] = Lang::$txt['language_settings'];
-	Utils::$context['save_disabled'] = $settings_not_writable;
+	Utils::$context['save_disabled'] = Server::$settings_not_writable;
 
-	if ($settings_not_writable)
+	if (Server::$settings_not_writable)
 		Utils::$context['settings_message'] = array(
 			'label' => Lang::$txt['settings_not_writable'],
 			'tag' => 'div',
 			'class' => 'centertext strong'
 		);
-	elseif ($settings_backup_fail)
+	elseif (Server::$settings_backup_fail)
 		Utils::$context['settings_message'] = array(
 			'label' => Lang::$txt['admin_backup_fail'],
 			'tag' => 'div',
@@ -780,7 +780,7 @@ function ModifyLanguageSettings($return_config = false)
 		);
 
 	// Fill the config array.
-	prepareServerSettingsContext($config_vars);
+	Server::prepareServerSettingsContext($config_vars);
 }
 
 /**
