@@ -141,7 +141,7 @@ function ReportsMain()
 function BoardReport()
 {
 	// Load the permission profiles.
-	require_once(Config::$sourcedir . '/ManagePermissions.php');
+	require_once(Config::$sourcedir . '/Actions/Admin/Permissions.php');
 	Lang::load('ManagePermissions');
 	loadPermissionProfiles();
 
