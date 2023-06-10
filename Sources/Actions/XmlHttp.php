@@ -199,7 +199,7 @@ class XmlHttp implements ActionInterface
 	 */
 	function newsletterpreview()
 	{
-		require_once(Config::$sourcedir . '/ManageNews.php');
+		require_once(Config::$sourcedir . '/Actions/Admin/News.php');
 
 		Lang::load('Errors');
 
