@@ -380,7 +380,7 @@ function EditBoard()
 
 	// For editing the profile we'll need this.
 	Lang::load('ManagePermissions');
-	require_once(Config::$sourcedir . '/ManagePermissions.php');
+	require_once(Config::$sourcedir . '/Actions/Admin/Permissions.php');
 	loadPermissionProfiles();
 
 	// People with manage-boards are special.

@@ -198,7 +198,7 @@ function ManageAttachmentSettings($return_config = false)
 		return $config_vars;
 
 	// These are very likely to come in handy! (i.e. without them we're doomed!)
-	require_once(Config::$sourcedir . '/ManagePermissions.php');
+	require_once(Config::$sourcedir . '/Actions/Admin/Permissions.php');
 
 	// Saving settings?
 	if (isset($_GET['save']))

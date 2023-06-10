@@ -83,7 +83,7 @@ class Find implements ActionInterface
 		'ManageLanguages',
 		'ManageMail',
 		'ManagePaid',
-		'ManagePermissions',
+		'Actions/Admin/Permissions',
 		'ManagePosts',
 		'ManageRegistration',
 		'ManageSearch',

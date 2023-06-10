@@ -475,7 +475,7 @@ class ACP implements ActionInterface
 				),
 				'permissions' => array(
 					'label' => 'edit_permissions',
-					'file' => 'ManagePermissions.php',
+					'file' => 'Actions/Admin/Permissions.php',
 					'function' => 'ModifyPermissions',
 					'icon' => 'permissions',
 					'permission' => array('manage_permissions'),
@@ -1061,7 +1061,7 @@ class ACP implements ActionInterface
 		// If we have inline permissions we need to prep them.
 		if (!empty($inlinePermissions) && allowedTo('manage_permissions'))
 		{
-			require_once(Config::$sourcedir . '/ManagePermissions.php');
+			require_once(Config::$sourcedir . '/Actions/Admin/Permissions.php');
 			init_inline_permissions($inlinePermissions);
 		}
 
@@ -1509,7 +1509,7 @@ class ACP implements ActionInterface
 		// If we have inline permissions we need to save them.
 		if (!empty($inlinePermissions) && allowedTo('manage_permissions'))
 		{
-			require_once(Config::$sourcedir . '/ManagePermissions.php');
+			require_once(Config::$sourcedir . '/Actions/Admin/Permissions.php');
 			save_inline_permissions($inlinePermissions);
 		}
 	}

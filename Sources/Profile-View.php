@@ -3030,7 +3030,7 @@ function showPermissions($memID)
 	Theme::loadTemplate('ManageMembers');
 
 	// Load all the permission profiles.
-	require_once(Config::$sourcedir . '/ManagePermissions.php');
+	require_once(Config::$sourcedir . '/Actions/Admin/Permissions.php');
 	loadPermissionProfiles();
 
 	Utils::$context['member']['id'] = $memID;

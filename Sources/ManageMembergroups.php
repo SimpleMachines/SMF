@@ -340,7 +340,7 @@ function AddMembergroup()
 		if ($_POST['perm_type'] == 'predefined')
 		{
 			// Set default permission level.
-			require_once(Config::$sourcedir . '/ManagePermissions.php');
+			require_once(Config::$sourcedir . '/Actions/Admin/Permissions.php');
 			setPermissionLevel($_POST['level'], $id_group, 'null');
 		}
 		// Copy or inherit the permissions!
@@ -370,7 +370,7 @@ function AddMembergroup()
 			}
 
 			// Don't allow copying of a real privileged person!
-			require_once(Config::$sourcedir . '/ManagePermissions.php');
+			require_once(Config::$sourcedir . '/Actions/Admin/Permissions.php');
 			loadIllegalPermissions();
 
 			$request = Db::$db->query('', '
@@ -951,7 +951,7 @@ function EditMembergroup()
 		// Do we need to set inherited permissions?
 		if ($_POST['group_inherit'] != -2 && $_POST['group_inherit'] != $_POST['old_inherit'])
 		{
-			require_once(Config::$sourcedir . '/ManagePermissions.php');
+			require_once(Config::$sourcedir . '/Actions/Admin/Permissions.php');
 			updateChildPermissions($_POST['group_inherit']);
 		}
 
