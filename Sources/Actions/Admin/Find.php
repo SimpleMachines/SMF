@@ -82,7 +82,7 @@ class Find implements ActionInterface
 		'ManageCalendar',
 		'ManageLanguages',
 		'ManageMail',
-		'ManageNews',
+		'Actions/Admin/News',
 		'ManagePaid',
 		'ManagePermissions',
 		'ManagePosts',
