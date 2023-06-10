@@ -1144,7 +1144,7 @@ class Config
 				{
 					self::$modSettings['load_average'] = (float) $matches[1];
 				}
-				elseif ((self::$modSettings['load_average'] = @`uptime`) != null && preg_match('~load average[s]?: (\d+\.\d+), (\d+\.\d+), (\d+\.\d+)~i', self::$modSettings['load_average'], $matches) != 0)
+				elseif ((self::$modSettings['load_average'] = @shell_exec('uptime')) != null && preg_match('~load averages?: (\d+\.\d+)~i', self::$modSettings['load_average'], $matches) != 0)
 				{
 					self::$modSettings['load_average'] = (float) $matches[1];
 				}

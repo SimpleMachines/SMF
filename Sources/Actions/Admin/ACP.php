@@ -588,8 +588,7 @@ class ACP implements ActionInterface
 			'areas' => array(
 				'serversettings' => array(
 					'label' => 'admin_server_settings',
-					'file' => 'Actions/Admin/Server.php',
-					'function' => 'ModifySettings',
+					'function' => __NAMESPACE__ . '\\Server::call',
 					'icon' => 'server',
 					'subsections' => array(
 						'general' => array(
