@@ -170,7 +170,7 @@ function template_permission_index()
 
 		foreach (Utils::$context['permissions'] as $permissionType)
 		{
-			if ($permissionType['id'] == 'membergroup' && !empty(Utils::$context['profile']))
+			if ($permissionType['id'] == 'global' && !empty(Utils::$context['profile']))
 				continue;
 
 			foreach ($permissionType['columns'] as $column)
@@ -384,7 +384,7 @@ function template_edit_profiles()
 					<tr class="windowbg">
 						<td>';
 
-		if (!empty(Utils::$context['show_rename_boxes']) && $profile['can_edit'])
+		if (!empty(Utils::$context['show_rename_boxes']) && $profile['can_rename'])
 			echo '
 							<input type="text" name="rename_profile[', $profile['id'], ']" value="', $profile['name'], '">';
 		else
@@ -409,7 +409,7 @@ function template_edit_profiles()
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				<input type="hidden" name="', Utils::$context['admin-mpp_token_var'], '" value="', Utils::$context['admin-mpp_token'], '">';
 
-	if (Utils::$context['can_edit_something'])
+	if (Utils::$context['can_rename_something'])
 		echo '
 				<input type="submit" name="rename" value="', empty(Utils::$context['show_rename_boxes']) ? Lang::$txt['permissions_profile_rename'] : Lang::$txt['permissions_commit'], '" class="button">';
 
@@ -495,7 +495,7 @@ function template_modify_group()
 				', Lang::$txt['permissions_local_for'], ' &quot;', Utils::$context['group']['name'], '&quot; ', Lang::$txt['permissions_on'], ' &quot;', Utils::$context['profile']['name'], '&quot;';
 	else
 		echo '
-				', Utils::$context['permission_type'] == 'membergroup' ? Lang::$txt['permissions_general'] : Lang::$txt['permissions_board'], ' - &quot;', Utils::$context['group']['name'], '&quot;';
+				', Utils::$context['permission_type'] == 'global' ? Lang::$txt['permissions_general'] : Lang::$txt['permissions_board'], ' - &quot;', Utils::$context['group']['name'], '&quot;';
 	echo '
 				</h3>
 			</div>';
@@ -504,7 +504,7 @@ function template_modify_group()
 	template_modify_group_display(Utils::$context['permission_type']);
 
 	// If this is general permissions also show the default profile.
-	if (Utils::$context['permission_type'] == 'membergroup')
+	if (Utils::$context['permission_type'] == 'global')
 	{
 		echo '
 			<br>

@@ -475,8 +475,7 @@ class ACP implements ActionInterface
 				),
 				'permissions' => array(
 					'label' => 'edit_permissions',
-					'file' => 'Actions/Admin/Permissions.php',
-					'function' => 'ModifyPermissions',
+					'function' => __NAMESPACE__ . '\\Permissions::call',
 					'icon' => 'permissions',
 					'permission' => array('manage_permissions'),
 					'subsections' => array(
@@ -1061,8 +1060,7 @@ class ACP implements ActionInterface
 		// If we have inline permissions we need to prep them.
 		if (!empty($inlinePermissions) && allowedTo('manage_permissions'))
 		{
-			require_once(Config::$sourcedir . '/Actions/Admin/Permissions.php');
-			init_inline_permissions($inlinePermissions);
+			Permissions::init_inline_permissions($inlinePermissions);
 		}
 
 		if ($board_list)
@@ -1509,8 +1507,7 @@ class ACP implements ActionInterface
 		// If we have inline permissions we need to save them.
 		if (!empty($inlinePermissions) && allowedTo('manage_permissions'))
 		{
-			require_once(Config::$sourcedir . '/Actions/Admin/Permissions.php');
-			save_inline_permissions($inlinePermissions);
+			Permissions::save_inline_permissions($inlinePermissions);
 		}
 	}
 

@@ -21,6 +21,7 @@ use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Actions\Admin\ACP;
+use SMF\Actions\Admin\Permissions;
 use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
@@ -340,8 +341,7 @@ function AddMembergroup()
 		if ($_POST['perm_type'] == 'predefined')
 		{
 			// Set default permission level.
-			require_once(Config::$sourcedir . '/Actions/Admin/Permissions.php');
-			setPermissionLevel($_POST['level'], $id_group, 'null');
+			Permissions::setPermissionLevel($_POST['level'], $id_group, 'null');
 		}
 		// Copy or inherit the permissions!
 		elseif ($_POST['perm_type'] == 'copy' || $_POST['perm_type'] == 'inherit')
@@ -370,8 +370,7 @@ function AddMembergroup()
 			}
 
 			// Don't allow copying of a real privileged person!
-			require_once(Config::$sourcedir . '/Actions/Admin/Permissions.php');
-			loadIllegalPermissions();
+			$illegal_permissions = Permissions::loadIllegalPermissions();
 
 			$request = Db::$db->query('', '
 				SELECT permission, add_deny
@@ -384,7 +383,7 @@ function AddMembergroup()
 			$inserts = array();
 			while ($row = Db::$db->fetch_assoc($request))
 			{
-				if (empty(Utils::$context['illegal_permissions']) || !in_array($row['permission'], Utils::$context['illegal_permissions']))
+				if (empty($illegal_permissions) || !in_array($row['permission'], $illegal_permissions))
 					$inserts[] = array($id_group, $row['permission'], $row['add_deny']);
 			}
 			Db::$db->free_result($request);
@@ -951,8 +950,7 @@ function EditMembergroup()
 		// Do we need to set inherited permissions?
 		if ($_POST['group_inherit'] != -2 && $_POST['group_inherit'] != $_POST['old_inherit'])
 		{
-			require_once(Config::$sourcedir . '/Actions/Admin/Permissions.php');
-			updateChildPermissions($_POST['group_inherit']);
+			Permissions::updateChildPermissions($_POST['group_inherit']);
 		}
 
 		// Finally, moderators!
