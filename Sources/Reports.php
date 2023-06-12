@@ -26,6 +26,7 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\Theme;
 use SMF\Utils;
+use SMF\Actions\Admin\Permissions;
 use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
@@ -141,9 +142,8 @@ function ReportsMain()
 function BoardReport()
 {
 	// Load the permission profiles.
-	require_once(Config::$sourcedir . '/Actions/Admin/Permissions.php');
 	Lang::load('ManagePermissions');
-	loadPermissionProfiles();
+	Permissions::loadPermissionProfiles();
 
 	// Get every moderator.
 	$request = Db::$db->query('', '

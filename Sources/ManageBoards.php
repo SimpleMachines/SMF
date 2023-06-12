@@ -22,6 +22,7 @@ use SMF\Menu;
 use SMF\Theme;
 use SMF\Utils;
 use SMF\Actions\Admin\ACP;
+use SMF\Actions\Admin\Permissions;
 use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
@@ -380,8 +381,7 @@ function EditBoard()
 
 	// For editing the profile we'll need this.
 	Lang::load('ManagePermissions');
-	require_once(Config::$sourcedir . '/Actions/Admin/Permissions.php');
-	loadPermissionProfiles();
+	Permissions::loadPermissionProfiles();
 
 	// People with manage-boards are special.
 	require_once(Config::$sourcedir . '/Subs-Members.php');

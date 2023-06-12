@@ -21,6 +21,7 @@ use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Actions\Who;
+use SMF\Actions\Admin\Permissions;
 use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
@@ -3030,8 +3031,7 @@ function showPermissions($memID)
 	Theme::loadTemplate('ManageMembers');
 
 	// Load all the permission profiles.
-	require_once(Config::$sourcedir . '/Actions/Admin/Permissions.php');
-	loadPermissionProfiles();
+	Permissions::loadPermissionProfiles();
 
 	Utils::$context['member']['id'] = $memID;
 	Utils::$context['member']['name'] = User::$loaded[$memID]->name;
