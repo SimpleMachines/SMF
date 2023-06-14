@@ -168,7 +168,7 @@ class ACP implements ActionInterface
 			'areas' => array(
 				'featuresettings' => array(
 					'label' => 'modSettings_title',
-					'file' => 'ManageSettings.php',
+					'file' => 'Actions/Admin/ManageSettings.php',
 					'function' => 'ModifyFeatureSettings',
 					'icon' => 'features',
 					'subsections' => array(
@@ -200,7 +200,7 @@ class ACP implements ActionInterface
 				),
 				'antispam' => array(
 					'label' => 'antispam_title',
-					'file' => 'ManageSettings.php',
+					'file' => 'Actions/Admin/ManageSettings.php',
 					'function' => 'ModifyAntispamSettings',
 					'icon' => 'security',
 				),
@@ -251,7 +251,7 @@ class ACP implements ActionInterface
 				),
 				'modsettings' => array(
 					'label' => 'admin_modifications',
-					'file' => 'ManageSettings.php',
+					'file' => 'Actions/Admin/ManageSettings.php',
 					'function' => 'ModifyModSettings',
 					'icon' => 'modifications',
 					'subsections' => array(
@@ -535,7 +535,7 @@ class ACP implements ActionInterface
 				),
 				'warnings' => array(
 					'label' => 'warnings',
-					'file' => 'ManageSettings.php',
+					'file' => 'Actions/Admin/ManageSettings.php',
 					'function' => 'ModifyWarningSettings',
 					'icon' => 'warning',
 					'inactive' => false,
