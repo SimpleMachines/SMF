@@ -96,7 +96,7 @@ class Logs implements ActionInterface
 			'TaskLog',
 		),
 		'settings' => array(
-			'ManageSettings.php',
+			'Actions/Admin/ManageSettings.php',
 			'ModifyLogSettings',
 		),
 	);
