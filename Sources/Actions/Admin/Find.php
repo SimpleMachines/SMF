@@ -80,7 +80,7 @@ class Find implements ActionInterface
 		'ManageAttachments',
 		'ManageBoards',
 		'ManageCalendar',
-		'ManageLanguages',
+		'Actions/Admin/Languages',
 		'ManageMail',
 		'ManagePaid',
 		'ManagePosts',
