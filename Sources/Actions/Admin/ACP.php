@@ -168,7 +168,7 @@ class ACP implements ActionInterface
 			'areas' => array(
 				'featuresettings' => array(
 					'label' => 'modSettings_title',
-					'function' => __NAMESPACE__ . '\\ManageSettings::call',
+					'function' => __NAMESPACE__ . '\\Features::call',
 					'icon' => 'features',
 					'subsections' => array(
 						'basic' => array(

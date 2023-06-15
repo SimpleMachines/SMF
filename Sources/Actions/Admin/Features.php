@@ -29,7 +29,7 @@ use SMF\Db\DatabaseApi as Db;
 /**
  * Class to manage various core features.
  */
-class ManageSettings implements ActionInterface
+class Features implements ActionInterface
 {
 	use BackwardCompatibility;
 
@@ -2134,7 +2134,7 @@ class ManageSettings implements ActionInterface
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\ManageSettings::exportStatic'))
-	ManageSettings::exportStatic();
+if (is_callable(__NAMESPACE__ . '\Features::exportStatic'))
+	Features::exportStatic();
 
 ?>
