@@ -158,7 +158,7 @@ function BanList()
 				),
 				'data' => array(
 					'db' => 'notes',
-					'class' => 'smalltext',
+					'class' => 'smalltext word_break',
 				),
 				'sort' => array(
 					'default' => 'LENGTH(bg.notes) > 0 DESC, bg.notes',
@@ -171,7 +171,7 @@ function BanList()
 				),
 				'data' => array(
 					'db' => 'reason',
-					'class' => 'smalltext',
+					'class' => 'smalltext word_break',
 				),
 				'sort' => array(
 					'default' => 'LENGTH(bg.reason) > 0 DESC, bg.reason',
