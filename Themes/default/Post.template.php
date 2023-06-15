@@ -155,12 +155,12 @@ function template_main()
 								<div class="event_options_left" id="event_time_input">
 									<div>
 										<span class="label">', $txt['start'], '</span>
-										<input type="text" name="start_date" id="start_date" value="', trim($context['event']['start_date_orig']), '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">
+										<input type="text" name="start_date" id="start_date" value="', trim($context['event']['start_date']), '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">
 										<input type="text" name="start_time" id="start_time" maxlength="11" value="', $context['event']['start_time_orig'], '" tabindex="', $context['tabindex']++, '" class="time_input start" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
 									</div>
 									<div>
 										<span class="label">', $txt['end'], '</span>
-										<input type="text" name="end_date" id="end_date" value="', trim($context['event']['end_date_orig']), '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date"', $modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
+										<input type="text" name="end_date" id="end_date" value="', trim($context['event']['end_date']), '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date"', $modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
 										<input type="text" name="end_time" id="end_time" maxlength="11" value="', $context['event']['end_time_orig'], '" tabindex="', $context['tabindex']++, '" class="time_input end" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
 									</div>
 								</div>
@@ -362,7 +362,7 @@ function template_main()
 							<div class="files" id="attachment_previews">
 								<div id="au-template">
 									<div class="attachment_preview_wrapper">
-										<div class="attach-ui">
+										<div class="attach-ui roundframe">
 											<a data-dz-remove class="main_icons delete floatright cancel"></a>
 											<div class="attached_BBC_width_height">
 												<div class="attached_BBC_width">

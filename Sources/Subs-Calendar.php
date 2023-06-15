@@ -1881,6 +1881,10 @@ function convertDateToEnglish($date)
 		'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'
 	));
 	// Find all possible variants of AM and PM for this language.
+	if ($txt['time_am'] == ' ' && $txt['time_pm'] == ' ')
+	{
+		return strtr(strtolower($date), $replacements);
+	}
 	$replacements[strtolower($txt['time_am'])] = 'AM';
 	$replacements[strtolower($txt['time_pm'])] = 'PM';
 	if (($am = smf_strftime('%p', strtotime('01:00:00'))) !== 'p' && $am !== false)
