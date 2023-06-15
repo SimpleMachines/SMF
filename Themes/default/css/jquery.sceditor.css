@@ -313,10 +313,12 @@ div.sceditor-smileyPopup {
 	transform: unset;
 	position: absolute;
 	min-height: 100px;
-	width: 250px;
+	min-width: 250px;
 	margin-inline: auto;
 	display: flex;
 	box-sizing: border-box;
+	max-height: 215px;
+	max-width: 450px;
 }
 div.sceditor-smileyPopup #sceditor-popup {
 	width: 100%;
