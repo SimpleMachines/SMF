@@ -168,8 +168,7 @@ class ACP implements ActionInterface
 			'areas' => array(
 				'featuresettings' => array(
 					'label' => 'modSettings_title',
-					'file' => 'Actions/Admin/ManageSettings.php',
-					'function' => 'ModifyFeatureSettings',
+					'function' => __NAMESPACE__ . '\\ManageSettings::call',
 					'icon' => 'features',
 					'subsections' => array(
 						'basic' => array(
@@ -200,8 +199,7 @@ class ACP implements ActionInterface
 				),
 				'antispam' => array(
 					'label' => 'antispam_title',
-					'file' => 'Actions/Admin/ManageSettings.php',
-					'function' => 'ModifyAntispamSettings',
+					'function' => __NAMESPACE__ . '\\AntiSpam::call',
 					'icon' => 'security',
 				),
 				'languages' => array(
@@ -251,8 +249,7 @@ class ACP implements ActionInterface
 				),
 				'modsettings' => array(
 					'label' => 'admin_modifications',
-					'file' => 'Actions/Admin/ManageSettings.php',
-					'function' => 'ModifyModSettings',
+					'function' => __NAMESPACE__ . '\\Mods::call',
 					'icon' => 'modifications',
 					'subsections' => array(
 						// MOD AUTHORS: If your mod has just a few simple
@@ -535,8 +532,7 @@ class ACP implements ActionInterface
 				),
 				'warnings' => array(
 					'label' => 'warnings',
-					'file' => 'Actions/Admin/ManageSettings.php',
-					'function' => 'ModifyWarningSettings',
+					'function' => __NAMESPACE__ . '\\Warnings::call',
 					'icon' => 'warning',
 					'inactive' => false,
 					'permission' => array('admin_forum'),

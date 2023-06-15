@@ -87,7 +87,6 @@ class Find implements ActionInterface
 		'ManageRegistration',
 		'ManageSearch',
 		'ManageSearchEngines',
-		'Actions/Admin/ManageSettings',
 		'ManageSmileys',
 	);
 
@@ -103,15 +102,15 @@ class Find implements ActionInterface
 	 * Format: array('function_to_get_config_vars', 'url_for_admin_area_and_sa')
 	 */
 	public array $settings_search = array(
-		array('ModifyBasicSettings', 'area=featuresettings;sa=basic'),
-		array('ModifyBBCSettings', 'area=featuresettings;sa=bbc'),
-		array('ModifyLayoutSettings', 'area=featuresettings;sa=layout'),
-		array('ModifyLikesSettings', 'area=featuresettings;sa=likes'),
-		array('ModifyMentionsSettings', 'area=featuresettings;sa=mentions'),
-		array('ModifySignatureSettings', 'area=featuresettings;sa=sig'),
-		array('ModifyAntispamSettings', 'area=antispam'),
-		array('ModifyWarningSettings', 'area=warnings'),
-		array('ModifyGeneralModSettings', 'area=modsettings;sa=general'),
+		array(__NAMESPACE__ . '\\ManageSettings::basicConfigVars', 'area=featuresettings;sa=basic'),
+		array(__NAMESPACE__ . '\\ManageSettings::bbcConfigVars', 'area=featuresettings;sa=bbc'),
+		array(__NAMESPACE__ . '\\ManageSettings::layoutConfigVars', 'area=featuresettings;sa=layout'),
+		array(__NAMESPACE__ . '\\ManageSettings::likesConfigVars', 'area=featuresettings;sa=likes'),
+		array(__NAMESPACE__ . '\\ManageSettings::mentionsConfigVars', 'area=featuresettings;sa=mentions'),
+		array(__NAMESPACE__ . '\\ManageSettings::sigConfigVars', 'area=featuresettings;sa=sig'),
+		array(__NAMESPACE__ . '\\AntiSpam::getConfigVars', 'area=antispam'),
+		array(__NAMESPACE__ . '\\Warnings::getConfigVars', 'area=warnings'),
+		array(__NAMESPACE__ . '\\Mods::getConfigVars', 'area=modsettings;sa=general'),
 		array('ManageAttachmentSettings', 'area=manageattachments;sa=attachments'),
 		array('ManageAvatarSettings', 'area=manageattachments;sa=avatars'),
 		array('ModifyCalendarSettings', 'area=managecalendar;sa=settings'),
@@ -135,7 +134,7 @@ class Find implements ActionInterface
 		array('ModifyRegistrationSettings', 'area=regcenter;sa=settings'),
 		array('ManageSearchEngineSettings', 'area=sengines;sa=settings'),
 		array('ModifySubscriptionSettings', 'area=paidsubscribe;sa=settings'),
-		array('ModifyLogSettings', 'area=logs;sa=settings'),
+		array(__NAMESPACE__ . '\\Logs::getConfigVars', 'area=logs;sa=settings'),
 	);
 
 	/**************************
