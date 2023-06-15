@@ -869,6 +869,9 @@ function banEdit2()
 
 		call_integration_hook('integrate_edit_bans', array(&$ban_info, empty($_REQUEST['bg'])));
 
+		// Limit 'reason' characters
+		$ban_info['reason'] = substr($ban_info['reason'], 0, 255);
+
 		// Adding a new ban group
 		if (empty($_REQUEST['bg']))
 			$ban_group_id = insertBanGroup($ban_info);
