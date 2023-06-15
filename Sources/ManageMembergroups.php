@@ -173,7 +173,7 @@ function MembergroupIndex()
 		),
 		'additional_rows' => array(
 			array(
-				'position' => 'above_table_headers',
+				'position' => 'above_column_headers',
 				'value' => '<a class="button" href="' . $scripturl . '?action=admin;area=membergroups;sa=add;generalgroup">' . $txt['membergroups_add_group'] . '</a>',
 			),
 			array(

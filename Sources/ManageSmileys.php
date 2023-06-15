@@ -507,7 +507,7 @@ function EditSmileySets()
 		),
 		'additional_rows' => array(
 			array(
-				'position' => 'above_table_headers',
+				'position' => 'above_column_headers',
 				'value' => '<input type="hidden" name="smiley_save"><input type="submit" name="delete" value="' . $txt['smiley_sets_delete'] . '" data-confirm="' . $txt['smiley_sets_confirm'] . '" class="button you_sure"> <a class="button" href="' . $scripturl . '?action=admin;area=smileys;sa=modifyset' . '">' . $txt['smiley_sets_add'] . '</a> ',
 			),
 			array(
