@@ -102,12 +102,12 @@ class Find implements ActionInterface
 	 * Format: array('function_to_get_config_vars', 'url_for_admin_area_and_sa')
 	 */
 	public array $settings_search = array(
-		array(__NAMESPACE__ . '\\ManageSettings::basicConfigVars', 'area=featuresettings;sa=basic'),
-		array(__NAMESPACE__ . '\\ManageSettings::bbcConfigVars', 'area=featuresettings;sa=bbc'),
-		array(__NAMESPACE__ . '\\ManageSettings::layoutConfigVars', 'area=featuresettings;sa=layout'),
-		array(__NAMESPACE__ . '\\ManageSettings::likesConfigVars', 'area=featuresettings;sa=likes'),
-		array(__NAMESPACE__ . '\\ManageSettings::mentionsConfigVars', 'area=featuresettings;sa=mentions'),
-		array(__NAMESPACE__ . '\\ManageSettings::sigConfigVars', 'area=featuresettings;sa=sig'),
+		array(__NAMESPACE__ . '\\Features::basicConfigVars', 'area=featuresettings;sa=basic'),
+		array(__NAMESPACE__ . '\\Features::bbcConfigVars', 'area=featuresettings;sa=bbc'),
+		array(__NAMESPACE__ . '\\Features::layoutConfigVars', 'area=featuresettings;sa=layout'),
+		array(__NAMESPACE__ . '\\Features::likesConfigVars', 'area=featuresettings;sa=likes'),
+		array(__NAMESPACE__ . '\\Features::mentionsConfigVars', 'area=featuresettings;sa=mentions'),
+		array(__NAMESPACE__ . '\\Features::sigConfigVars', 'area=featuresettings;sa=sig'),
 		array(__NAMESPACE__ . '\\AntiSpam::getConfigVars', 'area=antispam'),
 		array(__NAMESPACE__ . '\\Warnings::getConfigVars', 'area=warnings'),
 		array(__NAMESPACE__ . '\\Mods::getConfigVars', 'area=modsettings;sa=general'),
