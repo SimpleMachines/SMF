@@ -3208,7 +3208,12 @@ function JavaScriptModify()
 		}
 		// If nothing was changed there's no need to add an entry to the moderation log.
 		else
+		{
 			$moderationAction = false;
+			
+			// Clear the reason
+			$msgOptions['modify_reason'] = '';
+		}
 
 		modifyPost($msgOptions, $topicOptions, $posterOptions);
 
