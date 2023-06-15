@@ -204,7 +204,7 @@ class ACP implements ActionInterface
 				),
 				'languages' => array(
 					'label' => 'language_configuration',
-					'file' => 'ManageLanguages.php',
+					'file' => 'Actions/Admin/Languages.php',
 					'function' => 'ManageLanguages',
 					'icon' => 'languages',
 					'subsections' => array(
