@@ -220,14 +220,14 @@ class ACP implements ActionInterface
 				),
 				'current_theme' => array(
 					'label' => 'theme_current_settings',
-					'file' => 'ManageThemes.php',
+					'file' => 'Admin/Actions/Themes.php',
 					'function' => 'ThemesMain',
 					'custom_url' => '{scripturl}?action=admin;area=theme;sa=list;th=%1$d',
 					'icon' => 'current_theme',
 				),
 				'theme' => array(
 					'label' => 'theme_admin',
-					'file' => 'ManageThemes.php',
+					'file' => 'Admin/Actions/Themes.php',
 					'function' => 'ThemesMain',
 					'custom_url' => '{scripturl}?action=admin;area=theme',
 					'icon' => 'themes',
