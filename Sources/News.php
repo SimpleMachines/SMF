@@ -2603,9 +2603,13 @@ function getXmlPMs($xml_format, $ascending = false)
 	if (empty($context['xmlnews_uid']) || ($context['xmlnews_uid'] != $user_info['id']))
 		return array();
 
+	// Use a private-use Unicode character to separate member names.
+	// This ensures that the separator will not occur in the names themselves.
+	$separator = "\xEE\x88\xA0";
+
 	$select_id_members_to = $smcFunc['db_title'] === POSTGRE_TITLE ? "string_agg(pmr.id_member::text, ',')" : 'GROUP_CONCAT(pmr.id_member)';
 
-	$select_to_names = $smcFunc['db_title'] === POSTGRE_TITLE ? "string_agg(COALESCE(mem.real_name, mem.member_name), ',')" : 'GROUP_CONCAT(COALESCE(mem.real_name, mem.member_name))';
+	$select_to_names = $smcFunc['db_title'] === POSTGRE_TITLE ? "string_agg(COALESCE(mem.real_name, mem.member_name), '$separator')" : "GROUP_CONCAT(COALESCE(mem.real_name, mem.member_name) SEPARATOR '$separator')";
 
 	$request = $smcFunc['db_query']('', '
 		SELECT pm.id_pm, pm.msgtime, pm.subject, pm.body, pm.id_member_from, nis.from_name, nis.id_members_to, nis.to_names
@@ -2646,7 +2650,7 @@ function getXmlPMs($xml_format, $ascending = false)
 		// If using our own format, we want both the raw and the parsed content.
 		$row[$xml_format === 'smf' ? 'body_html' : 'body'] = parse_bbc($row['body']);
 
-		$recipients = array_combine(explode(',', $row['id_members_to']), explode(',', $row['to_names']));
+		$recipients = array_combine(explode(',', $row['id_members_to']), explode($separator, $row['to_names']));
 
 		// Create a GUID for this post using the tag URI scheme
 		$guid = 'tag:' . parse_iri($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['msgtime']) . ':pm=' . $row['id_pm'];

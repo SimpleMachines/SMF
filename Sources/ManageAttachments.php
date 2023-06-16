@@ -402,28 +402,9 @@ function BrowseFiles()
 	// Attachments or avatars?
 	$context['browse_type'] = isset($_REQUEST['avatars']) ? 'avatars' : (isset($_REQUEST['thumbs']) ? 'thumbs' : 'attachments');
 
-	$titles = array(
-		'attachments' => array('?action=admin;area=manageattachments;sa=browse', $txt['attachment_manager_attachments']),
-		'avatars' => array('?action=admin;area=manageattachments;sa=browse;avatars', $txt['attachment_manager_avatars']),
-		'thumbs' => array('?action=admin;area=manageattachments;sa=browse;thumbs', $txt['attachment_manager_thumbs']),
-	);
-
-	$list_title = $txt['attachment_manager_browse_files'] . ': ';
-	foreach ($titles as $browse_type => $details)
-	{
-		if ($browse_type != 'attachments')
-			$list_title .= ' | ';
-
-		if ($context['browse_type'] == $browse_type)
-			$list_title .= '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ';
-
-		$list_title .= '<a href="' . $scripturl . $details[0] . '">' . $details[1] . '</a>';
-	}
-
 	// Set the options for the list component.
 	$listOptions = array(
 		'id' => 'file_list',
-		'title' => $list_title,
 		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $scripturl . '?action=admin;area=manageattachments;sa=browse' . ($context['browse_type'] === 'avatars' ? ';avatars' : ($context['browse_type'] === 'thumbs' ? ';thumbs' : '')),
 		'default_sort_col' => 'name',
@@ -589,8 +570,29 @@ function BrowseFiles()
 		),
 	);
 
+	$titles = array(
+		'attachments' => array('?action=admin;area=manageattachments;sa=browse', $txt['attachment_manager_attachments']),
+		'avatars' => array('?action=admin;area=manageattachments;sa=browse;avatars', $txt['attachment_manager_avatars']),
+		'thumbs' => array('?action=admin;area=manageattachments;sa=browse;thumbs', $txt['attachment_manager_thumbs']),
+	);
+
+	$list_title = $txt['attachment_manager_browse_files'] . ': ';
+
 	// Does a hook want to display their attachments better?
-	call_integration_hook('integrate_attachments_browse', array(&$listOptions, &$titles, &$list_title));
+	call_integration_hook('integrate_attachments_browse', array(&$listOptions, &$titles));
+
+	foreach ($titles as $browse_type => $details)
+	{
+		if ($browse_type != 'attachments')
+			$list_title .= ' | ';
+
+		if ($context['browse_type'] == $browse_type)
+			$list_title .= '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ';
+
+		$list_title .= '<a href="' . $scripturl . $details[0] . '">' . $details[1] . '</a>';
+	}
+
+	$listOptions['title'] = $list_title;
 
 	// Create the list.
 	require_once($sourcedir . '/Subs-List.php');

@@ -158,7 +158,7 @@ function BanList()
 				),
 				'data' => array(
 					'db' => 'notes',
-					'class' => 'smalltext',
+					'class' => 'smalltext word_break',
 				),
 				'sort' => array(
 					'default' => 'LENGTH(bg.notes) > 0 DESC, bg.notes',
@@ -171,7 +171,7 @@ function BanList()
 				),
 				'data' => array(
 					'db' => 'reason',
-					'class' => 'smalltext',
+					'class' => 'smalltext word_break',
 				),
 				'sort' => array(
 					'default' => 'LENGTH(bg.reason) > 0 DESC, bg.reason',
@@ -868,6 +868,9 @@ function banEdit2()
 		$ban_info['cannot']['login'] = !empty($ban_info['full_ban']) || empty($_POST['cannot_login']) ? 0 : 1;
 
 		call_integration_hook('integrate_edit_bans', array(&$ban_info, empty($_REQUEST['bg'])));
+
+		// Limit 'reason' characters
+		$ban_info['reason'] = $smcFunc['truncate']($ban_info['reason'], 255);
 
 		// Adding a new ban group
 		if (empty($_REQUEST['bg']))
