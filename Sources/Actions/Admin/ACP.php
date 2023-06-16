@@ -306,8 +306,7 @@ class ACP implements ActionInterface
 				),
 				'managecalendar' => array(
 					'label' => 'manage_calendar',
-					'file' => 'Actions/Admin/Calendar.php',
-					'function' => 'ManageCalendar',
+					'function' => __NAMESPACE__ . '\\Calendar::call',
 					'icon' => 'calendar',
 					'permission' => array('admin_forum'),
 					'inactive' => false,
