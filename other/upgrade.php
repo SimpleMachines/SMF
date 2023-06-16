@@ -2783,7 +2783,7 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 
 	$check = @file_exists(Config::$modSettings['theme_dir'] . '/index.template.php')
 		&& @file_exists(Config::$sourcedir . '/QueryString.php')
-		&& @file_exists(Config::$sourcedir . '/ManageBoards.php');
+		&& @file_exists(Config::$sourcedir . '/Actions/Admin/Boards.php');
 	if (!$check && !isset(Config::$modSettings['smfVersion']))
 		print_error('Error: Some files are missing or out-of-date.', true);
 

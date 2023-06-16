@@ -77,7 +77,7 @@ class Forum
 		'mergetopics' => array('', 'SMF\\Actions\\TopicMerge::call'),
 		'mlist' => array('', 'SMF\\Actions\\Memberlist::call'),
 		'moderate' => array('ModerationCenter.php', 'ModerationMain'),
-		'modifycat' => array('ManageBoards.php', 'ModifyCat'),
+		'modifycat' => array('Actions/Admin/Boards.php', 'ModifyCat'),
 		'movetopic' => array('', 'SMF\\Actions\\TopicMove::call'),
 		'movetopic2' => array('', 'SMF\\Actions\\TopicMove2::call'),
 		'notifyannouncements' => array('', 'SMF\\Actions\\NotifyAnnouncements::call'),

@@ -78,7 +78,7 @@ class Find implements ActionInterface
 	 */
 	public array $include_files = array(
 		'ManageAttachments',
-		'ManageBoards',
+		'Actions/Admin/Boards',
 		'ManageCalendar',
 		'ManageMail',
 		'ManagePaid',
