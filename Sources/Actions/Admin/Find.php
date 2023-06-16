@@ -78,7 +78,6 @@ class Find implements ActionInterface
 	 */
 	public array $include_files = array(
 		'ManageAttachments',
-		'Actions/Admin/Boards',
 		'ManageCalendar',
 		'ManageMail',
 		'ManagePaid',
@@ -113,7 +112,7 @@ class Find implements ActionInterface
 		array('ManageAttachmentSettings', 'area=manageattachments;sa=attachments'),
 		array('ManageAvatarSettings', 'area=manageattachments;sa=avatars'),
 		array('ModifyCalendarSettings', 'area=managecalendar;sa=settings'),
-		array('EditBoardSettings', 'area=manageboards;sa=settings'),
+		array(__NAMESPACE__ . '\\Boards::getConfigVars', 'area=manageboards;sa=settings'),
 		array('ModifyMailSettings', 'area=mailqueue;sa=settings'),
 		array(__NAMESPACE__ . '\\News::getConfigVars', 'area=news;sa=settings'),
 		array(__NAMESPACE__ . '\\Permissions::getConfigVars', 'area=permissions;sa=settings'),
