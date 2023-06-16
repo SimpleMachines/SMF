@@ -81,7 +81,7 @@ class Find implements ActionInterface
 		'ManageCalendar',
 		'ManageMail',
 		'ManagePaid',
-		'ManagePosts',
+		'Actions/Admin/Posts',
 		'ManageRegistration',
 		'ManageSearch',
 		'ManageSearchEngines',
