@@ -268,7 +268,7 @@ class ACP implements ActionInterface
 			'areas' => array(
 				'manageboards' => array(
 					'label' => 'admin_boards',
-					'file' => 'ManageBoards.php',
+					'file' => 'Actions/Admin/Boards.php',
 					'function' => 'ManageBoards',
 					'icon' => 'boards',
 					'permission' => array('manage_boards'),
