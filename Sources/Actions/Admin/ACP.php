@@ -286,8 +286,7 @@ class ACP implements ActionInterface
 				),
 				'postsettings' => array(
 					'label' => 'manageposts',
-					'file' => 'Actions/Admin/Posts.php',
-					'function' => 'ManagePostSettings',
+					'function' => __NAMESPACE__ . '\\Posts::call',
 					'permission' => array('admin_forum'),
 					'icon' => 'posts',
 					'subsections' => array(
