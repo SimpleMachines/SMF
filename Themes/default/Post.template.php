@@ -367,11 +367,11 @@ function template_main()
 											<div class="attached_BBC_width_height">
 												<div class="attached_BBC_width">
 													<label for="attached_BBC_width">', $txt['attached_insert_width'], '</label>
-													<input type="number" name="attached_BBC_width" min="0" value="">
+													<input type="number" name="attached_BBC_width" min="0" value="" placeholder="', $txt['attached_insert_placeholder'], '">
 												</div>
 												<div class="attached_BBC_height">
 													<label for="attached_BBC_height">', $txt['attached_insert_height'], '</label>
-													<input type="number" name="attached_BBC_height" min="0" value="">
+													<input type="number" name="attached_BBC_height" min="0" value="" placeholder="', $txt['attached_insert_placeholder'], '">
 												</div>
 											</div>
 										</div>
