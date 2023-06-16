@@ -306,7 +306,7 @@ class ACP implements ActionInterface
 				),
 				'managecalendar' => array(
 					'label' => 'manage_calendar',
-					'file' => 'ManageCalendar.php',
+					'file' => 'Actions/Admin/Calendar.php',
 					'function' => 'ManageCalendar',
 					'icon' => 'calendar',
 					'permission' => array('admin_forum'),
