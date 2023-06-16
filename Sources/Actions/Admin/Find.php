@@ -82,7 +82,7 @@ class Find implements ActionInterface
 		'ManagePaid',
 		'ManageRegistration',
 		'ManageSearchEngines',
-		'ManageSmileys',
+		'Actions/Admin/Smileys',
 	);
 
 	/**

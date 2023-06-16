@@ -340,7 +340,7 @@ class ACP implements ActionInterface
 				),
 				'smileys' => array(
 					'label' => 'smileys_manage',
-					'file' => 'ManageSmileys.php',
+					'file' => 'Actions/Admin/Smileys.php',
 					'function' => 'ManageSmileys',
 					'icon' => 'smiley',
 					'permission' => array('manage_smileys'),
