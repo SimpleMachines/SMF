@@ -323,7 +323,7 @@ class ACP implements ActionInterface
 				),
 				'managesearch' => array(
 					'label' => 'manage_search',
-					'file' => 'ManageSearch.php',
+					'file' => 'Actions/Admin/Search.php',
 					'function' => 'ManageSearch',
 					'icon' => 'search',
 					'permission' => array('admin_forum'),
