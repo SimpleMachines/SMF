@@ -66,9 +66,11 @@ function template_modifyset()
 				<dd>
 					', Config::$modSettings['smileys_url'], '/';
 
-	if (empty(Utils::$context['smiley_set_dirs']))
+	if (empty(Utils::$context['smiley_set_dirs']) || !empty(Utils::$context['make_new']))
+	{
 		echo '
 					<input type="text" name="smiley_sets_path" id="smiley_sets_path" value="', Utils::$context['current_set']['path'], '"> ';
+	}
 	else
 	{
 		echo '
@@ -87,14 +89,14 @@ function template_modifyset()
 					<strong><label for="smiley_sets_default">', Lang::$txt['smiley_set_select_default'], '</label>: </strong>
 				</dt>
 				<dd>
-					<input type="checkbox" name="smiley_sets_default" id="smiley_sets_default" value="1"', Utils::$context['current_set']['selected'] ? ' checked' : '', '>
+					<input type="checkbox" name="smiley_sets_default" id="smiley_sets_default" value="1"', Utils::$context['current_set']['is_default'] ? ' checked' : '', '>
 				</dd>
 			</dl>
 			<input type="submit" name="smiley_save" value="', Lang::$txt['smiley_sets_save'], '" class="button">
 		</div><!-- .windowbg -->
 		<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 		<input type="hidden" name="', Utils::$context['admin-mss_token_var'], '" value="', Utils::$context['admin-mss_token'], '">
-		<input type="hidden" name="set" value="', Utils::$context['current_set']['id'], '">
+		<input type="hidden" name="set" value="', Utils::$context['current_set']['path'], '">
 	</form>';
 }
 
