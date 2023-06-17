@@ -82,7 +82,6 @@ class Find implements ActionInterface
 		'ManagePaid',
 		'ManageRegistration',
 		'ManageSearchEngines',
-		'Actions/Admin/Smileys',
 	);
 
 	/**
@@ -117,7 +116,7 @@ class Find implements ActionInterface
 		array(__NAMESPACE__ . '\\Posts::topicConfigVars', 'area=postsettings;sa=topics'),
 		array(__NAMESPACE__ . '\\Posts::draftConfigVars', 'area=postsettings;sa=drafts'),
 		array(__NAMESPACE__ . '\\Search::getConfigVars', 'area=managesearch;sa=settings'),
-		array('EditSmileySettings', 'area=smileys;sa=settings'),
+		array(__NAMESPACE__ . '\\Smileys::getConfigVars', 'area=smileys;sa=settings'),
 		array(__NAMESPACE__ . '\\Server::generalConfigVars', 'area=serversettings;sa=general'),
 		array(__NAMESPACE__ . '\\Server::databaseConfigVars', 'area=serversettings;sa=database'),
 		array(__NAMESPACE__ . '\\Server::cookieConfigVars', 'area=serversettings;sa=cookie'),

@@ -1309,7 +1309,7 @@ class BBCodeParser
 			// This smiley regex makes sure it doesn't parse smileys within code tags (so [url=mailto:David@bla.com] doesn't parse the :D smiley)
 			$this->smiley_preg_replacements = array();
 			$search_parts = array();
-			$smileys_path = Utils::htmlspecialchars($this->smileys_url . '/' . $this->smiley_set . '/');
+			$smileys_path = Utils::htmlspecialchars($this->smileys_url . '/' . rawurlencode($this->smiley_set) . '/');
 
 			for ($i = 0, $n = count($smileysfrom); $i < $n; $i++)
 			{
