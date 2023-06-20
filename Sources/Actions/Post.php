@@ -1353,9 +1353,8 @@ class Post implements ActionInterface
 		// Clear out prior attachment activity when starting afresh
 		if (empty($_REQUEST['message']) && empty($_REQUEST['preview']) && !empty($_SESSION['already_attached']))
 		{
-			require_once(Config::$sourcedir . '/Actions/Admin/Attachments.php');
 			foreach ($_SESSION['already_attached'] as $attachID => $attachment)
-				removeAttachments(array('id_attach' => $attachID));
+				Attachment::remove(array('id_attach' => $attachID));
 
 			unset($_SESSION['already_attached']);
 		}

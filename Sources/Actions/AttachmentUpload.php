@@ -185,9 +185,6 @@ class AttachmentUpload implements ActionInterface
 	 */
 	public function delete(): void
 	{
-		// Need this, don't ask why just nod your head.
-		require_once(Config::$sourcedir . '/Actions/Admin/Attachments.php');
-
 		$attachID = !empty($_REQUEST['attach']) && is_numeric($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : 0;
 
 		// Need something to work with.
@@ -202,7 +199,7 @@ class AttachmentUpload implements ActionInterface
 		}
 
 		// Lets pass some params and see what happens :P
-		$affectedMessage = removeAttachments(array('id_attach' => $attachID), '', true, true);
+		$affectedMessage = Attachment::remove(array('id_attach' => $attachID), '', true, true);
 
 		// Gotta also remove the attachment from the session var.
 		unset($_SESSION['already_attached'][$attachID]);

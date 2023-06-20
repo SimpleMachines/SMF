@@ -826,13 +826,12 @@ class Post2 extends Post
 
 			if (!empty($_REQUEST['msg']))
 			{
-				require_once(Config::$sourcedir . '/Actions/Admin/Attachments.php');
 				$attachmentQuery = array(
 					'attachment_type' => 0,
 					'id_msg' => (int) $_REQUEST['msg'],
 					'not_id_attach' => $keep_ids,
 				);
-				removeAttachments($attachmentQuery);
+				Attachment::remove($attachmentQuery);
 			}
 		}
 
@@ -848,10 +847,8 @@ class Post2 extends Post
 		// This can sometimes happen when they came from ?action=calendar;sa=post
 		if (!Utils::$context['can_post_attachment'] && !empty($_SESSION['already_attached']))
 		{
-			require_once(Config::$sourcedir . '/Actions/Admin/Attachments.php');
-
 			foreach ($_SESSION['already_attached'] as $attachID => $attachment)
-				removeAttachments(array('id_attach' => $attachID));
+				Attachment::remove(array('id_attach' => $attachID));
 
 			unset($_SESSION['already_attached']);
 
