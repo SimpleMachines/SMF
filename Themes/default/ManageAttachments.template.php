@@ -91,7 +91,7 @@ function template_maintenance()
 					<input type="submit" name="remove" value="', Lang::$txt['remove'], '" class="button">
 					<input type="hidden" name="type" value="attachments">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-					<input type="hidden" name="sa" value="byAge">
+					<input type="hidden" name="sa" value="byage">
 				</dl>
 			</form>
 			<form action="', Config::$scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', Utils::$context['character_set'], '" onsubmit="return confirm(\'', Lang::$txt['attachment_pruning_warning'], '\');">
@@ -103,7 +103,7 @@ function template_maintenance()
 					<input type="submit" name="remove" value="', Lang::$txt['remove'], '" class="button">
 					<input type="hidden" name="type" value="attachments">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-					<input type="hidden" name="sa" value="bySize">
+					<input type="hidden" name="sa" value="bysize">
 				</dl>
 			</form>
 			<form action="', Config::$scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', Utils::$context['character_set'], '" onsubmit="return confirm(\'', Lang::$txt['attachment_pruning_warning'], '\');">
@@ -113,7 +113,7 @@ function template_maintenance()
 					<input type="submit" name="remove" value="', Lang::$txt['remove'], '" class="button">
 					<input type="hidden" name="type" value="avatars">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-					<input type="hidden" name="sa" value="byAge">
+					<input type="hidden" name="sa" value="byage">
 				</dl>
 			</form>
 		</div><!-- .windowbg -->

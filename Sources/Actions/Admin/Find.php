@@ -77,7 +77,6 @@ class Find implements ActionInterface
 	 * All the files we need to include.
 	 */
 	public array $include_files = array(
-		'Actions/Admin/Attachments',
 		'ManageMail',
 		'ManagePaid',
 		'ManageRegistration',
@@ -105,8 +104,8 @@ class Find implements ActionInterface
 		array(__NAMESPACE__ . '\\AntiSpam::getConfigVars', 'area=antispam'),
 		array(__NAMESPACE__ . '\\Warnings::getConfigVars', 'area=warnings'),
 		array(__NAMESPACE__ . '\\Mods::getConfigVars', 'area=modsettings;sa=general'),
-		array('ManageAttachmentSettings', 'area=manageattachments;sa=attachments'),
-		array('ManageAvatarSettings', 'area=manageattachments;sa=avatars'),
+		array(__NAMESPACE__ . '\\Attachments::attachConfigVars', 'area=manageattachments;sa=attachments'),
+		array(__NAMESPACE__ . '\\Attachments::avatarConfigVars', 'area=manageattachments;sa=avatars'),
 		array(__NAMESPACE__ . '\\Calendar::getConfigVars', 'area=managecalendar;sa=settings'),
 		array(__NAMESPACE__ . '\\Boards::getConfigVars', 'area=manageboards;sa=settings'),
 		array('ModifyMailSettings', 'area=mailqueue;sa=settings'),
