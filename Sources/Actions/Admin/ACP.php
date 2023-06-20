@@ -370,8 +370,7 @@ class ACP implements ActionInterface
 				),
 				'manageattachments' => array(
 					'label' => 'attachments_avatars',
-					'file' => 'Actions/Admin/Attachments.php',
-					'function' => 'ManageAttachments',
+					'function' => __NAMESPACE__ . '\\Attachments::call',
 					'icon' => 'attachment',
 					'permission' => array('manage_attachments'),
 					'subsections' => array(
