@@ -543,7 +543,7 @@ function logActions(array $logs)
 		if (isset($log['extra']['member_affected']))
 			$memID = $log['extra']['member_affected'];
 		else
-			$memID = $user_info['id'];
+			$memID = $user_info['id'] ?? $log['extra']['member'] ?? 0;
 
 		if (isset($user_info['ip']))
 			$memIP = $user_info['ip'];
