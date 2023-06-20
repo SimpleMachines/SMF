@@ -2026,7 +2026,7 @@ class Attachment implements \ArrayAccess
 								// Do we need to remove an old thumbnail?
 								if (!empty($old_id_thumb))
 								{
-									require_once(Config::$sourcedir . '/ManageAttachments.php');
+									require_once(Config::$sourcedir . '/Actions/Admin/Attachments.php');
 									removeAttachments(array('id_attach' => $old_id_thumb), '', false, false);
 								}
 							}

@@ -186,7 +186,7 @@ class AttachmentUpload implements ActionInterface
 	public function delete(): void
 	{
 		// Need this, don't ask why just nod your head.
-		require_once(Config::$sourcedir . '/ManageAttachments.php');
+		require_once(Config::$sourcedir . '/Actions/Admin/Attachments.php');
 
 		$attachID = !empty($_REQUEST['attach']) && is_numeric($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : 0;
 

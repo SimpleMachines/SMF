@@ -3430,7 +3430,7 @@ function profileSaveAvatarData(&$value, $memID)
 	if (empty($memID) && !empty(Utils::$context['password_auth_failed']))
 		return false;
 
-	require_once(Config::$sourcedir . '/ManageAttachments.php');
+	require_once(Config::$sourcedir . '/Actions/Admin/Attachments.php');
 
 	call_integration_hook('before_profile_save_avatar', array(&$value));
 

@@ -359,7 +359,7 @@ function UnapprovedAttachments()
 		checkSession('request');
 
 		// This will be handy.
-		require_once(Config::$sourcedir . '/ManageAttachments.php');
+		require_once(Config::$sourcedir . '/Actions/Admin/Attachments.php');
 
 		// Confirm the attachments are eligible for changing!
 		$request = Db::$db->query('', '
@@ -760,7 +760,7 @@ function approveAllData()
 
 	if (!empty($attaches))
 	{
-		require_once(Config::$sourcedir . '/ManageAttachments.php');
+		require_once(Config::$sourcedir . '/Actions/Admin/Attachments.php');
 		ApproveAttachments($attaches);
 	}
 }

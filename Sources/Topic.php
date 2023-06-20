@@ -1290,7 +1290,7 @@ class Topic implements \ArrayAccess
 		}
 
 		// Get rid of the attachment, if it exists.
-		require_once(Config::$sourcedir . '/ManageAttachments.php');
+		require_once(Config::$sourcedir . '/Actions/Admin/Attachments.php');
 		$attachmentQuery = array(
 			'attachment_type' => 0,
 			'id_topic' => $topics,

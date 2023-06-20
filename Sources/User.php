@@ -2190,7 +2190,7 @@ class User implements \ArrayAccess
 		);
 
 		// Delete avatar.
-		require_once(Config::$sourcedir . '/ManageAttachments.php');
+		require_once(Config::$sourcedir . '/Actions/Admin/Attachments.php');
 		removeAttachments(array('id_member' => $users));
 
 		// It's over, no more moderation for you.

@@ -3339,7 +3339,7 @@ class Msg implements \ArrayAccess
 			}
 
 			// Delete attachment(s) if they exist.
-			require_once(Config::$sourcedir . '/ManageAttachments.php');
+			require_once(Config::$sourcedir . '/Actions/Admin/Attachments.php');
 			$attachmentQuery = array(
 				'attachment_type' => 0,
 				'id_msg' => $message,
