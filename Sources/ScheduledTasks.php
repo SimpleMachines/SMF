@@ -23,6 +23,7 @@ use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
 use SMF\Actions\Notify;
+use SMF\Actions\Admin\SearchEngines;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
@@ -254,8 +255,7 @@ function scheduled_daily_maintenance()
 	// Do any spider stuff.
 	if (!empty(Config::$modSettings['spider_mode']) && Config::$modSettings['spider_mode'] > 1)
 	{
-		require_once(Config::$sourcedir . '/Actions/Admin/SearchEngines.php');
-		consolidateSpiderStats();
+		SearchEngines::consolidateSpiderStats();
 	}
 
 	// Clean up some old login history information.

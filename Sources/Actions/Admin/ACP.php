@@ -394,8 +394,7 @@ class ACP implements ActionInterface
 				'sengines' => array(
 					'label' => 'search_engines',
 					'inactive' => false,
-					'file' => 'Actions/Admin/SearchEngines.php',
-					'function' => 'SearchEngines',
+					'function' => __NAMESPACE__ . '\\SearchEngines::call',
 					'icon' => 'engines',
 					'permission' => 'admin_forum',
 					'subsections' => array(

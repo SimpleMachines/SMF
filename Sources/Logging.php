@@ -50,8 +50,7 @@ function writeLog($force = false)
 	// Are they a spider we should be tracking? Mode = 1 gets tracked on its spider check...
 	if (!empty(User::$me->possibly_robot) && !empty(Config::$modSettings['spider_mode']) && Config::$modSettings['spider_mode'] > 1)
 	{
-		require_once(Config::$sourcedir . '/Actions/Admin/SearchEngines.php');
-		logSpider();
+		User::logSpider();
 	}
 
 	// Don't mark them as online more than every so often.

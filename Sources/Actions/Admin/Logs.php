@@ -89,8 +89,8 @@ class Logs implements ActionInterface
 			'BanLog',
 		),
 		'spiderlog' => array(
-			'Actions/Admin/SearchEngines.php',
-			'SpiderLogs',
+			'',
+			'spiderlog',
 			// At runtime, will be set to empty(Config::$modSettings['spider_mode'])
 			'disabled' => 'spider_mode',
 		),
@@ -178,6 +178,15 @@ class Logs implements ActionInterface
 			require_once(Config::$sourcedir . '/' . self::$subactions[$this->subaction][0]);
 
 		call_helper(method_exists($this, self::$subactions[$this->subaction][1]) ? array($this, self::$subactions[$this->subaction][1]) : self::$subactions[$this->subaction][1]);
+	}
+
+	/**
+	 * Hands execution over to SearchEngines::logs().
+	 */
+	public function spiderlog()
+	{
+		$_REQUEST['sa'] = 'logs';
+		SearchEngines::call();
 	}
 
 	/**
