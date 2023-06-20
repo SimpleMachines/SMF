@@ -1290,12 +1290,11 @@ class Topic implements \ArrayAccess
 		}
 
 		// Get rid of the attachment, if it exists.
-		require_once(Config::$sourcedir . '/Actions/Admin/Attachments.php');
 		$attachmentQuery = array(
 			'attachment_type' => 0,
 			'id_topic' => $topics,
 		);
-		removeAttachments($attachmentQuery, 'messages');
+		Attachment::remove($attachmentQuery, 'messages');
 
 		// Delete possible search index entries.
 		if (!empty(Config::$modSettings['search_custom_index_config']))

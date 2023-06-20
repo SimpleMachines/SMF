@@ -3339,13 +3339,12 @@ class Msg implements \ArrayAccess
 			}
 
 			// Delete attachment(s) if they exist.
-			require_once(Config::$sourcedir . '/Actions/Admin/Attachments.php');
 			$attachmentQuery = array(
 				'attachment_type' => 0,
 				'id_msg' => $message,
 			);
 
-			removeAttachments($attachmentQuery);
+			Attachment::remove($attachmentQuery);
 		}
 
 		// Allow mods to remove message related data of their own (likes, maybe?)

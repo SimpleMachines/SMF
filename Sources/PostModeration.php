@@ -13,6 +13,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Attachment;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
@@ -358,9 +359,6 @@ function UnapprovedAttachments()
 	{
 		checkSession('request');
 
-		// This will be handy.
-		require_once(Config::$sourcedir . '/Actions/Admin/Attachments.php');
-
 		// Confirm the attachments are eligible for changing!
 		$request = Db::$db->query('', '
 			SELECT a.id_attach
@@ -386,9 +384,9 @@ function UnapprovedAttachments()
 		if (!empty($attachments))
 		{
 			if ($curAction == 'approve')
-				ApproveAttachments($attachments);
+				Attachment::approve($attachments);
 			else
-				removeAttachments(array('id_attach' => $attachments, 'do_logging' => true));
+				Attachment::remove(array('id_attach' => $attachments, 'do_logging' => true));
 		}
 	}
 
@@ -760,8 +758,7 @@ function approveAllData()
 
 	if (!empty($attaches))
 	{
-		require_once(Config::$sourcedir . '/Actions/Admin/Attachments.php');
-		ApproveAttachments($attaches);
+		Attachment::approve($attaches);
 	}
 }
 

@@ -18,6 +18,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Attachment;
 use SMF\Config;
 use SMF\Theme;
 use SMF\User;
@@ -52,8 +53,7 @@ function downloadAvatar($url, $memID, $max_width, $max_height)
 	if (empty($memID))
 		return false;
 
-	require_once(Config::$sourcedir . '/Actions/Admin/Attachments.php');
-	removeAttachments(array('id_member' => $memID));
+	Attachment::remove(array('id_member' => $memID));
 
 	$id_folder = 1;
 	$avatar_hash = '';

@@ -3430,8 +3430,6 @@ function profileSaveAvatarData(&$value, $memID)
 	if (empty($memID) && !empty(Utils::$context['password_auth_failed']))
 		return false;
 
-	require_once(Config::$sourcedir . '/Actions/Admin/Attachments.php');
-
 	call_integration_hook('before_profile_save_avatar', array(&$value));
 
 	// External url too large
@@ -3472,7 +3470,7 @@ function profileSaveAvatarData(&$value, $memID)
 		User::$profiles[$memID]['attachment_type'] = 0;
 		User::$profiles[$memID]['filename'] = '';
 
-		removeAttachments(array('id_member' => $memID));
+		Attachment::remove(array('id_member' => $memID));
 	}
 
 	// An avatar from the server-stored galleries.
@@ -3487,7 +3485,7 @@ function profileSaveAvatarData(&$value, $memID)
 		User::$profiles[$memID]['filename'] = '';
 
 		// Get rid of their old avatar. (if uploaded.)
-		removeAttachments(array('id_member' => $memID));
+		Attachment::remove(array('id_member' => $memID));
 	}
 	elseif ($value == 'gravatar' && !empty(Config::$modSettings['gravatarEnabled']))
 	{
@@ -3498,7 +3496,7 @@ function profileSaveAvatarData(&$value, $memID)
 			$profile_vars['avatar'] = 'gravatar://' . ($_POST['gravatarEmail'] != User::$profiles[$memID]['email_address'] ? $_POST['gravatarEmail'] : '');
 
 		// Get rid of their old avatar. (if uploaded.)
-		removeAttachments(array('id_member' => $memID));
+		Attachment::remove(array('id_member' => $memID));
 	}
 	elseif ($value == 'external' && allowedTo('profile_remote_avatar') && (stripos($_POST['userpicpersonal'], 'http://') === 0 || stripos($_POST['userpicpersonal'], 'https://') === 0) && empty(Config::$modSettings['avatar_download_external']))
 	{
@@ -3508,7 +3506,7 @@ function profileSaveAvatarData(&$value, $memID)
 		User::$profiles[$memID]['filename'] = '';
 
 		// Remove any attached avatar...
-		removeAttachments(array('id_member' => $memID));
+		Attachment::remove(array('id_member' => $memID));
 
 		$profile_vars['avatar'] = str_replace(' ', '%20', preg_replace('~action(?:=|%3d)(?!dlattach)~i', 'action-', $_POST['userpicpersonal']));
 		$mime_type = get_mime_type($profile_vars['avatar'], true);
@@ -3702,7 +3700,7 @@ function profileSaveAvatarData(&$value, $memID)
 				$file_hash = '';
 
 				// Remove previous attachments this member might have had.
-				removeAttachments(array('id_member' => $memID));
+				Attachment::remove(array('id_member' => $memID));
 
 				User::$profiles[$memID]['id_attach'] = Db::$db->insert('',
 					'{db_prefix}attachments',
@@ -3725,7 +3723,7 @@ function profileSaveAvatarData(&$value, $memID)
 				if (!rename($_FILES['attachment']['tmp_name'], $destinationPath))
 				{
 					// I guess a man can try.
-					removeAttachments(array('id_member' => $memID));
+					Attachment::remove(array('id_member' => $memID));
 					fatal_lang_error('attach_timeout', 'critical');
 				}
 
