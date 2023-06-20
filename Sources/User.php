@@ -2399,6 +2399,66 @@ class User implements \ArrayAccess
 	}
 
 	/**
+	 * Log the spider presence online.
+	 */
+	public static function logSpider(): void
+	{
+		if (empty(Config::$modSettings['spider_mode']) || empty($_SESSION['id_robot']))
+			return;
+
+		// Attempt to update today's entry.
+		if (Config::$modSettings['spider_mode'] == 1)
+		{
+			$date = smf_strftime('%Y-%m-%d', time());
+			Db::$db->query('', '
+				UPDATE {db_prefix}log_spider_stats
+				SET last_seen = {int:current_time}, page_hits = page_hits + 1
+				WHERE id_spider = {int:current_spider}
+					AND stat_date = {date:current_date}',
+				array(
+					'current_date' => $date,
+					'current_time' => time(),
+					'current_spider' => $_SESSION['id_robot'],
+				)
+			);
+
+			// Nothing updated?
+			if (Db::$db->affected_rows() == 0)
+			{
+				Db::$db->insert('ignore',
+					'{db_prefix}log_spider_stats',
+					array(
+						'id_spider' => 'int', 'last_seen' => 'int', 'stat_date' => 'date', 'page_hits' => 'int',
+					),
+					array(
+						$_SESSION['id_robot'], time(), $date, 1,
+					),
+					array('id_spider', 'stat_date')
+				);
+			}
+		}
+		// If we're tracking better stats than track, better stats - we sort out the today thing later.
+		else
+		{
+			if (Config::$modSettings['spider_mode'] > 2)
+			{
+				$url = $_GET + array('USER_AGENT' => $_SERVER['HTTP_USER_AGENT']);
+				unset($url['sesc'], $url[Utils::$context['session_var']]);
+				$url = Utils::jsonEncode($url);
+			}
+			else
+				$url = '';
+
+			Db::$db->insert('insert',
+				'{db_prefix}log_spider_hits',
+				array('id_spider' => 'int', 'log_time' => 'int', 'url' => 'string'),
+				array($_SESSION['id_robot'], time(), $url),
+				array()
+			);
+		}
+	}
+
+	/**
 	 * Wrapper around User::load() that returns the IDs of the loaded users.
 	 *
 	 * This method exists only for backward compatibility purposes.
@@ -3159,9 +3219,82 @@ class User implements \ArrayAccess
 			// Check every five minutes just in case...
 			if ((!empty(Config::$modSettings['spider_mode']) || !empty(Config::$modSettings['spider_group'])) && (!isset($_SESSION['robot_check']) || $_SESSION['robot_check'] < time() - 300))
 			{
-				require_once(Config::$sourcedir . '/Actions/Admin/SearchEngines.php');
+				if (isset($_SESSION['id_robot']))
+					unset($_SESSION['id_robot']);
 
-				$this->possibly_robot = SpiderCheck();
+				$_SESSION['robot_check'] = time();
+
+				// We cache the spider data for ten minutes if we can.
+				if (($spider_data = CacheApi::get('spider_search', 600)) === null)
+				{
+					$spider_data = array();
+
+					$request = Db::$db->query('', '
+						SELECT id_spider, user_agent, ip_info
+						FROM {db_prefix}spiders
+						ORDER BY LENGTH(user_agent) DESC',
+						array(
+						)
+					);
+					while ($row = Db::$db->fetch_assoc($request))
+					{
+						$spider_data[] = $row;
+					}
+					Db::$db->free_result($request);
+
+					CacheApi::put('spider_search', $spider_data, 600);
+				}
+
+				if (empty($spider_data))
+				{
+					$this->possibly_robot = false;
+				}
+				else
+				{
+					// Only do these bits once.
+					$ci_user_agent = strtolower($_SERVER['HTTP_USER_AGENT']);
+
+					foreach ($spider_data as $spider)
+					{
+						// User agent is easy.
+						if (!empty($spider['user_agent']) && strpos($ci_user_agent, strtolower($spider['user_agent'])) !== false)
+						{
+							$_SESSION['id_robot'] = $spider['id_spider'];
+						}
+						// IP stuff is harder.
+						elseif ($_SERVER['REMOTE_ADDR'])
+						{
+							$ips = explode(',', $spider['ip_info']);
+
+							foreach ($ips as $ip)
+							{
+								if ($ip === '')
+									continue;
+
+								$ip = ip2range($ip);
+
+								if (!empty($ip))
+								{
+									if (inet_ptod($ip['low']) <= inet_ptod($_SERVER['REMOTE_ADDR']) && inet_ptod($ip['high']) >= inet_ptod($_SERVER['REMOTE_ADDR']))
+									{
+										$_SESSION['id_robot'] = $spider['id_spider'];
+									}
+								}
+							}
+						}
+
+						if (isset($_SESSION['id_robot']))
+							break;
+					}
+
+					// If this is low server tracking then log the spider here as opposed to the main logging function.
+					if (!empty(Config::$modSettings['spider_mode']) && Config::$modSettings['spider_mode'] == 1 && !empty($_SESSION['id_robot']))
+					{
+						self::logSpider();
+					}
+
+					$this->possibly_robot = !empty($_SESSION['id_robot']) ? $_SESSION['id_robot'] : 0;
+				}
 			}
 			elseif (!empty(Config::$modSettings['spider_mode']))
 			{

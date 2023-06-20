@@ -80,7 +80,6 @@ class Find implements ActionInterface
 		'ManageMail',
 		'ManagePaid',
 		'ManageRegistration',
-		'Actions/Admin/SearchEngines',
 	);
 
 	/**
@@ -125,7 +124,7 @@ class Find implements ActionInterface
 		array(__NAMESPACE__ . '\\Server::loadBalancingConfigVars', 'area=serversettings;sa=loads'),
 		array(__NAMESPACE__ . '\\Languages::getConfigVars', 'area=languages;sa=settings'),
 		array('ModifyRegistrationSettings', 'area=regcenter;sa=settings'),
-		array('ManageSearchEngineSettings', 'area=sengines;sa=settings'),
+		array(__NAMESPACE__ . '\\SearchEngines::getConfigVars', 'area=sengines;sa=settings'),
 		array('ModifySubscriptionSettings', 'area=paidsubscribe;sa=settings'),
 		array(__NAMESPACE__ . '\\Logs::getConfigVars', 'area=logs;sa=settings'),
 	);
