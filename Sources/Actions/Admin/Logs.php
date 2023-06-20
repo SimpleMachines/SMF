@@ -89,7 +89,7 @@ class Logs implements ActionInterface
 			'BanLog',
 		),
 		'spiderlog' => array(
-			'ManageSearchEngines.php',
+			'Actions/Admin/SearchEngines.php',
 			'SpiderLogs',
 			// At runtime, will be set to empty(Config::$modSettings['spider_mode'])
 			'disabled' => 'spider_mode',

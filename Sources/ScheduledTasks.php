@@ -254,7 +254,7 @@ function scheduled_daily_maintenance()
 	// Do any spider stuff.
 	if (!empty(Config::$modSettings['spider_mode']) && Config::$modSettings['spider_mode'] > 1)
 	{
-		require_once(Config::$sourcedir . '/ManageSearchEngines.php');
+		require_once(Config::$sourcedir . '/Actions/Admin/SearchEngines.php');
 		consolidateSpiderStats();
 	}
 

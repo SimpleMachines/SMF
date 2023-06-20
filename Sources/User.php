@@ -3159,7 +3159,7 @@ class User implements \ArrayAccess
 			// Check every five minutes just in case...
 			if ((!empty(Config::$modSettings['spider_mode']) || !empty(Config::$modSettings['spider_group'])) && (!isset($_SESSION['robot_check']) || $_SESSION['robot_check'] < time() - 300))
 			{
-				require_once(Config::$sourcedir . '/ManageSearchEngines.php');
+				require_once(Config::$sourcedir . '/Actions/Admin/SearchEngines.php');
 
 				$this->possibly_robot = SpiderCheck();
 			}

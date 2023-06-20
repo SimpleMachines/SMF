@@ -80,7 +80,7 @@ class Find implements ActionInterface
 		'ManageMail',
 		'ManagePaid',
 		'ManageRegistration',
-		'ManageSearchEngines',
+		'Actions/Admin/SearchEngines',
 	);
 
 	/**
