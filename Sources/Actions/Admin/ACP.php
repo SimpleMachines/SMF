@@ -426,8 +426,7 @@ class ACP implements ActionInterface
 			'areas' => array(
 				'viewmembers' => array(
 					'label' => 'admin_users',
-					'file' => 'Actions/Admin/Members.php',
-					'function' => 'ViewMembers',
+					'function' => __NAMESPACE__ . '\\Members::call',
 					'icon' => 'members',
 					'permission' => array('moderate_forum'),
 					'subsections' => array(
