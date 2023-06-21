@@ -312,7 +312,7 @@ class Find implements ActionInterface
 	 */
 	public function member()
 	{
-		require_once(Config::$sourcedir . '/ManageMembers.php');
+		require_once(Config::$sourcedir . '/Actions/Admin/Members.php');
 		$_REQUEST['sa'] = 'query';
 
 		$_POST['membername'] = un_htmlspecialchars(Utils::$context['search_term']);
