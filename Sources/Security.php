@@ -20,6 +20,7 @@ use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Actions\Logout;
+use SMF\Actions\Admin\Bans;
 use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
@@ -256,8 +257,7 @@ function is_not_banned($forceCheck = false)
 		if (User::$me->id && ((User::$me->is_activated >= 10 && !$flag_is_activated)
 			|| (User::$me->is_activated < 10 && $flag_is_activated)))
 		{
-			require_once(Config::$sourcedir . '/Actions/Admin/Bans.php');
-			updateBanMembers();
+			Bans::updateBanMembers();
 		}
 	}
 

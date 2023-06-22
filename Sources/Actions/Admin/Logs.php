@@ -85,8 +85,8 @@ class Logs implements ActionInterface
 			'disabled' => 'modlog_enabled',
 		),
 		'banlog' => array(
-			'Actions/Admin/Bans.php',
-			'BanLog',
+			'',
+			'banlog',
 		),
 		'spiderlog' => array(
 			'',
@@ -178,6 +178,15 @@ class Logs implements ActionInterface
 			require_once(Config::$sourcedir . '/' . self::$subactions[$this->subaction][0]);
 
 		call_helper(method_exists($this, self::$subactions[$this->subaction][1]) ? array($this, self::$subactions[$this->subaction][1]) : self::$subactions[$this->subaction][1]);
+	}
+
+	/**
+	 * Hands execution over to Bans::log().
+	 */
+	public function banlog()
+	{
+		$_REQUEST['sa'] = 'log';
+		Bans::call();
 	}
 
 	/**
