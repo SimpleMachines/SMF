@@ -22,6 +22,7 @@ use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Actions\Logout;
+use SMF\Actions\Admin\Subscriptions;
 use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
@@ -702,12 +703,11 @@ function subscriptions($memID)
 	Lang::load('ManagePaid');
 
 	// Load all of the subscriptions.
-	require_once(Config::$sourcedir . '/Actions/Admin/Subscriptions.php');
-	loadSubscriptions();
+	Subscriptions::getSubs();
 	Utils::$context['member']['id'] = $memID;
 
 	// Remove any invalid ones.
-	foreach (Utils::$context['subscriptions'] as $id => $sub)
+	foreach (Subscriptions::$all as $id => $sub)
 	{
 		// Work out the costs.
 		$costs = Utils::jsonDecode($sub['real_cost'], true);
@@ -727,17 +727,17 @@ function subscriptions($memID)
 		}
 
 		if (empty($cost_array))
-			unset(Utils::$context['subscriptions'][$id]);
+			unset(Subscriptions::$all[$id]);
 		else
 		{
-			Utils::$context['subscriptions'][$id]['member'] = 0;
-			Utils::$context['subscriptions'][$id]['subscribed'] = false;
-			Utils::$context['subscriptions'][$id]['costs'] = $cost_array;
+			Subscriptions::$all[$id]['member'] = 0;
+			Subscriptions::$all[$id]['subscribed'] = false;
+			Subscriptions::$all[$id]['costs'] = $cost_array;
 		}
 	}
 
 	// Work out what gateways are enabled.
-	$gateways = loadPaymentGateways();
+	$gateways = Subscriptions::loadPaymentGateways();
 	foreach ($gateways as $id => $gateway)
 	{
 		$gateways[$id] = new $gateway['display_class']();
@@ -762,14 +762,14 @@ function subscriptions($memID)
 	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// The subscription must exist!
-		if (!isset(Utils::$context['subscriptions'][$row['id_subscribe']]))
+		if (!isset(Subscriptions::$all[$row['id_subscribe']]))
 			continue;
 
 		Utils::$context['current'][$row['id_subscribe']] = array(
 			'id' => $row['id_sublog'],
 			'sub_id' => $row['id_subscribe'],
 			'hide' => $row['status'] == 0 && $row['end_time'] == 0 && $row['payments_pending'] == 0,
-			'name' => Utils::$context['subscriptions'][$row['id_subscribe']]['name'],
+			'name' => Subscriptions::$all[$row['id_subscribe']]['name'],
 			'start' => timeformat($row['start_time'], false),
 			'end' => $row['end_time'] == 0 ? Lang::$txt['not_applicable'] : timeformat($row['end_time'], false),
 			'pending_details' => $row['pending_details'],
@@ -778,7 +778,7 @@ function subscriptions($memID)
 		);
 
 		if ($row['status'] == 1)
-			Utils::$context['subscriptions'][$row['id_subscribe']]['subscribed'] = true;
+			Subscriptions::$all[$row['id_subscribe']]['subscribed'] = true;
 	}
 	Db::$db->free_result($request);
 
@@ -832,11 +832,11 @@ function subscriptions($memID)
 		foreach ($_POST['sub_id'] as $k => $v)
 			$ID_SUB = (int) $k;
 
-		if (!isset(Utils::$context['subscriptions'][$ID_SUB]) || Utils::$context['subscriptions'][$ID_SUB]['active'] == 0)
+		if (!isset(Subscriptions::$all[$ID_SUB]) || Subscriptions::$all[$ID_SUB]['active'] == 0)
 			fatal_lang_error('paid_sub_not_active');
 
 		// Simplify...
-		Utils::$context['sub'] = Utils::$context['subscriptions'][$ID_SUB];
+		Utils::$context['sub'] = Subscriptions::$all[$ID_SUB];
 		$period = 'xx';
 		if (Utils::$context['sub']['flexible'])
 			$period = isset($_POST['cur'][$ID_SUB]) && isset(Utils::$context['sub']['costs'][$_POST['cur'][$ID_SUB]]) ? $_POST['cur'][$ID_SUB] : 'xx';
