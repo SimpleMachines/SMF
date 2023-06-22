@@ -488,7 +488,7 @@ class ACP implements ActionInterface
 				),
 				'regcenter' => array(
 					'label' => 'registration_center',
-					'file' => 'ManageRegistration.php',
+					'file' => 'Actions/Admin/Registration.php',
 					'function' => 'RegCenter',
 					'icon' => 'regcenter',
 					'permission' => array(
