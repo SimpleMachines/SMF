@@ -1080,7 +1080,7 @@ function scheduled_paid_subscriptions()
 	);
 	while ($row = Db::$db->fetch_assoc($request))
 	{
-		require_once(Config::$sourcedir . '/ManagePaid.php');
+		require_once(Config::$sourcedir . '/Actions/Admin/Subscriptions.php');
 		removeSubscription($row['id_subscribe'], $row['id_member']);
 	}
 	Db::$db->free_result($request);

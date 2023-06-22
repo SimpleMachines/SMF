@@ -29,7 +29,7 @@ if (!file_exists(dirname(__FILE__) . '/SSI.php'))
 	die('Cannot find SSI.php');
 
 require_once(dirname(__FILE__) . '/SSI.php');
-require_once(Config::$sourcedir . '/ManagePaid.php');
+require_once(Config::$sourcedir . '/Actions/Admin/Subscriptions.php');
 
 // Ensure we don't trip over disabled internal functions
 require_once(Config::$sourcedir . '/Subs-Compat.php');
