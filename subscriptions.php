@@ -18,6 +18,7 @@ use SMF\Config;
 use SMF\Lang;
 use SMF\Utils;
 use SMF\Actions\Admin\ACP;
+use SMF\Actions\Admin\Subscriptions;
 use SMF\Db\DatabaseApi as Db;
 
 // Set this to true to always log $_POST info received from payment gateways.
@@ -29,7 +30,6 @@ if (!file_exists(dirname(__FILE__) . '/SSI.php'))
 	die('Cannot find SSI.php');
 
 require_once(dirname(__FILE__) . '/SSI.php');
-require_once(Config::$sourcedir . '/Actions/Admin/Subscriptions.php');
 
 // Ensure we don't trip over disabled internal functions
 require_once(Config::$sourcedir . '/Subs-Compat.php');
@@ -63,7 +63,7 @@ if (!empty(Config::$modSettings['paid_email_to']))
 // we'll going to go through all our gateway scripts and find out
 // if they are happy with what we have.
 $txnType = '';
-$gatewayHandles = loadPaymentGateways();
+$gatewayHandles = Subscriptions::loadPaymentGateways();
 foreach ($gatewayHandles as $gateway)
 {
 	$gatewayClass = new $gateway['payment_class']();
@@ -145,14 +145,14 @@ if ($gatewayClass->isRefund())
 	if ($subscription_info['end_time'] - time() < $subscription_info['length'])
 	{
 		// Delete user subscription.
-		removeSubscription($subscription_id, $member_id);
+		Subscriptions::remove($subscription_id, $member_id);
 		$subscription_act = time();
 		$status = 0;
 	}
 	else
 	{
-		loadSubscriptions();
-		$subscription_act = $subscription_info['end_time'] - Utils::$context['subscriptions'][$subscription_id]['num_length'];
+		Subscriptions::getAll();
+		$subscription_act = $subscription_info['end_time'] - Subscriptions::$all[$subscription_id]['num_length'];
 		$status = 1;
 	}
 
@@ -242,7 +242,7 @@ elseif ($gatewayClass->isPayment() || $gatewayClass->isSubscription())
 		if ($found_duration !== 0)
 		{
 			$notify = true;
-			addSubscription($subscription_id, $member_id, $found_duration);
+			Subscriptions::add($subscription_id, $member_id, $found_duration);
 		}
 	}
 	else
@@ -254,7 +254,7 @@ elseif ($gatewayClass->isPayment() || $gatewayClass->isSubscription())
 		{
 			// Add the subscription.
 			$notify = true;
-			addSubscription($subscription_id, $member_id);
+			Subscriptions::add($subscription_id, $member_id);
 		}
 	}
 

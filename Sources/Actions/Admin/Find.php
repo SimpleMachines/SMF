@@ -78,7 +78,6 @@ class Find implements ActionInterface
 	 */
 	public array $include_files = array(
 		'ManageMail',
-		'Actions/Admin/Subscriptions',
 	);
 
 	/**
@@ -125,7 +124,7 @@ class Find implements ActionInterface
 		array(__NAMESPACE__ . '\\Languages::getConfigVars', 'area=languages;sa=settings'),
 		array(__NAMESPACE__ . '\\Registration::getConfigVars', 'area=regcenter;sa=settings'),
 		array(__NAMESPACE__ . '\\SearchEngines::getConfigVars', 'area=sengines;sa=settings'),
-		array('ModifySubscriptionSettings', 'area=paidsubscribe;sa=settings'),
+		array(__NAMESPACE__ . '\\Subscriptions::getConfigVars', 'area=paidsubscribe;sa=settings'),
 		array(__NAMESPACE__ . '\\Logs::getConfigVars', 'area=logs;sa=settings'),
 	);
 

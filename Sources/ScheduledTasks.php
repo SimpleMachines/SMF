@@ -24,6 +24,7 @@ use SMF\User;
 use SMF\Utils;
 use SMF\Actions\Notify;
 use SMF\Actions\Admin\SearchEngines;
+use SMF\Actions\Admin\Subscriptions;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
@@ -1080,8 +1081,7 @@ function scheduled_paid_subscriptions()
 	);
 	while ($row = Db::$db->fetch_assoc($request))
 	{
-		require_once(Config::$sourcedir . '/Actions/Admin/Subscriptions.php');
-		removeSubscription($row['id_subscribe'], $row['id_member']);
+		Subscriptions::remove($row['id_subscribe'], $row['id_member']);
 	}
 	Db::$db->free_result($request);
 

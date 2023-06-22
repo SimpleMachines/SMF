@@ -547,9 +547,8 @@ class ACP implements ActionInterface
 				'paidsubscribe' => array(
 					'label' => 'paid_subscriptions',
 					'inactive' => false,
-					'file' => 'Actions/Admin/Subscriptions.php',
+					'function' => __NAMESPACE__ . '\\Subscriptions::call',
 					'icon' => 'paid',
-					'function' => 'ManagePaidSubscriptions',
 					'permission' => 'admin_forum',
 					'subsections' => array(
 						'view' => array(
