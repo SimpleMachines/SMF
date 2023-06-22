@@ -440,8 +440,7 @@ class ACP implements ActionInterface
 				),
 				'membergroups' => array(
 					'label' => 'admin_groups',
-					'file' => 'Actions/Admin/Membergroups.php',
-					'function' => 'ModifyMembergroups',
+					'function' => __NAMESPACE__ . '\\Membergroups::call',
 					'icon' => 'membergroups',
 					'permission' => array('manage_membergroups'),
 					'subsections' => array(
