@@ -526,8 +526,7 @@ class ACP implements ActionInterface
 				),
 				'ban' => array(
 					'label' => 'ban_title',
-					'file' => 'Actions/Admin/Bans.php',
-					'function' => 'Ban',
+					'function' => __NAMESPACE__ . '\\Bans::call',
 					'icon' => 'ban',
 					'permission' => 'manage_bans',
 					'subsections' => array(
