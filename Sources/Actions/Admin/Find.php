@@ -78,7 +78,7 @@ class Find implements ActionInterface
 	 */
 	public array $include_files = array(
 		'ManageMail',
-		'ManagePaid',
+		'Actions/Admin/Subscriptions',
 	);
 
 	/**

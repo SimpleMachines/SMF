@@ -702,7 +702,7 @@ function subscriptions($memID)
 	Lang::load('ManagePaid');
 
 	// Load all of the subscriptions.
-	require_once(Config::$sourcedir . '/ManagePaid.php');
+	require_once(Config::$sourcedir . '/Actions/Admin/Subscriptions.php');
 	loadSubscriptions();
 	Utils::$context['member']['id'] = $memID;
 
