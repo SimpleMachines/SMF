@@ -598,7 +598,7 @@ class ACP implements ActionInterface
 				),
 				'maintain' => array(
 					'label' => 'maintain_title',
-					'file' => 'ManageMaintenance.php',
+					'file' => 'Actions/Admin/Maintenance.php',
 					'icon' => 'maintain',
 					'function' => 'ManageMaintenance',
 					'subsections' => array(
