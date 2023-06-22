@@ -85,7 +85,7 @@ class Logs implements ActionInterface
 			'disabled' => 'modlog_enabled',
 		),
 		'banlog' => array(
-			'ManageBans.php',
+			'Actions/Admin/Bans.php',
 			'BanLog',
 		),
 		'spiderlog' => array(
