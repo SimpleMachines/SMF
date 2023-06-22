@@ -109,6 +109,7 @@ class Find implements ActionInterface
 		array(__NAMESPACE__ . '\\Boards::getConfigVars', 'area=manageboards;sa=settings'),
 		array('ModifyMailSettings', 'area=mailqueue;sa=settings'),
 		array(__NAMESPACE__ . '\\News::getConfigVars', 'area=news;sa=settings'),
+		array(__NAMESPACE__ . '\\Membergroups::getConfigVars', 'area=membergroups;sa=settings'),
 		array(__NAMESPACE__ . '\\Permissions::getConfigVars', 'area=permissions;sa=settings'),
 		array(__NAMESPACE__ . '\\Posts::postConfigVars', 'area=postsettings;sa=posts'),
 		array(__NAMESPACE__ . '\\Posts::topicConfigVars', 'area=postsettings;sa=topics'),
