@@ -184,7 +184,7 @@ class TopicRemove implements ActionInterface
 	/**
 	 * So long as you are sure... all old posts will be gone.
 	 *
-	 * Used in Actions/Admin/Maintenance.php to prune old topics.
+	 * Used by SMF\Actions\Admin\Maintenance to prune old topics.
 	 */
 	public static function old()
 	{

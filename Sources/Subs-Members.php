@@ -27,6 +27,7 @@ if (!defined('SMF'))
 
 class_exists('SMF\\User');
 class_exists('SMF\\Actions\\Register2');
+class_exists('SMF\\Actions\\Admin\\Maintenance');
 
 /**
  * Retrieves a list of membergroups that have the given permission, either on
@@ -216,138 +217,6 @@ function membersAllowedTo($permission, $board_id = null)
 	Db::$db->free_result($request);
 
 	return $members;
-}
-
-/**
- * This function is used to reassociate members with relevant posts.
- * Reattribute guest posts to a specified member.
- * Does not check for any permissions.
- * If add_to_post_count is set, the member's post count is increased.
- *
- * @param int $memID The ID of the original poster
- * @param bool|string $email If set, should be the email of the poster
- * @param bool|string $membername If set, the membername of the poster
- * @param bool $post_count Whether to adjust post counts
- * @return array An array containing the number of messages, topics and reports updated
- */
-function reattributePosts($memID, $email = false, $membername = false, $post_count = false)
-{
-	$updated = array(
-		'messages' => 0,
-		'topics' => 0,
-		'reports' => 0,
-	);
-
-	// Firstly, if email and username aren't passed find out the members email address and name.
-	if ($email === false && $membername === false)
-	{
-		$request = Db::$db->query('', '
-			SELECT email_address, member_name
-			FROM {db_prefix}members
-			WHERE id_member = {int:memID}
-			LIMIT 1',
-			array(
-				'memID' => $memID,
-			)
-		);
-		list ($email, $membername) = Db::$db->fetch_row($request);
-		Db::$db->free_result($request);
-	}
-
-	// If they want the post count restored then we need to do some research.
-	if ($post_count)
-	{
-		$recycle_board = !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) ? (int) Config::$modSettings['recycle_board'] : 0;
-		$request = Db::$db->query('', '
-			SELECT COUNT(*)
-			FROM {db_prefix}messages AS m
-				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND b.count_posts = {int:count_posts})
-			WHERE m.id_member = {int:guest_id}
-				AND m.approved = {int:is_approved}' . (!empty($recycle_board) ? '
-				AND m.id_board != {int:recycled_board}' : '') . (empty($email) ? '' : '
-				AND m.poster_email = {string:email_address}') . (empty($membername) ? '' : '
-				AND m.poster_name = {string:member_name}'),
-			array(
-				'count_posts' => 0,
-				'guest_id' => 0,
-				'email_address' => $email,
-				'member_name' => $membername,
-				'is_approved' => 1,
-				'recycled_board' => $recycle_board,
-			)
-		);
-		list ($messageCount) = Db::$db->fetch_row($request);
-		Db::$db->free_result($request);
-
-		User::updateMemberData($memID, array('posts' => 'posts + ' . $messageCount));
-	}
-
-	$query_parts = array();
-	if (!empty($email))
-		$query_parts[] = 'poster_email = {string:email_address}';
-	if (!empty($membername))
-		$query_parts[] = 'poster_name = {string:member_name}';
-	$query = implode(' AND ', $query_parts);
-
-	// Finally, update the posts themselves!
-	Db::$db->query('', '
-		UPDATE {db_prefix}messages
-		SET id_member = {int:memID}
-		WHERE ' . $query,
-		array(
-			'memID' => $memID,
-			'email_address' => $email,
-			'member_name' => $membername,
-		)
-	);
-	$updated['messages'] = Db::$db->affected_rows();
-
-	// Did we update any messages?
-	if ($updated['messages'] > 0)
-	{
-		// First, check for updated topics.
-		Db::$db->query('', '
-			UPDATE {db_prefix}topics AS t
-			SET id_member_started = {int:memID}
-			WHERE t.id_first_msg = (
-				SELECT m.id_msg
-				FROM {db_prefix}messages m
-				WHERE m.id_member = {int:memID}
-					AND m.id_msg = t.id_first_msg
-					AND ' . $query . '
-				)',
-			array(
-				'memID' => $memID,
-				'email_address' => $email,
-				'member_name' => $membername,
-			)
-		);
-		$updated['topics'] = Db::$db->affected_rows();
-
-		// Second, check for updated reports.
-		Db::$db->query('', '
-			UPDATE {db_prefix}log_reported AS lr
-			SET id_member = {int:memID}
-			WHERE lr.id_msg = (
-				SELECT m.id_msg
-				FROM {db_prefix}messages m
-				WHERE m.id_member = {int:memID}
-					AND m.id_msg = lr.id_msg
-					AND ' . $query . '
-				)',
-			array(
-				'memID' => $memID,
-				'email_address' => $email,
-				'member_name' => $membername,
-			)
-		);
-		$updated['reports'] = Db::$db->affected_rows();
-	}
-
-	// Allow mods with their own post tables to reattribute posts as well :)
-	call_integration_hook('integrate_reattribute_posts', array($memID, $email, $membername, $post_count, &$updated));
-
-	return $updated;
 }
 
 ?>
