@@ -625,8 +625,7 @@ class ACP implements ActionInterface
 				),
 				'scheduledtasks' => array(
 					'label' => 'maintain_tasks',
-					'file' => 'Actions/Admin/Tasks.php',
-					'function' => 'ManageScheduledTasks',
+					'function' => __NAMESPACE__ . '\\Tasks::call',
 					'icon' => 'scheduled',
 					'subsections' => array(
 						'tasks' => array(

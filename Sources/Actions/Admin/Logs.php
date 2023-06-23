@@ -95,8 +95,8 @@ class Logs implements ActionInterface
 			'disabled' => 'spider_mode',
 		),
 		'tasklog' => array(
-			'Actions/Admin/Tasks.php',
-			'TaskLog',
+			'',
+			'tasklog',
 		),
 		'settings' => array(
 			'',
@@ -196,6 +196,15 @@ class Logs implements ActionInterface
 	{
 		$_REQUEST['sa'] = 'logs';
 		SearchEngines::call();
+	}
+
+	/**
+	 * Hands execution over to Tasks::log().
+	 */
+	public function tasklog()
+	{
+		$_REQUEST['sa'] = 'tasklog';
+		Tasks::call();
 	}
 
 	/**
