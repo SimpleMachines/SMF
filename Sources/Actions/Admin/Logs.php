@@ -95,7 +95,7 @@ class Logs implements ActionInterface
 			'disabled' => 'spider_mode',
 		),
 		'tasklog' => array(
-			'ManageScheduledTasks.php',
+			'Actions/Admin/Tasks.php',
 			'TaskLog',
 		),
 		'settings' => array(
