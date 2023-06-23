@@ -125,6 +125,7 @@ class Find implements ActionInterface
 		array(__NAMESPACE__ . '\\Registration::getConfigVars', 'area=regcenter;sa=settings'),
 		array(__NAMESPACE__ . '\\SearchEngines::getConfigVars', 'area=sengines;sa=settings'),
 		array(__NAMESPACE__ . '\\Subscriptions::getConfigVars', 'area=paidsubscribe;sa=settings'),
+		array(__NAMESPACE__ . '\\Tasks::getConfigVars', 'area=scheduledtasks;sa=settings'),
 		array(__NAMESPACE__ . '\\Logs::getConfigVars', 'area=logs;sa=settings'),
 	);
 
