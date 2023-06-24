@@ -663,7 +663,7 @@ class ACP implements ActionInterface
 				),
 				'reports' => array(
 					'label' => 'generate_reports',
-					'file' => 'Reports.php',
+					'file' => 'Actions/Admin/Reports.php',
 					'function' => 'ReportsMain',
 					'icon' => 'reports',
 				),
