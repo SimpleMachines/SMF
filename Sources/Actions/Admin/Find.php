@@ -55,38 +55,10 @@ class Find implements ActionInterface
 	/**
 	 * @var array
 	 *
-	 * Load a lot of language files.
-	 */
-	public array $language_files = array(
-		'Drafts',
-		'Help',
-		'Login',
-		'ManageBoards',
-		'ManageCalendar',
-		'ManageMail',
-		'ManagePaid',
-		'ManagePermissions',
-		'ManageSettings',
-		'ManageSmileys',
-		'Search',
-	);
-
-	/**
-	 * @var array
-	 *
-	 * All the files we need to include.
-	 */
-	public array $include_files = array(
-		'Actions/Admin/Mail',
-	);
-
-	/**
-	 * @var array
-	 *
 	 * This is a special array of functions that contain setting data.
 	 * We query all these simply to find all the settings.
 	 *
-	 * Mod authors: if you want to be "real freaking good" then add any settings
+	 * MOD AUTHORS: If you want to be "real freaking good" then add any settings
 	 * pages for your mod to this array via the integrate_admin_search hook!
 	 *
 	 * Format: array('function_to_get_config_vars', 'url_for_admin_area_and_sa')
@@ -105,7 +77,7 @@ class Find implements ActionInterface
 		array(__NAMESPACE__ . '\\Attachments::avatarConfigVars', 'area=manageattachments;sa=avatars'),
 		array(__NAMESPACE__ . '\\Calendar::getConfigVars', 'area=managecalendar;sa=settings'),
 		array(__NAMESPACE__ . '\\Boards::getConfigVars', 'area=manageboards;sa=settings'),
-		array('ModifyMailSettings', 'area=mailqueue;sa=settings'),
+		array(__NAMESPACE__ . '\\Mail::getConfigVars', 'area=mailqueue;sa=settings'),
 		array(__NAMESPACE__ . '\\News::getConfigVars', 'area=news;sa=settings'),
 		array(__NAMESPACE__ . '\\Membergroups::getConfigVars', 'area=membergroups;sa=settings'),
 		array(__NAMESPACE__ . '\\Permissions::getConfigVars', 'area=permissions;sa=settings'),
@@ -128,6 +100,39 @@ class Find implements ActionInterface
 		array(__NAMESPACE__ . '\\Tasks::getConfigVars', 'area=scheduledtasks;sa=settings'),
 		array(__NAMESPACE__ . '\\Logs::getConfigVars', 'area=logs;sa=settings'),
 	);
+
+	/**
+	 * @var array
+	 *
+	 * Load a lot of language files.
+	 *
+	 * MOD AUTHORS: If your mod uses it's own language file for its settings,
+	 * add the language file to this array via the integrate_admin_search hook.
+	 */
+	public array $language_files = array(
+		'Drafts',
+		'Help',
+		'Login',
+		'ManageBoards',
+		'ManageCalendar',
+		'ManageMail',
+		'ManagePaid',
+		'ManagePermissions',
+		'ManageSettings',
+		'ManageSmileys',
+		'Search',
+	);
+
+	/**
+	 * @var array
+	 *
+	 * Any extra files we ought to include.
+	 *
+	 * MOD AUTHORS: If your mod uses autoloading classes, you don't need to
+	 * worry about this array. Otherwise, you can add your file to this array
+	 * via the integrate_admin_search hook.
+	 */
+	public array $include_files = array();
 
 	/**************************
 	 * Public static properties

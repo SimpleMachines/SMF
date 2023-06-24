@@ -644,8 +644,7 @@ class ACP implements ActionInterface
 				),
 				'mailqueue' => array(
 					'label' => 'mailqueue_title',
-					'file' => 'Actions/Admin/Mail.php',
-					'function' => 'ManageMail',
+					'function' => __NAMESPACE__ . '\\Mail::call',
 					'icon' => 'mail',
 					'subsections' => array(
 						'browse' => array(
