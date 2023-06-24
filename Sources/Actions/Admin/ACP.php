@@ -644,7 +644,7 @@ class ACP implements ActionInterface
 				),
 				'mailqueue' => array(
 					'label' => 'mailqueue_title',
-					'file' => 'ManageMail.php',
+					'file' => 'Actions/Admin/Mail.php',
 					'function' => 'ManageMail',
 					'icon' => 'mail',
 					'subsections' => array(
