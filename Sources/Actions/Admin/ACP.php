@@ -708,8 +708,7 @@ class ACP implements ActionInterface
 				),
 				'repairboards' => array(
 					'label' => 'admin_repair',
-					'file' => 'Actions/Admin/RepairBoards.php',
-					'function' => 'RepairBoards',
+					'function' => __NAMESPACE__ . '\\RepairBoards::call',
 					'select' => 'maintain',
 					'hidden' => true,
 				),

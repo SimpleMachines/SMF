@@ -358,8 +358,7 @@ class Maintenance implements ActionInterface
 		// Honestly, this should be done in the sub function.
 		validateToken('admin-maint');
 
-		require_once(Config::$sourcedir . '/Actions/Admin/RepairBoards.php');
-		RepairBoards();
+		RepairBoards::call();
 	}
 
 	/**

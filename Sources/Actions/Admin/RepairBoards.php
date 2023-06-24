@@ -1,8 +1,6 @@
 <?php
 
 /**
- * This is here for the "repair any errors" feature in the admin center.
- *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -13,6 +11,11 @@
  * @version 3.0 Alpha 1
  */
 
+namespace SMF\Actions\Admin;
+
+use SMF\BackwardCompatibility;
+use SMF\Actions\ActionInterface;
+
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
@@ -20,199 +23,77 @@ use SMF\Menu;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
-if (!defined('SMF'))
-	die('No direct access...');
-
 /**
- * Finds or repairs errors in the database to fix possible problems.
- * Requires the admin_forum permission.
- * Calls createSalvageArea() to create a new board, if necessary.
- * Accessed by ?action=admin;area=repairboards.
- *
- * @uses template_repair_boards()
+ * This is here for the "repair any errors" feature in the admin center.
  */
-function RepairBoards()
+class RepairBoards implements ActionInterface
 {
-	isAllowedTo('admin_forum');
+	use BackwardCompatibility;
 
-	// Try secure more memory.
-	setMemoryLimit('128M');
-
-	// Print out the top of the webpage.
-	Utils::$context['page_title'] = Lang::$txt['admin_repair'];
-	Utils::$context['sub_template'] = 'repair_boards';
-	Menu::$loaded['admin']['current_subsection'] = 'general';
-
-	// Load the language file.
-	Lang::load('ManageMaintenance');
-
-	// Make sure the tabs stay nice.
-	Menu::$loaded['admin']->tab_data = array(
-		'title' => Lang::$txt['maintain_title'],
-		'help' => '',
-		'description' => Lang::$txt['maintain_info'],
-		'tabs' => array(),
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = array(
+		'func_names' => array(
+			'load' => false,
+			'call' => 'RepairBoards',
+		),
 	);
 
-	// Start displaying errors without fixing them.
-	if (isset($_GET['fixErrors']))
-		checkSession('get');
+	/*******************
+	 * Public properties
+	 *******************/
 
-	// Giant if/else. The first displays the forum errors if a variable is not set and asks
-	// if you would like to continue, the other fixes the errors.
-	if (!isset($_GET['fixErrors']))
-	{
-		Utils::$context['error_search'] = true;
-		Utils::$context['repair_errors'] = array();
-		Utils::$context['to_fix'] = findForumErrors();
-
-		if (!empty(Utils::$context['to_fix']))
-		{
-			$_SESSION['repairboards_to_fix'] = Utils::$context['to_fix'];
-			$_SESSION['repairboards_to_fix2'] = null;
-
-			if (empty(Utils::$context['repair_errors']))
-				Utils::$context['repair_errors'][] = '???';
-		}
-
-		// Need a token here.
-		createToken('admin-repairboards', 'request');
-	}
-	else
-	{
-		// Validate the token, create a new one and tell the not done template.
-		validateToken('admin-repairboards', 'request');
-		createToken('admin-repairboards', 'request');
-		Utils::$context['not_done_token'] = 'admin-repairboards';
-
-		Utils::$context['error_search'] = false;
-		Utils::$context['to_fix'] = isset($_SESSION['repairboards_to_fix']) ? $_SESSION['repairboards_to_fix'] : array();
-
-		// Actually do the fix.
-		findForumErrors(true);
-
-		// Note that we've changed everything possible ;)
-		Config::updateModSettings(array(
-			'settings_updated' => time(),
-		));
-		updateStats('message');
-		updateStats('topic');
-		Config::updateModSettings(array(
-			'calendar_updated' => time(),
-		));
-
-		// If we created a salvage area, we may need to recount stats properly.
-		if (!empty(Utils::$context['salvageBoardID']) || !empty($_SESSION['salvageBoardID']))
-		{
-			unset($_SESSION['salvageBoardID']);
-			Utils::$context['redirect_to_recount'] = true;
-			createToken('admin-maint');
-		}
-
-		$_SESSION['repairboards_to_fix'] = null;
-		$_SESSION['repairboards_to_fix2'] = null;
-
-		// We are done at this point, dump the token,
-		validateToken('admin-repairboards', 'request', false);
-	}
-}
-
-/**
- * Show the not_done template to avoid CGI timeouts and similar.
- * Called when 3 or more seconds have passed while searching for errors.
- * If max_substep is set, $_GET['substep'] / $max_substep is the percent
- * done this step is.
- *
- * @param array $to_fix An array of information about what to fix
- * @param string $current_step_description The description of the current step
- * @param int $max_substep The maximum substep to reach before pausing
- * @param bool $force Whether to force pausing even if we don't really need to
- */
-function pauseRepairProcess($to_fix, $current_step_description, $max_substep = 0, $force = false)
-{
-	static $loops = 0;
-	++$loops;
-
-	// More time, I need more time!
-	@set_time_limit(600);
-	if (function_exists('apache_reset_timeout'))
-		@apache_reset_timeout();
-
-	$return = true;
-
-	// If we are from a SSI/cron job, we can allow this through, if enabled.
-	if ((SMF === 'SSI' || SMF === 'BACKGROUND') && php_sapi_name() == 'cli' && !empty(Utils::$context['no_pause_process']))
-		$return = true;
-	elseif ($force)
-		$return = false;
-	// Try to stay under our memory limit.
-	elseif ((memory_get_usage() + 65536) > memoryReturnBytes(ini_get('memory_limit')))
-		$return = false;
-	// Errr, wait.  How much time has this taken already?
-	elseif ((time() - TIME_START) > 3)
-		$return = false;
-	// If we have a lot of errors, lets do smaller batches, to save on memory needs.
-	elseif (count(Utils::$context['repair_errors']) > 100000 && $loops > 50)
-		$return = false;
-
-	// If we can return, lets do so.
-	if ($return)
-		return;
-
-	// Restore the query cache if interested.
-	if (!empty(Utils::$context['db_cache']))
-		Db::$cache = Utils::$context['db_cache'];
-
-	Utils::$context['continue_get_data'] = '?action=admin;area=repairboards' . (isset($_GET['fixErrors']) ? ';fixErrors' : '') . ';step=' . $_GET['step'] . ';substep=' . $_GET['substep'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
-	Utils::$context['page_title'] = Lang::$txt['not_done_title'];
-	Utils::$context['continue_post_data'] = '';
-	Utils::$context['continue_countdown'] = '2';
-	Utils::$context['sub_template'] = 'not_done';
-
-	// Change these two if more steps are added!
-	if (empty($max_substep))
-		Utils::$context['continue_percent'] = round(($_GET['step'] * 100) / Utils::$context['total_steps']);
-	else
-		Utils::$context['continue_percent'] = round((($_GET['step'] + ($_GET['substep'] / $max_substep)) * 100) / Utils::$context['total_steps']);
-
-	// Never more than 100%!
-	Utils::$context['continue_percent'] = min(Utils::$context['continue_percent'], 100);
-
-	// What about substeps?
-	Utils::$context['substep_enabled'] = $max_substep != 0;
-	Utils::$context['substep_title'] = sprintf(Lang::$txt['repair_currently_' . (isset($_GET['fixErrors']) ? 'fixing' : 'checking')], (isset(Lang::$txt['repair_operation_' . $current_step_description]) ? Lang::$txt['repair_operation_' . $current_step_description] : $current_step_description));
-	Utils::$context['substep_continue_percent'] = $max_substep == 0 ? 0 : round(($_GET['substep'] * 100) / $max_substep, 1);
-
-	$_SESSION['repairboards_to_fix'] = $to_fix;
-	$_SESSION['repairboards_to_fix2'] = Utils::$context['repair_errors'];
-
-	obExit();
-}
-
-/**
- * Load up all the tests we might want to do ;)
- */
-function loadForumTests()
-{
-	/* Here this array is defined like so:
-		string check_query:	Query to be executed when testing if errors exist.
-		string check_type:	Defines how it knows if a problem was found. If set to count looks for the first variable from check_query
-					being > 0. Anything else it looks for some results. If not set assumes you want results.
-		string fix_it_query:	When doing fixes if an error was detected this query is executed to "fix" it.
-		string fix_query:	The query to execute to get data when doing a fix. If not set check_query is used again.
-		array fix_collect:	This array is used if the fix is basically gathering all broken ids and then doing something with it.
-			- string index:		The value returned from the main query and passed to the processing function.
-			- process:		A function passed an array of ids to execute the fix on.
-		function fix_processing:
-					Function called for each row returned from fix_query to execute whatever fixes are required.
-		function fix_full_processing:
-					As above but does the while loop and everything itself - except the freeing.
-		array force_fix:	If this is set then the error types included within this array will also be assumed broken.
-					Note: At the moment only processes these if they occur after the primary error in the array.
-	*/
-
-	// This great array contains all of our error checks, fixes, etc etc etc.
-	return array(
+	/**
+	 * @var array
+	 *
+	 * All the tests we might want to do.
+	 *
+	 * This array is defined like so:
+	 *
+	 * string check_query:  Query to be executed when testing if errors exist.
+	 *
+	 * string check_type:   Defines how it knows if a problem was found.
+	 *                      If set to count looks for the first variable from
+	 *                      check_query being > 0. Anything else it looks for
+	 *                      some results. If not set assumes you want results.
+	 *
+	 * string fix_it_query: When doing fixes if an error was detected this query
+	 *                      is executed to "fix" it.
+	 *
+	 * string fix_query:    The query to execute to get data when doing a fix.
+	 *                      If not set check_query is used again.
+	 *
+	 * array fix_collect:   This array is used if the fix is basically gathering
+	 *                      all broken ids and then doing something with them.
+	 *  - string index:     The value returned from the main query and passed to
+	 *                      the processing function.
+	 *  - string process:   Name of a function that will be passed an array of
+	 *                      ids to execute the fix on.
+	 *
+	 * string fix_processing:
+	 *                      Name of a function called for each row returned from
+	 *                      fix_query to execute whatever fixes are required.
+	 *
+	 * string fix_full_processing:
+	 *                      As above but does the while loop and everything
+	 *                      itself, except the freeing.
+	 *
+	 * array force_fix:	    If this is set then the error types included within
+	 *                      this array will also be assumed broken.
+	 *                      These are only processed if they occur after the
+	 *                      primary error in the array.
+	 *
+	 * In all cases where a function name is provided, the findForumErrors()
+	 * method will first look for a method of this class with that name. If no
+	 * such method exists, it will ask call_helper() to figure out what to call.
+	 *
+	 * MOD AUTHORS: If you want to add tests to this array so that SMF can fix
+	 * data for your mod, use the integrate_repair_boards hook.
+	 */
+	public array $errorTests = array(
 		// Make a last-ditch-effort check to get rid of topics with zeros..
 		'zero_topics' => array(
 			'check_query' => '
@@ -262,69 +143,7 @@ function loadForumTests()
 					LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 				WHERE t.id_topic IS NULL
 				GROUP BY m.id_topic, m.id_board',
-			'fix_processing' => function($row)
-			{
-				// Only if we don't have a reasonable idea of where to put it.
-				if ($row['id_board'] == 0)
-				{
-					createSalvageArea();
-					$row['id_board'] = $_SESSION['salvageBoardID'] = (int) Utils::$context['salvageBoardID'];
-				}
-
-				// Make sure that no topics claim the first/last message as theirs.
-				Db::$db->query('', '
-					UPDATE {db_prefix}topics
-					SET id_first_msg = 0
-					WHERE id_first_msg = {int:id_first_msg}',
-					array(
-						'id_first_msg' => $row['myid_first_msg'],
-					)
-				);
-				Db::$db->query('', '
-					UPDATE {db_prefix}topics
-					SET id_last_msg = 0
-					WHERE id_last_msg = {int:id_last_msg}',
-					array(
-						'id_last_msg' => $row['myid_last_msg'],
-					)
-				);
-
-				$memberStartedID = (int) Board::getMsgMemberID($row['myid_first_msg']);
-				$memberUpdatedID = (int) Board::getMsgMemberID($row['myid_last_msg']);
-
-				$newTopicID = Db::$db->insert('',
-					'{db_prefix}topics',
-					array(
-						'id_board' => 'int',
-						'id_member_started' => 'int',
-						'id_member_updated' => 'int',
-						'id_first_msg' => 'int',
-						'id_last_msg' => 'int',
-						'num_replies' => 'int'
-					),
-					array(
-						$row['id_board'],
-						$memberStartedID,
-						$memberUpdatedID,
-						$row['myid_first_msg'],
-						$row['myid_last_msg'],
-						$row['my_num_replies']
-					),
-					array('id_topic'),
-					1
-				);
-
-				Db::$db->query('', '
-					UPDATE {db_prefix}messages
-					SET id_topic = {int:newTopicID}, id_board = {int:board_id}
-					WHERE id_topic = {int:topic_id}',
-					array(
-						'board_id' => $row['id_board'],
-						'topic_id' => $row['id_topic'],
-						'newTopicID' => $newTopicID,
-					)
-				);
-			},
+			'fix_processing' => 'fixMissingTopics',
 			'force_fix' => array('stats_topics'),
 			'messages' => array('repair_missing_topics', 'id_msg', 'id_topic'),
 		),
@@ -346,23 +165,7 @@ function loadForumTests()
 			// Remove all topics that have zero messages in the messages table.
 			'fix_collect' => array(
 				'index' => 'id_topic',
-				'process' => function($topics)
-				{
-					Db::$db->query('', '
-						DELETE FROM {db_prefix}topics
-						WHERE id_topic IN ({array_int:topics})',
-						array(
-							'topics' => $topics,
-						)
-					);
-					Db::$db->query('', '
-						DELETE FROM {db_prefix}log_topics
-						WHERE id_topic IN ({array_int:topics})',
-						array(
-							'topics' => $topics,
-						)
-					);
-				},
+				'process' => 'fixMissingMessages',
 			),
 			'messages' => array('repair_missing_messages', 'id_topic'),
 		),
@@ -382,125 +185,7 @@ function loadForumTests()
 				WHERE o.id_poll BETWEEN {STEP_LOW} AND {STEP_HIGH}
 					AND p.id_poll IS NULL
 				GROUP BY o.id_poll, t.id_topic, t.id_board, t.id_member_started, m.member_name',
-			'fix_processing' => function($row)
-			{
-				$row['poster_name'] = !empty($row['poster_name']) ? $row['poster_name'] : Lang::$txt['guest'];
-				$row['id_poster'] = !empty($row['id_poster']) ? $row['id_poster'] : 0;
-
-				if (empty($row['id_board']))
-				{
-					// Only if we don't have a reasonable idea of where to put it.
-					createSalvageArea();
-					$row['id_board'] = $_SESSION['salvageBoardID'] = (int) Utils::$context['salvageBoardID'];
-				}
-
-				if (empty($row['id_topic']))
-				{
-					$newMessageID = Db::$db->insert('',
-						'{db_prefix}messages',
-						array(
-							'id_board' => 'int',
-							'id_topic' => 'int',
-							'poster_time' => 'int',
-							'id_member' => 'int',
-							'subject' => 'string-255',
-							'poster_name' => 'string-255',
-							'poster_email' => 'string-255',
-							'poster_ip' => 'inet',
-							'smileys_enabled' => 'int',
-							'body' => 'string-65534',
-							'icon' => 'string-16',
-							'approved' => 'int',
-						),
-						array(
-							$row['id_board'],
-							0,
-							time(),
-							$row['id_poster'],
-							Lang::$txt['salvaged_poll_topic_name'],
-							$row['poster_name'],
-							Lang::$txt['salvaged_poll_topic_name'],
-							'127.0.0.1',
-							1,
-							Lang::$txt['salvaged_poll_message_body'],
-							'xx',
-							1,
-						),
-						array('id_msg'),
-						1
-					);
-
-					$row['id_topic'] = Db::$db->insert('',
-						'{db_prefix}topics',
-						array(
-							'id_board' => 'int',
-							'id_poll' => 'int',
-							'id_member_started' => 'int',
-							'id_member_updated' => 'int',
-							'id_first_msg' => 'int',
-							'id_last_msg' => 'int',
-							'num_replies' => 'int',
-						),
-						array(
-							$row['id_board'],
-							$row['id_poll'],
-							$row['id_poster'],
-							$row['id_poster'],
-							$newMessageID,
-							$newMessageID,
-							0,
-						),
-						array('id_topic'),
-						1
-					);
-
-					Db::$db->query('', '
-						UPDATE {db_prefix}messages
-						SET id_topic = {int:newTopicID}, id_board = {int:id_board}
-						WHERE id_msg = {int:newMessageID}',
-						array(
-							'id_board' => $row['id_board'],
-							'newTopicID' => $row['id_topic'],
-							'newMessageID' => $newMessageID,
-						)
-					);
-
-					updateStats('subject', $row['id_topic'], Lang::$txt['salvaged_poll_topic_name']);
-				}
-
-				Db::$db->insert('',
-					'{db_prefix}polls',
-					array(
-						'id_poll' => 'int',
-						'question' => 'string-255',
-						'voting_locked' => 'int',
-						'max_votes' => 'int',
-						'expire_time' => 'int',
-						'hide_results' => 'int',
-						'change_vote' => 'int',
-						'guest_vote' => 'int',
-						'num_guest_voters' => 'int',
-						'reset_poll' => 'int',
-						'id_member' => 'int',
-						'poster_name' => 'string-255',
-					),
-					array(
-						$row['id_poll'],
-						Lang::$txt['salvaged_poll_question'],
-						1,
-						0,
-						0,
-						0,
-						0,
-						0,
-						0,
-						0,
-						$row['id_poster'],
-						$row['poster_name'],
-					),
-					array()
-				);
-			},
+			'fix_processing' => 'fixMissingPollOptions',
 			'force_fix' => array('stats_topics'),
 			'messages' => array('repair_poll_options_missing_poll', 'id_poll', 'amount'),
 		),
@@ -517,88 +202,7 @@ function loadForumTests()
 					LEFT JOIN {db_prefix}topics AS t ON (t.id_poll = p.id_poll)
 				WHERE p.id_poll BETWEEN {STEP_LOW} AND {STEP_HIGH}
 					AND t.id_poll IS NULL',
-			'fix_processing' => function($row)
-			{
-				// Only if we don't have a reasonable idea of where to put it.
-				if ($row['id_board'] == 0)
-				{
-					createSalvageArea();
-					$row['id_board'] = $_SESSION['salvageBoardID'] = (int) Utils::$context['salvageBoardID'];
-				}
-
-				$row['poster_name'] = !empty($row['poster_name']) ? $row['poster_name'] : Lang::$txt['guest'];
-
-				$newMessageID = Db::$db->insert('',
-					'{db_prefix}messages',
-					array(
-						'id_board' => 'int',
-						'id_topic' => 'int',
-						'poster_time' => 'int',
-						'id_member' => 'int',
-						'subject' => 'string-255',
-						'poster_name' => 'string-255',
-						'poster_email' => 'string-255',
-						'poster_ip' => 'inet',
-						'smileys_enabled' => 'int',
-						'body' => 'string-65534',
-						'icon' => 'string-16',
-						'approved' => 'int',
-					),
-					array(
-						$row['id_board'],
-						0,
-						time(),
-						$row['id_member'],
-						Lang::$txt['salvaged_poll_topic_name'],
-						$row['poster_name'],
-						'',
-						'127.0.0.1',
-						1,
-						Lang::$txt['salvaged_poll_message_body'],
-						'xx',
-						1,
-					),
-					array('id_msg'),
-					1
-				);
-
-				$newTopicID = Db::$db->insert('',
-					'{db_prefix}topics',
-					array(
-						'id_board' => 'int',
-						'id_poll' => 'int',
-						'id_member_started' => 'int',
-						'id_member_updated' => 'int',
-						'id_first_msg' => 'int',
-						'id_last_msg' => 'int',
-						'num_replies' => 'int',
-					),
-					array(
-						$row['id_board'],
-						$row['id_poll'],
-						$row['id_member'],
-						$row['id_member'],
-						$newMessageID,
-						$newMessageID,
-						0,
-					),
-					array('id_topic'),
-					1
-				);
-
-				Db::$db->query('', '
-					UPDATE {db_prefix}messages
-					SET id_topic = {int:newTopicID}, id_board = {int:id_board}
-					WHERE id_msg = {int:newMessageID}',
-					array(
-						'id_board' => $row['id_board'],
-						'newTopicID' => $newTopicID,
-						'newMessageID' => $newMessageID,
-					)
-				);
-
-				updateStats('subject', $newTopicID, Lang::$txt['salvaged_poll_topic_name']);
-			},
+			'fix_processing' => 'fixMissingPollTopics',
 			'force_fix' => array('stats_topics'),
 			'messages' => array('repair_polls_missing_topics', 'id_poll', 'id_topic'),
 		),
@@ -626,50 +230,8 @@ function loadForumTests()
 				WHERE t.id_topic BETWEEN {STEP_LOW} AND {STEP_HIGH}
 				GROUP BY t.id_topic, t.id_first_msg, t.id_last_msg, t.approved, mf.approved
 				ORDER BY t.id_topic',
-			'fix_processing' => function($row)
-			{
-				$row['firstmsg_approved'] = (int) $row['firstmsg_approved'];
-				$row['myid_first_msg'] = (int) $row['myid_first_msg'];
-				$row['myid_last_msg'] = (int) $row['myid_last_msg'];
-
-				// Not really a problem?
-				if ($row['id_first_msg'] == $row['myid_first_msg'] && $row['id_last_msg'] == $row['myid_last_msg'] && $row['approved'] == $row['firstmsg_approved'])
-					return false;
-
-				$memberStartedID = (int) Board::getMsgMemberID($row['myid_first_msg']);
-				$memberUpdatedID = (int) Board::getMsgMemberID($row['myid_last_msg']);
-
-				Db::$db->query('', '
-					UPDATE {db_prefix}topics
-					SET id_first_msg = {int:myid_first_msg},
-						id_member_started = {int:memberStartedID}, id_last_msg = {int:myid_last_msg},
-						id_member_updated = {int:memberUpdatedID}, approved = {int:firstmsg_approved}
-					WHERE id_topic = {int:topic_id}',
-					array(
-						'myid_first_msg' => $row['myid_first_msg'],
-						'memberStartedID' => $memberStartedID,
-						'myid_last_msg' => $row['myid_last_msg'],
-						'memberUpdatedID' => $memberUpdatedID,
-						'firstmsg_approved' => $row['firstmsg_approved'],
-						'topic_id' => $row['id_topic'],
-					)
-				);
-			},
-			'message_function' => function($row)
-			{
-				// A pretend error?
-				if ($row['id_first_msg'] == $row['myid_first_msg'] && $row['id_last_msg'] == $row['myid_last_msg'] && $row['approved'] == $row['firstmsg_approved'])
-					return false;
-
-				if ($row['id_first_msg'] != $row['myid_first_msg'])
-					Utils::$context['repair_errors'][] = sprintf(Lang::$txt['repair_topic_wrong_first_id'], $row['id_topic'], $row['id_first_msg']);
-				if ($row['id_last_msg'] != $row['myid_last_msg'])
-					Utils::$context['repair_errors'][] = sprintf(Lang::$txt['repair_topic_wrong_last_id'], $row['id_topic'], $row['id_last_msg']);
-				if ($row['approved'] != $row['firstmsg_approved'])
-					Utils::$context['repair_errors'][] = sprintf(Lang::$txt['repair_topic_wrong_approval'], $row['id_topic']);
-
-				return true;
-			},
+			'fix_processing' => 'fixTopicStats',
+			'message_function' => 'topicStatsMessage',
 		),
 		// Find topics with incorrect num_replies.
 		'stats_topics2' => array(
@@ -689,35 +251,8 @@ function loadForumTests()
 				WHERE t.id_topic BETWEEN {STEP_LOW} AND {STEP_HIGH}
 				GROUP BY t.id_topic, t.num_replies, mf.approved
 				ORDER BY t.id_topic',
-			'fix_processing' => function($row)
-			{
-				$row['my_num_replies'] = (int) $row['my_num_replies'];
-
-				// Not really a problem?
-				if ($row['my_num_replies'] == $row['num_replies'])
-					return false;
-
-				Db::$db->query('', '
-					UPDATE {db_prefix}topics
-					SET num_replies = {int:my_num_replies}
-					WHERE id_topic = {int:topic_id}',
-					array(
-						'my_num_replies' => $row['my_num_replies'],
-						'topic_id' => $row['id_topic'],
-					)
-				);
-			},
-			'message_function' => function($row)
-			{
-				// Just joking?
-				if ($row['my_num_replies'] == $row['num_replies'])
-					return false;
-
-				if ($row['num_replies'] != $row['my_num_replies'])
-					Utils::$context['repair_errors'][] = sprintf(Lang::$txt['repair_topic_wrong_replies'], $row['id_topic'], $row['num_replies']);
-
-				return true;
-			},
+			'fix_processing' => 'fixTopicStats2',
+			'message_function' => 'topicStatsMessage2',
 		),
 		// Find topics with incorrect unapproved_posts.
 		'stats_topics3' => array(
@@ -736,20 +271,7 @@ function loadForumTests()
 				GROUP BY t.id_topic, t.unapproved_posts
 				HAVING unapproved_posts != COUNT(mu.id_msg)
 				ORDER BY t.id_topic',
-			'fix_processing' => function($row)
-			{
-				$row['my_unapproved_posts'] = (int) $row['my_unapproved_posts'];
-
-				Db::$db->query('', '
-					UPDATE {db_prefix}topics
-					SET unapproved_posts = {int:my_unapproved_posts}
-					WHERE id_topic = {int:topic_id}',
-					array(
-						'my_unapproved_posts' => $row['my_unapproved_posts'],
-						'topic_id' => $row['id_topic'],
-					)
-				);
-			},
+			'fix_processing' => 'fixTopicStats3',
 			'messages' => array('repair_topic_wrong_unapproved_number', 'id_topic', 'unapproved_posts'),
 		),
 		// Find topics with nonexistent boards.
@@ -775,40 +297,7 @@ function loadForumTests()
 				WHERE b.id_board IS NULL
 					AND t.id_topic BETWEEN {STEP_LOW} AND {STEP_HIGH}
 				GROUP BY t.id_board',
-			'fix_processing' => function($row)
-			{
-				createSalvageArea();
-
-				$row['my_num_topics'] = (int) $row['my_num_topics'];
-				$row['my_num_posts'] = (int) $row['my_num_posts'];
-
-				$newBoardID = Db::$db->insert('',
-					'{db_prefix}boards',
-					array('id_cat' => 'int', 'name' => 'string', 'description' => 'string', 'num_topics' => 'int', 'num_posts' => 'int', 'member_groups' => 'string'),
-					array(Utils::$context['salvageCatID'], Lang::$txt['salvaged_board_name'], Lang::$txt['salvaged_board_description'], $row['my_num_topics'], $row['my_num_posts'], '1'),
-					array('id_board'),
-					1
-				);
-
-				Db::$db->query('', '
-					UPDATE {db_prefix}topics
-					SET id_board = {int:newBoardID}
-					WHERE id_board = {int:board_id}',
-					array(
-						'newBoardID' => $newBoardID,
-						'board_id' => $row['id_board'],
-					)
-				);
-				Db::$db->query('', '
-					UPDATE {db_prefix}messages
-					SET id_board = {int:newBoardID}
-					WHERE id_board = {int:board_id}',
-					array(
-						'newBoardID' => $newBoardID,
-						'board_id' => $row['id_board'],
-					)
-				);
-			},
+			'fix_processing' => 'fixMissingBoards',
 			'messages' => array('repair_missing_boards', 'id_topic', 'id_board'),
 		),
 		// Find boards with nonexistent categories.
@@ -821,19 +310,7 @@ function loadForumTests()
 				ORDER BY b.id_cat, b.id_board',
 			'fix_collect' => array(
 				'index' => 'id_cat',
-				'process' => function($cats)
-				{
-					createSalvageArea();
-					Db::$db->query('', '
-						UPDATE {db_prefix}boards
-						SET id_cat = {int:salvageCatID}
-						WHERE id_cat IN ({array_int:categories})',
-						array(
-							'salvageCatID' => Utils::$context['salvageCatID'],
-							'categories' => $cats,
-						)
-					);
-				},
+				'process' => 'fixMissingCategories',
 			),
 			'messages' => array('repair_missing_categories', 'id_board', 'id_cat'),
 		),
@@ -856,18 +333,7 @@ function loadForumTests()
 			// Last step-make sure all non-guest posters still exist.
 			'fix_collect' => array(
 				'index' => 'id_msg',
-				'process' => function($msgs)
-				{
-					Db::$db->query('', '
-						UPDATE {db_prefix}messages
-						SET id_member = {int:guest_id}
-						WHERE id_msg IN ({array_int:msgs})',
-						array(
-							'msgs' => $msgs,
-							'guest_id' => 0,
-						)
-					);
-				},
+				'process' => 'fixMissingPosters',
 			),
 			'messages' => array('repair_missing_posters', 'id_msg', 'id_member'),
 		),
@@ -882,22 +348,7 @@ function loadForumTests()
 				ORDER BY b.id_parent, b.id_board',
 			'fix_collect' => array(
 				'index' => 'id_parent',
-				'process' => function($parents)
-				{
-					createSalvageArea();
-					$_SESSION['salvageBoardID'] = (int) Utils::$context['salvageBoardID'];
-
-					Db::$db->query('', '
-						UPDATE {db_prefix}boards
-						SET id_parent = {int:salvageBoardID}, id_cat = {int:salvageCatID}, child_level = 1
-						WHERE id_parent IN ({array_int:parents})',
-						array(
-							'salvageBoardID' => Utils::$context['salvageBoardID'],
-							'salvageCatID' => Utils::$context['salvageCatID'],
-							'parents' => $parents,
-						)
-					);
-				},
+				'process' => 'fixMissingParents',
 			),
 			'messages' => array('repair_missing_parents', 'id_board', 'id_parent'),
 		),
@@ -917,17 +368,7 @@ function loadForumTests()
 					AND p.id_poll IS NULL',
 			'fix_collect' => array(
 				'index' => 'id_poll',
-				'process' => function($polls)
-				{
-					Db::$db->query('', '
-						UPDATE {db_prefix}topics
-						SET id_poll = 0
-						WHERE id_poll IN ({array_int:polls})',
-						array(
-							'polls' => $polls,
-						)
-					);
-				},
+				'process' => 'fixMissingPolls',
 			),
 			'messages' => array('repair_missing_polls', 'id_topic', 'id_poll'),
 		),
@@ -948,17 +389,7 @@ function loadForumTests()
 				ORDER BY cal.id_topic',
 			'fix_collect' => array(
 				'index' => 'id_topic',
-				'process' => function($events)
-				{
-					Db::$db->query('', '
-						UPDATE {db_prefix}calendar
-						SET id_topic = 0, id_board = 0
-						WHERE id_topic IN ({array_int:events})',
-						array(
-							'events' => $events,
-						)
-					);
-				},
+				'process' => 'fixMissingCaledarTopics',
 			),
 			'messages' => array('repair_missing_calendar_topics', 'id_event', 'id_topic'),
 		),
@@ -977,16 +408,7 @@ function loadForumTests()
 					AND lt.id_member BETWEEN {STEP_LOW} AND {STEP_HIGH}',
 			'fix_collect' => array(
 				'index' => 'id_topic',
-				'process' => function($topics)
-				{
-					Db::$db->query('', '
-						DELETE FROM {db_prefix}log_topics
-						WHERE id_topic IN ({array_int:topics})',
-						array(
-							'topics' => $topics,
-						)
-					);
-				},
+				'process' => 'fixMissingLogTopics',
 			),
 			'messages' => array('repair_missing_log_topics', 'id_topic'),
 		),
@@ -1006,16 +428,7 @@ function loadForumTests()
 				GROUP BY lt.id_member',
 			'fix_collect' => array(
 				'index' => 'id_member',
-				'process' => function($members)
-				{
-					Db::$db->query('', '
-						DELETE FROM {db_prefix}log_topics
-						WHERE id_member IN ({array_int:members})',
-						array(
-							'members' => $members,
-						)
-					);
-				},
+				'process' => 'fixMissingLogTopicsMembers',
 			),
 			'messages' => array('repair_missing_log_topics_members', 'id_member'),
 		),
@@ -1035,16 +448,7 @@ function loadForumTests()
 				GROUP BY lb.id_board',
 			'fix_collect' => array(
 				'index' => 'id_board',
-				'process' => function($boards)
-				{
-					Db::$db->query('', '
-						DELETE FROM {db_prefix}log_boards
-						WHERE id_board IN ({array_int:boards})',
-						array(
-							'boards' => $boards,
-						)
-					);
-				},
+				'process' => 'fixMissingLogBoards',
 			),
 			'messages' => array('repair_missing_log_boards', 'id_board'),
 		),
@@ -1064,16 +468,7 @@ function loadForumTests()
 				GROUP BY lb.id_member',
 			'fix_collect' => array(
 				'index' => 'id_member',
-				'process' => function($members)
-				{
-					Db::$db->query('', '
-						DELETE FROM {db_prefix}log_boards
-						WHERE id_member IN ({array_int:members})',
-						array(
-							'members' => $members,
-						)
-					);
-				},
+				'process' => 'fixMissingLogBoardsMembers',
 			),
 			'messages' => array('repair_missing_log_boards_members', 'id_member'),
 		),
@@ -1093,16 +488,7 @@ function loadForumTests()
 				GROUP BY lmr.id_board',
 			'fix_collect' => array(
 				'index' => 'id_board',
-				'process' => function($boards)
-				{
-					Db::$db->query('', '
-						DELETE FROM {db_prefix}log_mark_read
-						WHERE id_board IN ({array_int:boards})',
-						array(
-							'boards' => $boards,
-						)
-					);
-				},
+				'process' => 'fixMissingLogMarkRead',
 			),
 			'messages' => array('repair_missing_log_mark_read', 'id_board'),
 		),
@@ -1122,16 +508,7 @@ function loadForumTests()
 				GROUP BY lmr.id_member',
 			'fix_collect' => array(
 				'index' => 'id_member',
-				'process' => function($members)
-				{
-					Db::$db->query('', '
-						DELETE FROM {db_prefix}log_mark_read
-						WHERE id_member IN ({array_int:members})',
-						array(
-							'members' => $members,
-						)
-					);
-				},
+				'process' => 'fixMissingLogMarkReadMembers',
 			),
 			'messages' => array('repair_missing_log_mark_read_members', 'id_member'),
 		),
@@ -1151,16 +528,7 @@ function loadForumTests()
 				GROUP BY pmr.id_pm',
 			'fix_collect' => array(
 				'index' => 'id_pm',
-				'process' => function($pms)
-				{
-					Db::$db->query('', '
-						DELETE FROM {db_prefix}pm_recipients
-						WHERE id_pm IN ({array_int:pms})',
-						array(
-							'pms' => $pms,
-						)
-					);
-				},
+				'process' => 'fixMissingPMs',
 			),
 			'messages' => array('repair_missing_pms', 'id_pm'),
 		),
@@ -1181,16 +549,7 @@ function loadForumTests()
 				GROUP BY pmr.id_member',
 			'fix_collect' => array(
 				'index' => 'id_member',
-				'process' => function($members)
-				{
-					Db::$db->query('', '
-						DELETE FROM {db_prefix}pm_recipients
-						WHERE id_member IN ({array_int:members})',
-						array(
-							'members' => $members,
-						)
-					);
-				},
+				'process' => 'fixMissingRecipients',
 			),
 			'messages' => array('repair_missing_recipients', 'id_member'),
 		),
@@ -1210,17 +569,7 @@ function loadForumTests()
 					AND mem.id_member IS NULL',
 			'fix_collect' => array(
 				'index' => 'id_pm',
-				'process' => function($guestMessages)
-				{
-					Db::$db->query('', '
-						UPDATE {db_prefix}personal_messages
-						SET id_member_from = 0
-						WHERE id_pm IN ({array_int:guestMessages})',
-						array(
-							'guestMessages' => $guestMessages,
-						)
-					);
-				},
+				'process' => 'fixMissingSenders',
 			),
 			'messages' => array('repair_missing_senders', 'id_pm', 'id_member_from'),
 		),
@@ -1240,16 +589,7 @@ function loadForumTests()
 				GROUP BY ln.id_member',
 			'fix_collect' => array(
 				'index' => 'id_member',
-				'process' => function($members)
-				{
-					Db::$db->query('', '
-						DELETE FROM {db_prefix}log_notify
-						WHERE id_member IN ({array_int:members})',
-						array(
-							'members' => $members,
-						)
-					);
-				},
+				'process' => 'fixMissingNotifyMembers',
 			),
 			'messages' => array('repair_missing_notify_members', 'id_member'),
 		),
@@ -1267,43 +607,8 @@ function loadForumTests()
 					LEFT JOIN {db_prefix}log_search_subjects AS lss ON (lss.id_topic = t.id_topic)
 				WHERE t.id_topic BETWEEN {STEP_LOW} AND {STEP_HIGH}
 					AND lss.id_topic IS NULL',
-			'fix_full_processing' => function($result)
-			{
-				$inserts = array();
-				while ($row = Db::$db->fetch_assoc($result))
-				{
-					foreach (text2words($row['subject']) as $word)
-						$inserts[] = array($word, $row['id_topic']);
-					if (count($inserts) > 500)
-					{
-						Db::$db->insert('ignore',
-							'{db_prefix}log_search_subjects',
-							array('word' => 'string', 'id_topic' => 'int'),
-							$inserts,
-							array('word', 'id_topic')
-						);
-						$inserts = array();
-					}
-				}
-
-				if (!empty($inserts))
-					Db::$db->insert('ignore',
-						'{db_prefix}log_search_subjects',
-						array('word' => 'string', 'id_topic' => 'int'),
-						$inserts,
-						array('word', 'id_topic')
-					);
-			},
-			'message_function' => function($row)
-			{
-				if (count(text2words($row['subject'])) != 0)
-				{
-					Utils::$context['repair_errors'][] = sprintf(Lang::$txt['repair_missing_cached_subject'], $row['id_topic']);
-					return true;
-				}
-
-				return false;
-			},
+			'fix_full_processing' => 'fixMissingCachedSubject',
+			'message_function' => 'missingCachedSubjectMessage',
 		),
 		'missing_topic_for_cache' => array(
 			'substeps' => array(
@@ -1320,16 +625,7 @@ function loadForumTests()
 					AND t.id_topic IS NULL',
 			'fix_collect' => array(
 				'index' => 'id_topic',
-				'process' => function($deleteTopics)
-				{
-					Db::$db->query('', '
-						DELETE FROM {db_prefix}log_search_subjects
-						WHERE id_topic IN ({array_int:deleteTopics})',
-						array(
-							'deleteTopics' => $deleteTopics,
-						)
-					);
-				},
+				'process' => 'fixMissingTopicForCache',
 			),
 			'messages' => array('repair_missing_topic_for_cache', 'word'),
 		),
@@ -1349,16 +645,7 @@ function loadForumTests()
 					AND mem.id_member IS NULL',
 			'fix_collect' => array(
 				'index' => 'id_member',
-				'process' => function($members)
-				{
-					Db::$db->query('', '
-						DELETE FROM {db_prefix}log_polls
-						WHERE id_member IN ({array_int:members})',
-						array(
-							'members' => $members,
-						)
-					);
-				},
+				'process' => 'fixMissingMemberVote',
 			),
 			'messages' => array('repair_missing_log_poll_member', 'id_poll', 'id_member'),
 		),
@@ -1377,16 +664,7 @@ function loadForumTests()
 					AND p.id_poll IS NULL',
 			'fix_collect' => array(
 				'index' => 'id_poll',
-				'process' => function($polls)
-				{
-					Db::$db->query('', '
-						DELETE FROM {db_prefix}log_polls
-						WHERE id_poll IN ({array_int:polls})',
-						array(
-							'polls' => $polls,
-						)
-					);
-				},
+				'process' => 'fixMissingLogPollVote',
 			),
 			'messages' => array('repair_missing_log_poll_vote', 'id_member', 'id_poll'),
 		),
@@ -1405,16 +683,7 @@ function loadForumTests()
 					AND lrc.id_report IS NULL',
 			'fix_collect' => array(
 				'index' => 'id_report',
-				'process' => function($reports)
-				{
-					Db::$db->query('', '
-						DELETE FROM {db_prefix}log_reported
-						WHERE id_report IN ({array_int:reports})',
-						array(
-							'reports' => $reports,
-						)
-					);
-				},
+				'process' => 'fixReportMissingComments',
 			),
 			'messages' => array('repair_report_missing_comments', 'id_report', 'subject'),
 		),
@@ -1433,16 +702,7 @@ function loadForumTests()
 					AND lr.id_report IS NULL',
 			'fix_collect' => array(
 				'index' => 'id_report',
-				'process' => function($reports)
-				{
-					Db::$db->query('', '
-						DELETE FROM {db_prefix}log_reported_comments
-						WHERE id_report IN ({array_int:reports})',
-						array(
-							'reports' => $reports,
-						)
-					);
-				},
+				'process' => 'fixCommentMissingReport',
 			),
 			'messages' => array('repair_comments_missing_report', 'id_report', 'membername'),
 		),
@@ -1462,16 +722,7 @@ function loadForumTests()
 				GROUP BY lgr.id_member',
 			'fix_collect' => array(
 				'index' => 'id_member',
-				'process' => function($members)
-				{
-					Db::$db->query('', '
-						DELETE FROM {db_prefix}log_group_requests
-						WHERE id_member IN ({array_int:members})',
-						array(
-							'members' => $members,
-						)
-					);
-				},
+				'process' => 'fixGroupRequestMissingMember',
 			),
 			'messages' => array('repair_group_request_missing_member', 'id_member'),
 		),
@@ -1491,330 +742,1450 @@ function loadForumTests()
 				GROUP BY lgr.id_group',
 			'fix_collect' => array(
 				'index' => 'id_group',
-				'process' => function($groups)
-				{
-					Db::$db->query('', '
-						DELETE FROM {db_prefix}log_group_requests
-						WHERE id_group IN ({array_int:groups})',
-						array(
-							'groups' => $groups,
-						)
-					);
-				},
+				'process' => 'fixGroupRequestMissingGroup',
 			),
 			'messages' => array('repair_group_request_missing_group', 'id_group'),
 		),
 	);
-}
 
-/**
- * Checks for errors in steps, until 5 seconds have passed.
- * It keeps track of the errors it did find, so that the actual repair
- * won't have to recheck everything.
- *
- * @param bool $do_fix Whether to actually fix the errors or just return the info
- * @return array the errors found.
- */
-function findForumErrors($do_fix = false)
-{
-	$errorTests = loadForumTests();
+	/**
+	 * @var int
+	 *
+	 * Tracks how many loops we have done for pauseRepairProcess().
+	 */
+	public int $loops = 0;
 
-	// This may take some time...
-	@set_time_limit(600);
+	/**
+	 * @var bool
+	 *
+	 * Whether the salvage area has been created yet.
+	 */
+	public bool $salvage_created = false;
 
-	$to_fix = !empty($_SESSION['repairboards_to_fix']) ? $_SESSION['repairboards_to_fix'] : array();
-	Utils::$context['repair_errors'] = isset($_SESSION['repairboards_to_fix2']) ? $_SESSION['repairboards_to_fix2'] : array();
+	/**
+	 * @var int
+	 *
+	 *
+	 */
+	public int $salvage_board;
 
-	$_GET['step'] = empty($_GET['step']) ? 0 : (int) $_GET['step'];
-	$_GET['substep'] = empty($_GET['substep']) ? 0 : (int) $_GET['substep'];
+	/**
+	 * @var int
+	 *
+	 *
+	 */
+	public int $salvage_category;
 
-	// Don't allow the cache to get too full.
-	Utils::$context['db_cache'] = Db::$cache;
-	Db::$cache = array();
+	/****************************
+	 * Internal static properties
+	 ****************************/
 
-	Utils::$context['total_steps'] = count($errorTests);
+	/**
+	 * @var object
+	 *
+	 * An instance of this class.
+	 * This is used by the load() method to prevent mulitple instantiations.
+	 */
+	protected static object $obj;
 
-	// For all the defined error types do the necessary tests.
-	$current_step = -1;
-	$total_queries = 0;
-	foreach ($errorTests as $error_type => $test)
+	/****************
+	 * Public methods
+	 ****************/
+
+	/**
+	 * Does the job.
+	 */
+	public function execute(): void
 	{
-		$current_step++;
+		isAllowedTo('admin_forum');
 
-		// Already done this?
-		if ($_GET['step'] > $current_step)
-			continue;
+		// Try to secure more memory.
+		setMemoryLimit('128M');
 
-		// If we're fixing it but it ain't broke why try?
-		if ($do_fix && !in_array($error_type, $to_fix))
+		// Start displaying errors without fixing them.
+		if (isset($_GET['fixErrors']))
+			checkSession('get');
+
+		// Giant if/else. The first displays the forum errors if a variable is not set and asks
+		// if you would like to continue, the other fixes the errors.
+		if (!isset($_GET['fixErrors']))
 		{
-			$_GET['step']++;
-			continue;
-		}
+			Utils::$context['error_search'] = true;
+			Utils::$context['repair_errors'] = array();
 
-		// Has it got substeps?
-		if (isset($test['substeps']))
-		{
-			$step_size = isset($test['substeps']['step_size']) ? $test['substeps']['step_size'] : 100;
-			$request = Db::$db->query('',
-				$test['substeps']['step_max'],
-				array(
-				)
-			);
-			list ($step_max) = Db::$db->fetch_row($request);
+			Utils::$context['to_fix'] = $this->findForumErrors();
 
-			$total_queries++;
-			Db::$db->free_result($request);
-		}
-
-		// We in theory keep doing this... the substeps.
-		$done = false;
-		while (!$done)
-		{
-			// Make sure there's at least one ID to test.
-			if (isset($test['substeps']) && empty($step_max))
-				break;
-
-			// What is the testing query (Changes if we are testing or fixing)
-			if (!$do_fix)
-				$test_query = 'check_query';
-			else
-				$test_query = isset($test['fix_query']) ? 'fix_query' : 'check_query';
-
-			// Do the test...
-			$request = Db::$db->query('',
-				isset($test['substeps']) ? strtr($test[$test_query], array('{STEP_LOW}' => $_GET['substep'], '{STEP_HIGH}' => $_GET['substep'] + $step_size - 1)) : $test[$test_query],
-				array(
-				)
-			);
-
-			// Does it need a fix?
-			if (!empty($test['check_type']) && $test['check_type'] == 'count')
-				list ($needs_fix) = Db::$db->fetch_row($request);
-			else
-				$needs_fix = Db::$db->num_rows($request);
-
-			$total_queries++;
-
-			if ($needs_fix)
+			if (!empty(Utils::$context['to_fix']))
 			{
-				// What about a message to the user?
-				if (!$do_fix)
-				{
-					// Assume need to fix.
-					$found_errors = true;
+				$_SESSION['repairboards_to_fix'] = Utils::$context['to_fix'];
+				$_SESSION['repairboards_to_fix2'] = null;
 
-					if (isset($test['message']))
-						Utils::$context['repair_errors'][] = Lang::$txt[$test['message']];
-
-					// One per row!
-					elseif (isset($test['messages']))
-					{
-						while ($row = Db::$db->fetch_assoc($request))
-						{
-							$variables = $test['messages'];
-							foreach ($variables as $k => $v)
-							{
-								if ($k == 0 && isset(Lang::$txt[$v]))
-									$variables[$k] = Lang::$txt[$v];
-								elseif ($k > 0 && isset($row[$v]))
-									$variables[$k] = $row[$v];
-							}
-							Utils::$context['repair_errors'][] = call_user_func_array('sprintf', $variables);
-						}
-					}
-
-					// A function to process?
-					elseif (isset($test['message_function']))
-					{
-						// Find out if there are actually errors.
-						$found_errors = false;
-						while ($row = Db::$db->fetch_assoc($request))
-							$found_errors |= $test['message_function']($row);
-					}
-
-					// Actually have something to fix?
-					if ($found_errors)
-						$to_fix[] = $error_type;
-				}
-
-				// We want to fix, we need to fix - so work out what exactly to do!
-				else
-				{
-					// Are we simply getting a collection of ids?
-					if (isset($test['fix_collect']))
-					{
-						$ids = array();
-						while ($row = Db::$db->fetch_assoc($request))
-							$ids[] = $row[$test['fix_collect']['index']];
-						if (!empty($ids))
-						{
-							// Fix it!
-							$test['fix_collect']['process']($ids);
-						}
-					}
-
-					// Simply executing a fix it query?
-					elseif (isset($test['fix_it_query']))
-						Db::$db->query('',
-							$test['fix_it_query'],
-							array(
-							)
-						);
-
-					// Do we have some processing to do?
-					elseif (isset($test['fix_processing']))
-					{
-						while ($row = Db::$db->fetch_assoc($request))
-							$test['fix_processing']($row);
-					}
-
-					// What about the full set of processing?
-					elseif (isset($test['fix_full_processing']))
-						$test['fix_full_processing']($request);
-
-					// Do we have other things we need to fix as a result?
-					if (!empty($test['force_fix']))
-					{
-						foreach ($test['force_fix'] as $item)
-							if (!in_array($item, $to_fix))
-								$to_fix[] = $item;
-					}
-				}
+				if (empty(Utils::$context['repair_errors']))
+					Utils::$context['repair_errors'][] = '???';
 			}
 
-			// Free the result.
-			Db::$db->free_result($request);
-			// Keep memory down.
-			Db::$cache = array();
-
-			// Are we done yet?
-			if (isset($test['substeps']))
-			{
-				$_GET['substep'] += $step_size;
-				// Not done?
-				if ($_GET['substep'] <= $step_max)
-				{
-					pauseRepairProcess($to_fix, $error_type, $step_max);
-				}
-				else
-					$done = true;
-			}
-			else
-				$done = true;
-
-			// Don't allow more than 1000 queries at a time.
-			if ($total_queries >= 1000)
-				pauseRepairProcess($to_fix, $error_type, $step_max, true);
+			// Need a token here.
+			createToken('admin-repairboards', 'request');
 		}
-
-		// Keep going.
-		$_GET['step']++;
-		$_GET['substep'] = 0;
-
-		$to_fix = array_unique($to_fix);
-
-		// If we're doing fixes and this needed a fix and we're all done then don't do it again.
-		if ($do_fix)
+		else
 		{
-			$key = array_search($error_type, $to_fix);
-			if ($key !== false && isset($to_fix[$key]))
-				unset($to_fix[$key]);
-		}
+			// Validate the token, create a new one and tell the not done template.
+			validateToken('admin-repairboards', 'request');
+			createToken('admin-repairboards', 'request');
+			Utils::$context['not_done_token'] = 'admin-repairboards';
 
-		// Are we done?
-		pauseRepairProcess($to_fix, $error_type);
+			Utils::$context['error_search'] = false;
+			Utils::$context['to_fix'] = isset($_SESSION['repairboards_to_fix']) ? $_SESSION['repairboards_to_fix'] : array();
+
+			// Actually do the fix.
+			$this->findForumErrors(true);
+
+			// Note that we've changed everything possible ;)
+			Config::updateModSettings(array(
+				'settings_updated' => time(),
+			));
+			updateStats('message');
+			updateStats('topic');
+			Config::updateModSettings(array(
+				'calendar_updated' => time(),
+			));
+
+			// If we created a salvage area, we may need to recount stats properly.
+			if (!empty($this->salvage_board) || !empty($_SESSION['salvageBoardID']))
+			{
+				unset($_SESSION['salvageBoardID']);
+				Utils::$context['redirect_to_recount'] = true;
+				createToken('admin-maint');
+			}
+
+			$_SESSION['repairboards_to_fix'] = null;
+			$_SESSION['repairboards_to_fix2'] = null;
+
+			// We are done at this point, dump the token,
+			validateToken('admin-repairboards', 'request', false);
+		}
 	}
 
-	// Restore the cache.
-	Db::$cache = Utils::$context['db_cache'];
+	/***********************
+	 * Public static methods
+	 ***********************/
 
-	return $to_fix;
-}
-
-/**
- * Create a salvage area for repair purposes, if one doesn't already exist.
- * Uses the forum's default language, and checks based on that name.
- */
-function createSalvageArea()
-{
-	static $createOnce = false;
-
-	// Have we already created it?
-	if ($createOnce)
-		return;
-	else
-		$createOnce = true;
-
-	// Back to the forum's default language.
-	Lang::load('Admin', Lang::$default);
-
-	// Check to see if a 'Salvage Category' exists, if not => insert one.
-	$result = Db::$db->query('', '
-		SELECT id_cat
-		FROM {db_prefix}categories
-		WHERE name = {string:cat_name}
-		LIMIT 1',
-		array(
-			'cat_name' => Lang::$txt['salvaged_category_name'],
-		)
-	);
-	if (Db::$db->num_rows($result) != 0)
-		list (Utils::$context['salvageCatID']) = Db::$db->fetch_row($result);
-	Db::$db->free_result($result);
-
-	if (empty(Utils::$context['salvageCatID']))
+	/**
+	 * Static wrapper for constructor.
+	 *
+	 * @return object An instance of this class.
+	 */
+	public static function load(): object
 	{
-		Utils::$context['salvageCatID'] = Db::$db->insert('',
-			'{db_prefix}categories',
-			array('name' => 'string-255', 'cat_order' => 'int', 'description' => 'string-255'),
-			array(Lang::$txt['salvaged_category_name'], -1, Lang::$txt['salvaged_category_description']),
-			array('id_cat'),
+		if (!isset(self::$obj))
+			self::$obj = new self();
+
+		return self::$obj;
+	}
+
+	/**
+	 * Convenience method to load() and execute() an instance of this class.
+	 */
+	public static function call(): void
+	{
+		self::load()->execute();
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
+	 * Constructor. Protected to force instantiation via self::load().
+	 */
+	protected function __construct()
+	{
+		// Print out the top of the webpage.
+		Utils::$context['page_title'] = Lang::$txt['admin_repair'];
+		Utils::$context['sub_template'] = 'repair_boards';
+		Menu::$loaded['admin']['current_subsection'] = 'general';
+
+		// Load the language file.
+		Lang::load('ManageMaintenance');
+
+		// Make sure the tabs stay nice.
+		Menu::$loaded['admin']->tab_data = array(
+			'title' => Lang::$txt['maintain_title'],
+			'help' => '',
+			'description' => Lang::$txt['maintain_info'],
+			'tabs' => array(),
+		);
+	}
+
+	/**
+	 * Checks for errors in steps, until 5 seconds have passed.
+	 *
+	 * It keeps track of the errors it did find, so that the actual repair
+	 * won't have to recheck everything.
+	 *
+	 * @param bool $do_fix Whether to fix the errors or just return the info.
+	 * @return array The errors found.
+	 */
+	protected function findForumErrors(bool $do_fix = false): array
+	{
+		// This may take some time...
+		@set_time_limit(600);
+
+		$to_fix = !empty($_SESSION['repairboards_to_fix']) ? $_SESSION['repairboards_to_fix'] : array();
+
+		Utils::$context['repair_errors'] = isset($_SESSION['repairboards_to_fix2']) ? $_SESSION['repairboards_to_fix2'] : array();
+
+		$_GET['step'] = empty($_GET['step']) ? 0 : (int) $_GET['step'];
+		$_GET['substep'] = empty($_GET['substep']) ? 0 : (int) $_GET['substep'];
+
+		// Do mods want to add anything here to allow repairing their data?
+		call_integration_hook('integrate_repair_boards', array(&$this->errorTests));
+
+		// Don't allow the cache to get too full.
+		Utils::$context['db_cache'] = Db::$cache;
+		Db::$cache = array();
+
+		Utils::$context['total_steps'] = count($this->errorTests);
+
+		// For all the defined error types do the necessary tests.
+		$current_step = -1;
+		$total_queries = 0;
+		foreach ($this->errorTests as $error_type => $test)
+		{
+			$current_step++;
+
+			// Already done this?
+			if ($_GET['step'] > $current_step)
+				continue;
+
+			// If we're fixing it but it ain't broke why try?
+			if ($do_fix && !in_array($error_type, $to_fix))
+			{
+				$_GET['step']++;
+				continue;
+			}
+
+			// Has it got substeps?
+			if (isset($test['substeps']))
+			{
+				$step_size = $test['substeps']['step_size'] ?? 100;
+
+				$request = Db::$db->query('',
+					$test['substeps']['step_max'],
+					array(
+					)
+				);
+				list($step_max) = Db::$db->fetch_row($request);
+				$total_queries++;
+				Db::$db->free_result($request);
+			}
+
+			// We in theory keep doing this... the substeps.
+			$done = false;
+			while (!$done)
+			{
+				// Make sure there's at least one ID to test.
+				if (isset($test['substeps']) && empty($step_max))
+					break;
+
+				// What is the testing query (Changes if we are testing or fixing)
+				$test_query = $do_fix && isset($test['fix_query']) ? 'fix_query' : 'check_query';
+
+				// Do the test...
+				$request = Db::$db->query('',
+					isset($test['substeps']) ? strtr($test[$test_query], array('{STEP_LOW}' => $_GET['substep'], '{STEP_HIGH}' => $_GET['substep'] + $step_size - 1)) : $test[$test_query],
+					array(
+					)
+				);
+				// Does it need a fix?
+				if (!empty($test['check_type']) && $test['check_type'] == 'count')
+				{
+					list($needs_fix) = Db::$db->fetch_row($request);
+				}
+				else
+				{
+					$needs_fix = Db::$db->num_rows($request);
+				}
+
+				$total_queries++;
+
+				if ($needs_fix)
+				{
+					// What about a message to the user?
+					if (!$do_fix)
+					{
+						// Assume need to fix.
+						$found_errors = true;
+
+						if (isset($test['message']))
+						{
+							Utils::$context['repair_errors'][] = Lang::$txt[$test['message']];
+						}
+						// One per row!
+						elseif (isset($test['messages']))
+						{
+							while ($row = Db::$db->fetch_assoc($request))
+							{
+								$variables = $test['messages'];
+
+								foreach ($variables as $k => $v)
+								{
+									if ($k == 0 && isset(Lang::$txt[$v]))
+									{
+										$variables[$k] = Lang::$txt[$v];
+									}
+									elseif ($k > 0 && isset($row[$v]))
+									{
+										$variables[$k] = $row[$v];
+									}
+								}
+
+								Utils::$context['repair_errors'][] = call_user_func_array('sprintf', $variables);
+							}
+						}
+						// A function to process?
+						elseif (isset($test['message_function']))
+						{
+							// Find out if there are actually errors.
+							$found_errors = false;
+
+							$func = method_exists($this, $test['message_function']) ? array($this, $test['message_function']) : call_helper($test['message_function'], true);
+
+							while ($row = Db::$db->fetch_assoc($request))
+								$found_errors |= call_user_func($func, $row);
+						}
+
+						// Actually have something to fix?
+						if ($found_errors)
+							$to_fix[] = $error_type;
+					}
+					// We want to fix, we need to fix - so work out what exactly to do!
+					else
+					{
+						// Are we simply getting a collection of ids?
+						if (isset($test['fix_collect']))
+						{
+							$ids = array();
+
+							while ($row = Db::$db->fetch_assoc($request))
+								$ids[] = $row[$test['fix_collect']['index']];
+
+							if (!empty($ids))
+							{
+								$func = method_exists($this, $test['fix_collect']['process']) ? array($this, $test['fix_collect']['process']) : call_helper($test['fix_collect']['process'], true);
+
+								// Fix it!
+								call_user_func($func, $ids);
+							}
+						}
+						// Simply executing a fix it query?
+						elseif (isset($test['fix_it_query']))
+						{
+							Db::$db->query('',
+								$test['fix_it_query'],
+								array(
+								)
+							);
+						}
+						// Do we have some processing to do?
+						elseif (isset($test['fix_processing']))
+						{
+							$func = method_exists($this, $test['fix_processing']) ? array($this, $test['fix_processing']) : call_helper($test['fix_processing'], true);
+
+							while ($row = Db::$db->fetch_assoc($request))
+								call_user_func($func, $row);
+						}
+						// What about the full set of processing?
+						elseif (isset($test['fix_full_processing']))
+						{
+							$func = method_exists($this, $test['fix_full_processing']) ? array($this, $test['fix_full_processing']) : call_helper($test['fix_full_processing'], true);
+
+							call_user_func($func, $request);
+						}
+
+						// Do we have other things we need to fix as a result?
+						if (!empty($test['force_fix']))
+						{
+							foreach ($test['force_fix'] as $item)
+							{
+								if (!in_array($item, $to_fix))
+									$to_fix[] = $item;
+							}
+						}
+					}
+				}
+				// Free the result.
+				Db::$db->free_result($request);
+
+				// Keep memory down.
+				Db::$cache = array();
+
+				// Are we done yet?
+				if (isset($test['substeps']))
+				{
+					$_GET['substep'] += $step_size;
+
+					// Not done?
+					if ($_GET['substep'] <= $step_max)
+					{
+						$this->pauseRepairProcess($to_fix, $error_type, $step_max);
+					}
+					else
+					{
+						$done = true;
+					}
+				}
+				else
+				{
+					$done = true;
+				}
+
+				// Don't allow more than 1000 queries at a time.
+				if ($total_queries >= 1000)
+					$this->pauseRepairProcess($to_fix, $error_type, $step_max, true);
+			}
+
+			// Keep going.
+			$_GET['step']++;
+			$_GET['substep'] = 0;
+
+			$to_fix = array_unique($to_fix);
+
+			// If we're doing fixes and this needed a fix and we're all done then don't do it again.
+			if ($do_fix)
+			{
+				$key = array_search($error_type, $to_fix);
+
+				if ($key !== false && isset($to_fix[$key]))
+					unset($to_fix[$key]);
+			}
+
+			// Are we done?
+			$this->pauseRepairProcess($to_fix, $error_type);
+		}
+
+		// Restore the cache.
+		Db::$cache = Utils::$context['db_cache'];
+
+		return $to_fix;
+	}
+
+	/**
+	 * Shows the not_done template to avoid CGI timeouts and similar.
+	 *
+	 * Called when 3 or more seconds have passed while searching for errors.
+	 *
+	 * @param array $to_fix An array of information about what to fix.
+	 * @param string $current_step_description Description of the current step.
+	 * @param int $max_substep The maximum substep to reach before pausing.
+	 * @param bool $force Whether to force pausing even if we don't need to.
+	 */
+	protected function pauseRepairProcess($to_fix, $current_step_description, $max_substep = 0, $force = false): void
+	{
+		++$this->loops;
+
+		// More time, I need more time!
+		@set_time_limit(600);
+
+		if (function_exists('apache_reset_timeout'))
+			@apache_reset_timeout();
+
+		$return = true;
+
+		// If we are from a SSI/cron job, we can allow this through, if enabled.
+		if ((SMF === 'SSI' || SMF === 'BACKGROUND') && php_sapi_name() == 'cli' && !empty(Utils::$context['no_pause_process']))
+		{
+			$return = true;
+		}
+		elseif ($force)
+		{
+			$return = false;
+		}
+		// Try to stay under our memory limit.
+		elseif ((memory_get_usage() + 65536) > memoryReturnBytes(ini_get('memory_limit')))
+		{
+			$return = false;
+		}
+		// Errr, wait.  How much time has this taken already?
+		elseif ((time() - TIME_START) > 3)
+		{
+			$return = false;
+		}
+		// If we have a lot of errors, lets do smaller batches, to save on memory needs.
+		elseif (count(Utils::$context['repair_errors']) > 100000 && $this->loops > 50)
+		{
+			$return = false;
+		}
+
+		// If we can return, lets do so.
+		if ($return)
+			return;
+
+		// Restore the query cache if interested.
+		if (!empty(Utils::$context['db_cache']))
+			Db::$cache = Utils::$context['db_cache'];
+
+		Utils::$context['continue_get_data'] = '?action=admin;area=repairboards' . (isset($_GET['fixErrors']) ? ';fixErrors' : '') . ';step=' . $_GET['step'] . ';substep=' . $_GET['substep'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
+		Utils::$context['page_title'] = Lang::$txt['not_done_title'];
+		Utils::$context['continue_post_data'] = '';
+		Utils::$context['continue_countdown'] = '2';
+		Utils::$context['sub_template'] = 'not_done';
+
+		// Change these two if more steps are added!
+		if (empty($max_substep))
+		{
+			Utils::$context['continue_percent'] = round(($_GET['step'] * 100) / Utils::$context['total_steps']);
+		}
+		else
+		{
+			Utils::$context['continue_percent'] = round((($_GET['step'] + ($_GET['substep'] / $max_substep)) * 100) / Utils::$context['total_steps']);
+		}
+
+		// Never more than 100%!
+		Utils::$context['continue_percent'] = min(Utils::$context['continue_percent'], 100);
+
+		// What about substeps?
+		Utils::$context['substep_enabled'] = $max_substep != 0;
+		Utils::$context['substep_title'] = sprintf(Lang::$txt['repair_currently_' . (isset($_GET['fixErrors']) ? 'fixing' : 'checking')], (isset(Lang::$txt['repair_operation_' . $current_step_description]) ? Lang::$txt['repair_operation_' . $current_step_description] : $current_step_description));
+		Utils::$context['substep_continue_percent'] = $max_substep == 0 ? 0 : round(($_GET['substep'] * 100) / $max_substep, 1);
+
+		$_SESSION['repairboards_to_fix'] = $to_fix;
+		$_SESSION['repairboards_to_fix2'] = Utils::$context['repair_errors'];
+
+		obExit();
+	}
+
+	/**
+	 * Create a salvage area for repair purposes, if one doesn't already exist.
+	 * Uses the forum's default language, and checks based on that name.
+	 */
+	protected function createSalvageArea(): void
+	{
+		// Have we already created it?
+		if ($this->salvage_created)
+			return;
+
+		$this->salvage_created = true;
+
+		// Back to the forum's default language.
+		Lang::load('Admin', Lang::$default);
+
+		// Check to see if a 'Salvage Category' exists, if not => insert one.
+		$result = Db::$db->query('', '
+			SELECT id_cat
+			FROM {db_prefix}categories
+			WHERE name = {string:cat_name}
+			LIMIT 1',
+			array(
+				'cat_name' => Lang::$txt['salvaged_category_name'],
+			)
+		);
+		if (Db::$db->num_rows($result) != 0)
+		{
+			list($this->salvage_category) = Db::$db->fetch_row($result);
+		}
+		Db::$db->free_result($result);
+
+		if (empty($this->salvage_category))
+		{
+			$this->salvage_category = Db::$db->insert('',
+				'{db_prefix}categories',
+				array('name' => 'string-255', 'cat_order' => 'int', 'description' => 'string-255'),
+				array(Lang::$txt['salvaged_category_name'], -1, Lang::$txt['salvaged_category_description']),
+				array('id_cat'),
+				1
+			);
+
+			if (Db::$db->affected_rows() <= 0)
+			{
+				Lang::load('Admin');
+				fatal_lang_error('salvaged_category_error', false);
+			}
+		}
+
+		// Check to see if a 'Salvage Board' exists. If not, insert one.
+		$result = Db::$db->query('', '
+			SELECT id_board
+			FROM {db_prefix}boards
+			WHERE id_cat = {int:id_cat}
+				AND name = {string:board_name}
+			LIMIT 1',
+			array(
+				'id_cat' => $this->salvage_category,
+				'board_name' => Lang::$txt['salvaged_board_name'],
+			)
+		);
+		if (Db::$db->num_rows($result) != 0)
+		{
+			list($this->salvage_board) = Db::$db->fetch_row($result);
+		}
+		Db::$db->free_result($result);
+
+		if (empty($this->salvage_board))
+		{
+			$this->salvage_board = Db::$db->insert('',
+				'{db_prefix}boards',
+				array('name' => 'string-255', 'description' => 'string-255', 'id_cat' => 'int', 'member_groups' => 'string', 'board_order' => 'int', 'redirect' => 'string'),
+				array(Lang::$txt['salvaged_board_name'], Lang::$txt['salvaged_board_description'], $this->salvage_category, '1', -1, ''),
+				array('id_board'),
+				1
+			);
+
+			if (Db::$db->affected_rows() <= 0)
+			{
+				Lang::load('Admin');
+				fatal_lang_error('salvaged_board_error', false);
+			}
+		}
+
+		// Restore the user's language.
+		Lang::load('Admin');
+	}
+
+	/**
+	 * Callback to fix missing topics.
+	 */
+	protected function fixMissingTopics($row): void
+	{
+		// Only if we don't have a reasonable idea of where to put it.
+		if ($row['id_board'] == 0)
+		{
+			$this->createSalvageArea();
+			$row['id_board'] = $_SESSION['salvageBoardID'] = $this->salvage_board;
+		}
+
+		// Make sure that no topics claim the first/last message as theirs.
+		Db::$db->query('', '
+			UPDATE {db_prefix}topics
+			SET id_first_msg = 0
+			WHERE id_first_msg = {int:id_first_msg}',
+			array(
+				'id_first_msg' => $row['myid_first_msg'],
+			)
+		);
+		Db::$db->query('', '
+			UPDATE {db_prefix}topics
+			SET id_last_msg = 0
+			WHERE id_last_msg = {int:id_last_msg}',
+			array(
+				'id_last_msg' => $row['myid_last_msg'],
+			)
+		);
+
+		$memberStartedID = (int) Board::getMsgMemberID($row['myid_first_msg']);
+		$memberUpdatedID = (int) Board::getMsgMemberID($row['myid_last_msg']);
+
+		$newTopicID = Db::$db->insert('',
+			'{db_prefix}topics',
+			array(
+				'id_board' => 'int',
+				'id_member_started' => 'int',
+				'id_member_updated' => 'int',
+				'id_first_msg' => 'int',
+				'id_last_msg' => 'int',
+				'num_replies' => 'int'
+			),
+			array(
+				$row['id_board'],
+				$memberStartedID,
+				$memberUpdatedID,
+				$row['myid_first_msg'],
+				$row['myid_last_msg'],
+				$row['my_num_replies']
+			),
+			array('id_topic'),
 			1
 		);
 
-		if (Db::$db->affected_rows() <= 0)
-		{
-			Lang::load('Admin');
-			fatal_lang_error('salvaged_category_error', false);
-		}
+		Db::$db->query('', '
+			UPDATE {db_prefix}messages
+			SET id_topic = {int:newTopicID}, id_board = {int:board_id}
+			WHERE id_topic = {int:topic_id}',
+			array(
+				'board_id' => $row['id_board'],
+				'topic_id' => $row['id_topic'],
+				'newTopicID' => $newTopicID,
+			)
+		);
 	}
 
-	// Check to see if a 'Salvage Board' exists, if not => insert one.
-	$result = Db::$db->query('', '
-		SELECT id_board
-		FROM {db_prefix}boards
-		WHERE id_cat = {int:id_cat}
-			AND name = {string:board_name}
-		LIMIT 1',
-		array(
-			'id_cat' => Utils::$context['salvageCatID'],
-			'board_name' => Lang::$txt['salvaged_board_name'],
-		)
-	);
-	if (Db::$db->num_rows($result) != 0)
-		list (Utils::$context['salvageBoardID']) = Db::$db->fetch_row($result);
-	Db::$db->free_result($result);
 
-	if (empty(Utils::$context['salvageBoardID']))
+	/**
+	 * Callback to remove all topics that have zero messages in the messages table.
+	 */
+	protected function fixMissingMessages($topics): void
 	{
-		Utils::$context['salvageBoardID'] = Db::$db->insert('',
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}topics
+			WHERE id_topic IN ({array_int:topics})',
+			array(
+				'topics' => $topics,
+			)
+		);
+
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}log_topics
+			WHERE id_topic IN ({array_int:topics})',
+			array(
+				'topics' => $topics,
+			)
+		);
+	}
+
+	/**
+	 * Callback to fix missing poll options.
+	 */
+	protected function fixMissingPollOptions($row): void
+	{
+		$row['poster_name'] = !empty($row['poster_name']) ? $row['poster_name'] : Lang::$txt['guest'];
+		$row['id_poster'] = !empty($row['id_poster']) ? $row['id_poster'] : 0;
+
+		if (empty($row['id_board']))
+		{
+			// Only if we don't have a reasonable idea of where to put it.
+			$this->createSalvageArea();
+			$row['id_board'] = $_SESSION['salvageBoardID'] = $this->salvage_board;
+		}
+
+		if (empty($row['id_topic']))
+		{
+			$newMessageID = Db::$db->insert('',
+				'{db_prefix}messages',
+				array(
+					'id_board' => 'int',
+					'id_topic' => 'int',
+					'poster_time' => 'int',
+					'id_member' => 'int',
+					'subject' => 'string-255',
+					'poster_name' => 'string-255',
+					'poster_email' => 'string-255',
+					'poster_ip' => 'inet',
+					'smileys_enabled' => 'int',
+					'body' => 'string-65534',
+					'icon' => 'string-16',
+					'approved' => 'int',
+				),
+				array(
+					$row['id_board'],
+					0,
+					time(),
+					$row['id_poster'],
+					Lang::$txt['salvaged_poll_topic_name'],
+					$row['poster_name'],
+					Lang::$txt['salvaged_poll_topic_name'],
+					'127.0.0.1',
+					1,
+					Lang::$txt['salvaged_poll_message_body'],
+					'xx',
+					1,
+				),
+				array('id_msg'),
+				1
+			);
+
+			$row['id_topic'] = Db::$db->insert('',
+				'{db_prefix}topics',
+				array(
+					'id_board' => 'int',
+					'id_poll' => 'int',
+					'id_member_started' => 'int',
+					'id_member_updated' => 'int',
+					'id_first_msg' => 'int',
+					'id_last_msg' => 'int',
+					'num_replies' => 'int',
+				),
+				array(
+					$row['id_board'],
+					$row['id_poll'],
+					$row['id_poster'],
+					$row['id_poster'],
+					$newMessageID,
+					$newMessageID,
+					0,
+				),
+				array('id_topic'),
+				1
+			);
+
+			Db::$db->query('', '
+				UPDATE {db_prefix}messages
+				SET id_topic = {int:newTopicID}, id_board = {int:id_board}
+				WHERE id_msg = {int:newMessageID}',
+				array(
+					'id_board' => $row['id_board'],
+					'newTopicID' => $row['id_topic'],
+					'newMessageID' => $newMessageID,
+				)
+			);
+
+			updateStats('subject', $row['id_topic'], Lang::$txt['salvaged_poll_topic_name']);
+		}
+
+		Db::$db->insert('',
+			'{db_prefix}polls',
+			array(
+				'id_poll' => 'int',
+				'question' => 'string-255',
+				'voting_locked' => 'int',
+				'max_votes' => 'int',
+				'expire_time' => 'int',
+				'hide_results' => 'int',
+				'change_vote' => 'int',
+				'guest_vote' => 'int',
+				'num_guest_voters' => 'int',
+				'reset_poll' => 'int',
+				'id_member' => 'int',
+				'poster_name' => 'string-255',
+			),
+			array(
+				$row['id_poll'],
+				Lang::$txt['salvaged_poll_question'],
+				1,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				$row['id_poster'],
+				$row['poster_name'],
+			),
+			array()
+		);
+	}
+
+	/**
+	 * Callback to fix polls that have no topic.
+	 */
+	protected function fixMissingPollTopics($row): void
+	{
+		// Only if we don't have a reasonable idea of where to put it.
+		if ($row['id_board'] == 0)
+		{
+			$this->createSalvageArea();
+			$row['id_board'] = $_SESSION['salvageBoardID'] = $this->salvage_board;
+		}
+
+		$row['poster_name'] = !empty($row['poster_name']) ? $row['poster_name'] : Lang::$txt['guest'];
+
+		$newMessageID = Db::$db->insert('',
+			'{db_prefix}messages',
+			array(
+				'id_board' => 'int',
+				'id_topic' => 'int',
+				'poster_time' => 'int',
+				'id_member' => 'int',
+				'subject' => 'string-255',
+				'poster_name' => 'string-255',
+				'poster_email' => 'string-255',
+				'poster_ip' => 'inet',
+				'smileys_enabled' => 'int',
+				'body' => 'string-65534',
+				'icon' => 'string-16',
+				'approved' => 'int',
+			),
+			array(
+				$row['id_board'],
+				0,
+				time(),
+				$row['id_member'],
+				Lang::$txt['salvaged_poll_topic_name'],
+				$row['poster_name'],
+				'',
+				'127.0.0.1',
+				1,
+				Lang::$txt['salvaged_poll_message_body'],
+				'xx',
+				1,
+			),
+			array('id_msg'),
+			1
+		);
+
+		$newTopicID = Db::$db->insert('',
+			'{db_prefix}topics',
+			array(
+				'id_board' => 'int',
+				'id_poll' => 'int',
+				'id_member_started' => 'int',
+				'id_member_updated' => 'int',
+				'id_first_msg' => 'int',
+				'id_last_msg' => 'int',
+				'num_replies' => 'int',
+			),
+			array(
+				$row['id_board'],
+				$row['id_poll'],
+				$row['id_member'],
+				$row['id_member'],
+				$newMessageID,
+				$newMessageID,
+				0,
+			),
+			array('id_topic'),
+			1
+		);
+
+		Db::$db->query('', '
+			UPDATE {db_prefix}messages
+			SET id_topic = {int:newTopicID}, id_board = {int:id_board}
+			WHERE id_msg = {int:newMessageID}',
+			array(
+				'id_board' => $row['id_board'],
+				'newTopicID' => $newTopicID,
+				'newMessageID' => $newMessageID,
+			)
+		);
+
+		updateStats('subject', $newTopicID, Lang::$txt['salvaged_poll_topic_name']);
+	}
+
+	/**
+	 * Callback to fix missing first and last message IDs for a topic.
+	 */
+	protected function fixTopicStats($row): bool
+	{
+		$row['firstmsg_approved'] = (int) $row['firstmsg_approved'];
+		$row['myid_first_msg'] = (int) $row['myid_first_msg'];
+		$row['myid_last_msg'] = (int) $row['myid_last_msg'];
+
+		// Not really a problem?
+		if ($row['id_first_msg'] == $row['myid_first_msg'] && $row['id_last_msg'] == $row['myid_last_msg'] && $row['approved'] == $row['firstmsg_approved'])
+		{
+			return false;
+		}
+
+		$memberStartedID = (int) Board::getMsgMemberID($row['myid_first_msg']);
+		$memberUpdatedID = (int) Board::getMsgMemberID($row['myid_last_msg']);
+
+		Db::$db->query('', '
+			UPDATE {db_prefix}topics
+			SET id_first_msg = {int:myid_first_msg},
+				id_member_started = {int:memberStartedID}, id_last_msg = {int:myid_last_msg},
+				id_member_updated = {int:memberUpdatedID}, approved = {int:firstmsg_approved}
+			WHERE id_topic = {int:topic_id}',
+			array(
+				'myid_first_msg' => $row['myid_first_msg'],
+				'memberStartedID' => $memberStartedID,
+				'myid_last_msg' => $row['myid_last_msg'],
+				'memberUpdatedID' => $memberUpdatedID,
+				'firstmsg_approved' => $row['firstmsg_approved'],
+				'topic_id' => $row['id_topic'],
+			)
+		);
+
+		return true;
+	}
+
+	/**
+	 * Callback to get a message about missing first and last message IDs for a
+	 * topic.
+	 */
+	protected function topicStatsMessage($row): bool
+	{
+		// A pretend error?
+		if ($row['id_first_msg'] == $row['myid_first_msg'] && $row['id_last_msg'] == $row['myid_last_msg'] && $row['approved'] == $row['firstmsg_approved'])
+		{
+			return false;
+		}
+
+		if ($row['id_first_msg'] != $row['myid_first_msg'])
+		{
+			Utils::$context['repair_errors'][] = sprintf(Lang::$txt['repair_topic_wrong_first_id'], $row['id_topic'], $row['id_first_msg']);
+		}
+
+		if ($row['id_last_msg'] != $row['myid_last_msg'])
+		{
+			Utils::$context['repair_errors'][] = sprintf(Lang::$txt['repair_topic_wrong_last_id'], $row['id_topic'], $row['id_last_msg']);
+		}
+
+		if ($row['approved'] != $row['firstmsg_approved'])
+		{
+			Utils::$context['repair_errors'][] = sprintf(Lang::$txt['repair_topic_wrong_approval'], $row['id_topic']);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Callback to fix the recorded number of replies to a topic.
+	 */
+	protected function fixTopicStats2($row): bool
+	{
+		$row['my_num_replies'] = (int) $row['my_num_replies'];
+
+		// Not really a problem?
+		if ($row['my_num_replies'] == $row['num_replies'])
+			return false;
+
+		Db::$db->query('', '
+			UPDATE {db_prefix}topics
+			SET num_replies = {int:my_num_replies}
+			WHERE id_topic = {int:topic_id}',
+			array(
+				'my_num_replies' => $row['my_num_replies'],
+				'topic_id' => $row['id_topic'],
+			)
+		);
+
+		return true;
+	}
+
+	/**
+	 * Callback to get a message about an incorrect record of the number of
+	 * replies to a topic.
+	 */
+	protected function topicStatsMessage2($row): bool
+	{
+		// Just joking?
+		if ($row['my_num_replies'] == $row['num_replies'])
+			return false;
+
+		if ($row['num_replies'] != $row['my_num_replies'])
+		{
+			Utils::$context['repair_errors'][] = sprintf(Lang::$txt['repair_topic_wrong_replies'], $row['id_topic'], $row['num_replies']);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Callback to fix the recorded number of unapproved replies to a topic.
+	 */
+	protected function fixTopicStats3($row): void
+	{
+		$row['my_unapproved_posts'] = (int) $row['my_unapproved_posts'];
+
+		Db::$db->query('', '
+			UPDATE {db_prefix}topics
+			SET unapproved_posts = {int:my_unapproved_posts}
+			WHERE id_topic = {int:topic_id}',
+			array(
+				'my_unapproved_posts' => $row['my_unapproved_posts'],
+				'topic_id' => $row['id_topic'],
+			)
+		);
+	}
+
+	/**
+	 * Callback to give a home to topics that have no board.
+	 */
+	protected function fixMissingBoards($row): void
+	{
+		$this->createSalvageArea();
+
+		$row['my_num_topics'] = (int) $row['my_num_topics'];
+		$row['my_num_posts'] = (int) $row['my_num_posts'];
+
+		$newBoardID = Db::$db->insert('',
 			'{db_prefix}boards',
-			array('name' => 'string-255', 'description' => 'string-255', 'id_cat' => 'int', 'member_groups' => 'string', 'board_order' => 'int', 'redirect' => 'string'),
-			array(Lang::$txt['salvaged_board_name'], Lang::$txt['salvaged_board_description'], Utils::$context['salvageCatID'], '1', -1, ''),
+			array('id_cat' => 'int', 'name' => 'string', 'description' => 'string', 'num_topics' => 'int', 'num_posts' => 'int', 'member_groups' => 'string'),
+			array($this->salvage_category, Lang::$txt['salvaged_board_name'], Lang::$txt['salvaged_board_description'], $row['my_num_topics'], $row['my_num_posts'], '1'),
 			array('id_board'),
 			1
 		);
 
-		if (Db::$db->affected_rows() <= 0)
+		Db::$db->query('', '
+			UPDATE {db_prefix}topics
+			SET id_board = {int:newBoardID}
+			WHERE id_board = {int:board_id}',
+			array(
+				'newBoardID' => $newBoardID,
+				'board_id' => $row['id_board'],
+			)
+		);
+		Db::$db->query('', '
+			UPDATE {db_prefix}messages
+			SET id_board = {int:newBoardID}
+			WHERE id_board = {int:board_id}',
+			array(
+				'newBoardID' => $newBoardID,
+				'board_id' => $row['id_board'],
+			)
+		);
+	}
+
+	/**
+	 * Callback to give a home to boards that have no category.
+	 */
+	protected function fixMissingCategories($cats): void
+	{
+		$this->createSalvageArea();
+
+		Db::$db->query('', '
+			UPDATE {db_prefix}boards
+			SET id_cat = {int:salvage_category}
+			WHERE id_cat IN ({array_int:categories})',
+			array(
+				'salvage_category' => $this->salvage_category,
+				'categories' => $cats,
+			)
+		);
+	}
+
+	/**
+	 * Callback to give an author to messages that don't have one.
+	 */
+	protected function fixMissingPosters($msgs): void
+	{
+		Db::$db->query('', '
+			UPDATE {db_prefix}messages
+			SET id_member = {int:guest_id}
+			WHERE id_msg IN ({array_int:msgs})',
+			array(
+				'msgs' => $msgs,
+				'guest_id' => 0,
+			)
+		);
+	}
+
+	/**
+	 * Callback to let our salvage board adopt orphaned child boards.
+	 */
+	protected function fixMissingParents($parents): void
+	{
+		$this->createSalvageArea();
+		$_SESSION['salvageBoardID'] = $this->salvage_board;
+
+		Db::$db->query('', '
+			UPDATE {db_prefix}boards
+			SET id_parent = {int:salvage_board}, id_cat = {int:salvage_category}, child_level = 1
+			WHERE id_parent IN ({array_int:parents})',
+			array(
+				'salvage_board' => $this->salvage_board,
+				'salvage_category' => $this->salvage_category,
+				'parents' => $parents,
+			)
+		);
+	}
+
+	/**
+	 * Callback to remove non-existent polls from topics.
+	 */
+	protected function fixMissingPolls($polls): void
+	{
+		Db::$db->query('', '
+			UPDATE {db_prefix}topics
+			SET id_poll = 0
+			WHERE id_poll IN ({array_int:polls})',
+			array(
+				'polls' => $polls,
+			)
+		);
+	}
+
+	/**
+	 * Callback to remove broken links to topics from calendar events.
+	 */
+	protected function fixMissingCaledarTopics($events): void
+	{
+		Db::$db->query('', '
+			UPDATE {db_prefix}calendar
+			SET id_topic = 0, id_board = 0
+			WHERE id_topic IN ({array_int:events})',
+			array(
+				'events' => $events,
+			)
+		);
+	}
+
+	/**
+	 * Callback to remove log_topics entries for non-existent topics.
+	 */
+	protected function fixMissingLogTopics($topics): void
+	{
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}log_topics
+			WHERE id_topic IN ({array_int:topics})',
+			array(
+				'topics' => $topics,
+			)
+		);
+	}
+
+	/**
+	 * Callback to remove log_topics entries for non-existent members.
+	 */
+	protected function fixMissingLogTopicsMembers($members): void
+	{
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}log_topics
+			WHERE id_member IN ({array_int:members})',
+			array(
+				'members' => $members,
+			)
+		);
+	}
+
+	/**
+	 * Callback to remove log_boards entries for non-existent boards.
+	 */
+	protected function fixMissingLogBoards($boards): void
+	{
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}log_boards
+			WHERE id_board IN ({array_int:boards})',
+			array(
+				'boards' => $boards,
+			)
+		);
+	}
+
+	/**
+	 * Callback to remove log_boards entries for non-existent members.
+	 */
+	protected function fixMissingLogBoardsMembers($members): void
+	{
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}log_boards
+			WHERE id_member IN ({array_int:members})',
+			array(
+				'members' => $members,
+			)
+		);
+	}
+
+	/**
+	 * Callback to remove log_mark_read entries for non-existent boards.
+	 */
+	protected function fixMissingLogMarkRead($boards): void
+	{
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}log_mark_read
+			WHERE id_board IN ({array_int:boards})',
+			array(
+				'boards' => $boards,
+			)
+		);
+	}
+
+	/**
+	 * Callback to remove log_mark_read entries for non-existent members.
+	 */
+	protected function fixMissingLogMarkReadMembers($members): void
+	{
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}log_mark_read
+			WHERE id_member IN ({array_int:members})',
+			array(
+				'members' => $members,
+			)
+		);
+	}
+
+	/**
+	 * Callback to remove non-existent personal messages from the recipients'
+	 * inboxes.
+	 */
+	protected function fixMissingPMs($pms): void
+	{
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}pm_recipients
+			WHERE id_pm IN ({array_int:pms})',
+			array(
+				'pms' => $pms,
+			)
+		);
+	}
+
+	/**
+	 * Callback to remove non-existent recipients from personal messages.
+	 */
+	protected function fixMissingRecipients($members): void
+	{
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}pm_recipients
+			WHERE id_member IN ({array_int:members})',
+			array(
+				'members' => $members,
+			)
+		);
+	}
+
+	/**
+	 * Callback to fix the assigned authorship of PMs from non-existent senders.
+	 * Specifically, such PMs will be shown to have been sent from a guest.
+	 */
+	protected function fixMissingSenders($guestMessages): void
+	{
+		Db::$db->query('', '
+			UPDATE {db_prefix}personal_messages
+			SET id_member_from = 0
+			WHERE id_pm IN ({array_int:guestMessages})',
+			array(
+				'guestMessages' => $guestMessages,
+			)
+		);
+	}
+
+	/**
+	 * Callback to remove log_notify entries for non-existent members.
+	 */
+	protected function fixMissingNotifyMembers($members): void
+	{
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}log_notify
+			WHERE id_member IN ({array_int:members})',
+			array(
+				'members' => $members,
+			)
+		);
+	}
+
+	/**
+	 * Callback to fix missing log_search_subjects entries for a topic.
+	 */
+	protected function fixMissingCachedSubject($result): void
+	{
+		$inserts = array();
+
+		while ($row = Db::$db->fetch_assoc($result))
 		{
-			Lang::load('Admin');
-			fatal_lang_error('salvaged_board_error', false);
+			foreach (text2words($row['subject']) as $word)
+				$inserts[] = array($word, $row['id_topic']);
+
+			if (count($inserts) > 500)
+			{
+				Db::$db->insert('ignore',
+					'{db_prefix}log_search_subjects',
+					array('word' => 'string', 'id_topic' => 'int'),
+					$inserts,
+					array('word', 'id_topic')
+				);
+
+				$inserts = array();
+			}
+		}
+
+		if (!empty($inserts))
+		{
+			Db::$db->insert('ignore',
+				'{db_prefix}log_search_subjects',
+				array('word' => 'string', 'id_topic' => 'int'),
+				$inserts,
+				array('word', 'id_topic')
+			);
 		}
 	}
 
-	// Restore the user's language.
-	Lang::load('Admin');
+	/**
+	 * Callback to get a message about missing log_search_subjects entries for a
+	 * topic.
+	 */
+	protected function missingCachedSubjectMessage($row): bool
+	{
+		if (count(text2words($row['subject'])) != 0)
+		{
+			Utils::$context['repair_errors'][] = sprintf(Lang::$txt['repair_missing_cached_subject'], $row['id_topic']);
+
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Callback to remove log_search_subjects entries for non-existent topics.
+	 */
+	protected function fixMissingTopicForCache($deleteTopics): void
+	{
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}log_search_subjects
+			WHERE id_topic IN ({array_int:deleteTopics})',
+			array(
+				'deleteTopics' => $deleteTopics,
+			)
+		);
+	}
+
+	/**
+	 * Callback to remove poll votes made by non-existent members.
+	 */
+	protected function fixMissingMemberVote($members): void
+	{
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}log_polls
+			WHERE id_member IN ({array_int:members})',
+			array(
+				'members' => $members,
+			)
+		);
+	}
+
+	/**
+	 * Callback to remove poll votes made in non-existent polls.
+	 */
+	protected function fixMissingLogPollVote($polls): void
+	{
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}log_polls
+			WHERE id_poll IN ({array_int:polls})',
+			array(
+				'polls' => $polls,
+			)
+		);
+	}
+
+	/**
+	 * Callback to remove non-existent comments from reports.
+	 */
+	protected function fixReportMissingComments($reports): void
+	{
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}log_reported
+			WHERE id_report IN ({array_int:reports})',
+			array(
+				'reports' => $reports,
+			)
+		);
+	}
+
+	/**
+	 * Callback to remove comments made on non-existent reports.
+	 */
+	protected function fixCommentMissingReport($reports): void
+	{
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}log_reported_comments
+			WHERE id_report IN ({array_int:reports})',
+			array(
+				'reports' => $reports,
+			)
+		);
+	}
+
+	/**
+	 * Callback to remove requests to join a group made by non-existent members.
+	 */
+	protected function fixGroupRequestMissingMember($members): void
+	{
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}log_group_requests
+			WHERE id_member IN ({array_int:members})',
+			array(
+				'members' => $members,
+			)
+		);
+	}
+
+	/**
+	 * Callback to remove requests to join non-existent groups.
+	 */
+	protected function fixGroupRequestMissingGroup($groups): void
+	{
+		Db::$db->query('', '
+			DELETE FROM {db_prefix}log_group_requests
+			WHERE id_group IN ({array_int:groups})',
+			array(
+				'groups' => $groups,
+			)
+		);
+	}
 }
+
+// Export public static functions and properties to global namespace for backward compatibility.
+if (is_callable(__NAMESPACE__ . '\RepairBoards::exportStatic'))
+	RepairBoards::exportStatic();
 
 ?>
