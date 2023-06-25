@@ -67,8 +67,8 @@ class Logs implements ActionInterface
 	 */
 	public static array $subactions = array(
 		'errorlog' => array(
-			'Actions/Admin/ErrorLog.php',
-			'ViewErrorLog',
+			'',
+			'errorlog',
 			// At runtime, will be set to empty(Config::$modSettings['enableErrorLogging'])
 			'disabled' => 'enableErrorLogging',
 		),
@@ -178,6 +178,14 @@ class Logs implements ActionInterface
 			require_once(Config::$sourcedir . '/' . self::$subactions[$this->subaction][0]);
 
 		call_helper(method_exists($this, self::$subactions[$this->subaction][1]) ? array($this, self::$subactions[$this->subaction][1]) : self::$subactions[$this->subaction][1]);
+	}
+
+	/**
+	 * Hands execution over to ErrorLog::view().
+	 */
+	public function errorlog()
+	{
+		ErrorLog::call();
 	}
 
 	/**
