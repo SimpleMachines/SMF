@@ -1149,7 +1149,7 @@ class Topic implements \ArrayAccess
 				self::move($recycleTopics, Config::$modSettings['recycle_board']);
 
 				// Close reports that are being recycled.
-				require_once(Config::$sourcedir . '/ModerationCenter.php');
+				require_once(Config::$sourcedir . '/Actions/Moderation/Main.php');
 
 				Db::$db->query('', '
 					UPDATE {db_prefix}log_reported

@@ -77,7 +77,6 @@ function ModerationMain($dont_call = false)
 					'icon' => 'exit',
 				),
 				'notice' => array(
-					'file' => 'ModerationCenter.php',
 					'function' => 'ShowNotice',
 					'select' => 'index'
 				),

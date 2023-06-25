@@ -76,7 +76,7 @@ class Forum
 		'markasread' => array('', 'SMF\\Board::MarkRead'),
 		'mergetopics' => array('', 'SMF\\Actions\\TopicMerge::call'),
 		'mlist' => array('', 'SMF\\Actions\\Memberlist::call'),
-		'moderate' => array('ModerationCenter.php', 'ModerationMain'),
+		'moderate' => array('Actions/Moderation/Main.php', 'ModerationMain'),
 		'modifycat' => array('', 'SMF\\Actions\\Admin\\Boards::modifyCat'),
 		'movetopic' => array('', 'SMF\\Actions\\TopicMove::call'),
 		'movetopic2' => array('', 'SMF\\Actions\\TopicMove2::call'),
