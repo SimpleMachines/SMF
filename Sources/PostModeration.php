@@ -40,7 +40,7 @@ function PostModerationMain()
 	Theme::loadTemplate('ModerationCenter');
 
 	// Probably need this...
-	require_once(Config::$sourcedir . '/ModerationCenter.php');
+	require_once(Config::$sourcedir . '/Actions/Moderation/Main.php');
 
 	// Allowed sub-actions, you know the drill by now!
 	$subActions = array(

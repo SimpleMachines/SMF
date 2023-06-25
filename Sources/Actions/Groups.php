@@ -103,7 +103,7 @@ class Groups implements ActionInterface
 		// If we can see the moderation center, and this has a mod bar entry, add the mod center bar.
 		if (allowedTo('access_mod_center') || User::$me->mod_cache['bq'] != '0=1' || User::$me->mod_cache['gq'] != '0=1' || allowedTo('manage_membergroups'))
 		{
-			require_once(Config::$sourcedir . '/ModerationCenter.php');
+			require_once(Config::$sourcedir . '/Actions/Moderation/Main.php');
 			$_GET['area'] = $this->subaction == 'requests' ? 'groups' : 'viewgroups';
 			ModerationMain(true);
 		}
