@@ -67,7 +67,7 @@ class Logs implements ActionInterface
 	 */
 	public static array $subactions = array(
 		'errorlog' => array(
-			'ManageErrors.php',
+			'Actions/Admin/ErrorLog.php',
 			'ViewErrorLog',
 			// At runtime, will be set to empty(Config::$modSettings['enableErrorLogging'])
 			'disabled' => 'enableErrorLogging',
