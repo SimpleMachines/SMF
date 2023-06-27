@@ -23,6 +23,7 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\Theme;
 use SMF\Utils;
+use SMF\Actions\Moderation\Posts as PostMod;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -1491,8 +1492,7 @@ class Permissions implements ActionInterface
 						'warning_moderate' => 0,
 					));
 
-					require_once(Config::$sourcedir . '/Actions/Moderation/Posts.php');
-					approveAllData();
+					PostMod::approveAllData();
 				}
 			}
 			elseif (Config::$modSettings['postmod_active'])
