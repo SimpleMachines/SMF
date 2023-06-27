@@ -1491,7 +1491,7 @@ class Permissions implements ActionInterface
 						'warning_moderate' => 0,
 					));
 
-					require_once(Config::$sourcedir . '/PostModeration.php');
+					require_once(Config::$sourcedir . '/Actions/Moderation/Posts.php');
 					approveAllData();
 				}
 			}
