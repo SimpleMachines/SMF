@@ -23,6 +23,7 @@ use SMF\Menu;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Moderation\Main as ModCenter;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -71,6 +72,22 @@ class Groups implements ActionInterface
 		'requests' => 'requests',
 	);
 
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	/**
+	 * @var string
+	 *
+	 * The action and area URL query to use in links to sub-actions.
+	 *
+	 * Possible values:
+	 *  - '?action=groups'
+	 *  - '?action=moderate;area=groups'
+	 *  - '?action=moderate;area=viewgroups'
+	 */
+	protected string $action_url = '?action=groups';
+
 	/****************************
 	 * Internal static properties
 	 ****************************/
@@ -100,20 +117,24 @@ class Groups implements ActionInterface
 		Lang::load('ModerationCenter');
 		Theme::loadTemplate('ManageMembergroups');
 
-		// If we can see the moderation center, and this has a mod bar entry, add the mod center bar.
-		if (allowedTo('access_mod_center') || User::$me->mod_cache['bq'] != '0=1' || User::$me->mod_cache['gq'] != '0=1' || allowedTo('manage_membergroups'))
+		// If needed, set the mod center menu.
+		if (allowedTo('access_mod_center') && (User::$me->mod_cache['gq'] != '0=1' || allowedTo('manage_membergroups')) && !isset(Menu::$loaded['admin']) && !isset(Menu::$loaded['moderate']))
 		{
-			require_once(Config::$sourcedir . '/Actions/Moderation/Main.php');
 			$_GET['area'] = $this->subaction == 'requests' ? 'groups' : 'viewgroups';
-			ModerationMain(true);
+
+			$this->action_url = '?action=moderate;area=' . $_GET['area'];
+
+			ModCenter::load()->createMenu();
 		}
 		// Otherwise add something to the link tree, for normal people.
 		else
 		{
 			isAllowedTo('view_mlist');
 
+			$this->action_url = '?action=groups';
+
 			Utils::$context['linktree'][] = array(
-				'url' => Config::$scripturl . '?action=groups',
+				'url' => Config::$scripturl . $this->action_url,
 				'name' => Lang::$txt['groups'],
 			);
 		}
@@ -132,7 +153,7 @@ class Groups implements ActionInterface
 		$listOptions = array(
 			'id' => 'group_lists',
 			'title' => Utils::$context['page_title'],
-			'base_href' => Config::$scripturl . '?action=moderate;area=viewgroups;sa=view',
+			'base_href' => Config::$scripturl . $this->action_url . ';sa=view',
 			'default_sort_col' => 'group',
 			'get_items' => array(
 				'function' => __CLASS__ . '::list_getMembergroups',
@@ -157,14 +178,7 @@ class Groups implements ActionInterface
 							{
 								$color_style = empty($rowData['online_color']) ? '' : sprintf(' style="color: %1$s;"', $rowData['online_color']);
 
-								if (allowedTo('manage_membergroups'))
-								{
-									$group_name = sprintf('<a href="%1$s?action=admin;area=membergroups;sa=members;group=%2$d"%3$s>%4$s</a>', Config::$scripturl, $rowData['id_group'], $color_style, $rowData['group_name']);
-								}
-								else
-								{
-									$group_name = sprintf('<a href="%1$s?action=groups;sa=members;group=%2$d"%3$s>%4$s</a>', Config::$scripturl, $rowData['id_group'], $color_style, $rowData['group_name']);
-								}
+								$group_name = sprintf('<a href="%1$s' . $this->action_url . ';sa=members;sa=members;group=%2$d"%3$s>%4$s</a>', Config::$scripturl, $rowData['id_group'], $color_style, $rowData['group_name']);
 							}
 
 							// Add a help option for moderator and administrator.
@@ -282,7 +296,7 @@ class Groups implements ActionInterface
 		Utils::$context['group']['can_moderate'] = allowedTo('manage_membergroups') && (allowedTo('admin_forum') || Utils::$context['group']['group_type'] != 1);
 
 		Utils::$context['linktree'][] = array(
-			'url' => Config::$scripturl . '?action=groups;sa=members;group=' . Utils::$context['group']['id'],
+			'url' => Config::$scripturl . $this->action_url . ';sa=members;group=' . Utils::$context['group']['id'],
 			'name' => Utils::$context['group']['name'],
 		);
 		Utils::$context['can_send_email'] = allowedTo('moderate_forum');
@@ -469,7 +483,7 @@ class Groups implements ActionInterface
 		Db::$db->free_result($request);
 
 		// Create the page index.
-		Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=' . (Utils::$context['group']['can_moderate'] ? 'moderate;area=viewgroups' : 'groups') . ';sa=members;group=' . $_REQUEST['group'] . ';sort=' . Utils::$context['sort_by'] . (isset($_REQUEST['desc']) ? ';desc' : ''), $_REQUEST['start'], Utils::$context['total_members'], Config::$modSettings['defaultMaxMembers']);
+		Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . $this->action_url . ';sa=members;group=' . $_REQUEST['group'] . ';sort=' . Utils::$context['sort_by'] . (isset($_REQUEST['desc']) ? ';desc' : ''), $_REQUEST['start'], Utils::$context['total_members'], Config::$modSettings['defaultMaxMembers']);
 		Utils::$context['total_members'] = Lang::numberFormat(Utils::$context['total_members']);
 		Utils::$context['start'] = $_REQUEST['start'];
 		Utils::$context['can_moderate_forum'] = allowedTo('moderate_forum');
@@ -641,7 +655,7 @@ class Groups implements ActionInterface
 			'width' => '100%',
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'no_items_label' => Lang::$txt['mc_groupr_none_found'],
-			'base_href' => Config::$scripturl . '?action=groups;sa=requests',
+			'base_href' => Config::$scripturl . $this->action_url . ';sa=requests',
 			'default_sort_col' => 'member',
 			'get_items' => array(
 				'function' => __CLASS__ . '::list_getGroupRequests',
@@ -717,7 +731,7 @@ class Groups implements ActionInterface
 				),
 			),
 			'form' => array(
-				'href' => Config::$scripturl . '?action=groups;sa=requests',
+				'href' => Config::$scripturl . $this->action_url . ';sa=requests',
 				'include_sort' => true,
 				'include_start' => true,
 				'hidden_fields' => array(

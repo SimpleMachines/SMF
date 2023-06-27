@@ -1256,7 +1256,7 @@ class Theme
 		{
 			$current_action = 'login';
 		}
-		elseif (Utils::$context['current_action'] == 'groups' && Utils::$context['allow_moderation_center'])
+		elseif (Utils::$context['current_action'] == 'groups' && Utils::$context['allow_moderation_center'] && User::$me->mod_cache['gq'] != '0=1')
 		{
 			$current_action = 'moderate';
 		}

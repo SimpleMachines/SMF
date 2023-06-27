@@ -102,6 +102,9 @@ class Home implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Normally this will already have been done, but just in case...
+		Main::checkAccessPermissions();
+
 		Utils::$context['mod_blocks'] = array();
 
 		// Handle moderators' notes.
