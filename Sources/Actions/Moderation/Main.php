@@ -146,8 +146,7 @@ class Main implements ActionInterface
 				'reportedposts' => array(
 					'label' => 'mc_reported_posts',
 					'enabled' => true,
-					'file' => 'Actions/Moderation/ReportedContent.php',
-					'function' => 'ReportedContent',
+					'function' => __NAMESPACE__ . '\\ReportedContent::call',
 					'icon' => 'reports',
 					'subsections' => array(
 						'show' => array(
@@ -198,8 +197,7 @@ class Main implements ActionInterface
 				'reportedmembers' => array(
 					'label' => 'mc_reported_members_title',
 					'enabled' => true,
-					'file' => 'Actions/Moderation/ReportedContent.php',
-					'function' => 'ReportedContent',
+					'function' => __NAMESPACE__ . '\\ReportedContent::call',
 					'icon' => 'members_watched',
 					'subsections' => array(
 						'open' => array(

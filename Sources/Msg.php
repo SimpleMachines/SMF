@@ -14,6 +14,7 @@
 namespace SMF;
 
 use SMF\Actions\Notify;
+use SMF\Actions\Moderation\ReportedContent;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
 
@@ -3380,9 +3381,8 @@ class Msg implements \ArrayAccess
 
 		if (Db::$db->affected_rows() != 0)
 		{
-			require_once(Config::$sourcedir . '/Subs-ReportedContent.php');
 			Config::updateModSettings(array('last_mod_report_action' => time()));
-			recountOpenReports('posts');
+			ReportedContent::recountOpenReports('posts');
 		}
 
 		return false;

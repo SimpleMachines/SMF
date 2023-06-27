@@ -20,6 +20,7 @@ use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Moderation\ReportedContent;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
@@ -499,9 +500,8 @@ function logActions(array $logs)
 			// Alright, if we get any result back, update open reports.
 			if (Db::$db->num_rows($request) > 0)
 			{
-				require_once(Config::$sourcedir . '/Subs-ReportedContent.php');
 				Config::updateModSettings(array('last_mod_report_action' => time()));
-				recountOpenReports('posts');
+				ReportedContent::recountOpenReports('posts');
 			}
 			Db::$db->free_result($request);
 		}
