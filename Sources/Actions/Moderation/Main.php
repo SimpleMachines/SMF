@@ -77,7 +77,7 @@ function ModerationMain($dont_call = false)
 					'icon' => 'exit',
 				),
 				'notice' => array(
-					'function' => 'ShowNotice',
+					'function' => '\\SMF\\Actions\\Moderation\\ShowNotice::call',
 					'select' => 'index'
 				),
 			),
@@ -303,35 +303,6 @@ function ModerateGroups()
 
 	// Call the relevant function.
 	call_helper($subActions[Utils::$context['sub_action']]);
-}
-
-/**
- * Show a notice sent to a user.
- */
-function ShowNotice()
-{
-	Utils::$context['page_title'] = Lang::$txt['show_notice'];
-	Utils::$context['sub_template'] = 'show_notice';
-	Utils::$context['template_layers'] = array();
-
-	Theme::loadTemplate('ModerationCenter');
-
-	// @todo Assumes nothing needs permission more than accessing moderation center!
-	$id_notice = (int) $_GET['nid'];
-	$request = Db::$db->query('', '
-		SELECT body, subject
-		FROM {db_prefix}log_member_notices
-		WHERE id_notice = {int:id_notice}',
-		array(
-			'id_notice' => $id_notice,
-		)
-	);
-	if (Db::$db->num_rows($request) == 0)
-		fatal_lang_error('no_access', false);
-	list (Utils::$context['notice_body'], Utils::$context['notice_subject']) = Db::$db->fetch_row($request);
-	Db::$db->free_result($request);
-
-	Utils::$context['notice_body'] = BBCodeParser::load()->parse(Utils::$context['notice_body'], false);
 }
 
 /**
