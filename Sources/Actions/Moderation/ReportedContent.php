@@ -285,7 +285,7 @@ class ReportedContent implements ActionInterface
 			Utils::$context['report'] = array_merge(Utils::$context['report'], $reportComments);
 
 		// What have the other moderators done to this message?
-		require_once(Config::$sourcedir . '/Modlog.php');
+		require_once(Config::$sourcedir . '/Actions/Moderation/Logs.php');
 		Lang::load('Modlog');
 
 		// Parameters are slightly different depending on what we're doing here...
