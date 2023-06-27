@@ -73,13 +73,13 @@ class Logs implements ActionInterface
 			'disabled' => 'enableErrorLogging',
 		),
 		'adminlog' => array(
-			'Modlog.php',
+			'Actions/Moderation/Logs.php',
 			'ViewModlog',
 			// At runtime, will be set to empty(Config::$modSettings['adminlog_enabled'])
 			'disabled' => 'adminlog_enabled',
 		),
 		'modlog' => array(
-			'Modlog.php',
+			'Actions/Moderation/Logs.php',
 			'ViewModlog',
 			// At runtime, will be set to empty(Config::$modSettings['modlog_enabled'])
 			'disabled' => 'modlog_enabled',
