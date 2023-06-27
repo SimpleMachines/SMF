@@ -285,9 +285,6 @@ class ReportedContent implements ActionInterface
 			Utils::$context['report'] = array_merge(Utils::$context['report'], $reportComments);
 
 		// What have the other moderators done to this message?
-		require_once(Config::$sourcedir . '/Actions/Moderation/Logs.php');
-		Lang::load('Modlog');
-
 		// Parameters are slightly different depending on what we're doing here...
 		if ($this->type == 'members')
 		{
@@ -313,6 +310,8 @@ class ReportedContent implements ActionInterface
 			);
 		}
 
+		Lang::load('Modlog');
+
 		// This is all the information from the moderation log.
 		$listOptions = array(
 			'id' => 'moderation_actions_list',
@@ -322,11 +321,11 @@ class ReportedContent implements ActionInterface
 			'base_href' => Config::$scripturl . '?action=moderate;area=reported' . $this->type . ';sa=details;rid=' . Utils::$context['report']['id'],
 			'default_sort_col' => 'time',
 			'get_items' => array(
-				'function' => 'list_getModLogEntries',
+				'function' => __NAMESPACE__ . '\\Logs::list_getModLogEntries',
 				'params' => $params,
 			),
 			'get_count' => array(
-				'function' => 'list_getModLogEntryCount',
+				'function' => __NAMESPACE__ . '\\Logs::list_getModLogEntryCount',
 				'params' => $params,
 			),
 			// This assumes we are viewing by user.

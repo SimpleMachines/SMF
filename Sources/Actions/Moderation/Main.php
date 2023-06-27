@@ -95,8 +95,7 @@ class Main implements ActionInterface
 				'modlog' => array(
 					'label' => 'modlog_view',
 					'enabled' => true,
-					'file' => 'Actions/Moderation/Logs.php',
-					'function' => 'ViewModlog',
+					'function' => __NAMESPACE__ . '\\Logs::call',
 					'icon' => 'logs',
 				),
 				'warnings' => array(

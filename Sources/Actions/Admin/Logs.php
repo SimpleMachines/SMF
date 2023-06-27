@@ -21,6 +21,7 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\Theme;
 use SMF\Utils;
+use SMF\Actions\Moderation\Logs as Modlog;
 
 /**
  * Dispatcher to show various kinds of logs.
@@ -73,14 +74,14 @@ class Logs implements ActionInterface
 			'disabled' => 'enableErrorLogging',
 		),
 		'adminlog' => array(
-			'Actions/Moderation/Logs.php',
-			'ViewModlog',
+			'',
+			'adminlog',
 			// At runtime, will be set to empty(Config::$modSettings['adminlog_enabled'])
 			'disabled' => 'adminlog_enabled',
 		),
 		'modlog' => array(
-			'Actions/Moderation/Logs.php',
-			'ViewModlog',
+			'',
+			'modlog',
 			// At runtime, will be set to empty(Config::$modSettings['modlog_enabled'])
 			'disabled' => 'modlog_enabled',
 		),
@@ -186,6 +187,22 @@ class Logs implements ActionInterface
 	public function errorlog()
 	{
 		ErrorLog::call();
+	}
+
+	/**
+	 * Hands execution over to Modlog::call().
+	 */
+	public function adminlog()
+	{
+		ModLog::call();
+	}
+
+	/**
+	 * Hands execution over to Modlog::call().
+	 */
+	public function modlog()
+	{
+		ModLog::call();
 	}
 
 	/**
