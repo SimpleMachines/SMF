@@ -14,6 +14,7 @@
 namespace SMF;
 
 use SMF\Actions\Notify;
+use SMF\Actions\Moderation\ReportedContent;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
@@ -1163,8 +1164,7 @@ class Topic implements \ArrayAccess
 
 				Config::updateModSettings(array('last_mod_report_action' => time()));
 
-				require_once(Config::$sourcedir . '/Subs-ReportedContent.php');
-				recountOpenReports('posts');
+				ReportedContent::recountOpenReports('posts');
 
 				// Topics that were recycled don't need to be deleted, so subtract them.
 				$topics = array_diff($topics, $recycleTopics);

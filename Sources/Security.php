@@ -21,6 +21,7 @@ use SMF\User;
 use SMF\Utils;
 use SMF\Actions\Logout;
 use SMF\Actions\Admin\Bans;
+use SMF\Actions\Moderation\ReportedContent;
 use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
@@ -445,9 +446,8 @@ function banPermissions()
 	}
 	elseif ($_SESSION['mc']['bq'] != '0=1')
 	{
-		require_once(Config::$sourcedir . '/Subs-ReportedContent.php');
-		Utils::$context['open_mod_reports'] = recountOpenReports('posts');
-		Utils::$context['open_member_reports'] = recountOpenReports('members');
+		Utils::$context['open_mod_reports'] = ReportedContent::recountOpenReports('posts');
+		Utils::$context['open_member_reports'] = ReportedContent::recountOpenReports('members');
 	}
 	else
 	{
