@@ -124,7 +124,7 @@ class Main implements ActionInterface
 				'postmod' => array(
 					'label' => 'mc_unapproved_posts',
 					'enabled' => true,
-					'file' => 'PostModeration.php',
+					'file' => 'Actions/Moderation/Posts.php',
 					'function' => 'PostModerationMain',
 					'icon' => 'posts',
 					'custom_url' => '{scripturl}?action=moderate;area=postmod',
@@ -140,7 +140,7 @@ class Main implements ActionInterface
 				'attachmod' => array(
 					'label' => 'mc_unapproved_attachments',
 					'enabled' => true,
-					'file' => 'PostModeration.php',
+					'file' => 'Actions/Moderation/Posts.php',
 					'function' => 'PostModerationMain',
 					'icon' => 'post_moderation_attach',
 					'custom_url' => '{scripturl}?action=moderate;area=attachmod;sa=attachments',
