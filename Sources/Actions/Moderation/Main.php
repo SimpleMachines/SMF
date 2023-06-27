@@ -146,7 +146,7 @@ class Main implements ActionInterface
 				'reportedposts' => array(
 					'label' => 'mc_reported_posts',
 					'enabled' => true,
-					'file' => 'ReportedContent.php',
+					'file' => 'Actions/Moderation/ReportedContent.php',
 					'function' => 'ReportedContent',
 					'icon' => 'reports',
 					'subsections' => array(
@@ -198,7 +198,7 @@ class Main implements ActionInterface
 				'reportedmembers' => array(
 					'label' => 'mc_reported_members_title',
 					'enabled' => true,
-					'file' => 'ReportedContent.php',
+					'file' => 'Actions/Moderation/ReportedContent.php',
 					'function' => 'ReportedContent',
 					'icon' => 'members_watched',
 					'subsections' => array(
