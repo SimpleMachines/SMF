@@ -72,7 +72,7 @@ function ModerationMain($dont_call = false)
 				),
 				'modlogoff' => array(
 					'label' => Lang::$txt['mc_logoff'],
-					'function' => 'ModEndSession',
+					'function' => '\\SMF\\Actions\\Moderation\\EndSession::call',
 					'enabled' => empty(Config::$modSettings['securityDisable_moderate']),
 					'icon' => 'exit',
 				),
@@ -1428,22 +1428,6 @@ function ModerationSettings()
 	);
 
 	createToken('mod-set');
-}
-
-/**
- * This ends a moderator session, requiring authentication to access the MCP again.
- */
-function ModEndSession()
-{
-	// This is so easy!
-	unset($_SESSION['moderate_time']);
-
-	// Clean any moderator tokens as well.
-	foreach ($_SESSION['token'] as $key => $token)
-		if (strpos($key, '-mod') !== false)
-			unset($_SESSION['token'][$key]);
-
-	redirectexit();
 }
 
 ?>
