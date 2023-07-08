@@ -1592,9 +1592,10 @@ function server_parse($message, $socket, $code, &$response = null)
 	if ($code === null)
 		return substr($server_response, 0, 3);
 
-	if (substr($server_response, 0, 3) != $code)
+	if (($server_code = substr($server_response, 0, 3)) != $code)
 	{
-		log_error($txt['smtp_error'] . $server_response);
+		if ($server_code < 500 && !in_array($server_code, [450, 451, 421]))
+			log_error($txt['smtp_error'] . $server_response);
 		return false;
 	}
 
