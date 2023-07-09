@@ -101,6 +101,9 @@ function reloadSettings()
 	if (empty($modSettings['force_ssl']))
 		$image_proxy_enabled = false;
 
+	// Preserve legacy utf8 variable in case used by mods
+	$context['utf8'] = 'UTF-8';
+
 	// Set a list of common functions.
 	$ent_list = '&(?:#' . (empty($modSettings['disableEntityCheck']) ? '\d{1,7}' : '021') . '|quot|amp|lt|gt|nbsp);';
 	$ent_check = empty($modSettings['disableEntityCheck']) ? function($string)
