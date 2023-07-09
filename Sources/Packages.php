@@ -1577,9 +1577,7 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 
 	// Here we have a little code to help those who class themselves as something of gods, version emulation ;)
 	if (isset($_GET['version_emulate']) && strtr($_GET['version_emulate'], array('SMF ' => '')) == $the_version)
-	{
 		unset($_SESSION['version_emulate']);
-	}
 	elseif (isset($_GET['version_emulate']))
 	{
 		if (($_GET['version_emulate'] === 0 || $_GET['version_emulate'] === SMF_FULL_VERSION) && isset($_SESSION['version_emulate']))
@@ -1625,7 +1623,9 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 
 		while ($package = readdir($dir))
 		{
-			if ($package == '.' || $package == '..' || $package == 'temp' || (!(is_dir($packagesdir . '/' . $package) && file_exists($packagesdir . '/' . $package . '/package-info.xml')) && substr(strtolower($package), -7) != '.tar.gz' && substr(strtolower($package), -4) != '.tgz' && substr(strtolower($package), -4) != '.zip'))
+			$basename = strtok($package, '.');
+			$ext = strtolower(strtok('.'));
+			if ($package == '.' || $package == '..' || $package == 'temp' || (!(is_dir($packagesdir . '/' . $package) && file_exists($packagesdir . '/' . $package . '/package-info.xml')) && $ext != 'tar.gz' && $ext != 'tgz' && $ext != 'zip'))
 				continue;
 
 			// Skip directories or files that are named the same.
@@ -1635,17 +1635,11 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 					continue;
 				$dirs[] = $package;
 			}
-			elseif (substr(strtolower($package), -7) == '.tar.gz')
+			elseif ($ext == 'tar.gz' || $ext == 'zip' || $ext == 'tgz')
 			{
-				if (in_array(substr($package, 0, -7), $dirs))
+				if (in_array($basename, $dirs))
 					continue;
-				$dirs[] = substr($package, 0, -7);
-			}
-			elseif (substr(strtolower($package), -4) == '.zip' || substr(strtolower($package), -4) == '.tgz')
-			{
-				if (in_array(substr($package, 0, -4), $dirs))
-					continue;
-				$dirs[] = substr($package, 0, -4);
+				$dirs[] = $basename;
 			}
 
 			$packageInfo = getPackageInfo($package);
@@ -1654,10 +1648,7 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 
 			if (!empty($packageInfo))
 			{
-				if (!isset($sort_id[$packageInfo['type']]))
-					$packageInfo['sort_id'] = $sort_id['unknown'];
-				else
-					$packageInfo['sort_id'] = $sort_id[$packageInfo['type']];
+				$packageInfo['sort_id'] = $sort_id[$packageInfo['type']] ?? $sort_id['unknown'];
 
 				$packageInfo['time_installed'] = 0;
 				$packageInfo['is_installed'] = isset($installed_mods[$packageInfo['id']]);
