@@ -10,7 +10,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -117,6 +117,10 @@ function updateReport($action, $value, $report_id)
 	if ($context['report_type'] == 'members')
 		$log_report .= '_user';
 
+	// See if any report alerts need to be cleaned up upon close/ignore
+	if (in_array($log_report, array('close', 'ignore', 'close_user', 'ignore_user')))
+		clearReportAlerts($log_report, $extra);
+
 	// Log this action.
 	if (!empty($extra))
 		foreach ($extra as $report)
@@ -125,6 +129,70 @@ function updateReport($action, $value, $report_id)
 	// Time to update.
 	updateSettings(array('last_mod_report_action' => time()));
 	recountOpenReports($context['report_type']);
+}
+
+/**
+ * Upon close/ignore, mark unread alerts as read.
+ *
+ * @param string $log_report - what action is being taken
+ * @param mixed[] $extra - detailed info about the report
+ * @return void
+ */
+function clearReportAlerts($log_report, $extra)
+{
+	global $smcFunc;
+
+	// Setup the query, depending on if it's a member report or a msg report.
+	// In theory, these should be unique (reports for the same things get combined), but since $extra is an array, treat as an array.
+	if (strpos($log_report, '_user') !== false)
+	{
+		$content_ids = array_unique(array_column($extra, 'member'));
+		$content_type = 'member';
+	}
+	else
+	{
+		$content_ids = array_unique(array_column($extra, 'message'));
+		$content_type = 'msg';
+	}
+
+	// Check to see if there are unread alerts to flag as read...
+	// Might be multiple alerts, for multiple moderators...
+	$alerts = array();
+	$moderators = array();
+	$result = $smcFunc['db_query']('', '
+		SELECT id_alert, id_member FROM {db_prefix}user_alerts
+		WHERE content_id IN ({array_int:content_ids})
+			AND content_type = {string:content_type}
+			AND content_action = {string:content_action}
+			AND is_read = {int:unread}',
+		array(
+			'content_ids' => $content_ids,
+			'content_type' => $content_type,
+			'content_action' => 'report',
+			'unread' => 0,
+		)
+	);
+	// Found any?
+	while ($row = $smcFunc['db_fetch_assoc']($result))
+	{
+		$alerts[] = $row['id_alert'];
+		$moderators[] = $row['id_member'];
+	}
+	if (!empty($alerts))
+	{
+		// Flag 'em as read
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}user_alerts
+			SET is_read = {int:time}
+			WHERE id_alert IN ({array_int:alerts})',
+			array(
+				'time' => time(),
+				'alerts' => $alerts,
+			)
+		);
+		// Decrement counter for each moderator who had an unread alert
+		updateMemberData($moderators, array('alerts' => '-'));
+	}
 }
 
 /**

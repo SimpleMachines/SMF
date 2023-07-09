@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.4
  */
 
 if (!defined('SMF'))
@@ -30,6 +30,10 @@ function db_search_init()
 			'db_create_word_search' => 'smf_db_create_word_search',
 			'db_support_ignore' => true,
 		);
+
+	db_extend();
+	$version = $smcFunc['db_get_version']();
+	$smcFunc['db_supports_pcre'] = version_compare($version, strpos($version, 'MariaDB') !== false ? '10.0.5' : '8.0.4', '>=');
 }
 
 /**

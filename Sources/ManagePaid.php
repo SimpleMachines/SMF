@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.4
  */
 
 if (!defined('SMF'))
@@ -45,12 +45,6 @@ function ManagePaidSubscriptions()
 			'settings' => array('ModifySubscriptionSettings', 'admin_forum'),
 		);
 
-	// Default the sub-action to 'view subscriptions', but only if they have already set things up..
-	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (!empty($modSettings['paid_currency_symbol']) && !empty($modSettings['paid_enabled']) ? 'view' : 'settings');
-
-	// Make sure you can do this.
-	isAllowedTo($subActions[$_REQUEST['sa']][1]);
-
 	$context['page_title'] = $txt['paid_subscriptions'];
 
 	// Tabs for browsing the different subscription functions.
@@ -70,6 +64,12 @@ function ManagePaidSubscriptions()
 		);
 
 	call_integration_hook('integrate_manage_subscriptions', array(&$subActions));
+
+	// Default the sub-action to 'view subscriptions', but only if they have already set things up..
+	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (!empty($modSettings['paid_currency_symbol']) && !empty($modSettings['paid_enabled']) ? 'view' : 'settings');
+
+	// Make sure you can do this.
+	isAllowedTo($subActions[$_REQUEST['sa']][1]);
 
 	// Call the right function for this sub-action.
 	call_helper($subActions[$_REQUEST['sa']][0]);
@@ -573,6 +573,11 @@ function ModifySubscription()
 		$emailComplete = strlen($_POST['emailcomplete']) > 10 ? trim($_POST['emailcomplete']) : '';
 		$_POST['prim_group'] = !empty($_POST['prim_group']) ? (int) $_POST['prim_group'] : 0;
 
+		// Cleanup text fields
+		$_POST['name'] = $smcFunc['htmlspecialchars']($_POST['name']);
+		$_POST['desc'] = $smcFunc['htmlspecialchars']($_POST['desc']);
+		$emailComplete = $smcFunc['htmlspecialchars']($emailComplete);
+
 		// Is this a fixed one?
 		if ($_POST['duration_type'] == 'fixed')
 		{
@@ -762,7 +767,7 @@ function ModifySubscription()
 				'repeatable' => $row['repeatable'],
 				'allow_partial' => $row['allow_partial'],
 				'duration' => $isFlexible ? 'flexible' : 'fixed',
-				'email_complete' => $smcFunc['htmlspecialchars']($row['email_complete']),
+				'email_complete' => $row['email_complete'],
 				'reminder' => $row['reminder'],
 			);
 		}

@@ -12,7 +12,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.2
  */
 
 if (!defined('SMF'))
@@ -101,6 +101,7 @@ function createWaveFile($word)
 
 	// Disable compression.
 	ob_end_clean();
+	header_remove('content-encoding');
 	header('content-encoding: none');
 	header('accept-ranges: bytes');
 	header('connection: close');

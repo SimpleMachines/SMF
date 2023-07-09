@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1.0; Timezones
+// Version: 2.1.3; Timezones
 
 global $tztxt;
 
@@ -507,7 +507,7 @@ $txt['Europe/Isle_of_Man'] = 'Isle of Man';
 $txt['Europe/Istanbul'] = 'Istanbul';
 $txt['Europe/Jersey'] = 'Jersey';
 $txt['Europe/Kaliningrad'] = 'Kaliningrad';
-$txt['Europe/Kiev'] = 'Kyiv';
+$txt['Europe/Kyiv'] = 'Kyiv';
 $txt['Europe/Kirov'] = 'Kirov';
 $txt['Europe/Lisbon'] = 'Lisbon';
 $txt['Europe/Ljubljana'] = 'Ljubljana';
@@ -573,6 +573,7 @@ $txt['Pacific/Gambier'] = 'Gambier Islands';
 $txt['Pacific/Guadalcanal'] = 'Guadalcanal';
 $txt['Pacific/Guam'] = 'Guam';
 $txt['Pacific/Honolulu'] = 'Honolulu';
+$txt['Pacific/Kanton'] = 'Canton Island';
 $txt['Pacific/Kiritimati'] = 'Kiritimati';
 $txt['Pacific/Kosrae'] = 'Tofol';
 $txt['Pacific/Kwajalein'] = 'Kwajalein';

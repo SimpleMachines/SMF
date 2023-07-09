@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.4
  */
 
 /**
@@ -787,7 +787,7 @@ function template_editBuddies()
 			if (!empty($context['custom_pf']))
 				foreach ($context['custom_pf'] as $key => $column)
 					echo '
-					<td class="lefttext buddy_custom_fields">', $buddy['options'][$key], '</td>';
+					<td class="centertext buddy_custom_fields">', $buddy['options'][$key], '</td>';
 
 			echo '
 					<td class="centertext buddy_remove">
@@ -1887,7 +1887,7 @@ function template_alert_configuration()
 						<label for="notify_send_body">', $txt['notify_alert_timeout'], '</label>
 					</dt>
 					<dd>
-						<input type="number" size="4" id="notify_alert_timeout" name="opt_alert_timeout" min="0" value="', $context['member']['alert_timeout'], '">
+						<input type="number" size="4" id="notify_alert_timeout" name="opt_alert_timeout" min="0" max="127" value="', $context['member']['alert_timeout'], '">
 					</dd>';
 
 	echo '
@@ -2069,7 +2069,7 @@ function template_groupMembership()
 	if (!empty($context['update_message']))
 		echo '
 			<div class="infobox">
-				', $context['update_message'], '.
+				', $context['update_message'], '
 			</div>';
 
 	echo '
@@ -2968,7 +2968,7 @@ function template_profile_avatar_select()
 										var size = avatar.alt.substr(3, 2) + " " + avatar.alt.substr(0, 2) + String.fromCharCode(117, 98, 116);
 										var file = document.getElementById("file");
 
-										if (avatar.src.indexOf("blank.png") > -1)
+										if (avatar.src.indexOf("blank.png") > -1 || selavatar.indexOf("blank.png") == -1)
 											changeSel(selavatar);
 										else
 											previewExternalAvatar(avatar.src)

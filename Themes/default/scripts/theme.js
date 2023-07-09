@@ -5,7 +5,7 @@ $(function() {
 	$('.preview').SMFtooltip();
 
 	// find all nested linked images and turn off the border
-	$('a.bbc_link img.bbc_img').parent().css('border', '0');
+	$('a.bbc_link img').parent().css('border', '0');
 });
 
 // The purpose of this code is to fix the height of overflow: auto blocks, because some browsers can't figure it out for themselves.

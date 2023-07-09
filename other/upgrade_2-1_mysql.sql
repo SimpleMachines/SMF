@@ -432,11 +432,15 @@ $step_progress['name'] = 'Converting legacy attachments';
 $step_progress['current'] = $_GET['a'];
 
 // We may be using multiple attachment directories.
-if (!empty($modSettings['currentAttachmentUploadDir']) && !is_array($modSettings['attachmentUploadDir']) && empty($modSettings['json_done']))
-	$modSettings['attachmentUploadDir'] = @unserialize($modSettings['attachmentUploadDir']);
+// Allow for reruns - it's possible it's json...
+if (!empty($modSettings['currentAttachmentUploadDir']) && !is_array($modSettings['attachmentUploadDir']))
+	if (empty($modSettings['json_done']))
+		$modSettings['attachmentUploadDir'] = @unserialize($modSettings['attachmentUploadDir']);
+	else
+		$modSettings['attachmentUploadDir'] = @json_decode($modSettings['attachmentUploadDir'], true);
 
-// No need to do this if we already did it previously...
-if (empty($modSettings['attachments_21_done']))
+// No need to do this if we already did it previously...  Unless requested...
+if (empty($modSettings['attachments_21_done']) || !empty($upcontext['reprocess_attachments'])) 
   $is_done = false;
 else
   $is_done = true;
@@ -666,7 +670,7 @@ ADD INDEX `idx_id_member` (`id_member`, `id_group`);
 /******************************************************************************/
 ---# Adding support for <credits> tag in package manager
 ALTER TABLE {$db_prefix}log_packages
-ADD COLUMN credits TEXT NOT NULL DEFAULT '';
+ADD COLUMN credits TEXT NOT NULL;
 ---#
 
 ---# Adding support for package hashes
@@ -1009,7 +1013,7 @@ if (in_array('notify_regularity', $results))
 
 		// Skip errors here so we don't croak if the columns don't exist...
 		$request = $smcFunc['db_query']('', '
-			SELECT id_member, notify_regularity, notify_send_body, notify_types
+			SELECT id_member, notify_regularity, notify_send_body, notify_types, notify_announcements
 			FROM {db_prefix}members
 			ORDER BY id_member
 			LIMIT {int:start}, {int:limit}',
@@ -1024,8 +1028,9 @@ if (in_array('notify_regularity', $results))
 			while ($row = $smcFunc['db_fetch_assoc']($request))
 			{
 				$inserts[] = array($row['id_member'], 'msg_receive_body', !empty($row['notify_send_body']) ? 1 : 0);
-				$inserts[] = array($row['id_member'], 'msg_notify_pref', $row['notify_regularity']);
+				$inserts[] = array($row['id_member'], 'msg_notify_pref', intval($row['notify_regularity']) + 1);
 				$inserts[] = array($row['id_member'], 'msg_notify_type', $row['notify_types']);
+				$inserts[] = array($row['id_member'], 'announcements', !empty($row['notify_announcements']) ? 1 : 0);
 			}
 			$smcFunc['db_free_result']($request);
 		}
@@ -1054,6 +1059,75 @@ ALTER TABLE {$db_prefix}members
 	DROP notify_types,
 	DROP notify_regularity,
 	DROP notify_announcements;
+---#
+
+---# Upgrading auto notify setting
+---{
+$_GET['a'] = isset($_GET['a']) ? (int) $_GET['a'] : 0;
+$step_progress['name'] = 'Upgrading auto notify setting';
+$step_progress['current'] = $_GET['a'];
+
+$limit = 100000;
+$is_done = false;
+
+$request = $smcFunc['db_query']('', '
+	SELECT COUNT(*)
+	FROM {db_prefix}themes
+	WHERE variable = {string:auto_notify}',
+	array(
+		'auto_notify' => 'auto_notify',
+	)
+);
+list($maxMembers) = $smcFunc['db_fetch_row']($request);
+$smcFunc['db_free_result']($request);
+
+while (!$is_done)
+{
+	nextSubStep($substep);
+	$inserts = array();
+
+	// This setting is stored over in the themes table in 2.0...
+	$request = $smcFunc['db_query']('', '
+		SELECT id_member, value
+		FROM {db_prefix}themes
+		WHERE variable = {string:auto_notify}
+		ORDER BY id_member
+		LIMIT {int:start}, {int:limit}',
+		array(
+			'auto_notify' => 'auto_notify',
+			'start' => $_GET['a'],
+			'limit' => $limit,
+		)
+	);
+	if ($smcFunc['db_num_rows']($request) != 0)
+	{
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			$inserts[] = array($row['id_member'], 'msg_auto_notify', !empty($row['value']) ? 1 : 0);
+		}
+		$smcFunc['db_free_result']($request);
+	}
+
+	$smcFunc['db_insert']('ignore',
+		'{db_prefix}user_alerts_prefs',
+		array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'string'),
+		$inserts,
+		array('id_member', 'alert_pref')
+	);
+
+	$_GET['a'] += $limit;
+	$step_progress['current'] = $_GET['a'];
+
+	if ($step_progress['current'] >= $maxMembers)
+		$is_done = true;
+}
+unset($_GET['a']);
+---}
+---#
+
+---# Dropping old auto notify settings from the themes table
+DELETE FROM {$db_prefix}themes
+	WHERE variable = 'auto_notify';
 ---#
 
 ---# Creating alert prefs for watched topics
@@ -2383,7 +2457,7 @@ ADD COLUMN modified_reason VARCHAR(255) NOT NULL DEFAULT '';
 --- Adding timezone support
 /******************************************************************************/
 ---# Adding the "timezone" column to the members table
-ALTER TABLE {$db_prefix}members ADD timezone VARCHAR(80) NOT NULL DEFAULT 'UTC';
+ALTER TABLE {$db_prefix}members ADD timezone VARCHAR(80) NOT NULL DEFAULT '';
 ---#
 
 ---# Converting time offset to timezone
@@ -3114,6 +3188,16 @@ ADD INDEX email_address (email_address);
 ---# Updating members drop memberName
 ALTER TABLE {$db_prefix}members
 DROP INDEX memberName;
+---#
+
+---# Updating members active_real_name (drop)
+ALTER TABLE {$db_prefix}members
+DROP INDEX idx_active_real_name;
+---#
+
+---# Updating members active_real_name (add)
+ALTER TABLE {$db_prefix}members
+ADD INDEX idx_active_real_name (is_activated, real_name);
 ---#
 
 ---# Updating messages drop old ipIndex

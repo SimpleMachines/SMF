@@ -811,7 +811,12 @@ ADD COLUMN IF NOT EXISTS status smallint NOT NULL default '0',
 ADD COLUMN IF NOT EXISTS id_member_acted int NOT NULL default '0',
 ADD COLUMN IF NOT EXISTS member_name_acted varchar(255) NOT NULL default '',
 ADD COLUMN IF NOT EXISTS time_acted int NOT NULL default '0',
-ADD COLUMN IF NOT EXISTS act_reason text NOT NULL;
+ADD COLUMN IF NOT EXISTS act_reason text NOT NULL default '';
+---#
+
+---# Adding new columns to log_group_requests - drop defaults now that existing rows have been set
+ALTER TABLE {$db_prefix}log_group_requests
+ALTER COLUMN act_reason DROP DEFAULT;
 ---#
 
 ---# Adjusting the indexes for log_group_requests
@@ -824,7 +829,12 @@ CREATE INDEX {$db_prefix}log_group_requests_id_member ON {$db_prefix}log_group_r
 /******************************************************************************/
 ---# Adding support for <credits> tag in package manager
 ALTER TABLE {$db_prefix}log_packages
-ADD COLUMN IF NOT EXISTS credits TEXT NOT NULL DEFAULT '';
+ADD COLUMN IF NOT EXISTS credits TEXT NOT NULL default '';
+---#
+
+---# Adding support for <credits> - drop default now that existing rows have been set
+ALTER TABLE {$db_prefix}log_packages
+ALTER COLUMN credits DROP DEFAULT;
 ---#
 
 ---# Adding support for package hashes
@@ -1204,7 +1214,7 @@ if (in_array('notify_regularity', $results))
 
 		// Skip errors here so we don't croak if the columns don't exist...
 		$request = $smcFunc['db_query']('', '
-			SELECT id_member, notify_regularity, notify_send_body, notify_types
+			SELECT id_member, notify_regularity, notify_send_body, notify_types, notify_announcements
 			FROM {db_prefix}members
 			ORDER BY id_member
 			LIMIT {int:start}, {int:limit}',
@@ -1219,8 +1229,9 @@ if (in_array('notify_regularity', $results))
 			while ($row = $smcFunc['db_fetch_assoc']($request))
 			{
 				$inserts[] = array($row['id_member'], 'msg_receive_body', !empty($row['notify_send_body']) ? 1 : 0);
-				$inserts[] = array($row['id_member'], 'msg_notify_pref', $row['notify_regularity']);
+				$inserts[] = array($row['id_member'], 'msg_notify_pref', intval($row['notify_regularity']) + 1);
 				$inserts[] = array($row['id_member'], 'msg_notify_type', $row['notify_types']);
+				$inserts[] = array($row['id_member'], 'announcements', !empty($row['notify_announcements']) ? 1 : 0);
 			}
 			$smcFunc['db_free_result']($request);
 		}
@@ -1249,6 +1260,75 @@ ALTER TABLE {$db_prefix}members
 	DROP IF EXISTS notify_types,
 	DROP IF EXISTS notify_regularity,
 	DROP IF EXISTS notify_announcements;
+---#
+
+---# Upgrading auto notify setting
+---{
+$_GET['a'] = isset($_GET['a']) ? (int) $_GET['a'] : 0;
+$step_progress['name'] = 'Upgrading auto notify setting';
+$step_progress['current'] = $_GET['a'];
+
+$limit = 100000;
+$is_done = false;
+
+$request = $smcFunc['db_query']('', '
+	SELECT COUNT(*)
+	FROM {db_prefix}themes
+	WHERE variable = {string:auto_notify}',
+	array(
+		'auto_notify' => 'auto_notify',
+	)
+);
+list($maxMembers) = $smcFunc['db_fetch_row']($request);
+$smcFunc['db_free_result']($request);
+
+while (!$is_done)
+{
+	nextSubStep($substep);
+	$inserts = array();
+
+	// This setting is stored over in the themes table in 2.0...
+	$request = $smcFunc['db_query']('', '
+		SELECT id_member, value
+		FROM {db_prefix}themes
+		WHERE variable = {string:auto_notify}
+		ORDER BY id_member
+		LIMIT {int:start}, {int:limit}',
+		array(
+			'auto_notify' => 'auto_notify',
+			'start' => $_GET['a'],
+			'limit' => $limit,
+		)
+	);
+	if ($smcFunc['db_num_rows']($request) != 0)
+	{
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			$inserts[] = array($row['id_member'], 'msg_auto_notify', !empty($row['value']) ? 1 : 0);
+		}
+		$smcFunc['db_free_result']($request);
+	}
+
+	$smcFunc['db_insert']('ignore',
+		'{db_prefix}user_alerts_prefs',
+		array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'string'),
+		$inserts,
+		array('id_member', 'alert_pref')
+	);
+
+	$_GET['a'] += $limit;
+	$step_progress['current'] = $_GET['a'];
+
+	if ($step_progress['current'] >= $maxMembers)
+		$is_done = true;
+}
+unset($_GET['a']);
+---}
+---#
+
+---# Dropping old auto notify settings from the themes table
+DELETE FROM {$db_prefix}themes
+	WHERE variable = 'auto_notify';
 ---#
 
 ---# Creating alert prefs for watched topics
@@ -2616,7 +2696,7 @@ ADD COLUMN IF NOT EXISTS modified_reason varchar(255) NOT NULL default '';
 --- Adding timezone support
 /******************************************************************************/
 ---# Adding the "timezone" column to the members table
-ALTER TABLE {$db_prefix}members ADD IF NOT EXISTS timezone VARCHAR(80) NOT NULL DEFAULT 'UTC';
+ALTER TABLE {$db_prefix}members ADD IF NOT EXISTS timezone VARCHAR(80) NOT NULL DEFAULT '';
 ---#
 
 ---# Converting time offset to timezone
@@ -2776,11 +2856,13 @@ ADD COLUMN IF NOT EXISTS tfa_required smallint NOT NULL default '0';
 ---# DROP INDEX to members
 DROP INDEX IF EXISTS {$db_prefix}members_member_name_low;
 DROP INDEX IF EXISTS {$db_prefix}members_real_name_low;
+DROP INDEX IF EXISTS {$db_prefix}members_active_real_name;
 ---#
 
 ---# ADD INDEX to members
 CREATE INDEX {$db_prefix}members_member_name_low ON {$db_prefix}members (LOWER(member_name) varchar_pattern_ops);
 CREATE INDEX {$db_prefix}members_real_name_low ON {$db_prefix}members (LOWER(real_name) varchar_pattern_ops);
+CREATE INDEX {$db_prefix}members_active_real_name ON {$db_prefix}members (is_activated, real_name);
 ---#
 
 /******************************************************************************/

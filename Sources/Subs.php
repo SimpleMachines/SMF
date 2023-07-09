@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.4
  */
 
 if (!defined('SMF'))
@@ -566,10 +566,11 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 	$start_invalid = $start < 0;
 
 	// $start must be within bounds and be a multiple of $num_per_page.
-	$start = max(0, $start);
-	$start = min($start - ($start % $num_per_page), $max_value);
+	$start = min(max(0, $start), $max_value);
+	$start = $start - ($start % $num_per_page);
 
-	$context['current_page'] = $start / $num_per_page;
+	if (!isset($context['current_page']))
+		$context['current_page'] = $start / $num_per_page;
 
 	// Define some default page index settings for compatibility with old themes.
 	// !!! Should this be moved to loadTheme()?
@@ -849,18 +850,23 @@ function get_date_or_time_format($type = '', $format = '')
 		array(
 			// Anything that isn't a specification, punctuation mark, or whitespace.
 			'~(?<!%)\p{L}|[^\p{L}\p{P}\s]~u',
-			// A series of punctuation marks (except %), possibly separated by whitespace.
-			'~([^%\P{P}])(\s*)(?'.'>(\1|[^%\P{Po}])\s*(?!$))*~u',
+			// Repeated punctuation marks (except %), possibly separated by whitespace.
+			'~(?'.'>([^%\P{P}])\s*(?=\1))*~u',
+			'~([^%\P{P}])(?'.'>\1(?!$))*~u',
 			// Unwanted trailing punctuation and whitespace.
 			'~(?'.'>([\p{Pd}\p{Ps}\p{Pi}\p{Pc}]|[^%\P{Po}])\s*)*$~u',
 			// Unwanted opening punctuation and whitespace.
 			'~^\s*(?'.'>([\p{Pd}\p{Pe}\p{Pf}\p{Pc}]|[^%\P{Po}])\s*)*~u',
+			// Runs of horizontal whitespace.
+			'~\s+~',
 		),
 		array(
 			'',
+			'$1',
 			'$1$2',
 			'',
 			'',
+			' ',
 		),
 		$format
 	);
@@ -945,16 +951,16 @@ function smf_strftime(string $format, int $timestamp = null, string $tzid = null
 	// In case this function is called before reloadSettings().
 	if (!isset($smcFunc['strtoupper']))
 	{
-		if (function_exists('mb_strtoupper'))
-		{
-			$smcFunc['strtoupper'] = 'mb_strtoupper';
-			$smcFunc['strtolower'] = 'mb_strtolower';
-		}
-		elseif (isset($sourcedir))
+		if (isset($sourcedir))
 		{
 			require_once($sourcedir . '/Subs-Charset.php');
 			$smcFunc['strtoupper'] = 'utf8_strtoupper';
 			$smcFunc['strtolower'] = 'utf8_strtolower';
+		}
+		elseif (function_exists('mb_strtoupper'))
+		{
+			$smcFunc['strtoupper'] = 'mb_strtoupper';
+			$smcFunc['strtolower'] = 'mb_strtolower';
 		}
 		else
 		{
@@ -1550,7 +1556,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		set_tld_regex();
 
 	// Allow mods access before entering the main parse_bbc loop
-	call_integration_hook('integrate_pre_parsebbc', array(&$message, &$smileys, &$cache_id, &$parse_tags));
+	if ($message !== false)
+		call_integration_hook('integrate_pre_parsebbc', array(&$message, &$smileys, &$cache_id, &$parse_tags));
 
 	// Sift out the bbc for a performance improvement.
 	if (empty($bbc_codes) || $message === false || !empty($parse_tags))
@@ -1575,7 +1582,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				);
 		}
 
-		if (!empty($parse_tags))
+		if (!empty($parse_tags) && $message === false)
 		{
 			if (!in_array('email', $parse_tags))
 				$disabled['email'] = true;
@@ -1730,7 +1737,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					// parseAttachBBC will return a string ($txt key) rather than dying with a fatal_error. Up to you to decide what to do.
 					if (is_string($currentAttachment))
-						return $data = !empty($txt[$currentAttachment]) ? $txt[$currentAttachment] : $currentAttachment;
+						return $data = '<span style="display:inline-block" class="errorbox">' . (!empty($txt[$currentAttachment]) ? $txt[$currentAttachment] : $currentAttachment)  . '</span>';
 
 					// We need a display mode.
 					if (empty($params['{display}']))
@@ -1946,7 +1953,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<a href="$1" target="_blank" rel="noopener">$1</a>',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
-					$data[0] = normalize_iri($data[0]);
+					$data[0] = normalize_iri(strtr(trim($data[0]), array('<br>' => '', ' ' => '%20')));
 
 					$scheme = parse_iri($data[0], PHP_URL_SCHEME);
 					if (empty($scheme))
@@ -1984,7 +1991,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<a href="$1" class="bbc_link" target="_blank" rel="noopener">$1</a>',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					$data = normalize_iri(strtr($data, array('<br>' => '')));
+					$data = normalize_iri(strtr(trim($data), array('<br>' => '', ' ' => '%20')));
 
 					$scheme = parse_iri($data, PHP_URL_SCHEME);
 					if (empty($scheme))
@@ -2003,7 +2010,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'after' => '</a>',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					$data = iri_to_url($data);
+					$data = iri_to_url(strtr(trim($data), array('<br>' => '', ' ' => '%20')));
 
 					$scheme = parse_iri($data, PHP_URL_SCHEME);
 					if (empty($scheme))
@@ -2063,7 +2070,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '$1',
 				'validate' => function(&$tag, &$data, $disabled, $params)
 				{
-					$url = iri_to_url(strtr($data, array('<br>' => '')));
+					$url = iri_to_url(strtr(trim($data), array('<br>' => '', ' ' => '%20')));
 
 					if (parse_iri($url, PHP_URL_SCHEME) === null)
 						$url = '//' . ltrim($url, ':/');
@@ -2083,7 +2090,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<a href="$1" class="bbc_link">$1</a>',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					$data = normalize_iri(strtr($data, array('<br>' => '')));
+					$data = normalize_iri(strtr(trim($data), array('<br>' => '', ' ' => '%20')));
 
 					$scheme = parse_iri($data, PHP_URL_SCHEME);
 					if (empty($scheme))
@@ -2106,7 +2113,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						$data = '#post_' . substr($data, 1);
 					else
 					{
-						$data = iri_to_url($data);
+						$data = iri_to_url(strtr(trim($data), array('<br>' => '', ' ' => '%20')));
 
 						$scheme = parse_iri($data, PHP_URL_SCHEME);
 						if (empty($scheme))
@@ -2400,7 +2407,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<a href="$1" class="bbc_link" target="_blank" rel="noopener">$1</a>',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					$data = normalize_iri(strtr($data, array('<br>' => '')));
+					$data = normalize_iri(strtr(trim($data), array('<br>' => '', ' ' => '%20')));
 
 					$scheme = parse_iri($data, PHP_URL_SCHEME);
 					if (empty($scheme))
@@ -2419,7 +2426,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'after' => '</a>',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					$data = iri_to_url($data);
+					$data = iri_to_url(strtr(trim($data), array('<br>' => '', ' ' => '%20')));
 
 					$scheme = parse_iri($data, PHP_URL_SCHEME);
 					if (empty($scheme))
@@ -2450,6 +2457,13 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			'email',
 			'img',
 			'html',
+			'attach',
+			'ftp',
+			'flash',
+			'member',
+			'code',
+			'php',
+			'nobbc',
 		);
 
 		// Let mods add new BBC without hassle.
@@ -2787,7 +2801,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 								'pct' => '%[0-9A-Fa-f]{2}',
 								'domain_label_char' => '[' . $domain_label_chars . ']',
 								'not_domain_label_char' => '[^' . $domain_label_chars . ']',
-								'domain' => '(?:(?P>domain_label_char)+\.)+(?P>tlds)',
+								'domain' => '(?:(?P>domain_label_char)+\.)+(?P>tlds)(?!\.(?P>domain_label_char))',
 								'no_domain' => '(?:(?P>domain_label_char)|[._\~!$&\'()*+,;=:@]|(?P>pct))+',
 								'scheme_need_domain' => build_regex($schemes['need_domain'], '~'),
 								'scheme_empty_authority' => build_regex($schemes['empty_authority'], '~'),
@@ -2863,7 +2877,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 							$pcre_subroutines['bracket_quote'] = '[' . $bracket_quote_chars . ']|&' . build_regex($bracket_quote_entities, '~');
 							$pcre_subroutines['allowed_entities'] = '&(?!' . build_regex(array_merge($bracket_quote_entities, array('lt;', 'gt;')), '~') . ')';
-							$pcre_subroutines['excluded_lookahead'] = '(?![' . $excluded_trailing_chars . ']*(?>[\h\v]|<br>|$))';
+							$pcre_subroutines['excluded_lookahead'] = '(?![' . $excluded_trailing_chars . ']*(?' . '>[\h\v]|<br>|$))';
 
 							foreach (array('path', 'query', 'fragment') as $part)
 							{
@@ -2915,7 +2929,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 								'(?:' .
 
 									// URI scheme (or lack thereof for schemeless URLs)
-									'(?:' .
+									'(?' . '>' .
 										// URI scheme and colon
 										'\b' .
 										'(?:' .
@@ -5135,7 +5149,7 @@ function ip2range($fullip)
 		$ip_array['low'] = $fullip;
 		$ip_array['high'] = $fullip;
 		return $ip_array;
-	} // if ip 22.12.* -> 22.12.* - 22.12.*
+	} // if ip 22.12.* -> 22.12.*-22.12.*
 	elseif (count($ip_parts) == 1)
 	{
 		$ip_parts[0] = $fullip;
@@ -5520,7 +5534,7 @@ function setupMenuContext()
 			'login' => array(
 				'title' => $txt['login'],
 				'href' => $scripturl . '?action=login',
-				'onclick' => 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');',
+				'onclick' => 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ', \'login\');',
 				'show' => $user_info['is_guest'] && !empty($settings['login_main_menu']),
 				'sub_buttons' => array(
 				),
@@ -5768,7 +5782,8 @@ function call_integration_hook($hook, $parameters = array())
 
 /**
  * Add a function for integration hook.
- * does nothing if the function is already added.
+ * Does nothing if the function is already added.
+ * Cleans up enabled/disabled variants before taking requested action.
  *
  * @param string $hook The complete hook name.
  * @param string $function The function name. Can be a call to a method via Class::method.
@@ -5778,7 +5793,7 @@ function call_integration_hook($hook, $parameters = array())
  */
 function add_integration_function($hook, $function, $permanent = true, $file = '', $object = false)
 {
-	global $smcFunc, $modSettings;
+	global $smcFunc, $modSettings, $context;
 
 	// Any objects?
 	if ($object)
@@ -5790,6 +5805,8 @@ function add_integration_function($hook, $function, $permanent = true, $file = '
 
 	// Get the correct string.
 	$integration_call = $function;
+	$enabled_call = rtrim($function, '!');
+	$disabled_call = $enabled_call . '!';
 
 	// Is it going to be permanent?
 	if ($permanent)
@@ -5808,10 +5825,11 @@ function add_integration_function($hook, $function, $permanent = true, $file = '
 		if (!empty($current_functions))
 		{
 			$current_functions = explode(',', $current_functions);
-			if (in_array($integration_call, $current_functions))
-				return;
 
-			$permanent_functions = array_merge($current_functions, array($integration_call));
+			// Cleanup enabled/disabled variants before taking action.
+			$current_functions = array_diff($current_functions, array($enabled_call, $disabled_call));
+	
+			$permanent_functions = array_unique(array_merge($current_functions, array($integration_call)));
 		}
 		else
 			$permanent_functions = array($integration_call);
@@ -5822,18 +5840,26 @@ function add_integration_function($hook, $function, $permanent = true, $file = '
 	// Make current function list usable.
 	$functions = empty($modSettings[$hook]) ? array() : explode(',', $modSettings[$hook]);
 
-	// Do nothing, if it's already there.
-	if (in_array($integration_call, $functions))
-		return;
+	// Cleanup enabled/disabled variants before taking action.
+	$functions = array_diff($functions, array($enabled_call, $disabled_call));
 
-	$functions[] = $integration_call;
+	$functions = array_unique(array_merge($functions, array($integration_call)));
 	$modSettings[$hook] = implode(',', $functions);
+
+	// It is handy to be able to know which hooks are temporary...
+	if ($permanent !== true)
+	{
+		if (!isset($context['integration_hooks_temporary']))
+			$context['integration_hooks_temporary'] = array();
+		$context['integration_hooks_temporary'][$hook][$function] = true;
+	}
 }
 
 /**
  * Remove an integration hook function.
  * Removes the given function from the given hook.
  * Does nothing if the function is not available.
+ * Cleans up enabled/disabled variants before taking requested action.
  *
  * @param string $hook The complete hook name.
  * @param string $function The function name. Can be a call to a method via Class::method.
@@ -5856,6 +5882,8 @@ function remove_integration_function($hook, $function, $permanent = true, $file 
 
 	// Get the correct string.
 	$integration_call = $function;
+	$enabled_call = rtrim($function, '!');
+	$disabled_call = $enabled_call . '!';
 
 	// Get the permanent functions.
 	$request = $smcFunc['db_query']('', '
@@ -5873,18 +5901,18 @@ function remove_integration_function($hook, $function, $permanent = true, $file 
 	{
 		$current_functions = explode(',', $current_functions);
 
-		if (in_array($integration_call, $current_functions))
-			updateSettings(array($hook => implode(',', array_diff($current_functions, array($integration_call)))));
+		// Cleanup enabled and disabled variants.
+		$current_functions = array_unique(array_diff($current_functions, array($enabled_call, $disabled_call)));
+
+		updateSettings(array($hook => implode(',', $current_functions)));
 	}
 
 	// Turn the function list into something usable.
 	$functions = empty($modSettings[$hook]) ? array() : explode(',', $modSettings[$hook]);
 
-	// You can only remove it if it's available.
-	if (!in_array($integration_call, $functions))
-		return;
+	// Cleanup enabled and disabled variants.
+	$functions = array_unique(array_diff($functions, array($enabled_call, $disabled_call)));
 
-	$functions = array_diff($functions, array($integration_call));
 	$modSettings[$hook] = implode(',', $functions);
 }
 
@@ -8088,6 +8116,10 @@ function check_cron()
 function send_http_status($code, $status = '')
 {
 	global $sourcedir;
+
+	// This will fail anyways if headers have been sent.
+	if (headers_sent())
+		return;
 
 	$statuses = array(
 		204 => 'No Content',

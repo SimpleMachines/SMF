@@ -1,0 +1,202 @@
+/* For the revamped attachments UI introduced in 2.1.4 */
+
+/* Stuff common to both Display.template.php and Post.template.php */
+.attachments {
+	padding: 12px 0 0 0;
+	display: flex;
+	flex-flow: row wrap;
+}
+.attached {
+	padding: 0 6px 8px 6px;
+	max-width: 100%;
+	display: flex;
+	flex-flow: column;
+	justify-content: center;
+	align-items: center;
+	vertical-align: initial;
+}
+.attachments_top {
+	margin: 0 auto;
+	text-align: center;
+	flex: 1 1 auto;
+	display: flex;
+	flex-flow: column;
+	justify-content: center;
+}
+.attachments_bot {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 100%;
+}
+.attachments_bot a,
+.attachments_bot .name,
+.attachments_info .name {
+	white-space: nowrap;
+}
+
+/* Stuff unique to Post.template.php */
+div#post_attachments_area.roundframe {
+	overflow: auto;
+	border-top: none;
+	padding: 0;
+}
+#post_attachments_area #postAttachment,
+#post_attachments_area #postAttachment2,
+#post_attachments_area #attachment_previews {
+	padding: initial;
+}
+#post_attachments_area #postAttachment .attachments {
+	padding: 0;
+	border-top: none;
+	box-shadow: none;
+}
+#post_attachments_area #postAttachment .attached {
+	border-right: 1px dotted #ddd;
+	border-top: 1px dotted #ddd;
+	padding-top: 9px;
+	width: 200px;
+	position: relative;
+}
+#post_attachments_area #postAttachment input {
+	line-height: initial;
+}
+#post_attachments_area #postAttachment .attached input[type="checkbox"] {
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+#post_attachments_area .attachment_spacer {
+	display: flex;
+	flex-flow: column;
+	flex: 1 1 200px;
+	min-width: 200px;
+	order: 9999;
+}
+#post_attachments_area .attach_drop_zone_label {
+	font-weight: bold;
+	margin: auto;
+	width: 100%;
+}
+#post_attachments_area .attachment_restrictions {
+	flex: 0 0 auto;
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: center;
+}
+#post_attachments_area .attachment_restrictions > * {
+	margin: 0 2ch;
+}
+#post_attachments_area .dz-image-preview {
+	flex: 1 0 auto;
+	display: flex;
+	flex-flow: column;
+	align-items: center;
+	justify-content: center;
+	position: relative;
+	margin: 0;
+}
+#post_attachments_area .dz-image-preview .attachment_preview_wrapper {
+	flex: 1 0 auto;
+	display: flex;
+	flex-flow: column;
+	align-items: center;
+	justify-content: center;
+	width: 200px;
+	overflow: hidden;
+	padding: 5px;
+}
+#post_attachments_area .dz-image-preview:not(.errorbox) .attachment_preview_wrapper {
+	position: relative;
+}
+#post_attachments_area #attachment_previews {
+	display: none;
+	flex-flow: row wrap;
+	justify-content: space-evenly;
+}
+#post_attachments_area #attachment_previews .descbox .attachment_preview_wrapper,
+#post_attachments_area #attachment_previews .errorbox .attachment_preview_wrapper,
+#post_attachments_area #attachment_previews .infobox .attachment_preview_wrapper {
+	padding: initial;
+	width: 155px;
+}
+#post_attachments_area #attachment_previews .descbox .attach-preview,
+#post_attachments_area #attachment_previews .errorbox .attach-preview,
+#post_attachments_area #attachment_previews .infobox .attach-preview {
+	display: none;
+}
+#post_attachments_area #attachment_previews .attach-preview {
+	flex: 1 1 auto;
+	display: flex;
+	justify-content: center;
+	margin: 0.5em 0;
+	min-height: 75px;
+	max-height: 200px;
+	width: auto;
+}
+#post_attachments_area #attachment_previews .attach-preview img {
+	object-fit: contain;
+}
+#post_attachments_area #attachment_previews .attachment_info {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 100%;
+	flex: initial;
+	width: auto;
+}
+#post_attachments_area #attachment_previews .attachment_info span:not(:first-child)::before {
+	display: block;
+	content: "";
+}
+#post_attachments_area #attachment_previews .attach-ui {
+	position: absolute;
+	right: 5px;
+	top: 5px;
+	border-radius: 4px;
+	padding: 0.5ch;
+	min-height: initial;
+	margin: 0;
+	box-shadow: none;
+}
+#post_attachments_area .attached_BBC_width_height {
+	display: none;
+	clear: both;
+}
+#post_attachments_area .attached_BBC_width,
+#post_attachments_area .attached_BBC_height {
+	padding: 5px 0;
+	margin: 0;
+	display: block;
+}
+#post_attachments_area #attachment_upload {
+	border: 2px dashed transparent;
+	border-radius: 5px;
+	min-height: initial;
+}
+#post_attachments_area #attachment_upload.dz-drag-hover {
+	border-color: #557ea0;
+}
+#post_attachments_area .dz-clickable {
+	cursor: pointer;
+}
+#post_attachments_area #drop_zone_ui {
+	display: none;
+	min-width: 100%;
+	flex-flow: row wrap;
+	padding: 5px;
+}
+#post_attachments_area #max_files_progress {
+	display: none;
+	border-radius: 0;
+	border-left: none;
+	border-right: none;
+	border-bottom: none;
+}
+#post_attachments_area #max_files_progress_text {
+	display: none;
+	position: relative;
+	z-index: 1;
+}
+#post_attachments_area #max_files_progress,
+#post_attachments_area .progress_bar .bar {
+	z-index: initial;
+}

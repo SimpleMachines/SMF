@@ -13,13 +13,14 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.1
+ * @version 2.1.4
  */
 
 $unicode_data_url = 'https://unicode.org/Public/UCD/latest/ucd';
+$idna_data_url = 'https://www.unicode.org/Public/idna/latest';
 
 $sourcedir = realpath(dirname(__DIR__) . '/Sources');
 $unicodedir = $sourcedir . '/Unicode';
@@ -50,14 +51,44 @@ $funcs = array(
 		'val_type' => 'int',
 		'data' => array(),
 	),
+	'utf8_strtolower_simple_maps' => array(
+		'file' => 'CaseLower.php',
+		'key_type' => 'hexchar',
+		'val_type' => 'hexchar',
+		'data' => array(),
+	),
 	'utf8_strtolower_maps' => array(
 		'file' => 'CaseLower.php',
 		'key_type' => 'hexchar',
 		'val_type' => 'hexchar',
 		'data' => array(),
 	),
+	'utf8_strtoupper_simple_maps' => array(
+		'file' => 'CaseUpper.php',
+		'key_type' => 'hexchar',
+		'val_type' => 'hexchar',
+		'data' => array(),
+	),
 	'utf8_strtoupper_maps' => array(
 		'file' => 'CaseUpper.php',
+		'key_type' => 'hexchar',
+		'val_type' => 'hexchar',
+		'data' => array(),
+	),
+	'utf8_titlecase_simple_maps' => array(
+		'file' => 'CaseTitle.php',
+		'key_type' => 'hexchar',
+		'val_type' => 'hexchar',
+		'data' => array(),
+	),
+	'utf8_titlecase_maps' => array(
+		'file' => 'CaseTitle.php',
+		'key_type' => 'hexchar',
+		'val_type' => 'hexchar',
+		'data' => array(),
+	),
+	'utf8_casefold_simple_maps' => array(
+		'file' => 'CaseFold.php',
 		'key_type' => 'hexchar',
 		'val_type' => 'hexchar',
 		'data' => array(),
@@ -86,6 +117,7 @@ $funcs = array(
 		),
 		'props' => array(
 			'Bidi_Control',
+			'Case_Ignorable',
 			'Cn',
 			'Default_Ignorable_Code_Point',
 			'Emoji',
@@ -115,6 +147,36 @@ $funcs = array(
 		'val_type' => 'string',
 		'data' => array(),
 	),
+	'utf8_regex_quick_check' => array(
+		'file' => 'QuickCheck.php',
+		'key_type' => 'string',
+		'val_type' => 'string',
+		'data' => array(),
+	),
+	'idna_maps' => array(
+		'file' => 'Idna.php',
+		'key_type' => 'hexchar',
+		'val_type' => 'hexchar',
+		'data' => array(),
+	),
+	'idna_maps_deviation' => array(
+		'file' => 'Idna.php',
+		'key_type' => 'hexchar',
+		'val_type' => 'hexchar',
+		'data' => array(),
+	),
+	'idna_maps_not_std3' => array(
+		'file' => 'Idna.php',
+		'key_type' => 'hexchar',
+		'val_type' => 'hexchar',
+		'data' => array(),
+	),
+	'idna_regex' => array(
+		'file' => 'Idna.php',
+		'key_type' => 'string',
+		'val_type' => 'string',
+		'data' => array(),
+	),
 );
 
 foreach ($funcs as $func_name => $func_info)
@@ -133,8 +195,22 @@ foreach ($funcs as $func_name => $func_info)
 
 // We need some of these for further analysis below.
 $derived_normalization_props = array();
+$unicode_version = '';
 foreach (file($unicode_data_url . '/DerivedNormalizationProps.txt') as $line)
 {
+	if ($unicode_version === '' && preg_match('/(\d+\.\d+\.\d+(?:\.\d+)?)\.txt$/', $line, $matches))
+	{
+		$unicode_version = implode('.', array_pad(explode('.', $matches[1]), 4, '0'));
+
+		$file_contents = file_get_contents($unicodedir . '/Metadata.php');
+		$file_contents = preg_replace(
+			"~\bdefine\('SMF_UNICODE_VERSION', '[^']+'\)~",
+			"define('SMF_UNICODE_VERSION', '" . $unicode_version . "')",
+			$file_contents
+		);
+		file_put_contents($unicodedir . '/Metadata.php', $file_contents);
+	}
+
 	$line = substr($line, 0, strcspn($line, '#'));
 
 	if (strpos($line, ';') === false)
@@ -200,25 +276,36 @@ foreach (file($unicode_data_url . '/UnicodeData.txt') as $line)
 {
 	$fields = explode(';', $line);
 
+	foreach ($fields as $key => $value)
+	{
+		$fields[$key] = trim($value);
+	}
+
 	if (!empty($fields[3]))
 	{
-		$funcs['utf8_combining_classes']['data']['&#x' . $fields[0] . ';'] = trim($fields[3]);
+		$funcs['utf8_combining_classes']['data']['&#x' . $fields[0] . ';'] = $fields[3];
 	}
 
 	// Uppercase maps.
 	if ($fields[12] !== '')
 	{
-		$funcs['utf8_strtoupper_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . $fields[12] . ';';
+		$funcs['utf8_strtoupper_simple_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . $fields[12] . ';';
 	}
 
 	// Lowercase maps.
 	if ($fields[13] !== '')
 	{
-		$funcs['utf8_strtolower_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . $fields[13] . ';';
+		$funcs['utf8_strtolower_simple_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . $fields[13] . ';';
+	}
+
+	// Titlecase maps, where different from uppercase maps.
+	if ($fields[14] !== '' && $fields[14] !== $fields[12])
+	{
+		$funcs['utf8_titlecase_simple_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . $fields[14] . ';';
 	}
 
 	// Remember this character's general category for later.
-	$char_data['&#x' . $fields[0] . ';']['General_Category'] = trim($fields[2]);
+	$char_data['&#x' . $fields[0] . ';']['General_Category'] = $fields[2];
 
 	if ($fields[5] === '')
 	{
@@ -231,9 +318,48 @@ foreach (file($unicode_data_url . '/UnicodeData.txt') as $line)
 	// Just the canonical decompositions.
 	if (strpos($fields[5], '<') === false)
 	{
-		$funcs['utf8_normalize_d_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[5])) . ';';
+		$funcs['utf8_normalize_d_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', $fields[5]) . ';';
 	}
 }
+
+// Full case conversion maps
+$funcs['utf8_strtoupper_maps']['data'] = $funcs['utf8_strtoupper_simple_maps']['data'];
+$funcs['utf8_strtolower_maps']['data'] = $funcs['utf8_strtolower_simple_maps']['data'];
+$funcs['utf8_titlecase_maps']['data'] = $funcs['utf8_titlecase_simple_maps']['data'];
+foreach (file($unicode_data_url . '/SpecialCasing.txt') as $line)
+{
+	$line = substr($line, 0, strcspn($line, '#'));
+
+	if (strpos($line, ';') === false)
+	{
+		continue;
+	}
+
+	$fields = explode(';', $line);
+
+	foreach ($fields as $key => $value)
+	{
+		$fields[$key] = trim($value);
+	}
+
+	// Unconditional mappings.
+	// Note: conditional mappings need to be handled by more complex code.
+	if (empty($fields[4]))
+	{
+		$funcs['utf8_strtolower_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[1])) . ';';
+
+		$funcs['utf8_strtoupper_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[3])) . ';';
+
+		// Titlecase only where different from uppercase.
+		if ($fields[3] !== $fields[2])
+		{
+			$funcs['utf8_titlecase_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[2])) . ';';
+		}
+	}
+}
+ksort($funcs['utf8_strtolower_maps']['data']);
+ksort($funcs['utf8_strtoupper_maps']['data']);
+ksort($funcs['utf8_titlecase_maps']['data']);
 
 foreach (file($unicode_data_url . '/CaseFolding.txt') as $line)
 {
@@ -257,9 +383,9 @@ foreach (file($unicode_data_url . '/CaseFolding.txt') as $line)
 		$funcs['utf8_casefold_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[2])) . ';';
 	}
 
-	// Simple casefolding. Currently unused.
-	// if (in_array($fields[1], array('C', 'S')))
-	// 	$funcs['utf8_casefold_simple_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[2])) . ';';
+	// Simple casefolding.
+	if (in_array($fields[1], array('C', 'S')))
+		$funcs['utf8_casefold_simple_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[2])) . ';';
 }
 
 // Recursively iterate until we reach the final decomposition forms.
@@ -328,7 +454,7 @@ while ($changed)
 }
 
 $funcs['utf8_normalize_kd_maps']['data'] = array_diff_assoc($full_decomposition_maps, $funcs['utf8_normalize_d_maps']['data']);
-unset($full_decomposition_maps, $derived_normalization_props);
+unset($full_decomposition_maps);
 
 // Now update the files with the data we've got so far.
 foreach ($funcs as $func_name => $func_info)
@@ -350,6 +476,53 @@ foreach ($funcs as $func_name => $func_info)
 /***********************************
  * Part 2: Regular expression data *
  ***********************************/
+
+foreach (array('NFC_QC', 'NFKC_QC', 'NFD_QC', 'NFKD_QC', 'Changes_When_NFKC_Casefolded') as $prop)
+{
+	$current_range = array('start' => null, 'end' => null);
+	foreach ($derived_normalization_props[$prop] as $entity => $nm)
+	{
+		$range_string = '';
+
+		$ord = hexdec(trim($entity, '&#x;'));
+
+		if (!isset($current_range['start']))
+		{
+			$current_range['start'] = $ord;
+		}
+
+		if (!isset($current_range['end']) || $ord == $current_range['end'] + 1)
+		{
+			$current_range['end'] = $ord;
+		}
+		else
+		{
+			$range_string .= '\\x{' . strtoupper(sprintf('%04s', dechex($current_range['start']))) . '}';
+
+			if ($current_range['start'] != $current_range['end'])
+			{
+				$range_string .= '-\\x{' . strtoupper(sprintf('%04s', dechex($current_range['end']))) . '}';
+			}
+
+			$current_range = array('start' => $ord, 'end' => $ord);
+
+			$funcs['utf8_regex_quick_check']['data'][$prop][] = $range_string;
+		}
+	}
+
+	if (isset($current_range['start']))
+	{
+		$range_string = '\\x{' . strtoupper(sprintf('%04s', dechex($current_range['start']))) . '}';
+
+		if ($current_range['start'] != $current_range['end'])
+		{
+			$range_string .= '-\\x{' . strtoupper(sprintf('%04s', dechex($current_range['end']))) . '}';
+		}
+
+		$funcs['utf8_regex_quick_check']['data'][$prop][] = $range_string;
+	}
+}
+unset($derived_normalization_props);
 
 // Build regular expression classes for extended Unicode properties.
 foreach ($funcs['utf8_regex_properties']['propfiles'] as $filename)
@@ -374,10 +547,10 @@ foreach ($funcs['utf8_regex_properties']['propfiles'] as $filename)
 		{
 			if (!isset($funcs['utf8_regex_properties']['data'][$fields[1]]))
 			{
-				$funcs['utf8_regex_properties']['data'][$fields[1]] = '';
+				$funcs['utf8_regex_properties']['data'][$fields[1]] = array();
 			}
 
-			$funcs['utf8_regex_properties']['data'][$fields[1]] .= '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
+			$funcs['utf8_regex_properties']['data'][$fields[1]][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
 		}
 
 		// We also track 'Default_Ignorable_Code_Point' property in a separate array.
@@ -487,6 +660,10 @@ foreach ($funcs['utf8_regex_variation_selectors']['data'] as $variation_selector
 	}
 
 	$funcs['utf8_regex_variation_selectors']['data'][$variation_selector] = $class_string;
+}
+foreach ($funcs['utf8_regex_variation_selectors']['data'] as $variation_selector => $class_string)
+{
+	$funcs['utf8_regex_variation_selectors']['data'][$variation_selector] = preg_split('/(?<=})(?=\\\x{)/', $class_string);
 }
 krsort($funcs['utf8_regex_variation_selectors']['data']);
 
@@ -777,7 +954,6 @@ foreach ($funcs['utf8_regex_joining_type']['data'] as $char_script => $joining_t
 	foreach ($joining_types as $joining_type => $value)
 	{
 		sort($value);
-		$funcs['utf8_regex_joining_type']['data'][$char_script][$joining_type] = implode('', $value);
 	}
 }
 
@@ -896,7 +1072,6 @@ foreach ($funcs['utf8_regex_indic']['data'] as $char_script => $inscs)
 
 		if (!in_array($insc, array('All', 'Letter', 'Nonspacing_Mark', 'Nonspacing_Combining_Mark')))
 		{
-			$funcs['utf8_regex_indic']['data'][$char_script][$insc] = implode('', $value);
 			continue;
 		}
 
@@ -938,7 +1113,7 @@ foreach ($funcs['utf8_regex_indic']['data'] as $char_script => $inscs)
 			}
 		}
 
-		$funcs['utf8_regex_indic']['data'][$char_script][$insc] = $class_string;
+		$funcs['utf8_regex_indic']['data'][$char_script][$insc] = preg_split('/(?<=})(?=\\\x{)/', $class_string);
 	}
 
 	ksort($funcs['utf8_regex_indic']['data'][$char_script]);
@@ -947,6 +1122,97 @@ unset($funcs['utf8_combining_classes']);
 
 foreach ($funcs as $func_name => $func_info)
 {
+	if (empty($func_info['data']))
+	{
+		continue;
+	}
+
+	export_func_to_file($func_name, $func_info);
+}
+
+/*********************************
+ * Part 3: IDNA maps and regexes *
+ *********************************/
+
+foreach (file($idna_data_url . '/IdnaMappingTable.txt') as $line)
+{
+	$line = substr($line, 0, strcspn($line, '#'));
+
+	if (strpos($line, ';') === false)
+	{
+		continue;
+	}
+
+	$fields = explode(';', $line);
+
+	foreach ($fields as $key => $value)
+	{
+		$fields[$key] = preg_replace('/\b(0(?!\b))+/', '', trim($value));
+	}
+
+	if (strpos($fields[0], '..') === false)
+	{
+		$entities = array('&#x' . $fields[0] . ';');
+	}
+	else
+	{
+		$entities = array();
+
+		list($start, $end) = explode('..', $fields[0]);
+
+		$ord_s = hexdec($start);
+		$ord_e = hexdec($end);
+
+		$ord = $ord_s;
+		while ($ord <= $ord_e)
+		{
+			$entities[] = '&#x' . strtoupper(sprintf('%04s', dechex($ord++))) . ';';
+		}
+	}
+
+	if ($fields[1] === 'mapped')
+	{
+		foreach ($entities as $entity)
+			$funcs['idna_maps']['data'][$entity] = $fields[2] === '' ? '' : '&#x' . str_replace(' ', '; &#x', $fields[2]) . ';';
+	}
+	elseif ($fields[1] === 'deviation')
+	{
+		foreach ($entities as $entity)
+			$funcs['idna_maps_deviation']['data'][$entity] = $fields[2] === '' ? '' : '&#x' . str_replace(' ', '; &#x', $fields[2]) . ';';
+
+		$funcs['idna_regex']['data']['deviation'][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
+	}
+	elseif ($fields[1] === 'ignored')
+	{
+		$funcs['idna_regex']['data']['ignored'][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
+	}
+	elseif ($fields[1] === 'disallowed')
+	{
+		if (in_array('&#xD800;', $entities))
+			continue;
+
+		$funcs['idna_regex']['data']['disallowed'][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
+	}
+	elseif ($fields[1] === 'disallowed_STD3_mapped')
+	{
+		foreach ($entities as $entity)
+			$funcs['idna_maps_not_std3']['data'][$entity] = $fields[2] === '' ? '' : '&#x' . str_replace(' ', '; &#x', $fields[2]) . ';';
+
+		$funcs['idna_regex']['data']['disallowed_std3'][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
+	}
+	elseif ($fields[1] === 'disallowed_STD3_valid')
+	{
+		$funcs['idna_regex']['data']['disallowed_std3'][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
+	}
+}
+
+foreach ($funcs as $func_name => $func_info)
+{
+	if (empty($func_info['data']))
+	{
+		continue;
+	}
+
 	export_func_to_file($func_name, $func_info);
 }
 
@@ -1006,20 +1272,31 @@ function build_func_array(&$func_text, $data, $key_type, $val_type)
 
 			$func_text .= '" => ';
 		}
-		elseif ($key_type == 'string')
+		elseif ($key_type == 'string' && !is_int($key))
 		{
 			$func_text .= var_export($key, true) . ' => ';
 		}
 
 		if (is_array($value))
 		{
-			$func_text .= 'array(' . "\n";
+			if ($val_type == 'string' && ($string_count = count($value)) === count($value, COUNT_RECURSIVE))
+			{
+				$nextline = "\n" . str_repeat("\t", $indent + 1);
 
-			$indent++;
-			build_func_array($func_text, $value, $key_type, $val_type);
-			$indent--;
+				$func_text = rtrim($func_text);
 
-			$func_text .= str_repeat("\t", $indent) . ')';
+				$func_text .= $nextline . implode(' .' . $nextline, array_map(function ($v) { return var_export($v, true); }, $value));
+			}
+			else
+			{
+				$func_text .= 'array(' . "\n";
+
+				$indent++;
+				build_func_array($func_text, $value, $key_type, $val_type);
+				$indent--;
+
+				$func_text .= str_repeat("\t", $indent) . ')';
+			}
 		}
 		elseif ($val_type == 'hexchar')
 		{

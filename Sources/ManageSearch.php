@@ -10,7 +10,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -48,11 +48,6 @@ function ManageSearch()
 		'createmsgindex' => 'CreateMessageIndex',
 	);
 
-	// Default the sub-action to 'edit search settings'.
-	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'weights';
-
-	$context['sub_action'] = $_REQUEST['sa'];
-
 	// Create the tabs for the template.
 	$context[$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['manage_search'],
@@ -72,6 +67,11 @@ function ManageSearch()
 	);
 
 	call_integration_hook('integrate_manage_search', array(&$subActions));
+
+	// Default the sub-action to 'edit search settings'.
+	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'weights';
+
+	$context['sub_action'] = $_REQUEST['sa'];
 
 	// Call the right function for this sub-action.
 	call_helper($subActions[$_REQUEST['sa']]);
@@ -267,14 +267,22 @@ function EditSearchMethod()
 		checkSession('get');
 		validateToken('admin-msm', 'get');
 
-		$smcFunc['db_query']('', '
-			ALTER TABLE {db_prefix}messages
-			DROP INDEX ' . implode(',
-			DROP INDEX ', $context['fulltext_index']),
-			array(
-				'db_error_skip' => true,
-			)
-		);
+		if ($db_type == 'postgresql')
+			$smcFunc['db_query']('', '
+				DROP INDEX IF EXISTS {db_prefix}messages_ftx',
+				array(
+					'db_error_skip' => true,
+				)
+			);
+		else
+			$smcFunc['db_query']('', '
+				ALTER TABLE {db_prefix}messages
+				DROP INDEX ' . implode(',
+				DROP INDEX ', $context['fulltext_index']),
+				array(
+					'db_error_skip' => true,
+				)
+			);
 
 		// Go back to the default search method.
 		if (!empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext')

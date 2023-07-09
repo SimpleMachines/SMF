@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.4
  */
 
 if (!defined('SMF'))
@@ -40,6 +40,7 @@ function Display()
 
 	// Load the proper template.
 	loadTemplate('Display');
+	loadCSSFile('attachments.css', array('minimize' => true, 'order_pos' => 450), 'smf_attachments');
 
 	// Not only does a prefetch make things slower for the server, but it makes it impossible to know if they read it.
 	if (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch')
@@ -1039,8 +1040,13 @@ function Display()
 					'now' => time(),
 				)
 			);
-			$user_info['alerts'] = max(0, $user_info['alerts'] - max(0, $smcFunc['db_affected_rows']()));
-			updateMemberData($user_info['id'], array('alerts' => $user_info['alerts']));
+			// If changes made, update the member record as well
+			if ($smcFunc['db_affected_rows']() > 0)
+			{
+				require_once($sourcedir . '/Profile-Modify.php');
+				$user_info['alerts'] = alert_count($user_info['id'], true);
+				updateMemberData($user_info['id'], array('alerts' => $user_info['alerts']));
+			}
 		}
 	}
 

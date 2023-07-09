@@ -13,7 +13,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -440,7 +440,7 @@ function mb_ord_chr_encoding($encoding = null)
 foreach (
 	array(
 		'IDNA_DEFAULT' => 0,
-		'IDNA_ALLOW_UNASSIGNED' => 0,
+		'IDNA_ALLOW_UNASSIGNED' => 1,
 		'IDNA_USE_STD3_RULES' => 2,
 		'IDNA_CHECK_BIDI' => 4,
 		'IDNA_CHECK_CONTEXTJ' => 8,
@@ -461,12 +461,15 @@ if (!function_exists('idn_to_ascii'))
 	/**
 	 * Compatibility function.
 	 *
-	 * This is not a complete polyfill. The $flags, $variant, and $idna_info
-	 * parameters are included for compatibility with the standard PHP
-	 * function, but only the default values are supported.
+	 * This is not a complete polyfill:
+	 *
+	 *  - $flags only supports IDNA_DEFAULT, IDNA_NONTRANSITIONAL_TO_ASCII,
+	 *    and IDNA_USE_STD3_RULES.
+	 *  - $variant is ignored, because INTL_IDNA_VARIANT_UTS46 is always used.
+	 *  - $idna_info is ignored.
 	 *
 	 * @param string $domain The domain to convert, which must be UTF-8 encoded.
-	 * @param int $flags Ignored in this compatibility function.
+	 * @param int $flags A subset of possible IDNA_* flags.
 	 * @param int $variant Ignored in this compatibility function.
 	 * @param array|null $idna_info Ignored in this compatibility function.
 	 * @return string|bool The domain name encoded in ASCII-compatible form, or false on failure.
@@ -475,11 +478,19 @@ if (!function_exists('idn_to_ascii'))
 	{
 		global $sourcedir;
 
-		require_once($sourcedir . '/Subs-Charset.php');
-		require_once($sourcedir . '/Class-Punycode.php');
-		$Punycode = new Punycode();
+		static $Punycode;
 
-		return $Punycode->encode(sanitize_iri(utf8_normalize_kc_casefold($domain)));
+		require_once($sourcedir . '/Class-Punycode.php');
+
+		if (!is_object($Punycode))
+			$Punycode = new Punycode();
+
+		if (method_exists($Punycode, 'useStd3'))
+			$Punycode->useStd3($flags === ($flags | IDNA_USE_STD3_RULES));
+		if (method_exists($Punycode, 'useNonTransitional'))
+			$Punycode->useNonTransitional($flags === ($flags | IDNA_NONTRANSITIONAL_TO_ASCII));
+
+		return $Punycode->encode($domain);
 	}
 }
 
@@ -488,9 +499,12 @@ if (!function_exists('idn_to_utf8'))
 	/**
 	 * Compatibility function.
 	 *
-	 * This is not a complete polyfill. The $flags, $variant, and $idna_info
-	 * parameters are included for compatibility with the standard PHP
-	 * function, but only the default values are supported.
+	 * This is not a complete polyfill:
+	 *
+	 *  - $flags only supports IDNA_DEFAULT, IDNA_NONTRANSITIONAL_TO_UNICODE,
+	 *    and IDNA_USE_STD3_RULES.
+	 *  - $variant is ignored, because INTL_IDNA_VARIANT_UTS46 is always used.
+	 *  - $idna_info is ignored.
 	 *
 	 * @param string $domain Domain to convert, in an IDNA ASCII-compatible format.
 	 * @param int $flags Ignored in this compatibility function.
@@ -502,11 +516,17 @@ if (!function_exists('idn_to_utf8'))
 	{
 		global $sourcedir;
 
-		require_once($sourcedir . '/Subs-Charset.php');
-		require_once($sourcedir . '/Class-Punycode.php');
-		$Punycode = new Punycode();
+		static $Punycode;
 
-		return $Punycode->decode(sanitize_iri(utf8_normalize_kc_casefold($domain)));
+		require_once($sourcedir . '/Class-Punycode.php');
+
+		if (!is_object($Punycode))
+			$Punycode = new Punycode();
+
+		$Punycode->useStd3($flags === ($flags | IDNA_USE_STD3_RULES));
+		$Punycode->useNonTransitional($flags === ($flags | IDNA_NONTRANSITIONAL_TO_UNICODE));
+
+		return $Punycode->decode($domain);
 	}
 }
 

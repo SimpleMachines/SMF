@@ -8,7 +8,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -2325,7 +2325,7 @@ function TrackIP($memID = 0)
 	$ip_var = $context['ip'];
 
 	if ($context['ip']['low'] !== $context['ip']['high'])
-		$context['ip'] = $context['ip']['low'] . ' - ' . $context['ip']['high'];
+		$context['ip'] = $context['ip']['low'] . '-' . $context['ip']['high'];
 	else
 		$context['ip'] = $context['ip']['low'];
 

@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1.0; index
+// Version: 2.1.3; index
 
 global $forum_copyright, $webmaster_email, $scripturl, $context, $boardurl;
 
@@ -15,8 +15,8 @@ $txt['lang_recaptcha'] = 'en';
 
 // Ensure you remember to use uppercase for character set strings.
 $txt['lang_character_set'] = 'UTF-8';
-// Character set and right to left?
-$txt['lang_rtl'] = false;
+// Character set right to left?  0 = ltr; 1 = rtl
+$txt['lang_rtl'] = '0';
 // Number format.
 $txt['number_format'] = '1,234.00';
 
@@ -887,7 +887,7 @@ $txt['are_sure_mark_read'] = 'Are you sure you want to mark messages as read?';
 // Inline attachments messages.
 $txt['attachments_not_enable'] = 'Attachments are disabled';
 $txt['attachments_no_data_loaded'] = 'Not a valid attachment ID.';
-$txt['attachments_not_allowed_to_see'] = 'You cannot see attachments on this board.';
+$txt['attachments_not_allowed_to_see'] = 'You cannot view this attachment.';
 $txt['attachments_no_msg_associated'] = 'No message is associated with this attachment.';
 $txt['attachments_unapproved'] = 'Attachment is awaiting approval.';
 

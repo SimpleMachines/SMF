@@ -7,7 +7,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.3
  */
 
 // @todo
@@ -83,10 +83,17 @@ function template_error_log()
 		return;
 	}
 
+	if ($context['has_filter'])
+		echo '
+				<div class="infobox">
+					<strong>', $txt['applying_filter'], ':</strong> ', $context['filter']['entity'], ' ', $context['filter']['value']['html'], '
+				</div>';
+
 	echo '
 				<div class="floatright">
 					<input type="submit" name="removeSelection" value="', $txt['remove_selection'], '" data-confirm="', $txt['remove_selection_confirm'], '" class="button you_sure">
 					<input type="submit" name="delall" value="', ($context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all']), '" data-confirm="', ($context['has_filter'] ? $txt['remove_filtered_results_confirm'] : $txt['sure_about_errorlog_remove']), '" class="button you_sure">
+					', ($context['has_filter'] ? '<a href="' . $scripturl . '?action=admin;area=logs;sa=errorlog' . ($context['sort_direction'] == 'down' ? ';desc' : '') . '" class="button">' . $txt['clear_filter'] . '</a>' : ''), '
 				</div>
 				', $txt['apply_filter_of_type'], ':';
 
@@ -107,12 +114,6 @@ function template_error_log()
 					<label for="check_all"><strong>', $txt['check_all'], '</strong></label>
 					<input type="checkbox" id="check_all" onclick="invertAll(this, this.form, \'delete[]\');">
 				</div>
-			</div>';
-
-	if ($context['has_filter'])
-		echo '
-			<div class="information">
-				<strong>', $txt['applying_filter'], ':</strong> ', $context['filter']['entity'], ' ', $context['filter']['value']['html'], ' [<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', '">', $txt['clear_filter'], '</a>]
 			</div>';
 
 	// We have some errors, must be some mods installed :P
@@ -207,7 +208,7 @@ function template_show_file()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $context['file_data']['file'], '</title>
-		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $context['browser_cache'], '">
+		', template_css(), '
 	</head>
 	<body>
 		<table class="errorfile_table">';

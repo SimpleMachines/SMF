@@ -5,19 +5,19 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.1
+ * @version 2.1.4
  */
 
-define('SMF_VERSION', '2.1.1');
+define('SMF_VERSION', '2.1.4');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_SOFTWARE_YEAR', '2022');
+define('SMF_SOFTWARE_YEAR', '2023');
 define('DB_SCRIPT_VERSION', '2-1');
 define('SMF_INSTALLING', 1);
 
-define('JQUERY_VERSION', '3.6.0');
+define('JQUERY_VERSION', '3.6.3');
 define('POSTGRE_TITLE', 'PostgreSQL');
 define('MYSQL_TITLE', 'MySQL');
 define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
@@ -1524,8 +1524,6 @@ function AdminAccount()
 	$smcFunc['strtolower'] = function($string)
 	{
 		global $sourcedir;
-		if (function_exists('mb_strtolower'))
-			return mb_strtolower($string, 'UTF-8');
 		require_once($sourcedir . '/Subs-Charset.php');
 		return utf8_strtolower($string);
 	};
@@ -1815,8 +1813,6 @@ function DeleteInstall()
 	$smcFunc['strtolower'] = function($string)
 	{
 		global $sourcedir;
-		if (function_exists('mb_strtolower'))
-			return mb_strtolower($string, 'UTF-8');
 		require_once($sourcedir . '/Subs-Charset.php');
 		return utf8_strtolower($string);
 	};
@@ -1949,14 +1945,14 @@ function template_install_above()
 	global $incontext, $txt, $installurl;
 
 	echo '<!DOCTYPE html>
-<html', $txt['lang_rtl'] == true ? ' dir="rtl"' : '', '>
+<html', $txt['lang_rtl'] == '1' ? ' dir="rtl"' : '', '>
 <head>
 	<meta charset="', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'UTF-8', '">
 	<meta name="robots" content="noindex">
 	<title>', $txt['smf_installer'], '</title>
 	<link rel="stylesheet" href="Themes/default/css/index.css">
 	<link rel="stylesheet" href="Themes/default/css/install.css">
-	', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="Themes/default/css/rtl.css">' : '', '
+	', $txt['lang_rtl'] == '1' ? '<link rel="stylesheet" href="Themes/default/css/rtl.css">' : '', '
 
 	<script src="Themes/default/scripts/jquery-' . JQUERY_VERSION . '.min.js"></script>
 	<script src="Themes/default/scripts/script.js"></script>

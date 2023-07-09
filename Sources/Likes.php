@@ -10,7 +10,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -286,6 +286,39 @@ class Likes
 		// Are we calling this directly? if so, set a proper data for the response. Do note that __METHOD__ returns both the class name and the function name.
 		if ($this->_sa == __FUNCTION__)
 			$this->_data = __FUNCTION__;
+
+		// Check to see if there is an unread alert to delete as well...
+		$result = $smcFunc['db_query']('', '
+			SELECT id_alert, id_member FROM {db_prefix}user_alerts
+			WHERE content_id = {int:like_content}
+				AND content_type = {string:like_type}
+				AND id_member_started = {int:id_member_started}
+				AND content_action = {string:content_action}
+				AND is_read = {int:unread}',
+			array(
+				'like_content' => $this->_content,
+				'like_type' => $this->_type,
+				'id_member_started' => $this->_user['id'],
+				'content_action' => 'like',
+				'unread' => 0,
+			)
+		);
+		// Found one?
+		if ($smcFunc['db_num_rows']($result) == 1)
+		{
+			list($alert, $member) = $smcFunc['db_fetch_row']($result);
+
+			// Delete it
+			$smcFunc['db_query']('', '
+				DELETE FROM {db_prefix}user_alerts
+				WHERE id_alert = {int:alert}',
+				array(
+					'alert' => $alert,
+				)
+			);
+			// Decrement counter for member who received the like
+			updateMemberData($member, array('alerts' => '-'));
+		}
 	}
 
 	/**

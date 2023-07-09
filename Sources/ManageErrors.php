@@ -11,7 +11,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -259,7 +259,7 @@ function ViewErrorLog()
 		{
 			$id = $filter['value']['sql'];
 			loadMemberData($id, false, 'minimal');
-			$context['filter']['value']['html'] = '<a href="' . $scripturl . '?action=profile;u=' . $id . '">' . $user_profile[$id]['real_name'] . '</a>';
+			$context['filter']['value']['html'] = '<a href="' . $scripturl . '?action=profile;u=' . $id . '">' . (isset($user_profile[$id]['real_name']) ? $user_profile[$id]['real_name'] : $txt['guest']) . '</a>';
 		}
 		elseif ($filter['variable'] == 'url')
 			$context['filter']['value']['html'] = '\'' . strtr($smcFunc['htmlspecialchars']((substr($filter['value']['sql'], 0, 1) == '?' ? $scripturl : '') . $filter['value']['sql']), array('\_' => '_')) . '\'';

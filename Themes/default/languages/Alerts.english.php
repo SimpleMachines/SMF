@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1.0; Alerts
+// Version: 2.1.3; Alerts
 
 // Load Alerts strings
 $txt['topic_na'] = '(private topic)';
@@ -21,7 +21,7 @@ $txt['alert_topic_sticky'] = 'The topic {topic_msg} has been stickied';
 $txt['alert_board_topic'] = '{member_link} started a new topic, {topic_msg}, in {board_msg}';
 $txt['alert_msg_unapproved_attachment'] = '{member_link} added a new unapproved attachment to {msg_msg} in {board_msg}';
 $txt['alert_topic_unapproved_topic'] = '{member_link} started a new unapproved topic, {topic_msg}, in {board_msg}';
-$txt['alert_topic_unapproved_post'] = '{member_link} made a new unapproved reply to {topic_msg} in {board_msg}';
+$txt['alert_msg_unapproved_post'] = '{member_link} made a new unapproved reply to {topic_msg} in {board_msg}';
 $txt['alert_topic_unapproved_reply'] = '{member_link} replied to your unapproved topic, {topic_msg}, in {board_msg}';
 $txt['alert_msg_quote'] = '{member_link} quoted you in {msg_msg}';
 $txt['alert_msg_mention'] = '{member_link} mentioned you in {msg_msg}';

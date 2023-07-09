@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1.0; Profile
+// Version: 2.1.3; Profile
 
 global $scripturl, $context;
 
@@ -117,7 +117,7 @@ $txt['notify_send_type_everything_own'] = 'Moderation only if I started the topi
 $txt['notify_send_type_only_replies'] = 'Only replies';
 $txt['notify_send_type_nothing'] = 'Nothing at all';
 $txt['notify_send_body'] = 'When sending notification of a reply to a topic, send the post in the email (but please don\'t reply to these emails.)';
-$txt['notify_alert_timeout'] = 'Timeout for Alert desktop notifications';
+$txt['notify_alert_timeout'] = 'Timeout for Alert desktop notifications (in seconds)';
 
 $txt['notify_what_how'] = 'Alert Preferences';
 $txt['receive_alert'] = 'Receive alert';

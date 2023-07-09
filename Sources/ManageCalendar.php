@@ -10,7 +10,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -49,8 +49,6 @@ function ManageCalendar()
 		$default = 'settings';
 	}
 
-	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : $default;
-
 	// Set up the two tabs here...
 	$context[$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['manage_calendar'],
@@ -68,6 +66,8 @@ function ManageCalendar()
 		);
 
 	call_integration_hook('integrate_manage_calendar', array(&$subActions));
+
+	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : $default;
 
 	call_helper($subActions[$_REQUEST['sa']]);
 }

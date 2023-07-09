@@ -3,10 +3,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.4
  */
 
 (function ($) {
@@ -716,7 +716,7 @@ sceditor.formats.bbcode.set(
 				return '[attach' + attribs + ']' + content + '[/attach]';
 			}
 
-			attribs += ' data-attachment="' + id + '"'
+			attribs += ' data-type="attachment" data-attachment="' + id + '"';
 			if (typeof attrs.alt !== "undefined")
 				attribs += ' alt="' + attrs.alt + '"';
 
@@ -767,13 +767,11 @@ sceditor.formats.bbcode.set(
 	'url', {
 		allowsEmpty: true,
 		quoteType: sceditor.BBCodeParser.QuoteType.always,
-		tags: {
-			a: {
-				'data-type': ['url']
-			}
-		},
-		format: function (element, content)
+		format(element, content)
 		{
+			if (element.hasAttribute('data-type') && element.getAttribute('data-type') != 'url')
+				return content;
+
 			return '[url=' + decodeURI(element.href) + ']' + content + '[/url]';
 		},
 		html: function (token, attrs, content)
@@ -945,7 +943,7 @@ sceditor.formats.bbcode.set(
 			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
 				attrs.defaultattr = content;
 
-			return '<a href="' + smf_scripturl +'?action=profile;u='+ attrs.defaultattr + '" class="mention" data-mention="'+ attrs.defaultattr + '">@'+ content.replace('@','') +'</a>';
+			return '<a href="' + smf_scripturl +'?action=profile;u='+ attrs.defaultattr + '" class="mention" data-type="mention" data-mention="'+ attrs.defaultattr + '">@'+ content.replace('@', '') +'</a>';
 		}
 	}
 );

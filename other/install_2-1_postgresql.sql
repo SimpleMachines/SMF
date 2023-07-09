@@ -733,7 +733,7 @@ CREATE TABLE {$db_prefix}log_packages (
 	failed_steps text NOT NULL,
 	themes_installed varchar(255) NOT NULL DEFAULT '',
 	db_changes text NOT NULL,
-	credits text NOT NULL DEFAULT '',
+	credits text NOT NULL,
 	sha256_hash TEXT,
 	PRIMARY KEY (id_install)
 );
@@ -1103,7 +1103,7 @@ CREATE TABLE {$db_prefix}members (
 	warning smallint NOT NULL DEFAULT '0',
 	passwd_flood varchar(12) NOT NULL DEFAULT '',
 	pm_receive_from smallint NOT NULL DEFAULT '1',
-	timezone varchar(80) NOT NULL DEFAULT 'UTC',
+	timezone varchar(80) NOT NULL DEFAULT '',
 	tfa_secret varchar(24) NOT NULL DEFAULT '',
 	tfa_backup varchar(64) NOT NULL DEFAULT '',
 	PRIMARY KEY (id_member)
@@ -1129,7 +1129,7 @@ CREATE INDEX {$db_prefix}members_total_time_logged_in ON {$db_prefix}members (to
 CREATE INDEX {$db_prefix}members_id_theme ON {$db_prefix}members (id_theme);
 CREATE INDEX {$db_prefix}members_member_name_low ON {$db_prefix}members (LOWER(member_name) varchar_pattern_ops);
 CREATE INDEX {$db_prefix}members_real_name_low ON {$db_prefix}members (LOWER(real_name) varchar_pattern_ops);
-
+CREATE INDEX {$db_prefix}members_active_real_name ON {$db_prefix}members (is_activated, real_name);
 
 #
 # Sequence for table `member_logins`

@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.4
  */
 
 if (!defined('SMF'))
@@ -1003,7 +1003,10 @@ function parseAttachBBC($attachID = 0)
 	$attachInfo = getAttachMsgInfo($attachID);
 
 	// There is always the chance this attachment no longer exists or isn't associated to a message anymore...
-	if (empty($attachInfo) || empty($attachInfo['msg']) && empty($context['preview_message']))
+	if (empty($attachInfo))
+		return 'attachments_no_data_loaded';
+
+	if (empty($attachInfo['msg']) && empty($context['preview_message']))
 		return 'attachments_no_msg_associated';
 
 	// Can the user view attachments on the board that holds the attachment's original post?
@@ -1056,18 +1059,6 @@ function parseAttachBBC($attachID = 0)
 	// It's theoretically possible that prepareAttachsByMsg() changed the board id, so check again.
 	if ($check_board_perms && !in_array($attachContext['board'], $view_attachment_boards))
 		return 'attachments_not_allowed_to_see';
-
-	// Previewing much? No msg ID has been set yet.
-	if (!empty($context['preview_message']))
-	{
-		$attachContext['href'] = $scripturl . '?action=dlattach;attach=' . $attachID . ';type=preview';
-
-		$attachContext['link'] = '<a href="' . $scripturl . '?action=dlattach;attach=' . $attachID . ';type=preview' . (empty($attachContext['is_image']) ? ';file' : '') . '" class="bbc_link">' . $smcFunc['htmlspecialchars']($attachContext['name']) . '</a>';
-
-		// Fix the thumbnail too, if the image has one.
-		if (!empty($attachContext['thumbnail']) && !empty($attachContext['thumbnail']['has_thumb']))
-			$attachContext['thumbnail']['href'] = $scripturl . '?action=dlattach;attach=' . $attachContext['thumbnail']['id'] . ';image;type=preview';
-	}
 
 	// You may or may not want to show this under the post.
 	if (!empty($modSettings['dont_show_attach_under_post']) && !isset($context['show_attach_under_post'][$attachID]))
@@ -1203,12 +1194,12 @@ function loadAttachmentContext($id_msg, $attachments)
 		{
 			$attachmentData[$i] = array(
 				'id' => $attachment['id_attach'],
-				'name' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($attachment['filename'])),
+				'name' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars'](un_htmlspecialchars($attachment['filename']))),
 				'downloads' => $attachment['downloads'],
 				'size' => ($attachment['filesize'] < 1024000) ? round($attachment['filesize'] / 1024, 2) . ' ' . $txt['kilobyte'] : round($attachment['filesize'] / 1024 / 1024, 2) . ' ' . $txt['megabyte'],
 				'byte_size' => $attachment['filesize'],
-				'href' => $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'],
-				'link' => '<a href="' . $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars']($attachment['filename']) . '</a>',
+				'href' => $scripturl . '?action=dlattach;attach=' . $attachment['id_attach'],
+				'link' => '<a href="' . $scripturl . '?action=dlattach;attach=' . $attachment['id_attach'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars'](un_htmlspecialchars($attachment['filename'])) . '</a>',
 				'is_image' => !empty($attachment['width']) && !empty($attachment['height']),
 				'is_approved' => $attachment['approved'],
 				'topic' => $attachment['topic'],
@@ -1314,7 +1305,7 @@ function loadAttachmentContext($id_msg, $attachments)
 			if (!empty($attachment['id_thumb']))
 				$attachmentData[$i]['thumbnail'] = array(
 					'id' => $attachment['id_thumb'],
-					'href' => $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_thumb'] . ';image',
+					'href' => $scripturl . '?action=dlattach;attach=' . $attachment['id_thumb'] . ';image',
 				);
 			$attachmentData[$i]['thumbnail']['has_thumb'] = !empty($attachment['id_thumb']);
 
@@ -1379,11 +1370,24 @@ function prepareAttachsByMsg($msgIDs)
 	else
 		$msgIDs = array_diff($msgIDs, array_keys($context['loaded_attachments']), array(0));
 
-	if (!empty($context['preview_message']))
-		$msgIDs[] = 0;
+	// Ensure that $msgIDs doesn't contain zero or non-integers.
+	$msgIDs = array_filter(array_map('intval', $msgIDs));
 
-	if (!empty($msgIDs))
+	if (!empty($msgIDs) || !empty($_SESSION['attachments_can_preview']))
 	{
+		// Where clause - there may or may not be msg ids, & may or may not be attachs to preview,
+		// depending on post vs edit, inserted or not, preview or not, post error or not, etc.  
+		// Either way, they may be needed in a display of a list of posts or in the dropzone 'mock' list of thumbnails.
+		$msg_or_att = '';
+		if (!empty($msgIDs))
+			$msg_or_att .= 'a.id_msg IN ({array_int:message_id}) ';
+		if (!empty($msgIDs) && !empty($_SESSION['attachments_can_preview']))
+			$msg_or_att .= 'OR ';
+		if (!empty($_SESSION['attachments_can_preview']))
+			$msg_or_att .= 'a.id_attach IN ({array_int:preview_attachments})';
+
+		// This tries to get all attachments for the page being displayed, to build a cache of attach info.
+		// This is also being used by POST, so it may need to grab attachs known only in the session.
 		$request = $smcFunc['db_query']('', '
 			SELECT
 				a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, COALESCE(a.size, 0) AS filesize, a.downloads, a.approved, m.id_topic AS topic, m.id_board AS board, m.id_member, a.mime_type,
@@ -1393,10 +1397,11 @@ function prepareAttachsByMsg($msgIDs)
 				LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)') . '
 				LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
 			WHERE a.attachment_type = {int:attachment_type}
-				AND a.id_msg IN ({array_int:message_id})',
+				AND (' . $msg_or_att . ')',
 			array(
 				'message_id' => $msgIDs,
 				'attachment_type' => 0,
+				'preview_attachments' => !empty($_SESSION['attachments_can_preview']) ? array_keys(array_filter($_SESSION['attachments_can_preview'])) : array(0),
 			)
 		);
 		$rows = $smcFunc['db_fetch_all']($request);

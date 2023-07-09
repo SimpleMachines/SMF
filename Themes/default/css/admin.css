@@ -65,21 +65,6 @@ legend {
 	min-width: 0;
 	flex: 1 1 auto;
 }
-
-/* The welcome thingy. */
-#welcome {
-	border: 1px solid #ddd;
-	border-top: none;
-	border-radius: 0 0 7px 7px;
-	font-size: 0.9em;
-	padding: 12px 9px 8px 9px;
-}
-#welcome a {
-	font-weight: bold;
-}
-#welcome img {
-	vertical-align: middle;
-}
 .search_results {
 	margin: 0 -6px;
 }

@@ -11,7 +11,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -374,6 +374,9 @@ function Login2()
 
 			// PHP-Fusion
 			$other_passwords[] = hash_hmac('sha256', $_POST['passwrd'], $user_settings['password_salt']);
+
+			// MyBB
+			$other_passwords[] = md5(md5($user_settings['password_salt']) . md5($_POST['passwrd']));
 		}
 		// The hash should be 40 if it's SHA-1, so we're safe with more here too.
 		elseif (!empty($modSettings['enable_password_conversion']) && strlen($user_settings['passwd']) == 32)

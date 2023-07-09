@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.4
  */
 
 // This won't be dedicated without this - this must exist in each gateway!
@@ -210,7 +210,6 @@ class paypal_payment
 		{
 			// Set the post data.
 			curl_setopt($curl, CURLOPT_POST, true);
-			curl_setopt($curl, CURLOPT_POSTFIELDSIZE, 0);
 			curl_setopt($curl, CURLOPT_POSTFIELDS, $requestString);
 
 			// Set up the headers so paypal will accept the post

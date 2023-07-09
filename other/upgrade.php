@@ -5,20 +5,20 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.1
+ * @version 2.1.4
  */
 
 // Version information...
-define('SMF_VERSION', '2.1.1');
+define('SMF_VERSION', '2.1.4');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_SOFTWARE_YEAR', '2022');
-define('SMF_LANG_VERSION', '2.1.0');
+define('SMF_SOFTWARE_YEAR', '2023');
+define('SMF_LANG_VERSION', '2.1.3');
 define('SMF_INSTALLING', 1);
 
-define('JQUERY_VERSION', '3.6.0');
+define('JQUERY_VERSION', '3.6.3');
 define('POSTGRE_TITLE', 'PostgreSQL');
 define('MYSQL_TITLE', 'MySQL');
 define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
@@ -1052,6 +1052,9 @@ function WelcomeLogin()
 	if (!in_array('https', $supported_streams))
 		$upcontext['custom_warning'] = $txt['install_no_https'];
 
+	// Make sure attachment & avatar folders exist.  Big problem if folks move or restructure sites upon upgrade.
+	checkFolders();
+
 	// Either we're logged in or we're going to present the login.
 	if (checkLogin())
 		return true;
@@ -1059,6 +1062,138 @@ function WelcomeLogin()
 	$upcontext += createToken('login');
 
 	return false;
+}
+
+// Do a number of attachment & avatar folder checks.
+// Display a warning if issues found.  Does not force a hard stop.
+function checkFolders()
+{
+	global $modSettings, $upcontext, $txt, $command_line;
+
+	$warnings = '';
+
+	// First, check the avatar directory...
+	// Note it wasn't specified in yabbse, but there was no smfVersion either.
+	if (!empty($modSettings['smfVersion']) && !is_dir($modSettings['avatar_directory']))
+		$warnings .= $txt['warning_av_missing'];
+
+	// Next, check the custom avatar directory...  Note this is optional in 2.0.
+	if (!empty($modSettings['custom_avatar_dir']) && !is_dir($modSettings['custom_avatar_dir']))
+	{
+		if (empty($warnings))
+			$warnings = $txt['warning_custom_av_missing'];
+		else
+			$warnings .= '<br><br>' . $txt['warning_custom_av_missing'];
+	}
+
+	// Finally, attachment folders.
+	// A bit more complex, since it may be json or serialized, and it may be an array or just a string...
+
+	// PHP currently has a terrible handling with unserialize in which errors are fatal and not catchable.  Lets borrow some code from the RFC that intends to fix this
+	// https://wiki.php.net/rfc/improve_unserialize_error_handling
+	try {
+    	set_error_handler(static function ($severity, $message, $file, $line) {
+			throw new \ErrorException($message, 0, $severity, $file, $line);
+		});
+		$ser_test = @unserialize($modSettings['attachmentUploadDir']);
+	} catch (\Throwable $e) {
+		$ser_test = false;
+	}
+	finally {
+	 	restore_error_handler();
+	}
+
+	// Json is simple, it can be caught.
+	try {
+		$json_test = @json_decode($modSettings['attachmentUploadDir'], true);
+	} catch (\Throwable $e) {
+		$json_test = null;
+	}
+
+	$string_test = !empty($modSettings['attachmentUploadDir']) && is_string($modSettings['attachmentUploadDir']) && is_dir($modSettings['attachmentUploadDir']);
+
+	// String?
+	$attdr_problem_found = false;
+	if ($string_test === true)
+	{
+		// OK...
+	}
+	// An array already?
+	elseif (is_array($modSettings['attachmentUploadDir']))
+	{
+		foreach($modSettings['attachmentUploadDir'] AS $dir)
+			if (!empty($dir) && !is_dir($dir))
+				$attdr_problem_found = true;
+	}
+	// Serialized?
+	elseif ($ser_test !== false)
+	{
+		if (is_array($ser_test))
+		{
+			foreach($ser_test AS $dir)
+			{
+				if (!empty($dir) && !is_dir($dir))
+					$attdr_problem_found = true;
+			}	
+		}
+		else
+		{
+			if (!empty($ser_test) && !is_dir($ser_test))
+				$attdr_problem_found = true;
+		}
+	}
+	// Json?  Note the test returns null if encoding was unsuccessful
+	elseif ($json_test !== null)
+	{
+		if (is_array($json_test))
+		{
+			foreach($json_test AS $dir)
+			{
+				if (!is_dir($dir))
+					$attdr_problem_found = true;
+			}	
+		}
+		else
+		{
+			if (!is_dir($json_test))
+				$attdr_problem_found = true;
+		}
+	}
+	// Unclear, needs a look...
+	else
+	{
+		$attdr_problem_found = true;
+	}
+
+	if ($attdr_problem_found)
+	{
+		if (empty($warnings))
+			$warnings = $txt['warning_att_dir_missing'];
+		else
+			$warnings .= '<br><br>' . $txt['warning_att_dir_missing'];
+	}
+
+	// Might be using CLI
+	if ($command_line)
+	{
+		// Change brs to new lines & display
+		if (!empty($warnings))
+		{
+			$warnings = str_replace('<br>', "\n", $warnings);
+			echo "\n\n" . $warnings . "\n\n";
+		}
+	}
+	else
+	{
+		// Might be adding to an existing warning...
+		if (!empty($warnings))
+		{
+			if (empty($upcontext['custom_warning']))
+				$upcontext['custom_warning'] = $warnings;
+			else
+				$upcontext['custom_warning'] .= '<br><br>' . $warnings;
+		}
+	}
 }
 
 // Step 0.5: Does the login work?
@@ -1338,6 +1473,9 @@ function UpgradeOptions()
 	// Emptying the error log?
 	$_SESSION['empty_error'] = !empty($_POST['empty_error']);
 
+	// Reprocessing attachments?
+	$_SESSION['reprocess_attachments'] = !empty($_POST['reprocess_attachments']);
+
 	$changes = array();
 
 	// Add proxy settings.
@@ -1582,6 +1720,7 @@ function DatabaseChanges()
 
 	$upcontext['delete_karma'] = !empty($_SESSION['delete_karma']);
 	$upcontext['empty_error'] = !empty($_SESSION['empty_error']);
+	$upcontext['reprocess_attachments'] = !empty($_SESSION['reprocess_attachments']);
 
 	// All possible files.
 	// Name, < version, insert_on_complete
@@ -1723,7 +1862,7 @@ function setSqlMode($strict = true)
 		return;
 
 	if ($strict)
-		$mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION,PIPES_AS_CONCAT';
+		$mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION,PIPES_AS_CONCAT';
 	else
 		$mode = '';
 
@@ -2789,6 +2928,9 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 		updateSettings(array('custom_avatar_url' => $custom_av_url));
 	}
 
+	// Make sure attachment & avatar folders exist.  Big problem if folks move or restructure sites upon upgrade.
+	checkFolders();
+
 	// Make sure we skip the HTML for login.
 	$_POST['upcont'] = true;
 	$upcontext['current_step'] = 1;
@@ -3700,7 +3842,7 @@ function template_chmod()
 					popup = window.open(\'\',\'popup\',\'height=150,width=400,scrollbars=yes\');
 					var content = popup.document;
 					content.write(\'<!DOCTYPE html>\n\');
-					content.write(\'<html', $txt['lang_rtl'] == true ? ' dir="rtl"' : '', '>\n\t<head>\n\t\t<meta name="robots" content="noindex">\n\t\t\');
+					content.write(\'<html', $txt['lang_rtl'] == '1' ? ' dir="rtl"' : '', '>\n\t<head>\n\t\t<meta name="robots" content="noindex">\n\t\t\');
 					content.write(\'<title>', $txt['upgrade_ftp_warning'], '</title>\n\t\t<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css">\n\t</head>\n\t<body id="popup">\n\t\t\');
 					content.write(\'<div class="windowbg description">\n\t\t\t<h4>', $txt['upgrade_ftp_files'], '</h4>\n\t\t\t\');
 					content.write(\'<p>', implode('<br>\n\t\t\t', $upcontext['chmod']['files']), '</p>\n\t\t\t\');';
@@ -3781,14 +3923,14 @@ function template_upgrade_above()
 	global $modSettings, $txt, $settings, $upcontext, $upgradeurl;
 
 	echo '<!DOCTYPE html>
-<html', $txt['lang_rtl'] == true ? ' dir="rtl"' : '', '>
+<html', $txt['lang_rtl'] == '1' ? ' dir="rtl"' : '', '>
 <head>
 	<meta charset="', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'UTF-8', '">
 	<meta name="robots" content="noindex">
 	<title>', $txt['upgrade_upgrade_utility'], '</title>
 	<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css">
 	<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/install.css">
-	', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="' . $settings['default_theme_url'] . '/css/rtl.css">' : '', '
+	', $txt['lang_rtl'] == '1' ? '<link rel="stylesheet" href="' . $settings['default_theme_url'] . '/css/rtl.css">' : '', '
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/', JQUERY_VERSION, '/jquery.min.js"></script>
 	<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 	<script>
@@ -4195,6 +4337,15 @@ function template_upgrade_options()
 					<li>
 						<input type="checkbox" name="delete_karma" id="delete_karma" value="1">
 						<label for="delete_karma">', $txt['upgrade_delete_karma'], '</label>
+					</li>';
+
+	// If attachment step has been run previously, offer an option to do it again.
+	// Helpful if folks had improper attachment folders specified previously.
+	if (!empty($modSettings['attachments_21_done']))
+		echo '
+					<li>
+						<input type="checkbox" name="reprocess_attachments" id="reprocess_attachments" value="1">
+						<label for="reprocess_attachments">', $txt['upgrade_reprocess_attachments'], '</label>
 					</li>';
 
 	echo '
@@ -4934,8 +5085,8 @@ function template_upgrade_complete()
 	{
 		$active = time() - $upcontext['started'];
 		$hours = floor($active / 3600);
-		$minutes = intval(($active / 60) % 60);
-		$seconds = intval($active % 60);
+		$minutes = intval((int) ($active / 60) % 60);
+		$seconds = intval((int) $active % 60);
 
 		if ($hours > 0)
 			echo '', sprintf($txt['upgrade_completed_time_hms'], $seconds, $minutes, $hours), '';

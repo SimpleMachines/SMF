@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.4
  */
 
 if (!defined('SMF'))
@@ -212,6 +212,7 @@ function KickGuest()
 {
 	global $txt, $context;
 
+	loadTheme();
 	loadLanguage('Login');
 	loadTemplate('Login');
 	createToken('login');
@@ -393,7 +394,7 @@ function findMembers($names, $use_wildcards = false, $buddies_only = false, $max
 
 	$maybe_email = false;
 	$names_list = array();
-	foreach ($names as $i => $name)
+	foreach (array_values($names) as $i => $name)
 	{
 		// Trim, and fix wildcards for each name.
 		$names[$i] = trim($smcFunc['strtolower']($name));

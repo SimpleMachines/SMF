@@ -10,7 +10,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -824,13 +824,13 @@ function UnreadTopics()
 			CREATE TEMPORARY TABLE {db_prefix}log_topics_unread (
 				PRIMARY KEY (id_topic)
 			)
-			SELECT lt.id_topic, lt.id_msg
+			SELECT lt.id_topic, lt.id_msg, lt.unwatched
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic)
 			WHERE lt.id_member = {int:current_member}
 				AND t.' . $query_this_board . (empty($earliest_msg) ? '' : '
 				AND t.id_last_msg > {int:earliest_msg}') . ($modSettings['postmod_active'] ? '
-				AND t.approved = {int:is_approved}' : '') . ' AND lt.unwatched != 1',
+				AND t.approved = {int:is_approved}' : ''),
 			array_merge($query_parameters, array(
 				'current_member' => $user_info['id'],
 				'earliest_msg' => !empty($earliest_msg) ? $earliest_msg : 0,
@@ -852,7 +852,8 @@ function UnreadTopics()
 			WHERE t.' . $query_this_board . (!empty($earliest_msg) ? '
 				AND t.id_last_msg > {int:earliest_msg}' : '') . '
 				AND COALESCE(lt.id_msg, lmr.id_msg, 0) < t.id_last_msg' . ($modSettings['postmod_active'] ? '
-				AND t.approved = {int:is_approved}' : ''),
+				AND t.approved = {int:is_approved}' : '') . '
+				AND COALESCE(lt.unwatched, 0) != 1',
 			array_merge($query_parameters, array(
 				'current_member' => $user_info['id'],
 				'earliest_msg' => !empty($earliest_msg) ? $earliest_msg : 0,
@@ -911,6 +912,7 @@ function UnreadTopics()
 				AND t.id_last_msg >= {int:min_message}
 				AND COALESCE(lt.id_msg, lmr.id_msg, 0) < t.id_last_msg' . ($modSettings['postmod_active'] ? '
 				AND ms.approved = {int:is_approved}' : '') . '
+				AND COALESCE(lt.unwatched, 0) != 1
 			ORDER BY {raw:sort}
 			LIMIT {int:offset}, {int:limit}',
 			array_merge($query_parameters, array(
@@ -1055,6 +1057,7 @@ function UnreadTopics()
 				WHERE m.id_member = {int:current_member}' . (!empty($board) ? '
 					AND t.id_board = {int:current_board}' : '') . ($modSettings['postmod_active'] ? '
 					AND t.approved = {int:is_approved}' : '') . '
+					AND COALESCE(lt.unwatched, 0) != 1
 				GROUP BY m.id_topic',
 				array(
 					'current_board' => $board,

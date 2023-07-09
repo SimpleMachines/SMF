@@ -5,14 +5,16 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.4
  */
 
 if (!defined('SMF'))
 	die('No direct access...');
+
+require_once($sourcedir . '/Unicode/Metadata.php');
 
 /**
  * Converts the given UTF-8 string into lowercase.
@@ -25,23 +27,7 @@ if (!defined('SMF'))
  */
 function utf8_strtolower($string)
 {
-	global $sourcedir;
-
-	$string = (string) $string;
-
-	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
-
-	if ($chars === false)
-		return false;
-
-	require_once($sourcedir . '/Unicode/CaseLower.php');
-
-	$substitutions = utf8_strtolower_maps();
-
-	foreach ($chars as &$char)
-		$char = isset($substitutions[$char]) ? $substitutions[$char] : $char;
-
-	return implode('', $chars);
+	return utf8_convert_case($string, 'lower');
 }
 
 /**
@@ -55,23 +41,7 @@ function utf8_strtolower($string)
  */
 function utf8_strtoupper($string)
 {
-	global $sourcedir;
-
-	$string = (string) $string;
-
-	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
-
-	if ($chars === false)
-		return false;
-
-	require_once($sourcedir . '/Unicode/CaseUpper.php');
-
-	$substitutions = utf8_strtoupper_maps();
-
-	foreach ($chars as &$char)
-		$char = isset($substitutions[$char]) ? $substitutions[$char] : $char;
-
-	return implode('', $chars);
+	return utf8_convert_case($string, 'upper');
 }
 
 /**
@@ -85,23 +55,227 @@ function utf8_strtoupper($string)
  */
 function utf8_casefold($string)
 {
-	global $sourcedir;
+	return utf8_convert_case($string, 'fold');
+}
 
-	$string = (string) $string;
+/**
+ * Converts the case of the given UTF-8 string.
+ *
+ * @param string $string The string.
+ * @param string $case One of 'upper', 'lower', 'fold', 'title', 'ucfirst', or 'ucwords'.
+ * @param bool $simple If true, use simple maps instead of full maps. Default: false.
+ * @return string A version of $string converted to the specified case.
+ */
+function utf8_convert_case($string, $case, $simple = false)
+{
+	global $sourcedir, $txt;
 
-	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+	$simple = !empty($simple);
 
-	if ($chars === false)
-		return false;
+	$lang = empty($txt['lang_locale']) ? '' : substr($txt['lang_locale'], 0, 2);
 
-	require_once($sourcedir . '/Unicode/CaseFold.php');
+	// The main case conversion logic
+	if (in_array($case, array('upper', 'lower', 'fold')))
+	{
+		$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
-	$substitutions = utf8_casefold_maps();
+		if ($chars === false)
+			return false;
 
-	foreach ($chars as &$char)
-		$char = isset($substitutions[$char]) ? $substitutions[$char] : $char;
+		switch ($case)
+		{
+			case 'upper':
+				require_once($sourcedir . '/Unicode/CaseUpper.php');
 
-	return implode('', $chars);
+				$substitutions = $simple ? utf8_strtoupper_simple_maps() : utf8_strtoupper_maps();
+
+				// Turkish & Azeri conditional casing, part 1.
+				if (in_array($lang, array('tr', 'az')))
+					$substitutions['i'] = 'İ';
+
+				break;
+
+			case 'lower':
+				require_once($sourcedir . '/Unicode/CaseLower.php');
+
+				$substitutions = $simple ? utf8_strtolower_simple_maps() : utf8_strtolower_maps();
+
+				// Turkish & Azeri conditional casing, part 1.
+				if (in_array($lang, array('tr', 'az')))
+				{
+					$substitutions['İ'] = 'i';
+					$substitutions['I' . "\xCC\x87"] = 'i';
+					$substitutions['I'] = 'ı';
+				}
+
+				break;
+
+			case 'fold':
+				require_once($sourcedir . '/Unicode/CaseFold.php');
+
+				$substitutions = $simple ? utf8_casefold_simple_maps() : utf8_casefold_maps();
+
+				break;
+		}
+
+		foreach ($chars as &$char)
+			$char = isset($substitutions[$char]) ? $substitutions[$char] : $char;
+
+		$string = implode('', $chars);
+	}
+	elseif (in_array($case, array('title', 'ucfirst', 'ucwords')))
+	{
+		require_once($sourcedir . '/Unicode/RegularExpressions.php');
+		require_once($sourcedir . '/Unicode/CaseUpper.php');
+		require_once($sourcedir . '/Unicode/CaseTitle.php');
+
+		$prop_classes = utf8_regex_properties();
+
+		$upper = $simple ? utf8_strtoupper_simple_maps() : utf8_strtoupper_maps();
+
+		// Turkish & Azeri conditional casing, part 1.
+		if (in_array($lang, array('tr', 'az')))
+			$upper['i'] = 'İ';
+
+		$title = array_merge($upper, $simple ? utf8_titlecase_simple_maps() : utf8_titlecase_maps());
+
+		switch ($case)
+		{
+			case 'title':
+				$string = utf8_convert_case($string, 'lower', $simple);
+				$regex = '/(?:^|[^\w' . $prop_classes['Case_Ignorable'] . '])\K(\p{L})/u';
+				break;
+
+			case 'ucwords':
+				$regex = '/(?:^|[^\w' . $prop_classes['Case_Ignorable'] . '])\K(\p{L})(?=[' . $prop_classes['Case_Ignorable'] . ']*(?:(?<upper>\p{Lu})|\w?))/u';
+				break;
+
+			case 'ucfirst':
+				$regex = '/^[^\w' . $prop_classes['Case_Ignorable'] . ']*\K(\p{L})(?=[' . $prop_classes['Case_Ignorable'] . ']*(?:(?<upper>\p{Lu})|\w?))/u';
+				break;
+		}
+
+		$string = preg_replace_callback(
+			$regex,
+			function($matches) use ($upper, $title)
+			{
+				// If second letter is uppercase, use uppercase for first letter.
+				// Otherwise, use titlecase for first letter.
+				$case = !empty($matches['upper']) ? 'upper' : 'title';
+
+				$matches[1] = isset($$case[$matches[1]]) ? $$case[$matches[1]] : $matches[1];
+
+				return $matches[1];
+			},
+			$string
+		);
+	}
+
+	// If casefolding, we're done.
+	if ($case === 'fold')
+		return $string;
+
+	// Handle conditional casing situations...
+	$substitutions = array();
+	$replacements = array();
+
+	// Greek conditional casing, part 1: Fix lowercase sigma.
+	// Note that this rule doesn't depend on $txt['lang_locale'].
+	if ($case !== 'upper' && strpos($string, 'ς') !== false || strpos($string, 'σ') !== false)
+	{
+		require_once($sourcedir . '/Unicode/RegularExpressions.php');
+
+		$prop_classes = utf8_regex_properties();
+
+		// First, convert all lowercase sigmas to regular form.
+		$substitutions['ς'] = 'σ';
+
+		// Then convert any at the end of words to final form.
+		$replacements['/\Bσ([' . $prop_classes['Case_Ignorable'] . ']*)(?!\p{L})/u'] = 'ς$1';
+	}
+	// Greek conditional casing, part 2: No accents on uppercase strings.
+	if ($lang === 'el' && $case === 'upper')
+	{
+		// Composed forms.
+		$substitutions += array(
+			'Ά' => 'Α', 'Ἀ' => 'Α', 'Ἁ' => 'Α', 'Ὰ' => 'Α', 'Ᾰ' => 'Α',
+			'Ᾱ' => 'Α', 'Α' => 'Α', 'Α' => 'Α', 'Ἂ' => 'Α', 'Ἃ' => 'Α',
+			'Ἄ' => 'Α', 'Ἅ' => 'Α', 'Ἆ' => 'Α', 'Ἇ' => 'Α', 'Ὰ' => 'Α',
+			'Ά' => 'Α', 'Α' => 'Α', 'Ἀ' => 'Α', 'Ἁ' => 'Α', 'Ἂ' => 'Α',
+			'Ἃ' => 'Α', 'Ἄ' => 'Α', 'Ἅ' => 'Α', 'Ἆ' => 'Α', 'Ἇ' => 'Α',
+			'Έ' => 'Ε', 'Ἐ' => 'Ε', 'Ἑ' => 'Ε', 'Ὲ' => 'Ε', 'Ἒ' => 'Ε',
+			'Ἓ' => 'Ε', 'Ἔ' => 'Ε', 'Ἕ' => 'Ε', 'Ή' => 'Η', 'Ἠ' => 'Η',
+			'Ἡ' => 'Η', 'Ὴ' => 'Η', 'Η' => 'Η', 'Η' => 'Η', 'Ἢ' => 'Η',
+			'Ἣ' => 'Η', 'Ἤ' => 'Η', 'Ἥ' => 'Η', 'Ἦ' => 'Η', 'Ἧ' => 'Η',
+			'Ἠ' => 'Η', 'Ἡ' => 'Η', 'Ὴ' => 'Η', 'Ή' => 'Η', 'Η' => 'Η',
+			'Ἢ' => 'Η', 'Ἣ' => 'Η', 'Ἤ' => 'Η', 'Ἥ' => 'Η', 'Ἦ' => 'Η',
+			'Ἧ' => 'Η', 'Ί' => 'Ι', 'Ἰ' => 'Ι', 'Ἱ' => 'Ι', 'Ὶ' => 'Ι',
+			'Ῐ' => 'Ι', 'Ῑ' => 'Ι', 'Ι' => 'Ι', 'Ϊ' => 'Ι', 'Ι' => 'Ι',
+			'Ἲ' => 'Ι', 'Ἳ' => 'Ι', 'Ἴ' => 'Ι', 'Ἵ' => 'Ι', 'Ἶ' => 'Ι',
+			'Ἷ' => 'Ι', 'Ι' => 'Ι', 'Ι' => 'Ι', 'Ό' => 'Ο', 'Ὀ' => 'Ο',
+			'Ὁ' => 'Ο', 'Ὸ' => 'Ο', 'Ὂ' => 'Ο', 'Ὃ' => 'Ο', 'Ὄ' => 'Ο',
+			'Ὅ' => 'Ο', 'Ῥ' => 'Ρ', 'Ύ' => 'Υ', 'Υ' => 'Υ', 'Ὑ' => 'Υ',
+			'Ὺ' => 'Υ', 'Ῠ' => 'Υ', 'Ῡ' => 'Υ', 'Υ' => 'Υ', 'Ϋ' => 'Υ',
+			'Υ' => 'Υ', 'Υ' => 'Υ', 'Ὓ' => 'Υ', 'Υ' => 'Υ', 'Ὕ' => 'Υ',
+			'Υ' => 'Υ', 'Ὗ' => 'Υ', 'Υ' => 'Υ', 'Υ' => 'Υ', 'Υ' => 'Υ',
+			'Ώ' => 'Ω', 'Ὠ' => 'Ω', 'Ὡ' => 'Ω', 'Ὼ' => 'Ω', 'Ω' => 'Ω',
+			'Ω' => 'Ω', 'Ὢ' => 'Ω', 'Ὣ' => 'Ω', 'Ὤ' => 'Ω', 'Ὥ' => 'Ω',
+			'Ὦ' => 'Ω', 'Ὧ' => 'Ω', 'Ὠ' => 'Ω', 'Ὡ' => 'Ω', 'Ώ' => 'Ω',
+			'Ω' => 'Ω', 'Ὢ' => 'Ω', 'Ὣ' => 'Ω', 'Ὤ' => 'Ω', 'Ὥ' => 'Ω',
+			'Ὦ' => 'Ω', 'Ὧ' => 'Ω',
+		);
+
+		// Individual Greek diacritics.
+		$substitutions += array(
+			"\xCC\x80" => '', "\xCC\x81" => '', "\xCC\x84" => '',
+			"\xCC\x86" => '', "\xCC\x88" => '', "\xCC\x93" => '',
+			"\xCC\x94" => '', "\xCD\x82" => '', "\xCD\x83" => '',
+			"\xCD\x84" => '', "\xCD\x85" => '', "\xCD\xBA" => '',
+			"\xCE\x84" => '', "\xCE\x85" => '',
+			"\xE1\xBE\xBD" => '', "\xE1\xBE\xBF" => '', "\xE1\xBF\x80" => '',
+			"\xE1\xBF\x81" => '', "\xE1\xBF\x8D" => '', "\xE1\xBF\x8E" => '',
+			"\xE1\xBF\x8F" => '', "\xE1\xBF\x9D" => '', "\xE1\xBF\x9E" => '',
+			"\xE1\xBF\x9F" => '', "\xE1\xBF\xAD" => '', "\xE1\xBF\xAE" => '',
+			"\xE1\xBF\xAF" => '', "\xE1\xBF\xBD" => '', "\xE1\xBF\xBE" => '',
+		);
+	}
+
+	// Turkish & Azeri conditional casing, part 2.
+	if ($case !== 'upper' && in_array($lang, array('tr', 'az')))
+	{
+		// Remove unnecessary "COMBINING DOT ABOVE" after i
+		$substitutions['i' . "\xCC\x87"] = 'i';
+	}
+
+	// Lithuanian conditional casing.
+	if ($lang === 'lt')
+	{
+		// Force a dot above lowercase i and j with accents by inserting
+		// the "COMBINING DOT ABOVE" character.
+		// Note: some fonts handle this incorrectly and show two dots,
+		// but that's a bug in those fonts and cannot be fixed here.
+		if ($case !== 'upper')
+			$replacements['/(i\x{328}?|\x{12F}|j)([\x{300}\x{301}\x{303}])/u'] = '$1' . "\xCC\x87" . '$2';
+
+		// Remove "COMBINING DOT ABOVE" after uppercase I and J.
+		if ($case !== 'lower')
+			$replacements['/(I\x{328}?|\x{12E}|J)\x{307}/u'] = '$1';
+	}
+
+	// Dutch has a special titlecase rule.
+	if ($lang === 'nl' && $case === 'title')
+	{
+		$replacements['/\bIj/u'] = 'IJ';
+	}
+
+	// Now perform whatever conditional casing fixes we need.
+	if (!empty($substitutions))
+		$string = strtr($string, $substitutions);
+
+	if (!empty($replacements))
+		$string = preg_replace(array_keys($replacements), $replacements, $string);
+
+	return $string;
 }
 
 /**
@@ -114,11 +288,17 @@ function utf8_normalize_d($string)
 {
 	$string = (string) $string;
 
-	if (is_callable('normalizer_is_normalized') && normalizer_is_normalized($string, Normalizer::FORM_D))
-		return $string;
+	if (is_callable('IntlChar::getUnicodeVersion') && version_compare(implode('.', IntlChar::getUnicodeVersion()), SMF_UNICODE_VERSION, '>='))
+	{
+		if (is_callable('normalizer_is_normalized') && normalizer_is_normalized($string, Normalizer::FORM_D))
+			return $string;
 
-	if (is_callable('normalizer_normalize'))
-		return normalizer_normalize($string, Normalizer::FORM_D);
+		if (is_callable('normalizer_normalize'))
+			return normalizer_normalize($string, Normalizer::FORM_D);
+	}
+
+	if (utf8_is_normalized($string, 'd'))
+		return $string;
 
 	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
@@ -138,11 +318,17 @@ function utf8_normalize_kd($string)
 {
 	$string = (string) $string;
 
-	if (is_callable('normalizer_is_normalized') && normalizer_is_normalized($string, Normalizer::FORM_KD))
-		return $string;
+	if (is_callable('IntlChar::getUnicodeVersion') && version_compare(implode('.', IntlChar::getUnicodeVersion()), SMF_UNICODE_VERSION, '>='))
+	{
+		if (is_callable('normalizer_is_normalized') && normalizer_is_normalized($string, Normalizer::FORM_KD))
+			return $string;
 
-	if (is_callable('normalizer_normalize'))
-		return normalizer_normalize($string, Normalizer::FORM_KD);
+		if (is_callable('normalizer_normalize'))
+			return normalizer_normalize($string, Normalizer::FORM_KD);
+	}
+
+	if (utf8_is_normalized($string, 'kd'))
+		return $string;
 
 	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
@@ -162,11 +348,17 @@ function utf8_normalize_c($string)
 {
 	$string = (string) $string;
 
-	if (is_callable('normalizer_is_normalized') && normalizer_is_normalized($string, Normalizer::FORM_C))
-		return $string;
+	if (is_callable('IntlChar::getUnicodeVersion') && version_compare(implode('.', IntlChar::getUnicodeVersion()), SMF_UNICODE_VERSION, '>='))
+	{
+		if (is_callable('normalizer_is_normalized') && normalizer_is_normalized($string, Normalizer::FORM_C))
+			return $string;
 
-	if (is_callable('normalizer_normalize'))
-		return normalizer_normalize($string, Normalizer::FORM_C);
+		if (is_callable('normalizer_normalize'))
+			return normalizer_normalize($string, Normalizer::FORM_C);
+	}
+
+	if (utf8_is_normalized($string, 'c'))
+		return $string;
 
 	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
@@ -186,11 +378,17 @@ function utf8_normalize_kc($string)
 {
 	$string = (string) $string;
 
-	if (is_callable('normalizer_is_normalized') && normalizer_is_normalized($string, Normalizer::FORM_KC))
-		return $string;
+	if (is_callable('IntlChar::getUnicodeVersion') && version_compare(implode('.', IntlChar::getUnicodeVersion()), SMF_UNICODE_VERSION, '>='))
+	{
+		if (is_callable('normalizer_is_normalized') && normalizer_is_normalized($string, Normalizer::FORM_KC))
+			return $string;
 
-	if (is_callable('normalizer_normalize'))
-		return normalizer_normalize($string, Normalizer::FORM_KC);
+		if (is_callable('normalizer_normalize'))
+			return normalizer_normalize($string, Normalizer::FORM_KC);
+	}
+
+	if (utf8_is_normalized($string, 'kc'))
+		return $string;
 
 	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
@@ -212,6 +410,9 @@ function utf8_normalize_kc_casefold($string)
 	global $sourcedir;
 
 	$string = (string) $string;
+
+	if (utf8_is_normalized($string, 'kc_casefold'))
+		return $string;
 
 	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
@@ -239,9 +440,90 @@ function utf8_normalize_kc_casefold($string)
 }
 
 /**
+ * Checks whether a string is already normalized to a given form.
+ *
+ * @param string|array $string A string of UTF-8 characters.
+ * @param string $form One of 'd', 'c', 'kd', 'kc', or 'kc_casefold'
+ * @return bool Whether the string is already normalized to the given form.
+ */
+function utf8_is_normalized($string, $form)
+{
+	global $sourcedir;
+
+	// Check whether string contains characters that are disallowed in this form.
+	switch ($form)
+	{
+		case 'd':
+			$prop = 'NFD_QC';
+			break;
+
+		case 'kd':
+			$prop = 'NFKD_QC';
+			break;
+
+		case 'c':
+			$prop = 'NFC_QC';
+			break;
+
+		case 'kc':
+			$prop = 'NFKC_QC';
+			break;
+
+		case 'kc_casefold':
+			$prop = 'Changes_When_NFKC_Casefolded';
+			break;
+
+		default:
+			return false;
+			break;
+	}
+
+	require_once($sourcedir . '/Unicode/QuickCheck.php');
+	$qc = utf8_regex_quick_check();
+
+	if (preg_match('/[' . $qc[$prop] . ']/u', $string))
+		return false;
+
+	// Check whether all combining marks are in canonical order.
+	// Note: Because PCRE's Unicode data might be outdated compared to ours,
+	// this regex checks for marks and anything PCRE thinks is not a character.
+	// That means the more thorough checks will occasionally be performed on
+	// strings that don't need them, but building and running a perfect regex
+	// would be more expensive in the vast majority of cases, so meh.
+	if (preg_match_all('/([\p{M}\p{Cn}])/u', $string, $matches, PREG_OFFSET_CAPTURE))
+	{
+		require_once($sourcedir . '/Unicode/CombiningClasses.php');
+
+		$combining_classes = utf8_combining_classes();
+
+		$last_pos = 0;
+		$last_len = 0;
+		$last_ccc = 0;
+		foreach ($matches[1] as $match)
+		{
+			$char = $match[0];
+			$pos = $match[1];
+			$ccc = isset($combining_classes[$char]) ? $combining_classes[$char] : 0;
+
+			// Not in canonical order, so return false.
+			if ($pos === $last_pos + $last_len && $ccc > 0 && $last_ccc > $ccc)
+				return false;
+
+			$last_pos = $pos;
+			$last_len = strlen($char);
+			$last_ccc = $ccc;
+		}
+	}
+
+	// If we get here, the string is normalized correctly.
+	return true;
+}
+
+/**
  * Helper function for utf8_normalize_d and utf8_normalize_kd.
  *
  * @param array $chars Array of Unicode characters
+ * @param bool $compatibility If true, perform compatibility decomposition. Default false.
  * @return array Array of decomposed Unicode characters.
  */
 function utf8_decompose($chars, $compatibility = false)
@@ -268,6 +550,7 @@ function utf8_decompose($chars, $compatibility = false)
 	for ($i=0; $i < count($chars); $i++)
 	{
 		// Hangul characters.
+		// See "Hangul Syllable Decomposition" in the Unicode standard, ch. 3.12.
 		if ($chars[$i] >= "\xEA\xB0\x80" && $chars[$i] <= "\xED\x9E\xA3")
 		{
 			if (!function_exists('mb_ord'))
@@ -275,8 +558,8 @@ function utf8_decompose($chars, $compatibility = false)
 
 			$s = mb_ord($chars[$i]);
 			$sindex = $s - 0xAC00;
-			$l = 0x1100 + $sindex / (21 * 28);
-			$v = 0x1161 + ($sindex % (21 * 28)) / 28;
+			$l = (int) (0x1100 + $sindex / (21 * 28));
+			$v = (int) (0x1161 + ($sindex % (21 * 28)) / 28);
 			$t = $sindex % 28;
 
 			$chars[$i] = implode('', array(mb_chr($l), mb_chr($v), $t ? mb_chr(0x11A7 + $t) : ''));
@@ -334,7 +617,7 @@ function utf8_compose($chars)
 
 		// Hangul characters.
 		// See "Hangul Syllable Composition" in the Unicode standard, ch. 3.12.
-		if ($chars[$c] >= "\xE1\x84\x80" && $chars[$c] <= "\xE1\x84\x92" && $chars[$c + 1] >= "\xE1\x85\xA1" && $chars[$c + 1] <= "\xE1\x85\xB5")
+		if ($chars[$c] >= "\xE1\x84\x80" && $chars[$c] <= "\xE1\x84\x92" && isset($chars[$c + 1]) && $chars[$c + 1] >= "\xE1\x85\xA1" && $chars[$c + 1] <= "\xE1\x85\xB5")
 		{
 			if (!function_exists('mb_ord'))
 				require_once($sourcedir . '/Subs-Compat.php');
@@ -677,7 +960,7 @@ function utf8_sanitize_invisibles($string, $level, $substitute)
 				$zwj_pattern = '\x{200D}(?!' . (!empty($classes['Vowel_Dependent']) ? '[' . $classes['Vowel_Dependent'] . ']|' : '') . '[^' . $classes['All'] . '])';
 
 				// Now build the pattern for this script.
-				$pattern = $letter . $nonspacing_marks . '[' . $classes['viramas'] . ']' . $nonspacing_combining_marks . '\K' . (!empty($zwj_pattern) ? '(?:' . $zwj_pattern . '|' . $zwnj_pattern . ')' : $zwnj_pattern);
+				$pattern = $letter . $nonspacing_marks . '[' . $classes['Virama'] . ']' . $nonspacing_combining_marks . '\K' . (!empty($zwj_pattern) ? '(?:' . $zwj_pattern . '|' . $zwnj_pattern . ')' : $zwnj_pattern);
 			}
 
 			// Do the thing.

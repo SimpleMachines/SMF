@@ -12,7 +12,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -568,7 +568,8 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 	$use_sendmail = empty($modSettings['mail_type']) || $modSettings['smtp_host'] == '';
 
 	// Line breaks need to be \r\n only in windows or for SMTP.
-	$line_break = $context['server']['is_windows'] || !$use_sendmail ? "\r\n" : "\n";
+	// Starting with php 8x, line breaks need to be \r\n even for linux.
+	$line_break = ($context['server']['is_windows'] || !$use_sendmail || version_compare(PHP_VERSION, '8.0.0', '>=')) ? "\r\n" : "\n";
 
 	// So far so good.
 	$mail_result = true;
@@ -2337,7 +2338,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		$searchAPI->postModified($msgOptions, $topicOptions, $posterOptions);
 
 	// Send notifications about any new quotes or mentions.
-	if ($msgOptions['send_notifications'] && !empty($msgOptions['approved']) && (!empty($msgOptions['quoted_members']) || !empty($msgOptions['mentioned_members'])))
+	if ($msgOptions['send_notifications'] && !empty($msgOptions['approved']) && (!empty($msgOptions['quoted_members']) || !empty($msgOptions['mentioned_members']) || !empty($mention_modifications['removed']) || !empty($quoted_modifications['removed'])))
 	{
 		$smcFunc['db_insert']('',
 			'{db_prefix}background_tasks',
@@ -2602,6 +2603,12 @@ function approvePosts($msgs, $approve = true, $notify = true)
 				'id_attach' => 0,
 			)
 		);
+
+		// Clean up moderator alerts
+		if (!empty($notification_topics))
+			clearApprovalAlerts(array_column($notification_topics, 'topic'), 'unapproved_topic');
+		if (!empty($notification_posts))
+			clearApprovalAlerts(array_column($notification_posts, 'id'), 'unapproved_post');
 	}
 	// If unapproving add to the approval queue!
 	else
@@ -2670,6 +2677,65 @@ function approveTopics($topics, $approve = true)
 	$smcFunc['db_free_result']($request);
 
 	return approvePosts($msgs, $approve);
+}
+
+/**
+ * Upon approval, clear unread alerts.
+ *
+ * @param int[] $content_ids either id_msgs or id_topics
+ * @param string $content_action will be either 'unapproved_post' or 'unapproved_topic'
+ * @return void
+ */
+function clearApprovalAlerts($content_ids, $content_action)
+{
+	global $smcFunc;
+
+	// Some data hygiene...
+	if (!is_array($content_ids))
+		return;
+	$content_ids = array_filter(array_map('intval', $content_ids));
+	if (empty($content_ids))
+		return;
+
+	if (!in_array($content_action, array('unapproved_post', 'unapproved_topic')))
+		return;
+
+	// Check to see if there are unread alerts to delete...
+	// Might be multiple alerts, for multiple moderators...
+	$alerts = array();
+	$moderators = array();
+	$result = $smcFunc['db_query']('', '
+		SELECT id_alert, id_member FROM {db_prefix}user_alerts
+		WHERE content_id IN ({array_int:content_ids})
+			AND content_type = {string:content_type}
+			AND content_action = {string:content_action}
+			AND is_read = {int:unread}',
+		array(
+			'content_ids' => $content_ids,
+			'content_type' => $content_action === 'unapproved_topic' ? 'topic' : 'msg',
+			'content_action' => $content_action,
+			'unread' => 0,
+		)
+	);
+	// Found any?
+	while ($row = $smcFunc['db_fetch_assoc']($result))
+	{
+		$alerts[] = $row['id_alert'];
+		$moderators[] = $row['id_member'];
+	}
+	if (!empty($alerts))
+	{
+		// Delete 'em
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}user_alerts
+			WHERE id_alert IN ({array_int:alerts})',
+			array(
+				'alerts' => $alerts,
+			)
+		);
+		// Decrement counter for each moderator who received an alert
+		updateMemberData($moderators, array('alerts' => '-'));
+	}
 }
 
 /**

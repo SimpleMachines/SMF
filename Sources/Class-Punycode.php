@@ -15,7 +15,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -41,6 +41,23 @@ class Punycode
 	const INITIAL_N = 128;
 	const PREFIX = 'xn--';
 	const DELIMITER = '-';
+
+	/**
+	 * IDNA Error constants
+	 */
+	const IDNA_ERROR_EMPTY_LABEL = 1;
+	const IDNA_ERROR_LABEL_TOO_LONG = 2;
+	const IDNA_ERROR_DOMAIN_NAME_TOO_LONG = 4;
+	const IDNA_ERROR_LEADING_HYPHEN = 8;
+	const IDNA_ERROR_TRAILING_HYPHEN = 16;
+	const IDNA_ERROR_HYPHEN_3_4 = 32;
+	const IDNA_ERROR_LEADING_COMBINING_MARK = 64;
+	const IDNA_ERROR_DISALLOWED = 128;
+	const IDNA_ERROR_PUNYCODE = 256;
+	const IDNA_ERROR_LABEL_HAS_DOT = 512;
+	const IDNA_ERROR_INVALID_ACE_LABEL = 1024;
+	const IDNA_ERROR_BIDI = 2048;
+	const IDNA_ERROR_CONTEXTJ = 4096;
 
 	/**
 	 * Encode table
@@ -75,6 +92,21 @@ class Punycode
 	protected $encoding;
 
 	/**
+	 * Whether to use Non-Transitional Processing.
+	 * Setting this to true breaks backward compatibility with IDNA2003.
+	 *
+	 * @param bool
+	 */
+	protected $nonTransitional = false;
+
+	/**
+	 * Whether to use STD3 ASCII rules.
+	 *
+	 * @param bool
+	 */
+	protected $std3 = false;
+
+	/**
 	 * Constructor
 	 *
 	 * @param string $encoding Character encoding
@@ -85,6 +117,26 @@ class Punycode
 	}
 
 	/**
+	 * Enable/disable Non-Transitional Processing
+	 *
+	 * @param bool $nonTransitional Whether to use Non-Transitional Processing
+	 */
+	public function useNonTransitional(bool $nonTransitional)
+	{
+		$this->nonTransitional = $nonTransitional;
+	}
+
+	/**
+	 * Enable/disable STD3 ASCII rules
+	 *
+	 * @param bool $std3 Whether to use STD3 ASCII rules
+	 */
+	public function useStd3(bool $std3)
+	{
+		$this->std3 = $std3;
+	}
+
+	/**
 	 * Encode a domain to its Punycode version
 	 *
 	 * @param string $input Domain name in Unicode to be encoded
@@ -92,13 +144,57 @@ class Punycode
 	 */
 	public function encode($input)
 	{
-		$input = mb_strtolower($input, $this->encoding);
-		$parts = explode('.', $input);
-		foreach ($parts as &$part) {
+		// For compatibility with idn_to_* functions
+		if ($this->decode($input) === false)
+			return false;
+
+		$errors = array();
+		$preprocessed = $this->preprocess($input, $errors);
+
+		if (!empty($errors))
+		{
+			return false;
+		}
+
+		$parts = explode('.', $preprocessed);
+		foreach ($parts as $p => &$part) {
 			$part = $this->encodePart($part);
+
+			$validation_status = $this->validateLabel($part, true);
+
+			switch ($validation_status) {
+				case self::IDNA_ERROR_LABEL_TOO_LONG:
+				case self::IDNA_ERROR_LEADING_HYPHEN:
+				case self::IDNA_ERROR_TRAILING_HYPHEN:
+				case self::IDNA_ERROR_LEADING_COMBINING_MARK:
+				case self::IDNA_ERROR_DISALLOWED:
+				case self::IDNA_ERROR_PUNYCODE:
+				case self::IDNA_ERROR_LABEL_HAS_DOT:
+				case self::IDNA_ERROR_INVALID_ACE_LABEL:
+				case self::IDNA_ERROR_BIDI:
+				case self::IDNA_ERROR_CONTEXTJ:
+					return false;
+					break;
+
+				case self::IDNA_ERROR_HYPHEN_3_4:
+					$part = $parts[$p];
+					break;
+
+				case self::IDNA_ERROR_EMPTY_LABEL:
+					$parts_count = count($parts);
+					if ($parts_count === 1 || $p !== $parts_count - 1)
+						return false;
+					break;
+
+				default:
+					break;
+			}
 		}
 		$output = implode('.', $parts);
-		$length = strlen($output);
+
+		// IDNA_ERROR_DOMAIN_NAME_TOO_LONG
+		if (strlen(rtrim($output, '.')) > 253)
+			return false;
 
 		return $output;
 	}
@@ -180,17 +276,38 @@ class Punycode
 	 */
 	public function decode($input)
 	{
-		$input = strtolower($input);
-		$parts = explode('.', $input);
-		foreach ($parts as &$part)
+		$errors = array();
+		$preprocessed = $this->preprocess($input, $errors);
+
+		if (!empty($errors))
 		{
-			if (strpos($part, static::PREFIX) !== 0)
+			return false;
+		}
+
+		$parts = explode('.', $preprocessed);
+		foreach ($parts as $p => &$part)
+		{
+			if (strpos($part, static::PREFIX) === 0)
 			{
-				continue;
+				$part = substr($part, strlen(static::PREFIX));
+				$part = $this->decodePart($part);
+
+				if ($part === false)
+					return false;
 			}
 
-			$part = substr($part, strlen(static::PREFIX));
-			$part = $this->decodePart($part);
+			if ($this->validateLabel($part, false) !== 0)
+			{
+				if ($part === '')
+				{
+					$parts_count = count($parts);
+
+					if ($parts_count === 1 || $p !== $parts_count - 1)
+						return false;
+				}
+				else
+					return false;
+			}
 		}
 		$output = implode('.', $parts);
 
@@ -229,6 +346,9 @@ class Punycode
 
 			for ($k = static::BASE;; $k += static::BASE)
 			{
+				if (!isset($input[$pos]) || !isset(static::$decodeTable[$input[$pos]]))
+					return false;
+
 				$digit = static::$decodeTable[$input[$pos++]];
 				$i = $i + ($digit * $w);
 				$t = $this->calculateThreshold($k, $bias);
@@ -383,6 +503,108 @@ class Punycode
 		{
 			return chr(($code >> 18) + 240) . chr((($code >> 12) & 63) + 128) . chr((($code >> 6) & 63) + 128) . chr(($code & 63) + 128);
 		}
+	}
+
+	/**
+	 * Prepare domain name string for Punycode processing.
+	 * See https://www.unicode.org/reports/tr46/#Processing
+	 *
+	 * @param string $domain A domain name
+	 * @param array $errors Will record any errors encountered during preprocessing
+	 */
+	protected function preprocess(string $domain, array &$errors = array())
+	{
+		global $sourcedir;
+
+		require_once($sourcedir . '/Unicode/Idna.php');
+		require_once($sourcedir . '/Subs-Charset.php');
+
+		$regexes = idna_regex();
+
+		if (preg_match('/[' . $regexes['disallowed'] . ($this->std3 ? $regexes['disallowed_std3'] : '') . ']/u', $domain))
+			$errors[] = 'disallowed';
+
+		$domain = preg_replace('/[' . $regexes['ignored'] . ']/u', '', $domain);
+
+		unset($regexes);
+
+		$maps = idna_maps();
+
+		if (!$this->nonTransitional)
+			$maps = array_merge($maps, idna_maps_deviation());
+
+		if (!$this->std3)
+			$maps = array_merge($maps, idna_maps_not_std3());
+
+		return utf8_normalize_c(strtr($domain, $maps));
+	}
+
+	/**
+	 * Validates an individual part of a domain name.
+	 *
+	 * @param string $label Individual part of a domain name.
+	 * @param bool $toPunycode True for encoding to Punycode, false for decoding.
+	 */
+	protected function validateLabel(string $label, bool $toPunycode = true)
+	{
+		global $sourcedir;
+
+		$length = strlen($label);
+
+		if ($length === 0)
+		{
+			return self::IDNA_ERROR_EMPTY_LABEL;
+		}
+
+		if ($toPunycode)
+		{
+			if ($length > 63)
+			{
+				return self::IDNA_ERROR_LABEL_TOO_LONG;
+			}
+
+			if ($this->std3 && $length !== strspn($label, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-'))
+			{
+				return self::IDNA_ERROR_PUNYCODE;
+			}
+		}
+
+		if (strpos($label, '-') === 0)
+		{
+			return self::IDNA_ERROR_LEADING_HYPHEN;
+		}
+
+		if (strrpos($label, '-') === $length - 1)
+		{
+			return self::IDNA_ERROR_TRAILING_HYPHEN;
+		}
+
+		if (substr($label, 2, 2) === '--')
+		{
+			return self::IDNA_ERROR_HYPHEN_3_4;
+		}
+
+		if (preg_match('/^\p{M}/u', $label))
+		{
+			return self::IDNA_ERROR_LEADING_COMBINING_MARK;
+		}
+
+		require_once($sourcedir . '/Unicode/Idna.php');
+		require_once($sourcedir . '/Subs-Charset.php');
+
+		$regexes = idna_regex();
+
+		if (preg_match('/[' . $regexes['disallowed'] . ($this->std3 ? $regexes['disallowed_std3'] : '') . ']/u', $label))
+		{
+			return self::IDNA_ERROR_INVALID_ACE_LABEL;
+		}
+
+		if (!$toPunycode && $label !== utf8_normalize_kc($label))
+		{
+			return self::IDNA_ERROR_INVALID_ACE_LABEL;
+		}
+
+		return 0;
 	}
 }
 

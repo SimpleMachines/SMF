@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.4
  */
 
 if (!defined('SMF'))
@@ -783,6 +783,7 @@ function Post($post_errors = array())
 				'name' => $smcFunc['htmlspecialchars']($attachment['filename']),
 				'size' => $attachment['filesize'],
 				'attachID' => $attachment['id_attach'],
+				'href' => $scripturl . '?action=dlattach;attach=' . $attachment['id_attach'],
 				'approved' => $attachment['attachment_approved'],
 				'mime_type' => $attachment['mime_type'],
 				'thumb' => $attachment['id_thumb'],
@@ -1063,6 +1064,38 @@ function Post($post_errors = array())
 			$_SESSION['attachments_can_preview'][$attachment['thumb']] = true;
 	}
 
+	// Previously uploaded attachments have 2 flavors:
+	// - Existing post - at this point, now in $context['current_attachments']
+	// - Just added, current session only - at this point, now in $_SESSION['already_attached']
+	// We need to make sure *all* of these are in $context['current_attachments'], otherwise they won't show in dropzone during edits.
+	if (!empty($_SESSION['already_attached']))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT
+				a.id_attach, a.filename, COALESCE(a.size, 0) AS filesize, a.approved, a.mime_type, a.id_thumb
+			FROM {db_prefix}attachments AS a
+			WHERE a.attachment_type = {int:attachment_type}
+				AND a.id_attach IN ({array_int:just_uploaded})',
+			array(
+				'attachment_type' => 0,
+				'just_uploaded' => $_SESSION['already_attached']
+			)
+		);
+
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			$context['current_attachments'][$row['id_attach']] = array(
+				'name' => $smcFunc['htmlspecialchars']($row['filename']),
+				'size' => $row['filesize'],
+				'attachID' => $row['id_attach'],
+				'approved' => $row['approved'],
+				'mime_type' => $row['mime_type'],
+				'thumb' => $row['id_thumb'],
+			);
+		}
+		$smcFunc['db_free_result']($request);
+	}
+
 	// Do we need to show the visual verification image?
 	$context['require_verification'] = !$user_info['is_mod'] && !$user_info['is_admin'] && !empty($modSettings['posts_require_captcha']) && ($user_info['posts'] < $modSettings['posts_require_captcha'] || ($user_info['is_guest'] && $modSettings['posts_require_captcha'] == -1));
 	if ($context['require_verification'])
@@ -1226,7 +1259,7 @@ function Post($post_errors = array())
 	if ($context['can_post_attachment'])
 	{
 		// If they've unchecked an attachment, they may still want to attach that many more files, but don't allow more than num_allowed_attachments.
-		$context['num_allowed_attachments'] = min(ini_get('max_file_uploads'), (empty($modSettings['attachmentNumPerPostLimit']) ? 50 : $modSettings['attachmentNumPerPostLimit']));
+		$context['num_allowed_attachments'] = empty($modSettings['attachmentNumPerPostLimit']) ? PHP_INT_MAX : $modSettings['attachmentNumPerPostLimit'];
 		$context['can_post_attachment_unapproved'] = allowedTo('post_attachment');
 		$context['attachment_restrictions'] = array();
 		$context['allowed_extensions'] = !empty($modSettings['attachmentCheckExtensions']) ? (strtr(strtolower($modSettings['attachmentExtensions']), array(',' => ', '))) : '';
@@ -1234,9 +1267,18 @@ function Post($post_errors = array())
 		foreach ($attachmentRestrictionTypes as $type)
 			if (!empty($modSettings[$type]))
 			{
+				$context['attachment_restrictions'][$type] = sprintf($txt['attach_restrict_' . $type . ($modSettings[$type] >= 1024 ? '_MB' : '')], comma_format($modSettings[$type] >= 1024 ? $modSettings[$type] / 1024 : $modSettings[$type], 2));
+
 				// Show the max number of attachments if not 0.
 				if ($type == 'attachmentNumPerPostLimit')
-					$context['attachment_restrictions'][] = sprintf($txt['attach_remaining'], max($modSettings['attachmentNumPerPostLimit'] - $context['attachments']['quantity'], 0));
+				{
+					$context['attachment_restrictions'][$type] .= ' (' . sprintf($txt['attach_remaining'], max($modSettings['attachmentNumPerPostLimit'] - $context['attachments']['quantity'], 0)) . ')';
+				}
+				elseif ($type == 'attachmentPostLimit' && $context['attachments']['total_size'] > 0)
+				{
+ 					$context['attachment_restrictions'][$type] .= '<span class="attach_available"> (' . sprintf($txt['attach_available'], round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0), 2)) . ')</span>';
+				}
+
 			}
 	}
 
@@ -1303,6 +1345,8 @@ function Post($post_errors = array())
 			dictFallbackMessage : ' . JavaScriptEscape($txt['attach_drop_zone_no']) . ',
 			dictCancelUpload : ' . JavaScriptEscape($txt['modify_cancel']) . ',
 			genericError: ' . JavaScriptEscape($txt['attach_php_error']) . ',
+			text_attachDropzoneLabel: ' . JavaScriptEscape($txt['attach_drop_zone']) . ',
+			text_attachLimitNag: ' . JavaScriptEscape($txt['attach_limit_nag']) . ',
 			text_attachLeft: ' . JavaScriptEscape($txt['attachments_left']) . ',
 			text_deleteAttach: ' . JavaScriptEscape($txt['attached_file_delete']) . ',
 			text_attachDeleted: ' . JavaScriptEscape($txt['attached_file_deleted']) . ',
@@ -1310,7 +1354,7 @@ function Post($post_errors = array())
 			text_attachUploaded: ' . JavaScriptEscape($txt['attached_file_uploaded']) . ',
 			text_attach_unlimited: ' . JavaScriptEscape($txt['attach_drop_unlimited']) . ',
 			text_totalMaxSize: ' . JavaScriptEscape($txt['attach_max_total_file_size_current']) . ',
-			text_max_size_progress: ' . JavaScriptEscape($txt['attach_max_size_progress']) . ',
+			text_max_size_progress: ' . JavaScriptEscape('{currentRemain} ' . ($modSettings[$type] >= 1024 ? $txt['megabyte'] : $txt['kilobyte']) . ' / {currentTotal} ' . ($modSettings[$type] >= 1024 ? $txt['megabyte'] : $txt['kilobyte'])) . ',
 			dictMaxFilesExceeded: ' . JavaScriptEscape($txt['more_attachments_error']) . ',
 			dictInvalidFileType: ' . JavaScriptEscape(sprintf($txt['cant_upload_type'], $context['allowed_extensions'])) . ',
 			dictFileTooBig: ' . JavaScriptEscape(sprintf($txt['file_too_big'], comma_format($modSettings['attachmentSizeLimit'], 0))) . ',
@@ -1556,9 +1600,54 @@ function Post($post_errors = array())
 		);
 	}
 
+	// If we're editing and displaying edit details, show a box where they can say why.
+	if (isset($context['editing']) && $modSettings['show_modify'])
+	{
+		$context['posting_fields']['modify_reason'] = array(
+			'label' => array(
+				'text' => $txt['reason_for_edit'],
+			),
+			'input' => array(
+				'type' => 'text',
+				'attributes' => array(
+					'size' => 80,
+					'maxlength' => 80,
+					'value' => isset($context['last_modified_reason']) ? $context['last_modified_reason'] : '',
+				),
+			),
+		);
+
+		// If this message has been edited in the past - display when it was.
+		if (!empty($context['last_modified_text']))
+		{
+			$context['posting_fields']['modified_time'] = array(
+				'label' => array(
+					'text' => $txt['modified_time'],
+				),
+				'input' => array(
+					'type' => '',
+					'html' => !empty($context['last_modified_text']) ? ltrim(preg_replace('~<span[^>]*>[^<]*</span>~u', '', $context['last_modified_text']), ': ') : '',
+				),
+			);
+		}
+
+		// Prior to 2.1.4, the edit reason was not handled as a posting field,
+		// but instead using a hardcoded input in the template file. We've fixed
+		// that in the default theme, but to support any custom themes based on
+		// the old verison, we do this to fix it for them.
+		addInlineCss("\n\t" . '#caption_edit_reason, dl:not(#post_header) input[name="modify_reason"] { display: none; }');
+		addInlineJavaScript("\n\t" . '$("#caption_edit_reason").remove(); $("dl:not(#post_header) input[name=\"modify_reason\"]").remove();', true);
+	}
+
 	// Finally, load the template.
 	if (!isset($_REQUEST['xml']))
+	{
 		loadTemplate('Post');
+
+		// These two lines are for the revamped attachments UI add in 2.1.4.
+		loadCSSFile('attachments.css', array('minimize' => true, 'order_pos' => 450), 'smf_attachments');
+		addInlineJavaScript("\n\t" . '$("#post_attachments_area #postAttachment").remove();', true);
+	}
 
 	call_integration_hook('integrate_post_end');
 }
@@ -2233,8 +2322,8 @@ function Post2()
 					unlink($attachment['tmp_name']);
 			}
 		}
-		unset($_SESSION['temp_attachments']);
 	}
+	unset($_SESSION['temp_attachments']);
 
 	// Make the poll...
 	if (isset($_REQUEST['poll']))
@@ -2330,10 +2419,6 @@ function Post2()
 			$msgOptions['modify_reason'] = $_POST['modify_reason'];
 			$msgOptions['poster_time'] = $row['poster_time'];
 		}
-
-		// This will save some time...
-		if (empty($approve_has_changed))
-			unset($msgOptions['approved']);
 
 		modifyPost($msgOptions, $topicOptions, $posterOptions);
 	}
@@ -3096,6 +3181,7 @@ function JavaScriptModify()
 			'body' => isset($_POST['message']) ? $_POST['message'] : null,
 			'icon' => isset($_REQUEST['icon']) ? preg_replace('~[\./\\\\*\':"<>]~', '', $_REQUEST['icon']) : null,
 			'modify_reason' => (isset($_POST['modify_reason']) ? $_POST['modify_reason'] : ''),
+			'approved' => (isset($row['approved']) ? $row['approved'] : null),
 		);
 		$topicOptions = array(
 			'id' => $topic,

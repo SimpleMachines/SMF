@@ -10,7 +10,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.2
  */
 
 if (!defined('SMF'))
@@ -122,10 +122,10 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 	require_once($sourcedir . '/Subs.php');
 
 	if (empty($timezone_array['default']))
-		$timezone_array['default'] = timezone_open(date_default_timezone_get());
+		$timezone_array['default'] = timezone_open(getUserTimezone());
 
-	$low_object = date_create($low_date);
-	$high_object = date_create($high_date);
+	$low_object = date_create($low_date, $timezone_array['default']);
+	$high_object = date_create($high_date, $timezone_array['default']);
 
 	// Find all the calendar info...
 	$result = $smcFunc['db_query']('calendar_get_events', '
@@ -246,7 +246,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 					'topic' => $row['id_topic'],
 					'msg' => $row['id_first_msg'],
 					'poster' => $row['id_member'],
-					'allowed_groups' => explode(',', $row['member_groups']),
+					'allowed_groups' => isset($row['member_groups']) ? explode(',', $row['member_groups']) : array(),
 				));
 
 			date_add($cal_date, date_interval_create_from_date_string('1 day'));
@@ -372,10 +372,10 @@ function canLinkEvent()
 function getTodayInfo()
 {
 	return array(
-		'day' => (int) smf_strftime('%d', time()),
-		'month' => (int) smf_strftime('%m', time()),
-		'year' => (int) smf_strftime('%Y', time()),
-		'date' => smf_strftime('%Y-%m-%d', time()),
+		'day' => (int) smf_strftime('%d', time(), getUserTimezone()),
+		'month' => (int) smf_strftime('%m', time(), getUserTimezone()),
+		'year' => (int) smf_strftime('%Y', time(), getUserTimezone()),
+		'date' => smf_strftime('%Y-%m-%d', time(), getUserTimezone()),
 	);
 }
 
@@ -392,12 +392,12 @@ function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false,
 {
 	global $scripturl, $modSettings;
 
-	$selected_object = date_create($selected_date);
+	$selected_object = date_create($selected_date . ' ' . getUserTimezone());
 
-	$next_object = date_create($selected_date);
+	$next_object = date_create($selected_date . ' ' . getUserTimezone());
 	$next_object->modify('first day of next month');
 
-	$prev_object = date_create($selected_date);
+	$prev_object = date_create($selected_date . ' ' . getUserTimezone());
 	$prev_object->modify('first day of previous month');
 
 	// Eventually this is what we'll be returning.
@@ -431,8 +431,8 @@ function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false,
 	// Get today's date.
 	$today = getTodayInfo();
 
-	$first_day_object = date_create(date_format($selected_object, 'Y-m-01'));
-	$last_day_object = date_create(date_format($selected_object, 'Y-m-t'));
+	$first_day_object = date_create(date_format($selected_object, 'Y-m-01') . ' ' . getUserTimezone());
+	$last_day_object = date_create(date_format($selected_object, 'Y-m-t') . ' ' . getUserTimezone());
 
 	// Get information about this month.
 	$month_info = array(
@@ -445,8 +445,8 @@ function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false,
 			'day_of_month' => date_format($last_day_object, 't'),
 			'date' => date_format($last_day_object, 'Y-m-d'),
 		),
-		'first_day_of_year' => date_format(date_create(date_format($selected_object, 'Y-01-01')), 'w'),
-		'first_day_of_next_year' => date_format(date_create((date_format($selected_object, 'Y') + 1) . '-01-01'), 'w'),
+		'first_day_of_year' => date_format(date_create(date_format($selected_object, 'Y-01-01') . ' ' . getUserTimezone()), 'w'),
+		'first_day_of_next_year' => date_format(date_create((date_format($selected_object, 'Y') + 1) . '-01-01' . ' ' . getUserTimezone()), 'w'),
 	);
 
 	// The number of days the first row is shifted to the right for the starting day.
@@ -545,7 +545,7 @@ function getCalendarWeek($selected_date, $calendarOptions)
 {
 	global $scripturl, $modSettings, $txt;
 
-	$selected_object = date_create($selected_date);
+	$selected_object = date_create($selected_date . ' ' . getUserTimezone());
 
 	// Get today's date.
 	$today = getTodayInfo();
@@ -553,7 +553,7 @@ function getCalendarWeek($selected_date, $calendarOptions)
 	// What is the actual "start date" for the passed day.
 	$calendarOptions['start_day'] = empty($calendarOptions['start_day']) ? 0 : (int) $calendarOptions['start_day'];
 	$day_of_week = date_format($selected_object, 'w');
-	$first_day_object = date_create($selected_date);
+	$first_day_object = date_create($selected_date . ' ' . getUserTimezone());
 	if ($day_of_week != $calendarOptions['start_day'])
 	{
 		// Here we offset accordingly to get things to the real start of a week.
@@ -564,17 +564,17 @@ function getCalendarWeek($selected_date, $calendarOptions)
 		date_sub($first_day_object, date_interval_create_from_date_string($date_diff . ' days'));
 	}
 
-	$last_day_object = date_create(date_format($first_day_object, 'Y-m-d'));
+	$last_day_object = date_create(date_format($first_day_object, 'Y-m-d') . ' ' . getUserTimezone());
 	date_add($last_day_object, date_interval_create_from_date_string('1 week'));
 
 	$month = date_format($first_day_object, 'n');
 	$year = date_format($first_day_object, 'Y');
 	$day = date_format($first_day_object, 'd');
 
-	$next_object = date_create($selected_date);
+	$next_object = date_create($selected_date . ' ' . getUserTimezone());
 	date_add($next_object, date_interval_create_from_date_string('1 week'));
 
-	$prev_object = date_create($selected_date);
+	$prev_object = date_create($selected_date . ' ' . getUserTimezone());
 	date_sub($prev_object, date_interval_create_from_date_string('1 week'));
 
 	// Now start filling in the calendar grid.
@@ -609,7 +609,7 @@ function getCalendarWeek($selected_date, $calendarOptions)
 
 	// This holds all the main data - there is at least one month!
 	$calendarGrid['months'] = array();
-	$current_day_object = date_create(date_format($first_day_object, 'Y-m-d'));
+	$current_day_object = date_create(date_format($first_day_object, 'Y-m-d') . ' ' . getUserTimezone());
 	for ($i = 0; $i < 7; $i++)
 	{
 		$current_month = date_format($current_day_object, 'n');
@@ -660,8 +660,8 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
 	require_once($sourcedir . '/Subs.php');
 
 	// DateTime objects make life easier
-	$start_object = date_create($start_date);
-	$end_object = date_create($end_date);
+	$start_object = date_create($start_date . ' ' . getUserTimezone());
+	$end_object = date_create($end_date . ' ' . getUserTimezone());
 
 	$calendarGrid = array(
 		'start_date' => timeformat(date_format($start_object, 'U'), get_date_or_time_format('date')),
@@ -1053,7 +1053,7 @@ function validateEventPost()
 		// The 2.1 way
 		if (isset($_POST['start_date']))
 		{
-			$d = date_parse(convertDateToEnglish($_POST['start_date']));
+			$d = date_parse(str_replace(',', '', convertDateToEnglish($_POST['start_date'])));
 			if (!empty($d['error_count']) || !empty($d['warning_count']))
 				fatal_lang_error('invalid_date', false);
 			if (empty($d['year']))
@@ -1063,7 +1063,7 @@ function validateEventPost()
 		}
 		elseif (isset($_POST['start_datetime']))
 		{
-			$d = date_parse(convertDateToEnglish($_POST['start_datetime']));
+			$d = date_parse(str_replace(',', '', convertDateToEnglish($_POST['start_datetime'])));
 			if (!empty($d['error_count']) || !empty($d['warning_count']))
 				fatal_lang_error('invalid_date', false);
 			if (empty($d['year']))
@@ -1572,16 +1572,16 @@ function setEventStartEnd($eventOptions = array())
 	// If some form of string input was given, override individually defined options with it
 	if (isset($start_string))
 	{
-		$start_string_parsed = date_parse(convertDateToEnglish($start_string));
+		$start_string_parsed = date_parse(str_replace(',', '', convertDateToEnglish($start_string)));
 		if (empty($start_string_parsed['error_count']) && empty($start_string_parsed['warning_count']))
 		{
-			if ($start_string_parsed['year'] != false)
+			if ($start_string_parsed['year'] !== false)
 			{
 				$start_year = $start_string_parsed['year'];
 				$start_month = $start_string_parsed['month'];
 				$start_day = $start_string_parsed['day'];
 			}
-			if ($start_string_parsed['hour'] != false)
+			if ($start_string_parsed['hour'] !== false)
 			{
 				$start_hour = $start_string_parsed['hour'];
 				$start_minute = $start_string_parsed['minute'];
@@ -1591,16 +1591,16 @@ function setEventStartEnd($eventOptions = array())
 	}
 	if (isset($end_string))
 	{
-		$end_string_parsed = date_parse(convertDateToEnglish($end_string));
+		$end_string_parsed = date_parse(str_replace(',', '', convertDateToEnglish($end_string)));
 		if (empty($end_string_parsed['error_count']) && empty($end_string_parsed['warning_count']))
 		{
-			if ($end_string_parsed['year'] != false)
+			if ($end_string_parsed['year'] !== false)
 			{
 				$end_year = $end_string_parsed['year'];
 				$end_month = $end_string_parsed['month'];
 				$end_day = $end_string_parsed['day'];
 			}
-			if ($end_string_parsed['hour'] != false)
+			if ($end_string_parsed['hour'] !== false)
 			{
 				$end_hour = $end_string_parsed['hour'];
 				$end_minute = $end_string_parsed['minute'];

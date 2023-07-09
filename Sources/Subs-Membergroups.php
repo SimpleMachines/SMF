@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.4
  */
 
 if (!defined('SMF'))
@@ -609,7 +609,7 @@ function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDon
 	// Log the data.
 	require_once($sourcedir . '/Logging.php');
 	foreach ($members as $member)
-		logAction('added_to_group', array('group' => $group_names[$group], 'member_affected' => $member), 'admin');
+		logAction('added_to_group', array('group' => $group_names[$group], 'member' => $member), 'admin');
 
 	return true;
 }

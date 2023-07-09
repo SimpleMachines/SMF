@@ -10,7 +10,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -109,20 +109,13 @@ function ShowAdminHelp()
 	// Allow mods to load their own language file here
 	call_integration_hook('integrate_helpadmin');
 
-	// Set the page title to something relevant.
-	$context['page_title'] = $context['forum_name'] . ' - ' . $txt['help'];
-
-	// Don't show any template layers, just the popup sub template.
-	$context['template_layers'] = array();
-	$context['sub_template'] = 'popup';
-
 	// What help string should be used?
 	if (isset($helptxt[$_GET['help']]))
 		$context['help_text'] = $helptxt[$_GET['help']];
 	elseif (isset($txt[$_GET['help']]))
 		$context['help_text'] = $txt[$_GET['help']];
 	else
-		$context['help_text'] = $_GET['help'];
+		fatal_lang_error('not_found', false, array(), 404);
 
 	switch ($_GET['help']) {
 		case 'cal_short_months':
@@ -142,6 +135,13 @@ function ShowAdminHelp()
 	// Does this text contain a link that we should fill in?
 	if (preg_match('~%([0-9]+\$)?s\?~', $context['help_text'], $match))
 		$context['help_text'] = sprintf($context['help_text'], $scripturl, $context['session_id'], $context['session_var']);
+
+	// Set the page title to something relevant.
+	$context['page_title'] = $context['forum_name'] . ' - ' . $txt['help'];
+
+	// Don't show any template layers, just the popup sub template.
+	$context['template_layers'] = array();
+	$context['sub_template'] = 'popup';
 }
 
 ?>

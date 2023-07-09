@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1.0; Admin
+// Version: 2.1.3; Admin
 
 global $settings, $scripturl;
 
@@ -537,7 +537,7 @@ $txt['generate_reports'] = 'Reports';
 
 $txt['update_available'] = 'Update available';
 $txt['update_message'] = 'You\'re using an outdated version of SMF, which contains some bugs which have since been fixed.
-	It is recommended that you <a href="#" id="update-link">update your forum</a> to the latest version as soon as possible. It only takes a minute!';
+	It is recommended that you <a href="#" id="update-link" class="bbc_link strong">update your forum</a> to the latest version as soon as possible. It only takes a minute!';
 
 $txt['manageposts'] = 'Posts and Topics';
 $txt['manageposts_title'] = 'Manage Posts and Topics';
@@ -727,6 +727,7 @@ $txt['hooks_field_hook_exists'] = 'Status';
 $txt['hooks_active'] = 'Exists';
 $txt['hooks_disabled'] = 'Disabled';
 $txt['hooks_missing'] = 'Not found';
+$txt['hooks_temp'] = 'Temporary';
 $txt['hooks_no_hooks'] = 'There are currently no hooks in the system.';
 $txt['hooks_button_remove'] = 'Remove';
 $txt['hooks_disable_instructions'] = 'Click on the status icon to enable or disable the hook';
@@ -734,6 +735,8 @@ $txt['hooks_disable_legend'] = 'Legend';
 $txt['hooks_disable_legend_exists'] = 'the hook exists and is active';
 $txt['hooks_disable_legend_disabled'] = 'the hook exists but has been disabled';
 $txt['hooks_disable_legend_missing'] = 'the hook has not been found';
+$txt['hooks_disable_legend_temp'] = 'the hook is temporary';
+$txt['hooks_disable_legend_temp_missing'] = 'temporary hook not found';
 $txt['hooks_reset_filter'] = 'No filter';
 
 $txt['board_perms_allow'] = 'Allow';

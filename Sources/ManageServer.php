@@ -56,7 +56,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.3
  */
 
 use SMF\Cache\CacheApi;
@@ -107,21 +107,11 @@ function ModifySettings()
 		'phpinfo' => 'ShowPHPinfoSettings',
 	);
 
-	// By default we're editing the core settings
-	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'general';
-	$context['sub_action'] = $_REQUEST['sa'];
-
 	// Warn the user if there's any relevant information regarding Settings.php.
 	$settings_not_writable = !is_writable($boarddir . '/Settings.php');
 	$settings_backup_fail = !@is_writable($boarddir . '/Settings_bak.php') || !@copy($boarddir . '/Settings.php', $boarddir . '/Settings_bak.php');
 
-	if ($settings_not_writable)
-		$context['settings_message'] = array(
-			'label' => $txt['settings_not_writable'],
-			'tag' => 'div',
-			'class' => 'centertext strong'
-		);
-	elseif ($settings_backup_fail)
+	if ($settings_backup_fail)
 		$context['settings_message'] = array(
 			'label' => $txt['admin_backup_fail'],
 			'tag' => 'div',
@@ -131,6 +121,11 @@ function ModifySettings()
 	$context['settings_not_writable'] = $settings_not_writable;
 
 	call_integration_hook('integrate_server_settings', array(&$subActions));
+
+	// By default we're editing the core settings
+	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'general';
+
+	$context['sub_action'] = $_REQUEST['sa'];
 
 	// Call the right function for this sub-action.
 	call_helper($subActions[$_REQUEST['sa']]);
@@ -188,6 +183,7 @@ function ModifyGeneralSettings($return_config = false)
 	// Setup the template stuff.
 	$context['post_url'] = $scripturl . '?action=admin;area=serversettings;sa=general;save';
 	$context['settings_title'] = $txt['general_settings'];
+	$context['save_disabled'] = $context['settings_not_writable'];
 
 	// Saving settings?
 	if (isset($_REQUEST['save']))
@@ -226,7 +222,8 @@ function ModifyGeneralSettings($return_config = false)
 	prepareServerSettingsContext($config_vars);
 
 	// Some javascript for SSL
-	addInlineJavaScript('
+	if (empty($context['settings_not_writable']))
+		addInlineJavaScript('
 $(function()
 {
 	$("#force_ssl").change(function()
@@ -535,6 +532,7 @@ function ModifyCookieSettings($return_config = false)
 
 	$context['post_url'] = $scripturl . '?action=admin;area=serversettings;sa=cookie;save';
 	$context['settings_title'] = $txt['cookies_sessions_settings'];
+	$context['save_disabled'] = $context['settings_not_writable'];
 
 	// Saving settings?
 	if (isset($_REQUEST['save']))
@@ -1041,7 +1039,14 @@ function ModifyLoadBalancingSettings($return_config = false)
  */
 function prepareServerSettingsContext(&$config_vars)
 {
-	global $context, $modSettings, $smcFunc;
+	global $context, $modSettings, $smcFunc, $txt;
+
+	if (!empty($context['settings_not_writable']))
+		$context['settings_message'] = array(
+			'label' => $txt['settings_not_writable'],
+			'tag' => 'div',
+			'class' => 'centertext strong'
+		);
 
 	if (isset($_SESSION['adm-save']))
 	{

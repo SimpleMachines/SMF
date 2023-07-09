@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.1
+ * @version 2.1.4
  */
 
 use SMF\Cache\CacheApi;
@@ -29,13 +29,14 @@ function reloadSettings()
 	global $image_proxy_enabled;
 
 	// Most database systems have not set UTF-8 as their default input charset.
-	if (!empty($db_character_set))
-		$smcFunc['db_query']('', '
-			SET NAMES {string:db_character_set}',
-			array(
-				'db_character_set' => $db_character_set,
-			)
-		);
+	if (empty($db_character_set))
+		$db_character_set = 'utf8';
+	$smcFunc['db_query']('', '
+		SET NAMES {string:db_character_set}',
+		array(
+			'db_character_set' => $db_character_set,
+		)
+	);
 
 	// We need some caching support, maybe.
 	loadCacheAccelerator();
@@ -204,31 +205,15 @@ function reloadSettings()
 			$ent_arr = preg_split('~(' . $ent_list . '|.)~u' . '', $ent_check($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 			return $length === null ? implode('', array_slice($ent_arr, $start)) : implode('', array_slice($ent_arr, $start, $length));
 		},
-		'strtolower' => function($string) use ($sourcedir, &$smcFunc)
+		'strtolower' => function($string) use (&$smcFunc)
 		{
-			$string = $smcFunc['normalize']($string);
-
-			if (!function_exists('mb_strtolower'))
-			{
-				require_once($sourcedir . '/Subs-Charset.php');
-				return utf8_strtolower($string);
-			}
-
-			return mb_strtolower($string, 'UTF-8');
+			return $smcFunc['convert_case']($string, 'lower');
 		},
-		'strtoupper' => function($string) use ($sourcedir, &$smcFunc)
+		'strtoupper' => function($string) use (&$smcFunc)
 		{
-			$string = $smcFunc['normalize']($string);
-
-			if (!function_exists('mb_strtolower'))
-			{
-				require_once($sourcedir . '/Subs-Charset.php');
-				return utf8_strtoupper($string);
-			}
-
-			return mb_strtoupper($string, 'UTF-8');
+			return $smcFunc['convert_case']($string, 'upper');
 		},
-		'truncate' => function($string, $length) use ($ent_check, $ent_list, &$smcFunc)
+		'truncate' => function($string, $length) use ($utf8, $ent_check, $ent_list, &$smcFunc)
 		{
 			$string = $ent_check($string);
 			preg_match('~^(' . $ent_list . '|.){' . $smcFunc['strlen'](substr($string, 0, $length)) . '}~u', $string, $matches);
@@ -239,14 +224,74 @@ function reloadSettings()
 		},
 		'ucfirst' => function($string) use (&$smcFunc)
 		{
-			return $smcFunc['strtoupper']($smcFunc['substr']($string, 0, 1)) . $smcFunc['substr']($string, 1);
+			return $smcFunc['convert_case']($string, 'ucfirst');
 		},
 		'ucwords' => function($string) use (&$smcFunc)
 		{
-			$words = preg_split('~([\s\r\n\t]+)~', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
-			for ($i = 0, $n = count($words); $i < $n; $i += 2)
-				$words[$i] = $smcFunc['ucfirst']($words[$i]);
-			return implode('', $words);
+			return $smcFunc['convert_case']($string, 'ucwords');
+		},
+		'convert_case' => function($string, $case, $simple = false, $form = 'c') use (&$smcFunc, $utf8, $ent_check, $fix_utf8mb4, $sourcedir)
+		{
+			if (!$utf8)
+			{
+				switch ($case)
+				{
+					case 'upper':
+						$string = strtoupper($string);
+						break;
+
+					case 'lower':
+					case 'fold';
+						$string = strtolower($string);
+						break;
+
+					case 'title':
+						$string = ucwords(strtolower($string));
+						break;
+
+					case 'ucwords':
+						$string = ucwords($string);
+						break;
+
+					case 'ucfirst':
+						$string = ucfirst($string);
+						break;
+
+					default:
+						break;
+				}
+			}
+			else
+			{
+				// Convert numeric entities to characters, except special ones.
+				if (function_exists('mb_decode_numericentity') && strpos($string, '&#') !== false)
+				{
+					$string = strtr($ent_check($string), array(
+						'&#34;' => '&quot;',
+						'&#38;' => '&amp;',
+						'&#39;' => '&apos;',
+						'&#60;' => '&lt;',
+						'&#62;' => '&gt;',
+						'&#160;' => '&nbsp;',
+					));
+
+					$string = mb_decode_numericentity($string, array(0, 0x10FFFF, 0, 0xFFFFFF), 'UTF-8');
+				}
+
+				// Use optmized function for compatibility casefolding.
+				if ($form === 'kc_casefold' || ($case === 'fold' && $form === 'kc'))
+				{
+					$string = $smcFunc['normalize']($string, 'kc_casefold');
+				}
+				// Everything else.
+				else
+				{
+					require_once($sourcedir . '/Subs-Charset.php');
+					$string = $smcFunc['normalize'](utf8_convert_case($string, $case, $simple), $form);
+				}
+			}
+
+			return $fix_utf8mb4($string);
 		},
 		'json_decode' => 'smf_json_decode',
 		'json_encode' => 'json_encode',
@@ -366,6 +411,7 @@ function reloadSettings()
 	$file_max_kb = floor(memoryReturnBytes(ini_get('upload_max_filesize')) / 1024);
 	$modSettings['attachmentPostLimit'] = empty($modSettings['attachmentPostLimit']) ? $post_max_kb : min($modSettings['attachmentPostLimit'], $post_max_kb);
 	$modSettings['attachmentSizeLimit'] = empty($modSettings['attachmentSizeLimit']) ? $file_max_kb : min($modSettings['attachmentSizeLimit'], $file_max_kb);
+	$modSettings['attachmentNumPerPostLimit'] = !isset($modSettings['attachmentNumPerPostLimit']) ? 4 : $modSettings['attachmentNumPerPostLimit'];
 
 	// Integration is cool.
 	if (defined('SMF_INTEGRATION_SETTINGS'))
@@ -2529,6 +2575,8 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'banned_text' => JavaScriptEscape(sprintf($txt['your_ban'], $context['user']['name'])),
 		'smf_txt_expand' => JavaScriptEscape($txt['code_expand']),
 		'smf_txt_shrink' => JavaScriptEscape($txt['code_shrink']),
+		'smf_collapseAlt' => JavaScriptEscape($txt['hide']),
+		'smf_expandAlt' => JavaScriptEscape($txt['show']),
 		'smf_quote_expand' => !empty($modSettings['quote_expand']) ? $modSettings['quote_expand'] : 'false',
 		'allow_xhjr_credentials' => !empty($modSettings['allow_cors_credentials']) ? 'true' : 'false',
 	);
@@ -2561,34 +2609,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 	loadJavaScriptFile('script.js', array('defer' => false, 'minimize' => true), 'smf_script');
 	loadJavaScriptFile('theme.js', array('minimize' => true), 'smf_theme');
 
-	// If we think we have mail to send, let's offer up some possibilities... robots get pain (Now with scheduled task support!)
-	if ((!empty($modSettings['mail_next_send']) && $modSettings['mail_next_send'] < time() && empty($modSettings['mail_queue_use_cron'])) || empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time())
-	{
-		if (isBrowser('possibly_robot'))
-		{
-			// @todo Maybe move this somewhere better?!
-			require_once($sourcedir . '/ScheduledTasks.php');
-
-			// What to do, what to do?!
-			if (empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time())
-				AutoTask();
-			else
-				ReduceMailQueue();
-		}
-		else
-		{
-			$type = empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time() ? 'task' : 'mailq';
-			$ts = $type == 'mailq' ? $modSettings['mail_next_send'] : $modSettings['next_task_time'];
-
-			addInlineJavaScript('
-		function smfAutoTask()
-		{
-			$.get(smf_scripturl + "?scheduled=' . $type . ';ts=' . $ts . '");
-		}
-		window.setTimeout("smfAutoTask();", 1);');
-		}
-	}
-
 	// And we should probably trigger the cron too.
 	if (empty($modSettings['cron_is_real_cron']))
 	{
@@ -2600,6 +2620,18 @@ function loadTheme($id_theme = 0, $initialize = true)
 		$.get(' . JavaScriptEscape($boardurl) . ' + "/cron.php?ts=' . $ts . '");
 	}
 	window.setTimeout(triggerCron, 1);', true);
+
+		// Robots won't normally trigger cron.php, so for them run the scheduled tasks directly.
+		if (isBrowser('possibly_robot') && (empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time() || (!empty($modSettings['mail_next_send']) && $modSettings['mail_next_send'] < time() && empty($modSettings['mail_queue_use_cron']))))
+		{
+			require_once($sourcedir . '/ScheduledTasks.php');
+
+			// What to do, what to do?!
+			if (empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time())
+				AutoTask();
+			else
+				ReduceMailQueue();
+		}
 	}
 
 	// Filter out the restricted boards from the linktree
@@ -3112,8 +3144,19 @@ function loadLanguage($template_name, $lang = '', $fatal = true, $force_reload =
 				$found = true;
 
 				// setlocale is required for basename() & pathinfo() to work properly on the selected language
-				if (!empty($txt['lang_locale']) && !empty($modSettings['global_character_set']))
-					setlocale(LC_CTYPE, $txt['lang_locale'] . '.' . $modSettings['global_character_set']);
+				if (!empty($txt['lang_locale']))
+				{
+					if (strpos($txt['lang_locale'], '.') !== false)
+						$locale_variants = $txt['lang_locale'];
+					else
+						$locale_variants = array_unique(array_merge(
+							!empty($modSettings['global_character_set']) ? array($txt['lang_locale'] . '.' . $modSettings['global_character_set']) : array(),
+							!empty($context['utf8']) ? array($txt['lang_locale'] . '.UTF-8', $txt['lang_locale'] . '.UTF8', $txt['lang_locale'] . '.utf-8', $txt['lang_locale'] . '.utf8') : array(),
+							array($txt['lang_locale'])
+						));
+
+					setlocale(LC_CTYPE, $locale_variants);
+				}
 
 				break;
 			}
@@ -3372,8 +3415,10 @@ function censorText(&$text, $force = false)
 	global $modSettings, $options, $txt;
 	static $censor_vulgar = null, $censor_proper;
 
-	if ((!empty($options['show_no_censored']) && !empty($modSettings['allow_no_censored']) && !$force) || empty($modSettings['censor_vulgar']) || trim($text) === '')
+	if ((!empty($options['show_no_censored']) && !empty($modSettings['allow_no_censored']) && !$force) || empty($modSettings['censor_vulgar']) || !is_string($text) || trim($text) === '')
 		return $text;
+
+	call_integration_hook('integrate_word_censor', array(&$text));
 
 	// If they haven't yet been loaded, load them.
 	if ($censor_vulgar == null)
@@ -3706,7 +3751,7 @@ function loadCacheAccelerator($overrideCache = '', $fallbackSMF = true)
 		}
 
 		// Connect up to the accelerator.
-		$cache_api->connect();
+		if ($cache_api->connect() === false) return false;
 
 		// Don't set this if we are overriding the cache.
 		if (empty($overrideCache))

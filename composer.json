@@ -1,5 +1,5 @@
 {
-    "name": "simplemachines/smf2.1",
+    "name": "simplemachines/smf",
     "repositories": [
         {
             "url": "https://github.com/SimpleMachines/BuildTools.git",

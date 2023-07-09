@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.4
  */
 
 if (!defined('SMF'))
@@ -79,8 +79,8 @@ function Memberlist()
 			'label' => $txt['website'],
 			'link_with' => 'website',
 			'sort' => array(
-				'down' => 'mem.website_url = \'\', mem.website_url is null, mem.website_url DESC',
-				'up' => 'mem.website_url != \'\', mem.website_url is not null, mem.website_url ASC'
+				'down' => $context['user']['is_guest'] ? '1=1' : 'mem.website_url = \'\', mem.website_url is null, mem.website_url DESC',
+				'up' => $context['user']['is_guest'] ? ' 1=1' : 'mem.website_url != \'\', mem.website_url is not null, mem.website_url ASC'
 			),
 		),
 		'id_group' => array(
@@ -273,6 +273,13 @@ function MLAll()
 		$context['columns'][$col]['selected'] = $_REQUEST['sort'] == $col;
 	}
 
+	// Don't offer website sort to guests
+	if ($context['user']['is_guest'])
+	{
+		$context['columns']['website_url']['href'] = '';
+		$context['columns']['website_url']['link'] = $context['columns']['website_url']['label'];
+	}
+
 	// Are we sorting the results
 	$context['sort_by'] = $_REQUEST['sort'];
 	$context['sort_direction'] = !isset($_REQUEST['desc']) ? 'up' : 'down';
@@ -415,15 +422,19 @@ function MLSearch()
 	// They're searching..
 	if (isset($_REQUEST['search']) && isset($_REQUEST['fields']))
 	{
-		$_POST['search'] = trim(isset($_GET['search']) ? $_GET['search'] : $_POST['search']);
+		$_POST['search'] = trim(isset($_GET['search']) ? html_entity_decode(htmlspecialchars_decode($_GET['search'], ENT_QUOTES), ENT_QUOTES) : $_POST['search']);
 		$_POST['fields'] = isset($_GET['fields']) ? explode(',', $_GET['fields']) : $_POST['fields'];
 
-		$context['old_search'] = $_REQUEST['search'];
-		$context['old_search_value'] = urlencode($_REQUEST['search']);
+		$_POST['search'] = $_REQUEST['search'] = $smcFunc['htmlspecialchars']($_POST['search'], ENT_QUOTES);
+
+		$context['old_search'] = $_POST['search'];
+		$context['old_search_value'] = urlencode($_POST['search']);
 
 		// No fields?  Use default...
 		if (empty($_POST['fields']))
 			$_POST['fields'] = array('name');
+
+		$_POST['fields'] = array_intersect($_POST['fields'], array_merge(array('name', 'website', 'group', 'email'), array_keys($context['custom_search_fields'])));
 
 		// Set defaults for how the results are sorted
 		if (!isset($_REQUEST['sort']) || !isset($context['columns'][$_REQUEST['sort']]))
@@ -438,7 +449,7 @@ function MLSearch()
 				$context['columns'][$col]['href'] .= ';desc';
 
 			if (isset($_POST['search']) && isset($_POST['fields']))
-				$context['columns'][$col]['href'] .= ';search=' . $_POST['search'] . ';fields=' . implode(',', $_POST['fields']);
+				$context['columns'][$col]['href'] .= ';search=' . urlencode($_POST['search']) . ';fields=' . implode(',', $_POST['fields']);
 
 			$context['columns'][$col]['link'] = '<a href="' . $context['columns'][$col]['href'] . '" rel="nofollow">' . $context['columns'][$col]['label'] . '</a>';
 			$context['columns'][$col]['selected'] = $_REQUEST['sort'] == $col;
@@ -452,7 +463,7 @@ function MLSearch()
 			'regular_id_group' => 0,
 			'is_activated' => 1,
 			'blank_string' => '',
-			'search' => '%' . strtr($smcFunc['htmlspecialchars']($_POST['search'], ENT_QUOTES), array('_' => '\\_', '%' => '\\%', '*' => '%')) . '%',
+			'search' => '%' . strtr($_POST['search'], array('_' => '\\_', '%' => '\\%', '*' => '%')) . '%',
 			'sort' => $context['columns'][$_REQUEST['sort']]['sort'][$context['sort_direction']],
 		);
 
@@ -497,12 +508,11 @@ function MLSearch()
 		// Any custom fields to search for - these being tricky?
 		foreach ($_POST['fields'] as $field)
 		{
-			$row['col_name'] = substr($field, 5);
-			if (substr($field, 0, 5) == 'cust_' && isset($context['custom_search_fields'][$row['col_name']]))
+			if (substr($field, 0, 5) == 'cust_' && isset($context['custom_search_fields'][$field]))
 			{
-				$customJoin[] = 'LEFT JOIN {db_prefix}themes AS t' . $row['col_name'] . ' ON (t' . $row['col_name'] . '.variable = {string:t' . $row['col_name'] . '} AND t' . $row['col_name'] . '.id_theme = 1 AND t' . $row['col_name'] . '.id_member = mem.id_member)';
-				$query_parameters['t' . $row['col_name']] = $row['col_name'];
-				$fields += array($customCount++ => 'COALESCE(t' . $row['col_name'] . '.value, {string:blank_string})');
+				$customJoin[] = 'LEFT JOIN {db_prefix}themes AS t' . $field . ' ON (t' . $field . '.variable = {string:t' . $field . '} AND t' . $field . '.id_theme = 1 AND t' . $field . '.id_member = mem.id_member)';
+				$query_parameters['t' . $field] = $field;
+				$fields += array($customCount++ => 'COALESCE(t' . $field . '.value, {string:blank_string})');
 				$search_fields[] = $field;
 			}
 		}
@@ -516,8 +526,8 @@ function MLSearch()
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(*)
 			FROM {db_prefix}members AS mem
-				LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = CASE WHEN mem.id_group = {int:regular_id_group} THEN mem.id_post_group ELSE mem.id_group END)' .
-				(empty($customJoin) ? '' : implode('
+				LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = CASE WHEN mem.id_group = {int:regular_id_group} THEN mem.id_post_group ELSE mem.id_group END)
+				' . (empty($customJoin) ? '' : implode('
 				', $customJoin)) . '
 			WHERE (' . implode(' ' . $query . ' OR ', $fields) . ' ' . $query . ')
 				AND mem.is_activated = {int:is_activated}',
@@ -526,10 +536,10 @@ function MLSearch()
 		list ($numResults) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
-		$context['page_index'] = constructPageIndex($scripturl . '?action=mlist;sa=search;search=' . $_POST['search'] . ';fields=' . implode(',', $_POST['fields']), $_REQUEST['start'], $numResults, $modSettings['defaultMaxMembers']);
+		$context['page_index'] = constructPageIndex($scripturl . '?action=mlist;sa=search;search=' . urlencode($_POST['search']) . ';fields=' . implode(',', $_POST['fields']), $_REQUEST['start'], $numResults, $modSettings['defaultMaxMembers']);
 
 		$custom_fields_qry = '';
-		if (array_search('cust_' . $_REQUEST['sort'], $_POST['fields']) === false && !empty($context['custom_profile_fields']['join'][$_REQUEST['sort']]))
+		if (array_search($_REQUEST['sort'], $_POST['fields']) === false && !empty($context['custom_profile_fields']['join'][$_REQUEST['sort']]))
 			$custom_fields_qry = $context['custom_profile_fields']['join'][$_REQUEST['sort']];
 
 		// Find the members from the database.
@@ -575,7 +585,7 @@ function MLSearch()
 		}
 
 		foreach ($context['custom_search_fields'] as $field)
-			$context['search_fields']['cust_' . $field['colname']] = sprintf($txt['mlist_search_by'], tokenTxtReplace($field['name']));
+			$context['search_fields'][$field['colname']] = sprintf($txt['mlist_search_by'], tokenTxtReplace($field['name']));
 
 		$context['sub_template'] = 'search';
 		$context['old_search'] = isset($_GET['search']) ? $_GET['search'] : (isset($_POST['search']) ? $smcFunc['htmlspecialchars']($_POST['search']) : '');

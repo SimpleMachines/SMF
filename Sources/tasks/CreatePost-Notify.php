@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.4
  */
 
 /**
@@ -280,7 +280,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			$smcFunc['db_query']('', '
 				UPDATE {db_prefix}log_notify
 				SET sent = {int:is_sent}
-				WHERE (id_topic = {int:topic} OR id_board = {int:board})
+				WHERE ' . ($type == 'topic' ? 'id_board = {int:board}' : 'id_topic = {int:topic}') . '
 					AND id_member IN ({array_int:members})',
 				array(
 					'topic' => $topicOptions['id'],
@@ -437,15 +437,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				array()
 			);
 
-			$new_alerts = array();
-			foreach ($this->alert_rows as $row)
-			{
-				$group = implode(' ', array($row['content_type'], $row['content_id'], $row['content_action']));
-				$new_alerts[$group] = $row['id_member'];
-			}
-
-			foreach ($new_alerts as $member_ids)
-				updateMemberData($member_ids, array('alerts' => '+'));
+			updateMemberData(array_column($this->alert_rows, 'id_member'), array('alerts' => '+'));
 		}
 	}
 
@@ -609,7 +601,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 				$replacements = array(
 					'TOPICSUBJECT' => $parsed_message[$localization]['subject'],
-					'POSTERNAME' => un_htmlspecialchars($members_info[$posterOptions['id']]['name']),
+					'POSTERNAME' => un_htmlspecialchars(isset($members_info[$posterOptions['id']]['name']) ? $members_info[$posterOptions['id']]['name'] : $posterOptions['name']),
 					'TOPICLINK' => $scripturl . '?topic=' . $topicOptions['id'] . '.new#new',
 					'MESSAGE' => $parsed_message[$localization]['body'],
 					'UNSUBSCRIBELINK' => $scripturl . '?action=notify' . $content_type . ';' . $content_type . '=' . $itemID . ';sa=off;u=' . $member_data['id_member'] . ';token=' . $token,

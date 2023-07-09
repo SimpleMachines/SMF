@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.4
  */
 
 if (!defined('SMF'))
@@ -915,14 +915,19 @@ function MessageFolder()
 			);
 		}
 
+		$group_by = $context['folder'] == 'sent' ? '
+			GROUP BY pm.id_pm, pm.subject, pm.id_member_from, pm.body, pm.msgtime, pm.from_name' .
+				($context['sort_by'] == 'name' ? ', mem.real_name' : '')
+		: '';
+
 		// Execute the query!
 		$messages_request = $smcFunc['db_query']('', '
 			SELECT pm.id_pm, pm.subject, pm.id_member_from, pm.body, pm.msgtime, pm.from_name
 			FROM {db_prefix}personal_messages AS pm' . ($context['folder'] == 'sent' ? '
 				LEFT JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm)' : '') . ($context['sort_by'] == 'name' ? '
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = {raw:id_member})' : '') . '
-			WHERE pm.id_pm IN ({array_int:display_pms})' . ($context['folder'] == 'sent' ? '
-			GROUP BY pm.id_pm, pm.subject, pm.id_member_from, pm.body, pm.msgtime, pm.from_name' : '') . '
+			WHERE pm.id_pm IN ({array_int:display_pms})' .
+			$group_by . '
 			ORDER BY ' . ($context['display_mode'] == 2 ? 'pm.id_pm' : '{raw:sort}') . ($descending ? ' DESC' : ' ASC') . '
 			LIMIT {int:limit}',
 			array(
@@ -3270,7 +3275,7 @@ function ManageLabels()
 	$labels_to_remove = array();
 	$label_updates = array();
 
-	// Add all existing labels to the array to save, slashing them as necessary...
+	// Add all of the current user's existing labels to the array to save, slashing them as necessary...
 	foreach ($context['labels'] as $label)
 	{
 		if ($label['id'] != -1)
@@ -3306,8 +3311,11 @@ function ManageLabels()
 		{
 			foreach ($_POST['delete_label'] AS $label => $dummy)
 			{
-				unset($the_labels[$label]);
-				$labels_to_remove[] = $label;
+				if (array_key_exists($label, $the_labels))
+				{
+					unset($the_labels[$label]);
+					$labels_to_remove[] = $label;
+				}
 			}
 		}
 		// The hardest one to deal with... changes.
@@ -3359,10 +3367,12 @@ function ManageLabels()
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}pm_labels
 					SET name = {string:name}
-					WHERE id_label = {int:id_label}',
+					WHERE id_label = {int:id_label}
+					AND id_member = {int:current_member}',
 					array(
 						'name' => $name,
-						'id_label' => $id
+						'id_label' => $id,
+						'current_member' => $user_info['id'],
 					)
 				);
 			}
@@ -3374,9 +3384,11 @@ function ManageLabels()
 			// First delete the labels
 			$smcFunc['db_query']('', '
 				DELETE FROM {db_prefix}pm_labels
-				WHERE id_label IN ({array_int:labels_to_delete})',
+				WHERE id_label IN ({array_int:labels_to_delete})
+				AND id_member = {int:current_member}',
 				array(
 					'labels_to_delete' => $labels_to_remove,
+					'current_member' => $user_info['id'],
 				)
 			);
 
@@ -3426,6 +3438,7 @@ function ManageLabels()
 					array(
 						'stranded_messages' => $stranded_messages,
 						'in_inbox' => 1,
+						'current_member' => $user_info['id'],
 					)
 				);
 			}

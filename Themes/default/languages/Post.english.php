@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1.0; Post
+// Version: 2.1.4; Post
 
 global $context;
 
@@ -49,7 +49,7 @@ $txt['clean_attach'] = 'Clear attachments';
 $txt['attached'] = 'Attached';
 $txt['allowed_types'] = 'Allowed file types';
 $txt['attach_add'] = 'Add files';
-$txt['attach_drop_zone'] = 'Drag and drop your files here, or use the button to add files.';
+$txt['attach_drop_zone'] = 'Click or drag files here to attach them.';
 $txt['attach_drop_unlimited'] = 'unlimited';
 $txt['attach_drop_zone_no'] = 'Your browser does not support drag and drop file uploads';
 $txt['cant_upload_type'] = 'You cannot upload that type of file. The only allowed extensions are %1$s.';
@@ -78,10 +78,10 @@ $txt['report_profile'] = 'Report profile of \'%1$s\'';
 $txt['reported_profile'] = 'Reported user';
 $txt['report_following_user'] = 'The profile of "%1$s" at %2$s';
 
-$txt['attach_restrict_attachmentPostLimit'] = 'maximum total size %1$d KB';
-$txt['attach_restrict_attachmentPostLimit_MB'] = 'maximum total size %1$d MB';
-$txt['attach_restrict_attachmentSizeLimit'] = 'maximum individual size %1$d KB';
-$txt['attach_restrict_attachmentSizeLimit_MB'] = 'maximum individual size %1$d MB';
+$txt['attach_restrict_attachmentPostLimit'] = 'maximum total size %1$s KB';
+$txt['attach_restrict_attachmentPostLimit_MB'] = 'maximum total size %1$s MB';
+$txt['attach_restrict_attachmentSizeLimit'] = 'maximum individual size %1$s KB';
+$txt['attach_restrict_attachmentSizeLimit_MB'] = 'maximum individual size %1$s MB';
 $txt['attach_restrict_attachmentNumPerPostLimit'] = '%1$d per post';
 $txt['attach_restrictions'] = 'Restrictions:';
 
@@ -174,7 +174,7 @@ $txt['attach_folder_warning'] = 'The attachments directory can not be located. P
 $txt['attach_folder_admin_warning'] = 'The path to the attachments directory (%1$s) is incorrect. Please correct it in the attachment settings area of your admin panel.';
 $txt['attach_limit_nag'] = 'You have reached the maximum number of attachments allowed per post.';
 $txt['attach_no_upload'] = 'There was a problem and your attachments could not be uploaded';
-$txt['attach_remaining'] = '<span class="attach_remaining">%1$d</span> attachments remaining';
+$txt['attach_remaining'] = '<span class="attach_remaining">%1$d</span> remaining';
 $txt['attach_available'] = '%1$s KB available';
 $txt['attach_kb'] = ' (%1$s KB)';
 $txt['attach_0_byte_file'] = 'The file appears to be empty. Please contact your forum administrator if this continues to be a problem';
@@ -190,6 +190,7 @@ $txt['attached_upload_all'] = 'Upload all';
 $txt['attachments_left'] = 'There are a few attachments left, please upload them or cancel them before posting.';
 $txt['attached_insert_width'] = 'Insert width (px):';
 $txt['attached_insert_height'] = 'Insert height (px):';
+$txt['attached_insert_placeholder'] = 'auto';
 
 $txt['attach_php_error'] = 'Due to an error, your attachment could not be uploaded. Please contact the forum administrator if this problem continues.';
 $txt['php_upload_error_1'] = 'The uploaded file exceeds the upload_max_filesize directive in php.ini. Please contact your host if you are unable to correct this issue.';

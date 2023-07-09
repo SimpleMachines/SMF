@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.4
  */
 
 if (!defined('SMF'))
@@ -605,8 +605,12 @@ function modifyBoard($board_id, &$boardOptions)
 	}
 
 	// Who's allowed to access this board.
+	$board_permissions_inserts = array();
 	if (isset($boardOptions['access_groups']))
 	{
+		foreach ($boardOptions['access_groups'] as $value)
+			$board_permissions_inserts[] = array($value, $board_id, 0);
+
 		$boardUpdates[] = 'member_groups = {string:member_groups}';
 		$boardUpdateParameters['member_groups'] = implode(',', $boardOptions['access_groups']);
 	}
@@ -614,6 +618,9 @@ function modifyBoard($board_id, &$boardOptions)
 	// And who isn't.
 	if (isset($boardOptions['deny_groups']))
 	{
+		foreach ($boardOptions['deny_groups'] as $value)
+			$board_permissions_inserts[] = array($value, $board_id, 1);
+
 		$boardUpdates[] = 'deny_member_groups = {string:deny_groups}';
 		$boardUpdateParameters['deny_groups'] = implode(',', $boardOptions['deny_groups']);
 	}
@@ -673,34 +680,13 @@ function modifyBoard($board_id, &$boardOptions)
 		)
 	);
 
-	// Do permission sync
-	if (!empty($boardOptions['deny_groups']))
-	{
-		$insert = array();
-		foreach ($boardOptions['deny_groups'] as $value)
-			$insert[] = array($value, $board_id, 1);
-
+	if ($board_permissions_inserts != array())
 		$smcFunc['db_insert']('insert',
 			'{db_prefix}board_permissions_view',
 			array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
-			$insert,
+			$board_permissions_inserts,
 			array('id_group', 'id_board', 'deny')
 		);
-	}
-
-	if (!empty($boardOptions['access_groups']))
-	{
-		$insert = array();
-		foreach ($boardOptions['access_groups'] as $value)
-			$insert[] = array($value, $board_id, 0);
-
-		$smcFunc['db_insert']('insert',
-			'{db_prefix}board_permissions_view',
-			array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
-			$insert,
-			array('id_group', 'id_board', 'deny')
-		);
-	}
 
 	// Set moderators of this board.
 	if (isset($boardOptions['moderators']) || isset($boardOptions['moderator_string']) || isset($boardOptions['moderator_groups']) || isset($boardOptions['moderator_group_string']))
@@ -899,15 +885,13 @@ function createBoard($boardOptions)
 		'dont_log' => true,
 	);
 
-	$default_memgrps = '-1,0';
-
 	$board_columns = array(
 		'id_cat' => 'int', 'name' => 'string-255', 'description' => 'string', 'board_order' => 'int',
 		'member_groups' => 'string', 'redirect' => 'string',
 	);
 	$board_parameters = array(
 		$boardOptions['target_category'], $boardOptions['board_name'], '', 0,
-		$default_memgrps, '',
+		'', '',
 	);
 
 	call_integration_hook('integrate_create_board', array(&$boardOptions, &$board_columns, &$board_parameters));
@@ -918,19 +902,6 @@ function createBoard($boardOptions)
 		$board_columns,
 		$board_parameters,
 		array('id_board'),
-		1
-	);
-
-	$insert = array();
-
-	foreach (explode(',', $default_memgrps) as $value)
-		$insert[] = array($value, $board_id, 0);
-
-	$smcFunc['db_insert']('',
-		'{db_prefix}board_permissions_view',
-		array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
-		$insert,
-		array('id_group', 'id_board', 'deny'),
 		1
 	);
 

@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.4
  */
 
 if (!defined('SMF'))
@@ -310,6 +310,9 @@ function is_not_banned($forceCheck = false)
 					'current_member' => $user_info['id'],
 				)
 			);
+
+		if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'dlattach')
+			die();
 
 		// 'Log' the user out.  Can't have any funny business... (save the name!)
 		$old_name = isset($user_info['name']) && $user_info['name'] != '' ? $user_info['name'] : $txt['guest_title'];
@@ -916,16 +919,12 @@ function allowedTo($permission, $boards = null, $any = false)
 	// Are we checking the _current_ board, or some other boards?
 	if ($boards === null)
 	{
-		$user_permissions = $user_info['permissions'];
+		$user_permissions = (array) $user_info['permissions'];
 
 		// Allow temporary overrides for general permissions?
 		call_integration_hook('integrate_allowed_to_general', array(&$user_permissions, $permission));
 
-		if (count(array_intersect($permission, $user_permissions)) != 0)
-			return true;
-		// You aren't allowed, by default.
-		else
-			return false;
+		return array_intersect($permission, $user_permissions) != [];
 	}
 	elseif (!is_array($boards))
 		$boards = array($boards);
@@ -1503,7 +1502,7 @@ function corsPolicyHeader($set_header = true)
 		foreach ($cors_headers as &$ch)
 			$ch = str_replace(' ', '-', trim($ch));
 
-		$context['cors_headers'] += implode(',', $cors_headers);
+		$context['cors_headers'] .= ',' . implode(',', $cors_headers);
 	}
 
 	// Allowing Cross-Origin Resource Sharing (CORS).

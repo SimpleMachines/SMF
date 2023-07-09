@@ -10,7 +10,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -31,6 +31,8 @@ function Groups()
 		'members' => array('MembergroupMembers', 'view_groups'),
 		'requests' => array('GroupRequests', 'group_requests'),
 	);
+
+	call_integration_hook('integrate_manage_groups', array(&$subActions));
 
 	// Default to sub action 'index'.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'index';
@@ -57,9 +59,6 @@ function Groups()
 			'name' => $txt['groups'],
 		);
 	}
-
-	// CRUD $subActions as needed.
-	call_integration_hook('integrate_manage_groups', array(&$subActions));
 
 	// Call the actual function.
 	call_helper($subActions[$_REQUEST['sa']][0]);
@@ -659,7 +658,7 @@ function GroupRequests()
 			array(
 				'position' => 'bottom_of_list',
 				'value' => '
-					<select name="req_action" onchange="if (this.value != 0 &amp;&amp; (this.value == \'reason\' || confirm(\'' . $txt['mc_groupr_warning'] . '\'))) this.form.submit();">
+					<select id="req_action" name="req_action" onchange="if (this.value != 0 &amp;&amp; (this.value == \'reason\' || confirm(\'' . $txt['mc_groupr_warning'] . '\'))) this.form.submit();">
 						<option value="0">' . $txt['with_selected'] . ':</option>
 						<option value="0" disabled>---------------------</option>
 						<option value="approve">' . $txt['mc_groupr_approve'] . '</option>

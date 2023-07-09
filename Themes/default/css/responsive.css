@@ -147,6 +147,7 @@
 	#quick_actions {
 		display: flex;
 		justify-content: flex-end;
+		flex-wrap: wrap;
 	}
 	#quick_actions > * {
 		flex: 0 1 auto;

@@ -12,7 +12,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -726,7 +726,8 @@ function Activate()
 	// Also do a proper member stat re-evaluation.
 	updateStats('member', false);
 
-	if (!isset($_POST['new_email']))
+	// Notify the admin about new activations, but not re-activations.
+	if (empty($row['is_activated']))
 	{
 		require_once($sourcedir . '/Subs-Post.php');
 

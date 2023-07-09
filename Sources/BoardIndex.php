@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.4
  */
 
 if (!defined('SMF'))
@@ -132,6 +132,10 @@ function BoardIndex()
 	$context['mark_read_button'] = array(
 		'markread' => array('text' => 'mark_as_read', 'image' => 'markread.png', 'custom' => 'data-confirm="' . $txt['are_sure_mark_read'] . '"', 'class' => 'you_sure', 'url' => $scripturl . '?action=markasread;sa=all;' . $context['session_var'] . '=' . $context['session_id']),
 	);
+
+	// Replace the collapse and expand default alts.
+	addJavaScriptVar('smf_expandAlt', $txt['show_category'], true);
+	addJavaScriptVar('smf_collapseAlt', $txt['hide_category'], true);
 
 	// Allow mods to add additional buttons here
 	call_integration_hook('integrate_mark_read_button');

@@ -1,9 +1,9 @@
 <?php
-// Version: 2.1.0; Install
+// Version: 2.1.3; Install
 
 // These should be the same as those in index.language.php.
 $txt['lang_character_set'] = 'UTF-8';
-$txt['lang_rtl'] = false;
+$txt['lang_rtl'] = '0';
 
 $txt['install_step_welcome'] = 'Welcome';
 $txt['install_step_writable'] = 'Writable check';
@@ -271,6 +271,7 @@ $txt['upgrade_customize'] = 'Customize';
 $txt['upgrade_debug_info'] = 'Output extra debugging information.';
 $txt['upgrade_empty_errorlog'] = 'Empty error log before upgrading.';
 $txt['upgrade_delete_karma'] = 'Delete all karma settings and info from the DB';
+$txt['upgrade_reprocess_attachments'] = 'Rerun attachment conversion';
 $txt['upgrade_stats_collection'] = 'Allow Simple Machines to collect basic stats monthly.';
 $txt['upgrade_stats_info'] = 'If enabled, this will allow Simple Machines to visit your site once a month to collect basic statistics. This will help us make decisions as to which configurations to optimise the software for. For more information please visit our <a href="%1$s" target="_blank" rel="noopener">info page</a>.';
 $txt['upgrade_migrate_settings_file'] = 'Migrate to a new Settings file.';
@@ -370,6 +371,11 @@ $txt['error_not_admin'] = 'You need to be an admin to perform an upgrade!';
 
 $txt['warning_lang_old'] = 'The language files for your selected language, %1$s, have not been updated to the latest version. Upgrade will continue with the forum default, %2$s.';
 $txt['warning_lang_missing'] = 'The upgrader could not find the &quot;Install&quot; language file for your selected language, %1$s. Upgrade will continue with the forum default, %2$s.';
+
+// Attachment & Avatar folder checks
+$txt['warning_av_missing'] = 'Warning! Avatar directory not found. Continuing may be unsafe. Please confirm folder settings before proceeding.';
+$txt['warning_custom_av_missing'] = 'Warning! Custom avatar directory not found. Continuing may be unsafe. Please confirm folder settings before proceeding.';
+$txt['warning_att_dir_missing'] = 'Warning! One or more attachment directories not found. Continuing may be unsafe. Please confirm folder settings before proceeding.';
 
 // Page titles
 $txt['updating_smf_installation'] = 'Updating Your SMF Installation!';

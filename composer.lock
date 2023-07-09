@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d265351fbb6aff1e70f5b511024e9f06",
+    "content-hash": "459367aef15bf2177bfed3beaacbe838",
     "packages": [],
     "packages-dev": [
         {
@@ -173,12 +173,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/SimpleMachines/BuildTools.git",
-                "reference": "c3fd80002a144dde7e7fe2bee4336fbbfa2bce6f"
+                "reference": "85df0e7936420cad226b84fde89297f3d944fa72"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/SimpleMachines/BuildTools/zipball/c3fd80002a144dde7e7fe2bee4336fbbfa2bce6f",
-                "reference": "c3fd80002a144dde7e7fe2bee4336fbbfa2bce6f",
+                "url": "https://api.github.com/repos/SimpleMachines/BuildTools/zipball/85df0e7936420cad226b84fde89297f3d944fa72",
+                "reference": "85df0e7936420cad226b84fde89297f3d944fa72",
                 "shasum": ""
             },
             "require": {
@@ -190,7 +190,7 @@
                 "source": "https://github.com/SimpleMachines/BuildTools/tree/master",
                 "issues": "https://github.com/SimpleMachines/BuildTools/issues"
             },
-            "time": "2022-02-12T03:29:22+00:00"
+            "time": "2022-11-14T03:06:14+00:00"
         },
         {
             "name": "symfony/console",
@@ -321,6 +321,7 @@
             "support": {
                 "source": "https://github.com/symfony/debug/tree/3.3"
             },
+            "abandoned": "symfony/error-handler",
             "time": "2017-07-28T15:27:31+00:00"
         },
         {
@@ -406,12 +407,12 @@
                 }
             },
             "autoload": {
-                "psr-4": {
-                    "Symfony\\Polyfill\\Mbstring\\": ""
-                },
                 "files": [
                     "bootstrap.php"
-                ]
+                ],
+                "psr-4": {
+                    "Symfony\\Polyfill\\Mbstring\\": ""
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [

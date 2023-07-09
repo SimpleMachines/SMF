@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.4
  */
 
 if (!defined('SMF'))
@@ -69,9 +69,8 @@ function createMenu($menuData, $menuOptions = array())
 			integrate_admin_areas
 			integrate_moderate_areas
 			integrate_pm_areas
-			integrate_profile_areas
 	*/
-	if (!empty($menu_context['current_action']))
+	if (!empty($menu_context['current_action']) && empty($menuOptions['disable_hook_call']))
 		call_integration_hook('integrate_' . $menu_context['current_action'] . '_areas', array(&$menuData));
 
 	// What is the current area selected?

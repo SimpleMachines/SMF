@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1.0; Help
+// Version: 2.1.3; Help
 
 global $helptxt, $scripturl;
 
@@ -651,7 +651,7 @@ $helptxt['languages_txt_for_email_templates'] = 'These language entries are used
 $helptxt['languages_native_name'] = 'The language\'s name for itself, represented in its own script.';
 $helptxt['languages_character_set'] = 'The character encoding used for this language. As of SMF 2.1, this should always be "UTF-8".';
 $helptxt['languages_locale'] = 'The locale code is used to determine various formatting conventions, etc.<br><br>The locale code typically takes the form of a two character language code, optionally followed by an underscore and a two character country code. For example, <code>en</code> would identify generic English, while <code>en_AU</code> would identify Australian English in particular.';
-$helptxt['languages_rtl'] = 'Check this box if this language reads from right to left (e.g. Hebrew, Arabic).';
+$helptxt['languages_rtl'] = 'Enter a "1" here if this language reads from right to left (e.g. Hebrew, Arabic).  Leave it "0" for left to right languages.';
 $helptxt['languages_dictionary'] = 'This defines the main language dictionary that will be used by the <a href="https://php.net/function.pspell-new" target="_blank" rel="noopener">pSpell</a> spellchecker (if installed).';
 $helptxt['languages_recaptcha'] = 'The language code to use for the reCAPTCHA verification widget.<br><br>See Google\'s reCAPTCHA documentation for its <a href="https://developers.google.com/recaptcha/docs/language" target="_blank" rel="noopener" class="bbc_link">list of supported languages</a>.';
 // The GDPR page of the EU exists in several languages; change the language code at the end of the url

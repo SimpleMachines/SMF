@@ -463,7 +463,7 @@ CREATE TABLE {$db_prefix}log_packages (
 	failed_steps TEXT NOT NULL,
 	themes_installed VARCHAR(255) NOT NULL DEFAULT '',
 	db_changes TEXT NOT NULL,
-	credits TEXT NOT NULL DEFAULT '',
+	credits TEXT NOT NULL,
 	sha256_hash TEXT,
 	PRIMARY KEY (id_install),
 	INDEX idx_filename (filename(15))
@@ -735,7 +735,7 @@ CREATE TABLE {$db_prefix}members (
 	warning TINYINT NOT NULL DEFAULT '0',
 	passwd_flood VARCHAR(12) NOT NULL DEFAULT '',
 	pm_receive_from TINYINT UNSIGNED NOT NULL DEFAULT '1',
-	timezone VARCHAR(80) NOT NULL DEFAULT 'UTC',
+	timezone VARCHAR(80) NOT NULL DEFAULT '',
 	tfa_secret VARCHAR(24) NOT NULL DEFAULT '',
 	tfa_backup VARCHAR(64) NOT NULL DEFAULT '',
 	PRIMARY KEY (id_member),
@@ -751,7 +751,8 @@ CREATE TABLE {$db_prefix}members (
 	INDEX idx_id_post_group (id_post_group),
 	INDEX idx_warning (warning),
 	INDEX idx_total_time_logged_in (total_time_logged_in),
-	INDEX idx_id_theme (id_theme)
+	INDEX idx_id_theme (id_theme),
+	INDEX idx_active_real_name (is_activated, real_name)
 ) ENGINE={$engine};
 
 #

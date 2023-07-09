@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.4
  */
 
 namespace SMF\Cache\APIs;
@@ -59,7 +59,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 
 	private function readFile($file)
 	{
-		if (($fp = fopen($file, 'rb')) !== false)
+		if (($fp = @fopen($file, 'rb')) !== false)
 		{
 			if (!flock($fp, LOCK_SH))
 			{
@@ -129,7 +129,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 		// SMF Data returns $value and $expired.  $expired has a unix timestamp of when this expires.
 		if (file_exists($file) && ($raw = $this->readFile($file)) !== false)
 		{
-			if (($value = smf_json_decode($raw, true, false)) !== array() && $value['expiration'] >= time())
+			if (($value = smf_json_decode($raw, true, false)) !== array() && isset($value['expiration']) && $value['expiration'] >= time())
 				return $value['value'];
 			else
 				@unlink($file);
@@ -224,7 +224,8 @@ class FileBased extends CacheApi implements CacheApiInterface
 		if (!isset($context['settings_post_javascript']))
 			$context['settings_post_javascript'] = '';
 
-		$context['settings_post_javascript'] .= '
+		if (empty($context['settings_not_writable']))
+			$context['settings_post_javascript'] .= '
 			$("#cache_accelerator").change(function (e) {
 				var cache_type = e.currentTarget.value;
 				$("#cachedir").prop("disabled", cache_type != "'. $class_name .'");
