@@ -1951,6 +1951,7 @@ function list_integration_hooks()
 						else
 							return $instance . $data['real_function'];
 					},
+					'class' => 'word_break',
 				),
 				'sort' => array(
 					'default' => 'function_name',
@@ -1963,6 +1964,7 @@ function list_integration_hooks()
 				),
 				'data' => array(
 					'db' => 'file_name',
+					'class' => 'word_break',
 				),
 				'sort' => array(
 					'default' => 'file_name',
