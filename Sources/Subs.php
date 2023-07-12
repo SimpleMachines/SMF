@@ -5274,7 +5274,7 @@ function host_from_ip($ip)
  */
 function text2words($text, $max_chars = 20, $encrypt = false)
 {
-	global $smcFunc, $context;
+	global $smcFunc, $context, $db_character_set;
 
 	// Upgrader uses this function & may be working on old DBs...
 	if (!isset($db_character_set) || (isset($db_character_set) && ($db_character_set != 'utf8') && ($db_character_set != 'utf8mb4')))
@@ -5314,7 +5314,7 @@ function text2words($text, $max_chars = 20, $encrypt = false)
 		$returned_words = array();
 		foreach ($words as $word)
 			if (($word = trim($word, '-_\'')) !== '')
-				$returned_words[] = $max_chars === null ? $word : substr($word, 0, $max_chars);
+				$returned_words[] = $max_chars === null ? $word : $smcFunc['substr']($word, 0, $max_chars);
 
 		// Filter out all words that occur more than once.
 		return array_unique($returned_words);
