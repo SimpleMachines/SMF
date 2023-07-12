@@ -210,6 +210,17 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status 
 		loadTheme();
 	}
 
+	// Attempt to load the text string.
+	loadLanguage('Errors');
+	if (empty($txt[$error]))
+		$error_message = $error;
+	else
+		$error_message = empty($sprintf) ? $txt[$error] : vsprintf($txt[$error], $sprintf);
+
+	// Send a custom header if we have a custom message.
+	if (isset($_REQUEST['js']) || isset($_REQUEST['xml']) || isset($_RQEUEST['ajax']))
+		header('X-SMF-errormsg: ' .  $error_message);
+
 	// If we have no theme stuff we can't have the language file...
 	if (empty($context['theme_loaded']))
 		die($error);
@@ -228,7 +239,7 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status 
 	}
 
 	// Load the language file, only if it needs to be reloaded
-	if ($reload_lang_file)
+	if ($reload_lang_file && !empty($txt[$error]))
 	{
 		loadLanguage('Errors');
 		$error_message = empty($sprintf) ? $txt[$error] : vsprintf($txt[$error], $sprintf);
