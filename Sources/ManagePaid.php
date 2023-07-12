@@ -428,7 +428,7 @@ function ViewSubscriptions()
 		),
 		'additional_rows' => array(
 			array(
-				'position' => 'above_table_headers',
+				'position' => 'above_column_headers',
 				'value' => '<input type="submit" name="add" value="' . $txt['paid_add_subscription'] . '" class="button">',
 			),
 			array(

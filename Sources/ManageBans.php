@@ -471,13 +471,13 @@ function BanEdit()
 				),
 				'additional_rows' => array(
 					array(
-						'position' => 'above_table_headers',
+						'position' => 'above_column_headers',
 						'value' => '
 						<input type="submit" name="remove_selection" value="' . $txt['ban_remove_selected_triggers'] . '" class="button"> <a class="button" href="' . $scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . $txt['ban_add_trigger'] . '</a>',
 						'style' => 'text-align: right;',
 					),
 					array(
-						'position' => 'above_table_headers',
+						'position' => 'above_column_headers',
 						'value' => '
 						<input type="hidden" name="bg" value="' . $ban_group_id . '">
 						<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
