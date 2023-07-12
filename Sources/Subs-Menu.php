@@ -229,6 +229,13 @@ function createMenu($menuData, $menuOptions = array())
 									$menu_context['sections'][$section_id]['areas'][$area_id]['subsections'][$sa]['disabled'] = true;
 							}
 
+							// If permissions removed/disabled for all submenu items, remove the menu item
+							if (empty($first_sa) && empty($last_sa))
+							{
+								unset($menu_context['sections'][$section_id]['areas'][$area_id]);
+								continue;
+							}
+
 							// Set which one is first, last and selected in the group.
 							if (!empty($menu_context['sections'][$section_id]['areas'][$area_id]['subsections']))
 							{

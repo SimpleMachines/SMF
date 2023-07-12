@@ -810,6 +810,7 @@ function loadTimePicker($selector = 'input.time_input', $time_format = '')
 			decimal: "' . $txt['decimal_sign'] . '",
 			mins: "' . $txt['minutes_short'] . '",
 			hr: "' . $txt['hour_short'] . '",
+			hrs: "' . $txt['hours_short'] . '",
 		}
 	});', true);
 }
