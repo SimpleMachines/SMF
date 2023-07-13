@@ -523,13 +523,13 @@ function ConvertUtf8mb4()
 		$db_tables[] = $row['TABLE_NAME'];
 	$smcFunc['db_free_result']($request);
 
-	// Check each of the three indexes that may need updating - #1
+	// Check each of the four indexes that may need updating - #1
 	$request = $smcFunc['db_query']('', '
 		SELECT SUB_PART
 		FROM information_schema.STATISTICS
 		WHERE TABLE_NAME = {string:cur_table}
 			AND TABLE_SCHEMA = {string:cur_schema}
-			AND INDEX_NAME = \'idx_real_name\'
+			AND INDEX_NAME IN (\'idx_real_name\', \'real_name\')
 			AND COLUMN_NAME = \'real_name\'',
 		array(
 			'cur_schema' => $db_name,
@@ -545,13 +545,35 @@ function ConvertUtf8mb4()
 
 	$smcFunc['db_free_result']($request);
 
-	// Check each of the three indexes that may need updating - #2
+	// Check each of the four indexes that may need updating - #2
 	$request = $smcFunc['db_query']('', '
 		SELECT SUB_PART
 		FROM information_schema.STATISTICS
 		WHERE TABLE_NAME = {string:cur_table}
 			AND TABLE_SCHEMA = {string:cur_schema}
-			AND INDEX_NAME = \'idx_email_address\'
+			AND INDEX_NAME = \'idx_active_real_name\'
+			AND COLUMN_NAME = \'real_name\'',
+		array(
+			'cur_schema' => $db_name,
+			'cur_table' => $db_prefix . 'members',
+		)
+	);
+
+	list($fix_active_real_name) = $smcFunc['db_fetch_row']($request);
+	if ($fix_active_real_name == null)
+		$fix_active_real_name = true;
+	else
+		$fix_active_real_name = false;
+
+	$smcFunc['db_free_result']($request);
+
+	// Check each of the four indexes that may need updating - #3
+	$request = $smcFunc['db_query']('', '
+		SELECT SUB_PART
+		FROM information_schema.STATISTICS
+		WHERE TABLE_NAME = {string:cur_table}
+			AND TABLE_SCHEMA = {string:cur_schema}
+			AND INDEX_NAME IN (\'idx_email_address\', \'email_address\')
 			AND COLUMN_NAME = \'email_address\'',
 		array(
 			'cur_schema' => $db_name,
@@ -567,7 +589,7 @@ function ConvertUtf8mb4()
 
 	$smcFunc['db_free_result']($request);
 
-	// Check each of the three indexes that may need updating - #3
+	// Check each of the four indexes that may need updating - #4
 	$request = $smcFunc['db_query']('', '
 		SELECT SUB_PART
 		FROM information_schema.STATISTICS
@@ -592,12 +614,29 @@ function ConvertUtf8mb4()
 	// After this point we are starting the conversion. But first: session check.
 	checkSession();
 
-	// First, drop the three indexes if they need fixing...
+	// First, drop the four indexes (using new & old names) if they need fixing...
 	if ($fix_real_name)
 		$request = $smcFunc['db_query']('', '
 			ALTER TABLE {db_prefix}members
 				DROP INDEX idx_real_name',
 			array(
+				'db_error_skip' => true,
+			)
+		);
+	if ($fix_real_name)
+		$request = $smcFunc['db_query']('', '
+			ALTER TABLE {db_prefix}members
+				DROP INDEX real_name',
+			array(
+				'db_error_skip' => true,
+			)
+		);
+	if ($fix_active_real_name)
+		$request = $smcFunc['db_query']('', '
+			ALTER TABLE {db_prefix}members
+				DROP INDEX idx_active_real_name',
+			array(
+				'db_error_skip' => true,
 			)
 		);
 	if ($fix_email_address)
@@ -605,6 +644,15 @@ function ConvertUtf8mb4()
 			ALTER TABLE {db_prefix}members
 				DROP INDEX idx_email_address',
 			array(
+				'db_error_skip' => true,
+			)
+		);
+	if ($fix_email_address)
+		$request = $smcFunc['db_query']('', '
+			ALTER TABLE {db_prefix}members
+				DROP INDEX email_address',
+			array(
+				'db_error_skip' => true,
 			)
 		);
 	if ($fix_lngfile)
@@ -612,6 +660,7 @@ function ConvertUtf8mb4()
 			ALTER TABLE {db_prefix}qanda
 				DROP INDEX idx_lngfile',
 			array(
+				'db_error_skip' => true,
 			)
 		);
 
@@ -625,11 +674,18 @@ function ConvertUtf8mb4()
 		);
 	}
 
-	// Next, fix the three indexes...
+	// Next, fix the four indexes...
 	if ($fix_real_name)
 		$request = $smcFunc['db_query']('', '
 			ALTER TABLE {db_prefix}members
 				ADD INDEX idx_real_name (real_name(191))',
+			array(
+			)
+		);
+	if ($fix_active_real_name)
+		$request = $smcFunc['db_query']('', '
+			ALTER TABLE {db_prefix}members
+				ADD INDEX idx_active_real_name (is_activated, real_name(191))',
 			array(
 			)
 		);

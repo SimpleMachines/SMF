@@ -3197,7 +3197,7 @@ DROP INDEX idx_active_real_name;
 
 ---# Updating members active_real_name (add)
 ALTER TABLE {$db_prefix}members
-ADD INDEX idx_active_real_name (is_activated, real_name);
+ADD INDEX idx_active_real_name (is_activated, real_name(191));
 ---#
 
 ---# Updating messages drop old ipIndex
