@@ -2644,6 +2644,10 @@ function PackagePermissionsAction()
 			$dont_chmod = false;
 			while ($entry = readdir($dh))
 			{
+				// Bypass directory abbreviations altogether...
+				if ($entry == '.' || $entry == '..')
+					continue;
+
 				$file_count++;
 				// Actually process this file?
 				if (!$dont_chmod && !is_dir($path . '/' . $entry) && (empty($context['file_offset']) || $context['file_offset'] < $file_count))
