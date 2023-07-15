@@ -2644,6 +2644,7 @@ function PackagePermissionsAction()
 			$dont_chmod = false;
 			while ($entry = readdir($dh))
 			{
+				// Bypass directory abbreviations altogether...
 				if ($entry == '.' || $entry == '..')
 					continue;
 
