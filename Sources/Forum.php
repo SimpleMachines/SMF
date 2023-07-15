@@ -385,7 +385,7 @@ class Forum
 			// Board is not empty... topic is not empty... action is empty.. Display!
 			else
 			{
-				return 'SMF\\Display::call';
+				return 'SMF\\Actions\\Display::call';
 			}
 		}
 

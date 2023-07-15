@@ -1,9 +1,6 @@
 <?php
 
 /**
- * This is perhaps the most important and probably most accessed file in all
- * of SMF.  This file controls topic, message, and attachment display.
- *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,24 +11,40 @@
  * @version 3.0 Alpha 1
  */
 
-namespace SMF;
+namespace SMF\Actions;
 
-use SMF\Actions\Calendar;
+use SMF\BackwardCompatibility;
+
+use SMF\Attachment;
+use SMF\Board;
+use SMF\Config;
+use SMF\Event;
+use SMF\Lang;
+use SMF\Msg;
+use SMF\Poll;
+use SMF\Theme;
+use SMF\Topic;
+use SMF\User;
+use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
 /**
- * The central part of the board - topic display.
- * This class loads the posts in a topic up so they can be displayed.
+ * This class loads the posts in a topic so they can be displayed.
+ *
  * It uses the main sub template of the Display template.
  * It requires a topic, and can go to the previous or next topic from it.
- * It jumps to the correct post depending on a number/time/IS_MSG passed.
- * It depends on the messages_per_page, defaultMaxMessages and enableAllMessages settings.
+ * It jumps to the correct post depending on a number/time/msg passed.
+ * It depends on the messages_per_page, defaultMaxMessages and enableAllMessages
+ * settings.
  * It is accessed by ?topic=id_topic.START.
+ *
+ * Although this class is not accessed using an ?action=... URL query, it
+ * behaves like an action in every other way.
  */
-class Display
+class Display implements ActionInterface
 {
-	use namespace\BackwardCompatibility;
+	use BackwardCompatibility;
 
 	/**
 	 * @var array
