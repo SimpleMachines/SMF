@@ -372,7 +372,7 @@ class Forum
 				// No default action huh? then go to our good old BoardIndex.
 				else
 				{
-					return 'SMF\\BoardIndex::call';
+					return 'SMF\\Actions\\BoardIndex::call';
 				}
 			}
 
