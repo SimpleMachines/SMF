@@ -11,21 +11,32 @@
  * @version 3.0 Alpha 1
  */
 
-namespace SMF;
+namespace SMF\Actions;
 
-use SMF\Actions\Calendar;
+use SMF\BackwardCompatibility;
+
+use SMF\Board;
+use SMF\Category;
+use SMF\Config;
+use SMF\Lang;
+use SMF\Msg;
+use SMF\Theme;
+use SMF\User;
+use SMF\Utils;
 use SMF\Cache\CacheApi;
-use SMF\Db\DatabaseApi as Db;
 
 /**
  * This class shows the board index.
  *
  * It uses the BoardIndex template, and main sub template.
  * It updates most of the online statistics.
+ *
+ * Although this class is not accessed using an ?action=... URL query, it
+ * behaves like an action in every other way.
  */
-class BoardIndex
+class BoardIndex implements ActionInterface
 {
-	use namespace\BackwardCompatibility;
+	use BackwardCompatibility;
 
 	/**
 	 * @var array
@@ -77,7 +88,7 @@ class BoardIndex
 		{
 			if (Theme::$current->settings['number_recent_posts'] > 1)
 			{
-				Utils::$context['latest_posts'] = CacheApi::quickGet('boardindex-latest_posts:' . md5(User::$me->query_wanna_see_board . User::$me->language), basename(__FILE__), array($this, 'cache_getLastPosts'), array(Theme::$current->settings['number_recent_posts']));
+				Utils::$context['latest_posts'] = CacheApi::quickGet('boardindex-latest_posts:' . md5(User::$me->query_wanna_see_board . User::$me->language), '', array($this, 'cache_getLastPosts'), array(Theme::$current->settings['number_recent_posts']));
 			}
 
 			if (!empty(Utils::$context['latest_posts']) || !empty(Utils::$context['latest_post']))

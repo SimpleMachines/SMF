@@ -16,6 +16,6 @@
 if (!defined('SMF'))
 	die('No direct access...');
 
-class_exists('SMF\\BoardIndex');
+class_exists('SMF\\Actions\\BoardIndex');
 
 ?>
