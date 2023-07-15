@@ -379,7 +379,7 @@ class Forum
 			// Topic is empty, and action is empty.... MessageIndex!
 			elseif (empty(Topic::$topic_id))
 			{
-				return 'SMF\\MessageIndex::call';
+				return 'SMF\\Actions\\MessageIndex::call';
 			}
 
 			// Board is not empty... topic is not empty... action is empty.. Display!

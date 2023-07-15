@@ -16,6 +16,6 @@
 if (!defined('SMF'))
 	die('No direct access...');
 
-class_exists('SMF\\MessageIndex');
+class_exists('SMF\\Actions\\MessageIndex');
 
 ?>

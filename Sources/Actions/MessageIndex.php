@@ -11,23 +11,29 @@
  * @version 3.0 Alpha 1
  */
 
-namespace SMF;
+namespace SMF\Actions;
 
-use SMF\Actions\Notify;
-use SMF\Actions\QuickModeration;
-use SMF\Actions\TopicMove2;
-use SMF\Actions\TopicMerge;
+use SMF\BackwardCompatibility;
+
+use SMF\BBCodeParser;
+use SMF\Board;
+use SMF\Category;
+use SMF\Config;
+use SMF\Lang;
+use SMF\Theme;
+use SMF\User;
+use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
 /**
  * This class shows the list of topics in a board.
- * It's just one or two functions, but don't under estimate it ;).
  *
- * Also handles quick moderation when performed from the board's page.
+ * Although this class is not accessed using an ?action=... URL query, it
+ * behaves like an action in every other way.
  */
-class MessageIndex
+class MessageIndex implements ActionInterface
 {
-	use namespace\BackwardCompatibility;
+	use BackwardCompatibility;
 
 	/**
 	 * @var array
