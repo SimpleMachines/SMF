@@ -23,7 +23,6 @@ use SMF\Config;
 use SMF\Event;
 use SMF\Draft;
 use SMF\Lang;
-use SMF\MessageIndex;
 use SMF\Msg;
 use SMF\Poll;
 use SMF\Theme;

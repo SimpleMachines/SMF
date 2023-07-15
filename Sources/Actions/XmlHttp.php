@@ -19,7 +19,6 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
-use SMF\MessageIndex;
 use SMF\Msg;
 use SMF\Theme;
 use SMF\User;

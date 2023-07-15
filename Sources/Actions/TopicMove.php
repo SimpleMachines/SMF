@@ -18,7 +18,6 @@ use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
-use SMF\MessageIndex;
 use SMF\Msg;
 use SMF\Mail;
 use SMF\Theme;

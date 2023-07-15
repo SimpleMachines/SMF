@@ -20,7 +20,6 @@ use SMF\BrowserDetector;
 use SMF\Config;
 use SMF\Event;
 use SMF\Lang;
-use SMF\MessageIndex;
 use SMF\Theme;
 use SMF\Time;
 use SMF\Topic;
