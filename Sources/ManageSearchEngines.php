@@ -962,7 +962,7 @@ function SpiderStats()
 		$date_query = sprintf('%04d-%02d-01', substr($current_date, 0, 4), substr($current_date, 4));
 
 		$request = $smcFunc['db_query']('', '
-			SELECT COUNT(*) AS offset
+			SELECT COUNT(*)
 			FROM {db_prefix}log_spider_stats
 			WHERE stat_date < {date:date_being_viewed}',
 			array(
