@@ -316,8 +316,11 @@ function read_zip_data(string $data, ?string $destination, bool $single_file = f
 		$write_this = false;
 		if ($destination !== null)
 		{
+			// If hunting for a file in subdirectories, pass to subsequent write test...
+			if ($single_file && $destination !== null && (substr($destination, 0, 2) == '*/'))
+				$write_this = true;
 			// If this is a file, and it doesn't exist.... happy days!
-			if ($is_file)
+			elseif ($is_file)
 				$write_this = !file_exists($destination . '/' . $file_info['filename']) || $overwrite;
 			// This is a directory, so we're gonna want to create it. (probably...)
 			elseif (!$single_file)
@@ -432,19 +435,15 @@ function loadInstalledPackages()
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Already found this? If so don't add it twice!
-		if (in_array($row['package_id'], $found))
+		if (isset($installed[$row['package_id']]))
 			continue;
 
-		$found[] = $row['package_id'];
-
-		$row = htmlspecialchars__recursive($row);
-
-		$installed[] = array(
+		$installed[$row['package_id']] = array(
 			'id' => $row['id_install'],
-			'name' => $smcFunc['htmlspecialchars']($row['name']),
+			'name' => $row['name'],
 			'filename' => $row['filename'],
 			'package_id' => $row['package_id'],
-			'version' => $smcFunc['htmlspecialchars']($row['version']),
+			'version' => $row['version'],
 			'time_installed' => !empty($row['time_installed']) ? $row['time_installed'] : 0,
 		);
 	}

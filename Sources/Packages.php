@@ -1397,10 +1397,10 @@ function PackageBrowse()
 	global $txt, $scripturl, $context, $sourcedir, $smcFunc;
 
 	$context['page_title'] .= ' - ' . $txt['browse_packages'];
-
+	$context['modification_types'] = array('modification', 'avatar', 'language', 'unknown');
+	$packages = getPackages();
+	$context['available_packages'] = count($packages);
 	$context['forum_version'] = SMF_FULL_VERSION;
-	$context['available_packages'] = 0;
-	$context['modification_types'] = array('modification', 'avatar', 'language', 'unknown', 'smiley');
 
 	call_integration_hook('integrate_modification_types');
 
@@ -1411,54 +1411,57 @@ function PackageBrowse()
 		// Use the standard templates for showing this.
 		$listOptions = array(
 			'id' => 'packages_lists_' . $type,
-			'title' => $txt[$type . '_package'],
-			'no_items_label' => $txt['no_packages'],
+			'title' => $txt['package'],
 			'get_items' => array(
-				'function' => 'list_getPackages',
-				'params' => array($type),
+				'function' => function($start, $items_per_page, $sort) use ($context, $packages, $type)
+				{
+					if (!isset($packages[$type]))
+						return [];
+
+					$col = strtok($sort, ' ');
+					$dir = strtok(' ');
+					array_multisort(
+						array_column($packages[$type], $col),
+						$dir == 'desc' ? SORT_DESC : SORT_ASC,
+						$packages[$type]
+					);
+
+					return $packages[$type];
+				},
 			),
 			'base_href' => $scripturl . '?action=admin;area=packages;sa=browse;type=' . $type,
-			'default_sort_col' => 'id' . $type,
+			'default_sort_col' => 'time_installed',
+			'default_sort_dir' => 'desc',
+			'request_vars' => array(
+				'sort' => $type . '_sort',
+			),
 			'columns' => array(
-				'id' . $type => array(
-					'header' => array(
-						'value' => $txt['package_id'],
-						'style' => 'width: 52px;',
-					),
-					'data' => array(
-						'db' => 'sort_id',
-					),
-					'sort' => array(
-						'default' => 'sort_id',
-						'reverse' => 'sort_id'
-					),
-				),
-				'mod_name' . $type => array(
+				'name' => array(
 					'header' => array(
 						'value' => $txt['mod_name'],
 						'style' => 'width: 25%;',
 					),
 					'data' => array(
-						'db' => 'name',
+						'db_htmlsafe' => 'name',
 					),
 					'sort' => array(
 						'default' => 'name',
-						'reverse' => 'name',
+						'reverse' => 'name desc',
 					),
 				),
-				'version' . $type => array(
+				'version' => array(
 					'header' => array(
 						'value' => $txt['mod_version'],
 					),
 					'data' => array(
-						'db' => 'version',
+						'db_htmlsafe' => 'version',
 					),
 					'sort' => array(
 						'default' => 'version',
-						'reverse' => 'version',
+						'reverse' => 'version desc',
 					),
 				),
-				'time_installed' . $type => array(
+				'time_installed' => array(
 					'header' => array(
 						'value' => $txt['mod_installed_time'],
 					),
@@ -1473,13 +1476,10 @@ function PackageBrowse()
 					),
 					'sort' => array(
 						'default' => 'time_installed',
-						'reverse' => 'time_installed',
+						'reverse' => 'time_installed desc',
 					),
 				),
-				'operations' . $type => array(
-					'header' => array(
-						'value' => '',
-					),
+				'operations' => array(
 					'data' => array(
 						'function' => function($package) use ($context, $scripturl, $txt, $type)
 						{
@@ -1537,9 +1537,7 @@ function PackageBrowse()
 	$context['default_version'] = SMF_VERSION;
 
 	if (!in_array($context['default_version'], $context['emulation_versions']))
-	{
 		$context['emulation_versions'][] = $context['default_version'];
-	}
 
 	// Version we're currently emulating, if any
 	$context['selected_version'] = preg_replace('~^SMF ~', '', $context['forum_version']);
@@ -1555,19 +1553,13 @@ function PackageBrowse()
  * Determines whether the package has been installed or not by
  * checking it against {@link loadInstalledPackages()}.
  *
- * @param int $start The item to start with (not used here)
- * @param int $items_per_page The number of items to show per page (not used here)
- * @param string $sort A string indicating how to sort the results
- * @param string $params Type of packages
  * @return array An array of information about the packages
  */
-function list_getPackages($start, $items_per_page, $sort, $params)
+function getPackages()
 {
 	global $scripturl, $packagesdir, $context;
-	static $installed_mods;
 
 	$packages = array();
-	$column = array();
 
 	// We need the packages directory to be writable for this.
 	if (!@is_writable($packagesdir))
@@ -1593,39 +1585,16 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 	if (isset($_SESSION['single_version_emulate']))
 		unset($_SESSION['single_version_emulate']);
 
-	if (empty($installed_mods))
-	{
-		$instmods = loadInstalledPackages();
-		$installed_mods = array();
-		// Look through the list of installed mods...
-		foreach ($instmods as $installed_mod)
-			$installed_mods[$installed_mod['package_id']] = array(
-				'id' => $installed_mod['id'],
-				'version' => $installed_mod['version'],
-				'time_installed' => $installed_mod['time_installed'],
-			);
-
-		// Get a list of all the ids installed, so the latest packages won't include already installed ones.
-		$context['installed_mods'] = array_keys($installed_mods);
-	}
+	$installed_mods = loadInstalledPackages();
 
 	if ($dir = @opendir($packagesdir))
 	{
 		$dirs = array();
-		$sort_id = array(
-			'modification' => 1,
-			'avatar' => 1,
-			'language' => 1,
-			'unknown' => 1,
-			'smiley' => 1,
-		);
-		call_integration_hook('integrate_packages_sort_id', array(&$sort_id, &$packages));
-
 		while ($package = readdir($dir))
 		{
 			$basename = strtok($package, '.');
 			$ext = strtolower(strtok('.'));
-			if ($package == '.' || $package == '..' || $package == 'temp' || (!(is_dir($packagesdir . '/' . $package) && file_exists($packagesdir . '/' . $package . '/package-info.xml')) && $ext != 'tar.gz' && $ext != 'tgz' && $ext != 'zip'))
+			if ($package === '.' || $package === '..' || $package === 'temp' || (!(is_dir($packagesdir . '/' . $package) && file_exists($packagesdir . '/' . $package . '/package-info.xml')) && $ext !== 'tar.gz' && $ext !== 'tgz' && $ext !== 'zip'))
 				continue;
 
 			// Skip directories or files that are named the same.
@@ -1635,7 +1604,7 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 					continue;
 				$dirs[] = $package;
 			}
-			elseif ($ext == 'tar.gz' || $ext == 'zip' || $ext == 'tgz')
+			elseif ($ext === 'tar.gz' || $ext === 'zip' || $ext === 'tgz')
 			{
 				if (in_array($basename, $dirs))
 					continue;
@@ -1646,9 +1615,10 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 			if (!is_array($packageInfo))
 				continue;
 
-			if (!empty($packageInfo))
+			if ($packageInfo !== [])
 			{
-				$packageInfo['sort_id'] = $sort_id[$packageInfo['type']] ?? $sort_id['unknown'];
+				if (!in_array($packageInfo['type'], $context['modification_types']))
+					$packageInfo['type'] = 'unknown';
 
 				$packageInfo['time_installed'] = 0;
 				$packageInfo['is_installed'] = isset($installed_mods[$packageInfo['id']]);
@@ -1740,33 +1710,14 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 						}
 					}
 				}
-
 				// Save some memory by not passing the xmlArray object into context.
 				unset($packageInfo['xml']);
 
-				if (isset($sort_id[$packageInfo['type']]) && $params == $packageInfo['type'])
-				{
-					$column[] = $packageInfo[$sort];
-					$sort_id[$packageInfo['type']]++;
-					$packages[] = $packageInfo;
-				}
-				elseif (!isset($sort_id[$packageInfo['type']]) && $params == 'unknown')
-				{
-					$column[] = $packageInfo[$sort];
-					$packageInfo['sort_id'] = $sort_id['unknown'];
-					$sort_id['unknown']++;
-					$packages[] = $packageInfo;
-				}
+				$packages[$packageInfo['type']][] = $packageInfo;
 			}
 		}
 		closedir($dir);
 	}
-	$context['available_packages'] += count($packages);
-	array_multisort(
-		$column,
-		isset($_GET['desc']) ? SORT_DESC : SORT_ASC,
-		$packages
-	);
 
 	return $packages;
 }
