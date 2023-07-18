@@ -2609,7 +2609,7 @@ function attachDirStatus($dir, $expected_files)
 }
 
 /**
- * Maintance function to move attachments from one directory to another
+ * Maintenance function to move attachments from one directory to another
  */
 function TransferAttachments()
 {
@@ -2642,7 +2642,7 @@ function TransferAttachments()
 
 	if (empty($results))
 	{
-		// Get the total file count for the progess bar.
+		// Get the total file count for the progress bar.
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(*)
 			FROM {db_prefix}attachments

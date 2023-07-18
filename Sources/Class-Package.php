@@ -424,7 +424,7 @@ class xmlArray
 					}
 				}
 
-				// Wait for an actual occurance of an element.
+				// Wait for an actual occurrence of an element.
 				continue;
 			}
 
@@ -532,7 +532,7 @@ class xmlArray
 		$inside_elements = false;
 		$output_el = '';
 
-		// Run through and recursively output all the elements or attrbutes inside this.
+		// Run through and recursively output all the elements or attributes inside this.
 		foreach ($array as $k => $v)
 		{
 			if (substr($k, 0, 1) == '@')
@@ -876,7 +876,7 @@ class ftp_connection
 	}
 
 	/**
-	 * Changes a files atrributes (chmod)
+	 * Changes a files attributes (chmod)
 	 *
 	 * @param string $ftp_file The file to CHMOD
 	 * @param int|string $chmod The value for the CHMOD operation
@@ -1057,7 +1057,7 @@ class ftp_connection
 		if (!is_resource($this->connection))
 			return false;
 
-		// Passive... non-agressive...
+		// Passive... non-aggressive...
 		if (!$this->passive())
 			return false;
 
