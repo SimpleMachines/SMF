@@ -1587,25 +1587,37 @@ function getPackages()
 
 	$installed_mods = loadInstalledPackages();
 
+	$packagesdir='C:\Users\John\nf\df';
 	if ($dir = @opendir($packagesdir))
 	{
 		$dirs = array();
 		while ($package = readdir($dir))
 		{
-			$basename = strtok($package, '.');
-			$ext = strtolower(strtok('.'));
-			if ($package === '.' || $package === '..' || $package === 'temp' || (!(is_dir($packagesdir . '/' . $package) && file_exists($packagesdir . '/' . $package . '/package-info.xml')) && $ext !== 'tar.gz' && $ext !== 'tgz' && $ext !== 'zip'))
+			// Skip hidden files and directories.
+			if ($package[0] === '.' || $package === 'temp')
 				continue;
 
-			// Skip directories or files that are named the same.
-			if (is_dir($packagesdir . '/' . $package))
+			$is_dir = is_dir($packagesdir . '/' . $package);
+			if ($is_dir)
 			{
+				if (!file_exists($packagesdir . '/' . $package . '/package-info.xml'))
+					continue;
+
+				// Skip packages that are named the same.
 				if (in_array($package, $dirs))
 					continue;
 				$dirs[] = $package;
 			}
-			elseif ($ext === 'tar.gz' || $ext === 'zip' || $ext === 'tgz')
+
+			// pathinfo() does not parse complex file extensions correctly, so do it manually.
+			if (!$is_dir)
 			{
+				$found_ext = preg_match('/\.(?:zip|tgz|tar\.gz)$/i', $package, $matches, PREG_OFFSET_CAPTURE);
+
+				if (!$found_ext)
+					continue;
+
+				$basename = substr($package, 0, $matches[0][1] + 1);
 				if (in_array($basename, $dirs))
 					continue;
 				$dirs[] = $basename;
