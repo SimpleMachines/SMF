@@ -672,13 +672,14 @@ function modifyBoard($board_id, &$boardOptions)
 		);
 
 	// Before we add new access_groups or deny_groups, remove all of the old entries
-	$smcFunc['db_query']('', '
-		DELETE FROM {db_prefix}board_permissions_view
-		WHERE id_board = {int:selected_board}',
-		array(
-			'selected_board' => $board_id,
-		)
-	);
+	if (isset($boardOptions['access_groups']) || isset($boardOptions['deny_groups']))
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}board_permissions_view
+			WHERE id_board = {int:selected_board}',
+			array(
+				'selected_board' => $board_id,
+			)
+		);
 
 	if ($board_permissions_inserts != array())
 		$smcFunc['db_insert']('insert',
