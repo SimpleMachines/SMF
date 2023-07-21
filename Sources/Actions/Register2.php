@@ -427,7 +427,7 @@ class Register2 extends Register
 		// We'll do custom fields after as then we get to use the helper function!
 		if (!empty($_POST['customfield']))
 		{
-			require_once(Config::$sourcedir . '/Profile.php');
+			require_once(Config::$sourcedir . '/Actions/Profile/Main.php');
 			require_once(Config::$sourcedir . '/Profile-Modify.php');
 			makeCustomFieldChanges($member_id, 'register');
 		}

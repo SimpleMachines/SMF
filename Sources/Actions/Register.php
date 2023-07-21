@@ -251,7 +251,7 @@ class Register implements ActionInterface
 		}
 
 		// Any custom fields we want filled in?
-		require_once(Config::$sourcedir . '/Profile.php');
+		require_once(Config::$sourcedir . '/Actions/Profile/Main.php');
 		loadCustomFields(0, 'register');
 
 		// Or any standard ones?
