@@ -87,7 +87,7 @@ class DraftPM extends Draft
 		$this->recipients['bcc'] = array_map('intval', $this->recipients['bcc']);
 
 		// Pretend we messed up to populate the personal message editor.
-		require_once(Config::$sourcedir . '/PersonalMessage.php');
+		require_once(Config::$sourcedir . '/Actions/PersonalMessage.php');
 		messagePostError(array(), array(), $this->recipients);
 	}
 
