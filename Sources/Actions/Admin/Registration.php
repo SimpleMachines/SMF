@@ -114,7 +114,7 @@ class Registration implements ActionInterface
 	public function register(): void
 	{
 		// Are there any custom profile fields required during registration?
-		require_once(Config::$sourcedir . '/Profile.php');
+		require_once(Config::$sourcedir . '/Actions/Profile/Main.php');
 		loadCustomFields(0, 'register');
 
 		if (!empty($_POST['regSubmit']))

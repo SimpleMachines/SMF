@@ -456,7 +456,7 @@ function findMembers($names, $use_wildcards = false, $buddies_only = false, $max
 
 /**
  * Generates a random password for a user and emails it to them.
- * - called by Profile.php when changing someone's username.
+ * - called by Actions/Profile/Main.php when changing someone's username.
  * - checks the validity of the new username.
  * - generates and sets a new password for the given user.
  * - mails the new password to the email address of the user.

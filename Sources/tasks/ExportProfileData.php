@@ -91,7 +91,7 @@ class ExportProfileData extends BackgroundTask
 		// This could happen if the user manually changed the URL params of the export request.
 		if ($this->_details['format'] == 'HTML' && (!class_exists('DOMDocument') || !class_exists('XSLTProcessor')))
 		{
-			require_once(Config::$sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
+			require_once(Config::$sourcedir . '/Actions/Profile/Export.php');
 			$export_formats = get_export_formats();
 
 			$this->_details['format'] = 'XML_XSLT';
@@ -181,7 +181,7 @@ class ExportProfileData extends BackgroundTask
 		// We need a valid export directory.
 		if (empty(Config::$modSettings['export_dir']) || !is_dir(Config::$modSettings['export_dir']) || !smf_chmod(Config::$modSettings['export_dir']))
 		{
-			require_once(Config::$sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
+			require_once(Config::$sourcedir . '/Actions/Profile/Export.php');
 			if (create_export_dir() === false)
 				return;
 		}
@@ -475,7 +475,7 @@ class ExportProfileData extends BackgroundTask
 			return;
 
 		// Get the XSLT stylesheet.
-		require_once(Config::$sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
+		require_once(Config::$sourcedir . '/Actions/Profile/Export.php');
 		self::$xslt_info = get_xslt_stylesheet($this->_details['format'], $this->_details['uid']);
 
 		// Set up the XSLT processor.
@@ -546,7 +546,7 @@ class ExportProfileData extends BackgroundTask
 		// Make sure we have everything we need.
 		if (empty(self::$xslt_info['stylesheet']))
 		{
-			require_once(Config::$sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
+			require_once(Config::$sourcedir . '/Actions/Profile/Export.php');
 			self::$xslt_info = get_xslt_stylesheet($this->_details['format'], $this->_details['uid']);
 		}
 		if (empty(Utils::$context['feed']['footer']))
@@ -606,7 +606,7 @@ class ExportProfileData extends BackgroundTask
 	 */
 	public static function add_dtd(&$xml_data, &$metadata, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $subaction, &$doctype)
 	{
-		require_once(Config::$sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
+		require_once(Config::$sourcedir . '/Actions/Profile/Export.php');
 		self::$xslt_info = get_xslt_stylesheet(self::$export_details['format'], self::$export_details['uid']);
 
 		$doctype = self::$xslt_info['doctype'];

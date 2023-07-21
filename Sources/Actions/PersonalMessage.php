@@ -707,7 +707,7 @@ class PersonalMessage implements ActionInterface
 	/**
 	 * Allows to edit Personal Message Settings.
 	 *
-	 * Uses Profile.php
+	 * Uses Actions/Profile/Main.php
 	 * Uses Profile-Modify.php
 	 * Uses Profile template.
 	 * Uses Profile language file.
@@ -717,7 +717,7 @@ class PersonalMessage implements ActionInterface
 		global $profile_vars;
 
 		// Need this for the display.
-		require_once(Config::$sourcedir . '/Profile.php');
+		require_once(Config::$sourcedir . '/Actions/Profile/Main.php');
 		require_once(Config::$sourcedir . '/Profile-Modify.php');
 
 		// We want them to submit back to here.
