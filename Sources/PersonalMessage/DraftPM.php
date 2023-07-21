@@ -11,8 +11,17 @@
  * @version 3.0 Alpha 1
  */
 
-namespace SMF;
+namespace SMF\PersonalMessage;
 
+use SMF\BackwardCompatibility;
+
+use SMF\BBCodeParser;
+use SMF\Config;
+use SMF\Draft;
+use SMF\Lang;
+use SMF\Theme;
+use SMF\User;
+use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -22,7 +31,7 @@ use SMF\Db\DatabaseApi as Db;
  */
 class DraftPM extends Draft
 {
-	use namespace\BackwardCompatibility;
+	use BackwardCompatibility;
 
 	/**
 	 * @var array
@@ -87,8 +96,7 @@ class DraftPM extends Draft
 		$this->recipients['bcc'] = array_map('intval', $this->recipients['bcc']);
 
 		// Pretend we messed up to populate the personal message editor.
-		require_once(Config::$sourcedir . '/Actions/PersonalMessage.php');
-		messagePostError(array(), array(), $this->recipients);
+		PM::reportErrors(array(), array(), $this->recipients);
 	}
 
 	/***********************

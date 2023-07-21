@@ -83,7 +83,7 @@ class Forum
 		'notifyannouncements' => array('', 'SMF\\Actions\\NotifyAnnouncements::call'),
 		'notifyboard' => array('', 'SMF\\Actions\\NotifyBoard::call'),
 		'notifytopic' => array('', 'SMF\\Actions\\NotifyTopic::call'),
-		'pm' => array('Actions/PersonalMessage.php', 'MessageMain'),
+		'pm' => array('', 'SMF\\Actions\\PersonalMessage::call'),
 		'post' => array('', 'SMF\\Actions\\Post::call'),
 		'post2' => array('', 'SMF\\Actions\\Post2::call'),
 		'printpage' => array('', 'SMF\\Actions\\TopicPrint::call'),
