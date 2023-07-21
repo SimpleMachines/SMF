@@ -2167,7 +2167,7 @@ class User implements \ArrayAccess
 		);
 
 		// Delete personal messages.
-		require_once(Config::$sourcedir . '/PersonalMessage.php');
+		require_once(Config::$sourcedir . '/Actions/PersonalMessage.php');
 		deleteMessages(null, null, $users);
 
 		Db::$db->query('', '
