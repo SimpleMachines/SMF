@@ -28,6 +28,7 @@ use SMF\User;
 use SMF\Utils;
 use SMF\Actions\Notify;
 use SMF\Db\DatabaseApi as Db;
+use SMF\PersonalMessage\PM;
 
 /**
  * This class manages... the news. :P
@@ -1127,7 +1128,7 @@ class News extends ACP implements ActionInterface
 				}
 				else
 				{
-					Msg::sendpm(
+					PM::send(
 						array('to' => array($row['id_member']),
 							'bcc' => array()),
 						$subject,

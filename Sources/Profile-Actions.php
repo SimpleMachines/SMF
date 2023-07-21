@@ -24,6 +24,7 @@ use SMF\Utils;
 use SMF\Actions\Logout;
 use SMF\Actions\Admin\Subscriptions;
 use SMF\Db\DatabaseApi as Db;
+use SMF\PersonalMessage\PM;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -168,7 +169,7 @@ function issueWarning($memID)
 					'name' => Utils::$context['forum_name_html_safe'],
 					'username' => Utils::$context['forum_name_html_safe'],
 				);
-				Msg::sendpm(array('to' => array($memID), 'bcc' => array()), $_POST['warn_sub'], $_POST['warn_body'], false, $from);
+				PM::send(array('to' => array($memID), 'bcc' => array()), $_POST['warn_sub'], $_POST['warn_body'], false, $from);
 
 				// Log the notice!
 				$id_notice = Db::$db->insert('',

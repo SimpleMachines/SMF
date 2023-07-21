@@ -643,14 +643,6 @@ function template_subject_list()
 
 	while ($message = Utils::$context['get_pmessage']('subject'))
 	{
-		// Used for giving extra info in conversation view
-		if (Utils::$context['current_pm'] == $message['id'])
-		{
-			Utils::$context['current_pm_subject'] = $message['subject'];
-			Utils::$context['current_pm_time'] = $message['time'];
-			Utils::$context['current_pm_author'] = $message['member']['link'];
-		}
-
 		echo '
 			<tr class="windowbg', $message['is_unread'] ? ' unread_pm' : '', '">
 				<td class="table_icon pm_icon">
@@ -676,7 +668,6 @@ function template_subject_list()
 				<td class="pm_time">', $message['time'], '</td>
 				<td class="pm_subject">
 					', (Utils::$context['display_mode'] != 0 && Utils::$context['current_pm'] == $message['id'] ? '<img src="' . Theme::$current->settings['images_url'] . '/selected.png" alt="*">' : ''), '<a href="', (Utils::$context['display_mode'] == 0 || Utils::$context['current_pm'] == $message['id'] ? '' : (Config::$scripturl . '?action=pm;pmid=' . $message['id'] . ';kstart;f=' . Utils::$context['folder'] . ';start=' . Utils::$context['start'] . ';sort=' . Utils::$context['sort_by'] . (Utils::$context['sort_direction'] == 'up' ? ';' : ';desc') . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : ''))), '#msg', $message['id'], '">', $message['subject'], $message['is_unread'] ? '&nbsp;<span class="new_posts">' . Lang::$txt['new'] . '</span>' : '', '</a>
-					<span class="pm_inline_time"><span class="main_icons ', (Utils::$context['from_or_to'] == 'to' && count($message['recipients']['to']) > 1) ? 'people' : 'members', '"></span> ', (Utils::$context['from_or_to'] == 'from' ? $message['member']['link'] : (empty($message['recipients']['to']) ? '' : implode(', ', $message['recipients']['to']))), '  <span class="main_icons time_online"></span> ', $message['time'], '</span>
 				</td>
 				<td class="pm_from_to">
 					', (Utils::$context['from_or_to'] == 'from' ? $message['member']['link'] : (empty($message['recipients']['to']) ? '' : implode(', ', $message['recipients']['to']))), '
@@ -919,7 +910,6 @@ function template_search_results()
 			template_single_pm($message);
 
 		// Otherwise just a simple list!
-		// @todo No context at all of the search?
 		else
 			echo '
 				<tr class="windowbg">
@@ -1741,18 +1731,18 @@ function template_add_rule()
 					<span class="smalltext">', Lang::$txt['pm_rule_name_desc'], '</span>
 				</dt>
 				<dd class="floatleft">
-					<input type="text" name="rule_name" value="', empty(Utils::$context['rule']['name']) ? Lang::$txt['pm_rule_name_default'] : Utils::$context['rule']['name'], '" size="50">
+					<input type="text" name="rule_name" value="', empty(Utils::$context['rule']->name) ? Lang::$txt['pm_rule_name_default'] : Utils::$context['rule']->name, '" size="50">
 				</dd>
 			</dl>
 			<fieldset>
 				<legend>', Lang::$txt['pm_rule_criteria'], '</legend>';
 
 	// Add a dummy criteria to allow expansion for none js users.
-	Utils::$context['rule']['criteria'][] = array('t' => '', 'v' => '');
+	Utils::$context['rule']->criteria[] = array('t' => '', 'v' => '');
 
 	// For each criteria print it out.
 	$isFirst = true;
-	foreach (Utils::$context['rule']['criteria'] as $k => $criteria)
+	foreach (Utils::$context['rule']->criteria as $k => $criteria)
 	{
 		if (!$isFirst && $criteria['t'] == '')
 			echo '<div id="removeonjs1">';
@@ -1798,19 +1788,19 @@ function template_add_rule()
 				<br><br>
 				', Lang::$txt['pm_rule_logic'], ':
 				<select name="rule_logic" id="logic" onchange="rebuildRuleDesc();">
-					<option value="and"', Utils::$context['rule']['logic'] == 'and' ? ' selected' : '', '>', Lang::$txt['pm_rule_logic_and'], '</option>
-					<option value="or"', Utils::$context['rule']['logic'] == 'or' ? ' selected' : '', '>', Lang::$txt['pm_rule_logic_or'], '</option>
+					<option value="and"', Utils::$context['rule']->logic == 'and' ? ' selected' : '', '>', Lang::$txt['pm_rule_logic_and'], '</option>
+					<option value="or"', Utils::$context['rule']->logic == 'or' ? ' selected' : '', '>', Lang::$txt['pm_rule_logic_or'], '</option>
 				</select>
 			</fieldset>
 			<fieldset>
 				<legend>', Lang::$txt['pm_rule_actions'], '</legend>';
 
 	// As with criteria - add a dummy action for "expansion".
-	Utils::$context['rule']['actions'][] = array('t' => '', 'v' => '');
+	Utils::$context['rule']->actions[] = array('t' => '', 'v' => '');
 
 	// Print each action.
 	$isFirst = true;
-	foreach (Utils::$context['rule']['actions'] as $k => $action)
+	foreach (Utils::$context['rule']->actions as $k => $action)
 	{
 		if (!$isFirst && $action['t'] == '')
 			echo '<div id="removeonjs2">';
@@ -1864,11 +1854,11 @@ function template_add_rule()
 	echo '
 	<script>';
 
-	foreach (Utils::$context['rule']['criteria'] as $k => $c)
+	foreach (Utils::$context['rule']->criteria as $k => $c)
 		echo '
 			updateRuleDef(', $k, ');';
 
-	foreach (Utils::$context['rule']['actions'] as $k => $c)
+	foreach (Utils::$context['rule']->actions as $k => $c)
 		echo '
 			updateActionDef(', $k, ');';
 
@@ -1881,11 +1871,11 @@ function template_add_rule()
 			document.getElementById("removeonjs1").style.display = "none";
 			document.getElementById("removeonjs2").style.display = "none";';
 
-	if (count(Utils::$context['rule']['criteria']) <= Utils::$context['rule_limiters']['criteria'])
+	if (count(Utils::$context['rule']->criteria) <= Utils::$context['rule_limiters']['criteria'])
 		echo '
 			document.getElementById("addonjs1").style.display = "";';
 
-	if (count(Utils::$context['rule']['actions']) <= Utils::$context['rule_limiters']['actions'])
+	if (count(Utils::$context['rule']->actions) <= Utils::$context['rule_limiters']['actions'])
 		echo '
 			document.getElementById("addonjs2").style.display = "";';
 

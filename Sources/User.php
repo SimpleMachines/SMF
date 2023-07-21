@@ -16,6 +16,7 @@ namespace SMF;
 use SMF\Actions\Login2;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\PersonalMessage\PM;
 
 /**
  * Represents a user, including both guests and registered members.
@@ -2167,8 +2168,7 @@ class User implements \ArrayAccess
 		);
 
 		// Delete personal messages.
-		require_once(Config::$sourcedir . '/Actions/PersonalMessage.php');
-		deleteMessages(null, null, $users);
+		PM::delete(null, null, $users);
 
 		Db::$db->query('', '
 			UPDATE {db_prefix}personal_messages
