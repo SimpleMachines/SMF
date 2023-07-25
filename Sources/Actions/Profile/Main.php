@@ -123,8 +123,8 @@ class Main implements ActionInterface
 			'areas' => array(
 				'summary' => array(
 					'label' => 'summary',
-					'file' => 'Profile-View.php',
-					'function' => 'summary',
+					'function' => __NAMESPACE__ . '\\Summary::call',
+					'sub_template' => 'summary',
 					'icon' => 'administration',
 					'permission' => array(
 						'own' => 'is_not_guest',
