@@ -13,6 +13,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Alert;
 use SMF\Config;
 use SMF\Draft;
 use SMF\ProxyServer;
@@ -291,14 +292,7 @@ function scheduled_daily_maintenance()
 	// Delete old alerts.
 	if (!empty(Config::$modSettings['alerts_auto_purge']))
 	{
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}user_alerts
-			WHERE is_read > 0
-				AND is_read < {int:purge_before}',
-			array(
-				'purge_before' => time() - 86400 * Config::$modSettings['alerts_auto_purge'],
-			)
-		);
+		Alert::purge(-1, time() - 86400 * Config::$modSettings['alerts_auto_purge']);
 	}
 
 	// Anyone else have something to do?
@@ -1152,19 +1146,12 @@ function scheduled_paid_subscriptions()
 					'end_time' => $row['end_time'],
 				)),
 			);
-			User::updateMemberData($row['id_member'], array('alerts' => '+'));
 		}
 	}
 
 	// Insert the alerts if any
 	if (!empty($alert_rows))
-		Db::$db->insert('',
-			'{db_prefix}user_alerts',
-			array('alert_time' => 'int', 'id_member' => 'int', 'id_member_started' => 'int', 'member_name' => 'string',
-				'content_type' => 'string', 'content_id' => 'int', 'content_action' => 'string', 'is_read' => 'int', 'extra' => 'string'),
-			$alert_rows,
-			array()
-		);
+		Alert::createBatch($alert_rows);
 
 	// Mark the reminder as sent.
 	if (!empty($subs_reminded))

@@ -358,13 +358,14 @@ class Likes
 			$this->_data = __FUNCTION__;
 
 		// Check to see if there is an unread alert to delete as well...
-		$result = Db::$db->query('', '
-			SELECT id_alert, id_member FROM {db_prefix}user_alerts
-			WHERE content_id = {int:like_content}
-				AND content_type = {string:like_type}
-				AND id_member_started = {int:id_member_started}
-				AND content_action = {string:content_action}
-				AND is_read = {int:unread}',
+		Alert::deleteWhere(
+			array(
+				'content_id = {int:like_content}',
+				'content_type = {string:like_type}',
+				'id_member_started = {int:id_member_started}',
+				'content_action = {string:content_action}',
+				'is_read = {int:unread}'
+			),
 			array(
 				'like_content' => $this->_content,
 				'like_type' => $this->_type,
@@ -373,22 +374,6 @@ class Likes
 				'unread' => 0,
 			)
 		);
-		// Found one?
-		if (Db::$db->num_rows($result) == 1)
-		{
-			list($alert, $member) = Db::$db->fetch_row($result);
-
-			// Delete it
-			Db::$db->query('', '
-				DELETE FROM {db_prefix}user_alerts
-				WHERE id_alert = {int:alert}',
-				array(
-					'alert' => $alert,
-				)
-			);
-			// Decrement counter for member who received the like
-			User::updateMemberData($member, array('alerts' => '-'));
-		}
 	}
 
 	/**

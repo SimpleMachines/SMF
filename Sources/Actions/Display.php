@@ -15,6 +15,7 @@ namespace SMF\Actions;
 
 use SMF\BackwardCompatibility;
 
+use SMF\Alert;
 use SMF\Attachment;
 use SMF\Board;
 use SMF\Config;
@@ -608,33 +609,34 @@ class Display implements ActionInterface
 			// Mark any alerts about this topic or the posts on this page as read.
 			if (!empty(User::$me->alerts))
 			{
-				Db::$db->query('', '
-					UPDATE {db_prefix}user_alerts
-					SET is_read = {int:now}
-					WHERE is_read = 0 AND id_member = {int:current_member}
-						AND
-						(
-							(content_id IN ({array_int:messages}) AND content_type = {string:msg})
-							OR
-							(content_id = {int:current_topic} AND (content_type = {string:topic} OR (content_type = {string:board} AND content_action = {string:topic})))
-						)',
+				Alert::markWhere(
 					array(
-						'topic' => 'topic',
-						'board' => 'board',
-						'msg' => 'msg',
+						// Obviously, only for the current member.
+						'id_member = {int:current_member}',
+
+						// A compound condition to get all the relevant types.
+						'(' .
+							'content_id IN ({array_int:messages}) ' .
+							'AND content_type = {literal:msg}' .
+						') ' .
+						'OR (' .
+							'content_id = {int:current_topic} ' .
+							'AND (' .
+								'content_type = {literal:topic} ' .
+								'OR (' .
+									'content_type = {literal:board} ' .
+									'AND content_action = {literal:topic}' .
+								')' .
+							')' .
+						')',
+					),
+					array(
 						'current_member' => User::$me->id,
 						'current_topic' => Topic::$info->id,
 						'messages' => $this->messages,
-						'now' => time(),
-					)
+					),
+					true
 				);
-				// If changes made, update the member record as well
-				if (Db::$db->affected_rows() > 0)
-				{
-					require_once(Config::$sourcedir . '/Profile-Modify.php');
-					User::$me->alerts = alert_count(User::$me->id, true);
-					User::updateMemberData(User::$me->id, array('alerts' => User::$me->alerts));
-				}
 			}
 		}
 	}

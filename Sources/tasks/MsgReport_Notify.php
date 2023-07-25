@@ -13,6 +13,7 @@
 
 namespace SMF\Tasks;
 
+use SMF\Alert;
 use SMF\Config;
 use SMF\Msg;
 use SMF\Mail;
@@ -119,17 +120,7 @@ class MsgReport_Notify extends BackgroundTask
 				);
 			}
 
-			Db::$db->insert('insert',
-				'{db_prefix}user_alerts',
-				array('alert_time' => 'int', 'id_member' => 'int', 'id_member_started' => 'int',
-					'member_name' => 'string', 'content_type' => 'string', 'content_id' => 'int',
-					'content_action' => 'string', 'is_read' => 'int', 'extra' => 'string'),
-				$insert_rows,
-				array('id_alert')
-			);
-
-			// And update the count of alerts for those people.
-			User::updateMemberData($notifies['alert'], array('alerts' => '+'));
+			Alert::createBatch($insert_rows);
 		}
 
 		// Secondly, anyone who wants emails.

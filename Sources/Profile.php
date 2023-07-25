@@ -15,6 +15,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Alert;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
@@ -1008,8 +1009,7 @@ function alerts_popup($memID)
 	if ($counter < User::$profiles[$memID]['alerts'])
 	{
 		// Now fetch me my unread alerts, pronto!
-		require_once(Config::$sourcedir . '/Profile-View.php');
-		Utils::$context['unread_alerts'] = fetch_alerts($memID, false, !empty($counter) ? User::$profiles[$memID]['alerts'] - $counter : $limit, 0, !isset($_REQUEST['counter']));
+		Utils::$context['unread_alerts'] = Alert::fetch($memID, false, !empty($counter) ? User::$profiles[$memID]['alerts'] - $counter : $limit, 0, !isset($_REQUEST['counter']));
 	}
 }
 

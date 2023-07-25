@@ -11,6 +11,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Alert;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
@@ -26,6 +27,9 @@ use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
 	die('No direct access...');
+
+// Some functions that used to be in this file have been moved.
+class_exists('\\SMF\\Alert');
 
 /**
  * View a summary.
@@ -229,445 +233,6 @@ function summary($memID)
 }
 
 /**
- * Fetch the alerts a member currently has.
- *
- * @param int $memID The ID of the member.
- * @param mixed $to_fetch Alerts to fetch: true/false for all/unread, or a list of one or more IDs.
- * @param array $limit Maximum number of alerts to fetch (0 for no limit).
- * @param array $offset Number of alerts to skip for pagination. Ignored if $to_fetch is a list of IDs.
- * @param bool $with_avatar Whether to load the avatar of the alert sender.
- * @param bool $show_links Whether to show links in the constituent parts of the alert message.
- * @return array An array of information about the fetched alerts.
- */
-function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_avatar = false, $show_links = false)
-{
-	// Are we being asked for some specific alerts?
-	$alertIDs = is_bool($to_fetch) ? array() : array_filter(array_map('intval', (array) $to_fetch));
-
-	// Basic sanitation.
-	$memID = (int) $memID;
-	$unread = $to_fetch === false;
-
-	if (empty($limit) || $limit > 1000)
-		$limit = min(!empty(Config::$modSettings['alerts_per_page']) && (int) Config::$modSettings['alerts_per_page'] < 1000 ? (int) Config::$modSettings['alerts_per_page'] : 1000, 1000);
-
-	$offset = !empty($alertIDs) ? 0 : max(0, (int) $offset);
-	$with_avatar = !empty($with_avatar);
-	$show_links = !empty($show_links);
-
-	// Arrays we'll need.
-	$alerts = array();
-	$senders = array();
-	$profiles = array();
-	$profile_alerts = array();
-	$possible_msgs = array();
-	$possible_topics = array();
-
-	// Get the basic alert info.
-	$request = Db::$db->query('', '
-		SELECT a.id_alert, a.alert_time, a.is_read, a.extra,
-			a.content_type, a.content_id, a.content_action,
-			mem.id_member AS sender_id, COALESCE(mem.real_name, a.member_name) AS sender_name' . ($with_avatar ? ',
-			mem.email_address AS sender_email, mem.avatar AS sender_avatar, f.filename AS sender_filename' : '') . '
-		FROM {db_prefix}user_alerts AS a
-			LEFT JOIN {db_prefix}members AS mem ON (a.id_member_started = mem.id_member)' . ($with_avatar ? '
-			LEFT JOIN {db_prefix}attachments AS f ON (mem.id_member = f.id_member)' : '') . '
-		WHERE a.id_member = {int:id_member}' . ($unread ? '
-			AND a.is_read = 0' : '') . (!empty($alertIDs) ? '
-			AND a.id_alert IN ({array_int:alertIDs})' : '') . '
-		ORDER BY id_alert DESC' . (!empty($limit) ? '
-		LIMIT {int:limit}' : '') . (!empty($offset) ?'
-		OFFSET {int:offset}' : ''),
-		array(
-			'id_member' => $memID,
-			'alertIDs' => $alertIDs,
-			'limit' => $limit,
-			'offset' => $offset,
-		)
-	);
-	while ($row = Db::$db->fetch_assoc($request))
-	{
-		$id_alert = array_shift($row);
-		$row['time'] = timeformat($row['alert_time']);
-		$row['extra'] = !empty($row['extra']) ? Utils::jsonDecode($row['extra'], true) : array();
-		$alerts[$id_alert] = $row;
-
-		if (!empty($row['sender_email']))
-		{
-			$senders[$row['sender_id']] = array(
-				'email' => $row['sender_email'],
-				'avatar' => $row['sender_avatar'],
-				'filename' => $row['sender_filename'],
-			);
-		}
-
-		if ($row['content_type'] == 'profile')
-		{
-			$profiles[] = $row['content_id'];
-			$profile_alerts[] = $id_alert;
-		}
-
-		// For these types, we need to check whether they can actually see the content.
-		if ($row['content_type'] == 'msg')
-		{
-			$alerts[$id_alert]['visible'] = false;
-			$possible_msgs[$id_alert] = $row['content_id'];
-		}
-		elseif (in_array($row['content_type'], array('topic', 'board')))
-		{
-			$alerts[$id_alert]['visible'] = false;
-			$possible_topics[$id_alert] = $row['content_id'];
-		}
-		// For the rest, they can always see it.
-		else
-			$alerts[$id_alert]['visible'] = true;
-
-		// Are we showing multiple links or one big main link ?
-		$alerts[$id_alert]['show_links'] = $show_links || (isset($row['extra']['show_links']) && $row['extra']['show_links']);
-
-		// Set an appropriate icon.
-		$alerts[$id_alert]['icon'] = set_alert_icon($alerts[$id_alert]);
-	}
-	Db::$db->free_result($request);
-
-	// Look up member info of anyone we need it for.
-	if (!empty($profiles))
-		User::load($profiles, User::LOAD_BY_ID, 'minimal');
-
-	// Get the senders' avatars.
-	if ($with_avatar)
-	{
-		foreach ($senders as $sender_id => $sender)
-			$senders[$sender_id]['avatar'] = User::setAvatarData($sender);
-
-		Utils::$context['avatar_url'] = Config::$modSettings['avatar_url'];
-	}
-
-	// Now go through and actually make with the text.
-	Lang::load('Alerts');
-
-	// Some sprintf formats for generating links/strings.
-	// 'required' is an array of keys in $alert['extra'] that should be used to generate the message, ordered to match the sprintf formats.
-	// 'link' and 'text' are the sprintf formats that will be used when $alert['show_links'] is true or false, respectively.
-	$formats['msg_msg'] = array(
-		'required' => array('content_subject', 'topic', 'msg'),
-		'link' => '<a href="{scripturl}?topic=%2$d.msg%3$d#msg%3$d">%1$s</a>',
-		'text' => '<strong>%1$s</strong>',
-	);
-	$formats['topic_msg'] = array(
-		'required' => array('content_subject', 'topic', 'topic_suffix'),
-		'link' => '<a href="{scripturl}?topic=%2$d.%3$s">%1$s</a>',
-		'text' => '<strong>%1$s</strong>',
-	);
-	$formats['board_msg'] = array(
-		'required' => array('board_name', 'board'),
-		'link' => '<a href="{scripturl}?board=%2$d.0">%1$s</a>',
-		'text' => '<strong>%1$s</strong>',
-	);
-	$formats['profile_msg'] = array(
-		'required' => array('user_name', 'user_id'),
-		'link' => '<a href="{scripturl}?action=profile;u=%2$d">%1$s</a>',
-		'text' => '<strong>%1$s</strong>',
-	);
-
-	// Hooks might want to do something snazzy around their own content types - including enforcing permissions if appropriate.
-	call_integration_hook('integrate_fetch_alerts', array(&$alerts, &$formats));
-
-	// Substitute Config::$scripturl into the link formats. (Done here to make life easier for hooked mods.)
-	$formats = array_map(
-		function ($format)
-		{
-			$format['link'] = str_replace('{scripturl}', Config::$scripturl, $format['link']);
-			$format['text'] = str_replace('{scripturl}', Config::$scripturl, $format['text']);
-
-			return $format;
-		},
-		$formats
-	);
-
-	// If we need to check board access, use the correct board access filter for the member in question.
-	if ((!isset(User::$me->query_see_board) || User::$me->id != $memID) && (!empty($possible_msgs) || !empty($possible_topics)))
-		$qb = User::buildQueryBoard($memID);
-	else
-		$qb['query_see_board'] = '{query_see_board}';
-
-	// For anything that needs more info and/or wants us to check board or topic access, let's do that.
-	if (!empty($possible_msgs))
-	{
-		$flipped_msgs = array();
-		foreach ($possible_msgs as $id_alert => $id_msg)
-		{
-			if (!isset($flipped_msgs[$id_msg]))
-				$flipped_msgs[$id_msg] = array();
-
-			$flipped_msgs[$id_msg][] = $id_alert;
-		}
-
-		$request = Db::$db->query('', '
-			SELECT m.id_msg, m.id_topic, m.subject, b.id_board, b.name AS board_name
-			FROM {db_prefix}messages AS m
-				INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
-			WHERE ' . $qb['query_see_board'] . '
-				AND m.id_msg IN ({array_int:msgs})
-			ORDER BY m.id_msg',
-			array(
-				'msgs' => $possible_msgs,
-			)
-		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			foreach ($flipped_msgs[$row['id_msg']] as $id_alert)
-			{
-				$alerts[$id_alert]['content_data'] = $row;
-				$alerts[$id_alert]['visible'] = true;
-			}
-		}
-		Db::$db->free_result($request);
-	}
-	if (!empty($possible_topics))
-	{
-		$flipped_topics = array();
-		foreach ($possible_topics as $id_alert => $id_topic)
-		{
-			if (!isset($flipped_topics[$id_topic]))
-				$flipped_topics[$id_topic] = array();
-
-			$flipped_topics[$id_topic][] = $id_alert;
-		}
-
-		$request = Db::$db->query('', '
-			SELECT m.id_msg, t.id_topic, m.subject, b.id_board, b.name AS board_name
-			FROM {db_prefix}topics AS t
-				INNER JOIN {db_prefix}messages AS m ON (t.id_first_msg = m.id_msg)
-				INNER JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
-			WHERE ' . $qb['query_see_board'] . '
-				AND t.id_topic IN ({array_int:topics})',
-			array(
-				'topics' => $possible_topics,
-			)
-		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			foreach ($flipped_topics[$row['id_topic']] as $id_alert)
-			{
-				$alerts[$id_alert]['content_data'] = $row;
-				$alerts[$id_alert]['visible'] = true;
-			}
-		}
-		Db::$db->free_result($request);
-	}
-
-	// Now to go back through the alerts, reattach this extra information and then try to build the string out of it (if a hook didn't already)
-	foreach ($alerts as $id_alert => $dummy)
-	{
-		// There's no point showing alerts for inaccessible content.
-		if (!$alerts[$id_alert]['visible'])
-		{
-			unset($alerts[$id_alert]);
-			continue;
-		}
-		else
-			unset($alerts[$id_alert]['visible']);
-
-		// Did a mod already take care of this one?
-		if (!empty($alerts[$id_alert]['text']))
-			continue;
-
-		// For developer convenience.
-		$alert = &$alerts[$id_alert];
-
-		// The info in extra might outdated if the topic was moved, the message's subject was changed, etc.
-		if (!empty($alert['content_data']))
-		{
-			$data = $alert['content_data'];
-
-			// Make sure msg, topic, and board info are correct.
-			$patterns = array();
-			$replacements = array();
-			foreach (array('msg', 'topic', 'board') as $item)
-			{
-				if (isset($data['id_' . $item]))
-				{
-					$separator = $item == 'msg' ? '=?' : '=';
-
-					if (isset($alert['extra']['content_link']) && strpos($alert['extra']['content_link'], $item . $separator) !== false && strpos($alert['extra']['content_link'], $item . $separator . $data['id_' . $item]) === false)
-					{
-						$patterns[] = '/\b' . $item . $separator . '\d+/';
-						$replacements[] = $item . $separator . $data['id_' . $item];
-					}
-
-					$alert['extra'][$item] = $data['id_' . $item];
-				}
-			}
-			if (!empty($patterns))
-				$alert['extra']['content_link'] = preg_replace($patterns, $replacements, $alert['extra']['content_link']);
-
-			// Make sure the subject is correct.
-			if (isset($data['subject']))
-				$alert['extra']['content_subject'] = $data['subject'];
-
-			// Keep track of this so we can use it below.
-			if (isset($data['board_name']))
-				$alert['extra']['board_name'] = $data['board_name'];
-
-			unset($alert['content_data']);
-		}
-
-		// Do we want to link to the topic in general or the new messages specifically?
-		if (isset($possible_topics[$id_alert]) && in_array($alert['content_action'], array('reply', 'topic', 'unapproved_reply')))
-				$alert['extra']['topic_suffix'] = 'new;topicseen#new';
-		elseif (isset($alert['extra']['topic']))
-			$alert['extra']['topic_suffix'] = '0';
-
-		// Make sure profile alerts have what they need.
-		if (in_array($id_alert, $profile_alerts))
-		{
-			if (empty($alert['extra']['user_id']))
-				$alert['extra']['user_id'] = $alert['content_id'];
-
-			if (isset(User::$loaded[$alert['extra']['user_id']]))
-				$alert['extra']['user_name'] = User::$loaded[$alert['extra']['user_id']]->name;
-		}
-
-		// If we loaded the sender's profile, we may as well use it.
-		$sender_id = !empty($alert['sender_id']) ? $alert['sender_id'] : 0;
-		if (isset(User::$loaded[$sender_id]))
-			$alert['sender_name'] = User::$loaded[$sender_id]->name;
-
-		// If requested, include the sender's avatar data.
-		if ($with_avatar && !empty($senders[$sender_id]))
-			$alert['sender'] = $senders[$sender_id];
-
-		// Next, build the message strings.
-		foreach ($formats as $msg_type => $format_info)
-		{
-			// Get the values to use in the formatted string, in the right order.
-			$msg_values = array_replace(
-				array_fill_keys($format_info['required'], ''),
-				array_intersect_key($alert['extra'], array_flip($format_info['required']))
-			);
-
-			// Assuming all required values are present, build the message.
-			if (!in_array('', $msg_values))
-				$alert['extra'][$msg_type] = vsprintf($formats[$msg_type][$alert['show_links'] ? 'link' : 'text'], $msg_values);
-
-			elseif (in_array($msg_type, array('msg_msg', 'topic_msg', 'board_msg')))
-				$alert['extra'][$msg_type] = Lang::$txt[$msg_type == 'board_msg' ? 'board_na' : 'topic_na'];
-			else
-				$alert['extra'][$msg_type] = '(' . Lang::$txt['not_applicable'] . ')';
-		}
-
-		// Show the formatted time in alerts about subscriptions.
-		if ($alert['content_type'] == 'paidsubs' && isset($alert['extra']['end_time']))
-		{
-			// If the subscription already expired, say so.
-			if ($alert['extra']['end_time'] < time())
-				$alert['content_action'] = 'expired';
-
-			// Present a nicely formatted date.
-			$alert['extra']['end_time'] = timeformat($alert['extra']['end_time']);
-		}
-
-		// Now set the main URL that this alert should take the user to.
-		$alert['target_href'] = '';
-
-		// Priority goes to explicitly specified links.
-		if (isset($alert['extra']['content_link']))
-			$alert['target_href'] = $alert['extra']['content_link'];
-
-		elseif (isset($alert['extra']['report_link']))
-			$alert['target_href'] = Config::$scripturl . $alert['extra']['report_link'];
-
-		// Next, try determining the link based on the content action.
-		if (empty($alert['target_href']) && in_array($alert['content_action'], array('register_approval', 'group_request', 'buddy_request')))
-		{
-			switch ($alert['content_action'])
-			{
-				case 'register_approval':
-					$alert['target_href'] = Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve';
-					break;
-
-				case 'group_request':
-					$alert['target_href'] = Config::$scripturl . '?action=moderate;area=groups;sa=requests';
-					break;
-
-				case 'buddy_request':
-					if (!empty($alert['id_member_started']))
-						$alert['target_href'] = Config::$scripturl . '?action=profile;u=' . $alert['id_member_started'];
-					break;
-
-				default:
-					break;
-			}
-		}
-
-		// Or maybe we can determine the link based on the content type.
-		if (empty($alert['target_href']) && in_array($alert['content_type'], array('msg', 'member', 'event')))
-		{
-			switch ($alert['content_type'])
-			{
-				case 'msg':
-					if (!empty($alert['content_id']))
-						$alert['target_href'] = Config::$scripturl . '?msg=' . $alert['content_id'];
-					break;
-
-				case 'member':
-					if (!empty($alert['id_member_started']))
-						$alert['target_href'] = Config::$scripturl . '?action=profile;u=' . $alert['id_member_started'];
-					break;
-
-				case 'event':
-					if (!empty($alert['extra']['event_id']))
-						$alert['target_href'] = Config::$scripturl . '?action=calendar;event=' . $alert['extra']['event_id'];
-					break;
-
-				default:
-					break;
-			}
-
-		}
-
-		// Finally, set this alert's text string.
-		$string = 'alert_' . $alert['content_type'] . '_' . $alert['content_action'];
-
-		// This kludge exists because the alert content_types prior to 2.1 RC3 were a bit haphazard.
-		// This can be removed once all the translated language files have been updated.
-		if (!isset(Lang::$txt[$string]))
-		{
-			if (strpos($alert['content_action'], 'unapproved_') === 0)
-				$string = 'alert_' . $alert['content_action'];
-
-			if ($alert['content_type'] === 'member' && in_array($alert['content_action'], array('report', 'report_reply')))
-				$string = 'alert_profile_' . $alert['content_action'];
-
-			if ($alert['content_type'] === 'member' && $alert['content_action'] === 'buddy_request')
-				$string = 'alert_buddy_' . $alert['content_action'];
-		}
-
-		if (isset(Lang::$txt[$string]))
-		{
-			$substitutions = array(
-				'{scripturl}' => Config::$scripturl,
-				'{member_link}' => !empty($sender_id) && $alert['show_links'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $sender_id . '">' . $alert['sender_name'] . '</a>' : '<strong>' . $alert['sender_name'] . '</strong>',
-			);
-
-			if (is_array($alert['extra']))
-			{
-				foreach ($alert['extra'] as $k => $v)
-					$substitutions['{' . $k . '}'] = $v;
-			}
-
-			$alert['text'] = strtr(Lang::$txt[$string], $substitutions);
-		}
-
-		// Unset the reference variable to avoid any surprises in subsequent loops.
-		unset($alert);
-	}
-
-	return $alerts;
-}
-
-/**
  * Shows all alerts for a member
  *
  * @param int $memID The ID of the member
@@ -680,7 +245,7 @@ function showAlerts($memID)
 	if (!empty($_REQUEST['alert']))
 	{
 		$alert_id = (int) $_REQUEST['alert'];
-		$alerts = fetch_alerts($memID, $alert_id);
+		$alerts = Alert::fetch($memID, $alert_id);
 		$alert = array_pop($alerts);
 
 		/*
@@ -695,7 +260,7 @@ function showAlerts($memID)
 			redirectexit('action=profile;area=showalerts');
 
 		// Mark the alert as read while we're at it.
-		alert_mark($memID, $alert_id, 1);
+		Alert::mark($memID, $alert_id, true);
 
 		// Take the user to the content
 		redirectexit($alert['target_href']);
@@ -704,7 +269,7 @@ function showAlerts($memID)
 	// Prepare the pagination vars.
 	$maxIndex = !empty(Config::$modSettings['alerts_per_page']) && (int) Config::$modSettings['alerts_per_page'] < 1000 ? min((int) Config::$modSettings['alerts_per_page'], 1000) : 25;
 	Utils::$context['start'] = (int) isset($_REQUEST['start']) ? $_REQUEST['start'] : 0;
-	$count = alert_count($memID);
+	$count = Alert::count($memID);
 
 	// Fix invalid 'start' offsets.
 	if (Utils::$context['start'] > $count)
@@ -713,7 +278,7 @@ function showAlerts($memID)
 		Utils::$context['start'] = Utils::$context['start'] - (Utils::$context['start'] % $maxIndex);
 
 	// Get the alerts.
-	Utils::$context['alerts'] = fetch_alerts($memID, true, $maxIndex, Utils::$context['start'], true, true);
+	Utils::$context['alerts'] = Alert::fetch($memID, true, $maxIndex, Utils::$context['start'], true, true);
 	$toMark = false;
 	$action = '';
 
@@ -803,13 +368,13 @@ function showAlerts($memID)
 
 		// Call it!
 		if ($action == 'remove')
-			alert_delete($toMark, $memID);
+			Alert::delete($toMark, $memID);
 
 		elseif ($action == 'purge')
-			alert_purge($memID);
+			Alert::purge($memID);
 
 		else
-			alert_mark($memID, $toMark, $action == 'read' ? 1 : 0);
+			Alert::mark($memID, $toMark, $action == 'read');
 
 		// Set a nice update message.
 		$_SESSION['update_message'] = true;
@@ -3292,154 +2857,6 @@ function viewWarning($memID)
 	foreach (Utils::$context['level_effects'] as $limit => $dummy)
 		if (Utils::$context['member']['warning'] >= $limit)
 			Utils::$context['current_level'] = $limit;
-}
-
-/**
- * Sets the icon for a fetched alert.
- *
- * @param array The alert that we want to set an icon for.
- */
-function set_alert_icon($alert)
-{
-	switch ($alert['content_type'])
-	{
-		case 'topic':
-		case 'board':
-			{
-				switch ($alert['content_action'])
-				{
-					case 'reply':
-					case 'topic':
-						$class = 'main_icons posts';
-						break;
-
-					case 'move':
-						$src = Theme::$current->settings['images_url'] . '/post/moved.png';
-						break;
-
-					case 'remove':
-						$class = 'main_icons delete';
-						break;
-
-					case 'lock':
-					case 'unlock':
-						$class = 'main_icons lock';
-						break;
-
-					case 'sticky':
-					case 'unsticky':
-						$class = 'main_icons sticky';
-						break;
-
-					case 'split':
-						$class = 'main_icons split_button';
-						break;
-
-					case 'merge':
-						$class = 'main_icons merge';
-						break;
-
-					case 'unapproved_topic':
-					case 'unapproved_post':
-						$class = 'main_icons post_moderation_moderate';
-						break;
-
-					default:
-						$class = 'main_icons posts';
-						break;
-				}
-			}
-			break;
-
-		case 'msg':
-			{
-				switch ($alert['content_action'])
-				{
-					case 'like':
-						$class = 'main_icons like';
-						break;
-
-					case 'mention':
-						$class = 'main_icons im_on';
-						break;
-
-					case 'quote':
-						$class = 'main_icons quote';
-						break;
-
-					case 'unapproved_attachment':
-						$class = 'main_icons post_moderation_attach';
-						break;
-
-					case 'report':
-					case 'report_reply':
-						$class = 'main_icons post_moderation_moderate';
-						break;
-
-					default:
-						$class = 'main_icons posts';
-						break;
-				}
-			}
-			break;
-
-		case 'member':
-			{
-				switch ($alert['content_action'])
-				{
-					case 'register_standard':
-					case 'register_approval':
-					case 'register_activation':
-						$class = 'main_icons members';
-						break;
-
-					case 'report':
-					case 'report_reply':
-						$class = 'main_icons members_watched';
-						break;
-
-					case 'buddy_request':
-						$class = 'main_icons people';
-						break;
-
-					case 'group_request':
-						$class = 'main_icons members_request';
-						break;
-
-					default:
-						$class = 'main_icons members';
-						break;
-				}
-			}
-			break;
-
-		case 'groupr':
-			$class = 'main_icons members_request';
-			break;
-
-		case 'event':
-			$class = 'main_icons calendar';
-			break;
-
-		case 'paidsubs':
-			$class = 'main_icons paid';
-			break;
-
-		case 'birthday':
-			$src = Theme::$current->settings['images_url'] . '/cake.png';
-			break;
-
-		default:
-			$class = 'main_icons alerts';
-			break;
-	}
-
-	if (isset($class))
-		return '<span class="alert_icon ' . $class . '"></span>';
-	elseif (isset($src))
-		return '<img class="alert_icon" src="' . $src . '">';
-	else
-		return '';
 }
 
 ?>

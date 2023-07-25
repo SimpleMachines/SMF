@@ -16,6 +16,7 @@ namespace SMF\Actions\Moderation;
 use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
+use SMF\Alert;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ItemList;
@@ -881,43 +882,19 @@ class ReportedContent implements ActionInterface
 
 		// Check to see if there are unread alerts to flag as read...
 		// Might be multiple alerts, for multiple moderators...
-		$alerts = array();
-		$moderators = array();
-		$result = Db::$db->query('', '
-			SELECT id_alert, id_member
-			FROM {db_prefix}user_alerts
-			WHERE content_id IN ({array_int:content_ids})
-				AND content_type = {string:content_type}
-				AND content_action = {string:content_action}
-				AND is_read = {int:unread}',
+		Alert::markWhere(
+			array(
+				'content_id IN ({array_int:content_ids})',
+				'content_type = {string:content_type}',
+				'content_action = {string:content_action}',
+			),
 			array(
 				'content_ids' => $content_ids,
 				'content_type' => $content_type,
 				'content_action' => 'report',
-				'unread' => 0,
-			)
+			),
+			true
 		);
-		// Found any?
-		while ($row = Db::$db->fetch_assoc($result))
-		{
-			$alerts[] = $row['id_alert'];
-			$moderators[] = $row['id_member'];
-		}
-		if (!empty($alerts))
-		{
-			// Flag 'em as read
-			Db::$db->query('', '
-				UPDATE {db_prefix}user_alerts
-				SET is_read = {int:time}
-				WHERE id_alert IN ({array_int:alerts})',
-				array(
-					'time' => time(),
-					'alerts' => $alerts,
-				)
-			);
-			// Decrement counter for each moderator who had an unread alert
-			User::updateMemberData($moderators, array('alerts' => '-'));
-		}
 	}
 
 	/**
