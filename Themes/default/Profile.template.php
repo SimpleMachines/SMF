@@ -408,7 +408,7 @@ function template_summary()
 				<dt>', Lang::$txt['ip'], ': </dt>
 				<dd><a href="', Config::$scripturl, '?action=profile;area=tracking;sa=ip;searchip=', Utils::$context['member']['ip'], ';u=', Utils::$context['member']['id'], '">', Utils::$context['member']['ip'], '</a></dd>';
 
-		if (empty(Config::$modSettings['disableHostnameLookup']) && !empty(Utils::$context['member']['ip']))
+		if (!empty(Utils::$context['member']['hostname']))
 			echo '
 				<dt>', Lang::$txt['hostname'], ': </dt>
 				<dd>', Utils::$context['member']['hostname'], '</dd>';
