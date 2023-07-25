@@ -13,6 +13,7 @@
 
 namespace SMF\Tasks;
 
+use SMF\Alert;
 use SMF\Config;
 use SMF\User;
 use SMF\Utils;
@@ -118,16 +119,17 @@ class Likes_Notify extends BackgroundTask
 		Db::$db->free_result($request);
 
 		// Issue, update, move on.
-		Db::$db->insert('insert',
-			'{db_prefix}user_alerts',
-			array('alert_time' => 'int', 'id_member' => 'int', 'id_member_started' => 'int', 'member_name' => 'string',
-				'content_type' => 'string', 'content_id' => 'int', 'content_action' => 'string', 'is_read' => 'int', 'extra' => 'string'),
-			array($this->_details['time'], $author, $this->_details['sender_id'], $this->_details['sender_name'],
-				$this->_details['content_type'], $this->_details['content_id'], 'like', 0, ''),
-			array('id_alert')
-		);
-
-		User::updateMemberData($author, array('alerts' => '+'));
+		Alert::create(array(
+			'alert_time' => $this->_details['time'],
+			'id_member' => $author,
+			'id_member_started' => $this->_details['sender_id'],
+			'member_name' => $this->_details['sender_name'],
+			'content_type' => $this->_details['content_type'],
+			'content_id' => $this->_details['content_id'],
+			'content_action' => 'like',
+			'is_read' => 0,
+			'extra' => ''
+		));
 
 		return true;
 	}

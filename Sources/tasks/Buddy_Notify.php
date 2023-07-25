@@ -13,6 +13,7 @@
 
 namespace SMF\Tasks;
 
+use SMF\Alert;
 use SMF\Config;
 use SMF\User;
 use SMF\Actions\Notify;
@@ -37,7 +38,7 @@ class Buddy_Notify extends BackgroundTask
 
 		if ($prefs[$this->_details['receiver_id']]['buddy_request'])
 		{
-			$alert_row = array(
+			Alert::create(array(
 				'alert_time' => $this->_details['time'],
 				'id_member' => $this->_details['receiver_id'],
 				'id_member_started' => $this->_details['id_member'],
@@ -47,15 +48,7 @@ class Buddy_Notify extends BackgroundTask
 				'content_action' => 'buddy_request',
 				'is_read' => 0,
 				'extra' => '',
-			);
-
-			Db::$db->insert('insert', '{db_prefix}user_alerts',
-				array('alert_time' => 'int', 'id_member' => 'int', 'id_member_started' => 'int', 'member_name' => 'string',
-				'content_type' => 'string', 'content_id' => 'int', 'content_action' => 'string', 'is_read' => 'int', 'extra' => 'string'),
-				$alert_row, array()
-			);
-
-			User::updateMemberData($this->_details['receiver_id'], array('alerts' => '+'));
+			));
 		}
 
 		return true;

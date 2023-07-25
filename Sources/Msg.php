@@ -2287,7 +2287,9 @@ class Msg implements \ArrayAccess
 		// Some data hygiene...
 		if (!is_array($content_ids))
 			return;
+
 		$content_ids = array_filter(array_map('intval', $content_ids));
+
 		if (empty($content_ids))
 			return;
 
@@ -2296,40 +2298,22 @@ class Msg implements \ArrayAccess
 
 		// Check to see if there are unread alerts to delete...
 		// Might be multiple alerts, for multiple moderators...
-		$alerts = array();
-		$moderators = array();
-		$result = Db::$db->query('', '
-			SELECT id_alert, id_member FROM {db_prefix}user_alerts
-			WHERE content_id IN ({array_int:content_ids})
-				AND content_type = {string:content_type}
-				AND content_action = {string:content_action}
-				AND is_read = {int:unread}',
+		Alert::deleteWhere(
+			array(
+				'content_id IN ({array_int:content_ids})',
+				'content_type = {string:content_type}',
+				'content_action = {string:content_action}',
+				'is_read = {int:unread}',
+			),
 			array(
 				'content_ids' => $content_ids,
 				'content_type' => $content_action === 'unapproved_topic' ? 'topic' : 'msg',
 				'content_action' => $content_action,
 				'unread' => 0,
-			)
+			),
+			true
 		);
-		// Found any?
-		while ($row = Db::$db->fetch_assoc($result))
-		{
-			$alerts[] = $row['id_alert'];
-			$moderators[] = $row['id_member'];
-		}
-		if (!empty($alerts))
-		{
-			// Delete 'em
-			Db::$db->query('', '
-				DELETE FROM {db_prefix}user_alerts
-				WHERE id_alert IN ({array_int:alerts})',
-				array(
-					'alerts' => $alerts,
-				)
-			);
-			// Decrement counter for each moderator who received an alert
-			User::updateMemberData($moderators, array('alerts' => '-'));
-		}
+
 	}
 
 	/**

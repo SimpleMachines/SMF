@@ -13,6 +13,7 @@
 
 namespace SMF\Tasks;
 
+use SMF\Alert;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
@@ -404,46 +405,25 @@ class CreatePost_Notify extends BackgroundTask
 
 				if (!empty($conditions))
 				{
-					Db::$db->query('', '
-						DELETE FROM {db_prefix}user_alerts
-						WHERE content_id = {int:msg_id}
-							AND content_type = {literal:msg}
-							AND (' . implode(' OR ', $conditions) . ')',
+					Alert::deleteWhere(
+						array(
+							'content_id = {int:msg_id}',
+							'content_type = {literal:msg}',
+							implode(' OR ', $conditions),
+						),
 						array(
 							'msg_id' => $msg_id,
 							'members_not_quoted' => empty($old_alerts['quote']) ? array(0) : $old_alerts['quote'],
 							'members_not_mentioned' => empty($old_alerts['mention']) ? array(0) : $old_alerts['mention'],
 						)
 					);
-
-					foreach ($old_alerts as $member_ids)
-						User::updateMemberData($member_ids, array('alerts' => '-'));
 				}
 			}
 		}
 
 		// Insert the new alerts.
 		if (!empty($this->alert_rows))
-		{
-			Db::$db->insert('',
-				'{db_prefix}user_alerts',
-				array(
-					'alert_time' => 'int',
-					'id_member' => 'int',
-					'id_member_started' => 'int',
-					'member_name' => 'string',
-					'content_type' => 'string',
-					'content_id' => 'int',
-					'content_action' => 'string',
-					'is_read' => 'int',
-					'extra' => 'string',
-				),
-				$this->alert_rows,
-				array()
-			);
-
-			User::updateMemberData(array_column($this->alert_rows, 'id_member'), array('alerts' => '+'));
-		}
+			Alert::createBatch($this->alert_rows);
 	}
 
 	/**

@@ -15,6 +15,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Alert;
 use SMF\Attachment;
 use SMF\BBCodeParser;
 use SMF\Board;
@@ -35,6 +36,9 @@ use SMF\TOTP\Auth as Tfa;
 
 if (!defined('SMF'))
 	die('No direct access...');
+
+// Some functions that used to be in this file have been moved.
+class_exists('\\SMF\\Alert');
 
 /**
  * This defines every profile field known to man.
@@ -2263,281 +2267,13 @@ function alert_markread($memID)
 
 	// Now we're all set up.
 	is_not_guest();
+
 	if (!User::$me->is_owner)
 		fatal_error('no_access');
 
 	checkSession('get');
 
-	// Assuming we're here, mark everything as read and head back.
-	// We only spit back the little layer because this should be called AJAXively.
-	Db::$db->query('', '
-		UPDATE {db_prefix}user_alerts
-		SET is_read = {int:now}
-		WHERE id_member = {int:current_member}
-			AND is_read = 0',
-		array(
-			'now' => time(),
-			'current_member' => $memID,
-		)
-	);
-
-	User::updateMemberData($memID, array('alerts' => 0));
-}
-
-/**
- * Marks a group of alerts as un/read
- *
- * @param int $memID The user ID.
- * @param array|integer $toMark The ID of a single alert or an array of IDs. The function will convert single integers to arrays for better handling.
- * @param integer $read To mark as read or unread, 1 for read, 0 or any other value different than 1 for unread.
- * @return integer How many alerts remain unread
- */
-function alert_mark($memID, $toMark, $read = 0)
-{
-	if (empty($toMark) || empty($memID))
-		return false;
-
-	$toMark = (array) $toMark;
-
-	Db::$db->query('', '
-		UPDATE {db_prefix}user_alerts
-		SET is_read = {int:read}
-		WHERE id_alert IN({array_int:toMark})',
-		array(
-			'read' => $read == 1 ? time() : 0,
-			'toMark' => $toMark,
-		)
-	);
-
-	// Gotta know how many unread alerts are left.
-	$count = alert_count($memID, true);
-
-	User::updateMemberData($memID, array('alerts' => $count));
-
-	// Might want to know this.
-	return $count;
-}
-
-/**
- * Deletes a single or a group of alerts by ID
- *
- * @param int|array The ID of a single alert to delete or an array containing the IDs of multiple alerts. The function will convert integers into an array for better handling.
- * @param bool|int $memID The user ID. Used to update the user unread alerts count.
- * @return void|int If the $memID param is set, returns the new amount of unread alerts.
- */
-function alert_delete($toDelete, $memID = false)
-{
-	if (empty($toDelete))
-		return false;
-
-	$toDelete = (array) $toDelete;
-
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}user_alerts
-		WHERE id_alert IN({array_int:toDelete})',
-		array(
-			'toDelete' => $toDelete,
-		)
-	);
-
-	// Gotta know how many unread alerts are left.
-	if ($memID)
-	{
-		$count = alert_count($memID, true);
-
-		User::updateMemberData($memID, array('alerts' => $count));
-
-		// Might want to know this.
-		return $count;
-	}
-}
-
-/**
- * Deletes all the alerts that a user has already read.
- *
- * @param int $memID The user ID. Defaults to the current user's ID.
- */
-function alert_purge($memID = 0)
-{
-	$memID = !empty($memID) && is_int($memID) ? $memID : User::$me->id;
-
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}user_alerts
-		WHERE id_member = {int:memID}
-			AND is_read > 0',
-		array(
-			'memID' => $memID,
-		)
-	);
-}
-
-/**
- * Counts how many alerts a user has - either unread or all depending on $unread
- * We can't use db_num_rows here, as we have to determine what boards the user can see
- * Possibly in future versions as database support for json is mainstream, we can simplify this.
- *
- * @param int $memID The user ID.
- * @param bool $unread Whether to only count unread alerts.
- * @return int The number of requested alerts
- */
-function alert_count($memID, $unread = false)
-{
-	if (empty($memID))
-		return false;
-
-	$alerts = array();
-	$possible_topics = array();
-	$possible_msgs = array();
-	$possible_attachments = array();
-
-	// We have to do this the slow way as to iterate over all possible boards the user can see.
-	$request = Db::$db->query('', '
-		SELECT id_alert, content_id, content_type, content_action, is_read
-		FROM {db_prefix}user_alerts
-		WHERE id_member = {int:id_member}
-			' . ($unread ? '
-			AND is_read = 0' : ''),
-		array(
-			'id_member' => $memID,
-		)
-	);
-	// First we dump alerts and possible boards information out.
-	while ($row = Db::$db->fetch_assoc($request))
-	{
-		$alerts[$row['id_alert']] = $row;
-
-		// For these types, we need to check whether they can actually see the content.
-		if ($row['content_type'] == 'msg')
-		{
-			$alerts[$row['id_alert']]['visible'] = false;
-			$possible_msgs[$row['id_alert']] = $row['content_id'];
-		}
-		elseif (in_array($row['content_type'], array('topic', 'board')))
-		{
-			$alerts[$row['id_alert']]['visible'] = false;
-			$possible_topics[$row['id_alert']] = $row['content_id'];
-		}
-		// For the rest, they can always see it.
-		else
-			$alerts[$row['id_alert']]['visible'] = true;
-	}
-	Db::$db->free_result($request);
-
-	// If we need to check board access, use the correct board access filter for the member in question.
-	if ((!isset(User::$me->query_see_board) || User::$me->id != $memID) && (!empty($possible_msgs) || !empty($possible_topics)))
-		$qb = User::buildQueryBoard($memID);
-	else
-	{
-		$qb['query_see_topic_board'] = '{query_see_topic_board}';
-		$qb['query_see_message_board'] = '{query_see_message_board}';
-	}
-
-	// We want only the stuff they can see.
-	if (!empty($possible_msgs))
-	{
-		$flipped_msgs = array();
-		foreach ($possible_msgs as $id_alert => $id_msg)
-		{
-			if (!isset($flipped_msgs[$id_msg]))
-				$flipped_msgs[$id_msg] = array();
-
-			$flipped_msgs[$id_msg][] = $id_alert;
-		}
-
-		$request = Db::$db->query('', '
-			SELECT m.id_msg
-			FROM {db_prefix}messages AS m
-			WHERE ' . $qb['query_see_message_board'] . '
-				AND m.id_msg IN ({array_int:msgs})',
-			array(
-				'msgs' => $possible_msgs,
-			)
-		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			foreach ($flipped_msgs[$row['id_msg']] as $id_alert)
-				$alerts[$id_alert]['visible'] = true;
-		}
-		Db::$db->free_result($request);
-	}
-	if (!empty($possible_topics))
-	{
-		$flipped_topics = array();
-		foreach ($possible_topics as $id_alert => $id_topic)
-		{
-			if (!isset($flipped_topics[$id_topic]))
-				$flipped_topics[$id_topic] = array();
-
-			$flipped_topics[$id_topic][] = $id_alert;
-		}
-
-		$request = Db::$db->query('', '
-			SELECT t.id_topic
-			FROM {db_prefix}topics AS t
-			WHERE ' . $qb['query_see_topic_board'] . '
-				AND t.id_topic IN ({array_int:topics})',
-			array(
-				'topics' => $possible_topics,
-			)
-		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			foreach ($flipped_topics[$row['id_topic']] as $id_alert)
-				$alerts[$id_alert]['visible'] = true;
-		}
-		Db::$db->free_result($request);
-	}
-
-	// Now check alerts again and remove any they can't see.
-	$deletes = array();
-	$num_unread_deletes = 0;
-	foreach ($alerts as $id_alert => $alert)
-	{
-		if (!$alert['visible'])
-		{
-			if (empty($alert['is_read']))
-				$num_unread_deletes++;
-
-			unset($alerts[$id_alert]);
-			$deletes[] = $id_alert;
-		}
-	}
-
-	// Penultimate task - delete these orphaned, invisible alerts, otherwise they might hang around forever.
-	// This can happen if they are deleted or moved to a board this user cannot access.
-	// Note that unread alerts are never purged.
-	if (!empty($deletes))
-	{
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}user_alerts
-			WHERE id_alert IN ({array_int:alerts})',
-			array(
-				'alerts' => $deletes,
-			)
-		);
-	}
-
-	// One last thing - tweak counter on member record.
-	// Do it directly, as User::updateMemberData() calls this function, and may create a loop.
-	// Note that User::$me is not populated when this is invoked via cron, hence the CASE statement.
-	if ($num_unread_deletes > 0)
-	{
-		Db::$db->query('', '
-			UPDATE {db_prefix}members
-			SET alerts =
-				CASE
-					WHEN alerts < {int:unread_deletes} THEN 0
-					ELSE alerts - {int:unread_deletes}
-				END
-			WHERE id_member = {int:member}',
-			array(
-				'unread_deletes' => $num_unread_deletes,
-				'member' => $memID,
-			)
-		);
-	}
-
-	return count($alerts);
+	Alert::markAll($memID, true);
 }
 
 /**

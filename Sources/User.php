@@ -1723,15 +1723,13 @@ class User implements \ArrayAccess
 			// Doing an increment?
 			if ($var == 'alerts' && ($val === '+' || $val === '-'))
 			{
-				include_once(Config::$sourcedir . '/Profile-Modify.php');
-
 				if (is_array($members))
 				{
 					$val = 'CASE ';
 
 					foreach ($members as $k => $v)
 					{
-						$val .= 'WHEN id_member = ' . $v . ' THEN '. alert_count($v, true) . ' ';
+						$val .= 'WHEN id_member = ' . $v . ' THEN '. Alert::count($v, true) . ' ';
 					}
 
 					$val = $val . ' END';
@@ -1740,7 +1738,7 @@ class User implements \ArrayAccess
 				}
 				else
 				{
-					$val = alert_count($members, true);
+					$val = Alert::count($members, true);
 				}
 			}
 			elseif ($type == 'int' && ($val === '+' || $val === '-'))

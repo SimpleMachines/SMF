@@ -13,6 +13,7 @@
 
 namespace SMF\Tasks;
 
+use SMF\Alert;
 use SMF\Config;
 use SMF\Msg;
 use SMF\Mail;
@@ -151,19 +152,7 @@ class GroupAct_Notify extends BackgroundTask
 
 			// Insert the alerts if any
 			if (!empty($alert_rows))
-			{
-				Db::$db->insert('',
-					'{db_prefix}user_alerts',
-					array(
-						'alert_time' => 'int', 'id_member' => 'int', 'content_type' => 'string',
-						'content_id' => 'int', 'content_action' => 'string', 'is_read' => 'int', 'extra' => 'string',
-					),
-					$alert_rows,
-					array()
-				);
-
-				User::updateMemberData(array_keys($affected_users), array('alerts' => '+'));
-			}
+				Alert::createBatch($alert_rows);
 		}
 
 		return true;
