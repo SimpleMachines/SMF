@@ -3493,5 +3493,6 @@ if (is_callable(__NAMESPACE__ . '\Profile::exportStatic'))
 
 // Old mods might include this file to get access to functions that have been moved.
 class_exists('\\SMF\\Actions\\Profile\\Main');
+class_exists('\\SMF\\Actions\\Profile\\Popup');
 
 ?>

@@ -43,7 +43,6 @@ class Main implements ActionInterface
 		'func_names' => array(
 			'load' => false,
 			'call' => false,
-			'profilePopup' => 'profile_popup',
 			'alertsPopup' => 'alerts_popup',
 		),
 	);
@@ -62,7 +61,7 @@ class Main implements ActionInterface
 	 * The values of all 'title' and 'label' elements are Lang::$txt keys, and
 	 * will be replaced at runtime with the values of those Lang::$txt strings.
 	 *
-	 * Occurrences of '{scripturl}', and '{boardurl}' in value strings will be
+	 * Occurrences of '{scripturl}' and '{boardurl}' in value strings will be
 	 * replaced at runtime with the values of Config::$scripturl and
 	 * Config::$boardurl.
 	 *
@@ -132,7 +131,7 @@ class Main implements ActionInterface
 					),
 				),
 				'popup' => array(
-					'function' => __CLASS__ . '::profilePopup',
+					'function' => __NAMESPACE__ . '\\Popup::call',
 					'sub_template' => 'profile_popup',
 					'permission' => array(
 						'own' => 'is_not_guest',
@@ -740,89 +739,6 @@ class Main implements ActionInterface
 	public static function call(): void
 	{
 		self::load()->execute();
-	}
-
-	/**
-	 * Set up the requirements for the profile popup - the area that is shown as the popup menu for the current user.
-	 *
-	 * @param int $memID The ID of the member
-	 */
-	public static function profilePopup($memID)
-	{
-		// We do not want to output debug information here.
-		Config::$db_show_debug = false;
-
-		// We only want to output our little layer here.
-		Utils::$context['template_layers'] = array();
-
-		// This list will pull from the master list wherever possible. Hopefully it should be clear what does what.
-		$profile_items = array(
-			array(
-				'menu' => 'edit_profile',
-				'area' => 'account',
-			),
-			array(
-				'menu' => 'edit_profile',
-				'area' => 'forumprofile',
-				'title' => Lang::$txt['popup_forumprofile'],
-			),
-			array(
-				'menu' => 'edit_profile',
-				'area' => 'theme',
-				'title' => Lang::$txt['theme'],
-			),
-			array(
-				'menu' => 'edit_profile',
-				'area' => 'notification',
-			),
-			array(
-				'menu' => 'edit_profile',
-				'area' => 'ignoreboards',
-			),
-			array(
-				'menu' => 'edit_profile',
-				'area' => 'lists',
-				'url' => Config::$scripturl . '?action=profile;area=lists;sa=ignore',
-				'title' => Lang::$txt['popup_ignore'],
-			),
-			array(
-				'menu' => 'info',
-				'area' => 'showposts',
-				'title' => Lang::$txt['popup_showposts'],
-			),
-			array(
-				'menu' => 'info',
-				'area' => 'showdrafts',
-				'title' => Lang::$txt['popup_showdrafts'],
-			),
-			array(
-				'menu' => 'edit_profile',
-				'area' => 'groupmembership',
-				'title' => Lang::$txt['popup_groupmembership'],
-			),
-			array(
-				'menu' => 'profile_action',
-				'area' => 'subscriptions',
-				'title' => Lang::$txt['popup_subscriptions'],
-			),
-			array(
-				'menu' => 'profile_action',
-				'area' => 'logout',
-			),
-		);
-
-		call_integration_hook('integrate_profile_popup', array(&$profile_items));
-
-		// Now check if these items are available
-		Utils::$context['profile_items'] = array();
-		$menu_context = Menu::$loaded['profile']['sections'];
-		foreach ($profile_items as $item)
-		{
-			if (isset($menu_context[$item['menu']]['areas'][$item['area']]))
-			{
-				Utils::$context['profile_items'][] = $item;
-			}
-		}
 	}
 
 	/**
