@@ -253,7 +253,7 @@ $txt['signature_max_font_size'] = 'Maximum font size allowed in signatures (pixe
 $txt['signature_bbc'] = 'Enabled BBC tags';
 
 $txt['custom_profile_title'] = 'Custom Profile Fields';
-$txt['custom_profile_desc'] = 'From this page you can create your own custom profile fields that fit in with your own forums requirements';
+$txt['custom_profile_desc'] = 'From this page you can create your own custom profile fields that fit in with your own forum\'s requirements';
 $txt['custom_profile_active'] = 'Active';
 $txt['custom_profile_fieldname'] = 'Field Name';
 $txt['custom_profile_fieldtype'] = 'Field Type';
