@@ -27,6 +27,11 @@ class Likes
 	protected $_js = false;
 
 	/**
+	 * @var string The sub action sent in $_GET['sa'].
+	 */
+	protected $_sa = null;
+
+	/**
 	 * @var string If filled, its value will contain a string matching a key on a language var $txt[$this->_error]
 	 */
 	protected $_error = false;

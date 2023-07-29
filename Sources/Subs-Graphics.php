@@ -643,7 +643,7 @@ function imagecopyresamplebicubic($dst_img, $src_img, $dst_x, $dst_y, $src_x, $s
 if (!function_exists('imagecreatefrombmp'))
 {
 	/**
-	 * It is set only if it doesn't already exist (for forwards compatiblity.)
+	 * It is set only if it doesn't already exist (for forwards compatibility.)
 	 * It only supports uncompressed bitmaps.
 	 *
 	 * @param string $filename The name of the file
@@ -994,7 +994,7 @@ function showCodeImage($code)
 		$dotbgcolor[$i] = $background_color[$i] < $foreground_color[$i] ? mt_rand(0, max($foreground_color[$i] - 20, 0)) : mt_rand(min($foreground_color[$i] + 20, 255), 255);
 	$randomness_color = imagecolorallocate($code_image, $dotbgcolor[0], $dotbgcolor[1], $dotbgcolor[2]);
 
-	// Some squares/rectanges for new extreme level
+	// Some squares/rectangles for new extreme level
 	if ($noiseType == 'extreme')
 	{
 		for ($i = 0; $i < mt_rand(1, 5); $i++)

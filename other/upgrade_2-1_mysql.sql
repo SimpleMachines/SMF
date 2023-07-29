@@ -605,7 +605,7 @@ if (!empty($attachs))
 
 ---# Fixing attachment directory setting...
 ---{
-// If its a directory or an array, ensure it is stored as a serialized string (prep for later serial_to_json conversion)
+// If it's a directory or an array, ensure it is stored as a serialized string (prep for later serial_to_json conversion)
 // Also ensure currentAttachmentUploadDir is set even for single directories
 // Make sure to do it in memory and in db...
 if (empty($modSettings['json_done']))

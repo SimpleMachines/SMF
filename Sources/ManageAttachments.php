@@ -560,7 +560,7 @@ function BrowseFiles()
 		),
 		'additional_rows' => array(
 			array(
-				'position' => 'above_table_headers',
+				'position' => 'above_column_headers',
 				'value' => '<input type="submit" name="remove_submit" class="button you_sure" value="' . $txt['quickmod_delete_selected'] . '" data-confirm="' . $txt['confirm_delete_attachments'] . '">',
 			),
 			array(
@@ -2609,7 +2609,7 @@ function attachDirStatus($dir, $expected_files)
 }
 
 /**
- * Maintance function to move attachments from one directory to another
+ * Maintenance function to move attachments from one directory to another
  */
 function TransferAttachments()
 {
@@ -2642,7 +2642,7 @@ function TransferAttachments()
 
 	if (empty($results))
 	{
-		// Get the total file count for the progess bar.
+		// Get the total file count for the progress bar.
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(*)
 			FROM {db_prefix}attachments

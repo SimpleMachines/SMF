@@ -206,7 +206,7 @@ function nextWord(ignoreall)
 		ignoredWords[misps[wordindex].word] = true;
 
 	// Update the index of all words we have processed...
-	// This must be done to accomodate the replaceAll function.
+	// This must be done to accommodate the replaceAll function.
 	if (wordindex >= 0)
 	{
 		misps[wordindex].start += offsetindex;

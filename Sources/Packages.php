@@ -557,7 +557,7 @@ function PackageInstallTest()
 				$context['has_failure'] = true;
 			else
 			{
-				// See if this dependancy is installed
+				// See if this dependency is installed
 				$request = $smcFunc['db_query']('', '
 					SELECT version
 					FROM {db_prefix}log_packages
@@ -1949,7 +1949,7 @@ function ViewOperations()
 		]
 	);
 
-	// Since the alerts code is loaded very late in the process, it must be disabled seperately.
+	// Since the alerts code is loaded very late in the process, it must be disabled separately.
 	$settings['disable_files'] = ['smf_alerts'];
 }
 
@@ -2268,9 +2268,9 @@ function PackagePermissions()
 }
 
 /**
- * Checkes the permissions of all the areas that will be affected by the package
+ * Checks the permissions of all the areas that will be affected by the package
  *
- * @param string $path The path to the directiory to check permissions for
+ * @param string $path The path to the directory to check permissions for
  * @param array $data An array of data about the directory
  * @param int $level How far deep to go
  */
@@ -2305,6 +2305,10 @@ function fetchPerms__recursive($path, &$data, $level)
 	$dh = opendir($path);
 	while ($entry = readdir($dh))
 	{
+		// Bypass directory abbreviations altogether...
+		if ($entry == '.' || $entry == '..')
+			continue;
+
 		// Some kind of file?
 		if (is_file($path . '/' . $entry))
 		{
@@ -2316,7 +2320,7 @@ function fetchPerms__recursive($path, &$data, $level)
 				$foundData['files'][$entry] = true;
 		}
 		// It's a directory - we're interested one way or another, probably...
-		elseif ($entry != '.' && $entry != '..')
+		else
 		{
 			// Going further?
 			if ((!empty($data['type']) && $data['type'] == 'dir_recursive') || (isset($data['contents'][$entry]) && (!empty($data['contents'][$entry]['list_contents']) || (!empty($data['contents'][$entry]['type']) && $data['contents'][$entry]['type'] == 'dir_recursive'))))
@@ -2326,7 +2330,7 @@ function fetchPerms__recursive($path, &$data, $level)
 				else
 					$foundData['folders'][$entry] = true;
 
-				// If this wasn't expected inherit the recusiveness...
+				// If this wasn't expected inherit the recursiveness...
 				if (!isset($data['contents'][$entry]))
 					// We need to do this as we will be going all recursive.
 					$data['contents'][$entry] = array(
@@ -2640,6 +2644,10 @@ function PackagePermissionsAction()
 			$dont_chmod = false;
 			while ($entry = readdir($dh))
 			{
+				// Bypass directory abbreviations altogether...
+				if ($entry == '.' || $entry == '..')
+					continue;
+
 				$file_count++;
 				// Actually process this file?
 				if (!$dont_chmod && !is_dir($path . '/' . $entry) && (empty($context['file_offset']) || $context['file_offset'] < $file_count))

@@ -123,7 +123,7 @@ $upcontext['database_step'] = 3;
 if (!empty($_SERVER['argv']) && php_sapi_name() == 'cli' && empty($_SERVER['REMOTE_ADDR']))
 	for ($i = 1; $i < $_SERVER['argc']; $i++)
 	{
-		// Provide the help without possible errors if the enviornment isn't sane.
+		// Provide the help without possible errors if the environment isn't sane.
 		if (in_array($_SERVER['argv'][$i], array('-h', '--help')))
 		{
 			cmdStep0();
