@@ -26,9 +26,9 @@ $txt['good_luck'] = 'Good luck!<br>Simple Machines';
 
 $txt['install_welcome'] = 'Welcome';
 $txt['install_welcome_desc'] = 'Welcome to SMF. This script will guide you through the process for installing %1$s. We will gather a few details about your forum over the next few steps, and after a couple of minutes your forum will be ready for use.';
-$txt['install_no_https'] = 'Your environment does not support https streams.  Certain functions, e.g., receiving updates from simplemachines.org, will not work.';
-$txt['install_no_mbstring'] = 'Your environment does not support the required mbstring library.  Please enable mbstring and try again.';
-$txt['install_no_fileinfo'] = 'Your environment does not support the required fileinfo library.  Please enable fileinfo and try again.';
+$txt['install_no_https'] = 'Your environment does not support https streams. Certain functions, e.g., receiving updates from simplemachines.org, will not work.';
+$txt['install_no_mbstring'] = 'Your environment does not support the required mbstring library. Please enable mbstring and try again.';
+$txt['install_no_fileinfo'] = 'Your environment does not support the required fileinfo library. Please enable fileinfo and try again.';
 $txt['install_all_lovely'] = 'We have completed some initial tests on your server and everything appears to be in order. Simply click the &quot;Continue&quot; button below to get started.';
 
 $txt['user_refresh_install'] = 'Forum Refreshed';
@@ -163,7 +163,7 @@ $txt['ftp_setup_why_info'] = 'Some files need to be writable for SMF to work pro
 $txt['ftp_setup_again'] = 'to test if these files are writable again.';
 
 $txt['error_missing_files'] = 'Unable to find crucial installation files in the directory of this script!<br><br>Please make sure you uploaded the entire installation package, including the sql file, and then try again.';
-$txt['error_session_save_path'] = 'Please inform your host that the <strong>session.save_path specified in php.ini</strong> is not valid!  It needs to be changed to a directory that <strong>exists</strong> and is <strong>writable</strong> by the user PHP is running under.<br>';
+$txt['error_session_save_path'] = 'Please inform your host that the <strong>session.save_path specified in php.ini</strong> is not valid! It needs to be changed to a directory that <strong>exists</strong> and is <strong>writable</strong> by the user PHP is running under.<br>';
 $txt['error_windows_chmod'] = 'You are on a windows server and some crucial files are not writable. Please ask your host to give <strong>write permissions</strong> to the user PHP is running under for the files in your SMF installation. The following files or directories need to be writable:';
 $txt['settings_error'] = 'Your settings could not be saved to Settings.php.';
 $txt['error_ftp_no_connect'] = 'Unable to connect to FTP server with this combination of details.';
@@ -356,12 +356,12 @@ $txt['mmessage'] = 'Don\'t worry, your forum will be updated shortly. It will on
 // Upgrader error messages
 // argument(s): template name (if applicable)
 $txt['error_unexpected_template_call'] = 'Error: Unexpected call to use the %1$s template. Please copy and paste all the text above and visit the SMF support forum to let the developers know that there is a bug.';
-$txt['error_invalid_template'] = 'Upgrade aborted!  Invalid template: template_%1$s';
+$txt['error_invalid_template'] = 'Upgrade aborted! Invalid template: template_%1$s';
 $txt['error_lang_index_missing'] = 'The upgrader was unable to find language files for the selected language, %1$s.<br>SMF will not work in this language without the language files installed.<br><br>Please either install them, or <a href="%2$s?step=0;lang=english">try English instead</a>.';
 $txt['error_upgrade_files_missing'] = 'The upgrader was unable to find some crucial files.<br><br>Please make sure you uploaded all of the files included in the package, including the Themes, Sources, and other directories.';
 $txt['error_upgrade_old_files'] = 'The upgrader found some old or outdated files.<br><br>Please make certain you uploaded the new versions of all the files included in the package.';
 $txt['error_upgrade_old_lang_files'] = 'The upgrader found some old or outdated language files for the selected language, %1$s.<br><br>Please make certain you uploaded the new versions of all the files included in the package, even the theme and language files for the default theme.<br>&nbsp;&nbsp;&nbsp;[<a href="%2$s?skiplang">SKIP</a>] [<a href="%2$s?lang=english">Try English</a>]';
-$txt['error_php_too_low'] = 'Warning!  You do not appear to have a version of PHP installed on your webserver that meets SMF\'s minimum installations requirements.<br><br>Please ask your host to upgrade.';
+$txt['error_php_too_low'] = 'Warning! You do not appear to have a version of PHP installed on your webserver that meets SMF\'s minimum installations requirements.<br><br>Please ask your host to upgrade.';
 $txt['error_db_too_low'] = 'Your %1$s version does not meet the minimum requirements of SMF.<br><br>Please ask your host to upgrade.';
 $txt['error_db_privileges'] = 'The %1$s user you have set in Settings.php does not have proper privileges.<br><br>Please ask your host to give this user the ALTER, CREATE, and DROP privileges.';
 $txt['error_dir_not_writable'] = 'The directory: %1$s has to be writable to continue the upgrade. Please make sure permissions are correctly set to allow this.';

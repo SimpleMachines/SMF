@@ -134,7 +134,7 @@ $txt['coppa_form_body'] = 'I {PARENT_NAME},<br><br>Give permission for {CHILD_NA
 
 $txt['visual_verification_sound_again'] = 'Play again';
 $txt['visual_verification_sound_close'] = 'Close window';
-$txt['visual_verification_sound_direct'] = 'Having problems hearing this?  Try a direct link to it.';
+$txt['visual_verification_sound_direct'] = 'Having problems hearing this? Try a direct link to it.';
 
 // Use numeric entities in the below.
 $txt['registration_username_available'] = 'Username is available';
