@@ -208,8 +208,8 @@ class Main implements ActionInterface
 				),
 				'permissions' => array(
 					'label' => 'showPermissions',
-					'file' => 'Profile-View.php',
-					'function' => 'showPermissions',
+					'function' => __NAMESPACE__ . '\\ShowPermissions::call',
+					'sub_template' => 'showPermissions',
 					'icon' => 'permissions',
 					'permission' => array(
 						'own' => 'manage_permissions',
