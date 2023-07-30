@@ -198,8 +198,8 @@ class Main implements ActionInterface
 				),
 				'showalerts' => array(
 					'label' => 'alerts_show',
-					'file' => 'Profile-View.php',
-					'function' => 'showAlerts',
+					'function' => __NAMESPACE__ . '\\ShowAlerts::call',
+					'sub_template' => 'showAlerts',
 					'icon' => 'alerts',
 					'permission' => array(
 						'own' => 'is_not_guest',
