@@ -38,7 +38,7 @@ $txt['no_mods_installed'] = 'No mods currently installed';
 $txt['browse_installed'] = 'Browse installed mods';
 $txt['uninstall'] = 'Uninstall';
 $txt['package_delete_list_warning'] = 'Are you sure you wish to clear the installed modification list?';
-$txt['php_safe_mode'] = 'Sorry, your server currently has PHP set to run in SAFE MODE. This feature is not compatible with SAFE MODE.';
+$txt['php_safe_mode'] = 'Your server currently has PHP set to run in SAFE MODE. This feature is not compatible with SAFE MODE.';
 $txt['lets_try_anyway'] = 'Let me try anyway.';
 
 $txt['could_not_package_backup'] = 'A backup could not be made before making changes. No changes have been made at this time as a result (either change the permissions so Packages/backup can be written to, or turn off backups - not recommended)';
@@ -182,7 +182,7 @@ $txt['package_modification_missing'] = 'The file could not be found.';
 $txt['package_no_zlib'] = 'zlib';
 $txt['package_no_phar'] = 'phar';
 $txt['package_no_package_manager'] = 'the package manager';
-$txt['package_no_lib'] = 'Sorry, your PHP configuration doesn\'t have support for <strong>"%1$s"</strong>. Without this, %2$s cannot function. Please contact your host about this for more information.';
+$txt['package_no_lib'] = 'Your PHP configuration doesn\'t have support for <strong>"%1$s"</strong>. Without this, %2$s cannot function. Please contact your host about this for more information.';
 
 $txt['package_cleanperms_title'] = 'Cleanup Permissions';
 $txt['package_cleanperms_desc'] = 'This interface allows you to reset the permissions for files throughout your installation, so as to increase security or solve any permission problems you may encounter while installing packages.';

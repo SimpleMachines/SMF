@@ -42,7 +42,7 @@ $txt['your_username_is'] = 'Your username is: ';
 
 $txt['login_hash_error'] = 'Password security has recently been upgraded. Please enter your password again.';
 
-$txt['ban_register_prohibited'] = 'Sorry, you are not allowed to sign up on this forum.';
+$txt['ban_register_prohibited'] = 'You are not allowed to sign up on this forum.';
 
 $txt['activate_account'] = 'Account activation';
 $txt['activate_success'] = 'Your account has been successfully activated. You can now proceed to login.';

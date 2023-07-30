@@ -74,7 +74,7 @@ $txt['secret_desc2'] = 'Choose carefully, you wouldn\'t want someone guessing yo
 $txt['secret_answer'] = 'Answer';
 $txt['secret_ask'] = 'Ask me my question';
 $txt['cant_retrieve'] = 'You can\'t retrieve your password, but you can set a new one by following a link sent to you by email. You also have the option of setting a new password by answering your secret question.';
-$txt['incorrect_answer'] = 'Sorry, but you did not specify a valid combination of Secret Question and Answer in your profile. Please click on the back button, and use the default method of obtaining your password.';
+$txt['incorrect_answer'] = 'You did not specify a valid combination of Secret Question and Answer in your profile. Please click on the back button, and use the default method of obtaining your password.';
 $txt['enter_new_password'] = 'Please enter the answer to your question, and the password you would like to use. Your password will be changed to the one you select provided you answer the question correctly.';
 $txt['secret_why_blank'] = 'why is this blank?';
 
@@ -289,8 +289,8 @@ $txt['reminder_set_password'] = 'Set Password';
 $txt['reminder_password_set'] = 'Password successfully set';
 $txt['reminder_error'] = '%1$s failed to answer their secret question correctly when attempting to change a forgotten password.';
 
-$txt['registration_not_approved'] = 'Sorry, this account has not yet been approved. If you need to change your email address please click <a href="%1$s">here</a>.';
-$txt['registration_not_activated'] = 'Sorry, this account has not yet been activated. If you need to resend the activation email please click <a href="%1$s">here</a>';
+$txt['registration_not_approved'] = 'This account has not yet been approved. If you need to change your email address please click <a href="%1$s">here</a>.';
+$txt['registration_not_activated'] = 'This account has not yet been activated. If you need to resend the activation email please click <a href="%1$s">here</a>';
 
 $txt['primary_membergroup'] = 'Primary Membergroup';
 $txt['post_based_membergroup'] = 'Post Based Membergroup';

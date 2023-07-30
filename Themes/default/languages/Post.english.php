@@ -120,7 +120,7 @@ $txt['spellcheck_ignore_all'] = 'Ignore All';
 
 $txt['more_attachments'] = 'more attachments';
 // Don't use entities in the below string.
-$txt['more_attachments_error'] = 'Sorry, you aren\'t allowed to post any more attachments.';
+$txt['more_attachments_error'] = 'You aren\'t allowed to post any more attachments.';
 
 $txt['more_smileys'] = 'more';
 $txt['more_smileys_title'] = 'Additional smileys';
@@ -167,8 +167,8 @@ $txt['digest_mod_act_split'] = '"%1$s" was split';
 $txt['attach_error_title'] = 'Error uploading attachments.';
 $txt['attach_warning'] = 'There was a problem during the uploading of <strong>%1$s</strong>.';
 $txt['attach_check_nag'] = 'Unable to continue due to incomplete data (%1$s).';
-$txt['attach_max_total_file_size'] = 'Sorry, you are out of attachment space. The total attachment size allowed per post is %1$s KB. Space remaining is %2$s KB.';
-$txt['attach_max_total_file_size_current'] = 'Sorry, you are out of attachment space. The current total attachment size allowed per post is {currentTotal} KB. The total amount of the selected files is {currentRemain} KB. Please delete one or more attachments.';
+$txt['attach_max_total_file_size'] = 'You are out of attachment space. The total attachment size allowed per post is %1$s KB. Space remaining is %2$s KB.';
+$txt['attach_max_total_file_size_current'] = 'You are out of attachment space. The current total attachment size allowed per post is {currentTotal} KB. The total amount of the selected files is {currentRemain} KB. Please delete one or more attachments.';
 $txt['attach_max_size_progress'] = 'The current total attachment size allowed per post is {currentTotal} KB. The total amount of the selected files is {currentRemain} KB.';
 $txt['attach_folder_warning'] = 'The attachments directory can not be located. Please notify an administrator of this problem.';
 $txt['attach_folder_admin_warning'] = 'The path to the attachments directory (%1$s) is incorrect. Please correct it in the attachment settings area of your admin panel.';

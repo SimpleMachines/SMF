@@ -405,7 +405,7 @@ $txt['languages_tztxt'] = 'Time zone descriptions';
 $txt['languages_txt_for_timezones'] = 'Place names';
 $txt['languages_txt_for_email_templates'] = 'Email message templates';
 $txt['languages_enter_key'] = 'Enter a variable name for this text string';
-$txt['languages_invalid_key'] = 'Sorry, but this variable name is invalid: ';
+$txt['languages_invalid_key'] = 'This variable name is invalid: ';
 
 $txt['allow_cors'] = 'Allow CORS (Cross Origin Resource Sharing)';
 $txt['allow_cors_credentials'] = 'Allow sending credentials over CORS';

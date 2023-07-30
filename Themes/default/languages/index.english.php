@@ -328,11 +328,11 @@ $txt['post_becomes_unapproved'] = 'Your message was not approved because it was 
 $txt['time_offset'] = 'Time Offset';
 $txt['or'] = 'or';
 
-$txt['no_matches'] = 'Sorry, no matches were found';
+$txt['no_matches'] = 'No matches were found';
 
 $txt['notification'] = 'Notification';
 
-$txt['your_ban'] = 'Sorry %1$s, you are banned from using this forum!';
+$txt['your_ban'] = '%1$s, you are banned from using this forum!';
 $txt['your_ban_expires'] = 'This ban is set to expire %1$s.';
 $txt['your_ban_expires_never'] = 'This ban is not set to expire.';
 $txt['ban_continue_browse'] = 'You may continue to browse the forum as a guest.';
@@ -613,7 +613,7 @@ $txt['more'] = 'more';
 $txt['etc'] = 'etc.';
 
 $txt['hostname'] = 'Hostname';
-$txt['you_are_post_banned'] = 'Sorry %1$s, you are banned from posting and sending personal messages on this forum.';
+$txt['you_are_post_banned'] = '%1$s, you are banned from posting and sending personal messages on this forum.';
 $txt['ban_reason'] = 'Reason';
 $txt['select_item_check'] = 'Please select at least one item in the list';
 
@@ -736,7 +736,7 @@ $txt['smileys_none'] = 'No Smileys';
 $txt['smileys_forum_board_default'] = 'Forum/Board Default';
 
 $txt['search_results'] = 'Search Results';
-$txt['search_no_results'] = 'Sorry, no matches were found';
+$txt['search_no_results'] = 'No matches were found';
 
 $txt['total_time_logged_days'] = ' days, ';
 $txt['total_time_logged_hours'] = ' hours and ';
