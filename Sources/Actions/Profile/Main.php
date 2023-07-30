@@ -149,8 +149,8 @@ class Main implements ActionInterface
 				),
 				'statistics' => array(
 					'label' => 'statPanel',
-					'file' => 'Profile-View.php',
-					'function' => 'statPanel',
+					'function' => __NAMESPACE__ . '\\StatPanel::call',
+					'sub_template' => 'statPanel',
 					'icon' => 'stats',
 					'permission' => array(
 						'own' => 'is_not_guest',
