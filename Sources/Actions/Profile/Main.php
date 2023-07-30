@@ -159,8 +159,8 @@ class Main implements ActionInterface
 				),
 				'showposts' => array(
 					'label' => 'showPosts',
-					'file' => 'Profile-View.php',
-					'function' => 'showPosts',
+					'function' => __NAMESPACE__ . '\\ShowPosts::call',
+					'sub_template' => 'showPosts',
 					'icon' => 'posts',
 					'subsections' => array(
 						'messages' => array(
