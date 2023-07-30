@@ -43,7 +43,6 @@ class Main implements ActionInterface
 		'func_names' => array(
 			'load' => false,
 			'call' => false,
-			'alertsPopup' => 'alerts_popup',
 		),
 	);
 
@@ -140,7 +139,7 @@ class Main implements ActionInterface
 					'select' => 'summary',
 				),
 				'alerts_popup' => array(
-					'function' => __CLASS__ . '::alertsPopup',
+					'function' => __NAMESPACE__ . '\\AlertsPopup::call',
 					'sub_template' => 'alerts_popup',
 					'permission' => array(
 						'own' => 'is_not_guest',
@@ -739,34 +738,6 @@ class Main implements ActionInterface
 	public static function call(): void
 	{
 		self::load()->execute();
-	}
-
-	/**
-	 * Set up the requirements for the alerts popup - the area that shows all the alerts just quickly for the current user.
-	 *
-	 * @param int $memID The ID of the member
-	 */
-	public static function alertsPopup($memID)
-	{
-		// Load the Alerts language file.
-		Lang::load('Alerts');
-
-		// We do not want to output debug information here.
-		Config::$db_show_debug = false;
-
-		// We only want to output our little layer here.
-		Utils::$context['template_layers'] = array();
-
-		// No funny business allowed
-		$counter = isset($_REQUEST['counter']) ? max(0, (int) $_REQUEST['counter']) : 0;
-		$limit = !empty(Config::$modSettings['alerts_per_page']) && (int) Config::$modSettings['alerts_per_page'] < 1000 ? min((int) Config::$modSettings['alerts_per_page'], 1000) : 25;
-
-		Utils::$context['unread_alerts'] = array();
-		if ($counter < User::$profiles[$memID]['alerts'])
-		{
-			// Now fetch me my unread alerts, pronto!
-			Utils::$context['unread_alerts'] = Alert::fetch($memID, false, !empty($counter) ? User::$profiles[$memID]['alerts'] - $counter : $limit, 0, !isset($_REQUEST['counter']));
-		}
 	}
 
 	/**
