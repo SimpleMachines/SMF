@@ -775,8 +775,16 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 	$failed_emails = array();
 	$max_priority = 127;
 	$smtp_expire = ($modSettings['smtp_day_expiry'] ?? 3) * 60 * 60 * 24;
+	$priority_offset = 4;
 	foreach ($emails as $email)
 	{
+		// This seems odd, but check the priority if we should try again so soon. Do this so we don't DOS some poor mail server.
+		if ($email['priority'] > $priority_offset && (time() - $email['time_sent']) % $priority_offset != 0)
+		{
+			$failed_emails[] = array($email['to'], $email['body'], $email['subject'], $email['headers'], $email['send_html'], $email['time_sent'], $email['private'], $email['priority']);
+			continue;
+		}
+
 		if (empty($modSettings['mail_type']) || $modSettings['smtp_host'] == '')
 		{
 			$email['subject'] = strtr($email['subject'], array("\r" => '', "\n" => ''));
@@ -801,7 +809,7 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 		if (!$result && $email['priority'] < $max_priority)
 		{
 			// Determine the "priority" as a way to keep track of SMTP failures.
-			$email['priority'] = max($email['priority'], min(ceil((time() - $email['time_sent']) / $smtp_expire * $max_priority), $max_priority));
+			$email['priority'] = max($priority_offset, $email['priority'], min(ceil((time() - $email['time_sent']) / $smtp_expire * ($max_priority - $priority_offset)) + $priority_offset, $max_priority));
 
 			$failed_emails[] = array($email['to'], $email['body'], $email['subject'], $email['headers'], $email['send_html'], $email['time_sent'], $email['private'], $email['priority']);
 		}
