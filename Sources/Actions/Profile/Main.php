@@ -218,8 +218,8 @@ class Main implements ActionInterface
 				),
 				'tracking' => array(
 					'label' => 'trackUser',
-					'file' => 'Profile-View.php',
-					'function' => 'tracking',
+					'function' => __NAMESPACE__ . '\\Tracking::call',
+					'sub_template' => 'tracking',
 					'icon' => 'logs',
 					'subsections' => array(
 						'activity' => array(
