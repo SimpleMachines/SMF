@@ -109,7 +109,7 @@ class Forum
 		'stats' => array('', 'SMF\\Actions\\Stats::call'),
 		'sticky' => array('', 'SMF\\Topic::sticky'),
 		'theme' => array('', 'SMF\\Theme::dispatch'),
-		'trackip' => array('Profile-View.php', 'trackIP'),
+		'trackip' => array('', 'SMF\\Actions\\TrackIP::call'),
 		'about:unknown' => array('', 'SMF\\Likes::BookOfUnknown'),
 		'unread' => array('', 'SMF\\Actions\\Unread::call'),
 		'unreadreplies' => array('', 'SMF\\Actions\\UnreadReplies::call'),
