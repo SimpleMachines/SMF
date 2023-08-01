@@ -253,10 +253,10 @@ class Main implements ActionInterface
 				),
 				'viewwarning' => array(
 					'label' => 'profile_view_warnings',
-					'enabled' => true,
-					'file' => 'Profile-View.php',
-					'function' => 'viewWarning',
+					'function' => __NAMESPACE__ . '\\ViewWarning::call',
+					'sub_template' => 'viewWarning',
 					'icon' => 'warning',
+					'enabled' => true,
 					'permission' => array(
 						'own' => array('view_warning_own', 'view_warning_any', 'issue_warning', 'moderate_forum'),
 						'any' => array('view_warning_any', 'issue_warning', 'moderate_forum'),
