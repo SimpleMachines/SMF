@@ -87,7 +87,6 @@ class User implements \ArrayAccess
 			'settings' => 'user_settings',
 			'info' => 'user_info',
 			'memberContext' => 'memberContext',
-			'cur_profile' => 'cur_profile',
 		),
 	);
 
@@ -673,15 +672,6 @@ class User implements \ArrayAccess
 	 * Basic data from the database about all loaded users.
 	 */
 	public static array $profiles = array();
-
-	/**
-	 * @var array
-	 *
-	 * Profile data about the user whose profile is being viewed.
-	 * A reference to User::$profiles[$id] (where $id is a user ID).
-	 * Only exists for backward compatibility reasons.
-	 */
-	public static $cur_profile;
 
 	/**
 	 * @var array
@@ -2517,21 +2507,6 @@ class User implements \ArrayAccess
 			self::load((array) $id, self::LOAD_BY_ID, 'profile');
 
 		return self::$loaded[$id]->format($display_custom_fields);
-	}
-
-	/**
-	 * Sets User::$cur_profile to a reference to User::$profiles[$id].
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param int $id The ID of a user.
-	 */
-	final public static function setCurProfile($id): void
-	{
-		if (!isset(self::$profiles[$id]))
-			self::load(array($id), self::LOAD_BY_ID, 'profile');
-
-		self::$cur_profile = &self::$profiles[$id];
 	}
 
 	/******************

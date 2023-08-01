@@ -19,6 +19,7 @@ use SMF\Actions\ActionInterface;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Profile;
 use SMF\User;
 use SMF\Theme;
 use SMF\Utils;
@@ -114,8 +115,8 @@ class Registration implements ActionInterface
 	public function register(): void
 	{
 		// Are there any custom profile fields required during registration?
-		require_once(Config::$sourcedir . '/Actions/Profile/Main.php');
-		loadCustomFields(0, 'register');
+		Profile::load(0);
+		Profile::$member->loadCustomFields('register');
 
 		if (!empty($_POST['regSubmit']))
 		{
@@ -151,8 +152,9 @@ class Registration implements ActionInterface
 				// We'll do custom fields after as then we get to use the helper function!
 				if (!empty($_POST['customfield']))
 				{
-					require_once(Config::$sourcedir . '/Profile-Modify.php');
-					makeCustomFieldChanges($memberID, 'register');
+					Profile::load($memberID);
+					Profile::$member->loadCustomFields('register');
+					Profile::$member->save();
 				}
 
 				Utils::$context['new_member'] = array(

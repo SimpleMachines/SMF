@@ -19,6 +19,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Mail;
+use SMF\Profile;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -251,8 +252,8 @@ class Register implements ActionInterface
 		}
 
 		// Any custom fields we want filled in?
-		require_once(Config::$sourcedir . '/Actions/Profile/Main.php');
-		loadCustomFields(0, 'register');
+		Profile::load(0);
+		Profile::$member->loadCustomFields('register');
 
 		// Or any standard ones?
 		if (!empty(Config::$modSettings['registration_fields']))
@@ -285,7 +286,7 @@ class Register implements ActionInterface
 					User::$profiles[User::$me->id][$field] = Utils::htmlspecialchars($_POST[$field]);
 
 			// Load all the fields in question.
-			setupProfileContext($reg_fields, User::$me->id);
+			Profile::$member->setupContext($reg_fields);
 		}
 
 		// Generate a visual verification code to make sure the user is no bot.
