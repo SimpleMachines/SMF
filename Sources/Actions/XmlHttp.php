@@ -20,6 +20,7 @@ use SMF\Board;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Msg;
+use SMF\Profile;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -257,7 +258,7 @@ class XmlHttp implements ActionInterface
 
 			$preview_signature = !empty($_POST['signature']) ? Utils::htmlspecialchars($_POST['signature']) : Lang::$txt['no_signature_preview'];
 
-			$validation = profileValidateSignature($preview_signature);
+			$validation = Profile::validateSignature($preview_signature);
 
 			if ($validation !== true && $validation !== false)
 			{

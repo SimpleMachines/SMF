@@ -21,6 +21,7 @@ use SMF\Config;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Msg;
+use SMF\Profile;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -714,20 +715,10 @@ class PersonalMessage implements ActionInterface
 	 */
 	public function settings(): void
 	{
-		global $profile_vars;
-
-		// Need this for the display.
-		require_once(Config::$sourcedir . '/Actions/Profile/Main.php');
-		require_once(Config::$sourcedir . '/Profile-Modify.php');
-
 		// We want them to submit back to here.
 		Utils::$context['profile_custom_submit_url'] = Config::$scripturl . '?action=pm;sa=settings;save';
 
-		User::load(User::$me->id, self::LOAD_BY_ID, 'profile');
-
-		// This is just for backward compatibility with mods.
-		// SMF itself no longer uses $cur_profile.
-		User::setCurProfile(User::$me->id);
+		Profile::load(User::$me->id);
 
 		Lang::load('Profile');
 		Theme::loadTemplate('Profile');
@@ -744,8 +735,8 @@ class PersonalMessage implements ActionInterface
 		Utils::$context['sub_template'] = 'edit_options';
 		Utils::$context['page_desc'] = Lang::$txt['pm_settings_desc'];
 
-		loadThemeOptions(User::$me->id);
-		loadCustomFields(User::$me->id, 'pmprefs');
+		Profile::$member->loadThemeOptions();
+		Profile::$member->loadCustomFields('pmprefs');
 
 		// Add our position to the linktree.
 		Utils::$context['linktree'][] = array(
@@ -757,24 +748,10 @@ class PersonalMessage implements ActionInterface
 		if (isset($_REQUEST['save']))
 		{
 			checkSession();
-
-			// Mimic what profile would do.
-			$_POST = htmltrim__recursive($_POST);
-			$_POST = htmlspecialchars__recursive($_POST);
-
-			// Save the fields.
-			saveProfileFields(User::$me->id);
-
-			if (!empty($profile_vars))
-				User::updateMemberData(User::$me->id, $profile_vars);
+			Profile::$member->save();
 		}
 
-		setupProfileContext(
-			array(
-				'pm_prefs',
-			),
-			User::$me->id
-		);
+		Profile::$member->setupContext(array('pm_prefs'));
 	}
 
 	/***********************

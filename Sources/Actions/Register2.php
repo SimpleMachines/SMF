@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Profile;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -427,9 +428,9 @@ class Register2 extends Register
 		// We'll do custom fields after as then we get to use the helper function!
 		if (!empty($_POST['customfield']))
 		{
-			require_once(Config::$sourcedir . '/Actions/Profile/Main.php');
-			require_once(Config::$sourcedir . '/Profile-Modify.php');
-			makeCustomFieldChanges($member_id, 'register');
+			Profile::load($member_id);
+			Profile::$member->loadCustomFields('register');
+			Profile::$member->save();
 		}
 
 		// If COPPA has been selected then things get complicated, setup the template.
