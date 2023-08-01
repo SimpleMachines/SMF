@@ -433,11 +433,11 @@ class Main implements ActionInterface
 				),
 				'issuewarning' => array(
 					'label' => 'profile_issue_warning',
-					'enabled' => true,
-					'file' => 'Profile-Actions.php',
-					'function' => 'issueWarning',
+					'function' => __NAMESPACE__ . '\\IssueWarning::call',
+					'sub_template' => 'issueWarning',
 					'icon' => 'warning',
 					'token' => 'profile-iw%u',
+					'enabled' => true,
 					'permission' => array(
 						'own' => array(),
 						'any' => array('issue_warning'),
