@@ -468,8 +468,8 @@ class Main implements ActionInterface
 				),
 				'getprofiledata' => array(
 					'label' => 'export_profile_data',
-					'file' => 'Actions/Profile/Export.php',
-					'function' => 'export_profile_data',
+					'function' => __NAMESPACE__ . '\\Export::call',
+					'sub_template' => 'export_profile_data',
 					'icon' => 'packages',
 					// 'token' => 'profile-ex%u', // This is not checked here. We do it in the function itself - but if it was checked, this is what it'd be.
 					'permission' => array(
@@ -479,8 +479,8 @@ class Main implements ActionInterface
 				),
 				'download' => array(
 					'label' => 'export_profile_data',
-					'file' => 'Actions/Profile/Export.php',
-					'function' => 'download_export_file',
+					'function' => __NAMESPACE__ . '\\ExportDownload::call',
+					'sub_template' => 'download_export_file',
 					'icon' => 'packages',
 					'hidden' => true,
 					'select' => 'getprofiledata',
@@ -491,8 +491,8 @@ class Main implements ActionInterface
 				),
 				'dlattach' => array(
 					'label' => 'export_profile_data',
-					'file' => 'Actions/Profile/Export.php',
-					'function' => 'export_attachment',
+					'function' => __NAMESPACE__ . '\\ExportAttachment::call',
+					'sub_template' => 'export_attachment',
 					'icon' => 'packages',
 					'hidden' => true,
 					'select' => 'getprofiledata',

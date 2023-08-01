@@ -20,6 +20,7 @@ use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Actions\Feed;
+use SMF\Actions\Profile\Export;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
@@ -882,8 +883,7 @@ class ExportProfileData extends BackgroundTask
 		// This could happen if the user manually changed the URL params of the export request.
 		if ($this->_details['format'] == 'HTML' && (!class_exists('DOMDocument') || !class_exists('XSLTProcessor')))
 		{
-			require_once(Config::$sourcedir . '/Actions/Profile/Export.php');
-			$export_formats = get_export_formats();
+			$export_formats = Export::getFormats();
 
 			$this->_details['format'] = 'XML_XSLT';
 			$this->_details['format_settings'] = $export_formats['XML_XSLT'];
@@ -985,9 +985,7 @@ class ExportProfileData extends BackgroundTask
 		// We need a valid export directory.
 		if (empty(Config::$modSettings['export_dir']) || !is_dir(Config::$modSettings['export_dir']) || !smf_chmod(Config::$modSettings['export_dir']))
 		{
-			require_once(Config::$sourcedir . '/Actions/Profile/Export.php');
-
-			if (create_export_dir() === false)
+			if (Export::createDir() === false)
 				return;
 		}
 
@@ -1447,6 +1445,8 @@ class ExportProfileData extends BackgroundTask
 
 			require_once(Config::$sourcedir . '/Actions/Profile/Export.php');
 			$export_formats = get_export_formats();
+
+			Lang::load('Profile');
 
 			/* Notes:
 			 * 1. The 'value' can be one of the following:
