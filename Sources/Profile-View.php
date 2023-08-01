@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * Backward compatibility file.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -11,129 +13,16 @@
  * @version 3.0 Alpha 1
  */
 
-use SMF\Alert;
-use SMF\BBCodeParser;
-use SMF\Board;
-use SMF\Config;
-use SMF\ItemList;
-use SMF\Lang;
-use SMF\Menu;
-use SMF\Theme;
-use SMF\User;
-use SMF\Utils;
-use SMF\Actions\Who;
-use SMF\Actions\Admin\Permissions;
-use SMF\Db\DatabaseApi as Db;
-
 if (!defined('SMF'))
 	die('No direct access...');
 
-// Some functions that used to be in this file have been moved.
 class_exists('\\SMF\\Alert');
 class_exists('\\SMF\\Actions\\Profile\\ShowAlerts');
 class_exists('\\SMF\\Actions\\Profile\\ShowPosts');
 class_exists('\\SMF\\Actions\\Profile\\StatPanel');
 class_exists('\\SMF\\Actions\\Profile\\Summary');
 class_exists('\\SMF\\Actions\\Profile\\Tracking');
+class_exists('\\SMF\\Actions\\Profile\\ViewWarning');
 class_exists('\\SMF\\Actions\\TrackIP');
-
-/**
- * View a member's warnings
- *
- * @param int $memID The ID of the member
- */
-function viewWarning($memID)
-{
-	// Firstly, can we actually even be here?
-	if (!(User::$me->is_owner && allowedTo('view_warning_own')) && !allowedTo('view_warning_any') && !allowedTo('issue_warning') && !allowedTo('moderate_forum'))
-		fatal_lang_error('no_access', false);
-
-	// Make sure things which are disabled stay disabled.
-	Config::$modSettings['warning_watch'] = !empty(Config::$modSettings['warning_watch']) ? Config::$modSettings['warning_watch'] : 110;
-	Config::$modSettings['warning_moderate'] = !empty(Config::$modSettings['warning_moderate']) && !empty(Config::$modSettings['postmod_active']) ? Config::$modSettings['warning_moderate'] : 110;
-	Config::$modSettings['warning_mute'] = !empty(Config::$modSettings['warning_mute']) ? Config::$modSettings['warning_mute'] : 110;
-
-	// Let's use a generic list to get all the current warnings, and use the issue warnings grab-a-granny thing.
-	require_once(Config::$sourcedir . '/Profile-Actions.php');
-
-	$listOptions = array(
-		'id' => 'view_warnings',
-		'title' => Lang::$txt['profile_viewwarning_previous_warnings'],
-		'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-		'no_items_label' => Lang::$txt['profile_viewwarning_no_warnings'],
-		'base_href' => Config::$scripturl . '?action=profile;area=viewwarning;sa=user;u=' . $memID,
-		'default_sort_col' => 'log_time',
-		'get_items' => array(
-			'function' => 'list_getUserWarnings',
-			'params' => array(
-				$memID,
-			),
-		),
-		'get_count' => array(
-			'function' => 'list_getUserWarningCount',
-			'params' => array(
-				$memID,
-			),
-		),
-		'columns' => array(
-			'log_time' => array(
-				'header' => array(
-					'value' => Lang::$txt['profile_warning_previous_time'],
-				),
-				'data' => array(
-					'db' => 'time',
-				),
-				'sort' => array(
-					'default' => 'lc.log_time DESC',
-					'reverse' => 'lc.log_time',
-				),
-			),
-			'reason' => array(
-				'header' => array(
-					'value' => Lang::$txt['profile_warning_previous_reason'],
-					'style' => 'width: 50%;',
-				),
-				'data' => array(
-					'db' => 'reason',
-				),
-			),
-			'level' => array(
-				'header' => array(
-					'value' => Lang::$txt['profile_warning_previous_level'],
-				),
-				'data' => array(
-					'db' => 'counter',
-				),
-				'sort' => array(
-					'default' => 'lc.counter DESC',
-					'reverse' => 'lc.counter',
-				),
-			),
-		),
-		'additional_rows' => array(
-			array(
-				'position' => 'after_title',
-				'value' => Lang::$txt['profile_viewwarning_desc'],
-				'class' => 'smalltext',
-				'style' => 'padding: 2ex;',
-			),
-		),
-	);
-
-	// Create the list for viewing.
-	new ItemList($listOptions);
-
-	// Create some common text bits for the template.
-	Utils::$context['level_effects'] = array(
-		0 => '',
-		Config::$modSettings['warning_watch'] => Lang::$txt['profile_warning_effect_own_watched'],
-		Config::$modSettings['warning_moderate'] => Lang::$txt['profile_warning_effect_own_moderated'],
-		Config::$modSettings['warning_mute'] => Lang::$txt['profile_warning_effect_own_muted'],
-	);
-	Utils::$context['current_level'] = 0;
-	foreach (Utils::$context['level_effects'] as $limit => $dummy)
-		if (Utils::$context['member']['warning'] >= $limit)
-			Utils::$context['current_level'] = $limit;
-}
 
 ?>
