@@ -1200,7 +1200,7 @@ if (in_array('notify_regularity', $results))
 	$step_progress['name'] = 'Upgrading post notification settings';
 	$step_progress['current'] = $_GET['a'];
 
-	$limit = 100000;
+	$limit = 10000;
 	$is_done = false;
 
 	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}members');
@@ -1268,7 +1268,7 @@ $_GET['a'] = isset($_GET['a']) ? (int) $_GET['a'] : 0;
 $step_progress['name'] = 'Upgrading auto notify setting';
 $step_progress['current'] = $_GET['a'];
 
-$limit = 100000;
+$limit = 10000;
 $is_done = false;
 
 $request = $smcFunc['db_query']('', '
@@ -1337,7 +1337,7 @@ DELETE FROM {$db_prefix}themes
 	$step_progress['name'] = 'Creating alert preferences for watched topics';
 	$step_progress['current'] = $_GET['a'];
 
-	$limit = 100000;
+	$limit = 10000;
 	$is_done = false;
 
 	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}log_notify WHERE id_member <> 0 AND id_topic <> 0');
@@ -1389,7 +1389,7 @@ DELETE FROM {$db_prefix}themes
 	$step_progress['name'] = 'Creating alert preferences for watched boards';
 	$step_progress['current'] = $_GET['a'];
 
-	$limit = 100000;
+	$limit = 10000;
 	$is_done = false;
 
 	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}log_notify WHERE id_member <> 0 AND id_board <> 0');
@@ -3289,7 +3289,7 @@ if (in_array('pm_email_notify', $results))
 	$step_progress['name'] = 'Upgrading pm notification settings';
 	$step_progress['current'] = $_GET['a'];
 
-	$limit = 100000;
+	$limit = 10000;
 	$is_done = false;
 
 	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}members');
