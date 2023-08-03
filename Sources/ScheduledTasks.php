@@ -779,7 +779,7 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 	foreach ($emails as $email)
 	{
 		// This seems odd, but check the priority if we should try again so soon. Do this so we don't DOS some poor mail server.
-		if ($email['priority'] > $priority_offset && (time() - $email['time_sent']) % $priority_offset != 0)
+		if ($email['priority'] > $priority_offset && (time() - $email['time_sent']) % $priority_offset != rand(0, $priority_offset))
 		{
 			$failed_emails[] = array($email['to'], $email['body'], $email['subject'], $email['headers'], $email['send_html'], $email['time_sent'], $email['private'], $email['priority']);
 			continue;
@@ -805,8 +805,12 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 		else
 			$result = smtp_mail(array($email['to']), $email['subject'], $email['body'], $email['headers']);
 
+		// Old emails should expire
+		if (!$result && $email['priority'] >= $max_priority)
+			$result = true;
+
 		// Hopefully it sent?
-		if (!$result && $email['priority'] < $max_priority)
+		if (!$result)
 		{
 			// Determine the "priority" as a way to keep track of SMTP failures.
 			$email['priority'] = max($priority_offset, $email['priority'], min(ceil((time() - $email['time_sent']) / $smtp_expire * ($max_priority - $priority_offset)) + $priority_offset, $max_priority));
