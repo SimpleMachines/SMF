@@ -774,7 +774,7 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 	// Send each email, yea!
 	$failed_emails = array();
 	$max_priority = 127;
-	$smtp_expire = ($modSettings['smtp_day_expiry'] ?? 3) * 60 * 60 * 24;
+	$smtp_expire = 259200;
 	$priority_offset = 4;
 	foreach ($emails as $email)
 	{
