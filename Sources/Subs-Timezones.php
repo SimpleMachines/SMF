@@ -1195,6 +1195,7 @@ function get_sorted_tzids_for_country($country_code, $when = 'now')
 			'America/Mexico_City',
 			'America/Tijuana',
 			'America/Monterrey',
+			'America/Ciudad_Juarez',
 			'America/Chihuahua',
 			'America/Merida',
 			'America/Hermosillo',
@@ -1883,7 +1884,7 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 				'tzid' => 'Asia/Novokuznetsk',
 			),
 			array(
-				'ts' => strtotime('1995-05-27T17:00:00+0000'),
+				'ts' => strtotime('1995-05-27T16:00:00+0000'),
 				'tzid' => 'Asia/Novosibirsk',
 			),
 			array(
@@ -1907,7 +1908,7 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 				'tzid' => 'Asia/Novokuznetsk',
 			),
 			array(
-				'ts' => strtotime('2002-04-30T20:00:00+0000'),
+				'ts' => strtotime('2002-04-30T19:00:00+0000'),
 				'tzid' => 'Asia/Novosibirsk',
 			),
 			array(
@@ -2047,6 +2048,22 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 			array(
 				'ts' => strtotime('2004-10-30T21:00:00+0000'),
 				'tzid' => 'Asia/Almaty',
+			),
+		),
+
+		// Diverged from America/Ojinaga in version 2022g.
+		'America/Ciudad_Juarez' => array(
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => '',
+			),
+			array(
+				'ts' => strtotime('1922-01-01T07:00:00+0000'),
+				'tzid' => 'America/Ojinaga',
+			),
+			array(
+				'ts' => strtotime('2022-11-30T06:00:00+0000'),
+				'tzid' => 'America/Denver',
 			),
 		),
 	);
