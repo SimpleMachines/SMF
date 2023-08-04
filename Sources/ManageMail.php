@@ -249,6 +249,8 @@ function list_getMailQueue($start, $items_per_page, $sort)
 		// Private PM/email subjects and similar shouldn't be shown in the mailbox area.
 		if (!empty($row['private']))
 			$row['subject'] = $txt['personal_message'];
+		else
+			$row['subject'] = mb_decode_mimeheader($row['subject']);
 
 		$mails[] = $row;
 	}
