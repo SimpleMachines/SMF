@@ -175,7 +175,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 		$start_date_string = date_format($start_object, 'Y-m-d');
 		$end_date_string = date_format($end_object, 'Y-m-d');
 
-		$cal_date = ($start_object >= $low_object) ? $start_object : $low_object;
+		$cal_date = ($start_object >= $low_object) ? (clone $start_object) : (clone $low_object);
 		while ($cal_date <= $end_object && $cal_date <= $high_object)
 		{
 			$starts_today = (date_format($cal_date, 'Y-m-d') == $start_date_string);
