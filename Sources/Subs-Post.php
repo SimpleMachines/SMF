@@ -1592,7 +1592,7 @@ function server_parse($message, $socket, $code, &$response = null)
 	if ($code === null)
 		return substr($server_response, 0, 3);
 
-	$resonse_code = (int) substr($server_response, 0, 3);
+	$response_code = (int) substr($server_response, 0, 3);
 	if ($resonse_code != $code)
 	{
 		// Ignoreable errors that we can't fix should not be logged.
