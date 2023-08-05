@@ -1600,7 +1600,7 @@ function server_parse($message, $socket, $code, &$response = null)
 		 * 550 - cPanel rejected sending due to DNS issues
 		 * 450 - DNS Routing issues
 		 */
-		if ($response_code < 500 && $response_code != 450))
+		if ($response_code < 500 && $response_code != 450)
 			log_error($txt['smtp_error'] . $server_response);
 
 		return false;
