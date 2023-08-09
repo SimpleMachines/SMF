@@ -283,8 +283,8 @@ class Main implements ActionInterface
 				),
 				'tfasetup' => array(
 					'label' => 'account',
-					'file' => 'Profile-Modify.php',
-					'function' => 'tfasetup',
+					'function' => __NAMESPACE__ . '\\TFASetup::call',
+					'sub_template' => 'tfasetup',
 					'token' => 'profile-tfa%u',
 					'enabled' => true,
 					'hidden' => true,
