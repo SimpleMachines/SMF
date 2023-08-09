@@ -311,8 +311,8 @@ class Main implements ActionInterface
 				),
 				'forumprofile' => array(
 					'label' => 'forumprofile',
-					'file' => 'Profile-Modify.php',
-					'function' => 'forumProfile',
+					'function' => __NAMESPACE__ . '\\ForumProfile::call',
+					'sub_template' => 'edit_options',
 					'icon' => 'members',
 					'sc' => 'post',
 					'token' => 'profile-fp%u',
