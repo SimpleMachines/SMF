@@ -296,8 +296,8 @@ class Main implements ActionInterface
 				),
 				'tfadisable' => array(
 					'label' => 'account',
-					'file' => 'Profile-Modify.php',
-					'function' => 'tfadisable',
+					'function' => __NAMESPACE__ . '\\TFADisable::call',
+					'sub_template' => 'tfadisable',
 					'token' => 'profile-tfa%u',
 					'sc' => 'post',
 					'password' => true,

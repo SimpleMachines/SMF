@@ -42,6 +42,7 @@ if (!defined('SMF'))
 class_exists('\\SMF\\Alert');
 class_exists('\\SMF\\Profile');
 class_exists('\\SMF\\Actions\\Profile\\Account');
+class_exists('\\SMF\\Actions\\Profile\\TFADisable');
 class_exists('\\SMF\\Actions\\Profile\\TFASetup');
 
 /**
@@ -1684,48 +1685,6 @@ function groupMembership2($profile_vars, $post_errors, $memID)
 	User::updateMemberData($memID, array('id_group' => $newPrimary, 'additional_groups' => $addGroups));
 
 	return $changeType;
-}
-
-/**
- * Provides interface to disable two-factor authentication in SMF
- *
- * @param int $memID The ID of the member
- */
-function tfadisable($memID)
-{
-	if (!empty(User::$me->tfa_secret))
-	{
-		// Bail if we're forcing SSL for authentication and the network connection isn't secure.
-		if (!empty(Config::$modSettings['force_ssl']) && !httpsOn())
-			fatal_lang_error('login_ssl_required', false);
-
-		// The admin giveth...
-		elseif (Config::$modSettings['tfa_mode'] == 3 && User::$me->is_owner)
-			fatal_lang_error('cannot_disable_tfa', false);
-		elseif (Config::$modSettings['tfa_mode'] == 2 && User::$me->is_owner)
-		{
-			$groups = array_diff(User::$me->groups, array(User::$me->post_group_id));
-
-			$request = Db::$db->query('', '
-				SELECT id_group
-				FROM {db_prefix}membergroups
-				WHERE tfa_required = {int:tfa_required}
-					AND id_group IN ({array_int:groups})',
-				array(
-					'tfa_required' => 1,
-					'groups' => $groups,
-				)
-			);
-			$tfa_required_groups = Db::$db->num_rows($request);
-			Db::$db->free_result($request);
-
-			// They belong to a membergroup that requires tfa.
-			if (!empty($tfa_required_groups))
-				fatal_lang_error('cannot_disable_tfa2', false);
-		}
-	}
-	else
-		redirectexit('action=profile;area=account;u=' . $memID);
 }
 
 ?>
