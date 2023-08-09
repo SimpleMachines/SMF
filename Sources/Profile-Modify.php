@@ -42,6 +42,7 @@ if (!defined('SMF'))
 class_exists('\\SMF\\Alert');
 class_exists('\\SMF\\Profile');
 class_exists('\\SMF\\Actions\\Profile\\Account');
+class_exists('\\SMF\\Actions\\Profile\\ForumProfile');
 class_exists('\\SMF\\Actions\\Profile\\TFADisable');
 class_exists('\\SMF\\Actions\\Profile\\TFASetup');
 
@@ -492,33 +493,6 @@ function editIgnoreList($memID)
 
 		unset($_SESSION['prf-save']);
 	}
-}
-
-/**
- * Handles the main "Forum Profile" section of the profile
- *
- * @param int $memID The ID of the member
- */
-function forumProfile($memID)
-{
-	Profile::$member->loadThemeOptions();
-
-	if (allowedTo(array('profile_forum_own', 'profile_forum_any')))
-	{
-		Profile::$member->loadCustomFields('forumprofile');
-	}
-
-	Utils::$context['sub_template'] = 'edit_options';
-	Utils::$context['page_desc'] = sprintf(Lang::$txt['forumProfile_info'], Utils::$context['forum_name_html_safe']);
-	Utils::$context['show_preview_button'] = true;
-
-	Profile::$member->setupContext(
-		array(
-			'avatar_choice', 'hr', 'personal_text', 'hr',
-			'bday1', 'usertitle', 'signature', 'hr',
-			'website_title', 'website_url',
-		),
-	);
 }
 
 /**
