@@ -487,12 +487,12 @@ function remove_dir($path)
 					remove_dir($path . '/' . $object);
 
 				else
-					unlink($path . '/' . $object);
+					@unlink($path . '/' . $object);
 			}
 	}
 
 	reset($objects);
-	rmdir($path);
+	@rmdir($path);
 }
 
 /**
