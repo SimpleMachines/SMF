@@ -45,6 +45,7 @@ class_exists('\\SMF\\Actions\\Profile\\Account');
 class_exists('\\SMF\\Actions\\Profile\\ForumProfile');
 class_exists('\\SMF\\Actions\\Profile\\TFADisable');
 class_exists('\\SMF\\Actions\\Profile\\TFASetup');
+class_exists('\\SMF\\Actions\\Profile\\ThemeOptions');
 
 /**
  * Make any notification changes that need to be made.
@@ -493,38 +494,6 @@ function editIgnoreList($memID)
 
 		unset($_SESSION['prf-save']);
 	}
-}
-
-/**
- * Handles the "Look and Layout" section of the profile
- *
- * @param int $memID The ID of the member
- */
-function theme($memID)
-{
-	Theme::loadTemplate('Settings');
-	Theme::loadSubTemplate('options');
-
-	// Let mods hook into the theme options.
-	call_integration_hook('integrate_theme_options');
-
-	Profile::$member->loadThemeOptions();
-
-	if (allowedTo(array('profile_extra_own', 'profile_extra_any')))
-	{
-		Profile::$member->loadCustomFields('theme');
-	}
-
-	Utils::$context['sub_template'] = 'edit_options';
-	Utils::$context['page_desc'] = Lang::$txt['theme_info'];
-
-	Profile::$member->setupContext(
-		array(
-			'id_theme', 'smiley_set', 'hr',
-			'time_format', 'timezone', 'hr',
-			'theme_settings',
-		),
-	);
 }
 
 /**

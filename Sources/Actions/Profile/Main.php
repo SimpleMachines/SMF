@@ -323,8 +323,8 @@ class Main implements ActionInterface
 				),
 				'theme' => array(
 					'label' => 'theme',
-					'file' => 'Profile-Modify.php',
-					'function' => 'theme',
+					'function' => __NAMESPACE__ . '\\ThemeOptions::call',
+					'sub_template' => 'edit_options',
 					'icon' => 'features',
 					'sc' => 'post',
 					'token' => 'profile-th%u',
