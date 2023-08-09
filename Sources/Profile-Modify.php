@@ -42,6 +42,7 @@ if (!defined('SMF'))
 class_exists('\\SMF\\Alert');
 class_exists('\\SMF\\Profile');
 class_exists('\\SMF\\Actions\\Profile\\Account');
+class_exists('\\SMF\\Actions\\Profile\\TFASetup');
 
 /**
  * Make any notification changes that need to be made.
@@ -1683,83 +1684,6 @@ function groupMembership2($profile_vars, $post_errors, $memID)
 	User::updateMemberData($memID, array('id_group' => $newPrimary, 'additional_groups' => $addGroups));
 
 	return $changeType;
-}
-
-/**
- * Provides interface to setup Two Factor Auth in SMF
- *
- * @param int $memID The ID of the member
- */
-function tfasetup($memID)
-{
-	require_once(Config::$sourcedir . '/Subs-Auth.php');
-
-	// load JS lib for QR
-	Theme::loadJavaScriptFile('qrcode.js', array('force_current' => false, 'validate' => true));
-
-	// If TFA has not been setup, allow them to set it up
-	if (empty(User::$me->tfa_secret) && User::$me->is_owner)
-	{
-		// Check to ensure we're forcing SSL for authentication
-		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !httpsOn())
-			fatal_lang_error('login_ssl_required', false);
-
-		// In some cases (forced 2FA or backup code) they would be forced to be redirected here,
-		// we do not want too much AJAX to confuse them.
-		if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' && !isset($_REQUEST['backup']) && !isset($_REQUEST['forced']))
-		{
-			Utils::$context['from_ajax'] = true;
-			Utils::$context['template_layers'] = array();
-		}
-
-		// When the code is being sent, verify to make sure the user got it right
-		if (!empty($_REQUEST['save']) && !empty($_SESSION['tfa_secret']))
-		{
-			$code = $_POST['tfa_code'];
-			$totp = new Tfa($_SESSION['tfa_secret']);
-			$totp->setRange(1);
-			$valid_code = strlen($code) == $totp->getCodeLength() && $totp->validateCode($code);
-
-			if (empty(Utils::$context['password_auth_failed']) && $valid_code)
-			{
-				$backup = substr(sha1(Utils::randomInt()), 0, 16);
-				$backup_encrypted = hash_password(User::$me->username, $backup);
-
-				User::updateMemberData($memID, array(
-					'tfa_secret' => $_SESSION['tfa_secret'],
-					'tfa_backup' => $backup_encrypted,
-				));
-
-				setTFACookie(3153600, $memID, hash_salt($backup_encrypted, User::$me->password_salt));
-
-				unset($_SESSION['tfa_secret']);
-
-				Utils::$context['tfa_backup'] = $backup;
-				Utils::$context['sub_template'] = 'tfasetup_backup';
-
-				return;
-			}
-			else
-			{
-				Utils::$context['tfa_secret'] = $_SESSION['tfa_secret'];
-				Utils::$context['tfa_error'] = !$valid_code;
-				Utils::$context['tfa_pass_value'] = $_POST['oldpasswrd'];
-				Utils::$context['tfa_value'] = $_POST['tfa_code'];
-			}
-		}
-		else
-		{
-			$totp = new Tfa();
-			$secret = $totp->generateCode();
-			$_SESSION['tfa_secret'] = $secret;
-			Utils::$context['tfa_secret'] = $secret;
-			Utils::$context['tfa_backup'] = isset($_REQUEST['backup']);
-		}
-
-		Utils::$context['tfa_qr_url'] = $totp->getQrCodeUrl(Utils::$context['forum_name'] . ':' . User::$me->name, Utils::$context['tfa_secret']);
-	}
-	else
-		redirectexit('action=profile;area=account;u=' . $memID);
 }
 
 /**
