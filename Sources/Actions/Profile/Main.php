@@ -269,8 +269,8 @@ class Main implements ActionInterface
 			'areas' => array(
 				'account' => array(
 					'label' => 'account',
-					'file' => 'Profile-Modify.php',
-					'function' => 'account',
+					'function' => __NAMESPACE__ . '\\Account::call',
+					'sub_template' => 'edit_options',
 					'icon' => 'maintain',
 					'enabled' => true,
 					'sc' => 'post',

@@ -41,6 +41,7 @@ if (!defined('SMF'))
 // Some functions that used to be in this file have been moved.
 class_exists('\\SMF\\Alert');
 class_exists('\\SMF\\Profile');
+class_exists('\\SMF\\Actions\\Profile\\Account');
 
 /**
  * Make any notification changes that need to be made.
@@ -489,35 +490,6 @@ function editIgnoreList($memID)
 
 		unset($_SESSION['prf-save']);
 	}
-}
-
-/**
- * Handles the account section of the profile
- *
- * @param int $memID The ID of the member
- */
-function account($memID)
-{
-	Profile::$member->loadThemeOptions();
-
-	if (allowedTo(array('profile_identity_own', 'profile_identity_any', 'profile_password_own', 'profile_password_any')))
-	{
-		Profile::$member->loadCustomFields('account');
-	}
-
-	Utils::$context['sub_template'] = 'edit_options';
-	Utils::$context['page_desc'] = Lang::$txt['account_info'];
-
-	Profile::$member->setupContext(
-		array(
-			'member_name', 'real_name', 'date_registered', 'posts', 'lngfile', 'hr',
-			'id_group', 'hr',
-			'email_address', 'show_online', 'hr',
-			'tfa', 'hr',
-			'passwrd1', 'passwrd2', 'hr',
-			'secret_question', 'secret_answer',
-		),
-	);
 }
 
 /**
