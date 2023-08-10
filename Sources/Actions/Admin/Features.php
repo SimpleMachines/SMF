@@ -21,9 +21,11 @@ use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Profile;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Actions\Profile\Notification;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -1564,8 +1566,8 @@ class Features implements ActionInterface
 		Theme::loadTemplate('Profile');
 		Lang::load('Profile');
 
-		include_once(Config::$sourcedir . '/Profile-Modify.php');
-		alert_configuration(0, true);
+		Profile::load(0);
+		Notification::call();
 
 		Utils::$context['page_title'] = Lang::$txt['notify_settings'];
 
