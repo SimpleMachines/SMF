@@ -374,8 +374,8 @@ class Main implements ActionInterface
 				),
 				'lists' => array(
 					'label' => 'editBuddyIgnoreLists',
-					'file' => 'Profile-Modify.php',
-					'function' => 'editBuddyIgnoreLists',
+					'function' => __NAMESPACE__ . '\\BuddyIgnoreLists::call',
+					'sub_template' => 'editBuddyIgnoreLists',
 					'icon' => 'frenemy',
 					'enabled' => true,
 					'sc' => 'post',
