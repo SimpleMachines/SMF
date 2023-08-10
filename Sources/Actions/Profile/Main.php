@@ -361,8 +361,8 @@ class Main implements ActionInterface
 				),
 				'ignoreboards' => array(
 					'label' => 'ignoreboards',
-					'file' => 'Profile-Modify.php',
-					'function' => 'ignoreboards',
+					'function' => __NAMESPACE__ . '\\IgnoreBoards::call',
+					'sub_template' => 'ignoreboards',
 					'icon' => 'boards',
 					'enabled' => true,
 					'sc' => 'post',
