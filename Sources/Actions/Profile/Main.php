@@ -335,8 +335,8 @@ class Main implements ActionInterface
 				),
 				'notification' => array(
 					'label' => 'notification',
-					'file' => 'Profile-Modify.php',
-					'function' => 'notification',
+					'function' => __NAMESPACE__ . '\\Notification::call',
+					'sub_template' => 'notification',
 					'icon' => 'alerts',
 					'sc' => 'post',
 					//'token' => 'profile-nt%u', This is not checked here. We do it in the function itself - but if it was checked, this is what it'd be.
