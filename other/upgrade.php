@@ -3252,6 +3252,10 @@ function ConvertUtf8()
 		db_extend();
 		$queryTables = $smcFunc['db_list_tables'](false, $db_prefix . '%');
 
+		$queryTables = array_values(array_filter($queryTables, function($v){
+			return !(stripos($v, 'backup_') === 0);
+		}));
+
 		$upcontext['table_count'] = count($queryTables);
 
 		// What ones have we already done?
