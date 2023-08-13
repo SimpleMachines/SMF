@@ -3253,7 +3253,7 @@ function ConvertUtf8()
 		$queryTables = $smcFunc['db_list_tables'](false, $db_prefix . '%');
 
 		$queryTables = array_values(array_filter($queryTables, function($v){
-			return !(stripos($v, 'backup_') === 0);
+			return stripos($v, 'backup_') !== 0;
 		}));
 
 		$upcontext['table_count'] = count($queryTables);
