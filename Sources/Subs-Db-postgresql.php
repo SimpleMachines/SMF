@@ -1043,7 +1043,7 @@ function smf_db_errormsg($connection = null)
 {
 	global $db_connection;
 
-	if (is_null($connection) && is_null($db_connection))
+	if ($connection !== null && $db_connection !== null)
 		return '';
 
 	return pg_last_error($connection === null ? $db_connection : $connection);
