@@ -500,8 +500,8 @@ class Main implements ActionInterface
 				),
 				'deleteaccount' => array(
 					'label' => 'deleteAccount',
-					'file' => 'Profile-Actions.php',
-					'function' => 'deleteAccount',
+					'function' => __NAMESPACE__ . '\\Delete::call',
+					'sub_template' => 'deleteAccount',
 					'icon' => 'members_delete',
 					'sc' => 'post',
 					'token' => 'profile-da%u',
@@ -661,7 +661,7 @@ class Main implements ActionInterface
 			{
 				if (empty(Profile::$member->save_errors))
 				{
-					deleteAccount2(Profile::$member->id);
+					Delete::call();
 					redirectexit();
 				}
 			}
