@@ -655,7 +655,10 @@ class Main implements ActionInterface
 			if ($menu->current_area == 'activateaccount')
 			{
 				if (empty(Profile::$member->save_errors))
-					activateAccount(Profile::$member->id);
+				{
+					Activate::call();
+					redirectexit('action=profile;u=' . Profile::$member->id . ';area=summary');
+				}
 			}
 			elseif ($menu->current_area == 'deleteaccount')
 			{
