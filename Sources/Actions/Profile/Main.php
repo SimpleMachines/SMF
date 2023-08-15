@@ -455,8 +455,7 @@ class Main implements ActionInterface
 				),
 				'subscriptions' => array(
 					'label' => 'subscriptions',
-					'file' => 'Profile-Actions.php',
-					'function' => 'subscriptions',
+					'function' => __NAMESPACE__ . '\\PaidSubs::call',
 					'icon' => 'paid',
 					'enabled' => true,
 					'permission' => array(
