@@ -228,14 +228,14 @@ class Mail
 				{
 					if (!mail(strtr($to, array("\r" => '', "\n" => '')), $subject, $message, $headers))
 					{
-						log_error(sprintf(Lang::$txt['mail_send_unable'], $to));
+						ErrorHandler::log(sprintf(Lang::$txt['mail_send_unable'], $to));
 						$mail_result = false;
 					}
 				}
 				catch (ErrorException $e)
 				{
-					log_error($e->getMessage(), 'general', $e->getFile(), $e->getLine());
-					log_error(sprintf(Lang::$txt['mail_send_unable'], $to));
+					ErrorHandler::log($e->getMessage(), 'general', $e->getFile(), $e->getLine());
+					ErrorHandler::log(sprintf(Lang::$txt['mail_send_unable'], $to));
 					$mail_result = false;
 				}
 				restore_error_handler();
@@ -778,13 +778,13 @@ class Mail
 					Config::$modSettings['smtp_host'] = str_replace('ssl:', 'ss://', Config::$modSettings['smtp_host']);
 
 				if ($socket = fsockopen(Config::$modSettings['smtp_host'], 465, $errno, $errstr, 3))
-					log_error(Lang::$txt['smtp_port_ssl']);
+					ErrorHandler::log(Lang::$txt['smtp_port_ssl']);
 			}
 
 			// Unable to connect!  Don't show any error message, but just log one and try to continue anyway.
 			if (!$socket)
 			{
-				log_error(Lang::$txt['smtp_no_connect'] . ': ' . $errno . ' : ' . $errstr);
+				ErrorHandler::log(Lang::$txt['smtp_no_connect'] . ': ' . $errno . ' : ' . $errstr);
 				return false;
 			}
 		}
@@ -933,7 +933,7 @@ class Mail
 			if (!($server_response = fgets($socket, 256)))
 			{
 				// @todo Change this message to reflect that it may mean bad user/password/server issues/etc.
-				log_error(Lang::$txt['smtp_bad_response']);
+				ErrorHandler::log(Lang::$txt['smtp_bad_response']);
 				return false;
 			}
 
@@ -954,7 +954,7 @@ class Mail
 			 * 451 - cPanel "Temporary local problem - please try later"
 			 */
 			if ($response_code < 500 && !in_array($response_code, array(450, 451)))
-				log_error(Lang::$txt['smtp_error'] . $server_response);
+				ErrorHandler::log(Lang::$txt['smtp_error'] . $server_response);
 
 			return false;
 		}
@@ -1093,7 +1093,7 @@ class Mail
 			Lang::load('EmailTemplates', $lang);
 
 		if (!isset(Lang::$txt[$template . '_subject']) || !isset(Lang::$txt[$template . '_body']))
-			fatal_lang_error('email_no_template', 'template', array($template));
+			ErrorHandler::fatalLang('email_no_template', 'template', array($template));
 
 		$ret = array(
 			'subject' => Lang::$txt[$template . '_subject'],

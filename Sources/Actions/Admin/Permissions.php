@@ -19,6 +19,7 @@ use SMF\Actions\ActionInterface;
 use SMF\Board;
 use SMF\Category;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Theme;
@@ -1072,7 +1073,7 @@ class Permissions implements ActionInterface
 		// Make sure only one of the quick options was selected.
 		if (!empty($_POST['predefined']) + !empty($_POST['permissions']) + !empty($_POST['copy_from']) > 1)
 		{
-			fatal_lang_error('permissions_only_one_option', false);
+			ErrorHandler::fatalLang('permissions_only_one_option', false);
 		}
 
 		// Only accept numeric values for selected membergroups.
@@ -1087,7 +1088,7 @@ class Permissions implements ActionInterface
 
 		// Sorry, but that one can't be modified.
 		if (in_array($_REQUEST['pid'], self::PROFILE_UNMODIFIABLE))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		// Clear out any cached authority.
 		Config::updateModSettings(array('settings_updated' => time()));
@@ -1148,22 +1149,22 @@ class Permissions implements ActionInterface
 
 		// Can't do anything without these.
 		if (!isset($_GET['group'], $_GET['pid']))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		$_GET['group'] = (int) $_GET['group'];
 		$_GET['pid'] = (int) $_GET['pid'];
 
 		// Group needs to be valid.
 		if ($_GET['group'] < -1)
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		// No, you can't modify this permission profile.
 		if (in_array($_GET['pid'], self::PROFILE_UNMODIFIABLE))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		// Verify this isn't inherited.
 		if ($this->getParentGroup($_GET['group']) != -2)
-			fatal_lang_error('cannot_edit_permissions_inherited');
+			ErrorHandler::fatalLang('cannot_edit_permissions_inherited');
 
 		$illegal_permissions = array_merge(
 			self::loadIllegalPermissions(),
@@ -1982,7 +1983,7 @@ class Permissions implements ActionInterface
 		// $profile and $group are both null!
 		else
 		{
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 		}
 
 		// Make sure Config::$modSettings['board_manager_groups'] is up to date.
@@ -2785,7 +2786,7 @@ class Permissions implements ActionInterface
 		else
 		{
 			if (!isset(Utils::$context['profiles'][$_REQUEST['pid']]))
-				fatal_lang_error('no_access', false);
+				ErrorHandler::fatalLang('no_access', false);
 
 			// Change the selected tab to better reflect that this really is a board profile.
 			Menu::$loaded['admin']['current_subsection'] = 'profiles';
@@ -3092,7 +3093,7 @@ class Permissions implements ActionInterface
 	protected function setGroupContext(): void
 	{
 		if (!isset($_GET['group']) || (int) $_GET['group'] < -1)
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		Utils::$context['group']['id'] = (int) $_GET['group'];
 
@@ -3126,7 +3127,7 @@ class Permissions implements ActionInterface
 
 				// Cannot edit an inherited group!
 				if ($parent != -2)
-					fatal_lang_error('cannot_edit_permissions_inherited');
+					ErrorHandler::fatalLang('cannot_edit_permissions_inherited');
 
 				break;
 		}
@@ -3313,7 +3314,7 @@ class Permissions implements ActionInterface
 		);
 
 		if (Db::$db->num_rows($request) === 0)
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		list ($parent) = Db::$db->fetch_row($request);
 
@@ -3540,7 +3541,7 @@ class Permissions implements ActionInterface
 		);
 		if (Db::$db->num_rows($request) != 0)
 		{
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 		}
 		Db::$db->free_result($request);
 

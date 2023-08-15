@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Msg;
@@ -81,7 +82,7 @@ class IssueWarning implements ActionInterface
 		// Doesn't hurt to be overly cautious.
 		if (empty(Config::$modSettings['warning_enable']) || (User::$me->is_owner && !Profile::$member->warning) || !allowedTo('issue_warning'))
 		{
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 		}
 
 		// Get the base (errors related) stuff done.

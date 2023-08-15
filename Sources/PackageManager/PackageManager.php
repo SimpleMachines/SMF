@@ -15,6 +15,7 @@ namespace SMF\PackageManager;
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
@@ -199,7 +200,7 @@ class PackageManager
 
 				SubsPackage::deltree(Config::$packagesdir . '/temp', false);
 				if (!SubsPackage::mktree(Config::$packagesdir . '/temp', 0777))
-					fatal_lang_error('package_cant_download', false);
+					ErrorHandler::fatalLang('package_cant_download', false);
 			}
 		}
 
@@ -217,7 +218,7 @@ class PackageManager
 		if (!file_exists(Config::$packagesdir . '/' . Utils::$context['filename']))
 		{
 			SubsPackage::deltree(Config::$packagesdir . '/temp');
-			fatal_lang_error('package_no_file', false);
+			ErrorHandler::fatalLang('package_no_file', false);
 		}
 
 		// Extract the files so we can get things like the readme, etc.
@@ -243,7 +244,7 @@ class PackageManager
 			Utils::$context['base_path'] = '';
 		}
 		else
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		// Load up any custom themes we may want to install into...
 		$request = Db::$db->query('', '
@@ -267,7 +268,7 @@ class PackageManager
 		$packageInfo = SubsPackage::getPackageInfo(Utils::$context['filename']);
 
 		if (!is_array($packageInfo))
-			fatal_lang_error($packageInfo);
+			ErrorHandler::fatalLang($packageInfo);
 
 		$packageInfo['filename'] = Utils::$context['filename'];
 		Utils::$context['package_name'] = isset($packageInfo['name']) ? $packageInfo['name'] : Utils::$context['filename'];
@@ -330,7 +331,7 @@ class PackageManager
 			if (!isset($old_version) && Utils::$context['uninstalling'])
 			{
 				SubsPackage::deltree(Config::$packagesdir . '/temp');
-				fatal_lang_error('package_cant_uninstall', false);
+				ErrorHandler::fatalLang('package_cant_uninstall', false);
 			}
 
 			$actions = SubsPackage::parsePackageInfo($packageInfo['xml'], true, 'uninstall');
@@ -339,7 +340,7 @@ class PackageManager
 			if (empty($actions))
 			{
 				SubsPackage::deltree(Config::$packagesdir . '/temp');
-				fatal_lang_error('package_uninstall_cannot', false);
+				ErrorHandler::fatalLang('package_uninstall_cannot', false);
 			}
 
 			// Can't edit the custom themes it's edited if you're uninstalling, they must be removed.
@@ -871,7 +872,7 @@ class PackageManager
 		Utils::$context['sub_template'] = 'extract_package';
 
 		if (!file_exists(Config::$packagesdir . '/' . Utils::$context['filename']))
-			fatal_lang_error('package_no_file', false);
+			ErrorHandler::fatalLang('package_no_file', false);
 
 		// Load up the package FTP information?
 		SubsPackage::create_chmod_control(array(), array('destination_url' => Config::$scripturl . '?action=admin;area=packages;sa=' . $_REQUEST['sa'] . ';package=' . $_REQUEST['package']));
@@ -905,7 +906,7 @@ class PackageManager
 			Utils::$context['base_path'] = '';
 		}
 		else
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		// Are we installing this into any custom themes?
 		$custom_themes = array(1);
@@ -960,7 +961,7 @@ class PackageManager
 		// Get the package info...
 		$packageInfo = SubsPackage::getPackageInfo(Utils::$context['filename']);
 		if (!is_array($packageInfo))
-			fatal_lang_error($packageInfo);
+			ErrorHandler::fatalLang($packageInfo);
 
 		if (is_dir(Config::$packagesdir . '/' . Utils::$context['filename']))
 			Utils::$context['package_sha256_hash'] = '';
@@ -977,7 +978,7 @@ class PackageManager
 			$_SESSION['last_backup_for'] = Utils::$context['filename'] . (Utils::$context['uninstalling'] ? '$$' : '$');
 			$result = SubsPackage::package_create_backup((Utils::$context['uninstalling'] ? 'backup_' : 'before_') . strtok(Utils::$context['filename'], '.'));
 			if (!$result)
-				fatal_lang_error('could_not_package_backup', false);
+				ErrorHandler::fatalLang('could_not_package_backup', false);
 		}
 
 		// The mod isn't installed.... unless proven otherwise.
@@ -1009,7 +1010,7 @@ class PackageManager
 		if (!isset($old_version) && Utils::$context['uninstalling'])
 		{
 			SubsPackage::deltree(Config::$packagesdir . '/temp');
-			fatal_error('Hacker?', false);
+			ErrorHandler::fatal('Hacker?', false);
 		}
 		// Uninstalling?
 		elseif (Utils::$context['uninstalling'])
@@ -1018,7 +1019,7 @@ class PackageManager
 
 			// Gadzooks!  There's no uninstaller at all!?
 			if (empty($install_log))
-				fatal_lang_error('package_uninstall_cannot', false);
+				ErrorHandler::fatalLang('package_uninstall_cannot', false);
 
 			// They can only uninstall from what it was originally installed into.
 			foreach ($theme_paths as $id => $data)
@@ -1681,7 +1682,7 @@ class PackageManager
 
 		// We need to know the operation key for the search and replace, mod file looking at, is it a board mod?
 		if (!isset($_REQUEST['operation_key'], $_REQUEST['filename']) && !is_numeric($_REQUEST['operation_key']))
-			fatal_lang_error('operation_invalid', 'general');
+			ErrorHandler::fatalLang('operation_invalid', 'general');
 
 		// Uninstalling the mod?
 		$reverse = isset($_REQUEST['reverse']) ? true : false;
@@ -1807,7 +1808,7 @@ class PackageManager
 		if (isset($_GET['restore']))
 		{
 			SubsPackage::create_chmod_control(array(), array(), true);
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 		}
 
 		// This is a memory eat.
@@ -2168,7 +2169,7 @@ class PackageManager
 				if ($validate_custom)
 				{
 					if (preg_match('~^[4567][4567][4567]$~', Utils::$context['custom_value']) == false)
-						fatal_error(Lang::$txt['chmod_value_invalid']);
+						ErrorHandler::fatal(Lang::$txt['chmod_value_invalid']);
 				}
 
 				// Nothing to do?
@@ -2177,7 +2178,7 @@ class PackageManager
 			}
 			// Should never get here,
 			else
-				fatal_lang_error('no_access', false);
+				ErrorHandler::fatalLang('no_access', false);
 
 			// Setup the custom value.
 			$custom_value = octdec('0' . Utils::$context['custom_value']);
@@ -2489,7 +2490,7 @@ class PackageManager
 
 			// If the server does not exist, dump out.
 			if (empty($url))
-				fatal_lang_error('couldnt_connect', false);
+				ErrorHandler::fatalLang('couldnt_connect', false);
 
 			// If there is a relative link, append to the stored server url.
 			if (isset($_GET['relative']))
@@ -2532,7 +2533,7 @@ class PackageManager
 		}
 		// Minimum required parameter did not exist so dump out.
 		else
-			fatal_lang_error('couldnt_connect', false);
+			ErrorHandler::fatalLang('couldnt_connect', false);
 
 		// Attempt to connect.  If unsuccessful... try the URL.
 		if (!isset($_GET['package']) || file_exists($_GET['package']))
@@ -2540,7 +2541,7 @@ class PackageManager
 
 		// Check to be sure the packages.xml file actually exists where it is should be... or dump out.
 		if ((isset($_GET['absolute']) || isset($_GET['relative'])) && !SubsPackage::url_exists($_GET['package']))
-			fatal_lang_error('packageget_unable', false, array($url . '/index.php'));
+			ErrorHandler::fatalLang('packageget_unable', false, array($url . '/index.php'));
 
 		// Might take some time.
 		@set_time_limit(600);
@@ -2550,7 +2551,7 @@ class PackageManager
 
 		// Errm.... empty file?  Try the URL....
 		if (!$listing->exists('package-list'))
-			fatal_lang_error('packageget_unable', false, array($url . '/index.php'));
+			ErrorHandler::fatalLang('packageget_unable', false, array($url . '/index.php'));
 
 		// List out the packages...
 		Utils::$context['package_list'] = array();
@@ -2812,7 +2813,7 @@ class PackageManager
 
 		// To download something, we need a valid server or url.
 		if (empty($_GET['server']) && (!empty($_GET['get']) && !empty($_REQUEST['package'])))
-			fatal_lang_error('package_get_error_is_zero', false);
+			ErrorHandler::fatalLang('package_get_error_is_zero', false);
 
 		if (isset($_GET['server']))
 		{
@@ -2833,7 +2834,7 @@ class PackageManager
 
 			// If server does not exist then dump out.
 			if (empty($url))
-				fatal_lang_error('couldnt_connect', false);
+				ErrorHandler::fatalLang('couldnt_connect', false);
 
 			$the_version = SMF_VERSION;
 			if (!empty($_SESSION['version_emulate']))
@@ -2892,7 +2893,7 @@ class PackageManager
 		Utils::$context['package'] = SubsPackage::getPackageInfo($package_name);
 
 		if (!is_array(Utils::$context['package']))
-			fatal_lang_error('package_cant_download', false);
+			ErrorHandler::fatalLang('package_cant_download', false);
 
 		if (!isset(Utils::$context['package']['type']))
 			Utils::$context['package']['install']['link'] = '';
@@ -2922,16 +2923,16 @@ class PackageManager
 
 		// Check the file was even sent!
 		if (!isset($_FILES['package']['name']) || $_FILES['package']['name'] == '')
-			fatal_lang_error('package_upload_error_nofile', false);
+			ErrorHandler::fatalLang('package_upload_error_nofile', false);
 		elseif (!is_uploaded_file($_FILES['package']['tmp_name']) || (ini_get('open_basedir') == '' && !file_exists($_FILES['package']['tmp_name'])))
-			fatal_lang_error('package_upload_error_failed', false);
+			ErrorHandler::fatalLang('package_upload_error_failed', false);
 
 		// Make sure it has a sane filename.
 		$_FILES['package']['name'] = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $_FILES['package']['name']);
 
 		$found_ext = preg_match('/\.(zip|tgz|tar\.gz)$/i', $_FILES['package']['name'], $match);
 		if ($found_ext === 0)
-			fatal_lang_error('package_upload_error_supports', false, array('zip, tgz, tar.gz'));
+			ErrorHandler::fatalLang('package_upload_error_supports', false, array('zip, tgz, tar.gz'));
 
 		// We only need the filename...
 		$packageName = substr($_FILES['package']['name'], 0, -strlen($match[0]));
@@ -2940,7 +2941,7 @@ class PackageManager
 		// Setup the destination and throw an error if the file is already there!
 		$destination = Config::$packagesdir . '/' . $packageFileName;
 		if (file_exists($destination))
-			fatal_lang_error('package_upload_error_exists', false);
+			ErrorHandler::fatalLang('package_upload_error_exists', false);
 
 		// Now move the file.
 		move_uploaded_file($_FILES['package']['tmp_name'], $destination);
@@ -2956,7 +2957,7 @@ class PackageManager
 			@unlink($destination);
 			Lang::load('Errors');
 			Lang::$txt[Utils::$context['package']] = str_replace('{MANAGETHEMEURL}', Config::$scripturl . '?action=admin;area=theme;sa=admin;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '#theme_install', Lang::$txt[Utils::$context['package']]);
-			fatal_lang_error('package_upload_error_broken', false, array(Lang::$txt[Utils::$context['package']]));
+			ErrorHandler::fatalLang('package_upload_error_broken', false, array(Lang::$txt[Utils::$context['package']]));
 		}
 		// Is it already uploaded, maybe?
 		elseif ($dir = @opendir(Config::$packagesdir))
@@ -2974,7 +2975,7 @@ class PackageManager
 				{
 					@unlink($destination);
 					Lang::load('Errors');
-					fatal_lang_error('package_upload_error_exists', false);
+					ErrorHandler::fatalLang('package_upload_error_exists', false);
 				}
 			}
 			closedir($dir);
@@ -3344,7 +3345,7 @@ class PackageManager
 
 		// @todo Shouldn't happen - but better error message?
 		if (!is_dir($path))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		// This is where we put stuff we've found for sorting.
 		$foundData = array(

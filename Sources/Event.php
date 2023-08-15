@@ -1449,7 +1449,7 @@ class Event implements \ArrayAccess
 
 		// Uh-oh...
 		if (!isset($input['start_date']))
-			fatal_lang_error('invalid_date', false);
+			ErrorHandler::fatalLang('invalid_date', false);
 
 		// Make sure we use valid values for everything
 		if (!isset($input['end_date']))

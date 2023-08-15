@@ -19,6 +19,7 @@ use SMF\Actions\ActionInterface;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
@@ -127,7 +128,7 @@ class ShowPosts implements ActionInterface
 			&& Utils::$context['load_average'] >= Config::$modSettings['loadavg_show_posts']
 		)
 		{
-			fatal_lang_error('loadavg_show_posts_disabled', false);
+			ErrorHandler::fatalLang('loadavg_show_posts_disabled', false);
 		}
 
 		call_helper(method_exists($this, self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : self::$subactions[$this->subaction]);

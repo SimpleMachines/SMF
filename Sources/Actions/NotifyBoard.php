@@ -16,6 +16,7 @@ namespace SMF\Actions;
 use SMF\BackwardCompatibility;
 
 use SMF\Board;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Utils;
 
@@ -103,7 +104,7 @@ class NotifyBoard extends Notify implements ActionInterface
 	protected function setId()
 	{
 		if (empty(Board::$info->id))
-			fatal_lang_error('no_board', false);
+			ErrorHandler::fatalLang('no_board', false);
 
 		$this->id = Board::$info->id;
 	}

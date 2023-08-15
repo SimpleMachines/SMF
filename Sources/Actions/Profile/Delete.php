@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\Profile;
@@ -143,7 +144,7 @@ class Delete implements ActionInterface
 			Db::$db->free_result($request);
 
 			if (empty($another))
-				fatal_lang_error('at_least_one_admin', 'critical');
+				ErrorHandler::fatalLang('at_least_one_admin', 'critical');
 		}
 
 		// Deleting someone else's account.

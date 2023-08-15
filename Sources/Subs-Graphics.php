@@ -20,6 +20,7 @@
 
 use SMF\Attachment;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -104,8 +105,9 @@ function reencodeImage($fileName, $preferred_format = 0)
 function checkImageContents($fileName, $extensiveCheck = false)
 {
 	$fp = fopen($fileName, 'rb');
+
 	if (!$fp)
-		fatal_lang_error('attach_timeout');
+		ErrorHandler::fatalLang('attach_timeout');
 
 	$prev_chunk = '';
 	while (!feof($fp))
@@ -149,8 +151,9 @@ function checkImageContents($fileName, $extensiveCheck = false)
 function checkSvgContents($fileName)
 {
 	$fp = fopen($fileName, 'rb');
+
 	if (!$fp)
-		fatal_lang_error('attach_timeout');
+		ErrorHandler::fatalLang('attach_timeout');
 
 	$patterns = array(
 		// No external or embedded scripts allowed.

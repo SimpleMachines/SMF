@@ -940,7 +940,7 @@ class User implements \ArrayAccess
 		{
 			// Make sure the board (if any) has been loaded by Board::load().
 			if (!isset(Board::$info->profile))
-				fatal_lang_error('no_board');
+				ErrorHandler::fatalLang('no_board');
 
 			$request = Db::$db->query('', '
 				SELECT permission, add_deny
@@ -2300,7 +2300,7 @@ class User implements \ArrayAccess
 				if ($checkMe == $reservedCheck || (Utils::entityStrpos($checkMe, $reservedCheck) !== false && empty(Config::$modSettings['reserveWord'])))
 				{
 					if ($fatal)
-						fatal_lang_error('username_reserved', 'password', array($reserved));
+						ErrorHandler::fatalLang('username_reserved', 'password', array($reserved));
 
 					return true;
 				}
@@ -2310,7 +2310,7 @@ class User implements \ArrayAccess
 			if (Lang::censorText($censor_name) != $name)
 			{
 				if ($fatal)
-					fatal_lang_error('name_censored', 'password', array($name));
+					ErrorHandler::fatalLang('name_censored', 'password', array($name));
 
 				return true;
 			}
@@ -2322,7 +2322,7 @@ class User implements \ArrayAccess
 			if (strpos($checkName, $char) !== false)
 			{
 				if ($fatal)
-					fatal_lang_error('username_reserved', 'password', array($char));
+					ErrorHandler::fatalLang('username_reserved', 'password', array($char));
 
 				return true;
 			}

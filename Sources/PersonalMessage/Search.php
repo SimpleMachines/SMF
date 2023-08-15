@@ -15,6 +15,7 @@ namespace SMF\PersonalMessage;
 
 use SMF\Category;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Theme;
@@ -245,7 +246,7 @@ class Search
 	{
 		if (!empty(Utils::$context['load_average']) && !empty(Config::$modSettings['loadavg_search']) && Utils::$context['load_average'] >= Config::$modSettings['loadavg_search'])
 		{
-			fatal_lang_error('loadavg_search_disabled', false);
+			ErrorHandler::fatalLang('loadavg_search_disabled', false);
 		}
 
 		// Some useful general permissions.

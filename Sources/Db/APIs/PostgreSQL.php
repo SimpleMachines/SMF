@@ -14,6 +14,7 @@
 namespace SMF\Db\APIs;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\User;
 use SMF\Utils;
@@ -2012,7 +2013,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Safe guard here, if there isn't a valid connection let's put a stop to it.
 		if (empty($this->connection) && !$non_fatal)
-			display_db_error();
+			ErrorHandler::displayDbError();
 
 		// For backward compatibility.
 		if (!is_object(self::$db_connection))
@@ -2040,7 +2041,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		// We are not going to make it very far without this.
 		if (!function_exists('pg_pconnect'))
-			display_db_error();
+			ErrorHandler::displayDbError();
 
 		// We need to escape ' and \
 		$passwd = str_replace(array('\\','\''), array('\\\\','\\\''), $passwd);
@@ -2072,7 +2073,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Something's wrong, show an error if its fatal (which we assume it is)
 		if (empty($this->connection) && empty($options['non_fatal']))
-			display_db_error();
+			ErrorHandler::displayDbError();
 	}
 
 	/**
@@ -2090,7 +2091,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	protected function replacement__callback($matches)
 	{
 		if (!is_object($this->temp_connection))
-			display_db_error();
+			ErrorHandler::displayDbError();
 
 		if ($matches[1] === 'db_prefix')
 			return $this->prefix;
@@ -2269,11 +2270,11 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Is always a critical error.
 		if (function_exists('log_error'))
-			log_error($log_message, 'critical', $file, $line);
+			ErrorHandler::log($log_message, 'critical', $file, $line);
 
 		if (function_exists('fatal_error'))
 		{
-			fatal_error($error_message, $error_type);
+			ErrorHandler::fatal($error_message, $error_type);
 
 			// Cannot continue...
 			exit;

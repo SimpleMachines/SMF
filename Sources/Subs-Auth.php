@@ -14,6 +14,7 @@
  */
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\Theme;
@@ -268,7 +269,7 @@ function adminLogin($type = 'admin')
 	if (isset($_POST[$type . '_hash_pass']) || isset($_POST[$type . '_pass']))
 	{
 		Lang::$txt['security_wrong'] = sprintf(Lang::$txt['security_wrong'], isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : Lang::$txt['unknown'], $_SERVER['HTTP_USER_AGENT'], User::$me->ip);
-		log_error(Lang::$txt['security_wrong'], 'critical');
+		ErrorHandler::log(Lang::$txt['security_wrong'], 'critical');
 
 		if (isset($_POST[$type . '_hash_pass']))
 			unset($_POST[$type . '_hash_pass']);
@@ -562,7 +563,7 @@ function validateUsername($memID, $username, $return_error = false, $check_reser
 	$error = $errors[0];
 
 	$message = $error[0] == 'lang' ? (empty($error[3]) ? Lang::$txt[$error[1]] : vsprintf(Lang::$txt[$error[1]], (array) $error[3])) : $error[1];
-	fatal_error($message, empty($error[2]) || User::$me->is_admin ? false : $error[2]);
+	ErrorHandler::fatal($message, empty($error[2]) || User::$me->is_admin ? false : $error[2]);
 }
 
 /**

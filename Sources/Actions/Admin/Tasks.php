@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
@@ -363,7 +364,7 @@ class Tasks implements ActionInterface
 
 		// Cleaning...
 		if (!isset($_GET['tid']))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		$_GET['tid'] = (int) $_GET['tid'];
 
@@ -434,7 +435,7 @@ class Tasks implements ActionInterface
 		// Should never, ever, happen!
 		if (Db::$db->num_rows($request) == 0)
 		{
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 		}
 		while ($row = Db::$db->fetch_assoc($request))
 		{

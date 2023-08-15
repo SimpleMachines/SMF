@@ -19,6 +19,7 @@ use SMF\Actions\ActionInterface;
 use SMF\Alert;
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
@@ -223,7 +224,7 @@ class ReportedContent implements ActionInterface
 	{
 		// Have to at least give us something to work with.
 		if (empty($_REQUEST['rid']))
-			fatal_lang_error('mc_reportedp_none_found');
+			ErrorHandler::fatalLang('mc_reportedp_none_found');
 
 		// Integers only please
 		$report_id = (int) $_REQUEST['rid'];
@@ -232,7 +233,7 @@ class ReportedContent implements ActionInterface
 		$report = $this->getReportDetails($report_id);
 
 		if (empty($report))
-			fatal_lang_error('mc_no_modreport_found', false);
+			ErrorHandler::fatalLang('mc_no_modreport_found', false);
 
 		// Build the report data - basic details first, then extra stuff based on the type
 		Utils::$context['report'] = array(
@@ -435,7 +436,7 @@ class ReportedContent implements ActionInterface
 
 		// We need to do something!
 		if (empty($_GET['rid']) && (!isset($_GET['ignore']) || !isset($_GET['closed'])))
-			fatal_lang_error('mc_reportedp_none_found');
+			ErrorHandler::fatalLang('mc_reportedp_none_found');
 
 		// What are we gonna do?
 		$action = isset($_GET['ignore']) ? 'ignore' : 'closed';
@@ -468,7 +469,7 @@ class ReportedContent implements ActionInterface
 	{
 		// The report ID is a must.
 		if (empty($_REQUEST['rid']))
-			fatal_lang_error('mc_reportedp_none_found');
+			ErrorHandler::fatalLang('mc_reportedp_none_found');
 
 		// Integers only please.
 		$report_id = (int) $_REQUEST['rid'];
@@ -494,7 +495,7 @@ class ReportedContent implements ActionInterface
 			validateToken('mod-reportC-delete', 'get');
 
 			if (empty($_REQUEST['mid']))
-				fatal_lang_error('mc_reportedp_comment_none_found');
+				ErrorHandler::fatalLang('mc_reportedp_comment_none_found');
 
 			$comment_id = (int) $_REQUEST['mid'];
 
@@ -503,11 +504,11 @@ class ReportedContent implements ActionInterface
 
 			// Perhaps somebody else already deleted this fine gem...
 			if (empty($comment))
-				fatal_lang_error('report_action_message_delete_issue');
+				ErrorHandler::fatalLang('report_action_message_delete_issue');
 
 			// Can you actually do this?
 			if (!allowedTo('admin_forum') && User::$me->id != $comment['id_member'])
-				fatal_lang_error('report_action_message_delete_cannot');
+				ErrorHandler::fatalLang('report_action_message_delete_cannot');
 
 			// All good!
 			$this->deleteModComment($comment_id);
@@ -531,10 +532,10 @@ class ReportedContent implements ActionInterface
 
 		// The report ID is a must.
 		if (empty($_REQUEST['rid']))
-			fatal_lang_error('mc_reportedp_none_found');
+			ErrorHandler::fatalLang('mc_reportedp_none_found');
 
 		if (empty($_REQUEST['mid']))
-			fatal_lang_error('mc_reportedp_comment_none_found');
+			ErrorHandler::fatalLang('mc_reportedp_comment_none_found');
 
 		// Integers only please.
 		Utils::$context['report_id'] = (int) $_REQUEST['rid'];
@@ -543,7 +544,7 @@ class ReportedContent implements ActionInterface
 		Utils::$context['comment'] = $this->getCommentModDetails(Utils::$context['comment_id']);
 
 		if (empty(Utils::$context['comment']))
-			fatal_lang_error('mc_reportedp_comment_none_found');
+			ErrorHandler::fatalLang('mc_reportedp_comment_none_found');
 
 		// Set up the comforting bits...
 		Utils::$context['page_title'] = Lang::$txt['mc_reported_posts'];
@@ -555,12 +556,12 @@ class ReportedContent implements ActionInterface
 
 			// Make sure there is some data to edit in the DB.
 			if (empty(Utils::$context['comment']))
-				fatal_lang_error('report_action_message_edit_issue');
+				ErrorHandler::fatalLang('report_action_message_edit_issue');
 
 			// So, you aren't neither an admin or the comment owner huh? that's too bad.
 			if (!allowedTo('admin_forum') && User::$me->id != Utils::$context['comment']['id_member'])
 			{
-				fatal_lang_error('report_action_message_edit_cannot');
+				ErrorHandler::fatalLang('report_action_message_edit_cannot');
 			}
 
 			// All good!
@@ -714,7 +715,7 @@ class ReportedContent implements ActionInterface
 		$this->type = substr($_GET['area'], 8);
 
 		if (!in_array($this->type, self::$types))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		Utils::$context['report_type'] = $this->type;
 

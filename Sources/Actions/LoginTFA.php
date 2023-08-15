@@ -16,6 +16,7 @@ namespace SMF\Actions;
 use SMF\BackwardCompatibility;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -64,7 +65,7 @@ class LoginTFA extends Login2
 	{
 		if (!User::$me->is_guest || empty(Utils::$context['tfa_member']) || empty(Config::$modSettings['tfa_mode']))
 		{
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 		}
 
 		Lang::load('Profile');
@@ -73,7 +74,7 @@ class LoginTFA extends Login2
 
 		// Prevent replay attacks by limiting at least 2 minutes before they can log in again via 2FA
 		if (time() - $member['last_login'] < 120)
-			fatal_lang_error('tfa_wait', false);
+			ErrorHandler::fatalLang('tfa_wait', false);
 
 		$totp = new Tfa($member['tfa_secret']);
 		$totp->setRange(1);
@@ -85,7 +86,7 @@ class LoginTFA extends Login2
 			// Check to ensure we're forcing SSL for authentication
 			if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !httpsOn())
 			{
-				fatal_lang_error('login_ssl_required', false);
+				ErrorHandler::fatalLang('login_ssl_required', false);
 			}
 
 			$code = $_POST['tfa_code'];
@@ -111,7 +112,7 @@ class LoginTFA extends Login2
 			// Check to ensure we're forcing SSL for authentication
 			if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !httpsOn())
 			{
-				fatal_lang_error('login_ssl_required', false);
+				ErrorHandler::fatalLang('login_ssl_required', false);
 			}
 
 			$backup = $_POST['tfa_backup'];

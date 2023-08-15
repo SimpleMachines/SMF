@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
@@ -187,7 +188,7 @@ class Languages implements ActionInterface
 
 		// Clearly we need to know what to request.
 		if (!isset($_GET['did']))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		// Some lovely context.
 		Utils::$context['download_id'] = $_GET['did'];
@@ -209,7 +210,7 @@ class Languages implements ActionInterface
 				// Check it's not very bad.
 				if (strpos($file, '..') !== false || (strpos($file, 'Themes') !== 0 && !preg_match('~agreement\.[A-Za-z-_0-9]+\.txt$~', $file)))
 				{
-					fatal_error(Lang::$txt['languages_download_illegal_paths']);
+					ErrorHandler::fatal(Lang::$txt['languages_download_illegal_paths']);
 				}
 
 				$chmod_files[] = Config::$boarddir . '/' . $file;
@@ -246,7 +247,7 @@ class Languages implements ActionInterface
 		}
 
 		if (empty($archive_content))
-			fatal_error(Lang::$txt['add_language_error_no_response']);
+			ErrorHandler::fatal(Lang::$txt['add_language_error_no_response']);
 
 		// Now for each of the files, let's do some *stuff*
 		Utils::$context['files'] = array(
@@ -856,7 +857,7 @@ class Languages implements ActionInterface
 				$result = SubsPackage::package_create_backup('backup_lang_' . $lang_id);
 
 				if (!$result)
-					fatal_lang_error('could_not_language_backup', false);
+					ErrorHandler::fatalLang('could_not_language_backup', false);
 			}
 
 			// Second, loop through the array to remove the files.

@@ -18,6 +18,7 @@ use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\BrowserDetector;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Msg;
@@ -351,7 +352,7 @@ class PersonalMessage implements ActionInterface
 	public function drafts(): void
 	{
 		if (empty(User::$me->id))
-			fatal_lang_error('not_a_user', false);
+			ErrorHandler::fatalLang('not_a_user', false);
 
 		DraftPM::showInProfile(User::$me->id);
 	}
@@ -548,13 +549,13 @@ class PersonalMessage implements ActionInterface
 	{
 		// Check that this feature is even enabled!
 		if (empty(Config::$modSettings['enableReportPM']) || empty($_REQUEST['pmsg']))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		$pm = current(PM::load((int) $_REQUEST['pmsg']));
 
 		// Users are not allowed to report messages that they can't see.
 		if (!$pm->canAccess('inbox'))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		Utils::$context['pm_id'] = $pm->id;
 		Utils::$context['page_title'] = Lang::$txt['pm_report_title'];
@@ -636,7 +637,7 @@ class PersonalMessage implements ActionInterface
 			// Maybe we shouldn't advertise this?
 			if (Db::$db->num_rows($request) == 0)
 			{
-				fatal_lang_error('no_access', false);
+				ErrorHandler::fatalLang('no_access', false);
 			}
 			// Loop through each admin, and add them to the right language pile...
 			while ($row = Db::$db->fetch_assoc($request))
@@ -1055,7 +1056,7 @@ class PersonalMessage implements ActionInterface
 
 		// No menu means no access.
 		if (empty($menu->include_data) && (!User::$me->is_guest || validateSession()))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		// Make a note of the Unique ID for this menu.
 		Utils::$context['pm_menu_id'] = $menu->id;

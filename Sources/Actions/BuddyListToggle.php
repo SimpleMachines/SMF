@@ -15,6 +15,7 @@ namespace SMF\Actions;
 
 use SMF\BackwardCompatibility;
 
+use SMF\ErrorHandler;
 use SMF\User;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -79,7 +80,7 @@ class BuddyListToggle implements ActionInterface
 		is_not_guest();
 
 		if (empty($this->userReceiver))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		// Remove if it's already there...
 		if (in_array($this->userReceiver, User::$me->buddies))

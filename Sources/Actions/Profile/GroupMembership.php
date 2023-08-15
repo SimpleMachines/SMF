@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Profile;
 use SMF\User;
@@ -90,7 +91,7 @@ class GroupMembership implements ActionInterface
 	public function show(): void
 	{
 		if (!allowedTo('manage_membergroups') && !User::$me->is_owner)
-			fatal_lang_error('cannot_manage_membergroups', false);
+			ErrorHandler::fatalLang('cannot_manage_membergroups', false);
 
 		Utils::$context['primary_group'] = Profile::$member->group_id;
 		Utils::$context['update_message'] = Lang::$txt['group_membership_msg_' . ($_GET['msg'] ?? '')] ?? '';
@@ -191,24 +192,24 @@ class GroupMembership implements ActionInterface
 		$this->loadCurrentAndAssignableGroups();
 
 		if (!isset(Profile::$member->current_and_assignable_groups[$new_group_id]))
-			fatal_lang_error('cannot_manage_membergroups', false);
+			ErrorHandler::fatalLang('cannot_manage_membergroups', false);
 
 		// Just for improved legibility...
 		$new_group_info = Profile::$member->current_and_assignable_groups[$new_group_id];
 
 		// Can't request a non-requestable group.
 		if ($this->change_type == 'request' && $new_group_info['type'] != 2)
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		if ($this->change_type == 'free')
 		{
 			// Can't freely join or leave private or protected groups.
 			if ($new_group_info['type'] <= 1)
-				fatal_lang_error('no_access', false);
+				ErrorHandler::fatalLang('no_access', false);
 
 			// Can't leave a requestable group that you're not part of.
 			if ($new_group_info['type'] == 2 && !in_array($new_group_id, Profile::$member->groups))
-				fatal_lang_error('no_access', false);
+				ErrorHandler::fatalLang('no_access', false);
 		}
 
 		// Whatever we are doing, we need to determine if changing primary is possible.
@@ -439,7 +440,7 @@ class GroupMembership implements ActionInterface
 		Db::$db->free_result($request);
 
 		if ($already_requested)
-			fatal_lang_error('profile_error_already_requested_group');
+			ErrorHandler::fatalLang('profile_error_already_requested_group');
 
 		// Log the request.
 		Db::$db->insert('',

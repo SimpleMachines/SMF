@@ -14,6 +14,7 @@
 namespace SMF\Db\APIs;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\User;
 use SMF\Utils;
@@ -1917,7 +1918,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Safe guard here, if there isn't a valid connection let's put a stop to it.
 		if (empty($this->connection) && !$non_fatal)
-			display_db_error();
+			ErrorHandler::displayDbError();
 
 		// If in SSI mode, fix up the prefix so it doesn't require the database to be selected.
 		if (SMF == 'SSI')
@@ -1959,7 +1960,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// We are not going to make it very far without these.
 		if (!function_exists('mysqli_init') || !function_exists('mysqli_real_connect'))
-			display_db_error();
+			ErrorHandler::displayDbError();
 
 		// This was the default prior to PHP 8.1, and all our code assumes it.
 		mysqli_report(MYSQLI_REPORT_OFF);
@@ -1989,12 +1990,12 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				return;
 			}
 			else
-				display_db_error();
+				ErrorHandler::displayDbError();
 		}
 
 		// Select the database, unless told not to
 		if (empty($options['dont_select_db']) && !@mysqli_select_db($this->connection, $this->name) && empty($options['non_fatal']))
-			display_db_error();
+			ErrorHandler::displayDbError();
 
 		$sql_mode = array(
 			'ONLY_FULL_GROUP_BY',
@@ -2027,7 +2028,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	protected function replacement__callback($matches)
 	{
 		if (!is_object($this->temp_connection))
-			display_db_error();
+			ErrorHandler::displayDbError();
 
 		if ($matches[1] === 'db_prefix')
 			return $this->prefix;
@@ -2208,11 +2209,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Is always a critical error.
 		if (function_exists('log_error'))
-			log_error($log_message, 'critical', $file, $line);
+			ErrorHandler::log($log_message, 'critical', $file, $line);
 
 		if (function_exists('fatal_error'))
 		{
-			fatal_error($error_message, false);
+			ErrorHandler::fatal($error_message, false);
 
 			// Cannot continue...
 			exit;

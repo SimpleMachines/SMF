@@ -64,7 +64,7 @@ class TaskRunner
 
 		// Don't do john didley if the forum's been shut down completely.
 		if (!empty(Config::$maintenance) &&  2 === Config::$maintenance)
-			display_maintenance_message();
+			ErrorHandler::displayMaintenanceMessage();
 
 		// Have we already turned this off? If so, exist gracefully.
 		// @todo Remove this? It's a bad idea to ever disable background tasks.
@@ -175,7 +175,7 @@ class TaskRunner
 
 		$error_type = 'cron';
 
-		log_error($error_level . ': ' . $error_string, $error_type, $file, $line);
+		ErrorHandler::log($error_level . ': ' . $error_string, $error_type, $file, $line);
 
 		// If this is an E_ERROR or E_USER_ERROR.... die.  Violently so.
 		if ($error_level % 255 == E_ERROR)
@@ -271,7 +271,7 @@ class TaskRunner
 		{
 			// This would be nice to translate but the language files aren't
 			// loaded for any specific language.
-			log_error('Invalid background task specified (no class, ' . (empty($task_details['task_file']) ? ' no file' : ' to load ' . $task_details['task_file']) . ')');
+			ErrorHandler::log('Invalid background task specified (no class, ' . (empty($task_details['task_file']) ? ' no file' : ' to load ' . $task_details['task_file']) . ')');
 
 			// So we clear it from the queue.
 			return true;
@@ -298,7 +298,7 @@ class TaskRunner
 		}
 		else
 		{
-			log_error('Invalid background task specified: (class: ' . $task_details['task_class'] . ', ' . (empty($task_details['task_file']) ? ' no file' : ' to load ' . $task_details['task_file']) . ')');
+			ErrorHandler::log('Invalid background task specified: (class: ' . $task_details['task_class'] . ', ' . (empty($task_details['task_file']) ? ' no file' : ' to load ' . $task_details['task_file']) . ')');
 
 			// So we clear it from the queue.
 			return true;

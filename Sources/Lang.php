@@ -249,7 +249,7 @@ class Lang
 			// That couldn't be found!  Log the error, but *try* to continue normally.
 			if (!$found && $fatal)
 			{
-				log_error(sprintf(self::$txt['theme_language_error'] ?? 'Unable to load the \'%1$s\' language file.', $template_name . '.' . $lang, 'template'));
+				ErrorHandler::log(sprintf(self::$txt['theme_language_error'] ?? 'Unable to load the \'%1$s\' language file.', $template_name . '.' . $lang, 'template'));
 
 				break;
 			}

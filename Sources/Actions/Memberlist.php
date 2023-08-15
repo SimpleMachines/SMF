@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -309,7 +310,7 @@ class Memberlist implements ActionInterface
 		if (!is_numeric($_REQUEST['start']))
 		{
 			if (preg_match('~^[^\'\\\\/]~' . (Utils::$context['utf8'] ? 'u' : ''), Utils::strtolower($_REQUEST['start']), $match) === 0)
-				fatal_error('Hacker?', false);
+				ErrorHandler::fatal('Are you a wannabe hacker?', false);
 
 			$_REQUEST['start'] = $match[0];
 
@@ -583,7 +584,7 @@ class Memberlist implements ActionInterface
 
 			// No search fields? That means you're trying to hack things
 			if (empty($search_fields))
-				fatal_lang_error('invalid_search_string', false);
+				ErrorHandler::fatalLang('invalid_search_string', false);
 
 			$query = $_POST['search'] == '' ? '= {string:blank_string}' : (Db::$db->case_sensitive ? 'LIKE LOWER({string:search})' : 'LIKE {string:search}');
 

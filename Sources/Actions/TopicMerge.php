@@ -20,6 +20,7 @@ use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\Mail;
@@ -219,7 +220,7 @@ class TopicMerge implements ActionInterface
 	public function index()
 	{
 		if (!isset($_GET['from']))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		$_GET['from'] = (int) $_GET['from'];
 
@@ -271,7 +272,7 @@ class TopicMerge implements ActionInterface
 		);
 		if (Db::$db->num_rows($request) == 0)
 		{
-			fatal_lang_error('no_board');
+			ErrorHandler::fatalLang('no_board');
 		}
 		list($subject) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
@@ -286,7 +287,7 @@ class TopicMerge implements ActionInterface
 		$this->merge_boards = boardsAllowedTo('merge_any');
 
 		if (empty($this->merge_boards))
-			fatal_lang_error('cannot_merge_any', 'user');
+			ErrorHandler::fatalLang('cannot_merge_any', 'user');
 
 		// No sense in loading this if you can only merge on this board
 		if (count($this->merge_boards) > 1 || in_array(0, $this->merge_boards))
@@ -348,7 +349,7 @@ class TopicMerge implements ActionInterface
 
 		if (empty(Utils::$context['topics']) && count($this->merge_boards) <= 1 && !in_array(0, $this->merge_boards))
 		{
-			fatal_lang_error('merge_need_more_topics');
+			ErrorHandler::fatalLang('merge_need_more_topics');
 		}
 
 		Utils::$context['sub_template'] = 'merge';
@@ -445,13 +446,13 @@ class TopicMerge implements ActionInterface
 		$target_board = count($this->boards) > 1 ? (int) $_REQUEST['board'] : $this->boards[0];
 
 		if (!in_array($target_board, $this->boards))
-			fatal_lang_error('no_board');
+			ErrorHandler::fatalLang('no_board');
 
 		// Determine which poll will survive and which polls won't.
 		$target_poll = count($this->polls) > 1 ? (int) $_POST['poll'] : (count($this->polls) == 1 ? $this->polls[0] : 0);
 
 		if ($target_poll > 0 && !in_array($target_poll, $this->polls))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		$deleted_polls = empty($target_poll) ? $this->polls : array_diff($this->polls, array($target_poll));
 
@@ -1128,7 +1129,7 @@ class TopicMerge implements ActionInterface
 
 		// There's nothing to merge with just one topic...
 		if (empty($this->topics) || !is_array($this->topics) || count($this->topics) == 1)
-			fatal_lang_error('merge_need_more_topics');
+			ErrorHandler::fatalLang('merge_need_more_topics');
 
 		// Make sure every topic is numeric, or some nasty things could be done with the DB.
 		$this->topics = array_map('intval', $this->topics);
@@ -1143,7 +1144,7 @@ class TopicMerge implements ActionInterface
 
 		// If we didn't get any topics then they've been messing with unapproved stuff.
 		if (empty($this->topic_data))
-			fatal_lang_error('no_topic_id');
+			ErrorHandler::fatalLang('no_topic_id');
 
 		if (isset($_POST['postRedirect']) && !empty($this->lowestTopicBoard))
 			$this->boardTotals[$this->lowestTopicBoard]['topics']++;
@@ -1205,13 +1206,13 @@ class TopicMerge implements ActionInterface
 		);
 		if (Db::$db->num_rows($request) < 2)
 		{
-			fatal_lang_error('no_topic_id');
+			ErrorHandler::fatalLang('no_topic_id');
 		}
 		while ($row = Db::$db->fetch_assoc($request))
 		{
 			// Sorry, redirection topics can't be merged
 			if (!empty($row['id_redirect_topic']))
-				fatal_lang_error('cannot_merge_redirect', false);
+				ErrorHandler::fatalLang('cannot_merge_redirect', false);
 
 			// Make a note for the board counts...
 			if (!isset($this->boardTotals[$row['id_board']]))
@@ -1298,7 +1299,7 @@ class TopicMerge implements ActionInterface
 		$this->merge_boards = boardsAllowedTo('merge_any');
 
 		if (empty($this->merge_boards))
-			fatal_lang_error('cannot_merge_any', 'user');
+			ErrorHandler::fatalLang('cannot_merge_any', 'user');
 
 		// Make sure they can see all boards....
 		$request = Db::$db->query('', '
@@ -1317,7 +1318,7 @@ class TopicMerge implements ActionInterface
 
 		// If the number of boards that's in the output isn't exactly the same as we've put in there, you're in trouble.
 		if (Db::$db->num_rows($request) != count($this->boards))
-			fatal_lang_error('no_board');
+			ErrorHandler::fatalLang('no_board');
 
 		Db::$db->free_result($request);
 	}

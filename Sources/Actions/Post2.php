@@ -21,6 +21,7 @@ use SMF\BrowserDetector;
 use SMF\Board;
 use SMF\Config;
 use SMF\Draft;
+use SMF\ErrorHandler;
 use SMF\Event;
 use SMF\Lang;
 use SMF\MessageIndex;
@@ -163,7 +164,7 @@ class Post2 extends Post
 			}
 			else
 			{
-				fatal_lang_error('post_upload_error', false);
+				ErrorHandler::fatalLang('post_upload_error', false);
 			}
 		}
 
@@ -308,14 +309,14 @@ class Post2 extends Post
 		// You are not!
 		if (isset($_POST['message']) && strtolower($_POST['message']) == 'i am the administrator.' && !User::$me->is_admin)
 		{
-			fatal_error('Knave! Masquerader! Charlatan!', false);
+			ErrorHandler::fatal('Knave! Masquerader! Charlatan!', false);
 		}
 
 		// Build the poll...
 		if (isset($_REQUEST['poll']) && Config::$modSettings['pollMode'] == '1')
 		{
 			if (!empty(Topic::$topic_id) && !isset($_REQUEST['msg']))
-				fatal_lang_error('no_access', false);
+				ErrorHandler::fatalLang('no_access', false);
 
 			$poll = Poll::create($this->errors);
 		}
@@ -451,7 +452,7 @@ class Post2 extends Post
 							$attach_errors[] = '<dd>' . Lang::$txt[$error] . '</dd>';
 
 							if (in_array($error, $log_these))
-								log_error($attachment['name'] . ': ' . Lang::$txt[$error], 'critical');
+								ErrorHandler::log($attachment['name'] . ': ' . Lang::$txt[$error], 'critical');
 						}
 						else
 						{
@@ -863,7 +864,7 @@ class Post2 extends Post
 	{
 		// Don't allow a post if it's locked.
 		if (Topic::$info->is_locked != 0 && !allowedTo('moderate_board'))
-			fatal_lang_error('topic_locked', false);
+			ErrorHandler::fatalLang('topic_locked', false);
 
 		// Sorry, multiple polls aren't allowed... yet.  You should stop giving me ideas :P.
 		if (isset($_REQUEST['poll']) && Topic::$info->id_poll > 0)
@@ -1032,12 +1033,12 @@ class Post2 extends Post
 		$msgs = Msg::load($_REQUEST['msg']);
 
 		if (empty($msgs))
-			fatal_lang_error('cant_find_messages', false);
+			ErrorHandler::fatalLang('cant_find_messages', false);
 
 		$this->existing_msg = current($msgs);
 
 		if (!empty(Topic::$info->is_locked) && !allowedTo('moderate_board'))
-			fatal_lang_error('topic_locked', false);
+			ErrorHandler::fatalLang('topic_locked', false);
 
 		if (isset($_POST['lock']))
 		{
@@ -1103,7 +1104,7 @@ class Post2 extends Post
 				&& $this->existing_msg->poster_time + (Config::$modSettings['edit_disable_time'] + 5) * 60 < time()
 			)
 			{
-				fatal_lang_error('modify_post_time_passed', false);
+				ErrorHandler::fatalLang('modify_post_time_passed', false);
 			}
 			elseif (Topic::$info->id_member_started == User::$me->id && !allowedTo('modify_own'))
 			{

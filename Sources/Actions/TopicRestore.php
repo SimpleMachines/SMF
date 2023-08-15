@@ -67,7 +67,7 @@ class TopicRestore implements ActionInterface
 
 		// Is recycled board enabled?
 		if (empty(Config::$modSettings['recycle_enable']))
-			fatal_lang_error('restored_disabled', 'critical');
+			ErrorHandler::fatalLang('restored_disabled', 'critical');
 
 		// Can we be in here?
 		isAllowedTo('move_any', Config::$modSettings['recycle_board']);
@@ -257,7 +257,9 @@ class TopicRestore implements ActionInterface
 
 		// Didn't find some things?
 		if (!empty($unfound_messages))
-			fatal_lang_error('restore_not_found', false, array(implode('<br>', $unfound_messages)));
+		{
+			ErrorHandler::fatalLang('restore_not_found', false, array(implode('<br>', $unfound_messages)));
+		}
 
 		// Just send them to the index if they get here.
 		redirectexit();

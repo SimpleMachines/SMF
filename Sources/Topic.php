@@ -510,7 +510,7 @@ class Topic implements \ArrayAccess
 		if (!isset($id))
 		{
 			if (empty(self::$topic_id))
-				fatal_lang_error('not_a_topic', false, 404);
+				ErrorHandler::fatalLang('not_a_topic', false, 404);
 
 			$id = self::$topic_id;
 		}
@@ -542,7 +542,7 @@ class Topic implements \ArrayAccess
 	{
 		// Just quit if there's no topic to lock.
 		if (empty(self::$topic_id))
-			fatal_lang_error('not_a_topic', false);
+			ErrorHandler::fatalLang('not_a_topic', false);
 
 		checkSession('get');
 
@@ -574,11 +574,11 @@ class Topic implements \ArrayAccess
 		// Another moderator got the job done first?
 		if (isset($_GET['sa']) && $_GET['sa'] == 'unlock' && $locked == '0')
 		{
-			fatal_lang_error('error_topic_locked_already', false);
+			ErrorHandler::fatalLang('error_topic_locked_already', false);
 		}
 		elseif (isset($_GET['sa']) && $_GET['sa'] == 'lock' && ($locked == '1' || $locked == '2'))
 		{
-			fatal_lang_error('error_topic_unlocked_already', false);
+			ErrorHandler::fatalLang('error_topic_unlocked_already', false);
 		}
 
 		// Locking with high privileges.
@@ -599,7 +599,7 @@ class Topic implements \ArrayAccess
 		// You cannot unlock this!
 		else
 		{
-			fatal_lang_error('locked_by_admin', 'user');
+			ErrorHandler::fatalLang('locked_by_admin', 'user');
 		}
 
 		// Actually lock the topic in the database with the new value.
@@ -643,7 +643,7 @@ class Topic implements \ArrayAccess
 
 		// You can't sticky a board or something!
 		if (empty(self::$topic_id))
-			fatal_lang_error('not_a_topic', false);
+			ErrorHandler::fatalLang('not_a_topic', false);
 
 		checkSession('get');
 
@@ -663,11 +663,11 @@ class Topic implements \ArrayAccess
 		// Another moderator got the job done first?
 		if (isset($_GET['sa']) && $_GET['sa'] == 'nonsticky' && $is_sticky == '0')
 		{
-			fatal_lang_error('error_topic_nonsticky_already', false);
+			ErrorHandler::fatalLang('error_topic_nonsticky_already', false);
 		}
 		elseif (isset($_GET['sa']) && $_GET['sa'] == 'sticky' && $is_sticky == '1')
 		{
-			fatal_lang_error('error_topic_sticky_already', false);
+			ErrorHandler::fatalLang('error_topic_sticky_already', false);
 		}
 
 		// Toggle the sticky value.... pretty simple ;).
@@ -1404,7 +1404,7 @@ class Topic implements \ArrayAccess
 	protected function loadTopicInfo(): void
 	{
 		if (empty($this->id))
-			fatal_lang_error('not_a_topic', false, 404);
+			ErrorHandler::fatalLang('not_a_topic', false, 404);
 
 		// Basic stuff we always want.
 		$topic_selects = array(
@@ -1456,7 +1456,7 @@ class Topic implements \ArrayAccess
 		);
 		if (Db::$db->num_rows($request) == 0)
 		{
-			fatal_lang_error('not_a_topic', false, 404);
+			ErrorHandler::fatalLang('not_a_topic', false, 404);
 		}
 		$this->set(Db::$db->fetch_assoc($request));
 		Db::$db->free_result($request);

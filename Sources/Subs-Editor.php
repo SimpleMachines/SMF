@@ -17,6 +17,7 @@
 use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -743,10 +744,10 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 	{
 		// This cannot happen!
 		if (!isset($_SESSION[$verificationOptions['id'] . '_vv']['count']))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 		// Hmm, it's requested but not actually declared. This shouldn't happen.
 		if ($thisVerification['empty_field'] && empty($_SESSION[$verificationOptions['id'] . '_vv']['empty_field']))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 		// While we're here, did the user do something bad?
 		if ($thisVerification['empty_field'] && !empty($_SESSION[$verificationOptions['id'] . '_vv']['empty_field']) && !empty($_REQUEST[$_SESSION[$verificationOptions['id'] . '_vv']['empty_field']]))
 			$verification_errors[] = 'wrong_verification_answer';

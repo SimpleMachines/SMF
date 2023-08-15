@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Theme;
@@ -146,11 +147,11 @@ class Themes implements ActionInterface
 			}
 			else
 			{
-				fatal_lang_error('themes_none_selectable', false);
+				ErrorHandler::fatalLang('themes_none_selectable', false);
 			}
 
 			if (!in_array($_POST['options']['theme_guests'], $_POST['options']['known_themes']))
-				fatal_lang_error('themes_default_selectable', false);
+				ErrorHandler::fatalLang('themes_default_selectable', false);
 
 			// Commit the new settings.
 			Config::updateModSettings(array(
@@ -699,7 +700,7 @@ class Themes implements ActionInterface
 
 		// Validate inputs/user.
 		if (empty($_GET['th']))
-			fatal_lang_error('no_theme', false);
+			ErrorHandler::fatalLang('no_theme', false);
 
 		// Fetch the smiley sets...
 		$sets = explode(',', 'none,' . Config::$modSettings['smiley_sets_known']);
@@ -900,7 +901,7 @@ class Themes implements ActionInterface
 
 		// You can't delete the default theme!
 		if ($themeID == 1)
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		$theme_info = $this->getSingleTheme($themeID, array('theme_dir'));
 
@@ -979,13 +980,13 @@ class Themes implements ActionInterface
 
 			// Got any info from the specific form?
 			if (!isset($_POST['save_' . $do_action]))
-				fatal_lang_error('theme_install_no_action', false);
+				ErrorHandler::fatalLang('theme_install_no_action', false);
 
 			validateToken('admin-t-' . $do_action);
 
 			// Hopefully the themes directory is writable, or we might have a problem.
 			if (!is_writable(Utils::$context['themedir']))
-				fatal_lang_error('theme_install_write_error', 'critical');
+				ErrorHandler::fatalLang('theme_install_write_error', 'critical');
 
 			// Call the function and handle the result.
 			$result = call_user_func(array($this, $do_actions[$do_action]));
@@ -1001,7 +1002,7 @@ class Themes implements ActionInterface
 		// Nope, show a nice error.
 		else
 		{
-			fatal_lang_error('theme_install_no_action', false);
+			ErrorHandler::fatalLang('theme_install_no_action', false);
 		}
 	}
 
@@ -1052,7 +1053,7 @@ class Themes implements ActionInterface
 
 		if (!file_exists($currentTheme['theme_dir'] . '/index.template.php') && !file_exists($currentTheme['theme_dir'] . '/css/index.css'))
 		{
-			fatal_lang_error('theme_edit_missing', false);
+			ErrorHandler::fatalLang('theme_edit_missing', false);
 		}
 
 		if (!isset($_REQUEST['filename']))
@@ -1128,7 +1129,7 @@ class Themes implements ActionInterface
 			}
 
 			if (empty($_REQUEST['filename']))
-				fatal_lang_error('theme_edit_missing', false);
+				ErrorHandler::fatalLang('theme_edit_missing', false);
 		}
 
 		if (isset($_POST['save']))
@@ -1275,7 +1276,7 @@ class Themes implements ActionInterface
 		$_GET['th'] = isset($_GET['th']) ? (int) $_GET['th'] : (int) $_GET['id'];
 
 		if (empty($_GET['th']))
-			fatal_lang_error('theme_install_invalid_id');
+			ErrorHandler::fatalLang('theme_install_invalid_id');
 
 		// Get the theme info.
 		$theme = $this->getSingleTheme($_GET['th']);
@@ -1289,7 +1290,7 @@ class Themes implements ActionInterface
 			}
 			else
 			{
-				fatal_lang_error('no_access', false);
+				ErrorHandler::fatalLang('no_access', false);
 			}
 
 			$fp = fopen($theme['theme_dir'] . '/' . $_REQUEST['template'] . '.template.php', 'w');
@@ -1306,7 +1307,7 @@ class Themes implements ActionInterface
 			}
 			else
 			{
-				fatal_lang_error('no_access', false);
+				ErrorHandler::fatalLang('no_access', false);
 			}
 
 			$fp = fopen($theme['theme_dir'] . '/languages/' . $_REQUEST['lang_file'] . '.php', 'w');
@@ -1568,7 +1569,9 @@ class Themes implements ActionInterface
 	/**
 	 * Installs a theme from a theme package.
 	 *
-	 * Stores the theme files on a temp dir, on success it renames the dir to the new theme's name. Ends execution with fatal_lang_error() on any error.
+	 * Stores the theme files on a temp dir, on success it renames the dir to
+	 * the new theme's name.
+	 * Ends execution with ErrorHandler::fatalLang() on any error.
 	 *
 	 * @return array The newly created theme's info.
 	 */
@@ -1592,7 +1595,7 @@ class Themes implements ActionInterface
 
 			// How about now?
 			if (!is_writable($dirtemp))
-				fatal_lang_error('theme_install_write_error', 'critical');
+				ErrorHandler::fatalLang('theme_install_write_error', 'critical');
 		}
 
 		// This happens when the admin session is gone and the user has to login again.
@@ -1604,7 +1607,7 @@ class Themes implements ActionInterface
 		// Another error check layer, something went wrong with the upload.
 		if (isset($_FILES['theme_gz']['error']) && $_FILES['theme_gz']['error'] != 0)
 		{
-			fatal_lang_error('theme_install_error_file_' . $_FILES['theme_gz']['error'], false);
+			ErrorHandler::fatalLang('theme_install_error_file_' . $_FILES['theme_gz']['error'], false);
 		}
 
 		// Get the theme's name.
@@ -1639,7 +1642,7 @@ class Themes implements ActionInterface
 		}
 		else
 		{
-			fatal_lang_error('theme_install_error_title', false);
+			ErrorHandler::fatalLang('theme_install_error_title', false);
 		}
 	}
 
@@ -1654,14 +1657,14 @@ class Themes implements ActionInterface
 	{
 		// There's gotta be something to work with.
 		if (!isset($_REQUEST['copy']) || empty($_REQUEST['copy']))
-			fatal_lang_error('theme_install_error_title', false);
+			ErrorHandler::fatalLang('theme_install_error_title', false);
 
 		// Get a cleaner version.
 		$name = preg_replace('~[^A-Za-z0-9_\- ]~', '', $_REQUEST['copy']);
 
 		// Is there a theme already named like this?
 		if (file_exists(Utils::$context['themedir'] . '/' . $name))
-			fatal_lang_error('theme_install_already_dir', false);
+			ErrorHandler::fatalLang('theme_install_already_dir', false);
 
 		// This is a brand new theme so set all possible values.
 		Utils::$context['to_install'] = array(
@@ -1764,7 +1767,8 @@ class Themes implements ActionInterface
 	/**
 	 * Install a theme from a specific dir
 	 *
-	 * Assumes the dir is located on the main Themes dir. Ends execution with fatal_lang_error() on any error.
+	 * Assumes the dir is located on the main Themes dir.
+	 * Ends execution with ErrorHandler::fatalLang() on any error.
 	 *
 	 * @return array The newly created theme's info.
 	 */
@@ -1772,11 +1776,11 @@ class Themes implements ActionInterface
 	{
 		// Cannot use the theme dir as a theme dir.
 		if (!isset($_REQUEST['theme_dir']) || empty($_REQUEST['theme_dir']) || rtrim(realpath($_REQUEST['theme_dir']), '/\\') == realpath(Utils::$context['themedir']))
-			fatal_lang_error('theme_install_invalid_dir', false);
+			ErrorHandler::fatalLang('theme_install_invalid_dir', false);
 
 		// Check is there is "something" on the dir.
 		elseif (!is_dir($_REQUEST['theme_dir']) || !file_exists($_REQUEST['theme_dir'] . '/theme_info.xml'))
-			fatal_lang_error('theme_install_error', false);
+			ErrorHandler::fatalLang('theme_install_error', false);
 
 		$name = basename($_REQUEST['theme_dir']);
 		$name = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $name);
@@ -2019,7 +2023,7 @@ class Themes implements ActionInterface
 			$this->deltree($path);
 
 			Lang::$txt['package_get_error_is_mod'] = str_replace('{MANAGEMODURL}', Config::$scripturl . '?action=admin;area=packages;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], Lang::$txt['package_get_error_is_mod']);
-			fatal_lang_error('package_theme_upload_error_broken', false, Lang::$txt['package_get_error_is_mod']);
+			ErrorHandler::fatalLang('package_theme_upload_error_broken', false, Lang::$txt['package_get_error_is_mod']);
 		}
 
 		// Parse theme-info.xml into an XmlArray.
@@ -2029,14 +2033,14 @@ class Themes implements ActionInterface
 		if (!$theme_info_xml->exists('theme-info[0]'))
 		{
 			$this->deltree($path);
-			fatal_lang_error('package_get_error_packageinfo_corrupt', false);
+			ErrorHandler::fatalLang('package_get_error_packageinfo_corrupt', false);
 		}
 
 		// Check for compatibility with 2.1 or greater.
 		if (!$theme_info_xml->exists('theme-info/install'))
 		{
 			$this->deltree($path);
-			fatal_lang_error('package_get_error_theme_not_compatible', false, SMF_FULL_VERSION);
+			ErrorHandler::fatalLang('package_get_error_theme_not_compatible', false, SMF_FULL_VERSION);
 		}
 
 		// So, we have an install tag which is cool and stuff but we also need to check it and match your current SMF version...
@@ -2047,7 +2051,7 @@ class Themes implements ActionInterface
 		if (!$install_versions || !SubsPackage::matchPackageVersion($the_version, $install_versions))
 		{
 			$this->deltree($path);
-			fatal_lang_error('package_get_error_theme_not_compatible', false, SMF_FULL_VERSION);
+			ErrorHandler::fatalLang('package_get_error_theme_not_compatible', false, SMF_FULL_VERSION);
 		}
 
 		$theme_info_xml = $theme_info_xml->to_array('theme-info[0]');
@@ -2085,7 +2089,7 @@ class Themes implements ActionInterface
 	/**
 	 * Inserts a theme's data to the DataBase.
 	 *
-	 * Ends execution with fatal_lang_error() if an error appears.
+	 * Ends execution with ErrorHandler::fatalLang() if an error appears.
 	 *
 	 * @param array $to_install An array containing all values to be stored into the DB.
 	 * @return int The newly created theme ID.
@@ -2099,7 +2103,7 @@ class Themes implements ActionInterface
 		// One last check.
 		if (empty(Utils::$context['to_install']['theme_dir']) || basename(Utils::$context['to_install']['theme_dir']) == 'Themes')
 		{
-			fatal_lang_error('theme_install_invalid_dir', false);
+			ErrorHandler::fatalLang('theme_install_invalid_dir', false);
 		}
 
 		// OK, is this a newer version of an already installed theme?
@@ -2147,7 +2151,7 @@ class Themes implements ActionInterface
 					case 0: // This is exactly the same theme.
 					case -1: // The one being installed is older than the one already installed.
 					default: // Any other possible result.
-						fatal_lang_error('package_get_error_theme_no_new_version', false, array(Utils::$context['to_install']['version'], $to_update['version']));
+						ErrorHandler::fatalLang('package_get_error_theme_no_new_version', false, array(Utils::$context['to_install']['version'], $to_update['version']));
 				}
 			}
 		}
@@ -2198,7 +2202,7 @@ class Themes implements ActionInterface
 				// Nope, sorry, couldn't find any theme already installed.
 				else
 				{
-					fatal_lang_error('package_get_error_theme_no_based_on_found', false, Utils::$context['to_install']['based_on']);
+					ErrorHandler::fatalLang('package_get_error_theme_no_based_on_found', false, Utils::$context['to_install']['based_on']);
 				}
 			}
 
@@ -2358,7 +2362,7 @@ class Themes implements ActionInterface
 	{
 		// Is it even a directory?
 		if (!is_dir($path))
-			fatal_lang_error('error_invalid_dir', 'critical');
+			ErrorHandler::fatalLang('error_invalid_dir', 'critical');
 
 		$dir = dir($path);
 		$entries = array();

@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -452,7 +453,7 @@ class ErrorLog implements ActionInterface
 			|| !is_readable($file)
 		)
 		{
-			fatal_lang_error('error_bad_file', true, array(Utils::htmlspecialchars($file)));
+			ErrorHandler::fatalLang('error_bad_file', true, array(Utils::htmlspecialchars($file)));
 		}
 
 		// Get the min and max lines.
@@ -461,7 +462,7 @@ class ErrorLog implements ActionInterface
 		$max = $line + 21;
 
 		if ($max <= 0 || $min >= $max)
-			fatal_lang_error('error_bad_line');
+			ErrorHandler::fatalLang('error_bad_line');
 
 		$file_data = explode('<br />', BBCodeParser::highlightPhpCode(Utils::htmlspecialchars(file_get_contents($file))));
 

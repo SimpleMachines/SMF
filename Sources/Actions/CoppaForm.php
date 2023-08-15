@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\BrowserDetector;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\Utils;
@@ -76,7 +77,7 @@ class CoppaForm implements ActionInterface
 		if (Db::$db->num_rows($request) == 0)
 		{
 			Db::$db->free_result($request);
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 		}
 		list($username) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
@@ -173,7 +174,7 @@ class CoppaForm implements ActionInterface
 
 		// No User ID??
 		if (!isset($_GET['member']))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 	}
 }
 

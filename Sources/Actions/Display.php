@@ -19,6 +19,7 @@ use SMF\Alert;
 use SMF\Attachment;
 use SMF\Board;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Event;
 use SMF\Lang;
 use SMF\Msg;
@@ -326,7 +327,7 @@ class Display implements ActionInterface
 	{
 		// What are you gonna display if this is empty?!
 		if (empty(Topic::$topic_id))
-			fatal_lang_error('no_board', false);
+			ErrorHandler::fatalLang('no_board', false);
 
 		$this->checkPrevNextRedirect();
 		$this->preventPrefetch();

@@ -20,6 +20,7 @@ use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Event;
 use SMF\Draft;
 use SMF\Lang;
@@ -280,7 +281,7 @@ class Post implements ActionInterface
 
 		// Don't allow a post if it's locked and you aren't all powerful.
 		if ($this->locked && !allowedTo('moderate_board'))
-			fatal_lang_error('topic_locked', false);
+			ErrorHandler::fatalLang('topic_locked', false);
 
 		Utils::$context['notify'] = !empty(Utils::$context['notify']);
 
@@ -549,7 +550,7 @@ class Post implements ActionInterface
 			$this->boards = boardsAllowedTo($post_permissions);
 
 			if (empty($this->boards))
-				fatal_lang_error('cannot_post_new', false);
+				ErrorHandler::fatalLang('cannot_post_new', false);
 
 			// Get a list of boards for the select menu
 			$boardListOptions = array(
@@ -599,17 +600,17 @@ class Post implements ActionInterface
 
 		// We expected a topic, but we don't have one.
 		if (empty(Topic::$topic_id))
-			fatal_lang_error('not_a_topic');
+			ErrorHandler::fatalLang('not_a_topic');
 
 		Topic::load(Topic::$topic_id);
 
 		// Though the topic should be there, it might have vanished.
 		if (empty(Topic::$info->id))
-			fatal_lang_error('topic_doesnt_exist', 404);
+			ErrorHandler::fatalLang('topic_doesnt_exist', 404);
 
 		// Did this topic suddenly move? Just checking...
 		if (isset(Board::$info->id) && Topic::$info->id_board != Board::$info->id)
-			fatal_lang_error('not_a_topic');
+			ErrorHandler::fatalLang('not_a_topic');
 	}
 
 	/**
@@ -779,12 +780,12 @@ class Post implements ActionInterface
 			// Make sure the year and month are in the valid range.
 			if (Utils::$context['event']->month < 1 || Utils::$context['event']->month > 12)
 			{
-				fatal_lang_error('invalid_month', false);
+				ErrorHandler::fatalLang('invalid_month', false);
 			}
 
 			if (Utils::$context['event']->year < Config::$modSettings['cal_minyear'] || Utils::$context['event']->year > Config::$modSettings['cal_maxyear'])
 			{
-				fatal_lang_error('invalid_year', false);
+				ErrorHandler::fatalLang('invalid_year', false);
 			}
 
 			Utils::$context['event']->categories = $this->board_list;
@@ -1056,7 +1057,7 @@ class Post implements ActionInterface
 			// @todo Change this error message?
 			if (Db::$db->num_rows($request) == 0)
 			{
-				fatal_lang_error('no_board', false);
+				ErrorHandler::fatalLang('no_board', false);
 			}
 			$row = Db::$db->fetch_assoc($request);
 			Db::$db->free_result($request);
@@ -1066,7 +1067,7 @@ class Post implements ActionInterface
 				// Give an extra five minutes over the disable time threshold, so they can type - assuming the post is public.
 				if ($row['approved'] && !empty(Config::$modSettings['edit_disable_time']) && $row['poster_time'] + (Config::$modSettings['edit_disable_time'] + 5) * 60 < time())
 				{
-					fatal_lang_error('modify_post_time_passed', false);
+					ErrorHandler::fatalLang('modify_post_time_passed', false);
 				}
 				elseif ($row['id_member_poster'] == User::$me->id && !allowedTo('modify_own'))
 				{
@@ -1156,7 +1157,7 @@ class Post implements ActionInterface
 		// The message they were trying to edit was most likely deleted.
 		if (Db::$db->num_rows($request) == 0)
 		{
-			fatal_lang_error('no_message', false);
+			ErrorHandler::fatalLang('no_message', false);
 		}
 		$row = Db::$db->fetch_assoc($request);
 		Db::$db->free_result($request);
@@ -1166,7 +1167,7 @@ class Post implements ActionInterface
 			// Give an extra five minutes over the disable time threshold, so they can type - assuming the post is public.
 			if ($row['approved'] && !empty(Config::$modSettings['edit_disable_time']) && $row['poster_time'] + (Config::$modSettings['edit_disable_time'] + 5) * 60 < time())
 			{
-				fatal_lang_error('modify_post_time_passed', false);
+				ErrorHandler::fatalLang('modify_post_time_passed', false);
 			}
 			elseif ($row['id_member_poster'] == User::$me->id && !allowedTo('modify_own'))
 			{
@@ -1272,7 +1273,7 @@ class Post implements ActionInterface
 			);
 			if (Db::$db->num_rows($request) == 0)
 			{
-				fatal_lang_error('quoted_post_deleted', false);
+				ErrorHandler::fatalLang('quoted_post_deleted', false);
 			}
 			list($this->form_subject, $mname, $mdate, $this->form_message) = Db::$db->fetch_row($request);
 			Db::$db->free_result($request);

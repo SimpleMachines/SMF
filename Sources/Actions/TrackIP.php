@@ -16,6 +16,7 @@ namespace SMF\Actions;
 use SMF\BackwardCompatibility;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\ItemList;
 use SMF\Profile;
@@ -108,7 +109,7 @@ class TrackIP implements ActionInterface
 			Utils::$context['ip'] = ip2range(trim($_REQUEST['searchip']));
 
 		if (count(Utils::$context['ip']) !== 2)
-			fatal_lang_error('invalid_tracking_ip', false);
+			ErrorHandler::fatalLang('invalid_tracking_ip', false);
 
 		$ip_string = array('{inet:ip_address_low}', '{inet:ip_address_high}');
 

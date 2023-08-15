@@ -18,6 +18,7 @@ use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\Topic;
@@ -92,7 +93,7 @@ class JavaScriptModify implements ActionInterface
 		);
 		if (Db::$db->num_rows($request) == 0)
 		{
-			fatal_lang_error('no_board', false);
+			ErrorHandler::fatalLang('no_board', false);
 		}
 		$row = Db::$db->fetch_assoc($request);
 		Db::$db->free_result($request);
@@ -107,7 +108,7 @@ class JavaScriptModify implements ActionInterface
 			{
 				if ((!Config::$modSettings['postmod_active'] || $row['approved']) && !empty(Config::$modSettings['edit_disable_time']) && $row['poster_time'] + (Config::$modSettings['edit_disable_time'] + 5) * 60 < time())
 				{
-					fatal_lang_error('modify_post_time_passed', false);
+					ErrorHandler::fatalLang('modify_post_time_passed', false);
 				}
 				elseif ($row['id_member_started'] == User::$me->id && !allowedTo('modify_own'))
 				{

@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Profile;
@@ -621,7 +622,7 @@ class Main implements ActionInterface
 				// Check to ensure we're forcing SSL for authentication
 				if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !httpsOn())
 				{
-					fatal_lang_error('login_ssl_required', false);
+					ErrorHandler::fatalLang('login_ssl_required', false);
 				}
 
 				$password = isset($_POST['oldpasswrd']) ? $_POST['oldpasswrd'] :  '';
@@ -912,7 +913,7 @@ class Main implements ActionInterface
 
 		// No menu means no access.
 		if (empty($menu->include_data) && (!User::$me->is_guest || validateSession()))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		// Backward compatibility.
 		Utils::$context['profile_menu_id'] = $menu->id;
@@ -945,7 +946,7 @@ class Main implements ActionInterface
 					// This can't happen - but is a security check.
 					if ((isset($section['enabled']) && $section['enabled'] == false) || (isset($area['enabled']) && $area['enabled'] == false))
 					{
-						fatal_lang_error('no_access', false);
+						ErrorHandler::fatalLang('no_access', false);
 					}
 
 					// Are we saving data in a valid area?
@@ -985,7 +986,7 @@ class Main implements ActionInterface
 
 		// Oh dear, some serious security lapse is going on here... we'll put a stop to that!
 		if (!$found_area)
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		// Now the context is setup have we got any security checks to carry out additional to that above?
 		if (isset($security_checks['session']))

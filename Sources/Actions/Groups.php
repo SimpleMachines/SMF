@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
@@ -268,7 +269,7 @@ class Groups implements ActionInterface
 
 		// No browsing of guests, membergroup 0 or moderators.
 		if (in_array($_REQUEST['group'], array(-1, 0, 3)))
-			fatal_lang_error('membergroup_does_not_exist', false);
+			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
 
 		// Load up the group details.
 		$request = Db::$db->query('', '
@@ -285,7 +286,7 @@ class Groups implements ActionInterface
 		// Doesn't exist?
 		if (Db::$db->num_rows($request) == 0)
 		{
-			fatal_lang_error('membergroup_does_not_exist', false);
+			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
 		}
 		Utils::$context['group'] = Db::$db->fetch_assoc($request);
 		Db::$db->free_result($request);
@@ -326,7 +327,7 @@ class Groups implements ActionInterface
 
 		// If this group is hidden then it can only "exist" if the user can moderate it!
 		if (Utils::$context['group']['hidden'] && !Utils::$context['group']['can_moderate'])
-			fatal_lang_error('membergroup_does_not_exist', false);
+			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
 
 		// You can only assign membership if you are the moderator and/or can manage groups!
 		if (!Utils::$context['group']['can_moderate'])

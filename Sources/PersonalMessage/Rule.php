@@ -17,6 +17,7 @@ use SMF\ArrayAccessHelper;
 use SMF\BackwardCompatibility;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -164,10 +165,10 @@ class Rule implements \ArrayAccess
 	public function save(): void
 	{
 		if (empty($this->name))
-			fatal_lang_error('pm_rule_no_name', false);
+			ErrorHandler::fatalLang('pm_rule_no_name', false);
 
 		if (empty($this->criteria) || (empty($this->actions) && !$this->delete))
-			fatal_lang_error('pm_rule_no_criteria', false);
+			ErrorHandler::fatalLang('pm_rule_no_criteria', false);
 
 		if (empty($this->id))
 		{
@@ -565,7 +566,7 @@ class Rule implements \ArrayAccess
 
 			// Sanity check...
 			if (empty($_POST['ruletype']) || empty($_POST['acttype']))
-				fatal_lang_error('pm_rule_no_criteria', false);
+				ErrorHandler::fatalLang('pm_rule_no_criteria', false);
 
 			// Let's do the criteria first - it's also hardest!
 			$rule->criteria = array();
@@ -603,7 +604,7 @@ class Rule implements \ArrayAccess
 					if (Db::$db->num_rows($request) == 0)
 					{
 						Lang::load('Errors');
-						fatal_lang_error('invalid_username', false);
+						ErrorHandler::fatalLang('invalid_username', false);
 					}
 					list($memID) = Db::$db->fetch_row($request);
 					Db::$db->free_result($request);

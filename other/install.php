@@ -12,6 +12,7 @@
  */
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\User;
 use SMF\Utils;
@@ -1701,7 +1702,6 @@ function DeleteInstall()
 
 	chdir(Config::$boarddir);
 
-	require_once(Config::$sourcedir . '/ErrorHandler.php');
 	require_once(Config::$sourcedir . '/Logging.php');
 	require_once(Config::$sourcedir . '/Subs.php');
 	require_once(Config::$sourcedir . '/Security.php');

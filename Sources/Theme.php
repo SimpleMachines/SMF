@@ -331,7 +331,7 @@ class Theme
 		Utils::$context['utf8'] = Utils::$context['character_set'] === 'UTF-8';
 		Utils::$context['right_to_left'] = !empty(Lang::$txt['lang_rtl']);
 
-		// Tell fatal_lang_error() to not reload the theme.
+		// Tell ErrorHandler::fatalLang() to not reload the theme.
 		Utils::$context['theme_loaded'] = true;
 	}
 
@@ -407,11 +407,11 @@ class Theme
 		// Cause an error otherwise.
 		elseif ($template_name != 'Errors' && $template_name != 'index' && $fatal)
 		{
-			fatal_lang_error('theme_template_error', 'template', array((string) $template_name));
+			ErrorHandler::fatalLang('theme_template_error', 'template', array((string) $template_name));
 		}
 		elseif ($fatal)
 		{
-			die(log_error(sprintf(isset(Lang::$txt['theme_template_error']) ? Lang::$txt['theme_template_error'] : 'Unable to load Themes/default/%s.template.php!', (string) $template_name), 'template'));
+			die(ErrorHandler::log(sprintf(isset(Lang::$txt['theme_template_error']) ? Lang::$txt['theme_template_error'] : 'Unable to load Themes/default/%s.template.php!', (string) $template_name), 'template'));
 		}
 		else
 		{
@@ -447,11 +447,11 @@ class Theme
 		}
 		elseif ($fatal === false)
 		{
-			fatal_lang_error('theme_template_error', 'template', array((string) $sub_template_name));
+			ErrorHandler::fatalLang('theme_template_error', 'template', array((string) $sub_template_name));
 		}
 		elseif ($fatal !== 'ignore')
 		{
-			die(log_error(sprintf(isset(Lang::$txt['theme_template_error']) ? Lang::$txt['theme_template_error'] : 'Unable to load the %s sub template!', (string) $sub_template_name), 'template'));
+			die(ErrorHandler::log(sprintf(isset(Lang::$txt['theme_template_error']) ? Lang::$txt['theme_template_error'] : 'Unable to load the %s sub template!', (string) $sub_template_name), 'template'));
 		}
 
 		// Are we showing debugging for templates?  Just make sure not to do it before the doctype...
@@ -1829,7 +1829,7 @@ class Theme
 		elseif (@fopen($minified_file, 'w') === false || !smf_chmod($minified_file))
 		{
 			Lang::load('Errors');
-			log_error(sprintf(Lang::$txt['file_not_created'], $minified_file), 'general');
+			ErrorHandler::log(sprintf(Lang::$txt['file_not_created'], $minified_file), 'general');
 
 			// The process failed, so roll back to print each individual file.
 			return $data;
@@ -1848,7 +1848,7 @@ class Theme
 			if (empty($toAdd))
 			{
 				Lang::load('Errors');
-				log_error(sprintf(Lang::$txt['file_minimize_fail'], !empty($file['fileName']) ? $file['fileName'] : $id), 'general');
+				ErrorHandler::log(sprintf(Lang::$txt['file_minimize_fail'], !empty($file['fileName']) ? $file['fileName'] : $id), 'general');
 
 				continue;
 			}
@@ -1866,7 +1866,7 @@ class Theme
 		if (!filesize($minified_file))
 		{
 			Lang::load('Errors');
-			log_error(sprintf(Lang::$txt['file_not_created'], $minified_file), 'general');
+			ErrorHandler::log(sprintf(Lang::$txt['file_not_created'], $minified_file), 'general');
 
 			// The process failed so roll back to print each individual file.
 			return $data;
@@ -1926,7 +1926,7 @@ class Theme
 		if (!empty($not_deleted))
 		{
 			Lang::load('Errors');
-			log_error(sprintf(Lang::$txt['unlink_minimized_fail'], implode('<br>', $not_deleted)), 'general');
+			ErrorHandler::log(sprintf(Lang::$txt['unlink_minimized_fail'], implode('<br>', $not_deleted)), 'general');
 		}
 	}
 
@@ -2670,7 +2670,7 @@ class Theme
 			if (isset($_GET['sslRedirect']))
 			{
 				Lang::load('Errors');
-				fatal_lang_error('login_ssl_required', false);
+				ErrorHandler::fatalLang('login_ssl_required', false);
 			}
 
 			redirectexit(strtr($_SERVER['REQUEST_URL'], array('http://' => 'https://')) . (strpos($_SERVER['REQUEST_URL'], '?') > 0 ? ';' : '?') . 'sslRedirect');

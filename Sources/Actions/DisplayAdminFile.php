@@ -16,6 +16,7 @@ namespace SMF\Actions;
 use SMF\BackwardCompatibility;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -62,7 +63,7 @@ class DisplayAdminFile implements ActionInterface
 		setMemoryLimit('32M');
 
 		if (empty($_REQUEST['filename']) || !is_string($_REQUEST['filename']))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		// Strip off the forum cache part or we won't find it...
 		$_REQUEST['filename'] = str_replace(Utils::$context['browser_cache'], '', $_REQUEST['filename']);
@@ -78,7 +79,7 @@ class DisplayAdminFile implements ActionInterface
 		);
 		if (Db::$db->num_rows($request) == 0)
 		{
-			fatal_lang_error('admin_file_not_found', true, array($_REQUEST['filename']), 404);
+			ErrorHandler::fatalLang('admin_file_not_found', true, array($_REQUEST['filename']), 404);
 		}
 		list($file_data, $filetype) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);

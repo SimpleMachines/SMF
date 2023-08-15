@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\Board;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -348,7 +349,7 @@ class Unread implements ActionInterface
 			return;
 
 		if (Utils::$context['load_average'] >= Config::$modSettings['loadavg_unread'])
-			fatal_lang_error('loadavg_unread_disabled', false);
+			ErrorHandler::fatalLang('loadavg_unread_disabled', false);
 	}
 
 	/**
@@ -363,7 +364,7 @@ class Unread implements ActionInterface
 			return;
 
 		if (Utils::$context['load_average'] >= Config::$modSettings['loadavg_allunread'])
-			fatal_lang_error('loadavg_allunread_disabled', false);
+			ErrorHandler::fatalLang('loadavg_allunread_disabled', false);
 	}
 
 	/**
@@ -410,7 +411,7 @@ class Unread implements ActionInterface
 			Db::$db->free_result($request);
 
 			if (empty($this->boards))
-				fatal_lang_error('error_no_boards_selected');
+				ErrorHandler::fatalLang('error_no_boards_selected');
 
 			$this->query_this_board = 'id_board IN ({array_int:boards})';
 			$this->query_parameters['boards'] = $this->boards;
@@ -445,7 +446,7 @@ class Unread implements ActionInterface
 			Db::$db->free_result($request);
 
 			if (empty($this->boards))
-				fatal_lang_error('error_no_boards_selected');
+				ErrorHandler::fatalLang('error_no_boards_selected');
 
 			$this->query_this_board = 'id_board IN ({array_int:boards})';
 			$this->query_parameters['boards'] = $this->boards;
@@ -474,7 +475,7 @@ class Unread implements ActionInterface
 			Db::$db->free_result($request);
 
 			if (empty($this->boards))
-				fatal_lang_error('error_no_boards_selected');
+				ErrorHandler::fatalLang('error_no_boards_selected');
 
 			$this->query_this_board = 'id_board IN ({array_int:boards})';
 			$this->query_parameters['boards'] = $this->boards;
@@ -499,7 +500,7 @@ class Unread implements ActionInterface
 			Db::$db->free_result($request);
 
 			if (empty($this->boards))
-				fatal_lang_error('error_no_boards_available', false);
+				ErrorHandler::fatalLang('error_no_boards_available', false);
 
 			$this->query_this_board = 'id_board IN ({array_int:boards})';
 			$this->query_parameters['boards'] = $this->boards;

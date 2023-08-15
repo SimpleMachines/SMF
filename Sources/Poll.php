@@ -968,7 +968,7 @@ class Poll implements \ArrayAccess
 		$poll = self::load(Topic::$topic_id, self::LOAD_BY_TOPIC);
 
 		if (empty($poll->id))
-			fatal_lang_error('poll_error', false);
+			ErrorHandler::fatalLang('poll_error', false);
 
 		$poll->buildPermissions();
 
@@ -977,9 +977,9 @@ class Poll implements \ArrayAccess
 		{
 			// Guests trying to vote illegally get their own error message.
 			if (User::$me->is_guest && !$poll->guest_vote)
-				fatal_lang_error('guest_vote_disabled', false);
+				ErrorHandler::fatalLang('guest_vote_disabled', false);
 
-			fatal_lang_error('poll_error', false);
+			ErrorHandler::fatalLang('poll_error', false);
 		}
 
 		checkSession('request');
@@ -1022,11 +1022,11 @@ class Poll implements \ArrayAccess
 
 		// Make sure the option(s) are valid.
 		if (empty($_POST['options']))
-			fatal_lang_error('didnt_select_vote', false);
+			ErrorHandler::fatalLang('didnt_select_vote', false);
 
 		// Too many options checked!
 		if (count($_REQUEST['options']) > $poll->max_votes)
-			fatal_lang_error('poll_too_many_votes', false, array($poll->max_votes));
+			ErrorHandler::fatalLang('poll_too_many_votes', false, array($poll->max_votes));
 
 		$choices = array_map('intval', $_REQUEST['options']);
 
@@ -1091,7 +1091,7 @@ class Poll implements \ArrayAccess
 		$poll = self::load(Topic::$topic_id, self::LOAD_BY_TOPIC);
 
 		if (empty($poll->id))
-			fatal_lang_error('poll_error', false);
+			ErrorHandler::fatalLang('poll_error', false);
 
 		$poll->buildPermissions();
 
@@ -1105,7 +1105,7 @@ class Poll implements \ArrayAccess
 			case 2:
 				// If current user is not a moderator, they can't unlock it.
 				if (!allowedTo('moderate_board'))
-					fatal_lang_error('locked_by_admin', 'user');
+					ErrorHandler::fatalLang('locked_by_admin', 'user');
 
 				// Otherwise, unlock it.
 				$poll->voting_locked = 0;
@@ -1147,7 +1147,7 @@ class Poll implements \ArrayAccess
 	public static function edit(): void
 	{
 		if (empty(Topic::$topic_id))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		Lang::load('Post');
 		Theme::loadTemplate('Poll');
@@ -1157,18 +1157,18 @@ class Poll implements \ArrayAccess
 
 		// Topic must exist.
 		if (empty(Topic::load()->id))
-			fatal_lang_error('no_board', false);
+			ErrorHandler::fatalLang('no_board', false);
 
 		// Get the poll attached to this topic, if there is one.
 		$poll = self::load(Topic::$topic_id, self::LOAD_BY_TOPIC);
 
 		// If we are adding a new poll, make sure that there isn't already a poll there.
 		if (!Utils::$context['is_edit'] && !empty($poll->id))
-			fatal_lang_error('poll_already_exists', false);
+			ErrorHandler::fatalLang('poll_already_exists', false);
 
 		// Otherwise, if we're editing it, it obviously needs to exist.
 		if (Utils::$context['is_edit'] && empty($poll->id))
-			fatal_lang_error('poll_not_found', false);
+			ErrorHandler::fatalLang('poll_not_found', false);
 
 		// Can you do this?
 		Utils::$context['can_moderate_poll'] = Utils::$context['is_edit'] ? self::checkEditPermission($poll) : self::checkCreatePermission();
@@ -1239,7 +1239,7 @@ class Poll implements \ArrayAccess
 
 		// Topic must exist.
 		if (empty(Topic::load()->id))
-			fatal_lang_error('no_board', false);
+			ErrorHandler::fatalLang('no_board', false);
 
 		// Is this a new poll, or editing an existing?
 		$is_edit = isset($_REQUEST['add']) ? 0 : 1;
@@ -1249,11 +1249,11 @@ class Poll implements \ArrayAccess
 
 		// Check their adding/editing is valid.
 		if (!$is_edit && !empty($poll->id))
-			fatal_lang_error('poll_already_exists');
+			ErrorHandler::fatalLang('poll_already_exists');
 
 		// Are we editing a poll that doesn't exist?
 		if ($is_edit && empty($poll->id))
-			fatal_lang_error('poll_not_found');
+			ErrorHandler::fatalLang('poll_not_found');
 
 		// Does this poll belong to the current user?
 		$is_own_topic = User::$me->id == Topic::$info->id_member_started;
@@ -1359,7 +1359,7 @@ class Poll implements \ArrayAccess
 	{
 		// Make sure the topic is not empty.
 		if (empty(Topic::$topic_id))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		// Verify the session.
 		checkSession('get');
@@ -1367,7 +1367,7 @@ class Poll implements \ArrayAccess
 		$poll = self::load(Topic::$topic_id, self::LOAD_BY_TOPIC);
 
 		if (empty($poll->id))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		self::checkRemovePermission($poll);
 
@@ -1892,7 +1892,7 @@ class Poll implements \ArrayAccess
 		// If the user tries to set the poll too far in advance, don't let them.
 		if (!empty($_POST['poll_expire']) && $_POST['poll_expire'] < 1)
 		{
-			fatal_lang_error('poll_range_error', false);
+			ErrorHandler::fatalLang('poll_range_error', false);
 		}
 		// Don't allow them to select option 2 for hidden results if it's not time limited.
 		elseif (empty($_POST['poll_expire']) && $_POST['poll_hide'] == 2)

@@ -798,11 +798,11 @@ class Board implements \ArrayAccess
 				// People can be creative, in many ways...
 				if (self::isChildOf($id_parent, $this->id))
 				{
-					fatal_lang_error('mboards_parent_own_child_error', false);
+					ErrorHandler::fatalLang('mboards_parent_own_child_error', false);
 				}
 				elseif ($id_parent == $this->id)
 				{
-					fatal_lang_error('mboards_board_own_child_error', false);
+					ErrorHandler::fatalLang('mboards_board_own_child_error', false);
 				}
 
 				$after = self::$loaded[$target_board]->order;
@@ -1525,7 +1525,7 @@ class Board implements \ArrayAccess
 				&& !isset(Category::$loaded[$boardOptions['target_category']]))
 		)
 		{
-			fatal_lang_error('no_board');
+			ErrorHandler::fatalLang('no_board');
 		}
 
 		call_integration_hook('integrate_pre_modify_board', array($board_id, &$boardOptions));
@@ -2489,7 +2489,7 @@ class Board implements \ArrayAccess
 		{
 			User::$me->loadPermissions();
 			Theme::load();
-			fatal_lang_error('topic_gone', false);
+			ErrorHandler::fatalLang('topic_gone', false);
 		}
 	}
 
@@ -2767,7 +2767,7 @@ class Board implements \ArrayAccess
 			elseif ($this->error == 'post_in_redirect')
 			{
 				// Slightly different error message here...
-				fatal_lang_error('cannot_post_redirect', false);
+				ErrorHandler::fatalLang('cannot_post_redirect', false);
 			}
 			elseif (User::$me->is_guest)
 			{
@@ -2776,7 +2776,7 @@ class Board implements \ArrayAccess
 			}
 			else
 			{
-				fatal_lang_error('topic_gone', false);
+				ErrorHandler::fatalLang('topic_gone', false);
 			}
 		}
 	}

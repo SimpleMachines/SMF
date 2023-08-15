@@ -2418,7 +2418,7 @@ class ServerSideIncludes
 
 		// Don't do john didley if the forum's been shut down completely.
 		if (Config::$maintenance == 2 && $this->maintenance_off !== true)
-			display_maintenance_message();
+			ErrorHandler::displayMaintenanceMessage();
 
 		// Initiate the database connection and define some database functions to use.
 		Db::load();

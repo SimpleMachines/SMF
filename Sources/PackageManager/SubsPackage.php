@@ -15,6 +15,7 @@ namespace SMF\PackageManager;
 
 use SMF\BackwardCompatibility;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Theme;
@@ -124,7 +125,7 @@ class SubsPackage
 
 		// This function sorta needs gzinflate!
 		if (!function_exists('gzinflate'))
-			fatal_lang_error('package_no_lib', 'critical', array('package_no_zlib', 'package_no_package_manager'));
+			ErrorHandler::fatalLang('package_no_lib', 'critical', array('package_no_zlib', 'package_no_package_manager'));
 
 		umask(0);
 		if (!$single_file && $destination !== null && !file_exists($destination))
@@ -2999,7 +3000,7 @@ class SubsPackage
 						return false;
 
 					if (strpos($errstr, 'PharData::__construct(): open_basedir') === false && strpos($errstr, 'PharData::compress(): open_basedir') === false)
-						log_error($errstr, 'general', $errfile, $errline);
+						ErrorHandler::log($errstr, 'general', $errfile, $errline);
 
 					return true;
 				}
@@ -3018,7 +3019,7 @@ class SubsPackage
 		}
 		catch (\Exception $e)
 		{
-			log_error($e->getMessage(), 'backup');
+			ErrorHandler::log($e->getMessage(), 'backup');
 
 			return false;
 		}
@@ -3170,7 +3171,7 @@ class SubsPackage
 
 		// @todo Shouldn't happen - but better error message?
 		if (!is_dir($path))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		// This is where we put stuff we've found for sorting.
 		$foundData = array(

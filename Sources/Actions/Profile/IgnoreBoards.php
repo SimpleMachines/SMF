@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\Category;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Profile;
 use SMF\User;
 use SMF\Utils;
@@ -65,7 +66,7 @@ class IgnoreBoards implements ActionInterface
 	{
 		// Have the admins enabled this option?
 		if (empty(Config::$modSettings['allow_ignore_boards']))
-			fatal_lang_error('ignoreboards_disallowed', 'user');
+			ErrorHandler::fatalLang('ignoreboards_disallowed', 'user');
 
 		// Find all the boards this user is allowed to see.
 		Utils::$context['num_boards'] = 0;

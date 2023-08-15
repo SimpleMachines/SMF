@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\Category;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -271,7 +272,7 @@ class Search2 implements ActionInterface
 	{
 		if (!empty(Utils::$context['load_average']) && !empty(Config::$modSettings['loadavg_search']) && Utils::$context['load_average'] >= Config::$modSettings['loadavg_search'])
 		{
-			fatal_lang_error('loadavg_search_disabled', false);
+			ErrorHandler::fatalLang('loadavg_search_disabled', false);
 		}
 	}
 

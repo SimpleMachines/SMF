@@ -2531,26 +2531,26 @@ class Msg implements \ArrayAccess
 						if ($row['id_member_poster'] == User::$me->id)
 						{
 							if (!$delete_replies)
-								fatal_lang_error('cannot_delete_replies', 'permission');
+								ErrorHandler::fatalLang('cannot_delete_replies', 'permission');
 						}
 						else
 						{
-							fatal_lang_error('cannot_delete_own', 'permission');
+							ErrorHandler::fatalLang('cannot_delete_own', 'permission');
 						}
 					}
 					elseif (($row['id_member_poster'] != User::$me->id || !$delete_replies) && !empty(Config::$modSettings['edit_disable_time']) && $row['poster_time'] + Config::$modSettings['edit_disable_time'] * 60 < time())
 					{
-						fatal_lang_error('modify_post_time_passed', false);
+						ErrorHandler::fatalLang('modify_post_time_passed', false);
 					}
 				}
 				elseif ($row['id_member_poster'] == User::$me->id)
 				{
 					if (!$delete_replies)
-						fatal_lang_error('cannot_delete_replies', 'permission');
+						ErrorHandler::fatalLang('cannot_delete_replies', 'permission');
 				}
 				else
 				{
-					fatal_lang_error('cannot_delete_any', 'permission');
+					ErrorHandler::fatalLang('cannot_delete_any', 'permission');
 				}
 			}
 
@@ -2581,7 +2581,7 @@ class Msg implements \ArrayAccess
 				}
 				elseif (!allowedTo('delete_any') && ($row['id_member_poster'] != User::$me->id || !allowedTo('delete_replies')) && !empty(Config::$modSettings['edit_disable_time']) && $row['poster_time'] + Config::$modSettings['edit_disable_time'] * 60 < time())
 				{
-					fatal_lang_error('modify_post_time_passed', false);
+					ErrorHandler::fatalLang('modify_post_time_passed', false);
 				}
 			}
 			elseif ($row['id_member_poster'] == User::$me->id && !allowedTo('delete_any'))
@@ -2615,11 +2615,11 @@ class Msg implements \ArrayAccess
 
 				if ($row['id_member'] != User::$me->id && !$remove_any)
 				{
-					fatal_lang_error('cannot_remove_any', 'permission');
+					ErrorHandler::fatalLang('cannot_remove_any', 'permission');
 				}
 				elseif (!$remove_any && !$remove_own)
 				{
-					fatal_lang_error('cannot_remove_own', 'permission');
+					ErrorHandler::fatalLang('cannot_remove_own', 'permission');
 				}
 			}
 			else
@@ -2637,7 +2637,7 @@ class Msg implements \ArrayAccess
 
 			// ...if there is only one post.
 			if (!empty($row['num_replies']))
-				fatal_lang_error('delFirstPost', false);
+				ErrorHandler::fatalLang('delFirstPost', false);
 
 			Topic::remove($row['id_topic']);
 
@@ -2721,7 +2721,7 @@ class Msg implements \ArrayAccess
 			);
 			if (Db::$db->num_rows($request) == 0)
 			{
-				fatal_lang_error('recycle_no_valid_board');
+				ErrorHandler::fatalLang('recycle_no_valid_board');
 			}
 			list($isRead, $last_board_msg) = Db::$db->fetch_row($request);
 			Db::$db->free_result($request);

@@ -16,6 +16,7 @@ namespace SMF\Actions;
 use SMF\BackwardCompatibility;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -129,7 +130,7 @@ class Who implements ActionInterface
 
 		// You can't do anything if this is off.
 		if (empty(Config::$modSettings['who_enabled']))
-			fatal_lang_error('who_off', false);
+			ErrorHandler::fatalLang('who_off', false);
 
 		// Discourage robots from indexing this page.
 		Utils::$context['robot_no_index'] = true;

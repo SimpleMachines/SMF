@@ -18,6 +18,7 @@ use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\Profile;
@@ -95,7 +96,7 @@ class XmlHttp implements ActionInterface
 	public function execute(): void
 	{
 		if (!isset($this->subaction))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		call_helper(method_exists($this, self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : self::$subactions[$this->subaction]);
 	}

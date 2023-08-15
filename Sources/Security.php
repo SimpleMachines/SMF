@@ -15,6 +15,7 @@
  */
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -68,7 +69,7 @@ function validateSession($type = 'admin', $force = false)
 	{
 		// Check to ensure we're forcing SSL for authentication
 		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !httpsOn())
-			fatal_lang_error('login_ssl_required');
+			ErrorHandler::fatalLang('login_ssl_required');
 
 		checkSession();
 
@@ -333,7 +334,7 @@ function is_not_banned($forceCheck = false)
 		Logout::call(true, false);
 
 		// You banned, sucka!
-		fatal_error(sprintf(Lang::$txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_access']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_access']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf(Lang::$txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : Lang::$txt['your_ban_expires_never']), false, 403);
+		ErrorHandler::fatal(sprintf(Lang::$txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_access']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_access']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf(Lang::$txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : Lang::$txt['your_ban_expires_never']), false, 403);
 
 		// If we get here, something's gone wrong.... but let's try anyway.
 		trigger_error('No direct access...', E_USER_ERROR);
@@ -362,7 +363,7 @@ function is_not_banned($forceCheck = false)
 
 		Logout::call(true, false);
 
-		fatal_error(sprintf(Lang::$txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_login']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_login']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf(Lang::$txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : Lang::$txt['your_ban_expires_never']) . '<br>' . Lang::$txt['ban_continue_browse'], false, 403);
+		ErrorHandler::fatal(sprintf(Lang::$txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_login']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_login']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf(Lang::$txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : Lang::$txt['your_ban_expires_never']) . '<br>' . Lang::$txt['ban_continue_browse'], false, 403);
 	}
 
 	// Fix up the banning permissions.
@@ -543,14 +544,14 @@ function isBannedEmail($email, $restriction, $error)
 		log_ban($_SESSION['ban']['cannot_access']['ids']);
 		$_SESSION['ban']['last_checked'] = time();
 
-		fatal_error(sprintf(Lang::$txt['your_ban'], Lang::$txt['guest_title']) . $_SESSION['ban']['cannot_access']['reason'], false);
+		ErrorHandler::fatal(sprintf(Lang::$txt['your_ban'], Lang::$txt['guest_title']) . $_SESSION['ban']['cannot_access']['reason'], false);
 	}
 
 	if (!empty($ban_ids))
 	{
 		// Log this ban for future reference.
 		log_ban($ban_ids, $email);
-		fatal_error($error . $ban_reason, false);
+		ErrorHandler::fatal($error . $ban_reason, false);
 	}
 }
 
@@ -651,7 +652,7 @@ function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 	}
 
 	if (strtolower($_SERVER['HTTP_USER_AGENT']) == 'hacker')
-		fatal_error('Sound the alarm!  It\'s a hacker!  Close the castle gates!!', false);
+		ErrorHandler::fatal('Sound the alarm!  It\'s a hacker!  Close the castle gates!!', false);
 
 	// Everything is ok, return an empty string.
 	if (!isset($error))
@@ -666,7 +667,7 @@ function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 			die;
 		}
 		else
-			fatal_lang_error($error, isset($log_error) ? 'user' : false);
+			ErrorHandler::fatalLang($error, isset($log_error) ? 'user' : false);
 	}
 	// A session error occurred, return the error to the calling function.
 	else
@@ -753,7 +754,7 @@ function validateToken($action, $type = 'post', $reset = true)
 		// I'm back baby.
 		createToken($action, $type);
 
-		fatal_lang_error('token_verify_fail', false);
+		ErrorHandler::fatalLang('token_verify_fail', false);
 	}
 	// Remove this token as its useless
 	else
@@ -820,7 +821,7 @@ function checkSubmitOnce($action, $is_fatal = true)
 			return true;
 		}
 		elseif ($is_fatal)
-			fatal_lang_error('error_form_already_submitted', false);
+			ErrorHandler::fatalLang('error_form_already_submitted', false);
 		else
 			return false;
 	}
@@ -991,7 +992,7 @@ function isAllowedTo($permission, $boards = null, $any = false)
 		$_GET['topic'] = '';
 		writeLog(true);
 
-		fatal_lang_error('cannot_' . $error_permission, false);
+		ErrorHandler::fatalLang('cannot_' . $error_permission, false);
 
 		// Getting this far is a really big problem, but let's try our best to prevent any cases...
 		trigger_error('No direct access...', E_USER_ERROR);
@@ -1159,7 +1160,7 @@ function spamProtection($error_type, $only_return_result = false)
 	{
 		// Spammer!  You only have to wait a *few* seconds!
 		if (!$only_return_result)
-			fatal_lang_error($error_type . '_WaitTime_broken', false, array($timeLimit));
+			ErrorHandler::fatalLang($error_type . '_WaitTime_broken', false, array($timeLimit));
 
 		return true;
 	}

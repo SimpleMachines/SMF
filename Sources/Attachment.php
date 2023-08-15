@@ -1014,7 +1014,7 @@ class Attachment implements \ArrayAccess
 		elseif (!is_dir(Utils::$context['attach_dir']))
 		{
 			$initial_error = 'attach_folder_warning';
-			log_error(sprintf(Lang::$txt['attach_folder_admin_warning'], Utils::$context['attach_dir']), 'critical');
+			ErrorHandler::log(sprintf(Lang::$txt['attach_folder_admin_warning'], Utils::$context['attach_dir']), 'critical');
 		}
 
 		if (!isset($initial_error) && !isset(Utils::$context['attachments']))
@@ -1123,11 +1123,11 @@ class Attachment implements \ArrayAccess
 				}
 				elseif ($_FILES['attachment']['error'][$n] == 6)
 				{
-					log_error($_FILES['attachment']['name'][$n] . ': ' . Lang::$txt['php_upload_error_6'], 'critical');
+					ErrorHandler::log($_FILES['attachment']['name'][$n] . ': ' . Lang::$txt['php_upload_error_6'], 'critical');
 				}
 				else
 				{
-					log_error($_FILES['attachment']['name'][$n] . ': ' . Lang::$txt['php_upload_error_' . $_FILES['attachment']['error'][$n]]);
+					ErrorHandler::log($_FILES['attachment']['name'][$n] . ': ' . Lang::$txt['php_upload_error_' . $_FILES['attachment']['error'][$n]]);
 				}
 
 				if (empty($errors))
@@ -1225,7 +1225,7 @@ class Attachment implements \ArrayAccess
 
 		// Let's get their attention.
 		if (!empty($error))
-			fatal_lang_error('attach_check_nag', 'debug', array($error));
+			ErrorHandler::fatalLang('attach_check_nag', 'debug', array($error));
 
 		// Just in case this slipped by the first checks, we stop it here and now
 		if ($_SESSION['temp_attachments'][$attachID]['size'] == 0)
@@ -1555,7 +1555,7 @@ class Attachment implements \ArrayAccess
 		if (empty($attachmentOptions['id']))
 		{
 			Lang::load('Errors');
-			log_error(Lang::$txt['attachment_not_created'], 'general');
+			ErrorHandler::log(Lang::$txt['attachment_not_created'], 'general');
 			return false;
 		}
 

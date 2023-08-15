@@ -18,6 +18,7 @@ use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\BrowserDetector;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Event;
 use SMF\Lang;
 use SMF\Theme;
@@ -117,7 +118,7 @@ class Calendar implements ActionInterface
 	{
 		// You can't do anything if the calendar is off.
 		if (empty(Config::$modSettings['cal_enabled']))
-			fatal_lang_error('calendar_off', false);
+			ErrorHandler::fatalLang('calendar_off', false);
 
 		// This is gonna be needed...
 		Theme::loadTemplate('Calendar');
@@ -235,12 +236,12 @@ class Calendar implements ActionInterface
 		// Make sure the year and month are in valid ranges.
 		if ($curPage['month'] < 1 || $curPage['month'] > 12)
 		{
-			fatal_lang_error('invalid_month', false);
+			ErrorHandler::fatalLang('invalid_month', false);
 		}
 
 		if ($curPage['year'] < Config::$modSettings['cal_minyear'] || $curPage['year'] > Config::$modSettings['cal_maxyear'])
 		{
-			fatal_lang_error('invalid_year', false);
+			ErrorHandler::fatalLang('invalid_year', false);
 		}
 
 		// If we have a day clean that too.
@@ -249,7 +250,7 @@ class Calendar implements ActionInterface
 			$isValid = checkdate($curPage['month'], $curPage['day'], $curPage['year']);
 
 			if (!$isValid)
-				fatal_lang_error('invalid_day', false);
+				ErrorHandler::fatalLang('invalid_day', false);
 		}
 
 		// Load all the context information needed to show the calendar grid.
@@ -447,7 +448,7 @@ class Calendar implements ActionInterface
 			list(Utils::$context['event']) = Event::load($_REQUEST['eventid']);
 
 			if (empty(Utils::$context['event']))
-				fatal_lang_error('no_access', false);
+				ErrorHandler::fatalLang('no_access', false);
 
 			// If it has a board, then they should be editing it within the topic.
 			if (!empty(Utils::$context['event']->topic) && !empty(Utils::$context['event']->msg))
@@ -528,17 +529,17 @@ class Calendar implements ActionInterface
 	{
 		// You can't export if the calendar export feature is off.
 		if (empty(Config::$modSettings['cal_export']))
-			fatal_lang_error('calendar_export_off', false);
+			ErrorHandler::fatalLang('calendar_export_off', false);
 
 		// Goes without saying that this is required.
 		if (!isset($_REQUEST['eventid']))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		// Load up the event in question and check it is valid.
 		list($event) = Event::load($_REQUEST['eventid']);
 
 		if (!($event instanceof Event))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		// This is what we will be sending later.
 		$filecontents = array();
@@ -886,10 +887,10 @@ class Calendar implements ActionInterface
 
 		// No board?  No topic?!?
 		if (empty(Board::$info->id))
-			fatal_lang_error('missing_board_id', false);
+			ErrorHandler::fatalLang('missing_board_id', false);
 
 		if (empty(Topic::$topic_id))
-			fatal_lang_error('missing_topic_id', false);
+			ErrorHandler::fatalLang('missing_topic_id', false);
 
 		// Administrator, Moderator, or owner.  Period.
 		if (!allowedTo('admin_forum') && !allowedTo('moderate_board'))
@@ -908,12 +909,12 @@ class Calendar implements ActionInterface
 			{
 				// Not the owner of the topic.
 				if ($row['id_member_started'] != User::$me->id)
-					fatal_lang_error('not_your_topic', 'user');
+					ErrorHandler::fatalLang('not_your_topic', 'user');
 			}
 			// Topic/Board doesn't exist.....
 			else
 			{
-				fatal_lang_error('calendar_no_topic', 'general');
+				ErrorHandler::fatalLang('calendar_no_topic', 'general');
 			}
 			Db::$db->free_result($result);
 		}
@@ -1610,44 +1611,44 @@ class Calendar implements ActionInterface
 				$d = date_parse(str_replace(',', '', self::convertDateToEnglish($_POST['start_date'])));
 
 				if (!empty($d['error_count']) || !empty($d['warning_count']))
-					fatal_lang_error('invalid_date', false);
+					ErrorHandler::fatalLang('invalid_date', false);
 
 				if (empty($d['year']))
-					fatal_lang_error('event_year_missing', false);
+					ErrorHandler::fatalLang('event_year_missing', false);
 
 				if (empty($d['month']))
-					fatal_lang_error('event_month_missing', false);
+					ErrorHandler::fatalLang('event_month_missing', false);
 			}
 			elseif (isset($_POST['start_datetime']))
 			{
 				$d = date_parse(str_replace(',', '', self::convertDateToEnglish($_POST['start_datetime'])));
 
 				if (!empty($d['error_count']) || !empty($d['warning_count']))
-					fatal_lang_error('invalid_date', false);
+					ErrorHandler::fatalLang('invalid_date', false);
 
 				if (empty($d['year']))
-					fatal_lang_error('event_year_missing', false);
+					ErrorHandler::fatalLang('event_year_missing', false);
 
 				if (empty($d['month']))
-					fatal_lang_error('event_month_missing', false);
+					ErrorHandler::fatalLang('event_month_missing', false);
 			}
 			// The 2.0 way
 			else
 			{
 				// No month?  No year?
 				if (!isset($_POST['month']))
-					fatal_lang_error('event_month_missing', false);
+					ErrorHandler::fatalLang('event_month_missing', false);
 
 				if (!isset($_POST['year']))
-					fatal_lang_error('event_year_missing', false);
+					ErrorHandler::fatalLang('event_year_missing', false);
 
 				// Check the month and year...
 				if ($_POST['month'] < 1 || $_POST['month'] > 12)
-					fatal_lang_error('invalid_month', false);
+					ErrorHandler::fatalLang('invalid_month', false);
 
 				if ($_POST['year'] < Config::$modSettings['cal_minyear'] || $_POST['year'] > Config::$modSettings['cal_maxyear'])
 				{
-					fatal_lang_error('invalid_year', false);
+					ErrorHandler::fatalLang('invalid_year', false);
 				}
 			}
 		}
@@ -1658,7 +1659,7 @@ class Calendar implements ActionInterface
 		// If they want to us to calculate an end date, make sure it will fit in an acceptable range.
 		if (isset($_POST['span']) && (($_POST['span'] < 1) || (!empty(Config::$modSettings['cal_maxspan']) && $_POST['span'] > Config::$modSettings['cal_maxspan'])))
 		{
-			fatal_lang_error('invalid_days_numb', false);
+			ErrorHandler::fatalLang('invalid_days_numb', false);
 		}
 
 		// There is no need to validate the following values if we are just deleting the event.
@@ -1669,24 +1670,24 @@ class Calendar implements ActionInterface
 			{
 				// No day?
 				if (!isset($_POST['day']))
-					fatal_lang_error('event_day_missing', false);
+					ErrorHandler::fatalLang('event_day_missing', false);
 
 				// Bad day?
 				if (!checkdate($_POST['month'], $_POST['day'], $_POST['year']))
-					fatal_lang_error('invalid_date', false);
+					ErrorHandler::fatalLang('invalid_date', false);
 			}
 
 			if (!isset($_POST['evtitle']))
 			{
 				if (!isset($_POST['subject']))
-					fatal_lang_error('event_title_missing', false);
+					ErrorHandler::fatalLang('event_title_missing', false);
 
 				$_POST['evtitle'] = $_POST['subject'];
 			}
 
 			// No title?
 			if (Utils::htmlTrim($_POST['evtitle']) === '')
-				fatal_lang_error('event_title_missing', false);
+				ErrorHandler::fatalLang('event_title_missing', false);
 
 			if (Utils::entityStrlen($_POST['evtitle']) > 100)
 				$_POST['evtitle'] = Utils::entitySubstr($_POST['evtitle'], 0, 100);

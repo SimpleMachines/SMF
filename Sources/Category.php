@@ -742,7 +742,7 @@ class Category implements \ArrayAccess
 				{
 					// Parent doesn't exist!
 					if (!isset(Board::$loaded[$row['id_parent']]))
-						fatal_lang_error('no_valid_parent', false, array($row['name']));
+						ErrorHandler::fatalLang('no_valid_parent', false, array($row['name']));
 
 					// Wrong childlevel...we can silently fix this...
 					if (Board::$loaded[$row['id_parent']]->child_level != $row['child_level'] - 1)

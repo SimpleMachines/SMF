@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Profile;
@@ -75,7 +76,7 @@ class StatPanel implements ActionInterface
 		// Is the load average too high to allow searching just now?
 		if (!empty(Utils::$context['load_average']) && !empty(Config::$modSettings['loadavg_userstats']) && Utils::$context['load_average'] >= Config::$modSettings['loadavg_userstats'])
 		{
-			fatal_lang_error('loadavg_userstats_disabled', false);
+			ErrorHandler::fatalLang('loadavg_userstats_disabled', false);
 		}
 
 		// General user statistics.

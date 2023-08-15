@@ -19,6 +19,7 @@ use SMF\Actions\ActionInterface;
 use SMF\Category;
 use SMF\Config;
 use SMF\Draft;
+use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
@@ -969,7 +970,7 @@ class Maintenance implements ActionInterface
 		// If there aren't any tables then I believe that would mean the world has exploded...
 		Utils::$context['num_tables'] = count($tables);
 		if (Utils::$context['num_tables'] == 0)
-			fatal_error('You appear to be running SMF in a flat file mode... fantastic!', false);
+			ErrorHandler::fatal('You appear to be running SMF in a flat file mode... fantastic!', false);
 
 		$_REQUEST['start'] = empty($_REQUEST['start']) ? 0 : (int) $_REQUEST['start'];
 
@@ -1035,7 +1036,7 @@ class Maintenance implements ActionInterface
 
 		// Check to see if UTF-8 is currently the default character set.
 		if (Config::$modSettings['global_character_set'] !== 'UTF-8')
-			fatal_lang_error('entity_convert_only_utf8');
+			ErrorHandler::fatalLang('entity_convert_only_utf8');
 
 		// Some starting values.
 		Utils::$context['table'] = empty($_REQUEST['table']) ? 0 : (int) $_REQUEST['table'];
@@ -1398,7 +1399,7 @@ class Maintenance implements ActionInterface
 		$members = findMembers($_POST['to']);
 
 		if (empty($members))
-			fatal_lang_error('reattribute_cannot_find_member');
+			ErrorHandler::fatalLang('reattribute_cannot_find_member');
 
 		$memID = array_shift($members);
 		$memID = $memID['id'];

@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Theme;
@@ -936,7 +937,7 @@ class Reports implements ActionInterface
 
 		// This is a bit of a cop out - but we're protecting their forum, really!
 		if (count($allStaff) > 300)
-			fatal_lang_error('report_error_too_many_staff');
+			ErrorHandler::fatalLang('report_error_too_many_staff');
 
 		// Get all the possible membergroups!
 		$groups = array(0 => Lang::$txt['membergroups_members']);

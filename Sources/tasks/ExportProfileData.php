@@ -14,6 +14,7 @@
 namespace SMF\Tasks;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\TaskRunner;
 use SMF\Theme;
@@ -1137,7 +1138,7 @@ class ExportProfileData extends BackgroundTask
 				{
 					Lang::load('Errors');
 
-					log_error(sprintf(Lang::$txt['export_low_diskspace'], Config::$modSettings['export_min_diskspace_pct']));
+					ErrorHandler::log(sprintf(Lang::$txt['export_low_diskspace'], Config::$modSettings['export_min_diskspace_pct']));
 
 					$delay = 86400;
 				}

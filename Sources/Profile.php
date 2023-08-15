@@ -827,7 +827,7 @@ class Profile extends User implements \ArrayAccess
 						{
 							Lang::load('Errors', Lang::$default);
 
-							log_error(sprintf(Lang::$txt['smiley_set_dir_not_found'], $set_names[array_search($set, Utils::$context['smiley_sets'])]));
+							ErrorHandler::log(sprintf(Lang::$txt['smiley_set_dir_not_found'], $set_names[array_search($set, Utils::$context['smiley_sets'])]));
 
 							Utils::$context['smiley_sets'] = array_filter(Utils::$context['smiley_sets'], fn($v) => $v != $set);
 						}
@@ -1846,7 +1846,7 @@ class Profile extends User implements \ArrayAccess
 				Db::$db->free_result($request);
 
 				if (empty($another))
-					fatal_lang_error('at_least_one_admin', 'critical');
+					ErrorHandler::fatalLang('at_least_one_admin', 'critical');
 			}
 		}
 
@@ -1909,7 +1909,7 @@ class Profile extends User implements \ArrayAccess
 		)
 		{
 			if (!is_writable($upload_dir))
-				fatal_lang_error('attachments_no_write', 'critical');
+				ErrorHandler::fatalLang('attachments_no_write', 'critical');
 
 			$url = parse_iri($_POST['userpicpersonal']);
 
@@ -2074,12 +2074,12 @@ class Profile extends User implements \ArrayAccess
 				if (!$downloadedExternalAvatar)
 				{
 					if (!is_writable($upload_dir))
-						fatal_lang_error('avatars_no_write', 'critical');
+						ErrorHandler::fatalLang('avatars_no_write', 'critical');
 
 					$new_filename = $upload_dir . '/' . Attachment::createHash();
 
 					if (!move_uploaded_file($_FILES['attachment']['tmp_name'], $new_filename))
-						fatal_lang_error('attach_timeout', 'critical');
+						ErrorHandler::fatalLang('attach_timeout', 'critical');
 
 					$_FILES['attachment']['tmp_name'] = $new_filename;
 				}
@@ -2144,7 +2144,7 @@ class Profile extends User implements \ArrayAccess
 					if (!rename($_FILES['attachment']['tmp_name'], $destination_path))
 					{
 						Attachment::remove(array('id_member' => $this->id));
-						fatal_lang_error('attach_timeout', 'critical');
+						ErrorHandler::fatalLang('attach_timeout', 'critical');
 					}
 
 					smf_chmod($destination_path, 0644);
@@ -2273,7 +2273,7 @@ class Profile extends User implements \ArrayAccess
 					{
 						// I guess a man can try.
 						Attachment::remove(array('id_member' => $this->id));
-						fatal_lang_error('attach_timeout', 'critical');
+						ErrorHandler::fatalLang('attach_timeout', 'critical');
 					}
 
 					// Attempt to chmod it.
@@ -3185,7 +3185,7 @@ class Profile extends User implements \ArrayAccess
 				continue;
 
 			if (count(array_intersect(array_keys($_POST[$key]), self::RESERVED_VARS)) != 0)
-				fatal_lang_error('no_access', false);
+				ErrorHandler::fatalLang('no_access', false);
 		}
 
 		self::loadCustomFieldDefinitions();

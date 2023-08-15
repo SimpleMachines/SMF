@@ -15,6 +15,7 @@
 
 use SMF\Board;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\User;
@@ -92,7 +93,7 @@ function groupsAllowedTo($permission, $board_id = null)
 
 			if (Db::$db->num_rows($request) == 0)
 			{
-				fatal_lang_error('no_board');
+				ErrorHandler::fatalLang('no_board');
 			}
 
 			list ($profile_id) = Db::$db->fetch_row($request);

@@ -16,6 +16,7 @@ namespace SMF\Actions;
 use SMF\BackwardCompatibility;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\Theme;
@@ -136,11 +137,11 @@ class Reminder implements ActionInterface
 			// Awaiting approval...
 			if (trim($this->member->validation_code) == '')
 			{
-				fatal_error(sprintf(Lang::$txt['registration_not_approved'], Config::$scripturl . '?action=activate;user=' . $_POST['user']), false);
+				ErrorHandler::fatal(sprintf(Lang::$txt['registration_not_approved'], Config::$scripturl . '?action=activate;user=' . $_POST['user']), false);
 			}
 			else
 			{
-				fatal_error(sprintf(Lang::$txt['registration_not_activated'], Config::$scripturl . '?action=activate;user=' . $_POST['user']), false);
+				ErrorHandler::fatal(sprintf(Lang::$txt['registration_not_activated'], Config::$scripturl . '?action=activate;user=' . $_POST['user']), false);
 			}
 		}
 
@@ -148,7 +149,7 @@ class Reminder implements ActionInterface
 		$this->member->email = trim($this->member->email);
 		if ($this->member->email == '')
 		{
-			fatal_error(Lang::$txt['no_reminder_email'] . '<br>' . Lang::$txt['send_email_to'] . ' <a href="mailto:' . Config::$webmaster_email . '">' . Lang::$txt['webmaster'] . '</a> ' . Lang::$txt['to_ask_password']);
+			ErrorHandler::fatal(Lang::$txt['no_reminder_email'] . '<br>' . Lang::$txt['send_email_to'] . ' <a href="mailto:' . Config::$webmaster_email . '">' . Lang::$txt['webmaster'] . '</a> ' . Lang::$txt['to_ask_password']);
 		}
 
 		// If they have no secret question then they can only get emailed the item, or they are requesting the email, send them an email.
@@ -201,7 +202,7 @@ class Reminder implements ActionInterface
 
 		// You need a code!
 		if (!isset($_REQUEST['code']))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		// Fill the context array.
 		Utils::$context += array(
@@ -226,15 +227,15 @@ class Reminder implements ActionInterface
 		validateToken('remind-sp');
 
 		if (empty($_POST['u']) || !isset($_POST['passwrd1']) || !isset($_POST['passwrd2']))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		$_POST['u'] = (int) $_POST['u'];
 
 		if ($_POST['passwrd1'] != $_POST['passwrd2'])
-			fatal_lang_error('passwords_dont_match', false);
+			ErrorHandler::fatalLang('passwords_dont_match', false);
 
 		if ($_POST['passwrd1'] == '')
-			fatal_lang_error('no_password', false);
+			ErrorHandler::fatalLang('no_password', false);
 
 		Lang::load('Login');
 
@@ -249,11 +250,11 @@ class Reminder implements ActionInterface
 		{
 			if ($passwordError == 'short')
 			{
-				fatal_lang_error('profile_error_password_' . $passwordError, false, array(empty(Config::$modSettings['password_strength']) ? 4 : 8));
+				ErrorHandler::fatalLang('profile_error_password_' . $passwordError, false, array(empty(Config::$modSettings['password_strength']) ? 4 : 8));
 			}
 			else
 			{
-				fatal_lang_error('profile_error_password_' . $passwordError, false);
+				ErrorHandler::fatalLang('profile_error_password_' . $passwordError, false);
 			}
 		}
 
@@ -263,7 +264,7 @@ class Reminder implements ActionInterface
 			// Stop brute force attacks like this.
 			Login2::validatePasswordFlood($this->member->id, $this->member->username, $this->member->passwd_flood, false);
 
-			fatal_error(Lang::$txt['invalid_activation_code'], false);
+			ErrorHandler::fatal(Lang::$txt['invalid_activation_code'], false);
 		}
 
 		// Just in case, flood control.
@@ -303,7 +304,7 @@ class Reminder implements ActionInterface
 
 		// If there is NO secret question - then throw an error.
 		if (trim($this->member->secret_question) == '')
-			fatal_lang_error('registration_no_secret_question', false);
+			ErrorHandler::fatalLang('registration_no_secret_question', false);
 
 		// Ask for the answer...
 		Utils::$context['remind_user'] = $this->member->id_member;
@@ -325,7 +326,7 @@ class Reminder implements ActionInterface
 
 		// Hacker?  How did you get this far without an email or username?
 		if (empty($_REQUEST['uid']))
-			fatal_lang_error('username_no_exist', false);
+			ErrorHandler::fatalLang('username_no_exist', false);
 
 		Lang::load('Login');
 
@@ -353,8 +354,8 @@ class Reminder implements ActionInterface
 			)
 		)
 		{
-			log_error(sprintf(Lang::$txt['reminder_error'], $this->member->username), 'user');
-			fatal_lang_error('incorrect_answer', false);
+			ErrorHandler::log(sprintf(Lang::$txt['reminder_error'], $this->member->username), 'user');
+			ErrorHandler::fatalLang('incorrect_answer', false);
 		}
 
 		// If the secret answer was right, but stored using md5, upgrade it now.
@@ -365,11 +366,11 @@ class Reminder implements ActionInterface
 
 		// You can't use a blank one!
 		if (strlen(trim($_POST['passwrd1'])) === 0)
-			fatal_lang_error('no_password', false);
+			ErrorHandler::fatalLang('no_password', false);
 
 		// They have to be the same too.
 		if ($_POST['passwrd1'] != $_POST['passwrd2'])
-			fatal_lang_error('passwords_dont_match', false);
+			ErrorHandler::fatalLang('passwords_dont_match', false);
 
 		// Make sure they have a strong enough password.
 		require_once(Config::$sourcedir . '/Subs-Auth.php');
@@ -380,11 +381,11 @@ class Reminder implements ActionInterface
 		{
 			if ($passwordError == 'short')
 			{
-				fatal_lang_error('profile_error_password_' . $passwordError, false, array(empty(Config::$modSettings['password_strength']) ? 4 : 8));
+				ErrorHandler::fatalLang('profile_error_password_' . $passwordError, false, array(empty(Config::$modSettings['password_strength']) ? 4 : 8));
 			}
 			else
 			{
-				fatal_lang_error('profile_error_password_' . $passwordError, false);
+				ErrorHandler::fatalLang('profile_error_password_' . $passwordError, false);
 			}
 		}
 
@@ -483,7 +484,7 @@ class Reminder implements ActionInterface
 
 		// Nothing found.
 		if (empty($loaded))
-			fatal_lang_error($err_msg, false);
+			ErrorHandler::fatalLang($err_msg, false);
 
 		$this->member = reset($loaded);
 	}
