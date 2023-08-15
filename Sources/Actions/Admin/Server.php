@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\MessageIndex;
@@ -391,14 +392,14 @@ class Server implements ActionInterface
 
 				if (!preg_match('/(?:^|\.)' . preg_quote($_POST['globalCookiesDomain'], '/') . '$/u', parse_iri(Config::$boardurl, PHP_URL_HOST)))
 				{
-					fatal_lang_error('invalid_cookie_domain', false);
+					ErrorHandler::fatalLang('invalid_cookie_domain', false);
 				}
 			}
 
 			// Per spec, if samesite setting is 'none', cookies MUST be secure. Thems the rules. Else you lock everyone out...
 			if (!empty($_POST['samesiteCookies']) && ($_POST['samesiteCookies'] === 'none') && empty($_POST['secureCookies']))
 			{
-				fatal_lang_error('samesiteSecureRequired', false);
+				ErrorHandler::fatalLang('samesiteSecureRequired', false);
 			}
 
 			ACP::saveSettings($config_vars);

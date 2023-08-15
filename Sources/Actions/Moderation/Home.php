@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -256,7 +257,7 @@ class Home implements ActionInterface
 				Db::$db->free_result($get_owner);
 
 				if (empty($note_owner))
-					fatal_lang_error('mc_notes_delete_own', false);
+					ErrorHandler::fatalLang('mc_notes_delete_own', false);
 			}
 
 			// Lets delete it.

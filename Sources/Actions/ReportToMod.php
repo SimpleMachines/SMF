@@ -16,6 +16,7 @@ namespace SMF\Actions;
 use SMF\BackwardCompatibility;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\Theme;
@@ -156,7 +157,7 @@ class ReportToMod implements ActionInterface
 
 		// We need a message ID or user ID to check!
 		if (empty($_REQUEST['msg']) && empty($_REQUEST['mid']) && empty($_REQUEST['u']))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		// For compatibility, accept mid, but we should be using msg. (not the flavor kind!)
 		if (!empty($_REQUEST['msg']) || !empty($_REQUEST['mid']))
@@ -189,7 +190,7 @@ class ReportToMod implements ActionInterface
 				)
 			);
 			if (Db::$db->num_rows($result) == 0)
-				fatal_lang_error('no_board', false);
+				ErrorHandler::fatalLang('no_board', false);
 
 			list ($_REQUEST['msg'], $member, $starter) = Db::$db->fetch_row($result);
 			Db::$db->free_result($result);
@@ -214,7 +215,7 @@ class ReportToMod implements ActionInterface
 			);
 
 			if (Db::$db->num_rows($result) == 0)
-				fatal_lang_error('no_user', false);
+				ErrorHandler::fatalLang('no_user', false);
 
 			list($_REQUEST['u'], $display_name, $username) = Db::$db->fetch_row($result);
 
@@ -425,7 +426,7 @@ class ReportToMod implements ActionInterface
 			)
 		);
 		if (Db::$db->num_rows($request) == 0)
-			fatal_lang_error('no_board', false);
+			ErrorHandler::fatalLang('no_board', false);
 		$message = Db::$db->fetch_assoc($request);
 		Db::$db->free_result($request);
 
@@ -544,7 +545,7 @@ class ReportToMod implements ActionInterface
 			)
 		);
 		if (Db::$db->num_rows($request) == 0)
-			fatal_lang_error('no_user', false);
+			ErrorHandler::fatalLang('no_user', false);
 		$user = Db::$db->fetch_assoc($request);
 		Db::$db->free_result($request);
 

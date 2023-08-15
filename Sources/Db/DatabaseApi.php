@@ -15,6 +15,7 @@ namespace SMF\Db;
 
 use SMF\BackwardCompatibility;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Utils;
 
 /**
@@ -353,7 +354,7 @@ abstract class DatabaseApi
 		}
 
 		if (!class_exists(__NAMESPACE__ . '\\APIs\\' . $class))
-			display_db_error();
+			ErrorHandler::displayDbError();
 
 		$class = __NAMESPACE__ . '\\APIs\\' . $class;
 		self::$db = new $class($options);
@@ -362,7 +363,7 @@ abstract class DatabaseApi
 		if (!(self::$db instanceof DatabaseApi))
 		{
 			unset($self::$db);
-			display_db_error();
+			ErrorHandler::displayDbError();
 		}
 
 		return self::$db;

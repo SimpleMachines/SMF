@@ -16,6 +16,7 @@ namespace SMF\Tasks;
 use SMF\Alert;
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Mentions;
 use SMF\Msg;
@@ -109,9 +110,8 @@ class CreatePost_Notify extends BackgroundTask
 		// Board id is required; if missing, log an error and return
 		if (!isset($topicOptions['board']))
 		{
-			require_once(Config::$sourcedir . '/ErrorHandler.php');
 			Lang::load('Errors');
-			log_error(Lang::$txt['missing_board_id'], 'general', __FILE__, __LINE__);
+			ErrorHandler::log(Lang::$txt['missing_board_id'], 'general', __FILE__, __LINE__);
 			return true;
 		}
 

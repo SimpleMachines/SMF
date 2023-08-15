@@ -1032,7 +1032,7 @@ class Config
 			);
 			if (!$request)
 			{
-				display_db_error();
+				ErrorHandler::displayDbError();
 			}
 			foreach (Db\DatabaseApi::$db->fetch_all($request) as $row)
 			{
@@ -1166,7 +1166,7 @@ class Config
 
 			if (!empty(self::$modSettings['loadavg_forum']) && !empty(self::$modSettings['load_average']) && self::$modSettings['load_average'] >= self::$modSettings['loadavg_forum'])
 			{
-				display_loadavg_error();
+				ErrorHandler::displayLoadAvgError();
 			}
 		}
 
@@ -1360,7 +1360,7 @@ class Config
 				{
 					self::updateDbLastError(time());
 					Lang::load('Errors');
-					log_error(Lang::$txt['auth_secret_missing'], 'critical');
+					ErrorHandler::log(Lang::$txt['auth_secret_missing'], 'critical');
 				}
 			}
 		}

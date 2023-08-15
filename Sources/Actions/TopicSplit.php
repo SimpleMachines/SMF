@@ -20,6 +20,7 @@ use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\MessageIndex;
 use SMF\Msg;
@@ -119,7 +120,7 @@ class TopicSplit implements ActionInterface
 	{
 		// And... which topic were you splitting, again?
 		if (empty(Topic::$topic_id))
-			fatal_lang_error('numbers_one_to_nine', false);
+			ErrorHandler::fatalLang('numbers_one_to_nine', false);
 
 		// Are you allowed to split topics?
 		isAllowedTo('split_any');
@@ -145,7 +146,7 @@ class TopicSplit implements ActionInterface
 	{
 		// Validate "at".
 		if (empty($_GET['at']))
-			fatal_lang_error('numbers_one_to_nine', false);
+			ErrorHandler::fatalLang('numbers_one_to_nine', false);
 
 		$_GET['at'] = (int) $_GET['at'];
 
@@ -165,7 +166,7 @@ class TopicSplit implements ActionInterface
 		);
 		if (Db::$db->num_rows($request) == 0)
 		{
-			fatal_lang_error('cant_find_messages');
+			ErrorHandler::fatalLang('cant_find_messages');
 		}
 		list($_REQUEST['subname'], $num_replies, $unapproved_posts, $id_first_msg, $approved) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
@@ -180,7 +181,7 @@ class TopicSplit implements ActionInterface
 
 		// Check if there is more than one message in the topic.  (there should be.)
 		if ($num_replies < 1)
-			fatal_lang_error('topic_one_post', false);
+			ErrorHandler::fatalLang('topic_one_post', false);
 
 		// Check if this is the first message in the topic (if so, the first and second option won't be available)
 		if ($id_first_msg == $_GET['at'])
@@ -251,7 +252,7 @@ class TopicSplit implements ActionInterface
 		// There's another action?!
 		else
 		{
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 		}
 
 		Utils::$context['old_topic'] = Topic::$topic_id;
@@ -578,7 +579,7 @@ class TopicSplit implements ActionInterface
 
 		// You must've selected some messages!  Can't split out none!
 		if (empty($_SESSION['split_selection'][Topic::$topic_id]))
-			fatal_lang_error('no_posts_selected', false);
+			ErrorHandler::fatalLang('no_posts_selected', false);
 
 		Utils::$context['old_topic'] = Topic::$topic_id;
 		Utils::$context['new_topic'] = splitTopic(Topic::$topic_id, $_SESSION['split_selection'][Topic::$topic_id], $_POST['subname']);
@@ -630,7 +631,7 @@ class TopicSplit implements ActionInterface
 	{
 		// Nothing to split?
 		if (empty($splitMessages))
-			fatal_lang_error('no_posts_selected', false);
+			ErrorHandler::fatalLang('no_posts_selected', false);
 
 		// Get some board info.
 		$request = Db::$db->query('', '
@@ -663,7 +664,7 @@ class TopicSplit implements ActionInterface
 		);
 		// You can't select ALL the messages!
 		if (Db::$db->num_rows($request) == 0)
-			fatal_lang_error('selected_all_posts', false);
+			ErrorHandler::fatalLang('selected_all_posts', false);
 
 		$split1_first_msg = null;
 		$split1_last_msg = null;
@@ -760,12 +761,12 @@ class TopicSplit implements ActionInterface
 		// No database changes yet, so let's double check to see if everything makes at least a little sense.
 		if ($split1_first_msg <= 0 || $split1_last_msg <= 0 || $split2_first_msg <= 0 || $split2_last_msg <= 0 || $split1_replies < 0 || $split2_replies < 0 || $split1_unapprovedposts < 0 || $split2_unapprovedposts < 0 || !isset($split1_approved) || !isset($split2_approved))
 		{
-			fatal_lang_error('cant_find_messages');
+			ErrorHandler::fatalLang('cant_find_messages');
 		}
 
 		// You cannot split off the first message of a topic.
 		if ($split1_first_msg > $split2_first_msg)
-			fatal_lang_error('split_first_post', false);
+			ErrorHandler::fatalLang('split_first_post', false);
 
 		// We're off to insert the new topic!  Use 0 for now to avoid UNIQUE errors.
 		$split2_ID_TOPIC = Db::$db->insert('',
@@ -797,7 +798,7 @@ class TopicSplit implements ActionInterface
 		);
 
 		if ($split2_ID_TOPIC <= 0)
-			fatal_lang_error('cant_insert_topic');
+			ErrorHandler::fatalLang('cant_insert_topic');
 
 		// Move the messages over to the other topic.
 		$new_subject = strtr(Utils::htmlTrim(Utils::htmlspecialchars($new_subject)), array("\r" => '', "\n" => '', "\t" => ''));

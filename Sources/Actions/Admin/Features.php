@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
@@ -1257,7 +1258,7 @@ class Features implements ActionInterface
 
 					// In this extremely unlikely event, bail out.
 					if (++$i > 20)
-						fatal_lang_error('custom_option_not_unique');
+						ErrorHandler::fatalLang('custom_option_not_unique');
 				}
 			}
 			// Work out what to do with the user data otherwise...

@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\Category;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -75,7 +76,7 @@ class Search implements ActionInterface
 		// Is the load average too high to allow searching just now?
 		if (!empty(Utils::$context['load_average']) && !empty(Config::$modSettings['loadavg_search']) && Utils::$context['load_average'] >= Config::$modSettings['loadavg_search'])
 		{
-			fatal_lang_error('loadavg_search_disabled', false);
+			ErrorHandler::fatalLang('loadavg_search_disabled', false);
 		}
 
 		Lang::load('Search');
@@ -294,7 +295,7 @@ class Search implements ActionInterface
 			);
 
 			if (Db::$db->num_rows($request) == 0)
-				fatal_lang_error('topic_gone', false);
+				ErrorHandler::fatalLang('topic_gone', false);
 
 			list (Utils::$context['search_topic']['subject']) = Db::$db->fetch_row($request);
 			Db::$db->free_result($request);

@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\Alert;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
@@ -603,7 +604,7 @@ class Notification implements ActionInterface
 		is_not_guest();
 
 		if (!User::$me->is_owner)
-			fatal_error('no_access');
+			ErrorHandler::fatal('no_access');
 
 		checkSession('get');
 

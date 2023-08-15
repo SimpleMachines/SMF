@@ -19,6 +19,7 @@ use SMF\BBCodeParser;
 use SMF\BrowserDetector;
 use SMF\Board;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\Msg;
@@ -194,7 +195,7 @@ class Announce implements ActionInterface
 
 		// Check whether at least one membergroup was selected.
 		if (empty($_POST['who']))
-			fatal_lang_error('no_membergroup_selected');
+			ErrorHandler::fatalLang('no_membergroup_selected');
 
 		// Make sure all membergroups are integers and can access the board of the announcement.
 		foreach ($_POST['who'] as $id => $mg)
@@ -367,7 +368,7 @@ class Announce implements ActionInterface
 		validateSession();
 
 		if (empty(Topic::$topic_id))
-			fatal_lang_error('topic_gone', false);
+			ErrorHandler::fatalLang('topic_gone', false);
 
 		Lang::load('Post');
 		Theme::loadTemplate('Post');

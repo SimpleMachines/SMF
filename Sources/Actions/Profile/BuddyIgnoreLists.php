@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Profile;
@@ -104,7 +105,7 @@ class BuddyIgnoreLists implements ActionInterface
 	{
 		// Do a quick check to ensure people aren't getting here illegally!
 		if (!User::$me->is_owner || empty(Config::$modSettings['enable_buddylist']))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		// Can we email the user directly?
 		Utils::$context['can_moderate_forum'] = allowedTo('moderate_forum');

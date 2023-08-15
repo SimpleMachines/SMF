@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\Board;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Msg;
 use SMF\Topic;
 use SMF\User;
@@ -108,7 +109,7 @@ class MsgDelete implements ActionInterface
 			}
 			elseif (!allowedTo('delete_any') && ($starter != User::$me->id || !allowedTo('delete_replies')) && !empty(Config::$modSettings['edit_disable_time']) && $post_time + Config::$modSettings['edit_disable_time'] * 60 < time())
 			{
-				fatal_lang_error('modify_post_time_passed', false);
+				ErrorHandler::fatalLang('modify_post_time_passed', false);
 			}
 		}
 		elseif ($starter == User::$me->id && !allowedTo('delete_any'))

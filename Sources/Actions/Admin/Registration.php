@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Profile;
@@ -442,7 +443,7 @@ class Registration implements ActionInterface
 
 			// Are there some contacts missing?
 			if (!empty($_POST['coppaAge']) && !empty($_POST['coppaType']) && empty($_POST['coppaPost']) && empty($_POST['coppaFax']))
-				fatal_lang_error('admin_setting_coppa_require_contact');
+				ErrorHandler::fatalLang('admin_setting_coppa_require_contact');
 
 			// Post needs to take into account line breaks.
 			$_POST['coppaPost'] = str_replace("\n", '<br>', empty($_POST['coppaPost']) ? '' : Utils::normalize($_POST['coppaPost']));

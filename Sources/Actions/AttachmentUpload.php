@@ -15,6 +15,7 @@ namespace SMF\Actions;
 
 use SMF\Attachment;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\User;
 use SMF\Utils;
@@ -283,7 +284,7 @@ class AttachmentUpload implements ActionInterface
 		{
 			$this->_generalErrors[] = 'attach_folder_warning';
 
-			log_error(sprintf(Lang::$txt['attach_folder_admin_warning'], $this->_attchDir), 'critical');
+			ErrorHandler::log(sprintf(Lang::$txt['attach_folder_admin_warning'], $this->_attchDir), 'critical');
 		}
 
 		// If this isn't a new post, check the current attachments.
@@ -346,13 +347,13 @@ class AttachmentUpload implements ActionInterface
 				}
 				else
 				{
-					log_error($_FILES['attachment']['name'][$n] . ': ' . Lang::$txt['php_upload_error_' . $_FILES['attachment']['error'][$n]]);
+					ErrorHandler::log($_FILES['attachment']['name'][$n] . ': ' . Lang::$txt['php_upload_error_' . $_FILES['attachment']['error'][$n]]);
 				}
 
 				// Log this one, because...
 				if ($_FILES['attachment']['error'][$n] == 6)
 				{
-					log_error($_FILES['attachment']['name'][$n] . ': ' . Lang::$txt['php_upload_error_6'], 'critical');
+					ErrorHandler::log($_FILES['attachment']['name'][$n] . ': ' . Lang::$txt['php_upload_error_6'], 'critical');
 				}
 
 				// Weird, no errors were cached, still fill out a generic one.
@@ -484,7 +485,7 @@ class AttachmentUpload implements ActionInterface
 						$attachmentOptions['errors'][] = Lang::$txt[$error];
 
 						if (in_array($error, $log_these))
-							log_error($attachment['name'] . ': ' . Lang::$txt[$error], 'critical');
+							ErrorHandler::log($attachment['name'] . ': ' . Lang::$txt[$error], 'critical');
 					}
 					else
 					{

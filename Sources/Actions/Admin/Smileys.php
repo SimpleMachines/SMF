@@ -20,6 +20,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
@@ -243,21 +244,21 @@ class Smileys implements ActionInterface
 			{
 				// @todo Needs a more precise error message.
 				if (!isset($_POST['smiley_sets_name']))
-					fatal_lang_error('smiley_set_not_found', false);
+					ErrorHandler::fatalLang('smiley_set_not_found', false);
 
 				$_POST['smiley_sets_name'] = self::sanitizeString($_POST['smiley_sets_name']);
 
 				// No spaces or weirdness allowed in the directory name.
 				if (!isset($_POST['smiley_sets_path']) || $_POST['smiley_sets_path'] !== self::sanitizeFileName($_POST['smiley_sets_path']))
 				{
-					fatal_lang_error('smiley_set_dir_not_found', false, Utils::htmlspecialchars($_POST['smiley_sets_name']));
+					ErrorHandler::fatalLang('smiley_set_dir_not_found', false, Utils::htmlspecialchars($_POST['smiley_sets_name']));
 				}
 
 				// Create a new smiley set.
 				if ($_POST['set'] == -1 && isset($_POST['smiley_sets_path']))
 				{
 					if (isset(self::$smiley_sets[$_POST['smiley_sets_path']]))
-						fatal_lang_error('smiley_set_already_exists', false);
+						ErrorHandler::fatalLang('smiley_set_already_exists', false);
 
 					if (!is_dir(self::$smileys_dir . '/' . $_POST['smiley_sets_path']))
 						$this->createDir($_POST['smiley_sets_path'], $_POST['smiley_sets_name']);
@@ -285,7 +286,7 @@ class Smileys implements ActionInterface
 				{
 					// Make sure the smiley set exists.
 					if (!isset(self::$smiley_sets[$_POST['set']]))
-						fatal_lang_error('smiley_set_not_found', false);
+						ErrorHandler::fatalLang('smiley_set_not_found', false);
 
 					// Make sure the path is not yet used by another smiley set.
 					foreach (self::$smiley_sets as $id => $set)
@@ -294,7 +295,7 @@ class Smileys implements ActionInterface
 							continue;
 
 						if ($set['raw_path'] === $_POST['smiley_sets_path'])
-							fatal_lang_error('smiley_set_path_already_used', false);
+							ErrorHandler::fatalLang('smiley_set_path_already_used', false);
 					}
 
 					self::$smiley_sets[$_POST['set']]['raw_path'] = $_POST['smiley_sets_path'];
@@ -381,7 +382,7 @@ class Smileys implements ActionInterface
 
 					if (empty($smileys))
 					{
-						fatal_lang_error('smiley_set_dir_not_found', false, array(Utils::$context['current_set']['name']));
+						ErrorHandler::fatalLang('smiley_set_dir_not_found', false, array(Utils::$context['current_set']['name']));
 					}
 
 					// Exclude the smileys that are already in the database.
@@ -581,7 +582,7 @@ class Smileys implements ActionInterface
 
 			// Make sure some code was entered.
 			if (empty($_POST['smiley_code']))
-				fatal_lang_error('smiley_has_no_code', false);
+				ErrorHandler::fatalLang('smiley_has_no_code', false);
 
 			// Check whether the new code has duplicates. It should be unique.
 			$request = Db::$db->query('', '
@@ -595,7 +596,7 @@ class Smileys implements ActionInterface
 			);
 			if (Db::$db->num_rows($request) > 0)
 			{
-				fatal_lang_error('smiley_not_unique', false);
+				ErrorHandler::fatalLang('smiley_not_unique', false);
 			}
 			Db::$db->free_result($request);
 
@@ -612,7 +613,7 @@ class Smileys implements ActionInterface
 
 				if (!empty($writeErrors))
 				{
-					fatal_lang_error('smileys_upload_error_notwritable', false, array(implode(', ', $writeErrors)));
+					ErrorHandler::fatalLang('smileys_upload_error_notwritable', false, array(implode(', ', $writeErrors)));
 				}
 			}
 
@@ -627,7 +628,7 @@ class Smileys implements ActionInterface
 				foreach ($_FILES as $name => $data)
 				{
 					if ($_FILES[$name]['name'] == '')
-						fatal_lang_error('smileys_upload_error_blank', false);
+						ErrorHandler::fatalLang('smileys_upload_error_blank', false);
 				}
 
 				foreach (self::$smiley_sets as $set => $smiley_set)
@@ -640,29 +641,29 @@ class Smileys implements ActionInterface
 			{
 				// Make sure a filename was given
 				if (empty($_POST['smiley_filename']))
-					fatal_lang_error('smiley_has_no_filename', false);
+					ErrorHandler::fatalLang('smiley_has_no_filename', false);
 
 				// And make sure it is legitimate
 				$pathinfo = pathinfo($_POST['smiley_filename']);
 
 				if (!in_array($pathinfo['extension'], self::$allowed_extenions))
 				{
-					fatal_lang_error('smileys_upload_error_types', false, array(implode(', ', self::$allowed_extenions)));
+					ErrorHandler::fatalLang('smileys_upload_error_types', false, array(implode(', ', self::$allowed_extenions)));
 				}
 
 				if (strpos($pathinfo['filename'], '.') !== false)
 				{
-					fatal_lang_error('smileys_upload_error_illegal', false);
+					ErrorHandler::fatalLang('smileys_upload_error_illegal', false);
 				}
 
 				if (!isset(self::$smiley_sets[$pathinfo['dirname']]))
 				{
-					fatal_lang_error('smiley_set_not_found', false);
+					ErrorHandler::fatalLang('smiley_set_not_found', false);
 				}
 
 				if (!file_exists(self::$smileys_dir . '/' . $pathinfo['dirname'] . '/' . $pathinfo['basename']))
 				{
-					fatal_lang_error('smiley_not_found', false);
+					ErrorHandler::fatalLang('smiley_not_found', false);
 				}
 
 				// Now ensure every set has a file to use for this smiley
@@ -700,7 +701,7 @@ class Smileys implements ActionInterface
 					// Double-check that everything went as expected
 					if (empty($basename) || !file_exists(self::$smileys_dir . '/' . $set . '/' . $basename))
 					{
-						fatal_lang_error('smiley_not_found', false);
+						ErrorHandler::fatalLang('smiley_not_found', false);
 					}
 
 					// Okay, let's add this one
@@ -908,7 +909,7 @@ class Smileys implements ActionInterface
 
 					// Make sure some code was entered.
 					if (empty($_POST['smiley_code']))
-						fatal_lang_error('smiley_has_no_code', false);
+						ErrorHandler::fatalLang('smiley_has_no_code', false);
 
 					// If upload a new smiley image, check that smiley set folders are writable for the sets with new images.
 					$writeErrors = array();
@@ -921,7 +922,7 @@ class Smileys implements ActionInterface
 
 					if (!empty($writeErrors))
 					{
-						fatal_lang_error('smileys_upload_error_notwritable', false, array(implode(', ', $writeErrors)));
+						ErrorHandler::fatalLang('smileys_upload_error_notwritable', false, array(implode(', ', $writeErrors)));
 					}
 
 					foreach (self::$smiley_sets as $set => $smiley_set)
@@ -972,7 +973,7 @@ class Smileys implements ActionInterface
 
 					// Can't do anything without filenames for the smileys.
 					if (empty($filenames))
-						fatal_lang_error('smiley_has_no_filename', false);
+						ErrorHandler::fatalLang('smiley_has_no_filename', false);
 
 					// Check whether the new code has duplicates. It should be unique.
 					$request = Db::$db->query('', '
@@ -988,7 +989,7 @@ class Smileys implements ActionInterface
 					);
 					if (Db::$db->num_rows($request) > 0)
 					{
-						fatal_lang_error('smiley_not_unique', false);
+						ErrorHandler::fatalLang('smiley_not_unique', false);
 					}
 					Db::$db->free_result($request);
 
@@ -1301,7 +1302,7 @@ class Smileys implements ActionInterface
 			Db::$db->free_result($request);
 
 			if (empty(Utils::$context['current_smiley']))
-				fatal_lang_error('smiley_not_found', false);
+				ErrorHandler::fatalLang('smiley_not_found', false);
 
 			Utils::$context['current_smiley']['code'] = Utils::htmlspecialchars(Utils::$context['current_smiley']['code']);
 
@@ -1375,7 +1376,7 @@ class Smileys implements ActionInterface
 			$_GET['source'] = empty($_GET['source']) ? 0 : (int) $_GET['source'];
 
 			if (empty($_GET['source']))
-				fatal_lang_error('smiley_not_found', false);
+				ErrorHandler::fatalLang('smiley_not_found', false);
 
 			if (!empty($_GET['after']))
 			{
@@ -1393,7 +1394,7 @@ class Smileys implements ActionInterface
 				);
 				if (Db::$db->num_rows($request) != 1)
 				{
-					fatal_lang_error('smiley_not_found', false);
+					ErrorHandler::fatalLang('smiley_not_found', false);
 				}
 				list ($smiley_row, $smiley_order, $smileyLocation) = Db::$db->fetch_row($request);
 				Db::$db->free_result($request);
@@ -1558,13 +1559,13 @@ class Smileys implements ActionInterface
 				|| strpos($_REQUEST['set_gz'], 'dlattach') !== false
 			)
 			{
-				fatal_lang_error('not_on_simplemachines', false);
+				ErrorHandler::fatalLang('not_on_simplemachines', false);
 			}
 
 			$destination = Config::$packagesdir . '/' . $base_name;
 
 			if (file_exists($destination))
-				fatal_lang_error('package_upload_error_exists', false);
+				ErrorHandler::fatalLang('package_upload_error_exists', false);
 
 			// Let's copy it to the Packages directory
 			file_put_contents($destination, fetch_web_data($_REQUEST['set_gz']));
@@ -1581,7 +1582,7 @@ class Smileys implements ActionInterface
 		}
 
 		if (empty($destination) || !file_exists($destination))
-			fatal_lang_error('package_no_file', false);
+			ErrorHandler::fatalLang('package_no_file', false);
 
 		// Make sure temp directory exists and is empty.
 		if (file_exists(Config::$packagesdir . '/temp'))
@@ -1601,7 +1602,7 @@ class Smileys implements ActionInterface
 				SubsPackage::deltree(Config::$packagesdir . '/temp', false);
 
 				if (!SubsPackage::mktree(Config::$packagesdir . '/temp', 0777))
-					fatal_lang_error('package_cant_download', false);
+					ErrorHandler::fatalLang('package_cant_download', false);
 			}
 		}
 
@@ -1609,7 +1610,7 @@ class Smileys implements ActionInterface
 
 		if (!$extracted)
 		{
-			fatal_lang_error('packageget_unable', false, array('https://custom.simplemachines.org/mods/index.php?action=search;type=12;basic_search=' . $name));
+			ErrorHandler::fatalLang('packageget_unable', false, array('https://custom.simplemachines.org/mods/index.php?action=search;type=12;basic_search=' . $name));
 		}
 
 		if ($extracted && !file_exists(Config::$packagesdir . '/temp/package-info.xml'))
@@ -1628,12 +1629,12 @@ class Smileys implements ActionInterface
 			$base_path = '';
 
 		if (!file_exists(Config::$packagesdir . '/temp/' . $base_path . 'package-info.xml'))
-			fatal_lang_error('package_get_error_missing_xml', false);
+			ErrorHandler::fatalLang('package_get_error_missing_xml', false);
 
 		$smileyInfo = SubsPackage::getPackageInfo(Utils::$context['filename']);
 
 		if (!is_array($smileyInfo))
-			fatal_lang_error($smileyInfo, false);
+			ErrorHandler::fatalLang($smileyInfo, false);
 
 		// See if it is installed?
 		$request = Db::$db->query('', '
@@ -1650,7 +1651,7 @@ class Smileys implements ActionInterface
 		);
 
 		if (Db::$db->num_rows($request) > 0)
-			fatal_lang_error('package_installed_warning1', false);
+			ErrorHandler::fatalLang('package_installed_warning1', false);
 
 		// Everything is fine, now it's time to do something
 		$actions = SubsPackage::parsePackageInfo($smileyInfo['xml'], true, 'install');
@@ -1859,18 +1860,18 @@ class Smileys implements ActionInterface
 
 				if (!file_exists(Theme::$current->settings['default_theme_dir'] . '/images/post/' . $_POST['icon_filename'] . '.png'))
 				{
-					fatal_lang_error('icon_not_found', false);
+					ErrorHandler::fatalLang('icon_not_found', false);
 				}
 
 				// There is a 16 character limit on message icons...
 				if (strlen($_POST['icon_filename']) > 16)
 				{
-					fatal_lang_error('icon_name_too_long', false);
+					ErrorHandler::fatalLang('icon_name_too_long', false);
 				}
 
 				if ($_POST['icon_location'] == $_GET['icon'] && !empty($_GET['icon']))
 				{
-					fatal_lang_error('icon_after_itself', false);
+					ErrorHandler::fatalLang('icon_after_itself', false);
 				}
 
 				// First do the sorting... if this is an edit reduce the order of everything after it by one ;)
@@ -2499,7 +2500,7 @@ class Smileys implements ActionInterface
 	{
 		if (!self::$smileys_dir_found || !is_dir(self::$smileys_dir . '/' . $smileyPath))
 		{
-			fatal_lang_error('smiley_set_unable_to_import', false);
+			ErrorHandler::fatalLang('smiley_set_unable_to_import', false);
 		}
 
 		$known_sets = explode(',', Config::$modSettings['smiley_sets_known']);
@@ -2762,26 +2763,26 @@ class Smileys implements ActionInterface
 	{
 		// Can't do this if we couldn't find the base smileys directory.
 		if (!self::$smileys_dir_found)
-			fatal_lang_error('smiley_set_dir_not_found', false, Utils::htmlspecialchars($name));
+			ErrorHandler::fatalLang('smiley_set_dir_not_found', false, Utils::htmlspecialchars($name));
 
 		$path = realpath(self::$smileys_dir . DIRECTORY_SEPARATOR . $dir);
 
 		// Must be an immediate child directory of the base smileys directory.
 		if (dirname($path) !== realpath(self::$smileys_dir))
-			fatal_lang_error('smiley_set_dir_not_found', false, Utils::htmlspecialchars($name));
+			ErrorHandler::fatalLang('smiley_set_dir_not_found', false, Utils::htmlspecialchars($name));
 
 		// Must not already exist.
 		if (file_exists($path))
 		{
 			if (isset(self::$smiley_sets[$dir]))
-				fatal_lang_error('smiley_set_already_exists', false);
+				ErrorHandler::fatalLang('smiley_set_already_exists', false);
 
-			fatal_lang_error('smiley_set_dir_not_found', false, Utils::htmlspecialchars($name));
+			ErrorHandler::fatalLang('smiley_set_dir_not_found', false, Utils::htmlspecialchars($name));
 		}
 
 		// Let's try to create it. Make some noise if we fail.
 		if (@mkdir($path, 0755) === false)
-			fatal_lang_error('smiley_set_dir_not_found', false, Utils::htmlspecialchars($name));
+			ErrorHandler::fatalLang('smiley_set_dir_not_found', false, Utils::htmlspecialchars($name));
 	}
 
 	/**
@@ -2800,11 +2801,11 @@ class Smileys implements ActionInterface
 		$filename_array = array();
 
 		if ($name == '')
-			fatal_lang_error('smileys_upload_error_blank', false);
+			ErrorHandler::fatalLang('smileys_upload_error_blank', false);
 
 		if (!is_uploaded_file($tmp_name) || (ini_get('open_basedir') == '' && !file_exists($tmp_name)))
 		{
-			fatal_lang_error('smileys_upload_error', false);
+			ErrorHandler::fatalLang('smileys_upload_error', false);
 		}
 
 		// Sorry, no spaces, dots, or anything else but letters allowed.
@@ -2813,7 +2814,7 @@ class Smileys implements ActionInterface
 		// We only allow image files - it's THAT simple - no messing around here...
 		if (!$this->validateImage($name, $tmp_name))
 		{
-			fatal_lang_error('smileys_upload_error_types', false, array(implode(', ', self::$allowed_extenions)));
+			ErrorHandler::fatalLang('smileys_upload_error_types', false, array(implode(', ', self::$allowed_extenions)));
 		}
 
 		// We only need the filename...
@@ -2821,7 +2822,7 @@ class Smileys implements ActionInterface
 
 		// Make sure they aren't trying to upload a nasty file - for their own good here!
 		if (in_array(strtolower($destination_name), self::$illegal_files))
-			fatal_lang_error('smileys_upload_error_illegal', false);
+			ErrorHandler::fatalLang('smileys_upload_error_illegal', false);
 
 		$source_file = $tmp_name;
 		$func = 'move_uploaded_file';
@@ -2836,7 +2837,7 @@ class Smileys implements ActionInterface
 
 				// Double-check
 				if (!file_exists($destination))
-					fatal_lang_error('smiley_not_found', false);
+					ErrorHandler::fatalLang('smiley_not_found', false);
 
 				smf_chmod($destination, 0644);
 

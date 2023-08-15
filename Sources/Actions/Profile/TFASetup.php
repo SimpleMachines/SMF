@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Profile;
 use SMF\Theme;
 use SMF\User;
@@ -86,7 +87,7 @@ class TFASetup implements ActionInterface
 		// Check to ensure we're forcing SSL for authentication.
 		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !httpsOn())
 		{
-			fatal_lang_error('login_ssl_required', false);
+			ErrorHandler::fatalLang('login_ssl_required', false);
 		}
 
 		// In some cases (forced 2FA or backup code) they would be forced to be redirected here,

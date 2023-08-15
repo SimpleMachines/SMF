@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\Utils;
@@ -428,7 +429,7 @@ class Export implements ActionInterface
 			// Try again at the fallback location.
 			if (Config::$modSettings['export_dir'] != $fallback)
 			{
-				log_error(sprintf(Lang::$txt['export_dir_forced_change'], Config::$modSettings['export_dir'], $fallback));
+				ErrorHandler::log(sprintf(Lang::$txt['export_dir_forced_change'], Config::$modSettings['export_dir'], $fallback));
 
 				Config::updateModSettings(array('export_dir' => $fallback));
 
@@ -438,7 +439,7 @@ class Export implements ActionInterface
 			// Uh-oh. Even the default location failed.
 			else
 			{
-				log_error(Lang::$txt['export_dir_not_writable']);
+				ErrorHandler::log(Lang::$txt['export_dir_not_writable']);
 
 				return false;
 			}

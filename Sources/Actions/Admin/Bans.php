@@ -21,6 +21,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
@@ -802,7 +803,7 @@ class Bans implements ActionInterface
 		$ban_id = (int) ($_REQUEST['bi'] ?? 0);
 
 		if (empty($ban_group))
-			fatal_lang_error('ban_not_found', false);
+			ErrorHandler::fatalLang('ban_not_found', false);
 
 		if (isset($_POST['add_new_trigger']) && !empty($_POST['ban_suggestions']))
 		{
@@ -868,7 +869,7 @@ class Bans implements ActionInterface
 			);
 			if (Db::$db->num_rows($request) == 0)
 			{
-				fatal_lang_error('ban_not_found', false);
+				ErrorHandler::fatalLang('ban_not_found', false);
 			}
 			$row = Db::$db->fetch_assoc($request);
 			Db::$db->free_result($request);
@@ -1331,7 +1332,7 @@ class Bans implements ActionInterface
 		);
 		if (Db::$db->num_rows($request) == 0)
 		{
-			fatal_lang_error('ban_not_found', false);
+			ErrorHandler::fatalLang('ban_not_found', false);
 		}
 		while ($row = Db::$db->fetch_assoc($request))
 		{
@@ -2197,7 +2198,7 @@ class Bans implements ActionInterface
 			$row = Db::$db->fetch_assoc($request);
 
 			// @todo Why do we die on this error, but not others?
-			fatal_lang_error('ban_trigger_already_exists', false, array(
+			ErrorHandler::fatalLang('ban_trigger_already_exists', false, array(
 				$fullip,
 				'<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=' . $row['id_ban_group'] . '">' . $row['name'] . '</a>',
 			));

@@ -16,6 +16,7 @@ namespace SMF\Actions;
 use SMF\BackwardCompatibility;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -264,7 +265,7 @@ abstract class Notify
 
 		// We can't do anything without these
 		if (empty($id_member) || empty($_REQUEST['token']))
-			fatal_lang_error('unsubscribe_invalid', false);
+			ErrorHandler::fatalLang('unsubscribe_invalid', false);
 
 		// Get the user info we need
 		$request = Db::$db->query('', '
@@ -277,7 +278,7 @@ abstract class Notify
 		);
 		if (Db::$db->num_rows($request) == 0)
 		{
-			fatal_lang_error('unsubscribe_invalid', false);
+			ErrorHandler::fatalLang('unsubscribe_invalid', false);
 		}
 		$this->member_info = Db::$db->fetch_assoc($request);
 		Db::$db->free_result($request);
@@ -287,7 +288,7 @@ abstract class Notify
 
 		// Don't do anything if the token they gave is wrong
 		if ($_REQUEST['token'] !== $expected_token)
-			fatal_lang_error('unsubscribe_invalid', false);
+			ErrorHandler::fatalLang('unsubscribe_invalid', false);
 
 		// At this point, we know we have a legitimate unsubscribe request
 		return $this->member_info;

@@ -18,6 +18,7 @@ use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\Theme;
@@ -298,7 +299,7 @@ class Recent implements ActionInterface
 			Db::$db->free_result($request);
 
 			if (empty($boards))
-				fatal_lang_error('error_no_boards_selected');
+				ErrorHandler::fatalLang('error_no_boards_selected');
 
 			$this->query_this_board = 'm.id_board IN ({array_int:boards})';
 			$this->query_parameters['boards'] = $boards;
@@ -342,7 +343,7 @@ class Recent implements ActionInterface
 			Db::$db->free_result($request);
 
 			if (empty($boards))
-				fatal_lang_error('error_no_boards_selected');
+				ErrorHandler::fatalLang('error_no_boards_selected');
 
 			$this->query_this_board = 'm.id_board IN ({array_int:boards})';
 			$this->query_parameters['boards'] = $boards;

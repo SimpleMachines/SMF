@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Utils;
@@ -350,7 +351,7 @@ class Find implements ActionInterface
 
 		// If we didn't get any xml back we are in trouble - perhaps the doc site is overloaded?
 		if (!$search_results || preg_match('~<' . '\?xml\sversion="\d+\.\d+"\?' . '>\s*(<api\b[^>]*>.+?</api>)~is', $search_results, $matches) != true)
-			fatal_lang_error('cannot_connect_doc_site');
+			ErrorHandler::fatalLang('cannot_connect_doc_site');
 
 		$search_results = $matches[1];
 
@@ -362,7 +363,7 @@ class Find implements ActionInterface
 
 		// Move through the api layer.
 		if (!$results->exists('api'))
-			fatal_lang_error('cannot_connect_doc_site');
+			ErrorHandler::fatalLang('cannot_connect_doc_site');
 
 		// Are there actually some results?
 		if ($results->exists('api/query/search/p'))

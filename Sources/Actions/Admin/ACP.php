@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\Menu;
@@ -754,7 +755,7 @@ class ACP implements ActionInterface
 
 		// Nothing valid?
 		if (empty($menu->include_data))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		// Build the link tree.
 		Utils::$context['linktree'][] = array(
@@ -1302,7 +1303,7 @@ class ACP implements ActionInterface
 				}
 
 				if (!$is_acceptable_type)
-					fatal_error('Invalid config_var \'' . $var_name . '\'');
+					ErrorHandler::fatal('Invalid config_var \'' . $var_name . '\'');
 			}
 			else
 			{

@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\Board;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\Mail;
@@ -77,7 +78,7 @@ class TopicMove implements ActionInterface
 	public function execute(): void
 	{
 		if (empty(Topic::$topic_id))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		$request = Db::$db->query('', '
 			SELECT t.id_member_started, ms.subject, t.approved
@@ -117,7 +118,7 @@ class TopicMove implements ActionInterface
 			if (empty($boards))
 			{
 				// No boards? Too bad...
-				fatal_lang_error('moveto_no_boards');
+				ErrorHandler::fatalLang('moveto_no_boards');
 			}
 		}
 

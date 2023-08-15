@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\Board;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\MessageIndex;
 use SMF\Msg;
@@ -76,12 +77,12 @@ class TopicMove2 implements ActionInterface
 	public function execute(): void
 	{
 		if (empty(Topic::$topic_id))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		// You can't choose to have a redirection topic and use an empty reason.
 		if (isset($_POST['postRedirect']) && (!isset($_POST['reason']) || trim($_POST['reason']) == ''))
 		{
-			fatal_lang_error('movetopic_no_reason', false);
+			ErrorHandler::fatalLang('movetopic_no_reason', false);
 		}
 
 		self::moveTopicConcurrence();
@@ -98,7 +99,7 @@ class TopicMove2 implements ActionInterface
 				'current_topic' => Topic::$topic_id,
 			)
 		);
-		list ($id_member_started, $id_first_msg, Utils::$context['is_approved']) = Db::$db->fetch_row($request);
+		list($id_member_started, $id_first_msg, Utils::$context['is_approved']) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
 		// Can they see it?
@@ -141,7 +142,7 @@ class TopicMove2 implements ActionInterface
 		);
 		if (Db::$db->num_rows($request) == 0)
 		{
-			fatal_lang_error('no_board');
+			ErrorHandler::fatalLang('no_board');
 		}
 		list($pcounter, $board_name, $subject) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
@@ -397,7 +398,7 @@ class TopicMove2 implements ActionInterface
 
 			$topic_link = '<a href="' . Config::$scripturl . '?topic=' . Topic::$topic_id . '.0">' . $topic_subject . '</a>';
 
-			fatal_lang_error('topic_already_moved', false, array($topic_link, $board_link));
+			ErrorHandler::fatalLang('topic_already_moved', false, array($topic_link, $board_link));
 		}
 	}
 

@@ -20,6 +20,7 @@ use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -351,7 +352,7 @@ class Feed implements ActionInterface
 			}
 			else
 			{
-				fatal_lang_error('no_board', false);
+				ErrorHandler::fatalLang('no_board', false);
 			}
 
 			// Try to limit the number of messages we look through.
@@ -393,7 +394,7 @@ class Feed implements ActionInterface
 			Db::$db->free_result($request);
 
 			if ($num_boards == 0)
-				fatal_lang_error('no_board', false);
+				ErrorHandler::fatalLang('no_board', false);
 
 			if (!empty($this->boards))
 				$this->query_this_board = 'b.id_board IN (' . implode(', ', $this->boards) . ')';
@@ -419,7 +420,7 @@ class Feed implements ActionInterface
 			if (Db::$db->num_rows($request) == 0)
 			{
 				Db::$db->free_result($request);
-				fatal_lang_error('no_board', false);
+				ErrorHandler::fatalLang('no_board', false);
 			}
 			list($total_posts) = Db::$db->fetch_row($request);
 			Db::$db->free_result($request);

@@ -15,6 +15,7 @@ namespace SMF\Actions;
 
 use SMF\BackwardCompatibility;
 
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Topic;
 use SMF\Db\DatabaseApi as Db;
@@ -103,7 +104,7 @@ class NotifyTopic extends Notify implements ActionInterface
 	protected function setId()
 	{
 		if (empty(Topic::$topic_id))
-			fatal_lang_error('not_a_topic', false);
+			ErrorHandler::fatalLang('not_a_topic', false);
 
 		$this->id = Topic::$topic_id;
 	}

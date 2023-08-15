@@ -16,6 +16,7 @@ namespace SMF\Actions;
 use SMF\BackwardCompatibility;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -101,7 +102,7 @@ class Login2 implements ActionInterface
 	{
 		// Check to ensure we're forcing SSL for authentication
 		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !httpsOn())
-			fatal_lang_error('login_ssl_required', false);
+			ErrorHandler::fatalLang('login_ssl_required', false);
 
 		// Load cookie authentication stuff.
 		require_once(Config::$sourcedir . '/Subs-Auth.php');
@@ -167,7 +168,7 @@ class Login2 implements ActionInterface
 	{
 		// Strike!  You're outta there!
 		if ($_GET['member'] != User::$me->id)
-			fatal_lang_error('login_cookie_error', false);
+			ErrorHandler::fatalLang('login_cookie_error', false);
 
 		User::$me->can_mod = allowedTo('access_mod_center') || (!User::$me->is_guest && (User::$me->mod_cache['gq'] != '0=1' || User::$me->mod_cache['bq'] != '0=1' || (Config::$modSettings['postmod_active'] && !empty(User::$me->mod_cache['ap']))));
 
@@ -233,7 +234,7 @@ class Login2 implements ActionInterface
 			&& $_SESSION['failed_login'] >= Config::$modSettings['failed_login_threshold'] * 3
 		)
 		{
-			fatal_lang_error('login_threshold_fail', 'login');
+			ErrorHandler::fatalLang('login_threshold_fail', 'login');
 		}
 
 		// Set up the cookie length.  (if it's invalid, just fall through and use the default.)
@@ -440,7 +441,7 @@ class Login2 implements ActionInterface
 			redirectexit();
 
 			// Probably not needed, but still make sure...
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 		}
 
 		// Right, have we got a flood value?
@@ -469,7 +470,7 @@ class Login2 implements ActionInterface
 
 		// Broken the law?
 		if ($number_tries > 5)
-			fatal_lang_error('login_threshold_brute_fail', 'login', [$member_name]);
+			ErrorHandler::fatalLang('login_threshold_brute_fail', 'login', [$member_name]);
 
 		// Otherwise set the members data. If they correct on their first attempt then we actually clear it, otherwise we set it!
 		User::updateMemberData($id_member, array('passwd_flood' => $was_correct && $number_tries == 1 ? '' : $time_stamp . '|' . $number_tries));
@@ -667,7 +668,7 @@ class Login2 implements ActionInterface
 			else
 			{
 				// Log an error so we know that it didn't go well in the error log.
-				log_error(Lang::$txt['incorrect_password'] . ' - <span class="remove">' . User::$profiles[User::$my_id]['member_name'] . '</span>', 'user');
+				ErrorHandler::log(Lang::$txt['incorrect_password'] . ' - <span class="remove">' . User::$profiles[User::$my_id]['member_name'] . '</span>', 'user');
 
 				Utils::$context['login_errors'] = array(Lang::$txt['incorrect_password']);
 
@@ -755,7 +756,7 @@ class Login2 implements ActionInterface
 		// Awaiting approval still?
 		elseif ($activation_status == 3)
 		{
-			fatal_lang_error('still_awaiting_approval', 'user');
+			ErrorHandler::fatalLang('still_awaiting_approval', 'user');
 		}
 		// Awaiting deletion, changed their mind?
 		elseif ($activation_status == 4)
@@ -778,7 +779,7 @@ class Login2 implements ActionInterface
 		// Standard activation?
 		elseif ($activation_status != 1)
 		{
-			log_error(Lang::$txt['activate_not_completed1'] . ' - <span class="remove">' . User::$profiles[User::$my_id]['member_name'] . '</span>', 'user');
+			ErrorHandler::log(Lang::$txt['activate_not_completed1'] . ' - <span class="remove">' . User::$profiles[User::$my_id]['member_name'] . '</span>', 'user');
 
 			Utils::$context['login_errors'][] = Lang::$txt['activate_not_completed1'] . ' <a href="' . Config::$scripturl . '?action=activate;sa=resend;u=' . User::$profiles[User::$my_id]['id_member'] . '">' . Lang::$txt['activate_not_completed2'] . '</a>';
 

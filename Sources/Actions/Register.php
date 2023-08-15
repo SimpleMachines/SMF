@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\Profile;
@@ -107,7 +108,7 @@ class Register implements ActionInterface
 	{
 		// Check if the administrator has it disabled.
 		if (!empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == '3')
-			fatal_lang_error('registration_disabled', false);
+			ErrorHandler::fatalLang('registration_disabled', false);
 
 		// If this user is an admin - redirect them to the admin registration page.
 		if (allowedTo('moderate_forum') && !User::$me->is_guest)
@@ -162,7 +163,7 @@ class Register implements ActionInterface
 				if (empty(Config::$modSettings['coppaType']) && empty($_SESSION['skip_coppa']))
 				{
 					Lang::load('Login');
-					fatal_lang_error('under_age_registration_prohibited', false, array(Config::$modSettings['coppaAge']));
+					ErrorHandler::fatalLang('under_age_registration_prohibited', false, array(Config::$modSettings['coppaAge']));
 				}
 			}
 		}
@@ -208,8 +209,8 @@ class Register implements ActionInterface
 			if (empty(Utils::$context['agreement']))
 			{
 				// No file found or a blank file, log the error so the admin knows there is a problem!
-				log_error(Lang::$txt['registration_agreement_missing'], 'critical');
-				fatal_lang_error('registration_disabled', false);
+				ErrorHandler::log(Lang::$txt['registration_agreement_missing'], 'critical');
+				ErrorHandler::fatalLang('registration_disabled', false);
 			}
 		}
 
@@ -246,8 +247,8 @@ class Register implements ActionInterface
 			else
 			{
 				// None was found; log the error so the admin knows there is a problem!
-				log_error(Lang::$txt['registration_policy_missing'], 'critical');
-				fatal_lang_error('registration_disabled', false);
+				ErrorHandler::log(Lang::$txt['registration_policy_missing'], 'critical');
+				ErrorHandler::fatalLang('registration_disabled', false);
 			}
 		}
 

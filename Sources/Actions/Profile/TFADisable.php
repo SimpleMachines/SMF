@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Profile;
 use SMF\User;
 use SMF\Db\DatabaseApi as Db;
@@ -66,11 +67,11 @@ class TFADisable implements ActionInterface
 
 		// Bail if we're forcing SSL for authentication and the network connection isn't secure.
 		if (!empty(Config::$modSettings['force_ssl']) && !httpsOn())
-			fatal_lang_error('login_ssl_required', false);
+			ErrorHandler::fatalLang('login_ssl_required', false);
 
 		// The admin giveth...
 		if (Config::$modSettings['tfa_mode'] == 3 && User::$me->is_owner)
-			fatal_lang_error('cannot_disable_tfa', false);
+			ErrorHandler::fatalLang('cannot_disable_tfa', false);
 
 		if (Config::$modSettings['tfa_mode'] == 2 && User::$me->is_owner)
 		{
@@ -89,7 +90,7 @@ class TFADisable implements ActionInterface
 
 			// They belong to a membergroup that requires tfa.
 			if (!empty($tfa_required_groups))
-				fatal_lang_error('cannot_disable_tfa2', false);
+				ErrorHandler::fatalLang('cannot_disable_tfa2', false);
 		}
 	}
 

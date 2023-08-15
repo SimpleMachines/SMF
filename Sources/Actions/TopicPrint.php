@@ -19,6 +19,7 @@ use SMF\Attachment;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Poll;
 use SMF\Theme;
@@ -82,7 +83,7 @@ class TopicPrint implements ActionInterface
 		{
 			unset($_REQUEST['action']);
 			Utils::$context['theme_loaded'] = false;
-			fatal_lang_error('feature_disabled', false);
+			ErrorHandler::fatalLang('feature_disabled', false);
 		}
 
 		// Whatever happens don't index this.

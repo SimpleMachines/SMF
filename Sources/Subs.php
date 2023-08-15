@@ -16,6 +16,7 @@
 use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Forum;
 use SMF\Lang;
 use SMF\Mail;
@@ -1471,11 +1472,11 @@ function call_integration_hook($hook, $parameters = array())
 			{
 				list ($file, $string) = explode('|', $function);
 				$absPath = empty(Theme::$current->settings['theme_dir']) ? (strtr(trim($file), array('$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir))) : (strtr(trim($file), array('$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir, '$themedir' => Theme::$current->settings['theme_dir'])));
-				log_error(sprintf(Lang::$txt['hook_fail_call_to'], $string, $absPath), 'general');
+				ErrorHandler::log(sprintf(Lang::$txt['hook_fail_call_to'], $string, $absPath), 'general');
 			}
 			// "Assume" the file resides on Config::$boarddir somewhere...
 			else
-				log_error(sprintf(Lang::$txt['hook_fail_call_to'], $function, Config::$boarddir), 'general');
+				ErrorHandler::log(sprintf(Lang::$txt['hook_fail_call_to'], $function, Config::$boarddir), 'general');
 		}
 	}
 
@@ -1695,7 +1696,7 @@ function call_helper($string, $return = false)
 	elseif (!is_callable($func, false, $callable_name))
 	{
 		Lang::load('Errors');
-		log_error(sprintf(Lang::$txt['sub_action_fail'], $callable_name), 'general');
+		ErrorHandler::log(sprintf(Lang::$txt['sub_action_fail'], $callable_name), 'general');
 
 		// Gotta tell everybody.
 		return false;
@@ -1760,7 +1761,7 @@ function load_file($string)
 			elseif (empty(Utils::$context['uninstalling']))
 			{
 				Lang::load('Errors');
-				log_error(sprintf(Lang::$txt['hook_fail_loading_file'], $absPath), 'general');
+				ErrorHandler::log(sprintf(Lang::$txt['hook_fail_loading_file'], $absPath), 'general');
 
 				// File couldn't be loaded.
 				return false;
@@ -3464,7 +3465,7 @@ function check_cron()
 		if (!empty($overdue))
 		{
 			Lang::load('ManageScheduledTasks');
-			log_error(Lang::$txt['cron_not_working']);
+			ErrorHandler::log(Lang::$txt['cron_not_working']);
 			Config::updateModSettings(array('cron_is_real_cron' => 0));
 		}
 		else

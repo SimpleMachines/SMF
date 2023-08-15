@@ -18,6 +18,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\Menu;
@@ -627,7 +628,7 @@ class PM implements \ArrayAccess
 
 			if (!empty($postCount) && $postCount >= Config::$modSettings['pm_posts_per_hour'])
 			{
-				fatal_lang_error('pm_too_many_per_hour', true, array(Config::$modSettings['pm_posts_per_hour']));
+				ErrorHandler::fatalLang('pm_too_many_per_hour', true, array(Config::$modSettings['pm_posts_per_hour']));
 			}
 		}
 
@@ -642,7 +643,7 @@ class PM implements \ArrayAccess
 
 			// Make sure this is yours.
 			if (!$pm->canAccess('both'))
-				fatal_lang_error('pm_not_yours', false);
+				ErrorHandler::fatalLang('pm_not_yours', false);
 
 			// Format it all.
 			$pm->format();
@@ -911,7 +912,7 @@ class PM implements \ArrayAccess
 			{
 				if (!isset($_REQUEST['xml']))
 				{
-					fatal_lang_error('pm_too_many_per_hour', true, array(Config::$modSettings['pm_posts_per_hour']));
+					ErrorHandler::fatalLang('pm_too_many_per_hour', true, array(Config::$modSettings['pm_posts_per_hour']));
 				}
 				else
 				{
@@ -2180,7 +2181,7 @@ class PM implements \ArrayAccess
 			{
 				if (!isset($_REQUEST['xml']))
 				{
-					fatal_lang_error('pm_not_yours', false);
+					ErrorHandler::fatalLang('pm_not_yours', false);
 				}
 				else
 				{

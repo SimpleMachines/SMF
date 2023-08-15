@@ -19,6 +19,7 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Category;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -458,7 +459,7 @@ class MessageIndex implements ActionInterface
 	protected function __construct()
 	{
 		if (empty(Board::$info->id))
-			fatal_lang_error('no_board', false);
+			ErrorHandler::fatalLang('no_board', false);
 
 		$this->checkRedirect();
 		$this->preventPrefetch();

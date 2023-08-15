@@ -16,6 +16,7 @@
 use SMF\Alert;
 use SMF\Config;
 use SMF\Draft;
+use SMF\ErrorHandler;
 use SMF\ProxyServer;
 use SMF\Lang;
 use SMF\Mail;
@@ -815,7 +816,7 @@ function scheduled_fetchSMfiles()
 		if ($file_data === false)
 		{
 			Utils::$context['scheduled_errors']['fetchSMfiles'][] = sprintf(Lang::$txt['st_cannot_retrieve_file'], $url);
-			log_error(sprintf(Lang::$txt['st_cannot_retrieve_file'], $url));
+			ErrorHandler::log(sprintf(Lang::$txt['st_cannot_retrieve_file'], $url));
 			return false;
 		}
 
@@ -1196,7 +1197,7 @@ function scheduled_remove_temp_attachments()
 			Theme::loadEssential();
 			Lang::load('Post');
 			Utils::$context['scheduled_errors']['remove_temp_attachments'][] = Lang::$txt['cant_access_upload_path'] . ' (' . $attach_dir . ')';
-			log_error(Lang::$txt['cant_access_upload_path'] . ' (' . $attach_dir . ')', 'critical');
+			ErrorHandler::log(Lang::$txt['cant_access_upload_path'] . ' (' . $attach_dir . ')', 'critical');
 			return false;
 		}
 

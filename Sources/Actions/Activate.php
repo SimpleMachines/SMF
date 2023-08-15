@@ -16,6 +16,7 @@ namespace SMF\Actions;
 use SMF\BackwardCompatibility;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\Theme;
@@ -94,7 +95,7 @@ class Activate implements ActionInterface
 		if (empty($_REQUEST['u']) && empty($_POST['user']))
 		{
 			if (empty(Config::$modSettings['registration_method']) || Config::$modSettings['registration_method'] == '3')
-				fatal_lang_error('no_access', false);
+				ErrorHandler::fatalLang('no_access', false);
 
 			Utils::$context['member_id'] = 0;
 			Utils::$context['sub_template'] = 'resend';
@@ -143,10 +144,10 @@ class Activate implements ActionInterface
 		)
 		{
 			if (empty(Config::$modSettings['registration_method']) || Config::$modSettings['registration_method'] == 3)
-				fatal_lang_error('no_access', false);
+				ErrorHandler::fatalLang('no_access', false);
 
 			if (!filter_var($_POST['new_email'], FILTER_VALIDATE_EMAIL))
-				fatal_error(sprintf(Lang::$txt['valid_email_needed'], Utils::htmlspecialchars($_POST['new_email'])), false);
+				ErrorHandler::fatal(sprintf(Lang::$txt['valid_email_needed'], Utils::htmlspecialchars($_POST['new_email'])), false);
 
 			// Make sure their email isn't banned.
 			isBannedEmail($_POST['new_email'], 'cannot_register', Lang::$txt['ban_register_prohibited']);
@@ -163,7 +164,7 @@ class Activate implements ActionInterface
 			);
 
 			if (Db::$db->num_rows($request) != 0)
-				fatal_lang_error('email_in_use', false, array(Utils::htmlspecialchars($_POST['new_email'])));
+				ErrorHandler::fatalLang('email_in_use', false, array(Utils::htmlspecialchars($_POST['new_email'])));
 			Db::$db->free_result($request);
 
 			User::updateMemberData($row['id_member'], array('email_address' => $_POST['new_email']));
@@ -198,7 +199,7 @@ class Activate implements ActionInterface
 			// This will ensure we don't actually get an error message if it works!
 			Utils::$context['error_title'] = Lang::$txt['invalid_activation_resend'];
 
-			fatal_lang_error(!empty($email_change) ? 'change_email_success' : 'resend_email_success', false, array(), false);
+			ErrorHandler::fatalLang(!empty($email_change) ? 'change_email_success' : 'resend_email_success', false, array(), false);
 		}
 
 		// Quit if this code is not right.
@@ -206,12 +207,12 @@ class Activate implements ActionInterface
 		{
 			if (!empty($row['is_activated']))
 			{
-				fatal_lang_error('already_activated', false);
+				ErrorHandler::fatalLang('already_activated', false);
 			}
 			elseif ($row['validation_code'] == '')
 			{
 				Lang::load('Profile');
-				fatal_error(sprintf(Lang::$txt['registration_not_approved'], Config::$scripturl . '?action=activate;user=' . $row['member_name']), false);
+				ErrorHandler::fatal(sprintf(Lang::$txt['registration_not_approved'], Config::$scripturl . '?action=activate;user=' . $row['member_name']), false);
 			}
 
 			Utils::$context['sub_template'] = 'retry_activate';

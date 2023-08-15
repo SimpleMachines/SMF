@@ -16,6 +16,7 @@ namespace SMF\Actions;
 use SMF\BackwardCompatibility;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\Utils;
@@ -71,7 +72,7 @@ class Stats implements ActionInterface
 
 		// Page disabled - redirect them out
 		if (empty(Config::$modSettings['trackStats']))
-			fatal_lang_error('feature_disabled', true);
+			ErrorHandler::fatalLang('feature_disabled', true);
 
 		if (!empty($_REQUEST['expand']))
 		{

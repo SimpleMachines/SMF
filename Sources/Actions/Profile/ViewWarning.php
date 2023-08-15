@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Profile;
@@ -71,7 +72,7 @@ class ViewWarning implements ActionInterface
 			&& !allowedTo('moderate_forum')
 		)
 		{
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 		}
 
 		// Let's use a generic list to get all the current warnings, and use the issue warnings grab-a-granny thing.

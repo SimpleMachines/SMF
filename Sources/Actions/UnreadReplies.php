@@ -15,6 +15,7 @@ namespace SMF\Actions;
 
 use SMF\Board;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -119,7 +120,7 @@ class UnreadReplies extends Unread
 			return;
 
 		if (Utils::$context['load_average'] >= Config::$modSettings['loadavg_unreadreplies'])
-			fatal_lang_error('loadavg_unreadreplies_disabled', false);
+			ErrorHandler::fatalLang('loadavg_unreadreplies_disabled', false);
 	}
 
 	/**

@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
@@ -122,7 +123,7 @@ class Tracking implements ActionInterface
 	public function execute(): void
 	{
 		if (!isset($this->subaction, self::$subactions))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		// This is only here for backward compatiblity in case a mod needs it.
 		Utils::$context['tracking_area'] = &$this->subaction;

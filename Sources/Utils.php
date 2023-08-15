@@ -802,11 +802,11 @@ class Utils
 
 			if (!empty($json_debug))
 			{
-				log_error(Lang::$txt['json_' . $json_error], 'critical', $json_debug['file'], $json_debug['line']);
+				ErrorHandler::log(Lang::$txt['json_' . $json_error], 'critical', $json_debug['file'], $json_debug['line']);
 			}
 			else
 			{
-				log_error(Lang::$txt['json_' . $json_error], 'critical');
+				ErrorHandler::log(Lang::$txt['json_' . $json_error], 'critical');
 			}
 
 			// Everyone expects an array.

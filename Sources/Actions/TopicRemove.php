@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\Board;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Mail;
 use SMF\Topic;
 use SMF\User;
@@ -100,7 +101,7 @@ class TopicRemove implements ActionInterface
 		if ($locked)
 		{
 			if (!($locked == 1 && $starter == User::$me->id || allowedTo('lock_any')))
-				fatal_lang_error('cannot_remove_locked', 'user');
+				ErrorHandler::fatalLang('cannot_remove_locked', 'user');
 		}
 
 		// Notify people that this topic has been removed.
@@ -178,7 +179,7 @@ class TopicRemove implements ActionInterface
 			$confirm_url = Config::$scripturl . '?action=removetopic2;confirm_delete;topic=' . Utils::$context['current_topic'] . '.0;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
 		}
 
-		fatal_lang_error('post_already_deleted', false, array($confirm_url));
+		ErrorHandler::fatalLang('post_already_deleted', false, array($confirm_url));
 	}
 
 	/**

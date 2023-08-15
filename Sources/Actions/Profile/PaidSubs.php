@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Profile;
 use SMF\Theme;
@@ -115,7 +116,7 @@ class PaidSubs implements ActionInterface
 
 		// No gateways yet?
 		if (empty($gateways))
-			fatal_error(Lang::$txt['paid_admin_not_setup_gateway']);
+			ErrorHandler::fatal(Lang::$txt['paid_admin_not_setup_gateway']);
 
 		// Get the current subscriptions.
 		Utils::$context['current'] = array();
@@ -206,7 +207,7 @@ class PaidSubs implements ActionInterface
 				$id_sub = (int) $k;
 
 			if (!isset(Subscriptions::$all[$id_sub]) || Subscriptions::$all[$id_sub]['active'] == 0)
-				fatal_lang_error('paid_sub_not_active');
+				ErrorHandler::fatalLang('paid_sub_not_active');
 
 			// Simplify...
 			Utils::$context['sub'] = Subscriptions::$all[$id_sub];
@@ -219,7 +220,7 @@ class PaidSubs implements ActionInterface
 
 			// Check we have a valid cost.
 			if (Utils::$context['sub']['flexible'] && $period == 'xx')
-				fatal_lang_error('paid_sub_not_active');
+				ErrorHandler::fatalLang('paid_sub_not_active');
 
 			// Sort out the cost/currency.
 			Utils::$context['currency'] = Config::$modSettings['paid_currency_code'];
@@ -265,7 +266,7 @@ class PaidSubs implements ActionInterface
 
 			// Bugger?!
 			if (empty(Utils::$context['gateways']))
-				fatal_error(Lang::$txt['paid_admin_not_setup_gateway']);
+				ErrorHandler::fatal(Lang::$txt['paid_admin_not_setup_gateway']);
 
 			// Now we are going to assume they want to take this out ;)
 			$new_data = array(Utils::$context['sub']['id'], Utils::$context['value'], $period, 'prepay');

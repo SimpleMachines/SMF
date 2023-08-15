@@ -16,6 +16,7 @@ namespace SMF\Actions;
 use SMF\BackwardCompatibility;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\Utils;
@@ -69,7 +70,7 @@ class ViewQuery implements ActionInterface
 		// We should have debug mode enabled, as well as something to display!
 		if (!isset(Config::$db_show_debug) || Config::$db_show_debug !== true || !isset($_SESSION['debug']))
 		{
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 		}
 
 		// Don't allow except for administrators.

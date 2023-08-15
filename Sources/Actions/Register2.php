@@ -16,6 +16,7 @@ namespace SMF\Actions;
 use SMF\BackwardCompatibility;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Profile;
 use SMF\Theme;
@@ -117,11 +118,11 @@ class Register2 extends Register
 
 		// Check to ensure we're forcing SSL for authentication
 		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !httpsOn())
-			fatal_lang_error('register_ssl_required');
+			ErrorHandler::fatalLang('register_ssl_required');
 
 		// You can't register if it's disabled.
 		if (!empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == 3)
-			fatal_lang_error('registration_disabled', false);
+			ErrorHandler::fatalLang('registration_disabled', false);
 
 		// Well, if you don't agree, you can't register.
 		if ((!empty(Config::$modSettings['requireAgreement']) || !empty(Config::$modSettings['requirePolicyAgreement'])) && empty($_SESSION['registration_agreed']))
@@ -141,7 +142,7 @@ class Register2 extends Register
 		if (!empty(Config::$modSettings['coppaAge']) && empty(Config::$modSettings['coppaType']) && empty($_SESSION['skip_coppa']))
 		{
 			Lang::load('Errors');
-			fatal_lang_error('under_age_registration_prohibited', false, array(Config::$modSettings['coppaAge']));
+			ErrorHandler::fatalLang('under_age_registration_prohibited', false, array(Config::$modSettings['coppaAge']));
 		}
 
 		// Check the time gate for miscreants. First make sure they came from somewhere that actually set it up.
@@ -525,7 +526,7 @@ class Register2 extends Register
 
 			// Make sure they didn't just register with this session.
 			if (!empty($_SESSION['just_registered']) && empty(Config::$modSettings['disableRegisterCheck']))
-				fatal_lang_error('register_only_once', false);
+				ErrorHandler::fatalLang('register_only_once', false);
 		}
 
 		// Spaces and other odd characters are evil...
@@ -630,13 +631,13 @@ class Register2 extends Register
 			if ($return_errors)
 			{
 				if (!empty($error[2]))
-					log_error($message, $error[2]);
+					ErrorHandler::log($message, $error[2]);
 
 				$reg_errors[$key] = $message;
 			}
 			else
 			{
-				fatal_error($message, empty($error[2]) ? false : $error[2]);
+				ErrorHandler::fatal($message, empty($error[2]) ? false : $error[2]);
 			}
 		}
 
@@ -666,7 +667,7 @@ class Register2 extends Register
 		// Can't change reserved vars.
 		if (isset($reg_options['theme_vars']) && count(array_intersect(array_keys($reg_options['theme_vars']), $reserved_vars)) != 0)
 		{
-			fatal_lang_error('no_theme');
+			ErrorHandler::fatalLang('no_theme');
 		}
 
 		// Some of these might be overwritten. (the lower ones that are in the arrays below.)

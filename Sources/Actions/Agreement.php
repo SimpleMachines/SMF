@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -194,7 +195,7 @@ class Agreement implements ActionInterface
 				Utils::$context['agreement'] = BBCodeParser::load()->parse(file_get_contents(Utils::$context['agreement_file']), true, $cache_id);
 			}
 			elseif (Utils::$context['can_accept_agreement'])
-				fatal_lang_error('error_no_agreement', false);
+				ErrorHandler::fatalLang('error_no_agreement', false);
 		}
 
 		if (!Utils::$context['accept_doc'] || Utils::$context['can_accept_privacy_policy'])
@@ -206,7 +207,7 @@ class Agreement implements ActionInterface
 				Utils::$context['privacy_policy'] = BBCodeParser::load()->parse(Config::$modSettings['policy_' . Lang::$default]);
 			// Then I guess we've got nothing
 			elseif (Utils::$context['can_accept_privacy_policy'])
-				fatal_lang_error('error_no_privacy_policy', false);
+				ErrorHandler::fatalLang('error_no_privacy_policy', false);
 		}
 	}
 }

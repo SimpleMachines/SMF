@@ -14,6 +14,7 @@
 namespace SMF\PersonalMessage;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -147,7 +148,7 @@ class Folder
 				// Make sure you have access to this PM.
 				if (!$this->requested_pm->canAccess($this->is_inbox ? 'inbox' : 'sent'))
 				{
-					fatal_lang_error('no_access', false);
+					ErrorHandler::fatalLang('no_access', false);
 				}
 			}
 		}

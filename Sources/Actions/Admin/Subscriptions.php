@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
@@ -131,7 +132,7 @@ class Subscriptions implements ActionInterface
 		// Not made the settings yet?
 		if (empty(Config::$modSettings['paid_currency_symbol']))
 		{
-			fatal_lang_error('paid_not_set_currency', false, Config::$scripturl . '?action=admin;area=paidsubscribe;sa=settings');
+			ErrorHandler::fatalLang('paid_not_set_currency', false, Config::$scripturl . '?action=admin;area=paidsubscribe;sa=settings');
 		}
 
 		// Some basic stuff.
@@ -307,7 +308,7 @@ class Subscriptions implements ActionInterface
 		// Something wrong?
 		if (Db::$db->num_rows($request) == 0)
 		{
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 		}
 		$row = Db::$db->fetch_assoc($request);
 		Db::$db->free_result($request);
@@ -634,12 +635,12 @@ class Subscriptions implements ActionInterface
 
 				if (empty($_POST['span_unit']) || empty($limits[$_POST['span_unit']]) || $_POST['span_value'] < 1)
 				{
-					fatal_lang_error('paid_invalid_duration', false);
+					ErrorHandler::fatalLang('paid_invalid_duration', false);
 				}
 
 				if ($_POST['span_value'] > $limits[$_POST['span_unit']])
 				{
-					fatal_lang_error('paid_invalid_duration_' . $_POST['span_unit'], false);
+					ErrorHandler::fatalLang('paid_invalid_duration_' . $_POST['span_unit'], false);
 				}
 
 				// Clean the span.
@@ -650,7 +651,7 @@ class Subscriptions implements ActionInterface
 
 				// There needs to be something.
 				if ($cost['fixed'] == '0.00')
-					fatal_lang_error('paid_no_cost_value');
+					ErrorHandler::fatalLang('paid_no_cost_value');
 			}
 			// Flexible is harder but more fun ;)
 			else
@@ -666,7 +667,7 @@ class Subscriptions implements ActionInterface
 
 				if ($cost['day'] == '0.00' && $cost['week'] == '0.00' && $cost['month'] == '0.00' && $cost['year'] == '0.00')
 				{
-					fatal_lang_error('paid_all_freq_blank');
+					ErrorHandler::fatalLang('paid_all_freq_blank');
 				}
 			}
 			$cost = Utils::jsonEncode($cost);
@@ -893,14 +894,14 @@ class Subscriptions implements ActionInterface
 			);
 			if (Db::$db->num_rows($request) == 0)
 			{
-				fatal_lang_error('no_access', false);
+				ErrorHandler::fatalLang('no_access', false);
 			}
 			list(Utils::$context['sub_id']) = Db::$db->fetch_row($request);
 			Db::$db->free_result($request);
 		}
 
 		if (!isset(self::$all[Utils::$context['sub_id']]))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		Utils::$context['current_subscription'] = self::$all[Utils::$context['sub_id']];
 
@@ -938,7 +939,7 @@ class Subscriptions implements ActionInterface
 				);
 				if (Db::$db->num_rows($request) == 0)
 				{
-					fatal_lang_error('error_member_not_found');
+					ErrorHandler::fatalLang('error_member_not_found');
 				}
 				list($id_member, $id_group) = Db::$db->fetch_row($request);
 				Db::$db->free_result($request);
@@ -956,7 +957,7 @@ class Subscriptions implements ActionInterface
 				);
 				if (Db::$db->num_rows($request) != 0)
 				{
-					fatal_lang_error('member_already_subscribed');
+					ErrorHandler::fatalLang('member_already_subscribed');
 				}
 				Db::$db->free_result($request);
 
@@ -995,7 +996,7 @@ class Subscriptions implements ActionInterface
 				);
 				if (Db::$db->num_rows($request) == 0)
 				{
-					fatal_lang_error('no_access', false);
+					ErrorHandler::fatalLang('no_access', false);
 				}
 				list ($id_member, $old_status) = Db::$db->fetch_row($request);
 				Db::$db->free_result($request);
@@ -1121,7 +1122,7 @@ class Subscriptions implements ActionInterface
 			);
 			if (Db::$db->num_rows($request) == 0)
 			{
-				fatal_lang_error('no_access', false);
+				ErrorHandler::fatalLang('no_access', false);
 			}
 			$row = Db::$db->fetch_assoc($request);
 			Db::$db->free_result($request);

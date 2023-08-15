@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
@@ -405,7 +406,7 @@ class Membergroups implements ActionInterface
 
 					// Protected groups are... well, protected!
 					if ($copy_type == 1)
-						fatal_lang_error('membergroup_does_not_exist');
+						ErrorHandler::fatalLang('membergroup_does_not_exist');
 				}
 
 				// Don't allow copying of a real priviledged person!
@@ -706,7 +707,7 @@ class Membergroups implements ActionInterface
 
 		// Now, do we have a valid id?
 		if (empty($_REQUEST['group']))
-			fatal_lang_error('membergroup_does_not_exist', false);
+			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
 
 		// People who can manage boards are a bit special.
 		require_once(Config::$sourcedir . '/Subs-Members.php');
@@ -758,7 +759,7 @@ class Membergroups implements ActionInterface
 
 			// Need to throw a warning if it went wrong, but this is the only one we have a message for...
 			if ($result === 'group_cannot_delete_sub')
-				fatal_lang_error('membergroups_cannot_delete_paid', false);
+				ErrorHandler::fatalLang('membergroups_cannot_delete_paid', false);
 
 			redirectexit('action=admin;area=membergroups;');
 		}
@@ -1160,7 +1161,7 @@ class Membergroups implements ActionInterface
 		);
 		if (Db::$db->num_rows($request) == 0)
 		{
-			fatal_lang_error('membergroup_does_not_exist', false);
+			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
 		}
 		$row = Db::$db->fetch_assoc($request);
 		Db::$db->free_result($request);

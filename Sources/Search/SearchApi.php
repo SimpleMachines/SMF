@@ -15,6 +15,7 @@ namespace SMF\Search;
 
 use SMF\BackwardCompatibility;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\User;
 use SMF\Utils;
@@ -745,7 +746,7 @@ abstract class SearchApi implements SearchApiInterface
 		$search_class_name = __NAMESPACE__ . '\\APIs\\' . ucwords(Config::$modSettings['search_index']);
 
 		if (!class_exists($search_class_name))
-			fatal_lang_error('search_api_missing');
+			ErrorHandler::fatalLang('search_api_missing');
 
 		// Create an instance of the search API and check it is valid for this version of SMF.
 		self::$loadedApi = new $search_class_name();
@@ -761,7 +762,7 @@ abstract class SearchApi implements SearchApiInterface
 			// Log the error.
 			Lang::load('Errors');
 
-			log_error(sprintf(Lang::$txt['search_api_not_compatible'], 'Search/APIs/' . ucwords(Config::$modSettings['search_index']) . '.php'), 'critical');
+			ErrorHandler::log(sprintf(Lang::$txt['search_api_not_compatible'], 'Search/APIs/' . ucwords(Config::$modSettings['search_index']) . '.php'), 'critical');
 
 			// Fall back to standard search.
 			if (Config::$modSettings['search_index'] !== 'standard')
@@ -892,7 +893,7 @@ abstract class SearchApi implements SearchApiInterface
 
 		// Zero weight.  Weightless :P.
 		if (empty($this->weight_total))
-			fatal_lang_error('search_invalid_weights');
+			ErrorHandler::fatalLang('search_invalid_weights');
 	}
 
 	/**
@@ -1390,7 +1391,7 @@ abstract class SearchApi implements SearchApiInterface
 			);
 
 			if (Db::$db->num_rows($request) == 0)
-				fatal_lang_error('topic_gone', false);
+				ErrorHandler::fatalLang('topic_gone', false);
 
 			$this->params['brd'] = array();
 			list ($this->params['brd'][0]) = Db::$db->fetch_row($request);

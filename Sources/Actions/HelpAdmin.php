@@ -16,6 +16,7 @@ namespace SMF\Actions;
 use SMF\BackwardCompatibility;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\Utils;
@@ -69,7 +70,7 @@ class HelpAdmin implements ActionInterface
 	public function execute(): void
 	{
 		if (!isset($_GET['help']) || !is_string($_GET['help']))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		// Load the admin help language file and template.
 		Lang::load('Help');
@@ -94,7 +95,7 @@ class HelpAdmin implements ActionInterface
 		}
 		else
 		{
-			fatal_lang_error('not_found', false, array(), 404);
+			ErrorHandler::fatalLang('not_found', false, array(), 404);
 		}
 
 		switch ($_GET['help'])

@@ -15,6 +15,7 @@
  */
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Utils;
 use SMF\Actions\Admin\ACP;
@@ -327,7 +328,7 @@ function generateSubscriptionError($text, $debug = false)
 	}
 
 	// Then just log and die.
-	log_error($text, 'paidsubs');
+	ErrorHandler::log($text, 'paidsubs');
 
 	exit;
 }

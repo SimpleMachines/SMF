@@ -19,6 +19,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Theme;
@@ -270,7 +271,7 @@ class Main implements ActionInterface
 
 		// We got something - didn't we? DIDN'T WE!
 		if (empty($menu->include_data))
-			fatal_lang_error('no_access', false);
+			ErrorHandler::fatalLang('no_access', false);
 
 		// Retain the ID information in case required by a subaction.
 		Utils::$context['moderation_menu_id'] = $menu->id;

@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\Board;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Utils;
@@ -1299,7 +1300,7 @@ class RepairBoards implements ActionInterface
 			if (Db::$db->affected_rows() <= 0)
 			{
 				Lang::load('Admin');
-				fatal_lang_error('salvaged_category_error', false);
+				ErrorHandler::fatalLang('salvaged_category_error', false);
 			}
 		}
 
@@ -1334,7 +1335,7 @@ class RepairBoards implements ActionInterface
 			if (Db::$db->affected_rows() <= 0)
 			{
 				Lang::load('Admin');
-				fatal_lang_error('salvaged_board_error', false);
+				ErrorHandler::fatalLang('salvaged_board_error', false);
 			}
 		}
 

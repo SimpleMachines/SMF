@@ -196,7 +196,7 @@ class Forum
 		// If Config::$maintenance is set specifically to 2, then we're upgrading or something.
 		if (!empty(Config::$maintenance) &&  2 === Config::$maintenance)
 		{
-			display_maintenance_message();
+			ErrorHandler::displayMaintenanceMessage();
 		}
 
 		// Initiate the database connection and define some database functions to use.
@@ -234,7 +234,7 @@ class Forum
 		}
 
 		// Register an error handler.
-		set_error_handler('smf_error_handler');
+		set_error_handler(__NAMESPACE__ . '\\ErrorHandler::call');
 
 		// Start the session. (assuming it hasn't already been.)
 		loadSession();
@@ -317,7 +317,7 @@ class Forum
 		// If we are in a topic and don't have permission to approve it then duck out now.
 		if (!empty(Topic::$topic_id) && empty(Board::$info->cur_topic_approved) && !allowedTo('approve_posts') && (User::$me->id != Board::$info->cur_topic_starter || User::$me->is_guest))
 		{
-			fatal_lang_error('not_a_topic', false);
+			ErrorHandler::fatalLang('not_a_topic', false);
 		}
 
 		// Don't log if this is an attachment, avatar, toggle of editor buttons, theme option, XML feed, popup, etc.
@@ -414,7 +414,7 @@ class Forum
 			// No fallback action, huh?
 			else
 			{
-				fatal_lang_error('not_found', false, array(), 404);
+				ErrorHandler::fatalLang('not_found', false, array(), 404);
 			}
 		}
 

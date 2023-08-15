@@ -20,6 +20,7 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Category;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Theme;
@@ -444,7 +445,7 @@ class Boards implements ActionInterface
 			if (isset($_POST['delete_action']) && $_POST['delete_action'] == 1)
 			{
 				if (empty($_POST['cat_to']))
-					fatal_lang_error('mboards_delete_error');
+					ErrorHandler::fatalLang('mboards_delete_error');
 
 				Category::delete(array($_POST['cat']), (int) $_POST['cat_to']);
 			}
@@ -756,7 +757,7 @@ class Boards implements ActionInterface
 			elseif (!empty($_POST['placement']) && !empty($_POST['board_order']))
 			{
 				if (!in_array($_POST['placement'], array('before', 'after', 'child')))
-					fatal_lang_error('mangled_post', false);
+					ErrorHandler::fatalLang('mangled_post', false);
 
 				$boardOptions['move_to'] = $_POST['placement'];
 				$boardOptions['target_board'] = (int) $_POST['board_order'];
@@ -786,7 +787,7 @@ class Boards implements ActionInterface
 
 			if (strlen(implode(',', $boardOptions['access_groups'])) > 255 || strlen(implode(',', $boardOptions['deny_groups'])) > 255)
 			{
-				fatal_lang_error('too_many_groups', false);
+				ErrorHandler::fatalLang('too_many_groups', false);
 			}
 
 			// Try and get any valid HTML to BBC first, add a naive attempt to strip it off, htmlspecialchars for the rest
@@ -886,7 +887,7 @@ class Boards implements ActionInterface
 			if (isset($_POST['delete_action']) && $_POST['delete_action'] == 1)
 			{
 				if (empty($_POST['board_to']))
-					fatal_lang_error('mboards_delete_board_error');
+					ErrorHandler::fatalLang('mboards_delete_board_error');
 
 				Board::delete(array($_POST['boardid']), (int) $_POST['board_to']);
 			}
