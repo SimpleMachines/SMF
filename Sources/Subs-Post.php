@@ -1601,7 +1601,7 @@ function server_parse($message, $socket, $code, &$response = null)
 		 * 450 - DNS Routing issues
 		 * 451 - cPanel "Temporary local problem - please try later"
 		 */
-		if ($response_code < 500 && !in_array($response_code, [450, 451]))
+		if ($response_code < 500 && !in_array($response_code, array(450, 451)))
 			log_error($txt['smtp_error'] . $server_response);
 
 		return false;
