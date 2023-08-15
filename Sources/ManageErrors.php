@@ -95,7 +95,7 @@ function ViewErrorLog()
 			'value' => array(
 				'sql' => in_array($_GET['filter'], array('message', 'url', 'file')) ? base64_decode(strtr($_GET['value'], array(' ' => '+'))) : $smcFunc['db_escape_wildcard_string']($_GET['value']),
 			),
-			'href' => ';filter=' . $_GET['filter'] . ';value=' . $_GET['value'],
+			'href' => ';filter=' . $_GET['filter'] . ';value=' . urlencode($_GET['value']),
 			'entity' => $filters[$_GET['filter']]['txt']
 		);
 
