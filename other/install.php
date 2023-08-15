@@ -1701,7 +1701,7 @@ function DeleteInstall()
 
 	chdir(Config::$boarddir);
 
-	require_once(Config::$sourcedir . '/Errors.php');
+	require_once(Config::$sourcedir . '/ErrorHandler.php');
 	require_once(Config::$sourcedir . '/Logging.php');
 	require_once(Config::$sourcedir . '/Subs.php');
 	require_once(Config::$sourcedir . '/Security.php');

@@ -225,7 +225,7 @@ loadEssentialData();
 // Are we going to be mimic'ing SSI at this point?
 if (isset($_GET['ssi']))
 {
-	require_once(Config::$sourcedir . '/Errors.php');
+	require_once(Config::$sourcedir . '/ErrorHandler.php');
 	require_once(Config::$sourcedir . '/Logging.php');
 	require_once(Config::$sourcedir . '/Security.php');
 
