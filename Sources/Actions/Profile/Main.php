@@ -394,8 +394,8 @@ class Main implements ActionInterface
 				),
 				'groupmembership' => array(
 					'label' => 'groupmembership',
-					'file' => 'Profile-Modify.php',
-					'function' => 'groupMembership',
+					'function' => __NAMESPACE__ . '\\GroupMembership::call',
+					'sub_template' => 'groupMembership',
 					'icon' => 'people',
 					'enabled' => true,
 					'sc' => 'request',
@@ -679,7 +679,9 @@ class Main implements ActionInterface
 
 				if ($menu->current_area == 'groupmembership')
 				{
-					$msg = groupMembership2(Profile::$member->new_data, Profile::$member->save_errors, Profile::$member->id);
+					$gm_action = GroupMembership::load();
+					$gm_action->execute();
+					$msg = $gm_action->change_type;
 				}
 
 				$force_redirect = !in_array($menu->current_area, array('account', 'forumprofile', 'theme'));
