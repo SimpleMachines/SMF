@@ -309,7 +309,7 @@ class Login2 implements ActionInterface
 		User::$my_id = (reset($loaded))->id;
 
 		// Bad password! Thought you could fool the database?!
-		if (!hash_verify_password(User::$profiles[User::$my_id]['member_name'], un_htmlspecialchars($_POST['passwrd']), User::$profiles[User::$my_id]['passwd']))
+		if (!hash_verify_password(User::$profiles[User::$my_id]['member_name'], Utils::htmlspecialcharsDecode($_POST['passwrd']), User::$profiles[User::$my_id]['passwd']))
 		{
 			// If the forum was recently upgraded, password might be encrypted
 			// using a different algorithm. If so, fix it. Otherwise, bail out.
@@ -606,7 +606,7 @@ class Login2 implements ActionInterface
 		{
 			// Maybe they are using a hash from before the password fix.
 			// This is also valid for SMF 1.1 to 2.0 style of hashing, changed to bcrypt in SMF 2.1
-			$other_passwords[] = sha1(strtolower(User::$profiles[User::$my_id]['member_name']) . un_htmlspecialchars($_POST['passwrd']));
+			$other_passwords[] = sha1(strtolower(User::$profiles[User::$my_id]['member_name']) . Utils::htmlspecialcharsDecode($_POST['passwrd']));
 
 			// BurningBoard3 style of hashing.
 			if (!empty(Config::$modSettings['enable_password_conversion']))
@@ -623,13 +623,13 @@ class Login2 implements ActionInterface
 				// Try iconv first, for no particular reason.
 				if (function_exists('iconv'))
 				{
-					$other_passwords['iconv'] = sha1(strtolower(iconv('UTF-8', Config::$modSettings['previousCharacterSet'], User::$profiles[User::$my_id]['member_name'])) . un_htmlspecialchars(iconv('UTF-8', Config::$modSettings['previousCharacterSet'], $_POST['passwrd'])));
+					$other_passwords['iconv'] = sha1(strtolower(iconv('UTF-8', Config::$modSettings['previousCharacterSet'], User::$profiles[User::$my_id]['member_name'])) . Utils::htmlspecialcharsDecode(iconv('UTF-8', Config::$modSettings['previousCharacterSet'], $_POST['passwrd'])));
 				}
 
 				// Say it aint so, iconv failed!
 				if (empty($other_passwords['iconv']) && function_exists('mb_convert_encoding'))
 				{
-					$other_passwords[] = sha1(strtolower(mb_convert_encoding(User::$profiles[User::$my_id]['member_name'], 'UTF-8', Config::$modSettings['previousCharacterSet'])) . un_htmlspecialchars(mb_convert_encoding($_POST['passwrd'], 'UTF-8', Config::$modSettings['previousCharacterSet'])));
+					$other_passwords[] = sha1(strtolower(mb_convert_encoding(User::$profiles[User::$my_id]['member_name'], 'UTF-8', Config::$modSettings['previousCharacterSet'])) . Utils::htmlspecialcharsDecode(mb_convert_encoding($_POST['passwrd'], 'UTF-8', Config::$modSettings['previousCharacterSet'])));
 				}
 			}
 		}
@@ -638,7 +638,7 @@ class Login2 implements ActionInterface
 		if (stripos(PHP_OS, 'win') !== 0 && strlen(User::$profiles[User::$my_id]['passwd']) < hash_length())
 		{
 			require_once(Config::$sourcedir . '/Subs-Compat.php');
-			$other_passwords[] = sha1_smf(strtolower(User::$profiles[User::$my_id]['member_name']) . un_htmlspecialchars($_POST['passwrd']));
+			$other_passwords[] = sha1_smf(strtolower(User::$profiles[User::$my_id]['member_name']) . Utils::htmlspecialcharsDecode($_POST['passwrd']));
 		}
 
 		// Allows mods to easily extend the $other_passwords array
@@ -647,7 +647,7 @@ class Login2 implements ActionInterface
 		// Whichever encryption it was using, let's make it use SMF's now ;).
 		if (in_array(User::$profiles[User::$my_id]['passwd'], $other_passwords))
 		{
-			User::$profiles[User::$my_id]['passwd'] = hash_password(User::$profiles[User::$my_id]['member_name'], un_htmlspecialchars($_POST['passwrd']));
+			User::$profiles[User::$my_id]['passwd'] = hash_password(User::$profiles[User::$my_id]['member_name'], Utils::htmlspecialcharsDecode($_POST['passwrd']));
 			User::$profiles[User::$my_id]['password_salt'] = bin2hex(Utils::randomBytes(16));
 
 			// Update the password and set up the hash.

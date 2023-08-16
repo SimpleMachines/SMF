@@ -1854,7 +1854,7 @@ class Poll implements \ArrayAccess
 		if (!isset($_POST['question']) || trim($_POST['question']) == '')
 			$errors[] = 'no_question';
 
-		$_POST['options'] = empty($_POST['options']) ? array() : htmltrim__recursive($_POST['options']);
+		$_POST['options'] = empty($_POST['options']) ? array() : Utils::htmlTrimRecursive($_POST['options']);
 
 		// Get rid of empty ones.
 		foreach ($_POST['options'] as $k => $option)
@@ -1904,7 +1904,7 @@ class Poll implements \ArrayAccess
 		$_POST['question'] = Utils::htmlspecialchars($_POST['question']);
 		$_POST['question'] = Utils::truncate($_POST['question'], 255);
 		$_POST['question'] = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $_POST['question']);
-		$_POST['options'] = htmlspecialchars__recursive($_POST['options']);
+		$_POST['options'] = Utils::htmlspecialcharsRecursive($_POST['options']);
 	}
 }
 

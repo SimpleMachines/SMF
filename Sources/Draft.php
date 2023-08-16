@@ -257,7 +257,7 @@ class Draft
 		Utils::$context['locked'] = !empty($this->locked) ? $this->locked : '';
 		Utils::$context['use_smileys'] = !empty($this->smileys_enabled) ? true : false;
 		Utils::$context['icon'] = !empty($this->icon) ? $this->icon : 'xx';
-		Utils::$context['message'] = !empty($this->body) ? str_replace('<br>', "\n", un_htmlspecialchars(stripslashes($this->body))) : '';
+		Utils::$context['message'] = !empty($this->body) ? str_replace('<br>', "\n", Utils::htmlspecialcharsDecode(stripslashes($this->body))) : '';
 		Utils::$context['subject'] = !empty($this->subject) ? stripslashes($this->subject) : '';
 		Utils::$context['board'] = !empty($this->id_board) ? $this->id_board : '';
 		Utils::$context['id_draft'] = !empty($this->id_draft) ? $this->id_draft : 0;

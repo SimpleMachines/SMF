@@ -137,7 +137,7 @@ class Search implements ActionInterface
 		}
 
 		if (isset($_REQUEST['search']))
-			Utils::$context['search_params']['search'] = un_htmlspecialchars($_REQUEST['search']);
+			Utils::$context['search_params']['search'] = Utils::htmlspecialcharsDecode($_REQUEST['search']);
 
 		if (isset(Utils::$context['search_params']['search']))
 			Utils::$context['search_params']['search'] = Utils::htmlspecialchars(Utils::$context['search_params']['search']);

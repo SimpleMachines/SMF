@@ -85,9 +85,9 @@ class Logout extends Login2
 			Utils::$context['sub_template'] = 'logout';
 
 			// This came from a valid hashed return url.  Or something that knows our secrets...
-			if (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', un_htmlspecialchars($_REQUEST['return_to']), Config::getAuthSecret()) == $_REQUEST['return_hash'])
+			if (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', Utils::htmlspecialcharsDecode($_REQUEST['return_to']), Config::getAuthSecret()) == $_REQUEST['return_hash'])
 			{
-				$_SESSION['logout_url'] = un_htmlspecialchars($_REQUEST['return_to']);
+				$_SESSION['logout_url'] = Utils::htmlspecialcharsDecode($_REQUEST['return_to']);
 				$_SESSION['logout_return'] = $_SESSION['logout_url'];
 			}
 			// Setup the return address.

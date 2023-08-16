@@ -2426,7 +2426,7 @@ class ServerSideIncludes
 		Config::reloadModSettings();
 
 		// Clean the request variables.
-		cleanRequest();
+		QueryString::cleanRequest();
 
 		// Seed the random generator?
 		if (empty(Config::$modSettings['rand_seed']) || mt_rand(1, 250) == 69)
@@ -2455,7 +2455,7 @@ class ServerSideIncludes
 			Config::$modSettings['enableCompressedOutput'] = '0';
 
 		// Primarily, this is to fix the URLs...
-		ob_start('ob_sessrewrite');
+		ob_start('SMF\\QueryString::ob_sessrewrite');
 
 		// Start the session... known to scramble SSI includes in cases...
 		if (!headers_sent())

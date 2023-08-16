@@ -404,7 +404,7 @@ function scheduled_daily_digest()
 			else
 				$types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']] = array(
 					'id' => $row['id_topic'],
-					'subject' => un_htmlspecialchars($row['subject']),
+					'subject' => Utils::htmlspecialcharsDecode($row['subject']),
 					'count' => 1,
 				);
 		}
@@ -413,7 +413,7 @@ function scheduled_daily_digest()
 			if (!isset($types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']]))
 				$types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']] = array(
 					'id' => $row['id_topic'],
-					'subject' => un_htmlspecialchars($row['subject']),
+					'subject' => Utils::htmlspecialcharsDecode($row['subject']),
 				);
 		}
 		else
@@ -421,7 +421,7 @@ function scheduled_daily_digest()
 			if (!isset($types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']]))
 				$types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']] = array(
 					'id' => $row['id_topic'],
-					'subject' => un_htmlspecialchars($row['subject']),
+					'subject' => Utils::htmlspecialcharsDecode($row['subject']),
 					'starter' => $row['id_member_started'],
 				);
 		}

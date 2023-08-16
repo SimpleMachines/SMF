@@ -122,7 +122,6 @@ switch (SMF)
 {
 	case 1:
 	case 'SSI':
-		require_once(SMF\Config::$sourcedir . '/QueryString.php');
 		require_once(SMF\Config::$sourcedir . '/Subs-Auth.php');
 		require_once(SMF\Config::$sourcedir . '/Session.php');
 		// no break

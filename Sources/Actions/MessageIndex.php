@@ -964,7 +964,7 @@ class MessageIndex implements ActionInterface
 		Utils::$context['can_approve_posts'] = allowedTo('approve_posts');
 
 		Utils::$context['jump_to'] = array(
-			'label' => addslashes(un_htmlspecialchars(Lang::$txt['jump_to'])),
+			'label' => addslashes(Utils::htmlspecialcharsDecode(Lang::$txt['jump_to'])),
 			'board_name' => strtr(Utils::htmlspecialchars(strip_tags(Board::$info->name)), array('&amp;' => '&')),
 			'child_level' => Board::$info->child_level,
 		);

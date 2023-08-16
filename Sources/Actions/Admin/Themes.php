@@ -823,7 +823,7 @@ class Themes implements ActionInterface
 		{
 			if (!in_array($setting, array('theme_url', 'theme_dir', 'images_url', 'template_dirs')))
 			{
-				Theme::$current->settings[$setting] = htmlspecialchars__recursive(Theme::$current->settings[$setting]);
+				Theme::$current->settings[$setting] = Utils::htmlspecialcharsRecursive(Theme::$current->settings[$setting]);
 			}
 		}
 

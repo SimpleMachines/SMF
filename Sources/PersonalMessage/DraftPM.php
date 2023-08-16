@@ -87,7 +87,7 @@ class DraftPM extends Draft
 	public function prepare(): void
 	{
 		$_REQUEST['subject'] = !empty($this->subject) ? stripslashes($this->subject) : '';
-		$_REQUEST['message'] = !empty($this->body) ? str_replace('<br>', "\n", un_htmlspecialchars(stripslashes($this->body))) : '';
+		$_REQUEST['message'] = !empty($this->body) ? str_replace('<br>', "\n", Utils::htmlspecialcharsDecode(stripslashes($this->body))) : '';
 		$_REQUEST['replied_to'] = !empty($this->id_reply) ? $this->id_reply : 0;
 		Utils::$context['id_draft'] = !empty($this->id) ? $this->id : 0;
 

@@ -289,7 +289,7 @@ class ProxyServer
 	 */
 	private function redirectexit(string $request): void
 	{
-		header('Location: ' . un_htmlspecialchars($request), false, 301);
+		header('Location: ' . Utils::htmlspecialcharsDecode($request), false, 301);
 		exit;
 	}
 

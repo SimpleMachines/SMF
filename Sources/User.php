@@ -1189,7 +1189,7 @@ class User implements \ArrayAccess
 				$this->formatted['custom_fields'][] = array(
 					'title' => Lang::tokenTxtReplace(!empty($custom['title']) ? $custom['title'] : $custom['col_name']),
 					'col_name' => Lang::tokenTxtReplace($custom['col_name']),
-					'value' => un_htmlspecialchars(Lang::tokenTxtReplace($value)),
+					'value' => Utils::htmlspecialcharsDecode(Lang::tokenTxtReplace($value)),
 					'simple' => Lang::tokenTxtReplace($simple_value),
 					'raw' => $this->options[$custom['col_name']],
 					'placement' => !empty($custom['placement']) ? $custom['placement'] : 0,

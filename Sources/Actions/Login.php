@@ -71,9 +71,9 @@ class Login extends Login2
 		if (!empty(User::$me->id))
 		{
 	 		// This came from a valid hashed return url.  Or something that knows our secrets...
-	 		if (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', un_htmlspecialchars($_REQUEST['return_to']), Config::getAuthSecret()) == $_REQUEST['return_hash'])
+	 		if (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', Utils::htmlspecialcharsDecode($_REQUEST['return_to']), Config::getAuthSecret()) == $_REQUEST['return_hash'])
 	 		{
-				redirectexit(un_htmlspecialchars($_REQUEST['return_to']));
+				redirectexit(Utils::htmlspecialcharsDecode($_REQUEST['return_to']));
 	 		}
 			else
 			{
@@ -107,9 +107,9 @@ class Login extends Login2
 			$_SESSION['login_url'] = $_SESSION['old_url'];
 		}
 		// This came from a valid hashed return url.  Or something that knows our secrets...
-		elseif (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', un_htmlspecialchars($_REQUEST['return_to']), Config::getAuthSecret()) == $_REQUEST['return_hash'])
+		elseif (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', Utils::htmlspecialcharsDecode($_REQUEST['return_to']), Config::getAuthSecret()) == $_REQUEST['return_hash'])
 		{
-			$_SESSION['login_url'] = un_htmlspecialchars($_REQUEST['return_to']);
+			$_SESSION['login_url'] = Utils::htmlspecialcharsDecode($_REQUEST['return_to']);
 		}
 		elseif (isset($_SESSION['login_url']) && strpos($_SESSION['login_url'], 'dlattach') !== false)
 		{

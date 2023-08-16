@@ -198,7 +198,7 @@ class Search
 
 		if (isset($_REQUEST['search']))
 		{
-			$this->params['search'] = un_htmlspecialchars($_REQUEST['search']);
+			$this->params['search'] = Utils::htmlspecialcharsDecode($_REQUEST['search']);
 		}
 
 		$this->setContextualParams();

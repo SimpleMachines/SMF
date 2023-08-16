@@ -1305,7 +1305,7 @@ class PackageManager
 				foreach ($keys as $key)
 				{
 					// Yay for variable variables...
-					${"package_$key"} = un_htmlspecialchars($packageInfo[$key]);
+					${"package_$key"} = Utils::htmlspecialcharsDecode($packageInfo[$key]);
 				}
 
 				// Credits tag?

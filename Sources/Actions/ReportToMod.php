@@ -348,7 +348,7 @@ class ReportToMod implements ActionInterface
 	public static function reportPost($msg, $reason): void
 	{
 		$_POST['msg'] = (int) $msg;
-		$_POST['comment'] = un_htmlspecialchars((string) $reason);
+		$_POST['comment'] = Utils::htmlspecialcharsDecode((string) $reason);
 
 		self::load();
 		self::$obj->subaction = 'submit';
@@ -362,7 +362,7 @@ class ReportToMod implements ActionInterface
 	public static function reportUser($id_member, $reason): void
 	{
 		$_POST['u'] = (int) $id_member;
-		$_POST['comment'] = un_htmlspecialchars((string) $reason);
+		$_POST['comment'] = Utils::htmlspecialcharsDecode((string) $reason);
 
 		self::load();
 		self::$obj->subaction = 'submit';
@@ -549,7 +549,7 @@ class ReportToMod implements ActionInterface
 		$user = Db::$db->fetch_assoc($request);
 		Db::$db->free_result($request);
 
-		$user_name = un_htmlspecialchars($user['real_name']) . ($user['real_name'] != $user['member_name'] ? ' (' . $user['member_name'] . ')' : '');
+		$user_name = Utils::htmlspecialcharsDecode($user['real_name']) . ($user['real_name'] != $user['member_name'] ? ' (' . $user['member_name'] . ')' : '');
 
 		$request = Db::$db->query('', '
 			SELECT id_report, ignore_all

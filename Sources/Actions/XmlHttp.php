@@ -116,11 +116,11 @@ class XmlHttp implements ActionInterface
 		// Make the board safe for display.
 		foreach (Utils::$context['jump_to'] as $id_cat => $cat)
 		{
-			Utils::$context['jump_to'][$id_cat]['name'] = un_htmlspecialchars(strip_tags($cat['name']));
+			Utils::$context['jump_to'][$id_cat]['name'] = Utils::htmlspecialcharsDecode(strip_tags($cat['name']));
 
 			foreach ($cat['boards'] as $id_board => $board)
 			{
-				Utils::$context['jump_to'][$id_cat]['boards'][$id_board]['name'] = un_htmlspecialchars(strip_tags($board['name']));
+				Utils::$context['jump_to'][$id_cat]['boards'][$id_board]['name'] = Utils::htmlspecialcharsDecode(strip_tags($board['name']));
 			}
 		}
 

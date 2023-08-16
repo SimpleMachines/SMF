@@ -218,7 +218,7 @@ class Announce implements ActionInterface
 		Lang::censorText(Utils::$context['topic_subject']);
 		Lang::censorText($message);
 
-		$message = trim(un_htmlspecialchars(strip_tags(strtr(BBCodeParser::load()->parse($message, false, $id_msg), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
+		$message = trim(Utils::htmlspecialcharsDecode(strip_tags(strtr(BBCodeParser::load()->parse($message, false, $id_msg), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
 
 		// Select the email addresses for this batch.
 		$announcements = array();

@@ -75,7 +75,7 @@ class ApproveReply_Notify extends BackgroundTask
 				$replacements = array(
 					'SUBJECT' => $msgOptions['subject'],
 					'LINK' => Config::$scripturl . '?topic=' . $topicOptions['id'] . '.new#new',
-					'POSTERNAME' => un_htmlspecialchars($posterOptions['name']),
+					'POSTERNAME' => Utils::htmlspecialcharsDecode($posterOptions['name']),
 				);
 
 				$emaildata = Mail::loadEmailTemplate('alert_unapproved_reply', $replacements, empty($data['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $data['lngfile']);
