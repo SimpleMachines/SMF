@@ -207,7 +207,7 @@ class Export implements ActionInterface
 
 			$dlfilename = array_merge(array(Utils::$context['forum_name'], Utils::$context['member']['username']), $included_desc);
 
-			$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}_]+/u', '-', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('_', $dlfilename)))));
+			$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}_]+/u', '-', str_replace('"', '', Utils::htmlspecialcharsDecode(strip_tags(implode('_', $dlfilename)))));
 
 			if (file_exists($tempfile) && file_exists($progressfile))
 			{
@@ -320,7 +320,7 @@ class Export implements ActionInterface
 
 			$dlfilename = array_merge(array(Utils::$context['forum_name'], Utils::$context['member']['username']), $included_desc);
 
-			$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}_]+/u', '-', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('_', $dlfilename)))));
+			$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}_]+/u', '-', str_replace('"', '', Utils::htmlspecialcharsDecode(strip_tags(implode('_', $dlfilename)))));
 
 			$last_page = ceil(array_sum($total) / self::$formats[$format]['per_page']);
 

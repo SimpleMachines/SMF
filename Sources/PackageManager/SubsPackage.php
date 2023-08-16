@@ -457,7 +457,7 @@ class SubsPackage
 
 			$found[] = $row['package_id'];
 
-			$row = htmlspecialchars__recursive($row);
+			$row = Utils::htmlspecialcharsRecursive($row);
 
 			$installed[] = array(
 				'id' => $row['id_install'],
@@ -522,7 +522,7 @@ class SubsPackage
 		$packageInfo = $packageInfo->path('package-info[0]');
 
 		$package = $packageInfo->to_array();
-		$package = htmlspecialchars__recursive($package);
+		$package = Utils::htmlspecialcharsRecursive($package);
 		$package['xml'] = $packageInfo;
 		$package['filename'] = $gzfilename;
 
@@ -532,7 +532,7 @@ class SubsPackage
 		{
 			if (isset($package[$type]['code']))
 			{
-				$package[$type]['code'] = un_htmlspecialchars($package[$type]['code']);
+				$package[$type]['code'] = Utils::htmlspecialcharsDecode($package[$type]['code']);
 			}
 		}
 

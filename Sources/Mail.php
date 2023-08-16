@@ -111,7 +111,7 @@ class Mail
 		}
 
 		// Get rid of entities.
-		$subject = un_htmlspecialchars($subject);
+		$subject = Utils::htmlspecialcharsDecode($subject);
 		// Make the message use the proper line breaks.
 		$message = str_replace(array("\r", "\n"), array('', $line_break), $message);
 
@@ -154,7 +154,7 @@ class Mail
 		// Sending HTML?  Let's plop in some basic stuff, then.
 		if ($send_html)
 		{
-			$no_html_message = un_htmlspecialchars(strip_tags(strtr($orig_message, array('</title>' => $line_break))));
+			$no_html_message = Utils::htmlspecialcharsDecode(strip_tags(strtr($orig_message, array('</title>' => $line_break))));
 
 			// But, then, dump it and use a plain one for dinosaur clients.
 			list(, $plain_message) = self::mimespecialchars($no_html_message, false, true, $line_break);

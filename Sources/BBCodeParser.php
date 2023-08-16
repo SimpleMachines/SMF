@@ -1419,7 +1419,7 @@ class BBCodeParser
 
 			foreach ($matches[1] as $k => $possible_code)
 			{
-				$possible_code = un_htmlspecialchars($possible_code);
+				$possible_code = Utils::htmlspecialcharsDecode($possible_code);
 
 				if (in_array($possible_code, $smiley_codes))
 				{
@@ -2339,7 +2339,7 @@ class BBCodeParser
 	public static function highlightPhpCode(string $code): string
 	{
 		// Remove special characters.
-		$code = un_htmlspecialchars(strtr($code, array('<br />' => "\n", '<br>' => "\n", "\t" => 'SMF_TAB();', '&#91;' => '[')));
+		$code = Utils::htmlspecialcharsDecode(strtr($code, array('<br />' => "\n", '<br>' => "\n", "\t" => 'SMF_TAB();', '&#91;' => '[')));
 
 		$oldlevel = error_reporting(0);
 

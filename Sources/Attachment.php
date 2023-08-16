@@ -2176,12 +2176,12 @@ class Attachment implements \ArrayAccess
 			{
 				$attachmentData[$i] = array(
 					'id' => $attachment['id_attach'],
-					'name' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', Utils::htmlspecialchars(un_htmlspecialchars($attachment['filename']))),
+					'name' => Utils::entityFix(Utils::htmlspecialchars(Utils::htmlspecialcharsDecode($attachment['filename']))),
 					'downloads' => $attachment['downloads'],
 					'formatted_size' => ($attachment['filesize'] < 1024000) ? round($attachment['filesize'] / 1024, 2) . ' ' . Lang::$txt['kilobyte'] : round($attachment['filesize'] / 1024 / 1024, 2) . ' ' . Lang::$txt['megabyte'],
 					'byte_size' => $attachment['filesize'],
 					'href' => Config::$scripturl . '?action=dlattach;attach=' . $attachment['id_attach'],
-					'link' => '<a href="' . Config::$scripturl . '?action=dlattach;attach=' . $attachment['id_attach'] . '" class="bbc_link">' . Utils::htmlspecialchars(un_htmlspecialchars($attachment['filename'])) . '</a>',
+					'link' => '<a href="' . Config::$scripturl . '?action=dlattach;attach=' . $attachment['id_attach'] . '" class="bbc_link">' . Utils::htmlspecialchars(Utils::htmlspecialcharsDecode($attachment['filename'])) . '</a>',
 					'is_image' => !empty($attachment['width']) && !empty($attachment['height']),
 					'is_approved' => $attachment['approved'],
 					'topic' => $attachment['topic'],

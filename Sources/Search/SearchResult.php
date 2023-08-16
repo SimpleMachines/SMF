@@ -230,16 +230,16 @@ class SearchResult extends \SMF\Msg
 					$force_partial_word = false;
 					foreach (SearchApi::$loadedApi->searchArray as $keyword)
 					{
-						$keyword = un_htmlspecialchars($keyword);
+						$keyword = Utils::htmlspecialcharsDecode($keyword);
 						$keyword = Utils::sanitizeEntities(Utils::entityFix(strtr($keyword, array('\\\'' => '\'', '&' => '&amp;'))));
 
 						if (preg_match('~[\'\.,/@%&;:(){}\[\]_\-+\\\\]$~', $keyword) != 0 || preg_match('~^[\'\.,/@%&;:(){}\[\]_\-+\\\\]~', $keyword) != 0)
 							$force_partial_word = true;
 						$matchString .= strtr(preg_quote($keyword, '/'), array('\*' => '.+?')) . '|';
 					}
-					$matchString = un_htmlspecialchars(substr($matchString, 0, -1));
+					$matchString = Utils::htmlspecialcharsDecode(substr($matchString, 0, -1));
 
-					$this->body = un_htmlspecialchars(strtr($this->body, array('&nbsp;' => ' ', '<br>' => "\n", '&#91;' => '[', '&#93;' => ']', '&#58;' => ':', '&#64;' => '@')));
+					$this->body = Utils::htmlspecialcharsDecode(strtr($this->body, array('&nbsp;' => ' ', '<br>' => "\n", '&#91;' => '[', '&#93;' => ']', '&#58;' => ':', '&#64;' => '@')));
 
 					if (empty(Config::$modSettings['search_method']) || $force_partial_word)
 						preg_match_all('/([^\s\W]{' . $charLimit . '}[\s\W]|[\s\W].{0,' . $charLimit . '}?|^)(' . $matchString . ')(.{0,' . $charLimit . '}[\s\W]|[^\s\W]{0,' . $charLimit . '})/is' . (Utils::$context['utf8'] ? 'u' : ''), $this->body, $matches);

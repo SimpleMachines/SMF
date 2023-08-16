@@ -129,7 +129,7 @@ class Registration implements ActionInterface
 			{
 				if (!is_array($_POST[$key]))
 				{
-					$_POST[$key] = htmltrim__recursive(str_replace(array("\n", "\r"), '', Utils::normalize($_POST[$key])));
+					$_POST[$key] = Utils::htmlTrimRecursive(str_replace(array("\n", "\r"), '', Utils::normalize($_POST[$key])));
 				}
 			}
 

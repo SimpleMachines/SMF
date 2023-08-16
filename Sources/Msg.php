@@ -760,7 +760,7 @@ class Msg implements \ArrayAccess
 					'~\[html\](.+?)\[/html\]~is',
 					function($m)
 					{
-						return '[html]' . strtr(un_htmlspecialchars($m[1]), array("\n" => '&#13;', '  ' => ' &#32;', '[' => '&#91;', ']' => '&#93;')) . '[/html]';
+						return '[html]' . strtr(Utils::htmlspecialcharsDecode($m[1]), array("\n" => '&#13;', '  ' => ' &#32;', '[' => '&#91;', ']' => '&#93;')) . '[/html]';
 					},
 					$message
 				);

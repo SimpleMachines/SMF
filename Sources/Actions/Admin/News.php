@@ -893,7 +893,7 @@ class News extends ACP implements ActionInterface
 		);
 
 		// We might need this in a bit
-		$cleanLatestMember = empty($_POST['send_html']) || Utils::$context['send_pm'] ? un_htmlspecialchars(Config::$modSettings['latestRealName']) : Config::$modSettings['latestRealName'];
+		$cleanLatestMember = empty($_POST['send_html']) || Utils::$context['send_pm'] ? Utils::htmlspecialcharsDecode(Config::$modSettings['latestRealName']) : Config::$modSettings['latestRealName'];
 
 		// Replace in all the standard things.
 		$_POST['message'] = str_replace(
@@ -1077,7 +1077,7 @@ class News extends ACP implements ActionInterface
 					continue;
 
 				// We might need this
-				$cleanMemberName = empty($_POST['send_html']) || Utils::$context['send_pm'] ? un_htmlspecialchars($row['real_name']) : $row['real_name'];
+				$cleanMemberName = empty($_POST['send_html']) || Utils::$context['send_pm'] ? Utils::htmlspecialcharsDecode($row['real_name']) : $row['real_name'];
 
 				if (!empty($include_unsubscribe))
 				{
@@ -1336,7 +1336,7 @@ class News extends ACP implements ActionInterface
 		);
 
 		// We might need this in a bit
-		$cleanLatestMember = empty(Utils::$context['send_html']) || Utils::$context['send_pm'] ? un_htmlspecialchars(Config::$modSettings['latestRealName']) : Config::$modSettings['latestRealName'];
+		$cleanLatestMember = empty(Utils::$context['send_html']) || Utils::$context['send_pm'] ? Utils::htmlspecialcharsDecode(Config::$modSettings['latestRealName']) : Config::$modSettings['latestRealName'];
 
 		foreach ($processing as $key => $post)
 		{

@@ -552,33 +552,6 @@ function smf_gmstrftime(string $format, int $timestamp = null)
 	return smf_strftime($format, $timestamp, 'UTC');
 }
 
-/**
- * Replaces special entities in strings with the real characters.
- *
- * Functionally equivalent to htmlspecialchars_decode(), except that this also
- * replaces '&nbsp;' with a simple space character.
- *
- * @param string $string A string
- * @return string The string without entities
- */
-function un_htmlspecialchars($string)
-{
-	static $translation = array();
-
-	// Determine the character set... Default to UTF-8
-	if (empty(Utils::$context['character_set']))
-		$charset = 'UTF-8';
-	// Use ISO-8859-1 in place of non-supported ISO-8859 charsets...
-	elseif (strpos(Utils::$context['character_set'], 'ISO-8859-') !== false && !in_array(Utils::$context['character_set'], array('ISO-8859-5', 'ISO-8859-15')))
-		$charset = 'ISO-8859-1';
-	else
-		$charset = Utils::$context['character_set'];
-
-	if (empty($translation))
-		$translation = array_flip(get_html_translation_table(HTML_SPECIALCHARS, ENT_QUOTES, $charset)) + array('&#039;' => '\'', '&#39;' => '\'', '&nbsp;' => ' ');
-
-	return strtr($string, $translation);
-}
 
 /**
  * Shorten a subject + internationalization concerns.
@@ -788,7 +761,7 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 			Utils::$context['page_title_html_safe'] = Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title'])) . (!empty(Utils::$context['current_page']) ? ' - ' . Lang::$txt['page'] . ' ' . (Utils::$context['current_page'] + 1) : '');
 
 		// Start up the session URL fixer.
-		ob_start('ob_sessrewrite');
+		ob_start('SMF\\QueryString::ob_sessrewrite');
 
 		if (!empty(Theme::$current->settings['output_buffers']) && is_string(Theme::$current->settings['output_buffers']))
 			$buffers = explode(',', Theme::$current->settings['output_buffers']);
@@ -1143,7 +1116,7 @@ function text2words($text, $max_chars = 20, $encrypt = false)
 	$words = preg_replace('~(?:[\x0B\0' . (Utils::$context['utf8'] ? '\x{A0}' : '\xA0') . '\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~' . (Utils::$context['utf8'] ? 'u' : ''), ' ', strtr($text, array('<br>' => ' ')));
 
 	// Step 2: Entities we left to letters, where applicable, lowercase.
-	$words = un_htmlspecialchars(Utils::strtolower($words));
+	$words = Utils::htmlspecialcharsDecode(Utils::strtolower($words));
 
 	// Step 3: Ready to split apart and index!
 	$words = explode(' ', $words);

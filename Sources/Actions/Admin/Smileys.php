@@ -905,7 +905,7 @@ class Smileys implements ActionInterface
 						$_POST[$key] = Utils::normalize($_POST[$key]);
 
 					$_POST['smiley'] = (int) $_POST['smiley'];
-					$_POST['smiley_code'] = htmltrim__recursive($_POST['smiley_code']);
+					$_POST['smiley_code'] = Utils::htmlTrimRecursive($_POST['smiley_code']);
 					$_POST['smiley_location'] = empty($_POST['smiley_location']) || $_POST['smiley_location'] > 2 || $_POST['smiley_location'] < 0 ? 0 : (int) $_POST['smiley_location'];
 
 					// Make sure some code was entered.
@@ -2900,8 +2900,8 @@ class Smileys implements ActionInterface
 
 		foreach (self::$smiley_sets as $id => $set)
 		{
-			$sets_known[$id] = $set['raw_path'] ?? un_htmlspecialchars($set['path']) ?? $id;
-			$sets_names[$id] = $set['raw_name'] ?? un_htmlspecialchars($set['name']) ?? $id;
+			$sets_known[$id] = $set['raw_path'] ?? Utils::htmlspecialcharsDecode($set['path']) ?? $id;
+			$sets_names[$id] = $set['raw_name'] ?? Utils::htmlspecialcharsDecode($set['name']) ?? $id;
 
 			if (!empty($set['is_default']))
 				$default_set = $sets_known[$id];

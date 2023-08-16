@@ -1607,7 +1607,7 @@ class PM implements \ArrayAccess
 			);
 			while ($row = Db::$db->fetch_assoc($request))
 			{
-				$to_names[] = un_htmlspecialchars($row['real_name']);
+				$to_names[] = Utils::htmlspecialcharsDecode($row['real_name']);
 			}
 			Db::$db->free_result($request);
 		}
@@ -1615,7 +1615,7 @@ class PM implements \ArrayAccess
 		$replacements = array(
 			'SUBJECT' => $subject,
 			'MESSAGE' => $message,
-			'SENDER' => un_htmlspecialchars($from['name']),
+			'SENDER' => Utils::htmlspecialcharsDecode($from['name']),
 			'READLINK' => Config::$scripturl . '?action=pm;pmsg=' . $id_pm . '#msg' . $id_pm,
 			'REPLYLINK' => Config::$scripturl . '?action=pm;sa=send;f=inbox;pmsg=' . $id_pm . ';quote;u=' . $from['id'],
 			'TOLIST' => implode(', ', $to_names),
@@ -1643,7 +1643,7 @@ class PM implements \ArrayAccess
 
 					Lang::censorText($notification_texts[$lang]['body']);
 
-					$notification_texts[$lang]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(BBCodeParser::load()->parse(Utils::htmlspecialchars($notification_texts[$lang]['body']), false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
+					$notification_texts[$lang]['body'] = trim(Utils::htmlspecialcharsDecode(strip_tags(strtr(BBCodeParser::load()->parse(Utils::htmlspecialchars($notification_texts[$lang]['body']), false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
 				}
 				else
 				{

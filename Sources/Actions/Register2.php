@@ -327,7 +327,7 @@ class Register2 extends Register
 			$reg_options['theme_vars']['policy_accepted'] = time();
 
 		// Make sure they are clean, dammit!
-		$reg_options['theme_vars'] = htmlspecialchars__recursive($reg_options['theme_vars']);
+		$reg_options['theme_vars'] = Utils::htmlspecialcharsRecursive($reg_options['theme_vars']);
 
 		// Check whether we have fields that simply MUST be displayed?
 		$request = Db::$db->query('', '

@@ -1002,7 +1002,7 @@ abstract class SearchApi implements SearchApiInterface
 		{
 			if (isset($_GET['search']))
 			{
-				$this->params['search'] = un_htmlspecialchars($_GET['search']);
+				$this->params['search'] = Utils::htmlspecialcharsDecode($_GET['search']);
 			}
 			elseif (isset($_POST['search']))
 			{
@@ -1044,7 +1044,7 @@ abstract class SearchApi implements SearchApiInterface
 		$stripped_query = preg_replace('~(?:[\x0B\0' . (Utils::$context['utf8'] ? '\x{A0}' : '\xA0') . '\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~' . (Utils::$context['utf8'] ? 'u' : ''), ' ', $this->params['search']);
 
 		// Make the query lower case. It's gonna be case insensitive anyway.
-		$stripped_query = un_htmlspecialchars(Utils::strtolower($stripped_query));
+		$stripped_query = Utils::htmlspecialcharsDecode(Utils::strtolower($stripped_query));
 
 		// This (hidden) setting will do fulltext searching in the most basic way.
 		if (!empty(Config::$modSettings['search_simple_fulltext']))
@@ -1061,7 +1061,7 @@ abstract class SearchApi implements SearchApiInterface
 		// Remove the phrase parts and extract the words.
 		$wordArray = preg_replace('~(?:^|\s)[-]?"[^"]+"(?:$|\s)~' . (Utils::$context['utf8'] ? 'u' : ''), ' ', $this->params['search']);
 
-		$wordArray = explode(' ', Utils::htmlspecialchars(un_htmlspecialchars($wordArray), ENT_QUOTES));
+		$wordArray = explode(' ', Utils::htmlspecialchars(Utils::htmlspecialcharsDecode($wordArray), ENT_QUOTES));
 
 		// .. first, we check for things like -"some words", but not "-some words".
 		foreach ($matches[1] as $index => $word)

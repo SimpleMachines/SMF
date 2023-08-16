@@ -34,7 +34,10 @@ class Utils
 			'sanitizeChars' => 'sanitize_chars',
 			'normalizeSpaces' => 'normalize_spaces',
 			'htmlspecialchars' => false,
+			'htmlspecialcharsRecursive' => 'htmlspecialchars__recursive',
+			'htmlspecialcharsDecode' => 'un_htmlspecialchars',
 			'htmlTrim' => false,
+			'htmlTrimRecursive' => 'htmltrim__recursive',
 			'entityStrlen' => false,
 			'entityStrpos' => false,
 			'entitySubstr' => false,
@@ -47,6 +50,10 @@ class Utils
 			'strtotitle' => false,
 			'ucfirst' => false,
 			'ucwords' => false,
+			'stripslashesRecursive' => 'stripslashes__recursive',
+			'urldecodeRecursive' => 'urldecode__recursive',
+			'escapestringRecursive' => 'escapestring__recursive',
+			'unescapestringRecursive' => 'unescapestring__recursive',
 			'jsonDecode' => 'smf_json_decode',
 			'jsonEncode' => false,
 			'randomInt' => false,
@@ -488,14 +495,102 @@ class Utils
 	}
 
 	/**
-	 * Like standard trim(), except that it also trims &nbsp; entities.
+	 * Recursively applies self::htmlspecialchars() to all elements of an array.
+	 *
+	 * Only affects values.
+	 *
+	 * @param array|string $var The string or array of strings to add entities to
+	 * @param int $flags Bitmask of flags to pass to standard htmlspecialchars().
+	 *    Default is ENT_COMPAT.
+	 * @param string $encoding Character encoding. Default is UTF-8.
+	 * @return array|string The string or array of strings with entities added
+	 */
+	public static function htmlspecialcharsRecursive(array|string $var, int $flags = ENT_COMPAT, $encoding = 'UTF-8'): array|string
+	{
+		static $level = 0;
+
+		if (!is_array($var))
+			return self::htmlspecialchars($var, $flags, $encoding);
+
+		// Add the htmlspecialchars to every element.
+		foreach ($var as $k => $v)
+		{
+			if ($level > 25)
+			{
+				$var[$k] = null;
+			}
+			else
+			{
+				$level++;
+				$var[$k] = self::htmlspecialcharsRecursive($v, $flags, $encoding);
+				$level--;
+			}
+		}
+
+		return $var;
+	}
+
+	/**
+	 * Replaces special entities in strings with the real characters.
+	 *
+	 * Functionally equivalent to htmlspecialchars_decode(), except that this also
+	 * replaces '&nbsp;' with a simple space character.
+	 *
+	 * @param string $string A string.
+	 * @param int $flags Bitmask of flags to pass to standard htmlspecialchars().
+	 *    Default is ENT_QUOTES.
+	 * @param string $encoding Character encoding. Default is UTF-8.
+	 * @return string The string without entities.
+	 */
+	public static function htmlspecialcharsDecode(string $string, int $flags = ENT_QUOTES, $encoding = 'UTF-8'): string
+	{
+		return preg_replace('/' . self::ENT_NBSP . '/u', ' ', htmlspecialchars_decode($string, $flags));
+	}
+
+	/**
+	 * Like standard trim(), except that it also trims &nbsp; entities, control
+	 * characters, and Unicode whitespace characters beyond the ASCII range.
 	 *
 	 * @param string $string The string.
-	 * @return string The fixed string.
+	 * @return string The trimmed string.
 	 */
 	public static function htmlTrim(string $string): string
 	{
 		return preg_replace('~^(?'.'>[\p{Z}\p{C}]|' . self::ENT_NBSP . ')+|(?'.'>[\p{Z}\p{C}]|' . self::ENT_NBSP . ')+$~u', '', self::sanitizeEntities($string));
+	}
+
+	/**
+	 * Recursively applies self::htmlTrim to all elements of an array.
+	 *
+	 * Only affects values.
+	 *
+	 * @param array|string $var The string or array of strings to trim.
+	 * @return array|string The trimmed string or array of trimmed strings.
+	 */
+	public static function htmlTrimRecursive(array|string $var): array|string
+	{
+		static $level = 0;
+
+		// Remove spaces (32), tabs (9), returns (13, 10, and 11), nulls (0), and hard spaces. (160)
+		if (!is_array($var))
+			return self::htmlTrim($var);
+
+		// Go through all the elements and remove the whitespace.
+		foreach ($var as $k => $v)
+		{
+			if ($level > 25)
+			{
+				$var[$k] = null;
+			}
+			else
+			{
+				$level++;
+				$var[$k] = self::htmlTrimRecursive($v);
+				$level--;
+			}
+		}
+
+		return $var;
 	}
 
 	/**
@@ -738,6 +833,104 @@ class Utils
 	public static function ucwords(string $string): string
 	{
 		return self::convertCase($string, 'ucwords');
+	}
+
+	/**
+	 * Recursively applies stripslashes() to all elements of an array.
+	 *
+	 * Affects both keys and values of arrays.
+	 *
+	 * @param array|string $var The string or array of strings to strip slashes from
+	 * @param int $level = 0 What level we're at within the array (if called recursively)
+	 * @return array|string The string or array of strings with slashes stripped
+	 */
+	public static function stripslashesRecursive($var, $level = 0)
+	{
+		if (!is_array($var))
+			return stripslashes($var);
+
+		// Reindex the array without slashes, this time.
+		$new_var = array();
+
+		// Strip the slashes from every element.
+		foreach ($var as $k => $v)
+		{
+			$new_var[stripslashes($k)] = $level > 25 ? null : self::stripslashesRecursive($v, $level + 1);
+		}
+
+		return $new_var;
+	}
+
+	/**
+	 * Recursively applies urldecode() to all elements of an array.
+	 *
+	 * Affects both keys and values of arrays.
+	 *
+	 * @param array|string $var The string or array of strings to decode
+	 * @param int $level Which level we're at within the array (if called recursively)
+	 * @return array|string The decoded string or array of decoded strings
+	 */
+	public static function urldecodeRecursive($var, $level = 0)
+	{
+		if (!is_array($var))
+			return urldecode($var);
+
+		// Reindex the array...
+		$new_var = array();
+
+		// urldecode() every element.
+		foreach ($var as $k => $v)
+		{
+			$new_var[urldecode($k)] = $level > 25 ? null : self::urldecodeRecursive($v, $level + 1);
+		}
+
+		return $new_var;
+	}
+
+	/**
+	 * Recursively applies database string escaping to all elements of an array.
+	 *
+	 * Affects both keys and values of arrays.
+	 *
+	 * @param array|string $var A string or array of strings to escape
+	 * @return array|string The escaped string or array of escaped strings
+	 */
+	public static function escapestringRecursive(array|string $var): array|string
+	{
+		if (!is_array($var))
+			return Db::$db->escape_string($var);
+
+		// Reindex the array with slashes.
+		$new_var = array();
+
+		// Escape every element, even the keys!
+		foreach ($var as $k => $v)
+			$new_var[Db::$db->escape_string($k)] = self::escapestringRecursive($v);
+
+		return $new_var;
+	}
+
+	/**
+	 * Recursively removes database string escaping in all elements of an array.
+	 *
+	 * Affects both keys and values of arrays.
+	 *
+	 * @param array|string $var The string or array of strings to unescape
+	 * @return array|string The unescaped string or array of unescaped strings
+	 */
+	public static function unescapestringRecursive(array|string $var): array|string
+	{
+		if (!is_array($var))
+			return Db::$db->unescape_string($var);
+
+		// Reindex the array without slashes, this time.
+		$new_var = array();
+
+		// Unescape every element, even the keys!
+		foreach ($var as $k => $v)
+			$new_var[Db::$db->unescape_string($k)] = self::unescapestringRecursive($v);
+
+		return $new_var;
 	}
 
 	/**

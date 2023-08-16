@@ -263,7 +263,7 @@ class Find implements ActionInterface
 		Utils::$context['page_title'] = Lang::$txt['admin_search_results'];
 		Utils::$context['search_results'] = array();
 
-		$search_term = strtolower(un_htmlspecialchars(Utils::$context['search_term']));
+		$search_term = strtolower(Utils::htmlspecialcharsDecode(Utils::$context['search_term']));
 
 		// Go through all the search data trying to find this text!
 		foreach ($search_data as $section => $data)
@@ -320,7 +320,7 @@ class Find implements ActionInterface
 	{
 		$_REQUEST['sa'] = 'query';
 
-		$_POST['membername'] = un_htmlspecialchars(Utils::$context['search_term']);
+		$_POST['membername'] = Utils::htmlspecialcharsDecode(Utils::$context['search_term']);
 		$_POST['types'] = '';
 
 		Members::call();
@@ -374,7 +374,7 @@ class Find implements ActionInterface
 				Utils::$context['search_results'][$result->fetch('@title')] = array(
 					'title' => $result->fetch('@title'),
 					'relevance' => $relevance++,
-					'snippet' => str_replace('class=\'searchmatch\'', 'class="highlight"', un_htmlspecialchars($result->fetch('@snippet'))),
+					'snippet' => str_replace('class=\'searchmatch\'', 'class="highlight"', Utils::htmlspecialcharsDecode($result->fetch('@snippet'))),
 				);
 			}
 		}

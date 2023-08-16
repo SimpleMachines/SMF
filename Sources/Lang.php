@@ -407,7 +407,7 @@ class Lang
 								if ($langName !== 'English' && $matchNative[1] === 'English')
 									break;
 
-								$langName = un_htmlspecialchars($matchNative[1]);
+								$langName = Utils::htmlspecialcharsDecode($matchNative[1]);
 								break;
 							}
 						}

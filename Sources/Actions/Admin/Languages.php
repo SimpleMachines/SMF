@@ -941,7 +941,7 @@ class Languages implements ActionInterface
 
 			foreach ($primary_settings as $setting => $type)
 			{
-				$replace_array['~\$txt\[\'' . $setting . '\'\]\s*=\s*[^\r\n]+~'] = '$txt[\'' . $setting . '\'] = ' . ($type === 'bool' ? (!empty($_POST[$setting]) ? 'true' : 'false') : '\'' . ($setting = 'native_name' ? htmlentities(un_htmlspecialchars($_POST[$setting]), ENT_QUOTES, Utils::$context['character_set']) : preg_replace('~[^\w-]~i', '', $_POST[$setting])) . '\'') . ';';
+				$replace_array['~\$txt\[\'' . $setting . '\'\]\s*=\s*[^\r\n]+~'] = '$txt[\'' . $setting . '\'] = ' . ($type === 'bool' ? (!empty($_POST[$setting]) ? 'true' : 'false') : '\'' . ($setting = 'native_name' ? htmlentities(Utils::htmlspecialcharsDecode($_POST[$setting]), ENT_QUOTES, Utils::$context['character_set']) : preg_replace('~[^\w-]~i', '', $_POST[$setting])) . '\'') . ';';
 			}
 
 			$current_data = preg_replace(array_keys($replace_array), array_values($replace_array), $current_data);
@@ -1934,7 +1934,7 @@ class Languages implements ActionInterface
 			}
 
 			// Unhtml then rehtml the whole thing!
-			$new_string = Utils::htmlspecialchars(un_htmlspecialchars($new_string));
+			$new_string = Utils::htmlspecialchars(Utils::htmlspecialcharsDecode($new_string));
 		}
 		else
 		{

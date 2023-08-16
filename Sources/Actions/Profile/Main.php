@@ -613,8 +613,8 @@ class Main implements ActionInterface
 		if (Utils::$context['completed_save'])
 		{
 			// Clean up the POST variables.
-			$_POST = htmltrim__recursive($_POST);
-			$_POST = htmlspecialchars__recursive($_POST);
+			$_POST = Utils::htmlTrimRecursive($_POST);
+			$_POST = Utils::htmlspecialcharsRecursive($_POST);
 			Profile::$member->post_sanitized = true;
 
 			if ($this->check_password)
@@ -632,7 +632,7 @@ class Main implements ActionInterface
 					Profile::$member->save_errors[] = 'no_password';
 
 				// Since the password got modified due to all the $_POST cleaning, lets undo it so we can get the correct password
-				$password = un_htmlspecialchars($password);
+				$password = Utils::htmlspecialcharsDecode($password);
 
 				// Does the integration want to check passwords?
 				$good_password = in_array(true, call_integration_hook('integrate_verify_password', array(Profile::$member->username, $password, false)), true);

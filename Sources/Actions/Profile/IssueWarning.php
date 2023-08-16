@@ -317,8 +317,8 @@ class IssueWarning implements ActionInterface
 		foreach (Utils::$context['notification_templates'] as $k => $name)
 		{
 			Utils::$context['notification_templates'][$k]['body'] = strtr($name['body'], array(
-				'{MEMBER}' => un_htmlspecialchars(Utils::$context['member']['name']),
-				'{MESSAGE}' => '[url=' . Config::$scripturl . '?msg=' . Utils::$context['warning_for_message'] . ']' . un_htmlspecialchars(Utils::$context['warned_message_subject']) . '[/url]',
+				'{MEMBER}' => Utils::htmlspecialcharsDecode(Utils::$context['member']['name']),
+				'{MESSAGE}' => '[url=' . Config::$scripturl . '?msg=' . Utils::$context['warning_for_message'] . ']' . Utils::htmlspecialcharsDecode(Utils::$context['warned_message_subject']) . '[/url]',
 				'{SCRIPTURL}' => Config::$scripturl,
 				'{FORUMNAME}' => Config::$mbname,
 				'{REGARDS}' => sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name'])

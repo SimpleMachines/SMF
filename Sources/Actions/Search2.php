@@ -376,8 +376,8 @@ class Search2 implements ActionInterface
 		Utils::$context['can_restore'] = false; // We won't know until we handle the context later whether we can actually restore...
 
 		Utils::$context['jump_to'] = array(
-			'label' => addslashes(un_htmlspecialchars(Lang::$txt['jump_to'])),
-			'board_name' => addslashes(un_htmlspecialchars(Lang::$txt['select_destination'])),
+			'label' => addslashes(Utils::htmlspecialcharsDecode(Lang::$txt['jump_to'])),
+			'board_name' => addslashes(Utils::htmlspecialcharsDecode(Lang::$txt['select_destination'])),
 		);
 	}
 

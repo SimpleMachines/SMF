@@ -592,7 +592,7 @@ class Profile extends User implements \ArrayAccess
 							&& $_POST['passwrd1'] != ''
 							&& isset($_POST['passwrd2'])
 							&& $_POST['passwrd1'] == $_POST['passwrd2']
-							&& validatePassword(un_htmlspecialchars($_POST['passwrd1']), $value, array($this->name, User::$me->username, User::$me->name, User::$me->email)) == null
+							&& validatePassword(Utils::htmlspecialcharsDecode($_POST['passwrd1']), $value, array($this->name, User::$me->username, User::$me->name, User::$me->email)) == null
 						)
 						{
 							$resetPassword = false;
@@ -638,14 +638,14 @@ class Profile extends User implements \ArrayAccess
 					// Let's get the validation function into play...
 					require_once(Config::$sourcedir . '/Subs-Auth.php');
 
-					$passwordErrors = validatePassword(un_htmlspecialchars($value), $this->username, array($this->name, User::$me->username, User::$me->name, User::$me->email));
+					$passwordErrors = validatePassword(Utils::htmlspecialcharsDecode($value), $this->username, array($this->name, User::$me->username, User::$me->name, User::$me->email));
 
 					// Were there errors?
 					if ($passwordErrors != null)
 						return 'password_' . $passwordErrors;
 
 					// Set up the new password variable... ready for storage.
-					$value = hash_password($this->username, un_htmlspecialchars($value));
+					$value = hash_password($this->username, Utils::htmlspecialcharsDecode($value));
 
 					return true;
 				},
@@ -1160,13 +1160,13 @@ class Profile extends User implements \ArrayAccess
 			}
 			elseif ($cf_def['field_type'] == 'text')
 			{
-				$input_html = '<input type="text" name="customfield[' . $cf_def['col_name'] . ']" id="customfield[' . $cf_def['col_name'] . ']"' . ($cf_def['field_length'] != 0 ? ' maxlength="' . $cf_def['field_length'] . '"' : '') . ' size="' . ($cf_def['field_length'] == 0 || $cf_def['field_length'] >= 50 ? 50 : ($cf_def['field_length'] > 30 ? 30 : ($cf_def['field_length'] > 10 ? 20 : 10))) . '" value="' . un_htmlspecialchars($value) . '"' . ($cf_def['show_reg'] == 2 ? ' required' : '') . '>';
+				$input_html = '<input type="text" name="customfield[' . $cf_def['col_name'] . ']" id="customfield[' . $cf_def['col_name'] . ']"' . ($cf_def['field_length'] != 0 ? ' maxlength="' . $cf_def['field_length'] . '"' : '') . ' size="' . ($cf_def['field_length'] == 0 || $cf_def['field_length'] >= 50 ? 50 : ($cf_def['field_length'] > 30 ? 30 : ($cf_def['field_length'] > 10 ? 20 : 10))) . '" value="' . Utils::htmlspecialcharsDecode($value) . '"' . ($cf_def['show_reg'] == 2 ? ' required' : '') . '>';
 			}
 			else
 			{
 				list($rows, $cols) = explode(',', $cf_def['default_value'] ?? '');
 
-				$input_html = '<textarea name="customfield[' . $cf_def['col_name'] . ']" id="customfield[' . $cf_def['col_name'] . ']"' . ($cf_def['field_length'] != 0 ? ' maxlength="' . $cf_def['field_length'] . '"' : '') . (!empty($rows) ? ' rows="' . $rows . '"' : '') . (!empty($cols) ? ' cols="' . $cols . '"' : '') . ($cf_def['show_reg'] == 2 ? ' required' : '') . '>' . un_htmlspecialchars($value) . '</textarea>';
+				$input_html = '<textarea name="customfield[' . $cf_def['col_name'] . ']" id="customfield[' . $cf_def['col_name'] . ']"' . ($cf_def['field_length'] != 0 ? ' maxlength="' . $cf_def['field_length'] . '"' : '') . (!empty($rows) ? ' rows="' . $rows . '"' : '') . (!empty($cols) ? ' cols="' . $cols . '"' : '') . ($cf_def['show_reg'] == 2 ? ' required' : '') . '>' . Utils::htmlspecialcharsDecode($value) . '</textarea>';
 			}
 
 			// Parse BBCode
@@ -1187,7 +1187,7 @@ class Profile extends User implements \ArrayAccess
 					'{SCRIPTURL}' => Config::$scripturl,
 					'{IMAGES_URL}' => Theme::$current->settings['images_url'],
 					'{DEFAULT_IMAGES_URL}' => Theme::$current->settings['default_images_url'],
-					'{INPUT}' => un_htmlspecialchars($output_html),
+					'{INPUT}' => Utils::htmlspecialcharsDecode($output_html),
 					'{KEY}' => $current_key
 				));
 			}
@@ -1622,8 +1622,8 @@ class Profile extends User implements \ArrayAccess
 		// If $_POST hasn't already been sanitized, do that now.
 		if (!$this->post_sanitized)
 		{
-			$_POST = htmltrim__recursive($_POST);
-			$_POST = htmlspecialchars__recursive($_POST);
+			$_POST = Utils::htmlTrimRecursive($_POST);
+			$_POST = Utils::htmlspecialcharsRecursive($_POST);
 			$this->post_sanitized = true;
 		}
 
@@ -2465,7 +2465,7 @@ class Profile extends User implements \ArrayAccess
 			$sig_limits = explode(',', $sig_limits);
 			$disabledTags = !empty($sig_bbc) ? explode(',', $sig_bbc) : array();
 
-			$unparsed_signature = strtr(un_htmlspecialchars($value), array("\r" => '', '&#039' => '\''));
+			$unparsed_signature = strtr(Utils::htmlspecialcharsDecode($value), array("\r" => '', '&#039' => '\''));
 
 			// Too many lines?
 			if (!empty($sig_limits[2]) && substr_count($unparsed_signature, "\n") >= $sig_limits[2])
@@ -3066,7 +3066,7 @@ class Profile extends User implements \ArrayAccess
 				if ($cf_def['field_type'] == 'text' && !empty($cf_def['mask']) && $cf_def['mask'] != 'none')
 				{
 					$value = Utils::htmlTrim($value);
-					$valueReference = un_htmlspecialchars($value);
+					$valueReference = Utils::htmlspecialcharsDecode($value);
 
 					// Try and avoid some checks. '0' could be a valid non-empty value.
 					if (empty($value) && !is_numeric($value))

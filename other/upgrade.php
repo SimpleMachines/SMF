@@ -14,6 +14,7 @@
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\QueryString;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -794,10 +795,9 @@ function loadEssentialData()
 		return throw_error(sprintf(Lang::$txt['error_sourcefile_missing'], 'Db/APIs/' . Config::$db_type . '.php'));
 
 	// If they don't have the file, they're going to get a warning anyway so we won't need to clean request vars.
-	if (file_exists(Config::$sourcedir . '/QueryString.php') && php_version_check())
+	if (class_exists('SMF\\QueryString', false) && php_version_check())
 	{
-		require_once(Config::$sourcedir . '/QueryString.php');
-		cleanRequest();
+		QueryString::cleanRequest();
 	}
 
 	if (!isset($_GET['substep']))

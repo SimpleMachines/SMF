@@ -133,7 +133,7 @@ class QuoteFast implements ActionInterface
 
 			// Add a quote string on the front and end.
 			Utils::$context['quote']['xml'] = '[quote author=' . $row['poster_name'] . ' link=msg=' . (int) $_REQUEST['quote'] . ' date=' . $row['poster_time'] . ']' . $lb . $row['body'] . $lb . '[/quote]';
-			Utils::$context['quote']['text'] = strtr(un_htmlspecialchars(Utils::$context['quote']['xml']), array('\'' => '\\\'', '\\' => '\\\\', "\n" => '\\n', '</script>' => '</\' + \'script>'));
+			Utils::$context['quote']['text'] = strtr(Utils::htmlspecialcharsDecode(Utils::$context['quote']['xml']), array('\'' => '\\\'', '\\' => '\\\\', "\n" => '\\n', '</script>' => '</\' + \'script>'));
 			Utils::$context['quote']['xml'] = strtr(Utils::$context['quote']['xml'], array('&nbsp;' => '&#160;', '<' => '&lt;', '>' => '&gt;'));
 
 			Utils::$context['quote']['mozilla'] = strtr(Utils::htmlspecialchars(Utils::$context['quote']['text']), array('&quot;' => '"'));

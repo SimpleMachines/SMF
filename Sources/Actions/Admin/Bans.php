@@ -556,7 +556,7 @@ class Bans implements ActionInterface
 							empty(Config::$modSettings['disableHostnameLookup'])
 							&& (
 								preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/', Utils::$context['ban_suggestions']['main_ip'])
-								|| isValidIPv6(Utils::$context['ban_suggestions']['main_ip'])
+								|| QueryString::isValidIPv6(Utils::$context['ban_suggestions']['main_ip'])
 							)
 						)
 						{

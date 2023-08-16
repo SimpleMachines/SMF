@@ -326,7 +326,7 @@ class Register implements ActionInterface
 		// This is XML!
 		Theme::loadTemplate('Xml');
 		Utils::$context['sub_template'] = 'check_username';
-		Utils::$context['checked_username'] = isset($_GET['username']) ? un_htmlspecialchars($_GET['username']) : '';
+		Utils::$context['checked_username'] = isset($_GET['username']) ? Utils::htmlspecialcharsDecode($_GET['username']) : '';
 		Utils::$context['valid_username'] = true;
 
 		// Clean it up like mother would.

@@ -541,8 +541,8 @@ class CreatePost_Notify extends BackgroundTask
 				Lang::censorText($parsed_message[$localization]['subject']);
 				Lang::censorText($parsed_message[$localization]['body']);
 
-				$parsed_message[$localization]['subject'] = un_htmlspecialchars($parsed_message[$localization]['subject']);
-				$parsed_message[$localization]['body'] = trim(un_htmlspecialchars(strip_tags(strtr($bbcparser->parse($parsed_message[$localization]['body'], false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']', '&#39;' => '\'', '</tr>' => "\n", '</td>' => "\t", '<hr>' => "\n---------------------------------------------------------------\n")))));
+				$parsed_message[$localization]['subject'] = Utils::htmlspecialcharsDecode($parsed_message[$localization]['subject']);
+				$parsed_message[$localization]['body'] = trim(Utils::htmlspecialcharsDecode(strip_tags(strtr($bbcparser->parse($parsed_message[$localization]['body'], false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']', '&#39;' => '\'', '</tr>' => "\n", '</td>' => "\t", '<hr>' => "\n---------------------------------------------------------------\n")))));
 			}
 
 			// Bitwise check: Receiving a alert?
@@ -576,7 +576,7 @@ class CreatePost_Notify extends BackgroundTask
 
 				$replacements = array(
 					'TOPICSUBJECT' => $parsed_message[$localization]['subject'],
-					'POSTERNAME' => un_htmlspecialchars(isset(User::$loaded[$posterOptions['id']]->name) ? User::$loaded[$posterOptions['id']]->name : $posterOptions['name']),
+					'POSTERNAME' => Utils::htmlspecialcharsDecode(isset(User::$loaded[$posterOptions['id']]->name) ? User::$loaded[$posterOptions['id']]->name : $posterOptions['name']),
 					'TOPICLINK' => Config::$scripturl . '?topic=' . $topicOptions['id'] . '.new#new',
 					'MESSAGE' => $parsed_message[$localization]['body'],
 					'UNSUBSCRIBELINK' => Config::$scripturl . '?action=notify' . $content_type . ';' . $content_type . '=' . $itemID . ';sa=off;u=' . $member_data['id_member'] . ';token=' . $token,
@@ -646,7 +646,7 @@ class CreatePost_Notify extends BackgroundTask
 			{
 				$replacements = array(
 					'CONTENTSUBJECT' => $msgOptions['subject'],
-					'QUOTENAME' => un_htmlspecialchars(isset(User::$loaded[$posterOptions['id']]->name) ? User::$loaded[$posterOptions['id']]->name : $posterOptions['name']),
+					'QUOTENAME' => Utils::htmlspecialcharsDecode(isset(User::$loaded[$posterOptions['id']]->name) ? User::$loaded[$posterOptions['id']]->name : $posterOptions['name']),
 					'MEMBERNAME' => $member_data['real_name'],
 					'CONTENTLINK' => Config::$scripturl . '?msg=' . $msgOptions['id'],
 				);
