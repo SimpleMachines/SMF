@@ -19,6 +19,7 @@ use SMF\Actions\ActionInterface;
 use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Logging;
 use SMF\Mail;
 use SMF\Menu;
 use SMF\Theme;
@@ -1384,10 +1385,8 @@ class Members implements ActionInterface
 		{
 			$log_action = $_POST['todo'] == 'remind' ? 'remind_member' : 'approve_member';
 
-			require_once(Config::$sourcedir . '/Logging.php');
-
 			foreach ($member_info as $member)
-				logAction($log_action, array('member' => $member['id']), 'admin');
+				Logging::logAction($log_action, array('member' => $member['id']), 'admin');
 		}
 
 		// Although updateStats *may* catch this, best to do it manually just in case (Doesn't always sort out unapprovedMembers).
@@ -1397,12 +1396,12 @@ class Members implements ActionInterface
 		}
 
 		// Update the member's stats. (but, we know the member didn't change their name.)
-		updateStats('member', false);
+		Logging::updateStats('member', false);
 
 		// If they haven't been deleted, update the post group statistics on them...
 		if (!in_array($_POST['todo'], array('delete', 'deleteemail', 'reject', 'rejectemail', 'remind')))
 		{
-			updateStats('postgroups', $members);
+			Logging::updateStats('postgroups', $members);
 		}
 
 		redirectexit('action=admin;area=viewmembers;sa=browse;type=' . $_REQUEST['type'] . ';sort=' . $_REQUEST['sort'] . ';filter=' . $current_filter . ';start=' . $_REQUEST['start']);

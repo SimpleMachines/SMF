@@ -21,6 +21,7 @@ use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Logging;
 use SMF\Menu;
 use SMF\Theme;
 use SMF\User;
@@ -370,7 +371,7 @@ class Membergroups implements ActionInterface
 
 			// Update the post groups now, if this is a post group!
 			if (isset($_POST['min_posts']))
-				updateStats('postgroups');
+				Logging::updateStats('postgroups');
 
 			// You cannot set permissions for post groups if they are disabled.
 			if ($postCountBasedGroup && empty(Config::$modSettings['permission_enable_postgroups']))
@@ -576,7 +577,7 @@ class Membergroups implements ActionInterface
 			));
 
 			// We did it.
-			logAction('add_group', array('group' => Utils::htmlspecialchars($_POST['group_name'])), 'admin');
+			Logging::logAction('add_group', array('group' => Utils::htmlspecialchars($_POST['group_name'])), 'admin');
 
 			// Go change some more settings.
 			redirectexit('action=admin;area=membergroups;sa=edit;group=' . $id_group);
@@ -1136,7 +1137,7 @@ class Membergroups implements ActionInterface
 			}
 
 			// There might have been some post group changes.
-			updateStats('postgroups');
+			Logging::updateStats('postgroups');
 
 			// We've definitely changed some group stuff.
 			Config::updateModSettings(array(
@@ -1144,7 +1145,7 @@ class Membergroups implements ActionInterface
 			));
 
 			// Log the edit.
-			logAction('edited_group', array('group' => $_POST['group_name']), 'admin');
+			Logging::logAction('edited_group', array('group' => $_POST['group_name']), 'admin');
 
 			redirectexit('action=admin;area=membergroups');
 		}
@@ -1559,7 +1560,7 @@ class Membergroups implements ActionInterface
 		);
 		while ($row = Db::$db->fetch_assoc($request))
 		{
-			logAction('delete_group', array('group' => $row['group_name']), 'admin');
+			Logging::logAction('delete_group', array('group' => $row['group_name']), 'admin');
 		}
 		Db::$db->free_result($request);
 
@@ -1691,7 +1692,7 @@ class Membergroups implements ActionInterface
 		}
 
 		// Recalculate the post groups, as they likely changed.
-		updateStats('postgroups');
+		Logging::updateStats('postgroups');
 
 		// Make a note of the fact that the cache may be wrong.
 		$settings_update = array('settings_updated' => time());

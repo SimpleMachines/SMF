@@ -512,7 +512,7 @@ $txt['package_flush_cache_not_writable'] = 'package_flush_cache(): some files ar
 
 $txt['create_post_invalid_member_id'] = 'Msg::create(): invalid member id \'%d\'';
 
-$txt['invalid_statistic_type'] = 'updateStats(): invalid statistic type \'%s\'';
+$txt['invalid_statistic_type'] = 'Logging::updateStats(): invalid statistic type \'%s\'';
 
 $txt['fetch_web_data_bad_url'] = 'fetch_web_data(): Bad URL';
 

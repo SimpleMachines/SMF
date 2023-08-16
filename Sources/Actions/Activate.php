@@ -18,6 +18,7 @@ use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\Logging;
 use SMF\Mail;
 use SMF\Theme;
 use SMF\User;
@@ -229,7 +230,7 @@ class Activate implements ActionInterface
 		User::updateMemberData($row['id_member'], array('is_activated' => 1, 'validation_code' => ''));
 
 		// Also do a proper member stat re-evaluation.
-		updateStats('member', false);
+		Logging::updateStats('member', false);
 
 		// Notify the admin about new activations, but not re-activations.
 		if (empty($row['is_activated']))

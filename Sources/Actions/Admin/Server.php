@@ -485,7 +485,7 @@ class Server implements ActionInterface
 
 			call_integration_hook('integrate_save_general_security_settings');
 
-			writeLog();
+			User::$me->logOnline();
 			redirectexit('action=admin;area=serversettings;sa=security;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 		}
 

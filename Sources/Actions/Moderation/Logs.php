@@ -19,6 +19,7 @@ use SMF\Actions\ActionInterface;
 use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Logging;
 use SMF\Menu;
 use SMF\User;
 use SMF\Utils;
@@ -779,7 +780,7 @@ class Logs implements ActionInterface
 		);
 
 		$log_type = isset($this->subaction) && $this->subaction == 'adminlog' ? 'admin' : 'moderate';
-		logAction('clearlog_' . $log_type, array(), $log_type);
+		Logging::logAction('clearlog_' . $log_type, array(), $log_type);
 	}
 
 	/**

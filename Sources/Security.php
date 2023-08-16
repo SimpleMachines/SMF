@@ -113,7 +113,7 @@ function is_not_guest($message = '')
 	// Log what they were trying to do didn't work)
 	if (!empty(Config::$modSettings['who_enabled']))
 		$_GET['error'] = 'guest_login';
-	writeLog(true);
+	User::$me->logOnline(true);
 
 	// Just die.
 	if (isset($_REQUEST['xml']))
@@ -330,7 +330,7 @@ function is_not_banned($forceCheck = false)
 		$_GET['action'] = '';
 		$_GET['board'] = '';
 		$_GET['topic'] = '';
-		writeLog(true);
+		User::$me->logOnline(true);
 		Logout::call(true, false);
 
 		// You banned, sucka!
@@ -359,7 +359,7 @@ function is_not_banned($forceCheck = false)
 		$_GET['action'] = '';
 		$_GET['board'] = '';
 		$_GET['topic'] = '';
-		writeLog(true);
+		User::$me->logOnline(true);
 
 		Logout::call(true, false);
 
@@ -990,7 +990,7 @@ function isAllowedTo($permission, $boards = null, $any = false)
 		$_GET['action'] = '';
 		$_GET['board'] = '';
 		$_GET['topic'] = '';
-		writeLog(true);
+		User::$me->logOnline(true);
 
 		ErrorHandler::fatalLang('cannot_' . $error_permission, false);
 

@@ -20,6 +20,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Logging;
 use SMF\Menu;
 use SMF\Msg;
 use SMF\Mail;
@@ -286,7 +287,7 @@ class News extends ACP implements ActionInterface
 
 			Utils::$context['saved_successful'] = true;
 
-			logAction('news');
+			Logging::logAction('news');
 		}
 		// The 'Save' button was pressed.
 		elseif (!empty($_POST['save_items']))
@@ -313,7 +314,7 @@ class News extends ACP implements ActionInterface
 			Utils::$context['saved_successful'] = true;
 
 			// Log this into the moderation log.
-			logAction('news');
+			Logging::logAction('news');
 		}
 
 		Utils::$context['page_title'] = Lang::$txt['admin_edit_news'];
@@ -1143,7 +1144,7 @@ class News extends ACP implements ActionInterface
 		if (empty(Utils::$context['recipients']['emails']) && (Utils::$context['start'] >= Utils::$context['total_members']))
 		{
 			// Log this into the admin log.
-			logAction('newsletter', array(), 'admin');
+			Logging::logAction('newsletter', array(), 'admin');
 			$_SESSION['newsletter_sent'] = 'queue_done';
 			redirectexit('action=admin;area=news;sa=mailingmembers');
 		}

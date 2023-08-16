@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\Board;
 use SMF\Config;
+use SMF\Logging;
 use SMF\Mail;
 use SMF\Msg;
 use SMF\Topic;
@@ -214,8 +215,8 @@ class QuickModeration implements ActionInterface
 		$this->doRestore();
 
 		// Update stats and such.
-		updateStats('topic');
-		updateStats('message');
+		Logging::updateStats('topic');
+		Logging::updateStats('message');
 		Config::updateModSettings(array(
 			'calendar_updated' => time(),
 		));
@@ -609,7 +610,7 @@ class QuickModeration implements ActionInterface
 
 		foreach ($this->topic_actions['sticky'] as $topic)
 		{
-			logAction($sticky_cache_status[$topic] ? 'unsticky' : 'sticky', array('topic' => $topic, 'board' => $sticky_cache_boards[$topic]));
+			Logging::logAction($sticky_cache_status[$topic] ? 'unsticky' : 'sticky', array('topic' => $topic, 'board' => $sticky_cache_boards[$topic]));
 
 			Mail::sendNotifications($topic, 'sticky');
 		}
@@ -694,7 +695,7 @@ class QuickModeration implements ActionInterface
 
 		foreach ($this->topic_actions['lock'] as $topic)
 		{
-			logAction($lock_status[$topic] ? 'lock' : 'unlock', array('topic' => $topic, 'board' => $lock_cache_boards[$topic]));
+			Logging::logAction($lock_status[$topic] ? 'lock' : 'unlock', array('topic' => $topic, 'board' => $lock_cache_boards[$topic]));
 
 			Mail::sendNotifications($topic, $lock_status[$topic] ? 'lock' : 'unlock');
 		}
@@ -833,7 +834,7 @@ class QuickModeration implements ActionInterface
 			if (!isset($topic[0]))
 				break;
 
-			logAction('move', array('topic' => $topic[0], 'board_from' => $topic[1], 'board_to' => $topic[2]));
+			Logging::logAction('move', array('topic' => $topic[0], 'board_from' => $topic[1], 'board_to' => $topic[2]));
 
 			Mail::sendNotifications($topic[0], 'move');
 		}
@@ -882,7 +883,7 @@ class QuickModeration implements ActionInterface
 			foreach ($this->topic_actions['remove'] as $topic)
 			{
 				// Only log the topic ID if it's not in the recycle board.
-				logAction('remove', array((empty(Config::$modSettings['recycle_enable']) || Config::$modSettings['recycle_board'] != $remove_cache_boards[$topic] ? 'topic' : 'old_topic_id') => $topic, 'board' => $remove_cache_boards[$topic]));
+				Logging::logAction('remove', array((empty(Config::$modSettings['recycle_enable']) || Config::$modSettings['recycle_board'] != $remove_cache_boards[$topic] ? 'topic' : 'old_topic_id') => $topic, 'board' => $remove_cache_boards[$topic]));
 
 				Mail::sendNotifications($topic, 'remove');
 			}
@@ -936,7 +937,7 @@ class QuickModeration implements ActionInterface
 			// Time for some logging!
 			foreach ($this->topic_actions['approve'] as $topic)
 			{
-				logAction('approve_topic', array('topic' => $topic, 'member' => $approve_cache_members[$topic]));
+				Logging::logAction('approve_topic', array('topic' => $topic, 'member' => $approve_cache_members[$topic]));
 			}
 		}
 	}

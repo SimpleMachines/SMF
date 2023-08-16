@@ -14,6 +14,7 @@
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\Logging;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -1702,7 +1703,6 @@ function DeleteInstall()
 
 	chdir(Config::$boarddir);
 
-	require_once(Config::$sourcedir . '/Logging.php');
 	require_once(Config::$sourcedir . '/Subs.php');
 	require_once(Config::$sourcedir . '/Security.php');
 	require_once(Config::$sourcedir . '/Subs-Auth.php');
@@ -1781,9 +1781,9 @@ function DeleteInstall()
 		);
 	}
 
-	updateStats('member');
-	updateStats('message');
-	updateStats('topic');
+	Logging::updateStats('member');
+	Logging::updateStats('message');
+	Logging::updateStats('topic');
 
 	$request = Db::$db->query('', '
 		SELECT id_msg
@@ -1797,7 +1797,7 @@ function DeleteInstall()
 	);
 	Utils::$context['utf8'] = true;
 	if (Db::$db->num_rows($request) > 0)
-		updateStats('subject', 1, htmlspecialchars(Lang::$txt['default_topic_subject']));
+		Logging::updateStats('subject', 1, htmlspecialchars(Lang::$txt['default_topic_subject']));
 	Db::$db->free_result($request);
 
 	// Now is the perfect time to fetch the SM files.
@@ -1815,7 +1815,7 @@ function DeleteInstall()
 
 		User::$me->ip = $_SERVER['REMOTE_ADDR'];
 
-		logAction('install', array('version' => SMF_FULL_VERSION), 'admin');
+		Logging::logAction('install', array('version' => SMF_FULL_VERSION), 'admin');
 	}
 
 	// Disable the legacy BBC by default for new installs

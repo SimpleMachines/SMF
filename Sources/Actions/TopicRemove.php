@@ -18,6 +18,7 @@ use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\Logging;
 use SMF\Mail;
 use SMF\Topic;
 use SMF\User;
@@ -112,7 +113,7 @@ class TopicRemove implements ActionInterface
 		// Note, only log topic ID in native form if it's not gone forever.
 		if (allowedTo('remove_any') || (allowedTo('remove_own') && $starter == User::$me->id))
 		{
-			logAction('remove', array(
+			Logging::logAction('remove', array(
 				(empty(Config::$modSettings['recycle_enable']) || Config::$modSettings['recycle_board'] != Board::$info->id ? 'topic' : 'old_topic_id') => Topic::$topic_id,
 				'subject' => $subject,
 				'member' => $starter,
@@ -255,7 +256,7 @@ class TopicRemove implements ActionInterface
 		Topic::remove($topics, false, true);
 
 		// Log an action into the moderation log.
-		logAction('pruned', array('days' => $_POST['maxdays']));
+		Logging::logAction('pruned', array('days' => $_POST['maxdays']));
 
 		redirectexit('action=admin;area=maintain;sa=topics;done=purgeold');
 	}

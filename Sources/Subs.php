@@ -19,6 +19,7 @@ use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Forum;
 use SMF\Lang;
+use SMF\Logging;
 use SMF\Mail;
 use SMF\Theme;
 use SMF\Time;
@@ -33,248 +34,11 @@ if (!defined('SMF'))
 
 class_exists('SMF\\Attachment');
 class_exists('SMF\\BBCodeParser');
+class_exists('SMF\\Logging');
 class_exists('SMF\\Theme');
 class_exists('SMF\\Time');
 class_exists('SMF\\User');
 class_exists('SMF\\Utils');
-
-/**
- * Update some basic statistics.
- *
- * 'member' statistic updates the latest member, the total member
- *  count, and the number of unapproved members.
- * 'member' also only counts approved members when approval is on, but
- *  is much more efficient with it off.
- *
- * 'message' changes the total number of messages, and the
- *  highest message id by id_msg - which can be parameters 1 and 2,
- *  respectively.
- *
- * 'topic' updates the total number of topics, or if parameter1 is true
- *  simply increments them.
- *
- * 'subject' updates the log_search_subjects in the event of a topic being
- *  moved, removed or split.  parameter1 is the topicid, parameter2 is the new subject
- *
- * 'postgroups' case updates those members who match condition's
- *  post-based membergroups in the database (restricted by parameter1).
- *
- * @param string $type Stat type - can be 'member', 'message', 'topic', 'subject' or 'postgroups'
- * @param mixed $parameter1 A parameter for updating the stats
- * @param mixed $parameter2 A 2nd parameter for updating the stats
- */
-function updateStats($type, $parameter1 = null, $parameter2 = null)
-{
-	switch ($type)
-	{
-		case 'member':
-			$changes = array(
-				'memberlist_updated' => time(),
-			);
-
-			// #1 latest member ID, #2 the real name for a new registration.
-			if (is_numeric($parameter1))
-			{
-				$changes['latestMember'] = $parameter1;
-				$changes['latestRealName'] = $parameter2;
-
-				Config::updateModSettings(array('totalMembers' => true), true);
-			}
-
-			// We need to calculate the totals.
-			else
-			{
-				// Update the latest activated member (highest id_member) and count.
-				$result = Db::$db->query('', '
-					SELECT COUNT(*), MAX(id_member)
-					FROM {db_prefix}members
-					WHERE is_activated = {int:is_activated}',
-					array(
-						'is_activated' => 1,
-					)
-				);
-				list ($changes['totalMembers'], $changes['latestMember']) = Db::$db->fetch_row($result);
-				Db::$db->free_result($result);
-
-				// Get the latest activated member's display name.
-				$result = Db::$db->query('', '
-					SELECT real_name
-					FROM {db_prefix}members
-					WHERE id_member = {int:id_member}
-					LIMIT 1',
-					array(
-						'id_member' => (int) $changes['latestMember'],
-					)
-				);
-				list ($changes['latestRealName']) = Db::$db->fetch_row($result);
-				Db::$db->free_result($result);
-
-				// Update the amount of members awaiting approval
-				$result = Db::$db->query('', '
-					SELECT COUNT(*)
-					FROM {db_prefix}members
-					WHERE is_activated IN ({array_int:activation_status})',
-					array(
-						'activation_status' => array(3, 4, 5),
-					)
-				);
-
-				list ($changes['unapprovedMembers']) = Db::$db->fetch_row($result);
-				Db::$db->free_result($result);
-			}
-			Config::updateModSettings($changes);
-			break;
-
-		case 'message':
-			if ($parameter1 === true && $parameter2 !== null)
-				Config::updateModSettings(array('totalMessages' => true, 'maxMsgID' => $parameter2), true);
-			else
-			{
-				// SUM and MAX on a smaller table is better for InnoDB tables.
-				$result = Db::$db->query('', '
-					SELECT SUM(num_posts + unapproved_posts) AS total_messages, MAX(id_last_msg) AS max_msg_id
-					FROM {db_prefix}boards
-					WHERE redirect = {string:blank_redirect}' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? '
-						AND id_board != {int:recycle_board}' : ''),
-					array(
-						'recycle_board' => isset(Config::$modSettings['recycle_board']) ? Config::$modSettings['recycle_board'] : 0,
-						'blank_redirect' => '',
-					)
-				);
-				$row = Db::$db->fetch_assoc($result);
-				Db::$db->free_result($result);
-
-				Config::updateModSettings(array(
-					'totalMessages' => $row['total_messages'] === null ? 0 : $row['total_messages'],
-					'maxMsgID' => $row['max_msg_id'] === null ? 0 : $row['max_msg_id']
-				));
-			}
-			break;
-
-		case 'subject':
-			// Remove the previous subject (if any).
-			Db::$db->query('', '
-				DELETE FROM {db_prefix}log_search_subjects
-				WHERE id_topic = {int:id_topic}',
-				array(
-					'id_topic' => (int) $parameter1,
-				)
-			);
-
-			// Insert the new subject.
-			if ($parameter2 !== null)
-			{
-				$parameter1 = (int) $parameter1;
-				$parameter2 = text2words($parameter2);
-
-				$inserts = array();
-				foreach ($parameter2 as $word)
-					$inserts[] = array($word, $parameter1);
-
-				if (!empty($inserts))
-					Db::$db->insert('ignore',
-						'{db_prefix}log_search_subjects',
-						array('word' => 'string', 'id_topic' => 'int'),
-						$inserts,
-						array('word', 'id_topic')
-					);
-			}
-			break;
-
-		case 'topic':
-			if ($parameter1 === true)
-				Config::updateModSettings(array('totalTopics' => true), true);
-
-			else
-			{
-				// Get the number of topics - a SUM is better for InnoDB tables.
-				// We also ignore the recycle bin here because there will probably be a bunch of one-post topics there.
-				$result = Db::$db->query('', '
-					SELECT SUM(num_topics + unapproved_topics) AS total_topics
-					FROM {db_prefix}boards' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? '
-					WHERE id_board != {int:recycle_board}' : ''),
-					array(
-						'recycle_board' => !empty(Config::$modSettings['recycle_board']) ? Config::$modSettings['recycle_board'] : 0,
-					)
-				);
-				$row = Db::$db->fetch_assoc($result);
-				Db::$db->free_result($result);
-
-				Config::updateModSettings(array('totalTopics' => $row['total_topics'] === null ? 0 : $row['total_topics']));
-			}
-			break;
-
-		case 'postgroups':
-			// Parameter two is the updated columns: we should check to see if we base groups off any of these.
-			if ($parameter2 !== null && !in_array('posts', $parameter2))
-				return;
-
-			$postgroups = CacheApi::get('updateStats:postgroups', 360);
-			if ($postgroups == null || $parameter1 == null)
-			{
-				// Fetch the postgroups!
-				$request = Db::$db->query('', '
-					SELECT id_group, min_posts
-					FROM {db_prefix}membergroups
-					WHERE min_posts != {int:min_posts}',
-					array(
-						'min_posts' => -1,
-					)
-				);
-				$postgroups = array();
-				while ($row = Db::$db->fetch_assoc($request))
-					$postgroups[$row['id_group']] = $row['min_posts'];
-
-				Db::$db->free_result($request);
-
-				// Sort them this way because if it's done with MySQL it causes a filesort :(.
-				arsort($postgroups);
-
-				CacheApi::put('updateStats:postgroups', $postgroups, 360);
-			}
-
-			// Oh great, they've screwed their post groups.
-			if (empty($postgroups))
-				return;
-
-			// Set all membergroups from most posts to least posts.
-			$conditions = '';
-			$lastMin = 0;
-			foreach ($postgroups as $id => $min_posts)
-			{
-				foreach (User::$loaded as $member)
-				{
-					if ($member->posts < $min_posts)
-						continue;
-
-					if (empty($lastMin) || $member->posts <= $lastMin)
-						$member->post_group_id = $id;
-				}
-
-				$conditions .= '
-					WHEN posts >= ' . $min_posts . (!empty($lastMin) ? ' AND posts <= ' . $lastMin : '') . ' THEN ' . $id;
-
-				$lastMin = $min_posts;
-			}
-
-			// A big fat CASE WHEN... END is faster than a zillion UPDATE's ;).
-			Db::$db->query('', '
-				UPDATE {db_prefix}members
-				SET id_post_group = CASE ' . $conditions . '
-				ELSE 0
-				END' . ($parameter1 != null ? '
-				WHERE ' . (is_array($parameter1) ? 'id_member IN ({array_int:members})' : 'id_member = {int:members}') : ''),
-				array(
-					'members' => $parameter1,
-				)
-			);
-			break;
-
-		default:
-			Lang::load('Errors');
-			trigger_error(sprintf(Lang::$txt['invalid_statistic_type'], $type), E_USER_NOTICE);
-	}
-}
 
 /**
  * Constructs a page list.
@@ -1005,7 +769,7 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 
 	// Clear out the stat cache.
 	if (function_exists('trackStats'))
-		trackStats();
+		Logging::trackStats();
 
 	// If we have mail to send, send it.
 	if (class_exists('SMF\\Mail', false) && !empty(Utils::$context['flush_mail']))
@@ -1066,7 +830,7 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 
 			// (since this is just debugging... it's okay that it's after </html>.)
 			if (!isset($_REQUEST['xml']))
-				displayDebug();
+				Logging::displayDebug();
 		}
 	}
 

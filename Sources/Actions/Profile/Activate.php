@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\Logging;
 use SMF\Profile;
 use SMF\User;
 use SMF\Utils;
@@ -83,8 +84,7 @@ class Activate implements ActionInterface
 			User::updateMemberData(Utils::$context['id_member'], array('is_activated' => Profile::$member->is_activated >= 10 ? 11 : 1, 'validation_code' => ''));
 
 			// Log what we did?
-			require_once(Config::$sourcedir . '/Logging.php');
-			logAction('approve_member', array('member' => Profile::$member->id), 'admin');
+			Logging::logAction('approve_member', array('member' => Profile::$member->id), 'admin');
 
 			// If we are doing approval, update the stats for the member just in case.
 			if (in_array($prev_is_activated, array(3, 4, 5, 13, 14, 15)))
@@ -93,7 +93,7 @@ class Activate implements ActionInterface
 			}
 
 			// Make sure we update the stats too.
-			updateStats('member', false);
+			Logging::updateStats('member', false);
 		}
 	}
 

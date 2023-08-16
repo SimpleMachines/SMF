@@ -20,6 +20,7 @@ use SMF\Board;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\Logging;
 use SMF\Msg;
 use SMF\Topic;
 use SMF\User;
@@ -301,7 +302,7 @@ class JavaScriptModify implements ActionInterface
 
 			if (!empty($moderationAction))
 			{
-				logAction('modify', array('topic' => Topic::$topic_id, 'message' => $row['id_msg'], 'member' => $row['id_member'], 'board' => Board::$info->id));
+				Logging::logAction('modify', array('topic' => Topic::$topic_id, 'message' => $row['id_msg'], 'member' => $row['id_member'], 'board' => Board::$info->id));
 			}
 		}
 

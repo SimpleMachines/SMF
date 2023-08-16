@@ -1207,6 +1207,163 @@ class User implements \ArrayAccess
 		return $this->formatted;
 	}
 
+	/**
+	 * Put this user in the online log.
+	 *
+	 * @param bool $force Whether to force logging the data
+	 */
+	public function logOnline(bool $force = false): void
+	{
+		// If we are showing who is viewing a topic, let's see if we are, and force an update if so - to make it accurate.
+		if (!empty(Theme::$current->settings['display_who_viewing']) && (Topic::$topic_id || Board::$info->id))
+		{
+			// Take the opposite approach!
+			$force = true;
+
+			// Don't update for every page - this isn't wholly accurate but who cares.
+			if (Topic::$topic_id)
+			{
+				if (isset($_SESSION['last_topic_id']) && $_SESSION['last_topic_id'] == Topic::$topic_id)
+				{
+					$force = false;
+				}
+
+				$_SESSION['last_topic_id'] = Topic::$topic_id;
+			}
+		}
+
+		// Are they a spider we should be tracking? Mode = 1 gets tracked on its spider check...
+		if (!empty($this->possibly_robot) && !empty(Config::$modSettings['spider_mode']) && Config::$modSettings['spider_mode'] > 1)
+		{
+			self::logSpider();
+		}
+
+		// Don't mark them as online more than every so often.
+		if (!empty($_SESSION['log_time']) && $_SESSION['log_time'] >= (time() - 8) && !$force)
+			return;
+
+		if (!empty(Config::$modSettings['who_enabled']))
+		{
+			$encoded_get = truncate_array($_GET) + array('USER_AGENT' => mb_substr($_SERVER['HTTP_USER_AGENT'], 0, 128));
+
+			// In the case of a dlattach action, session_var may not be set.
+			if (!isset(Utils::$context['session_var']))
+				Utils::$context['session_var'] = $_SESSION['session_var'];
+
+			unset($encoded_get['sesc'], $encoded_get[Utils::$context['session_var']]);
+			$encoded_get = Utils::jsonEncode($encoded_get);
+
+			// Sometimes folks mess with USER_AGENT & $_GET data, so one last check to avoid 'data too long' errors
+			if (mb_strlen($encoded_get) > 2048)
+				$encoded_get = '';
+		}
+		else
+		{
+			$encoded_get = '';
+		}
+
+		// Guests use their IP address, members use their session ID.
+		$session_id = $this->is_guest ? 'ip' . $this->ip : session_id();
+
+		// Grab the last all-of-SMF-specific log_online deletion time.
+		$do_delete = CacheApi::get('log_online-update', 30) < time() - 30;
+
+		// If the last click wasn't a long time ago, and there was a last click...
+		if (!empty($_SESSION['log_time']) && $_SESSION['log_time'] >= time() - Config::$modSettings['lastActive'] * 20)
+		{
+			if ($do_delete)
+			{
+				Db::$db->query('delete_log_online_interval', '
+					DELETE FROM {db_prefix}log_online
+					WHERE log_time < {int:log_time}
+						AND session != {string:session}',
+					array(
+						'log_time' => time() - Config::$modSettings['lastActive'] * 60,
+						'session' => $session_id,
+					)
+				);
+
+				// Cache when we did it last.
+				CacheApi::put('log_online-update', time(), 30);
+			}
+
+			Db::$db->query('', '
+				UPDATE {db_prefix}log_online
+				SET log_time = {int:log_time}, ip = {inet:ip}, url = {string:url}
+				WHERE session = {string:session}',
+				array(
+					'log_time' => time(),
+					'ip' => $this->ip,
+					'url' => $encoded_get,
+					'session' => $session_id,
+				)
+			);
+
+			// Guess it got deleted.
+			if (Db::$db->affected_rows() == 0)
+				$_SESSION['log_time'] = 0;
+		}
+		else
+		{
+			$_SESSION['log_time'] = 0;
+		}
+
+		// Otherwise, we have to delete and insert.
+		if (empty($_SESSION['log_time']))
+		{
+			if ($do_delete || !empty($this->id))
+			{
+				Db::$db->query('', '
+					DELETE FROM {db_prefix}log_online
+					WHERE ' . ($do_delete ? 'log_time < {int:log_time}' : '') . ($do_delete && !empty($this->id) ? ' OR ' : '') . (empty($this->id) ? '' : 'id_member = {int:current_member}'),
+					array(
+						'current_member' => $this->id,
+						'log_time' => time() - Config::$modSettings['lastActive'] * 60,
+					)
+				);
+			}
+
+			Db::$db->insert($do_delete ? 'ignore' : 'replace',
+				'{db_prefix}log_online',
+				array('session' => 'string', 'id_member' => 'int', 'id_spider' => 'int', 'log_time' => 'int', 'ip' => 'inet', 'url' => 'string'),
+				array($session_id, $this->id, empty($_SESSION['id_robot']) ? 0 : $_SESSION['id_robot'], time(), $this->ip, $encoded_get),
+				array('session')
+			);
+		}
+
+		// Mark your session as being logged.
+		$_SESSION['log_time'] = time();
+
+		// Well, they are online now.
+		if (empty($_SESSION['timeOnlineUpdated']))
+			$_SESSION['timeOnlineUpdated'] = time();
+
+		// Set their login time, if not already done within the last minute.
+		if (
+			SMF != 'SSI'
+			&& !empty($this->last_login)
+			&& $this->last_login < time() - 60
+			&& (
+				!isset($_REQUEST['action'])
+				|| !in_array($_REQUEST['action'], array('.xml', 'login2', 'logintfa'))
+			)
+		)
+		{
+			// Don't count longer than 15 minutes.
+			if (time() - $_SESSION['timeOnlineUpdated'] > 60 * 15)
+				$_SESSION['timeOnlineUpdated'] = time();
+
+			$this->total_time_logged_in += (time() - $_SESSION['timeOnlineUpdated']);
+
+			self::updateMemberData($this->id, array('last_login' => time(), 'member_ip' => $this->ip, 'member_ip2' => $_SERVER['BAN_CHECK_IP'], 'total_time_logged_in' => $this->total_time_logged_in));
+
+			if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2)
+				CacheApi::put('user_settings-' . $this->id, self::$profiles[$this->id], 60);
+
+			$_SESSION['timeOnlineUpdated'] = time();
+		}
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -1762,7 +1919,7 @@ class User implements \ArrayAccess
 			$parameters
 		);
 
-		updateStats('postgroups', $members, array_keys($data));
+		Logging::updateStats('postgroups', $members, array_keys($data));
 
 		// Clear any caching?
 		if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2 && !empty($members))
@@ -2250,10 +2407,9 @@ class User implements \ArrayAccess
 		// Integration rocks!
 		call_integration_hook('integrate_delete_members', array($users));
 
-		updateStats('member');
+		Logging::updateStats('member');
 
-		require_once(Config::$sourcedir . '/Logging.php');
-		logActions($log_changes);
+		Logging::logActions($log_changes);
 	}
 
 	/**

@@ -22,6 +22,7 @@ use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Logging;
 use SMF\Menu;
 use SMF\Msg;
 use SMF\Profile;
@@ -713,7 +714,7 @@ class ShowPosts implements ActionInterface
 		// Add it to the mod log.
 		if (allowedTo('delete_any') && (!allowedTo('delete_own') || $info[1] != User::$me->id))
 		{
-			logAction('delete', array(
+			Logging::logAction('delete', array(
 				'topic' => $info[2],
 				'subject' => $info[0],
 				'member' => $info[1],

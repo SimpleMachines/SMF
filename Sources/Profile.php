@@ -1714,7 +1714,7 @@ class Profile extends User implements \ArrayAccess
 		// What if this is the newest member?
 		if (Config::$modSettings['latestMember'] == $this->id)
 		{
-			updateStats('member');
+			Logging::updateStats('member');
 		}
 		// Did the member change his/her name or birthdate?
 		elseif (isset($this->new_data['birthdate']) || isset($this->new_data['real_name']))
@@ -1732,8 +1732,7 @@ class Profile extends User implements \ArrayAccess
 		// Anything worth logging?
 		if (!empty($this->log_changes) && !empty(Config::$modSettings['modlog_enabled']))
 		{
-			require_once(Config::$sourcedir . '/Logging.php');
-			logActions($this->log_changes);
+			Logging::logActions($this->log_changes);
 		}
 
 		// Do we have any post save functions to execute?
@@ -3483,7 +3482,7 @@ class Profile extends User implements \ArrayAccess
 
 		User::reload($memID, 'profile');
 
-		writeLog();
+		User::$me->logOnline();
 	}
 }
 

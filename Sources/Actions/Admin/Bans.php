@@ -24,6 +24,7 @@ use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Logging;
 use SMF\Menu;
 use SMF\Theme;
 use SMF\User;
@@ -1219,7 +1220,7 @@ class Bans implements ActionInterface
 		}
 
 		// Update the latest member and our total members as banning may change them.
-		updateStats('member');
+		Logging::updateStats('member');
 	}
 
 	/**
@@ -2685,7 +2686,7 @@ class Bans implements ActionInterface
 		// Log the addion of the ban entries into the moderation log.
 		foreach ($logs as $log)
 		{
-			logAction('ban' . ($removal == true ? 'remove' : ''), array(
+			Logging::logAction('ban' . ($removal == true ? 'remove' : ''), array(
 				$log_name_map[$log['bantype']] => $log['value'],
 				'new' => empty($new) ? 0 : 1,
 				'remove' => empty($removal) ? 0 : 1,

@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\Board;
 use SMF\Config;
+use SMF\Logging;
 use SMF\Msg;
 use SMF\Topic;
 use SMF\User;
@@ -248,7 +249,7 @@ class QuickModerationInTopic implements ActionInterface
 			// Log this moderation action ;).
 			if (allowedTo('delete_any') && (!allowedTo('delete_own') || $info[1] != User::$me->id))
 			{
-				logAction('delete', array('topic' => Topic::$topic_id, 'subject' => $info[0], 'member' => $info[1], 'board' => Board::$info->id));
+				Logging::logAction('delete', array('topic' => Topic::$topic_id, 'subject' => $info[0], 'member' => $info[1], 'board' => Board::$info->id));
 			}
 		}
 

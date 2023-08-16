@@ -451,7 +451,7 @@ class Category implements \ArrayAccess
 
 			if (empty($catOptions['dont_log']))
 			{
-				logAction('edit_cat', array('catname' => isset($catOptions['cat_name']) ? $catOptions['cat_name'] : $category_id), 'admin');
+				Logging::logAction('edit_cat', array('catname' => isset($catOptions['cat_name']) ? $catOptions['cat_name'] : $category_id), 'admin');
 			}
 		}
 	}
@@ -512,7 +512,7 @@ class Category implements \ArrayAccess
 		// Set the given properties to the newly created category.
 		self::modify($category_id, $catOptions);
 
-		logAction('add_cat', array('catname' => $catOptions['cat_name']), 'admin');
+		Logging::logAction('add_cat', array('catname' => $catOptions['cat_name']), 'admin');
 
 		// Return the database ID of the category.
 		return $category_id;
@@ -589,7 +589,7 @@ class Category implements \ArrayAccess
 		// Log what we've done.
 		foreach ($categories as $category)
 		{
-			logAction('delete_cat', array('catname' => self::$loaded[$category]['node']['name']), 'admin');
+			Logging::logAction('delete_cat', array('catname' => self::$loaded[$category]['node']['name']), 'admin');
 		}
 
 		// Get all boards back into the right order.

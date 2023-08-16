@@ -20,6 +20,7 @@ use SMF\Board;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\Logging;
 use SMF\Menu;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -845,8 +846,8 @@ class RepairBoards implements ActionInterface
 			Config::updateModSettings(array(
 				'settings_updated' => time(),
 			));
-			updateStats('message');
-			updateStats('topic');
+			Logging::updateStats('message');
+			Logging::updateStats('topic');
 			Config::updateModSettings(array(
 				'calendar_updated' => time(),
 			));
@@ -1519,7 +1520,7 @@ class RepairBoards implements ActionInterface
 				)
 			);
 
-			updateStats('subject', $row['id_topic'], Lang::$txt['salvaged_poll_topic_name']);
+			Logging::updateStats('subject', $row['id_topic'], Lang::$txt['salvaged_poll_topic_name']);
 		}
 
 		Db::$db->insert('',
@@ -1639,7 +1640,7 @@ class RepairBoards implements ActionInterface
 			)
 		);
 
-		updateStats('subject', $newTopicID, Lang::$txt['salvaged_poll_topic_name']);
+		Logging::updateStats('subject', $newTopicID, Lang::$txt['salvaged_poll_topic_name']);
 	}
 
 	/**

@@ -19,6 +19,7 @@ use SMF\Actions\ActionInterface;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\Logging;
 use SMF\Menu;
 use SMF\Profile;
 use SMF\User;
@@ -278,9 +279,9 @@ class Registration implements ActionInterface
 					array('id_member', 'id_theme', 'variable')
 				);
 
-				logAction('agreement_updated', array('language' => Utils::$context['editable_agreements'][Utils::$context['current_agreement']]), 'admin');
+				Logging::logAction('agreement_updated', array('language' => Utils::$context['editable_agreements'][Utils::$context['current_agreement']]), 'admin');
 
-				logAction('agreement_accepted', array('applicator' => User::$me->id), 'user');
+				Logging::logAction('agreement_accepted', array('applicator' => User::$me->id), 'user');
 
 				Config::updateModSettings($agreement_settings);
 
@@ -354,9 +355,9 @@ class Registration implements ActionInterface
 				array('id_member', 'id_theme', 'variable')
 			);
 
-			logAction('policy_updated', array('language' => Utils::$context['editable_policies'][Utils::$context['current_policy_lang']]), 'admin');
+			Logging::logAction('policy_updated', array('language' => Utils::$context['editable_policies'][Utils::$context['current_policy_lang']]), 'admin');
 
-			logAction('policy_accepted', array('applicator' => User::$me->id), 'user');
+			Logging::logAction('policy_accepted', array('applicator' => User::$me->id), 'user');
 
 			if (Utils::$context['privacy_policy'] !== $policy_text)
 				Utils::$context['saved_successful'] = true;
