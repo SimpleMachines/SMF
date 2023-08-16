@@ -24,6 +24,7 @@ use SMF\Draft;
 use SMF\ErrorHandler;
 use SMF\Event;
 use SMF\Lang;
+use SMF\Logging;
 use SMF\MessageIndex;
 use SMF\Msg;
 use SMF\Poll;
@@ -650,17 +651,17 @@ class Post2 extends Post
 		// Log an act of moderation - modifying.
 		if (!empty($moderationAction))
 		{
-			logAction('modify', array('topic' => $this->existing_msg->id_topic, 'message' => $this->existing_msg->id, 'member' => $this->existing_msg->id_member, 'board' => $this->existing_msg->id_board));
+			Logging::logAction('modify', array('topic' => $this->existing_msg->id_topic, 'message' => $this->existing_msg->id, 'member' => $this->existing_msg->id_member, 'board' => $this->existing_msg->id_board));
 		}
 
 		if (isset($_POST['lock']) && $_POST['lock'] != 2)
 		{
-			logAction(empty($_POST['lock']) ? 'unlock' : 'lock', array('topic' => $topicOptions['id'], 'board' => $topicOptions['board']));
+			Logging::logAction(empty($_POST['lock']) ? 'unlock' : 'lock', array('topic' => $topicOptions['id'], 'board' => $topicOptions['board']));
 		}
 
 		if (isset($_POST['sticky']))
 		{
-			logAction(empty($_POST['sticky']) ? 'unsticky' : 'sticky', array('topic' => $topicOptions['id'], 'board' => $topicOptions['board']));
+			Logging::logAction(empty($_POST['sticky']) ? 'unsticky' : 'sticky', array('topic' => $topicOptions['id'], 'board' => $topicOptions['board']));
 		}
 
 		// Returning to the topic?

@@ -1250,11 +1250,10 @@ class ServerSideIncludes
 		if (!self::$setup_done)
 			new self();
 
-		require_once(Config::$sourcedir . '/Subs-MembersOnline.php');
 		$membersOnlineOptions = array(
 			'show_hidden' => allowedTo('moderate_forum'),
 		);
-		$return = getMembersOnlineStats($membersOnlineOptions);
+		$return = Logging::getMembersOnlineStats($membersOnlineOptions);
 
 		// If mods want to do something with the list of who is online, let them do that now.
 		call_integration_hook('integrate_ssi_whosOnline', array(&$return));
@@ -1317,7 +1316,7 @@ class ServerSideIncludes
 		if (!self::$setup_done)
 			new self();
 
-		writeLog();
+		User::$me->logOnline();
 
 		if ($output_method != 'echo')
 			return self::whosOnline($output_method);

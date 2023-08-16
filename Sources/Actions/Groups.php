@@ -20,6 +20,7 @@ use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Logging;
 use SMF\Menu;
 use SMF\Theme;
 use SMF\User;
@@ -1147,14 +1148,12 @@ class Groups implements ActionInterface
 		call_integration_hook('integrate_add_members_to_group', array($members, $group, &$group_names));
 
 		// Update their postgroup statistics.
-		updateStats('postgroups', $members);
+		Logging::updateStats('postgroups', $members);
 
 		// Log the data.
-		require_once(Config::$sourcedir . '/Logging.php');
-
 		foreach ($members as $member)
 		{
-			logAction(
+			Logging::logAction(
 				'added_to_group',
 				array(
 					'group' => $group_names[$group],
@@ -1380,11 +1379,11 @@ class Groups implements ActionInterface
 				)
 			);
 
-			updateStats('postgroups', $members);
+			Logging::updateStats('postgroups', $members);
 
 			// Log what just happened.
 			foreach ($members as $member)
-				logAction('removed_all_groups', array('member' => $member), 'admin');
+				Logging::logAction('removed_all_groups', array('member' => $member), 'admin');
 
 			return true;
 		}
@@ -1511,14 +1510,13 @@ class Groups implements ActionInterface
 			);
 
 		// Their post groups may have changed now...
-		updateStats('postgroups', $members);
+		Logging::updateStats('postgroups', $members);
 
 		// Do the log.
 		if (!empty($log_inserts) && !empty(Config::$modSettings['modlog_enabled']))
 		{
-			require_once(Config::$sourcedir . '/Logging.php');
 			foreach ($log_inserts as $extra)
-				logAction('removed_from_group', $extra, 'admin');
+				Logging::logAction('removed_from_group', $extra, 'admin');
 		}
 
 		// Mission successful.

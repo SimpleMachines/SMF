@@ -16,6 +16,7 @@ namespace SMF\Actions;
 use SMF\BackwardCompatibility;
 
 use SMF\Config;
+use SMF\Logging;
 use SMF\Msg;
 use SMF\Topic;
 use SMF\User;
@@ -174,7 +175,7 @@ class TopicRestore implements ActionInterface
 				{
 					self::mergePosts(array_keys($data['msgs']), $data['current_topic'], $topic);
 					// Log em.
-					logAction('restore_posts', array('topic' => $topic, 'subject' => $previous_topics[$topic]['subject'], 'board' => empty($data['previous_board']) ? $data['possible_prev_board'] : $data['previous_board']));
+					Logging::logAction('restore_posts', array('topic' => $topic, 'subject' => $previous_topics[$topic]['subject'], 'board' => empty($data['previous_board']) ? $data['possible_prev_board'] : $data['previous_board']));
 					$messages = array_merge(array_keys($data['msgs']), $messages);
 				}
 				else
@@ -250,7 +251,7 @@ class TopicRestore implements ActionInterface
 				}
 
 				// Log it.
-				logAction('restore_topic', array('topic' => $row['id_topic'], 'board' => $row['id_board'], 'board_to' => $row['id_previous_board']));
+				Logging::logAction('restore_topic', array('topic' => $row['id_topic'], 'board' => $row['id_board'], 'board_to' => $row['id_previous_board']));
 			}
 			Db::$db->free_result($request);
 		}
@@ -529,8 +530,8 @@ class TopicRestore implements ActionInterface
 		);
 
 		// Update stats.
-		updateStats('topic');
-		updateStats('message');
+		Logging::updateStats('topic');
+		Logging::updateStats('message');
 
 		// Subject cache?
 		$cache_updates = array();
@@ -550,7 +551,7 @@ class TopicRestore implements ActionInterface
 				)
 			);
 			while ($row = Db::$db->fetch_assoc($request))
-				updateStats('subject', $row['id_topic'], $row['subject']);
+				Logging::updateStats('subject', $row['id_topic'], $row['subject']);
 			Db::$db->free_result($request);
 		}
 

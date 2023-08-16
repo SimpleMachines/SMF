@@ -23,6 +23,7 @@ use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Logging;
 use SMF\Menu;
 use SMF\Msg;
 use SMF\Theme;
@@ -1773,7 +1774,7 @@ class Smileys implements ActionInterface
 				array('id_install')
 			);
 
-			logAction('install_package', array('package' => Utils::htmlspecialchars($smileyInfo['name']), 'version' => Utils::htmlspecialchars($smileyInfo['version'])), 'admin');
+			Logging::logAction('install_package', array('package' => Utils::htmlspecialchars($smileyInfo['name']), 'version' => Utils::htmlspecialchars($smileyInfo['version'])), 'admin');
 
 			self::resetCache();
 		}

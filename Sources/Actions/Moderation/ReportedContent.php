@@ -22,6 +22,7 @@ use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Logging;
 use SMF\Menu;
 use SMF\Theme;
 use SMF\User;
@@ -748,7 +749,9 @@ class ReportedContent implements ActionInterface
 	}
 
 	/**
-	 * Updates a report with the given parameters. Logs each action via logAction()
+	 * Updates a report with the given parameters.
+	 *
+	 * Logs each action via Logging::logAction().
 	 *
 	 * @param string $action The action to perform. Accepts "closed" and "ignore".
 	 * @param int $value The new value to update.
@@ -852,7 +855,7 @@ class ReportedContent implements ActionInterface
 		if (!empty($extra))
 		{
 			foreach ($extra as $report)
-				logAction($log_report . '_report', $report);
+				Logging::logAction($log_report . '_report', $report);
 		}
 
 		// Time to update.

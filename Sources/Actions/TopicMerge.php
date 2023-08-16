@@ -22,6 +22,7 @@ use SMF\Board;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\Logging;
 use SMF\Msg;
 use SMF\Mail;
 use SMF\Theme;
@@ -661,7 +662,7 @@ class TopicMerge implements ActionInterface
 				}
 
 				// Update subject search index
-				updateStats('subject', $this_old_topic, $redirect_subject);
+				Logging::updateStats('subject', $this_old_topic, $redirect_subject);
 			}
 
 			// Restore language strings to normal.
@@ -967,11 +968,11 @@ class TopicMerge implements ActionInterface
 		);
 
 		// Update all the statistics.
-		updateStats('topic');
-		updateStats('subject', $id_topic, $target_subject);
+		Logging::updateStats('topic');
+		Logging::updateStats('subject', $id_topic, $target_subject);
 		Msg::updateLastMessages($this->boards);
 
-		logAction('merge', array('topic' => $id_topic, 'board' => $id_board));
+		Logging::logAction('merge', array('topic' => $id_topic, 'board' => $id_board));
 
 		// Notify people that these topics have been merged?
 		Mail::sendNotifications($id_topic, 'merge');

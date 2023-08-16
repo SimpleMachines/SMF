@@ -22,6 +22,7 @@ use SMF\Draft;
 use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Logging;
 use SMF\Menu;
 use SMF\Theme;
 use SMF\Topic;
@@ -855,9 +856,9 @@ class Maintenance implements ActionInterface
 			}
 
 		// Update all the basic statistics.
-		updateStats('member');
-		updateStats('message');
-		updateStats('topic');
+		Logging::updateStats('member');
+		Logging::updateStats('message');
+		Logging::updateStats('topic');
 
 		// Finally, update the latest event times.
 		require_once(Config::$sourcedir . '/ScheduledTasks.php');

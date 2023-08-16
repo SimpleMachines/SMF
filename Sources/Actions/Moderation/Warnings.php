@@ -19,6 +19,7 @@ use SMF\Actions\ActionInterface;
 use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Logging;
 use SMF\Menu;
 use SMF\Msg;
 use SMF\Theme;
@@ -311,7 +312,7 @@ class Warnings implements ActionInterface
 			);
 			while ($row = Db::$db->fetch_assoc($request))
 			{
-				logAction('delete_warn_template', array('template' => $row['recipient_name']));
+				Logging::logAction('delete_warn_template', array('template' => $row['recipient_name']));
 			}
 			Db::$db->free_result($request);
 
@@ -530,17 +531,17 @@ class Warnings implements ActionInterface
 					// If it wasn't visible and now is they've effectively added it.
 					if (Utils::$context['template_data']['personal'] && !$recipient_id)
 					{
-						logAction('add_warn_template', array('template' => $_POST['template_title']));
+						Logging::logAction('add_warn_template', array('template' => $_POST['template_title']));
 					}
 					// Conversely if they made it personal it's a delete.
 					elseif (!Utils::$context['template_data']['personal'] && $recipient_id)
 					{
-						logAction('delete_warn_template', array('template' => $_POST['template_title']));
+						Logging::logAction('delete_warn_template', array('template' => $_POST['template_title']));
 					}
 					// Otherwise just an edit.
 					else
 					{
-						logAction('modify_warn_template', array('template' => $_POST['template_title']));
+						Logging::logAction('modify_warn_template', array('template' => $_POST['template_title']));
 					}
 				}
 				else
@@ -558,7 +559,7 @@ class Warnings implements ActionInterface
 						array('id_comment')
 					);
 
-					logAction('add_warn_template', array('template' => $_POST['template_title']));
+					Logging::logAction('add_warn_template', array('template' => $_POST['template_title']));
 				}
 
 				// Get out of town...

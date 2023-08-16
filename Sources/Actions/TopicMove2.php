@@ -19,6 +19,7 @@ use SMF\Board;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\Logging;
 use SMF\MessageIndex;
 use SMF\Msg;
 use SMF\Mail;
@@ -202,7 +203,7 @@ class TopicMove2 implements ActionInterface
 				);
 
 				// Fix the subject cache.
-				updateStats('subject', Topic::$topic_id, $_POST['custom_subject']);
+				Logging::updateStats('subject', Topic::$topic_id, $_POST['custom_subject']);
 			}
 		}
 
@@ -319,7 +320,7 @@ class TopicMove2 implements ActionInterface
 		// Log that they moved this topic.
 		if (!allowedTo('move_own') || $id_member_started != User::$me->id)
 		{
-			logAction('move', array('topic' => Topic::$topic_id, 'board_from' => Board::$info->id, 'board_to' => $_POST['toboard']));
+			Logging::logAction('move', array('topic' => Topic::$topic_id, 'board_from' => Board::$info->id, 'board_to' => $_POST['toboard']));
 		}
 
 		// Notify people that this topic has been moved?

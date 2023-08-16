@@ -1654,7 +1654,7 @@ class Board implements \ArrayAccess
 
 		// Log the changes unless told otherwise.
 		if (empty($boardOptions['dont_log']))
-			logAction('edit_board', array('board' => $this->id), 'admin');
+			Logging::logAction('edit_board', array('board' => $this->id), 'admin');
 	}
 
 	/**
@@ -1738,7 +1738,7 @@ class Board implements \ArrayAccess
 		self::modify($board->id, $boardOptions);
 
 		// Created it.
-		logAction('add_board', array('board' => $board->id), 'admin');
+		Logging::logAction('add_board', array('board' => $board->id), 'admin');
 
 		// Here you are, a new board, ready to be spammed.
 		return $board->id;
@@ -1899,8 +1899,8 @@ class Board implements \ArrayAccess
 		);
 
 		// Latest message/topic might not be there anymore.
-		updateStats('message');
-		updateStats('topic');
+		Logging::updateStats('message');
+		Logging::updateStats('topic');
 		Config::updateModSettings(array(
 			'calendar_updated' => time(),
 		));
@@ -1914,7 +1914,7 @@ class Board implements \ArrayAccess
 		// Let's do some serious logging.
 		foreach ($boards_to_remove as $id_board)
 		{
-			logAction('delete_board', array('boardname' => self::$loaded[$id_board]->name), 'admin');
+			Logging::logAction('delete_board', array('boardname' => self::$loaded[$id_board]->name), 'admin');
 		}
 
 		self::reorder();

@@ -19,6 +19,7 @@ use SMF\Board;
 use SMF\Category;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Logging;
 use SMF\Msg;
 use SMF\Theme;
 use SMF\User;
@@ -138,9 +139,7 @@ class BoardIndex implements ActionInterface
 		}
 
 		// Now the online stuff
-		require_once(Config::$sourcedir . '/Subs-MembersOnline.php');
-
-		Utils::$context += getMembersOnlineStats(array(
+		Utils::$context += Logging::getMembersOnlineStats(array(
 			'show_hidden' => allowedTo('moderate_forum'),
 			'sort' => 'log_time',
 			'reverse_sort' => true,
@@ -151,10 +150,10 @@ class BoardIndex implements ActionInterface
 			'txt' => 'online_users',
 		);
 
-		// Track most online statistics? (Subs-MembersOnline.php)
+		// Track most online statistics?
 		if (!empty(Config::$modSettings['trackStats']))
 		{
-			trackStatsUsersOnline(Utils::$context['num_guests'] + Utils::$context['num_users_online']);
+			Logging::trackStatsUsersOnline(Utils::$context['num_guests'] + Utils::$context['num_users_online']);
 		}
 
 		// Are we showing all membergroups on the board index?

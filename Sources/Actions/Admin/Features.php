@@ -152,7 +152,7 @@ class Features implements ActionInterface
 			if (empty($_POST['minimize_files']) || $_POST['minimize_files'] != Config::$modSettings['minimize_files'])
 				Theme::deleteAllMinified();
 
-			writeLog();
+			User::$me->logOnline();
 			redirectexit('action=admin;area=featuresettings;sa=basic');
 		}
 
@@ -303,7 +303,7 @@ class Features implements ActionInterface
 
 			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
-			writeLog();
+			User::$me->logOnline();
 
 			redirectexit('action=admin;area=featuresettings;sa=layout');
 		}

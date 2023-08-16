@@ -16,6 +16,7 @@ namespace SMF\Actions;
 use SMF\BackwardCompatibility;
 
 use SMF\Config;
+use SMF\Logging;
 use SMF\User;
 use SMF\Db\DatabaseApi as Db;
 
@@ -78,7 +79,8 @@ class AgreementAccept extends Agreement
 					array(User::$me->id, 1, 'agreement_accepted', time()),
 					array('id_member', 'id_theme', 'variable')
 				);
-				logAction('agreement_accepted', array('applicator' => User::$me->id), 'user');
+
+				Logging::logAction('agreement_accepted', array('applicator' => User::$me->id), 'user');
 			}
 
 			if ($can_accept_privacy_policy)
@@ -89,7 +91,8 @@ class AgreementAccept extends Agreement
 					array(User::$me->id, 1, 'policy_accepted', time()),
 					array('id_member', 'id_theme', 'variable')
 				);
-				logAction('policy_accepted', array('applicator' => User::$me->id), 'user');
+
+				Logging::logAction('policy_accepted', array('applicator' => User::$me->id), 'user');
 			}
 		}
 

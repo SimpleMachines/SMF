@@ -21,6 +21,7 @@ use SMF\Board;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\Logging;
 use SMF\Mail;
 use SMF\Msg;
 use SMF\Theme;
@@ -245,7 +246,7 @@ class Announce implements ActionInterface
 		{
 			Db::$db->free_result($request);
 
-			logAction('announce_topic', array('topic' => Topic::$topic_id), 'user');
+			Logging::logAction('announce_topic', array('topic' => Topic::$topic_id), 'user');
 
 			if (!empty($_REQUEST['move']) && allowedTo('move_any'))
 			{

@@ -616,7 +616,7 @@ class Topic implements \ArrayAccess
 		// If they are allowed a "moderator" permission, log it in the moderator log.
 		if (!$user_lock)
 		{
-			logAction($locked ? 'lock' : 'unlock', array('topic' => self::$topic_id, 'board' => Board::$info->id));
+			Logging::logAction($locked ? 'lock' : 'unlock', array('topic' => self::$topic_id, 'board' => Board::$info->id));
 		}
 
 		// Notify people that this topic has been locked?
@@ -682,7 +682,7 @@ class Topic implements \ArrayAccess
 		);
 
 		// Log this sticky action - always a moderator thing.
-		logAction(empty($is_sticky) ? 'sticky' : 'unsticky', array('topic' => self::$topic_id, 'board' => Board::$info->id));
+		Logging::logAction(empty($is_sticky) ? 'sticky' : 'unsticky', array('topic' => self::$topic_id, 'board' => Board::$info->id));
 
 		// Notify people that this topic has been stickied?
 		if (empty($is_sticky))
@@ -1050,8 +1050,8 @@ class Topic implements \ArrayAccess
 		Msg::updateLastMessages(array_unique($updates));
 
 		// Update 'em pesky stats.
-		updateStats('topic');
-		updateStats('message');
+		Logging::updateStats('topic');
+		Logging::updateStats('message');
 		Config::updateModSettings(array(
 			'calendar_updated' => time(),
 		));
@@ -1382,8 +1382,8 @@ class Topic implements \ArrayAccess
 		call_integration_hook('integrate_remove_topics', array($topics));
 
 		// Update the totals...
-		updateStats('message');
-		updateStats('topic');
+		Logging::updateStats('message');
+		Logging::updateStats('topic');
 		Config::updateModSettings(array(
 			'calendar_updated' => time(),
 		));

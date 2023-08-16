@@ -18,6 +18,7 @@ use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\Logging;
 use SMF\Msg;
 use SMF\Topic;
 use SMF\User;
@@ -126,7 +127,7 @@ class MsgDelete implements ActionInterface
 
 		if (allowedTo('delete_any') && (!allowedTo('delete_own') || $poster != User::$me->id))
 		{
-			logAction('delete', array('topic' => Topic::$topic_id, 'subject' => $subject, 'member' => $poster, 'board' => Board::$info->id));
+			Logging::logAction('delete', array('topic' => Topic::$topic_id, 'subject' => $subject, 'member' => $poster, 'board' => Board::$info->id));
 		}
 
 		// We want to redirect back to recent action.

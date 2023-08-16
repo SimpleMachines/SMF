@@ -18,6 +18,7 @@ use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Logging;
 use SMF\Menu;
 use SMF\Msg;
 use SMF\Theme;
@@ -1351,7 +1352,7 @@ class PackageManager
 			SubsPackage::deltree(Config::$packagesdir . '/temp');
 
 		// Log what we just did.
-		logAction(Utils::$context['uninstalling'] ? 'uninstall_package' : (!empty($is_upgrade) ? 'upgrade_package' : 'install_package'), array('package' => Utils::htmlspecialchars($packageInfo['name']), 'version' => Utils::htmlspecialchars($packageInfo['version'])), 'admin');
+		Logging::logAction(Utils::$context['uninstalling'] ? 'uninstall_package' : (!empty($is_upgrade) ? 'upgrade_package' : 'install_package'), array('package' => Utils::htmlspecialchars($packageInfo['name']), 'version' => Utils::htmlspecialchars($packageInfo['version'])), 'admin');
 
 		// Just in case, let's clear the whole cache and any minimized CSS and JS to avoid anything going up the swanny.
 		CacheApi::clean();

@@ -22,6 +22,7 @@ use SMF\Board;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\Logging;
 use SMF\MessageIndex;
 use SMF\Msg;
 use SMF\Mail;
@@ -826,7 +827,7 @@ class TopicSplit implements ActionInterface
 			);
 
 			// Cache the new topics subject... we can do it now as all the subjects are the same!
-			updateStats('subject', $split2_ID_TOPIC, $new_subject);
+			Logging::updateStats('subject', $split2_ID_TOPIC, $new_subject);
 		}
 
 		// Any associated reported posts better follow...
@@ -935,10 +936,10 @@ class TopicSplit implements ActionInterface
 		Db::$db->free_result($request);
 
 		// Housekeeping.
-		updateStats('topic');
+		Logging::updateStats('topic');
 		Msg::updateLastMessages($id_board);
 
-		logAction('split', array('topic' => $split1_ID_TOPIC, 'new_topic' => $split2_ID_TOPIC, 'board' => $id_board));
+		Logging::logAction('split', array('topic' => $split1_ID_TOPIC, 'new_topic' => $split2_ID_TOPIC, 'board' => $id_board));
 
 		// Notify people that this topic has been split?
 		Mail::sendNotifications($split1_ID_TOPIC, 'split');

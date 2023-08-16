@@ -1125,7 +1125,7 @@ class Poll implements \ArrayAccess
 
 		$poll->save();
 
-		logAction(($poll->voting_locked ? '' : 'un') . 'lock_poll', array('topic' => Topic::$topic_id));
+		Logging::logAction(($poll->voting_locked ? '' : 'un') . 'lock_poll', array('topic' => Topic::$topic_id));
 
 		redirectexit('topic=' . Topic::$topic_id . '.' . (int) ($_REQUEST['start'] ?? 0));
 	}
@@ -1287,7 +1287,7 @@ class Poll implements \ArrayAccess
 
 			$poll->save();
 
-			logAction('add_poll', array('topic' => Topic::$topic_id));
+			Logging::logAction('add_poll', array('topic' => Topic::$topic_id));
 			redirectexit('topic=' . Topic::$topic_id . '.' . (int) ($_REQUEST['start'] ?? 0));
 		}
 
@@ -1340,7 +1340,7 @@ class Poll implements \ArrayAccess
 
 		// Log this edit.
 		$action = isset($_POST['resetVoteCount']) ? 'reset' : 'edit';
-		logAction($action . '_poll', array('topic' => Topic::$topic_id));
+		Logging::logAction($action . '_poll', array('topic' => Topic::$topic_id));
 
 		// Off we go.
 		redirectexit('topic=' . Topic::$topic_id . '.' . (int) ($_REQUEST['start'] ?? 0));
@@ -1413,7 +1413,7 @@ class Poll implements \ArrayAccess
 		call_integration_hook('integrate_poll_remove', array($poll->id));
 
 		// Log this!
-		logAction('remove_poll', array('topic' => Topic::$topic_id));
+		Logging::logAction('remove_poll', array('topic' => Topic::$topic_id));
 
 		// Take the moderator back to the topic.
 		redirectexit('topic=' . Topic::$topic_id . '.' . (int) ($_REQUEST['start'] ?? 0));

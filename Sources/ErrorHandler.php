@@ -445,7 +445,6 @@ class ErrorHandler
 	 */
 	public static function displayDbError(): void
 	{
-		require_once(Config::$sourcedir . '/Logging.php');
 		self::setFatalHeaders();
 
 		// For our purposes, we're gonna want this on if at all possible.

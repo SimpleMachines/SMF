@@ -1507,10 +1507,10 @@ class Msg implements \ArrayAccess
 			);
 
 			// There's been a new topic AND a new post today.
-			trackStats(array('topics' => '+', 'posts' => '+'));
+			Logging::trackStats(array('topics' => '+', 'posts' => '+'));
 
-			updateStats('topic', true);
-			updateStats('subject', $topicOptions['id'], $msgOptions['subject']);
+			Logging::updateStats('topic', true);
+			Logging::updateStats('subject', $topicOptions['id'], $msgOptions['subject']);
 
 			// What if we want to export new topics out to a CMS?
 			call_integration_hook('integrate_create_topic', array(&$msgOptions, &$topicOptions, &$posterOptions));
@@ -1560,7 +1560,7 @@ class Msg implements \ArrayAccess
 			);
 
 			// One new post has been added today.
-			trackStats(array('posts' => '+'));
+			Logging::trackStats(array('posts' => '+'));
 		}
 
 		// Creating is modifying...in a way.
@@ -1707,7 +1707,7 @@ class Msg implements \ArrayAccess
 		}
 
 		// Update all the stats so everyone knows about this new topic and message.
-		updateStats('message', true, $msgOptions['id']);
+		Logging::updateStats('message', true, $msgOptions['id']);
 
 		// Update the last message on the board assuming it's approved AND the topic is.
 		if ($msgOptions['approved'])
@@ -1958,7 +1958,7 @@ class Msg implements \ArrayAccess
 			);
 			if (Db::$db->num_rows($request) == 1)
 			{
-				updateStats('subject', $topicOptions['id'], $msgOptions['subject']);
+				Logging::updateStats('subject', $topicOptions['id'], $msgOptions['subject']);
 			}
 			Db::$db->free_result($request);
 		}
@@ -2850,7 +2850,7 @@ class Msg implements \ArrayAccess
 				$recycle = true;
 
 				// Make sure we update the search subject index.
-				updateStats('subject', $topicID, $row['subject']);
+				Logging::updateStats('subject', $topicID, $row['subject']);
 			}
 
 			// If it wasn't approved don't keep it in the queue.
@@ -2939,8 +2939,8 @@ class Msg implements \ArrayAccess
 		call_integration_hook('integrate_remove_message', array($message, $row, $recycle));
 
 		// Update the pesky statistics.
-		updateStats('message');
-		updateStats('topic');
+		Logging::updateStats('message');
+		Logging::updateStats('topic');
 		Config::updateModSettings(array(
 			'calendar_updated' => time(),
 		));

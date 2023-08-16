@@ -324,11 +324,11 @@ class Forum
 		if (!is_filtered_request(self::$unlogged_actions, 'action'))
 		{
 			// Log this user as online.
-			writeLog();
+			User::$me->logOnline();
 
 			// Track forum statistics and hits...?
 			if (!empty(Config::$modSettings['hitStats']))
-				trackStats(array('hits' => '+'));
+				Logging::trackStats(array('hits' => '+'));
 		}
 
 		// Make sure that our scheduled tasks have been running as intended

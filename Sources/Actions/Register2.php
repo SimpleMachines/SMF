@@ -18,6 +18,7 @@ use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\Logging;
 use SMF\Profile;
 use SMF\Theme;
 use SMF\User;
@@ -838,11 +839,11 @@ class Register2 extends Register
 		// Update the number of members and latest member's info - and pass the name, but remove the 's.
 		if ($reg_options['register_vars']['is_activated'] == 1)
 		{
-			updateStats('member', $member_id, $reg_options['register_vars']['real_name']);
+			Logging::updateStats('member', $member_id, $reg_options['register_vars']['real_name']);
 		}
 		else
 		{
-			updateStats('member');
+			Logging::updateStats('member');
 		}
 
 		// Theme variables too?
@@ -866,12 +867,12 @@ class Register2 extends Register
 		{
 			if (!empty($theme_vars[$key]))
 			{
-				logAction($key, array('member_affected' => $member_id, 'applicator' => $member_id), 'user');
+				Logging::logAction($key, array('member_affected' => $member_id, 'applicator' => $member_id), 'user');
 			}
 		}
 
 		// If it's enabled, increase the registrations for today.
-		trackStats(array('registers' => '+'));
+		Logging::trackStats(array('registers' => '+'));
 
 		// Administrative registrations are a bit different...
 		if ($reg_options['interface'] == 'admin')

@@ -125,7 +125,6 @@ switch (SMF)
 		require_once(SMF\Config::$sourcedir . '/QueryString.php');
 		require_once(SMF\Config::$sourcedir . '/Subs-Auth.php');
 		require_once(SMF\Config::$sourcedir . '/Session.php');
-		require_once(SMF\Config::$sourcedir . '/Logging.php');
 		// no break
 
 	case 'BACKGROUND':

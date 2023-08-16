@@ -1799,7 +1799,7 @@ class Attachment implements \ArrayAccess
 		);
 		while ($row = Db::$db->fetch_assoc($request))
 		{
-			logAction(
+			Logging::logAction(
 				'approve_attach',
 				array(
 					'message' => $row['id_msg'],
@@ -1974,7 +1974,7 @@ class Attachment implements \ArrayAccess
 			);
 			while ($row = Db::$db->fetch_assoc($request))
 			{
-				logAction(
+				Logging::logAction(
 					'remove_attach',
 					array(
 						'message' => $row['id_msg'],

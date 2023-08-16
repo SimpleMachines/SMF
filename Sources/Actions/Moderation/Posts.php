@@ -22,6 +22,7 @@ use SMF\Board;
 use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Logging;
 use SMF\Menu;
 use SMF\Msg;
 use SMF\Theme;
@@ -722,7 +723,7 @@ class Posts implements ActionInterface
 
 			if ($starter != User::$me->id)
 			{
-				logAction(($approved ? 'un' : '') . 'approve_topic', array('topic' => Topic::$topic_id, 'subject' => $subject, 'member' => $starter, 'board' => Board::$info->id));
+				Logging::logAction(($approved ? 'un' : '') . 'approve_topic', array('topic' => Topic::$topic_id, 'subject' => $subject, 'member' => $starter, 'board' => Board::$info->id));
 			}
 		}
 		else
@@ -731,7 +732,7 @@ class Posts implements ActionInterface
 
 			if ($poster != User::$me->id)
 			{
-				logAction(($approved ? 'un' : '') . 'approve', array('topic' => Topic::$topic_id, 'subject' => $subject, 'member' => $poster, 'board' => Board::$info->id));
+				Logging::logAction(($approved ? 'un' : '') . 'approve', array('topic' => Topic::$topic_id, 'subject' => $subject, 'member' => $poster, 'board' => Board::$info->id));
 			}
 		}
 
@@ -980,7 +981,7 @@ class Posts implements ActionInterface
 			// and tell the world about it
 			foreach ($messages as $topic)
 			{
-				logAction('approve_topic', array('topic' => $topic, 'subject' => $messageDetails[$topic]['subject'], 'member' => $messageDetails[$topic]['member'], 'board' => $messageDetails[$topic]['board']));
+				Logging::logAction('approve_topic', array('topic' => $topic, 'subject' => $messageDetails[$topic]['subject'], 'member' => $messageDetails[$topic]['member'], 'board' => $messageDetails[$topic]['board']));
 			}
 		}
 		else
@@ -990,7 +991,7 @@ class Posts implements ActionInterface
 			// and tell the world about it again
 			foreach ($messages as $post)
 			{
-				logAction('approve', array('topic' => $messageDetails[$post]['topic'], 'subject' => $messageDetails[$post]['subject'], 'member' => $messageDetails[$post]['member'], 'board' => $messageDetails[$post]['board']));
+				Logging::logAction('approve', array('topic' => $messageDetails[$post]['topic'], 'subject' => $messageDetails[$post]['subject'], 'member' => $messageDetails[$post]['member'], 'board' => $messageDetails[$post]['board']));
 			}
 		}
 	}
@@ -1015,7 +1016,7 @@ class Posts implements ActionInterface
 				// Note, only log topic ID in native form if it's not gone forever.
 				$topic_key = empty(Config::$modSettings['recycle_enable']) || Config::$modSettings['recycle_board'] != $messageDetails[$topic]['board'] ? 'topic' : 'old_topic_id';
 
-				logAction('remove', array(
+				Logging::logAction('remove', array(
 					$topic_key => $topic,
 					'subject' => $messageDetails[$topic]['subject'],
 					'member' => $messageDetails[$topic]['member'],
@@ -1031,7 +1032,7 @@ class Posts implements ActionInterface
 
 				$topic_key = empty(Config::$modSettings['recycle_enable']) || Config::$modSettings['recycle_board'] != $messageDetails[$post]['board'] ? 'topic' : 'old_topic_id';
 
-				logAction('delete', array(
+				Logging::logAction('delete', array(
 					$topic_key => $messageDetails[$post]['topic'],
 					'subject' => $messageDetails[$post]['subject'],
 					'member' => $messageDetails[$post]['member'],
