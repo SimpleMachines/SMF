@@ -662,7 +662,7 @@ class User implements \ArrayAccess
 	 * @var string
 	 *
 	 * "Session check" value for the current user.
-	 * Set by loadSession(). Used by checkSession().
+	 * Set by Session::load(). Used by checkSession().
 	 */
 	public static string $sc;
 

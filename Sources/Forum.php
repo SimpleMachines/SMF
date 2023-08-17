@@ -237,7 +237,7 @@ class Forum
 		set_error_handler(__NAMESPACE__ . '\\ErrorHandler::call');
 
 		// Start the session. (assuming it hasn't already been.)
-		loadSession();
+		Session::load();
 
 		// Why three different hooks? For historical reasons.
 		// Allow modifying $actions easily.

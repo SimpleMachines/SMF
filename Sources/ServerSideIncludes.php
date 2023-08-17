@@ -2459,14 +2459,16 @@ class ServerSideIncludes
 
 		// Start the session... known to scramble SSI includes in cases...
 		if (!headers_sent())
-			loadSession();
+		{
+			Session::load();
+		}
 		else
 		{
 			if (isset($_COOKIE[session_name()]) || isset($_REQUEST[session_name()]))
 			{
 				// Make a stab at it, but ignore the E_WARNINGs generated because we can't send headers.
 				$temp = error_reporting(error_reporting() & !E_WARNING);
-				loadSession();
+				Session::load();
 				error_reporting($temp);
 			}
 

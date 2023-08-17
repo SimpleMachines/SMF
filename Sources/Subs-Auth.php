@@ -18,6 +18,7 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\SecurityToken;
+use SMF\Session;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -126,16 +127,13 @@ function setLoginCookie($cookie_length, $id, $password = '')
 	// Make sure the user logs in with a new session ID.
 	if (!isset($_SESSION['login_' . Config::$cookiename]) || $_SESSION['login_' . Config::$cookiename] !== $data)
 	{
-		// We need to meddle with the session.
-		require_once(Config::$sourcedir . '/Session.php');
-
 		// Backup and remove the old session.
 		$oldSessionData = $_SESSION;
 		$_SESSION = array();
 		session_destroy();
 
 		// Recreate and restore the new session.
-		loadSession();
+		Session::load();
 		// @todo should we use session_regenerate_id(true); now that we are 5.1+
 		session_regenerate_id();
 		$_SESSION = $oldSessionData;
