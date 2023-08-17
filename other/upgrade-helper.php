@@ -207,7 +207,7 @@ function makeFilesWritable(&$files)
 				$upcontext['chmod']['username'] = $username;
 
 			// Don't forget the login token.
-			$upcontext += createToken('login');
+			$upcontext += \SMF\SecurityToken::create('login');
 
 			return false;
 		}

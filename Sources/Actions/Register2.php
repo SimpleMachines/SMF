@@ -20,6 +20,7 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Profile;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -115,7 +116,7 @@ class Register2 extends Register
 	public function execute(): void
 	{
 		checkSession();
-		validateToken('register');
+		SecurityToken::validate('register');
 
 		// Check to ensure we're forcing SSL for authentication
 		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !httpsOn())

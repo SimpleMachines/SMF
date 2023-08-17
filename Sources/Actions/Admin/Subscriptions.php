@@ -21,6 +21,7 @@ use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\SecurityToken;
 use SMF\User;
 use SMF\Theme;
 use SMF\Utils;
@@ -495,7 +496,7 @@ class Subscriptions implements ActionInterface
 		if (isset($_POST['delete_confirm']) && isset($_REQUEST['delete']))
 		{
 			checkSession();
-			validateToken('admin-pmsd');
+			SecurityToken::validate('admin-pmsd');
 
 			// Before we delete the subscription we need to find out if anyone currently has said subscription.
 			$members = array();
@@ -674,7 +675,7 @@ class Subscriptions implements ActionInterface
 
 			// Having now validated everything that might throw an error,
 			// let's also now deal with the token.
-			validateToken('admin-pms');
+			SecurityToken::validate('admin-pms');
 
 			// Yep, time to do additional groups.
 			$addgroups = array();
@@ -861,7 +862,7 @@ class Subscriptions implements ActionInterface
 		Db::$db->free_result($request);
 
 		// This always happens.
-		createToken(Utils::$context['action_type'] == 'delete' ? 'admin-pmsd' : 'admin-pms');
+		SecurityToken::create(Utils::$context['action_type'] == 'delete' ? 'admin-pmsd' : 'admin-pms');
 	}
 
 	/**

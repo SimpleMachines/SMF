@@ -26,6 +26,7 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -341,7 +342,7 @@ class Bans implements ActionInterface
 		// Template needs this to show errors using javascript
 		Lang::load('Errors');
 
-		createToken('admin-bet');
+		SecurityToken::create('admin-bet');
 
 		Utils::$context['form_url'] = Config::$scripturl . '?action=admin;area=ban;sa=edit';
 
@@ -898,7 +899,7 @@ class Bans implements ActionInterface
 			);
 		}
 
-		createToken('admin-bet');
+		SecurityToken::create('admin-bet');
 	}
 
 	/**
@@ -915,7 +916,7 @@ class Bans implements ActionInterface
 		if (!empty($_POST['removeAll']) || (!empty($_POST['removeSelected']) && !empty($_POST['remove'])))
 		{
 			checkSession();
-			validateToken('admin-bl');
+			SecurityToken::validate('admin-bl');
 
 			// 'Delete all entries' button was pressed.
 			if (!empty($_POST['removeAll']))
@@ -1043,7 +1044,7 @@ class Bans implements ActionInterface
 			),
 		);
 
-		createToken('admin-bl');
+		SecurityToken::create('admin-bl');
 
 		new ItemList($listOptions);
 
@@ -1676,7 +1677,7 @@ class Bans implements ActionInterface
 	protected function edit2(): void
 	{
 		checkSession();
-		validateToken('admin-bet');
+		SecurityToken::validate('admin-bet');
 
 		Utils::$context['ban_errors'] = array();
 

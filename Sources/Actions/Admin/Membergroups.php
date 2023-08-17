@@ -24,6 +24,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
 use SMF\Theme;
+use SMF\SecurityToken;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -345,7 +346,7 @@ class Membergroups implements ActionInterface
 		if (isset($_POST['group_name']) && trim($_POST['group_name']) != '')
 		{
 			checkSession();
-			validateToken('admin-mmg');
+			SecurityToken::validate('admin-mmg');
 
 			$postCountBasedGroup = isset($_POST['min_posts']) && (!isset($_POST['postgroup_based']) || !empty($_POST['postgroup_based']));
 
@@ -668,7 +669,7 @@ class Membergroups implements ActionInterface
 			Utils::$context['categories'][$category['id']]['child_ids'] = array_keys($category['boards']);
 		}
 
-		createToken('admin-mmg');
+		SecurityToken::create('admin-mmg');
 	}
 
 	/**
@@ -754,7 +755,7 @@ class Membergroups implements ActionInterface
 		if (isset($_POST['delete']))
 		{
 			checkSession();
-			validateToken('admin-mmg');
+			SecurityToken::validate('admin-mmg');
 
 			$result = $this->deleteMembergroups($_REQUEST['group']);
 
@@ -769,7 +770,7 @@ class Membergroups implements ActionInterface
 		{
 			// Validate the session.
 			checkSession();
-			validateToken('admin-mmg');
+			SecurityToken::validate('admin-mmg');
 
 			// Can they really inherit from this group?
 			if ($_REQUEST['group'] > 1 && $_REQUEST['group'] != 3 && isset($_POST['group_inherit']) && $_POST['group_inherit'] != -2 && !allowedTo('admin_forum'))
@@ -1303,7 +1304,7 @@ class Membergroups implements ActionInterface
 		Utils::$context['sub_template'] = 'edit_group';
 		Utils::$context['page_title'] = Lang::$txt['membergroups_edit_group'];
 
-		createToken('admin-mmg');
+		SecurityToken::create('admin-mmg');
 	}
 
 	/**
@@ -1337,7 +1338,7 @@ class Membergroups implements ActionInterface
 		Utils::$context['settings_title'] = Lang::$txt['membergroups_settings'];
 
 		// We need this for the in-line permissions
-		createToken('admin-mp');
+		SecurityToken::create('admin-mp');
 
 		ACP::prepareDBSettingContext($config_vars);
 	}

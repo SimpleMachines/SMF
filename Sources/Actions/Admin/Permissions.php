@@ -22,6 +22,7 @@ use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Utils;
 use SMF\Actions\Moderation\Posts as PostMod;
@@ -981,7 +982,7 @@ class Permissions implements ActionInterface
 
 		// Load the proper template.
 		Utils::$context['sub_template'] = 'permission_index';
-		createToken('admin-mpq');
+		SecurityToken::create('admin-mpq');
 	}
 
 	/**
@@ -996,7 +997,7 @@ class Permissions implements ActionInterface
 		if (!empty($_POST['save_changes']) && !empty($_POST['boardprofile']))
 		{
 			checkSession('request');
-			validateToken('admin-mpb');
+			SecurityToken::validate('admin-mpb');
 
 			$changes = array();
 
@@ -1055,7 +1056,7 @@ class Permissions implements ActionInterface
 		}
 
 		Utils::$context['sub_template'] = 'by_board';
-		createToken('admin-mpb');
+		SecurityToken::create('admin-mpb');
 	}
 
 	/**
@@ -1065,7 +1066,7 @@ class Permissions implements ActionInterface
 	public function quick(): void
 	{
 		checkSession();
-		validateToken('admin-mpq', 'quick');
+		SecurityToken::validate('admin-mpq', 'quick');
 
 		if ($_POST['copy_from'] === 'empty')
 			$_POST['copy_from'] = 0;
@@ -1136,7 +1137,7 @@ class Permissions implements ActionInterface
 		Utils::$context['sub_template'] = 'modify_group';
 		Utils::$context['page_title'] = Lang::$txt['permissions_modify_group'];
 
-		createToken('admin-mp');
+		SecurityToken::create('admin-mp');
 	}
 
 	/**
@@ -1145,7 +1146,7 @@ class Permissions implements ActionInterface
 	public function modify2(): void
 	{
 		checkSession();
-		validateToken('admin-mp');
+		SecurityToken::validate('admin-mp');
 
 		// Can't do anything without these.
 		if (!isset($_GET['group'], $_GET['pid']))
@@ -1319,7 +1320,7 @@ class Permissions implements ActionInterface
 		}
 
 		// We need this for the in-line permissions
-		createToken('admin-mp');
+		SecurityToken::create('admin-mp');
 
 		ACP::prepareDBSettingContext($config_vars);
 	}
@@ -1386,7 +1387,7 @@ class Permissions implements ActionInterface
 			Utils::$context['profiles'][$id]['can_delete'] = !in_array($id, self::PROFILE_PREDEFINED) && empty($profile['in_use']);
 		}
 
-		createToken('admin-mpp');
+		SecurityToken::create('admin-mpp');
 	}
 
 	/**
@@ -1473,7 +1474,7 @@ class Permissions implements ActionInterface
 		// If we're saving the changes then do just that - save them.
 		if (!empty($_POST['save_changes']) && !in_array(Utils::$context['current_profile'], self::PROFILE_UNMODIFIABLE))
 		{
-			validateToken('admin-mppm');
+			SecurityToken::validate('admin-mppm');
 
 			// First, are we saving a new value for enabled post moderation?
 			$new_setting = !empty($_POST['postmod_active']);
@@ -1591,7 +1592,7 @@ class Permissions implements ActionInterface
 		}
 		Db::$db->free_result($request);
 
-		createToken('admin-mppm');
+		SecurityToken::create('admin-mppm');
 	}
 
 	/***********************
@@ -2144,7 +2145,7 @@ class Permissions implements ActionInterface
 		}
 
 		// Create the token for the separate inline permission verification.
-		createToken('admin-mp');
+		SecurityToken::create('admin-mp');
 	}
 
 	/**
@@ -2175,7 +2176,7 @@ class Permissions implements ActionInterface
 
 		// Almighty session check, verify our ways.
 		checkSession();
-		validateToken('admin-mp');
+		SecurityToken::validate('admin-mp');
 
 		// Check they can't do certain things.
 		self::loadIllegalPermissions();
@@ -3418,7 +3419,7 @@ class Permissions implements ActionInterface
 	protected function createProfile(): void
 	{
 		checkSession();
-		validateToken('admin-mpp');
+		SecurityToken::validate('admin-mpp');
 
 		$_POST['copy_from'] = (int) $_POST['copy_from'];
 		$_POST['profile_name'] = Utils::htmlspecialchars($_POST['profile_name']);
@@ -3476,7 +3477,7 @@ class Permissions implements ActionInterface
 	protected function renameProfile(): void
 	{
 		checkSession();
-		validateToken('admin-mpp');
+		SecurityToken::validate('admin-mpp');
 
 		// Just showing the input fields?
 		if (!isset($_POST['rename_profile']))
@@ -3520,7 +3521,7 @@ class Permissions implements ActionInterface
 	protected function deleteProfile(): void
 	{
 		checkSession();
-		validateToken('admin-mpp');
+		SecurityToken::validate('admin-mpp');
 
 		$profiles = array();
 		foreach (array_map('intval', $_POST['delete_profile']) as $profile)

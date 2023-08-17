@@ -22,6 +22,7 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\Menu;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -1106,7 +1107,7 @@ class ACP implements ActionInterface
 		}
 
 		call_integration_hook('integrate_prepare_db_settings', array(&$config_vars));
-		createToken('admin-dbsc');
+		SecurityToken::create('admin-dbsc');
 	}
 
 	/**
@@ -1120,7 +1121,7 @@ class ACP implements ActionInterface
 	 */
 	public static function saveSettings(&$config_vars): void
 	{
-		validateToken('admin-ssc');
+		SecurityToken::validate('admin-ssc');
 
 		// Fix the darn stupid cookiename! (more may not be allowed, but these for sure!)
 		if (isset($_POST['cookiename']))
@@ -1355,7 +1356,7 @@ class ACP implements ActionInterface
 	{
 		static $board_list = null;
 
-		validateToken('admin-dbsc');
+		SecurityToken::validate('admin-dbsc');
 
 		$inlinePermissions = array();
 

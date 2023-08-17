@@ -21,6 +21,7 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Profile;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -996,7 +997,7 @@ class Main implements ActionInterface
 			validateSession();
 
 		if (isset($security_checks['validateToken']))
-			validateToken($token_name, $token_type);
+			SecurityToken::validate($token_name, $token_type);
 
 		if (isset($security_checks['permission']))
 			isAllowedTo($security_checks['permission']);
@@ -1004,7 +1005,7 @@ class Main implements ActionInterface
 		// Create a token if needed.
 		if (isset($security_checks['needsToken']) || isset($security_checks['validateToken']))
 		{
-			createToken($token_name, $token_type);
+			SecurityToken::create($token_name, $token_type);
 			Utils::$context['token_check'] = $token_name;
 		}
 

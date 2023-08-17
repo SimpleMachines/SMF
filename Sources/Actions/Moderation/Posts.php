@@ -25,6 +25,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
 use SMF\Msg;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
@@ -677,7 +678,7 @@ class Posts implements ActionInterface
 		);
 
 		// Create the request list.
-		createToken('mod-ap');
+		SecurityToken::create('mod-ap');
 		new ItemList($listOptions);
 
 		Utils::$context['sub_template'] = 'show_list';

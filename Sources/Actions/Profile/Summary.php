@@ -20,6 +20,7 @@ use SMF\Config;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Profile;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -160,7 +161,7 @@ class Summary implements ActionInterface
 
 			// If they can be approved, we need to set up a token for them.
 			Utils::$context['token_check'] = 'profile-aa' . Profile::$member->id;
-			createToken(Utils::$context['token_check'], 'get');
+			SecurityToken::create(Utils::$context['token_check'], 'get');
 
 			// Puerile comment
 			$type = in_array(Profile::$member->formatted['is_activated'], array(3, 4, 5, 13, 14, 15)) ? 'approve' : 'activate';

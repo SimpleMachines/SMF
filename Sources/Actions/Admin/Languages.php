@@ -21,6 +21,7 @@ use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -199,7 +200,7 @@ class Languages implements ActionInterface
 		if (!empty($_POST['do_install']) && !empty($_POST['copy_file']))
 		{
 			checkSession('get');
-			validateToken('admin-dlang');
+			SecurityToken::validate('admin-dlang');
 
 			$chmod_files = array();
 			$install_files = array();
@@ -490,7 +491,7 @@ class Languages implements ActionInterface
 		new ItemList($listOptions);
 
 		Utils::$context['default_list'] = 'lang_main_files_list';
-		createToken('admin-dlang');
+		SecurityToken::create('admin-dlang');
 	}
 
 	/**
@@ -502,7 +503,7 @@ class Languages implements ActionInterface
 		if (!empty($_POST['set_default']) && !empty($_POST['def_language']))
 		{
 			checkSession();
-			validateToken('admin-lang');
+			SecurityToken::validate('admin-lang');
 
 			Lang::get();
 			$lang_exists = false;
@@ -524,7 +525,7 @@ class Languages implements ActionInterface
 		}
 
 		// Create another one time token here.
-		createToken('admin-lang');
+		SecurityToken::create('admin-lang');
 
 		$listOptions = array(
 			'id' => 'language_list',
@@ -847,7 +848,7 @@ class Languages implements ActionInterface
 		if (!empty($_POST['delete_main']) && $lang_id != 'english')
 		{
 			checkSession();
-			validateToken('admin-mlang');
+			SecurityToken::validate('admin-mlang');
 
 			// First, Make a backup?
 			if (!empty(Config::$modSettings['package_make_backups']) && (!isset($_SESSION['last_backup_for']) || $_SESSION['last_backup_for'] != $lang_id . '$$$'))
@@ -931,7 +932,7 @@ class Languages implements ActionInterface
 		if (!empty($_POST['save_main']) && !$current_file)
 		{
 			checkSession();
-			validateToken('admin-mlang');
+			SecurityToken::validate('admin-mlang');
 
 			// Read in the current file.
 			$current_data = implode('', file(Theme::$current->settings['default_theme_dir'] . '/languages/index.' . $lang_id . '.php'));
@@ -982,7 +983,7 @@ class Languages implements ActionInterface
 		if (isset($_POST['save_entries']))
 		{
 			checkSession();
-			validateToken('admin-mlang');
+			SecurityToken::validate('admin-mlang');
 
 			if (!empty($_POST['edit']))
 			{
@@ -1535,7 +1536,7 @@ class Languages implements ActionInterface
 			redirectexit('action=admin;area=languages;sa=editlang;lid=' . $lang_id . (!empty($file_id) ? ';entries;tfid=' . $theme_id . rawurlencode('+') . $file_id : ''));
 		}
 
-		createToken('admin-mlang');
+		SecurityToken::create('admin-mlang');
 	}
 
 	/***********************

@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -117,7 +118,7 @@ class Login extends Login2
 		}
 
 		// Create a one time token.
-		createToken('login');
+		SecurityToken::create('login');
 	}
 
 	/***********************

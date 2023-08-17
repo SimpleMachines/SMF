@@ -21,6 +21,7 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Msg;
+use SMF\SecurityToken;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -113,7 +114,7 @@ class Posts implements ActionInterface
 		{
 			// Make sure censoring is something they can do.
 			checkSession();
-			validateToken('admin-censor');
+			SecurityToken::validate('admin-censor');
 
 			$censored_vulgar = array();
 			$censored_proper = array();
@@ -195,7 +196,7 @@ class Posts implements ActionInterface
 		Utils::$context['sub_template'] = 'edit_censored';
 		Utils::$context['page_title'] = Lang::$txt['admin_censored_words'];
 
-		createToken('admin-censor');
+		SecurityToken::create('admin-censor');
 	}
 
 	/**

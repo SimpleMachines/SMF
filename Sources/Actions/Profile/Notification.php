@@ -23,6 +23,7 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Profile;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -501,7 +502,7 @@ class Notification implements ActionInterface
 		if (isset($_POST['notify_submit']))
 		{
 			checkSession();
-			validateToken(Utils::$context['token_check'], 'post');
+			SecurityToken::validate(Utils::$context['token_check'], 'post');
 
 			// We need to step through the list of valid settings and figure out what the user has set.
 			$update_prefs = array();
@@ -583,7 +584,7 @@ class Notification implements ActionInterface
 			Utils::$context['profile_updated'] = Lang::$txt['profile_updated_own'];
 		}
 
-		createToken(Utils::$context['token_check'], 'post');
+		SecurityToken::create(Utils::$context['token_check'], 'post');
 	}
 
 	/**
@@ -620,7 +621,7 @@ class Notification implements ActionInterface
 		if (isset($_POST['edit_notify_topics']) || isset($_POST['remove_notify_topics']))
 		{
 			checkSession();
-			validateToken(str_replace('%u', Profile::$member->id, 'profile-nt%u'), 'post');
+			SecurityToken::validate(str_replace('%u', Profile::$member->id, 'profile-nt%u'), 'post');
 
 			$thid->changeNotifications();
 			Utils::$context['profile_updated'] = Lang::$txt['profile_updated_own'];
@@ -628,7 +629,7 @@ class Notification implements ActionInterface
 
 		// Now set up for the token check.
 		Utils::$context['token_check'] = str_replace('%u', Profile::$member->id, 'profile-nt%u');
-		createToken(Utils::$context['token_check'], 'post');
+		SecurityToken::create(Utils::$context['token_check'], 'post');
 
 		// Do the topic notifications.
 		$list_options = array(
@@ -770,7 +771,7 @@ class Notification implements ActionInterface
 		if (isset($_POST['edit_notify_boards']) || isset($_POSt['remove_notify_boards']))
 		{
 			checkSession();
-			validateToken(str_replace('%u', Profile::$member->id, 'profile-nt%u'), 'post');
+			SecurityToken::validate(str_replace('%u', Profile::$member->id, 'profile-nt%u'), 'post');
 
 			$this->changeNotifications();
 			Utils::$context['profile_updated'] = Lang::$txt['profile_updated_own'];
@@ -778,7 +779,7 @@ class Notification implements ActionInterface
 
 		// Now set up for the token check.
 		Utils::$context['token_check'] = str_replace('%u', Profile::$member->id, 'profile-nt%u');
-		createToken(Utils::$context['token_check'], 'post');
+		SecurityToken::create(Utils::$context['token_check'], 'post');
 
 		// Fine, start with the board list.
 		$list_options = array(

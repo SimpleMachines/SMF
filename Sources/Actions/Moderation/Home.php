@@ -20,6 +20,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -200,7 +201,7 @@ class Home implements ActionInterface
 		if (isset($_GET['modnote']) && isset($_POST['makenote']) && isset($_POST['new_note']))
 		{
 			checkSession();
-			validateToken('mod-modnote-add');
+			SecurityToken::validate('mod-modnote-add');
 
 			$_POST['new_note'] = Utils::htmlspecialchars(trim($_POST['new_note']));
 			// Make sure they actually entered something.
@@ -235,7 +236,7 @@ class Home implements ActionInterface
 		if (isset($_GET['notes']) && isset($_GET['delete']) && is_numeric($_GET['delete']))
 		{
 			checkSession('get');
-			validateToken('mod-modnote-del', 'get');
+			SecurityToken::validate('mod-modnote-del', 'get');
 
 			// No sneaky stuff now!
 			if (!allowedTo('admin_forum'))
@@ -347,8 +348,8 @@ class Home implements ActionInterface
 		}
 
 		// Couple tokens for add/delete modnotes
-		createToken('mod-modnote-add');
-		createToken('mod-modnote-del', 'get');
+		SecurityToken::create('mod-modnote-add');
+		SecurityToken::create('mod-modnote-del', 'get');
 	}
 
 	/**

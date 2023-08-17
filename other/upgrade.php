@@ -15,6 +15,7 @@ use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\QueryString;
+use SMF\SecurityToken;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -1031,7 +1032,7 @@ function WelcomeLogin()
 	if (checkLogin())
 		return true;
 
-	$upcontext += createToken('login');
+	$upcontext += SecurityToken::create('login');
 
 	return false;
 }

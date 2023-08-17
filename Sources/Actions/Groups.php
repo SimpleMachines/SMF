@@ -22,6 +22,7 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -345,7 +346,7 @@ class Groups implements ActionInterface
 		if (isset($_POST['remove']) && !empty($_REQUEST['rem']) && is_array($_REQUEST['rem']) && Utils::$context['group']['assignable'])
 		{
 			checkSession();
-			validateToken('mod-mgm');
+			SecurityToken::validate('mod-mgm');
 
 			// Only proven admins can remove admins.
 			if (Utils::$context['group']['id'] == 1)
@@ -365,7 +366,7 @@ class Groups implements ActionInterface
 				validateSession('admin', true);
 
 			checkSession();
-			validateToken('mod-mgm');
+			SecurityToken::validate('mod-mgm');
 
 			$member_query = array();
 			$member_parameters = array();
@@ -530,7 +531,7 @@ class Groups implements ActionInterface
 		// Select the template.
 		Utils::$context['sub_template'] = 'group_members';
 		Utils::$context['page_title'] = Lang::$txt['membergroups_members_title'] . ': ' . Utils::$context['group']['name'];
-		createToken('mod-mgm');
+		SecurityToken::create('mod-mgm');
 
 		if (Utils::$context['group']['assignable'])
 		{
@@ -564,7 +565,7 @@ class Groups implements ActionInterface
 		if (isset($_POST[Utils::$context['session_var']]) && !empty($_POST['groupr']) && !empty($_POST['req_action']))
 		{
 			checkSession();
-			validateToken('mod-gr');
+			SecurityToken::validate('mod-gr');
 
 			// Clean the values.
 			foreach ($_POST['groupr'] as $k => $request)
@@ -585,7 +586,7 @@ class Groups implements ActionInterface
 				Utils::$context['group_requests'] = self::list_getGroupRequests(0, Config::$modSettings['defaultMaxListItems'], 'lgr.id_request', $where, $where_parameters);
 
 				// Need to make another token for this.
-				createToken('mod-gr');
+				SecurityToken::create('mod-gr');
 
 				// Let obExit etc sort things out.
 				obExit();
@@ -766,7 +767,7 @@ class Groups implements ActionInterface
 		}
 
 		// Create the request list.
-		createToken('mod-gr');
+		SecurityToken::create('mod-gr');
 		new ItemList($listOptions);
 
 		Utils::$context['default_list'] = 'group_request_list';

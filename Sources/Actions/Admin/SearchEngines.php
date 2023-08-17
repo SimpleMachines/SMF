@@ -20,6 +20,7 @@ use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Utils;
 use SMF\Actions\Who;
@@ -134,7 +135,7 @@ class SearchEngines implements ActionInterface
 		if (!empty($_POST['delete_entries']) && isset($_POST['older']))
 		{
 			checkSession();
-			validateToken('admin-ss');
+			SecurityToken::validate('admin-ss');
 
 			$deleteTime = time() - (((int) $_POST['older']) * 24 * 60 * 60);
 
@@ -283,7 +284,7 @@ class SearchEngines implements ActionInterface
 			),
 		);
 
-		createToken('admin-ss');
+		SecurityToken::create('admin-ss');
 
 		new ItemList($listOptions);
 
@@ -304,7 +305,7 @@ class SearchEngines implements ActionInterface
 		if ((!empty($_POST['delete_entries']) && isset($_POST['older'])) || !empty($_POST['removeAll']))
 		{
 			checkSession();
-			validateToken('admin-sl');
+			SecurityToken::validate('admin-sl');
 
 			if (!empty($_POST['delete_entries']) && isset($_POST['older']))
 			{
@@ -395,7 +396,7 @@ class SearchEngines implements ActionInterface
 			),
 		);
 
-		createToken('admin-sl');
+		SecurityToken::create('admin-sl');
 
 		new ItemList($listOptions);
 
@@ -463,7 +464,7 @@ class SearchEngines implements ActionInterface
 		if (!empty($_POST['removeSpiders']) && !empty($_POST['remove']) && is_array($_POST['remove']))
 		{
 			checkSession();
-			validateToken('admin-ser');
+			SecurityToken::validate('admin-ser');
 
 			// Make sure every entry is a proper integer.
 			foreach ($_POST['remove'] as $index => $spider_id)
@@ -513,7 +514,7 @@ class SearchEngines implements ActionInterface
 		}
 		Db::$db->free_result($request);
 
-		createToken('admin-ser');
+		SecurityToken::create('admin-ser');
 
 		$listOptions = array(
 			'id' => 'spider_list',
@@ -698,7 +699,7 @@ class SearchEngines implements ActionInterface
 		if (!empty($_POST['save']))
 		{
 			checkSession();
-			validateToken('admin-ses');
+			SecurityToken::validate('admin-ses');
 
 			foreach (array('spider_name', 'spider_agent') as $key)
 				$_POST[$key] = trim(Utils::normalize($_POST[$key]));
@@ -783,7 +784,7 @@ class SearchEngines implements ActionInterface
 			Db::$db->free_result($request);
 		}
 
-		createToken('admin-ses');
+		SecurityToken::create('admin-ses');
 	}
 
 	/***********************

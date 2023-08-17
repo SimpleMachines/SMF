@@ -22,6 +22,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
 use SMF\Msg;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -294,7 +295,7 @@ class Warnings implements ActionInterface
 		if (isset($_POST['delete']) && !empty($_POST['deltpl']))
 		{
 			checkSession();
-			validateToken('mod-wt');
+			SecurityToken::validate('mod-wt');
 
 			// Log the actions.
 			$request = Db::$db->query('', '
@@ -425,7 +426,7 @@ class Warnings implements ActionInterface
 		);
 
 		// Create the watched user list.
-		createToken('mod-wt');
+		SecurityToken::create('mod-wt');
 		new ItemList($listOptions);
 
 		Utils::$context['sub_template'] = 'show_list';
@@ -485,7 +486,7 @@ class Warnings implements ActionInterface
 		if (isset($_POST['save']))
 		{
 			checkSession();
-			validateToken('mod-wt');
+			SecurityToken::validate('mod-wt');
 
 			// Bit of cleaning!
 			$_POST['template_body'] = trim($_POST['template_body']);
@@ -584,7 +585,7 @@ class Warnings implements ActionInterface
 			}
 		}
 
-		createToken('mod-wt');
+		SecurityToken::create('mod-wt');
 	}
 
 	/***********************

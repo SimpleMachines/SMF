@@ -21,6 +21,7 @@ use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -372,7 +373,7 @@ class Tasks implements ActionInterface
 		if (isset($_GET['save']))
 		{
 			checkSession();
-			validateToken('admin-st');
+			SecurityToken::validate('admin-st');
 
 			// We'll need this for calculating the next event.
 			require_once(Config::$sourcedir . '/ScheduledTasks.php');
@@ -454,7 +455,7 @@ class Tasks implements ActionInterface
 		}
 		Db::$db->free_result($request);
 
-		createToken('admin-st');
+		SecurityToken::create('admin-st');
 	}
 
 	/**
@@ -469,7 +470,7 @@ class Tasks implements ActionInterface
 		if (!empty($_POST['removeAll']))
 		{
 			checkSession();
-			validateToken('admin-tl');
+			SecurityToken::validate('admin-tl');
 
 			Db::$db->query('truncate_table', '
 				TRUNCATE {db_prefix}log_scheduled_tasks',
@@ -551,7 +552,7 @@ class Tasks implements ActionInterface
 			),
 		);
 
-		createToken('admin-tl');
+		SecurityToken::create('admin-tl');
 
 		new ItemList($listOptions);
 

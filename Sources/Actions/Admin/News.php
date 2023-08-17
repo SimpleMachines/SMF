@@ -24,6 +24,7 @@ use SMF\Logging;
 use SMF\Menu;
 use SMF\Msg;
 use SMF\Mail;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -1194,7 +1195,7 @@ class News extends ACP implements ActionInterface
 		}
 
 		// We need this for the in-line permissions
-		createToken('admin-mp');
+		SecurityToken::create('admin-mp');
 
 		self::prepareDBSettingContext($config_vars);
 	}

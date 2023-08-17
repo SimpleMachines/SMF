@@ -19,6 +19,7 @@ use SMF\Actions\ActionInterface;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -289,7 +290,7 @@ class Export implements ActionInterface
 		if (!empty($_POST['export_begin']))
 		{
 			checkSession();
-			validateToken(Utils::$context['token_check'], 'post');
+			SecurityToken::validate(Utils::$context['token_check'], 'post');
 
 			$format = isset($_POST['format']) && isset(self::$formats[$_POST['format']]) ? $_POST['format'] : 'XML';
 
@@ -355,7 +356,7 @@ class Export implements ActionInterface
 			redirectexit('action=profile;area=getprofiledata;u=' . Utils::$context['id_member']);
 		}
 
-		createToken(Utils::$context['token_check'], 'post');
+		SecurityToken::create(Utils::$context['token_check'], 'post');
 
 		Utils::$context['page_title'] = Lang::$txt['export_profile_data'];
 

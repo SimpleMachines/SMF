@@ -20,6 +20,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -415,7 +416,7 @@ class ErrorLog implements ActionInterface
 		Utils::$context['has_filter'] = isset($this->filter);
 		Utils::$context['sub_template'] = 'error_log';
 
-		createToken('admin-el');
+		SecurityToken::create('admin-el');
 	}
 
 	/**
@@ -569,7 +570,7 @@ class ErrorLog implements ActionInterface
 	{
 		// Make sure the session exists and is correct; otherwise, might be a hacker.
 		checkSession();
-		validateToken('admin-el');
+		SecurityToken::validate('admin-el');
 
 		// Delete all or just some?
 		if (isset($_POST['delall']) && !isset($this->filter))

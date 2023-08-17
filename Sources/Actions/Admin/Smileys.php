@@ -26,6 +26,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
 use SMF\Msg;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -205,7 +206,7 @@ class Smileys implements ActionInterface
 		if (isset($_POST['smiley_save']))
 		{
 			checkSession();
-			validateToken('admin-mss', 'request');
+			SecurityToken::validate('admin-mss', 'request');
 
 			// Delete selected smiley sets.
 			if (!empty($_POST['delete']) && !empty($_POST['smiley_set']))
@@ -322,7 +323,7 @@ class Smileys implements ActionInterface
 		if ($this->subaction == 'import')
 		{
 			checkSession('get');
-			validateToken('admin-mss', 'request');
+			SecurityToken::validate('admin-mss', 'request');
 
 			// Sanity check - then import.
 			if (isset(self::$smiley_sets[$_GET['set']]))
@@ -442,7 +443,7 @@ class Smileys implements ActionInterface
 		}
 
 		// This is our safe haven.
-		createToken('admin-mss', 'request');
+		SecurityToken::create('admin-mss', 'request');
 
 		// In case we need to import smileys, we need to add the token in now.
 		if (isset(Utils::$context['current_set']['import_url']))
@@ -2102,7 +2103,7 @@ class Smileys implements ActionInterface
 		}
 
 		// We need this for the in-line permissions
-		createToken('admin-mp');
+		SecurityToken::create('admin-mp');
 
 		ACP::prepareDBSettingContext($config_vars);
 	}

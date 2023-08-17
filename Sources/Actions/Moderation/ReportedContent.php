@@ -24,6 +24,7 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -163,7 +164,7 @@ class ReportedContent implements ActionInterface
 		if (isset($_POST['close']) && isset($_POST['close_selected']))
 		{
 			checkSession('post');
-			validateToken('mod-report-close-all');
+			SecurityToken::validate('mod-report-close-all');
 
 			// All the ones to update...
 			$toClose = array();
@@ -181,9 +182,9 @@ class ReportedContent implements ActionInterface
 			redirectexit(Config::$scripturl . '?action=moderate;area=reported' . $this->type);
 		}
 
-		createToken('mod-report-close-all');
-		createToken('mod-report-ignore', 'get');
-		createToken('mod-report-closed', 'get');
+		SecurityToken::create('mod-report-close-all');
+		SecurityToken::create('mod-report-ignore', 'get');
+		SecurityToken::create('mod-report-closed', 'get');
 
 		$this->buildQuickButtons();
 	}
@@ -209,8 +210,8 @@ class ReportedContent implements ActionInterface
 		// Get the reports at once!
 		Utils::$context['reports'] = $this->getReports(Utils::$context['view_closed']);
 
-		createToken('mod-report-ignore', 'get');
-		createToken('mod-report-closed', 'get');
+		SecurityToken::create('mod-report-ignore', 'get');
+		SecurityToken::create('mod-report-closed', 'get');
 
 		$this->buildQuickButtons();
 	}
@@ -420,12 +421,12 @@ class ReportedContent implements ActionInterface
 			Utils::$context['sub_template'] = 'viewmodreport';
 		}
 
-		createToken('mod-reportC-add');
-		createToken('mod-reportC-delete', 'get');
+		SecurityToken::create('mod-reportC-add');
+		SecurityToken::create('mod-reportC-delete', 'get');
 
 		// We can "un-ignore" and close a report from here so add their respective tokens.
-		createToken('mod-report-ignore', 'get');
-		createToken('mod-report-closed', 'get');
+		SecurityToken::create('mod-report-ignore', 'get');
+		SecurityToken::create('mod-report-closed', 'get');
 	}
 
 	/**
@@ -442,7 +443,7 @@ class ReportedContent implements ActionInterface
 		// What are we gonna do?
 		$action = isset($_GET['ignore']) ? 'ignore' : 'closed';
 
-		validateToken('mod-report-' . $action, 'get');
+		SecurityToken::validate('mod-report-' . $action, 'get');
 
 		// Are we ignore or "un-ignore"? "un-ignore" that's a funny word!
 		$value = (int) $_GET[$action];
@@ -479,7 +480,7 @@ class ReportedContent implements ActionInterface
 		if (isset($_POST['add_comment']) && !empty($_POST['mod_comment']))
 		{
 			checkSession();
-			validateToken('mod-reportC-add');
+			SecurityToken::validate('mod-reportC-add');
 
 			$new_comment = trim(Utils::htmlspecialchars($_POST['mod_comment']));
 
@@ -493,7 +494,7 @@ class ReportedContent implements ActionInterface
 		if (isset($_REQUEST['delete']) && isset($_REQUEST['mid']))
 		{
 			checkSession('get');
-			validateToken('mod-reportC-delete', 'get');
+			SecurityToken::validate('mod-reportC-delete', 'get');
 
 			if (empty($_REQUEST['mid']))
 				ErrorHandler::fatalLang('mc_reportedp_comment_none_found');
@@ -553,7 +554,7 @@ class ReportedContent implements ActionInterface
 
 		if (isset($_REQUEST['save']) && isset($_POST['edit_comment']) && !empty($_POST['mod_comment']))
 		{
-			validateToken('mod-reportC-edit');
+			SecurityToken::validate('mod-reportC-edit');
 
 			// Make sure there is some data to edit in the DB.
 			if (empty(Utils::$context['comment']))
@@ -575,7 +576,7 @@ class ReportedContent implements ActionInterface
 			redirectexit(Config::$scripturl . '?action=moderate;area=reported' . $this->type . ';sa=details;rid=' . Utils::$context['report_id']);
 		}
 
-		createToken('mod-reportC-edit');
+		SecurityToken::create('mod-reportC-edit');
 	}
 
 	/***********************
