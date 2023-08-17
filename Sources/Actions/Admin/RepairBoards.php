@@ -22,6 +22,7 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
+use SMF\SecurityToken;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -827,13 +828,13 @@ class RepairBoards implements ActionInterface
 			}
 
 			// Need a token here.
-			createToken('admin-repairboards', 'request');
+			SecurityToken::create('admin-repairboards', 'request');
 		}
 		else
 		{
 			// Validate the token, create a new one and tell the not done template.
-			validateToken('admin-repairboards', 'request');
-			createToken('admin-repairboards', 'request');
+			SecurityToken::validate('admin-repairboards', 'request');
+			SecurityToken::create('admin-repairboards', 'request');
 			Utils::$context['not_done_token'] = 'admin-repairboards';
 
 			Utils::$context['error_search'] = false;
@@ -857,14 +858,14 @@ class RepairBoards implements ActionInterface
 			{
 				unset($_SESSION['salvageBoardID']);
 				Utils::$context['redirect_to_recount'] = true;
-				createToken('admin-maint');
+				SecurityToken::create('admin-maint');
 			}
 
 			$_SESSION['repairboards_to_fix'] = null;
 			$_SESSION['repairboards_to_fix2'] = null;
 
 			// We are done at this point, dump the token,
-			validateToken('admin-repairboards', 'request', false);
+			SecurityToken::validate('admin-repairboards', 'request', false);
 		}
 	}
 

@@ -18,6 +18,7 @@ use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -207,7 +208,7 @@ class Login2 implements ActionInterface
 
 		// Are you guessing with a script?
 		checkSession();
-		validateToken('login');
+		SecurityToken::validate('login');
 		spamProtection('login');
 
 		// Set the login_url if it's not already set (but careful not to send us to an attachment).
@@ -266,7 +267,7 @@ class Login2 implements ActionInterface
 		Utils::$context['sub_template'] = 'login';
 
 		// Create a one time token.
-		createToken('login');
+		SecurityToken::create('login');
 
 		// Set up the default/fallback stuff.
 		Utils::$context['default_username'] = isset($_POST['user']) ? preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', Utils::htmlspecialchars($_POST['user'])) : '';

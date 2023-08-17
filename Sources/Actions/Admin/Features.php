@@ -23,6 +23,7 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Profile;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -724,7 +725,7 @@ class Features implements ActionInterface
 		if (isset($_POST['save']))
 		{
 			checkSession();
-			validateToken('admin-scp');
+			SecurityToken::validate('admin-scp');
 
 			// Do the active ones first.
 			$disable_fields = array_flip($standard_fields);
@@ -759,7 +760,7 @@ class Features implements ActionInterface
 				Config::updateModSettings($changes);
 		}
 
-		createToken('admin-scp');
+		SecurityToken::create('admin-scp');
 
 		// Need to know the max order for custom fields
 		Utils::$context['custFieldsMaxOrder'] = $this->custFieldsMaxOrder();
@@ -1145,7 +1146,7 @@ class Features implements ActionInterface
 		if (isset($_POST['save']))
 		{
 			checkSession();
-			validateToken('admin-ecp');
+			SecurityToken::validate('admin-ecp');
 
 			// Everyone needs a name - even the (bracket) unknown...
 			if (trim($_POST['field_name']) == '')
@@ -1417,7 +1418,7 @@ class Features implements ActionInterface
 		elseif (isset($_POST['delete']) && Utils::$context['field']['col_name'])
 		{
 			checkSession();
-			validateToken('admin-ecp');
+			SecurityToken::validate('admin-ecp');
 
 			// Delete the user data first.
 			Db::$db->query('', '
@@ -1492,7 +1493,7 @@ class Features implements ActionInterface
 			redirectexit('action=admin;area=featuresettings;sa=profile');
 		}
 
-		createToken('admin-ecp');
+		SecurityToken::create('admin-ecp');
 	}
 
 	/**

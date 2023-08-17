@@ -2096,7 +2096,7 @@ class Theme
 		if (isset($_POST['save']))
 		{
 			checkSession();
-			validateToken('pick-th');
+			SecurityToken::validate('pick-th');
 
 			$id_theme = (int) key($_POST['save']);
 
@@ -2373,7 +2373,7 @@ class Theme
 
 		Utils::$context['page_title'] = Lang::$txt['theme_pick'];
 		Utils::$context['sub_template'] = 'pick';
-		createToken('pick-th');
+		SecurityToken::create('pick-th');
 	}
 
 	/**

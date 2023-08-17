@@ -3259,11 +3259,12 @@ class User implements \ArrayAccess
 		// Create a login token if it doesn't exist yet.
 		if (!isset($_SESSION['token']['post-login']))
 		{
-			createToken('login');
+			SecurityToken::create('login');
 		}
 		else
 		{
-			list(Utils::$context['login_token_var'],,, Utils::$context['login_token']) = $_SESSION['token']['post-login'];
+			Utils::$context['login_token_var'] = $_SESSION['token']['post-login']->var;
+			Utils::$context['login_token'] = $_SESSION['token']['post-login']->val;
 		}
 	}
 

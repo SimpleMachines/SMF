@@ -25,6 +25,7 @@ use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -254,7 +255,7 @@ class Attachments implements ActionInterface
 		Utils::$context['settings_save_onclick'] = 'return (document.getElementById(\'custom_avatar_dir\').value == \'\' || document.getElementById(\'custom_avatar_url\').value == \'\') ? confirm(\'' . Lang::$txt['custom_avatar_check_empty'] . '\') : true;';
 
 		// We need this for the in-line permissions
-		createToken('admin-mp');
+		SecurityToken::create('admin-mp');
 
 		// Prepare the context.
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=manageattachments;save;sa=avatars';

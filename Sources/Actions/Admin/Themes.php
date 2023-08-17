@@ -20,6 +20,7 @@ use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -138,7 +139,7 @@ class Themes implements ActionInterface
 		if (isset($_POST['save']))
 		{
 			checkSession();
-			validateToken('admin-tm');
+			SecurityToken::validate('admin-tm');
 
 			if (isset($_POST['options']['known_themes']))
 			{
@@ -186,10 +187,10 @@ class Themes implements ActionInterface
 		Utils::$context['new_theme_name'] = 'theme' . $i;
 
 		// A bunch of tokens for a bunch of forms.
-		createToken('admin-tm');
-		createToken('admin-t-file');
-		createToken('admin-t-copy');
-		createToken('admin-t-dir');
+		SecurityToken::create('admin-tm');
+		SecurityToken::create('admin-t-file');
+		SecurityToken::create('admin-t-copy');
+		SecurityToken::create('admin-t-dir');
 	}
 
 	/**
@@ -207,7 +208,7 @@ class Themes implements ActionInterface
 		if (isset($_POST['save']))
 		{
 			checkSession();
-			validateToken('admin-tl');
+			SecurityToken::validate('admin-tl');
 
 			$this->getInstalledThemes();
 
@@ -253,9 +254,9 @@ class Themes implements ActionInterface
 		Utils::$context['reset_url'] = Config::$boardurl . '/Themes';
 
 		Utils::$context['sub_template'] = 'list_themes';
-		createToken('admin-tl');
-		createToken('admin-tr', 'request');
-		createToken('admin-tre', 'request');
+		SecurityToken::create('admin-tl');
+		SecurityToken::create('admin-tr', 'request');
+		SecurityToken::create('admin-tre', 'request');
 	}
 
 	/**
@@ -356,7 +357,7 @@ class Themes implements ActionInterface
 			Theme::loadTemplate('Themes');
 			Utils::$context['sub_template'] = 'reset_list';
 
-			createToken('admin-stor', 'request');
+			SecurityToken::create('admin-stor', 'request');
 			return;
 		}
 
@@ -364,7 +365,7 @@ class Themes implements ActionInterface
 		if (isset($_POST['submit']) && empty($_POST['who']))
 		{
 			checkSession();
-			validateToken('admin-sto');
+			SecurityToken::validate('admin-sto');
 
 			if (empty($_POST['options']))
 				$_POST['options'] = array();
@@ -424,7 +425,7 @@ class Themes implements ActionInterface
 		elseif (isset($_POST['submit']) && $_POST['who'] == 1)
 		{
 			checkSession();
-			validateToken('admin-sto');
+			SecurityToken::validate('admin-sto');
 
 			$_POST['options'] = empty($_POST['options']) ? array() : $_POST['options'];
 			$_POST['options_master'] = empty($_POST['options_master']) ? array() : $_POST['options_master'];
@@ -549,7 +550,7 @@ class Themes implements ActionInterface
 		elseif (!empty($_GET['who']) && $_GET['who'] == 2)
 		{
 			checkSession('get');
-			validateToken('admin-stor', 'request');
+			SecurityToken::validate('admin-stor', 'request');
 
 			// Don't delete custom fields!!
 			if ($_GET['th'] == 1)
@@ -674,7 +675,7 @@ class Themes implements ActionInterface
 		Theme::$current->settings = $old_settings;
 
 		Theme::loadTemplate('Themes');
-		createToken('admin-sto');
+		SecurityToken::create('admin-sto');
 	}
 
 	/**
@@ -750,7 +751,7 @@ class Themes implements ActionInterface
 		if (isset($_POST['save']))
 		{
 			checkSession();
-			validateToken('admin-sts');
+			SecurityToken::validate('admin-sts');
 
 			if (empty($_POST['options']))
 				$_POST['options'] = array();
@@ -881,7 +882,7 @@ class Themes implements ActionInterface
 		Theme::loadTemplate('Themes');
 
 		// We like Kenny better than Token.
-		createToken('admin-sts');
+		SecurityToken::create('admin-sts');
 	}
 
 	/**
@@ -894,7 +895,7 @@ class Themes implements ActionInterface
 	{
 		checkSession('get');
 
-		validateToken('admin-tr', 'request');
+		SecurityToken::validate('admin-tr', 'request');
 
 		// The theme's ID must be an integer.
 		$themeID = (int) ($_GET['th'] ?? $_GET['id'] ?? 1);
@@ -923,7 +924,7 @@ class Themes implements ActionInterface
 	{
 		checkSession('get');
 
-		validateToken('admin-tre', 'request');
+		SecurityToken::validate('admin-tre', 'request');
 
 		// The theme's ID must be an string.
 		$themeID = trim((string) ($_GET['th'] ?? $_GET['id']));
@@ -982,7 +983,7 @@ class Themes implements ActionInterface
 			if (!isset($_POST['save_' . $do_action]))
 				ErrorHandler::fatalLang('theme_install_no_action', false);
 
-			validateToken('admin-t-' . $do_action);
+			SecurityToken::validate('admin-t-' . $do_action);
 
 			// Hopefully the themes directory is writable, or we might have a problem.
 			if (!is_writable(Utils::$context['themedir']))
@@ -1134,7 +1135,7 @@ class Themes implements ActionInterface
 
 		if (isset($_POST['save']))
 		{
-			if (checkSession('post', '', false) == '' && validateToken('admin-te-' . md5($_GET['th'] . '-' . $_REQUEST['filename']), 'post', false) == true)
+			if (checkSession('post', '', false) == '' && SecurityToken::validate('admin-te-' . md5($_GET['th'] . '-' . $_REQUEST['filename']), 'post', false) == true)
 			{
 				if (is_array($_POST['entire_file']))
 					$_POST['entire_file'] = implode("\n", $_POST['entire_file']);
@@ -1192,7 +1193,7 @@ class Themes implements ActionInterface
 				Utils::$context['allow_save'] = true;
 
 				// Re-create the token so that it can be used
-				createToken('admin-te-' . md5($_GET['th'] . '-' . $_REQUEST['filename']));
+				SecurityToken::create('admin-te-' . md5($_GET['th'] . '-' . $_REQUEST['filename']));
 
 				return;
 			}
@@ -1259,7 +1260,7 @@ class Themes implements ActionInterface
 		}
 
 		// Create a special token to allow editing of multiple files.
-		createToken('admin-te-' . md5($_GET['th'] . '-' . $_REQUEST['filename']));
+		SecurityToken::create('admin-te-' . md5($_GET['th'] . '-' . $_REQUEST['filename']));
 	}
 
 	/**

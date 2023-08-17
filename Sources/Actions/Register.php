@@ -21,6 +21,7 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\Profile;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -315,7 +316,7 @@ class Register implements ActionInterface
 		if (!empty($this->errors))
 			Utils::$context['registration_errors'] = $this->errors;
 
-		createToken('register');
+		SecurityToken::create('register');
 	}
 
 	/**

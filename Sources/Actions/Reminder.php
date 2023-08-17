@@ -19,6 +19,7 @@ use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Mail;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -112,7 +113,7 @@ class Reminder implements ActionInterface
 	 */
 	public function main()
 	{
-		createToken('remind');
+		SecurityToken::create('remind');
 	}
 
 	/**
@@ -121,8 +122,8 @@ class Reminder implements ActionInterface
 	public function pickType()
 	{
 		checkSession();
-		validateToken('remind');
-		createToken('remind');
+		SecurityToken::validate('remind');
+		SecurityToken::create('remind');
 
 		// Make sure we are not being slammed
 		// Don't call this if you're coming from the "Choose a reminder type" page - otherwise you'll likely get an error
@@ -215,7 +216,7 @@ class Reminder implements ActionInterface
 		Theme::loadJavaScriptFile('register.js', array('defer' => false, 'minimize' => true), 'smf_register');
 
 		// Tokens!
-		createToken('remind-sp');
+		SecurityToken::create('remind-sp');
 	}
 
 	/**
@@ -224,7 +225,7 @@ class Reminder implements ActionInterface
 	public function setPassword2()
 	{
 		checkSession();
-		validateToken('remind-sp');
+		SecurityToken::validate('remind-sp');
 
 		if (empty($_POST['u']) || !isset($_POST['passwrd1']) || !isset($_POST['passwrd2']))
 			ErrorHandler::fatalLang('no_access', false);
@@ -285,7 +286,7 @@ class Reminder implements ActionInterface
 			'description' => Lang::$txt['reminder_password_set']
 		);
 
-		createToken('login');
+		SecurityToken::create('login');
 	}
 
 	/**
@@ -312,7 +313,7 @@ class Reminder implements ActionInterface
 		Utils::$context['secret_question'] = $this->member->secret_question;
 
 		Utils::$context['sub_template'] = 'ask';
-		createToken('remind-sai');
+		SecurityToken::create('remind-sai');
 		Theme::loadJavaScriptFile('register.js', array('defer' => false, 'minimize' => true), 'smf_register');
 	}
 
@@ -322,7 +323,7 @@ class Reminder implements ActionInterface
 	public function secretAnswer2()
 	{
 		checkSession();
-		validateToken('remind-sai');
+		SecurityToken::validate('remind-sai');
 
 		// Hacker?  How did you get this far without an email or username?
 		if (empty($_REQUEST['uid']))
@@ -405,7 +406,7 @@ class Reminder implements ActionInterface
 			'description' => Lang::$txt['reminder_password_set']
 		);
 
-		createToken('login');
+		SecurityToken::create('login');
 	}
 
 	/***********************

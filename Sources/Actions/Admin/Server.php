@@ -22,6 +22,7 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\MessageIndex;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -523,7 +524,7 @@ class Server implements ActionInterface
 		}
 
 		Lang::load('ManageMaintenance');
-		createToken('admin-maint');
+		SecurityToken::create('admin-maint');
 		Utils::$context['template_layers'][] = 'clean_cache_button';
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=serversettings;sa=cache;save';
@@ -1263,8 +1264,8 @@ class Server implements ActionInterface
 		}
 
 		// Two tokens because saving these settings requires both ACP::saveSettings() and ACP::saveDBSettings()
-		createToken('admin-ssc');
-		createToken('admin-dbsc');
+		SecurityToken::create('admin-ssc');
+		SecurityToken::create('admin-dbsc');
 	}
 
 	/**

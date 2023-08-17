@@ -23,6 +23,7 @@ use SMF\Config;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Utils;
 use SMF\Actions\Calendar as Cal;
@@ -110,7 +111,7 @@ class Calendar implements ActionInterface
 		if (isset($_REQUEST['delete']) && !empty($_REQUEST['holiday']))
 		{
 			checkSession();
-			validateToken('admin-mc');
+			SecurityToken::validate('admin-mc');
 
 			foreach ($_REQUEST['holiday'] as $id => $value)
 				$_REQUEST['holiday'][$id] = (int) $id;
@@ -118,7 +119,7 @@ class Calendar implements ActionInterface
 			Cal::removeHolidays($_REQUEST['holiday']);
 		}
 
-		createToken('admin-mc');
+		SecurityToken::create('admin-mc');
 		$listOptions = array(
 			'id' => 'holiday_list',
 			'title' => Lang::$txt['current_holidays'],
@@ -235,7 +236,7 @@ class Calendar implements ActionInterface
 		if (isset($_POST[Utils::$context['session_var']]) && (isset($_REQUEST['delete']) || $_REQUEST['title'] != ''))
 		{
 			checkSession();
-			validateToken('admin-eh');
+			SecurityToken::validate('admin-eh');
 
 			// Not too long good sir?
 			$_REQUEST['title'] = Utils::entitySubstr(Utils::normalize($_REQUEST['title']), 0, 60);
@@ -291,7 +292,7 @@ class Calendar implements ActionInterface
 			redirectexit('action=admin;area=managecalendar;sa=holidays');
 		}
 
-		createToken('admin-eh');
+		SecurityToken::create('admin-eh');
 
 		// Default states...
 		if (Utils::$context['is_new'])
@@ -365,7 +366,7 @@ class Calendar implements ActionInterface
 		}
 
 		// We need this for the inline permissions
-		createToken('admin-mp');
+		SecurityToken::create('admin-mp');
 
 		// Prepare the settings...
 		ACP::prepareDBSettingContext($config_vars);

@@ -17,6 +17,7 @@ use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Mail;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -216,7 +217,7 @@ function KickGuest()
 	Theme::load();
 	Lang::load('Login');
 	Theme::loadTemplate('Login');
-	createToken('login');
+	SecurityToken::create('login');
 
 	// Never redirect to an attachment
 	if (strpos($_SERVER['REQUEST_URL'], 'dlattach') === false)
@@ -235,7 +236,7 @@ function InMaintenance()
 {
 	Lang::load('Login');
 	Theme::loadTemplate('Login');
-	createToken('login');
+	SecurityToken::create('login');
 
 	// Send a 503 header, so search engines don't bother indexing while we're in maintenance mode.
 	send_http_status(503, 'Service Temporarily Unavailable');
@@ -279,7 +280,7 @@ function adminLogin($type = 'admin')
 		Utils::$context['incorrect_password'] = true;
 	}
 
-	createToken('admin-login');
+	SecurityToken::create('admin-login');
 
 	// Figure out the get data and post data.
 	Utils::$context['get_data'] = '?' . construct_query_string($_GET);
@@ -706,7 +707,7 @@ function rebuildModCache()
 	User::$me->mod_cache = $_SESSION['mc'];
 
 	// Might as well clean up some tokens while we are at it.
-	cleanTokens();
+	SecurityToken::clean();
 }
 
 /**

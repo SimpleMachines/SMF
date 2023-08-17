@@ -19,6 +19,7 @@ use SMF\Actions\ActionInterface;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -146,7 +147,7 @@ class Search implements ActionInterface
 		Utils::$context['settings_title'] = Lang::$txt['search_settings_title'];
 
 		// We need this for the in-line permissions
-		createToken('admin-mp');
+		SecurityToken::create('admin-mp');
 
 		ACP::prepareDBSettingContext($config_vars);
 	}
@@ -176,7 +177,7 @@ class Search implements ActionInterface
 		if (isset($_POST['save']))
 		{
 			checkSession();
-			validateToken('admin-msw');
+			SecurityToken::validate('admin-msw');
 
 			call_integration_hook('integrate_save_search_weights');
 
@@ -200,7 +201,7 @@ class Search implements ActionInterface
 			Utils::$context['relative_weights'][$factor] = round(100 * (isset(Config::$modSettings[$factor]) ? Config::$modSettings[$factor] : 0) / Utils::$context['relative_weights']['total'], 1);
 		}
 
-		createToken('admin-msw');
+		SecurityToken::create('admin-msw');
 	}
 
 	/**
@@ -227,7 +228,7 @@ class Search implements ActionInterface
 		if (!empty($_REQUEST['sa']) && $_REQUEST['sa'] == 'createfulltext')
 		{
 			checkSession('get');
-			validateToken('admin-msm', 'get');
+			SecurityToken::validate('admin-msm', 'get');
 
 			if (Config::$db_type == 'postgresql')
 			{
@@ -272,7 +273,7 @@ class Search implements ActionInterface
 		elseif (!empty($_REQUEST['sa']) && $_REQUEST['sa'] == 'removefulltext' && !empty(Utils::$context['fulltext_index']))
 		{
 			checkSession('get');
-			validateToken('admin-msm', 'get');
+			SecurityToken::validate('admin-msm', 'get');
 
 			if (Config::$db_type == 'postgresql')
 			{
@@ -308,7 +309,7 @@ class Search implements ActionInterface
 		elseif (!empty($_REQUEST['sa']) && $_REQUEST['sa'] == 'removecustom')
 		{
 			checkSession('get');
-			validateToken('admin-msm', 'get');
+			SecurityToken::validate('admin-msm', 'get');
 
 			$tables = Db::$db->list_tables(false, Db::$db->prefix . 'log_search_words');
 
@@ -339,7 +340,7 @@ class Search implements ActionInterface
 		elseif (isset($_POST['save']))
 		{
 			checkSession();
-			validateToken('admin-msmpost');
+			SecurityToken::validate('admin-msmpost');
 
 			Config::updateModSettings(array(
 				'search_index' => empty($_POST['search_index']) || (!in_array($_POST['search_index'], array('fulltext', 'custom')) && !isset(Utils::$context['search_apis'][$_POST['search_index']])) ? '' : $_POST['search_index'],
@@ -511,8 +512,8 @@ class Search implements ActionInterface
 		Utils::$context['partial_custom_index'] = !empty(Config::$modSettings['search_custom_index_resume']) && empty(Config::$modSettings['search_custom_index_config']);
 		Utils::$context['double_index'] = !empty(Utils::$context['fulltext_index']) && Utils::$context['custom_index'];
 
-		createToken('admin-msmpost');
-		createToken('admin-msm', 'get');
+		SecurityToken::create('admin-msmpost');
+		SecurityToken::create('admin-msm', 'get');
 	}
 
 	/**

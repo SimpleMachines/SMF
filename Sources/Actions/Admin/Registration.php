@@ -22,6 +22,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
 use SMF\Profile;
+use SMF\SecurityToken;
 use SMF\User;
 use SMF\Theme;
 use SMF\Utils;
@@ -123,7 +124,7 @@ class Registration implements ActionInterface
 		if (!empty($_POST['regSubmit']))
 		{
 			checkSession();
-			validateToken('admin-regc');
+			SecurityToken::validate('admin-regc');
 
 			foreach ($_POST as $key => $value)
 			{
@@ -206,7 +207,7 @@ class Registration implements ActionInterface
 		Utils::$context['sub_template'] = 'admin_register';
 		Utils::$context['page_title'] = Lang::$txt['registration_center'];
 
-		createToken('admin-regc');
+		SecurityToken::create('admin-regc');
 
 		Theme::loadJavaScriptFile('register.js', array('defer' => false, 'minimize' => true), 'smf_register');
 	}
@@ -260,7 +261,7 @@ class Registration implements ActionInterface
 		if (isset($_POST['agreement']) && $_POST['agreement'] != Utils::$context['agreement'])
 		{
 			checkSession();
-			validateToken('admin-rega');
+			SecurityToken::validate('admin-rega');
 
 			$backup_file = (date_create('@' . filemtime($agreement_file))->format('Y-m-d\TH_i_sp')) . '_' . $agreement_file;
 
@@ -302,7 +303,7 @@ class Registration implements ActionInterface
 		Utils::$context['sub_template'] = 'edit_agreement';
 		Utils::$context['page_title'] = Lang::$txt['registration_agreement'];
 
-		createToken('admin-rega');
+		SecurityToken::create('admin-rega');
 	}
 
 	/**
@@ -335,7 +336,7 @@ class Registration implements ActionInterface
 		if (isset($_POST['policy']))
 		{
 			checkSession();
-			validateToken('admin-regp');
+			SecurityToken::validate('admin-regp');
 
 			// Make sure there are no creepy-crawlies in it.
 			$policy_text = Utils::normalizeSpaces(Utils::htmlspecialchars($_POST['policy']));
@@ -372,7 +373,7 @@ class Registration implements ActionInterface
 		Utils::$context['sub_template'] = 'edit_privacy_policy';
 		Utils::$context['page_title'] = Lang::$txt['privacy_policy'];
 
-		createToken('admin-regp');
+		SecurityToken::create('admin-regp');
 	}
 
 	/**
@@ -387,7 +388,7 @@ class Registration implements ActionInterface
 		if (!empty($_POST['save_reserved_names']))
 		{
 			checkSession();
-			validateToken('admin-regr');
+			SecurityToken::validate('admin-regr');
 
 			$_POST['reserved'] = Utils::normalize($_POST['reserved']);
 
@@ -419,7 +420,7 @@ class Registration implements ActionInterface
 		Utils::$context['sub_template'] = 'edit_reserved_words';
 		Utils::$context['page_title'] = Lang::$txt['admin_reserved_set'];
 
-		createToken('admin-regr');
+		SecurityToken::create('admin-regr');
 	}
 
 	/**

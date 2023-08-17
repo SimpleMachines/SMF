@@ -21,6 +21,7 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
+use SMF\SecurityToken;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -766,7 +767,7 @@ class Logs implements ActionInterface
 	protected function deleteAll(): void
 	{
 		checkSession();
-		validateToken('mod-ml');
+		SecurityToken::validate('mod-ml');
 
 		Db::$db->query('', '
 			DELETE FROM {db_prefix}log_actions
@@ -789,7 +790,7 @@ class Logs implements ActionInterface
 	protected function deleteEntry(): void
 	{
 		checkSession();
-		validateToken('mod-ml');
+		SecurityToken::validate('mod-ml');
 
 		// No sneaky removing the 'cleared the log' entries.
 		Db::$db->query('', '
@@ -959,7 +960,7 @@ class Logs implements ActionInterface
 		$moderation_menu_name = array();
 		call_integration_hook('integrate_viewModLog', array(&$listOptions, &$moderation_menu_name));
 
-		createToken('mod-ml');
+		SecurityToken::create('mod-ml');
 
 		// Create the watched user list.
 		new ItemList($listOptions);

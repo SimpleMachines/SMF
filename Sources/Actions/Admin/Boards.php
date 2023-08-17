@@ -23,6 +23,7 @@ use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -136,7 +137,7 @@ class Boards implements ActionInterface
 		if (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'move' && in_array($_REQUEST['move_to'], array('child', 'before', 'after', 'top')))
 		{
 			checkSession('get');
-			validateToken('admin-bm-' . (int) $_REQUEST['src_board'], 'request');
+			SecurityToken::validate('admin-bm-' . (int) $_REQUEST['src_board'], 'request');
 
 			if ($_REQUEST['move_to'] === 'top')
 			{
@@ -190,7 +191,7 @@ class Boards implements ActionInterface
 
 		if (!empty(Utils::$context['move_board']))
 		{
-			createToken('admin-bm-' . Utils::$context['move_board'], 'request');
+			SecurityToken::create('admin-bm-' . Utils::$context['move_board'], 'request');
 
 			Utils::$context['move_title'] = sprintf(Lang::$txt['mboards_select_destination'], Utils::htmlspecialchars(Board::$loaded[Utils::$context['move_board']]->name));
 
@@ -385,7 +386,7 @@ class Boards implements ActionInterface
 		}
 
 		// Create a special token.
-		createToken('admin-bc-' . $_REQUEST['cat']);
+		SecurityToken::create('admin-bc-' . $_REQUEST['cat']);
 		Utils::$context['token_check'] = 'admin-bc-' . $_REQUEST['cat'];
 
 		call_integration_hook('integrate_edit_category');
@@ -404,7 +405,7 @@ class Boards implements ActionInterface
 	public function editCategory2(): void
 	{
 		checkSession();
-		validateToken('admin-bc-' . $_REQUEST['cat']);
+		SecurityToken::validate('admin-bc-' . $_REQUEST['cat']);
 
 		require_once(Config::$sourcedir . '/Subs-Editor.php');
 
@@ -718,7 +719,7 @@ class Boards implements ActionInterface
 		}
 
 		// Create a special token.
-		createToken('admin-be-' . $_REQUEST['boardid']);
+		SecurityToken::create('admin-be-' . $_REQUEST['boardid']);
 
 		call_integration_hook('integrate_edit_board');
 	}
@@ -738,7 +739,7 @@ class Boards implements ActionInterface
 		$_POST['boardid'] = (int) $_POST['boardid'];
 
 		checkSession();
-		validateToken('admin-be-' . $_REQUEST['boardid']);
+		SecurityToken::validate('admin-be-' . $_REQUEST['boardid']);
 
 		require_once(Config::$sourcedir . '/Subs-Editor.php');
 
@@ -979,7 +980,7 @@ class Boards implements ActionInterface
 		}
 
 		// We need this for the in-line permissions
-		createToken('admin-mp');
+		SecurityToken::create('admin-mp');
 
 		// Prepare the settings...
 		ACP::prepareDBSettingContext($config_vars);

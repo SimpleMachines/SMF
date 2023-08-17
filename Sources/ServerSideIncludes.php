@@ -1345,7 +1345,7 @@ class ServerSideIncludes
 			return User::$me->is_guest;
 
 		// Create a login token
-		createToken('login');
+		SecurityToken::create('login');
 
 		echo '
 			<form action="', Config::$scripturl, '?action=login2" method="post" accept-charset="', Utils::$context['character_set'], '">

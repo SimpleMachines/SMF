@@ -24,6 +24,7 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
+use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
@@ -171,7 +172,7 @@ class Maintenance implements ActionInterface
 		}
 
 		// Create a maintenance token.  Kinda hard to do it any other way.
-		createToken('admin-maint');
+		SecurityToken::create('admin-maint');
 	}
 
 	/**
@@ -358,7 +359,7 @@ class Maintenance implements ActionInterface
 	public function repair(): void
 	{
 		// Honestly, this should be done in the sub function.
-		validateToken('admin-maint');
+		SecurityToken::validate('admin-maint');
 
 		RepairBoards::call();
 	}
@@ -385,9 +386,9 @@ class Maintenance implements ActionInterface
 		checkSession('request');
 
 		// validate the request or the loop
-		validateToken(!isset($_REQUEST['step']) ? 'admin-maint' : 'admin-boardrecount');
+		SecurityToken::validate(!isset($_REQUEST['step']) ? 'admin-maint' : 'admin-boardrecount');
 		Utils::$context['not_done_token'] = 'admin-boardrecount';
-		createToken(Utils::$context['not_done_token']);
+		SecurityToken::create(Utils::$context['not_done_token']);
 
 		Utils::$context['page_title'] = Lang::$txt['not_done_title'];
 		Utils::$context['continue_post_data'] = '';
@@ -885,7 +886,7 @@ class Maintenance implements ActionInterface
 	public function emptyLogs(): void
 	{
 		checkSession();
-		validateToken('admin-maint');
+		SecurityToken::validate('admin-maint');
 
 		// No one's online now.... MUHAHAHAHA :P.
 		Db::$db->query('', '
@@ -924,7 +925,7 @@ class Maintenance implements ActionInterface
 	public function cleanCache(): void
 	{
 		checkSession();
-		validateToken('admin-maint');
+		SecurityToken::validate('admin-maint');
 
 		// Just wipe the whole cache!
 		CacheApi::clean();
@@ -948,9 +949,9 @@ class Maintenance implements ActionInterface
 		checkSession('request');
 
 		if (!isset($_SESSION['optimized_tables']))
-			validateToken('admin-maint');
+			SecurityToken::validate('admin-maint');
 		else
-			validateToken('admin-optimize', 'post', false);
+			SecurityToken::validate('admin-optimize', 'post', false);
 
 		ignore_user_abort(true);
 
@@ -994,7 +995,7 @@ class Maintenance implements ActionInterface
 				Utils::$context['sub_template'] = 'not_done';
 				Utils::$context['page_title'] = Lang::$txt['not_done_title'];
 
-				createToken('admin-optimize');
+				SecurityToken::create('admin-optimize');
 				Utils::$context['continue_post_data'] = '<input type="hidden" name="' . Utils::$context['admin-optimize_token_var'] . '" value="' . Utils::$context['admin-optimize_token'] . '">';
 
 				if (function_exists('apache_reset_timeout'))
@@ -1051,8 +1052,8 @@ class Maintenance implements ActionInterface
 		// The first step is just a text screen with some explanation.
 		if (Utils::$context['first_step'])
 		{
-			validateToken('admin-maint');
-			createToken('admin-maint');
+			SecurityToken::validate('admin-maint');
+			SecurityToken::create('admin-maint');
 
 			Utils::$context['sub_template'] = 'convert_entities';
 			return;
@@ -1064,8 +1065,8 @@ class Maintenance implements ActionInterface
 
 		// Now we're actually going to convert...
 		checkSession('request');
-		validateToken('admin-maint');
-		createToken('admin-maint');
+		SecurityToken::validate('admin-maint');
+		SecurityToken::create('admin-maint');
 		Utils::$context['not_done_token'] = 'admin-maint';
 
 		// A list of tables ready for conversion.
@@ -1277,7 +1278,7 @@ class Maintenance implements ActionInterface
 		if ($body_type == 'text' || ($body_type != 'text' && isset($_POST['do_conversion'])))
 		{
 			checkSession();
-			validateToken('admin-maint');
+			SecurityToken::validate('admin-maint');
 
 			// Make it longer so we can do their limit.
 			if ($body_type == 'text')
@@ -1304,9 +1305,9 @@ class Maintenance implements ActionInterface
 		{
 			checkSession();
 			if (empty($_REQUEST['start']))
-				validateToken('admin-maint');
+				SecurityToken::validate('admin-maint');
 			else
-				validateToken('admin-convertMsg');
+				SecurityToken::validate('admin-convertMsg');
 
 			Utils::$context['page_title'] = Lang::$txt['not_done_title'];
 			Utils::$context['continue_post_data'] = '';
@@ -1346,7 +1347,7 @@ class Maintenance implements ActionInterface
 
 				if (microtime(true) - TIME_START > 3)
 				{
-					createToken('admin-convertMsg');
+					SecurityToken::create('admin-convertMsg');
 					Utils::$context['continue_post_data'] = '
 						<input type="hidden" name="' . Utils::$context['admin-convertMsg_token_var'] . '" value="' . Utils::$context['admin-convertMsg_token'] . '">
 						<input type="hidden" name="' . Utils::$context['session_var'] . '" value="' . Utils::$context['session_id'] . '">
@@ -1358,7 +1359,7 @@ class Maintenance implements ActionInterface
 					return;
 				}
 			}
-			createToken('admin-maint');
+			SecurityToken::create('admin-maint');
 			Utils::$context['page_title'] = Lang::$txt[Utils::$context['convert_to'] . '_title'];
 			Utils::$context['sub_template'] = 'convert_msgbody';
 
@@ -1425,7 +1426,7 @@ class Maintenance implements ActionInterface
 		if (!empty($_POST['groups']) && $_POST['maxdays'] > 0)
 		{
 			checkSession();
-			validateToken('admin-maint');
+			SecurityToken::validate('admin-maint');
 
 			$groups = array();
 			foreach ($_POST['groups'] as $id => $dummy)
@@ -1496,7 +1497,7 @@ class Maintenance implements ActionInterface
 		}
 
 		Utils::$context['maintenance_finished'] = Lang::$txt['maintain_members'];
-		createToken('admin-maint');
+		SecurityToken::create('admin-maint');
 	}
 
 	/**
@@ -1536,7 +1537,7 @@ class Maintenance implements ActionInterface
 		// Only run this query if we don't have the total number of members that have posted
 		if (!isset($_SESSION['total_members']))
 		{
-			validateToken('admin-maint');
+			SecurityToken::validate('admin-maint');
 
 			$request = Db::$db->query('', '
 				SELECT COUNT(DISTINCT m.id_member)
@@ -1553,7 +1554,7 @@ class Maintenance implements ActionInterface
 			Db::$db->free_result($request);
 		}
 		else
-			validateToken('admin-recountposts');
+			SecurityToken::validate('admin-recountposts');
 
 		// Lets get a group of members and determine their post count (from the boards that have post count enabled of course).
 		$request = Db::$db->query('', '
@@ -1596,7 +1597,7 @@ class Maintenance implements ActionInterface
 			Utils::$context['continue_get_data'] = '?action=admin;area=maintain;sa=members;activity=recountposts;start=' . $_REQUEST['start'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
 			Utils::$context['continue_percent'] = round(100 * $_REQUEST['start'] / $_SESSION['total_members']);
 
-			createToken('admin-recountposts');
+			SecurityToken::create('admin-recountposts');
 			Utils::$context['continue_post_data'] = '<input type="hidden" name="' . Utils::$context['admin-recountposts_token_var'] . '" value="' . Utils::$context['admin-recountposts_token'] . '">';
 
 			if (function_exists('apache_reset_timeout'))
@@ -1674,7 +1675,7 @@ class Maintenance implements ActionInterface
 		isAllowedTo('admin_forum');
 
 		checkSession('request');
-		validateToken('admin-maint');
+		SecurityToken::validate('admin-maint');
 
 		// Set up to the context.
 		Utils::$context['page_title'] = Lang::$txt['not_done_title'];
@@ -1816,7 +1817,7 @@ class Maintenance implements ActionInterface
 	 */
 	public function prunePosts(): void
 	{
-		validateToken('admin-maint');
+		SecurityToken::validate('admin-maint');
 
 		// Actually do what we're told!
 		TopicRemove::old();
@@ -1827,7 +1828,7 @@ class Maintenance implements ActionInterface
 	 */
 	public function pruneDrafts(): void
 	{
-		validateToken('admin-maint');
+		SecurityToken::validate('admin-maint');
 
 		$drafts = array();
 
@@ -1890,7 +1891,7 @@ class Maintenance implements ActionInterface
 		if (!empty($_REQUEST['do']) && isset($_REQUEST['hook']) && isset($_REQUEST['function']))
 		{
 			checkSession('request');
-			validateToken('admin-hook', 'request');
+			SecurityToken::validate('admin-hook', 'request');
 
 			if ($_REQUEST['do'] == 'remove')
 				remove_integration_function($_REQUEST['hook'], urldecode($_REQUEST['function']));
@@ -1908,7 +1909,7 @@ class Maintenance implements ActionInterface
 			redirectexit('action=admin;area=maintain;sa=hooks' . $filter_url);
 		}
 
-		createToken('admin-hook', 'request');
+		SecurityToken::create('admin-hook', 'request');
 
 		$list_options = array(
 			'id' => 'list_integration_hooks',
