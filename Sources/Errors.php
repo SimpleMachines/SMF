@@ -46,9 +46,14 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 
 	// Collect a backtrace
 	if (!isset(Config::$db_show_debug) || Config::$db_show_debug === false)
+	{
 		$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+	}
 	else
-		$backtrace = debug_backtrace();
+	{
+		// This is how to keep the args but skip the objects.
+		$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS & DEBUG_BACKTRACE_PROVIDE_OBJECT);
+	}
 
 	// are we in a loop?
 	if ($error_call > 2)
