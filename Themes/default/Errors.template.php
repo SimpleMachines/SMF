@@ -367,7 +367,7 @@ function template_show_backtrace()
 				$value->line = -1;
 
 			echo '
-					<li class="backtrace">', sprintf($txt['backtrace_info'], $key, $value->function, $value->file, $value->line, base64_encode($value->file), Config::$scripturl), '</li>';
+					<li class="backtrace">', sprintf($txt['backtrace_info' . ($value->file == $txt['unknown'] && $value->line == -1 ? '_internal_function' : '')], $key, (!empty($value->class) ? $value->class . $value->type : '') . $value->function, $value->file, $value->line, base64_encode($value->file), Config::$scripturl), '</li>';
 		}
 
 		echo '
