@@ -1397,8 +1397,7 @@ class Maintenance implements ActionInterface
 		checkSession();
 
 		// Find the member.
-		require_once(Config::$sourcedir . '/Subs-Auth.php');
-		$members = findMembers($_POST['to']);
+		$members = User::find($_POST['to']);
 
 		if (empty($members))
 			ErrorHandler::fatalLang('reattribute_cannot_find_member');

@@ -531,8 +531,6 @@ class News extends ACP implements ActionInterface
 
 		if (!empty($toClean))
 		{
-			require_once(Config::$sourcedir . '/Subs-Auth.php');
-
 			foreach ($toClean as $type)
 			{
 				// Remove the quotes.
@@ -555,7 +553,7 @@ class News extends ACP implements ActionInterface
 				}
 
 				// Find the members
-				$_POST[$type] = implode(',', array_keys(findMembers($_POST[$type])));
+				$_POST[$type] = implode(',', array_keys(User::find($_POST[$type])));
 			}
 		}
 

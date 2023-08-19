@@ -100,7 +100,7 @@ class FindMember implements ActionInterface
 		{
 			$_REQUEST['search'] = Utils::htmlspecialchars($_REQUEST['search'], ENT_QUOTES);
 
-			Utils::$context['results'] = findMembers(array($_REQUEST['search']), true, Utils::$context['buddy_search']);
+			Utils::$context['results'] = User::find(array($_REQUEST['search']), true, Utils::$context['buddy_search']);
 			$total_results = count(Utils::$context['results']);
 
 			Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=findmember;search=' . Utils::$context['last_search'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';input=' . Utils::$context['input_box_name'] . (Utils::$context['quote_results'] ? ';quote=1' : '') . (Utils::$context['buddy_search'] ? ';buddies' : ''), $_REQUEST['start'], $total_results, 7);

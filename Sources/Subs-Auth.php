@@ -17,9 +17,7 @@ use SMF\Config;
 use SMF\Lang;
 use SMF\SecurityToken;
 use SMF\Theme;
-use SMF\User;
 use SMF\Utils;
-use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -68,95 +66,6 @@ function InMaintenance()
 	Utils::$context['title'] = Utils::htmlspecialchars(Config::$mtitle);
 	Utils::$context['description'] = &Config::$mmessage;
 	Utils::$context['page_title'] = Lang::$txt['maintain_mode'];
-}
-
-/**
- * Finds members by email address, username, or real name.
- * - searches for members whose username, display name, or e-mail address match the given pattern of array names.
- * - searches only buddies if buddies_only is set.
- *
- * @param array $names The names of members to search for
- * @param bool $use_wildcards Whether to use wildcards. Accepts wildcards ? and * in the pattern if true
- * @param bool $buddies_only Whether to only search for the user's buddies
- * @param int $max The maximum number of results
- * @return array An array containing information about the matching members
- */
-function findMembers($names, $use_wildcards = false, $buddies_only = false, $max = 500)
-{
-
-	// If it's not already an array, make it one.
-	if (!is_array($names))
-		$names = explode(',', $names);
-
-	$maybe_email = false;
-	$names_list = array();
-	foreach (array_values($names) as $i => $name)
-	{
-		// Trim, and fix wildcards for each name.
-		$names[$i] = trim(Utils::strtolower($name));
-
-		$maybe_email |= strpos($name, '@') !== false;
-
-		// Make it so standard wildcards will work. (* and ?)
-		if ($use_wildcards)
-			$names[$i] = strtr($names[$i], array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_', '\'' => '&#039;'));
-		else
-			$names[$i] = strtr($names[$i], array('\'' => '&#039;'));
-
-		$names_list[] = '{string:lookup_name_' . $i . '}';
-		$where_params['lookup_name_' . $i] = $names[$i];
-	}
-
-	// What are we using to compare?
-	$comparison = $use_wildcards ? 'LIKE' : '=';
-
-	// Nothing found yet.
-	$results = array();
-
-	// This ensures you can't search someones email address if you can't see it.
-	if (($use_wildcards || $maybe_email) && allowedTo('moderate_forum'))
-		$email_condition = '
-			OR (email_address ' . $comparison . ' \'' . implode('\') OR (email_address ' . $comparison . ' \'', $names) . '\')';
-	else
-		$email_condition = '';
-
-	// Get the case of the columns right - but only if we need to as things like MySQL will go slow needlessly otherwise.
-	$member_name = Db::$db->case_sensitive ? 'LOWER(member_name)' : 'member_name';
-	$real_name = Db::$db->case_sensitive ? 'LOWER(real_name)' : 'real_name';
-
-	// Searches.
-	$member_name_search = $member_name . ' ' . $comparison . ' ' . implode(' OR ' . $member_name . ' ' . $comparison . ' ', $names_list);
-	$real_name_search = $real_name . ' ' . $comparison . ' ' . implode(' OR ' . $real_name . ' ' . $comparison . ' ', $names_list);
-
-	// Search by username, display name, and email address.
-	$request = Db::$db->query('', '
-		SELECT id_member, member_name, real_name, email_address
-		FROM {db_prefix}members
-		WHERE (' . $member_name_search . '
-			OR ' . $real_name_search . ' ' . $email_condition . ')
-			' . ($buddies_only ? 'AND id_member IN ({array_int:buddy_list})' : '') . '
-			AND is_activated IN (1, 11)
-		LIMIT {int:limit}',
-		array_merge($where_params, array(
-			'buddy_list' => User::$me->buddies,
-			'limit' => $max,
-		))
-	);
-	while ($row = Db::$db->fetch_assoc($request))
-	{
-		$results[$row['id_member']] = array(
-			'id' => $row['id_member'],
-			'name' => $row['real_name'],
-			'username' => $row['member_name'],
-			'email' => allowedTo('moderate_forum') ? $row['email_address'] : '',
-			'href' => Config::$scripturl . '?action=profile;u=' . $row['id_member'],
-			'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>'
-		);
-	}
-	Db::$db->free_result($request);
-
-	// Return all the results.
-	return $results;
 }
 
 /**
