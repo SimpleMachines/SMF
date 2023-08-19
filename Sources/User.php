@@ -14,6 +14,8 @@
 namespace SMF;
 
 use SMF\Actions\Login2;
+use SMF\Actions\Admin\ACP;
+use SMF\Actions\Moderation\ReportedContent;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\PersonalMessage\PM;

@@ -22,6 +22,7 @@ use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Actions\Logout;
+use SMF\Actions\Admin\ACP;
 use SMF\Actions\Admin\Bans;
 use SMF\Actions\Moderation\ReportedContent;
 use SMF\Db\DatabaseApi as Db;
@@ -96,7 +97,7 @@ function validateSession($type = 'admin', $force = false)
 
 	// Need to type in a password for that, man.
 	if (!isset($_GET['xml']))
-		adminLogin($type);
+		ACP::adminLogin($type);
 	else
 		return 'session_verify_fail';
 }
