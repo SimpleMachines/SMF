@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
 if (!defined('SMF'))
@@ -47,7 +47,10 @@ function getMembersOnlineStats($membersOnlineOptions)
 
 	// Not allowed sort method? Bang! Error!
 	elseif (!in_array($membersOnlineOptions['sort'], $allowed_sort_options))
-		trigger_error('Sort method for getMembersOnlineStats() function is not allowed', E_USER_NOTICE);
+	{
+		loadLanguage('Errors');
+		trigger_error($txt['get_members_online_stats_invalid_sort'], E_USER_NOTICE);
+	}
 
 	// Initialize the array that'll be returned later on.
 	$membersOnlineStats = array(
@@ -188,6 +191,8 @@ function getMembersOnlineStats($membersOnlineOptions)
 	// Hidden and non-hidden members make up all online members.
 	$membersOnlineStats['num_users_online'] = count($membersOnlineStats['users_online']) + $membersOnlineStats['num_users_hidden'] - (isset($modSettings['show_spider_online']) && $modSettings['show_spider_online'] > 1 ? count($spider_finds) : 0);
 
+	call_integration_hook('integrate_online_stats', array(&$membersOnlineStats));
+
 	return $membersOnlineStats;
 }
 
@@ -209,7 +214,7 @@ function trackStatsUsersOnline($total_users_online)
 			'mostDate' => time()
 		);
 
-	$date = strftime('%Y-%m-%d', forum_time(false));
+	$date = smf_strftime('%Y-%m-%d', time());
 
 	// No entry exists for today yet?
 	if (!isset($modSettings['mostOnlineUpdated']) || $modSettings['mostOnlineUpdated'] != $date)

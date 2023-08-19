@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -26,7 +26,7 @@ if (!defined('SMF'))
  */
 function showAttachment()
 {
-	global $smcFunc, $modSettings, $maintenance, $context, $txt;
+	global $smcFunc, $modSettings, $maintenance, $context, $txt, $user_info;
 
 	// Some defaults that we need.
 	$context['character_set'] = empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : $modSettings['global_character_set'];
@@ -37,6 +37,7 @@ function showAttachment()
 
 	// This is done to clear any output that was made before now.
 	ob_end_clean();
+	header_remove('content-encoding');
 
 	if (!empty($modSettings['enableCompressedOutput']) && !headers_sent() && ob_get_length() == 0)
 	{
@@ -64,12 +65,10 @@ function showAttachment()
 	}
 
 	// A thumbnail has been requested? madness! madness I say!
-	$preview = isset($_REQUEST['preview']) ? $_REQUEST['preview'] : (isset($_REQUEST['type']) && $_REQUEST['type'] == 'preview' ? $_REQUEST['type'] : 0);
-	$showThumb = isset($_REQUEST['thumb']) || !empty($preview);
-	$attachTopic = isset($_REQUEST['topic']) ? (int) $_REQUEST['topic'] : 0;
+	$showThumb = isset($_REQUEST['thumb']);
 
-	// No access in strict maintenance mode or you don't have permission to see attachments.
-	if ((!empty($maintenance) && $maintenance == 2) || !allowedTo('view_attachments'))
+	// No access in strict maintenance mode.
+	if (!empty($maintenance) && $maintenance == 2)
 	{
 		send_http_status(404, 'File Not Found');
 		die('404 File Not Found');
@@ -92,13 +91,16 @@ function showAttachment()
 			// Make sure this attachment is on this board and load its info while we are at it.
 			$request = $smcFunc['db_query']('', '
 				SELECT
-					id_folder, filename, file_hash, fileext, id_attach,
-					id_thumb, attachment_type, mime_type, approved, id_msg
-				FROM {db_prefix}attachments
-				WHERE id_attach = {int:attach}' . (!empty($context['preview_message']) ? '
-					AND a.id_msg != 0' : '') . '
+					{string:source} AS source,
+					a.id_folder, a.filename, a.file_hash, a.fileext, a.id_attach,
+					a.id_thumb, a.attachment_type, a.mime_type, a.approved, a.id_msg,
+					m.id_board
+				FROM {db_prefix}attachments AS a
+					LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
+				WHERE a.id_attach = {int:attach}
 				LIMIT 1',
 				array(
+					'source' => 'SMF',
 					'attach' => $attachId,
 				)
 			);
@@ -114,46 +116,16 @@ function showAttachment()
 		$file = $smcFunc['db_fetch_assoc']($request);
 		$smcFunc['db_free_result']($request);
 
-		// If theres a message ID stored, we NEED a topic ID.
-		if (!empty($file['id_msg']) && empty($attachTopic) && empty($preview))
-		{
-			send_http_status(404, 'File Not Found');
-			die('404 File Not Found');
-		}
-
-		// Previews doesn't have this info.
-		if (empty($preview) && is_resource($attachRequest))
-		{
-			$request2 = $smcFunc['db_query']('', '
-				SELECT a.id_msg
-				FROM {db_prefix}attachments AS a
-					INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg AND m.id_topic = {int:current_topic})
-				WHERE {query_see_message_board}
-					AND a.id_attach = {int:attach}
-				LIMIT 1',
-				array(
-					'attach' => $attachId,
-					'current_topic' => $attachTopic,
-				)
-			);
-
-			// The provided topic must match the one stored in the DB for this particular attachment, also.
-			if ($smcFunc['db_num_rows']($request2) == 0)
-			{
-				send_http_status(404, 'File Not Found');
-				die('404 File Not Found');
-			}
-
-			$smcFunc['db_free_result']($request2);
-		}
-
 		// set filePath and ETag time
 		$file['filePath'] = getAttachmentFilename($file['filename'], $attachId, $file['id_folder'], false, $file['file_hash']);
 		// ensure variant attachment compatibility
 		$filePath = pathinfo($file['filePath']);
 
-		$file['filePath'] = !file_exists($file['filePath']) && isset($filePath['extension']) ? substr($file['filePath'], 0, -(strlen($filePath['extension']) + 1)) : $file['filePath'];
-		$file['etag'] = '"' . md5_file($file['filePath']) . '"';
+		$file['exists'] = file_exists($file['filePath']);
+		$file['filePath'] = !$file['exists'] && isset($filePath['extension']) ? substr($file['filePath'], 0, -(strlen($filePath['extension']) + 1)) : $file['filePath'];
+		$file['mtime'] = $file['exists'] ? filemtime($file['filePath']) : 0;
+		$file['size'] = $file['exists'] ? filesize($file['filePath']) : 0;
+		$file['etag'] = $file['exists'] ? sha1_file($file['filePath']) : '';
 
 		// now get the thumbfile!
 		$thumbFile = array();
@@ -175,11 +147,15 @@ function showAttachment()
 			// Got something! replace the $file var with the thumbnail info.
 			if ($thumbFile)
 			{
-				$attachId = $thumbFile['id_attach'];
+				$thumbFile['filePath'] = getAttachmentFilename($thumbFile['filename'], $thumbFile['id_attach'], $thumbFile['id_folder'], false, $thumbFile['file_hash']);
+				$thumbPath = pathinfo($thumbFile['filePath']);
 
 				// set filePath and ETag time
-				$thumbFile['filePath'] = getAttachmentFilename($thumbFile['filename'], $attachId, $thumbFile['id_folder'], false, $thumbFile['file_hash']);
-				$thumbFile['etag'] = '"' . md5_file($thumbFile['filePath']) . '"';
+				$thumbFile['exists'] = file_exists($thumbFile['filePath']);
+				$thumbFile['filePath'] = !$thumbFile['exists'] && isset($thumbPath['extension']) ? substr($thumbFile['filePath'], 0, -(strlen($thumbPath['extension']) + 1)) : $thumbFile['filePath'];
+				$thumbFile['mtime'] = $thumbFile['exists'] ? filemtime($thumbFile['filePath']) : 0;
+				$thumbFile['size'] = $thumbFile['exists'] ? filesize($thumbFile['filePath']) : 0;
+				$thumbFile['etag'] = $thumbFile['exists'] ? sha1_file($thumbFile['filePath']) : '';
 			}
 		}
 
@@ -188,12 +164,85 @@ function showAttachment()
 			cache_put_data('attachment_lookup_id-' . $file['id_attach'], array($file, $thumbFile), mt_rand(850, 900));
 	}
 
+	// Can they see attachments on this board?
+	if (!empty($file['id_msg']))
+	{
+		// Special case for profile exports.
+		if (!empty($context['attachment_allow_hidden_boards']))
+		{
+			$boards_allowed = array(0);
+		}
+		// Check permissions and board access.
+		elseif (($boards_allowed = cache_get_data('view_attachment_boards_id-' . $user_info['id'])) == null)
+		{
+			$boards_allowed = boardsAllowedTo('view_attachments');
+			cache_put_data('view_attachment_boards_id-' . $user_info['id'], $boards_allowed, mt_rand(850, 900));
+		}
+	}
+
+	// No access if you don't have permission to see this attachment.
+	if
+	(
+		// This was from SMF or a hook didn't claim it.
+		(
+			empty($file['source'])
+			|| $file['source'] == 'SMF'
+		)
+		&& (
+			// No id_msg and no id_member, so we don't know where its from.
+			// Avatars will have id_msg = 0 and id_member > 0.
+			(
+				empty($file['id_msg'])
+				&& empty($file['id_member'])
+			)
+			// When we have a message, we need a board and that board needs to
+			// let us view the attachment.
+			|| (
+				!empty($file['id_msg'])
+				&& (
+					empty($file['id_board'])
+					|| ($boards_allowed !== array(0) && !in_array($file['id_board'], $boards_allowed))
+				)
+			)
+		)
+		// We are not previewing an attachment.
+		&& !isset($_SESSION['attachments_can_preview'][$attachId])
+	)
+	{
+		send_http_status(404, 'File Not Found');
+		die('404 File Not Found');
+	}
+
+	// If attachment is unapproved, see if user is allowed to approve
+	if (!$file['approved'] && $modSettings['postmod_active'] && !allowedTo('approve_posts'))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT id_member
+			FROM {db_prefix}messages
+			WHERE id_msg = {int:id_msg}
+			LIMIT 1',
+			array(
+				'id_msg' => $file['id_msg'],
+			)
+		);
+
+		$id_member = $smcFunc['db_fetch_assoc']($request)['id_member'];
+		$smcFunc['db_free_result']($request);
+
+		// Let users see own unapproved attachments
+		if ($id_member != $user_info['id'])
+		{
+			send_http_status(403, 'Forbidden');
+			die('403 Forbidden');
+		}
+	}
+
 	// Replace the normal file with its thumbnail if it has one!
 	if (!empty($showThumb) && !empty($thumbFile))
 		$file = $thumbFile;
 
 	// No point in a nicer message, because this is supposed to be an attachment anyway...
-	if (!file_exists($file['filePath']))
+	if (empty($file['exists']))
 	{
 		send_http_status(404);
 		header('content-type: text/plain; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
@@ -206,9 +255,10 @@ function showAttachment()
 	if (!empty($_SERVER['HTTP_IF_MODIFIED_SINCE']))
 	{
 		list($modified_since) = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE']);
-		if (strtotime($modified_since) >= filemtime($file['filePath']))
+		if (!empty($file['mtime']) && strtotime($modified_since) >= $file['mtime'])
 		{
 			ob_end_clean();
+			header_remove('content-encoding');
 
 			// Answer the question - no, it hasn't been modified ;).
 			send_http_status(304);
@@ -217,10 +267,10 @@ function showAttachment()
 	}
 
 	// Check whether the ETag was sent back, and cache based on that...
-	$eTag = '"' . substr($_REQUEST['attach'] . $file['filePath'] . filemtime($file['filePath']), 0, 64) . '"';
-	if (!empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $eTag) !== false)
+	if (!empty($file['etag']) && !empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $file['etag']) !== false)
 	{
 		ob_end_clean();
+		header_remove('content-encoding');
 
 		send_http_status(304);
 		exit;
@@ -228,14 +278,13 @@ function showAttachment()
 
 	// If this is a partial download, we need to determine what data range to send
 	$range = 0;
-	$size = filesize($file['filePath']);
 	if (isset($_SERVER['HTTP_RANGE']))
 	{
 		list($a, $range) = explode("=", $_SERVER['HTTP_RANGE'], 2);
 		list($range) = explode(",", $range, 2);
 		list($range, $range_end) = explode("-", $range);
 		$range = intval($range);
-		$range_end = !$range_end ? $size - 1 : intval($range_end);
+		$range_end = !$range_end ? $file['size'] - 1 : intval($range_end);
 		$new_length = $range_end - $range + 1;
 	}
 
@@ -257,10 +306,10 @@ function showAttachment()
 		header('content-transfer-encoding: binary');
 
 	header('expires: ' . gmdate('D, d M Y H:i:s', time() + 525600 * 60) . ' GMT');
-	header('last-modified: ' . gmdate('D, d M Y H:i:s', filemtime($file['filePath'])) . ' GMT');
+	header('last-modified: ' . gmdate('D, d M Y H:i:s', $file['mtime']) . ' GMT');
 	header('accept-ranges: bytes');
 	header('connection: close');
-	header('etag: ' . $eTag);
+	header('etag: "' . $file['etag'] . '"');
 
 	// Make sure the mime type warrants an inline display.
 	if (isset($_REQUEST['image']) && !empty($file['mime_type']) && strpos($file['mime_type'], 'image/') !== 0)
@@ -314,10 +363,13 @@ function showAttachment()
 	{
 		send_http_status(206);
 		header("content-length: $new_length");
-		header("content-range: bytes $range-$range_end/$size");
+		header("content-range: bytes $range-$range_end/$file[size]");
 	}
 	else
-		header("content-length: " . $size);
+		header("content-length: " . $file['size']);
+
+	// Allow customizations to hook in here before we send anything to modify any headers needed.  Or to change the process of how we output.
+	call_integration_hook('integrate_download_headers');
 
 	// Try to buy some time...
 	@set_time_limit(600);
@@ -327,6 +379,8 @@ function showAttachment()
 	{
 		while (@ob_get_level() > 0)
 			@ob_end_clean();
+
+		header_remove('content-encoding');
 
 		// 40 kilobytes is a good-ish amount
 		$chunksize = 40 * 1024;
@@ -347,11 +401,13 @@ function showAttachment()
 	}
 
 	// Since we don't do output compression for files this large...
-	elseif ($size > 4194304)
+	elseif ($file['size'] > 4194304)
 	{
 		// Forcibly end any output buffering going on.
 		while (@ob_get_level() > 0)
 			@ob_end_clean();
+
+		header_remove('content-encoding');
 
 		$fp = fopen($file['filePath'], 'rb');
 		while (!feof($fp))

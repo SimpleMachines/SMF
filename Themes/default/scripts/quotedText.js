@@ -70,6 +70,12 @@ function quotedTextClick(oOptions)
 		$.ajax({
 			url: smf_prepareScriptUrl(smf_scripturl) + 'action=quotefast;quote=' + oOptions.msgID + ';xml;pb='+ oEditorID + ';mode=' + (oEditorObject.bRichTextEnabled ? 1 : 0),
 			type: 'GET',
+			headers: {
+				"X-SMF-AJAX": 1
+			},
+			xhrFields: {
+				withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
+			},
 			dataType: 'xml',
 			beforeSend: function () {
 				ajax_indicator(true);
@@ -78,6 +84,9 @@ function quotedTextClick(oOptions)
 				ajax_indicator(false);
 			},
 			success: function (data, textStatus, xhr) {
+				// Convert all smileys from images back to smiley code
+				oOptions.text = oOptions.text.replaceAll(/<img src=".*?" alt="(.*?)" title=".*?" class="smiley">/, '$1');
+
 				// Search the xml data to get the quote tag.
 				text = $(data).find('quote').text();
 
@@ -119,27 +128,44 @@ $(function() {
 			msgID : $(this).data('msgid'),
 		};
 
-		// Revome any 'click' event to the button.
-		$(document).off('click', '#quoteSelected_' + oSelected.msgID + ' a');
-
-		// If the button is already visible, hide it!
-		$('#quoteSelected_' + oSelected.msgID).hide();
-
 		// Get any selected text.
 		oSelected.text = getSelectedText(oSelected.divID);
 
 		// Do we have some selected text?
 		if (typeof oSelected.text == 'undefined' || oSelected.text == false)
-			return false;
+			return true;
 
 		// Show the "quote this" button.
 		$('#quoteSelected_' + oSelected.msgID).show();
 
-			$(document).one('click', '#quoteSelected_' + oSelected.msgID + ' a', function(e){
-				e.preventDefault();
-				quotedTextClick(oSelected);
-			});
+		// Remove any previous selection
+		$(document).off('click', '#quoteSelected_' + oSelected.msgID + ' a');
 
-		return false;
+		$(document).one('click', '#quoteSelected_' + oSelected.msgID + ' a', function(e) {
+			e.preventDefault();
+			quotedTextClick(oSelected);
+		});
+
+		// Register global on click listener to catch deselect clicks outside of the div.
+		$(document).on('click.ondeselecttext' + oSelected.msgID, function() {
+			// Delay the check a bit to allow the deselection to happen.
+			setTimeout(function() {
+				selectedText = getSelectedText(oSelected.divID);
+
+				if (typeof selectedText != 'undefined' && selectedText != false)
+					return;
+
+				// Remove any 'click' event to the button.
+				$(document).off('click', '#quoteSelected_' + oSelected.msgID + ' a');
+
+				// Hide the button.
+				$('#quoteSelected_' + oSelected.msgID).hide();
+
+				// Remove this on click listener
+				$(document).off('click.ondeselecttext' + oSelected.msgID);
+			}, 1);
+		});
+
+		return true;
 	});
 });

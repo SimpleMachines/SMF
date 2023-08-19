@@ -10,21 +10,20 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
 	die('No direct access...');
 
 /**
- * Reads a .tar.gz file, filename, in and extracts file(s) from it.
- * essentially just a shortcut for read_tgz_data().
+ * Reads an archive from either a remote location or from the local filesystem.
  *
  * @param string $gzfilename The path to the tar.gz file
- * @param string $destination The path to the desitnation directory
+ * @param string $destination The path to the destination directory
  * @param bool $single_file If true returns the contents of the file specified by destination if it exists
  * @param bool $overwrite Whether to overwrite existing files
  * @param null|array $files_to_extract Specific files to extract
@@ -32,7 +31,24 @@ if (!defined('SMF'))
  */
 function read_tgz_file($gzfilename, $destination, $single_file = false, $overwrite = false, $files_to_extract = null)
 {
-	return read_tgz_data($gzfilename, $destination, $single_file, $overwrite, $files_to_extract);
+	$data = substr($gzfilename, 0, 7) == 'http://' || substr($gzfilename, 0, 8) == 'https://'
+		? fetch_web_data($gzfilename)
+		: file_get_contents($gzfilename);
+
+	if ($data === false)
+		return false;
+
+	// Too short for magic numbers? No fortune cookie for you!
+	if (strlen($data) < 2)
+		return false;
+
+	if ($data[0] == "\x1f" && $data[1] == "\x8b")
+		return read_tgz_data($data, $destination, $single_file, $overwrite, $files_to_extract);
+	// Okay, this ain't no tar.gz, but maybe it's a zip file.
+	elseif ($data[0] == 'P' && $data[1] == 'K')
+		return read_zip_data($data, $destination, $single_file, $overwrite, $files_to_extract);
+
+	return false;
 }
 
 /**
@@ -54,14 +70,14 @@ function read_tgz_file($gzfilename, $destination, $single_file = false, $overwri
  * returns an array of the files extracted.
  * if files_to_extract is not equal to null only extracts file within this array.
  *
- * @param string $gzfilename The name of the file
- * @param string $destination The destination
+ * @param string $data The gzipped tarball
+ * @param null|string $destination The destination
  * @param bool $single_file Whether to only extract a single file
  * @param bool $overwrite Whether to overwrite existing data
  * @param null|array $files_to_extract If set, only extracts the specified files
  * @return array|false An array of information about the extracted files or false on failure
  */
-function read_tgz_data($gzfilename, $destination, $single_file = false, $overwrite = false, $files_to_extract = null)
+function read_tgz_data($data, $destination, $single_file = false, $overwrite = false, $files_to_extract = null)
 {
 	// Make sure we have this loaded.
 	loadLanguage('Packages');
@@ -70,38 +86,9 @@ function read_tgz_data($gzfilename, $destination, $single_file = false, $overwri
 	if (!function_exists('gzinflate'))
 		fatal_lang_error('package_no_lib', 'critical', array('package_no_zlib', 'package_no_package_manager'));
 
-	if (substr($gzfilename, 0, 7) == 'http://' || substr($gzfilename, 0, 8) == 'https://')
-	{
-		$data = fetch_web_data($gzfilename);
-
-		if ($data === false)
-			return false;
-	}
-	else
-	{
-		$data = @file_get_contents($gzfilename);
-
-		if ($data === false)
-			return false;
-	}
-
 	umask(0);
 	if (!$single_file && $destination !== null && !file_exists($destination))
 		mktree($destination, 0777);
-
-	// No signature?
-	if (strlen($data) < 2)
-		return false;
-
-	$id = unpack('H2a/H2b', substr($data, 0, 2));
-	if (strtolower($id['a'] . $id['b']) != '1f8b')
-	{
-		// Okay, this ain't no tar.gz, but maybe it's a zip file.
-		if (substr($data, 0, 2) == 'PK')
-			return read_zip_file($gzfilename, $destination, $single_file, $overwrite, $files_to_extract);
-		else
-			return false;
-	}
 
 	$flags = unpack('Ct/Cf', substr($data, 2, 2));
 
@@ -111,7 +98,7 @@ function read_tgz_data($gzfilename, $destination, $single_file = false, $overwri
 	$flags = $flags['f'];
 
 	$offset = 10;
-	$octdec = array('mode', 'uid', 'gid', 'size', 'mtime', 'checksum', 'type');
+	$octdec = array('mode', 'uid', 'gid', 'size', 'mtime', 'checksum');
 
 	// "Read" the filename and comment.
 	// @todo Might be mussed.
@@ -155,7 +142,7 @@ function read_tgz_data($gzfilename, $destination, $single_file = false, $overwri
 				$current[$k] = trim($v);
 		}
 
-		if ($current['type'] == 5 && substr($current['filename'], -1) != '/')
+		if ($current['type'] == '5' && substr($current['filename'], -1) != '/')
 			$current['filename'] .= '/';
 
 		$checksum = 256;
@@ -171,12 +158,15 @@ function read_tgz_data($gzfilename, $destination, $single_file = false, $overwri
 		$current['data'] = substr($data, ++$offset << 9, $current['size']);
 		$offset += $size;
 
+		// If hunting for a file in subdirectories, pass to subsequent write test...
+		if ($single_file && $destination !== null && (substr($destination, 0, 2) == '*/'))
+			$write_this = true;
 		// Not a directory and doesn't exist already...
-		if (substr($current['filename'], -1, 1) != '/' && !file_exists($destination . '/' . $current['filename']))
+		elseif (substr($current['filename'], -1, 1) != '/' && $destination !== null && !file_exists($destination . '/' . $current['filename']))
 			$write_this = true;
 		// File exists... check if it is newer.
 		elseif (substr($current['filename'], -1, 1) != '/')
-			$write_this = $overwrite || filemtime($destination . '/' . $current['filename']) < $current['mtime'];
+			$write_this = $overwrite || ($destination !== null && filemtime($destination . '/' . $current['filename']) < $current['mtime']);
 		// Folder... create.
 		elseif ($destination !== null && !$single_file)
 		{
@@ -228,123 +218,7 @@ function read_tgz_data($gzfilename, $destination, $single_file = false, $overwri
 }
 
 /**
- * Extract zip data. A functional copy of {@list read_zip_data()}.
- *
- * @param string $file Input filename
- * @param string $destination Null to display a listing of files in the archive, the destination for the files in the archive or the name of a single file to display (if $single_file is true)
- * @param boolean $single_file If true, returns the contents of the file specified by destination or false if the file can't be found (default value is false).
- * @param boolean $overwrite If true, will overwrite files with newer modication times. Default is false.
- * @param array $files_to_extract Specific files to extract
- * @uses {@link PharData}
- * @return mixed If destination is null, return a short array of a few file details optionally delimited by $files_to_extract. If $single_file is true, return contents of a file as a string; false otherwise
- */
-
-function read_zip_file($file, $destination, $single_file = false, $overwrite = false, $files_to_extract = null)
-{
-	// This function sorta needs phar!
-	if (!class_exists('PharData'))
-		fatal_lang_error('package_no_lib', 'critical', array('package_no_phar', 'package_no_package_manager'));
-
-	try
-	{
-		// This may not always be defined...
-		$return = array();
-
-		// Some hosted unix platforms require an extension; win may have .tmp & that works ok
-		if (!in_array(strtolower(pathinfo($file, PATHINFO_EXTENSION)), array('zip', 'tmp')))
-			if (@rename($file, $file . '.zip'))
-				$file = $file . '.zip';
-
-		// Phar doesn't handle open_basedir restrictions very well and throws a PHP Warning. Ignore that.
-		set_error_handler(function($errno, $errstr, $errfile, $errline)
-		{
-			// error was suppressed with the @-operator
-			if (0 === error_reporting())
-			{
-				return false;
-			}
-			if (strpos($errstr, 'PharData::__construct(): open_basedir') === false)
-				log_error($errstr, 'general', $errfile, $errline);
-			return true;
-		}
-		);
-		$archive = new PharData($file, RecursiveIteratorIterator::SELF_FIRST, null, Phar::ZIP);
-		restore_error_handler();
-
-		$iterator = new RecursiveIteratorIterator($archive, RecursiveIteratorIterator::SELF_FIRST);
-
-		// go though each file in the archive
-		foreach ($iterator as $file_info)
-		{
-			$i = $iterator->getSubPathname();
-			// If this is a file, and it doesn't exist.... happy days!
-			if (substr($i, -1) != '/' && !file_exists($destination . '/' . $i))
-				$write_this = true;
-			// If the file exists, we may not want to overwrite it.
-			elseif (substr($i, -1) != '/')
-				$write_this = $overwrite;
-			else
-				$write_this = false;
-
-			// Get the actual compressed data.
-			if (!$file_info->isDir())
-				$file_data = file_get_contents($file_info);
-			elseif ($destination !== null && !$single_file)
-			{
-				// Folder... create.
-				if (!file_exists($destination . '/' . $i))
-					mktree($destination . '/' . $i, 0777);
-				$file_data = null;
-			}
-			else
-				$file_data = null;
-
-			// Okay!  We can write this file, looks good from here...
-			if ($write_this && $destination !== null)
-			{
-				if (!$single_file && !is_dir($destination . '/' . dirname($i)))
-					mktree($destination . '/' . dirname($i), 0777);
-
-				// If we're looking for a specific file, and this is it... ka-bam, baby.
-				if ($single_file && ($destination == $i || $destination == '*/' . basename($i)))
-					return $file_data;
-				// Oh?  Another file.  Fine.  You don't like this file, do you?  I know how it is.  Yeah... just go away.  No, don't apologize.  I know this file's just not *good enough* for you.
-				elseif ($single_file)
-					continue;
-				// Don't really want this?
-				elseif ($files_to_extract !== null && !in_array($i, $files_to_extract))
-					continue;
-
-				package_put_contents($destination . '/' . $i, $file_data);
-			}
-
-			if (substr($i, -1, 1) != '/')
-				$return[] = array(
-					'filename' => $i,
-					'md5' => md5($file_data),
-					'preview' => substr($file_data, 0, 100),
-					'size' => strlen($file_data),
-					'skipped' => false
-				);
-		}
-
-		if ($destination !== null && !$single_file)
-			package_flush_cache();
-
-		if ($single_file)
-			return false;
-		else
-			return $return;
-	}
-	catch (Exception $e)
-	{
-		log_error($e->getMessage(), 'general', $e->getFile(), $e->getLine());
-		return false;
-	}
-}
-
-/**
- * Extract zip data. .
+ * Extract zip data.
  *
  * If single_file is true, destination can start with * and / to signify that the file may come from any directory.
  * Destination should not begin with a / if single_file is true.
@@ -352,102 +226,125 @@ function read_zip_file($file, $destination, $single_file = false, $overwrite = f
  * @param string $data ZIP data
  * @param string $destination Null to display a listing of files in the archive, the destination for the files in the archive or the name of a single file to display (if $single_file is true)
  * @param boolean $single_file If true, returns the contents of the file specified by destination or false if the file can't be found (default value is false).
- * @param boolean $overwrite If true, will overwrite files with newer modication times. Default is false.
+ * @param boolean $overwrite If true, will overwrite files with newer modification times. Default is false.
  * @param array $files_to_extract
  * @return mixed If destination is null, return a short array of a few file details optionally delimited by $files_to_extract. If $single_file is true, return contents of a file as a string; false otherwise
  */
 function read_zip_data($data, $destination, $single_file = false, $overwrite = false, $files_to_extract = null)
 {
 	umask(0);
-	if ($destination !== null && !file_exists($destination) && !$single_file)
+	if ($destination !== null && (substr($destination, 0, 2) != '*/') && !file_exists($destination) && !$single_file)
 		mktree($destination, 0777);
 
-	// Look for the end of directory signature 0x06054b50
-	$data_ecr = explode("\x50\x4b\x05\x06", $data);
-	if (!isset($data_ecr[1]))
+	// Search for the end of directory signature 0x06054b50.
+	if (($data_ecr = strrpos($data, "\x50\x4b\x05\x06")) === false)
 		return false;
-
 	$return = array();
 
-	// Get all the basic zip file info since we are here
-	$zip_info = unpack('vdisks/vrecords/vfiles/Vsize/Voffset/vcomment_length/', $data_ecr[1]);
+	// End of central directory record (EOCD)
+	$cdir = unpack('vdisk/@4/vdisk_entries/ventries/@12/Voffset', substr($data, $data_ecr + 4, 16));
 
-	// Cut file at the central directory file header signature -- 0x02014b50, use unpack if you want any of the data, we don't
-	$file_sections = explode("\x50\x4b\x01\x02", $data);
-
-	// Cut the result on each local file header -- 0x04034b50 so we have each file in the archive as an element.
-	$file_sections = explode("\x50\x4b\x03\x04", $file_sections[0]);
-	array_shift($file_sections);
-
-	// sections and count from the signature must match or the zip file is bad
-	if (count($file_sections) != $zip_info['files'])
+	// We only support a single disk.
+	if ($cdir['disk_entries'] != $cdir['entries'])
 		return false;
 
-	// go though each file in the archive
-	foreach ($file_sections as $data)
+	// First central file directory
+	$pos_entry = $cdir['offset'];
+
+	for ($i = 0; $i < $cdir['entries']; $i++)
 	{
-		// Get all the important file information.
-		$file_info = unpack("vversion/vgeneral_purpose/vcompress_method/vfile_time/vfile_date/Vcrc/Vcompressed_size/Vsize/vfilename_length/vextrafield_length", $data);
-		$file_info['filename'] = substr($data, 26, $file_info['filename_length']);
-		$file_info['dir'] = $destination . '/' . dirname($file_info['filename']);
+		// Central directory file header
+		$header = unpack('Vcompressed_size/@8/vlen1/vlen2/vlen3/vdisk/@22/Voffset', substr($data, $pos_entry + 20, 26));
 
-		// If bit 3 (0x08) of the general-purpose flag is set, then the CRC and file size were not available when the header was written
-		// In this case the CRC and size are instead appended in a 12-byte structure immediately after the compressed data
-		if ($file_info['general_purpose'] & 0x0008)
+		// Sanity check: same disk?
+		if ($header['disk'] != $cdir['disk'])
+			continue;
+
+		// Next central file directory
+		$pos_entry += 46 + $header['len1'] + $header['len2'] + $header['len3'];
+
+		// Local file header (so called because it is in the same file as the data in multi-part archives)
+		$file_info = unpack(
+			'vflag/vcompression/vmtime/vmdate/Vcrc/Vcompressed_size/Vsize/vfilename_len/vextra_len',
+			substr($data, $header['offset'] + 6, 24)
+		);
+
+		$file_info['filename'] = substr($data, $header['offset'] + 30, $file_info['filename_len']);
+		$is_file = substr($file_info['filename'], -1) != '/';
+
+		/*
+		 * If the bit at offset 3 (0x08) of the general-purpose flags field
+		 * is set, then the CRC-32 and file sizes are not known when the header
+		 * is written. The fields in the local header are filled with zero, and
+		 * the CRC-32 and size are appended in a 12-byte structure (optionally
+		 * preceded by a 4-byte signature) immediately after the compressed data:
+		 */
+		if ($file_info['flag'] & 0x08)
 		{
-			$unzipped2 = unpack("Vcrc/Vcompressed_size/Vsize", substr($$data, -12));
-			$file_info['crc'] = $unzipped2['crc'];
-			$file_info['compressed_size'] = $unzipped2['compressed_size'];
-			$file_info['size'] = $unzipped2['size'];
-			unset($unzipped2);
+			$gplen = $header['offset'] + 30 + $file_info['filename_len'] + $file_info['extra_len'] + $header['compressed_size'];
+
+			// The spec allows for an optional header in the general purpose record
+			if (substr($data, $gplen, 4) === "\x50\x4b\x07\x08")
+				$gplen += 4;
+
+			if (($general_purpose = unpack('Vcrc/Vcompressed_size/Vsize', substr($data, $gplen, 12))) !== false)
+				$file_info = $general_purpose + $file_info;
 		}
 
-		// If this is a file, and it doesn't exist.... happy days!
-		if (substr($file_info['filename'], -1) != '/' && !file_exists($destination . '/' . $file_info['filename']))
-			$write_this = true;
-		// If the file exists, we may not want to overwrite it.
-		elseif (substr($file_info['filename'], -1) != '/')
-			$write_this = $overwrite;
-		// This is a directory, so we're gonna want to create it. (probably...)
-		elseif ($destination !== null && !$single_file)
+		$write_this = false;
+		if ($destination !== null)
 		{
-			// Just a little accident prevention, don't mind me.
-			$file_info['filename'] = strtr($file_info['filename'], array('../' => '', '/..' => ''));
+			// If hunting for a file in subdirectories, pass to subsequent write test...
+			if ($single_file && $destination !== null && (substr($destination, 0, 2) == '*/'))
+				$write_this = true;
+			// If this is a file, and it doesn't exist.... happy days!
+			elseif ($is_file)
+				$write_this = !file_exists($destination . '/' . $file_info['filename']) || $overwrite;
+			// This is a directory, so we're gonna want to create it. (probably...)
+			elseif (!$single_file)
+			{
+				$file_info['filename'] = strtr($file_info['filename'], array('../' => '', '/..' => ''));
 
-			if (!file_exists($destination . '/' . $file_info['filename']))
-				mktree($destination . '/' . $file_info['filename'], 0777);
-			$write_this = false;
+				if (!file_exists($destination . '/' . $file_info['filename']))
+					mktree($destination . '/' . $file_info['filename'], 0777);
+			}
 		}
-		else
-			$write_this = false;
 
 		// Get the actual compressed data.
-		$file_info['data'] = substr($data, 26 + $file_info['filename_length'] + $file_info['extrafield_length']);
+		$file_info['data'] = substr(
+			$data,
+			$header['offset'] + 30 + $file_info['filename_len'] + $file_info['extra_len'],
+			$file_info['compressed_size']
+		);
 
-		// Only inflate it if we need to ;)
-		if (!empty($file_info['compress_method']) || ($file_info['compressed_size'] != $file_info['size']))
+		// Only for the deflate method (the most common)
+		if ($file_info['compression'] == 8)
 			$file_info['data'] = gzinflate($file_info['data']);
+		// We do not support any other compression methods.
+		elseif ($file_info['compression'] != 0)
+			continue;
 
-		// Okay!  We can write this file, looks good from here...
-		if ($write_this && $destination !== null)
+		// PKZip/ITU-T V.42 CRC-32
+		if (hash('crc32b', $file_info['data']) !== sprintf('%08x', $file_info['crc']))
+			continue;
+
+		// Okay! We can write this file, looks good from here...
+		if ($write_this)
 		{
-			if ((strpos($file_info['filename'], '/') !== false && !$single_file) || (!$single_file && !is_dir($file_info['dir'])))
-				mktree($file_info['dir'], 0777);
-
 			// If we're looking for a specific file, and this is it... ka-bam, baby.
 			if ($single_file && ($destination == $file_info['filename'] || $destination == '*/' . basename($file_info['filename'])))
 				return $file_info['data'];
-			// Oh?  Another file.  Fine.  You don't like this file, do you?  I know how it is.  Yeah... just go away.  No, don't apologize.  I know this file's just not *good enough* for you.
-			elseif ($single_file)
+			// Oh, another file? Fine. You don't like this file, do you?  I know how it is.  Yeah... just go away.  No, don't apologize. I know this file's just not *good enough* for you.
+			elseif ($single_file || ($files_to_extract !== null && !in_array($file_info['filename'], $files_to_extract)))
 				continue;
-			// Don't really want this?
-			elseif ($files_to_extract !== null && !in_array($file_info['filename'], $files_to_extract))
-				continue;
+
+			if (!$single_file && strpos($file_info['filename'], '/') !== false)
+				mktree($destination . '/' . dirname($file_info['filename']), 0777);
 
 			package_put_contents($destination . '/' . $file_info['filename'], $file_info['data']);
 		}
 
-		if (substr($file_info['filename'], -1, 1) != '/')
+		if ($is_file)
 			$return[] = array(
 				'filename' => $file_info['filename'],
 				'md5' => md5($file_info['data']),
@@ -460,10 +357,7 @@ function read_zip_data($data, $destination, $single_file = false, $overwrite = f
 	if ($destination !== null && !$single_file)
 		package_flush_cache();
 
-	if ($single_file)
-		return false;
-	else
-		return $return;
+	return $single_file ? false : $return;
 }
 
 /**
@@ -475,7 +369,7 @@ function read_zip_data($data, $destination, $single_file = false, $overwrite = f
  */
 function url_exists($url)
 {
-	$a_url = parse_url($url);
+	$a_url = parse_iri($url);
 
 	if (!isset($a_url['scheme']))
 		return false;
@@ -1580,17 +1474,18 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 }
 
 /**
- * Checks if version matches any of the versions in versions.
+ * Checks if version matches any of the versions in `$versions`.
+ *
  * - supports comma separated version numbers, with or without whitespace.
  * - supports lower and upper bounds. (1.0-1.2)
  * - returns true if the version matched.
  *
- * @param string $versions The SMF versions
+ * @param string $versions The versions that this package will install on
  * @param boolean $reset Whether to reset $near_version
- * @param string $the_version
+ * @param string $the_version The forum version
  * @return string|bool Highest install value string or false
  */
-function matchHighestPackageVersion($versions, $reset = false, $the_version)
+function matchHighestPackageVersion($versions, $reset, $the_version)
 {
 	static $near_version = 0;
 
@@ -1734,7 +1629,7 @@ function compareVersions($version1, $version2)
  */
 function parse_path($path)
 {
-	global $modSettings, $boarddir, $sourcedir, $settings, $temp_path;
+	global $modSettings, $boarddir, $sourcedir, $settings, $temp_path, $txt;
 
 	$dirs = array(
 		'\\' => '/',
@@ -1756,13 +1651,16 @@ function parse_path($path)
 		$dirs['$package'] = $temp_path;
 
 	if (strlen($path) == 0)
-		trigger_error('parse_path(): There should never be an empty filename', E_USER_ERROR);
+	{
+		loadLanguage('Errors');
+		trigger_error($txt['parse_path_filename_required'], E_USER_ERROR);
+	}
 
 	return strtr($path, $dirs);
 }
 
 /**
- * Deletes a directory, and all the files and direcories inside it.
+ * Deletes a directory, and all the files and directories inside it.
  * requires access to delete these files.
  *
  * @param string $dir A directory
@@ -2091,7 +1989,8 @@ function parseModification($file, $testing = true, $undo = false, $theme_paths =
 		{
 			if ($working_file[0] != '/' && $working_file[1] != ':')
 			{
-				trigger_error('parseModification(): The filename \'' . $working_file . '\' is not a full path!', E_USER_WARNING);
+				loadLanguage('Errors');
+				trigger_error(sprintf($txt['parse_modification_filename_not_full_path'], $working_file), E_USER_WARNING);
 
 				$working_file = $boarddir . '/' . $working_file;
 			}
@@ -2384,7 +2283,7 @@ function parseModification($file, $testing = true, $undo = false, $theme_paths =
  */
 function parseBoardMod($file, $testing = true, $undo = false, $theme_paths = array())
 {
-	global $boarddir, $sourcedir, $settings, $modSettings;
+	global $boarddir, $sourcedir, $settings, $modSettings, $txt;
 
 	@set_time_limit(600);
 	$file = strtr($file, array("\r" => ''));
@@ -2525,7 +2424,8 @@ function parseBoardMod($file, $testing = true, $undo = false, $theme_paths = arr
 
 			if ($working_file[0] != '/' && $working_file[1] != ':')
 			{
-				trigger_error('parseBoardMod(): The filename \'' . $working_file . '\' is not a full path!', E_USER_WARNING);
+				loadLanguage('Errors');
+				trigger_error(sprintf($txt['parse_boardmod_filename_not_full_path'], $working_file), E_USER_WARNING);
 
 				$working_file = $boarddir . '/' . $working_file;
 			}
@@ -2787,7 +2687,7 @@ function package_put_contents($filename, $data, $testing = false)
 function package_flush_cache($trash = false)
 {
 	/** @var ftp_connection $package_ftp */
-	global $package_ftp, $package_cache;
+	global $package_ftp, $package_cache, $txt;
 	static $text_filetypes = array('php', 'txt', '.js', 'css', 'vbs', 'tml', 'htm');
 
 	if (empty($package_cache))
@@ -2815,7 +2715,8 @@ function package_flush_cache($trash = false)
 			if (!$fp)
 			{
 				// We should have package_chmod()'d them before, no?!
-				trigger_error('package_flush_cache(): some files are still not writable', E_USER_WARNING);
+				loadLanguage('Errors');
+				trigger_error($txt['package_flush_cache_not_writable'], E_USER_WARNING);
 				return;
 			}
 			fclose($fp);
@@ -3000,6 +2901,26 @@ function package_crypt($pass)
 }
 
 /**
+ * @param string $dir
+ * @param string $filename The filename without an extension
+ * @param string $ext
+ * @return string The filename with a number appended but no extension
+ * @since 2.1
+ */
+function package_unique_filename($dir, $filename, $ext)
+{
+	if (file_exists($dir . '/' . $filename . '.' . $ext))
+	{
+		$i = 1;
+		while (file_exists($dir . '/' . $filename . '_' . $i . '.' . $ext))
+			$i++;
+		$filename .= '_' . $i;
+	}
+
+	return $filename;
+}
+
+/**
  * Creates a backup of forum files prior to modifying them
  *
  * @param string $id The name of the backup
@@ -3011,7 +2932,7 @@ function package_create_backup($id = 'backup')
 
 	$files = array();
 
-	$base_files = array('index.php', 'SSI.php', 'agreement.txt', 'cron.php', 'ssi_examples.php', 'ssi_examples.shtml', 'subscriptions.php');
+	$base_files = array('index.php', 'SSI.php', 'agreement.txt', 'cron.php', 'proxy.php', 'ssi_examples.php', 'ssi_examples.shtml', 'subscriptions.php');
 	foreach ($base_files as $file)
 	{
 		if (file_exists($boarddir . '/' . $file))
@@ -3051,7 +2972,7 @@ function package_create_backup($id = 'backup')
 				if ($dir->isDir())
 					continue;
 
-				if (preg_match('~^(\.{1,2}|CVS|backup.*|help|images|.*\~)$~', $entry) != 0)
+				if (preg_match('~^(\.{1,2}|CVS|backup.*|help|images|.*\~|.*minified_[a-z0-9]{32}\.(js|css))$~', $entry) != 0)
 					continue;
 
 				$files[empty($_REQUEST['use_full_paths']) ? str_replace(realpath($boarddir), '', $entry) : $entry] = $entry;
@@ -3064,7 +2985,7 @@ function package_create_backup($id = 'backup')
 			mktree($packagesdir . '/backups', 0777);
 		if (!is_writable($packagesdir . '/backups'))
 			package_chmod($packagesdir . '/backups');
-		$output_file = $packagesdir . '/backups/' . strftime('%Y-%m-%d_') . preg_replace('~[$\\\\/:<>|?*"\']~', '', $id);
+		$output_file = $packagesdir . '/backups/' . smf_strftime('%Y-%m-%d_') . preg_replace('~[$\\\\/:<>|?*"\']~', '', $id);
 		$output_ext = '.tar';
 		$output_ext_target = '.tar.gz';
 
@@ -3083,17 +3004,18 @@ function package_create_backup($id = 'backup')
 			@apache_reset_timeout();
 
 		// Phar doesn't handle open_basedir restrictions very well and throws a PHP Warning. Ignore that.
-		set_error_handler(function($errno, $errstr, $errfile, $errline)
-		{
-			// error was suppressed with the @-operator
-			if (0 === error_reporting())
+		set_error_handler(
+			function($errno, $errstr, $errfile, $errline)
 			{
-				return false;
+				// error was suppressed with the @-operator
+				if (0 === error_reporting())
+					return false;
+
+				if (strpos($errstr, 'PharData::__construct(): open_basedir') === false && strpos($errstr, 'PharData::compress(): open_basedir') === false)
+					log_error($errstr, 'general', $errfile, $errline);
+
+				return true;
 			}
-			if (strpos($errstr, 'PharData::__construct(): open_basedir') === false && strpos($errstr, 'PharData::compress(): open_basedir') === false)
-				log_error($errstr, 'general', $errfile, $errline);
-			return true;
-		}
 		);
 		$a = new PharData($output_file);
 		$a->buildFromIterator($iterator);
@@ -3151,7 +3073,9 @@ function package_validate_installtest($package)
 {
 	global $context;
 
-	$context['package_sha256_hash'] = hash_file('sha256', $package['file_name']);
+	// Don't validate directories.
+	$context['package_sha256_hash'] = is_dir($package['file_name']) ? null : hash_file('sha256', $package['file_name']);
+
 	$sendData = array(array(
 		'sha256_hash' => $context['package_sha256_hash'],
 		'file_name' => basename($package['file_name']),

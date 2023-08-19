@@ -6,6 +6,8 @@ Settings_bak.php
 Settings_org.php
 db_last_error.php
 cache/data*.php
+cache/data*.cache
+cache/*.db3
 Packages/backups/*
 Packages/temp
 *.*~
@@ -18,6 +20,9 @@ attachments/
 Themes/default/css/minified*.css
 Themes/default/scripts/minified*.js
 Themes/default/scripts/minified_deferred*.js
+custom_avatar/
+!custom_avatar/index.php
+!custom_avatar/blank.png
 
 # Compiled source #
 ###################
@@ -68,3 +73,5 @@ Themes/default/scripts/minified.js
 Themes/default/css/minified.css
 upgrade-helper.php
 .vscode/
+
+vendor/

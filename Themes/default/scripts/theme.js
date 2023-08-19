@@ -5,7 +5,7 @@ $(function() {
 	$('.preview').SMFtooltip();
 
 	// find all nested linked images and turn off the border
-	$('a.bbc_link img.bbc_img').parent().css('border', '0');
+	$('a.bbc_link img').parent().css('border', '0');
 });
 
 // The purpose of this code is to fix the height of overflow: auto blocks, because some browsers can't figure it out for themselves.
@@ -15,7 +15,7 @@ function smf_codeBoxFix()
 	$.each(codeFix, function(index, tag)
 	{
 		if (is_webkit && $(tag).height() < 20)
-			$(tag).css({height: ($(tag).height + 20) + 'px'});
+			$(tag).css({height: ($(tag).height() + 20) + 'px'});
 
 		else if (is_ff && ($(tag)[0].scrollWidth > $(tag).innerWidth() || $(tag).innerWidth() == 0))
 			$(tag).css({overflow: 'scroll'});

@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  *
  * Original module by Mach8 - We'll never forget you.
  */
@@ -373,7 +373,7 @@ function SplitSelectTopics()
 			'id' => $row['id_msg'],
 			'subject' => $row['subject'],
 			'time' => timeformat($row['poster_time']),
-			'timestamp' => forum_time(true, $row['poster_time']),
+			'timestamp' => $row['poster_time'],
 			'body' => $row['body'],
 			'poster' => $row['real_name'],
 		);
@@ -413,7 +413,7 @@ function SplitSelectTopics()
 				'id' => $row['id_msg'],
 				'subject' => $row['subject'],
 				'time' => timeformat($row['poster_time']),
-				'timestamp' => forum_time(true, $row['poster_time']),
+				'timestamp' => $row['poster_time'],
 				'body' => $row['body'],
 				'poster' => $row['real_name']
 			);
@@ -543,7 +543,7 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		// Get the right first and last message dependant on approved state...
+		// Get the right first and last message dependent on approved state...
 		if (empty($split1_first_msg) || $row['myid_first_msg'] < $split1_first_msg)
 			$split1_first_msg = $row['myid_first_msg'];
 		if (empty($split1_last_msg) || $row['approved'])
@@ -586,7 +586,7 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		// As before get the right first and last message dependant on approved state...
+		// As before get the right first and last message dependent on approved state...
 		if (empty($split2_first_msg) || $row['myid_first_msg'] < $split2_first_msg)
 			$split2_first_msg = $row['myid_first_msg'];
 		if (empty($split2_last_msg) || $row['approved'])
@@ -1108,13 +1108,13 @@ function MergeExecute($topics = array())
 			'subject' => $row['subject'],
 			'started' => array(
 				'time' => timeformat($row['time_started']),
-				'timestamp' => forum_time(true, $row['time_started']),
+				'timestamp' => $row['time_started'],
 				'href' => empty($row['id_member_started']) ? '' : $scripturl . '?action=profile;u=' . $row['id_member_started'],
 				'link' => empty($row['id_member_started']) ? $row['name_started'] : '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member_started'] . '">' . $row['name_started'] . '</a>'
 			),
 			'updated' => array(
 				'time' => timeformat($row['time_updated']),
-				'timestamp' => forum_time(true, $row['time_updated']),
+				'timestamp' => $row['time_updated'],
 				'href' => empty($row['id_member_updated']) ? '' : $scripturl . '?action=profile;u=' . $row['id_member_updated'],
 				'link' => empty($row['id_member_updated']) ? $row['name_updated'] : '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member_updated'] . '">' . $row['name_updated'] . '</a>'
 			),
@@ -1399,13 +1399,27 @@ function MergeExecute($topics = array())
 	// We only need to do this if we're posting redirection topics...
 	if (isset($_POST['postRedirect']))
 	{
+		// Replace tokens with links in the reason.
+		$reason_replacements = array(
+			$txt['movetopic_auto_topic'] => '[iurl="' . $scripturl . '?topic=' . $id_topic . '.0"]' . $target_subject . '[/iurl]',
+		);
+
+		// Should be in the boardwide language.
+		if ($user_info['language'] != $language)
+		{
+			loadLanguage('index', $language);
+
+			// Make sure we catch both languages in the reason.
+			$reason_replacements += array(
+				$txt['movetopic_auto_topic'] => '[iurl="' . $scripturl . '?topic=' . $id_topic . '.0"]' . $target_subject . '[/iurl]',
+			);
+		}
+
 		$_POST['reason'] = $smcFunc['htmlspecialchars']($_POST['reason'], ENT_QUOTES);
 		preparsecode($_POST['reason']);
 
 		// Add a URL onto the message.
-		$reason = strtr($_POST['reason'], array(
-			$txt['movetopic_auto_topic'] => '[iurl=' . $scripturl . '?topic=' . $id_topic . '.0]' . $target_subject . '[/iurl]'
-		));
+		$reason = strtr($_POST['reason'], $reason_replacements);
 
 		// Automatically remove this MERGED redirection topic in the future?
 		$redirect_expires = !empty($_POST['redirect_expires']) ? ((int) ($_POST['redirect_expires'] * 60) + time()) : 0;
@@ -1441,6 +1455,10 @@ function MergeExecute($topics = array())
 			// Update subject search index
 			updateStats('subject', $this_old_topic, $redirect_subject);
 		}
+
+		// Restore language strings to normal.
+		if ($user_info['language'] != $language)
+			loadLanguage('index');
 	}
 
 	// Grab the response prefix (like 'Re: ') in the default forum language.
@@ -1697,7 +1715,7 @@ function MergeExecute($topics = array())
 		removeTopics($deleted_topics, false, true, false);
 	}
 
-	// Asssign the properties of the newly merged topic.
+	// Assign the properties of the newly merged topic.
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}topics
 		SET

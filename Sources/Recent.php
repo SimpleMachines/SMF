@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -20,7 +20,6 @@ if (!defined('SMF'))
  * Get the latest post made on the system
  *
  * - respects approved, recycled, and board permissions
- * - @todo is this even used anywhere?
  *
  * @return array An array of information about the last post that you can see
  */
@@ -65,7 +64,7 @@ function getLastPost()
 		'short_subject' => shorten_subject($row['subject'], 24),
 		'preview' => $row['body'],
 		'time' => timeformat($row['poster_time']),
-		'timestamp' => forum_time(true, $row['poster_time']),
+		'timestamp' => $row['poster_time'],
 		'href' => $scripturl . '?topic=' . $row['id_topic'] . '.new;topicseen#new',
 		'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.new;topicseen#new">' . $row['subject'] . '</a>'
 	);
@@ -381,7 +380,7 @@ function RecentPosts()
 			'subject' => $row['subject'],
 			'shorten_subject' => shorten_subject($row['subject'], 30),
 			'time' => timeformat($row['poster_time']),
-			'timestamp' => forum_time(true, $row['poster_time']),
+			'timestamp' => $row['poster_time'],
 			'first_poster' => array(
 				'id' => $row['id_first_member'],
 				'name' => $row['first_poster_name'],
@@ -825,13 +824,13 @@ function UnreadTopics()
 			CREATE TEMPORARY TABLE {db_prefix}log_topics_unread (
 				PRIMARY KEY (id_topic)
 			)
-			SELECT lt.id_topic, lt.id_msg
+			SELECT lt.id_topic, lt.id_msg, lt.unwatched
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic)
 			WHERE lt.id_member = {int:current_member}
 				AND t.' . $query_this_board . (empty($earliest_msg) ? '' : '
 				AND t.id_last_msg > {int:earliest_msg}') . ($modSettings['postmod_active'] ? '
-				AND t.approved = {int:is_approved}' : '') . ' AND lt.unwatched != 1',
+				AND t.approved = {int:is_approved}' : ''),
 			array_merge($query_parameters, array(
 				'current_member' => $user_info['id'],
 				'earliest_msg' => !empty($earliest_msg) ? $earliest_msg : 0,
@@ -853,7 +852,8 @@ function UnreadTopics()
 			WHERE t.' . $query_this_board . (!empty($earliest_msg) ? '
 				AND t.id_last_msg > {int:earliest_msg}' : '') . '
 				AND COALESCE(lt.id_msg, lmr.id_msg, 0) < t.id_last_msg' . ($modSettings['postmod_active'] ? '
-				AND t.approved = {int:is_approved}' : ''),
+				AND t.approved = {int:is_approved}' : '') . '
+				AND COALESCE(lt.unwatched, 0) != 1',
 			array_merge($query_parameters, array(
 				'current_member' => $user_info['id'],
 				'earliest_msg' => !empty($earliest_msg) ? $earliest_msg : 0,
@@ -912,6 +912,7 @@ function UnreadTopics()
 				AND t.id_last_msg >= {int:min_message}
 				AND COALESCE(lt.id_msg, lmr.id_msg, 0) < t.id_last_msg' . ($modSettings['postmod_active'] ? '
 				AND ms.approved = {int:is_approved}' : '') . '
+				AND COALESCE(lt.unwatched, 0) != 1
 			ORDER BY {raw:sort}
 			LIMIT {int:offset}, {int:limit}',
 			array_merge($query_parameters, array(
@@ -930,13 +931,14 @@ function UnreadTopics()
 			SELECT COUNT(*), MIN(t.id_last_msg)
 			FROM {db_prefix}topics AS t' . (!empty($have_temp_table) ? '
 				LEFT JOIN {db_prefix}log_topics_unread AS lt ON (lt.id_topic = t.id_topic)' : '
-				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member} AND lt.unwatched != 1)') . '
+				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})') . '
 				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})
 			WHERE t.' . $query_this_board . ($context['showing_all_topics'] && !empty($earliest_msg) ? '
 				AND t.id_last_msg > {int:earliest_msg}' : (!$context['showing_all_topics'] && empty($_SESSION['first_login']) ? '
 				AND t.id_last_msg > {int:id_msg_last_visit}' : '')) . '
 				AND COALESCE(lt.id_msg, lmr.id_msg, 0) < t.id_last_msg' . ($modSettings['postmod_active'] ? '
-				AND t.approved = {int:is_approved}' : '') . '',
+				AND t.approved = {int:is_approved}' : '') . '
+				AND COALESCE(lt.unwatched, 0) != 1',
 			array_merge($query_parameters, array(
 				'current_member' => $user_info['id'],
 				'earliest_msg' => !empty($earliest_msg) ? $earliest_msg : 0,
@@ -995,12 +997,13 @@ function UnreadTopics()
 				LEFT JOIN {db_prefix}attachments AS af ON (af.id_member = mems.id_member)
 				LEFT JOIN {db_prefix}attachments AS al ON (al.id_member = meml.id_member)' : '') . '' . (!empty($have_temp_table) ? '
 				LEFT JOIN {db_prefix}log_topics_unread AS lt ON (lt.id_topic = t.id_topic)' : '
-				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member} AND lt.unwatched != 1)') . '
+				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})') . '
 				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})
 			WHERE t.' . $query_this_board . '
 				AND t.id_last_msg >= {int:min_message}
 				AND COALESCE(lt.id_msg, lmr.id_msg, 0) < ml.id_msg' . ($modSettings['postmod_active'] ? '
 				AND ms.approved = {int:is_approved}' : '') . '
+				AND COALESCE(lt.unwatched, 0) != 1
 			ORDER BY {raw:order}
 			LIMIT {int:offset}, {int:limit}',
 			array_merge($query_parameters, array(
@@ -1054,6 +1057,7 @@ function UnreadTopics()
 				WHERE m.id_member = {int:current_member}' . (!empty($board) ? '
 					AND t.id_board = {int:current_board}' : '') . ($modSettings['postmod_active'] ? '
 					AND t.approved = {int:is_approved}' : '') . '
+					AND COALESCE(lt.unwatched, 0) != 1
 				GROUP BY m.id_topic',
 				array(
 					'current_board' => $board,
@@ -1106,7 +1110,8 @@ function UnreadTopics()
 				WHERE t.' . $query_this_board . '
 					AND m.id_member = {int:current_member}
 					AND COALESCE(lt.id_msg, lmr.id_msg, 0) < t.id_last_msg' . ($modSettings['postmod_active'] ? '
-					AND t.approved = {int:is_approved}' : '') . ' AND lt.unwatched != 1',
+					AND t.approved = {int:is_approved}' : '') . '
+					AND COALESCE(lt.unwatched, 0) != 1',
 				array_merge($query_parameters, array(
 					'current_member' => $user_info['id'],
 					'is_approved' => 1,
@@ -1170,7 +1175,8 @@ function UnreadTopics()
 				WHERE t.' . $query_this_board . '
 					AND t.id_last_msg >= {int:min_message}
 					AND (COALESCE(lt.id_msg, lmr.id_msg, 0)) < t.id_last_msg
-					AND t.approved = {int:is_approved} AND lt.unwatched != 1
+					AND t.approved = {int:is_approved}
+					AND COALESCE(lt.unwatched, 0) != 1
 				ORDER BY {raw:order}
 				LIMIT {int:offset}, {int:limit}',
 				array_merge($query_parameters, array(
@@ -1284,7 +1290,7 @@ function UnreadTopics()
 
 			// If we can use all, show all.
 			if (!empty($modSettings['enableAllMessages']) && $topic_length < $modSettings['enableAllMessages'])
-				$pages .= ' &nbsp;<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0;all">' . $txt['all'] . '</a>';
+				$pages .= sprintf(strtr($settings['page_index']['page'], array('{URL}' => $scripturl . '?topic=' . $row['id_topic'] . '.0;all')), '', $txt['all']);
 		}
 
 		else
@@ -1335,10 +1341,10 @@ function UnreadTopics()
 					'name' => $row['first_poster_name'],
 					'id' => $row['id_first_member'],
 					'href' => $scripturl . '?action=profile;u=' . $row['id_first_member'],
-					'link' => !empty($row['id_first_member']) ? '<a class="preview" href="' . $scripturl . '?action=profile;u=' . $row['id_first_member'] . '" title="' . $txt['profile_of'] . ' ' . $row['first_poster_name'] . '">' . $row['first_poster_name'] . '</a>' : $row['first_poster_name']
+					'link' => !empty($row['id_first_member']) ? '<a class="preview" href="' . $scripturl . '?action=profile;u=' . $row['id_first_member'] . '" title="' . sprintf($txt['view_profile_of_username'], $row['first_poster_name']) . '">' . $row['first_poster_name'] . '</a>' : $row['first_poster_name']
 				),
 				'time' => timeformat($row['first_poster_time']),
-				'timestamp' => forum_time(true, $row['first_poster_time']),
+				'timestamp' => $row['first_poster_time'],
 				'subject' => $row['first_subject'],
 				'preview' => $row['first_body'],
 				'icon' => $row['first_icon'],
@@ -1355,7 +1361,7 @@ function UnreadTopics()
 					'link' => !empty($row['id_last_member']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_last_member'] . '">' . $row['last_poster_name'] . '</a>' : $row['last_poster_name']
 				),
 				'time' => timeformat($row['last_poster_time']),
-				'timestamp' => forum_time(true, $row['last_poster_time']),
+				'timestamp' => $row['last_poster_time'],
 				'subject' => $row['last_subject'],
 				'preview' => $row['last_body'],
 				'icon' => $row['last_icon'],

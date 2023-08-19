@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.4
  *
  * This file contains helper functions for upgrade.php
  */
@@ -310,11 +310,29 @@ function quickFileWritable($file)
 		// If it's writable, break out of the loop
 		if (is_writable($file))
 			break;
+
 		else
 			@chmod($file, $val);
 	}
 
 	return is_writable($file);
+}
+
+/**
+ * Delete a file.  Check permissions first, just in case.
+ *
+ * @param string $file
+ */
+function deleteFile($file)
+{
+	if (!file_exists($file))
+		return;
+
+	quickFileWritable($file);
+
+	@unlink($file);
+
+	return;
 }
 
 /**
@@ -325,7 +343,9 @@ function quickFileWritable($file)
  */
 function smf_strtolower($string)
 {
-	return mb_strtolower($string, 'UTF-8');
+	global $sourcedir;
+	require_once($sourcedir . '/Subs-Charset.php');
+	return utf8_strtolower($string);
 }
 
 /**
@@ -396,7 +416,7 @@ function smf_mysql_free_result($rs)
  * @param $rs Ignored
  * @return int|string
  */
-function smf_mysql_insert_id($rs)
+function smf_mysql_insert_id($rs = null)
 {
 	global $db_connection;
 	return mysqli_insert_id($db_connection);
@@ -432,18 +452,21 @@ if (!function_exists('array_column'))
 {
 	function array_column($input, $column_key, $index_key = null)
 	{
-		$arr = array_map(function($d) use ($column_key, $index_key)
-		{
-			if (!isset($d[$column_key]))
+		$arr = array_map(
+			function($d) use ($column_key, $index_key)
 			{
-				return null;
-			}
-			if ($index_key !== null)
-			{
-				return array($d[$index_key] => $d[$column_key]);
-			}
-			return $d[$column_key];
-		}, $input);
+				if (!isset($d[$column_key]))
+				{
+					return null;
+				}
+				if ($index_key !== null)
+				{
+					return array($d[$index_key] => $d[$column_key]);
+				}
+				return $d[$column_key];
+			},
+			$input
+		);
 
 		if ($index_key !== null)
 		{
@@ -456,4 +479,28 @@ if (!function_exists('array_column'))
 		}
 		return $arr;
 	}
+}
+
+/**
+ * Creates the json_encoded array for the current cache option.
+ *
+ * @return string a json_encoded array with the selected API options
+ */
+function upgradeCacheSettings()
+{
+	$cache_options = array(
+		'smf' => 'FileBase',
+		'apc' => 'FileBase',
+		'apcu' => 'Apcu',
+		'memcache' => 'MemcacheImplementation',
+		'memcached' => 'MemcachedImplementation',
+		'postgres' => 'Postgres',
+		'sqlite' => 'Sqlite',
+		'xcache' => 'FileBase',
+		'zend' => 'Zend',
+	);
+
+	$current_cache = !empty($GLOBALS['cache_accelerator']) ? $GLOBALS['cache_accelerator'] : 'smf';
+
+	return $cache_options[$current_cache];
 }

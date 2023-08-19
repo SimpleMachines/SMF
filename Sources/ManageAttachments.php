@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -112,6 +112,8 @@ function ManageAttachmentSettings($return_config = false)
 
 	// A bit of razzle dazzle with the $txt strings. :)
 	$txt['attachment_path'] = $context['attachmentUploadDir'];
+	if (empty($modSettings['attachment_basedirectories']) && $modSettings['currentAttachmentUploadDir'] == 1 && count($modSettings['attachmentUploadDir']) == 1)
+		$txt['attachmentUploadDir_path'] = $modSettings['attachmentUploadDir'][1];
 	$txt['basedirectory_for_attachments_path'] = isset($modSettings['basedirectory_for_attachments']) ? $modSettings['basedirectory_for_attachments'] : '';
 	$txt['use_subdirectories_for_attachments_note'] = empty($modSettings['attachment_basedirectories']) || empty($modSettings['use_subdirectories_for_attachments']) ? $txt['use_subdirectories_for_attachments_note'] : '';
 	$txt['attachmentUploadDir_multiple_configure'] = '<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=attachpaths">[' . $txt['attachmentUploadDir_multiple_configure'] . ']</a>';
@@ -136,7 +138,7 @@ function ManageAttachmentSettings($return_config = false)
 		array('select', 'automanage_attachments', array(0 => $txt['attachments_normal'], 1 => $txt['attachments_auto_space'], 2 => $txt['attachments_auto_years'], 3 => $txt['attachments_auto_months'], 4 => $txt['attachments_auto_16'])),
 		array('check', 'use_subdirectories_for_attachments', 'subtext' => $txt['use_subdirectories_for_attachments_note']),
 		(empty($modSettings['attachment_basedirectories']) ? array('text', 'basedirectory_for_attachments', 40,) : array('var_message', 'basedirectory_for_attachments', 'message' => 'basedirectory_for_attachments_path', 'invalid' => empty($context['valid_basedirectory']), 'text_label' => (!empty($context['valid_basedirectory']) ? $txt['basedirectory_for_attachments_current'] : sprintf($txt['basedirectory_for_attachments_warning'], $scripturl)))),
-		empty($modSettings['attachment_basedirectories']) && $modSettings['currentAttachmentUploadDir'] == 1 && count($modSettings['attachmentUploadDir']) == 1 ? array('json', 'attachmentUploadDir', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 40, 'invalid' => !$context['valid_upload_dir'], 'disabled' => true) : array('var_message', 'attach_current_directory', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 'message' => 'attachment_path', 'invalid' => empty($context['valid_upload_dir']), 'text_label' => (!empty($context['valid_upload_dir']) ? $txt['attach_current_dir'] : sprintf($txt['attach_current_dir_warning'], $scripturl))),
+		empty($modSettings['attachment_basedirectories']) && $modSettings['currentAttachmentUploadDir'] == 1 && count($modSettings['attachmentUploadDir']) == 1 ? array('var_message', 'attachmentUploadDir_path', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 40, 'invalid' => !$context['valid_upload_dir'], 'text_label' => $txt['attachmentUploadDir'], 'message' => 'attachmentUploadDir_path') : array('var_message', 'attach_current_directory', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 'message' => 'attachment_path', 'invalid' => empty($context['valid_upload_dir']), 'text_label' => (!empty($context['valid_upload_dir']) ? $txt['attach_current_dir'] : sprintf($txt['attach_current_dir_warning'], $scripturl))),
 		array('int', 'attachmentDirFileLimit', 'subtext' => $txt['zero_for_no_limit'], 6),
 		array('int', 'attachmentDirSizeLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
 		array('check', 'dont_show_attach_under_post', 'subtext' => $txt['dont_show_attach_under_post_sub']),
@@ -145,7 +147,7 @@ function ManageAttachmentSettings($return_config = false)
 		// Posting limits
 		array('int', 'attachmentPostLimit', 'subtext' => sprintf($txt['attachment_ini_max'], $post_max_kb . ' ' . $txt['kilobyte']), 6, 'postinput' => $txt['kilobyte'], 'min' => 1, 'max' => $post_max_kb, 'disabled' => empty($post_max_kb)),
 		array('int', 'attachmentSizeLimit', 'subtext' => sprintf($txt['attachment_ini_max'], $file_max_kb . ' ' . $txt['kilobyte']), 6, 'postinput' => $txt['kilobyte'], 'min' => 1, 'max' => $file_max_kb, 'disabled' => empty($file_max_kb)),
-		array('int', 'attachmentNumPerPostLimit', 'subtext' => $txt['zero_for_no_limit'], 6),
+		array('int', 'attachmentNumPerPostLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'min' => 0),
 		// Security Items
 		array('title', 'attachment_security_settings'),
 		// Extension checks etc.
@@ -400,28 +402,9 @@ function BrowseFiles()
 	// Attachments or avatars?
 	$context['browse_type'] = isset($_REQUEST['avatars']) ? 'avatars' : (isset($_REQUEST['thumbs']) ? 'thumbs' : 'attachments');
 
-	$titles = array(
-		'attachments' => array('?action=admin;area=manageattachments;sa=browse', $txt['attachment_manager_attachments']),
-		'avatars' => array('?action=admin;area=manageattachments;sa=browse;avatars', $txt['attachment_manager_avatars']),
-		'thumbs' => array('?action=admin;area=manageattachments;sa=browse;thumbs', $txt['attachment_manager_thumbs']),
-	);
-
-	$list_title = $txt['attachment_manager_browse_files'] . ': ';
-	foreach ($titles as $browse_type => $details)
-	{
-		if ($browse_type != 'attachments')
-			$list_title .= ' | ';
-
-		if ($context['browse_type'] == $browse_type)
-			$list_title .= '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ';
-
-		$list_title .= '<a href="' . $scripturl . $details[0] . '">' . $details[1] . '</a>';
-	}
-
 	// Set the options for the list component.
 	$listOptions = array(
 		'id' => 'file_list',
-		'title' => $list_title,
 		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $scripturl . '?action=admin;area=manageattachments;sa=browse' . ($context['browse_type'] === 'avatars' ? ';avatars' : ($context['browse_type'] === 'thumbs' ? ';thumbs' : '')),
 		'default_sort_col' => 'name',
@@ -577,7 +560,7 @@ function BrowseFiles()
 		),
 		'additional_rows' => array(
 			array(
-				'position' => 'above_table_headers',
+				'position' => 'above_column_headers',
 				'value' => '<input type="submit" name="remove_submit" class="button you_sure" value="' . $txt['quickmod_delete_selected'] . '" data-confirm="' . $txt['confirm_delete_attachments'] . '">',
 			),
 			array(
@@ -587,8 +570,29 @@ function BrowseFiles()
 		),
 	);
 
+	$titles = array(
+		'attachments' => array('?action=admin;area=manageattachments;sa=browse', $txt['attachment_manager_attachments']),
+		'avatars' => array('?action=admin;area=manageattachments;sa=browse;avatars', $txt['attachment_manager_avatars']),
+		'thumbs' => array('?action=admin;area=manageattachments;sa=browse;thumbs', $txt['attachment_manager_thumbs']),
+	);
+
+	$list_title = $txt['attachment_manager_browse_files'] . ': ';
+
 	// Does a hook want to display their attachments better?
-	call_integration_hook('integrate_attachments_browse', array(&$listOptions, &$titles, &$list_title));
+	call_integration_hook('integrate_attachments_browse', array(&$listOptions, &$titles));
+
+	foreach ($titles as $browse_type => $details)
+	{
+		if ($browse_type != 'attachments')
+			$list_title .= ' | ';
+
+		if ($context['browse_type'] == $browse_type)
+			$list_title .= '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ';
+
+		$list_title .= '<a href="' . $scripturl . $details[0] . '">' . $details[1] . '</a>';
+	}
+
+	$listOptions['title'] = $list_title;
 
 	// Create the list.
 	require_once($sourcedir . '/Subs-List.php');
@@ -644,10 +648,12 @@ function list_getFiles($start, $items_per_page, $sort, $browse_type)
 				INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 			WHERE a.attachment_type = {int:attachment_type}
+				AND a.id_member = {int:guest_id_member}
 			ORDER BY {raw:sort}
 			LIMIT {int:start}, {int:per_page}',
 			array(
 				'attachment_type' => $browse_type == 'thumbs' ? '3' : '0',
+				'guest_id_member' => 0,
 				'sort' => $sort,
 				'start' => $start,
 				'per_page' => $items_per_page,
@@ -1032,7 +1038,7 @@ function removeAttachments($condition, $query_type = '', $return_affected_messag
 		// Figure out the "encrypted" filename and unlink it ;).
 		if ($row['attachment_type'] == 1)
 		{
-			// if attachment_type = 1, it's... an avatar in a custom avatar directory.
+			// if attachment_type = 1, it's... an avatar in a custom avatars directory.
 			// wasn't it obvious? :P
 			// @todo look again at this.
 			@unlink($modSettings['custom_avatar_dir'] . '/' . $row['filename']);
@@ -2379,6 +2385,7 @@ function ManageAttachmentPaths()
 					'data' => array(
 						'db' => 'path',
 						'style' => 'width: 45%;',
+						'class' => 'word_break',
 					),
 				),
 				'num_dirs' => array(
@@ -2439,7 +2446,7 @@ function ManageAttachmentPaths()
  */
 function list_getAttachDirs()
 {
-	global $smcFunc, $modSettings, $context, $txt;
+	global $smcFunc, $modSettings, $context, $scripturl, $txt;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_folder, COUNT(id_attach) AS num_attach, SUM(size) AS size_attach
@@ -2494,7 +2501,7 @@ function list_getAttachDirs()
 			'path' => $dir,
 			'current_size' => !empty($expected_size[$id]) ? comma_format($expected_size[$id] / 1024, 0) : 0,
 			'num_files' => comma_format($expected_files[$id] - $sub_dirs, 0) . ($sub_dirs > 0 ? ' (' . $sub_dirs . ')' : ''),
-			'status' => ($is_base_dir ? $txt['attach_dir_basedir'] . '<br>' : '') . ($error ? '<div class="error">' : '') . sprintf($txt['attach_dir_' . $status], $context['session_id'], $context['session_var']) . ($error ? '</div>' : ''),
+			'status' => ($is_base_dir ? $txt['attach_dir_basedir'] . '<br>' : '') . ($error ? '<div class="error">' : '') . sprintf($txt['attach_dir_' . $status], $context['session_id'], $context['session_var'], $scripturl) . ($error ? '</div>' : ''),
 		);
 	}
 
@@ -2602,7 +2609,7 @@ function attachDirStatus($dir, $expected_files)
 }
 
 /**
- * Maintance function to move attachments from one directory to another
+ * Maintenance function to move attachments from one directory to another
  */
 function TransferAttachments()
 {
@@ -2635,7 +2642,7 @@ function TransferAttachments()
 
 	if (empty($results))
 	{
-		// Get the total file count for the progess bar.
+		// Get the total file count for the progress bar.
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(*)
 			FROM {db_prefix}attachments

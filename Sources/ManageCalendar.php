@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -49,8 +49,6 @@ function ManageCalendar()
 		$default = 'settings';
 	}
 
-	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : $default;
-
 	// Set up the two tabs here...
 	$context[$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['manage_calendar'],
@@ -68,6 +66,8 @@ function ManageCalendar()
 		);
 
 	call_integration_hook('integrate_manage_calendar', array(&$subActions));
+
+	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : $default;
 
 	call_helper($subActions[$_REQUEST['sa']]);
 }
@@ -216,7 +216,7 @@ function EditHoliday()
 		validateToken('admin-eh');
 
 		// Not too long good sir?
-		$_REQUEST['title'] = $smcFunc['substr']($_REQUEST['title'], 0, 60);
+		$_REQUEST['title'] = $smcFunc['substr']($smcFunc['normalize']($_REQUEST['title']), 0, 60);
 		$_REQUEST['holiday'] = isset($_REQUEST['holiday']) ? (int) $_REQUEST['holiday'] : 0;
 
 		if (isset($_REQUEST['delete']))
@@ -229,7 +229,7 @@ function EditHoliday()
 			);
 		else
 		{
-			$date = strftime($_REQUEST['year'] <= 1004 ? '1004-%m-%d' : '%Y-%m-%d', mktime(0, 0, 0, $_REQUEST['month'], $_REQUEST['day'], $_REQUEST['year']));
+			$date = smf_strftime($_REQUEST['year'] <= 1004 ? '1004-%m-%d' : '%Y-%m-%d', mktime(0, 0, 0, $_REQUEST['month'], $_REQUEST['day'], $_REQUEST['year']));
 			if (isset($_REQUEST['edit']))
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}calendar_holidays
@@ -297,7 +297,7 @@ function EditHoliday()
 	}
 
 	// Last day for the drop down?
-	$context['holiday']['last_day'] = (int) strftime('%d', mktime(0, 0, 0, $context['holiday']['month'] == 12 ? 1 : $context['holiday']['month'] + 1, 0, $context['holiday']['month'] == 12 ? $context['holiday']['year'] + 1 : $context['holiday']['year']));
+	$context['holiday']['last_day'] = (int) smf_strftime('%d', mktime(0, 0, 0, $context['holiday']['month'] == 12 ? 1 : $context['holiday']['month'] + 1, 0, $context['holiday']['month'] == 12 ? $context['holiday']['year'] + 1 : $context['holiday']['year']));
 }
 
 /**

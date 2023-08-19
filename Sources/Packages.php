@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
 if (!defined('SMF'))
@@ -557,7 +557,7 @@ function PackageInstallTest()
 				$context['has_failure'] = true;
 			else
 			{
-				// See if this dependancy is installed
+				// See if this dependency is installed
 				$request = $smcFunc['db_query']('', '
 					SELECT version
 					FROM {db_prefix}log_packages
@@ -894,7 +894,10 @@ function PackageInstall()
 	if (!is_array($packageInfo))
 		fatal_lang_error($packageInfo);
 
-	$context['package_sha256_hash'] = hash_file('sha256', $packagesdir . '/' . $context['filename']);
+	if (is_dir($packagesdir . '/' . $context['filename']))
+		$context['package_sha256_hash'] = '';
+	else
+		$context['package_sha256_hash'] = hash_file('sha256', $packagesdir . '/' . $context['filename']);
 	$packageInfo['filename'] = $context['filename'];
 
 	// Set the type of extraction...
@@ -953,6 +956,9 @@ function PackageInstall()
 		foreach ($theme_paths as $id => $data)
 			if ($id != 1 && !in_array($id, $old_themes))
 				unset($theme_paths[$id]);
+
+		$context['keep_url'] = $scripturl . '?action=admin;area=packages;sa=browse;' . $context['session_var'] . '=' . $context['session_id'];
+		$context['remove_url'] = $scripturl . '?action=admin;area=packages;sa=remove;package=' . $context['filename'] . ';' . $context['session_var'] . '=' . $context['session_id'];
 	}
 	elseif (isset($old_version) && $old_version != $packageInfo['version'])
 	{
@@ -1252,6 +1258,15 @@ function PackageInstall()
 	clean_cache();
 	deleteAllMinified();
 
+	foreach (array('css_files', 'javascript_files') as $file_type)
+	{
+		foreach ($context[$file_type] as $id => $file)
+		{
+			if (isset($file['filePath']) && !file_exists($file['filePath']))
+				unset($context[$file_type][$id]);
+		}
+	}
+
 	// Restore file permissions?
 	create_chmod_control(array(), array(), true);
 }
@@ -1385,7 +1400,7 @@ function PackageBrowse()
 
 	$context['forum_version'] = SMF_FULL_VERSION;
 	$context['available_packages'] = 0;
-	$context['modification_types'] = array('modification', 'avatar', 'language', 'unknown');
+	$context['modification_types'] = array('modification', 'avatar', 'language', 'unknown', 'smiley');
 
 	call_integration_hook('integrate_modification_types');
 
@@ -1400,7 +1415,7 @@ function PackageBrowse()
 			'no_items_label' => $txt['no_packages'],
 			'get_items' => array(
 				'function' => 'list_getPackages',
-				'params' => array('type' => $type),
+				'params' => array($type),
 			),
 			'base_href' => $scripturl . '?action=admin;area=packages;sa=browse;type=' . $type,
 			'default_sort_col' => 'id' . $type,
@@ -1408,7 +1423,7 @@ function PackageBrowse()
 				'id' . $type => array(
 					'header' => array(
 						'value' => $txt['package_id'],
-						'style' => 'width: 40px;',
+						'style' => 'width: 52px;',
 					),
 					'data' => array(
 						'db' => 'sort_id',
@@ -1472,13 +1487,13 @@ function PackageBrowse()
 
 							if ($package['can_uninstall'])
 								$return = '
-									<a href="' . $scripturl . '?action=admin;area=packages;sa=uninstall;package=' . $package['filename'] . ';pid=' . $package['installed_id'] . '" class="button floatnone">' . $txt['uninstall'] . '</a>';
+									<a href="' . $scripturl . '?action=admin;area=packages;sa=uninstall;package=' . $package['filename'] . ';pid=' . $package['installed_id'] . '" class="button floatnone">' . (isset($txt['uninstall_' . $type]) ? $txt['uninstall_' . $type] : $txt['uninstall']) . '</a>';
 							elseif ($package['can_emulate_uninstall'])
 								$return = '
 									<a href="' . $scripturl . '?action=admin;area=packages;sa=uninstall;ve=' . $package['can_emulate_uninstall'] . ';package=' . $package['filename'] . ';pid=' . $package['installed_id'] . '" class="button floatnone">' . $txt['package_emulate_uninstall'] . ' ' . $package['can_emulate_uninstall'] . '</a>';
 							elseif ($package['can_upgrade'])
 								$return = '
-									<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $package['filename'] . '" class="button" floatnone>' . $txt['package_upgrade'] . '</a>';
+									<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $package['filename'] . '" class="button floatnone">' . $txt['package_upgrade'] . '</a>';
 							elseif ($package['can_install'])
 								$return = '
 									<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $package['filename'] . '" class="button floatnone">' . $txt['install_' . $type] . '</a>';
@@ -1521,7 +1536,10 @@ function PackageBrowse()
 	// Current SMF version, which is selected by default
 	$context['default_version'] = SMF_VERSION;
 
-	$context['emulation_versions'][] = $context['default_version'];
+	if (!in_array($context['default_version'], $context['emulation_versions']))
+	{
+		$context['emulation_versions'][] = $context['default_version'];
+	}
 
 	// Version we're currently emulating, if any
 	$context['selected_version'] = preg_replace('~^SMF ~', '', $context['forum_version']);
@@ -1601,6 +1619,7 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 			'avatar' => 1,
 			'language' => 1,
 			'unknown' => 1,
+			'smiley' => 1,
 		);
 		call_integration_hook('integrate_packages_sort_id', array(&$sort_id, &$packages));
 
@@ -1810,7 +1829,7 @@ function PackageOptions()
  */
 function ViewOperations()
 {
-	global $context, $txt, $sourcedir, $packagesdir, $smcFunc, $modSettings;
+	global $context, $txt, $sourcedir, $packagesdir, $smcFunc, $modSettings, $settings;
 
 	// Can't be in here buddy.
 	isAllowedTo('admin_forum');
@@ -1920,6 +1939,18 @@ function ViewOperations()
 	// No layers
 	$context['template_layers'] = array();
 	$context['sub_template'] = 'view_operations';
+
+	// We only want to load these three JavaScript files.
+	$context['javascript_files'] = array_intersect_key(
+		$context['javascript_files'],
+		[
+			'smf_script_js' => true,
+			'smf_jquery_js' => true
+		]
+	);
+
+	// Since the alerts code is loaded very late in the process, it must be disabled separately.
+	$settings['disable_files'] = ['smf_alerts'];
 }
 
 /**
@@ -2237,9 +2268,9 @@ function PackagePermissions()
 }
 
 /**
- * Checkes the permissions of all the areas that will be affected by the package
+ * Checks the permissions of all the areas that will be affected by the package
  *
- * @param string $path The path to the directiory to check permissions for
+ * @param string $path The path to the directory to check permissions for
  * @param array $data An array of data about the directory
  * @param int $level How far deep to go
  */
@@ -2274,6 +2305,10 @@ function fetchPerms__recursive($path, &$data, $level)
 	$dh = opendir($path);
 	while ($entry = readdir($dh))
 	{
+		// Bypass directory abbreviations altogether...
+		if ($entry == '.' || $entry == '..')
+			continue;
+
 		// Some kind of file?
 		if (is_file($path . '/' . $entry))
 		{
@@ -2285,7 +2320,7 @@ function fetchPerms__recursive($path, &$data, $level)
 				$foundData['files'][$entry] = true;
 		}
 		// It's a directory - we're interested one way or another, probably...
-		elseif ($entry != '.' && $entry != '..')
+		else
 		{
 			// Going further?
 			if ((!empty($data['type']) && $data['type'] == 'dir_recursive') || (isset($data['contents'][$entry]) && (!empty($data['contents'][$entry]['list_contents']) || (!empty($data['contents'][$entry]['type']) && $data['contents'][$entry]['type'] == 'dir_recursive'))))
@@ -2295,7 +2330,7 @@ function fetchPerms__recursive($path, &$data, $level)
 				else
 					$foundData['folders'][$entry] = true;
 
-				// If this wasn't expected inherit the recusiveness...
+				// If this wasn't expected inherit the recursiveness...
 				if (!isset($data['contents'][$entry]))
 					// We need to do this as we will be going all recursive.
 					$data['contents'][$entry] = array(
@@ -2609,6 +2644,10 @@ function PackagePermissionsAction()
 			$dont_chmod = false;
 			while ($entry = readdir($dh))
 			{
+				// Bypass directory abbreviations altogether...
+				if ($entry == '.' || $entry == '..')
+					continue;
+
 				$file_count++;
 				// Actually process this file?
 				if (!$dont_chmod && !is_dir($path . '/' . $entry) && (empty($context['file_offset']) || $context['file_offset'] < $file_count))

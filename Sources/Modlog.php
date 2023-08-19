@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
 if (!defined('SMF'))
@@ -35,7 +35,7 @@ function ViewModlog()
 	if ($context['log_type'] == 3)
 		isAllowedTo('admin_forum');
 
-	// These change dependant on whether we are viewing the moderation or admin log.
+	// These change dependent on whether we are viewing the moderation or admin log.
 	if ($context['log_type'] == 3 || $_REQUEST['action'] == 'admin')
 		$context['url_start'] = '?action=admin;area=logs;sa=' . ($context['log_type'] == 3 ? 'adminlog' : 'modlog') . ';type=' . $context['log_type'];
 	else
@@ -43,7 +43,7 @@ function ViewModlog()
 
 	$context['can_delete'] = allowedTo('admin_forum');
 
-	loadLanguage('Modlog');
+	loadLanguage('Admin+Modlog');
 
 	$context['page_title'] = $context['log_type'] == 3 ? $txt['modlog_admin_log'] : $txt['modlog_view'];
 
@@ -163,6 +163,7 @@ function ViewModlog()
 	// This is all the information required for a watched user listing.
 	$listOptions = array(
 		'id' => 'moderation_log_list',
+		'title' => $context['log_type'] == 3 ? $txt['admin_log'] : $txt['moderation_log'],
 		'width' => '100%',
 		'items_per_page' => $context['displaypage'],
 		'no_items_label' => $txt['modlog_' . ($context['log_type'] == 3 ? 'admin_log_' : '') . 'no_entries_found'],
@@ -282,14 +283,21 @@ function ViewModlog()
 		),
 		'additional_rows' => array(
 			array(
-				'position' => 'below_table_data',
+				'position' => 'after_title',
 				'value' => '
 					' . $txt['modlog_search'] . ' (' . $txt['modlog_by'] . ': ' . $context['search']['label'] . '):
 					<input type="text" name="search" size="18" value="' . $smcFunc['htmlspecialchars']($context['search']['string']) . '">
 					<input type="submit" name="is_search" value="' . $txt['modlog_go'] . '" class="button" style="float:none">
-					' . ($context['can_delete'] ? '&nbsp;
+					' . ($context['can_delete'] ? '
 					<input type="submit" name="remove" value="' . $txt['modlog_remove'] . '" data-confirm="' . $txt['modlog_remove_selected_confirm'] . '" class="button you_sure">
 					<input type="submit" name="removeall" value="' . $txt['modlog_removeall'] . '" data-confirm="' . $txt['modlog_remove_all_confirm'] . '" class="button you_sure">' : ''),
+				'class' => '',
+			),
+			array(
+				'position' => 'below_table_data',
+				'value' => $context['can_delete'] ? '
+					<input type="submit" name="remove" value="' . $txt['modlog_remove'] . '" data-confirm="' . $txt['modlog_remove_selected_confirm'] . '" class="button you_sure">
+					<input type="submit" name="removeall" value="' . $txt['modlog_removeall'] . '" data-confirm="' . $txt['modlog_remove_all_confirm'] . '" class="button you_sure">' : '',
 				'class' => 'floatright',
 			),
 		),
@@ -492,7 +500,7 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 			'position' => empty($row['real_name']) && empty($row['group_name']) ? $txt['guest'] : $row['group_name'],
 			'moderator_link' => $row['id_member'] ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>' : (empty($row['real_name']) ? ($txt['guest'] . (!empty($row['extra']['member_acted']) ? ' (' . $row['extra']['member_acted'] . ')' : '')) : $row['real_name']),
 			'time' => timeformat($row['log_time']),
-			'timestamp' => forum_time(true, $row['log_time']),
+			'timestamp' => $row['log_time'],
 			'editable' => substr($row['action'], 0, 8) !== 'clearlog' && !in_array($row['action'], $context['uneditable_actions']),
 			'extra' => $row['extra'],
 			'action' => $row['action'],
@@ -653,11 +661,15 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 
 		if (empty($entries[$k]['action_text']))
 			$entries[$k]['action_text'] = isset($txt['modlog_ac_' . $entry['action']]) ? $txt['modlog_ac_' . $entry['action']] : $entry['action'];
-		$entries[$k]['action_text'] = preg_replace_callback('~\{([A-Za-z\d_]+)\}~i',
+
+		$entries[$k]['action_text'] = preg_replace_callback(
+			'~\{([A-Za-z\d_]+)\}~i',
 			function($matches) use ($entries, $k)
 			{
 				return isset($entries[$k]['extra'][$matches[1]]) ? $entries[$k]['extra'][$matches[1]] : '';
-			}, $entries[$k]['action_text']);
+			},
+			$entries[$k]['action_text']
+		);
 	}
 
 	// Back we go!

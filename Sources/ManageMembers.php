@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
 if (!defined('SMF'))
@@ -286,14 +286,12 @@ function ViewMemberlist()
 			// Make sure numeric values are really numeric.
 			if (in_array($param_info['type'], array('int', 'age')))
 				$search_params[$param_name] = (int) $search_params[$param_name];
-			// Date values have to match the specified format.
+			// Date values have to match a date format that PHP recognizes.
 			elseif ($param_info['type'] == 'date')
 			{
-				// Check if this date format is valid.
-				if (preg_match('/^\d{4}-\d{1,2}-\d{1,2}$/', $search_params[$param_name]) == 0)
+				$search_params[$param_name] = strtotime($search_params[$param_name] . ' ' . getUserTimezone());
+				if (!is_int($search_params[$param_name]))
 					continue;
-
-				$search_params[$param_name] = strtotime($search_params[$param_name]);
 			}
 			elseif ($param_info['type'] == 'inet')
 			{
@@ -313,7 +311,7 @@ function ViewMemberlist()
 				if ($param_info['type'] == 'age')
 				{
 					// All people that were born between $lowerlimit and $upperlimit are currently the specified age.
-					$datearray = getdate(forum_time());
+					$datearray = getdate(time());
 					$upperlimit = sprintf('%04d-%02d-%02d', $datearray['year'] - $search_params[$param_name], $datearray['mon'], $datearray['mday']);
 					$lowerlimit = sprintf('%04d-%02d-%02d', $datearray['year'] - $search_params[$param_name] - 1, $datearray['mon'], $datearray['mday']);
 					if (in_array($search_params['types'][$param_name], array('-', '--', '=')))
@@ -332,9 +330,24 @@ function ViewMemberlist()
 					}
 				}
 				// Special case - equals a date.
-				elseif ($param_info['type'] == 'date' && $search_params['types'][$param_name] == '=')
+				elseif ($param_info['type'] == 'date')
 				{
-					$query_parts[] = $param_info['db_fields'][0] . ' > ' . $search_params[$param_name] . ' AND ' . $param_info['db_fields'][0] . ' < ' . ($search_params[$param_name] + 86400);
+					if ($search_params['types'][$param_name] == '=')
+					{
+						$query_parts[] = $param_info['db_fields'][0] . ' >= ' . $search_params[$param_name] . ' AND ' . $param_info['db_fields'][0] . ' < ' . ($search_params[$param_name] + 86400);
+					}
+					// Less than or equal to
+					elseif ($search_params['types'][$param_name] == '-')
+					{
+						$query_parts[] = $param_info['db_fields'][0] . ' < ' . ($search_params[$param_name] + 86400);
+					}
+					// Greater than
+					elseif ($search_params['types'][$param_name] == '++')
+					{
+						$query_parts[] = $param_info['db_fields'][0] . ' >= ' . ($search_params[$param_name] + 86400);
+					}
+					else
+						$query_parts[] = $param_info['db_fields'][0] . ' ' . $range_trans[$search_params['types'][$param_name]] . ' ' . $search_params[$param_name];
 				}
 				else
 					$query_parts[] = $param_info['db_fields'][0] . ' ' . $range_trans[$search_params['types'][$param_name]] . ' ' . $search_params[$param_name];
@@ -1278,7 +1291,7 @@ function AdminApprove()
 function jeffsdatediff($old)
 {
 	// Get the current time as the user would see it...
-	$forumTime = forum_time();
+	$forumTime = time();
 
 	// Calculate the seconds that have passed since midnight.
 	$sinceMidnight = date('H', $forumTime) * 60 * 60 + date('i', $forumTime) * 60 + date('s', $forumTime);

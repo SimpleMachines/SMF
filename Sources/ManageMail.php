@@ -10,10 +10,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
 if (!defined('SMF'))
@@ -249,6 +249,8 @@ function list_getMailQueue($start, $items_per_page, $sort)
 		// Private PM/email subjects and similar shouldn't be shown in the mailbox area.
 		if (!empty($row['private']))
 			$row['subject'] = $txt['personal_message'];
+		else
+			$row['subject'] = mb_decode_mimeheader($row['subject']);
 
 		$mails[] = $row;
 	}

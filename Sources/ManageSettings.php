@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.2
  */
 
 if (!defined('SMF'))
@@ -151,7 +151,7 @@ function ModifyModSettings()
  */
 function ModifyBasicSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $modSettings;
+	global $txt, $scripturl, $context, $modSettings, $sourcedir;
 
 	// We need to know if personal text is enabled, and if it's in the registration fields option.
 	// If admins have set it up as an on-registration thing, they can't set a default value (because it'll never be used)
@@ -179,9 +179,10 @@ function ModifyBasicSettings($return_config = false)
 			'select',
 			'jquery_source',
 			array(
-				'auto' => $txt['jquery_auto'],
+				'cdn' => $txt['jquery_google_cdn'],
+				'jquery_cdn' => $txt['jquery_jquery_cdn'],
+				'microsoft_cdn' => $txt['jquery_microsoft_cdn'],
 				'local' => $txt['jquery_local'],
-				'cdn' => $txt['jquery_cdn'],
 				'custom' => $txt['jquery_custom']
 			),
 			'onchange' => 'if (this.value == \'custom\'){document.getElementById(\'jquery_custom\').disabled = false; } else {document.getElementById(\'jquery_custom\').disabled = true;}'
@@ -189,7 +190,7 @@ function ModifyBasicSettings($return_config = false)
 		array(
 			'text',
 			'jquery_custom',
-			'disabled' => isset($modSettings['jquery_source']) && $modSettings['jquery_source'] != 'custom', 'size' => 75
+			'disabled' => !isset($modSettings['jquery_source']) || (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] != 'custom'), 'size' => 75
 		),
 		'',
 
@@ -202,18 +203,9 @@ function ModifyBasicSettings($return_config = false)
 		array('text', 'meta_keywords', 'subtext' => $txt['meta_keywords_note'], 'size' => 50),
 		'',
 
-		// Number formatting, timezones.
+		// Time zone and formatting.
 		array('text', 'time_format'),
-		array(
-			'float',
-			'time_offset',
-			6,
-			'postinput' => $txt['hours'],
-			'step' => 0.25,
-			'min' => -23.5,
-			'max' => 23.5
-		),
-		'default_timezone' => array('select', 'default_timezone', array()),
+		array('select', 'default_timezone', array_filter(smf_list_timezones(), 'is_string', ARRAY_FILTER_USE_KEY)),
 		array('text', 'timezone_priority_countries', 'subtext' => $txt['setting_timezone_priority_countries_note']),
 		'',
 
@@ -241,18 +233,8 @@ function ModifyBasicSettings($return_config = false)
 				'90' => $txt['alerts_auto_purge_90'],
 			),
 		),
+		array('int', 'alerts_per_page', 'step' => 1, 'min' => 0, 'max' => 999),
 	);
-
-	// Get all the time zones.
-	if (function_exists('timezone_identifiers_list') && function_exists('date_default_timezone_set'))
-	{
-		$all_zones = timezone_identifiers_list();
-		// Make sure we set the value to the same as the printed value.
-		foreach ($all_zones as $zone)
-			$config_vars['default_timezone'][2][$zone] = $zone;
-	}
-	else
-		unset($config_vars['default_timezone']);
 
 	call_integration_hook('integrate_modify_basic_settings', array(&$config_vars));
 
@@ -263,6 +245,14 @@ function ModifyBasicSettings($return_config = false)
 	if (isset($_GET['save']))
 	{
 		checkSession();
+
+		// Make sure the country codes are valid.
+		if (!empty($_POST['timezone_priority_countries']))
+		{
+			require_once($sourcedir . '/Subs-Timezones.php');
+
+			$_POST['timezone_priority_countries'] = validate_iso_country_codes($_POST['timezone_priority_countries'], true);
+		}
 
 		// Prevent absurd boundaries here - make it a day tops.
 		if (isset($_POST['lastActive']))
@@ -355,8 +345,31 @@ function ModifyBBCSettings($return_config = false)
 
 		// Clean up the tags.
 		$bbcTags = array();
+		$bbcTagsChildren = array();
 		foreach (parse_bbc(false) as $tag)
+		{
 			$bbcTags[] = $tag['tag'];
+			if (isset($tag['require_children']))
+				$bbcTagsChildren[$tag['tag']] = !isset($bbcTagsChildren[$tag['tag']]) ? $tag['require_children'] : array_unique(array_merge($bbcTagsChildren[$tag['tag']], $tag['require_children']));
+		}
+
+		// Clean up tags with children
+		foreach($bbcTagsChildren as $parent_tag => $children)
+			foreach($children as $index => $child_tag)
+			{
+				// Remove entries where parent and child tag is the same
+				if ($child_tag == $parent_tag)
+				{
+					unset($bbcTagsChildren[$parent_tag][$index]);
+					continue;
+				}
+				// Combine chains of tags
+				if (isset($bbcTagsChildren[$child_tag]))
+				{
+					$bbcTagsChildren[$parent_tag] = array_merge($bbcTagsChildren[$parent_tag], $bbcTagsChildren[$child_tag]);
+					unset($bbcTagsChildren[$child_tag]);
+				}
+			}
 
 		if (!isset($_POST['disabledBBC_enabledTags']))
 			$_POST['disabledBBC_enabledTags'] = array();
@@ -369,6 +382,11 @@ function ModifyBBCSettings($return_config = false)
 			$_POST['legacyBBC_enabledTags'] = array($_POST['legacyBBC_enabledTags']);
 
 		$_POST['disabledBBC_enabledTags'] = array_unique(array_merge($_POST['disabledBBC_enabledTags'], $_POST['legacyBBC_enabledTags']));
+
+		// Enable all children if parent is enabled
+		foreach ($bbcTagsChildren as $tag => $children)
+			if (in_array($tag, $_POST['disabledBBC_enabledTags']))
+				$_POST['disabledBBC_enabledTags'] = array_merge($_POST['disabledBBC_enabledTags'], $children);
 
 		// Work out what is actually disabled!
 		$_POST['disabledBBC'] = implode(',', array_diff($bbcTags, $_POST['disabledBBC_enabledTags']));
@@ -767,7 +785,7 @@ function ModifyAntispamSettings($return_config = false)
 		$context['question_answers'][$row['id_question']] = array(
 			'lngfile' => $lang,
 			'question' => $row['question'],
-			'answers' => $smcFunc['json_decode']($row['answers'], true),
+			'answers' => (array) $smcFunc['json_decode']($row['answers'], true),
 		);
 		$context['qa_by_lang'][$lang][] = $row['id_question'];
 	}
@@ -1575,7 +1593,14 @@ function ShowCustomProfiles()
 				'data' => array(
 					'function' => function($rowData) use ($scripturl)
 					{
-						return sprintf('<a href="%1$s?action=admin;area=featuresettings;sa=profileedit;fid=%2$d">%3$s</a><div class="smalltext">%4$s</div>', $scripturl, $rowData['id_field'], $rowData['field_name'], $rowData['field_desc']);
+						$field_name = tokenTxtReplace($rowData['field_name']);
+						$field_desc = tokenTxtReplace($rowData['field_desc']);
+
+						return sprintf('<a href="%1$s?action=admin;area=featuresettings;sa=profileedit;fid=%2$d">%3$s</a><div class="smalltext">%4$s</div>',
+							$scripturl,
+							$rowData['id_field'],
+							$field_name,
+							$field_desc);
 					},
 					'style' => 'width: 62%;',
 				),
@@ -1766,7 +1791,7 @@ function EditCustomProfiles()
 	// We need this for both moving and saving so put it right here.
 	$order_count = custFieldsMaxOrder();
 
-	if ($context['fid'])
+	if ($context['fid'] && !isset($_GET['move']))
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT
@@ -1848,34 +1873,54 @@ function EditCustomProfiles()
 		);
 
 	// Are we moving it?
-	if (isset($_GET['move']) && in_array($smcFunc['htmlspecialchars']($_GET['move']), $move_to))
+	if ($context['fid'] && isset($_GET['move']) && in_array($smcFunc['htmlspecialchars']($_GET['move']), $move_to))
 	{
-		// Down is the new up.
-		$new_order = ($_GET['move'] == 'up' ? ($context['field']['order'] - 1) : ($context['field']['order'] + 1));
+		$request = $smcFunc['db_query']('', '
+			SELECT
+				id_field, field_order
+			FROM {db_prefix}custom_fields
+			ORDER BY field_order',
+				array()
+		);
+		$fields = array();
+		$new_sort = array();
 
-		// Is this a valid position?
-		if ($new_order <= 0 || $new_order > $order_count)
+		while($row = $smcFunc['db_fetch_assoc']($request))
+				$fields[] = $row['id_field'];
+		$smcFunc['db_free_result']($request);
+
+		$idx = array_search($context['fid'], $fields);
+
+		if ($_GET['move'] == 'down' && count($fields) - 1 > $idx )
+		{
+				$new_sort = array_slice($fields ,0 ,$idx ,true);
+				$new_sort[] = $fields[$idx + 1];
+				$new_sort[] = $fields[$idx];
+				$new_sort += array_slice($fields ,$idx + 2 ,count($fields) ,true);
+		}
+		elseif ($context['fid'] > 0 and $idx < count($fields))
+		{
+				$new_sort = array_slice($fields ,0 ,($idx - 1) ,true);
+				$new_sort[] = $fields[$idx];
+				$new_sort[] = $fields[$idx - 1];
+				$new_sort += array_slice($fields ,($idx + 1) ,count($fields) ,true);
+		}
+		else
 			redirectexit('action=admin;area=featuresettings;sa=profile'); // @todo implement an error handler
 
-		// All good, proceed.
+		$sql_update = 'CASE ';
+		foreach ($new_sort as $orderKey => $PKid)
+		{
+			$sql_update .= 'WHEN id_field = ' . $PKid . ' THEN ' . ($orderKey + 1) . ' ';
+		}
+		$sql_update .= 'END';
+
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}custom_fields
-			SET field_order = {int:old_order}
-			WHERE field_order = {int:new_order}',
-			array(
-				'new_order' => $new_order,
-				'old_order' => $context['field']['order'],
-			)
+			SET field_order = ' . $sql_update,
+				array()
 		);
-		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}custom_fields
-			SET field_order = {int:new_order}
-			WHERE id_field = {int:id_field}',
-			array(
-				'new_order' => $new_order,
-				'id_field' => $context['fid'],
-			)
-		);
+
 		redirectexit('action=admin;area=featuresettings;sa=profile'); // @todo perhaps a nice confirmation message, dunno.
 	}
 
@@ -1910,9 +1955,10 @@ function EditCustomProfiles()
 		$mask = isset($_POST['mask']) ? $_POST['mask'] : '';
 		if ($mask == 'regex' && isset($_POST['regex']))
 			$mask .= $_POST['regex'];
+		$mask = $smcFunc['normalize']($mask);
 
 		$field_length = isset($_POST['max_length']) ? (int) $_POST['max_length'] : 255;
-		$enclose = isset($_POST['enclose']) ? $_POST['enclose'] : '';
+		$enclose = isset($_POST['enclose']) ? $smcFunc['normalize']($_POST['enclose']) : '';
 		$placement = isset($_POST['placement']) ? (int) $_POST['placement'] : 0;
 
 		// Select options?
@@ -2242,12 +2288,18 @@ function ModifyLogSettings($return_config = false)
 		array('check', 'adminlog_enabled', 'help' => 'adminlog'),
 		array('check', 'userlog_enabled', 'help' => 'userlog'),
 		// The error log is a wonderful thing.
-		array('title', 'errorlog'),
+		array('title', 'errorlog', 'force_div_id' => 'errorlog'),
 		array('desc', 'error_log_desc'),
 		array('check', 'enableErrorLogging'),
 		array('check', 'enableErrorQueryLogging'),
+		// The 'mark read' log settings.
+		array('title', 'markread_title', 'force_div_id' => 'markread_title'),
+		array('desc', 'mark_read_desc'),
+		array('int', 'mark_read_beyond', 'step' => 1, 'min' => 0, 'max' => 18000, 'subtext' => $txt['zero_to_disable']),
+		array('int', 'mark_read_delete_beyond', 'step' => 1, 'min' => 0, 'max' => 18000, 'subtext' => $txt['zero_to_disable']),
+		array('int', 'mark_read_max_users', 'step' => 1, 'min' => 0, 'max' => 20000, 'subtext' => $txt['zero_to_disable']),
 		// Even do the pruning?
-		array('title', 'pruning_title'),
+		array('title', 'pruning_title', 'force_div_id' => 'pruning_title'),
 		array('desc', 'pruning_desc'),
 		// The array indexes are there so we can remove/change them before saving.
 		'pruningOptions' => array('check', 'pruningOptions'),
@@ -2301,6 +2353,9 @@ function ModifyLogSettings($return_config = false)
 			array('check', 'userlog_enabled'),
 			array('check', 'enableErrorLogging'),
 			array('check', 'enableErrorQueryLogging'),
+			array('int', 'mark_read_beyond'),
+			array('int', 'mark_read_delete_beyond'),
+			array('int', 'mark_read_max_users'),
 			array('text', 'pruningOptions')
 		);
 

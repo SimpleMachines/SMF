@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
 if (!defined('SMF'))
@@ -161,27 +161,48 @@ function DisplayStats()
 		if (($context['gender'] = cache_get_data('stats_gender', 240)) == null)
 		{
 			$result = $smcFunc['db_query']('', '
-				SELECT COUNT(id_member) AS total_members, value AS gender
-				FROM {db_prefix}themes
-				WHERE variable = {string:gender_var} AND id_theme = {int:default_theme}
+				SELECT default_value
+				FROM {db_prefix}custom_fields
+				WHERE col_name= {string:gender_var}',
+				array(
+					'gender_var' => 'cust_gender',
+				)
+			);
+			$row = $smcFunc['db_fetch_assoc']($result);
+			$default_gender = !empty($row['default_value']) ? $row['default_value'] : '{gender_0}';
+			$smcFunc['db_free_result']($result);
+
+			$result = $smcFunc['db_query']('', '
+				SELECT COUNT(*) AS total_members, value AS gender
+				FROM {db_prefix}members AS mem
+				INNER JOIN {db_prefix}themes AS t ON (
+					t.id_member = mem.id_member
+					AND t.variable = {string:gender_var}
+					AND t.id_theme = {int:default_theme}
+				)
+				WHERE is_activated = {int:is_activated}
 				GROUP BY value',
 				array(
 					'gender_var' => 'cust_gender',
 					'default_theme' => 1,
+					'is_activated' => 1,
+					'default_gender' => $default_gender,
 				)
 			);
-			$context['gender'] = array();
+			$context['gender'] = array($default_gender => 0);
 			while ($row = $smcFunc['db_fetch_assoc']($result))
 			{
 				$context['gender'][$row['gender']] = $row['total_members'];
 			}
 			$smcFunc['db_free_result']($result);
 
+			$context['gender'][$default_gender] += $modSettings['totalMembers'] - array_sum($context['gender']);
+
 			cache_put_data('stats_gender', $context['gender'], 240);
 		}
 	}
 
-	$date = strftime('%Y-%m-%d', forum_time(false));
+	$date = smf_strftime('%Y-%m-%d', time());
 
 	// Members online so far today.
 	$result = $smcFunc['db_query']('', '
@@ -452,7 +473,7 @@ function DisplayStats()
 	{
 		$i = array_search($row_members['id_member'], array_keys($members));
 		// skip all not top 10
-		if ($i >= 10)
+		if ($i > 10)
 			continue;
 
 		$context['stats_blocks']['starters'][$i] = array(
@@ -479,12 +500,14 @@ function DisplayStats()
 	$temp = cache_get_data('stats_total_time_members', 600);
 	$members_result = $smcFunc['db_query']('', '
 		SELECT id_member, real_name, total_time_logged_in
-		FROM {db_prefix}members' . (!empty($temp) ? '
-		WHERE id_member IN ({array_int:member_list_cached})' : '') . '
+		FROM {db_prefix}members
+		WHERE is_activated = {int:is_activated}' .
+		(!empty($temp) ? ' AND id_member IN ({array_int:member_list_cached})' : '') . '
 		ORDER BY total_time_logged_in DESC
 		LIMIT 20',
 		array(
 			'member_list_cached' => $temp,
+			'is_activated' => 1,
 		)
 	);
 	$context['stats_blocks']['time_online'] = array();
@@ -546,7 +569,7 @@ function DisplayStats()
 				INNER JOIN {db_prefix}topics AS t ON (m.id_topic = t.id_topic)
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
 					AND b.id_board != {int:recycle_board}' : '') . ')
-			WHERE {query_see_board}' . ($modSettings['postmod_active'] ? '
+			WHERE m.likes > 0 AND {query_see_board}' . ($modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved}' : '') . '
 			ORDER BY m.likes DESC
 			LIMIT 10',
@@ -809,7 +832,9 @@ function SMStats()
 	else
 	{
 		// Connect to the collection script.
-		$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
+		$fp = @fsockopen('www.simplemachines.org', 443, $errno, $errstr);
+		if (!$fp)
+			$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
 		if ($fp)
 		{
 			$length = strlen($stats_to_send);

@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
 /**
@@ -152,14 +152,39 @@ function template_main()
 							<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'searchform\'); return false;">', $category['name'], '</a>
 							<ul>';
 
-			foreach ($category['boards'] as $board)
+			$cat_boards = array_values($category['boards']);
+			foreach ($cat_boards as $key => $board)
 			{
 				echo '
 								<li>
-									<label for="brd', $board['id'], '" style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
-										<input type="checkbox" id="brd', $board['id'], '" name="brd[', $board['id'], ']" value="', $board['id'], '"', $board['selected'] ? ' checked' : '', '> ', $board['name'], '
-									</label>
+									<label for="brd', $board['id'], '">
+										<input type="checkbox" id="brd', $board['id'], '" name="brd[', $board['id'], ']" value="', $board['id'], '"', $board['selected'] ? ' checked' : '', '>
+										', $board['name'], '
+									</label>';
+
+				// Nest child boards inside another list.
+				$curr_child_level = $board['child_level'];
+				$next_child_level = $cat_boards[$key + 1]['child_level'] ?? 0;
+
+				if ($next_child_level > $curr_child_level)
+				{
+					echo '
+									<ul style="margin-', $context['right_to_left'] ? 'right' : 'left', ': 2.5ch;">';
+				}
+				else
+				{
+					// Close child board lists until we reach a common level
+					// with the next board.
+					while ($next_child_level < $curr_child_level--)
+					{
+						echo '
+										</li>
+									</ul>';
+					}
+
+					echo '
 								</li>';
+				}
 			}
 
 			echo '
@@ -294,42 +319,40 @@ function template_results()
 		echo '
 	</form>';
 
-		// Quick moderation set to checkboxes? Oh, how fun :/
-		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
-			echo '
-	<form action="', $scripturl, '?action=quickmod" method="post" accept-charset="', $context['character_set'], '" name="topicForm">';
-
 		echo '
-		<div class="cat_bar">
-			<h3 class="catbg">
-				<span class="floatright">';
-
-		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
-			echo '
-					<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');">';
-		echo '
-				</span>
-				<span class="main_icons filter"></span> ', $txt['mlist_search_results'], ': ', $context['search_params']['search'], '
-			</h3>
-		</div>';
+		<div id="display_head" class="information">
+			<h2 class="display_title">
+				<span>', $txt['mlist_search_results'], ': ', $context['search_params']['search'], '</span>
+			</h2>
+			<div class="floatleft">
+				<a class="button" href="', $scripturl, '?action=search;params=' . $context['params'], '">', $txt['search_adjust_query'], '</a>
+			</div>';
 
 		// Was anything even found?
 		if (!empty($context['topics']))
+		{
 			echo '
+			<div class="floatright">
+				<span class="padding">', $txt['search_order'], '</span>
+				<select name="sort" class="floatright" form="new_search" onchange="document.forms.new_search.submit()">
+					<option value="relevance|desc">', $txt['search_orderby_relevant_first'], '</option>
+					<option value="num_replies|desc"', $context['current_sorting'] == 'num_replies|desc' ? ' selected' : '', '>', $txt['search_orderby_large_first'], '</option>
+					<option value="num_replies|asc"', $context['current_sorting'] == 'num_replies|asc' ? ' selected' : '', '>', $txt['search_orderby_small_first'], '</option>
+					<option value="id_msg|desc"', $context['current_sorting'] == 'id_msg|desc' ? ' selected' : '', '>', $txt['search_orderby_recent_first'], '</option>
+					<option value="id_msg|asc"', $context['current_sorting'] == 'id_msg|asc' ? ' selected' : '', '>', $txt['search_orderby_old_first'], '</option>
+				</select>
+			</div>
+		</div>
 		<div class="pagesection">
-			<span>', $context['page_index'], '</span>
-			<select name="sort" class="floatright" form="new_search" onchange="document.forms.new_search.submit()">
-				<option value="relevance|desc">', $txt['search_orderby_relevant_first'], '</option>
-				<option value="num_replies|desc"', $context['current_sorting'] == 'num_replies|desc' ? ' selected' : '', '>', $txt['search_orderby_large_first'], '</option>
-				<option value="num_replies|asc"', $context['current_sorting'] == 'num_replies|asc' ? ' selected' : '', '>', $txt['search_orderby_small_first'], '</option>
-				<option value="id_msg|desc"', $context['current_sorting'] == 'id_msg|desc' ? ' selected' : '', '>', $txt['search_orderby_recent_first'], '</option>
-				<option value="id_msg|asc"', $context['current_sorting'] == 'id_msg|asc' ? ' selected' : '', '>', $txt['search_orderby_old_first'], '</option>
-			</select>
+			<div class="pagelinks">', $context['page_index'], '</div>
 		</div>';
-
+		}
 		else
+		{
 			echo '
-		<div class="roundframe noup">', $txt['find_no_results'], '</div>';
+		</div>
+		<div class="roundframe noup">', $txt['search_no_results'], '</div>';
+		}
 
 		// While we have results to show ...
 		while ($topic = $context['get_topics']())
@@ -341,111 +364,60 @@ function template_results()
 			{
 				echo '
 			<div class="block">
-				<span class="floatleft half_content">
-					<div class="counter">', $message['counter'], '</div>
-					<h5>', $topic['board']['link'], ' / <a href="', $scripturl, '?topic=', $topic['id'], '.msg', $message['id'], '#msg', $message['id'], '">', $message['subject_highlighted'], '</a></h5>
-					<span class="smalltext">&#171;&nbsp;', $txt['by'], '&nbsp;<strong>', $message['member']['link'], '</strong>&nbsp;', $txt['on'], '&nbsp;<em>', $message['time'], '</em>&nbsp;&#187;</span>
-				</span>';
-
-				if (!empty($options['display_quick_mod']))
-				{
-					echo '
-				<span class="floatright">';
-
-					if ($options['display_quick_mod'] == 1)
-						echo '
-					<input type="checkbox" name="topics[]" value="', $topic['id'], '">';
-
-					else
-					{
-						if ($topic['quick_mod']['remove'])
-							echo '
-					<a href="', $scripturl, '?action=quickmod;board=' . $topic['board']['id'] . '.0;actions%5B', $topic['id'], '%5D=remove;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="main_icons delete" title="', $txt['remove_topic'], '"></span></a>';
-
-						if ($topic['quick_mod']['lock'])
-							echo '
-					<a href="', $scripturl, '?action=quickmod;board=' . $topic['board']['id'] . '.0;actions%5B', $topic['id'], '%5D=lock;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="main_icons lock" title="', $topic['is_locked'] ? $txt['set_unlock'] : $txt['set_lock'], '"></span></a>';
-
-						if ($topic['quick_mod']['lock'] || $topic['quick_mod']['remove'])
-							echo '
-					<br>';
-
-						if ($topic['quick_mod']['sticky'])
-							echo '
-					<a href="', $scripturl, '?action=quickmod;board=' . $topic['board']['id'] . '.0;actions%5B', $topic['id'], '%5D=sticky;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="main_icons sticky" title="', $topic['is_sticky'] ? $txt['set_nonsticky'] : $txt['set_sticky'], '"></span></a>';
-
-						if ($topic['quick_mod']['move'])
-							echo '
-					<a href="', $scripturl, '?action=movetopic;topic=', $topic['id'], '.0"><span class="main_icons move" title="', $txt['move_topic'], '"></span></a>';
-					}
-
-					echo '
-				</span><!-- .floatright -->';
-				}
-
-				echo '
+				<div class="page_number floatright"> #', $message['counter'], '</div>
+				<div class="half_content">
+					<div class="topic_details">
+						<h5>', $topic['board']['link'], ' / <a href="', $scripturl, '?topic=', $topic['id'], '.msg', $message['id'], '#msg', $message['id'], '">', $message['subject_highlighted'], '</a></h5>
+						<span class="smalltext">', sprintf(str_replace('<br>', ' ', $txt['last_post_topic']), $message['time'], '<strong>' . $message['member']['link'] . '</strong>'), '</span>
+					</div>
+				</div>
 			</div><!-- .block -->';
 
 				if ($message['body_highlighted'] != '')
 					echo '
-				<div class="list_posts double_height word_break">', $message['body_highlighted'], '</div>';
+			<div class="list_posts word_break">', $message['body_highlighted'], '</div>';
 			}
 
 			echo '
 		</div><!-- $topic[css_class] -->';
 		}
-
-		if (!empty($context['topics']))
-			echo '
-		<div class="pagesection">
-			<span>', $context['page_index'], '</span>
-		</div>';
-
-		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']))
-		{
-			echo '
-		<div class="quick_actions righttext">
-			<select class="qaction" name="qaction"', $context['can_move'] ? ' onchange="this.form.move_to.disabled = (this.options[this.selectedIndex].value != \'move\');"' : '', '>
-				<option value="">--------</option>';
-
-			foreach ($context['qmod_actions'] as $qmod_action)
-				if ($context['can_' . $qmod_action])
-					echo '
-				<option value="' . $qmod_action . '">' . $txt['quick_mod_' . $qmod_action] . '</option>';
-
-			echo '
-			</select>';
-
-			if ($context['can_move'])
-				echo '
-			<span id="quick_mod_jump_to"></span>';
-
-			echo '
-			<input type="hidden" name="redirect_url" value="', $scripturl . '?action=search2;params=' . $context['params'], '">
-			<input type="submit" value="', $txt['quick_mod_go'], '" onclick="return this.form.qaction.value != \'\' &amp;&amp; confirm(\'', $txt['quickmod_confirm'], '\');" class="button">
-		</div><!-- .quick_actions -->';
-		}
-
-		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']))
-			echo '
-		<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
-	</form>';
 	}
 	else
 	{
 		echo '
-	<div class="cat_bar">
-		<h3 class="catbg">
-			<span class="main_icons filter"></span> ', $txt['mlist_search_results'], ': ', $context['search_params']['search'], '
-		</h3>
+	<div id="display_head" class="information">
+		<h2 class="display_title">
+			<span>', $txt['mlist_search_results'], ': ', $context['search_params']['search'], '</span>
+		</h2>
+		<div class="floatleft">
+			<a class="button" href="', $scripturl, '?action=search;params=' . $context['params'], '">', $txt['search_adjust_query'], '</a>
+		</div>';
+
+		// Was anything even found?
+		if (!empty($context['topics']))
+		{
+			echo '
+		<div class="floatright">
+			<span class="padding">', $txt['search_order'], '</span>
+			<select name="sort" class="floatright" form="new_search" onchange="document.forms.new_search.submit()">
+				<option value="relevance|desc">', $txt['search_orderby_relevant_first'], '</option>
+				<option value="num_replies|desc"', $context['current_sorting'] == 'num_replies|desc' ? ' selected' : '', '>', $txt['search_orderby_large_first'], '</option>
+				<option value="num_replies|asc"', $context['current_sorting'] == 'num_replies|asc' ? ' selected' : '', '>', $txt['search_orderby_small_first'], '</option>
+				<option value="id_msg|desc"', $context['current_sorting'] == 'id_msg|desc' ? ' selected' : '', '>', $txt['search_orderby_recent_first'], '</option>
+				<option value="id_msg|asc"', $context['current_sorting'] == 'id_msg|asc' ? ' selected' : '', '>', $txt['search_orderby_old_first'], '</option>
+			</select>
+		</div>
 	</div>
 	<div class="pagesection">
-		<span>', $context['page_index'], '</span>
+		<div class="pagelinks">', $context['page_index'], '</div>
 	</div>';
-
-		if (empty($context['topics']))
+		}
+		else
+		{
 			echo '
-	<div class="information">(', $txt['search_no_results'], ')</div>';
+	</div>
+	<div class="roundframe noup">', $txt['search_no_results'], '</div>';
+		}
 
 		while ($topic = $context['get_topics']())
 		{
@@ -453,12 +425,12 @@ function template_results()
 			{
 				echo '
 	<div class="', $topic['css_class'], '">
-		<div class="counter">', $message['counter'], '</div>
+		<div class="page_number floatright"> #', $message['counter'], '</div>
 		<div class="topic_details">
 			<h5>
 				', $topic['board']['link'], ' / <a href="', $scripturl, '?topic=', $topic['id'], '.', $message['start'], ';topicseen#msg', $message['id'], '">', $message['subject_highlighted'], '</a>
 			</h5>
-			<span class="smalltext">&#171;&nbsp;', $txt['message'], ' ', $txt['by'], ' <strong>', $message['member']['link'], ' </strong>', $txt['on'], '&nbsp;<em>', $message['time'], '</em>&nbsp;&#187;</span>
+			<span class="smalltext">', sprintf(str_replace('<br>', ' ', $txt['last_post_topic']), $message['time'], '<strong>' . $message['member']['link'] . '</strong>'), '</span>
 		</div>
 		<div class="list_posts">', $message['body_highlighted'], '</div>';
 
@@ -467,37 +439,19 @@ function template_results()
 	</div><!-- $topic[css_class] -->';
 			}
 		}
-
-		echo '
-	<div class="pagesection">
-		<span>', $context['page_index'], '</span>
-	</div>';
 	}
+
+	echo '
+	<div class="pagesection">';
+
+	if (!empty($context['topics']))
+		echo '
+		<div class="pagelinks">', $context['page_index'], '</div>';
 
 	// Show a jump to box for easy navigation.
 	echo '
-	<br class="clear">
-	<div class="smalltext righttext" id="search_jump_to"></div>
-	<script>';
-
-	if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']) && $context['can_move'])
-		echo '
-		if (typeof(window.XMLHttpRequest) != "undefined")
-			aJumpTo[aJumpTo.length] = new JumpTo({
-				sContainerId: "quick_mod_jump_to",
-				sClassName: "qaction",
-				sJumpToTemplate: "%dropdown_list%",
-				sCurBoardName: "', $context['jump_to']['board_name'], '",
-				sBoardChildLevelIndicator: "==",
-				sBoardPrefix: "=> ",
-				sCatSeparator: "-----------------------------",
-				sCatPrefix: "",
-				bNoRedirect: true,
-				bDisabled: true,
-				sCustomName: "move_to"
-			});';
-
-	echo '
+		<div class="smalltext pagelinks floatright" id="search_jump_to"></div>
+		<script>
 		if (typeof(window.XMLHttpRequest) != "undefined")
 			aJumpTo[aJumpTo.length] = new JumpTo({
 				sContainerId: "search_jump_to",
@@ -511,7 +465,8 @@ function template_results()
 				sCatPrefix: "",
 				sGoButtonLabel: "', $txt['quick_mod_go'], '"
 			});
-		</script>';
+		</script>
+	</div>';
 }
 
 ?>

@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC3; ManageSettings
+// Version: 2.1.0; ManageSettings
 
 global $scripturl;
 
@@ -37,6 +37,11 @@ $txt['databaseSession_lifetime'] = 'Seconds before an unused session timeout';
 $txt['error_log_desc'] = 'The error log, if enabled, will log every error encountered by users using your forum. This can be an invaluable aid to identifying forum problems.';
 $txt['enableErrorLogging'] = 'Enable error logging';
 $txt['enableErrorQueryLogging'] = 'Include database query in the error log';
+$txt['markread_title'] = 'Read Logs';
+$txt['mark_read_desc'] = 'The following options govern how long before automatically marking boards and topics as read and how long before purging this information.';
+$txt['mark_read_beyond'] = 'Automatically mark boards as read for users who have been inactive after this many days';
+$txt['mark_read_delete_beyond'] = 'Automatically purge information about boards and topics visited after this many days';
+$txt['mark_read_max_users'] = 'Maximum users to process at a time';
 $txt['pruningOptions'] = 'Enable pruning of log entries';
 $txt['pruneErrorLog'] = 'Remove error log entries older than';
 $txt['pruneModLog'] = 'Remove moderation log entries older than';
@@ -51,6 +56,11 @@ $txt['globalCookiesDomain'] = 'Main domain used for subdomain independent cookie
 $txt['invalid_cookie_domain'] = 'The domain introduced seems to be invalid, please check it and save again.';
 $txt['secureCookies'] = 'Force cookies to be secure';
 $txt['httponlyCookies'] = 'Force cookies to be made accessible only through the HTTP protocol';
+$txt['samesiteCookies'] = 'Force cookies to be sent only to first parties';
+$txt['samesiteNone'] = 'None';
+$txt['samesiteLax'] = 'Lax';
+$txt['samesiteStrict'] = 'Strict';
+$txt['samesiteSecureRequired'] = 'If SameSite Cookies is set to \'None\', cookies must be secure.';
 $txt['securityDisable'] = 'Disable administration security';
 $txt['securityDisable_moderate'] = 'Disable moderation security';
 $txt['send_validation_onChange'] = 'Require reactivation after email change';
@@ -63,12 +73,14 @@ $txt['alerts_auto_purge_7'] = 'After 1 week';
 $txt['alerts_auto_purge_30'] = 'After 1 month';
 $txt['alerts_auto_purge_90'] = 'After 3 months';
 $txt['alerts_auto_purge_0'] = 'Never';
+$txt['alerts_per_page'] = 'Alerts Per Page';
 $txt['jquery_source'] = 'Source for the jQuery Library';
 $txt['jquery_custom_label'] = 'Custom';
 $txt['jquery_custom'] = 'Custom URL to the jQuery Library';
 $txt['jquery_local'] = 'Local';
-$txt['jquery_cdn'] = 'Google CDN';
-$txt['jquery_auto'] = 'Auto';
+$txt['jquery_google_cdn'] = 'Google CDN';
+$txt['jquery_jquery_cdn'] = 'jQuery CDN';
+$txt['jquery_microsoft_cdn'] = 'Microsoft CDN';
 $txt['queryless_urls'] = 'Search engine friendly URLs';
 $txt['minimize_files'] = 'Minimize CSS and JavaScript files';
 $txt['queryless_urls_note'] = 'Apache/Lighttpd only';
@@ -110,13 +122,11 @@ $txt['enable_mentions'] = 'Enable Mentions';
 
 $txt['caching_information'] = 'SMF supports caching through the use of accelerators. The currently supported accelerators include:
 <ul class="normallist">
-	<li>APC</li>
 	<li>APCu</li>
 	<li>Memcached</li>
 	<li>SQLite3</li>
 	<li>PostgreSQL</li>
 	<li>Zend Platform/Performance Suite (Not Zend Optimizer)</li>
-	<li>XCache</li>
 </ul>
 Caching will work best if you have PHP compiled with one of the above optimizers, or have memcached available. If you do not have any optimizer installed SMF will do file based caching.';
 $txt['detected_no_caching'] = 'SMF has not been able to detect a compatible accelerator on your server. File based caching can be used instead.';
@@ -128,24 +138,19 @@ $txt['cache_level1'] = 'Level 1 Caching (Recommended)';
 $txt['cache_level2'] = 'Level 2 Caching';
 $txt['cache_level3'] = 'Level 3 Caching (Not Recommended)';
 $txt['cache_accelerator'] = 'Caching Accelerator';
-$txt['smf_cache'] = 'SMF file based caching';
+$txt['filebased_cache'] = 'SMF file based caching';
 $txt['sqlite_cache'] = 'SQLite3 database based caching';
 $txt['postgres_cache'] = 'PostgreSQL caching';
 $txt['cachedir_sqlite'] = 'SQLite3 database cache directory';
-$txt['apc_cache'] = 'APC';
 $txt['apcu_cache'] = 'APCu';
-$txt['memcache_cache'] = 'Memcache';
-$txt['memcached_cache'] = 'Memcached';
-$txt['xcache_cache'] = 'XCache';
+$txt['memcacheimplementation_cache'] = 'Memcache';
+$txt['memcachedimplementation_cache'] = 'Memcached';
 $txt['zend_cache'] = 'Zend Platform/Performance Suite';
-$txt['cache_smf_settings'] = 'SMF file based caching settings';
+$txt['cache_filebased_settings'] = 'SMF file based caching settings';
 $txt['cache_sqlite_settings'] = 'SQLite3 database caching settings';
-$txt['cache_memcache_settings'] = 'Memcache(d) settings';
-$txt['cache_memcache_servers'] = 'Memcache(d) servers';
-$txt['cache_memcache_servers_subtext'] = 'Example: 127.0.0.1:11211,127.0.0.2';
-$txt['cache_xcache_settings'] = 'XCache settings';
-$txt['cache_xcache_adminuser'] = 'XCache Admin User';
-$txt['cache_xcache_adminpass'] = 'XCache Admin Password';
+$txt['cache_memcached_settings'] = 'Memcache/Memcached settings';
+$txt['cache_memcached_servers'] = 'Memcache/Memcached servers';
+$txt['cache_memcached_servers_subtext'] = 'Example: 127.0.0.1:11211,127.0.0.2';
 
 $txt['loadavg_warning'] = 'Please note: the settings below are to be edited with care. Setting any of them too low may render your forum <strong>unusable</strong>! The current load average is <strong>%01.2f</strong>';
 $txt['loadavg_enable'] = 'Enable load balancing by load averages';
@@ -269,6 +274,7 @@ $txt['custom_edit_general'] = 'Display Settings';
 $txt['custom_edit_input'] = 'Input Settings';
 $txt['custom_edit_advanced'] = 'Advanced Settings';
 $txt['custom_edit_name'] = 'Name';
+$txt['custom_edit_name_desc'] = 'You can use translatable tokens in this field.';
 $txt['custom_edit_desc'] = 'Description';
 $txt['custom_edit_profile'] = 'Profile Section';
 $txt['custom_edit_profile_desc'] = 'Section of profile the users will be able to edit this in.';
@@ -362,8 +368,6 @@ $txt['edit_language_entries'] = 'Edit Language Entries';
 $txt['edit_language_entries_desc'] = 'You can customize the individual text entries for this language. Select a file to load its entries, and then edit them below.<br><br>When you edit (or remove) an entry, a commented out version of the original is preserved in the file. If you ever need to restore your edited strings to their original state, or if you need more advanced access to these language files, go to <a href="%1$s?action=admin;area=theme;sa=edit">%2$s</a>, browse to the file you are looking for, and then edit it directly using SMF\'s built-in text editor.';
 $txt['edit_language_entries_file'] = 'Select entries to edit';
 $txt['languages_dictionary'] = 'Dictionary';
-$txt['languages_spelling'] = 'Spelling';
-$txt['languages_for_pspell'] = 'This is for <a href="https://php.net/function.pspell-new" target="_blank" rel="noopener">pSpell</a> - if installed';
 $txt['languages_rtl'] = 'Enable &quot;Right to Left&quot; Mode';
 
 $txt['lang_file_desc_index'] = 'General Strings';
@@ -398,10 +402,15 @@ $txt['languages_txt'] = 'Standard text strings';
 $txt['languages_helptxt'] = 'Help text';
 $txt['languages_editortxt'] = 'User interface for the editor';
 $txt['languages_tztxt'] = 'Time zone descriptions';
-$txt['languages_txt_for_timezones'] = 'Custom location names';
+$txt['languages_txt_for_timezones'] = 'Place names';
 $txt['languages_txt_for_email_templates'] = 'Email message templates';
 $txt['languages_enter_key'] = 'Enter a variable name for this text string';
 $txt['languages_invalid_key'] = 'Sorry, but this variable name is invalid: ';
+
+$txt['allow_cors'] = 'Allow CORS (Cross Origin Resource Sharing)';
+$txt['allow_cors_credentials'] = 'Allow sending credentials over CORS';
+$txt['cors_domains'] = 'Additional CORS domains';
+$txt['cors_headers'] = 'Additional CORS headers';
 
 $txt['setting_frame_security'] = 'Frame Security Options';
 $txt['setting_frame_security_SAMEORIGIN'] = 'Allow Same Origin';

@@ -1,9 +1,9 @@
 <?php
-// Version: 2.1 RC3; Install
+// Version: 2.1.3; Install
 
 // These should be the same as those in index.language.php.
 $txt['lang_character_set'] = 'UTF-8';
-$txt['lang_rtl'] = false;
+$txt['lang_rtl'] = '0';
 
 $txt['install_step_welcome'] = 'Welcome';
 $txt['install_step_writable'] = 'Writable check';
@@ -28,6 +28,7 @@ $txt['install_welcome'] = 'Welcome';
 $txt['install_welcome_desc'] = 'Welcome to SMF. This script will guide you through the process for installing %1$s. We will gather a few details about your forum over the next few steps, and after a couple of minutes your forum will be ready for use.';
 $txt['install_no_https'] = 'Your environment does not support https streams.  Certain functions, e.g., receiving updates from simplemachines.org, will not work.';
 $txt['install_no_mbstring'] = 'Your environment does not support the required mbstring library.  Please enable mbstring and try again.';
+$txt['install_no_fileinfo'] = 'Your environment does not support the required fileinfo library.  Please enable fileinfo and try again.';
 $txt['install_all_lovely'] = 'We have completed some initial tests on your server and everything appears to be in order. Simply click the &quot;Continue&quot; button below to get started.';
 
 $txt['user_refresh_install'] = 'Forum Refreshed';
@@ -45,6 +46,7 @@ $txt['default_fugue_smileyset_name'] = 'Fugue\'s Set';
 $txt['default_alienine_smileyset_name'] = 'Alienine\'s Set';
 $txt['default_aaron_smileyset_name'] = 'Aaron\'s Set';
 $txt['default_akyhne_smileyset_name'] = 'Akyhne\'s Set';
+$txt['default_legacy_smileyset_name'] = '2.0 Default';
 $txt['default_theme_name'] = 'SMF Default Theme - Curve2';
 
 $txt['default_administrator_group'] = 'Administrator';
@@ -105,9 +107,6 @@ $txt['install_settings_dbsession'] = 'Database Sessions';
 $txt['install_settings_dbsession_title'] = 'Use the database for sessions instead of using files.';
 $txt['install_settings_dbsession_info1'] = 'This feature is almost always for the best, as it makes sessions more dependable.';
 $txt['install_settings_dbsession_info2'] = 'This feature is generally a good idea, but it may not work properly on this server.';
-$txt['install_settings_utf8'] = 'UTF-8 Character Set';
-$txt['install_settings_utf8_title'] = 'Use UTF-8 as default character set';
-$txt['install_settings_utf8_info'] = 'This feature lets both the database and the forum use an international character set, UTF-8. This can be useful when working with multiple languages that use different character sets.';
 $txt['install_settings_stats'] = 'Allow stat Collection';
 $txt['install_settings_stats_title'] = 'Allow Simple Machines to collect basic stats monthly';
 $txt['install_settings_stats_info'] = 'If enabled, this will allow Simple Machines to visit your site once a month to collect basic statistics. This will help us make decisions as to which configurations to optimize the software for. For more information please visit our <a href="https://www.simplemachines.org/about/stats.php" target="_blank" rel="noopener">info page</a>.';
@@ -138,41 +137,40 @@ $txt['db_populate_tables'] = 'Created %1$d tables.';
 $txt['db_populate_insert_dups'] = 'Ignored %1$d duplicated inserts.';
 $txt['db_populate_table_dups'] = 'Ignored %1$d duplicated tables.';
 
-$txt['user_settings'] = 'Create your Account';
+$txt['user_settings'] = 'Create your account';
 $txt['user_settings_info'] = 'The installer will now create a new administrator account for you.';
 $txt['user_settings_username'] = 'Your username';
 $txt['user_settings_username_info'] = 'Choose the name you want to login with.<br>This can be changed later.';
 $txt['user_settings_password'] = 'Password';
-$txt['user_settings_password_info'] = 'Fill in your preferred password here, and remember it well!';
+$txt['user_settings_password_info'] = 'Fill in your preferred password here and remember it well!';
 $txt['user_settings_again'] = 'Password';
-$txt['user_settings_again_info'] = '(just for verification.)';
+$txt['user_settings_again_info'] = '(just for verification).';
 $txt['user_settings_admin_email'] = 'Administrator email address';
 $txt['user_settings_admin_email_info'] = 'Provide your email address. This must be a valid email address!';
 $txt['user_settings_server_email'] = 'Webmaster email address';
 $txt['user_settings_server_email_info'] = 'Provide <strong>the email address that SMF will use to send emails</strong>. This must be a valid email address!';
 $txt['user_settings_database'] = 'Database Password';
-$txt['user_settings_database_info'] = 'The installer requires that you supply the database password to create an administrator account, for security reasons.';
+$txt['user_settings_database_info'] = 'For security reasons, the installer requires that you supply the database password to create an administrator account.';
 $txt['user_settings_skip'] = 'Skip';
 $txt['user_settings_skip_sure'] = 'Are you sure you wish to skip admin account creation?';
 $txt['user_settings_proceed'] = 'Finish';
 
-$txt['ftp_checking_writable'] = 'Checking Files are Writable';
+$txt['ftp_checking_writable'] = 'Checking files are writable';
 $txt['ftp_setup'] = 'FTP Connection Information';
-$txt['ftp_setup_info'] = 'This installer can connect via FTP to fix the files that need to be writable and are not. If this doesn\'t work for you, you will have to go in manually and make the files writable. Please note that this doesn\'t support SSL right now.';
-$txt['ftp_server_info'] = 'This should be the server and port for your FTP server.';
+$txt['ftp_setup_info'] = 'This installer can connect via FTP to fix the files that need to be writable and are not. If this does not work for you, you will have to go in manually and make the files writable. Please note that this does not support SSL right now.';
 $txt['ftp_setup_why'] = 'What is this step for?';
-$txt['ftp_setup_why_info'] = 'Some files need to be writable for SMF to work properly. This step allows you to let the installer make them writable for you. However, in some cases it won\'t work - in that case, please make the following files 777 (writable, 755 on some hosts):';
+$txt['ftp_setup_why_info'] = 'Some files need to be writable for SMF to work properly. This step allows you to let the installer make them writable for you. However, in some cases it will not work. In this case, please make the following files 777 (writable, 755 on some hosts):';
 $txt['ftp_setup_again'] = 'to test if these files are writable again.';
 
 $txt['error_missing_files'] = 'Unable to find crucial installation files in the directory of this script!<br><br>Please make sure you uploaded the entire installation package, including the sql file, and then try again.';
-$txt['error_session_save_path'] = 'Please inform your host that the <strong>session.save_path specified in php.ini</strong> is not valid!  It needs to be changed to a directory that <strong>exists</strong>, and is <strong>writable</strong> by the user PHP is running under.<br>';
-$txt['error_windows_chmod'] = 'You\'re on a windows server, and some crucial files are not writable. Please ask your host to give <strong>write permissions</strong> to the user PHP is running under for the files in your SMF installation. The following files or directories need to be writable:';
+$txt['error_session_save_path'] = 'Please inform your host that the <strong>session.save_path specified in php.ini</strong> is not valid!  It needs to be changed to a directory that <strong>exists</strong> and is <strong>writable</strong> by the user PHP is running under.<br>';
+$txt['error_windows_chmod'] = 'You are on a windows server and some crucial files are not writable. Please ask your host to give <strong>write permissions</strong> to the user PHP is running under for the files in your SMF installation. The following files or directories need to be writable:';
 $txt['settings_error'] = 'Your settings could not be saved to Settings.php.';
 $txt['error_ftp_no_connect'] = 'Unable to connect to FTP server with this combination of details.';
 $txt['error_db_file'] = 'Cannot find database source script! Please check file %1$s is within your forum source directory.';
 $txt['error_db_connect'] = 'Cannot connect to the database server with the supplied data.<br><br>If you are not sure about what to type in, please contact your host.';
 $txt['error_db_connect_settings'] = 'Cannot connect to the database server.<br><br>Please check that the database info variables are correct in Settings.php.';
-$txt['error_db_database'] = 'The installer was unable to access the &quot;<em>%1$s</em>&quot; database. With some hosts, you have to create the database in your administration panel before SMF can use it. Some also add prefixes - like your username - to your database names.';
+$txt['error_db_database'] = 'The installer was unable to access the &quot;<em>%1$s</em>&quot; database. With some hosts, you have to create the database in your administration panel before SMF can use it. Some also add prefixes, such as your username, to your database names.';
 $txt['error_db_queries'] = 'Some of the queries were not executed properly. This could be caused by an unsupported (development or old) version of your database software.<br><br>Technical information about the queries:';
 $txt['error_db_queries_line'] = 'Line #';
 $txt['error_db_missing'] = 'The installer was unable to detect any database support in PHP. Please ask your host to ensure that PHP was compiled with the desired database, or that the proper extension is being loaded.';
@@ -183,16 +181,16 @@ $txt['error_user_settings_no_password'] = 'Your password must be at least four c
 $txt['error_user_settings_taken'] = 'Sorry, a member is already registered with that username and/or email address.<br><br>A new account has not been created.';
 $txt['error_user_settings_query'] = 'A database error occurred while trying to create an administrator. This error was:';
 $txt['error_sourcefile_missing'] = 'Unable to find the Sources/%1$s file. Please make sure it was uploaded properly, and then try again.';
-$txt['error_db_alter_priv'] = 'The database account you specified does not have permission to ALTER, CREATE, and/or DROP tables in the database; this is necessary for SMF to function properly.';
+$txt['error_db_alter_priv'] = 'The database account you specified does not have permission to ALTER, CREATE, and/or DROP tables in the database. This is necessary for SMF to function properly.';
 $txt['error_versions_do_not_match'] = 'The installer has detected another version of SMF already installed with the specified information. If you are trying to upgrade, you should use the upgrader, not the installer.<br><br>Otherwise, you may wish to use different information, or create a backup and then delete the data currently in the database.';
 $txt['error_mod_security'] = 'The installer has detected the mod_security module is installed on your web server. Mod_security will block submitted forms even before SMF gets a say in anything. SMF has a built-in security scanner that will work more effectively than mod_security and that won\'t block submitted forms.<br><br><a href="https://www.simplemachines.org/redirect/mod_security">More information about disabling mod_security</a>';
 $txt['error_mod_security_no_write'] = 'The installer has detected the mod_security module is installed on your web server. Mod_security will block submitted forms even before SMF gets a say in anything. SMF has a built-in security scanner that will work more effectively than mod_security and that won\'t block submitted forms.<br><br><a href="https://www.simplemachines.org/redirect/mod_security">More information about disabling mod_security</a><br><br>Alternatively, you may wish to use your ftp client to chmod .htaccess in the forum directory to be writable (777), and then refresh this page.';
 $txt['error_utf8_version'] = 'The current version of your database doesn\'t support the use of the UTF-8 character set. You can still install SMF without any problems, but only with UTF-8 support unchecked. If you would like to switch over to UTF-8 in the future (e.g. after the database server of your forum has been upgraded to version >= %1$s), you can convert your forum to UTF-8 through the admin panel.';
 $txt['error_valid_admin_email_needed'] = 'You have not entered a valid email address for your administrator account.';
 $txt['error_valid_server_email_needed'] = 'You have not entered a valid webmaster email address.';
-$txt['error_already_installed'] = 'The installer has detected that you already have SMF installed. It is strongly advised that you do <strong>not</strong> try to overwrite an existing installation - continuing with installation <strong>may result in the loss or corruption of existing data</strong>.<br><br>If you wish to upgrade please visit the <a href="https://www.simplemachines.org">Simple Machines Website</a> and download the latest <em>upgrade</em> package.<br><br>If you wish to overwrite your existing installation, including all data, it\'s recommended that you delete the existing database tables and replace Settings.php and try again.';
+$txt['error_already_installed'] = 'The installer has detected that you already have SMF installed. It is strongly advised that you do <strong>not</strong> try to overwrite an existing installation, continuing with installation <strong>may result in the loss or corruption of existing data</strong>.<br><br>If you wish to upgrade please visit the <a href="https://www.simplemachines.org">Simple Machines Website</a> and download the latest <em>upgrade</em> package.<br><br>If you wish to overwrite your existing installation, including all data, it is recommended that you delete the existing database tables and replace Settings.php and try again.';
 $txt['error_warning_notice'] = 'Warning!';
-$txt['error_script_outdated'] = 'This install script is out of date! The current version of SMF is %1$s but this install script is for %2$s.<br><br>
+$txt['error_script_outdated'] = 'This install script is out of date! The current version of SMF is %1$s, but this install script is for %2$s.<br><br>
 	It is recommended that you visit the <a href="https://www.simplemachines.org">Simple Machines</a> website to ensure you are installing the latest version.';
 $txt['error_db_prefix_numeric'] = 'The selected database type does not support the use of numeric prefixes.';
 $txt['error_pg_scs'] = 'PostgreSQL is configured incorrectly. Please turn on the standard_conforming_strings configuration parameter.';
@@ -200,7 +198,7 @@ $txt['error_invalid_characters_username'] = 'Invalid character used in Username.
 $txt['error_username_too_long'] = 'Username may only be up to 25 characters long.';
 $txt['error_username_left_empty'] = 'Username field was left empty.';
 $txt['error_db_prefix_reserved'] = 'The prefix that you entered is a reserved prefix. Please enter another prefix.';
-$txt['error_utf8_support'] = 'The database you are trying to use is not using UTF8 charset';
+$txt['error_utf8_support'] = 'The database you are trying to use is not using UTF-8 charset';
 
 $txt['ftp_login'] = 'Your FTP connection information';
 $txt['ftp_login_info'] = 'This web installer needs your FTP information in order to automate the installation for you. Please note that none of this information is saved in your installation, it is just used to setup SMF.';
@@ -214,7 +212,7 @@ $txt['ftp_password_info'] = 'The password to login with. <em>This will not be sa
 $txt['ftp_path'] = 'Install Path';
 $txt['ftp_path_info'] = 'This is the <em>relative</em> path you use in your FTP client.';
 $txt['ftp_path_found_info'] = 'The path in the box above was automatically detected.';
-$txt['ftp_path_help'] = 'Your FTP path is the path you see when you log in to your FTP client. It commonly starts with &quot;<pre>www</pre>&quot;, &quot;<pre>public_html</pre>&quot;, or &quot;<pre>httpdocs</pre>&quot; - but it should include the directory SMF is in too, such as &quot;/public_html/forum&quot;. It is different from your URL and full path.<br><br>Files in this path may be overwritten, so make sure it\'s correct.';
+$txt['ftp_path_help'] = 'Your FTP path is the path you see when you log in to your FTP client. It commonly starts with &quot;<pre>www</pre>&quot;, &quot;<pre>public_html</pre>&quot;, or &quot;<pre>httpdocs</pre>&quot;, but it should include the directory SMF is in too, such as &quot;/public_html/forum&quot;. It is different from your URL and full path.<br><br>Files in this path may be overwritten, so make sure it is correct.';
 $txt['ftp_path_help_close'] = 'Close';
 $txt['ftp_connect'] = 'Connect';
 
@@ -259,10 +257,10 @@ $txt['upgrade_wait2'] = 'Please wait while your database is converted to UTF-8. 
 $txt['upgrade_sec_login'] = 'For security purposes please login with your admin account to proceed with the upgrade.';
 $txt['upgrade_incomplete'] = 'Incomplete';
 $txt['upgrade_not_quite_done'] = 'Not quite done yet!';
-$txt['upgrade_paused_overload'] = 'This upgrade has been paused to avoid overloading your server. Don\'t worry, nothing\'s wrong - simply click the <label for="contbutt">continue button</label> below to keep going.';
+$txt['upgrade_paused_overload'] = 'This upgrade has been paused to avoid overloading your server. Do not worry, nothing is wrong. Simply click the <label for="contbutt">continue button</label> below to keep going.';
 $txt['upgrade_continue_step'] = 'Continue from step reached during last execution of upgrade script.';
-$txt['upgrade_bypass'] = '<strong>Note:</strong> If necessary the above security check can be bypassed for users who may administrate a server but not have admin rights on the forum. In order to bypass the above check simply open &quot;upgrade.php&quot; in a text editor and replace &quot;$disable_security = false;&quot; with &quot;$disable_security = true;&quot; and refresh this page.';
-$txt['upgrade_areyouready'] = 'Before the upgrade gets underway please review the options below - and hit &quot;Continue&quot; when you\'re ready to begin.';
+$txt['upgrade_bypass'] = '<strong>Note:</strong> If necessary, the above security check can be bypassed for users who may administrate a server, but may not have admin rights on the forum. In order to bypass the above check, simply open &quot;upgrade.php&quot; in a text editor and replace &quot;$disable_security = false;&quot; with &quot;$disable_security = true;&quot; and refresh this page.';
+$txt['upgrade_areyouready'] = 'Before the upgrade gets underway, please review the options below and press &quot;Continue&quot; when you are ready to begin.';
 $txt['upgrade_backup_table'] = 'Perform a tables backup in your database with the prefix';
 $txt['upgrade_backup_complete'] = 'Backup Complete! Click Continue to Proceed.';
 $txt['upgrade_recommended'] = 'recommended!';
@@ -270,14 +268,15 @@ $txt['upgrade_maintenance'] = 'Put the forum into maintenance mode during upgrad
 $txt['upgrade_maintenance_title'] = 'Maintenance Title:';
 $txt['upgrade_maintenance_message'] = 'Maintenance Message:';
 $txt['upgrade_customize'] = 'Customize';
-$txt['upgrade_debug_info'] = 'Output extra debugging information';
-$txt['upgrade_empty_errorlog'] = 'Empty error log before upgrading';
+$txt['upgrade_debug_info'] = 'Output extra debugging information.';
+$txt['upgrade_empty_errorlog'] = 'Empty error log before upgrading.';
 $txt['upgrade_delete_karma'] = 'Delete all karma settings and info from the DB';
+$txt['upgrade_reprocess_attachments'] = 'Rerun attachment conversion';
 $txt['upgrade_stats_collection'] = 'Allow Simple Machines to collect basic stats monthly.';
 $txt['upgrade_stats_info'] = 'If enabled, this will allow Simple Machines to visit your site once a month to collect basic statistics. This will help us make decisions as to which configurations to optimise the software for. For more information please visit our <a href="%1$s" target="_blank" rel="noopener">info page</a>.';
 $txt['upgrade_migrate_settings_file'] = 'Migrate to a new Settings file.';
 $txt['upgrade_db_changes'] = 'Executing database changes';
-$txt['upgrade_db_patient'] = 'Please be patient - this may take some time on large forums. The time elapsed increments from the server to show progress is being made!';
+$txt['upgrade_db_patient'] = 'Please be patient - this may take some time on large forums. The time elapsed increments from the server to show progress is being made.';
 $txt['upgrade_db_complete'] = '1 Database Updates Complete! Click Continue to Proceed.';
 $txt['upgrade_db_complete2'] = 'Database Updates Complete! Click Continue to Proceed.';
 $txt['upgrade_script'] = 'Executing upgrade script';
@@ -290,7 +289,7 @@ $txt['upgrade_tables'] = 'tables.';
 
 $txt['upgrade_run_script'] = 'We recommend that you do not run this script unless you are sure that';
 $txt['upgrade_run_script2'] = 'has completed their upgrade.';
-$txt['upgrade_run'] = 'You can choose to either run the upgrade again from the beginning - or alternatively continue from the last step reached during the last upgrade.';
+$txt['upgrade_run'] = 'You can choose to either run the upgrade again from the beginning or continue from the last step reached during the most recent upgrade.';
 
 $txt['upgrade_completed_table'] = 'Completed Table:';
 $txt['upgrade_current_table'] = 'Current Table:';
@@ -301,37 +300,35 @@ $txt['upgrade_json_completed'] = 'Convert to JSON Complete! Click Continue to Pr
 $txt['upgrade_executing'] = 'Executing:';
 $txt['upgrade_of'] = 'of';
 $txt['upgrade_admin_login'] = 'Admin Login:';
-/* Same sentence, 3 different strings */
-$txt['upgrade_done'] = 'That wasn\'t so hard, was it?  Now you are ready to use';
-$txt['upgrade_done2'] = 'your installation of SMF';
-$txt['upgrade_done3'] = 'Hope you like it!';
+$txt['upgrade_admin_disabled'] = '(DISABLED)';
+$txt['upgrade_done'] = 'Upgrade complete. Now you are ready to use <a href="%1$s/index.php">your installation of SMF</a>. Hope you like it!';
 
 $txt['upgrade_delete_now'] = 'Delete upgrade.php and its data files now';
-$txt['upgrade_delete_server'] = '(doesn\'t work on all servers).';
-$txt['upgrade_problems'] = 'If you had any problems with this upgrade, or have any problems using SMF, please don\'t hesitate to <a href="%1$s">look to us for assistance</a>..';
+$txt['upgrade_delete_server'] = '(does not work on all servers).';
+$txt['upgrade_problems'] = 'If you had any problems with this upgrade, or have any problems using SMF, please do not hesitate to <a href="%1$s">ask us for assistance</a>.';
 $txt['upgrade_luck'] = 'Best of luck,';
 
 $txt['upgrade_ftp_login'] = 'Your FTP connection information';
 $txt['upgrade_ftp_perms'] = 'The upgrader can fix any issues with file permissions to make upgrading as simple as possible. Simply enter your connection information below or alternatively click <a href="#" onclick="warning_popup();">here</a> for a list of files which need to be changed.';
 $txt['upgrade_ftp_warning'] = 'Warning';
-$txt['upgrade_ftp_files'] = 'The following files needs to be made writable to continue:';
-$txt['upgrade_ftp_shell'] = 'If you have a shell account, the convenient below command can automatically correct permissions on these files';
+$txt['upgrade_ftp_files'] = 'The following files need to be made writable to continue:';
+$txt['upgrade_ftp_shell'] = 'If you have a shell account, the command below can automatically correct permissions on these files';
 $txt['upgrade_ftp_error'] = 'The following error was encountered when trying to connect:';
 
-$txt['upgrade_ready_proceed'] = 'Thank you for choosing to upgrade to SMF %1$s. All files appear to be in place, and we\'re ready to proceed.';
+$txt['upgrade_ready_proceed'] = 'Thank you for choosing to upgrade to SMF %1$s. All files appear to be in place and the upgrade can now proceed.';
 $txt['upgrade_error_script_js'] = 'The upgrade script cannot find script.js or it is out of date. Make sure your theme paths are correct. You can download a setting checker tool from the <a href="%1$s">Simple Machines Website</a>';
 $txt['upgrade_warning_lots_data'] = 'This upgrade script has detected that your forum contains a lot of data which needs upgrading. This process may take quite some time depending on your server and forum size, and for very large forums (~300,000 messages) may take several hours to complete.';
 $txt['upgrade_warning_out_of_date'] = 'This upgrade script is out of date! The current version of SMF is <em id="smfVersion" style="white-space: nowrap;">??</em> but this upgrade script is for <em id="yourVersion" style="white-space: nowrap;">%1$s</em>.<br><br>It is recommended that you visit the <a href="%2$s">Simple Machines Website</a> to ensure you are upgrading to the latest version.';
 
-$txt['upgrade_boarddir_settings'] = 'It looks as if your board directory settings <em>might</em> be incorrect. Your board directory is currently set to &quot; %1$s &quot; but should probably be &quot; %2$s &quot;. Settings.php currently lists your paths as:';
-$txt['upgrade_boarddir'] = 'Board Directory:';
+$txt['upgrade_forumdir_settings'] = 'It looks as if your forum directory settings <em>might</em> be incorrect. Your forum directory is currently set to &quot;%1$s&quot;, but should probably be &quot;%2$s&quot;. Settings.php currently lists your paths as:';
+$txt['upgrade_forumdir'] = 'Forum Directory:';
 $txt['upgrade_sourcedir'] = 'Source Directory:';
 $txt['upgrade_cachedir'] = 'Cache Directory:';
 $txt['upgrade_incorrect_settings'] = 'If these seem incorrect please open Settings.php in a text editor before proceeding with this upgrade. If they are incorrect due to you moving your forum to a new location please download and execute the <a href="https://download.simplemachines.org/?tools">Repair Settings</a> tool from the Simple Machines website before continuing.';
 
 $txt['upgrade_fulltext_error'] = 'Your fulltext search index was dropped to facilitate the conversion. You will need to recreate it.';
 $txt['upgrade_writable_files'] = 'The following files need to be writable to continue the upgrade. Please ensure the Windows permissions are correctly set to allow this:';
-$txt['upgrade_time_user'] = '&quot; %1$s &quot; is running the upgrade script.';
+$txt['upgrade_time_user'] = '&quot;%1$s&quot; is running the upgrade script.';
 
 // We represent the time here in backwards variables, as it makes the code easier.
 $txt['upgrade_time_hms'] = 'The upgrade script has been running for the last %3$d hours, %2$d minutes and %1$d seconds.';
@@ -354,11 +351,11 @@ $txt['upgrade_loop'] = 'Upgrade script appears to be going into a loop - step: '
 $txt['upgrade_respondtime'] = 'Server has not responded for %1$d seconds. It may be worth waiting a little longer before trying again.';
 $txt['upgrade_respondtime_clickhere'] = 'Click here to try again.';
 $txt['mtitle'] = 'Upgrading the forum...';
-$txt['mmessage'] = 'Don\'t worry, we will be back shortly with an updated forum.  It will only be a minute ;).';
+$txt['mmessage'] = 'Don\'t worry, your forum will be updated shortly. It will only be a minute ;).';
 
 // Upgrader error messages
 // argument(s): template name (if applicable)
-$txt['error_unexpected_template_call'] = 'Error: Unexpected call to use the %1$s template. Please copy and paste all the text above and visit the SMF support forum to let the developers know that there is a bug so they can fix it and get you up and running again.';
+$txt['error_unexpected_template_call'] = 'Error: Unexpected call to use the %1$s template. Please copy and paste all the text above and visit the SMF support forum to let the developers know that there is a bug.';
 $txt['error_invalid_template'] = 'Upgrade aborted!  Invalid template: template_%1$s';
 $txt['error_lang_index_missing'] = 'The upgrader was unable to find language files for the selected language, %1$s.<br>SMF will not work in this language without the language files installed.<br><br>Please either install them, or <a href="%2$s?step=0;lang=english">try English instead</a>.';
 $txt['error_upgrade_files_missing'] = 'The upgrader was unable to find some crucial files.<br><br>Please make sure you uploaded all of the files included in the package, including the Themes, Sources, and other directories.';
@@ -375,13 +372,18 @@ $txt['error_not_admin'] = 'You need to be an admin to perform an upgrade!';
 $txt['warning_lang_old'] = 'The language files for your selected language, %1$s, have not been updated to the latest version. Upgrade will continue with the forum default, %2$s.';
 $txt['warning_lang_missing'] = 'The upgrader could not find the &quot;Install&quot; language file for your selected language, %1$s. Upgrade will continue with the forum default, %2$s.';
 
+// Attachment & Avatar folder checks
+$txt['warning_av_missing'] = 'Warning! Avatar directory not found. Continuing may be unsafe. Please confirm folder settings before proceeding.';
+$txt['warning_custom_av_missing'] = 'Warning! Custom avatar directory not found. Continuing may be unsafe. Please confirm folder settings before proceeding.';
+$txt['warning_att_dir_missing'] = 'Warning! One or more attachment directories not found. Continuing may be unsafe. Please confirm folder settings before proceeding.';
+
 // Page titles
 $txt['updating_smf_installation'] = 'Updating Your SMF Installation!';
 $txt['upgrade_options'] = 'Upgrade Options';
 $txt['backup_database'] = 'Backup Database';
 $txt['database_changes'] = 'Database Changes';
 $txt['upgrade_complete'] = 'Upgrade Complete';
-$txt['converting_utf8'] = 'Converting to UTF8';
+$txt['converting_utf8'] = 'Converting to UTF-8';
 $txt['converting_json'] = 'Converting to JSON';
 
 ?>

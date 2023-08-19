@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.3
  */
 
 /**
@@ -24,7 +24,7 @@ function template_popup()
 		<meta charset="', $context['character_set'], '">
 		<meta name="robots" content="noindex">
 		<title>', $context['page_title'], '</title>
-		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $context['browser_cache'], '">
+		', template_css(), '
 		<script src="', $settings['default_theme_url'], '/scripts/script.js', $context['browser_cache'], '"></script>
 	</head>
 	<body id="help_popup">
@@ -50,7 +50,7 @@ function template_find_members()
 		<title>', $txt['find_members'], '</title>
 		<meta charset="', $context['character_set'], '">
 		<meta name="robots" content="noindex">
-		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $context['browser_cache'], '">
+		', template_css(), '
 		<script src="', $settings['default_theme_url'], '/scripts/script.js', $context['browser_cache'], '"></script>
 		<script>
 			var membersAdded = [];
@@ -123,7 +123,7 @@ function template_find_members()
 		echo '
 				</ul>
 				<div class="pagesection">
-					', $context['page_index'], '
+					<div class="pagelinks">', $context['page_index'], '</div>
 				</div>';
 	}
 

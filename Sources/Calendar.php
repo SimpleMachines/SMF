@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.2
  */
 
 if (!defined('SMF'))
@@ -113,7 +113,7 @@ function CalendarMain()
 	// Need a start date for all views
 	if (!empty($_REQUEST['start_date']))
 	{
-		$start_parsed = date_parse($_REQUEST['start_date']);
+		$start_parsed = date_parse(str_replace(',', '', convertDateToEnglish($_REQUEST['start_date'])));
 		if (empty($start_parsed['error_count']) && empty($start_parsed['warning_count']))
 		{
 			$_REQUEST['year'] = $start_parsed['year'];
@@ -125,12 +125,12 @@ function CalendarMain()
 	$month = !empty($_REQUEST['month']) ? (int) $_REQUEST['month'] : $today['month'];
 	$day = !empty($_REQUEST['day']) ? (int) $_REQUEST['day'] : (!empty($_REQUEST['month']) ? 1 : $today['day']);
 
-	$start_object = checkdate($month, $day, $year) === true ? date_create(implode('-', array($year, $month, $day))) : date_create(implode('-', array($today['year'], $today['month'], $today['day'])));
+	$start_object = checkdate($month, $day, $year) === true ? date_create(implode('-', array($year, $month, $day)) . ' ' . getUserTimezone()) : date_create(implode('-', array($today['year'], $today['month'], $today['day'])) . ' ' . getUserTimezone());
 
 	// Need an end date for the list view
 	if (!empty($_REQUEST['end_date']))
 	{
-		$end_parsed = date_parse($_REQUEST['end_date']);
+		$end_parsed = date_parse(str_replace(',', '', convertDateToEnglish($_REQUEST['end_date'])));
 		if (empty($end_parsed['error_count']) && empty($end_parsed['warning_count']))
 		{
 			$_REQUEST['end_year'] = $end_parsed['year'];
@@ -142,13 +142,18 @@ function CalendarMain()
 	$end_month = !empty($_REQUEST['end_month']) ? (int) $_REQUEST['end_month'] : null;
 	$end_day = !empty($_REQUEST['end_day']) ? (int) $_REQUEST['end_day'] : null;
 
-	$end_object = checkdate($end_month, $end_day, $end_year) === true ? date_create(implode('-', array($end_year, $end_month, $end_day))) : null;
+	$end_object = null;
+
+	if (isset($end_month, $end_day, $end_year) && checkdate($end_month, $end_day, $end_year))
+	{
+		$end_object = date_create(implode('-', array($end_year, $end_month, $end_day)) . ' ' . getUserTimezone());
+	}
 
 	if (empty($end_object) || $start_object >= $end_object)
 	{
 		$num_days_shown = empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'];
 
-		$end_object = date_create(date_format($start_object, 'Y-m-d'));
+		$end_object = date_create(date_format($start_object, 'Y-m-d') . ' ' . getUserTimezone());
 
 		date_add($end_object, date_interval_create_from_date_string($num_days_shown . ' days'));
 	}
@@ -199,15 +204,15 @@ function CalendarMain()
 		$context['calendar_grid_main'] = getCalendarGrid($curPage['start_date'], $calendarOptions);
 
 	// Load up the previous and next months.
-	$context['calendar_grid_current'] = getCalendarGrid($curPage['start_date'], $calendarOptions);
+	$context['calendar_grid_current'] = getCalendarGrid($curPage['start_date'], $calendarOptions, false, false);
 
 	// Only show previous month if it isn't pre-January of the min-year
 	if ($context['calendar_grid_current']['previous_calendar']['year'] > $modSettings['cal_minyear'] || $curPage['month'] != 1)
-		$context['calendar_grid_prev'] = getCalendarGrid($context['calendar_grid_current']['previous_calendar']['start_date'], $calendarOptions, true);
+		$context['calendar_grid_prev'] = getCalendarGrid($context['calendar_grid_current']['previous_calendar']['start_date'], $calendarOptions, true, false);
 
 	// Only show next month if it isn't post-December of the max-year
 	if ($context['calendar_grid_current']['next_calendar']['year'] < $modSettings['cal_maxyear'] || $curPage['month'] != 12)
-		$context['calendar_grid_next'] = getCalendarGrid($context['calendar_grid_current']['next_calendar']['start_date'], $calendarOptions);
+		$context['calendar_grid_next'] = getCalendarGrid($context['calendar_grid_current']['next_calendar']['start_date'], $calendarOptions, false, false);
 
 	// Basic template stuff.
 	$context['allow_calendar_event'] = allowedTo('calendar_post');
@@ -228,7 +233,7 @@ function CalendarMain()
 
 	// Set the page title to mention the month or week, too
 	if ($context['calendar_view'] != 'viewlist')
-		$context['page_title'] .= ' - ' . ($context['calendar_view'] == 'viewweek' ? $context['calendar_grid_main']['week_title'] : $txt['months'][$context['current_month']] . ' ' . $context['current_year']);
+		$context['page_title'] .= ' - ' . ($context['calendar_view'] == 'viewweek' ? $context['calendar_grid_main']['week_title'] : $txt['months_titles'][$context['current_month']] . ' ' . $context['current_year']);
 
 	// Load up the linktree!
 	$context['linktree'][] = array(
@@ -238,7 +243,7 @@ function CalendarMain()
 	// Add the current month to the linktree.
 	$context['linktree'][] = array(
 		'url' => $scripturl . '?action=calendar;year=' . $context['current_year'] . ';month=' . $context['current_month'],
-		'name' => $txt['months'][$context['current_month']] . ' ' . $context['current_year']
+		'name' => $txt['months_titles'][$context['current_month']] . ' ' . $context['current_year']
 	);
 	// If applicable, add the current week to the linktree.
 	if ($context['calendar_view'] == 'viewweek')
@@ -292,6 +297,8 @@ function CalendarPost()
 		'%R' => '%k:%M',
 		'%T' => '%l:%M',
 	));
+
+	$time_string = preg_replace('~:(?=\s|$|%[pPzZ])~', '', $time_string);
 
 	// Submitting?
 	if (isset($_POST[$context['session_var']], $_REQUEST['eventid']))
@@ -392,7 +399,7 @@ function CalendarPost()
 		$eventDatetimes = getNewEventDatetimes();
 		$context['event'] = array_merge($context['event'], $eventDatetimes);
 
-		$context['event']['last_day'] = (int) strftime('%d', mktime(0, 0, 0, $context['event']['month'] == 12 ? 1 : $context['event']['month'] + 1, 0, $context['event']['month'] == 12 ? $context['event']['year'] + 1 : $context['event']['year']));
+		$context['event']['last_day'] = (int) smf_strftime('%d', mktime(0, 0, 0, $context['event']['month'] == 12 ? 1 : $context['event']['month'] + 1, 0, $context['event']['month'] == 12 ? $context['event']['year'] + 1 : $context['event']['year']));
 	}
 	else
 	{

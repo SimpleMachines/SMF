@@ -173,9 +173,6 @@ td.days:hover {
 #main_grid tr:not(.days_wrapper) td {
 	min-height: 30px;
 }
-.calendar_top input[type="text"] {
-	width: 80px;
-}
 #calendar_range,
 #calendar_navigation {
 	padding: 5px 0;

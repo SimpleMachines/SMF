@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -31,7 +31,13 @@ function Login()
 
 	// You are already logged in, go take a tour of the boards
 	if (!empty($user_info['id']))
-		redirectexit();
+	{
+ 		// This came from a valid hashed return url.  Or something that knows our secrets...
+ 		if (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', un_htmlspecialchars($_REQUEST['return_to']), get_auth_secret()) == $_REQUEST['return_hash'])
+			redirectexit(un_htmlspecialchars($_REQUEST['return_to']));
+		else
+			redirectexit();
+	}
 
 	// We need to load the Login template/language file.
 	loadLanguage('Login');
@@ -39,7 +45,26 @@ function Login()
 
 	$context['sub_template'] = 'login';
 
-	if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
+	/* This is true when:
+	 * We have a valid header indicating a JQXHR request.  This is not sent during a cross domain request.
+	 * OR we have found:
+	 *		1. valid cors host
+	 *  	2. A header indicating a SMF request
+	 *  	3. The url has a ajax in either the GET or POST
+	 *  These are not intended for security, but ensuring the request is intended for a JQXHR response.
+	*/
+	if (
+		(
+			!empty($_SERVER['HTTP_X_REQUESTED_WITH'])
+			&& $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'
+		)
+		||
+		(
+			!empty($context['valid_cors_found'])
+			&& !empty($_SERVER['HTTP_X_SMF_AJAX'])
+			&& isset($_REQUEST['ajax'])
+		)
+	)
 	{
 		$context['from_ajax'] = true;
 		$context['template_layers'] = array();
@@ -60,6 +85,9 @@ function Login()
 	// Set the login URL - will be used when the login process is done (but careful not to send us to an attachment).
 	if (isset($_SESSION['old_url']) && strpos($_SESSION['old_url'], 'dlattach') === false && preg_match('~(board|topic)[=,]~', $_SESSION['old_url']) != 0)
 		$_SESSION['login_url'] = $_SESSION['old_url'];
+	// This came from a valid hashed return url.  Or something that knows our secrets...
+	elseif (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', un_htmlspecialchars($_REQUEST['return_to']), get_auth_secret()) == $_REQUEST['return_hash'])
+		$_SESSION['login_url'] = un_htmlspecialchars($_REQUEST['return_to']);
 	elseif (isset($_SESSION['login_url']) && strpos($_SESSION['login_url'], 'dlattach') !== false)
 		unset($_SESSION['login_url']);
 
@@ -90,7 +118,26 @@ function Login2()
 	// Load cookie authentication stuff.
 	require_once($sourcedir . '/Subs-Auth.php');
 
-	if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
+	/* This is true when:
+	 * We have a valid header indicating a JQXHR request.  This is not sent during a cross domain request.
+	 * OR we have found:
+	 *		1. valid cors host
+	 *  	2. A header indicating a SMF request
+	 *  	3. The url has a ajax in either the GET or POST
+	 *  These are not intended for security, but ensuring the request is intended for a JQXHR response.
+	*/
+	if (
+		(
+			!empty($_SERVER['HTTP_X_REQUESTED_WITH'])
+			&& $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'
+		)
+		||
+		(
+			!empty($context['valid_cors_found'])
+			&& !empty($_SERVER['HTTP_X_SMF_AJAX'])
+			&& isset($_REQUEST['ajax'])
+		)
+	)
 	{
 		$context['from_ajax'] = true;
 		$context['template_layers'] = array();
@@ -115,7 +162,10 @@ function Login2()
 			list (,, $timeout) = safe_unserialize($_SESSION['login_' . $cookiename]);
 
 		else
-			trigger_error('Login2(): Cannot be logged in without a session or cookie', E_USER_ERROR);
+		{
+			loadLanguage('Errors');
+			trigger_error($txt['login_no_session_cookie'], E_USER_ERROR);
+		}
 
 		$user_settings['password_salt'] = bin2hex($smcFunc['random_bytes'](16));
 		updateMemberData($user_info['id'], array('password_salt' => $user_settings['password_salt']));
@@ -145,7 +195,7 @@ function Login2()
 			redirectexit(empty($user_settings['tfa_secret']) ? '' : 'action=logintfa');
 		elseif (!empty($_SESSION['login_url']) && (strpos($_SESSION['login_url'], 'http://') === false && strpos($_SESSION['login_url'], 'https://') === false))
 		{
-			unset ($_SESSION['login_url']);
+			unset($_SESSION['login_url']);
 			redirectexit(empty($user_settings['tfa_secret']) ? '' : 'action=logintfa');
 		}
 		elseif (!empty($user_settings['tfa_secret']))
@@ -300,6 +350,7 @@ function Login2()
 			$other_passwords[] = md5($_POST['passwrd'] . strtolower($user_settings['member_name']));
 			$other_passwords[] = md5(md5($_POST['passwrd']));
 			$other_passwords[] = $_POST['passwrd'];
+			$other_passwords[] = crypt($_POST['passwrd'], $user_settings['passwd']);
 
 			// This one is a strange one... MyPHP, crypt() on the MD5 hash.
 			$other_passwords[] = crypt(md5($_POST['passwrd']), md5($_POST['passwrd']));
@@ -313,6 +364,19 @@ function Login2()
 
 			// APBoard 2 Login Method.
 			$other_passwords[] = md5(crypt($_POST['passwrd'], 'CRYPT_MD5'));
+		}
+		// If the salt is set let's try some other options
+		elseif (!empty($modSettings['enable_password_conversion']) && $user_settings['password_salt'] != '')
+		{
+			// PHPBB 3 check this function exists in PHP 5.5 or higher
+			if (function_exists('password_verify'))
+				$other_passwords[] = password_verify($_POST['passwrd'],$user_settings['password_salt']);
+
+			// PHP-Fusion
+			$other_passwords[] = hash_hmac('sha256', $_POST['passwrd'], $user_settings['password_salt']);
+
+			// MyBB
+			$other_passwords[] = md5(md5($user_settings['password_salt']) . md5($_POST['passwrd']));
 		}
 		// The hash should be 40 if it's SHA-1, so we're safe with more here too.
 		elseif (!empty($modSettings['enable_password_conversion']) && strlen($user_settings['passwd']) == 32)
@@ -336,6 +400,9 @@ function Login2()
 			// BurningBoard3 style of hashing.
 			if (!empty($modSettings['enable_password_conversion']))
 				$other_passwords[] = sha1($user_settings['password_salt'] . sha1($user_settings['password_salt'] . sha1($_POST['passwrd'])));
+
+			// PunBB
+			$other_passwords[] = sha1($user_settings['password_salt'] . sha1($_POST['passwrd']));
 
 			// Perhaps we converted to UTF-8 and have a valid password being hashed differently.
 			if ($context['character_set'] == 'UTF-8' && !empty($modSettings['previousCharacterSet']) && $modSettings['previousCharacterSet'] != 'utf8')
@@ -434,7 +501,26 @@ function LoginTFA()
 	$totp = new \TOTP\Auth($member['tfa_secret']);
 	$totp->setRange(1);
 
-	if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
+	/* This is true when:
+	 * We have a valid header indicating a JQXHR request.  This is not sent during a cross domain request.
+	 * OR we have found:
+	 *		1. valid cors host
+	 *  	2. A header indicating a SMF request
+	 *  	3. The url has a ajax in either the GET or POST
+	 *  These are not intended for security, but ensuring the request is intended for a JQXHR response.
+	*/
+	if (
+		(
+			!empty($_SERVER['HTTP_X_REQUESTED_WITH'])
+			&& $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'
+		)
+		||
+		(
+			!empty($context['valid_cors_found'])
+			&& !empty($_SERVER['HTTP_X_SMF_AJAX'])
+			&& isset($_REQUEST['ajax'])
+		)
+	)
 	{
 		$context['from_ajax'] = true;
 		$context['template_layers'] = array();
@@ -539,7 +625,7 @@ function checkActivation()
 	// Standard activation?
 	elseif ($activation_status != 1)
 	{
-		log_error($txt['activate_not_completed1'] . ' - <span class="remove">' . $user_settings['member_name'] . '</span>', false);
+		log_error($txt['activate_not_completed1'] . ' - <span class="remove">' . $user_settings['member_name'] . '</span>', 'user');
 
 		$context['login_errors'][] = $txt['activate_not_completed1'] . ' <a href="' . $scripturl . '?action=activate;sa=resend;u=' . $user_settings['id_member'] . '">' . $txt['activate_not_completed2'] . '</a>';
 		return false;
@@ -648,8 +734,31 @@ function Logout($internal = false, $redirect = true)
 {
 	global $sourcedir, $user_info, $user_settings, $context, $smcFunc, $cookiename, $modSettings;
 
+	// They decided to cancel a logout?
+	if (!$internal && isset($_POST['cancel']) && isset($_GET[$context['session_var']]))
+		redirectexit(!empty($_SESSION['logout_return']) ? $_SESSION['logout_return'] : '');
+	// Prompt to logout?
+	elseif (!$internal && !isset($_GET[$context['session_var']]))
+	{
+		loadLanguage('Login');
+		loadTemplate('Login');
+		$context['sub_template'] = 'logout';
+
+		// This came from a valid hashed return url.  Or something that knows our secrets...
+		if (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', un_htmlspecialchars($_REQUEST['return_to']), get_auth_secret()) == $_REQUEST['return_hash'])
+		{
+			$_SESSION['logout_url'] = un_htmlspecialchars($_REQUEST['return_to']);
+			$_SESSION['logout_return'] = $_SESSION['logout_url'];
+		}
+		// Setup the return address.
+		elseif (isset($_SESSION['old_url']))
+			$_SESSION['logout_return'] = $_SESSION['old_url'];
+
+		// Don't go any further.
+		return;
+	}
 	// Make sure they aren't being auto-logged out.
-	if (!$internal)
+	elseif (!$internal && isset($_GET[$context['session_var']]))
 		checkSession('get');
 
 	require_once($sourcedir . '/Subs-Auth.php');

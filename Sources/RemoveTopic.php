@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.4
  */
 
 if (!defined('SMF'))
@@ -579,8 +579,6 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 
 /**
  * Remove a specific message (including permission checks).
- * - normally, local and global should be the localCookies and globalCookies settings, respectively.
- * - uses boardurl to determine these two things.
  *
  * @param int $message The message id
  * @param bool $decreasePostCount Whether to decrease users' post counts
@@ -615,6 +613,9 @@ function removeMessage($message, $decreasePostCount = true)
 
 	$row = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
+
+	// Give mods a heads-up before we do anything.
+	call_integration_hook('integrate_pre_remove_message', array($message, $decreasePostCount, $row));
 
 	if (empty($board) || $row['id_board'] != $board)
 	{
@@ -1207,7 +1208,7 @@ function RestoreTopic()
 			{
 				// Lets get the members that need their post count restored.
 				$request2 = $smcFunc['db_query']('', '
-					SELECT id_member, COUNT(id_msg) AS post_count
+					SELECT id_member, COUNT(*) AS post_count
 					FROM {db_prefix}messages
 					WHERE id_topic = {int:topic}
 						AND approved = {int:is_approved}
@@ -1392,7 +1393,7 @@ function mergePosts($msgs, $from_topic, $target_topic)
 			SELECT MIN(id_msg) AS id_first_msg, MAX(id_msg) AS id_last_msg, COUNT(*) AS message_count, approved, subject
 			FROM {db_prefix}messages
 			WHERE id_topic = {int:from_topic}
-			GROUP BY id_topic, approved
+			GROUP BY id_topic, approved, subject
 			ORDER BY approved ASC
 			LIMIT 2',
 			array(

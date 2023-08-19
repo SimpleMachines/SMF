@@ -7,26 +7,26 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.4
  */
 
 if (!defined('SMF'))
 	define('SMF', 'PROXY');
 
 if (!defined('SMF_VERSION'))
-	define('SMF_VERSION', '2.1 RC3');
+	define('SMF_VERSION', '2.1.4');
 
 if (!defined('SMF_FULL_VERSION'))
 	define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 
 if (!defined('SMF_SOFTWARE_YEAR'))
-	define('SMF_SOFTWARE_YEAR', '2020');
+	define('SMF_SOFTWARE_YEAR', '2023');
 
 if (!defined('JQUERY_VERSION'))
-	define('JQUERY_VERSION', '3.5.1');
+	define('JQUERY_VERSION', '3.6.3');
 
 if (!defined('POSTGRE_TITLE'))
 	define('POSTGRE_TITLE', 'PostgreSQL');
@@ -80,6 +80,10 @@ class ProxyServer
 
 		require_once(dirname(__FILE__) . '/Settings.php');
 		require_once($sourcedir . '/Subs.php');
+
+		// Ensure we don't trip over disabled internal functions
+		if (version_compare(PHP_VERSION, '8.0.0', '>='))
+			require_once($sourcedir . '/Subs-Compat.php');
 
 		// Make absolutely sure the cache directory is defined and writable.
 		if (empty($cachedir) || !is_dir($cachedir) || !is_writable($cachedir))
@@ -139,7 +143,7 @@ class ProxyServer
 		if (!$this->isCached($request))
 			return $this->cacheImage($request);
 
-		return false;
+		return true;
 	}
 
 	/**
@@ -243,7 +247,7 @@ class ProxyServer
 	protected function cacheImage($request)
 	{
 		$dest = $this->getCachedPath($request);
-		$ext = strtolower(pathinfo(parse_url($request, PHP_URL_PATH), PATHINFO_EXTENSION));
+		$ext = strtolower(pathinfo(parse_iri($request, PHP_URL_PATH), PATHINFO_EXTENSION));
 
 		$image = fetch_web_data($request);
 

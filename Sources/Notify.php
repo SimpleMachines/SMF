@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
 if (!defined('SMF'))
@@ -105,7 +105,7 @@ function BoardNotify()
 
 		$alertPref = $mode <= 1 ? 0 : ($mode == 2 ? 1 : 3);
 
-		setNotifyPrefs($member_info['id'], array('board_notify_' . $board => $alertPref));
+		setNotifyPrefs((int) $member_info['id'], array('board_notify_' . $board => $alertPref));
 
 		if ($mode > 1)
 			// Turn notification on.  (note this just blows smoke if it's already on.)
@@ -145,7 +145,7 @@ function BoardNotify()
 		loadTemplate('Notify');
 		$context['page_title'] = $txt['notification'];
 		$context['sub_template'] = 'notify_pref_changed';
-		$context['notify_success_msg'] = sprintf($txt['notifyboard' . ($mode == 3 ? '_subscribed' : '_unsubscribed')], $member_info['email']);
+		$context['notify_success_msg'] = sprintf($txt['notify_board' . ($mode == 3 ? '_subscribed' : '_unsubscribed')], $member_info['email']);
 		return;
 	}
 	// Back to the board!
@@ -273,7 +273,7 @@ function TopicNotify()
 			array('id_member', 'id_topic')
 		);
 
-		setNotifyPrefs($member_info['id'], array('topic_notify_' . $log['id_topic'] => $alertPref));
+		setNotifyPrefs((int) $member_info['id'], array('topic_notify_' . $log['id_topic'] => $alertPref));
 
 		if ($mode > 1)
 		{
@@ -315,7 +315,7 @@ function TopicNotify()
 		loadTemplate('Notify');
 		$context['page_title'] = $txt['notification'];
 		$context['sub_template'] = 'notify_pref_changed';
-		$context['notify_success_msg'] = sprintf($txt['notifytopic' . ($mode == 3 ? '_subscribed' : '_unsubscribed')], $member_info['email']);
+		$context['notify_success_msg'] = sprintf($txt['notify_topic' . ($mode == 3 ? '_subscribed' : '_unsubscribed')], $member_info['email']);
 		return;
 	}
 	// Back to the topic.
@@ -376,11 +376,11 @@ function AnnouncementsNotify()
 	$mode = (int) !empty($_GET['mode']);
 
 	// Update their announcement notification preference.
-	setNotifyPrefs($member_info['id'], array('announcements' => $mode));
+	setNotifyPrefs((int) $member_info['id'], array('announcements' => $mode));
 
 	// Show a confirmation message.
 	$context['sub_template'] = 'notify_pref_changed';
-	$context['notify_success_msg'] = sprintf($txt['notifyannouncements' . (!empty($mode) ? '_subscribed' : '_unsubscribed')], $member_info['email']);
+	$context['notify_success_msg'] = sprintf($txt['notify_announcements' . (!empty($mode) ? '_subscribed' : '_unsubscribed')], $member_info['email']);
 }
 
 ?>

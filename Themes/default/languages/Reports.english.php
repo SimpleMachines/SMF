@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC3; Reports
+// Version: 2.1.0; Reports
 
 $txt['generate_reports_desc'] = 'From this section you can generate a variety of reports to assist in the administration of your forum. Simply follow the steps below to select the option of your choice.';
 $txt['generate_reports_continue'] = 'Continue';
@@ -15,7 +15,6 @@ $txt['gr_type_desc_group_perms'] = 'Report on the permissions each membergroup h
 $txt['gr_type_staff'] = 'Staff';
 $txt['gr_type_desc_staff'] = 'This report summarizes all members who currently have positions of authority on the forum.';
 
-$txt['full_member'] = 'Full Member';
 $txt['global_boards'] = 'Global Boards';
 $txt['results'] = 'Results';
 
@@ -111,8 +110,8 @@ $txt['group_perms_name_manage_smileys'] = 'Manage smileys and message icons';
 $txt['group_perms_name_moderate_forum'] = 'Moderate the forum';
 $txt['group_perms_name_pm_read'] = 'Read personal messages';
 $txt['group_perms_name_pm_send'] = 'Send personal messages';
-$txt['group_perms_name_pm_draft'] = 'Save draft personal messages';
-$txt['group_perms_name_pm_autosave_draft'] = 'Automatically save draft personal messages';
+$txt['group_perms_name_pm_draft'] = 'Save drafts of personal messages';
+$txt['group_perms_name_pm_autosave_draft'] = 'Automatically save drafts of personal messages';
 $txt['group_perms_name_profile_extra_any'] = 'Edit any additional options';
 $txt['group_perms_name_profile_extra_own'] = 'Edit own additional options';
 $txt['group_perms_name_profile_identity_any'] = 'Edit any account settings';
@@ -137,13 +136,13 @@ $txt['group_perms_name_profile_blurb_own'] = 'Edit own personal text';
 $txt['group_perms_name_profile_displayed_name_any'] = 'Edit anyone\'s displayed name';
 $txt['group_perms_name_profile_displayed_name_own'] = 'Edit own displayed name';
 $txt['group_perms_name_profile_forum_any'] = 'Edit anyone\'s forum profile';
-$txt['group_perms_name_profile_forum_own'] = 'Allow Forum own Profile edits';
-$txt['group_perms_name_profile_password_any'] = 'Change anyone\'s password and secret question';
+$txt['group_perms_name_profile_forum_own'] = 'Edit own forum profile';
+$txt['group_perms_name_profile_password_any'] = 'Change anyone\'s password';
 $txt['group_perms_name_profile_password_own'] = 'Change own password';
 $txt['group_perms_name_profile_signature_any'] = 'Edit anyone\'s signature';
 $txt['group_perms_name_profile_signature_own'] = 'Edit own signature';
 $txt['group_perms_name_profile_website_any'] = 'Edit anyone\'s website field';
-$txt['group_perms_name_profile_website_own'] = 'Edit own website';
+$txt['group_perms_name_profile_website_own'] = 'Edit own website field';
 $txt['group_perms_name_bbc'] = 'Use the [%1$s] BBCode';
 $txt['group_perms_name_likes_like'] = 'Like any content';
 $txt['group_perms_name_mention'] = 'Mention others via @name';

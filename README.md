@@ -1,7 +1,8 @@
 # [SMF](https://www.simplemachines.org)
-[![Build Status](https://travis-ci.org/SimpleMachines/SMF2.1.svg?branch=release-2.1)](https://travis-ci.org/SimpleMachines/SMF2.1)
+![Build Status](https://github.com/SimpleMachines/SMF/actions/workflows/php.yml/badge.svg)
+![CrowdIn Status](https://github.com/SimpleMachines/SMF/actions/workflows/crowdin_wf.yml/badge.svg)
 
-This is a SMF 2.1 development repository.
+This the development repository for Simple Machines Forum.
 The software is licensed under [BSD 3-clause license](https://opensource.org/licenses/BSD-3-Clause).
 
 Contributions to documentation are licensed under [CC-by-SA 3](https://creativecommons.org/licenses/by-sa/3.0). Third party libraries or sets of images are under their own licenses.
@@ -14,9 +15,7 @@ Please see the [Developer's Certificate of Origin](https://github.com/SimpleMach
 by signing off your contributions, you acknowledge that you can and do license your submissions under the license of the project.
 
 ## Branches organization:
-* ***master*** - is the main branch, only used to merge in a "final release"
-* ***development*** - is the branch where the development of the "next" version/s happens
-* ***release-2.1*** - is the branch where bug fixes for the version 2.1 are applied
+* ***release-2.1*** - is the branch where updates for version 2.1 are applied
 
 ## How to contribute:
 * fork the repository. If you are not used to Github, please check out [fork a repository](https://help.github.com/fork-a-repo).
@@ -27,12 +26,7 @@ by signing off your contributions, you acknowledge that you can and do license y
 * send a pull request to us.
 
 ## How to submit a pull request:
-* If you want to send a bug fix for the version 2.1, send it to the branch ***release-2.1***
-* If you want to send a new feature, use the branch ***development***
-* You should never send any pull request against the master branch
-For more information, the ideal branching we would like to follow is the one described in [this article](http://nvie.com/posts/a-successful-git-branching-model/)
-
-Please, feel free to play around. That's what we're doing. ;)
+* If you want to send a bug fix for version 2.1, send it to the branch ***release-2.1***
 
 ## Security matters:
 

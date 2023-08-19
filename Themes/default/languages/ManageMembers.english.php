@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC3; ManageMembers
+// Version: 2.1.0; ManageMembers
 
 global $context;
 
@@ -123,7 +123,7 @@ $txt['admin_browse_filter_type_0'] = 'Unactivated new accounts';
 $txt['admin_browse_filter_type_2'] = 'Unactivated email changes';
 $txt['admin_browse_filter_type_3'] = 'Unapproved new accounts';
 $txt['admin_browse_filter_type_4'] = 'Unapproved account deletions';
-$txt['admin_browse_filter_type_5'] = 'Unapproved "Under Age" Accounts';
+$txt['admin_browse_filter_type_5'] = 'Unapproved underage accounts';
 
 $txt['admin_browse_outstanding'] = 'Outstanding Members';
 $txt['admin_browse_outstanding_days_1'] = 'With all members who registered longer than';

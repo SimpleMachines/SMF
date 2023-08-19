@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.4
  */
 
 if (!defined('SMF'))
@@ -25,7 +25,7 @@ if (!defined('SMF'))
  */
 function MessageMain()
 {
-	global $txt, $scripturl, $sourcedir, $context, $user_info, $user_settings, $smcFunc, $modSettings;
+	global $txt, $scripturl, $sourcedir, $context, $user_info, $user_settings, $smcFunc, $modSettings, $options;
 
 	// No guests!
 	is_not_guest();
@@ -176,10 +176,11 @@ function MessageMain()
 	// This is convenient.  Do you know how annoying it is to do this every time?!
 	$context['current_label_redirect'] = 'action=pm;f=' . $context['folder'] . (isset($_GET['start']) ? ';start=' . $_GET['start'] : '') . (isset($_REQUEST['l']) ? ';l=' . $_REQUEST['l'] : '');
 	$context['can_issue_warning'] = allowedTo('issue_warning') && $modSettings['warning_settings'][0] == 1;
+	$context['can_moderate_forum'] = allowedTo('moderate_forum');
 
 	// Are PM drafts enabled?
 	$context['drafts_pm_save'] = !empty($modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
-	$context['drafts_autosave'] = !empty($context['drafts_pm_save']) && !empty($modSettings['drafts_autosave_enabled']);
+	$context['drafts_autosave'] = !empty($context['drafts_pm_save']) && !empty($modSettings['drafts_autosave_enabled']) && !empty($options['drafts_autosave_enabled']);
 
 	// Build the linktree for all the actions...
 	$context['linktree'][] = array(
@@ -317,6 +318,7 @@ function messageIndexBar($area)
 				'amt' => $label['unread_messages'],
 				'unread_messages' => $label['unread_messages'],
 				'messages' => $label['messages'],
+				'icon' => 'folder',
 			);
 		}
 	}
@@ -395,10 +397,12 @@ function MessagePopup()
 		FROM {db_prefix}pm_recipients AS pmr
 		WHERE pmr.id_member = {int:current_member}
 			AND is_read = {int:not_read}
+			AND deleted = {int:not_deleted}
 		ORDER BY id_pm',
 		array(
 			'current_member' => $context['user']['id'],
 			'not_read' => 0,
+			'not_deleted' => 0,
 		)
 	);
 	$pms = array();
@@ -895,7 +899,7 @@ function MessageFolder()
 			foreach (array_reverse($pms) as $pm)
 				$orderBy[] = 'pm.id_pm = ' . $pm;
 
-			// Seperate query for these bits!
+			// Separate query for these bits!
 			$subjects_request = $smcFunc['db_query']('', '
 				SELECT pm.id_pm, pm.subject, COALESCE(pm.id_member_from, 0) AS id_member_from, pm.msgtime, COALESCE(mem.real_name, pm.from_name) AS from_name,
 					mem.id_member
@@ -911,14 +915,19 @@ function MessageFolder()
 			);
 		}
 
+		$group_by = $context['folder'] == 'sent' ? '
+			GROUP BY pm.id_pm, pm.subject, pm.id_member_from, pm.body, pm.msgtime, pm.from_name' .
+				($context['sort_by'] == 'name' ? ', mem.real_name' : '')
+		: '';
+
 		// Execute the query!
 		$messages_request = $smcFunc['db_query']('', '
 			SELECT pm.id_pm, pm.subject, pm.id_member_from, pm.body, pm.msgtime, pm.from_name
 			FROM {db_prefix}personal_messages AS pm' . ($context['folder'] == 'sent' ? '
 				LEFT JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm)' : '') . ($context['sort_by'] == 'name' ? '
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = {raw:id_member})' : '') . '
-			WHERE pm.id_pm IN ({array_int:display_pms})' . ($context['folder'] == 'sent' ? '
-			GROUP BY pm.id_pm, pm.subject, pm.id_member_from, pm.body, pm.msgtime, pm.from_name' : '') . '
+			WHERE pm.id_pm IN ({array_int:display_pms})' .
+			$group_by . '
 			ORDER BY ' . ($context['display_mode'] == 2 ? 'pm.id_pm' : '{raw:sort}') . ($descending ? ' DESC' : ' ASC') . '
 			LIMIT {int:limit}',
 			array(
@@ -1007,7 +1016,7 @@ function prepareMessageContext($type = 'subject', $reset = false)
 			'recipients' => &$recipients[$subject['id_pm']],
 			'subject' => $subject['subject'],
 			'time' => timeformat($subject['msgtime']),
-			'timestamp' => forum_time(true, $subject['msgtime']),
+			'timestamp' => $subject['msgtime'],
 			'number_recipients' => count($recipients[$subject['id_pm']]['to']),
 			'labels' => &$context['message_labels'][$subject['id_pm']],
 			'fully_labeled' => count(isset($context['message_labels'][$subject['id_pm']]) ? $context['message_labels'][$subject['id_pm']] : array()) == count($context['labels']),
@@ -1076,7 +1085,7 @@ function prepareMessageContext($type = 'subject', $reset = false)
 		'member' => &$memberContext[$message['id_member_from']],
 		'subject' => $message['subject'],
 		'time' => timeformat($message['msgtime']),
-		'timestamp' => forum_time(true, $message['msgtime']),
+		'timestamp' => $message['msgtime'],
 		'counter' => $counter,
 		'body' => $message['body'],
 		'recipients' => &$recipients[$message['id_pm']],
@@ -1097,8 +1106,6 @@ function prepareMessageContext($type = 'subject', $reset = false)
 	if (!empty($memberContext[$message['id_member_from']]['custom_fields']))
 		foreach ($memberContext[$message['id_member_from']]['custom_fields'] as $custom)
 			$output['custom_fields'][$context['cust_profile_fields_placement'][$custom['placement']]][] = $custom;
-
-	call_integration_hook('integrate_prepare_pm_context', array(&$output, &$message, $counter));
 
 	$output['quickbuttons'] = array(
 		'reply_to_all' => array(
@@ -1135,10 +1142,13 @@ function prepareMessageContext($type = 'subject', $reset = false)
 			),
 		),
 		'quickmod' => array(
+			'class' => 'inline_mod_check',
 			'content' => '<input type="checkbox" name="pms[]" id="deletedisplay' . $output['id'] . '" value="' . $output['id'] . '" onclick="document.getElementById(\'deletelisting' . $output['id'] . '\').checked = this.checked;">',
 			'show' => empty($context['display_mode'])
 		)
 	);
+
+	call_integration_hook('integrate_prepare_pm_context', array(&$output, &$message, $counter));
 
 	return $output;
 }
@@ -1817,6 +1827,8 @@ function MessagePost()
 	loadTemplate('PersonalMessage');
 	loadJavaScriptFile('PersonalMessage.js', array('defer' => false, 'minimize' => true), 'smf_pms');
 	loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
+	if ($context['drafts_autosave'])
+		loadJavaScriptFile('drafts.js', array('defer' => false, 'minimize' => true), 'smf_drafts');
 	$context['sub_template'] = 'send';
 
 	// Extract out the spam settings - cause it's neat.
@@ -1949,7 +1961,7 @@ function MessagePost()
 			),
 			'subject' => $row_quoted['subject'],
 			'time' => timeformat($row_quoted['msgtime']),
-			'timestamp' => forum_time(true, $row_quoted['msgtime']),
+			'timestamp' => $row_quoted['msgtime'],
 			'body' => $row_quoted['body']
 		);
 	}
@@ -2213,7 +2225,7 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 			),
 			'subject' => $row_quoted['subject'],
 			'time' => timeformat($row_quoted['msgtime']),
-			'timestamp' => forum_time(true, $row_quoted['msgtime']),
+			'timestamp' => $row_quoted['msgtime'],
 			'body' => parse_bbc($row_quoted['body'], true, 'pm' . $row_quoted['id_pm']),
 		);
 	}
@@ -2751,7 +2763,7 @@ function MessageActionsApply()
 				// If we're removing from the inbox, see if we have at least one other label.
 				// This query is faster than the one above
 				$request2 = $smcFunc['db_query']('', '
-					SELECT COUNT(l.id_label)
+					SELECT COUNT(*)
 					FROM {db_prefix}pm_labels AS l
 						INNER JOIN {db_prefix}pm_labeled_messages AS pml ON (pml.id_label = l.id_label)
 					WHERE l.id_member = {int:current_member}
@@ -3263,7 +3275,7 @@ function ManageLabels()
 	$labels_to_remove = array();
 	$label_updates = array();
 
-	// Add all existing labels to the array to save, slashing them as necessary...
+	// Add all of the current user's existing labels to the array to save, slashing them as necessary...
 	foreach ($context['labels'] as $label)
 	{
 		if ($label['id'] != -1)
@@ -3299,8 +3311,11 @@ function ManageLabels()
 		{
 			foreach ($_POST['delete_label'] AS $label => $dummy)
 			{
-				unset($the_labels[$label]);
-				$labels_to_remove[] = $label;
+				if (array_key_exists($label, $the_labels))
+				{
+					unset($the_labels[$label]);
+					$labels_to_remove[] = $label;
+				}
 			}
 		}
 		// The hardest one to deal with... changes.
@@ -3345,17 +3360,19 @@ function ManageLabels()
 		}
 
 		// Update existing labels as needed
-		if (!empty($label_upates))
+		if (!empty($label_updates))
 		{
 			foreach ($label_updates AS $id => $name)
 			{
 				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}labels
+					UPDATE {db_prefix}pm_labels
 					SET name = {string:name}
-					WHERE id_label = {int:id_label}',
+					WHERE id_label = {int:id_label}
+					AND id_member = {int:current_member}',
 					array(
 						'name' => $name,
-						'id' => $id
+						'id_label' => $id,
+						'current_member' => $user_info['id'],
 					)
 				);
 			}
@@ -3367,9 +3384,11 @@ function ManageLabels()
 			// First delete the labels
 			$smcFunc['db_query']('', '
 				DELETE FROM {db_prefix}pm_labels
-				WHERE id_label IN ({array_int:labels_to_delete})',
+				WHERE id_label IN ({array_int:labels_to_delete})
+				AND id_member = {int:current_member}',
 				array(
 					'labels_to_delete' => $labels_to_remove,
+					'current_member' => $user_info['id'],
 				)
 			);
 
@@ -3419,6 +3438,7 @@ function ManageLabels()
 					array(
 						'stranded_messages' => $stranded_messages,
 						'in_inbox' => 1,
+						'current_member' => $user_info['id'],
 					)
 				);
 			}
@@ -4065,30 +4085,21 @@ function ApplyRules($all_messages = false)
 			// Quickly check each label is valid!
 			$realLabels = array();
 			foreach ($context['labels'] as $label)
-			{
-				if (in_array($label['id'], $labels) && $label['id'] != -1 || empty($options['pm_remove_inbox_label']))
-				{
-					// Make sure this stays in the inbox
-					if ($label['id'] == '-1')
-					{
-						$smcFunc['db_query']('', '
-							UPDATE {db_prefix}pm_recipients
-							SET in_inbox = {int:in_inbox}
-							WHERE id_pm = {int:id_pm}
-								AND id_member = {int:current_member}',
-							array(
-								'in_inbox' => 1,
-								'id_pm' => $pm,
-								'current_member' => $user_info['id'],
-							)
-						);
-					}
-					else
-					{
-						$realLabels[] = $label['id'];
-					}
-				}
-			}
+				if (in_array($label['id'], $labels))
+					$realLabels[] = $label['id'];
+
+			if (!empty($options['pm_remove_inbox_label']))
+				$smcFunc['db_query']('', '
+					UPDATE {db_prefix}pm_recipients
+					SET in_inbox = {int:in_inbox}
+					WHERE id_pm = {int:id_pm}
+						AND id_member = {int:current_member}',
+					array(
+						'in_inbox' => 0,
+						'id_pm' => $pm,
+						'current_member' => $user_info['id'],
+					)
+				);
 
 			$inserts = array();
 			// Now we insert the label info
@@ -4154,7 +4165,7 @@ function LoadRules($reload = false)
  */
 function isAccessiblePM($pmID, $validFor = 'in_or_outbox')
 {
-	global $user_info, $smcFunc;
+	global $user_info, $smcFunc, $txt;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT
@@ -4195,7 +4206,8 @@ function isAccessiblePM($pmID, $validFor = 'in_or_outbox')
 			break;
 
 		default:
-			trigger_error('Undefined validation type given', E_USER_ERROR);
+			loadLanguage('Errors');
+			trigger_error($txt['pm_invalid_validation_type'], E_USER_ERROR);
 			break;
 	}
 }

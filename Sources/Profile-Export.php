@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.2
  */
 
 if (!defined('SMF'))
@@ -181,7 +181,7 @@ function export_profile_data($uid)
 		),
 	);
 
-	if (empty($modSettings['export_dir']) || !file_exists($modSettings['export_dir']))
+	if (empty($modSettings['export_dir']) || !is_dir($modSettings['export_dir']) || !smf_chmod($modSettings['export_dir']))
 		create_export_dir();
 
 	$export_dir_slash = $modSettings['export_dir'] . DIRECTORY_SEPARATOR;
@@ -468,7 +468,13 @@ function download_export_file($uid)
 
 	// Figure out the filename we'll tell the browser.
 	$datatypes = file_exists($progressfile) ? array_keys($smcFunc['json_decode'](file_get_contents($progressfile), true)) : array('profile');
-	$included_desc = array_map(function ($datatype) use ($txt) { return $txt[$datatype]; }, $datatypes);
+	$included_desc = array_map(
+		function ($datatype) use ($txt)
+		{
+			return $txt[$datatype];
+		},
+		$datatypes
+	);
 
 	$dlfilename = array_merge(array($context['forum_name'], $context['member']['username']), $included_desc);
 	$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}_]+/u', '-', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('_', $dlfilename)))));
@@ -487,6 +493,7 @@ function download_export_file($uid)
 		if (strtotime($modified_since) >= $mtime)
 		{
 			ob_end_clean();
+			header_remove('content-encoding');
 
 			// Answer the question - no, it hasn't been modified ;).
 			send_http_status(304);
@@ -499,6 +506,7 @@ function download_export_file($uid)
 	if (!empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $eTag) !== false)
 	{
 		ob_end_clean();
+		header_remove('content-encoding');
 
 		send_http_status(304);
 		exit;
@@ -565,6 +573,8 @@ function download_export_file($uid)
 		while (@ob_get_level() > 0)
 			@ob_end_clean();
 
+		header_remove('content-encoding');
+
 		// 40 kilobytes is a good-ish amount
 		$chunksize = 40 * 1024;
 		$bytes_sent = 0;
@@ -589,6 +599,8 @@ function download_export_file($uid)
 		// Forcibly end any output buffering going on.
 		while (@ob_get_level() > 0)
 			@ob_end_clean();
+
+		header_remove('content-encoding');
 
 		$fp = fopen($filepath, 'rb');
 		while (!feof($fp))
@@ -649,16 +661,17 @@ function export_attachment($uid)
 		send_http_status(403);
 		exit;
 	}
-
-	// We need the topic.
-	list ($_REQUEST['topic']) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// This doesn't count as a normal download.
 	$context['skip_downloads_increment'] = true;
 
-	// Try to avoid collisons when attachment names are not unique.
+	// Try to avoid collisions when attachment names are not unique.
 	$context['prepend_attachment_id'] = true;
+
+	// Allow access to their attachments even if they can't see the board.
+	// This is just like what we do with posts during export.
+	$context['attachment_allow_hidden_boards'] = true;
 
 	// We should now have what we need to serve the file.
 	require_once($sourcedir . DIRECTORY_SEPARATOR . 'ShowAttachments.php');
@@ -725,7 +738,7 @@ function get_export_formats()
  */
 function create_export_dir($fallback = '')
 {
-	global $boarddir, $modSettings;
+	global $boarddir, $modSettings, $txt;
 
 	// No supplied fallback, so use the default location.
 	if (empty($fallback))
@@ -747,7 +760,7 @@ function create_export_dir($fallback = '')
 		// Try again at the fallback location.
 		if ($modSettings['export_dir'] != $fallback)
 		{
-			log_error($txt['export_dir_forced_change'], $modSettings['export_dir'], $fallback);
+			log_error(sprintf($txt['export_dir_forced_change'], $modSettings['export_dir'], $fallback));
 			updateSettings(array('export_dir' => $fallback));
 
 			// Secondary fallback will be the default location, so no parameter this time.
@@ -1826,10 +1839,14 @@ function export_load_css_js()
 	$css_to_minify = array();
 	$normal_css_files = array();
 
-	usort($context['css_files'], function ($a, $b)
-	{
-		return $a['options']['order_pos'] < $b['options']['order_pos'] ? -1 : ($a['options']['order_pos'] > $b['options']['order_pos'] ? 1 : 0);
-	});
+	usort(
+		$context['css_files'],
+		function ($a, $b)
+		{
+			return $a['options']['order_pos'] < $b['options']['order_pos'] ? -1 : ($a['options']['order_pos'] > $b['options']['order_pos'] ? 1 : 0);
+		}
+	);
+
 	foreach ($context['css_files'] as $css_file)
 	{
 		if (!isset($css_file['options']['minimize']))
@@ -1855,7 +1872,7 @@ function export_load_css_js()
 	}
 
 	// Next, we need to do for JavaScript what we just did for CSS.
-	loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', array('external' => true), 'smf_jquery');
+	loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', array('external' => true, 'seed' => false), 'smf_jquery');
 
 	// There might be JavaScript that we need to add in order to support custom BBC or something.
 	call_integration_hook('integrate_pre_javascript_output', array(false));

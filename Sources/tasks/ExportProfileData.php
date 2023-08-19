@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
 /**
@@ -180,7 +180,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		$query_this_board = '{query_see_message_board}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? ' AND m.id_board != ' . $modSettings['recycle_board'] : '');
 
 		// We need a valid export directory.
-		if (empty($modSettings['export_dir']) || !file_exists($modSettings['export_dir']))
+		if (empty($modSettings['export_dir']) || !is_dir($modSettings['export_dir']) || !smf_chmod($modSettings['export_dir']))
 		{
 			require_once($sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
 			if (create_export_dir() === false)
@@ -203,7 +203,13 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 
 		$feed_meta = array(
 			'title' => sprintf($txt['profile_of_username'], $user_profile[$uid]['real_name']),
-			'desc' => sentence_list(array_map(function ($datatype) use ($txt) { return $txt[$datatype]; }, array_keys($included))),
+			'desc' => sentence_list(array_map(
+				function ($datatype) use ($txt)
+				{
+					return $txt[$datatype];
+				},
+				array_keys($included)
+			)),
 			'author' => $mbname,
 			'source' => $scripturl . '?action=profile;u=' . $uid,
 			'self' => '', // Unused, but can't be null.
@@ -235,7 +241,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		// Get the data, always in ascending order.
 		$xml_data = call_user_func($included[$datatype]['func'], 'smf', true);
 
-		// No data retrived? Just move on then.
+		// No data retrieved? Just move on then.
 		if (empty($xml_data))
 			$datatype_done = true;
 
@@ -373,9 +379,6 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 						{
 							rename($tempfile, $realfile);
 							$realfile = $export_dir_slash . ++$filenum . '_' . $idhash_ext;
-
-							file_put_contents($tempfile, implode('', array($context['feed']['header'], $profile_basic_items, $context['feed']['footer'])), LOCK_EX);
-
 							$prev_item_count = $new_item_count = 0;
 						}
 						// This was the last chunk.

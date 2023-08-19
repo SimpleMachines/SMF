@@ -1,16 +1,16 @@
 <?php
 
 /**
- * This file currently just shows group info, and allows certain priviledged members to add/remove members.
+ * This file currently just shows group info, and allows certain privileged members to add/remove members.
  *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -31,6 +31,8 @@ function Groups()
 		'members' => array('MembergroupMembers', 'view_groups'),
 		'requests' => array('GroupRequests', 'group_requests'),
 	);
+
+	call_integration_hook('integrate_manage_groups', array(&$subActions));
 
 	// Default to sub action 'index'.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'index';
@@ -57,9 +59,6 @@ function Groups()
 			'name' => $txt['groups'],
 		);
 	}
-
-	// CRUD $subActions as needed.
-	call_integration_hook('integrate_manage_groups', array(&$subActions));
 
 	// Call the actual function.
 	call_helper($subActions[$_REQUEST['sa']][0]);
@@ -285,12 +284,12 @@ function MembergroupMembers()
 	// Must be adding new members to the group...
 	elseif (isset($_REQUEST['add']) && (!empty($_REQUEST['toAdd']) || !empty($_REQUEST['member_add'])) && $context['group']['assignable'])
 	{
-		checkSession();
-		validateToken('mod-mgm');
-
 		// Demand an admin password before adding new admins -- every time, no matter what.
 		if ($context['group']['id'] == 1)
 			validateSession('admin', true);
+
+		checkSession();
+		validateToken('mod-mgm');
 
 		$member_query = array();
 		$member_parameters = array();
@@ -659,7 +658,7 @@ function GroupRequests()
 			array(
 				'position' => 'bottom_of_list',
 				'value' => '
-					<select name="req_action" onchange="if (this.value != 0 &amp;&amp; (this.value == \'reason\' || confirm(\'' . $txt['mc_groupr_warning'] . '\'))) this.form.submit();">
+					<select id="req_action" name="req_action" onchange="if (this.value != 0 &amp;&amp; (this.value == \'reason\' || confirm(\'' . $txt['mc_groupr_warning'] . '\'))) this.form.submit();">
 						<option value="0">' . $txt['with_selected'] . ':</option>
 						<option value="0" disabled>---------------------</option>
 						<option value="approve">' . $txt['mc_groupr_approve'] . '</option>

@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.3
  */
 
 /*	This template is, perhaps, the most important template in the theme. It
@@ -55,6 +55,9 @@ function template_init()
 
 	// Set the following variable to true if this theme wants to display the avatar of the user that posted the last post on the board index.
 	$settings['avatars_on_boardIndex'] = false;
+
+	// Set the following variable to true if this theme wants to display the login and register buttons in the main forum menu.
+	$settings['login_main_menu'] = false;
 
 	// This defines the formatting for the page indexes used throughout the forum.
 	$settings['page_index'] = array(
@@ -106,6 +109,8 @@ function template_html_above()
 			index.css plus variant.css files. If you've set them up properly
 			(through $settings['theme_variants']), the variant files will be loaded
 			for you automatically.
+			Additionally, tweaking the CSS for the editor requires you to include
+			a custom 'jquery.sceditor.theme.css' file in the css folder if you need it.
 
 	*	MODs:
 			If you want to load CSS or JS files in here, the best way is to use the
@@ -205,12 +210,12 @@ function template_body_above()
 		echo '
 			<ul class="floatleft" id="top_info">
 				<li>
-					<a href="', $scripturl, '?action=profile"', !empty($context['self_profile']) ? ' class="active"' : '', ' id="profile_menu_top" onclick="return false;">';
+					<a href="', $scripturl, '?action=profile"', !empty($context['self_profile']) ? ' class="active"' : '', ' id="profile_menu_top">';
 
 		if (!empty($context['user']['avatar']))
 			echo $context['user']['avatar']['image'];
 
-		echo $context['user']['name'], '</a>
+		echo '<span class="textmenu">', $context['user']['name'], '</span></a>
 					<div id="profile_menu" class="top_menu"></div>
 				</li>';
 
@@ -218,19 +223,28 @@ function template_body_above()
 		if ($context['allow_pm'])
 			echo '
 				<li>
-					<a href="', $scripturl, '?action=pm"', !empty($context['self_pm']) ? ' class="active"' : '', ' id="pm_menu_top">', $txt['pm_short'], !empty($context['user']['unread_messages']) ? ' <span class="amt">' . $context['user']['unread_messages'] . '</span>' : '', '</a>
+					<a href="', $scripturl, '?action=pm"', !empty($context['self_pm']) ? ' class="active"' : '', ' id="pm_menu_top">
+						<span class="main_icons inbox"></span>
+						<span class="textmenu">', $txt['pm_short'], '</span>', !empty($context['user']['unread_messages']) ? '
+						<span class="amt">' . $context['user']['unread_messages'] . '</span>' : '', '
+					</a>
 					<div id="pm_menu" class="top_menu scrollable"></div>
 				</li>';
 
 		// Thirdly, alerts
 		echo '
 				<li>
-					<a href="', $scripturl, '?action=profile;area=showalerts;u=', $context['user']['id'], '"', !empty($context['self_alerts']) ? ' class="active"' : '', ' id="alerts_menu_top">', $txt['alerts'], !empty($context['user']['alerts']) ? ' <span class="amt">' . $context['user']['alerts'] . '</span>' : '', '</a>
+					<a href="', $scripturl, '?action=profile;area=showalerts;u=', $context['user']['id'], '"', !empty($context['self_alerts']) ? ' class="active"' : '', ' id="alerts_menu_top">
+						<span class="main_icons alerts"></span>
+						<span class="textmenu">', $txt['alerts'], '</span>', !empty($context['user']['alerts']) ? '
+						<span class="amt">' . $context['user']['alerts'] . '</span>' : '', '
+					</a>
 					<div id="alerts_menu" class="top_menu scrollable"></div>
 				</li>';
 
 		// A logout button for people without JavaScript.
-		echo '
+		if (empty($settings['login_main_menu']))
+			echo '
 				<li id="nojs_logout">
 					<a href="', $scripturl, '?action=logout;', $context['session_var'], '=', $context['session_id'], '">', $txt['logout'], '</a>
 					<script>document.getElementById("nojs_logout").style.display = "none";</script>
@@ -242,15 +256,47 @@ function template_body_above()
 	}
 	// Otherwise they're a guest. Ask them to either register or login.
 	elseif (empty($maintenance))
-		echo '
-			<ul class="floatleft welcome">
-				<li>', sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $txt['guest_title'], $context['forum_name_html_safe'], $scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');', $scripturl . '?action=signup'), '</li>
+	{
+		// Some people like to do things the old-fashioned way.
+		if (!empty($settings['login_main_menu']))
+		{
+			echo '
+			<ul class="floatleft">
+				<li class="welcome">', sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $context['forum_name_html_safe'], $scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ', \'login\');', $scripturl . '?action=signup'), '</li>
 			</ul>';
+		}
+		else
+		{
+			echo '
+			<ul class="floatleft" id="top_info">
+				<li class="welcome">
+					', sprintf($txt['welcome_to_forum'], $context['forum_name_html_safe']), '
+				</li>
+				<li class="button_login">
+					<a href="', $scripturl, '?action=login" class="', $context['current_action'] == 'login' ? 'active' : 'open','" onclick="return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ', \'login\');">
+						<span class="main_icons login"></span>
+						<span class="textmenu">', $txt['login'], '</span>
+					</a>
+				</li>';
+
+			if ($context['can_register'])
+				echo '
+				<li class="button_signup">
+					<a href="', $scripturl, '?action=signup" class="', $context['current_action'] == 'signup' ? 'active' : 'open','">
+						<span class="main_icons regcenter"></span>
+						<span class="textmenu">', $txt['register'], '</span>
+					</a>
+				</li>';
+
+			echo '
+			</ul>';
+		}
+	}
 	else
 		// In maintenance mode, only login is allowed and don't show OverlayDiv
 		echo '
 			<ul class="floatleft welcome">
-				<li>', sprintf($txt['welcome_guest'], $txt['guest_title'], '', $scripturl . '?action=login', 'return true;'), '</li>
+				<li>', sprintf($txt['welcome_guest'], $context['forum_name_html_safe'], $scripturl . '?action=login', 'return true;'), '</li>
 			</ul>';
 
 	if (!empty($modSettings['userLanguage']) && !empty($context['languages']) && count($context['languages']) > 1)
@@ -336,9 +382,22 @@ function template_body_above()
 	<div id="wrapper">
 		<div id="upper_section">
 			<div id="inner_section">
-				<div id="inner_wrap">
+				<div id="inner_wrap"', !$context['user']['is_logged'] ? ' class="hide_720"' : '', '>
 					<div class="user">
-						', $context['current_time'], '
+						<time datetime="', smf_gmstrftime('%FT%TZ'), '">', $context['current_time'], '</time>';
+
+	if ($context['user']['is_logged'])
+		echo '
+						<ul class="unread_links">
+							<li>
+								<a href="', $scripturl, '?action=unread" title="', $txt['unread_since_visit'], '">', $txt['view_unread_category'], '</a>
+							</li>
+							<li>
+								<a href="', $scripturl, '?action=unreadreplies" title="', $txt['show_unread_replies'], '">', $txt['unread_replies'], '</a>
+							</li>
+						</ul>';
+
+	echo '
 					</div>';
 
 	// Show a random news item? (or you could pick one from news_lines...)
@@ -350,13 +409,15 @@ function template_body_above()
 					</div>';
 
 	echo '
-					<hr class="clear">
 				</div>';
 
 	// Show the menu here, according to the menu sub template, followed by the navigation tree.
 	// Load mobile menu here
 	echo '
-				<a class="menu_icon mobile_user_menu"></a>
+				<a class="mobile_user_menu">
+					<span class="menu_icon"></span>
+					<span class="text_menu">', $txt['mobile_user_menu'], '</span>
+				</a>
 				<div id="main_menu">
 					<div id="mobile_user_menu" class="popup_container">
 						<div class="popup_window description">
@@ -441,16 +502,10 @@ function theme_linktree($force_show = false)
 	// If linktree is empty, just return - also allow an override.
 	if (empty($context['linktree']) || (!empty($context['dont_default_linktree']) && !$force_show))
 		return;
+
 	echo '
 				<div class="navigate_section">
 					<ul>';
-
-	if ($context['user']['is_logged'])
-		echo '
-						<li class="unread_links">
-							<a href="', $scripturl, '?action=unread" title="', $txt['unread_since_visit'], '">', $txt['view_unread_category'], '</a>
-							<a href="', $scripturl, '?action=unreadreplies" title="', $txt['show_unread_replies'], '">', $txt['unread_replies'], '</a>
-						</li>';
 
 	// Each tree item has a URL and name. Some may have extra_before and extra_after.
 	foreach ($context['linktree'] as $link_num => $tree)
@@ -507,7 +562,7 @@ function template_menu()
 	{
 		echo '
 						<li class="button_', $act, '', !empty($button['sub_buttons']) ? ' subsections"' : '"', '>
-							<a', $button['active_button'] ? ' class="active"' : '', ' href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', '>
+							<a', $button['active_button'] ? ' class="active"' : '', ' href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', isset($button['onclick']) ? ' onclick="' . $button['onclick'] . '"' : '', '>
 								', $button['icon'], '<span class="textmenu">', $button['title'], !empty($button['amt']) ? ' <span class="amt">' . $button['amt'] . '</span>' : '', '</span>
 							</a>';
 
@@ -521,7 +576,7 @@ function template_menu()
 			{
 				echo '
 								<li', !empty($childbutton['sub_buttons']) ? ' class="subsections"' : '', '>
-									<a href="', $childbutton['href'], '"', isset($childbutton['target']) ? ' target="' . $childbutton['target'] . '"' : '', '>
+									<a href="', $childbutton['href'], '"', isset($childbutton['target']) ? ' target="' . $childbutton['target'] . '"' : '', isset($childbutton['onclick']) ? ' onclick="' . $childbutton['onclick'] . '"' : '', '>
 										', $childbutton['title'], !empty($childbutton['amt']) ? ' <span class="amt">' . $childbutton['amt'] . '</span>' : '', '
 									</a>';
 				// 3rd level menus :)
@@ -533,7 +588,7 @@ function template_menu()
 					foreach ($childbutton['sub_buttons'] as $grandchildbutton)
 						echo '
 										<li>
-											<a href="', $grandchildbutton['href'], '"', isset($grandchildbutton['target']) ? ' target="' . $grandchildbutton['target'] . '"' : '', '>
+											<a href="', $grandchildbutton['href'], '"', isset($grandchildbutton['target']) ? ' target="' . $grandchildbutton['target'] . '"' : '', isset($grandchildbutton['onclick']) ? ' onclick="' . $grandchildbutton['onclick'] . '"' : '', '>
 												', $grandchildbutton['title'], !empty($grandchildbutton['amt']) ? ' <span class="amt">' . $grandchildbutton['amt'] . '</span>' : '', '
 											</a>
 										</li>';
@@ -666,13 +721,13 @@ function template_quickbuttons($list_items, $list_class = null, $output_method =
 	$list_item_format = function($li)
 	{
 		$html = '
-			<li' . (!empty($li['class']) ? ' class="' . $li['class'] . '"' : '') . (!empty($li['id']) ? ' id="' . $li['id'] . '"' : '') . (!empty($li['custom']) ? $li['custom'] : '') . '>';
+			<li' . (!empty($li['class']) ? ' class="' . $li['class'] . '"' : '') . (!empty($li['id']) ? ' id="' . $li['id'] . '"' : '') . (!empty($li['custom']) ? ' ' . $li['custom'] : '') . '>';
 
 		if (isset($li['content']))
 			$html .= $li['content'];
 		else
 			$html .= '
-				<a' . (!empty($li['href']) ? ' href="' . $li['href'] . '"' : '') . (!empty($li['javascript']) ? $li['javascript'] : '') . '>
+				<a href="' . (!empty($li['href']) ? $li['href'] : 'javascript:void(0);') . '"' . (!empty($li['javascript']) ? ' ' . $li['javascript'] : '') . '>
 					' . (!empty($li['icon']) ? '<span class="main_icons ' . $li['icon'] . '"></span>' : '') . (!empty($li['label']) ? $li['label'] : '') . '
 				</a>';
 
@@ -688,7 +743,8 @@ function template_quickbuttons($list_items, $list_class = null, $output_method =
 		if ($key == 'more')
 		{
 			$output .= '
-			<li class="post_options">' . $txt['post_options'] . '
+			<li class="post_options">
+				<a href="javascript:void(0);">' . $txt['post_options'] . '</a>
 				<ul>';
 
 			foreach ($li as $subli)

@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
 /**
@@ -407,12 +407,16 @@ function template_show_month_grid($grid_name, $is_mini = false)
 					if (!empty($day['events']))
 					{
 						// Sort events by start time (all day events will be listed first)
-						uasort($day['events'], function($a, $b) {
-							if ($a['start_timestamp'] == $b['start_timestamp'])
-								return 0;
+						uasort(
+							$day['events'],
+							function($a, $b)
+							{
+								if ($a['start_timestamp'] == $b['start_timestamp'])
+									return 0;
 
-							return ($a['start_timestamp'] < $b['start_timestamp']) ? -1 : 1;
-						});
+								return ($a['start_timestamp'] < $b['start_timestamp']) ? -1 : 1;
+							}
+						);
 
 						echo '
 						<div class="smalltext lefttext">
@@ -568,10 +572,18 @@ function template_show_week_grid($grid_name)
 		echo '
 				<table class="table_grid calendar_week">
 					<tr>
-						<th class="days" scope="col">', $txt['calendar_day'], '</th>
-						<th class="days" scope="col">', $txt['events'], '</th>
-						<th class="days" scope="col">', $txt['calendar_prompt'], '</th>
-						<th class="days" scope="col">', $txt['birthdays'], '</th>
+						<th class="days" scope="col">', $txt['calendar_day'], '</th>';
+		if (!empty($calendar_data['show_events']))
+			echo '
+						<th class="days" scope="col">', $txt['events'], '</th>';
+
+		if (!empty($calendar_data['show_holidays']))
+			echo '
+						<th class="days" scope="col">', $txt['calendar_prompt'], '</th>';
+		if (!empty($calendar_data['show_birthdays']))
+			echo '
+						<th class="days" scope="col">', $txt['birthdays'], '</th>';
+		echo '
 					</tr>';
 
 		// Each day of the week.
@@ -593,107 +605,128 @@ function template_show_week_grid($grid_name)
 				echo $txt['days'][$day['day_of_week']], ' - ', $day['day'];
 
 			echo '
-						</td>
+						</td>';
+
+			if (!empty($calendar_data['show_events']))
+			{
+				echo '
 						<td class="', implode(' ', $classes), '', empty($day['events']) ? (' disabled' . ($context['can_post'] ? ' week_post' : '')) : ' events', ' event_col" data-css-prefix="' . $txt['events'] . ' ', (empty($day['events']) && empty($context['can_post'])) ? $txt['none'] : '', '">';
 
-			// Show any events...
-			if (!empty($day['events']))
-			{
-				// Sort events by start time (all day events will be listed first)
-				uasort($day['events'], function($a, $b) {
-					if ($a['start_timestamp'] == $b['start_timestamp'])
-						return 0;
-					return ($a['start_timestamp'] < $b['start_timestamp']) ? -1 : 1;
-				});
-
-				foreach ($day['events'] as $event)
+				// Show any events...
+				if (!empty($day['events']))
 				{
-					echo '
-							<div class="event_wrapper">';
+					// Sort events by start time (all day events will be listed first)
+					uasort(
+						$day['events'],
+						function($a, $b)
+						{
+							if ($a['start_timestamp'] == $b['start_timestamp'])
+								return 0;
 
-					$event_icons_needed = ($event['can_edit'] || $event['can_export']) ? true : false;
+							return ($a['start_timestamp'] < $b['start_timestamp']) ? -1 : 1;
+						}
+					);
 
-					echo $event['link'], '<br>
-								<span class="event_time', empty($event_icons_needed) ? ' floatright' : '', '">';
-
-					if (!empty($event['start_time_local']))
-						echo trim($event['start_time_local']), !empty($event['end_time_local']) ? ' &ndash; ' . trim($event['end_time_local']) : '';
-					else
-						echo $txt['calendar_allday'];
-
-					echo '
-								</span>';
-
-					if (!empty($event['location']))
-						echo '<br>
-								<span class="event_location', empty($event_icons_needed) ? ' floatright' : '', '">' . $event['location'] . '</span>';
-
-					if (!empty($event_icons_needed))
+					foreach ($day['events'] as $event)
 					{
-						echo ' <span class="modify_event_links">';
+						echo '
+								<div class="event_wrapper">';
 
-						// If they can edit the event, show a star they can click on....
-						if (!empty($event['can_edit']))
-							echo '
-									<a class="modify_event" href="', $event['modify_href'], '">
-										<span class="main_icons calendar_modify" title="', $txt['calendar_edit'], '"></span>
-									</a>';
+						$event_icons_needed = ($event['can_edit'] || $event['can_export']) ? true : false;
 
-						// Can we export? Sweet.
-						if (!empty($event['can_export']))
-							echo '
-									<a class="modify_event" href="', $event['export_href'], '">
-										<span class="main_icons calendar_export" title="', $txt['calendar_export'], '"></span>
-									</a>';
+						echo $event['link'], '<br>
+									<span class="event_time', empty($event_icons_needed) ? ' floatright' : '', '">';
+
+						if (!empty($event['start_time_local']))
+							echo trim($event['start_time_local']), !empty($event['end_time_local']) ? ' &ndash; ' . trim($event['end_time_local']) : '';
+						else
+							echo $txt['calendar_allday'];
 
 						echo '
-								</span><br class="clear">';
+									</span>';
+
+						if (!empty($event['location']))
+							echo '<br>
+									<span class="event_location', empty($event_icons_needed) ? ' floatright' : '', '">' . $event['location'] . '</span>';
+
+						if (!empty($event_icons_needed))
+						{
+							echo ' <span class="modify_event_links">';
+
+							// If they can edit the event, show a star they can click on....
+							if (!empty($event['can_edit']))
+								echo '
+										<a class="modify_event" href="', $event['modify_href'], '">
+											<span class="main_icons calendar_modify" title="', $txt['calendar_edit'], '"></span>
+										</a>';
+
+							// Can we export? Sweet.
+							if (!empty($event['can_export']))
+								echo '
+										<a class="modify_event" href="', $event['export_href'], '">
+											<span class="main_icons calendar_export" title="', $txt['calendar_export'], '"></span>
+										</a>';
+
+							echo '
+									</span><br class="clear">';
+						}
+
+						echo '
+								</div><!-- .event_wrapper -->';
 					}
 
-					echo '
-							</div><!-- .event_wrapper -->';
+					if (!empty($context['can_post']))
+					{
+						echo '
+								<div class="week_add_event">
+									<a href="', $scripturl, '?action=calendar;sa=post;month=', $month_data['current_month'], ';year=', $month_data['current_year'], ';day=', $day['day'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['calendar_post_event'], '</a>
+								</div>
+								<br class="clear">';
+					}
 				}
-
-				if (!empty($context['can_post']))
+				else
 				{
-					echo '
-							<div class="week_add_event">
-								<a href="', $scripturl, '?action=calendar;sa=post;month=', $month_data['current_month'], ';year=', $month_data['current_year'], ';day=', $day['day'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['calendar_post_event'], '</a>
-							</div>
-							<br class="clear">';
+					if (!empty($context['can_post']))
+						echo '
+								<div class="week_add_event">
+									<a href="', $scripturl, '?action=calendar;sa=post;month=', $month_data['current_month'], ';year=', $month_data['current_year'], ';day=', $day['day'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['calendar_post_event'], '</a>
+								</div>';
 				}
+				echo '
+							</td>';
 			}
-			else
+
+			if (!empty($calendar_data['show_holidays']))
 			{
-				if (!empty($context['can_post']))
-					echo '
-							<div class="week_add_event">
-								<a href="', $scripturl, '?action=calendar;sa=post;month=', $month_data['current_month'], ';year=', $month_data['current_year'], ';day=', $day['day'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['calendar_post_event'], '</a>
-							</div>';
-			}
-			echo '
-						</td>
+				echo '
 						<td class="', implode(' ', $classes), !empty($day['holidays']) ? ' holidays' : ' disabled', ' holiday_col" data-css-prefix="' . $txt['calendar_prompt'] . ' ">';
 
-			// Show any holidays!
-			if (!empty($day['holidays']))
-				echo implode('<br>', $day['holidays']);
+				// Show any holidays!
+				if (!empty($day['holidays']))
+					echo implode('<br>', $day['holidays']);
 
-			echo '
-						</td>
+				echo '
+							</td>';
+			}
+
+			if (!empty($calendar_data['show_birthdays']))
+			{
+				echo '
 						<td class="', implode(' ', $classes), '', !empty($day['birthdays']) ? ' birthdays' : ' disabled', ' birthday_col" data-css-prefix="' . $txt['birthdays'] . ' ">';
 
-			// Show any birthdays...
-			if (!empty($day['birthdays']))
-			{
-				foreach ($day['birthdays'] as $member)
-					echo '
-							<a href="', $scripturl, '?action=profile;u=', $member['id'], '">', $member['name'], '</a>
-							', isset($member['age']) ? ' (' . $member['age'] . ')' : '', '
-							', $member['is_last'] ? '' : '<br>';
+				// Show any birthdays...
+				if (!empty($day['birthdays']))
+				{
+					foreach ($day['birthdays'] as $member)
+						echo '
+								<a href="', $scripturl, '?action=profile;u=', $member['id'], '">', $member['name'], '</a>
+								', isset($member['age']) ? ' (' . $member['age'] . ')' : '', '
+								', $member['is_last'] ? '' : '<br>';
+				}
+				echo '
+						</td>';
 			}
 			echo '
-						</td>
 					</tr>';
 		}
 
@@ -729,12 +762,12 @@ function template_calendar_top($calendar_data)
 
 	echo '
 			<form action="', $scripturl, '?action=calendar;', $context['calendar_view'], '" id="', !empty($calendar_data['end_date']) ? 'calendar_range' : 'calendar_navigation', '" method="post" accept-charset="', $context['character_set'], '">
-				<input type="text" name="start_date" id="start_date" maxlength="10" value="', $calendar_data['start_date'], '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">';
+				<input type="text" name="start_date" id="start_date" value="', trim($calendar_data['start_date']), '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">';
 
 	if (!empty($calendar_data['end_date']))
 		echo '
 				<span>', strtolower($txt['to']), '</span>
-				<input type="text" name="end_date" id="end_date" maxlength="10" value="', $calendar_data['end_date'], '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date">';
+				<input type="text" name="end_date" id="end_date" value="', trim($calendar_data['end_date']), '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date">';
 
 	echo '
 				<input type="submit" class="button" style="float:none" id="view_button" value="', $txt['view'], '">
@@ -824,13 +857,13 @@ function template_event_post()
 						<div class="event_options_left" id="event_time_input">
 							<div>
 								<span class="label">', $txt['start'], '</span>
-								<input type="text" name="start_date" id="start_date" maxlength="10" value="', $context['event']['start_date'], '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">
-								<input type="text" name="start_time" id="start_time" maxlength="11" value="', $context['event']['start_time_local'], '" tabindex="', $context['tabindex']++, '" class="time_input start" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
+								<input type="text" name="start_date" id="start_date" value="', trim($context['event']['start_date_orig']), '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">
+								<input type="text" name="start_time" id="start_time" maxlength="11" value="', $context['event']['start_time_orig'], '" tabindex="', $context['tabindex']++, '" class="time_input start" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
 							</div>
 							<div>
 								<span class="label">', $txt['end'], '</span>
-								<input type="text" name="end_date" id="end_date" maxlength="10" value="', $context['event']['end_date'], '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date"', $modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
-								<input type="text" name="end_time" id="end_time" maxlength="11" value="', $context['event']['end_time_local'], '" tabindex="', $context['tabindex']++, '" class="time_input end" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
+								<input type="text" name="end_date" id="end_date" value="', trim($context['event']['end_date_orig']), '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date"', $modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
+								<input type="text" name="end_time" id="end_time" maxlength="11" value="', $context['event']['end_time_orig'], '" tabindex="', $context['tabindex']++, '" class="time_input end" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
 							</div>
 						</div><!-- #event_time_input -->
 						<div class="event_options_right" id="event_time_options">

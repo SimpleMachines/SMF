@@ -53,11 +53,14 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.3
  */
+
+use SMF\Cache\CacheApi;
+use SMF\Cache\CacheApiInterface;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -104,21 +107,11 @@ function ModifySettings()
 		'phpinfo' => 'ShowPHPinfoSettings',
 	);
 
-	// By default we're editing the core settings
-	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'general';
-	$context['sub_action'] = $_REQUEST['sa'];
-
 	// Warn the user if there's any relevant information regarding Settings.php.
 	$settings_not_writable = !is_writable($boarddir . '/Settings.php');
 	$settings_backup_fail = !@is_writable($boarddir . '/Settings_bak.php') || !@copy($boarddir . '/Settings.php', $boarddir . '/Settings_bak.php');
 
-	if ($settings_not_writable)
-		$context['settings_message'] = array(
-			'label' => $txt['settings_not_writable'],
-			'tag' => 'div',
-			'class' => 'centertext strong'
-		);
-	elseif ($settings_backup_fail)
+	if ($settings_backup_fail)
 		$context['settings_message'] = array(
 			'label' => $txt['admin_backup_fail'],
 			'tag' => 'div',
@@ -128,6 +121,11 @@ function ModifySettings()
 	$context['settings_not_writable'] = $settings_not_writable;
 
 	call_integration_hook('integrate_server_settings', array(&$subActions));
+
+	// By default we're editing the core settings
+	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'general';
+
+	$context['sub_action'] = $_REQUEST['sa'];
 
 	// Call the right function for this sub-action.
 	call_helper($subActions[$_REQUEST['sa']]);
@@ -147,14 +145,7 @@ function ModifySettings()
  */
 function ModifyGeneralSettings($return_config = false)
 {
-	global $scripturl, $context, $txt, $modSettings, $boardurl, $sourcedir;
-
-	// If no cert, force_ssl must remain 0
-	require_once($sourcedir . '/Subs.php');
-	if (!ssl_cert_found($boardurl) && empty($modSettings['force_ssl']))
-		$disable_force_ssl = true;
-	else
-		$disable_force_ssl = false;
+	global $scripturl, $context, $txt, $modSettings, $boardurl, $sourcedir, $smcFunc;
 
 	/* If you're writing a mod, it's a bad idea to add things here....
 	For each option:
@@ -173,7 +164,7 @@ function ModifyGeneralSettings($return_config = false)
 		array('enableCompressedOutput', $txt['enableCompressedOutput'], 'db', 'check', null, 'enableCompressedOutput'),
 		array('disableHostnameLookup', $txt['disableHostnameLookup'], 'db', 'check', null, 'disableHostnameLookup'),
 		'',
-		array('force_ssl', $txt['force_ssl'], 'db', 'select', array($txt['force_ssl_off'], $txt['force_ssl_complete']), 'force_ssl', 'disabled' => $disable_force_ssl),
+		'force_ssl' => array('force_ssl', $txt['force_ssl'], 'db', 'select', array($txt['force_ssl_off'], $txt['force_ssl_complete']), 'force_ssl'),
 		array('image_proxy_enabled', $txt['image_proxy_enabled'], 'file', 'check', null, 'image_proxy_enabled'),
 		array('image_proxy_secret', $txt['image_proxy_secret'], 'file', 'text', 30, 'image_proxy_secret'),
 		array('image_proxy_maxsize', $txt['image_proxy_maxsize'], 'file', 'int', null, 'image_proxy_maxsize'),
@@ -186,14 +177,24 @@ function ModifyGeneralSettings($return_config = false)
 	if ($return_config)
 		return $config_vars;
 
+	// If no cert, force_ssl must remain 0 (The admin search doesn't require this)
+	$config_vars['force_ssl']['disabled'] = empty($modSettings['force_ssl']) && !ssl_cert_found($boardurl);
+
 	// Setup the template stuff.
 	$context['post_url'] = $scripturl . '?action=admin;area=serversettings;sa=general;save';
 	$context['settings_title'] = $txt['general_settings'];
+	$context['save_disabled'] = $context['settings_not_writable'];
 
 	// Saving settings?
 	if (isset($_REQUEST['save']))
 	{
 		call_integration_hook('integrate_save_general_settings');
+
+		foreach ($config_vars as $config_var)
+		{
+			if (is_array($config_var) && isset($config_var[3]) && $config_var[3] == 'text' && !empty($_POST[$config_var[0]]))
+				$_POST[$config_var[0]] = $smcFunc['normalize']($_POST[$config_var[0]]);
+		}
 
 		// Are we saving the stat collection?
 		if (!empty($_POST['enable_sm_stats']) && empty($modSettings['sm_stats_key']))
@@ -221,7 +222,8 @@ function ModifyGeneralSettings($return_config = false)
 	prepareServerSettingsContext($config_vars);
 
 	// Some javascript for SSL
-	addInlineJavaScript('
+	if (empty($context['settings_not_writable']))
+		addInlineJavaScript('
 $(function()
 {
 	$("#force_ssl").change(function()
@@ -467,18 +469,24 @@ function ModifyCookieSettings($return_config = false)
 	$config_vars = array(
 		// Cookies...
 		array('cookiename', $txt['cookie_name'], 'file', 'text', 20),
-		array('cookieTime', $txt['cookieTime'], 'db', 'select', array(
-			3153600 => $txt['always_logged_in'],
-			60 => $txt['one_hour'],
-			1440 => $txt['one_day'],
-			10080 => $txt['one_week'],
-			43200 => $txt['one_month'],
-		)),
+		array('cookieTime', $txt['cookieTime'], 'db', 'select', array_filter(array_map(
+			function ($str) use ($txt)
+			{
+				return isset($txt[$str]) ? $txt[$str] : '';
+			},
+			$context['login_cookie_times']
+		))),
 		array('localCookies', $txt['localCookies'], 'db', 'check', false, 'localCookies'),
 		array('globalCookies', $txt['globalCookies'], 'db', 'check', false, 'globalCookies'),
 		array('globalCookiesDomain', $txt['globalCookiesDomain'], 'db', 'text', false, 'globalCookiesDomain'),
 		array('secureCookies', $txt['secureCookies'], 'db', 'check', false, 'secureCookies', 'disabled' => !httpsOn()),
 		array('httponlyCookies', $txt['httponlyCookies'], 'db', 'check', false, 'httponlyCookies'),
+		array('samesiteCookies', $txt['samesiteCookies'], 'db', 'select', array(
+				'none' 		=> $txt['samesiteNone'],
+				'lax' 		=> $txt['samesiteLax'],
+				'strict' 	=> $txt['samesiteStrict']
+			),
+			'samesiteCookies'),
 		'',
 		// Sessions
 		array('databaseSession_enable', $txt['databaseSession_enable'], 'db', 'check', false, 'databaseSession_enable'),
@@ -511,7 +519,8 @@ function ModifyCookieSettings($return_config = false)
 
 	$("#localCookies, #globalCookies").click(function() {
 		hideGlobalCookies();
-	});', true);
+	});
+	', true);
 
 	if (empty($user_settings['tfa_secret']))
 		addInlineJavaScript('');
@@ -523,11 +532,14 @@ function ModifyCookieSettings($return_config = false)
 
 	$context['post_url'] = $scripturl . '?action=admin;area=serversettings;sa=cookie;save';
 	$context['settings_title'] = $txt['cookies_sessions_settings'];
+	$context['save_disabled'] = $context['settings_not_writable'];
 
 	// Saving settings?
 	if (isset($_REQUEST['save']))
 	{
 		call_integration_hook('integrate_save_cookie_settings');
+
+		$_POST['cookiename'] = $smcFunc['normalize']($_POST['cookiename']);
 
 		// Local and global do not play nicely together.
 		if (!empty($_POST['localCookies']) && empty($_POST['globalCookies']))
@@ -536,8 +548,17 @@ function ModifyCookieSettings($return_config = false)
 		if (empty($modSettings['localCookies']) != empty($_POST['localCookies']) || empty($modSettings['globalCookies']) != empty($_POST['globalCookies']))
 			$scope_changed = true;
 
-		if (!empty($_POST['globalCookiesDomain']) && strpos($boardurl, $_POST['globalCookiesDomain']) === false)
-			fatal_lang_error('invalid_cookie_domain', false);
+		if (!empty($_POST['globalCookiesDomain']))
+		{
+			$_POST['globalCookiesDomain'] = parse_iri(normalize_iri((strpos($_POST['globalCookiesDomain'], '//') === false ? 'http://' : '') . ltrim($_POST['globalCookiesDomain'], '.')), PHP_URL_HOST);
+
+			if (!preg_match('/(?:^|\.)' . preg_quote($_POST['globalCookiesDomain'], '/') . '$/u', parse_iri($boardurl, PHP_URL_HOST)))
+				fatal_lang_error('invalid_cookie_domain', false);
+		}
+
+		// Per spec, if samesite setting is 'none', cookies MUST be secure. Thems the rules. Else you lock everyone out...
+		if (!empty($_POST['samesiteCookies']) && ($_POST['samesiteCookies'] === 'none') && empty($_POST['secureCookies']))
+			fatal_lang_error('samesiteSecureRequired', false);
 
 		saveSettings($config_vars);
 
@@ -625,6 +646,12 @@ function ModifyGeneralSecuritySettings($return_config = false)
 		array('check', 'enableReportPM'),
 		'',
 
+		array('check', 'allow_cors'),
+		array('check', 'allow_cors_credentials'),
+		array('text', 'cors_domains'),
+		array('text', 'cors_headers'),
+		'',
+
 		array(
 			'select',
 			'frame_security',
@@ -642,10 +669,10 @@ function ModifyGeneralSecuritySettings($return_config = false)
 			array(
 				'disabled' => $txt['setting_proxy_ip_header_disabled'],
 				'autodetect' => $txt['setting_proxy_ip_header_autodetect'],
-				'HTTP_X_FORWARDED_FOR' => 'HTTP_X_FORWARDED_FOR',
-				'HTTP_CLIENT_IP' => 'HTTP_CLIENT_IP',
-				'HTTP_X_REAL_IP' => 'HTTP_X_REAL_IP',
-				'CF-Connecting-IP' => 'CF-Connecting-IP'
+				'HTTP_X_FORWARDED_FOR' => 'X-Forwarded-For',
+				'HTTP_CLIENT_IP' => 'Client-IP',
+				'HTTP_X_REAL_IP' => 'X-Real-IP',
+				'HTTP_CF_CONNECTING_IP' => 'CF-Connecting-IP'
 			)
 		),
 		array('text', 'proxy_ip_servers'),
@@ -659,6 +686,26 @@ function ModifyGeneralSecuritySettings($return_config = false)
 	// Saving?
 	if (isset($_GET['save']))
 	{
+		if (!empty($_POST['cors_domains']))
+		{
+			$cors_domains = explode(',', $_POST['cors_domains']);
+
+			foreach ($cors_domains as &$cors_domain)
+			{
+				if (strpos($cors_domain, '//') === false)
+					$cors_domain = '//' . $cors_domain;
+
+				$temp = parse_iri(normalize_iri($cors_domain));
+
+				if (strpos($temp['host'], '*') !== false)
+					$temp['host'] = substr($temp['host'], strrpos($temp['host'], '*'));
+
+				$cors_domain = (!empty($temp['scheme']) ? $temp['scheme'] . '://' : '') . $temp['host'] . (!empty($temp['port']) ? ':' . $temp['port'] : '');
+			}
+
+			$_POST['cors_domains'] = implode(',', $cors_domains);
+		}
+
 		saveDBSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 
@@ -682,23 +729,34 @@ function ModifyGeneralSecuritySettings($return_config = false)
  */
 function ModifyCacheSettings($return_config = false)
 {
-	global $context, $scripturl, $txt;
+	global $context, $scripturl, $txt, $cacheAPI, $cache_enable, $cache_accelerator;
 
 	// Detect all available optimizers
-	$detected = loadCacheAPIs();
-	foreach ($detected as $api => $object)
-		$detected[$api] = isset($txt[$api . '_cache']) ? $txt[$api . '_cache'] : $api;
+	$detectedCacheApis = loadCacheAPIs();
+	$apis_names = array();
+
+	/* @var CacheApiInterface $cache_api */
+	foreach ($detectedCacheApis as $class_name => $cache_api)
+	{
+		$class_name_txt_key = strtolower($cache_api->getImplementationClassKeyName());
+
+		$apis_names[$class_name] = isset($txt[$class_name_txt_key . '_cache']) ?
+			$txt[$class_name_txt_key . '_cache'] : $class_name;
+	}
 
 	// set our values to show what, if anything, we found
-	if (empty($detected))
+	if (empty($detectedCacheApis))
 	{
 		$txt['cache_settings_message'] = '<strong class="alert">' . $txt['detected_no_caching'] . '</strong>';
 		$cache_level = array($txt['cache_off']);
-		$detected['none'] = $txt['cache_off'];
+		$apis_names['none'] = $txt['cache_off'];
 	}
+
 	else
 	{
-		$txt['cache_settings_message'] = '<strong class="success">' . sprintf($txt['detected_accelerators'], implode(', ', $detected)) . '</strong>';
+		$txt['cache_settings_message'] = '<strong class="success">' .
+			sprintf($txt['detected_accelerators'], implode(', ', $apis_names)) . '</strong>';
+
 		$cache_level = array($txt['cache_off'], $txt['cache_level1'], $txt['cache_level2'], $txt['cache_level3']);
 	}
 
@@ -707,7 +765,7 @@ function ModifyCacheSettings($return_config = false)
 		// Only a few settings, but they are important
 		array('', $txt['cache_settings_message'], '', 'desc'),
 		array('cache_enable', $txt['cache_enable'], 'file', 'select', $cache_level, 'cache_enable'),
-		array('cache_accelerator', $txt['cache_accelerator'], 'file', 'select', $detected),
+		array('cache_accelerator', $txt['cache_accelerator'], 'file', 'select', $apis_names),
 	);
 
 	// some javascript to enable / disable certain settings if the option is not selected
@@ -719,20 +777,12 @@ function ModifyCacheSettings($return_config = false)
 	call_integration_hook('integrate_modify_cache_settings', array(&$config_vars));
 
 	// Maybe we have some additional settings from the selected accelerator.
-	if (!empty($detected))
-	{
-		foreach ($detected as $tryCache => $dummy)
-		{
-			$cache_class_name = $tryCache . '_cache';
+	if (!empty($detectedCacheApis))
+		/* @var CacheApiInterface $cache_api */
+		foreach ($detectedCacheApis as $class_name_txt_key => $cache_api)
+			if (is_callable(array($cache_api, 'cacheSettings')))
+				$cache_api->cacheSettings($config_vars);
 
-			// loadCacheAPIs has already included the file, just see if we can't add the settings in.
-			if (is_callable(array($cache_class_name, 'cacheSettings')))
-			{
-				$testAPI = new $cache_class_name();
-				call_user_func_array(array($testAPI, 'cacheSettings'), array(&$config_vars));
-			}
-		}
-	}
 	if ($return_config)
 		return $config_vars;
 
@@ -741,11 +791,16 @@ function ModifyCacheSettings($return_config = false)
 	{
 		call_integration_hook('integrate_save_cache_settings');
 
+		if (is_callable(array($cacheAPI, 'cleanCache')) && ((int) $_POST['cache_enable'] < $cache_enable || $_POST['cache_accelerator'] != $cache_accelerator))
+		{
+			$cacheAPI->cleanCache();
+		}
+
 		saveSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 
 		// We need to save the $cache_enable to $modSettings as well
-		updatesettings(array('cache_enable' => (int) $_POST['cache_enable']));
+		updateSettings(array('cache_enable' => (int) $_POST['cache_enable']));
 
 		// exit so we reload our new settings on the page
 		redirectexit('action=admin;area=serversettings;sa=cache;' . $context['session_var'] . '=' . $context['session_id']);
@@ -758,7 +813,7 @@ function ModifyCacheSettings($return_config = false)
 	$context['post_url'] = $scripturl . '?action=admin;area=serversettings;sa=cache;save';
 	$context['settings_title'] = $txt['caching_settings'];
 
-	// Changing cache settings won't have any effect if Settings.php is not writeable.
+	// Changing cache settings won't have any effect if Settings.php is not writable.
 	$context['save_disabled'] = $context['settings_not_writable'];
 
 	// Decide what message to show.
@@ -783,12 +838,16 @@ function ModifyExportSettings($return_config = false)
 	if (empty($modSettings['export_dir']))
 		$modSettings['export_dir'] = $boarddir . DIRECTORY_SEPARATOR . 'exports';
 
-	/* Some paranoid hosts worry that the disk space functions pose a security risk. Usually these
-	 * hosts just disable the functions and move on, which is fine. A rare few, however, are not
-	 * only paranoid, but also think it'd be a "clever" security move to overload the disk space
-	 * functions with custom code that intentionally delivers false information, which is idiotic
-	 * and evil. At any rate, if the functions are unavailable or if they report obviously insane
-	 * values, it's not possible to track disk usage correctly. */
+	/*
+		Some paranoid hosts worry that the disk space functions pose a security
+		risk. Usually these hosts just disable the functions and move on, which
+		is fine. A rare few, however, are not only paranoid, but also think it'd
+		be a "clever" security move to overload the disk space functions with
+		custom code that intentionally delivers false information, which is
+		idiotic and evil. At any rate, if the functions are unavailable or if
+		they report obviously insane values, it's not possible to track disk
+		usage correctly.
+	 */
 	$diskspace_disabled = (!function_exists('disk_free_space') || !function_exists('disk_total_space') || intval(@disk_total_space(file_exists($modSettings['export_dir']) ? $modSettings['export_dir'] : $boarddir)) < 1440);
 
 	$context['settings_message'] = $txt['export_settings_description'];
@@ -807,7 +866,7 @@ function ModifyExportSettings($return_config = false)
 
 	if (isset($_REQUEST['save']))
 	{
-		$prev_export_dir = file_exists($modSettings['export_dir']) ? rtrim($modSettings['export_dir'], '/\\') : '';
+		$prev_export_dir = is_dir($modSettings['export_dir']) ? rtrim($modSettings['export_dir'], '/\\') : '';
 
 		if (!empty($_POST['export_dir']))
 			$_POST['export_dir'] = rtrim($_POST['export_dir'], '/\\');
@@ -980,7 +1039,14 @@ function ModifyLoadBalancingSettings($return_config = false)
  */
 function prepareServerSettingsContext(&$config_vars)
 {
-	global $context, $modSettings, $smcFunc;
+	global $context, $modSettings, $smcFunc, $txt;
+
+	if (!empty($context['settings_not_writable']))
+		$context['settings_message'] = array(
+			'label' => $txt['settings_not_writable'],
+			'tag' => 'div',
+			'class' => 'centertext strong'
+		);
 
 	if (isset($_SESSION['adm-save']))
 	{
@@ -1261,7 +1327,8 @@ function prepareDBSettingContext(&$config_vars)
 		$temp = parse_bbc(false);
 		$bbcTags = array();
 		foreach ($temp as $tag)
-			$bbcTags[] = $tag['tag'];
+			if (!isset($tag['require_parents']))
+				$bbcTags[] = $tag['tag'];
 
 		$bbcTags = array_unique($bbcTags);
 
@@ -1296,8 +1363,7 @@ function prepareDBSettingContext(&$config_vars)
 
 				$context['bbc_sections'][$bbcSection]['columns'][$col][] = array(
 					'tag' => $tag,
-					// @todo  'tag_' . ?
-					'show_help' => isset($helptxt[$tag]),
+					'show_help' => isset($helptxt['tag_' . $tag]),
 				);
 
 				$i++;
@@ -1337,83 +1403,171 @@ function saveSettings(&$config_vars)
 			$_POST['boardurl'] = substr($_POST['boardurl'], 0, -1);
 		if (substr($_POST['boardurl'], 0, 7) != 'http://' && substr($_POST['boardurl'], 0, 7) != 'file://' && substr($_POST['boardurl'], 0, 8) != 'https://')
 			$_POST['boardurl'] = 'http://' . $_POST['boardurl'];
+
+		$_POST['boardurl'] = normalize_iri($_POST['boardurl']);
 	}
 
-	// Any passwords?
-	$config_passwords = array(
-		'db_passwd',
-		'ssi_db_passwd',
-	);
+	require_once($sourcedir . '/Subs-Admin.php');
 
-	// All the strings to write.
-	$config_strs = array(
-		'mtitle', 'mmessage',
-		'language', 'mbname', 'boardurl',
-		'cookiename',
-		'webmaster_email',
-		'db_name', 'db_user', 'db_server', 'db_prefix', 'ssi_db_user',
-		'boarddir', 'sourcedir',
-		'cachedir', 'cachedir_sqlite', 'cache_accelerator', 'cache_memcached',
-		'image_proxy_secret',
-	);
+	// Any passwords?
+	$config_passwords = array();
 
 	// All the numeric variables.
-	$config_ints = array(
-		'db_port',
-		'cache_enable',
-		'image_proxy_maxsize',
-	);
+	$config_nums = array();
 
 	// All the checkboxes
-	$config_bools = array('db_persist', 'db_error_send', 'maintenance', 'image_proxy_enabled');
+	$config_bools = array();
+
+	// Ones that accept multiple types (should be rare)
+	$config_multis = array();
+
+	// Get all known setting definitions and assign them to our groups above.
+	$settings_defs = get_settings_defs();
+	foreach ($settings_defs as $var => $def)
+	{
+		if (!is_string($var))
+			continue;
+
+		if (!empty($def['is_password']))
+		{
+			$config_passwords[] = $var;
+		}
+		else
+		{
+			// Special handling if multiple types are allowed.
+			if (is_array($def['type']))
+			{
+				// Obviously, we don't need null here.
+				$def['type'] = array_filter(
+					$def['type'],
+					function ($type)
+					{
+						return $type !== 'NULL';
+					}
+				);
+
+				$type = count($def['type']) == 1 ? reset($def['type']) : 'multiple';
+			}
+			else
+				$type = $def['type'];
+
+			switch ($type)
+			{
+				case 'multiple':
+					$config_multis[$var] = $def['type'];
+
+				case 'double':
+					$config_nums[] = $var;
+					break;
+
+				case 'integer':
+					// Some things saved as integers are presented as booleans
+					foreach ($config_vars as $config_var)
+					{
+						if (is_array($config_var) && $config_var[0] == $var)
+						{
+							if ($config_var[3] == 'check')
+							{
+								$config_bools[] = $var;
+								break 2;
+							}
+							else
+								break;
+						}
+					}
+					$config_nums[] = $var;
+					break;
+
+				case 'boolean':
+					$config_bools[] = $var;
+					break;
+
+				default:
+					break;
+			}
+		}
+	}
 
 	// Now sort everything into a big array, and figure out arrays and etc.
 	$new_settings = array();
 	// Figure out which config vars we're saving here...
-	foreach ($config_vars as $var)
+	foreach ($config_vars as $config_var)
 	{
-		if (!is_array($var) || $var[2] != 'file' || (!in_array($var[0], $config_bools) && !isset($_POST[$var[0]])))
+		if (!is_array($config_var) || $config_var[2] != 'file')
 			continue;
 
-		$config_var = $var[0];
+		$var_name = $config_var[0];
 
-		if (in_array($config_var, $config_passwords))
+		// Unknown setting?
+		if (!isset($settings_defs[$var_name]) && isset($config_var[3]))
 		{
-			if (isset($_POST[$config_var][1]) && $_POST[$config_var][0] == $_POST[$config_var][1])
-				$new_settings[$config_var] = $_POST[$config_var][0];
+			switch ($config_var[3])
+			{
+				case 'int':
+				case 'float':
+					$config_nums[] = $var_name;
+					break;
+
+				case 'check':
+					$config_bools[] = $var_name;
+					break;
+
+				default:
+					break;
+			}
 		}
-		elseif (in_array($config_var, $config_strs))
+
+		if (!in_array($var_name, $config_bools) && !isset($_POST[$var_name]))
+			continue;
+
+		if (in_array($var_name, $config_passwords))
 		{
-			$new_settings[$config_var] = $_POST[$config_var];
+			if (isset($_POST[$var_name][1]) && $_POST[$var_name][0] == $_POST[$var_name][1])
+				$new_settings[$var_name] = $_POST[$var_name][0];
 		}
-		elseif (in_array($config_var, $config_ints))
+		elseif (in_array($var_name, $config_nums))
 		{
-			$new_settings[$config_var] = (int) $_POST[$config_var];
+			$new_settings[$var_name] = (int) $_POST[$var_name];
 
 			// If no min is specified, assume 0. This is done to avoid having to specify 'min => 0' for all settings where 0 is the min...
-			$min = isset($var['min']) ? $var['min'] : 0;
-			$new_settings[$config_var] = max($min, $new_settings[$config_var]);
+			$min = isset($config_var['min']) ? $config_var['min'] : 0;
+			$new_settings[$var_name] = max($min, $new_settings[$var_name]);
 
 			// Is there a max value for this as well?
-			if (isset($var['max']))
-				$new_settings[$config_var] = min($var['max'], $new_settings[$config_var]);
+			if (isset($config_var['max']))
+				$new_settings[$var_name] = min($config_var['max'], $new_settings[$var_name]);
 		}
-		elseif (in_array($config_var, $config_bools))
+		elseif (in_array($var_name, $config_bools))
 		{
-			if (!empty($_POST[$config_var]))
-				$new_settings[$config_var] = 1;
-			else
-				$new_settings[$config_var] = 0;
+			$new_settings[$var_name] = !empty($_POST[$var_name]);
+		}
+		elseif (isset($config_multis[$var_name]))
+		{
+			$is_acceptable_type = false;
+
+			foreach ($config_multis[$var_name] as $type)
+			{
+				$temp = $_POST[$var_name];
+				settype($temp, $type);
+
+				if ($temp == $_POST[$var_name])
+				{
+					$new_settings[$var_name] = $temp;
+					$is_acceptable_type = true;
+					break;
+				}
+			}
+
+			if (!$is_acceptable_type)
+				fatal_error('Invalid config_var \'' . $var_name . '\'');
 		}
 		else
 		{
-			// This shouldn't happen, but it might...
-			fatal_error('Unknown config_var \'' . $config_var . '\'');
+			$new_settings[$var_name] = $_POST[$var_name];
 		}
 	}
 
 	// Save the relevant settings in the Settings.php file.
-	require_once($sourcedir . '/Subs-Admin.php');
 	updateSettingsFile($new_settings);
 
 	// Now loop through the remaining (database-based) settings.
@@ -1629,25 +1783,37 @@ function loadCacheAPIs()
 {
 	global $sourcedir;
 
-	// Make sure our class is in session.
-	require_once($sourcedir . '/Class-CacheAPI.php');
+	$cacheAPIdir = $sourcedir . '/Cache';
 
-	$apis = array();
-	$classes = new GlobIterator($sourcedir . '/CacheAPI-*.php', FilesystemIterator::NEW_CURRENT_AND_KEY);
+	$loadedApis = array();
+	$apis_dir = $cacheAPIdir .'/'. CacheApi::APIS_FOLDER;
 
-	foreach ($classes as $file => $info)
+	$api_classes = new GlobIterator($apis_dir . '/*.php', FilesystemIterator::NEW_CURRENT_AND_KEY);
+
+	foreach ($api_classes as $file_path => $file_info)
 	{
-		$tryCache = strtolower(explode('-', $info->getBasename('.php'))[1]);
+		require_once($apis_dir . '/' . $file_path);
 
-		require_once($sourcedir . '/' . $file);
-		$cache_class_name = $tryCache . '_cache';
-		$testAPI = new $cache_class_name();
+		$class_name = $file_info->getBasename('.php');
+		$fully_qualified_class_name = CacheApi::APIS_NAMESPACE . $class_name;
 
-		if ($testAPI->isSupported(true) && $testAPI->connect())
-			$apis[$tryCache] = $testAPI;
+		/* @var CacheApiInterface $cache_api */
+		$cache_api = new $fully_qualified_class_name();
+
+		// Deal with it!
+		if (!($cache_api instanceof CacheApiInterface) || !($cache_api instanceof CacheApi))
+			continue;
+
+		// No Support?  NEXT!
+		if (!$cache_api->isSupported(true))
+			continue;
+
+		$loadedApis[$class_name] = $cache_api;
 	}
 
-	return $apis;
+	call_integration_hook('integrate_load_cache_apis', array(&$loadedApis));
+
+	return $loadedApis;
 }
 
 /**
@@ -1655,7 +1821,7 @@ function loadCacheAPIs()
  * purposely does not use updateSettings.php as it will be called shortly after
  * this process completes by the saveSettings() function.
  *
- * @see Stats.php SMStats() for more information.
+ * @see SMStats() for more information.
  * @link https://www.simplemachines.org/about/stats.php for more info.
  *
  */
@@ -1667,7 +1833,9 @@ function registerSMStats()
 	if (!empty($modSettings['sm_stats_key']))
 		return true;
 
-	$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
+	$fp = @fsockopen('www.simplemachines.org', 443, $errno, $errstr);
+	if (!$fp)
+		$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
 	if ($fp)
 	{
 		$out = 'GET /smf/stats/register_stats.php?site=' . base64_encode($boardurl) . ' HTTP/1.1' . "\r\n";

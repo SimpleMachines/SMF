@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.4
  */
 
 if (!defined('SMF'))
@@ -453,7 +453,7 @@ function getMsgMemberID($messageID)
  */
 function modifyBoard($board_id, &$boardOptions)
 {
-	global $cat_tree, $boards, $smcFunc;
+	global $cat_tree, $boards, $smcFunc, $context, $txt;
 
 	// Get some basic information about all boards and categories.
 	getBoardTree();
@@ -502,6 +502,7 @@ function modifyBoard($board_id, &$boardOptions)
 			// People can be creative, in many ways...
 			if (isChildOf($id_parent, $board_id))
 				fatal_lang_error('mboards_parent_own_child_error', false);
+
 			elseif ($id_parent == $board_id)
 				fatal_lang_error('mboards_board_own_child_error', false);
 
@@ -524,7 +525,10 @@ function modifyBoard($board_id, &$boardOptions)
 
 		// Oops...?
 		else
-			trigger_error('modifyBoard(): The move_to value \'' . $boardOptions['move_to'] . '\' is incorrect', E_USER_ERROR);
+		{
+			loadLanguage('Errors');
+			trigger_error(sprintf($txt['modify_board_incorrect_move_to'], $boardOptions['move_to']), E_USER_ERROR);
+		}
 
 		// Get a list of children of this board.
 		$childList = array();
@@ -533,8 +537,10 @@ function modifyBoard($board_id, &$boardOptions)
 		// See if there are changes that affect children.
 		$childUpdates = array();
 		$levelDiff = $child_level - $boards[$board_id]['level'];
+
 		if ($levelDiff != 0)
 			$childUpdates[] = 'child_level = child_level ' . ($levelDiff > 0 ? '+ ' : '') . '{int:level_diff}';
+
 		if ($id_cat != $boards[$board_id]['category'])
 			$childUpdates[] = 'id_cat = {int:category}';
 
@@ -599,8 +605,12 @@ function modifyBoard($board_id, &$boardOptions)
 	}
 
 	// Who's allowed to access this board.
+	$board_permissions_inserts = array();
 	if (isset($boardOptions['access_groups']))
 	{
+		foreach ($boardOptions['access_groups'] as $value)
+			$board_permissions_inserts[] = array($value, $board_id, 0);
+
 		$boardUpdates[] = 'member_groups = {string:member_groups}';
 		$boardUpdateParameters['member_groups'] = implode(',', $boardOptions['access_groups']);
 	}
@@ -608,6 +618,9 @@ function modifyBoard($board_id, &$boardOptions)
 	// And who isn't.
 	if (isset($boardOptions['deny_groups']))
 	{
+		foreach ($boardOptions['deny_groups'] as $value)
+			$board_permissions_inserts[] = array($value, $board_id, 1);
+
 		$boardUpdates[] = 'deny_member_groups = {string:deny_groups}';
 		$boardUpdateParameters['deny_groups'] = implode(',', $boardOptions['deny_groups']);
 	}
@@ -667,34 +680,13 @@ function modifyBoard($board_id, &$boardOptions)
 		)
 	);
 
-	// Do permission sync
-	if (!empty($boardOptions['deny_groups']))
-	{
-		$insert = array();
-		foreach ($boardOptions['deny_groups'] as $value)
-			$insert[] = array($value, $board_id, 1);
-
+	if ($board_permissions_inserts != array())
 		$smcFunc['db_insert']('insert',
 			'{db_prefix}board_permissions_view',
 			array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
-			$insert,
+			$board_permissions_inserts,
 			array('id_group', 'id_board', 'deny')
 		);
-	}
-
-	if (!empty($boardOptions['access_groups']))
-	{
-		$insert = array();
-		foreach ($boardOptions['access_groups'] as $value)
-			$insert[] = array($value, $board_id, 0);
-
-		$smcFunc['db_insert']('insert',
-			'{db_prefix}board_permissions_view',
-			array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
-			$insert,
-			array('id_group', 'id_board', 'deny')
-		);
-	}
 
 	// Set moderators of this board.
 	if (isset($boardOptions['moderators']) || isset($boardOptions['moderator_string']) || isset($boardOptions['moderator_groups']) || isset($boardOptions['moderator_group_string']))
@@ -835,7 +827,20 @@ function modifyBoard($board_id, &$boardOptions)
 	if (isset($boardOptions['move_to']))
 		reorderBoards();
 
+	$parsed_boards_cat_id = isset($id_cat) ? $id_cat : $boardOptions['old_id_cat'];
+	$already_parsed_boards = getBoardsParsedDescription($parsed_boards_cat_id);
+
+	if (isset($boardOptions['board_description']))
+		$already_parsed_boards[$board_id] = parse_bbc(
+			$boardOptions['board_description'],
+			false,
+
+			'',
+			$context['description_allowed_tags']);
+
 	clean_cache('data');
+
+	cache_put_data('parsed_boards_descriptions_'. $parsed_boards_cat_id, $already_parsed_boards, 864000);
 
 	if (empty($boardOptions['dont_log']))
 		logAction('edit_board', array('board' => $board_id), 'admin');
@@ -852,14 +857,20 @@ function modifyBoard($board_id, &$boardOptions)
  */
 function createBoard($boardOptions)
 {
-	global $boards, $smcFunc;
+	global $boards, $smcFunc, $txt;
 
 	// Trigger an error if one of the required values is not set.
 	if (!isset($boardOptions['board_name']) || trim($boardOptions['board_name']) == '' || !isset($boardOptions['move_to']) || !isset($boardOptions['target_category']))
-		trigger_error('createBoard(): One or more of the required options is not set', E_USER_ERROR);
+	{
+		loadLanguage('Errors');
+		trigger_error($txt['create_board_missing_options'], E_USER_ERROR);
+	}
 
 	if (in_array($boardOptions['move_to'], array('child', 'before', 'after')) && !isset($boardOptions['target_board']))
-		trigger_error('createBoard(): Target board is not set', E_USER_ERROR);
+	{
+		loadLanguage('Errors');
+		trigger_error($txt['move_board_no_target'], E_USER_ERROR);
+	}
 
 	// Set every optional value to its default value.
 	$boardOptions += array(
@@ -874,15 +885,13 @@ function createBoard($boardOptions)
 		'dont_log' => true,
 	);
 
-	$default_memgrps = '-1,0';
-
 	$board_columns = array(
 		'id_cat' => 'int', 'name' => 'string-255', 'description' => 'string', 'board_order' => 'int',
 		'member_groups' => 'string', 'redirect' => 'string',
 	);
 	$board_parameters = array(
 		$boardOptions['target_category'], $boardOptions['board_name'], '', 0,
-		$default_memgrps, '',
+		'', '',
 	);
 
 	call_integration_hook('integrate_create_board', array(&$boardOptions, &$board_columns, &$board_parameters));
@@ -893,19 +902,6 @@ function createBoard($boardOptions)
 		$board_columns,
 		$board_parameters,
 		array('id_board'),
-		1
-	);
-
-	$insert = array();
-
-	foreach (explode(',', $default_memgrps) as $value)
-		$insert[] = array($value, $board_id, 0);
-
-	$smcFunc['db_insert']('',
-		'{db_prefix}board_permissions_view',
-		array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
-		$insert,
-		array('id_group', 'id_board', 'deny'),
 		1
 	);
 
@@ -1219,9 +1215,9 @@ function getTreeOrder()
 
 	$request = $smcFunc['db_query']('', '
 		SELECT b.id_board, b.id_cat
-		FROM {db_prefix}boards AS b
-		ORDER BY b.board_order',
-		array()
+		FROM {db_prefix}categories AS c
+			JOIN {db_prefix}boards AS b ON (b.id_cat = c.id_cat)
+		ORDER BY c.cat_order, b.board_order'
 	);
 
 	foreach ($smcFunc['db_fetch_all']($request) as $row)
@@ -1543,6 +1539,37 @@ function isChildOf($child, $parent)
 		return true;
 
 	return isChildOf($boards[$child]['parent'], $parent);
+}
+
+function setBoardParsedDescription($category_id = 0, $boards_info = array())
+{
+	global $context;
+
+	if (empty($category_id) || empty($boards_info))
+		return array();
+
+	// Get the data we already parsed
+	$already_parsed_boards = getBoardsParsedDescription($category_id);
+
+	foreach ($boards_info as $board_id => $board_description)
+		$already_parsed_boards[$board_id] = parse_bbc(
+			$board_description,
+			false,
+			'',
+			$context['description_allowed_tags']
+		);
+
+	cache_put_data('parsed_boards_descriptions_'. $category_id, $already_parsed_boards, 864000);
+
+	return $already_parsed_boards;
+}
+
+function getBoardsParsedDescription($category_id = 0)
+{
+	if (empty($category_id))
+		return array();
+
+	return (array) cache_get_data('parsed_boards_descriptions_' . $category_id, 864000);
 }
 
 ?>

@@ -1,0 +1,53 @@
+# CrowdIn workflow for SMF
+
+name: CrowdIn NEXT - Update SMF_2-1_NEXT branch periodically
+
+# Controls when the action will run. 
+on:
+  # Sundays, 7th minute, 7th hour
+  schedule:
+  - cron: "7 7 * * 0"
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+  # Auto pushes when a release is tagged
+  release:
+    types: [ published ]
+    branches: [ master ]
+
+env:
+  # Use GitHub Secrets here, so sensitive stuff isn't in the publicly visible workflow
+  # Note that the CrowdIn API token will accept either a user's personal CrowdIn token
+  # or an "API" token, generated via the CrowdIn console client using the "crowdin init" command.
+  CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
+  CROWDIN_API_TOKEN: ${{ secrets.CROWDIN_API_TOKEN }}
+# Only one job, the crowdin sync
+jobs:
+  crowdin-sync:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Checkout the source, then invoke the GitHub CrowdIn Action
+    steps:
+
+    - name: Checkout
+      # This prevents all the forks from attempting to run the interface...
+      if: env.CROWDIN_API_TOKEN != null
+      uses: actions/checkout@v3
+
+    - name: crowdin-action
+      # This prevents all the forks from attempting to run the interface...
+      if: env.CROWDIN_API_TOKEN != null
+      # You need to pin to a specific version for some reason...
+      uses: crowdin/github-action@v1
+      with:
+        # Push sources (the english files) to CrowdIn; do not push translations (non-english) in either direction
+        upload_sources: true
+        upload_translations: false
+        download_translations: false
+        # The crowdin_branch_name is the name of the highest level folder in your "Files" tab in CrowdIn
+        # At the moment, it really does not like embedded spaces (2/2021)
+        crowdin_branch_name: 'SMF_2-1_NEXT'
+        # Path to crowdin.yml, no leading /
+        config: '.github/crowdin.yml'

@@ -1,26 +1,22 @@
 <?php
-// Version: 2.1 RC3; index
+// Version: 2.1.3; index
 
 global $forum_copyright, $webmaster_email, $scripturl, $context, $boardurl;
 
 // Native name, please use full HTML entities to write your language's name.
 $txt['native_name'] = 'English';
 
-// Locale (strftime, pspell_new) and spelling. (pspell_new, can be left as '' normally.)
-// For more information see:
-//   - https://php.net/function.pspell-new
+// Locale (strftime, basename). For more information see:
 //   - https://php.net/function.setlocale
-// Again, SPELLING SHOULD BE '' 99% OF THE TIME!!  Please read this!
 $txt['lang_locale'] = 'en_US';
 $txt['lang_dictionary'] = 'en';
-$txt['lang_spelling'] = 'american';
 //https://developers.google.com/recaptcha/docs/language
 $txt['lang_recaptcha'] = 'en';
 
 // Ensure you remember to use uppercase for character set strings.
 $txt['lang_character_set'] = 'UTF-8';
-// Character set and right to left?
-$txt['lang_rtl'] = false;
+// Character set right to left?  0 = ltr; 1 = rtl
+$txt['lang_rtl'] = '0';
 // Number format.
 $txt['number_format'] = '1,234.00';
 
@@ -29,9 +25,9 @@ $txt['days'] = array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Fr
 $txt['days_short'] = array('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat');
 // Months must start with 1 => 'January'. (or translated, of course.)
 $txt['months_title'] = 'Months';
-$txt['months'] = array(1 => 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
-$txt['months_titles'] = array(1 => 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
-$txt['months_short'] = array(1 => 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
+$txt['months'] = array(1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April', 5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August', 9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December');
+$txt['months_titles'] = array(1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April', 5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August', 9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December');
+$txt['months_short'] = array(1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr', 5 => 'May', 6 => 'Jun', 7 => 'Jul', 8 => 'Aug', 9 => 'Sep', 10 => 'Oct', 11 => 'Nov', 12 => 'Dec');
 $txt['prev_month'] = 'Previous month';
 $txt['next_month'] = 'Next month';
 $txt['start'] = 'Start';
@@ -46,6 +42,15 @@ $txt['years_title'] = 'Years';
 
 $txt['time_am'] = 'am';
 $txt['time_pm'] = 'pm';
+
+// Short form of minutes
+$txt['minutes_short'] = 'mins';
+// Short form of hour
+$txt['hour_short'] = 'hr';
+// Short form of hours
+$txt['hours_short'] = 'hrs';
+// Decimal sign
+$txt['decimal_sign'] = '.';
 
 $txt['admin'] = 'Admin';
 $txt['moderate'] = 'Moderate';
@@ -71,7 +76,7 @@ $txt['on'] = 'on';
 $txt['remove'] = 'Remove';
 $txt['start_new_topic'] = 'Start new topic';
 
-$txt['login'] = 'Login';
+$txt['login'] = 'Log in';
 // Use numeric entities in the below string.
 $txt['username'] = 'Username';
 $txt['password'] = 'Password';
@@ -99,10 +104,11 @@ $txt['notify_announcements'] = 'Allow the administrators to send me important ne
 
 $txt['position'] = 'Position';
 
-$txt['profile_of'] = 'View the profile of';
+// argument(s): username
+$txt['view_profile_of_username'] = 'View the profile of %1$s';
 $txt['total'] = 'Total';
 $txt['website'] = 'Website';
-$txt['register'] = 'Sign Up';
+$txt['register'] = 'Sign up';
 $txt['warning_status'] = 'Warning status';
 $txt['user_warn_watch'] = 'User is on moderator watch list';
 $txt['user_warn_moderate'] = 'User posts join approval queue';
@@ -123,7 +129,7 @@ $txt['post'] = 'Post';
 $txt['error_occured'] = 'An error has occurred';
 $txt['at'] = 'at';
 $txt['by'] = 'by';
-$txt['logout'] = 'Logout';
+$txt['logout'] = 'Log out';
 $txt['started_by'] = 'Started by';
 $txt['topic_started_by'] = 'Started by <strong>%1$s</strong> in <em>%2$s</em>';
 $txt['replies'] = 'Replies';
@@ -146,12 +152,16 @@ $txt['watch_board'] = 'Watch this Board';
 $txt['unwatch_board'] = 'Stop watching Board';
 $txt['watch_topic'] = 'Watch this Topic';
 $txt['unwatch_topic'] = 'Stop watching Topic';
+$txt['watching_topic'] = 'Topic you are watching';
 $txt['watching_this_topic'] = 'You are watching this topic, and will receive notifications about it.';
 $txt['notify'] = 'Notify';
 $txt['unnotify'] = 'Unnotify';
+
 // Use numeric entities in the below string.
 // argument(s): forum name
-$txt['regards_team'] = "Regards,\nThe %1\$s Team.";
+$txt['regards_team'] = 'Regards,
+The %1$s Team.';
+
 $txt['notify_replies'] = 'Notify of replies';
 $txt['move_topic'] = 'Move Topic';
 $txt['move_to'] = 'Move to';
@@ -161,7 +171,7 @@ $txt['personal_messages'] = 'Personal Messages';
 $txt['reply_quote'] = 'Reply with quote';
 $txt['reply'] = 'Reply';
 $txt['reply_noun'] = 'Reply';
-$txt['reply_number'] = 'Reply #%1$s';
+$txt['reply_number'] = 'Reply #%1$s%2$s';
 $txt['approve'] = 'Approve';
 $txt['unapprove'] = 'Unapprove';
 $txt['approve_all'] = 'approve all';
@@ -220,7 +230,16 @@ $txt['modified_by'] = 'Edited by';
 $txt['recent_posts'] = 'Recent posts';
 
 $txt['location'] = 'Location';
+$txt['location_desc'] = 'Geographic location.';
 $txt['gender'] = 'Gender';
+$txt['gender_0'] = 'None';
+$txt['gender_1'] = 'Male';
+$txt['gender_2'] = 'Female';
+$txt['gender_desc'] = 'Your gender.';
+$txt['icq'] = 'ICQ';
+$txt['icq_desc'] = 'This is your ICQ number.';
+$txt['skype'] = 'Skype';
+$txt['skype_desc'] = 'Your Skype username';
 $txt['personal_text'] = 'Personal text';
 $txt['date_registered'] = 'Date registered';
 
@@ -233,14 +252,21 @@ $txt['female'] = 'Female';
 
 $txt['error_invalid_characters_username'] = 'Invalid character used in Username.';
 
-// argument(s): $txt['guest_title'], login URL, login JavaScript snippet
-$txt['welcome_guest'] = 'Welcome, <strong>%1$s</strong>. Please <a href="%3$s" onclick="%4$s">login</a>.';
+// argument(s): forum name, login URL, login JavaScript snippet
+$txt['welcome_guest'] = 'Welcome to <strong>%1$s</strong>. Please <a href="%2$s" onclick="%3$s">log in</a>.';
 
 // argument(s): forum name, login URL, login JavaScript snippet, signup URL
-$txt['welcome_guest_register'] = 'Welcome to <strong>%2$s</strong>. Please <a href="%3$s" onclick="%4$s">login</a> or <a href="%5$s">sign up</a>.';
+$txt['welcome_guest_register'] = 'Welcome to <strong>%1$s</strong>. Please <a href="%2$s" onclick="%3$s">log in</a> or <a href="%4$s">sign up</a>.';
 
 // argument(s): $scripturl
-$txt['welcome_guest_activate'] = '<br>Did you miss your <a href="%1$s?action=activate">activation email</a>?';
+$txt['welcome_guest_activate'] = '<a href="%1$s?action=activate">Did you miss your activation email?</a>';
+
+// argument(s): $scripturl
+$txt['register_prompt'] = 'Don\'t have an account? <a href="%1$s?action=signup">Sign up</a>.';
+
+// argument(s): forum name
+$txt['welcome_to_forum'] = 'Welcome to <strong>%1$s</strong>.';
+
 // @todo the following to sprintf
 $txt['hello_member'] = 'Hey,';
 // Use numeric entities in the below string.
@@ -336,6 +362,7 @@ $txt['preview'] = 'Preview';
 $txt['always_logged_in'] = 'Forever';
 
 $txt['logged'] = 'Logged';
+$txt['show_ip'] = 'Show IP address';
 // Use numeric entities in the below string.
 $txt['ip'] = 'IP';
 $txt['url'] = 'URL';
@@ -377,7 +404,7 @@ $txt['info_center_title'] = '%1$s - Info Center';
 $txt['watch'] = 'Watch';
 $txt['unwatch'] = 'Stop watching';
 
-$txt['check_all'] = 'Check all';
+$txt['check_all'] = 'Select all';
 
 // Use numeric entities in the below string.
 $txt['database_error'] = 'Database Error';
@@ -411,7 +438,6 @@ $txt['two_weeks'] = '2 Weeks';
 $txt['one_month'] = '1 Month';
 $txt['two_months'] = '2 Months';
 $txt['forever'] = 'Forever';
-$txt['quick_login_dec'] = 'Login with username, password and session length';
 $txt['moved'] = 'MOVED';
 $txt['move_why'] = 'Please enter a brief description as to<br>why this topic is being moved.';
 $txt['board'] = 'Board';
@@ -473,7 +499,9 @@ $txt['security_risk'] = 'MAJOR SECURITY RISK:';
 $txt['not_removed'] = 'You have not removed ';
 $txt['not_removed_extra'] = '%1$s is a backup of %2$s that was not generated by SMF. It can be accessed directly and used to gain unauthorized access to your forum. You should delete it immediately.';
 $txt['generic_warning'] = 'Warning';
-$txt['agreement_missing'] = 'You are requiring new users to accept a registration agreement, however, the file (agreement.txt) does not exist.';
+$txt['agreement_missing'] = 'You are requiring new users to accept a registration agreement; however, the file (agreement.txt) does not exist.';
+$txt['policy_agreement_missing'] = 'You are requiring new users to accept a privacy policy; however, the privacy policy is empty.';
+$txt['auth_secret_missing'] = 'Unable to set authentication secret in Settings.php. This weakens the security of your forum and puts it at risk for attacks. Check the file permissions on Settings.php to make sure SMF can write to the file.';
 
 $txt['cache_writable'] = 'The cache directory is not writable - this will adversely affect the performance of your forum.';
 
@@ -494,7 +522,7 @@ $txt['go_up'] = 'Go Up';
 $txt['go_down'] = 'Go Down';
 
 // argument(s): SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, $scripturl
-$forum_copyright = '<a href="%3$s?action=credits" title="License" target="_blank" rel="noopener">%1$s &copy; %2$s</a>, <a href="http://www.simplemachines.org" title="Simple Machines" target="_blank" rel="noopener">Simple Machines</a>';
+$forum_copyright = '<a href="%3$s?action=credits" title="License" target="_blank" rel="noopener">%1$s &copy; %2$s</a>, <a href="https://www.simplemachines.org" title="Simple Machines" target="_blank" rel="noopener">Simple Machines</a>';
 
 $txt['birthdays'] = 'Birthdays:';
 $txt['events'] = 'Events:';
@@ -539,8 +567,12 @@ $txt['movetopic_change_all_subjects'] = 'Change every message\'s subject';
 $txt['move_topic_unapproved_js'] = 'Warning! This topic has not yet been approved.\\n\\nIt is not recommended that you create a redirection topic unless you intend to approve the post immediately following the move.';
 $txt['movetopic_auto_board'] = '[BOARD]';
 $txt['movetopic_auto_topic'] = '[TOPIC LINK]';
+
 // argument(s): $txt['movetopic_auto_board'], $txt['movetopic_auto_topic']
-$txt['movetopic_default'] = "This topic has been moved to %1\$s.\n\n%2\$s";
+$txt['movetopic_default'] = 'This topic has been moved to %1$s.
+
+%2$s';
+
 $txt['movetopic_redirect'] = 'Redirect to the moved topic';
 
 $txt['post_redirection'] = 'Post a redirection topic';
@@ -665,13 +697,8 @@ $txt['powered_by_php'] = 'Powered by PHP';
 $txt['powered_by_mysql'] = 'Powered by MySQL';
 $txt['valid_css'] = 'Valid CSS';
 
-// Footer strings, no longer used
-$txt['valid_html'] = 'Valid HTML 4.01';
-$txt['valid_xhtml'] = 'Valid XHTML 1.0';
-$txt['wap2'] = 'WAP2';
 $txt['rss'] = 'RSS';
 $txt['atom'] = 'Atom';
-$txt['xhtml'] = 'XHTML';
 $txt['html'] = 'HTML';
 
 $txt['guest'] = 'Guest';
@@ -860,8 +887,9 @@ $txt['are_sure_mark_read'] = 'Are you sure you want to mark messages as read?';
 // Inline attachments messages.
 $txt['attachments_not_enable'] = 'Attachments are disabled';
 $txt['attachments_no_data_loaded'] = 'Not a valid attachment ID.';
-$txt['attachments_not_allowed_to_see'] = 'You cannot see attachments on this board.';
+$txt['attachments_not_allowed_to_see'] = 'You cannot view this attachment.';
 $txt['attachments_no_msg_associated'] = 'No message is associated with this attachment.';
+$txt['attachments_unapproved'] = 'Attachment is awaiting approval.';
 
 // Accessibility
 $txt['hide_category'] = 'Hide Category';
@@ -897,13 +925,15 @@ $txt['notify_announcements_prompt'] = 'Do you want to receive forum newsletters,
 $txt['notify_announcements_subscribed'] = '%1$s has been subscribed to forum newsletters, announcements and important notifications.';
 $txt['notify_announcements_unsubscribed'] = '%1$s has been unsubscribed from forum newsletters, announcements and important notifications.';
 
-$txt['unsubscribe_announcements_plain'] = 'To unsubscribe from forum newsletters, announcements and important notifications, follow this link:<br />%1$s';
+$txt['unsubscribe_announcements_plain'] = 'To unsubscribe from forum newsletters, announcements and important notifications, follow this link: %1$s';
 $txt['unsubscribe_announcements_html'] = '<span style="font-size:small"><a href="%1$s">Unsubscribe</a> from forum newsletters, announcements and important notifications.</span>';
+$txt['unsubscribe_announcements_manual'] = 'To unsubscribe from forum newsletters, announcements and important notifications, contact us at %1$s with your request.';
 
 // Mobile Actions
 $txt['mobile_action'] = 'User actions';
 $txt['mobile_moderation'] = 'Moderation';
-$txt['mobile_user_menu'] = 'Mobile Main Menu';
+$txt['mobile_user_menu'] = 'Main Menu';
+$txt['mobile_generic_menu'] = '%1$s Menu';
 
 // Formats for lists in a sentence (e.g. "Alice, Bob, and Charlie")
 // Examples:

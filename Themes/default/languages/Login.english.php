@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC3; Login
+// Version: 2.1.2; Login
 
 // Registration agreement page.
 $txt['registration_agreement'] = 'Registration Agreement';
@@ -71,7 +71,7 @@ $txt['change_password'] = 'New Password Details';
 $txt['change_password_login'] = 'Your login details at';
 $txt['change_password_new'] = 'have been changed and your password reset. Below are your new login details.';
 
-$txt['in_maintain_mode'] = 'This board is in Maintenance Mode.';
+$txt['in_maintain_mode'] = 'This forum is in Maintenance Mode.';
 
 // These two are used as a javascript alert; please use international characters directly, not as entities.
 $txt['register_agree'] = 'Please read and accept the agreement before signing up.';
@@ -147,5 +147,12 @@ $txt['registration_password_no_match'] = 'Passwords do not match';
 $txt['registration_password_valid'] = 'Password is valid';
 
 $txt['registration_errors_occurred'] = 'The following errors were detected in your registration. Please correct them to continue:';
+$txt['registration_agreement_missing'] = 'The registration agreement file, agreement.txt, is either missing or empty. Registrations have been disabled until this is fixed';
+$txt['registration_policy_missing'] = 'The privacy policy is either missing or empty. Registrations have been disabled until this is fixed';
+
+// Logout
+$txt['logout_confirm'] = 'Are you sure you want to log out?';
+$txt['logout_notice'] = 'You are about to be logged out of the forum and continue browsing as a guest!';
+$txt['logout_return'] = 'Stay logged in and return to browsing as a member.';
 
 ?>

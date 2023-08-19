@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -41,14 +41,6 @@ function ManageNews()
 		'settings' => array('ModifyNewsSettings', 'admin_forum'),
 	);
 
-	call_integration_hook('integrate_manage_news', array(&$subActions));
-
-	// Default to sub action 'main' or 'settings' depending on permissions.
-	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (allowedTo('edit_news') ? 'editnews' : (allowedTo('send_mail') ? 'mailingmembers' : 'settings'));
-
-	// Have you got the proper permissions?
-	isAllowedTo($subActions[$_REQUEST['sa']][1]);
-
 	// Create the tabs for the template.
 	$context[$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['news_title'],
@@ -65,6 +57,14 @@ function ManageNews()
 			),
 		),
 	);
+
+	call_integration_hook('integrate_manage_news', array(&$subActions));
+
+	// Default to sub action 'main' or 'settings' depending on permissions.
+	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (allowedTo('edit_news') ? 'editnews' : (allowedTo('send_mail') ? 'mailingmembers' : 'settings'));
+
+	// Have you got the proper permissions?
+	isAllowedTo($subActions[$_REQUEST['sa']][1]);
 
 	// Force the right area...
 	if (substr($_REQUEST['sa'], 0, 7) == 'mailing')
@@ -232,6 +232,12 @@ function EditNews()
 						$("#preview_" + preview_id).text(\'' . $txt['preview'] . '\').click(function () {
 							$.ajax({
 								type: "POST",
+								headers: {
+									"X-SMF-AJAX": 1
+								},
+								xhrFields: {
+									withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
+								},
 								url: "' . $scripturl . '?action=xmlhttp;sa=previews;xml",
 								data: {item: "newspreview", news: $("#data_" + preview_id).val()},
 								context: document.body,
@@ -479,7 +485,7 @@ function prepareMailingForPreview()
 		$context[$key] = str_replace($variables,
 			array(
 				!empty($context['send_html']) ? '<a href="' . $scripturl . '">' . $scripturl . '</a>' : $scripturl,
-				timeformat(forum_time(), false),
+				timeformat(time(), false),
 				!empty($context['send_html']) ? '<a href="' . $scripturl . '?action=profile;u=' . $modSettings['latestMember'] . '">' . $cleanLatestMember . '</a>' : ($context['send_pm'] ? '[url=' . $scripturl . '?action=profile;u=' . $modSettings['latestMember'] . ']' . $cleanLatestMember . '[/url]' : $cleanLatestMember),
 				$modSettings['latestMember'],
 				$cleanLatestMember
@@ -698,6 +704,7 @@ function SendMailing($clean_only = false)
 {
 	global $txt, $sourcedir, $context, $smcFunc;
 	global $scripturl, $modSettings, $user_info;
+	global $webmaster_email;
 
 	if (isset($_POST['preview']))
 	{
@@ -871,7 +878,7 @@ function SendMailing($clean_only = false)
 	$_POST['message'] = str_replace($variables,
 		array(
 			!empty($_POST['send_html']) ? '<a href="' . $scripturl . '">' . $scripturl . '</a>' : $scripturl,
-			timeformat(forum_time(), false),
+			timeformat(time(), false),
 			!empty($_POST['send_html']) ? '<a href="' . $scripturl . '?action=profile;u=' . $modSettings['latestMember'] . '">' . $cleanLatestMember . '</a>' : ($context['send_pm'] ? '[url=' . $scripturl . '?action=profile;u=' . $modSettings['latestMember'] . ']' . $cleanLatestMember . '[/url]' : $scripturl . '?action=profile;u=' . $modSettings['latestMember']),
 			$modSettings['latestMember'],
 			$cleanLatestMember
@@ -879,7 +886,7 @@ function SendMailing($clean_only = false)
 	$_POST['subject'] = str_replace($variables,
 		array(
 			$scripturl,
-			timeformat(forum_time(), false),
+			timeformat(time(), false),
 			$modSettings['latestRealName'],
 			$modSettings['latestMember'],
 			$modSettings['latestRealName']
@@ -908,8 +915,8 @@ function SendMailing($clean_only = false)
 		if ($context['send_pm'])
 			continue;
 
-		// Non-members can't subscribe or unsubscribe from anything...
-		$unsubscribe_link = '';
+		// Non-members can't unsubscribe via the automated system.
+		$unsubscribe_link = sprintf($txt['unsubscribe_announcements_manual'], empty($modSettings['mail_from']) ? $webmaster_email : $modSettings['mail_from']);
 
 		$to_member = array(
 			$email,
@@ -1028,7 +1035,7 @@ function SendMailing($clean_only = false)
 			else
 				$unsubscribe_link = '';
 
-			// Replace the member-dependant variables
+			// Replace the member-dependent variables
 			$message = str_replace($from_member,
 				array(
 					$row['email_address'],

@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
 if (!defined('SMF'))
@@ -137,10 +137,12 @@ class xmlArray
 	 *
 	 * @param $path string The path to the element to get
 	 * @param $return_full bool Whether to return the full result set
-	 * @return xmlArray, a new xmlArray.
+	 * @return xmlArray a new xmlArray.
 	 */
 	public function path($path, $return_full = false)
 	{
+		global $txt;
+
 		// Split up the path.
 		$path = explode('/', $path);
 
@@ -172,7 +174,10 @@ class xmlArray
 
 					// Cause an error.
 					if ($this->debug_level & E_NOTICE)
-						trigger_error('Undefined XML attribute: ' . substr($el, 1) . $debug, E_USER_NOTICE);
+					{
+						loadLanguage('Errors');
+						trigger_error(sprintf($txt['undefined_xml_attribute'], substr($el, 1) . $debug), E_USER_NOTICE);
+					}
 					return false;
 				}
 			}
@@ -419,7 +424,7 @@ class xmlArray
 					}
 				}
 
-				// Wait for an actual occurance of an element.
+				// Wait for an actual occurrence of an element.
 				continue;
 			}
 
@@ -527,7 +532,7 @@ class xmlArray
 		$inside_elements = false;
 		$output_el = '';
 
-		// Run through and recursively output all the elements or attrbutes inside this.
+		// Run through and recursively output all the elements or attributes inside this.
 		foreach ($array as $k => $v)
 		{
 			if (substr($k, 0, 1) == '@')
@@ -625,10 +630,17 @@ class xmlArray
 		$trans_tbl = array_flip(get_html_translation_table(HTML_ENTITIES, ENT_QUOTES));
 
 		// Translate all the entities out.
-		$data = strtr(preg_replace_callback('~&#(\d{1,4});~', function($m)
-		{
-			return chr("$m[1]");
-		}, $data), $trans_tbl);
+		$data = strtr(
+			preg_replace_callback(
+				'~&#(\d{1,4});~',
+				function($m)
+				{
+					return chr("$m[1]");
+				},
+				$data
+			),
+			$trans_tbl
+		);
 
 		return $this->trim ? trim($data) : $data;
 	}
@@ -675,6 +687,8 @@ class xmlArray
 	 */
 	protected function _path($array, $path, $level, $no_error = false)
 	{
+		global $txt;
+
 		// Is $array even an array?  It might be false!
 		if (!is_array($array))
 			return false;
@@ -716,7 +730,10 @@ class xmlArray
 
 			// Cause an error.
 			if ($this->debug_level & E_NOTICE && !$no_error)
-				trigger_error('Undefined XML element: ' . $path . $debug, E_USER_NOTICE);
+			{
+				loadLanguage('Errors');
+				trigger_error(sprintf($txt['undefined_xml_element'], $path . $debug), E_USER_NOTICE);
+			}
 			return false;
 		}
 		// Only one result.
@@ -859,7 +876,7 @@ class ftp_connection
 	}
 
 	/**
-	 * Changes a files atrributes (chmod)
+	 * Changes a files attributes (chmod)
 	 *
 	 * @param string $ftp_file The file to CHMOD
 	 * @param int|string $chmod The value for the CHMOD operation
@@ -1040,7 +1057,7 @@ class ftp_connection
 		if (!is_resource($this->connection))
 			return false;
 
-		// Passive... non-agressive...
+		// Passive... non-aggressive...
 		if (!$this->passive())
 			return false;
 

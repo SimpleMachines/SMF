@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.3
  */
 
 /**
@@ -455,7 +455,8 @@ function template_extract_package()
 
 	elseif ($context['uninstalling'])
 		echo '
-			', $txt['package_uninstall_done'];
+			', $txt['package_uninstall_done'] .' <br>
+			', '<a href="', $context['keep_url'], '" class="button">', $txt['package_keep'], '</a>', '<a href="', $context['remove_url'], '" class="button">', $txt['package_delete2'], '</a>';
 
 	elseif ($context['install_finished'])
 	{
@@ -497,8 +498,8 @@ function template_list()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['list_file'], '</h3>
 		</div>
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['files_archive'], ' ', $context['filename'], ':</h3>
+		<div class="title_bar">
+			<h4 class="titlebg">', $txt['files_archive'], ' ', $context['filename'], ':</h4>
 		</div>
 		<div class="windowbg">
 			<ol>';
@@ -525,8 +526,8 @@ function template_examine()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['package_examine_file'], '</h3>
 		</div>
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['package_file_contents'], ' ', $context['filename'], ':</h3>
+		<div class="title_bar">
+			<h4 class="titlebg">', $txt['package_file_contents'], ' ', $context['filename'], ':</h4>
 		</div>
 		<div class="windowbg">
 			<pre class="file_content">', $context['filedata'], '</pre>
@@ -1315,10 +1316,11 @@ function template_view_operations()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $txt['operation_title'], '</title>
-		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $context['browser_cache'], '">
-		<link rel="stylesheet" href="', $settings['theme_url'], '/css/admin.css', $context['browser_cache'], '">
-		<script src="', $settings['default_theme_url'], '/scripts/script.js', $context['browser_cache'], '"></script>
-		<script src="', $settings['default_theme_url'], '/scripts/theme.js', $context['browser_cache'], '"></script>
+		', template_css();
+
+	template_javascript();
+
+	echo '
 	</head>
 	<body>
 		<div class="padding windowbg">
@@ -1732,7 +1734,7 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 		echo '
 				<tr class="windowbg" id="content_', $js_ident, '_more">
 					<td class="smalltext" width="40%">' . str_repeat('&nbsp;', $level * 5), '
-						&#171; <a href="' . $scripturl . '?action=admin;area=packages;sa=perms;find=' . base64_encode($ident) . ';fileoffset=', ($context['file_offset'] + $context['file_limit']), ';' . $context['session_var'] . '=' . $context['session_id'] . '#fol_' . preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', $ident) . '">', $txt['package_file_perms_more_files'], '</a> &#187;
+						<a href="' . $scripturl . '?action=admin;area=packages;sa=perms;find=' . base64_encode($ident) . ';fileoffset=', ($context['file_offset'] + $context['file_limit']), ';' . $context['session_var'] . '=' . $context['session_id'] . '#fol_' . preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', $ident) . '">', $txt['package_file_perms_more_files'], '</a>
 					</td>
 					<td colspan="6"></td>
 				</tr>';

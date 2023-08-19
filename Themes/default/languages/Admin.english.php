@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC3; Admin
+// Version: 2.1.3; Admin
 
 global $settings, $scripturl;
 
@@ -51,7 +51,7 @@ $txt['admin_agreement_not_saved'] = 'The agreement changes have not been saved. 
 $txt['admin_delete_members'] = 'Delete Selected Members';
 $txt['admin_repair'] = 'Repair all boards and topics';
 $txt['admin_main_welcome'] = 'This is your &quot;%1$s&quot;. From here, you can edit settings, maintain your forum, view logs, install packages, manage themes, and many other things.<br><br>If you have any trouble, please look at the &quot;Support &amp; Credits&quot; page. If the information there doesn\'t help you, feel free to <a href="https://www.simplemachines.org/community/index.php" target="_blank" rel="noopener">look to us for help</a> with the problem.<br>You may also find answers to your questions or problems by clicking the <span class="main_icons help" title="%3$s"></span> symbols for more information on the related functions.';
-$txt['admin_news_desc'] = 'Please place one news item per box. BBC tags, such as <span title="Are you bold?">[b]</span>, <span title="I tall icks!!">[i]</span> and <span title="Brackets are great, no?">[u]</span> are allowed in your news, as well as smileys. Clear a news item\'s text box to remove it.';
+$txt['admin_news_desc'] = 'Please place one news item per box. <abbr title="Bulletin Board Code">BBC</abbr> <span title="Because everyone loves brackets!">tags</span>, such as <span class="monospace">[b]</span>, <span class="monospace">[i]</span> and <span class="monospace">[u]</span>, are allowed in your news, as well as smileys. Clear a news item\'s text box to remove it.';
 $txt['administrators'] = 'Forum Administrators';
 $txt['admin_reserved_desc'] = 'Reserved names will keep members from registering certain usernames or using these words in their displayed names. Choose the options you wish to use from the bottom before submitting.';
 $txt['admin_match_whole'] = 'Match whole name only. If unchecked, search within names.';
@@ -130,14 +130,18 @@ $txt['ip_address'] = 'IP address';
 $txt['member_id'] = 'ID';
 
 $txt['unknown'] = 'unknown';
+
 // argument(s): HTTP_REFERER (if applicable), HTTP_USER_AGENT, ip address
-$txt['security_wrong'] = "Administration login attempt!\nReferrer: %1\$s\nUser agent: %2\$s\nIP: %3\$s";
+$txt['security_wrong'] = 'Administration login attempt!
+Referrer: %1$s
+User agent: %2$s
+IP: %3$s';
 
 $txt['email_as_html'] = 'Send in HTML format. (with this you can put normal HTML in the email.)';
 $txt['email_parsed_html'] = 'Add &lt;br&gt;s and &amp;nbsp;s to this message.';
 // argument(s): $scripturl
 $txt['email_variables'] = 'In this message you can use a few &quot;variables&quot;. Click <a href="%1$s?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help">here</a> for more information.';
-$txt['email_force'] = 'Send this to members even if they have chosen not to receive announcements.';
+$txt['email_force'] = 'Send this to members even if they have chosen not to receive announcements.<br><span class="alert">This should only be used in exceptional circumstances. Using this to send promotional or other non-essential email messages violates many countries\' privacy and anti-spam laws.</span>';
 $txt['email_as_pms'] = 'Send this to these groups using personal messages.';
 $txt['email_continue'] = 'Continue';
 $txt['email_done'] = 'done.';
@@ -243,7 +247,7 @@ $txt['userlog_enabled'] = 'Enable the profile edits log';
 
 $txt['mailqueue_title'] = 'Mail';
 
-$txt['db_error_send'] = 'Send emails on database connection error';
+$txt['db_error_send'] = 'Send emails on database connection errors';
 $txt['db_persist'] = 'Use a persistent connection';
 $txt['ssi_db_user'] = 'Database username to use in SSI mode';
 $txt['ssi_db_passwd'] = 'Database password to use in SSI mode';
@@ -278,7 +282,6 @@ $txt['censor_whole_words'] = 'Check only whole words';
 $txt['admin_confirm_password'] = '(confirm)';
 $txt['admin_incorrect_password'] = 'Incorrect Password';
 
-$txt['date_format'] = '(YYYY-MM-DD)';
 $txt['age'] = 'User age';
 $txt['activation_status'] = 'Activation Status';
 $txt['activated'] = 'Activated';
@@ -353,13 +356,14 @@ $txt['attachmentPostLimit'] = 'Max attachment size per post';
 $txt['attachmentSizeLimit'] = 'Max size per attachment';
 $txt['attachmentNumPerPostLimit'] = 'Max number of attachments per post';
 $txt['attachment_img_enc_warning'] = 'Neither the GD module nor the IMagick or MagickWand extensions are currently installed. Image re-encoding is not possible.';
-$txt['attachment_ini_max'] = 'Maxmimum allowed by php.ini: %1$s';
+$txt['attachment_ini_max'] = 'Maximum allowed by php.ini: %1$s';
 $txt['attachment_image_reencode'] = 'Re-encode potentially dangerous image attachments';
 $txt['attachment_image_paranoid_warning'] = 'The extensive security checks can result in a large number of rejected attachments.';
 $txt['attachment_image_paranoid'] = 'Perform extensive security checks on uploaded image attachments';
 $txt['attachmentThumbnails'] = 'Resize images when showing under posts';
 $txt['attachment_thumb_png'] = 'Save thumbnails as PNG';
 $txt['attachment_thumb_memory'] = 'Adaptive thumbnail memory';
+$txt['attachment_thumb_memory_note'] = 'If disabled, memory is limited to 128M';
 $txt['attachmentThumbWidth'] = 'Maximum width of thumbnails';
 $txt['attachmentThumbHeight'] = 'Maximum height of thumbnails';
 $txt['attachment_thumbnail_settings'] = 'Thumbnail Settings';
@@ -367,7 +371,8 @@ $txt['attachment_security_settings'] = 'Attachment security settings';
 
 $txt['attach_dir_does_not_exist'] = 'Does not exist';
 $txt['attach_dir_not_writable'] = 'Not writable';
-$txt['attach_dir_files_missing'] = 'Files Missing (<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=repair;%2$s=%1$s">Repair</a>)';
+// argument(s): session_id, session_var, scripturl
+$txt['attach_dir_files_missing'] = 'Files Missing (<a href="%3$s?action=admin;area=manageattachments;sa=repair;%2$s=%1$s">Repair</a>)';
 $txt['attach_dir_unused'] = 'Unused';
 $txt['attach_dir_empty'] = 'Empty';
 $txt['attach_dir_ok'] = 'OK';
@@ -468,11 +473,11 @@ $txt['avatar_external_url_groups'] = 'Membergroups allowed to select an external
 $txt['avatar_select_permission'] = 'Select permissions for each group';
 $txt['avatar_download_external'] = 'Download avatar at given URL';
 $txt['option_specified_dir'] = 'Specific directory...';
-$txt['custom_avatar_dir_wrong'] = 'The Avatars directory is not valid. This will prevent avatars from working properly.';
+$txt['custom_avatar_dir_wrong'] = 'The Upload directory is not valid. This will prevent custom avatars from working properly.';
 $txt['custom_avatar_dir'] = 'Upload directory';
 $txt['custom_avatar_dir_desc'] = 'This should be a valid and writable directory, different from the server-stored directory.';
 $txt['custom_avatar_url'] = 'Upload URL';
-$txt['custom_avatar_check_empty'] = 'The custom avatar directory you have specified may be empty or invalid. Please ensure these settings are correct.';
+$txt['custom_avatar_check_empty'] = 'The custom avatars directory you have specified may be empty or invalid. Please ensure these settings are correct.';
 $txt['avatar_reencode'] = 'Re-encode potentially dangerous avatars';
 $txt['avatar_paranoid_warning'] = 'The extensive security checks can result in a large number of rejected avatars.';
 $txt['avatar_paranoid'] = 'Perform extensive security checks on uploaded avatars';
@@ -485,7 +490,7 @@ $txt['gravatar_maxG'] = 'G rated (Generally acceptable)';
 $txt['gravatar_maxPG'] = 'PG rated (Parental Guidance)';
 $txt['gravatar_maxR'] = 'R rated (Restricted)';
 $txt['gravatar_maxX'] = 'X rated (Explicit)';
-$txt['gravatarDefault'] = 'Default image to show when an email address has no matching Gravatar ';
+$txt['gravatarDefault'] = 'Default image to show when an email address has no matching Gravatar';
 $txt['gravatar_mm'] = 'A simple, cartoon-style silhouetted outline of a person';
 $txt['gravatar_identicon'] = 'A geometric pattern based on an email hash';
 $txt['gravatar_monsterid'] = 'A generated \'monster\' with different colors, faces, etc';
@@ -532,7 +537,7 @@ $txt['generate_reports'] = 'Reports';
 
 $txt['update_available'] = 'Update available';
 $txt['update_message'] = 'You\'re using an outdated version of SMF, which contains some bugs which have since been fixed.
-	It is recommended that you <a href="#" id="update-link">update your forum</a> to the latest version as soon as possible. It only takes a minute!';
+	It is recommended that you <a href="#" id="update-link" class="bbc_link strong">update your forum</a> to the latest version as soon as possible. It only takes a minute!';
 
 $txt['manageposts'] = 'Posts and Topics';
 $txt['manageposts_title'] = 'Manage Posts and Topics';
@@ -560,7 +565,6 @@ $txt['managedrafts_settings_description'] = 'Here you can set all settings invol
 $txt['manage_drafts'] = 'Drafts';
 
 $txt['removeNestedQuotes'] = 'Remove nested quotes when quoting';
-$txt['enableSpellChecking'] = 'Enable spell checking';
 $txt['disable_wysiwyg'] = 'Disable WYSIWYG editor';
 $txt['max_messageLength'] = 'Maximum allowed post size';
 $txt['max_messageLength_zero'] = '0 for no max.';
@@ -640,7 +644,7 @@ $txt['admin_news_select_excluded_members_desc'] = 'Members who should not receiv
 $txt['admin_news_select_excluded_groups'] = 'Excluded Groups';
 $txt['admin_news_select_excluded_groups_desc'] = 'Select groups who should definitely not receive the newsletter.';
 $txt['admin_news_select_email'] = 'Email Addresses';
-$txt['admin_news_select_email_desc'] = 'A semi-colon separated list of email addresses which should be sent a newsletter. (i.e. address1; address2) This is additional to the groups listed above.';
+$txt['admin_news_select_email_desc'] = 'A semi-colon separated list of email addresses which should be sent a newsletter (i.e. address1; address2). This is additional to the groups listed above.<br><span class="alert">Note: You must manually handle any unsubscribe requests regarding newsletters sent to these email addresses.</span>';
 $txt['admin_news_select_override_notify'] = 'Override notification settings';
 // Use entities in below.
 $txt['admin_news_cannot_pm_emails_js'] = 'You cannot send a personal message to an email address. If you continue all entered email addresses will be ignored.\\n\\nAre you sure you wish to do this?';
@@ -723,6 +727,7 @@ $txt['hooks_field_hook_exists'] = 'Status';
 $txt['hooks_active'] = 'Exists';
 $txt['hooks_disabled'] = 'Disabled';
 $txt['hooks_missing'] = 'Not found';
+$txt['hooks_temp'] = 'Temporary';
 $txt['hooks_no_hooks'] = 'There are currently no hooks in the system.';
 $txt['hooks_button_remove'] = 'Remove';
 $txt['hooks_disable_instructions'] = 'Click on the status icon to enable or disable the hook';
@@ -730,6 +735,8 @@ $txt['hooks_disable_legend'] = 'Legend';
 $txt['hooks_disable_legend_exists'] = 'the hook exists and is active';
 $txt['hooks_disable_legend_disabled'] = 'the hook exists but has been disabled';
 $txt['hooks_disable_legend_missing'] = 'the hook has not been found';
+$txt['hooks_disable_legend_temp'] = 'the hook is temporary';
+$txt['hooks_disable_legend_temp_missing'] = 'temporary hook not found';
 $txt['hooks_reset_filter'] = 'No filter';
 
 $txt['board_perms_allow'] = 'Allow';
@@ -744,6 +751,8 @@ $txt['mention'] = 'Membergroups allowed to mention users';
 $txt['notifications'] = 'Notifications';
 $txt['notify_settings'] = 'Notification Settings';
 $txt['notifications_desc'] = 'This page allows you to set the default notification options for users.';
+ // The GDPR page of the EU exists in several languages; change the language code at the end of the url
+$txt['notify_announcements_desc'] = 'Enabling this default option violates the rules of the <a href="https://ec.europa.eu/info/law/law-topic/data-protection/eu-data-protection-rules_en" target="_blank" rel="noopener" class="bbc_link">GDPR</a> and many other countries\' privacy and anti-spam laws.';
 
 $txt['enable_sm_stats'] = 'Allow Stat Collection';
 

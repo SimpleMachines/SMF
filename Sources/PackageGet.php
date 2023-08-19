@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.1
  */
 
 if (!defined('SMF'))
@@ -242,7 +242,7 @@ function PackageGBrowse()
 	}
 	elseif (isset($_GET['absolute']) && $_GET['absolute'] != '')
 	{
-		// Initialize the requried variables.
+		// Initialize the required variables.
 		$server = '';
 		$url = $_GET['absolute'];
 		$name = '';
@@ -584,7 +584,7 @@ function PackageDownload()
 	}
 	else
 	{
-		// Initialize the requried variables.
+		// Initialize the required variables.
 		$server = '';
 		$url = '';
 	}
@@ -655,39 +655,37 @@ function PackageUpload()
 
 	// Setup the correct template, even though I'll admit we ain't downloading ;)
 	$context['sub_template'] = 'downloaded';
-	$allowext = array('.zip', '.tgz', '.gz');
+
 	// @todo Use FTP if the Packages directory is not writable.
 
 	// Check the file was even sent!
 	if (!isset($_FILES['package']['name']) || $_FILES['package']['name'] == '')
-		fatal_lang_error('package_upload_error_nofile');
+		fatal_lang_error('package_upload_error_nofile', false);
 	elseif (!is_uploaded_file($_FILES['package']['tmp_name']) || (ini_get('open_basedir') == '' && !file_exists($_FILES['package']['tmp_name'])))
-		fatal_lang_error('package_upload_error_failed');
+		fatal_lang_error('package_upload_error_failed', false);
 
 	// Make sure it has a sane filename.
 	$_FILES['package']['name'] = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $_FILES['package']['name']);
-	$extension = substr(strrchr(strtolower($_FILES['package']['name']), '.'), 0);
-	if (!in_array($extension, $allowext))
-	{
+
+	$found_ext = preg_match('/\.(zip|tgz|tar\.gz)$/i', $_FILES['package']['name'], $match);
+	if ($found_ext === 0)
 		fatal_lang_error('package_upload_error_supports', false, array('zip, tgz, tar.gz'));
-	}
 
 	// We only need the filename...
-	$extension = ($extension == '.gz') ? '.tar.gz' : $extension;
-	$packageName = time() . $extension;
+	$packageName = substr($_FILES['package']['name'], 0, -strlen($match[0]));
+	$packageFileName = package_unique_filename($packagesdir, $packageName, $match[1]) . $match[0];
 
 	// Setup the destination and throw an error if the file is already there!
-	$destination = $packagesdir . '/' . $packageName;
-	// @todo Maybe just roll it like we do for downloads?
+	$destination = $packagesdir . '/' . $packageFileName;
 	if (file_exists($destination))
-		fatal_lang_error('package_upload_error_exists');
+		fatal_lang_error('package_upload_error_exists', false);
 
 	// Now move the file.
 	move_uploaded_file($_FILES['package']['tmp_name'], $destination);
 	smf_chmod($destination, 0777);
 
 	// If we got this far that should mean it's available.
-	$context['package'] = getPackageInfo($packageName);
+	$context['package'] = getPackageInfo($packageFileName);
 	$context['package_server'] = '';
 
 	// Not really a package, you lazy bum!
@@ -696,14 +694,14 @@ function PackageUpload()
 		@unlink($destination);
 		loadLanguage('Errors');
 		$txt[$context['package']] = str_replace('{MANAGETHEMEURL}', $scripturl . '?action=admin;area=theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id'] . '#theme_install', $txt[$context['package']]);
-		fatal_lang_error('package_upload_error_broken', false, $txt[$context['package']]);
+		fatal_lang_error('package_upload_error_broken', false, array($txt[$context['package']]));
 	}
 	// Is it already uploaded, maybe?
 	elseif ($dir = @opendir($packagesdir))
 	{
 		while ($package = readdir($dir))
 		{
-			if ($package == '.' || $package == '..' || $package == 'temp' || $package == $packageName || (!(is_dir($packagesdir . '/' . $package) && file_exists($packagesdir . '/' . $package . '/package-info.xml')) && substr(strtolower($package), -7) != '.tar.gz' && substr(strtolower($package), -4) != '.tgz' && substr(strtolower($package), -4) != '.zip'))
+			if ($package == '.' || $package == '..' || $package == 'temp' || $package == $packageFileName || (!(is_dir($packagesdir . '/' . $package) && file_exists($packagesdir . '/' . $package . '/package-info.xml')) && substr(strtolower($package), -7) != '.tar.gz' && substr(strtolower($package), -4) != '.tgz' && substr(strtolower($package), -4) != '.zip'))
 				continue;
 
 			$packageInfo = getPackageInfo($package);
@@ -714,7 +712,7 @@ function PackageUpload()
 			{
 				@unlink($destination);
 				loadLanguage('Errors');
-				fatal_lang_error('package_upload_error_exists');
+				fatal_lang_error('package_upload_error_exists', false);
 			}
 		}
 		closedir($dir);

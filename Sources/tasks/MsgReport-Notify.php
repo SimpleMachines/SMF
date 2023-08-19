@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
 /**
@@ -155,11 +155,14 @@ class MsgReport_Notify_Background extends SMF_BackgroundTask
 			// Second, get some details that might be nice for the report email.
 			// We don't bother cluttering up the tasks data for this, when it's really no bother to fetch it.
 			$request = $smcFunc['db_query']('', '
-				SELECT lr.subject, lr.membername, lr.body
+				SELECT lr.subject, lr.membername, lrc.comment
 				FROM {db_prefix}log_reported AS lr
-				WHERE id_report = {int:report}',
+					INNER JOIN {db_prefix}log_reported_comments AS lrc ON (lr.id_report = lrc.id_report)
+				WHERE lr.id_report = {int:report}
+					AND lrc.id_comment = {int:comment}',
 				array(
 					'report' => $this->_details['report_id'],
+					'comment' => $this->_details['comment_id'],
 				)
 			);
 			list ($subject, $poster_name, $comment) = $smcFunc['db_fetch_row']($request);

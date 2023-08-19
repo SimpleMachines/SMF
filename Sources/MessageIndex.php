@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -24,6 +24,8 @@ function MessageIndex()
 {
 	global $txt, $scripturl, $board, $modSettings, $context;
 	global $options, $settings, $board_info, $user_info, $smcFunc, $sourcedir;
+
+	require_once($sourcedir . '/Subs-Boards.php');
 
 	// If this is a redirection board head off.
 	if ($board_info['redirect'])
@@ -54,8 +56,16 @@ function MessageIndex()
 		}
 	}
 
+	$boards_parsed_data = getBoardsParsedDescription($board_info['cat']['id']);
+
+	if (!isset($boards_parsed_data[$board_info['id']]))
+		$boards_parsed_data = setBoardParsedDescription($board_info['cat']['id'], array(
+			$board_info['id'] => $board_info['description']
+		));
+
 	$context['name'] = $board_info['name'];
-	$context['description'] = $board_info['description'];
+	$context['description'] = $boards_parsed_data[$board_info['id']];
+
 	if (!empty($board_info['description']))
 		$context['meta_description'] = strip_tags($board_info['description']);
 
@@ -77,7 +87,7 @@ function MessageIndex()
 				$context['robot_no_index'] = true;
 		}
 	}
-	if (!empty($_REQUEST['start']) && (!is_numeric($_REQUEST['start']) || $_REQUEST['start'] % $context['messages_per_page'] != 0))
+	if (!empty($_REQUEST['start']) && (!is_numeric($_REQUEST['start']) || $_REQUEST['start'] % $context['topics_per_page'] != 0))
 		$context['robot_no_index'] = true;
 
 	// If we can view unapproved messages and there are some build up a list.
@@ -329,7 +339,7 @@ function MessageIndex()
 		' . (!empty($message_index_tables) ? implode("\n\t\t\t\t", $message_index_tables) : '') . '
 		WHERE t.id_board = {int:current_board} '
 			. (!$modSettings['postmod_active'] || $context['can_approve_posts'] ? '' : '
-			AND (t.approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR t.id_member_started = {int:current_member}') . ')') . (!empty($message_index_topic_wheres) ? ' 
+			AND (t.approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR t.id_member_started = {int:current_member}') . ')') . (!empty($message_index_topic_wheres) ? '
 			AND ' . implode("\n\t\t\t\tAND ", $message_index_topic_wheres) : ''). '
 		ORDER BY is_sticky' . ($fake_ascending ? '' : ' DESC') . ', ' . $_REQUEST['sort'] . ($ascending ? '' : ' DESC') . '
 		LIMIT {int:maxindex}
@@ -427,7 +437,7 @@ function MessageIndex()
 
 			// If we can use all, show all.
 			if (!empty($modSettings['enableAllMessages']) && $row['num_replies'] + 1 < $modSettings['enableAllMessages'])
-				$pages .= ' &nbsp;<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0;all">' . $txt['all'] . '</a>';
+				$pages .= sprintf(strtr($settings['page_index']['page'], array('{URL}' => $scripturl . '?topic=' . $row['id_topic'] . '.0;all')), '', $txt['all']);
 		}
 		else
 			$pages = '';
@@ -473,10 +483,10 @@ function MessageIndex()
 					'name' => $row['first_display_name'],
 					'id' => $row['first_id_member'],
 					'href' => !empty($row['first_id_member']) ? $scripturl . '?action=profile;u=' . $row['first_id_member'] : '',
-					'link' => !empty($row['first_id_member']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['first_id_member'] . '" title="' . $txt['profile_of'] . ' ' . $row['first_display_name'] . '" class="preview">' . $row['first_display_name'] . '</a>' : $row['first_display_name']
+					'link' => !empty($row['first_id_member']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['first_id_member'] . '" title="' . sprintf($txt['view_profile_of_username'], $row['first_display_name']) . '" class="preview">' . $row['first_display_name'] . '</a>' : $row['first_display_name']
 				),
 				'time' => timeformat($row['first_poster_time']),
-				'timestamp' => forum_time(true, $row['first_poster_time']),
+				'timestamp' => $row['first_poster_time'],
 				'subject' => $row['first_subject'],
 				'preview' => $row['first_body'],
 				'icon' => $row['first_icon'],
@@ -494,7 +504,7 @@ function MessageIndex()
 					'link' => !empty($row['last_id_member']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['last_id_member'] . '">' . $row['last_display_name'] . '</a>' : $row['last_display_name']
 				),
 				'time' => timeformat($row['last_poster_time']),
-				'timestamp' => forum_time(true, $row['last_poster_time']),
+				'timestamp' => $row['last_poster_time'],
 				'subject' => $row['last_subject'],
 				'preview' => $row['last_body'],
 				'icon' => $row['last_icon'],
@@ -547,7 +557,7 @@ function MessageIndex()
 
 	$context['jump_to'] = array(
 		'label' => addslashes(un_htmlspecialchars($txt['jump_to'])),
-		'board_name' => $smcFunc['htmlspecialchars'](strtr(strip_tags($board_info['name']), array('&amp;' => '&'))),
+		'board_name' => strtr($smcFunc['htmlspecialchars'](strip_tags($board_info['name'])), array('&amp;' => '&')),
 		'child_level' => $board_info['child_level'],
 	);
 
@@ -935,6 +945,23 @@ function QuickModeration()
 			$moveCache[1][$topic] = (int) (isset($_REQUEST['move_tos'][$topic]) ? $_REQUEST['move_tos'][$topic] : $_REQUEST['move_to']);
 
 			if (empty($moveCache[1][$topic]))
+				continue;
+
+			// Never move topics to redirect boards
+			$redirect_boards = array();
+			$request = $smcFunc['db_query']('', '
+				SELECT id_board
+				FROM {db_prefix}boards
+				WHERE redirect != {string:blank_redirect}',
+				array(
+					'blank_redirect' => '',
+				)
+			);
+			while ($row = $smcFunc['db_fetch_row']($request))
+				$redirect_boards[] = $row[0];
+			$smcFunc['db_free_result']($request);
+
+			if (in_array($moveCache[1][$topic], $redirect_boards))
 				continue;
 
 			$moveCache[0][] = $topic;

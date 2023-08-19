@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC3; Profile
+// Version: 2.1.3; Profile
 
 global $scripturl, $context;
 
@@ -57,7 +57,6 @@ $txt['send_member_pm'] = 'Send this member a personal message';
 $txt['hidden'] = 'hidden';
 $txt['current_time'] = 'Current forum time';
 
-$txt['skype_username'] = 'Your Skype username';
 
 $txt['language'] = 'Language';
 $txt['avatar_too_big'] = 'Avatar image is too big, please resize it and try again (max';
@@ -111,64 +110,59 @@ $txt['notification_general'] = 'General Settings';
 $txt['notify_settings'] = 'Notification Settings:';
 $txt['notify_save'] = 'Save settings';
 $txt['notify_important_email'] = 'Receive forum newsletters, announcements and important notifications by email.';
-$txt['notify_regularity'] = 'For topics and boards I\'ve requested notification on, notify me';
-$txt['notify_regularity_instant'] = 'Instantly';
-$txt['notify_regularity_first_only'] = 'Instantly - but only for the first unread reply';
-$txt['notify_regularity_daily'] = 'Daily';
-$txt['notify_regularity_weekly'] = 'Weekly';
-$txt['auto_notify'] = 'Turn notification on when you post or reply to a topic.';
+$txt['auto_notify'] = 'Turn notification on when you post or reply to a topic';
 $txt['notify_send_types'] = 'For topics and boards I\'ve requested notification on, notify me of';
 $txt['notify_send_type_everything'] = 'Replies and moderation';
 $txt['notify_send_type_everything_own'] = 'Moderation only if I started the topic and am following it';
 $txt['notify_send_type_only_replies'] = 'Only replies';
 $txt['notify_send_type_nothing'] = 'Nothing at all';
 $txt['notify_send_body'] = 'When sending notification of a reply to a topic, send the post in the email (but please don\'t reply to these emails.)';
-$txt['notify_alert_timeout'] = 'Timeout for Alert desktop notifications';
+$txt['notify_alert_timeout'] = 'Timeout for Alert desktop notifications (in seconds)';
 
 $txt['notify_what_how'] = 'Alert Preferences';
 $txt['receive_alert'] = 'Receive alert';
 $txt['receive_mail'] = 'Receive email';
 $txt['alert_group_board'] = 'Boards and Topics';
 $txt['alert_group_msg'] = 'Posts';
-$txt['alert_opt_pm_notify'] = 'If enabled, e-mail alerts for:';
+$txt['alert_opt_pm_notify'] = 'If enabled, notify me of personal messages from:';
 $txt['alert_opt_msg_notify_type'] = 'Notify me of:';
 $txt['alert_opt_msg_auto_notify'] = 'Follow topics I create and reply to';
 $txt['alert_opt_msg_receive_body'] = 'Receive message body in e-mails';
 $txt['alert_opt_msg_notify_pref'] = 'How frequently to tell me:';
 $txt['alert_opt_msg_notify_pref_never'] = 'Never';
-$txt['alert_opt_msg_notify_pref_instant'] = 'Straight away';
-$txt['alert_opt_msg_notify_pref_first'] = 'Straight away (but only for the first unread message)';
-$txt['alert_opt_msg_notify_pref_daily'] = 'Send me a daily email digest';
-$txt['alert_opt_msg_notify_pref_weekly'] = 'Send me a weekly email digest';
-$txt['alert_topic_notify'] = 'When a topic I follow gets a reply, I normally want to know via...';
-$txt['alert_board_notify'] = 'When a board I follow gets a topic, I normally want to know via...';
+$txt['alert_opt_msg_notify_pref_instant'] = 'Immediately';
+$txt['alert_opt_msg_notify_pref_first'] = 'Immediately (but only for the first unread message)';
+$txt['alert_opt_msg_notify_pref_daily'] = 'Send me a daily summary';
+$txt['alert_opt_msg_notify_pref_weekly'] = 'Send me a weekly summary';
+$txt['alert_topic_notify'] = 'When a topic I follow receives a reply, I normally want to know via...';
+$txt['alert_board_notify'] = 'When a new topic is created in a board I follow, I normally want to know via...';
 $txt['alert_msg_mention'] = 'When my @name is mentioned in a post';
-$txt['alert_msg_quote'] = 'When a post of mine is quoted (when I\'m not already watching that topic)';
-$txt['alert_msg_like'] = 'When a message of mine is liked';
-$txt['alert_unapproved_reply'] = 'When an reply is made to my unapproved topic';
+$txt['alert_msg_quote'] = 'When one of my posts is quoted';
+$txt['alert_msg_like'] = 'When one of my posts is liked';
+$txt['alert_unapproved_reply'] = 'When a reply is made to my unapproved topic';
 $txt['alert_group_pm'] = 'Personal Messages';
 $txt['alert_pm_new'] = 'When I receive a new personal message';
-$txt['alert_pm_reply'] = 'When a personal message I sent gets replied to';
+$txt['alert_pm_reply'] = 'When I receive a reply to a personal message';
 $txt['alert_group_groupr'] = 'Membergroup Requests';
 $txt['alert_groupr_approved'] = 'When my request to join a group is approved';
 $txt['alert_groupr_rejected'] = 'When my request to join a group is rejected';
 $txt['alert_group_moderation'] = 'Moderation';
 $txt['alert_unapproved_attachment'] = 'When an unapproved attachment is created';
 $txt['alert_unapproved_post'] = 'When an unapproved topic is created';
-$txt['alert_msg_report'] = 'When a message is reported';
-$txt['alert_msg_report_reply'] = 'When a post report I\'ve replied to gets replied to';
+$txt['alert_msg_report'] = 'When a post is reported';
+$txt['alert_msg_report_reply'] = 'When a post report I\'ve replied to receives another reply';
 $txt['alert_group_members'] = 'Members';
 $txt['alert_member_register'] = 'When a new person registers';
 $txt['alert_warn_any'] = 'When other members receive a warning';
-$txt['alert_buddy_request'] = 'When other members adds me as their buddy';
+$txt['alert_buddy_request'] = 'When other members add me as their buddy';
 $txt['alert_group_calendar'] = 'Calendar';
 $txt['alert_event_new'] = 'When a new event goes into the calendar';
 $txt['alert_request_group'] = 'When someone requests to join a group I moderate';
 $txt['alert_birthday'] = 'When it\'s my birthday';
 $txt['alert_member_report'] = 'When another member\'s profile is reported';
-$txt['alert_member_report_reply'] = 'When a member report I\'ve replied to gets replied to';
+$txt['alert_member_report_reply'] = 'When a member report I\'ve replied to receives another reply';
 $txt['alert_group_paidsubs'] = 'Paid Subscriptions';
-$txt['alert_paidsubs_expiring'] = 'When your Paid Subscriptions are about to expire';
+$txt['alert_paidsubs_expiring'] = 'When my Paid Subscriptions are about to expire';
 $txt['toggle_all'] = 'toggle all';
 
 $txt['notifications_topics'] = 'Current Topic Notifications';
@@ -323,11 +317,12 @@ $txt['ban_type_access'] = 'access forum';
 
 $txt['show_online'] = 'Show others my online status';
 
-$txt['return_to_post'] = 'Return to topics after posting by default.';
-$txt['posts_apply_ignore_list'] = 'Hide messages posted by members on my ignore list.';
-$txt['recent_posts_at_top'] = 'Show most recent posts at the top in topic view.';
-$txt['recent_pms_at_top'] = 'Show most recent personal messages at top.';
-$txt['wysiwyg_default'] = 'Load editor in <abbr title="What You See Is What You Get">WYSIWYG</abbr> mode by default.';
+$txt['return_to_post'] = 'Return to topics after posting by default';
+$txt['no_new_reply_warning'] = 'Don\'t warn on new replies made while posting.';
+$txt['posts_apply_ignore_list'] = 'Hide messages posted by members on my ignore list';
+$txt['recent_posts_at_top'] = 'Show most recent posts at the top in topic view';
+$txt['recent_pms_at_top'] = 'Show most recent personal messages at top';
+$txt['wysiwyg_default'] = 'Load editor in <abbr title="What You See Is What You Get">WYSIWYG</abbr> mode by default';
 
 $txt['timeformat_default'] = '(Forum Default)';
 $txt['timeformat_easy1'] = 'Month Day, Year, HH:MM:SS am/pm';
@@ -338,12 +333,12 @@ $txt['timeformat_easy5'] = 'DD-MM-YYYY, HH:MM:SS';
 
 $txt['poster'] = 'Poster';
 
-$txt['show_children'] = 'Show sub-boards on every page inside boards, not just the first.';
-$txt['show_no_avatars'] = 'Don\'t show users\' avatars.';
-$txt['show_no_signatures'] = 'Don\'t show users\' signatures.';
+$txt['show_children'] = 'Show sub-boards on every page inside boards, not just the first';
+$txt['show_no_avatars'] = 'Don\'t show users\' avatars';
+$txt['show_no_signatures'] = 'Don\'t show users\' signatures';
 $txt['show_no_censored'] = 'Leave words uncensored.';
-$txt['topics_per_page'] = 'Topics to display per page:';
-$txt['messages_per_page'] = 'Messages to display per page:';
+$txt['topics_per_page'] = 'Topics to display per page';
+$txt['messages_per_page'] = 'Messages to display per page';
 $txt['per_page_default'] = 'forum default';
 
 $txt['calendar_start_day'] = 'First day of the week on the calendar';
@@ -428,7 +423,7 @@ $txt['submit_request'] = 'Submit Request';
 $txt['profile_updated_own'] = 'Your profile has been updated successfully.';
 $txt['profile_updated_else'] = 'The profile of %1$s has been updated successfully.';
 
-$txt['profile_error_signature_max_length'] = 'Your signature cannot be greater than %1$d characters';
+$txt['profile_error_signature_max_length'] = 'Your signature cannot be longer than %1$d characters';
 $txt['profile_error_signature_max_lines'] = 'Your signature cannot span more than %1$d lines';
 $txt['profile_error_signature_max_image_size'] = 'Images in your signature must be no greater than %1$dx%2$d pixels';
 $txt['profile_error_signature_max_image_width'] = 'Images in your signature must be no wider than %1$d pixels';
@@ -463,11 +458,29 @@ $txt['profile_warning_notify_template'] = 'Select template:';
 $txt['profile_warning_notify_subject'] = 'Notification Subject';
 $txt['profile_warning_notify_body'] = 'Notification Message';
 $txt['profile_warning_notify_template_subject'] = 'You have received a warning';
+
 // Use numeric entities in below string.
 // argument(s): one of the reasons defined in $txt['profile_warning_notify_for_*']
-$txt['profile_warning_notify_template_outline'] = "{MEMBER},\n\nYou have received a warning for %1\$s. Please cease these activities and abide by the forum rules otherwise we will take further action.\n\n{REGARDS}";
+$txt['profile_warning_notify_template_outline'] = '{MEMBER},
+
+You have received a warning for %1$s. Please cease these activities and abide by the forum rules otherwise we will take further action.
+
+If you wish to discuss this, please get in touch with an administrator.
+
+{REGARDS}';
+
 // argument(s): one of the reasons defined in $txt['profile_warning_notify_for_*']
-$txt['profile_warning_notify_template_outline_post'] = "{MEMBER},\n\nYou have received a warning for %1\$s in regards to the message:\n{MESSAGE}.\n\nPlease cease these activities and abide by the forum rules otherwise we will take further action.\n\n{REGARDS}";
+$txt['profile_warning_notify_template_outline_post'] = '{MEMBER},
+
+You have received a warning for %1$s in regards to the message:
+{MESSAGE}.
+
+Please cease these activities and abide by the forum rules otherwise we will take further action.
+
+If you wish to discuss this, please get in touch with an administrator.
+
+{REGARDS}';
+
 $txt['profile_warning_notify_for_spamming'] = 'spamming';
 $txt['profile_warning_notify_title_spamming'] = 'Spamming';
 $txt['profile_warning_notify_for_offence'] = 'posting offensive material';
@@ -601,7 +614,6 @@ $txt['export_settings'] = 'Export settings';
 $txt['export_include_posts'] = 'Include posts';
 $txt['export_include_personal_messages'] = 'Include personal messages';
 $txt['export_format'] = 'File format for exported data';
-$txt['export_format_desc'] = 'File format for exported data';
 $txt['export_format_xml_xslt'] = 'Styled XML (human and machine friendly)';
 $txt['export_format_html'] = 'HTML (human friendly)';
 $txt['export_format_xml'] = 'XML (machine friendly)';

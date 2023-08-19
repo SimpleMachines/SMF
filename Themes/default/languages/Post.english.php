@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC3; Post
+// Version: 2.1.4; Post
 
 global $context;
 
@@ -45,11 +45,11 @@ $txt['votes'] = 'votes';
 $txt['attach'] = 'Attach';
 $txt['attachment'] = 'Attachment';
 $txt['attachments'] = 'Attachments';
-$txt['clean_attach'] = 'Clear attachment';
+$txt['clean_attach'] = 'Clear attachments';
 $txt['attached'] = 'Attached';
 $txt['allowed_types'] = 'Allowed file types';
 $txt['attach_add'] = 'Add files';
-$txt['attach_drop_zone'] = 'Drag and drop your files here, or use the button to add files.';
+$txt['attach_drop_zone'] = 'Click or drag files here to attach them.';
 $txt['attach_drop_unlimited'] = 'unlimited';
 $txt['attach_drop_zone_no'] = 'Your browser does not support drag and drop file uploads';
 $txt['cant_upload_type'] = 'You cannot upload that type of file. The only allowed extensions are %1$s.';
@@ -78,18 +78,18 @@ $txt['report_profile'] = 'Report profile of \'%1$s\'';
 $txt['reported_profile'] = 'Reported user';
 $txt['report_following_user'] = 'The profile of "%1$s" at %2$s';
 
-$txt['attach_restrict_attachmentPostLimit'] = 'maximum total size %1$d KB';
-$txt['attach_restrict_attachmentPostLimit_MB'] = 'maximum total size %1$d MB';
-$txt['attach_restrict_attachmentSizeLimit'] = 'maximum individual size %1$d KB';
-$txt['attach_restrict_attachmentSizeLimit_MB'] = 'maximum individual size %1$d MB';
+$txt['attach_restrict_attachmentPostLimit'] = 'maximum total size %1$s KB';
+$txt['attach_restrict_attachmentPostLimit_MB'] = 'maximum total size %1$s MB';
+$txt['attach_restrict_attachmentSizeLimit'] = 'maximum individual size %1$s KB';
+$txt['attach_restrict_attachmentSizeLimit_MB'] = 'maximum individual size %1$s MB';
 $txt['attach_restrict_attachmentNumPerPostLimit'] = '%1$d per post';
 $txt['attach_restrictions'] = 'Restrictions:';
 
 $txt['post_additionalopt_attach'] = 'Attachments and other options';
 $txt['post_additionalopt'] = 'Other options';
-$txt['sticky_after_posting'] = 'Sticky this topic.';
-$txt['move_after_posting'] = 'Move this topic.';
-$txt['back_to_topic'] = 'Return to this topic.';
+$txt['sticky_after_posting'] = 'Sticky this topic';
+$txt['move_after_posting'] = 'Move this topic';
+$txt['back_to_topic'] = 'Return to this topic';
 $txt['approve_this_post'] = 'Approve this post';
 
 $txt['retrieving_quote'] = 'Retrieving quote...';
@@ -143,7 +143,7 @@ $txt['announce_desc'] = 'This form allows you to send an announcement to the sel
 $txt['announce_sending'] = 'Sending announcement of topic';
 $txt['announce_done'] = 'done';
 $txt['announce_continue'] = 'Continue';
-$txt['announce_topic'] = 'Announce topic.';
+$txt['announce_topic'] = 'Announce topic';
 $txt['announce_regular_members'] = 'Regular Members';
 
 $txt['digest_subject_daily'] = 'Daily Digest';
@@ -167,14 +167,14 @@ $txt['digest_mod_act_split'] = '"%1$s" was split';
 $txt['attach_error_title'] = 'Error uploading attachments.';
 $txt['attach_warning'] = 'There was a problem during the uploading of <strong>%1$s</strong>.';
 $txt['attach_check_nag'] = 'Unable to continue due to incomplete data (%1$s).';
-$txt['attach_max_total_file_size'] = 'Sorry, you are out of attachment space. The total attachment size allowed per post is %1$s KB. Space remaining is %2$s kB.';
+$txt['attach_max_total_file_size'] = 'Sorry, you are out of attachment space. The total attachment size allowed per post is %1$s KB. Space remaining is %2$s KB.';
 $txt['attach_max_total_file_size_current'] = 'Sorry, you are out of attachment space. The current total attachment size allowed per post is {currentTotal} KB. The total amount of the selected files is {currentRemain} KB. Please delete one or more attachments.';
 $txt['attach_max_size_progress'] = 'The current total attachment size allowed per post is {currentTotal} KB. The total amount of the selected files is {currentRemain} KB.';
 $txt['attach_folder_warning'] = 'The attachments directory can not be located. Please notify an administrator of this problem.';
 $txt['attach_folder_admin_warning'] = 'The path to the attachments directory (%1$s) is incorrect. Please correct it in the attachment settings area of your admin panel.';
 $txt['attach_limit_nag'] = 'You have reached the maximum number of attachments allowed per post.';
 $txt['attach_no_upload'] = 'There was a problem and your attachments could not be uploaded';
-$txt['attach_remaining'] = '<span class="attach_remaining">%1$d</span> attachments remaining';
+$txt['attach_remaining'] = '<span class="attach_remaining">%1$d</span> remaining';
 $txt['attach_available'] = '%1$s KB available';
 $txt['attach_kb'] = ' (%1$s KB)';
 $txt['attach_0_byte_file'] = 'The file appears to be empty. Please contact your forum administrator if this continues to be a problem';
@@ -190,6 +190,7 @@ $txt['attached_upload_all'] = 'Upload all';
 $txt['attachments_left'] = 'There are a few attachments left, please upload them or cancel them before posting.';
 $txt['attached_insert_width'] = 'Insert width (px):';
 $txt['attached_insert_height'] = 'Insert height (px):';
+$txt['attached_insert_placeholder'] = 'auto';
 
 $txt['attach_php_error'] = 'Due to an error, your attachment could not be uploaded. Please contact the forum administrator if this problem continues.';
 $txt['php_upload_error_1'] = 'The uploaded file exceeds the upload_max_filesize directive in php.ini. Please contact your host if you are unable to correct this issue.';

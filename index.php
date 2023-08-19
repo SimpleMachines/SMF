@@ -14,19 +14,19 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.4
  */
 
 // Get everything started up...
 define('SMF', 1);
-define('SMF_VERSION', '2.1 RC3');
+define('SMF_VERSION', '2.1.4');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_SOFTWARE_YEAR', '2020');
+define('SMF_SOFTWARE_YEAR', '2023');
 
-define('JQUERY_VERSION', '3.5.1');
+define('JQUERY_VERSION', '3.6.3');
 define('POSTGRE_TITLE', 'PostgreSQL');
 define('MYSQL_TITLE', 'MySQL');
 define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
@@ -51,7 +51,7 @@ require_once(dirname(__FILE__) . '/Settings.php');
 error_reporting(!empty($db_show_debug) ? E_ALL : E_ALL & ~E_DEPRECATED);
 
 // Ensure there are no trailing slashes in these variables.
-foreach (array('boardurl', 'boarddir', 'sourcedir', 'packagesdir', 'taskddir', 'cachedir') as $variable)
+foreach (array('boardurl', 'boarddir', 'sourcedir', 'packagesdir', 'tasksdir', 'cachedir') as $variable)
 	if (!empty($GLOBALS[$variable]))
 		$GLOBALS[$variable] = rtrim($GLOBALS[$variable], "\\/");
 
@@ -60,9 +60,11 @@ if (empty($cachedir) || !is_dir($cachedir) || !is_writable($cachedir))
 {
 	if (is_dir($boarddir . '/cache') && is_writable($boarddir . '/cache'))
 		$cachedir = $boarddir . '/cache';
+
 	else
 	{
 		$cachedir = sys_get_temp_dir() . '/smf_cache_' . md5($boarddir);
+
 		@mkdir($cachedir, 0750);
 	}
 }
@@ -73,52 +75,23 @@ require_once($sourcedir . '/Subs.php');
 require_once($sourcedir . '/Subs-Auth.php');
 require_once($sourcedir . '/Errors.php');
 require_once($sourcedir . '/Load.php');
+require_once($sourcedir . '/Security.php');
+
+// Ensure we don't trip over disabled internal functions
+if (version_compare(PHP_VERSION, '8.0.0', '>='))
+	require_once($sourcedir . '/Subs-Compat.php');
 
 // If $maintenance is set specifically to 2, then we're upgrading or something.
 if (!empty($maintenance) &&  2 === $maintenance)
+{
 	display_maintenance_message();
+}
 
 // Create a variable to store some SMF specific functions in.
 $smcFunc = array();
 
 // Initiate the database connection and define some database functions to use.
 loadDatabase();
-
-// Load the settings from the settings table, and perform operations like optimizing.
-$context = array();
-reloadSettings();
-// Clean the request variables, add slashes, etc.
-cleanRequest();
-
-// Seed the random generator.
-if (empty($modSettings['rand_seed']) || mt_rand(1, 250) == 69)
-	smf_seed_generator();
-
-// Before we get carried away, are we doing a scheduled task? If so save CPU cycles by jumping out!
-if (isset($_GET['scheduled']))
-{
-	require_once($sourcedir . '/ScheduledTasks.php');
-	AutoTask();
-}
-
-// And important includes.
-require_once($sourcedir . '/Session.php');
-require_once($sourcedir . '/Logging.php');
-require_once($sourcedir . '/Security.php');
-require_once($sourcedir . '/Class-BrowserDetect.php');
-
-// Check if compressed output is enabled, supported, and not already being done.
-if (!empty($modSettings['enableCompressedOutput']) && !headers_sent())
-{
-	// If zlib is being used, turn off output compression.
-	if (ini_get('zlib.output_compression') >= 1 || ini_get('output_handler') == 'ob_gzhandler')
-		$modSettings['enableCompressedOutput'] = '0';
-	else
-	{
-		ob_end_clean();
-		ob_start('ob_gzhandler');
-	}
-}
 
 /**
  * An autoloader for certain classes.
@@ -131,6 +104,7 @@ spl_autoload_register(function ($class) use ($sourcedir)
 		'ReCaptcha\\' => 'ReCaptcha/',
 		'MatthiasMullie\\Minify\\' => 'minify/src/',
 		'MatthiasMullie\\PathConverter\\' => 'minify/path-converter/src/',
+		'SMF\\Cache\\' => 'Cache/',
 	);
 
 	// Do any third-party scripts want in on the fun?
@@ -162,6 +136,43 @@ spl_autoload_register(function ($class) use ($sourcedir)
 		}
 	}
 });
+
+// Load the settings from the settings table, and perform operations like optimizing.
+$context = array();
+reloadSettings();
+
+// Clean the request variables, add slashes, etc.
+cleanRequest();
+
+// Seed the random generator.
+if (empty($modSettings['rand_seed']) || mt_rand(1, 250) == 69)
+	smf_seed_generator();
+
+// And important includes.
+require_once($sourcedir . '/Session.php');
+require_once($sourcedir . '/Logging.php');
+require_once($sourcedir . '/Class-BrowserDetect.php');
+
+// If a Preflight is occurring, lets stop now.
+if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS')
+{
+	send_http_status(204);
+	die;
+}
+
+// Check if compressed output is enabled, supported, and not already being done.
+if (!empty($modSettings['enableCompressedOutput']) && !headers_sent())
+{
+	// If zlib is being used, turn off output compression.
+	if (ini_get('zlib.output_compression') >= 1 || ini_get('output_handler') == 'ob_gzhandler')
+		$modSettings['enableCompressedOutput'] = '0';
+
+	else
+	{
+		ob_end_clean();
+		ob_start('ob_gzhandler');
+	}
+}
 
 // Register an error handler.
 set_error_handler('smf_error_handler');
@@ -196,6 +207,9 @@ function smf_main()
 	// We should set our security headers now.
 	frameOptionsHeader();
 
+	// Set our CORS policy.
+	corsPolicyHeader();
+
 	// Load the user's cookie (or set as guest) and load their settings.
 	loadUserSettings();
 
@@ -228,7 +242,6 @@ function smf_main()
 		'helpadmin' => true,
 		'jsoption' => true,
 		'likes' => true,
-		'loadeditorlocale' => true,
 		'modifycat' => true,
 		'pm' => array('sa' => array('popup')),
 		'profile' => array('area' => array('popup', 'alerts_popup', 'download', 'dlattach')),
@@ -340,7 +353,6 @@ function smf_main()
 		'jsmodify' => array('Post.php', 'JavaScriptModify'),
 		'jsoption' => array('Themes.php', 'SetJavaScript'),
 		'likes' => array('Likes.php', 'Likes::call#'),
-		'loadeditorlocale' => array('Subs-Editor.php', 'loadLocale'),
 		'lock' => array('Topic.php', 'LockTopic'),
 		'lockvoting' => array('Poll.php', 'LockVoting'),
 		'login' => array('LogInOut.php', 'Login'),
@@ -379,7 +391,6 @@ function smf_main()
 		'signup2' => array('Register.php', 'Register2'),
 		'smstats' => array('Stats.php', 'SMStats'),
 		'suggest' => array('Subs-Editor.php', 'AutoSuggestHandler'),
-		'spellcheck' => array('Subs-Post.php', 'SpellCheck'),
 		'splittopics' => array('SplitTopics.php', 'SplitTopics'),
 		'stats' => array('Stats.php', 'DisplayStats'),
 		'sticky' => array('Topic.php', 'Sticky'),

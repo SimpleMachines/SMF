@@ -1,0 +1,69 @@
+name: PHP Check
+
+on:
+  push:
+    branches:
+      - release-2.1
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: ${{ runner.os }}-php-
+
+    - name: Install dependencies
+      if: steps.composer-cache.outputs.cache-hit != 'true'
+      run: composer install --prefer-dist --no-progress --ansi
+
+    - run: php -v
+
+    - name: Checking for sign off (GPG also accepted)
+      run: php ./vendor/simplemachines/build-tools/check-signed-off.php
+
+    - name: Checking file integrity
+      run: |
+        php ./vendor/simplemachines/build-tools/check-eof.php
+        php ./vendor/simplemachines/build-tools/check-smf-license.php
+        php ./vendor/simplemachines/build-tools/check-smf-languages.php
+        php ./vendor/simplemachines/build-tools/check-version.php
+
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: [ 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1 ]
+
+    name: PHP ${{ matrix.php }} Syntax Check
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup PHP ${{ matrix.php }}
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php }}
+        coverage: none
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: ${{ runner.os }}-php-
+
+    - name: Install dependencies
+      if: steps.composer-cache.outputs.cache-hit != 'true'
+      run: composer install --prefer-dist --no-progress --ansi
+
+    - name: Lint PHP files
+      run: vendor/bin/phplint -w --exclude .git --exclude vendor --ansi .

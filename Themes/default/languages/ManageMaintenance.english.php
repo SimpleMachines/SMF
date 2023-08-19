@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC3; ManageMaintenance
+// Version: 2.1.0; ManageMaintenance
 
 $txt['repair_zero_ids'] = 'Found topics and/or messages with topic or message IDs of 0.';
 $txt['repair_missing_topics'] = 'Message #%1$d is in non-existent topic #%2$d.';
@@ -145,15 +145,17 @@ $txt['errortype_login_desc'] = 'Errors caused by failed login attempts or brute 
 $txt['maintain_recount'] = 'Recount all forum totals and statistics';
 $txt['maintain_recount_info'] = 'Should the total replies of a topic or the number of PMs in your inbox be incorrect: this function will recount all saved counts and statistics for you.';
 $txt['maintain_errors'] = 'Find and repair any errors';
-$txt['maintain_errors_info'] = 'If, for example, posts or topics are missing after a server crash, this function may help finding them again.';
+$txt['maintain_errors_info'] = 'If, for example, posts or topics are missing after a server crash, this function may help in finding them again.';
 $txt['maintain_logs'] = 'Empty out unimportant logs';
 $txt['maintain_logs_info'] = 'This function will empty out all unimportant logs. This should be avoided unless something\'s wrong, but it doesn\'t hurt anything.';
-$txt['maintain_cache'] = 'Empty the file cache';
-$txt['maintain_cache_info'] = 'This function will empty out the file cache should you need it to be cleared.';
+$txt['maintain_cache'] = 'Empty SMF\'s cache';
+$txt['maintain_cache_info'] = 'This function will empty out the cache should you need it to be cleared.';
 $txt['maintain_optimize'] = 'Optimize all tables';
 $txt['maintain_optimize_info'] = 'This task allows you to optimize all tables. This will get rid of overhead, effectively making the tables smaller in size and your forum faster.';
 $txt['maintain_version'] = 'Check all files against current versions';
 $txt['maintain_version_info'] = 'This maintenance task allows you to do a detailed version check of all forum files against the official list of latest versions.';
+$txt['maintain_rebuild_settings'] = 'Rebuild Settings.php';
+$txt['maintain_rebuild_settings_info'] = 'This task reconstructs your Settings.php file. It does not change the values stored in the file. Instead, it cleans up and reformats your Settings.php file to a pristine version.';
 $txt['maintain_run_now'] = 'Run task now';
 $txt['maintain_return'] = 'Back to Forum Maintenance';
 

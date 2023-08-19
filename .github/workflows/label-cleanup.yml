@@ -1,0 +1,38 @@
+name: Label cleanup
+
+on:
+  pull_request_target:
+    types:
+      - closed
+
+jobs:
+  remove-label:
+    name: Cleanup after PR Triage
+    if: github.event.pull_request.merged
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            const labels = [
+                'Work in progress',
+                'PR: draft',
+                'PR: unreviewed',
+                'PR: reviewed-changes-requested',
+                'PR: partially-approved',
+                'PR: reviewed-approved'
+            ];
+            for (const label of labels)
+                try
+                {
+                    await github.rest.issues.removeLabel({
+                        name: label,
+                        issue_number: context.issue.number,
+                        owner: context.repo.owner,
+                        repo: context.repo.repo
+                    });
+                }
+                catch (e)
+                {
+                    core.warning(`failed to remove label: ${label}: ${e.message}`);
+                }

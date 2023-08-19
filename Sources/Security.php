@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.4
  */
 
 if (!defined('SMF'))
@@ -77,7 +77,7 @@ function validateSession($type = 'admin', $force = false)
 
 	// Better be sure to remember the real referer
 	if (empty($_SESSION['request_referer']))
-		$_SESSION['request_referer'] = isset($_SERVER['HTTP_REFERER']) ? @parse_url($_SERVER['HTTP_REFERER']) : array();
+		$_SESSION['request_referer'] = isset($_SERVER['HTTP_REFERER']) ? @parse_iri($_SERVER['HTTP_REFERER']) : array();
 	elseif (empty($_POST))
 		unset($_SESSION['request_referer']);
 
@@ -143,7 +143,7 @@ function is_not_guest($message = '')
 	obExit();
 
 	// We should never get to this point, but if we did we wouldn't know the user isn't a guest.
-	trigger_error('Hacking attempt...', E_USER_ERROR);
+	trigger_error('No direct access...', E_USER_ERROR);
 }
 
 /**
@@ -311,6 +311,9 @@ function is_not_banned($forceCheck = false)
 				)
 			);
 
+		if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'dlattach')
+			die();
+
 		// 'Log' the user out.  Can't have any funny business... (save the name!)
 		$old_name = isset($user_info['name']) && $user_info['name'] != '' ? $user_info['name'] : $txt['guest_title'];
 		$user_info['name'] = '';
@@ -345,10 +348,10 @@ function is_not_banned($forceCheck = false)
 		Logout(true, false);
 
 		// You banned, sucka!
-		fatal_error(sprintf($txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_access']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_access']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf($txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : $txt['your_ban_expires_never']), false);
+		fatal_error(sprintf($txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_access']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_access']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf($txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : $txt['your_ban_expires_never']), false, 403);
 
 		// If we get here, something's gone wrong.... but let's try anyway.
-		trigger_error('Hacking attempt...', E_USER_ERROR);
+		trigger_error('No direct access...', E_USER_ERROR);
 	}
 	// You're not allowed to log in but yet you are. Let's fix that.
 	elseif (isset($_SESSION['ban']['cannot_login']) && !$user_info['is_guest'])
@@ -391,7 +394,7 @@ function is_not_banned($forceCheck = false)
 		require_once($sourcedir . '/LogInOut.php');
 		Logout(true, false);
 
-		fatal_error(sprintf($txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_login']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_login']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf($txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : $txt['your_ban_expires_never']) . '<br>' . $txt['ban_continue_browse'], false);
+		fatal_error(sprintf($txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_login']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_login']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf($txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : $txt['your_ban_expires_never']) . '<br>' . $txt['ban_continue_browse'], false, 403);
 	}
 
 	// Fix up the banning permissions.
@@ -605,7 +608,7 @@ function isBannedEmail($email, $restriction, $error)
  */
 function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 {
-	global $sc, $modSettings, $boardurl;
+	global $context, $sc, $modSettings, $boardurl;
 
 	// Is it in as $_POST['sc']?
 	if ($type == 'post')
@@ -649,14 +652,16 @@ function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 		$referrer = $_SESSION['request_referer'];
 	else
 		$referrer = isset($_SERVER['HTTP_REFERER']) ? @parse_url($_SERVER['HTTP_REFERER']) : array();
-	if (!empty($referrer['host']))
+
+	// Check the refer but if we have CORS enabled and it came from a trusted source, we can skip this check.
+	if (!empty($referrer['host']) && (empty($modSettings['allow_cors']) || empty($context['valid_cors_found']) || !in_array($context['valid_cors_found'], array('same', 'subdomain'))))
 	{
 		if (strpos($_SERVER['HTTP_HOST'], ':') !== false)
 			$real_host = substr($_SERVER['HTTP_HOST'], 0, strpos($_SERVER['HTTP_HOST'], ':'));
 		else
 			$real_host = $_SERVER['HTTP_HOST'];
 
-		$parsed_url = parse_url($boardurl);
+		$parsed_url = parse_iri($boardurl);
 
 		// Are global cookies on?  If so, let's check them ;).
 		if (!empty($modSettings['globalCookies']))
@@ -709,7 +714,7 @@ function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 		return $error;
 
 	// We really should never fall through here, for very important reasons.  Let's make sure.
-	trigger_error('Hacking attempt...', E_USER_ERROR);
+	trigger_error('No direct access...', E_USER_ERROR);
 }
 
 /**
@@ -839,7 +844,7 @@ function cleanTokens($complete = false)
  */
 function checkSubmitOnce($action, $is_fatal = true)
 {
-	global $context;
+	global $context, $txt;
 
 	if (!isset($_SESSION['forms']))
 		$_SESSION['forms'] = array();
@@ -870,7 +875,10 @@ function checkSubmitOnce($action, $is_fatal = true)
 	elseif ($action == 'free' && isset($_REQUEST['seqnum']) && in_array($_REQUEST['seqnum'], $_SESSION['forms']))
 		$_SESSION['forms'] = array_diff($_SESSION['forms'], array($_REQUEST['seqnum']));
 	elseif ($action != 'free')
-		trigger_error('checkSubmitOnce(): Invalid action \'' . $action . '\'', E_USER_WARNING);
+	{
+		loadLanguage('Errors');
+		trigger_error(sprintf($txt['check_submit_once_invalid_action'], $action), E_USER_WARNING);
+	}
 }
 
 /**
@@ -905,19 +913,23 @@ function allowedTo($permission, $boards = null, $any = false)
 	// Let's ensure this is an array.
 	$permission = (array) $permission;
 
+	// This should be a boolean.
+	$any = (bool) $any;
+
 	// Are we checking the _current_ board, or some other boards?
 	if ($boards === null)
 	{
-		if (count(array_intersect($permission, $user_info['permissions'])) != 0)
-			return true;
-		// You aren't allowed, by default.
-		else
-			return false;
+		$user_permissions = (array) $user_info['permissions'];
+
+		// Allow temporary overrides for general permissions?
+		call_integration_hook('integrate_allowed_to_general', array(&$user_permissions, $permission));
+
+		return array_intersect($permission, $user_permissions) != [];
 	}
 	elseif (!is_array($boards))
 		$boards = array($boards);
 
-	$cache_key = hash('md5', $user_info['id'] . '-' . implode(',', $permission) . '-' . implode(',', $boards) . '-' . $any);
+	$cache_key = hash('md5', $user_info['id'] . '-' . implode(',', $permission) . '-' . implode(',', $boards) . '-' . (int) $any);
 
 	if (isset($perm_cache[$cache_key]))
 		return $perm_cache[$cache_key];
@@ -967,6 +979,9 @@ function allowedTo($permission, $boards = null, $any = false)
 		$smcFunc['db_free_result']($request);
 		$return = $result;
 	}
+
+	// Allow temporary overrides for board permissions?
+	call_integration_hook('integrate_allowed_to_board', array(&$return, $permission, $boards, $any));
 
 	$perm_cache[$cache_key] = $return;
 
@@ -1029,7 +1044,7 @@ function isAllowedTo($permission, $boards = null, $any = false)
 		fatal_lang_error('cannot_' . $error_permission, false);
 
 		// Getting this far is a really big problem, but let's try our best to prevent any cases...
-		trigger_error('Hacking attempt...', E_USER_ERROR);
+		trigger_error('No direct access...', E_USER_ERROR);
 	}
 
 	// If you're doing something on behalf of some "heavy" permissions, validate your session.
@@ -1137,6 +1152,9 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
 			}
 		}
 	}
+
+	// Maybe a mod needs to tweak the list of allowed boards on the fly?
+	call_integration_hook('integrate_boards_allowed_to', array(&$boards, $deny_boards, $permissions, $check_access, $simple));
 
 	return $boards;
 }
@@ -1337,6 +1355,166 @@ function frameOptionsHeader($override = null)
 	// And some other useful ones.
 	header('x-xss-protection: 1');
 	header('x-content-type-options: nosniff');
+}
+
+/**
+ * This sets the Access-Control-Allow-Origin header.
+ * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
+ *
+ * @param bool $set_header (Default: true): When false, we will do the logic, but not send the headers.  The relevant logic is still saved in the $context and can be sent manually.
+ *
+ * @since 2.1
+ */
+function corsPolicyHeader($set_header = true)
+{
+	global $boardurl, $modSettings, $context;
+
+	if (empty($modSettings['allow_cors']) || empty($_SERVER['HTTP_ORIGIN']))
+		return;
+
+	foreach (array('origin' => $_SERVER['HTTP_ORIGIN'], 'boardurl_parts' => $boardurl) as $var => $url)
+	{
+		// Convert any Punycode to Unicode for the sake of comparison, then parse.
+		$$var = parse_iri(url_to_iri((string) validate_iri(normalize_iri(trim($url)))));
+	}
+
+	// The admin wants weak security... :(
+	if (!empty($modSettings['cors_domains']) && $modSettings['cors_domains'] === '*')
+	{
+		$context['cors_domain'] = '*';
+		$context['valid_cors_found'] = 'wildcard';
+	}
+
+	// Oh good, the admin cares about security. :)
+	else
+	{
+		$i = 0;
+
+		// Build our list of allowed CORS origins.
+		$allowed_origins = array();
+
+		// If subdomain-independent cookies are on, allow CORS requests from subdomains.
+		if (!empty($modSettings['globalCookies']) && !empty($modSettings['globalCookiesDomain']))
+		{
+			$allowed_origins[++$i] = array_merge(parse_iri('//*.' . trim($modSettings['globalCookiesDomain'])), array('type' => 'subdomain'));
+		}
+
+		// Support forum_alias_urls as well, since those are supported by our login cookie.
+		if (!empty($modSettings['forum_alias_urls']))
+		{
+			foreach (explode(',', $modSettings['forum_alias_urls']) as $alias)
+				$allowed_origins[++$i] = array_merge(parse_iri((strpos($alias, '//') === false ? '//' : '') . trim($alias)), array('type' => 'alias'));
+		}
+
+		// Additional CORS domains.
+		if (!empty($modSettings['cors_domains']))
+		{
+			foreach (explode(',', $modSettings['cors_domains']) as $cors_domain)
+			{
+				$allowed_origins[++$i] = array_merge(parse_iri((strpos($cors_domain, '//') === false ? '//' : '') . trim($cors_domain)), array('type' => 'additional'));
+
+				if (strpos($allowed_origins[$i]['host'], '*') === 0)
+					 $allowed_origins[$i]['type'] .= '_wildcard';
+			}
+		}
+
+		// Does the origin match any of our allowed domains?
+		foreach ($allowed_origins as $allowed_origin)
+		{
+			// If a specific scheme is required, it must match.
+			if (!empty($allowed_origin['scheme']) && $allowed_origin['scheme'] !== $origin['scheme'])
+				continue;
+
+			// If a specific port is required, it must match.
+			if (!empty($allowed_origin['port']))
+			{
+				// Automatically supply the default port for the "special" schemes.
+				// See https://url.spec.whatwg.org/#special-scheme
+				if (empty($origin['port']))
+				{
+					switch ($origin['scheme'])
+					{
+						case 'http':
+						case 'ws':
+							$origin['port'] = 80;
+							break;
+
+						case 'https':
+						case 'wss':
+							$origin['port'] = 443;
+							break;
+
+						case 'ftp':
+							$origin['port'] = 21;
+							break;
+
+						case 'file':
+						default:
+							$origin['port'] = null;
+							break;
+					}
+				}
+
+				if ((int) $allowed_origin['port'] !== (int) $origin['port'])
+					continue;
+			}
+
+			// Wildcard can only be the first character.
+			if (strrpos($allowed_origin['host'], '*') > 0)
+				continue;
+
+			// Wildcard means allow the domain or any subdomains.
+			if (strpos($allowed_origin['host'], '*') === 0)
+				$host_regex = '(?:^|\.)' . preg_quote(ltrim($allowed_origin['host'], '*.'), '~') . '$';
+
+			// No wildcard means allow the domain only.
+			else
+				$host_regex = '^' . preg_quote($allowed_origin['host'], '~') . '$';
+
+			if (preg_match('~' . $host_regex . '~u', $origin['host']))
+			{
+				$context['cors_domain'] = trim($_SERVER['HTTP_ORIGIN']);
+				$context['valid_cors_found'] = $allowed_origin['type'];
+				break;
+			}
+		}
+	}
+
+	// The default is just to place the root URL of the forum into the policy.
+	if (empty($context['cors_domain']))
+	{
+		$context['cors_domain'] = iri_to_url($boardurl_parts['scheme'] . '://' . $boardurl_parts['host']);
+
+		// Attach the port if needed.
+		if (!empty($boardurl_parts['port']))
+			$context['cors_domain'] .= ':' . $boardurl_parts['port'];
+
+		$context['valid_cors_found'] = 'same';
+	}
+
+	$context['cors_headers'] = 'X-SMF-AJAX';
+
+	// Any additional headers?
+	if (!empty($modSettings['cors_headers']))
+	{
+		// Cleanup any typos.
+		$cors_headers = explode(',', $modSettings['cors_headers']);
+		foreach ($cors_headers as &$ch)
+			$ch = str_replace(' ', '-', trim($ch));
+
+		$context['cors_headers'] .= ',' . implode(',', $cors_headers);
+	}
+
+	// Allowing Cross-Origin Resource Sharing (CORS).
+	if ($set_header && !empty($context['valid_cors_found']) && !empty($context['cors_domain']))
+	{
+		header('Access-Control-Allow-Origin: ' . $context['cors_domain']);
+		header('Access-Control-Allow-Headers: ' . $context['cors_headers']);
+
+		// Be careful with this, you're allowing an external site to allow the browser to send cookies with this.
+		if (!empty($modSettings['allow_cors_credentials']))
+			header('Access-Control-Allow-Credentials: true');
+	}
 }
 
 ?>

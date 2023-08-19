@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -50,7 +50,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 			'db_server_info'            => 'smf_db_get_server_info',
 			'db_affected_rows'          => 'smf_db_affected_rows',
 			'db_transaction'            => 'smf_db_transaction',
-			'db_error'                  => 'mysqli_error',
+			'db_error'                  => 'smf_db_errormsg',
 			'db_select_db'              => 'smf_db_select',
 			'db_title'                  => MYSQL_TITLE,
 			'db_sybase'                 => false,
@@ -64,6 +64,8 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 			'db_custom_order'			=> 'smf_db_custom_order',
 			'db_native_replace'			=> 'smf_db_native_replace',
 			'db_cte_support'			=> 'smf_db_cte_support',
+			'db_connect_error'			=> 'mysqli_connect_error',
+			'db_connect_errno'			=> 'mysqli_connect_errno',
 		);
 
 	if (!empty($db_options['persist']))
@@ -72,6 +74,9 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 	// We are not going to make it very far without these.
 	if (!function_exists('mysqli_init') || !function_exists('mysqli_real_connect'))
 		display_db_error();
+
+	// This was the default prior to PHP 8.1, and all our code assumes it.
+	mysqli_report(MYSQLI_REPORT_OFF);
 
 	$connection = mysqli_init();
 
@@ -100,7 +105,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 	if (empty($db_options['dont_select_db']) && !@mysqli_select_db($connection, $db_name) && empty($db_options['non_fatal']))
 		display_db_error();
 
-	mysqli_query($connection, 'SET SESSION sql_mode = \'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION\'');
+	mysqli_query($connection, 'SET SESSION sql_mode = \'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION,PIPES_AS_CONCAT\'');
 
 	if (!empty($db_options['db_mb4']))
 		$smcFunc['db_mb4'] = (bool) $db_options['db_mb4'];
@@ -277,7 +282,7 @@ function smf_db_replacement__callback($matches)
 
 		case 'identifier':
 			// Backticks inside identifiers are supported as of MySQL 4.1. We don't need them for SMF.
-			return '`' . strtr($replacement, array('`' => '', '.' => '`.`')) . '`';
+			return '`' . implode('`.`', array_filter(explode('.', strtr($replacement, array('`' => ''))), 'strlen')) . '`';
 			break;
 
 		case 'raw':
@@ -382,7 +387,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 	$db_count = !isset($db_count) ? 1 : $db_count + 1;
 
 	if (empty($modSettings['disableQueryCheck']) && strpos($db_string, '\'') !== false && empty($db_values['security_override']))
-		smf_db_error_backtrace('Hacking attempt...', 'Illegal character (\') used in query...', true, __FILE__, __LINE__);
+		smf_db_error_backtrace('No direct access...', 'Illegal character (\') used in query...', true, __FILE__, __LINE__);
 
 	// Use "ORDER BY null" to prevent Mysql doing filesorts for Group By clauses without an Order By
 	if (strpos($db_string, 'GROUP BY') !== false && strpos($db_string, 'ORDER BY') === false && preg_match('~^\s+SELECT~i', $db_string))
@@ -453,7 +458,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 			$fail = true;
 
 		if (!empty($fail) && function_exists('log_error'))
-			smf_db_error_backtrace('Hacking attempt...', 'Hacking attempt...' . "\n" . $db_string, E_USER_ERROR, __FILE__, __LINE__);
+			smf_db_error_backtrace('No direct access...', 'No direct access...' . "\n" . $db_string, E_USER_ERROR, __FILE__, __LINE__);
 	}
 
 	// Debugging.
@@ -726,7 +731,7 @@ function smf_db_error($db_string, $connection = null)
  * @param object $connection The connection to use (if null, $db_connection is used)
  * @return mixed value of the first key, behavior based on returnmode. null if no data.
  */
-function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $returnmode = 0, $connection = null)
+function smf_db_insert($method, $table, $columns, $data, $keys, $returnmode = 0, $connection = null)
 {
 	global $smcFunc, $db_connection, $db_prefix;
 
@@ -735,8 +740,11 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 	$return_var = null;
 
 	// With nothing to insert, simply return.
-	if (empty($data))
+	if (empty($table) || empty($data))
 		return;
+
+	// Force method to lower case
+	$method = strtolower($method);
 
 	// Replace the prefix holder with the actual prefix.
 	$table = str_replace('{db_prefix}', $db_prefix, $table);
@@ -1089,6 +1097,22 @@ function smf_db_escape_string($string, $connection = null)
 	global $db_connection;
 
 	return mysqli_real_escape_string($connection === null ? $db_connection : $connection, $string);
+}
+
+/**
+ * Wrapper to handle null errors
+ *
+ * @param null|mysqli $connection = null The connection to use (null to use $db_connection)
+ * @return string escaped string
+ */
+function smf_db_errormsg($connection = null)
+{
+	global $db_connection;
+
+	if ($connection === null && $db_connection === null)
+		return '';
+
+	return mysqli_error($connection === null ? $db_connection : $connection);
 }
 
 ?>

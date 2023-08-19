@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.4
  */
 
 if (!defined('SMF'))
@@ -40,6 +40,7 @@ function Display()
 
 	// Load the proper template.
 	loadTemplate('Display');
+	loadCSSFile('attachments.css', array('minimize' => true, 'order_pos' => 450), 'smf_attachments');
 
 	// Not only does a prefetch make things slower for the server, but it makes it impossible to know if they read it.
 	if (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch')
@@ -340,9 +341,6 @@ function Display()
 	// Create a previous next string if the selected theme has it as a selected option.
 	$context['previous_next'] = $modSettings['enablePreviousNext'] ? '<a href="' . $scripturl . '?topic=' . $topic . '.0;prev_next=prev#new">' . $txt['previous_next_back'] . '</a> - <a href="' . $scripturl . '?topic=' . $topic . '.0;prev_next=next#new">' . $txt['previous_next_forward'] . '</a>' : '';
 
-	// Check if spellchecking is both enabled and actually working. (for quick reply.)
-	$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && (function_exists('pspell_new') || (function_exists('enchant_broker_init') && ($txt['lang_character_set'] == 'UTF-8' || function_exists('iconv'))));
-
 	// Do we need to show the visual verification image?
 	$context['require_verification'] = !$user_info['is_mod'] && !$user_info['is_admin'] && !empty($modSettings['posts_require_captcha']) && ($user_info['posts'] < $modSettings['posts_require_captcha'] || ($user_info['is_guest'] && $modSettings['posts_require_captcha'] == -1));
 	if ($context['require_verification'])
@@ -456,7 +454,7 @@ function Display()
 	$context['page_index'] = constructPageIndex($scripturl . '?topic=' . $topic . '.%1$d', $_REQUEST['start'], $context['total_visible_posts'], $context['messages_per_page'], true);
 	$context['start'] = $_REQUEST['start'];
 
-	// This is information about which page is current, and which page we're on - in case you don't like the constructed page index. (again, wireles..)
+	// This is information about which page is current, and which page we're on - in case you don't like the constructed page index. (again, wireless..)
 	$context['page_info'] = array(
 		'current_page' => $_REQUEST['start'] / $context['messages_per_page'] + 1,
 		'num_pages' => floor(($context['total_visible_posts'] - 1) / $context['messages_per_page']) + 1,
@@ -481,14 +479,14 @@ function Display()
 		{
 			// No limit! (actually, there is a limit, but...)
 			$context['messages_per_page'] = -1;
-			$context['page_index'] .= empty($modSettings['compactTopicPagesEnable']) ? '<strong>' . $txt['all'] . '</strong> ' : '[<strong>' . $txt['all'] . '</strong>] ';
+			$context['page_index'] .= sprintf(strtr($settings['page_index']['current_page'], array('%1$d' => '%1$s')), $txt['all']);
 
 			// Set start back to 0...
 			$_REQUEST['start'] = 0;
 		}
 		// They aren't using it, but the *option* is there, at least.
 		else
-			$context['page_index'] .= '&nbsp;<a href="' . $scripturl . '?topic=' . $topic . '.0;all">' . $txt['all'] . '</a> ';
+			$context['page_index'] .= sprintf(strtr($settings['page_index']['page'], array('{URL}' => $scripturl . '?topic=' . $topic . '.0;all')), '', $txt['all']);
 	}
 
 	// Build the link tree.
@@ -860,171 +858,54 @@ function Display()
 		call_integration_hook('integrate_poll_buttons');
 	}
 
+	$limit = $context['messages_per_page'];
 	$start = $_REQUEST['start'];
 	$ascending = empty($options['view_newest_first']);
+	$firstIndex = 0;
 
-	// Check if we can use the seek method to speed things up
-	if (isset($_SESSION['page_topic']) && $_SESSION['page_topic'] == $topic && $_SESSION['page_ascending'] == $ascending)
+	// Jump to page
+	// Calculate the fastest way to get the messages!
+	if ($start >= $context['total_visible_posts'] / 2 && $context['messages_per_page'] != -1)
 	{
-		// User moved to the next page
-		if (isset($_SESSION['page_next_start']) && $_SESSION['page_next_start'] == $start)
-		{
-			$start_char = 'M';
-			$page_id = $_SESSION['page_last_id'];
-		}
-		// User moved to the previous page
-		elseif (isset($_SESSION['page_before_start']) && $_SESSION['page_before_start'] == $start)
-		{
-			$start_char = 'L';
-			$page_id = $_SESSION['page_first_id'];
-		}
-		// User refreshed the current page
-		elseif (isset($_SESSION['page_current_start']) && $_SESSION['page_current_start'] == $start)
-		{
-			$start_char = 'C';
-			$page_id = $_SESSION['page_first_id'];
-		}
-	}
-	// Special case start page
-	elseif ($start == 0)
-	{
-		$start_char = 'C';
-		$page_id = $ascending ? $context['topicinfo']['id_first_msg'] : $context['topicinfo']['id_last_msg'];
+		$DBascending = !$ascending;
+		$limit = $context['total_visible_posts'] <= $start + $limit ? $context['total_visible_posts'] - $start : $limit;
+		$start = $context['total_visible_posts'] <= $start + $limit ? 0 : $context['total_visible_posts'] - $start - $limit;
+		$firstIndex = empty($options['view_newest_first']) ? $start - 1 : $limit - 1;
 	}
 	else
-		$start_char = null;
+		$DBascending = $ascending;
 
-	$limit = $context['messages_per_page'];
+	// Get each post and poster in this topic.
+	$request = $smcFunc['db_query']('', '
+		SELECT id_msg, id_member, approved
+		FROM {db_prefix}messages
+		WHERE id_topic = {int:current_topic}' . (!$modSettings['postmod_active'] || $can_approve_posts ? '' : '
+			AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
+		ORDER BY id_msg ' . ($DBascending ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
+		LIMIT {int:start}, {int:max}'),
+		array(
+			'current_member' => $user_info['id'],
+			'current_topic' => $topic,
+			'is_approved' => 1,
+			'blank_id_member' => 0,
+			'start' => $start,
+			'max' => $limit,
+		)
+	);
 
 	$messages = array();
 	$all_posters = array();
-	$firstIndex = 0;
 
-	if (isset($start_char))
+	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		if ($start_char === 'M' || $start_char === 'C')
-		{
-			$DBascending = $ascending;
-			$page_operator = $ascending ? '>=' : '<=';
-		}
-		else
-		{
-			$DBascending = !$ascending;
-			$page_operator = $ascending ? '<=' : '>=';
-		}
-
-		if ($start_char === 'C')
-			$limit_seek = $limit;
-		else
-			$limit_seek = $limit + 1;
-
-		$request = $smcFunc['db_query']('', '
-			SELECT id_msg, id_member, approved
-			FROM {db_prefix}messages
-			WHERE id_topic = {int:current_topic}
-				AND id_msg ' . $page_operator . ' {int:page_id}' . (!$modSettings['postmod_active'] || $can_approve_posts ? '' : '
-				AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
-			ORDER BY id_msg ' . ($DBascending ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
-			LIMIT {int:limit}'),
-			array(
-				'current_member' => $user_info['id'],
-				'current_topic' => $topic,
-				'is_approved' => 1,
-				'blank_id_member' => 0,
-				'limit' => $limit_seek,
-				'page_id' => $page_id,
-			)
-		);
-
-		$found_msg = false;
-
-		// Fallback
-		if ($smcFunc['db_num_rows']($request) < 1)
-			unset($start_char);
-		else
-		{
-			while ($row = $smcFunc['db_fetch_assoc']($request))
-			{
-				// Check if the start msg is in our result
-				if ($row['id_msg'] == $page_id)
-					$found_msg = true;
-
-				// Skip the the start msg if we not in mode C
-				if ($start_char === 'C' || $row['id_msg'] != $page_id)
-				{
-					if (!empty($row['id_member']))
-						$all_posters[$row['id_msg']] = $row['id_member'];
-
-					$messages[] = $row['id_msg'];
-				}
-			}
-
-			// page_id not found? -> fallback
-			if (!$found_msg)
-			{
-				$messages = array();
-				$all_posters = array();
-				unset($start_char);
-			}
-		}
-
-		// Before Page bring in the right order
-		if (!empty($start_char) && $start_char === 'L')
-			krsort($messages);
+		if (!empty($row['id_member']))
+			$all_posters[$row['id_msg']] = $row['id_member'];
+		$messages[] = $row['id_msg'];
 	}
 
-	// Jump to page
-	if (empty($start_char))
-	{
-		// Calculate the fastest way to get the messages!
-		if ($start >= $context['total_visible_posts'] / 2 && $context['messages_per_page'] != -1)
-		{
-			$DBascending = !$ascending;
-			$limit = $context['total_visible_posts'] <= $start + $limit ? $context['total_visible_posts'] - $start : $limit;
-			$start = $context['total_visible_posts'] <= $start + $limit ? 0 : $context['total_visible_posts'] - $start - $limit;
-			$firstIndex = empty($options['view_newest_first']) ? $start - 1 : $limit - 1;
-		}
-		else
-			$DBascending = $ascending;
-
-		// Get each post and poster in this topic.
-		$request = $smcFunc['db_query']('', '
-			SELECT id_msg, id_member, approved
-			FROM {db_prefix}messages
-			WHERE id_topic = {int:current_topic}' . (!$modSettings['postmod_active'] || $can_approve_posts ? '' : '
-				AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
-			ORDER BY id_msg ' . ($DBascending ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
-			LIMIT {int:start}, {int:max}'),
-			array(
-				'current_member' => $user_info['id'],
-				'current_topic' => $topic,
-				'is_approved' => 1,
-				'blank_id_member' => 0,
-				'start' => $start,
-				'max' => $limit,
-			)
-		);
-
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-		{
-			if (!empty($row['id_member']))
-				$all_posters[$row['id_msg']] = $row['id_member'];
-			$messages[] = $row['id_msg'];
-		}
-
-		// Sort the messages into the correct display order
-		if (!$DBascending)
-			sort($messages);
-	}
-
-	// Remember the paging data for next time
-	$_SESSION['page_first_id'] = $ascending ? reset($messages) : end($messages);
-	$_SESSION['page_before_start'] = $_REQUEST['start'] - $limit;
-	$_SESSION['page_last_id'] = $ascending ? end($messages) : reset($messages);
-	$_SESSION['page_next_start'] = $_REQUEST['start'] + $limit;
-	$_SESSION['page_current_start'] = $_REQUEST['start'];
-	$_SESSION['page_topic'] = $topic;
-	$_SESSION['page_ascending'] = $ascending;
+	// Sort the messages into the correct display order
+	if (!$DBascending)
+		sort($messages);
 
 	$smcFunc['db_free_result']($request);
 	$posters = array_unique($all_posters);
@@ -1159,8 +1040,13 @@ function Display()
 					'now' => time(),
 				)
 			);
-			$user_info['alerts'] = $user_info['alerts'] - max(0, $smcFunc['db_affected_rows']());
-			updateMemberData($user_info['id'], array('alerts' => $user_info['alerts']));
+			// If changes made, update the member record as well
+			if ($smcFunc['db_affected_rows']() > 0)
+			{
+				require_once($sourcedir . '/Profile-Modify.php');
+				$user_info['alerts'] = alert_count($user_info['id'], true);
+				updateMemberData($user_info['id'], array('alerts' => $user_info['alerts']));
+			}
 		}
 	}
 
@@ -1242,7 +1128,7 @@ function Display()
 
 	$context['jump_to'] = array(
 		'label' => addslashes(un_htmlspecialchars($txt['jump_to'])),
-		'board_name' => $smcFunc['htmlspecialchars'](strtr(strip_tags($board_info['name']), array('&amp;' => '&'))),
+		'board_name' => strtr($smcFunc['htmlspecialchars'](strip_tags($board_info['name'])), array('&amp;' => '&')),
 		'child_level' => $board_info['child_level'],
 	);
 
@@ -1278,7 +1164,6 @@ function Display()
 		'can_remove_poll' => 'poll_remove',
 		'can_reply' => 'post_reply',
 		'can_reply_unapproved' => 'post_unapproved_replies',
-		'can_view_warning' => 'profile_warning',
 	);
 	foreach ($anyown_permissions as $contextual => $perm)
 		$context[$contextual] = allowedTo($perm . '_any') || ($context['user']['started'] && allowedTo($perm . '_own'));
@@ -1326,7 +1211,7 @@ function Display()
 
 	// Check if the draft functions are enabled and that they have permission to use them (for quick reply.)
 	$context['drafts_save'] = !empty($modSettings['drafts_post_enabled']) && allowedTo('post_draft') && $context['can_reply'];
-	$context['drafts_autosave'] = !empty($context['drafts_save']) && !empty($modSettings['drafts_autosave_enabled']);
+	$context['drafts_autosave'] = !empty($context['drafts_save']) && !empty($modSettings['drafts_autosave_enabled']) && !empty($options['drafts_autosave_enabled']);
 	if (!empty($context['drafts_save']))
 		loadLanguage('Drafts');
 
@@ -1462,6 +1347,26 @@ function Display()
 	// Note: integrate_mod_buttons is no more necessary and deprecated, but is kept for backward compatibility with 2.0
 	call_integration_hook('integrate_mod_buttons', array(&$context['mod_buttons']));
 
+	// If any buttons have a 'test' check, run those tests now to keep things clean.
+	foreach (array('normal_buttons', 'mod_buttons') as $button_strip)
+	{
+		foreach ($context[$button_strip] as $key => $value)
+		{
+			if (isset($value['test']) && empty($context[$value['test']]))
+			{
+				unset($context[$button_strip][$key]);
+			}
+			elseif (isset($value['sub_buttons']))
+			{
+				foreach ($value['sub_buttons'] as $subkey => $subvalue)
+				{
+					if (isset($subvalue['test']) && empty($context[$subvalue['test']]))
+						unset($context[$button_strip][$key]['sub_buttons'][$subkey]);
+				}
+			}
+		}
+	}
+
 	// Load the drafts js file
 	if ($context['drafts_autosave'])
 		loadJavaScriptFile('drafts.js', array('defer' => false, 'minimize' => true), 'smf_drafts');
@@ -1566,7 +1471,7 @@ function prepareDisplayContext($reset = false)
 	else
 	{
 		// Define this here to make things a bit more readable
-		$can_view_warning = allowedTo('moderate_forum') || allowedTo('view_warning_any') || ($message['id_member'] == $user_info['id'] && allowedTo('view_warning_own'));
+		$can_view_warning = $user_info['is_mod'] || allowedTo('moderate_forum') || allowedTo('view_warning_any') || ($message['id_member'] == $user_info['id'] && allowedTo('view_warning_own'));
 
 		$memberContext[$message['id_member']]['can_view_profile'] = allowedTo('profile_view') || ($message['id_member'] == $user_info['id'] && !$user_info['is_guest']);
 		$memberContext[$message['id_member']]['is_topic_starter'] = $message['id_member'] == $context['topic_starter_id'];
@@ -1602,11 +1507,11 @@ function prepareDisplayContext($reset = false)
 		'icon_url' => $settings[$context['icon_sources'][$message['icon']]] . '/post/' . $message['icon'] . '.png',
 		'subject' => $message['subject'],
 		'time' => timeformat($message['poster_time']),
-		'timestamp' => forum_time(true, $message['poster_time']),
+		'timestamp' => $message['poster_time'],
 		'counter' => $counter,
 		'modified' => array(
 			'time' => timeformat($message['modified_time']),
-			'timestamp' => forum_time(true, $message['modified_time']),
+			'timestamp' => $message['modified_time'],
 			'name' => $message['modified_name'],
 			'reason' => $message['modified_reason']
 		),
@@ -1671,7 +1576,7 @@ function prepareDisplayContext($reset = false)
 		'quick_edit' => array(
 			'label' => $txt['quick_edit'],
 			'class' => 'quick_edit',
-			'id' =>' modify_button_'. $output['id'],
+			'id' => 'modify_button_'. $output['id'],
 			'custom' => 'onclick="oQuickModify.modifyMsg(\''.$output['id'].'\', \''.!empty($modSettings['toggle_subject']).'\')"',
 			'icon' => 'quick_edit_button',
 			'show' => $output['can_modify']
@@ -1737,10 +1642,11 @@ function prepareDisplayContext($reset = false)
 			),
 		),
 		'quickmod' => array(
+			'class' => 'inline_mod_check',
 			'id' => 'in_topic_mod_check_'. $output['id'],
 			'custom' => 'style="display: none;"',
 			'content' => '',
-			'show' => !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $output['can_remove'],
+			'show' => !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $output['can_remove']
 		)
 	);
 

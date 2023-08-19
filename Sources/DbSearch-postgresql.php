@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.4
  */
 
 if (!defined('SMF'))
@@ -34,17 +34,8 @@ function db_search_init()
 
 	db_extend();
 
-	//pg 9.5 got ignore support
-	$version = $smcFunc['db_get_version']();
-	// if we got a Beta Version
-	if (stripos($version, 'beta') !== false)
-		$version = substr($version, 0, stripos($version, 'beta')) . '.0';
-	// or RC
-	if (stripos($version, 'rc') !== false)
-		$version = substr($version, 0, stripos($version, 'rc')) . '.0';
-
-	if (version_compare($version, '9.5.0', '>='))
-		$smcFunc['db_support_ignore'] = true;
+	$smcFunc['db_support_ignore'] = true;
+	$smcFunc['db_supports_pcre'] = true;
 }
 
 /**
@@ -81,16 +72,28 @@ function smf_db_search_query($identifier, $db_string, $db_values = array(), $con
 			'~ENGINE=MEMORY~i' => '',
 		),
 		'insert_into_log_messages_fulltext' => array(
-			'~LIKE~i' => 'iLIKE',
-			'~NOT\sLIKE~i' => '~NOT iLIKE',
-			'~NOT\sRLIKE~i' => '!~*',
-			'~RLIKE~i' => '~*',
+			'/NOT\sLIKE/' => 'NOT ILIKE',
+			'/\bLIKE\b/' => 'ILIKE',
+			'/NOT RLIKE/' => '!~*',
+			'/RLIKE/' => '~*',
 		),
 		'insert_log_search_results_subject' => array(
-			'~LIKE~i' => 'iLIKE',
-			'~NOT\sLIKE~i' => 'NOT iLIKE',
-			'~NOT\sRLIKE~i' => '!~*',
-			'~RLIKE~i' => '~*',
+			'/NOT\sLIKE/' => 'NOT ILIKE',
+			'/\bLIKE\b/' => 'ILIKE',
+			'/NOT RLIKE/' => '!~*',
+			'/RLIKE/' => '~*',
+		),
+		'insert_log_search_topics' => array(
+			'/NOT\sLIKE/' => 'NOT ILIKE',
+			'/\bLIKE\b/' => 'ILIKE',
+			'/NOT RLIKE/' => '!~*',
+			'/RLIKE/' => '~*',
+		),
+		'insert_log_search_results_no_index' => array(
+			'/NOT\sLIKE/' => 'NOT ILIKE',
+			'/\bLIKE\b/' => 'ILIKE',
+			'/NOT RLIKE/' => '!~*',
+			'/RLIKE/' => '~*',
 		),
 	);
 
@@ -113,7 +116,7 @@ function smf_db_search_query($identifier, $db_string, $db_values = array(), $con
 
 	//fix double quotes
 	if ($identifier == 'insert_into_log_messages_fulltext')
-		$db_values = str_replace('"', "'", $db_values);
+		$db_string = str_replace('"', "'", $db_string);
 
 	$return = $smcFunc['db_query']('', $db_string,
 		$db_values, $connection

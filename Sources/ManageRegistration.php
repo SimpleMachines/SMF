@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
 if (!defined('SMF'))
@@ -105,7 +105,7 @@ function AdminRegister()
 
 		foreach ($_POST as $key => $value)
 			if (!is_array($_POST[$key]))
-				$_POST[$key] = htmltrim__recursive(str_replace(array("\n", "\r"), '', $_POST[$key]));
+				$_POST[$key] = htmltrim__recursive(str_replace(array("\n", "\r"), '', $smcFunc['normalize']($_POST[$key])));
 
 		$regOptions = array(
 			'interface' => 'admin',
@@ -224,6 +224,8 @@ function EditAgreement()
 		checkSession();
 		validateToken('admin-rega');
 
+		$_POST['agreement'] = $smcFunc['normalize']($_POST['agreement']);
+
 		// Off it goes to the agreement file.
 		$to_write = str_replace("\r", '', $_POST['agreement']);
 		$bytes = file_put_contents($boarddir . '/agreement' . $context['current_agreement'] . '.txt', $to_write, LOCK_EX);
@@ -270,13 +272,15 @@ function EditAgreement()
  */
 function SetReserved()
 {
-	global $txt, $context, $modSettings;
+	global $txt, $context, $modSettings, $smcFunc;
 
 	// Submitting new reserved words.
 	if (!empty($_POST['save_reserved_names']))
 	{
 		checkSession();
 		validateToken('admin-regr');
+
+		$_POST['reserved'] = $smcFunc['normalize']($_POST['reserved']);
 
 		// Set all the options....
 		updateSettings(array(
@@ -315,7 +319,7 @@ function SetReserved()
  */
 function ModifyRegistrationSettings($return_config = false)
 {
-	global $txt, $context, $scripturl, $modSettings, $sourcedir;
+	global $txt, $context, $scripturl, $modSettings, $sourcedir, $smcFunc;
 	global $language, $boarddir;
 
 	// This is really quite wanting.
@@ -359,7 +363,7 @@ function ModifyRegistrationSettings($return_config = false)
 			fatal_lang_error('admin_setting_coppa_require_contact');
 
 		// Post needs to take into account line breaks.
-		$_POST['coppaPost'] = str_replace("\n", '<br>', empty($_POST['coppaPost']) ? '' : $_POST['coppaPost']);
+		$_POST['coppaPost'] = str_replace("\n", '<br>', empty($_POST['coppaPost']) ? '' : $smcFunc['normalize']($_POST['coppaPost']));
 
 		call_integration_hook('integrate_save_registration_settings');
 

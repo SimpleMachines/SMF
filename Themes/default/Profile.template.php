@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.4
  */
 
 /**
@@ -107,7 +107,7 @@ function template_alerts_popup()
 		foreach ($context['unread_alerts'] as $id_alert => $details)
 		{
 			echo '
-			<', !$details['show_links'] ? 'a href="' . $details['target_href'] . '" onclick="this.classList.add(\'alert_read\')"' : 'div', ' class="unread_notify">
+			<', !$details['show_links'] ? 'a href="' . $scripturl . '?action=profile;area=showalerts;alert=' . $id_alert . '" onclick="this.classList.add(\'alert_read\')"' : 'div', ' class="unread_notify">
 				<div class="unread_notify_image">
 					', empty($details['sender']['avatar']['image']) ? '' : $details['sender']['avatar']['image'] . '
 					', $details['icon'], '
@@ -158,7 +158,7 @@ function template_summary()
 
 	// Display the basic information about the user
 	echo '
-	<div id="profileview" class="roundframe flow_auto">
+	<div id="profileview" class="roundframe flow_auto noup">
 		<div id="basicinfo">';
 
 	// Are there any custom profile fields for above the name?
@@ -376,7 +376,7 @@ function template_summary()
 		if (!empty($context['activate_message']))
 			echo '
 				<dt class="clear">
-					<span class="alert">', $context['activate_message'], '</span> (<a href="', $context['activate_link'], '"', ($context['activate_type'] == 4 ? ' class="you_sure" data-confirm="' . $txt['profileConfirm'] . '"' : ''), '>', $context['activate_link_text'], '</a>)
+					<span class="alert">', $context['activate_message'], '</span> (<a href="', $context['activate_link'], '">', $context['activate_link_text'], '</a>)
 				</dt>';
 
 		// If the current member is banned, show a message and possibly a link to the ban.
@@ -489,9 +489,9 @@ function template_showPosts()
 	global $context, $scripturl, $txt;
 
 	echo '
-		<div class="cat_bar">
+		<div class="cat_bar', !isset($context['attachments']) ? ' cat_bar_round' : '', '">
 			<h3 class="catbg">
-				', (!isset($context['attachments']) && empty($context['is_topics']) ? $txt['showMessages'] : (!empty($context['is_topics']) ? $txt['showTopics'] : $txt['showAttachments'])), ' - ', $context['member']['name'], '
+				', (!isset($context['attachments']) && empty($context['is_topics']) ? $txt['showMessages'] : (!empty($context['is_topics']) ? $txt['showTopics'] : $txt['showAttachments'])), !$context['user']['is_owner'] ? ' - ' . $context['member']['name'] : '', '
 			</h3>
 		</div>', !empty($context['page_index']) ? '
 		<div class="pagesection">
@@ -506,7 +506,7 @@ function template_showPosts()
 		{
 			echo '
 		<div class="', $post['css_class'], '">
-			<div class="counter">', $post['counter'], '</div>
+			<div class="page_number floatright"> #', $post['counter'], '</div>
 			<div class="topic_details">
 				<h5>
 					<strong><a href="', $scripturl, '?board=', $post['board']['id'], '.0">', $post['board']['name'], '</a> / <a href="', $scripturl, '?topic=', $post['topic'], '.', $post['start'], '#msg', $post['id'], '">', $post['subject'], '</a></strong>
@@ -569,7 +569,7 @@ function template_showAlerts()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-			', $txt['alerts'], ' - ', $context['member']['name'], '
+			', $txt['alerts'], !$context['user']['is_owner'] ? ' - ' . $context['member']['name'] : '', '
 			</h3>
 		</div>';
 
@@ -619,9 +619,7 @@ function template_showAlerts()
 		echo '
 			</table>
 			<div class="pagesection">
-				<div class="floatleft">
-					', $context['pagination'], '
-				</div>
+				<div class="pagelinks">', $context['pagination'], '</div>
 				<div class="floatright">';
 
 		if ($context['showCheckboxes'])
@@ -655,9 +653,9 @@ function template_showDrafts()
 	global $context, $scripturl, $txt;
 
 	echo '
-		<div class="cat_bar">
+		<div class="cat_bar cat_bar_round">
 			<h3 class="catbg">
-				', $txt['drafts'], ' - ', $context['member']['name'], '
+				', $txt['drafts'], !$context['user']['is_owner'] ? ' - ' . $context['member']['name'] : '', '
 			</h3>
 		</div>', !empty($context['page_index']) ? '
 		<div class="pagesection">
@@ -677,7 +675,7 @@ function template_showDrafts()
 		{
 			echo '
 		<div class="windowbg">
-			<div class="counter">', $draft['counter'], '</div>
+			<div class="page_number floatright"> #', $draft['counter'], '</div>
 			<div class="topic_details">
 				<h5>
 					<strong><a href="', $scripturl, '?board=', $draft['board']['id'], '.0">', $draft['board']['name'], '</a> / ', $draft['topic']['link'], '</strong> &nbsp; &nbsp;';
@@ -692,7 +690,7 @@ function template_showDrafts()
 
 			echo '
 				</h5>
-				<span class="smalltext">&#171;&nbsp;<strong>', $txt['on'], ':</strong> ', $draft['time'], '&nbsp;&#187;</span>
+				<span class="smalltext"><strong>', $txt['draft_saved_on'], ':</strong> ', $draft['time'], '</span>
 			</div><!-- .topic_details -->
 			<div class="list_posts">
 				', $draft['body'], '
@@ -789,7 +787,7 @@ function template_editBuddies()
 			if (!empty($context['custom_pf']))
 				foreach ($context['custom_pf'] as $key => $column)
 					echo '
-					<td class="lefttext buddy_custom_fields">', $buddy['options'][$key], '</td>';
+					<td class="centertext buddy_custom_fields">', $buddy['options'][$key], '</td>';
 
 			echo '
 					<td class="centertext buddy_remove">
@@ -1527,7 +1525,7 @@ function template_edit_options()
 				$step = $field['type'] == 'float' ? ' step="0.1"' : '';
 
 				echo '
-						<input type="', $type, '" name="', $key, '" id="', $key, '" size="', empty($field['size']) ? 30 : $field['size'], '" value="', $field['value'], '" ', $field['input_attr'], ' ', $step, '>';
+						<input type="', $type, '" name="', $key, '" id="', $key, '" size="', empty($field['size']) ? 30 : $field['size'], '"', isset($field['min']) ? ' min="' . $field['min'] . '"' : '', isset($field['max']) ? ' max="' . $field['max'] . '"' : '', ' value="', $field['value'], '" ', $field['input_attr'], ' ', $step, '>';
 			}
 			// You "checking" me out? ;)
 			elseif ($field['type'] == 'check')
@@ -1585,7 +1583,7 @@ function template_edit_options()
 		foreach ($context['custom_fields'] as $field)
 			echo '
 					<dt>
-						<strong>', $field['name'], ': </strong><br>
+						<strong>', $field['name'], '</strong><br>
 						<span class="smalltext">', $field['desc'], '</span>
 					</dt>
 					<dd>
@@ -1606,7 +1604,7 @@ function template_edit_options()
 		echo '
 				<dl class="settings">
 					<dt>
-						<strong', isset($context['modify_error']['bad_password']) || isset($context['modify_error']['no_password']) ? ' class="error"' : '', '><label for="oldpasswrd">', $txt['current_password'], ': </label></strong><br>
+						<strong', isset($context['modify_error']['bad_password']) || isset($context['modify_error']['no_password']) ? ' class="error"' : '', '><label for="oldpasswrd">', $txt['current_password'], '</label></strong><br>
 						<span class="smalltext">', $txt['required_security_reasons'], '</span>
 					</dt>
 					<dd>
@@ -1843,7 +1841,7 @@ function template_profile_theme_settings()
 			echo ' name="default_options[', $setting['id'], ']" id="', $setting['id'], '" value="', isset($context['member']['options'][$setting['id']]) ? $context['member']['options'][$setting['id']] : $setting['value'], '"', $setting['type'] == 'number' ? ' size="5"' : '', '>';
 		}
 
-		// end of this defintion
+		// end of this definition
 		echo '
 					</dd>';
 	}
@@ -1865,7 +1863,7 @@ function template_alert_configuration()
 		<p class="information">
 			', (empty($context['description']) ? $txt['alert_prefs_desc'] : $context['description']), '
 		</p>
-		<form action="', $scripturl, '?', $context['action'], '" method="post" accept-charset="', $context['character_set'], '" id="notify_options" class="flow_hidden">
+		<form action="', $scripturl, '?', $context['action'], '" method="post" accept-charset="', $context['character_set'], '" id="notify_options" class="flow_auto">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', $txt['notification_general'], '
@@ -1874,7 +1872,9 @@ function template_alert_configuration()
 			<div class="windowbg">
 				<dl class="settings">
 					<dt>
-						<label for="notify_announcements">', $txt['notify_important_email'], '</label>
+						<label for="notify_announcements">', $txt['notify_important_email'], '</label>', $context['id_member'] == 0 ? '
+						<br>
+						<span class="smalltext alert">' . $txt['notify_announcements_desc'] . '</span>' : '', '
 					</dt>
 					<dd>
 						<input type="hidden" name="notify_announcements" value="0">
@@ -1887,7 +1887,7 @@ function template_alert_configuration()
 						<label for="notify_send_body">', $txt['notify_alert_timeout'], '</label>
 					</dt>
 					<dd>
-						<input type="number" size="4" id="notify_alert_timeout" name="opt_alert_timeout" min="0" value="', $context['member']['alert_timeout'], '">
+						<input type="number" size="4" id="notify_alert_timeout" name="opt_alert_timeout" min="0" max="127" value="', $context['member']['alert_timeout'], '">
 					</dd>';
 
 	echo '
@@ -1914,6 +1914,9 @@ function template_alert_configuration()
 		{
 			foreach ($context['alert_group_options'][$alert_group] as $opts)
 			{
+				if ($opts[0] == 'hide')
+					continue;
+
 				echo '
 				<tr class="windowbg">
 					<td colspan="3">';
@@ -2066,7 +2069,7 @@ function template_groupMembership()
 	if (!empty($context['update_message']))
 		echo '
 			<div class="infobox">
-				', $context['update_message'], '.
+				', $context['update_message'], '
 			</div>';
 
 	echo '
@@ -2219,12 +2222,39 @@ function template_ignoreboards()
 						<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'creator\'); return false;">', $category['name'], '</a>
 						<ul>';
 
-		foreach ($category['boards'] as $board)
+		$cat_boards = array_values($category['boards']);
+		foreach ($cat_boards as $key => $board)
 		{
 			echo '
-							<li style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
-								<label for="ignore_brd', $board['id'], '"><input type="checkbox" id="brd', $board['id'], '" name="ignore_brd[', $board['id'], ']" value="', $board['id'], '"', $board['selected'] ? ' checked' : '', '> ', $board['name'], '</label>
+							<li>
+								<label for="brd', $board['id'], '">
+									<input type="checkbox" id="brd', $board['id'], '" name="brd[', $board['id'], ']" value="', $board['id'], '"', $board['selected'] ? ' checked' : '', '>
+									', $board['name'], '
+								</label>';
+
+			// Nest child boards inside another list.
+			$curr_child_level = $board['child_level'];
+			$next_child_level = $cat_boards[$key + 1]['child_level'] ?? 0;
+
+			if ($next_child_level > $curr_child_level)
+			{
+				echo '
+								<ul style="margin-', $context['right_to_left'] ? 'right' : 'left', ': 2.5ch;">';
+			}
+			else
+			{
+				// Close child board lists until we reach a common level
+				// with the next board.
+				while ($next_child_level < $curr_child_level--)
+				{
+					echo '
+									</li>
+								</ul>';
+				}
+
+				echo '
 							</li>';
+			}
 		}
 
 		echo '
@@ -2506,6 +2536,12 @@ function template_issueWarning()
 		{
 			$.ajax({
 				type: "POST",
+				headers: {
+					"X-SMF-AJAX": 1
+				},
+				xhrFields: {
+					withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
+				},
 				url: "' . $scripturl . '?action=xmlhttp;sa=previews;xml",
 				data: {item: "warning_preview", title: $("#warn_sub").val(), body: $("#warn_body").val(), issuing: true},
 				context: document.body,
@@ -2701,7 +2737,7 @@ function template_error_message()
 		{
 			$text_key_error = $error == 'password_short' ?
 				sprintf($txt['profile_error_' . $error], (empty($modSettings['password_strength']) ? 4 : 8)) :
-				$txt['profile_error_' . $error];
+				(isset($txt['profile_error_' . $error]) ? $txt['profile_error_' . $error] : '');
 
 			echo '
 				<li>', isset($txt['profile_error_' . $error]) ? $text_key_error : $error, '</li>';
@@ -2724,7 +2760,7 @@ function template_profile_group_manage()
 
 	echo '
 							<dt>
-								<strong>', $txt['primary_membergroup'], ': </strong><br>
+								<strong>', $txt['primary_membergroup'], '</strong><br>
 								<span class="smalltext"><a href="', $scripturl, '?action=helpadmin;help=moderator_why_missing" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help"></span> ', $txt['moderator_why_missing'], '</a></span>
 							</dt>
 							<dd>
@@ -2742,7 +2778,7 @@ function template_profile_group_manage()
 								</select>
 							</dd>
 							<dt>
-								<strong>', $txt['additional_membergroups'], ':</strong>
+								<strong>', $txt['additional_membergroups'], '</strong>
 							</dt>
 							<dd>
 								<span id="additional_groupsList">
@@ -2775,7 +2811,7 @@ function template_profile_birthdate()
 	// Just show the pretty box!
 	echo '
 							<dt>
-								<strong>', $txt['dob'], ':</strong><br>
+								<strong>', $txt['dob'], '</strong><br>
 								<span class="smalltext">', $txt['dob_year'], ' - ', $txt['dob_month'], ' - ', $txt['dob_day'], '</span>
 							</dt>
 							<dd>
@@ -2794,21 +2830,21 @@ function template_profile_signature_modify()
 
 	echo '
 							<dt id="current_signature" style="display:none">
-								<strong>', $txt['current_signature'], ':</strong>
+								<strong>', $txt['current_signature'], '</strong>
 							</dt>
 							<dd id="current_signature_display" style="display:none">
 								<hr>
 							</dd>
 
 							<dt id="preview_signature" style="display:none">
-								<strong>', $txt['signature_preview'], ':</strong>
+								<strong>', $txt['signature_preview'], '</strong>
 							</dt>
 							<dd id="preview_signature_display" style="display:none">
 								<hr>
 							</dd>
 
 							<dt>
-								<strong>', $txt['signature'], ':</strong><br>
+								<strong>', $txt['signature'], '</strong><br>
 								<span class="smalltext">', $txt['sig_info'], '</span><br>
 								<br>';
 
@@ -2854,7 +2890,7 @@ function template_profile_signature_modify()
  */
 function template_profile_avatar_select()
 {
-	global $context, $txt, $modSettings;
+	global $context, $txt, $modSettings, $scripturl;
 
 	// Start with the upper menu
 	echo '
@@ -2863,7 +2899,7 @@ function template_profile_avatar_select()
 									<label for="avatar_upload_box">', $txt['personal_picture'], '</label>
 								</strong>';
 
-	if (empty($modSettings['gravatarOverride']))
+	if (empty($modSettings['gravatarEnabled']) || empty($modSettings['gravatarOverride']))
 		echo '
 								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_none" value="none"' . ($context['member']['avatar']['choice'] == 'none' ? ' checked="checked"' : '') . '>
 								<label for="avatar_choice_none"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
@@ -2894,7 +2930,8 @@ function template_profile_avatar_select()
 	if (!empty($context['member']['avatar']['allow_gravatar']))
 		echo '
 								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_gravatar" value="gravatar"' . ($context['member']['avatar']['choice'] == 'gravatar' ? ' checked="checked"' : '') . '>
-								<label for="avatar_choice_gravatar"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['use_gravatar'] . '</label>';
+								<label for="avatar_choice_gravatar"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['use_gravatar'] . '</label>
+								<span class="smalltext"><a href="', $scripturl, '?action=helpadmin;help=gravatar" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help"></span></a></span>';
 
 	echo '
 							</dt>
@@ -2930,10 +2967,8 @@ function template_profile_avatar_select()
 										var avatardir = "' . $modSettings['avatar_url'] . '/";
 										var size = avatar.alt.substr(3, 2) + " " + avatar.alt.substr(0, 2) + String.fromCharCode(117, 98, 116);
 										var file = document.getElementById("file");
-										var maxHeight = ', !empty($modSettings['avatar_max_height_external']) ? $modSettings['avatar_max_height_external'] : 0, ';
-										var maxWidth = ', !empty($modSettings['avatar_max_width_external']) ? $modSettings['avatar_max_width_external'] : 0, ';
 
-										if (avatar.src.indexOf("blank.png") > -1)
+										if (avatar.src.indexOf("blank.png") > -1 || selavatar.indexOf("blank.png") == -1)
 											changeSel(selavatar);
 										else
 											previewExternalAvatar(avatar.src)
@@ -2946,9 +2981,9 @@ function template_profile_avatar_select()
 	if (!empty($context['member']['avatar']['allow_external']))
 		echo '
 								<div id="avatar_external">
-									', $context['member']['avatar']['choice'] == 'external' ? '<div class="edit_avatar_img"><img src="' . $context['member']['avatar']['href'] . '" alt=""></div>' : '', '
+									', $context['member']['avatar']['choice'] == 'external' ? '<div class="edit_avatar_img"><img src="' . $context['member']['avatar']['href'] . '" alt="" class="avatar"></div>' : '', '
 									<div class="smalltext">', $txt['avatar_by_url'], '</div>', !empty($modSettings['avatar_action_too_large']) && $modSettings['avatar_action_too_large'] == 'option_download_and_resize' ? template_max_size('external') : '', '
-									<input type="text" name="userpicpersonal" size="45" value="', ((stristr($context['member']['avatar']['external'], 'http://') || stristr($context['member']['avatar']['external'], 'https://')) ? $context['member']['avatar']['external'] : 'http://'), '" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'external\');" onchange="if (typeof(previewExternalAvatar) != \'undefined\') previewExternalAvatar(this.value);">
+									<input type="text" name="userpicpersonal" size="45" value="', ((stristr($context['member']['avatar']['external'], 'http://') || stristr($context['member']['avatar']['external'], 'https://')) ? $context['member']['avatar']['external'] : 'http://'), '" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'external\');" onchange="if (typeof(previewExternalAvatar) != \'undefined\') previewExternalAvatar(this.value);"><br>
 								</div>';
 
 	// If the user is able to upload avatars to the server show them an upload box.
@@ -3026,7 +3061,7 @@ function template_profile_avatar_select()
 												', !empty($context['member']['avatar']['allow_external']) ? 'document.getElementById("avatar_external").style.display = "none";' : '', '
 												', !empty($context['member']['avatar']['allow_upload']) ? 'document.getElementById("avatar_upload").style.display = "none";' : '', '
 												', !empty($context['member']['avatar']['allow_gravatar']) ? 'document.getElementById("avatar_gravatar").style.display = "";' : '', '
-												', ($context['member']['avatar']['external'] == $context['member']['email'] || strstr($context['member']['avatar']['external'], 'http://')) ?
+												', !empty($modSettings['gravatarAllowExtraEmail']) && ($context['member']['avatar']['external'] == $context['member']['email'] || strstr($context['member']['avatar']['external'], 'http://') || strstr($context['member']['avatar']['external'], 'https://')) ?
 												'document.getElementById("gravatarEmail").value = "";' : '', '
 												break;
 										}
@@ -3064,7 +3099,7 @@ function template_profile_timeformat_modify()
 
 	echo '
 							<dt>
-								<strong><label for="easyformat">', $txt['time_format'], ':</label></strong><br>
+								<strong><label for="easyformat">', $txt['time_format'], '</label></strong><br>
 								<a href="', $scripturl, '?action=helpadmin;help=time_format" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
 								<span class="smalltext">
 									<label for="time_format">', $txt['date_format'], '</label>
@@ -3093,7 +3128,7 @@ function template_profile_theme_pick()
 
 	echo '
 							<dt>
-								<strong>', $txt['current_theme'], ':</strong>
+								<strong>', $txt['current_theme'], '</strong>
 							</dt>
 							<dd>
 								', $context['member']['theme']['name'], ' <a class="button" href="', $scripturl, '?action=theme;sa=pick;u=', $context['id_member'], '">', $txt['change'], '</a>
@@ -3109,7 +3144,7 @@ function template_profile_smiley_pick()
 
 	echo '
 							<dt>
-								<strong><label for="smiley_set">', $txt['smileys_current'], ':</label></strong>
+								<strong><label for="smiley_set">', $txt['smileys_current'], '</label></strong>
 							</dt>
 							<dd>
 								<select name="smiley_set" id="smiley_set">';
@@ -3224,7 +3259,7 @@ function template_tfadisable()
 	if ($context['user']['is_owner'])
 		echo '
 					<div class="block">
-						<strong', (isset($context['modify_error']['bad_password']) || isset($context['modify_error']['no_password']) ? ' class="error"' : ''), '>', $txt['current_password'], ': </strong><br>
+						<strong', (isset($context['modify_error']['bad_password']) || isset($context['modify_error']['no_password']) ? ' class="error"' : ''), '>', $txt['current_password'], '</strong><br>
 						<input type="password" name="oldpasswrd" size="20">
 					</div>';
 	else
@@ -3270,7 +3305,7 @@ function template_profile_tfa()
 
 	echo '
 							<dt>
-								<strong>', $txt['tfa_profile_label'], ':</strong><br>
+								<strong>', $txt['tfa_profile_label'], '</strong><br>
 								<div class="smalltext">', $txt['tfa_profile_desc'], '</div>
 							</dt>
 							<dd>';

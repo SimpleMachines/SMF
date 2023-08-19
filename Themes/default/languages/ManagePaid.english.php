@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC3; ManagePaid
+// Version: 2.1.0; ManagePaid
 
 global $boardurl;
 
@@ -14,7 +14,7 @@ $txt['cad_symbol'] = 'C$%1.2f';
 $txt['aud_symbol'] = 'A$%1.2f';
 
 $txt['usd'] = 'USD ($)';
-$txt['eur'] = 'EURO (&euro;)';
+$txt['eur'] = 'EUR (&euro;)';
 $txt['gbp'] = 'GBP (&pound;)';
 $txt['cad'] = 'CAD (C$)';
 $txt['aud'] = 'AUD (A$)';
@@ -45,7 +45,7 @@ $txt['paid_currency'] = 'Select Currency';
 $txt['paid_currency_code'] = 'Currency Code';
 $txt['paid_currency_code_desc'] = 'Code used by payment merchants';
 $txt['paid_currency_symbol'] = 'Symbol used by payment method';
-$txt['paid_currency_symbol_desc'] = 'Use \'%1.2f\' to specify where number goes. For example $%1.2f, %1.2fDM etc';
+$txt['paid_currency_symbol_desc'] = 'Use \'%1.2f\' to specify where number goes. For example $%1.2f, %1.2f EUR etc';
 $txt['paid_settings_save'] = 'Save';
 
 $txt['paypal_email'] = 'PayPal email address';
@@ -57,14 +57,20 @@ $txt['paypal_sandbox_email_desc'] = 'Can be left blank if test mode is disabled 
 
 // argument(s): $boardurl
 $txt['paid_note'] = '<strong class="alert">Note:</strong><br>
-SMF currently supports <strong>PayPal</strong> as the installed payment method.<br>
-	&nbsp;&nbsp;&bull;&nbsp;&nbsp;It is not necessary to enable IPN in your PayPal account; but if you do, the forum will receive payment notifications for all payments made to your account, and this will generate Paid Subscriptions errors for payments that are not subscription related.<br>
-	&nbsp;&nbsp;&bull;&nbsp;&nbsp;You must have a business or premier account to use recurring payments.<br>
-	&nbsp;&nbsp;&bull;&nbsp;&nbsp;You must provide your primary PayPal email address for validation purposes.<br><br>
-
-If you install a different payment gateway, you may need to set up a return URL for payment notification.   For all payment types, this return URL should be set as:<br><br>
-	&nbsp;&nbsp;&bull;&nbsp;&nbsp;<strong>%1$s/subscriptions.php</strong><br><br>
-You can normally find it in your customer panels, usually under the term &quot;Return URL&quot; or &quot;Callback URL&quot;.<br><br><br>';
+SMF currently supports <strong>PayPal</strong> as the installed payment method.
+<ul class="bbc_list">
+	<li>It is not necessary to enable IPN in your PayPal account; but if you do, the forum will receive payment notifications for all payments made to your account, and this will generate Paid Subscriptions errors for payments that are not subscription related.</li>
+	<li>You must have a business or premier account to use recurring payments.</li>
+	<li>You must provide your primary PayPal email address for validation purposes.</li>
+</ul>
+<br>
+If you install a different payment gateway, you may need to set up a return URL for payment notification. For all payment types, this return URL should be set as:
+<br><br>
+<ul class="bbc_list">
+	<li><strong>%1$s/subscriptions.php</strong></li>
+</ul>
+<br>
+You can normally find it in your customer panels, usually under the term &quot;Return URL&quot; or &quot;Callback URL&quot;.';
 
 // View subscription strings.
 $txt['paid_name'] = 'Name';

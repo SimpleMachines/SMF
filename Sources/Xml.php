@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
 if (!defined('SMF'))
@@ -192,16 +192,17 @@ function sig_preview()
 		list($current_signature) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 		censorText($current_signature);
-		$current_signature = !empty($current_signature) ? parse_bbc($current_signature, true, 'sig' . $user) : $txt['no_signature_set'];
+		$allowedTags = get_signature_allowed_bbc_tags();
+		$current_signature = !empty($current_signature) ? parse_bbc($current_signature, true, 'sig' . $user, $allowedTags) : $txt['no_signature_set'];
 
-		$preview_signature = !empty($_POST['signature']) ? $_POST['signature'] : $txt['no_signature_preview'];
+		$preview_signature = !empty($_POST['signature']) ? $smcFunc['htmlspecialchars']($_POST['signature']) : $txt['no_signature_preview'];
 		$validation = profileValidateSignature($preview_signature);
 
 		if ($validation !== true && $validation !== false)
 			$errors[] = array('value' => $txt['profile_error_' . $validation], 'attributes' => array('type' => 'error'));
 
 		censorText($preview_signature);
-		$preview_signature = parse_bbc($preview_signature, true, 'sig' . $user);
+		$preview_signature = parse_bbc($preview_signature, true, 'sig' . $user, $allowedTags);
 	}
 	elseif (!$can_change)
 	{

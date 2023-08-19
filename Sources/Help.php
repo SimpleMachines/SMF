@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -109,20 +109,13 @@ function ShowAdminHelp()
 	// Allow mods to load their own language file here
 	call_integration_hook('integrate_helpadmin');
 
-	// Set the page title to something relevant.
-	$context['page_title'] = $context['forum_name'] . ' - ' . $txt['help'];
-
-	// Don't show any template layers, just the popup sub template.
-	$context['template_layers'] = array();
-	$context['sub_template'] = 'popup';
-
 	// What help string should be used?
 	if (isset($helptxt[$_GET['help']]))
 		$context['help_text'] = $helptxt[$_GET['help']];
 	elseif (isset($txt[$_GET['help']]))
 		$context['help_text'] = $txt[$_GET['help']];
 	else
-		$context['help_text'] = $_GET['help'];
+		fatal_lang_error('not_found', false, array(), 404);
 
 	switch ($_GET['help']) {
 		case 'cal_short_months':
@@ -132,10 +125,7 @@ function ShowAdminHelp()
 			$context['help_text'] = sprintf($context['help_text'], $txt['days_short'][1], $txt['days'][1]);
 			break;
 		case 'cron_is_real_cron':
-			$context['help_text'] = sprintf($context['help_text'], $boarddir, $boardurl);
-			break;
-		case 'enableSpellChecking':
-			$context['help_text'] = sprintf($context['help_text'], ((function_exists('pspell_new') || function_exists('enchant_broker_init')) ? $helptxt['enableSpellCheckingSupported'] : $helptxt['enableSpellCheckingUnsupported']));
+			$context['help_text'] = sprintf($context['help_text'], allowedTo('admin_forum') ? $boarddir : '[' . $txt['hidden'] . ']', $boardurl);
 			break;
 		case 'queryless_urls':
 			$context['help_text'] = sprintf($context['help_text'], (isset($_SERVER['SERVER_SOFTWARE']) && (strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false || strpos($_SERVER['SERVER_SOFTWARE'], 'lighttpd') !== false) ? $helptxt['queryless_urls_supported'] : $helptxt['queryless_urls_unsupported']));
@@ -145,6 +135,13 @@ function ShowAdminHelp()
 	// Does this text contain a link that we should fill in?
 	if (preg_match('~%([0-9]+\$)?s\?~', $context['help_text'], $match))
 		$context['help_text'] = sprintf($context['help_text'], $scripturl, $context['session_id'], $context['session_var']);
+
+	// Set the page title to something relevant.
+	$context['page_title'] = $context['forum_name'] . ' - ' . $txt['help'];
+
+	// Don't show any template layers, just the popup sub template.
+	$context['template_layers'] = array();
+	$context['sub_template'] = 'popup';
 }
 
 ?>

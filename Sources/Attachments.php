@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.2
  */
 
 if (!defined('SMF'))
@@ -129,9 +129,6 @@ class Attachments
 		global $smcFunc, $sourcedir;
 
 		require_once($sourcedir . '/Subs-Attachments.php');
-
-		// Guest aren't welcome, sorry.
-		is_not_guest();
 
 		// Need this. For reasons...
 		loadLanguage('Post');
@@ -436,7 +433,7 @@ class Attachments
 
 				foreach ($attachment['errors'] as $error)
 				{
-					$attachmentOptions['errors'][] = vsprintf($txt['attach_warning'], $attachment['name']);
+					$attachmentOptions['errors'][] = sprintf($txt['attach_warning'], $attachment['name']);
 
 					if (!is_array($error))
 					{
@@ -445,7 +442,7 @@ class Attachments
 							log_error($attachment['name'] . ': ' . $txt[$error], 'critical');
 					}
 					else
-						$attachmentOptions['errors'][] = vsprintf($txt[$error[0]], $error[1]);
+						$attachmentOptions['errors'][] = vsprintf($txt[$error[0]], (array) $error[1]);
 				}
 				if (file_exists($attachment['tmp_name']))
 					unlink($attachment['tmp_name']);
@@ -464,6 +461,12 @@ class Attachments
 			$this->_attachSuccess = $_SESSION['already_attached'];
 
 		unset($_SESSION['temp_attachments']);
+
+		// Allow user to see previews for all of this post's attachments, even if the post hasn't been submitted yet.
+		if (!isset($_SESSION['attachments_can_preview']))
+			$_SESSION['attachments_can_preview'] = array();
+		if (!empty($_SESSION['already_attached']))
+			$_SESSION['attachments_can_preview'] += array_fill_keys(array_keys($_SESSION['already_attached']), true);
 	}
 
 	/**
@@ -488,7 +491,7 @@ class Attachments
 			// Is there any generic errors? made some sense out of them!
 			if ($this->_generalErrors)
 				foreach ($this->_generalErrors as $k => $v)
-					$this->_generalErrors[$k] = (is_array($v) ? vsprintf($txt[$v[0]], $v[1]) : $txt[$v]);
+					$this->_generalErrors[$k] = (is_array($v) ? vsprintf($txt[$v[0]], (array) $v[1]) : $txt[$v]);
 
 			// Gotta urlencode the filename.
 			if ($this->_attachResults)
@@ -516,9 +519,8 @@ class Attachments
 
 		ob_end_clean();
 
-		if (!empty($modSettings['CompressedOutput']))
+		if (!empty($modSettings['enableCompressedOutput']))
 			@ob_start('ob_gzhandler');
-
 		else
 			ob_start();
 

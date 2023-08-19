@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC3; Packages
+// Version: 2.1.0; Packages
 
 $txt['package_proceed'] = 'Proceed';
 $txt['php_script'] = 'Modification file was extracted, but this modification also comes with a PHP script which should be executed before it will work';
@@ -26,7 +26,12 @@ $txt['install_modification'] = 'Install Mod';
 $txt['install_language'] = 'Add Language';
 $txt['install_avatar'] = 'Install Avatar Pack';
 $txt['install_unknown'] = 'Install Package';
-$txt['uninstall_mod'] = 'Uninstall Mod';
+$txt['install_smiley'] = 'Install Smiley Pack';
+$txt['uninstall_modification'] = 'Uninstall Mod';
+$txt['uninstall_language'] = 'Uninstall Language';
+$txt['uninstall_avatar'] = 'Uninstall Avatar Pack';
+$txt['uninstall_unknown'] = 'Uninstall Package';
+$txt['uninstall_smiley'] = 'Uninstall Smiley Pack';
 $txt['sql_file'] = 'The Modification file has been extracted. This modification also comes with a database file containing changes the database needs. You will need to execute this file for the modification to function properly.';
 $txt['sql_queries'] = 'SQL Queries';
 $txt['no_mods_installed'] = 'No mods currently installed';
@@ -48,6 +53,7 @@ $txt['modification_package'] = 'Modification packages';
 $txt['avatar_package'] = 'Avatar packages';
 $txt['language_package'] = 'Language packages';
 $txt['unknown_package'] = 'Unknown packages';
+$txt['smiley_package'] = 'Smiley packages';
 $txt['list_files'] = 'List Files';
 $txt['remove'] = 'Remove';
 $txt['package_type'] = 'Package Type';
@@ -90,6 +96,8 @@ $txt['corrupt_compatible'] = 'The package you are trying to download or install 
 $txt['package_create'] = 'Create';
 $txt['package_move'] = 'Move';
 $txt['package_delete'] = 'Delete';
+$txt['package_delete2'] = 'Delete Package';
+$txt['package_keep'] = 'Keep Package';
 $txt['package_extract'] = 'Extract';
 $txt['package_file'] = 'File';
 $txt['package_tree'] = 'Tree';
@@ -174,7 +182,7 @@ $txt['package_modification_missing'] = 'The file could not be found.';
 $txt['package_no_zlib'] = 'zlib';
 $txt['package_no_phar'] = 'phar';
 $txt['package_no_package_manager'] = 'the package manager';
-$txt['package_no_lib'] = 'Sorry, your PHP configuration doesn\'t have support for <strong>"%1$s</strong>. Without this, %2$s cannot function. Please contact your host about this for more information.';
+$txt['package_no_lib'] = 'Sorry, your PHP configuration doesn\'t have support for <strong>"%1$s"</strong>. Without this, %2$s cannot function. Please contact your host about this for more information.';
 
 $txt['package_cleanperms_title'] = 'Cleanup Permissions';
 $txt['package_cleanperms_desc'] = 'This interface allows you to reset the permissions for files throughout your installation, so as to increase security or solve any permission problems you may encounter while installing packages.';

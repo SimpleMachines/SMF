@@ -49,6 +49,9 @@ code::before {
 	top: -1.35em;
 	left: 0;
 }
+code[data-title]::before {
+	content: 'Code: (' attr(data-title) ')';
+}
 code {
 	margin-top: 1.5em;
 	position: relative;
@@ -79,6 +82,7 @@ blockquote cite {
 	display: block;
 	border-bottom: 1px solid #aaa;
 	font-size: 0.9em;
+	margin-bottom: 0.5em;
 }
 
 blockquote cite::before {
@@ -88,6 +92,10 @@ blockquote cite::before {
 	content: '\275D';
 	margin-right: 5px;
 	vertical-align: middle;
+}
+blockquote cite + br,
+blockquote br:last-child {
+	display: none;
 }
 
 h1, h2, h3, h4, h5, h6 {

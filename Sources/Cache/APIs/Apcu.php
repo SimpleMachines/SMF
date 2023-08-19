@@ -5,32 +5,46 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
+namespace SMF\Cache\APIs;
+
+use SMF\Cache\CacheApi;
+use SMF\Cache\CacheApiInterface;
+
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * Our Cache API class
  *
- * @package cacheAPI
+ * @package CacheAPI
  */
-class zend_cache extends cache_api
+class Apcu extends CacheApi implements CacheApiInterface
 {
 	/**
 	 * {@inheritDoc}
 	 */
 	public function isSupported($test = false)
 	{
-		$supported = function_exists('zend_shm_cache_fetch') || function_exists('output_cache_get');
+		$supported = function_exists('apcu_fetch') && function_exists('apcu_store');
 
 		if ($test)
 			return $supported;
+
 		return parent::isSupported() && $supported;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function connect()
+	{
+		return true;
 	}
 
 	/**
@@ -40,11 +54,9 @@ class zend_cache extends cache_api
 	{
 		$key = $this->prefix . strtr($key, ':/', '-_');
 
-		// Zend's pricey stuff.
-		if (function_exists('zend_shm_cache_fetch'))
-			return zend_shm_cache_fetch('SMF::' . $key);
-		elseif (function_exists('output_cache_get'))
-			return output_cache_get($key, $ttl);
+		$value = apcu_fetch($key . 'smf');
+
+		return !empty($value) ? $value : null;
 	}
 
 	/**
@@ -54,10 +66,12 @@ class zend_cache extends cache_api
 	{
 		$key = $this->prefix . strtr($key, ':/', '-_');
 
-		if (function_exists('zend_shm_cache_store'))
-			return zend_shm_cache_store('SMF::' . $key, $value, $ttl);
-		elseif (function_exists('output_cache_put'))
-			return output_cache_put($key, $value);
+		// An extended key is needed to counteract a bug in APC.
+		if ($value === null)
+			return apcu_delete($key . 'smf');
+
+		else
+			return apcu_store($key . 'smf', $value, $ttl !== null ? $ttl : $this->ttl);
 	}
 
 	/**
@@ -67,7 +81,7 @@ class zend_cache extends cache_api
 	{
 		$this->invalidateCache();
 
-		return zend_shm_cache_clear('SMF');
+		return apcu_clear_cache();
 	}
 
 	/**
@@ -75,7 +89,7 @@ class zend_cache extends cache_api
 	 */
 	public function getVersion()
 	{
-		return zend_version();
+		return phpversion('apcu');
 	}
 }
 

@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.2
  */
 
 if (!defined('SMF'))
@@ -112,7 +112,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 		$tried_hook = true;
 		// Allow the hook to change the error_type and know about the error.
 		call_integration_hook('integrate_error_types', array(&$other_error_types, &$error_type, $error_message, $file, $line));
-		$known_error_types += $other_error_types;
+		$known_error_types = array_merge($known_error_types, $other_error_types);
 	}
 	// Make sure the category that was specified is a valid one
 	$error_type = in_array($error_type, $known_error_types) && $error_type !== true ? $error_type : 'general';
@@ -133,7 +133,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 		if (!isset($context['num_errors']))
 		{
 			$query = $smcFunc['db_query']('', '
-				SELECT COUNT(id_error)
+				SELECT COUNT(*)
 				FROM {db_prefix}log_errors',
 				array()
 			);
@@ -196,6 +196,9 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status 
 	global $txt, $language, $user_info, $context;
 	static $fatal_error_called = false;
 
+	// Ensure this is an array.
+	$sprintf = (array) $sprintf;
+
 	// Send the status header - set this to 0 or false if you don't want to send one at all
 	if (!empty($status))
 		send_http_status($status);
@@ -207,6 +210,17 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status 
 		loadTheme();
 	}
 
+	// Attempt to load the text string.
+	loadLanguage('Errors');
+	if (empty($txt[$error]))
+		$error_message = $error;
+	else
+		$error_message = empty($sprintf) ? $txt[$error] : vsprintf($txt[$error], $sprintf);
+
+	// Send a custom header if we have a custom message.
+	if (isset($_REQUEST['js']) || isset($_REQUEST['xml']) || isset($_RQEUEST['ajax']))
+		header('X-SMF-errormsg: ' .  $error_message);
+
 	// If we have no theme stuff we can't have the language file...
 	if (empty($context['theme_loaded']))
 		die($error);
@@ -217,12 +231,15 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status 
 	{
 		loadLanguage('Errors', $language);
 		$reload_lang_file = $language != $user_info['language'];
-		$error_message = empty($sprintf) ? $txt[$error] : vsprintf($txt[$error], $sprintf);
+		if (empty($txt[$error]))
+			$error_message = $error;
+		else
+			$error_message = empty($sprintf) ? $txt[$error] : vsprintf($txt[$error], $sprintf);
 		log_error($error_message, $log);
 	}
 
 	// Load the language file, only if it needs to be reloaded
-	if ($reload_lang_file)
+	if ($reload_lang_file && !empty($txt[$error]))
 	{
 		loadLanguage('Errors');
 		$error_message = empty($sprintf) ? $txt[$error] : vsprintf($txt[$error], $sprintf);
@@ -246,7 +263,7 @@ function smf_error_handler($error_level, $error_string, $file, $line)
 	global $settings, $modSettings, $db_show_debug;
 
 	// Error was suppressed with the @-operator.
-	if (error_reporting() == 0)
+	if (error_reporting() == 0 || error_reporting() == (E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR))
 		return true;
 
 	// Ignore errors that should should not be logged.
@@ -294,7 +311,7 @@ function smf_error_handler($error_level, $error_string, $file, $line)
 
 	$message = log_error($error_level . ': ' . $error_string, $error_type, $file, $line);
 
-	// Let's give integrations a chance to ouput a bit differently
+	// Let's give integrations a chance to output a bit differently
 	call_integration_hook('integrate_output_error', array($message, $error_type, $error_level, $file, $line));
 
 	// Dying on these errors only causes MORE problems (blank pages!)
@@ -348,6 +365,8 @@ function setup_fatal_error_context($error_message, $error_code = null)
 
 	$context['error_code'] = isset($error_code) ? 'id="' . $error_code . '" ' : '';
 
+	$context['error_link'] = isset($context['error_link']) ? $context['error_link'] : 'javascript:document.location=document.referrer';
+
 	if (empty($context['page_title']))
 		$context['page_title'] = $context['error_title'];
 
@@ -386,7 +405,7 @@ function setup_fatal_error_context($error_message, $error_code = null)
 		PROGRAM FLOW.  Otherwise, security error messages will not be shown, and
 		your forum will be in a very easily hackable state.
 	*/
-	trigger_error('Hacking attempt...', E_USER_ERROR);
+	trigger_error('No direct access...', E_USER_ERROR);
 }
 
 /**

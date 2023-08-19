@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.4
  */
 
 if (!defined('SMF'))
@@ -52,6 +52,7 @@ function ManageMaintenance()
 				'version' => 'VersionDetail',
 				'repair' => 'MaintainFindFixErrors',
 				'recount' => 'AdminBoardRecount',
+				'rebuild_settings' => 'RebuildSettingsFile',
 				'logs' => 'MaintainEmptyUnimportantLogs',
 				'cleancache' => 'MaintainCleanCache',
 			),
@@ -154,8 +155,8 @@ function MaintainRoutine()
 {
 	global $context, $txt;
 
-	if (isset($_GET['done']) && $_GET['done'] == 'recount')
-		$context['maintenance_finished'] = $txt['maintain_recount'];
+	if (isset($_GET['done']) && in_array($_GET['done'], array('recount', 'rebuild_settings')))
+		$context['maintenance_finished'] = $txt['maintain_' . $_GET['done']];
 }
 
 /**
@@ -252,8 +253,7 @@ function MaintainFindFixErrors()
 }
 
 /**
- * Wipes the whole cache directory.
- * This only applies to SMF's own cache directory, though.
+ * Wipes the whole cache.
  */
 function MaintainCleanCache()
 {
@@ -269,7 +269,7 @@ function MaintainCleanCache()
 }
 
 /**
- * Empties all uninmportant logs
+ * Empties all unimportant logs
  */
 function MaintainEmptyUnimportantLogs()
 {
@@ -367,7 +367,7 @@ function ConvertMsgBody()
 		else
 			$smcFunc['db_change_column']('{db_prefix}messages', 'body', array('type' => 'text'));
 
-		// 3rd party integrations may be interested in knowning about this.
+		// 3rd party integrations may be interested in knowing about this.
 		call_integration_hook('integrate_convert_msgbody', array($body_type));
 
 		$colData = $smcFunc['db_list_columns']('{db_prefix}messages', true);
@@ -815,11 +815,10 @@ function AdminBoardRecount()
 	checkSession('request');
 
 	// validate the request or the loop
-	if (!isset($_REQUEST['step']))
-		validateToken('admin-maint');
-	else
-		validateToken('admin-boardrecount');
-
+	validateToken(!isset($_REQUEST['step']) ? 'admin-maint' : 'admin-boardrecount');
+	$context['not_done_token'] = 'admin-boardrecount';
+	createToken($context['not_done_token']);
+	
 	$context['page_title'] = $txt['not_done_title'];
 	$context['continue_post_data'] = '';
 	$context['continue_countdown'] = 3;
@@ -911,9 +910,6 @@ function AdminBoardRecount()
 
 			if (microtime(true) - TIME_START > 3)
 			{
-				createToken('admin-boardrecount');
-				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '">';
-
 				$context['continue_get_data'] = '?action=admin;area=maintain;sa=routine;activity=recount;step=0;start=' . $_REQUEST['start'] . ';' . $context['session_var'] . '=' . $context['session_id'];
 				$context['continue_percent'] = round((100 * $_REQUEST['start'] / $max_topics) / $total_steps);
 
@@ -969,9 +965,6 @@ function AdminBoardRecount()
 
 			if (microtime(true) - TIME_START > 3)
 			{
-				createToken('admin-boardrecount');
-				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '">';
-
 				$context['continue_get_data'] = '?action=admin;area=maintain;sa=routine;activity=recount;step=1;start=' . $_REQUEST['start'] . ';' . $context['session_var'] . '=' . $context['session_id'];
 				$context['continue_percent'] = round((200 + 100 * $_REQUEST['start'] / $max_topics) / $total_steps);
 
@@ -1025,9 +1018,6 @@ function AdminBoardRecount()
 
 			if (microtime(true) - TIME_START > 3)
 			{
-				createToken('admin-boardrecount');
-				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '">';
-
 				$context['continue_get_data'] = '?action=admin;area=maintain;sa=routine;activity=recount;step=2;start=' . $_REQUEST['start'] . ';' . $context['session_var'] . '=' . $context['session_id'];
 				$context['continue_percent'] = round((300 + 100 * $_REQUEST['start'] / $max_topics) / $total_steps);
 
@@ -1081,9 +1071,6 @@ function AdminBoardRecount()
 
 			if (microtime(true) - TIME_START > 3)
 			{
-				createToken('admin-boardrecount');
-				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '">';
-
 				$context['continue_get_data'] = '?action=admin;area=maintain;sa=routine;activity=recount;step=3;start=' . $_REQUEST['start'] . ';' . $context['session_var'] . '=' . $context['session_id'];
 				$context['continue_percent'] = round((400 + 100 * $_REQUEST['start'] / $max_topics) / $total_steps);
 
@@ -1137,9 +1124,6 @@ function AdminBoardRecount()
 
 			if (microtime(true) - TIME_START > 3)
 			{
-				createToken('admin-boardrecount');
-				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '">';
-
 				$context['continue_get_data'] = '?action=admin;area=maintain;sa=routine;activity=recount;step=4;start=' . $_REQUEST['start'] . ';' . $context['session_var'] . '=' . $context['session_id'];
 				$context['continue_percent'] = round((500 + 100 * $_REQUEST['start'] / $max_topics) / $total_steps);
 
@@ -1186,9 +1170,6 @@ function AdminBoardRecount()
 
 		if (microtime(true) - TIME_START > 3)
 		{
-			createToken('admin-boardrecount');
-			$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '">';
-
 			$context['continue_get_data'] = '?action=admin;area=maintain;sa=routine;activity=recount;step=6;start=0;' . $context['session_var'] . '=' . $context['session_id'];
 			$context['continue_percent'] = round(700 / $total_steps);
 
@@ -1233,9 +1214,6 @@ function AdminBoardRecount()
 
 			if (microtime(true) - TIME_START > 3)
 			{
-				createToken('admin-boardrecount');
-				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '">';
-
 				$context['continue_get_data'] = '?action=admin;area=maintain;sa=routine;activity=recount;step=6;start=' . $_REQUEST['start'] . ';' . $context['session_var'] . '=' . $context['session_id'];
 				$context['continue_percent'] = round((700 + 100 * $_REQUEST['start'] / $modSettings['maxMsgID']) / $total_steps);
 
@@ -1739,7 +1717,7 @@ function MaintainRecountPosts()
 
 	// Lets get a group of members and determine their post count (from the boards that have post count enabled of course).
 	$request = $smcFunc['db_query']('', '
-		SELECT m.id_member, COUNT(m.id_member) AS posts
+		SELECT m.id_member, COUNT(*) AS posts
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}boards AS b ON m.id_board = b.id_board
 		WHERE m.id_member != {int:zero}
@@ -1845,6 +1823,18 @@ function MaintainRecountPosts()
 	redirectexit('action=admin;area=maintain;sa=members;done=recountposts');
 }
 
+function RebuildSettingsFile()
+{
+	global $sourcedir;
+
+	isAllowedTo('admin_forum');
+
+	require_once($sourcedir . '/Subs-Admin.php');
+	updateSettingsFile(array(), false, true);
+
+	redirectexit('action=admin;area=maintain;sa=routine;done=rebuild_settings');
+}
+
 /**
  * Generates a list of integration hooks for display
  * Accessed through ?action=admin;area=maintain;sa=hooks;
@@ -1852,16 +1842,37 @@ function MaintainRecountPosts()
  */
 function list_integration_hooks()
 {
-	global $sourcedir, $scripturl, $context, $txt;
+	global $boarddir, $sourcedir, $scripturl, $context, $txt;
 
-	$context['filter_url'] = '';
-	$context['current_filter'] = '';
-	$currentHooks = get_integration_hooks();
-	if (isset($_GET['filter']) && in_array($_GET['filter'], array_keys($currentHooks)))
+	$filter_url = '';
+	$current_filter = '';
+	$hooks = get_integration_hooks();
+	$hooks_filters = array();
+
+	if (isset($_GET['filter'], $hooks[$_GET['filter']]))
 	{
-		$context['filter_url'] = ';filter=' . $_GET['filter'];
-		$context['current_filter'] = $_GET['filter'];
+		$filter_url = ';filter=' . $_GET['filter'];
+		$current_filter = $_GET['filter'];
 	}
+	$filtered_hooks = array_filter(
+		$hooks,
+		function($hook) use ($current_filter)
+		{
+			return $current_filter == '' || $current_filter == $hook;
+		},
+		ARRAY_FILTER_USE_KEY
+	);
+	ksort($hooks);
+
+	foreach ($hooks as $hook => $functions)
+		$hooks_filters[] = '<option' . ($current_filter == $hook ? ' selected ' : '') . ' value="' . $hook . '">' . $hook . '</option>';
+
+	if (!empty($hooks_filters))
+		$context['insert_after_template'] .= '
+		<script>
+			var hook_name_header = document.getElementById(\'header_list_integration_hooks_hook_name\');
+			hook_name_header.innerHTML += ' . JavaScriptEscape('<select style="margin-left:15px;" onchange="window.location=(\'' . $scripturl . '?action=admin;area=maintain;sa=hooks\' + (this.value ? \';filter=\' + this.value : \'\'));"><option value="">' . $txt['hooks_reset_filter'] . '</option>' . implode('', $hooks_filters) . '</select>') . ';
+		</script>';
 
 	if (!empty($_REQUEST['do']) && isset($_REQUEST['hook']) && isset($_REQUEST['function']))
 	{
@@ -1873,14 +1884,15 @@ function list_integration_hooks()
 
 		else
 		{
-			$function_remove = urldecode($_REQUEST['function']) . (($_REQUEST['do'] == 'disable') ? '' : '!');
-			$function_add = urldecode($_REQUEST['function']) . (($_REQUEST['do'] == 'disable') ? '!' : '');
+			// Disable/enable logic; always remove exactly what was passed
+			$function_remove = urldecode($_REQUEST['function']);
+			$function_add = urldecode(rtrim($_REQUEST['function'], '!')) . (($_REQUEST['do'] == 'disable') ? '!' : '');
 
 			remove_integration_function($_REQUEST['hook'], $function_remove);
 			add_integration_function($_REQUEST['hook'], $function_add);
-
-			redirectexit('action=admin;area=maintain;sa=hooks' . $context['filter_url']);
 		}
+
+		redirectexit('action=admin;area=maintain;sa=hooks' . $filter_url);
 	}
 
 	createToken('admin-hook', 'request');
@@ -1889,13 +1901,25 @@ function list_integration_hooks()
 		'id' => 'list_integration_hooks',
 		'title' => $txt['hooks_title_list'],
 		'items_per_page' => 20,
-		'base_href' => $scripturl . '?action=admin;area=maintain;sa=hooks' . $context['filter_url'] . ';' . $context['session_var'] . '=' . $context['session_id'],
+		'base_href' => $scripturl . '?action=admin;area=maintain;sa=hooks' . $filter_url . ';' . $context['session_var'] . '=' . $context['session_id'],
 		'default_sort_col' => 'hook_name',
 		'get_items' => array(
 			'function' => 'get_integration_hooks_data',
+			'params' => array(
+				$filtered_hooks,
+				strtr($boarddir, '\\', '/'),
+				strtr($sourcedir, '\\', '/'),
+			),
 		),
 		'get_count' => array(
-			'function' => 'get_integration_hooks_count',
+			'value' => array_reduce(
+				$filtered_hooks,
+				function($accumulator, $functions)
+				{
+					return $accumulator + count($functions);
+				},
+				0
+			),
 		),
 		'no_items_label' => $txt['hooks_no_hooks'],
 		'columns' => array(
@@ -1921,12 +1945,13 @@ function list_integration_hooks()
 						// Show a nice icon to indicate this is an instance.
 						$instance = (!empty($data['instance']) ? '<span class="main_icons news" title="' . $txt['hooks_field_function_method'] . '"></span> ' : '');
 
-						if (!empty($data['included_file']))
+						if (!empty($data['included_file']) && !empty($data['real_function']))
 							return $instance . $txt['hooks_field_function'] . ': ' . $data['real_function'] . '<br>' . $txt['hooks_field_included_file'] . ': ' . $data['included_file'];
 
 						else
 							return $instance . $data['real_function'];
 					},
+					'class' => 'word_break',
 				),
 				'sort' => array(
 					'default' => 'function_name',
@@ -1939,6 +1964,7 @@ function list_integration_hooks()
 				),
 				'data' => array(
 					'db' => 'file_name',
+					'class' => 'word_break',
 				),
 				'sort' => array(
 					'default' => 'file_name',
@@ -1951,14 +1977,26 @@ function list_integration_hooks()
 					'style' => 'width:3%;',
 				),
 				'data' => array(
-					'function' => function($data) use ($txt, $scripturl, $context)
+					'function' => function($data) use ($txt, $scripturl, $context, $filter_url)
 					{
-						$change_status = array('before' => '', 'after' => '');
+						// Cannot update temp hooks in any way, really.  Just show the appropriate icon.
+						if ($data['status'] == 'temp')
+						{
+							return '<span class="main_icons ' . ($data['hook_exists'] ? 'posts' : 'error') . '" title="' . $data['img_text'] . '"></span>';
+						}
+						else
+						{
+							$change_status = array('before' => '', 'after' => '');
 
-						$change_status['before'] = '<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=' . ($data['enabled'] ? 'disable' : 'enable') . ';hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $context['filter_url'] . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="you_sure">';
-						$change_status['after'] = '</a>';
+							// Can only enable/disable if it exists...
+							if ($data['hook_exists'])
+							{
+								$change_status['before'] = '<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=' . ($data['enabled'] ? 'disable' : 'enable') . ';hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $filter_url . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="you_sure">';
+								$change_status['after'] = '</a>';
+							}
 
-						return $change_status['before'] . '<span class="main_icons post_moderation_' . $data['status'] . '" title="' . $data['img_text'] . '"></span>';
+							return $change_status['before'] . '<span class="main_icons post_moderation_' . $data['status'] . '" title="' . $data['img_text'] . '"></span>' . $change_status['after'];
+						}
 					},
 					'class' => 'centertext',
 				),
@@ -1977,6 +2015,8 @@ function list_integration_hooks()
 					<li><span class="main_icons post_moderation_allow"></span> ' . $txt['hooks_disable_legend_exists'] . '</li>
 					<li><span class="main_icons post_moderation_moderate"></span> ' . $txt['hooks_disable_legend_disabled'] . '</li>
 					<li><span class="main_icons post_moderation_deny"></span> ' . $txt['hooks_disable_legend_missing'] . '</li>
+					<li><span class="main_icons posts"></span> ' . $txt['hooks_disable_legend_temp'] . '</li>
+					<li><span class="main_icons error"></span> ' . $txt['hooks_disable_legend_temp_missing'] . '</li>
 				</ul>'
 			),
 		),
@@ -1988,11 +2028,12 @@ function list_integration_hooks()
 			'style' => 'width:3%',
 		),
 		'data' => array(
-			'function' => function($data) use ($txt, $scripturl, $context)
+			'function' => function($data) use ($txt, $scripturl, $context, $filter_url)
 			{
-				if (!$data['hook_exists'])
+				// Note: Cannot remove temp hooks via the UI...
+				if (!$data['hook_exists'] && $data['status'] != 'temp')
 					return '
-					<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=remove;hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $context['filter_url'] . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="you_sure">
+					<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=remove;hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $filter_url . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="you_sure">
 						<span class="main_icons delete" title="' . $txt['hooks_button_remove'] . '"></span>
 					</a>';
 			},
@@ -2000,7 +2041,7 @@ function list_integration_hooks()
 		),
 	);
 	$list_options['form'] = array(
-		'href' => $scripturl . '?action=admin;area=maintain;sa=hooks' . $context['filter_url'] . ';' . $context['session_var'] . '=' . $context['session_id'],
+		'href' => $scripturl . '?action=admin;area=maintain;sa=hooks' . $filter_url . ';' . $context['session_var'] . '=' . $context['session_id'],
 		'name' => 'list_integration_hooks',
 	);
 
@@ -2015,29 +2056,25 @@ function list_integration_hooks()
 /**
  * Gets all of the files in a directory and its children directories
  *
- * @param string $dir_path The path to the directory
+ * @param string $dirname The path to the directory
  * @return array An array containing information about the files found in the specified directory and its children
  */
-function get_files_recursive($dir_path)
+function get_files_recursive(string $dirname): array
 {
-	$files = array();
-
-	if ($dh = opendir($dir_path))
-	{
-		while (($file = readdir($dh)) !== false)
-		{
-			if ($file != '.' && $file != '..')
-			{
-				if (is_dir($dir_path . '/' . $file))
-					$files = array_merge($files, get_files_recursive($dir_path . '/' . $file));
-				else
-					$files[] = array('dir' => $dir_path, 'name' => $file);
-			}
-		}
-	}
-	closedir($dh);
-
-	return $files;
+	return iterator_to_array(
+		new RecursiveIteratorIterator(
+			new RecursiveCallbackFilterIterator(
+				new RecursiveDirectoryIterator($dirname, FilesystemIterator::UNIX_PATHS),
+				function ($fileInfo, $currentFile, $iterator)
+				{
+					// Allow recursion
+					if ($iterator->hasChildren())
+						return true;
+					return $fileInfo->getExtension() == 'php';
+				}
+			)
+		)
+	);
 }
 
 /**
@@ -2049,158 +2086,57 @@ function get_files_recursive($dir_path)
  * @param string $sort A string indicating how to sort things
  * @return array An array of information about the integration hooks
  */
-function get_integration_hooks_data($start, $per_page, $sort)
+function get_integration_hooks_data($start, $per_page, $sort, $filtered_hooks, $normalized_boarddir, $normalized_sourcedir)
 {
-	global $boarddir, $sourcedir, $settings, $txt, $context, $scripturl;
+	global $settings, $txt, $context, $scripturl;
 
-	$hooks = $temp_hooks = get_integration_hooks();
-	$hooks_data = $temp_data = $hook_status = array();
-
-	$files = get_files_recursive($sourcedir);
-	if (!empty($files))
-	{
-		foreach ($files as $file)
-		{
-			if (is_file($file['dir'] . '/' . $file['name']) && substr($file['name'], -4) === '.php')
-			{
-				$fp = fopen($file['dir'] . '/' . $file['name'], 'rb');
-				$fc = fread($fp, filesize($file['dir'] . '/' . $file['name']));
-				fclose($fp);
-
-				foreach ($temp_hooks as $hook => $allFunctions)
-				{
-					foreach ($allFunctions as $rawFunc)
-					{
-						// Get the hook info.
-						$hookParsedData = get_hook_info_from_raw($rawFunc);
-
-						if (substr($hook, -8) === '_include')
-						{
-							$hook_status[$hook][$hookParsedData['class']][$hookParsedData['pureFunc']]['exists'] = file_exists(strtr(trim($rawFunc), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir'])));
-							// I need to know if there is at least one function called in this file.
-							$temp_data['include'][$hookParsedData['pureFunc']] = array('hook' => $hook, 'function' => $hookParsedData['pureFunc']);
-							unset($temp_hooks[$hook][$rawFunc]);
-						}
-						elseif (strpos(str_replace(' (', '(', $fc), 'function ' . trim($hookParsedData['pureFunc']) . '(') !== false)
-						{
-							$hook_status[$hook][$hookParsedData['class']][$hookParsedData['pureFunc']] = $hookParsedData;
-							$hook_status[$hook][$hookParsedData['class']][$hookParsedData['pureFunc']]['exists'] = true;
-							$hook_status[$hook][$hookParsedData['class']][$hookParsedData['pureFunc']]['in_file'] = (!empty($hookParsedData['hookFile']) ? $hookParsedData['hookFile'] : (!empty($file['name']) ? $file['name'] : ''));
-
-							// Does the hook has its own file?
-							if (!empty($hookParsedData['hookFile']))
-								$temp_data['include'][$hookParsedData['pureFunc']] = array('hook' => $hook, 'function' => $hookParsedData['pureFunc']);
-
-							// I want to remember all the functions called within this file (to check later if they are enabled or disabled and decide if the integrare_*_include of that file can be disabled too)
-							$temp_data['function'][$file['name']][$hookParsedData['pureFunc']] = $hookParsedData['enabled'];
-							unset($temp_hooks[$hook][$rawFunc]);
-						}
-					}
-				}
-			}
-		}
-	}
+	$function_list = $sort_array = $temp_data = array();
+	$files = get_files_recursive($normalized_sourcedir);
+	foreach ($files as $currentFile => $fileInfo)
+		$function_list += get_defined_functions_in_file($currentFile);
 
 	$sort_types = array(
-		'hook_name' => array('hook', SORT_ASC),
-		'hook_name DESC' => array('hook', SORT_DESC),
-		'function_name' => array('function', SORT_ASC),
-		'function_name DESC' => array('function', SORT_DESC),
+		'hook_name' => array('hook_name', SORT_ASC),
+		'hook_name DESC' => array('hook_name', SORT_DESC),
+		'function_name' => array('function_name', SORT_ASC),
+		'function_name DESC' => array('function_name', SORT_DESC),
 		'file_name' => array('file_name', SORT_ASC),
 		'file_name DESC' => array('file_name', SORT_DESC),
 		'status' => array('status', SORT_ASC),
 		'status DESC' => array('status', SORT_DESC),
 	);
 
-	$sort_options = $sort_types[$sort];
-	$sort = array();
-	$hooks_filters = array();
-
-	foreach ($hooks as $hook => $functions)
-		$hooks_filters[] = '<option' . ($context['current_filter'] == $hook ? ' selected ' : '') . ' value="' . $hook . '">' . $hook . '</option>';
-
-	if (!empty($hooks_filters))
-		$context['insert_after_template'] .= '
-		<script>
-			var hook_name_header = document.getElementById(\'header_list_integration_hooks_hook_name\');
-			hook_name_header.innerHTML += ' . JavaScriptEscape('<select style="margin-left:15px;" onchange="window.location=(\'' . $scripturl . '?action=admin;area=maintain;sa=hooks\' + (this.value ? \';filter=\' + this.value : \'\'));"><option value="">' . $txt['hooks_reset_filter'] . '</option>' . implode('', $hooks_filters) . '</select>') . ';
-		</script>';
-
-	$temp_data = array();
-	$id = 0;
-
-	foreach ($hooks as $hook => $functions)
-	{
-		if (empty($context['filter']) || (!empty($context['filter']) && $context['filter'] == $hook))
+	foreach ($filtered_hooks as $hook => $functions)
+		foreach ($functions as $rawFunc)
 		{
-			foreach ($functions as $rawFunc)
-			{
-				// Get the hook info.
-				$hookParsedData = get_hook_info_from_raw($rawFunc);
+			$hookParsedData = parse_integration_hook($hook, $rawFunc);
 
-				$hook_exists = !empty($hook_status[$hook][$hookParsedData['class']][$hookParsedData['pureFunc']]['exists']);
-				$sort[] = $sort_options[0];
+			// Handle hooks pointing outside the sources directory.
+			$absPath_clean =  rtrim($hookParsedData['absPath'], '!');
+			if ($absPath_clean != '' && !isset($files[$absPath_clean]) && file_exists($absPath_clean))
+				$function_list += get_defined_functions_in_file($absPath_clean);
 
-				$temp_data[] = array(
-					'id' => 'hookid_' . $id++,
-					'hook_name' => $hook,
-					'function_name' => $hookParsedData['rawData'],
-					'real_function' => $hookParsedData['pureFunc'],
-					'included_file' => !empty($hookParsedData['absPath']) ? $hookParsedData['absPath'] : '',
-					'file_name' => (isset($hook_status[$hook][$hookParsedData['class']][$hookParsedData['pureFunc']]['in_file']) ? $hook_status[$hook][$hookParsedData['class']][$hookParsedData['pureFunc']]['in_file'] : (!empty($hookParsedData['hookFile']) ? $hookParsedData['hookFile'] : '')),
-					'instance' => $hookParsedData['object'],
-					'hook_exists' => $hook_exists,
-					'status' => $hook_exists ? ($hookParsedData['enabled'] ? 'allow' : 'moderate') : 'deny',
-					'img_text' => $txt['hooks_' . ($hook_exists ? ($hookParsedData['enabled'] ? 'active' : 'disabled') : 'missing')],
-					'enabled' => $hookParsedData['enabled'],
-					'can_be_disabled' => !isset($hook_status[$hook][$hookParsedData['class']][$hookParsedData['pureFunc']]['enabled']),
-				);
-			}
+			$hook_exists = isset($function_list[$hookParsedData['call']]) || (substr($hook, -8) === '_include' && isset($files[$absPath_clean]));
+			$hook_temp = !empty($context['integration_hooks_temporary'][$hook][$hookParsedData['rawData']]);
+			$temp = array(
+				'hook_name' => $hook,
+				'function_name' => $hookParsedData['rawData'],
+				'real_function' => $hookParsedData['call'],
+				'included_file' => $hookParsedData['hookFile'],
+				'file_name' => strtr($hookParsedData['absPath'] ?: ($function_list[$hookParsedData['call']] ?? ''), [$normalized_boarddir => '.']),
+				'instance' => $hookParsedData['object'],
+				'hook_exists' => $hook_exists,
+				'status' => ($hook_temp ? 'temp' : ($hook_exists ? ($hookParsedData['enabled'] ? 'allow' : 'moderate') : 'deny')),
+				'img_text' => $txt['hooks_' . ($hook_exists ? ($hook_temp ? 'temp' : ($hookParsedData['enabled'] ? 'active' : 'disabled')) : 'missing')],
+				'enabled' => $hookParsedData['enabled'],
+			);
+			$sort_array[] = $temp[$sort_types[$sort][0]];
+			$temp_data[] = $temp;
 		}
-	}
 
-	array_multisort($sort, $sort_options[1], $temp_data);
+	array_multisort($sort_array, $sort_types[$sort][1], $temp_data);
 
-	$counter = 0;
-	$start++;
-
-	foreach ($temp_data as $data)
-	{
-		if (++$counter < $start)
-			continue;
-		elseif ($counter == $start + $per_page)
-			break;
-
-		$hooks_data[] = $data;
-	}
-
-	return $hooks_data;
-}
-
-/**
- * Simply returns the total count of integration hooks
- * Used by the integration hooks list function (list_integration_hooks)
- *
- * @return int The number of hooks currently in use
- */
-function get_integration_hooks_count()
-{
-	global $context;
-
-	$hooks = get_integration_hooks();
-	$hooks_count = 0;
-
-	$context['filter'] = false;
-	if (isset($_GET['filter']))
-		$context['filter'] = $_GET['filter'];
-
-	foreach ($hooks as $hook => $functions)
-	{
-		if (empty($context['filter']) || (!empty($context['filter']) && $context['filter'] == $hook))
-			$hooks_count += count($functions);
-	}
-
-	return $hooks_count;
+	return array_slice($temp_data, $start, $per_page, true);
 }
 
 /**
@@ -2229,10 +2165,11 @@ function get_integration_hooks()
 /**
  * Parses each hook data and returns an array.
  *
+ * @param string $hook
  * @param string $rawData A string as it was saved to the DB.
  * @return array everything found in the string itself
  */
-function get_hook_info_from_raw($rawData)
+function parse_integration_hook(string $hook, string $rawData)
 {
 	global $boarddir, $settings, $sourcedir;
 
@@ -2240,12 +2177,12 @@ function get_hook_info_from_raw($rawData)
 	$hookData = array(
 		'object' => false,
 		'enabled' => true,
-		'fileExists' => false,
 		'absPath' => '',
 		'hookFile' => '',
 		'pureFunc' => '',
 		'method' => '',
 		'class' => '',
+		'call' => '',
 		'rawData' => $rawData,
 	);
 
@@ -2253,23 +2190,15 @@ function get_hook_info_from_raw($rawData)
 	if (empty($rawData))
 		return $hookData;
 
-	// For convenience purposes only!
 	$modFunc = $rawData;
 
 	// Any files?
+	if (substr($hook, -8) === '_include')
+		$modFunc = $modFunc . '|';
 	if (strpos($modFunc, '|') !== false)
 	{
 		list ($hookData['hookFile'], $modFunc) = explode('|', $modFunc);
-
-		// Does the file exists? who knows!
-		if (empty($settings['theme_dir']))
-			$hookData['absPath'] = strtr(trim($hookData['hookFile']), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir));
-
-		else
-			$hookData['absPath'] = strtr(trim($hookData['hookFile']), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir']));
-
-		$hookData['fileExists'] = file_exists($hookData['absPath']);
-		$hookData['hookFile'] = basename($hookData['hookFile']);
+		$hookData['absPath'] = strtr(strtr(trim($hookData['hookFile']), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir'] ?? '')), '\\', '/');
 	}
 
 	// Hook is an instance.
@@ -2280,7 +2209,8 @@ function get_hook_info_from_raw($rawData)
 	}
 
 	// Hook is "disabled"
-	if (strpos($modFunc, '!') !== false)
+	// May need to inspect $rawData here for includes...
+	if ((strpos($modFunc, '!') !== false) || (empty($modFunc) && (strpos($rawData, '!') !== false)))
 	{
 		$modFunc = str_replace('!', '', $modFunc);
 		$hookData['enabled'] = false;
@@ -2291,12 +2221,36 @@ function get_hook_info_from_raw($rawData)
 	{
 		list ($hookData['class'], $hookData['method']) = explode('::', $modFunc);
 		$hookData['pureFunc'] = $hookData['method'];
+		$hookData['call'] = $modFunc;
 	}
 
 	else
-		$hookData['pureFunc'] = $modFunc;
+		$hookData['call'] = $hookData['pureFunc'] = $modFunc;
 
 	return $hookData;
+}
+
+function get_defined_functions_in_file(string $file): array
+{
+	$source = file_get_contents($file);
+	// token_get_all() is too slow so use a nice little regex instead.
+	preg_match_all('/\bnamespace\s++((?P>label)(?:\\\(?P>label))*+)\s*+;|\bclass\s++((?P>label))[\w\s]*+{|\bfunction\s++((?P>label))\s*+\(.*\)[:\|\w\s]*+{(?(DEFINE)(?<label>[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*+))/i', $source, $matches, PREG_SET_ORDER);
+
+	$functions = array();
+	$namespace = '';
+	$class = '';
+
+	foreach ($matches as $match)
+	{
+		if (!empty($match[1]))
+			$namespace = $match[1] . '\\';
+		elseif (!empty($match[2]))
+			$class = $namespace . $match[2] . '::';
+		elseif (!empty($match[3]))
+			$functions[$class . $match[3]] = $file;
+	}
+
+	return $functions;
 }
 
 /**

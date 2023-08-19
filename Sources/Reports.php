@@ -15,10 +15,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
 if (!defined('SMF'))
@@ -175,7 +175,7 @@ function BoardReport()
 		array(
 		)
 	);
-	$groups = array(-1 => $txt['guest_title'], 0 => $txt['full_member']);
+	$groups = array(-1 => $txt['guest_title'], 0 => $txt['membergroups_members']);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$groups[$row['id_group']] = empty($row['online_color']) ? $row['group_name'] : '<span style="color: ' . $row['online_color'] . '">' . $row['group_name'] . '</span>';
 	$smcFunc['db_free_result']($request);
@@ -218,7 +218,7 @@ function BoardReport()
 
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		// Each board has it's own table.
+		// Each board has its own table.
 		newTable($row['name'], '', 'left', 'auto', 'left', 200, 'left');
 
 		$this_boardSettings = $boardSettings;
@@ -821,7 +821,7 @@ function StaffReport()
 		array(
 		)
 	);
-	$groups = array(0 => $txt['full_member']);
+	$groups = array(0 => $txt['membergroups_members']);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$groups[$row['id_group']] = empty($row['online_color']) ? $row['group_name'] : '<span style="color: ' . $row['online_color'] . '">' . $row['group_name'] . '</span>';
 	$smcFunc['db_free_result']($request);

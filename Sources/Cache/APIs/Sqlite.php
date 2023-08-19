@@ -5,21 +5,27 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.2
  */
 
+namespace SMF\Cache\APIs;
+
+use SMF\Cache\CacheApi;
+use SMF\Cache\CacheApiInterface;
+use SQLite3;
+
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * SQLite Cache API class
  *
- * @package cacheAPI
+ * @package CacheAPI
  */
-class sqlite_cache extends cache_api
+class Sqlite extends CacheApi implements CacheApiInterface
 {
 	/**
 	 * @var string The path to the current $cachedir directory.
@@ -103,7 +109,7 @@ class sqlite_cache extends cache_api
 	public function cleanCache($type = '')
 	{
 		if ($type == 'expired')
-			$query = 'DELETE FROM cache WHERE ttl >= ' . time() . ';';
+			$query = 'DELETE FROM cache WHERE ttl < ' . time() . ';';
 		else
 			$query = 'DELETE FROM cache;';
 
@@ -111,6 +117,8 @@ class sqlite_cache extends cache_api
 
 		$query = 'VACUUM;';
 		$this->cacheDB->exec($query);
+
+		$this->invalidateCache();
 
 		return $result;
 	}
@@ -122,16 +130,27 @@ class sqlite_cache extends cache_api
 	{
 		global $context, $txt;
 
-		$config_vars[] = $txt['cache_sqlite_settings'];
-		$config_vars[] = array('cachedir_sqlite', $txt['cachedir_sqlite'], 'file', 'text', 36, 'cache_sqlite_cachedir');
+		$class_name = $this->getImplementationClassKeyName();
+		$class_name_txt_key = strtolower($class_name);
+
+		$config_vars[] = $txt['cache_'. $class_name_txt_key .'_settings'];
+		$config_vars[] = array(
+			'cachedir_'. $class_name_txt_key,
+			$txt['cachedir_'. $class_name_txt_key],
+			'file',
+			'text',
+			36,
+			'cache_'. $class_name_txt_key .'_cachedir',
+		);
 
 		if (!isset($context['settings_post_javascript']))
 			$context['settings_post_javascript'] = '';
 
-		$context['settings_post_javascript'] .= '
+		if (empty($context['settings_not_writable']))
+			$context['settings_post_javascript'] .= '
 			$("#cache_accelerator").change(function (e) {
 				var cache_type = e.currentTarget.value;
-				$("#cachedir_sqlite").prop("disabled", cache_type != "sqlite");
+				$("#cachedir_'. $class_name_txt_key .'").prop("disabled", cache_type != "'. $class_name .'");
 			});';
 	}
 
@@ -146,14 +165,21 @@ class sqlite_cache extends cache_api
 	 */
 	public function setCachedir($dir = null)
 	{
-		global $cachedir, $cachedir_sqlite;
+		global $cachedir, $cachedir_sqlite, $sourcedir;
 
 		// If its invalid, use SMF's.
-		if (is_null($dir) || !is_writable($dir))
-			if (is_null($cachedir_sqlite) || !is_writable($cachedir_sqlite))
-				$this->cachedir = $cachedir;
-			else
-				$this->cachedir = $cachedir_sqlite;
+		if (!isset($dir) || !is_writable($dir))
+		{
+			if (!isset($cachedir_sqlite) || !is_writable($cachedir_sqlite))
+			{
+				$cachedir_sqlite = $cachedir;
+
+				require_once($sourcedir . '/Subs-Admin.php');
+				updateSettingsFile(array('cachedir_sqlite' => $cachedir_sqlite));
+			}
+
+			$this->cachedir = $cachedir_sqlite;
+		}
 		else
 			$this->cachedir = $dir;
 	}
@@ -163,8 +189,10 @@ class sqlite_cache extends cache_api
 	 */
 	public function getVersion()
 	{
-		$temp = $this->cacheDB->version();
-		return $temp['versionString'];
+		if (null == $this->cacheDB)
+			$this->connect();
+
+		return $this->cacheDB->version()['versionString'];
 	}
 
 	/**

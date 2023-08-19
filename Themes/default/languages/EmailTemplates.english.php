@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC3; EmailTemplates
+// Version: 2.1.0; EmailTemplates
 
 // Since all of these strings are being used in emails, numeric entities should be used.
 
@@ -385,7 +385,7 @@ You can approve or reject this application by using the link below:
 $txt['paid_subscription_reminder_subject'] = 'Subscription about to expire at {FORUMNAME}';
 $txt['paid_subscription_reminder_body'] = '{REALNAME},
 
-A subscription you are subscribed to at {FORUMNAME} is about to expire. If when you took out the subscription you selected to auto-renew you need take no action, otherwise you may wish to consider subscribing once more. Details are below:
+Your subscription at {FORUMNAME} is about to expire. If you have elected to auto-renew, you do not need to take action; otherwise, you may wish to consider subscribing once more. Details are below:
 
 Subscription Name: {SUBSCRIPTION}
 Expires: {END_DATE}

@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
 if (!defined('SMF'))
@@ -22,6 +22,17 @@ if (!defined('SMF'))
 function AutoTask()
 {
 	global $smcFunc;
+
+	// We bail out of index.php too early for these to be called.
+	frameOptionsHeader();
+	corsPolicyHeader();
+
+	// Requests from a CORS response may send a options to find if the request is valid.  Simply bail out here, the cors header have been sent already.
+	if (isset($_SERVER['HTTP_X_SMF_AJAX']) && isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS')
+	{
+		send_http_status(204);
+		die;
+	}
 
 	// Special case for doing the mail queue.
 	if (isset($_GET['scheduled']) && $_GET['scheduled'] == 'mailq')
@@ -701,7 +712,7 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 
 	// Now we know how many we're sending, let's send them.
 	$request = $smcFunc['db_query']('', '
-		SELECT id_mail, recipient, body, subject, headers, send_html, time_sent, private
+		SELECT id_mail, recipient, body, subject, headers, send_html, time_sent, private, priority
 		FROM {db_prefix}mail_queue
 		ORDER BY priority ASC, id_mail ASC
 		LIMIT {int:limit}',
@@ -723,6 +734,7 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 			'send_html' => $row['send_html'],
 			'time_sent' => $row['time_sent'],
 			'private' => $row['private'],
+			'priority' => $row['priority'],
 		);
 	}
 	$smcFunc['db_free_result']($request);
@@ -761,8 +773,18 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 
 	// Send each email, yea!
 	$failed_emails = array();
+	$max_priority = 127;
+	$smtp_expire = 259200;
+	$priority_offset = 4;
 	foreach ($emails as $email)
 	{
+		// This seems odd, but check the priority if we should try again so soon. Do this so we don't DOS some poor mail server.
+		if ($email['priority'] > $priority_offset && (time() - $email['time_sent']) % $priority_offset != rand(0, $priority_offset))
+		{
+			$failed_emails[] = array($email['to'], $email['body'], $email['subject'], $email['headers'], $email['send_html'], $email['time_sent'], $email['private'], $email['priority']);
+			continue;
+		}
+
 		if (empty($modSettings['mail_type']) || $modSettings['smtp_host'] == '')
 		{
 			$email['subject'] = strtr($email['subject'], array("\r" => '', "\n" => ''));
@@ -783,10 +805,20 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 		else
 			$result = smtp_mail(array($email['to']), $email['subject'], $email['body'], $email['headers']);
 
+		// Old emails should expire
+		if (!$result && $email['priority'] >= $max_priority)
+			$result = true;
+
 		// Hopefully it sent?
 		if (!$result)
-			$failed_emails[] = array($email['to'], $email['body'], $email['subject'], $email['headers'], $email['send_html'], $email['time_sent'], $email['private']);
+		{
+			// Determine the "priority" as a way to keep track of SMTP failures.
+			$email['priority'] = max($priority_offset, $email['priority'], min(ceil((time() - $email['time_sent']) / $smtp_expire * ($max_priority - $priority_offset)) + $priority_offset, $max_priority));
+
+			$failed_emails[] = array($email['to'], $email['body'], $email['subject'], $email['headers'], $email['send_html'], $email['time_sent'], $email['private'], $email['priority']);
+		}
 	}
+
 
 	// Any emails that didn't send?
 	if (!empty($failed_emails))
@@ -815,7 +847,7 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 		// Add our email back to the queue, manually.
 		$smcFunc['db_insert']('insert',
 			'{db_prefix}mail_queue',
-			array('recipient' => 'string', 'body' => 'string', 'subject' => 'string', 'headers' => 'string', 'send_html' => 'string', 'time_sent' => 'string', 'private' => 'int'),
+			array('recipient' => 'string', 'body' => 'string', 'subject' => 'string', 'headers' => 'string', 'send_html' => 'string', 'time_sent' => 'string', 'private' => 'int', 'priority' => 'int'),
 			$failed_emails,
 			array('id_mail')
 		);
@@ -1040,7 +1072,7 @@ function loadEssentialThemeData()
 }
 
 /**
- * This retieves data (e.g. last version of SMF) from sm.org
+ * This retrieves data (e.g. last version of SMF) from sm.org
  */
 function scheduled_fetchSMfiles()
 {
@@ -1573,6 +1605,183 @@ function scheduled_remove_old_drafts()
 		require_once($sourcedir . '/Drafts.php');
 		DeleteDraft($drafts, false);
 	}
+
+	return true;
+}
+
+/**
+ * Prune log_topics, log_boards & log_mark_boards_read.
+ * For users who haven't been active in a long time, purge these records.
+ * For users who haven't been active in a shorter time, mark boards as read,
+ * pruning log_topics.
+ */
+function scheduled_prune_log_topics()
+{
+	global $smcFunc, $sourcedir, $modSettings;
+
+	// If set to zero, bypass
+	if (empty($modSettings['mark_read_max_users']) || (empty($modSettings['mark_read_beyond']) && empty($modSettings['mark_read_delete_beyond'])))
+		return true;
+
+	// Convert to timestamps for comparison
+	if (empty($modSettings['mark_read_beyond']))
+		$markReadCutoff = 0;
+	else
+		$markReadCutoff = time() - $modSettings['mark_read_beyond'] * 86400;
+
+	if (empty($modSettings['mark_read_delete_beyond']))
+		$cleanupBeyond = 0;
+	else
+		$cleanupBeyond = time() - $modSettings['mark_read_delete_beyond'] * 86400;
+
+	$maxMembers = $modSettings['mark_read_max_users'];
+
+	// You're basically saying to just purge, so just purge
+	if ($markReadCutoff < $cleanupBeyond)
+		$markReadCutoff = $cleanupBeyond;
+
+	// Try to prevent timeouts
+	@set_time_limit(300);
+	if (function_exists('apache_reset_timeout'))
+		@apache_reset_timeout();
+
+	// Start off by finding the records in log_boards, log_topics & log_mark_read
+	// for users who haven't been around the longest...
+	$members = array();
+	$sql = 'SELECT lb.id_member, m.last_login
+			FROM {db_prefix}members m
+			INNER JOIN
+			(
+				SELECT DISTINCT id_member
+				FROM {db_prefix}log_boards
+			) lb ON m.id_member = lb.id_member
+			WHERE m.last_login <= {int:dcutoff}
+		UNION
+		SELECT lmr.id_member, m.last_login
+			FROM {db_prefix}members m
+			INNER JOIN
+			(
+				SELECT DISTINCT id_member
+				FROM {db_prefix}log_mark_read
+			) lmr ON m.id_member = lmr.id_member
+			WHERE m.last_login <= {int:dcutoff}
+		UNION
+		SELECT lt.id_member, m.last_login
+			FROM {db_prefix}members m
+			INNER JOIN
+			(
+				SELECT DISTINCT id_member
+				FROM {db_prefix}log_topics
+				WHERE unwatched = {int:unwatched}
+			) lt ON m.id_member = lt.id_member
+			WHERE m.last_login <= {int:mrcutoff}
+		ORDER BY last_login
+		LIMIT {int:limit}';
+	$result = $smcFunc['db_query']('', $sql,
+		array(
+			'limit' => $maxMembers,
+			'dcutoff' => $cleanupBeyond,
+			'mrcutoff' => $markReadCutoff,
+			'unwatched' => 0,
+		)
+	);
+
+	// Move to array...
+	$members = $smcFunc['db_fetch_all']($result);
+	$smcFunc['db_free_result']($result);
+
+	// Nothing to do?
+	if (empty($members))
+		return true;
+
+	// Determine action based on last_login...
+	$purgeMembers = array();
+	$markReadMembers = array();
+	foreach($members as $member)
+	{
+		if ($member['last_login'] <= $cleanupBeyond)
+			$purgeMembers[] = $member['id_member'];
+		elseif ($member['last_login'] <= $markReadCutoff)
+			$markReadMembers[] = $member['id_member'];
+	}
+
+	if (!empty($purgeMembers) && !empty($modSettings['mark_read_delete_beyond']))
+	{
+		// Delete rows from log_boards
+		$sql = 'DELETE FROM {db_prefix}log_boards
+			WHERE id_member IN ({array_int:members})';
+		$smcFunc['db_query']('', $sql,
+			array(
+				'members' => $purgeMembers,
+			)
+		);
+		// Delete rows from log_mark_read
+		$sql = 'DELETE FROM {db_prefix}log_mark_read
+			WHERE id_member IN ({array_int:members})';
+		$smcFunc['db_query']('', $sql,
+			array(
+				'members' => $purgeMembers,
+			)
+		);
+		// Delete rows from log_topics
+		$sql = 'DELETE FROM {db_prefix}log_topics
+			WHERE id_member IN ({array_int:members})
+				AND unwatched = {int:unwatched}';
+		$smcFunc['db_query']('', $sql,
+			array(
+				'members' => $purgeMembers,
+				'unwatched' => 0,
+			)
+		);
+	}
+
+	// Nothing left to do?
+	if (empty($markReadMembers) || empty($modSettings['mark_read_beyond']))
+		return true;
+
+	// Find board inserts to perform...
+	// Get board info for each member from log_topics.
+	// Note this user may have read many topics on that board,
+	// but we just want one row each, & the ID of the last message read in each board.
+	$boards = array();
+	$sql = 'SELECT lt.id_member, t.id_board, MAX(lt.id_msg) AS id_last_message
+		FROM {db_prefix}topics t
+		INNER JOIN
+		(
+			SELECT id_member, id_topic, id_msg
+			FROM {db_prefix}log_topics
+			WHERE id_member IN ({array_int:members})
+		) lt ON t.id_topic = lt.id_topic
+		GROUP BY lt.id_member, t.id_board';
+	$result = $smcFunc['db_query']('', $sql,
+		array(
+			'members' => $markReadMembers,
+		)
+	);
+	$boards = $smcFunc['db_fetch_all']($result);
+	$smcFunc['db_free_result']($result);
+
+	// Create one SQL statement for this set of inserts
+	if (!empty($boards))
+	{
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}log_mark_read',
+			array('id_member' => 'int', 'id_board' => 'int', 'id_msg' => 'int'),
+			$boards,
+			array('id_member', 'id_board')
+		);
+	}
+
+	// Finally, delete this set's rows from log_topics
+	$sql = 'DELETE FROM {db_prefix}log_topics
+		WHERE id_member IN ({array_int:members})
+			AND unwatched = {int:unwatched}';
+	$smcFunc['db_query']('', $sql,
+		array(
+			'members' => $markReadMembers,
+			'unwatched' => 0,
+		)
+	);
 
 	return true;
 }

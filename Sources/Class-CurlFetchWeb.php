@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
 if (!defined('SMF'))
@@ -323,7 +323,7 @@ class curl_fetch_web_data
 		else
 			$this->options = $this->default_options;
 
-		// POST data options, here we don't allow any overide
+		// POST data options, here we don't allow any override
 		if (isset($this->post_data))
 		{
 			$this->options[CURLOPT_POST] = 1;

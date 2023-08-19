@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
 /**
@@ -133,7 +133,7 @@ function template_ban_edit()
 							<label for="email_check">', $txt['ban_on_email'], '</label>
 						</dt>
 						<dd>
-							<input type="text" name="email" value="', $context['ban_suggestions']['email'], '" size="44" onfocus="document.getElementById(\'email_check\').checked = true;">
+							<input type="email" name="email" value="', $context['ban_suggestions']['email'], '" size="44" onfocus="document.getElementById(\'email_check\').checked = true;">
 						</dd>
 						<dt>
 							<input type="checkbox" name="ban_suggestions[]" id="user_check" value="user"', !empty($context['ban_suggestions']['user']) || isset($context['ban']['from_user']) ? ' checked' : '', '>
@@ -258,11 +258,16 @@ function template_ban_edit_trigger()
 				</h3>
 			</div>
 			<div class="windowbg">
-				<fieldset>
+				<fieldset>';
+	if ($context['ban_trigger']['is_new'])
+		echo '
 					<legend>
 						<input type="checkbox" onclick="invertAll(this, this.form, \'ban_suggestion\');"> ', $txt['ban_triggers'], '
-					</legend>
-					<dl class="settings">
+					</legend>';
+	echo '
+					<dl class="settings">';
+	if ($context['ban_trigger']['is_new'] || $context['ban_trigger']['ip']['selected'])
+		echo '
 						<dt>
 							<input type="checkbox" name="ban_suggestions[]" id="main_ip_check" value="main_ip"', $context['ban_trigger']['ip']['selected'] ? ' checked' : '', '>
 							<label for="main_ip_check">', $txt['ban_on_ip'], '</label>
@@ -271,7 +276,7 @@ function template_ban_edit_trigger()
 							<input type="text" name="main_ip" value="', $context['ban_trigger']['ip']['value'], '" size="44" onfocus="document.getElementById(\'main_ip_check\').checked = true;">
 						</dd>';
 
-	if (empty($modSettings['disableHostnameLookup']))
+	if (empty($modSettings['disableHostnameLookup']) && ($context['ban_trigger']['is_new'] || $context['ban_trigger']['hostname']['selected']))
 		echo '
 						<dt>
 							<input type="checkbox" name="ban_suggestions[]" id="hostname_check" value="hostname"', $context['ban_trigger']['hostname']['selected'] ? ' checked' : '', '>
@@ -280,22 +285,25 @@ function template_ban_edit_trigger()
 						<dd>
 							<input type="text" name="hostname" value="', $context['ban_trigger']['hostname']['value'], '" size="44" onfocus="document.getElementById(\'hostname_check\').checked = true;">
 						</dd>';
-
-	echo '
+	if ($context['ban_trigger']['is_new'] || $context['ban_trigger']['email']['selected'])
+		echo '
 						<dt>
 							<input type="checkbox" name="ban_suggestions[]" id="email_check" value="email"', $context['ban_trigger']['email']['selected'] ? ' checked' : '', '>
 							<label for="email_check">', $txt['ban_on_email'], '</label>
 						</dt>
 						<dd>
-							<input type="text" name="email" value="', $context['ban_trigger']['email']['value'], '" size="44" onfocus="document.getElementById(\'email_check\').checked = true;">
-						</dd>
+							<input type="email" name="email" value="', $context['ban_trigger']['email']['value'], '" size="44" onfocus="document.getElementById(\'email_check\').checked = true;">
+						</dd>';
+	if ($context['ban_trigger']['is_new'] || $context['ban_trigger']['banneduser']['selected'])
+		echo '
 						<dt>
 							<input type="checkbox" name="ban_suggestions[]" id="user_check" value="user"', $context['ban_trigger']['banneduser']['selected'] ? ' checked' : '', '>
 							<label for="user_check">', $txt['ban_on_username'], '</label>:
 						</dt>
 						<dd>
 							<input type="text" value="' . $context['ban_trigger']['banneduser']['value'] . '" name="user" id="user" size="44"  onfocus="document.getElementById(\'user_check\').checked = true;">
-						</dd>
+						</dd>';
+	echo '
 					</dl>
 				</fieldset>
 				<input type="submit" name="', $context['ban_trigger']['is_new'] ? 'add_new_trigger' : 'edit_trigger', '" value="', $context['ban_trigger']['is_new'] ? $txt['ban_add_trigger_submit'] : $txt['ban_edit_trigger_submit'], '" class="button">

@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
 // Special thanks to Spaceman-Spiff for his contributions to this page.
@@ -420,6 +420,7 @@ function template_ssi_above()
 	<head>
 		<title>', SMF_FULL_VERSION, ' SSI.php Examples</title>
 		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css">
+		<script src="', !empty($context['javascript_files']['smf_jquery']['fileUrl']) ? $context['javascript_files']['smf_jquery']['fileUrl'] : 'https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', '"></script>
 		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 		<style>
 			#wrapper {

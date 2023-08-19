@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC3; ManagePermissions
+// Version: 2.1.0; ManagePermissions
 
 $txt['permissions_title'] = 'Manage Permissions';
 $txt['permissions_modify'] = 'Modify';
@@ -86,10 +86,10 @@ $txt['permissions_on'] = 'in profile';
 $txt['permissions_local_for'] = 'Permissions for group';
 $txt['permissions_option_own'] = 'Own';
 $txt['permissions_option_any'] = 'Any';
-$txt['permissions_option_on'] = 'A';
-$txt['permissions_option_off'] = 'X';
-$txt['permissions_option_deny'] = 'D';
-$txt['permissions_option_desc'] = 'For each permission you can pick either \'Allow\' (A), \'Disallow\' (X), or <span class="red">\'Deny\' (D)</span>.<br><br>Remember that if you deny a permission, any member - whether moderator or otherwise - that is in that group will be denied that as well.<br>For this reason, you should use deny carefully, only when <strong>necessary</strong>. Disallow, on the other hand, denies unless otherwise granted.';
+$txt['permissions_option_on'] = '&#x2705;';
+$txt['permissions_option_off'] = '&mdash;';
+$txt['permissions_option_deny'] = '&#x1F6AB;';
+$txt['permissions_option_desc'] = 'For each permission you can pick either \'Allow\' (&#x2705;), \'Disallow\' (&mdash;), or <span class="red">\'Deny\' (&#x1F6AB;)</span>.<br><br>Remember that if you deny a permission, any member - whether moderator or otherwise - that is in that group will be denied that as well.<br>For this reason, you should use deny carefully, only when <strong>necessary</strong>. Disallow, on the other hand, denies unless otherwise granted.';
 
 $txt['permissiongroup_general'] = 'General';
 $txt['permissionname_view_stats'] = 'View forum statistics';
@@ -307,7 +307,7 @@ $txt['permission_disable_postgroups_warning'] = 'Turning off this option will re
 
 $txt['permissions_post_moderation_desc'] = 'From this page, you can configure the ability to hold users\' posts before being visible to regular forum members, including which group or groups of users can approve them. Users whose posts are held for approval will still be able to see their posts, as well as replies from approvers, e.g. moderator feedback about making a post appropriate.';
 $txt['permissions_post_moderation_enable'] = 'Enable Post Moderation';
-$txt['permissions_post_moderation_deny_note'] = 'Note that while you have advanced permissions enabled you cannot apply the &quot;deny&quot; permission from this page. Please edit the permissions directly if you wish to apply a deny permission.';
+$txt['permissions_post_moderation_deny_note'] = 'Note that while you have advanced options enabled you cannot apply the &quot;deny&quot; permission from this page. Please edit the permissions directly if you wish to apply a deny permission.';
 $txt['permissions_post_moderation_select'] = 'Select Profile';
 $txt['permissions_post_moderation_new_topics'] = 'New Topics';
 $txt['permissions_post_moderation_replies_own'] = 'Own Replies';

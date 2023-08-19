@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.2
  */
 
 if (!defined('SMF'))
@@ -164,7 +164,7 @@ function ShowXmlFeed()
 		// Either the board specified doesn't exist or you have no access.
 		$num_boards = $smcFunc['db_num_rows']($request);
 		if ($num_boards == 0)
-			fatal_lang_error('no_board');
+			fatal_lang_error('no_board', false);
 
 		$total_posts = 0;
 		$boards = array();
@@ -199,7 +199,7 @@ function ShowXmlFeed()
 		);
 
 		if ($smcFunc['db_num_rows']($request) == 0)
-			fatal_lang_error('no_board');
+			fatal_lang_error('no_board', false);
 
 		list ($total_posts) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
@@ -263,7 +263,7 @@ function ShowXmlFeed()
 	elseif (!empty($board))
 		$filename[] = 'board=' . $board;
 	$filename[] = $xml_format;
-	$filename = preg_replace('/[^\p{L}\p{M}\p{N}\-]+/', '_', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('-', $filename)))));
+	$filename = preg_replace($context['utf8'] ? '/[^\p{L}\p{M}\p{N}\-]+/u' : '/[\s_,.\/\\;:\'<>?|\[\]{}~!@#$%^&*()=+`]+/', '_', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('-', $filename)))));
 
 	// This is an xml file....
 	ob_end_clean();
@@ -344,7 +344,7 @@ function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction)
 	// Remember this, just in case...
 	$orig_feed_meta = $feed_meta;
 
-	// If mods want to do somthing with this feed, let them do that now.
+	// If mods want to do something with this feed, let them do that now.
 	// Provide the feed's data, metadata, namespaces, extra feed-level tags, keys that need special handling, the feed format, and the requested subaction
 	call_integration_hook('integrate_xml_data', array(&$xml_data, &$feed_meta, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $subaction, &$doctype));
 
@@ -427,7 +427,7 @@ function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction)
 	<title>' . $feed_meta['title'] . '</title>
 	<link rel="alternate" type="text/html" href="' . $feed_meta['source'] . '" />
 	<link rel="self" type="application/atom+xml" href="' . $feed_meta['self'] . '" />
-	<updated>' . gmstrftime('%Y-%m-%dT%H:%M:%SZ') . '</updated>
+	<updated>' . smf_gmstrftime('%Y-%m-%dT%H:%M:%SZ') . '</updated>
 	<id>' . $feed_meta['source'] . '</id>
 	<subtitle>' . $feed_meta['desc'] . '</subtitle>
 	<generator uri="https://www.simplemachines.org" version="' . SMF_VERSION . '">SMF</generator>';
@@ -470,10 +470,13 @@ function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction)
 
 		foreach ($xml_data as $item)
 		{
-			$link = array_filter($item['content'], function($e)
-			{
-				return ($e['tag'] == 'link');
-			});
+			$link = array_filter(
+				$item['content'],
+				function($e)
+				{
+					return ($e['tag'] == 'link');
+				}
+			);
 			$link = array_pop($link);
 
 			$context['feed']['header'] .= '
@@ -494,7 +497,7 @@ function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction)
 	else
 	{
 		$context['feed']['header'] .= '
-<smf:xml-feed xml:lang="' . strtr($txt['lang_locale'], '_', '-') . '"' . $ns_string . ' version="' . SMF_VERSION . '" forum-name="' . $context['forum_name'] . '" forum-url="' . $scripturl . '"' . (!empty($feed_meta['title']) && $feed_meta['title'] != $context['forum_name'] ? ' title="' . $feed_meta['title'] . '"' : '') . (!empty($feed_meta['desc']) ? ' description="' . $feed_meta['desc'] . '"' : '') . ' source="' . $feed_meta['source'] . '" generated-date-localized="' . strip_tags(timeformat(time(), false, 'forum')) . '" generated-date-UTC="' . gmstrftime('%F %T') . '"' . (!empty($feed_meta['page']) ? ' page="' . $feed_meta['page'] . '"' : '') . '>';
+<smf:xml-feed xml:lang="' . strtr($txt['lang_locale'], '_', '-') . '"' . $ns_string . ' version="' . SMF_VERSION . '" forum-name="' . $context['forum_name'] . '" forum-url="' . $scripturl . '"' . (!empty($feed_meta['title']) && $feed_meta['title'] != $context['forum_name'] ? ' title="' . $feed_meta['title'] . '"' : '') . (!empty($feed_meta['desc']) ? ' description="' . $feed_meta['desc'] . '"' : '') . ' source="' . $feed_meta['source'] . '" generated-date-localized="' . strip_tags(timeformat(time(), false, 'forum')) . '" generated-date-UTC="' . smf_gmstrftime('%F %T') . '"' . (!empty($feed_meta['page']) ? ' page="' . $feed_meta['page'] . '"' : '') . '>';
 
 		// Hard to imagine anyone wanting to add these for the proprietary format, but just in case...
 		$context['feed']['header'] .= $extraFeedTags_string;
@@ -526,10 +529,14 @@ function fix_possible_url($val)
 	if (empty($modSettings['queryless_urls']) || ($context['server']['is_cgi'] && ini_get('cgi.fix_pathinfo') == 0 && @get_cfg_var('cgi.fix_pathinfo') == 0) || (!$context['server']['is_apache'] && !$context['server']['is_lighttpd']))
 		return $val;
 
-	$val = preg_replace_callback('~\b' . preg_quote($scripturl, '~') . '\?((?:board|topic)=[^#"]+)(#[^"]*)?$~', function($m) use ($scripturl)
-	{
-		return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? $m[2] : "");
-	}, $val);
+	$val = preg_replace_callback(
+		'~\b' . preg_quote($scripturl, '~') . '\?((?:board|topic)=[^#"]+)(#[^"]*)?$~',
+		function($m) use ($scripturl)
+		{
+			return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? $m[2] : "");
+		},
+		$val
+	);
 	return $val;
 }
 
@@ -708,7 +715,7 @@ function getXmlMembers($xml_format, $ascending = false)
 		$row = filter_var($row, FILTER_CALLBACK, array('options' => 'cleanXml'));
 
 		// Create a GUID for each member using the tag URI scheme
-		$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['date_registered']) . ':member=' . $row['id_member'];
+		$guid = 'tag:' . parse_iri($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['date_registered']) . ':member=' . $row['id_member'];
 
 		// Make the data look rss-ish.
 		if ($xml_format == 'rss' || $xml_format == 'rss2')
@@ -780,11 +787,11 @@ function getXmlMembers($xml_format, $ascending = false)
 					),
 					array(
 						'tag' => 'published',
-						'content' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['date_registered']),
+						'content' => smf_gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['date_registered']),
 					),
 					array(
 						'tag' => 'updated',
-						'content' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['last_login']),
+						'content' => smf_gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['last_login']),
 					),
 					array(
 						'tag' => 'id',
@@ -806,7 +813,7 @@ function getXmlMembers($xml_format, $ascending = false)
 					),
 					array(
 						'tag' => 'time',
-						'attributes' => array('label' => $txt['date_registered'], 'UTC' => gmstrftime('%F %T', $row['date_registered'])),
+						'attributes' => array('label' => $txt['date_registered'], 'UTC' => smf_gmstrftime('%F %T', $row['date_registered'])),
 						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['date_registered'], false, 'forum'))),
 					),
 					array(
@@ -933,12 +940,16 @@ function getXmlNews($xml_format, $ascending = false)
 			// Sort the attachments by size to make things easier below
 			if (!empty($loaded_attachments))
 			{
-				uasort($loaded_attachments, function($a, $b)
-				{
-					if ($a['filesize'] == $b['filesize'])
-						return 0;
-					return ($a['filesize'] < $b['filesize']) ? -1 : 1;
-				});
+				uasort(
+					$loaded_attachments,
+					function($a, $b)
+					{
+						if ($a['filesize'] == $b['filesize'])
+							return 0;
+
+						return ($a['filesize'] < $b['filesize']) ? -1 : 1;
+					}
+				);
 			}
 			else
 				$loaded_attachments = null;
@@ -947,7 +958,7 @@ function getXmlNews($xml_format, $ascending = false)
 			$loaded_attachments = null;
 
 		// Create a GUID for this topic using the tag URI scheme
-		$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['poster_time']) . ':topic=' . $row['id_topic'];
+		$guid = 'tag:' . parse_iri($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['poster_time']) . ':topic=' . $row['id_topic'];
 
 		// Being news, this actually makes sense in rss format.
 		if ($xml_format == 'rss' || $xml_format == 'rss2')
@@ -985,6 +996,7 @@ function getXmlNews($xml_format, $ascending = false)
 					array(
 						'tag' => 'author',
 						'content' => (allowedTo('moderate_forum') || $row['id_member'] == $user_info['id']) ? $row['poster_email'] . ' (' . $row['poster_name'] . ')' : null,
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'comments',
@@ -993,6 +1005,7 @@ function getXmlNews($xml_format, $ascending = false)
 					array(
 						'tag' => 'category',
 						'content' => $row['bname'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'pubDate',
@@ -1080,6 +1093,7 @@ function getXmlNews($xml_format, $ascending = false)
 					array(
 						'tag' => 'category',
 						'attributes' => array('term' => $row['bname']),
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'author',
@@ -1092,6 +1106,7 @@ function getXmlNews($xml_format, $ascending = false)
 							array(
 								'tag' => 'email',
 								'content' => (allowedTo('moderate_forum') || $row['id_member'] == $user_info['id']) ? $row['poster_email'] : null,
+								'cdata' => true,
 							),
 							array(
 								'tag' => 'uri',
@@ -1101,11 +1116,11 @@ function getXmlNews($xml_format, $ascending = false)
 					),
 					array(
 						'tag' => 'published',
-						'content' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
+						'content' => smf_gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
 					),
 					array(
 						'tag' => 'updated',
-						'content' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
+						'content' => smf_gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
 					),
 					array(
 						'tag' => 'id',
@@ -1174,7 +1189,7 @@ function getXmlNews($xml_format, $ascending = false)
 				'content' => array(
 					array(
 						'tag' => 'time',
-						'attributes' => array('label' => $txt['date'], 'UTC' => gmstrftime('%F %T', $row['poster_time'])),
+						'attributes' => array('label' => $txt['date'], 'UTC' => smf_gmstrftime('%F %T', $row['poster_time'])),
 						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['poster_time'], false, 'forum'))),
 					),
 					array(
@@ -1227,6 +1242,7 @@ function getXmlNews($xml_format, $ascending = false)
 								'tag' => 'name',
 								'attributes' => array('label' => $txt['name']),
 								'content' => $row['bname'],
+								'cdata' => true,
 							),
 							array(
 								'tag' => 'id',
@@ -1285,7 +1301,8 @@ function getXmlRecent($xml_format)
 			WHERE ' . $query_this_board . (empty($optimize_msg) ? '' : '
 				AND {raw:optimize_msg}') . (empty($board) ? '' : '
 				AND m.id_board = {int:current_board}') . ($modSettings['postmod_active'] ? '
-				AND m.approved = {int:is_approved}' : '') . '
+				AND m.approved = {int:is_approved}
+				AND t.approved = {int:is_approved}' : '') . '
 			ORDER BY m.id_msg DESC
 			LIMIT {int:limit}',
 			array(
@@ -1383,13 +1400,16 @@ function getXmlRecent($xml_format)
 			// Sort the attachments by size to make things easier below
 			if (!empty($loaded_attachments))
 			{
-				uasort($loaded_attachments, function($a, $b)
-				{
-					if ($a['filesize'] == $b['filesize'])
-						return 0;
+				uasort(
+					$loaded_attachments,
+					function($a, $b)
+					{
+						if ($a['filesize'] == $b['filesize'])
+							return 0;
 
-					return ($a['filesize'] < $b['filesize']) ? -1 : 1;
-				});
+						return ($a['filesize'] < $b['filesize']) ? -1 : 1;
+					}
+				);
 			}
 			else
 				$loaded_attachments = null;
@@ -1398,7 +1418,7 @@ function getXmlRecent($xml_format)
 			$loaded_attachments = null;
 
 		// Create a GUID for this post using the tag URI scheme
-		$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['poster_time']) . ':msg=' . $row['id_msg'];
+		$guid = 'tag:' . parse_iri($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['poster_time']) . ':msg=' . $row['id_msg'];
 
 		// Doesn't work as well as news, but it kinda does..
 		if ($xml_format == 'rss' || $xml_format == 'rss2')
@@ -1436,10 +1456,12 @@ function getXmlRecent($xml_format)
 					array(
 						'tag' => 'author',
 						'content' => (allowedTo('moderate_forum') || (!empty($row['id_member']) && $row['id_member'] == $user_info['id'])) ? $row['poster_email'] : null,
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'category',
 						'content' => $row['bname'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'comments',
@@ -1531,6 +1553,7 @@ function getXmlRecent($xml_format)
 					array(
 						'tag' => 'category',
 						'attributes' => array('term' => $row['bname']),
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'author',
@@ -1543,6 +1566,7 @@ function getXmlRecent($xml_format)
 							array(
 								'tag' => 'email',
 								'content' => (allowedTo('moderate_forum') || (!empty($row['id_member']) && $row['id_member'] == $user_info['id'])) ? $row['poster_email'] : null,
+								'cdata' => true,
 							),
 							array(
 								'tag' => 'uri',
@@ -1552,11 +1576,11 @@ function getXmlRecent($xml_format)
 					),
 					array(
 						'tag' => 'published',
-						'content' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
+						'content' => smf_gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
 					),
 					array(
 						'tag' => 'updated',
-						'content' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
+						'content' => smf_gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
 					),
 					array(
 						'tag' => 'id',
@@ -1625,7 +1649,7 @@ function getXmlRecent($xml_format)
 				'content' => array(
 					array(
 						'tag' => 'time',
-						'attributes' => array('label' => $txt['date'], 'UTC' => gmstrftime('%F %T', $row['poster_time'])),
+						'attributes' => array('label' => $txt['date'], 'UTC' => smf_gmstrftime('%F %T', $row['poster_time'])),
 						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['poster_time'], false, 'forum'))),
 					),
 					array(
@@ -1715,6 +1739,7 @@ function getXmlRecent($xml_format)
 								'tag' => 'name',
 								'attributes' => array('label' => $txt['name']),
 								'content' => $row['bname'],
+								'cdata' => true,
 							),
 							array(
 								'tag' => 'id',
@@ -1771,7 +1796,7 @@ function getXmlProfile($xml_format)
 	$profile = filter_var($profile, FILTER_CALLBACK, array('options' => 'cleanXml'));
 
 	// Create a GUID for this member using the tag URI scheme
-	$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $profile['registered_timestamp']) . ':member=' . $profile['id'];
+	$guid = 'tag:' . parse_iri($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $profile['registered_timestamp']) . ':member=' . $profile['id'];
 
 	if ($xml_format == 'rss' || $xml_format == 'rss2')
 	{
@@ -1872,20 +1897,22 @@ function getXmlProfile($xml_format)
 						array(
 							'tag' => 'email',
 							'content' => $profile['show_email'] ? $profile['email'] : null,
+							'cdata' => true,
 						),
 						array(
 							'tag' => 'uri',
-							'content' => !empty($profile['website']['url']) ? $profile['website']['url'] : null,
+							'content' => !empty($profile['website']['url']) ? $profile['website']['url'] : $scripturl . '?action=profile;u=' . $profile['id_member'],
+							'cdata' => !empty($profile['website']['url']),
 						),
 					),
 				),
 				array(
 					'tag' => 'published',
-					'content' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $profile['registered_timestamp']),
+					'content' => smf_gmstrftime('%Y-%m-%dT%H:%M:%SZ', $profile['registered_timestamp']),
 				),
 				array(
 					'tag' => 'updated',
-					'content' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $profile['last_login_timestamp']),
+					'content' => smf_gmstrftime('%Y-%m-%dT%H:%M:%SZ', $profile['last_login_timestamp']),
 				),
 				array(
 					'tag' => 'id',
@@ -1935,18 +1962,19 @@ function getXmlProfile($xml_format)
 			),
 			array(
 				'tag' => 'last-login',
-				'attributes' => array('label' => $txt['lastLoggedIn'], 'UTC' => gmstrftime('%F %T', $profile['last_login_timestamp'])),
+				'attributes' => array('label' => $txt['lastLoggedIn'], 'UTC' => smf_gmstrftime('%F %T', $profile['last_login_timestamp'])),
 				'content' => timeformat($profile['last_login_timestamp'], false, 'forum'),
 			),
 			array(
 				'tag' => 'registered',
-				'attributes' => array('label' => $txt['date_registered'], 'UTC' => gmstrftime('%F %T', $profile['registered_timestamp'])),
+				'attributes' => array('label' => $txt['date_registered'], 'UTC' => smf_gmstrftime('%F %T', $profile['registered_timestamp'])),
 				'content' => timeformat($profile['registered_timestamp'], false, 'forum'),
 			),
 			array(
 				'tag' => 'avatar',
 				'attributes' => !empty($profile['avatar']['url']) ? array('label' => $txt['personal_picture']) : null,
 				'content' => !empty($profile['avatar']['url']) ? $profile['avatar']['url'] : null,
+				'cdata' => true,
 			),
 			array(
 				'tag' => 'signature',
@@ -1976,6 +2004,7 @@ function getXmlProfile($xml_format)
 				'tag' => 'email',
 				'attributes' => !empty($profile['show_email']) || $user_info['is_admin'] || $user_info['id'] == $profile['id'] ? array('label' => $txt['user_email_address']) : null,
 				'content' => !empty($profile['show_email']) || $user_info['is_admin'] || $user_info['id'] == $profile['id'] ? $profile['email'] : null,
+				'cdata' => true,
 			),
 			array(
 				'tag' => 'website',
@@ -1985,11 +2014,13 @@ function getXmlProfile($xml_format)
 						'tag' => 'title',
 						'attributes' => !empty($profile['website']['title']) ? array('label' => $txt['website_title']) : null,
 						'content' => !empty($profile['website']['title']) ? $profile['website']['title'] : null,
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'link',
 						'attributes' => array('label' => $txt['website_url']),
 						'content' => $profile['website']['url'],
+						'cdata' => true,
 					),
 				),
 			),
@@ -2018,7 +2049,7 @@ function getXmlProfile($xml_format)
 		if (!empty($profile['birth_date']) && substr($profile['birth_date'], 0, 4) != '0000' && substr($profile['birth_date'], 0, 4) != '1004')
 		{
 			list ($birth_year, $birth_month, $birth_day) = sscanf($profile['birth_date'], '%d-%d-%d');
-			$datearray = getdate(forum_time());
+			$datearray = getdate(time());
 			$age = $datearray['year'] - $birth_year - (($datearray['mon'] > $birth_month || ($datearray['mon'] == $birth_month && $datearray['mday'] >= $birth_day)) ? 0 : 1);
 
 			$data[] = array(
@@ -2040,7 +2071,7 @@ function getXmlProfile($xml_format)
 				$data[] = array(
 					'tag' => $custom_field['col_name'],
 					'attributes' => array('label' => $custom_field['title']),
-					'content' => $custom_field['raw'],
+					'content' => $custom_field['simple'],
 					'cdata' => true,
 				);
 			}
@@ -2110,11 +2141,13 @@ function getXmlPosts($xml_format, $ascending = false)
 			m.id_msg, m.id_topic, m.id_board, m.id_member, m.poster_email, m.poster_ip,
 			m.poster_time, m.subject, m.modified_time, m.modified_name, m.modified_reason, m.body,
 			m.likes, m.approved, m.smileys_enabled
-		FROM {db_prefix}messages AS m
+		FROM {db_prefix}messages AS m' . ($modSettings['postmod_active'] && !$show_all ?'
+			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)' : '') . '
 		WHERE m.id_member = {int:uid}
 			AND m.id_msg > {int:start_after}
 			AND ' . $query_this_message_board . ($modSettings['postmod_active'] && !$show_all ? '
-			AND m.approved = {int:is_approved}' : '') . '
+			AND m.approved = {int:is_approved}
+			AND t.approved = {int:is_approved}' : '') . '
 		ORDER BY m.id_msg {raw:ascdesc}
 		LIMIT {int:limit}',
 		array(
@@ -2167,11 +2200,16 @@ function getXmlPosts($xml_format, $ascending = false)
 			// Sort the attachments by size to make things easier below
 			if (!empty($loaded_attachments))
 			{
-				uasort($loaded_attachments, function($a, $b) {
-					if ($a['filesize'] == $b['filesize'])
+				uasort(
+					$loaded_attachments,
+					function($a, $b)
+					{
+						if ($a['filesize'] == $b['filesize'])
 					        return 0;
-					return ($a['filesize'] < $b['filesize']) ? -1 : 1;
-				});
+
+						return ($a['filesize'] < $b['filesize']) ? -1 : 1;
+					}
+				);
 			}
 			else
 				$loaded_attachments = null;
@@ -2180,7 +2218,7 @@ function getXmlPosts($xml_format, $ascending = false)
 			$loaded_attachments = null;
 
 		// Create a GUID for this post using the tag URI scheme
-		$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['poster_time']) . ':msg=' . $row['id_msg'];
+		$guid = 'tag:' . parse_iri($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['poster_time']) . ':msg=' . $row['id_msg'];
 
 		if ($xml_format == 'rss' || $xml_format == 'rss2')
 		{
@@ -2217,10 +2255,12 @@ function getXmlPosts($xml_format, $ascending = false)
 					array(
 						'tag' => 'author',
 						'content' => (allowedTo('moderate_forum') || ($row['id_member'] == $user_info['id'])) ? $row['poster_email'] : null,
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'category',
 						'content' => $boardnames[$row['id_board']],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'comments',
@@ -2320,6 +2360,7 @@ function getXmlPosts($xml_format, $ascending = false)
 							array(
 								'tag' => 'email',
 								'content' => (allowedTo('moderate_forum') || ($row['id_member'] == $user_info['id'])) ? $row['poster_email'] : null,
+								'cdata' => true,
 							),
 							array(
 								'tag' => 'uri',
@@ -2329,11 +2370,11 @@ function getXmlPosts($xml_format, $ascending = false)
 					),
 					array(
 						'tag' => 'published',
-						'content' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
+						'content' => smf_gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
 					),
 					array(
 						'tag' => 'updated',
-						'content' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
+						'content' => smf_gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
 					),
 					array(
 						'tag' => 'id',
@@ -2450,6 +2491,7 @@ function getXmlPosts($xml_format, $ascending = false)
 								'tag' => 'email',
 								'attributes' => (allowedTo('moderate_forum') || $row['id_member'] == $user_info['id']) ? array('label' => $txt['user_email_address']) : null,
 								'content' => (allowedTo('moderate_forum') || $row['id_member'] == $user_info['id']) ? $row['poster_email'] : null,
+								'cdata' => true,
 							),
 							array(
 								'tag' => 'ip',
@@ -2500,12 +2542,12 @@ function getXmlPosts($xml_format, $ascending = false)
 					),
 					array(
 						'tag' => 'time',
-						'attributes' => array('label' => $txt['date'], 'UTC' => gmstrftime('%F %T', $row['poster_time'])),
+						'attributes' => array('label' => $txt['date'], 'UTC' => smf_gmstrftime('%F %T', $row['poster_time'])),
 						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['poster_time'], false, 'forum'))),
 					),
 					array(
 						'tag' => 'modified_time',
-						'attributes' => !empty($row['modified_time']) ? array('label' => $txt['modified_time'], 'UTC' => gmstrftime('%F %T', $row['modified_time'])) : null,
+						'attributes' => !empty($row['modified_time']) ? array('label' => $txt['modified_time'], 'UTC' => smf_gmstrftime('%F %T', $row['modified_time'])) : null,
 						'content' => !empty($row['modified_time']) ? $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['modified_time'], false, 'forum'))) : null,
 					),
 					array(
@@ -2561,9 +2603,13 @@ function getXmlPMs($xml_format, $ascending = false)
 	if (empty($context['xmlnews_uid']) || ($context['xmlnews_uid'] != $user_info['id']))
 		return array();
 
+	// Use a private-use Unicode character to separate member names.
+	// This ensures that the separator will not occur in the names themselves.
+	$separator = "\xEE\x88\xA0";
+
 	$select_id_members_to = $smcFunc['db_title'] === POSTGRE_TITLE ? "string_agg(pmr.id_member::text, ',')" : 'GROUP_CONCAT(pmr.id_member)';
 
-	$select_to_names = $smcFunc['db_title'] === POSTGRE_TITLE ? "string_agg(COALESCE(mem.real_name, mem.member_name), ',')" : 'GROUP_CONCAT(COALESCE(mem.real_name, mem.member_name))';
+	$select_to_names = $smcFunc['db_title'] === POSTGRE_TITLE ? "string_agg(COALESCE(mem.real_name, mem.member_name), '$separator')" : "GROUP_CONCAT(COALESCE(mem.real_name, mem.member_name) SEPARATOR '$separator')";
 
 	$request = $smcFunc['db_query']('', '
 		SELECT pm.id_pm, pm.msgtime, pm.subject, pm.body, pm.id_member_from, nis.from_name, nis.id_members_to, nis.to_names
@@ -2580,7 +2626,7 @@ function getXmlPMs($xml_format, $ascending = false)
 					(pm2.id_member_from = {int:uid} AND pm2.deleted_by_sender = {int:not_deleted})
 					OR (pmr.id_member = {int:uid} AND pmr.deleted = {int:not_deleted})
 				)
-			GROUP BY pm2.id_pm, memf.real_name
+			GROUP BY pm2.id_pm, COALESCE(memf.real_name, pm2.from_name)
 			ORDER BY pm2.id_pm {raw:ascdesc}
 			LIMIT {int:limit}
 		) AS nis ON nis.id_pm = pm.id_pm
@@ -2604,10 +2650,10 @@ function getXmlPMs($xml_format, $ascending = false)
 		// If using our own format, we want both the raw and the parsed content.
 		$row[$xml_format === 'smf' ? 'body_html' : 'body'] = parse_bbc($row['body']);
 
-		$recipients = array_combine(explode(',', $row['id_members_to']), explode(',', $row['to_names']));
+		$recipients = array_combine(explode(',', $row['id_members_to']), explode($separator, $row['to_names']));
 
 		// Create a GUID for this post using the tag URI scheme
-		$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['msgtime']) . ':pm=' . $row['id_pm'];
+		$guid = 'tag:' . parse_iri($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['msgtime']) . ':pm=' . $row['id_pm'];
 
 		if ($xml_format == 'rss' || $xml_format == 'rss2')
 		{
@@ -2691,7 +2737,7 @@ function getXmlPMs($xml_format, $ascending = false)
 					),
 					array(
 						'tag' => 'updated',
-						'content' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['msgtime']),
+						'content' => smf_gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['msgtime']),
 					),
 					array(
 						'tag' => 'title',
@@ -2749,7 +2795,7 @@ function getXmlPMs($xml_format, $ascending = false)
 					),
 					array(
 						'tag' => 'sent_date',
-						'attributes' => array('label' => $txt['date'], 'UTC' => gmstrftime('%F %T', $row['msgtime'])),
+						'attributes' => array('label' => $txt['date'], 'UTC' => smf_gmstrftime('%F %T', $row['msgtime'])),
 						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['msgtime'], false, 'forum'))),
 					),
 					array(

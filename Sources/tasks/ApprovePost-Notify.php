@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.3
  */
 
 /**
@@ -91,8 +91,8 @@ class ApprovePost_Notify_Background extends SMF_BackgroundTask
 					'id_member' => $member,
 					'id_member_started' => $posterOptions['id'],
 					'member_name' => $posterOptions['name'],
-					'content_type' => 'topic',
-					'content_id' => $topicOptions['id'],
+					'content_type' => $type == 'topic' ? 'topic' : 'msg',
+					'content_id' => $type == 'topic' ? $topicOptions['id'] : $msgOptions['id'],
 					'content_action' => 'unapproved_' . $type,
 					'is_read' => 0,
 					'extra' => $smcFunc['json_encode'](array(

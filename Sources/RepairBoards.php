@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
 if (!defined('SMF'))
@@ -131,14 +131,33 @@ function RepairBoards()
 function pauseRepairProcess($to_fix, $current_step_description, $max_substep = 0, $force = false)
 {
 	global $context, $txt, $db_temp_cache, $db_cache;
+	static $loops = 0;
+	++$loops;
 
 	// More time, I need more time!
 	@set_time_limit(600);
 	if (function_exists('apache_reset_timeout'))
 		@apache_reset_timeout();
 
+	$return = true;
+
+	// If we are from a SSI/cron job, we can allow this through, if enabled.
+	if ((SMF === 'SSI' || SMF === 'BACKGROUND') && php_sapi_name() == 'cli' && !empty($context['no_pause_process']))
+		$return = true;
+	elseif ($force)
+		$return = false;
+	// Try to stay under our memory limit.
+	elseif ((memory_get_usage() + 65536) > memoryReturnBytes(ini_get('memory_limit')))
+		$return = false;
 	// Errr, wait.  How much time has this taken already?
-	if (!$force && (time() - TIME_START) < 3)
+	elseif ((time() - TIME_START) > 3)
+		$return = false;
+	// If we have a lot of errors, lets do smaller batches, to save on memory needs.
+	elseif (count($context['repair_errors']) > 100000 && $loops > 50)
+		$return = false;
+
+	// If we can return, lets do so.
+	if ($return)
 		return;
 
 	// Restore the query cache if interested.
@@ -1530,7 +1549,7 @@ function loadForumTests()
  * won't have to recheck everything.
  *
  * @param bool $do_fix Whether to actually fix the errors or just return the info
- * @return array, the errors found.
+ * @return array the errors found.
  */
 function findForumErrors($do_fix = false)
 {

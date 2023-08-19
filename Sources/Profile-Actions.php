@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
 if (!defined('SMF'))
@@ -621,7 +621,7 @@ function deleteAccount2($memID)
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}polls
 					SET votes = votes - 1
-					WHERE id_poll IN {array_int:polls_to_update}',
+					WHERE id_poll IN ({array_int:polls_to_update})',
 					array(
 						'polls_to_update' => $polls_to_update
 					)

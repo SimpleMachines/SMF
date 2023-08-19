@@ -49,56 +49,21 @@ legend {
 /* Styles for the admin home screen.
 ------------------------------------------------------- */
 /* Admin quick search bar, and results page. */
-h3.catbg #quick_search form {
-	padding-top: 2px;
+.admin_search {
+	padding: 5px;
 	font-size: 0.9em;
+	float: right;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 }
-h3.catbg #quick_search form input, h3.catbg #quick_search form select, h3.catbg #quick_search form .button {
-	margin: 0 3px !important;
-	padding: 4px 3px 3px 3px;
+.admin_search input, .admin_search select, .admin_search .button {
 	border-radius: 4px;
-	border: 1px solid #777;
-	vertical-align: top;
+	margin: 0 0 0 2px;
 }
-h3.catbg #quick_search form select {
-	font-size: 0.9em;
-	margin: -1px 0 0 0;
-	padding: 2px;
-}
-h3.catbg #quick_search form select option {
-	padding: 2px 4px;
-}
-h3.catbg #quick_search form .button {
-	font-weight: bold;
-	padding: 3px 6px 2px 6px;
-}
-h3.catbg #quick_search form .button:hover {
-	background: #fff;
-}
-span#quick_search {
-	display: block;
-}
-/* Browser tweaks. */
-body#chrome #quick_search form input[type="search"] {
-	padding: 2px;
-}
-body#chrome #quick_search form input {
-	float: none;
-}
-
-/* The welcome thingy. */
-#welcome {
-	border: 1px solid #ddd;
-	border-top: none;
-	border-radius: 0 0 7px 7px;
-	font-size: 0.9em;
-	padding: 12px 9px 8px 9px;
-}
-#welcome a {
-	font-weight: bold;
-}
-#welcome img {
-	vertical-align: middle;
+.admin_search input[type="search"] {
+	min-width: 0;
+	flex: 1 1 auto;
 }
 .search_results {
 	margin: 0 -6px;
@@ -575,52 +540,6 @@ ul.moderation_notes li {
 }
 .post_note input {
 	width: 100%;
-}
-
-/* Styles for the error log. */
-h3.grid_header {
-	height: 25px;
-}
-#error_log {
-	width: 100%;
-	margin: 4px 0;
-}
-#error_log tr.windowbg td {
-	padding: 8px;
-	line-height: 160%;
-}
-#error_log td.checkbox_column {
-	width: 15px;
-	vertical-align: top;
-	text-align: center;
-}
-#error_log a img {
-	vertical-align: middle;
-	margin: 0 8px 0 0;
-}
-#error_log .main_icons::before {
-	margin: 0 5px 0 0;
-}
-#error_log .error_info {
-	float: right;
-	width: 50%;
-	line-height: 1.8em;
-	padding: 0 4px 4px 4px;
-}
-#error_log .error_location {
-	padding: 4px;
-	clear: both;
-	border-top: 1px solid #e3e3e3;
-	display: flex;
-}
-#error_log a.error_message {
-	float: left;
-	margin-right: 5px;
-}
-#error_log span.error_message, #backtrace span.error_message {
-	overflow: hidden;
-	display: block;
-	white-space: pre-wrap;
 }
 
 /* Styles for the Report generation */

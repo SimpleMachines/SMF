@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -44,9 +44,6 @@ function ModifyPermissions()
 		'settings' => array('GeneralPermissionSettings', 'admin_forum'),
 	);
 
-	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) && empty($subActions[$_REQUEST['sa']]['disabled']) ? $_REQUEST['sa'] : (allowedTo('manage_permissions') ? 'index' : 'settings');
-	isAllowedTo($subActions[$_REQUEST['sa']][1]);
-
 	// Create the tabs for the template.
 	$context[$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['permissions_title'],
@@ -72,6 +69,10 @@ function ModifyPermissions()
 	);
 
 	call_integration_hook('integrate_manage_permissions', array(&$subActions));
+
+	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) && empty($subActions[$_REQUEST['sa']]['disabled']) ? $_REQUEST['sa'] : (allowedTo('manage_permissions') ? 'index' : 'settings');
+
+	isAllowedTo($subActions[$_REQUEST['sa']][1]);
 
 	call_helper($subActions[$_REQUEST['sa']][0]);
 }
@@ -1439,7 +1440,7 @@ function loadAllPermissions()
 {
 	global $context, $txt, $modSettings;
 
-	// List of all the groups dependant on the currently selected view - for the order so it looks pretty, yea?
+	// List of all the groups dependent on the currently selected view - for the order so it looks pretty, yea?
 	// Note to Mod authors - you don't need to stick your permission group here if you don't mind SMF sticking it the last group of the page.
 	$permissionGroups = array(
 		'membergroup' => array(
@@ -1519,8 +1520,8 @@ function loadAllPermissions()
 			'approve_posts' => array(false, 'general_board'),
 			'post_new' => array(false, 'topic'),
 			'post_unapproved_topics' => array(false, 'topic'),
-			'post_unapproved_replies' => array(true, 'topic'),
 			'post_reply' => array(true, 'topic'),
+			'post_unapproved_replies' => array(true, 'topic'),
 			'post_draft' => array(false, 'topic'),
 			'merge_any' => array(false, 'topic'),
 			'split_any' => array(false, 'topic'),
@@ -1838,10 +1839,13 @@ function init_inline_permissions($permissions, $excluded_groups = array())
 	if (!empty($excluded_groups))
 	{
 		// Make sure this is an array of integers
-		$excluded_groups = array_filter((array) $excluded_groups, function ($v)
+		$excluded_groups = array_filter(
+			(array) $excluded_groups,
+			function ($v)
 			{
 				return is_int($v) || is_string($v) && (string) intval($v) === $v;
-			});
+			}
+		);
 
 		foreach ($permissions as $permission)
 			$context['permissions_excluded'][$permission] = array_unique(array_merge($context['permissions_excluded'][$permission], $excluded_groups));
@@ -2111,7 +2115,7 @@ function EditPermissionProfiles()
 
 	// Work out what ones are in use.
 	$request = $smcFunc['db_query']('', '
-		SELECT id_profile, COUNT(id_board) AS board_count
+		SELECT id_profile, COUNT(*) AS board_count
 		FROM {db_prefix}boards
 		GROUP BY id_profile',
 		array(
@@ -2347,7 +2351,7 @@ function loadIllegalGuestPermissions()
 		'profile_signature',
 		'profile_title',
 		'profile_upload_avatar',
-		'profile_warning',
+		'view_warning_own',
 		'remove',
 		'report_any',
 		'report_user',

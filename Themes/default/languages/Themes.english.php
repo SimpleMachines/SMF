@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC3; Themes
+// Version: 2.1.0; Themes
 
 $txt['themeadmin_explain'] = 'Themes are the different looks and feels of your forum. These settings affect the selection of themes, and which themes guests and other members use.';
 
@@ -81,7 +81,6 @@ $txt['who_display_viewing'] = 'Show who is viewing boards and topics';
 $txt['who_display_viewing_off'] = 'Don\'t show';
 $txt['who_display_viewing_numbers'] = 'Show only numbers';
 $txt['who_display_viewing_names'] = 'Show member names';
-$txt['disable_recent_posts'] = 'Disable recent posts';
 $txt['enable_single_post'] = 'Enable single post';
 $txt['enable_multiple_posts'] = 'Enable multiple posts';
 $txt['show_stats_index'] = 'Show statistics on board index';
@@ -104,9 +103,10 @@ $txt['themeadmin_admin_desc'] = 'This page allows you to change the default them
 $txt['themeadmin_list_desc'] = 'From here, you can view the list of themes you currently have installed, change their paths and settings, and uninstall them.';
 $txt['themeadmin_reset_desc'] = 'Below you will see an interface to change the current theme-specific options for all your members. You will only see those themes that have their own set of settings.';
 $txt['themeadmin_edit_desc'] = 'Modify the stylesheet and source code of your installed themes. Please consult the documentation for more information.';
+$txt['themeadmin_install_title'] = 'Manage and Install themes';
 
 $txt['themeadmin_list_heading'] = 'Theme Settings overview';
-$txt['themeadmin_list_tip'] = 'Remember, the layout settings may be different between one theme and another. Click on the theme\'s names below to set their options, change their directory or URL settings, or to find other options.';
+$txt['themeadmin_list_tip'] = 'Remember, the layout settings may be different between one theme and another. Click on the settings icon for a theme below to set their options, change their directory or URL settings, or to find other options.';
 $txt['themeadmin_list_theme_dir'] = 'Theme directory (templates)';
 $txt['themeadmin_list_invalid'] = '(Warning! this path is not correct.)';
 $txt['themeadmin_list_theme_url'] = 'URL to above directory';
@@ -153,6 +153,6 @@ $txt['themeadmin_themelist_link'] = 'Show the list of themes';
 
 // Open Graph
 $txt['og_image'] = 'Open Graph image';
-$txt['og_image_desc'] = 'Suggested size: 175x175px. <a href="http://ogp.me/" target="_blank" class="bbc_link">Open Graph</a> is used for social media sharing.';
+$txt['og_image_desc'] = 'Suggested size: 175x175px. <a href="https://ogp.me/" target="_blank" class="bbc_link">Open Graph</a> is used for social media sharing.';
 
 ?>

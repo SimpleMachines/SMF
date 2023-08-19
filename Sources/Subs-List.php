@@ -6,10 +6,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
 if (!defined('SMF'))
@@ -79,7 +79,7 @@ function createList($listOptions)
 	else
 	{
 		// First get an impression of how many items to expect.
-		if (!empty($listOptions['get_count']['value']) && ctype_digit($listOptions['get_count']['value']))
+		if (isset($listOptions['get_count']['value']) && (is_int($listOptions['get_count']['value']) || ctype_digit($listOptions['get_count']['value'])))
 			$list_context['total_num_items'] = $listOptions['get_count']['value'];
 
 		else
@@ -88,9 +88,9 @@ function createList($listOptions)
 				require_once($listOptions['get_count']['file']);
 
 			$call = call_helper($listOptions['get_count']['function'], true);
-			$list_context['total_num_items'] = call_user_func_array($call, empty($listOptions['get_count']['params']) ? array() : $listOptions['get_count']['params']);
+			$list_context['total_num_items'] = call_user_func_array($call, empty($listOptions['get_count']['params']) ?
+				array() : array_values($listOptions['get_count']['params']));
 		}
-
 
 		// Default the start to the beginning...sounds logical.
 		$list_context['start'] = isset($_REQUEST[$list_context['start_var_name']]) ? (int) $_REQUEST[$list_context['start_var_name']] : 0;
@@ -265,10 +265,6 @@ function createList($listOptions)
 	// Add an option for inline JavaScript.
 	if (isset($listOptions['javascript']))
 		$list_context['javascript'] = $listOptions['javascript'];
-
-	// We want a menu.
-	if (isset($listOptions['list_menu']))
-		$list_context['list_menu'] = $listOptions['list_menu'];
 
 	// Make sure the template is loaded.
 	loadTemplate('GenericList');

@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.4
  */
 
 /**
@@ -91,7 +91,7 @@ function template_redirect_options($type)
 	global $txt, $context, $modSettings;
 
 	echo '
-					<label for="postRedirect">
+					<label for="postRedirect" class="block">
 						<input type="checkbox" name="postRedirect" id="postRedirect"', $context['is_approved'] ? ' checked' : '', ' onclick="', $context['is_approved'] ? '' : 'if (this.checked && !confirm(\'' . $txt[$type . '_topic_unapproved_js'] . '\')) return false; ', 'document.getElementById(\'reasonArea\').classList.toggle(\'hidden\');"> ', $txt['post_redirection'], '.
 					</label>
 					<fieldset id="reasonArea"', $context['is_approved'] ? '' : 'class="hidden"', '>
@@ -232,7 +232,7 @@ function template_merge()
 	{
 		echo '
 				<div class="pagesection">
-					', $context['page_index'], '
+					<div class="pagelinks">', $context['page_index'], '</div>
 				</div>
 				<div class="windowbg">
 					<ul class="merge_topics">';
@@ -248,7 +248,7 @@ function template_merge()
 					</ul>
 				</div>
 				<div class="pagesection">
-					', $context['page_index'], '
+					<div class="pagelinks">', $context['page_index'], '</div>
 				</div>';
 	}
 	// Just a nice "There aren't any topics" message

@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
 if (!defined('SMF'))
@@ -203,7 +203,7 @@ function UnapprovedPosts()
 
 	// What about topics?  Normally we'd use the table alias t for topics but lets use m so we don't have to redo our approve query.
 	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(m.id_topic)
+		SELECT COUNT(*)
 		FROM {db_prefix}topics AS m
 		WHERE m.approved = {int:not_approved}
 			AND {query_see_message_board}

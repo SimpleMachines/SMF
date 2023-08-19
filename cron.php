@@ -14,19 +14,19 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.4
  */
 
 define('SMF', 'BACKGROUND');
-define('SMF_VERSION', '2.1 RC3');
+define('SMF_VERSION', '2.1.4');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_SOFTWARE_YEAR', '2020');
+define('SMF_SOFTWARE_YEAR', '2023');
 define('FROM_CLI', empty($_SERVER['REQUEST_METHOD']));
 
-define('JQUERY_VERSION', '3.5.1');
+define('JQUERY_VERSION', '3.6.3');
 define('POSTGRE_TITLE', 'PostgreSQL');
 define('MYSQL_TITLE', 'MySQL');
 define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
@@ -103,6 +103,10 @@ require_once($sourcedir . '/Load.php');
 require_once($sourcedir . '/Security.php');
 require_once($sourcedir . '/Subs.php');
 
+// Ensure we don't trip over disabled internal functions
+if (version_compare(PHP_VERSION, '8.0.0', '>='))
+	require_once($sourcedir . '/Subs-Compat.php');
+
 // Create a variable to store some SMF specific functions in.
 $smcFunc = array();
 
@@ -136,6 +140,18 @@ while ($task_details = fetch_task())
 		);
 	}
 }
+
+// If we have time, check the scheduled tasks.
+if (time() - TIME_START < ceil(MAX_CRON_TIME / 2))
+{
+	require_once($sourcedir . '/ScheduledTasks.php');
+
+	if (empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time())
+		AutoTask();
+	elseif (!empty($modSettings['mail_next_send']) && $modSettings['mail_next_send'] < time())
+		ReduceMailQueue();
+}
+
 obExit_cron();
 exit;
 

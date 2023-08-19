@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.4
  */
 
 // Don't do anything if SMF is already loaded.
@@ -16,29 +16,28 @@ if (defined('SMF'))
 	return true;
 
 define('SMF', 'SSI');
-define('SMF_VERSION', '2.1 RC3');
+define('SMF_VERSION', '2.1.4');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_SOFTWARE_YEAR', '2020');
-define('JQUERY_VERSION', '3.5.1');
+define('SMF_SOFTWARE_YEAR', '2023');
+define('JQUERY_VERSION', '3.6.3');
 define('POSTGRE_TITLE', 'PostgreSQL');
 define('MYSQL_TITLE', 'MySQL');
 define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
 
+// Just being safe...  Do this before defining globals as otherwise it unsets the global.
+foreach (array('db_character_set', 'cachedir') as $variable)
+	unset($GLOBALS[$variable]);
 
 // We're going to want a few globals... these are all set later.
 global $maintenance, $msubject, $mmessage, $mbname, $language;
-global $boardurl, $boarddir, $sourcedir, $webmaster_email, $cookiename;
+global $boardurl, $boarddir, $sourcedir, $webmaster_email, $cookiename, $db_character_set;
 global $db_type, $db_server, $db_name, $db_user, $db_prefix, $db_persist, $db_error_send, $db_last_error, $db_show_debug;
 global $db_connection, $db_port, $modSettings, $context, $sc, $user_info, $topic, $board, $txt;
 global $smcFunc, $ssi_db_user, $scripturl, $ssi_db_passwd, $db_passwd, $cache_enable, $cachedir;
-global $auth_secret;
+global $auth_secret, $cache_accelerator, $cache_memcached;
 
 if (!defined('TIME_START'))
 	define('TIME_START', microtime(true));
-
-// Just being safe...
-foreach (array('db_character_set', 'cachedir') as $variable)
-	unset($GLOBALS[$variable]);
 
 // Get the forum's settings for database and file paths.
 require_once(dirname(__FILE__) . '/Settings.php');
@@ -82,38 +81,15 @@ require_once($sourcedir . '/Security.php');
 require_once($sourcedir . '/Class-BrowserDetect.php');
 require_once($sourcedir . '/Subs-Auth.php');
 
+// Ensure we don't trip over disabled internal functions
+if (version_compare(PHP_VERSION, '8.0.0', '>='))
+	require_once($sourcedir . '/Subs-Compat.php');
+
 // Create a variable to store some SMF specific functions in.
 $smcFunc = array();
 
 // Initiate the database connection and define some database functions to use.
 loadDatabase();
-
-// Load installed 'Mods' settings.
-reloadSettings();
-// Clean the request variables.
-cleanRequest();
-
-// Seed the random generator?
-if (empty($modSettings['rand_seed']) || mt_rand(1, 250) == 69)
-	smf_seed_generator();
-
-// Check on any hacking attempts.
-if (isset($_REQUEST['GLOBALS']) || isset($_COOKIE['GLOBALS']))
-	die('No direct access...');
-elseif (isset($_REQUEST['ssi_theme']) && (int) $_REQUEST['ssi_theme'] == (int) $ssi_theme)
-	die('No direct access...');
-elseif (isset($_COOKIE['ssi_theme']) && (int) $_COOKIE['ssi_theme'] == (int) $ssi_theme)
-	die('No direct access...');
-elseif (isset($_REQUEST['ssi_layers'], $ssi_layers) && (@get_magic_quotes_gpc() ? stripslashes($_REQUEST['ssi_layers']) : $_REQUEST['ssi_layers']) == $ssi_layers)
-	die('No direct access...');
-if (isset($_REQUEST['context']))
-	die('No direct access...');
-
-// Gzip output? (because it must be boolean and true, this can't be hacked.)
-if (isset($ssi_gzip) && $ssi_gzip === true && ini_get('zlib.output_compression') != '1' && ini_get('output_handler') != 'ob_gzhandler' && version_compare(PHP_VERSION, '4.2.0', '>='))
-	ob_start('ob_gzhandler');
-else
-	$modSettings['enableCompressedOutput'] = '0';
 
 /**
  * An autoloader for certain classes.
@@ -126,6 +102,7 @@ spl_autoload_register(function($class) use ($sourcedir)
 		'ReCaptcha\\' => 'ReCaptcha/',
 		'MatthiasMullie\\Minify\\' => 'minify/src/',
 		'MatthiasMullie\\PathConverter\\' => 'minify/path-converter/src/',
+		'SMF\\Cache\\' => 'Cache/',
 	);
 
 	// Do any third-party scripts want in on the fun?
@@ -157,6 +134,33 @@ spl_autoload_register(function($class) use ($sourcedir)
 		}
 	}
 });
+
+// Load installed 'Mods' settings.
+reloadSettings();
+// Clean the request variables.
+cleanRequest();
+
+// Seed the random generator?
+if (empty($modSettings['rand_seed']) || mt_rand(1, 250) == 69)
+	smf_seed_generator();
+
+// Check on any hacking attempts.
+if (isset($_REQUEST['GLOBALS']) || isset($_COOKIE['GLOBALS']))
+	die('No direct access...');
+elseif (isset($_REQUEST['ssi_theme']) && (int) $_REQUEST['ssi_theme'] == (int) $ssi_theme)
+	die('No direct access...');
+elseif (isset($_COOKIE['ssi_theme']) && (int) $_COOKIE['ssi_theme'] == (int) $ssi_theme)
+	die('No direct access...');
+elseif (isset($_REQUEST['ssi_layers'], $ssi_layers) && (@get_magic_quotes_gpc() ? stripslashes($_REQUEST['ssi_layers']) : $_REQUEST['ssi_layers']) == $ssi_layers)
+	die('No direct access...');
+if (isset($_REQUEST['context']))
+	die('No direct access...');
+
+// Gzip output? (because it must be boolean and true, this can't be hacked.)
+if (isset($ssi_gzip) && $ssi_gzip === true && ini_get('zlib.output_compression') != '1' && ini_get('output_handler') != 'ob_gzhandler' && version_compare(PHP_VERSION, '4.2.0', '>='))
+	ob_start('ob_gzhandler');
+else
+	$modSettings['enableCompressedOutput'] = '0';
 
 // Primarily, this is to fix the URLs...
 ob_start('ob_sessrewrite');
@@ -334,7 +338,7 @@ function ssi_welcome($output_method = 'echo')
 	if ($output_method == 'echo')
 	{
 		if ($context['user']['is_guest'])
-			echo sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $txt['guest_title'], $context['forum_name_html_safe'], $scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');', $scripturl . '?action=signup');
+			echo sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $context['forum_name_html_safe'], $scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');', $scripturl . '?action=signup');
 		else
 			echo $txt['hello_member'], ' <strong>', $context['user']['name'], '</strong>', allowedTo('pm_read') ? ', ' . (empty($context['user']['messages']) ? $txt['msg_alert_no_messages'] : (($context['user']['messages'] == 1 ? sprintf($txt['msg_alert_one_message'], $scripturl . '?action=pm') : sprintf($txt['msg_alert_many_message'], $scripturl . '?action=pm', $context['user']['messages'])) . ', ' . ($context['user']['unread_messages'] == 1 ? $txt['msg_alert_one_new'] : sprintf($txt['msg_alert_many_new'], $context['user']['unread_messages'])))) : '';
 	}
@@ -546,7 +550,7 @@ function ssi_queryPosts($query_where = '', $query_where_params = array(), $query
 			'preview' => $smcFunc['strlen']($preview) > 128 ? $smcFunc['substr']($preview, 0, 128) . '...' : $preview,
 			'body' => $row['body'],
 			'time' => timeformat($row['poster_time']),
-			'timestamp' => forum_time(true, $row['poster_time']),
+			'timestamp' => $row['poster_time'],
 			'href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . ';topicseen#new',
 			'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '" rel="nofollow">' . $row['subject'] . '</a>',
 			'new' => !empty($row['is_read']),
@@ -662,14 +666,14 @@ function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boar
 	// Find all the posts in distinct topics.  Newer ones will have higher IDs.
 	$request = $smcFunc['db_query']('substring', '
 		SELECT
-			mf.poster_time, mf.subject, ml.id_topic, mf.id_member, ml.id_msg, t.num_replies, t.num_views, mg.online_color, t.id_last_msg,
-			COALESCE(mem.real_name, mf.poster_name) AS poster_name, ' . ($user_info['is_guest'] ? '1 AS is_read, 0 AS new_from' : '
+			ml.poster_time, mf.subject, mf.id_topic, ml.id_member, ml.id_msg, t.num_replies, t.num_views, mg.online_color, t.id_last_msg,
+			COALESCE(mem.real_name, ml.poster_name) AS poster_name, ' . ($user_info['is_guest'] ? '1 AS is_read, 0 AS new_from' : '
 			COALESCE(lt.id_msg, lmr.id_msg, 0) >= ml.id_msg_modified AS is_read,
-			COALESCE(lt.id_msg, lmr.id_msg, -1) + 1 AS new_from') . ', SUBSTRING(mf.body, 1, 384) AS body, mf.smileys_enabled, mf.icon
+			COALESCE(lt.id_msg, lmr.id_msg, -1) + 1 AS new_from') . ', SUBSTRING(ml.body, 1, 384) AS body, ml.smileys_enabled, ml.icon
 		FROM {db_prefix}topics AS t
 			INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
-			INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_last_msg)
-			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = mf.id_member)' . (!$user_info['is_guest'] ? '
+			INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)
+			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = ml.id_member)' . (!$user_info['is_guest'] ? '
 			LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
 			LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})' : '') . '
 			LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = mem.id_group)
@@ -721,7 +725,7 @@ function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boar
 			'short_subject' => shorten_subject($row['subject'], 25),
 			'preview' => $row['body'],
 			'time' => timeformat($row['poster_time']),
-			'timestamp' => forum_time(true, $row['poster_time']),
+			'timestamp' => $row['poster_time'],
 			'href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . ';topicseen#new',
 			'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#new" rel="nofollow">' . $row['subject'] . '</a>',
 			// Retained for compatibility - is technically incorrect!
@@ -733,7 +737,7 @@ function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boar
 	}
 	$smcFunc['db_free_result']($request);
 
-	// If mods want to do somthing with this list of topics, let them do that now.
+	// If mods want to do something with this list of topics, let them do that now.
 	call_integration_hook('integrate_ssi_recentTopics', array(&$posts));
 
 	// Just return it.
@@ -792,7 +796,7 @@ function ssi_topPoster($topNumber = 1, $output_method = 'echo')
 		);
 	$smcFunc['db_free_result']($request);
 
-	// If mods want to do somthing with this list of members, let them do that now.
+	// If mods want to do something with this list of members, let them do that now.
 	call_integration_hook('integrate_ssi_topPoster', array(&$return));
 
 	// Just return all the top posters.
@@ -847,7 +851,7 @@ function ssi_topBoards($num_top = 10, $output_method = 'echo')
 		);
 	$smcFunc['db_free_result']($request);
 
-	// If mods want to do somthing with this list of boards, let them do that now.
+	// If mods want to do something with this list of boards, let them do that now.
 	call_integration_hook('integrate_ssi_topBoards', array(&$boards));
 
 	// If we shouldn't output or have nothing to output, just jump out.
@@ -942,7 +946,7 @@ function ssi_topTopics($type = 'replies', $num_topics = 10, $output_method = 'ec
 	}
 	$smcFunc['db_free_result']($request);
 
-	// If mods want to do somthing with this list of topics, let them do that now.
+	// If mods want to do something with this list of topics, let them do that now.
 	call_integration_hook('integrate_ssi_topTopics', array(&$topics, $type));
 
 	if ($output_method != 'echo' || empty($topics))
@@ -1149,7 +1153,7 @@ function ssi_queryMembers($query_where = null, $query_where_params = array(), $q
 	if (empty($members))
 		return array();
 
-	// If mods want to do somthing with this list of members, let them do that now.
+	// If mods want to do something with this list of members, let them do that now.
 	call_integration_hook('integrate_ssi_queryMembers', array(&$members));
 
 	// Load the members.
@@ -1228,7 +1232,7 @@ function ssi_boardStats($output_method = 'echo')
 	list ($totals['categories']) = $smcFunc['db_fetch_row']($result);
 	$smcFunc['db_free_result']($result);
 
-	// If mods want to do somthing with the board stats, let them do that now.
+	// If mods want to do something with the board stats, let them do that now.
 	call_integration_hook('integrate_ssi_boardStats', array(&$totals));
 
 	if ($output_method != 'echo')
@@ -1258,7 +1262,7 @@ function ssi_whosOnline($output_method = 'echo')
 	);
 	$return = getMembersOnlineStats($membersOnlineOptions);
 
-	// If mods want to do somthing with the list of who is online, let them do that now.
+	// If mods want to do something with the list of who is online, let them do that now.
 	call_integration_hook('integrate_ssi_whosOnline', array(&$return));
 
 	// Add some redundancy for backwards compatibility reasons.
@@ -1290,9 +1294,20 @@ function ssi_whosOnline($output_method = 'echo')
 			', implode(', ', $return['list_users_online']);
 
 	// Showing membergroups?
-	if (!empty($settings['show_group_key']) && !empty($return['membergroups']))
+	if (!empty($settings['show_group_key']) && !empty($return['online_groups']))
+	{
+		$membergroups = cache_quick_get('membergroup_list', 'Subs-Membergroups.php', 'cache_getMembergroupList', array());
+
+		$groups = array();
+		foreach ($return['online_groups'] as $group)
+		{
+			if (isset($membergroups[$group['id']]))
+				$groups[] = $membergroups[$group['id']];
+		}
+
 		echo '<br>
-			[' . implode(']&nbsp;&nbsp;[', $return['membergroups']) . ']';
+			[' . implode(']&nbsp;&nbsp;[', $groups) . ']';
+	}
 }
 
 /**
@@ -1481,7 +1496,7 @@ function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 
 	$return['allowed_warning'] = $row['max_votes'] > 1 ? sprintf($txt['poll_options_limit'], min(count($sOptions), $row['max_votes'])) : '';
 
-	// If mods want to do somthing with this list of polls, let them do that now.
+	// If mods want to do something with this list of polls, let them do that now.
 	call_integration_hook('integrate_ssi_recentPoll', array(&$return, $topPollInstead));
 
 	if ($output_method != 'echo')
@@ -1650,7 +1665,7 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 
 	$return['allowed_warning'] = $row['max_votes'] > 1 ? sprintf($txt['poll_options_limit'], min(count($sOptions), $row['max_votes'])) : '';
 
-	// If mods want to do somthing with this poll, let them do that now.
+	// If mods want to do something with this poll, let them do that now.
 	call_integration_hook('integrate_ssi_showPoll', array(&$return));
 
 	if ($output_method != 'echo')
@@ -1836,7 +1851,7 @@ function ssi_quickSearch($output_method = 'echo')
 
 	echo '
 		<form action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '">
-			<input type="hidden" name="advanced" value="0"><input type="text" name="ssi_search" size="30"> <input type="submit" value="', $txt['search'], '" class="button">
+			<input type="hidden" name="advanced" value="0"><input type="text" name="search" size="30"> <input type="submit" value="', $txt['search'], '" class="button">
 		</form>';
 }
 
@@ -1852,7 +1867,7 @@ function ssi_news($output_method = 'echo')
 
 	$context['random_news_line'] = !empty($context['news_lines']) ? $context['news_lines'][mt_rand(0, count($context['news_lines']) - 1)] : '';
 
-	// If mods want to do somthing with the news, let them do that now. Don't need to pass the news line itself, since it is already in $context.
+	// If mods want to do something with the news, let them do that now. Don't need to pass the news line itself, since it is already in $context.
 	call_integration_hook('integrate_ssi_news');
 
 	if ($output_method != 'echo')
@@ -1878,7 +1893,7 @@ function ssi_todaysBirthdays($output_method = 'echo')
 		'include_birthdays' => true,
 		'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],
 	);
-	$return = cache_quick_get('calendar_index_offset_' . ($user_info['time_offset'] + $modSettings['time_offset']), 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
+	$return = cache_quick_get('calendar_index_offset_' . $user_info['time_offset'], 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
 
 	// The ssi_todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
 	call_integration_hook('integrate_ssi_calendar', array(&$return, $eventOptions));
@@ -1908,7 +1923,7 @@ function ssi_todaysHolidays($output_method = 'echo')
 		'include_holidays' => true,
 		'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],
 	);
-	$return = cache_quick_get('calendar_index_offset_' . ($user_info['time_offset'] + $modSettings['time_offset']), 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
+	$return = cache_quick_get('calendar_index_offset_' . $user_info['time_offset'], 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
 
 	// The ssi_todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
 	call_integration_hook('integrate_ssi_calendar', array(&$return, $eventOptions));
@@ -1937,7 +1952,7 @@ function ssi_todaysEvents($output_method = 'echo')
 		'include_events' => true,
 		'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],
 	);
-	$return = cache_quick_get('calendar_index_offset_' . ($user_info['time_offset'] + $modSettings['time_offset']), 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
+	$return = cache_quick_get('calendar_index_offset_' . $user_info['time_offset'], 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
 
 	// The ssi_todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
 	call_integration_hook('integrate_ssi_calendar', array(&$return, $eventOptions));
@@ -1974,7 +1989,7 @@ function ssi_todaysCalendar($output_method = 'echo')
 		'include_events' => true,
 		'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],
 	);
-	$return = cache_quick_get('calendar_index_offset_' . ($user_info['time_offset'] + $modSettings['time_offset']), 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
+	$return = cache_quick_get('calendar_index_offset_' . $user_info['time_offset'], 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
 
 	// The ssi_todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
 	call_integration_hook('integrate_ssi_calendar', array(&$return, $eventOptions));
@@ -2162,7 +2177,7 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 			'icon' => '<img src="' . $settings[$icon_sources[$row['icon']]] . '/post/' . $row['icon'] . '.png" alt="' . $row['icon'] . '">',
 			'subject' => $row['subject'],
 			'time' => timeformat($row['poster_time']),
-			'timestamp' => forum_time(true, $row['poster_time']),
+			'timestamp' => $row['poster_time'],
 			'body' => $row['body'],
 			'href' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
 			'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['num_replies'] . ' ' . ($row['num_replies'] == 1 ? $txt['ssi_comment'] : $txt['ssi_comments']) . '</a>',
@@ -2193,7 +2208,7 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 
 	$return[count($return) - 1]['is_last'] = true;
 
-	// If mods want to do somthing with this list of posts, let them do that now.
+	// If mods want to do something with this list of posts, let them do that now.
 	call_integration_hook('integrate_ssi_boardNews', array(&$return));
 
 	if ($output_method != 'echo')
@@ -2282,7 +2297,7 @@ function ssi_recentEvents($max_events = 7, $output_method = 'echo')
 		ORDER BY cal.start_date DESC
 		LIMIT ' . $max_events,
 		array(
-			'current_date' => strftime('%Y-%m-%d', forum_time(false)),
+			'current_date' => smf_strftime('%Y-%m-%d', time()),
 			'no_board' => 0,
 		)
 	);
@@ -2297,8 +2312,8 @@ function ssi_recentEvents($max_events = 7, $output_method = 'echo')
 		// Censor the title.
 		censorText($row['title']);
 
-		if ($row['start_date'] < strftime('%Y-%m-%d', forum_time(false)))
-			$date = strftime('%Y-%m-%d', forum_time(false));
+		if ($row['start_date'] < smf_strftime('%Y-%m-%d', time()))
+			$date = smf_strftime('%Y-%m-%d', time());
 		else
 			$date = $row['start_date'];
 
@@ -2333,7 +2348,7 @@ function ssi_recentEvents($max_events = 7, $output_method = 'echo')
 	foreach ($return as $mday => $array)
 		$return[$mday][count($array) - 1]['is_last'] = true;
 
-	// If mods want to do somthing with this list of events, let them do that now.
+	// If mods want to do something with this list of events, let them do that now.
 	call_integration_hook('integrate_ssi_recentEvents', array(&$return));
 
 	if ($output_method != 'echo' || empty($return))
@@ -2482,7 +2497,7 @@ function ssi_recentAttachments($num_attachments = 10, $attachment_ext = array(),
 	}
 	$smcFunc['db_free_result']($request);
 
-	// If mods want to do somthing with this list of attachments, let them do that now.
+	// If mods want to do something with this list of attachments, let them do that now.
 	call_integration_hook('integrate_ssi_recentAttachments', array(&$attachments));
 
 	// So you just want an array?  Here you can have it.

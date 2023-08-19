@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.2
  */
 
 /**
@@ -17,17 +17,41 @@ function template_main()
 {
 	global $context, $settings, $options, $scripturl, $modSettings, $txt;
 
-	// Let them know why their message became unapproved.
-	if ($context['becomesUnapproved'])
+	echo '<div id="display_head" class="information">
+			<h2 class="display_title">', $context['name'], '</h2>';
+
+	if (isset($context['description']) && $context['description'] != '')
 		echo '
-	<div class="noticebox">
-		', $txt['post_becomes_unapproved'], '
-	</div>';
+			<p>', $context['description'], '</p>';
+
+	if (!empty($context['moderators']))
+		echo '
+			<p>', count($context['moderators']) === 1 ? $txt['moderator'] : $txt['moderators'], ': ', implode(', ', $context['link_moderators']), '.</p>';
+
+	if (!empty($settings['display_who_viewing']))
+	{
+		echo '
+			<p>';
+
+		// Show just numbers...?
+		if ($settings['display_who_viewing'] == 1)
+			echo count($context['view_members']), ' ', count($context['view_members']) == 1 ? $txt['who_member'] : $txt['members'];
+		// Or show the actual people viewing the topic?
+		else
+			echo empty($context['view_members_list']) ? '0 ' . $txt['members'] : implode(', ', $context['view_members_list']) . ((empty($context['view_num_hidden']) || $context['can_moderate_forum']) ? '' : ' (+ ' . $context['view_num_hidden'] . ' ' . $txt['hidden'] . ')');
+
+		// Now show how many guests are here too.
+		echo $txt['who_and'], $context['view_num_guests'], ' ', $context['view_num_guests'] == 1 ? $txt['guest'] : $txt['guests'], $txt['who_viewing_board'], '
+			</p>';
+	}
+
+	echo '
+		</div>';
 
 	if (!empty($context['boards']) && (!empty($options['show_children']) || $context['start'] == 0))
 	{
 		echo '
-	<div id="board_', $context['current_board'], '_childboards" class="boardindex_table">
+	<div id="board_', $context['current_board'], '_childboards" class="boardindex_table main_container">
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['sub_boards'], '</h3>
 		</div>';
@@ -50,9 +74,8 @@ function template_main()
 			</div>';
 
 			// Show the last post if there is one.
-			if(!empty($board['last_post']['id']))
-				echo '
-			<div class="lastpost lpr_border">
+			echo '
+			<div class="lastpost">
 				', function_exists('template_bi_' . $board['type'] . '_lastpost') ? call_user_func('template_bi_' . $board['type'] . '_lastpost', $board) : template_bi_board_lastpost($board), '
 			</div>';
 
@@ -70,15 +93,22 @@ function template_main()
 	</div><!-- #board_[current_board]_childboards -->';
 	}
 
-	if (!$context['no_topic_listing'])
-	{
-		// Mobile action buttons (top)
-		if (!empty($context['normal_buttons']))
-			echo '
-	<div class="mobile_buttons floatright">
-		<a class="button mobile_act">', $txt['mobile_action'], '</a>
+	// Let them know why their message became unapproved.
+	if ($context['becomesUnapproved'])
+		echo '
+	<div class="noticebox">
+		', $txt['post_becomes_unapproved'], '
 	</div>';
 
+	// If this person can approve items and we have some awaiting approval tell them.
+	if (!empty($context['unapproved_posts_message']))
+		echo '
+	<div class="noticebox">
+		', $context['unapproved_posts_message'], '
+	</div>';
+
+	if (!$context['no_topic_listing'])
+	{
 		echo '
 	<div class="pagesection">
 		', $context['menu_separator'], '
@@ -86,28 +116,17 @@ function template_main()
 			<a href="#bot" class="button">', $txt['go_down'], '</a>
 			', $context['page_index'], '
 		</div>
-		', template_button_strip($context['normal_buttons'], 'right'), '
-	</div>';
+		', template_button_strip($context['normal_buttons'], 'right');
 
-		if ($context['description'] != '' || !empty($context['moderators']))
-		{
+		// Mobile action buttons (top)
+		if (!empty($context['normal_buttons']))
 			echo '
-	<div id="description_board" class="generic_list_wrapper">
-		<h3>', $context['name'], '</h3>
-		<div>';
+		<div class="mobile_buttons floatright">
+			<a class="button mobile_act">', $txt['mobile_action'], '</a>
+		</div>';
 
-			if ($context['description'] != '')
-				echo '
-			', $context['description'];
-
-			if (!empty($context['moderators']))
-				echo '
-			', count($context['moderators']) === 1 ? $txt['moderator'] : $txt['moderators'], ': ', implode(', ', $context['link_moderators']), '.';
-
-			echo '
-		</div>
+		echo '
 	</div>';
-		}
 
 		// If Quick Moderation is enabled start the form.
 		if (!empty($context['can_quick_mod']) && $options['display_quick_mod'] > 0 && !empty($context['topics']))
@@ -116,22 +135,6 @@ function template_main()
 
 		echo '
 		<div id="messageindex">';
-
-		if (!empty($settings['display_who_viewing']))
-		{
-			echo '
-			<div class="information">';
-
-			if ($settings['display_who_viewing'] == 1)
-				echo count($context['view_members']), ' ', count($context['view_members']) === 1 ? $txt['who_member'] : $txt['members'];
-
-			else
-				echo empty($context['view_members_list']) ? '0 ' . $txt['members'] : implode(', ', $context['view_members_list']) . (empty($context['view_num_hidden']) || $context['can_moderate_forum'] ? '' : ' (+ ' . $context['view_num_hidden'] . ' ' . $txt['hidden'] . ')');
-			echo $txt['who_and'], $context['view_num_guests'], ' ', $context['view_num_guests'] == 1 ? $txt['guest'] : $txt['guests'], $txt['who_viewing_board'];
-
-			echo '
-			</div>';
-		}
 
 		echo '
 			<div class="title_bar" id="topic_header">';
@@ -166,13 +169,6 @@ function template_main()
 		echo '
 			</div><!-- #topic_header -->';
 
-		// If this person can approve items and we have some awaiting approval tell them.
-		if (!empty($context['unapproved_posts_message']))
-			echo '
-			<div class="information">
-				<span class="alert">!</span> ', $context['unapproved_posts_message'], '
-			</div>';
-
 		// Contain the topic list
 		echo '
 			<div id="topic_container">';
@@ -183,7 +179,7 @@ function template_main()
 				<div class="', $topic['css_class'], '">
 					<div class="board_icon">
 						<img src="', $topic['first_post']['icon_url'], '" alt="">
-						', $topic['is_posted_in'] ? '<img class="posted" src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="">' : '', '
+						', $topic['is_posted_in'] ? '<span class="main_icons profile_sm"></span>' : '', '
 					</div>
 					<div class="info', !empty($context['can_quick_mod']) ? '' : ' info_block', '">
 						<div ', (!empty($topic['quick_mod']['modify']) ? 'id="topic_' . $topic['first_post']['id'] . '"  ondblclick="oQuickModifyTopic.modify_topic(\'' . $topic['id'] . '\', \'' . $topic['first_post']['id'] . '\');"' : ''), '>';
@@ -226,7 +222,6 @@ function template_main()
 								', $txt['started_by'], ' ', $topic['first_post']['member']['link'], '
 							</p>
 							', !empty($topic['pages']) ? '<span id="pages' . $topic['first_post']['id'] . '" class="topic_pages">' . $topic['pages'] . '</span>' : '', '
-							<br class="clear">
 						</div><!-- #topic_[first_post][id] -->
 					</div><!-- .info -->
 					<div class="board_stats centertext">
@@ -306,13 +301,6 @@ function template_main()
 		<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
 	</form>';
 
-		// Mobile action buttons (bottom)
-		if (!empty($context['normal_buttons']))
-			echo '
-	<div class="mobile_buttons floatright">
-		<a class="button mobile_act">', $txt['mobile_action'], '</a>
-	</div>';
-
 		echo '
 	<div class="pagesection">
 		', template_button_strip($context['normal_buttons'], 'right'), '
@@ -320,7 +308,16 @@ function template_main()
 		<div class="pagelinks floatleft">
 			<a href="#main_content_section" class="button" id="bot">', $txt['go_up'], '</a>
 			', $context['page_index'], '
-		</div>
+		</div>';
+
+		// Mobile action buttons (bottom)
+		if (!empty($context['normal_buttons']))
+			echo '
+			<div class="mobile_buttons floatright">
+				<a class="button mobile_act">', $txt['mobile_action'], '</a>
+			</div>';
+
+		echo '
 	</div>';
 	}
 
@@ -487,7 +484,7 @@ function template_bi_board_children($board)
 		foreach ($board['children'] as $child)
 		{
 			if (!$child['is_redirect'])
-				$child['link'] = '' . ($child['new'] ? '<a href="' . $scripturl . '?action=unread;board=' . $child['id'] . '" title="' . $txt['new_posts'] . ' (' . $txt['board_topics'] . ': ' . comma_format($child['topics']) . ', ' . $txt['posts'] . ': ' . comma_format($child['posts']) . ')" class="new_posts">' . $txt['new'] . '</a>' : '') . '<a href="' . $child['href'] . '" ' . ($child['new'] ? 'class="board_new_posts" ' : '') . 'title="' . ($child['new'] ? $txt['new_posts'] : $txt['old_posts']) . ' (' . $txt['board_topics'] . ': ' . comma_format($child['topics']) . ', ' . $txt['posts'] . ': ' . comma_format($child['posts']) . ')">' . $child['name'] . '</a>';
+				$child['link'] = '' . ($child['new'] ? '<a href="' . $scripturl . '?action=unread;board=' . $child['id'] . '" title="' . $txt['new_posts'] . ' (' . $txt['board_topics'] . ': ' . comma_format($child['topics']) . ', ' . $txt['posts'] . ': ' . comma_format($child['posts']) . ')" class="new_posts">' . $txt['new'] . '</a> ' : '') . '<a href="' . $child['href'] . '" ' . ($child['new'] ? 'class="board_new_posts" ' : '') . 'title="' . ($child['new'] ? $txt['new_posts'] : $txt['old_posts']) . ' (' . $txt['board_topics'] . ': ' . comma_format($child['topics']) . ', ' . $txt['posts'] . ': ' . comma_format($child['posts']) . ')">' . $child['name'] . '</a>';
 			else
 				$child['link'] = '<a href="' . $child['href'] . '" title="' . comma_format($child['posts']) . ' ' . $txt['redirects'] . ' - ' . $child['short_description'] . '">' . $child['name'] . '</a>';
 
@@ -500,7 +497,7 @@ function template_bi_board_children($board)
 
 		echo '
 			<div id="board_', $board['id'], '_children" class="children">
-				<p><strong id="child_list_', $board['id'], '">', $txt['sub_boards'], '</strong>', implode($children), '</p>
+				<p><strong id="child_list_', $board['id'], '">', $txt['sub_boards'], '</strong>', implode(' ', $children), '</p>
 			</div>';
 	}
 }
@@ -515,18 +512,19 @@ function template_topic_legend()
 	echo '
 	<div class="tborder" id="topic_icons">
 		<div class="information">
-			<p class="floatright" id="message_index_jump_to"></p>';
+			<p id="message_index_jump_to"></p>';
 
 	if (empty($context['no_topic_listing']))
 		echo '
 			<p class="floatleft">', !empty($modSettings['enableParticipation']) && $context['user']['is_logged'] ? '
-				<img src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="" class="centericon"> ' . $txt['participation_caption'] . '<br>' : '', '
-				' . ($modSettings['pollMode'] == '1' ? '<span class="main_icons poll centericon"></span> ' . $txt['poll'] : '') . '<br>
-				<img src="' . $settings['images_url'] . '/post/moved.png" alt="" class="centericon sizefix"> ' . $txt['moved_topic'] . '<br>
+				<span class="main_icons profile_sm"></span> ' . $txt['participation_caption'] . '<br>' : '', '
+				' . ($modSettings['pollMode'] == '1' ? '<span class="main_icons poll"></span> ' . $txt['poll'] . '<br>' : '') . '
+				<span class="main_icons move"></span> ' . $txt['moved_topic'] . '<br>
 			</p>
 			<p>
-				<span class="main_icons lock centericon"></span> ' . $txt['locked_topic'] . '<br>
-				<span class="main_icons sticky centericon"></span> ' . $txt['sticky_topic'] . '<br>
+				<span class="main_icons lock"></span> ' . $txt['locked_topic'] . '<br>
+				<span class="main_icons sticky"></span> ' . $txt['sticky_topic'] . '<br>
+				<span class="main_icons watch"></span> ' . $txt['watching_topic'] . '<br>
 			</p>';
 
 	if (!empty($context['jump_to']))
@@ -548,7 +546,6 @@ function template_topic_legend()
 			</script>';
 
 	echo '
-			<br class="clear">
 		</div><!-- .information -->
 	</div><!-- #topic_icons -->';
 }

@@ -5,21 +5,26 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
+namespace SMF\Cache\APIs;
+
+use SMF\Cache\CacheApi;
+use SMF\Cache\CacheApiInterface;
+
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * PostgreSQL Cache API class
  *
- * @package cacheAPI
+ * @package CacheAPI
  */
-class postgres_cache extends cache_api
+class Postgres extends CacheApi implements CacheApiInterface
 {
 	/** @var string */
 	private $db_prefix;
@@ -152,7 +157,12 @@ class postgres_cache extends cache_api
 	 */
 	public function cleanCache($type = '')
 	{
-		pg_query($this->db_connection, 'TRUNCATE ' . $this->db_prefix . 'cache');
+		if ($type == 'expired')
+			pg_query($this->db_connection, 'DELETE FROM ' . $this->db_prefix . 'cache WHERE ttl < ' . time() . ';');
+		else
+			pg_query($this->db_connection, 'TRUNCATE ' . $this->db_prefix . 'cache');
+
+		$this->invalidateCache();
 
 		return true;
 	}
@@ -162,7 +172,7 @@ class postgres_cache extends cache_api
 	 */
 	public function getVersion()
 	{
-		return pg_version()['server'];
+		return pg_version($this->db_connection)['server'];
 	}
 
 	/**

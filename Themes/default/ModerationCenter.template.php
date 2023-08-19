@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.4
  */
 
 /**
@@ -47,7 +47,7 @@ function template_group_requests_block()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span id="group_requests_toggle" class="', !empty($context['admin_prefs']['mcgr']) ? 'toggle_down' : 'toggle_up', ' floatright" style="display: none;"></span>
+				<span id="group_requests_toggle" class="', !empty($context['admin_prefs']['mcgr']) ? 'toggle_down' : 'toggle_up', ' floatright" title="', empty($context['admin_prefs']['mcgr']) ? $txt['hide'] : $txt['show'], '" style="display: none;"></span>
 				<a href="', $scripturl, '?action=groups;sa=requests" id="group_requests_link">', $txt['mc_group_requests'], '</a>
 			</h3>
 		</div>
@@ -114,7 +114,7 @@ function template_watched_users()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span id="watched_users_toggle" class="', !empty($context['admin_prefs']['mcwu']) ? 'toggle_down' : 'toggle_up', ' floatright" style="display: none;"></span>
+				<span id="watched_users_toggle" class="', !empty($context['admin_prefs']['mcwu']) ? 'toggle_down' : 'toggle_up', ' floatright" title="', empty($context['admin_prefs']['mcwu']) ? $txt['hide'] : $txt['show'], '" style="display: none;"></span>
 				<a href="', $scripturl, '?action=moderate;area=userwatch" id="watched_users_link">', $txt['mc_watched_users'], '</a>
 			</h3>
 		</div>
@@ -181,7 +181,7 @@ function template_reported_posts_block()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span id="reported_posts_toggle" class="', !empty($context['admin_prefs']['mcrp']) ? 'toggle_down' : 'toggle_up', ' floatright" style="display: none;"></span>
+				<span id="reported_posts_toggle" class="', !empty($context['admin_prefs']['mcrp']) ? 'toggle_down' : 'toggle_up', ' floatright" title="', empty($context['admin_prefs']['mcrp']) ? $txt['hide'] : $txt['show'], '" style="display: none;"></span>
 				<a href="', $scripturl, '?action=moderate;area=reportedposts" id="reported_posts_link">', $txt['mc_recent_reports'], '</a>
 			</h3>
 		</div>
@@ -248,7 +248,7 @@ function template_reported_users_block()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span id="reported_users_toggle" class="', !empty($context['admin_prefs']['mcur']) ? 'toggle_down' : 'toggle_up', ' floatright" style="display: none;"></span>
+				<span id="reported_users_toggle" class="', !empty($context['admin_prefs']['mcur']) ? 'toggle_down' : 'toggle_up', ' floatright" title="', empty($context['admin_prefs']['mcur']) ? $txt['hide'] : $txt['show'], '" style="display: none;"></span>
 				<a href="', $scripturl, '?action=moderate;area=userwatch" id="reported_users_link">', $txt['mc_recent_user_reports'], '</a>
 			</h3>
 		</div>
@@ -342,7 +342,7 @@ function template_notes()
 		echo '
 					</ul>
 					<div class="pagesection notes">
-						<span class="smalltext">', $context['page_index'], '</span>
+						<div class="pagelinks">', $context['page_index'], '</div>
 					</div>';
 	}
 
@@ -369,23 +369,38 @@ function template_unapproved_posts()
 	echo '
 	<div id="modcenter">
 		<form action="', $scripturl, '?action=moderate;area=postmod;start=', $context['start'], ';sa=', $context['current_view'], '" method="post" accept-charset="', $context['character_set'], '">
-			<div class="cat_bar">
+			<div class="cat_bar', !empty($context['unapproved_items']) ? ' cat_bar_round' : '', '">
 				<h3 class="catbg">', $txt['mc_unapproved_posts'], '</h3>
 			</div>';
 
 	// No posts?
 	if (empty($context['unapproved_items']))
+	{
 		echo '
 			<div class="windowbg">
 				<p class="centertext">
 					', $txt['mc_unapproved_' . $context['current_view'] . '_none_found'], '
 				</p>
 			</div>';
+	}
 	else
+	{
 		echo '
-			<div class="pagesection floatleft">
-				', $context['page_index'], '
+			<div class="pagesection">';
+
+		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
+			echo '
+				<ul class="buttonlist floatright">
+					<li class="inline_mod_check">
+						<input type="checkbox" onclick="invertAll(this, this.form, \'item[]\');" checked>
+					</li>
+				</ul>';
+
+		echo '
+				<div class="pagelinks">', $context['page_index'], '</div>
 			</div>';
+
+	}
 
 	foreach ($context['unapproved_items'] as $item)
 	{
@@ -403,18 +418,19 @@ function template_unapproved_posts()
 				'show' => $item['can_delete']
 			),
 			'quickmod' => array(
+				'class' => 'inline_mod_check',
 				'content' => '<input type="checkbox" name="item[]" value="'.$item['id'].'" checked>',
 				'show' => !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1
 			),
 		);
 		echo '
 			<div class="windowbg clear">
-				<div class="counter">', $item['counter'], '</div>
+				<div class="page_number floatright"> #', $item['counter'], '</div>
 				<div class="topic_details">
 					<h5>
 						<strong>', $item['category']['link'], ' / ', $item['board']['link'], ' / ', $item['link'], '</strong>
 					</h5>
-					<span class="smalltext"><strong>', $txt['mc_unapproved_by'], ' ', $item['poster']['link'], ' ', $txt['on'], ':</strong> ', $item['time'], '</span>
+					<span class="smalltext">', sprintf(str_replace('<br>', ' ', $txt['last_post_topic']), $item['time'], '<strong>' . $item['poster']['link'] . '</strong>'), '</span>
 				</div>
 				<div class="list_posts">
 					<div class="post">', $item['body'], '</div>
@@ -442,9 +458,7 @@ function template_unapproved_posts()
 
 	if (!empty($context['unapproved_items']))
 		echo '
-				<div class="floatleft">
-					<div class="pagelinks">', $context['page_index'], '</div>
-				</div>';
+				<div class="pagelinks">', $context['page_index'], '</div>';
 
 	echo '
 			</div><!-- .pagesection -->
@@ -475,6 +489,7 @@ function template_user_watch_post_callback($post)
 			'show' => $post['can_delete']
 		),
 		'quickmod' => array(
+			'class' => 'inline_mod_check',
 			'content' => '<input type="checkbox" name="delete[]" value="' . $post['id'] . '">',
 			'show' => $post['can_delete']
 		)
@@ -485,20 +500,16 @@ function template_user_watch_post_callback($post)
 						<div class="floatleft">
 							<strong><a href="' . $scripturl . '?topic=' . $post['id_topic'] . '.' . $post['id'] . '#msg' . $post['id'] . '">' . $post['subject'] . '</a></strong> ' . $txt['mc_reportedp_by'] . ' <strong>' . $post['author_link'] . '</strong>
 						</div>
-						<div class="floatright">';
-
-	$output_html .= template_quickbuttons($quickbuttons, 'user_watch_post', 'return');
-
-	$output_html .= '
-						</div>
 					</div>
 					<br>
 					<div class="smalltext">
-						&#171; ' . $txt['mc_watched_users_posted'] . ': ' . $post['poster_time'] . ' &#187;
+						' . $txt['mc_watched_users_posted'] . ': ' . $post['poster_time'] . '
 					</div>
-					<div class="list_posts double_height">
+					<div class="list_posts">
 						' . $post['body'] . '
 					</div>';
+
+	$output_html .= template_quickbuttons($quickbuttons, 'user_watch_post', 'return');
 
 	return $output_html;
 }
@@ -535,7 +546,7 @@ function template_show_notice()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $context['page_title'], '</title>
-		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $context['browser_cache'], '">
+		', template_css(), '
 	</head>
 	<body>
 		<div class="cat_bar">
@@ -640,6 +651,12 @@ function template_warn_template()
 		{
 			$.ajax({
 				type: "POST",
+				headers: {
+					"X-SMF-AJAX": 1
+				},
+				xhrFields: {
+					withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
+				},
 				url: "' . $scripturl . '?action=xmlhttp;sa=previews;xml",
 				data: {item: "warning_preview", title: $("#template_title").val(), body: $("#template_body").val(), user: $(\'input[name="u"]\').attr("value")},
 				context: document.body,

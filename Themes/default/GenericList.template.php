@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
 /**
@@ -26,10 +26,6 @@ function template_show_list($list_id = null)
 		return;
 
 	$cur_list = &$context[$list_id];
-
-	// These are the main tabs that is used all around the template.
-	if (isset($cur_list['list_menu'], $cur_list['list_menu']['show_on']) && ($cur_list['list_menu']['show_on'] == 'both' || $cur_list['list_menu']['show_on'] == 'top'))
-		template_create_list_menu($cur_list['list_menu'], 'top');
 
 	if (isset($cur_list['form']))
 		echo '
@@ -63,8 +59,8 @@ function template_show_list($list_id = null)
 		// Show the page index (if this list doesn't intend to show all items).
 		if (!empty($cur_list['items_per_page']) && !empty($cur_list['page_index']))
 			echo '
-		<div class="floatleft">
-			<div class="pagesection">', $cur_list['page_index'], '</div>
+		<div class="pagesection floatleft">
+			<div class="pagelinks">', $cur_list['page_index'], '</div>
 		</div>';
 
 		if (isset($cur_list['additional_rows']['above_column_headers']))
@@ -112,7 +108,7 @@ function template_show_list($list_id = null)
 		foreach ($cur_list['rows'] as $id => $row)
 		{
 			echo '
-				<tr class="windowbg', empty($row['class']) ? '' : ' ' . $row['class'], '"', empty($row['style']) ? '' : ' style="' . $row['style'] . '"', ' id="list_', $list_id, '_', $id, '">';
+				<tr class="', empty($row['class']) ? 'windowbg' : $row['class'], '"', empty($row['style']) ? '' : ' style="' . $row['style'] . '"', ' id="list_', $list_id, '_', $id, '">';
 
 			if (!empty($row['data']))
 				foreach ($row['data'] as $row_id => $row_data)
@@ -138,13 +134,13 @@ function template_show_list($list_id = null)
 		// Show the page index (if this list doesn't intend to show all items).
 		if (!empty($cur_list['items_per_page']) && !empty($cur_list['page_index']))
 			echo '
-			<div class="floatleft">
-				<div class="pagesection">', $cur_list['page_index'], '</div>
+			<div class="pagesection floatleft">
+				<div class="pagelinks">', $cur_list['page_index'], '</div>
 			</div>';
+
 
 		if (isset($cur_list['additional_rows']['below_table_data']))
 			template_additional_rows('below_table_data', $cur_list);
-
 		echo '
 		</div>';
 	}
@@ -166,10 +162,6 @@ function template_show_list($list_id = null)
 	</form>';
 	}
 
-	// Tabs at the bottom.  Usually bottom aligned.
-	if (isset($cur_list['list_menu'], $cur_list['list_menu']['show_on']) && ($cur_list['list_menu']['show_on'] == 'both' || $cur_list['list_menu']['show_on'] == 'bottom'))
-		template_create_list_menu($cur_list['list_menu'], 'bottom');
-
 	if (isset($cur_list['javascript']))
 		echo '
 	<script>
@@ -190,111 +182,6 @@ function template_additional_rows($row_position, $cur_list)
 			<div class="additional_row', empty($row['class']) ? '' : ' ' . $row['class'], '"', empty($row['style']) ? '' : ' style="' . $row['style'] . '"', '>
 				', $row['value'], '
 			</div>';
-}
-
-/**
- * This function creates a menu
- *
- * @param array $list_menu An array of menu data
- * @param string $direction Which direction the items should go
- */
-function template_create_list_menu($list_menu, $direction = 'top')
-{
-	global $context;
-
-	/**
-		// This is used if you want your generic lists to have tabs.
-		$cur_list['list_menu'] = array(
-			// This is the style to use.  Tabs or Buttons (Text 1 | Text 2).
-			// By default tabs are selected if not set.
-			// The main difference between tabs and buttons is that tabs get highlighted if selected.
-			// If style is set to buttons and use tabs is disabled then we change the style to old styled tabs.
-			'style' => 'tabs',
-			// The position of the tabs/buttons.  Left or Right.  By default is set to left.
-			'position' => 'left',
-			// This is used by the old styled menu.  We *need* to know the total number of columns to span.
-			'columns' => 0,
-			// This gives you the option to show tabs only at the top, bottom or both.
-			// By default they are just shown at the top.
-			'show_on' => 'top',
-			// Links.  This is the core of the array.  It has all the info that we need.
-			'links' => array(
-				'name' => array(
-					// This will tell use were to go when they click it.
-					'href' => $scripturl . '?action=theaction',
-					// The name that you want to appear for the link.
-					'label' => $txt['name'],
-					// If we use tabs instead of buttons we highlight the current tab.
-					// Must use conditions to determine if its selected or not.
-					'is_selected' => isset($_REQUEST['name']),
-				),
-			),
-		);
-	*/
-
-	// Are we using right-to-left orientation?
-	$first = $context['right_to_left'] ? 'last' : 'first';
-	$last = $context['right_to_left'] ? 'first' : 'last';
-
-	if (!isset($list_menu['style']) || isset($list_menu['style']) && $list_menu['style'] == 'tabs')
-	{
-		echo '
-		<table style="margin-', $list_menu['position'], ': 10px; width: 100%;">
-			<tr>', $list_menu['position'] == 'right' ? '
-				<td></td>' : '', '
-				<td class="', $list_menu['position'], 'text">
-					<table>
-						<tr>
-							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_', $first, '"></td>';
-
-		foreach ($list_menu['links'] as $link)
-		{
-			if ($link['is_selected'])
-				echo '
-							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_active_', $first, '"></td>
-							<td class="', $direction == 'top' ? 'mirrortab' : 'maintab', '_active_back">
-								<a href="', $link['href'], '">', $link['label'], '</a>
-							</td>
-							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_active_', $last, '"></td>';
-			else
-				echo '
-							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_back">
-								<a href="', $link['href'], '">', $link['label'], '</a>
-							</td>';
-		}
-
-		echo '
-							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_', $last, '"></td>
-						</tr>
-					</table>
-				</td>', $list_menu['position'] == 'left' ? '
-				<td></td>' : '', '
-			</tr>
-		</table>';
-	}
-	elseif (isset($list_menu['style']) && $list_menu['style'] == 'buttons')
-	{
-		$links = array();
-		foreach ($list_menu['links'] as $link)
-			$links[] = '<a href="' . $link['href'] . '">' . $link['label'] . '</a>';
-
-		echo '
-		<table style="margin-', $list_menu['position'], ': 10px; width: 100%;">
-			<tr>', $list_menu['position'] == 'right' ? '
-				<td></td>' : '', '
-				<td class="', $list_menu['position'], 'text">
-					<table>
-						<tr>
-							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_', $first, '"></td>
-							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_back">', implode(' &nbsp;|&nbsp; ', $links), '</td>
-							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_', $last, '"></td>
-						</tr>
-					</table>
-				</td>', $list_menu['position'] == 'left' ? '
-				<td></td>' : '', '
-			</tr>
-		</table>';
-	}
 }
 
 ?>

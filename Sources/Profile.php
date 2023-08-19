@@ -9,17 +9,17 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.4
  */
 
 if (!defined('SMF'))
 	die('No direct access...');
 
 /**
- * The main designating function for modifying profiles. Loads up info, determins what to do, etc.
+ * The main designating function for modifying profiles. Loads up info, determines what to do, etc.
  *
  * @param array $post_errors Any errors that occurred
  */
@@ -222,8 +222,8 @@ function ModifyProfile($post_errors = array())
 					'function' => 'viewWarning',
 					'icon' => 'warning',
 					'permission' => array(
-						'own' => array('profile_warning_own', 'profile_warning_any', 'issue_warning', 'moderate_forum'),
-						'any' => array('profile_warning_any', 'issue_warning', 'moderate_forum'),
+						'own' => array('view_warning_own', 'view_warning_any', 'issue_warning', 'moderate_forum'),
+						'any' => array('view_warning_any', 'issue_warning', 'moderate_forum'),
 					),
 				),
 			),
@@ -301,7 +301,7 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['notification'],
 					'file' => 'Profile-Modify.php',
 					'function' => 'notification',
-					'icon' => 'mail',
+					'icon' => 'alerts',
 					'sc' => 'post',
 					//'token' => 'profile-nt%u', This is not checked here. We do it in the function itself - but if it was checked, this is what it'd be.
 					'subsections' => array(
@@ -479,6 +479,7 @@ function ModifyProfile($post_errors = array())
 				'logout' => array(
 					'label' => $txt['logout'],
 					'custom_url' => $scripturl . '?action=logout;%1$s=%2$s',
+					'icon' => 'logout',
 					'enabled' => !empty($_REQUEST['area']) && $_REQUEST['area'] === 'popup',
 					'permission' => array(
 						'own' => array('is_not_guest'),
@@ -490,6 +491,10 @@ function ModifyProfile($post_errors = array())
 	);
 
 	// Let them modify profile areas easily.
+	call_integration_hook('integrate_profile_areas', array(&$profile_areas));
+
+	// Deprecated since 2.1.4 and will be removed in 3.0.0. Kept for compatibility with early versions of 2.1.
+	// @todo add runtime warnings.
 	call_integration_hook('integrate_pre_profile_areas', array(&$profile_areas));
 
 	// Do some cleaning ready for the menu function.
@@ -520,6 +525,7 @@ function ModifyProfile($post_errors = array())
 
 	// Set a few options for the menu.
 	$menuOptions = array(
+		'disable_hook_call' => true,
 		'disable_url_session_check' => true,
 		'current_area' => $current_area,
 		'extra_url_parameters' => array(
@@ -581,7 +587,7 @@ function ModifyProfile($post_errors = array())
 				}
 
 				// Does this require session validating?
-				if (!empty($area['validate']) || (isset($_REQUEST['save']) && !$context['user']['is_owner']))
+				if (!empty($area['validate']) || (isset($_REQUEST['save']) && !$context['user']['is_owner'] && ($area_id != 'issuewarning' || empty($modSettings['securityDisable_moderate']))))
 					$security_checks['validate'] = true;
 
 				// Permissions for good measure.
@@ -680,7 +686,7 @@ function ModifyProfile($post_errors = array())
 			$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($cur_profile['member_name'], $password, false)), true);
 
 			// Bad password!!!
-			if (!$good_password && !hash_verify_password($user_profile[$memID]['member_name'], un_htmlspecialchars(stripslashes($password)), $user_info['passwd']))
+			if (!$good_password && !hash_verify_password($user_profile[$memID]['member_name'], $password, $user_info['passwd']))
 				$post_errors[] = 'bad_password';
 
 			// Warn other elements not to jump the gun and do custom changes!
@@ -908,7 +914,7 @@ function profile_popup($memID)
  */
 function alerts_popup($memID)
 {
-	global $context, $sourcedir, $db_show_debug, $cur_profile;
+	global $context, $sourcedir, $db_show_debug, $cur_profile, $modSettings;
 
 	// Load the Alerts language file.
 	loadLanguage('Alerts');
@@ -921,17 +927,14 @@ function alerts_popup($memID)
 
 	// No funny business allowed
 	$counter = isset($_REQUEST['counter']) ? max(0, (int) $_REQUEST['counter']) : 0;
+	$limit = !empty($modSettings['alerts_per_page']) && (int) $modSettings['alerts_per_page'] < 1000 ? min((int) $modSettings['alerts_per_page'], 1000) : 25;
 
 	$context['unread_alerts'] = array();
 	if ($counter < $cur_profile['alerts'])
 	{
 		// Now fetch me my unread alerts, pronto!
 		require_once($sourcedir . '/Profile-View.php');
-		$context['unread_alerts'] = fetch_alerts($memID, false, !empty($counter) ? $cur_profile['alerts'] - $counter : 0, 0, !isset($_REQUEST['counter']));
-
-		// This shouldn't happen, but just in case...
-		if (empty($counter) && $cur_profile['alerts'] != count($context['unread_alerts']))
-			updateMemberData($memID, array('alerts' => count($context['unread_alerts'])));
+		$context['unread_alerts'] = fetch_alerts($memID, false, !empty($counter) ? $cur_profile['alerts'] - $counter : $limit, 0, !isset($_REQUEST['counter']));
 	}
 }
 
@@ -1001,7 +1004,7 @@ function loadCustomFields($memID, $area = 'summary')
 		}
 
 		// Don't show the "disabled" option for the "gender" field if we are on the "summary" area.
-		if ($area == 'summary' && $row['col_name'] == 'cust_gender' && $value == 'None')
+		if ($area == 'summary' && $row['col_name'] == 'cust_gender' && $value == '{gender_0}')
 			continue;
 
 		// HTML for the input form.
@@ -1019,7 +1022,7 @@ function loadCustomFields($memID, $area = 'summary')
 			foreach ($options as $k => $v)
 			{
 				$true = (!$exists && $row['default_value'] == $v) || $value == $v;
-				$input_html .= '<option value="' . $k . '"' . ($true ? ' selected' : '') . '>' . $v . '</option>';
+				$input_html .= '<option value="' . $k . '"' . ($true ? ' selected' : '') . '>' . tokenTxtReplace($v) . '</option>';
 				if ($true)
 					$output_html = $v;
 			}
@@ -1033,7 +1036,7 @@ function loadCustomFields($memID, $area = 'summary')
 			foreach ($options as $k => $v)
 			{
 				$true = (!$exists && $row['default_value'] == $v) || $value == $v;
-				$input_html .= '<label for="customfield_' . $row['col_name'] . '_' . $k . '"><input type="radio" name="customfield[' . $row['col_name'] . ']" id="customfield_' . $row['col_name'] . '_' . $k . '" value="' . $k . '"' . ($true ? ' checked' : '') . '>' . $v . '</label><br>';
+				$input_html .= '<label for="customfield_' . $row['col_name'] . '_' . $k . '"><input type="radio" name="customfield[' . $row['col_name'] . ']" id="customfield_' . $row['col_name'] . '_' . $k . '" value="' . $k . '"' . ($true ? ' checked' : '') . '>' . tokenTxtReplace($v) . '</label><br>';
 				if ($true)
 					$output_html = $v;
 			}
@@ -1046,7 +1049,7 @@ function loadCustomFields($memID, $area = 'summary')
 		else
 		{
 			@list ($rows, $cols) = @explode(',', $row['default_value']);
-			$input_html = '<textarea name="customfield[' . $row['col_name'] . ']" id="customfield[' . $row['col_name'] . ']"' . (!empty($rows) ? ' rows="' . $rows . '"' : '') . (!empty($cols) ? ' cols="' . $cols . '"' : '') . ($row['show_reg'] == 2 ? ' required' : '') . '>' . un_htmlspecialchars($value) . '</textarea>';
+			$input_html = '<textarea name="customfield[' . $row['col_name'] . ']" id="customfield[' . $row['col_name'] . ']"' . ($row['field_length'] != 0 ? ' maxlength="' . $row['field_length'] . '"' : '') . (!empty($rows) ? ' rows="' . $rows . '"' : '') . (!empty($cols) ? ' cols="' . $cols . '"' : '') . ($row['show_reg'] == 2 ? ' required' : '') . '>' . un_htmlspecialchars($value) . '</textarea>';
 		}
 
 		// Parse BBCode
@@ -1067,12 +1070,12 @@ function loadCustomFields($memID, $area = 'summary')
 			));
 
 		$context['custom_fields'][] = array(
-			'name' => $row['field_name'],
-			'desc' => $row['field_desc'],
+			'name' => tokenTxtReplace($row['field_name']),
+			'desc' => tokenTxtReplace($row['field_desc']),
 			'type' => $row['field_type'],
 			'order' => $row['field_order'],
 			'input_html' => $input_html,
-			'output_html' => $output_html,
+			'output_html' => tokenTxtReplace($output_html),
 			'placement' => $row['placement'],
 			'colname' => $row['col_name'],
 			'value' => $value,

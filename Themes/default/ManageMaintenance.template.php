@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
 /**
@@ -127,6 +127,18 @@ function template_maintain_routine()
 					<input type="submit" value="', $txt['maintain_run_now'], '" class="button">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
+				</p>
+			</form>
+		</div>
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['maintain_rebuild_settings'], '</h3>
+		</div>
+		<div class="windowbg">
+			<form action="', $scripturl, '?action=admin;area=maintain;sa=routine;activity=rebuild_settings" method="post" accept-charset="', $context['character_set'], '">
+				<p>
+					', $txt['maintain_rebuild_settings_info'], '
+					<input type="submit" value="', $txt['maintain_run_now'], '" class="button">
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				</p>
 			</form>
 		</div>

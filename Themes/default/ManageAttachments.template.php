@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
 /**
@@ -55,7 +55,7 @@ function template_maintenance()
 				<dt><strong>', $txt['attachmentdir_size'], ':</strong></dt>
 				<dd>', $context['attachment_total_size'], ' ', $txt['kilobyte'], '</dd>
 				<dt><strong>', $txt['attach_current_dir'], ':</strong></dt>
-				<dd>', $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']], '</dd>
+				<dd class="word_break">', $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']], '</dd>
 				<dt><strong>', $txt['attachmentdir_size_current'], ':</strong></dt>
 				<dd>', $context['attachment_current_size'], ' ', $txt['kilobyte'], '</dd>
 				<dt><strong>', $txt['attachment_space'], ':</strong></dt>

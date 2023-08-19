@@ -24,10 +24,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
 if (!defined('SMF'))
@@ -77,7 +77,6 @@ function ThemesMain()
 	{
 		$context[$context['admin_menu_name']]['tab_data'] = array(
 			'title' => $txt['themeadmin_title'],
-			'help' => 'themes',
 			'description' => $txt['themeadmin_description'],
 			'tabs' => array(
 				'admin' => array(
@@ -552,7 +551,7 @@ function SetThemeOptions()
 	loadTheme($_GET['th'], false);
 
 	loadLanguage('Profile');
-	// @todo Should we just move these options so they are no longer theme dependant?
+	// @todo Should we just move these options so they are no longer theme dependent?
 	loadLanguage('PersonalMessage');
 
 	// Let the theme take care of the settings.
@@ -832,7 +831,7 @@ function RemoveTheme()
 	if ($themeID == 1)
 		fatal_lang_error('no_access', false);
 
-	$theme_info = get_single_theme($themeID);
+	$theme_info = get_single_theme($themeID, array('theme_dir'));
 
 	// Remove it from the DB.
 	remove_theme($themeID);
@@ -1128,11 +1127,14 @@ function PickTheme()
 	// Then return it.
 	addJavaScriptVar(
 		'oThemeVariants',
-		json_encode(array_map(function($theme)
-		{
-			return $theme['variants'];
-		}, $context['available_themes']
-	)));
+		json_encode(array_map(
+			function($theme)
+			{
+				return $theme['variants'];
+			},
+			$context['available_themes']
+		))
+	);
 	loadJavaScriptFile('profile.js', array('defer' => false, 'minimize' => true), 'smf_profile');
 	$settings['images_url'] = $current_images_url;
 	$settings['theme_variants'] = $current_theme_variants;
@@ -1324,6 +1326,8 @@ function InstallCopy()
 		'install_for' => '2.1 - 2.1.99, ' . SMF_VERSION,
 		'based_on' => '',
 		'based_on_dir' => $themedir . '/default',
+		'theme_layers' => 'html,body',
+		'theme_templates' => 'index',
 	);
 
 	// Create the specific dir.
@@ -1339,8 +1343,23 @@ function InstallCopy()
 	mkdir($context['to_install']['theme_dir'] . '/css', 0777);
 	mkdir($context['to_install']['theme_dir'] . '/scripts', 0777);
 
+	// Create subdirectory for language files
+	mkdir($context['to_install']['theme_dir'] . '/languages', 0777);
+
 	// Copy over the default non-theme files.
-	$to_copy = array('/index.php', '/index.template.php', '/css/index.css', '/css/responsive.css', '/css/slider.min.css', '/css/rtl.css', '/css/calendar.css', '/css/calendar.rtl.css', '/css/admin.css', '/scripts/theme.js');
+	$to_copy = array(
+		'/index.php',
+		'/index.template.php',
+		'/css/admin.css',
+		'/css/calendar.css',
+		'/css/calendar.rtl.css',
+		'/css/index.css',
+		'/css/responsive.css',
+		'/css/rtl.css',
+		'/scripts/theme.js',
+		'/languages/index.php',
+		'/languages/Settings.english.php',
+	);
 
 	foreach ($to_copy as $file)
 	{
@@ -1352,37 +1371,10 @@ function InstallCopy()
 	copytree($settings['default_theme_dir'] . '/images', $context['to_install']['theme_dir'] . '/images');
 	package_flush_cache();
 
-	// Lets get some data for the new theme.
-	$request = $smcFunc['db_query']('', '
-		SELECT variable, value
-		FROM {db_prefix}themes
-		WHERE variable IN ({string:theme_templates}, {string:theme_layers})
-			AND id_member = {int:no_member}
-			AND id_theme = {int:default_theme}',
-		array(
-			'no_member' => 0,
-			'default_theme' => 1,
-			'theme_templates' => 'theme_templates',
-			'theme_layers' => 'theme_layers',
-		)
-	);
-
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		if ($row['variable'] == 'theme_templates')
-			$theme_templates = $row['value'];
-		elseif ($row['variable'] == 'theme_layers')
-			$theme_layers = $row['value'];
-		else
-			continue;
-	}
-
-	$smcFunc['db_free_result']($request);
-
-	$context['to_install'] += array(
-		'theme_layers' => empty($theme_layers) ? 'html,body' : $theme_layers,
-		'theme_templates' => empty($theme_templates) ? 'index' : $theme_templates,
-	);
+	// Any data from the default theme that we want?
+	foreach (get_single_theme(1, array('theme_layers', 'theme_templates')) as $variable => $value)
+		if ($variable == 'theme_templates' || $variable == 'theme_layers')
+			$context['to_install'][$variable] = $value;
 
 	// Lets add a theme_info.xml to this theme.
 	$xml_info = '<' . '?xml version="1.0"?' . '>
@@ -1592,7 +1584,7 @@ function SetJavaScript()
  */
 function EditTheme()
 {
-	global $context, $scripturl, $boarddir, $smcFunc, $txt;
+	global $context, $scripturl, $boarddir, $smcFunc, $txt, $sourcedir;
 
 	// @todo Should this be removed?
 	if (isset($_REQUEST['preview']))
@@ -1704,12 +1696,12 @@ function EditTheme()
 
 			$_POST['entire_file'] = rtrim(strtr($_POST['entire_file'], array("\r" => '', '   ' => "\t")));
 
+			require_once($sourcedir . '/Subs-Admin.php');
+
 			// Check for a parse error!
 			if (substr($_REQUEST['filename'], -13) == '.template.php' && is_writable($currentTheme['theme_dir']) && ini_get('display_errors'))
 			{
-				$fp = fopen($currentTheme['theme_dir'] . '/tmp_' . session_id() . '.php', 'w');
-				fwrite($fp, $_POST['entire_file']);
-				fclose($fp);
+				safe_file_write($currentTheme['theme_dir'] . '/tmp_' . session_id() . '.php', $_POST['entire_file']);
 
 				$error = @file_get_contents($currentTheme['theme_url'] . '/tmp_' . session_id() . '.php');
 				if (preg_match('~ <b>(\d+)</b><br( /)?' . '>$~i', $error) != 0)
@@ -1720,9 +1712,7 @@ function EditTheme()
 
 			if (!isset($error_file))
 			{
-				$fp = fopen($currentTheme['theme_dir'] . '/' . $_REQUEST['filename'], 'w');
-				fwrite($fp, $_POST['entire_file']);
-				fclose($fp);
+				safe_file_write($currentTheme['theme_dir'] . '/' . $_REQUEST['filename'], $_POST['entire_file']);
 
 				// Nuke any minified files and update $modSettings['browser_cache']
 				deleteAllMinified();

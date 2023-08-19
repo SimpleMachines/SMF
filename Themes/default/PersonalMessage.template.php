@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.3
  */
 
 /**
@@ -61,12 +61,13 @@ function template_pm_popup()
 	echo '
 		<div class="pm_bar">
 			<div class="pm_sending block">
-				', $context['can_send_pm'] ? '<a href="' . $scripturl . '?action=pm;sa=send">' . $txt['pm_new_short'] . '</a> | ' : '', '
-				', $context['can_draft'] ? '<a href="' . $scripturl . '?action=pm;sa=showpmdrafts">' . $txt['pm_drafts_short'] . '</a>' : '', '
+				', $context['can_send_pm'] ? '<a href="' . $scripturl . '?action=pm;sa=send">' . $txt['pm_new_short'] . '</a>' : '', '
+				', $context['can_draft'] ? ' | <a href="' . $scripturl . '?action=pm;sa=showpmdrafts">' . $txt['pm_drafts_short'] . '</a>' : '', '
 				<a href="', $scripturl, '?action=pm;sa=settings" class="floatright">', $txt['pm_settings_short'], '</a>
 			</div>
 			<div class="pm_mailbox centertext">
 				<a href="', $scripturl, '?action=pm" class="button">', $txt['inbox'], '</a>
+				<a href="', $scripturl, '?action=pm;f=sent" class="button">', $txt['sent_items'], '</a>
 			</div>
 		</div>
 		<div class="pm_unread">';
@@ -233,7 +234,7 @@ function template_folder()
 		if (empty($context['display_mode']))
 			echo '
 			<div class="pagesection">
-				<div class="floatleft">', $context['page_index'], '</div>
+				<div class="pagelinks">', $context['page_index'], '</div>
 				<div class="floatright">
 					<input type="submit" name="del_selected" value="', $txt['quickmod_delete_selected'], '" onclick="if (!confirm(\'', $txt['delete_selected_confirm'], '\')) return false;" class="button">
 				</div>
@@ -277,7 +278,7 @@ function template_single_pm($message)
 	global $context, $scripturl, $txt, $settings, $options, $modSettings;
 
 	echo '
-	<div class="windowbg">
+	<div class="windowbg" id="msg', $message['id'],'">
 		<div class="post_wrapper">
 			<div class="poster">';
 
@@ -298,8 +299,7 @@ function template_single_pm($message)
 	}
 
 	echo '
-				<h4>
-					<a id="msg', $message['id'], '"></a>';
+				<h4>';
 
 	// Show online and offline buttons?
 	if (!empty($modSettings['onlineEnable']) && !$message['member']['is_guest'])
@@ -328,6 +328,16 @@ function template_single_pm($message)
 	echo '
 				<ul class="user_info">';
 
+	// Show the member's custom title, if they have one.
+	if (isset($message['member']['title']) && $message['member']['title'] != '')
+		echo '
+					<li class="title">', $message['member']['title'], '</li>';
+
+	// Show the member's primary group (like 'Administrator') if they have one.
+	if (isset($message['member']['group']) && $message['member']['group'] != '')
+		echo '
+					<li class="membergroup">', $message['member']['group'], '</li>';
+
 	// Show the user's avatar.
 	if (!empty($modSettings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
 		echo '
@@ -341,22 +351,13 @@ function template_single_pm($message)
 			echo '
 					<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
 
-	if (!$message['member']['is_guest'])
-		echo '
-					<li class="icons">', $message['member']['group_icons'], '</li>';
-	// Show the member's primary group (like 'Administrator') if they have one.
-	if (isset($message['member']['group']) && $message['member']['group'] != '')
-		echo '
-					<li class="membergroup">', $message['member']['group'], '</li>';
-
-	// Show the member's custom title, if they have one.
-	if (isset($message['member']['title']) && $message['member']['title'] != '')
-		echo '
-					<li class="title">', $message['member']['title'], '</li>';
-
 	// Don't show these things for guests.
 	if (!$message['member']['is_guest'])
 	{
+		// Show the post group icons
+		echo '
+					<li class="icons">', $message['member']['group_icons'], '</li>';
+
 		// Show the post group if and only if they have no other group or the option is on, and they are in a post group.
 		if ((empty($modSettings['hide_post_group']) || $message['member']['group'] == '') && $message['member']['post_group'] != '')
 			echo '
@@ -419,7 +420,7 @@ function template_single_pm($message)
 			// Show the profile button
 			if ($message['member']['can_view_profile'])
 				echo '
-							<li><a href="', $message['member']['href'], '">', ($settings['use_image_buttons'] ? '<img src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="' . $txt['view_profile'] . '" title="' . $txt['view_profile'] . '">' : $txt['view_profile']), '</a></li>';
+							<li><a href="', $message['member']['href'], '" title="' . $txt['view_profile'] . '">', ($settings['use_image_buttons'] ? '<span class="main_icons members"></span>' : $txt['view_profile']), '</a></li>';
 
 			// Don't show an icon if they haven't specified a website.
 			if ($message['member']['website']['url'] != '' && !isset($context['disabled_fields']['website']))
@@ -432,7 +433,7 @@ function template_single_pm($message)
 							<li><a href="mailto:', $message['member']['email'], '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . $txt['email'] . '"></span>' : $txt['email']), '</a></li>';
 
 			// Since we know this person isn't a guest, you *can* message them.
-			if ($context['can_send_pm'])
+			if ($context['can_send_pm'] && $message['member']['id'] != 0)
 				echo '
 							<li><a href="', $scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline'], '">', $settings['use_image_buttons'] ? '<span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . ($message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline']) . '"></span> ' : ($message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline']), '</a></li>';
 
@@ -464,15 +465,15 @@ function template_single_pm($message)
 				</ul>
 			</div><!-- .poster -->
 			<div class="postarea">
-				<div class="flow_hidden">
-					<div class="keyinfo">
-						<h5 id="subject_', $message['id'], '">
-							', $message['subject'], '
-						</h5>';
+				<div class="keyinfo">
+					<div id="subject_', $message['id'], '" class="subject_title">
+						<h5>', $message['subject'], '</h5>
+					</div>
+					<div class="postinfo">';
 
 	// Show who the message was sent to.
 	echo '
-						<span class="smalltext">&#171; <strong> ', $txt['sent_to'], ':</strong> ';
+						<span class="smalltext"><strong> ', $txt['sent_to'], ':</strong> ';
 
 	// People it was sent directly to....
 	if (!empty($message['recipients']['to']))
@@ -483,27 +484,73 @@ function template_single_pm($message)
 		echo '(', $txt['pm_undisclosed_recipients'], ')';
 
 	echo '
-							<strong> ', $txt['on'], ':</strong> ', $message['time'], ' &#187;
+							<strong> ', $txt['on'], ':</strong> ', $message['time'], '
 						</span>';
 
 	// If we're in the sent items, show who it was sent to besides the "To:" people.
 	if (!empty($message['recipients']['bcc']))
-		echo '<br>
-						<span class="smalltext">&#171; <strong> ', $txt['pm_bcc'], ':</strong> ', implode(', ', $message['recipients']['bcc']), ' &#187;</span>';
+		echo '
+						<span class="smalltext"><strong> ', $txt['pm_bcc'], ':</strong> ', implode(', ', $message['recipients']['bcc']), ' </span>';
 
 	if (!empty($message['is_replied_to']))
-		echo '<br>
-						<span class="smalltext">&#171; ', $context['folder'] == 'sent' ? $txt['pm_sent_is_replied_to'] : $txt['pm_is_replied_to'], ' &#187;</span>';
+		echo '
+						<span class="smalltext">', $context['folder'] == 'sent' ? $txt['pm_sent_is_replied_to'] : $txt['pm_is_replied_to'], ' </span>';
 
 	echo '
-					</div><!-- .keyinfo -->
-				</div><!-- .flow_hidden -->
+					</div><!-- .postinfo -->
+				</div><!-- .keyinfo -->
 				<div class="post">
 					<div class="inner" id="msg_', $message['id'], '"', '>
 						', $message['body'], '
 					</div>
 				</div><!-- .post -->
 				<div class="under_message">';
+
+	// Add an extra line at the bottom if we have labels enabled.
+	if ($context['folder'] != 'sent' && !empty($context['currently_using_labels']) && $context['display_mode'] != 2)
+	{
+		echo '
+				<div class="labels floatleft">';
+
+		// Add the label drop down box.
+		if (!empty($context['currently_using_labels']))
+		{
+			echo '
+					<select name="pm_actions[', $message['id'], ']" onchange="if (this.options[this.selectedIndex].value) form.submit();">
+						<option value="">', $txt['pm_msg_label_title'], ':</option>
+						<option value="" disabled>---------------</option>';
+
+			// Are there any labels which can be added to this?
+			if (!$message['fully_labeled'])
+			{
+				echo '
+						<option value="" disabled>', $txt['pm_msg_label_apply'], ':</option>';
+
+				foreach ($context['labels'] as $label)
+					if (!isset($message['labels'][$label['id']]))
+						echo '
+						<option value="', $label['id'], '">', $label['name'], '</option>';
+			}
+
+			// ... and are there any that can be removed?
+			if (!empty($message['labels']) && (count($message['labels']) > 1 || !isset($message['labels'][-1])))
+			{
+				echo '
+						<option value="" disabled>', $txt['pm_msg_label_remove'], ':</option>';
+
+				foreach ($message['labels'] as $label)
+					echo '
+						<option value="', $label['id'], '">&nbsp;', $label['name'], '</option>';
+			}
+			echo '
+					</select>
+					<noscript>
+						<input type="submit" value="', $txt['pm_apply'], '" class="button">
+					</noscript>';
+		}
+		echo '
+				</div><!-- .labels -->';
+	}
 
 	// Message options
 	template_quickbuttons($message['quickbuttons'], 'pm');
@@ -552,52 +599,6 @@ function template_single_pm($message)
 				</div>';
 	}
 
-	// Add an extra line at the bottom if we have labels enabled.
-	if ($context['folder'] != 'sent' && !empty($context['currently_using_labels']) && $context['display_mode'] != 2)
-	{
-		echo '
-				<div class="labels righttext flow_auto">';
-
-		// Add the label drop down box.
-		if (!empty($context['currently_using_labels']))
-		{
-			echo '
-					<select name="pm_actions[', $message['id'], ']" onchange="if (this.options[this.selectedIndex].value) form.submit();">
-						<option value="">', $txt['pm_msg_label_title'], ':</option>
-						<option value="" disabled>---------------</option>';
-
-			// Are there any labels which can be added to this?
-			if (!$message['fully_labeled'])
-			{
-				echo '
-						<option value="" disabled>', $txt['pm_msg_label_apply'], ':</option>';
-
-				foreach ($context['labels'] as $label)
-					if (!isset($message['labels'][$label['id']]))
-						echo '
-						<option value="', $label['id'], '">', $label['name'], '</option>';
-			}
-
-			// ... and are there any that can be removed?
-			if (!empty($message['labels']) && (count($message['labels']) > 1 || !isset($message['labels'][-1])))
-			{
-				echo '
-						<option value="" disabled>', $txt['pm_msg_label_remove'], ':</option>';
-
-				foreach ($message['labels'] as $label)
-					echo '
-						<option value="', $label['id'], '">&nbsp;', $label['name'], '</option>';
-			}
-			echo '
-					</select>
-					<noscript>
-						<input type="submit" value="', $txt['pm_apply'], '" class="button">
-					</noscript>';
-		}
-		echo '
-				</div><!-- .labels -->';
-	}
-
 	echo '
 			</div><!-- .moderatorbar -->
 		</div><!-- .post_wrapper -->
@@ -612,6 +613,11 @@ function template_subject_list()
 	global $context, $settings, $txt, $scripturl;
 
 	echo '
+	<div class="cat_bar">
+		<h3 class="catbg">
+			', $context['folder'] == 'sent' ? $txt['sent_items'] : $context['current_label'], '
+		</h3>
+	</div>
 	<table class="table_grid">
 		<thead>
 			<tr class="title_bar">
@@ -625,7 +631,7 @@ function template_subject_list()
 					<a href="', $scripturl, '?action=pm;f=', $context['folder'], ';start=', $context['start'], ';sort=subject', $context['sort_by'] == 'subject' && $context['sort_direction'] == 'up' ? ';desc' : '', $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', '">', $txt['subject'], $context['sort_by'] == 'subject' ? ' <span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 				</th>
 				<th class="lefttext pm_from_to">
-					<a href="', $scripturl, '?action=pm;f=', $context['folder'], ';start=', $context['start'], ';sort=name', $context['sort_by'] == 'name' && $context['sort_direction'] == 'up' ? ';desc' : '', $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', '">', ($context['from_or_to'] == 'from' ? $txt['from'] : $txt['to']), $context['sort_by'] == 'name' ? ' <span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
+					<a href="', $scripturl, '?action=pm;f=', $context['folder'], ';start=', $context['start'], ';sort=name', $context['sort_by'] == 'name' && $context['sort_direction'] == 'up' ? ';desc' : '', $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', '">', ($context['from_or_to'] == 'from' ? $txt['from'] : $txt['pm_to']), $context['sort_by'] == 'name' ? ' <span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 				</th>
 				<th class="centercol table_icon pm_moderation">
 					<input type="checkbox" onclick="invertAll(this, this.form);">
@@ -690,7 +696,7 @@ function template_subject_list()
 		</tbody>
 	</table>
 	<div class="pagesection">
-		<div class="floatleft">', $context['page_index'], '</div>
+		<div class="pagelinks">', $context['page_index'], '</div>
 		<div class="floatright">&nbsp;';
 
 	if ($context['show_delete'])
@@ -898,7 +904,7 @@ function template_search_results()
 			', sprintf($txt['pm_search_results_info'], $context['num_results'], sentence_list($context['search_in'])), '
 		</div>
 		<div class="pagesection">
-			', $context['page_index'], '
+			<div class="pagelinks">', $context['page_index'], '</div>
 		</div>';
 
 	// Complete results?
@@ -947,7 +953,7 @@ function template_search_results()
 
 	echo '
 		<div class="pagesection">
-			', $context['page_index'], '
+			<div class="pagelinks">', $context['page_index'], '</div>
 		</div>';
 
 }
@@ -966,7 +972,7 @@ function template_send()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['pm_send_report'], '</h3>
 		</div>
-		<div class="windowbg">';
+		<div class="windowbg noup">';
 
 		if (!empty($context['send_log']['sent']))
 			foreach ($context['send_log']['sent'] as $log_entry)
@@ -991,7 +997,7 @@ function template_send()
 					<span id="preview_subject">', empty($context['preview_subject']) ? '' : $context['preview_subject'], '</span>
 				</h3>
 			</div>
-			<div class="windowbg">
+			<div class="windowbg noup">
 				<div class="post" id="preview_body">
 					', empty($context['preview_message']) ? '<br>' : $context['preview_message'], '
 				</div>
@@ -1007,7 +1013,7 @@ function template_send()
 					<span class="main_icons inbox icon" title="', $txt['new_message'], '"></span> ', $txt['new_message'], '
 				</h3>
 			</div>
-			<div class="roundframe">';
+			<div class="roundframe noup">';
 
 	// If there were errors for sending the PM, show them.
 	echo '
@@ -1925,9 +1931,9 @@ function template_showPMDrafts()
 				<span class="main_icons inbox"></span> ', $txt['drafts_show'], '
 			</h3>
 		</div>
-		<div class="pagesection">
-			<span>', $context['page_index'], '</span>
-		</div>';
+		<p class="information">
+			', $txt['drafts_show_desc'], '
+		</p>';
 
 	// No drafts? Just show an informative message.
 	if (empty($context['drafts']))
@@ -1937,26 +1943,33 @@ function template_showPMDrafts()
 		</div>';
 	else
 	{
+		echo '
+		<div class="pagesection">
+			<div class="pagelinks">', $context['page_index'], '</div>
+		</div>';
+
 		// For every draft to be displayed, give it its own div, and show the important details of the draft.
 		foreach ($context['drafts'] as $draft)
 		{
 			echo '
 		<div class="windowbg">
-			<div class="counter">', $draft['counter'], '</div>
+			<div class="page_number floatright"> #', $draft['counter'], '</div>
 			<div class="topic_details">
-				<div class="floatright smalltext righttext">
-					<div class="recipient_to">&#171;&nbsp;<strong>', $txt['to'], ':</strong> ', implode(', ', $draft['recipients']['to']), '&nbsp;&#187;</div>';
-
-			if(!empty($draft['recipients']['bcc']))
-				echo'
-					<div class="pm_bbc">&#171;&nbsp;<strong>', $txt['pm_bcc'], ':</strong> ', implode(', ', $draft['recipients']['bcc']), '&nbsp;&#187;</div>';
-
-			echo '
-				</div>
 				<h5>
 					<strong>', $draft['subject'], '</strong>
 				</h5>
-				<span class="smalltext">&#171;&nbsp;<strong>', $txt['draft_saved_on'], ':</strong> ', sprintf($txt['draft_days_ago'], $draft['age']), (!empty($draft['remaining']) ? ', ' . sprintf($txt['draft_retain'], $draft['remaining']) : ''), '&#187;</span><br>
+				<div class="smalltext">
+					<div class="recipient_to"><strong>', $txt['pm_to'], ':</strong> ', implode(', ', $draft['recipients']['to']), '</div>';
+
+			if(!empty($draft['recipients']['bcc']))
+				echo'
+					<div class="pm_bbc"><strong>', $txt['pm_bcc'], ':</strong> ', implode(', ', $draft['recipients']['bcc']), '</div>';
+
+			echo '
+				</div>
+				<div class="smalltext">
+					<strong>', $txt['draft_saved_on'], ':</strong> ', sprintf($txt['draft_days_ago'], $draft['age']), (!empty($draft['remaining']) ? ', ' . sprintf($txt['draft_retain'], $draft['remaining']) : ''), '
+				</div>
 			</div>
 			<div class="list_posts">
 				', $draft['body'], '
@@ -1968,13 +1981,13 @@ function template_showPMDrafts()
 			echo '
 		</div><!-- .windowbg -->';
 		}
-	}
 
-	// Show page numbers.
-	echo '
-	<div class="pagesection">
-		<span>', $context['page_index'], '</span>
-	</div>';
+		// Show page numbers.
+		echo '
+		<div class="pagesection">
+			<div class="pagelinks">', $context['page_index'], '</div>
+		</div>';
+	}
 }
 
 ?>

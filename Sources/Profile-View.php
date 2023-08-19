@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.3
  */
 
 if (!defined('SMF'))
@@ -33,8 +33,9 @@ function summary($memID)
 		'can_send_pm' => allowedTo('pm_send'),
 		'can_have_buddy' => allowedTo('profile_extra_own') && !empty($modSettings['enable_buddylist']),
 		'can_issue_warning' => allowedTo('issue_warning') && $modSettings['warning_settings'][0] == 1,
-		'can_view_warning' => (allowedTo('moderate_forum') || allowedTo('issue_warning') || allowedTo('view_warning_any') || ($context['user']['is_owner'] && allowedTo('view_warning_own')) && $modSettings['warning_settings'][0] === 1)
+		'can_view_warning' => (allowedTo('moderate_forum') || allowedTo('issue_warning') || allowedTo('view_warning_any') || ($context['user']['is_owner'] && allowedTo('view_warning_own'))) && $modSettings['warning_settings'][0] === '1'
 	);
+
 	$context['member'] = &$memberContext[$memID];
 
 	// Set a canonical URL for this page.
@@ -45,7 +46,7 @@ function summary($memID)
 	// Menu tab
 	$context[$context['profile_menu_name']]['tab_data'] = array(
 		'title' => $txt['summary'],
-		'icon' => 'profile_hd.png'
+		'icon_class' => 'main_icons profile_hd'
 	);
 
 	// See if they have broken any warning levels...
@@ -75,7 +76,7 @@ function summary($memID)
 	else
 	{
 		list ($birth_year, $birth_month, $birth_day) = sscanf($context['member']['birth_date'], '%d-%d-%d');
-		$datearray = getdate(forum_time());
+		$datearray = getdate(time());
 		$context['member'] += array(
 			'age' => $birth_year <= 1004 ? $txt['not_applicable'] : $datearray['year'] - $birth_year - (($datearray['mon'] > $birth_month || ($datearray['mon'] == $birth_month && $datearray['mday'] >= $birth_day)) ? 0 : 1),
 			'today_is_birthday' => $datearray['mon'] == $birth_month && $datearray['mday'] == $birth_day && $birth_year > 1004
@@ -123,7 +124,8 @@ function summary($memID)
 		createToken($context['token_check'], 'get');
 
 		// Puerile comment
-		$context['activate_link'] = $scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve;' . $context['session_var'] . '=' . $context['session_id'] . ';' . $context[$context['token_check'] . '_token_var'] . '=' . $context[$context['token_check'] . '_token'];
+		$type = in_array($context['member']['is_activated'], array(3, 4, 5, 13, 14, 15)) ? 'approve' : 'activate';
+		$context['activate_link'] = $scripturl . '?action=admin;area=viewmembers;sa=browse;type=' . $type . ';' . $context['session_var'] . '=' . $context['session_id'] . ';' . $context[$context['token_check'] . '_token_var'] . '=' . $context[$context['token_check'] . '_token'];
 	}
 
 	// Is the signature even enabled on this forum?
@@ -222,7 +224,7 @@ function summary($memID)
  * @param array $limit Maximum number of alerts to fetch (0 for no limit).
  * @param array $offset Number of alerts to skip for pagination. Ignored if $to_fetch is a list of IDs.
  * @param bool $with_avatar Whether to load the avatar of the alert sender.
- * @param bool $show_links Whether to show links in the constituent parts of the alert meessage.
+ * @param bool $show_links Whether to show links in the constituent parts of the alert message.
  * @return array An array of information about the fetched alerts.
  */
 function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_avatar = false, $show_links = false)
@@ -235,7 +237,10 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 	// Basic sanitation.
 	$memID = (int) $memID;
 	$unread = $to_fetch === false;
-	$limit = max(0, (int) $limit);
+	
+	if (empty($limit) || $limit > 1000)
+		$limit = min(!empty($modSettings['alerts_per_page']) && (int) $modSettings['alerts_per_page'] < 1000 ? (int) $modSettings['alerts_per_page'] : 1000, 1000);
+
 	$offset = !empty($alertIDs) ? 0 : max(0, (int) $offset);
 	$with_avatar = !empty($with_avatar);
 	$show_links = !empty($show_links);
@@ -359,8 +364,16 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 	call_integration_hook('integrate_fetch_alerts', array(&$alerts, &$formats));
 
 	// Substitute $scripturl into the link formats. (Done here to make life easier for hooked mods.)
-	foreach ($formats as &$format_type)
-		$format_type = str_replace('{scripturl}', $scripturl, $format_type);
+	$formats = array_map(
+		function ($format) use ($scripturl)
+		{
+			$format['link'] = str_replace('{scripturl}', $scripturl, $format['link']);
+			$format['text'] = str_replace('{scripturl}', $scripturl, $format['text']);
+
+			return $format;
+		},
+		$formats
+	);
 
 	// If we need to check board access, use the correct board access filter for the member in question.
 	if ((!isset($user_info['query_see_board']) || $user_info['id'] != $memID) && (!empty($possible_msgs) || !empty($possible_topics)))
@@ -651,7 +664,7 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
  */
 function showAlerts($memID)
 {
-	global $context, $smcFunc, $txt, $sourcedir, $scripturl, $options;
+	global $context, $smcFunc, $txt, $sourcedir, $scripturl, $options, $modSettings;
 
 	require_once($sourcedir . '/Profile-Modify.php');
 
@@ -681,7 +694,7 @@ function showAlerts($memID)
 	}
 
 	// Prepare the pagination vars.
-	$maxIndex = 10;
+	$maxIndex = !empty($modSettings['alerts_per_page']) && (int) $modSettings['alerts_per_page'] < 1000 ? min((int) $modSettings['alerts_per_page'], 1000) : 25;
 	$context['start'] = (int) isset($_REQUEST['start']) ? $_REQUEST['start'] : 0;
 	$count = alert_count($memID);
 
@@ -734,10 +747,11 @@ function showAlerts($memID)
 			),
 			'view' => array(
 				'label' => $txt['view'],
-				'href' => $alert['target_href'],
+				'href' => $scripturl . '?action=profile;area=showalerts;alert=' . $id . ';',
 				'icon' => 'move',
 			),
 			'quickmod' => array(
+    			'class' => 'inline_mod_check',
 				'content' => '<input type="checkbox" name="mark[' . $id . ']" value="' . $id . '">',
 				'show' => $context['showCheckboxes']
 			)
@@ -817,7 +831,7 @@ function showPosts($memID)
 	$context[$context['profile_menu_name']]['tab_data'] = array(
 		'title' => $txt['showPosts'],
 		'description' => $txt['showPosts_help'],
-		'icon' => 'profile_hd.png',
+		'icon_class' => 'main_icons profile_hd',
 		'tabs' => array(
 			'messages' => array(
 			),
@@ -833,9 +847,11 @@ function showPosts($memID)
 	// Shortcut used to determine which $txt['show*'] string to use for the title, based on the SA
 	$title = array(
 		'attach' => 'Attachments',
-		'unwatchedtopics' => 'Unwatched',
 		'topics' => 'Topics'
 	);
+
+	if ($context['user']['is_owner'])
+		$title['unwatchedtopics'] = 'Unwatched';
 
 	// Set the page title
 	if (isset($_GET['sa']) && array_key_exists($_GET['sa'], $title))
@@ -853,7 +869,7 @@ function showPosts($memID)
 	if (isset($_GET['sa']) && $_GET['sa'] == 'attach')
 		return showAttachments($memID);
 	// Instead, if we're dealing with unwatched topics (and the feature is enabled) use that other function.
-	elseif (isset($_GET['sa']) && $_GET['sa'] == 'unwatchedtopics')
+	elseif (isset($_GET['sa']) && $_GET['sa'] == 'unwatchedtopics' && $context['user']['is_owner'])
 		return showUnwatched($memID);
 
 	// Are we just viewing topics?
@@ -912,11 +928,13 @@ function showPosts($memID)
 		);
 	else
 		$request = $smcFunc['db_query']('', '
-			SELECT COUNT(id_msg)
-			FROM {db_prefix}messages AS m
+			SELECT COUNT(*)
+			FROM {db_prefix}messages AS m' . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
+				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)') . '
 			WHERE {query_see_message_board} AND m.id_member = {int:current_member}' . (!empty($board) ? '
 				AND m.id_board = {int:board}' : '') . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
-				AND m.approved = {int:is_approved}'),
+				AND m.approved = {int:is_approved}
+				AND t.approved = {int:is_approved}'),
 			array(
 				'current_member' => $memID,
 				'is_approved' => 1,
@@ -928,10 +946,12 @@ function showPosts($memID)
 
 	$request = $smcFunc['db_query']('', '
 		SELECT MIN(id_msg), MAX(id_msg)
-		FROM {db_prefix}messages AS m
+		FROM {db_prefix}messages AS m' . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
+			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)') . '
 		WHERE m.id_member = {int:current_member}' . (!empty($board) ? '
 			AND m.id_board = {int:board}' : '') . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
-			AND m.approved = {int:is_approved}'),
+			AND m.approved = {int:is_approved}
+			AND t.approved = {int:is_approved}'),
 		array(
 			'current_member' => $memID,
 			'is_approved' => 1,
@@ -1071,7 +1091,7 @@ function showPosts($memID)
 			'subject' => $row['subject'],
 			'start' => 'msg' . $row['id_msg'],
 			'time' => timeformat($row['poster_time']),
-			'timestamp' => forum_time(true, $row['poster_time']),
+			'timestamp' => $row['poster_time'],
 			'id' => $row['id_msg'],
 			'can_reply' => false,
 			'can_mark_notify' => !$context['user']['is_guest'],
@@ -1238,11 +1258,12 @@ function showAttachments($memID)
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<a href="' . $scripturl . '?action=dlattach;topic=%1$d.0;attach=%2$d">%3$s</a>',
+						'format' => '<a href="' . $scripturl . '?action=dlattach;topic=%1$d.0;attach=%2$d">%3$s</a>%4$s',
 						'params' => array(
 							'topic' => true,
 							'id' => true,
 							'filename' => false,
+							'awaiting_approval' => false,
 						),
 					),
 				),
@@ -1318,7 +1339,7 @@ function showAttachments($memID)
  */
 function list_getAttachments($start, $items_per_page, $sort, $boardsAllowed, $memID)
 {
-	global $smcFunc, $board, $modSettings, $context;
+	global $smcFunc, $board, $modSettings, $context, $txt;
 
 	// Retrieve some attachments.
 	$request = $smcFunc['db_query']('', '
@@ -1331,8 +1352,8 @@ function list_getAttachments($start, $items_per_page, $sort, $boardsAllowed, $me
 			AND a.id_msg != {int:no_message}
 			AND m.id_member = {int:current_member}' . (!empty($board) ? '
 			AND b.id_board = {int:board}' : '') . (!in_array(0, $boardsAllowed) ? '
-			AND b.id_board IN ({array_int:boards_list})' : '') . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
-			AND m.approved = {int:is_approved}') . '
+			AND b.id_board IN ({array_int:boards_list})' : '') . (!$modSettings['postmod_active'] || allowedTo('approve_posts') || $context['user']['is_owner'] ? '' : '
+			AND a.approved = {int:is_approved}') . '
 		ORDER BY {raw:sort}
 		LIMIT {int:offset}, {int:limit}',
 		array(
@@ -1360,6 +1381,7 @@ function list_getAttachments($start, $items_per_page, $sort, $boardsAllowed, $me
 			'board' => $row['id_board'],
 			'board_name' => $row['name'],
 			'approved' => $row['approved'],
+			'awaiting_approval' => (empty($row['approved']) ? ' <em>(' . $txt['awaiting_approval'] . ')</em>' : ''),
 		);
 
 	$smcFunc['db_free_result']($request);
@@ -1383,13 +1405,15 @@ function list_getNumAttachments($boardsAllowed, $memID)
 		SELECT COUNT(*)
 		FROM {db_prefix}attachments AS a
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
+			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})' . (!$modSettings['postmod_active'] || $context['user']['is_owner'] || allowedTo('approve_posts') ? '' : '
+			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)') . '
 		WHERE a.attachment_type = {int:attachment_type}
 			AND a.id_msg != {int:no_message}
 			AND m.id_member = {int:current_member}' . (!empty($board) ? '
 			AND b.id_board = {int:board}' : '') . (!in_array(0, $boardsAllowed) ? '
-			AND b.id_board IN ({array_int:boards_list})' : '') . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
-			AND m.approved = {int:is_approved}'),
+			AND b.id_board IN ({array_int:boards_list})' : '') . (!$modSettings['postmod_active'] || $context['user']['is_owner'] || allowedTo('approve_posts') ? '' : '
+			AND m.approved = {int:is_approved}
+			AND t.approved = {int:is_approved}'),
 		array(
 			'boards_list' => $boardsAllowed,
 			'attachment_type' => 0,
@@ -1744,14 +1768,17 @@ function statPanel($memID)
 		SELECT
 			HOUR(FROM_UNIXTIME(poster_time + {int:time_offset})) AS hour,
 			COUNT(*) AS post_count
-		FROM {db_prefix}messages
-		WHERE id_member = {int:current_member}' . ($modSettings['totalMessages'] > 100000 ? '
-			AND id_topic > {int:top_ten_thousand_topics}' : '') . '
+		FROM (
+			SELECT poster_time, id_msg
+			FROM {db_prefix}messages WHERE id_member = {int:current_member}
+			ORDER BY id_msg DESC
+			LIMIT {int:max_messages}
+		) a
 		GROUP BY hour',
 		array(
 			'current_member' => $memID,
-			'top_ten_thousand_topics' => $modSettings['totalTopics'] - 10000,
-			'time_offset' => (($user_info['time_offset'] + $modSettings['time_offset']) * 3600),
+			'time_offset' => $user_info['time_offset'] * 3600,
+			'max_messages' => 1001,
 		)
 	);
 	$maxPosts = $realPosts = 0;
@@ -1857,7 +1884,7 @@ function tracking($memID)
 	$context[$context['profile_menu_name']]['tab_data'] = array(
 		'title' => $txt['tracking'],
 		'description' => $txt['tracking_description'],
-		'icon' => 'profile_hd.png',
+		'icon_class' => 'main_icons profile_hd',
 		'tabs' => array(
 			'activity' => array(),
 			'ip' => array(),
@@ -2124,7 +2151,7 @@ function list_getUserErrorCount($where, $where_vars = array())
 	global $smcFunc;
 
 	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(id_error)
+		SELECT COUNT(*)
 		FROM {db_prefix}log_errors
 		WHERE ' . $where,
 		$where_vars
@@ -2174,7 +2201,7 @@ function list_getUserErrors($start, $items_per_page, $sort, $where, $where_vars 
 			'message' => strtr($row['message'], array('&lt;span class=&quot;remove&quot;&gt;' => '', '&lt;/span&gt;' => '')),
 			'url' => $row['url'],
 			'time' => timeformat($row['log_time']),
-			'timestamp' => forum_time(true, $row['log_time']),
+			'timestamp' => $row['log_time'],
 		);
 	$smcFunc['db_free_result']($request);
 
@@ -2193,7 +2220,7 @@ function list_getIPMessageCount($where, $where_vars = array())
 	global $smcFunc, $user_info;
 
 	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(id_msg)
+		SELECT COUNT(*)
 		FROM {db_prefix}messages AS m
 		WHERE {query_see_message_board} AND ' . $where,
 		$where_vars
@@ -2247,7 +2274,7 @@ function list_getIPMessages($start, $items_per_page, $sort, $where, $where_vars 
 			'id' => $row['id_msg'],
 			'subject' => $row['subject'],
 			'time' => timeformat($row['poster_time']),
-			'timestamp' => forum_time(true, $row['poster_time'])
+			'timestamp' => $row['poster_time']
 		);
 	$smcFunc['db_free_result']($request);
 
@@ -2298,7 +2325,7 @@ function TrackIP($memID = 0)
 	$ip_var = $context['ip'];
 
 	if ($context['ip']['low'] !== $context['ip']['high'])
-		$context['ip'] = $context['ip']['low'] . ' - ' . $context['ip']['high'];
+		$context['ip'] = $context['ip']['low'] . '-' . $context['ip']['high'];
 	else
 		$context['ip'] = $context['ip']['low'];
 
@@ -2473,6 +2500,7 @@ function TrackIP($memID = 0)
 							'url' => false,
 						),
 					),
+					'class' => 'word_break',
 				),
 			),
 			'date2' => array(
@@ -3054,7 +3082,7 @@ function list_getGroupRequests($start, $items_per_page, $sort, $memID)
  */
 function showPermissions($memID)
 {
-	global $txt, $board;
+	global $txt, $board, $modSettings;
 	global $user_profile, $context, $sourcedir, $smcFunc;
 
 	// Verify if the user has sufficient permissions.
@@ -3099,7 +3127,8 @@ function showPermissions($memID)
 	$context['no_access_boards'] = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		if (count(array_intersect($curGroups, explode(',', $row['member_groups']))) === 0 && !$row['is_mod'])
+		if ((count(array_intersect($curGroups, explode(',', $row['member_groups']))) === 0) && !$row['is_mod']
+		&& (!empty($modSettings['board_manager_groups']) && count(array_intersect($curGroups, explode(',', $modSettings['board_manager_groups']))) === 0))
 			$context['no_access_boards'][] = array(
 				'id' => $row['id_board'],
 				'name' => $row['name'],

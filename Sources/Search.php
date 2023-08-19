@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.4
  */
 
 if (!defined('SMF'))
@@ -246,7 +246,7 @@ function PlushSearch2()
 	global $user_info, $context, $options, $messages_request, $boards_can;
 	global $excludedWords, $participants, $smcFunc, $cache_enable;
 
-	// if comming from the quick search box, and we want to search on members, well we need to do that ;)
+	// if coming from the quick search box, and we want to search on members, well we need to do that ;)
 	if (isset($_REQUEST['search_selection']) && $_REQUEST['search_selection'] === 'members')
 		redirectexit($scripturl . '?action=mlist;sa=search;fields=name,email;search=' . urlencode($_REQUEST['search']));
 
@@ -260,6 +260,9 @@ function PlushSearch2()
 		send_http_status(403);
 		die;
 	}
+
+	if (isset($_REQUEST['start']))
+		$_REQUEST['start'] = (int) $_REQUEST['start'];
 
 	$weight_factors = array(
 		'frequency' => array(
@@ -685,6 +688,18 @@ function PlushSearch2()
 		$stripped_query = strtr($stripped_query, array('"' => ''));
 
 	$no_regexp = preg_match('~&#(?:\d{1,7}|x[0-9a-fA-F]{1,6});~', $stripped_query) === 1;
+	$is_search_regex = !empty($modSettings['search_match_words']) && !$no_regexp;
+
+	// Specify the function to search with. Regex is for word boundaries.
+	$query_match_type = $is_search_regex ? 'RLIKE' : 'LIKE';
+	$word_boundary_wrapper = function(string $str) use ($smcFunc): string
+	{
+		return sprintf($smcFunc['db_supports_pcre'] ? '\\b%s\\b' : '[[:<:]]%s[[:>:]]', $str);
+	};
+	$escape_sql_regex = function(string $str): string
+	{
+		return addcslashes(preg_replace('/[\[\]$.+*?&^|{}()]/', '[$0]', $str), '\\\'');
+	};
 
 	// Extract phrase parts first (e.g. some words "this is a phrase" some more words.)
 	preg_match_all('/(?:^|\s)([-]?)"([^"]+)"(?:$|\s)/', $stripped_query, $matches, PREG_PATTERN_ORDER);
@@ -692,7 +707,7 @@ function PlushSearch2()
 	$phraseArray = $matches[2];
 
 	// Remove the phrase parts and extract the words.
-	$wordArray = preg_replace('~(?:^|\s)(?:[-]?)"(?:[^"]+)"(?:$|\s)~' . ($context['utf8'] ? 'u' : ''), ' ', $search_params['search']);
+	$wordArray = preg_replace('~(?:^|\s)[-]?"[^"]+"(?:$|\s)~' . ($context['utf8'] ? 'u' : ''), ' ', $search_params['search']);
 
 	$wordArray = explode(' ', $smcFunc['htmlspecialchars'](un_htmlspecialchars($wordArray), ENT_QUOTES));
 
@@ -846,7 +861,6 @@ function PlushSearch2()
 	}
 
 	// *** Spell checking
-	$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && (function_exists('pspell_new') || (function_exists('enchant_broker_init') && ($txt['lang_character_set'] == 'UTF-8' || function_exists('iconv'))));
 	if ($context['show_spellchecking'])
 	{
 		require_once($sourcedir . '/Subs-Post.php');
@@ -1098,12 +1112,18 @@ function PlushSearch2()
 
 				foreach ($searchWords as $orIndex => $words)
 				{
-					$subject_query_params = array();
+					$subject_query_params = array(
+						'not_redirected' => 0,
+						'never_expires' => 0,
+					);
 					$subject_query = array(
 						'from' => '{db_prefix}topics AS t',
 						'inner_join' => array(),
 						'left_join' => array(),
-						'where' => array(),
+						'where' => array(
+							't.id_redirect_topic = {int:not_redirected}',
+						    't.redirect_expires = {int:never_expires}',
+						),
 					);
 
 					if ($modSettings['postmod_active'])
@@ -1162,16 +1182,19 @@ function PlushSearch2()
 					{
 						if ($subject_query['from'] != '{db_prefix}messages AS m')
 						{
-							$subject_query['inner_join'][] = '{db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)';
+							$subject_query['inner_join']['m'] = '{db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)';
 						}
 
 						$count = 0;
 
 						foreach ($excludedPhrases as $phrase)
 						{
-							$subject_query['where'][] = 'm.subject NOT ' . (empty($modSettings['search_match_words']) || $no_regexp ? ' LIKE ' : ' RLIKE ') . '{string:excluded_phrases_' . $count . '}';
+							$subject_query['where'][] = 'm.subject NOT ' . $query_match_type . ' {string:excluded_phrases_' . $count . '}';
 
-							$subject_query_params['excluded_phrases_' . $count++] = empty($modSettings['search_match_words']) || $no_regexp ? '%' . strtr($phrase, array('_' => '\\_', '%' => '\\%')) . '%' : '[[:<:]]' . addcslashes(preg_replace(array('/([\[\]$.+*?|{}()])/'), array('[$1]'), $phrase), '\\\'') . '[[:>:]]';
+							if ($is_search_regex)
+								$subject_query_params['excluded_phrases_' . $count++] = $word_boundary_wrapper($escape_sql_regex($phrase));
+							else
+								$subject_query_params['excluded_phrases_' . $count++] = '%' . $smcFunc['db_escape_wildcard_string']($phrase) . '%';
 						}
 					}
 
@@ -1266,13 +1289,18 @@ function PlushSearch2()
 						'{db_prefix}messages AS m ON (m.id_topic = t.id_topic)'
 					),
 					'left_join' => array(),
-					'where' => array(),
+					'where' => array(
+						't.id_redirect_topic = {int:not_redirected}',
+						't.redirect_expires = {int:never_expires}',
+					),
 					'group_by' => array(),
 					'parameters' => array(
 						'min_msg' => $minMsg,
 						'recent_message' => $recentMsg,
 						'huge_topic_posts' => $humungousTopicPosts,
 						'is_approved' => 1,
+						'not_redirected' => 0,
+						'never_expires' => 0,
 					),
 				);
 
@@ -1348,8 +1376,14 @@ function PlushSearch2()
 							'from' => '{db_prefix}topics AS t',
 							'inner_join' => array(),
 							'left_join' => array(),
-							'where' => array(),
-							'params' => array(),
+							'where' => array(
+								't.id_redirect_topic = {int:not_redirected}',
+								't.redirect_expires = {int:never_expires}',
+							),
+							'params' => array(
+								'not_redirected' => 0,
+								'never_expires' => 0,
+							),
 						);
 
 						$numTables = 0;
@@ -1363,15 +1397,19 @@ function PlushSearch2()
 							{
 								if (($subject_query['from'] != '{db_prefix}messages AS m') && !$excluded)
 								{
-									$subject_query['inner_join'][] = '{db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)';
+									$subject_query['inner_join']['m'] = '{db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)';
 									$excluded = true;
 								}
 								$subject_query['left_join'][] = '{db_prefix}log_search_subjects AS subj' . $numTables . ' ON (subj' . $numTables . '.word ' . (empty($modSettings['search_match_words']) ? 'LIKE {string:subject_not_' . $count . '}' : '= {string:subject_not_' . $count . '}') . ' AND subj' . $numTables . '.id_topic = t.id_topic)';
 								$subject_query['params']['subject_not_' . $count] = empty($modSettings['search_match_words']) ? '%' . $subjectWord . '%' : $subjectWord;
 
 								$subject_query['where'][] = '(subj' . $numTables . '.word IS NULL)';
-								$subject_query['where'][] = 'm.body NOT ' . (empty($modSettings['search_match_words']) || $no_regexp ? ' LIKE ' : ' RLIKE ') . '{string:body_not_' . $count . '}';
-								$subject_query['params']['body_not_' . $count++] = empty($modSettings['search_match_words']) || $no_regexp ? '%' . strtr($subjectWord, array('_' => '\\_', '%' => '\\%')) . '%' : '[[:<:]]' . addcslashes(preg_replace(array('/([\[\]$.+*?|{}()])/'), array('[$1]'), $subjectWord), '\\\'') . '[[:>:]]';
+								$subject_query['where'][] = 'm.body NOT ' . $query_match_type . ' {string:body_not_' . $count . '}';
+
+								if ($is_search_regex)
+									$subject_query['params']['body_not_' . $count++] = $word_boundary_wrapper($escape_sql_regex($subjectWord));
+								else
+									$subject_query['params']['body_not_' . $count++] = '%' . $smcFunc['db_escape_wildcard_string']($subjectWord) . '%';
 							}
 							else
 							{
@@ -1386,7 +1424,7 @@ function PlushSearch2()
 						{
 							if ($subject_query['from'] != '{db_prefix}messages AS m')
 							{
-								$subject_query['inner_join'][] = '{db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)';
+								$subject_query['inner_join']['m'] = '{db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)';
 							}
 							$subject_query['where'][] = '{raw:user_query}';
 							$subject_query['params']['user_query'] = $userQuery;
@@ -1415,14 +1453,18 @@ function PlushSearch2()
 						{
 							if ($subject_query['from'] != '{db_prefix}messages AS m')
 							{
-								$subject_query['inner_join'][] = '{db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)';
+								$subject_query['inner_join']['m'] = '{db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)';
 							}
 							$count = 0;
 							foreach ($excludedPhrases as $phrase)
 							{
-								$subject_query['where'][] = 'm.subject NOT ' . (empty($modSettings['search_match_words']) || $no_regexp ? ' LIKE ' : ' RLIKE ') . '{string:exclude_phrase_' . $count . '}';
-								$subject_query['where'][] = 'm.body NOT ' . (empty($modSettings['search_match_words']) || $no_regexp ? ' LIKE ' : ' RLIKE ') . '{string:exclude_phrase_' . $count . '}';
-								$subject_query['params']['exclude_phrase_' . $count++] = empty($modSettings['search_match_words']) || $no_regexp ? '%' . strtr($phrase, array('_' => '\\_', '%' => '\\%')) . '%' : '[[:<:]]' . addcslashes(preg_replace(array('/([\[\]$.+*?|{}()])/'), array('[$1]'), $phrase), '\\\'') . '[[:>:]]';
+								$subject_query['where'][] = 'm.subject NOT ' . $query_match_type . ' {string:exclude_phrase_' . $count . '}';
+								$subject_query['where'][] = 'm.body NOT ' . $query_match_type . ' {string:exclude_phrase_' . $count . '}';
+
+								if ($is_search_regex)
+									$subject_query['params']['exclude_phrase_' . $count++] = $word_boundary_wrapper($escape_sql_regex($phrase));
+								else
+									$subject_query['params']['exclude_phrase_' . $count++] = '%' . $smcFunc['db_escape_wildcard_string']($phrase) . '%';
 							}
 						}
 						call_integration_hook('integrate_subject_search_query', array(&$subject_query));
@@ -1604,10 +1646,18 @@ function PlushSearch2()
 						$where = array();
 						foreach ($words['all_words'] as $regularWord)
 						{
-							$where[] = 'm.body' . (in_array($regularWord, $excludedWords) ? ' NOT' : '') . (empty($modSettings['search_match_words']) || $no_regexp ? ' LIKE ' : ' RLIKE ') . '{string:all_word_body_' . $count . '}';
 							if (in_array($regularWord, $excludedWords))
-								$where[] = 'm.subject NOT' . (empty($modSettings['search_match_words']) || $no_regexp ? ' LIKE ' : ' RLIKE ') . '{string:all_word_body_' . $count . '}';
-							$main_query['parameters']['all_word_body_' . $count++] = empty($modSettings['search_match_words']) || $no_regexp ? '%' . strtr($regularWord, array('_' => '\\_', '%' => '\\%')) . '%' : '[[:<:]]' . addcslashes(preg_replace(array('/([\[\]$.+*?|{}()])/'), array('[$1]'), $regularWord), '\\\'') . '[[:>:]]';
+							{
+								$where[] = 'm.subject NOT ' . $query_match_type . ' {string:all_word_body_' . $count . '}';
+								$where[] = 'm.body NOT ' . $query_match_type . ' {string:all_word_body_' . $count . '}';
+							}
+							else
+								$where[] = 'm.body ' . $query_match_type . ' {string:all_word_body_' . $count . '}';
+
+							if ($is_search_regex)
+								$main_query['parameters']['all_word_body_' . $count++] = $word_boundary_wrapper($escape_sql_regex($regularWord));
+							else
+								$main_query['parameters']['all_word_body_' . $count++] = '%' . $smcFunc['db_escape_wildcard_string']($regularWord) . '%';
 						}
 						if (!empty($where))
 							$orWhere[] = count($where) > 1 ? '(' . implode(' AND ', $where) . ')' : $where[0];
@@ -1920,7 +1970,10 @@ function PlushSearch2()
 		);
 
 		// How many results will the user be able to see?
-		$num_results = $smcFunc['db_num_rows']($messages_request);
+		if (!empty($_SESSION['search_cache']['num_results']))
+			$num_results = $_SESSION['search_cache']['num_results'];
+		else
+			$num_results = $smcFunc['db_num_rows']($messages_request);
 
 		// If there are no results that means the things in the cache got deleted, so pretend we have no topics anymore.
 		if ($num_results == 0)
@@ -1998,7 +2051,7 @@ function prepareSearchContext($reset = false)
 	// Remember which message this is.  (ie. reply #83)
 	static $counter = null;
 	if ($counter == null || $reset)
-		$counter = $_REQUEST['start'] + 1;
+		$counter = ((int) $_REQUEST['start']) + 1;
 
 	// If the query returned false, bail.
 	if ($messages_request == false)
@@ -2044,7 +2097,7 @@ function prepareSearchContext($reset = false)
 		// Set the number of characters before and after the searched keyword.
 		$charLimit = 50;
 
-		$message['body'] = strtr($message['body'], array("\n" => ' ', '<br>' => "\n"));
+		$message['body'] = strtr($message['body'], array("\n" => ' ', '<br>' => "\n", '<br/>' => "\n", '<br />' => "\n"));
 		$message['body'] = parse_bbc($message['body'], $message['smileys_enabled'], $message['id_msg']);
 		$message['body'] = strip_tags(strtr($message['body'], array('</div>' => '<br>', '</li>' => '<br>')), '<br>');
 
@@ -2090,11 +2143,11 @@ function prepareSearchContext($reset = false)
 	}
 	else
 	{
-		$message['subject_highlighted'] = highlight($message['subject'], $context['key_words']);
-		$message['body_highlighted'] = highlight($message['body'], $context['key_words']);
-
 		// Run BBC interpreter on the message.
 		$message['body'] = parse_bbc($message['body'], $message['smileys_enabled'], $message['id_msg']);
+
+		$message['subject_highlighted'] = highlight($message['subject'], $context['key_words']);
+		$message['body_highlighted'] = highlight($message['body'], $context['key_words']);
 	}
 
 	// Make sure we don't end up with a practically empty message body.
@@ -2155,7 +2208,7 @@ function prepareSearchContext($reset = false)
 		'first_post' => array(
 			'id' => $message['first_msg'],
 			'time' => timeformat($message['first_poster_time']),
-			'timestamp' => forum_time(true, $message['first_poster_time']),
+			'timestamp' => $message['first_poster_time'],
 			'subject' => $message['first_subject'],
 			'href' => $scripturl . '?topic=' . $message['id_topic'] . '.0',
 			'link' => '<a href="' . $scripturl . '?topic=' . $message['id_topic'] . '.0">' . $message['first_subject'] . '</a>',
@@ -2165,13 +2218,13 @@ function prepareSearchContext($reset = false)
 				'id' => $message['first_member_id'],
 				'name' => $message['first_member_name'],
 				'href' => !empty($message['first_member_id']) ? $scripturl . '?action=profile;u=' . $message['first_member_id'] : '',
-				'link' => !empty($message['first_member_id']) ? '<a href="' . $scripturl . '?action=profile;u=' . $message['first_member_id'] . '" title="' . $txt['profile_of'] . ' ' . $message['first_member_name'] . '">' . $message['first_member_name'] . '</a>' : $message['first_member_name']
+				'link' => !empty($message['first_member_id']) ? '<a href="' . $scripturl . '?action=profile;u=' . $message['first_member_id'] . '" title="' . sprintf($txt['view_profile_of_username'], $message['first_member_name']) . '">' . $message['first_member_name'] . '</a>' : $message['first_member_name']
 			)
 		),
 		'last_post' => array(
 			'id' => $message['last_msg'],
 			'time' => timeformat($message['last_poster_time']),
-			'timestamp' => forum_time(true, $message['last_poster_time']),
+			'timestamp' => $message['last_poster_time'],
 			'subject' => $message['last_subject'],
 			'href' => $scripturl . '?topic=' . $message['id_topic'] . ($message['num_replies'] == 0 ? '.0' : '.msg' . $message['last_msg']) . '#msg' . $message['last_msg'],
 			'link' => '<a href="' . $scripturl . '?topic=' . $message['id_topic'] . ($message['num_replies'] == 0 ? '.0' : '.msg' . $message['last_msg']) . '#msg' . $message['last_msg'] . '">' . $message['last_subject'] . '</a>',
@@ -2181,7 +2234,7 @@ function prepareSearchContext($reset = false)
 				'id' => $message['last_member_id'],
 				'name' => $message['last_member_name'],
 				'href' => !empty($message['last_member_id']) ? $scripturl . '?action=profile;u=' . $message['last_member_id'] : '',
-				'link' => !empty($message['last_member_id']) ? '<a href="' . $scripturl . '?action=profile;u=' . $message['last_member_id'] . '" title="' . $txt['profile_of'] . ' ' . $message['last_member_name'] . '">' . $message['last_member_name'] . '</a>' : $message['last_member_name']
+				'link' => !empty($message['last_member_id']) ? '<a href="' . $scripturl . '?action=profile;u=' . $message['last_member_id'] . '" title="' . sprintf($txt['view_profile_of_username'], $message['last_member_name']) . '">' . $message['last_member_name'] . '</a>' : $message['last_member_name']
 			)
 		),
 		'board' => array(
@@ -2231,11 +2284,11 @@ function prepareSearchContext($reset = false)
 		'subject' => $message['subject'],
 		'subject_highlighted' => $message['subject_highlighted'],
 		'time' => timeformat($message['poster_time']),
-		'timestamp' => forum_time(true, $message['poster_time']),
+		'timestamp' => $message['poster_time'],
 		'counter' => $counter,
 		'modified' => array(
 			'time' => timeformat($message['modified_time']),
-			'timestamp' => forum_time(true, $message['modified_time']),
+			'timestamp' => $message['modified_time'],
 			'name' => $message['modified_name']
 		),
 		'body' => $message['body'],
@@ -2315,8 +2368,15 @@ function searchSort($a, $b)
  */
 function highlight($text, array $words)
 {
-	$words = implode('|', array_map('preg_quote', $words));
-	$highlighted = preg_filter('/' . $words . '/i', '<span class="highlight">$0</span>', $text);
+	$words = build_regex($words, '~');
+
+	$highlighted = '';
+
+	// Don't mess with the content of HTML tags.
+	$parts = preg_split('~(<[^>]+>)~', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+	for ($i = 0, $n = count($parts); $i < $n; $i++)
+		$highlighted .= $i % 2 === 0 ? preg_replace('~' . $words . '~iu', '<mark class="highlight">$0</mark>', $parts[$i]) : $parts[$i];
 
 	if (!empty($highlighted))
 		$text = $highlighted;

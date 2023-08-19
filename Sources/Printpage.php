@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1.0
  */
 
 if (!defined('SMF'))
@@ -114,12 +114,12 @@ function PrintTopic()
 		$pollOptions = array();
 		$realtotal = 0;
 		$pollinfo['has_voted'] = false;
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($voterow = $smcFunc['db_fetch_assoc']($request))
 		{
-			censorText($row['label']);
-			$pollOptions[$row['id_choice']] = $row;
-			$realtotal += $row['votes'];
-			$pollinfo['has_voted'] |= $row['voted_this'] != -1;
+			censorText($voterow['label']);
+			$pollOptions[$voterow['id_choice']] = $voterow;
+			$realtotal += $voterow['votes'];
+			$pollinfo['has_voted'] |= $voterow['voted_this'] != -1;
 		}
 		$smcFunc['db_free_result']($request);
 
@@ -261,7 +261,7 @@ function PrintTopic()
 			'subject' => $row['subject'],
 			'member' => $row['poster_name'],
 			'time' => timeformat($row['poster_time'], false),
-			'timestamp' => forum_time(true, $row['poster_time']),
+			'timestamp' => $row['poster_time'],
 			'body' => parse_bbc($row['body'], 'print'),
 			'id_msg' => $row['id_msg'],
 		);
@@ -304,6 +304,9 @@ function PrintTopic()
 		// load them into $context so the template can use them
 		foreach ($temp as $row)
 		{
+			if (!empty($modSettings['dont_show_attach_under_post']) && !empty($context['show_attach_under_post'][$row['id_attach']]))
+				continue;
+
 			if (!empty($row['width']) && !empty($row['height']))
 			{
 				if (!empty($modSettings['max_image_width']) && (empty($modSettings['max_image_height']) || $row['height'] * ($modSettings['max_image_width'] / $row['width']) <= $modSettings['max_image_height']))
