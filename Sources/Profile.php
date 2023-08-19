@@ -582,7 +582,7 @@ class Profile extends User implements \ArrayAccess
 					if (allowedTo('admin_forum'))
 					{
 						// Maybe they are trying to change their password as well?
-						$resetPassword = true;
+						$reset_password = true;
 
 						if (
 							isset($_POST['passwrd1'])
@@ -592,13 +592,13 @@ class Profile extends User implements \ArrayAccess
 							&& User::validatePassword(Utils::htmlspecialcharsDecode($_POST['passwrd1']), $value, array($this->name, User::$me->username, User::$me->name, User::$me->email)) == null
 						)
 						{
-							$resetPassword = false;
+							$reset_password = false;
 						}
 
 						// Do the reset... this will send them an email too.
-						if ($resetPassword)
+						if ($reset_password)
 						{
-							resetPassword($this->id, $value);
+							$this->resetPassword($this->id, $value);
 						}
 						elseif ($value !== null)
 						{
@@ -3459,6 +3459,56 @@ class Profile extends User implements \ArrayAccess
 		User::setMe(0);
 
 		redirectexit('action=sendactivation');
+	}
+
+	/**
+	 * Generates a random password for a user and emails it to them.
+	 * - called by Actions/Profile/Main.php when changing someone's username.
+	 * - checks the validity of the new username.
+	 * - generates and sets a new password for the given user.
+	 * - mails the new password to the email address of the user.
+	 * - if username is not set, only a new password is generated and sent.
+	 *
+	 * @param string $username The new username. If set, also checks the validity of the username
+	 */
+	protected function resetPassword(string $username = null): void
+	{
+		// Language...
+		Lang::load('Login');
+
+		if ($username !== null)
+		{
+			$username = trim(Utils::normalizeSpaces(Utils::sanitizeChars($username, 1, ' '), true, true, array('no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true)));
+		}
+
+		// Generate a random password.
+		$new_password = implode('-', str_split(substr(preg_replace('/\W/', '', base64_encode(Utils::randomBytes(18))), 0, 18), 6));
+		$new_password_sha1 = hash_password($username ?? $this->username, $new_password);
+
+		// Do some checks on the username if needed.
+		if ($username !== null)
+		{
+			User::validateUsername($this->id, $username);
+
+			// Update the database...
+			User::updateMemberData($this->id, array('member_name' => $username, 'passwd' => $new_password_sha1));
+		}
+		else
+		{
+			User::updateMemberData($this->id, array('passwd' => $new_password_sha1));
+		}
+
+		call_integration_hook('integrate_reset_pass', array($this->username, $username, $new_password));
+
+		$replacements = array(
+			'USERNAME' => $username,
+			'PASSWORD' => $new_password,
+		);
+
+		$emaildata = Mail::loadEmailTemplate('change_password', $replacements, $this->language);
+
+		// Send them the email informing them of the change - then we're done!
+		Mail::send($email, $emaildata['subject'], $emaildata['body'], null, 'chgpass' . $this->id, $emaildata['is_html'], 0);
 	}
 
 	/*************************

@@ -15,7 +15,6 @@
 
 use SMF\Config;
 use SMF\Lang;
-use SMF\Mail;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
@@ -158,68 +157,6 @@ function findMembers($names, $use_wildcards = false, $buddies_only = false, $max
 
 	// Return all the results.
 	return $results;
-}
-
-/**
- * Generates a random password for a user and emails it to them.
- * - called by Actions/Profile/Main.php when changing someone's username.
- * - checks the validity of the new username.
- * - generates and sets a new password for the given user.
- * - mails the new password to the email address of the user.
- * - if username is not set, only a new password is generated and sent.
- *
- * @param int $memID The ID of the member
- * @param string $username The new username. If set, also checks the validity of the username
- */
-function resetPassword($memID, $username = null)
-{
-	// Language...
-	Lang::load('Login');
-
-	// Get some important details.
-	$request = Db::$db->query('', '
-		SELECT member_name, email_address, lngfile
-		FROM {db_prefix}members
-		WHERE id_member = {int:id_member}',
-		array(
-			'id_member' => $memID,
-		)
-	);
-	list ($user, $email, $lngfile) = Db::$db->fetch_row($request);
-	Db::$db->free_result($request);
-
-	if ($username !== null)
-	{
-		$old_user = $user;
-		$user = trim($username);
-	}
-
-	// Generate a random password.
-	$newPassword = substr(preg_replace('/\W/', '', md5(Utils::randomInt())), 0, 10);
-	$newPassword_sha1 = hash_password($user, $newPassword);
-
-	// Do some checks on the username if needed.
-	if ($username !== null)
-	{
-		User::validateUsername($memID, $user);
-
-		// Update the database...
-		User::updateMemberData($memID, array('member_name' => $user, 'passwd' => $newPassword_sha1));
-	}
-	else
-		User::updateMemberData($memID, array('passwd' => $newPassword_sha1));
-
-	call_integration_hook('integrate_reset_pass', array($old_user, $user, $newPassword));
-
-	$replacements = array(
-		'USERNAME' => $user,
-		'PASSWORD' => $newPassword,
-	);
-
-	$emaildata = Mail::loadEmailTemplate('change_password', $replacements, empty($lngfile) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $lngfile);
-
-	// Send them the email informing them of the change - then we're done!
-	Mail::send($email, $emaildata['subject'], $emaildata['body'], null, 'chgpass' . $memID, $emaildata['is_html'], 0);
 }
 
 /**
