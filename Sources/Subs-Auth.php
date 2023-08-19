@@ -28,6 +28,7 @@ if (!defined('SMF'))
 
 // Some functions have moved.
 class_exists('SMF\\Cookie');
+class_exists('SMF\\Actions\\Admin');
 
 /**
  * Throws guests out to the login screen when guest access is off.
@@ -68,125 +69,6 @@ function InMaintenance()
 	Utils::$context['title'] = Utils::htmlspecialchars(Config::$mtitle);
 	Utils::$context['description'] = &Config::$mmessage;
 	Utils::$context['page_title'] = Lang::$txt['maintain_mode'];
-}
-
-/**
- * Question the verity of the admin by asking for his or her password.
- * - loads Login.template.php and uses the admin_login sub template.
- * - sends data to template so the admin is sent on to the page they
- *   wanted if their password is correct, otherwise they can try again.
- *
- * @param string $type What login type is this - can be 'admin' or 'moderate'
- */
-function adminLogin($type = 'admin')
-{
-	Lang::load('Admin');
-	Theme::loadTemplate('Login');
-
-	// Validate what type of session check this is.
-	$types = array();
-	call_integration_hook('integrate_validateSession', array(&$types));
-	$type = in_array($type, $types) || $type == 'moderate' ? $type : 'admin';
-
-	// They used a wrong password, log it and unset that.
-	if (isset($_POST[$type . '_hash_pass']) || isset($_POST[$type . '_pass']))
-	{
-		Lang::$txt['security_wrong'] = sprintf(Lang::$txt['security_wrong'], isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : Lang::$txt['unknown'], $_SERVER['HTTP_USER_AGENT'], User::$me->ip);
-		ErrorHandler::log(Lang::$txt['security_wrong'], 'critical');
-
-		if (isset($_POST[$type . '_hash_pass']))
-			unset($_POST[$type . '_hash_pass']);
-		if (isset($_POST[$type . '_pass']))
-			unset($_POST[$type . '_pass']);
-
-		Utils::$context['incorrect_password'] = true;
-	}
-
-	SecurityToken::create('admin-login');
-
-	// Figure out the get data and post data.
-	Utils::$context['get_data'] = '?' . construct_query_string($_GET);
-	Utils::$context['post_data'] = '';
-
-	// Now go through $_POST.  Make sure the session hash is sent.
-	$_POST[Utils::$context['session_var']] = Utils::$context['session_id'];
-	foreach ($_POST as $k => $v)
-		Utils::$context['post_data'] .= adminLogin_outputPostVars($k, $v);
-
-	// Now we'll use the admin_login sub template of the Login template.
-	Utils::$context['sub_template'] = 'admin_login';
-
-	// And title the page something like "Login".
-	if (!isset(Utils::$context['page_title']))
-		Utils::$context['page_title'] = Lang::$txt['login'];
-
-	// The type of action.
-	Utils::$context['sessionCheckType'] = $type;
-
-	obExit();
-
-	// We MUST exit at this point, because otherwise we CANNOT KNOW that the user is privileged.
-	trigger_error('No direct access...', E_USER_ERROR);
-}
-
-/**
- * Used by the adminLogin() function.
- * if 'value' is an array, the function is called recursively.
- *
- * @param string $k The keys
- * @param string $v The values
- * @return string 'hidden' HTML form fields, containing key-value-pairs
- */
-function adminLogin_outputPostVars($k, $v)
-{
-	if (!is_array($v))
-		return '
-<input type="hidden" name="' . Utils::htmlspecialchars($k) . '" value="' . strtr($v, array('"' => '&quot;', '<' => '&lt;', '>' => '&gt;')) . '">';
-	else
-	{
-		$ret = '';
-		foreach ($v as $k2 => $v2)
-			$ret .= adminLogin_outputPostVars($k . '[' . $k2 . ']', $v2);
-
-		return $ret;
-	}
-}
-
-/**
- * Properly urlencodes a string to be used in a query
- *
- * @param string $get
- * @return string Our query string
- */
-function construct_query_string($get)
-{
-	$query_string = '';
-
-	// Awww, darn. The Config::$scripturl contains GET stuff!
-	$q = strpos(Config::$scripturl, '?');
-	if ($q !== false)
-	{
-		parse_str(preg_replace('/&(\w+)(?=&|$)/', '&$1=', strtr(substr(Config::$scripturl, $q + 1), ';', '&')), $temp);
-
-		foreach ($get as $k => $v)
-		{
-			// Only if it's not already in the Config::$scripturl!
-			if (!isset($temp[$k]))
-				$query_string .= urlencode($k) . '=' . urlencode($v) . ';';
-			// If it changed, put it out there, but with an ampersand.
-			elseif ($temp[$k] != $get[$k])
-				$query_string .= urlencode($k) . '=' . urlencode($v) . '&amp;';
-		}
-	}
-	else
-	{
-		// Add up all the data from $_GET into get_data.
-		foreach ($get as $k => $v)
-			$query_string .= urlencode($k) . '=' . urlencode($v) . ';';
-	}
-
-	$query_string = substr($query_string, 0, -1);
-	return $query_string;
 }
 
 /**
