@@ -989,8 +989,7 @@ class User implements \ArrayAccess
 		{
 			if (!isset($_SESSION['mc']) || $_SESSION['mc']['time'] <= Config::$modSettings['settings_updated'])
 			{
-				require_once(Config::$sourcedir . '/Subs-Auth.php');
-				rebuildModCache();
+				$this->rebuildModCache();
 			}
 			else
 			{
@@ -1364,6 +1363,124 @@ class User implements \ArrayAccess
 
 			$_SESSION['timeOnlineUpdated'] = time();
 		}
+	}
+
+	/**
+	 * Quickly find out what moderation authority the current user has
+	 *
+	 * Builds the moderator, group and board level querys for the user.
+	 *
+	 * Stores the information on the current users moderation powers in
+	 * User::$me->mod_cache and $_SESSION['mc'].
+	 */
+	public function rebuildModCache(): void
+	{
+		// What groups can they moderate?
+		$group_query = allowedTo('manage_membergroups') ? '1=1' : '0=1';
+
+		if ($group_query == '0=1' && !$this->is_guest)
+		{
+			$groups = array();
+
+			$request = Db::$db->query('', '
+				SELECT id_group
+				FROM {db_prefix}group_moderators
+				WHERE id_member = {int:current_member}',
+				array(
+					'current_member' => $this->id,
+				)
+			);
+			while ($row = Db::$db->fetch_assoc($request))
+			{
+				$groups[] = $row['id_group'];
+			}
+			Db::$db->free_result($request);
+
+			if (empty($groups))
+			{
+				$group_query = '0=1';
+			}
+			else
+			{
+				$group_query = 'id_group IN (' . implode(',', $groups) . ')';
+			}
+		}
+
+		// Then, same again, just the boards this time!
+		$board_query = allowedTo('moderate_forum') ? '1=1' : '0=1';
+
+		if ($board_query == '0=1' && !$this->is_guest)
+		{
+			$boards = boardsAllowedTo('moderate_board', true);
+
+			if (empty($boards))
+			{
+				$board_query = '0=1';
+			}
+			else
+			{
+				$board_query = 'id_board IN (' . implode(',', $boards) . ')';
+			}
+		}
+
+		// What boards are they the moderator of?
+		$boards_mod = array();
+
+		if (!$this->is_guest)
+		{
+			$request = Db::$db->query('', '
+				SELECT id_board
+				FROM {db_prefix}moderators
+				WHERE id_member = {int:current_member}',
+				array(
+					'current_member' => $this->id,
+				)
+			);
+			while ($row = Db::$db->fetch_assoc($request))
+			{
+				$boards_mod[] = $row['id_board'];
+			}
+			Db::$db->free_result($request);
+
+			// Can any of the groups they're in moderate any of the boards?
+			$request = Db::$db->query('', '
+				SELECT id_board
+				FROM {db_prefix}moderator_groups
+				WHERE id_group IN({array_int:groups})',
+				array(
+					'groups' => $this->groups,
+				)
+			);
+			while ($row = Db::$db->fetch_assoc($request))
+			{
+				$boards_mod[] = $row['id_board'];
+			}
+			Db::$db->free_result($request);
+
+			// Just in case we've got duplicates here...
+			$boards_mod = array_unique($boards_mod);
+		}
+
+		$mod_query = empty($boards_mod) ? '0=1' : 'b.id_board IN (' . implode(',', $boards_mod) . ')';
+
+		$_SESSION['mc'] = array(
+			'time' => time(),
+			// This looks a bit funny but protects against the login redirect.
+			'id' => $this->id && $this->name ? $this->id : 0,
+			// If you change the format of 'gq' and/or 'bq' make sure to adjust 'can_mod' in SMF\User.
+			'gq' => $group_query,
+			'bq' => $board_query,
+			'ap' => boardsAllowedTo('approve_posts'),
+			'mb' => $boards_mod,
+			'mq' => $mod_query,
+		);
+
+		call_integration_hook('integrate_mod_cache');
+
+		$this->mod_cache = $_SESSION['mc'];
+
+		// Might as well clean up some tokens while we are at it.
+		SecurityToken::clean();
 	}
 
 	/***********************
