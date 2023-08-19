@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\Cookie;
 use SMF\ErrorHandler;
 use SMF\Profile;
 use SMF\Theme;
@@ -78,8 +79,6 @@ class TFASetup implements ActionInterface
 		// Users have to do this for themselves, and can't do it again if they already did.
 		if (!User::$me->is_owner || !empty(User::$me->tfa_secret))
 			redirectexit('action=profile;area=account;u=' . Profile::$member->id);
-
-		require_once(Config::$sourcedir . '/Subs-Auth.php');
 
 		// Load JS lib for QR
 		Theme::loadJavaScriptFile('qrcode.js', array('force_current' => false, 'validate' => true));
@@ -170,7 +169,7 @@ class TFASetup implements ActionInterface
 				'tfa_backup' => $backup_encrypted,
 			));
 
-			setTFACookie(3153600, Profile::$member->id, hash_salt($backup_encrypted, User::$me->password_salt));
+			Cookie::setTFACookie(3153600, Profile::$member->id, Cookie::encrypt($backup_encrypted, User::$me->password_salt));
 
 			unset($_SESSION['tfa_secret']);
 

@@ -2929,8 +2929,6 @@ class User implements \ArrayAccess
 
 		if (isset($_COOKIE[Config::$cookiename]))
 		{
-			require_once(Config::$sourcedir . '/Subs-Auth.php');
-
 			// First try 2.1 json-format cookie
 			$cookie_data = Utils::jsonDecode($_COOKIE[Config::$cookiename], true, false);
 
@@ -2943,9 +2941,9 @@ class User implements \ArrayAccess
 			self::$my_id = !empty(self::$my_id) && strlen($this->passwd) > 0 ? (int) self::$my_id : 0;
 
 			// Make sure the cookie is set to the correct domain and path
-			if (array($cookie_domain, $cookie_path) !== url_parts(!empty(Config::$modSettings['localCookies']), !empty(Config::$modSettings['globalCookies'])))
+			if (array($cookie_domain, $cookie_path) !== Cookie::urlParts(!empty(Config::$modSettings['localCookies']), !empty(Config::$modSettings['globalCookies'])))
 			{
-				setLoginCookie((int) $login_span - time(), self::$my_id);
+				Cookie::setLoginCookie((int) $login_span - time(), self::$my_id);
 			}
 		}
 		elseif (isset($_SESSION['login_' . Config::$cookiename]) && ($_SESSION['USER_AGENT'] == $_SERVER['HTTP_USER_AGENT'] || !empty(Config::$modSettings['disableCheckUA'])))
@@ -3020,9 +3018,7 @@ class User implements \ArrayAccess
 			// SHA-512 hash should be 128 characters long.
 			elseif (strlen($this->passwd) == 128)
 			{
-				require_once(Config::$sourcedir . '/Subs-Auth.php');
-
-				$check = hash_equals(hash_salt(self::$profiles[self::$my_id]['passwd'], self::$profiles[self::$my_id]['password_salt']), $this->passwd);
+				$check = hash_equals(Cookie::encrypt(self::$profiles[self::$my_id]['passwd'], self::$profiles[self::$my_id]['password_salt']), $this->passwd);
 			}
 			else
 			{
@@ -3085,8 +3081,6 @@ class User implements \ArrayAccess
 
 			if (empty($verified) || !in_array(true, $verified))
 			{
-				require_once(Config::$sourcedir . '/Subs-Auth.php');
-
 				if (!empty($_COOKIE[$tfacookie]))
 				{
 					$tfa_data = Utils::jsonDecode($_COOKIE[$tfacookie], true);
@@ -3098,9 +3092,9 @@ class User implements \ArrayAccess
 				}
 
 				// They didn't finish logging in before coming here? Then they're no one to us.
-				if (empty($tfasecret) || !hash_equals(hash_salt(self::$profiles[self::$my_id]['tfa_backup'], self::$profiles[self::$my_id]['password_salt']), $tfasecret))
+				if (empty($tfasecret) || !hash_equals(Cookie::encrypt(self::$profiles[self::$my_id]['tfa_backup'], self::$profiles[self::$my_id]['password_salt']), $tfasecret))
 				{
-					setLoginCookie(-3600, self::$my_id);
+					Cookie::setLoginCookie(-3600, self::$my_id);
 					self::$profiles[self::$my_id] = array();
 					self::$my_id = 0;
 				}
@@ -3249,10 +3243,8 @@ class User implements \ArrayAccess
 
 			if (time() > $exp)
 			{
-				require_once(Config::$sourcedir . '/Subs-Auth.php');
-
 				$_COOKIE[Config::$cookiename . '_tfa'] = '';
-				setTFACookie(-3600, 0, '');
+				Cookie::setTFACookie(-3600, 0, '');
 			}
 		}
 

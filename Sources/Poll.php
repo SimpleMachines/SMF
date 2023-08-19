@@ -1041,17 +1041,14 @@ class Poll implements \ArrayAccess
 		// If it's a guest don't let them vote again.
 		if (User::$me->is_guest && count($choices) > 0)
 		{
-			require_once(Config::$sourcedir . '/Subs-Auth.php');
-
 			// Time is stored in case the poll is reset later, plus what they voted for.
 			$_COOKIE['guest_poll_vote'] = empty($_COOKIE['guest_poll_vote']) ? '' : $_COOKIE['guest_poll_vote'];
 
 			// ;id,timestamp,[vote,vote...]; etc
 			$_COOKIE['guest_poll_vote'] .= ';' . $row['id_poll'] . ',' . time() . ',' . implode(',', $choices);
 
-			$cookie_url = url_parts(!empty(Config::$modSettings['localCookies']), !empty(Config::$modSettings['globalCookies']));
-
-			smf_setcookie('guest_poll_vote', $_COOKIE['guest_poll_vote'], time() + 2500000, $cookie_url[1], $cookie_url[0], false, false);
+			$cookie = new Cookie('guest_poll_vote', $_COOKIE['guest_poll_vote'], time() + 2500000);
+			$cookie->set();
 
 			// Increase num_guest_voters by 1
 			$poll->num_guest_voters++;

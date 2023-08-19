@@ -15,6 +15,7 @@
  */
 
 use SMF\Config;
+use SMF\Cookie;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
@@ -298,9 +299,8 @@ function is_not_banned($forceCheck = false)
 		// My mistake. Next time better.
 		if (!isset($_SESSION['ban']['cannot_access']))
 		{
-			require_once(Config::$sourcedir . '/Subs-Auth.php');
-			$cookie_url = url_parts(!empty(Config::$modSettings['localCookies']), !empty(Config::$modSettings['globalCookies']));
-			smf_setcookie(Config::$cookiename . '_', '', time() - 3600, $cookie_url[1], $cookie_url[0], false, false);
+			$cookie = new Cookie(Config::$cookiename . '_', array(), time() - 3600);
+			$cookie->set();
 		}
 	}
 
@@ -325,9 +325,8 @@ function is_not_banned($forceCheck = false)
 		User::setMe(0);
 
 		// A goodbye present.
-		require_once(Config::$sourcedir . '/Subs-Auth.php');
-		$cookie_url = url_parts(!empty(Config::$modSettings['localCookies']), !empty(Config::$modSettings['globalCookies']));
-		smf_setcookie(Config::$cookiename . '_', implode(',', $_SESSION['ban']['cannot_access']['ids']), time() + 3153600, $cookie_url[1], $cookie_url[0], false, false);
+		$cookie = new Cookie(Config::$cookiename . '_', implode(',', $_SESSION['ban']['cannot_access']['ids']), time() - 3600);
+		$cookie->set();
 
 		// Don't scare anyone, now.
 		$_GET['action'] = '';

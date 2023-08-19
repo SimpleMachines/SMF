@@ -3477,7 +3477,7 @@ class Profile extends User implements \ArrayAccess
 	{
 		if ($memID == User::$me->id && isset($_POST['passwrd2']) && $_POST['passwrd2'] != '')
 		{
-			setLoginCookie(60 * Config::$modSettings['cookieTime'], User::$me->id, hash_salt($_POST['passwrd1'], User::$me->password_salt));
+			Cookie::setLoginCookie(60 * Config::$modSettings['cookieTime'], User::$me->id, Cookie::encrypt($_POST['passwrd1'], User::$me->password_salt));
 		}
 
 		User::reload($memID, 'profile');

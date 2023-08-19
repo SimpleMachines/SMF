@@ -16,6 +16,7 @@ namespace SMF\Actions;
 use SMF\BackwardCompatibility;
 
 use SMF\Config;
+use SMF\Cookie;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -105,8 +106,6 @@ class Logout extends Login2
 			checkSession('get');
 		}
 
-		require_once(Config::$sourcedir . '/Subs-Auth.php');
-
 		if (isset($_SESSION['pack_ftp']))
 			$_SESSION['pack_ftp'] = null;
 
@@ -132,7 +131,7 @@ class Logout extends Login2
 		$_SESSION['log_time'] = 0;
 
 		// Empty the cookie! (set it in the past, and for id_member = 0)
-		setLoginCookie(-3600, 0);
+		Cookie::setLoginCookie(-3600, 0);
 
 		// And some other housekeeping while we're at it.
 		$salt = bin2hex(Utils::randomBytes(16));
@@ -144,7 +143,7 @@ class Logout extends Login2
 		{
 			list(,, $exp) = Utils::jsonDecode($_COOKIE[Config::$cookiename . '_tfa'], true);
 
-			setTFACookie((int) $exp - time(), $salt, hash_salt(User::$me->tfa_backup, $salt));
+			Cookie::setTFACookie((int) $exp - time(), $salt, Cookie::encrypt(User::$me->tfa_backup, $salt));
 		}
 
 		session_destroy();

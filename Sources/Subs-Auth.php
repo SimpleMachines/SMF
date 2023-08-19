@@ -18,7 +18,6 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\SecurityToken;
-use SMF\Session;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -27,183 +26,8 @@ use SMF\Db\DatabaseApi as Db;
 if (!defined('SMF'))
 	die('No direct access...');
 
-/**
- * Sets the SMF-style login cookie and session based on the id_member and password passed.
- * - password should be already encrypted with the cookie salt.
- * - logs the user out if id_member is zero.
- * - sets the cookie and session to last the number of seconds specified by cookie_length, or
- *   ends them if cookie_length is less than 0.
- * - when logging out, if the globalCookies setting is enabled, attempts to clear the subdomain's
- *   cookie too.
- *
- * @param int $cookie_length How many seconds the cookie should last. If negative, forces logout.
- * @param int $id The ID of the member to set the cookie for
- * @param string $password The hashed password
- */
-function setLoginCookie($cookie_length, $id, $password = '')
-{
-	$id = (int) $id;
-
-	$expiry_time = ($cookie_length >= 0 ? time() + $cookie_length : 1);
-
-	// If changing state force them to re-address some permission caching.
-	$_SESSION['mc']['time'] = 0;
-
-	// Extract our cookie domain and path from Config::$boardurl
-	$cookie_url = url_parts(!empty(Config::$modSettings['localCookies']), !empty(Config::$modSettings['globalCookies']));
-
-	// The cookie may already exist, and have been set with different options.
-	if (isset($_COOKIE[Config::$cookiename]))
-	{
-		// First check for 2.1 json-format cookie
-		if (preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+,"3":"[^"]+","4":"[^"]+"~', $_COOKIE[Config::$cookiename]) === 1)
-			list(,,, $old_domain, $old_path) = Utils::jsonDecode($_COOKIE[Config::$cookiename], true);
-
-		// Legacy format (for recent 2.0 --> 2.1 upgrades)
-		elseif (preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\d+;(i:3;i:\d;)?~', $_COOKIE[Config::$cookiename]) === 1)
-		{
-			list(,,, $old_state) = safe_unserialize($_COOKIE[Config::$cookiename]);
-
-			$cookie_state = (empty(Config::$modSettings['localCookies']) ? 0 : 1) | (empty(Config::$modSettings['globalCookies']) ? 0 : 2);
-
-			// Maybe we need to temporarily pretend to be using local cookies
-			if ($cookie_state == 0 && $old_state == 1)
-				list($old_domain, $old_path) = url_parts(true, false);
-			else
-				list($old_domain, $old_path) = url_parts($old_state & 1 > 0, $old_state & 2 > 0);
-		}
-
-		// Out with the old, in with the new!
-		if (isset($old_domain) && $old_domain != $cookie_url[0] || isset($old_path) && $old_path != $cookie_url[1])
-			smf_setcookie(Config::$cookiename, Utils::jsonEncode(array(0, '', 0, $old_domain, $old_path), JSON_FORCE_OBJECT), 1, $old_path, $old_domain);
-	}
-
-	// Get the data and path to set it on.
-	$data = empty($id) ? array(0, '', 0, $cookie_url[0], $cookie_url[1]) : array($id, $password, $expiry_time, $cookie_url[0], $cookie_url[1]);
-
-	// Allow mods to add custom info to the cookie
-	$custom_data = array();
-	call_integration_hook('integrate_cookie_data', array($data, &$custom_data));
-
-	$data = Utils::jsonEncode(array_merge($data, $custom_data), JSON_FORCE_OBJECT);
-
-	// Set the cookie, $_COOKIE, and session variable.
-	smf_setcookie(Config::$cookiename, $data, $expiry_time, $cookie_url[1], $cookie_url[0]);
-
-	// If subdomain-independent cookies are on, unset the subdomain-dependent cookie too.
-	if (empty($id) && !empty(Config::$modSettings['globalCookies']))
-		smf_setcookie(Config::$cookiename, $data, $expiry_time, $cookie_url[1], '');
-
-	// Any alias URLs?  This is mainly for use with frames, etc.
-	if (!empty(Config::$modSettings['forum_alias_urls']))
-	{
-		$aliases = explode(',', Config::$modSettings['forum_alias_urls']);
-
-		$temp = Config::$boardurl;
-		foreach ($aliases as $alias)
-		{
-			// Fake the Config::$boardurl so we can set a different cookie.
-			$alias = strtr(trim($alias), array('http://' => '', 'https://' => ''));
-			Config::$boardurl = 'http://' . $alias;
-
-			$cookie_url = url_parts(!empty(Config::$modSettings['localCookies']), !empty(Config::$modSettings['globalCookies']));
-
-			if ($cookie_url[0] == '')
-				$cookie_url[0] = strtok($alias, '/');
-
-			$alias_data = Utils::jsonDecode($data, true);
-			$alias_data[3] = $cookie_url[0];
-			$alias_data[4] = $cookie_url[1];
-			$alias_data = Utils::jsonEncode($alias_data, JSON_FORCE_OBJECT);
-
-			smf_setcookie(Config::$cookiename, $alias_data, $expiry_time, $cookie_url[1], $cookie_url[0]);
-		}
-
-		Config::$boardurl = $temp;
-	}
-
-	$_COOKIE[Config::$cookiename] = $data;
-
-	// Make sure the user logs in with a new session ID.
-	if (!isset($_SESSION['login_' . Config::$cookiename]) || $_SESSION['login_' . Config::$cookiename] !== $data)
-	{
-		// Backup and remove the old session.
-		$oldSessionData = $_SESSION;
-		$_SESSION = array();
-		session_destroy();
-
-		// Recreate and restore the new session.
-		Session::load();
-		// @todo should we use session_regenerate_id(true); now that we are 5.1+
-		session_regenerate_id();
-		$_SESSION = $oldSessionData;
-
-		$_SESSION['login_' . Config::$cookiename] = $data;
-	}
-}
-
-/**
- * Sets Two Factor Auth cookie
- *
- * @param int $cookie_length How long the cookie should last, in seconds
- * @param int $id The ID of the member
- * @param string $secret Should be a salted secret using hash_salt
- */
-function setTFACookie($cookie_length, $id, $secret)
-{
-	$expiry_time = ($cookie_length >= 0 ? time() + $cookie_length : 1);
-
-	$identifier = Config::$cookiename . '_tfa';
-	$cookie_url = url_parts(!empty(Config::$modSettings['localCookies']), !empty(Config::$modSettings['globalCookies']));
-
-	// Get the data and path to set it on.
-	$data = Utils::jsonEncode(empty($id) ? array(0, '', 0, $cookie_url[0], $cookie_url[1], false) : array($id, $secret, $expiry_time, $cookie_url[0], $cookie_url[1]), JSON_FORCE_OBJECT);
-
-	// Set the cookie, $_COOKIE, and session variable.
-	smf_setcookie($identifier, $data, $expiry_time, $cookie_url[1], $cookie_url[0]);
-
-	// If subdomain-independent cookies are on, unset the subdomain-dependent cookie too.
-	if (empty($id) && !empty(Config::$modSettings['globalCookies']))
-		smf_setcookie($identifier, $data, $expiry_time, $cookie_url[1], '');
-
-	$_COOKIE[$identifier] = $data;
-}
-
-/**
- * Get the domain and path for the cookie
- * - normally, local and global should be the localCookies and globalCookies settings, respectively.
- * - uses boardurl to determine these two things.
- *
- * @param bool $local Whether we want local cookies
- * @param bool $global Whether we want global cookies
- * @return array An array to set the cookie on with domain and path in it, in that order
- */
-function url_parts($local, $global)
-{
-	// Parse the URL with PHP to make life easier.
-	$parsed_url = parse_iri(Config::$boardurl);
-
-	// Is local cookies off?
-	if (empty($parsed_url['path']) || !$local)
-		$parsed_url['path'] = '';
-
-	if (!empty(Config::$modSettings['globalCookiesDomain']) && strpos(Config::$boardurl, Config::$modSettings['globalCookiesDomain']) !== false)
-		$parsed_url['host'] = Config::$modSettings['globalCookiesDomain'];
-
-	// Globalize cookies across domains (filter out IP-addresses)?
-	elseif ($global && preg_match('~^\d{1,3}(\.\d{1,3}){3}$~', $parsed_url['host']) == 0 && preg_match('~(?:[^\.]+\.)?([^\.]{2,}\..+)\z~i', $parsed_url['host'], $parts) == 1)
-		$parsed_url['host'] = '.' . $parts[1];
-
-	// We shouldn't use a host at all if both options are off.
-	elseif (!$local && !$global)
-		$parsed_url['host'] = '';
-
-	// The host also shouldn't be set if there aren't any dots in it.
-	elseif (!isset($parsed_url['host']) || strpos($parsed_url['host'], '.') === false)
-		$parsed_url['host'] = '';
-
-	return array($parsed_url['host'], $parsed_url['path'] . '/');
-}
+// Some functions have moved.
+class_exists('SMF\\Cookie');
 
 /**
  * Throws guests out to the login screen when guest access is off.
@@ -709,44 +533,6 @@ function rebuildModCache()
 }
 
 /**
- * A wrapper for setcookie that gives integration hook access to it
- *
- * @param string $name
- * @param string $value = ''
- * @param int $expire = 0
- * @param string $path = ''
- * @param string $domain = ''
- * @param bool $secure = false
- * @param bool $httponly = true
- * @param string $samesite = lax
- */
-function smf_setcookie($name, $value = '', $expire = 0, $path = '', $domain = '', $secure = null, $httponly = true, $samesite = null)
-{
-	// In case a customization wants to override the default settings
-	if ($httponly === null)
-		$httponly = !empty(Config::$modSettings['httponlyCookies']);
-	if ($secure === null)
-		$secure = !empty(Config::$modSettings['secureCookies']);
-	if ($samesite === null)
-		$samesite = !empty(Config::$modSettings['samesiteCookies']) ? Config::$modSettings['samesiteCookies'] : 'lax';
-
-	// Intercept cookie?
-	call_integration_hook('integrate_cookie', array($name, $value, $expire, $path, $domain, $secure, $httponly, $samesite));
-
-	if(PHP_VERSION_ID < 70300)
-		return setcookie($name, $value, $expire, $path . ';samesite=' . $samesite, $domain, $secure, $httponly);
-	else
-		return setcookie($name, $value, array(
-			'expires' 	=> $expire,
-			'path'		=> $path,
-			'domain' 	=> $domain,
-			'secure'	=> $secure,
-			'httponly'	=> $httponly,    
-			'samesite'	=> $samesite
-		));
-}
-
-/**
  * Hashes username with password
  *
  * @param string $username The username
@@ -761,22 +547,6 @@ function hash_password($username, $password, $cost = null)
 	return password_hash(Utils::strtolower($username) . $password, PASSWORD_BCRYPT, array(
 		'cost' => $cost,
 	));
-}
-
-/**
- * Hashes password with salt and authentication secret. This is solely used for cookies.
- *
- * @param string $password The password
- * @param string $salt The salt
- * @return string The hashed password
- */
-function hash_salt($password, $salt)
-{
-	// Append the salt to get a user-specific authentication secret.
-	$secret_key = Config::getAuthSecret() . $salt;
-
-	// Now use that to generate an HMAC of the password.
-	return hash_hmac('sha512', $password, $secret_key);
 }
 
 /**

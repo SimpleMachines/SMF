@@ -16,6 +16,7 @@ namespace SMF\Actions;
 use SMF\BackwardCompatibility;
 
 use SMF\Config;
+use SMF\Cookie;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
@@ -95,7 +96,7 @@ class LoginTFA extends Login2
 			{
 				User::updateMemberData($member['id_member'], array('last_login' => time()));
 
-				setTFACookie(3153600, $member['id_member'], hash_salt($member['tfa_backup'], $member['password_salt']));
+				Cookie::setTFACookie(3153600, $member['id_member'], Cookie::encrypt($member['tfa_backup'], $member['password_salt']));
 
 				redirectexit();
 			}
@@ -126,7 +127,7 @@ class LoginTFA extends Login2
 					'last_login' => time(),
 				));
 
-				setTFACookie(3153600, $member['id_member'], hash_salt($member['tfa_backup'], $member['password_salt']));
+				Cookie::setTFACookie(3153600, $member['id_member'], Cookie::encrypt($member['tfa_backup'], $member['password_salt']));
 
 				redirectexit('action=profile;area=tfasetup;backup');
 			}

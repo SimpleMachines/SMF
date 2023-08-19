@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Cookie;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Menu;
@@ -410,15 +411,13 @@ class Server implements ActionInterface
 			{
 				$original_session_id = Utils::$context['session_id'];
 
-				include_once(Config::$sourcedir . '/Subs-Auth.php');
-
 				// Remove the old cookie.
-				setLoginCookie(-3600, 0);
+				Cookie::setLoginCookie(-3600, 0);
 
 				// Set the new one.
 				Config::$cookiename = !empty($_POST['cookiename']) ? $_POST['cookiename'] : Config::$cookiename;
 
-				setLoginCookie(60 * Config::$modSettings['cookieTime'], User::$me->id, hash_salt(User::$me->passwd, User::$me->password_salt));
+				Cookie::setLoginCookie(60 * Config::$modSettings['cookieTime'], User::$me->id, Cookie::encrypt(User::$me->passwd, User::$me->password_salt));
 
 				redirectexit('action=admin;area=serversettings;sa=cookie;' . Utils::$context['session_var'] . '=' . $original_session_id, Utils::$context['server']['needs_login_fix']);
 			}
