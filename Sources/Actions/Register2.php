@@ -544,7 +544,7 @@ class Register2 extends Register
 			$reg_errors[] = array('lang', 'profile_error_bad_email');
 		}
 
-		$username_validation_errors = validateUsername(0, $reg_options['username'], true, !empty($reg_options['check_reserved_name']));
+		$username_validation_errors = User::validateUsername(0, $reg_options['username'], true, !empty($reg_options['check_reserved_name']));
 
 		if (!empty($username_validation_errors))
 			$reg_errors = array_merge($reg_errors, $username_validation_errors);
@@ -576,7 +576,7 @@ class Register2 extends Register
 		// Now perform hard password validation as required.
 		if (!empty($reg_options['check_password_strength']) && $reg_options['password'] != '')
 		{
-			$password_error = validatePassword($reg_options['password'], $reg_options['username'], array($reg_options['email']));
+			$password_error = User::validatePassword($reg_options['password'], $reg_options['username'], array($reg_options['email']));
 
 			// Password isn't legal?
 			if ($password_error != null)

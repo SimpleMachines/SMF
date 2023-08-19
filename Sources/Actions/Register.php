@@ -334,7 +334,7 @@ class Register implements ActionInterface
 		Utils::$context['checked_username'] = trim(Utils::normalizeSpaces(Utils::sanitizeChars(Utils::$context['checked_username'], 1, ' '), true, true, array('no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true)));
 
 		require_once(Config::$sourcedir . '/Subs-Auth.php');
-		$errors = validateUsername(0, Utils::$context['checked_username'], true);
+		$errors = User::validateUsername(0, Utils::$context['checked_username'], true);
 
 		Utils::$context['valid_username'] = empty($errors);
 	}

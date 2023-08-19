@@ -581,9 +581,6 @@ class Profile extends User implements \ArrayAccess
 				{
 					if (allowedTo('admin_forum'))
 					{
-						// We'll need this...
-						require_once(Config::$sourcedir . '/Subs-Auth.php');
-
 						// Maybe they are trying to change their password as well?
 						$resetPassword = true;
 
@@ -592,7 +589,7 @@ class Profile extends User implements \ArrayAccess
 							&& $_POST['passwrd1'] != ''
 							&& isset($_POST['passwrd2'])
 							&& $_POST['passwrd1'] == $_POST['passwrd2']
-							&& validatePassword(Utils::htmlspecialcharsDecode($_POST['passwrd1']), $value, array($this->name, User::$me->username, User::$me->name, User::$me->email)) == null
+							&& User::validatePassword(Utils::htmlspecialcharsDecode($_POST['passwrd1']), $value, array($this->name, User::$me->username, User::$me->name, User::$me->email)) == null
 						)
 						{
 							$resetPassword = false;
@@ -605,7 +602,7 @@ class Profile extends User implements \ArrayAccess
 						}
 						elseif ($value !== null)
 						{
-							validateUsername($this->id, trim(Utils::normalizeSpaces(Utils::sanitizeChars($value, 1, ' '), true, true, array('no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true))));
+							User::validateUsername($this->id, trim(Utils::normalizeSpaces(Utils::sanitizeChars($value, 1, ' '), true, true, array('no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true))));
 
 							User::updateMemberData($this->id, array('member_name' => $value));
 
@@ -636,9 +633,7 @@ class Profile extends User implements \ArrayAccess
 						return 'bad_new_password';
 
 					// Let's get the validation function into play...
-					require_once(Config::$sourcedir . '/Subs-Auth.php');
-
-					$passwordErrors = validatePassword(Utils::htmlspecialcharsDecode($value), $this->username, array($this->name, User::$me->username, User::$me->name, User::$me->email));
+					$passwordErrors = User::validatePassword(Utils::htmlspecialcharsDecode($value), $this->username, array($this->name, User::$me->username, User::$me->name, User::$me->email));
 
 					// Were there errors?
 					if ($passwordErrors != null)

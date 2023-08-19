@@ -14,7 +14,6 @@
  */
 
 use SMF\Config;
-use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\SecurityToken;
@@ -28,6 +27,7 @@ if (!defined('SMF'))
 
 // Some functions have moved.
 class_exists('SMF\\Cookie');
+class_exists('SMF\\User');
 class_exists('SMF\\Actions\\Admin');
 
 /**
@@ -201,7 +201,7 @@ function resetPassword($memID, $username = null)
 	// Do some checks on the username if needed.
 	if ($username !== null)
 	{
-		validateUsername($memID, $user);
+		User::validateUsername($memID, $user);
 
 		// Update the database...
 		User::updateMemberData($memID, array('member_name' => $user, 'passwd' => $newPassword_sha1));
@@ -220,100 +220,6 @@ function resetPassword($memID, $username = null)
 
 	// Send them the email informing them of the change - then we're done!
 	Mail::send($email, $emaildata['subject'], $emaildata['body'], null, 'chgpass' . $memID, $emaildata['is_html'], 0);
-}
-
-/**
- * Checks a username obeys a load of rules
- *
- * @param int $memID The ID of the member
- * @param string $username The username to validate
- * @param boolean $return_error Whether to return errors
- * @param boolean $check_reserved_name Whether to check this against the list of reserved names
- * @return array|null Null if there are no errors, otherwise an array of errors if return_error is true
- */
-function validateUsername($memID, $username, $return_error = false, $check_reserved_name = true)
-{
-	$errors = array();
-
-	// Don't use too long a name.
-	if (Utils::entityStrlen($username) > 25)
-		$errors[] = array('lang', 'error_long_name');
-
-	// No name?!  How can you register with no name?
-	if ($username == '')
-		$errors[] = array('lang', 'need_username');
-
-	// Only these characters are permitted.
-	if (in_array($username, array('_', '|')) || preg_match('~[<>&"\'=\\\\]~', preg_replace('~&#(?:\\d{1,7}|x[0-9a-fA-F]{1,6});~', '', $username)) != 0 || strpos($username, '[code') !== false || strpos($username, '[/code') !== false)
-		$errors[] = array('lang', 'error_invalid_characters_username');
-
-	if (stristr($username, Lang::$txt['guest_title']) !== false)
-		$errors[] = array('lang', 'username_reserved', 'general', array(Lang::$txt['guest_title']));
-
-	if ($check_reserved_name)
-	{
-		if (User::isReservedName($username, $memID, false))
-			$errors[] = array('done', '(' . Utils::htmlspecialchars($username) . ') ' . Lang::$txt['name_in_use']);
-	}
-
-	// Maybe a mod wants to perform more checks?
-	call_integration_hook('integrate_validate_username', array($username, &$errors));
-
-	if ($return_error)
-		return $errors;
-	elseif (empty($errors))
-		return null;
-
-	Lang::load('Errors');
-	$error = $errors[0];
-
-	$message = $error[0] == 'lang' ? (empty($error[3]) ? Lang::$txt[$error[1]] : vsprintf(Lang::$txt[$error[1]], (array) $error[3])) : $error[1];
-	ErrorHandler::fatal($message, empty($error[2]) || User::$me->is_admin ? false : $error[2]);
-}
-
-/**
- * Checks whether a password meets the current forum rules
- * - called when registering/choosing a password.
- * - checks the password obeys the current forum settings for password strength.
- * - if password checking is enabled, will check that none of the words in restrict_in appear in the password.
- * - returns an error identifier if the password is invalid, or null.
- *
- * @param string $password The desired password
- * @param string $username The username
- * @param array $restrict_in An array of restricted strings that cannot be part of the password (email address, username, etc.)
- * @return null|string Null if valid or a string indicating what the problem was
- */
-function validatePassword($password, $username, $restrict_in = array())
-{
-	// Perform basic requirements first.
-	if (Utils::entityStrlen($password) < (empty(Config::$modSettings['password_strength']) ? 4 : 8))
-		return 'short';
-
-	// Maybe we need some more fancy password checks.
-	$pass_error = '';
-	call_integration_hook('integrate_validatePassword', array($password, $username, $restrict_in, &$pass_error));
-	if (!empty($pass_error))
-		return $pass_error;
-
-	// Is this enough?
-	if (empty(Config::$modSettings['password_strength']))
-		return null;
-
-	// Otherwise, perform the medium strength test - checking if password appears in the restricted string.
-	if (preg_match('~\b' . preg_quote($password, '~') . '\b~', implode(' ', $restrict_in)) != 0)
-		return 'restricted_words';
-	elseif (Utils::entityStrpos($password, $username) !== false)
-		return 'restricted_words';
-
-	// If just medium, we're done.
-	if (Config::$modSettings['password_strength'] == 1)
-		return null;
-
-	// Otherwise, hard test next, check for numbers and letters, uppercase too.
-	$good = preg_match('~(\D\d|\d\D)~', $password) != 0;
-	$good &= Utils::strtolower($password) != $password;
-
-	return $good ? null : 'chars';
 }
 
 /**
