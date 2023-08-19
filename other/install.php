@@ -12,6 +12,7 @@
  */
 
 use SMF\Config;
+use SMF\Cookie;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Logging;
@@ -1748,7 +1749,7 @@ function DeleteInstall()
 
 	// Automatically log them in ;)
 	if (isset($incontext['member_id']) && isset($incontext['member_salt']))
-		setLoginCookie(3153600 * 60, $incontext['member_id'], hash_salt($_POST['password1'], $incontext['member_salt']));
+		Cookie::setLoginCookie(3153600 * 60, $incontext['member_id'], Cookie::encrypt($_POST['password1'], $incontext['member_salt']));
 
 	$result = Db::$db->query('', '
 		SELECT value

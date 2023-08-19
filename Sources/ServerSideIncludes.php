@@ -1657,9 +1657,8 @@ class ServerSideIncludes
 		{
 			$_COOKIE['guest_poll_vote'] = !empty($_COOKIE['guest_poll_vote']) ? ($_COOKIE['guest_poll_vote'] . ',' . $row['id_poll']) : $row['id_poll'];
 
-			require_once(Config::$sourcedir . '/Subs-Auth.php');
-			$cookie_url = url_parts(!empty(Config::$modSettings['localCookies']), !empty(Config::$modSettings['globalCookies']));
-			smf_setcookie('guest_poll_vote', $_COOKIE['guest_poll_vote'], time() + 2500000, $cookie_url[1], $cookie_url[0], false, false);
+			$cookie = new Cookie('guest_poll_vote', $_COOKIE['guest_poll_vote'], time() + 2500000);
+			$cookie->set();
 		}
 
 		redirectexit('topic=' . $row['id_topic'] . '.0');

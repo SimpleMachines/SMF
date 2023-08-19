@@ -16,6 +16,7 @@ namespace SMF\Actions;
 use SMF\BackwardCompatibility;
 
 use SMF\Config;
+use SMF\Cookie;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\SecurityToken;
@@ -154,10 +155,10 @@ class Login2 implements ActionInterface
 		if (!empty(Config::$modSettings['tfa_mode']) && !empty($_COOKIE[Config::$cookiename . '_tfa']))
 		{
 			list(,, $exp) = Utils::jsonDecode($_COOKIE[Config::$cookiename . '_tfa'], true);
-			setTFACookie((int) $exp - time(), User::$me->password_salt, hash_salt(User::$me->tfa_backup, User::$me->password_salt));
+			Cookie::setTFACookie((int) $exp - time(), User::$me->password_salt, Cookie::encrypt(User::$me->tfa_backup, User::$me->password_salt));
 		}
 
-		setLoginCookie((int) $timeout - time(), User::$me->id, hash_salt(User::$me->passwd, User::$me->password_salt));
+		Cookie::setLoginCookie((int) $timeout - time(), User::$me->id, Cookie::encrypt(User::$me->passwd, User::$me->password_salt));
 
 		redirectexit('action=login2;sa=check;member=' . User::$me->id, Utils::$context['server']['needs_login_fix']);
 	}
@@ -428,8 +429,7 @@ class Login2 implements ActionInterface
 		// Only if they're not validating for 2FA
 		if (!$tfa)
 		{
-			require_once(Config::$sourcedir . '/Subs-Auth.php');
-			setLoginCookie(-3600, 0);
+			Cookie::setLoginCookie(-3600, 0);
 
 			if (isset($_SESSION['login_' . Config::$cookiename]))
 				unset($_SESSION['login_' . Config::$cookiename]);
@@ -795,9 +795,6 @@ class Login2 implements ActionInterface
 	 */
 	protected function DoLogin()
 	{
-		// Load cookie authentication stuff.
-		require_once(Config::$sourcedir . '/Subs-Auth.php');
-
 		// Call login integration functions.
 		call_integration_hook('integrate_login', array(User::$profiles[User::$my_id]['member_name'], null, Config::$modSettings['cookieTime']));
 
@@ -805,7 +802,7 @@ class Login2 implements ActionInterface
 		User::setMe(User::$my_id);
 
 		// Bam!  Cookie set.  A session too, just in case.
-		setLoginCookie(60 * Config::$modSettings['cookieTime'], User::$me->id, hash_salt(User::$me->passwd, User::$me->password_salt));
+		Cookie::setLoginCookie(60 * Config::$modSettings['cookieTime'], User::$me->id, Cookie::encrypt(User::$me->passwd, User::$me->password_salt));
 
 		// Reset the login threshold.
 		if (isset($_SESSION['failed_login']))

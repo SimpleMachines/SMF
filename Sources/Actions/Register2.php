@@ -16,6 +16,7 @@ namespace SMF\Actions;
 use SMF\BackwardCompatibility;
 
 use SMF\Config;
+use SMF\Cookie;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Logging;
@@ -457,7 +458,7 @@ class Register2 extends Register
 		{
 			call_integration_hook('integrate_activate', array($reg_options['username']));
 
-			setLoginCookie(60 * Config::$modSettings['cookieTime'], $member_id, hash_salt($reg_options['register_vars']['passwd'], $reg_options['register_vars']['password_salt']));
+			Cookie::setLoginCookie(60 * Config::$modSettings['cookieTime'], $member_id, Cookie::encrypt($reg_options['register_vars']['passwd'], $reg_options['register_vars']['password_salt']));
 
 			redirectexit('action=login2;sa=check;member=' . $member_id, Utils::$context['server']['needs_login_fix']);
 		}
