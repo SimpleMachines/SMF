@@ -435,11 +435,12 @@ function banPermissions()
 	// @todo Find a better place to call this? Needs to be after permissions loaded!
 	// Finally, some bits we cache in the session because it saves queries.
 	if (isset($_SESSION['mc']) && $_SESSION['mc']['time'] > Config::$modSettings['settings_updated'] && $_SESSION['mc']['id'] == User::$me->id)
+	{
 		User::$me->mod_cache = $_SESSION['mc'];
+	}
 	else
 	{
-		require_once(Config::$sourcedir . '/Subs-Auth.php');
-		rebuildModCache();
+		User::$me->rebuildModCache();
 	}
 
 	// Now that we have the mod cache taken care of lets setup a cache for the number of mod reports still open
