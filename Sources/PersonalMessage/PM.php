@@ -874,8 +874,6 @@ class PM implements \ArrayAccess
 	{
 		isAllowedTo('pm_send');
 
-		require_once(Config::$sourcedir . '/Subs-Auth.php');
-
 		// PM Drafts enabled and needed?
 		if (Utils::$context['drafts_save'] && (isset($_POST['save_draft']) || isset($_POST['id_draft'])))
 		{
@@ -975,7 +973,7 @@ class PM implements \ArrayAccess
 
 				if (!empty($namedRecipientList[$recipientType]))
 				{
-					$foundMembers = findMembers($namedRecipientList[$recipientType]);
+					$foundMembers = User::find($namedRecipientList[$recipientType]);
 
 					// Assume all are not found, until proven otherwise.
 					$namesNotFound[$recipientType] = $namedRecipientList[$recipientType];
