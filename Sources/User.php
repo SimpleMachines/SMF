@@ -2532,6 +2532,126 @@ class User implements \ArrayAccess
 	}
 
 	/**
+	 * Checks whether a password meets the current forum rules.
+	 *
+	 * Called when registering and when choosing a new password in the profile.
+	 *
+	 * If password checking is enabled, will check that none of the words in
+	 * $restrict_in appear in the password.
+	 *
+	 * Returns an error identifier if the password is invalid, or null if valid.
+	 *
+	 * @param string $password The desired password.
+	 * @param string $username The username.
+	 * @param array $restrict_in An array of restricted strings that cannot be
+	 *    part of the password (email address, username, etc.)
+	 * @return null|string Null if valid or a string indicating the problem.
+	 */
+	public static function validatePassword(string $password, string $username, array $restrict_in = array()): null|string
+	{
+		// Perform basic requirements first.
+		if (Utils::entityStrlen($password) < (empty(Config::$modSettings['password_strength']) ? 4 : 8))
+		{
+			return 'short';
+		}
+
+		// Maybe we need some more fancy password checks.
+		$pass_error = '';
+
+		call_integration_hook('integrate_validatePassword', array($password, $username, $restrict_in, &$pass_error));
+
+		if (!empty($pass_error))
+			return $pass_error;
+
+		// Is this enough?
+		if (empty(Config::$modSettings['password_strength']))
+			return null;
+
+		// Otherwise, perform the medium strength test - checking if password appears in the restricted string.
+		if (!preg_match('~\b' . preg_quote($password, '~') . '\b~', implode(' ', $restrict_in)))
+			return 'restricted_words';
+
+		if (Utils::entityStrpos($password, $username) !== false)
+			return 'restricted_words';
+
+		// If just medium, we're done.
+		if (Config::$modSettings['password_strength'] == 1)
+			return null;
+
+		// Check for both numbers and letters.
+		$good = preg_match('~\p{N}~u', $password) && preg_match('~\p{L}~u', $password);
+
+		// If there are any letters from bicameral scripts (Latin, Greek, etc.),
+		// check that there are both lowercase and uppercase letters present.
+		// Note: If the password only contains letters from a unicameral script
+		// (Arabic, Thai, etc.), this requirement is not applicable.
+		if (Utils::strtoupper($password) !== ($lower_password = Utils::strtolower($password)))
+			$good &= $password !== $lower_password;
+
+		return $good ? null : 'chars';
+	}
+
+	/**
+	 * Checks whether a username obeys a load of rules.
+	 *
+	 * @param string $username The username to validate.
+	 * @param bool $return_error Whether to return errors.
+	 * @param bool $check_reserved_name Whether to check this against the list
+	 *    of reserved names.
+	 * @return array|null Null if there are no errors, otherwise an array of
+	 *    errors if $return_error is true.
+	 */
+	public static function validateUsername(int $memID, string $username, bool $return_error = false, bool $check_reserved_name = true): array|null
+	{
+		$errors = array();
+
+		// Don't use too long a name.
+		if (Utils::entityStrlen($username) > 25)
+			$errors[] = array('lang', 'error_long_name');
+
+		// No name?!  How can you register with no name?
+		if ($username == '')
+			$errors[] = array('lang', 'need_username');
+
+		// Only these characters are permitted.
+		if (
+			in_array($username, array('_', '|'))
+			|| strpos($username, '[code') !== false
+			|| strpos($username, '[/code') !== false
+			|| preg_match('~[<>&"\'=\\\\]~', preg_replace('~&#(?:\\d{1,7}|x[0-9a-fA-F]{1,6});~', '', $username))
+		)
+		{
+			$errors[] = array('lang', 'error_invalid_characters_username');
+		}
+
+		if (stristr($username, Lang::$txt['guest_title']) !== false)
+		{
+			$errors[] = array('lang', 'username_reserved', 'general', array(Lang::$txt['guest_title']));
+		}
+
+		if ($check_reserved_name && User::isReservedName($username, $memID, false))
+		{
+			$errors[] = array('done', '(' . Utils::htmlspecialchars($username) . ') ' . Lang::$txt['name_in_use']);
+		}
+
+		// Maybe a mod wants to perform more checks?
+		call_integration_hook('integrate_validate_username', array($username, &$errors));
+
+		if ($return_error)
+			return $errors;
+
+		if (empty($errors))
+			return null;
+
+		Lang::load('Errors');
+		$error = $errors[0];
+
+		$message = $error[0] == 'lang' ? (empty($error[3]) ? Lang::$txt[$error[1]] : vsprintf(Lang::$txt[$error[1]], (array) $error[3])) : $error[1];
+
+		ErrorHandler::fatal($message, empty($error[2]) || User::$me->is_admin ? false : $error[2]);
+	}
+
+	/**
 	 * Check if a name is in the reserved words list.
 	 * (name, current member id, name/username?.)
 	 * - checks if name is a reserved name or username.

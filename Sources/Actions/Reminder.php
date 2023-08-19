@@ -243,8 +243,7 @@ class Reminder implements ActionInterface
 		$this->loadMember();
 
 		// Is the password actually valid?
-		require_once(Config::$sourcedir . '/Subs-Auth.php');
-		$passwordError = validatePassword($_POST['passwrd1'], $this->member->username, array($this->member->email));
+		$passwordError = User::validatePassword($_POST['passwrd1'], $this->member->username, array($this->member->email));
 
 		// What - it's not?
 		if ($passwordError != null)
@@ -374,8 +373,7 @@ class Reminder implements ActionInterface
 			ErrorHandler::fatalLang('passwords_dont_match', false);
 
 		// Make sure they have a strong enough password.
-		require_once(Config::$sourcedir . '/Subs-Auth.php');
-		$passwordError = validatePassword($_POST['passwrd1'], $this->member->username, array($this->member->email));
+		$passwordError = User::validatePassword($_POST['passwrd1'], $this->member->username, array($this->member->email));
 
 		// Invalid?
 		if ($passwordError != null)
