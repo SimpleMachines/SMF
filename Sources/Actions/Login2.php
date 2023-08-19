@@ -635,13 +635,6 @@ class Login2 implements ActionInterface
 			}
 		}
 
-		// SMF's sha1 function can give a funny result on Linux (Not our fault!). If we've now got the real one let the old one be valid!
-		if (stripos(PHP_OS, 'win') !== 0 && strlen(User::$profiles[User::$my_id]['passwd']) < hash_length())
-		{
-			require_once(Config::$sourcedir . '/Subs-Compat.php');
-			$other_passwords[] = sha1_smf(strtolower(User::$profiles[User::$my_id]['member_name']) . Utils::htmlspecialcharsDecode($_POST['passwrd']));
-		}
-
 		// Allows mods to easily extend the $other_passwords array
 		call_integration_hook('integrate_other_passwords', array(&$other_passwords));
 

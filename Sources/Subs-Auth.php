@@ -190,16 +190,6 @@ function hash_verify_password($username, $password, $hash)
 }
 
 /**
- * Returns the length for current hash
- *
- * @return int The length for the current hash
- */
-function hash_length()
-{
-	return 60;
-}
-
-/**
  * Benchmarks the server to figure out an appropriate cost factor (minimum 9)
  *
  * @param float $hashTime Time to target, in seconds
