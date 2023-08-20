@@ -266,6 +266,31 @@ class Forum
 		obExit(null, null, true);
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
+	/**
+	 * Display a message about the forum being in maintenance mode.
+	 * - display a login screen with sub template 'maintenance'.
+	 * - sends a 503 header, so search engines don't bother indexing while we're in maintenance mode.
+	 */
+	public static function inMaintenance()
+	{
+		Lang::load('Login');
+		Theme::loadTemplate('Login');
+		SecurityToken::create('login');
+
+		// Send a 503 header, so search engines don't bother indexing while we're in maintenance mode.
+		send_http_status(503, 'Service Temporarily Unavailable');
+
+		// Basic template stuff..
+		Utils::$context['sub_template'] = 'maintenance';
+		Utils::$context['title'] = Utils::htmlspecialchars(Config::$mtitle);
+		Utils::$context['description'] = &Config::$mmessage;
+		Utils::$context['page_title'] = Lang::$txt['maintain_mode'];
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
@@ -344,7 +369,9 @@ class Forum
 			}
 			// Don't even try it, sonny.
 			else
-				return 'InMaintenance';
+			{
+				return __CLASS__ . '::inMaintenance';
+			}
 		}
 		// If guest access is off, a guest can only do one of the very few following actions.
 		elseif (empty(Config::$modSettings['allow_guestAccess']) && User::$me->is_guest && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], self::$guest_access_actions)))
