@@ -24,6 +24,7 @@ if (!defined('SMF'))
 
 // Some functions have moved.
 class_exists('SMF\\Cookie');
+class_exists('SMF\\Forum');
 class_exists('SMF\\User');
 class_exists('SMF\\Actions\\Admin');
 
@@ -45,27 +46,6 @@ function KickGuest()
 
 	Utils::$context['sub_template'] = 'kick_guest';
 	Utils::$context['page_title'] = Lang::$txt['login'];
-}
-
-/**
- * Display a message about the forum being in maintenance mode.
- * - display a login screen with sub template 'maintenance'.
- * - sends a 503 header, so search engines don't bother indexing while we're in maintenance mode.
- */
-function InMaintenance()
-{
-	Lang::load('Login');
-	Theme::loadTemplate('Login');
-	SecurityToken::create('login');
-
-	// Send a 503 header, so search engines don't bother indexing while we're in maintenance mode.
-	send_http_status(503, 'Service Temporarily Unavailable');
-
-	// Basic template stuff..
-	Utils::$context['sub_template'] = 'maintenance';
-	Utils::$context['title'] = Utils::htmlspecialchars(Config::$mtitle);
-	Utils::$context['description'] = &Config::$mmessage;
-	Utils::$context['page_title'] = Lang::$txt['maintain_mode'];
 }
 
 /**
