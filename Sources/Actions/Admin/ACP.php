@@ -868,7 +868,7 @@ class ACP implements ActionInterface
 					continue;
 
 				// Special case for inline permissions
-				if ($config_var[0] == 'permissions' && allowedTo('manage_permissions'))
+				if ($config_var[0] == 'permissions' && User::$me->allowedTo('manage_permissions'))
 				{
 					$inlinePermissions[] = $config_var[1];
 				}
@@ -1036,7 +1036,7 @@ class ACP implements ActionInterface
 		}
 
 		// If we have inline permissions we need to prep them.
-		if (!empty($inlinePermissions) && allowedTo('manage_permissions'))
+		if (!empty($inlinePermissions) && User::$me->allowedTo('manage_permissions'))
 		{
 			Permissions::init_inline_permissions($inlinePermissions);
 		}
@@ -1483,7 +1483,7 @@ class ACP implements ActionInterface
 			Config::updateModSettings($setArray);
 
 		// If we have inline permissions we need to save them.
-		if (!empty($inlinePermissions) && allowedTo('manage_permissions'))
+		if (!empty($inlinePermissions) && User::$me->allowedTo('manage_permissions'))
 		{
 			Permissions::save_inline_permissions($inlinePermissions);
 		}
@@ -1832,8 +1832,7 @@ class ACP implements ActionInterface
 	public static function emailAdmins($template, $replacements = array(), $additional_recipients = array())
 	{
 		// Load all members which are effectively admins.
-		require_once(Config::$sourcedir . '/Subs-Members.php');
-		$members = membersAllowedTo('admin_forum');
+		$members = User::membersAllowedTo('admin_forum');
 
 		// Load their alert preferences
 		$prefs = Notify::getNotifyPrefs($members, 'announcements', true);

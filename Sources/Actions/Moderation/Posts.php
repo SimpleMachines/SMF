@@ -112,7 +112,7 @@ class Posts implements ActionInterface
 		Utils::$context['page_title'] = Lang::$txt['mc_unapproved_posts'];
 
 		// Work out what boards we can work in!
-		$approve_boards = boardsAllowedTo('approve_posts');
+		$approve_boards = User::$me->boardsAllowedTo('approve_posts');
 
 		// If we filtered by board remove ones outside of this board.
 		// @todo Put a message saying we're filtered?
@@ -138,7 +138,7 @@ class Posts implements ActionInterface
 		}
 
 		// We also need to know where we can delete topics and/or replies to.
-		$boards_can = boardsAllowedTo(array('remove_any', 'remove_own', 'delete_own', 'delete_any', 'delete_own_replies'), true, false);
+		$boards_can = User::$me->boardsAllowedTo(array('remove_any', 'remove_own', 'delete_own', 'delete_any', 'delete_own_replies'), true, false);
 
 		if (Utils::$context['current_view'] == 'topics')
 		{
@@ -460,7 +460,7 @@ class Posts implements ActionInterface
 		Utils::$context['page_title'] = Lang::$txt['mc_unapproved_attachments'];
 
 		// Once again, permissions are king!
-		$approve_boards = boardsAllowedTo('approve_posts');
+		$approve_boards = User::$me->boardsAllowedTo('approve_posts');
 
 		if ($approve_boards == array(0))
 		{
@@ -700,7 +700,7 @@ class Posts implements ActionInterface
 
 		$_REQUEST['msg'] = (int) $_REQUEST['msg'];
 
-		isAllowedTo('approve_posts');
+		User::$me->isAllowedTo('approve_posts');
 
 		$request = Db::$db->query('', '
 			SELECT t.id_member_started, t.id_first_msg, m.id_member, m.subject, m.approved

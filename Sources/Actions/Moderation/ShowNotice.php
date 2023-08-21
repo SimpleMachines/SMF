@@ -20,6 +20,7 @@ use SMF\BBCodeParser;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -118,7 +119,7 @@ class ShowNotice implements ActionInterface
 	protected function __construct()
 	{
 		// Before we get too excited, is the current user allowed to see this?
-		isAllowedTo(array('issue_warning', 'view_warning_any'));
+		User::$me->isAllowedTo(array('issue_warning', 'view_warning_any'));
 
 		Utils::$context['page_title'] = Lang::$txt['show_notice'];
 		Utils::$context['sub_template'] = 'show_notice';

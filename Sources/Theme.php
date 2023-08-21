@@ -222,10 +222,10 @@ class Theme
 			}
 
 			// Sometimes the user can choose their own theme.
-			if (!empty(Config::$modSettings['theme_allow']) || allowedTo('admin_forum'))
+			if (!empty(Config::$modSettings['theme_allow']) || User::$me->allowedTo('admin_forum'))
 			{
 				// The theme was specified by REQUEST.
-				if (!empty($_REQUEST['theme']) && (allowedTo('admin_forum') || in_array($_REQUEST['theme'], explode(',', Config::$modSettings['knownThemes']))))
+				if (!empty($_REQUEST['theme']) && (User::$me->allowedTo('admin_forum') || in_array($_REQUEST['theme'], explode(',', Config::$modSettings['knownThemes']))))
 				{
 					$id = (int) $_REQUEST['theme'];
 					$_SESSION['id_theme'] = $id;
@@ -455,7 +455,7 @@ class Theme
 		}
 
 		// Are we showing debugging for templates?  Just make sure not to do it before the doctype...
-		if (allowedTo('admin_forum') && isset($_REQUEST['debug']) && !in_array($sub_template_name, array('init', 'main_below')) && ob_get_length() > 0 && !isset($_REQUEST['xml']))
+		if (User::$me->allowedTo('admin_forum') && isset($_REQUEST['debug']) && !in_array($sub_template_name, array('init', 'main_below')) && ob_get_length() > 0 && !isset($_REQUEST['xml']))
 		{
 			echo "\n" . '<div class="noticebox">---- ', $sub_template_name, ' ends ----</div>';
 		}
@@ -836,7 +836,7 @@ class Theme
 
 			$_SESSION['unread_messages'] = User::$me->unread_messages;
 
-			if (allowedTo('moderate_forum'))
+			if (User::$me->allowedTo('moderate_forum'))
 			{
 				Utils::$context['unapproved_members'] = !empty(Config::$modSettings['unapprovedMembers']) ? Config::$modSettings['unapprovedMembers'] : 0;
 			}
@@ -960,25 +960,25 @@ class Theme
 	public static function setupMenuContext()
 	{
 		// Set up the menu privileges.
-		Utils::$context['allow_search'] = !empty(Config::$modSettings['allow_guestAccess']) ? allowedTo('search_posts') : (!User::$me->is_guest && allowedTo('search_posts'));
-		Utils::$context['allow_admin'] = allowedTo(array('admin_forum', 'manage_boards', 'manage_permissions', 'moderate_forum', 'manage_membergroups', 'manage_bans', 'send_mail', 'edit_news', 'manage_attachments', 'manage_smileys'));
+		Utils::$context['allow_search'] = !empty(Config::$modSettings['allow_guestAccess']) ? User::$me->allowedTo('search_posts') : (!User::$me->is_guest && User::$me->allowedTo('search_posts'));
+		Utils::$context['allow_admin'] = User::$me->allowedTo(array('admin_forum', 'manage_boards', 'manage_permissions', 'moderate_forum', 'manage_membergroups', 'manage_bans', 'send_mail', 'edit_news', 'manage_attachments', 'manage_smileys'));
 
-		Utils::$context['allow_memberlist'] = allowedTo('view_mlist');
-		Utils::$context['allow_calendar'] = allowedTo('calendar_view') && !empty(Config::$modSettings['cal_enabled']);
+		Utils::$context['allow_memberlist'] = User::$me->allowedTo('view_mlist');
+		Utils::$context['allow_calendar'] = User::$me->allowedTo('calendar_view') && !empty(Config::$modSettings['cal_enabled']);
 		Utils::$context['allow_moderation_center'] = User::$me->can_mod;
-		Utils::$context['allow_pm'] = allowedTo('pm_read');
+		Utils::$context['allow_pm'] = User::$me->allowedTo('pm_read');
 
 		$cacheTime = Config::$modSettings['lastActive'] * 60;
 
 		// Initial "can you post an event in the calendar" option - but this might have been set in the calendar already.
 		if (!isset(Utils::$context['allow_calendar_event']))
 		{
-			Utils::$context['allow_calendar_event'] = Utils::$context['allow_calendar'] && allowedTo('calendar_post');
+			Utils::$context['allow_calendar_event'] = Utils::$context['allow_calendar'] && User::$me->allowedTo('calendar_post');
 
 			// If you don't allow events not linked to posts and you're not an admin, we have more work to do...
 			if (Utils::$context['allow_calendar'] && Utils::$context['allow_calendar_event'] && empty(Config::$modSettings['cal_allow_unlinked']) && !User::$me->is_admin)
 			{
-				$boards_can_post = boardsAllowedTo('post_new');
+				$boards_can_post = User::$me->boardsAllowedTo('post_new');
 				Utils::$context['allow_calendar_event'] &= !empty($boards_can_post);
 			}
 		}
@@ -1032,22 +1032,22 @@ class Theme
 						'featuresettings' => array(
 							'title' => Lang::$txt['modSettings_title'],
 							'href' => Config::$scripturl . '?action=admin;area=featuresettings',
-							'show' => allowedTo('admin_forum'),
+							'show' => User::$me->allowedTo('admin_forum'),
 						),
 						'packages' => array(
 							'title' => Lang::$txt['package'],
 							'href' => Config::$scripturl . '?action=admin;area=packages',
-							'show' => allowedTo('admin_forum'),
+							'show' => User::$me->allowedTo('admin_forum'),
 						),
 						'errorlog' => array(
 							'title' => Lang::$txt['errorlog'],
 							'href' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog;desc',
-							'show' => allowedTo('admin_forum') && !empty(Config::$modSettings['enableErrorLogging']),
+							'show' => User::$me->allowedTo('admin_forum') && !empty(Config::$modSettings['enableErrorLogging']),
 						),
 						'permissions' => array(
 							'title' => Lang::$txt['edit_permissions'],
 							'href' => Config::$scripturl . '?action=admin;area=permissions',
-							'show' => allowedTo('manage_permissions'),
+							'show' => User::$me->allowedTo('manage_permissions'),
 						),
 						'memberapprove' => array(
 							'title' => Lang::$txt['approve_members_waiting'],
@@ -1085,7 +1085,7 @@ class Theme
 						'reported_members' => array(
 							'title' => Lang::$txt['mc_reported_members'],
 							'href' => Config::$scripturl . '?action=moderate;area=reportedmembers',
-							'show' => allowedTo('moderate_forum'),
+							'show' => User::$me->allowedTo('moderate_forum'),
 							'is_last' => true,
 						)
 					),
@@ -1385,7 +1385,7 @@ class Theme
 			self::loadSubTemplate($layer . '_above', true);
 
 			// May seem contrived, but this is done in case the body and main layer aren't there...
-			if (in_array($layer, array('body', 'main')) && allowedTo('admin_forum') && !User::$me->is_guest && !$checked_securityFiles)
+			if (in_array($layer, array('body', 'main')) && User::$me->allowedTo('admin_forum') && !User::$me->is_guest && !$checked_securityFiles)
 			{
 				$checked_securityFiles = true;
 
@@ -2066,7 +2066,7 @@ class Theme
 		// Only admins can change default values.
 		if (in_array($_REQUEST['u'], array(-1, 0)))
 		{
-			isAllowedTo('admin_forum');
+			User::$me->isAllowedTo('admin_forum');
 		}
 		// Is the ability to change themes enabled overall?
 		elseif (empty(Config::$modSettings['theme_allow']))
@@ -2076,7 +2076,7 @@ class Theme
 		// Does the current user have permission to change themes for the specified user?
 		else
 		{
-			isAllowedTo('profile_extra' . ($_REQUEST['u'] === User::$me->id ? '_own' : '_any'));
+			User::$me->isAllowedTo('profile_extra' . ($_REQUEST['u'] === User::$me->id ? '_own' : '_any'));
 		}
 
 		Lang::load('Profile');
@@ -2173,7 +2173,7 @@ class Theme
 			$request = Db::$db->query('', '
 				SELECT id_theme, variable, value
 				FROM {db_prefix}themes
-				WHERE variable IN ({literal:name}, {literal:theme_url}, {literal:theme_dir}, {literal:images_url}, {literal:disable_user_variant})' . (!allowedTo('admin_forum') ? '
+				WHERE variable IN ({literal:name}, {literal:theme_url}, {literal:theme_dir}, {literal:images_url}, {literal:disable_user_variant})' . (!User::$me->allowedTo('admin_forum') ? '
 					AND id_theme IN ({array_int:known_themes})' : '') . '
 					AND id_theme != {int:default_theme}
 					AND id_member = {int:no_member}
@@ -2299,7 +2299,7 @@ class Theme
 			// Are there any variants?
 			Utils::$context['available_themes'][$id_theme]['variants'] = array();
 
-			if (file_exists($theme_data['theme_dir'] . '/index.template.php') && (empty($theme_data['disable_user_variant']) || allowedTo('admin_forum')))
+			if (file_exists($theme_data['theme_dir'] . '/index.template.php') && (empty($theme_data['disable_user_variant']) || User::$me->allowedTo('admin_forum')))
 			{
 				$file_contents = implode('', file($theme_data['theme_dir'] . '/index.template.php'));
 
@@ -2901,7 +2901,7 @@ class Theme
 				$_SESSION['id_variant'] = $_REQUEST['variant'];
 
 			// User selection?
-			if (empty($this->settings['disable_user_variant']) || allowedTo('admin_forum'))
+			if (empty($this->settings['disable_user_variant']) || User::$me->allowedTo('admin_forum'))
 			{
 				Utils::$context['theme_variant'] = !empty($_SESSION['id_variant']) && in_array($_SESSION['id_variant'], $this->settings['theme_variants']) ? $_SESSION['id_variant'] : (!empty($this->options['theme_variant']) && in_array($this->options['theme_variant'], $this->settings['theme_variants']) ? $this->options['theme_variant'] : '');
 			}
@@ -3101,13 +3101,13 @@ class Theme
 			// And...
 			&& (
 				// Current user is an admin.
-				allowedTo('admin_forum')
+				User::$me->allowedTo('admin_forum')
 				// Or...
 				|| (
 					// The option to choose themes is enabled.
 					!empty(Config::$modSettings['theme_allow'])
 					// And current user is allowed to change profile extras of the specified user.
-					&& allowedTo(User::$me->id == $id_member ? 'profile_extra_own' : 'profile_extra_any')
+					&& User::$me->allowedTo(User::$me->id == $id_member ? 'profile_extra_own' : 'profile_extra_any')
 					// And the selected theme is known. (0 means forum default.)
 					&& in_array(
 						$id_theme,
@@ -3192,11 +3192,11 @@ class Theme
 				echo "\n\t\t" . '<meta charset="', Utils::$context['character_set'], '">';
 			}
 
-			if (!empty(Config::$maintenance) && !allowedTo('admin_forum'))
+			if (!empty(Config::$maintenance) && !User::$me->allowedTo('admin_forum'))
 			{
 				echo "\n\t\t" . '<title>', Config::$mtitle, '</title>' . "\n\t" . '</head>' . "\n\t" . '<body>'. "\n\t\t" . '<h3>', Config::$mtitle, '</h3>' . "\n\t\t", Config::$mmessage, "\n\t" . '</body>' . "\n" . '</html>';
 			}
-			elseif (!allowedTo('admin_forum'))
+			elseif (!User::$me->allowedTo('admin_forum'))
 			{
 				echo "\n\t" . '<title>', Lang::$txt['template_parse_error'], '</title>' . "\n\t" . '</head>' . "\n\t" . '<body>' . "\n\t\t" . '<h3>', Lang::$txt['template_parse_error'], '</h3>' . "\n\t\t", Lang::$txt['template_parse_error_message'], "\n\t" . '</body>' . "\n" . '</html>';
 			}

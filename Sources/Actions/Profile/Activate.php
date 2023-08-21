@@ -64,7 +64,7 @@ class Activate implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		isAllowedTo('moderate_forum');
+		User::$me->isAllowedTo('moderate_forum');
 
 		if (isset($_REQUEST['save']) && isset(Profile::$member->is_activated) && Profile::$member->is_activated != 1)
 		{

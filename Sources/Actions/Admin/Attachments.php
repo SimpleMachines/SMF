@@ -2858,7 +2858,7 @@ class Attachments implements ActionInterface
 	protected function __construct()
 	{
 		// You have to be able to moderate the forum to do this.
-		isAllowedTo('manage_attachments');
+		User::$me->isAllowedTo('manage_attachments');
 
 		// Setup the template stuff we'll probably need.
 		Theme::loadTemplate('ManageAttachments');

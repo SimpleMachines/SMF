@@ -253,7 +253,7 @@ class News extends ACP implements ActionInterface
 	public function execute(): void
 	{
 		// Have you got the proper permissions?
-		isAllowedTo(self::$subactions[$this->subaction][1]);
+		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
 		call_user_func(array($this, self::$subactions[$this->subaction][0]));
 	}
@@ -461,7 +461,7 @@ class News extends ACP implements ActionInterface
 		list (Utils::$context['groups'][3]['member_count']) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		Utils::$context['can_send_pm'] = allowedTo('pm_send');
+		Utils::$context['can_send_pm'] = User::$me->allowedTo('pm_send');
 
 		Theme::loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
 	}
@@ -1462,7 +1462,7 @@ class News extends ACP implements ActionInterface
 		call_integration_hook('integrate_manage_news', array(&self::$subactions));
 
 		// Default to sub action 'main' or 'settings' depending on permissions.
-		$this->subaction = isset($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (allowedTo('edit_news') ? 'editnews' : (allowedTo('send_mail') ? 'mailingmembers' : 'settings'));
+		$this->subaction = isset($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (User::$me->allowedTo('edit_news') ? 'editnews' : (User::$me->allowedTo('send_mail') ? 'mailingmembers' : 'settings'));
 
 		// Force the right area...
 		if (substr($this->subaction, 0, 7) == 'mailing')

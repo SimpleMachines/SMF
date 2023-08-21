@@ -100,7 +100,7 @@ class AttachmentApprove implements ActionInterface
 			ErrorHandler::fatalLang('no_access', false);
 
 		// Now we have some ID's cleaned and ready to approve, but first - let's check we have permission!
-		$allowed_boards = boardsAllowedTo('approve_posts');
+		$allowed_boards = User::$me->boardsAllowedTo('approve_posts');
 
 		// Validate the attachments exist and are the right approval state.
 		$request = Db::$db->query('', '

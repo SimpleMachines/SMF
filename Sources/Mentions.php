@@ -182,7 +182,7 @@ class Mentions
 		$possible_names = self::getPossibleMentions($body);
 		$existing_mentions = self::getExistingMentions($body);
 
-		if ((empty($possible_names) && empty($existing_mentions)) || !allowedTo('mention'))
+		if ((empty($possible_names) && empty($existing_mentions)) || !User::$me->allowedTo('mention'))
 			return array();
 
 		// Make sure we don't pass empty arrays to the query.

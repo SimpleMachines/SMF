@@ -410,17 +410,17 @@ class Topic implements \ArrayAccess
 			return $this->permissions;
 
 		foreach (self::$common_permissions as $contextual => $perm)
-			$this->permissions[$contextual] = allowedTo($perm);
+			$this->permissions[$contextual] = User::$me->allowedTo($perm);
 
 		foreach (self::$anyown_permissions as $contextual => $perm)
 		{
-			$this->permissions[$contextual] = allowedTo($perm . '_any') || (User::$me->started && allowedTo($perm . '_own'));
+			$this->permissions[$contextual] = User::$me->allowedTo($perm . '_any') || (User::$me->started && User::$me->allowedTo($perm . '_own'));
 		}
 
 		if (!User::$me->is_admin && $this->permissions['can_move'] && !Config::$modSettings['topic_move_any'])
 		{
 			// We'll use this in a minute
-			$boards_allowed = array_diff(boardsAllowedTo('post_new'), array(Board::$info->id));
+			$boards_allowed = array_diff(User::$me->boardsAllowedTo('post_new'), array(Board::$info->id));
 
 			// You can't move this unless you have permission to start new topics on at least one other board.
 			$this->permissions['can_move'] = count($boards_allowed) > 1;
@@ -429,16 +429,16 @@ class Topic implements \ArrayAccess
 		// If a topic is locked, you can't remove it unless it's yours and you locked it or you can lock_any
 		if ($this->is_locked)
 		{
-			$this->permissions['can_delete'] &= (($this->is_locked == 1 && User::$me->started) || allowedTo('lock_any'));
+			$this->permissions['can_delete'] &= (($this->is_locked == 1 && User::$me->started) || User::$me->allowedTo('lock_any'));
 		}
 
 		// Cleanup all the permissions with extra stuff...
 		$this->permissions['can_mark_notify'] = !User::$me->is_guest;
-		$this->permissions['calendar_post'] &= !empty(Config::$modSettings['cal_enabled']) && (allowedTo('modify_any') || (allowedTo('modify_own') && User::$me->started));
+		$this->permissions['calendar_post'] &= !empty(Config::$modSettings['cal_enabled']) && (User::$me->allowedTo('modify_any') || (User::$me->allowedTo('modify_own') && User::$me->started));
 		$this->permissions['can_add_poll'] &= Config::$modSettings['pollMode'] == '1' && $this->id_poll <= 0;
 		$this->permissions['can_remove_poll'] &= Config::$modSettings['pollMode'] == '1' && $this->id_poll > 0;
-		$this->permissions['can_reply'] &= empty($this->is_locked) || allowedTo('moderate_board');
-		$this->permissions['can_reply_unapproved'] &= Config::$modSettings['postmod_active'] && (empty($this->is_locked) || allowedTo('moderate_board'));
+		$this->permissions['can_reply'] &= empty($this->is_locked) || User::$me->allowedTo('moderate_board');
+		$this->permissions['can_reply_unapproved'] &= Config::$modSettings['postmod_active'] && (empty($this->is_locked) || User::$me->allowedTo('moderate_board'));
 		$this->permissions['can_issue_warning'] &= Config::$modSettings['warning_settings'][0] == 1;
 
 		// Handle approval flags...
@@ -452,18 +452,18 @@ class Topic implements \ArrayAccess
 		$this->permissions['can_print'] = empty(Config::$modSettings['disable_print_topic']);
 
 		// Start this off for quick moderation - it will be or'd for each post.
-		$this->permissions['can_remove_post'] = allowedTo('delete_any') || (allowedTo('delete_replies') && User::$me->started);
+		$this->permissions['can_remove_post'] = User::$me->allowedTo('delete_any') || (User::$me->allowedTo('delete_replies') && User::$me->started);
 
 		// Can restore topic?  That's if the topic is in the recycle board and has a previous restore state.
 		$this->permissions['can_restore_topic'] &= !empty(Board::$info->recycle) && !empty($this->id_previous_board);
 		$this->permissions['can_restore_msg'] &= !empty(Board::$info->recycle) && !empty($this->id_previous_topic);
 
 		// Check whether the draft functions are enabled and that they have permission to use them (for quick reply.)
-		$this->permissions['drafts_save'] = !empty(Config::$modSettings['drafts_post_enabled']) && allowedTo('post_draft') && $this->permissions['can_reply'];
+		$this->permissions['drafts_save'] = !empty(Config::$modSettings['drafts_post_enabled']) && User::$me->allowedTo('post_draft') && $this->permissions['can_reply'];
 		$this->permissions['drafts_autosave'] = !empty($this->permissions['drafts_save']) && !empty(Config::$modSettings['drafts_autosave_enabled']) && !empty(Theme::$current->options['drafts_autosave_enabled']);
 
 		// They can't link an existing topic to the calendar unless they can modify the first post...
-		$this->permissions['calendar_post'] &= allowedTo('modify_any') || (allowedTo('modify_own') && User::$me->started);
+		$this->permissions['calendar_post'] &= User::$me->allowedTo('modify_any') || (User::$me->allowedTo('modify_own') && User::$me->started);
 
 		// For convenience, return the permissions array.
 		return $this->permissions;
@@ -560,15 +560,15 @@ class Topic implements \ArrayAccess
 		Db::$db->free_result($request);
 
 		// Can you lock topics here, mister?
-		$user_lock = !allowedTo('lock_any');
+		$user_lock = !User::$me->allowedTo('lock_any');
 
 		if ($user_lock && $starter == User::$me->id)
 		{
-			isAllowedTo('lock_own');
+			User::$me->isAllowedTo('lock_own');
 		}
 		else
 		{
-			isAllowedTo('lock_any');
+			User::$me->isAllowedTo('lock_any');
 		}
 
 		// Another moderator got the job done first?
@@ -639,7 +639,7 @@ class Topic implements \ArrayAccess
 	public static function sticky(): void
 	{
 		// Make sure the user can sticky it, and they are stickying *something*.
-		isAllowedTo('make_sticky');
+		User::$me->isAllowedTo('make_sticky');
 
 		// You can't sticky a board or something!
 		if (empty(self::$topic_id))
@@ -1467,12 +1467,12 @@ class Topic implements \ArrayAccess
 		// A few tweaks and extras.
 		$this->started_time = timeformat($this->started_timestamp);
 		$this->unwatched = $this->unwatched ?? 0;
-		$this->is_poll = (int) ($this->id_poll > 0 && Config::$modSettings['pollMode'] == '1' && allowedTo('poll_view'));
+		$this->is_poll = (int) ($this->id_poll > 0 && Config::$modSettings['pollMode'] == '1' && User::$me->allowedTo('poll_view'));
 
-		$this->real_num_replies = $this->num_replies + (Config::$modSettings['postmod_active'] && allowedTo('approve_posts') ? $this->unapproved_posts - ($this->is_approved ? 0 : 1) : 0);
+		$this->real_num_replies = $this->num_replies + (Config::$modSettings['postmod_active'] && User::$me->allowedTo('approve_posts') ? $this->unapproved_posts - ($this->is_approved ? 0 : 1) : 0);
 
 		// If this topic has unapproved posts, we need to work out how many posts the user can see, for page indexing.
-		if (Config::$modSettings['postmod_active'] && $this->unapproved_posts && !User::$me->is_guest && !allowedTo('approve_posts'))
+		if (Config::$modSettings['postmod_active'] && $this->unapproved_posts && !User::$me->is_guest && !User::$me->allowedTo('approve_posts'))
 		{
 			$request = Db::$db->query('', '
 				SELECT COUNT(id_member) AS my_unapproved_posts

@@ -340,7 +340,7 @@ class Forum
 		User::$me->kickIfBanned();
 
 		// If we are in a topic and don't have permission to approve it then duck out now.
-		if (!empty(Topic::$topic_id) && empty(Board::$info->cur_topic_approved) && !allowedTo('approve_posts') && (User::$me->id != Board::$info->cur_topic_starter || User::$me->is_guest))
+		if (!empty(Topic::$topic_id) && empty(Board::$info->cur_topic_approved) && !User::$me->allowedTo('approve_posts') && (User::$me->id != Board::$info->cur_topic_starter || User::$me->is_guest))
 		{
 			ErrorHandler::fatalLang('not_a_topic', false);
 		}
@@ -360,7 +360,7 @@ class Forum
 		check_cron();
 
 		// Is the forum in maintenance mode? (doesn't apply to administrators.)
-		if (!empty(Config::$maintenance) && !allowedTo('admin_forum'))
+		if (!empty(Config::$maintenance) && !User::$me->allowedTo('admin_forum'))
 		{
 			// You can only login.... otherwise, you're getting the "maintenance mode" display.
 			if (isset($_REQUEST['action']) && (in_array($_REQUEST['action'], array('login2', 'logintfa', 'logout'))))

@@ -801,7 +801,7 @@ class RepairBoards implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		isAllowedTo('admin_forum');
+		User::$me->isAllowedTo('admin_forum');
 
 		// Try to secure more memory.
 		setMemoryLimit('128M');

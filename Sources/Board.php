@@ -515,7 +515,7 @@ class Board implements \ArrayAccess
 	 */
 	public function save(array $boardOptions = array()): void
 	{
-		isAllowedTo('manage_boards');
+		User::$me->isAllowedTo('manage_boards');
 
 		// Undo any overrides of the group access values.
 		$access_groups = array_unique(array_diff($this->member_groups, $this->overridden_access_groups, array(1)));
@@ -2676,7 +2676,7 @@ class Board implements \ArrayAccess
 			&& $this->num_topics === 0
 			&& $this->unapproved_topics > 0
 			&& Config::$modSettings['postmod_active']
-			&& !allowedTo('approve_posts')
+			&& !User::$me->allowedTo('approve_posts')
 		)
 		{
 			$request = Db::$db->query('', '

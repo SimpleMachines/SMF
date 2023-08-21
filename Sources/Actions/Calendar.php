@@ -286,12 +286,12 @@ class Calendar implements ActionInterface
 			Utils::$context['calendar_grid_next'] = self::getCalendarGrid(Utils::$context['calendar_grid_current']['next_calendar']['start_date'], $calendarOptions, false, false);
 
 		// Basic template stuff.
-		Utils::$context['allow_calendar_event'] = allowedTo('calendar_post');
+		Utils::$context['allow_calendar_event'] = User::$me->allowedTo('calendar_post');
 
 		// If you don't allow events not linked to posts and you're not an admin, we have more work to do...
 		if (Utils::$context['allow_calendar_event'] && empty(Config::$modSettings['cal_allow_unlinked']) && !User::$me->is_admin)
 		{
-			$boards_can_post = boardsAllowedTo('post_new');
+			$boards_can_post = User::$me->boardsAllowedTo('post_new');
 			Utils::$context['allow_calendar_event'] &= !empty($boards_can_post);
 		}
 
@@ -345,7 +345,7 @@ class Calendar implements ActionInterface
 	public function post(): void
 	{
 		// Well - can they?
-		isAllowedTo('calendar_post');
+		User::$me->isAllowedTo('calendar_post');
 
 		// We need these for all kinds of useful functions.
 		require_once(Config::$sourcedir . '/Subs.php');
@@ -364,8 +364,8 @@ class Calendar implements ActionInterface
 				self::validateEventPost();
 
 			// If you're not allowed to edit any events, you have to be the poster.
-			if ($_REQUEST['eventid'] > 0 && !allowedTo('calendar_edit_any'))
-				isAllowedTo('calendar_edit_' . (!empty(User::$me->id) && self::getEventPoster($_REQUEST['eventid']) == User::$me->id ? 'own' : 'any'));
+			if ($_REQUEST['eventid'] > 0 && !User::$me->allowedTo('calendar_edit_any'))
+				User::$me->isAllowedTo('calendar_edit_' . (!empty(User::$me->id) && self::getEventPoster($_REQUEST['eventid']) == User::$me->id ? 'own' : 'any'));
 
 			// New - and directing?
 			if (isset($_POST['link_to_board']) || empty(Config::$modSettings['cal_allow_unlinked']))
@@ -460,9 +460,9 @@ class Calendar implements ActionInterface
 
 			// Make sure the user is allowed to edit this event.
 			if (Utils::$context['event']->member != User::$me->id)
-				isAllowedTo('calendar_edit_any');
-			elseif (!allowedTo('calendar_edit_any'))
-				isAllowedTo('calendar_edit_own');
+				User::$me->isAllowedTo('calendar_edit_any');
+			elseif (!User::$me->allowedTo('calendar_edit_any'))
+				User::$me->isAllowedTo('calendar_edit_own');
 		}
 
 		// An all day event? Set up some nice defaults in case the user wants to change that
@@ -480,7 +480,7 @@ class Calendar implements ActionInterface
 		Utils::$context['event']->fixTimezone();
 
 		// Get list of boards that can be posted in.
-		$boards = boardsAllowedTo('post_new');
+		$boards = User::$me->boardsAllowedTo('post_new');
 		if (empty($boards))
 		{
 			// You can post new events but can't link them to anything...
@@ -883,7 +883,7 @@ class Calendar implements ActionInterface
 	public static function canLinkEvent(): void
 	{
 		// If you can't post, you can't link.
-		isAllowedTo('calendar_post');
+		User::$me->isAllowedTo('calendar_post');
 
 		// No board?  No topic?!?
 		if (empty(Board::$info->id))
@@ -893,7 +893,7 @@ class Calendar implements ActionInterface
 			ErrorHandler::fatalLang('missing_topic_id', false);
 
 		// Administrator, Moderator, or owner.  Period.
-		if (!allowedTo('admin_forum') && !allowedTo('moderate_board'))
+		if (!User::$me->allowedTo('admin_forum') && !User::$me->allowedTo('moderate_board'))
 		{
 			// Not admin or a moderator of this board. You better be the owner - or else.
 			$result = Db::$db->query('', '
@@ -1575,12 +1575,12 @@ class Calendar implements ActionInterface
 				foreach ($cache_block[\'data\'][\'calendar_events\'] as $k => $event)
 				{
 					// Remove events that the user may not see or wants to ignore.
-					if ((count(array_intersect(\SMF\User::$me->groups, $event[\'allowed_groups\'])) === 0 && !allowedTo(\'admin_forum\') && !empty($event[\'id_board\'])) || in_array($event[\'id_board\'], \SMF\User::$me->ignoreboards))
+					if ((count(array_intersect(\SMF\User::$me->groups, $event[\'allowed_groups\'])) === 0 && !\SMF\User::$me->allowedTo(\'admin_forum\') && !empty($event[\'id_board\'])) || in_array($event[\'id_board\'], \SMF\User::$me->ignoreboards))
 						unset($cache_block[\'data\'][\'calendar_events\'][$k]);
 					else
 					{
 						// Whether the event can be edited depends on the permissions.
-						$cache_block[\'data\'][\'calendar_events\'][$k][\'can_edit\'] = allowedTo(\'calendar_edit_any\') || ($event[\'poster\'] == \SMF\User::$me->id && allowedTo(\'calendar_edit_own\'));
+						$cache_block[\'data\'][\'calendar_events\'][$k][\'can_edit\'] = \SMF\User::$me->allowedTo(\'calendar_edit_any\') || ($event[\'poster\'] == \SMF\User::$me->id && \SMF\User::$me->allowedTo(\'calendar_edit_own\'));
 
 						// The added session code makes this URL not cachable.
 						$cache_block[\'data\'][\'calendar_events\'][$k][\'modify_href\'] = \SMF\Config::$scripturl . \'?action=\' . ($event[\'topic\'] == 0 ? \'calendar;sa=post;\' : \'post;msg=\' . $event[\'msg\'] . \';topic=\' . $event[\'topic\'] . \'.0;calendar;\') . \'eventid=\' . $event[\'id\'] . \';\' . \SMF\Utils::$context[\'session_var\'] . \'=\' . \SMF\Utils::$context[\'session_id\'];
@@ -1654,7 +1654,7 @@ class Calendar implements ActionInterface
 		}
 
 		// Make sure they're allowed to post...
-		isAllowedTo('calendar_post');
+		User::$me->isAllowedTo('calendar_post');
 
 		// If they want to us to calculate an end date, make sure it will fit in an acceptable range.
 		if (isset($_POST['span']) && (($_POST['span'] < 1) || (!empty(Config::$modSettings['cal_maxspan']) && $_POST['span'] > Config::$modSettings['cal_maxspan'])))
@@ -1854,7 +1854,7 @@ class Calendar implements ActionInterface
 			return;
 
 		// Permissions, permissions, permissions.
-		isAllowedTo('calendar_view');
+		User::$me->isAllowedTo('calendar_view');
 
 		// Some global template resources.
 		Utils::$context['calendar_resources'] = array(

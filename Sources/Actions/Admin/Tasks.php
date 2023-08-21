@@ -795,7 +795,7 @@ class Tasks implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		isAllowedTo('admin_forum');
+		User::$me->isAllowedTo('admin_forum');
 
 		Lang::load('ManageScheduledTasks');
 		Theme::loadTemplate('ManageScheduledTasks');

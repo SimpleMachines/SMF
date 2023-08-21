@@ -89,7 +89,7 @@ class Search implements ActionInterface
 		}
 
 		// Check the user's permissions.
-		isAllowedTo('search_posts');
+		User::$me->isAllowedTo('search_posts');
 
 		// Link tree....
 		Utils::$context['linktree'][] = array(

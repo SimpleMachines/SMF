@@ -112,10 +112,10 @@ class Home implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		isAllowedTo($this->permissions);
+		User::$me->isAllowedTo($this->permissions);
 
 		// Find all of this forum's administrators...
-		if (Groups::listMembergroupMembers_Href(Utils::$context['administrators'], 1, 32) && allowedTo('manage_membergroups'))
+		if (Groups::listMembergroupMembers_Href(Utils::$context['administrators'], 1, 32) && User::$me->allowedTo('manage_membergroups'))
 		{
 			// Add a 'more'-link if there are more than 32.
 			Utils::$context['more_admins_link'] = '<a href="' . Config::$scripturl . '?action=moderate;area=viewgroups;sa=members;group=1">' . Lang::$txt['more'] . '</a>';
@@ -131,7 +131,7 @@ class Home implements ActionInterface
 		// Get a list of current server versions.
 		Utils::$context['current_versions'] = ACP::getServerVersions($this->checkFor);
 
-		Utils::$context['can_admin'] = allowedTo('admin_forum');
+		Utils::$context['can_admin'] = User::$me->allowedTo('admin_forum');
 
 		Utils::$context['sub_template'] = Utils::$context['admin_area'] == 'credits' ? 'credits' : 'admin';
 

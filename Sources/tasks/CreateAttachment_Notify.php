@@ -58,8 +58,7 @@ class CreateAttachment_Notify extends BackgroundTask
 		Db::$db->free_result($request);
 
 		// We need to know who can approve this attachment.
-		require_once(Config::$sourcedir . '/Subs-Members.php');
-		$modMembers = membersAllowedTo('approve_posts', $id_board);
+		$modMembers = User::membersAllowedTo('approve_posts', $id_board);
 
 		$request = Db::$db->query('', '
 			SELECT id_member, email_address, lngfile, real_name

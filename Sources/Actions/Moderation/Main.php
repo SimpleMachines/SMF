@@ -357,12 +357,12 @@ class Main implements ActionInterface
 		Utils::$context['can_moderate_boards'] = User::$me->mod_cache['bq'] != '0=1';
 		Utils::$context['can_moderate_groups'] = User::$me->mod_cache['gq'] != '0=1';
 		Utils::$context['can_moderate_approvals'] = Config::$modSettings['postmod_active'] && !empty(User::$me->mod_cache['ap']);
-		Utils::$context['can_moderate_users'] = allowedTo('moderate_forum');
+		Utils::$context['can_moderate_users'] = User::$me->allowedTo('moderate_forum');
 
 		// Everyone using this area must be allowed here!
 		if (!Utils::$context['can_moderate_boards'] && !Utils::$context['can_moderate_groups'] && !Utils::$context['can_moderate_approvals'] && !Utils::$context['can_moderate_users'])
 		{
-			isAllowedTo('access_mod_center');
+			User::$me->isAllowedTo('access_mod_center');
 		}
 
 		self::$access_checked = true;
@@ -438,7 +438,7 @@ class Main implements ActionInterface
 		// Which logs should be enabled?
 		$this->moderation_areas['logs']['areas']['modlog']['enabled'] = !empty(Config::$modSettings['modlog_enabled']) && Utils::$context['can_moderate_boards'];
 
-		$this->moderation_areas['logs']['areas']['warnings']['enabled'] = Config::$modSettings['warning_settings'][0] == 1 && allowedTo(array('issue_warning', 'view_warning_any'));
+		$this->moderation_areas['logs']['areas']['warnings']['enabled'] = Config::$modSettings['warning_settings'][0] == 1 && User::$me->allowedTo(array('issue_warning', 'view_warning_any'));
 
 		// Which parts of post moderation should be enabled?
 		$this->moderation_areas['posts']['enabled'] = Utils::$context['can_moderate_boards'] || Utils::$context['can_moderate_approvals'];

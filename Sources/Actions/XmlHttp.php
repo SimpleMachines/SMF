@@ -233,7 +233,7 @@ class XmlHttp implements ActionInterface
 
 		// @todo Temporary
 		// Borrowed from loadAttachmentContext in Display.php
-		$can_change = $is_owner ? allowedTo(array('profile_extra_any', 'profile_extra_own')) : allowedTo('profile_extra_any');
+		$can_change = $is_owner ? User::$me->allowedTo(array('profile_extra_any', 'profile_extra_own')) : User::$me->allowedTo('profile_extra_any');
 
 		$errors = array();
 
@@ -334,7 +334,7 @@ class XmlHttp implements ActionInterface
 
 		Utils::$context['post_error']['messages'] = array();
 
-		if (allowedTo('issue_warning'))
+		if (User::$me->allowedTo('issue_warning'))
 		{
 			$warning_body = !empty($_POST['body']) ? trim(Lang::censorText($_POST['body'])) : '';
 

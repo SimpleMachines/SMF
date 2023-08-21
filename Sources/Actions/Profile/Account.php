@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\Lang;
 use SMF\Profile;
+use SMF\User;
 use SMF\Utils;
 
 /**
@@ -62,7 +63,7 @@ class Account implements ActionInterface
 	{
 		Profile::$member->loadThemeOptions();
 
-		if (allowedTo(array('profile_identity_own', 'profile_identity_any', 'profile_password_own', 'profile_password_any')))
+		if (User::$me->allowedTo(array('profile_identity_own', 'profile_identity_any', 'profile_password_own', 'profile_password_any')))
 		{
 			Profile::$member->loadCustomFields('account');
 		}

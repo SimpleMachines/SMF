@@ -183,7 +183,7 @@ class AttachmentDownload implements ActionInterface
 			// Check permissions and board access.
 			elseif (($boards_allowed = CacheApi::get('view_attachment_boards_id-' . User::$me->id)) == null)
 			{
-				$boards_allowed = boardsAllowedTo('view_attachments');
+				$boards_allowed = User::$me->boardsAllowedTo('view_attachments');
 				CacheApi::put('view_attachment_boards_id-' . User::$me->id, $boards_allowed, mt_rand(850, 900));
 			}
 		}
@@ -222,7 +222,7 @@ class AttachmentDownload implements ActionInterface
 		}
 
 		// If attachment is unapproved, see if user is allowed to approve
-		if (!$file->approved && Config::$modSettings['postmod_active'] && !allowedTo('approve_posts'))
+		if (!$file->approved && Config::$modSettings['postmod_active'] && !User::$me->allowedTo('approve_posts'))
 		{
 			$request = Db::$db->query('', '
 				SELECT id_member

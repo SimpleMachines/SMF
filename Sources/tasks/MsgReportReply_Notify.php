@@ -65,8 +65,7 @@ class MsgReportReply_Notify extends BackgroundTask
 
 		// We need to know who can moderate this board - and therefore who can see this report.
 		// First up, people who have moderate_board in the board this topic was in.
-		require_once(Config::$sourcedir . '/Subs-Members.php');
-		$members = membersAllowedTo('moderate_board', $this->_details['board_id']);
+		$members = User::membersAllowedTo('moderate_board', $this->_details['board_id']);
 
 		// Second, anyone assigned to be a moderator of this board directly.
 		$request = Db::$db->query('', '

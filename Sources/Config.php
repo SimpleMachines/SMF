@@ -1173,8 +1173,7 @@ class Config
 		// Ensure we know who can manage boards.
 		if (!isset(self::$modSettings['board_manager_groups']))
 		{
-			require_once(self::$sourcedir . '/Subs-Members.php');
-			$board_managers = groupsAllowedTo('manage_boards', null);
+			$board_managers = User::groupsAllowedTo('manage_boards', null);
 			$board_managers = implode(',', $board_managers['allowed']);
 			Config::updateModSettings(array('board_manager_groups' => $board_managers));
 		}

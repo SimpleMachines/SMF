@@ -96,8 +96,8 @@ class WatchUsers implements ActionInterface
 		else
 		{
 			// Still obey permissions!
-			$approve_boards = boardsAllowedTo('approve_posts');
-			$delete_boards = boardsAllowedTo('delete_any');
+			$approve_boards = User::$me->boardsAllowedTo('approve_posts');
+			$delete_boards = User::$me->boardsAllowedTo('delete_any');
 
 			if ($approve_boards == array(0))
 				$approve_query = '';
@@ -156,7 +156,7 @@ class WatchUsers implements ActionInterface
 					'data' => array(
 						'function' => function($member)
 						{
-							return allowedTo('issue_warning') ? '<a href="' . Config::$scripturl . '?action=profile;area=issuewarning;u=' . $member['id'] . '">' . $member['warning'] . '%</a>' : $member['warning'] . '%';
+							return User::$me->allowedTo('issue_warning') ? '<a href="' . Config::$scripturl . '?action=profile;area=issuewarning;u=' . $member['id'] . '">' . $member['warning'] . '%</a>' : $member['warning'] . '%';
 						},
 					),
 					'sort' => array(
@@ -345,10 +345,10 @@ class WatchUsers implements ActionInterface
 			// First get the latest messages from these users.
 			$request = Db::$db->query('', '
 				SELECT m.id_member, MAX(m.id_msg) AS last_post_id
-				FROM {db_prefix}messages AS m' . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+				FROM {db_prefix}messages AS m' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)') . '
 				WHERE {query_see_message_board}
-					AND m.id_member IN ({array_int:member_list})' . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+					AND m.id_member IN ({array_int:member_list})' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
 					AND m.approved = {int:is_approved}
 					AND t.approved = {int:is_approved}') . '
 				GROUP BY m.id_member',
@@ -385,7 +385,7 @@ class WatchUsers implements ActionInterface
 				SELECT MAX(m.poster_time) AS last_post, MAX(m.id_msg) AS last_post_id, m.id_member
 				FROM {db_prefix}messages AS m
 				WHERE {query_see_message_board}
-					AND m.id_member IN ({array_int:member_list})' . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+					AND m.id_member IN ({array_int:member_list})' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
 					AND m.approved = {int:is_approved}') . '
 				GROUP BY m.id_member',
 				array(

@@ -201,7 +201,7 @@ class Server implements ActionInterface
 	public function execute(): void
 	{
 		// This is just to keep the database password more secure.
-		isAllowedTo('admin_forum');
+		User::$me->isAllowedTo('admin_forum');
 
 		User::$me->checkSession('request');
 

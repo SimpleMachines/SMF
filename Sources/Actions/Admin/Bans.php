@@ -102,7 +102,7 @@ class Bans implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		isAllowedTo('manage_bans');
+		User::$me->isAllowedTo('manage_bans');
 
 		call_helper(method_exists($this, self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : self::$subactions[$this->subaction]);
 	}

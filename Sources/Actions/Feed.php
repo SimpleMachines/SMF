@@ -572,7 +572,7 @@ class Feed implements ActionInterface
 	 */
 	public function getXmlMembers(): array
 	{
-		if (!allowedTo('view_mlist'))
+		if (!User::$me->allowedTo('view_mlist'))
 			return array();
 
 		Lang::load('Profile');
@@ -808,7 +808,7 @@ class Feed implements ActionInterface
 			Lang::censorText($row['subject']);
 
 			// Do we want to include any attachments?
-			if (!empty(Config::$modSettings['attachmentEnable']) && !empty(Config::$modSettings['xmlnews_attachments']) && allowedTo('view_attachments', $row['id_board']))
+			if (!empty(Config::$modSettings['attachmentEnable']) && !empty(Config::$modSettings['xmlnews_attachments']) && User::$me->allowedTo('view_attachments', $row['id_board']))
 			{
 				$loaded_attachments = Attachment::loadByMsg($row['id_msg'], Attachment::APPROVED_TRUE);
 
@@ -876,7 +876,7 @@ class Feed implements ActionInterface
 						),
 						array(
 							'tag' => 'author',
-							'content' => (allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? $row['poster_email'] . ' (' . $row['poster_name'] . ')' : null,
+							'content' => (User::$me->allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? $row['poster_email'] . ' (' . $row['poster_name'] . ')' : null,
 							'cdata' => true,
 						),
 						array(
@@ -988,7 +988,7 @@ class Feed implements ActionInterface
 								),
 								array(
 									'tag' => 'email',
-									'content' => (allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? $row['poster_email'] : null,
+									'content' => (User::$me->allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? $row['poster_email'] : null,
 									'cdata' => true,
 								),
 								array(
@@ -1257,7 +1257,7 @@ class Feed implements ActionInterface
 			Lang::censorText($row['subject']);
 
 			// Do we want to include any attachments?
-			if (!empty(Config::$modSettings['attachmentEnable']) && !empty(Config::$modSettings['xmlnews_attachments']) && allowedTo('view_attachments', $row['id_board']))
+			if (!empty(Config::$modSettings['attachmentEnable']) && !empty(Config::$modSettings['xmlnews_attachments']) && User::$me->allowedTo('view_attachments', $row['id_board']))
 			{
 				$loaded_attachments = Attachment::loadByMsg($row['id_msg'], Attachment::APPROVED_TRUE);
 
@@ -1325,7 +1325,7 @@ class Feed implements ActionInterface
 						),
 						array(
 							'tag' => 'author',
-							'content' => (allowedTo('moderate_forum') || (!empty($row['id_member']) && $row['id_member'] == User::$me->id)) ? $row['poster_email'] : null,
+							'content' => (User::$me->allowedTo('moderate_forum') || (!empty($row['id_member']) && $row['id_member'] == User::$me->id)) ? $row['poster_email'] : null,
 							'cdata' => true,
 						),
 						array(
@@ -1437,7 +1437,7 @@ class Feed implements ActionInterface
 								),
 								array(
 									'tag' => 'email',
-									'content' => (allowedTo('moderate_forum') || (!empty($row['id_member']) && $row['id_member'] == User::$me->id)) ? $row['poster_email'] : null,
+									'content' => (User::$me->allowedTo('moderate_forum') || (!empty($row['id_member']) && $row['id_member'] == User::$me->id)) ? $row['poster_email'] : null,
 									'cdata' => true,
 								),
 								array(
@@ -1654,7 +1654,7 @@ class Feed implements ActionInterface
 	public function getXmlProfile(): array
 	{
 		// You must input a valid user, and you must be allowed to view that user's profile.
-		if (empty($this->member) || ($this->member != User::$me->id && !allowedTo('profile_view')) || (User::load($this->member) === array()))
+		if (empty($this->member) || ($this->member != User::$me->id && !User::$me->allowedTo('profile_view')) || (User::load($this->member) === array()))
 		{
 			return array();
 		}
@@ -1902,7 +1902,7 @@ class Feed implements ActionInterface
 				array(
 					'tag' => 'ip_addresses',
 					'attributes' => array('label' => Lang::$txt['ip_address']),
-					'content' => allowedTo('moderate_forum') || User::$me->id == $profile['id'] ? array(
+					'content' => User::$me->allowedTo('moderate_forum') || User::$me->id == $profile['id'] ? array(
 						array(
 							'tag' => 'ip',
 							'attributes' => array('label' => Lang::$txt['most_recent_ip']),
@@ -1964,7 +1964,7 @@ class Feed implements ActionInterface
 	 */
 	public function getXmlPosts(): array
 	{
-		if (empty($this->member) || ($this->member != User::$me->id && !allowedTo('profile_view')))
+		if (empty($this->member) || ($this->member != User::$me->id && !User::$me->allowedTo('profile_view')))
 		{
 			return array();
 		}
@@ -2112,7 +2112,7 @@ class Feed implements ActionInterface
 						),
 						array(
 							'tag' => 'author',
-							'content' => (allowedTo('moderate_forum') || ($row['id_member'] == User::$me->id)) ? $row['poster_email'] : null,
+							'content' => (User::$me->allowedTo('moderate_forum') || ($row['id_member'] == User::$me->id)) ? $row['poster_email'] : null,
 							'cdata' => true,
 						),
 						array(
@@ -2219,7 +2219,7 @@ class Feed implements ActionInterface
 								),
 								array(
 									'tag' => 'email',
-									'content' => (allowedTo('moderate_forum') || ($row['id_member'] == User::$me->id)) ? $row['poster_email'] : null,
+									'content' => (User::$me->allowedTo('moderate_forum') || ($row['id_member'] == User::$me->id)) ? $row['poster_email'] : null,
 									'cdata' => true,
 								),
 								array(
@@ -2351,14 +2351,14 @@ class Feed implements ActionInterface
 								),
 								array(
 									'tag' => 'email',
-									'attributes' => (allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? array('label' => Lang::$txt['user_email_address']) : null,
-									'content' => (allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? $row['poster_email'] : null,
+									'attributes' => (User::$me->allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? array('label' => Lang::$txt['user_email_address']) : null,
+									'content' => (User::$me->allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? $row['poster_email'] : null,
 									'cdata' => true,
 								),
 								array(
 									'tag' => 'ip',
-									'attributes' => (allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? array('label' => Lang::$txt['ip']) : null,
-									'content' => (allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? $row['poster_ip'] : null,
+									'attributes' => (User::$me->allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? array('label' => Lang::$txt['ip']) : null,
+									'content' => (User::$me->allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? $row['poster_ip'] : null,
 								),
 							),
 						),

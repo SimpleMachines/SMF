@@ -110,7 +110,7 @@ class Features implements ActionInterface
 	public function execute(): void
 	{
 		// You need to be an admin to edit settings!
-		isAllowedTo('admin_forum');
+		User::$me->isAllowedTo('admin_forum');
 
 		Utils::$context['sub_template'] = 'show_settings';
 		Utils::$context['sub_action'] = $this->subaction;

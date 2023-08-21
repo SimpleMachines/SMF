@@ -138,7 +138,7 @@ class TopicPrint implements ActionInterface
 			SELECT subject, poster_time, body, COALESCE(mem.real_name, poster_name) AS poster_name, id_msg
 			FROM {db_prefix}messages AS m
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
-			WHERE m.id_topic = {int:current_topic}' . (Config::$modSettings['postmod_active'] && !allowedTo('approve_posts') ? '
+			WHERE m.id_topic = {int:current_topic}' . (Config::$modSettings['postmod_active'] && !User::$me->allowedTo('approve_posts') ? '
 				AND (m.approved = {int:is_approved}' . (User::$me->is_guest ? '' : ' OR m.id_member = {int:current_member}') . ')' : '') . '
 			ORDER BY m.id_msg',
 			array(
@@ -169,7 +169,7 @@ class TopicPrint implements ActionInterface
 		Db::$db->free_result($request);
 
 		// Fetch attachments so we can print them if asked, enabled and allowed
-		if (isset($_REQUEST['images']) && !empty(Config::$modSettings['attachmentEnable']) && allowedTo('view_attachments'))
+		if (isset($_REQUEST['images']) && !empty(Config::$modSettings['attachmentEnable']) && User::$me->allowedTo('view_attachments'))
 		{
 			$messages = array();
 			foreach (Utils::$context['posts'] as $temp)

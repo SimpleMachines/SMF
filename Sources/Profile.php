@@ -478,7 +478,7 @@ class Profile extends User implements \ArrayAccess
 					$isValid = self::validateEmail($value, $this->id);
 
 					// Do they need to revalidate? If so schedule the function!
-					if ($isValid === true && !empty(Config::$modSettings['send_validation_onChange']) && !allowedTo('moderate_forum'))
+					if ($isValid === true && !empty(Config::$modSettings['send_validation_onChange']) && !User::$me->allowedTo('moderate_forum'))
 					{
 						$this->new_data['validation_code'] = User::generateValidationCode();
 
@@ -508,7 +508,7 @@ class Profile extends User implements \ArrayAccess
 				'type' => 'callback',
 				'callback_func' => 'theme_pick',
 				'permission' => 'profile_extra',
-				'enabled' => Config::$modSettings['theme_allow'] || allowedTo('admin_forum'),
+				'enabled' => Config::$modSettings['theme_allow'] || User::$me->allowedTo('admin_forum'),
 				'preload' => function()
 				{
 					$request = Db::$db->query('', '
@@ -571,15 +571,15 @@ class Profile extends User implements \ArrayAccess
 			),
 			// The username is not always editable - so adjust it as such.
 			'member_name' => array(
-				'type' => allowedTo('admin_forum') && isset($_GET['changeusername']) ? 'text' : 'label',
+				'type' => User::$me->allowedTo('admin_forum') && isset($_GET['changeusername']) ? 'text' : 'label',
 				'label' => Lang::$txt['username'],
-				'subtext' => allowedTo('admin_forum') && !isset($_GET['changeusername']) ? '[<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . ';area=account;changeusername" style="font-style: italic;">' . Lang::$txt['username_change'] . '</a>]' : '',
+				'subtext' => User::$me->allowedTo('admin_forum') && !isset($_GET['changeusername']) ? '[<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . ';area=account;changeusername" style="font-style: italic;">' . Lang::$txt['username_change'] . '</a>]' : '',
 				'log_change' => true,
 				'permission' => 'profile_identity',
-				'prehtml' => allowedTo('admin_forum') && isset($_GET['changeusername']) ? '<div class="alert">' . Lang::$txt['username_warning'] . '</div>' : '',
+				'prehtml' => User::$me->allowedTo('admin_forum') && isset($_GET['changeusername']) ? '<div class="alert">' . Lang::$txt['username_warning'] . '</div>' : '',
 				'input_validate' => function(&$value)
 				{
-					if (allowedTo('admin_forum'))
+					if (User::$me->allowedTo('admin_forum'))
 					{
 						// Maybe they are trying to change their password as well?
 						$reset_password = true;
@@ -713,13 +713,13 @@ class Profile extends User implements \ArrayAccess
 				},
 			),
 			'real_name' => array(
-				'type' => allowedTo('profile_displayed_name_own') || allowedTo('profile_displayed_name_any') || allowedTo('moderate_forum') ? 'text' : 'label',
+				'type' => User::$me->allowedTo('profile_displayed_name_own') || User::$me->allowedTo('profile_displayed_name_any') || User::$me->allowedTo('moderate_forum') ? 'text' : 'label',
 				'label' => Lang::$txt['name'],
 				'subtext' => Lang::$txt['display_name_desc'],
 				'log_change' => true,
 				'input_attr' => array('maxlength="60"'),
 				'permission' => 'profile_displayed_name',
-				'enabled' => allowedTo('profile_displayed_name_own') || allowedTo('profile_displayed_name_any') || allowedTo('moderate_forum'),
+				'enabled' => User::$me->allowedTo('profile_displayed_name_own') || User::$me->allowedTo('profile_displayed_name_any') || User::$me->allowedTo('moderate_forum'),
 				'input_validate' => function(&$value)
 				{
 					$value = trim(Utils::normalizeSpaces(Utils::sanitizeChars($value, 1, ' '), true, true, array('no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true)));
@@ -771,7 +771,7 @@ class Profile extends User implements \ArrayAccess
 				'type' => 'check',
 				'label' => Lang::$txt['show_online'],
 				'permission' => 'profile_identity',
-				'enabled' => !empty(Config::$modSettings['allow_hideOnline']) || allowedTo('moderate_forum'),
+				'enabled' => !empty(Config::$modSettings['allow_hideOnline']) || User::$me->allowedTo('moderate_forum'),
 			),
 			'smiley_set' => array(
 				'type' => 'callback',
@@ -1028,7 +1028,7 @@ class Profile extends User implements \ArrayAccess
 		foreach ($this->standard_fields as $key => $field)
 		{
 			// Do we have permission to do this?
-			if (isset($field['permission']) && !allowedTo((User::$me->is_owner ? array($field['permission'] . '_own', $field['permission'] . '_any') : $field['permission'] . '_any')) && !allowedTo($field['permission']))
+			if (isset($field['permission']) && !User::$me->allowedTo((User::$me->is_owner ? array($field['permission'] . '_own', $field['permission'] . '_any') : $field['permission'] . '_any')) && !User::$me->allowedTo($field['permission']))
 			{
 				unset($this->standard_fields[$key]);
 			}
@@ -1071,7 +1071,7 @@ class Profile extends User implements \ArrayAccess
 				continue;
 
 			// Check the privacy level for this field.
-			if ($area !== 'register' && !allowedTo('admin_forum'))
+			if ($area !== 'register' && !User::$me->allowedTo('admin_forum'))
 			{
 				if ($cf_def['private'] >= (User::$me->is_owner ? 3 : 2))
 					continue;
@@ -1252,9 +1252,9 @@ class Profile extends User implements \ArrayAccess
 		$this->formatted['avatar'] += array(
 			'custom' => stristr($this->avatar['url'], 'http://') || stristr($this->avatar['url'], 'https://') ? $this->avatar['url'] : 'http://',
 			'selection' => $this->avatar['url'] == '' || (stristr($this->avatar['url'], 'http://') || stristr($this->avatar['url'], 'https://')) ? '' : $this->avatar['url'],
-			'allow_server_stored' => (empty(Config::$modSettings['gravatarEnabled']) || empty(Config::$modSettings['gravatarOverride'])) && (allowedTo('profile_server_avatar') || (!User::$me->is_owner && allowedTo('profile_extra_any'))),
-			'allow_upload' => (empty(Config::$modSettings['gravatarEnabled']) || empty(Config::$modSettings['gravatarOverride'])) && (allowedTo('profile_upload_avatar') || (!User::$me->is_owner && allowedTo('profile_extra_any'))),
-			'allow_external' => (empty(Config::$modSettings['gravatarEnabled']) || empty(Config::$modSettings['gravatarOverride'])) && (allowedTo('profile_remote_avatar') || (!User::$me->is_owner && allowedTo('profile_extra_any'))),
+			'allow_server_stored' => (empty(Config::$modSettings['gravatarEnabled']) || empty(Config::$modSettings['gravatarOverride'])) && (User::$me->allowedTo('profile_server_avatar') || (!User::$me->is_owner && User::$me->allowedTo('profile_extra_any'))),
+			'allow_upload' => (empty(Config::$modSettings['gravatarEnabled']) || empty(Config::$modSettings['gravatarOverride'])) && (User::$me->allowedTo('profile_upload_avatar') || (!User::$me->is_owner && User::$me->allowedTo('profile_extra_any'))),
+			'allow_external' => (empty(Config::$modSettings['gravatarEnabled']) || empty(Config::$modSettings['gravatarOverride'])) && (User::$me->allowedTo('profile_remote_avatar') || (!User::$me->is_owner && User::$me->allowedTo('profile_extra_any'))),
 			'allow_gravatar' => !empty(Config::$modSettings['gravatarEnabled']),
 		);
 
@@ -1609,7 +1609,7 @@ class Profile extends User implements \ArrayAccess
 	public function save()
 	{
 		// General-purpose permission for anything that doesn't have its own.
-		$this->can_change_extra = allowedTo(User::$me->is_owner ? array('profile_extra_any', 'profile_extra_own') : array('profile_extra_any'));
+		$this->can_change_extra = User::$me->allowedTo(User::$me->is_owner ? array('profile_extra_any', 'profile_extra_own') : array('profile_extra_any'));
 
 		// The applicator is the same as the member affected if we are registering a new member.
 		$this->applicator = empty(User::$me->id) && ($_REQUEST['sa'] ?? null) === 'register' ? $this->id : User::$me->id;
@@ -1880,7 +1880,7 @@ class Profile extends User implements \ArrayAccess
 		call_integration_hook('before_profile_save_avatar', array(&$value));
 
 		// External url too large
-		if ($value == 'external' && allowedTo('profile_remote_avatar') && strlen($_POST['userpicpersonal']) > Utils::$context['max_external_size_url'])
+		if ($value == 'external' && User::$me->allowedTo('profile_remote_avatar') && strlen($_POST['userpicpersonal']) > Utils::$context['max_external_size_url'])
 		{
 			return 'bad_avatar_url_too_long';
 		}
@@ -1893,7 +1893,7 @@ class Profile extends User implements \ArrayAccess
 
 		if (
 			$value == 'external'
-			&& allowedTo('profile_remote_avatar')
+			&& User::$me->allowedTo('profile_remote_avatar')
 			&& (
 				stripos($_POST['userpicpersonal'], 'http://') === 0
 				|| stripos($_POST['userpicpersonal'], 'https://') === 0
@@ -1934,7 +1934,7 @@ class Profile extends User implements \ArrayAccess
 			Attachment::remove(array('id_member' => $this->id));
 		}
 		// An avatar from the server-stored galleries.
-		elseif ($value == 'server_stored' && allowedTo('profile_server_avatar'))
+		elseif ($value == 'server_stored' && User::$me->allowedTo('profile_server_avatar'))
 		{
 			$this->new_data['avatar'] = strtr(empty($_POST['file']) ? (empty($_POST['cat']) ? '' : $_POST['cat']) : $_POST['file'], array('&amp;' => '&'));
 
@@ -1969,7 +1969,7 @@ class Profile extends User implements \ArrayAccess
 		}
 		elseif (
 			$value == 'external'
-			&& allowedTo('profile_remote_avatar')
+			&& User::$me->allowedTo('profile_remote_avatar')
 			&& (
 				stripos($_POST['userpicpersonal'], 'http://') === 0
 				|| stripos($_POST['userpicpersonal'], 'https://') === 0
@@ -2060,7 +2060,7 @@ class Profile extends User implements \ArrayAccess
 				}
 			}
 		}
-		elseif (($value == 'upload' && allowedTo('profile_upload_avatar')) || $downloadedExternalAvatar)
+		elseif (($value == 'upload' && User::$me->allowedTo('profile_upload_avatar')) || $downloadedExternalAvatar)
 		{
 			if ((isset($_FILES['attachment']['name']) && $_FILES['attachment']['name'] != '') || $downloadedExternalAvatar)
 			{
@@ -2286,7 +2286,7 @@ class Profile extends User implements \ArrayAccess
 				$this->new_data['avatar'] = '';
 			}
 		}
-		elseif ($value == 'gravatar' && allowedTo('profile_gravatar_avatar'))
+		elseif ($value == 'gravatar' && User::$me->allowedTo('profile_gravatar_avatar'))
 		{
 			$this->new_data['avatar'] = 'gravatar://www.gravatar.com/avatar/' . md5(strtolower(trim($this->data['email_address'])));
 		}
@@ -2385,7 +2385,7 @@ class Profile extends User implements \ArrayAccess
 	public static function loadUnassignableGroups(): void
 	{
 		// Admins can assign any group they like.
-		if (allowedTo('admin_forum'))
+		if (User::$me->allowedTo('admin_forum'))
 		{
 			self::$unassignable_groups = array();
 			return;
@@ -2402,7 +2402,7 @@ class Profile extends User implements \ArrayAccess
 		$protected_permissions = array();
 		foreach (array('admin_forum', 'manage_membergroups', 'manage_permissions') as $permission)
 		{
-			if (!allowedTo($permission))
+			if (!User::$me->allowedTo($permission))
 				$protected_permissions[] = $permission;
 		}
 
@@ -2429,7 +2429,7 @@ class Profile extends User implements \ArrayAccess
 			WHERE group_type IN ({array_int:is_protected})
 				OR min_posts > -1',
 			array(
-				'is_protected' => !allowedTo('manage_membergroups') ? array(0, 1) : array(1),
+				'is_protected' => !User::$me->allowedTo('manage_membergroups') ? array(0, 1) : array(1),
 			)
 		);
 		while ($row = Db::$db->fetch_assoc($request))
@@ -2453,7 +2453,7 @@ class Profile extends User implements \ArrayAccess
 	public static function validateSignature(&$value): bool|string
 	{
 		// Admins can do whatever they hell they want!
-		if (!allowedTo('admin_forum'))
+		if (!User::$me->allowedTo('admin_forum'))
 		{
 			// Load all the signature limits.
 			list($sig_limits, $sig_bbc) = explode(':', Config::$modSettings['signature_settings']);
@@ -2653,7 +2653,7 @@ class Profile extends User implements \ArrayAccess
 		Msg::preparsecode($value);
 
 		// Too long?
-		if (!allowedTo('admin_forum') && !empty($sig_limits[1]) && Utils::entityStrlen(str_replace('<br>', "\n", $value)) > $sig_limits[1])
+		if (!User::$me->allowedTo('admin_forum') && !empty($sig_limits[1]) && Utils::entityStrlen(str_replace('<br>', "\n", $value)) > $sig_limits[1])
 		{
 			$_POST['signature'] = trim(Utils::htmlspecialchars(str_replace('<br>', "\n", $value), ENT_QUOTES));
 
@@ -3021,7 +3021,7 @@ class Profile extends User implements \ArrayAccess
 				continue;
 
 			// Check the privacy level for this field.
-			if ($area !== 'register' && !allowedTo('admin_forum'))
+			if ($area !== 'register' && !User::$me->allowedTo('admin_forum'))
 			{
 				// If not the admin or the owner, cannot modify.
 				if (!User::$me->is_owner)

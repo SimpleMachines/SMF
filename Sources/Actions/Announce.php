@@ -248,7 +248,7 @@ class Announce implements ActionInterface
 
 			Logging::logAction('announce_topic', array('topic' => Topic::$topic_id), 'user');
 
-			if (!empty($_REQUEST['move']) && allowedTo('move_any'))
+			if (!empty($_REQUEST['move']) && User::$me->allowedTo('move_any'))
 			{
 				redirectexit('action=movetopic;topic=' . Topic::$topic_id . '.0' . (empty($_REQUEST['goback']) ? '' : ';goback'));
 			}
@@ -364,7 +364,7 @@ class Announce implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		isAllowedTo('announce_topic');
+		User::$me->isAllowedTo('announce_topic');
 
 		User::$me->validateSession();
 

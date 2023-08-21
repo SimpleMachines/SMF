@@ -71,7 +71,7 @@ class TopicRestore implements ActionInterface
 			ErrorHandler::fatalLang('restored_disabled', 'critical');
 
 		// Can we be in here?
-		isAllowedTo('move_any', Config::$modSettings['recycle_board']);
+		User::$me->isAllowedTo('move_any', Config::$modSettings['recycle_board']);
 
 		$unfound_messages = array();
 		$topics_to_restore = array();

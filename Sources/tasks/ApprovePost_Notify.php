@@ -46,8 +46,7 @@ class ApprovePost_Notify extends BackgroundTask
 		$alert_rows = array();
 
 		// We need to know who can approve this post.
-		require_once(Config::$sourcedir . '/Subs-Members.php');
-		$modMembers = membersAllowedTo('approve_posts', $topicOptions['board']);
+		$modMembers = User::membersAllowedTo('approve_posts', $topicOptions['board']);
 
 		$request = Db::$db->query('', '
 			SELECT id_member, email_address, lngfile

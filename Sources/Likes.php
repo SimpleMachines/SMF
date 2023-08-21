@@ -292,7 +292,7 @@ class Likes
 			$this->_validLikes['flush_cache'] = 'likes_topic_' . $this->_idTopic . '_' . User::$me->id;
 			$this->_validLikes['redirect'] = 'topic=' . $this->_idTopic . '.msg' . $this->_content . '#msg' . $this->_content;
 
-			$this->_validLikes['can_like'] = (User::$me->id == $topicOwner ? 'cannot_like_content' : (allowedTo('likes_like') ? true : 'cannot_like_content'));
+			$this->_validLikes['can_like'] = (User::$me->id == $topicOwner ? 'cannot_like_content' : (User::$me->allowedTo('likes_like') ? true : 'cannot_like_content'));
 		}
 
 		else

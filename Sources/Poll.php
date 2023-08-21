@@ -316,11 +316,11 @@ class Poll implements \ArrayAccess
 		$is_expired = !empty($this->expire_time) && $this->expire_time < time();
 		$board = $this->board ?? (Board::$info->id ?? null);
 
-		$this->permissions['allow_lock_poll'] = allowedTo('poll_lock_any', $board) || (User::$me->id == $this->member && allowedTo('poll_lock_own', $board));
+		$this->permissions['allow_lock_poll'] = User::$me->allowedTo('poll_lock_any', $board) || (User::$me->id == $this->member && User::$me->allowedTo('poll_lock_own', $board));
 
-		$this->permissions['allow_edit_poll'] = allowedTo('poll_edit_any', $board) || (User::$me->id == $this->member && allowedTo('poll_edit_own', $board));
+		$this->permissions['allow_edit_poll'] = User::$me->allowedTo('poll_edit_any', $board) || (User::$me->id == $this->member && User::$me->allowedTo('poll_edit_own', $board));
 
-		$this->permissions['can_remove_poll'] = allowedTo('poll_remove_any', $board) || (User::$me->id == $this->member && allowedTo('poll_remove_own', $board));
+		$this->permissions['can_remove_poll'] = User::$me->allowedTo('poll_remove_any', $board) || (User::$me->id == $this->member && User::$me->allowedTo('poll_remove_own', $board));
 
 		// You're allowed to vote if:
 		// 1. the poll did not expire, and
@@ -329,14 +329,14 @@ class Poll implements \ArrayAccess
 		// 4. the poll is not locked, and
 		// 5. you have the proper permissions, and
 		// 6. you haven't already voted before.
-		$this->permissions['allow_vote'] = !$is_expired && (!User::$me->is_guest || ($this->guest_vote && allowedTo('poll_vote', $board))) && empty($this->voting_locked) && allowedTo('poll_vote', $board) && !$this->has_voted;
+		$this->permissions['allow_vote'] = !$is_expired && (!User::$me->is_guest || ($this->guest_vote && User::$me->allowedTo('poll_vote', $board))) && empty($this->voting_locked) && User::$me->allowedTo('poll_vote', $board) && !$this->has_voted;
 
 		// You're allowed to view the results if:
 		// 1. you're just a super-nice-guy, or
 		// 2. anyone can see them (hide_results == 0), or
 		// 3. you can see them after you voted (hide_results == 1), or
 		// 4. you've waited long enough for the poll to expire. (whether hide_results is 1 or 2.)
-		$this->permissions['allow_results_view'] = allowedTo('moderate_board', $board) || $this->hide_results == 0 || ($this->hide_results == 1 && $this->has_voted) || $is_expired;
+		$this->permissions['allow_results_view'] = User::$me->allowedTo('moderate_board', $board) || $this->hide_results == 0 || ($this->hide_results == 1 && $this->has_voted) || $is_expired;
 
 		// Aliases for the sake of backward compatibility.
 		$this->permissions['allow_poll_view'] = &$this->permissions['allow_results_view'];
@@ -349,7 +349,7 @@ class Poll implements \ArrayAccess
 		// 4. you have the proper permissions, and
 		// 5. you have already voted, and
 		// 6. the poll creator has said you can!
-		$this->permissions['allow_change_vote'] = !$is_expired && !User::$me->is_guest && !$this->voting_locked && allowedTo('poll_vote', $board) && $this->has_voted && $this->change_vote;
+		$this->permissions['allow_change_vote'] = !$is_expired && !User::$me->is_guest && !$this->voting_locked && User::$me->allowedTo('poll_vote', $board) && $this->has_voted && $this->change_vote;
 
 		// You're allowed to return to voting options if:
 		// 1. you are (still) allowed to vote.
@@ -877,17 +877,17 @@ class Poll implements \ArrayAccess
 		// New topic, new poll.
 		if (empty(Topic::$topic_id))
 		{
-			isAllowedTo('poll_post');
+			User::$me->isAllowedTo('poll_post');
 		}
 		// This is an old topic, but it is theirs!  Can they add to it?
-		elseif (User::$me->id == Topic::load()->id_member_started && !allowedTo('poll_add_any'))
+		elseif (User::$me->id == Topic::load()->id_member_started && !User::$me->allowedTo('poll_add_any'))
 		{
-			isAllowedTo('poll_add_own');
+			User::$me->isAllowedTo('poll_add_own');
 		}
 		// If they're not the owner, can they add a poll to any topic?
 		else
 		{
-			isAllowedTo('poll_add_any');
+			User::$me->isAllowedTo('poll_add_any');
 		}
 
 		// At this point, they can create a new poll.
@@ -910,7 +910,7 @@ class Poll implements \ArrayAccess
 			return false;
 
 		// If they can edit any poll, they're good to go.
-		if (allowedTo('poll_edit_any'))
+		if (User::$me->allowedTo('poll_edit_any'))
 			return true;
 
 		// Does this poll belong to current user?
@@ -918,7 +918,7 @@ class Poll implements \ArrayAccess
 		$is_own_poll = $is_own_topic || (!empty($poll->member) && User::$me->id == $poll->member);
 
 		// Stop dead if they can't edit this poll.
-		isAllowedTo('poll_edit_' . ($is_own_poll ? 'own' : 'any'));
+		User::$me->isAllowedTo('poll_edit_' . ($is_own_poll ? 'own' : 'any'));
 
 		// At this point, they can edit the poll.
 		return true;
@@ -933,7 +933,7 @@ class Poll implements \ArrayAccess
 	public static function checkRemovePermission($poll): bool
 	{
 		// If they can remove any poll, they're good to go.
-		if (allowedTo('poll_remove_any'))
+		if (User::$me->allowedTo('poll_remove_any'))
 			return true;
 
 		// Does this poll belong to current user?
@@ -941,7 +941,7 @@ class Poll implements \ArrayAccess
 		$is_own_poll = $is_own_topic || (!empty($poll->member) && User::$me->id == $poll->member);
 
 		// Stop dead if they can't remove this poll.
-		isAllowedTo('poll_remove_' . ($is_own_poll ? 'own' : 'any'));
+		User::$me->isAllowedTo('poll_remove_' . ($is_own_poll ? 'own' : 'any'));
 
 		// At this point, they can remove the poll.
 		return true;
@@ -961,7 +961,7 @@ class Poll implements \ArrayAccess
 	public static function vote(): void
 	{
 		// Make sure they can vote.
-		isAllowedTo('poll_vote');
+		User::$me->isAllowedTo('poll_vote');
 
 		Lang::load('Post');
 
@@ -1094,14 +1094,14 @@ class Poll implements \ArrayAccess
 
 		// Not allowed, so log and show fatal error.
 		if (!$poll->permissions['allow_lock_poll'])
-			isAllowedTo('poll_lock_' . (User::$me->id == $poll->member ? 'own' : 'any'));
+			User::$me->isAllowedTo('poll_lock_' . (User::$me->id == $poll->member ? 'own' : 'any'));
 
 		switch ($poll->voting_locked)
 		{
 			// Was locked by a moderator.
 			case 2:
 				// If current user is not a moderator, they can't unlock it.
-				if (!allowedTo('moderate_board'))
+				if (!User::$me->allowedTo('moderate_board'))
 					ErrorHandler::fatalLang('locked_by_admin', 'user');
 
 				// Otherwise, unlock it.
@@ -1116,7 +1116,7 @@ class Poll implements \ArrayAccess
 			// Not locked, so lock it.
 			default:
 				// Remember whether this was locked by moderator or a regular user.
-				$poll->voting_locked = allowedTo('moderate_board') ? 2 : 1;
+				$poll->voting_locked = User::$me->allowedTo('moderate_board') ? 2 : 1;
 				break;
 		}
 
@@ -1257,13 +1257,13 @@ class Poll implements \ArrayAccess
 		$is_own_poll = $is_own_topic || (!empty($poll->member) && User::$me->id == $poll->member);
 
 		// Check if they have the power to add or edit the poll.
-		if ($is_edit && !allowedTo('poll_edit_any'))
+		if ($is_edit && !User::$me->allowedTo('poll_edit_any'))
 		{
-			isAllowedTo('poll_edit_' . ($is_own_poll ? 'own' : 'any'));
+			User::$me->isAllowedTo('poll_edit_' . ($is_own_poll ? 'own' : 'any'));
 		}
-		elseif (!$is_edit && !allowedTo('poll_add_any'))
+		elseif (!$is_edit && !User::$me->allowedTo('poll_add_any'))
 		{
-			isAllowedTo('poll_add_' . ($is_own_topic ? 'own' : 'any'));
+			User::$me->isAllowedTo('poll_add_' . ($is_own_topic ? 'own' : 'any'));
 		}
 
 		// Prevent double submission of this form.
@@ -1619,7 +1619,7 @@ class Poll implements \ArrayAccess
 			}
 		}
 		// If this is a guest we need to do our best to work out if they have voted, and what they voted for.
-		elseif ($this->guest_vote && allowedTo('poll_vote'))
+		elseif ($this->guest_vote && User::$me->allowedTo('poll_vote'))
 		{
 			if (!empty($_COOKIE['guest_poll_vote']) && preg_match('~^[0-9,;]+$~', $_COOKIE['guest_poll_vote']) && strpos($_COOKIE['guest_poll_vote'], ';' . Topic::$info->id_poll . ',') !== false)
 			{
@@ -1691,7 +1691,7 @@ class Poll implements \ArrayAccess
 				$this->params['is_approved'] = 1;
 			}
 
-			if ($options & self::CHECK_ACCESS && !in_array(0, ($boardsAllowed = boardsAllowedTo('poll_view'))))
+			if ($options & self::CHECK_ACCESS && !in_array(0, ($boardsAllowed = User::$me->boardsAllowedTo('poll_view'))))
 			{
 				$this->where[] = 't.id_board IN ({array_int:boards_allowed_see})';
 				$this->params['boards_allowed_see'] = $boardsAllowed;
@@ -1835,8 +1835,7 @@ class Poll implements \ArrayAccess
 
 		if (isset(Board::$info->id))
 		{
-			require_once(Config::$sourcedir . '/Subs-Members.php');
-			$groupsAllowedVote = groupsAllowedTo('poll_vote', Board::$info->id);
+			$groupsAllowedVote = User::groupsAllowedTo('poll_vote', Board::$info->id);
 			self::$guest_vote_enabled = in_array(-1, $groupsAllowedVote['allowed']);
 		}
 

@@ -616,7 +616,7 @@ class Mail implements ActionInterface
 	protected function __construct()
 	{
 		// You need to be an admin to edit settings!
-		isAllowedTo('admin_forum');
+		User::$me->isAllowedTo('admin_forum');
 
 		Lang::load('Help');
 		Lang::load('ManageMail');

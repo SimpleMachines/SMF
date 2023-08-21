@@ -65,7 +65,7 @@ class GroupAct_Notify extends BackgroundTask
 			// If we are approving, add them!
 			if ($this->_details['status'] == 'approve')
 			{
-				// Hack in blank permissions so that allowedTo() will fail.
+				// Hack in blank permissions so that User::$me->allowedTo() will fail.
 				require_once(Config::$sourcedir . '/Security.php');
 				User::$me->permissions = array();
 

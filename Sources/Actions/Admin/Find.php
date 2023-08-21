@@ -20,6 +20,7 @@ use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\User;
 use SMF\Utils;
 
 /**
@@ -171,7 +172,7 @@ class Find implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		isAllowedTo('admin_forum');
+		User::$me->isAllowedTo('admin_forum');
 
 		Utils::$context['search_type'] = $this->subaction;
 		Utils::$context['search_term'] = isset($_REQUEST['search_term']) ? Utils::htmlspecialchars($_REQUEST['search_term'], ENT_QUOTES) : '';

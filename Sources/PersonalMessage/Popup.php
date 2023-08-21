@@ -41,8 +41,8 @@ class Popup
 		Utils::$context['template_layers'] = array();
 		Utils::$context['sub_template'] = 'pm_popup';
 
-		Utils::$context['can_send_pm'] = allowedTo('pm_send');
-		Utils::$context['can_draft'] = allowedTo('pm_draft') && !empty(Config::$modSettings['drafts_pm_enabled']);
+		Utils::$context['can_send_pm'] = User::$me->allowedTo('pm_send');
+		Utils::$context['can_draft'] = User::$me->allowedTo('pm_draft') && !empty(Config::$modSettings['drafts_pm_enabled']);
 	}
 
 	/**

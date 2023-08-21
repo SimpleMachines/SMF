@@ -121,7 +121,7 @@ class Groups implements ActionInterface
 		Theme::loadTemplate('ManageMembergroups');
 
 		// If needed, set the mod center menu.
-		if (allowedTo('access_mod_center') && (User::$me->mod_cache['gq'] != '0=1' || allowedTo('manage_membergroups')) && !isset(Menu::$loaded['admin']) && !isset(Menu::$loaded['moderate']))
+		if (User::$me->allowedTo('access_mod_center') && (User::$me->mod_cache['gq'] != '0=1' || User::$me->allowedTo('manage_membergroups')) && !isset(Menu::$loaded['admin']) && !isset(Menu::$loaded['moderate']))
 		{
 			$_GET['area'] = $this->subaction == 'requests' ? 'groups' : 'viewgroups';
 
@@ -132,7 +132,7 @@ class Groups implements ActionInterface
 		// Otherwise add something to the link tree, for normal people.
 		else
 		{
-			isAllowedTo('view_mlist');
+			User::$me->isAllowedTo('view_mlist');
 
 			$this->action_url = '?action=groups';
 
@@ -296,13 +296,13 @@ class Groups implements ActionInterface
 		// Fix the membergroup icons.
 		Utils::$context['group']['icons'] = explode('#', Utils::$context['group']['icons']);
 		Utils::$context['group']['icons'] = !empty(Utils::$context['group']['icons'][0]) && !empty(Utils::$context['group']['icons'][1]) ? str_repeat('<img src="' . Theme::$current->settings['images_url'] . '/membericons/' . Utils::$context['group']['icons'][1] . '" alt="*">', Utils::$context['group']['icons'][0]) : '';
-		Utils::$context['group']['can_moderate'] = allowedTo('manage_membergroups') && (allowedTo('admin_forum') || Utils::$context['group']['group_type'] != 1);
+		Utils::$context['group']['can_moderate'] = User::$me->allowedTo('manage_membergroups') && (User::$me->allowedTo('admin_forum') || Utils::$context['group']['group_type'] != 1);
 
 		Utils::$context['linktree'][] = array(
 			'url' => Config::$scripturl . $this->action_url . ';sa=members;group=' . Utils::$context['group']['id'],
 			'name' => Utils::$context['group']['name'],
 		);
-		Utils::$context['can_send_email'] = allowedTo('moderate_forum');
+		Utils::$context['can_send_email'] = User::$me->allowedTo('moderate_forum');
 
 		// Load all the group moderators, for fun.
 		Utils::$context['group']['moderators'] = array();
@@ -337,7 +337,7 @@ class Groups implements ActionInterface
 			Utils::$context['group']['assignable'] = 0;
 		}
 		// Non-admins cannot assign admins.
-		elseif (Utils::$context['group']['id'] == 1 && !allowedTo('admin_forum'))
+		elseif (Utils::$context['group']['id'] == 1 && !User::$me->allowedTo('admin_forum'))
 		{
 			Utils::$context['group']['assignable'] = 0;
 		}
@@ -489,7 +489,7 @@ class Groups implements ActionInterface
 		Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . $this->action_url . ';sa=members;group=' . $_REQUEST['group'] . ';sort=' . Utils::$context['sort_by'] . (isset($_REQUEST['desc']) ? ';desc' : ''), $_REQUEST['start'], Utils::$context['total_members'], Config::$modSettings['defaultMaxMembers']);
 		Utils::$context['total_members'] = Lang::numberFormat(Utils::$context['total_members']);
 		Utils::$context['start'] = $_REQUEST['start'];
-		Utils::$context['can_moderate_forum'] = allowedTo('moderate_forum');
+		Utils::$context['can_moderate_forum'] = User::$me->allowedTo('moderate_forum');
 
 		// Load up all members of this group.
 		Utils::$context['members'] = array();
@@ -550,7 +550,7 @@ class Groups implements ActionInterface
 
 		// Verify we can be here.
 		if (User::$me->mod_cache['gq'] == '0=1')
-			isAllowedTo('manage_membergroups');
+			User::$me->isAllowedTo('manage_membergroups');
 
 		// Normally, we act normally...
 		$where = (User::$me->mod_cache['gq'] == '1=1' || User::$me->mod_cache['gq'] == '0=1' ? User::$me->mod_cache['gq'] : 'lgr.' . User::$me->mod_cache['gq']);
@@ -817,7 +817,7 @@ class Groups implements ActionInterface
 				mg.icons, COALESCE(gm.id_member, 0) AS can_moderate, 0 AS num_members
 			FROM {db_prefix}membergroups AS mg
 				LEFT JOIN {db_prefix}group_moderators AS gm ON (gm.id_group = mg.id_group AND gm.id_member = {int:current_member})
-			WHERE mg.min_posts {raw:min_posts}' . (allowedTo('admin_forum') ? '' : '
+			WHERE mg.min_posts {raw:min_posts}' . (User::$me->allowedTo('admin_forum') ? '' : '
 				AND mg.id_group != {int:mod_group}') . '
 			ORDER BY {raw:sort}',
 			array(
@@ -831,11 +831,11 @@ class Groups implements ActionInterface
 		// Start collecting the data.
 		$groups = array();
 		$group_ids = array();
-		Utils::$context['can_moderate'] = allowedTo('manage_membergroups');
+		Utils::$context['can_moderate'] = User::$me->allowedTo('manage_membergroups');
 		while ($row = Db::$db->fetch_assoc($request))
 		{
 			// We only list the groups they can see.
-			if ($row['hidden'] && !$row['can_moderate'] && !allowedTo('manage_membergroups'))
+			if ($row['hidden'] && !$row['can_moderate'] && !User::$me->allowedTo('manage_membergroups'))
 				continue;
 
 			$row['icons'] = explode('#', $row['icons']);
@@ -1021,7 +1021,7 @@ class Groups implements ActionInterface
 	{
 		// Show your licence, but only if it hasn't been done yet.
 		if (!$permissionCheckDone)
-			isAllowedTo('manage_membergroups');
+			User::$me->isAllowedTo('manage_membergroups');
 
 		// Make sure we don't keep old stuff cached.
 		Config::updateModSettings(array('settings_updated' => time()));
@@ -1060,11 +1060,11 @@ class Groups implements ActionInterface
 			return false;
 
 		// Only admins can add admins...
-		if (!allowedTo('admin_forum') && $group == 1)
+		if (!User::$me->allowedTo('admin_forum') && $group == 1)
 			return false;
 
 		// ... and assign protected groups!
-		if (!allowedTo('admin_forum') && !$ignoreProtected)
+		if (!User::$me->allowedTo('admin_forum') && !$ignoreProtected)
 		{
 			$request = Db::$db->query('', '
 				SELECT group_type
@@ -1328,7 +1328,7 @@ class Groups implements ActionInterface
 	{
 		// You're getting nowhere without this permission, unless of course you are the group's moderator.
 		if (!$permissionCheckDone)
-			isAllowedTo('manage_membergroups');
+			User::$me->isAllowedTo('manage_membergroups');
 
 		// Assume something will happen.
 		Config::updateModSettings(array('settings_updated' => time()));
@@ -1369,7 +1369,7 @@ class Groups implements ActionInterface
 				SET
 					id_group = {int:regular_member},
 					additional_groups = {string:blank_string}
-				WHERE id_member IN ({array_int:member_list})' . (allowedTo('admin_forum') ? '' : '
+				WHERE id_member IN ({array_int:member_list})' . (User::$me->allowedTo('admin_forum') ? '' : '
 					AND id_group != {int:admin_group}
 					AND FIND_IN_SET({int:admin_group}, additional_groups) = 0'),
 				array(
@@ -1423,7 +1423,7 @@ class Groups implements ActionInterface
 		$groups = array_diff($groups, $implicitGroups);
 
 		// Don't forget the protected groups.
-		if (!allowedTo('admin_forum') && !$ignoreProtected)
+		if (!User::$me->allowedTo('admin_forum') && !$ignoreProtected)
 		{
 			$request = Db::$db->query('', '
 				SELECT id_group

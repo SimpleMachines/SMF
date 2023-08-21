@@ -191,8 +191,8 @@ class Folder
 				break;
 		}
 
-		Utils::$context['can_send_pm'] = allowedTo('pm_send');
-		Utils::$context['can_send_email'] = allowedTo('moderate_forum');
+		Utils::$context['can_send_pm'] = User::$me->allowedTo('pm_send');
+		Utils::$context['can_send_email'] = User::$me->allowedTo('moderate_forum');
 		Utils::$context['sub_template'] = 'folder';
 		Utils::$context['page_title'] = Lang::$txt['pm_inbox'];
 

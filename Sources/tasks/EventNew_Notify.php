@@ -35,8 +35,7 @@ class EventNew_Notify extends BackgroundTask
 	public function execute()
 	{
 		// Get everyone who could be notified - those are the people who can see the calendar.
-		require_once(Config::$sourcedir . '/Subs-Members.php');
-		$members = membersAllowedTo('calendar_view');
+		$members = User::membersAllowedTo('calendar_view');
 
 		// Don't alert the event creator
 		if (!empty($this->_details['sender_id']))

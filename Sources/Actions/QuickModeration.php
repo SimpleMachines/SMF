@@ -374,14 +374,14 @@ class QuickModeration implements ActionInterface
 		{
 			foreach ($permissions_to_check as $permission)
 			{
-				$this->boards_can[$permission] = allowedTo($permission) ? array(Board::$info->id) : array();
+				$this->boards_can[$permission] = User::$me->allowedTo($permission) ? array(Board::$info->id) : array();
 			}
 
 			$this->redirect_url = 'board=' . Board::$info->id . '.' . $_REQUEST['start'];
 		}
 		else
 		{
-			$this->boards_can = boardsAllowedTo($permissions_to_check, true, false);
+			$this->boards_can = User::$me->boardsAllowedTo($permissions_to_check, true, false);
 
 			$this->redirect_url = isset($_POST['redirect_url']) ? $_POST['redirect_url'] : (isset($_SESSION['old_url']) ? $_SESSION['old_url'] : '');
 		}
@@ -392,11 +392,11 @@ class QuickModeration implements ActionInterface
 			// Don't count this board, if it's specified
 			if (!empty(Board::$info->id))
 			{
-				$this->boards_can['post_new'] = array_diff(boardsAllowedTo('post_new'), array(Board::$info->id));
+				$this->boards_can['post_new'] = array_diff(User::$me->boardsAllowedTo('post_new'), array(Board::$info->id));
 			}
 			else
 			{
-				$this->boards_can['post_new'] = boardsAllowedTo('post_new');
+				$this->boards_can['post_new'] = User::$me->boardsAllowedTo('post_new');
 			}
 
 			if (empty($this->boards_can['post_new']))
@@ -627,7 +627,7 @@ class QuickModeration implements ActionInterface
 		$lock_status = array();
 
 		// Gotta make sure they CAN lock/unlock these topics...
-		if (!empty(Board::$info->id) && !allowedTo('lock_any'))
+		if (!empty(Board::$info->id) && !User::$me->allowedTo('lock_any'))
 		{
 			// Make sure they started the topic AND it isn't already locked by someone with higher priv's.
 			$locked_topic_ids = array();
@@ -684,7 +684,7 @@ class QuickModeration implements ActionInterface
 			// Alternate the locked value.
 			Db::$db->query('', '
 				UPDATE {db_prefix}topics
-				SET locked = CASE WHEN locked = {int:is_locked} THEN ' . (allowedTo('lock_any') ? '1' : '2') . ' ELSE 0 END
+				SET locked = CASE WHEN locked = {int:is_locked} THEN ' . (User::$me->allowedTo('lock_any') ? '1' : '2') . ' ELSE 0 END
 				WHERE id_topic IN ({array_int:locked_topic_ids})',
 				array(
 					'locked_topic_ids' => $this->topic_actions['lock'],
@@ -725,7 +725,7 @@ class QuickModeration implements ActionInterface
 			SELECT t.id_topic, t.id_board, b.count_posts
 			FROM {db_prefix}topics AS t
 				LEFT JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
-			WHERE t.id_topic IN ({array_int:move_topic_ids})' . (!empty(Board::$info->id) && !allowedTo('move_any') ? '
+			WHERE t.id_topic IN ({array_int:move_topic_ids})' . (!empty(Board::$info->id) && !User::$me->allowedTo('move_any') ? '
 				AND t.id_member_started = {int:current_member}' : '') . '
 			LIMIT {int:limit}',
 			array(
@@ -858,7 +858,7 @@ class QuickModeration implements ActionInterface
 		$result = Db::$db->query('', '
 			SELECT id_topic, id_board
 			FROM {db_prefix}topics
-			WHERE id_topic IN ({array_int:removed_topic_ids})' . (!empty(Board::$info->id) && !allowedTo('remove_any') ? '
+			WHERE id_topic IN ({array_int:removed_topic_ids})' . (!empty(Board::$info->id) && !User::$me->allowedTo('remove_any') ? '
 				AND id_member_started = {int:current_member}' : '') . '
 			LIMIT {int:limit}',
 			array(

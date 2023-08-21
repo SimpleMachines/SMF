@@ -509,7 +509,7 @@ class ReportedContent implements ActionInterface
 				ErrorHandler::fatalLang('report_action_message_delete_issue');
 
 			// Can you actually do this?
-			if (!allowedTo('admin_forum') && User::$me->id != $comment['id_member'])
+			if (!User::$me->allowedTo('admin_forum') && User::$me->id != $comment['id_member'])
 				ErrorHandler::fatalLang('report_action_message_delete_cannot');
 
 			// All good!
@@ -561,7 +561,7 @@ class ReportedContent implements ActionInterface
 				ErrorHandler::fatalLang('report_action_message_edit_issue');
 
 			// So, you aren't neither an admin or the comment owner huh? that's too bad.
-			if (!allowedTo('admin_forum') && User::$me->id != Utils::$context['comment']['id_member'])
+			if (!User::$me->allowedTo('admin_forum') && User::$me->id != Utils::$context['comment']['id_member'])
 			{
 				ErrorHandler::fatalLang('report_action_message_edit_cannot');
 			}
@@ -740,7 +740,7 @@ class ReportedContent implements ActionInterface
 
 		// This comes under the umbrella of moderating posts.
 		if ($this->type == 'members' || User::$me->mod_cache['bq'] == '0=1')
-			isAllowedTo('moderate_forum');
+			User::$me->isAllowedTo('moderate_forum');
 
 		// Go ahead and add your own sub-actions.
 		call_integration_hook('integrate_reported_' . $this->type, array(&self::$subactions));
@@ -1108,8 +1108,8 @@ class ReportedContent implements ActionInterface
 		}
 
 		// Get the boards where the current user can remove any message.
-		$this->remove_any_boards = User::$me->is_admin ? $report_boards_ids : array_intersect($report_boards_ids, boardsAllowedTo('remove_any'));
-		$this->manage_bans = allowedTo('manage_bans');
+		$this->remove_any_boards = User::$me->is_admin ? $report_boards_ids : array_intersect($report_boards_ids, User::$me->boardsAllowedTo('remove_any'));
+		$this->manage_bans = User::$me->allowedTo('manage_bans');
 
 		return $reports;
 	}
@@ -1212,7 +1212,7 @@ class ReportedContent implements ActionInterface
 					'name' => empty($row['reporter']) ? Lang::$txt['guest'] : $row['reporter'],
 					'link' => $row['id_member'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['reporter'] . '</a>' : (empty($row['reporter']) ? Lang::$txt['guest'] : $row['reporter']),
 					'href' => $row['id_member'] ? Config::$scripturl . '?action=profile;u=' . $row['id_member'] : '',
-					'ip' => !empty($row['member_ip']) && allowedTo('moderate_forum') ? '<a href="' . Config::$scripturl . '?action=trackip;searchip=' . inet_dtop($row['member_ip']) . '">' . inet_dtop($row['member_ip']) . '</a>' : '',
+					'ip' => !empty($row['member_ip']) && User::$me->allowedTo('moderate_forum') ? '<a href="' . Config::$scripturl . '?action=trackip;searchip=' . inet_dtop($row['member_ip']) . '">' . inet_dtop($row['member_ip']) . '</a>' : '',
 				),
 			);
 		}
@@ -1236,7 +1236,7 @@ class ReportedContent implements ActionInterface
 				'id' => $row['id_comment'],
 				'message' => BBCodeParser::load()->parse($row['body']),
 				'time' => timeformat($row['log_time']),
-				'can_edit' => allowedTo('admin_forum') || ((User::$me->id == $row['id_member'])),
+				'can_edit' => User::$me->allowedTo('admin_forum') || ((User::$me->id == $row['id_member'])),
 				'member' => array(
 					'id' => $row['id_member'],
 					'name' => $row['moderator'],
@@ -1279,7 +1279,7 @@ class ReportedContent implements ActionInterface
 		// Add the permission
 		if (!empty($comment))
 		{
-			$comment['can_edit'] = allowedTo('admin_forum') || ((User::$me->id == $comment['id_member']));
+			$comment['can_edit'] = User::$me->allowedTo('admin_forum') || ((User::$me->id == $comment['id_member']));
 		}
 
 		return $comment;

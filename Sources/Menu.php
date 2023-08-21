@@ -461,7 +461,7 @@ class Menu implements \ArrayAccess
 		if (isset($menu_item['enabled']) && $menu_item['enabled'] == false)
 			return false;
 
-		if (isset($menu_item['permission']) && !allowedTo($menu_item['permission']))
+		if (isset($menu_item['permission']) && !User::$me->allowedTo($menu_item['permission']))
 			return false;
 
 		return true;

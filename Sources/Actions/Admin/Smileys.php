@@ -1539,7 +1539,7 @@ class Smileys implements ActionInterface
 	 */
 	public function install()
 	{
-		isAllowedTo('manage_smileys');
+		User::$me->isAllowedTo('manage_smileys');
 		User::$me->checkSession('request');
 
 		// One of these two may be necessary
@@ -2416,7 +2416,7 @@ class Smileys implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		isAllowedTo('manage_smileys');
+		User::$me->isAllowedTo('manage_smileys');
 
 		Lang::load('ManageSmileys');
 		loadTemplate('ManageSmileys');

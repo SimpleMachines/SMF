@@ -20,6 +20,7 @@ use SMF\Board;
 use SMF\Lang;
 use SMF\Profile;
 use SMF\Theme;
+use SMF\User;
 use SMF\Utils;
 use SMF\Actions\Admin\Permissions;
 use SMF\Db\DatabaseApi as Db;
@@ -65,7 +66,7 @@ class ShowPermissions implements ActionInterface
 	public function execute(): void
 	{
 		// Verify if the user has sufficient permissions.
-		isAllowedTo('manage_permissions');
+		User::$me->isAllowedTo('manage_permissions');
 
 		Utils::$context['page_title'] = Lang::$txt['showPermissions'];
 

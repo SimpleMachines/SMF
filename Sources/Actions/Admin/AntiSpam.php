@@ -69,7 +69,7 @@ class AntiSpam implements ActionInterface
 		$config_vars = self::getConfigVars();
 
 		// You need to be an admin to edit settings!
-		isAllowedTo('admin_forum');
+		User::$me->isAllowedTo('admin_forum');
 
 		// Generate a sample registration image.
 		Utils::$context['verification_image_href'] = Config::$scripturl . '?action=verificationcode;rand=' . md5(mt_rand());

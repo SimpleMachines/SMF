@@ -1527,7 +1527,7 @@ class Themes implements ActionInterface
 			redirectexit('action=admin;area=theme;' . (isset($_GET['sa']) ? ';sa=' . $_GET['sa'] : '') . (isset($_GET['u']) ? ';u=' . $_GET['u'] : ''));
 		}
 
-		isAllowedTo('admin_forum');
+		User::$me->isAllowedTo('admin_forum');
 
 		// Load the important language files...
 		Lang::load('Admin');

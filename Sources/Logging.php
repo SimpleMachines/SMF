@@ -660,7 +660,7 @@ class Logging
 			&& !empty(Config::$modSettings['spider_name_cache'])
 			&& (
 				Config::$modSettings['show_spider_online'] < 3
-				|| allowedTo('admin_forum')
+				|| User::$me->allowedTo('admin_forum')
 			)
 		)
 		{

@@ -130,7 +130,7 @@ class Post2 extends Post
 	 */
 	public function execute(): void
 	{
-		$this->can_approve = allowedTo('approve_posts');
+		$this->can_approve = User::$me->allowedTo('approve_posts');
 
 		// If there is an existing topic, load it.
 		if ($this->intent !== self::INTENT_NEW_TOPIC)
@@ -242,12 +242,12 @@ class Post2 extends Post
 				// Only check if they changed it!
 				if (!isset($this->existing_msg) || $this->existing_msg->poster_email != $_POST['email'])
 				{
-					if (!allowedTo('moderate_forum') && (!isset($_POST['email']) || $_POST['email'] == ''))
+					if (!User::$me->allowedTo('moderate_forum') && (!isset($_POST['email']) || $_POST['email'] == ''))
 					{
 						$this->errors[] = 'no_email';
 					}
 
-					if (!allowedTo('moderate_forum') && !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL))
+					if (!User::$me->allowedTo('moderate_forum') && !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL))
 					{
 						$this->errors[] = 'bad_email';
 					}
@@ -295,7 +295,7 @@ class Post2 extends Post
 			Msg::preparsecode($_POST['message']);
 
 			// Let's see if there's still some content left without the tags.
-			if (Utils::htmlTrim(strip_tags(BBCodeParser::load()->parse($_POST['message'], false), implode('', Utils::$context['allowed_html_tags']))) === '' && (!allowedTo('bbc_html') || strpos($_POST['message'], '[html]') === false))
+			if (Utils::htmlTrim(strip_tags(BBCodeParser::load()->parse($_POST['message'], false), implode('', Utils::$context['allowed_html_tags']))) === '' && (!User::$me->allowedTo('bbc_html') || strpos($_POST['message'], '[html]') === false))
 			{
 				$this->errors[] = 'no_message';
 			}
@@ -420,7 +420,7 @@ class Post2 extends Post
 					'size' => isset($attachment['size']) ? $attachment['size'] : 0,
 					'mime_type' => isset($attachment['type']) ? $attachment['type'] : '',
 					'id_folder' => isset($attachment['id_folder']) ? $attachment['id_folder'] : Config::$modSettings['currentAttachmentUploadDir'],
-					'approved' => !Config::$modSettings['postmod_active'] || allowedTo('post_attachment'),
+					'approved' => !Config::$modSettings['postmod_active'] || User::$me->allowedTo('post_attachment'),
 					'errors' => $attachment['errors'],
 				);
 
@@ -577,9 +577,9 @@ class Post2 extends Post
 			Calendar::validateEventPost();
 
 			// If you're not allowed to edit any and all events, you have to be the poster.
-			if (!allowedTo('calendar_edit_any'))
+			if (!User::$me->allowedTo('calendar_edit_any'))
 			{
-				isAllowedTo('calendar_edit_' . (!empty(User::$me->id) && self::getEventPoster($_REQUEST['eventid']) == User::$me->id ? 'own' : 'any'));
+				User::$me->isAllowedTo('calendar_edit_' . (!empty(User::$me->id) && self::getEventPoster($_REQUEST['eventid']) == User::$me->id ? 'own' : 'any'));
 			}
 
 			// Delete it?
@@ -686,12 +686,12 @@ class Post2 extends Post
 
 		call_integration_hook('integrate_post2_end');
 
-		if (!empty($_POST['announce_topic']) && allowedTo('announce_topic'))
+		if (!empty($_POST['announce_topic']) && User::$me->allowedTo('announce_topic'))
 		{
-			redirectexit('action=announce;sa=selectgroup;topic=' . Topic::$topic_id . (!empty($_POST['move']) && allowedTo('move_any') ? ';move' : '') . (empty($_REQUEST['goback']) ? '' : ';goback'));
+			redirectexit('action=announce;sa=selectgroup;topic=' . Topic::$topic_id . (!empty($_POST['move']) && User::$me->allowedTo('move_any') ? ';move' : '') . (empty($_REQUEST['goback']) ? '' : ';goback'));
 		}
 
-		if (!empty($_POST['move']) && allowedTo('move_any'))
+		if (!empty($_POST['move']) && User::$me->allowedTo('move_any'))
 		{
 			redirectexit('action=movetopic;topic=' . Topic::$topic_id . '.0' . (empty($_REQUEST['goback']) ? '' : ';goback'));
 		}
@@ -838,7 +838,7 @@ class Post2 extends Post
 		}
 
 		// Then try to upload any attachments.
-		Utils::$context['can_post_attachment'] = !empty(Config::$modSettings['attachmentEnable']) && Config::$modSettings['attachmentEnable'] == 1 && (allowedTo('post_attachment') || (Config::$modSettings['postmod_active'] && allowedTo('post_unapproved_attachments')));
+		Utils::$context['can_post_attachment'] = !empty(Config::$modSettings['attachmentEnable']) && Config::$modSettings['attachmentEnable'] == 1 && (User::$me->allowedTo('post_attachment') || (Config::$modSettings['postmod_active'] && User::$me->allowedTo('post_unapproved_attachments')));
 
 		if (Utils::$context['can_post_attachment'] && empty($_POST['from_qr']))
 		{
@@ -864,7 +864,7 @@ class Post2 extends Post
 	protected function prepareNewReply(): void
 	{
 		// Don't allow a post if it's locked.
-		if (Topic::$info->is_locked != 0 && !allowedTo('moderate_board'))
+		if (Topic::$info->is_locked != 0 && !User::$me->allowedTo('moderate_board'))
 			ErrorHandler::fatalLang('topic_locked', false);
 
 		// Sorry, multiple polls aren't allowed... yet.  You should stop giving me ideas :P.
@@ -873,24 +873,24 @@ class Post2 extends Post
 
 		if (Topic::$info->id_member_started != User::$me->id)
 		{
-			if (Config::$modSettings['postmod_active'] && allowedTo('post_unapproved_replies_any') && !allowedTo('post_reply_any'))
+			if (Config::$modSettings['postmod_active'] && User::$me->allowedTo('post_unapproved_replies_any') && !User::$me->allowedTo('post_reply_any'))
 			{
 				$this->becomes_approved = false;
 			}
 			else
 			{
-				isAllowedTo('post_reply_any');
+				User::$me->isAllowedTo('post_reply_any');
 			}
 		}
-		elseif (!allowedTo('post_reply_any'))
+		elseif (!User::$me->allowedTo('post_reply_any'))
 		{
-			if (Config::$modSettings['postmod_active'] && allowedTo('post_unapproved_replies_own') && !allowedTo('post_reply_own'))
+			if (Config::$modSettings['postmod_active'] && User::$me->allowedTo('post_unapproved_replies_own') && !User::$me->allowedTo('post_reply_own'))
 			{
 				$this->becomes_approved = false;
 			}
 			else
 			{
-				isAllowedTo('post_reply_own');
+				User::$me->isAllowedTo('post_reply_own');
 			}
 		}
 
@@ -902,12 +902,12 @@ class Post2 extends Post
 				unset($_POST['lock']);
 			}
 			// You have no permission to lock this topic.
-			elseif (!allowedTo(array('lock_any', 'lock_own')) || (!allowedTo('lock_any') && User::$me->id != Topic::$info->id_member_started))
+			elseif (!User::$me->allowedTo(array('lock_any', 'lock_own')) || (!User::$me->allowedTo('lock_any') && User::$me->id != Topic::$info->id_member_started))
 			{
 				unset($_POST['lock']);
 			}
 			// You are allowed to (un)lock your own topic only.
-			elseif (!allowedTo('lock_any'))
+			elseif (!User::$me->allowedTo('lock_any'))
 			{
 				// You cannot override a moderator lock.
 				if (Topic::$info->is_locked == 1)
@@ -933,7 +933,7 @@ class Post2 extends Post
 		}
 
 		// So you wanna (un)sticky this...let's see.
-		if (isset($_POST['sticky']) && ($_POST['sticky'] == Topic::$info->is_sticky || !allowedTo('make_sticky')))
+		if (isset($_POST['sticky']) && ($_POST['sticky'] == Topic::$info->is_sticky || !User::$me->allowedTo('make_sticky')))
 		{
 			unset($_POST['sticky']);
 		}
@@ -979,13 +979,13 @@ class Post2 extends Post
 		// Do like, the permissions, for safety and stuff...
 		$this->becomes_approved = true;
 
-		if (Config::$modSettings['postmod_active'] && !allowedTo('post_new') && allowedTo('post_unapproved_topics'))
+		if (Config::$modSettings['postmod_active'] && !User::$me->allowedTo('post_new') && User::$me->allowedTo('post_unapproved_topics'))
 		{
 			$this->becomes_approved = false;
 		}
 		else
 		{
-			isAllowedTo('post_new');
+			User::$me->isAllowedTo('post_new');
 		}
 
 		if (isset($_POST['lock']))
@@ -996,18 +996,18 @@ class Post2 extends Post
 				unset($_POST['lock']);
 			}
 			// Besides, you need permission.
-			elseif (!allowedTo(array('lock_any', 'lock_own')))
+			elseif (!User::$me->allowedTo(array('lock_any', 'lock_own')))
 			{
 				unset($_POST['lock']);
 			}
 			// A moderator-lock (1) can override a user-lock (2).
 			else
 			{
-				$_POST['lock'] = allowedTo('lock_any') ? 1 : 2;
+				$_POST['lock'] = User::$me->allowedTo('lock_any') ? 1 : 2;
 			}
 		}
 
-		if (isset($_POST['sticky']) && (empty($_POST['sticky']) || !allowedTo('make_sticky')))
+		if (isset($_POST['sticky']) && (empty($_POST['sticky']) || !User::$me->allowedTo('make_sticky')))
 			unset($_POST['sticky']);
 
 		// Saving your new topic as a draft first?
@@ -1038,7 +1038,7 @@ class Post2 extends Post
 
 		$this->existing_msg = current($msgs);
 
-		if (!empty(Topic::$info->is_locked) && !allowedTo('moderate_board'))
+		if (!empty(Topic::$info->is_locked) && !User::$me->allowedTo('moderate_board'))
 			ErrorHandler::fatalLang('topic_locked', false);
 
 		if (isset($_POST['lock']))
@@ -1049,12 +1049,12 @@ class Post2 extends Post
 				unset($_POST['lock']);
 			}
 			// You're simply not allowed to (un)lock this.
-			elseif (!allowedTo(array('lock_any', 'lock_own')) || (!allowedTo('lock_any') && User::$me->id != Topic::$info->id_member_started))
+			elseif (!User::$me->allowedTo(array('lock_any', 'lock_own')) || (!User::$me->allowedTo('lock_any') && User::$me->id != Topic::$info->id_member_started))
 			{
 				unset($_POST['lock']);
 			}
 			// You're only allowed to lock your own topics.
-			elseif (!allowedTo('lock_any'))
+			elseif (!User::$me->allowedTo('lock_any'))
 			{
 				// You're not allowed to break a moderator's lock.
 				if (Topic::$info->is_locked == 1)
@@ -1081,7 +1081,7 @@ class Post2 extends Post
 		}
 
 		// Change the sticky status of this topic?
-		if (isset($_POST['sticky']) && (!allowedTo('make_sticky') || $_POST['sticky'] == Topic::$info->is_sticky))
+		if (isset($_POST['sticky']) && (!User::$me->allowedTo('make_sticky') || $_POST['sticky'] == Topic::$info->is_sticky))
 		{
 			unset($_POST['sticky']);
 		}
@@ -1094,7 +1094,7 @@ class Post2 extends Post
 			}
 		}
 
-		if ($this->existing_msg->id_member == User::$me->id && !allowedTo('modify_any'))
+		if ($this->existing_msg->id_member == User::$me->id && !User::$me->allowedTo('modify_any'))
 		{
 			if (
 				(
@@ -1107,25 +1107,25 @@ class Post2 extends Post
 			{
 				ErrorHandler::fatalLang('modify_post_time_passed', false);
 			}
-			elseif (Topic::$info->id_member_started == User::$me->id && !allowedTo('modify_own'))
+			elseif (Topic::$info->id_member_started == User::$me->id && !User::$me->allowedTo('modify_own'))
 			{
-				isAllowedTo('modify_replies');
+				User::$me->isAllowedTo('modify_replies');
 			}
 			else
 			{
-				isAllowedTo('modify_own');
+				User::$me->isAllowedTo('modify_own');
 			}
 		}
-		elseif (Topic::$info->id_member_started == User::$me->id && !allowedTo('modify_any'))
+		elseif (Topic::$info->id_member_started == User::$me->id && !User::$me->allowedTo('modify_any'))
 		{
-			isAllowedTo('modify_replies');
+			User::$me->isAllowedTo('modify_replies');
 
 			// If you're modifying a reply, I say it better be logged...
 			$moderationAction = true;
 		}
 		else
 		{
-			isAllowedTo('modify_any');
+			User::$me->isAllowedTo('modify_any');
 
 			// Log it, assuming you're not modifying your own post.
 			if ($this->existing_msg->id_member != User::$me->id)
@@ -1149,7 +1149,7 @@ class Post2 extends Post
 		$approve_checked = (!empty($REQUEST['approve']) ? 1 : 0);
 		$this->becomes_approved = Config::$modSettings['postmod_active'] ? ($this->can_approve && !$this->existing_msg->approved ? $approve_checked : $this->existing_msg->approved) : 1;
 
-		if (!allowedTo('moderate_forum') || !$this->authorIsGuest)
+		if (!User::$me->allowedTo('moderate_forum') || !$this->authorIsGuest)
 		{
 			$_POST['guestname'] = $this->existing_msg->poster_name;
 			$_POST['email'] = $this->existing_msg->poster_email;

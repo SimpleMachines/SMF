@@ -70,7 +70,7 @@ class QuoteFast implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$moderate_boards = boardsAllowedTo('moderate_board');
+		$moderate_boards = User::$me->boardsAllowedTo('moderate_board');
 
 		$request = Db::$db->query('', '
 			SELECT COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.body, m.id_topic, m.subject,
@@ -95,7 +95,7 @@ class QuoteFast implements ActionInterface
 
 		Utils::$context['sub_template'] = 'quotefast';
 		if (!empty($row))
-			$can_view_post = $row['approved'] || ($row['id_member'] != 0 && $row['id_member'] == User::$me->id) || allowedTo('approve_posts', $row['id_board']);
+			$can_view_post = $row['approved'] || ($row['id_member'] != 0 && $row['id_member'] == User::$me->id) || User::$me->allowedTo('approve_posts', $row['id_board']);
 
 		if (!empty($can_view_post))
 		{

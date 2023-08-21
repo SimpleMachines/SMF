@@ -76,10 +76,10 @@ class Summary implements ActionInterface
 		// Set up the stuff and load the user.
 		Utils::$context += array(
 			'page_title' => sprintf(Lang::$txt['profile_of_username'], Profile::$member->formatted['name']),
-			'can_send_pm' => allowedTo('pm_send'),
-			'can_have_buddy' => allowedTo('profile_extra_own') && !empty(Config::$modSettings['enable_buddylist']),
-			'can_issue_warning' => allowedTo('issue_warning') && Config::$modSettings['warning_settings'][0] == 1,
-			'can_view_warning' => (allowedTo('moderate_forum') || allowedTo('issue_warning') || allowedTo('view_warning_any') || (User::$me->is_owner && allowedTo('view_warning_own'))) && Config::$modSettings['warning_settings'][0] === '1'
+			'can_send_pm' => User::$me->allowedTo('pm_send'),
+			'can_have_buddy' => User::$me->allowedTo('profile_extra_own') && !empty(Config::$modSettings['enable_buddylist']),
+			'can_issue_warning' => User::$me->allowedTo('issue_warning') && Config::$modSettings['warning_settings'][0] == 1,
+			'can_view_warning' => (User::$me->allowedTo('moderate_forum') || User::$me->allowedTo('issue_warning') || User::$me->allowedTo('view_warning_any') || (User::$me->is_owner && User::$me->allowedTo('view_warning_own'))) && Config::$modSettings['warning_settings'][0] === '1'
 		);
 
 		// Set a canonical URL for this page.
@@ -138,7 +138,7 @@ class Summary implements ActionInterface
 
 		// Are they hidden?
 		Profile::$member->formatted['is_hidden'] = empty(Profile::$member->show_online);
-		Profile::$member->formatted['show_last_login'] = allowedTo('admin_forum') || !Profile::$member->formatted['is_hidden'];
+		Profile::$member->formatted['show_last_login'] = User::$me->allowedTo('admin_forum') || !Profile::$member->formatted['is_hidden'];
 
 		if (!empty(Config::$modSettings['who_enabled']) && Profile::$member->formatted['show_last_login'])
 		{
@@ -149,7 +149,7 @@ class Summary implements ActionInterface
 		}
 
 		// If the user is awaiting activation, and the viewer has permission, set up some activation context messages.
-		if (Profile::$member->formatted['is_activated'] % 10 != 1 && allowedTo('moderate_forum'))
+		if (Profile::$member->formatted['is_activated'] % 10 != 1 && User::$me->allowedTo('moderate_forum'))
 		{
 			Utils::$context['activate_type'] = Profile::$member->formatted['is_activated'];
 
@@ -184,10 +184,10 @@ class Summary implements ActionInterface
 		// How about, are they banned?
 		Profile::$member->formatted['bans'] = array();
 
-		if (allowedTo('moderate_forum'))
+		if (User::$me->allowedTo('moderate_forum'))
 		{
 			// Can they edit the ban?
-			Utils::$context['can_edit_ban'] = allowedTo('manage_bans');
+			Utils::$context['can_edit_ban'] = User::$me->allowedTo('manage_bans');
 
 			$ban_query = array();
 			$ban_query_vars = array(
@@ -327,7 +327,7 @@ class Summary implements ActionInterface
 		list(Config::$modSettings['warning_enable'], Config::$modSettings['user_limit']) = explode(',', Config::$modSettings['warning_settings']);
 
 		// Can the viewer see this member's IP address?
-		Utils::$context['can_see_ip'] = allowedTo('moderate_forum');
+		Utils::$context['can_see_ip'] = User::$me->allowedTo('moderate_forum');
 	}
 }
 

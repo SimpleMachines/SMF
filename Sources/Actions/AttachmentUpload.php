@@ -150,7 +150,7 @@ class AttachmentUpload implements ActionInterface
 
 		$this->_attchDir = Utils::$context['attach_dir'] = $this->_attachmentUploadDir[Config::$modSettings['currentAttachmentUploadDir']];
 
-		$this->_canPostAttachment = Utils::$context['can_post_attachment'] = !empty(Config::$modSettings['attachmentEnable']) && Config::$modSettings['attachmentEnable'] == 1 && (allowedTo('post_attachment', $this->_board) || (Config::$modSettings['postmod_active'] && allowedTo('post_unapproved_attachments', $this->_board)));
+		$this->_canPostAttachment = Utils::$context['can_post_attachment'] = !empty(Config::$modSettings['attachmentEnable']) && Config::$modSettings['attachmentEnable'] == 1 && (User::$me->allowedTo('post_attachment', $this->_board) || (Config::$modSettings['postmod_active'] && User::$me->allowedTo('post_unapproved_attachments', $this->_board)));
 	}
 
 	/**
@@ -448,7 +448,7 @@ class AttachmentUpload implements ActionInterface
 				'size' => isset($attachment['size']) ? $attachment['size'] : 0,
 				'mime_type' => isset($attachment['type']) ? $attachment['type'] : '',
 				'id_folder' => isset($attachment['id_folder']) ? $attachment['id_folder'] : Config::$modSettings['currentAttachmentUploadDir'],
-				'approved' => !Config::$modSettings['postmod_active'] || allowedTo('post_attachment'),
+				'approved' => !Config::$modSettings['postmod_active'] || User::$me->allowedTo('post_attachment'),
 				'errors' => array(),
 			);
 

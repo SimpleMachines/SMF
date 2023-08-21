@@ -249,7 +249,7 @@ class PM implements \ArrayAccess
 		Utils::$context['start'] = (int) (Utils::$context['start'] ?? $_GET['start'] ?? 0);
 		Utils::$context['current_label_id'] = Utils::$context['current_label_id'] ?? -1;
 		Utils::$context['display_mode'] = Utils::$context['display_mode'] ?? User::$me->pm_prefs & 3;
-		Utils::$context['can_send_pm'] = Utils::$context['can_send_pm'] ?? allowedTo('pm_send');
+		Utils::$context['can_send_pm'] = Utils::$context['can_send_pm'] ?? User::$me->allowedTo('pm_send');
 
 		// Use '(no subject)' if none was specified.
 		$this->subject = $this->subject == '' ? Lang::$txt['no_subject'] : $this->subject;
@@ -274,7 +274,7 @@ class PM implements \ArrayAccess
 		{
 			$author = User::$loaded[$this->member_from]->format(true);
 
-			$author['can_view_profile'] = allowedTo('profile_view') || ($this->member_from == User::$me->id && !User::$me->is_guest);
+			$author['can_view_profile'] = User::$me->allowedTo('profile_view') || ($this->member_from == User::$me->id && !User::$me->is_guest);
 
 			$author['can_see_warning'] = !isset(Utils::$context['disabled_fields']['warning_status']) && $author['warning_status'] && (User::$me->can_mod || (!empty(Config::$modSettings['warning_show']) && (Config::$modSettings['warning_show'] > 1 || $this->member_from == User::$me->id)));
 
@@ -357,7 +357,7 @@ class PM implements \ArrayAccess
 			'href' => $href,
 			'link' => '<a href="' . $href . '">' . $this->subject . '</a>',
 			'can_report' => !empty(Config::$modSettings['enableReportPM']),
-			'can_see_ip' => allowedTo('moderate_forum') || ($this->member_from == User::$me->id && !empty(User::$me->id)),
+			'can_see_ip' => User::$me->allowedTo('moderate_forum') || ($this->member_from == User::$me->id && !empty(User::$me->id)),
 			'custom_fields' => $custom_fields,
 			'quickbuttons' => array(
 				'reply_to_all' => array(
@@ -584,7 +584,7 @@ class PM implements \ArrayAccess
 	 */
 	public static function compose(): void
 	{
-		isAllowedTo('pm_send');
+		User::$me->isAllowedTo('pm_send');
 
 		Lang::load('PersonalMessage');
 
@@ -609,7 +609,7 @@ class PM implements \ArrayAccess
 		Utils::$context['reply'] = isset($_REQUEST['pmsg']) || isset($_REQUEST['quote']);
 
 		// Check whether we've gone over the limit of messages we can send per hour.
-		if (!empty(Config::$modSettings['pm_posts_per_hour']) && !allowedTo(array('admin_forum', 'moderate_forum', 'send_mail')) && User::$me->mod_cache['bq'] == '0=1' && User::$me->mod_cache['gq'] == '0=1')
+		if (!empty(Config::$modSettings['pm_posts_per_hour']) && !User::$me->allowedTo(array('admin_forum', 'moderate_forum', 'send_mail')) && User::$me->mod_cache['bq'] == '0=1' && User::$me->mod_cache['gq'] == '0=1')
 		{
 			// How many messages have they sent this last hour?
 			$request = Db::$db->query('', '
@@ -872,7 +872,7 @@ class PM implements \ArrayAccess
 	 */
 	public static function compose2(): void
 	{
-		isAllowedTo('pm_send');
+		User::$me->isAllowedTo('pm_send');
 
 		// PM Drafts enabled and needed?
 		if (Utils::$context['drafts_save'] && (isset($_POST['save_draft']) || isset($_POST['id_draft'])))
@@ -889,7 +889,7 @@ class PM implements \ArrayAccess
 		$post_errors = array();
 
 		// Check whether we've gone over the limit of messages we can send per hour - fatal error if fails!
-		if (!empty(Config::$modSettings['pm_posts_per_hour']) && !allowedTo(array('admin_forum', 'moderate_forum', 'send_mail')) && User::$me->mod_cache['bq'] == '0=1' && User::$me->mod_cache['gq'] == '0=1')
+		if (!empty(Config::$modSettings['pm_posts_per_hour']) && !User::$me->allowedTo(array('admin_forum', 'moderate_forum', 'send_mail')) && User::$me->mod_cache['bq'] == '0=1' && User::$me->mod_cache['gq'] == '0=1')
 		{
 			// How many have they sent this last hour?
 			$request = Db::$db->query('', '
@@ -1053,7 +1053,7 @@ class PM implements \ArrayAccess
 			Msg::preparsecode($message);
 
 			// Make sure there's still some content left without the tags.
-			if (Utils::htmlTrim(strip_tags(BBCodeParser::load()->parse(Utils::htmlspecialchars($message, ENT_QUOTES), false), '<img>')) === '' && (!allowedTo('bbc_html') || strpos($message, '[html]') === false))
+			if (Utils::htmlTrim(strip_tags(BBCodeParser::load()->parse(Utils::htmlspecialchars($message, ENT_QUOTES), false), '<img>')) === '' && (!User::$me->allowedTo('bbc_html') || strpos($message, '[html]') === false))
 				$post_errors[] = 'no_message';
 		}
 
@@ -1133,7 +1133,7 @@ class PM implements \ArrayAccess
 			return;
 		}
 		// Before we send the PM, let's make sure we don't have an abuse of numbers.
-		elseif (!empty(Config::$modSettings['max_pm_recipients']) && count($recipientList['to']) + count($recipientList['bcc']) > Config::$modSettings['max_pm_recipients'] && !allowedTo(array('moderate_forum', 'send_mail', 'admin_forum')))
+		elseif (!empty(Config::$modSettings['max_pm_recipients']) && count($recipientList['to']) + count($recipientList['bcc']) > Config::$modSettings['max_pm_recipients'] && !User::$me->allowedTo(array('moderate_forum', 'send_mail', 'admin_forum')))
 		{
 			Utils::$context['send_log'] = array(
 				'sent' => array(),
@@ -1371,7 +1371,7 @@ class PM implements \ArrayAccess
 		Db::$db->free_result($request);
 
 		// Load the membergroup message limits.
-		if (!allowedTo('moderate_forum') && empty(self::$message_limit_cache))
+		if (!User::$me->allowedTo('moderate_forum') && empty(self::$message_limit_cache))
 		{
 			$request = Db::$db->query('', '
 				SELECT id_group, max_messages
@@ -1387,8 +1387,7 @@ class PM implements \ArrayAccess
 		}
 
 		// Load the groups that are allowed to read PMs.
-		require_once(Config::$sourcedir . '/Subs-Members.php');
-		$pmReadGroups = groupsAllowedTo('pm_read');
+		$pmReadGroups = User::groupsAllowedTo('pm_read');
 
 		if (empty(Config::$modSettings['permission_enable_deny']))
 			$pmReadGroups['denied'] = array();
@@ -1400,7 +1399,7 @@ class PM implements \ArrayAccess
 		$request = Db::$db->query('', '
 			SELECT
 				member_name, real_name, id_member, email_address, lngfile,
-				instant_messages,' . (allowedTo('moderate_forum') ? ' 0' : '
+				instant_messages,' . (User::$me->allowedTo('moderate_forum') ? ' 0' : '
 				(pm_receive_from = {int:admins_only}' . (empty(Config::$modSettings['enable_buddylist']) ? '' : ' OR
 				(pm_receive_from = {int:buddies_only} AND FIND_IN_SET({string:from_id}, buddy_list) = 0) OR
 				(pm_receive_from = {int:not_on_ignore_list} AND FIND_IN_SET({string:from_id}, pm_ignore_list) != 0)') . ')') . ' AS ignored,

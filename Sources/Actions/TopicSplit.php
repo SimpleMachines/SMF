@@ -124,7 +124,7 @@ class TopicSplit implements ActionInterface
 			ErrorHandler::fatalLang('numbers_one_to_nine', false);
 
 		// Are you allowed to split topics?
-		isAllowedTo('split_any');
+		User::$me->isAllowedTo('split_any');
 
 		// Load up the "dependencies" - the template and getMsgMemberID().
 		if (!isset($_REQUEST['xml']))
@@ -156,7 +156,7 @@ class TopicSplit implements ActionInterface
 			SELECT m.subject, t.num_replies, t.unapproved_posts, t.id_first_msg, t.approved
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
-			WHERE m.id_msg = {int:split_at}' . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+			WHERE m.id_msg = {int:split_at}' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
 				AND m.approved = 1') . '
 				AND m.id_topic = {int:current_topic}
 			LIMIT 1',
@@ -174,10 +174,10 @@ class TopicSplit implements ActionInterface
 
 		// If not approved validate they can see it.
 		if (Config::$modSettings['postmod_active'] && !$approved)
-			isAllowedTo('approve_posts');
+			User::$me->isAllowedTo('approve_posts');
 
 		// If this topic has unapproved posts, we need to count them too...
-		if (Config::$modSettings['postmod_active'] && allowedTo('approve_posts'))
+		if (Config::$modSettings['postmod_active'] && User::$me->allowedTo('approve_posts'))
 			$num_replies += $unapproved_posts - ($approved ? 0 : 1);
 
 		// Check if there is more than one message in the topic.  (there should be.)
@@ -321,7 +321,7 @@ class TopicSplit implements ActionInterface
 				SELECT id_msg
 				FROM {db_prefix}messages
 				WHERE id_topic = {int:current_topic}' . (empty($_SESSION['split_selection'][Topic::$topic_id]) ? '' : '
-					AND id_msg NOT IN ({array_int:no_split_msgs})') . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+					AND id_msg NOT IN ({array_int:no_split_msgs})') . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
 					AND approved = {int:is_approved}') . '
 					' . (empty(Theme::$current->options['view_newest_first']) ? '' : 'ORDER BY id_msg DESC') . '
 					LIMIT {int:start}, {int:messages_per_page}',
@@ -350,7 +350,7 @@ class TopicSplit implements ActionInterface
 					SELECT id_msg
 					FROM {db_prefix}messages
 					WHERE id_topic = {int:current_topic}
-						AND id_msg IN ({array_int:split_msgs})' . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+						AND id_msg IN ({array_int:split_msgs})' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
 						AND approved = {int:is_approved}') . '
 					' . (empty(Theme::$current->options['view_newest_first']) ? '' : 'ORDER BY id_msg DESC') . '
 					LIMIT {int:start}, {int:messages_per_page}',
@@ -399,7 +399,7 @@ class TopicSplit implements ActionInterface
 				SELECT id_msg
 				FROM {db_prefix}messages
 				WHERE id_topic = {int:current_topic}
-					AND id_msg IN ({array_int:split_msgs})' . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+					AND id_msg IN ({array_int:split_msgs})' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
 					AND approved = {int:is_approved}'),
 				array(
 					'current_topic' => Topic::$topic_id,
@@ -418,7 +418,7 @@ class TopicSplit implements ActionInterface
 		$request = Db::$db->query('', '
 			SELECT ' . (empty($_SESSION['split_selection'][Topic::$topic_id]) ? '0' : 'm.id_msg IN ({array_int:split_msgs})') . ' AS is_selected, COUNT(*) AS num_messages
 			FROM {db_prefix}messages AS m
-			WHERE m.id_topic = {int:current_topic}' . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+			WHERE m.id_topic = {int:current_topic}' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
 				AND approved = {int:is_approved}') . (empty($_SESSION['split_selection'][Topic::$topic_id]) ? '' : '
 			GROUP BY is_selected'),
 			array(
@@ -451,7 +451,7 @@ class TopicSplit implements ActionInterface
 			FROM {db_prefix}messages AS m
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 			WHERE m.id_topic = {int:current_topic}' . (empty($_SESSION['split_selection'][Topic::$topic_id]) ? '' : '
-				AND id_msg NOT IN ({array_int:no_split_msgs})') . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+				AND id_msg NOT IN ({array_int:no_split_msgs})') . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
 				AND approved = {int:is_approved}') . '
 				' . (empty(Theme::$current->options['view_newest_first']) ? '' : 'ORDER BY m.id_msg DESC') . '
 				LIMIT {int:start}, {int:messages_per_page}',
@@ -490,7 +490,7 @@ class TopicSplit implements ActionInterface
 				FROM {db_prefix}messages AS m
 					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 				WHERE m.id_topic = {int:current_topic}
-					AND m.id_msg IN ({array_int:split_msgs})' . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+					AND m.id_msg IN ({array_int:split_msgs})' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
 					AND approved = {int:is_approved}') . '
 				' . (empty(Theme::$current->options['view_newest_first']) ? '' : 'ORDER BY m.id_msg DESC') . '
 				LIMIT {int:start}, {int:messages_per_page}',

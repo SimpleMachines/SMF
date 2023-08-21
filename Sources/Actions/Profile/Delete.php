@@ -84,21 +84,21 @@ class Delete implements ActionInterface
 	{
 		if (!User::$me->is_owner)
 		{
-			isAllowedTo('profile_remove_any');
+			User::$me->isAllowedTo('profile_remove_any');
 		}
-		elseif (!allowedTo('profile_remove_any'))
+		elseif (!User::$me->allowedTo('profile_remove_any'))
 		{
-			isAllowedTo('profile_remove_own');
+			User::$me->isAllowedTo('profile_remove_own');
 		}
 
 		// Permissions for removing stuff...
-		Utils::$context['can_delete_posts'] = !User::$me->is_owner && allowedTo('moderate_forum');
+		Utils::$context['can_delete_posts'] = !User::$me->is_owner && User::$me->allowedTo('moderate_forum');
 
 		// Show an extra option if recycling is enabled...
 		Utils::$context['show_perma_delete'] = !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']);
 
 		// Can they do this, or will they need approval?
-		Utils::$context['needs_approval'] = User::$me->is_owner && !empty(Config::$modSettings['approveAccountDeletion']) && !allowedTo('moderate_forum');
+		Utils::$context['needs_approval'] = User::$me->is_owner && !empty(Config::$modSettings['approveAccountDeletion']) && !User::$me->allowedTo('moderate_forum');
 
 		Utils::$context['page_title'] = Lang::$txt['deleteAccount'] . ': ' . Profile::$member->name;
 	}
@@ -111,11 +111,11 @@ class Delete implements ActionInterface
 	{
 		if (!User::$me->is_owner)
 		{
-			isAllowedTo('profile_remove_any');
+			User::$me->isAllowedTo('profile_remove_any');
 		}
-		elseif (!allowedTo('profile_remove_any'))
+		elseif (!User::$me->allowedTo('profile_remove_any'))
 		{
-			isAllowedTo('profile_remove_own');
+			User::$me->isAllowedTo('profile_remove_own');
 		}
 
 		// Try get more time...
@@ -127,7 +127,7 @@ class Delete implements ActionInterface
 		if (in_array(1, Profile::$member->groups))
 		{
 			// Are you allowed to administrate the forum, as they are?
-			isAllowedTo('admin_forum');
+			User::$me->isAllowedTo('admin_forum');
 
 			$request = Db::$db->query('', '
 				SELECT id_member
@@ -152,7 +152,7 @@ class Delete implements ActionInterface
 		{
 			// Now, have you been naughty and need your posts deleting?
 			// @todo Should this check board permissions?
-			if (!empty($_POST['deleteVotes']) && allowedTo('moderate_forum'))
+			if (!empty($_POST['deleteVotes']) && User::$me->allowedTo('moderate_forum'))
 			{
 				// First we find any polls that this user has voted in...
 				$polls_to_update = array();
@@ -249,7 +249,7 @@ class Delete implements ActionInterface
 				User::delete(Profile::$member->id);
 		}
 		// Deleting their own account, but they need approval to delete.
-		elseif (!empty(Config::$modSettings['approveAccountDeletion']) && !allowedTo('moderate_forum'))
+		elseif (!empty(Config::$modSettings['approveAccountDeletion']) && !User::$me->allowedTo('moderate_forum'))
 		{
 			// Setup their account for deletion.
 			User::updateMemberData(Profile::$member->id, array('is_activated' => 4));

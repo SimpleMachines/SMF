@@ -66,10 +66,10 @@ class ViewWarning implements ActionInterface
 	{
 		// Firstly, can we actually even be here?
 		if (
-			!(User::$me->is_owner && allowedTo('view_warning_own'))
-			&& !allowedTo('view_warning_any')
-			&& !allowedTo('issue_warning')
-			&& !allowedTo('moderate_forum')
+			!(User::$me->is_owner && User::$me->allowedTo('view_warning_own'))
+			&& !User::$me->allowedTo('view_warning_any')
+			&& !User::$me->allowedTo('issue_warning')
+			&& !User::$me->allowedTo('moderate_forum')
 		)
 		{
 			ErrorHandler::fatalLang('no_access', false);

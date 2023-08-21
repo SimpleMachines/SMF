@@ -98,7 +98,7 @@ class Calendar implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		isAllowedTo('admin_forum');
+		User::$me->isAllowedTo('admin_forum');
 
 		call_helper(method_exists($this, self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : self::$subactions[$this->subaction]);
 	}

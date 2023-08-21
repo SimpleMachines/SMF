@@ -325,7 +325,7 @@ class Maintenance implements ActionInterface
 	 */
 	public function version(): void
 	{
-		isAllowedTo('admin_forum');
+		User::$me->isAllowedTo('admin_forum');
 
 		// Call the function that'll get all the version info we need.
 		$versionOptions = array(
@@ -382,7 +382,7 @@ class Maintenance implements ActionInterface
 	 */
 	public function recountBoards(): void
 	{
-		isAllowedTo('admin_forum');
+		User::$me->isAllowedTo('admin_forum');
 		User::$me->checkSession('request');
 
 		// validate the request or the loop
@@ -873,7 +873,7 @@ class Maintenance implements ActionInterface
 	 */
 	public function rebuildSettings(): void
 	{
-		isAllowedTo('admin_forum');
+		User::$me->isAllowedTo('admin_forum');
 
 		Config::updateSettingsFile(array(), false, true);
 
@@ -944,7 +944,7 @@ class Maintenance implements ActionInterface
 	 */
 	public function optimize(): void
 	{
-		isAllowedTo('admin_forum');
+		User::$me->isAllowedTo('admin_forum');
 
 		User::$me->checkSession('request');
 
@@ -1034,7 +1034,7 @@ class Maintenance implements ActionInterface
 	 */
 	public function entitiesToUnicode(): void
 	{
-		isAllowedTo('admin_forum');
+		User::$me->isAllowedTo('admin_forum');
 
 		// Check to see if UTF-8 is currently the default character set.
 		if (Config::$modSettings['global_character_set'] !== 'UTF-8')
@@ -1263,7 +1263,7 @@ class Maintenance implements ActionInterface
 	public function changeMsgBodyLength(): void
 	{
 		// Show me your badge!
-		isAllowedTo('admin_forum');
+		User::$me->isAllowedTo('admin_forum');
 
 		if (Config::$db_type != 'mysql')
 			return;
@@ -1517,7 +1517,7 @@ class Maintenance implements ActionInterface
 	public function recountPosts(): void
 	{
 		// You have to be allowed in here
-		isAllowedTo('admin_forum');
+		User::$me->isAllowedTo('admin_forum');
 		User::$me->checkSession('request');
 
 		// Set up to the context.
@@ -1671,7 +1671,7 @@ class Maintenance implements ActionInterface
 	public function massMove(): void
 	{
 		// Only admins.
-		isAllowedTo('admin_forum');
+		User::$me->isAllowedTo('admin_forum');
 
 		User::$me->checkSession('request');
 		SecurityToken::validate('admin-maint');
@@ -2511,7 +2511,7 @@ class Maintenance implements ActionInterface
 	protected function __construct()
 	{
 		// You absolutely must be an admin by here!
-		isAllowedTo('admin_forum');
+		User::$me->isAllowedTo('admin_forum');
 
 		// Need something to talk about?
 		Lang::load('ManageMaintenance');

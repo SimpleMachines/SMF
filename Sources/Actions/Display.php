@@ -372,7 +372,7 @@ class Display implements ActionInterface
 					INNER JOIN {db_prefix}topics AS t2 ON (
 					(t2.id_last_msg ' . $gt_lt . ' t.id_last_msg AND t2.is_sticky ' . $gt_lt . '= t.is_sticky) OR t2.is_sticky ' . $gt_lt . ' t.is_sticky)
 				WHERE t.id_topic = {int:current_topic}
-					AND t2.id_board = {int:current_board}' . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+					AND t2.id_board = {int:current_board}' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
 					AND (t2.approved = {int:is_approved} OR (t2.id_member_started != {int:id_member_started} AND t2.id_member_started = {int:current_member}))') . '
 				ORDER BY t2.is_sticky' . $order . ', t2.id_last_msg' . $order . '
 				LIMIT 1',
@@ -394,7 +394,7 @@ class Display implements ActionInterface
 				$request = Db::$db->query('', '
 					SELECT id_topic
 					FROM {db_prefix}topics
-					WHERE id_board = {int:current_board}' . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+					WHERE id_board = {int:current_board}' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
 						AND (approved = {int:is_approved} OR (id_member_started != {int:id_member_started} AND id_member_started = {int:current_member}))') . '
 					ORDER BY is_sticky' . $order . ', id_last_msg' . $order . '
 					LIMIT 1',
@@ -709,7 +709,7 @@ class Display implements ActionInterface
 						SELECT COUNT(*)
 						FROM {db_prefix}messages
 						WHERE poster_time < {int:timestamp}
-							AND id_topic = {int:current_topic}' . (Config::$modSettings['postmod_active'] && Topic::$info->unapproved_posts && !allowedTo('approve_posts') ? '
+							AND id_topic = {int:current_topic}' . (Config::$modSettings['postmod_active'] && Topic::$info->unapproved_posts && !User::$me->allowedTo('approve_posts') ? '
 							AND (approved = {int:is_approved}' . (User::$me->is_guest ? '' : ' OR id_member = {int:current_member}') . ')' : ''),
 						array(
 							'current_topic' => Topic::$topic_id,
@@ -741,7 +741,7 @@ class Display implements ActionInterface
 						SELECT COUNT(*)
 						FROM {db_prefix}messages
 						WHERE id_msg < {int:virtual_msg}
-							AND id_topic = {int:current_topic}' . (Config::$modSettings['postmod_active'] && Topic::$info->unapproved_posts && !allowedTo('approve_posts') ? '
+							AND id_topic = {int:current_topic}' . (Config::$modSettings['postmod_active'] && Topic::$info->unapproved_posts && !User::$me->allowedTo('approve_posts') ? '
 							AND (approved = {int:is_approved}' . (User::$me->is_guest ? '' : ' OR id_member = {int:current_member}') . ')' : ''),
 						array(
 							'current_member' => User::$me->id,
@@ -804,7 +804,7 @@ class Display implements ActionInterface
 					$link = '<strong>' . $link . '</strong>';
 
 				// Add them both to the list and to the more detailed list.
-				if (!empty($row['show_online']) || allowedTo('moderate_forum'))
+				if (!empty($row['show_online']) || User::$me->allowedTo('moderate_forum'))
 				{
 					Utils::$context['view_members_list'][$row['log_time'] . $row['member_name']] = empty($row['show_online']) ? '<em>' . $link . '</em>' : $link;
 				}
@@ -1038,7 +1038,7 @@ class Display implements ActionInterface
 		Theme::loadJavaScriptFile('quotedText.js', array('defer' => true, 'minimize' => true), 'smf_quotedText');
 
 		// Mentions
-		if (!empty(Config::$modSettings['enable_mentions']) && allowedTo('mention'))
+		if (!empty(Config::$modSettings['enable_mentions']) && User::$me->allowedTo('mention'))
 		{
 			Theme::loadJavaScriptFile('jquery.atwho.min.js', array('defer' => true), 'smf_atwho');
 			Theme::loadJavaScriptFile('jquery.caret.min.js', array('defer' => true), 'smf_caret');
@@ -1058,7 +1058,7 @@ class Display implements ActionInterface
 	protected function loadEvents(): void
 	{
 		// If we want to show event information in the topic, prepare the data.
-		if (allowedTo('calendar_view') && !empty(Config::$modSettings['cal_showInTopic']) && !empty(Config::$modSettings['cal_enabled']))
+		if (User::$me->allowedTo('calendar_view') && !empty(Config::$modSettings['cal_showInTopic']) && !empty(Config::$modSettings['cal_enabled']))
 		{
 			Utils::$context['linked_calendar_events'] = Event::load(Topic::$info->id, true);
 
@@ -1136,7 +1136,7 @@ class Display implements ActionInterface
 		$request = Db::$db->query('', '
 			SELECT id_msg, id_member, approved
 			FROM {db_prefix}messages
-			WHERE id_topic = {int:current_topic}' . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+			WHERE id_topic = {int:current_topic}' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
 				AND (approved = {int:is_approved}' . (User::$me->is_guest ? '' : ' OR id_member = {int:current_member}') . ')') . '
 			ORDER BY id_msg ' . ($DBascending ? '' : 'DESC') . (Utils::$context['messages_per_page'] == -1 ? '' : '
 			LIMIT {int:start}, {int:max}'),
@@ -1183,7 +1183,7 @@ class Display implements ActionInterface
 			Msg::$getter = Msg::get($this->messages);
 
 			// Fetch attachments.
-			if (!empty(Config::$modSettings['attachmentEnable']) && allowedTo('view_attachments'))
+			if (!empty(Config::$modSettings['attachmentEnable']) && User::$me->allowedTo('view_attachments'))
 			{
 				Attachment::prepareByMsg($this->messages);
 			}

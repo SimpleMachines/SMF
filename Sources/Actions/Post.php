@@ -212,7 +212,7 @@ class Post implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$this->can_approve = allowedTo('approve_posts');
+		$this->can_approve = User::$me->allowedTo('approve_posts');
 
 		// If there is an existing topic, load it.
 		if ($this->intent !== self::INTENT_NEW_TOPIC)
@@ -280,7 +280,7 @@ class Post implements ActionInterface
 		}
 
 		// Don't allow a post if it's locked and you aren't all powerful.
-		if ($this->locked && !allowedTo('moderate_board'))
+		if ($this->locked && !User::$me->allowedTo('moderate_board'))
 			ErrorHandler::fatalLang('topic_locked', false);
 
 		Utils::$context['notify'] = !empty(Utils::$context['notify']);
@@ -361,7 +361,7 @@ class Post implements ActionInterface
 		checkSubmitOnce('register');
 
 		// Mentions
-		if (!empty(Config::$modSettings['enable_mentions']) && allowedTo('mention'))
+		if (!empty(Config::$modSettings['enable_mentions']) && User::$me->allowedTo('mention'))
 		{
 			Theme::loadJavaScriptFile('jquery.caret.min.js', array('defer' => true), 'smf_caret');
 			Theme::loadJavaScriptFile('jquery.atwho.min.js', array('defer' => true), 'smf_atwho');
@@ -547,7 +547,7 @@ class Post implements ActionInterface
 			if (Config::$modSettings['postmod_active'])
 				$post_permissions[] = 'post_unapproved_topics';
 
-			$this->boards = boardsAllowedTo($post_permissions);
+			$this->boards = User::$me->boardsAllowedTo($post_permissions);
 
 			if (empty($this->boards))
 				ErrorHandler::fatalLang('cannot_post_new', false);
@@ -629,7 +629,7 @@ class Post implements ActionInterface
 		if ($this->intent === self::INTENT_NEW_REPLY)
 		{
 			// If guests can't post, kick them out.
-			if (User::$me->is_guest && !allowedTo('post_reply_any') && (!Config::$modSettings['postmod_active'] || !allowedTo('post_unapproved_replies_any')))
+			if (User::$me->is_guest && !User::$me->allowedTo('post_reply_any') && (!Config::$modSettings['postmod_active'] || !User::$me->allowedTo('post_unapproved_replies_any')))
 			{
 				User::$me->kickIfGuest();
 			}
@@ -639,24 +639,24 @@ class Post implements ActionInterface
 
 			if (Topic::$info->id_member_started != User::$me->id || User::$me->is_guest)
 			{
-				if (Config::$modSettings['postmod_active'] && allowedTo('post_unapproved_replies_any') && !allowedTo('post_reply_any'))
+				if (Config::$modSettings['postmod_active'] && User::$me->allowedTo('post_unapproved_replies_any') && !User::$me->allowedTo('post_reply_any'))
 				{
 					$this->becomes_approved = false;
 				}
 				else
 				{
-					isAllowedTo('post_reply_any');
+					User::$me->isAllowedTo('post_reply_any');
 				}
 			}
-			elseif (!allowedTo('post_reply_any'))
+			elseif (!User::$me->allowedTo('post_reply_any'))
 			{
-				if (Config::$modSettings['postmod_active'] && ((allowedTo('post_unapproved_replies_own') && !allowedTo('post_reply_own')) || allowedTo('post_unapproved_replies_any')))
+				if (Config::$modSettings['postmod_active'] && ((User::$me->allowedTo('post_unapproved_replies_own') && !User::$me->allowedTo('post_reply_own')) || User::$me->allowedTo('post_unapproved_replies_any')))
 				{
 					$this->becomes_approved = false;
 				}
 				else
 				{
-					isAllowedTo('post_reply_own');
+					User::$me->isAllowedTo('post_reply_own');
 				}
 			}
 		}
@@ -667,11 +667,11 @@ class Post implements ActionInterface
 		}
 
 		// What options should we show?
-		Utils::$context['can_lock'] = allowedTo('lock_any') || (User::$me->id == Topic::$info->id_member_started && allowedTo('lock_own'));
-		Utils::$context['can_sticky'] = allowedTo('make_sticky');
-		Utils::$context['can_move'] = allowedTo('move_any');
+		Utils::$context['can_lock'] = User::$me->allowedTo('lock_any') || (User::$me->id == Topic::$info->id_member_started && User::$me->allowedTo('lock_own'));
+		Utils::$context['can_sticky'] = User::$me->allowedTo('make_sticky');
+		Utils::$context['can_move'] = User::$me->allowedTo('move_any');
 		// You can only announce topics that will get approved...
-		Utils::$context['can_announce'] = allowedTo('announce_topic') && $this->becomes_approved;
+		Utils::$context['can_announce'] = User::$me->allowedTo('announce_topic') && $this->becomes_approved;
 		Utils::$context['show_approval'] = !$this->can_approve ? 0 : ($this->becomes_approved ? 2 : 1);
 
 		// We don't always want the request vars to override what's in the db...
@@ -694,13 +694,13 @@ class Post implements ActionInterface
 		// @todo Should use JavaScript to hide and show the warning based on the selection in the board select menu
 		$this->becomes_approved = true;
 
-		if (Config::$modSettings['postmod_active'] && !allowedTo('post_new', $this->boards, true) && allowedTo('post_unapproved_topics', $this->boards, true))
+		if (Config::$modSettings['postmod_active'] && !User::$me->allowedTo('post_new', $this->boards, true) && User::$me->allowedTo('post_unapproved_topics', $this->boards, true))
 		{
 			$this->becomes_approved = false;
 		}
 		else
 		{
-			isAllowedTo('post_new', $this->boards, true);
+			User::$me->isAllowedTo('post_new', $this->boards, true);
 		}
 
 		$this->locked = 0;
@@ -709,11 +709,11 @@ class Post implements ActionInterface
 		Utils::$context['sticky'] = !empty($_REQUEST['sticky']);
 
 		// What options should we show?
-		Utils::$context['can_lock'] = allowedTo(array('lock_any', 'lock_own'), $this->boards, true);
-		Utils::$context['can_sticky'] = allowedTo('make_sticky', $this->boards, true);
-		Utils::$context['can_move'] = allowedTo('move_any', $this->boards, true);
-		Utils::$context['can_announce'] = allowedTo('announce_topic', $this->boards, true) && $this->becomes_approved;
-		Utils::$context['show_approval'] = !allowedTo('approve_posts', $this->boards, true) ? 0 : ($this->becomes_approved ? 2 : 1);
+		Utils::$context['can_lock'] = User::$me->allowedTo(array('lock_any', 'lock_own'), $this->boards, true);
+		Utils::$context['can_sticky'] = User::$me->allowedTo('make_sticky', $this->boards, true);
+		Utils::$context['can_move'] = User::$me->allowedTo('move_any', $this->boards, true);
+		Utils::$context['can_announce'] = User::$me->allowedTo('announce_topic', $this->boards, true) && $this->becomes_approved;
+		Utils::$context['show_approval'] = !User::$me->allowedTo('approve_posts', $this->boards, true) ? 0 : ($this->becomes_approved ? 2 : 1);
 	}
 
 	/**
@@ -758,7 +758,7 @@ class Post implements ActionInterface
 			Utils::$context['event'] = new Event(-1);
 
 		// Permissions check!
-		isAllowedTo('calendar_post');
+		User::$me->isAllowedTo('calendar_post');
 
 		// We want a fairly compact version of the time, but as close as possible to the user's settings.
 		$time_string = Time::getShortTimeFormat();
@@ -767,7 +767,7 @@ class Post implements ActionInterface
 		if (empty(Utils::$context['event']->new) && !isset($_REQUEST['subject']))
 		{
 			// If the user doesn't have permission to edit the post in this topic, redirect them.
-			if ((empty(Topic::$info->id_member_started) || Topic::$info->id_member_started != User::$me->id || !allowedTo('modify_own')) && !allowedTo('modify_any'))
+			if ((empty(Topic::$info->id_member_started) || Topic::$info->id_member_started != User::$me->id || !User::$me->allowedTo('modify_own')) && !User::$me->allowedTo('modify_any'))
 			{
 				$calendar_action = Calendar::load();
 				$calendar_action->subaction = 'post';
@@ -1062,29 +1062,29 @@ class Post implements ActionInterface
 			$row = Db::$db->fetch_assoc($request);
 			Db::$db->free_result($request);
 
-			if ($row['id_member'] == User::$me->id && !allowedTo('modify_any'))
+			if ($row['id_member'] == User::$me->id && !User::$me->allowedTo('modify_any'))
 			{
 				// Give an extra five minutes over the disable time threshold, so they can type - assuming the post is public.
 				if ($row['approved'] && !empty(Config::$modSettings['edit_disable_time']) && $row['poster_time'] + (Config::$modSettings['edit_disable_time'] + 5) * 60 < time())
 				{
 					ErrorHandler::fatalLang('modify_post_time_passed', false);
 				}
-				elseif ($row['id_member_poster'] == User::$me->id && !allowedTo('modify_own'))
+				elseif ($row['id_member_poster'] == User::$me->id && !User::$me->allowedTo('modify_own'))
 				{
-					isAllowedTo('modify_replies');
+					User::$me->isAllowedTo('modify_replies');
 				}
 				else
 				{
-					isAllowedTo('modify_own');
+					User::$me->isAllowedTo('modify_own');
 				}
 			}
-			elseif ($row['id_member_poster'] == User::$me->id && !allowedTo('modify_any'))
+			elseif ($row['id_member_poster'] == User::$me->id && !User::$me->allowedTo('modify_any'))
 			{
-				isAllowedTo('modify_replies');
+				User::$me->isAllowedTo('modify_replies');
 			}
 			else
 			{
-				isAllowedTo('modify_any');
+				User::$me->isAllowedTo('modify_any');
 			}
 
 			if (Utils::$context['can_announce'] && !empty($row['id_action']) && $row['id_first_msg'] == $_REQUEST['msg'])
@@ -1099,7 +1099,7 @@ class Post implements ActionInterface
 			}
 
 			// Allow moderators to change names....
-			if (allowedTo('moderate_forum') && !empty(Topic::$info->id))
+			if (User::$me->allowedTo('moderate_forum') && !empty(Topic::$info->id))
 			{
 				$request = Db::$db->query('', '
 					SELECT id_member, poster_name, poster_email
@@ -1162,29 +1162,29 @@ class Post implements ActionInterface
 		$row = Db::$db->fetch_assoc($request);
 		Db::$db->free_result($request);
 
-		if ($row['id_member'] == User::$me->id && !allowedTo('modify_any'))
+		if ($row['id_member'] == User::$me->id && !User::$me->allowedTo('modify_any'))
 		{
 			// Give an extra five minutes over the disable time threshold, so they can type - assuming the post is public.
 			if ($row['approved'] && !empty(Config::$modSettings['edit_disable_time']) && $row['poster_time'] + (Config::$modSettings['edit_disable_time'] + 5) * 60 < time())
 			{
 				ErrorHandler::fatalLang('modify_post_time_passed', false);
 			}
-			elseif ($row['id_member_poster'] == User::$me->id && !allowedTo('modify_own'))
+			elseif ($row['id_member_poster'] == User::$me->id && !User::$me->allowedTo('modify_own'))
 			{
-				isAllowedTo('modify_replies');
+				User::$me->isAllowedTo('modify_replies');
 			}
 			else
 			{
-				isAllowedTo('modify_own');
+				User::$me->isAllowedTo('modify_own');
 			}
 		}
-		elseif ($row['id_member_poster'] == User::$me->id && !allowedTo('modify_any'))
+		elseif ($row['id_member_poster'] == User::$me->id && !User::$me->allowedTo('modify_any'))
 		{
-			isAllowedTo('modify_replies');
+			User::$me->isAllowedTo('modify_replies');
 		}
 		else
 		{
-			isAllowedTo('modify_any');
+			User::$me->isAllowedTo('modify_any');
 		}
 
 		if (Utils::$context['can_announce'] && !empty($row['id_action']) && $row['id_first_msg'] == $_REQUEST['msg'])
@@ -1222,7 +1222,7 @@ class Post implements ActionInterface
 		}
 
 		// Allow moderators to change names....
-		if (allowedTo('moderate_forum') && empty($row['id_member']))
+		if (User::$me->allowedTo('moderate_forum') && empty($row['id_member']))
 		{
 			Utils::$context['name'] = Utils::htmlspecialchars($row['poster_name']);
 			Utils::$context['email'] = Utils::htmlspecialchars($row['poster_email']);
@@ -1359,7 +1359,7 @@ class Post implements ActionInterface
 			unset($_SESSION['already_attached']);
 		}
 
-		Utils::$context['can_post_attachment'] = !empty(Config::$modSettings['attachmentEnable']) && Config::$modSettings['attachmentEnable'] == 1 && (allowedTo('post_attachment', $this->boards, true) || (Config::$modSettings['postmod_active'] && allowedTo('post_unapproved_attachments', $this->boards, true)));
+		Utils::$context['can_post_attachment'] = !empty(Config::$modSettings['attachmentEnable']) && Config::$modSettings['attachmentEnable'] == 1 && (User::$me->allowedTo('post_attachment', $this->boards, true) || (Config::$modSettings['postmod_active'] && User::$me->allowedTo('post_unapproved_attachments', $this->boards, true)));
 
 		if (Utils::$context['can_post_attachment'])
 		{
@@ -1573,7 +1573,7 @@ class Post implements ActionInterface
 			// If they've unchecked an attachment, they may still want to attach that many more files, but don't allow more than num_allowed_attachments.
 			Utils::$context['num_allowed_attachments'] = empty(Config::$modSettings['attachmentNumPerPostLimit']) ? PHP_INT_MAX : Config::$modSettings['attachmentNumPerPostLimit'];
 
-			Utils::$context['can_post_attachment_unapproved'] = allowedTo('post_attachment');
+			Utils::$context['can_post_attachment_unapproved'] = User::$me->allowedTo('post_attachment');
 
 			Utils::$context['attachment_restrictions'] = array();
 
@@ -1784,8 +1784,8 @@ class Post implements ActionInterface
 	{
 		// Are post drafts enabled?
 		Utils::$context['drafts_type'] = 'post';
-		Utils::$context['drafts_save'] = !empty(Config::$modSettings['drafts_post_enabled']) && allowedTo('post_draft');
-		Utils::$context['drafts_autosave'] = !empty(Utils::$context['drafts_save']) && !empty(Config::$modSettings['drafts_autosave_enabled']) && allowedTo('post_autosave_draft') && !empty(Theme::$current->options['drafts_autosave_enabled']);
+		Utils::$context['drafts_save'] = !empty(Config::$modSettings['drafts_post_enabled']) && User::$me->allowedTo('post_draft');
+		Utils::$context['drafts_autosave'] = !empty(Utils::$context['drafts_save']) && !empty(Config::$modSettings['drafts_autosave_enabled']) && User::$me->allowedTo('post_autosave_draft') && !empty(Theme::$current->options['drafts_autosave_enabled']);
 
 		// Build a list of drafts that they can load in to the editor
 		if (!empty(Utils::$context['drafts_save']))

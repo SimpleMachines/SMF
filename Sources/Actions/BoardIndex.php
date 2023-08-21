@@ -102,7 +102,7 @@ class BoardIndex implements ActionInterface
 		}
 
 		// Load the calendar?
-		if (!empty(Config::$modSettings['cal_enabled']) && allowedTo('calendar_view'))
+		if (!empty(Config::$modSettings['cal_enabled']) && User::$me->allowedTo('calendar_view'))
 		{
 			// Retrieve the calendar data (events, birthdays, holidays).
 			$eventOptions = array(
@@ -118,7 +118,7 @@ class BoardIndex implements ActionInterface
 			Utils::$context['calendar_only_today'] = Config::$modSettings['cal_days_for_index'] == 1;
 
 			// This is used to show the "how-do-I-edit" help.
-			Utils::$context['calendar_can_edit'] = allowedTo('calendar_edit_any');
+			Utils::$context['calendar_can_edit'] = User::$me->allowedTo('calendar_edit_any');
 
 			if (!empty(Utils::$context['show_calendar']))
 			{
@@ -140,7 +140,7 @@ class BoardIndex implements ActionInterface
 
 		// Now the online stuff
 		Utils::$context += Logging::getMembersOnlineStats(array(
-			'show_hidden' => allowedTo('moderate_forum'),
+			'show_hidden' => User::$me->allowedTo('moderate_forum'),
 			'sort' => 'log_time',
 			'reverse_sort' => true,
 		));
@@ -688,9 +688,9 @@ class BoardIndex implements ActionInterface
 		}
 
 		// Set a few minor things.
-		Utils::$context['show_stats'] = allowedTo('view_stats') && !empty(Config::$modSettings['trackStats']);
+		Utils::$context['show_stats'] = User::$me->allowedTo('view_stats') && !empty(Config::$modSettings['trackStats']);
 		Utils::$context['show_buddies'] = !empty(User::$me->buddies);
-		Utils::$context['show_who'] = allowedTo('who_view') && !empty(Config::$modSettings['who_enabled']);
+		Utils::$context['show_who'] = User::$me->allowedTo('who_view') && !empty(Config::$modSettings['who_enabled']);
 	}
 
 	/*************************

@@ -212,7 +212,7 @@ class Register2 extends Register
 		if (isset($_POST['real_name']))
 		{
 			// Are you already allowed to edit the displayed name?
-			if (allowedTo('profile_displayed_name') || allowedTo('moderate_forum'))
+			if (User::$me->allowedTo('profile_displayed_name') || User::$me->allowedTo('moderate_forum'))
 			{
 				$can_edit_display_name = true;
 			}
@@ -518,7 +518,7 @@ class Register2 extends Register
 		if ($reg_options['interface'] == 'admin')
 		{
 			User::$me->kickIfGuest();
-			isAllowedTo('moderate_forum');
+			User::$me->isAllowedTo('moderate_forum');
 		}
 		// If you're an admin, you're special ;).
 		elseif ($reg_options['interface'] == 'guest')
@@ -732,14 +732,14 @@ class Register2 extends Register
 		if (isset($reg_options['memberGroup']))
 		{
 			// Make sure the id_group will be valid, if this is an administrator.
-			$reg_options['register_vars']['id_group'] = $reg_options['memberGroup'] == 1 && !allowedTo('admin_forum') ? 0 : $reg_options['memberGroup'];
+			$reg_options['register_vars']['id_group'] = $reg_options['memberGroup'] == 1 && !User::$me->allowedTo('admin_forum') ? 0 : $reg_options['memberGroup'];
 
 			// Check if this group is assignable.
 			$unassignable_groups = array(-1, 3);
 			$request = Db::$db->query('', '
 				SELECT id_group
 				FROM {db_prefix}membergroups
-				WHERE min_posts != {int:min_posts}' . (allowedTo('admin_forum') ? '' : '
+				WHERE min_posts != {int:min_posts}' . (User::$me->allowedTo('admin_forum') ? '' : '
 					OR group_type = {int:is_protected}'),
 				array(
 					'min_posts' => -1,

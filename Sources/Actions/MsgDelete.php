@@ -92,40 +92,40 @@ class MsgDelete implements ActionInterface
 		// Verify they can see this!
 		if (Config::$modSettings['postmod_active'] && !$approved && !empty($poster) && $poster != User::$me->id)
 		{
-			isAllowedTo('approve_posts');
+			User::$me->isAllowedTo('approve_posts');
 		}
 
 		if ($poster == User::$me->id)
 		{
-			if (!allowedTo('delete_own'))
+			if (!User::$me->allowedTo('delete_own'))
 			{
-				if ($starter == User::$me->id && !allowedTo('delete_any'))
+				if ($starter == User::$me->id && !User::$me->allowedTo('delete_any'))
 				{
-					isAllowedTo('delete_replies');
+					User::$me->isAllowedTo('delete_replies');
 				}
-				elseif (!allowedTo('delete_any'))
+				elseif (!User::$me->allowedTo('delete_any'))
 				{
-					isAllowedTo('delete_own');
+					User::$me->isAllowedTo('delete_own');
 				}
 			}
-			elseif (!allowedTo('delete_any') && ($starter != User::$me->id || !allowedTo('delete_replies')) && !empty(Config::$modSettings['edit_disable_time']) && $post_time + Config::$modSettings['edit_disable_time'] * 60 < time())
+			elseif (!User::$me->allowedTo('delete_any') && ($starter != User::$me->id || !User::$me->allowedTo('delete_replies')) && !empty(Config::$modSettings['edit_disable_time']) && $post_time + Config::$modSettings['edit_disable_time'] * 60 < time())
 			{
 				ErrorHandler::fatalLang('modify_post_time_passed', false);
 			}
 		}
-		elseif ($starter == User::$me->id && !allowedTo('delete_any'))
+		elseif ($starter == User::$me->id && !User::$me->allowedTo('delete_any'))
 		{
-			isAllowedTo('delete_replies');
+			User::$me->isAllowedTo('delete_replies');
 		}
 		else
 		{
-			isAllowedTo('delete_any');
+			User::$me->isAllowedTo('delete_any');
 		}
 
 		// If the full topic was removed go back to the board.
 		$full_topic = Msg::remove($_REQUEST['msg']);
 
-		if (allowedTo('delete_any') && (!allowedTo('delete_own') || $poster != User::$me->id))
+		if (User::$me->allowedTo('delete_any') && (!User::$me->allowedTo('delete_own') || $poster != User::$me->id))
 		{
 			Logging::logAction('delete', array('topic' => Topic::$topic_id, 'subject' => $subject, 'member' => $poster, 'board' => Board::$info->id));
 		}
