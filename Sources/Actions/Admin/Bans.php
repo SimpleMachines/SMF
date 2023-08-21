@@ -120,7 +120,7 @@ class Bans implements ActionInterface
 		// User pressed the 'remove selection button'.
 		if (!empty($_POST['removeBans']) && !empty($_POST['remove']) && is_array($_POST['remove']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			// Make sure every entry is a proper integer.
 			array_map('intval', $_POST['remove']);
@@ -613,7 +613,7 @@ class Bans implements ActionInterface
 	{
 		if (!empty($_POST['remove_triggers']) && !empty($_POST['remove']) && is_array($_POST['remove']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			self::removeBanTriggers($_POST['remove']);
 
@@ -915,7 +915,7 @@ class Bans implements ActionInterface
 		// Delete one or more entries.
 		if (!empty($_POST['removeAll']) || (!empty($_POST['removeSelected']) && !empty($_POST['remove'])))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-bl');
 
 			// 'Delete all entries' button was pressed.
@@ -1676,7 +1676,7 @@ class Bans implements ActionInterface
 	 */
 	protected function edit2(): void
 	{
-		checkSession();
+		User::$me->checkSession();
 		SecurityToken::validate('admin-bet');
 
 		Utils::$context['ban_errors'] = array();

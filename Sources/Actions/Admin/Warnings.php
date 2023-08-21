@@ -19,6 +19,7 @@ use SMF\Actions\ActionInterface;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\User;
 use SMF\Utils;
 
 /**
@@ -74,7 +75,7 @@ class Warnings implements ActionInterface
 		// Saving?
 		if (isset($_GET['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			// Make sure these don't have an effect.
 			if (!$currently_enabled && empty($_POST['warning_enable']))

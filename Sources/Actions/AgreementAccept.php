@@ -69,7 +69,7 @@ class AgreementAccept extends Agreement
 
 		if ($can_accept_agreement || $can_accept_privacy_policy)
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			if ($can_accept_agreement)
 			{

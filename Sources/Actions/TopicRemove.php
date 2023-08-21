@@ -68,7 +68,7 @@ class TopicRemove implements ActionInterface
 	public function execute(): void
 	{
 		// Make sure they aren't being lead around by someone. (:@)
-		checkSession('get');
+		User::$me->checkSession('get');
 
 		// Trying to fool us around, are we?
 		if (empty(Topic::$topic_id))
@@ -191,7 +191,7 @@ class TopicRemove implements ActionInterface
 	public static function old()
 	{
 		isAllowedTo('admin_forum');
-		checkSession('post', 'admin');
+		User::$me->checkSession('post', 'admin');
 
 		// No boards at all?  Forget it then :/.
 		if (empty($_POST['boards']))

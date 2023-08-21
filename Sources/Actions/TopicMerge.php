@@ -1124,7 +1124,7 @@ class TopicMerge implements ActionInterface
 	protected function initOptionsAndMerge()
 	{
 		// Check the session.
-		checkSession('request');
+		User::$me->checkSession('request');
 
 		$this->getTopics();
 

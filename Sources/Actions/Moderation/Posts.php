@@ -185,7 +185,7 @@ class Posts implements ActionInterface
 		// Right, so we have something to do?
 		if (!empty($toAction) && isset($curAction))
 		{
-			checkSession('request');
+			User::$me->checkSession('request');
 
 			// Handy shortcut.
 			$any_array = $curAction == 'approve' ? $approve_boards : $delete_any_boards;
@@ -505,7 +505,7 @@ class Posts implements ActionInterface
 		// Something to do, let's do it!
 		if (!empty($attachments) && isset($curAction))
 		{
-			checkSession('request');
+			User::$me->checkSession('request');
 
 			// Confirm the attachments are eligible for changing!
 			$request = Db::$db->query('', '
@@ -696,7 +696,7 @@ class Posts implements ActionInterface
 	 */
 	public function approve(): void
 	{
-		checkSession('get');
+		User::$me->checkSession('get');
 
 		$_REQUEST['msg'] = (int) $_REQUEST['msg'];
 

@@ -137,7 +137,7 @@ class Attachments implements ActionInterface
 		// Saving settings?
 		if (isset($_GET['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			if (isset($_POST['attachmentUploadDir']))
 				unset($_POST['attachmentUploadDir']);
@@ -229,7 +229,7 @@ class Attachments implements ActionInterface
 		// Saving avatar settings?
 		if (isset($_GET['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			// These settings cannot be left empty!
 			if (empty($_POST['custom_avatar_dir']))
@@ -601,7 +601,7 @@ class Attachments implements ActionInterface
 	 */
 	public function remove(): void
 	{
-		checkSession();
+		User::$me->checkSession();
 
 		if (!empty($_POST['remove']))
 		{
@@ -658,7 +658,7 @@ class Attachments implements ActionInterface
 	 */
 	public function removeByAge(): void
 	{
-		checkSession('post', 'admin');
+		User::$me->checkSession('post', 'admin');
 
 		// @todo Ignore messages in topics that are stickied?
 
@@ -700,7 +700,7 @@ class Attachments implements ActionInterface
 	 */
 	public function removeBySize(): void
 	{
-		checkSession('post', 'admin');
+		User::$me->checkSession('post', 'admin');
 
 		// Find humungous attachments.
 		$messages = Attachment::remove(array('attachment_type' => 0, 'size' => 1024 * $_POST['size']), 'messages', true);
@@ -729,7 +729,7 @@ class Attachments implements ActionInterface
 	 */
 	public function removeAll(): void
 	{
-		checkSession('get', 'admin');
+		User::$me->checkSession('get', 'admin');
 
 		$messages = Attachment::remove(array('attachment_type' => 0), '', true);
 
@@ -758,7 +758,7 @@ class Attachments implements ActionInterface
 	 */
 	public function repair(): void
 	{
-		checkSession('get');
+		User::$me->checkSession('get');
 
 		// If we choose cancel, redirect right back.
 		if (isset($_POST['cancel']))
@@ -1377,7 +1377,7 @@ class Attachments implements ActionInterface
 		// Saving?
 		if (isset($_REQUEST['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			$_POST['current_dir'] = (int) $_POST['current_dir'];
 
@@ -1667,7 +1667,7 @@ class Attachments implements ActionInterface
 		// Saving a base directory?
 		if (isset($_REQUEST['save2']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			// Changing the current base directory?
 			$_POST['current_base_dir'] = isset($_POST['current_base_dir']) ? (int) $_POST['current_base_dir'] : 1;
@@ -1961,7 +1961,7 @@ class Attachments implements ActionInterface
 	 */
 	public function transfer(): void
 	{
-		checkSession();
+		User::$me->checkSession();
 
 		if (!empty(Config::$modSettings['attachment_basedirectories']))
 		{

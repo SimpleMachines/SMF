@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\Attachment;
 use SMF\ErrorHandler;
+use SMF\User;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -60,7 +61,7 @@ class AttachmentApprove implements ActionInterface
 	public function execute(): void
 	{
 		// Security is our primary concern...
-		checkSession('get');
+		User::$me->checkSession('get');
 
 		// If it approve or delete?
 		$is_approve = !isset($_GET['sa']) || $_GET['sa'] != 'reject';

@@ -208,7 +208,7 @@ class Login2 implements ActionInterface
 			redirectexit();
 
 		// Are you guessing with a script?
-		checkSession();
+		User::$me->checkSession();
 		SecurityToken::validate('login');
 		spamProtection('login');
 

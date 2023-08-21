@@ -23,6 +23,7 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\SecurityToken;
 use SMF\Theme;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -199,7 +200,7 @@ class Languages implements ActionInterface
 		// Can we actually do the installation - and do they want to?
 		if (!empty($_POST['do_install']) && !empty($_POST['copy_file']))
 		{
-			checkSession('get');
+			User::$me->checkSession('get');
 			SecurityToken::validate('admin-dlang');
 
 			$chmod_files = array();
@@ -502,7 +503,7 @@ class Languages implements ActionInterface
 		// Setting a new default?
 		if (!empty($_POST['set_default']) && !empty($_POST['def_language']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-lang');
 
 			Lang::get();
@@ -667,7 +668,7 @@ class Languages implements ActionInterface
 		// Saving settings?
 		if (isset($_REQUEST['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			call_integration_hook('integrate_save_language_settings', array(&$config_vars));
 
@@ -847,7 +848,7 @@ class Languages implements ActionInterface
 		// We no longer wish to speak this language.
 		if (!empty($_POST['delete_main']) && $lang_id != 'english')
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-mlang');
 
 			// First, Make a backup?
@@ -931,7 +932,7 @@ class Languages implements ActionInterface
 
 		if (!empty($_POST['save_main']) && !$current_file)
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-mlang');
 
 			// Read in the current file.
@@ -982,7 +983,7 @@ class Languages implements ActionInterface
 
 		if (isset($_POST['save_entries']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-mlang');
 
 			if (!empty($_POST['edit']))
@@ -1404,7 +1405,7 @@ class Languages implements ActionInterface
 			// Any saves to make?
 			if (!empty($final_saves))
 			{
-				checkSession();
+				User::$me->checkSession();
 
 				// Get a fresh copy of the file's current content.
 				$file_contents = file_get_contents($current_file);

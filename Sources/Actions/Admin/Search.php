@@ -21,6 +21,7 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\SecurityToken;
 use SMF\Theme;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
@@ -127,7 +128,7 @@ class Search implements ActionInterface
 		// A form was submitted.
 		if (isset($_REQUEST['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			call_integration_hook('integrate_save_search_settings');
 
@@ -176,7 +177,7 @@ class Search implements ActionInterface
 		// A form was submitted.
 		if (isset($_POST['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-msw');
 
 			call_integration_hook('integrate_save_search_weights');
@@ -227,7 +228,7 @@ class Search implements ActionInterface
 
 		if (!empty($_REQUEST['sa']) && $_REQUEST['sa'] == 'createfulltext')
 		{
-			checkSession('get');
+			User::$me->checkSession('get');
 			SecurityToken::validate('admin-msm', 'get');
 
 			if (Config::$db_type == 'postgresql')
@@ -272,7 +273,7 @@ class Search implements ActionInterface
 		}
 		elseif (!empty($_REQUEST['sa']) && $_REQUEST['sa'] == 'removefulltext' && !empty(Utils::$context['fulltext_index']))
 		{
-			checkSession('get');
+			User::$me->checkSession('get');
 			SecurityToken::validate('admin-msm', 'get');
 
 			if (Config::$db_type == 'postgresql')
@@ -308,7 +309,7 @@ class Search implements ActionInterface
 		}
 		elseif (!empty($_REQUEST['sa']) && $_REQUEST['sa'] == 'removecustom')
 		{
-			checkSession('get');
+			User::$me->checkSession('get');
 			SecurityToken::validate('admin-msm', 'get');
 
 			$tables = Db::$db->list_tables(false, Db::$db->prefix . 'log_search_words');
@@ -339,7 +340,7 @@ class Search implements ActionInterface
 		}
 		elseif (isset($_POST['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-msmpost');
 
 			Config::updateModSettings(array(
@@ -579,7 +580,7 @@ class Search implements ActionInterface
 		}
 
 		if (Utils::$context['step'] !== 0)
-			checkSession('request');
+			User::$me->checkSession('request');
 
 		// Step 0: let the user determine how they like their index.
 		if (Utils::$context['step'] === 0)

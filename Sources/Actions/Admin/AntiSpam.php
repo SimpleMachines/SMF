@@ -20,6 +20,7 @@ use SMF\Config;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Theme;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -146,7 +147,7 @@ class AntiSpam implements ActionInterface
 		// Saving?
 		if (isset($_GET['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			// Fix PM settings.
 			$_POST['pm_spam_settings'] = (int) $_POST['max_pm_recipients'] . ',' . (int) $_POST['pm_posts_verification'] . ',' . (int) $_POST['pm_posts_per_hour'];

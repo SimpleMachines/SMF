@@ -175,7 +175,7 @@ class DraftPM extends Draft
 		// If just deleting a draft, do it and then redirect back.
 		if (!empty($_REQUEST['delete']))
 		{
-			checkSession('get');
+			User::$me->checkSession('get');
 			$id_delete = (int) $_REQUEST['delete'];
 			$start = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
 
@@ -198,7 +198,7 @@ class DraftPM extends Draft
 		// perhaps a draft was selected for editing? if so pass this off
 		if (!empty($_REQUEST['id_draft']) && !empty(Utils::$context['drafts_save']) && $memID == User::$me->id)
 		{
-			checkSession('get');
+			User::$me->checkSession('get');
 			$id_draft = (int) $_REQUEST['id_draft'];
 			redirectexit('action=pm;sa=send;id_draft=' . $id_draft);
 		}

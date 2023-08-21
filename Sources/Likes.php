@@ -218,7 +218,7 @@ class Likes
 			if ($call != 'view')
 				User::$me->kickIfGuest();
 
-			checkSession('get');
+			User::$me->checkSession('get');
 
 			// Call the appropriate method.
 			$this->$call();

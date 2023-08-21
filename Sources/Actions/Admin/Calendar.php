@@ -25,6 +25,7 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\SecurityToken;
 use SMF\Theme;
+use SMF\User;
 use SMF\Utils;
 use SMF\Actions\Calendar as Cal;
 use SMF\Db\DatabaseApi as Db;
@@ -110,7 +111,7 @@ class Calendar implements ActionInterface
 		// Submitting something...
 		if (isset($_REQUEST['delete']) && !empty($_REQUEST['holiday']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-mc');
 
 			foreach ($_REQUEST['holiday'] as $id => $value)
@@ -235,7 +236,7 @@ class Calendar implements ActionInterface
 		// Submitting?
 		if (isset($_POST[Utils::$context['session_var']]) && (isset($_REQUEST['delete']) || $_REQUEST['title'] != ''))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-eh');
 
 			// Not too long good sir?
@@ -352,7 +353,7 @@ class Calendar implements ActionInterface
 		// Saving the settings?
 		if (isset($_GET['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			call_integration_hook('integrate_save_calendar_settings');
 			ACP::saveDBSettings($config_vars);
 

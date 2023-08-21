@@ -495,7 +495,7 @@ class Rule implements \ArrayAccess
 		// Applying all rules?
 		if (isset($_GET['apply']))
 		{
-			checkSession('get');
+			User::$me->checkSession('get');
 			spamProtection('pm');
 
 			self::apply(true);
@@ -555,7 +555,7 @@ class Rule implements \ArrayAccess
 		// Saving?
 		elseif (isset($_GET['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			$rid = isset($_GET['rid']) && isset(self::$loaded[$_GET['rid']]) ? (int) $_GET['rid'] : 0;
 
@@ -684,7 +684,7 @@ class Rule implements \ArrayAccess
 		// Deleting?
 		elseif (isset($_POST['delselected']) && !empty($_POST['delrule']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			self::delete(array_keys($_POST['delrule']));
 

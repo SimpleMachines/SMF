@@ -1034,7 +1034,7 @@ class Board implements \ArrayAccess
 		// No Guests allowed!
 		User::$me->kickIfGuest();
 
-		checkSession('get');
+		User::$me->checkSession('get');
 
 		if (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'all')
 		{

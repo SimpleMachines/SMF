@@ -107,7 +107,7 @@ class AutoSuggest implements ActionInterface
 		if (!isset($this->suggest_type, $this->search, self::$suggest_types[$this->suggest_type]))
 			return;
 
-		checkSession('get');
+		User::$me->checkSession('get');
 
 		Theme::loadTemplate('Xml');
 		Utils::$context['sub_template'] = 'generic_xml';

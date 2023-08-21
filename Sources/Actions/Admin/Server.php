@@ -203,7 +203,7 @@ class Server implements ActionInterface
 		// This is just to keep the database password more secure.
 		isAllowedTo('admin_forum');
 
-		checkSession('request');
+		User::$me->checkSession('request');
 
 		Utils::$context['page_title'] = Lang::$txt['admin_server_settings'];
 		Utils::$context['sub_template'] = 'show_settings';

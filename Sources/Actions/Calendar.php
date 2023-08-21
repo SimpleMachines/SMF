@@ -357,7 +357,7 @@ class Calendar implements ActionInterface
 		// Submitting?
 		if (isset($_POST[Utils::$context['session_var']], $_REQUEST['eventid']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			// Validate the post...
 			if (!isset($_POST['link_to_board']))

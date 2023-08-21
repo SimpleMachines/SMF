@@ -19,6 +19,7 @@ use SMF\Actions\ActionInterface;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\User;
 use SMF\Utils;
 
 /**
@@ -119,7 +120,7 @@ class Mods implements ActionInterface
 		// Saving?
 		elseif (isset($_GET['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			$save_vars = $config_vars;
 

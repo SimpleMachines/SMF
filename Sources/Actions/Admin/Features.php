@@ -130,7 +130,7 @@ class Features implements ActionInterface
 		// Saving?
 		if (isset($_GET['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			// Make sure the country codes are valid.
 			if (!empty($_POST['timezone_priority_countries']))
@@ -195,7 +195,7 @@ class Features implements ActionInterface
 		// Saving?
 		if (isset($_GET['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			// Clean up the tags.
 			$bbcTags = array();
@@ -298,7 +298,7 @@ class Features implements ActionInterface
 		// Saving?
 		if (isset($_GET['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			call_integration_hook('integrate_save_layout_settings');
 
@@ -340,7 +340,7 @@ class Features implements ActionInterface
 		if (isset($_GET['apply']))
 		{
 			// Security!
-			checkSession('get');
+			User::$me->checkSession('get');
 
 			Utils::$context['sig_start'] = time();
 			// This is horrid - but I suppose some people will want the option to do it.
@@ -639,7 +639,7 @@ class Features implements ActionInterface
 		// Saving?
 		if (isset($_GET['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			// Clean up the tag stuff!
 			$bbcTags = array();
@@ -724,7 +724,7 @@ class Features implements ActionInterface
 		// Are we saving any standard field changes?
 		if (isset($_POST['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-scp');
 
 			// Do the active ones first.
@@ -1145,7 +1145,7 @@ class Features implements ActionInterface
 		// Are we saving?
 		if (isset($_POST['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-ecp');
 
 			// Everyone needs a name - even the (bracket) unknown...
@@ -1417,7 +1417,7 @@ class Features implements ActionInterface
 		// Deleting?
 		elseif (isset($_POST['delete']) && Utils::$context['field']['col_name'])
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-ecp');
 
 			// Delete the user data first.
@@ -1454,7 +1454,7 @@ class Features implements ActionInterface
 		// Rebuild display cache etc.
 		if (isset($_POST['delete']) || isset($_POST['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			$fields = array();
 			$request = Db::$db->query('', '
@@ -1508,7 +1508,7 @@ class Features implements ActionInterface
 		// Saving?
 		if (isset($_GET['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			call_integration_hook('integrate_save_likes_settings');
 
@@ -1535,7 +1535,7 @@ class Features implements ActionInterface
 		// Saving?
 		if (isset($_GET['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			call_integration_hook('integrate_save_mentions_settings');
 

@@ -273,7 +273,7 @@ class News extends ACP implements ActionInterface
 		// The 'remove selected' button was pressed.
 		if (!empty($_POST['delete_selection']) && !empty($_POST['remove']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			// Store the news temporarily in this array.
 			$temp_news = explode("\n", Config::$modSettings['news']);
@@ -293,7 +293,7 @@ class News extends ACP implements ActionInterface
 		// The 'Save' button was pressed.
 		elseif (!empty($_POST['save_items']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			foreach ($_POST['news'] as $i => $news)
 			{
@@ -724,7 +724,7 @@ class News extends ACP implements ActionInterface
 		if (!empty($_POST['send_pm']))
 			$num_at_once /= 2;
 
-		checkSession();
+		User::$me->checkSession();
 
 		// Where are we actually to?
 		Utils::$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
@@ -1183,7 +1183,7 @@ class News extends ACP implements ActionInterface
 		// Saving the settings?
 		if (isset($_GET['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			call_integration_hook('integrate_save_news_settings');
 

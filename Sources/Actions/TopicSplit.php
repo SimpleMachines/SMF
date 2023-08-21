@@ -211,7 +211,7 @@ class TopicSplit implements ActionInterface
 	public function split()
 	{
 		// Check the session to make sure they meant to do this.
-		checkSession();
+		User::$me->checkSession();
 
 		// Clean up the subject.
 		if (!isset($_POST['subname']) || $_POST['subname'] == '')
@@ -572,7 +572,7 @@ class TopicSplit implements ActionInterface
 	public function splitSelection()
 	{
 		// Make sure the session id was passed with post.
-		checkSession();
+		User::$me->checkSession();
 
 		// Default the subject in case it's blank.
 		if (!isset($_POST['subname']) || $_POST['subname'] == '')

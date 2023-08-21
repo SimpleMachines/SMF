@@ -163,7 +163,7 @@ class ReportedContent implements ActionInterface
 		// Are we closing multiple reports?
 		if (isset($_POST['close']) && isset($_POST['close_selected']))
 		{
-			checkSession('post');
+			User::$me->checkSession('post');
 			SecurityToken::validate('mod-report-close-all');
 
 			// All the ones to update...
@@ -434,7 +434,7 @@ class ReportedContent implements ActionInterface
 	 */
 	public function setState(): void
 	{
-		checkSession('get');
+		User::$me->checkSession('get');
 
 		// We need to do something!
 		if (empty($_GET['rid']) && (!isset($_GET['ignore']) || !isset($_GET['closed'])))
@@ -479,7 +479,7 @@ class ReportedContent implements ActionInterface
 		// If they are adding a comment then... add a comment.
 		if (isset($_POST['add_comment']) && !empty($_POST['mod_comment']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('mod-reportC-add');
 
 			$new_comment = trim(Utils::htmlspecialchars($_POST['mod_comment']));
@@ -493,7 +493,7 @@ class ReportedContent implements ActionInterface
 		// Deleting a comment?
 		if (isset($_REQUEST['delete']) && isset($_REQUEST['mid']))
 		{
-			checkSession('get');
+			User::$me->checkSession('get');
 			SecurityToken::validate('mod-reportC-delete', 'get');
 
 			if (empty($_REQUEST['mid']))
@@ -530,7 +530,7 @@ class ReportedContent implements ActionInterface
 	 */
 	public function modifyComment(): void
 	{
-		checkSession(isset($_REQUEST['save']) ? 'post' : 'get');
+		User::$me->checkSession(isset($_REQUEST['save']) ? 'post' : 'get');
 
 		// The report ID is a must.
 		if (empty($_REQUEST['rid']))

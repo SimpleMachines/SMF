@@ -24,6 +24,7 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\SecurityToken;
 use SMF\Theme;
+use SMF\User;
 use SMF\Utils;
 use SMF\Actions\Moderation\Posts as PostMod;
 use SMF\Db\DatabaseApi as Db;
@@ -996,7 +997,7 @@ class Permissions implements ActionInterface
 		// Saving?
 		if (!empty($_POST['save_changes']) && !empty($_POST['boardprofile']))
 		{
-			checkSession('request');
+			User::$me->checkSession('request');
 			SecurityToken::validate('admin-mpb');
 
 			$changes = array();
@@ -1065,7 +1066,7 @@ class Permissions implements ActionInterface
 	 */
 	public function quick(): void
 	{
-		checkSession();
+		User::$me->checkSession();
 		SecurityToken::validate('admin-mpq', 'quick');
 
 		if ($_POST['copy_from'] === 'empty')
@@ -1145,7 +1146,7 @@ class Permissions implements ActionInterface
 	 */
 	public function modify2(): void
 	{
-		checkSession();
+		User::$me->checkSession();
 		SecurityToken::validate('admin-mp');
 
 		// Can't do anything without these.
@@ -1242,7 +1243,7 @@ class Permissions implements ActionInterface
 		// Saving the settings?
 		if (isset($_GET['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			call_integration_hook('integrate_save_permission_settings');
 
@@ -1396,7 +1397,7 @@ class Permissions implements ActionInterface
 	public function postmod(): void
 	{
 		// Just in case.
-		checkSession('get');
+		User::$me->checkSession('get');
 
 		Utils::$context['page_title'] = Lang::$txt['permissions_post_moderation'];
 		Utils::$context['sub_template'] = 'postmod_permissions';
@@ -2175,7 +2176,7 @@ class Permissions implements ActionInterface
 			return;
 
 		// Almighty session check, verify our ways.
-		checkSession();
+		User::$me->checkSession();
 		SecurityToken::validate('admin-mp');
 
 		// Check they can't do certain things.
@@ -3418,7 +3419,7 @@ class Permissions implements ActionInterface
 	 */
 	protected function createProfile(): void
 	{
-		checkSession();
+		User::$me->checkSession();
 		SecurityToken::validate('admin-mpp');
 
 		$_POST['copy_from'] = (int) $_POST['copy_from'];
@@ -3476,7 +3477,7 @@ class Permissions implements ActionInterface
 	 */
 	protected function renameProfile(): void
 	{
-		checkSession();
+		User::$me->checkSession();
 		SecurityToken::validate('admin-mpp');
 
 		// Just showing the input fields?
@@ -3520,7 +3521,7 @@ class Permissions implements ActionInterface
 	 */
 	protected function deleteProfile(): void
 	{
-		checkSession();
+		User::$me->checkSession();
 		SecurityToken::validate('admin-mpp');
 
 		$profiles = array();

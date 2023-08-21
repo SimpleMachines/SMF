@@ -116,7 +116,7 @@ class Register2 extends Register
 	 */
 	public function execute(): void
 	{
-		checkSession();
+		User::$me->checkSession();
 		SecurityToken::validate('register');
 
 		// Check to ensure we're forcing SSL for authentication

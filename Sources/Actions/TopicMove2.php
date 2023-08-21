@@ -120,7 +120,7 @@ class TopicMove2 implements ActionInterface
 			}
 		}
 
-		checkSession();
+		User::$me->checkSession();
 
 		// The destination board must be numeric.
 		$_POST['toboard'] = (int) $_POST['toboard'];

@@ -176,7 +176,7 @@ class GroupMembership implements ActionInterface
 		if (!User::$me->is_owner || empty(Config::$modSettings['show_group_membership']))
 			isAllowedTo('manage_membergroups');
 
-		checkSession(isset($_GET['gid']) ? 'get' : 'post');
+		User::$me->checkSession(isset($_GET['gid']) ? 'get' : 'post');
 
 		// By default the new groups are the old groups.
 		$new_primary = Profile::$member->group_id;

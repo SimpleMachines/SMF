@@ -121,7 +121,7 @@ class Delete implements ActionInterface
 		// Try get more time...
 		@set_time_limit(600);
 
-		checkSession();
+		User::$me->checkSession();
 
 		// Too often, people remove/delete their own only account.
 		if (in_array(1, Profile::$member->groups))

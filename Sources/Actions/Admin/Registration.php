@@ -123,7 +123,7 @@ class Registration implements ActionInterface
 
 		if (!empty($_POST['regSubmit']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-regc');
 
 			foreach ($_POST as $key => $value)
@@ -260,7 +260,7 @@ class Registration implements ActionInterface
 
 		if (isset($_POST['agreement']) && $_POST['agreement'] != Utils::$context['agreement'])
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-rega');
 
 			$backup_file = (date_create('@' . filemtime($agreement_file))->format('Y-m-d\TH_i_sp')) . '_' . $agreement_file;
@@ -335,7 +335,7 @@ class Registration implements ActionInterface
 
 		if (isset($_POST['policy']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-regp');
 
 			// Make sure there are no creepy-crawlies in it.
@@ -387,7 +387,7 @@ class Registration implements ActionInterface
 		// Submitting new reserved words.
 		if (!empty($_POST['save_reserved_names']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-regr');
 
 			$_POST['reserved'] = Utils::normalize($_POST['reserved']);
@@ -441,7 +441,7 @@ class Registration implements ActionInterface
 
 		if (isset($_GET['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			// Are there some contacts missing?
 			if (!empty($_POST['coppaAge']) && !empty($_POST['coppaType']) && empty($_POST['coppaPost']) && empty($_POST['coppaFax']))

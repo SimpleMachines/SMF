@@ -394,7 +394,7 @@ class PersonalMessage implements ActionInterface
 	 */
 	public function applyActions(): void
 	{
-		checkSession('request');
+		User::$me->checkSession('request');
 
 		if (isset($_REQUEST['del_selected']))
 			$_REQUEST['pm_action'] = 'delete';
@@ -499,7 +499,7 @@ class PersonalMessage implements ActionInterface
 	 */
 	public function removeAll(): void
 	{
-		checkSession();
+		User::$me->checkSession();
 
 		PM::delete(null, null);
 
@@ -514,7 +514,7 @@ class PersonalMessage implements ActionInterface
 	{
 		if (isset($_REQUEST['age']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			// Calculate the time to delete before.
 			$delete_time = max(0, time() - (86400 * (int) $_REQUEST['age']));
@@ -590,7 +590,7 @@ class PersonalMessage implements ActionInterface
 		else
 		{
 			// Check the session before proceeding any further!
-			checkSession();
+			User::$me->checkSession();
 
 			// Remove the line breaks...
 			$body = preg_replace('~<br ?/?' . '>~i', "\n", $this->body);
@@ -748,7 +748,7 @@ class PersonalMessage implements ActionInterface
 		// Are they saving?
 		if (isset($_REQUEST['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			Profile::$member->save();
 		}
 
@@ -1055,7 +1055,7 @@ class PersonalMessage implements ActionInterface
 		$menu = new Menu($this->pm_areas, $menuOptions);
 
 		// No menu means no access.
-		if (empty($menu->include_data) && (!User::$me->is_guest || validateSession()))
+		if (empty($menu->include_data) && (!User::$me->is_guest || User::$me->validateSession()))
 			ErrorHandler::fatalLang('no_access', false);
 
 		// Make a note of the Unique ID for this menu.

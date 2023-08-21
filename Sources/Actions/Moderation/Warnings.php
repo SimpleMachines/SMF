@@ -294,7 +294,7 @@ class Warnings implements ActionInterface
 
 		if (isset($_POST['delete']) && !empty($_POST['deltpl']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('mod-wt');
 
 			// Log the actions.
@@ -485,7 +485,7 @@ class Warnings implements ActionInterface
 		// Wait, we are saving?
 		if (isset($_POST['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('mod-wt');
 
 			// Bit of cleaning!

@@ -66,9 +66,7 @@ class FindMember implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		require_once(Config::$sourcedir . '/Subs-Auth.php');
-
-		checkSession('get');
+		User::$me->checkSession('get');
 
 		// Why is this in the Help template, you ask?  Well, erm... it helps you.  Does that work?
 		Theme::loadTemplate('Help');

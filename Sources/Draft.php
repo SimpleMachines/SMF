@@ -421,7 +421,7 @@ class Draft
 		// If just deleting a draft, do it and then redirect back.
 		if (!empty($_REQUEST['delete']))
 		{
-			checkSession('get');
+			User::$me->checkSession('get');
 			$id_delete = (int) $_REQUEST['delete'];
 
 			Db::$db->query('', '

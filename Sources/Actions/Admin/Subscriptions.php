@@ -495,7 +495,7 @@ class Subscriptions implements ActionInterface
 		// Delete it?
 		if (isset($_POST['delete_confirm']) && isset($_REQUEST['delete']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-pmsd');
 
 			// Before we delete the subscription we need to find out if anyone currently has said subscription.
@@ -606,7 +606,7 @@ class Subscriptions implements ActionInterface
 		// Saving?
 		if (isset($_POST['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			// Some cleaning...
 			$isActive = isset($_POST['active']) ? 1 : 0;
@@ -915,7 +915,7 @@ class Subscriptions implements ActionInterface
 		// Saving?
 		elseif (isset($_REQUEST['save_sub']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			// Work out the dates...
 			$starttime = mktime($_POST['hour'], $_POST['minute'], 0, $_POST['month'], $_POST['day'], $_POST['year']);
@@ -1033,7 +1033,7 @@ class Subscriptions implements ActionInterface
 		// Deleting?
 		elseif (isset($_REQUEST['delete']) || isset($_REQUEST['finished']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			// Do the actual deletes!
 			if (!empty($_REQUEST['delsub']))
@@ -1297,7 +1297,7 @@ class Subscriptions implements ActionInterface
 		// Saving the settings?
 		if (isset($_GET['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			$old = !empty(Config::$modSettings['paid_enabled']);
 			$new = !empty($_POST['paid_enabled']);

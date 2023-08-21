@@ -103,7 +103,7 @@ class Logout extends Login2
 		// Make sure they aren't being auto-logged out.
 		elseif (!$internal && isset($_GET[Utils::$context['session_var']]))
 		{
-			checkSession('get');
+			User::$me->checkSession('get');
 		}
 
 		if (isset($_SESSION['pack_ftp']))

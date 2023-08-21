@@ -179,7 +179,7 @@ class Post2 extends Post
 		$this->errors = array();
 
 		// If the session has timed out, let the user re-submit their form.
-		if (checkSession('post', '', false) != '')
+		if (User::$me->checkSession('post', '', false) != '')
 			$this->errors[] = 'session_timeout';
 
 		// Wrong verification code?
@@ -351,7 +351,7 @@ class Post2 extends Post
 		// Previewing? Go back to start.
 		if (isset($_REQUEST['preview']))
 		{
-			if (checkSession('post', '', false) != '')
+			if (User::$me->checkSession('post', '', false) != '')
 			{
 				Lang::load('Errors');
 				$this->errors[] = 'session_timeout';

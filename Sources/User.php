@@ -84,6 +84,8 @@ class User implements \ArrayAccess
 			'find' => 'findMembers',
 			'loadMyPermissions' => 'loadPermissions',
 			'setCurProfile' => false,
+			'sessionValidate' => 'validateSession',
+			'sessionCheck' => 'checkSession',
 		),
 		'prop_names' => array(
 			'profiles' => 'user_profile',
@@ -2020,6 +2022,260 @@ class User implements \ArrayAccess
 		}
 	}
 
+	/**
+	 * Check if the user is who he/she says he is.
+	 *
+	 * Makes sure the user is who they claim to be by requiring a password to be
+	 * typed in every hour.
+	 *
+	 * Is turned on and off by the securityDisable setting.
+	 *
+	 * Uses the SMF\Actions\Admin\ACP::adminLogin() method if they need to login,
+	 * which saves all request (post and get) data.
+	 *
+	 * @param string $type What type of session this is.
+	 * @param bool $force If true, require a password even if we normally wouldn't.
+	 * @return string|null Returns 'session_verify_fail' if verification failed,
+	 *    or null if it passed.
+	 */
+	public function validateSession(string $type = 'admin', bool $force = false): string|null
+	{
+		// This only applies to the current user.
+		if ($this->id !== User::$my_id)
+			return null;
+
+		// We don't care if the option is off, because guests should NEVER get past here.
+		$this->kickIfGuest();
+
+		// Validate what type of session check this is.
+		$types = array();
+		call_integration_hook('integrate_validateSession', array(&$types));
+		$type = in_array($type, $types) || $type == 'moderate' ? $type : 'admin';
+
+		// If we're using XML give an additional ten minutes grace as an admin
+		// can't log on in XML mode.
+		$refreshTime = isset($_GET['xml']) ? 4200 : 3600;
+
+		if (empty($force))
+		{
+			// Is the security option off?
+			if (!empty(Config::$modSettings['securityDisable' . ($type != 'admin' ? '_' . $type : '')]))
+			{
+				return null;
+			}
+
+			// Or are they already logged in? Moderator or admin session is need for this area.
+			if (
+				(
+					!empty($_SESSION[$type . '_time'])
+					&& $_SESSION[$type . '_time'] + $refreshTime >= time()
+				)
+				|| (
+					!empty($_SESSION['admin_time'])
+					&& $_SESSION['admin_time'] + $refreshTime >= time()
+				)
+			)
+			{
+				return null;
+			}
+		}
+
+		require_once(Config::$sourcedir . '/Subs-Auth.php');
+
+		// Posting the password... check it.
+		if (isset($_POST[$type . '_pass']))
+		{
+			// Check to ensure we're forcing SSL for authentication
+			if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !httpsOn())
+			{
+				ErrorHandler::fatalLang('login_ssl_required');
+			}
+
+			$this->checkSession();
+
+			$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($this->username, $_POST[$type . '_pass'], false)), true);
+
+			// Password correct?
+			if ($good_password || hash_verify_password($this->username, $_POST[$type . '_pass'], $this->passwd))
+			{
+				$_SESSION[$type . '_time'] = time();
+
+				unset($_SESSION['request_referer']);
+
+				return null;
+			}
+		}
+
+		// Better be sure to remember the real referer
+		if (empty($_SESSION['request_referer']))
+		{
+			$_SESSION['request_referer'] = isset($_SERVER['HTTP_REFERER']) ? @parse_iri($_SERVER['HTTP_REFERER']) : array();
+		}
+		elseif (empty($_POST))
+		{
+			unset($_SESSION['request_referer']);
+		}
+
+		// Need to type in a password for that, man.
+		if (!isset($_GET['xml']))
+			ACP::adminLogin($type);
+
+		return 'session_verify_fail';
+	}
+
+	/**
+	 * Make sure the user's correct session was passed, and they came from here.
+	 *
+	 * Checks the current session, verifying that the person is who he or she
+	 * should be.
+	 *
+	 * Also checks the referrer to make sure they didn't get sent here, unless
+	 * the disableCheckUA setting is present and true. (It's usually missing.)
+	 *
+	 * Will check $_GET, $_POST, or $_REQUEST, depending on the passed $type.
+	 *
+	 * Also optionally checks the referring action if $from_action is passed.
+	 * (Note that the referring action must be in $_GET)
+	 *
+	 * @param string $type The type of check (post, get, request).
+	 * @param string $from_action The action this is coming from.
+	 * @param bool $is_fatal Whether to die with a fatal error if the check fails.
+	 * @return string The error message, or '' if everything was fine.
+	 */
+	public function checkSession(string $type = 'post', string $from_action = '', bool $is_fatal = true): string
+	{
+		// Is it in as $_POST['sc']?
+		if ($type == 'post')
+		{
+			$check = $_POST[$_SESSION['session_var']] ?? (empty(Config::$modSettings['strictSessionCheck']) && isset($_POST['sc']) ? $_POST['sc'] : null);
+
+			if ($check !== User::$sc)
+				$error = 'session_timeout';
+		}
+		// How about $_GET['sesc']?
+		elseif ($type == 'get')
+		{
+			$check = $_GET[$_SESSION['session_var']] ?? (empty(Config::$modSettings['strictSessionCheck']) && isset($_GET['sesc']) ? $_GET['sesc'] : null);
+
+			if ($check !== User::$sc)
+				$error = 'session_verify_fail';
+		}
+		// Or can it be in either?
+		elseif ($type == 'request')
+		{
+			$check = $_GET[$_SESSION['session_var']] ?? (empty(Config::$modSettings['strictSessionCheck']) && isset($_GET['sesc']) ? $_GET['sesc'] : ($_POST[$_SESSION['session_var']] ?? (empty(Config::$modSettings['strictSessionCheck']) && isset($_POST['sc']) ? $_POST['sc'] : null)));
+
+			if ($check !== User::$sc)
+				$error = 'session_verify_fail';
+		}
+
+		// Verify that they aren't changing user agents on us - that could be bad.
+		if ((!isset($_SESSION['USER_AGENT']) || $_SESSION['USER_AGENT'] != $_SERVER['HTTP_USER_AGENT']) && empty(Config::$modSettings['disableCheckUA']))
+		{
+			$error = 'session_verify_fail';
+		}
+
+		// Make sure a page with session check requirement is not being prefetched.
+		if (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch')
+		{
+			ob_end_clean();
+			send_http_status(403);
+			die;
+		}
+
+		// Check the referring site - it should be the same server at least!
+		$referrer = $_SESSION['request_referer'] ?? isset($_SERVER['HTTP_REFERER']) ? @parse_iri($_SERVER['HTTP_REFERER']) : array();
+
+		// Check the refer but if we have CORS enabled and it came from a trusted source, we can skip this check.
+		if (
+			!empty($referrer['host'])
+			&& (
+				empty(Config::$modSettings['allow_cors'])
+				|| empty(Utils::$context['valid_cors_found'])
+				|| !in_array(Utils::$context['valid_cors_found'], array('same', 'subdomain'))
+			)
+		)
+		{
+			if (strpos($_SERVER['HTTP_HOST'], ':') !== false)
+			{
+				$real_host = substr($_SERVER['HTTP_HOST'], 0, strpos($_SERVER['HTTP_HOST'], ':'));
+			}
+			else
+			{
+				$real_host = $_SERVER['HTTP_HOST'];
+			}
+
+			$parsed_url = parse_iri(Config::$boardurl);
+
+			// Are global cookies on?  If so, let's check them ;).
+			if (!empty(Config::$modSettings['globalCookies']))
+			{
+				if (preg_match('~(?:[^\.]+\.)?([^\.]{3,}\..+)\z~i', $parsed_url['host'], $parts))
+					$parsed_url['host'] = $parts[1];
+
+				if (preg_match('~(?:[^\.]+\.)?([^\.]{3,}\..+)\z~i', $referrer['host'], $parts))
+					$referrer['host'] = $parts[1];
+
+				if (preg_match('~(?:[^\.]+\.)?([^\.]{3,}\..+)\z~i', $real_host, $parts))
+					$real_host = $parts[1];
+			}
+
+			// Okay: referrer must either match parsed_url or real_host.
+			if (
+				isset($parsed_url['host'])
+				&& strtolower($referrer['host']) != strtolower($parsed_url['host'])
+				&& strtolower($referrer['host']) != strtolower($real_host)
+			)
+			{
+				$error = 'verify_url_fail';
+				$log_error = true;
+			}
+		}
+
+		// Well, first of all, if a from_action is specified you'd better have an old_url.
+		if (
+			!empty($from_action)
+			&& (
+				!isset($_SESSION['old_url'])
+				|| !preg_match('~[?;&]action=' . $from_action . '([;&]|$)~', $_SESSION['old_url'])
+			)
+		)
+		{
+			$error = 'verify_url_fail';
+			$log_error = true;
+		}
+
+		if (strtolower($_SERVER['HTTP_USER_AGENT']) == 'hacker')
+		{
+			ErrorHandler::fatal('Sound the alarm!  It\'s a hacker!  Close the castle gates!!', false);
+		}
+
+		// Everything is ok, return an empty string.
+		if (!isset($error))
+			return '';
+
+		// A non-fatal session error occurred.
+		// Return the error to the calling function.
+		if (!$is_fatal)
+			return $error;
+
+		// A fatal session error occurred.
+		// Show the error and die
+		if (isset($_GET['xml']))
+		{
+			ob_end_clean();
+			send_http_status(403, 'Forbidden - Session timeout');
+			die;
+		}
+		else
+		{
+			ErrorHandler::fatalLang($error, isset($log_error) ? 'user' : false);
+		}
+
+		// We really should never fall through here, for very important reasons.  Let's make sure.
+		trigger_error('No direct access...', E_USER_ERROR);
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -3657,6 +3913,36 @@ class User implements \ArrayAccess
 	public static function log_ban(array $ban_ids = array(), string $email = null): void
 	{
 		self::$me->logBan($ban_ids, $email);
+	}
+
+	/**
+	 * Static wrapper around User::$me->validateSession().
+	 *
+	 * This method exists only for backward compatibility purposes.
+	 *
+	 * @param string $type What type of session this is.
+	 * @param bool $force If true, require a password even if we normally wouldn't.
+	 * @return string|null Returns 'session_verify_fail' if verification failed,
+	 *    or null if it passed.
+	 */
+	public static function sessionValidate(string $type = 'admin', bool $force = false): string|null
+	{
+		return self::$me->validateSession($type, $force);
+	}
+
+	/**
+	 * Static wrapper around User::$me->checkSession().
+	 *
+	 * This method exists only for backward compatibility purposes.
+	 *
+	 * @param string $type The type of check (post, get, request).
+	 * @param string $from_action The action this is coming from.
+	 * @param bool $is_fatal Whether to die with a fatal error if the check fails.
+	 * @return string The error message, or '' if everything was fine.
+	 */
+	public static function sessionCheck(string $type = 'post', string $from_action = '', bool $is_fatal = true): string
+	{
+		return self::$me->checkSession($type, $from_action, $is_fatal);
 	}
 
 	/******************

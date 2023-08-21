@@ -146,7 +146,7 @@ class BuddyIgnoreLists implements ActionInterface
 		// Removing a buddy?
 		if (isset($_GET['remove']))
 		{
-			checkSession('get');
+			User::$me->checkSession('get');
 
 			call_integration_hook('integrate_remove_buddy', array(Profile::$member->id));
 
@@ -173,7 +173,7 @@ class BuddyIgnoreLists implements ActionInterface
 		// Adding a buddy?
 		if (isset($_POST['new_buddy']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			// Prepare the string for extraction...
 			$_POST['new_buddy'] = strtr(Utils::htmlspecialchars($_POST['new_buddy'], ENT_QUOTES), array('&quot;' => '"'));
@@ -378,7 +378,7 @@ class BuddyIgnoreLists implements ActionInterface
 		// Removing a member from the ignore list?
 		if (isset($_GET['remove']))
 		{
-			checkSession('get');
+			User::$me->checkSession('get');
 
 			$_SESSION['prf-save'] = Lang::$txt['could_not_remove_person'];
 
@@ -403,7 +403,7 @@ class BuddyIgnoreLists implements ActionInterface
 		// Adding a member to the ignore list?
 		if (isset($_POST['new_ignore']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			
 			// Prepare the string for extraction...
 			$_POST['new_ignore'] = strtr(Utils::htmlspecialchars($_POST['new_ignore'], ENT_QUOTES), array('&quot;' => '"'));

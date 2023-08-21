@@ -133,7 +133,7 @@ abstract class Notify
 
 		// We don't tolerate imposters around here.
 		if (empty($this->token))
-			checkSession('get');
+			User::$me->checkSession('get');
 
 		$this->changePref();
 

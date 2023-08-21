@@ -186,7 +186,7 @@ class Announce implements ActionInterface
 	 */
 	public function send(): void
 	{
-		checkSession();
+		User::$me->checkSession();
 
 		Utils::$context['start'] = empty($_REQUEST['start']) ? 0 : (int) $_REQUEST['start'];
 		$groups = array_merge(Board::$info->groups, array(1));
@@ -366,7 +366,7 @@ class Announce implements ActionInterface
 	{
 		isAllowedTo('announce_topic');
 
-		validateSession();
+		User::$me->validateSession();
 
 		if (empty(Topic::$topic_id))
 			ErrorHandler::fatalLang('topic_gone', false);

@@ -74,7 +74,7 @@ class BuddyListToggle implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		checkSession('get');
+		User::$me->checkSession('get');
 
 		isAllowedTo('profile_extra_own');
 		User::$me->kickIfGuest();

@@ -345,7 +345,7 @@ class Membergroups implements ActionInterface
 		// A form was submitted, we can start adding.
 		if (isset($_POST['group_name']) && trim($_POST['group_name']) != '')
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-mmg');
 
 			$postCountBasedGroup = isset($_POST['min_posts']) && (!isset($_POST['postgroup_based']) || !empty($_POST['postgroup_based']));
@@ -754,7 +754,7 @@ class Membergroups implements ActionInterface
 		// The delete this membergroup button was pressed.
 		if (isset($_POST['delete']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-mmg');
 
 			$result = $this->deleteMembergroups($_REQUEST['group']);
@@ -769,7 +769,7 @@ class Membergroups implements ActionInterface
 		elseif (isset($_POST['save']))
 		{
 			// Validate the session.
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-mmg');
 
 			// Can they really inherit from this group?
@@ -1323,7 +1323,7 @@ class Membergroups implements ActionInterface
 
 		if (isset($_REQUEST['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			call_integration_hook('integrate_save_membergroup_settings');
 
 			// Yeppers, saving this...

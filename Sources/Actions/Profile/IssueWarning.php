@@ -461,7 +461,7 @@ class IssueWarning implements ActionInterface
 	protected function save(): void
 	{
 		// Security is good here.
-		checkSession();
+		User::$me->checkSession();
 
 		// This cannot be empty!
 		$_POST['warn_reason'] = isset($_POST['warn_reason']) ? trim($_POST['warn_reason']) : '';

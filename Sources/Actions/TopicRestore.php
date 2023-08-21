@@ -64,7 +64,7 @@ class TopicRestore implements ActionInterface
 	public function execute(): void
 	{
 		// Check session.
-		checkSession('get');
+		User::$me->checkSession('get');
 
 		// Is recycled board enabled?
 		if (empty(Config::$modSettings['recycle_enable']))

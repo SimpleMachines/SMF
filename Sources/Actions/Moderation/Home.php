@@ -200,7 +200,7 @@ class Home implements ActionInterface
 		// Are we saving a note?
 		if (isset($_GET['modnote']) && isset($_POST['makenote']) && isset($_POST['new_note']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('mod-modnote-add');
 
 			$_POST['new_note'] = Utils::htmlspecialchars(trim($_POST['new_note']));
@@ -235,7 +235,7 @@ class Home implements ActionInterface
 		// Bye... bye...
 		if (isset($_GET['notes']) && isset($_GET['delete']) && is_numeric($_GET['delete']))
 		{
-			checkSession('get');
+			User::$me->checkSession('get');
 			SecurityToken::validate('mod-modnote-del', 'get');
 
 			// No sneaky stuff now!

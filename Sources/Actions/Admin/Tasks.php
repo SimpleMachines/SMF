@@ -23,6 +23,7 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\SecurityToken;
 use SMF\Theme;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -111,7 +112,7 @@ class Tasks implements ActionInterface
 		// Saving changes?
 		if (isset($_REQUEST['save']) && isset($_POST['enable_task']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			// We'll recalculate the dates at the end!
 			require_once(Config::$sourcedir . '/ScheduledTasks.php');
@@ -372,7 +373,7 @@ class Tasks implements ActionInterface
 		// Saving?
 		if (isset($_GET['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-st');
 
 			// We'll need this for calculating the next event.
@@ -469,7 +470,7 @@ class Tasks implements ActionInterface
 		// Empty the log?
 		if (!empty($_POST['removeAll']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-tl');
 
 			Db::$db->query('truncate_table', '
@@ -581,7 +582,7 @@ class Tasks implements ActionInterface
 		// Saving?
 		if (isset($_GET['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			$save_vars = $config_vars;
 
