@@ -86,6 +86,9 @@ class User implements \ArrayAccess
 			'setCurProfile' => false,
 			'sessionValidate' => 'validateSession',
 			'sessionCheck' => 'checkSession',
+			'hasPermission' => 'allowedTo',
+			'mustHavePermission' => 'isAllowedTo',
+			'hasPermissionInBoards' => 'boardsAllowedTo',
 		),
 		'prop_names' => array(
 			'profiles' => 'user_profile',
@@ -831,6 +834,22 @@ class User implements \ArrayAccess
 		'post_attachment' => 'post_unapproved_attachments',
 	);
 
+	/**
+	 * @var array
+	 *
+	 * Permissions that should only be given to highly trusted members.
+	 */
+	public static array $heavy_permissions = array(
+		'admin_forum',
+		'manage_attachments',
+		'manage_smileys',
+		'manage_boards',
+		'edit_news',
+		'moderate_forum',
+		'manage_bans',
+		'manage_membergroups',
+		'manage_permissions',
+	);
 
 	/*********************
 	 * Internal properties
@@ -856,6 +875,13 @@ class User implements \ArrayAccess
 	 * Whether custom profile fields are in the formatted data for this user.
 	 */
 	private bool $custom_fields_displayed = false;
+
+	/**
+	 * @var array
+	 *
+	 * Cache for the allowedTo() method.
+	 */
+	private array $perm_cache = array();
 
 	/**
 	 * @var array
@@ -1114,7 +1140,7 @@ class User implements \ArrayAccess
 			'href' => $this->is_guest ? '' : Config::$scripturl . '?action=profile;u=' . $this->id,
 			'link' => $this->is_guest ? '' : '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . '" title="' . sprintf(Lang::$txt['view_profile_of_username'], $this->name) . '">' . $this->name . '</a>',
 			'email' => $this->email,
-			'show_email' => !User::$me->is_guest && (User::$me->id == $this->id || allowedTo('moderate_forum')),
+			'show_email' => !User::$me->is_guest && (User::$me->id == $this->id || User::$me->allowedTo('moderate_forum')),
 			'registered' => empty($this->date_registered) ? Lang::$txt['not_applicable'] : timeformat($this->date_registered),
 			'registered_timestamp' => $this->date_registered,
 		);
@@ -1144,7 +1170,7 @@ class User implements \ArrayAccess
 			}
 
 			// Is this user online, and if so, is their online status visible?
-			$is_visibly_online = (!empty($this->show_online) || allowedTo('moderate_forum')) && $this->is_online > 0;
+			$is_visibly_online = (!empty($this->show_online) || User::$me->allowedTo('moderate_forum')) && $this->is_online > 0;
 
 			// Now append all the rest of the data.
 			$this->formatted += array(
@@ -1448,8 +1474,11 @@ class User implements \ArrayAccess
 	 */
 	public function rebuildModCache(): void
 	{
+		if ($this->id !== User::$my_id)
+			return;
+
 		// What groups can they moderate?
-		$group_query = allowedTo('manage_membergroups') ? '1=1' : '0=1';
+		$group_query = $this->allowedTo('manage_membergroups') ? '1=1' : '0=1';
 
 		if ($group_query == '0=1' && !$this->is_guest)
 		{
@@ -1480,11 +1509,11 @@ class User implements \ArrayAccess
 		}
 
 		// Then, same again, just the boards this time!
-		$board_query = allowedTo('moderate_forum') ? '1=1' : '0=1';
+		$board_query = $this->allowedTo('moderate_forum') ? '1=1' : '0=1';
 
 		if ($board_query == '0=1' && !$this->is_guest)
 		{
-			$boards = boardsAllowedTo('moderate_board', true);
+			$boards = $this->boardsAllowedTo('moderate_board', true);
 
 			if (empty($boards))
 			{
@@ -1543,7 +1572,7 @@ class User implements \ArrayAccess
 			// If you change the format of 'gq' and/or 'bq' make sure to adjust 'can_mod' in SMF\User.
 			'gq' => $group_query,
 			'bq' => $board_query,
-			'ap' => boardsAllowedTo('approve_posts'),
+			'ap' => $this->boardsAllowedTo('approve_posts'),
 			'mb' => $boards_mod,
 			'mq' => $mod_query,
 		);
@@ -2276,6 +2305,306 @@ class User implements \ArrayAccess
 		trigger_error('No direct access...', E_USER_ERROR);
 	}
 
+	/**
+	 * Checks whether the user has a given permissions (e.g. 'post_new').
+	 *
+	 * If $boards is specified, checks those boards instead of the current one.
+	 *
+	 * If $any is true, will return true if the user has the permission on any
+	 * of the specified boards
+	 *
+	 * Always returns true if the user is an administrator.
+	 *
+	 * @param string|array $permission A single permission to check or an array
+	 *    of permissions to check.
+	 * @param int|array $boards The ID of a board or an array of board IDs if we
+	 *    want to check board-level permissions
+	 * @param bool $any Whether to check for permission on at least one board
+	 *    instead of all the passed boards.
+	 * @return bool Whether the user has the specified permission.
+	 */
+	public function allowedTo(string|array $permission, int|array $boards = null, bool $any = false): bool
+	{
+		// You're always allowed to do nothing. (Unless you're a working man, MR. LAZY :P!)
+		if (empty($permission))
+			return true;
+
+		// Administrators are supermen :P.
+		if ($this->is_admin)
+			return true;
+
+		// Let's ensure this is an array.
+		$permission = (array) $permission;
+
+		// Are we checking the _current_ board, or some other boards?
+		if ($boards === null || $boards === array())
+		{
+			$user_permissions = (array) $this->permissions;
+
+			// Allow temporary overrides for general permissions?
+			call_integration_hook('integrate_allowed_to_general', array(&$user_permissions, $permission));
+
+			return array_intersect($permission, $user_permissions) != array();
+		}
+
+		$boards = (array) $boards;
+
+		$cache_key = hash('md5', $this->id . '-' . implode(',', $permission) . '-' . implode(',', $boards) . '-' . (int) $any);
+
+		if (isset($this->perm_cache[$cache_key]))
+			return $this->perm_cache[$cache_key];
+
+		$request = Db::$db->query('', '
+			SELECT MIN(bp.add_deny) AS add_deny
+			FROM {db_prefix}boards AS b
+				INNER JOIN {db_prefix}board_permissions AS bp ON (bp.id_profile = b.id_profile)
+				LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board AND mods.id_member = {int:current_member})
+				LEFT JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_board = b.id_board AND modgs.id_group IN ({array_int:group_list}))
+			WHERE b.id_board IN ({array_int:board_list})
+				AND bp.id_group IN ({array_int:group_list}, {int:moderator_group})
+				AND bp.permission IN ({array_string:permission_list})
+				AND (mods.id_member IS NOT NULL OR modgs.id_group IS NOT NULL OR bp.id_group != {int:moderator_group})
+			GROUP BY b.id_board',
+			array(
+				'current_member' => $this->id,
+				'board_list' => $boards,
+				'group_list' => $this->groups,
+				'moderator_group' => 3,
+				'permission_list' => $permission,
+			)
+		);
+		if ($any)
+		{
+			$result = false;
+
+			while ($row = Db::$db->fetch_assoc($request))
+			{
+				$result = !empty($row['add_deny']);
+
+				if ($result == true)
+					break;
+			}
+			Db::$db->free_result($request);
+
+			$return = $result;
+		}
+		// Make sure they can do it on all of the boards.
+		elseif (Db::$db->num_rows($request) != count($boards))
+		{
+			Db::$db->free_result($request);
+
+			$return = false;
+		}
+		else
+		{
+			$result = true;
+
+			while ($row = Db::$db->fetch_assoc($request))
+			{
+				$result &= !empty($row['add_deny']);
+			}
+			Db::$db->free_result($request);
+
+			$return = $result;
+		}
+
+		// Allow temporary overrides for board permissions?
+		call_integration_hook('integrate_allowed_to_board', array(&$return, $permission, $boards, $any));
+
+		$this->perm_cache[$cache_key] = $return;
+
+		// If the query returned 1, they can do it... otherwise, they can't.
+		return (bool) $return;
+	}
+
+	/**
+	 * Checks whether the user has the given permissions, and exits with a
+	 * fatal error if not.
+	 *
+	 * Uses allowedTo() to check if the user is allowed to do permission.
+	 *
+	 * Checks the passed boards or current board for the permission.
+	 *
+	 * If $any is true, the user only needs permission on at least one of the
+	 * boards to pass.
+	 *
+	 * If the user is not allowed, loads the Errors language file and shows an
+	 * error using Lang::$txt['cannot_' . $permission].
+	 *
+	 * If the user is a guest and cannot do it, calls $this->kickIfGuest().
+	 *
+	 * @param string|array $permission A single permission to check or an array
+	 *    of permissions to check.
+	 * @param int|array $boards The ID of a board or an array of board IDs if we
+	 *    want to check board-level permissions
+	 * @param bool $any Whether to check for permission on at least one board
+	 *    instead of all the passed boards.
+	 */
+	public function isAllowedTo(string|array $permission, int|array $boards = null, bool $any = false): void
+	{
+		// This only applies to the current user.
+		if ($this->id !== User::$my_id)
+			return;
+
+		// Make it an array, even if a string was passed.
+		$permission = (array) $permission;
+		$boards = (array) $boards;
+
+		call_integration_hook('integrate_heavy_permissions_session', array(&self::$heavy_permissions));
+
+		// Check the permission and return an error...
+		if (!$this->allowedTo($permission, $boards, $any))
+		{
+			// Pick the last array entry as the permission shown as the error.
+			$error_permission = array_shift($permission);
+
+			// If they are a guest, show a login. (because the error might be gone if they do!)
+			if ($this->is_guest)
+			{
+				Lang::load('Errors');
+				$this->kickIfGuest(Lang::$txt['cannot_' . $error_permission]);
+			}
+
+			// Clear the action because they aren't really doing that!
+			$_GET['action'] = '';
+			$_GET['board'] = '';
+			$_GET['topic'] = '';
+			$this->logOnline(true);
+
+			ErrorHandler::fatalLang('cannot_' . $error_permission, false);
+
+			// Getting this far is a really big problem, but let's try our best to prevent any cases...
+			trigger_error('No direct access...', E_USER_ERROR);
+		}
+
+		// If you're doing something on behalf of some "heavy" permissions,
+		// validate your session. (Take out the heavy permissions, and if you
+		// can't do anything but those, you need a validated session.)
+		if (!$this->allowedTo(array_diff($permission, self::$heavy_permissions), $boards))
+			$this->validateSession();
+	}
+
+	/**
+	 * Returns a list of boards in which the user is allowed to do the
+	 * specified permission.
+	 *
+	 * Returns an array with only a 0 in it if the user has permission to do
+	 * this on every board.
+	 *
+	 * Returns an empty array if he or she cannot do this on any board.
+	 *
+	 * If $check_access is true, will also make sure the group has proper access
+	 * to that board.
+	 *
+	 * @param string|array $permissions A single permission to check or an array
+	 *    of permissions to check.
+	 * @param bool $check_access Whether to check only the boards the user has
+	 *    access to.
+	 * @param bool $simple Whether to return a simple array of board IDs or one
+	 *    with permissions as the keys.
+	 * @return array An array of board IDs if $simple is true. Otherwise, an
+	 *    array containing 'permission' => array(id, id, id...) pairs.
+	 */
+	public function boardsAllowedTo(string|array $permissions, bool $check_access = true, bool $simple = true): array
+	{
+		$boards = array();
+		$deny_boards = array();
+
+		// Arrays are nice, most of the time.
+		$permissions = (array) $permissions;
+
+		// Administrators are all powerful.
+		if ($this->is_admin)
+		{
+			if ($simple)
+			{
+				return array(0);
+			}
+			else
+			{
+				foreach ($permissions as $permission)
+					$boards[$permission] = array(0);
+
+				return $boards;
+			}
+		}
+
+		// All groups the user is in except 'moderator'.
+		$groups = array_diff($this->groups, array(3));
+
+		$request = Db::$db->query('', '
+			SELECT b.id_board, bp.add_deny' . ($simple ? '' : ', bp.permission') . '
+			FROM {db_prefix}board_permissions AS bp
+				INNER JOIN {db_prefix}boards AS b ON (b.id_profile = bp.id_profile)
+				LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board AND mods.id_member = {int:current_member})
+				LEFT JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_board = b.id_board AND modgs.id_group IN ({array_int:group_list}))
+			WHERE bp.id_group IN ({array_int:group_list}, {int:moderator_group})
+				AND bp.permission IN ({array_string:permissions})
+				AND (mods.id_member IS NOT NULL OR modgs.id_group IS NOT NULL OR bp.id_group != {int:moderator_group})' .
+				($check_access ? ' AND {query_see_board}' : ''),
+			array(
+				'current_member' => $this->id,
+				'group_list' => $groups,
+				'moderator_group' => 3,
+				'permissions' => $permissions,
+			)
+		);
+		while ($row = Db::$db->fetch_assoc($request))
+		{
+			if ($simple)
+			{
+				if (empty($row['add_deny']))
+				{
+					$deny_boards[] = $row['id_board'];
+				}
+				else
+				{
+					$boards[] = $row['id_board'];
+				}
+			}
+			else
+			{
+				if (empty($row['add_deny']))
+				{
+					$deny_boards[$row['permission']][] = $row['id_board'];
+				}
+				else
+				{
+					$boards[$row['permission']][] = $row['id_board'];
+				}
+			}
+		}
+		Db::$db->free_result($request);
+
+		if ($simple)
+		{
+			$boards = array_unique(array_values(array_diff($boards, $deny_boards)));
+		}
+		else
+		{
+			foreach ($permissions as $permission)
+			{
+				// Never had it to start with.
+				if (empty($boards[$permission]))
+				{
+					$boards[$permission] = array();
+				}
+				else
+				{
+					// Or it may have been removed.
+					$deny_boards[$permission] = isset($deny_boards[$permission]) ? $deny_boards[$permission] : array();
+
+					$boards[$permission] = array_unique(array_values(array_diff($boards[$permission], $deny_boards[$permission])));
+				}
+			}
+		}
+
+		// Maybe a mod needs to tweak the list of allowed boards on the fly?
+		call_integration_hook('integrate_boards_allowed_to', array(&$boards, $deny_boards, $permissions, $check_access, $simple));
+
+		return $boards;
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -2993,7 +3322,7 @@ class User implements \ArrayAccess
 			return;
 
 		// Make sure they aren't trying to delete administrators if they aren't one.  But don't bother checking if it's just themself.
-		if (!empty($admins) && ($check_not_admin || (!allowedTo('admin_forum') && (count($users) != 1 || $users[0] != self::$me->id))))
+		if (!empty($admins) && ($check_not_admin || (!User::$me->allowedTo('admin_forum') && (count($users) != 1 || $users[0] != self::$me->id))))
 		{
 			$users = array_diff($users, $admins);
 
@@ -3464,7 +3793,7 @@ class User implements \ArrayAccess
 		$checkName = Utils::strtolower($name);
 
 		// Administrators are never restricted ;).
-		if (!allowedTo('moderate_forum') && ((!empty(Config::$modSettings['reserveName']) && $is_name) || !empty(Config::$modSettings['reserveUser']) && !$is_name))
+		if (!User::$me->allowedTo('moderate_forum') && ((!empty(Config::$modSettings['reserveName']) && $is_name) || !empty(Config::$modSettings['reserveUser']) && !$is_name))
 		{
 			$reservedNames = explode("\n", Config::$modSettings['reserveNames']);
 
@@ -3684,7 +4013,7 @@ class User implements \ArrayAccess
 		$results = array();
 
 		// This ensures you can't search someones email address if you can't see it.
-		if (($use_wildcards || $maybe_email) && allowedTo('moderate_forum'))
+		if (($use_wildcards || $maybe_email) && User::$me->allowedTo('moderate_forum'))
 		{
 			$email_condition = '
 				OR (email_address ' . $comparison . ' \'' . implode('\') OR (email_address ' . $comparison . ' \'', $names) . '\')';
@@ -3723,7 +4052,7 @@ class User implements \ArrayAccess
 				'id' => $row['id_member'],
 				'name' => $row['real_name'],
 				'username' => $row['member_name'],
-				'email' => allowedTo('moderate_forum') ? $row['email_address'] : '',
+				'email' => User::$me->allowedTo('moderate_forum') ? $row['email_address'] : '',
 				'href' => Config::$scripturl . '?action=profile;u=' . $row['id_member'],
 				'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>'
 			);
@@ -3732,6 +4061,270 @@ class User implements \ArrayAccess
 
 		// Return all the results.
 		return $results;
+	}
+
+	/**
+	 * Retrieves a list of members that have a given permission,
+	 * either on a given board or in general.
+	 *
+	 * If $board_id is set, a board permission is assumed.
+	 * Takes different permission settings into account.
+	 * Takes possible moderators on the relevant board into account.
+	 *
+	 * @param string $permission The permission to check.
+	 * @param int $board_id If set, checks permission for that specific board.
+	 * @return array IDs of the members who have that permission.
+	 */
+	public static function membersAllowedTo(string $permission, int $board_id = null): array
+	{
+		$members = array();
+
+		$member_groups = self::groupsAllowedTo($permission, $board_id);
+
+		$all_groups = array_merge($member_groups['allowed'], $member_groups['denied']);
+
+		$include_moderators = in_array(3, $member_groups['allowed']) && $board_id !== null;
+		$member_groups['allowed'] = array_diff($member_groups['allowed'], array(3));
+
+		$exclude_moderators = in_array(3, $member_groups['denied']) && $board_id !== null;
+		$member_groups['denied'] = array_diff($member_groups['denied'], array(3));
+
+		$request = Db::$db->query('', '
+			SELECT mem.id_member
+			FROM {db_prefix}members AS mem' . ($include_moderators || $exclude_moderators ? '
+				LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_member = mem.id_member AND mods.id_board = {int:board_id})' : '') . '
+			WHERE (' . ($include_moderators ? 'mods.id_member IS NOT NULL OR ' : '') . 'mem.id_group IN ({array_int:member_groups_allowed}) OR FIND_IN_SET({raw:member_group_allowed_implode}, mem.additional_groups) != 0 OR mem.id_post_group IN ({array_int:member_groups_allowed}))' . (empty($member_groups['denied']) ? '' : '
+				AND NOT (' . ($exclude_moderators ? 'mods.id_member IS NOT NULL OR ' : '') . 'mem.id_group IN ({array_int:member_groups_denied}) OR FIND_IN_SET({raw:member_group_denied_implode}, mem.additional_groups) != 0 OR mem.id_post_group IN ({array_int:member_groups_denied}))'),
+			array(
+				'member_groups_allowed' => $member_groups['allowed'],
+				'member_groups_denied' => $member_groups['denied'],
+				'all_member_groups' => $all_groups,
+				'board_id' => $board_id,
+				'member_group_allowed_implode' => implode(', mem.additional_groups) != 0 OR FIND_IN_SET(', $member_groups['allowed']),
+				'member_group_denied_implode' => implode(', mem.additional_groups) != 0 OR FIND_IN_SET(', $member_groups['denied']),
+			)
+		);
+		$members = Db::$db->fetch_all($request);
+		Db::$db->free_result($request);
+
+		return $members;
+	}
+
+	/**
+	 * Retrieves a list of membergroups that have the given permission(s),
+	 * either on a given board or in general.
+	 *
+	 * If $board_id is set, a board permission is assumed.
+	 *
+	 * @param array|string $permissions The permission(s) to check.
+	 * @param int $board_id If set, checks permissions for the specified board.
+	 * @param bool $simple If true, and $permission contains a single permission
+	 *    to check, the returned array will contain only the relevant sub-array
+	 *    for that permission. Default: true.
+	 * @param int $profile_id The permission profile for the board.
+	 *    If not set, will be looked up automatically.
+	 * @return array Multidimensional array where each key is a permission name
+	 *    and each value is an array containing to sub-arrays: 'allowed', which
+	 *    lists the groups that have the permission, and 'denied', which lists
+	 *    the groups that are denied the permission. However, if $simple is true
+	 *    and only one permission was asked for, the returned value will contain
+	 *    only the relevant sub-array for that permission.
+	 */
+	public static function groupsAllowedTo(array|string $permissions, ?int $board_id = null, bool $simple = true, int $profile_id = null): array
+	{
+		$permissions = (array) $permissions;
+
+		$group_permissions = array();
+		$board_permissions = array();
+
+		foreach ($permissions as $permission)
+		{
+			// Admins are allowed to do anything.
+			$member_groups[$permission] = array(
+				'allowed' => array(1),
+				'denied' => array(),
+			);
+		}
+
+		// No board means we're dealing with general permissions.
+		if (!isset($board_id))
+		{
+			$request = Db::$db->query('', '
+				SELECT id_group, permission, add_deny
+				FROM {db_prefix}permissions
+				WHERE permission IN ({array_string:permissions})',
+				array(
+					'permissions' => $permissions,
+				)
+			);
+			while ($row = Db::$db->fetch_assoc($request))
+			{
+				$group_permissions[] = $row['permission'];
+
+				$member_groups[$row['permission']][$row['add_deny'] ? 'allowed' : 'denied'][] = $row['id_group'];
+			}
+			Db::$db->free_result($request);
+
+			$group_permissions = array_unique($group_permissions);
+		}
+
+		// If given a board, we need its permission profile.
+		if (!isset($profile_id) && isset($board_id))
+		{
+			$board_id = (int) $board_id;
+
+			// First get the profile of the given board.
+			if (isset(Board::$info->id) && Board::$info->id == $board_id)
+			{
+				$profile_id = Board::$info->profile;
+			}
+			elseif ($board_id !== 0)
+			{
+				$request = Db::$db->query('', '
+					SELECT id_profile
+					FROM {db_prefix}boards
+					WHERE id_board = {int:id_board}
+					LIMIT 1',
+					array(
+						'id_board' => $board_id,
+					)
+				);
+				if (Db::$db->num_rows($request) == 0)
+				{
+					Db::$db->free_result($request);
+					ErrorHandler::fatalLang('no_board');
+				}
+				list($profile_id) = Db::$db->fetch_row($request);
+				Db::$db->free_result($request);
+			}
+			else
+			{
+				$profile_id = 1;
+			}
+		}
+
+		if (isset($profile_id))
+		{
+			$request = Db::$db->query('', '
+				SELECT id_group, permission, add_deny
+				FROM {db_prefix}board_permissions
+				WHERE permission IN ({array_string:permissions})
+					AND id_profile = {int:profile_id}',
+				array(
+					'profile_id' => $profile_id,
+					'permissions' => $permissions,
+				)
+			);
+			while ($row = Db::$db->fetch_assoc($request))
+			{
+				$board_permissions[] = $row['permission'];
+
+				$member_groups[$row['permission']][$row['add_deny'] ? 'allowed' : 'denied'][] = $row['id_group'];
+			}
+			Db::$db->free_result($request);
+
+			$board_permissions = array_unique($board_permissions);
+
+			// Inherit any moderator permissions as needed.
+			$moderator_groups = array();
+
+			if (isset(Board::$info->id, Board::$info->moderator_groups) && $board_id == Board::$info->id)
+			{
+				$moderator_groups = array_keys(Board::$info->moderator_groups);
+			}
+			elseif (isset($board_id) && $board_id !== 0)
+			{
+				// Get the groups that can moderate this board
+				$request = Db::$db->query('', '
+					SELECT id_group
+					FROM {db_prefix}moderator_groups
+					WHERE id_board = {int:board_id}',
+					array(
+						'board_id' => $board_id,
+					)
+				);
+				while ($row = Db::$db->fetch_assoc($request))
+				{
+					$moderator_groups[] = $row['id_group'];
+				}
+				Db::$db->free_result($request);
+			}
+
+			// Inherit any additional permissions from the moderators group.
+			foreach ($moderator_groups as $mod_group)
+			{
+				foreach ($board_permissions as $permission)
+				{
+					// If they're not specifically allowed, but the moderator group is,
+					// then allow it.
+					if (in_array(3, $member_groups[$permission]['allowed']) && !in_array($mod_group, $member_groups[$permission]['allowed']))
+					{
+						$member_groups[$permission]['allowed'][] = $mod_group;
+					}
+
+					// They're not denied, but the moderator group is, so deny it.
+					if (in_array(3, $member_groups[$permission]['denied']) && !in_array($mod_group, $member_groups[$permission]['denied']))
+					{
+						$member_groups[$permission]['denied'][] = $mod_group;
+					}
+				}
+			}
+		}
+
+		// Finalize the data.
+		foreach ($permissions as $permission)
+		{
+			foreach (array('allowed', 'denied') as $k)
+				$member_groups[$permission][$k] = array_unique($member_groups[$permission][$k]);
+
+			// Maybe a mod needs to tweak the list of allowed groups on the fly?
+			call_integration_hook('integrate_groups_allowed_to', array(&$member_groups[$permission], $permission, $board_id));
+
+			// Denied is never allowed.
+			$member_groups[$permission]['allowed'] = array_diff($member_groups[$permission]['allowed'], $member_groups[$permission]['denied']);
+		}
+
+		if ($simple && count($member_groups) === 1)
+			return reset($member_groups);
+
+		return $member_groups;
+	}
+
+	/**
+	 * Similar to self::groupsAllowedTo, except that:
+	 *
+	 * 1. It allows looking up any arbitrary combination of general permissions
+	 *    and board permissions in one call.
+	 *
+	 * 2. When looking up board permissions, the ID of a permission profile must
+	 *    be provided, rather than the ID of a board.
+	 *
+	 * 3. There is no $simple option.
+	 *
+	 * @param array $general_permissions The general permissions to check.
+	 * @param array $board_permissions The board permissions to check.
+	 * @param int $profile_id The permission profile for the board permissions.
+	 *    Default: 1
+	 * @return array Multidimensional array where each key is a permission name
+	 *    and each value is an array containing to sub-arrays: 'allowed', which
+	 *    lists the groups that have the permission, and 'denied', which lists
+	 *    the groups that are denied the permission.
+	 */
+	public static function getGroupsWithPermissions(array $general_permissions = array(), array $board_permissions = array(), int $profile_id = 1)
+	{
+		$member_groups = array();
+
+		if (!empty($general_permissions))
+		{
+			$member_groups = self::groupsAllowedTo($general_permissions, null, false);
+		}
+
+		if (!empty($board_permissions))
+		{
+			$member_groups = array_merge($member_groups, self::groupsAllowedTo($board_permissions, null, false, $profile_id));
+		}
+
+		return $member_groups;
 	}
 
 	/**
@@ -3943,6 +4536,76 @@ class User implements \ArrayAccess
 	public static function sessionCheck(string $type = 'post', string $from_action = '', bool $is_fatal = true): string
 	{
 		return self::$me->checkSession($type, $from_action, $is_fatal);
+	}
+
+	/**
+	 * Static wrapper around User::$me->allowedTo().
+	 *
+	 * This method exists only for backward compatibility purposes.
+	 *
+	 * @param string|array $permission A single permission to check or an array
+	 *    of permissions to check.
+	 * @param int|array $boards The ID of a board or an array of board IDs if we
+	 *    want to check board-level permissions
+	 * @param bool $any Whether to check for permission on at least one board
+	 *    instead of all the passed boards.
+	 * @return bool Whether the user has the specified permission.
+	 */
+	public static function hasPermission(string|array $permission, int|array $boards = null, bool $any = false): bool
+	{
+		// You're never allowed to do something if your data hasn't been loaded yet!
+		if (!isset(self::$me))
+			return false;
+
+		return self::$me->allowedTo($permission, $boards, $any);
+	}
+
+	/**
+	 * Static wrapper around User::$me->isAllowedTo().
+	 *
+	 * This method exists only for backward compatibility purposes.
+	 *
+	 * @param string|array $permission A single permission to check or an array
+	 *    of permissions to check.
+	 * @param int|array $boards The ID of a board or an array of board IDs if we
+	 *    want to check board-level permissions
+	 * @param bool $any Whether to check for permission on at least one board
+	 *    instead of all the passed boards.
+	 * @return bool Whether the user has the specified permission.
+	 */
+	public static function mustHavePermission(string|array $permission, int|array $boards = null, bool $any = false): bool
+	{
+		// You're never allowed to do something if your data hasn't been loaded yet!
+		if (!isset(self::$me))
+			return false;
+
+		self::$me->isAllowedTo($permission, $boards, $any);
+
+		// If we get here, the user is allowed.
+		return true;
+	}
+
+	/**
+	 * Static wrapper around User::$me->boardsAllowedTo().
+	 *
+	 * This method exists only for backward compatibility purposes.
+	 *
+	 * @param string|array $permissions A single permission to check or an array
+	 *    of permissions to check.
+	 * @param bool $check_access Whether to check only the boards the user has
+	 *    access to.
+	 * @param bool $simple Whether to return a simple array of board IDs or one
+	 *    with permissions as the keys.
+	 * @return array An array of board IDs if $simple is true. Otherwise, an
+	 *    array containing 'permission' => array(id, id, id...) pairs.
+	 */
+	public static function hasPermissionInBoards(string|array $permission, int|array $boards = null, bool $any = false): array
+	{
+		// You're never allowed to do something if your data hasn't been loaded yet!
+		if (!isset(self::$me))
+			return false;
+
+		return self::$me->boardsAllowedTo($permission, $boards, $any);
 	}
 
 	/******************

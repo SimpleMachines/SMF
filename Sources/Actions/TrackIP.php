@@ -85,7 +85,7 @@ class TrackIP implements ActionInterface
 	public function execute(): void
 	{
 		// Can the user do this?
-		isAllowedTo('moderate_forum');
+		User::$me->isAllowedTo('moderate_forum');
 
 		if ($this->standalone)
 		{

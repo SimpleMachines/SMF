@@ -359,7 +359,7 @@ class MessageIndex implements ActionInterface
 		}
 
 		// Is this topic pending approval, or does it have any posts pending approval?
-		if (!empty($row['unapproved_posts']) && allowedTo('approve_posts'))
+		if (!empty($row['unapproved_posts']) && User::$me->allowedTo('approve_posts'))
 			$colorClass .= (!$row['approved'] ? ' approvetopic' : ' approvepost');
 
 		// Sticky topics should get a different color, too.
@@ -553,7 +553,7 @@ class MessageIndex implements ActionInterface
 	protected function setPaginationAndLinks(): void
 	{
 		// How many topics do we have in total?
-		Board::$info->total_topics = allowedTo('approve_posts') ? Board::$info->num_topics + Board::$info->unapproved_topics : Board::$info->num_topics + Board::$info->unapproved_user_topics;
+		Board::$info->total_topics = User::$me->allowedTo('approve_posts') ? Board::$info->num_topics + Board::$info->unapproved_topics : Board::$info->num_topics + Board::$info->unapproved_user_topics;
 
 		// View all the topics, or just a few?
 		Utils::$context['topics_per_page'] = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['topics_per_page']) ? Theme::$current->options['topics_per_page'] : Config::$modSettings['defaultMaxTopics'];
@@ -653,7 +653,7 @@ class MessageIndex implements ActionInterface
 				' . $this->sort_methods[$this->sort_by]['joins'] . '
 				' . (!empty($joins) ? implode("\n\t\t\t\t", $joins) : '') . '
 			WHERE t.id_board = {int:current_board} '
-				. (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+				. (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
 				AND (t.approved = {int:is_approved}' . (User::$me->is_guest ? '' : ' OR t.id_member_started = {int:current_member}') . ')') . (!empty($sort_where) ? '
 				AND ' . implode("\n\t\t\t\tAND ", $sort_where) : ''). '
 			ORDER BY is_sticky' . ($fake_ascending ? '' : ' DESC') . ', ' . $this->sort_column . ($this->ascending ? '' : ' DESC') . '
@@ -851,7 +851,7 @@ class MessageIndex implements ActionInterface
 				if ($is_buddy)
 					$link = '<strong>' . $link . '</strong>';
 
-				if (!empty($row['show_online']) || allowedTo('moderate_forum'))
+				if (!empty($row['show_online']) || User::$me->allowedTo('moderate_forum'))
 					Utils::$context['view_members_list'][$row['log_time'] . $row['member_name']] = empty($row['show_online']) ? '<em>' . $link . '</em>' : $link;
 
 				// @todo why are we filling this array of data that are just counted (twice) and discarded? ???
@@ -914,7 +914,7 @@ class MessageIndex implements ActionInterface
 	protected function setUnapprovedPostsMessage(): void
 	{
 		// If we can view unapproved messages and there are some build up a list.
-		if (allowedTo('approve_posts') && (Board::$info->unapproved_topics || Board::$info->unapproved_posts))
+		if (User::$me->allowedTo('approve_posts') && (Board::$info->unapproved_topics || Board::$info->unapproved_posts))
 		{
 			$untopics = Board::$info->unapproved_topics ? '<a href="' . Config::$scripturl . '?action=moderate;area=postmod;sa=topics;brd=' . Board::$info->id . '">' . Board::$info->unapproved_topics . '</a>' : 0;
 
@@ -958,10 +958,10 @@ class MessageIndex implements ActionInterface
 		Utils::$context['canonical_url'] = Config::$scripturl . '?board=' . Board::$info->id . '.' . Utils::$context['start'];
 
 		Utils::$context['can_mark_notify'] = !User::$me->is_guest;
-		Utils::$context['can_post_new'] = allowedTo('post_new') || (Config::$modSettings['postmod_active'] && allowedTo('post_unapproved_topics'));
-		Utils::$context['can_post_poll'] = Config::$modSettings['pollMode'] == '1' && allowedTo('poll_post') && Utils::$context['can_post_new'];
-		Utils::$context['can_moderate_forum'] = allowedTo('moderate_forum');
-		Utils::$context['can_approve_posts'] = allowedTo('approve_posts');
+		Utils::$context['can_post_new'] = User::$me->allowedTo('post_new') || (Config::$modSettings['postmod_active'] && User::$me->allowedTo('post_unapproved_topics'));
+		Utils::$context['can_post_poll'] = Config::$modSettings['pollMode'] == '1' && User::$me->allowedTo('poll_post') && Utils::$context['can_post_new'];
+		Utils::$context['can_moderate_forum'] = User::$me->allowedTo('moderate_forum');
+		Utils::$context['can_approve_posts'] = User::$me->allowedTo('approve_posts');
 
 		Utils::$context['jump_to'] = array(
 			'label' => addslashes(Utils::htmlspecialcharsDecode(Lang::$txt['jump_to'])),
@@ -999,22 +999,22 @@ class MessageIndex implements ActionInterface
 		if (!empty(Theme::$current->options['display_quick_mod']) && !empty(Utils::$context['topics']))
 		{
 			Utils::$context['can_markread'] = User::$me->is_logged;
-			Utils::$context['can_lock'] = allowedTo('lock_any');
-			Utils::$context['can_sticky'] = allowedTo('make_sticky');
-			Utils::$context['can_move'] = allowedTo('move_any');
-			Utils::$context['can_remove'] = allowedTo('remove_any');
-			Utils::$context['can_merge'] = allowedTo('merge_any');
+			Utils::$context['can_lock'] = User::$me->allowedTo('lock_any');
+			Utils::$context['can_sticky'] = User::$me->allowedTo('make_sticky');
+			Utils::$context['can_move'] = User::$me->allowedTo('move_any');
+			Utils::$context['can_remove'] = User::$me->allowedTo('remove_any');
+			Utils::$context['can_merge'] = User::$me->allowedTo('merge_any');
 			// Ignore approving own topics as it's unlikely to come up...
-			Utils::$context['can_approve'] = Config::$modSettings['postmod_active'] && allowedTo('approve_posts') && !empty(Board::$info->unapproved_topics);
+			Utils::$context['can_approve'] = Config::$modSettings['postmod_active'] && User::$me->allowedTo('approve_posts') && !empty(Board::$info->unapproved_topics);
 			// Can we restore topics?
-			Utils::$context['can_restore'] = allowedTo('move_any') && !empty(Board::$info->recycle);
+			Utils::$context['can_restore'] = User::$me->allowedTo('move_any') && !empty(Board::$info->recycle);
 
 			if (User::$me->is_admin || Config::$modSettings['topic_move_any'])
 				Utils::$context['can_move_any'] = true;
 			else
 			{
 				// We'll use this in a minute
-				$boards_allowed = boardsAllowedTo('post_new');
+				$boards_allowed = User::$me->boardsAllowedTo('post_new');
 
 				// How many boards can you do this on besides this one?
 				Utils::$context['can_move_any'] = count($boards_allowed) > 1;
@@ -1025,16 +1025,16 @@ class MessageIndex implements ActionInterface
 			{
 				$started = $topic['first_post']['member']['id'] == User::$me->id;
 				Utils::$context['topics'][$t]['quick_mod'] = array(
-					'lock' => allowedTo('lock_any') || ($started && allowedTo('lock_own')),
-					'sticky' => allowedTo('make_sticky'),
-					'move' => (allowedTo('move_any') || ($started && allowedTo('move_own')) && Utils::$context['can_move_any']),
-					'modify' => allowedTo('modify_any') || ($started && allowedTo('modify_own')),
-					'remove' => allowedTo('remove_any') || ($started && allowedTo('remove_own')),
+					'lock' => User::$me->allowedTo('lock_any') || ($started && User::$me->allowedTo('lock_own')),
+					'sticky' => User::$me->allowedTo('make_sticky'),
+					'move' => (User::$me->allowedTo('move_any') || ($started && User::$me->allowedTo('move_own')) && Utils::$context['can_move_any']),
+					'modify' => User::$me->allowedTo('modify_any') || ($started && User::$me->allowedTo('modify_own')),
+					'remove' => User::$me->allowedTo('remove_any') || ($started && User::$me->allowedTo('remove_own')),
 					'approve' => Utils::$context['can_approve'] && $topic['unapproved_posts']
 				);
-				Utils::$context['can_lock'] |= ($started && allowedTo('lock_own'));
-				Utils::$context['can_move'] |= ($started && allowedTo('move_own') && Utils::$context['can_move_any']);
-				Utils::$context['can_remove'] |= ($started && allowedTo('remove_own'));
+				Utils::$context['can_lock'] |= ($started && User::$me->allowedTo('lock_own'));
+				Utils::$context['can_move'] |= ($started && User::$me->allowedTo('move_own') && Utils::$context['can_move_any']);
+				Utils::$context['can_remove'] |= ($started && User::$me->allowedTo('remove_own'));
 			}
 
 			// Can we use quick moderation checkboxes?

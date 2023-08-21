@@ -103,7 +103,7 @@ class Registration implements ActionInterface
 	public function execute(): void
 	{
 		// Must have sufficient permissions.
-		isAllowedTo(self::$subactions[$this->subaction][1]);
+		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
 		call_helper(method_exists($this, self::$subactions[$this->subaction][0]) ? array($this, self::$subactions[$this->subaction][0]) : self::$subactions[$this->subaction][0]);
 	}
@@ -145,7 +145,7 @@ class Registration implements ActionInterface
 				'check_email_ban' => false,
 				'send_welcome_email' => isset($_POST['emailPassword']) || empty($_POST['password']),
 				'require' => isset($_POST['emailActivate']) ? 'activation' : 'nothing',
-				'memberGroup' => empty($_POST['group']) || !allowedTo('manage_membergroups') ? 0 : (int) $_POST['group'],
+				'memberGroup' => empty($_POST['group']) || !User::$me->allowedTo('manage_membergroups') ? 0 : (int) $_POST['group'],
 			);
 
 			$memberID = Register2::registerMember($regOptions);
@@ -174,7 +174,7 @@ class Registration implements ActionInterface
 		Utils::$context['member_groups'] = array();
 
 		// Load the assignable member groups.
-		if (allowedTo('manage_membergroups'))
+		if (User::$me->allowedTo('manage_membergroups'))
 		{
 			Utils::$context['member_groups'][] = Lang::$txt['admin_register_group_none'];
 
@@ -182,7 +182,7 @@ class Registration implements ActionInterface
 				SELECT group_name, id_group
 				FROM {db_prefix}membergroups
 				WHERE id_group != {int:moderator_group}
-					AND min_posts = {int:min_posts}' . (allowedTo('admin_forum') ? '' : '
+					AND min_posts = {int:min_posts}' . (User::$me->allowedTo('admin_forum') ? '' : '
 					AND id_group != {int:admin_group}
 					AND group_type != {int:is_protected}') . '
 					AND hidden != {int:hidden_group}
@@ -642,7 +642,7 @@ class Registration implements ActionInterface
 		{
 			$this->subaction = $_REQUEST['sa'];
 		}
-		elseif (!allowedTo('moderate_forum'))
+		elseif (!User::$me->allowedTo('moderate_forum'))
 		{
 			$this->subaction = 'settings';
 		}

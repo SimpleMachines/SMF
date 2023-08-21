@@ -791,7 +791,7 @@ class Warnings implements ActionInterface
 			$this->subaction = $_REQUEST['sa'];
 
 		// If the user can't do the specified sub-action, choose the first one they can.
-		if (!allowedTo(self::$subactions[$this->subaction][1]))
+		if (!User::$me->allowedTo(self::$subactions[$this->subaction][1]))
 		{
 			$this->subaction = '';
 
@@ -800,7 +800,7 @@ class Warnings implements ActionInterface
 				if ($sa === $this->subaction)
 					continue;
 
-				if (allowedTo(self::$subactions[$sa][1]))
+				if (User::$me->allowedTo(self::$subactions[$sa][1]))
 				{
 					$this->subaction = $sa;
 					break;

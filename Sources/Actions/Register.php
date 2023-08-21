@@ -112,7 +112,7 @@ class Register implements ActionInterface
 			ErrorHandler::fatalLang('registration_disabled', false);
 
 		// If this user is an admin - redirect them to the admin registration page.
-		if (allowedTo('moderate_forum') && !User::$me->is_guest)
+		if (User::$me->allowedTo('moderate_forum') && !User::$me->is_guest)
 			redirectexit('action=admin;area=regcenter;sa=register');
 		// You are not a guest, so you are a member - and members don't get to register twice!
 		elseif (empty(User::$me->is_guest))

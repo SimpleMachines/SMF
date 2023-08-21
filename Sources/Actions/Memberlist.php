@@ -128,7 +128,7 @@ class Memberlist implements ActionInterface
 	public function execute(): void
 	{
 		// Make sure they can view the memberlist.
-		isAllowedTo('view_mlist');
+		User::$me->isAllowedTo('view_mlist');
 
 		Theme::loadTemplate('Memberlist');
 
@@ -149,8 +149,8 @@ class Memberlist implements ActionInterface
 			'is_online' => array(
 				'label' => Lang::$txt['status'],
 				'sort' => array(
-					'down' => allowedTo('moderate_forum') ? 'COALESCE(lo.log_time, 1) ASC, real_name ASC' : 'CASE WHEN mem.show_online THEN COALESCE(lo.log_time, 1) ELSE 1 END ASC, real_name ASC',
-					'up' => allowedTo('moderate_forum') ? 'COALESCE(lo.log_time, 1) DESC, real_name DESC' : 'CASE WHEN mem.show_online THEN COALESCE(lo.log_time, 1) ELSE 1 END DESC, real_name DESC'
+					'down' => User::$me->allowedTo('moderate_forum') ? 'COALESCE(lo.log_time, 1) ASC, real_name ASC' : 'CASE WHEN mem.show_online THEN COALESCE(lo.log_time, 1) ELSE 1 END ASC, real_name ASC',
+					'up' => User::$me->allowedTo('moderate_forum') ? 'COALESCE(lo.log_time, 1) DESC, real_name DESC' : 'CASE WHEN mem.show_online THEN COALESCE(lo.log_time, 1) ELSE 1 END DESC, real_name DESC'
 				),
 			),
 			'real_name' => array(
@@ -219,8 +219,8 @@ class Memberlist implements ActionInterface
 			'name' => Lang::$txt['members_list']
 		);
 
-		Utils::$context['can_send_pm'] = allowedTo('pm_send');
-		Utils::$context['can_send_email'] = allowedTo('moderate_forum');
+		Utils::$context['can_send_pm'] = User::$me->allowedTo('pm_send');
+		Utils::$context['can_send_email'] = User::$me->allowedTo('moderate_forum');
 
 		// Build the memberlist button array.
 		Utils::$context['memberlist_buttons'] = array(
@@ -364,7 +364,7 @@ class Memberlist implements ActionInterface
 		Utils::$context['start'] = $_REQUEST['start'] + 1;
 		Utils::$context['end'] = min($_REQUEST['start'] + Config::$modSettings['defaultMaxMembers'], Utils::$context['num_members']);
 
-		Utils::$context['can_moderate_forum'] = allowedTo('moderate_forum');
+		Utils::$context['can_moderate_forum'] = User::$me->allowedTo('moderate_forum');
 		Utils::$context['page_title'] = sprintf(Lang::$txt['viewing_members'], Utils::$context['start'], Utils::$context['end']);
 		Utils::$context['linktree'][] = array(
 			'url' => Config::$scripturl . '?action=mlist;sort=' . $_REQUEST['sort'] . ';start=' . $_REQUEST['start'],
@@ -456,14 +456,14 @@ class Memberlist implements ActionInterface
 	public function search()
 	{
 		Utils::$context['page_title'] = Lang::$txt['mlist_search'];
-		Utils::$context['can_moderate_forum'] = allowedTo('moderate_forum');
+		Utils::$context['can_moderate_forum'] = User::$me->allowedTo('moderate_forum');
 
 		// Can they search custom fields?
 		$request = Db::$db->query('', '
 			SELECT col_name, field_name, field_desc
 			FROM {db_prefix}custom_fields
 			WHERE active = {int:active}
-				' . (allowedTo('admin_forum') ? '' : ' AND private < {int:private_level}') . '
+				' . (User::$me->allowedTo('admin_forum') ? '' : ' AND private < {int:private_level}') . '
 				AND can_search = {int:can_search}
 				AND (field_type = {string:field_type_text} OR field_type = {string:field_type_textarea} OR field_type = {string:field_type_select})',
 			array(
@@ -535,7 +535,7 @@ class Memberlist implements ActionInterface
 			// Search for a name
 			if (in_array('name', $_POST['fields']))
 			{
-				$fields = allowedTo('moderate_forum') ? array('member_name', 'real_name') : array('real_name');
+				$fields = User::$me->allowedTo('moderate_forum') ? array('member_name', 'real_name') : array('real_name');
 				$search_fields[] = 'name';
 			}
 			else
@@ -557,7 +557,7 @@ class Memberlist implements ActionInterface
 				$search_fields[] = 'group';
 			}
 			// Search for an email address?
-			if (in_array('email', $_POST['fields']) && allowedTo('moderate_forum'))
+			if (in_array('email', $_POST['fields']) && User::$me->allowedTo('moderate_forum'))
 			{
 				$fields += array(2 => 'email_address');
 				$search_fields[] = 'email';
@@ -639,7 +639,7 @@ class Memberlist implements ActionInterface
 			);
 
 			// Sorry, but you can't search by email unless you can view emails
-			if (!allowedTo('moderate_forum'))
+			if (!User::$me->allowedTo('moderate_forum'))
 			{
 				unset(Utils::$context['search_fields']['email']);
 				Utils::$context['search_defaults'] = array('name');

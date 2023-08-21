@@ -1679,7 +1679,7 @@ class PackageManager
 	public function showOperations()
 	{
 		// Can't be in here buddy.
-		isAllowedTo('admin_forum');
+		User::$me->isAllowedTo('admin_forum');
 
 		// We need to know the operation key for the search and replace, mod file looking at, is it a board mod?
 		if (!isset($_REQUEST['operation_key'], $_REQUEST['filename']) && !is_numeric($_REQUEST['operation_key']))
@@ -3292,7 +3292,7 @@ class PackageManager
 	 */
 	protected function __construct()
 	{
-		isAllowedTo('admin_forum');
+		User::$me->isAllowedTo('admin_forum');
 
 		// Backward compatibility with old URLs.
 		if (isset($_REQUEST['get']) || (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'packageget'))

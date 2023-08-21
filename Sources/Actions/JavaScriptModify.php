@@ -81,7 +81,7 @@ class JavaScriptModify implements ActionInterface
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
 			WHERE m.id_msg = {raw:id_msg}
-				AND m.id_topic = {int:current_topic}' . (allowedTo('modify_any') || allowedTo('approve_posts') ? '' : (!Config::$modSettings['postmod_active'] ? '
+				AND m.id_topic = {int:current_topic}' . (User::$me->allowedTo('modify_any') || User::$me->allowedTo('approve_posts') ? '' : (!Config::$modSettings['postmod_active'] ? '
 				AND (m.id_member != {int:guest_id} AND m.id_member = {int:current_member})' : '
 				AND (m.approved = {int:is_approved} OR (m.id_member != {int:guest_id} AND m.id_member = {int:current_member}))')),
 			array(
@@ -103,31 +103,31 @@ class JavaScriptModify implements ActionInterface
 		if (isset($_POST['message']) || isset($_POST['subject']) || isset($_REQUEST['icon']))
 		{
 			if (!empty($row['locked']))
-				isAllowedTo('moderate_board');
+				User::$me->isAllowedTo('moderate_board');
 
-			if ($row['id_member'] == User::$me->id && !allowedTo('modify_any'))
+			if ($row['id_member'] == User::$me->id && !User::$me->allowedTo('modify_any'))
 			{
 				if ((!Config::$modSettings['postmod_active'] || $row['approved']) && !empty(Config::$modSettings['edit_disable_time']) && $row['poster_time'] + (Config::$modSettings['edit_disable_time'] + 5) * 60 < time())
 				{
 					ErrorHandler::fatalLang('modify_post_time_passed', false);
 				}
-				elseif ($row['id_member_started'] == User::$me->id && !allowedTo('modify_own'))
+				elseif ($row['id_member_started'] == User::$me->id && !User::$me->allowedTo('modify_own'))
 				{
-					isAllowedTo('modify_replies');
+					User::$me->isAllowedTo('modify_replies');
 				}
 				else
 				{
-					isAllowedTo('modify_own');
+					User::$me->isAllowedTo('modify_own');
 				}
 			}
 			// Otherwise, they're locked out; someone who can modify the replies is needed.
-			elseif ($row['id_member_started'] == User::$me->id && !allowedTo('modify_any'))
+			elseif ($row['id_member_started'] == User::$me->id && !User::$me->allowedTo('modify_any'))
 			{
-				isAllowedTo('modify_replies');
+				User::$me->isAllowedTo('modify_replies');
 			}
 			else
 			{
-				isAllowedTo('modify_any');
+				User::$me->isAllowedTo('modify_any');
 			}
 
 			// Only log this action if it wasn't your message.
@@ -179,11 +179,11 @@ class JavaScriptModify implements ActionInterface
 
 		if (isset($_POST['lock']))
 		{
-			if (!allowedTo(array('lock_any', 'lock_own')) || (!allowedTo('lock_any') && User::$me->id != $row['id_member']))
+			if (!User::$me->allowedTo(array('lock_any', 'lock_own')) || (!User::$me->allowedTo('lock_any') && User::$me->id != $row['id_member']))
 			{
 				unset($_POST['lock']);
 			}
-			elseif (!allowedTo('lock_any'))
+			elseif (!User::$me->allowedTo('lock_any'))
 			{
 				if ($row['locked'] == 1)
 				{
@@ -204,7 +204,7 @@ class JavaScriptModify implements ActionInterface
 			}
 		}
 
-		if (isset($_POST['sticky']) && !allowedTo('make_sticky'))
+		if (isset($_POST['sticky']) && !User::$me->allowedTo('make_sticky'))
 			unset($_POST['sticky']);
 
 		if (isset($_POST['modify_reason']))
@@ -269,7 +269,7 @@ class JavaScriptModify implements ActionInterface
 			}
 
 			// Changing the first subject updates other subjects to 'Re: new_subject'.
-			if (isset($_POST['subject']) && isset($_REQUEST['change_all_subjects']) && $row['id_first_msg'] == $row['id_msg'] && !empty($row['num_replies']) && (allowedTo('modify_any') || ($row['id_member_started'] == User::$me->id && allowedTo('modify_replies'))))
+			if (isset($_POST['subject']) && isset($_REQUEST['change_all_subjects']) && $row['id_first_msg'] == $row['id_msg'] && !empty($row['num_replies']) && (User::$me->allowedTo('modify_any') || ($row['id_member_started'] == User::$me->id && User::$me->allowedTo('modify_replies'))))
 			{
 				// Get the proper (default language) response prefix first.
 				if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix')))

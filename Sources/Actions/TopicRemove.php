@@ -89,19 +89,19 @@ class TopicRemove implements ActionInterface
 		list ($starter, $subject, $approved, $locked) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		if ($starter == User::$me->id && !allowedTo('remove_any'))
-			isAllowedTo('remove_own');
+		if ($starter == User::$me->id && !User::$me->allowedTo('remove_any'))
+			User::$me->isAllowedTo('remove_own');
 		else
-			isAllowedTo('remove_any');
+			User::$me->isAllowedTo('remove_any');
 
 		// Can they see the topic?
 		if (Config::$modSettings['postmod_active'] && !$approved && $starter != User::$me->id)
-			isAllowedTo('approve_posts');
+			User::$me->isAllowedTo('approve_posts');
 
 		// Ok, we got that far, but is it locked?
 		if ($locked)
 		{
-			if (!($locked == 1 && $starter == User::$me->id || allowedTo('lock_any')))
+			if (!($locked == 1 && $starter == User::$me->id || User::$me->allowedTo('lock_any')))
 				ErrorHandler::fatalLang('cannot_remove_locked', 'user');
 		}
 
@@ -111,7 +111,7 @@ class TopicRemove implements ActionInterface
 		Topic::remove(Topic::$topic_id);
 
 		// Note, only log topic ID in native form if it's not gone forever.
-		if (allowedTo('remove_any') || (allowedTo('remove_own') && $starter == User::$me->id))
+		if (User::$me->allowedTo('remove_any') || (User::$me->allowedTo('remove_own') && $starter == User::$me->id))
 		{
 			Logging::logAction('remove', array(
 				(empty(Config::$modSettings['recycle_enable']) || Config::$modSettings['recycle_board'] != Board::$info->id ? 'topic' : 'old_topic_id') => Topic::$topic_id,
@@ -190,7 +190,7 @@ class TopicRemove implements ActionInterface
 	 */
 	public static function old()
 	{
-		isAllowedTo('admin_forum');
+		User::$me->isAllowedTo('admin_forum');
 		User::$me->checkSession('post', 'admin');
 
 		// No boards at all?  Forget it then :/.

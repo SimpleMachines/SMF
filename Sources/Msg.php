@@ -367,21 +367,21 @@ class Msg implements \ArrayAccess
 			$topic->doPermissions();
 
 			// Are you allowed to remove at least a single reply?
-			$topic->permissions['can_remove_post'] |= allowedTo('delete_own') && (empty(Config::$modSettings['edit_disable_time']) || $this->poster_time + Config::$modSettings['edit_disable_time'] * 60 >= time()) && $this->id_member == User::$me->id;
+			$topic->permissions['can_remove_post'] |= User::$me->allowedTo('delete_own') && (empty(Config::$modSettings['edit_disable_time']) || $this->poster_time + Config::$modSettings['edit_disable_time'] * 60 >= time()) && $this->id_member == User::$me->id;
 
 			// If the topic is locked, you might not be able to delete the post...
 			if ($topic->is_locked)
 			{
-				$topic->permissions['can_remove_post'] &= (User::$me->started && $topic->is_locked == 1) || allowedTo('lock_any');
+				$topic->permissions['can_remove_post'] &= (User::$me->started && $topic->is_locked == 1) || User::$me->allowedTo('lock_any');
 			}
 
 			$this->formatted += array(
 				'approved' => $this->approved,
 				'can_approve' => !$this->approved && $topic->permissions['can_approve'],
 				'can_unapprove' => !empty(Config::$modSettings['postmod_active']) && $topic->permissions['can_approve'] && $this->approved,
-				'can_modify' => (!$topic->is_locked || allowedTo('moderate_board')) && (allowedTo('modify_any') || (allowedTo('modify_replies') && User::$me->started) || (allowedTo('modify_own') && $this->id_member == User::$me->id && (empty(Config::$modSettings['edit_disable_time']) || !$this->approved || $this->poster_time + Config::$modSettings['edit_disable_time'] * 60 > time()))),
-				'can_remove' => allowedTo('delete_any') || (allowedTo('delete_replies') && User::$me->started) || (allowedTo('delete_own') && $this->id_member == User::$me->id && (empty(Config::$modSettings['edit_disable_time']) || $this->poster_time + Config::$modSettings['edit_disable_time'] * 60 > time())),
-				'can_see_ip' => allowedTo('moderate_forum') || ($this->id_member == User::$me->id && !empty(User::$me->id)),
+				'can_modify' => (!$topic->is_locked || User::$me->allowedTo('moderate_board')) && (User::$me->allowedTo('modify_any') || (User::$me->allowedTo('modify_replies') && User::$me->started) || (User::$me->allowedTo('modify_own') && $this->id_member == User::$me->id && (empty(Config::$modSettings['edit_disable_time']) || !$this->approved || $this->poster_time + Config::$modSettings['edit_disable_time'] * 60 > time()))),
+				'can_remove' => User::$me->allowedTo('delete_any') || (User::$me->allowedTo('delete_replies') && User::$me->started) || (User::$me->allowedTo('delete_own') && $this->id_member == User::$me->id && (empty(Config::$modSettings['edit_disable_time']) || $this->poster_time + Config::$modSettings['edit_disable_time'] * 60 > time())),
+				'can_see_ip' => User::$me->allowedTo('moderate_forum') || ($this->id_member == User::$me->id && !empty(User::$me->id)),
 				'css_class' => $this->approved ? 'windowbg' : 'approvebg',
 			);
 		}
@@ -410,7 +410,7 @@ class Msg implements \ArrayAccess
 					'group' => Lang::$txt['guest_title'],
 					'link' => $this->poster_name,
 					'email' => $this->poster_email,
-					'show_email' => allowedTo('moderate_forum'),
+					'show_email' => User::$me->allowedTo('moderate_forum'),
 					'is_guest' => true,
 				);
 			}
@@ -419,9 +419,9 @@ class Msg implements \ArrayAccess
 				$this->formatted['member'] = User::$loaded[$this->id_member]->format(true);
 
 				// Define this here to make things a bit more readable
-				$can_view_warning = User::$me->is_mod || allowedTo('moderate_forum') || allowedTo('view_warning_any') || ($this->id_member == User::$me->id && allowedTo('view_warning_own'));
+				$can_view_warning = User::$me->is_mod || User::$me->allowedTo('moderate_forum') || User::$me->allowedTo('view_warning_any') || ($this->id_member == User::$me->id && User::$me->allowedTo('view_warning_own'));
 
-				$this->formatted['member']['can_view_profile'] = allowedTo('profile_view') || ($this->id_member == User::$me->id && !User::$me->is_guest);
+				$this->formatted['member']['can_view_profile'] = User::$me->allowedTo('profile_view') || ($this->id_member == User::$me->id && !User::$me->is_guest);
 
 				if (isset(Utils::$context['topic_starter_id']))
 				{
@@ -678,7 +678,7 @@ class Msg implements \ArrayAccess
 		while (substr($message, 0, 8) == '[/quote]')
 			$message = substr($message, 8);
 
-		if (strpos($message, '[cowsay') !== false && !allowedTo('bbc_cowsay'))
+		if (strpos($message, '[cowsay') !== false && !User::$me->allowedTo('bbc_cowsay'))
 			$message = preg_replace('~\[(/?)cowsay[^\]]*\]~iu', '[$1pre]', $message);
 
 		// Find all code blocks, work out whether we'd be parsing them, then ensure they are all closed.
@@ -754,7 +754,7 @@ class Msg implements \ArrayAccess
 
 		if (!$previewing && strpos($message, '[html]') !== false)
 		{
-			if (allowedTo('bbc_html'))
+			if (User::$me->allowedTo('bbc_html'))
 			{
 				$message = preg_replace_callback(
 					'~\[html\](.+?)\[/html\]~is',
@@ -804,7 +804,7 @@ class Msg implements \ArrayAccess
 				if ($bbc === 'html')
 					continue;
 
-				if (!allowedTo('bbc_' . $bbc))
+				if (!User::$me->allowedTo('bbc_' . $bbc))
 					$disallowed_bbc[] = $bbc;
 			}
 
@@ -965,7 +965,7 @@ class Msg implements \ArrayAccess
 			$message
 		);
 
-		if (strpos($message, '[cowsay') !== false && !allowedTo('bbc_cowsay'))
+		if (strpos($message, '[cowsay') !== false && !User::$me->allowedTo('bbc_cowsay'))
 			$message = preg_replace('~\[(/?)cowsay[^\]]*\]~iu', '[$1pre]', $message);
 
 		// Attempt to un-parse the time to something less awful.
@@ -2515,13 +2515,13 @@ class Msg implements \ArrayAccess
 
 		if (empty(Board::$info->id) || $row['id_board'] != Board::$info->id)
 		{
-			$delete_any = boardsAllowedTo('delete_any');
+			$delete_any = User::$me->boardsAllowedTo('delete_any');
 
 			if (!in_array(0, $delete_any) && !in_array($row['id_board'], $delete_any))
 			{
-				$delete_own = boardsAllowedTo('delete_own');
+				$delete_own = User::$me->boardsAllowedTo('delete_own');
 				$delete_own = in_array(0, $delete_own) || in_array($row['id_board'], $delete_own);
-				$delete_replies = boardsAllowedTo('delete_replies');
+				$delete_replies = User::$me->boardsAllowedTo('delete_replies');
 				$delete_replies = in_array(0, $delete_replies) || in_array($row['id_board'], $delete_replies);
 
 				if ($row['id_member'] == User::$me->id)
@@ -2557,7 +2557,7 @@ class Msg implements \ArrayAccess
 			// Can't delete an unapproved message, if you can't see it!
 			if (Config::$modSettings['postmod_active'] && !$row['approved'] && $row['id_member'] != User::$me->id && !(in_array(0, $delete_any) || in_array($row['id_board'], $delete_any)))
 			{
-				$approve_posts = boardsAllowedTo('approve_posts');
+				$approve_posts = User::$me->boardsAllowedTo('approve_posts');
 
 				if (!in_array(0, $approve_posts) && !in_array($row['id_board'], $approve_posts))
 					return false;
@@ -2568,34 +2568,34 @@ class Msg implements \ArrayAccess
 			// Check permissions to delete this message.
 			if ($row['id_member'] == User::$me->id)
 			{
-				if (!allowedTo('delete_own'))
+				if (!User::$me->allowedTo('delete_own'))
 				{
-					if ($row['id_member_poster'] == User::$me->id && !allowedTo('delete_any'))
+					if ($row['id_member_poster'] == User::$me->id && !User::$me->allowedTo('delete_any'))
 					{
-						isAllowedTo('delete_replies');
+						User::$me->isAllowedTo('delete_replies');
 					}
-					elseif (!allowedTo('delete_any'))
+					elseif (!User::$me->allowedTo('delete_any'))
 					{
-						isAllowedTo('delete_own');
+						User::$me->isAllowedTo('delete_own');
 					}
 				}
-				elseif (!allowedTo('delete_any') && ($row['id_member_poster'] != User::$me->id || !allowedTo('delete_replies')) && !empty(Config::$modSettings['edit_disable_time']) && $row['poster_time'] + Config::$modSettings['edit_disable_time'] * 60 < time())
+				elseif (!User::$me->allowedTo('delete_any') && ($row['id_member_poster'] != User::$me->id || !User::$me->allowedTo('delete_replies')) && !empty(Config::$modSettings['edit_disable_time']) && $row['poster_time'] + Config::$modSettings['edit_disable_time'] * 60 < time())
 				{
 					ErrorHandler::fatalLang('modify_post_time_passed', false);
 				}
 			}
-			elseif ($row['id_member_poster'] == User::$me->id && !allowedTo('delete_any'))
+			elseif ($row['id_member_poster'] == User::$me->id && !User::$me->allowedTo('delete_any'))
 			{
-				isAllowedTo('delete_replies');
+				User::$me->isAllowedTo('delete_replies');
 			}
 			else
 			{
-				isAllowedTo('delete_any');
+				User::$me->isAllowedTo('delete_any');
 			}
 
-			if (Config::$modSettings['postmod_active'] && !$row['approved'] && $row['id_member'] != User::$me->id && !allowedTo('delete_own'))
+			if (Config::$modSettings['postmod_active'] && !$row['approved'] && $row['id_member'] != User::$me->id && !User::$me->allowedTo('delete_own'))
 			{
-				isAllowedTo('approve_posts');
+				User::$me->isAllowedTo('approve_posts');
 			}
 		}
 
@@ -2604,12 +2604,12 @@ class Msg implements \ArrayAccess
 		{
 			if (empty(Board::$info->id) || $row['id_board'] != Board::$info->id)
 			{
-				$remove_any = boardsAllowedTo('remove_any');
+				$remove_any = User::$me->boardsAllowedTo('remove_any');
 				$remove_any = in_array(0, $remove_any) || in_array($row['id_board'], $remove_any);
 
 				if (!$remove_any)
 				{
-					$remove_own = boardsAllowedTo('remove_own');
+					$remove_own = User::$me->boardsAllowedTo('remove_own');
 					$remove_own = in_array(0, $remove_own) || in_array($row['id_board'], $remove_own);
 				}
 
@@ -2627,11 +2627,11 @@ class Msg implements \ArrayAccess
 				// Check permissions to delete a whole topic.
 				if ($row['id_member'] != User::$me->id)
 				{
-					isAllowedTo('remove_any');
+					User::$me->isAllowedTo('remove_any');
 				}
-				elseif (!allowedTo('remove_any'))
+				elseif (!User::$me->allowedTo('remove_any'))
 				{
-					isAllowedTo('remove_own');
+					User::$me->isAllowedTo('remove_own');
 				}
 			}
 

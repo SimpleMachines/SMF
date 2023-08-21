@@ -255,7 +255,7 @@ class Logs implements ActionInterface
 	 */
 	public function adminlog()
 	{
-		isAllowedTo('admin_forum');
+		User::$me->isAllowedTo('admin_forum');
 
 		Utils::$context['page_title'] = Lang::$txt['modlog_admin_log'];
 
@@ -313,7 +313,7 @@ class Logs implements ActionInterface
 	 */
 	public static function list_getModLogEntryCount($query_string = '', $query_params = array(), $log_type = 1, $ignore_boards = false): int
 	{
-		$modlog_query = allowedTo('admin_forum') || User::$me->mod_cache['bq'] == '1=1' ? '1=1' : ((User::$me->mod_cache['bq'] == '0=1' || $ignore_boards) ? 'lm.id_board = 0 AND lm.id_topic = 0' : (strtr(User::$me->mod_cache['bq'], array('id_board' => 'b.id_board')) . ' AND ' . strtr(User::$me->mod_cache['bq'], array('id_board' => 't.id_board'))));
+		$modlog_query = User::$me->allowedTo('admin_forum') || User::$me->mod_cache['bq'] == '1=1' ? '1=1' : ((User::$me->mod_cache['bq'] == '0=1' || $ignore_boards) ? 'lm.id_board = 0 AND lm.id_topic = 0' : (strtr(User::$me->mod_cache['bq'], array('id_board' => 'b.id_board')) . ' AND ' . strtr(User::$me->mod_cache['bq'], array('id_board' => 't.id_board'))));
 
 		$result = Db::$db->query('', '
 			SELECT COUNT(*)
@@ -353,13 +353,13 @@ class Logs implements ActionInterface
 	 */
 	public static function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '', $query_params = array(), $log_type = 1, $ignore_boards = false): array
 	{
-		$modlog_query = allowedTo('admin_forum') || User::$me->mod_cache['bq'] == '1=1' ? '1=1' : ((User::$me->mod_cache['bq'] == '0=1' || $ignore_boards) ? 'lm.id_board = 0 AND lm.id_topic = 0' : (strtr(User::$me->mod_cache['bq'], array('id_board' => 'b.id_board')) . ' AND ' . strtr(User::$me->mod_cache['bq'], array('id_board' => 't.id_board'))));
+		$modlog_query = User::$me->allowedTo('admin_forum') || User::$me->mod_cache['bq'] == '1=1' ? '1=1' : ((User::$me->mod_cache['bq'] == '0=1' || $ignore_boards) ? 'lm.id_board = 0 AND lm.id_topic = 0' : (strtr(User::$me->mod_cache['bq'], array('id_board' => 'b.id_board')) . ' AND ' . strtr(User::$me->mod_cache['bq'], array('id_board' => 't.id_board'))));
 
 		if (!isset(self::$uneditable_actions))
 			self::$uneditable_actions = array();
 
 		// Can they see the IP address?
-		$seeIP = allowedTo('moderate_forum');
+		$seeIP = User::$me->allowedTo('moderate_forum');
 
 		// Here we have the query getting the log details.
 		$result = Db::$db->query('', '
@@ -675,7 +675,7 @@ class Logs implements ActionInterface
 			$this->url_start = '?action=moderate;area=modlog';
 		}
 
-		$this->can_delete = allowedTo('admin_forum');
+		$this->can_delete = User::$me->allowedTo('admin_forum');
 
 		Lang::load('Admin+Modlog');
 

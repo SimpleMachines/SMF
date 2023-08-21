@@ -19,6 +19,7 @@ use SMF\Actions\ActionInterface;
 use SMF\Lang;
 use SMF\Profile;
 use SMF\Theme;
+use SMF\User;
 use SMF\Utils;
 
 /**
@@ -69,7 +70,7 @@ class ThemeOptions implements ActionInterface
 
 		Profile::$member->loadThemeOptions();
 
-		if (allowedTo(array('profile_extra_own', 'profile_extra_any')))
+		if (User::$me->allowedTo(array('profile_extra_own', 'profile_extra_any')))
 		{
 			Profile::$member->loadCustomFields('theme');
 		}

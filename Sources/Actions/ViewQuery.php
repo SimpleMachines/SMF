@@ -19,6 +19,7 @@ use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -74,7 +75,7 @@ class ViewQuery implements ActionInterface
 		}
 
 		// Don't allow except for administrators.
-		isAllowedTo('admin_forum');
+		User::$me->isAllowedTo('admin_forum');
 
 		// If we're just hiding/showing, do it now.
 		if (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'hide')

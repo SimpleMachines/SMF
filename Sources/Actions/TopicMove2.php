@@ -105,18 +105,18 @@ class TopicMove2 implements ActionInterface
 
 		// Can they see it?
 		if (!Utils::$context['is_approved'])
-			isAllowedTo('approve_posts');
+			User::$me->isAllowedTo('approve_posts');
 
 		// Can they move topics on this board?
-		if (!allowedTo('move_any'))
+		if (!User::$me->allowedTo('move_any'))
 		{
 			if ($id_member_started == User::$me->id)
 			{
-				isAllowedTo('move_own');
+				User::$me->isAllowedTo('move_own');
 			}
 			else
 			{
-				isAllowedTo('move_any');
+				User::$me->isAllowedTo('move_any');
 			}
 		}
 
@@ -318,7 +318,7 @@ class TopicMove2 implements ActionInterface
 		Topic::move(Topic::$topic_id, $_POST['toboard']);
 
 		// Log that they moved this topic.
-		if (!allowedTo('move_own') || $id_member_started != User::$me->id)
+		if (!User::$me->allowedTo('move_own') || $id_member_started != User::$me->id)
 		{
 			Logging::logAction('move', array('topic' => Topic::$topic_id, 'board_from' => Board::$info->id, 'board_to' => $_POST['toboard']));
 		}

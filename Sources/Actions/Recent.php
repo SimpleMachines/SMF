@@ -572,7 +572,7 @@ class Recent implements ActionInterface
 		);
 
 		// Create an array for the permissions.
-		$boards_can = boardsAllowedTo(array_keys(iterator_to_array(
+		$boards_can = User::$me->boardsAllowedTo(array_keys(iterator_to_array(
 			new \RecursiveIteratorIterator(new \RecursiveArrayIterator($permissions)))
 		), true, false);
 

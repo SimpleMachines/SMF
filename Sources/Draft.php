@@ -279,7 +279,7 @@ class Draft
 	public function save(&$post_errors): bool
 	{
 		// can you be, should you be ... here?
-		if (empty(Config::$modSettings[$this->enabled_setting]) || !allowedTo($this->permission) || !isset($_POST['save_draft']))
+		if (empty(Config::$modSettings[$this->enabled_setting]) || !User::$me->allowedTo($this->permission) || !isset($_POST['save_draft']))
 			return false;
 
 		if (in_array('session_timeout', $post_errors))

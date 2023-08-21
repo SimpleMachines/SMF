@@ -2014,7 +2014,7 @@ class Attachment implements \ArrayAccess
 		static $view_attachment_boards;
 
 		if (!isset($view_attachment_boards))
-			$view_attachment_boards = boardsAllowedTo('view_attachments');
+			$view_attachment_boards = User::$me->boardsAllowedTo('view_attachments');
 
 		// Meh...
 		if (empty($attachID))
@@ -2091,7 +2091,7 @@ class Attachment implements \ArrayAccess
 			if (
 				!Utils::$context['loaded_attachments'][$attachInfo['msg']][$attachID]['approved']
 				&& Config::$modSettings['postmod_active']
-				&& !allowedTo('approve_posts')
+				&& !User::$me->allowedTo('approve_posts')
 				&& Utils::$context['loaded_attachments'][$attachInfo['msg']][$attachID]['id_member'] != User::$me->id
 			)
 			{

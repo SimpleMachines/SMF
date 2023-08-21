@@ -304,7 +304,7 @@ class PersonalMessage implements ActionInterface
 		User::$me->kickIfGuest();
 
 		// You're not supposed to be here at all, if you can't even read PMs.
-		isAllowedTo('pm_read');
+		User::$me->isAllowedTo('pm_read');
 
 		// If we have unsorted mail, apply our rules!
 		if (User::$me->new_pm)
@@ -964,12 +964,12 @@ class PersonalMessage implements ActionInterface
 		Utils::$context['currently_using_labels'] = !empty(Label::$loaded);
 		Utils::$context['current_label_id'] = &$this->current_label_id;
 		Utils::$context['current_label'] = &$this->current_label;
-		Utils::$context['can_issue_warning'] = allowedTo('issue_warning') && Config::$modSettings['warning_settings'][0] == 1;
-		Utils::$context['can_moderate_forum'] = allowedTo('moderate_forum');
+		Utils::$context['can_issue_warning'] = User::$me->allowedTo('issue_warning') && Config::$modSettings['warning_settings'][0] == 1;
+		Utils::$context['can_moderate_forum'] = User::$me->allowedTo('moderate_forum');
 
 		// Are PM drafts enabled?
 		Utils::$context['drafts_type'] = 'pm';
-		Utils::$context['drafts_save'] = !empty(Config::$modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
+		Utils::$context['drafts_save'] = !empty(Config::$modSettings['drafts_pm_enabled']) && User::$me->allowedTo('pm_draft');
 		Utils::$context['drafts_autosave'] = !empty(Utils::$context['drafts_save']) && !empty(Config::$modSettings['drafts_autosave_enabled']) && !empty(Theme::$current->options['drafts_autosave_enabled']);
 
 		// Build the linktree for all the actions...

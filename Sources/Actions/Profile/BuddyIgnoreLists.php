@@ -108,7 +108,7 @@ class BuddyIgnoreLists implements ActionInterface
 			ErrorHandler::fatalLang('no_access', false);
 
 		// Can we email the user directly?
-		Utils::$context['can_moderate_forum'] = allowedTo('moderate_forum');
+		Utils::$context['can_moderate_forum'] = User::$me->allowedTo('moderate_forum');
 
 		Utils::$context['list_area'] = $this->subaction;
 		Utils::$context['sub_template'] = self::$subtemplates[$this->subaction];

@@ -95,18 +95,18 @@ class TopicMove implements ActionInterface
 
 		// Can they see it - if not approved?
 		if (Config::$modSettings['postmod_active'] && !Utils::$context['is_approved'])
-			isAllowedTo('approve_posts');
+			User::$me->isAllowedTo('approve_posts');
 
 		// Permission check!
 		// @todo
-		if (!allowedTo('move_any'))
+		if (!User::$me->allowedTo('move_any'))
 		{
 			if ($id_member_started == User::$me->id)
 			{
-				isAllowedTo('move_own');
+				User::$me->isAllowedTo('move_own');
 			}
 			else
-				isAllowedTo('move_any');
+				User::$me->isAllowedTo('move_any');
 		}
 
 		Utils::$context['move_any'] = User::$me->is_admin || Config::$modSettings['topic_move_any'];
@@ -114,7 +114,7 @@ class TopicMove implements ActionInterface
 
 		if (!Utils::$context['move_any'])
 		{
-			$boards = array_diff(boardsAllowedTo('post_new', true), array(Board::$info->id));
+			$boards = array_diff(User::$me->boardsAllowedTo('post_new', true), array(Board::$info->id));
 			if (empty($boards))
 			{
 				// No boards? Too bad...

@@ -64,7 +64,7 @@ class Warnings implements ActionInterface
 	public function execute(): void
 	{
 		// You need to be an admin to edit settings!
-		isAllowedTo('admin_forum');
+		User::$me->isAllowedTo('admin_forum');
 
 		$config_vars = self::getConfigVars();
 

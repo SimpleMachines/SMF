@@ -38,8 +38,7 @@ class MemberReport_Notify extends BackgroundTask
 	public function execute()
 	{
 		// Anyone with moderate_forum can see this report
-		require_once(Config::$sourcedir . '/Subs-Members.php');
-		$members = membersAllowedTo('moderate_forum');
+		$members = User::membersAllowedTo('moderate_forum');
 
 		// And don't send it to them if they're the one who reported it.
 		$members = array_diff($members, array($this->_details['sender_id']));

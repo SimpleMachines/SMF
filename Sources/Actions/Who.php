@@ -126,7 +126,7 @@ class Who implements ActionInterface
 	public function execute(): void
 	{
 		// Permissions, permissions, permissions.
-		isAllowedTo('who_view');
+		User::$me->isAllowedTo('who_view');
 
 		// You can't do anything if this is off.
 		if (empty(Config::$modSettings['who_enabled']))
@@ -164,7 +164,7 @@ class Who implements ActionInterface
 			!empty(Config::$modSettings['show_spider_online'])
 			&& (
 				Config::$modSettings['show_spider_online'] == 2
-				|| allowedTo('admin_forum')
+				|| User::$me->allowedTo('admin_forum')
 			)
 			&& !empty(Config::$modSettings['spider_name_cache'])
 		)
@@ -205,7 +205,7 @@ class Who implements ActionInterface
 
 		$conditions = array();
 
-		if (!allowedTo('moderate_forum'))
+		if (!User::$me->allowedTo('moderate_forum'))
 			$conditions[] = '(COALESCE(mem.show_online, 1) = 1)';
 
 		// Fallback to top filter?
@@ -280,7 +280,7 @@ class Who implements ActionInterface
 			// Send the information to the template.
 			Utils::$context['members'][$row['session']] = array(
 				'id' => $row['id_member'],
-				'ip' => allowedTo('moderate_forum') ? inet_dtop($row['ip']) : '',
+				'ip' => User::$me->allowedTo('moderate_forum') ? inet_dtop($row['ip']) : '',
 				// It is *going* to be today or yesterday, so why keep that information in there?
 				'time' => strtr(timeformat($row['log_time']), array(Lang::$txt['today'] => '', Lang::$txt['yesterday'] => '')),
 				'timestamp' => $row['log_time'],
@@ -306,7 +306,7 @@ class Who implements ActionInterface
 			&& !empty(Config::$modSettings['spider_name_cache'])
 			&& (
 				Config::$modSettings['show_spider_online'] == 2
-				|| allowedTo('admin_forum')
+				|| User::$me->allowedTo('admin_forum')
 			)
 		)
 		{
@@ -361,8 +361,8 @@ class Who implements ActionInterface
 		}
 
 		// Some people can't send personal messages...
-		Utils::$context['can_send_pm'] = allowedTo('pm_send');
-		Utils::$context['can_send_email'] = allowedTo('moderate_forum');
+		Utils::$context['can_send_pm'] = User::$me->allowedTo('pm_send');
+		Utils::$context['can_send_email'] = User::$me->allowedTo('moderate_forum');
 
 		// any profile fields disabled?
 		Utils::$context['disabled_fields'] = isset(Config::$modSettings['disabled_profile_fields']) ? array_flip(explode(',', Config::$modSettings['disabled_profile_fields'])) : array();
@@ -414,7 +414,7 @@ class Who implements ActionInterface
 	 */
 	public static function determineActions($urls, $preferred_prefix = false)
 	{
-		if (!allowedTo('who_view'))
+		if (!User::$me->allowedTo('who_view'))
 			return array();
 
 		Lang::load('Who');
@@ -542,14 +542,14 @@ class Who implements ActionInterface
 						$data[$k] = array('label' => 'who_hidden', 'class' => 'em');
 				}
 				// Viewable only by administrators.. (if it starts with whoadmin, it's admin only!)
-				elseif (allowedTo('moderate_forum') && isset(Lang::$txt['whoadmin_' . $actions['action']]))
+				elseif (User::$me->allowedTo('moderate_forum') && isset(Lang::$txt['whoadmin_' . $actions['action']]))
 				{
 					$data[$k] = sprintf(Lang::$txt['whoadmin_' . $actions['action']], Config::$scripturl);
 				}
 				// Viewable by permission level.
 				elseif (isset(self::$allowedActions[$actions['action']]))
 				{
-					if (allowedTo(self::$allowedActions[$actions['action']]) && !empty(Lang::$txt['whoallow_' . $actions['action']]))
+					if (User::$me->allowedTo(self::$allowedActions[$actions['action']]) && !empty(Lang::$txt['whoallow_' . $actions['action']]))
 					{
 						$data[$k] = sprintf(Lang::$txt['whoallow_' . $actions['action']], Config::$scripturl);
 					}
@@ -692,8 +692,8 @@ class Who implements ActionInterface
 		}
 
 		// Load member names for the profile. (is_not_guest permission for viewing their own profile)
-		$allow_view_own = allowedTo('is_not_guest');
-		$allow_view_any = allowedTo('profile_view');
+		$allow_view_own = User::$me->allowedTo('is_not_guest');
+		$allow_view_any = User::$me->allowedTo('profile_view');
 
 		if (!empty($profile_ids) && ($allow_view_any || $allow_view_own))
 		{

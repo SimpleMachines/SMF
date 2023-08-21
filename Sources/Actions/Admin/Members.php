@@ -167,7 +167,7 @@ class Members implements ActionInterface
 	public function view()
 	{
 		// Are we performing a delete?
-		if (isset($_POST['delete_members']) && !empty($_POST['delete']) && allowedTo('profile_remove_any'))
+		if (isset($_POST['delete_members']) && !empty($_POST['delete']) && User::$me->allowedTo('profile_remove_any'))
 		{
 			User::$me->checkSession();
 
@@ -703,7 +703,7 @@ class Members implements ActionInterface
 		);
 
 		// Without enough permissions, don't show 'delete members' checkboxes.
-		if (!allowedTo('profile_remove_any'))
+		if (!User::$me->allowedTo('profile_remove_any'))
 			unset($listOptions['cols']['check'], $listOptions['form'], $listOptions['additional_rows']);
 
 		new ItemList($listOptions);
@@ -1624,7 +1624,7 @@ class Members implements ActionInterface
 			$this->subaction = $_REQUEST['sa'];
 
 		// We know the sub action, now we know what you're allowed to do.
-		isAllowedTo(self::$subactions[$this->subaction][1]);
+		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
 		// Set the last tab.
 		Utils::$context['tabs'][Utils::$context['last_tab']]['is_last'] = true;

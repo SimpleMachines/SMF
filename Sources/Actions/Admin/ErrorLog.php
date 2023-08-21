@@ -127,7 +127,7 @@ class ErrorLog implements ActionInterface
 	public function execute(): void
 	{
 		// Check for the administrative permission to do this.
-		isAllowedTo('admin_forum');
+		User::$me->isAllowedTo('admin_forum');
 
 		// Viewing contents of a file?
 		if (isset($_GET['file']))

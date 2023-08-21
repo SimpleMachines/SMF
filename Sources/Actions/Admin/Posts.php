@@ -542,7 +542,7 @@ class Posts implements ActionInterface
 	protected function __construct()
 	{
 		// Make sure you can be here.
-		isAllowedTo('admin_forum');
+		User::$me->isAllowedTo('admin_forum');
 		Lang::load('Drafts');
 
 		Utils::$context['page_title'] = Lang::$txt['manageposts_title'];

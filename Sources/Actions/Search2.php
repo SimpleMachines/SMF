@@ -99,7 +99,7 @@ class Search2 implements ActionInterface
 		$this->preventPrefetch();
 
 		// Are you allowed?
-		isAllowedTo('search_posts');
+		User::$me->isAllowedTo('search_posts');
 
 		// Load up the search API we are going to use.
 		SearchApi::load();
@@ -372,7 +372,7 @@ class Search2 implements ActionInterface
 
 		Utils::$context['page_title'] = Lang::$txt['search_results'];
 		Utils::$context['get_topics'] = array($this, 'prepareSearchContext');
-		Utils::$context['can_restore_perm'] = allowedTo('move_any') && !empty(Config::$modSettings['recycle_enable']);
+		Utils::$context['can_restore_perm'] = User::$me->allowedTo('move_any') && !empty(Config::$modSettings['recycle_enable']);
 		Utils::$context['can_restore'] = false; // We won't know until we handle the context later whether we can actually restore...
 
 		Utils::$context['jump_to'] = array(

@@ -534,7 +534,7 @@ class SearchResult extends \SMF\Msg
 		if (!empty(Theme::$current->options['display_quick_mod']))
 			$perms = array_merge($perms, array('lock_any', 'lock_own', 'make_sticky', 'move_any', 'move_own', 'remove_any', 'remove_own', 'merge_any'));
 
-		self::$boards_can = boardsAllowedTo($perms, true, false);
+		self::$boards_can = User::$me->boardsAllowedTo($perms, true, false);
 
 		// How's about some quick moderation?
 		if (!empty(Theme::$current->options['display_quick_mod']))

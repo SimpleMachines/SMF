@@ -946,7 +946,7 @@ class Permissions implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		isAllowedTo(self::$subactions[$this->subaction][1]);
+		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
 		call_helper(method_exists($this, self::$subactions[$this->subaction][0]) ? array($this, self::$subactions[$this->subaction][0]) : $this->subaction[0]);
 	}
@@ -2014,7 +2014,7 @@ class Permissions implements ActionInterface
 	{
 		Lang::load('ManagePermissions');
 		Theme::loadTemplate('ManagePermissions');
-		Utils::$context['can_change_permissions'] = allowedTo('manage_permissions');
+		Utils::$context['can_change_permissions'] = User::$me->allowedTo('manage_permissions');
 
 		// Nothing to initialize here.
 		if (!Utils::$context['can_change_permissions'])
@@ -2172,7 +2172,7 @@ class Permissions implements ActionInterface
 	public static function save_inline_permissions($permissions): void
 	{
 		// No permissions? Not a great deal to do here.
-		if (!allowedTo('manage_permissions'))
+		if (!User::$me->allowedTo('manage_permissions'))
 			return;
 
 		// Almighty session check, verify our ways.
@@ -2404,7 +2404,7 @@ class Permissions implements ActionInterface
 	{
 		foreach (self::getPermissions() as $permission => $perm_info)
 		{
-			if (!empty($perm_info['assigner_prerequisites']) && !allowedTo($perm_info['assigner_prerequisites']))
+			if (!empty($perm_info['assigner_prerequisites']) && !User::$me->allowedTo($perm_info['assigner_prerequisites']))
 			{
 				self::$illegal[] = $permission;
 				self::$illegal[] = $perm_info['generic_name'];
@@ -3792,8 +3792,7 @@ class Permissions implements ActionInterface
 	 */
 	protected static function updateBoardManagers(): void
 	{
-		require_once(Config::$sourcedir . '/Subs-Members.php');
-		$board_managers = groupsAllowedTo('manage_boards', null);
+		$board_managers = User::groupsAllowedTo('manage_boards', null);
 		$board_managers = implode(',', $board_managers['allowed']);
 
 		Config::updateModSettings(array('board_manager_groups' => $board_managers), true);

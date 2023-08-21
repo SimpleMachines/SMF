@@ -277,7 +277,7 @@ class ShowPosts implements ActionInterface
 	public function attachments(): void
 	{
 		// OBEY permissions!
-		$boards_allowed = boardsAllowedTo('view_attachments');
+		$boards_allowed = User::$me->boardsAllowedTo('view_attachments');
 
 		// Make sure we can't actually see anything...
 		if (empty($boards_allowed))
@@ -525,7 +525,7 @@ class ShowPosts implements ActionInterface
 				AND a.id_msg != {int:no_message}
 				AND m.id_member = {int:current_member}' . (!empty(Board::$info->id) ? '
 				AND b.id_board = {int:board}' : '') . (!in_array(0, $boards_allowed) ? '
-				AND b.id_board IN ({array_int:boards_list})' : '') . (!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') || User::$me->is_owner ? '' : '
+				AND b.id_board IN ({array_int:boards_list})' : '') . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') || User::$me->is_owner ? '' : '
 				AND a.approved = {int:is_approved}') . '
 			ORDER BY {raw:sort}
 			LIMIT {int:offset}, {int:limit}',
@@ -575,13 +575,13 @@ class ShowPosts implements ActionInterface
 			SELECT COUNT(*)
 			FROM {db_prefix}attachments AS a
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
-				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})' . (!Config::$modSettings['postmod_active'] || User::$me->is_owner || allowedTo('approve_posts') ? '' : '
+				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})' . (!Config::$modSettings['postmod_active'] || User::$me->is_owner || User::$me->allowedTo('approve_posts') ? '' : '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)') . '
 			WHERE a.attachment_type = {int:attachment_type}
 				AND a.id_msg != {int:no_message}
 				AND m.id_member = {int:current_member}' . (!empty(Board::$info->id) ? '
 				AND b.id_board = {int:board}' : '') . (!in_array(0, $boards_allowed) ? '
-				AND b.id_board IN ({array_int:boards_list})' : '') . (!Config::$modSettings['postmod_active'] || User::$me->is_owner || allowedTo('approve_posts') ? '' : '
+				AND b.id_board IN ({array_int:boards_list})' : '') . (!Config::$modSettings['postmod_active'] || User::$me->is_owner || User::$me->allowedTo('approve_posts') ? '' : '
 				AND m.approved = {int:is_approved}
 				AND t.approved = {int:is_approved}'),
 			array(
@@ -712,7 +712,7 @@ class ShowPosts implements ActionInterface
 		Msg::remove((int) $_GET['delete']);
 
 		// Add it to the mod log.
-		if (allowedTo('delete_any') && (!allowedTo('delete_own') || $info[1] != User::$me->id))
+		if (User::$me->allowedTo('delete_any') && (!User::$me->allowedTo('delete_own') || $info[1] != User::$me->id))
 		{
 			Logging::logAction('delete', array(
 				'topic' => $info[2],
@@ -976,7 +976,7 @@ class ShowPosts implements ActionInterface
 		}
 
 		// Create an array for the permissions.
-		$boards_can = boardsAllowedTo(
+		$boards_can = User::$me->boardsAllowedTo(
 			array_keys(
 				iterator_to_array(
 					new \RecursiveIteratorIterator(

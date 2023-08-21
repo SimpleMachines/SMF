@@ -172,7 +172,7 @@ class Login2 implements ActionInterface
 		if ($_GET['member'] != User::$me->id)
 			ErrorHandler::fatalLang('login_cookie_error', false);
 
-		User::$me->can_mod = allowedTo('access_mod_center') || (!User::$me->is_guest && (User::$me->mod_cache['gq'] != '0=1' || User::$me->mod_cache['bq'] != '0=1' || (Config::$modSettings['postmod_active'] && !empty(User::$me->mod_cache['ap']))));
+		User::$me->can_mod = User::$me->allowedTo('access_mod_center') || (!User::$me->is_guest && (User::$me->mod_cache['gq'] != '0=1' || User::$me->mod_cache['bq'] != '0=1' || (Config::$modSettings['postmod_active'] && !empty(User::$me->mod_cache['ap']))));
 
 		// Some whitelisting for login_url...
 		if (empty($_SESSION['login_url']))
@@ -853,7 +853,7 @@ class Login2 implements ActionInterface
 		}
 
 		// Just log you back out if it's in maintenance mode and you AREN'T an admin.
-		if (empty(Config::$maintenance) || allowedTo('admin_forum'))
+		if (empty(Config::$maintenance) || User::$me->allowedTo('admin_forum'))
 		{
 			redirectexit('action=login2;sa=check;member=' . User::$me->id, Utils::$context['server']['needs_login_fix']);
 		}

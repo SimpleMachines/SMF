@@ -80,7 +80,7 @@ class IssueWarning implements ActionInterface
 	public function execute(): void
 	{
 		// Doesn't hurt to be overly cautious.
-		if (empty(Config::$modSettings['warning_enable']) || (User::$me->is_owner && !Profile::$member->warning) || !allowedTo('issue_warning'))
+		if (empty(Config::$modSettings['warning_enable']) || (User::$me->is_owner && !Profile::$member->warning) || !User::$me->allowedTo('issue_warning'))
 		{
 			ErrorHandler::fatalLang('no_access', false);
 		}
@@ -89,7 +89,7 @@ class IssueWarning implements ActionInterface
 		Lang::load('Errors');
 		Utils::$context['custom_error_title'] = Lang::$txt['profile_warning_errors_occured'];
 
-		Utils::$context['warning_limit'] = allowedTo('admin_forum') ? 0 : Config::$modSettings['user_limit'];
+		Utils::$context['warning_limit'] = User::$me->allowedTo('admin_forum') ? 0 : Config::$modSettings['user_limit'];
 
 		// What are the limits we can apply?
 		Utils::$context['min_allowed'] = 0;

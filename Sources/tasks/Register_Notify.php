@@ -36,8 +36,7 @@ class Register_Notify extends BackgroundTask
 	public function execute()
 	{
 		// Get everyone who could be notified.
-		require_once(Config::$sourcedir . '/Subs-Members.php');
-		$members = membersAllowedTo('moderate_forum');
+		$members = User::membersAllowedTo('moderate_forum');
 
 		// Having successfully figured this out, now let's get the preferences of everyone.
 		$prefs = Notify::getNotifyPrefs($members, 'member_register', true);

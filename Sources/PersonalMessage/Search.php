@@ -250,7 +250,7 @@ class Search
 		}
 
 		// Some useful general permissions.
-		Utils::$context['can_send_pm'] = allowedTo('pm_send');
+		Utils::$context['can_send_pm'] = User::$me->allowedTo('pm_send');
 
 		$this->setParams();
 

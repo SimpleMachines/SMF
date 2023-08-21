@@ -51,10 +51,8 @@ class GroupReq_Notify extends BackgroundTask
 			$moderators[] = $row['id_member'];
 		Db::$db->free_result($request);
 
-		require_once(Config::$sourcedir . '/Subs-Members.php');
-
 		// Make sure anyone who can moderate_membergroups gets notified as well
-		$moderators = array_unique(array_merge($moderators, membersAllowedTo('manage_membergroups')));
+		$moderators = array_unique(array_merge($moderators, User::membersAllowedTo('manage_membergroups')));
 
 		if (!empty($moderators))
 		{

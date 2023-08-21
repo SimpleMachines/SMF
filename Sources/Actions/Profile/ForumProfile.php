@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\Lang;
 use SMF\Profile;
+use SMF\User;
 use SMF\Utils;
 
 /**
@@ -62,7 +63,7 @@ class ForumProfile implements ActionInterface
 	{
 		Profile::$member->loadThemeOptions();
 
-		if (allowedTo(array('profile_forum_own', 'profile_forum_any')))
+		if (User::$me->allowedTo(array('profile_forum_own', 'profile_forum_any')))
 		{
 			Profile::$member->loadCustomFields('forumprofile');
 		}

@@ -359,7 +359,7 @@ class Notification implements ActionInterface
 		User::$me->kickIfGuest();
 
 		if (!User::$me->is_owner)
-			isAllowedTo('profile_extra_any');
+			User::$me->isAllowedTo('profile_extra_any');
 
 		// Set the post action if we're coming from the profile...
 		if (!isset(Utils::$context['action']))
@@ -430,8 +430,6 @@ class Notification implements ActionInterface
 		// Now we have to do some permissions testing - but only if we're not loading this from the admin center
 		if (!empty(Profile::$member->id))
 		{
-			require_once(Config::$sourcedir . '/Subs-Membergroups.php');
-
 			$group_permissions = array('manage_membergroups');
 			$board_permissions = array();
 
@@ -453,7 +451,7 @@ class Notification implements ActionInterface
 				}
 			}
 
-			$member_groups = getGroupsWithPermissions($group_permissions, $board_permissions);
+			$member_groups = User::getGroupsWithPermissions($group_permissions, $board_permissions);
 
 			if (empty($member_groups['manage_membergroups']['allowed']))
 			{

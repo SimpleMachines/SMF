@@ -118,7 +118,7 @@ class Subscriptions implements ActionInterface
 	public function execute(): void
 	{
 		// Make sure you can do this.
-		isAllowedTo(self::$subactions[$this->subaction][1]);
+		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
 		call_helper(method_exists($this, self::$subactions[$this->subaction][0]) ? array($this, self::$subactions[$this->subaction][0]) : self::$subactions[$this->subaction][0]);
 	}

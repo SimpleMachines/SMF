@@ -19,6 +19,7 @@ use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
+use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -68,7 +69,7 @@ class Stats implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		isAllowedTo('view_stats');
+		User::$me->isAllowedTo('view_stats');
 
 		// Page disabled - redirect them out
 		if (empty(Config::$modSettings['trackStats']))
@@ -129,7 +130,7 @@ class Stats implements ActionInterface
 		);
 		Utils::$context['page_title'] = Utils::$context['forum_name'] . ' - ' . Lang::$txt['stats_center'];
 
-		Utils::$context['show_member_list'] = allowedTo('view_mlist');
+		Utils::$context['show_member_list'] = User::$me->allowedTo('view_mlist');
 
 		// Get averages...
 		$result = Db::$db->query('', '

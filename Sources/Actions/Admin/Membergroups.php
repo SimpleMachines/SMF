@@ -104,7 +104,7 @@ class Membergroups implements ActionInterface
 	public function execute(): void
 	{
 		// Do the permission check, you might not be allowed here.
-		isAllowedTo(self::$subactions[$this->subaction][1]);
+		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
 		call_helper(method_exists($this, self::$subactions[$this->subaction][0]) ? array($this, self::$subactions[$this->subaction][0]) : self::$subactions[$this->subaction][0]);
 	}
@@ -350,7 +350,7 @@ class Membergroups implements ActionInterface
 
 			$postCountBasedGroup = isset($_POST['min_posts']) && (!isset($_POST['postgroup_based']) || !empty($_POST['postgroup_based']));
 
-			$_POST['group_type'] = !isset($_POST['group_type']) || $_POST['group_type'] < 0 || $_POST['group_type'] > 3 || ($_POST['group_type'] == 1 && !allowedTo('admin_forum')) ? 0 : (int) $_POST['group_type'];
+			$_POST['group_type'] = !isset($_POST['group_type']) || $_POST['group_type'] < 0 || $_POST['group_type'] > 3 || ($_POST['group_type'] == 1 && !User::$me->allowedTo('admin_forum')) ? 0 : (int) $_POST['group_type'];
 
 			call_integration_hook('integrate_pre_add_membergroup', array());
 
@@ -391,7 +391,7 @@ class Membergroups implements ActionInterface
 				$copy_id = $_POST['perm_type'] == 'copy' ? (int) $_POST['copyperm'] : (int) $_POST['inheritperm'];
 
 				// Are you a powerful admin?
-				if (!allowedTo('admin_forum'))
+				if (!User::$me->allowedTo('admin_forum'))
 				{
 					$request = Db::$db->query('', '
 						SELECT group_type
@@ -589,7 +589,7 @@ class Membergroups implements ActionInterface
 		Utils::$context['sub_template'] = 'new_group';
 		Utils::$context['post_group'] = isset($_REQUEST['postgroup']);
 		Utils::$context['undefined_group'] = !isset($_REQUEST['postgroup']) && !isset($_REQUEST['generalgroup']);
-		Utils::$context['allow_protected'] = allowedTo('admin_forum');
+		Utils::$context['allow_protected'] = User::$me->allowedTo('admin_forum');
 
 		if (!empty(Config::$modSettings['deny_boards_access']))
 			Lang::load('ManagePermissions');
@@ -599,7 +599,7 @@ class Membergroups implements ActionInterface
 			SELECT id_group, group_name
 			FROM {db_prefix}membergroups
 			WHERE (id_group > {int:moderator_group} OR id_group = {int:global_mod_group})' . (empty(Config::$modSettings['permission_enable_postgroups']) ? '
-				AND min_posts = {int:min_posts}' : '') . (allowedTo('admin_forum') ? '' : '
+				AND min_posts = {int:min_posts}' : '') . (User::$me->allowedTo('admin_forum') ? '' : '
 				AND group_type != {int:is_protected}') . '
 			ORDER BY min_posts, id_group != {int:global_mod_group}, group_name',
 			array(
@@ -694,7 +694,7 @@ class Membergroups implements ActionInterface
 			$request = Db::$db->query('', '
 				SELECT id_group
 				FROM {db_prefix}membergroups
-				WHERE id_group = {int:current_group}' . (allowedTo('admin_forum') ? '' : '
+				WHERE id_group = {int:current_group}' . (User::$me->allowedTo('admin_forum') ? '' : '
 					AND group_type != {int:is_protected}') . '
 				LIMIT {int:limit}',
 				array(
@@ -712,9 +712,7 @@ class Membergroups implements ActionInterface
 			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
 
 		// People who can manage boards are a bit special.
-		require_once(Config::$sourcedir . '/Subs-Members.php');
-
-		$board_managers = groupsAllowedTo('manage_boards', null);
+		$board_managers = User::groupsAllowedTo('manage_boards', null);
 
 		Utils::$context['can_manage_boards'] = in_array($_REQUEST['group'], $board_managers['allowed']);
 
@@ -773,7 +771,7 @@ class Membergroups implements ActionInterface
 			SecurityToken::validate('admin-mmg');
 
 			// Can they really inherit from this group?
-			if ($_REQUEST['group'] > 1 && $_REQUEST['group'] != 3 && isset($_POST['group_inherit']) && $_POST['group_inherit'] != -2 && !allowedTo('admin_forum'))
+			if ($_REQUEST['group'] > 1 && $_REQUEST['group'] != 3 && isset($_POST['group_inherit']) && $_POST['group_inherit'] != -2 && !User::$me->allowedTo('admin_forum'))
 			{
 				$request = Db::$db->query('', '
 					SELECT group_type
@@ -800,7 +798,7 @@ class Membergroups implements ActionInterface
 
 			$_POST['group_desc'] = isset($_POST['group_desc']) && ($_REQUEST['group'] == 1 || (isset($_POST['group_type']) && $_POST['group_type'] != -1)) ? Utils::htmlTrim(Utils::sanitizeChars(Utils::normalize($_POST['group_desc']))) : '';
 
-			$_POST['group_type'] = !isset($_POST['group_type']) || $_POST['group_type'] < 0 || $_POST['group_type'] > 3 || ($_POST['group_type'] == 1 && !allowedTo('admin_forum')) ? 0 : (int) $_POST['group_type'];
+			$_POST['group_type'] = !isset($_POST['group_type']) || $_POST['group_type'] < 0 || $_POST['group_type'] > 3 || ($_POST['group_type'] == 1 && !User::$me->allowedTo('admin_forum')) ? 0 : (int) $_POST['group_type'];
 
 			$_POST['group_hidden'] = empty($_POST['group_hidden']) || $_POST['min_posts'] != -1 || $_REQUEST['group'] == 3 ? 0 : (int) $_POST['group_hidden'];
 
@@ -1186,7 +1184,7 @@ class Membergroups implements ActionInterface
 			'inherited_from' => $row['id_parent'],
 			'allow_post_group' => $_REQUEST['group'] == 2 || $_REQUEST['group'] > 4,
 			'allow_delete' => $_REQUEST['group'] == 2 || $_REQUEST['group'] > 4,
-			'allow_protected' => allowedTo('admin_forum'),
+			'allow_protected' => User::$me->allowedTo('admin_forum'),
 			'tfa_required' => $row['tfa_required'],
 		);
 
@@ -1282,7 +1280,7 @@ class Membergroups implements ActionInterface
 			FROM {db_prefix}membergroups
 			WHERE id_group != {int:current_group}' .
 				(empty(Config::$modSettings['permission_enable_postgroups']) ? '
-				AND min_posts = {int:min_posts}' : '') . (allowedTo('admin_forum') ? '' : '
+				AND min_posts = {int:min_posts}' : '') . (User::$me->allowedTo('admin_forum') ? '' : '
 				AND group_type != {int:is_protected}') . '
 				AND id_group NOT IN (1, 3)
 				AND id_parent = {int:not_inherited}',
@@ -1467,7 +1465,7 @@ class Membergroups implements ActionInterface
 		{
 			$this->subaction = $_REQUEST['sa'];
 		}
-		elseif (!allowedTo('manage_membergroups'))
+		elseif (!User::$me->allowedTo('manage_membergroups'))
 		{
 			$this->subaction = 'settings';
 		}
@@ -1494,7 +1492,7 @@ class Membergroups implements ActionInterface
 		$protected_groups = array(-1, 0, 1, 3, 4);
 
 		// There maybe some others as well.
-		if (!allowedTo('admin_forum'))
+		if (!User::$me->allowedTo('admin_forum'))
 		{
 			$request = Db::$db->query('', '
 				SELECT id_group

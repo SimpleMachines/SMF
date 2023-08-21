@@ -118,7 +118,7 @@ class Boards implements ActionInterface
 	public function execute(): void
 	{
 		// Have you got the proper permissions?
-		isAllowedTo(self::$subactions[$this->subaction][1]);
+		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
 		call_helper(method_exists($this, self::$subactions[$this->subaction][0]) ? array($this, self::$subactions[$this->subaction][0]) : self::$subactions[$this->subaction][0]);
 	}
@@ -283,7 +283,7 @@ class Boards implements ActionInterface
 		call_integration_hook('integrate_boards_main');
 
 		Utils::$context['page_title'] = Lang::$txt['boards_and_cats'];
-		Utils::$context['can_manage_permissions'] = allowedTo('manage_permissions');
+		Utils::$context['can_manage_permissions'] = User::$me->allowedTo('manage_permissions');
 	}
 
 	/**
@@ -481,9 +481,7 @@ class Boards implements ActionInterface
 		Permissions::loadPermissionProfiles();
 
 		// People with manage-boards are special.
-		require_once(Config::$sourcedir . '/Subs-Members.php');
-
-		$groups = groupsAllowedTo('manage_boards', null);
+		$groups = User::groupsAllowedTo('manage_boards', null);
 		Utils::$context['board_managers'] = $groups['allowed'];
 
 		// id_board must be a number....
@@ -541,7 +539,7 @@ class Boards implements ActionInterface
 		Utils::$context['redirect_location'] = isset($_GET['rid']) && $_GET['rid'] == 'permissions' ? 'permissions' : 'boards';
 
 		// We might need this to hide links to certain areas.
-		Utils::$context['can_manage_permissions'] = allowedTo('manage_permissions');
+		Utils::$context['can_manage_permissions'] = User::$me->allowedTo('manage_permissions');
 
 		// Default membergroups.
 		Utils::$context['groups'] = array(
@@ -1113,7 +1111,7 @@ class Boards implements ActionInterface
 		call_integration_hook('integrate_manage_boards', array(&self::$subactions));
 
 		// Default to sub action 'main' or 'settings' depending on permissions.
-		$this->subaction = isset($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (allowedTo('manage_boards') ? 'main' : 'settings');
+		$this->subaction = isset($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (User::$me->allowedTo('manage_boards') ? 'main' : 'settings');
 	}
 
 	/*************************

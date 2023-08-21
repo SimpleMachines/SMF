@@ -21,6 +21,7 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Theme;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -869,8 +870,6 @@ class Reports implements ActionInterface
 	 */
 	public function staff(): void
 	{
-		require_once(Config::$sourcedir . '/Subs-Members.php');
-
 		// Fetch all the board names.
 		$boards = array();
 
@@ -927,10 +926,10 @@ class Reports implements ActionInterface
 		}
 
 		// Get a list of global moderators (i.e. members with moderation powers).
-		$global_mods = array_intersect(membersAllowedTo('moderate_board', 0), membersAllowedTo('approve_posts', 0), membersAllowedTo('remove_any', 0), membersAllowedTo('modify_any', 0));
+		$global_mods = array_intersect(User::membersAllowedTo('moderate_board', 0), User::membersAllowedTo('approve_posts', 0), User::membersAllowedTo('remove_any', 0), User::membersAllowedTo('modify_any', 0));
 
 		// How about anyone else who is special?
-		$allStaff = array_merge(membersAllowedTo('admin_forum'), membersAllowedTo('manage_membergroups'), membersAllowedTo('manage_permissions'), $local_mods, $global_mods);
+		$allStaff = array_merge(User::membersAllowedTo('admin_forum'), User::membersAllowedTo('manage_membergroups'), User::membersAllowedTo('manage_permissions'), $local_mods, $global_mods);
 
 		// Make sure everyone is there once - no admin less important than any other!
 		$allStaff = array_unique($allStaff);
@@ -1101,7 +1100,7 @@ class Reports implements ActionInterface
 	protected function __construct()
 	{
 		// Only admins, only EVER admins!
-		isAllowedTo('admin_forum');
+		User::$me->isAllowedTo('admin_forum');
 
 		// Let's get our things running...
 		Theme::loadTemplate('Reports');

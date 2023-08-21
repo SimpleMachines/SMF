@@ -138,7 +138,7 @@ class ErrorHandler
 
 		// If this is an E_ERROR, E_USER_ERROR, E_WARNING, or E_USER_WARNING.... die. Violently so.
 		if ($error_level % 255 == E_ERROR || $error_level % 255 == E_WARNING)
-			self::fatal(allowedTo('admin_forum') ? $message : $error_string, false);
+			self::fatal(User::$me->allowedTo('admin_forum') ? $message : $error_string, false);
 
 		// We should NEVER get to this point.  Any fatal error MUST quit, or very bad things can happen.
 		if ($error_level % 255 == E_ERROR)

@@ -231,7 +231,7 @@ class TopicMerge implements ActionInterface
 		// Prepare a handy query bit for approval...
 		if (Config::$modSettings['postmod_active'])
 		{
-			$can_approve_boards = boardsAllowedTo('approve_posts');
+			$can_approve_boards = User::$me->boardsAllowedTo('approve_posts');
 			$onlyApproved = $can_approve_boards !== array(0) && !in_array($_REQUEST['targetboard'], $can_approve_boards);
 		}
 		else
@@ -285,7 +285,7 @@ class TopicMerge implements ActionInterface
 		Utils::$context['page_title'] = Lang::$txt['merge'];
 
 		// Check which boards you have merge permissions on.
-		$this->merge_boards = boardsAllowedTo('merge_any');
+		$this->merge_boards = User::$me->boardsAllowedTo('merge_any');
 
 		if (empty($this->merge_boards))
 			ErrorHandler::fatalLang('cannot_merge_any', 'user');
@@ -1137,7 +1137,7 @@ class TopicMerge implements ActionInterface
 
 		// Joy of all joys, make sure they're not messing about with unapproved topics they can't see :P
 		if (Config::$modSettings['postmod_active'])
-			$this->can_approve_boards = boardsAllowedTo('approve_posts');
+			$this->can_approve_boards = User::$me->boardsAllowedTo('approve_posts');
 
 		$this->getTopicData();
 
@@ -1157,7 +1157,7 @@ class TopicMerge implements ActionInterface
 
 		if (!empty($this->topics))
 		{
-			isAllowedTo('merge_any', $this->boards);
+			User::$me->isAllowedTo('merge_any', $this->boards);
 			Theme::loadTemplate('MoveTopic');
 		}
 
@@ -1297,7 +1297,7 @@ class TopicMerge implements ActionInterface
 	 */
 	protected function getMergeBoards()
 	{
-		$this->merge_boards = boardsAllowedTo('merge_any');
+		$this->merge_boards = User::$me->boardsAllowedTo('merge_any');
 
 		if (empty($this->merge_boards))
 			ErrorHandler::fatalLang('cannot_merge_any', 'user');

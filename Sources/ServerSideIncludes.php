@@ -274,7 +274,7 @@ class ServerSideIncludes
 			if (User::$me->is_guest)
 				echo sprintf(Lang::$txt[Utils::$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], Utils::$context['forum_name_html_safe'], Config::$scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape(Lang::$txt['login']) . ');', Config::$scripturl . '?action=signup');
 			else
-				echo Lang::$txt['hello_member'], ' <strong>', User::$me->name, '</strong>', allowedTo('pm_read') ? ', ' . (empty(User::$me->messages) ? Lang::$txt['msg_alert_no_messages'] : ((User::$me->messages == 1 ? sprintf(Lang::$txt['msg_alert_one_message'], Config::$scripturl . '?action=pm') : sprintf(Lang::$txt['msg_alert_many_message'], Config::$scripturl . '?action=pm', User::$me->messages)) . ', ' . (User::$me->unread_messages == 1 ? Lang::$txt['msg_alert_one_new'] : sprintf(Lang::$txt['msg_alert_many_new'], User::$me->unread_messages)))) : '';
+				echo Lang::$txt['hello_member'], ' <strong>', User::$me->name, '</strong>', User::$me->allowedTo('pm_read') ? ', ' . (empty(User::$me->messages) ? Lang::$txt['msg_alert_no_messages'] : ((User::$me->messages == 1 ? sprintf(Lang::$txt['msg_alert_one_message'], Config::$scripturl . '?action=pm') : sprintf(Lang::$txt['msg_alert_many_message'], Config::$scripturl . '?action=pm', User::$me->messages)) . ', ' . (User::$me->unread_messages == 1 ? Lang::$txt['msg_alert_one_new'] : sprintf(Lang::$txt['msg_alert_many_new'], User::$me->unread_messages)))) : '';
 		}
 		// Don't echo... then do what?!
 		else
@@ -439,7 +439,7 @@ class ServerSideIncludes
 			new self();
 
 		if (!empty(Config::$modSettings['enable_likes']))
-			Utils::$context['can_like'] = allowedTo('likes_like');
+			Utils::$context['can_like'] = User::$me->allowedTo('likes_like');
 
 		// Find all the posts. Newer ones will have higher IDs.
 		$request = Db::$db->query('substring', '
@@ -1196,7 +1196,7 @@ class ServerSideIncludes
 		if (!self::$setup_done)
 			new self();
 
-		if (!allowedTo('view_stats'))
+		if (!User::$me->allowedTo('view_stats'))
 			return;
 
 		$totals = array(
@@ -1251,7 +1251,7 @@ class ServerSideIncludes
 			new self();
 
 		$membersOnlineOptions = array(
-			'show_hidden' => allowedTo('moderate_forum'),
+			'show_hidden' => User::$me->allowedTo('moderate_forum'),
 		);
 		$return = Logging::getMembersOnlineStats($membersOnlineOptions);
 
@@ -1677,7 +1677,7 @@ class ServerSideIncludes
 		if (!self::$setup_done)
 			new self();
 
-		if (!allowedTo('search_posts'))
+		if (!User::$me->allowedTo('search_posts'))
 			return;
 
 		if ($output_method != 'echo')
@@ -1727,7 +1727,7 @@ class ServerSideIncludes
 		if (!self::$setup_done)
 			new self();
 
-		if (empty(Config::$modSettings['cal_enabled']) || !allowedTo('calendar_view') || !allowedTo('profile_view'))
+		if (empty(Config::$modSettings['cal_enabled']) || !User::$me->allowedTo('calendar_view') || !User::$me->allowedTo('profile_view'))
 			return;
 
 		$eventOptions = array(
@@ -1760,7 +1760,7 @@ class ServerSideIncludes
 		if (!self::$setup_done)
 			new self();
 
-		if (empty(Config::$modSettings['cal_enabled']) || !allowedTo('calendar_view'))
+		if (empty(Config::$modSettings['cal_enabled']) || !User::$me->allowedTo('calendar_view'))
 			return;
 
 		$eventOptions = array(
@@ -1792,7 +1792,7 @@ class ServerSideIncludes
 		if (!self::$setup_done)
 			new self();
 
-		if (empty(Config::$modSettings['cal_enabled']) || !allowedTo('calendar_view'))
+		if (empty(Config::$modSettings['cal_enabled']) || !User::$me->allowedTo('calendar_view'))
 			return;
 
 		$eventOptions = array(
@@ -1830,11 +1830,11 @@ class ServerSideIncludes
 		if (!self::$setup_done)
 			new self();
 
-		if (empty(Config::$modSettings['cal_enabled']) || !allowedTo('calendar_view'))
+		if (empty(Config::$modSettings['cal_enabled']) || !User::$me->allowedTo('calendar_view'))
 			return;
 
 		$eventOptions = array(
-			'include_birthdays' => allowedTo('profile_view'),
+			'include_birthdays' => User::$me->allowedTo('profile_view'),
 			'include_holidays' => true,
 			'include_events' => true,
 			'num_days_shown' => empty(Config::$modSettings['cal_days_for_index']) || Config::$modSettings['cal_days_for_index'] < 1 ? 1 : Config::$modSettings['cal_days_for_index'],
@@ -1945,7 +1945,7 @@ class ServerSideIncludes
 
 		if (!empty(Config::$modSettings['enable_likes']))
 		{
-			Utils::$context['can_like'] = allowedTo('likes_like');
+			Utils::$context['can_like'] = User::$me->allowedTo('likes_like');
 		}
 
 		// Find the post ids.
@@ -2134,7 +2134,7 @@ class ServerSideIncludes
 		if (!self::$setup_done)
 			new self();
 
-		if (empty(Config::$modSettings['cal_enabled']) || !allowedTo('calendar_view'))
+		if (empty(Config::$modSettings['cal_enabled']) || !User::$me->allowedTo('calendar_view'))
 			return;
 
 		// Find all events which are happening in the near future that the member can see.
@@ -2182,7 +2182,7 @@ class ServerSideIncludes
 				'id' => $row['id_event'],
 				'title' => $row['title'],
 				'location' => $row['location'],
-				'can_edit' => allowedTo('calendar_edit_any') || ($row['id_member'] == User::$me->id && allowedTo('calendar_edit_own')),
+				'can_edit' => User::$me->allowedTo('calendar_edit_any') || ($row['id_member'] == User::$me->id && User::$me->allowedTo('calendar_edit_own')),
 				'modify_href' => Config::$scripturl . '?action=' . ($row['id_board'] == 0 ? 'calendar;sa=post;' : 'post;msg=' . $row['id_first_msg'] . ';topic=' . $row['id_topic'] . '.0;calendar;') . 'eventid=' . $row['id_event'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 				'href' => $row['id_board'] == 0 ? '' : Config::$scripturl . '?topic=' . $row['id_topic'] . '.0',
 				'link' => $row['id_board'] == 0 ? $row['title'] : '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['title'] . '</a>',
@@ -2274,7 +2274,7 @@ class ServerSideIncludes
 			new self();
 
 		// We want to make sure that we only get attachments for boards that we can see *if* any.
-		$attachments_boards = boardsAllowedTo('view_attachments');
+		$attachments_boards = User::$me->boardsAllowedTo('view_attachments');
 
 		// No boards?  Adios amigo.
 		if (empty($attachments_boards))
@@ -2297,7 +2297,7 @@ class ServerSideIncludes
 			WHERE att.attachment_type = 0' . ($attachments_boards === array(0) ? '' : '
 				AND m.id_board IN ({array_int:boards_can_see})') . (!empty($attachment_ext) ? '
 				AND att.fileext IN ({array_string:attachment_ext})' : '') .
-				(!Config::$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+				(!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
 				AND t.approved = {int:is_approved}
 				AND m.approved = {int:is_approved}
 				AND att.approved = {int:is_approved}') . '

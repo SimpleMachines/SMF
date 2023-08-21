@@ -151,7 +151,7 @@ class Tracking implements ActionInterface
 	public function activity(): void
 	{
 		// Verify if the user has sufficient permissions.
-		isAllowedTo('moderate_forum');
+		User::$me->isAllowedTo('moderate_forum');
 
 		// Set the sub_template.
 		Utils::$context['sub_template'] = 'trackActivity';
@@ -1067,7 +1067,7 @@ class Tracking implements ActionInterface
 		// Only show the sub-actions they are allowed to see.
 		foreach (self::$subactions as $sa => $action)
 		{
-			if (!allowedTo($action[2]))
+			if (!User::$me->allowedTo($action[2]))
 				unset(self::$subactions[$sa]);
 		}
 

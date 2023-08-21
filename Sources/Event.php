@@ -766,7 +766,7 @@ class Event implements \ArrayAccess
 					break;
 
 				case 'can_edit':
-					$value = $this->use_permissions ? allowedTo('calendar_edit_any') || ($this->member == User::$me->id && allowedTo('calendar_edit_own')) : false;
+					$value = $this->use_permissions ? User::$me->allowedTo('calendar_edit_any') || ($this->member == User::$me->id && User::$me->allowedTo('calendar_edit_own')) : false;
 					break;
 
 				case 'modify_href':

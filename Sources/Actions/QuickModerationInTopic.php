@@ -164,12 +164,12 @@ class QuickModerationInTopic implements ActionInterface
 	protected function delete()
 	{
 		// Allowed to delete any message?
-		if (allowedTo('delete_any'))
+		if (User::$me->allowedTo('delete_any'))
 		{
 			$allowed_all = true;
 		}
 		// Allowed to delete replies to their messages?
-		elseif (allowedTo('delete_replies'))
+		elseif (User::$me->allowedTo('delete_replies'))
 		{
 			$request = Db::$db->query('', '
 				SELECT id_member_started
@@ -190,7 +190,7 @@ class QuickModerationInTopic implements ActionInterface
 
 		// Make sure they're allowed to delete their own messages, if not any.
 		if (!$allowed_all)
-			isAllowedTo('delete_own');
+			User::$me->isAllowedTo('delete_own');
 
 		// Allowed to remove which messages?
 		$request = Db::$db->query('', '
@@ -247,7 +247,7 @@ class QuickModerationInTopic implements ActionInterface
 			Msg::remove($message);
 
 			// Log this moderation action ;).
-			if (allowedTo('delete_any') && (!allowedTo('delete_own') || $info[1] != User::$me->id))
+			if (User::$me->allowedTo('delete_any') && (!User::$me->allowedTo('delete_own') || $info[1] != User::$me->id))
 			{
 				Logging::logAction('delete', array('topic' => Topic::$topic_id, 'subject' => $info[0], 'member' => $info[1], 'board' => Board::$info->id));
 			}

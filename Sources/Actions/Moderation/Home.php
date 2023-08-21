@@ -239,7 +239,7 @@ class Home implements ActionInterface
 			SecurityToken::validate('mod-modnote-del', 'get');
 
 			// No sneaky stuff now!
-			if (!allowedTo('admin_forum'))
+			if (!User::$me->allowedTo('admin_forum'))
 			{
 				// Is this your note?
 				$get_owner = Db::$db->query('', '
@@ -343,7 +343,7 @@ class Home implements ActionInterface
 				'time' => timeformat($note['log_time']),
 				'text' => BBCodeParser::load()->parse($note['body']),
 				'delete_href' => Config::$scripturl . '?action=moderate;area=index;notes;delete=' . $note['id_note'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-				'can_delete' => allowedTo('admin_forum') || $note['id_member'] == User::$me->id,
+				'can_delete' => User::$me->allowedTo('admin_forum') || $note['id_member'] == User::$me->id,
 			);
 		}
 
@@ -505,10 +505,10 @@ class Home implements ActionInterface
 	 */
 	protected function reportedMembers(): void
 	{
-		if (!allowedTo('moderate_forum'))
+		if (!User::$me->allowedTo('moderate_forum'))
 			return;
 
-		$cachekey = md5(Utils::jsonEncode((int) allowedTo('moderate_forum')));
+		$cachekey = md5(Utils::jsonEncode((int) User::$me->allowedTo('moderate_forum')));
 		
 		if (($reported_users = CacheApi::get('reported_users_' . $cachekey, 90)) === null)
 		{

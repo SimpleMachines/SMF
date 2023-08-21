@@ -485,7 +485,7 @@ class Rule implements \ArrayAccess
 		while ($row = Db::$db->fetch_assoc($request))
 		{
 			// Hide hidden groups!
-			if ($row['hidden'] && !$row['can_moderate'] && !allowedTo('manage_membergroups'))
+			if ($row['hidden'] && !$row['can_moderate'] && !User::$me->allowedTo('manage_membergroups'))
 				continue;
 
 			Utils::$context['groups'][$row['id_group']] = $row['group_name'];

@@ -848,9 +848,9 @@ class Main implements ActionInterface
 		$this->profile_areas['edit_profile']['areas']['groupmembership']['enabled'] = !empty(Config::$modSettings['show_group_membership']) && User::$me->is_owner;
 
 
-		$this->profile_areas['profile_action']['areas']['sendpm']['enabled'] = allowedTo('profile_view');
+		$this->profile_areas['profile_action']['areas']['sendpm']['enabled'] = User::$me->allowedTo('profile_view');
 
-		$this->profile_areas['profile_action']['areas']['report']['enabled'] = allowedTo('profile_view');
+		$this->profile_areas['profile_action']['areas']['report']['enabled'] = User::$me->allowedTo('profile_view');
 
 		$this->profile_areas['profile_action']['areas']['issuewarning']['enabled'] = Config::$modSettings['warning_settings'][0] == 1;
 
@@ -1000,7 +1000,7 @@ class Main implements ActionInterface
 			SecurityToken::validate($token_name, $token_type);
 
 		if (isset($security_checks['permission']))
-			isAllowedTo($security_checks['permission']);
+			User::$me->isAllowedTo($security_checks['permission']);
 
 		// Create a token if needed.
 		if (isset($security_checks['needsToken']) || isset($security_checks['validateToken']))
