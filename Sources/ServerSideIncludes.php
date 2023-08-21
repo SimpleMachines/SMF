@@ -2502,7 +2502,7 @@ class ServerSideIncludes
 
 		// Take care of any banning that needs to be done.
 		if (isset($_REQUEST['ssi_ban']) || $this->ban === true)
-			is_not_banned();
+			User::$me->kickIfBanned();
 
 		// Do we allow guests in here?
 		if (empty($this->guest_access) && empty(Config::$modSettings['allow_guestAccess']) && User::$me->is_guest && basename($_SERVER['PHP_SELF']) != 'SSI.php')

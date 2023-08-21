@@ -151,7 +151,7 @@ class Activate implements ActionInterface
 				ErrorHandler::fatal(sprintf(Lang::$txt['valid_email_needed'], Utils::htmlspecialchars($_POST['new_email'])), false);
 
 			// Make sure their email isn't banned.
-			isBannedEmail($_POST['new_email'], 'cannot_register', Lang::$txt['ban_register_prohibited']);
+			User::isBannedEmail($_POST['new_email'], 'cannot_register', Lang::$txt['ban_register_prohibited']);
 
 			// Ummm... don't even dare try to take someone else's email!!
 			$request = Db::$db->query('', '

@@ -337,7 +337,7 @@ class Forum
 		}
 
 		// Check if the user should be disallowed access.
-		is_not_banned();
+		User::$me->kickIfBanned();
 
 		// If we are in a topic and don't have permission to approve it then duck out now.
 		if (!empty(Topic::$topic_id) && empty(Board::$info->cur_topic_approved) && !allowedTo('approve_posts') && (User::$me->id != Board::$info->cur_topic_starter || User::$me->is_guest))
