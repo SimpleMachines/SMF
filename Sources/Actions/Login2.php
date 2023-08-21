@@ -802,7 +802,7 @@ class Login2 implements ActionInterface
 			unset($_SESSION['failed_login']);
 
 		// Are you banned?
-		is_not_banned(true);
+		User::$me->kickIfBanned(true);
 
 		// Don't stick the language or theme after this point.
 		unset($_SESSION['language'], $_SESSION['id_theme']);

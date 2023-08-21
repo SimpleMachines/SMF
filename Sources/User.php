@@ -760,6 +760,76 @@ class User implements \ArrayAccess
 		'website_url',
 	);
 
+	/**
+	 * @var array
+	 *
+	 * Permissions to deny to users who are banned from posting.
+	 */
+	public static array $post_ban_permissions = array(
+		'admin_forum',
+		'calendar_edit_any',
+		'calendar_edit_own',
+		'calendar_post',
+		'delete_any',
+		'delete_own',
+		'delete_replies',
+		'edit_news',
+		'lock_any',
+		'lock_own',
+		'make_sticky',
+		'manage_attachments',
+		'manage_bans',
+		'manage_boards',
+		'manage_membergroups',
+		'manage_permissions',
+		'manage_smileys',
+		'merge_any',
+		'moderate_forum',
+		'modify_any',
+		'modify_own',
+		'modify_replies',
+		'move_any',
+		'pm_send',
+		'poll_add_any',
+		'poll_add_own',
+		'poll_edit_any',
+		'poll_edit_own',
+		'poll_lock_any',
+		'poll_lock_own',
+		'poll_post',
+		'poll_remove_any',
+		'poll_remove_own',
+		'post_new',
+		'post_reply_any',
+		'post_reply_own',
+		'post_unapproved_replies_any',
+		'post_unapproved_replies_own',
+		'post_unapproved_topics',
+		'profile_extra_any',
+		'profile_forum_any',
+		'profile_identity_any',
+		'profile_other_any',
+		'profile_signature_any',
+		'profile_title_any',
+		'remove_any',
+		'remove_own',
+		'send_mail',
+		'split_any',
+	);
+
+	/**
+	 * @var array
+	 *
+	 * Permissions to change for users with a high warning level.
+	 */
+	public static array $warn_permissions = array(
+		'post_new' => 'post_unapproved_topics',
+		'post_reply_own' => 'post_unapproved_replies_own',
+		'post_reply_any' => 'post_unapproved_replies_any',
+		'post_attachment' => 'post_unapproved_attachments',
+	);
+
+
 	/*********************
 	 * Internal properties
 	 *********************/
@@ -867,7 +937,7 @@ class User implements \ArrayAccess
 			$this->can_mod = true;
 			$this->can_manage_boards = true;
 
-			banPermissions();
+			$this->adjustPermissions();
 			return;
 		}
 
@@ -889,7 +959,7 @@ class User implements \ArrayAccess
 			)
 			{
 				list($this->permissions) = $temp;
-				banPermissions();
+				$this->adjustPermissions();
 
 				return;
 			}
@@ -983,7 +1053,7 @@ class User implements \ArrayAccess
 		}
 
 		// Banned?  Watch, don't touch..
-		banPermissions();
+		$this->adjustPermissions();
 
 		// Load the mod cache so we can know what additional boards they should see, but no sense in doing it for guests
 		if (!$this->is_guest && $this->id === self::$my_id)
@@ -1482,6 +1552,412 @@ class User implements \ArrayAccess
 
 		// Might as well clean up some tokens while we are at it.
 		SecurityToken::clean();
+	}
+
+	/**
+	 * Does banning related stuff (i.e. disallowing access).
+	 *
+	 * Checks if the user is banned, and if so dies with an error.
+	 * Caches this information for optimization purposes.
+	 *
+	 * @param bool $force_check Whether to force a recheck.
+	 */
+	public function kickIfBanned(bool $force_check = false): void
+	{
+		// This only applies to the current user.
+		if ($this->id !== User::$my_id)
+			return;
+
+		// You cannot be banned if you are an admin.
+		if ($this->is_admin)
+			return;
+
+		// Only check the ban every so often. (to reduce load.)
+		if (
+			$force_check
+			|| !isset($_SESSION['ban'])
+			|| empty(Config::$modSettings['banLastUpdated'])
+			|| $_SESSION['ban']['last_checked'] < Config::$modSettings['banLastUpdated']
+			|| $_SESSION['ban']['id_member'] != $this->id
+			|| $_SESSION['ban']['ip'] != $this->ip
+			|| $_SESSION['ban']['ip2'] != $this->ip2
+			|| (
+				isset($this->email, $_SESSION['ban']['email'])
+				&& $_SESSION['ban']['email'] != $this->email
+			)
+		)
+		{
+			// Innocent until proven guilty.  (but we know you are! :P)
+			$_SESSION['ban'] = array(
+				'last_checked' => time(),
+				'id_member' => $this->id,
+				'ip' => $this->ip,
+				'ip2' => $this->ip2,
+				'email' => $this->email,
+			);
+
+			$ban_query = array();
+			$ban_query_vars = array('current_time' => time());
+			$flag_is_activated = false;
+
+			// Check both IP addresses.
+			foreach (array('ip', 'ip2') as $ip_number)
+			{
+				if ($ip_number == 'ip2' && $this->ip2 == $this->ip)
+					continue;
+
+				$ban_query[] = ' {inet:' . $ip_number . '} BETWEEN bi.ip_low and bi.ip_high';
+				$ban_query_vars[$ip_number] = $this->{$ip_number};
+
+				// IP was valid, maybe there's also a hostname...
+				if (empty(Config::$modSettings['disableHostnameLookup']) && $this->{$ip_number} != 'unknown')
+				{
+					$hostname = host_from_ip($this->{$ip_number});
+
+					if (strlen($hostname) > 0)
+					{
+						$ban_query[] = '({string:hostname' . $ip_number . '} LIKE bi.hostname)';
+						$ban_query_vars['hostname' . $ip_number] = $hostname;
+					}
+				}
+			}
+
+			// Is their email address banned?
+			if (strlen($this->email) != 0)
+			{
+				$ban_query[] = '({string:email} LIKE bi.email_address)';
+				$ban_query_vars['email'] = $this->email;
+			}
+
+			// How about this user?
+			if (!$this->is_guest && !empty($this->id))
+			{
+				$ban_query[] = 'bi.id_member = {int:id_member}';
+				$ban_query_vars['id_member'] = $this->id;
+			}
+
+			// Check the ban, if there's information.
+			if (!empty($ban_query))
+			{
+				$restrictions = array(
+					'cannot_access',
+					'cannot_login',
+					'cannot_post',
+					'cannot_register',
+				);
+
+				// Store every type of ban that applies to you in your session.
+				$request = Db::$db->query('', '
+					SELECT bi.id_ban, bi.email_address, bi.id_member, bg.cannot_access, bg.cannot_register,
+						bg.cannot_post, bg.cannot_login, bg.reason, COALESCE(bg.expire_time, 0) AS expire_time
+					FROM {db_prefix}ban_items AS bi
+						INNER JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group AND (bg.expire_time IS NULL OR bg.expire_time > {int:current_time}))
+					WHERE
+						(' . implode(' OR ', $ban_query) . ')',
+					$ban_query_vars
+				);
+				while ($row = Db::$db->fetch_assoc($request))
+				{
+					foreach ($restrictions as $restriction)
+					{
+						if (!empty($row[$restriction]))
+						{
+							$_SESSION['ban'][$restriction]['reason'] = $row['reason'];
+							$_SESSION['ban'][$restriction]['ids'][] = $row['id_ban'];
+
+							if (
+								!isset($_SESSION['ban']['expire_time'])
+								|| (
+									$_SESSION['ban']['expire_time'] != 0
+									&& (
+										$row['expire_time'] == 0
+										|| $row['expire_time'] > $_SESSION['ban']['expire_time']
+									)
+								)
+							)
+							{
+								$_SESSION['ban']['expire_time'] = $row['expire_time'];
+							}
+
+							if (
+								!$this->is_guest
+								&& $restriction == 'cannot_access'
+								&& (
+									$row['id_member'] == $this->id
+									|| $row['email_address'] == $this->email
+								)
+							)
+							{
+								$flag_is_activated = true;
+							}
+						}
+					}
+				}
+				Db::$db->free_result($request);
+			}
+
+			// Mark the cannot_access and cannot_post bans as being 'hit'.
+			if (isset($_SESSION['ban']['cannot_access'], $_SESSION['ban']['cannot_post'], $_SESSION['ban']['cannot_login']))
+			{
+				$this->logBan(array_merge(
+					isset($_SESSION['ban']['cannot_access']) ? $_SESSION['ban']['cannot_access']['ids'] : array(),
+					isset($_SESSION['ban']['cannot_post']) ? $_SESSION['ban']['cannot_post']['ids'] : array(),
+					isset($_SESSION['ban']['cannot_login']) ? $_SESSION['ban']['cannot_login']['ids'] : array()
+				));
+			}
+
+			// If for whatever reason the is_activated flag seems wrong, do a little work to clear it up.
+			if (
+				$this->id
+				&& (
+					(
+						$this->is_activated >= 10
+						&& !$flag_is_activated
+					)
+					|| (
+						$this->is_activated < 10
+						&& $flag_is_activated
+					)
+				)
+			)
+			{
+				Bans::updateBanMembers();
+			}
+		}
+
+		// Hey, I know you! You're ehm...
+		if (!isset($_SESSION['ban']['cannot_access']) && !empty($_COOKIE[Config::$cookiename . '_']))
+		{
+			$bans = explode(',', $_COOKIE[Config::$cookiename . '_']);
+
+			foreach ($bans as $key => $value)
+				$bans[$key] = (int) $value;
+
+			$request = Db::$db->query('', '
+				SELECT bi.id_ban, bg.reason, COALESCE(bg.expire_time, 0) AS expire_time
+				FROM {db_prefix}ban_items AS bi
+					INNER JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group)
+				WHERE bi.id_ban IN ({array_int:ban_list})
+					AND (bg.expire_time IS NULL OR bg.expire_time > {int:current_time})
+					AND bg.cannot_access = {int:cannot_access}
+				LIMIT {int:limit}',
+				array(
+					'cannot_access' => 1,
+					'ban_list' => $bans,
+					'current_time' => time(),
+					'limit' => count($bans),
+				)
+			);
+			while ($row = Db::$db->fetch_assoc($request))
+			{
+				$_SESSION['ban']['cannot_access']['ids'][] = $row['id_ban'];
+				$_SESSION['ban']['cannot_access']['reason'] = $row['reason'];
+				$_SESSION['ban']['expire_time'] = $row['expire_time'];
+			}
+			Db::$db->free_result($request);
+
+			// My mistake. Next time better.
+			if (!isset($_SESSION['ban']['cannot_access']))
+			{
+				$cookie = new Cookie(Config::$cookiename . '_', array(), time() - 3600);
+				$cookie->set();
+			}
+		}
+
+		// If you're fully banned, it's end of the story for you.
+		if (isset($_SESSION['ban']['cannot_access']))
+		{
+			// We don't wanna see you!
+			if (!$this->is_guest)
+			{
+				Db::$db->query('', '
+					DELETE FROM {db_prefix}log_online
+					WHERE id_member = {int:current_member}',
+					array(
+						'current_member' => $this->id,
+					)
+				);
+			}
+
+			if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'dlattach')
+				die();
+
+			// 'Log' the user out.  Can't have any funny business... (save the name!)
+			$old_name = isset($this->name) && $this->name != '' ? $this->name : Lang::$txt['guest_title'];
+
+			User::setMe(0);
+
+			// A goodbye present.
+			$cookie = new Cookie(Config::$cookiename . '_', implode(',', $_SESSION['ban']['cannot_access']['ids']), time() - 3600);
+			$cookie->set();
+
+			// Don't scare anyone, now.
+			$_GET['action'] = '';
+			$_GET['board'] = '';
+			$_GET['topic'] = '';
+			$this->logOnline(true);
+			Logout::call(true, false);
+
+			// You banned, sucka!
+			ErrorHandler::fatal(sprintf(Lang::$txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_access']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_access']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf(Lang::$txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : Lang::$txt['your_ban_expires_never']), false, 403);
+
+			// If we get here, something's gone wrong.... but let's try anyway.
+			trigger_error('No direct access...', E_USER_ERROR);
+		}
+		// You're not allowed to log in but yet you are. Let's fix that.
+		elseif (isset($_SESSION['ban']['cannot_login']) && !$this->is_guest)
+		{
+			// We don't wanna see you!
+			Db::$db->query('', '
+				DELETE FROM {db_prefix}log_online
+				WHERE id_member = {int:current_member}',
+				array(
+					'current_member' => $this->id,
+				)
+			);
+
+			// 'Log' the user out.  Can't have any funny business... (save the name!)
+			$old_name = isset($this->name) && $this->name != '' ? $this->name : Lang::$txt['guest_title'];
+			User::setMe(0);
+
+			// SMF's Wipe 'n Clean(r) erases all traces.
+			$_GET['action'] = '';
+			$_GET['board'] = '';
+			$_GET['topic'] = '';
+			$this->logOnline(true);
+
+			Logout::call(true, false);
+
+			ErrorHandler::fatal(sprintf(Lang::$txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_login']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_login']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf(Lang::$txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : Lang::$txt['your_ban_expires_never']) . '<br>' . Lang::$txt['ban_continue_browse'], false, 403);
+		}
+
+		// Fix up the banning permissions.
+		if (isset($this->permissions))
+			$this->adjustPermissions();
+	}
+
+	/**
+	 * Logs a ban in the database.
+	 *
+	 * Increments the hit counters for the specified ban ID's (if any).
+	 *
+	 * @param array $ban_ids The IDs of the bans.
+	 * @param string $email The email address associated with the user that
+	 *    triggered this hit. If not set, uses the current user's email address.
+	 */
+	public function logBan(array $ban_ids = array(), string $email = null): void
+	{
+		// This only applies to the current user.
+		if ($this->id !== User::$my_id)
+			return;
+
+		// Don't log web accelerators, it's very confusing...
+		if (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch')
+			return;
+
+		Db::$db->insert('',
+			'{db_prefix}log_banned',
+			array(
+				'id_member' => 'int',
+				'ip' => 'inet',
+				'email' => 'string',
+				'log_time' => 'int',
+			),
+			array(
+				$this->id,
+				$this->ip,
+				$email ?? $this->email,
+				time(),
+			),
+			array('id_ban_log')
+		);
+
+		// One extra point for these bans.
+		if (!empty($ban_ids))
+		{
+			Db::$db->query('', '
+				UPDATE {db_prefix}ban_items
+				SET hits = hits + 1
+				WHERE id_ban IN ({array_int:ban_ids})',
+				array(
+					'ban_ids' => $ban_ids,
+				)
+			);
+		}
+	}
+
+	/**
+	 * Fix permissions according to ban and warning status.
+	 *
+	 * Applies any states of banning and/or warning moderation by removing
+	 * permissions the user cannot have.
+	 */
+	public function adjustPermissions(): void
+	{
+		// This only applies to the current user.
+		if ($this->id !== User::$my_id)
+			return;
+
+		// Somehow they got here, at least take away all permissions...
+		if (isset($_SESSION['ban']['cannot_access']))
+		{
+			$this->permissions = array();
+		}
+		// Okay, well, you can watch, but don't touch a thing.
+		elseif (isset($_SESSION['ban']['cannot_post']) || (!empty(Config::$modSettings['warning_mute']) && Config::$modSettings['warning_mute'] <= $this->warning))
+		{
+			call_integration_hook('integrate_post_ban_permissions', array(&self::$post_ban_permissions));
+
+			$this->permissions = array_diff($this->permissions, self::$post_ban_permissions);
+		}
+		// Are they absolutely under moderation?
+		elseif (!empty(Config::$modSettings['warning_moderate']) && Config::$modSettings['warning_moderate'] <= $this->warning)
+		{
+			// Work out what permissions should change...
+			call_integration_hook('integrate_warn_permissions', array(&self::$warn_permissions));
+
+			foreach (self::$warn_permissions as $old => $new)
+			{
+				if (!in_array($old, $this->permissions))
+				{
+					unset(self::$warn_permissions[$old]);
+				}
+				else
+				{
+					$this->permissions[] = $new;
+				}
+			}
+
+			$this->permissions = array_diff($this->permissions, array_keys(self::$warn_permissions));
+		}
+
+		// @todo Find a better place to call this? Needs to be after permissions loaded!
+		// Finally, some bits we cache in the session because it saves queries.
+		if (isset($_SESSION['mc']) && $_SESSION['mc']['time'] > Config::$modSettings['settings_updated'] && $_SESSION['mc']['id'] == $this->id)
+		{
+			$this->mod_cache = $_SESSION['mc'];
+		}
+		else
+		{
+			$this->rebuildModCache();
+		}
+
+		// Now that we have the mod cache taken care of lets setup a cache for the number of mod reports still open
+		if (isset($_SESSION['rc']['reports']) && isset($_SESSION['rc']['member_reports']) && $_SESSION['rc']['time'] > Config::$modSettings['last_mod_report_action'] && $_SESSION['rc']['id'] == $this->id)
+		{
+			Utils::$context['open_mod_reports'] = $_SESSION['rc']['reports'];
+			Utils::$context['open_member_reports'] = $_SESSION['rc']['member_reports'];
+		}
+		elseif ($_SESSION['mc']['bq'] != '0=1')
+		{
+			Utils::$context['open_mod_reports'] = ReportedContent::recountOpenReports('posts');
+			Utils::$context['open_member_reports'] = ReportedContent::recountOpenReports('members');
+		}
+		else
+		{
+			Utils::$context['open_mod_reports'] = 0;
+			Utils::$context['open_member_reports'] = 0;
+		}
 	}
 
 	/***********************
@@ -2773,6 +3249,74 @@ class User implements \ArrayAccess
 	}
 
 	/**
+	 * Checks whether a given email address is be banned.
+	 * Performs an immediate ban if the check turns out positive.
+	 *
+	 * @param string $email The email to check.
+	 * @param string $restriction What type of restriction to check for.
+	 *    E.g.: cannot_post, cannot_register, etc.
+	 * @param string $error The error message to display if they are banned.
+	 */
+	public static function isBannedEmail(string $email, string $restriction, string $error): void
+	{
+		// Can't ban an empty email
+		if (empty($email) || trim($email) == '')
+			return;
+
+		// Let's start with the bans based on your IP/hostname/memberID...
+		$ban_ids = isset($_SESSION['ban'][$restriction]) ? $_SESSION['ban'][$restriction]['ids'] : array();
+		$ban_reason = isset($_SESSION['ban'][$restriction]) ? $_SESSION['ban'][$restriction]['reason'] : '';
+
+		// ...and add to that the email address you're trying to register.
+		$request = Db::$db->query('', '
+			SELECT bi.id_ban, bg.' . $restriction . ', bg.cannot_access, bg.reason
+			FROM {db_prefix}ban_items AS bi
+				INNER JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group)
+			WHERE {string:email} LIKE bi.email_address
+				AND (bg.' . $restriction . ' = {int:cannot_access} OR bg.cannot_access = {int:cannot_access})
+				AND (bg.expire_time IS NULL OR bg.expire_time >= {int:now})',
+			array(
+				'email' => $email,
+				'cannot_access' => 1,
+				'now' => time(),
+			)
+		);
+		while ($row = Db::$db->fetch_assoc($request))
+		{
+			if (!empty($row['cannot_access']))
+			{
+				$_SESSION['ban']['cannot_access']['ids'][] = $row['id_ban'];
+				$_SESSION['ban']['cannot_access']['reason'] = $row['reason'];
+			}
+
+			if (!empty($row[$restriction]))
+			{
+				$ban_ids[] = $row['id_ban'];
+				$ban_reason = $row['reason'];
+			}
+		}
+		Db::$db->free_result($request);
+
+		// You're in biiig trouble.  Banned for the rest of this session!
+		if (isset($_SESSION['ban']['cannot_access']))
+		{
+			$this->logBan($_SESSION['ban']['cannot_access']['ids']);
+
+			$_SESSION['ban']['last_checked'] = time();
+
+			ErrorHandler::fatal(sprintf(Lang::$txt['your_ban'], Lang::$txt['guest_title']) . $_SESSION['ban']['cannot_access']['reason'], false);
+		}
+
+		if (!empty($ban_ids))
+		{
+			// Log this ban for future reference.
+			$this->logBan($ban_ids, $email);
+
+			ErrorHandler::fatal($error . $ban_reason, false);
+		}
+	}
+
+	/**
 	 * Finds members by email address, username, or real name.
 	 *
 	 * Searches for members whose username, display name, or e-mail address
@@ -3005,6 +3549,42 @@ class User implements \ArrayAccess
 			self::load((array) $id, self::LOAD_BY_ID, 'profile');
 
 		return self::$loaded[$id]->format($display_custom_fields);
+	}
+
+	/**
+	 * Static wrapper around User::$me->kickIfBanned().
+	 *
+	 * This method exists only for backward compatibility purposes.
+	 *
+	 * @param bool $force_check Whether to force a recheck.
+	 */
+	public static function is_not_banned(bool $force_check = false): void
+	{
+		self::$me->kickIfBanned($force_check);
+	}
+
+	/**
+	 * Static wrapper around User::$me->adjustPermissions().
+	 *
+	 * This method exists only for backward compatibility purposes.
+	 */
+	public static function banPermissions(): void
+	{
+		self::$me->adjustPermissions();
+	}
+
+	/**
+	 * Static wrapper around User::$me->logBan().
+	 *
+	 * This method exists only for backward compatibility purposes.
+	 *
+	 * @param array $ban_ids The IDs of the bans.
+	 * @param string $email The email address associated with the user that
+	 *    triggered this hit. If not set, use the current user's email address.
+	 */
+	public static function log_ban(array $ban_ids = array(), string $email = null): void
+	{
+		self::$me->logBan($ban_ids, $email);
 	}
 
 	/******************

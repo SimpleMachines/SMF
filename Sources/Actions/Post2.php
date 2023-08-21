@@ -254,7 +254,7 @@ class Post2 extends Post
 				}
 
 				// Now make sure this email address is not banned from posting.
-				isBannedEmail($_POST['email'], 'cannot_post', sprintf(Lang::$txt['you_are_post_banned'], Lang::$txt['guest_title']));
+				User::isBannedEmail($_POST['email'], 'cannot_post', sprintf(Lang::$txt['you_are_post_banned'], Lang::$txt['guest_title']));
 			}
 
 			// In case they are making multiple posts this visit, help them along by storing their name.

@@ -593,7 +593,7 @@ class Register2 extends Register
 		// You may not be allowed to register this email.
 		if (!empty($reg_options['check_email_ban']))
 		{
-			isBannedEmail($reg_options['email'], 'cannot_register', Lang::$txt['ban_register_prohibited']);
+			User::isBannedEmail($reg_options['email'], 'cannot_register', Lang::$txt['ban_register_prohibited']);
 		}
 
 		// Check if the email address is in use.
