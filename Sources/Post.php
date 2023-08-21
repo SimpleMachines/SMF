@@ -1354,7 +1354,7 @@ function Post($post_errors = array())
 			text_attachUploaded: ' . JavaScriptEscape($txt['attached_file_uploaded']) . ',
 			text_attach_unlimited: ' . JavaScriptEscape($txt['attach_drop_unlimited']) . ',
 			text_totalMaxSize: ' . JavaScriptEscape($txt['attach_max_total_file_size_current']) . ',
-			text_max_size_progress: ' . JavaScriptEscape('{currentRemain} ' . ($modSettings[$type] >= 1024 ? $txt['megabyte'] : $txt['kilobyte']) . ' / {currentTotal} ' . ($modSettings[$type] >= 1024 ? $txt['megabyte'] : $txt['kilobyte'])) . ',
+			text_max_size_progress: ' . JavaScriptEscape('{currentRemain} ' . ($modSettings['attachmentPostLimit'] >= 1024 ? $txt['megabyte'] : $txt['kilobyte']) . ' / {currentTotal} ' . ($modSettings['attachmentPostLimit'] >= 1024 ? $txt['megabyte'] : $txt['kilobyte'])) . ',
 			dictMaxFilesExceeded: ' . JavaScriptEscape($txt['more_attachments_error']) . ',
 			dictInvalidFileType: ' . JavaScriptEscape(sprintf($txt['cant_upload_type'], $context['allowed_extensions'])) . ',
 			dictFileTooBig: ' . JavaScriptEscape(sprintf($txt['file_too_big'], comma_format($modSettings['attachmentSizeLimit'], 0))) . ',
