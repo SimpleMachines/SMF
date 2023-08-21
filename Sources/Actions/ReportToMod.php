@@ -130,7 +130,7 @@ class ReportToMod implements ActionInterface
 	public function execute(): void
 	{
 		// No guests!
-		is_not_guest();
+		User::$me->kickIfGuest();
 
 		// You can't use this if it's off or you are not allowed to do it.
 		// If we don't have the ID of something to report, we'll die with a no_access error below

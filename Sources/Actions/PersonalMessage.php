@@ -301,7 +301,7 @@ class PersonalMessage implements ActionInterface
 	public function execute(): void
 	{
 		// No guests!
-		is_not_guest();
+		User::$me->kickIfGuest();
 
 		// You're not supposed to be here at all, if you can't even read PMs.
 		isAllowedTo('pm_read');

@@ -77,7 +77,7 @@ class BuddyListToggle implements ActionInterface
 		checkSession('get');
 
 		isAllowedTo('profile_extra_own');
-		is_not_guest();
+		User::$me->kickIfGuest();
 
 		if (empty($this->userReceiver))
 			ErrorHandler::fatalLang('no_access', false);

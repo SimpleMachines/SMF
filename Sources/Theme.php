@@ -2059,7 +2059,7 @@ class Theme
 	 */
 	public static function pickTheme()
 	{
-		is_not_guest();
+		User::$me->kickIfGuest();
 
 		$_REQUEST['u'] = !isset($_REQUEST['u']) ? User::$me->id : (int) $_REQUEST['u'];
 

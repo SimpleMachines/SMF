@@ -517,7 +517,7 @@ class Register2 extends Register
 		// Registration from the admin center, let them sweat a little more.
 		if ($reg_options['interface'] == 'admin')
 		{
-			is_not_guest();
+			User::$me->kickIfGuest();
 			isAllowedTo('moderate_forum');
 		}
 		// If you're an admin, you're special ;).

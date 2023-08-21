@@ -1032,7 +1032,7 @@ class Board implements \ArrayAccess
 	public static function markRead(): void
 	{
 		// No Guests allowed!
-		is_not_guest();
+		User::$me->kickIfGuest();
 
 		checkSession('get');
 
@@ -2772,7 +2772,7 @@ class Board implements \ArrayAccess
 			elseif (User::$me->is_guest)
 			{
 				Lang::load('Errors');
-				is_not_guest(Lang::$txt['topic_gone']);
+				User::$me->kickIfGuest(Lang::$txt['topic_gone']);
 			}
 			else
 			{

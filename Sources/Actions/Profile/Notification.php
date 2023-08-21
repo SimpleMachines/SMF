@@ -356,7 +356,7 @@ class Notification implements ActionInterface
 		if (!isset(Utils::$context['token_check']))
 			Utils::$context['token_check'] = 'profile-nt' . Profile::$member->id;
 
-		is_not_guest();
+		User::$me->kickIfGuest();
 
 		if (!User::$me->is_owner)
 			isAllowedTo('profile_extra_any');
@@ -602,7 +602,7 @@ class Notification implements ActionInterface
 		Lang::load('Alerts');
 
 		// Now we're all set up.
-		is_not_guest();
+		User::$me->kickIfGuest();
 
 		if (!User::$me->is_owner)
 			ErrorHandler::fatal('no_access');
