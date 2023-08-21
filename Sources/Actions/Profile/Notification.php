@@ -501,7 +501,7 @@ class Notification implements ActionInterface
 
 		if (isset($_POST['notify_submit']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate(Utils::$context['token_check'], 'post');
 
 			// We need to step through the list of valid settings and figure out what the user has set.
@@ -607,7 +607,7 @@ class Notification implements ActionInterface
 		if (!User::$me->is_owner)
 			ErrorHandler::fatal('no_access');
 
-		checkSession('get');
+		User::$me->checkSession('get');
 
 		Alert::markAll(Profile::$member->id, true);
 	}
@@ -620,7 +620,7 @@ class Notification implements ActionInterface
 		// Because of the way this stuff works, we want to do this ourselves.
 		if (isset($_POST['edit_notify_topics']) || isset($_POST['remove_notify_topics']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate(str_replace('%u', Profile::$member->id, 'profile-nt%u'), 'post');
 
 			$thid->changeNotifications();
@@ -770,7 +770,7 @@ class Notification implements ActionInterface
 		// Because of the way this stuff works, we want to do this ourselves.
 		if (isset($_POST['edit_notify_boards']) || isset($_POSt['remove_notify_boards']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate(str_replace('%u', Profile::$member->id, 'profile-nt%u'), 'post');
 
 			$this->changeNotifications();

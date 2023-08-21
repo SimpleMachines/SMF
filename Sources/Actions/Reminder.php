@@ -121,7 +121,7 @@ class Reminder implements ActionInterface
 	 */
 	public function pickType()
 	{
-		checkSession();
+		User::$me->checkSession();
 		SecurityToken::validate('remind');
 		SecurityToken::create('remind');
 
@@ -224,7 +224,7 @@ class Reminder implements ActionInterface
 	 */
 	public function setPassword2()
 	{
-		checkSession();
+		User::$me->checkSession();
 		SecurityToken::validate('remind-sp');
 
 		if (empty($_POST['u']) || !isset($_POST['passwrd1']) || !isset($_POST['passwrd2']))
@@ -293,7 +293,7 @@ class Reminder implements ActionInterface
 	 */
 	public function secretAnswerInput()
 	{
-		checkSession();
+		User::$me->checkSession();
 
 		// Strings for the register auto javascript clever stuffy wuffy.
 		Lang::load('Login');
@@ -321,7 +321,7 @@ class Reminder implements ActionInterface
 	 */
 	public function secretAnswer2()
 	{
-		checkSession();
+		User::$me->checkSession();
 		SecurityToken::validate('remind-sai');
 
 		// Hacker?  How did you get this far without an email or username?

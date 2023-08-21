@@ -169,7 +169,7 @@ class Members implements ActionInterface
 		// Are we performing a delete?
 		if (isset($_POST['delete_members']) && !empty($_POST['delete']) && allowedTo('profile_remove_any'))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			// Clean the input.
 			foreach ($_POST['delete'] as $key => $value)
@@ -1155,7 +1155,7 @@ class Members implements ActionInterface
 	public function approve()
 	{
 		// First, check our session.
-		checkSession();
+		User::$me->checkSession();
 
 		// We also need to the login languages here - for emails.
 		Lang::load('Login');

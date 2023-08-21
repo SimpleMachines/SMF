@@ -766,7 +766,7 @@ class Logs implements ActionInterface
 	 */
 	protected function deleteAll(): void
 	{
-		checkSession();
+		User::$me->checkSession();
 		SecurityToken::validate('mod-ml');
 
 		Db::$db->query('', '
@@ -789,7 +789,7 @@ class Logs implements ActionInterface
 	 */
 	protected function deleteEntry(): void
 	{
-		checkSession();
+		User::$me->checkSession();
 		SecurityToken::validate('mod-ml');
 
 		// No sneaky removing the 'cleared the log' entries.

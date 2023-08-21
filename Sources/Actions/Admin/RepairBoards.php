@@ -23,6 +23,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
 use SMF\SecurityToken;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -807,7 +808,7 @@ class RepairBoards implements ActionInterface
 
 		// Start displaying errors without fixing them.
 		if (isset($_GET['fixErrors']))
-			checkSession('get');
+			User::$me->checkSession('get');
 
 		// Giant if/else. The first displays the forum errors if a variable is not set and asks
 		// if you would like to continue, the other fixes the errors.

@@ -79,7 +79,7 @@ class QuickModerationInTopic implements ActionInterface
 	public function execute(): void
 	{
 		// Check the session = get or post.
-		checkSession('request');
+		User::$me->checkSession('request');
 
 		if (isset($_REQUEST['restore_selected']))
 			$this->restore();

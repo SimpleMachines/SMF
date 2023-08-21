@@ -688,7 +688,7 @@ class ShowPosts implements ActionInterface
 		if (!isset($_GET['delete']))
 			return;
 
-		checkSession('get');
+		User::$me->checkSession('get');
 
 		// We need msg info for logging.
 		$request = Db::$db->query('', '

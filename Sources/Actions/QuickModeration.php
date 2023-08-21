@@ -192,7 +192,7 @@ class QuickModeration implements ActionInterface
 	public function execute(): void
 	{
 		// Check the session = get or post.
-		checkSession('request');
+		User::$me->checkSession('request');
 
 		// This won't be valid anymore.
 		if (isset($_SESSION['topicseen_cache']))

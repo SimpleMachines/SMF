@@ -259,7 +259,7 @@ class Main implements ActionInterface
 	public function createMenu(): void
 	{
 		// Make sure the administrator has a valid session...
-		validateSession('moderate');
+		User::$me->validateSession('moderate');
 
 		// I don't know where we're going - I don't know where we've been...
 		$menuOptions = array(

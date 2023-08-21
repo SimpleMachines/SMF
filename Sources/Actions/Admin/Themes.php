@@ -138,7 +138,7 @@ class Themes implements ActionInterface
 		// Are handling any settings?
 		if (isset($_POST['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-tm');
 
 			if (isset($_POST['options']['known_themes']))
@@ -207,7 +207,7 @@ class Themes implements ActionInterface
 
 		if (isset($_POST['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-tl');
 
 			$this->getInstalledThemes();
@@ -364,7 +364,7 @@ class Themes implements ActionInterface
 		// Submit?
 		if (isset($_POST['submit']) && empty($_POST['who']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-sto');
 
 			if (empty($_POST['options']))
@@ -424,7 +424,7 @@ class Themes implements ActionInterface
 		}
 		elseif (isset($_POST['submit']) && $_POST['who'] == 1)
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-sto');
 
 			$_POST['options'] = empty($_POST['options']) ? array() : $_POST['options'];
@@ -549,7 +549,7 @@ class Themes implements ActionInterface
 		}
 		elseif (!empty($_GET['who']) && $_GET['who'] == 2)
 		{
-			checkSession('get');
+			User::$me->checkSession('get');
 			SecurityToken::validate('admin-stor', 'request');
 
 			// Don't delete custom fields!!
@@ -750,7 +750,7 @@ class Themes implements ActionInterface
 		// Submitting!
 		if (isset($_POST['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-sts');
 
 			if (empty($_POST['options']))
@@ -893,7 +893,7 @@ class Themes implements ActionInterface
 	 */
 	public function remove()
 	{
-		checkSession('get');
+		User::$me->checkSession('get');
 
 		SecurityToken::validate('admin-tr', 'request');
 
@@ -922,7 +922,7 @@ class Themes implements ActionInterface
 	 */
 	public function enable()
 	{
-		checkSession('get');
+		User::$me->checkSession('get');
 
 		SecurityToken::validate('admin-tre', 'request');
 
@@ -960,7 +960,7 @@ class Themes implements ActionInterface
 	 */
 	public function install()
 	{
-		checkSession('request');
+		User::$me->checkSession('request');
 
 		// Make it easier to change the path and url.
 		Utils::$context['themedir'] = Config::$boarddir . '/Themes';
@@ -1135,7 +1135,7 @@ class Themes implements ActionInterface
 
 		if (isset($_POST['save']))
 		{
-			if (checkSession('post', '', false) == '' && SecurityToken::validate('admin-te-' . md5($_GET['th'] . '-' . $_REQUEST['filename']), 'post', false) == true)
+			if (User::$me->checkSession('post', '', false) == '' && SecurityToken::validate('admin-te-' . md5($_GET['th'] . '-' . $_REQUEST['filename']), 'post', false) == true)
 			{
 				if (is_array($_POST['entire_file']))
 					$_POST['entire_file'] = implode("\n", $_POST['entire_file']);

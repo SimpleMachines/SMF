@@ -25,6 +25,7 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\SecurityToken;
 use SMF\Theme;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -136,7 +137,7 @@ class Boards implements ActionInterface
 
 		if (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'move' && in_array($_REQUEST['move_to'], array('child', 'before', 'after', 'top')))
 		{
-			checkSession('get');
+			User::$me->checkSession('get');
 			SecurityToken::validate('admin-bm-' . (int) $_REQUEST['src_board'], 'request');
 
 			if ($_REQUEST['move_to'] === 'top')
@@ -404,7 +405,7 @@ class Boards implements ActionInterface
 	 */
 	public function editCategory2(): void
 	{
-		checkSession();
+		User::$me->checkSession();
 		SecurityToken::validate('admin-bc-' . $_REQUEST['cat']);
 
 		require_once(Config::$sourcedir . '/Subs-Editor.php');
@@ -738,7 +739,7 @@ class Boards implements ActionInterface
 	{
 		$_POST['boardid'] = (int) $_POST['boardid'];
 
-		checkSession();
+		User::$me->checkSession();
 		SecurityToken::validate('admin-be-' . $_REQUEST['boardid']);
 
 		require_once(Config::$sourcedir . '/Subs-Editor.php');
@@ -970,7 +971,7 @@ class Boards implements ActionInterface
 		// Doing a save?
 		if (isset($_GET['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			call_integration_hook('integrate_save_board_settings');
 

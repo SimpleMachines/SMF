@@ -849,7 +849,7 @@ class PackageManager
 	{
 		// Make sure we don't install this mod twice.
 		checkSubmitOnce('check');
-		checkSession();
+		User::$me->checkSession();
 
 		// If there's no file, what are we installing?
 		if (!isset($_REQUEST['package']) || $_REQUEST['package'] == '')
@@ -1455,7 +1455,7 @@ class PackageManager
 	public function remove()
 	{
 		// Check it.
-		checkSession('get');
+		User::$me->checkSession('get');
 
 		// Ack, don't allow deletion of arbitrary files here, could become a security hole somehow!
 		if (!isset($_GET['package']) || $_GET['package'] == 'index.php' || $_GET['package'] == 'backups')
@@ -1638,7 +1638,7 @@ class PackageManager
 	{
 		if (isset($_POST['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			Config::updateModSettings(array(
 				'package_server' => trim(Utils::htmlspecialchars($_POST['pack_server'])),
@@ -1803,7 +1803,7 @@ class PackageManager
 	public function permissions()
 	{
 		// Let's try and be good, yes?
-		checkSession('get');
+		User::$me->checkSession('get');
 
 		// If we're restoring permissions this is just a pass through really.
 		if (isset($_GET['restore']))
@@ -2328,7 +2328,7 @@ class PackageManager
 	 */
 	public function ftpTest()
 	{
-		checkSession('get');
+		User::$me->checkSession('get');
 
 		// Try to make the FTP connection.
 		SubsPackage::create_chmod_control(array(), array('force_find_error' => true));
@@ -2810,7 +2810,7 @@ class PackageManager
 		Utils::$context['sub_template'] = 'downloaded';
 
 		// Security is good...
-		checkSession('get');
+		User::$me->checkSession('get');
 
 		// To download something, we need a valid server or url.
 		if (empty($_GET['server']) && (!empty($_GET['get']) && !empty($_REQUEST['package'])))
@@ -3003,7 +3003,7 @@ class PackageManager
 	public function serverAdd()
 	{
 		// Validate the user.
-		checkSession();
+		User::$me->checkSession();
 
 		// If they put a slash on the end, get rid of it.
 		if (substr($_POST['serverurl'], -1) == '/')
@@ -3036,7 +3036,7 @@ class PackageManager
 	 */
 	public function serverRemove()
 	{
-		checkSession('get');
+		User::$me->checkSession('get');
 
 		Db::$db->query('', '
 			DELETE FROM {db_prefix}package_servers

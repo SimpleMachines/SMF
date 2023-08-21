@@ -196,7 +196,7 @@ class ShowAlerts implements ActionInterface
 		// Save the changes.
 		if (!empty($action) && (!empty($toMark) || $action === 'purge'))
 		{
-			checkSession('request');
+			User::$me->checkSession('request');
 
 			// Call it!
 			switch ($action)

@@ -205,7 +205,7 @@ class Smileys implements ActionInterface
 		// They must have submitted a form.
 		if (isset($_POST['smiley_save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-mss', 'request');
 
 			// Delete selected smiley sets.
@@ -322,7 +322,7 @@ class Smileys implements ActionInterface
 		// Importing any smileys from an existing set?
 		if ($this->subaction == 'import')
 		{
-			checkSession('get');
+			User::$me->checkSession('get');
 			SecurityToken::validate('admin-mss', 'request');
 
 			// Sanity check - then import.
@@ -571,7 +571,7 @@ class Smileys implements ActionInterface
 		// Submitting a form?
 		if (isset($_POST[Utils::$context['session_var']], $_POST['smiley_code']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			foreach (array('smiley_code', 'smiley_filename', 'smiley_description') as $key)
 				$_POST[$key] = Utils::normalize($_POST[$key]);
@@ -827,7 +827,7 @@ class Smileys implements ActionInterface
 		// Submitting a form?
 		if (isset($_POST['smiley_save']) || isset($_POST['smiley_action']) || isset($_POST['deletesmiley']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			// Changing the selected smileys?
 			if (isset($_POST['smiley_action']) && !empty($_POST['checked_smileys']))
@@ -1372,7 +1372,7 @@ class Smileys implements ActionInterface
 		// Move smileys to another position.
 		if (isset($_REQUEST['reorder']))
 		{
-			checkSession('get');
+			User::$me->checkSession('get');
 
 			$_GET['location'] = empty($_GET['location']) || $_GET['location'] != 'popup' ? 0 : 2;
 			$_GET['source'] = empty($_GET['source']) ? 0 : (int) $_GET['source'];
@@ -1540,7 +1540,7 @@ class Smileys implements ActionInterface
 	public function install()
 	{
 		isAllowedTo('manage_smileys');
-		checkSession('request');
+		User::$me->checkSession('request');
 
 		// One of these two may be necessary
 		Lang::load('Errors');
@@ -1827,7 +1827,7 @@ class Smileys implements ActionInterface
 		// Submitting a form?
 		if (isset($_POST['icons_save']) || isset($_POST['delete']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			// Deleting icons?
 			if (isset($_POST['delete']) && !empty($_POST['checked_icons']))
@@ -2087,7 +2087,7 @@ class Smileys implements ActionInterface
 		// Saving the settings?
 		if (isset($_GET['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			// Validate the smiley set name.
 			$_POST['smiley_sets_default'] = empty(self::$smiley_sets[$_POST['smiley_sets_default']]) ? Config::$modSettings['smiley_sets_default'] : $_POST['smiley_sets_default'];

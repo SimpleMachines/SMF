@@ -23,6 +23,7 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\Msg;
 use SMF\Theme;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -69,7 +70,7 @@ class WatchUsers implements ActionInterface
 		// First off - are we deleting?
 		if (!empty($_REQUEST['delete']))
 		{
-			checkSession(!is_array($_REQUEST['delete']) ? 'get' : 'post');
+			User::$me->checkSession(!is_array($_REQUEST['delete']) ? 'get' : 'post');
 
 			$toDelete = array();
 			if (!is_array($_REQUEST['delete']))

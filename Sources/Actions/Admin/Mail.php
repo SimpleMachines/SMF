@@ -117,7 +117,7 @@ class Mail implements ActionInterface
 		// First, are we deleting something from the queue?
 		if (isset($_REQUEST['delete']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			Db::$db->query('', '
 				DELETE FROM {db_prefix}mail_queue
@@ -278,7 +278,7 @@ class Mail implements ActionInterface
 				$_POST['smtp_password'][1] = base64_encode($_POST['smtp_password'][1]);
 			}
 
-			checkSession();
+			User::$me->checkSession();
 
 			// We don't want to save the subject and body previews.
 			unset($config_vars['birthday_subject'], $config_vars['birthday_body']);
@@ -326,7 +326,7 @@ class Mail implements ActionInterface
 	 */
 	public function clear(): void
 	{
-		checkSession('get');
+		User::$me->checkSession('get');
 
 		// If we don't yet have the total to clear, find it.
 		if (!isset($_GET['te']))

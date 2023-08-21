@@ -544,7 +544,7 @@ class Topic implements \ArrayAccess
 		if (empty(self::$topic_id))
 			ErrorHandler::fatalLang('not_a_topic', false);
 
-		checkSession('get');
+		User::$me->checkSession('get');
 
 		// Find out who started the topic - in case User Topic Locking is enabled.
 		$request = Db::$db->query('', '
@@ -645,7 +645,7 @@ class Topic implements \ArrayAccess
 		if (empty(self::$topic_id))
 			ErrorHandler::fatalLang('not_a_topic', false);
 
-		checkSession('get');
+		User::$me->checkSession('get');
 
 		// Is this topic already stickied, or no?
 		$request = Db::$db->query('', '

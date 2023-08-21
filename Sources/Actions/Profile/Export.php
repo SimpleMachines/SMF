@@ -21,6 +21,7 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\SecurityToken;
 use SMF\Theme;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -289,7 +290,7 @@ class Export implements ActionInterface
 
 		if (!empty($_POST['export_begin']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate(Utils::$context['token_check'], 'post');
 
 			$format = isset($_POST['format']) && isset(self::$formats[$_POST['format']]) ? $_POST['format'] : 'XML';

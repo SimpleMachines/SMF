@@ -75,7 +75,7 @@ class RequestMembers implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		checkSession('get');
+		User::$me->checkSession('get');
 
 		if (Utils::$context['utf8'] || function_exists('mb_convert_encoding'))
 			header('content-type: text/plain; charset=UTF-8');

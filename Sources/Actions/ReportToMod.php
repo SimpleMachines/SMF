@@ -271,7 +271,7 @@ class ReportToMod implements ActionInterface
 		$post_errors = array();
 
 		// Check their session.
-		if (checkSession('post', '', false) != '')
+		if (User::$me->checkSession('post', '', false) != '')
 			$post_errors[] = 'session_timeout';
 
 		// Make sure we have a comment and it's clean.

@@ -65,7 +65,7 @@ class MsgDelete implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		checkSession('get');
+		User::$me->checkSession('get');
 
 		$_REQUEST['msg'] = (int) $_REQUEST['msg'];
 

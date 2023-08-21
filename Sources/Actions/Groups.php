@@ -345,12 +345,12 @@ class Groups implements ActionInterface
 		// Removing member from group?
 		if (isset($_POST['remove']) && !empty($_REQUEST['rem']) && is_array($_REQUEST['rem']) && Utils::$context['group']['assignable'])
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('mod-mgm');
 
 			// Only proven admins can remove admins.
 			if (Utils::$context['group']['id'] == 1)
-				validateSession();
+				User::$me->validateSession();
 
 			// Make sure we're dealing with integers only.
 			foreach ($_REQUEST['rem'] as $key => $group)
@@ -363,9 +363,9 @@ class Groups implements ActionInterface
 		{
 			// Demand an admin password before adding new admins -- every time, no matter what.
 			if (Utils::$context['group']['id'] == 1)
-				validateSession('admin', true);
+				User::$me->validateSession('admin', true);
 
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('mod-mgm');
 
 			$member_query = array();
@@ -564,7 +564,7 @@ class Groups implements ActionInterface
 		// We've submitted?
 		if (isset($_POST[Utils::$context['session_var']]) && !empty($_POST['groupr']) && !empty($_POST['req_action']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('mod-gr');
 
 			// Clean the values.

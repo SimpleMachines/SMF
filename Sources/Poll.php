@@ -982,7 +982,7 @@ class Poll implements \ArrayAccess
 			ErrorHandler::fatalLang('poll_error', false);
 		}
 
-		checkSession('request');
+		User::$me->checkSession('request');
 
 		// Removing their vote(s)?
 		if ($poll->permissions['allow_change_vote'] && !User::$me->is_guest && empty($_POST['options']))
@@ -1083,7 +1083,7 @@ class Poll implements \ArrayAccess
 	 */
 	public static function lock(): void
 	{
-		checkSession('get');
+		User::$me->checkSession('get');
 
 		$poll = self::load(Topic::$topic_id, self::LOAD_BY_TOPIC);
 
@@ -1231,7 +1231,7 @@ class Poll implements \ArrayAccess
 		if (empty($_POST))
 			redirectexit('action=editpoll;topic=' . Topic::$topic_id . '.0');
 
-		if (checkSession('post', '', false) != '')
+		if (User::$me->checkSession('post', '', false) != '')
 			$errors[] = 'session_timeout';
 
 		// Topic must exist.
@@ -1359,7 +1359,7 @@ class Poll implements \ArrayAccess
 			ErrorHandler::fatalLang('no_access', false);
 
 		// Verify the session.
-		checkSession('get');
+		User::$me->checkSession('get');
 
 		$poll = self::load(Topic::$topic_id, self::LOAD_BY_TOPIC);
 

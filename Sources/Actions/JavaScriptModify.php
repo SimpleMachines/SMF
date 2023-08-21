@@ -413,7 +413,7 @@ class JavaScriptModify implements ActionInterface
 		if (empty(Topic::$topic_id))
 			obExit(false);
 
-		checkSession('get');
+		User::$me->checkSession('get');
 	}
 }
 

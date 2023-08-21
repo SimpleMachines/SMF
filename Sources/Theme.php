@@ -1942,7 +1942,7 @@ class Theme
 	public static function setJavaScript()
 	{
 		// Check the session id.
-		checkSession('get');
+		User::$me->checkSession('get');
 
 		if (!isset(self::$current))
 			self::load();
@@ -2095,7 +2095,7 @@ class Theme
 		// Have we made a decision, or are we just browsing?
 		if (isset($_POST['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('pick-th');
 
 			$id_theme = (int) key($_POST['save']);

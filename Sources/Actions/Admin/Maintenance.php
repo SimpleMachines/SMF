@@ -383,7 +383,7 @@ class Maintenance implements ActionInterface
 	public function recountBoards(): void
 	{
 		isAllowedTo('admin_forum');
-		checkSession('request');
+		User::$me->checkSession('request');
 
 		// validate the request or the loop
 		SecurityToken::validate(!isset($_REQUEST['step']) ? 'admin-maint' : 'admin-boardrecount');
@@ -885,7 +885,7 @@ class Maintenance implements ActionInterface
 	 */
 	public function emptyLogs(): void
 	{
-		checkSession();
+		User::$me->checkSession();
 		SecurityToken::validate('admin-maint');
 
 		// No one's online now.... MUHAHAHAHA :P.
@@ -924,7 +924,7 @@ class Maintenance implements ActionInterface
 	 */
 	public function cleanCache(): void
 	{
-		checkSession();
+		User::$me->checkSession();
 		SecurityToken::validate('admin-maint');
 
 		// Just wipe the whole cache!
@@ -946,7 +946,7 @@ class Maintenance implements ActionInterface
 	{
 		isAllowedTo('admin_forum');
 
-		checkSession('request');
+		User::$me->checkSession('request');
 
 		if (!isset($_SESSION['optimized_tables']))
 			SecurityToken::validate('admin-maint');
@@ -1064,7 +1064,7 @@ class Maintenance implements ActionInterface
 		Utils::$context['continue_countdown'] = 3;
 
 		// Now we're actually going to convert...
-		checkSession('request');
+		User::$me->checkSession('request');
 		SecurityToken::validate('admin-maint');
 		SecurityToken::create('admin-maint');
 		Utils::$context['not_done_token'] = 'admin-maint';
@@ -1277,7 +1277,7 @@ class Maintenance implements ActionInterface
 
 		if ($body_type == 'text' || ($body_type != 'text' && isset($_POST['do_conversion'])))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-maint');
 
 			// Make it longer so we can do their limit.
@@ -1303,7 +1303,7 @@ class Maintenance implements ActionInterface
 		}
 		elseif ($body_type != 'text' && (!isset($_POST['do_conversion']) || isset($_POST['cont'])))
 		{
-			checkSession();
+			User::$me->checkSession();
 			if (empty($_REQUEST['start']))
 				SecurityToken::validate('admin-maint');
 			else
@@ -1394,7 +1394,7 @@ class Maintenance implements ActionInterface
 	 */
 	public function reattribute(): void
 	{
-		checkSession();
+		User::$me->checkSession();
 
 		// Find the member.
 		$members = User::find($_POST['to']);
@@ -1424,7 +1424,7 @@ class Maintenance implements ActionInterface
 		$_POST['maxdays'] = empty($_POST['maxdays']) ? 0 : (int) $_POST['maxdays'];
 		if (!empty($_POST['groups']) && $_POST['maxdays'] > 0)
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-maint');
 
 			$groups = array();
@@ -1518,7 +1518,7 @@ class Maintenance implements ActionInterface
 	{
 		// You have to be allowed in here
 		isAllowedTo('admin_forum');
-		checkSession('request');
+		User::$me->checkSession('request');
 
 		// Set up to the context.
 		Utils::$context['page_title'] = Lang::$txt['not_done_title'];
@@ -1673,7 +1673,7 @@ class Maintenance implements ActionInterface
 		// Only admins.
 		isAllowedTo('admin_forum');
 
-		checkSession('request');
+		User::$me->checkSession('request');
 		SecurityToken::validate('admin-maint');
 
 		// Set up to the context.
@@ -1889,7 +1889,7 @@ class Maintenance implements ActionInterface
 
 		if (!empty($_REQUEST['do']) && isset($_REQUEST['hook']) && isset($_REQUEST['function']))
 		{
-			checkSession('request');
+			User::$me->checkSession('request');
 			SecurityToken::validate('admin-hook', 'request');
 
 			if ($_REQUEST['do'] == 'remove')

@@ -20,6 +20,7 @@ use SMF\Config;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Theme;
+use SMF\User;
 use SMF\Utils;
 use SMF\Actions\Moderation\Logs as Modlog;
 
@@ -260,7 +261,7 @@ class Logs implements ActionInterface
 		// Saving?
 		if (isset($_GET['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			// Although the UI presents pruningOptions as a checkbox followed by
 			// several input fields, we save all that data as a single string.

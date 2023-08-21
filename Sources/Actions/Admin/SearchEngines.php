@@ -22,6 +22,7 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\SecurityToken;
 use SMF\Theme;
+use SMF\User;
 use SMF\Utils;
 use SMF\Actions\Who;
 use SMF\Cache\CacheApi;
@@ -134,7 +135,7 @@ class SearchEngines implements ActionInterface
 		// Are we cleaning up some old stats?
 		if (!empty($_POST['delete_entries']) && isset($_POST['older']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-ss');
 
 			$deleteTime = time() - (((int) $_POST['older']) * 24 * 60 * 60);
@@ -304,7 +305,7 @@ class SearchEngines implements ActionInterface
 		// Did they want to delete some entries?
 		if ((!empty($_POST['delete_entries']) && isset($_POST['older'])) || !empty($_POST['removeAll']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-sl');
 
 			if (!empty($_POST['delete_entries']) && isset($_POST['older']))
@@ -463,7 +464,7 @@ class SearchEngines implements ActionInterface
 		// User pressed the 'remove selection button'.
 		if (!empty($_POST['removeSpiders']) && !empty($_POST['remove']) && is_array($_POST['remove']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-ser');
 
 			// Make sure every entry is a proper integer.
@@ -658,7 +659,7 @@ class SearchEngines implements ActionInterface
 		// Are we saving them - are we??
 		if (isset($_GET['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			call_integration_hook('integrate_save_search_engine_settings');
 
@@ -698,7 +699,7 @@ class SearchEngines implements ActionInterface
 		// Are we saving?
 		if (!empty($_POST['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-ses');
 
 			foreach (array('spider_name', 'spider_agent') as $key)

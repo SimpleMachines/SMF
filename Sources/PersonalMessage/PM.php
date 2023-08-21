@@ -920,7 +920,7 @@ class PM implements \ArrayAccess
 		}
 
 		// If your session timed out, show an error, but do allow to re-submit.
-		if (!isset($_REQUEST['xml']) && checkSession('post', '', false) != '')
+		if (!isset($_REQUEST['xml']) && User::$me->checkSession('post', '', false) != '')
 			$post_errors[] = 'session_timeout';
 
 		$_REQUEST['subject'] = isset($_REQUEST['subject']) ? trim($_REQUEST['subject']) : '';

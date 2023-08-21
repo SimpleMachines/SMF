@@ -1577,7 +1577,7 @@ class ServerSideIncludes
 		}
 
 		// This can cause weird errors! (ie. copyright missing.)
-		checkSession();
+		User::$me->checkSession();
 
 		$_POST['poll'] = (int) $_POST['poll'];
 

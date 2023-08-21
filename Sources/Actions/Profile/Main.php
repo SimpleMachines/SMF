@@ -913,7 +913,7 @@ class Main implements ActionInterface
 		$menu = new Menu($this->profile_areas, $menuOptions);
 
 		// No menu means no access.
-		if (empty($menu->include_data) && (!User::$me->is_guest || validateSession()))
+		if (empty($menu->include_data) && (!User::$me->is_guest || User::$me->validateSession()))
 			ErrorHandler::fatalLang('no_access', false);
 
 		// Backward compatibility.
@@ -991,10 +991,10 @@ class Main implements ActionInterface
 
 		// Now the context is setup have we got any security checks to carry out additional to that above?
 		if (isset($security_checks['session']))
-			checkSession($security_checks['session']);
+			User::$me->checkSession($security_checks['session']);
 
 		if (isset($security_checks['validate']))
-			validateSession();
+			User::$me->validateSession();
 
 		if (isset($security_checks['validateToken']))
 			SecurityToken::validate($token_name, $token_type);

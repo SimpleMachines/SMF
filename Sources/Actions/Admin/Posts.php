@@ -22,6 +22,7 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\Msg;
 use SMF\SecurityToken;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -113,7 +114,7 @@ class Posts implements ActionInterface
 		if (!empty($_POST['save_censor']))
 		{
 			// Make sure censoring is something they can do.
-			checkSession();
+			User::$me->checkSession();
 			SecurityToken::validate('admin-censor');
 
 			$censored_vulgar = array();
@@ -215,7 +216,7 @@ class Posts implements ActionInterface
 		// Are we saving them - are we??
 		if (isset($_GET['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			// If we're changing the message length (and we are using MySQL) let's check the column is big enough.
 			if (isset($_POST['max_messageLength']) && $_POST['max_messageLength'] != Config::$modSettings['max_messageLength'] && (Config::$db_type == 'mysql'))
@@ -269,7 +270,7 @@ class Posts implements ActionInterface
 		// Are we saving them - are we??
 		if (isset($_GET['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 			call_integration_hook('integrate_save_topic_settings');
 
 			ACP::saveDBSettings($config_vars);
@@ -301,7 +302,7 @@ class Posts implements ActionInterface
 		// Saving them ?
 		if (isset($_GET['save']))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			// Protect them from themselves.
 			$_POST['drafts_autosave_frequency'] = !isset($_POST['drafts_autosave_frequency']) || $_POST['drafts_autosave_frequency'] < 30 ? 30 : $_POST['drafts_autosave_frequency'];

@@ -238,7 +238,7 @@ class Label implements \ArrayAccess
 
 		if (isset($_POST[Utils::$context['session_var']]))
 		{
-			checkSession();
+			User::$me->checkSession();
 
 			// This will be for updating messages.
 			$message_changes = array();

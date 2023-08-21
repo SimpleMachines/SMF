@@ -745,7 +745,7 @@ class ACP implements ActionInterface
 	public function execute(): void
 	{
 		// Make sure the administrator has a valid session...
-		validateSession();
+		User::$me->validateSession();
 
 		// Actually create the menu!
 		// Hook call disabled because we already called it in setAdminAreas()
