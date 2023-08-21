@@ -335,7 +335,7 @@ abstract class Notify
 		else
 		{
 			// Permissions are an important part of anything ;).
-			is_not_guest();
+			User::$me->kickIfGuest();
 			$this->member_info = (array) User::$me;
 		}
 	}

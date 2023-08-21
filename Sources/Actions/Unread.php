@@ -290,7 +290,7 @@ class Unread implements ActionInterface
 	protected function __construct()
 	{
 		// Guests can't have unread things, we don't know anything about them.
-		is_not_guest();
+		User::$me->kickIfGuest();
 
 		// Prefetching + lots of MySQL work = bad mojo.
 		if (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch')

@@ -2344,7 +2344,7 @@ class Profile extends User implements \ArrayAccess
 			else
 			{
 				// Members only...
-				is_not_guest();
+				User::$me->kickIfGuest();
 				$users = array(User::$me->id);
 			}
 		}

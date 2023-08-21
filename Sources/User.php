@@ -1555,6 +1555,66 @@ class User implements \ArrayAccess
 	}
 
 	/**
+	 * Requires a user who is logged in (not a guest).
+	 *
+	 * Checks if the user is currently a guest, and if so asks them to login
+	 * with a message telling them why. If $message is empty, a default message
+	 * will be used.
+	 *
+	 * @param string $message The message to display to the guest.
+	 */
+	public function kickIfGuest(string $message = ''): void
+	{
+		// This only applies to the current user.
+		if ($this->id !== User::$my_id)
+			return;
+
+		// Luckily, this person isn't a guest.
+		if (!$this->is_guest)
+			return;
+
+		// Log what they were trying to do that didn't work.
+		if (!empty(Config::$modSettings['who_enabled']))
+			$_GET['error'] = 'guest_login';
+
+		$this->logOnline(true);
+
+		// Just die.
+		if (isset($_REQUEST['xml']))
+			obExit(false);
+
+		// We need the theme if we're going to show anything.
+		if (SMF != 'SSI' && empty(Utils::$context['theme_loaded']))
+			Theme::load();
+
+		// Never redirect to an attachment
+		if (strpos($_SERVER['REQUEST_URL'], 'dlattach') === false)
+			$_SESSION['login_url'] = $_SERVER['REQUEST_URL'];
+
+		// Apparently we're not in a position to handle this now. Let's go to a safer location.
+		if (empty(Utils::$context['template_layers']))
+		{
+			$_SESSION['login_url'] = Config::$scripturl . '?' . $_SERVER['QUERY_STRING'];
+			redirectexit('action=login');
+		}
+
+		// Load the Login template and language file.
+		Theme::loadTemplate('Login');
+		Lang::load('Login');
+
+		// Use the kick_guest sub template...
+		Utils::$context['sub_template'] = 'kick_guest';
+		Utils::$context['page_title'] = Lang::$txt['login'];
+		Utils::$context['kick_message'] = $message ?? Lang::$txt['only_members_can_access'];
+		Utils::$context['robot_no_index'] = true;
+
+		obExit();
+
+		// We should never get to this point, but if we did we wouldn't know the user is a guest.
+		trigger_error('No direct access...', E_USER_ERROR);
+	}
+
+	/**
 	 * Does banning related stuff (i.e. disallowing access).
 	 *
 	 * Checks if the user is banned, and if so dies with an error.
@@ -3549,6 +3609,18 @@ class User implements \ArrayAccess
 			self::load((array) $id, self::LOAD_BY_ID, 'profile');
 
 		return self::$loaded[$id]->format($display_custom_fields);
+	}
+
+	/**
+	 * Static wrapper around User::$me->kickIfGuest().
+	 *
+	 * This method exists only for backward compatibility purposes.
+	 *
+	 * @param string $message The message to display to the guest.
+	 */
+	public static function is_not_guest(string $message = ''): void
+	{
+		self::$me->kickIfGuest($message);
 	}
 
 	/**

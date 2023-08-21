@@ -17,7 +17,6 @@
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
-use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Actions\Admin\ACP;
@@ -43,7 +42,7 @@ class_exists('SMF\\User');
 function validateSession($type = 'admin', $force = false)
 {
 	// We don't care if the option is off, because Guests should NEVER get past here.
-	is_not_guest();
+	User::$me->kickIfGuest();
 
 	// Validate what type of session check this is.
 	$types = array();
@@ -97,62 +96,6 @@ function validateSession($type = 'admin', $force = false)
 		ACP::adminLogin($type);
 	else
 		return 'session_verify_fail';
-}
-
-/**
- * Require a user who is logged in. (not a guest.)
- * Checks if the user is currently a guest, and if so asks them to login with a message telling them why.
- * Message is what to tell them when asking them to login.
- *
- * @param string $message The message to display to the guest
- */
-function is_not_guest($message = '')
-{
-	// Luckily, this person isn't a guest.
-	if (!User::$me->is_guest)
-		return;
-
-	// Log what they were trying to do didn't work)
-	if (!empty(Config::$modSettings['who_enabled']))
-		$_GET['error'] = 'guest_login';
-	User::$me->logOnline(true);
-
-	// Just die.
-	if (isset($_REQUEST['xml']))
-		obExit(false);
-
-	// Attempt to detect if they came from dlattach.
-	if (SMF != 'SSI' && empty(Utils::$context['theme_loaded']))
-		Theme::load();
-
-	// Never redirect to an attachment
-	if (strpos($_SERVER['REQUEST_URL'], 'dlattach') === false)
-		$_SESSION['login_url'] = $_SERVER['REQUEST_URL'];
-
-	// Load the Login template and language file.
-	Lang::load('Login');
-
-	// Apparently we're not in a position to handle this now. Let's go to a safer location for now.
-	if (empty(Utils::$context['template_layers']))
-	{
-		$_SESSION['login_url'] = Config::$scripturl . '?' . $_SERVER['QUERY_STRING'];
-		redirectexit('action=login');
-	}
-	else
-	{
-		Theme::loadTemplate('Login');
-		Utils::$context['sub_template'] = 'kick_guest';
-		Utils::$context['robot_no_index'] = true;
-	}
-
-	// Use the kick_guest sub template...
-	Utils::$context['kick_message'] = $message;
-	Utils::$context['page_title'] = Lang::$txt['login'];
-
-	obExit();
-
-	// We should never get to this point, but if we did we wouldn't know the user isn't a guest.
-	trigger_error('No direct access...', E_USER_ERROR);
 }
 
 /**
@@ -459,7 +402,7 @@ function allowedTo($permission, $boards = null, $any = false)
  * Checks the passed boards or current board for the permission.
  * If $any is true, the user only needs permission on at least one of the boards to pass
  * If they are not, it loads the Errors language file and shows an error using Lang::$txt['cannot_' . $permission].
- * If they are a guest and cannot do it, this calls is_not_guest().
+ * If they are a guest and cannot do it, this calls User::$me->kickIfGuest().
  *
  * @param string|array $permission A single permission to check or an array of permissions to check
  * @param int|array $boards The ID of a single board or an array of board IDs if we're checking board-level permissions (null otherwise)
@@ -494,7 +437,7 @@ function isAllowedTo($permission, $boards = null, $any = false)
 		if (User::$me->is_guest)
 		{
 			Lang::load('Errors');
-			is_not_guest(Lang::$txt['cannot_' . $error_permission]);
+			User::$me->kickIfGuest(Lang::$txt['cannot_' . $error_permission]);
 		}
 
 		// Clear the action because they aren't really doing that!

@@ -216,7 +216,7 @@ class Likes
 
 			// Guest can only view likes.
 			if ($call != 'view')
-				is_not_guest();
+				User::$me->kickIfGuest();
 
 			checkSession('get');
 

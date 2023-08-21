@@ -631,7 +631,7 @@ class Post implements ActionInterface
 			// If guests can't post, kick them out.
 			if (User::$me->is_guest && !allowedTo('post_reply_any') && (!Config::$modSettings['postmod_active'] || !allowedTo('post_unapproved_replies_any')))
 			{
-				is_not_guest();
+				User::$me->kickIfGuest();
 			}
 
 			// By default the reply will be approved...
