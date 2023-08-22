@@ -1099,7 +1099,7 @@ class Display implements ActionInterface
 
 		if (Utils::$context['require_verification'])
 		{
-			require_once(Config::$sourcedir . '/Subs-Editor.php');
+			require_once(Config::$sourcedir . '/Editor.php');
 
 			$verificationOptions = array(
 				'id' => 'post',
@@ -1253,7 +1253,7 @@ class Display implements ActionInterface
 	protected function loadEditor(): void
 	{
 		// Needed for the editor and message icons.
-		require_once(Config::$sourcedir . '/Subs-Editor.php');
+		require_once(Config::$sourcedir . '/Editor.php');
 
 		// Now create the editor.
 		$editorOptions = array(

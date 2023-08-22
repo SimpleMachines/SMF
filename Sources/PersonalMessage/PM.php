@@ -825,7 +825,7 @@ class PM implements \ArrayAccess
 		}
 
 		// Needed for the WYSIWYG editor.
-		require_once(Config::$sourcedir . '/Subs-Editor.php');
+		require_once(Config::$sourcedir . '/Editor.php');
 
 		// Now create the editor.
 		$editorOptions = array(
@@ -1061,7 +1061,7 @@ class PM implements \ArrayAccess
 		// Wrong verification code?
 		if (!User::$me->is_admin && !isset($_REQUEST['xml']) && !empty(Config::$modSettings['pm_posts_verification']) && User::$me->posts < Config::$modSettings['pm_posts_verification'])
 		{
-			require_once(Config::$sourcedir . '/Subs-Editor.php');
+			require_once(Config::$sourcedir . '/Editor.php');
 
 			$verificationOptions = array(
 				'id' => 'pm',
@@ -2248,7 +2248,7 @@ class PM implements \ArrayAccess
 		}
 
 		// We need to load the editor once more.
-		require_once(Config::$sourcedir . '/Subs-Editor.php');
+		require_once(Config::$sourcedir . '/Editor.php');
 
 		// Create it...
 		$editorOptions = array(
@@ -2272,7 +2272,7 @@ class PM implements \ArrayAccess
 
 		if (Utils::$context['require_verification'] && !isset($_REQUEST['xml']))
 		{
-			require_once(Config::$sourcedir . '/Subs-Editor.php');
+			require_once(Config::$sourcedir . '/Editor.php');
 
 			$verificationOptions = array(
 				'id' => 'pm',

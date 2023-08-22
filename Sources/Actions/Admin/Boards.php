@@ -302,7 +302,7 @@ class Boards implements ActionInterface
 	{
 		Theme::loadTemplate('ManageBoards');
 
-		require_once(Config::$sourcedir . '/Subs-Editor.php');
+		require_once(Config::$sourcedir . '/Editor.php');
 
 		Category::getTree();
 
@@ -408,7 +408,7 @@ class Boards implements ActionInterface
 		User::$me->checkSession();
 		SecurityToken::validate('admin-bc-' . $_REQUEST['cat']);
 
-		require_once(Config::$sourcedir . '/Subs-Editor.php');
+		require_once(Config::$sourcedir . '/Editor.php');
 
 		$_POST['cat'] = (int) $_POST['cat'];
 
@@ -472,7 +472,7 @@ class Boards implements ActionInterface
 	{
 		Theme::loadTemplate('ManageBoards');
 
-		require_once(Config::$sourcedir . '/Subs-Editor.php');
+		require_once(Config::$sourcedir . '/Editor.php');
 
 		Category::getTree();
 
@@ -740,7 +740,7 @@ class Boards implements ActionInterface
 		User::$me->checkSession();
 		SecurityToken::validate('admin-be-' . $_REQUEST['boardid']);
 
-		require_once(Config::$sourcedir . '/Subs-Editor.php');
+		require_once(Config::$sourcedir . '/Editor.php');
 
 		// Mode: modify aka. don't delete.
 		if (isset($_POST['edit']) || isset($_POST['add']))

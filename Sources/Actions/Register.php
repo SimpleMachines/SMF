@@ -294,7 +294,7 @@ class Register implements ActionInterface
 		// Generate a visual verification code to make sure the user is no bot.
 		if (!empty(Config::$modSettings['reg_verification']))
 		{
-			require_once(Config::$sourcedir . '/Subs-Editor.php');
+			require_once(Config::$sourcedir . '/Editor.php');
 			$verificationOptions = array(
 				'id' => 'register',
 			);
