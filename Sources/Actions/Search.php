@@ -103,7 +103,7 @@ class Search implements ActionInterface
 
 		if (Utils::$context['require_verification'])
 		{
-			require_once(Config::$sourcedir . '/Subs-Editor.php');
+			require_once(Config::$sourcedir . '/Editor.php');
 
 			$verificationOptions = array(
 				'id' => 'search',

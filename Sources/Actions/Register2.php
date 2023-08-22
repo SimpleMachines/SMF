@@ -163,7 +163,7 @@ class Register2 extends Register
 		// Check whether the visual verification code was entered correctly.
 		if (!empty(Config::$modSettings['reg_verification']))
 		{
-			require_once(Config::$sourcedir . '/Subs-Editor.php');
+			require_once(Config::$sourcedir . '/Editor.php');
 			$verification_options = array(
 				'id' => 'register',
 			);

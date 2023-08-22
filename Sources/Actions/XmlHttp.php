@@ -132,7 +132,7 @@ class XmlHttp implements ActionInterface
 	 */
 	function messageIcons()
 	{
-		require_once(Config::$sourcedir . '/Subs-Editor.php');
+		require_once(Config::$sourcedir . '/Editor.php');
 
 		Utils::$context['icons'] = getMessageIcons(Board::$info->id);
 

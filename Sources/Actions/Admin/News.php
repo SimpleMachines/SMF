@@ -485,7 +485,7 @@ class News extends ACP implements ActionInterface
 		Utils::$context['message'] = !empty($_POST['message']) ? $_POST['message'] : Utils::htmlspecialchars(Lang::$txt['message'] . "\n\n" . sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name']) . "\n\n" . '{$board_url}');
 
 		// Needed for the WYSIWYG editor.
-		require_once(Config::$sourcedir . '/Subs-Editor.php');
+		require_once(Config::$sourcedir . '/Editor.php');
 
 		// Now create the editor.
 		$editorOptions = array(

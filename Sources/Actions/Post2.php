@@ -768,7 +768,7 @@ class Post2 extends Post
 			)
 		)
 		{
-			require_once(Config::$sourcedir . '/Subs-Editor.php');
+			require_once(Config::$sourcedir . '/Editor.php');
 
 			$verificationOptions = array(
 				'id' => 'post',
