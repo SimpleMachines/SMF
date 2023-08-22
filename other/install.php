@@ -16,6 +16,7 @@ use SMF\Cookie;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Logging;
+use SMF\Security;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -1499,7 +1500,6 @@ function AdminAccount()
 
 	$settingsDefs = Config::getSettingsDefs();
 
-	require_once(Config::$sourcedir . '/Subs-Auth.php');
 	require_once(Config::$sourcedir . '/Subs.php');
 
 	// Reload $modSettings.
@@ -1625,7 +1625,7 @@ function AdminAccount()
 			$_POST['username'] = preg_replace('~[\t\n\r\x0B\0\xA0]+~', ' ', $_POST['username']);
 			$ip = isset($_SERVER['REMOTE_ADDR']) ? substr($_SERVER['REMOTE_ADDR'], 0, 255) : '';
 
-			$_POST['password1'] = hash_password($_POST['username'], $_POST['password1']);
+			$_POST['password1'] = Security::hashPassword($_POST['username'], $_POST['password1']);
 
 			$incontext['member_id'] = Db::$db->insert('',
 				Db::$db->prefix . 'members',
@@ -1705,8 +1705,6 @@ function DeleteInstall()
 	chdir(Config::$boarddir);
 
 	require_once(Config::$sourcedir . '/Subs.php');
-	require_once(Config::$sourcedir . '/Security.php');
-	require_once(Config::$sourcedir . '/Subs-Auth.php');
 
 	// Reload $modSettings.
 	Config::reloadModSettings();
@@ -1830,7 +1828,7 @@ function DeleteInstall()
 
 	// Update hash's cost to an appropriate setting
 	Config::updateModSettings(array(
-		'bcrypt_hash_cost' => hash_benchmark(),
+		'bcrypt_hash_cost' => Security::hashBenchmark(),
 	));
 
 	return false;

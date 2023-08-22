@@ -2255,7 +2255,7 @@ class ServerSideIncludes
 		list ($pass, $user, $active) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return hash_verify_password($user, $password, $pass) && $active == 1;
+		return Security::hashVerifyPassword($user, $password, $pass) && $active == 1;
 	}
 
 	/**
@@ -2507,8 +2507,7 @@ class ServerSideIncludes
 		// Do we allow guests in here?
 		if (empty($this->guest_access) && empty(Config::$modSettings['allow_guestAccess']) && User::$me->is_guest && basename($_SERVER['PHP_SELF']) != 'SSI.php')
 		{
-			require_once(Config::$sourcedir . '/Subs-Auth.php');
-			KickGuest();
+			User::kickIfGuest();
 			obExit(null, true);
 		}
 

@@ -23,6 +23,7 @@ use SMF\Logging;
 use SMF\MessageIndex;
 use SMF\Msg;
 use SMF\Mail;
+use SMF\Security;
 use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
@@ -89,7 +90,7 @@ class TopicMove2 implements ActionInterface
 		self::moveTopicConcurrence();
 
 		// Make sure this form hasn't been submitted before.
-		checkSubmitOnce('check');
+		Security::checkSubmitOnce('check');
 
 		$request = Db::$db->query('', '
 			SELECT id_member_started, id_first_msg, approved

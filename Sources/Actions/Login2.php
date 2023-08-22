@@ -19,6 +19,7 @@ use SMF\Config;
 use SMF\Cookie;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\Security;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
@@ -105,9 +106,6 @@ class Login2 implements ActionInterface
 		// Check to ensure we're forcing SSL for authentication
 		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !httpsOn())
 			ErrorHandler::fatalLang('login_ssl_required', false);
-
-		// Load cookie authentication stuff.
-		require_once(Config::$sourcedir . '/Subs-Auth.php');
 
 		self::checkAjax();
 
@@ -210,7 +208,7 @@ class Login2 implements ActionInterface
 		// Are you guessing with a script?
 		User::$me->checkSession();
 		SecurityToken::validate('login');
-		spamProtection('login');
+		Security::spamProtection('login');
 
 		// Set the login_url if it's not already set (but careful not to send us to an attachment).
 		if (
@@ -311,7 +309,7 @@ class Login2 implements ActionInterface
 		User::$my_id = (reset($loaded))->id;
 
 		// Bad password! Thought you could fool the database?!
-		if (!hash_verify_password(User::$profiles[User::$my_id]['member_name'], Utils::htmlspecialcharsDecode($_POST['passwrd']), User::$profiles[User::$my_id]['passwd']))
+		if (!Security::hashVerifyPassword(User::$profiles[User::$my_id]['member_name'], Utils::htmlspecialcharsDecode($_POST['passwrd']), User::$profiles[User::$my_id]['passwd']))
 		{
 			// If the forum was recently upgraded, password might be encrypted
 			// using a different algorithm. If so, fix it. Otherwise, bail out.
@@ -641,7 +639,7 @@ class Login2 implements ActionInterface
 		// Whichever encryption it was using, let's make it use SMF's now ;).
 		if (in_array(User::$profiles[User::$my_id]['passwd'], $other_passwords))
 		{
-			User::$profiles[User::$my_id]['passwd'] = hash_password(User::$profiles[User::$my_id]['member_name'], Utils::htmlspecialcharsDecode($_POST['passwrd']));
+			User::$profiles[User::$my_id]['passwd'] = Security::hashPassword(User::$profiles[User::$my_id]['member_name'], Utils::htmlspecialcharsDecode($_POST['passwrd']));
 			User::$profiles[User::$my_id]['password_salt'] = bin2hex(Utils::randomBytes(16));
 
 			// Update the password and set up the hash.

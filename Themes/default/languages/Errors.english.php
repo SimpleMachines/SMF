@@ -492,7 +492,7 @@ $txt['login_no_session_cookie'] = 'Login2(): Cannot be logged in without a sessi
 // PM error (see isAccessiblePM function)
 $txt['pm_invalid_validation_type'] = 'Undefined validation type given';
 
-$txt['check_submit_once_invalid_action'] = 'checkSubmitOnce(): Invalid action \'%s\'';
+$txt['check_submit_once_invalid_action'] = 'Security::checkSubmitOnce(): Invalid action \'%s\'';
 
 $txt['get_server_versions_no_database'] = 'getServerVersions(): you need to be connected to the database in order to get its server version';
 

@@ -23,6 +23,7 @@ use SMF\Lang;
 use SMF\Mail;
 use SMF\Menu;
 use SMF\Msg;
+use SMF\Security;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -862,7 +863,7 @@ class PM implements \ArrayAccess
 		call_integration_hook('integrate_pm_post');
 
 		// Register this form and get a sequence number in Utils::$context.
-		checkSubmitOnce('register');
+		Security::checkSubmitOnce('register');
 	}
 
 	/**
@@ -1145,10 +1146,10 @@ class PM implements \ArrayAccess
 		}
 
 		// Protect from message spamming.
-		spamProtection('pm');
+		Security::spamProtection('pm');
 
 		// Prevent double submission of this form.
-		checkSubmitOnce('check');
+		Security::checkSubmitOnce('check');
 
 		// Do the actual sending of the PM.
 		if (!empty($recipientList['to']) || !empty($recipientList['bcc']))
@@ -2289,10 +2290,10 @@ class PM implements \ArrayAccess
 		call_integration_hook('integrate_pm_error');
 
 		// No check for the previous submission is needed.
-		checkSubmitOnce('free');
+		Security::checkSubmitOnce('free');
 
 		// Acquire a new form sequence number.
-		checkSubmitOnce('register');
+		Security::checkSubmitOnce('register');
 	}
 
 	/**

@@ -21,6 +21,7 @@ use SMF\Forum;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Mail;
+use SMF\Security;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -3237,9 +3238,8 @@ function send_http_status($code, $status = '')
 	$protocol = !empty($_SERVER['SERVER_PROTOCOL']) && preg_match('~^\s*(HTTP/[12]\.\d)\s*$~i', $_SERVER['SERVER_PROTOCOL'], $matches) ? $matches[1] : 'HTTP/1.0';
 
 	// Typically during these requests, we have cleaned the response (ob_*clean), ensure these headers exist.
-	require_once(Config::$sourcedir . '/Security.php');
-	frameOptionsHeader();
-	corsPolicyHeader();
+	Security::frameOptionsHeader();
+	Security::corsPolicyHeader();
 
 	if (!isset($statuses[$code]) && empty($status))
 		header($protocol . ' 500 Internal Server Error');

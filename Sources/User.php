@@ -1593,8 +1593,9 @@ class User implements \ArrayAccess
 	 * will be used.
 	 *
 	 * @param string $message The message to display to the guest.
+	 * @param bool $log Whether to log what they were trying to do.
 	 */
-	public function kickIfGuest(string $message = ''): void
+	public function kickIfGuest(?string $message = null, bool $log = true): void
 	{
 		// This only applies to the current user.
 		if ($this->id !== User::$my_id)
@@ -1605,10 +1606,13 @@ class User implements \ArrayAccess
 			return;
 
 		// Log what they were trying to do that didn't work.
-		if (!empty(Config::$modSettings['who_enabled']))
-			$_GET['error'] = 'guest_login';
+		if ($log)
+		{
+			if (!empty(Config::$modSettings['who_enabled']))
+				$_GET['error'] = 'guest_login';
 
-		$this->logOnline(true);
+			$this->logOnline(true);
+		}
 
 		// Just die.
 		if (isset($_REQUEST['xml']))
@@ -1632,6 +1636,9 @@ class User implements \ArrayAccess
 		// Load the Login template and language file.
 		Theme::loadTemplate('Login');
 		Lang::load('Login');
+
+		// Create a login token.
+		SecurityToken::create('login');
 
 		// Use the kick_guest sub template...
 		Utils::$context['sub_template'] = 'kick_guest';
@@ -2109,8 +2116,6 @@ class User implements \ArrayAccess
 			}
 		}
 
-		require_once(Config::$sourcedir . '/Subs-Auth.php');
-
 		// Posting the password... check it.
 		if (isset($_POST[$type . '_pass']))
 		{
@@ -2125,7 +2130,7 @@ class User implements \ArrayAccess
 			$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($this->username, $_POST[$type . '_pass'], false)), true);
 
 			// Password correct?
-			if ($good_password || hash_verify_password($this->username, $_POST[$type . '_pass'], $this->passwd))
+			if ($good_password || Security::hashVerifyPassword($this->username, $_POST[$type . '_pass'], $this->passwd))
 			{
 				$_SESSION[$type . '_time'] = time();
 

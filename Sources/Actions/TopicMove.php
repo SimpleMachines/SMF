@@ -21,6 +21,7 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\Mail;
+use SMF\Security;
 use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
@@ -164,7 +165,7 @@ class TopicMove implements ActionInterface
 		TopicMove2::moveTopicConcurrence();
 
 		// Register this form and get a sequence number in Utils::$context.
-		checkSubmitOnce('register');
+		Security::checkSubmitOnce('register');
 
 	}
 

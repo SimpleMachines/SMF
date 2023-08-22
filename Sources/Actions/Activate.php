@@ -20,6 +20,7 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Mail;
+use SMF\Security;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -137,7 +138,7 @@ class Activate implements ActionInterface
 		if (
 			!empty($_POST['new_email'])
 			&& !empty($_REQUEST['passwd'])
-			&& hash_verify_password($row['member_name'], $_REQUEST['passwd'], $row['passwd'])
+			&& Security::hashVerifyPassword($row['member_name'], $_REQUEST['passwd'], $row['passwd'])
 			&& (
 				$row['is_activated'] == 0
 				|| $row['is_activated'] == 2

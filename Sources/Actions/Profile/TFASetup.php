@@ -20,6 +20,7 @@ use SMF\Config;
 use SMF\Cookie;
 use SMF\ErrorHandler;
 use SMF\Profile;
+use SMF\Security;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -162,7 +163,7 @@ class TFASetup implements ActionInterface
 		if (empty(Utils::$context['password_auth_failed']) && $valid_code)
 		{
 			$backup = substr(sha1(Utils::randomInt()), 0, 16);
-			$backup_encrypted = hash_password(User::$me->username, $backup);
+			$backup_encrypted = Security::hashPassword(User::$me->username, $backup);
 
 			User::updateMemberData(Profile::$member->id, array(
 				'tfa_secret' => $_SESSION['tfa_secret'],

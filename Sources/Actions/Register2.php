@@ -21,6 +21,7 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Profile;
+use SMF\Security;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
@@ -206,7 +207,7 @@ class Register2 extends Register
 		}
 
 		if (isset($_POST['secret_answer']) && $_POST['secret_answer'] != '')
-			$_POST['secret_answer'] = hash_password($_POST['user'], $_POST['secret_answer']);
+			$_POST['secret_answer'] = Security::hashPassword($_POST['user'], $_POST['secret_answer']);
 
 		// Maybe you want set the displayed name during registration
 		if (isset($_POST['real_name']))
@@ -416,7 +417,7 @@ class Register2 extends Register
 		}
 
 		// Do our spam protection now.
-		spamProtection('register');
+		Security::spamProtection('register');
 
 		// Do they want to receive announcements?
 		$prefs = Notify::getNotifyPrefs($member_id, 'announcements', true);
@@ -507,9 +508,6 @@ class Register2 extends Register
 	public static function registerMember(&$reg_options, $return_errors = false)
 	{
 		Lang::load('Login');
-
-		// We'll need some external functions.
-		require_once(Config::$sourcedir . '/Subs-Auth.php');
 
 		// Put any errors in here.
 		$reg_errors = array();
@@ -677,7 +675,7 @@ class Register2 extends Register
 		$reg_options['register_vars'] = array(
 			'member_name' => $reg_options['username'],
 			'email_address' => $reg_options['email'],
-			'passwd' => hash_password($reg_options['username'], $reg_options['password']),
+			'passwd' => Security::hashPassword($reg_options['username'], $reg_options['password']),
 			'password_salt' => bin2hex(Utils::randomBytes(16)),
 			'posts' => 0,
 			'date_registered' => time(),

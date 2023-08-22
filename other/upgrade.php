@@ -15,6 +15,7 @@ use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\QueryString;
+use SMF\Security;
 use SMF\SecurityToken;
 use SMF\User;
 use SMF\Utils;
@@ -228,8 +229,6 @@ loadEssentialData();
 // Are we going to be mimic'ing SSI at this point?
 if (isset($_GET['ssi']))
 {
-	require_once(Config::$sourcedir . '/Security.php');
-
 	User::load();
 	User::$me->loadPermissions();
 	Config::reloadModSettings();
@@ -724,9 +723,6 @@ function loadEssentialData()
 
 	@set_time_limit(600);
 
-	// We need this for authentication and some upgrade code
-	require_once(Config::$sourcedir . '/Subs-Auth.php');
-
 	// Initialize everything...
 	initialize_inputs();
 
@@ -962,8 +958,6 @@ function WelcomeLogin()
 		Config::updateModSettings(array('custom_avatar_dir' => $custom_av_dir));
 		Config::updateModSettings(array('custom_avatar_url' => $custom_av_url));
 	}
-
-	require_once(Config::$sourcedir . '/Security.php');
 
 	// Check the cache directory.
 	$cachedir_temp = empty(Config::$cachedir) ? Config::$boarddir . '/cache' : Config::$cachedir;
@@ -1263,7 +1257,7 @@ function checkLogin()
 			$upcontext['user']['version'] = Config::$modSettings['smfVersion'];
 
 		// Didn't get anywhere?
-		if (!$disable_security && (empty($sha_passwd) || (!empty($password) ? $password : '') != $sha_passwd) && !hash_verify_password((!empty($name) ? $name : ''), $_REQUEST['passwrd'], (!empty($password) ? $password : '')) && empty($upcontext['username_incorrect']))
+		if (!$disable_security && (empty($sha_passwd) || (!empty($password) ? $password : '') != $sha_passwd) && !Security::hashVerifyPassword((!empty($name) ? $name : ''), $_REQUEST['passwrd'], (!empty($password) ? $password : '')) && empty($upcontext['username_incorrect']))
 		{
 			// MD5?
 			$md5pass = hash_hmac('md5', $_REQUEST['passwrd'], strtolower($_POST['user']));
@@ -2274,7 +2268,7 @@ function parse_sql($filename)
 				}
 
 				// @todo Update this to a try/catch for PHP 7+, because eval() now throws an exception for parse errors instead of returning false
-				if (eval('use SMF\Config; use SMF\Utils; use SMF\Lang; use SMF\Db\DatabaseApi as Db; global $db_prefix, $modSettings, $smcFunc, $txt, $upcontext, $db_name; ' . $current_data) === false)
+				if (eval('use SMF\Config; use SMF\Utils; use SMF\Lang; use SMF\Db\DatabaseApi as Db; use SMF\Security; global $db_prefix, $modSettings, $smcFunc, $txt, $upcontext, $db_name; ' . $current_data) === false)
 				{
 					$upcontext['error_message'] = 'Error in upgrade script ' . basename($filename) . ' on line ' . $line_number . '!' . $endl;
 					if ($command_line)

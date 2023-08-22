@@ -905,7 +905,7 @@ class Attachment implements \ArrayAccess
 
 		// Everything seems fine...let's create the .htaccess
 		if (!file_exists($directory . DIRECTORY_SEPARATOR . '.htaccess'))
-			secureDirectory($updir, true);
+			Security::secureDirectory($updir, true);
 
 		$sep = (DIRECTORY_SEPARATOR === '\\') ? '\/' : DIRECTORY_SEPARATOR;
 		$updir = rtrim($updir, $sep);

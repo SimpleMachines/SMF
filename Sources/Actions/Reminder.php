@@ -19,6 +19,7 @@ use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Mail;
+use SMF\Security;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
@@ -128,7 +129,7 @@ class Reminder implements ActionInterface
 		// Make sure we are not being slammed
 		// Don't call this if you're coming from the "Choose a reminder type" page - otherwise you'll likely get an error
 		if (!in_array($_POST['reminder_type'] ?? null, array('email', 'secret')))
-			spamProtection('remind');
+			Security::spamProtection('remind');
 
 		$this->loadMember();
 
@@ -271,7 +272,7 @@ class Reminder implements ActionInterface
 		Login2::validatePasswordFlood($this->member->id, $this->member->username, $this->member->passwd_flood, true);
 
 		// User validated.  Update the database!
-		User::updateMemberData($this->member->id, array('validation_code' => '', 'passwd' => hash_password($this->member->username, $_POST['passwrd1'])));
+		User::updateMemberData($this->member->id, array('validation_code' => '', 'passwd' => Security::hashPassword($this->member->username, $_POST['passwrd1'])));
 
 		call_integration_hook('integrate_reset_pass', array($this->member->username, $this->member->username, $_POST['passwrd1']));
 
@@ -349,7 +350,7 @@ class Reminder implements ActionInterface
 			$this->member->secret_question == ''
 			|| $this->member->secret_answer == ''
 			|| (
-				!hash_verify_password($this->member->username, $_POST['secret_answer'], $this->member->secret_answer)
+				!Security::hashVerifyPassword($this->member->username, $_POST['secret_answer'], $this->member->secret_answer)
 				&& md5($_POST['secret_answer']) != $this->member->secret_answer
 			)
 		)
@@ -361,7 +362,7 @@ class Reminder implements ActionInterface
 		// If the secret answer was right, but stored using md5, upgrade it now.
 		if (md5($_POST['secret_answer']) === $this->member->secret_answer)
 		{
-			User::updateMemberData($this->member->id_member, array('secret_answer' => hash_password($this->member->username, $_POST['secret_answer'])));
+			User::updateMemberData($this->member->id_member, array('secret_answer' => Security::hashPassword($this->member->username, $_POST['secret_answer'])));
 		}
 
 		// You can't use a blank one!
@@ -389,7 +390,7 @@ class Reminder implements ActionInterface
 		}
 
 		// Alright, so long as 'yer sure.
-		User::updateMemberData($this->member->id_member, array('passwd' => hash_password($this->member->username, $_POST['passwrd1'])));
+		User::updateMemberData($this->member->id_member, array('passwd' => Security::hashPassword($this->member->username, $_POST['passwrd1'])));
 
 		call_integration_hook('integrate_reset_pass', array($this->member->username, $this->member->username, $_POST['passwrd1']));
 

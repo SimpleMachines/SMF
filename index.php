@@ -116,23 +116,7 @@ if (SMF === 1)
  */
 
 require_once(SMF\Config::$sourcedir . '/Autoloader.php');
-
-// Some entry points need more includes than others.
-switch (SMF)
-{
-	case 1:
-	case 'SSI':
-		require_once(SMF\Config::$sourcedir . '/Subs-Auth.php');
-		// no break
-
-	case 'BACKGROUND':
-		require_once(SMF\Config::$sourcedir . '/Security.php');
-		// no break
-
-	default:
-		require_once(SMF\Config::$sourcedir . '/Subs.php');
-		break;
-}
+require_once(SMF\Config::$sourcedir . '/Subs.php');
 
 // Ensure we don't trip over disabled internal functions
 require_once(SMF\Config::$sourcedir . '/Subs-Compat.php');

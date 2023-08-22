@@ -19,6 +19,7 @@ use SMF\Actions\ActionInterface;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\Security;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
@@ -447,7 +448,7 @@ class Export implements ActionInterface
 			}
 		}
 
-		return secureDirectory(array(Config::$modSettings['export_dir']), true);
+		return Security::secureDirectory(array(Config::$modSettings['export_dir']), true);
 	}
 
 	/**

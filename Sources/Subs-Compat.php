@@ -386,6 +386,35 @@ if (!function_exists('idn_to_utf8'))
 	}
 }
 
+// Based on code by "examplehash at user dot com".
+// https://www.php.net/manual/en/function.hash-equals.php#125034
+if (!function_exists('hash_equals'))
+{
+	/**
+	 * A compatibility function for when PHP's "hash_equals" function isn't available
+	 * @param string $known_string A known hash
+	 * @param string $user_string The hash of the user string
+	 * @return bool Whether or not the two are equal
+	 */
+	function hash_equals($known_string, $user_string)
+	{
+		$known_string = (string) $known_string;
+		$user_string = (string) $user_string;
+
+		$sx = 0;
+		$sy = strlen($known_string);
+		$uy = strlen($user_string);
+		$result = $sy - $uy;
+		for ($ux = 0; $ux < $uy; $ux++)
+		{
+			$result |= ord($user_string[$ux]) ^ ord($known_string[$sx]);
+			$sx = ($sx + 1) % $sy;
+		}
+
+		return !$result;
+	}
+}
+
 /**
  * Prevent fatal errors under PHP 8 when a disabled internal function is called.
  *

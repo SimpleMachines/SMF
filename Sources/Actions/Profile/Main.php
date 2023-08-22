@@ -21,6 +21,7 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Profile;
+use SMF\Security;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
@@ -639,7 +640,7 @@ class Main implements ActionInterface
 				$good_password = in_array(true, call_integration_hook('integrate_verify_password', array(Profile::$member->username, $password, false)), true);
 
 				// Bad password!!!
-				if (!$good_password && !hash_verify_password(Profile::$member->username, $password, Profile::$member->passwd))
+				if (!$good_password && !Security::hashVerifyPassword(Profile::$member->username, $password, Profile::$member->passwd))
 				{
 					Profile::$member->save_errors[] = 'bad_password';
 				}

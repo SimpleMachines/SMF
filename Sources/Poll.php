@@ -1207,7 +1207,7 @@ class Poll implements \ArrayAccess
 		);
 
 		// Register this form in the session variables.
-		checkSubmitOnce('register');
+		Security::checkSubmitOnce('register');
 	}
 
 	/**
@@ -1267,7 +1267,7 @@ class Poll implements \ArrayAccess
 		}
 
 		// Prevent double submission of this form.
-		checkSubmitOnce('check');
+		Security::checkSubmitOnce('check');
 
 		// If adding a new poll to this topic, use the create method.
 		if (!$is_edit && empty($poll->id))

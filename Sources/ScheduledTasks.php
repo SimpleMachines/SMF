@@ -20,6 +20,7 @@ use SMF\ErrorHandler;
 use SMF\ProxyServer;
 use SMF\Lang;
 use SMF\Mail;
+use SMF\Security;
 use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
@@ -42,8 +43,8 @@ class_exists('SMF\\Theme');
 function AutoTask()
 {
 	// We bail out of index.php too early for these to be called.
-	frameOptionsHeader();
-	corsPolicyHeader();
+	Security::frameOptionsHeader();
+	Security::corsPolicyHeader();
 
 	// Requests from a CORS response may send a options to find if the request is valid.  Simply bail out here, the cors header have been sent already.
 	if (isset($_SERVER['HTTP_X_SMF_AJAX']) && isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS')

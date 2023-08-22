@@ -640,7 +640,7 @@ class Profile extends User implements \ArrayAccess
 						return 'password_' . $passwordErrors;
 
 					// Set up the new password variable... ready for storage.
-					$value = hash_password($this->username, Utils::htmlspecialcharsDecode($value));
+					$value = Security::hashPassword($this->username, Utils::htmlspecialcharsDecode($value));
 
 					return true;
 				},
@@ -755,7 +755,7 @@ class Profile extends User implements \ArrayAccess
 				'permission' => 'profile_password',
 				'input_validate' => function(&$value)
 				{
-					$value = $value != '' ? hash_password($this->username, $value) : '';
+					$value = $value != '' ? Security::hashPassword($this->username, $value) : '';
 					return true;
 				},
 			),
@@ -3483,7 +3483,7 @@ class Profile extends User implements \ArrayAccess
 
 		// Generate a random password.
 		$new_password = implode('-', str_split(substr(preg_replace('/\W/', '', base64_encode(Utils::randomBytes(18))), 0, 18), 6));
-		$new_password_sha1 = hash_password($username ?? $this->username, $new_password);
+		$new_password_sha1 = Security::hashPassword($username ?? $this->username, $new_password);
 
 		// Do some checks on the username if needed.
 		if ($username !== null)

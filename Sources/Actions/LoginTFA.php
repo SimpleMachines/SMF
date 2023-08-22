@@ -19,6 +19,7 @@ use SMF\Config;
 use SMF\Cookie;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\Security;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -118,7 +119,7 @@ class LoginTFA extends Login2
 
 			$backup = $_POST['tfa_backup'];
 
-			if (hash_verify_password($member['member_name'], $backup, $member['tfa_backup']))
+			if (Security::hashVerifyPassword($member['member_name'], $backup, $member['tfa_backup']))
 			{
 				// Get rid of their current TFA settings
 				User::updateMemberData($member['id_member'], array(
