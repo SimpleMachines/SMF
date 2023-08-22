@@ -384,7 +384,9 @@ class Utils
 			$substitute = mb_decode_numericentity('&#xFFFD;', array(0xFFFD,0xFFFD,0,0xFFFF), Utils::$context['character_set']);
 		}
 		else
+		{
 			$substitute = '?';
+		}
 
 		// Fix any invalid byte sequences.
 		if (!empty(Utils::$context['character_set']))
@@ -410,7 +412,9 @@ class Utils
 					mb_substitute_character($mb_substitute_character);
 				}
 				else
+				{
 					return false;
+				}
 			}
 		}
 
@@ -420,11 +424,12 @@ class Utils
 		// Deal with unwanted control characters, invisible formatting characters, and other creepy-crawlies.
 		if (!empty(Utils::$context['utf8']))
 		{
-			require_once(Config::$sourcedir . '/Subs-Charset.php');
-			$string = utf8_sanitize_invisibles($string, $level, $substitute);
+			$string = (string) Unicode\Utf8String::create($string)->sanitizeInvisibles($level, $substitute);
 		}
 		else
+		{
 			$string = preg_replace('/[^\P{Cc}\t\r\n]/', $substitute, $string);
+		}
 
 		return $string;
 	}
@@ -705,14 +710,7 @@ class Utils
 	 */
 	public static function normalize(string $string, string $form = 'c'): string
 	{
-		require_once(Config::$sourcedir . '/Subs-Charset.php');
-
-		$normalize_func = 'utf8_normalize_' . strtolower($form);
-
-		if (!function_exists($normalize_func))
-			return false;
-
-		return $normalize_func($string);
+		return (string) Unicode\Utf8String::create($string)->normalize($form);
 	}
 
 	/**
@@ -757,13 +755,12 @@ class Utils
 		// Use optimized function for compatibility casefolding.
 		if ($form === 'kc_casefold')
 		{
-			$string = self::normalize($string, 'kc_casefold');
+			$string = (string) Unicode\Utf8String::create($string)->normalize('kc_casefold');
 		}
 		// Everything else.
 		else
 		{
-			require_once(Config::$sourcedir . '/Subs-Charset.php');
-			$string = self::normalize(utf8_convert_case($string, $case, $simple), $form);
+			$string = (string) Unicode\Utf8String::create($string)->convertCase($case, $simple)->normalize($form);
 		}
 
 		return self::fixUtf8mb4($string);
