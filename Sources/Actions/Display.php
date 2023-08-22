@@ -24,6 +24,7 @@ use SMF\Event;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\Poll;
+use SMF\Security;
 use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
@@ -146,7 +147,7 @@ class Display implements ActionInterface
 		$this->getNotificationMode();
 
 		// Load up the "double post" sequencing magic.
-		checkSubmitOnce('register');
+		Security::checkSubmitOnce('register');
 
 		$this->loadEditor();
 		$this->buildButtons();

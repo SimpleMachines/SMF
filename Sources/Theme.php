@@ -1410,8 +1410,8 @@ class Theme
 					$path = Config::$modSettings['attachmentUploadDir'];
 				}
 
-				secureDirectory($path, true);
-				secureDirectory(Config::$cachedir);
+				Security::secureDirectory($path, true);
+				Security::secureDirectory(Config::$cachedir);
 
 				// If agreement is enabled, at least the english version shall exist
 				if (!empty(Config::$modSettings['requireAgreement']))

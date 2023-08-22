@@ -311,10 +311,10 @@ class Forum
 		}
 
 		// We should set our security headers now.
-		frameOptionsHeader();
+		Security::frameOptionsHeader();
 
 		// Set our CORS policy.
-		corsPolicyHeader();
+		Security::corsPolicyHeader();
 
 		// Load the user's cookie (or set as guest) and load their settings.
 		User::load();
@@ -376,7 +376,7 @@ class Forum
 		// If guest access is off, a guest can only do one of the very few following actions.
 		elseif (empty(Config::$modSettings['allow_guestAccess']) && User::$me->is_guest && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], self::$guest_access_actions)))
 		{
-			return 'KickGuest';
+			User::$me->kickIfGuest(null, false);
 		}
 		elseif (empty($_REQUEST['action']))
 		{

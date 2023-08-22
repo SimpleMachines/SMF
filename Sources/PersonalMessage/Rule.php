@@ -19,6 +19,7 @@ use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\Security;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -496,7 +497,7 @@ class Rule implements \ArrayAccess
 		if (isset($_GET['apply']))
 		{
 			User::$me->checkSession('get');
-			spamProtection('pm');
+			Security::spamProtection('pm');
 
 			self::apply(true);
 			redirectexit('action=pm;sa=manrules');

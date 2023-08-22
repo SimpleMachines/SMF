@@ -28,6 +28,7 @@ use SMF\Logging;
 use SMF\MessageIndex;
 use SMF\Msg;
 use SMF\Poll;
+use SMF\Security;
 use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
@@ -173,7 +174,7 @@ class Post2 extends Post
 		Utils::$context['robot_no_index'] = true;
 
 		// Prevent double submission of this form.
-		checkSubmitOnce('check');
+		Security::checkSubmitOnce('check');
 
 		// No errors as yet.
 		$this->errors = array();
@@ -364,7 +365,7 @@ class Post2 extends Post
 
 		// Make sure the user isn't spamming the board.
 		if (!isset($_REQUEST['msg']))
-			spamProtection('post');
+			Security::spamProtection('post');
 
 		// At about this point, we're posting and that's that.
 		ignore_user_abort(true);

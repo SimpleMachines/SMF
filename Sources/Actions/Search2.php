@@ -19,6 +19,7 @@ use SMF\Category;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\Security;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -314,7 +315,7 @@ class Search2 implements ActionInterface
 	protected function spamCheck(): void
 	{
 		if (empty($_SESSION['last_ss']) || $_SESSION['last_ss'] != SearchApi::$loadedApi->params['search'])
-			spamProtection('search');
+			Security::spamProtection('search');
 
 		// Store the last search string to allow pages of results to be browsed.
 		$_SESSION['last_ss'] = SearchApi::$loadedApi->params['search'];

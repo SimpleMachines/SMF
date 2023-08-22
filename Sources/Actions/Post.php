@@ -26,6 +26,7 @@ use SMF\Draft;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\Poll;
+use SMF\Security;
 use SMF\Theme;
 use SMF\Time;
 use SMF\Topic;
@@ -358,7 +359,7 @@ class Post implements ActionInterface
 		Utils::$context['is_first_post'] = Utils::$context['is_new_topic'] || (isset($_REQUEST['msg']) && $_REQUEST['msg'] == Topic::$info->id_first_msg);
 
 		// Register this form in the session variables.
-		checkSubmitOnce('register');
+		Security::checkSubmitOnce('register');
 
 		// Mentions
 		if (!empty(Config::$modSettings['enable_mentions']) && User::$me->allowedTo('mention'))
@@ -1124,7 +1125,7 @@ class Post implements ActionInterface
 		}
 
 		// No check is needed, since nothing is really posted.
-		checkSubmitOnce('free');
+		Security::checkSubmitOnce('free');
 	}
 
 	/**

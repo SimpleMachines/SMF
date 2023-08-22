@@ -21,6 +21,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
 use SMF\Msg;
+use SMF\Security;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -839,7 +840,7 @@ class PackageManager
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=packages;sa=' . (Utils::$context['uninstalling'] ? 'uninstall' : 'install') . (Utils::$context['ftp_needed'] ? '' : '2') . ';package=' . Utils::$context['filename'] . ';pid=' . Utils::$context['install_id'];
-		checkSubmitOnce('register');
+		Security::checkSubmitOnce('register');
 	}
 
 	/**
@@ -848,7 +849,7 @@ class PackageManager
 	public function install()
 	{
 		// Make sure we don't install this mod twice.
-		checkSubmitOnce('check');
+		Security::checkSubmitOnce('check');
 		User::$me->checkSession();
 
 		// If there's no file, what are we installing?
@@ -2520,7 +2521,7 @@ class PackageManager
 			// Clear any "relative" URL.  Since "server" is not present, "relative" is garbage.
 			unset($_GET['relative']);
 
-			$token = checkConfirm('get_absolute_url');
+			$token = Security::checkConfirm('get_absolute_url');
 			if ($token !== true)
 			{
 				Utils::$context['sub_template'] = 'package_confirm';
