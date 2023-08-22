@@ -515,9 +515,8 @@ class Punycode
 	protected function preprocess(string $domain, array &$errors = array())
 	{
 		require_once(Config::$sourcedir . '/Unicode/Idna.php');
-		require_once(Config::$sourcedir . '/Subs-Charset.php');
 
-		$regexes = idna_regex();
+		$regexes = Unicode\idna_regex();
 
 		if (preg_match('/[' . $regexes['disallowed'] . ($this->std3 ? $regexes['disallowed_std3'] : '') . ']/u', $domain))
 			$errors[] = 'disallowed';
@@ -534,7 +533,7 @@ class Punycode
 		if (!$this->std3)
 			$maps = array_merge($maps, idna_maps_not_std3());
 
-		return utf8_normalize_c(strtr($domain, $maps));
+		return Utils::normalize(strtr($domain, $maps));
 	}
 
 	/**
@@ -586,16 +585,15 @@ class Punycode
 		}
 
 		require_once(Config::$sourcedir . '/Unicode/Idna.php');
-		require_once(Config::$sourcedir . '/Subs-Charset.php');
 
-		$regexes = idna_regex();
+		$regexes = Unicode\idna_regex();
 
 		if (preg_match('/[' . $regexes['disallowed'] . ($this->std3 ? $regexes['disallowed_std3'] : '') . ']/u', $label))
 		{
 			return self::IDNA_ERROR_INVALID_ACE_LABEL;
 		}
 
-		if (!$toPunycode && $label !== utf8_normalize_kc($label))
+		if (!$toPunycode && $label !== Utils::normalize($label, 'kc'))
 		{
 			return self::IDNA_ERROR_INVALID_ACE_LABEL;
 		}

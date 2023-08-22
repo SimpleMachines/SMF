@@ -463,7 +463,7 @@ class UpdateUnicode extends BackgroundTask
 
 			$file_contents['temp'] = file_get_contents($file_paths['temp']);
 
-			if (empty($file_contents['temp']))
+			if (empty($file_contents['temp']) || strpos($file_contents['temp'], 'namespace SMF\\Unicode;') === false)
 			{
 				file_put_contents($file_paths['temp'], $this->smf_file_header());
 			}
@@ -725,6 +725,7 @@ class UpdateUnicode extends BackgroundTask
 		$file_template = implode("\n\n", array(
 			'<' . '?php',
 			trim($license_block),
+			'namespace SMF\\Unicode;',
 			"if (!defined('SMF'))\n\tdie('No direct access...');",
 			'',
 		));

@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * Backward compatibility file.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -11,12 +13,9 @@
  * @version 3.0 Alpha 1
  */
 
-namespace SMF\Unicode;
-
 if (!defined('SMF'))
 	die('No direct access...');
 
-if (!defined('SMF_UNICODE_VERSION'))
-	define('SMF_UNICODE_VERSION', '15.0.0.0');
+class_exists('SMF\\Unicode\\Utf8String');
 
 ?>

@@ -29,6 +29,7 @@ use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Fetchers\CurlFetcher;
+use SMF\Unicode\Utf8String;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -552,7 +553,6 @@ function smf_gmstrftime(string $format, int $timestamp = null)
 {
 	return smf_strftime($format, $timestamp, 'UTC');
 }
-
 
 /**
  * Shorten a subject + internationalization concerns.
@@ -3044,15 +3044,13 @@ function normalize_iri($iri)
 	if (isset(Utils::$context['utf8']) ? !Utils::$context['utf8'] : (isset(Lang::$txt['lang_character_set']) ? Lang::$txt['lang_character_set'] != 'UTF-8' : (isset(Config::$db_character_set) && Config::$db_character_set != 'utf8')))
 		return sanitize_iri($iri);
 
-	require_once(Config::$sourcedir . '/Subs-Charset.php');
-
-	$iri = sanitize_iri(utf8_normalize_c($iri));
+	$iri = sanitize_iri(Utils::normalize($iri));
 
 	$host = parse_iri((strpos($iri, '//') === 0 ? 'http:' : '') . $iri, PHP_URL_HOST);
 
 	if (!empty($host))
 	{
-		$normalized_host = utf8_normalize_kc_casefold($host);
+		$normalized_host = Utils::normalize($host, 'kc_casefold');
 		$pos = strpos($iri, $host);
 	}
 	else
@@ -3083,9 +3081,7 @@ function iri_to_url($iri)
 	if (isset(Utils::$context['utf8']) ? !Utils::$context['utf8'] : (isset(Lang::$txt['lang_character_set']) ? Lang::$txt['lang_character_set'] != 'UTF-8' : (isset(Config::$db_character_set) && Config::$db_character_set != 'utf8')))
 		return $iri;
 
-	require_once(Config::$sourcedir . '/Subs-Charset.php');
-
-	$iri = sanitize_iri(utf8_normalize_c($iri));
+	$iri = sanitize_iri(Utils::normalize($iri));
 
 	$host = parse_iri((strpos($iri, '//') === 0 ? 'http:' : '') . $iri, PHP_URL_HOST);
 
