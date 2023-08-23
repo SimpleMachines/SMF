@@ -236,7 +236,6 @@ if (isset($_GET['ssi']))
 
 // Include our helper functions.
 require_once(Config::$sourcedir . '/Subs.php');
-require_once(Config::$sourcedir . '/Editor.php');
 
 // Don't do security check if on Yabbse
 if (!isset(Config::$modSettings['smfVersion']))

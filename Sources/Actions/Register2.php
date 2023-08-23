@@ -26,6 +26,7 @@ use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Verifier;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -163,17 +164,13 @@ class Register2 extends Register
 		// Check whether the visual verification code was entered correctly.
 		if (!empty(Config::$modSettings['reg_verification']))
 		{
-			require_once(Config::$sourcedir . '/Editor.php');
-			$verification_options = array(
-				'id' => 'register',
-			);
-			Utils::$context['visual_verification'] = create_control_verification($verification_options, true);
+			$verifier = new Verifier(array('id' => 'register'));
 
-			if (is_array(Utils::$context['visual_verification']))
+			if (!empty($verifier->errors))
 			{
 				Lang::load('Errors');
 
-				foreach (Utils::$context['visual_verification'] as $error)
+				foreach ($verifier->errors as $error)
 					$this->errors[] = Lang::$txt['error_' . $error];
 			}
 		}

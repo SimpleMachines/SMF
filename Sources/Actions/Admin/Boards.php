@@ -302,8 +302,6 @@ class Boards implements ActionInterface
 	{
 		Theme::loadTemplate('ManageBoards');
 
-		require_once(Config::$sourcedir . '/Editor.php');
-
 		Category::getTree();
 
 		// id_cat must be a number.... if it exists.
@@ -408,8 +406,6 @@ class Boards implements ActionInterface
 		User::$me->checkSession();
 		SecurityToken::validate('admin-bc-' . $_REQUEST['cat']);
 
-		require_once(Config::$sourcedir . '/Editor.php');
-
 		$_POST['cat'] = (int) $_POST['cat'];
 
 		// Add a new category or modify an existing one..
@@ -471,8 +467,6 @@ class Boards implements ActionInterface
 	public function editBoard(): void
 	{
 		Theme::loadTemplate('ManageBoards');
-
-		require_once(Config::$sourcedir . '/Editor.php');
 
 		Category::getTree();
 
@@ -739,8 +733,6 @@ class Boards implements ActionInterface
 
 		User::$me->checkSession();
 		SecurityToken::validate('admin-be-' . $_REQUEST['boardid']);
-
-		require_once(Config::$sourcedir . '/Editor.php');
 
 		// Mode: modify aka. don't delete.
 		if (isset($_POST['edit']) || isset($_POST['add']))
