@@ -23,6 +23,7 @@ use SMF\Security;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Verifier;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
@@ -390,17 +391,11 @@ class Search2 implements ActionInterface
 		// Do we have captcha enabled?
 		if (User::$me->is_guest && !empty(Config::$modSettings['search_enable_captcha']) && empty($_SESSION['ss_vv_passed']) && (empty($_SESSION['last_ss']) || $_SESSION['last_ss'] != SearchApi::$loadedApi->params['search']))
 		{
-			require_once(Config::$sourcedir . '/Editor.php');
+			$verifier = new Verifier(array('id' => 'search'));
 
-			$verificationOptions = array(
-				'id' => 'search',
-			);
-
-			Utils::$context['require_verification'] = create_control_verification($verificationOptions, true);
-
-			if (is_array(Utils::$context['require_verification']))
+			if (!empty($verifier->errors))
 			{
-				foreach (Utils::$context['require_verification'] as $error)
+				foreach ($verifier->errors as $error)
 					Utils::$context['search_errors'][$error] = true;
 			}
 			// Don't keep asking for it - they've proven themselves worthy.

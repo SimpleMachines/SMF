@@ -20,6 +20,7 @@ use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
+use SMF\Editor;
 use SMF\ErrorHandler;
 use SMF\Event;
 use SMF\Draft;
@@ -32,6 +33,7 @@ use SMF\Time;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
+use SMF\Verifier;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
@@ -1675,14 +1677,7 @@ class Post implements ActionInterface
 		Utils::$context['require_verification'] = !User::$me->is_mod && !User::$me->is_admin && !empty(Config::$modSettings['posts_require_captcha']) && (User::$me->posts < Config::$modSettings['posts_require_captcha'] || (User::$me->is_guest && Config::$modSettings['posts_require_captcha'] == -1));
 
 		if (Utils::$context['require_verification'])
-		{
-			require_once(Config::$sourcedir . '/Editor.php');
-			$verificationOptions = array(
-				'id' => 'post',
-			);
-			Utils::$context['require_verification'] = create_control_verification($verificationOptions);
-			Utils::$context['visual_verification_id'] = $verificationOptions['id'];
-		}
+			$verifier = new Verifier(array('id' => 'post'));
 
 		// If they came from quick reply, and have to enter verification details, give them some notice.
 		if (!empty($_REQUEST['from_qr']) && !empty(Utils::$context['require_verification']))
@@ -1804,15 +1799,11 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Load a new editor instance.
 	 */
 	protected function loadEditor(): void
 	{
-		// Needed for the editor and message icons.
-		require_once(Config::$sourcedir . '/Editor.php');
-
-		// Now create the editor.
-		$editorOptions = array(
+		new Editor(array(
 			'id' => 'message',
 			'value' => Utils::$context['message'],
 			'labels' => array(
@@ -1822,13 +1813,9 @@ class Post implements ActionInterface
 			'height' => '175px',
 			'width' => '100%',
 			// We do XML preview here.
-			'preview_type' => 2,
+			'preview_type' => Editor::PREVIEW_XML,
 			'required' => true,
-		);
-		create_control_richedit($editorOptions);
-
-		// Store the ID.
-		Utils::$context['post_box_name'] = $editorOptions['id'];
+		));
 	}
 
 	/**
@@ -1837,7 +1824,7 @@ class Post implements ActionInterface
 	protected function setMessageIcons(): void
 	{
 		// Message icons - customized icons are off?
-		Utils::$context['icons'] = getMessageIcons(!empty(Board::$info->id) ? Board::$info->id : 0);
+		Utils::$context['icons'] = Editor::getMessageIcons(!empty(Board::$info->id) ? Board::$info->id : 0);
 
 		if (!empty(Utils::$context['icons']))
 			Utils::$context['icons'][count(Utils::$context['icons']) - 1]['is_last'] = true;

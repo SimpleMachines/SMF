@@ -22,6 +22,7 @@ use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Verifier;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
 
@@ -102,16 +103,7 @@ class Search implements ActionInterface
 		Utils::$context['require_verification'] = User::$me->is_guest && !empty(Config::$modSettings['search_enable_captcha']) && empty($_SESSION['ss_vv_passed']);
 
 		if (Utils::$context['require_verification'])
-		{
-			require_once(Config::$sourcedir . '/Editor.php');
-
-			$verificationOptions = array(
-				'id' => 'search',
-			);
-
-			Utils::$context['require_verification'] = create_control_verification($verificationOptions);
-			Utils::$context['visual_verification_id'] = $verificationOptions['id'];
-		}
+			$verifier = new Verifier(array('id' => 'search'));
 
 		// If you got back from search2 by using the linktree, you get your original search parameters back.
 		if (isset($_REQUEST['params']))

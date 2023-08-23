@@ -25,6 +25,7 @@ use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Verifier;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -294,12 +295,7 @@ class Register implements ActionInterface
 		// Generate a visual verification code to make sure the user is no bot.
 		if (!empty(Config::$modSettings['reg_verification']))
 		{
-			require_once(Config::$sourcedir . '/Editor.php');
-			$verificationOptions = array(
-				'id' => 'register',
-			);
-			Utils::$context['visual_verification'] = create_control_verification($verificationOptions);
-			Utils::$context['visual_verification_id'] = $verificationOptions['id'];
+			$verifier = new Verifier(array('id' => 'register'));
 		}
 		// Otherwise we have nothing to show.
 		else

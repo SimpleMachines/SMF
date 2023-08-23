@@ -18,6 +18,7 @@ use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
+use SMF\Editor;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Msg;
@@ -132,10 +133,7 @@ class XmlHttp implements ActionInterface
 	 */
 	function messageIcons()
 	{
-		require_once(Config::$sourcedir . '/Editor.php');
-
-		Utils::$context['icons'] = getMessageIcons(Board::$info->id);
-
+		Utils::$context['icons'] = Editor::getMessageIcons(Board::$info->id);
 		Utils::$context['sub_template'] = 'message_icons';
 	}
 

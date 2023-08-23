@@ -33,6 +33,7 @@ use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
+use SMF\Verifier;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
@@ -768,18 +769,8 @@ class Post2 extends Post
 			)
 		)
 		{
-			require_once(Config::$sourcedir . '/Editor.php');
-
-			$verificationOptions = array(
-				'id' => 'post',
-			);
-
-			Utils::$context['require_verification'] = create_control_verification($verificationOptions, true);
-
-			if (is_array(Utils::$context['require_verification']))
-			{
-				$this->errors = array_merge($this->errors, Utils::$context['require_verification']);
-			}
+			$verifier = new Verifier(array('id' => 'post'));
+			$this->errors = array_merge($this->errors, $verifier->errors);
 		}
 	}
 

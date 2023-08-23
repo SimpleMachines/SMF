@@ -19,6 +19,7 @@ use SMF\Alert;
 use SMF\Attachment;
 use SMF\Board;
 use SMF\Config;
+use SMF\Editor;
 use SMF\ErrorHandler;
 use SMF\Event;
 use SMF\Lang;
@@ -29,6 +30,7 @@ use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
+use SMF\Verifier;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
@@ -1098,16 +1100,7 @@ class Display implements ActionInterface
 		Utils::$context['require_verification'] = !User::$me->is_mod && !User::$me->is_admin && !empty(Config::$modSettings['posts_require_captcha']) && (User::$me->posts < Config::$modSettings['posts_require_captcha'] || (User::$me->is_guest && Config::$modSettings['posts_require_captcha'] == -1));
 
 		if (Utils::$context['require_verification'])
-		{
-			require_once(Config::$sourcedir . '/Editor.php');
-
-			$verificationOptions = array(
-				'id' => 'post',
-			);
-
-			Utils::$context['require_verification'] = create_control_verification($verificationOptions);
-			Utils::$context['visual_verification_id'] = $verificationOptions['id'];
-		}
+			$verifier = new Verifier(array('id' => 'post'));
 	}
 
 	/**
@@ -1252,11 +1245,8 @@ class Display implements ActionInterface
 	 */
 	protected function loadEditor(): void
 	{
-		// Needed for the editor and message icons.
-		require_once(Config::$sourcedir . '/Editor.php');
-
 		// Now create the editor.
-		$editorOptions = array(
+		new Editor(array(
 			'id' => 'quickReply',
 			'value' => '',
 			'labels' => array(
@@ -1266,20 +1256,16 @@ class Display implements ActionInterface
 			'height' => '150px',
 			'width' => '100%',
 			// We do HTML preview here.
-			'preview_type' => 1,
+			'preview_type' => Editor::PREVIEW_HTML,
 			// This is required
 			'required' => true,
-		);
-		create_control_richedit($editorOptions);
-
-		// Store the ID.
-		Utils::$context['post_box_name'] = $editorOptions['id'];
+		));
 
 		Utils::$context['attached'] = '';
 		Utils::$context['make_poll'] = isset($_REQUEST['poll']);
 
 		// Message icons - customized icons are off?
-		Utils::$context['icons'] = getMessageIcons(Board::$info->id);
+		Utils::$context['icons'] = Editor::getMessageIcons(Board::$info->id);
 
 		if (!empty(Utils::$context['icons']))
 			Utils::$context['icons'][count(Utils::$context['icons']) - 1]['is_last'] = true;

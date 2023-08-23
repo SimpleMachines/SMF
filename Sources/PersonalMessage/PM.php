@@ -18,6 +18,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Editor;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Mail;
@@ -27,6 +28,7 @@ use SMF\Security;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\Verifier;
 use SMF\Actions\Notify;
 use SMF\Actions\PersonalMessage as PMAction;
 use SMF\Cache\CacheApi;
@@ -824,11 +826,8 @@ class PM implements \ArrayAccess
 			}
 		}
 
-		// Needed for the WYSIWYG editor.
-		require_once(Config::$sourcedir . '/Editor.php');
-
 		// Now create the editor.
-		$editorOptions = array(
+		new Editor(array(
 			'id' => 'message',
 			'value' => Utils::$context['message'],
 			'height' => '175px',
@@ -836,29 +835,16 @@ class PM implements \ArrayAccess
 			'labels' => array(
 				'post_button' => Lang::$txt['send_message'],
 			),
-			'preview_type' => 2,
+			'preview_type' => Editor::PREVIEW_XML,
 			'required' => true,
-		);
-
-		create_control_richedit($editorOptions);
-
-		// Store the ID for old compatibility.
-		Utils::$context['post_box_name'] = $editorOptions['id'];
+		));
 
 		Utils::$context['bcc_value'] = '';
 
 		Utils::$context['require_verification'] = !User::$me->is_admin && !empty(Config::$modSettings['pm_posts_verification']) && User::$me->posts < Config::$modSettings['pm_posts_verification'];
 
 		if (Utils::$context['require_verification'])
-		{
-			$verificationOptions = array(
-				'id' => 'pm',
-			);
-
-			Utils::$context['require_verification'] = create_control_verification($verificationOptions);
-
-			Utils::$context['visual_verification_id'] = $verificationOptions['id'];
-		}
+			$verifier = new Verifier(array('id' => 'pm'));
 
 		call_integration_hook('integrate_pm_post');
 
@@ -1061,18 +1047,8 @@ class PM implements \ArrayAccess
 		// Wrong verification code?
 		if (!User::$me->is_admin && !isset($_REQUEST['xml']) && !empty(Config::$modSettings['pm_posts_verification']) && User::$me->posts < Config::$modSettings['pm_posts_verification'])
 		{
-			require_once(Config::$sourcedir . '/Editor.php');
-
-			$verificationOptions = array(
-				'id' => 'pm',
-			);
-
-			Utils::$context['require_verification'] = create_control_verification($verificationOptions, true);
-
-			if (is_array(Utils::$context['require_verification']))
-			{
-				$post_errors = array_merge($post_errors, Utils::$context['require_verification']);
-			}
+			$verifier = new Verifier(array('id' => 'pm'));
+			$post_errors = array_merge($post_errors, $verifier->errors);
 		}
 
 		// If they did, give a chance to make amends.
@@ -2247,11 +2223,8 @@ class PM implements \ArrayAccess
 			}
 		}
 
-		// We need to load the editor once more.
-		require_once(Config::$sourcedir . '/Editor.php');
-
 		// Create it...
-		$editorOptions = array(
+		new Editor(array(
 			'id' => 'message',
 			'value' => Utils::$context['message'],
 			'width' => '90%',
@@ -2259,29 +2232,14 @@ class PM implements \ArrayAccess
 			'labels' => array(
 				'post_button' => Lang::$txt['send_message'],
 			),
-			'preview_type' => 2,
-		);
-
-		create_control_richedit($editorOptions);
-
-		// ... and store the ID again...
-		Utils::$context['post_box_name'] = $editorOptions['id'];
+			'preview_type' => Editor::PREVIEW_XML,
+		));
 
 		// Check whether we need to show the code again.
 		Utils::$context['require_verification'] = !User::$me->is_admin && !empty(Config::$modSettings['pm_posts_verification']) && User::$me->posts < Config::$modSettings['pm_posts_verification'];
 
 		if (Utils::$context['require_verification'] && !isset($_REQUEST['xml']))
-		{
-			require_once(Config::$sourcedir . '/Editor.php');
-
-			$verificationOptions = array(
-				'id' => 'pm',
-			);
-
-			Utils::$context['require_verification'] = create_control_verification($verificationOptions);
-
-			Utils::$context['visual_verification_id'] = $verificationOptions['id'];
-		}
+			$verifier = new Verifier(array('id' => 'pm'));
 
 		Utils::$context['to_value'] = empty($named_recipients['to']) ? '' : '&quot;' . implode('&quot;, &quot;', $named_recipients['to']) . '&quot;';
 

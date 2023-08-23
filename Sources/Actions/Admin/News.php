@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\Editor;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
@@ -484,11 +485,8 @@ class News extends ACP implements ActionInterface
 		Utils::$context['subject'] = !empty($_POST['subject']) ? $_POST['subject'] : Utils::htmlspecialchars(Utils::$context['forum_name'] . ': ' . Lang::$txt['subject']);
 		Utils::$context['message'] = !empty($_POST['message']) ? $_POST['message'] : Utils::htmlspecialchars(Lang::$txt['message'] . "\n\n" . sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name']) . "\n\n" . '{$board_url}');
 
-		// Needed for the WYSIWYG editor.
-		require_once(Config::$sourcedir . '/Editor.php');
-
 		// Now create the editor.
-		$editorOptions = array(
+		new Editor(array(
 			'id' => 'message',
 			'value' => Utils::$context['message'],
 			'height' => '150px',
@@ -496,13 +494,9 @@ class News extends ACP implements ActionInterface
 			'labels' => array(
 				'post_button' => Lang::$txt['sendtopic_send'],
 			),
-			'preview_type' => 2,
+			'preview_type' => Editor::PREVIEW_XML,
 			'required' => true,
-		);
-		create_control_richedit($editorOptions);
-
-		// Store the ID for old compatibility.
-		Utils::$context['post_box_name'] = $editorOptions['id'];
+		));
 
 		if (!empty(Utils::$context['preview']))
 		{
