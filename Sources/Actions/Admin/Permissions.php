@@ -20,6 +20,7 @@ use SMF\Board;
 use SMF\Category;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\Group;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\SecurityToken;
@@ -162,6 +163,13 @@ class Permissions implements ActionInterface
 		'topic',
 		'post',
 	);
+
+	/**
+	 * @var array
+	 *
+	 * Convenience array listing hidden permissions.
+	 */
+	public static array $hidden;
 
 	/*********************
 	 * Internal properties
@@ -899,13 +907,6 @@ class Permissions implements ActionInterface
 	/**
 	 * @var array
 	 *
-	 * Convenience array listing hidden permissions.
-	 */
-	protected static array $hidden = array();
-
-	/**
-	 * @var array
-	 *
 	 * Convenience array listing permissions that guests may never have.
 	 */
 	protected static array $never_guests = array();
@@ -975,8 +976,6 @@ class Permissions implements ActionInterface
 		Utils::$context['show_advanced_options'] = empty(Utils::$context['admin_preferences']['app']);
 
 		$this->setGroupsContext();
-
-		$this->setNumPermissions();
 
 		// We can modify any permission set, except for the ones we can't.
 		Utils::$context['can_modify'] = empty($_REQUEST['pid']) || !in_array((int) $_REQUEST['pid'], self::PROFILE_UNMODIFIABLE);
@@ -1165,7 +1164,7 @@ class Permissions implements ActionInterface
 			ErrorHandler::fatalLang('no_access', false);
 
 		// Verify this isn't inherited.
-		if ($this->getParentGroup($_GET['group']) != -2)
+		if ($this->getParentGroup($_GET['group']) != Group::NONE)
 			ErrorHandler::fatalLang('cannot_edit_permissions_inherited');
 
 		$illegal_permissions = array_merge(
@@ -1410,61 +1409,54 @@ class Permissions implements ActionInterface
 
 		// Start this with the guests/members.
 		Utils::$context['profile_groups'] = array(
-			-1 => array(
-				'id' => -1,
+			Group::GUEST => new Group(Group::GUEST, array(
 				'name' => Lang::$txt['membergroups_guests'],
-				'color' => '',
 				'new_topic' => 'disallow',
 				'replies_own' => 'disallow',
 				'replies_any' => 'disallow',
 				'attachment' => 'disallow',
-				'children' => array(),
-			),
-			0 => array(
-				'id' => 0,
+			)),
+			Group::REGULAR => new Group(Group::REGULAR, array(
 				'name' => Lang::$txt['membergroups_members'],
-				'color' => '',
 				'new_topic' => 'disallow',
 				'replies_own' => 'disallow',
 				'replies_any' => 'disallow',
 				'attachment' => 'disallow',
-				'children' => array(),
-			),
+			)),
 		);
 
 		// Load the groups.
-		$request = Db::$db->query('', '
-			SELECT id_group, group_name, online_color, id_parent
-			FROM {db_prefix}membergroups
-			WHERE id_group != {int:admin_group}
-				' . (empty(Config::$modSettings['permission_enable_postgroups']) ? ' AND min_posts = {int:min_posts}' : '') . '
-			ORDER BY id_parent ASC',
-			array(
-				'admin_group' => 1,
-				'min_posts' => -1,
-			)
+		$query_customizations = array(
+			'where' => array(
+				'id_group != {int:admin_group}',
+				'id_parent = {int:no_parent}'
+			),
+			'order' => array('id_parent ASC'),
+			'params' => array(
+				'admin_group' => Group::ADMIN,
+				'no_parent' => Group::NONE,
+			),
 		);
-		while ($row = Db::$db->fetch_assoc($request))
+
+		if (empty(Config::$modSettings['permission_enable_postgroups']))
 		{
-			if ($row['id_parent'] == -2)
-			{
-				Utils::$context['profile_groups'][$row['id_group']] = array(
-					'id' => $row['id_group'],
-					'name' => $row['group_name'],
-					'color' => $row['online_color'],
-					'new_topic' => 'disallow',
-					'replies_own' => 'disallow',
-					'replies_any' => 'disallow',
-					'attachment' => 'disallow',
-					'children' => array(),
-				);
-			}
-			elseif (isset(Utils::$context['profile_groups'][$row['id_parent']]))
-			{
-				Utils::$context['profile_groups'][$row['id_parent']]['children'][] = $row['group_name'];
-			}
+			$query_customizations['where'][] = 'min_posts = {int:min_posts}';
+			$query_customizations['params']['min_posts'] = -1;
 		}
-		Db::$db->free_result($request);
+
+		foreach (Group::load(array(), $query_customizations) as $group)
+		{
+			// Get a list of the child groups as well.
+			$group->getChildren();
+
+			// Add some custom properties.
+			$group->new_topic = 'disallow';
+			$group->replies_own = 'disallow';
+			$group->replies_any = 'disallow';
+			$group->attachment = 'disallow';
+
+			Utils::$context['profile_groups'][$group->id] = $group;
+		}
 
 		// What are the permissions we are querying?
 		$all_permissions = array();
@@ -1522,18 +1514,18 @@ class Permissions implements ActionInterface
 				{
 					foreach ($this->postmod_maps as $index => $data)
 					{
-						if (isset($_POST[$index][$group['id']]))
+						if (isset($_POST[$index][$group->id]))
 						{
-							if ($_POST[$index][$group['id']] == 'allow')
+							if ($_POST[$index][$group->id] == 'allow')
 							{
 								// Give them both sets for fun.
-								$new_permissions[] = array(Utils::$context['current_profile'], $group['id'], $data[0], 1);
+								$new_permissions[] = array(Utils::$context['current_profile'], $group->id, $data[0], 1);
 
-								$new_permissions[] = array(Utils::$context['current_profile'], $group['id'], $data[1], 1);
+								$new_permissions[] = array(Utils::$context['current_profile'], $group->id, $data[1], 1);
 							}
-							elseif ($_POST[$index][$group['id']] == 'moderate')
+							elseif ($_POST[$index][$group->id] == 'moderate')
 							{
-								$new_permissions[] = array(Utils::$context['current_profile'], $group['id'], $data[1], 1);
+								$new_permissions[] = array(Utils::$context['current_profile'], $group->id, $data[1], 1);
 							}
 						}
 					}
@@ -1947,10 +1939,10 @@ class Permissions implements ActionInterface
 				SELECT id_group
 				FROM {db_prefix}membergroups
 				WHERE id_group > {int:moderator_group}
-				ORDER BY min_posts, CASE WHEN id_group < {int:newbie_group} THEN id_group ELSE 4 END, group_name',
+				ORDER BY min_posts, CASE WHEN id_group < {int:newbie_group} THEN id_group ELSE {int:newbie_group} END, group_name',
 				array(
-					'moderator_group' => 3,
-					'newbie_group' => 4,
+					'moderator_group' => Group::MOD,
+					'newbie_group' => Group::NEWBIE,
 				)
 			);
 			while ($row = Db::$db->fetch_row($request))
@@ -2020,77 +2012,44 @@ class Permissions implements ActionInterface
 		if (!Utils::$context['can_change_permissions'])
 			return;
 
-		// Load the permission settings for guests
+		$query_customizations = array(
+			'where' => array(
+				'mg.id_group NOT IN ({array_int:excluded_groups})',
+				'mg.id_parent = {int:not_inherited}',
+				empty(Config::$modSettings['permission_enable_postgroups']) ? 'mg.min_posts = {int:min_posts}' : '1=1',
+			),
+			'order' => array(
+				'mg.min_posts',
+				'CASE WHEN mg.id_group < {int:newbie_group} THEN mg.id_group ELSE {int:newbie_group} END',
+				'mg.group_name',
+			),
+			'params' => array(
+				'min_posts' => -1,
+				'excluded_groups' => array(Group::ADMIN, Group::MOD),
+				'not_inherited' => Group::NONE,
+				'newbie_group' => Group::NEWBIE,
+			),
+		);
+
+		$groups = array_merge(
+			Group::load(array(Group::GUEST, Group::REGULAR)),
+			Group::load(array(), $query_customizations)
+		);
+
+		Group::loadPermissionsBatch(array_map(fn($group) => $group->id, $groups), 0);
+
 		foreach ($permissions as $permission)
 		{
-			Utils::$context[$permission] = array(
-				-1 => array(
-					'id' => -1,
-					'name' => Lang::$txt['membergroups_guests'],
-					'is_postgroup' => false,
-					'status' => 'off',
-				),
-				0 => array(
-					'id' => 0,
-					'name' => Lang::$txt['membergroups_members'],
-					'is_postgroup' => false,
-					'status' => 'off',
-				),
-			);
-		}
-
-		$request = Db::$db->query('', '
-			SELECT id_group, CASE WHEN add_deny = {int:denied} THEN {string:deny} ELSE {string:on} END AS status, permission
-			FROM {db_prefix}permissions
-			WHERE id_group IN (-1, 0)
-				AND permission IN ({array_string:permissions})',
-			array(
-				'denied' => 0,
-				'permissions' => $permissions,
-				'deny' => 'deny',
-				'on' => 'on',
-			)
-		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			Utils::$context[$row['permission']][$row['id_group']]['status'] = $row['status'];
-		}
-		Db::$db->free_result($request);
-
-		$request = Db::$db->query('', '
-			SELECT mg.id_group, mg.group_name, mg.min_posts, COALESCE(p.add_deny, -1) AS status, p.permission
-			FROM {db_prefix}membergroups AS mg
-				LEFT JOIN {db_prefix}permissions AS p ON (p.id_group = mg.id_group AND p.permission IN ({array_string:permissions}))
-			WHERE mg.id_group NOT IN (1, 3)
-				AND mg.id_parent = {int:not_inherited}' . (empty(Config::$modSettings['permission_enable_postgroups']) ? '
-				AND mg.min_posts = {int:min_posts}' : '') . '
-			ORDER BY mg.min_posts, CASE WHEN mg.id_group < {int:newbie_group} THEN mg.id_group ELSE 4 END, mg.group_name',
-			array(
-				'not_inherited' => -2,
-				'min_posts' => -1,
-				'newbie_group' => 4,
-				'permissions' => $permissions,
-			)
-		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			// Initialize each permission as being 'off' until proven otherwise.
-			foreach ($permissions as $permission)
+			foreach ($groups as $group)
 			{
-				if (!isset(Utils::$context[$permission][$row['id_group']]))
-				{
-					Utils::$context[$permission][$row['id_group']] = array(
-						'id' => $row['id_group'],
-						'name' => $row['group_name'],
-						'is_postgroup' => $row['min_posts'] != -1,
-						'status' => 'off',
-					);
-				}
+				Utils::$context[$permission][$group->id] = array(
+					'id' => $group->id,
+					'name' => $group->name,
+					'is_postgroup' => $group->min_posts > -1,
+					'status' => !isset($group->permissions['general'][$permission]) ? 'off' : ($group->permissions['general'][$permission] === 1 ? 'on' : 'deny'),
+				);
 			}
-
-			Utils::$context[$row['permission']][$row['id_group']]['status'] = empty($row['status']) ? 'deny' : ($row['status'] == 1 ? 'on' : 'off');
 		}
-		Db::$db->free_result($request);
 
 		// Make sure we honor the "illegal guest permissions"
 		self::loadIllegalGuestPermissions();
@@ -2134,10 +2093,10 @@ class Permissions implements ActionInterface
 			if (!isset(self::$excluded[$permission]))
 				continue;
 
-			foreach (self::$excluded[$permission] as $group)
+			foreach (self::$excluded[$permission] as $group_id)
 			{
-				if (isset(Utils::$context[$permission][$group]))
-					unset(Utils::$context[$permission][$group]);
+				if (isset(Utils::$context[$permission][$group_id]))
+					unset(Utils::$context[$permission][$group_id]);
 			}
 
 			// There's no point showing a form with nobody in it
@@ -2267,40 +2226,30 @@ class Permissions implements ActionInterface
 	/**
 	 * This function updates the permissions of any groups based off this group.
 	 *
-	 * @param null|array $parents The parent groups
-	 * @param null|int $profile the ID of a permissions profile to update
-	 * @return void|false Returns nothing if successful or false if there are no child groups to update
+	 * @param int|array $parents The parent groups.
+	 * @param int $profile The ID of a permissions profile to update
+	 * @return void|false Returns nothing if successful or false if there are no
+	 *    child groups to update.
 	 */
-	public static function updateChildPermissions($parents, $profile = null)
+	public static function updateChildPermissions(int|array $parents = null, int $profile = null)
 	{
 		// All the parent groups to sort out.
-		if (!is_array($parents))
-			$parents = array($parents);
+		$parents = array_unique(array_map('intval', (array) $parents));
 
-		// Find all the children of this group.
+		$parent_groups = Group::load($parents);
+
 		$children = array();
 		$child_groups = array();
-		$found_parents = array();
 
-		$request = Db::$db->query('', '
-			SELECT id_parent, id_group
-			FROM {db_prefix}membergroups
-			WHERE id_parent != {int:not_inherited}
-				' . (empty($parents) ? '' : 'AND id_parent IN ({array_int:parent_list})'),
-			array(
-				'parent_list' => $parents,
-				'not_inherited' => -2,
-			)
-		);
-		while ($row = Db::$db->fetch_assoc($request))
+		foreach ($parent_groups as $parent_group)
 		{
-			$children[$row['id_parent']][] = $row['id_group'];
-			$child_groups[] = $row['id_group'];
-			$found_parents[] = $row['id_parent'];
-		}
-		Db::$db->free_result($request);
+			$parent_group->getChildren();
 
-		$parents = array_unique($found_parents);
+			$children[$parent_group->id] = array_keys($parent_group->children);
+			$child_groups = array_merge($child_groups, array_keys($parent_group->children));
+		}
+
+		$parents = array_map(fn($parent_group) => $parent_group->id, $parent_groups);
 
 		// Not a sausage, or a child?
 		if (empty($children))
@@ -2326,13 +2275,16 @@ class Permissions implements ActionInterface
 			}
 			Db::$db->free_result($request);
 
-			Db::$db->query('', '
-				DELETE FROM {db_prefix}permissions
-				WHERE id_group IN ({array_int:child_groups})',
-				array(
-					'child_groups' => $child_groups,
-				)
-			);
+			if (!empty($child_groups))
+			{
+				Db::$db->query('', '
+					DELETE FROM {db_prefix}permissions
+					WHERE id_group IN ({array_int:child_groups})',
+					array(
+						'child_groups' => $child_groups,
+					)
+				);
+			}
 
 			// Finally insert.
 			if (!empty($permissions))
@@ -2372,15 +2324,18 @@ class Permissions implements ActionInterface
 			}
 			Db::$db->free_result($request);
 
-			Db::$db->query('', '
-				DELETE FROM {db_prefix}board_permissions
-				WHERE id_group IN ({array_int:child_groups})
-					' . $profile_query,
-				array(
-					'child_groups' => $child_groups,
-					'current_profile' => $profile !== null && $profile ? $profile : 1,
-				)
-			);
+			if (!empty($child_groups))
+			{
+				Db::$db->query('', '
+					DELETE FROM {db_prefix}board_permissions
+					WHERE id_group IN ({array_int:child_groups})
+						' . $profile_query,
+					array(
+						'child_groups' => $child_groups,
+						'current_profile' => $profile !== null && $profile ? $profile : 1,
+					)
+				);
+			}
 
 			// Do the insert.
 			if (!empty($permissions))
@@ -2416,6 +2371,24 @@ class Permissions implements ActionInterface
 		self::integrateLoadIllegalPermissions();
 
 		return self::$illegal;
+	}
+
+	/**
+	 * Populates self::$hidden with a list of hidden permissions.
+	 */
+	public static function buildHidden(): void
+	{
+		if (isset(self::$hidden))
+			return;
+
+		foreach (self::getPermissions() as $permission => $perm_info)
+		{
+			if (!empty($perm_info['hidden']))
+				self::$hidden[] = $permission;
+		}
+
+		// Backward compatibility.
+		Utils::$context['hidden_permissions'] = self::$hidden;
 	}
 
 	/**
@@ -2553,269 +2526,47 @@ class Permissions implements ActionInterface
 	 */
 	protected function setGroupsContext(): void
 	{
-		// Determine the number of ungrouped members.
-		$request = Db::$db->query('', '
-			SELECT COUNT(*)
-			FROM {db_prefix}members
-			WHERE id_group = {int:regular_group}',
-			array(
-				'regular_group' => 0,
-			)
-		);
-		list ($num_members) = Db::$db->fetch_row($request);
-		Db::$db->free_result($request);
+		Utils::$context['groups'] = array();
 
-		// Fill the context variable with 'Guests' and 'Regular Members'.
-		Utils::$context['groups'] = array(
-			-1 => array(
-				'id' => -1,
-				'name' => Lang::$txt['membergroups_guests'],
-				'num_members' => Lang::$txt['membergroups_guests_na'],
-				'allow_delete' => false,
-				'allow_modify' => true,
-				'can_search' => false,
-				'href' => '',
-				'link' => '',
-				'help' => 'membergroup_guests',
-				'is_post_group' => false,
-				'color' => '',
-				'icons' => '',
-				'children' => array(),
-				'num_permissions' => array(
-					'allowed' => 0,
-					// Can't deny guest permissions!
-					'denied' => '(' . Lang::$txt['permissions_none'] . ')'
-				),
-				'access' => false
-			),
-			0 => array(
-				'id' => 0,
-				'name' => Lang::$txt['membergroups_members'],
-				'num_members' => $num_members,
-				'allow_delete' => false,
-				'allow_modify' => true,
-				'can_search' => false,
-				'href' => Config::$scripturl . '?action=moderate;area=viewgroups;sa=members;group=0',
-				'help' => 'membergroup_regular_members',
-				'is_post_group' => false,
-				'color' => '',
-				'icons' => '',
-				'children' => array(),
-				'num_permissions' => array(
-					'allowed' => 0,
-					'denied' => 0
-				),
-				'access' => false
-			),
-		);
-
-		$post_groups = array();
-		$normal_groups = array();
-
-		// Query the database defined membergroups.
-		$request = Db::$db->query('', '
-			SELECT id_group, id_parent, group_name, min_posts, online_color, icons
-			FROM {db_prefix}membergroups' . (empty(Config::$modSettings['permission_enable_postgroups']) ? '
-			WHERE min_posts = {int:min_posts}' : '') . '
-			ORDER BY id_parent = {int:not_inherited} DESC, min_posts, CASE WHEN id_group < {int:newbie_group} THEN id_group ELSE 4 END, group_name',
-			array(
-				'min_posts' => -1,
-				'not_inherited' => -2,
-				'newbie_group' => 4,
-			)
-		);
-		while ($row = Db::$db->fetch_assoc($request))
+		foreach (Group::loadSimple(Group::LOAD_BOTH, array()) as $group)
 		{
-			// If it's inherited, just add it as a child.
-			if ($row['id_parent'] != -2)
+			if (
+				// Skip child groups.
+				$group->parent !== Group::NONE
+				// Skip post groups if post group permissions are disabled.
+				|| (
+					empty(Config::$modSettings['permission_enable_postgroups'])
+					&& $group->min_posts > -1
+				)
+			)
 			{
-				if (isset(Utils::$context['groups'][$row['id_parent']]))
-				{
-					Utils::$context['groups'][$row['id_parent']]['children'][$row['id_group']] = $row['group_name'];
-				}
-
 				continue;
 			}
 
-			$row['icons'] = explode('#', $row['icons']);
-
-			Utils::$context['groups'][$row['id_group']] = array(
-				'id' => $row['id_group'],
-				'name' => $row['group_name'],
-				'num_members' => $row['id_group'] != 3 ? 0 : Lang::$txt['membergroups_guests_na'],
-				'allow_delete' => $row['id_group'] > 4,
-				'allow_modify' => $row['id_group'] > 1,
-				'can_search' => $row['id_group'] != 3,
-				'href' => Config::$scripturl . '?action=moderate;area=viewgroups;sa=members;group=' . $row['id_group'],
-				'help' => $row['id_group'] == 1 ? 'membergroup_administrator' : ($row['id_group'] == 3 ? 'membergroup_moderator' : ''),
-				'is_post_group' => $row['min_posts'] != -1,
-				'color' => empty($row['online_color']) ? '' : $row['online_color'],
-				'icons' => !empty($row['icons'][0]) && !empty($row['icons'][1]) ? str_repeat('<img src="' . Theme::$current->settings['images_url'] . '/' . $row['icons'][1] . '" alt="*">', $row['icons'][0]) : '',
-				'children' => array(),
-				'num_permissions' => array(
-					'allowed' => $row['id_group'] == 1 ? '(' . Lang::$txt['permissions_all'] . ')' : 0,
-					'denied' => $row['id_group'] == 1 ? '(' . Lang::$txt['permissions_none'] . ')' : 0
-				),
-				'access' => false,
-			);
-
-			if ($row['min_posts'] == -1)
-			{
-				$normal_groups[$row['id_group']] = $row['id_group'];
-			}
-			else
-			{
-				$post_groups[$row['id_group']] = $row['id_group'];
-			}
-		}
-		Db::$db->free_result($request);
-
-		// Get the number of members in this post group.
-		if (!empty($post_groups))
-		{
-			$request = Db::$db->query('', '
-				SELECT id_post_group AS id_group, COUNT(*) AS num_members
-				FROM {db_prefix}members
-				WHERE id_post_group IN ({array_int:post_group_list})
-				GROUP BY id_post_group',
-				array(
-					'post_group_list' => $post_groups,
-				)
-			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
-				Utils::$context['groups'][$row['id_group']]['num_members'] += $row['num_members'];
-			}
-			Db::$db->free_result($request);
+			Utils::$context['groups'][$group->id] = $group;
 		}
 
-		if (!empty($normal_groups))
+		// Count the members that each group has (except moderators).
+		Group::countMembersBatch(array_diff(array_keys(Utils::$context['groups']), array(Group::MOD)));
+
+		// Count the permissions that each group has.
+		if (!empty($_REQUEST['pid']))
 		{
-			// First, the easy one!
-			$request = Db::$db->query('', '
-				SELECT id_group, COUNT(*) AS num_members
-				FROM {db_prefix}members
-				WHERE id_group IN ({array_int:normal_group_list})
-				GROUP BY id_group',
-				array(
-					'normal_group_list' => $normal_groups,
-				)
-			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
-				Utils::$context['groups'][$row['id_group']]['num_members'] += $row['num_members'];
-			}
-			Db::$db->free_result($request);
+			$_REQUEST['pid'] = (int) $_REQUEST['pid'];
 
-			// This one is slower, but it's okay... careful not to count twice!
-			$request = Db::$db->query('', '
-				SELECT mg.id_group, COUNT(*) AS num_members
-				FROM {db_prefix}membergroups AS mg
-					INNER JOIN {db_prefix}members AS mem ON (mem.additional_groups != {string:blank_string}
-						AND mem.id_group != mg.id_group
-						AND FIND_IN_SET(mg.id_group, mem.additional_groups) != 0)
-				WHERE mg.id_group IN ({array_int:normal_group_list})
-				GROUP BY mg.id_group',
-				array(
-					'normal_group_list' => $normal_groups,
-					'blank_string' => '',
-				)
-			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
-				Utils::$context['groups'][$row['id_group']]['num_members'] += $row['num_members'];
-			}
-			Db::$db->free_result($request);
-		}
-
-		foreach (Utils::$context['groups'] as $id => $data)
-		{
-			Utils::$context['groups'][$id]['link'] = $data['href'] == '' ? '' : '<a href="' . $data['href'] . '">' . $data['num_members'] . '</a>';
-		}
-	}
-
-	/**
-	 * Sets 'num_permissions' for each group in Utils::$context['groups'].
-	 *
-	 * Helper method called from index().
-	 */
-	protected function setNumPermissions(): void
-	{
-		if (empty($_REQUEST['pid']))
-		{
-			$request = Db::$db->query('', '
-				SELECT id_group, COUNT(*) AS num_permissions, add_deny
-				FROM {db_prefix}permissions
-				' . (empty(self::$hidden) ? '' : ' WHERE permission NOT IN ({array_string:hidden_permissions})') . '
-				GROUP BY id_group, add_deny',
-				array(
-					'hidden_permissions' => self::$hidden,
-				)
-			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
-				if (!isset(Utils::$context['groups'][$row['id_group']]))
-					continue;
-
-				if (!empty($row['add_deny']) || $row['id_group'] != -1)
-				{
-					Utils::$context['groups'][$row['id_group']]['num_permissions'][empty($row['add_deny']) ? 'denied' : 'allowed'] = $row['num_permissions'];
-				}
-			}
-			Db::$db->free_result($request);
-
-			// Get the "default" profile permissions too.
-			$request = Db::$db->query('', '
-				SELECT id_profile, id_group, COUNT(*) AS num_permissions, add_deny
-				FROM {db_prefix}board_permissions
-				WHERE id_profile = {int:default_profile}
-				' . (empty(self::$hidden) ? '' : ' AND permission NOT IN ({array_string:hidden_permissions})') . '
-				GROUP BY id_profile, id_group, add_deny',
-				array(
-					'default_profile' => self::PROFILE_DEFAULT,
-					'hidden_permissions' => self::$hidden,
-				)
-			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
-				if (isset(Utils::$context['groups'][$row['id_group']]) && (!empty($row['add_deny']) || $row['id_group'] != -1))
-				{
-					Utils::$context['groups'][$row['id_group']]['num_permissions'][empty($row['add_deny']) ? 'denied' : 'allowed'] += $row['num_permissions'];
-				}
-			}
-			Db::$db->free_result($request);
-		}
-		else
-		{
 			if (!isset(Utils::$context['profiles'][$_REQUEST['pid']]))
 				ErrorHandler::fatalLang('no_access', false);
 
 			// Change the selected tab to better reflect that this really is a board profile.
 			Menu::$loaded['admin']['current_subsection'] = 'profiles';
 
-			$request = Db::$db->query('', '
-				SELECT id_profile, id_group, COUNT(*) AS num_permissions, add_deny
-				FROM {db_prefix}board_permissions
-				WHERE id_profile = {int:current_profile}
-				GROUP BY id_profile, id_group, add_deny',
-				array(
-					'current_profile' => $_REQUEST['pid'],
-				)
-			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
-				if (isset(Utils::$context['groups'][$row['id_group']]) && (!empty($row['add_deny']) || $row['id_group'] != -1))
-				{
-					Utils::$context['groups'][$row['id_group']]['num_permissions'][empty($row['add_deny']) ? 'denied' : 'allowed'] += $row['num_permissions'];
-				}
-			}
-			Db::$db->free_result($request);
-
 			Utils::$context['profile'] = array(
 				'id' => $_REQUEST['pid'],
 				'name' => Utils::$context['profiles'][$_REQUEST['pid']]['name'],
 			);
 		}
+
+		Group::countPermissionsBatch(array_keys(Utils::$context['groups']), $_REQUEST['pid'] ?? null);
 	}
 
 	/**
@@ -3180,7 +2931,7 @@ class Permissions implements ActionInterface
 	 *
 	 * Helper method called from modify().
 	 *
-	 * @param int $group ID number of a membergroup .
+	 * @param int $group ID number of a membergroup.
 	 * @param string $scope Either 'global' or 'board'. If this is 'global', the
 	 *    $profile param will always be treated as 1.
 	 * @param int $profile Permission profile to use. Only applicable when the
@@ -3562,21 +3313,6 @@ class Permissions implements ActionInterface
 	 *************************/
 
 	/**
-	 * Populates self::$hidden with a list of hidden permissions.
-	 */
-	protected static function buildHidden(): void
-	{
-		foreach (self::getPermissions() as $permission => $perm_info)
-		{
-			if (!empty($perm_info['hidden']))
-				self::$hidden[] = $permission;
-		}
-
-		// Backward compatibility.
-		Utils::$context['hidden_permissions'] = self::$hidden;
-	}
-
-	/**
 	 * Load permissions into Utils::$context['permissions'].
 	 */
 	protected static function loadAllPermissions(): void
@@ -3741,7 +3477,7 @@ class Permissions implements ActionInterface
 		$request = Db::$db->query('', '
 			SELECT id_group
 			FROM {db_prefix}membergroups
-			WHERE id_group != 1 AND id_group NOT IN (
+			WHERE id_group != {int:admin} AND id_group NOT IN (
 				SELECT DISTINCT id_group
 				FROM {db_prefix}permissions
 				WHERE permission IN ({array_string:permissions})
@@ -3750,6 +3486,7 @@ class Permissions implements ActionInterface
 			array(
 				'permissions' => self::$permissions['bbc_html']['assignee_prerequisites'],
 				'add' => 1,
+				'admin' => Group::ADMIN,
 			)
 		);
 		while ($row = Db::$db->fetch_assoc($request))

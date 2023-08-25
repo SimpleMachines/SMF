@@ -398,22 +398,7 @@ class Logging
 				if ($postgroups == null || $parameter1 == null)
 				{
 					// Fetch the postgroups!
-					$request = Db::$db->query('', '
-						SELECT id_group, min_posts
-						FROM {db_prefix}membergroups
-						WHERE min_posts != {int:min_posts}',
-						array(
-							'min_posts' => -1,
-						)
-					);
-					$postgroups = array();
-					while ($row = Db::$db->fetch_assoc($request))
-						$postgroups[$row['id_group']] = $row['min_posts'];
-
-					Db::$db->free_result($request);
-
-					// Sort them this way because if it's done with MySQL it causes a filesort :(.
-					arsort($postgroups);
+					$postgroups = Group::getPostGroups();
 
 					CacheApi::put('updateStats:postgroups', $postgroups, 360);
 				}

@@ -19,12 +19,13 @@ use SMF\Actions\ActionInterface;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Editor;
+use SMF\Group;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
+use SMF\Mail;
 use SMF\Menu;
 use SMF\Msg;
-use SMF\Mail;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
@@ -351,116 +352,42 @@ class News extends ACP implements ActionInterface
 		$postGroups = array();
 		$normalGroups = array();
 
+		// Get all the extra groups as well as Administrator and Global Moderator.
 		// If we have post groups disabled then we need to give a "ungrouped members" option.
 		if (empty(Config::$modSettings['permission_enable_postgroups']))
 		{
-			Utils::$context['groups'][0] = array(
-				'id' => 0,
-				'name' => Lang::$txt['membergroups_members'],
-				'member_count' => 0,
-			);
-			$normalGroups[0] = 0;
+			$include = Group::LOAD_NORMAL;
+			$exclude = array(Group::GUEST, Group::MOD);
+		}
+		else
+		{
+			$include = Group::LOAD_BOTH;
+			$exclude = array(Group::GUEST, Group::REGULAR, Group::MOD);
 		}
 
-		// Get all the extra groups as well as Administrator and Global Moderator.
-		$request = Db::$db->query('', '
-			SELECT mg.id_group, mg.group_name, mg.min_posts
-			FROM {db_prefix}membergroups AS mg' . (empty(Config::$modSettings['permission_enable_postgroups']) ? '
-			WHERE mg.min_posts = {int:min_posts}' : '') . '
-			GROUP BY mg.id_group, mg.min_posts, mg.group_name
-			ORDER BY mg.min_posts, CASE WHEN mg.id_group < {int:newbie_group} THEN mg.id_group ELSE 4 END, mg.group_name',
-			array(
-				'min_posts' => -1,
-				'newbie_group' => 4,
-			)
-		);
-		while ($row = Db::$db->fetch_assoc($request))
+		foreach (Group::loadSimple($include, $exclude) as $group)
 		{
-			Utils::$context['groups'][$row['id_group']] = array(
-				'id' => $row['id_group'],
-				'name' => $row['group_name'],
-				'member_count' => 0,
-			);
+			Utils::$context['groups'][$group->id] = $group;
 
-			if ($row['min_posts'] == -1)
+			if ($group->min_posts == -1)
 			{
-				$normalGroups[$row['id_group']] = $row['id_group'];
+				$normalGroups[$group->id] = $group->id;
 			}
 			else
 			{
-				$postGroups[$row['id_group']] = $row['id_group'];
+				$postGroups[$group->id] = $group->id;
 			}
 		}
-		Db::$db->free_result($request);
 
-		// If we have post groups, let's count the number of members...
-		if (!empty($postGroups))
-		{
-			$query = Db::$db->query('', '
-				SELECT mem.id_post_group AS id_group, COUNT(*) AS member_count
-				FROM {db_prefix}members AS mem
-				WHERE mem.id_post_group IN ({array_int:post_group_list})
-				GROUP BY mem.id_post_group',
-				array(
-					'post_group_list' => $postGroups,
-				)
-			);
-			while ($row = Db::$db->fetch_assoc($query))
-			{
-				Utils::$context['groups'][$row['id_group']]['member_count'] += $row['member_count'];
-			}
-			Db::$db->free_result($query);
-		}
+		// Let's count the number of members in each group...
+		$groups_to_count = array_keys(Utils::$context['groups']);
 
-		if (!empty($normalGroups))
-		{
-			// Find people who are members of this group...
-			$query = Db::$db->query('', '
-				SELECT id_group, COUNT(*) AS member_count
-				FROM {db_prefix}members
-				WHERE id_group IN ({array_int:normal_group_list})
-				GROUP BY id_group',
-				array(
-					'normal_group_list' => $normalGroups,
-				)
-			);
-			while ($row = Db::$db->fetch_assoc($query))
-			{
-				Utils::$context['groups'][$row['id_group']]['member_count'] += $row['member_count'];
-			}
-			Db::$db->free_result($query);
+		// Counting all the regular members could be a performance hit on large forums,
+		// so don't do that for anyone without high level permissions.
+		if (!User::$me->allowedTo('manage_membergroups'))
+			$groups_to_count = array_diff($groups_to_count, array(Group::REGULAR));
 
-			// Also do those who have it as an additional membergroup - this ones more yucky...
-			$query = Db::$db->query('', '
-				SELECT mg.id_group, COUNT(*) AS member_count
-				FROM {db_prefix}membergroups AS mg
-					INNER JOIN {db_prefix}members AS mem ON (mem.additional_groups != {string:blank_string}
-						AND mem.id_group != mg.id_group
-						AND FIND_IN_SET(mg.id_group, mem.additional_groups) != 0)
-				WHERE mg.id_group IN ({array_int:normal_group_list})
-				GROUP BY mg.id_group',
-				array(
-					'normal_group_list' => $normalGroups,
-					'blank_string' => '',
-				)
-			);
-			while ($row = Db::$db->fetch_assoc($query))
-			{
-				Utils::$context['groups'][$row['id_group']]['member_count'] += $row['member_count'];
-			}
-			Db::$db->free_result($query);
-		}
-
-		// Any moderators?
-		$request = Db::$db->query('', '
-			SELECT COUNT(DISTINCT id_member) AS num_distinct_mods
-			FROM {db_prefix}moderators
-			LIMIT 1',
-			array(
-			)
-		);
-		list (Utils::$context['groups'][3]['member_count']) = Db::$db->fetch_row($request);
-		Db::$db->free_result($request);
+		Group::countMembersBatch($groups_to_count);
 
 		Utils::$context['can_send_pm'] = User::$me->allowedTo('pm_send');
 

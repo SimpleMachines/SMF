@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\Group;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
@@ -190,45 +191,20 @@ class Members implements ActionInterface
 		if ($this->subaction == 'query')
 		{
 			// Retrieving the membergroups and postgroups.
-			$this->membergroups = array(
-				array(
-					'id' => 0,
-					'name' => Lang::$txt['membergroups_members'],
-					'can_be_additional' => false
-				)
-			);
-
+			$this->membergroups = array();
 			$this->postgroups = array();
 
-			$request = Db::$db->query('', '
-				SELECT id_group, group_name, min_posts
-				FROM {db_prefix}membergroups
-				WHERE id_group != {int:moderator_group}
-				ORDER BY min_posts, CASE WHEN id_group < {int:newbie_group} THEN id_group ELSE 4 END, group_name',
-				array(
-					'moderator_group' => 3,
-					'newbie_group' => 4,
-				)
-			);
-			while ($row = Db::$db->fetch_assoc($request))
+			foreach (Group::loadSimple(Group::LOAD_BOTH, array(Group::GUEST, Group::MOD)) as $group)
 			{
-				if ($row['min_posts'] == -1)
+				if ($group->min_posts == -1)
 				{
-					$this->membergroups[] = array(
-						'id' => $row['id_group'],
-						'name' => $row['group_name'],
-						'can_be_additional' => true
-					);
+					$this->membergroups[] = $group;
 				}
 				else
 				{
-					$this->postgroups[] = array(
-						'id' => $row['id_group'],
-						'name' => $row['group_name']
-					);
+					$this->postgroups[] = $group;
 				}
 			}
-			Db::$db->free_result($request);
 
 			// Some data about the form fields and how they are linked to the database.
 			$params = array(
@@ -721,45 +697,20 @@ class Members implements ActionInterface
 	public function search()
 	{
 		// Get a list of all the membergroups and postgroups that can be selected.
-		$this->membergroups = array(
-			array(
-				'id' => 0,
-				'name' => Lang::$txt['membergroups_members'],
-				'can_be_additional' => false
-			)
-		);
-
+		$this->membergroups = array();
 		$this->postgroups = array();
 
-		$request = Db::$db->query('', '
-			SELECT id_group, group_name, min_posts
-			FROM {db_prefix}membergroups
-			WHERE id_group != {int:moderator_group}
-			ORDER BY min_posts, CASE WHEN id_group < {int:newbie_group} THEN id_group ELSE 4 END, group_name',
-			array(
-				'moderator_group' => 3,
-				'newbie_group' => 4,
-			)
-		);
-		while ($row = Db::$db->fetch_assoc($request))
+		foreach (Group::loadSimple(Group::LOAD_BOTH, array(Group::GUEST, Group::MOD)) as $group)
 		{
-			if ($row['min_posts'] == -1)
+			if ($group->min_posts == -1)
 			{
-				$this->membergroups[] = array(
-					'id' => $row['id_group'],
-					'name' => $row['group_name'],
-					'can_be_additional' => true
-				);
+				$this->membergroups[] = $group;
 			}
 			else
 			{
-				$this->postgroups[] = array(
-					'id' => $row['id_group'],
-					'name' => $row['group_name']
-				);
+				$this->postgroups[] = $group;
 			}
 		}
-		Db::$db->free_result($request);
 
 		Utils::$context['page_title'] = Lang::$txt['admin_members'];
 		Utils::$context['sub_template'] = 'search_members';

@@ -1434,56 +1434,19 @@ class Profile extends User implements \ArrayAccess
 	 */
 	public function loadAssignableGroups(): bool
 	{
-		$this->assignable_groups = array(
-			0 => array(
-				'id' => 0,
-				'name' => Lang::$txt['no_primary_membergroup'],
-				'desc' => Lang::$txt['regular_members_desc'],
-				'color' => null,
-				'type' => 2,
-				'is_primary' => $this->data['id_group'] == 0,
-				'can_be_additional' => false,
-				'can_be_primary' => true,
-				'can_leave' => false,
-			)
-		);
+		// Load the groups.
+		$this->assignable_groups = Group::loadAssignable();
 
-		self::loadUnassignableGroups();
-
-		// Load membergroups, but only those groups the user can assign.
-		$request = Db::$db->query('', '
-			SELECT id_group, group_name, description, group_type, online_color, hidden
-			FROM {db_prefix}membergroups
-			WHERE id_group != {int:moderator_group}
-				AND min_posts = {int:min_posts}' . (empty(self::$unassignable_groups) ? '' : '
-				AND id_group NOT IN ({array_int:protected_groups})') . '
-			ORDER BY min_posts, CASE WHEN id_group < {int:newbie_group} THEN id_group ELSE {int:newbie_group} END, group_name',
-			array(
-				'moderator_group' => 3,
-				'min_posts' => -1,
-				'protected_groups' => self::$unassignable_groups,
-				'newbie_group' => 4,
-			)
-		);
-		while ($row = Db::$db->fetch_assoc($request))
+		// Set a few custom properties.
+		foreach ($this->assignable_groups as $group)
 		{
-			$this->assignable_groups[$row['id_group']] = array(
-				'id' => $row['id_group'],
-				'name' => $row['group_name'],
-				'desc' => $row['description'],
-				'color' => $row['online_color'],
-				'type' => (int) $row['group_type'],
-				'is_primary' => $this->data['id_group'] == $row['id_group'],
-				'is_additional' => in_array($row['id_group'], $this->additional_groups),
-				'can_be_additional' => true,
-				'can_be_primary' => $row['hidden'] != 2,
-				// Can't leave a private or protected group.
-				// For example, if the admin added you to a group for miscreants
-				// with reduced privileges, you can't just decide to leave.
-				'can_leave' => !in_array($row['id_group'], self::$unassignable_groups),
-			);
+			// Mark the regular members group as requestable.
+			if ($group->id === Group::REGULAR)
+				$group->type = Group::TYPE_REQUESTABLE;
+
+			$group->is_primary = $this->data['id_group'] == $group->id;
+			$group->is_additional = in_array($group->id, $this->additional_groups);
 		}
-		Db::$db->free_result($request);
 
 		// For the templates.
 		Utils::$context['member_groups'] = $this->assignable_groups;
@@ -1792,20 +1755,20 @@ class Profile extends User implements \ArrayAccess
 		$additional_groups = array_unique($additional_groups);
 
 		// Do we need to protect some groups?
-		self::loadUnassignableGroups();
+		Group::getUnassignable();
 
 		// The account page allows you to change your id_group - but not to a protected group!
-		if (!empty(self::$unassignable_groups) && in_array($value, self::$unassignable_groups) && !in_array($value, $this->groups))
+		if (!empty(Group::$unassignable) && in_array($value, Group::$unassignable) && !in_array($value, $this->groups))
 		{
 			$value = $this->data['id_group'];
 		}
 
 		// Find the additional membergroups (if any).
 		// Never add group 0 or any protected groups that the user isn't already in.
-		$additional_groups = array_diff(array_filter(array_map('intval', $additional_groups)), array_diff(self::$unassignable_groups, $this->groups));
+		$additional_groups = array_diff(array_filter(array_map('intval', $additional_groups)), array_diff(Group::$unassignable, $this->groups));
 
 		// Put the protected groups back in there if you don't have permission to take them away.
-		$additional_groups = array_unique(array_merge($additional_groups, array_intersect($this->additional_groups, self::$unassignable_groups)));
+		$additional_groups = array_unique(array_merge($additional_groups, array_intersect($this->additional_groups, Group::$unassignable)));
 
 		// Don't include the primary group in the additional groups.
 		$additional_groups = array_diff($additional_groups, array($value));
@@ -2376,69 +2339,6 @@ class Profile extends User implements \ArrayAccess
 			self::$custom_field_definitions[$row['col_name']] = $row;
 		}
 		Db::$db->free_result($request);
-	}
-
-	/**
-	 * Populates self::$unassignable_groups with the IDs of any groups that the
-	 * current user cannot assign.
-	 */
-	public static function loadUnassignableGroups(): void
-	{
-		// Admins can assign any group they like.
-		if (User::$me->allowedTo('admin_forum'))
-		{
-			self::$unassignable_groups = array();
-			return;
-		}
-
-		// No need to do this twice.
-		if (isset(self::$unassignable_groups))
-			return;
-
-		// Obviously, protect the admin group.
-		self::$unassignable_groups = array(1);
-
-		// Prevent privilege escalation.
-		$protected_permissions = array();
-		foreach (array('admin_forum', 'manage_membergroups', 'manage_permissions') as $permission)
-		{
-			if (!User::$me->allowedTo($permission))
-				$protected_permissions[] = $permission;
-		}
-
-		$request = Db::$db->query('', '
-			SELECT id_group
-			FROM {db_prefix}permissions
-			WHERE permission IN ({array_string:protected})
-				AND add_deny = {int:add}',
-			array(
-				'protected' => $protected_permissions,
-				'add' => 1,
-			)
-		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			self::$unassignable_groups[] = (int) $row['id_group'];
-		}
-		Db::$db->free_result($request);
-
-		// Find any other groups that are designated as protected.
-		$request = Db::$db->query('', '
-			SELECT id_group
-			FROM {db_prefix}membergroups
-			WHERE group_type IN ({array_int:is_protected})
-				OR min_posts > -1',
-			array(
-				'is_protected' => !User::$me->allowedTo('manage_membergroups') ? array(0, 1) : array(1),
-			)
-		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			self::$unassignable_groups[] = (int) $row['id_group'];
-		}
-		Db::$db->free_result($request);
-
-		self::$unassignable_groups = array_unique(self::$unassignable_groups);
 	}
 
 	/**

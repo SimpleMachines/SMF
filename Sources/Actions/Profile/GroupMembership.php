@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\Group;
 use SMF\Lang;
 use SMF\Profile;
 use SMF\User;
@@ -133,20 +134,20 @@ class GroupMembership implements ActionInterface
 			$member_or_available = in_array($id, Profile::$member->groups) ? 'member' : 'available';
 
 			// Can't join private or protected groups.
-			if ($group['type'] < 2 && $member_or_available == 'available')
+			if ($group->type < Group::TYPE_REQUESTABLE && $member_or_available == 'available')
 				continue;
 
 			Utils::$context['groups'][$member_or_available][$id] = $group;
 
 			// Do they have a pending request to join this group?
-			Utils::$context['groups'][$member_or_available][$id]['pending'] = in_array($id, $open_requests);
+			Utils::$context['groups'][$member_or_available][$id]->pending = in_array($id, $open_requests);
 		}
 
 		// If needed, add "Regular Members" on the end.
-		if (Utils::$context['can_edit_primary'] || Profile::$member->group_id == 0)
+		if (Utils::$context['can_edit_primary'] || Profile::$member->group_id == Group::REGULAR)
 		{
-			Utils::$context['groups']['member'][0] = Profile::$member->assignable_groups[0];
-			Utils::$context['groups']['member'][0]['name'] = Lang::$txt['regular_members'];
+			Utils::$context['groups']['member'][Group::REGULAR] = Profile::$member->assignable_groups[Group::REGULAR];
+			Utils::$context['groups']['member'][Group::REGULAR]->name = Lang::$txt['regular_members'];
 		}
 
 		// No changing primary group unless you have enough groups!
@@ -157,7 +158,7 @@ class GroupMembership implements ActionInterface
 		if (
 			isset($_REQUEST['request']) 
 			&& isset(Utils::$context['groups']['available'][(int) $_REQUEST['request']]) 
-			&& Utils::$context['groups']['available'][(int) $_REQUEST['request']]['type'] == 2
+			&& Utils::$context['groups']['available'][(int) $_REQUEST['request']]->type == Group::TYPE_REQUESTABLE
 		)
 		{
 			Utils::$context['group_request'] = Utils::$context['groups']['available'][(int) $_REQUEST['request']];
@@ -344,38 +345,20 @@ class GroupMembership implements ActionInterface
 		$current_and_assignable_groups = Profile::$member->assignable_groups;
 
 		// If they are already in an unassignable group, show that too.
-		$current_unassignable_groups = array_intersect(Profile::$member->groups, Profile::$unassignable_groups);
+		$current_unassignable_groups = array_intersect(Profile::$member->groups, Group::getUnassignable());
 
 		if ($current_unassignable_groups !== array())
 		{
-			$request = Db::$db->query('', '
-				SELECT id_group, group_name, description, group_type, online_color, hidden
-				FROM {db_prefix}membergroups
-				WHERE id_group IN ({array_int:unassignable_groups})
-					AND min_posts = {int:min_posts}',
-				array(
-					'unassignable_groups' => $current_unassignable_groups,
-					'min_posts' => -1,
-				)
-			);
-			while ($row = Db::$db->fetch_assoc($request))
+			foreach (Group::load($current_unassignable_groups) as $group)
 			{
-				$row['id_group'] = (int) $row['id_group'];
+				if ($group->min_posts > -1)
+					continue;
 
-				$current_and_assignable_groups[$row['id_group']] = array(
-					'id' => $row['id_group'],
-					'name' => $row['group_name'],
-					'desc' => $row['description'],
-					'color' => $row['online_color'],
-					'type' => (int) $row['group_type'],
-					'is_primary' => $row['id_group'] == Profile::$member->group_id,
-					'is_additional' => in_array($row['id_group'], Profile::$member->additional_groups),
-					'can_be_additional' => $row['id_group'] != 0,
-					'can_be_primary' => $row['hidden'] != 2,
-					'can_leave' => !in_array($row['id_group'], Profile::$unassignable_groups),
-				);
+				$group->is_primary = $group->id == Profile::$member->group_id;
+				$group->is_additional = in_array($group->id, Profile::$member->additional_groups);
+
+				$current_and_assignable_groups[$group->id] = $group;
 			}
-			Db::$db->free_result($request);
 		}
 
 		uasort(
@@ -403,18 +386,18 @@ class GroupMembership implements ActionInterface
 		// Hidden groups cannot be primary groups.
 		if (isset($new_group_id))
 		{
-			$can_edit_primary = Profile::$member->current_and_assignable_groups[$new_group_id]['can_be_primary'];
+			$can_edit_primary = Profile::$member->current_and_assignable_groups[$new_group_id]->can_be_primary;
 		}
 		else
 		{
-			$possible_primary_groups = array_filter(Profile::$member->current_and_assignable_groups, fn($group) => !empty($group['can_be_primary']));
+			$possible_primary_groups = array_filter(Profile::$member->current_and_assignable_groups, fn($group) => !empty($group->can_be_primary));
 
 			$can_edit_primary = !empty($possible_primary_groups);
 		}
 
 		// Changing the primary group means turning the current primary group
 		// into an additional group. So, is that possible?
-		$can_edit_primary &= Profile::$member->group_id == 0 || Profile::$member->current_and_assignable_groups[Profile::$member->group_id]['can_be_additional'];
+		$can_edit_primary &= Profile::$member->group_id == Group::REGULAR || Profile::$member->current_and_assignable_groups[Profile::$member->group_id]->can_be_additional;
 
 		return (bool) $can_edit_primary;
 	}

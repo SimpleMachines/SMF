@@ -81,7 +81,7 @@ function template_permission_index()
 
 		echo '
 						</td>
-						<td>', $group['can_search'] ? $group['link'] : $group['num_members'], '</td>';
+						<td>', $group['can_search'] ? $group['link'] : $group['num_members'] ?? Lang::$txt['not_applicable'], '</td>';
 
 		if (empty(Config::$modSettings['permission_enable_deny']))
 			echo '
