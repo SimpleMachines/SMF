@@ -20,6 +20,7 @@ use SMF\Category;
 use SMF\Config;
 use SMF\Draft;
 use SMF\ErrorHandler;
+use SMF\Group;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
@@ -221,27 +222,10 @@ class Maintenance implements ActionInterface
 	public function members(): void
 	{
 		// Get membergroups - for deleting members and the like.
-		Utils::$context['membergroups'] = array(
-			array(
-				'id' => 0,
-				'name' => Lang::$txt['maintain_members_ungrouped']
-			),
+		Utils::$context['membergroups'] = array_merge(
+			array(new Group(Group::REGULAR, array('name' => Lang::$txt['maintain_members_ungrouped']))),
+			Group::load(),
 		);
-
-		$result = Db::$db->query('', '
-			SELECT id_group, group_name
-			FROM {db_prefix}membergroups',
-			array(
-			)
-		);
-		while ($row = Db::$db->fetch_assoc($result))
-		{
-			Utils::$context['membergroups'][] = array(
-				'id' => $row['id_group'],
-				'name' => $row['group_name']
-			);
-		}
-		Db::$db->free_result($result);
 
 		if (isset($_GET['done']) && $_GET['done'] == 'recountposts')
 		{
@@ -1442,32 +1426,25 @@ class Maintenance implements ActionInterface
 			else
 				$where = 'mem.last_login < {int:time_limit} AND (mem.last_login != 0 OR mem.date_registered < {int:time_limit})';
 
-			// Need to get *all* groups then work out which (if any) we avoid.
-			$request = Db::$db->query('', '
-				SELECT id_group, group_name, min_posts
-				FROM {db_prefix}membergroups',
-				array(
-				)
-			);
-			while ($row = Db::$db->fetch_assoc($request))
+			// Need to get all groups then work out which (if any) we avoid.
+			foreach (Group::loadSimple(Group::LOAD_BOTH, array(Group::GUEST, Group::MOD)) as $group)
 			{
 				// Avoid this one?
-				if (!in_array($row['id_group'], $groups))
+				if (!in_array($group->id, $groups))
 				{
 					// Post group?
-					if ($row['min_posts'] != -1)
+					if ($group->min_posts != -1)
 					{
-						$where .= ' AND mem.id_post_group != {int:id_post_group_' . $row['id_group'] . '}';
-						$where_vars['id_post_group_' . $row['id_group']] = $row['id_group'];
+						$where .= ' AND mem.id_post_group != {int:id_post_group_' . $group->id . '}';
+						$where_vars['id_post_group_' . $group->id] = $group->id;
 					}
 					else
 					{
-						$where .= ' AND mem.id_group != {int:id_group_' . $row['id_group'] . '} AND FIND_IN_SET({int:id_group_' . $row['id_group'] . '}, mem.additional_groups) = 0';
-						$where_vars['id_group_' . $row['id_group']] = $row['id_group'];
+						$where .= ' AND mem.id_group != {int:id_group_' . $group->id . '} AND FIND_IN_SET({int:id_group_' . $group->id . '}, mem.additional_groups) = 0';
+						$where_vars['id_group_' . $group->id] = $group->id;
 					}
 				}
 			}
-			Db::$db->free_result($request);
 
 			// If we have ungrouped unselected we need to avoid those guys.
 			if (!in_array(0, $groups))

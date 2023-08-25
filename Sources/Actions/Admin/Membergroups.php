@@ -19,12 +19,13 @@ use SMF\Actions\ActionInterface;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\Group;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
-use SMF\Theme;
 use SMF\SecurityToken;
+use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -390,28 +391,18 @@ class Membergroups implements ActionInterface
 			{
 				$copy_id = $_POST['perm_type'] == 'copy' ? (int) $_POST['copyperm'] : (int) $_POST['inheritperm'];
 
-				// Are you a powerful admin?
-				if (!User::$me->allowedTo('admin_forum'))
-				{
-					$request = Db::$db->query('', '
-						SELECT group_type
-						FROM {db_prefix}membergroups
-						WHERE id_group = {int:copy_from}
-						LIMIT {int:limit}',
-						array(
-							'copy_from' => $copy_id,
-							'limit' => 1,
-						)
-					);
-					list($copy_type) = Db::$db->fetch_row($request);
-					Db::$db->free_result($request);
+				@list($copy_from) = Group::load($copy_id);
 
-					// Protected groups are... well, protected!
-					if ($copy_type == 1)
-						ErrorHandler::fatalLang('membergroup_does_not_exist');
+				if (!isset($copy_from))
+					ErrorHandler::fatalLang('membergroup_does_not_exist');
+
+				// Protected groups are... well, protected!
+				if (!User::$me->allowedTo('admin_forum') && $copy_from->type == Group::TYPE_PROTECTED)
+				{
+					ErrorHandler::fatalLang('membergroup_does_not_exist');
 				}
 
-				// Don't allow copying of a real priviledged person!
+				// Don't allow copying of a real privileged person!
 				$illegal_permissions = Permissions::loadIllegalPermissions();
 
 				$inserts = array();
@@ -470,18 +461,6 @@ class Membergroups implements ActionInterface
 				// Also get some membergroup information if we're copying and not copying from guests...
 				if ($copy_id > 0 && $_POST['perm_type'] == 'copy')
 				{
-					$request = Db::$db->query('', '
-						SELECT online_color, max_messages, icons
-						FROM {db_prefix}membergroups
-						WHERE id_group = {int:copy_from}
-						LIMIT 1',
-						array(
-							'copy_from' => $copy_id,
-						)
-					);
-					$group_info = Db::$db->fetch_assoc($request);
-					Db::$db->free_result($request);
-
 					// ...and update the new membergroup with it.
 					Db::$db->query('', '
 						UPDATE {db_prefix}membergroups
@@ -491,10 +470,10 @@ class Membergroups implements ActionInterface
 							icons = {string:icons}
 						WHERE id_group = {int:current_group}',
 						array(
-							'max_messages' => $group_info['max_messages'],
+							'max_messages' => $copy_from->max_messages,
 							'current_group' => $id_group,
-							'online_color' => $group_info['online_color'],
-							'icons' => $group_info['icons'],
+							'online_color' => $copy_from->online_color,
+							'icons' => $copy_from->icons,
 						)
 					);
 				}
@@ -594,29 +573,13 @@ class Membergroups implements ActionInterface
 		if (!empty(Config::$modSettings['deny_boards_access']))
 			Lang::load('ManagePermissions');
 
-		Utils::$context['groups'] = array();
-		$result = Db::$db->query('', '
-			SELECT id_group, group_name
-			FROM {db_prefix}membergroups
-			WHERE (id_group > {int:moderator_group} OR id_group = {int:global_mod_group})' . (empty(Config::$modSettings['permission_enable_postgroups']) ? '
-				AND min_posts = {int:min_posts}' : '') . (User::$me->allowedTo('admin_forum') ? '' : '
-				AND group_type != {int:is_protected}') . '
-			ORDER BY min_posts, id_group != {int:global_mod_group}, group_name',
-			array(
-				'moderator_group' => 3,
-				'global_mod_group' => 2,
-				'min_posts' => -1,
-				'is_protected' => 1,
-			)
+		// Load all the relevant member groups. Start with a clean slate.
+		Group::$loaded = array();
+
+		Utils::$context['groups'] = Group::loadSimple(
+			Group::LOAD_NORMAL | (int) !empty(Config::$modSettings['permission_enable_postgroups']),
+			array(Group::GUEST, Group::REGULAR, Group::ADMIN, Group::MOD),
 		);
-		while ($row = Db::$db->fetch_assoc($result))
-		{
-			Utils::$context['groups'][] = array(
-				'id' => $row['id_group'],
-				'name' => $row['group_name']
-			);
-		}
-		Db::$db->free_result($result);
 
 		Utils::$context['num_boards'] = 0;
 		Utils::$context['categories'] = array();
@@ -688,46 +651,24 @@ class Membergroups implements ActionInterface
 		if (!empty(Config::$modSettings['deny_boards_access']))
 			Lang::load('ManagePermissions');
 
-		// Make sure this group is editable.
-		if (!empty($_REQUEST['group']))
-		{
-			$request = Db::$db->query('', '
-				SELECT id_group
-				FROM {db_prefix}membergroups
-				WHERE id_group = {int:current_group}' . (User::$me->allowedTo('admin_forum') ? '' : '
-					AND group_type != {int:is_protected}') . '
-				LIMIT {int:limit}',
-				array(
-					'current_group' => $_REQUEST['group'],
-					'is_protected' => 1,
-					'limit' => 1,
-				)
-			);
-			list($_REQUEST['group']) = Db::$db->fetch_row($request);
-			Db::$db->free_result($request);
-		}
-
-		// Now, do we have a valid id?
 		if (empty($_REQUEST['group']))
+			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
+
+		@list($group) = Group::load($_REQUEST['group']);
+
+		if (!isset($group) || !($group instanceof Group))
+			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
+
+		if (!User::$me->allowedTo('admin_forum') && $group->type === Group::TYPE_PROTECTED)
 			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
 
 		// People who can manage boards are a bit special.
 		$board_managers = User::groupsAllowedTo('manage_boards', null);
 
-		Utils::$context['can_manage_boards'] = in_array($_REQUEST['group'], $board_managers['allowed']);
+		Utils::$context['can_manage_boards'] = in_array($group->id, $board_managers['allowed']);
 
 		// Can this group moderate any boards?
-		$request = Db::$db->query('', '
-			SELECT COUNT(*)
-			FROM {db_prefix}moderator_groups
-			WHERE id_group = {int:current_group}',
-			array(
-				'current_group' => $_REQUEST['group'],
-			)
-		);
-		$row = Db::$db->fetch_row($request);
-		Utils::$context['is_moderator_group'] = ($row[0] > 0);
-		Db::$db->free_result($request);
+		Utils::$context['is_moderator_group'] = $group->is_moderator_group;
 
 		// Get a list of all the image formats we can select for icons.
 		$imageExts = array('png', 'jpg', 'jpeg', 'bmp', 'gif', 'svg');
@@ -752,10 +693,7 @@ class Membergroups implements ActionInterface
 		// The delete this membergroup button was pressed.
 		if (isset($_POST['delete']))
 		{
-			User::$me->checkSession();
-			SecurityToken::validate('admin-mmg');
-
-			$result = $this->deleteMembergroups($_REQUEST['group']);
+			$result = $group->delete();
 
 			// Need to throw a warning if it went wrong, but this is the only one we have a message for...
 			if ($result === 'group_cannot_delete_sub')
@@ -766,455 +704,125 @@ class Membergroups implements ActionInterface
 		// A form was submitted with the new membergroup settings.
 		elseif (isset($_POST['save']))
 		{
-			// Validate the session.
-			User::$me->checkSession();
-			SecurityToken::validate('admin-mmg');
-
 			// Can they really inherit from this group?
-			if ($_REQUEST['group'] > 1 && $_REQUEST['group'] != 3 && isset($_POST['group_inherit']) && $_POST['group_inherit'] != -2 && !User::$me->allowedTo('admin_forum'))
+			if ($group->id > Group::ADMIN && $group->id != Group::MOD && isset($_POST['group_inherit']) && $_POST['group_inherit'] != Group::NONE && !User::$me->allowedTo('admin_forum'))
 			{
-				$request = Db::$db->query('', '
-					SELECT group_type
-					FROM {db_prefix}membergroups
-					WHERE id_group = {int:inherit_from}
-					LIMIT {int:limit}',
-					array(
-						'inherit_from' => $_POST['group_inherit'],
-						'limit' => 1,
-					)
-				);
-				list($inherit_type) = Db::$db->fetch_row($request);
-				Db::$db->free_result($request);
+				$_POST['group_inherit'] = (int) $_POST['group_inherit'];
+
+				if ($_POST['group_inherit'] > Group::ADMIN)
+					@list($inherit_from) = Group::load($_POST['group_inherit']);
+
+				if (isset($inherit_from) && ($inherit_from instanceof Group))
+					$inherit_type = $inherit_from->type;
 			}
 
 			// Set variables to their proper value.
-			$_POST['max_messages'] = isset($_POST['max_messages']) ? (int) $_POST['max_messages'] : 0;
+			$group->set(array(
+				'max_messages' => isset($_POST['max_messages']) ? (int) $_POST['max_messages'] : 0,
+				'min_posts' => isset($_POST['min_posts']) && isset($_POST['group_type']) && $_POST['group_type'] == -1 && $group->id > Group::MOD ? abs($_POST['min_posts']) : ($group->id == Group::NEWBIE ? 0 : -1),
+				'icons' => (empty($_POST['icon_count']) || $_POST['icon_count'] < 0 || !in_array($_POST['icon_image'], Utils::$context['possible_icons'])) ? '' : min((int) $_POST['icon_count'], 99) . '#' . $_POST['icon_image'],
+				'name' => Utils::htmlspecialchars($_POST['group_name']),
+				'description' => isset($_POST['group_desc']) && ($group->id == Group::ADMIN || (isset($_POST['group_type']) && $_POST['group_type'] != -1)) ? Utils::htmlTrim(Utils::sanitizeChars(Utils::normalize($_POST['group_desc']))) : '',
+				'type' => !isset($_POST['group_type']) || $_POST['group_type'] < Group::TYPE_PRIVATE || $_POST['group_type'] > Group::TYPE_FREE || ($_POST['group_type'] == Group::TYPE_PROTECTED && !User::$me->allowedTo('admin_forum')) ? Group::TYPE_PRIVATE : (int) $_POST['group_type'],
+				'hidden' => empty($_POST['group_hidden']) || $_POST['min_posts'] != -1 || $group->id == Group::MOD ? Group::VISIBLE : (int) $_POST['group_hidden'],
+				'parent' => $group->id > Group::ADMIN && $group->id != Group::MOD && (empty($inherit_type) || $inherit_type != Group::TYPE_PROTECTED) ? (int) $_POST['group_inherit'] : Group::NONE,
+				'tfa_required' => (empty(Config::$modSettings['tfa_mode']) || Config::$modSettings['tfa_mode'] != 2 || empty($_POST['group_tfa_force'])) ? false : true,
+				'online_color' => (int) $group->id != Group::MOD && preg_match('/^#?\w+$/', Utils::htmlTrim($_POST['online_color'])) ? Utils::htmlTrim($_POST['online_color']) : '',
+			));
 
-			$_POST['min_posts'] = isset($_POST['min_posts']) && isset($_POST['group_type']) && $_POST['group_type'] == -1 && $_REQUEST['group'] > 3 ? abs($_POST['min_posts']) : ($_REQUEST['group'] == 4 ? 0 : -1);
-
-			$_POST['icons'] = (empty($_POST['icon_count']) || $_POST['icon_count'] < 0 || !in_array($_POST['icon_image'], Utils::$context['possible_icons'])) ? '' : min((int) $_POST['icon_count'], 99) . '#' . $_POST['icon_image'];
-
-			$_POST['group_name'] = Utils::htmlspecialchars($_POST['group_name']);
-
-			$_POST['group_desc'] = isset($_POST['group_desc']) && ($_REQUEST['group'] == 1 || (isset($_POST['group_type']) && $_POST['group_type'] != -1)) ? Utils::htmlTrim(Utils::sanitizeChars(Utils::normalize($_POST['group_desc']))) : '';
-
-			$_POST['group_type'] = !isset($_POST['group_type']) || $_POST['group_type'] < 0 || $_POST['group_type'] > 3 || ($_POST['group_type'] == 1 && !User::$me->allowedTo('admin_forum')) ? 0 : (int) $_POST['group_type'];
-
-			$_POST['group_hidden'] = empty($_POST['group_hidden']) || $_POST['min_posts'] != -1 || $_REQUEST['group'] == 3 ? 0 : (int) $_POST['group_hidden'];
-
-			$_POST['group_inherit'] = $_REQUEST['group'] > 1 && $_REQUEST['group'] != 3 && (empty($inherit_type) || $inherit_type != 1) ? (int) $_POST['group_inherit'] : -2;
-
-			$_POST['group_tfa_force'] = (empty(Config::$modSettings['tfa_mode']) || Config::$modSettings['tfa_mode'] != 2 || empty($_POST['group_tfa_force'])) ? 0 : 1;
-
-			$_POST['online_color'] = (int) $_REQUEST['group'] != 3 && preg_match('/^#?\w+$/', Utils::htmlTrim($_POST['online_color'])) ? Utils::htmlTrim($_POST['online_color']) : '';
-
-			// Do the update of the membergroup settings.
-			Db::$db->query('', '
-				UPDATE {db_prefix}membergroups
-				SET group_name = {string:group_name}, online_color = {string:online_color},
-					max_messages = {int:max_messages}, min_posts = {int:min_posts}, icons = {string:icons},
-					description = {string:group_desc}, group_type = {int:group_type}, hidden = {int:group_hidden},
-					id_parent = {int:group_inherit}, tfa_required = {int:tfa_required}
-				WHERE id_group = {int:current_group}',
-				array(
-					'max_messages' => $_POST['max_messages'],
-					'min_posts' => $_POST['min_posts'],
-					'group_type' => $_POST['group_type'],
-					'group_hidden' => $_POST['group_hidden'],
-					'group_inherit' => $_POST['group_inherit'],
-					'current_group' => (int) $_REQUEST['group'],
-					'group_name' => $_POST['group_name'],
-					'online_color' => $_POST['online_color'],
-					'icons' => $_POST['icons'],
-					'group_desc' => $_POST['group_desc'],
-					'tfa_required' => $_POST['group_tfa_force'],
-				)
-			);
-
-			call_integration_hook('integrate_save_membergroup', array((int) $_REQUEST['group']));
-
-			// Time to update the boards this membergroup has access to.
-			if ($_REQUEST['group'] == 2 || $_REQUEST['group'] > 3)
-			{
-				$accesses = empty($_POST['boardaccess']) || !is_array($_POST['boardaccess']) ? array() : $_POST['boardaccess'];
-
-				$changed_boards['allow'] = array();
-				$changed_boards['deny'] = array();
-				$changed_boards['ignore'] = array();
-
-				foreach ($accesses as $board_id => $action)
-					$changed_boards[$action][] = (int) $board_id;
-
-				Db::$db->query('', '
-					DELETE FROM {db_prefix}board_permissions_view
-					WHERE id_group = {int:group_id}',
-					array(
-						'group_id' => (int) $_REQUEST['group'],
-					)
-				);
-
-				foreach (array('allow', 'deny') as $board_action)
-				{
-					// Find all board this group is in, but shouldn't be in.
-					$request = Db::$db->query('', '
-						SELECT id_board, {raw:column}
-						FROM {db_prefix}boards
-						WHERE FIND_IN_SET({string:current_group}, {raw:column}) != 0' . (empty($changed_boards[$board_action]) ? '' : '
-							AND id_board NOT IN ({array_int:board_access_list})'),
-						array(
-							'current_group' => (int) $_REQUEST['group'],
-							'board_access_list' => $changed_boards[$board_action],
-							'column' => $board_action == 'allow' ? 'member_groups' : 'deny_member_groups',
-						)
-					);
-					while ($row = Db::$db->fetch_assoc($request))
-					{
-						Db::$db->query('', '
-							UPDATE {db_prefix}boards
-							SET {raw:column} = {string:member_group_access}
-							WHERE id_board = {int:current_board}',
-							array(
-								'current_board' => $row['id_board'],
-								'member_group_access' => implode(',', array_diff(explode(',', $row['member_groups']), array($_REQUEST['group']))),
-								'column' => $board_action == 'allow' ? 'member_groups' : 'deny_member_groups',
-							)
-						);
-					}
-					Db::$db->free_result($request);
-
-					// Add the membergroup to all boards that hadn't been set yet.
-					if (!empty($changed_boards[$board_action]))
-					{
-						Db::$db->query('', '
-							UPDATE {db_prefix}boards
-							SET {raw:column} = CASE WHEN {raw:column} = {string:blank_string} THEN {string:group_id_string} ELSE CONCAT({raw:column}, {string:comma_group}) END
-							WHERE id_board IN ({array_int:board_list})
-								AND FIND_IN_SET({int:current_group}, {raw:column}) = 0',
-							array(
-								'board_list' => $changed_boards[$board_action],
-								'blank_string' => '',
-								'current_group' => (int) $_REQUEST['group'],
-								'group_id_string' => (string) (int) $_REQUEST['group'],
-								'comma_group' => ',' . $_REQUEST['group'],
-								'column' => $board_action == 'allow' ? 'member_groups' : 'deny_member_groups',
-							)
-						);
-
-						$insert = array();
-
-						foreach ($changed_boards[$board_action] as $board_id)
-						{
-							$insert[] = array((int) $_REQUEST['group'], $board_id, $board_action == 'allow' ? 0 : 1);
-						}
-
-						Db::$db->insert('insert',
-							'{db_prefix}board_permissions_view',
-							array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
-							$insert,
-							array('id_group', 'id_board', 'deny')
-						);
-					}
-				}
-			}
-
-			// Remove everyone from this group!
-			if ($_POST['min_posts'] != -1)
-			{
-				Db::$db->query('', '
-					UPDATE {db_prefix}members
-					SET id_group = {int:regular_member}
-					WHERE id_group = {int:current_group}',
-					array(
-						'regular_member' => 0,
-						'current_group' => (int) $_REQUEST['group'],
-					)
-				);
-
-				$updates = array();
-
-				$request = Db::$db->query('', '
-					SELECT id_member, additional_groups
-					FROM {db_prefix}members
-					WHERE FIND_IN_SET({string:current_group}, additional_groups) != 0',
-					array(
-						'current_group' => (int) $_REQUEST['group'],
-					)
-				);
-				while ($row = Db::$db->fetch_assoc($request))
-				{
-					$updates[$row['additional_groups']][] = $row['id_member'];
-				}
-				Db::$db->free_result($request);
-
-				foreach ($updates as $additional_groups => $memberArray)
-				{
-					User::updateMemberData($memberArray, array('additional_groups' => implode(',', array_diff(explode(',', $additional_groups), array((int) $_REQUEST['group'])))));
-				}
-
-				// Sorry, but post groups can't moderate boards
-				Db::$db->query('', '
-					DELETE FROM {db_prefix}moderator_groups
-					WHERE id_group = {int:current_group}',
-					array(
-						'current_group' => (int) $_REQUEST['group'],
-					)
-				);
-			}
-			elseif ($_REQUEST['group'] != 3)
-			{
-				// Making it a hidden group? If so remove everyone with it as primary group (Actually, just make them additional).
-				if ($_POST['group_hidden'] == 2)
-				{
-					$updates = array();
-
-					$request = Db::$db->query('', '
-						SELECT id_member, additional_groups
-						FROM {db_prefix}members
-						WHERE id_group = {int:current_group}
-							AND FIND_IN_SET({int:current_group}, additional_groups) = 0',
-						array(
-							'current_group' => (int) $_REQUEST['group'],
-						)
-					);
-					while ($row = Db::$db->fetch_assoc($request))
-					{
-						$updates[$row['additional_groups']][] = $row['id_member'];
-					}
-					Db::$db->free_result($request);
-
-					foreach ($updates as $additional_groups => $memberArray)
-					{
-						// We already validated $_REQUEST['group'] a while ago.
-						$new_groups = (!empty($additional_groups) ? $additional_groups . ',' : '') . $_REQUEST['group'];
-
-						User::updateMemberData($memberArray, array('additional_groups' => $new_groups));
-					}
-
-					Db::$db->query('', '
-						UPDATE {db_prefix}members
-						SET id_group = {int:regular_member}
-						WHERE id_group = {int:current_group}',
-						array(
-							'regular_member' => 0,
-							'current_group' => $_REQUEST['group'],
-						)
-					);
-
-					// Hidden groups can't moderate boards
-					Db::$db->query('', '
-						DELETE FROM {db_prefix}moderator_groups
-						WHERE id_group = {int:current_group}',
-						array(
-							'current_group' => $_REQUEST['group'],
-						)
-					);
-				}
-
-				// Either way, let's check our "show group membership" setting is correct.
-				$request = Db::$db->query('', '
-					SELECT COUNT(*)
-					FROM {db_prefix}membergroups
-					WHERE group_type > {int:non_joinable}',
-					array(
-						'non_joinable' => 1,
-					)
-				);
-				list($have_joinable) = Db::$db->fetch_row($request);
-				Db::$db->free_result($request);
-
-				// Do we need to update the setting?
-				if ((empty(Config::$modSettings['show_group_membership']) && $have_joinable) || (!empty(Config::$modSettings['show_group_membership']) && !$have_joinable))
-				{
-					Config::updateModSettings(array('show_group_membership' => $have_joinable ? 1 : 0));
-				}
-			}
-
-			// Do we need to set inherited permissions?
-			if ($_POST['group_inherit'] != -2 && $_POST['group_inherit'] != $_POST['old_inherit'])
-			{
-				Permissions::updateChildPermissions($_POST['group_inherit']);
-			}
-
-			// Finally, moderators!
+			// Does the group have any moderators?
 			$moderator_string = isset($_POST['group_moderators']) ? trim($_POST['group_moderators']) : '';
-
-			Db::$db->query('', '
-				DELETE FROM {db_prefix}group_moderators
-				WHERE id_group = {int:current_group}',
-				array(
-					'current_group' => $_REQUEST['group'],
-				)
-			);
-
-			if ((!empty($moderator_string) || !empty($_POST['moderator_list'])) && $_POST['min_posts'] == -1 && $_REQUEST['group'] != 3)
+			if ((!empty($moderator_string) || !empty($_POST['moderator_list'])) && ($_POST['min_posts'] ?? -1) == -1 && $group->id != Group::MOD)
 			{
-				$group_moderators = array();
+				$group->moderator_ids = array();
 
-				// Get all the usernames from the string
+				// Get all the usernames from the string.
 				if (!empty($moderator_string))
 				{
-					$moderator_string = strtr(preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', Utils::htmlspecialchars($moderator_string, ENT_QUOTES)), array('&quot;' => '"'));
+					$moderator_string = strtr(Utils::entityFix(Utils::htmlspecialchars($moderator_string, ENT_QUOTES)), array('&quot;' => '"'));
 
 					preg_match_all('~"([^"]+)"~', $moderator_string, $matches);
 
-					$moderators = array_merge($matches[1], explode(',', preg_replace('~"[^"]+"~', '', $moderator_string)));
+					$moderators = array_filter(array_map('trim', array_merge($matches[1], explode(',', preg_replace('~"[^"]+"~', '', $moderator_string)))), 'strlen');
 
-					for ($k = 0, $n = count($moderators); $k < $n; $k++)
-					{
-						$moderators[$k] = trim($moderators[$k]);
-
-						if (strlen($moderators[$k]) == 0)
-							unset($moderators[$k]);
-					}
-
-					// Find all the id_member's for the member_name's in the list.
+					// Get the IDs of the named members.
 					if (!empty($moderators))
 					{
-						$request = Db::$db->query('', '
-							SELECT id_member
-							FROM {db_prefix}members
-							WHERE member_name IN ({array_string:moderators}) OR real_name IN ({array_string:moderators})
-							LIMIT {int:count}',
-							array(
-								'moderators' => $moderators,
-								'count' => count($moderators),
-							)
-						);
-						while ($row = Db::$db->fetch_assoc($request))
-						{
-							$group_moderators[] = $row['id_member'];
-						}
-						Db::$db->free_result($request);
+						foreach (User::load($moderators, User::LOAD_BY_NAME, 'minimal') as $moderator)
+							$group->moderator_ids[] = $moderator->id;
 					}
 				}
 
 				if (!empty($_POST['moderator_list']))
 				{
-					$moderators = array();
-
-					foreach ($_POST['moderator_list'] as $moderator)
-						$moderators[] = (int) $moderator;
+					$moderators = array_filter(array_map('intval', $_POST['moderator_list']));
 
 					if (!empty($moderators))
 					{
-						$request = Db::$db->query('', '
-							SELECT id_member
-							FROM {db_prefix}members
-							WHERE id_member IN ({array_int:moderators})
-							LIMIT {int:num_moderators}',
-							array(
-								'moderators' => $moderators,
-								'num_moderators' => count($moderators),
-							)
-						);
-						while ($row = Db::$db->fetch_assoc($request))
-						{
-							$group_moderators[] = $row['id_member'];
-						}
-						Db::$db->free_result($request);
+						foreach (User::load($moderators, User::LOAD_BY_ID, 'minimal') as $moderator)
+							$group->moderator_ids[] = $moderator->id;
 					}
 				}
 
-				// Make sure we don't have any duplicates first...
-				$group_moderators = array_unique($group_moderators);
-
-				// Found some?
-				if (!empty($group_moderators))
-				{
-					$mod_insert = array();
-
-					foreach ($group_moderators as $moderator)
-						$mod_insert[] = array($_REQUEST['group'], $moderator);
-
-					Db::$db->insert('insert',
-						'{db_prefix}group_moderators',
-						array('id_group' => 'int', 'id_member' => 'int'),
-						$mod_insert,
-						array('id_group', 'id_member')
-					);
-				}
+				// Make sure we don't have any duplicates.
+				$group->moderator_ids = array_unique($group->moderator_ids);
 			}
 
-			// There might have been some post group changes.
-			Logging::updateStats('postgroups');
+			// Update the membergroup.
+			$group->save();
 
-			// We've definitely changed some group stuff.
-			Config::updateModSettings(array(
-				'settings_updated' => time(),
-			));
+			// Time to update the boards this membergroup has access to.
+			$group->updateBoardAccess(empty($_POST['boardaccess']) || !is_array($_POST['boardaccess']) ? array() : $_POST['boardaccess']);
 
-			// Log the edit.
-			Logging::logAction('edited_group', array('group' => $_POST['group_name']), 'admin');
+			// Let's check whether our "show group membership" setting is correct.
+			$request = Db::$db->query('', '
+				SELECT COUNT(*)
+				FROM {db_prefix}membergroups
+				WHERE group_type > {int:non_joinable}',
+				array(
+					'non_joinable' => Group::TYPE_PROTECTED,
+				)
+			);
+			list($have_joinable) = Db::$db->fetch_row($request);
+			Db::$db->free_result($request);
+
+			// Do we need to update the setting?
+			if ((empty(Config::$modSettings['show_group_membership']) && $have_joinable) || (!empty(Config::$modSettings['show_group_membership']) && !$have_joinable))
+			{
+				Config::updateModSettings(array('show_group_membership' => $have_joinable ? 1 : 0));
+			}
 
 			redirectexit('action=admin;area=membergroups');
 		}
 
 		// Fetch the current group information.
-		$request = Db::$db->query('', '
-			SELECT group_name, description, min_posts, online_color, max_messages, icons, group_type, hidden, id_parent, tfa_required
-			FROM {db_prefix}membergroups
-			WHERE id_group = {int:current_group}
-			LIMIT 1',
-			array(
-				'current_group' => (int) $_REQUEST['group'],
-			)
-		);
-		if (Db::$db->num_rows($request) == 0)
-		{
+		unset(Group::$loaded[$group->id]);
+
+		if (Group::load($group->id) === array())
 			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
-		}
-		$row = Db::$db->fetch_assoc($request);
-		Db::$db->free_result($request);
 
-		$row['icons'] = explode('#', $row['icons']);
+		$group = Group::$loaded[$group->id];
 
-		Utils::$context['group'] = array(
-			'id' => $_REQUEST['group'],
-			'name' => $row['group_name'],
-			'description' => Utils::htmlspecialchars($row['description'], ENT_QUOTES),
-			'editable_name' => $row['group_name'],
-			'color' => $row['online_color'],
-			'min_posts' => $row['min_posts'],
-			'max_messages' => $row['max_messages'],
-			'icon_count' => (int) $row['icons'][0],
-			'icon_image' => isset($row['icons'][1]) ? $row['icons'][1] : '',
-			'is_post_group' => $row['min_posts'] != -1,
-			'type' => $row['min_posts'] != -1 ? 0 : $row['group_type'],
-			'hidden' => $row['min_posts'] == -1 ? $row['hidden'] : 0,
-			'inherited_from' => $row['id_parent'],
-			'allow_post_group' => $_REQUEST['group'] == 2 || $_REQUEST['group'] > 4,
-			'allow_delete' => $_REQUEST['group'] == 2 || $_REQUEST['group'] > 4,
-			'allow_protected' => User::$me->allowedTo('admin_forum'),
-			'tfa_required' => $row['tfa_required'],
-		);
+		$group->description = Utils::htmlspecialchars($group->description, ENT_QUOTES);
 
-		// Get any moderators for this group
-		Utils::$context['group']['moderators'] = array();
-		$request = Db::$db->query('', '
-			SELECT mem.id_member, mem.real_name
-			FROM {db_prefix}group_moderators AS mods
-				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = mods.id_member)
-			WHERE mods.id_group = {int:current_group}',
-			array(
-				'current_group' => $_REQUEST['group'],
-			)
-		);
-		while ($row = Db::$db->fetch_assoc($request))
+		// Get any moderators for this group.
+		$group->loadModerators();
+
+		foreach ($group->moderator_ids as $mod_id)
+			$group->moderators[$mod_id] = User::$loaded[$mod_id]->name;
+
+		$group->moderator_list = empty($group->moderators) ? '' : '&quot;' . implode('&quot;, &quot;', $group->moderators) . '&quot;';
+
+		if (!empty($group->moderators))
 		{
-			Utils::$context['group']['moderators'][$row['id_member']] = $row['real_name'];
+			list($group->last_moderator_id) = array_slice(array_keys($group->moderators), -1);
 		}
-		Db::$db->free_result($request);
 
-		Utils::$context['group']['moderator_list'] = empty(Utils::$context['group']['moderators']) ? '' : '&quot;' . implode('&quot;, &quot;', Utils::$context['group']['moderators']) . '&quot;';
-
-		if (!empty(Utils::$context['group']['moderators']))
-		{
-			list(Utils::$context['group']['last_moderator_id']) = array_slice(array_keys(Utils::$context['group']['moderators']), -1);
-		}
+		Utils::$context['group'] = $group;
 
 		// Get a list of boards this membergroup is allowed to see.
 		Utils::$context['boards'] = array();
-		if ($_REQUEST['group'] == 2 || $_REQUEST['group'] > 3)
+		if ($group->id == Group::GLOBAL_MOD || $group->id >= Group::NEWBIE)
 		{
 			Utils::$context['categories'] = array();
 			$request = Db::$db->query('', '
@@ -1224,7 +832,7 @@ class Membergroups implements ActionInterface
 					LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
 				ORDER BY board_order',
 				array(
-					'current_group' => (int) $_REQUEST['group'],
+					'current_group' => $group->id,
 				)
 			);
 			while ($row = Db::$db->fetch_assoc($request))
@@ -1275,27 +883,28 @@ class Membergroups implements ActionInterface
 
 		// Finally, get all the groups this could inherit from.
 		Utils::$context['inheritable_groups'] = array();
-		$request = Db::$db->query('', '
-			SELECT id_group, group_name
-			FROM {db_prefix}membergroups
-			WHERE id_group != {int:current_group}' .
-				(empty(Config::$modSettings['permission_enable_postgroups']) ? '
-				AND min_posts = {int:min_posts}' : '') . (User::$me->allowedTo('admin_forum') ? '' : '
-				AND group_type != {int:is_protected}') . '
-				AND id_group NOT IN (1, 3)
-				AND id_parent = {int:not_inherited}',
-			array(
-				'current_group' => (int) $_REQUEST['group'],
+
+		$query_customizations = array(
+			'where' => array(
+				'id_group != {int:current_group}',
+				'id_group NOT IN ({array_int:disallowed})',
+				'id_parent = {int:not_inherited}',
+				empty(Config::$modSettings['permission_enable_postgroups']) ? 'min_posts = {int:min_posts}' : '1=1',
+				User::$me->allowedTo('admin_forum') ? '1=1' : 'group_type != {int:is_protected}',
+			),
+			'params' => array(
+				'current_group' => $group->id,
 				'min_posts' => -1,
-				'not_inherited' => -2,
-				'is_protected' => 1,
-			)
+				'disallowed' => array(Group::ADMIN, Group::MOD),
+				'not_inherited' => Group::NONE,
+				'is_protected' => Group::TYPE_PROTECTED,
+			),
 		);
-		while ($row = Db::$db->fetch_assoc($request))
+
+		foreach (Group::load(array(), $query_customizations) as $inheritable_group)
 		{
-			Utils::$context['inheritable_groups'][$row['id_group']] = $row['group_name'];
+			Utils::$context['inheritable_groups'][$inheritable_group->id] = $inheritable_group->name;
 		}
-		Db::$db->free_result($request);
 
 		call_integration_hook('integrate_view_membergroup');
 
@@ -1470,244 +1079,6 @@ class Membergroups implements ActionInterface
 			$this->subaction = 'settings';
 		}
 	}
-
-	/**
-	 * Delete one of more membergroups.
-	 *
-	 * Requires the manage_membergroups permission.
-	 * Returns true on success or false on failure.
-	 * Has protection against deletion of protected membergroups.
-	 * Deletes the permissions linked to the membergroup.
-	 * Takes members out of the deleted membergroups.
-	 *
-	 * @param int|array $groups The ID of the group to delete or an array of IDs of groups to delete
-	 * @return bool|string True for success, otherwise an identifier as to reason for failure
-	 */
-	protected function deleteMembergroups($groups): bool|string
-	{
-		// Make sure it's an array of integers.
-		$groups = array_unique(array_map('intval', (array) $groups));
-
-		// Some groups are protected (guests, administrators, moderators, newbies).
-		$protected_groups = array(-1, 0, 1, 3, 4);
-
-		// There maybe some others as well.
-		if (!User::$me->allowedTo('admin_forum'))
-		{
-			$request = Db::$db->query('', '
-				SELECT id_group
-				FROM {db_prefix}membergroups
-				WHERE group_type = {int:is_protected}',
-				array(
-					'is_protected' => 1,
-				)
-			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
-				$protected_groups[] = $row['id_group'];
-			}
-			Db::$db->free_result($request);
-		}
-
-		// Make sure they don't delete protected groups!
-		$groups = array_diff($groups, array_unique($protected_groups));
-
-		if (empty($groups))
-			return 'no_group_found';
-
-		// Make sure they don't try to delete a group attached to a paid subscription.
-		$subscriptions = array();
-
-		$request = Db::$db->query('', '
-			SELECT id_subscribe, name, id_group, add_groups
-			FROM {db_prefix}subscriptions
-			ORDER BY name',
-		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			if (in_array($row['id_group'], $groups))
-			{
-				$subscriptions[] = $row['name'];
-			}
-			else
-			{
-				$add_groups = explode(',', $row['add_groups']);
-
-				if (count(array_intersect($add_groups, $groups)) != 0)
-					$subscriptions[] = $row['name'];
-			}
-		}
-		Db::$db->free_result($request);
-
-		if (!empty($subscriptions))
-		{
-			// Uh oh. But before we return, we need to update a language string because we want the names of the groups.
-			Lang::load('ManageMembers');
-			Lang::$txt['membergroups_cannot_delete_paid'] = sprintf(Lang::$txt['membergroups_cannot_delete_paid'], implode(', ', $subscriptions));
-
-			return 'group_cannot_delete_sub';
-		}
-
-		// Log the deletion.
-		$request = Db::$db->query('', '
-			SELECT group_name
-			FROM {db_prefix}membergroups
-			WHERE id_group IN ({array_int:group_list})',
-			array(
-				'group_list' => $groups,
-			)
-		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			Logging::logAction('delete_group', array('group' => $row['group_name']), 'admin');
-		}
-		Db::$db->free_result($request);
-
-		call_integration_hook('integrate_delete_membergroups', array($groups));
-
-		// Remove the membergroups themselves.
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}membergroups
-			WHERE id_group IN ({array_int:group_list})',
-			array(
-				'group_list' => $groups,
-			)
-		);
-
-		// Remove the permissions of the membergroups.
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}permissions
-			WHERE id_group IN ({array_int:group_list})',
-			array(
-				'group_list' => $groups,
-			)
-		);
-
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}board_permissions
-			WHERE id_group IN ({array_int:group_list})',
-			array(
-				'group_list' => $groups,
-			)
-		);
-
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}group_moderators
-			WHERE id_group IN ({array_int:group_list})',
-			array(
-				'group_list' => $groups,
-			)
-		);
-
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}moderator_groups
-			WHERE id_group IN ({array_int:group_list})',
-			array(
-				'group_list' => $groups,
-			)
-		);
-
-		// Delete any outstanding requests.
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}log_group_requests
-			WHERE id_group IN ({array_int:group_list})',
-			array(
-				'group_list' => $groups,
-			)
-		);
-
-		// Update the primary groups of members.
-		Db::$db->query('', '
-			UPDATE {db_prefix}members
-			SET id_group = {int:regular_group}
-			WHERE id_group IN ({array_int:group_list})',
-			array(
-				'group_list' => $groups,
-				'regular_group' => 0,
-			)
-		);
-
-		// Update any inherited groups (Lose inheritance).
-		Db::$db->query('', '
-			UPDATE {db_prefix}membergroups
-			SET id_parent = {int:uninherited}
-			WHERE id_parent IN ({array_int:group_list})',
-			array(
-				'group_list' => $groups,
-				'uninherited' => -2,
-			)
-		);
-
-		// Update the additional groups of members.
-		$updates = array();
-
-		$request = Db::$db->query('', '
-			SELECT id_member, additional_groups
-			FROM {db_prefix}members
-			WHERE FIND_IN_SET({raw:additional_groups_explode}, additional_groups) != 0',
-			array(
-				'additional_groups_explode' => implode(', additional_groups) != 0 OR FIND_IN_SET(', $groups),
-			)
-		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			$updates[$row['additional_groups']][] = $row['id_member'];
-		}
-		Db::$db->free_result($request);
-
-		foreach ($updates as $additional_groups => $memberArray)
-		{
-			User::updateMemberData($memberArray, array('additional_groups' => implode(',', array_diff(explode(',', $additional_groups), $groups))));
-		}
-
-		// No boards can provide access to these membergroups anymore.
-		$updates = array();
-
-		$request = Db::$db->query('', '
-			SELECT id_board, member_groups
-			FROM {db_prefix}boards
-			WHERE FIND_IN_SET({raw:member_groups_explode}, member_groups) != 0',
-			array(
-				'member_groups_explode' => implode(', member_groups) != 0 OR FIND_IN_SET(', $groups),
-			)
-		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			$updates[$row['member_groups']][] = $row['id_board'];
-		}
-		Db::$db->free_result($request);
-
-		foreach ($updates as $member_groups => $boardArray)
-		{
-			Db::$db->query('', '
-				UPDATE {db_prefix}boards
-				SET member_groups = {string:member_groups}
-				WHERE id_board IN ({array_int:board_lists})',
-				array(
-					'board_lists' => $boardArray,
-					'member_groups' => implode(',', array_diff(explode(',', $member_groups), $groups)),
-				)
-			);
-		}
-
-		// Recalculate the post groups, as they likely changed.
-		Logging::updateStats('postgroups');
-
-		// Make a note of the fact that the cache may be wrong.
-		$settings_update = array('settings_updated' => time());
-
-		// Have we deleted the spider group?
-		if (isset(Config::$modSettings['spider_group']) && in_array(Config::$modSettings['spider_group'], $groups))
-		{
-			$settings_update['spider_group'] = 0;
-		}
-
-		Config::updateModSettings($settings_update);
-
-		// It was a success.
-		return true;
-	}
-
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.

@@ -27,9 +27,6 @@ use SMF\Db\DatabaseApi as Db;
 /**
  * This class contains code used to notify a member when a group moderator has
  * taken action on that member's request to join a group.
- *
- * @todo This is supposed to just send notifications, but it appears that it
- * actually adds members to groups!
  */
 class GroupAct_Notify extends BackgroundTask
 {
@@ -61,19 +58,6 @@ class GroupAct_Notify extends BackgroundTask
 		{
 			$members[] = $row['id_member'];
 			$row['lngfile'] = empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Config::$language : $row['lngfile'];
-
-			// If we are approving, add them!
-			if ($this->_details['status'] == 'approve')
-			{
-				// Hack in blank permissions so that User::$me->allowedTo() will fail.
-				User::$me->permissions = array();
-
-				// For the modlog
-				User::$me->id = $this->_details['member_id'];
-				User::$me->ip = $this->_details['member_ip'];
-
-				Groups::addMembers($row['id_member'], $row['id_group'], $row['hidden'] == 2 ? 'only_additional' : 'auto', true);
-			}
 
 			// Build the required information array
 			$affected_users[$row['id_member']] = array(

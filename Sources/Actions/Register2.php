@@ -18,6 +18,7 @@ use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Cookie;
 use SMF\ErrorHandler;
+use SMF\Group;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Profile;
@@ -724,31 +725,10 @@ class Register2 extends Register
 			$reg_options['register_vars']['is_activated'] = 3;
 		}
 
+		// Check if this group is assignable.
 		if (isset($reg_options['memberGroup']))
 		{
-			// Make sure the id_group will be valid, if this is an administrator.
-			$reg_options['register_vars']['id_group'] = $reg_options['memberGroup'] == 1 && !User::$me->allowedTo('admin_forum') ? 0 : $reg_options['memberGroup'];
-
-			// Check if this group is assignable.
-			$unassignable_groups = array(-1, 3);
-			$request = Db::$db->query('', '
-				SELECT id_group
-				FROM {db_prefix}membergroups
-				WHERE min_posts != {int:min_posts}' . (User::$me->allowedTo('admin_forum') ? '' : '
-					OR group_type = {int:is_protected}'),
-				array(
-					'min_posts' => -1,
-					'is_protected' => 1,
-				)
-			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
-				$unassignable_groups[] = $row['id_group'];
-			}
-			Db::$db->free_result($request);
-
-			if (in_array($reg_options['register_vars']['id_group'], $unassignable_groups))
-				$reg_options['register_vars']['id_group'] = 0;
+			$reg_options['register_vars']['id_group'] = in_array($reg_options['memberGroup'], Group::getUnassignable()) ? Group::REGULAR : $reg_options['memberGroup'];
 		}
 
 		// Verify that timezone is correct, if provided.

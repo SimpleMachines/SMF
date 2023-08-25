@@ -18,6 +18,7 @@ use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Category;
 use SMF\Config;
+use SMF\Group;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Msg;
@@ -159,7 +160,7 @@ class BoardIndex implements ActionInterface
 		// Are we showing all membergroups on the board index?
 		if (!empty(Theme::$current->settings['show_group_key']))
 		{
-			Utils::$context['membergroups'] = CacheApi::quickGet('membergroup_list', 'Subs-Membergroups.php', 'cache_getMembergroupList', array());
+			Utils::$context['membergroups'] = CacheApi::quickGet('membergroup_list', 'Group.php', 'SMF\\Group::getCachedList', array());
 		}
 
 		// Mark read button

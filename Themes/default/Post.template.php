@@ -857,7 +857,7 @@ function template_announce()
 	foreach (Utils::$context['groups'] as $group)
 		echo '
 					<li>
-						<label for="who_', $group['id'], '"><input type="checkbox" name="who[', $group['id'], ']" id="who_', $group['id'], '" value="', $group['id'], '" checked> ', $group['name'], '</label> <em>(', $group['member_count'], ')</em>
+						<label for="who_', $group['id'], '"><input type="checkbox" name="who[', $group['id'], ']" id="who_', $group['id'], '" value="', $group['id'], '" checked> ', $group['name'], '</label> <em>(', $group['member_count'] ?? Lang::$txt['not_applicable'], ')</em>
 					</li>';
 
 	echo '

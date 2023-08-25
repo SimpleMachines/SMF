@@ -1289,7 +1289,7 @@ class ServerSideIncludes
 		// Showing membergroups?
 		if (!empty(Theme::$current->settings['show_group_key']) && !empty($return['online_groups']))
 		{
-			$membergroups = CacheApi::quickGet('membergroup_list', 'Subs-Membergroups.php', 'cache_getMembergroupList', array());
+			$membergroups = CacheApi::quickGet('membergroup_list', 'Group.php', 'SMF\\Group::getCachedList', array());
 
 			$groups = array();
 			foreach ($return['online_groups'] as $group)

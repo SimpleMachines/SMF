@@ -21,6 +21,7 @@ use SMF\Board;
 use SMF\Category;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\Group;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\SecurityToken;
@@ -529,55 +530,25 @@ class Boards implements ActionInterface
 			Utils::$context['board']->is_recycle = !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) && Config::$modSettings['recycle_board'] == Utils::$context['board']->id;
 		}
 
+		$curBoard['member_groups'] = array_map('intval', $curBoard['member_groups']);
+		$curBoard['deny_groups'] = array_map('intval', $curBoard['deny_groups']);
+
 		// As we may have come from the permissions screen keep track of where we should go on save.
 		Utils::$context['redirect_location'] = isset($_GET['rid']) && $_GET['rid'] == 'permissions' ? 'permissions' : 'boards';
 
 		// We might need this to hide links to certain areas.
 		Utils::$context['can_manage_permissions'] = User::$me->allowedTo('manage_permissions');
 
-		// Default membergroups.
-		Utils::$context['groups'] = array(
-			-1 => array(
-				'id' => '-1',
-				'name' => Lang::$txt['parent_guests_only'],
-				'allow' => in_array('-1', $curBoard['member_groups']),
-				'deny' => in_array('-1', $curBoard['deny_groups']),
-				'is_post_group' => false,
-			),
-			0 => array(
-				'id' => '0',
-				'name' => Lang::$txt['parent_members_only'],
-				'allow' => in_array('0', $curBoard['member_groups']),
-				'deny' => in_array('0', $curBoard['deny_groups']),
-				'is_post_group' => false,
-			)
-		);
-
-		// Load membergroups.
-		$request = Db::$db->query('', '
-			SELECT group_name, id_group, min_posts
-			FROM {db_prefix}membergroups
-			WHERE id_group > {int:moderator_group} OR id_group = {int:global_moderator}
-			ORDER BY min_posts, id_group != {int:global_moderator}, group_name',
-			array(
-				'moderator_group' => 3,
-				'global_moderator' => 2,
-			)
-		);
-		while ($row = Db::$db->fetch_assoc($request))
+		// Load all membergroups except admin and moderator.
+		foreach (Group::loadSimple(Group::LOAD_BOTH, array(Group::ADMIN, Group::MOD)) as $group)
 		{
-			if ($_REQUEST['sa'] == 'newboard' && $row['min_posts'] == -1)
-				$curBoard['member_groups'][] = $row['id_group'];
+			$group->allow = in_array($group->id, $curBoard['member_groups']);
+			$group->deny = in_array($group->id, $curBoard['deny_groups']);
 
-			Utils::$context['groups'][(int) $row['id_group']] = array(
-				'id' => $row['id_group'],
-				'name' => trim($row['group_name']),
-				'allow' => in_array($row['id_group'], $curBoard['member_groups']),
-				'deny' => in_array($row['id_group'], $curBoard['deny_groups']),
-				'is_post_group' => $row['min_posts'] != -1,
-			);
+			$group->name = $group->id === Group::GUEST ? Lang::$txt['parent_guests_only'] : ($group->id === Group::REGULAR ? Lang::$txt['parent_members_only'] : $group->name);
+
+			Utils::$context['groups'][$group->id] = $group;
 		}
-		Db::$db->free_result($request);
 
 		// Category doesn't exist, man... sorry.
 		if (!isset(Category::$boardList[$curBoard['category']]))

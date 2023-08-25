@@ -20,6 +20,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Editor;
 use SMF\ErrorHandler;
+use SMF\Group;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\Menu;
@@ -1350,17 +1351,8 @@ class PM implements \ArrayAccess
 		// Load the membergroup message limits.
 		if (!User::$me->allowedTo('moderate_forum') && empty(self::$message_limit_cache))
 		{
-			$request = Db::$db->query('', '
-				SELECT id_group, max_messages
-				FROM {db_prefix}membergroups',
-				array(
-				)
-			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
-				self::$message_limit_cache[$row['id_group']] = $row['max_messages'];
-			}
-			Db::$db->free_result($request);
+			foreach (Group::load() as $group)
+				self::$message_limit_cache[$group->id] = $group->max_messages;
 		}
 
 		// Load the groups that are allowed to read PMs.

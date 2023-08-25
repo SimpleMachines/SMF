@@ -1581,27 +1581,24 @@ class Board implements \ArrayAccess
 				// But skip any invalid ones (invisible/post groups/Administrator/Moderator)
 				if (!empty($moderator_groups))
 				{
-					$request = Db::$db->query('', '
-						SELECT id_group
-						FROM {db_prefix}membergroups
-						WHERE group_name IN ({array_string:moderator_group_list})
-							AND hidden = {int:visible}
-							AND min_posts = {int:negative_one}
-							AND id_group NOT IN ({array_int:invalid_groups})
-						LIMIT {int:limit}',
-						array(
-							'visible' => 0,
+					$query_customizations = array(
+						'where' => array(
+							'group_name IN ({array_string:moderator_group_list})',
+							'hidden = {int:visible}',
+							'min_posts = {int:negative_one}',
+							'id_group NOT IN ({array_int:invalid_groups})',
+						),
+						'params' => array(
+							'visible' => Group::VISIBLE,
 							'negative_one' => -1,
-							'invalid_groups' => array(1, 3),
+							'invalid_groups' => array(Group::ADMIN, Group::MOD),
 							'moderator_group_list' => $moderator_groups,
-							'limit' => count($moderator_groups),
-						)
+						),
+						'limit' => count($moderator_groups),
 					);
-					while ($row = Db::$db->fetch_assoc($request))
-					{
-						$boardOptions['moderator_groups'][] = $row['id_group'];
-					}
-					Db::$db->free_result($request);
+
+					foreach (Group::load(array(), $query_customizations) as $group)
+						$boardOptions['moderator_groups'][] = $group->id;
 				}
 			}
 

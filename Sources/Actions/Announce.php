@@ -20,6 +20,7 @@ use SMF\BrowserDetector;
 use SMF\Board;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\Group;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Mail;
@@ -107,58 +108,20 @@ class Announce implements ActionInterface
 	 */
 	public function selectGroup(): void
 	{
-		$groups = array_merge(Board::$info->groups, array(1));
-
-		foreach ($groups as $id => $group)
-			$groups[$id] = (int) $group;
-
-		Utils::$context['groups'] = array();
-
-		if (in_array(0, $groups))
-		{
-			Utils::$context['groups'][0] = array(
-				'id' => 0,
-				'name' => Lang::$txt['announce_regular_members'],
-				'member_count' => 'n/a',
-			);
-		}
+		$groups = array_diff(array_map('intval', array_merge(Board::$info->groups, array(Group::ADMIN))), array(Group::GUEST));
 
 		// Get all membergroups that have access to the board the announcement was made on.
-		$request = Db::$db->query('', '
-			SELECT mg.id_group, COUNT(mem.id_member) AS num_members
-			FROM {db_prefix}membergroups AS mg
-				LEFT JOIN {db_prefix}members AS mem ON (mem.id_group = mg.id_group OR FIND_IN_SET(mg.id_group, mem.additional_groups) != 0 OR mg.id_group = mem.id_post_group)
-			WHERE mg.id_group IN ({array_int:group_list})
-			GROUP BY mg.id_group',
-			array(
-				'group_list' => $groups,
-				'newbie_id_group' => 4,
-			)
-		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			Utils::$context['groups'][$row['id_group']] = array(
-				'id' => $row['id_group'],
-				'name' => '',
-				'member_count' => $row['num_members'],
-			);
-		}
-		Db::$db->free_result($request);
+		Utils::$context['groups'] = Group::load($groups);
 
-		// Now get the membergroup names.
-		$request = Db::$db->query('', '
-			SELECT id_group, group_name
-			FROM {db_prefix}membergroups
-			WHERE id_group IN ({array_int:group_list})',
-			array(
-				'group_list' => $groups,
-			)
-		);
-		while ($row = Db::$db->fetch_assoc($request))
-		{
-			Utils::$context['groups'][$row['id_group']]['name'] = $row['group_name'];
-		}
-		Db::$db->free_result($request);
+		// Count the members in each group.
+		$groups_to_count = array_map(fn($group) => $group->id, Utils::$context['groups']);
+
+		// Counting all the regular members could be a performance hit on large forums,
+		// so don't do that for anyone without high level permissions.
+		if (!User::$me->allowedTo('manage_membergroups'))
+			$groups_to_count = array_diff($groups_to_count, array(Group::REGULAR));
+
+		Group::countMembersBatch($groups_to_count);
 
 		// Get the subject of the topic we're about to announce.
 		$request = Db::$db->query('', '

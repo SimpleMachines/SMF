@@ -18,6 +18,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\Group;
 use SMF\Lang;
 use SMF\Security;
 use SMF\Theme;
@@ -468,30 +469,16 @@ class Rule implements \ArrayAccess
 		// Likely to need all the groups!
 		Utils::$context['groups'] = array();
 
-		$request = Db::$db->query('', '
-			SELECT mg.id_group, mg.group_name, COALESCE(gm.id_member, 0) AS can_moderate, mg.hidden
-			FROM {db_prefix}membergroups AS mg
-				LEFT JOIN {db_prefix}group_moderators AS gm ON (gm.id_group = mg.id_group AND gm.id_member = {int:me})
-			WHERE mg.min_posts = {int:min_posts}
-				AND mg.id_group != {int:moderator_group}
-				AND mg.hidden = {int:not_hidden}
-			ORDER BY mg.group_name',
-			array(
-				'me' => User::$me->id,
-				'min_posts' => -1,
-				'moderator_group' => 3,
-				'not_hidden' => 0,
-			)
-		);
-		while ($row = Db::$db->fetch_assoc($request))
+		$groups = Group::loadSimple();
+		Group::loadModeratorsBatch(array_map(fn($group) => $group->id, $groups));
+
+		foreach ($groups as $group)
 		{
-			// Hide hidden groups!
-			if ($row['hidden'] && !$row['can_moderate'] && !User::$me->allowedTo('manage_membergroups'))
+			if ($group->hidden === Group::INVISIBLE && !$group->can_moderate)
 				continue;
 
-			Utils::$context['groups'][$row['id_group']] = $row['group_name'];
+			Utils::$context['groups'][$group->id] = $group->name;
 		}
-		Db::$db->free_result($request);
 
 		// Applying all rules?
 		if (isset($_GET['apply']))

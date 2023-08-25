@@ -18,6 +18,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Forum;
+use SMF\Group;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Mail;

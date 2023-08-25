@@ -189,7 +189,7 @@ function template_edit_group()
 					</dd>';
 
 	// Group type...
-	if (Utils::$context['group']['allow_post_group'])
+	if (Utils::$context['group']['can_change_type'])
 	{
 		echo '
 					<dt>
@@ -198,16 +198,22 @@ function template_edit_group()
 					<dd>
 						<fieldset id="group_type">
 							<legend>', Lang::$txt['membergroups_edit_select_group_type'], '</legend>
-							<label for="group_type_private"><input type="radio" name="group_type" id="group_type_private" value="0"', !Utils::$context['group']['is_post_group'] && Utils::$context['group']['type'] == 0 ? ' checked' : '', ' onclick="swapPostGroup(0);">', Lang::$txt['membergroups_group_type_private'], '</label><br>';
+							<label for="group_type_private"><input type="radio" name="group_type" id="group_type_private" value="0"', !Utils::$context['group']['is_post_group'] && Utils::$context['group']['type'] == 0 ? ' checked' : '', (Utils::$context['group']['allow_post_group'] ? ' onclick="swapPostGroup(0);"' : ''), '>', Lang::$txt['membergroups_group_type_private'], '</label><br>';
 
 		if (Utils::$context['group']['allow_protected'])
 			echo '
-							<label for="group_type_protected"><input type="radio" name="group_type" id="group_type_protected" value="1"', Utils::$context['group']['type'] == 1 ? ' checked' : '', ' onclick="swapPostGroup(0);">', Lang::$txt['membergroups_group_type_protected'], '</label><br>';
+							<label for="group_type_protected"><input type="radio" name="group_type" id="group_type_protected" value="1"', Utils::$context['group']['type'] == 1 ? ' checked' : '', (Utils::$context['group']['allow_post_group'] ? ' onclick="swapPostGroup(0);"' : ''), '>', Lang::$txt['membergroups_group_type_protected'], '</label><br>';
 
 		echo '
-							<label for="group_type_request"><input type="radio" name="group_type" id="group_type_request" value="2"', Utils::$context['group']['type'] == 2 ? ' checked' : '', ' onclick="swapPostGroup(0);">', Lang::$txt['membergroups_group_type_request'], '</label><br>
-							<label for="group_type_free"><input type="radio" name="group_type" id="group_type_free" value="3"', Utils::$context['group']['type'] == 3 ? ' checked' : '', ' onclick="swapPostGroup(0);">', Lang::$txt['membergroups_group_type_free'], '</label><br>
-							<label for="group_type_post"><input type="radio" name="group_type" id="group_type_post" value="-1"', Utils::$context['group']['is_post_group'] ? ' checked' : '', ' onclick="swapPostGroup(1);">', Lang::$txt['membergroups_group_type_post'], '</label><br>
+							<label for="group_type_request"><input type="radio" name="group_type" id="group_type_request" value="2"', Utils::$context['group']['type'] == 2 ? ' checked' : '', (Utils::$context['group']['allow_post_group'] ? ' onclick="swapPostGroup(0);"' : ''), '>', Lang::$txt['membergroups_group_type_request'], '</label><br>
+							<label for="group_type_free"><input type="radio" name="group_type" id="group_type_free" value="3"', Utils::$context['group']['type'] == 3 ? ' checked' : '', (Utils::$context['group']['allow_post_group'] ? ' onclick="swapPostGroup(0);"' : ''), '>', Lang::$txt['membergroups_group_type_free'], '</label><br>';
+
+		if (Utils::$context['group']['allow_post_group'])
+			echo '
+
+							<label for="group_type_post"><input type="radio" name="group_type" id="group_type_post" value="-1"', Utils::$context['group']['is_post_group'] ? ' checked' : '', ' onclick="swapPostGroup(1);">', Lang::$txt['membergroups_group_type_post'], '</label><br>';
+
+		echo '
 						</fieldset>
 					</dd>';
 	}
@@ -628,7 +634,7 @@ function template_group_members()
 	{
 		echo '
 					<tr class="windowbg">
-						<td class="user_name">', $member['name'], '</td>';
+						<td class="user_name">', $member['link'], '</td>';
 
 		if (Utils::$context['can_send_email'])
 			echo '
@@ -637,7 +643,7 @@ function template_group_members()
 						</td>';
 
 		echo '
-						<td class="last_active">', $member['last_online'], '</td>
+						<td class="last_active">', $member['last_login'], '</td>
 						<td class="date_registered">', $member['registered'], '</td>
 						<td class="posts"', empty(Utils::$context['group']['assignable']) ? ' colspan="2"' : '', '>', $member['posts'], '</td>';
 

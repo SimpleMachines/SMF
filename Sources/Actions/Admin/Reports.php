@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\Group;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Theme;
@@ -667,63 +668,24 @@ class Reports implements ActionInterface
 		$this->addData($mgSettings);
 
 		// Now start cycling through the membergroups!
-		$rows = array(
-			array(
-				'id_group' => -1,
-				'group_name' => Lang::$txt['membergroups_guests'],
-				'online_color' => '',
-				'min_posts' => -1,
-				'max_messages' => null,
-				'icons' => ''
-			),
-			array(
-				'id_group' => 0,
-				'group_name' => Lang::$txt['membergroups_members'],
-				'online_color' => '',
-				'min_posts' => -1,
-				'max_messages' => null,
-				'icons' => ''
-			),
-		);
-
-		$request = Db::$db->query('', '
-			SELECT mg.id_group, mg.group_name, mg.online_color, mg.min_posts, mg.max_messages, mg.icons,
-				CASE WHEN bp.permission IS NOT NULL OR mg.id_group = {int:admin_group} THEN 1 ELSE 0 END AS can_moderate
-			FROM {db_prefix}membergroups AS mg
-				LEFT JOIN {db_prefix}board_permissions AS bp ON (bp.id_group = mg.id_group AND bp.id_profile = {int:default_profile} AND bp.permission = {string:moderate_board})
-			ORDER BY mg.min_posts, CASE WHEN mg.id_group < {int:newbie_group} THEN mg.id_group ELSE 4 END, mg.group_name',
-			array(
-				'admin_group' => 1,
-				'default_profile' => 1,
-				'newbie_group' => 4,
-				'moderate_board' => 'moderate_board',
-			)
-		);
-		while ($row = Db::$db->fetch_assoc($request))
+		foreach (Group::loadSimple(Group::LOAD_BOTH, array()) as $group)
 		{
-			$rows[] = $row;
-		}
-		Db::$db->free_result($request);
-
-		foreach ($rows as $row)
-		{
-			$row['icons'] = explode('#', $row['icons']);
-
-			$group = array(
-				'name' => $row['group_name'],
-				'color' => empty($row['online_color']) ? '-' : '<span style="color: ' . $row['online_color'] . ';">' . $row['online_color'] . '</span>',
-				'min_posts' => $row['min_posts'] == -1 ? Lang::$txt['not_applicable'] : $row['min_posts'],
-				'max_messages' => $row['max_messages'],
-				'icons' => !empty($row['icons'][0]) && !empty($row['icons'][1]) ? str_repeat('<img src="' . Theme::$current->settings['images_url'] . '/membericons/' . $row['icons'][1] . '" alt="*">', $row['icons'][0]) : '',
+			$group_info = array(
+				'id' => $group->id,
+				'name' => $group->name,
+				'color' => empty($group->online_color) ? '-' : '<span style="color: ' . $group->online_color . ';">' . $group->online_color . '</span>',
+				'min_posts' => $group->min_posts == -1 ? Lang::$txt['not_applicable'] : $group->min_posts,
+				'max_messages' => $group->max_messages,
+				'icons' => $group->icons,
 			);
 
 			// Board permissions.
 			foreach ($boards as $board)
 			{
-				$group['board_' . $board['id']] = in_array($row['id_group'], $board['groups']) ? '<span class="success">' . Lang::$txt['board_perms_allow'] . '</span>' : (!empty(Config::$modSettings['deny_boards_access']) && in_array($row['id_group'], $board['deny_groups']) ? '<span class="alert">' . Lang::$txt['board_perms_deny'] . '</span>' : 'x');
+				$group_info['board_' . $board['id']] = in_array($group->id, $board['groups']) ? '<span class="success">' . Lang::$txt['board_perms_allow'] . '</span>' : (!empty(Config::$modSettings['deny_boards_access']) && in_array($group->id, $board['deny_groups']) ? '<span class="alert">' . Lang::$txt['board_perms_deny'] . '</span>' : 'x');
 			}
 
-			$this->addData($group);
+			$this->addData($group_info);
 		}
 	}
 
