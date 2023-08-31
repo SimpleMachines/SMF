@@ -1871,7 +1871,7 @@ function safe_file_write($file, $data, $backup_file = null, $mtime = null, $appe
 	if (!$failed)
 	{
 		// Back up the backup, just in case.
-		if (file_exists($backup_file))
+		if (!empty($backup_file) && file_exists($backup_file))
 			$temp_bfile_saved = @copy($backup_file, $temp_bfile);
 
 		// Make sure no one changed the file while we weren't looking.
@@ -1926,7 +1926,9 @@ function safe_file_write($file, $data, $backup_file = null, $mtime = null, $appe
 
 	// We're done with these.
 	@unlink($temp_sfile);
-	@unlink($temp_bfile);
+
+	if (!empty($temp_bfile))
+		@unlink($temp_bfile);
 
 	if ($failed)
 		return false;
