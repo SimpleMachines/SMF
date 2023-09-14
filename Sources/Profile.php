@@ -1973,7 +1973,7 @@ class Profile extends User implements \ArrayAccess
 
 				if (($tempfile = @tempnam($upload_dir, 'tmp_')) !== false && ($svg_content = @fetch_web_data($this->new_data['avatar'])) !== false && (file_put_contents($tempfile, $svg_content)) !== false)
 				{
-					require_once(Config::$sourcedir . '/Subs-Graphics.php');
+					require_once(Config::$sourcedir . '/Graphics/Image.php');
 
 					$safe = checkSvgContents($tempfile);
 					@unlink($tempfile);
@@ -2049,7 +2049,7 @@ class Profile extends User implements \ArrayAccess
 				// SVGs are special.
 				if ($mime_type === 'image/svg+xml')
 				{
-					require_once(Config::$sourcedir . '/Subs-Graphics.php');
+					require_once(Config::$sourcedir . '/Graphics/Image.php');
 
 					if ((checkSvgContents($_FILES['attachment']['tmp_name'])) === false)
 					{
@@ -2151,7 +2151,7 @@ class Profile extends User implements \ArrayAccess
 				elseif (is_array($sizes))
 				{
 					// Now try to find an infection.
-					require_once(Config::$sourcedir . '/Subs-Graphics.php');
+					require_once(Config::$sourcedir . '/Graphics/Image.php');
 
 					if (!checkImageContents($_FILES['attachment']['tmp_name'], !empty(Config::$modSettings['avatar_paranoid'])))
 					{
@@ -3249,7 +3249,7 @@ class Profile extends User implements \ArrayAccess
 	 */
 	protected function downloadAvatar($url, $max_width, $max_height): bool
 	{
-		require_once(Config::$sourcedir . '/Subs-Graphics.php');
+		require_once(Config::$sourcedir . '/Graphics/Image.php');
 
 		$ext = !empty(Config::$modSettings['avatar_download_png']) ? 'png' : 'jpeg';
 		$preferred_format = !empty(Config::$modSettings['avatar_download_png']) ? 3 : 0;

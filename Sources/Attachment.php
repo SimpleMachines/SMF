@@ -370,7 +370,7 @@ class Attachment implements \ArrayAccess
 		{
 			if (empty($this->width) || empty($this->height))
 			{
-				require_once(Config::$sourcedir . '/Subs-Graphics.php');
+				require_once(Config::$sourcedir . '/Graphics/Image.php');
 				$this->set(getSvgSize($this->path));
 			}
 
@@ -1239,7 +1239,7 @@ class Attachment implements \ArrayAccess
 
 		if (is_array($size) && isset($size[2], Utils::$context['valid_image_types'][$size[2]]))
 		{
-			require_once(Config::$sourcedir . '/Subs-Graphics.php');
+			require_once(Config::$sourcedir . '/Graphics/Image.php');
 
 			if (!checkImageContents($_SESSION['temp_attachments'][$attachID]['tmp_name'], !empty(Config::$modSettings['attachment_image_paranoid'])))
 			{
@@ -1264,7 +1264,7 @@ class Attachment implements \ArrayAccess
 		// SVGs have their own set of security checks.
 		elseif ($_SESSION['temp_attachments'][$attachID]['type'] === 'image/svg+xml')
 		{
-			require_once(Config::$sourcedir . '/Subs-Graphics.php');
+			require_once(Config::$sourcedir . '/Graphics/Image.php');
 			if (!checkSVGContents($_SESSION['temp_attachments'][$attachID]['tmp_name']))
 			{
 				$_SESSION['temp_attachments'][$attachID]['errors'][] = 'bad_attachment';
@@ -1425,7 +1425,7 @@ class Attachment implements \ArrayAccess
 	 */
 	public static function create(&$attachmentOptions)
 	{
-		require_once(Config::$sourcedir . '/Subs-Graphics.php');
+		require_once(Config::$sourcedir . '/Graphics/Image.php');
 
 		// If this is an image we need to set a few additional parameters.
 		$size = @getimagesize($attachmentOptions['tmp_name']);
@@ -2226,7 +2226,7 @@ class Attachment implements \ArrayAccess
 					{
 						$filename = self::getFilePath($attachment['id_attach']);
 
-						require_once(Config::$sourcedir . '/Subs-Graphics.php');
+						require_once(Config::$sourcedir . '/Graphics/Image.php');
 
 						if (createThumbnail($filename, Config::$modSettings['attachmentThumbWidth'], Config::$modSettings['attachmentThumbHeight']))
 						{
