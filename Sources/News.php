@@ -866,9 +866,9 @@ function getXmlNews($xml_format, $ascending = false)
 				COALESCE(mem.email_address, m.poster_email) AS poster_email,
 				COALESCE(mem.real_name, m.poster_name) AS poster_name
 			FROM {db_prefix}topics AS t
-				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
-				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
-				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
+				INNER JOIN {db_prefix}messages AS m ON (t.id_first_msg = m.id_msg)
+				INNER JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
+				LEFT JOIN {db_prefix}members AS mem ON (m.id_member = mem.id_member )
 			WHERE ' . $query_this_board . (empty($optimize_msg) ? '' : '
 				AND {raw:optimize_msg}') . (empty($board) ? '' : '
 				AND t.id_board = {int:current_board}') . ($modSettings['postmod_active'] ? '
@@ -1296,8 +1296,8 @@ function getXmlRecent($xml_format)
 		$request = $smcFunc['db_query']('', '
 			SELECT m.id_msg
 			FROM {db_prefix}messages AS m
-				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
-				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
+				INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
+				INNER JOIN {db_prefix}topics AS t ON (m.id_topic = t.id_topic)
 			WHERE ' . $query_this_board . (empty($optimize_msg) ? '' : '
 				AND {raw:optimize_msg}') . (empty($board) ? '' : '
 				AND m.id_board = {int:current_board}') . ($modSettings['postmod_active'] ? '
@@ -1342,11 +1342,11 @@ function getXmlRecent($xml_format)
 			COALESCE(memf.real_name, mf.poster_name) AS first_poster_name,
 			COALESCE(mem.email_address, m.poster_email) AS poster_email, m.modified_time
 		FROM {db_prefix}messages AS m
-			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
-			INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
-			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
-			LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = mf.id_member)
+			INNER JOIN {db_prefix}topics AS t ON (m.id_topic = t.id_topic)
+			INNER JOIN {db_prefix}messages AS mf ON (t.id_first_msg = mf.id_msg)
+			INNER JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
+			LEFT JOIN {db_prefix}members AS mem ON (m.id_member = mem.id_member)
+			LEFT JOIN {db_prefix}members AS memf ON (mf.id_member = memf.id_member)
 		WHERE m.id_msg IN ({array_int:message_list})
 			' . (empty($board) ? '' : 'AND t.id_board = {int:current_board}') . '
 		ORDER BY m.id_msg DESC
@@ -1379,7 +1379,7 @@ function getXmlRecent($xml_format)
 				SELECT
 					a.id_attach, a.filename, COALESCE(a.size, 0) AS filesize, a.mime_type, a.downloads, a.approved, m.id_topic AS topic
 				FROM {db_prefix}attachments AS a
-					LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
+					LEFT JOIN {db_prefix}messages AS m ON (a.id_msg = m.id_msg)
 				WHERE a.attachment_type = {int:attachment_type}
 					AND a.id_msg = {int:message_id}',
 				array(
@@ -2179,7 +2179,7 @@ function getXmlPosts($xml_format, $ascending = false)
 				SELECT
 					a.id_attach, a.filename, COALESCE(a.size, 0) AS filesize, a.mime_type, a.downloads, a.approved, m.id_topic AS topic
 				FROM {db_prefix}attachments AS a
-					LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
+					LEFT JOIN {db_prefix}messages AS m ON (a.id_msg = m.id_msg)
 				WHERE a.attachment_type = {int:attachment_type}
 					AND a.id_msg = {int:message_id}',
 				array(
@@ -2619,8 +2619,8 @@ function getXmlPMs($xml_format, $ascending = false)
 			SELECT pm2.id_pm, COALESCE(memf.real_name, pm2.from_name) AS from_name, ' . $select_id_members_to . ' AS id_members_to, ' . $select_to_names . ' AS to_names
 			FROM {db_prefix}personal_messages AS pm2
 				INNER JOIN {db_prefix}pm_recipients AS pmr ON (pm2.id_pm = pmr.id_pm)
-				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = pmr.id_member)
-				LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = pm2.id_member_from)
+				INNER JOIN {db_prefix}members AS mem ON (pmr.id_member = mem.id_member)
+				LEFT JOIN {db_prefix}members AS memf ON (pm2.id_member_from = memf.id_member)
 			WHERE pm2.id_pm > {int:start_after}
 				AND (
 					(pm2.id_member_from = {int:uid} AND pm2.deleted_by_sender = {int:not_deleted})
@@ -2629,7 +2629,7 @@ function getXmlPMs($xml_format, $ascending = false)
 			GROUP BY pm2.id_pm, COALESCE(memf.real_name, pm2.from_name)
 			ORDER BY pm2.id_pm {raw:ascdesc}
 			LIMIT {int:limit}
-		) AS nis ON nis.id_pm = pm.id_pm
+		) AS nis ON  pm.id_pm = nis.id_pm
 		ORDER BY pm.id_pm {raw:ascdesc}',
 		array(
 			'limit' => $context['xmlnews_limit'],
