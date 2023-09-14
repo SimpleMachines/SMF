@@ -3536,7 +3536,8 @@ function profileSaveAvatarData(&$value)
 		removeAttachments(array('id_member' => $memID));
 
 		$profile_vars['avatar'] = str_replace(' ', '%20', preg_replace('~action(?:=|%3d)(?!dlattach)~i', 'action-', $_POST['userpicpersonal']));
-		$mime_valid = check_mime_type($profile_vars['avatar'], 'image/', true);
+		$mime_type = get_mime_type($profile_vars['avatar'], true);
+		$mime_valid = strpos($mime_type, 'image/') === 0;
 
 		if ($profile_vars['avatar'] == 'http://' || $profile_vars['avatar'] == 'http:///')
 			$profile_vars['avatar'] = '';
@@ -3545,6 +3546,20 @@ function profileSaveAvatarData(&$value)
 			return 'bad_avatar_invalid_url';
 		elseif (empty($mime_valid))
 			return 'bad_avatar';
+		// SVGs are special.
+		elseif ($mime_type === 'image/svg+xml')
+		{
+			$safe = false;
+
+			if (($tempfile = @tempnam($uploadDir, 'tmp_')) !== false && ($svg_content = @fetch_web_data($profile_vars['avatar'])) !== false && (file_put_contents($tempfile, $svg_content)) !== false)
+			{
+				$safe = checkSvgContents($tempfile);
+				@unlink($tempfile);
+			}
+
+			if (!$safe)
+				return 'bad_avatar';
+		}
 		// Should we check dimensions?
 		elseif (!empty($modSettings['avatar_max_height_external']) || !empty($modSettings['avatar_max_width_external']))
 		{
@@ -3593,11 +3608,54 @@ function profileSaveAvatarData(&$value)
 				$_FILES['attachment']['tmp_name'] = $new_filename;
 			}
 
-			$mime_valid = check_mime_type($_FILES['attachment']['tmp_name'], 'image/', true);
+			$mime_type = get_mime_type($_FILES['attachment']['tmp_name'], true);
+			$mime_valid = strpos($mime_type, 'image/') === 0;
 			$sizes = empty($mime_valid) ? false : @getimagesize($_FILES['attachment']['tmp_name']);
 
+			// SVGs are special.
+			if ($mime_type === 'image/svg+xml')
+			{
+				if ((checkSvgContents($_FILES['attachment']['tmp_name'])) === false)
+				{
+					@unlink($_FILES['attachment']['tmp_name']);
+					return 'bad_avatar';
+				}
+
+				$extension = 'svg';
+				$destName = 'avatar_' . $memID . '_' . time() . '.' . $extension;
+				list ($width, $height) = getSvgSize($_FILES['attachment']['tmp_name']);
+				$file_hash = '';
+
+				removeAttachments(array('id_member' => $memID));
+
+				$cur_profile['id_attach'] = $smcFunc['db_insert']('',
+					'{db_prefix}attachments',
+					array(
+						'id_member' => 'int', 'attachment_type' => 'int', 'filename' => 'string', 'file_hash' => 'string', 'fileext' => 'string', 'size' => 'int',
+						'width' => 'int', 'height' => 'int', 'mime_type' => 'string', 'id_folder' => 'int',
+					),
+					array(
+						$memID, 1, $destName, $file_hash, $extension, filesize($_FILES['attachment']['tmp_name']),
+						(int) $width, (int) $height, $mime_type, $id_folder,
+					),
+					array('id_attach'),
+					1
+				);
+
+				$cur_profile['filename'] = $destName;
+				$cur_profile['attachment_type'] = 1;
+
+				$destinationPath = $uploadDir . '/' . $destName;
+				if (!rename($_FILES['attachment']['tmp_name'], $destinationPath))
+				{
+					removeAttachments(array('id_member' => $memID));
+					fatal_lang_error('attach_timeout', 'critical');
+				}
+
+				smf_chmod($destinationPath, 0644);
+			}
 			// No size, then it's probably not a valid pic.
-			if ($sizes === false)
+			elseif ($sizes === false)
 			{
 				@unlink($_FILES['attachment']['tmp_name']);
 				return 'bad_avatar';
@@ -3664,7 +3722,7 @@ function profileSaveAvatarData(&$value)
 				);
 
 				$extension = isset($extensions[$sizes[2]]) ? $extensions[$sizes[2]] : 'bmp';
-				$mime_type = 'image/' . ($extension === 'jpg' ? 'jpeg' : ($extension === 'bmp' ? 'x-ms-bmp' : $extension));
+				$mime_type = str_replace('image/bmp', 'image/x-ms-bmp', $mime_type);
 				$destName = 'avatar_' . $memID . '_' . time() . '.' . $extension;
 				list ($width, $height) = getimagesize($_FILES['attachment']['tmp_name']);
 				$file_hash = '';
@@ -3698,7 +3756,7 @@ function profileSaveAvatarData(&$value)
 				}
 
 				// Attempt to chmod it.
-				smf_chmod($uploadDir . '/' . $destinationPath, 0644);
+				smf_chmod($destinationPath, 0644);
 			}
 			$profile_vars['avatar'] = '';
 

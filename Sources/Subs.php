@@ -1769,6 +1769,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						// Image.
 						if (!empty($currentAttachment['is_image']))
 						{
+							// Just viewing the page shouldn't increase the download count for embedded images.
+							$currentAttachment['href'] .= ';preview';
+
 							if (empty($params['{width}']) && empty($params['{height}']))
 								$returnContext .= '<img src="' . $currentAttachment['href'] . '"' . $alt . $title . ' class="bbc_img">';
 							else
