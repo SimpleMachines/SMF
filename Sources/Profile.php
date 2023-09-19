@@ -15,6 +15,7 @@ namespace SMF;
 
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Graphics\Image;
 
 /**
  * Represents a member's profile as shown by ?action=profile.
@@ -1842,421 +1843,32 @@ class Profile extends User implements \ArrayAccess
 
 		call_integration_hook('before_profile_save_avatar', array(&$value));
 
-		// External url too large
-		if ($value == 'external' && User::$me->allowedTo('profile_remote_avatar') && strlen($_POST['userpicpersonal']) > Utils::$context['max_external_size_url'])
+		switch ($value)
 		{
-			return 'bad_avatar_url_too_long';
+			case 'server_stored':
+				$result = $this->setAvatarServerStored($_POST['file'] ?? $_POST['cat'] ?? '');
+				break;
+
+			case 'external':
+				$result = $this->setAvatarExternal($_POST['userpicpersonal'] ?? '');
+				break;
+
+			case 'upload':
+				$result = $this->setAvatarAttachment($_FILES['attachment']['tmp_name'] ?? '');
+				break;
+
+			case 'gravatar':
+				$result = $this->setAvatarGravatar();
+				break;
+
+			default:
+				$result = $this->setAvatarNone();
+				break;
+
 		}
 
-		// We're going to put this in a nice custom dir.
-		$upload_dir = Config::$modSettings['custom_avatar_dir'];
-		$id_folder = 1;
-
-		$downloadedExternalAvatar = false;
-
-		if (
-			$value == 'external'
-			&& User::$me->allowedTo('profile_remote_avatar')
-			&& (
-				stripos($_POST['userpicpersonal'], 'http://') === 0
-				|| stripos($_POST['userpicpersonal'], 'https://') === 0
-			)
-			&& strlen($_POST['userpicpersonal']) > 7
-			&& !empty(Config::$modSettings['avatar_download_external'])
-		)
-		{
-			if (!is_writable($upload_dir))
-				ErrorHandler::fatalLang('attachments_no_write', 'critical');
-
-			$url = parse_iri($_POST['userpicpersonal']);
-
-			$contents = fetch_web_data($url['scheme'] . '://' . $url['host'] . (empty($url['port']) ? '' : ':' . $url['port']) . str_replace(' ', '%20', trim($url['path'])));
-
-			$new_filename = $upload_dir . '/' . Attachment::createHash();
-
-			if ($contents != false && $tmpAvatar = fopen($new_filename, 'wb'))
-			{
-				fwrite($tmpAvatar, $contents);
-				fclose($tmpAvatar);
-
-				$downloadedExternalAvatar = true;
-				$_FILES['attachment']['tmp_name'] = $new_filename;
-			}
-		}
-
-		// Removes whatever attachment there was before updating
-		if ($value == 'none')
-		{
-			$this->new_data['avatar'] = '';
-
-			// Reset the attach ID.
-			$this->data['id_attach'] = 0;
-			$this->data['attachment_type'] = 0;
-			$this->data['filename'] = '';
-
-			Attachment::remove(array('id_member' => $this->id));
-		}
-		// An avatar from the server-stored galleries.
-		elseif ($value == 'server_stored' && User::$me->allowedTo('profile_server_avatar'))
-		{
-			$this->new_data['avatar'] = strtr(empty($_POST['file']) ? (empty($_POST['cat']) ? '' : $_POST['cat']) : $_POST['file'], array('&amp;' => '&'));
-
-			$this->new_data['avatar'] = preg_match('~^([\w _!@%*=\-#()\[\]&.,]+/)?[\w _!@%*=\-#()\[\]&.,]+$~', $this->new_data['avatar']) != 0 && preg_match('/\.\./', $this->new_data['avatar']) == 0 && file_exists(Config::$modSettings['avatar_directory'] . '/' . $this->new_data['avatar']) ? ($this->new_data['avatar'] == 'blank.png' ? '' : $this->new_data['avatar']) : '';
-
-			// Clear current profile...
-			$this->data['id_attach'] = 0;
-			$this->data['attachment_type'] = 0;
-			$this->data['filename'] = '';
-
-			// Get rid of their old avatar. (if uploaded.)
-			Attachment::remove(array('id_member' => $this->id));
-		}
-		elseif ($value == 'gravatar' && !empty(Config::$modSettings['gravatarEnabled']))
-		{
-			// One wasn't specified, or it's not allowed to use extra email addresses, or it's not a valid one, reset to default Gravatar.
-			if (
-				empty($_POST['gravatarEmail'])
-				|| empty(Config::$modSettings['gravatarAllowExtraEmail'])
-				|| !filter_var($_POST['gravatarEmail'], FILTER_VALIDATE_EMAIL)
-			)
-			{
-				$this->new_data['avatar'] = 'gravatar://';
-			}
-			else
-			{
-				$this->new_data['avatar'] = 'gravatar://' . ($_POST['gravatarEmail'] != $this->data['email_address'] ? $_POST['gravatarEmail'] : '');
-			}
-
-			// Get rid of their old avatar. (if uploaded.)
-			Attachment::remove(array('id_member' => $this->id));
-		}
-		elseif (
-			$value == 'external'
-			&& User::$me->allowedTo('profile_remote_avatar')
-			&& (
-				stripos($_POST['userpicpersonal'], 'http://') === 0
-				|| stripos($_POST['userpicpersonal'], 'https://') === 0
-			)
-			&& empty(Config::$modSettings['avatar_download_external'])
-		)
-		{
-			// We need these clean...
-			$this->data['id_attach'] = 0;
-			$this->data['attachment_type'] = 0;
-			$this->data['filename'] = '';
-
-			// Remove any attached avatar...
-			Attachment::remove(array('id_member' => $this->id));
-
-			$this->new_data['avatar'] = str_replace(' ', '%20', preg_replace('~action(?:=|%3d)(?!dlattach)~i', 'action-', $_POST['userpicpersonal']));
-
-			$mime_type = get_mime_type($this->new_data['avatar'], true);
-			$mime_valid = strpos($mime_type, 'image/') === 0;
-
-			if ($this->new_data['avatar'] == 'http://' || $this->new_data['avatar'] == 'http:///')
-			{
-				$this->new_data['avatar'] = '';
-			}
-			// Trying to make us do something we'll regret?
-			elseif (substr($this->new_data['avatar'], 0, 7) != 'http://' && substr($this->new_data['avatar'], 0, 8) != 'https://')
-			{
-				return 'bad_avatar_invalid_url';
-			}
-			elseif (empty($mime_valid))
-			{
-				return 'bad_avatar';
-			}
-			// SVGs are special.
-			elseif ($mime_type === 'image/svg+xml')
-			{
-				$safe = false;
-
-				if (($tempfile = @tempnam($upload_dir, 'tmp_')) !== false && ($svg_content = @fetch_web_data($this->new_data['avatar'])) !== false && (file_put_contents($tempfile, $svg_content)) !== false)
-				{
-					require_once(Config::$sourcedir . '/Graphics/Image.php');
-
-					$safe = checkSvgContents($tempfile);
-					@unlink($tempfile);
-				}
-
-				if (!$safe)
-					return 'bad_avatar';
-			}
-			// Should we check dimensions?
-			elseif (!empty(Config::$modSettings['avatar_max_height_external']) || !empty(Config::$modSettings['avatar_max_width_external']))
-			{
-				// Now let's validate the avatar.
-				$sizes = url_image_size($this->new_data['avatar']);
-
-				if (
-					is_array($sizes)
-					&& (
-						(
-							$sizes[0] > Config::$modSettings['avatar_max_width_external']
-							&& !empty(Config::$modSettings['avatar_max_width_external'])
-						)
-						|| (
-							$sizes[1] > Config::$modSettings['avatar_max_height_external']
-							&& !empty(Config::$modSettings['avatar_max_height_external'])
-						)
-					)
-				)
-				{
-					// Houston, we have a problem. The avatar is too large!!
-					if (Config::$modSettings['avatar_action_too_large'] == 'option_refuse')
-						return 'bad_avatar_too_large';
-
-					if (Config::$modSettings['avatar_action_too_large'] == 'option_download_and_resize')
-					{
-						if ($this->downloadAvatar($this->new_data['avatar'], Config::$modSettings['avatar_max_width_external'], Config::$modSettings['avatar_max_height_external']))
-						{
-							$this->new_data['avatar'] = '';
-							$this->data['id_attach'] = $this->new_avatar_data['id'];
-							$this->data['filename'] = $this->new_avatar_data['filename'];
-							$this->data['attachment_type'] = $this->new_avatar_data['type'];
-						}
-						else
-						{
-							return 'bad_avatar';
-						}
-					}
-				}
-			}
-		}
-		elseif (($value == 'upload' && User::$me->allowedTo('profile_upload_avatar')) || $downloadedExternalAvatar)
-		{
-			if ((isset($_FILES['attachment']['name']) && $_FILES['attachment']['name'] != '') || $downloadedExternalAvatar)
-			{
-				// Get the dimensions of the image.
-				if (!$downloadedExternalAvatar)
-				{
-					if (!is_writable($upload_dir))
-						ErrorHandler::fatalLang('avatars_no_write', 'critical');
-
-					$new_filename = $upload_dir . '/' . Attachment::createHash();
-
-					if (!move_uploaded_file($_FILES['attachment']['tmp_name'], $new_filename))
-						ErrorHandler::fatalLang('attach_timeout', 'critical');
-
-					$_FILES['attachment']['tmp_name'] = $new_filename;
-				}
-
-				$mime_type = get_mime_type($_FILES['attachment']['tmp_name'], true);
-				$mime_valid = strpos($mime_type, 'image/') === 0;
-
-				$sizes = empty($mime_valid) ? false : @getimagesize($_FILES['attachment']['tmp_name']);
-
-				// SVGs are special.
-				if ($mime_type === 'image/svg+xml')
-				{
-					require_once(Config::$sourcedir . '/Graphics/Image.php');
-
-					if ((checkSvgContents($_FILES['attachment']['tmp_name'])) === false)
-					{
-						@unlink($_FILES['attachment']['tmp_name']);
-						return 'bad_avatar';
-					}
-
-					$extension = 'svg';
-					$dest_name = 'avatar_' . $this->id . '_' . time() . '.' . $extension;
-					list($width, $height) = getSvgSize($_FILES['attachment']['tmp_name']);
-					$file_hash = '';
-
-					Attachment::remove(array('id_member' => $this->id));
-
-					$this->data['id_attach'] = Db::$db->insert('',
-						'{db_prefix}attachments',
-						array(
-							'id_member' => 'int',
-							'attachment_type' => 'int',
-							'filename' => 'string',
-							'file_hash' => 'string',
-							'fileext' => 'string',
-							'size' => 'int',
-							'width' => 'int',
-							'height' => 'int',
-							'mime_type' => 'string',
-							'id_folder' => 'int',
-						),
-						array(
-							$this->id,
-							1,
-							$dest_name,
-							$file_hash,
-							$extension,
-							filesize($_FILES['attachment']['tmp_name']),
-							(int) $width,
-							(int) $height,
-							$mime_type,
-							$id_folder,
-						),
-						array('id_attach'),
-						1
-					);
-
-					$this->data['filename'] = $dest_name;
-					$this->data['attachment_type'] = 1;
-
-					$destination_path = $upload_dir . '/' . $dest_name;
-					if (!rename($_FILES['attachment']['tmp_name'], $destination_path))
-					{
-						Attachment::remove(array('id_member' => $this->id));
-						ErrorHandler::fatalLang('attach_timeout', 'critical');
-					}
-
-					smf_chmod($destination_path, 0644);
-				}
-				// No size, then it's probably not a valid pic.
-				elseif ($sizes === false)
-				{
-					@unlink($_FILES['attachment']['tmp_name']);
-					return 'bad_avatar';
-				}
-				// Check whether the image is too large.
-				elseif (
-					(
-						!empty(Config::$modSettings['avatar_max_width_upload'])
-						&& $sizes[0] > Config::$modSettings['avatar_max_width_upload']
-					)
-					|| (
-						!empty(Config::$modSettings['avatar_max_height_upload'])
-						&& $sizes[1] > Config::$modSettings['avatar_max_height_upload']
-					)
-				)
-				{
-					if (!empty(Config::$modSettings['avatar_resize_upload']))
-					{
-						// Attempt to chmod it.
-						smf_chmod($_FILES['attachment']['tmp_name'], 0644);
-
-						if (!$this->downloadAvatar($_FILES['attachment']['tmp_name'], Config::$modSettings['avatar_max_width_upload'], Config::$modSettings['avatar_max_height_upload']))
-						{
-							@unlink($_FILES['attachment']['tmp_name']);
-							return 'bad_avatar';
-						}
-
-						// Reset attachment avatar data.
-						$this->data['id_attach'] = $this->new_avatar_data['id'];
-						$this->data['filename'] = $this->new_avatar_data['filename'];
-						$this->data['attachment_type'] = $this->new_avatar_data['type'];
-					}
-					// Admin doesn't want to resize large avatars, can't do much about it but to tell you to use a different one :(
-					else
-					{
-						@unlink($_FILES['attachment']['tmp_name']);
-						return 'bad_avatar_too_large';
-					}
-				}
-				// So far, so good, checks lies ahead!
-				elseif (is_array($sizes))
-				{
-					// Now try to find an infection.
-					require_once(Config::$sourcedir . '/Graphics/Image.php');
-
-					if (!checkImageContents($_FILES['attachment']['tmp_name'], !empty(Config::$modSettings['avatar_paranoid'])))
-					{
-						// It's bad. Try to re-encode the contents?
-						if (empty(Config::$modSettings['avatar_reencode']) || (!reencodeImage($_FILES['attachment']['tmp_name'], $sizes[2])))
-						{
-							@unlink($_FILES['attachment']['tmp_name']);
-							return 'bad_avatar_fail_reencode';
-						}
-
-						// We were successful. However, at what price?
-						$sizes = @getimagesize($_FILES['attachment']['tmp_name']);
-
-						// Hard to believe this would happen, but can you bet?
-						if ($sizes === false)
-						{
-							@unlink($_FILES['attachment']['tmp_name']);
-							return 'bad_avatar';
-						}
-					}
-
-					$extensions = array(
-						'1' => 'gif',
-						'2' => 'jpg',
-						'3' => 'png',
-						'6' => 'bmp'
-					);
-
-					$extension = isset($extensions[$sizes[2]]) ? $extensions[$sizes[2]] : 'bmp';
-
-					$dest_name = 'avatar_' . $this->id . '_' . time() . '.' . $extension;
-
-					list($width, $height) = getimagesize($_FILES['attachment']['tmp_name']);
-
-					$file_hash = '';
-
-					// Remove previous attachments this member might have had.
-					Attachment::remove(array('id_member' => $this->id));
-
-					$this->data['id_attach'] = Db::$db->insert('',
-						'{db_prefix}attachments',
-						array(
-							'id_member' => 'int',
-							'attachment_type' => 'int',
-							'filename' => 'string',
-							'file_hash' => 'string',
-							'fileext' => 'string',
-							'size' => 'int',
-							'width' => 'int',
-							'height' => 'int',
-							'mime_type' => 'string',
-							'id_folder' => 'int',
-						),
-						array(
-							$this->id,
-							1,
-							$dest_name,
-							$file_hash,
-							$extension,
-							filesize($_FILES['attachment']['tmp_name']),
-							(int) $width,
-							(int) $height,
-							$mime_type,
-							$id_folder,
-						),
-						array('id_attach'),
-						1
-					);
-
-					$this->data['filename'] = $dest_name;
-					$this->data['attachment_type'] = 1;
-
-					$destination_path = $upload_dir . '/' . (empty($file_hash) ? $dest_name : $this->data['id_attach'] . '_' . $file_hash . '.dat');
-
-					if (!rename($_FILES['attachment']['tmp_name'], $destination_path))
-					{
-						// I guess a man can try.
-						Attachment::remove(array('id_member' => $this->id));
-						ErrorHandler::fatalLang('attach_timeout', 'critical');
-					}
-
-					// Attempt to chmod it.
-					smf_chmod($destination_path, 0644);
-				}
-
-				$this->new_data['avatar'] = '';
-
-				// Delete any temporary file.
-				if (file_exists($_FILES['attachment']['tmp_name']))
-					@unlink($_FILES['attachment']['tmp_name']);
-			}
-			// Selected the upload avatar option and had one already uploaded before or didn't upload one.
-			else
-			{
-				$this->new_data['avatar'] = '';
-			}
-		}
-		elseif ($value == 'gravatar' && User::$me->allowedTo('profile_gravatar_avatar'))
-		{
-			$this->new_data['avatar'] = 'gravatar://www.gravatar.com/avatar/' . md5(strtolower(trim($this->data['email_address'])));
-		}
-		else
-		{
-			$this->new_data['avatar'] = '';
-		}
+		if (is_string($result))
+			return $result;
 
 		// Setup the profile variables so it shows things right on display!
 		$this->data['avatar'] = $this->new_data['avatar'];
@@ -2493,7 +2105,7 @@ class Profile extends User implements \ArrayAccess
 						// If the dimensions are still not fixed - we need to check the actual image.
 						if (($width == -1 && $sig_limits[5]) || ($height == -1 && $sig_limits[6]))
 						{
-							$sizes = url_image_size($matches[7][$key]);
+							$sizes = Image::getSizeExternal($matches[7][$key]);
 
 							if (is_array($sizes))
 							{
@@ -3238,87 +2850,279 @@ class Profile extends User implements \ArrayAccess
 	}
 
 	/**
-	 * Downloads a file from a URL and stores it locally for avatar use by the
-	 * member.
-	 *
-	 * @param string $url The full path to the temporary file
-	 * @param int $max_width The maximum allowed width for the avatar
-	 * @param int $max_height The maximum allowed height for the avatar
-	 * @return boolean Whether the download and resize was successful.
 	 *
 	 */
-	protected function downloadAvatar($url, $max_width, $max_height): bool
+	protected function setAvatarNone(): void
 	{
-		require_once(Config::$sourcedir . '/Graphics/Image.php');
+		$this->new_data['avatar'] = '';
 
-		$ext = !empty(Config::$modSettings['avatar_download_png']) ? 'png' : 'jpeg';
-		$preferred_format = !empty(Config::$modSettings['avatar_download_png']) ? 3 : 0;
-		$dest_name = 'avatar_' . $this->id . '_' . time() . '.' . $ext;
-		$dest_path = Config::$modSettings['custom_avatar_dir'] . '/' . $dest_name . '.tmp';
+		// Reset the attach ID.
+		$this->data['id_attach'] = 0;
+		$this->data['attachment_type'] = 0;
+		$this->data['filename'] = '';
+		Attachment::remove(array('id_member' => $this->id));
+	}
 
-		// Resize it. Bail out if it fails.
-		if (!resizeImageFile($url, $dest_path, $max_width, $max_height, $preferred_format))
+	/**
+	 *
+	 */
+	protected function setAvatarServerStored(string $filename): void
+	{
+		if (!User::$me->allowedTo('profile_server_avatar'))
+			return;
+
+		$filename = trim($filename);
+
+		if ($filename === '')
 		{
-			@unlink($dest_path);
-			return false;
+			$this->setAvatarNone();
+			return;
 		}
 
-		// Remove the .tmp extension from the attachment. Bail out if it fails.
-		if (!rename($dest_path, Config::$modSettings['custom_avatar_dir'] . '/' . $dest_name))
+		$this->new_data['avatar'] = strtr($filename, array('&amp;' => '&'));
+
+		$avatar_path = (string) realpath(Config::$modSettings['avatar_directory'] . '/' . $this->new_data['avatar']);
+
+		if (
+			// Named 'blank.png'
+			$this->new_data['avatar'] == 'blank.png'
+			// Not inside the expected directory.
+			|| strpos($avatar_path, Config::$modSettings['avatar_directory'] . '/') !== 0
+			// Not a file.
+			|| !is_file($avatar_path)
+			// Not a valid image file.
+			|| empty(($image = new Image($avatar_path))->mime_type)
+		)
 		{
-			@unlink($dest_path);
-			return false;
+			$this->new_data['avatar'] = '';
 		}
 
-		// Remove the .tmp extension.
-		$dest_path = Config::$modSettings['custom_avatar_dir'] . '/' . $dest_name;
+		// Get rid of their old avatar.
+		$this->data['id_attach'] = 0;
+		$this->data['attachment_type'] = 0;
+		$this->data['filename'] = '';
+		Attachment::remove(array('id_member' => $this->id));
+	}
 
-		// Get dimensions and MIME type.
-		list($width, $height) = getimagesize($dest_path);
-		$mime_type = get_mime_type($dest_path, true);
+	/**
+	 *
+	 */
+	protected function setAvatarExternal(string $url): string|null
+	{
+		if (!User::$me->allowedTo('profile_remote_avatar'))
+			return null;
 
-		// Remove old avatar.
+		$url = trim($url);
+
+		if ($url === '')
+		{
+			$this->setAvatarNone();
+			return null;
+		}
+
+		$url = str_replace(' ', '%20', $url);
+
+		// External URL is too long.
+		if (strlen($url) > 255)
+			return 'bad_avatar_url_too_long';
+
+		$image = new Image($url);
+
+		// Source will be empty if the URL doesn't point to a valid image.
+		if (empty($image->source))
+			return 'bad_avatar_invalid_url';
+
+		// Save a local copy? For security reasons, this should always be done for SVGs.
+		if (!empty(Config::$modSettings['avatar_download_external']) || $this->mime_type === 'image/svg+xml')
+		{
+			return $this->setAvatarAttachment($image->source);
+		}
+
+		// Is is safe?
+		if (!$image->check(!empty(Config::$modSettings['avatar_paranoid'])))
+			return 'bad_avatar';
+
+		// Is it too big?
+		if ($image->shouldResize(Config::$modSettings['avatar_max_width_external'] ?? 0, Config::$modSettings['avatar_max_height_external'] ?? 0))
+		{
+			switch (Config::$modSettings['avatar_action_too_large'])
+			{
+				case 'option_download_and_resize':
+					return $this->setAvatarAttachment($image->source);
+
+				case 'option_refuse':
+					return 'bad_avatar_too_large';
+
+				default:
+					break;
+			}
+		}
+
+		// If we get here, the external avatar is acceptable.
+		$this->new_data['avatar'] = $url;
+
+		// Remove any attached avatar...
+		$this->data['id_attach'] = 0;
+		$this->data['attachment_type'] = 0;
+		$this->data['filename'] = '';
 		Attachment::remove(array('id_member' => $this->id));
 
-		// Add the new avatar to our records.
-		$attach_id = Db::$db->insert('',
+		return null;
+	}
+
+	/**
+	 *
+	 */
+	protected function setAvatarAttachment(string $filepath): string|null
+	{
+		if (!User::$me->allowedTo('profile_upload_avatar'))
+			return null;
+
+		$filepath = trim($filepath);
+
+		if ($filepath === '')
+		{
+			$this->setAvatarNone();
+			return null;
+		}
+
+		if (!is_file($filepath))
+			return 'bad_avatar';
+
+		// We're going to put this in a nice custom dir.
+		$upload_dir = Config::$modSettings['custom_avatar_dir'];
+		$id_folder = 1;
+
+		// If this is an uploaded file, move it to the avatar directory with a temporary name.
+		if (isset($_FILES['attachment']['tmp_name']) && $_FILES['attachment']['tmp_name'] == $filepath)
+		{
+			if (!is_writable($upload_dir))
+				ErrorHandler::fatalLang('avatars_no_write', 'critical');
+
+			$new_filepath = tempnam($upload_dir, '');
+
+			if (!move_uploaded_file($filepath, $new_filepath))
+				ErrorHandler::fatalLang('attach_timeout', 'critical');
+
+			$filepath = $_FILES['attachment']['tmp_name'] = $new_filepath;
+		}
+
+		// Construct an Image object for the new avatar.
+		$image = new Image($filepath);
+
+		// No size or MIME type? Then it's not a valid image.
+		if (empty($image->mime_type) || empty($image->width) || empty($image->height))
+		{
+			@unlink($image->source);
+			unset($image);
+			return 'bad_avatar';
+		}
+
+		// Now try to find an infection.
+		if (!$image->check(!empty(Config::$modSettings['avatar_paranoid'])))
+		{
+			// It's bad. Try to re-encode the contents?
+			if (empty(Config::$modSettings['avatar_reencode']) || !$image->reencode())
+			{
+				@unlink($image->source);
+				return 'bad_avatar_fail_reencode';
+			}
+
+			// It's been re-encoded. Check it again.
+			if (!$image->check(!empty(Config::$modSettings['avatar_paranoid'])))
+			{
+				@unlink($image->source);
+				return 'bad_avatar_fail_reencode';
+			}
+		}
+
+		// Check whether the image is too large.
+		$max_width = Config::$modSettings['avatar_max_width_external'] ?? 0;
+		$max_height = Config::$modSettings['avatar_max_height_external'] ?? 0;
+
+		if ($image->shouldResize($max_width, $max_height))
+		{
+			// Try to resize it, unless the admin disabled resizing.
+			if (empty(Config::$modSettings['avatar_resize_upload']) || !$image->resize($image->source, $max_width, $max_height))
+			{
+				// Admin disabled resizing, or resizing failed.
+				@unlink($image->source);
+				unset($image);
+				return 'bad_avatar';
+			}
+		}
+
+		// Move to its final name and location. Error on failure.
+		if (!$image->move($upload_dir . '/avatar_' . $this->id . '_' . time() . '.' . image_type_to_extension($image->type)))
+		{
+			ErrorHandler::fatalLang('attach_timeout', 'critical');
+		}
+
+		// Remove previous attachments this member might have had.
+		Attachment::remove(array('id_member' => $this->id));
+
+		$this->new_data['avatar'] = '';
+
+		$this->data['id_attach'] = Db::$db->insert('',
 			'{db_prefix}attachments',
 			array(
 				'id_member' => 'int',
 				'attachment_type' => 'int',
-				'filename' => 'string-255',
-				'file_hash' => 'string-255',
-				'fileext' => 'string-8',
+				'filename' => 'string',
+				'file_hash' => 'string',
+				'fileext' => 'string',
 				'size' => 'int',
-				'id_folder' => 'int',
 				'width' => 'int',
 				'height' => 'int',
-				'mime_type' => 'string-127',
+				'mime_type' => 'string',
+				'id_folder' => 'int',
 			),
 			array(
 				$this->id,
 				1,
-				$dest_name,
+				$image->pathinfo['basename'],
 				'',
-				$ext,
-				filesize($dest_path),
-				1,
-				(int) $width,
-				(int) $height,
-				$mime_type,
+				$image->pathinfo['extension'],
+				filesize($image->source),
+				$image->width,
+				$image->height,
+				$image->mime_type,
+				$id_folder,
 			),
 			array('id_attach'),
 			1
 		);
 
-		// Let other methods know about the new avatar.
-		$this->new_avatar_data = array(
-			'id' => $attach_id,
-			'filename' => $dest_name,
-			'type' => 1,
-		);
+		$this->data['filename'] = $image->pathinfo['basename'];
+		$this->data['attachment_type'] = 1;
 
-		return true;
+		return null;
+	}
+
+	/**
+	 *
+	 */
+	protected function setAvatarGravatar(): void
+	{
+		if (empty(Config::$modSettings['gravatarEnabled']))
+			return;
+
+		// One wasn't specified, or it's not allowed to use extra email addresses, or it's not a valid one, reset to default Gravatar.
+		if (
+			empty($_POST['gravatarEmail'])
+			|| empty(Config::$modSettings['gravatarAllowExtraEmail'])
+			|| !filter_var($_POST['gravatarEmail'], FILTER_VALIDATE_EMAIL)
+		)
+		{
+			$this->new_data['avatar'] = 'gravatar://';
+		}
+		else
+		{
+			$this->new_data['avatar'] = 'gravatar://' . ($_POST['gravatarEmail'] != $this->data['email_address'] ? $_POST['gravatarEmail'] : '');
+		}
+
+		// Get rid of their old avatar. (if uploaded.)
+		Attachment::remove(array('id_member' => $this->id));
 	}
 
 	/**

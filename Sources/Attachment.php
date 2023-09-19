@@ -16,6 +16,7 @@ namespace SMF;
 use SMF\Actions\Admin\ACP;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Graphics\Image;
 
 /**
  * This class represents a file attachment.
@@ -222,6 +223,13 @@ class Attachment implements \ArrayAccess
 	public bool $is_image = false;
 
 	/**
+	 * @var bool
+	 *
+	 * Whether this attachment is an image with an embedded thumbnail.
+	 */
+	public bool $embedded_thumb = false;
+
+	/**
 	 * @var int
 	 *
 	 * Width of the thumbnail image, if applicable.
@@ -362,18 +370,27 @@ class Attachment implements \ArrayAccess
 		$this->id = $id;
 		$this->set($props);
 
+		// Is this an image attachment?
+		$image = new Image($this->path);
+
+		if (!empty($image->source))
+		{
+			$this->is_image = true;
+			$this->mime_type = $image->mime_type;
+			$this->width = $image->width;
+			$this->height = $image->height;
+			$this->embedded_thumb = $image->embedded_thumb;
+		}
+
+		unset($image);
+
+		// If we still don't have a MIME type, get it now.
 		if (empty($this->mime_type))
 			$this->mime_type = get_mime_type($this->path, true);
 
 		// SVGs are special.
 		if ($this->mime_type === 'image/svg+xml')
 		{
-			if (empty($this->width) || empty($this->height))
-			{
-				require_once(Config::$sourcedir . '/Graphics/Image.php');
-				$this->set(getSvgSize($this->path));
-			}
-
 			// SVG is its own thumbnail.
 			$this->thumb = $id;
 
@@ -431,66 +448,24 @@ class Attachment implements \ArrayAccess
 	 */
 	public function __set(string $prop, $value): void
 	{
-		if (property_exists($this, $prop))
-		{
-			$real_prop = $prop;
-
-			// Cast null values to the necessary type.
-			if (is_null($value))
-				settype($value, gettype($this->{$prop}));
-
-			$this->{$prop} = $value;
-		}
-		elseif (array_key_exists($prop, $this->prop_aliases))
-		{
-			// Can't unset a virtual property.
-			if (is_null($value))
-				return;
-
-			$real_prop = $this->prop_aliases[$prop];
-
-			if (strpos($real_prop, '!') === 0)
-			{
-				$real_prop = ltrim($real_prop, '!');
-				$value = !$value;
-			}
-
-			if (strpos($real_prop, '[') !== false)
-			{
-				$real_prop = explode('[', rtrim($real_prop, ']'));
-
-				$this->{$real_prop[0]}[$real_prop[1]] = $value;
-			}
-			else
-			{
-				$this->{$real_prop} = $value;
-			}
-		}
-		else
-		{
-			$this->custom[$prop] = $value;
-		}
+		$this->customPropertySet($prop, $value);
 
 		$this->href = Config::$scripturl . '?action=dlattach;attach=' . $this->id;
-		$this->is_image = !empty($this->width) && !empty($this->height);
 
-		if (isset($real_prop))
+		if (in_array($this->prop_aliases[$prop] ?? $prop, array('id', 'file_hash', 'folder')))
+			$this->setPath();
+
+		if (($this->prop_aliases[$prop] ?? $prop) === 'filename')
 		{
-			if (in_array($real_prop, array('id', 'file_hash', 'folder')))
-				$this->setPath();
+			$this->name = Utils::htmlspecialchars($value);
+			$this->link = '<a href="' . $this->href . '" class="bbc_link">' . $this->name . '</a>';
+		}
 
-			if ($real_prop === 'filename')
-			{
-				$this->name = Utils::htmlspecialchars($value);
-				$this->link = '<a href="' . $this->href . '" class="bbc_link">' . $this->name . '</a>';
-			}
+		if (($this->prop_aliases[$prop] ?? $prop) === 'size')
+		{
+			Lang::load('index');
 
-			if ($real_prop === 'size')
-			{
-				Lang::load('index');
-
-				$this->formatted_size = ($this->size < 1024000) ? round($this->size / 1024, 2) . ' ' . Lang::$txt['kilobyte'] : round($this->size / 1024 / 1024, 2) . ' ' . Lang::$txt['megabyte'];
-			}
+			$this->formatted_size = ($this->size < 1024000) ? round($this->size / 1024, 2) . ' ' . Lang::$txt['kilobyte'] : round($this->size / 1024 / 1024, 2) . ' ' . Lang::$txt['megabyte'];
 		}
 	}
 
@@ -1235,42 +1210,25 @@ class Attachment implements \ArrayAccess
 		}
 
 		// First, the dreaded security check. Sorry folks, but this shouldn't be avoided.
-		$size = @getimagesize($_SESSION['temp_attachments'][$attachID]['tmp_name']);
+		$image = new Image($_SESSION['temp_attachments'][$attachID]['tmp_name']);
 
-		if (is_array($size) && isset($size[2], Utils::$context['valid_image_types'][$size[2]]))
+		// Source will be empty if this attachment is not an image.
+		if (!empty($image->source) && !$image->check(!empty(Config::$modSettings['attachment_image_paranoid'])))
 		{
-			require_once(Config::$sourcedir . '/Graphics/Image.php');
-
-			if (!checkImageContents($_SESSION['temp_attachments'][$attachID]['tmp_name'], !empty(Config::$modSettings['attachment_image_paranoid'])))
+			// It's bad. Last chance, maybe we can re-encode it?
+			if (empty(Config::$modSettings['attachment_image_reencode']) || !$image->reencode())
 			{
-				// It's bad. Last chance, maybe we can re-encode it?
-				if (empty(Config::$modSettings['attachment_image_reencode']) || (!reencodeImage($_SESSION['temp_attachments'][$attachID]['tmp_name'], $size[2])))
-				{
-					// Nothing to do: not allowed or not successful re-encoding it.
-					$_SESSION['temp_attachments'][$attachID]['errors'][] = 'bad_attachment';
-					return false;
-				}
-				// Success! However, successes usually come for a price:
-				// we might get a new format for our image...
-				$old_format = $size[2];
-				$size = @getimagesize($_SESSION['temp_attachments'][$attachID]['tmp_name']);
-
-				if (!empty($size) && ($size[2] != $old_format))
-				{
-					$_SESSION['temp_attachments'][$attachID]['type'] = 'image/' . Utils::$context['valid_image_types'][$size[2]];
-				}
-			}
-		}
-		// SVGs have their own set of security checks.
-		elseif ($_SESSION['temp_attachments'][$attachID]['type'] === 'image/svg+xml')
-		{
-			require_once(Config::$sourcedir . '/Graphics/Image.php');
-			if (!checkSVGContents($_SESSION['temp_attachments'][$attachID]['tmp_name']))
-			{
+				// Nothing to do: not allowed or not successful re-encoding it.
 				$_SESSION['temp_attachments'][$attachID]['errors'][] = 'bad_attachment';
 				return false;
 			}
+
+			// Success! However, successes usually come for a price:
+			// we might get a new format for our image...
+			$_SESSION['temp_attachments'][$attachID]['type'] = $image->mime_type;
 		}
+
+		unset($image);
 
 		// Is there room for this sucker?
 		if (!empty(Config::$modSettings['attachmentDirSizeLimit']) || !empty(Config::$modSettings['attachmentDirFileLimit']))
@@ -1425,67 +1383,59 @@ class Attachment implements \ArrayAccess
 	 */
 	public static function create(&$attachmentOptions)
 	{
-		require_once(Config::$sourcedir . '/Graphics/Image.php');
-
 		// If this is an image we need to set a few additional parameters.
-		$size = @getimagesize($attachmentOptions['tmp_name']);
-		list($attachmentOptions['width'], $attachmentOptions['height']) = $size;
+		$image = new Image($attachmentOptions['tmp_name']);
 
-		if (!empty($attachmentOptions['mime_type']) && $attachmentOptions['mime_type'] === 'image/svg+xml')
+		// Source is empty for non-images.
+		if (!empty($image->source))
 		{
-			foreach (getSvgSize($attachmentOptions['tmp_name']) as $key => $value)
-				$attachmentOptions[$key] = $value === INF ? 0 : $value;
-		}
+			// Make sure the MIME type is correct.
+			$attachmentOptions['mime_type'] = $image->mime_type;
 
-		if (function_exists('exif_read_data') && ($exif_data = @exif_read_data($attachmentOptions['tmp_name'])) !== false && !empty($exif_data['Orientation']))
-		{
-			if (in_array($exif_data['Orientation'], [5, 6, 7, 8]))
+			// Set the correct width and height.
+			$attachmentOptions['width'] = $image->width;
+			$attachmentOptions['height'] = $image->height;
+
+			if (in_array($image->orientation, array(5, 6, 7, 8)))
 			{
-				$new_width = $attachmentOptions['height'];
-				$new_height = $attachmentOptions['width'];
-				$attachmentOptions['width'] = $new_width;
-				$attachmentOptions['height'] = $new_height;
+				$attachmentOptions['width'] = $image->height;
+				$attachmentOptions['height'] = $image->width;
+			}
+
+			// Set the proper file extension for this image type.
+			$attachmentOptions['fileext'] = ltrim(image_type_to_extension($image->type), '.');
+
+			// Special exception: allow both 'jpg' and 'jpeg'.
+			if ($attachmentOptions['fileext'] === 'jpeg' && strtolower(pathinfo($attachmentOptions['name'], PATHINFO_EXTENSION)) === 'jpg')
+			{
+				$attachmentOptions['fileext'] = pathinfo($attachmentOptions['name'], PATHINFO_EXTENSION);
 			}
 		}
-
-		// If it's an image get the mime type right.
-		if (empty($attachmentOptions['mime_type']) && $attachmentOptions['width'])
-		{
-			// Got a proper mime type?
-			if (!empty($size['mime']))
-			{
-				$attachmentOptions['mime_type'] = $size['mime'];
-			}
-			// Otherwise a valid one?
-			elseif (isset(Utils::$context['valid_image_types'][$size[2]]))
-			{
-				$attachmentOptions['mime_type'] = 'image/' . Utils::$context['valid_image_types'][$size[2]];
-			}
-		}
-
-		// It is possible we might have a MIME type that isn't actually an image but still have a size.
-		// For example, Shockwave files will be able to return size but be 'application/shockwave' or similar.
-		if (!empty($attachmentOptions['mime_type']) && strpos($attachmentOptions['mime_type'], 'image/') !== 0)
+		else
 		{
 			$attachmentOptions['width'] = 0;
 			$attachmentOptions['height'] = 0;
 		}
 
+		unset($image);
+
+		// Fix up the supplied file name and extension.
+		$name_info = array_filter(pathinfo($attachmentOptions['name']), 'strlen');
+
+		if (strlen($attachmentOptions['fileext'] ?? '') > 8)
+			$attachmentOptions['fileext'] = '';
+
+		if (strlen($attachmentOptions['fileext'] ?? '') === 0)
+		{
+			$attachmentOptions['fileext'] = isset($name_info['extension']) && strlen($name_info['extension']) <= 8 ? $name_info['extension'] : '';
+		}
+
+		$attachmentOptions['name'] = ($name_info['filename'] ?? bin2hex(Utils::randomBytes(4))) . (strlen($attachmentOptions['fileext']) > 0 ? '.' . $attachmentOptions['fileext'] : '');
+
 		// Get the hash if no hash has been given yet.
 		if (empty($attachmentOptions['file_hash']))
 		{
 			$attachmentOptions['file_hash'] = self::createHash($attachmentOptions['tmp_name']);
-		}
-
-		// Assuming no-one set the extension let's take a look at it.
-		if (empty($attachmentOptions['fileext']))
-		{
-			$attachmentOptions['fileext'] = strtolower(strrpos($attachmentOptions['name'], '.') !== false ? substr($attachmentOptions['name'], strrpos($attachmentOptions['name'], '.') + 1) : '');
-
-			if (strlen($attachmentOptions['fileext']) > 8 || '.' . $attachmentOptions['fileext'] == $attachmentOptions['name'])
-			{
-				$attachmentOptions['fileext'] = '';
-			}
 		}
 
 		// This defines which options to use for which columns in the insert query.
@@ -1603,7 +1553,7 @@ class Attachment implements \ArrayAccess
 			);
 		}
 
-		if (empty(Config::$modSettings['attachmentThumbnails']) || (empty($attachmentOptions['width']) && empty($attachmentOptions['height'])))
+		if (!$this->is_image || empty(Config::$modSettings['attachmentThumbnails']) || (empty($attachmentOptions['width']) && empty($attachmentOptions['height'])))
 		{
 			return true;
 		}
@@ -1611,30 +1561,12 @@ class Attachment implements \ArrayAccess
 		// Like thumbnails, do we?
 		if (!empty(Config::$modSettings['attachmentThumbWidth']) && !empty(Config::$modSettings['attachmentThumbHeight']) && ($attachmentOptions['width'] > Config::$modSettings['attachmentThumbWidth'] || $attachmentOptions['height'] > Config::$modSettings['attachmentThumbHeight']))
 		{
-			if (createThumbnail($attachmentOptions['destination'], Config::$modSettings['attachmentThumbWidth'], Config::$modSettings['attachmentThumbHeight']))
+			$image = new Image($attachmentOptions['destination'], true);
+
+			if (($thumb = $image->createThumbnail(Config::$modSettings['attachmentThumbWidth'], Config::$modSettings['attachmentThumbHeight'])) !== false)
 			{
-				// Figure out how big we actually made it.
-				$size = @getimagesize($attachmentOptions['destination'] . '_thumb');
-				list ($thumb_width, $thumb_height) = $size;
-
-				if (!empty($size['mime']))
-				{
-					$thumb_mime = $size['mime'];
-				}
-				elseif (isset(Utils::$context['valid_image_types'][$size[2]]))
-				{
-					$thumb_mime = 'image/' . Utils::$context['valid_image_types'][$size[2]];
-				}
-				// Lord only knows how this happened...
-				else
-				{
-					$thumb_mime = '';
-				}
-
-				$thumb_filename = $attachmentOptions['name'] . '_thumb';
-				$thumb_path = $attachmentOptions['destination'] . '_thumb';
-				$thumb_size = filesize($thumb_path);
-				$thumb_file_hash = self::createHash($thumb_path);
+				// Propagate our special handling for JPEGs to the thumbnail's extension, too.
+				$thumb_ext = $image->type === $thumb->type ? $attachmentOptions['fileext'] : ltrim(image_type_to_extension($thumb->type), '.');
 
 				// We should check the file size and count here since thumbs are added to the existing totals.
 				if (
@@ -1644,7 +1576,8 @@ class Attachment implements \ArrayAccess
 					|| !empty(Config::$modSettings['attachmentDirFileLimit'])
 				)
 				{
-					Utils::$context['dir_size'] = isset(Utils::$context['dir_size']) ? Utils::$context['dir_size'] += $thumb_size : Utils::$context['dir_size'] = 0;
+					Utils::$context['dir_size'] = isset(Utils::$context['dir_size']) ? Utils::$context['dir_size'] += $thumb->filesize : Utils::$context['dir_size'] = 0;
+
 					Utils::$context['dir_files'] = isset(Utils::$context['dir_files']) ? Utils::$context['dir_files']++ : Utils::$context['dir_files'] = 0;
 
 					// If the folder is full, try to create a new one and move the thumb to it.
@@ -1652,30 +1585,48 @@ class Attachment implements \ArrayAccess
 					{
 						if (self::automanageBySpace())
 						{
-							rename($thumb_path, Utils::$context['attach_dir'] . '/' . $thumb_filename);
-							$thumb_path = Utils::$context['attach_dir'] . '/' . $thumb_filename;
+							$thumb->move(Utils::$context['attach_dir'] . '/' . $thumb->pathinfo['basename']);
+
 							Utils::$context['dir_size'] = 0;
 							Utils::$context['dir_files'] = 0;
 						}
 					}
 				}
+
 				// If a new folder has been already created. Gotta move this thumb there then.
 				if (Config::$modSettings['currentAttachmentUploadDir'] != $attachmentOptions['id_folder'])
 				{
-					rename($thumb_path, Utils::$context['attach_dir'] . '/' . $thumb_filename);
-					$thumb_path = Utils::$context['attach_dir'] . '/' . $thumb_filename;
+					$thumb->move(Utils::$context['attach_dir'] . '/' . $thumb->pathinfo['basename']);
 				}
 
 				// To the database we go!
 				$attachmentOptions['thumb'] = Db::$db->insert('',
 					'{db_prefix}attachments',
 					array(
-						'id_folder' => 'int', 'id_msg' => 'int', 'attachment_type' => 'int', 'filename' => 'string-255', 'file_hash' => 'string-40', 'fileext' => 'string-8',
-						'size' => 'int', 'width' => 'int', 'height' => 'int', 'mime_type' => 'string-20', 'approved' => 'int',
+						'id_folder' => 'int',
+						'id_msg' => 'int',
+						'attachment_type' => 'int',
+						'filename' => 'string-255',
+						'file_hash' => 'string-40',
+						'fileext' => 'string-8',
+						'size' => 'int',
+						'width' => 'int',
+						'height' => 'int',
+						'mime_type' => 'string-20',
+						'approved' => 'int',
 					),
 					array(
-						Config::$modSettings['currentAttachmentUploadDir'], (int) $attachmentOptions['post'], 3, $thumb_filename, $thumb_file_hash, $attachmentOptions['fileext'],
-						$thumb_size, $thumb_width, $thumb_height, $thumb_mime, (int) $attachmentOptions['approved'],
+						Config::$modSettings['currentAttachmentUploadDir'],
+						(int) $attachmentOptions['post'],
+						3,
+						$thumb->pathinfo['basename'],
+						self::createHash($thumb->source),
+						$thumb_ext,
+						$thumb->filesize,
+						$thumb->width,
+						$thumb->height,
+						$thumb->mime_type,
+						(int) $attachmentOptions['approved'],
 					),
 					array('id_attach'),
 					1
@@ -1693,7 +1644,7 @@ class Attachment implements \ArrayAccess
 						)
 					);
 
-					rename($thumb_path, self::getFilePath($attachmentOptions['thumb']));
+					$thumb->move(self::getFilePath($attachmentOptions['thumb']));
 				}
 			}
 		}
@@ -2226,9 +2177,9 @@ class Attachment implements \ArrayAccess
 					{
 						$filename = self::getFilePath($attachment['id_attach']);
 
-						require_once(Config::$sourcedir . '/Graphics/Image.php');
+						$image = new Image($filename, true);
 
-						if (createThumbnail($filename, Config::$modSettings['attachmentThumbWidth'], Config::$modSettings['attachmentThumbHeight']))
+						if (!empty($image->source) && ($thumb = $image->createThumbnail(Config::$modSettings['attachmentThumbWidth'], Config::$modSettings['attachmentThumbHeight'])) !== false)
 						{
 							// So what folder are we putting this image in?
 							if (!empty(Config::$modSettings['currentAttachmentUploadDir']))
@@ -2245,33 +2196,40 @@ class Attachment implements \ArrayAccess
 								$id_folder_thumb = 1;
 							}
 
-							// Calculate the size of the created thumbnail.
-							$size = @getimagesize($filename . '_thumb');
-							list ($attachment['thumb_width'], $attachment['thumb_height']) = $size;
-							$thumb_size = filesize($filename . '_thumb');
+							$attachment['thumb_width'] = $thumb->width;
+							$attachment['thumb_height'] = $thumb->height;
 
-							// What about the extension?
-							$thumb_ext = isset(Utils::$context['valid_image_types'][$size[2]]) ? Utils::$context['valid_image_types'][$size[2]] : '';
+							$old_id_thumb = $attachment['id_thumb'] ?? 0;
 
-							// Figure out the mime type.
-							if (!empty($size['mime']))
-							{
-								$thumb_mime = $size['mime'];
-							}
-							else
-							{
-								$thumb_mime = 'image/' . $thumb_ext;
-							}
-
-							$thumb_filename = $attachment['filename'] . '_thumb';
-							$thumb_hash = self::createHash($filename . '_thumb');
-							$old_id_thumb = $attachment['id_thumb'];
+							$thumb_ext = $image->type === $thumb->type ? $attachment['fileext'] : ltrim(image_type_to_extension($thumb->type), '.');
 
 							// Add this beauty to the database.
 							$attachment['id_thumb'] = Db::$db->insert('',
 								'{db_prefix}attachments',
-								array('id_folder' => 'int', 'id_msg' => 'int', 'attachment_type' => 'int', 'filename' => 'string', 'file_hash' => 'string', 'size' => 'int', 'width' => 'int', 'height' => 'int', 'fileext' => 'string', 'mime_type' => 'string'),
-								array($id_folder_thumb, $id_msg, 3, $thumb_filename, $thumb_hash, (int) $thumb_size, (int) $attachment['thumb_width'], (int) $attachment['thumb_height'], $thumb_ext, $thumb_mime),
+								array(
+									'id_folder' => 'int',
+									'id_msg' => 'int',
+									'attachment_type' => 'int',
+									'filename' => 'string',
+									'file_hash' => 'string',
+									'size' => 'int',
+									'width' => 'int',
+									'height' => 'int',
+									'fileext' => 'string',
+									'mime_type' => 'string',
+								),
+								array(
+									$id_folder_thumb,
+									$id_msg,
+									3,
+									$thumb->pathinfo['basename'],
+									self::createHash($thumb->source),
+									$thumb->filesize,
+									$thumb->width,
+									$thumb->height,
+									$thumb_ext,
+									$thumb->mime_type,
+								),
 								array('id_attach'),
 								1
 							);
@@ -2288,8 +2246,7 @@ class Attachment implements \ArrayAccess
 									)
 								);
 
-								$thumb_realname = self::getFilePath($attachment['id_thumb']);
-								rename($filename . '_thumb', $thumb_realname);
+								$thumb->move(self::getFilePath($attachment['id_thumb']));
 
 								// Do we need to remove an old thumbnail?
 								if (!empty($old_id_thumb))

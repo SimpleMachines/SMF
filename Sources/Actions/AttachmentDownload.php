@@ -326,7 +326,7 @@ class AttachmentDownload implements ActionInterface
 		if (!empty(Utils::$context['prepend_attachment_id']))
 			$file->filename = $_REQUEST['attach'] . ' - ' . $file->filename;
 
-		Utils::emitFile($file);
+		Utils::emitFile($file, $this->showThumb);
 	}
 
 	/***********************
