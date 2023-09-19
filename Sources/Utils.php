@@ -120,18 +120,6 @@ class Utils
 			'<img>',
 			'<div>',
 		),
-		// These are the only valid image types for SMF attachments, by default
-		// anyway. Note: The values are for mime types, not file extensions.
-		'valid_image_types' => array(
-			IMAGETYPE_GIF => 'gif',
-			IMAGETYPE_JPEG => 'jpeg',
-			IMAGETYPE_PNG => 'png',
-			IMAGETYPE_PSD => 'psd',
-			IMAGETYPE_BMP => 'bmp',
-			IMAGETYPE_TIFF_II => 'tiff',
-			IMAGETYPE_TIFF_MM => 'tiff',
-			IMAGETYPE_IFF => 'iff'
-		),
 		// Define a list of allowed tags for descriptions.
 		'description_allowed_tags' => array(
 			'abbr', 'anchor', 'b', 'br', 'center', 'color', 'font', 'hr', 'i',
@@ -1069,12 +1057,33 @@ class Utils
 	 *
 	 * @param array|object $file Information about the file. Must be either an
 	 *    array or an object that implements the \ArrayAccess interface.
+	 * @param bool $show_thumb Whether to send the image's embedded thumbnail,
+	 *    if it has one.
 	 */
-	public static function emitFile(\ArrayAccess|array $file): void
+	public static function emitFile(\ArrayAccess|array $file, bool $show_thumb = false): void
 	{
 		// If headers were already sent, anything we send now will be corrupted.
 		if (headers_sent())
 			exit;
+
+		// Do we want to send an embedded thumbnail image?
+		if ($show_thumb && $file instanceof Attachment && $file->embedded_thumb && function_exists('exif_thumbnail'))
+		{
+			$thumb = array(
+				'content' => exif_thumbnail($file->path, $width, $height, $type),
+				'filename' => $file->filename ?? null,
+				'mtime' => $file->mtime ?? null,
+				'disposition' => $file->disposition ?? 'attachment',
+			);
+			$thumb['size'] = strlen($thumb['content']);
+			$thumb['width'] = $width;
+			$thumb['height'] = $height;
+			$thumb['etag'] = sha1($thumb['content']);
+			$thumb['mime_type'] = image_type_to_mime_type($type);
+			$thumb['fileext'] = ltrim(image_type_to_extension($type), '.');
+
+			$file = $thumb;
+		}
 
 		// We always need a file size.
 		if (!isset($file['size']))

@@ -37,6 +37,7 @@ if (!defined('SMF'))
 
 class_exists('SMF\\Attachment');
 class_exists('SMF\\BBCodeParser');
+class_exists('SMF\\Image');
 class_exists('SMF\\Logging');
 class_exists('SMF\\Theme');
 class_exists('SMF\\Time');
@@ -822,86 +823,6 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 	// Don't exit if we're coming from index.php; that will pass through normally.
 	if (!$from_index)
 		exit;
-}
-
-/**
- * Get the size of a specified image with better error handling.
- *
- * @todo see if it's better in Subs-Graphics, but one step at the time.
- * Uses getimagesize() to determine the size of a file.
- * Attempts to connect to the server first so it won't time out.
- *
- * @param string $url The URL of the image
- * @return array|false The image size as array (width, height), or false on failure
- */
-function url_image_size($url)
-{
-	// Make sure it is a proper URL.
-	$url = str_replace(' ', '%20', $url);
-
-	// Can we pull this from the cache... please please?
-	if (($temp = CacheApi::get('url_image_size-' . md5($url), 240)) !== null)
-		return $temp;
-	$t = microtime(true);
-
-	// Get the host to pester...
-	preg_match('~^\w+://(.+?)/(.*)$~', $url, $match);
-
-	// Can't figure it out, just try the image size.
-	if ($url == '' || $url == 'http://' || $url == 'https://')
-	{
-		return false;
-	}
-	elseif (!isset($match[1]))
-	{
-		$size = @getimagesize($url);
-	}
-	else
-	{
-		// Try to connect to the server... give it half a second.
-		$temp = 0;
-		$fp = @fsockopen($match[1], 80, $temp, $temp, 0.5);
-
-		// Successful?  Continue...
-		if ($fp != false)
-		{
-			// Send the HEAD request (since we don't have to worry about chunked, HTTP/1.1 is fine here.)
-			fwrite($fp, 'HEAD /' . $match[2] . ' HTTP/1.1' . "\r\n" . 'Host: ' . $match[1] . "\r\n" . 'user-agent: '. SMF_USER_AGENT . "\r\n" . 'Connection: close' . "\r\n\r\n");
-
-			// Read in the HTTP/1.1 or whatever.
-			$test = substr(fgets($fp, 11), -1);
-			fclose($fp);
-
-			// See if it returned a 404/403 or something.
-			if ($test < 4)
-			{
-				$size = @getimagesize($url);
-
-				// This probably means allow_url_fopen is off, let's try GD.
-				if ($size === false && function_exists('imagecreatefromstring'))
-				{
-					// It's going to hate us for doing this, but another request...
-					$image = @imagecreatefromstring(fetch_web_data($url));
-					if ($image !== false)
-					{
-						$size = array(imagesx($image), imagesy($image));
-						imagedestroy($image);
-					}
-				}
-			}
-		}
-	}
-
-	// If we didn't get it, we failed.
-	if (!isset($size))
-		$size = false;
-
-	// If this took a long time, we may never have to do it again, but then again we might...
-	if (microtime(true) - $t > 0.8)
-		CacheApi::put('url_image_size-' . md5($url), $size, 240);
-
-	// Didn't work.
-	return $size;
 }
 
 /**

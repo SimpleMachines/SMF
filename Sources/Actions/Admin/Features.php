@@ -29,6 +29,7 @@ use SMF\User;
 use SMF\Utils;
 use SMF\Actions\Profile\Notification;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Graphics\Image;
 
 /**
  * Class to manage various core features.
@@ -526,7 +527,7 @@ class Features implements ActionInterface
 								// If the dimensions are still not fixed - we need to check the actual image.
 								if (($width == -1 && $sig_limits[5]) || ($height == -1 && $sig_limits[6]))
 								{
-									$sizes = url_image_size($matches[7][$key]);
+									$sizes = Image::getSizeExternal($matches[7][$key]);
 
 									if (is_array($sizes))
 									{
