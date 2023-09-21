@@ -14,7 +14,9 @@
 if (!defined('SMF'))
 	die('No direct access...');
 
-require_once($sourcedir . '/Unicode/Metadata.php');
+// If this file is missing, we're using an old version of Unicode.
+if (!@include_once($sourcedir . '/Unicode/Metadata.php'))
+	define('SMF_UNICODE_VERSION', '14.0.0.0');
 
 /**
  * Converts the given UTF-8 string into lowercase.
