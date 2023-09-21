@@ -407,7 +407,7 @@ class Update_Unicode extends SMF_BackgroundTask
 	 */
 	public function execute()
 	{
-		global $sourcedir, $smcFunc;
+		global $sourcedir, $smcFunc, $txt;
 
 		/*****************
 		 * Part 1: Setup *
