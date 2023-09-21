@@ -433,20 +433,27 @@ class Update_Unicode extends SMF_BackgroundTask
 
 		foreach ($this->funcs as $func_name => &$func_info)
 		{
+			$file_paths['final'] = implode(DIRECTORY_SEPARATOR, array($this->unicodedir, $func_info['file']));
+
+			if (!file_exists($file_paths['final']))
+				touch($file_paths['final']);
+
+			if (!is_file($file_paths['final']) || !smf_chmod($file_paths['final']))
+			{
+				loadLanguage('Errors');
+				log_error(sprintf($txt['unicode_update_failed'], $this->unicodedir));
+				return true;
+			}
+
 			$file_paths['temp'] = implode(DIRECTORY_SEPARATOR, array($this->temp_dir, $func_info['file']));
 
 			if (!file_exists($file_paths['temp']))
 				touch($file_paths['temp']);
 
-			if (!is_file($file_paths['temp']))
+			if (!is_file($file_paths['temp']) || !smf_chmod($file_paths['temp']))
 			{
-				log_error($file_paths['temp'] . ' is not a file.');
-				return true;
-			}
-
-			if (!smf_chmod($file_paths['temp']))
-			{
-				log_error($file_paths['temp'] . ' is not writable.');
+				loadLanguage('Errors');
+				log_error(sprintf($txt['unicode_update_failed'], $this->temp_dir));
 				return true;
 			}
 
