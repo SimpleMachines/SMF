@@ -748,6 +748,7 @@ function Post($post_errors = array())
 		// When was it last modified?
 		if (!empty($row['modified_time']))
 		{
+			$modified_reason = $row['modified_reason'];
 			$context['last_modified'] = timeformat($row['modified_time']);
 			$context['last_modified_reason'] = censorText($row['modified_reason']);
 			$context['last_modified_name'] = $row['modified_name'];
@@ -1613,7 +1614,7 @@ function Post($post_errors = array())
 					'size' => 80,
 					'maxlength' => 80,
 					// If same user is editing again, keep the previous edit reason by default.
-					'value' => isset($context['last_modified_reason']) && isset($context['last_modified_name']) && $context['last_modified_name'] === $user_info['name'] ? $context['last_modified_reason'] : '',
+					'value' => isset($modified_reason) && isset($context['last_modified_name']) && $context['last_modified_name'] === $user_info['name'] ? $modified_reason : '',
 				),
 				// If message has been edited before, show info about that.
 				'after' => empty($context['last_modified_text']) ? '' : '<div class="smalltext em">' . $context['last_modified_text'] . '</div>',
