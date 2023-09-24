@@ -814,6 +814,14 @@ sceditor.formats.bbcode.set(
 
 sceditor.formats.bbcode.set(
 	'php', {
+		tags: {
+			code: {
+				class: 'php'
+			},
+			span: {
+				class: 'phpcode'
+			}
+		},
 		isInline: false,
 		format: "[php]{0}[/php]",
 		html: '<code class="php">{0}</code>'
@@ -823,26 +831,41 @@ sceditor.formats.bbcode.set(
 sceditor.formats.bbcode.set(
 	'code', {
 		tags: {
-			code: null
+			code: null,
+			div: {
+				class: 'codeheader'
+			},
+			pre: {
+				class: 'bbc_code'
+			}
 		},
 		isInline: false,
 		allowedChildren: ['#', '#newline'],
 		format: function (element, content) {
-			if ($(element).hasClass('php'))
-				return '[php]' + content.replace('&#91;', '[') + '[/php]';
+			let title = element.getAttribute('data-title');
 
-			var
-				dom = sceditor.dom,
-				attr = dom.attr,
-				title = attr(element, 'data-title'),
-				from = title ?' =' + title : '';
+			if (element.className = 'php')
+				return '[php]' + content.replace('&#91;', '[') + '[/php]';
+			else if (element.tagName === 'DIV')
+				return '';
+			else if (element.tagName === 'PRE')
+				return content;
+			else if (element.parentNode.tagName === 'PRE' && !title)
+			{
+				const t = element.parentNode.previousSibling.textContent;
+
+				if (t.indexOf('(') != -1)
+					title = t.replace(/^[^(]+\(/, '').replace(/\)? \[.+/, '');
+			}
+
+			const from = title ? ' =' + title : '';
 
 			return '[code' + from + ']' + content.replace('&#91;', '[') + '[/code]';
 		},
 		html: function (element, attrs, content) {
 			var from = attrs.defaultattr ? ' data-title="' + attrs.defaultattr + '"'  : '';
 
-			return '<code data-name="' + this.opts.txtVars.code + '"' + from + '>' + content.replace('[', '&#91;') + '</code>'
+			return '<pre class="bbc_code"><code data-name="' + this.opts.txtVars.code + '"' + from + '>' + content.replace('[', '&#91;') + '</code></pre>'
 		}
 	}
 );

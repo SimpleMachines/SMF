@@ -1456,47 +1456,6 @@ function addLoadEvent(fNewOnload)
 		aOnloadEvents[aOnloadEvents.length] = fNewOnload;
 }
 
-// Get the text in a code tag.
-function smfSelectText(oCurElement, bActOnElement)
-{
-	// The place we're looking for is one div up, and next door - if it's auto detect.
-	if (typeof(bActOnElement) == 'boolean' && bActOnElement)
-		var oCodeArea = document.getElementById(oCurElement);
-	else
-		var oCodeArea = oCurElement.parentNode.nextSibling;
-
-	if (typeof(oCodeArea) != 'object' || oCodeArea == null)
-		return false;
-
-	// Start off with my favourite, internet explorer.
-	if ('createTextRange' in document.body)
-	{
-		var oCurRange = document.body.createTextRange();
-		oCurRange.moveToElementText(oCodeArea);
-		oCurRange.select();
-	}
-	// Firefox at el.
-	else if (window.getSelection)
-	{
-		var oCurSelection = window.getSelection();
-		// Safari is special!
-		if (oCurSelection.setBaseAndExtent)
-		{
-			oCurSelection.setBaseAndExtent(oCodeArea, 0, oCodeArea, oCodeArea.childNodes.length);
-		}
-		else
-		{
-			var curRange = document.createRange();
-			curRange.selectNodeContents(oCodeArea);
-
-			oCurSelection.removeAllRanges();
-			oCurSelection.addRange(curRange);
-		}
-	}
-
-	return false;
-}
-
 // A function used to clean the attachments on post page
 function cleanFileInput(idElement)
 {
@@ -1744,40 +1703,6 @@ $(function() {
 		return result;
 	});
 
-	// Generic event for smfSelectText()
-	$('.smf_select_text').on('click', function(e) {
-		e.preventDefault();
-
-		// Do you want to target yourself?
-		var actOnElement = $(this).attr('data-actonelement');
-
-		return typeof actOnElement !== "undefined" ? smfSelectText(actOnElement, true) : smfSelectText(this);
-	});
-
-	// Show the Expand bbc button if needed
-	$('.bbc_code').each(function(index, item) {
-		if($(item).css('max-height') == 'none')
-			return;
-
-		if($(item).prop('scrollHeight') > parseInt($(item).css('max-height'), 10))
-			$(item.previousSibling).find('.smf_expand_code').removeClass('hidden');
-	});
-	// Expand or Shrink the code bbc area
-	$('.smf_expand_code').on('click', function(e) {
-		e.preventDefault();
-
-		var oCodeArea = this.parentNode.nextSibling;
-
-		if(oCodeArea.classList.contains('expand_code')) {
-			$(oCodeArea).removeClass('expand_code');
-			$(this).html($(this).attr('data-expand-txt'));
-		}
-		else {
-			$(oCodeArea).addClass('expand_code');
-			$(this).html($(this).attr('data-shrink-txt'));
-		}
-	});
-
 	// Expand quotes
 	if ((typeof(smf_quote_expand) != 'undefined') && (smf_quote_expand > 0))
 	{
@@ -1829,6 +1754,8 @@ $(function() {
 			});
 		});
 	}
+
+	attachBbCodeEvents(document);
 });
 
 function expand_quote_parent(oElement)
@@ -1838,6 +1765,43 @@ function expand_quote_parent(oElement)
 			'overflow-y': 'visible',
 			'max-height': '',
 		}).find('a.expand').first().text(' ['+ smf_txt_shrink +']');
+	});
+}
+
+function attachBbCodeEvents(parent)
+{
+	parent.querySelectorAll('.bbc_code').forEach(item =>
+	{
+		const selectButton = document.createElement('button');
+		selectButton.textContent = item.dataset.selectTxt;
+		selectButton.className = 'reset link';
+		selectButton.addEventListener('click', function() 
+		{
+			window.getSelection().selectAllChildren(item);
+		});
+		item.previousSibling.append(' [', selectButton, ']');
+
+		// Show the Expand bbc button if needed
+		if (item.innerHeight < item.scrollHeight)
+			return;
+
+		const expandButton = document.createElement('button');
+		expandButton.textContent = item.dataset.expandTxt;
+		expandButton.className = 'reset link';
+		expandButton.addEventListener('click', function()
+		{
+			if (item.classList.contains('expand_code'))
+			{
+				item.classList.remove('expand_code');
+				this.textContent = item.dataset.expandTxt;
+			}
+			else
+			{
+				item.classList.add('expand_code');
+				this.textContent = item.dataset.shrinkTxt;
+			}
+		});
+		item.previousSibling.append(' [', expandButton, ']');
 	});
 }
 
@@ -1965,14 +1929,7 @@ smc_preview_post.prototype.onDocSent = function (XMLDoc)
 			bodyText += preview.getElementsByTagName('body')[0].childNodes[i].nodeValue;
 
 	setInnerHTML(document.getElementById(this.opts.sPreviewBodyContainerID), bodyText);
-	$('#' + this.opts.sPreviewBodyContainerID + ' .smf_select_text').on('click', function(e) {
-		e.preventDefault();
-
-		// Do you want to target yourself?
-		var actOnElement = $(this).attr('data-actonelement');
-
-		return typeof actOnElement !== "undefined" ? smfSelectText(actOnElement, true) : smfSelectText(this);
-	});
+	attachBbCodeEvents(document.getElementById(this.opts.sPreviewBodyContainerID));
 	document.getElementById(this.opts.sPreviewBodyContainerID).className = 'windowbg';
 
 	// Show a list of errors (if any).

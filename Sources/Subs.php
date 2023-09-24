@@ -1860,75 +1860,55 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'code',
-				'type' => 'unparsed_content',
-				'content' => '<div class="codeheader"><span class="code floatleft">' . $txt['code'] . '</span> <a class="codeoperation smf_select_text">' . $txt['code_select'] . '</a> <a class="codeoperation smf_expand_code hidden" data-shrink-txt="' . $txt['code_shrink'] . '" data-expand-txt="' . $txt['code_expand'] . '">' . $txt['code_expand'] . '</a></div><code class="bbc_code">$1</code>',
-				// @todo Maybe this can be simplified?
-				'validate' => isset($disabled['code']) ? null : function(&$tag, &$data, $disabled) use ($context)
+				'type' => 'unparsed_content',,
+				'content' => '<div class="codeheader">' . $txt['code'] . '</div><pre data-select-txt="' . $txt['code_select'] . '" data-shrink-txt="' . $txt['code_shrink'] . '" data-expand-txt="' . $txt['code_expand'] . '" class="bbc_code"><code>$1</code></pre>',
+				'validate' => isset($disabled['code']) ? null : function(&$tag, &$data)
 				{
-					if (!isset($disabled['code']))
+					$parts = preg_split('~(&lt;\?php|\?&gt;)~', $data, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+					for ($i = 0, $n = count($parts); $i < $n; $i++)
 					{
-						$php_parts = preg_split('~(&lt;\?php|\?&gt;)~', $data, -1, PREG_SPLIT_DELIM_CAPTURE);
+						// Do PHP code coloring?
+						if ($parts[$i] != '&lt;?php')
+							continue;
 
-						for ($php_i = 0, $php_n = count($php_parts); $php_i < $php_n; $php_i++)
+						$string = '';
+						while ($i + 1 < $n && $parts[$i] != '?&gt;')
 						{
-							// Do PHP code coloring?
-							if ($php_parts[$php_i] != '&lt;?php')
-								continue;
-
-							$php_string = '';
-							while ($php_i + 1 < count($php_parts) && $php_parts[$php_i] != '?&gt;')
-							{
-								$php_string .= $php_parts[$php_i];
-								$php_parts[$php_i++] = '';
-							}
-							$php_parts[$php_i] = highlight_php_code($php_string . $php_parts[$php_i]);
+							$string .= $parts[$i];
+							$parts[$i++] = '';
 						}
-
-						// Fix the PHP code stuff...
-						$data = str_replace("<pre style=\"display: inline;\">\t</pre>", "\t", implode('', $php_parts));
-						$data = str_replace("\t", "<span style=\"white-space: pre;\">\t</span>", $data);
-
-						// Recent Opera bug requiring temporary fix. &nsbp; is needed before </code> to avoid broken selection.
-						if (!empty($context['browser']['is_opera']))
-							$data .= '&nbsp;';
+						$parts[$i] = highlight_php_code($string . $parts[$i]);
 					}
+
+					$data = implode('', $parts);
 				},
 				'block_level' => true,
 			),
 			array(
 				'tag' => 'code',
 				'type' => 'unparsed_equals_content',
-				'content' => '<div class="codeheader"><span class="code floatleft">' . $txt['code'] . '</span> ($2) <a class="codeoperation smf_select_text">' . $txt['code_select'] . '</a> <a class="codeoperation smf_expand_code hidden" data-shrink-txt="' . $txt['code_shrink'] . '" data-expand-txt="' . $txt['code_expand'] . '">' . $txt['code_expand'] . '</a></div><code class="bbc_code">$1</code>',
-				// @todo Maybe this can be simplified?
-				'validate' => isset($disabled['code']) ? null : function(&$tag, &$data, $disabled) use ($context)
+				'content' => '<div class="codeheader">' . $txt['code'] . ' ($2)</div><pre data-select-txt="' . $txt['code_select'] . '" data-shrink-txt="' . $txt['code_shrink'] . '" data-expand-txt="' . $txt['code_expand'] . '" class="bbc_code"><code>$1</code></pre>',
+				'validate' => isset($disabled['code']) ? null : function(&$tag, &$data)
 				{
-					if (!isset($disabled['code']))
+					$parts = preg_split('~(&lt;\?php|\?&gt;)~', $data[0], -1, PREG_SPLIT_DELIM_CAPTURE);
+
+					for ($i = 0, $n = count($parts); $i < $n; $i++)
 					{
-						$php_parts = preg_split('~(&lt;\?php|\?&gt;)~', $data[0], -1, PREG_SPLIT_DELIM_CAPTURE);
+						// Do PHP code coloring?
+						if ($parts[$i] != '&lt;?php')
+							continue;
 
-						for ($php_i = 0, $php_n = count($php_parts); $php_i < $php_n; $php_i++)
+						$string = '';
+						while ($i + 1 < $n && $parts[$i] != '?&gt;')
 						{
-							// Do PHP code coloring?
-							if ($php_parts[$php_i] != '&lt;?php')
-								continue;
-
-							$php_string = '';
-							while ($php_i + 1 < count($php_parts) && $php_parts[$php_i] != '?&gt;')
-							{
-								$php_string .= $php_parts[$php_i];
-								$php_parts[$php_i++] = '';
-							}
-							$php_parts[$php_i] = highlight_php_code($php_string . $php_parts[$php_i]);
+							$string .= $parts[$i];
+							$parts[$i++] = '';
 						}
-
-						// Fix the PHP code stuff...
-						$data[0] = str_replace("<pre style=\"display: inline;\">\t</pre>", "\t", implode('', $php_parts));
-						$data[0] = str_replace("\t", "<span style=\"white-space: pre;\">\t</span>", $data[0]);
-
-						// Recent Opera bug requiring temporary fix. &nsbp; is needed before </code> to avoid broken selection.
-						if (!empty($context['browser']['is_opera']))
-							$data[0] .= '&nbsp;';
+						$parts[$i] = highlight_php_code($string . $parts[$i]);
 					}
+
+					$data[0] = implode('', $parts);
 				},
 				'block_level' => true,
 			),
@@ -2223,7 +2203,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						$add_begin = substr(trim($data), 0, 5) != '&lt;?';
 						$data = highlight_php_code($add_begin ? '&lt;?php ' . $data . '?&gt;' : $data);
 						if ($add_begin)
-							$data = preg_replace(array('~^(.+?)&lt;\?.{0,40}?php(?:&nbsp;|\s)~', '~\?&gt;((?:</(font|span)>)*)$~'), '$1', $data, 2);
+							$data = preg_replace(array('/&lt;\?php(?:&nbsp;|\s)/', '/<span class="highlight-default"><\/span>/'), '', $data, 2);
 					}
 				},
 				'block_level' => false,

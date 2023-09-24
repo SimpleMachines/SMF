@@ -47,17 +47,8 @@ input, button, select, textarea {
 	box-shadow: 1px 2px 1px rgba(160, 187, 221, 0.2) inset;
 	padding: 0.3em 0.4em;
 }
-input:hover, textarea:hover, button:hover, select:hover {
-	outline: none;
-	border-color: #82a2bc;
-}
 textarea:hover {
 	background: #fbfbfb;
-}
-input:focus, textarea:focus, button:focus, select:focus {
-	outline: none;
-	border-color: #7fb0d8;
-	background: #fff;
 }
 input, button, select {
 	padding: 0 0.4em;
@@ -192,15 +183,6 @@ hr {
 	background: #fff;
 	box-shadow: 0 1px 0 #bbb inset;
 }
-/* This is about links */
-a, a:visited {
-	color: #346;
-	text-decoration: none;
-}
-a:hover {
-	text-decoration: underline;
-	cursor: pointer;
-}
 
 /* Help popups require a different styling of the body element. */
 /* Deprecated? */
@@ -277,6 +259,19 @@ a.new_posts:visited {
 }
 .clear_right {
 	clear: right;
+}
+.reset {
+	all: unset;
+	outline: revert;
+}
+/* This is about links */
+a, a:visited, .reset.link {
+	color: #346;
+	text-decoration: none;
+}
+a:hover, .reset.link:hover {
+	text-decoration: underline;
+	cursor: pointer;
 }
 
 /* Default font sizes: small (8pt), normal (10pt), and large (14pt). */
@@ -365,7 +360,6 @@ blockquote cite::before {
 
 /* A code block - maybe PHP ;). */
 .bbc_code {
-	display: block;
 	font-size: 0.78rem;
 	background: #f3f3f3;
 	border: 1px solid #dfdfdf;
@@ -375,7 +369,6 @@ blockquote cite::before {
 	margin: 1px 0 6px 0;
 	padding: 3px 12px;
 	overflow: auto;
-	white-space: nowrap;
 	max-height: 25em;
 }
 /* The "Quote:" and "Code:" header parts... */
