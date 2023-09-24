@@ -326,13 +326,9 @@
 	--ibst_disabled_bg_color: hsl(0, 0%, 13%);
 	--ibst_disabled_border_color: hsl(0, 0%, 71%);
 	--ibst_disabled_txt_color: hsl(0, 0%, 60%);
-	--ibst_focus_bg_color: hsl(0, 0%, 0%);
-	--ibst_focus_border_color: hsl(207, 53%, 67%);
 	--ibst_font_family: "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
 	--ibst_font_size: 85%;
 	--ibst_font_line_height: 150%;
-	--ibst_hover_border_color: hsl(207, 30%, 42%);
-	--ibst_textarea_hover_bg_color: hsl(0, 0%, 8%);
 	--ibst_padding: 0.3em 0.4em;
 
 	/* Maintenance Mode */
