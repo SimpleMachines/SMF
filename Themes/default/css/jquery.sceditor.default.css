@@ -1,5 +1,5 @@
 /*! SCEditor | (C) 2011-2013, Sam Clarke | sceditor.com/license */
-html, p, code::before, table {
+html, p, .bbc_code code::before, table {
 	margin: 0;
 	padding: 0;
 	font-family: Verdana, Arial, Helvetica, sans-serif;
@@ -43,30 +43,21 @@ table, td {
 	min-width: 0.5ch;
 }
 
-code::before {
+.bbc_code code::before {
 	position: absolute;
 	content: 'Code:';
 	top: -1.35em;
 	left: 0;
 }
-code[data-title]::before {
+.bbc_code code[data-title]::before {
 	content: 'Code: (' attr(data-title) ')';
 }
-code {
+.bbc_code {
 	margin-top: 1.5em;
 	position: relative;
 	background: #eee;
 	border: 1px solid #aaa;
-	white-space: pre;
 	padding: .25em;
-	display: block;
-}
-.ie6 code, .ie7 code {
-	margin-top: 0;
-}
-code::before, code {
-	display: block;
-	text-align: left;
 }
 
 blockquote {
