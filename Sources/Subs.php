@@ -1856,7 +1856,7 @@ function smf_list_timezones($when = 'now')
 {
 	static $timezones_when = array();
 
-	require_once(Config::$sourcedir . '/Subs-Timezones.php');
+	require_once(Config::$sourcedir . '/TimeZone.php');
 
 	// Parseable datetime string?
 	if (is_int($timestamp = strtotime($when)))
