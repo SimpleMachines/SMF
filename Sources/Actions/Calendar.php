@@ -23,6 +23,7 @@ use SMF\Event;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\Time;
+use SMF\TimeZone;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -474,7 +475,7 @@ class Calendar implements ActionInterface
 		}
 
 		// Need this so the user can select a timezone for the event.
-		Utils::$context['all_timezones'] = smf_list_timezones(Utils::$context['event']->start_date);
+		Utils::$context['all_timezones'] = TimeZone::list(Utils::$context['event']->start_date);
 
 		// If the event's timezone is not in SMF's standard list of time zones, try to fix it.
 		Utils::$context['event']->fixTimezone();

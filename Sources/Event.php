@@ -418,7 +418,7 @@ class Event implements \ArrayAccess
 	 */
 	public function fixTimezone(): void
 	{
-		$all_timezones = Utils::$context['all_timezones'] ?? smf_list_timezones($this->start_date);
+		$all_timezones = Utils::$context['all_timezones'] ?? TimeZone::list($this->start_date);
 
 		if (!isset($all_timezones[$this->timezone]))
 		{
