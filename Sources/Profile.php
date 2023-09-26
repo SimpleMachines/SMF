@@ -952,14 +952,14 @@ class Profile extends User implements \ArrayAccess
 			),
 			'timezone' => array(
 				'type' => 'select',
-				'options' => smf_list_timezones(),
-				'disabled_options' => array_filter(array_keys(smf_list_timezones()), 'is_int'),
+				'options' => TimeZone::list(),
+				'disabled_options' => array_filter(array_keys(TimeZone::list()), 'is_int'),
 				'permission' => 'profile_extra',
 				'label' => Lang::$txt['timezone'],
 				'value' => empty(User::$me->timezone) ? Config::$modSettings['default_timezone'] : User::$me->timezone,
 				'input_validate' => function($value)
 				{
-					$tz = smf_list_timezones();
+					$tz = TimeZone::list();
 
 					if (!isset($tz[$value]))
 						return 'bad_timezone';

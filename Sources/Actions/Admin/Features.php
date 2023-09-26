@@ -25,6 +25,7 @@ use SMF\Menu;
 use SMF\Profile;
 use SMF\SecurityToken;
 use SMF\Theme;
+use SMF\TimeZone;
 use SMF\User;
 use SMF\Utils;
 use SMF\Actions\Profile\Notification;
@@ -136,9 +137,7 @@ class Features implements ActionInterface
 			// Make sure the country codes are valid.
 			if (!empty($_POST['timezone_priority_countries']))
 			{
-				require_once(Config::$sourcedir . '/Subs-Timezones.php');
-
-				$_POST['timezone_priority_countries'] = validate_iso_country_codes($_POST['timezone_priority_countries'], true);
+				$_POST['timezone_priority_countries'] = TimeZone::validateIsoCountryCodes($_POST['timezone_priority_countries'], true);
 			}
 
 			// Prevent absurd boundaries here - make it a day tops.
@@ -1663,7 +1662,7 @@ class Features implements ActionInterface
 
 			// Time zone and formatting.
 			array('text', 'time_format'),
-			array('select', 'default_timezone', array_filter(smf_list_timezones(), 'is_string', ARRAY_FILTER_USE_KEY)),
+			array('select', 'default_timezone', array_filter(TimeZone::list(), 'is_string', ARRAY_FILTER_USE_KEY)),
 			array('text', 'timezone_priority_countries', 'subtext' => Lang::$txt['setting_timezone_priority_countries_note']),
 			'',
 

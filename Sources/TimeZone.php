@@ -1,8 +1,6 @@
 <?php
 
 /**
- * This file provides some functions to simplify working with time zones.
- *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -13,61 +11,84 @@
  * @version 3.0 Alpha 1
  */
 
-use SMF\Lang;
-
-if (!defined('SMF'))
-	die('No direct access...');
-
-if (!defined('PHP_INT_MIN'))
-	define('PHP_INT_MIN', ~PHP_INT_MAX);
+namespace SMF;
 
 /**
- * Returns an array that instructs SMF how to map specific time zones
- * (e.g. "America/Denver") onto the user-friendly "meta-zone" labels that
- * most people think of as time zones (e.g. "Mountain Time").
- *
- * @param string $when The date/time used to determine fallback values.
- *		May be a Unix timestamp or any string that strtotime() can understand.
- *		Defaults to 'now'.
- * @return array An array relating time zones to "meta-zones"
+ * This class provides some methods to simplify working with time zones.
  */
-function get_tzid_metazones($when = 'now')
+class TimeZone extends \DateTimeZone
 {
-	// This should already have been loaded, but just in case...
-	Lang::load('Timezones');
+	use BackwardCompatibility;
 
-	/*
-		This array lists a series of representative time zones and their
-		corresponding "meta-zone" labels.
-
-		The term "representative" here means that a given time zone can
-		represent others that use exactly the same rules for DST
-		transitions, UTC offsets, and abbreviations. For example,
-		Europe/Berlin can be representative for Europe/Rome,
-		Europe/Paris, etc., because these cities all use exactly the
-		same time zone rules and values.
-
-		Meta-zone labels are the user friendly strings shown to the end
-		user, e.g. "Mountain Standard Time". The values of this array
-		are keys of strings defined in Timezones.{language}.php, which
-		in turn are sprintf format strings used to generate the final
-		label text.
-
-		Sometimes several representative time zones will map onto the
-		same meta-zone label. This usually happens when there are
-		different rules for Daylight Saving time in locations that are
-		otherwise the same. For example, both America/Denver and
-		America/Phoenix map to North_America_Mountain, but the ultimate
-		output will be 'Mountain Time (MST/MDT)' for America/Denver vs.
-		'Mountain Standard Time (MST)' for America/Phoenix.
-
-		If you are adding a new meta-zone to this list because the TZDB
-		added a new time zone that doesn't fit any existing meta-zone,
-		please also add a fallback in the get_tzid_fallbacks() function.
-		This helps support SMF installs on servers using outdated
-		versions of the TZDB.
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
 	 */
-	$tzid_metazones = array(
+	private static $backcompat = array(
+		'func_underscores' => true,
+		'func_names' => array(
+			'list' => 'smf_list_timezones',
+		),
+	);
+
+	/*****************
+	 * Class constants
+	 *****************/
+
+	/**
+	 * Never uses DST.
+	 */
+	const DST_NEVER = 0;
+
+	/**
+	 * Uses DST for some parts of the year, and not for other parts.
+	 */
+	const DST_SWITCHES = 1;
+
+	/**
+	 * Uses DST throughout the entire year.
+	 */
+	const DST_ALWAYS = 2;
+
+	/**************************
+	 * Public static properties
+	 **************************/
+
+	/**
+	 * @var array
+	 * 
+	 * This array lists a series of representative time zones and their
+	 * corresponding "meta-zone" labels.
+	 * 
+	 * The term "representative" here means that a given time zone can
+	 * represent others that use exactly the same rules for DST
+	 * transitions, UTC offsets, and abbreviations. For example,
+	 * Europe/Berlin can be representative for Europe/Rome,
+	 * Europe/Paris, etc., because these cities all use exactly the
+	 * same time zone rules and values.
+	 * 
+	 * Meta-zone labels are the user friendly strings shown to the end
+	 * user, e.g. "Mountain Standard Time". The values of this array
+	 * are keys of strings defined in Timezones.{language}.php, which
+	 * in turn are sprintf format strings used to generate the final
+	 * label text.
+	 * 
+	 * Sometimes several representative time zones will map onto the
+	 * same meta-zone label. This usually happens when there are
+	 * different rules for Daylight Saving time in locations that are
+	 * otherwise the same. For example, both America/Denver and
+	 * America/Phoenix map to North_America_Mountain, but the ultimate
+	 * output will be 'Mountain Time (MST/MDT)' for America/Denver vs.
+	 * 'Mountain Standard Time (MST)' for America/Phoenix.
+	 * 
+	 * If you are adding a new meta-zone to this list because the TZDB
+	 * added a new time zone that doesn't fit any existing meta-zone,
+	 * please also add a fallback in the get_tzid_fallbacks() function.
+	 * This helps support SMF installs on servers using outdated
+	 * versions of the TZDB.
+	 */
+	public static array $metazones = array(
 		// No DST
 		'Africa/Abidjan' => 'GMT',
 
@@ -567,60 +588,23 @@ function get_tzid_metazones($when = 'now')
 		'Pacific/Wallis' => 'Pacific_Wallis',
 	);
 
-	call_integration_hook('integrate_metazones', array(&$tzid_metazones, $when));
-
-	// Fallbacks in case the server has an old version of the TZDB.
-	$tzids = array_keys($tzid_metazones);
-	$tzid_fallbacks = get_tzid_fallbacks($tzids, $when);
-	foreach ($tzid_fallbacks as $orig_tzid => $alt_tzid)
-	{
-		// Skip any that are unchanged.
-		if ($orig_tzid == $alt_tzid)
-			continue;
-
-		// Use fallback where possible.
-		if (!empty($alt_tzid) && empty($tzid_metazones[$alt_tzid]))
-		{
-			$tzid_metazones[$alt_tzid] = $tzid_metazones[$orig_tzid];
-			Lang::$txt[$alt_tzid] = Lang::$txt[$orig_tzid];
-		}
-
-		// Either way, get rid of the unknown time zone.
-		unset($tzid_metazones[$orig_tzid]);
-	}
-
-	return $tzid_metazones;
-}
-
-/**
- * Returns an array of all the time zones in a country, ranked according
- * to population and/or political significance.
- *
- * @param string $country_code The two-character ISO-3166 code for a country.
- * @param string $when The date/time used to determine fallback values.
- *		May be a Unix timestamp or any string that strtotime() can understand.
- *		Defaults to 'now'.
- * @return array An array relating time zones to "meta-zones"
- */
-function get_sorted_tzids_for_country($country_code, $when = 'now')
-{
-	static $country_tzids = array();
-
-	/*
-		This array lists all the individual time zones in each country,
-		sorted by population (as reported in statistics available on
-		Wikipedia in November 2020). Sorting this way enables us to
-		consistently select the most appropriate individual time zone to
-		represent all others that share its DST transition rules and values.
-		For example, this ensures that New York will be preferred over
-		random small towns in Indiana.
-
-		If future versions of the time zone database add new time zone
-		identifiers beyond those included here, they should be added to this
-		list as appropriate. However, SMF will gracefully handle unexpected
-		new time zones, so nothing will break in the meantime.
+	/**
+	 * @var array
+	 * 
+	 * This array lists all the individual time zones in each country,
+	 * sorted by population (as reported in statistics available on
+	 * Wikipedia in November 2020). Sorting this way enables us to
+	 * consistently select the most appropriate individual time zone to
+	 * represent all others that share its DST transition rules and values.
+	 * For example, this ensures that New York will be preferred over
+	 * random small towns in Indiana.
+	 * 
+	 * If future versions of the time zone database add new time zone
+	 * identifiers beyond those included here, they should be added to this
+	 * list as appropriate. However, SMF will gracefully handle unexpected
+	 * new time zones, so nothing will break in the meantime.
 	 */
-	$sorted_tzids = array(
+	public static array $sorted_tzids = array(
 		// '??' means international.
 		'??' => array(
 			'UTC',
@@ -1549,64 +1533,21 @@ function get_sorted_tzids_for_country($country_code, $when = 'now')
 		),
 	);
 
-	// Just in case...
-	$country_code = strtoupper(trim($country_code));
-
-	// Avoid unnecessary repetition.
-	if (!isset($country_tzids[$country_code]))
-	{
-		call_integration_hook('integrate_country_timezones', array(&$sorted_tzids, $country_code, $when));
-
-		$country_tzids[$country_code] = isset($sorted_tzids[$country_code]) ? $sorted_tzids[$country_code] : array();
-
-		// If something goes wrong, we want an empty array, not false.
-		$recognized_country_tzids = array_filter((array) @timezone_identifiers_list(DateTimeZone::PER_COUNTRY, $country_code));
-
-		// Make sure that no time zones are missing.
-		$country_tzids[$country_code] = array_unique(array_merge($country_tzids[$country_code], array_intersect($recognized_country_tzids, timezone_identifiers_list())));
-
-		// Get fallbacks where necessary.
-		$country_tzids[$country_code] = array_unique(array_values(get_tzid_fallbacks($country_tzids[$country_code], $when)));
-
-		// Filter out any time zones that are still undefined.
-		$country_tzids[$country_code] = array_intersect(array_filter($country_tzids[$country_code]), timezone_identifiers_list(DateTimeZone::ALL_WITH_BC));
-	}
-
-	return $country_tzids[$country_code];
-}
-
-/**
- * Checks a list of time zone identifiers to make sure they are all defined in
- * the installed version of the time zone database, and returns an array of
- * key-value substitution pairs.
- *
- * For defined time zone identifiers, the substitution value will be identical
- * to the original value. For undefined ones, the substitute will be a time zone
- * identifier that was equivalent to the missing one at the specified time, or
- * an empty string if there was no equivalent at that time.
- *
- * Note: These fallbacks do not need to include every new time zone ever. They
- * only need to cover any that are used in $tzid_metazones.
- *
- * To find the date & time when a new time zone comes into effect, check
- * the TZDB changelog at https://data.iana.org/time-zones/tzdb/NEWS
- *
- * @param array $tzids The time zone identifiers to check.
- * @param string $when The date/time used to determine substitute values.
- *		May be a Unix timestamp or any string that strtotime() can understand.
- *		Defaults to 'now'.
- * @return array Substitute values for any missing time zone identifiers.
- */
-function get_tzid_fallbacks($tzids, $when = 'now')
-{
-	$tzids = (array) $tzids;
-
-	$when = is_numeric($when) ? intval($when) : (is_int(@strtotime($when)) ? strtotime($when) : time());
-
-	// 'ts' is the timestamp when the substitution first becomes valid.
-	// 'tzid' is the alternative time zone identifier to use.
-	$fallbacks = array(
-		// 1. Simple renames. PHP_INT_MIN because these are valid for all dates.
+	/**
+	 * @var array
+	 * 
+	 * Time zone fallbacks to use when PHP has an outdated copy of the time zone
+	 * database.
+	 * 
+	 * 'ts' is the timestamp when the substitution first becomes valid.
+	 * 'tzid' is the alternative time zone identifier to use.
+	 */
+	public static array $fallbacks = array(
+		/*
+		 * 1. Simple renames.
+		 *
+		 * PHP_INT_MIN because these are valid for all dates.
+		 */
 		'Asia/Kolkata' => array(
 			array(
 				'ts' => PHP_INT_MIN,
@@ -1656,14 +1597,16 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 			),
 		),
 
-		// 2. Newly created time zones.
-
-		// The initial entry in many of the following zones is set to '' because
-		// the records go back to eras before the adoption of standardized time
-		// zones, which means no substitutes are possible then.
+		/*
+		 * 2. Newly created time zones.
+		 *
+		 * The initial entry in many of the following zones is set to '' because
+		 * the records go back to eras before the adoption of standardized time
+		 * zones, which means no substitutes are possible then.
+		 */
 
 		// The same as Tasmania, except it stayed on DST all year in 2010.
-		// Australia/Tasmania is an otherwise unused backwards compatibility
+		// Australia/Tasmania is an otherwise unused backward compatibility
 		// link to Australia/Hobart, so we can borrow it here without conflict.
 		'Antarctica/Macquarie' => array(
 			array(
@@ -1671,11 +1614,11 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 				'tzid' => 'Australia/Tasmania',
 			),
 			array(
-				'ts' => strtotime('2010-04-03T16:00:00+0000'),
+				'ts' => '2010-04-03T16:00:00+0000',
 				'tzid' => 'Etc/GMT-11',
 			),
 			array(
-				'ts' => strtotime('2011-04-07T17:00:00+0000'),
+				'ts' => '2011-04-07T17:00:00+0000',
 				'tzid' => 'Australia/Tasmania',
 			),
 		),
@@ -1687,19 +1630,19 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 				'tzid' => '',
 			),
 			array(
-				'ts' => strtotime('1919-12-14T14:57:47+0000'),
+				'ts' => '1919-12-14T14:57:47+0000',
 				'tzid' => 'Etc/GMT-8',
 			),
 			array(
-				'ts' => strtotime('1930-06-20T16:00:00+0000'),
+				'ts' => '1930-06-20T16:00:00+0000',
 				'tzid' => 'Asia/Yakutsk',
 			),
 			array(
-				'ts' => strtotime('2003-12-31T15:00:00+0000'),
+				'ts' => '2003-12-31T15:00:00+0000',
 				'tzid' => 'Asia/Vladivostok',
 			),
 			array(
-				'ts' => strtotime('2011-09-12T13:00:00+0000'),
+				'ts' => '2011-09-12T13:00:00+0000',
 				'tzid' => 'Asia/Yakutsk',
 			),
 		),
@@ -1711,19 +1654,19 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 				'tzid' => '',
 			),
 			array(
-				'ts' => strtotime('1919-12-14T14:27:06+0000'),
+				'ts' => '1919-12-14T14:27:06+0000',
 				'tzid' => 'Etc/GMT-8',
 			),
 			array(
-				'ts' => strtotime('1930-06-20T16:00:00+0000'),
+				'ts' => '1930-06-20T16:00:00+0000',
 				'tzid' => 'Asia/Yakutsk',
 			),
 			array(
-				'ts' => strtotime('1981-03-31T15:00:00+0000'),
+				'ts' => '1981-03-31T15:00:00+0000',
 				'tzid' => 'Asia/Magadan',
 			),
 			array(
-				'ts' => strtotime('2011-09-12T12:00:00+0000'),
+				'ts' => '2011-09-12T12:00:00+0000',
 				'tzid' => 'Asia/Vladivostok',
 			),
 		),
@@ -1744,15 +1687,15 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 				'tzid' => '',
 			),
 			array(
-				'ts' => strtotime('1919-12-14T16:26:08+0000'),
+				'ts' => '1919-12-14T16:26:08+0000',
 				'tzid' => 'Asia/Yakutsk',
 			),
 			array(
-				'ts' => strtotime('2014-10-25T16:00:00+0000'),
+				'ts' => '2014-10-25T16:00:00+0000',
 				'tzid' => 'Etc/GMT-8',
 			),
 			array(
-				'ts' => strtotime('2016-03-26T18:00:00+0000'),
+				'ts' => '2016-03-26T18:00:00+0000',
 				'tzid' => 'Asia/Yakutsk',
 			),
 		),
@@ -1764,15 +1707,15 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 				'tzid' => '',
 			),
 			array(
-				'ts' => strtotime('1924-05-01T13:45:08+0000'),
+				'ts' => '1924-05-01T13:45:08+0000',
 				'tzid' => 'Etc/GMT-10',
 			),
 			array(
-				'ts' => strtotime('1930-06-20T14:00:00+0000'),
+				'ts' => '1930-06-20T14:00:00+0000',
 				'tzid' => 'Asia/Magadan',
 			),
 			array(
-				'ts' => strtotime('2014-10-25T14:00:00+0000'),
+				'ts' => '2014-10-25T14:00:00+0000',
 				'tzid' => 'Etc/GMT-11',
 			),
 		),
@@ -1785,22 +1728,22 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 			),
 			// Pacific/Yap is an unused link to Pacific/Port_Moresby.
 			array(
-				'ts' => strtotime('1879-12-31T14:11:20+0000'),
+				'ts' => '1879-12-31T14:11:20+0000',
 				'tzid' => 'Pacific/Yap',
 			),
 			// Apparently this was different for a while in World War II.
 			array(
-				'ts' => strtotime('1942-06-30T14:00:00+0000'),
+				'ts' => '1942-06-30T14:00:00+0000',
 				'tzid' => 'Singapore',
 			),
 			array(
-				'ts' => strtotime('1945-08-20T15:00:00+0000'),
+				'ts' => '1945-08-20T15:00:00+0000',
 				'tzid' => 'Pacific/Yap',
 			),
 			// For dates after divergence, it is the same as Pacific/Kosrae.
 			// If this ever ceases to be true, add another entry.
 			array(
-				'ts' => strtotime('2014-12-27T16:00:00+0000'),
+				'ts' => '2014-12-27T16:00:00+0000',
 				'tzid' => 'Pacific/Kosrae',
 			),
 		),
@@ -1812,19 +1755,19 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 				'tzid' => '',
 			),
 			array(
-				'ts' => strtotime('1884-01-01T08:12:28+0000'),
+				'ts' => '1884-01-01T08:12:28+0000',
 				'tzid' => 'Canada/Pacific',
 			),
 			array(
-				'ts' => strtotime('1946-01-01T08:00:00+0000'),
+				'ts' => '1946-01-01T08:00:00+0000',
 				'tzid' => 'Etc/GMT+8',
 			),
 			array(
-				'ts' => strtotime('1947-01-01T08:00:00+0000'),
+				'ts' => '1947-01-01T08:00:00+0000',
 				'tzid' => 'Canada/Pacific',
 			),
 			array(
-				'ts' => strtotime('2015-03-08T10:00:00+0000'),
+				'ts' => '2015-03-08T10:00:00+0000',
 				'tzid' => 'MST',
 			),
 		),
@@ -1836,15 +1779,15 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 				'tzid' => '',
 			),
 			array(
-				'ts' => strtotime('1935-01-26T20:00:00+0000'),
+				'ts' => '1935-01-26T20:00:00+0000',
 				'tzid' => 'Europe/Samara',
 			),
 			array(
-				'ts' => strtotime('1989-03-25T22:00:00+0000'),
+				'ts' => '1989-03-25T22:00:00+0000',
 				'tzid' => 'Europe/Volgograd',
 			),
 			array(
-				'ts' => strtotime('2016-03-26T23:00:00+0000'),
+				'ts' => '2016-03-26T23:00:00+0000',
 				'tzid' => 'Europe/Samara',
 			),
 		),
@@ -1856,15 +1799,15 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 				'tzid' => '',
 			),
 			array(
-				'ts' => strtotime('1935-01-26T20:00:00+0000'),
+				'ts' => '1935-01-26T20:00:00+0000',
 				'tzid' => 'Europe/Samara',
 			),
 			array(
-				'ts' => strtotime('1989-03-25T22:00:00+0000'),
+				'ts' => '1989-03-25T22:00:00+0000',
 				'tzid' => 'W-SU',
 			),
 			array(
-				'ts' => strtotime('2016-03-26T23:00:00+0000'),
+				'ts' => '2016-03-26T23:00:00+0000',
 				'tzid' => 'Europe/Samara',
 			),
 		),
@@ -1876,19 +1819,19 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 				'tzid' => '',
 			),
 			array(
-				'ts' => strtotime('1919-12-09T18:25:00+0000'),
+				'ts' => '1919-12-09T18:25:00+0000',
 				'tzid' => 'Etc/GMT-6',
 			),
 			array(
-				'ts' => strtotime('1930-06-20T18:00:00+0000'),
+				'ts' => '1930-06-20T18:00:00+0000',
 				'tzid' => 'Asia/Novokuznetsk',
 			),
 			array(
-				'ts' => strtotime('1995-05-27T16:00:00+0000'),
+				'ts' => '1995-05-27T16:00:00+0000',
 				'tzid' => 'Asia/Novosibirsk',
 			),
 			array(
-				'ts' => strtotime('2016-03-26T20:00:00+0000'),
+				'ts' => '2016-03-26T20:00:00+0000',
 				'tzid' => 'Asia/Novokuznetsk',
 			),
 		),
@@ -1900,19 +1843,19 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 				'tzid' => '',
 			),
 			array(
-				'ts' => strtotime('1919-12-21T18:20:09+0000'),
+				'ts' => '1919-12-21T18:20:09+0000',
 				'tzid' => 'Asia/Novosibirsk',
 			),
 			array(
-				'ts' => strtotime('1930-06-20T18:00:00+0000'),
+				'ts' => '1930-06-20T18:00:00+0000',
 				'tzid' => 'Asia/Novokuznetsk',
 			),
 			array(
-				'ts' => strtotime('2002-04-30T19:00:00+0000'),
+				'ts' => '2002-04-30T19:00:00+0000',
 				'tzid' => 'Asia/Novosibirsk',
 			),
 			array(
-				'ts' => strtotime('2016-05-28T20:00:00+0000'),
+				'ts' => '2016-05-28T20:00:00+0000',
 				'tzid' => 'Asia/Novokuznetsk',
 			),
 		),
@@ -1924,15 +1867,15 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 				'tzid' => '',
 			),
 			array(
-				'ts' => strtotime('1935-01-26T20:00:00+0000'),
+				'ts' => '1935-01-26T20:00:00+0000',
 				'tzid' => 'Europe/Samara',
 			),
 			array(
-				'ts' => strtotime('1989-03-25T22:00:00+0000'),
+				'ts' => '1989-03-25T22:00:00+0000',
 				'tzid' => 'Europe/Volgograd',
 			),
 			array(
-				'ts' => strtotime('1992-03-28T22:00:00+0000'),
+				'ts' => '1992-03-28T22:00:00+0000',
 				'tzid' => 'W-SU',
 			),
 		),
@@ -1945,18 +1888,18 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 			),
 			// Europe/Nicosia is an otherwise unused link to Asia/Nicosia.
 			array(
-				'ts' => strtotime('1921-11-13T21:46:32+0000'),
+				'ts' => '1921-11-13T21:46:32+0000',
 				'tzid' => 'Europe/Nicosia',
 			),
 			// Became same as Europe/Istanbul.
 			// Turkey is an otherwise unused link to Europe/Istanbul.
 			array(
-				'ts' => strtotime('2016-09-07T21:00:00+0000'),
+				'ts' => '2016-09-07T21:00:00+0000',
 				'tzid' => 'Turkey',
 			),
 			// Became same as Asia/Nicosia again.
 			array(
-				'ts' => strtotime('2017-10-29T01:00:00+0000'),
+				'ts' => '2017-10-29T01:00:00+0000',
 				'tzid' => 'Europe/Nicosia',
 			),
 		),
@@ -1968,19 +1911,19 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 				'tzid' => '',
 			),
 			array(
-				'ts' => strtotime('1924-05-01T20:32:16+0000'),
+				'ts' => '1924-05-01T20:32:16+0000',
 				'tzid' => 'Etc/GMT-3',
 			),
 			array(
-				'ts' => strtotime('1930-06-20T21:00:00+0000'),
+				'ts' => '1930-06-20T21:00:00+0000',
 				'tzid' => 'Asia/Aqtau',
 			),
 			array(
-				'ts' => strtotime('1981-09-30T19:00:00+0000'),
+				'ts' => '1981-09-30T19:00:00+0000',
 				'tzid' => 'Asia/Aqtobe',
 			),
 			array(
-				'tz' => strtotime('1999-03-27T21:00:00+0000'),
+				'tz' => '1999-03-27T21:00:00+0000',
 				'tzid' => 'Etc/GMT-5'
 			),
 		),
@@ -1992,15 +1935,15 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 				'tzid' => '',
 			),
 			array(
-				'ts' => strtotime('1935-01-26T20:00:00+0000'),
+				'ts' => '1935-01-26T20:00:00+0000',
 				'tzid' => 'Europe/Samara',
 			),
 			array(
-				'ts' => strtotime('1988-03-26T22:00:00+0000'),
+				'ts' => '1988-03-26T22:00:00+0000',
 				'tzid' => 'Europe/Volgograd',
 			),
 			array(
-				'ts' => strtotime('2016-12-03T23:00:00+0000'),
+				'ts' => '2016-12-03T23:00:00+0000',
 				'tzid' => 'Europe/Samara',
 			),
 		),
@@ -2013,20 +1956,20 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 			),
 			// Chile/Continental is an otherwise unused link to America/Santiago.
 			array(
-				'ts' => strtotime('1890-01-01T04:43:40+0000'),
+				'ts' => '1890-01-01T04:43:40+0000',
 				'tzid' => 'Chile/Continental',
 			),
 			array(
-				'ts' => strtotime('1942-08-01T05:00:00+0000'),
+				'ts' => '1942-08-01T05:00:00+0000',
 				'tzid' => 'Etc/GMT+4',
 			),
 			array(
-				'ts' => strtotime('1946-08-29T04:00:00+0000'),
+				'ts' => '1946-08-29T04:00:00+0000',
 				'tzid' => 'Chile/Continental',
 			),
 			// America/Mendoza is an otherwise unused link to America/Argentina/Mendoza.
 			array(
-				'ts' => strtotime('2016-12-04T03:00:00+0000'),
+				'ts' => '2016-12-04T03:00:00+0000',
 				'tzid' => 'America/Mendoza',
 			),
 		),
@@ -2038,15 +1981,15 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 				'tzid' => '',
 			),
 			array(
-				'ts' => strtotime('1924-05-01T19:45:32+0000'),
+				'ts' => '1924-05-01T19:45:32+0000',
 				'tzid' => 'Asia/Qyzylorda',
 			),
 			array(
-				'ts' => strtotime('1930-06-20T20:00:00+0000'),
+				'ts' => '1930-06-20T20:00:00+0000',
 				'tzid' => 'Asia/Aqtobe',
 			),
 			array(
-				'ts' => strtotime('2004-10-30T21:00:00+0000'),
+				'ts' => '2004-10-30T21:00:00+0000',
 				'tzid' => 'Asia/Almaty',
 			),
 		),
@@ -2058,90 +2001,659 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 				'tzid' => '',
 			),
 			array(
-				'ts' => strtotime('1922-01-01T07:00:00+0000'),
+				'ts' => '1922-01-01T07:00:00+0000',
 				'tzid' => 'America/Ojinaga',
 			),
 			array(
-				'ts' => strtotime('2022-11-30T06:00:00+0000'),
+				'ts' => '2022-11-30T06:00:00+0000',
 				'tzid' => 'America/Denver',
 			),
 		),
 	);
 
-	$missing = array_diff($tzids, timezone_identifiers_list(DateTimeZone::ALL_WITH_BC));
+	/****************************
+	 * Internal static properties
+	 ****************************/
 
-	call_integration_hook('integrate_timezone_fallbacks', array(&$fallbacks, &$missing, $tzids, $when));
+	/**
+	 * @var array
+	 *
+	 * Multidimensional array containing compiled lists of selectable time zones
+	 * for any given value of $when.
+	 *
+	 * Built by self::list()
+	 */
+	protected static $timezones_when = array();
 
-	$replacements = array();
+	/**
+	 * @var array
+	 *
+	 * Time zone identifiers sorted into a prioritized list based on the country
+	 * codes in Config::$modSettings['timezone_priority_countries'].
+	 *
+	 * Built by self::prioritizeTzids()
+	 */
+	protected static array $prioritized_tzids = array();
 
-	foreach ($tzids as $tzid)
+	/**
+	 * @var array
+	 *
+	 * Multidimensional array containing start and end timestamps for any given
+	 * value of $when.
+	 *
+	 * Built by self::getTimeRange()
+	 */
+	protected static array $ranges = array();
+
+	/**
+	 * @var array
+	 *
+	 * List of time zone transitions for all "meta-zones" starting from a given
+	 * value of $when until one year later.
+	 *
+	 * Built by self::buildMetaZoneTransitions()
+	 */
+	protected static array $metazone_transitions = array();
+
+	/****************
+	 * Public methods
+	 ****************/
+
+	/**
+	 * Returns the localized name of this time zone's location.
+	 *
+	 * This method typically just returns the $txt string for this time zone.
+	 * If there is no $txt string, guesses based on the time zone's raw name.
+	 *
+	 * @return string Localized name of this time zone's location.
+	 */
+	public function getLabel(): string
 	{
-		// Not missing.
-		if (!in_array($tzid, $missing))
-			$replacements[$tzid] = $tzid;
+		Lang::load('Timezones');
 
-		// Missing and we have no fallback.
-		elseif (empty($fallbacks[$tzid]))
-			$replacements[$tzid] = '';
+		if (!empty(Lang::$txt[$this->getName()]))
+			return Lang::$txt[$this->getName()];
 
-		// Missing, but we have a fallback.
-		else
+		// If there's no $txt string, just guess based on the tzid's name.
+		$tzid_parts = explode('/', $this->getName());
+		return str_replace(array('St_', '_'), array('St. ', ' '), array_pop($tzid_parts));
+	}
+
+	/**
+	 * Returns this time zone's abbreviations (if any).
+	 *
+	 * @param string $when The date/time we are interested in.
+	 *    May be a Unix timestamp or any string that strtotime() can understand.
+	 *    Defaults to 'now'.
+	 * @return array The time zone's abbreviations.
+	 */
+	public function getAbbreviations(int|string $when = 'now'): array
+	{
+		list($when, $later) = self::getTimeRange($when);
+
+		$abbrs = array();
+
+		foreach ($this->getTransitions($when, $later) as $transition)
+			$abbrs[] = $transition['abbr'];
+
+		return $abbrs;
+	}
+
+	/**
+	 * Returns the "meta-zone" for this time zone at the given timestamp.
+	 * 
+	 * @param string $when The date/time we are interested in.
+	 *    May be a Unix timestamp or any string that strtotime() can understand.
+	 *    Defaults to 'now'.
+	 * @return string The $tztxt variable for this time zone's "meta-zone".
+	 */
+	public function getMetaZone(int|string $when = 'now'): string
+	{
+		list($when, $later) = self::getTimeRange($when);
+
+		if (empty(self::$metazone_transitions[$when]))
+			self::buildMetaZoneTransitions($when);
+
+		$tzkey = serialize($this->getTransitions($when, $later));
+
+		if (isset(self::$metazone_transitions[$when][$tzkey]))
+			return self::$metazone_transitions[$when][$tzkey];
+
+		// Doesn't match any existing metazone. Can we build a custom one?
+		$tzgeo = $this->getLocation();
+		$country_tzids = self::getSortedTzidsForCountry($tzgeo['country_code']);
+
+		if (count($country_tzids) === 1)
 		{
-			usort(
-				$fallbacks[$tzid],
-				function ($a, $b)
-				{
-					return $a['ts'] > $b['ts'];
-				}
-			);
+			Lang::load('Timezones');
 
-			foreach ($fallbacks[$tzid] as $alt)
+			Lang::$tztxt[$tzgeo['country_code']] = sprintf(Lang::$tztxt['generic_timezone'], Lang::$txt['iso3166'][$tzgeo['country_code']], '%1$s');
+
+			return $tzgeo['country_code'];
+		}
+
+		return '';
+	}
+
+	/**
+	 * Returns the "meta-zone" label for this time zone at the given timestamp.
+	 *
+	 * @param string $when The date/time we are interested in.
+	 *    May be a Unix timestamp or any string that strtotime() can understand.
+	 *    Defaults to 'now'.
+	 * @return string The $tztxt value for this time zone's "meta-zone".
+	 */
+	public function getMetaZoneLabel(int|string $when = 'now'): string
+	{
+		Lang::load('Timezones');
+
+		$metazone = $this->getMetaZone($when);
+
+		return Lang::$tztxt[$metazone] ?? $metazone;
+	}
+
+	/**
+	 * Returns whether this time zone uses Daylight Saving Time.
+	 *
+	 * @param int|string $when The earliest date/time we are interested in.
+	 *    May be a Unix timestamp or any string that strtotime() can understand.
+	 *    Defaults to 'now'.
+	 * @return int One of this class's three DST_* constants.
+	 */
+	public function getDstType(int|string $when = 'now'): int
+	{
+		list($when, $later) = self::getTimeRange($when);
+
+		$tzinfo = $this->getTransitions($when, $later);
+
+		if (count($tzinfo) > 1)
+			return self::DST_SWITCHES;
+
+		if ($tzinfo[0]['isdst'])
+			return self::DST_ALWAYS;
+
+		return self::DST_NEVER;
+	}
+
+	/**
+	 * Returns the Standard Time offset from GMT, ignoring any Daylight Saving
+	 * Time that might be in effect.
+	 *
+	 * @param int|string $when The earliest date/time we are interested in.
+	 *    May be a Unix timestamp or any string that strtotime() can understand.
+	 *    Defaults to 'now'.
+	 * @return int This time zone's Standard Time offset from GMT.
+	 */
+	public function getStandardOffset(int|string $when = 'now'): int
+	{
+		list($when, $later) = self::getTimeRange($when);
+
+		$tzinfo = $this->getTransitions($when, $later);
+
+		foreach ($tzinfo as $transition)
+		{
+			if (!$transition['isdst'])
+				return $transition['offset'];
+		}
+
+		// If it uses DST all the time, just return the first offset.
+		return $tzinfo[0]['offset'];
+	}
+
+	/***********************
+	 * Public static methods
+	 ***********************/
+
+	/**
+	 * Get a list of time zones.
+	 *
+	 * @param int|string $when The date/time for which to calculate the time
+	 *    zone values. May be a Unix timestamp or any string that strtotime()
+	 *    can understand. Defaults to 'now'.
+	 * @return array An array of time zone identifiers and label text.
+	 */
+	public static function list(int|string $when = 'now'): array
+	{
+		list($when, $later) = self::getTimeRange($when);
+
+		// No point doing this over if we already did it once.
+		if (isset(self::$timezones_when[$when]))
+			return self::$timezones_when[$when];
+
+		// Load up any custom time zone descriptions we might have
+		Lang::load('Timezones');
+
+		self::buildMetaZoneTransitions($when);
+
+		// Should we put time zones from certain countries at the top of the list?
+		self::prioritizeTzids();
+
+		// Idea here is to get exactly one representative identifier for each and every unique set of time zone rules.
+		$zones = array();
+		$dst_types = array();
+		$labels = array();
+		$offsets = array();
+
+		foreach (self::$prioritized_tzids as $priority_level => $tzids)
+		{
+			foreach ($tzids as $tzid)
 			{
-				if ($when < $alt['ts'])
-					break;
+				// We don't want UTC right now.
+				if ($tzid == 'UTC')
+					continue;
 
-				$replacements[$tzid] = $alt['tzid'];
+				$tz = new self($tzid);
+
+				$tzinfo = $tz->getTransitions($when, $later);
+				$tzkey = serialize($tzinfo);
+
+				// Don't overwrite our preferred tzids
+				if (empty($zones[$tzkey]['tzid']))
+				{
+					$zones[$tzkey]['tzid'] = $tzid;
+					$zones[$tzkey]['dst_type'] = $tz->getDstType();
+					$zones[$tzkey]['abbrs'] = $tz->getAbbreviations($when);
+
+					$metazone_label = $tz->getMetaZoneLabel();
+
+					if (!empty($metazone_label))
+						$zones[$tzkey]['metazone'] = $metazone_label;
+				}
+
+				$zones[$tzkey]['locations'][] = $tz->getLabel();
+
+				// Keep track of the current and standard offsets for this tzid.
+				$offsets[$tzkey] = $tzinfo[0]['offset'];
+				$std_offsets[$tzkey] = $tz->getStandardOffset($when);
+
+				switch ($tz->getDstType())
+				{
+					case self::DST_SWITCHES:
+						$dst_types[$tzkey] = 'c';
+						break;
+
+					case self::DST_ALWAYS:
+						$dst_types[$tzkey] = 't';
+						break;
+
+					default:
+						$dst_types[$tzkey] = 'f';
+						break;
+				}
+
+				$labels[$tzkey] = $metazone_label;
+			}
+		}
+
+		// Sort by current offset, then standard offset, then DST type, then label.
+		array_multisort($offsets, SORT_DESC, SORT_NUMERIC, $std_offsets, SORT_DESC, SORT_NUMERIC, $dst_types, SORT_ASC, $labels, SORT_ASC, $zones);
+
+		$date_when = date_create('@' . $when);
+
+		// Build the final array of formatted values
+		$priority_timezones = array();
+		$timezones = array();
+		foreach ($zones as $tzkey => $tzvalue)
+		{
+			date_timezone_set($date_when, timezone_open($tzvalue['tzid']));
+
+			// Use the human friendly time zone name, if there is one.
+			$desc = '';
+
+			if (!empty($tzvalue['metazone']))
+			{
+				switch ($tzvalue['dst_type'])
+				{
+					case 0:
+						$desc = sprintf($tzvalue['metazone'], Lang::$tztxt['daylight_saving_time_false']);
+						break;
+
+					case 1:
+						$desc = sprintf($tzvalue['metazone'], '');
+						break;
+
+					case 2:
+						$desc = sprintf($tzvalue['metazone'], Lang::$tztxt['daylight_saving_time_true']);
+						break;
+				}
+			}
+			// Otherwise, use the list of locations (max 5, so things don't get silly)
+			else
+			{
+				$desc = implode(', ', array_slice(array_unique($tzvalue['locations']), 0, 5)) . (count($tzvalue['locations']) > 5 ? ', ' . Lang::$txt['etc'] : '');
 			}
 
-			// Replacement is already in use.
-			if (in_array($alt['tzid'], $replacements) || (in_array($alt['tzid'], $tzids) && strpos($alt['tzid'], 'Etc/') === false))
-				$replacements[$tzid] = '';
+			// We don't want abbreviations like '+03' or '-11'.
+			$abbrs = array_filter(
+				$tzvalue['abbrs'],
+				function ($abbr)
+				{
+					return !strspn($abbr, '+-');
+				}
+			);
+			$abbrs = count($abbrs) == count($tzvalue['abbrs']) ? array_unique($abbrs) : array();
 
-			if (empty($replacements[$tzid]))
+			// Show the UTC offset and abbreviation(s).
+			$desc = '[UTC' . date_format($date_when, 'P') . '] - ' . str_replace('  ', ' ', $desc) . (!empty($abbrs) ? ' (' . implode('/', $abbrs) . ')' : '');
+
+			if (in_array($tzvalue['tzid'], self::$prioritized_tzids['high']))
+			{
+				$priority_timezones[$tzvalue['tzid']] = $desc;
+			}
+			else
+			{
+				$timezones[$tzvalue['tzid']] = $desc;
+			}
+		}
+
+		if (!empty($priority_timezones))
+			$priority_timezones[] = '-----';
+
+		$timezones = array_merge(
+			$priority_timezones,
+			array('UTC' => 'UTC' . (!empty(Lang::$tztxt['UTC']) ? ' - ' . Lang::$tztxt['UTC'] : ''), '-----'),
+			$timezones
+		);
+
+		self::$timezones_when[$when] = $timezones;
+
+		return self::$timezones_when[$when];
+	}
+	
+	/**
+	 * Returns an array that instructs SMF how to map specific time zones
+	 * (e.g. "America/Denver") onto the user-friendly "meta-zone" labels that
+	 * most people think of as time zones (e.g. "Mountain Time").
+	 *
+	 * @param int|string $when The date/time used to determine fallback values.
+	 *    May be a Unix timestamp or any string that strtotime() can understand.
+	 *    Defaults to 'now'.
+	 * @return array An array relating time zones to "meta-zones"
+	 */
+	public static function getTzidMetazones(int|string $when = 'now'): array
+	{
+		Lang::load('Timezones');
+
+		list($when, $later) = self::getTimeRange($when);
+
+		call_integration_hook('integrate_metazones', array(&self::$metazones, $when));
+
+		// Fallbacks in case the server has an old version of the TZDB.
+		$tzid_fallbacks = self::getTzidFallbacks(array_keys(self::$metazones), $when);
+
+		foreach ($tzid_fallbacks as $orig_tzid => $alt_tzid)
+		{
+			// Skip any that are unchanged.
+			if ($orig_tzid == $alt_tzid)
+				continue;
+
+			// Use fallback where possible.
+			if (!empty($alt_tzid) && empty(self::$metazones[$alt_tzid]))
+			{
+				self::$metazones[$alt_tzid] = self::$metazones[$orig_tzid];
+				Lang::$txt[$alt_tzid] = Lang::$txt[$orig_tzid];
+			}
+
+			// Either way, get rid of the unknown time zone.
+			unset(self::$metazones[$orig_tzid]);
+		}
+
+		return self::$metazones;
+	}
+
+	/**
+	 * Returns an array of all the time zones in a country, ranked according
+	 * to population and/or political significance.
+	 *
+	 * @param string $country_code The two-character ISO-3166 code for a country.
+	 * @param int|string $when The date/time used to determine fallback values.
+	 *    May be a Unix timestamp or any string that strtotime() can understand.
+	 *    Defaults to 'now'.
+	 * @return array An array relating time zones to "meta-zones"
+	 */
+	public static function getSortedTzidsForCountry(string $country_code, int|string $when = 'now'): array
+	{
+		static $country_tzids = array();
+
+		list($when, $later) = self::getTimeRange($when);
+
+		// Just in case...
+		$country_code = strtoupper(trim($country_code));
+
+		// Avoid unnecessary repetition.
+		if (!isset($country_tzids[$country_code]))
+		{
+			call_integration_hook('integrate_country_timezones', array(&self::$sorted_tzids, $country_code, $when));
+
+			$country_tzids[$country_code] = isset(self::$sorted_tzids[$country_code]) ? self::$sorted_tzids[$country_code] : array();
+
+			// If something goes wrong, we want an empty array, not false.
+			$recognized_country_tzids = array_filter((array) @timezone_identifiers_list(\DateTimeZone::PER_COUNTRY, $country_code));
+
+			// Make sure that no time zones are missing.
+			$country_tzids[$country_code] = array_unique(array_merge($country_tzids[$country_code], array_intersect($recognized_country_tzids, timezone_identifiers_list())));
+
+			// Get fallbacks where necessary.
+			$country_tzids[$country_code] = array_unique(array_values(self::getTzidFallbacks($country_tzids[$country_code], $when)));
+
+			// Filter out any time zones that are still undefined.
+			$country_tzids[$country_code] = array_intersect(array_filter($country_tzids[$country_code]), timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC));
+		}
+
+		return $country_tzids[$country_code];
+	}
+
+	/**
+	 * Checks a list of time zone identifiers to make sure they are all defined in
+	 * the installed version of the time zone database, and returns an array of
+	 * key-value substitution pairs.
+	 *
+	 * For defined time zone identifiers, the substitution value will be identical
+	 * to the original value. For undefined ones, the substitute will be a time zone
+	 * identifier that was equivalent to the missing one at the specified time, or
+	 * an empty string if there was no equivalent at that time.
+	 *
+	 * Note: These fallbacks do not need to include every new time zone ever. They
+	 * only need to cover any that are used in self::$metazones.
+	 *
+	 * To find the date & time when a new time zone comes into effect, check
+	 * the TZDB changelog at https://data.iana.org/time-zones/tzdb/NEWS
+	 *
+	 * @param array $tzids The time zone identifiers to check.
+	 * @param int|string $when The date/time used to determine substitute values.
+	 *    May be a Unix timestamp or any string that strtotime() can understand.
+	 *    Defaults to 'now'.
+	 * @return array Substitute values for any missing time zone identifiers.
+	 */
+	public static function getTzidFallbacks(array $tzids, int|string $when = 'now'): array
+	{
+		$tzids = (array) $tzids;
+
+		list($when, $later) = self::getTimeRange($when);
+
+		$missing = array_diff($tzids, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC));
+
+		call_integration_hook('integrate_timezone_fallbacks', array(&self::$fallbacks, &$missing, $tzids, $when));
+
+		$replacements = array();
+
+		foreach ($tzids as $tzid)
+		{
+			// Not missing.
+			if (!in_array($tzid, $missing))
+			{
+				$replacements[$tzid] = $tzid;
+			}
+			// Missing and we have no fallback.
+			elseif (empty(self::$fallbacks[$tzid]))
+			{
 				$replacements[$tzid] = '';
+			}
+			// Missing, but we have a fallback.
+			else
+			{
+				foreach (self::$fallbacks[$tzid] as &$alt)
+					$alt['ts'] = is_int($alt['ts']) ? $alt['ts'] : strtotime($alt['ts']);
+
+				usort(self::$fallbacks[$tzid], fn($a, $b) => $a['ts'] > $b['ts']);
+
+				foreach (self::$fallbacks[$tzid] as $alt)
+				{
+					if ($when < $alt['ts'])
+						break;
+
+					$replacements[$tzid] = $alt['tzid'];
+				}
+
+				// Replacement is already in use.
+				if (in_array($alt['tzid'], $replacements) || (in_array($alt['tzid'], $tzids) && strpos($alt['tzid'], 'Etc/') === false))
+				{
+					$replacements[$tzid] = '';
+				}
+
+				if (empty($replacements[$tzid]))
+					$replacements[$tzid] = '';
+			}
+		}
+
+		return $replacements;
+	}
+
+	/**
+	 * Validates a set of two-character ISO 3166-1 country codes.
+	 *
+	 * @param array|string $country_codes Array or CSV string of country codes.
+	 * @param bool $as_csv If true, return CSV string instead of array.
+	 * @return array|string Array or CSV string of valid country codes.
+	 */
+	public static function validateIsoCountryCodes(array|string $country_codes, bool $as_csv = false): array|string
+	{
+		if (is_string($country_codes))
+		{
+			$country_codes = explode(',', $country_codes);
+		}
+		else
+		{
+			$country_codes = array_map('strval', (array) $country_codes);
+		}
+
+		foreach ($country_codes as $key => $country_code)
+		{
+			$country_code = strtoupper(trim($country_code));
+
+			$country_tzids = strlen($country_code) !== 2 ? null : @timezone_identifiers_list(\DateTimeZone::PER_COUNTRY, $country_code);
+
+			$country_codes[$key] = empty($country_tzids) ? null : $country_code;
+		}
+
+		$country_codes = array_filter($country_codes);
+
+		if (!empty($as_csv))
+			$country_codes = implode(',', $country_codes);
+
+		return $country_codes;
+	}
+
+	/*************************
+	 * Internal static methods
+	 *************************/
+
+	/**
+	 * Given a start time in any format that strtotime can understand, gets the
+	 * Unix timestamps for a date range starting then and ending one year later.
+	 *
+	 * @param string $when The date/time used to determine substitute values.
+	 *    May be a Unix timestamp or any string that strtotime() can understand.
+	 *    Defaults to 'now'.
+	 * @return array The start and end timestamps, in that order.
+	 */
+	protected static function getTimeRange(int|string $when = 'now'): array
+	{
+		if (isset(self::$ranges[$when]))
+			return self::$ranges[$when];
+
+		// Parseable datetime string?
+		if (is_int($timestamp = strtotime($when)))
+		{
+			$start = $timestamp;
+		}
+		// A Unix timestamp?
+		elseif (is_numeric($when))
+		{
+			$start = intval($when);
+		}
+		// Invalid value? Just get current Unix timestamp.
+		else
+		{
+			$start = time();
+		}
+
+		self::$ranges[$when] = array($start, strtotime('@' . $start . ' + 1 year'));
+
+		return self::$ranges[$when];
+	}
+
+	/**
+	 * Sorts time zone identifiers into a prioritized list based on the country
+	 * codes in Config::$modSettings['timezone_priority_countries'].
+	 *
+	 * Result is saved in self::$prioritized_tzids.
+	 */
+	protected static function prioritizeTzids(): void
+	{
+		// No need to do this twice.
+		if (!empty(self::$prioritized_tzids))
+			return;
+
+		// Should we put time zones from certain countries at the top of the list?
+		$priority_countries = !empty(Config::$modSettings['timezone_priority_countries']) ? explode(',', Config::$modSettings['timezone_priority_countries']) : array();
+
+		$high_priority_tzids = array();
+		foreach ($priority_countries as $country)
+		{
+			$country_tzids = self::getSortedTzidsForCountry($country);
+
+			if (!empty($country_tzids))
+				$high_priority_tzids = array_merge($high_priority_tzids, $country_tzids);
+		}
+
+		// Antarctic research stations should be listed last, unless you're running a penguin forum
+		$low_priority_tzids = !in_array('AQ', $priority_countries) ? timezone_identifiers_list(parent::ANTARCTICA) : array();
+
+		$normal_priority_tzids = array_diff(array_unique(array_merge(array_keys(self::getTzidMetazones()), timezone_identifiers_list())), $high_priority_tzids, $low_priority_tzids);
+
+		// Put them in order of importance.
+		self::$prioritized_tzids = array('high' => $high_priority_tzids, 'normal' => $normal_priority_tzids, 'low' => $low_priority_tzids);
+	}
+
+	/**
+	 * Builds a list of time zone transitions for all "meta-zones" starting from
+	 * $when until one year later.
+	 *
+	 * @param string $when The date/time used to determine substitute values.
+	 *    May be a Unix timestamp or any string that strtotime() can understand.
+	 *    Defaults to 'now'.
+	 */
+	protected static function buildMetaZoneTransitions(int|string $when = 'now'): void
+	{
+		list($when, $later) = self::getTimeRange($when);
+
+		self::getTzidMetazones($when);
+
+		foreach (self::$metazones as $tzid => $label)
+		{
+			$tz = @timezone_open($tzid);
+
+			if ($tz == null)
+				continue;
+
+			self::$metazone_transitions[$when][serialize($tz->getTransitions($when, $later))] = $label;
 		}
 	}
-
-	return $replacements;
 }
 
-/**
- * Validates a set of two-character ISO 3166-1 country codes.
- *
- * @param array|string $country_codes Array or CSV string of country codes.
- * @param bool $as_csv If true, return CSV string instead of array.
- * @return array|string Array or CSV string of valid country codes.
- */
-function validate_iso_country_codes($country_codes, $as_csv = false)
-{
-	if (is_string($country_codes))
-		$country_codes = explode(',', $country_codes);
-	else
-		$country_codes = array_map('strval', (array) $country_codes);
-
-	foreach ($country_codes as $key => $country_code)
-	{
-		$country_code = strtoupper(trim($country_code));
-		$country_tzids = strlen($country_code) !== 2 ? null : @timezone_identifiers_list(DateTimeZone::PER_COUNTRY, $country_code);
-		$country_codes[$key] = empty($country_tzids) ? null : $country_code;
-	}
-
-	$country_codes = array_filter($country_codes);
-
-	if (!empty($as_csv))
-		$country_codes = implode(',', $country_codes);
-
-	return $country_codes;
-}
+// Export public static functions and properties to global namespace for backward compatibility.
+if (is_callable(__NAMESPACE__ . '\TimeZone::exportStatic'))
+	TimeZone::exportStatic();
 
 ?>
