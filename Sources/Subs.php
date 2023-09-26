@@ -1860,7 +1860,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'code',
-				'type' => 'unparsed_content',,
+				'type' => 'unparsed_content',
 				'content' => '<div class="codeheader">' . $txt['code'] . '</div><pre data-select-txt="' . $txt['code_select'] . '" data-shrink-txt="' . $txt['code_shrink'] . '" data-expand-txt="' . $txt['code_expand'] . '" class="bbc_code"><code>$1</code></pre>',
 				'validate' => isset($disabled['code']) ? null : function(&$tag, &$data)
 				{
