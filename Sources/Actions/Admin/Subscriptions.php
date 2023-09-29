@@ -22,8 +22,9 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\SecurityToken;
-use SMF\User;
+use SMF\TaskRunner;
 use SMF\Theme;
+use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -1315,8 +1316,7 @@ class Subscriptions implements ActionInterface
 				);
 
 				// This may well affect the next trigger, whether we're enabling or not.
-				require_once(Config::$sourcedir . '/ScheduledTasks.php');
-				CalculateNextTrigger('paid_subscriptions');
+				TaskRunner::calculateNextTrigger('paid_subscriptions');
 			}
 
 			// Check the email addresses were actually email addresses.

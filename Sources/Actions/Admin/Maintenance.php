@@ -26,6 +26,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
 use SMF\SecurityToken;
+use SMF\TaskRunner;
 use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
@@ -846,8 +847,7 @@ class Maintenance implements ActionInterface
 		Logging::updateStats('topic');
 
 		// Finally, update the latest event times.
-		require_once(Config::$sourcedir . '/ScheduledTasks.php');
-		CalculateNextTrigger();
+		TaskRunner::calculateNextTrigger();
 
 		redirectexit('action=admin;area=maintain;sa=routine;done=recount');
 	}

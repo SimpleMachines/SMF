@@ -390,7 +390,7 @@ class Mail
 		// By default move the next sending on by 10 seconds, and require an affected row.
 		if (!$override_limit)
 		{
-			$delay = !empty(Config::$modSettings['mail_queue_delay']) ? Config::$modSettings['mail_queue_delay'] : (!empty(Config::$modSettings['mail_limit']) && Config::$modSettings['mail_limit'] < 5 ? 10 : 5);
+			$delay = max(TaskRunner::MAX_CRON_TIME, (int) (Config::$modSettings['mail_queue_delay'] ?? 10));
 
 			Db::$db->query('', '
 				UPDATE {db_prefix}settings

@@ -17,6 +17,7 @@ use SMF\Lang;
 use SMF\QueryString;
 use SMF\Security;
 use SMF\SecurityToken;
+use SMF\TaskRunner;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -1874,8 +1875,7 @@ function DeleteUpgrade()
 		cli_scheduled_fetchSMfiles();
 	else
 	{
-		require_once(Config::$sourcedir . '/ScheduledTasks.php');
-		scheduled_fetchSMfiles(); // Now go get those files!
+		(new TaskRunner())->runScheduledTasks(array('fetchSMfiles')); // Now go get those files!
 		// This is needed in case someone invokes the upgrader using https when upgrading an http forum
 		if (httpsOn())
 			$settings['default_theme_url'] = strtr($settings['default_theme_url'], array('http://' => 'https://'));

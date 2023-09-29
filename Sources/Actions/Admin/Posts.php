@@ -22,6 +22,7 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\Msg;
 use SMF\SecurityToken;
+use SMF\TaskRunner;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -318,8 +319,7 @@ class Posts implements ActionInterface
 				)
 			);
 
-			require_once(Config::$sourcedir . '/ScheduledTasks.php');
-			CalculateNextTrigger();
+			TaskRunner::calculateNextTrigger();
 
 			// Save everything else and leave.
 			ACP::saveDBSettings($config_vars);
