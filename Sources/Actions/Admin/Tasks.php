@@ -22,10 +22,12 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\SecurityToken;
+use SMF\TaskRunner;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Tasks\ScheduledTask;
 
 /**
  * This class concerns itself with scheduled tasks management.
@@ -114,9 +116,6 @@ class Tasks implements ActionInterface
 		{
 			User::$me->checkSession();
 
-			// We'll recalculate the dates at the end!
-			require_once(Config::$sourcedir . '/ScheduledTasks.php');
-
 			// Enable and disable as required.
 			$enablers = array(0);
 
@@ -151,91 +150,20 @@ class Tasks implements ActionInterface
 			Config::updateModSettings(array('allow_expire_redirect' => $task_disabled));
 
 			// Pop along...
-			CalculateNextTrigger();
+			TaskRunner::calculateNextTrigger();
 		}
 
 		// Want to run any of the tasks?
 		if (isset($_REQUEST['run']) && isset($_POST['run_task']))
 		{
-			$task_string = '';
-
 			// Lets figure out which ones they want to run.
 			$tasks = array();
 
 			foreach ($_POST['run_task'] as $task => $dummy)
 				$tasks[] = (int) $task;
 
-			// Load up the tasks.
-			require_once(Config::$sourcedir . '/ScheduledTasks.php');
-			ignore_user_abort(true);
-
-			$request = Db::$db->query('', '
-				SELECT id_task, task, callable
-				FROM {db_prefix}scheduled_tasks
-				WHERE id_task IN ({array_int:tasks})
-				LIMIT {int:limit}',
-				array(
-					'tasks' => $tasks,
-					'limit' => count($tasks),
-				)
-			);
-			while ($row = Db::$db->fetch_assoc($request))
-			{
-				// What kind of task are we handling?
-				if (!empty($row['callable']))
-				{
-					$task_string = $row['callable'];
-				}
-				// Default SMF task or old mods?
-				elseif (function_exists('scheduled_' . $row['task']))
-				{
-					$task_string = 'scheduled_' . $row['task'];
-				}
-				// One last resource, the task name.
-				elseif (!empty($row['task']))
-				{
-					$task_string = $row['task'];
-				}
-
-				$start_time = microtime(true);
-
-				// The function needs to exist for us to use it.
-				if (empty($task_string))
-					continue;
-
-				// Try to stop a timeout, this would be bad...
-				@set_time_limit(300);
-
-				if (function_exists('apache_reset_timeout'))
-					@apache_reset_timeout();
-
-				// Get the callable.
-				$callable_task = call_helper($task_string, true);
-
-				// Perform the task.
-				if (!empty($callable_task))
-				{
-					$completed = call_user_func($callable_task);
-				}
-				else
-				{
-					$completed = false;
-				}
-
-				// Log that we did it ;)
-				if ($completed)
-				{
-					$total_time = round(microtime(true) - $start_time, 3);
-
-					Db::$db->insert('',
-						'{db_prefix}log_scheduled_tasks',
-						array('id_task' => 'int', 'time_run' => 'int', 'time_taken' => 'float'),
-						array($row['id_task'], time(), $total_time),
-						array('id_task')
-					);
-				}
-			}
-			Db::$db->free_result($request);
+			// Run them.
+			(new TaskRunner())->runScheduledTasks($tasks);
 
 			// If we had any errors, push them to session so we can pick them up next time to tell the user.
 			if (!empty(Utils::$context['scheduled_errors']))
@@ -362,7 +290,7 @@ class Tasks implements ActionInterface
 		Menu::$loaded['admin']['current_subsection'] = 'tasks';
 		Utils::$context['sub_template'] = 'edit_scheduled_tasks';
 		Utils::$context['page_title'] = Lang::$txt['scheduled_task_edit'];
-		Utils::$context['server_time'] = timeformat(time(), false, 'server');
+		Utils::$context['server_time'] = timeformat(time(), false, 'forum');
 
 		// Cleaning...
 		if (!isset($_GET['tid']))
@@ -376,21 +304,19 @@ class Tasks implements ActionInterface
 			User::$me->checkSession();
 			SecurityToken::validate('admin-st');
 
-			// We'll need this for calculating the next event.
-			require_once(Config::$sourcedir . '/ScheduledTasks.php');
+			// Sanitize the offset. Prepend a '0' so that ':05' works as expected.
+			list($h, $m) = array_pad(preg_split('/:/', preg_replace('/[^\d:]/', '', '0' . $_POST['offset']), -1, PREG_SPLIT_NO_EMPTY), 2, '00');
 
-			// Do we have a valid offset?
-			preg_match('~(\d{1,2}):(\d{1,2})~', $_POST['offset'], $matches);
+			// Now the offset is easy; easy peasy - except we need to offset by a few hours,
+			// take account of DST at this time of year, and... okay, not so easy.
+			$when = new \DateTime('today ' . sprintf('%1$02d:%2$02d', $h % 24, $m % 60) . ' ' . Config::$modSettings['default_timezone']);
 
-			// If a half is empty then assume zero offset!
-			if (!isset($matches[2]) || $matches[2] > 59)
-				$matches[2] = 0;
+			// Walk back until we find a month that wasn't using DST.
+			// No sane environment will ever reach 1900, but just in case...
+			while ($when->format('I') && $when->format('Y') > 1900)
+				$when->modify('-1 month');
 
-			if (!isset($matches[1]) || $matches[1] > 23)
-				$matches[1] = 0;
-
-			// Now the offset is easy; easy peasy - except we need to offset by a few hours...
-			$offset = $matches[1] * 3600 + $matches[2] * 60 - date('Z');
+			$offset = $when->getTimestamp() % 86400;
 
 			// The other time bits are simple!
 			$interval = max((int) $_POST['regularity'], 1);
@@ -419,7 +345,7 @@ class Tasks implements ActionInterface
 			);
 
 			// Check the next event.
-			CalculateNextTrigger($_GET['tid'], true);
+			TaskRunner::calculateNextTrigger($_GET['tid'], true);
 
 			// Return to the main list.
 			redirectexit('action=admin;area=scheduledtasks');

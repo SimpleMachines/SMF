@@ -3011,32 +3011,9 @@ class Theme
 				window.setTimeout(triggerCron, 1);
 			END, true);
 
-			// Robots won't normally trigger cron.php, so for them run the scheduled tasks directly.
-			if (
-				BrowserDetector::isBrowser('possibly_robot')
-				&& (
-					empty(Config::$modSettings['next_task_time'])
-					|| Config::$modSettings['next_task_time'] < time()
-					|| (
-						!empty(Config::$modSettings['mail_next_send'])
-						&& Config::$modSettings['mail_next_send'] < time()
-						&& empty(Config::$modSettings['mail_queue_use_cron'])
-					)
-				)
-			)
-			{
-				require_once(Config::$sourcedir . '/ScheduledTasks.php');
-
-				// What to do, what to do?!
-				if (empty(Config::$modSettings['next_task_time']) || Config::$modSettings['next_task_time'] < time())
-				{
-					AutoTask();
-				}
-				else
-				{
-					Mail::reduceQueue();
-				}
-			}
+			// Robots won't normally trigger cron.php, so for them run the tasks directly.
+			if (BrowserDetector::isBrowser('possibly_robot'))
+				(new TaskRunner())->runOneTask();
 		}
 	}
 

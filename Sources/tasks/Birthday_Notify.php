@@ -27,7 +27,7 @@ use SMF\Db\DatabaseApi as Db;
 /**
  * This class contains code used to send out "Happy Birthday" emails.
  */
-class Birthday_Notify extends BackgroundTask
+class Birthday_Notify extends ScheduledTask
 {
 	/**
 	 * This executes the task: loads up the info, puts the email in the queue
@@ -62,10 +62,12 @@ class Birthday_Notify extends BackgroundTask
 
 		// Group them by languages.
 		$birthdays = array();
+
 		while ($row = Db::$db->fetch_assoc($result))
 		{
 			if (!isset($birthdays[$row['lngfile']]))
 				$birthdays[$row['lngfile']] = array();
+
 			$birthdays[$row['lngfile']][$row['id_member']] = array(
 				'name' => $row['real_name'],
 				'email' => $row['email_address']
@@ -99,9 +101,11 @@ class Birthday_Notify extends BackgroundTask
 					if ($pref & self::RECEIVE_NOTIFY_ALERT)
 					{
 						$alertdata = Mail::loadEmailTemplate('happy_birthday', $replacements, $lang, false);
+
 						// For the alerts, we need to replace \n line breaks with <br> line breaks.
 						// For space saving sake, we'll be removing extra line breaks
 						$alertdata['body'] = preg_replace("~\s*[\r\n]+\s*~", '<br>', $alertdata['body']);
+
 						$alert_rows[] = array(
 							'alert_time' => time(),
 							'id_member' => $member_id,
@@ -116,6 +120,7 @@ class Birthday_Notify extends BackgroundTask
 					if ($pref & self::RECEIVE_NOTIFY_EMAIL)
 					{
 						$emaildata = Mail::loadEmailTemplate('happy_birthday', $replacements, $lang, false);
+
 						Mail::send($member['email'], $emaildata['subject'], $emaildata['body'], null, 'birthday', $emaildata['is_html'], 4);
 					}
 				}

@@ -17,6 +17,7 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Security;
+use SMF\TaskRunner;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -1800,11 +1801,10 @@ function DeleteInstall()
 	Db::$db->free_result($request);
 
 	// Now is the perfect time to fetch the SM files.
-	require_once(Config::$sourcedir . '/ScheduledTasks.php');
 	// Sanity check that they loaded earlier!
 	if (isset(Config::$modSettings['recycle_board']))
 	{
-		scheduled_fetchSMfiles(); // Now go get those files!
+		(new TaskRunner())->runScheduledTasks(array('fetchSMfiles')); // Now go get those files!
 
 		// We've just installed!
 		if (isset($incontext['member_id']))
