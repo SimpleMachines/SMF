@@ -14,6 +14,7 @@
 namespace SMF\Tasks;
 
 use SMF\Config;
+use SMF\Url;
 
 /**
  * This file contains code used to initiate updates of Config::$modSettings['tld_regex']
@@ -21,15 +22,13 @@ use SMF\Config;
 class UpdateTldRegex extends BackgroundTask
 {
 	/**
-	 * This executes the task. It just calls set_tld_regex() in Subs.php
+	 * This executes the task. It just calls Url::setTldRegex()
 	 *
 	 * @return bool Always returns true
 	 */
 	public function execute()
 	{
-		require_once(Config::$sourcedir . '/Subs.php');
-		set_tld_regex(true);
-
+		Url::setTldRegex(true);
 		return true;
 	}
 }

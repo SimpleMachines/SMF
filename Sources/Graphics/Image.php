@@ -19,6 +19,7 @@ use SMF\Attachment;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Theme;
+use SMF\Url;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -230,7 +231,7 @@ class Image
 		else
 		{
 			// External file.
-			if (validate_iri($source))
+			if (Url::create($source)->isValid())
 			{
 				// Remember the URL as the original source.
 				$this->original = $source;

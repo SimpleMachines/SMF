@@ -26,6 +26,7 @@ use SMF\Security;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
+use SMF\Url;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -44,6 +45,7 @@ class_exists('SMF\\Theme');
 class_exists('SMF\\Time');
 class_exists('SMF\\TimeZone');
 class_exists('SMF\\Topic');
+class_exists('SMF\\Url');
 class_exists('SMF\\User');
 class_exists('SMF\\Utils');
 
@@ -502,42 +504,6 @@ function permute($array)
 	}
 
 	return $orders;
-}
-
-/**
- * Gets the appropriate URL to use for images (or whatever) when using SSL
- *
- * The returned URL may or may not be a proxied URL, depending on the situation.
- * Mods can implement alternative proxies using the 'integrate_proxy' hook.
- *
- * @param string $url The original URL of the requested resource
- * @return string The URL to use
- */
-function get_proxied_url($url)
-{
-
-	// Only use the proxy if enabled, and never for robots
-	if (empty(Config::$image_proxy_enabled) || !empty(User::$me->possibly_robot))
-		return $url;
-
-	$parsedurl = parse_iri($url);
-
-	// Don't bother with HTTPS URLs, schemeless URLs, or obviously invalid URLs
-	if (empty($parsedurl['scheme']) || empty($parsedurl['host']) || empty($parsedurl['path']) || $parsedurl['scheme'] === 'https')
-		return $url;
-
-	// We don't need to proxy our own resources
-	if ($parsedurl['host'] === parse_iri(Config::$boardurl, PHP_URL_HOST))
-		return strtr($url, array('http://' => 'https://'));
-
-	// By default, use SMF's own image proxy script
-	$proxied_url = strtr(Config::$boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($url) . '&hash=' . hash_hmac('sha1', $url, Config::$image_proxy_secret);
-
-	// Allow mods to easily implement an alternative proxy
-	// MOD AUTHORS: To add settings UI for your proxy, use the integrate_general_settings hook.
-	call_integration_hook('integrate_proxy', array($url, &$proxied_url));
-
-	return $proxied_url;
 }
 
 /**
@@ -1260,24 +1226,26 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 {
 	static $keep_alive_dom = null, $keep_alive_fp = null;
 
-	preg_match('~^(http|ftp)(s)?://([^/:]+)(:(\d+))?(.+)$~', iri_to_url($url), $match);
+	$url = Url::create($url, true)->validate()->toAscii();
 
 	// No scheme? No data for you!
-	if (empty($match[1]))
+	if (empty($url->scheme) || !in_array($url->scheme, array('http', 'https', 'ftp', 'ftps')))
 		return false;
+
+	$path_and_query = $url->path . (isset($url->query) && $url->query !== '' ? '?' . $url->query : '');
 
 	// An FTP url. We should try connecting and RETRieving it...
 	// @todo Move this to a SMF\Fetchers\FtpFetcher class.
-	elseif ($match[1] == 'ftp')
+	if (in_array($url->scheme, array('ftp', 'ftps')))
 	{
 		// Establish a connection and attempt to enable passive mode.
-		$ftp = new SMF\PackageManager\FtpConnection(($match[2] ? 'ssl://' : '') . $match[3], empty($match[5]) ? 21 : $match[5], 'anonymous', Config::$webmaster_email);
+		$ftp = new SMF\PackageManager\FtpConnection(($url->scheme === 'ftps' ? 'ssl://' : '') . $url->host, empty($url->port) ? 21 : $url->port, 'anonymous', Config::$webmaster_email);
 
 		if ($ftp->error !== false || !$ftp->passive())
 			return false;
 
 		// I want that one *points*!
-		fwrite($ftp->connection, 'RETR ' . $match[6] . "\r\n");
+		fwrite($ftp->connection, 'RETR ' . $path_and_query . "\r\n");
 
 		// Since passive mode worked (or we would have returned already!) open the connection.
 		$fp = @fsockopen($ftp->pasv['ip'], $ftp->pasv['port'], $err, $err, 5);
@@ -1296,32 +1264,32 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 		$ftp->check_response(226);
 		$ftp->close();
 	}
-
 	// This is more likely; a standard HTTP URL.
-	elseif (isset($match[1]) && $match[1] == 'http')
+	elseif (in_array($url->scheme, array('http', 'https')))
 	{
 		// First try to use fsockopen, because it is fastest.
 		// @todo Move this to a SMF\Fetchers\SocketFetcher class.
-		if ($keep_alive && $match[3] == $keep_alive_dom)
+		if ($keep_alive && $url->host == $keep_alive_dom)
 			$fp = $keep_alive_fp;
+
 		if (empty($fp))
 		{
 			// Open the socket on the port we want...
-			$fp = @fsockopen(($match[2] ? 'ssl://' : '') . $match[3], empty($match[5]) ? ($match[2] ? 443 : 80) : $match[5], $err, $err, 5);
+			$fp = @fsockopen(($url->scheme === 'https' ? 'ssl://' : '') . $url->host, empty($url->port) ? ($url->scheme === 'https' ? 443 : 80) : $url->port, $err, $err, 5);
 		}
 		if (!empty($fp))
 		{
 			if ($keep_alive)
 			{
-				$keep_alive_dom = $match[3];
+				$keep_alive_dom = $url->host;
 				$keep_alive_fp = $fp;
 			}
 
 			// I want this, from there, and I'm not going to be bothering you for more (probably.)
 			if (empty($post_data))
 			{
-				fwrite($fp, 'GET ' . ($match[6] !== '/' ? str_replace(' ', '%20', $match[6]) : '') . ' HTTP/1.0' . "\r\n");
-				fwrite($fp, 'Host: ' . $match[3] . (empty($match[5]) ? ($match[2] ? ':443' : '') : ':' . $match[5]) . "\r\n");
+				fwrite($fp, 'GET ' . ($path_and_query !== '/' ? str_replace(' ', '%20', $path_and_query) : '') . ' HTTP/1.0' . "\r\n");
+				fwrite($fp, 'Host: ' . $url->host . (empty($url->port) ? ($url->scheme === 'https' ? ':443' : '') : ':' . $url->port) . "\r\n");
 				fwrite($fp, 'user-agent: '. SMF_USER_AGENT . "\r\n");
 				if ($keep_alive)
 					fwrite($fp, 'connection: Keep-Alive' . "\r\n\r\n");
@@ -1330,8 +1298,8 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 			}
 			else
 			{
-				fwrite($fp, 'POST ' . ($match[6] !== '/' ? $match[6] : '') . ' HTTP/1.0' . "\r\n");
-				fwrite($fp, 'Host: ' . $match[3] . (empty($match[5]) ? ($match[2] ? ':443' : '') : ':' . $match[5]) . "\r\n");
+				fwrite($fp, 'POST ' . ($path_and_query !== '/' ? $path_and_query : '') . ' HTTP/1.0' . "\r\n");
+				fwrite($fp, 'Host: ' . $url->host . (empty($url->port) ? ($url->scheme === 'https' ? ':443' : '') : ':' . $url->port) . "\r\n");
 				fwrite($fp, 'user-agent: '. SMF_USER_AGENT . "\r\n");
 				if ($keep_alive)
 					fwrite($fp, 'connection: Keep-Alive' . "\r\n");
@@ -2000,131 +1968,6 @@ function smf_serverResponse($data = '', $type = 'content-type: application/json'
 }
 
 /**
- * Creates an optimized regex to match all known top level domains.
- *
- * The optimized regex is stored in Config::$modSettings['tld_regex'].
- *
- * To update the stored version of the regex to use the latest list of valid
- * TLDs from iana.org, set the $update parameter to true. Updating can take some
- * time, based on network connectivity, so it should normally only be done by
- * calling this function from a background or scheduled task.
- *
- * If $update is not true, but the regex is missing or invalid, the regex will
- * be regenerated from a hard-coded list of TLDs. This regenerated regex will be
- * overwritten on the next scheduled update.
- *
- * @param bool $update If true, fetch and process the latest official list of TLDs from iana.org.
- */
-function set_tld_regex($update = false)
-{
-	static $done = false;
-
-	// If we don't need to do anything, don't
-	if (!$update && $done)
-		return;
-
-	// Should we get a new copy of the official list of TLDs?
-	if ($update)
-	{
-		$tlds = fetch_web_data('https://data.iana.org/TLD/tlds-alpha-by-domain.txt');
-		$tlds_md5 = fetch_web_data('https://data.iana.org/TLD/tlds-alpha-by-domain.txt.md5');
-
-		/**
-		 * If the Internet Assigned Numbers Authority can't be reached, the Internet is GONE!
-		 * We're probably running on a server hidden in a bunker deep underground to protect
-		 * it from marauding bandits roaming on the surface. We don't want to waste precious
-		 * electricity on pointlessly repeating background tasks, so we'll wait until the next
-		 * regularly scheduled update to see if civilization has been restored.
-		 */
-		if ($tlds === false || $tlds_md5 === false)
-			$postapocalypticNightmare = true;
-
-		// Make sure nothing went horribly wrong along the way.
-		if (md5($tlds) != substr($tlds_md5, 0, 32))
-			$tlds = array();
-	}
-	// If we aren't updating and the regex is valid, we're done
-	elseif (!empty(Config::$modSettings['tld_regex']) && @preg_match('~' . Config::$modSettings['tld_regex'] . '~', '') !== false)
-	{
-		$done = true;
-		return;
-	}
-
-	// If we successfully got an update, process the list into an array
-	if (!empty($tlds))
-	{
-		// Clean $tlds and convert it to an array
-		$tlds = array_filter(
-			explode("\n", strtolower($tlds)),
-			function($line)
-			{
-				$line = trim($line);
-				if (empty($line) || strlen($line) != strspn($line, 'abcdefghijklmnopqrstuvwxyz0123456789-'))
-					return false;
-				else
-					return true;
-			}
-		);
-
-		// Convert Punycode to Unicode
-		if (!function_exists('idn_to_utf8'))
-			require_once(Config::$sourcedir . '/Subs-Compat.php');
-
-		foreach ($tlds as &$tld)
-			$tld = idn_to_utf8($tld, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
-	}
-	// Otherwise, use the 2012 list of gTLDs and ccTLDs for now and schedule a background update
-	else
-	{
-		$tlds = array('com', 'net', 'org', 'edu', 'gov', 'mil', 'aero', 'asia', 'biz',
-			'cat', 'coop', 'info', 'int', 'jobs', 'mobi', 'museum', 'name', 'post',
-			'pro', 'tel', 'travel', 'xxx', 'ac', 'ad', 'ae', 'af', 'ag', 'ai', 'al',
-			'am', 'ao', 'aq', 'ar', 'as', 'at', 'au', 'aw', 'ax', 'az', 'ba', 'bb', 'bd',
-			'be', 'bf', 'bg', 'bh', 'bi', 'bj', 'bm', 'bn', 'bo', 'br', 'bs', 'bt', 'bv',
-			'bw', 'by', 'bz', 'ca', 'cc', 'cd', 'cf', 'cg', 'ch', 'ci', 'ck', 'cl', 'cm',
-			'cn', 'co', 'cr', 'cu', 'cv', 'cx', 'cy', 'cz', 'de', 'dj', 'dk', 'dm', 'do',
-			'dz', 'ec', 'ee', 'eg', 'er', 'es', 'et', 'eu', 'fi', 'fj', 'fk', 'fm', 'fo',
-			'fr', 'ga', 'gb', 'gd', 'ge', 'gf', 'gg', 'gh', 'gi', 'gl', 'gm', 'gn', 'gp',
-			'gq', 'gr', 'gs', 'gt', 'gu', 'gw', 'gy', 'hk', 'hm', 'hn', 'hr', 'ht', 'hu',
-			'id', 'ie', 'il', 'im', 'in', 'io', 'iq', 'ir', 'is', 'it', 'je', 'jm', 'jo',
-			'jp', 'ke', 'kg', 'kh', 'ki', 'km', 'kn', 'kp', 'kr', 'kw', 'ky', 'kz', 'la',
-			'lb', 'lc', 'li', 'lk', 'lr', 'ls', 'lt', 'lu', 'lv', 'ly', 'ma', 'mc', 'md',
-			'me', 'mg', 'mh', 'mk', 'ml', 'mm', 'mn', 'mo', 'mp', 'mq', 'mr', 'ms', 'mt',
-			'mu', 'mv', 'mw', 'mx', 'my', 'mz', 'na', 'nc', 'ne', 'nf', 'ng', 'ni', 'nl',
-			'no', 'np', 'nr', 'nu', 'nz', 'om', 'pa', 'pe', 'pf', 'pg', 'ph', 'pk', 'pl',
-			'pm', 'pn', 'pr', 'ps', 'pt', 'pw', 'py', 'qa', 're', 'ro', 'rs', 'ru', 'rw',
-			'sa', 'sb', 'sc', 'sd', 'se', 'sg', 'sh', 'si', 'sj', 'sk', 'sl', 'sm', 'sn',
-			'so', 'sr', 'ss', 'st', 'su', 'sv', 'sx', 'sy', 'sz', 'tc', 'td', 'tf', 'tg',
-			'th', 'tj', 'tk', 'tl', 'tm', 'tn', 'to', 'tr', 'tt', 'tv', 'tw', 'tz', 'ua',
-			'ug', 'uk', 'us', 'uy', 'uz', 'va', 'vc', 've', 'vg', 'vi', 'vn', 'vu', 'wf',
-			'ws', 'ye', 'yt', 'za', 'zm', 'zw',
-		);
-
-		// Schedule a background update, unless civilization has collapsed and/or we are having connectivity issues.
-		if (empty($postapocalypticNightmare))
-		{
-			Db::$db->insert('insert', '{db_prefix}background_tasks',
-				array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
-				array('$sourcedir/tasks/UpdateTldRegex.php', 'SMF\Tasks\UpdateTldRegex', '', 0), array()
-			);
-		}
-	}
-
-	// Tack on some "special use domain names" that aren't in DNS but may possibly resolve.
-	// See https://www.iana.org/assignments/special-use-domain-names/ for more info.
-	$tlds = array_merge($tlds, array('local', 'onion', 'test'));
-
-	// Get an optimized regex to match all the TLDs
-	$tld_regex = build_regex($tlds);
-
-	// Remember the new regex in Config::$modSettings
-	Config::updateModSettings(array('tld_regex' => $tld_regex));
-
-	// Redundant repetition is redundant
-	$done = true;
-}
-
-/**
  * Creates optimized regular expressions from an array of strings.
  *
  * An optimized regex built using this function will be much faster than a
@@ -2308,310 +2151,6 @@ function build_regex($strings, $delim = null, $returnArray = false)
 
 	$regexes[$regex_key] = $regex;
 	return $regex;
-}
-
-/**
- * Check if the passed url has an SSL certificate.
- *
- * Returns true if a cert was found & false if not.
- *
- * @param string $url to check, in Config::$boardurl format (no trailing slash).
- */
-function ssl_cert_found($url)
-{
-	// This check won't work without OpenSSL
-	if (!extension_loaded('openssl'))
-		return true;
-
-	// First, strip the subfolder from the passed url, if any
-	$parsedurl = parse_iri($url);
-	$url = 'ssl://' . $parsedurl['host'] . ':443';
-
-	// Next, check the ssl stream context for certificate info
-	if (version_compare(PHP_VERSION, '5.6.0', '<'))
-		$ssloptions = array("capture_peer_cert" => true);
-	else
-		$ssloptions = array("capture_peer_cert" => true, "verify_peer" => true, "allow_self_signed" => true);
-
-	$result = false;
-	$strem_context = stream_context_create(array("ssl" => $ssloptions));
-	$stream = @stream_socket_client($url, $errno, $errstr, 30, STREAM_CLIENT_CONNECT, Utils::$strem_context);
-	if ($stream !== false)
-	{
-		$params = stream_context_get_params($stream);
-		$result = isset($params["options"]["ssl"]["peer_certificate"]) ? true : false;
-	}
-	return $result;
-}
-
-/**
- * Check if the passed url has a redirect to https:// by querying headers.
- *
- * Returns true if a redirect was found & false if not.
- * Note that when force_ssl = 2, SMF issues its own redirect...  So if this
- * returns true, it may be caused by SMF, not necessarily an .htaccess redirect.
- *
- * @param string $url to check, in Config::$boardurl format (no trailing slash).
- */
-function https_redirect_active($url)
-{
-	// Ask for the headers for the passed url, but via http...
-	// Need to add the trailing slash, or it puts it there & thinks there's a redirect when there isn't...
-	$url = str_ireplace('https://', 'http://', $url) . '/';
-	$headers = @get_headers($url);
-	if ($headers === false)
-		return false;
-
-	// Now to see if it came back https...
-	// First check for a redirect status code in first row (301, 302, 307)
-	if (strstr($headers[0], '301') === false && strstr($headers[0], '302') === false && strstr($headers[0], '307') === false)
-		return false;
-
-	// Search for the location entry to confirm https
-	$result = false;
-	foreach ($headers as $header)
-	{
-		if (stristr($header, 'Location: https://') !== false)
-		{
-			$result = true;
-			break;
-		}
-	}
-	return $result;
-}
-
-/**
- * A wrapper for `parse_url($url)` that can handle URLs with international
- * characters (a.k.a. IRIs)
- *
- * @param string $iri The IRI to parse.
- * @param int $component Optional parameter to pass to parse_url().
- * @return mixed Same as parse_url(), but with unmangled Unicode.
- */
-function parse_iri($iri, $component = -1)
-{
-	$iri = preg_replace_callback(
-		'~[^\x00-\x7F\pZ\pC]|%~u',
-		function($matches)
-		{
-			return rawurlencode($matches[0]);
-		},
-		$iri
-	);
-
-	$parsed = parse_url($iri, $component);
-
-	if (is_array($parsed))
-	{
-		foreach ($parsed as &$part)
-			$part = rawurldecode($part);
-	}
-	elseif (is_string($parsed))
-		$parsed = rawurldecode($parsed);
-
-	return $parsed;
-}
-
-/**
- * A wrapper for `filter_var($url, FILTER_VALIDATE_URL)` that can handle URLs
- * with international characters (a.k.a. IRIs)
- *
- * @param string $iri The IRI to test.
- * @param int $flags Optional flags to pass to filter_var()
- * @return string|bool Either the original IRI, or false if the IRI was invalid.
- */
-function validate_iri($iri, $flags = 0)
-{
-	$url = iri_to_url($iri);
-
-	// PHP 5 doesn't recognize IPv6 addresses in the URL host.
-	if (version_compare(phpversion(), '7.0.0', '<'))
-	{
-		$host = parse_url((strpos($url, '//') === 0 ? 'http:' : '') . $url, PHP_URL_HOST);
-
-		if (strpos($host, '[') === 0 && strpos($host, ']') === strlen($host) - 1 && strpos($host, ':') !== false)
-			$url = str_replace($host, '127.0.0.1', $url);
-	}
-
-	if (filter_var($url, FILTER_VALIDATE_URL, $flags) !== false)
-		return $iri;
-	else
-		return false;
-}
-
-/**
- * A wrapper for `filter_var($url, FILTER_SANITIZE_URL)` that can handle URLs
- * with international characters (a.k.a. IRIs)
- *
- * Note: The returned value will still be an IRI, not a URL. To convert to URL,
- * feed the result of this function to iri_to_url()
- *
- * @param string $iri The IRI to sanitize.
- * @return string|bool The sanitized version of the IRI
- */
-function sanitize_iri($iri)
-{
-	// Encode any non-ASCII characters (but not space or control characters of any sort)
-	// Also encode '%' in order to preserve anything that is already percent-encoded.
-	$iri = preg_replace_callback(
-		'~[^\x00-\x7F\pZ\pC]|%~u',
-		function($matches)
-		{
-			return rawurlencode($matches[0]);
-		},
-		$iri
-	);
-
-	// Perform normal sanitization
-	$iri = filter_var($iri, FILTER_SANITIZE_URL);
-
-	// Decode the non-ASCII characters
-	$iri = rawurldecode($iri);
-
-	return $iri;
-}
-
-/**
- * Performs Unicode normalization on IRIs.
- *
- * Internally calls sanitize_iri(), then performs Unicode normalization on the
- * IRI as a whole, using NFKC normalization for the domain name (see RFC 3491)
- * and NFC normalization for the rest.
- *
- * @param string $iri The IRI to normalize.
- * @return string|bool The normalized version of the IRI.
- */
-function normalize_iri($iri)
-{
-	// If we are not using UTF-8, just sanitize and return.
-	if (isset(Utils::$context['utf8']) ? !Utils::$context['utf8'] : (isset(Lang::$txt['lang_character_set']) ? Lang::$txt['lang_character_set'] != 'UTF-8' : (isset(Config::$db_character_set) && Config::$db_character_set != 'utf8')))
-		return sanitize_iri($iri);
-
-	$iri = sanitize_iri(Utils::normalize($iri));
-
-	$host = parse_iri((strpos($iri, '//') === 0 ? 'http:' : '') . $iri, PHP_URL_HOST);
-
-	if (!empty($host))
-	{
-		$normalized_host = Utils::normalize($host, 'kc_casefold');
-		$pos = strpos($iri, $host);
-	}
-	else
-	{
-		$host = '';
-		$normalized_host = '';
-		$pos = 0;
-	}
-
-	$before_host = substr($iri, 0, $pos);
-	$after_host = substr($iri, $pos + strlen($host));
-
-	return $before_host . $normalized_host . $after_host;
-}
-
-/**
- * Converts a URL with international characters (an IRI) into a pure ASCII URL
- *
- * Uses Punycode to encode any non-ASCII characters in the domain name, and uses
- * standard URL encoding on the rest.
- *
- * @param string $iri A IRI that may or may not contain non-ASCII characters.
- * @return string|bool The URL version of the IRI.
- */
-function iri_to_url($iri)
-{
-	// Sanity check: must be using UTF-8 to do this.
-	if (isset(Utils::$context['utf8']) ? !Utils::$context['utf8'] : (isset(Lang::$txt['lang_character_set']) ? Lang::$txt['lang_character_set'] != 'UTF-8' : (isset(Config::$db_character_set) && Config::$db_character_set != 'utf8')))
-		return $iri;
-
-	$iri = sanitize_iri(Utils::normalize($iri));
-
-	$host = parse_iri((strpos($iri, '//') === 0 ? 'http:' : '') . $iri, PHP_URL_HOST);
-
-	if (!empty($host))
-	{
-		if (!function_exists('idn_to_ascii'))
-			require_once(Config::$sourcedir . '/Subs-Compat.php');
-
-		// Convert the host using the Punycode algorithm
-		$encoded_host = idn_to_ascii($host, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
-
-		$pos = strpos($iri, $host);
-	}
-	else
-	{
-		$host = '';
-		$encoded_host = '';
-		$pos = 0;
-	}
-
-	$before_host = substr($iri, 0, $pos);
-	$after_host = substr($iri, $pos + strlen($host));
-
-	// Encode any disallowed characters in the rest of the URL
-	$unescaped = array(
-		'%21' => '!', '%23' => '#', '%24' => '$', '%26' => '&',
-		'%27' => "'", '%28' => '(', '%29' => ')', '%2A' => '*',
-		'%2B' => '+', '%2C' => ',', '%2F' => '/', '%3A' => ':',
-		'%3B' => ';', '%3D' => '=', '%3F' => '?', '%40' => '@',
-		'%25' => '%',
-	);
-
-	$before_host = strtr(rawurlencode($before_host), $unescaped);
-	$after_host = strtr(rawurlencode($after_host), $unescaped);
-
-	return $before_host . $encoded_host . $after_host;
-}
-
-/**
- * Decodes a URL containing encoded international characters to UTF-8
- *
- * Decodes any Punycode encoded characters in the domain name, then uses
- * standard URL decoding on the rest.
- *
- * @param string $url The pure ASCII version of a URL.
- * @return string|bool The UTF-8 version of the URL.
- */
-function url_to_iri($url)
-{
-	// Sanity check: must be using UTF-8 to do this.
-	if (isset(Utils::$context['utf8']) ? !Utils::$context['utf8'] : (isset(Lang::$txt['lang_character_set']) ? Lang::$txt['lang_character_set'] != 'UTF-8' : (isset(Config::$db_character_set) && Config::$db_character_set != 'utf8')))
-		return $url;
-
-	$host = parse_iri((strpos($url, '//') === 0 ? 'http:' : '') . $url, PHP_URL_HOST);
-
-	if (!empty($host))
-	{
-		if (!function_exists('idn_to_utf8'))
-			require_once(Config::$sourcedir . '/Subs-Compat.php');
-
-		// Decode the domain from Punycode
-		$decoded_host = idn_to_utf8($host, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
-
-		$pos = strpos($url, $host);
-	}
-	else
-	{
-		$decoded_host = '';
-		$pos = 0;
-	}
-
-	$before_host = substr($url, 0, $pos);
-	$after_host = substr($url, $pos + strlen($host));
-
-	// Decode the rest of the URL, but preserve escaped URL syntax characters.
-	$double_escaped = array(
-		'%21' => '%2521', '%23' => '%2523', '%24' => '%2524', '%26' => '%2526',
-		'%27' => '%2527', '%28' => '%2528', '%29' => '%2529', '%2A' => '%252A',
-		'%2B' => '%252B', '%2C' => '%252C', '%2F' => '%252F', '%3A' => '%253A',
-		'%3B' => '%253B', '%3D' => '%253D', '%3F' => '%253F', '%40' => '%2540',
-		'%25' => '%2525',
-	);
-
-	$before_host = rawurldecode(strtr($before_host, $double_escaped));
-	$after_host = rawurldecode(strtr($after_host, $double_escaped));
-
-	return $before_host . $decoded_host . $after_host;
 }
 
 /**

@@ -2143,7 +2143,7 @@ class User implements \ArrayAccess
 		// Better be sure to remember the real referer
 		if (empty($_SESSION['request_referer']))
 		{
-			$_SESSION['request_referer'] = isset($_SERVER['HTTP_REFERER']) ? @parse_iri($_SERVER['HTTP_REFERER']) : array();
+			$_SESSION['request_referer'] = isset($_SERVER['HTTP_REFERER']) ? @Url::create($_SERVER['HTTP_REFERER'])->parse() : array();
 		}
 		elseif (empty($_POST))
 		{
@@ -2218,7 +2218,7 @@ class User implements \ArrayAccess
 		}
 
 		// Check the referring site - it should be the same server at least!
-		$referrer = $_SESSION['request_referer'] ?? isset($_SERVER['HTTP_REFERER']) ? @parse_iri($_SERVER['HTTP_REFERER']) : array();
+		$referrer = $_SESSION['request_referer'] ?? (isset($_SERVER['HTTP_REFERER']) ? @Url::create($_SERVER['HTTP_REFERER'])->parse() : array());
 
 		// Check the refer but if we have CORS enabled and it came from a trusted source, we can skip this check.
 		if (
@@ -2239,13 +2239,13 @@ class User implements \ArrayAccess
 				$real_host = $_SERVER['HTTP_HOST'];
 			}
 
-			$parsed_url = parse_iri(Config::$boardurl);
+			$board_host = Url::create(Config::$boardurl)->host;
 
 			// Are global cookies on?  If so, let's check them ;).
 			if (!empty(Config::$modSettings['globalCookies']))
 			{
-				if (preg_match('~(?:[^\.]+\.)?([^\.]{3,}\..+)\z~i', $parsed_url['host'], $parts))
-					$parsed_url['host'] = $parts[1];
+				if (preg_match('~(?:[^\.]+\.)?([^\.]{3,}\..+)\z~i', $board_host, $parts))
+					$board_host = $parts[1];
 
 				if (preg_match('~(?:[^\.]+\.)?([^\.]{3,}\..+)\z~i', $referrer['host'], $parts))
 					$referrer['host'] = $parts[1];
@@ -2256,8 +2256,8 @@ class User implements \ArrayAccess
 
 			// Okay: referrer must either match parsed_url or real_host.
 			if (
-				isset($parsed_url['host'])
-				&& strtolower($referrer['host']) != strtolower($parsed_url['host'])
+				isset($board_host)
+				&& strtolower($referrer['host']) != strtolower($board_host)
 				&& strtolower($referrer['host']) != strtolower($real_host)
 			)
 			{
@@ -2935,7 +2935,8 @@ class User implements \ArrayAccess
 				// External url.
 				else
 				{
-					$image = parse_iri($data['avatar'], PHP_URL_SCHEME) !== null ? get_proxied_url($data['avatar']) : Config::$modSettings['avatar_url'] . '/' . $data['avatar'];
+					$url = new Url($data['avatar']);
+					$image = $url->scheme !== null ? $url->proxied() : Config::$modSettings['avatar_url'] . '/' . $data['avatar'];
 				}
 			}
 			// Perhaps this user has an attachment as avatar...
@@ -5604,7 +5605,7 @@ class User implements \ArrayAccess
 
 				// Take care of proxying the avatar if required.
 				if (!empty($row['avatar']))
-					$row['avatar'] = get_proxied_url($row['avatar']);
+					$row['avatar'] = Url::create($row['avatar'])->proxied();
 
 				// Keep track of the member's normal member group.
 				$row['primary_group'] = $row['member_group'] ?? '';

@@ -25,6 +25,7 @@ use SMF\Menu;
 use SMF\MessageIndex;
 use SMF\SecurityToken;
 use SMF\Theme;
+use SMF\Url;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -241,7 +242,7 @@ class Server implements ActionInterface
 		$config_vars = self::generalConfigVars();
 
 		// If no cert, force_ssl must remain 0 (The admin search doesn't require this)
-		$config_vars['force_ssl']['disabled'] = empty(Config::$modSettings['force_ssl']) && !ssl_cert_found(Config::$boardurl);
+		$config_vars['force_ssl']['disabled'] = empty(Config::$modSettings['force_ssl']) && !Url::create(Config::$boardurl)->hasSSL();
 
 		// Setup the template stuff.
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=serversettings;sa=general;save';
@@ -390,9 +391,9 @@ class Server implements ActionInterface
 
 			if (!empty($_POST['globalCookiesDomain']))
 			{
-				$_POST['globalCookiesDomain'] = parse_iri(normalize_iri((strpos($_POST['globalCookiesDomain'], '//') === false ? 'http://' : '') . ltrim($_POST['globalCookiesDomain'], '.')), PHP_URL_HOST);
+				$_POST['globalCookiesDomain'] = Url::create((strpos($_POST['globalCookiesDomain'], '//') === false ? 'http://' : '') . ltrim($_POST['globalCookiesDomain'], '.'), true)->host;
 
-				if (!preg_match('/(?:^|\.)' . preg_quote($_POST['globalCookiesDomain'], '/') . '$/u', parse_iri(Config::$boardurl, PHP_URL_HOST)))
+				if (!preg_match('/(?:^|\.)' . preg_quote($_POST['globalCookiesDomain'], '/') . '$/u', Url::create(Config::$boardurl))->host)
 				{
 					ErrorHandler::fatalLang('invalid_cookie_domain', false);
 				}
@@ -469,12 +470,12 @@ class Server implements ActionInterface
 					if (strpos($cors_domain, '//') === false)
 						$cors_domain = '//' . $cors_domain;
 
-					$temp = parse_iri(normalize_iri($cors_domain));
+					$temp = new Url($cors_domain, true);
 
-					if (strpos($temp['host'], '*') !== false)
-						$temp['host'] = substr($temp['host'], strrpos($temp['host'], '*'));
+					if (strpos($temp->host, '*') !== false)
+						$temp->host = substr($temp->host, strrpos($temp->host, '*'));
 
-					$cors_domain = (!empty($temp['scheme']) ? $temp['scheme'] . '://' : '') . $temp['host'] . (!empty($temp['port']) ? ':' . $temp['port'] : '');
+					$cors_domain = (!empty($temp->scheme) ? $temp->scheme . '://' : '') . $temp->host . (!empty($temp->port) ? ':' . $temp->port : '');
 				}
 
 				$_POST['cors_domains'] = implode(',', $cors_domains);

@@ -26,6 +26,7 @@ use SMF\Security;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\TimeZone;
+use SMF\Url;
 use SMF\User;
 use SMF\Utils;
 use SMF\Verifier;
@@ -201,7 +202,9 @@ class Register2 extends Register
 
 				// Make sure their website URL is squeaky clean
 				if (isset($_POST['website_url']))
-					$_POST['website_url'] = (string) validate_iri(normalize_iri($_POST['website_url']));
+				{
+					$_POST['website_url'] = (string) Url::create($_POST['website_url'], true)->validate();
+				}
 			}
 		}
 

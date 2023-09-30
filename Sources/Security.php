@@ -423,10 +423,10 @@ class Security
 		if (empty(Config::$modSettings['allow_cors']) || empty($_SERVER['HTTP_ORIGIN']))
 			return;
 
-		foreach (array('origin' => $_SERVER['HTTP_ORIGIN'], 'boardurl_parts' => Config::$boardurl) as $var => $url)
+		foreach (array('origin' => $_SERVER['HTTP_ORIGIN'], 'forumurl' => Config::$boardurl) as $var => $url)
 		{
-			// Convert any Punycode to Unicode for the sake of comparison, then parse.
-			$$var = parse_iri(url_to_iri((string) validate_iri(normalize_iri(trim($url)))));
+			// Convert any Punycode to Unicode for the sake of comparison.
+			$$var = Url::create(trim($url), true)->validate()->toUtf8();
 		}
 
 		// The admin wants weak security... :(
@@ -446,7 +446,10 @@ class Security
 			// If subdomain-independent cookies are on, allow CORS requests from subdomains.
 			if (!empty(Config::$modSettings['globalCookies']) && !empty(Config::$modSettings['globalCookiesDomain']))
 			{
-				$allowed_origins[++$i] = array_merge(parse_iri('//*.' . trim(Config::$modSettings['globalCookiesDomain'])), array('type' => 'subdomain'));
+				$allowed_origins[++$i] = array_merge(
+					Url::create('//*.' . trim(Config::$modSettings['globalCookiesDomain']))->parse(),
+					array('type' => 'subdomain')
+				);
 			}
 
 			// Support forum_alias_urls as well, since those are supported by our login cookie.
@@ -454,7 +457,10 @@ class Security
 			{
 				foreach (explode(',', Config::$modSettings['forum_alias_urls']) as $alias)
 				{
-					$allowed_origins[++$i] = array_merge(parse_iri((strpos($alias, '//') === false ? '//' : '') . trim($alias)), array('type' => 'alias'));
+					$allowed_origins[++$i] = array_merge(
+						Url::create((strpos($alias, '//') === false ? '//' : '') . trim($alias))->parse(),
+						array('type' => 'alias')
+					);
 				}
 			}
 
@@ -463,7 +469,10 @@ class Security
 			{
 				foreach (explode(',', Config::$modSettings['cors_domains']) as $cors_domain)
 				{
-					$allowed_origins[++$i] = array_merge(parse_iri((strpos($cors_domain, '//') === false ? '//' : '') . trim($cors_domain)), array('type' => 'additional'));
+					$allowed_origins[++$i] = array_merge(
+						Url::create((strpos($cors_domain, '//') === false ? '//' : '') . trim($cors_domain))->parse(),
+						array('type' => 'additional')
+					);
 
 					if (strpos($allowed_origins[$i]['host'], '*') === 0)
 						 $allowed_origins[$i]['type'] .= '_wildcard';
@@ -474,7 +483,7 @@ class Security
 			foreach ($allowed_origins as $allowed_origin)
 			{
 				// If a specific scheme is required, it must match.
-				if (!empty($allowed_origin['scheme']) && $allowed_origin['scheme'] !== $origin['scheme'])
+				if (!empty($allowed_origin['scheme']) && $allowed_origin['scheme'] !== $origin->scheme)
 				{
 					continue;
 				}
@@ -484,32 +493,32 @@ class Security
 				{
 					// Automatically supply the default port for the "special" schemes.
 					// See https://url.spec.whatwg.org/#special-scheme
-					if (empty($origin['port']))
+					if (empty($origin->port))
 					{
-						switch ($origin['scheme'])
+						switch ($origin->scheme)
 						{
 							case 'http':
 							case 'ws':
-								$origin['port'] = 80;
+								$origin->port = 80;
 								break;
 
 							case 'https':
 							case 'wss':
-								$origin['port'] = 443;
+								$origin->port = 443;
 								break;
 
 							case 'ftp':
-								$origin['port'] = 21;
+								$origin->port = 21;
 								break;
 
 							case 'file':
 							default:
-								$origin['port'] = null;
+								$origin->port = null;
 								break;
 						}
 					}
 
-					if ((int) $allowed_origin['port'] !== (int) $origin['port'])
+					if ((int) $allowed_origin['port'] !== (int) $origin->port)
 						continue;
 				}
 
@@ -528,7 +537,7 @@ class Security
 					$host_regex = '^' . preg_quote($allowed_origin['host'], '~') . '$';
 				}
 
-				if (preg_match('~' . $host_regex . '~u', $origin['host']))
+				if (preg_match('~' . $host_regex . '~u', $origin->host))
 				{
 					Utils::$context['cors_domain'] = trim($_SERVER['HTTP_ORIGIN']);
 					Utils::$context['valid_cors_found'] = $allowed_origin['type'];
@@ -540,11 +549,7 @@ class Security
 		// The default is just to place the root URL of the forum into the policy.
 		if (empty(Utils::$context['cors_domain']))
 		{
-			Utils::$context['cors_domain'] = iri_to_url($boardurl_parts['scheme'] . '://' . $boardurl_parts['host']);
-
-			// Attach the port if needed.
-			if (!empty($boardurl_parts['port']))
-				Utils::$context['cors_domain'] .= ':' . $boardurl_parts['port'];
+			Utils::$context['cors_domain'] = Url::create($forumurl->scheme . '://' . $forumurl->host . (!empty($forumurl->port) ? ':' . $forumurl->port : ''))->toAscii();
 
 			Utils::$context['valid_cors_found'] = 'same';
 		}

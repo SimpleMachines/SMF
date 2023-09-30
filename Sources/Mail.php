@@ -804,8 +804,19 @@ class Mail
 				$helo = php_uname('n');
 
 			// If the hostname isn't a fully qualified domain name, we can use the host name from Config::$boardurl instead
-			if (empty($helo) || strpos($helo, '.') === false || substr_compare($helo, '.local', -6) === 0 || (!empty(Config::$modSettings['tld_regex']) && !preg_match('/\.' . Config::$modSettings['tld_regex'] . '$/u', $helo)))
-				$helo = parse_iri(Config::$boardurl, PHP_URL_HOST);
+			if (
+				empty($helo)
+				|| strpos($helo, '.') === false
+				|| substr_compare($helo, '.local', -6) === 0
+				|| (
+					!empty(Config::$modSettings['tld_regex'])
+					&& !preg_match('/\.' . Config::$modSettings['tld_regex'] . '$/u', $helo)
+				)
+			)
+			{
+				$url = new Url(Config::$boardurl);
+				$helo = $url->host;
+			}
 
 			// This is one of those situations where 'www.' is undesirable
 			if (strpos($helo, 'www.') === 0)

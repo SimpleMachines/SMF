@@ -116,21 +116,21 @@ class ProxyServer
 			}
 		}
 
-		// Basic sanity check
-		$_GET['request'] = validate_iri($_GET['request']);
-
 		// We aren't going anywhere without these
 		if (empty($_GET['hash']) || empty($_GET['request']))
 			return false;
 
-		$hash = $_GET['hash'];
-		$request = $_GET['request'];
+		$request = new Url($_GET['request']);
 
-		if (hash_hmac('sha1', $request, $this->secret) != $hash)
+		// Basic sanity check.
+		if (!$request->isValid())
 			return false;
 
 		// Ensure any non-ASCII characters in the URL are encoded correctly
-		$request = iri_to_url($request);
+		$request = $request->toAscii();
+
+		if (hash_hmac('sha1', $request, $this->secret) != $_GET['hash'])
+			return false;
 
 		// Attempt to cache the request if it doesn't exist
 		if (!$this->isCached($request))
@@ -240,8 +240,10 @@ class ProxyServer
 	 */
 	protected function cacheImage(string $request): bool
 	{
+		$request = new Url($request);
+
 		$dest = $this->getCachedPath($request);
-		$ext = strtolower(pathinfo(parse_iri($request, PHP_URL_PATH), PATHINFO_EXTENSION));
+		$ext = strtolower(pathinfo($request->path, PATHINFO_EXTENSION));
 
 		$image = fetch_web_data($request);
 
@@ -255,7 +257,9 @@ class ProxyServer
 
 		// SVG needs a little extra care
 		if ($ext == 'svg' && in_array($mime_type, array('text/plain', 'text/xml')) && strpos($image, '<svg') !== false && strpos($image, '</svg>') !== false)
+		{
 			$mime_type = 'image/svg+xml';
+		}
 
 		// Make sure the url is returning an image
 		if (strpos($mime_type, 'image/') !== 0)

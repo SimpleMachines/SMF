@@ -19,6 +19,7 @@ use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Theme;
+use SMF\Url;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
@@ -410,18 +411,21 @@ class SubsPackage
 	 */
 	public static function url_exists($url)
 	{
-		$a_url = parse_iri($url);
+		$url = new Url($url);
+		$url->toAscii();
 
-		if (!isset($a_url['scheme']))
+		if (!isset($url->scheme))
 			return false;
 
 		// Attempt to connect...
 		$temp = '';
-		$fid = fsockopen($a_url['host'], !isset($a_url['port']) ? 80 : $a_url['port'], $temp, $temp, 8);
+
+		$fid = fsockopen($url->host, !isset($url->port) ? 80 : $url->port, $temp, $temp, 8);
+
 		if (!$fid)
 			return false;
 
-		fputs($fid, 'HEAD ' . $a_url['path'] . ' HTTP/1.0' . "\r\n" . 'Host: ' . $a_url['host'] . "\r\n\r\n");
+		fputs($fid, 'HEAD ' . $url->path . ' HTTP/1.0' . "\r\n" . 'Host: ' . $url->host . "\r\n\r\n");
 		$head = fread($fid, 1024);
 		fclose($fid);
 
