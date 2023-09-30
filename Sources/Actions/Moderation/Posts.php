@@ -25,6 +25,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
 use SMF\Msg;
+use SMF\PageIndex;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Topic;
@@ -331,8 +332,10 @@ class Posts implements ActionInterface
 		// Limit to how many? (obey the user setting)
 		$limit = !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
 
-		Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=moderate;area=postmod;sa=' . Utils::$context['current_view'] . (isset($_REQUEST['brd']) ? ';brd=' . (int) $_REQUEST['brd'] : ''), $_GET['start'], Utils::$context['current_view'] == 'topics' ? Utils::$context['total_unapproved_topics'] : Utils::$context['total_unapproved_posts'], $limit);
-		Utils::$context['start'] = $_GET['start'];
+		// Must have a start value.
+		Utils::$context['start'] = $_GET['start'] ?? 0;
+
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=moderate;area=postmod;sa=' . Utils::$context['current_view'] . (isset($_REQUEST['brd']) ? ';brd=' . (int) $_REQUEST['brd'] : ''), Utils::$context['start'], Utils::$context['current_view'] == 'topics' ? Utils::$context['total_unapproved_topics'] : Utils::$context['total_unapproved_posts'], $limit);
 
 		// We have enough to make some pretty tabs!
 		$menu = Menu::$loaded['moderate'];

@@ -24,6 +24,7 @@ use SMF\ErrorHandler;
 use SMF\Event;
 use SMF\Lang;
 use SMF\Msg;
+use SMF\PageIndex;
 use SMF\Poll;
 use SMF\Security;
 use SMF\Theme;
@@ -858,7 +859,7 @@ class Display implements ActionInterface
 			$_REQUEST['start'] = -1;
 
 		// Construct the page index, allowing for the .START method...
-		Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?topic=' . Topic::$info->id . '.%1$d', $_REQUEST['start'], Topic::$info->total_visible_posts, Utils::$context['messages_per_page'], true);
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?topic=' . Topic::$info->id . '.%1$d', $_REQUEST['start'], Topic::$info->total_visible_posts, Utils::$context['messages_per_page'], true);
 
 		Utils::$context['start'] = $_REQUEST['start'];
 

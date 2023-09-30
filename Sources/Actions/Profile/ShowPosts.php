@@ -25,6 +25,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
 use SMF\Msg;
+use SMF\PageIndex;
 use SMF\Profile;
 use SMF\Theme;
 use SMF\User;
@@ -802,7 +803,7 @@ class ShowPosts implements ActionInterface
 		$max_index = $max_per_page;
 
 		// Make sure the starting place makes sense and construct our friend the page index.
-		Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=profile;u=' . Profile::$member->id . ';area=showposts' . ($is_topics ? ';sa=topics' : '') . (!empty(Board::$info->id) ? ';board=' . Board::$info->id : ''), Utils::$context['start'], $msg_count, $max_index);
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=profile;u=' . Profile::$member->id . ';area=showposts' . ($is_topics ? ';sa=topics' : '') . (!empty(Board::$info->id) ? ';board=' . Board::$info->id : ''), Utils::$context['start'], $msg_count, $max_index);
 
 		Utils::$context['current_page'] = Utils::$context['start'] / $max_index;
 

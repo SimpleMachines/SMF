@@ -21,6 +21,7 @@ use SMF\Category;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\PageIndex;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -326,7 +327,7 @@ class MessageIndex implements ActionInterface
 		{
 			// We can't pass start by reference.
 			$start = -1;
-			$pages = constructPageIndex(Config::$scripturl . '?topic=' . $row['id_topic'] . '.%1$d', $start, $row['num_replies'] + 1, Utils::$context['messages_per_page'], true, false);
+			$pages = new PageIndex(Config::$scripturl . '?topic=' . $row['id_topic'] . '.%1$d', $start, $row['num_replies'] + 1, Utils::$context['messages_per_page'], true, false);
 
 			// If we can use all, show all.
 			if (!empty(Config::$modSettings['enableAllMessages']) && $row['num_replies'] + 1 < Config::$modSettings['enableAllMessages'])
@@ -565,11 +566,11 @@ class MessageIndex implements ActionInterface
 		// Make sure the starting place makes sense and construct the page index.
 		if ($this->sort_by !== $this->sort_default || !$this->ascending_is_default)
 		{
-			Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?board=' . Board::$info->id . '.%1$d' . ($this->sort_default == $this->sort_by ? '' : ';sort=' . $this->sort_by) . ($this->ascending_is_default ? '' : ($this->ascending ? ';asc' : ';desc')), $_REQUEST['start'], Board::$info->total_topics, Utils::$context['maxindex'], true);
+			Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?board=' . Board::$info->id . '.%1$d' . ($this->sort_default == $this->sort_by ? '' : ';sort=' . $this->sort_by) . ($this->ascending_is_default ? '' : ($this->ascending ? ';asc' : ';desc')), $_REQUEST['start'], Board::$info->total_topics, Utils::$context['maxindex'], true);
 		}
 		else
 		{
-			Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?board=' . Board::$info->id . '.%1$d', $_REQUEST['start'], Board::$info->total_topics, Utils::$context['maxindex'], true);
+			Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?board=' . Board::$info->id . '.%1$d', $_REQUEST['start'], Board::$info->total_topics, Utils::$context['maxindex'], true);
 		}
 
 		Utils::$context['start'] = &$_REQUEST['start'];

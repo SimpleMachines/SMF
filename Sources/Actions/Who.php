@@ -18,6 +18,7 @@ use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\PageIndex;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -242,7 +243,7 @@ class Who implements ActionInterface
 		Db::$db->free_result($request);
 
 		// Prepare some page index variables.
-		Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=who;sort=' . Utils::$context['sort_by'] . (Utils::$context['sort_direction'] == 'up' ? ';asc' : '') . ';show=' . Utils::$context['show_by'], $_REQUEST['start'], $totalMembers, Config::$modSettings['defaultMaxMembers']);
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=who;sort=' . Utils::$context['sort_by'] . (Utils::$context['sort_direction'] == 'up' ? ';asc' : '') . ';show=' . Utils::$context['show_by'], $_REQUEST['start'], $totalMembers, Config::$modSettings['defaultMaxMembers']);
 
 		Utils::$context['start'] = $_REQUEST['start'];
 

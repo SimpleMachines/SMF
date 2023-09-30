@@ -21,6 +21,7 @@ use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Msg;
+use SMF\PageIndex;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -641,7 +642,7 @@ class Recent implements ActionInterface
 			'name' => Utils::$context['page_title'],
 		);
 
-		Utils::$context['page_index'] = constructPageIndex($this->action_url, Utils::$context['start'], $total, self::PER_PAGE, !empty(Board::$info->id));
+		Utils::$context['page_index'] = new PageIndex($this->action_url, Utils::$context['start'], $total, self::PER_PAGE, !empty(Board::$info->id));
 
 		Utils::$context['current_page'] = floor(Utils::$context['start'] / self::PER_PAGE);
 

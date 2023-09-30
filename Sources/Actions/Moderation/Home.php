@@ -20,6 +20,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\PageIndex;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
@@ -328,7 +329,7 @@ class Home implements ActionInterface
 		}
 
 		// Lets construct a page index.
-		Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=moderate;area=index;notes', $_GET['start'], $moderator_notes_total, 10);
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=moderate;area=index;notes', $_GET['start'], $moderator_notes_total, 10);
 		Utils::$context['start'] = $_GET['start'];
 
 		Utils::$context['notes'] = array();

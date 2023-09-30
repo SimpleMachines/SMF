@@ -25,6 +25,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Msg;
 use SMF\Mail;
+use SMF\PageIndex;
 use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
@@ -254,7 +255,7 @@ class TopicMerge implements ActionInterface
 		Db::$db->free_result($request);
 
 		// Make the page list.
-		Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=mergetopics;from=' . $_GET['from'] . ';targetboard=' . $_REQUEST['targetboard'] . ';board=' . Board::$info->id . '.%1$d', $_REQUEST['start'], $topiccount, Config::$modSettings['defaultMaxTopics'], true);
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=mergetopics;from=' . $_GET['from'] . ';targetboard=' . $_REQUEST['targetboard'] . ';board=' . Board::$info->id . '.%1$d', $_REQUEST['start'], $topiccount, Config::$modSettings['defaultMaxTopics'], true);
 
 		// Get the topic's subject.
 		$request = Db::$db->query('', '

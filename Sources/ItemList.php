@@ -360,7 +360,7 @@ class ItemList implements \ArrayAccess
 		if (empty($this->total_num_items) || $this->total_num_items <= $this->items_per_page)
 			return;
 
-		$this->page_index = constructPageIndex($this->options['base_href'] . (empty($this->sort) ? '' : ';' . $this->options['request_vars']['sort'] . '=' . $this->sort['id'] . ($this->sort['desc'] ? ';' . $this->options['request_vars']['desc'] : '')) . ($this->start_var_name != 'start' ? ';' . $this->start_var_name . '=%1$d' : ''), $this->start, $this->total_num_items, $this->items_per_page, $this->start_var_name != 'start');
+		$this->page_index = new PageIndex($this->options['base_href'] . (empty($this->sort) ? '' : ';' . $this->options['request_vars']['sort'] . '=' . $this->sort['id'] . ($this->sort['desc'] ? ';' . $this->options['request_vars']['desc'] : '')) . ($this->start_var_name != 'start' ? ';' . $this->start_var_name . '=%1$d' : ''), $this->start, $this->total_num_items, $this->items_per_page, $this->start_var_name != 'start');
 	}
 
 	/**

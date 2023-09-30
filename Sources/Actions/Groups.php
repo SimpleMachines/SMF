@@ -23,6 +23,7 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
+use SMF\PageIndex;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
@@ -421,7 +422,7 @@ class Groups implements ActionInterface
 		Utils::$context['total_members'] = $group->countMembers();
 
 		// Create the page index.
-		Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . $this->action_url . ';sa=members;group=' . $_REQUEST['group'] . ';sort=' . Utils::$context['sort_by'] . (isset($_REQUEST['desc']) ? ';desc' : ''), $_REQUEST['start'], Utils::$context['total_members'], Config::$modSettings['defaultMaxMembers']);
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . $this->action_url . ';sa=members;group=' . $_REQUEST['group'] . ';sort=' . Utils::$context['sort_by'] . (isset($_REQUEST['desc']) ? ';desc' : ''), $_REQUEST['start'], Utils::$context['total_members'], Config::$modSettings['defaultMaxMembers']);
 		Utils::$context['total_members'] = Lang::numberFormat(Utils::$context['total_members']);
 		Utils::$context['start'] = $_REQUEST['start'];
 		Utils::$context['can_moderate_forum'] = User::$me->allowedTo('moderate_forum');
