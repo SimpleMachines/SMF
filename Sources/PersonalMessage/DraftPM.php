@@ -19,6 +19,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Draft;
 use SMF\Lang;
+use SMF\PageIndex;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -229,7 +230,7 @@ class DraftPM extends Draft
 		$maxIndex = $maxPerPage;
 
 		// Make sure the starting place makes sense and construct our friend the page index.
-		Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=pm;sa=showpmdrafts', Utils::$context['start'], $msgCount, $maxIndex);
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=pm;sa=showpmdrafts', Utils::$context['start'], $msgCount, $maxIndex);
 		Utils::$context['current_page'] = Utils::$context['start'] / $maxIndex;
 
 		// Reverse the query if we're past 50% of the total for better performance.

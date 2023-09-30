@@ -20,6 +20,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\PageIndex;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
@@ -198,7 +199,7 @@ class ErrorLog implements ActionInterface
 		Utils::$context['sort_direction'] = isset($_REQUEST['desc']) ? 'down' : 'up';
 
 		// Set the page listing up.
-		Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=admin;area=logs;sa=errorlog' . (Utils::$context['sort_direction'] == 'down' ? ';desc' : '') . (isset($this->filter) ? $this->filter['href'] : ''), $_GET['start'], $num_errors, Config::$modSettings['defaultMaxListItems']);
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=admin;area=logs;sa=errorlog' . (Utils::$context['sort_direction'] == 'down' ? ';desc' : '') . (isset($this->filter) ? $this->filter['href'] : ''), $_GET['start'], $num_errors, Config::$modSettings['defaultMaxListItems']);
 
 		Utils::$context['start'] = $_GET['start'];
 

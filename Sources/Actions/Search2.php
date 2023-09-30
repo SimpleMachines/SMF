@@ -19,6 +19,7 @@ use SMF\Category;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\PageIndex;
 use SMF\Security;
 use SMF\Theme;
 use SMF\User;
@@ -363,7 +364,7 @@ class Search2 implements ActionInterface
 		);
 
 		// Now that we know how many results to expect we can start calculating the page numbers.
-		Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=search2;params=' . SearchApi::$loadedApi->compressParams(), $_REQUEST['start'], $this->num_results, Config::$modSettings['search_results_per_page'], false);
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=search2;params=' . SearchApi::$loadedApi->compressParams(), $_REQUEST['start'], $this->num_results, Config::$modSettings['search_results_per_page'], false);
 
 		Utils::$context['key_words'] = SearchApi::$loadedApi->searchArray;
 

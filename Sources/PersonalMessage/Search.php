@@ -18,6 +18,7 @@ use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\PageIndex;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -321,7 +322,7 @@ class Search
 		User::load(Utils::$context['posters']);
 
 		// Sort out the page index.
-		Utils::$context['page_index'] = constructPageIndex(
+		Utils::$context['page_index'] = new PageIndex(
 			Config::$scripturl . '?action=pm;sa=search2;params=' . $this->compressed_params,
 			$_GET['start'],
 			Utils::$context['num_results'],

@@ -16,6 +16,7 @@ namespace SMF\PersonalMessage;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\PageIndex;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -374,7 +375,7 @@ class Folder
 		}
 
 		// Set up the page index.
-		Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=pm;f=' . Utils::$context['folder'] . (isset($_REQUEST['l']) ? ';l=' . (int) $_REQUEST['l'] : '') . ';sort=' . Utils::$context['sort_by'] . ($this->descending ? ';desc' : ''), $_GET['start'], $max_messages, $this->per_page);
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=pm;f=' . Utils::$context['folder'] . (isset($_REQUEST['l']) ? ';l=' . (int) $_REQUEST['l'] : '') . ';sort=' . Utils::$context['sort_by'] . ($this->descending ? ';desc' : ''), $_GET['start'], $max_messages, $this->per_page);
 
 		Utils::$context['start'] = $_GET['start'];
 

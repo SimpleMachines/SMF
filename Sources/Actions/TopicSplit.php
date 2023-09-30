@@ -26,6 +26,7 @@ use SMF\Logging;
 use SMF\MessageIndex;
 use SMF\Msg;
 use SMF\Mail;
+use SMF\PageIndex;
 use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
@@ -440,10 +441,10 @@ class TopicSplit implements ActionInterface
 		}
 
 		// Build a page list of the not-selected topics...
-		Utils::$context['not_selected']['page_index'] = constructPageIndex(Config::$scripturl . '?action=splittopics;sa=selectTopics;subname=' . strtr(urlencode($_REQUEST['subname']), array('%' => '%%')) . ';topic=' . Topic::$topic_id . '.%1$d;start2=' . Utils::$context['selected']['start'], Utils::$context['not_selected']['start'], Utils::$context['not_selected']['num_messages'], Utils::$context['messages_per_page'], true);
+		Utils::$context['not_selected']['page_index'] = new PageIndex(Config::$scripturl . '?action=splittopics;sa=selectTopics;subname=' . strtr(urlencode($_REQUEST['subname']), array('%' => '%%')) . ';topic=' . Topic::$topic_id . '.%1$d;start2=' . Utils::$context['selected']['start'], Utils::$context['not_selected']['start'], Utils::$context['not_selected']['num_messages'], Utils::$context['messages_per_page'], true);
 
 		// ...and one of the selected topics.
-		Utils::$context['selected']['page_index'] = constructPageIndex(Config::$scripturl . '?action=splittopics;sa=selectTopics;subname=' . strtr(urlencode($_REQUEST['subname']), array('%' => '%%')) . ';topic=' . Topic::$topic_id . '.' . Utils::$context['not_selected']['start'] . ';start2=%1$d', Utils::$context['selected']['start'], Utils::$context['selected']['num_messages'], Utils::$context['messages_per_page'], true);
+		Utils::$context['selected']['page_index'] = new PageIndex(Config::$scripturl . '?action=splittopics;sa=selectTopics;subname=' . strtr(urlencode($_REQUEST['subname']), array('%' => '%%')) . ';topic=' . Topic::$topic_id . '.' . Utils::$context['not_selected']['start'] . ';start2=%1$d', Utils::$context['selected']['start'], Utils::$context['selected']['num_messages'], Utils::$context['messages_per_page'], true);
 
 		// Get the messages and stick them into an array.
 		$request = Db::$db->query('', '

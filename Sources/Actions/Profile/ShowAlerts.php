@@ -19,6 +19,7 @@ use SMF\Actions\ActionInterface;
 use SMF\Alert;
 use SMF\Config;
 use SMF\Lang;
+use SMF\PageIndex;
 use SMF\Profile;
 use SMF\Theme;
 use SMF\User;
@@ -114,7 +115,7 @@ class ShowAlerts implements ActionInterface
 		Utils::$context['showCheckboxes'] = !empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1;
 
 		// Create the pagination.
-		Utils::$context['pagination'] = constructPageIndex(Config::$scripturl . '?action=profile;area=showalerts;u=' . User::$me->id, Utils::$context['start'], User::$me->alerts, $maxIndex, false);
+		Utils::$context['pagination'] = new PageIndex(Config::$scripturl . '?action=profile;area=showalerts;u=' . User::$me->id, Utils::$context['start'], User::$me->alerts, $maxIndex, false);
 
 		// Set some JavaScript for checking all alerts at once.
 		if (Utils::$context['showCheckboxes'])

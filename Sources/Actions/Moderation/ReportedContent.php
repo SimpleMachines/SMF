@@ -24,6 +24,7 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
+use SMF\PageIndex;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
@@ -155,7 +156,7 @@ class ReportedContent implements ActionInterface
 		$total_reports = $this->countReports(Utils::$context['view_closed']);
 
 		// So, that means we can have pagination, yes?
-		Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=moderate;area=reported' . $this->type . ';sa=show', Utils::$context['start'], $total_reports, 10);
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=moderate;area=reported' . $this->type . ';sa=show', Utils::$context['start'], $total_reports, 10);
 
 		// Get the reports at once!
 		Utils::$context['reports'] = $this->getReports(Utils::$context['view_closed']);
@@ -205,7 +206,7 @@ class ReportedContent implements ActionInterface
 		$total_reports = $this->countReports(Utils::$context['view_closed']);
 
 		// So, that means we can have pagination, yes?
-		Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=moderate;area=reported' . $this->type . ';sa=closed', Utils::$context['start'], $total_reports, 10);
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=moderate;area=reported' . $this->type . ';sa=closed', Utils::$context['start'], $total_reports, 10);
 
 		// Get the reports at once!
 		Utils::$context['reports'] = $this->getReports(Utils::$context['view_closed']);

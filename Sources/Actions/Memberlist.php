@@ -19,6 +19,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\PageIndex;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -358,7 +359,7 @@ class Memberlist implements ActionInterface
 		Utils::$context['sort_direction'] = !isset($_REQUEST['desc']) ? 'up' : 'down';
 
 		// Construct the page index.
-		Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=mlist;sort=' . $_REQUEST['sort'] . (isset($_REQUEST['desc']) ? ';desc' : ''), $_REQUEST['start'], Utils::$context['num_members'], Config::$modSettings['defaultMaxMembers']);
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=mlist;sort=' . $_REQUEST['sort'] . (isset($_REQUEST['desc']) ? ';desc' : ''), $_REQUEST['start'], Utils::$context['num_members'], Config::$modSettings['defaultMaxMembers']);
 
 		// Send the data to the template.
 		Utils::$context['start'] = $_REQUEST['start'] + 1;
@@ -601,7 +602,7 @@ class Memberlist implements ActionInterface
 			list ($numResults) = Db::$db->fetch_row($request);
 			Db::$db->free_result($request);
 
-			Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=mlist;sa=search;search=' . urlencode($_POST['search']) . ';fields=' . implode(',', $_POST['fields']), $_REQUEST['start'], $numResults, Config::$modSettings['defaultMaxMembers']);
+			Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=mlist;sa=search;search=' . urlencode($_POST['search']) . ';fields=' . implode(',', $_POST['fields']), $_REQUEST['start'], $numResults, Config::$modSettings['defaultMaxMembers']);
 
 			$custom_fields_qry = '';
 			if (array_search($_REQUEST['sort'], $_POST['fields']) === false && !empty(Utils::$context['custom_profile_fields']['join'][$_REQUEST['sort']]))

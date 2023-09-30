@@ -16,6 +16,7 @@ namespace SMF\Actions;
 use SMF\BackwardCompatibility;
 
 use SMF\Config;
+use SMF\PageIndex;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -101,7 +102,7 @@ class FindMember implements ActionInterface
 			Utils::$context['results'] = User::find(array($_REQUEST['search']), true, Utils::$context['buddy_search']);
 			$total_results = count(Utils::$context['results']);
 
-			Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=findmember;search=' . Utils::$context['last_search'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';input=' . Utils::$context['input_box_name'] . (Utils::$context['quote_results'] ? ';quote=1' : '') . (Utils::$context['buddy_search'] ? ';buddies' : ''), $_REQUEST['start'], $total_results, 7);
+			Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=findmember;search=' . Utils::$context['last_search'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';input=' . Utils::$context['input_box_name'] . (Utils::$context['quote_results'] ? ';quote=1' : '') . (Utils::$context['buddy_search'] ? ';buddies' : ''), $_REQUEST['start'], $total_results, 7);
 
 			// Determine the navigation context.
 			$base_url = Config::$scripturl . '?action=findmember;search=' . urlencode(Utils::$context['last_search']) . (empty($_REQUEST['u']) ? '' : ';u=' . $_REQUEST['u']) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];

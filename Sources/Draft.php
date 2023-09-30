@@ -465,7 +465,7 @@ class Draft
 		$maxIndex = $maxPerPage;
 
 		// Make sure the starting place makes sense and construct our friend the page index.
-		Utils::$context['page_index'] = constructPageIndex(Config::$scripturl . '?action=profile;u=' . $memID . ';area=showdrafts', Utils::$context['start'], $msgCount, $maxIndex);
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=profile;u=' . $memID . ';area=showdrafts', Utils::$context['start'], $msgCount, $maxIndex);
 		Utils::$context['current_page'] = Utils::$context['start'] / $maxIndex;
 
 		// Reverse the query if we're past 50% of the pages for better performance.
