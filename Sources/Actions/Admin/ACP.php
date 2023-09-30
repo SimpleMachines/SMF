@@ -24,6 +24,7 @@ use SMF\Mail;
 use SMF\Menu;
 use SMF\SecurityToken;
 use SMF\Theme;
+use SMF\Url;
 use SMF\User;
 use SMF\Utils;
 use SMF\Actions\MessageIndex;
@@ -1146,7 +1147,7 @@ class ACP implements ActionInterface
 				$_POST['boardurl'] = 'http://' . $_POST['boardurl'];
 			}
 
-			$_POST['boardurl'] = normalize_iri($_POST['boardurl']);
+			$_POST['boardurl'] = (string) new Url($_POST['boardurl'], true);
 		}
 
 		// Any passwords?

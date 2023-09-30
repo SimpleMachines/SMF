@@ -496,36 +496,37 @@ class Cookie
 	 */
 	public static function urlParts($local, $global)
 	{
-		// Parse the URL with PHP to make life easier.
-		$parsed_url = parse_iri(Config::$boardurl);
+		// Use the Url class to make life easier.
+		$url = new Url(Config::$boardurl);
 
 		// Are local cookies off?
-		if (empty($parsed_url['path']) || !$local)
-			$parsed_url['path'] = '';
+		$path = empty($url->path) || !$local ? '' : $url->path;
+
+		$host = $url->host;
 
 		// Manually specified the global domain.
 		// @todo Why doesn't this check whether $global is true?
 		if (!empty(Config::$modSettings['globalCookiesDomain']) && strpos(Config::$boardurl, Config::$modSettings['globalCookiesDomain']) !== false)
 		{
-			$parsed_url['host'] = Config::$modSettings['globalCookiesDomain'];
+			$host = Config::$modSettings['globalCookiesDomain'];
 		}
 		// Globalize cookies across domains? (filter out IP-addresses)
-		elseif ($global && preg_match('~^\d{1,3}(\.\d{1,3}){3}$~', $parsed_url['host']) == 0 && preg_match('~(?:[^\.]+\.)?([^\.]{2,}\..+)\z~i', $parsed_url['host'], $parts) == 1)
+		elseif ($global && preg_match('~^\d{1,3}(\.\d{1,3}){3}$~', $host) == 0 && preg_match('~(?:[^\.]+\.)?([^\.]{2,}\..+)\z~i', $host, $parts) == 1)
 		{
-			$parsed_url['host'] = '.' . $parts[1];
+			$host = '.' . $parts[1];
 		}
 		// We shouldn't use a host at all if both options are off.
 		elseif (!$local && !$global)
 		{
-			$parsed_url['host'] = '';
+			$host = '';
 		}
 		// The host also shouldn't be set if there aren't any dots in it.
-		elseif (!isset($parsed_url['host']) || strpos($parsed_url['host'], '.') === false)
+		elseif (!isset($host) || strpos($host, '.') === false)
 		{
-			$parsed_url['host'] = '';
+			$host = '';
 		}
 
-		return array($parsed_url['host'], $parsed_url['path'] . '/');
+		return array($host, $path . '/');
 	}
 
 	/**

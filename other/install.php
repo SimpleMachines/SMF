@@ -18,6 +18,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Security;
 use SMF\TaskRunner;
+use SMF\Url;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -1011,16 +1012,17 @@ function ForumSettings()
 	$incontext['ssl_chkbx_protected'] = false;
 	$incontext['ssl_chkbx_checked'] = false;
 
-	// If redirect in effect, force ssl ON
-	require_once(Config::$boarddir . '/Sources/Subs.php');
-	if (https_redirect_active($incontext['detected_url']))
+	// If redirect in effect, force SSL ON.
+	$url = new Url($incontext['detected_url']);
+
+	if ($url->redirectsToHttps())
 	{
 		$incontext['ssl_chkbx_protected'] = true;
 		$incontext['ssl_chkbx_checked'] = true;
 		$_POST['force_ssl'] = true;
 	}
-	// If no cert, make sure ssl stays OFF
-	if (!ssl_cert_found($incontext['detected_url']))
+	// If no cert, make sure SSL stays OFF.
+	if (!$url->hasSSL())
 	{
 		$incontext['ssl_chkbx_protected'] = true;
 		$incontext['ssl_chkbx_checked'] = false;
@@ -1044,7 +1046,7 @@ function ForumSettings()
 
 		// Make sure international domain names are normalized correctly.
 		if (Lang::$txt['lang_character_set'] == 'UTF-8')
-			$_POST['boardurl'] = normalize_iri($_POST['boardurl']);
+			$_POST['boardurl'] = (string) new Url($_POST['boardurl'], true);
 
 		// Deal with different operating systems' directory structure...
 		$path = rtrim(str_replace(DIRECTORY_SEPARATOR, '/', __DIR__), '/');

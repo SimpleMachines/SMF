@@ -1976,18 +1976,20 @@ class BBCodeParser
 
 			if (!empty($src))
 			{
+				$src = new Url($src);
+
 				// Attempt to fix the path in case it's not present.
-				if (preg_match('~^https?://~i', $src) === 0 && is_array($parsedURL = parse_iri(Config::$scripturl)) && isset($parsedURL['host']))
+				if (in_array($src->scheme, array('http', 'https')) && isset($src->host))
 				{
-					$baseURL = (isset($parsedURL['scheme']) ? $parsedURL['scheme'] : 'http') . '://' . $parsedURL['host'] . (empty($parsedURL['port']) ? '' : ':' . $parsedURL['port']);
+					$base_url = (isset($src->scheme) ? $src->scheme : 'http') . '://' . $src->host . (empty($src->port) ? '' : ':' . $src->port);
 
 					if (substr($src, 0, 1) === '/')
 					{
-						$src = $baseURL . $src;
+						$src = $base_url . $src;
 					}
 					else
 					{
-						$src = $baseURL . (empty($parsedURL['path']) ? '/' : preg_replace('~/(?:index\\.php)?$~', '', $parsedURL['path'])) . '/' . $src;
+						$src = $base_url . (empty($src->path) ? '/' : preg_replace('~/(?:index\\.php)?$~', '', $src->path)) . '/' . $src;
 					}
 				}
 
@@ -2193,31 +2195,32 @@ class BBCodeParser
 			{
 				if ($attrib == 'href')
 				{
-					$href = trim($value);
+					$href = new Url(trim($value));
+					$our_url = new Url(Config::$boardurl);
 
 					// Are we dealing with an FTP link?
-					if (preg_match('~^ftps?://~', $href) === 1)
+					if (in_array($href->scheme, array('ftp', 'ftps')))
 					{
 						$tag_type = 'ftp';
 					}
 					// Or is this a link to an email address?
-					elseif (substr($href, 0, 7) == 'mailto:')
+					elseif ($href->scheme == 'mailto')
 					{
 						$tag_type = 'email';
-						$href = substr($href, 7);
+						$href = $href->path;
 					}
 					// No http(s), so attempt to fix this potential relative URL.
-					elseif (preg_match('~^https?://~i', $href) === 0 && is_array($parsedURL = parse_iri(Config::$scripturl)) && isset($parsedURL['host']))
+					elseif (!in_array($href->scheme, array('http', 'https')) && isset($our_url->host))
 					{
-						$baseURL = (isset($parsedURL['scheme']) ? $parsedURL['scheme'] : 'http') . '://' . $parsedURL['host'] . (empty($parsedURL['port']) ? '' : ':' . $parsedURL['port']);
+						$base_url = ($our_url->scheme ?? 'http') . '://' . $our_url->host . (empty($our_url->port) ? '' : ':' . $our_url->port);
 
 						if (substr($href, 0, 1) === '/')
 						{
-							$href = $baseURL . $href;
+							$href = $base_url . $href;
 						}
 						else
 						{
-							$href = $baseURL . (empty($parsedURL['path']) ? '/' : preg_replace('~/(?:index\\.php)?$~', '', $parsedURL['path'])) . '/' . $href;
+							$href = $base_url . '/' . trim($our_url->path, '/') . '/' . $href;
 						}
 					}
 				}
@@ -2645,16 +2648,14 @@ class BBCodeParser
 	 */
 	public static function flashValidate(&$tag, &$data, $disabled, $params): void
 	{
-		$data[0] = normalize_iri(strtr(trim($data[0]), array('<br>' => '', ' ' => '%20')));
+		$data[0] = new Url(strtr(trim($data[0]), array('<br>' => '', ' ' => '%20')), true);
 
-		$scheme = parse_iri($data[0], PHP_URL_SCHEME);
+		if (empty($data[0]->scheme))
+			$data[0] = new Url('//' . ltrim($data[0], ':/'));
 
-		if (empty($scheme))
-			$data[0] = '//' . ltrim($data[0], ':/');
+		$ascii_url = (clone $data[0])->toAscii();
 
-		$ascii_url = iri_to_url($data[0]);
-
-		if ($ascii_url !== $data[0])
+		if ((string) $ascii_url !== (string) $data[0])
 			$tag['content'] = str_replace('href="$1"', 'href="' . $ascii_url . '"', $tag['content']);
 	}
 
@@ -2692,23 +2693,21 @@ class BBCodeParser
 	 */
 	public static function ftpValidate(&$tag, &$data, $disabled, $params): void
 	{
-		$data = normalize_iri(strtr(trim($data), array('<br>' => '', ' ' => '%20')));
+		$data = new Url(strtr(trim($data), array('<br>' => '', ' ' => '%20')), true);
 
-		$scheme = parse_iri($data, PHP_URL_SCHEME);
-
-		if (empty($scheme))
-			$data = 'ftp://' . ltrim($data, ':/');
+		if (empty($data->scheme))
+			$data = new Url('ftp://' . ltrim($data, ':/'));
 
 		if (isset($tag['content']))
 		{
-			$ascii_url = iri_to_url($data);
+			$ascii_url = (clone $data)->toAscii();
 
-			if ($ascii_url !== $data)
+			if ((string) $ascii_url !== (string) $data)
 				$tag['content'] = str_replace('href="$1"', 'href="' . $ascii_url . '"', $tag['content']);
 		}
 		else
 		{
-			$data = iri_to_url($data);
+			$data->toAscii();
 		}
 	}
 
@@ -2722,15 +2721,16 @@ class BBCodeParser
 	 */
 	public static function imgValidate(&$tag, &$data, $disabled, $params): void
 	{
-		$url = iri_to_url(strtr(trim($data), array('<br>' => '', ' ' => '%20')));
+		$url = new Url(strtr(trim($data), array('<br>' => '', ' ' => '%20')), true);
+		$url->toAscii();
 
-		if (parse_iri($url, PHP_URL_SCHEME) === null)
+		if (!isset($url->scheme))
 		{
-			$url = '//' . ltrim($url, ':/');
+			$url = new Url('//' . ltrim($url, ':/'));
 		}
 		else
 		{
-			$url = get_proxied_url($url);
+			$url = $url->proxied();
 		}
 
 		$alt = !empty($params['{alt}']) ? ' alt="' . $params['{alt}']. '"' : ' alt=""';
@@ -2751,16 +2751,14 @@ class BBCodeParser
 	{
 		if ($tag['type'] === 'unparsed_content')
 		{
-			$data = normalize_iri(strtr(trim($data), array('<br>' => '', ' ' => '%20')));
+			$data = new Url(strtr(trim($data), array('<br>' => '', ' ' => '%20')), true);
 
-			$scheme = parse_iri($data, PHP_URL_SCHEME);
+			if (empty($data->scheme))
+				$data = new Url('//' . ltrim($data, ':/'));
 
-			if (empty($scheme))
-				$data = '//' . ltrim($data, ':/');
+			$ascii_url = (clone $data)->toAscii();
 
-			$ascii_url = iri_to_url($data);
-
-			if ($ascii_url !== $data)
+			if ((string) $ascii_url !== (string) $data)
 				$tag['content'] = str_replace('href="$1"', 'href="' . $ascii_url . '"', $tag['content']);
 		}
 		else
@@ -2771,11 +2769,10 @@ class BBCodeParser
 			}
 			else
 			{
-				$data = iri_to_url(strtr(trim($data), array('<br>' => '', ' ' => '%20')));
+				$data = new Url(strtr(trim($data), array('<br>' => '', ' ' => '%20')), true);
+				$data->toAscii();
 
-				$scheme = parse_iri($data, PHP_URL_SCHEME);
-
-				if (empty($scheme))
+				if (empty($data->scheme))
 					$data = '//' . ltrim($data, ':/');
 			}
 		}
@@ -3055,50 +3052,58 @@ class BBCodeParser
 						$url = array_shift($matches);
 
 						// If this isn't a clean URL, bail out
-						if ($url != sanitize_iri($url))
+						if ($url !== (string) Url::create($url)->sanitize())
 							return $url;
 
 						// Ensure the host name is in its canonical form.
-						$url = normalize_iri($url);
+						$url = new Url($url, true);
 
-						$parsedurl = parse_iri($url);
+						if (!isset($url->scheme))
+							$url->scheme = '';
 
-						if (!isset($parsedurl['scheme']))
-							$parsedurl['scheme'] = '';
-
-						if ($parsedurl['scheme'] == 'mailto')
+						if ($url->scheme == 'mailto')
 						{
 							if (isset($this->disabled['email']))
 								return $url;
 
 							// Is this version of PHP capable of validating this email address?
-							$can_validate = defined('FILTER_FLAG_EMAIL_UNICODE') || strlen($parsedurl['path']) == strspn(strtolower($parsedurl['path']), 'abcdefghijklmnopqrstuvwxyz0123456789!#$%&\'*+-/=?^_`{|}~.@');
+							$can_validate = defined('FILTER_FLAG_EMAIL_UNICODE') || strlen($url->path) == strspn(strtolower($url->path), 'abcdefghijklmnopqrstuvwxyz0123456789!#$%&\'*+-/=?^_`{|}~.@');
 
 							$flags = defined('FILTER_FLAG_EMAIL_UNICODE') ? FILTER_FLAG_EMAIL_UNICODE : null;
 
-							if (!$can_validate || filter_var($parsedurl['path'], FILTER_VALIDATE_EMAIL, $flags) !== false)
-								return '[email=' . str_replace('mailto:', '', $url) . ']' . $url . '[/email]';
+							if (!$can_validate || filter_var($url->path, FILTER_VALIDATE_EMAIL, $flags) !== false)
+							{
+								return '[email=' . $url->path . ']' . $url . '[/email]';
+							}
 							else
+							{
 								return $url;
+							}
 						}
 
 						// Are we linking a schemeless URL or naked domain name (e.g. "example.com")?
-						if (empty($parsedurl['scheme']))
+						if (empty($url->scheme))
 						{
-							$full_url = '//' . ltrim($url, ':/');
+							$full_url = new Url('//' . ltrim($url, ':/'));
 						}
 						else
 						{
-							$full_url = $url;
+							$full_url = clone $url;
 						}
 
 						// Make sure that $full_url really is valid
-						if (in_array($parsedurl['scheme'], self::$schemes['forbidden']) || (!in_array($parsedurl['scheme'], self::$schemes['no_authority']) && validate_iri((strpos($full_url, '//') === 0 ? 'http:' : '') . $full_url) === false))
+						if (
+							in_array($url->scheme, self::$schemes['forbidden'])
+							|| (
+								!in_array($url->scheme, self::$schemes['no_authority'])
+								&& !$full_url->isValid()
+							)
+						)
 						{
 							return $url;
 						}
 
-						return '[url=&quot;' . str_replace(array('[', ']'), array('&#91;', '&#93;'), iri_to_url($full_url)) . '&quot;]' . $url . '[/url]';
+						return '[url=&quot;' . str_replace(array('[', ']'), array('&#91;', '&#93;'), $full_url->toAscii()) . '&quot;]' . $url . '[/url]';
 					},
 					$data
 				);
@@ -3686,7 +3691,7 @@ class BBCodeParser
 	{
 		if (!isset($this->tld_regex))
 		{
-			set_tld_regex();
+			Url::setTldRegex();
 			$this->tld_regex = Config::$modSettings['tld_regex'];
 		}
 	}
@@ -3711,8 +3716,8 @@ class BBCodeParser
 				{
 					if (!isset($this->hosturl))
 					{
-						$scripturl_parts = parse_iri(Config::$scripturl);
-						$this->hosturl = $scripturl_parts['scheme'] . '://' . $scripturl_parts['host'];
+						$our_url = new Url(Config::$scripturl);
+						$this->hosturl = $our_url->scheme . '://' . $our_url->host;
 					}
 
 					return $this->hosturl;

@@ -26,6 +26,7 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\SecurityToken;
 use SMF\Theme;
+use SMF\Url;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -782,7 +783,7 @@ class Boards implements ActionInterface
 			}
 
 			// Are they doing redirection?
-			$boardOptions['redirect'] = !empty($_POST['redirect_enable']) && isset($_POST['redirect_address']) && trim($_POST['redirect_address']) != '' ? normalize_iri(trim($_POST['redirect_address'])) : '';
+			$boardOptions['redirect'] = !empty($_POST['redirect_enable']) && isset($_POST['redirect_address']) && trim($_POST['redirect_address']) != '' ? (string) new Url(trim($_POST['redirect_address']), true) : '';
 
 			// Profiles...
 			$boardOptions['profile'] = $_POST['profile'] == -1 ? 1 : $_POST['profile'];

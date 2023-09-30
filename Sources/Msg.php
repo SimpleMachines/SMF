@@ -1138,7 +1138,7 @@ class Msg implements \ArrayAccess
 					break;
 			}
 
-			$current_protocol = strtolower(parse_iri($replace, PHP_URL_SCHEME) ?? "");
+			$current_protocol = strtolower(Url::create($replace)->scheme ?? '');
 
 			if (in_array($current_protocol, $forbidden_protocols))
 			{

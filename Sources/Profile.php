@@ -1013,7 +1013,7 @@ class Profile extends User implements \ArrayAccess
 					if (strlen($value) < 8 || (substr($value, 0, 7) !== 'http://' && substr($value, 0, 8) !== 'https://'))
 						$value = '';
 
-					$value = (string) validate_iri(normalize_iri($value));
+					$value = Url::create($value, true)->validate()->toUtf8();
 
 					return true;
 				},

@@ -23,6 +23,7 @@ use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
+use SMF\Url;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -245,6 +246,14 @@ class Feed implements ActionInterface
 		'lowest' => 'm.id_msg >= 0',
 	);
 
+	/**
+	 * @var string
+	 *
+	 * Host extracted from $scripturl.
+	 * Used to generate globally unique identifiers.
+	 */
+	protected string $host = '';
+
 	/****************************
 	 * Internal static properties
 	 ****************************/
@@ -270,6 +279,8 @@ class Feed implements ActionInterface
 	 */
 	public function __construct(string $subaction = null, int $member = null)
 	{
+		$this->host = Url::create(Config::$scripturl)->host;
+
 		// Easy adding of sub actions
 		call_integration_hook('integrate_xmlfeeds', array(&self::$subactions));
 
@@ -596,7 +607,7 @@ class Feed implements ActionInterface
 			$row = filter_var($row, FILTER_CALLBACK, array('options' => 'cleanXml'));
 
 			// Create a GUID for each member using the tag URI scheme
-			$guid = 'tag:' . parse_iri(Config::$scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['date_registered']) . ':member=' . $row['id_member'];
+			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', $row['date_registered']) . ':member=' . $row['id_member'];
 
 			// Make the data look rss-ish.
 			if ($this->format == 'rss' || $this->format == 'rss2')
@@ -837,7 +848,7 @@ class Feed implements ActionInterface
 			}
 
 			// Create a GUID for this topic using the tag URI scheme
-			$guid = 'tag:' . parse_iri(Config::$scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['poster_time']) . ':topic=' . $row['id_topic'];
+			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', $row['poster_time']) . ':topic=' . $row['id_topic'];
 
 			// Being news, this actually makes sense in rss format.
 			if ($this->format == 'rss' || $this->format == 'rss2')
@@ -1286,7 +1297,7 @@ class Feed implements ActionInterface
 			}
 
 			// Create a GUID for this post using the tag URI scheme
-			$guid = 'tag:' . parse_iri(Config::$scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['poster_time']) . ':msg=' . $row['id_msg'];
+			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', $row['poster_time']) . ':msg=' . $row['id_msg'];
 
 			// Doesn't work as well as news, but it kinda does..
 			if ($this->format == 'rss' || $this->format == 'rss2')
@@ -1666,7 +1677,7 @@ class Feed implements ActionInterface
 		$profile = filter_var($profile, FILTER_CALLBACK, array('options' => 'cleanXml'));
 
 		// Create a GUID for this member using the tag URI scheme
-		$guid = 'tag:' . parse_iri(Config::$scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $profile['registered_timestamp']) . ':member=' . $profile['id'];
+		$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', $profile['registered_timestamp']) . ':member=' . $profile['id'];
 
 		if ($this->format == 'rss' || $this->format == 'rss2')
 		{
@@ -2074,7 +2085,7 @@ class Feed implements ActionInterface
 			}
 
 			// Create a GUID for this post using the tag URI scheme
-			$guid = 'tag:' . parse_iri(Config::$scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['poster_time']) . ':msg=' . $row['id_msg'];
+			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', $row['poster_time']) . ':msg=' . $row['id_msg'];
 
 			if ($this->format == 'rss' || $this->format == 'rss2')
 			{
@@ -2511,7 +2522,7 @@ class Feed implements ActionInterface
 			$recipients = array_combine(explode(',', $row['id_members_to']), explode($separator, $row['to_names']));
 
 			// Create a GUID for this post using the tag URI scheme
-			$guid = 'tag:' . parse_iri(Config::$scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['msgtime']) . ':pm=' . $row['id_pm'];
+			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', $row['msgtime']) . ':pm=' . $row['id_pm'];
 
 			if ($this->format == 'rss' || $this->format == 'rss2')
 			{
