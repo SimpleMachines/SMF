@@ -2288,8 +2288,8 @@ class Attachments implements ActionInterface
 		$testImg = get_extension_funcs('gd') || class_exists('Imagick') || get_extension_funcs('MagickWand');
 
 		// See if we can find if the server is set up to support the attachment limits
-		$post_max_kb = floor(memoryReturnBytes(ini_get('post_max_size')) / 1024);
-		$file_max_kb = floor(memoryReturnBytes(ini_get('upload_max_filesize')) / 1024);
+		$post_max_kb = floor(Config::memoryReturnBytes(ini_get('post_max_size')) / 1024);
+		$file_max_kb = floor(Config::memoryReturnBytes(ini_get('upload_max_filesize')) / 1024);
 
 		$config_vars = array(
 			array('title', 'attachment_manager_settings'),

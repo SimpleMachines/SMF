@@ -575,7 +575,7 @@ class Image
 		// doing the old 'set it and hope' way?
 		if (empty(Config::$modSettings['attachment_thumb_memory']))
 		{
-			setMemoryLimit('128M');
+			Config::setMemoryLimit('128M');
 			return true;
 		}
 
@@ -587,7 +587,7 @@ class Image
 		$needed_memory = ($sizes[0] * $sizes[1] * 5);
 
 		// if we need more, lets try to get it
-		return setMemoryLimit($needed_memory, true);
+		return Config::setMemoryLimit($needed_memory, true);
 	}
 
 	/**

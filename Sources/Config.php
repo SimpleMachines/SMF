@@ -1006,6 +1006,10 @@ class Config
 			eval('function smf_var_export(...$args) { return ' . __CLASS__ . '::varExport(...$args); }');
 			eval('function updateDbLastError(...$args) { return ' . __CLASS__ . '::updateDbLastError(...$args); }');
 			eval('function sm_temp_dir() { return ' . __CLASS__ . '::getTempDir(); }');
+			eval('function setMemoryLimit(...$args) { return ' . __CLASS__ . '::setMemoryLimit(...$args); }');
+			eval('function memoryReturnBytes(...$args) { return ' . __CLASS__ . '::memoryReturnBytes(...$args); }');
+			eval('function smf_seed_generator() { return ' . __CLASS__ . '::generateSeed(); }');
+			eval('function check_cron() {return ' . __CLASS__ . '::checkCron(); }');
 
 			self::$exported = true;
 		}
@@ -1193,8 +1197,8 @@ class Config
 		}
 
 		// Respect PHP's limits.
-		$post_max_kb = floor(memoryReturnBytes(ini_get('post_max_size')) / 1024);
-		$file_max_kb = floor(memoryReturnBytes(ini_get('upload_max_filesize')) / 1024);
+		$post_max_kb = floor(self::memoryReturnBytes(ini_get('post_max_size')) / 1024);
+		$file_max_kb = floor(self::memoryReturnBytes(ini_get('upload_max_filesize')) / 1024);
 		self::$modSettings['attachmentPostLimit'] = empty(self::$modSettings['attachmentPostLimit']) ? $post_max_kb : min(self::$modSettings['attachmentPostLimit'], $post_max_kb);
 		self::$modSettings['attachmentSizeLimit'] = empty(self::$modSettings['attachmentSizeLimit']) ? $file_max_kb : min(self::$modSettings['attachmentSizeLimit'], $file_max_kb);
 		self::$modSettings['attachmentNumPerPostLimit'] = !isset(self::$modSettings['attachmentNumPerPostLimit']) ? 4 : self::$modSettings['attachmentNumPerPostLimit'];
@@ -3027,6 +3031,132 @@ class Config
 
 		return self::$temp_dir;
 	}
+
+	/**
+	 * Helper function to set the system memory to a needed value.
+	 *
+	 * - If the needed memory is greater than current, will attempt to get more.
+	 * - If $in_use is set to true, will also try to take the current memory
+	 *   usage in to account.
+	 *
+	 * @param string $needed The amount of memory to request. E.g.: '256M'.
+	 * @param bool $in_use Set to true to account for current memory usage.
+	 * @return bool Whether we have the needed amount memory.
+	 */
+	public static function setMemoryLimit(string $needed, bool $in_use = false): bool
+	{
+		// Everything in bytes.
+		$memory_current = self::memoryReturnBytes(ini_get('memory_limit'));
+		$memory_needed = self::memoryReturnBytes($needed);
+
+		// Should we account for how much is currently being used?
+		if ($in_use)
+			$memory_needed += memory_get_usage();
+
+		// If more is needed, request it.
+		if ($memory_current < $memory_needed)
+		{
+			@ini_set('memory_limit', ceil($memory_needed / 1048576) . 'M');
+			$memory_current = self::memoryReturnBytes(ini_get('memory_limit'));
+		}
+
+		$memory_current = max($memory_current, self::memoryReturnBytes(get_cfg_var('memory_limit')));
+
+		// Return success or not.
+		return (bool) ($memory_current >= $memory_needed);
+	}
+
+	/**
+	 * Helper function to convert memory string settings to bytes
+	 *
+	 * @param string $val The byte string, like '256M' or '1G'.
+	 * @return integer The string converted to a proper integer in bytes.
+	 */
+	public static function memoryReturnBytes(string $val): int
+	{
+		if (is_integer($val))
+			return $val;
+
+		// Separate the number from the designator.
+		$val = trim($val);
+		$num = intval(substr($val, 0, strlen($val) - 1));
+		$last = strtolower(substr($val, -1));
+
+		// Convert to bytes.
+		switch ($last)
+		{
+			case 'g':
+				$num *= 1024;
+			case 'm':
+				$num *= 1024;
+			case 'k':
+				$num *= 1024;
+		}
+
+		return $num;
+	}
+
+	/**
+	 * Check if the connection is using HTTPS.
+	 *
+	 * @return bool Whether the connection is using HTTPS.
+	 */
+	public static function httpsOn(): bool
+	{
+		return ($_SERVER['HTTPS'] ?? null) == 'on' || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null) == 'https' || ($_SERVER['HTTP_X_FORWARDED_SSL'] ?? null) == 'on';
+	}
+
+	/**
+	 * Generate a random seed and ensure it's stored in settings.
+	 *
+	 * @deprecated since 3.0
+	 *
+	 * This only exists for backward compatibility with mods that might use the
+	 * generated value.
+	 */
+	public static function generateSeed(): void
+	{
+		self::updateModSettings(array('rand_seed' => Utils::randomInt(0, 2**31 - 1)));
+	}
+
+	/**
+	 * Ensures SMF's scheduled tasks are being run as intended
+	 *
+	 * If the admin activated the cron_is_real_cron setting, but the cron job is
+	 * not running things at least once per day, we need to go back to SMF's default
+	 * behaviour using "web cron" JavaScript calls.
+	 */
+	public static function checkCron()
+	{
+		if (!empty(self::$modSettings['cron_is_real_cron']) && time() - @intval(self::$modSettings['cron_last_checked']) > 84600)
+		{
+			$request = Db\DatabaseApi::$db->query('', '
+				SELECT COUNT(*)
+				FROM {db_prefix}scheduled_tasks
+				WHERE disabled = {int:not_disabled}
+					AND next_time < {int:yesterday}',
+				array(
+					'not_disabled' => 0,
+					'yesterday' => time() - 84600,
+				)
+			);
+			list($overdue) = Db\DatabaseApi::$db->fetch_row($request);
+			Db\DatabaseApi::$db->free_result($request);
+
+			// If we have tasks more than a day overdue, cron isn't doing its job.
+			if (!empty($overdue))
+			{
+				Lang::load('ManageScheduledTasks');
+				ErrorHandler::log(Lang::$txt['cron_not_working']);
+				self::updateModSettings(array('cron_is_real_cron' => 0));
+			}
+			else
+			{
+				self::updateModSettings(array('cron_last_checked' => time()));
+			}
+		}
+	}
+
 }
 
 ?>

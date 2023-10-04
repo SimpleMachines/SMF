@@ -124,7 +124,7 @@ class Register2 extends Register
 		SecurityToken::validate('register');
 
 		// Check to ensure we're forcing SSL for authentication
-		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !httpsOn())
+		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Config::httpsOn())
 			ErrorHandler::fatalLang('register_ssl_required');
 
 		// You can't register if it's disabled.

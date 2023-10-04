@@ -804,7 +804,7 @@ class RepairBoards implements ActionInterface
 		User::$me->isAllowedTo('admin_forum');
 
 		// Try to secure more memory.
-		setMemoryLimit('128M');
+		Config::setMemoryLimit('128M');
 
 		// Start displaying errors without fixing them.
 		if (isset($_GET['fixErrors']))
@@ -1206,7 +1206,7 @@ class RepairBoards implements ActionInterface
 			$return = false;
 		}
 		// Try to stay under our memory limit.
-		elseif ((memory_get_usage() + 65536) > memoryReturnBytes(ini_get('memory_limit')))
+		elseif ((memory_get_usage() + 65536) > Config::memoryReturnBytes(ini_get('memory_limit')))
 		{
 			$return = false;
 		}

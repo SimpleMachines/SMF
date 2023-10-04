@@ -704,67 +704,6 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 }
 
 /**
- * Helper function to set the system memory to a needed value
- * - If the needed memory is greater than current, will attempt to get more
- * - if in_use is set to true, will also try to take the current memory usage in to account
- *
- * @param string $needed The amount of memory to request, if needed, like 256M
- * @param bool $in_use Set to true to account for current memory usage of the script
- * @return boolean True if we have at least the needed memory
- */
-function setMemoryLimit($needed, $in_use = false)
-{
-	// everything in bytes
-	$memory_current = memoryReturnBytes(ini_get('memory_limit'));
-	$memory_needed = memoryReturnBytes($needed);
-
-	// should we account for how much is currently being used?
-	if ($in_use)
-		$memory_needed += function_exists('memory_get_usage') ? memory_get_usage() : (2 * 1048576);
-
-	// if more is needed, request it
-	if ($memory_current < $memory_needed)
-	{
-		@ini_set('memory_limit', ceil($memory_needed / 1048576) . 'M');
-		$memory_current = memoryReturnBytes(ini_get('memory_limit'));
-	}
-
-	$memory_current = max($memory_current, memoryReturnBytes(get_cfg_var('memory_limit')));
-
-	// return success or not
-	return (bool) ($memory_current >= $memory_needed);
-}
-
-/**
- * Helper function to convert memory string settings to bytes
- *
- * @param string $val The byte string, like 256M or 1G
- * @return integer The string converted to a proper integer in bytes
- */
-function memoryReturnBytes($val)
-{
-	if (is_integer($val))
-		return $val;
-
-	// Separate the number from the designator
-	$val = trim($val);
-	$num = intval(substr($val, 0, strlen($val) - 1));
-	$last = strtolower(substr($val, -1));
-
-	// convert to bytes
-	switch ($last)
-	{
-		case 'g':
-			$num *= 1024;
-		case 'm':
-			$num *= 1024;
-		case 'k':
-			$num *= 1024;
-	}
-	return $num;
-}
-
-/**
  * Convert a single IP to a ranged IP.
  * internal function used to convert a user-readable format to a format suitable for the database.
  *
@@ -952,13 +891,6 @@ function text2words($text, $max_chars = 20, $encrypt = false)
 	}
 }
 
-/**
- * Generate a random seed and ensure it's stored in settings.
- */
-function smf_seed_generator()
-{
-	Config::updateModSettings(array('rand_seed' => microtime(true)));
-}
 /**
  * Process functions of an integration hook.
  * calls all functions of the given hook.
@@ -2449,23 +2381,6 @@ function https_redirect_active($url)
 }
 
 /**
- * Check if the connection is using https.
- *
- * @return boolean true if connection used https
- */
-function httpsOn()
-{
-	$secure = false;
-
-	if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
-		$secure = true;
-	elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on')
-		$secure = true;
-
-	return $secure;
-}
-
-/**
  * A wrapper for `parse_url($url)` that can handle URLs with international
  * characters (a.k.a. IRIs)
  *
@@ -2697,42 +2612,6 @@ function url_to_iri($url)
 	$after_host = rawurldecode(strtr($after_host, $double_escaped));
 
 	return $before_host . $decoded_host . $after_host;
-}
-
-/**
- * Ensures SMF's scheduled tasks are being run as intended
- *
- * If the admin activated the cron_is_real_cron setting, but the cron job is
- * not running things at least once per day, we need to go back to SMF's default
- * behaviour using "web cron" JavaScript calls.
- */
-function check_cron()
-{
-	if (!empty(Config::$modSettings['cron_is_real_cron']) && time() - @intval(Config::$modSettings['cron_last_checked']) > 84600)
-	{
-		$request = Db::$db->query('', '
-			SELECT COUNT(*)
-			FROM {db_prefix}scheduled_tasks
-			WHERE disabled = {int:not_disabled}
-				AND next_time < {int:yesterday}',
-			array(
-				'not_disabled' => 0,
-				'yesterday' => time() - 84600,
-			)
-		);
-		list($overdue) = Db::$db->fetch_row($request);
-		Db::$db->free_result($request);
-
-		// If we have tasks more than a day overdue, cron isn't doing its job.
-		if (!empty($overdue))
-		{
-			Lang::load('ManageScheduledTasks');
-			ErrorHandler::log(Lang::$txt['cron_not_working']);
-			Config::updateModSettings(array('cron_is_real_cron' => 0));
-		}
-		else
-			Config::updateModSettings(array('cron_last_checked' => time()));
-	}
 }
 
 /**

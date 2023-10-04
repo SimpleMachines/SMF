@@ -202,7 +202,7 @@ class Find implements ActionInterface
 	public function internal()
 	{
 		// Try to get some more memory.
-		setMemoryLimit('128M');
+		Config::setMemoryLimit('128M');
 
 		call_integration_hook('integrate_admin_search', array(&$this->language_files, &$this->include_files, &$this->settings_search));
 
