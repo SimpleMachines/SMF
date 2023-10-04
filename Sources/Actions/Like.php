@@ -11,15 +11,21 @@
  * @version 3.0 Alpha 1
  */
 
-namespace SMF;
+namespace SMF\Actions;
 
+use SMF\Alert;
+use SMF\Config;
+use SMF\Lang;
+use SMF\Theme;
+use SMF\User;
+use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
 /**
  * Handles liking posts and displaying the list of who liked a post.
  */
-class Likes
+class Like
 {
 	/**
 	 * @var boolean
