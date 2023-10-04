@@ -43,6 +43,7 @@ class_exists('SMF\\PageIndex');
 class_exists('SMF\\Theme');
 class_exists('SMF\\Time');
 class_exists('SMF\\TimeZone');
+class_exists('SMF\\Topic');
 class_exists('SMF\\User');
 class_exists('SMF\\Utils');
 
@@ -1580,47 +1581,6 @@ function check_mime_type($data, $type_pattern, $is_path = false)
 
 	// Check whether the MIME type matches expectations.
 	return (int) @preg_match('~' . $type_pattern . '~', $mime_type);
-}
-
-/**
- * Prepares an array of "likes" info for the topic specified by $topic
- *
- * @param integer $topic The topic ID to fetch the info from.
- * @return array An array of IDs of messages in the specified topic that the current user likes
- */
-function prepareLikesContext($topic)
-{
-	// Make sure we have something to work with.
-	if (empty($topic))
-		return array();
-
-	// We already know the number of likes per message, we just want to know whether the current user liked it or not.
-	$user = User::$me->id;
-	$cache_key = 'likes_topic_' . $topic . '_' . $user;
-	$ttl = 180;
-
-	if (($temp = CacheApi::get($cache_key, $ttl)) === null)
-	{
-		$temp = array();
-		$request = Db::$db->query('', '
-			SELECT content_id
-			FROM {db_prefix}user_likes AS l
-				INNER JOIN {db_prefix}messages AS m ON (l.content_id = m.id_msg)
-			WHERE l.id_member = {int:current_user}
-				AND l.content_type = {literal:msg}
-				AND m.id_topic = {int:topic}',
-			array(
-				'current_user' => $user,
-				'topic' => $topic,
-			)
-		);
-		while ($row = Db::$db->fetch_assoc($request))
-			$temp[] = (int) $row['content_id'];
-
-		CacheApi::put($cache_key, $temp, $ttl);
-	}
-
-	return $temp;
 }
 
 /**

@@ -495,6 +495,48 @@ class Topic implements \ArrayAccess
 		return $this->notify_prefs;
 	}
 
+	/**
+	 * Gets the IDs of messages in this topic that the current user likes.
+	 *
+	 * @param int $topic The topic ID to fetch the info from.
+	 * @return array IDs of messages in this topic that the current user likes.
+	 */
+	public function getLikedMsgs(): array
+	{
+		if (User::$me->is_guest)
+			return array();
+
+		$cache_key = 'likes_topic_' . $this->id . '_' . User::$me->id;
+		$ttl = 180;
+
+		if (($liked_messages = CacheApi::get($cache_key, $ttl)) === null)
+		{
+			$liked_messages = array();
+
+			$request = Db::$db->query('', '
+				SELECT content_id
+				FROM {db_prefix}user_likes AS l
+					INNER JOIN {db_prefix}messages AS m ON (l.content_id = m.id_msg)
+				WHERE l.id_member = {int:current_user}
+					AND l.content_type = {literal:msg}
+					AND m.id_topic = {int:topic}',
+				array(
+					'current_user' => User::$me->id,
+					'topic' => $this->id,
+				)
+			);
+			while ($row = Db::$db->fetch_assoc($request))
+			{
+				$liked_messages[] = (int) $row['content_id'];
+			}
+			Db::$db->free_result($request);
+
+			CacheApi::put($cache_key, $liked_messages, $ttl);
+		}
+
+		return $liked_messages;
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -1392,6 +1434,17 @@ class Topic implements \ArrayAccess
 		foreach ($adjustBoards as $stats)
 			$updates[] = $stats['id_board'];
 		Msg::updateLastMessages($updates);
+	}
+
+	/**
+	 * Backward compatibility wrapper for the getLikedMsgs method.
+	 *
+	 * @param integer $topic The topic ID to fetch the info from.
+	 * @return array An array of IDs of messages in the specified topic that the current user likes
+	 */
+	public static function prepareLikesContext(int $topic): array
+	{
+		return self::load($topic)->getLikedMsgs();
 	}
 
 	/******************
