@@ -372,7 +372,7 @@ class Reports implements ActionInterface
 	public function boardPerms(): void
 	{
 		// Get as much memory as possible as this can be big.
-		setMemoryLimit('256M');
+		Config::setMemoryLimit('256M');
 
 		if (isset($_REQUEST['boards']))
 		{

@@ -1814,7 +1814,7 @@ class PackageManager
 		}
 
 		// This is a memory eat.
-		setMemoryLimit('128M');
+		Config::setMemoryLimit('128M');
 		@set_time_limit(600);
 
 		// Load up some FTP stuff.

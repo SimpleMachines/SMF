@@ -622,7 +622,7 @@ class Main implements ActionInterface
 			if ($this->check_password)
 			{
 				// Check to ensure we're forcing SSL for authentication
-				if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !httpsOn())
+				if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Config::httpsOn())
 				{
 					ErrorHandler::fatalLang('login_ssl_required', false);
 				}

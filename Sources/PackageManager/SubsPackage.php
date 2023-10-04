@@ -2596,7 +2596,7 @@ class SubsPackage
 	{
 		if (!isset(self::$package_cache))
 		{
-			$mem_check = setMemoryLimit('128M');
+			$mem_check = Config::setMemoryLimit('128M');
 
 			// Windows doesn't seem to care about the memory_limit.
 			if (!empty(Config::$modSettings['package_disable_cache']) || $mem_check || stripos(PHP_OS, 'win') !== false)
@@ -2629,7 +2629,7 @@ class SubsPackage
 		if (!isset(self::$package_cache))
 		{
 			// Try to increase the memory limit - we don't want to run out of ram!
-			$mem_check = setMemoryLimit('128M');
+			$mem_check = Config::setMemoryLimit('128M');
 
 			if (!empty(Config::$modSettings['package_disable_cache']) || $mem_check || stripos(PHP_OS, 'win') !== false)
 				self::$package_cache = array();

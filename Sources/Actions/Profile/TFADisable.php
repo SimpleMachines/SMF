@@ -66,7 +66,7 @@ class TFADisable implements ActionInterface
 			redirectexit('action=profile;area=account;u=' . Profile::$member->id);
 
 		// Bail if we're forcing SSL for authentication and the network connection isn't secure.
-		if (!empty(Config::$modSettings['force_ssl']) && !httpsOn())
+		if (!empty(Config::$modSettings['force_ssl']) && !Config::httpsOn())
 			ErrorHandler::fatalLang('login_ssl_required', false);
 
 		// The admin giveth...

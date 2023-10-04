@@ -15,6 +15,7 @@
 
 namespace SMF\PackageManager;
 
+use SMF\Config;
 use SMF\Lang;
 
 /**
@@ -53,7 +54,7 @@ class XmlArray
 	public function __construct($data, $auto_trim = false, $level = null, $is_clone = false)
 	{
 		// If we're using this try to get some more memory.
-		setMemoryLimit('32M');
+		Config::setMemoryLimit('32M');
 
 		// Set the debug level.
 		$this->debug_level = $level !== null ? $level : error_reporting();

@@ -2120,7 +2120,7 @@ class User implements \ArrayAccess
 		if (isset($_POST[$type . '_pass']))
 		{
 			// Check to ensure we're forcing SSL for authentication
-			if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !httpsOn())
+			if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Config::httpsOn())
 			{
 				ErrorHandler::fatalLang('login_ssl_required');
 			}
@@ -3265,7 +3265,7 @@ class User implements \ArrayAccess
 		@set_time_limit(600);
 
 		// Try to get some more memory.
-		setMemoryLimit('128M');
+		Config::setMemoryLimit('128M');
 
 		// If it's not an array, make it so!
 		$users = array_unique((array) $users);

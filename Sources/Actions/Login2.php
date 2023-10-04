@@ -104,7 +104,7 @@ class Login2 implements ActionInterface
 	public function execute(): void
 	{
 		// Check to ensure we're forcing SSL for authentication
-		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !httpsOn())
+		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Config::httpsOn())
 			ErrorHandler::fatalLang('login_ssl_required', false);
 
 		self::checkAjax();

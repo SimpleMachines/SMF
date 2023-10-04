@@ -2665,7 +2665,7 @@ class Theme
 	protected function sslRedirect()
 	{
 		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) &&
-			!httpsOn() && SMF != 'SSI')
+			!Config::httpsOn() && SMF != 'SSI')
 		{
 			if (isset($_GET['sslRedirect']))
 			{
@@ -2685,7 +2685,7 @@ class Theme
 		// Check to see if they're accessing it from the wrong place.
 		if (isset($_SERVER['HTTP_HOST']) || isset($_SERVER['SERVER_NAME']))
 		{
-			$detected_url = httpsOn() ? 'https://' : 'http://';
+			$detected_url = Config::httpsOn() ? 'https://' : 'http://';
 
 			$detected_url .= empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] . (empty($_SERVER['SERVER_PORT']) || $_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']) : $_SERVER['HTTP_HOST'];
 

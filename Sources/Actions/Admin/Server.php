@@ -854,7 +854,7 @@ class Server implements ActionInterface
 			array('localCookies', Lang::$txt['localCookies'], 'db', 'check', false, 'localCookies'),
 			array('globalCookies', Lang::$txt['globalCookies'], 'db', 'check', false, 'globalCookies'),
 			array('globalCookiesDomain', Lang::$txt['globalCookiesDomain'], 'db', 'text', false, 'globalCookiesDomain'),
-			array('secureCookies', Lang::$txt['secureCookies'], 'db', 'check', false, 'secureCookies', 'disabled' => !httpsOn()),
+			array('secureCookies', Lang::$txt['secureCookies'], 'db', 'check', false, 'secureCookies', 'disabled' => !Config::httpsOn()),
 			array('httponlyCookies', Lang::$txt['httponlyCookies'], 'db', 'check', false, 'httponlyCookies'),
 			array('samesiteCookies', Lang::$txt['samesiteCookies'], 'db', 'select', array(
 					'none' 		=> Lang::$txt['samesiteNone'],

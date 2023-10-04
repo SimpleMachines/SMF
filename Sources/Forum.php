@@ -210,7 +210,7 @@ class Forum
 
 		// Seed the random generator.
 		if (empty(Config::$modSettings['rand_seed']) || mt_rand(1, 250) == 69)
-			smf_seed_generator();
+			Config::generateSeed();
 
 		// If a Preflight is occurring, lets stop now.
 		if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS')
@@ -357,7 +357,7 @@ class Forum
 		}
 
 		// Make sure that our scheduled tasks have been running as intended
-		check_cron();
+		Config::checkCron();
 
 		// Is the forum in maintenance mode? (doesn't apply to administrators.)
 		if (!empty(Config::$maintenance) && !User::$me->allowedTo('admin_forum'))

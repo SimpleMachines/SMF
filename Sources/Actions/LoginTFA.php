@@ -86,7 +86,7 @@ class LoginTFA extends Login2
 		if (!empty($_POST['tfa_code']) && empty($_POST['tfa_backup']))
 		{
 			// Check to ensure we're forcing SSL for authentication
-			if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !httpsOn())
+			if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Config::httpsOn())
 			{
 				ErrorHandler::fatalLang('login_ssl_required', false);
 			}
@@ -112,7 +112,7 @@ class LoginTFA extends Login2
 		elseif (!empty($_POST['tfa_backup']))
 		{
 			// Check to ensure we're forcing SSL for authentication
-			if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !httpsOn())
+			if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Config::httpsOn())
 			{
 				ErrorHandler::fatalLang('login_ssl_required', false);
 			}

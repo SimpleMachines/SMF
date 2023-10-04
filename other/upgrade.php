@@ -276,14 +276,10 @@ if (!isset($settings['default_theme_dir']))
 
 // Old DBs won't have this
 if (!isset(Config::$modSettings['rand_seed']))
-{
-	if (!function_exists('cache_put_data'))
-		require_once(Config::$sourcedir . '/Cache/CacheApi.php');
-	smf_seed_generator();
-}
+	Config::generateSeed();
 
 // This is needed in case someone invokes the upgrader using https when upgrading an http forum
-if (httpsOn())
+if (Config::httpsOn())
 	$settings['default_theme_url'] = strtr($settings['default_theme_url'], array('http://' => 'https://'));
 
 $upcontext['is_large_forum'] = (empty(Config::$modSettings['smfVersion']) || Config::$modSettings['smfVersion'] <= '1.1 RC1') && !empty(Config::$modSettings['totalMessages']) && Config::$modSettings['totalMessages'] > 75000;
@@ -851,7 +847,7 @@ function initialize_inputs()
 		deleteFile($upgrade_path . '/Sources/DumpDatabase.php');
 		deleteFile($upgrade_path . '/Sources/LockTopic.php');
 
-		header('location: http' . (httpsOn() ? 's' : '') . '://' . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT']) . dirname($_SERVER['PHP_SELF']) . '/Themes/default/images/blank.png');
+		header('location: http' . (Config::httpsOn() ? 's' : '') . '://' . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT']) . dirname($_SERVER['PHP_SELF']) . '/Themes/default/images/blank.png');
 		exit;
 	}
 
@@ -1877,7 +1873,7 @@ function DeleteUpgrade()
 	{
 		(new TaskRunner())->runScheduledTasks(array('fetchSMfiles')); // Now go get those files!
 		// This is needed in case someone invokes the upgrader using https when upgrading an http forum
-		if (httpsOn())
+		if (Config::httpsOn())
 			$settings['default_theme_url'] = strtr($settings['default_theme_url'], array('http://' => 'https://'));
 	}
 

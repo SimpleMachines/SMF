@@ -2442,7 +2442,7 @@ class ServerSideIncludes
 
 		// Seed the random generator?
 		if (empty(Config::$modSettings['rand_seed']) || mt_rand(1, 250) == 69)
-			smf_seed_generator();
+			Config::generateSeed();
 
 		// Check on any hacking attempts.
 		if (isset($_REQUEST['GLOBALS']) || isset($_COOKIE['GLOBALS']))
