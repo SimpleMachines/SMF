@@ -1185,7 +1185,7 @@ class Display implements ActionInterface
 
 			// And the likes
 			if (!empty(Config::$modSettings['enable_likes']))
-				Utils::$context['my_likes'] = User::$me->is_guest ? array() : prepareLikesContext(Topic::$info->id);
+				Utils::$context['my_likes'] = Topic::$info->getLikedMsgs();
 
 			// Go to the last message if the given time is beyond the time of the last message.
 			if (isset(Utils::$context['start_from']) && Utils::$context['start_from'] >= Topic::$info->num_replies)

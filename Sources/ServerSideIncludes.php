@@ -469,6 +469,11 @@ class ServerSideIncludes
 		$posts = array();
 		while ($row = Db::$db->fetch_assoc($request))
 		{
+			$topic = new Topic($row['id_topic'], array(
+				'id_board' => $row['id_board'],
+				'id_first_msg' => $row['id_msg'],
+			));
+
 			$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
 
 			// Censor it!
@@ -510,7 +515,7 @@ class ServerSideIncludes
 			if (!empty(Config::$modSettings['enable_likes']))
 				$posts[$row['id_msg']]['likes'] = array(
 					'count' => $row['likes'],
-					'you' => in_array($row['id_msg'], prepareLikesContext($row['id_topic'])),
+					'you' => in_array($row['id_msg'], $topic->getLikedMsgs()),
 					'can_like' => !User::$me->is_guest && $row['id_member'] != User::$me->id && !empty(Utils::$context['can_like']),
 				);
 		}
@@ -1990,6 +1995,14 @@ class ServerSideIncludes
 		$recycle_board = !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) ? (int) Config::$modSettings['recycle_board'] : 0;
 		while ($row = Db::$db->fetch_assoc($request))
 		{
+			$topic = new Topic($row['id_topic'], array(
+				'id_board' => $row['id_board'],
+				'num_replies' => $row['num_replies'],
+				'locked' => $row['locked'],
+				'id_first_msg' => $row['id_msg'],
+				'id_last_msg' => $row['id_last_msg'],
+			));
+
 			// If we want to limit the length of the post.
 			if (!empty($length) && Utils::entityStrlen($row['body']) > $length)
 			{
@@ -2048,7 +2061,7 @@ class ServerSideIncludes
 				// Nasty ternary for likes not messing around the "is_last" check.
 				'likes' => !empty(Config::$modSettings['enable_likes']) ? array(
 					'count' => $row['likes'],
-					'you' => in_array($row['id_msg'], prepareLikesContext((int) $row['id_topic'])),
+					'you' => in_array($row['id_msg'], $topic->getLikedMsgs()),
 					'can_like' => !User::$me->is_guest && $row['id_member'] != User::$me->id && !empty(Utils::$context['can_like']),
 				) : array(),
 			);
