@@ -25,28 +25,61 @@ use SMF\Db\DatabaseApi as Db;
 /**
  * Handles liking posts and displaying the list of who liked a post.
  */
-class Like
+class Like implements ActionInterface
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
+	/**
+	 * @var string
+	 *
+	 * The requested sub-action.
+	 * This should be set by the constructor.
+	 */
+	public string $subaction = 'like';
+
+	/**************************
+	 * Public static properties
+	 **************************/
+
+	/**
+	 * @var array
+	 *
+	 * Available sub-actions.
+	 *
+	 * @todo Do delete, insert, and count really need to be sub-actions? They
+	 * are never used as sub-actions in practice. Instead, they are only ever
+	 * called internally by the like() method. Moreover, the control flow
+	 * regarding hooks, etc., assumes that they are only called by like().
+	 */
+	public static array $subactions = array(
+		'like' => 'like',
+		'view' => 'view',
+		'delete' => 'delete',
+		'insert' => 'insert',
+		'count' => 'count',
+	);
+
+	/*********************
+	 * Internal properties
+	 *********************/
+
 	/**
 	 * @var boolean
 	 *
-	 * Know if a request comes from an ajax call or not,
-	 * depends on $_GET['js'] been set.
+	 * Know if a request comes from an ajax call or not.
+	 * Depends on $_GET['js'] been set.
 	 */
-	protected $_js = false;
-
-	/**
-	 * @var string The sub action sent in $_GET['sa'].
-	 */
-	protected $_sa = null;
+	protected $js = false;
 
 	/**
 	 * @var string
 	 *
 	 * If filled, its value will contain a string matching a key
-	 * on a language var Lang::$txt[$this->_error]
+	 * on a language var Lang::$txt[$this->error]
 	 */
-	protected $_error = false;
+	protected $error = false;
 
 	/**
 	 * @var string
@@ -54,7 +87,7 @@ class Like
 	 * The unique type to like, needs to be unique and it needs to be no longer
 	 * than 6 characters, only numbers and letters are allowed.
 	 */
-	protected $_type = '';
+	protected $type = '';
 
 	/**
 	 * @var string
@@ -62,33 +95,33 @@ class Like
 	 * A generic string used if you need to pass any extra info.
 	 * It gets set via $_GET['extra'].
 	 */
-	protected $_extra = false;
+	protected $extra = false;
 
 	/**
 	 * @var integer
 	 *
 	 * A valid ID to identify the content being liked.
 	 */
-	protected $_content = 0;
+	protected $content = 0;
 
 	/**
 	 * @var integer
 	 *
 	 * The number of times the content has been liked.
 	 */
-	protected $_numLikes = 0;
+	protected $num_likes = 0;
 
 	/**
 	 * @var boolean
 	 *
 	 * If the current user has already liked this content.
 	 */
-	protected $_alreadyLiked = false;
+	protected $already_liked = false;
 
 	/**
 	 * @var array
 	 *
-	 * Mostly used for external integration, needs to be filled as an array
+	 * Mostly used for external integration. Needs to be filled as an array
 	 * with the following keys:
 	 *
 	 * 'can_like'   bool|string  True if the current user can actually like
@@ -98,7 +131,7 @@ class Like
 	 * 'redirect'    string      URL to redirect to after the like is submitted.
 	 *                           If not set, will redirect to the forum index.
 	 *
-	 * 'type'        string      6 character Unique identifier for the content.
+	 * 'type'        string      6 character unique identifier for the content.
 	 *                           Must match what was sent in $_GET['ltype']
 	 *
 	 * 'flush_cache' bool        If true, reset the like content's cache entry
@@ -112,7 +145,7 @@ class Like
 	 * 'json'        bool        If true, the class will return a JSON object as
 	 *                           a response instead of HTML. Default: false.
 	 */
-	protected $_validLikes = array(
+	protected $valid_likes = array(
 		'can_like' => false,
 		'redirect' => '',
 		'type' => '',
@@ -124,26 +157,30 @@ class Like
 	/**
 	 * @var integer
 	 *
-	 * The topic ID, used for liking messages.
+	 * The topic ID. Used for liking messages.
 	 */
-	protected $_idTopic = 0;
+	protected $id_topic = 0;
 
 	/**
 	 * @var boolean
 	 *
-	 * Whether response(); will be executed as normal.
+	 * Whether respond() will be executed as normal.
 	 *
 	 * If this is set to false it indicates the method already implemented
 	 * its own way to send back a response.
 	 */
-	protected $_setResponse = true;
+	protected $set_response = true;
 
 	/**
 	 * @var mixed
 	 *
 	 * Data for the response.
 	 */
-	protected $_data;
+	protected $data;
+
+	/****************************
+	 * Internal static properties
+	 ****************************/
 
 	/**
 	 * @var object
@@ -152,14 +189,79 @@ class Like
 	 */
 	protected static $obj;
 
+	/****************
+	 * Public methods
+	 ****************/
+
+	/**
+	 * The main handler.
+	 *
+	 * Verifies permissions (whether the user can see the content in question),
+	 * dispatch different method for different sub-actions.
+	 *
+	 * Accessed from index.php?action=likes
+	 */
+	public function execute(): void
+	{
+		// Make sure the user can see and like your content.
+		$this->check();
+
+		if (is_string($this->error))
+		{
+			$this->respond();
+			return;
+		}
+
+		// So at this point, whatever type of like the user supplied and the
+		// item of content in question, we know it exists.
+		// Now we need to figure out what we're doing with that.
+		if (isset(self::$subactions[$this->subaction]))
+		{
+			// Guest can only view likes.
+			if ($this->subaction != 'view')
+				User::$me->kickIfGuest();
+
+			User::$me->checkSession('get');
+
+			// Call the appropriate method.
+			if (method_exists($this, self::$subactions[$this->subaction]))
+			{
+				call_user_func(array($this, self::$subactions[$this->subaction]));
+			}
+			else
+			{
+				call_user_func(self::$subactions[$this->subaction]);
+			}
+		}
+
+		// Send the response.
+		$this->respond();
+	}
+
+	/**
+	 * A simple getter for all protected properties.
+	 *
+	 * This is meant to give read-only access to hooked functions.
+	 *
+	 * @param string $property The name of the property to get.
+	 * @return mixed Either return the property or false if there isn't a
+	 *    property with that name.
+	 */
+	public function get($property = ''): mixed
+	{
+		return property_exists($this, $property) ? $this->$property : false;
+	}
+
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Wrapper for constructor. Ensures only one instance is created.
 	 *
-	 * @todo Add a reference to Utils::$context['instances'] as well?
-	 *
 	 * @return An instance of this class.
 	 */
-	final public static function load()
+	public static function load(): object
 	{
 		if (!isset(self::$obj))
 			self::$obj = new self();
@@ -170,182 +272,170 @@ class Like
 	/**
 	 * Convenience method to load() and execute() an instance of this class.
 	 */
-	public static function call()
+	public static function call(): void
 	{
 		self::load()->execute();
 	}
 
+	/******************
+	 * Internal methods
+	 ******************/
+
 	/**
-	 * Likes::__construct()
-	 *
 	 * Sets the basic data needed for the rest of the process.
 	 * Protected to force instantiation via load().
 	 */
 	protected function __construct()
 	{
-		$this->_type = isset($_GET['ltype']) ? $_GET['ltype'] : '';
-		$this->_content = isset($_GET['like']) ? (int) $_GET['like'] : 0;
-		$this->_js = isset($_GET['js']) ? true : false;
-		$this->_sa = isset($_GET['sa']) ? $_GET['sa'] : 'like';
-		$this->_extra = isset($_GET['extra']) ? $_GET['extra'] : false;
+		if (!empty($_REQUEST['sa']) && $_REQUEST['sa'] === '_count')
+			$_REQUEST['sa'] = 'count';
+
+		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
+			$this->subaction = $_REQUEST['sa'];
+
+		$this->type = $_GET['ltype'] ?? '';
+		$this->content = (int) ($_GET['like'] ?? 0);
+		$this->js = isset($_GET['js']);
+		$this->extra = $_GET['extra'] ?? false;
 
 		// We do not want to output debug information here.
-		if ($this->_js)
+		if ($this->js)
 			Config::$db_show_debug = false;
 	}
 
 	/**
-	 * Likes::execute()
-	 *
-	 * The main handler. Verifies permissions (whether the user can see the content in question), dispatch different method for different sub-actions.
-	 * Accessed from index.php?action=likes
-	 */
-	public function execute()
-	{
-		// Make sure the user can see and like your content.
-		$this->check();
-
-		$subActions = array(
-			'like',
-			'view',
-			'delete',
-			'insert',
-			'_count',
-		);
-
-		// So at this point, whatever type of like the user supplied and the item of content in question,
-		// we know it exists, now we need to figure out what we're doing with that.
-		if (in_array($this->_sa, $subActions) && !is_string($this->_error))
-		{
-			// To avoid ambiguity, turn the property to a normal var.
-			$call = $this->_sa;
-
-			// Guest can only view likes.
-			if ($call != 'view')
-				User::$me->kickIfGuest();
-
-			User::$me->checkSession('get');
-
-			// Call the appropriate method.
-			$this->$call();
-		}
-
-		// else An error message.
-		$this->response();
-	}
-
-	/**
-	 * Likes::get()
-	 *
-	 * A simple getter for all protected properties.
-	 * Accessed from index.php?action=likes
-	 *
-	 * @param string $property The name of the property to get.
-	 * @return mixed Either return the property or false if there isn't a property with that name.
-	 */
-	public function get($property = '')
-	{
-		// All properties inside Likes are protected, thus, an underscore is used.
-		$property = '_' . $property;
-		return property_exists($this, $property) ? $this->$property : false;
-	}
-
-	/**
-	 * Likes::check()
-	 *
 	 * Performs basic checks on the data provided, checks for a valid msg like.
-	 * Calls integrate_valid_likes hook for retrieving all the data needed and apply checks based on the data provided.
+	 *
+	 * Calls integrate_valid_likes hook for retrieving all the data needed and
+	 * apply checks based on the data provided.
 	 */
-	protected function check()
+	protected function check(): void
 	{
 		// This feature is currently disable.
 		if (empty(Config::$modSettings['enable_likes']))
-			return $this->_error = 'like_disable';
+		{
+			$this->error = 'like_disable';
+			return;
+		}
 
 		// Zerothly, they did indicate some kind of content to like, right?
-		preg_match('~^([a-z0-9\-\_]{1,6})~i', $this->_type, $matches);
-		$this->_type = isset($matches[1]) ? $matches[1] : '';
+		preg_match('~^([a-z0-9\-\_]{1,6})~i', $this->type, $matches);
 
-		if ($this->_type == '' || $this->_content <= 0)
-			return $this->_error = 'cannot_';
+		$this->type = isset($matches[1]) ? $matches[1] : '';
 
-		// First we need to verify if the user can see the type of content or not. This is set up to be extensible,
-		// so we'll check for the one type we do know about, and if it's not that, we'll defer to any hooks.
-		if ($this->_type == 'msg')
+		if ($this->type == '' || $this->content <= 0)
 		{
-			// So we're doing something off a like. We need to verify that it exists, and that the current user can see it.
-			// Fortunately for messages, this is quite easy to do - and we'll get the topic id while we're at it, because
-			// we need this later for other things.
+			$this->error = 'cannot_';
+			return;
+		}
+
+		// First we need to verify whether the user can see the type of content.
+		// This is set up to be extensible, so we'll check for the one type we
+		// do know about, and if it's not that, we'll defer to any hooks.
+		if ($this->type == 'msg')
+		{
+			// So we're doing something off a like. We need to verify that it
+			// exists, and that the current user can see it. Fortunately, this
+			// is quite easy to do for messages - and we'll get the topic ID
+			// while we're at it, because we need it later for other things.
 			$request = Db::$db->query('', '
 				SELECT m.id_topic, m.id_member
 				FROM {db_prefix}messages AS m
 				WHERE {query_see_message_board}
 					AND m.id_msg = {int:msg}',
 				array(
-					'msg' => $this->_content,
+					'msg' => $this->content,
 				)
 			);
 			if (Db::$db->num_rows($request) == 1)
-				list ($this->_idTopic, $topicOwner) = Db::$db->fetch_row($request);
-
+			{
+				list($this->id_topic, $topicOwner) = Db::$db->fetch_row($request);
+			}
 			Db::$db->free_result($request);
-			if (empty($this->_idTopic))
-				return $this->_error = 'cannot_';
 
-			// So we know what topic it's in and more importantly we know the user can see it.
-			// If we're not viewing, we need some info set up.
-			$this->_validLikes['type'] = 'msg';
-			$this->_validLikes['flush_cache'] = 'likes_topic_' . $this->_idTopic . '_' . User::$me->id;
-			$this->_validLikes['redirect'] = 'topic=' . $this->_idTopic . '.msg' . $this->_content . '#msg' . $this->_content;
+			if (empty($this->id_topic))
+			{
+				$this->error = 'cannot_';
+				return;
+			}
 
-			$this->_validLikes['can_like'] = (User::$me->id == $topicOwner ? 'cannot_like_content' : (User::$me->allowedTo('likes_like') ? true : 'cannot_like_content'));
+			// So we know what topic it's in and more importantly we know the
+			// user can see it. If we're not viewing, we need some info set up.
+			$this->valid_likes['type'] = 'msg';
+			$this->valid_likes['flush_cache'] = 'likes_topic_' . $this->id_topic . '_' . User::$me->id;
+			$this->valid_likes['redirect'] = 'topic=' . $this->id_topic . '.msg' . $this->content . '#msg' . $this->content;
+
+			$this->valid_likes['can_like'] = (User::$me->id == $topicOwner ? 'cannot_like_content' : (User::$me->allowedTo('likes_like') ? true : 'cannot_like_content'));
 		}
-
 		else
 		{
-			// Modders: This will give you whatever the user offers up in terms of liking, e.g. $this->_type=msg, $this->_content=1
-			// When you hook this, check $this->_type first. If it is not something your mod worries about, return false.
-			// Otherwise, fill an array according to the docs for $this->_validLikes. Determine (however you need to) that the user can see and can_like the relevant liked content (and it exists) Remember that users can't like their own content.
-			// If the user can like it, you MUST return your type in the 'type' key back.
-			// See also issueLike() for further notes.
-			$can_like = call_integration_hook('integrate_valid_likes', array($this->_type, $this->_content, $this->_sa, $this->_js, $this->_extra));
+			/*
+			 * MOD AUTHORS: This will give you whatever the user offers up in
+			 * terms of liking, e.g. $this->type=msg, $this->content=1.
+			 *
+			 * When you hook this, check $this->type first. If it is not
+			 * something your mod worries about, return false.
+			 *
+			 * Otherwise, return an array according to the documentation for
+			 * $this->valid_likes. Determine (however you need to) that the user
+			 * can see and can_like the relevant liked content (and it exists).
+			 * Remember that users can't like their own content.
+			 *
+			 * If the user can like it, you MUST return your type in the 'type'
+			 * key of the returned array.
+			 *
+			 * See also issueLike() for further notes.
+			 */
+			$can_like = call_integration_hook('integrate_valid_likes', array($this->type, $this->content, $this->subaction, $this->js, $this->extra));
 
 			$found = false;
+
 			if (!empty($can_like))
 			{
 				$can_like = (array) $can_like;
+
 				foreach ($can_like as $result)
 				{
 					if ($result !== false)
 					{
 						// Match the type with what we already have.
-						if (!isset($result['type']) || $result['type'] != $this->_type)
-							return $this->_error = 'not_valid_like_type';
+						if (!isset($result['type']) || $result['type'] != $this->type)
+						{
+							$this->error = 'not_valid_like_type';
+							return;
+						}
 
 						// Fill out the rest.
-						$this->_type = $result['type'];
-						$this->_validLikes = array_merge($this->_validLikes, $result);
+						$this->type = $result['type'];
+						$this->valid_likes = array_merge($this->valid_likes, $result);
+
 						$found = true;
+
 						break;
 					}
 				}
 			}
 
 			if (!$found)
-				return $this->_error = 'cannot_';
+			{
+				$this->error = 'cannot_';
+				return;
+			}
 		}
 
-		// Does the user can like this? Viewing a list of likes doesn't require this permission.
-		if ($this->_sa != 'view' && isset($this->_validLikes['can_like']) && is_string($this->_validLikes['can_like']))
-			return $this->_error = $this->_validLikes['can_like'];
+		// Is the user able to like this?
+		// Viewing a list of likes doesn't require this permission.
+		if ($this->subaction != 'view' && isset($this->valid_likes['can_like']) && is_string($this->valid_likes['can_like']))
+		{
+			$this->error = $this->valid_likes['can_like'];
+			return;
+		}
 	}
 
 	/**
-	 * Likes::delete()
-	 *
-	 * Deletes an entry from user_likes table, needs 3 properties: $_content, $_type and $_user['id'].
+	 * Deletes an entry from user_likes table.
 	 */
-	protected function delete()
+	protected function delete(): void
 	{
 		Db::$db->query('', '
 			DELETE FROM {db_prefix}user_likes
@@ -353,15 +443,15 @@ class Like
 				AND content_type = {string:like_type}
 				AND id_member = {int:id_member}',
 			array(
-				'like_content' => $this->_content,
-				'like_type' => $this->_type,
+				'like_content' => $this->content,
+				'like_type' => $this->type,
 				'id_member' => User::$me->id,
 			)
 		);
 
-		// Are we calling this directly? if so, set a proper data for the response. Do note that __METHOD__ returns both the class name and the function name.
-		if ($this->_sa == __FUNCTION__)
-			$this->_data = __FUNCTION__;
+		// Are we calling this directly? If so, set the data for the response.
+		if ($this->subaction == __FUNCTION__)
+			$this->data = __FUNCTION__;
 
 		// Check to see if there is an unread alert to delete as well...
 		Alert::deleteWhere(
@@ -373,8 +463,8 @@ class Like
 				'is_read = {int:unread}'
 			),
 			array(
-				'like_content' => $this->_content,
-				'like_type' => $this->_type,
+				'like_content' => $this->content,
+				'like_type' => $this->type,
 				'id_member_started' => User::$me->id,
 				'content_action' => 'like',
 				'unread' => 0,
@@ -383,16 +473,17 @@ class Like
 	}
 
 	/**
-	 * Likes::insert()
-	 *
-	 * Inserts a new entry on user_likes table. Creates a background task for the inserted entry.
+	 * Inserts a new entry on user_likes table.
+	 * Creates a background task for the inserted entry.
 	 */
-	protected function insert()
+	protected function insert(): void
 	{
-		// Any last minute changes? Temporarily turn the passed properties to normal vars to prevent unexpected behaviour with other methods using these properties.
-		$type = $this->_type;
-		$content = $this->_content;
-		$user = clone User::$me;
+		// Any last minute changes? Temporarily turn the passed properties to
+		// normal vars to prevent unexpected behaviour with other methods using
+		// these properties.
+		$type = $this->type;
+		$content = $this->content;
+		$user = (array) User::$me;
 		$time = time();
 
 		call_integration_hook('integrate_issue_like_before', array(&$type, &$content, &$user, &$time));
@@ -400,38 +491,64 @@ class Like
 		// Insert the like.
 		Db::$db->insert('insert',
 			'{db_prefix}user_likes',
-			array('content_id' => 'int', 'content_type' => 'string-6', 'id_member' => 'int', 'like_time' => 'int'),
-			array($content, $type, $user['id'], $time),
-			array('content_id', 'content_type', 'id_member')
+			array(
+				'content_id' => 'int',
+				'content_type' => 'string-6',
+				'id_member' => 'int',
+				'like_time' => 'int',
+			),
+			array(
+				$content,
+				$type,
+				$user['id'],
+				$time,
+			),
+			array(
+				'content_id',
+				'content_type',
+				'id_member',
+			)
 		);
 
 		// Add a background task to process sending alerts.
-		// Mod author, you can add your own background task for your own custom like event using the "integrate_issue_like" hook or your callback, both are immediately called after this.
-		if ($this->_type == 'msg')
+		// MOD AUTHORS: you can add your own background task for your own custom
+		// like event using the "integrate_issue_like" hook or your callback,
+		// both are immediately called after this.
+		if ($this->type == 'msg')
+		{
 			Db::$db->insert('insert',
 				'{db_prefix}background_tasks',
-				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-				array('$sourcedir/tasks/Likes_Notify.php', 'SMF\Tasks\Likes_Notify', Utils::jsonEncode(array(
-					'content_id' => $content,
-					'content_type' => $type,
-					'sender_id' => $user['id'],
-					'sender_name' => $user['name'],
-					'time' => $time,
-				)), 0),
+				array(
+					'task_file' => 'string',
+					'task_class' => 'string',
+					'task_data' => 'string',
+					'claimed_time' => 'int',
+				),
+				array(
+					'$sourcedir/tasks/Likes_Notify.php',
+					'SMF\Tasks\Likes_Notify',
+					Utils::jsonEncode(array(
+						'content_id' => $content,
+						'content_type' => $type,
+						'sender_id' => $user['id'],
+						'sender_name' => $user['name'],
+						'time' => $time,
+					)),
+					0,
+				),
 				array('id_task')
 			);
+		}
 
-		// Are we calling this directly? if so, set a proper data for the response. Do note that __METHOD__ returns both the class name and the function name.
-		if ($this->_sa == __FUNCTION__)
-			$this->_data = __FUNCTION__;
+		// Are we calling this directly? If so, set the data for the response.
+		if ($this->subaction == __FUNCTION__)
+			$this->data = __FUNCTION__;
 	}
 
 	/**
-	 * Likes::_count()
-	 *
-	 * Sets $_numLikes with the actual number of likes your content has, needs two properties: $_content and $_view. When called directly it will return the number of likes as response.
+	 * Sets $this->num_likes to the actual number of likes that the content has.
 	 */
-	protected function _count()
+	protected function count(): void
 	{
 		$request = Db::$db->query('', '
 			SELECT COUNT(*)
@@ -439,28 +556,30 @@ class Like
 			WHERE content_id = {int:like_content}
 				AND content_type = {string:like_type}',
 			array(
-				'like_content' => $this->_content,
-				'like_type' => $this->_type,
+				'like_content' => $this->content,
+				'like_type' => $this->type,
 			)
 		);
-		list ($this->_numLikes) = Db::$db->fetch_row($request);
+		list($this->num_likes) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		// If you want to call this directly, fill out _data property too.
-		if ($this->_sa == __FUNCTION__)
-			$this->_data = $this->_numLikes;
+		if ($this->subaction == __FUNCTION__)
+			$this->data = $this->num_likes;
 	}
 
 	/**
-	 * Likes::like()
+	 * Performs a like action, either like or unlike.
 	 *
-	 * Performs a like action, either like or unlike. Counts the total of likes and calls a hook after the event.
+	 * Counts the total of likes and calls a hook after the event.
 	 */
-	protected function like()
+	protected function like(): void
 	{
 		// Safety first!
-		if (empty($this->_type) || empty($this->_content))
-			return $this->_error = 'cannot_';
+		if (empty($this->type) || empty($this->content))
+		{
+			$this->error = 'cannot_';
+			return;
+		}
 
 		// Do we already like this?
 		$request = Db::$db->query('', '
@@ -470,31 +589,44 @@ class Like
 				AND content_type = {string:like_type}
 				AND id_member = {int:id_member}',
 			array(
-				'like_content' => $this->_content,
-				'like_type' => $this->_type,
+				'like_content' => $this->content,
+				'like_type' => $this->type,
 				'id_member' => User::$me->id,
 			)
 		);
-		$this->_alreadyLiked = (bool) Db::$db->num_rows($request) != 0;
+		$this->already_liked = Db::$db->num_rows($request) != 0;
 		Db::$db->free_result($request);
 
-		if ($this->_alreadyLiked)
+		if ($this->already_liked)
+		{
 			$this->delete();
-
+		}
 		else
+		{
 			$this->insert();
+		}
 
-		// Now, how many people like this content now? We *could* just +1 / -1 the relevant container but that has proven to become unstable.
-		$this->_count();
+		// Now, how many people like this content now? We *could* just +1 / -1
+		// the relevant container but that has proven to become unstable.
+		$this->count();
 
 		// Update the likes count for messages.
-		if ($this->_type == 'msg')
-			$this->msgIssueLike();
-
-		// Any callbacks?
-		elseif (!empty($this->_validLikes['callback']))
+		if ($this->type == 'msg')
 		{
-			$call = call_helper($this->_validLikes['callback'], true);
+			Db::$db->query('', '
+				UPDATE {db_prefix}messages
+				SET likes = {int:num_likes}
+				WHERE id_msg = {int:id_msg}',
+				array(
+					'id_msg' => $this->content,
+					'num_likes' => $this->num_likes,
+				)
+			);
+		}
+		// Any callbacks?
+		elseif (!empty($this->valid_likes['callback']))
+		{
+			$call = call_helper($this->valid_likes['callback'], true);
 
 			if (!empty($call))
 				call_user_func_array($call, array($this));
@@ -503,60 +635,38 @@ class Like
 		// Sometimes there might be other things that need updating after we do this like.
 		call_integration_hook('integrate_issue_like', array($this));
 
-		// Now some clean up. This is provided here for any like handlers that want to do any cache flushing.
-		// This way a like handler doesn't need to explicitly declare anything in integrate_issue_like, but do so
-		// in integrate_valid_likes where it absolutely has to exist.
-		if (!empty($this->_validLikes['flush_cache']))
-			CacheApi::put($this->_validLikes['flush_cache'], null);
+		// Now some clean up. This is provided here for any like handlers that
+		// want to do any cache flushing.
+		// This way a like handler doesn't need to explicitly declare anything
+		// in integrate_issue_like, but do so in integrate_valid_likes where it
+		// absolutely has to exist.
+		if (!empty($this->valid_likes['flush_cache']))
+			CacheApi::put($this->valid_likes['flush_cache'], null);
 
 		// All done, start building the data to pass as response.
-		$this->_data = array(
-			'id_topic' => !empty($this->_idTopic) ? $this->_idTopic : 0,
-			'id_content' => $this->_content,
-			'count' => $this->_numLikes,
-			'can_like' => $this->_validLikes['can_like'],
-			'already_liked' => empty($this->_alreadyLiked),
-			'type' => $this->_type,
+		$this->data = array(
+			'id_topic' => !empty($this->id_topic) ? $this->id_topic : 0,
+			'id_content' => $this->content,
+			'count' => $this->num_likes,
+			'can_like' => $this->valid_likes['can_like'],
+			'already_liked' => empty($this->already_liked),
+			'type' => $this->type,
 		);
 	}
 
 	/**
-	 * Likes::msgIssueLike()
-	 *
-	 * Partly it indicates how it's supposed to work and partly it deals with updating the count of likes
-	 * attached to this message now.
-	 */
-	function msgIssueLike()
-	{
-		if ($this->_type !== 'msg')
-			return;
-
-		Db::$db->query('', '
-			UPDATE {db_prefix}messages
-			SET likes = {int:num_likes}
-			WHERE id_msg = {int:id_msg}',
-			array(
-				'id_msg' => $this->_content,
-				'num_likes' => $this->_numLikes,
-			)
-		);
-
-		// Note that we could just as easily have cleared the cache here, or set up the redirection address
-		// but if your liked content doesn't need to do anything other than have the record in smf_user_likes,
-		// there's no point in creating another function unnecessarily.
-	}
-
-	/**
-	 * Likes::view()
-	 *
 	 * This is for viewing the people who liked a thing.
-	 * Accessed from index.php?action=likes;view and should generally load in a popup.
+	 *
+	 * Accessed from index.php?action=likes;view and should generally load in a
+	 * popup.
+	 *
 	 * We use a template for this in case themers want to style it.
 	 */
-	function view()
+	protected function view(): void
 	{
 		// Firstly, load what we need. We already know we can see this, so that's something.
 		Utils::$context['likers'] = array();
+
 		$request = Db::$db->query('', '
 			SELECT id_member, like_time
 			FROM {db_prefix}user_likes
@@ -564,19 +674,24 @@ class Like
 				AND content_type = {string:like_type}
 			ORDER BY like_time DESC',
 			array(
-				'like_content' => $this->_content,
-				'like_type' => $this->_type,
+				'like_content' => $this->content,
+				'like_type' => $this->type,
 			)
 		);
 		while ($row = Db::$db->fetch_assoc($request))
+		{
 			Utils::$context['likers'][$row['id_member']] = array('timestamp' => $row['like_time']);
+		}
+		Db::$db->free_result($request);
 
 		// Now to get member data, including avatars and so on.
 		$members = array_keys(Utils::$context['likers']);
 		$loaded = User::load($members);
+
 		if (count($loaded) != count($members))
 		{
 			$members = array_diff($members, array_map(fn($member) => $member->id, $loaded));
+
 			foreach ($members as $not_loaded)
 				unset(Utils::$context['likers'][$not_loaded]);
 		}
@@ -603,92 +718,101 @@ class Like
 		Utils::$context['template_layers'] = array();
 		Utils::$context['sub_template'] = 'popup';
 
-		// We already took care of our response so there is no need to bother with respond();
-		$this->_setResponse = false;
+		// We already took care of our response so there is no need to bother with respond().
+		$this->set_response = false;
 	}
 
 	/**
-	 * Likes::response()
-	 *
 	 * Checks if the user can use JavaScript and acts accordingly.
 	 * Calls the appropriate sub-template for each method
 	 * Handles error messages.
 	 */
-	protected function response()
+	protected function respond(): void
 	{
 		// Don't do anything if someone else has already take care of the response.
-		if (!$this->_setResponse)
+		if (!$this->set_response)
 			return;
 
-		// Want a json response huh?
-		if ($this->_validLikes['json'])
-			return $this->jsonResponse();
+		// Want a JSON response, do they?
+		if ($this->valid_likes['json'])
+		{
+			$this->sendJsonReponse();
+			return;
+		}
 
 		// Set everything up for display.
 		Theme::loadTemplate('Likes');
 		Utils::$context['template_layers'] = array();
 
 		// If there are any errors, process them first.
-		if ($this->_error)
+		if ($this->error)
 		{
 			// If this is a generic error, set it up good.
-			if ($this->_error == 'cannot_')
-				$this->_error = $this->_sa == 'view' ? 'cannot_view_likes' : 'cannot_like_content';
-
-			// Is this request coming from an ajax call?
-			if ($this->_js)
+			if ($this->error == 'cannot_')
 			{
-				Utils::$context['sub_template'] = 'generic';
-				Utils::$context['data'] = isset(Lang::$txt[$this->_error]) ? Lang::$txt[$this->_error] : Lang::$txt['like_error'];
+				$this->error = $this->subaction == 'view' ? 'cannot_view_likes' : 'cannot_like_content';
 			}
 
-			// Nope?  then just do a redirect to whatever URL was provided.
+			// Is this request coming from an AJAX call?
+			if ($this->js)
+			{
+				Utils::$context['sub_template'] = 'generic';
+				Utils::$context['data'] = isset(Lang::$txt[$this->error]) ? Lang::$txt[$this->error] : Lang::$txt['like_error'];
+			}
+			// Nope? Then just do a redirect to whatever URL was provided.
 			else
-				redirectexit(!empty($this->_validLikes['redirect']) ? $this->_validLikes['redirect'] . ';error=' . $this->_error : '');
+			{
+				redirectexit(!empty($this->valid_likes['redirect']) ? $this->valid_likes['redirect'] . ';error=' . $this->error : '');
+			}
 
 			return;
 		}
-
 		// A like operation.
 		else
 		{
-			// Not an ajax request so send the user back to the previous location or the main page.
-			if (!$this->_js)
-				redirectexit(!empty($this->_validLikes['redirect']) ? $this->_validLikes['redirect'] : '');
-
-			// These fine gentlemen all share the same template.
-			$generic = array('delete', 'insert', '_count');
-			if (in_array($this->_sa, $generic))
+			// Not an AJAX request so send the user back to the previous
+			// location or the main page.
+			if (!$this->js)
 			{
-				Utils::$context['sub_template'] = 'generic';
-				Utils::$context['data'] = isset(Lang::$txt['like_' . $this->_data]) ? Lang::$txt['like_' . $this->_data] : $this->_data;
+				redirectexit(!empty($this->valid_likes['redirect']) ? $this->valid_likes['redirect'] : '');
 			}
 
-			// Directly pass the current called sub-action and the data generated by its associated Method.
+			// These fine gentlemen all share the same template.
+			$generic = array('delete', 'insert', 'count');
+
+			if (in_array($this->subaction, $generic))
+			{
+				Utils::$context['sub_template'] = 'generic';
+				Utils::$context['data'] = isset(Lang::$txt['like_' . $this->data]) ? Lang::$txt['like_' . $this->data] : $this->data;
+			}
+			// Directly pass the current called sub-action and the data
+			// generated by its associated Method.
 			else
 			{
-				Utils::$context['sub_template'] = $this->_sa;
-				Utils::$context['data'] = $this->_data;
+				Utils::$context['sub_template'] = $this->subaction;
+				Utils::$context['data'] = $this->data;
 			}
 		}
 	}
 
 	/**
-	 * Outputs a JSON-encoded response
+	 * Outputs a JSON-encoded response.
 	 */
-	protected function jsonResponse()
+	protected function sendJsonReponse(): void
 	{
 		$print = array(
-			'data' => $this->_data,
+			'data' => $this->data,
 		);
 
 		// If there is an error, send it.
-		if ($this->_error)
+		if ($this->error)
 		{
-			if ($this->_error == 'cannot_')
-				$this->_error = $this->_sa == 'view' ? 'cannot_view_likes' : 'cannot_like_content';
+			if ($this->error == 'cannot_')
+			{
+				$this->error = $this->subaction == 'view' ? 'cannot_view_likes' : 'cannot_like_content';
+			}
 
-			$print['error'] = $this->_error;
+			$print['error'] = $this->error;
 		}
 
 		// Do you want to add something at the very last minute?
@@ -699,8 +823,12 @@ class Like
 		die;
 	}
 
+	/***************************
+	 * Mysterious static methods
+	 ***************************/
+
 	/**
-	 * What's this?  I dunno, what are you talking about?  Never seen this before, nope.  No sir.
+	 * What's this? I dunno, what are you talking about? Never seen this before, nope. No sir.
 	 */
 	public static function BookOfUnknown()
 	{
