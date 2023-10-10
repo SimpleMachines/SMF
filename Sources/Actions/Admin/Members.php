@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\Config;
 use SMF\Group;
+use SMF\IP;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
@@ -316,7 +317,7 @@ class Members implements ActionInterface
 				}
 				elseif ($param_info['type'] == 'inet')
 				{
-					$search_params[$param_name] = ip2range($search_params[$param_name]);
+					$search_params[$param_name] = IP::ip2range($search_params[$param_name]);
 
 					if (empty($search_params[$param_name]))
 						continue;
@@ -955,7 +956,8 @@ class Members implements ActionInterface
 					'data' => array(
 						'function' => function($rowData)
 						{
-							return host_from_ip(inet_dtop($rowData['member_ip']));
+							$ip = new IP($rowData['member_ip']);
+							return $ip->getHost();
 						},
 						'class' => 'smalltext',
 					),
@@ -1415,8 +1417,8 @@ class Members implements ActionInterface
 		);
 		while ($row = Db::$db->fetch_assoc($request))
 		{
-			$row['member_ip'] = inet_dtop($row['member_ip']);
-			$row['member_ip2'] = inet_dtop($row['member_ip2']);
+			$row['member_ip'] = new IP($row['member_ip']);
+			$row['member_ip2'] = new IP($row['member_ip2']);
 			$members[] = $row;
 		}
 		Db::$db->free_result($request);
@@ -1684,8 +1686,8 @@ class Members implements ActionInterface
 		while ($row = Db::$db->fetch_assoc($request))
 		{
 			//$duplicate_ids[] = $row['id_member'];
-			$row['member_ip'] = inet_dtop($row['member_ip']);
-			$row['member_ip2'] = inet_dtop($row['member_ip2']);
+			$row['member_ip'] = new IP($row['member_ip']);
+			$row['member_ip2'] = new IP($row['member_ip2']);
 
 			$member_context = array(
 				'id' => $row['id_member'],
@@ -1722,7 +1724,7 @@ class Members implements ActionInterface
 		);
 		while ($row = Db::$db->fetch_assoc($request))
 		{
-			$row['poster_ip'] = inet_dtop($row['poster_ip']);
+			$row['poster_ip'] = new IP($row['poster_ip']);
 
 			// Don't collect lots of the same.
 			if (isset($had_ips[$row['poster_ip']]) && in_array($row['id_member'], $had_ips[$row['poster_ip']]))

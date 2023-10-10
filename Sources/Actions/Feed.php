@@ -21,6 +21,7 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IP;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\Url;
@@ -2047,7 +2048,7 @@ class Feed implements ActionInterface
 			Utils::$context['last'] = $row['id_msg'];
 
 			// We want a readable version of the IP address
-			$row['poster_ip'] = inet_dtop($row['poster_ip']);
+			$row['poster_ip'] = new IP($row['poster_ip']);
 
 			// If any control characters slipped in somehow, kill the evil things
 			$row = filter_var($row, FILTER_CALLBACK, array('options' => 'cleanXml'));

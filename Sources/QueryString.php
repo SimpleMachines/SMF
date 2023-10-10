@@ -298,7 +298,7 @@ class QueryString
 			$_SERVER['is_cli'] = true;
 		}
 		// Perhaps we have a IPv6 address.
-		elseif (isValidIP($_SERVER['REMOTE_ADDR']))
+		elseif (IP::create($_SERVER['REMOTE_ADDR'])->isValid())
 		{
 			$_SERVER['REMOTE_ADDR'] = preg_replace('~^::ffff:(\d+\.\d+\.\d+\.\d+)~', '\1', $_SERVER['REMOTE_ADDR']);
 		}
@@ -359,7 +359,7 @@ class QueryString
 					// Make sure it's in a valid range...
 					if (preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $ip) != 0 && preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER['REMOTE_ADDR']) == 0)
 					{
-						if (!self::isValidIPv6($_SERVER[$proxyIPheader]) || preg_match('~::ffff:\d+\.\d+\.\d+\.\d+~', $_SERVER[$proxyIPheader]) !== 0)
+						if (!IP::create($_SERVER[$proxyIPheader])->isValid(FILTER_FLAG_IPV6) || preg_match('~::ffff:\d+\.\d+\.\d+\.\d+~', $_SERVER[$proxyIPheader]) !== 0)
 						{
 							$_SERVER[$proxyIPheader] = preg_replace('~^::ffff:(\d+\.\d+\.\d+\.\d+)~', '\1', $_SERVER[$proxyIPheader]);
 
@@ -384,7 +384,7 @@ class QueryString
 			{
 				$_SERVER['BAN_CHECK_IP'] = $_SERVER[$proxyIPheader];
 			}
-			elseif (!self::isValidIPv6($_SERVER[$proxyIPheader]) || preg_match('~::ffff:\d+\.\d+\.\d+\.\d+~', $_SERVER[$proxyIPheader]) !== 0)
+			elseif (!IP::create($_SERVER[$proxyIPheader])->isValid(FILTER_FLAG_IPV6) || preg_match('~::ffff:\d+\.\d+\.\d+\.\d+~', $_SERVER[$proxyIPheader]) !== 0)
 			{
 				$_SERVER[$proxyIPheader] = preg_replace('~^::ffff:(\d+\.\d+\.\d+\.\d+)~', '\1', $_SERVER[$proxyIPheader]);
 
@@ -415,86 +415,11 @@ class QueryString
 		$_SERVER['HTTP_USER_AGENT'] = isset($_SERVER['HTTP_USER_AGENT']) ? Utils::htmlspecialchars(Db::$db->unescape_string($_SERVER['HTTP_USER_AGENT']), ENT_QUOTES) : '';
 
 		// Some final checking.
-		if (!isValidIP($_SERVER['BAN_CHECK_IP']))
+		if (!IP::create($_SERVER['BAN_CHECK_IP'])->isValid())
 			$_SERVER['BAN_CHECK_IP'] = '';
 
 		if ($_SERVER['REMOTE_ADDR'] == 'unknown')
 			$_SERVER['REMOTE_ADDR'] = '';
-	}
-
-	/**
-	 * Validates a IPv6 address. returns true if it is ipv6.
-	 *
-	 * @param string $ip The ip address to be validated
-	 * @return boolean Whether the specified IP is a valid IPv6 address
-	 */
-	public static function isValidIPv6($ip)
-	{
-		//looking for :
-		if (strpos($ip, ':') === false)
-			return false;
-
-		//check valid address
-		return filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6);
-	}
-
-	/**
-	 * Expands a IPv6 address to its full form.
-	 *
-	 * @param string $addr The IPv6 address
-	 * @param bool $strict_check Whether to check the length of the expanded address for compliance
-	 * @return string|bool The expanded IPv6 address or false if $strict_check is true and the result isn't valid
-	 */
-	public static function expandIPv6($addr, $strict_check = true)
-	{
-		static $converted = array();
-
-		// Check if we have done this already.
-		if (isset($converted[$addr]))
-			return $converted[$addr];
-
-		// Check if there are segments missing, insert if necessary.
-		if (strpos($addr, '::') !== false)
-		{
-			$part = explode('::', $addr);
-			$part[0] = explode(':', $part[0]);
-			$part[1] = explode(':', $part[1]);
-			$missing = array();
-
-			for ($i = 0; $i < (8 - (count($part[0]) + count($part[1]))); $i++)
-				array_push($missing, '0000');
-
-			$part = array_merge($part[0], $missing, $part[1]);
-		}
-		else
-		{
-			$part = explode(':', $addr);
-		}
-
-		// Pad each segment until it has 4 digits.
-		foreach ($part as &$p)
-		{
-			while (strlen($p) < 4)
-				$p = '0' . $p;
-		}
-
-		unset($p);
-
-		// Join segments.
-		$result = implode(':', $part);
-
-		// Save this incase of repeated use.
-		$converted[$addr] = $result;
-
-		// Quick check to make sure the length is as expected.
-		if (!$strict_check || strlen($result) == 39)
-		{
-			return $result;
-		}
-		else
-		{
-			return false;
-		}
 	}
 
 	/**

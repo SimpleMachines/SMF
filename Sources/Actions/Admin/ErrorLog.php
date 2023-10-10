@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\IP;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\PageIndex;
@@ -248,7 +249,7 @@ class ErrorLog implements ActionInterface
 			Utils::$context['errors'][$row['id_error']] = array(
 				'member' => array(
 					'id' => $row['id_member'],
-					'ip' => inet_dtop($row['ip']),
+					'ip' => isset($row['ip']) ? new IP($row['ip']) : null,
 					'session' => $row['session']
 				),
 				'time' => timeformat($row['log_time']),

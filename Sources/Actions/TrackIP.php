@@ -18,6 +18,7 @@ use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\IP;
 use SMF\ItemList;
 use SMF\Profile;
 use SMF\Theme;
@@ -93,20 +94,20 @@ class TrackIP implements ActionInterface
 			Lang::load('Profile');
 			Utils::$context['base_url'] = Config::$scripturl . '?action=trackip';
 
-			Utils::$context['ip'] = ip2range(User::$me->ip);
+			Utils::$context['ip'] = IP::ip2range(User::$me->ip);
 		}
 		else
 		{
 			Utils::$context['base_url'] = Config::$scripturl . '?action=profile;area=tracking;sa=ip;u=' . $this->memID;
 
-			Utils::$context['ip'] = ip2range(User::$loaded[$this->memID]->ip);
+			Utils::$context['ip'] = IP::ip2range(User::$loaded[$this->memID]->ip);
 		}
 
 		Utils::$context['sub_template'] = 'trackIP';
 
 		// Searching?
 		if (isset($_REQUEST['searchip']))
-			Utils::$context['ip'] = ip2range(trim($_REQUEST['searchip']));
+			Utils::$context['ip'] = IP::ip2range(trim($_REQUEST['searchip']));
 
 		if (count(Utils::$context['ip']) !== 2)
 			ErrorHandler::fatalLang('invalid_tracking_ip', false);
@@ -142,7 +143,7 @@ class TrackIP implements ActionInterface
 		);
 		while ($row = Db::$db->fetch_assoc($request))
 		{
-			Utils::$context['ips'][inet_dtop($row['member_ip'])][] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['display_name'] . '</a>';
+			Utils::$context['ips'][(string) new IP($row['member_ip'])][] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['display_name'] . '</a>';
 		}
 		Db::$db->free_result($request);
 
@@ -414,7 +415,7 @@ class TrackIP implements ActionInterface
 		while ($row = Db::$db->fetch_assoc($request))
 		{
 			$messages[] = array(
-				'ip' => inet_dtop($row['poster_ip']),
+				'ip' => new IP($row['poster_ip']),
 				'member_link' => empty($row['id_member']) ? $row['display_name'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['display_name'] . '</a>',
 				'board' => array(
 					'id' => $row['id_board'],

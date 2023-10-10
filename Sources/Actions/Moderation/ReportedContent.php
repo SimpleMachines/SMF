@@ -20,6 +20,7 @@ use SMF\Alert;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IP;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
@@ -1204,6 +1205,8 @@ class ReportedContent implements ActionInterface
 		);
 		while ($row = Db::$db->fetch_assoc($request))
 		{
+			$row['member_ip'] = new IP($row['member_ip']);
+
 			$report['comments'][] = array(
 				'id' => $row['id_comment'],
 				'message' => strtr($row['comment'], array("\n" => '<br>')),
@@ -1213,7 +1216,7 @@ class ReportedContent implements ActionInterface
 					'name' => empty($row['reporter']) ? Lang::$txt['guest'] : $row['reporter'],
 					'link' => $row['id_member'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['reporter'] . '</a>' : (empty($row['reporter']) ? Lang::$txt['guest'] : $row['reporter']),
 					'href' => $row['id_member'] ? Config::$scripturl . '?action=profile;u=' . $row['id_member'] : '',
-					'ip' => !empty($row['member_ip']) && User::$me->allowedTo('moderate_forum') ? '<a href="' . Config::$scripturl . '?action=trackip;searchip=' . inet_dtop($row['member_ip']) . '">' . inet_dtop($row['member_ip']) . '</a>' : '',
+					'ip' => !empty($row['member_ip']) && User::$me->allowedTo('moderate_forum') ? '<a href="' . Config::$scripturl . '?action=trackip;searchip=' . $row['member_ip'] . '">' . $row['member_ip'] . '</a>' : '',
 				),
 			);
 		}

@@ -15,6 +15,7 @@ namespace SMF\Db\APIs;
 
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IP;
 use SMF\Lang;
 use SMF\User;
 use SMF\Utils;
@@ -2140,30 +2141,46 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			case 'inet':
 				if ($replacement == 'null' || $replacement == '')
 					return 'null';
-				if (!isValidIP($replacement))
-					$this->error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected.(' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
-				//we don't use the native support of mysql > 5.6.2
-				return sprintf('unhex(\'%1$s\')', bin2hex(inet_pton($replacement)));
+
+				$ip = new IP($replacement);
+
+				if (!$ip->isValid())
+				{
+					$this->error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+				}
+
+				// We don't use the native support of mysql > 5.6.2
+				return sprintf('unhex(\'%1$s\')', $ip->toHex());
 
 			case 'array_inet':
 				if (is_array($replacement))
 				{
 					if (empty($replacement))
+					{
 						$this->error_backtrace('Database error, given array of IPv4 or IPv6 values is empty. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+					}
 
 					foreach ($replacement as $key => $value)
 					{
-						if ($replacement == 'null' || $replacement == '')
+						if ($value == 'null' || $value == '')
 							$replacement[$key] = 'null';
-						if (!isValidIP($value))
-							$this->error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected.(' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
-						$replacement[$key] = sprintf('unhex(\'%1$s\')', bin2hex(inet_pton($value)));
+
+						$ip = new IP($value);
+
+						if (!$ip->isValid())
+						{
+							$this->error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+						}
+
+						$replacement[$key] = sprintf('unhex(\'%1$s\')', $ip->toHex());
 					}
 
 					return implode(', ', $replacement);
 				}
 				else
+				{
 					$this->error_backtrace('Wrong value type sent to the database. Array of IPv4 or IPv6 expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+				}
 				break;
 
 			default:

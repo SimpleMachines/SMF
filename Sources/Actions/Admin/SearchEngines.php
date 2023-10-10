@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\IP;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
@@ -710,7 +711,7 @@ class SearchEngines implements ActionInterface
 
 			foreach (explode(',', $_POST['spider_ip']) as $set)
 			{
-				$test = ip2range(trim($set));
+				$test = IP::ip2range(trim($set));
 
 				if (!empty($test))
 					$ips[] = $set;

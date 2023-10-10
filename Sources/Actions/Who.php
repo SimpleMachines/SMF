@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IP;
 use SMF\Lang;
 use SMF\PageIndex;
 use SMF\Theme;
@@ -281,7 +282,7 @@ class Who implements ActionInterface
 			// Send the information to the template.
 			Utils::$context['members'][$row['session']] = array(
 				'id' => $row['id_member'],
-				'ip' => User::$me->allowedTo('moderate_forum') ? inet_dtop($row['ip']) : '',
+				'ip' => User::$me->allowedTo('moderate_forum') ? new IP($row['ip']) : '',
 				// It is *going* to be today or yesterday, so why keep that information in there?
 				'time' => strtr(timeformat($row['log_time']), array(Lang::$txt['today'] => '', Lang::$txt['yesterday'] => '')),
 				'timestamp' => $row['log_time'],
