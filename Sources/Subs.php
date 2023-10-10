@@ -670,141 +670,6 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 }
 
 /**
- * Convert a single IP to a ranged IP.
- * internal function used to convert a user-readable format to a format suitable for the database.
- *
- * @param string $fullip The full IP
- * @return array An array of IP parts
- */
-function ip2range($fullip)
-{
-	// Pretend that 'unknown' is 255.255.255.255. (since that can't be an IP anyway.)
-	if ($fullip == 'unknown')
-		$fullip = '255.255.255.255';
-
-	$ip_parts = explode('-', $fullip);
-	$ip_array = array();
-
-	// if ip 22.12.31.21
-	if (count($ip_parts) == 1 && isValidIP($fullip))
-	{
-		$ip_array['low'] = $fullip;
-		$ip_array['high'] = $fullip;
-		return $ip_array;
-	} // if ip 22.12.* -> 22.12.*-22.12.*
-	elseif (count($ip_parts) == 1)
-	{
-		$ip_parts[0] = $fullip;
-		$ip_parts[1] = $fullip;
-	}
-
-	// if ip 22.12.31.21-12.21.31.21
-	if (count($ip_parts) == 2 && isValidIP($ip_parts[0]) && isValidIP($ip_parts[1]))
-	{
-		$ip_array['low'] = $ip_parts[0];
-		$ip_array['high'] = $ip_parts[1];
-		return $ip_array;
-	}
-	elseif (count($ip_parts) == 2) // if ip 22.22.*-22.22.*
-	{
-		$valid_low = isValidIP($ip_parts[0]);
-		$valid_high = isValidIP($ip_parts[1]);
-		$count = 0;
-		$mode = (preg_match('/:/', $ip_parts[0]) > 0 ? ':' : '.');
-		$max = ($mode == ':' ? 'ffff' : '255');
-		$min = 0;
-		if (!$valid_low)
-		{
-			$ip_parts[0] = preg_replace('/\*/', '0', $ip_parts[0]);
-			$valid_low = isValidIP($ip_parts[0]);
-			while (!$valid_low)
-			{
-				$ip_parts[0] .= $mode . $min;
-				$valid_low = isValidIP($ip_parts[0]);
-				$count++;
-				if ($count > 9) break;
-			}
-		}
-
-		$count = 0;
-		if (!$valid_high)
-		{
-			$ip_parts[1] = preg_replace('/\*/', $max, $ip_parts[1]);
-			$valid_high = isValidIP($ip_parts[1]);
-			while (!$valid_high)
-			{
-				$ip_parts[1] .= $mode . $max;
-				$valid_high = isValidIP($ip_parts[1]);
-				$count++;
-				if ($count > 9) break;
-			}
-		}
-
-		if ($valid_high && $valid_low)
-		{
-			$ip_array['low'] = $ip_parts[0];
-			$ip_array['high'] = $ip_parts[1];
-		}
-	}
-
-	return $ip_array;
-}
-
-/**
- * Lookup an IP; try shell_exec first because we can do a timeout on it.
- *
- * @param string $ip The IP to get the hostname from
- * @return string The hostname
- */
-function host_from_ip($ip)
-{
-	if (($host = CacheApi::get('hostlookup-' . $ip, 600)) !== null)
-		return $host;
-	$t = microtime(true);
-
-	$exists = function_exists('shell_exec');
-
-	// Try the Linux host command, perhaps?
-	if ($exists && !isset($host) && (strpos(strtolower(PHP_OS), 'win') === false || strpos(strtolower(PHP_OS), 'darwin') !== false) && mt_rand(0, 1) == 1)
-	{
-		if (!isset(Config::$modSettings['host_to_dis']))
-			$test = @shell_exec('host -W 1 ' . @escapeshellarg($ip));
-		else
-			$test = @shell_exec('host ' . @escapeshellarg($ip));
-
-		// Did host say it didn't find anything?
-		if (strpos($test, 'not found') !== false)
-			$host = '';
-		// Invalid server option?
-		elseif ((strpos($test, 'invalid option') || strpos($test, 'Invalid query name 1')) && !isset(Config::$modSettings['host_to_dis']))
-			Config::updateModSettings(array('host_to_dis' => 1));
-		// Maybe it found something, after all?
-		elseif (preg_match('~\s([^\s]+?)\.\s~', $test, $match) == 1)
-			$host = $match[1];
-	}
-
-	// This is nslookup; usually only Windows, but possibly some Unix?
-	if ($exists && !isset($host) && stripos(PHP_OS, 'win') !== false && strpos(strtolower(PHP_OS), 'darwin') === false && mt_rand(0, 1) == 1)
-	{
-		$test = @shell_exec('nslookup -timeout=1 ' . @escapeshellarg($ip));
-		if (strpos($test, 'Non-existent domain') !== false)
-			$host = '';
-		elseif (preg_match('~Name:\s+([^\s]+)~', $test, $match) == 1)
-			$host = $match[1];
-	}
-
-	// This is the last try :/.
-	if (!isset($host) || $host === false)
-		$host = @gethostbyaddr($ip);
-
-	// It took a long time, so let's cache it!
-	if (microtime(true) - $t > 0.5)
-		CacheApi::put('hostlookup-' . $ip, $host, 600);
-
-	return $host;
-}
-
-/**
  * Chops a string into words and prepares them to be inserted into (or searched from) the database.
  *
  * @param string $text The text to split into words
@@ -1582,39 +1447,6 @@ function get_gravatar_url($email_address)
 }
 
 /**
- * Converts an IP address into binary
- *
- * @param string $ip_address An IP address in IPv4, IPv6 or decimal notation
- * @return string|false The IP address in binary or false
- */
-function inet_ptod($ip_address)
-{
-	if (!isValidIP($ip_address))
-		return $ip_address;
-
-	$bin = inet_pton($ip_address);
-	return $bin;
-}
-
-/**
- * Converts a binary version of an IP address into a readable format
- *
- * @param string $bin An IP address in IPv4, IPv6 (Either string (postgresql) or binary (other databases))
- * @return string|false The IP address in presentation format or false on error
- */
-function inet_dtop($bin)
-{
-	if (empty($bin))
-		return '';
-	elseif (Config::$db_type == 'postgresql')
-		return $bin;
-	// Already a String?
-	elseif (isValidIP($bin))
-		return $bin;
-	return inet_ntop($bin);
-}
-
-/**
  * Safe serialize() and unserialize() replacements
  *
  * @license Public Domain
@@ -1917,19 +1749,6 @@ function smf_chmod($file, $value = 0)
 	}
 
 	return $isWritable;
-}
-
-/**
- * Check the given String if he is a valid IPv4 or IPv6
- * return true or false
- *
- * @param string $IPString
- *
- * @return bool
- */
-function isValidIP($IPString)
-{
-	return filter_var($IPString, FILTER_VALIDATE_IP) !== false;
 }
 
 /**

@@ -16,6 +16,7 @@ namespace SMF\Search;
 use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Config;
+use SMF\IP;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -201,7 +202,7 @@ class SearchResult extends \SMF\Msg
 		else
 			$author = User::$loaded[$this->id_member]->format(true);
 
-		$author['ip'] = inet_dtop($this->poster_ip);
+		$author['ip'] = new IP($this->poster_ip);
 
 		// Do the censor thang...
 		Lang::censorText($this->body);

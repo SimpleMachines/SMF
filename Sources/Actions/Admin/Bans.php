@@ -22,6 +22,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IP;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
@@ -536,7 +537,7 @@ class Bans implements ActionInterface
 					{
 						list(Utils::$context['ban_suggestions']['member']['id'], Utils::$context['ban_suggestions']['member']['name'], Utils::$context['ban_suggestions']['main_ip'], Utils::$context['ban_suggestions']['email']) = Db::$db->fetch_row($request);
 
-						Utils::$context['ban_suggestions']['main_ip'] = inet_dtop(Utils::$context['ban_suggestions']['main_ip']);
+						Utils::$context['ban_suggestions']['main_ip'] = new IP(Utils::$context['ban_suggestions']['main_ip']);
 					}
 					Db::$db->free_result($request);
 
@@ -552,16 +553,15 @@ class Bans implements ActionInterface
 						// @todo: there should be a better solution...used to lock the "Ban on Username" input when banning from profile
 						Utils::$context['ban']['from_user'] = true;
 
+						$main_ip = new IP(Utils::$context['ban_suggestions']['main_ip']);
+
 						// Would be nice if we could also ban the hostname.
 						if (
 							empty(Config::$modSettings['disableHostnameLookup'])
-							&& (
-								preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/', Utils::$context['ban_suggestions']['main_ip'])
-								|| QueryString::isValidIPv6(Utils::$context['ban_suggestions']['main_ip'])
-							)
+							&& $main_ip->isValid()
 						)
 						{
-							Utils::$context['ban_suggestions']['hostname'] = host_from_ip(Utils::$context['ban_suggestions']['main_ip']);
+							Utils::$context['ban_suggestions']['hostname'] = $main_ip->getHost();
 						}
 
 						Utils::$context['ban_suggestions']['other_ips'] = $this->banLoadAdditionalIPs(Utils::$context['ban_suggestions']['member']['id']);
@@ -583,7 +583,7 @@ class Bans implements ActionInterface
 					{
 						list(Utils::$context['ban_suggestions']['member']['name'], Utils::$context['ban_suggestions']['main_ip'], Utils::$context['ban_suggestions']['email']) = Db::$db->fetch_row($request);
 
-						Utils::$context['ban_suggestions']['main_ip'] = inet_dtop(Utils::$context['ban_suggestions']['main_ip']);
+						Utils::$context['ban_suggestions']['main_ip'] = new IP(Utils::$context['ban_suggestions']['main_ip']);
 					}
 					Db::$db->free_result($request);
 
@@ -721,11 +721,7 @@ class Bans implements ActionInterface
 			$listOptions['columns']['banned_entity']['data'] = array(
 				'function' => function($rowData)
 				{
-					return self::range2ip(
-						$rowData['ip_low']
-						,
-						$rowData['ip_high']
-					);
+					return IP::range2ip($rowData['ip_low'], $rowData['ip_high']);
 				},
 			);
 			$listOptions['columns']['banned_entity']['sort'] = array(
@@ -880,7 +876,7 @@ class Bans implements ActionInterface
 				'id' => $row['id_ban'],
 				'group' => $row['id_ban_group'],
 				'ip' => array(
-					'value' => empty($row['ip_low']) ? '' : self::range2ip($row['ip_low'], $row['ip_high']),
+					'value' => empty($row['ip_low']) ? '' : IP::range2ip($row['ip_low'], $row['ip_high']),
 					'selected' => !empty($row['ip_low']),
 				),
 				'hostname' => array(
@@ -1259,31 +1255,6 @@ class Bans implements ActionInterface
 	}
 
 	/**
-	 * Convert a range of given IP number into a single string.
-	 * It's practically the reverse function of ip2range().
-	 *
-	 * @example
-	 * self::range2ip(array(10, 10, 10, 0), array(10, 10, 20, 255)) returns '10.10.10-20.*
-	 *
-	 * @param array $low The low end of the range in IPv4 format
-	 * @param array $high The high end of the range in IPv4 format
-	 * @return string A string indicating the range
-	 */
-	public static function range2ip($low, $high): string
-	{
-		$low = inet_dtop($low);
-		$high = inet_dtop($high);
-
-		if ($low == '255.255.255.255')
-			return 'unknown';
-
-		if ($low == $high)
-			return $low;
-
-		return $low . '-' . $high;
-	}
-
-	/**
 	 * Get the total number of ban from the ban group table
 	 *
 	 * @return int The total number of bans
@@ -1370,7 +1341,7 @@ class Bans implements ActionInterface
 				if (!empty($row['ip_high']))
 				{
 					$ban_items[$row['id_ban']]['type'] = 'ip';
-					$ban_items[$row['id_ban']]['ip'] = self::range2ip($row['ip_low'], $row['ip_high']);
+					$ban_items[$row['id_ban']]['ip'] = IP::range2ip($row['ip_low'], $row['ip_high']);
 				}
 				elseif (!empty($row['hostname']))
 				{
@@ -1540,7 +1511,7 @@ class Bans implements ActionInterface
 		);
 		while ($row = Db::$db->fetch_assoc($request))
 		{
-			$row['ip'] = $row['ip'] === null ? '-' : inet_dtop($row['ip']);
+			$row['ip'] = $row['ip'] === null ? '-' : new IP($row['ip']);
 			$log_entries[] = $row;
 		}
 		Db::$db->free_result($request);
@@ -1827,7 +1798,7 @@ class Bans implements ActionInterface
 		);
 		while ($row = Db::$db->fetch_assoc($request))
 		{
-			$message_ips[] = inet_dtop($row['poster_ip']);
+			$message_ips[] = new IP($row['poster_ip']);
 		}
 		Db::$db->free_result($request);
 
@@ -1856,7 +1827,7 @@ class Bans implements ActionInterface
 		);
 		while ($row = Db::$db->fetch_assoc($request))
 		{
-			$error_ips[] = inet_dtop($row['ip']);
+			$error_ips[] = new IP($row['ip']);
 		}
 		Db::$db->free_result($request);
 
@@ -2031,17 +2002,17 @@ class Bans implements ActionInterface
 				if ($key == 'main_ip')
 				{
 					$value = trim($value);
-					$ip_parts = ip2range($value);
+					$ip_range = IP::ip2range($value);
 
-					if (!$this->checkExistingTriggerIP($ip_parts, $value))
+					if (!$this->checkExistingTriggerIP($ip_range, $value))
 					{
 						Utils::$context['ban_errors'][] = 'invalid_ip';
 					}
 					else
 					{
 						$ban_triggers['main_ip'] = array(
-							'ip_low' => $ip_parts['low'],
-							'ip_high' => $ip_parts['high']
+							'ip_low' => $ip_range['low'],
+							'ip_high' => $ip_range['high']
 						);
 					}
 				}
@@ -2130,17 +2101,17 @@ class Bans implements ActionInterface
 					foreach ($values as $val)
 					{
 						$val = trim($val);
-						$ip_parts = ip2range($val);
+						$ip_range = IP::ip2range($val);
 
-						if (!$this->checkExistingTriggerIP($ip_parts, $val))
+						if (!$this->checkExistingTriggerIP($ip_range, $val))
 						{
 							Utils::$context['ban_errors'][] = 'invalid_ip';
 						}
 						else
 						{
 							$ban_triggers[$key][] = array(
-								'ip_low' => $ip_parts['low'],
-								'ip_high' => $ip_parts['high'],
+								'ip_low' => $ip_range['low'],
+								'ip_high' => $ip_range['high'],
 							);
 
 							$log_info[] = array(
@@ -2523,7 +2494,7 @@ class Bans implements ActionInterface
 		{
 			list($suggestions['member']['id'], $suggestions['member']['name'], $suggestions['main_ip'], $suggestions['email']) = Db::$db->fetch_row($request);
 
-			$suggestions['main_ip'] = inet_dtop($suggestions['main_ip']);
+			$suggestions['main_ip'] = new IP($suggestions['main_ip']);
 		}
 		Db::$db->free_result($request);
 
@@ -2585,7 +2556,7 @@ class Bans implements ActionInterface
 				if (!empty($row['ip_high']))
 				{
 					$ban_items[$row['id_ban']]['type'] = 'ip';
-					$ban_items[$row['id_ban']]['ip'] = self::range2ip($row['ip_low'], $row['ip_high']);
+					$ban_items[$row['id_ban']]['ip'] = IP::range2ip($row['ip_low'], $row['ip_high']);
 
 					$is_range = (strpos($ban_items[$row['id_ban']]['ip'], '-') !== false || strpos($ban_items[$row['id_ban']]['ip'], '*') !== false);
 

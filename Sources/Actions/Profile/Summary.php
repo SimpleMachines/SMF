@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\IP;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Profile;
@@ -133,7 +134,8 @@ class Summary implements ActionInterface
 
 		if (Utils::$context['can_see_ip'] && empty(Config::$modSettings['disableHostnameLookup']) && filter_var(Profile::$member->formatted['ip'], FILTER_VALIDATE_IP) !== false)
 		{
-			Profile::$member->formatted['hostname'] = host_from_ip(Profile::$member->formatted['ip']);
+			$ip = new IP(Profile::$member->formatted['ip']);
+			Profile::$member->formatted['hostname'] = $ip->getHost();
 		}
 
 		// Are they hidden?

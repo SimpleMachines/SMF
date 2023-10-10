@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\IP;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
@@ -468,7 +469,7 @@ class Logs implements ActionInterface
 			// The array to go to the template. Note here that action is set to a "default" value of the action doesn't match anything in the descriptions. Allows easy adding of logging events with basic details.
 			$entries[$row['id_action']] = array(
 				'id' => $row['id_action'],
-				'ip' => $seeIP ? inet_dtop($row['ip']) : Lang::$txt['logged'],
+				'ip' => $seeIP ? new IP($row['ip']) : Lang::$txt['logged'],
 				'position' => empty($row['real_name']) && empty($row['group_name']) ? Lang::$txt['guest'] : $row['group_name'],
 				'moderator_link' => $row['id_member'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>' : (empty($row['real_name']) ? (Lang::$txt['guest'] . (!empty($row['extra']['member_acted']) ? ' (' . $row['extra']['member_acted'] . ')' : '')) : $row['real_name']),
 				'time' => timeformat($row['log_time']),

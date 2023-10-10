@@ -434,7 +434,7 @@ class Msg implements \ArrayAccess
 				$this->formatted['member']['show_email'] |= ($this->id_member == User::$me->id);
 			}
 
-			$this->formatted['member']['ip'] = inet_dtop($this->poster_ip);
+			$this->formatted['member']['ip'] = new IP($this->poster_ip);
 			$this->formatted['member']['show_profile_buttons'] = !empty(Config::$modSettings['show_profile_buttons']) && (!empty($this->formatted['member']['can_view_profile']) || (!empty($this->formatted['member']['website']['url']) && !isset(Utils::$context['disabled_fields']['website'])) || $this->formatted['member']['show_email'] || $topic->permissions['can_send_pm']);
 
 			// Any custom profile fields?
@@ -527,7 +527,7 @@ class Msg implements \ArrayAccess
 	public function __set(string $prop, $value): void
 	{
 		if ($prop === 'poster_ip')
-			$value = inet_dtop($value);
+			$value = new IP($value);
 
 		$this->customPropertySet($prop, $value);
 	}

@@ -15,6 +15,7 @@ namespace SMF\Db\APIs;
 
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IP;
 use SMF\Lang;
 use SMF\User;
 use SMF\Utils;
@@ -2202,23 +2203,37 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			case 'inet':
 				if ($replacement == 'null' || $replacement == '')
 					return 'null';
-				if (inet_pton($replacement) === false)
-					$this->error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected.(' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
-				return sprintf('\'%1$s\'::inet', pg_escape_string($connection, $replacement));
+
+				$ip = new IP($replacement);
+
+				if (!$ip->isValid())
+				{
+					$this->error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+				}
+
+				return sprintf('\'%1$s\'::inet', pg_escape_string($connection, $ip));
 
 			case 'array_inet':
 				if (is_array($replacement))
 				{
 					if (empty($replacement))
+					{
 						$this->error_backtrace('Database error, given array of IPv4 or IPv6 values is empty. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+					}
 
 					foreach ($replacement as $key => $value)
 					{
-						if ($replacement == 'null' || $replacement == '')
+						if ($value == 'null' || $value == '')
 							$replacement[$key] = 'null';
-						if (!isValidIP($value))
+
+						$ip = new IP($value);
+
+						if (!$ip->isValid())
+						{
 							$this->error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected.(' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
-						$replacement[$key] = sprintf('\'%1$s\'::inet', pg_escape_string($connection, $value));
+						}
+
+						$replacement[$key] = sprintf('\'%1$s\'::inet', pg_escape_string($connection, $ip));
 					}
 
 					return implode(', ', $replacement);

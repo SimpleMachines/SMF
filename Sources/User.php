@@ -1710,7 +1710,8 @@ class User implements \ArrayAccess
 				// IP was valid, maybe there's also a hostname...
 				if (empty(Config::$modSettings['disableHostnameLookup']) && $this->{$ip_number} != 'unknown')
 				{
-					$hostname = host_from_ip($this->{$ip_number});
+					$ip = new IP($this->{$ip_number});
+					$hostname = $ip->getHost();
 
 					if (strlen($hostname) > 0)
 					{
@@ -5342,11 +5343,13 @@ class User implements \ArrayAccess
 								if ($ip === '')
 									continue;
 
-								$ip = ip2range($ip);
+								$ip_range = IP::ip2range($ip);
 
-								if (!empty($ip))
+								$remote_ip = new IP($_SERVER['REMOTE_ADDR']);
+
+								if (!empty($ip_range))
 								{
-									if (inet_ptod($ip['low']) <= inet_ptod($_SERVER['REMOTE_ADDR']) && inet_ptod($ip['high']) >= inet_ptod($_SERVER['REMOTE_ADDR']))
+									if ($ip_range['low']->toBinary() <= $remote_ip->toBinary() && $ip_range['high']->toBinary() >= $remote_ip->toBinary())
 									{
 										$_SESSION['id_robot'] = $spider['id_spider'];
 									}
@@ -5619,10 +5622,10 @@ class User implements \ArrayAccess
 
 				// Unpack the IP addresses.
 				if (isset($row['member_ip']))
-					$row['member_ip'] = inet_dtop($row['member_ip']);
+					$row['member_ip'] = new IP($row['member_ip']);
 
 				if (isset($row['member_ip2']))
-					$row['member_ip2'] = inet_dtop($row['member_ip2']);
+					$row['member_ip2'] = new IP($row['member_ip2']);
 
 				$row['is_online'] = $row['is_online'] ?? $row['id_member'] === (self::$my_id ?? NAN);
 

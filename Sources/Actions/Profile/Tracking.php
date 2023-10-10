@@ -19,6 +19,7 @@ use SMF\Actions\ActionInterface;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IP;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
@@ -285,7 +286,7 @@ class Tracking implements ActionInterface
 		);
 		while ($row = Db::$db->fetch_assoc($request))
 		{
-			$row['poster_ip'] = inet_dtop($row['poster_ip']);
+			$row['poster_ip'] = new IP($row['poster_ip']);
 
 			Utils::$context['ips'][] = '<a href="' . Config::$scripturl . '?action=profile;area=tracking;sa=ip;searchip=' . $row['poster_ip'] . ';u=' . Profile::$member->id . '">' . $row['poster_ip'] . '</a>';
 
@@ -307,7 +308,7 @@ class Tracking implements ActionInterface
 		);
 		while ($row = Db::$db->fetch_assoc($request))
 		{
-			$row['ip'] = inet_dtop($row['ip']);
+			$row['ip'] = new IP($row['ip']);
 
 			Utils::$context['error_ips'][] = '<a href="' . Config::$scripturl . '?action=profile;area=tracking;sa=ip;searchip=' . $row['ip'] . ';u=' . Profile::$member->id . '">' . $row['ip'] . '</a>';
 
@@ -673,7 +674,7 @@ class Tracking implements ActionInterface
 		while ($row = Db::$db->fetch_assoc($request))
 		{
 			$error_messages[] = array(
-				'ip' => inet_dtop($row['ip']),
+				'ip' => new IP($row['ip']),
 				'member_link' => $row['id_member'] > 0 ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['display_name'] . '</a>' : $row['display_name'],
 				'message' => strtr($row['message'], array('&lt;span class=&quot;remove&quot;&gt;' => '', '&lt;/span&gt;' => '')),
 				'url' => $row['url'],
@@ -768,7 +769,7 @@ class Tracking implements ActionInterface
 
 			$edits[] = array(
 				'id' => $row['id_action'],
-				'ip' => inet_dtop($row['ip']),
+				'ip' => new IP($row['ip']),
 				'id_member' => !empty($extra['applicator']) ? $extra['applicator'] : 0,
 				'member_link' => Lang::$txt['trackEdit_deleted_member'],
 				'action' => $row['action'],
@@ -941,8 +942,8 @@ class Tracking implements ActionInterface
 		while ($row = Db::$db->fetch_assoc($request))
 			$logins[] = array(
 				'time' => timeformat($row['time']),
-				'ip' => inet_dtop($row['ip']),
-				'ip2' => inet_dtop($row['ip2']),
+				'ip' => new IP($row['ip']),
+				'ip2' => new IP($row['ip2']),
 			);
 		Db::$db->free_result($request);
 
