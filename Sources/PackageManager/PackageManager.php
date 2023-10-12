@@ -180,7 +180,7 @@ class PackageManager
 	{
 		// You have to specify a file!!
 		if (!isset($_REQUEST['package']) || $_REQUEST['package'] == '')
-			redirectexit('action=admin;area=packages');
+			Utils::redirectexit('action=admin;area=packages');
 		Utils::$context['filename'] = preg_replace('~[\.]+~', '.', $_REQUEST['package']);
 
 		// Do we have an existing id, for uninstalls and the like.
@@ -855,7 +855,7 @@ class PackageManager
 
 		// If there's no file, what are we installing?
 		if (!isset($_REQUEST['package']) || $_REQUEST['package'] == '')
-			redirectexit('action=admin;area=packages');
+			Utils::redirectexit('action=admin;area=packages');
 		Utils::$context['filename'] = $_REQUEST['package'];
 
 		// If this is an uninstall, we'll have an id.
@@ -1380,7 +1380,7 @@ class PackageManager
 	{
 		// No package?  Show him or her the door.
 		if (!isset($_REQUEST['package']) || $_REQUEST['package'] == '')
-			redirectexit('action=admin;area=packages');
+			Utils::redirectexit('action=admin;area=packages');
 
 		Utils::$context['linktree'][] = array(
 			'url' => Config::$scripturl . '?action=admin;area=packages;sa=list;package=' . $_REQUEST['package'],
@@ -1406,11 +1406,11 @@ class PackageManager
 	{
 		// No package?  Show him or her the door.
 		if (!isset($_REQUEST['package']) || $_REQUEST['package'] == '')
-			redirectexit('action=admin;area=packages');
+			Utils::redirectexit('action=admin;area=packages');
 
 		// No file?  Show him or her the door.
 		if (!isset($_REQUEST['file']) || $_REQUEST['file'] == '')
-			redirectexit('action=admin;area=packages');
+			Utils::redirectexit('action=admin;area=packages');
 
 		$_REQUEST['package'] = preg_replace('~[\.]+~', '.', strtr($_REQUEST['package'], array('/' => '_', '\\' => '_')));
 		$_REQUEST['file'] = preg_replace('~[\.]+~', '.', $_REQUEST['file']);
@@ -1422,7 +1422,7 @@ class PackageManager
 			elseif (is_dir(Config::$packagesdir . '/' . $_REQUEST['package']))
 				echo file_get_contents(Config::$packagesdir . '/' . $_REQUEST['package'] . '/' . $_REQUEST['file']);
 
-			obExit(false);
+			Utils::obExit(false);
 		}
 
 		Utils::$context['linktree'][count(Utils::$context['linktree']) - 1] = array(
@@ -1461,7 +1461,7 @@ class PackageManager
 
 		// Ack, don't allow deletion of arbitrary files here, could become a security hole somehow!
 		if (!isset($_GET['package']) || $_GET['package'] == 'index.php' || $_GET['package'] == 'backups')
-			redirectexit('action=admin;area=packages;sa=browse');
+			Utils::redirectexit('action=admin;area=packages;sa=browse');
 		$_GET['package'] = preg_replace('~[\.]+~', '.', strtr($_GET['package'], array('/' => '_', '\\' => '_')));
 
 		// Can't delete what's not there.
@@ -1478,7 +1478,7 @@ class PackageManager
 			}
 		}
 
-		redirectexit('action=admin;area=packages;sa=browse');
+		Utils::redirectexit('action=admin;area=packages;sa=browse');
 	}
 
 	/**
@@ -1651,7 +1651,7 @@ class PackageManager
 			));
 			$_SESSION['adm-save'] = true;
 
-			redirectexit('action=admin;area=packages;sa=options');
+			Utils::redirectexit('action=admin;area=packages;sa=options');
 		}
 
 		if (preg_match('~^/home\d*/([^/]+?)/public_html~', $_SERVER['DOCUMENT_ROOT'], $match))
@@ -2177,7 +2177,7 @@ class PackageManager
 
 				// Nothing to do?
 				if (empty(Utils::$context['to_process']))
-					redirectexit('action=admin;area=packages;sa=perms' . (!empty(Utils::$context['back_look_data']) ? ';back_look=' . base64_encode(Utils::jsonEncode(Utils::$context['back_look_data'])) : '') . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+					Utils::redirectexit('action=admin;area=packages;sa=perms' . (!empty(Utils::$context['back_look_data']) ? ';back_look=' . base64_encode(Utils::jsonEncode(Utils::$context['back_look_data'])) : '') . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 			}
 			// Should never get here,
 			else
@@ -2322,7 +2322,7 @@ class PackageManager
 		}
 
 		// If we're here we are done!
-		redirectexit('action=admin;area=packages;sa=perms' . (!empty(Utils::$context['back_look_data']) ? ';back_look=' . base64_encode(Utils::jsonEncode(Utils::$context['back_look_data'])) : '') . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+		Utils::redirectexit('action=admin;area=packages;sa=perms' . (!empty(Utils::$context['back_look_data']) ? ';back_look=' . base64_encode(Utils::jsonEncode(Utils::$context['back_look_data'])) : '') . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 	}
 
 	/**
@@ -2474,7 +2474,7 @@ class PackageManager
 		if (isset($_GET['server']))
 		{
 			if ($_GET['server'] == '')
-				redirectexit('action=admin;area=packages;get');
+				Utils::redirectexit('action=admin;area=packages;get');
 
 			$server = (int) $_GET['server'];
 
@@ -2888,7 +2888,7 @@ class PackageManager
 		// Done!  Did we get this package automatically?
 		// @ TODO: These are usually update packages.  Allowing both for now until more testing has been done.
 		if (preg_match('~^https?://[\w_\-]+\.simplemachines\.org/~', $_REQUEST['package']) == 1 && strpos($_REQUEST['package'], 'dlattach') === false && isset($_REQUEST['auto']))
-			redirectexit('action=admin;area=packages;sa=install;package=' . $package_name);
+			Utils::redirectexit('action=admin;area=packages;sa=install;package=' . $package_name);
 
 		// You just downloaded a mod from SERVER_NAME_GOES_HERE.
 		Utils::$context['package_server'] = $server;
@@ -3030,7 +3030,7 @@ class PackageManager
 			array('id_server')
 		);
 
-		redirectexit('action=admin;area=packages;get');
+		Utils::redirectexit('action=admin;area=packages;get');
 	}
 
 	/**
@@ -3048,7 +3048,7 @@ class PackageManager
 			)
 		);
 
-		redirectexit('action=admin;area=packages;get');
+		Utils::redirectexit('action=admin;area=packages;get');
 	}
 
 	/**

@@ -292,7 +292,7 @@ class Logs implements ActionInterface
 
 			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
-			redirectexit('action=admin;area=logs;sa=settings');
+			Utils::redirectexit('action=admin;area=logs;sa=settings');
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=logs;save;sa=settings';

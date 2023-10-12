@@ -406,11 +406,11 @@ class PersonalMessage implements ActionInterface
 		}
 
 		if (empty($_REQUEST['pm_actions']))
-			redirectexit($this->current_label_redirect);
+			Utils::redirectexit($this->current_label_redirect);
 
 		// Don't act on a conversation unless the view mode and the $_REQUEST var match.
 		if (($this->mode == self::VIEW_CONV) != (isset($_REQUEST['conversation'])))
-			redirectexit($this->current_label_redirect);
+			Utils::redirectexit($this->current_label_redirect);
 
 		// Don't do labels unless we're in the inbox.
 		if ($this->folder !== 'inbox')
@@ -491,7 +491,7 @@ class PersonalMessage implements ActionInterface
 		// Back to the folder.
 		$_SESSION['pm_selected'] = array_keys($to_label);
 
-		redirectexit($this->current_label_redirect . (count($to_label) == 1 ? '#msg' . $_SESSION['pm_selected'][0] : ''), count($to_label) == 1 && BrowserDetector::isBrowser('ie'));
+		Utils::redirectexit($this->current_label_redirect . (count($to_label) == 1 ? '#msg' . $_SESSION['pm_selected'][0] : ''), count($to_label) == 1 && BrowserDetector::isBrowser('ie'));
 	}
 
 	/**
@@ -504,7 +504,7 @@ class PersonalMessage implements ActionInterface
 		PM::delete(null, null);
 
 		// Done... all gone.
-		redirectexit($this->current_label_redirect);
+		Utils::redirectexit($this->current_label_redirect);
 	}
 
 	/**
@@ -523,7 +523,7 @@ class PersonalMessage implements ActionInterface
 			PM::delete(array_merge(PM::old($delete_time), Received::old($delete_time)));
 
 			// Go back to their inbox.
-			redirectexit($this->current_label_redirect);
+			Utils::redirectexit($this->current_label_redirect);
 		}
 
 		// Build the link tree elements.

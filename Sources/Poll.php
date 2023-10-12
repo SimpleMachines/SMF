@@ -1017,7 +1017,7 @@ class Poll implements \ArrayAccess
 			}
 
 			// Redirect back to the topic so the user can vote again!
-			redirectexit('topic=' . Topic::$topic_id . '.' . (int) ($_REQUEST['start'] ?? 0));
+			Utils::redirectexit('topic=' . Topic::$topic_id . '.' . (int) ($_REQUEST['start'] ?? 0));
 		}
 
 		// Make sure the option(s) are valid.
@@ -1068,7 +1068,7 @@ class Poll implements \ArrayAccess
 		call_integration_hook('integrate_poll_vote', array($poll->id, $choices));
 
 		// Return to the post...
-		redirectexit('topic=' . Topic::$topic_id . '.' . (int) ($_REQUEST['start'] ?? 0));
+		Utils::redirectexit('topic=' . Topic::$topic_id . '.' . (int) ($_REQUEST['start'] ?? 0));
 	}
 
 	/**
@@ -1124,7 +1124,7 @@ class Poll implements \ArrayAccess
 
 		Logging::logAction(($poll->voting_locked ? '' : 'un') . 'lock_poll', array('topic' => Topic::$topic_id));
 
-		redirectexit('topic=' . Topic::$topic_id . '.' . (int) ($_REQUEST['start'] ?? 0));
+		Utils::redirectexit('topic=' . Topic::$topic_id . '.' . (int) ($_REQUEST['start'] ?? 0));
 	}
 
 	/**
@@ -1229,7 +1229,7 @@ class Poll implements \ArrayAccess
 
 		// Sneaking off, are we?
 		if (empty($_POST))
-			redirectexit('action=editpoll;topic=' . Topic::$topic_id . '.0');
+			Utils::redirectexit('action=editpoll;topic=' . Topic::$topic_id . '.0');
 
 		if (User::$me->checkSession('post', '', false) != '')
 			$errors[] = 'session_timeout';
@@ -1285,7 +1285,7 @@ class Poll implements \ArrayAccess
 			$poll->save();
 
 			Logging::logAction('add_poll', array('topic' => Topic::$topic_id));
-			redirectexit('topic=' . Topic::$topic_id . '.' . (int) ($_REQUEST['start'] ?? 0));
+			Utils::redirectexit('topic=' . Topic::$topic_id . '.' . (int) ($_REQUEST['start'] ?? 0));
 		}
 
 		// Clean up everything in $_POST.
@@ -1340,7 +1340,7 @@ class Poll implements \ArrayAccess
 		Logging::logAction($action . '_poll', array('topic' => Topic::$topic_id));
 
 		// Off we go.
-		redirectexit('topic=' . Topic::$topic_id . '.' . (int) ($_REQUEST['start'] ?? 0));
+		Utils::redirectexit('topic=' . Topic::$topic_id . '.' . (int) ($_REQUEST['start'] ?? 0));
 	}
 
 	/**
@@ -1413,7 +1413,7 @@ class Poll implements \ArrayAccess
 		Logging::logAction('remove_poll', array('topic' => Topic::$topic_id));
 
 		// Take the moderator back to the topic.
-		redirectexit('topic=' . Topic::$topic_id . '.' . (int) ($_REQUEST['start'] ?? 0));
+		Utils::redirectexit('topic=' . Topic::$topic_id . '.' . (int) ($_REQUEST['start'] ?? 0));
 	}
 
 	/******************

@@ -295,7 +295,8 @@ class Maintenance implements ActionInterface
 			<div style="margin-top: 8%; font-size: 400%; color: black;">Oh my, you killed ', Utils::$context['forum_name_html_safe'], '!</div>
 			<div style="margin-top: 7%; font-size: 500%; color: red;"><strong>You lazy bum!</strong></div>
 			</body></html>';
-		obExit(false);
+
+		Utils::obExit(false);
 	}
 
 	/**
@@ -849,7 +850,7 @@ class Maintenance implements ActionInterface
 		// Finally, update the latest event times.
 		TaskRunner::calculateNextTrigger();
 
-		redirectexit('action=admin;area=maintain;sa=routine;done=recount');
+		Utils::redirectexit('action=admin;area=maintain;sa=routine;done=recount');
 	}
 
 	/**
@@ -861,7 +862,7 @@ class Maintenance implements ActionInterface
 
 		Config::updateSettingsFile(array(), false, true);
 
-		redirectexit('action=admin;area=maintain;sa=routine;done=rebuild_settings');
+		Utils::redirectexit('action=admin;area=maintain;sa=routine;done=rebuild_settings');
 	}
 
 	/**
@@ -1637,7 +1638,7 @@ class Maintenance implements ActionInterface
 		// all done
 		unset($_SESSION['total_members']);
 		Utils::$context['maintenance_finished'] = Lang::$txt['maintain_recountposts'];
-		redirectexit('action=admin;area=maintain;sa=members;done=recountposts');
+		Utils::redirectexit('action=admin;area=maintain;sa=members;done=recountposts');
 	}
 
 	/**
@@ -1759,7 +1760,7 @@ class Maintenance implements ActionInterface
 				{
 					CacheApi::put('board-' . $id_board_from, null, 120);
 					CacheApi::put('board-' . $id_board_to, null, 120);
-					redirectexit('action=admin;area=maintain;sa=topics;done=massmove');
+					Utils::redirectexit('action=admin;area=maintain;sa=topics;done=massmove');
 				}
 
 				// Lets move them.
@@ -1785,7 +1786,7 @@ class Maintenance implements ActionInterface
 		CacheApi::put('board-' . $id_board_from, null, 120);
 		CacheApi::put('board-' . $id_board_to, null, 120);
 
-		redirectexit('action=admin;area=maintain;sa=topics;done=massmove');
+		Utils::redirectexit('action=admin;area=maintain;sa=topics;done=massmove');
 	}
 
 	/**
@@ -1882,7 +1883,7 @@ class Maintenance implements ActionInterface
 				add_integration_function($_REQUEST['hook'], $function_add);
 			}
 
-			redirectexit('action=admin;area=maintain;sa=hooks' . $filter_url);
+			Utils::redirectexit('action=admin;area=maintain;sa=hooks' . $filter_url);
 		}
 
 		SecurityToken::create('admin-hook', 'request');

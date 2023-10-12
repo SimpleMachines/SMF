@@ -670,7 +670,7 @@ class SearchEngines implements ActionInterface
 			self::recacheSpiderNames();
 
 			$_SESSION['adm-save'] = true;
-			redirectexit('action=admin;area=sengines;sa=settings');
+			Utils::redirectexit('action=admin;area=sengines;sa=settings');
 		}
 
 		// Final settings...
@@ -753,7 +753,7 @@ class SearchEngines implements ActionInterface
 			CacheApi::put('spider_search', null);
 			self::recacheSpiderNames();
 
-			redirectexit('action=admin;area=sengines;sa=spiders');
+			Utils::redirectexit('action=admin;area=sengines;sa=spiders');
 		}
 
 		// The default is new.

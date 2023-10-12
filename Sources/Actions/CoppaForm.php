@@ -114,7 +114,7 @@ class CoppaForm implements ActionInterface
 				header('content-length: ' . count($data));
 
 				echo $data;
-				obExit(false);
+				Utils::obExit(false);
 			}
 		}
 		else

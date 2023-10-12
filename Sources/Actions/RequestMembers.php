@@ -109,7 +109,7 @@ class RequestMembers implements ActionInterface
 		}
 		Db::$db->free_result($request);
 
-		obExit(false);
+		Utils::obExit(false);
 	}
 
 	/***********************

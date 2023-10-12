@@ -264,7 +264,7 @@ class Delete implements ActionInterface
 
 			Logout::call(true);
 
-			redirectexit();
+			Utils::redirectexit();
 		}
 	}
 

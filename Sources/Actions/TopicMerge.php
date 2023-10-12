@@ -1007,7 +1007,7 @@ class TopicMerge implements ActionInterface
 		call_integration_hook('integrate_merge_topic', array($merged_topic, $updated_topics, $deleted_topics, $deleted_polls));
 
 		// Send them to the all done page.
-		redirectexit('action=mergetopics;sa=done;to=' . $id_topic . ';targetboard=' . $target_board);
+		Utils::redirectexit('action=mergetopics;sa=done;to=' . $id_topic . ';targetboard=' . $target_board);
 	}
 
 	/**

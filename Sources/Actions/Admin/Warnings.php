@@ -122,7 +122,7 @@ class Warnings implements ActionInterface
 
 			ACP::saveDBSettings($save_vars);
 			$_SESSION['adm-save'] = true;
-			redirectexit('action=admin;area=warnings');
+			Utils::redirectexit('action=admin;area=warnings');
 		}
 
 		// We actually store lots of these together - for efficiency.

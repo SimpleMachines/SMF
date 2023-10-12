@@ -194,7 +194,7 @@ class DraftPM extends Draft
 			);
 
 			// now redirect back to the list
-			redirectexit('action=pm;sa=showpmdrafts;start=' . $start);
+			Utils::redirectexit('action=pm;sa=showpmdrafts;start=' . $start);
 		}
 
 		// perhaps a draft was selected for editing? if so pass this off
@@ -202,7 +202,7 @@ class DraftPM extends Draft
 		{
 			User::$me->checkSession('get');
 			$id_draft = (int) $_REQUEST['id_draft'];
-			redirectexit('action=pm;sa=send;id_draft=' . $id_draft);
+			Utils::redirectexit('action=pm;sa=send;id_draft=' . $id_draft);
 		}
 
 		Lang::load('Drafts');

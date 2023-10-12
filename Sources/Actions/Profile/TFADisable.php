@@ -20,6 +20,7 @@ use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Profile;
 use SMF\User;
+use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -63,7 +64,7 @@ class TFADisable implements ActionInterface
 	public function execute(): void
 	{
 		if (empty(User::$me->tfa_secret))
-			redirectexit('action=profile;area=account;u=' . Profile::$member->id);
+			Utils::redirectexit('action=profile;area=account;u=' . Profile::$member->id);
 
 		// Bail if we're forcing SSL for authentication and the network connection isn't secure.
 		if (!empty(Config::$modSettings['force_ssl']) && !Config::httpsOn())

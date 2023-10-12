@@ -20,6 +20,7 @@ use SMF\Logging;
 use SMF\Msg;
 use SMF\Topic;
 use SMF\User;
+use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -263,7 +264,7 @@ class TopicRestore implements ActionInterface
 		}
 
 		// Just send them to the index if they get here.
-		redirectexit();
+		Utils::redirectexit();
 	}
 
 	/***********************

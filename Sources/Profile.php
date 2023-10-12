@@ -3162,7 +3162,7 @@ class Profile extends User implements \ArrayAccess
 
 		User::setMe(0);
 
-		redirectexit('action=sendactivation');
+		Utils::redirectexit('action=sendactivation');
 	}
 
 	/**

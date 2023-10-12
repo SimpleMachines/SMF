@@ -1256,7 +1256,7 @@ class RepairBoards implements ActionInterface
 		$_SESSION['repairboards_to_fix'] = $to_fix;
 		$_SESSION['repairboards_to_fix2'] = Utils::$context['repair_errors'];
 
-		obExit();
+		Utils::obExit();
 	}
 
 	/**

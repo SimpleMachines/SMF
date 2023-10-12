@@ -129,7 +129,7 @@ class ErrorHandler
 		// If this is an E_ERROR or E_USER_ERROR.... die. Violently so.
 		if ($error_level % 255 == E_ERROR)
 		{
-			obExit(false);
+			Utils::obExit(false);
 		}
 		else
 		{
@@ -309,7 +309,7 @@ class ErrorHandler
 	{
 		// Send the appropriate HTTP status header - set this to 0 or false if you don't want to send one at all
 		if (!empty($status))
-			send_http_status($status);
+			Utils::sendHttpStatus($status);
 
 		// We don't have Lang::$txt yet, but that's okay...
 		if (empty(Lang::$txt))
@@ -340,7 +340,7 @@ class ErrorHandler
 
 		// Send the status header - set this to 0 or false if you don't want to send one at all.
 		if (!empty($status))
-			send_http_status($status);
+			Utils::sendHttpStatus($status);
 
 		// Try to load a theme if we don't have one.
 		if (empty(Utils::$context['theme_loaded']) && empty($fatal_error_called))
@@ -591,7 +591,7 @@ class ErrorHandler
 		header('cache-control: no-cache');
 
 		// Send the right error codes.
-		send_http_status(503, 'Service Temporarily Unavailable');
+		Utils::sendHttpStatus(503, 'Service Temporarily Unavailable');
 		header('status: 503 Service Temporarily Unavailable');
 		header('retry-after: 3600');
 	}
@@ -667,7 +667,7 @@ class ErrorHandler
 		}
 
 		// We want whatever for the header, and a footer. (footer includes sub template!)
-		obExit(null, true, false, true);
+		Utils::obExit(null, true, false, true);
 
 		/* DO NOT IGNORE:
 			If you are creating a bridge to SMF or modifying this function, you MUST

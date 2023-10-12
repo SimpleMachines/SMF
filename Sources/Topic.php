@@ -665,7 +665,7 @@ class Topic implements \ArrayAccess
 		Mail::sendNotifications(self::$topic_id, empty($locked) ? 'unlock' : 'lock');
 
 		// Back to the topic!
-		redirectexit('topic=' . self::$topic_id . '.' . $_REQUEST['start'] . ';moderate');
+		Utils::redirectexit('topic=' . self::$topic_id . '.' . $_REQUEST['start'] . ';moderate');
 	}
 
 	/**
@@ -731,7 +731,7 @@ class Topic implements \ArrayAccess
 			Mail::sendNotifications(self::$topic_id, 'sticky');
 
 		// Take them back to the now stickied topic.
-		redirectexit('topic=' . self::$topic_id . '.' . $_REQUEST['start'] . ';moderate');
+		Utils::redirectexit('topic=' . self::$topic_id . '.' . $_REQUEST['start'] . ';moderate');
 	}
 
 	/**

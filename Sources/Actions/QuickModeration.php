@@ -222,7 +222,7 @@ class QuickModeration implements ActionInterface
 		));
 
 		if ($this->should_redirect)
-			redirectexit($this->redirect_url);
+			Utils::redirectexit($this->redirect_url);
 	}
 
 	/***********************
@@ -325,7 +325,7 @@ class QuickModeration implements ActionInterface
 		{
 			// If the action isn't valid, just quit now.
 			if (empty($_REQUEST['qaction']) || !isset($this->topic_actions[$_REQUEST['qaction']]))
-				redirectexit($this->redirect_url);
+				Utils::redirectexit($this->redirect_url);
 
 			// Just convert to the other method, to make it easier.
 			foreach ($_REQUEST['topics'] as $topic)
@@ -334,7 +334,7 @@ class QuickModeration implements ActionInterface
 
 		// Weird... how'd you get here?
 		if (empty($_REQUEST['actions']))
-			redirectexit($this->redirect_url);
+			Utils::redirectexit($this->redirect_url);
 	}
 
 	/**
@@ -971,7 +971,7 @@ class QuickModeration implements ActionInterface
 		if (empty($this->topic_actions['restore']))
 			return;
 
-		redirectexit('action=restoretopic;topics=' . implode(',', $this->topic_actions['restore']) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+		Utils::redirectexit('action=restoretopic;topics=' . implode(',', $this->topic_actions['restore']) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 	}
 }
 

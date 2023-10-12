@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\ErrorHandler;
 use SMF\User;
+use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
@@ -116,7 +117,7 @@ class BuddyListToggle implements ActionInterface
 		User::updateMemberData(User::$me->id, array('buddy_list' => implode(',', User::$me->buddies)));
 
 		// Redirect back to the profile
-		redirectexit('action=profile;u=' . $this->userReceiver);
+		Utils::redirectexit('action=profile;u=' . $this->userReceiver);
 	}
 
 	/***********************

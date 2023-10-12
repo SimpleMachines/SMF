@@ -463,7 +463,7 @@ class Label implements \ArrayAccess
 			CacheApi::put('labelCounts:' . User::$me->id, null, 720);
 
 			// To make the changes appear right away, redirect.
-			redirectexit('action=pm;sa=manlabels');
+			Utils::redirectexit('action=pm;sa=manlabels');
 		}
 	}
 }

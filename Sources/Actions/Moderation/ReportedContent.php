@@ -182,7 +182,7 @@ class ReportedContent implements ActionInterface
 			$_SESSION['rc_confirmation'] = 'close_all';
 
 			// Force a page refresh.
-			redirectexit(Config::$scripturl . '?action=moderate;area=reported' . $this->type);
+			Utils::redirectexit(Config::$scripturl . '?action=moderate;area=reported' . $this->type);
 		}
 
 		SecurityToken::create('mod-report-close-all');
@@ -464,7 +464,7 @@ class ReportedContent implements ActionInterface
 		$_SESSION['rc_confirmation'] = $message;
 
 		// Done!
-		redirectexit(Config::$scripturl . '?action=moderate;area=reported' . $this->type);
+		Utils::redirectexit(Config::$scripturl . '?action=moderate;area=reported' . $this->type);
 	}
 
 	/**
@@ -523,7 +523,7 @@ class ReportedContent implements ActionInterface
 		}
 
 		// Redirect to prevent double submission.
-		redirectexit(Config::$scripturl . '?action=moderate;area=reported' . $this->type . ';sa=details;rid=' . $report_id);
+		Utils::redirectexit(Config::$scripturl . '?action=moderate;area=reported' . $this->type . ';sa=details;rid=' . $report_id);
 	}
 
 	/**
@@ -576,7 +576,7 @@ class ReportedContent implements ActionInterface
 
 			$_SESSION['rc_confirmation'] = 'message_edited';
 
-			redirectexit(Config::$scripturl . '?action=moderate;area=reported' . $this->type . ';sa=details;rid=' . Utils::$context['report_id']);
+			Utils::redirectexit(Config::$scripturl . '?action=moderate;area=reported' . $this->type . ';sa=details;rid=' . Utils::$context['report_id']);
 		}
 
 		SecurityToken::create('mod-reportC-edit');

@@ -150,7 +150,7 @@ abstract class Notify
 		}
 		// Send them back to wherever they came from.
 		else
-			redirectexit($this->type . '=' . $this->id . '.' . ($_REQUEST['start'] ?? 0));
+			Utils::redirectexit($this->type . '=' . $this->id . '.' . ($_REQUEST['start'] ?? 0));
 	}
 
 	/***********************
@@ -385,7 +385,7 @@ abstract class Notify
 
 		$this->askTemplateData();
 
-		obExit();
+		Utils::obExit();
 	}
 
 	/**

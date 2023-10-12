@@ -450,7 +450,7 @@ class ReportToMod implements ActionInterface
 
 		// If we're just going to ignore these, then who gives a monkeys...
 		if (!empty($ignore))
-			redirectexit('topic=' . Topic::$topic_id . '.msg' . $msg . '#msg' . $msg);
+			Utils::redirectexit('topic=' . Topic::$topic_id . '.msg' . $msg . '#msg' . $msg);
 
 		// Already reported? My god, we could be dealing with a real rogue here...
 		if (!empty($id_report))
@@ -524,7 +524,7 @@ class ReportToMod implements ActionInterface
 		Config::updateModSettings(array('last_mod_report_action' => time()));
 
 		// Back to the post we reported!
-		redirectexit('reportsent;topic=' . Topic::$topic_id . '.msg' . $msg . '#msg' . $msg);
+		Utils::redirectexit('reportsent;topic=' . Topic::$topic_id . '.msg' . $msg . '#msg' . $msg);
 	}
 
 	/**
@@ -573,7 +573,7 @@ class ReportToMod implements ActionInterface
 
 		// If we're just going to ignore these, then who gives a monkeys...
 		if (!empty($ignore))
-			redirectexit('action=profile;u=' . $_POST['u']);
+			Utils::redirectexit('action=profile;u=' . $_POST['u']);
 
 		// Already reported? My god, we could be dealing with a real rogue here...
 		if (!empty($id_report))
@@ -642,7 +642,7 @@ class ReportToMod implements ActionInterface
 		Config::updateModSettings(array('last_mod_report_action' => time()));
 
 		// Back to the profile we reported!
-		redirectexit('reportsent;action=profile;u=' . $id_member);
+		Utils::redirectexit('reportsent;action=profile;u=' . $id_member);
 	}
 }
 

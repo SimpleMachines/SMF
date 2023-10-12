@@ -84,11 +84,11 @@ class ViewQuery implements ActionInterface
 
 			if (strpos($_SESSION['old_url'], 'action=viewquery') !== false)
 			{
-				redirectexit();
+				Utils::redirectexit();
 			}
 			else
 			{
-				redirectexit($_SESSION['old_url']);
+				Utils::redirectexit($_SESSION['old_url']);
 			}
 		}
 
@@ -248,7 +248,7 @@ class ViewQuery implements ActionInterface
 	</body>
 </html>';
 
-		obExit(false);
+		Utils::obExit(false);
 	}
 
 	/***********************

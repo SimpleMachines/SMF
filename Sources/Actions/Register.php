@@ -114,10 +114,10 @@ class Register implements ActionInterface
 
 		// If this user is an admin - redirect them to the admin registration page.
 		if (User::$me->allowedTo('moderate_forum') && !User::$me->is_guest)
-			redirectexit('action=admin;area=regcenter;sa=register');
+			Utils::redirectexit('action=admin;area=regcenter;sa=register');
 		// You are not a guest, so you are a member - and members don't get to register twice!
 		elseif (empty(User::$me->is_guest))
-			redirectexit();
+			Utils::redirectexit();
 
 		Lang::load('Login');
 		Theme::loadTemplate('Register');

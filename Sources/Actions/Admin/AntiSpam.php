@@ -314,7 +314,7 @@ class AntiSpam implements ActionInterface
 
 			CacheApi::put('verificationQuestions', null, 300);
 
-			redirectexit('action=admin;area=antispam');
+			Utils::redirectexit('action=admin;area=antispam');
 		}
 
 		$character_range = array_merge(range('A', 'H'), array('K', 'M', 'N', 'P', 'R'), range('T', 'Y'));

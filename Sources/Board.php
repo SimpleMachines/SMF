@@ -1061,13 +1061,13 @@ class Board implements \ArrayAccess
 
 			if (!empty($_SESSION['old_url']) && strpos($_SESSION['old_url'], 'action=unread') !== false)
 			{
-				redirectexit('action=unread');
+				Utils::redirectexit('action=unread');
 			}
 
 			if (isset($_SESSION['topicseen_cache']))
 				$_SESSION['topicseen_cache'] = array();
 
-			redirectexit();
+			Utils::redirectexit();
 		}
 		elseif (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'unreadreplies')
 		{
@@ -1109,7 +1109,7 @@ class Board implements \ArrayAccess
 			if (isset($_SESSION['topicseen_cache']))
 				$_SESSION['topicseen_cache'] = array();
 
-			redirectexit('action=unreadreplies');
+			Utils::redirectexit('action=unreadreplies');
 		}
 		// Special case: mark a topic unread!
 		elseif (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'topic')
@@ -1191,7 +1191,7 @@ class Board implements \ArrayAccess
 				array('id_member', 'id_topic')
 			);
 
-			redirectexit('board=' . self::$info->id . '.0');
+			Utils::redirectexit('board=' . self::$info->id . '.0');
 		}
 		else
 		{
@@ -1257,7 +1257,7 @@ class Board implements \ArrayAccess
 			}
 
 			if (empty($clauses))
-				redirectexit();
+				Utils::redirectexit();
 
 			$boards = array();
 
@@ -1276,7 +1276,7 @@ class Board implements \ArrayAccess
 			Db::$db->free_result($request);
 
 			if (empty($boards))
-				redirectexit();
+				Utils::redirectexit();
 
 			self::markBoardsRead($boards, isset($_REQUEST['unread']));
 
@@ -1318,22 +1318,22 @@ class Board implements \ArrayAccess
 
 				if (empty(self::$info->id))
 				{
-					redirectexit();
+					Utils::redirectexit();
 				}
 				else
 				{
-					redirectexit('board=' . self::$info->id . '.0');
+					Utils::redirectexit('board=' . self::$info->id . '.0');
 				}
 			}
 			else
 			{
 				if (empty(self::$info->parent))
 				{
-					redirectexit();
+					Utils::redirectexit();
 				}
 				else
 				{
-					redirectexit('board=' . self::$info->parent . '.0');
+					Utils::redirectexit('board=' . self::$info->parent . '.0');
 				}
 			}
 		}
@@ -2480,7 +2480,7 @@ class Board implements \ArrayAccess
 
 			$redirect_url .= '#msg' . $_REQUEST['msg'];
 
-			redirectexit($redirect_url);
+			Utils::redirectexit($redirect_url);
 		}
 		else
 		{
@@ -2758,7 +2758,7 @@ class Board implements \ArrayAccess
 			if ((isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch') || (!empty($_REQUEST['action']) && $_REQUEST['action'] === 'dlattach'))
 			{
 				ob_end_clean();
-				send_http_status(403);
+				Utils::sendHttpStatus(403);
 				die;
 			}
 			elseif ($this->error == 'post_in_redirect')

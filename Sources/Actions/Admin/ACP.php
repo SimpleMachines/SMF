@@ -1943,7 +1943,7 @@ class ACP implements ActionInterface
 		// The type of action.
 		Utils::$context['sessionCheckType'] = $type;
 
-		obExit();
+		Utils::obExit();
 
 		// We MUST exit at this point, because otherwise we CANNOT KNOW that the user is privileged.
 		trigger_error('No direct access...', E_USER_ERROR);

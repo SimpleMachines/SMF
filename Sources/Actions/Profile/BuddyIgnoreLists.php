@@ -167,7 +167,7 @@ class BuddyIgnoreLists implements ActionInterface
 			User::updateMemberData(Profile::$member->id, array('buddy_list' => Profile::$member->data['buddy_list']));
 
 			// Redirect off the page because we don't like all this ugly query stuff to stick in the history.
-			redirectexit('action=profile;area=lists;sa=buddies;u=' . Profile::$member->id);
+			Utils::redirectexit('action=profile;area=lists;sa=buddies;u=' . Profile::$member->id);
 		}
 
 		// Adding a buddy?
@@ -227,7 +227,7 @@ class BuddyIgnoreLists implements ActionInterface
 			}
 
 			// Back to the buddy list!
-			redirectexit('action=profile;area=lists;sa=buddies;u=' . Profile::$member->id);
+			Utils::redirectexit('action=profile;area=lists;sa=buddies;u=' . Profile::$member->id);
 		}
 
 		// Get all the users "buddies"...
@@ -397,7 +397,7 @@ class BuddyIgnoreLists implements ActionInterface
 			User::updateMemberData(Profile::$member->id, array('pm_ignore_list' => Profile::$member->data['pm_ignore_list']));
 
 			// Redirect off the page because we don't like all this ugly query stuff to stick in the history.
-			redirectexit('action=profile;area=lists;sa=ignore;u=' . Profile::$member->id);
+			Utils::redirectexit('action=profile;area=lists;sa=ignore;u=' . Profile::$member->id);
 		}
 		
 		// Adding a member to the ignore list?
@@ -455,7 +455,7 @@ class BuddyIgnoreLists implements ActionInterface
 			}
 
 			// Back to the list of pitiful people!
-			redirectexit('action=profile;area=lists;sa=ignore;u=' . Profile::$member->id);
+			Utils::redirectexit('action=profile;area=lists;sa=ignore;u=' . Profile::$member->id);
 		}
 
 		// Initialise the list of members we're ignoring.

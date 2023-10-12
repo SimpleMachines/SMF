@@ -73,7 +73,7 @@ class QueryString
 		// It seems that sticking a URL after the query string is mighty common, well, it's evil - don't.
 		if (strpos($_SERVER['QUERY_STRING'], 'http') === 0)
 		{
-			send_http_status(400);
+			Utils::sendHttpStatus(400);
 			die;
 		}
 

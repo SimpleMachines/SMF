@@ -332,11 +332,11 @@ class TopicMove2 implements ActionInterface
 		// Why not go back to the original board in case they want to keep moving?
 		if (!isset($_REQUEST['goback']))
 		{
-			redirectexit('board=' . Board::$info->id . '.0');
+			Utils::redirectexit('board=' . Board::$info->id . '.0');
 		}
 		else
 		{
-			redirectexit('topic=' . Topic::$topic_id . '.0');
+			Utils::redirectexit('topic=' . Topic::$topic_id . '.0');
 		}
 	}
 

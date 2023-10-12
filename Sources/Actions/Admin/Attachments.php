@@ -207,7 +207,7 @@ class Attachments implements ActionInterface
 
 			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
-			redirectexit('action=admin;area=manageattachments;sa=attachments');
+			Utils::redirectexit('action=admin;area=manageattachments;sa=attachments');
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=manageattachments;save;sa=attachments';
@@ -249,7 +249,7 @@ class Attachments implements ActionInterface
 
 			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
-			redirectexit('action=admin;area=manageattachments;sa=avatars');
+			Utils::redirectexit('action=admin;area=manageattachments;sa=avatars');
 		}
 
 		// Attempt to figure out if the admin is trying to break things.
@@ -647,7 +647,7 @@ class Attachments implements ActionInterface
 
 		$_GET['sort'] = isset($_GET['sort']) ? $_GET['sort'] : 'date';
 
-		redirectexit('action=admin;area=manageattachments;sa=browse;' . $_REQUEST['type'] . ';sort=' . $_GET['sort'] . (isset($_GET['desc']) ? ';desc' : '') . ';start=' . $_REQUEST['start']);
+		Utils::redirectexit('action=admin;area=manageattachments;sa=browse;' . $_REQUEST['type'] . ';sort=' . $_GET['sort'] . (isset($_GET['desc']) ? ';desc' : '') . ';start=' . $_REQUEST['start']);
 	}
 
 	/**
@@ -689,7 +689,7 @@ class Attachments implements ActionInterface
 			Attachment::remove(array('not_id_member' => 0, 'last_login' => (time() - 24 * 60 * 60 * $_POST['age'])), 'members');
 		}
 
-		redirectexit('action=admin;area=manageattachments' . (empty($_REQUEST['avatars']) ? ';sa=maintenance' : ';avatars'));
+		Utils::redirectexit('action=admin;area=manageattachments' . (empty($_REQUEST['avatars']) ? ';sa=maintenance' : ';avatars'));
 	}
 
 	/**
@@ -720,7 +720,7 @@ class Attachments implements ActionInterface
 			);
 		}
 
-		redirectexit('action=admin;area=manageattachments;sa=maintenance');
+		Utils::redirectexit('action=admin;area=manageattachments;sa=maintenance');
 	}
 
 	/**
@@ -751,7 +751,7 @@ class Attachments implements ActionInterface
 			);
 		}
 
-		redirectexit('action=admin;area=manageattachments;sa=maintenance');
+		Utils::redirectexit('action=admin;area=manageattachments;sa=maintenance');
 	}
 
 	/**
@@ -763,7 +763,7 @@ class Attachments implements ActionInterface
 
 		// If we choose cancel, redirect right back.
 		if (isset($_POST['cancel']))
-			redirectexit('action=admin;area=manageattachments;sa=maintenance');
+			Utils::redirectexit('action=admin;area=manageattachments;sa=maintenance');
 
 		// Try give us a while to sort this out...
 		@set_time_limit(600);
@@ -782,7 +782,7 @@ class Attachments implements ActionInterface
 			{
 				// Nothing?
 				if (empty($_POST['to_fix']))
-					redirectexit('action=admin;area=manageattachments;sa=maintenance');
+					Utils::redirectexit('action=admin;area=manageattachments;sa=maintenance');
 
 				$_SESSION['attachments_to_fix'] = array();
 
@@ -1662,7 +1662,7 @@ class Attachments implements ActionInterface
 			if (!empty($errors))
 				$_SESSION['errors']['dir'] = $errors;
 
-			redirectexit('action=admin;area=manageattachments;sa=attachpaths;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+			Utils::redirectexit('action=admin;area=manageattachments;sa=attachpaths;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 		}
 
 		// Saving a base directory?
@@ -1758,7 +1758,7 @@ class Attachments implements ActionInterface
 			if (!empty($update))
 				Config::updateModSettings($update);
 
-			redirectexit('action=admin;area=manageattachments;sa=attachpaths;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+			Utils::redirectexit('action=admin;area=manageattachments;sa=attachpaths;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 		}
 
 		if (isset($_SESSION['errors']))
@@ -2199,7 +2199,7 @@ class Attachments implements ActionInterface
 		if (file_exists(Config::$boarddir . '/progress.php'))
 			unlink(Config::$boarddir . '/progress.php');
 
-		redirectexit('action=admin;area=manageattachments;sa=maintenance#transfer');
+		Utils::redirectexit('action=admin;area=manageattachments;sa=maintenance#transfer');
 	}
 
 	/***********************
@@ -2930,7 +2930,7 @@ class Attachments implements ActionInterface
 		$_SESSION['attachments_to_fix'] = $to_fix;
 		$_SESSION['attachments_to_fix2'] = Utils::$context['repair_errors'];
 
-		obExit();
+		Utils::obExit();
 	}
 }
 

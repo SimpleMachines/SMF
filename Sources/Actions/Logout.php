@@ -76,7 +76,7 @@ class Logout extends Login2
 		// They decided to cancel a logout?
 		if (!$internal && isset($_POST['cancel']) && isset($_GET[Utils::$context['session_var']]))
 		{
-			redirectexit(!empty($_SESSION['logout_return']) ? $_SESSION['logout_return'] : '');
+			Utils::redirectexit(!empty($_SESSION['logout_return']) ? $_SESSION['logout_return'] : '');
 		}
 		// Prompt to logout?
 		elseif (!$internal && !isset($_GET[Utils::$context['session_var']]))
@@ -153,19 +153,19 @@ class Logout extends Login2
 		{
 			if (empty($_SESSION['logout_url']))
 			{
-				redirectexit('', Utils::$context['server']['needs_login_fix']);
+				Utils::redirectexit('', Utils::$context['server']['needs_login_fix']);
 			}
 			elseif (!empty($_SESSION['logout_url']) && (strpos($_SESSION['logout_url'], 'http://') === false && strpos($_SESSION['logout_url'], 'https://') === false))
 			{
 				unset($_SESSION['logout_url']);
-				redirectexit();
+				Utils::redirectexit();
 			}
 			else
 			{
 				$temp = $_SESSION['logout_url'];
 				unset($_SESSION['logout_url']);
 
-				redirectexit($temp, Utils::$context['server']['needs_login_fix']);
+				Utils::redirectexit($temp, Utils::$context['server']['needs_login_fix']);
 			}
 		}
 	}

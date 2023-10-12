@@ -3154,7 +3154,7 @@ class Feed implements ActionInterface
 
 		// If it's not enabled, die.
 		if (empty(Config::$modSettings['xmlnews_enable']))
-			obExit(false);
+			Utils::obExit(false);
 	}
 
 	/*************************

@@ -264,7 +264,7 @@ class Search2 implements ActionInterface
 	{
 		if (isset($_REQUEST['search_selection']) && $_REQUEST['search_selection'] === 'members')
 		{
-			redirectexit(Config::$scripturl . '?action=mlist;sa=search;fields=name,email;search=' . urlencode($_REQUEST['search']));
+			Utils::redirectexit(Config::$scripturl . '?action=mlist;sa=search;fields=name,email;search=' . urlencode($_REQUEST['search']));
 		}
 	}
 
@@ -288,7 +288,7 @@ class Search2 implements ActionInterface
 		if (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch')
 		{
 			ob_end_clean();
-			send_http_status(403);
+			Utils::sendHttpStatus(403);
 			die;
 		}
 	}

@@ -168,7 +168,7 @@ class ShowPosts implements ActionInterface
 	{
 		// Only the owner can see the list (if the function is enabled of course)
 		if (!User::$me->is_owner)
-			redirectexit('action=profile;u=' . Profile::$member->id . ';area=showposts');;
+			Utils::redirectexit('action=profile;u=' . Profile::$member->id . ';area=showposts');;
 
 		// And here they are: the topics you don't like
 		$list_options = array(
@@ -707,7 +707,7 @@ class ShowPosts implements ActionInterface
 		// Trying to remove a message that doesn't exist.
 		if (empty($info))
 		{
-			redirectexit('action=profile;u=' . Profile::$member->id . ';area=showposts;start=' . $_GET['start']);
+			Utils::redirectexit('action=profile;u=' . Profile::$member->id . ';area=showposts;start=' . $_GET['start']);
 		}
 
 		// We can be lazy, since Msg::remove() will check the permissions for us.
@@ -725,7 +725,7 @@ class ShowPosts implements ActionInterface
 		}
 
 		// Back to... where we are now ;).
-		redirectexit('action=profile;u=' . Profile::$member->id . ';area=showposts;start=' . $_GET['start']);
+		Utils::redirectexit('action=profile;u=' . Profile::$member->id . ';area=showposts;start=' . $_GET['start']);
 	}
 
 	/**

@@ -102,7 +102,7 @@ class Stats implements ActionInterface
 		{
 			// Collapsing stats only needs adjustments of the session variables.
 			if (!empty($_REQUEST['collapse']))
-				obExit(false);
+				Utils::obExit(false);
 
 			Utils::$context['sub_template'] = 'stats';
 			Utils::$context['yearly'] = array();

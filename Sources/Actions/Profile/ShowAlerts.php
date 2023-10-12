@@ -83,13 +83,13 @@ class ShowAlerts implements ActionInterface
 
 			// In case it failed to determine this alert's link
 			if (empty($alert->target_href))
-				redirectexit('action=profile;area=showalerts');
+				Utils::redirectexit('action=profile;area=showalerts');
 
 			// Mark the alert as read while we're at it.
 			Alert::mark(User::$me->id, $alert_id, 1);
 
 			// Take the user to the content
-			redirectexit($alert->target_href);
+			Utils::redirectexit($alert->target_href);
 		}
 
 		// Prepare the pagination vars.
@@ -219,7 +219,7 @@ class ShowAlerts implements ActionInterface
 			$_SESSION['update_message'] = true;
 
 			// Redirect.
-			redirectexit('action=profile;area=showalerts;u=' . User::$me->id . (!empty(Utils::$context['start']) ? ';start=' . Utils::$context['start'] : ''));
+			Utils::redirectexit('action=profile;area=showalerts;u=' . User::$me->id . (!empty(Utils::$context['start']) ? ';start=' . Utils::$context['start'] : ''));
 		}
 	}
 
@@ -277,7 +277,7 @@ class ShowAlerts implements ActionInterface
 
 		// Users may only view their own alerts.
 		if (!User::$me->is_owner)
-			redirectexit('action=profile;u=' . Profile::$member->id);
+			Utils::redirectexit('action=profile;u=' . Profile::$member->id);
 	}
 }
 

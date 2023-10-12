@@ -99,7 +99,7 @@ class LoginTFA extends Login2
 
 				Cookie::setTFACookie(3153600, $member['id_member'], Cookie::encrypt($member['tfa_backup'], $member['password_salt']));
 
-				redirectexit();
+				Utils::redirectexit();
 			}
 			else
 			{
@@ -130,7 +130,7 @@ class LoginTFA extends Login2
 
 				Cookie::setTFACookie(3153600, $member['id_member'], Cookie::encrypt($member['tfa_backup'], $member['password_salt']));
 
-				redirectexit('action=profile;area=tfasetup;backup');
+				Utils::redirectexit('action=profile;area=tfasetup;backup');
 			}
 			else
 			{

@@ -159,11 +159,11 @@ class Post2 extends Post
 		{
 			if (!empty(Topic::$topic_id))
 			{
-				redirectexit('action=post;topic=' . Topic::$topic_id . '.0');
+				Utils::redirectexit('action=post;topic=' . Topic::$topic_id . '.0');
 			}
 			elseif (empty($_SERVER['CONTENT_LENGTH']))
 			{
-				redirectexit('action=post;board=' . Board::$info->id . '.0');
+				Utils::redirectexit('action=post;board=' . Board::$info->id . '.0');
 			}
 			else
 			{
@@ -690,27 +690,27 @@ class Post2 extends Post
 
 		if (!empty($_POST['announce_topic']) && User::$me->allowedTo('announce_topic'))
 		{
-			redirectexit('action=announce;sa=selectgroup;topic=' . Topic::$topic_id . (!empty($_POST['move']) && User::$me->allowedTo('move_any') ? ';move' : '') . (empty($_REQUEST['goback']) ? '' : ';goback'));
+			Utils::redirectexit('action=announce;sa=selectgroup;topic=' . Topic::$topic_id . (!empty($_POST['move']) && User::$me->allowedTo('move_any') ? ';move' : '') . (empty($_REQUEST['goback']) ? '' : ';goback'));
 		}
 
 		if (!empty($_POST['move']) && User::$me->allowedTo('move_any'))
 		{
-			redirectexit('action=movetopic;topic=' . Topic::$topic_id . '.0' . (empty($_REQUEST['goback']) ? '' : ';goback'));
+			Utils::redirectexit('action=movetopic;topic=' . Topic::$topic_id . '.0' . (empty($_REQUEST['goback']) ? '' : ';goback'));
 		}
 
 		// Return to post if the mod is on.
 		if (isset($_REQUEST['msg']) && !empty($_REQUEST['goback']))
 		{
-			redirectexit('topic=' . Topic::$topic_id . '.msg' . $_REQUEST['msg'] . '#msg' . $_REQUEST['msg'], BrowserDetector::isBrowser('ie'));
+			Utils::redirectexit('topic=' . Topic::$topic_id . '.msg' . $_REQUEST['msg'] . '#msg' . $_REQUEST['msg'], BrowserDetector::isBrowser('ie'));
 		}
 		elseif (!empty($_REQUEST['goback']))
 		{
-			redirectexit('topic=' . Topic::$topic_id . '.new#new', BrowserDetector::isBrowser('ie'));
+			Utils::redirectexit('topic=' . Topic::$topic_id . '.new#new', BrowserDetector::isBrowser('ie'));
 		}
 		// Dut-dut-duh-duh-DUH-duh-dut-duh-duh!  *dances to the Final Fantasy Fanfare...*
 		else
 		{
-			redirectexit('board=' . Board::$info->id . '.0');
+			Utils::redirectexit('board=' . Board::$info->id . '.0');
 		}
 	}
 

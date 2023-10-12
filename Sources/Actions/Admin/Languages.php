@@ -677,7 +677,7 @@ class Languages implements ActionInterface
 			if ($safe)
 				$_SESSION['adm-save'] = true;
 
-			redirectexit('action=admin;area=languages;sa=settings');
+			Utils::redirectexit('action=admin;area=languages;sa=settings');
 		}
 
 		// Setup the template stuff.
@@ -915,7 +915,7 @@ class Languages implements ActionInterface
 			}
 
 			// Seventh, get out of here.
-			redirectexit('action=admin;area=languages;sa=edit;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+			Utils::redirectexit('action=admin;area=languages;sa=edit;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 		}
 
 		// Saving primary settings?
@@ -1534,7 +1534,7 @@ class Languages implements ActionInterface
 		// If we saved, redirect.
 		if ($madeSave)
 		{
-			redirectexit('action=admin;area=languages;sa=editlang;lid=' . $lang_id . (!empty($file_id) ? ';entries;tfid=' . $theme_id . rawurlencode('+') . $file_id : ''));
+			Utils::redirectexit('action=admin;area=languages;sa=editlang;lid=' . $lang_id . (!empty($file_id) ? ';entries;tfid=' . $theme_id . rawurlencode('+') . $file_id : ''));
 		}
 
 		SecurityToken::create('admin-mlang');

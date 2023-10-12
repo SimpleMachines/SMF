@@ -98,14 +98,14 @@ class VerificationCode implements ActionInterface
 			Utils::$context['sub_template'] = 'verification_sound';
 			Utils::$context['template_layers'] = array();
 
-			obExit();
+			Utils::obExit();
 		}
 		// If we have GD, try the nice code.
 		elseif (empty($_REQUEST['format']))
 		{
 			if (extension_loaded('gd') && !$this->showCodeImage($this->code))
 			{
-				send_http_status(400);
+				Utils::sendHttpStatus(400);
 			}
 			// Otherwise just show a pre-defined letter.
 			elseif (isset($_REQUEST['letter']))
@@ -128,7 +128,7 @@ class VerificationCode implements ActionInterface
 		elseif ($_REQUEST['format'] === '.wav')
 		{
 			if (!$this->createWaveFile($this->code))
-				send_http_status(400);
+				Utils::sendHttpStatus(400);
 		}
 
 		// We all die one day...
@@ -793,7 +793,8 @@ class VerificationCode implements ActionInterface
 		// Allow max 2 requests per 20 seconds.
 		if (($ip = CacheApi::get('wave_file/' . User::$me->ip, 20)) > 2 || ($ip2 = CacheApi::get('wave_file/' . User::$me->ip2, 20)) > 2)
 		{
-			die(send_http_status(400));
+			Utils::sendHttpStatus(400);
+			die();
 		}
 
 		CacheApi::put('wave_file/' . User::$me->ip, $ip ? $ip + 1 : 1, 20);
@@ -899,7 +900,7 @@ class VerificationCode implements ActionInterface
 			$range_end = !$range_end ? $content_length - 1 : intval($range_end);
 			$new_length = $range_end - $range + 1;
 
-			send_http_status(206);
+			Utils::sendHttpStatus(206);
 			header("content-length: $new_length");
 			header("content-range: bytes $range-$range_end/$content_length");
 		}

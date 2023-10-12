@@ -278,7 +278,7 @@ class Server implements ActionInterface
 
 			ACP::saveSettings($config_vars);
 			$_SESSION['adm-save'] = true;
-			redirectexit('action=admin;area=serversettings;sa=general;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+			Utils::redirectexit('action=admin;area=serversettings;sa=general;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 		}
 
 		// Fill the config array.
@@ -337,7 +337,7 @@ class Server implements ActionInterface
 
 			ACP::saveSettings($config_vars);
 			$_SESSION['adm-save'] = true;
-			redirectexit('action=admin;area=serversettings;sa=database;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+			Utils::redirectexit('action=admin;area=serversettings;sa=database;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 		}
 
 		// Fill the config array.
@@ -420,7 +420,7 @@ class Server implements ActionInterface
 
 				Cookie::setLoginCookie(60 * Config::$modSettings['cookieTime'], User::$me->id, Cookie::encrypt(User::$me->passwd, User::$me->password_salt));
 
-				redirectexit('action=admin;area=serversettings;sa=cookie;' . Utils::$context['session_var'] . '=' . $original_session_id, Utils::$context['server']['needs_login_fix']);
+				Utils::redirectexit('action=admin;area=serversettings;sa=cookie;' . Utils::$context['session_var'] . '=' . $original_session_id, Utils::$context['server']['needs_login_fix']);
 			}
 
 			// If we disabled 2FA, reset all members and membergroups settings.
@@ -444,7 +444,7 @@ class Server implements ActionInterface
 			}
 
 			$_SESSION['adm-save'] = true;
-			redirectexit('action=admin;area=serversettings;sa=cookie;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+			Utils::redirectexit('action=admin;area=serversettings;sa=cookie;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 		}
 
 		// Fill the config array.
@@ -487,7 +487,7 @@ class Server implements ActionInterface
 			call_integration_hook('integrate_save_general_security_settings');
 
 			User::$me->logOnline();
-			redirectexit('action=admin;area=serversettings;sa=security;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+			Utils::redirectexit('action=admin;area=serversettings;sa=security;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=serversettings;save;sa=security';
@@ -520,7 +520,7 @@ class Server implements ActionInterface
 			Config::updateModSettings(array('cache_enable' => (int) $_POST['cache_enable']));
 
 			// exit so we reload our new settings on the page
-			redirectexit('action=admin;area=serversettings;sa=cache;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+			Utils::redirectexit('action=admin;area=serversettings;sa=cache;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 		}
 
 		Lang::load('ManageMaintenance');
@@ -585,7 +585,7 @@ class Server implements ActionInterface
 			call_integration_hook('integrate_save_export_settings');
 
 			$_SESSION['adm-save'] = true;
-			redirectexit('action=admin;area=serversettings;sa=export;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+			Utils::redirectexit('action=admin;area=serversettings;sa=export;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=serversettings;sa=export;save';
@@ -662,7 +662,7 @@ class Server implements ActionInterface
 			if (!isset($_SESSION['adm-save']))
 				$_SESSION['adm-save'] = true;
 
-			redirectexit('action=admin;area=serversettings;sa=loads;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+			Utils::redirectexit('action=admin;area=serversettings;sa=loads;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 		}
 
 		ACP::prepareDBSettingContext($config_vars);

@@ -135,11 +135,11 @@ class Register2 extends Register
 
 		// Well, if you don't agree, you can't register.
 		if ((!empty(Config::$modSettings['requireAgreement']) || !empty(Config::$modSettings['requirePolicyAgreement'])) && empty($_SESSION['registration_agreed']))
-			redirectexit();
+			Utils::redirectexit();
 
 		// Make sure they came from *somewhere*, have a session.
 		if (!isset($_SESSION['old_url']))
-			redirectexit('action=signup');
+			Utils::redirectexit('action=signup');
 
 		// If we require neither an agreement nor a privacy policy, we need a extra check for coppa.
 		if (empty(Config::$modSettings['requireAgreement']) && empty(Config::$modSettings['requirePolicyAgreement']) && !empty(Config::$modSettings['coppaAge']))
@@ -156,7 +156,7 @@ class Register2 extends Register
 
 		// Check the time gate for miscreants. First make sure they came from somewhere that actually set it up.
 		if (empty($_SESSION['register']['timenow']) || empty($_SESSION['register']['limit']))
-			redirectexit('action=signup');
+			Utils::redirectexit('action=signup');
 
 		// Failing that, check the time on it.
 		if (time() - $_SESSION['register']['timenow'] < $_SESSION['register']['limit'])
@@ -444,7 +444,7 @@ class Register2 extends Register
 		// If COPPA has been selected then things get complicated, setup the template.
 		if (!empty(Config::$modSettings['coppaAge']) && empty($_SESSION['skip_coppa']))
 		{
-			redirectexit('action=coppa;member=' . $member_id);
+			Utils::redirectexit('action=coppa;member=' . $member_id);
 		}
 		// Basic template variable setup.
 		elseif (!empty(Config::$modSettings['registration_method']))
@@ -464,7 +464,7 @@ class Register2 extends Register
 
 			Cookie::setLoginCookie(60 * Config::$modSettings['cookieTime'], $member_id, Cookie::encrypt($reg_options['register_vars']['passwd'], $reg_options['register_vars']['password_salt']));
 
-			redirectexit('action=login2;sa=check;member=' . $member_id, Utils::$context['server']['needs_login_fix']);
+			Utils::redirectexit('action=login2;sa=check;member=' . $member_id, Utils::$context['server']['needs_login_fix']);
 		}
 	}
 
@@ -526,7 +526,7 @@ class Register2 extends Register
 		{
 			// You cannot register twice...
 			if (empty(User::$me->is_guest))
-				redirectexit();
+				Utils::redirectexit();
 
 			// Make sure they didn't just register with this session.
 			if (!empty($_SESSION['just_registered']) && empty(Config::$modSettings['disableRegisterCheck']))

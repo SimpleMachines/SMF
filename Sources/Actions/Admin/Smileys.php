@@ -764,7 +764,7 @@ class Smileys implements ActionInterface
 			self::resetCache();
 
 			// No errors? Out of here!
-			redirectexit('action=admin;area=smileys;sa=editsmileys');
+			Utils::redirectexit('action=admin;area=smileys;sa=editsmileys');
 		}
 
 		Utils::$context['selected_set'] = Config::$modSettings['smiley_sets_default'];
@@ -1784,7 +1784,7 @@ class Smileys implements ActionInterface
 			SubsPackage::deltree(Config::$packagesdir . '/temp');
 
 		if (!$testing)
-			redirectexit('action=admin;area=smileys');
+			Utils::redirectexit('action=admin;area=smileys');
 	}
 
 	/**
@@ -1948,7 +1948,7 @@ class Smileys implements ActionInterface
 
 			// Unless we're adding a new thing, we'll escape
 			if (!isset($_POST['add']))
-				redirectexit('action=admin;area=smileys;sa=editicons');
+				Utils::redirectexit('action=admin;area=smileys;sa=editicons');
 		}
 
 		Menu::$loaded['admin']['current_subsection'] = 'editicons';
@@ -2099,7 +2099,7 @@ class Smileys implements ActionInterface
 
 			self::resetCache();
 
-			redirectexit('action=admin;area=smileys;sa=settings');
+			Utils::redirectexit('action=admin;area=smileys;sa=settings');
 		}
 
 		// We need this for the in-line permissions

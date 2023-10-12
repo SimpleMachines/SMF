@@ -1616,7 +1616,7 @@ class User implements \ArrayAccess
 
 		// Just die.
 		if (isset($_REQUEST['xml']))
-			obExit(false);
+			Utils::obExit(false);
 
 		// We need the theme if we're going to show anything.
 		if (SMF != 'SSI' && empty(Utils::$context['theme_loaded']))
@@ -1630,7 +1630,7 @@ class User implements \ArrayAccess
 		if (empty(Utils::$context['template_layers']))
 		{
 			$_SESSION['login_url'] = Config::$scripturl . '?' . $_SERVER['QUERY_STRING'];
-			redirectexit('action=login');
+			Utils::redirectexit('action=login');
 		}
 
 		// Load the Login template and language file.
@@ -1646,7 +1646,7 @@ class User implements \ArrayAccess
 		Utils::$context['kick_message'] = $message ?? Lang::$txt['only_members_can_access'];
 		Utils::$context['robot_no_index'] = true;
 
-		obExit();
+		Utils::obExit();
 
 		// We should never get to this point, but if we did we wouldn't know the user is a guest.
 		trigger_error('No direct access...', E_USER_ERROR);
@@ -2214,7 +2214,7 @@ class User implements \ArrayAccess
 		if (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch')
 		{
 			ob_end_clean();
-			send_http_status(403);
+			Utils::sendHttpStatus(403);
 			die;
 		}
 
@@ -2299,7 +2299,7 @@ class User implements \ArrayAccess
 		if (isset($_GET['xml']))
 		{
 			ob_end_clean();
-			send_http_status(403, 'Forbidden - Session timeout');
+			Utils::sendHttpStatus(403, 'Forbidden - Session timeout');
 			die;
 		}
 		else
@@ -5100,7 +5100,7 @@ class User implements \ArrayAccess
 				)
 			)
 			{
-				redirectexit('action=profile;area=tfasetup;forced');
+				Utils::redirectexit('action=profile;area=tfasetup;forced');
 			}
 		}
 	}
@@ -5421,7 +5421,7 @@ class User implements \ArrayAccess
 
 			// Reload same URL with new language, if applicable.
 			if (isset($_SESSION['old_url']))
-				redirectexit($_SESSION['old_url']);
+				Utils::redirectexit($_SESSION['old_url']);
 		}
 		// Carry forward the last language request in this session, if any.
 		elseif (!empty($_SESSION['language']) && isset($languages[strtr($_SESSION['language'], './\\:', '____')]))

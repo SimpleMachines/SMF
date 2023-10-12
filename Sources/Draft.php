@@ -436,7 +436,7 @@ class Draft
 				)
 			);
 
-			redirectexit('action=profile;u=' . $memID . ';area=showdrafts;start=' . Utils::$context['start']);
+			Utils::redirectexit('action=profile;u=' . $memID . ';area=showdrafts;start=' . Utils::$context['start']);
 		}
 
 		// Default to 10.
@@ -806,7 +806,7 @@ class Draft
 			<draft id="', $id_draft, '"><![CDATA[', Lang::$txt['draft_saved_on'], ': ', Time::create('@' . Utils::$context['draft_saved_on'])->format(), ']]></draft>
 		</drafts>';
 
-		obExit(false);
+		Utils::obExit(false);
 	}
 }
 

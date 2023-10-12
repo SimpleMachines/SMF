@@ -16,6 +16,8 @@ namespace SMF\Actions\Admin;
 use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
+use SMF\Utils;
+
 /**
  * Ends an admin session, requiring authentication to access the ACP again.
  */
@@ -66,7 +68,7 @@ class EndSession implements ActionInterface
 				unset($_SESSION['token'][$key]);
 		}
 
-		redirectexit();
+		Utils::redirectexit();
 	}
 
 	/***********************

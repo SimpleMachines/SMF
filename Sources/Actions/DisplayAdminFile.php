@@ -104,7 +104,7 @@ class DisplayAdminFile implements ActionInterface
 		// Make sure they know what type of file we are.
 		header('content-type: ' . $filetype);
 		echo $file_data;
-		obExit(false);
+		Utils::obExit(false);
 	}
 
 	/***********************

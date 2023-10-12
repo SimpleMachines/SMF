@@ -1612,21 +1612,21 @@ class ServerSideIncludes
 		Db::$db->free_result($request);
 
 		if (!empty($row['voting_locked']) || ($row['selected'] != -1 && !User::$me->is_guest) || (!empty($row['expire_time']) && time() > $row['expire_time']))
-			redirectexit('topic=' . $row['id_topic'] . '.0');
+			Utils::redirectexit('topic=' . $row['id_topic'] . '.0');
 
 		// Too many options checked?
 		if (count($_REQUEST['options']) > $row['max_votes'])
-			redirectexit('topic=' . $row['id_topic'] . '.0');
+			Utils::redirectexit('topic=' . $row['id_topic'] . '.0');
 
 		// It's a guest who has already voted?
 		if (User::$me->is_guest)
 		{
 			// Guest voting disabled?
 			if (!$row['guest_vote'])
-				redirectexit('topic=' . $row['id_topic'] . '.0');
+				Utils::redirectexit('topic=' . $row['id_topic'] . '.0');
 			// Already voted?
 			elseif (isset($_COOKIE['guest_poll_vote']) && in_array($row['id_poll'], explode(',', $_COOKIE['guest_poll_vote'])))
-				redirectexit('topic=' . $row['id_topic'] . '.0');
+				Utils::redirectexit('topic=' . $row['id_topic'] . '.0');
 		}
 
 		$sOptions = array();
@@ -1666,7 +1666,7 @@ class ServerSideIncludes
 			$cookie->set();
 		}
 
-		redirectexit('topic=' . $row['id_topic'] . '.0');
+		Utils::redirectexit('topic=' . $row['id_topic'] . '.0');
 	}
 
 	/**
@@ -2521,7 +2521,7 @@ class ServerSideIncludes
 		if (empty($this->guest_access) && empty(Config::$modSettings['allow_guestAccess']) && User::$me->is_guest && basename($_SERVER['PHP_SELF']) != 'SSI.php')
 		{
 			User::kickIfGuest();
-			obExit(null, true);
+			Utils::obExit(null, true);
 		}
 
 		// Load the stuff like the menu bar, etc.

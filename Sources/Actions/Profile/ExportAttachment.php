@@ -89,13 +89,13 @@ class ExportAttachment implements ActionInterface
 	{
 		if (!isset($_GET['t']) || $_GET['t'] !== $this->dltoken)
 		{
-			send_http_status(403);
+			Utils::sendHttpStatus(403);
 			exit;
 		}
 
 		if (empty($this->attach))
 		{
-			send_http_status(404);
+			Utils::sendHttpStatus(404);
 			die('404 File Not Found');
 		}
 
@@ -114,7 +114,7 @@ class ExportAttachment implements ActionInterface
 		if (Db::$db->num_rows($request) == 0)
 		{
 			Db::$db->free_result($request);
-			send_http_status(403);
+			Utils::sendHttpStatus(403);
 			exit;
 		}
 		Db::$db->free_result($request);

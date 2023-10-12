@@ -492,7 +492,7 @@ class MessageIndex implements ActionInterface
 				)
 			);
 
-			redirectexit(Board::$info->redirect);
+			Utils::redirectexit(Board::$info->redirect);
 		}
 	}
 
@@ -508,7 +508,7 @@ class MessageIndex implements ActionInterface
 			if (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch')
 			{
 				ob_end_clean();
-				send_http_status(403, 'Prefetch Forbidden');
+				Utils::sendHttpStatus(403, 'Prefetch Forbidden');
 				die;
 			}
 		}

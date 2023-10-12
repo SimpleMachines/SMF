@@ -565,7 +565,7 @@ class Warnings implements ActionInterface
 				}
 
 				// Get out of town...
-				redirectexit('action=moderate;area=warnings;sa=templates');
+				Utils::redirectexit('action=moderate;area=warnings;sa=templates');
 			}
 			else
 			{
@@ -810,7 +810,7 @@ class Warnings implements ActionInterface
 
 			// This shouldn't happen, but just in case...
 			if (empty($this->subaction))
-				redirectexit('action=moderate;area=index');
+				Utils::redirectexit('action=moderate;area=index');
 		}
 	}
 

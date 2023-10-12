@@ -348,9 +348,6 @@ class Calendar implements ActionInterface
 		// Well - can they?
 		User::$me->isAllowedTo('calendar_post');
 
-		// We need these for all kinds of useful functions.
-		require_once(Config::$sourcedir . '/Subs.php');
-
 		// Cast this for safety...
 		if (isset($_REQUEST['eventid']))
 			$_REQUEST['eventid'] = (int) $_REQUEST['eventid'];
@@ -428,7 +425,8 @@ class Calendar implements ActionInterface
 				$month = isset($_POST['month']) ? $_POST['month'] : $today['mon'];
 				$day = isset($_POST['day']) ? $_POST['day'] : $today['mday'];
 			}
-			redirectexit(Config::$scripturl . '?action=calendar;month=' . $month . ';year=' . $year . ';day=' . $day);
+
+			Utils::redirectexit(Config::$scripturl . '?action=calendar;month=' . $month . ';year=' . $year . ';day=' . $day);
 		}
 
 		// If we are not enabled... we are not enabled.
@@ -583,7 +581,7 @@ class Calendar implements ActionInterface
 		echo implode("\n", $filecontents);
 
 		// Off we pop - lovely!
-		obExit(false);
+		Utils::obExit(false);
 	}
 
 	/**

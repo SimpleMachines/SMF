@@ -931,7 +931,7 @@ class News extends ACP implements ActionInterface
 			{
 				// Set a confirmation message.
 				$_SESSION['newsletter_sent'] = 'queue_done';
-				redirectexit('action=admin;area=news;sa=mailingmembers');
+				Utils::redirectexit('action=admin;area=news;sa=mailingmembers');
 			}
 
 			// Anything to exclude?
@@ -1067,7 +1067,7 @@ class News extends ACP implements ActionInterface
 			// Log this into the admin log.
 			Logging::logAction('newsletter', array(), 'admin');
 			$_SESSION['newsletter_sent'] = 'queue_done';
-			redirectexit('action=admin;area=news;sa=mailingmembers');
+			Utils::redirectexit('action=admin;area=news;sa=mailingmembers');
 		}
 
 		// Working out progress is a black art of sorts.
@@ -1111,7 +1111,7 @@ class News extends ACP implements ActionInterface
 
 			self::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
-			redirectexit('action=admin;area=news;sa=settings');
+			Utils::redirectexit('action=admin;area=news;sa=settings');
 		}
 
 		// We need this for the in-line permissions

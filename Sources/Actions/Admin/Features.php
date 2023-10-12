@@ -154,7 +154,7 @@ class Features implements ActionInterface
 				Theme::deleteAllMinified();
 
 			User::$me->logOnline();
-			redirectexit('action=admin;area=featuresettings;sa=basic');
+			Utils::redirectexit('action=admin;area=featuresettings;sa=basic');
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=basic';
@@ -277,7 +277,7 @@ class Features implements ActionInterface
 
 			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
-			redirectexit('action=admin;area=featuresettings;sa=bbc' . $extra);
+			Utils::redirectexit('action=admin;area=featuresettings;sa=bbc' . $extra);
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=bbc' . $extra;
@@ -306,7 +306,7 @@ class Features implements ActionInterface
 			$_SESSION['adm-save'] = true;
 			User::$me->logOnline();
 
-			redirectexit('action=admin;area=featuresettings;sa=layout');
+			Utils::redirectexit('action=admin;area=featuresettings;sa=layout');
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=layout';
@@ -682,7 +682,7 @@ class Features implements ActionInterface
 
 			ACP::saveDBSettings($save_vars);
 			$_SESSION['adm-save'] = true;
-			redirectexit('action=admin;area=featuresettings;sa=sig');
+			Utils::redirectexit('action=admin;area=featuresettings;sa=sig');
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=sig';
@@ -1122,7 +1122,7 @@ class Features implements ActionInterface
 			else
 			{
 				// @todo implement an error handler
-				redirectexit('action=admin;area=featuresettings;sa=profile');
+				Utils::redirectexit('action=admin;area=featuresettings;sa=profile');
 			}
 
 			$sql_update = 'CASE ';
@@ -1139,7 +1139,7 @@ class Features implements ActionInterface
 			);
 
 			// @todo perhaps a nice confirmation message, dunno.
-			redirectexit('action=admin;area=featuresettings;sa=profile');
+			Utils::redirectexit('action=admin;area=featuresettings;sa=profile');
 		}
 
 		// Are we saving?
@@ -1151,13 +1151,13 @@ class Features implements ActionInterface
 			// Everyone needs a name - even the (bracket) unknown...
 			if (trim($_POST['field_name']) == '')
 			{
-				redirectexit(Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $_GET['fid'] . ';msg=need_name');
+				Utils::redirectexit(Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $_GET['fid'] . ';msg=need_name');
 			}
 
 			// Regex you say?  Do a very basic test to see if the pattern is valid
 			if (!empty($_POST['regex']) && @preg_match($_POST['regex'], 'dummy') === false)
 			{
-				redirectexit(Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $_GET['fid'] . ';msg=regex_error');
+				Utils::redirectexit(Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $_GET['fid'] . ';msg=regex_error');
 			}
 
 			$_POST['field_name'] = Utils::htmlspecialchars($_POST['field_name']);
@@ -1490,7 +1490,7 @@ class Features implements ActionInterface
 
 			Config::updateModSettings(array('displayFields' => Utils::jsonEncode($fields)));
 			$_SESSION['adm-save'] = true;
-			redirectexit('action=admin;area=featuresettings;sa=profile');
+			Utils::redirectexit('action=admin;area=featuresettings;sa=profile');
 		}
 
 		SecurityToken::create('admin-ecp');
@@ -1514,7 +1514,7 @@ class Features implements ActionInterface
 
 			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
-			redirectexit('action=admin;area=featuresettings;sa=likes');
+			Utils::redirectexit('action=admin;area=featuresettings;sa=likes');
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=likes';
@@ -1541,7 +1541,7 @@ class Features implements ActionInterface
 
 			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
-			redirectexit('action=admin;area=featuresettings;sa=mentions');
+			Utils::redirectexit('action=admin;area=featuresettings;sa=mentions');
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=mentions';
@@ -2113,7 +2113,7 @@ class Features implements ActionInterface
 		// Never more than 100%!
 		Utils::$context['continue_percent'] = min(Utils::$context['continue_percent'], 100);
 
-		obExit();
+		Utils::obExit();
 	}
 
 	/**

@@ -170,7 +170,7 @@ class Tasks implements ActionInterface
 			if (!empty(Utils::$context['scheduled_errors']))
 				$_SESSION['st_error'] = Utils::$context['scheduled_errors'];
 
-			redirectexit('action=admin;area=scheduledtasks;done');
+			Utils::redirectexit('action=admin;area=scheduledtasks;done');
 		}
 
 		if (isset($_SESSION['st_error']))
@@ -349,7 +349,7 @@ class Tasks implements ActionInterface
 			TaskRunner::calculateNextTrigger($_GET['tid'], true);
 
 			// Return to the main list.
-			redirectexit('action=admin;area=scheduledtasks');
+			Utils::redirectexit('action=admin;area=scheduledtasks');
 		}
 
 		// Load the task, understand? Que? Que?
@@ -519,7 +519,7 @@ class Tasks implements ActionInterface
 
 			$_SESSION['adm-save'] = true;
 
-			redirectexit('action=admin;area=scheduledtasks;sa=settings');
+			Utils::redirectexit('action=admin;area=scheduledtasks;sa=settings');
 		}
 
 		ACP::prepareDBSettingContext($config_vars);

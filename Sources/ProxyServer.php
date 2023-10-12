@@ -152,7 +152,7 @@ class ProxyServer
 		if (!$response)
 		{
 			// Throw a 404
-			send_http_status(404);
+			Utils::sendHttpStatus(404);
 			exit;
 		}
 
@@ -186,7 +186,7 @@ class ProxyServer
 
 		if (!empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $eTag) !== false)
 		{
-			send_http_status(304);
+			Utils::sendHttpStatus(304);
 			exit;
 		}
 
