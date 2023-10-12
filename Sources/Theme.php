@@ -801,7 +801,7 @@ class Theme
 		$loaded = true;
 
 		Utils::$context['in_maintenance'] = !empty(Config::$maintenance);
-		Utils::$context['current_time'] = timeformat(time(), false);
+		Utils::$context['current_time'] = Time::create('now')->format(null, false);
 		Utils::$context['current_action'] = isset($_GET['action']) ? Utils::htmlspecialchars($_GET['action']) : '';
 		Utils::$context['random_news_line'] = array();
 
@@ -1485,7 +1485,7 @@ class Theme
 				if (!empty($_SESSION['ban']['expire_time']))
 				{
 					echo '
-						<div>', sprintf(Lang::$txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)), '</div>';
+						<div>', sprintf(Lang::$txt['your_ban_expires'], Time::create('@' . $_SESSION['ban']['expire_time'])->format(null, false)), '</div>';
 				}
 				else
 				{

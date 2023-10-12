@@ -502,7 +502,7 @@ class Post implements ActionInterface
 				'counter' => $this->counter++,
 				'poster' => $row['poster_name'],
 				'message' => $row['body'],
-				'time' => timeformat($row['poster_time']),
+				'time' => Time::create('@' . $row['poster_time'])->format(),
 				'timestamp' => $row['poster_time'],
 				'id' => $row['id_msg'],
 				'is_new' => !empty(Utils::$context['new_replies']),
@@ -799,8 +799,8 @@ class Post implements ActionInterface
 		if (Utils::$context['event']->allday == true)
 		{
 			Utils::$context['event']->tz = User::getTimezone();
-			Utils::$context['event']->start->modify(timeformat(time(), '%H:%M:%S'));
-			Utils::$context['event']->end->modify(timeformat(time() + 3600, '%H:%M:%S'));
+			Utils::$context['event']->start->modify(Time::create('now')->format('%H:%M:%S'));
+			Utils::$context['event']->end->modify(Time::create('now + 1 hour')->format('%H:%M:%S'));
 		}
 
 		// Need this so the user can select a timezone for the event.
@@ -1200,7 +1200,7 @@ class Post implements ActionInterface
 		// When was it last modified?
 		if (!empty($row['modified_time']))
 		{
-			Utils::$context['last_modified'] = timeformat($row['modified_time']);
+			Utils::$context['last_modified'] = Time::create('@' . $row['modified_time'])->format();
 			Utils::$context['last_modified_reason'] = Lang::censorText($row['modified_reason']);
 			Utils::$context['last_modified_text'] = sprintf(Lang::$txt['last_edit_by'], Utils::$context['last_modified'], $row['modified_name']) . empty($row['modified_reason']) ? '' : '&nbsp;' . Lang::$txt['last_edit_reason'] . ':&nbsp;' . $row['modified_reason'];
 		}

@@ -428,7 +428,7 @@ class Profile extends User implements \ArrayAccess
 			),
 			'date_registered' => array(
 				'type' => 'date',
-				'value' => empty($this->date_registered) || !is_int($this->date_registered) ? Lang::$txt['not_applicable'] : smf_strftime('%Y-%m-%d', $this->date_registered),
+				'value' => empty($this->date_registered) || !is_int($this->date_registered) ? Lang::$txt['not_applicable'] : Time::strftime('%Y-%m-%d', $this->date_registered),
 				'label' => Lang::$txt['date_registered'],
 				'log_change' => true,
 				'permission' => 'moderate_forum',
@@ -439,12 +439,12 @@ class Profile extends User implements \ArrayAccess
 					{
 						$value = $this->date_registered;
 
-						return Lang::$txt['invalid_registration'] . ' ' . smf_strftime('%d %b %Y ' . (strpos(User::$me->time_format, '%H') !== false ? '%I:%M:%S %p' : '%H:%M:%S'), time());
+						return Lang::$txt['invalid_registration'] . ' ' . Time::strftime('%d %b %Y ' . (strpos(User::$me->time_format, '%H') !== false ? '%I:%M:%S %p' : '%H:%M:%S'), time());
 					}
 					// As long as it doesn't equal "N/A"...
-					elseif ($value != Lang::$txt['not_applicable'] && $value != strtotime(smf_strftime('%Y-%m-%d', $this->date_registered)))
+					elseif ($value != Lang::$txt['not_applicable'] && $value != strtotime(Time::strftime('%Y-%m-%d', $this->date_registered)))
 					{
-						$diff = $this->date_registered - strtotime(smf_strftime('%Y-%m-%d', $this->date_registered));
+						$diff = $this->date_registered - strtotime(Time::strftime('%Y-%m-%d', $this->date_registered));
 
 						$value = $value + $diff;
 					}
@@ -941,11 +941,11 @@ class Profile extends User implements \ArrayAccess
 
 					Utils::$context['member']['time_format'] = $this->time_format;
 
-					Utils::$context['current_forum_time'] = timeformat(time(), false, 'forum');
+					$now = new Time('now', Config::$modSettings['default_timezone']);
 
-					Utils::$context['current_forum_time_js'] = smf_strftime('%Y,' . ((int) smf_strftime('%m', time()) - 1) . ',%d,%H,%M,%S', time());
-
-					Utils::$context['current_forum_time_hour'] = (int) smf_strftime('%H', time());
+					Utils::$context['current_forum_time'] = $now->format(null, false);
+					Utils::$context['current_forum_time_js'] = $now->format('Y,') . ($now->format('m') - 1) . $now->format(',d,H,i,s');
+					Utils::$context['current_forum_time_hour'] = $now->format('H');
 
 					return true;
 				},

@@ -29,6 +29,7 @@ use SMF\Logging;
 use SMF\Menu;
 use SMF\SecurityToken;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -206,7 +207,12 @@ class Bans implements ActionInterface
 					'data' => array(
 						'function' => function($rowData)
 						{
-							return timeformat($rowData['ban_time'], empty(Utils::$context['ban_time_format']) ? true : Utils::$context['ban_time_format']);
+							$time = new Time('@' . $rowData['ban_time']);
+
+							if (empty(Utils::$context['ban_time_format']))
+								return $time->format();
+
+							return $time->format(Utils::$context['ban_time_format'], true);
 						},
 					),
 					'sort' => array(

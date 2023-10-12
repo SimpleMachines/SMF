@@ -28,6 +28,7 @@ use SMF\Msg;
 use SMF\PageIndex;
 use SMF\SecurityToken;
 use SMF\Theme;
+use SMF\Time;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -427,7 +428,7 @@ class Posts implements ActionInterface
 				'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '">' . $row['subject'] . '</a>',
 				'subject' => $row['subject'],
 				'body' => BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']),
-				'time' => timeformat($row['poster_time']),
+				'time' => Time::create('@' . $row['poster_time'])->format(),
 				'poster' => array(
 					'id' => $row['id_member'],
 					'name' => $row['poster_name'],
@@ -860,7 +861,7 @@ class Posts implements ActionInterface
 				'id' => $row['id_attach'],
 				'filename' => $row['filename'],
 				'size' => round($row['size'] / 1024, 2),
-				'time' => timeformat($row['poster_time']),
+				'time' => Time::create('@' . $row['poster_time'])->format(),
 				'poster' => array(
 					'id' => $row['id_member'],
 					'name' => $row['poster_name'],
@@ -871,7 +872,7 @@ class Posts implements ActionInterface
 					'id' => $row['id_msg'],
 					'subject' => $row['subject'],
 					'body' => BBCodeParser::load()->parse($row['body']),
-					'time' => timeformat($row['poster_time']),
+					'time' => Time::create('@' . $row['poster_time'])->format(),
 					'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
 				),
 				'topic' => array(

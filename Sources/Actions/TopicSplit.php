@@ -28,6 +28,7 @@ use SMF\Msg;
 use SMF\Mail;
 use SMF\PageIndex;
 use SMF\Theme;
+use SMF\Time;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -474,7 +475,7 @@ class TopicSplit implements ActionInterface
 			Utils::$context['not_selected']['messages'][$row['id_msg']] = array(
 				'id' => $row['id_msg'],
 				'subject' => $row['subject'],
-				'time' => timeformat($row['poster_time']),
+				'time' => Time::create('@' . $row['poster_time'])->format(),
 				'timestamp' => $row['poster_time'],
 				'body' => $row['body'],
 				'poster' => $row['real_name'],
@@ -513,7 +514,7 @@ class TopicSplit implements ActionInterface
 				Utils::$context['selected']['messages'][$row['id_msg']] = array(
 					'id' => $row['id_msg'],
 					'subject' => $row['subject'],
-					'time' => timeformat($row['poster_time']),
+					'time' => Time::create('@' . $row['poster_time'])->format(),
 					'timestamp' => $row['poster_time'],
 					'body' => $row['body'],
 					'poster' => $row['real_name']

@@ -25,6 +25,7 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\SecurityToken;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Actions\Calendar as Cal;
@@ -255,7 +256,7 @@ class Calendar implements ActionInterface
 			}
 			else
 			{
-				$date = smf_strftime($_REQUEST['year'] <= 1004 ? '1004-%m-%d' : '%Y-%m-%d', mktime(0, 0, 0, $_REQUEST['month'], $_REQUEST['day'], $_REQUEST['year']));
+				$date = Time::strftime($_REQUEST['year'] <= 1004 ? '1004-%m-%d' : '%Y-%m-%d', mktime(0, 0, 0, $_REQUEST['month'], $_REQUEST['day'], $_REQUEST['year']));
 
 				if (isset($_REQUEST['edit']))
 				{
@@ -332,7 +333,7 @@ class Calendar implements ActionInterface
 		}
 
 		// Last day for the drop down?
-		Utils::$context['holiday']['last_day'] = (int) smf_strftime('%d', mktime(0, 0, 0, Utils::$context['holiday']['month'] == 12 ? 1 : Utils::$context['holiday']['month'] + 1, 0, Utils::$context['holiday']['month'] == 12 ? Utils::$context['holiday']['year'] + 1 : Utils::$context['holiday']['year']));
+		Utils::$context['holiday']['last_day'] = (int) Time::strftime('%d', mktime(0, 0, 0, Utils::$context['holiday']['month'] == 12 ? 1 : Utils::$context['holiday']['month'] + 1, 0, Utils::$context['holiday']['month'] == 12 ? Utils::$context['holiday']['year'] + 1 : Utils::$context['holiday']['year']));
 	}
 
 	/**

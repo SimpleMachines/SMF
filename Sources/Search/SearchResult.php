@@ -19,6 +19,7 @@ use SMF\Config;
 use SMF\IP;
 use SMF\Lang;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -327,7 +328,7 @@ class SearchResult extends \SMF\Msg
 			'can_quote' => (in_array($this->id_board, self::$boards_can['post_reply_any']) || in_array(0, self::$boards_can['post_reply_any'])) && $quote_enabled,
 			'first_post' => array(
 				'id' => $this->first_msg,
-				'time' => timeformat($this->first_poster_time),
+				'time' => Time::create('@' . $this->first_poster_time)->format(),
 				'timestamp' => $this->first_poster_time,
 				'subject' => $this->first_subject,
 				'href' => Config::$scripturl . '?topic=' . $this->id_topic . '.0',
@@ -343,7 +344,7 @@ class SearchResult extends \SMF\Msg
 			),
 			'last_post' => array(
 				'id' => $this->last_msg,
-				'time' => timeformat($this->last_poster_time),
+				'time' => Time::create('@' . $this->last_poster_time)->format(),
 				'timestamp' => $this->last_poster_time,
 				'subject' => $this->last_subject,
 				'href' => Config::$scripturl . '?topic=' . $this->id_topic . ($this->num_replies == 0 ? '.0' : '.msg' . $this->last_msg) . '#msg' . $this->last_msg,
@@ -379,11 +380,11 @@ class SearchResult extends \SMF\Msg
 			'icon_url' => Theme::$current->settings[Utils::$context['icon_sources'][$this->icon]] . '/post/' . $this->icon . '.png',
 			'subject' => $this->subject,
 			'subject_highlighted' => $this->subject_highlighted,
-			'time' => timeformat($this->poster_time),
+			'time' => Time::create('@' . $this->poster_time)->format(),
 			'timestamp' => $this->poster_time,
 			'counter' => $counter,
 			'modified' => array(
-				'time' => timeformat($this->modified_time),
+				'time' => Time::create('@' . $this->modified_time)->format(),
 				'timestamp' => $this->modified_time,
 				'name' => $this->modified_name
 			),

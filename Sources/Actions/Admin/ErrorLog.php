@@ -24,6 +24,7 @@ use SMF\Lang;
 use SMF\PageIndex;
 use SMF\SecurityToken;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -252,7 +253,7 @@ class ErrorLog implements ActionInterface
 					'ip' => isset($row['ip']) ? new IP($row['ip']) : null,
 					'session' => $row['session']
 				),
-				'time' => timeformat($row['log_time']),
+				'time' => Time::create('@' . $row['log_time'])->format(),
 				'timestamp' => $row['log_time'],
 				'url' => array(
 					'html' => Utils::htmlspecialchars(strpos($row['url'], 'cron.php') === false ? (substr($row['url'], 0, 1) == '?' ? Config::$scripturl : '') . $row['url'] : $row['url']),

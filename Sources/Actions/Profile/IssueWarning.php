@@ -23,6 +23,7 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\Profile;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -386,7 +387,7 @@ class IssueWarning implements ActionInterface
 					'id' => $row['id_member'],
 					'link' => $row['id_member'] ? ('<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['member_name'] . '</a>') : $row['member_name'],
 				),
-				'time' => timeformat($row['log_time']),
+				'time' => Time::create('@' . $row['log_time'])->format(),
 				'reason' => $row['body'],
 				'counter' => $row['counter'] > 0 ? '+' . $row['counter'] : $row['counter'],
 				'id_notice' => $row['id_notice'],

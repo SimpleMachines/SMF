@@ -23,6 +23,7 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\SecurityToken;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Actions\Who;
@@ -365,7 +366,7 @@ class SearchEngines implements ActionInterface
 					'data' => array(
 						'function' => function($rowData)
 						{
-							return timeformat($rowData['log_time']);
+							return Time::create('@' . $rowData['log_time'])->format();
 						},
 					),
 					'sort' => array(
@@ -554,7 +555,7 @@ class SearchEngines implements ActionInterface
 					'data' => array(
 						'function' => function($rowData)
 						{
-							return isset(Utils::$context['spider_last_seen'][$rowData['id_spider']]) ? timeformat(Utils::$context['spider_last_seen'][$rowData['id_spider']]) : Lang::$txt['spider_last_never'];
+							return isset(Utils::$context['spider_last_seen'][$rowData['id_spider']]) ? Time::create('@' . Utils::$context['spider_last_seen'][$rowData['id_spider']])->format() : Lang::$txt['spider_last_never'];
 						},
 					),
 				),
@@ -884,7 +885,7 @@ class SearchEngines implements ActionInterface
 		foreach ($spider_hits as $stat)
 		{
 			// We assume the max date is within the right day.
-			$date = smf_strftime('%Y-%m-%d', $stat['last_seen']);
+			$date = Time::strftime('%Y-%m-%d', $stat['last_seen']);
 
 			Db::$db->query('', '
 				UPDATE {db_prefix}log_spider_stats

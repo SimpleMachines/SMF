@@ -18,6 +18,7 @@ use SMF\Config;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\Theme;
+use SMF\Time;
 use SMF\Utils;
 use SMF\Actions\Notify;
 use SMF\Actions\Admin\Subscriptions;
@@ -96,7 +97,7 @@ class PaidSubs extends ScheduledTask
 				'PROFILE_LINK' => Config::$scripturl . '?action=profile;area=subscriptions;u=' . $row['id_member'],
 				'REALNAME' => $row['member_name'],
 				'SUBSCRIPTION' => $row['name'],
-				'END_DATE' => strip_tags(timeformat($row['end_time'])),
+				'END_DATE' => strip_tags(Time::create('@' . $row['end_time'])->format()),
 			);
 
 			$emaildata = Mail::loadEmailTemplate('paid_subscription_reminder', $replacements, empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile']);

@@ -23,6 +23,7 @@ use SMF\Lang;
 use SMF\PageIndex;
 use SMF\SecurityToken;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -341,7 +342,7 @@ class Home implements ActionInterface
 					'id' => $note['id_member'],
 					'link' => $note['id_member'] ? ('<a href="' . Config::$scripturl . '?action=profile;u=' . $note['id_member'] . '">' . $note['member_name'] . '</a>') : $note['member_name'],
 				),
-				'time' => timeformat($note['log_time']),
+				'time' => Time::create('@' . $note['log_time'])->format(),
 				'text' => BBCodeParser::load()->parse($note['body']),
 				'delete_href' => Config::$scripturl . '?action=moderate;area=index;notes;delete=' . $note['id_note'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 				'can_delete' => User::$me->allowedTo('admin_forum') || $note['id_member'] == User::$me->id,
@@ -391,7 +392,7 @@ class Home implements ActionInterface
 					'id' => $row['id_group'],
 					'name' => $row['group_name'],
 				),
-				'time_submitted' => timeformat($row['time_applied']),
+				'time_submitted' => Time::create('@' . $row['time_applied'])->format(),
 			);
 		}
 		Db::$db->free_result($request);
@@ -434,7 +435,7 @@ class Home implements ActionInterface
 				'name' => $user['real_name'],
 				'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $user['id_member'] . '">' . $user['real_name'] . '</a>',
 				'href' => Config::$scripturl . '?action=profile;u=' . $user['id_member'],
-				'last_login' => !empty($user['last_login']) ? timeformat($user['last_login']) : '',
+				'last_login' => !empty($user['last_login']) ? Time::create('@' . $user['last_login'])->format() : '',
 			);
 		}
 	}

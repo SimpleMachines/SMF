@@ -28,6 +28,7 @@ use SMF\Menu;
 use SMF\PageIndex;
 use SMF\SecurityToken;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -245,8 +246,8 @@ class ReportedContent implements ActionInterface
 			'report_href' => Config::$scripturl . '?action=moderate;area=reported' . $this->type . ';rid=' . $report['id_report'],
 			'comments' => array(),
 			'mod_comments' => array(),
-			'time_started' => timeformat($report['time_started']),
-			'last_updated' => timeformat($report['time_updated']),
+			'time_started' => Time::create('@' . $report['time_started'])->format(),
+			'last_updated' => Time::create('@' . $report['time_updated'])->format(),
 			'num_reports' => $report['num_reports'],
 			'closed' => $report['closed'],
 			'ignore' => $report['ignore_all']
@@ -1008,8 +1009,8 @@ class ReportedContent implements ActionInterface
 				'id' => $row['id_report'],
 				'report_href' => Config::$scripturl . '?action=moderate;area=reported' . $this->type . ';sa=details;rid=' . $row['id_report'],
 				'comments' => array(),
-				'time_started' => timeformat($row['time_started']),
-				'last_updated' => timeformat($row['time_updated']),
+				'time_started' => Time::create('@' . $row['time_started'])->format(),
+				'last_updated' => Time::create('@' . $row['time_updated'])->format(),
 				'num_reports' => $row['num_reports'],
 				'closed' => $row['closed'],
 				'ignore' => $row['ignore_all']
@@ -1097,7 +1098,7 @@ class ReportedContent implements ActionInterface
 				$reports[$row['id_report']]['comments'][] = array(
 					'id' => $row['id_comment'],
 					'message' => $row['comment'],
-					'time' => timeformat($row['time_sent']),
+					'time' => Time::create('@' . $row['time_sent'])->format(),
 					'member' => array(
 						'id' => $row['id_member'],
 						'name' => empty($row['reporter']) ? Lang::$txt['guest'] : $row['reporter'],
@@ -1210,7 +1211,7 @@ class ReportedContent implements ActionInterface
 			$report['comments'][] = array(
 				'id' => $row['id_comment'],
 				'message' => strtr($row['comment'], array("\n" => '<br>')),
-				'time' => timeformat($row['time_sent']),
+				'time' => Time::create('@' . $row['time_sent'])->format(),
 				'member' => array(
 					'id' => $row['id_member'],
 					'name' => empty($row['reporter']) ? Lang::$txt['guest'] : $row['reporter'],
@@ -1239,7 +1240,7 @@ class ReportedContent implements ActionInterface
 			$report['mod_comments'][] = array(
 				'id' => $row['id_comment'],
 				'message' => BBCodeParser::load()->parse($row['body']),
-				'time' => timeformat($row['log_time']),
+				'time' => Time::create('@' . $row['log_time'])->format(),
 				'can_edit' => User::$me->allowedTo('admin_forum') || ((User::$me->id == $row['id_member'])),
 				'member' => array(
 					'id' => $row['id_member'],

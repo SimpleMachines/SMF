@@ -396,7 +396,7 @@ class Poll implements \ArrayAccess
 			'remove' => $this->permissions['can_remove_poll'],
 			'allowed_warning' => $this->max_votes > 1 ? sprintf(Lang::$txt['poll_options_limit'], min(count($this->choices), $this->max_votes)) : '',
 			'is_expired' => !empty($this->expire_time) && $this->expire_time < time(),
-			'expire_time' => !empty($this->expire_time) ? timeformat($this->expire_time) : 0,
+			'expire_time' => !empty($this->expire_time) ? Time::create('@' . $this->expire_time)->format() : 0,
 			'expiration' => empty($this->expire_time) ? '' : ceil($this->expire_time <= time() ? -1 : ($this->expire_time - time()) / (3600 * 24)),
 			'has_voted' => !empty($this->has_voted),
 			'starter' => array(

@@ -21,6 +21,7 @@ use SMF\Draft;
 use SMF\Lang;
 use SMF\PageIndex;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -150,7 +151,7 @@ class DraftPM extends Draft
 
 			Utils::$context['drafts'][] = array(
 				'subject' => Lang::censorText($tmp_subject),
-				'poster_time' => timeformat($row['poster_time']),
+				'poster_time' => Time::create('@' . $row['poster_time'])->format(),
 				'link' => '<a href="' . Config::$scripturl . '?action=pm;sa=send;id_draft=' . $row['id_draft'] . '">' . $row['subject'] . '</a>',
 			);
 		}
@@ -321,7 +322,7 @@ class DraftPM extends Draft
 				'body' => $row['body'],
 				'counter' => $counter,
 				'subject' => $row['subject'],
-				'time' => timeformat($row['poster_time']),
+				'time' => Time::create('@' . $row['poster_time'])->format(),
 				'timestamp' => $row['poster_time'],
 				'id_draft' => $row['id_draft'],
 				'recipients' => $recipients,

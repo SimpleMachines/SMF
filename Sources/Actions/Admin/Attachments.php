@@ -27,6 +27,7 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\SecurityToken;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -392,7 +393,7 @@ class Attachments implements ActionInterface
 						'function' => function($rowData)
 						{
 							// The date the message containing the attachment was posted or the owner of the avatar was active.
-							$date = empty($rowData['poster_time']) ? Lang::$txt['never'] : timeformat($rowData['poster_time']);
+							$date = empty($rowData['poster_time']) ? Lang::$txt['never'] : Time::create('@' . $rowData['poster_time'])->format(null, true);
 
 							// Add a link to the topic in case of an attachment.
 							if (Utils::$context['browse_type'] !== 'avatars')

@@ -13,6 +13,7 @@
 use SMF\Config;
 use SMF\Lang;
 use SMF\Theme;
+use SMF\Time;
 use SMF\Utils;
 use SMF\User;
 
@@ -494,7 +495,7 @@ function template_ic_block_online()
 	echo Utils::$context['show_who'] ? '</a>' : '', '
 
 				&nbsp;-&nbsp;', Lang::$txt['most_online_today'], ': <strong>', Lang::numberFormat(Config::$modSettings['mostOnlineToday']), '</strong>&nbsp;-&nbsp;
-				', Lang::$txt['most_online_ever'], ': ', Lang::numberFormat(Config::$modSettings['mostOnline']), ' (', timeformat(Config::$modSettings['mostDate']), ')<br>';
+				', Lang::$txt['most_online_ever'], ': ', Lang::numberFormat(Config::$modSettings['mostOnline']), ' (', Time::create('@' . Config::$modSettings['mostDate'])->format(), ')<br>';
 
 	// Assuming there ARE users online... each user in users_online has an id, username, name, group, href, and link.
 	if (!empty(Utils::$context['users_online']))

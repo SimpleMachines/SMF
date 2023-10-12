@@ -22,6 +22,7 @@ use SMF\IP;
 use SMF\ItemList;
 use SMF\Profile;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -424,7 +425,7 @@ class TrackIP implements ActionInterface
 				'topic' => $row['id_topic'],
 				'id' => $row['id_msg'],
 				'subject' => $row['subject'],
-				'time' => timeformat($row['poster_time']),
+				'time' => Time::create('@' . $row['poster_time'])->format(),
 				'timestamp' => $row['poster_time']
 			);
 		}

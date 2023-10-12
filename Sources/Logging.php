@@ -476,7 +476,7 @@ class Logging
 
 		$setStringUpdate = '';
 		$insert_keys = array();
-		$date = smf_strftime('%Y-%m-%d', time());
+		$date = Time::strftime('%Y-%m-%d', time());
 		$update_parameters = array(
 			'current_date' => $date,
 		);

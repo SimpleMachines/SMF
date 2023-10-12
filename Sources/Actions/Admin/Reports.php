@@ -22,6 +22,7 @@ use SMF\Group;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -948,7 +949,7 @@ class Reports implements ActionInterface
 			$staffData = array(
 				'position' => isset($groups[$row['id_group']]) ? $groups[$row['id_group']] : $groups[0],
 				'posts' => $row['posts'],
-				'last_login' => timeformat($row['last_login']),
+				'last_login' => Time::create('@' . $row['last_login'])->format(),
 				'moderates' => array(),
 			);
 

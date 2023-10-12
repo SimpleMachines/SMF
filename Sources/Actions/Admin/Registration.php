@@ -25,6 +25,7 @@ use SMF\Profile;
 use SMF\SecurityToken;
 use SMF\User;
 use SMF\Theme;
+use SMF\Time;
 use SMF\Utils;
 use SMF\Actions\Register2;
 use SMF\Db\DatabaseApi as Db;
@@ -294,7 +295,7 @@ class Registration implements ActionInterface
 			}
 		}
 
-		Utils::$context['agreement_info'] = sprintf(Lang::$txt['admin_agreement_info'], empty(Config::$modSettings['agreement_updated_' . $agreement_lang]) ? Lang::$txt['never'] : timeformat(Config::$modSettings['agreement_updated_' . $agreement_lang]));
+		Utils::$context['agreement_info'] = sprintf(Lang::$txt['admin_agreement_info'], empty(Config::$modSettings['agreement_updated_' . $agreement_lang]) ? Lang::$txt['never'] : Time::create('@' . Config::$modSettings['agreement_updated_' . $agreement_lang])->format());
 
 		Utils::$context['agreement'] = Utils::htmlspecialchars(Utils::$context['agreement']);
 
@@ -368,7 +369,7 @@ class Registration implements ActionInterface
 			Utils::$context['privacy_policy'] = $policy_text;
 		}
 
-		Utils::$context['privacy_policy_info'] = sprintf(Lang::$txt['admin_agreement_info'], empty(Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']]) ? Lang::$txt['never'] : timeformat(Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']]));
+		Utils::$context['privacy_policy_info'] = sprintf(Lang::$txt['admin_agreement_info'], empty(Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']]) ? Lang::$txt['never'] : Time::create('@' . Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']])->format());
 
 		Utils::$context['sub_template'] = 'edit_privacy_policy';
 		Utils::$context['page_title'] = Lang::$txt['privacy_policy'];

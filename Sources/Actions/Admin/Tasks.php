@@ -24,6 +24,7 @@ use SMF\Menu;
 use SMF\SecurityToken;
 use SMF\TaskRunner;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -290,7 +291,7 @@ class Tasks implements ActionInterface
 		Menu::$loaded['admin']['current_subsection'] = 'tasks';
 		Utils::$context['sub_template'] = 'edit_scheduled_tasks';
 		Utils::$context['page_title'] = Lang::$txt['scheduled_task_edit'];
-		Utils::$context['server_time'] = timeformat(time(), false, 'forum');
+		Utils::$context['server_time'] = Time::create('now', new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false);
 
 		// Cleaning...
 		if (!isset($_GET['tid']))
@@ -372,7 +373,7 @@ class Tasks implements ActionInterface
 				'function' => $row['task'],
 				'name' => isset(Lang::$txt['scheduled_task_' . $row['task']]) ? Lang::$txt['scheduled_task_' . $row['task']] : $row['task'],
 				'desc' => isset(Lang::$txt['scheduled_task_desc_' . $row['task']]) ? sprintf(Lang::$txt['scheduled_task_desc_' . $row['task']], Config::$scripturl) : '',
-				'next_time' => $row['disabled'] ? Lang::$txt['scheduled_tasks_na'] : timeformat($row['next_time'] == 0 ? time() : $row['next_time'], true, 'server'),
+				'next_time' => $row['disabled'] ? Lang::$txt['scheduled_tasks_na'] : Time::create($row['next_time'] == 0 ? 'now' : '@' . $row['next_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(),
 				'disabled' => $row['disabled'],
 				'offset' => $row['time_offset'],
 				'regularity' => $row['time_regularity'],
@@ -436,7 +437,7 @@ class Tasks implements ActionInterface
 					'data' => array(
 						'function' => function($rowData)
 						{
-							return timeformat($rowData['time_run'], true);
+							return Time::create('@' . $rowData['time_run'])->format();
 						},
 					),
 					'sort' => array(
@@ -597,7 +598,7 @@ class Tasks implements ActionInterface
 				'function' => $row['task'],
 				'name' => isset(Lang::$txt['scheduled_task_' . $row['task']]) ? Lang::$txt['scheduled_task_' . $row['task']] : $row['task'],
 				'desc' => isset(Lang::$txt['scheduled_task_desc_' . $row['task']]) ? sprintf(Lang::$txt['scheduled_task_desc_' . $row['task']], Config::$scripturl) : '',
-				'next_time' => $row['disabled'] ? Lang::$txt['scheduled_tasks_na'] : timeformat(($row['next_time'] == 0 ? time() : $row['next_time']), true, 'server'),
+				'next_time' => $row['disabled'] ? Lang::$txt['scheduled_tasks_na'] : Time::create($row['next_time'] == 0 ? 'now' : '@' . $row['next_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(),
 				'disabled' => $row['disabled'],
 				'checked_state' => $row['disabled'] ? '' : 'checked',
 				'regularity' => $offset . ', ' . $repeating,

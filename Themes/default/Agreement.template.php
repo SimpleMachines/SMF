@@ -13,6 +13,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\Time;
 use SMF\Utils;
 
 // The main sub template - show the agreement and/or privacy policy
@@ -40,7 +41,7 @@ function template_main()
 		{
 			echo '
 		<div class="information noup">
-			', sprintf(Lang::$txt['agreement_accepted'], timeformat(Utils::$context['agreement_accepted_date'], false)), '
+			', sprintf(Lang::$txt['agreement_accepted'], Time::create('@' . Utils::$context['agreement_accepted_date'])->format(null, false)), '
 		</div>';
 		}
 
@@ -68,7 +69,7 @@ function template_main()
 		{
 			echo '
 		<div class="information noup">
-			', sprintf(Lang::$txt['privacy_policy_accepted'], timeformat(Utils::$context['privacy_policy_accepted_date'], false)), '
+			', sprintf(Lang::$txt['privacy_policy_accepted'], Time::create('@' . Utils::$context['privacy_policy_accepted_date'])->format(null, false)), '
 		</div>';
 		}
 

@@ -23,6 +23,7 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\PageIndex;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -383,7 +384,7 @@ class MessageIndex implements ActionInterface
 					'href' => !empty($row['first_id_member']) ? Config::$scripturl . '?action=profile;u=' . $row['first_id_member'] : '',
 					'link' => !empty($row['first_id_member']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['first_id_member'] . '" title="' . sprintf(Lang::$txt['view_profile_of_username'], $row['first_display_name']) . '" class="preview">' . $row['first_display_name'] . '</a>' : $row['first_display_name']
 				),
-				'time' => timeformat($row['first_poster_time']),
+				'time' => Time::create('@' . $row['first_poster_time'])->format(),
 				'timestamp' => $row['first_poster_time'],
 				'subject' => $row['first_subject'],
 				'preview' => $row['first_body'],
@@ -401,7 +402,7 @@ class MessageIndex implements ActionInterface
 					'href' => !empty($row['last_id_member']) ? Config::$scripturl . '?action=profile;u=' . $row['last_id_member'] : '',
 					'link' => !empty($row['last_id_member']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['last_id_member'] . '">' . $row['last_display_name'] . '</a>' : $row['last_display_name']
 				),
-				'time' => timeformat($row['last_poster_time']),
+				'time' => Time::create('@' . $row['last_poster_time'])->format(),
 				'timestamp' => $row['last_poster_time'],
 				'subject' => $row['last_subject'],
 				'preview' => $row['last_body'],

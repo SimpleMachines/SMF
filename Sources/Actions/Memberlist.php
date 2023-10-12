@@ -21,6 +21,7 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\PageIndex;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -752,7 +753,7 @@ class Memberlist implements ActionInterface
 
 			Utils::$context['members'][$member] = User::$loaded[$member]->format();
 			Utils::$context['members'][$member]['post_percent'] = round((Utils::$context['members'][$member]['real_posts'] * 100) / $most_posts);
-			Utils::$context['members'][$member]['registered_date'] = smf_strftime('%Y-%m-%d', Utils::$context['members'][$member]['registered_timestamp']);
+			Utils::$context['members'][$member]['registered_date'] = Time::strftime('%Y-%m-%d', Utils::$context['members'][$member]['registered_timestamp']);
 
 			if (!empty(Utils::$context['custom_profile_fields']['columns']))
 			{

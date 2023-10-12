@@ -312,7 +312,7 @@ class Alert implements \ArrayAccess
 			$this->show_links = true;
 
 		// Make a nicely formatted version of the time.
-		$this->time = timeformat($this->timestamp);
+		$this->time = Time::create('@' . $this->timestamp)->format();
 
 		// Load the users we need.
 		User::load(
@@ -423,7 +423,7 @@ class Alert implements \ArrayAccess
 				$this->content_action = 'expired';
 
 			// Present a nicely formatted date.
-			$this->extra['end_time'] = timeformat($this->extra['end_time']);
+			$this->extra['end_time'] = Time::create('@' . $this->extra['end_time'])->format();
 		}
 
 		// Now set the main URL that this alert should take the user to.

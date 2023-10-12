@@ -25,6 +25,7 @@ use SMF\Logging;
 use SMF\Mail;
 use SMF\Menu;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -969,7 +970,7 @@ class Members implements ActionInterface
 					'data' => array(
 						'function' => function($rowData)
 						{
-							return timeformat($rowData['' . ($this->current_filter == 4 ? 'last_login' : 'date_registered') . '']);
+							return Time::create('@' . $rowData[$this->current_filter == 4 ? 'last_login' : 'date_registered'])->format();
 						},
 					),
 					'sort' => array(

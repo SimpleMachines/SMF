@@ -23,6 +23,7 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\Msg;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -330,7 +331,7 @@ class WatchUsers implements ActionInterface
 			$watched_users[$row['id_member']] = array(
 				'id' => $row['id_member'],
 				'name' => $row['real_name'],
-				'last_login' => $row['last_login'] ? timeformat($row['last_login']) : Lang::$txt['never'],
+				'last_login' => $row['last_login'] ? Time::create('@' . $row['last_login'])->format() : Lang::$txt['never'],
 				'last_post' => Lang::$txt['not_applicable'],
 				'last_post_id' => 0,
 				'warning' => $row['warning'],
@@ -374,7 +375,7 @@ class WatchUsers implements ActionInterface
 				);
 				while ($row = Db::$db->fetch_assoc($request))
 				{
-					$watched_users[$row['id_member']]['last_post'] = timeformat($row['poster_time']);
+					$watched_users[$row['id_member']]['last_post'] = Time::create('@' . $row['poster_time'])->format();
 					$watched_users[$row['id_member']]['last_post_id'] = $latest_posts[$row['id_member']];
 				}
 
@@ -395,7 +396,7 @@ class WatchUsers implements ActionInterface
 			);
 			while ($row = Db::$db->fetch_assoc($request))
 			{
-				$watched_users[$row['id_member']]['last_post'] = timeformat($row['last_post']);
+				$watched_users[$row['id_member']]['last_post'] = Time::create('@' . $row['last_post'])->format();
 				$watched_users[$row['id_member']]['last_post_id'] = $row['last_post_id'];
 			}
 			Db::$db->free_result($request);
@@ -471,7 +472,7 @@ class WatchUsers implements ActionInterface
 				'author_link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
 				'subject' => $row['subject'],
 				'body' => BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']),
-				'poster_time' => timeformat($row['poster_time']),
+				'poster_time' => Time::create('@' . $row['poster_time'])->format(),
 				'approved' => $row['approved'],
 				'can_delete' => $delete_boards == array(0) || in_array($row['id_board'], $delete_boards),
 			);
