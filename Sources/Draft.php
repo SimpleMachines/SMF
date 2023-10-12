@@ -392,7 +392,7 @@ class Draft
 
 			Utils::$context['drafts'][] = array(
 				'subject' => Lang::censorText($tmp_subject),
-				'poster_time' => timeformat($row['poster_time']),
+				'poster_time' => Time::create('@' . $row['poster_time'])->format(),
 				'link' => '<a href="' . Config::$scripturl . '?action=post;board=' . $row['id_board'] . ';' . (!empty($row['id_topic']) ? 'topic=' . $row['id_topic'] . '.0;' : '') . 'id_draft=' . $row['id_draft'] . '">' . $row['subject'] . '</a>',
 			);
 		}
@@ -532,7 +532,7 @@ class Draft
 					'link' => empty($row['id']) ? $row['subject'] : '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['subject'] . '</a>',
 				),
 				'subject' => $row['subject'],
-				'time' => timeformat($row['poster_time']),
+				'time' => Time::create('@' . $row['poster_time'])->format(),
 				'timestamp' => $row['poster_time'],
 				'icon' => $row['icon'],
 				'id_draft' => $row['id_draft'],
@@ -803,7 +803,7 @@ class Draft
 
 		echo '<?xml version="1.0" encoding="', Utils::$context['character_set'], '"?>
 		<drafts>
-			<draft id="', $id_draft, '"><![CDATA[', Lang::$txt['draft_saved_on'], ': ', timeformat(Utils::$context['draft_saved_on']), ']]></draft>
+			<draft id="', $id_draft, '"><![CDATA[', Lang::$txt['draft_saved_on'], ': ', Time::create('@' . Utils::$context['draft_saved_on'])->format(), ']]></draft>
 		</drafts>';
 
 		obExit(false);

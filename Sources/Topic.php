@@ -1518,7 +1518,7 @@ class Topic implements \ArrayAccess
 		Lang::censorText($this->subject);
 
 		// A few tweaks and extras.
-		$this->started_time = timeformat($this->started_timestamp);
+		$this->started_time = Time::create('@' . $this->started_timestamp)->format();
 		$this->unwatched = $this->unwatched ?? 0;
 		$this->is_poll = (int) ($this->id_poll > 0 && Config::$modSettings['pollMode'] == '1' && User::$me->allowedTo('poll_view'));
 

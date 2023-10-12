@@ -16,6 +16,7 @@ namespace SMF\PersonalMessage;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 
@@ -72,7 +73,7 @@ class Popup
 					$senders[] = $pm->member_from;
 
 				$pm->replied_to_you = $pm->id != $pm->head;
-				$pm->time = timeformat($pm->msgtime);
+				$pm->time = Time::create('@' . $pm->msgtime)->format();
 				$pm->pm_link = '<a href="' . Config::$scripturl . '?action=pm;f=inbox;pmid=' . $pm->id . '#msg' . $pm->id . '">' . $pm->subject . '</a>';
 
 				Utils::$context['unread_pms'][$pm->id] = $pm;

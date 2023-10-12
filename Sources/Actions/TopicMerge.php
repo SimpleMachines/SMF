@@ -27,6 +27,7 @@ use SMF\Msg;
 use SMF\Mail;
 use SMF\PageIndex;
 use SMF\Theme;
+use SMF\Time;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -1256,13 +1257,13 @@ class TopicMerge implements ActionInterface
 				'num_views' => $row['num_views'],
 				'subject' => $row['subject'],
 				'started' => array(
-					'time' => timeformat($row['time_started']),
+					'time' => Time::create('@' . $row['time_started'])->format(),
 					'timestamp' => $row['time_started'],
 					'href' => empty($row['id_member_started']) ? '' : Config::$scripturl . '?action=profile;u=' . $row['id_member_started'],
 					'link' => empty($row['id_member_started']) ? $row['name_started'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member_started'] . '">' . $row['name_started'] . '</a>'
 				),
 				'updated' => array(
-					'time' => timeformat($row['time_updated']),
+					'time' => Time::create('@' . $row['time_updated'])->format(),
 					'timestamp' => $row['time_updated'],
 					'href' => empty($row['id_member_updated']) ? '' : Config::$scripturl . '?action=profile;u=' . $row['id_member_updated'],
 					'link' => empty($row['id_member_updated']) ? $row['name_updated'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member_updated'] . '">' . $row['name_updated'] . '</a>'

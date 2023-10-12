@@ -17,6 +17,7 @@ use SMF\Alert;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -705,7 +706,7 @@ class Like implements ActionInterface
 			}
 
 			Utils::$context['likers'][$liker]['profile'] = User::$loaded[$liker]->format();
-			Utils::$context['likers'][$liker]['time'] = !empty($dummy['timestamp']) ? timeformat($dummy['timestamp']) : '';
+			Utils::$context['likers'][$liker]['time'] = !empty($dummy['timestamp']) ? Time::create('@' . $dummy['timestamp'])->format() : '';
 		}
 
 		$count = count(Utils::$context['likers']);

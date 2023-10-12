@@ -21,6 +21,7 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Profile;
 use SMF\Theme;
+use SMF\Time;
 use SMF\Utils;
 use SMF\Actions\Admin\Subscriptions;
 use SMF\Db\DatabaseApi as Db;
@@ -140,8 +141,8 @@ class PaidSubs implements ActionInterface
 				'sub_id' => $row['id_subscribe'],
 				'hide' => $row['status'] == 0 && $row['end_time'] == 0 && $row['payments_pending'] == 0,
 				'name' => Subscriptions::$all[$row['id_subscribe']]['name'],
-				'start' => timeformat($row['start_time'], false),
-				'end' => $row['end_time'] == 0 ? Lang::$txt['not_applicable'] : timeformat($row['end_time'], false),
+				'start' => Time::create('@' . $row['start_time'])->format(null, false),
+				'end' => $row['end_time'] == 0 ? Lang::$txt['not_applicable'] : Time::create('@' . $row['end_time'])->format(null, false),
 				'pending_details' => $row['pending_details'],
 				'status' => $row['status'],
 				'status_text' => $row['status'] == 0 ? ($row['payments_pending'] ? Lang::$txt['paid_pending'] : Lang::$txt['paid_finished']) : Lang::$txt['paid_active'],

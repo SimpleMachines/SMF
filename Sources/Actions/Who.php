@@ -21,6 +21,7 @@ use SMF\IP;
 use SMF\Lang;
 use SMF\PageIndex;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -284,7 +285,7 @@ class Who implements ActionInterface
 				'id' => $row['id_member'],
 				'ip' => User::$me->allowedTo('moderate_forum') ? new IP($row['ip']) : '',
 				// It is *going* to be today or yesterday, so why keep that information in there?
-				'time' => strtr(timeformat($row['log_time']), array(Lang::$txt['today'] => '', Lang::$txt['yesterday'] => '')),
+				'time' => strtr(Time::create('@' . $row['log_time'])->format(), array(Lang::$txt['today'] => '', Lang::$txt['yesterday'] => '')),
 				'timestamp' => $row['log_time'],
 				'query' => $actions,
 				'is_hidden' => $row['show_online'] == 0,

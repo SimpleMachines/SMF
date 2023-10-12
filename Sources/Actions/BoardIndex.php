@@ -23,6 +23,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Msg;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -253,7 +254,7 @@ class BoardIndex implements ActionInterface
 			'post_retri_eval' => '
 				foreach ($cache_block[\'data\'] as $k => $post)
 				{
-					$cache_block[\'data\'][$k][\'time\'] = timeformat($post[\'raw_timestamp\']);
+					$cache_block[\'data\'][$k][\'time\'] = \\SMF\\Time::create(\'@\' . $post[\'raw_timestamp\'])->format();
 					$cache_block[\'data\'][$k][\'timestamp\'] = $post[\'raw_timestamp\'];
 				}',
 		);
@@ -638,7 +639,7 @@ class BoardIndex implements ActionInterface
 		// By now we should know the most recent post...if we wanna know it that is.
 		if (!empty($board_index_options['set_latest_post']) && !empty($latest_post['ref']))
 		{
-			$latest_post['ref']['time'] = timeformat($latest_post['ref']['timestamp']);
+			$latest_post['ref']['time'] = Time::create('@' . $latest_post['ref']['timestamp'])->format();
 			Utils::$context['latest_post'] = $latest_post['ref'];
 		}
 

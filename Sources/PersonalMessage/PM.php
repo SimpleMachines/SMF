@@ -27,6 +27,7 @@ use SMF\Menu;
 use SMF\Msg;
 use SMF\Security;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Verifier;
@@ -346,7 +347,7 @@ class PM implements \ArrayAccess
 			'member' => $author,
 			'subject' => $this->subject,
 			'body' => BBCodeParser::load()->parse($this->body, true, 'pm' . $this->id),
-			'time' => timeformat($this->msgtime),
+			'time' => Time::create('@' . $this->msgtime)->format(),
 			'timestamp' => $this->msgtime,
 			'counter' => $counter,
 			'recipients' => $recipients,
@@ -2171,7 +2172,7 @@ class PM implements \ArrayAccess
 					'link' => !empty($row_quoted['id_member']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row_quoted['id_member'] . '">' . $row_quoted['real_name'] . '</a>' : $row_quoted['real_name'],
 				),
 				'subject' => $row_quoted['subject'],
-				'time' => timeformat($row_quoted['msgtime']),
+				'time' => Time::create('@' . $row_quoted['msgtime'])->format(),
 				'timestamp' => $row_quoted['msgtime'],
 				'body' => BBCodeParser::load()->parse($row_quoted['body'], true, 'pm' . $row_quoted['id_pm']),
 			);

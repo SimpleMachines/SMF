@@ -23,6 +23,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
 use SMF\SecurityToken;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -472,7 +473,7 @@ class Logs implements ActionInterface
 				'ip' => $seeIP ? new IP($row['ip']) : Lang::$txt['logged'],
 				'position' => empty($row['real_name']) && empty($row['group_name']) ? Lang::$txt['guest'] : $row['group_name'],
 				'moderator_link' => $row['id_member'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>' : (empty($row['real_name']) ? (Lang::$txt['guest'] . (!empty($row['extra']['member_acted']) ? ' (' . $row['extra']['member_acted'] . ')' : '')) : $row['real_name']),
-				'time' => timeformat($row['log_time']),
+				'time' => Time::create('@' . $row['log_time'])->format(),
 				'timestamp' => $row['log_time'],
 				'editable' => substr($row['action'], 0, 8) !== 'clearlog' && !in_array($row['action'], self::$uneditable_actions),
 				'extra' => $row['extra'],

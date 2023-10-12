@@ -24,6 +24,7 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Profile;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Actions\TrackIP;
@@ -678,7 +679,7 @@ class Tracking implements ActionInterface
 				'member_link' => $row['id_member'] > 0 ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['display_name'] . '</a>' : $row['display_name'],
 				'message' => strtr($row['message'], array('&lt;span class=&quot;remove&quot;&gt;' => '', '&lt;/span&gt;' => '')),
 				'url' => $row['url'],
-				'time' => timeformat($row['log_time']),
+				'time' => Time::create('@' . $row['log_time'])->format(),
 				'timestamp' => $row['log_time'],
 			);
 		}
@@ -776,7 +777,7 @@ class Tracking implements ActionInterface
 				'action_text' => $action_text,
 				'before' => !empty($extra['previous']) ? ($parse_bbc ? BBCodeParser::load()->parse($extra['previous']) : $extra['previous']) : '',
 				'after' => !empty($extra['new']) ? ($parse_bbc ? BBCodeParser::load()->parse($extra['new']) : $extra['new']) : '',
-				'time' => timeformat($row['log_time']),
+				'time' => Time::create('@' . $row['log_time'])->format(),
 			);
 		}
 		Db::$db->free_result($request);
@@ -880,11 +881,11 @@ class Tracking implements ActionInterface
 					break;
 				case 1:
 					$member_link = empty($row['id_member_acted']) ? $row['act_name'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member_acted'] . '">' . $row['act_name'] . '</a>';
-					$this_req['outcome'] = sprintf(Lang::$txt['outcome_approved'], $member_link, timeformat($row['time_acted']));
+					$this_req['outcome'] = sprintf(Lang::$txt['outcome_approved'], $member_link, Time::create('@' . $row['time_acted'])->format());
 					break;
 				case 2:
 					$member_link = empty($row['id_member_acted']) ? $row['act_name'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member_acted'] . '">' . $row['act_name'] . '</a>';
-					$this_req['outcome'] = sprintf(!empty($row['act_reason']) ? Lang::$txt['outcome_refused_reason'] : Lang::$txt['outcome_refused'], $member_link, timeformat($row['time_acted']), $row['act_reason']);
+					$this_req['outcome'] = sprintf(!empty($row['act_reason']) ? Lang::$txt['outcome_refused_reason'] : Lang::$txt['outcome_refused'], $member_link, Time::create('@' . $row['time_acted'])->format(), $row['act_reason']);
 					break;
 			}
 
@@ -941,7 +942,7 @@ class Tracking implements ActionInterface
 		$logins = array();
 		while ($row = Db::$db->fetch_assoc($request))
 			$logins[] = array(
-				'time' => timeformat($row['time']),
+				'time' => Time::create('@' . $row['time'])->format(),
 				'ip' => new IP($row['ip']),
 				'ip2' => new IP($row['ip2']),
 			);

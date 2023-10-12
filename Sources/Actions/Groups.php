@@ -26,6 +26,7 @@ use SMF\Menu;
 use SMF\PageIndex;
 use SMF\SecurityToken;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Actions\Moderation\Main as ModCenter;
@@ -946,7 +947,7 @@ class Groups implements ActionInterface
 					$reason .= '<br><br><strong>' . Lang::$txt['mc_groupr_rejected'] . '</strong>';
 				}
 
-				$reason .= ' (' . timeformat($row['time_acted']) . ')';
+				$reason .= ' (' . Time::create('@' . $row['time_acted'])->format() . ')';
 
 				if (!empty($row['act_reason']))
 					$reason .= '<br><br>' . Lang::censorText($row['act_reason']);
@@ -957,7 +958,7 @@ class Groups implements ActionInterface
 				'member_link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
 				'group_link' => '<span style="color: ' . $row['online_color'] . '">' . $row['group_name'] . '</span>',
 				'reason' => $reason,
-				'time_submitted' => timeformat($row['time_applied']),
+				'time_submitted' => Time::create('@' . $row['time_applied'])->format(),
 			);
 		}
 		Db::$db->free_result($request);

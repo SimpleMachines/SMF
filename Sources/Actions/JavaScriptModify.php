@@ -22,6 +22,7 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Msg;
+use SMF\Time;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -315,7 +316,7 @@ class JavaScriptModify implements ActionInterface
 				Utils::$context['message'] = array(
 					'id' => $row['id_msg'],
 					'modified' => array(
-						'time' => isset($msgOptions['modify_time']) ? timeformat($msgOptions['modify_time']) : '',
+						'time' => isset($msgOptions['modify_time']) ? Time::create('@' . $msgOptions['modify_time'])->format() : '',
 						'timestamp' => isset($msgOptions['modify_time']) ? $msgOptions['modify_time'] : 0,
 						'name' => isset($msgOptions['modify_time']) ? $msgOptions['modify_name'] : '',
 						'reason' => $msgOptions['modify_reason'],
@@ -337,7 +338,7 @@ class JavaScriptModify implements ActionInterface
 				Utils::$context['message'] = array(
 					'id' => $row['id_msg'],
 					'modified' => array(
-						'time' => isset($msgOptions['modify_time']) ? timeformat($msgOptions['modify_time']) : '',
+						'time' => isset($msgOptions['modify_time']) ? Time::create('@' . $msgOptions['modify_time'])->format() : '',
 						'timestamp' => isset($msgOptions['modify_time']) ? $msgOptions['modify_time'] : 0,
 						'name' => isset($msgOptions['modify_time']) ? $msgOptions['modify_name'] : '',
 					),

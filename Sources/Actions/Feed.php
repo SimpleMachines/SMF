@@ -24,6 +24,7 @@ use SMF\ErrorHandler;
 use SMF\IP;
 use SMF\Lang;
 use SMF\Theme;
+use SMF\Time;
 use SMF\Url;
 use SMF\User;
 use SMF\Utils;
@@ -685,11 +686,11 @@ class Feed implements ActionInterface
 						),
 						array(
 							'tag' => 'published',
-							'content' => smf_gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['date_registered']),
+							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['date_registered']),
 						),
 						array(
 							'tag' => 'updated',
-							'content' => smf_gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['last_login']),
+							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['last_login']),
 						),
 						array(
 							'tag' => 'id',
@@ -713,8 +714,8 @@ class Feed implements ActionInterface
 						),
 						array(
 							'tag' => 'time',
-							'attributes' => array('label' => Lang::$txt['date_registered'], 'UTC' => smf_gmstrftime('%F %T', $row['date_registered'])),
-							'content' => Utils::htmlspecialchars(strip_tags(timeformat($row['date_registered'], false, 'forum'))),
+							'attributes' => array('label' => Lang::$txt['date_registered'], 'UTC' => Time::gmstrftime('%F %T', $row['date_registered'])),
+							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['date_registered'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))),
 						),
 						array(
 							'tag' => 'id',
@@ -1011,11 +1012,11 @@ class Feed implements ActionInterface
 						),
 						array(
 							'tag' => 'published',
-							'content' => smf_gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
+							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
 						),
 						array(
 							'tag' => 'updated',
-							'content' => smf_gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
+							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
 						),
 						array(
 							'tag' => 'id',
@@ -1086,8 +1087,8 @@ class Feed implements ActionInterface
 					'content' => array(
 						array(
 							'tag' => 'time',
-							'attributes' => array('label' => Lang::$txt['date'], 'UTC' => smf_gmstrftime('%F %T', $row['poster_time'])),
-							'content' => Utils::htmlspecialchars(strip_tags(timeformat($row['poster_time'], false, 'forum'))),
+							'attributes' => array('label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', $row['poster_time'])),
+							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['poster_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))),
 						),
 						array(
 							'tag' => 'id',
@@ -1460,11 +1461,11 @@ class Feed implements ActionInterface
 						),
 						array(
 							'tag' => 'published',
-							'content' => smf_gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
+							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
 						),
 						array(
 							'tag' => 'updated',
-							'content' => smf_gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
+							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
 						),
 						array(
 							'tag' => 'id',
@@ -1535,8 +1536,8 @@ class Feed implements ActionInterface
 					'content' => array(
 						array(
 							'tag' => 'time',
-							'attributes' => array('label' => Lang::$txt['date'], 'UTC' => smf_gmstrftime('%F %T', $row['poster_time'])),
-							'content' => Utils::htmlspecialchars(strip_tags(timeformat($row['poster_time'], false, 'forum'))),
+							'attributes' => array('label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', $row['poster_time'])),
+							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['poster_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))),
 						),
 						array(
 							'tag' => 'id',
@@ -1790,11 +1791,11 @@ class Feed implements ActionInterface
 					),
 					array(
 						'tag' => 'published',
-						'content' => smf_gmstrftime('%Y-%m-%dT%H:%M:%SZ', $profile['registered_timestamp']),
+						'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $profile['registered_timestamp']),
 					),
 					array(
 						'tag' => 'updated',
-						'content' => smf_gmstrftime('%Y-%m-%dT%H:%M:%SZ', $profile['last_login_timestamp']),
+						'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $profile['last_login_timestamp']),
 					),
 					array(
 						'tag' => 'id',
@@ -1844,13 +1845,13 @@ class Feed implements ActionInterface
 				),
 				array(
 					'tag' => 'last-login',
-					'attributes' => array('label' => Lang::$txt['lastLoggedIn'], 'UTC' => smf_gmstrftime('%F %T', $profile['last_login_timestamp'])),
-					'content' => timeformat($profile['last_login_timestamp'], false, 'forum'),
+					'attributes' => array('label' => Lang::$txt['lastLoggedIn'], 'UTC' => Time::gmstrftime('%F %T', $profile['last_login_timestamp'])),
+					'content' => Time::create('@' . $row['last_login_timestamp'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false),
 				),
 				array(
 					'tag' => 'registered',
-					'attributes' => array('label' => Lang::$txt['date_registered'], 'UTC' => smf_gmstrftime('%F %T', $profile['registered_timestamp'])),
-					'content' => timeformat($profile['registered_timestamp'], false, 'forum'),
+					'attributes' => array('label' => Lang::$txt['date_registered'], 'UTC' => Time::gmstrftime('%F %T', $profile['registered_timestamp'])),
+					'content' => Time::create('@' . $row['registered_timestamp'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false),
 				),
 				array(
 					'tag' => 'avatar',
@@ -2242,11 +2243,11 @@ class Feed implements ActionInterface
 						),
 						array(
 							'tag' => 'published',
-							'content' => smf_gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
+							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
 						),
 						array(
 							'tag' => 'updated',
-							'content' => smf_gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
+							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
 						),
 						array(
 							'tag' => 'id',
@@ -2416,13 +2417,13 @@ class Feed implements ActionInterface
 						),
 						array(
 							'tag' => 'time',
-							'attributes' => array('label' => Lang::$txt['date'], 'UTC' => smf_gmstrftime('%F %T', $row['poster_time'])),
-							'content' => Utils::htmlspecialchars(strip_tags(timeformat($row['poster_time'], false, 'forum'))),
+							'attributes' => array('label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', $row['poster_time'])),
+							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['poster_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))),
 						),
 						array(
 							'tag' => 'modified_time',
-							'attributes' => !empty($row['modified_time']) ? array('label' => Lang::$txt['modified_time'], 'UTC' => smf_gmstrftime('%F %T', $row['modified_time'])) : null,
-							'content' => !empty($row['modified_time']) ? Utils::htmlspecialchars(strip_tags(timeformat($row['modified_time'], false, 'forum'))) : null,
+							'attributes' => !empty($row['modified_time']) ? array('label' => Lang::$txt['modified_time'], 'UTC' => Time::gmstrftime('%F %T', $row['modified_time'])) : null,
+							'content' => !empty($row['modified_time']) ? Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['modified_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))) : null,
 						),
 						array(
 							'tag' => 'modified_by',
@@ -2609,7 +2610,7 @@ class Feed implements ActionInterface
 						),
 						array(
 							'tag' => 'updated',
-							'content' => smf_gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['msgtime']),
+							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['msgtime']),
 						),
 						array(
 							'tag' => 'title',
@@ -2669,8 +2670,8 @@ class Feed implements ActionInterface
 						),
 						array(
 							'tag' => 'sent_date',
-							'attributes' => array('label' => Lang::$txt['date'], 'UTC' => smf_gmstrftime('%F %T', $row['msgtime'])),
-							'content' => Utils::htmlspecialchars(strip_tags(timeformat($row['msgtime'], false, 'forum'))),
+							'attributes' => array('label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', $row['msgtime'])),
+							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['msgtime'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))),
 						),
 						array(
 							'tag' => 'subject',
@@ -2909,7 +2910,7 @@ class Feed implements ActionInterface
 	<title>' . $metadata['title'] . '</title>
 	<link rel="alternate" type="text/html" href="' . $metadata['source'] . '" />
 	<link rel="self" type="application/atom+xml" href="' . $metadata['self'] . '" />
-	<updated>' . smf_gmstrftime('%Y-%m-%dT%H:%M:%SZ') . '</updated>
+	<updated>' . Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ') . '</updated>
 	<id>' . $metadata['source'] . '</id>
 	<subtitle>' . $metadata['desc'] . '</subtitle>
 	<generator uri="https://www.simplemachines.org" version="' . SMF_VERSION . '">SMF</generator>';
@@ -2979,7 +2980,7 @@ class Feed implements ActionInterface
 		else
 		{
 			Utils::$context['feed']['header'] .= '
-<smf:xml-feed xml:lang="' . $metadata['language'] . '"' . $ns_string . ' version="' . SMF_VERSION . '" forum-name="' . Utils::$context['forum_name'] . '" forum-url="' . Config::$scripturl . '"' . (!empty($metadata['title']) && $metadata['title'] != Utils::$context['forum_name'] ? ' title="' . $metadata['title'] . '"' : '') . (!empty($metadata['desc']) ? ' description="' . $metadata['desc'] . '"' : '') . ' source="' . $metadata['source'] . '" generated-date-localized="' . strip_tags(timeformat(time(), false, 'forum')) . '" generated-date-UTC="' . smf_gmstrftime('%F %T') . '"' . (!empty($metadata['page']) ? ' page="' . $metadata['page'] . '"' : '') . '>';
+<smf:xml-feed xml:lang="' . $metadata['language'] . '"' . $ns_string . ' version="' . SMF_VERSION . '" forum-name="' . Utils::$context['forum_name'] . '" forum-url="' . Config::$scripturl . '"' . (!empty($metadata['title']) && $metadata['title'] != Utils::$context['forum_name'] ? ' title="' . $metadata['title'] . '"' : '') . (!empty($metadata['desc']) ? ' description="' . $metadata['desc'] . '"' : '') . ' source="' . $metadata['source'] . '" generated-date-localized="' . strip_tags(Time::create('now', new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false)) . '" generated-date-UTC="' . Time::gmstrftime('%F %T') . '"' . (!empty($metadata['page']) ? ' page="' . $metadata['page'] . '"' : '') . '>';
 
 			// Hard to imagine anyone wanting to add these for the proprietary format, but just in case...
 			Utils::$context['feed']['header'] .= $extraFeedTags_string;

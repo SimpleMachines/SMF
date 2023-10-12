@@ -2858,7 +2858,7 @@ class BBCodeParser
 	public static function timeValidate(&$tag, &$data, $disabled, $params): void
 	{
 		if (is_numeric($data))
-			$data = timeformat($data);
+			$data = Time::create('@' . $data)->format();
 
 		$tag['content'] = '<span class="bbc_time">$1</span>';
 	}

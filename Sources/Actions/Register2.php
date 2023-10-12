@@ -25,6 +25,7 @@ use SMF\Profile;
 use SMF\Security;
 use SMF\SecurityToken;
 use SMF\Theme;
+use SMF\Time;
 use SMF\TimeZone;
 use SMF\Url;
 use SMF\User;
@@ -245,7 +246,7 @@ class Register2 extends Register
 		// Handle a string as a birthdate...
 		if (isset($_POST['birthdate']) && $_POST['birthdate'] != '')
 		{
-			$_POST['birthdate'] = smf_strftime('%Y-%m-%d', strtotime($_POST['birthdate']));
+			$_POST['birthdate'] = Time::strftime('%Y-%m-%d', strtotime($_POST['birthdate']));
 		}
 		// Or birthdate parts...
 		elseif (!empty($_POST['bday1']) && !empty($_POST['bday2']))

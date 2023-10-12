@@ -190,7 +190,7 @@ class Calendar implements ActionInterface
 		$month = !empty($_REQUEST['month']) ? (int) $_REQUEST['month'] : $today['month'];
 		$day = !empty($_REQUEST['day']) ? (int) $_REQUEST['day'] : (!empty($_REQUEST['month']) ? 1 : $today['day']);
 
-		$start_object = checkdate($month, $day, $year) === true ? date_create(implode('-', array($year, $month, $day)) . ' ' . User::getTimezone()) : date_create(implode('-', array($today['year'], $today['month'], $today['day'])) . ' ' . User::getTimezone());
+		$start_object = checkdate($month, $day, $year) === true ? new Time(implode('-', array($year, $month, $day)) . ' ' . User::getTimezone()) : new Time(implode('-', array($today['year'], $today['month'], $today['day'])) . ' ' . User::getTimezone());
 
 		// Need an end date for the list view
 		if (!empty($_REQUEST['end_date']))
@@ -211,27 +211,27 @@ class Calendar implements ActionInterface
 
 		if (isset($end_month, $end_day, $end_year) && checkdate($end_month, $end_day, $end_year))
 		{
-			$end_object = date_create(implode('-', array($end_year, $end_month, $end_day)) . ' ' . User::getTimezone());
+			$end_object = new Time(implode('-', array($end_year, $end_month, $end_day)) . ' ' . User::getTimezone());
 		}
 
 		if (empty($end_object) || $start_object >= $end_object)
 		{
 			$num_days_shown = empty(Config::$modSettings['cal_days_for_index']) || Config::$modSettings['cal_days_for_index'] < 1 ? 1 : Config::$modSettings['cal_days_for_index'];
 
-			$end_object = date_create(date_format($start_object, 'Y-m-d') . ' ' . User::getTimezone());
+			$end_object = new Time($start_object->format('Y-m-d') . ' ' . User::getTimezone());
 
 			date_add($end_object, date_interval_create_from_date_string($num_days_shown . ' days'));
 		}
 
 		$curPage = array(
-			'year' => date_format($start_object, 'Y'),
-			'month' => date_format($start_object, 'n'),
-			'day' => date_format($start_object, 'j'),
-			'start_date' => date_format($start_object, 'Y-m-d'),
-			'end_year' => date_format($end_object, 'Y'),
-			'end_month' => date_format($end_object, 'n'),
-			'end_day' => date_format($end_object, 'j'),
-			'end_date' => date_format($end_object, 'Y-m-d'),
+			'year' => $start_object->format('Y'),
+			'month' => $start_object->format('n'),
+			'day' => $start_object->format('j'),
+			'start_date' => $start_object->format('Y-m-d'),
+			'end_year' => $end_object->format('Y'),
+			'end_month' => $end_object->format('n'),
+			'end_day' => $end_object->format('j'),
+			'end_date' => $end_object->format('Y-m-d'),
 		);
 
 		// Make sure the year and month are in valid ranges.
@@ -470,8 +470,8 @@ class Calendar implements ActionInterface
 		if (Utils::$context['event']->allday == true)
 		{
 			Utils::$context['event']->tz = User::getTimezone();
-			Utils::$context['event']->start->modify(timeformat(time(), '%H:%M:%S'));
-			Utils::$context['event']->end->modify(timeformat(time() + 3600, '%H:%M:%S'));
+			Utils::$context['event']->start->modify(Time::create('now')->format('%H:%M:%S'));
+			Utils::$context['event']->end->modify(Time::create('now + 1 hour')->format('%H:%M:%S'));
 		}
 
 		// Need this so the user can select a timezone for the event.
@@ -808,7 +808,7 @@ class Calendar implements ActionInterface
 
 		foreach (Event::loadRange($low_date, $high_date, $use_permissions) as $event)
 		{
-			$cal_date = date_create($event->start_date_local, $tz);
+			$cal_date = new Time($event->start_date_local, $tz);
 
 			while ($cal_date->getTimestamp() <= $event->end->getTimestamp() && $cal_date->format('Y-m-d') <= $high_date)
 			{
@@ -931,10 +931,10 @@ class Calendar implements ActionInterface
 	public static function getTodayInfo(): array
 	{
 		return array(
-			'day' => (int) smf_strftime('%d', time(), User::getTimezone()),
-			'month' => (int) smf_strftime('%m', time(), User::getTimezone()),
-			'year' => (int) smf_strftime('%Y', time(), User::getTimezone()),
-			'date' => smf_strftime('%Y-%m-%d', time(), User::getTimezone()),
+			'day' => (int) Time::strftime('%d', time(), User::getTimezone()),
+			'month' => (int) Time::strftime('%m', time(), User::getTimezone()),
+			'year' => (int) Time::strftime('%Y', time(), User::getTimezone()),
+			'date' => Time::strftime('%Y-%m-%d', time(), User::getTimezone()),
 		);
 	}
 
@@ -949,12 +949,12 @@ class Calendar implements ActionInterface
 	 */
 	public static function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false, $has_picker = true): array
 	{
-		$selected_object = date_create($selected_date . ' ' . User::getTimezone());
+		$selected_object = new Time($selected_date . ' ' . User::getTimezone());
 
-		$next_object = date_create($selected_date . ' ' . User::getTimezone());
+		$next_object = new Time($selected_date . ' ' . User::getTimezone());
 		$next_object->modify('first day of next month');
 
-		$prev_object = date_create($selected_date . ' ' . User::getTimezone());
+		$prev_object = new Time($selected_date . ' ' . User::getTimezone());
 		$prev_object->modify('first day of previous month');
 
 		// Eventually this is what we'll be returning.
@@ -963,47 +963,47 @@ class Calendar implements ActionInterface
 			'weeks' => array(),
 			'short_day_titles' => !empty($calendarOptions['short_day_titles']),
 			'short_month_titles' => !empty($calendarOptions['short_month_titles']),
-			'current_month' => date_format($selected_object, 'n'),
-			'current_year' => date_format($selected_object, 'Y'),
-			'current_day' => date_format($selected_object, 'd'),
+			'current_month' => $selected_object->format('n'),
+			'current_year' => $selected_object->format('Y'),
+			'current_day' => $selected_object->format('d'),
 			'show_next_prev' => !empty($calendarOptions['show_next_prev']),
 			'show_week_links' => isset($calendarOptions['show_week_links']) ? $calendarOptions['show_week_links'] : 0,
 			'previous_calendar' => array(
-				'year' => date_format($prev_object, 'Y'),
-				'month' => date_format($prev_object, 'n'),
-				'day' => date_format($prev_object, 'd'),
-				'start_date' => date_format($prev_object, 'Y-m-d'),
-				'disabled' => Config::$modSettings['cal_minyear'] > date_format($prev_object, 'Y'),
+				'year' => $prev_object->format('Y'),
+				'month' => $prev_object->format('n'),
+				'day' => $prev_object->format('d'),
+				'start_date' => $prev_object->format('Y-m-d'),
+				'disabled' => Config::$modSettings['cal_minyear'] > $prev_object->format('Y'),
 			),
 			'next_calendar' => array(
-				'year' => date_format($next_object, 'Y'),
-				'month' => date_format($next_object, 'n'),
-				'day' => date_format($next_object, 'd'),
-				'start_date' => date_format($next_object, 'Y-m-d'),
-				'disabled' => Config::$modSettings['cal_maxyear'] < date_format($next_object, 'Y'),
+				'year' => $next_object->format('Y'),
+				'month' => $next_object->format('n'),
+				'day' => $next_object->format('d'),
+				'start_date' => $next_object->format('Y-m-d'),
+				'disabled' => Config::$modSettings['cal_maxyear'] < $next_object->format('Y'),
 			),
-			'start_date' => timeformat(date_format($selected_object, 'U'), Time::getDateFormat()),
+			'start_date' => $selected_object->format(Time::getDateFormat()),
 		);
 
 		// Get today's date.
 		$today = self::getTodayInfo();
 
-		$first_day_object = date_create(date_format($selected_object, 'Y-m-01') . ' ' . User::getTimezone());
-		$last_day_object = date_create(date_format($selected_object, 'Y-m-t') . ' ' . User::getTimezone());
+		$first_day_object = new Time($selected_object->format('Y-m-01') . ' ' . User::getTimezone());
+		$last_day_object = new Time($selected_object->format('Y-m-t') . ' ' . User::getTimezone());
 
 		// Get information about this month.
 		$month_info = array(
 			'first_day' => array(
-				'day_of_week' => date_format($first_day_object, 'w'),
-				'week_num' => date_format($first_day_object, 'W'),
-				'date' => date_format($first_day_object, 'Y-m-d'),
+				'day_of_week' => $first_day_object->format('w'),
+				'week_num' => $first_day_object->format('W'),
+				'date' => $first_day_object->format('Y-m-d'),
 			),
 			'last_day' => array(
-				'day_of_month' => date_format($last_day_object, 't'),
-				'date' => date_format($last_day_object, 'Y-m-d'),
+				'day_of_month' => $last_day_object->format('t'),
+				'date' => $last_day_object->format('Y-m-d'),
 			),
-			'first_day_of_year' => date_format(date_create(date_format($selected_object, 'Y-01-01') . ' ' . User::getTimezone()), 'w'),
-			'first_day_of_next_year' => date_format(date_create((date_format($selected_object, 'Y') + 1) . '-01-01' . ' ' . User::getTimezone()), 'w'),
+			'first_day_of_year' => Time::create($selected_object->format('Y-01-01') . ' ' . User::getTimezone())->format('w'),
+			'first_day_of_next_year' => Time::create(($selected_object->format('Y') + 1) . '-01-01' . ' ' . User::getTimezone())->format('w'),
 		);
 
 		// The number of days the first row is shifted to the right for the starting day.
@@ -1056,7 +1056,7 @@ class Calendar implements ActionInterface
 				if ($nDay < 1 || $nDay > $month_info['last_day']['day_of_month'])
 					$nDay = 0;
 
-				$date = date_format($selected_object, 'Y-m-') . sprintf('%02d', $nDay);
+				$date = $selected_object->format('Y-m-') . sprintf('%02d', $nDay);
 
 				$calendarGrid['weeks'][$nRow]['days'][$nCol] = array(
 					'day' => $nDay,
@@ -1101,7 +1101,7 @@ class Calendar implements ActionInterface
 	 */
 	public static function getCalendarWeek($selected_date, $calendarOptions): array
 	{
-		$selected_object = date_create($selected_date . ' ' . User::getTimezone());
+		$selected_object = new Time($selected_date . ' ' . User::getTimezone());
 
 		// Get today's date.
 		$today = self::getTodayInfo();
@@ -1109,8 +1109,8 @@ class Calendar implements ActionInterface
 		// What is the actual "start date" for the passed day.
 		$calendarOptions['start_day'] = empty($calendarOptions['start_day']) ? 0 : (int) $calendarOptions['start_day'];
 
-		$day_of_week = date_format($selected_object, 'w');
-		$first_day_object = date_create($selected_date . ' ' . User::getTimezone());
+		$day_of_week = $selected_object->format('w');
+		$first_day_object = new Time($selected_date . ' ' . User::getTimezone());
 		if ($day_of_week != $calendarOptions['start_day'])
 		{
 			// Here we offset accordingly to get things to the real start of a week.
@@ -1121,70 +1121,70 @@ class Calendar implements ActionInterface
 			date_sub($first_day_object, date_interval_create_from_date_string($date_diff . ' days'));
 		}
 
-		$last_day_object = date_create(date_format($first_day_object, 'Y-m-d') . ' ' . User::getTimezone());
+		$last_day_object = new Time($first_day_object->format('Y-m-d') . ' ' . User::getTimezone());
 		date_add($last_day_object, date_interval_create_from_date_string('1 week'));
 
-		$month = date_format($first_day_object, 'n');
-		$year = date_format($first_day_object, 'Y');
-		$day = date_format($first_day_object, 'd');
+		$month = $first_day_object->format('n');
+		$year = $first_day_object->format('Y');
+		$day = $first_day_object->format('d');
 
-		$next_object = date_create($selected_date . ' ' . User::getTimezone());
+		$next_object = new Time($selected_date . ' ' . User::getTimezone());
 		date_add($next_object, date_interval_create_from_date_string('1 week'));
 
-		$prev_object = date_create($selected_date . ' ' . User::getTimezone());
+		$prev_object = new Time($selected_date . ' ' . User::getTimezone());
 		date_sub($prev_object, date_interval_create_from_date_string('1 week'));
 
 		// Now start filling in the calendar grid.
 		$calendarGrid = array(
 			'show_next_prev' => !empty($calendarOptions['show_next_prev']),
 			'previous_week' => array(
-				'year' => date_format($prev_object, 'Y'),
-				'month' => date_format($prev_object, 'n'),
-				'day' => date_format($prev_object, 'd'),
-				'start_date' => date_format($prev_object, 'Y-m-d'),
-				'disabled' => Config::$modSettings['cal_minyear'] > date_format($prev_object, 'Y'),
+				'year' => $prev_object->format('Y'),
+				'month' => $prev_object->format('n'),
+				'day' => $prev_object->format('d'),
+				'start_date' => $prev_object->format('Y-m-d'),
+				'disabled' => Config::$modSettings['cal_minyear'] > $prev_object->format('Y'),
 			),
 			'next_week' => array(
-				'year' => date_format($next_object, 'Y'),
-				'month' => date_format($next_object, 'n'),
-				'day' => date_format($next_object, 'd'),
-				'start_date' => date_format($next_object, 'Y-m-d'),
-				'disabled' => Config::$modSettings['cal_maxyear'] < date_format($next_object, 'Y'),
+				'year' => $next_object->format('Y'),
+				'month' => $next_object->format('n'),
+				'day' => $next_object->format('d'),
+				'start_date' => $next_object->format('Y-m-d'),
+				'disabled' => Config::$modSettings['cal_maxyear'] < $next_object->format('Y'),
 			),
-			'start_date' => timeformat(date_format($selected_object, 'U'), Time::getDateFormat()),
+			'start_date' => $selected_object->format(Time::getDateFormat()),
 			'show_events' => $calendarOptions['show_events'],
 			'show_holidays' => $calendarOptions['show_holidays'],
 			'show_birthdays' => $calendarOptions['show_birthdays'],
 		);
 
 		// Fetch the arrays for birthdays, posted events, and holidays.
-		$bday = $calendarOptions['show_birthdays'] ? self::getBirthdayRange(date_format($first_day_object, 'Y-m-d'), date_format($last_day_object, 'Y-m-d')) : array();
-		$events = $calendarOptions['show_events'] ? self::getEventRange(date_format($first_day_object, 'Y-m-d'), date_format($last_day_object, 'Y-m-d')) : array();
-		$holidays = $calendarOptions['show_holidays'] ? self::getHolidayRange(date_format($first_day_object, 'Y-m-d'), date_format($last_day_object, 'Y-m-d')) : array();
+		$bday = $calendarOptions['show_birthdays'] ? self::getBirthdayRange($first_day_object->format('Y-m-d'), $last_day_object->format('Y-m-d')) : array();
+		$events = $calendarOptions['show_events'] ? self::getEventRange($first_day_object->format('Y-m-d'), $last_day_object->format('Y-m-d')) : array();
+		$holidays = $calendarOptions['show_holidays'] ? self::getHolidayRange($first_day_object->format('Y-m-d'), $last_day_object->format('Y-m-d')) : array();
 
-		$calendarGrid['week_title'] = sprintf(Lang::$txt['calendar_week_beginning'], Lang::$txt['months'][date_format($first_day_object, 'n')], date_format($first_day_object, 'j'), date_format($first_day_object, 'Y'));
+		$calendarGrid['week_title'] = sprintf(Lang::$txt['calendar_week_beginning'], Lang::$txt['months'][$first_day_object->format('n')], $first_day_object->format('j'), $first_day_object->format('Y'));
 
 		// This holds all the main data - there is at least one month!
 		$calendarGrid['months'] = array();
 
-		$current_day_object = date_create(date_format($first_day_object, 'Y-m-d') . ' ' . User::getTimezone());
+		$current_day_object = new Time($first_day_object->format('Y-m-d') . ' ' . User::getTimezone());
 
 		for ($i = 0; $i < 7; $i++)
 		{
-			$current_month = date_format($current_day_object, 'n');
-			$current_day = date_format($current_day_object, 'j');
-			$current_date = date_format($current_day_object, 'Y-m-d');
+			$current_month = $current_day_object->format('n');
+			$current_day = $current_day_object->format('j');
+			$current_date = $current_day_object->format('Y-m-d');
 
 			if (!isset($calendarGrid['months'][$current_month]))
 				$calendarGrid['months'][$current_month] = array(
 					'current_month' => $current_month,
-					'current_year' => date_format($current_day_object, 'Y'),
+					'current_year' => $current_day_object->format('Y'),
 					'days' => array(),
 				);
 
 			$calendarGrid['months'][$current_month]['days'][$current_day] = array(
 				'day' => $current_day,
-				'day_of_week' => (date_format($current_day_object, 'w') + 7) % 7,
+				'day_of_week' => ($current_day_object->format('w') + 7) % 7,
 				'date' => $current_date,
 				'is_today' => $current_date == $today['date'],
 				'holidays' => !empty($holidays[$current_date]) ? $holidays[$current_date] : array(),
@@ -1216,21 +1216,19 @@ class Calendar implements ActionInterface
 	 */
 	public static function getCalendarList($start_date, $end_date, $calendarOptions): array
 	{
-		require_once(Config::$sourcedir . '/Subs.php');
-
 		// DateTime objects make life easier
-		$start_object = date_create($start_date . ' ' . User::getTimezone());
-		$end_object = date_create($end_date . ' ' . User::getTimezone());
+		$start_object = new Time($start_date . ' ' . User::getTimezone());
+		$end_object = new Time($end_date . ' ' . User::getTimezone());
 
 		$calendarGrid = array(
-			'start_date' => timeformat(date_format($start_object, 'U'), Time::getDateFormat()),
-			'start_year' => date_format($start_object, 'Y'),
-			'start_month' => date_format($start_object, 'm'),
-			'start_day' => date_format($start_object, 'd'),
-			'end_date' => timeformat(date_format($end_object, 'U'), Time::getDateFormat()),
-			'end_year' => date_format($end_object, 'Y'),
-			'end_month' => date_format($end_object, 'm'),
-			'end_day' => date_format($end_object, 'd'),
+			'start_date' => $start_object->format(Time::getDateFormat()),
+			'start_year' => $start_object->format('Y'),
+			'start_month' => $start_object->format('m'),
+			'start_day' => $start_object->format('d'),
+			'end_date' => $end_object->format(Time::getDateFormat()),
+			'end_year' => $end_object->format('Y'),
+			'end_month' => $end_object->format('m'),
+			'end_day' => $end_object->format('d'),
 		);
 
 		$calendarGrid['birthdays'] = $calendarOptions['show_birthdays'] ? self::getBirthdayRange($start_date, $end_date) : array();
@@ -1263,7 +1261,7 @@ class Calendar implements ActionInterface
 			foreach ($calendarGrid[$type] as $date => $date_content)
 			{
 				// Make sure to apply no offsets
-				$date_local = preg_replace('~(?<=\s)0+(\d)~', '$1', trim(timeformat(strtotime($date), $date_format, true), " \t\n\r\0\x0B,./;:<>()[]{}\\|-_=+"));
+				$date_local = preg_replace('~(?<=\s)0+(\d)~', '$1', trim(Time::create($date)->format($date_format), " \t\n\r\0\x0B,./;:<>()[]{}\\|-_=+"));
 
 				$calendarGrid[$type][$date]['date_local'] = $date_local;
 			}
@@ -1456,8 +1454,8 @@ class Calendar implements ActionInterface
 	{
 		$days_to_index = $eventOptions['num_days_shown'];
 
-		$low_date = smf_strftime('%Y-%m-%d', time() - 24 * 3600);
-		$high_date = smf_strftime('%Y-%m-%d', time() + $days_to_index * 24 * 3600);
+		$low_date = Time::strftime('%Y-%m-%d', time() - 24 * 3600);
+		$high_date = Time::strftime('%Y-%m-%d', time() + $days_to_index * 24 * 3600);
 
 		return array(
 			'data' => array(
@@ -1465,7 +1463,7 @@ class Calendar implements ActionInterface
 				'birthdays' => (!empty($eventOptions['include_birthdays']) ? self::getBirthdayRange($low_date, $high_date) : array()),
 				'events' => (!empty($eventOptions['include_events']) ? self::getEventRange($low_date, $high_date, false) : array()),
 			),
-			'refresh_eval' => 'return \'' . smf_strftime('%Y%m%d', time()) . '\' != smf_strftime(\'%Y%m%d\', time()) || (!empty(\SMF\Config::$modSettings[\'calendar_updated\']) && ' . time() . ' < \SMF\Config::$modSettings[\'calendar_updated\']);',
+			'refresh_eval' => 'return \'' . Time::strftime('%Y%m%d', time()) . '\' != \SMF\Time::strftime(\'%Y%m%d\', time()) || (!empty(\SMF\Config::$modSettings[\'calendar_updated\']) && ' . time() . ' < \SMF\Config::$modSettings[\'calendar_updated\']);',
 			'expires' => time() + 3600,
 		);
 	}
@@ -1503,8 +1501,8 @@ class Calendar implements ActionInterface
 			// Holidays between now and now + days.
 			for ($i = $now; $i < $now + $days_for_index; $i += 86400)
 			{
-				if (isset($cached_data['holidays'][smf_strftime('%Y-%m-%d', $i)]))
-					$return_data['calendar_holidays'] = array_merge($return_data['calendar_holidays'], $cached_data['holidays'][smf_strftime('%Y-%m-%d', $i)]);
+				if (isset($cached_data['holidays'][Time::strftime('%Y-%m-%d', $i)]))
+					$return_data['calendar_holidays'] = array_merge($return_data['calendar_holidays'], $cached_data['holidays'][Time::strftime('%Y-%m-%d', $i)]);
 			}
 		}
 
@@ -1513,11 +1511,11 @@ class Calendar implements ActionInterface
 			// Happy Birthday, guys and gals!
 			for ($i = $now; $i < $now + $days_for_index; $i += 86400)
 			{
-				$loop_date = smf_strftime('%Y-%m-%d', $i);
+				$loop_date = Time::strftime('%Y-%m-%d', $i);
 				if (isset($cached_data['birthdays'][$loop_date]))
 				{
 					foreach ($cached_data['birthdays'][$loop_date] as $index => $dummy)
-						$cached_data['birthdays'][smf_strftime('%Y-%m-%d', $i)][$index]['is_today'] = $loop_date === $today['date'];
+						$cached_data['birthdays'][Time::strftime('%Y-%m-%d', $i)][$index]['is_today'] = $loop_date === $today['date'];
 					$return_data['calendar_birthdays'] = array_merge($return_data['calendar_birthdays'], $cached_data['birthdays'][$loop_date]);
 				}
 			}
@@ -1529,7 +1527,7 @@ class Calendar implements ActionInterface
 			for ($i = $now; $i < $now + $days_for_index; $i += 86400)
 			{
 				// Determine the date of the current loop step.
-				$loop_date = smf_strftime('%Y-%m-%d', $i);
+				$loop_date = Time::strftime('%Y-%m-%d', $i);
 
 				// No events today? Check the next day.
 				if (empty($cached_data['events'][$loop_date]))
@@ -1570,7 +1568,7 @@ class Calendar implements ActionInterface
 		return array(
 			'data' => $return_data,
 			'expires' => time() + 3600,
-			'refresh_eval' => 'return \'' . smf_strftime('%Y%m%d', time()) . '\' != smf_strftime(\'%Y%m%d\', time()) || (!empty(\SMF\Config::$modSettings[\'calendar_updated\']) && ' . time() . ' < \SMF\Config::$modSettings[\'calendar_updated\']);',
+			'refresh_eval' => 'return \'' . Time::strftime('%Y%m%d', time()) . '\' != \SMF\Time::strftime(\'%Y%m%d\', time()) || (!empty(\SMF\Config::$modSettings[\'calendar_updated\']) && ' . time() . ' < \SMF\Config::$modSettings[\'calendar_updated\']);',
 			'post_retri_eval' => '
 
 				foreach ($cache_block[\'data\'][\'calendar_events\'] as $k => $event)
@@ -1823,15 +1821,15 @@ class Calendar implements ActionInterface
 		// Find all possible variants of AM and PM for this language.
 		$replacements[strtolower(Lang::$txt['time_am'])] = 'AM';
 		$replacements[strtolower(Lang::$txt['time_pm'])] = 'PM';
-		if (($am = smf_strftime('%p', strtotime('01:00:00'))) !== 'p' && $am !== false)
+		if (($am = Time::strftime('%p', strtotime('01:00:00'))) !== 'p' && $am !== false)
 		{
 			$replacements[strtolower($am)] = 'AM';
-			$replacements[strtolower(smf_strftime('%p', strtotime('23:00:00')))] = 'PM';
+			$replacements[strtolower(Time::strftime('%p', strtotime('23:00:00')))] = 'PM';
 		}
-		if (($am = smf_strftime('%P', strtotime('01:00:00'))) !== 'P' && $am !== false)
+		if (($am = Time::strftime('%P', strtotime('01:00:00'))) !== 'P' && $am !== false)
 		{
 			$replacements[strtolower($am)] = 'AM';
-			$replacements[strtolower(smf_strftime('%P', strtotime('23:00:00')))] = 'PM';
+			$replacements[strtolower(Time::strftime('%P', strtotime('23:00:00')))] = 'PM';
 		}
 
 		return strtr(strtolower($date), $replacements);

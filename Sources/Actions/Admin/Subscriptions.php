@@ -24,6 +24,7 @@ use SMF\Menu;
 use SMF\SecurityToken;
 use SMF\TaskRunner;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -1067,27 +1068,27 @@ class Subscriptions implements ActionInterface
 			Utils::$context['sub'] = array(
 				'id' => 0,
 				'start' => array(
-					'year' => (int) smf_strftime('%Y', time()),
-					'month' => (int) smf_strftime('%m', time()),
-					'day' => (int) smf_strftime('%d', time()),
-					'hour' => (int) smf_strftime('%H', time()),
-					'min' => (int) smf_strftime('%M', time()) < 10 ? '0' . (int) smf_strftime('%M', time()) : (int) smf_strftime('%M', time()),
+					'year' => (int) Time::strftime('%Y', time()),
+					'month' => (int) Time::strftime('%m', time()),
+					'day' => (int) Time::strftime('%d', time()),
+					'hour' => (int) Time::strftime('%H', time()),
+					'min' => (int) Time::strftime('%M', time()) < 10 ? '0' . (int) Time::strftime('%M', time()) : (int) Time::strftime('%M', time()),
 					'last_day' => 0,
 				),
 				'end' => array(
-					'year' => (int) smf_strftime('%Y', time()),
-					'month' => (int) smf_strftime('%m', time()),
-					'day' => (int) smf_strftime('%d', time()),
-					'hour' => (int) smf_strftime('%H', time()),
-					'min' => (int) smf_strftime('%M', time()) < 10 ? '0' . (int) smf_strftime('%M', time()) : (int) smf_strftime('%M', time()),
+					'year' => (int) Time::strftime('%Y', time()),
+					'month' => (int) Time::strftime('%m', time()),
+					'day' => (int) Time::strftime('%d', time()),
+					'hour' => (int) Time::strftime('%H', time()),
+					'min' => (int) Time::strftime('%M', time()) < 10 ? '0' . (int) Time::strftime('%M', time()) : (int) Time::strftime('%M', time()),
 					'last_day' => 0,
 				),
 				'status' => 1,
 			);
 
-			Utils::$context['sub']['start']['last_day'] = (int) smf_strftime('%d', mktime(0, 0, 0, Utils::$context['sub']['start']['month'] == 12 ? 1 : Utils::$context['sub']['start']['month'] + 1, 0, Utils::$context['sub']['start']['month'] == 12 ? Utils::$context['sub']['start']['year'] + 1 : Utils::$context['sub']['start']['year']));
+			Utils::$context['sub']['start']['last_day'] = (int) Time::strftime('%d', mktime(0, 0, 0, Utils::$context['sub']['start']['month'] == 12 ? 1 : Utils::$context['sub']['start']['month'] + 1, 0, Utils::$context['sub']['start']['month'] == 12 ? Utils::$context['sub']['start']['year'] + 1 : Utils::$context['sub']['start']['year']));
 
-			Utils::$context['sub']['end']['last_day'] = (int) smf_strftime('%d', mktime(0, 0, 0, Utils::$context['sub']['end']['month'] == 12 ? 1 : Utils::$context['sub']['end']['month'] + 1, 0, Utils::$context['sub']['end']['month'] == 12 ? Utils::$context['sub']['end']['year'] + 1 : Utils::$context['sub']['end']['year']));
+			Utils::$context['sub']['end']['last_day'] = (int) Time::strftime('%d', mktime(0, 0, 0, Utils::$context['sub']['end']['month'] == 12 ? 1 : Utils::$context['sub']['end']['month'] + 1, 0, Utils::$context['sub']['end']['month'] == 12 ? Utils::$context['sub']['end']['year'] + 1 : Utils::$context['sub']['end']['year']));
 
 			if (isset($_GET['uid']))
 			{
@@ -1206,28 +1207,28 @@ class Subscriptions implements ActionInterface
 			Utils::$context['sub'] = array(
 				'id' => 0,
 				'start' => array(
-					'year' => (int) smf_strftime('%Y', $row['start_time']),
-					'month' => (int) smf_strftime('%m', $row['start_time']),
-					'day' => (int) smf_strftime('%d', $row['start_time']),
-					'hour' => (int) smf_strftime('%H', $row['start_time']),
-					'min' => (int) smf_strftime('%M', $row['start_time']) < 10 ? '0' . (int) smf_strftime('%M', $row['start_time']) : (int) smf_strftime('%M', $row['start_time']),
+					'year' => (int) Time::strftime('%Y', $row['start_time']),
+					'month' => (int) Time::strftime('%m', $row['start_time']),
+					'day' => (int) Time::strftime('%d', $row['start_time']),
+					'hour' => (int) Time::strftime('%H', $row['start_time']),
+					'min' => (int) Time::strftime('%M', $row['start_time']) < 10 ? '0' . (int) Time::strftime('%M', $row['start_time']) : (int) Time::strftime('%M', $row['start_time']),
 					'last_day' => 0,
 				),
 				'end' => array(
-					'year' => (int) smf_strftime('%Y', $row['end_time']),
-					'month' => (int) smf_strftime('%m', $row['end_time']),
-					'day' => (int) smf_strftime('%d', $row['end_time']),
-					'hour' => (int) smf_strftime('%H', $row['end_time']),
-					'min' => (int) smf_strftime('%M', $row['end_time']) < 10 ? '0' . (int) smf_strftime('%M', $row['end_time']) : (int) smf_strftime('%M', $row['end_time']),
+					'year' => (int) Time::strftime('%Y', $row['end_time']),
+					'month' => (int) Time::strftime('%m', $row['end_time']),
+					'day' => (int) Time::strftime('%d', $row['end_time']),
+					'hour' => (int) Time::strftime('%H', $row['end_time']),
+					'min' => (int) Time::strftime('%M', $row['end_time']) < 10 ? '0' . (int) Time::strftime('%M', $row['end_time']) : (int) Time::strftime('%M', $row['end_time']),
 					'last_day' => 0,
 				),
 				'status' => $row['status'],
 				'username' => $row['username'],
 			);
 
-			Utils::$context['sub']['start']['last_day'] = (int) smf_strftime('%d', mktime(0, 0, 0, Utils::$context['sub']['start']['month'] == 12 ? 1 : Utils::$context['sub']['start']['month'] + 1, 0, Utils::$context['sub']['start']['month'] == 12 ? Utils::$context['sub']['start']['year'] + 1 : Utils::$context['sub']['start']['year']));
+			Utils::$context['sub']['start']['last_day'] = (int) Time::strftime('%d', mktime(0, 0, 0, Utils::$context['sub']['start']['month'] == 12 ? 1 : Utils::$context['sub']['start']['month'] + 1, 0, Utils::$context['sub']['start']['month'] == 12 ? Utils::$context['sub']['start']['year'] + 1 : Utils::$context['sub']['start']['year']));
 
-			Utils::$context['sub']['end']['last_day'] = (int) smf_strftime('%d', mktime(0, 0, 0, Utils::$context['sub']['end']['month'] == 12 ? 1 : Utils::$context['sub']['end']['month'] + 1, 0, Utils::$context['sub']['end']['month'] == 12 ? Utils::$context['sub']['end']['year'] + 1 : Utils::$context['sub']['end']['year']));
+			Utils::$context['sub']['end']['last_day'] = (int) Time::strftime('%d', mktime(0, 0, 0, Utils::$context['sub']['end']['month'] == 12 ? 1 : Utils::$context['sub']['end']['month'] + 1, 0, Utils::$context['sub']['end']['month'] == 12 ? Utils::$context['sub']['end']['year'] + 1 : Utils::$context['sub']['end']['year']));
 		}
 
 		Theme::loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
@@ -2245,8 +2246,8 @@ class Subscriptions implements ActionInterface
 				'id' => $row['id_sublog'],
 				'id_member' => $row['id_member'],
 				'name' => $row['name'],
-				'start_date' => timeformat($row['start_time'], false),
-				'end_date' => $row['end_time'] == 0 ? 'N/A' : timeformat($row['end_time'], false),
+				'start_date' => Time::create('@' . $row['start_time'])->format(null, false),
+				'end_date' => $row['end_time'] == 0 ? 'N/A' : Time::create('@' . $row['end_time'])->format(null, false),
 				'pending' => $row['payments_pending'],
 				'status' => $row['status'],
 				'status_text' => $row['status'] == 0 ? ($row['payments_pending'] == 0 ? Lang::$txt['paid_finished'] : Lang::$txt['paid_pending']) : Lang::$txt['paid_active'],

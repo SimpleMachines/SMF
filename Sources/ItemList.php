@@ -444,7 +444,7 @@ class ItemList implements \ArrayAccess
 				}
 				elseif (!empty($column['data']['timeformat']))
 				{
-					$cur_data['value'] = timeformat($cur_data['value']);
+					$cur_data['value'] = Time::create('@' . $cur_data['value'])->format();
 				}
 
 				// Set a style class for this column?

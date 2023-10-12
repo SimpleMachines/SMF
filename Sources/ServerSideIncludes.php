@@ -502,7 +502,7 @@ class ServerSideIncludes
 				'short_subject' => shorten_subject($row['subject'], 25),
 				'preview' => Utils::entityStrlen($preview) > 128 ? Utils::entitySubstr($preview, 0, 128) . '...' : $preview,
 				'body' => $row['body'],
-				'time' => timeformat($row['poster_time']),
+				'time' => Time::create('@' . $row['poster_time'])->format(),
 				'timestamp' => $row['poster_time'],
 				'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . ';topicseen#new',
 				'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '" rel="nofollow">' . $row['subject'] . '</a>',
@@ -679,7 +679,7 @@ class ServerSideIncludes
 				'views' => $row['num_views'],
 				'short_subject' => shorten_subject($row['subject'], 25),
 				'preview' => $row['body'],
-				'time' => timeformat($row['poster_time']),
+				'time' => Time::create('@' . $row['poster_time'])->format(),
 				'timestamp' => $row['poster_time'],
 				'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . ';topicseen#new',
 				'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#new" rel="nofollow">' . $row['subject'] . '</a>',
@@ -2041,7 +2041,7 @@ class ServerSideIncludes
 				'message_id' => $row['id_msg'],
 				'icon' => '<img src="' . Theme::$current->settings[$icon_sources[$row['icon']]] . '/post/' . $row['icon'] . '.png" alt="' . $row['icon'] . '">',
 				'subject' => $row['subject'],
-				'time' => timeformat($row['poster_time']),
+				'time' => Time::create('@' . $row['poster_time'])->format(),
 				'timestamp' => $row['poster_time'],
 				'body' => $row['body'],
 				'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0',
@@ -2165,7 +2165,7 @@ class ServerSideIncludes
 			ORDER BY cal.start_date DESC
 			LIMIT ' . $max_events,
 			array(
-				'current_date' => smf_strftime('%Y-%m-%d', time()),
+				'current_date' => Time::strftime('%Y-%m-%d', time()),
 				'no_board' => 0,
 			)
 		);
@@ -2180,8 +2180,8 @@ class ServerSideIncludes
 			// Censor the title.
 			Lang::censorText($row['title']);
 
-			if ($row['start_date'] < smf_strftime('%Y-%m-%d', time()))
-				$date = smf_strftime('%Y-%m-%d', time());
+			if ($row['start_date'] < Time::strftime('%Y-%m-%d', time()))
+				$date = Time::strftime('%Y-%m-%d', time());
 			else
 				$date = $row['start_date'];
 
@@ -2350,7 +2350,7 @@ class ServerSideIncludes
 					'subject' => $row['subject'],
 					'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
 					'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '">' . $row['subject'] . '</a>',
-					'time' => timeformat($row['poster_time']),
+					'time' => Time::create('@' . $row['poster_time'])->format(),
 				),
 			);
 

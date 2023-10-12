@@ -18,6 +18,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Security;
 use SMF\TaskRunner;
+use SMF\Time;
 use SMF\Url;
 use SMF\User;
 use SMF\Utils;
@@ -1728,7 +1729,7 @@ function DeleteInstall()
 	Db::$db->insert('ignore',
 		'{db_prefix}log_activity',
 		array('date' => 'date', 'topics' => 'int', 'posts' => 'int', 'registers' => 'int'),
-		array(smf_strftime('%Y-%m-%d', time()), 1, 1, (!empty($incontext['member_id']) ? 1 : 0)),
+		array(Time::strftime('%Y-%m-%d', time()), 1, 1, (!empty($incontext['member_id']) ? 1 : 0)),
 		array('date')
 	);
 

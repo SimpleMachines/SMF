@@ -24,6 +24,7 @@ use SMF\Menu;
 use SMF\Msg;
 use SMF\SecurityToken;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -668,7 +669,7 @@ class Warnings implements ActionInterface
 			$warnings[] = array(
 				'issuer_link' => $row['id_member'] ? ('<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['member_name_col'] . '</a>') : $row['member_name_col'],
 				'recipient_link' => $row['id_recipient'] ? ('<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_recipient'] . '">' . $row['recipient_name'] . '</a>') : $row['recipient_name'],
-				'time' => timeformat($row['log_time']),
+				'time' => Time::create('@' . $row['log_time'])->format(),
 				'reason' => $row['body'],
 				'counter' => $row['counter'] > 0 ? '+' . $row['counter'] : $row['counter'],
 				'id_notice' => $row['id_notice'],
@@ -736,7 +737,7 @@ class Warnings implements ActionInterface
 			$templates[] = array(
 				'id_comment' => $row['id_comment'],
 				'creator' => $row['id_member'] ? ('<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['creator_name'] . '</a>') : $row['creator_name'],
-				'time' => timeformat($row['log_time']),
+				'time' => Time::create('@' . $row['log_time'])->format(),
 				'title' => $row['template_title'],
 				'body' => Utils::htmlspecialchars($row['body']),
 			);

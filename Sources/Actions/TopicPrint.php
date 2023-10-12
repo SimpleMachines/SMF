@@ -23,6 +23,7 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Poll;
 use SMF\Theme;
+use SMF\Time;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -128,7 +129,7 @@ class TopicPrint implements ActionInterface
 		Utils::$context['board_name'] = Board::$info->name;
 		Utils::$context['category_name'] = Board::$info->cat['name'];
 		Utils::$context['poster_name'] = $row['poster_name'];
-		Utils::$context['post_time'] = timeformat($row['poster_time'], false);
+		Utils::$context['post_time'] = Time::create('@' . $row['poster_time'])->format(null, false);
 		Utils::$context['parent_boards'] = array();
 		foreach (Board::$info->parent_boards as $parent)
 			Utils::$context['parent_boards'][] = $parent['name'];
@@ -157,7 +158,7 @@ class TopicPrint implements ActionInterface
 			Utils::$context['posts'][] = array(
 				'subject' => $row['subject'],
 				'member' => $row['poster_name'],
-				'time' => timeformat($row['poster_time'], false),
+				'time' => Time::create('@' . $row['poster_time'])->format(null, false),
 				'timestamp' => $row['poster_time'],
 				'body' => $bbcparser->parse($row['body']),
 				'id_msg' => $row['id_msg'],

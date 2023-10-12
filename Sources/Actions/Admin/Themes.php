@@ -22,6 +22,7 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\SecurityToken;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -2419,7 +2420,7 @@ class Themes implements ActionInterface
 					'is_editable' => is_writable($path . '/' . $entry) && preg_match('~\.(php|pl|css|js|vbs|xml|xslt|txt|xsl|html|htm|shtm|shtml|asp|aspx|cgi|py)$~', $entry) != 0,
 					'href' => Config::$scripturl . '?action=admin;area=theme;th=' . $_GET['th'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=edit;filename=' . $relative . $entry,
 					'size' => $size,
-					'last_modified' => timeformat(filemtime($path . '/' . $entry)),
+					'last_modified' => Time::create('@' . filemtime($path . '/' . $entry))->format(),
 				);
 			}
 		}

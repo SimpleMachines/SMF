@@ -13,6 +13,7 @@
 use SMF\Config;
 use SMF\Lang;
 use SMF\Theme;
+use SMF\Time;
 use SMF\Utils;
 use SMF\User;
 
@@ -384,7 +385,7 @@ function template_body_above()
 			<div id="inner_section">
 				<div id="inner_wrap"', !User::$me->is_logged ? ' class="hide_720"' : '', '>
 					<div class="user">
-						<time datetime="', smf_gmstrftime('%FT%TZ'), '">', Utils::$context['current_time'], '</time>';
+						<time datetime="', Time::gmstrftime('%FT%TZ'), '">', Utils::$context['current_time'], '</time>';
 
 	if (User::$me->is_logged)
 		echo '

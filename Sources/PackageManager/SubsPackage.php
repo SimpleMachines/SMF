@@ -19,6 +19,7 @@ use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Theme;
+use SMF\Time;
 use SMF\Url;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -2977,7 +2978,7 @@ class SubsPackage
 				self::mktree(Config::$packagesdir . '/backups', 0777);
 			if (!is_writable(Config::$packagesdir . '/backups'))
 				self::package_chmod(Config::$packagesdir . '/backups');
-			$output_file = Config::$packagesdir . '/backups/' . smf_strftime('%Y-%m-%d_') . preg_replace('~[$\\\\/:<>|?*"\']~', '', $id);
+			$output_file = Config::$packagesdir . '/backups/' . Time::strftime('%Y-%m-%d_') . preg_replace('~[$\\\\/:<>|?*"\']~', '', $id);
 			$output_ext = '.tar';
 			$output_ext_target = '.tar.gz';
 

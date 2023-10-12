@@ -17,6 +17,7 @@
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\Time;
 use SMF\Utils;
 use SMF\Actions\Admin\ACP;
 use SMF\Actions\Admin\Subscriptions;
@@ -180,7 +181,7 @@ if ($gatewayClass->isRefund())
 			'REFUNDNAME' => $member_info['member_name'],
 			'REFUNDUSER' => $member_info['real_name'],
 			'PROFILELINK' => Config::$scripturl . '?action=profile;u=' . $member_id,
-			'DATE' => timeformat(time(), false),
+			'DATE' => Time::create('now')->format(null, false),
 		);
 
 		ACP::emailAdmins('paid_subscription_refund', $replacements, $notify_users);
@@ -269,7 +270,7 @@ elseif ($gatewayClass->isPayment() || $gatewayClass->isSubscription())
 			'SUBEMAIL' => $member_info['email_address'],
 			'PRICE' => sprintf(Config::$modSettings['paid_currency_symbol'], $total_cost),
 			'PROFILELINK' => Config::$scripturl . '?action=profile;u=' . $member_id,
-			'DATE' => timeformat(time(), false),
+			'DATE' => Time::create('now')->format(null, false),
 		);
 
 		ACP::emailAdmins('paid_subscription_new', $replacements, $notify_users);

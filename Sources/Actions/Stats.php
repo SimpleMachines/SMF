@@ -19,6 +19,7 @@ use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -196,7 +197,7 @@ class Stats implements ActionInterface
 		Utils::$context['num_topics'] = Lang::numberFormat(Config::$modSettings['totalTopics']);
 		Utils::$context['most_members_online'] = array(
 			'number' => Lang::numberFormat(Config::$modSettings['mostOnline']),
-			'date' => timeformat(Config::$modSettings['mostDate'])
+			'date' => Time::create('@' . Config::$modSettings['mostDate'])->format(),
 		);
 		Utils::$context['latest_member'] = &Utils::$context['common_stats']['latest_member'];
 
@@ -249,7 +250,7 @@ class Stats implements ActionInterface
 			}
 		}
 
-		$date = smf_strftime('%Y-%m-%d', time());
+		$date = Time::strftime('%Y-%m-%d', time());
 
 		// Members online so far today.
 		$result = Db::$db->query('', '

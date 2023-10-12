@@ -22,6 +22,7 @@ use SMF\Lang;
 use SMF\Security;
 use SMF\SecurityToken;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -267,7 +268,7 @@ class Export implements ActionInterface
 						'included' => $included,
 						'included_desc' => Lang::sentenceList($included_desc),
 						'format' => $format,
-						'mtime' => timeformat(filemtime($exportfilepath)),
+						'mtime' => Time::create('@' . filemtime($exportfilepath))->format(),
 						'size' => $size,
 					);
 				}

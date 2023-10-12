@@ -28,6 +28,7 @@ use SMF\Msg;
 use SMF\PageIndex;
 use SMF\Profile;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
@@ -928,7 +929,7 @@ class ShowPosts implements ActionInterface
 				'topic' => $row['id_topic'],
 				'subject' => $row['subject'],
 				'start' => 'msg' . $row['id_msg'],
-				'time' => timeformat($row['poster_time']),
+				'time' => Time::create('@' . $row['poster_time'])->format(),
 				'timestamp' => $row['poster_time'],
 				'id' => $row['id_msg'],
 				'can_reply' => false,

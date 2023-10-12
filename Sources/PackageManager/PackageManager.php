@@ -23,6 +23,7 @@ use SMF\Menu;
 use SMF\Msg;
 use SMF\Security;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -1553,7 +1554,7 @@ class PackageManager
 							'function' => function($package)
 							{
 								return !empty($package['time_installed'])
-									? timeformat($package['time_installed'])
+									? Time::create('@' . $package['time_installed'])->format()
 									: Lang::$txt['not_applicable'];
 							},
 							'class' => 'smalltext',

@@ -301,12 +301,12 @@ class Msg implements \ArrayAccess
 			'board' => $format_options['load_board'] ? Board::init($this->id_board) : $this->id_board,
 			'href' => Config::$scripturl . '?msg=' . $this->id . (!empty($format_options['url_params']) ? ';' . implode(';', $format_options['url_params']) : ''),
 			'subject' => ($this->subject ?? '') != '' ? $this->subject : Lang::$txt['no_subject'],
-			'time' => timeformat($this->poster_time),
+			'time' => Time::create('@' . $this->poster_time)->format(),
 			'timestamp' => $this->poster_time,
 			'raw_timestamp' => $this->poster_time,
 			'counter' => $counter,
 			'modified' => array(
-				'time' => timeformat($this->modified_time),
+				'time' => Time::create('@' . $this->modified_time)->format(),
 				'timestamp' => $this->modified_time,
 				'name' => $this->modified_name,
 				'reason' => $this->modified_reason,
@@ -958,9 +958,9 @@ class Msg implements \ArrayAccess
 
 		$message = preg_replace_callback(
 			'~\[html\](.+?)\[/html\]~i',
-			function($m)
+			function($matches)
 			{
-				return "[html]" . strtr(Utils::htmlspecialchars("$m[1]", ENT_QUOTES), array("\\&quot;" => "&quot;", "&amp;#13;" => "<br>", "&amp;#32;" => " ", "&amp;#91;" => "[", "&amp;#93;" => "]")) . "[/html]";
+				return "[html]" . strtr(Utils::htmlspecialchars($matches[1], ENT_QUOTES), array("\\&quot;" => "&quot;", "&amp;#13;" => "<br>", "&amp;#32;" => " ", "&amp;#91;" => "[", "&amp;#93;" => "]")) . "[/html]";
 			},
 			$message
 		);
@@ -971,9 +971,9 @@ class Msg implements \ArrayAccess
 		// Attempt to un-parse the time to something less awful.
 		$message = preg_replace_callback(
 			'~\[time\](\d{0,10})\[/time\]~i',
-			function($m)
+			function($matches)
 			{
-				return "[time]" . timeformat("$m[1]", false) . "[/time]";
+				return "[time]" . Time::create('@' . $matches[1])->setTimezone(new \DateTimeZone(User::getTimezone()))->format(null, false) . "[/time]";
 			},
 			$message
 		);

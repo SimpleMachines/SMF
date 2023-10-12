@@ -23,6 +23,7 @@ use SMF\Lang;
 use SMF\Msg;
 use SMF\PageIndex;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
@@ -222,7 +223,7 @@ class Recent implements ActionInterface
 			'subject' => $row['subject'],
 			'short_subject' => shorten_subject($row['subject'], 24),
 			'preview' => $row['body'],
-			'time' => timeformat($row['poster_time']),
+			'time' => Time::create('@' . $row['poster_time'])->format(),
 			'timestamp' => $row['poster_time'],
 			'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.new;topicseen#new',
 			'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.new;topicseen#new">' . $row['subject'] . '</a>'

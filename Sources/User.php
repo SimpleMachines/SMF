@@ -1141,7 +1141,7 @@ class User implements \ArrayAccess
 			'link' => $this->is_guest ? '' : '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . '" title="' . sprintf(Lang::$txt['view_profile_of_username'], $this->name) . '">' . $this->name . '</a>',
 			'email' => $this->email,
 			'show_email' => !User::$me->is_guest && (User::$me->id == $this->id || User::$me->allowedTo('moderate_forum')),
-			'registered' => empty($this->date_registered) ? Lang::$txt['not_applicable'] : timeformat($this->date_registered),
+			'registered' => empty($this->date_registered) ? Lang::$txt['not_applicable'] : Time::create('@' . $this->date_registered)->format(),
 			'registered_timestamp' => $this->date_registered,
 		);
 
@@ -1187,7 +1187,7 @@ class User implements \ArrayAccess
 				'signature' => $this->signature,
 				'real_posts' => $this->posts,
 				'posts' => $this->posts > 500000 ? Lang::$txt['geek'] : Lang::numberFormat($this->posts),
-				'last_login' => empty($this->last_login) ? Lang::$txt['never'] : timeformat($this->last_login),
+				'last_login' => empty($this->last_login) ? Lang::$txt['never'] : Time::create('@' . $this->last_login)->format(),
 				'last_login_timestamp' => empty($this->last_login) ? 0 : $this->last_login,
 				'ip' => Utils::htmlspecialchars($this->ip),
 				'ip2' => Utils::htmlspecialchars($this->ip2),
@@ -1217,7 +1217,7 @@ class User implements \ArrayAccess
 				'group_icons' => str_repeat('<img src="' . str_replace('$language', User::$me->language, isset($this->icons[1]) ? $group_icon_url : '') . '" alt="*">', empty($this->icons[0]) || empty($this->icons[1]) ? 0 : $this->icons[0]),
 				'warning' => $this->warning,
 				'warning_status' => !empty(Config::$modSettings['warning_mute']) && Config::$modSettings['warning_mute'] <= $this->warning ? 'mute' : (!empty(Config::$modSettings['warning_moderate']) && Config::$modSettings['warning_moderate'] <= $this->warning ? 'moderate' : (!empty(Config::$modSettings['warning_watch']) && Config::$modSettings['warning_watch'] <= $this->warning ? 'watch' : '')),
-				'local_time' => timeformat(time(), false, $this->timezone),
+				'local_time' => Time::create('now', $this->timezone)->format(null, false),
 				'custom_fields' => array(),
 			);
 
@@ -1898,7 +1898,7 @@ class User implements \ArrayAccess
 			Logout::call(true, false);
 
 			// You banned, sucka!
-			ErrorHandler::fatal(sprintf(Lang::$txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_access']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_access']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf(Lang::$txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : Lang::$txt['your_ban_expires_never']), false, 403);
+			ErrorHandler::fatal(sprintf(Lang::$txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_access']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_access']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf(Lang::$txt['your_ban_expires'], Time::create('@' . $_SESSION['ban']['expire_time'])->format(null, false)) : Lang::$txt['your_ban_expires_never']), false, 403);
 
 			// If we get here, something's gone wrong.... but let's try anyway.
 			trigger_error('No direct access...', E_USER_ERROR);
@@ -1927,7 +1927,7 @@ class User implements \ArrayAccess
 
 			Logout::call(true, false);
 
-			ErrorHandler::fatal(sprintf(Lang::$txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_login']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_login']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf(Lang::$txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : Lang::$txt['your_ban_expires_never']) . '<br>' . Lang::$txt['ban_continue_browse'], false, 403);
+			ErrorHandler::fatal(sprintf(Lang::$txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_login']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_login']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf(Lang::$txt['your_ban_expires'], Time::create('@' . $_SESSION['ban']['expire_time'])->format(null, false)) : Lang::$txt['your_ban_expires_never']) . '<br>' . Lang::$txt['ban_continue_browse'], false, 403);
 		}
 
 		// Fix up the banning permissions.
@@ -4355,7 +4355,7 @@ class User implements \ArrayAccess
 		// Attempt to update today's entry.
 		if (Config::$modSettings['spider_mode'] == 1)
 		{
-			$date = smf_strftime('%Y-%m-%d', time());
+			$date = Time::strftime('%Y-%m-%d', time());
 			Db::$db->query('', '
 				UPDATE {db_prefix}log_spider_stats
 				SET last_seen = {int:current_time}, page_hits = page_hits + 1

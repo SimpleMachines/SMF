@@ -28,6 +28,7 @@ use SMF\Menu;
 use SMF\Msg;
 use SMF\SecurityToken;
 use SMF\Theme;
+use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 use SMF\Actions\Notify;
@@ -820,7 +821,7 @@ class News extends ACP implements ActionInterface
 			$variables,
 			array(
 				!empty($_POST['send_html']) ? '<a href="' . Config::$scripturl . '">' . Config::$scripturl . '</a>' : Config::$scripturl,
-				timeformat(time(), false),
+				Time::create('now')->format(null, false),
 				!empty($_POST['send_html']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . Config::$modSettings['latestMember'] . '">' . $cleanLatestMember . '</a>' : (Utils::$context['send_pm'] ? '[url=' . Config::$scripturl . '?action=profile;u=' . Config::$modSettings['latestMember'] . ']' . $cleanLatestMember . '[/url]' : Config::$scripturl . '?action=profile;u=' . Config::$modSettings['latestMember']),
 				Config::$modSettings['latestMember'],
 				$cleanLatestMember
@@ -832,7 +833,7 @@ class News extends ACP implements ActionInterface
 			$variables,
 			array(
 				Config::$scripturl,
-				timeformat(time(), false),
+				Time::create('now')->format(null, false),
 				Config::$modSettings['latestRealName'],
 				Config::$modSettings['latestMember'],
 				Config::$modSettings['latestRealName']
@@ -1286,7 +1287,7 @@ class News extends ACP implements ActionInterface
 				$variables,
 				array(
 					!empty(Utils::$context['send_html']) ? '<a href="' . Config::$scripturl . '">' . Config::$scripturl . '</a>' : Config::$scripturl,
-					timeformat(time(), false),
+					Time::create('now')->format(null, false),
 					!empty(Utils::$context['send_html']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . Config::$modSettings['latestMember'] . '">' . $cleanLatestMember . '</a>' : (Utils::$context['send_pm'] ? '[url=' . Config::$scripturl . '?action=profile;u=' . Config::$modSettings['latestMember'] . ']' . $cleanLatestMember . '[/url]' : $cleanLatestMember),
 					Config::$modSettings['latestMember'],
 					$cleanLatestMember
