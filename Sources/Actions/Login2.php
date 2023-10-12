@@ -158,7 +158,7 @@ class Login2 implements ActionInterface
 
 		Cookie::setLoginCookie((int) $timeout - time(), User::$me->id, Cookie::encrypt(User::$me->passwd, User::$me->password_salt));
 
-		redirectexit('action=login2;sa=check;member=' . User::$me->id, Utils::$context['server']['needs_login_fix']);
+		Utils::redirectexit('action=login2;sa=check;member=' . User::$me->id, Utils::$context['server']['needs_login_fix']);
 	}
 
 	/**
@@ -175,16 +175,16 @@ class Login2 implements ActionInterface
 		// Some whitelisting for login_url...
 		if (empty($_SESSION['login_url']))
 		{
-			redirectexit(empty(User::$me->tfa_secret) ? '' : 'action=logintfa');
+			Utils::redirectexit(empty(User::$me->tfa_secret) ? '' : 'action=logintfa');
 		}
 		elseif (!empty($_SESSION['login_url']) && (strpos($_SESSION['login_url'], 'http://') === false && strpos($_SESSION['login_url'], 'https://') === false))
 		{
 			unset($_SESSION['login_url']);
-			redirectexit(empty(User::$me->tfa_secret) ? '' : 'action=logintfa');
+			Utils::redirectexit(empty(User::$me->tfa_secret) ? '' : 'action=logintfa');
 		}
 		elseif (!empty(User::$me->tfa_secret))
 		{
-			redirectexit('action=logintfa');
+			Utils::redirectexit('action=logintfa');
 		}
 		else
 		{
@@ -192,7 +192,7 @@ class Login2 implements ActionInterface
 			$temp = $_SESSION['login_url'];
 			unset($_SESSION['login_url']);
 
-			redirectexit($temp);
+			Utils::redirectexit($temp);
 		}
 	}
 
@@ -203,7 +203,7 @@ class Login2 implements ActionInterface
 	{
 		// Beyond this point you are assumed to be a guest trying to login.
 		if (!User::$me->is_guest)
-			redirectexit();
+			Utils::redirectexit();
 
 		// Are you guessing with a script?
 		User::$me->checkSession();
@@ -437,7 +437,7 @@ class Login2 implements ActionInterface
 		if (!$id_member)
 		{
 			// Redirect back!
-			redirectexit();
+			Utils::redirectexit();
 
 			// Probably not needed, but still make sure...
 			ErrorHandler::fatalLang('no_access', false);
@@ -654,7 +654,7 @@ class Login2 implements ActionInterface
 			// Hmm... don't remember it, do you?  Here, try the password reminder ;).
 			if ($_SESSION['failed_login'] >= Config::$modSettings['failed_login_threshold'])
 			{
-				redirectexit('action=reminder');
+				Utils::redirectexit('action=reminder');
 			}
 			// We'll give you another chance...
 			else
@@ -853,11 +853,11 @@ class Login2 implements ActionInterface
 		// Just log you back out if it's in maintenance mode and you AREN'T an admin.
 		if (empty(Config::$maintenance) || User::$me->allowedTo('admin_forum'))
 		{
-			redirectexit('action=login2;sa=check;member=' . User::$me->id, Utils::$context['server']['needs_login_fix']);
+			Utils::redirectexit('action=login2;sa=check;member=' . User::$me->id, Utils::$context['server']['needs_login_fix']);
 		}
 		else
 		{
-			redirectexit('action=logout;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], Utils::$context['server']['needs_login_fix']);
+			Utils::redirectexit('action=logout;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], Utils::$context['server']['needs_login_fix']);
 		}
 	}
 

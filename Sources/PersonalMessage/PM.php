@@ -1179,7 +1179,7 @@ class PM implements \ArrayAccess
 		}
 
 		// Go back to the where they sent from, if possible...
-		redirectexit($this->current_label_redirect);
+		Utils::redirectexit($this->current_label_redirect);
 	}
 
 	/**

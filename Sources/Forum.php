@@ -215,7 +215,7 @@ class Forum
 		// If a Preflight is occurring, lets stop now.
 		if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS')
 		{
-			send_http_status(204);
+			Utils::sendHttpStatus(204);
 			die;
 		}
 
@@ -263,7 +263,7 @@ class Forum
 		call_user_func($this->main());
 
 		// Call obExit specially; we're coming from the main area ;).
-		obExit(null, null, true);
+		Utils::obExit(null, null, true);
 	}
 
 	/***********************
@@ -282,7 +282,7 @@ class Forum
 		SecurityToken::create('login');
 
 		// Send a 503 header, so search engines don't bother indexing while we're in maintenance mode.
-		send_http_status(503, 'Service Temporarily Unavailable');
+		Utils::sendHttpStatus(503, 'Service Temporarily Unavailable');
 
 		// Basic template stuff..
 		Utils::$context['sub_template'] = 'maintenance';

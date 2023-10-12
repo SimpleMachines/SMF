@@ -416,7 +416,7 @@ class Display implements ActionInterface
 			Db::$db->free_result($request);
 
 			// Go to the newest message on the prev/next topic.
-			redirectexit('topic=' . Topic::$topic_id . ';start=new#new');
+			Utils::redirectexit('topic=' . Topic::$topic_id . ';start=new#new');
 		}
 	}
 
@@ -442,7 +442,7 @@ class Display implements ActionInterface
 				);
 			}
 
-			redirectexit('topic=' . Topic::$info->id_redirect_topic . '.0', false, true);
+			Utils::redirectexit('topic=' . Topic::$info->id_redirect_topic . '.0', false, true);
 		}
 	}
 
@@ -455,7 +455,7 @@ class Display implements ActionInterface
 		if (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch')
 		{
 			ob_end_clean();
-			send_http_status(403, 'Prefetch Forbidden');
+			Utils::sendHttpStatus(403, 'Prefetch Forbidden');
 			die;
 		}
 	}

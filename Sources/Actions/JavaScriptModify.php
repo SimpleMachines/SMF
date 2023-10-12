@@ -372,7 +372,7 @@ class JavaScriptModify implements ActionInterface
 		}
 		else
 		{
-			obExit(false);
+			Utils::obExit(false);
 		}
 	}
 
@@ -412,7 +412,7 @@ class JavaScriptModify implements ActionInterface
 	{
 		// We have to have a topic!
 		if (empty(Topic::$topic_id))
-			obExit(false);
+			Utils::obExit(false);
 
 		User::$me->checkSession('get');
 	}

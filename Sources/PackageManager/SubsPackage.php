@@ -665,7 +665,7 @@ class SubsPackage
 
 			// If we just restored permissions then whereever we are, we are now done and dusted.
 			if (!empty($_POST['restore_perms']))
-				obExit();
+				Utils::obExit();
 		}
 		// Otherwise, it's entirely irrelevant?
 		elseif ($restore_write_status)
@@ -788,7 +788,7 @@ class SubsPackage
 			{
 				Utils::$context['page_title'] = Lang::$txt['package_ftp_necessary'];
 				Utils::$context['sub_template'] = 'ftp_required';
-				obExit();
+				Utils::obExit();
 			}
 		}
 
@@ -1013,7 +1013,7 @@ class SubsPackage
 
 			Utils::$context['page_title'] = Lang::$txt['package_ftp_necessary'];
 			Utils::$context['sub_template'] = 'ftp_required';
-			obExit();
+			Utils::obExit();
 		}
 		else
 		{

@@ -763,7 +763,7 @@ class Like implements ActionInterface
 			// Nope? Then just do a redirect to whatever URL was provided.
 			else
 			{
-				redirectexit(!empty($this->valid_likes['redirect']) ? $this->valid_likes['redirect'] . ';error=' . $this->error : '');
+				Utils::redirectexit(!empty($this->valid_likes['redirect']) ? $this->valid_likes['redirect'] . ';error=' . $this->error : '');
 			}
 
 			return;
@@ -775,7 +775,7 @@ class Like implements ActionInterface
 			// location or the main page.
 			if (!$this->js)
 			{
-				redirectexit(!empty($this->valid_likes['redirect']) ? $this->valid_likes['redirect'] : '');
+				Utils::redirectexit(!empty($this->valid_likes['redirect']) ? $this->valid_likes['redirect'] : '');
 			}
 
 			// These fine gentlemen all share the same template.
@@ -820,7 +820,7 @@ class Like implements ActionInterface
 		call_integration_hook('integrate_likes_json_response', array(&$print));
 
 		// Print the data.
-		smf_serverResponse(Utils::jsonEncode($print));
+		Utils::serverResponse(Utils::jsonEncode($print));
 		die;
 	}
 
@@ -881,7 +881,7 @@ class Like implements ActionInterface
 	</body>
 </html>';
 
-		obExit(false);
+		Utils::obExit(false);
 	}
 }
 

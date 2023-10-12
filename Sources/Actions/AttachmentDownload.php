@@ -97,14 +97,14 @@ class AttachmentDownload implements ActionInterface
 		// We need a valid ID.
 		if (empty($this->id))
 		{
-			send_http_status(404, 'File Not Found');
+			Utils::sendHttpStatus(404, 'File Not Found');
 			die('404 File Not Found');
 		}
 
 		// No access in strict maintenance mode.
 		if (!empty(Config::$maintenance) && Config::$maintenance == 2)
 		{
-			send_http_status(404, 'File Not Found');
+			Utils::sendHttpStatus(404, 'File Not Found');
 			die('404 File Not Found');
 		}
 
@@ -134,7 +134,7 @@ class AttachmentDownload implements ActionInterface
 				// No attachment has been found.
 				if (Db::$db->num_rows($request) == 0)
 				{
-					send_http_status(404, 'File Not Found');
+					Utils::sendHttpStatus(404, 'File Not Found');
 					die('404 File Not Found');
 				}
 
@@ -150,7 +150,7 @@ class AttachmentDownload implements ActionInterface
 
 				if (!isset(Attachment::$loaded[$this->id]))
 				{
-					send_http_status(404, 'File Not Found');
+					Utils::sendHttpStatus(404, 'File Not Found');
 					die('404 File Not Found');
 				}
 
@@ -217,7 +217,7 @@ class AttachmentDownload implements ActionInterface
 			&& !isset($_SESSION['attachments_can_preview'][$this->id])
 		)
 		{
-			send_http_status(404, 'File Not Found');
+			Utils::sendHttpStatus(404, 'File Not Found');
 			die('404 File Not Found');
 		}
 
@@ -240,7 +240,7 @@ class AttachmentDownload implements ActionInterface
 			// Let users see own unapproved attachments
 			if ($id_member != User::$me->id)
 			{
-				send_http_status(403, 'Forbidden');
+				Utils::sendHttpStatus(403, 'Forbidden');
 				die('403 Forbidden');
 			}
 		}
@@ -252,7 +252,7 @@ class AttachmentDownload implements ActionInterface
 		// No point in a nicer message, because this is supposed to be an attachment anyway...
 		if (empty($file->exists))
 		{
-			send_http_status(404, 'File Not Found');
+			Utils::sendHttpStatus(404, 'File Not Found');
 			die('404 File Not Found');
 		}
 
@@ -266,7 +266,7 @@ class AttachmentDownload implements ActionInterface
 				header_remove('content-encoding');
 
 				// Answer the question - no, it hasn't been modified ;).
-				send_http_status(304);
+				Utils::sendHttpStatus(304);
 				exit;
 			}
 		}
@@ -277,7 +277,7 @@ class AttachmentDownload implements ActionInterface
 			ob_end_clean();
 			header_remove('content-encoding');
 
-			send_http_status(304);
+			Utils::sendHttpStatus(304);
 			exit;
 		}
 

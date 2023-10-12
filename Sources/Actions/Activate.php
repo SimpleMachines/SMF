@@ -285,7 +285,7 @@ class Activate implements ActionInterface
 	{
 		// Logged in users should not bother to activate their accounts
 		if (!empty(User::$me->id))
-			redirectexit();
+			Utils::redirectexit();
 
 		Lang::load('Login');
 		Theme::loadTemplate('Login');

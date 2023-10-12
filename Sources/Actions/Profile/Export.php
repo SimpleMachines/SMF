@@ -182,7 +182,7 @@ class Export implements ActionInterface
 					@unlink($fpath);
 
 				if (empty($_POST['export_begin']))
-					redirectexit('action=profile;area=getprofiledata;u=' . Utils::$context['id_member']);
+					Utils::redirectexit('action=profile;area=getprofiledata;u=' . Utils::$context['id_member']);
 			}
 
 			$progress = file_exists($progressfile) ? Utils::jsonDecode(file_get_contents($progressfile), true) : array();
@@ -356,7 +356,7 @@ class Export implements ActionInterface
 				file_put_contents($progressfile, Utils::jsonEncode(array_fill_keys(array_keys($included), 0)));
 			}
 
-			redirectexit('action=profile;area=getprofiledata;u=' . Utils::$context['id_member']);
+			Utils::redirectexit('action=profile;area=getprofiledata;u=' . Utils::$context['id_member']);
 		}
 
 		SecurityToken::create(Utils::$context['token_check'], 'post');

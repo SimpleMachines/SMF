@@ -18,6 +18,7 @@ use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Logging;
 use SMF\User;
+use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -97,7 +98,7 @@ class AgreementAccept extends Agreement
 		}
 
 		// Redirect back to chasing those squirrels, er, viewing those memes.
-		redirectexit(!empty($_SESSION['redirect_url']) ? $_SESSION['redirect_url'] : '');
+		Utils::redirectexit(!empty($_SESSION['redirect_url']) ? $_SESSION['redirect_url'] : '');
 	}
 
 	/***********************

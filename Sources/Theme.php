@@ -1949,15 +1949,15 @@ class Theme
 
 		// This good-for-nothing pixel is being used to keep the session alive.
 		if (empty($_GET['var']) || !isset($_GET['val']))
-			redirectexit(self::$current->settings['images_url'] . '/blank.png');
+			Utils::redirectexit(self::$current->settings['images_url'] . '/blank.png');
 
 		// Sorry, guests can't go any further than this.
 		if (User::$me->is_guest || User::$me->id == 0)
-			obExit(false);
+			Utils::obExit(false);
 
 		// Can't change reserved vars.
 		if (in_array(strtolower($_GET['var']), self::$reservedVars))
-			redirectexit(self::$current->settings['images_url'] . '/blank.png');
+			Utils::redirectexit(self::$current->settings['images_url'] . '/blank.png');
 
 		// Use a specific theme?
 		if (isset($_GET['th']) || isset($_GET['id']))
@@ -1992,7 +1992,7 @@ class Theme
 		CacheApi::put('theme_settings-' . self::$current->settings['theme_id'] . ':' . User::$me->id, null, 60);
 
 		// Don't output anything...
-		redirectexit(self::$current->settings['images_url'] . '/blank.png');
+		Utils::redirectexit(self::$current->settings['images_url'] . '/blank.png');
 	}
 
 	/**
@@ -2045,7 +2045,7 @@ class Theme
 		// If any sub-action besides 'pick' was requested, redirect to admin.
 		if (!isset($_REQUEST['sa']) || $_REQUEST['sa'] !== 'pick')
 		{
-			redirectexit('action=admin;area=theme' . (isset($_REQUEST['sa']) ? ';sa=' . $_REQUEST['sa'] : '') . (isset($_REQUEST['u']) ? ';u=' . $_REQUEST['u'] : ''));
+			Utils::redirectexit('action=admin;area=theme' . (isset($_REQUEST['sa']) ? ';sa=' . $_REQUEST['sa'] : '') . (isset($_REQUEST['u']) ? ';u=' . $_REQUEST['u'] : ''));
 		}
 
 		self::pickTheme();
@@ -2071,7 +2071,7 @@ class Theme
 		// Is the ability to change themes enabled overall?
 		elseif (empty(Config::$modSettings['theme_allow']))
 		{
-			redirectexit('action=profile;area=theme;u=' . $_REQUEST['u']);
+			Utils::redirectexit('action=profile;area=theme;u=' . $_REQUEST['u']);
 		}
 		// Does the current user have permission to change themes for the specified user?
 		else
@@ -2107,13 +2107,13 @@ class Theme
 			if ($_REQUEST['u'] === -1)
 			{
 				Config::updateModSettings(array('theme_guests' => $id_theme));
-				redirectexit('action=admin;area=theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id']);
+				Utils::redirectexit('action=admin;area=theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id']);
 			}
 			// 0 means we are resetting everyone's theme.
 			elseif ($_REQUEST['u'] === 0)
 			{
 				User::updateMemberData(null, array('id_theme' => $id_theme));
-				redirectexit('action=admin;area=theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id']);
+				Utils::redirectexit('action=admin;area=theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id']);
 			}
 			// Setting a particular user's theme.
 			elseif (self::canPickTheme($_REQUEST['u'], $id_theme))
@@ -2139,7 +2139,7 @@ class Theme
 						$_SESSION['id_variant'] = 0;
 				}
 
-				redirectexit('action=profile;area=theme;u=' . $_REQUEST['u']);
+				Utils::redirectexit('action=profile;area=theme;u=' . $_REQUEST['u']);
 			}
 		}
 
@@ -2655,7 +2655,7 @@ class Theme
 			$can_accept_privacy_policy = !empty(Config::$modSettings['requirePolicyAgreement']) && Agreement::canRequirePrivacyPolicy();
 
 			if ($can_accept_agreement || $can_accept_privacy_policy)
-				redirectexit('action=agreement');
+				Utils::redirectexit('action=agreement');
 		}
 	}
 
@@ -2673,7 +2673,7 @@ class Theme
 				ErrorHandler::fatalLang('login_ssl_required', false);
 			}
 
-			redirectexit(strtr($_SERVER['REQUEST_URL'], array('http://' => 'https://')) . (strpos($_SERVER['REQUEST_URL'], '?') > 0 ? ';' : '?') . 'sslRedirect');
+			Utils::redirectexit(strtr($_SERVER['REQUEST_URL'], array('http://' => 'https://')) . (strpos($_SERVER['REQUEST_URL'], '?') > 0 ? ';' : '?') . 'sslRedirect');
 		}
 	}
 
@@ -2718,7 +2718,7 @@ class Theme
 				// Okay, this seems weird, but we don't want an endless loop - this will make $_GET not empty ;).
 				if (empty($_GET))
 				{
-					redirectexit('wwwRedirect');
+					Utils::redirectexit('wwwRedirect');
 				}
 				else
 				{
@@ -2726,7 +2726,7 @@ class Theme
 					$v = current($_GET);
 
 					if ($k != 'wwwRedirect')
-						redirectexit('wwwRedirect;' . $k . '=' . $v);
+						Utils::redirectexit('wwwRedirect;' . $k . '=' . $v);
 				}
 			}
 

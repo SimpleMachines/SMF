@@ -74,11 +74,11 @@ class Login extends Login2
 	 		// This came from a valid hashed return url.  Or something that knows our secrets...
 	 		if (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', Utils::htmlspecialcharsDecode($_REQUEST['return_to']), Config::getAuthSecret()) == $_REQUEST['return_hash'])
 	 		{
-				redirectexit(Utils::htmlspecialcharsDecode($_REQUEST['return_to']));
+				Utils::redirectexit(Utils::htmlspecialcharsDecode($_REQUEST['return_to']));
 	 		}
 			else
 			{
-				redirectexit();
+				Utils::redirectexit();
 			}
 		}
 

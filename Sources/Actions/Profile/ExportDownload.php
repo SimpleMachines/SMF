@@ -118,14 +118,14 @@ class ExportDownload implements ActionInterface
 		// No access in strict maintenance mode.
 		if (!empty(Config::$maintenance) && Config::$maintenance == 2)
 		{
-			send_http_status(404);
+			Utils::sendHttpStatus(404);
 			exit;
 		}
 
 		// We can't give them anything without these.
 		if (empty($_GET['t']) || empty($_GET['format']) || !isset($formats[$_GET['format']]))
 		{
-			send_http_status(400);
+			Utils::sendHttpStatus(400);
 			exit;
 		}
 
@@ -133,14 +133,14 @@ class ExportDownload implements ActionInterface
 		// We use these tokens so the user can download without logging in, as required by the GDPR.
 		if ($_GET['t'] !== $this->dltoken)
 		{
-			send_http_status(403);
+			Utils::sendHttpStatus(403);
 			exit;
 		}
 
 		// Obviously we can't give what we don't have.
 		if (empty(Config::$modSettings['export_dir']) || !file_exists($this->path))
 		{
-			send_http_status(404);
+			Utils::sendHttpStatus(404);
 			exit;
 		}
 
@@ -164,7 +164,7 @@ class ExportDownload implements ActionInterface
 				header_remove('content-encoding');
 
 				// Answer the question - no, it hasn't been modified ;).
-				send_http_status(304);
+				Utils::sendHttpStatus(304);
 				exit;
 			}
 		}
@@ -175,7 +175,7 @@ class ExportDownload implements ActionInterface
 			ob_end_clean();
 			header_remove('content-encoding');
 
-			send_http_status(304);
+			Utils::sendHttpStatus(304);
 			exit;
 		}
 

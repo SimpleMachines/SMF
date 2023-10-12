@@ -335,7 +335,7 @@ class Boards implements ActionInterface
 		// Category doesn't exist, man... sorry.
 		elseif (!isset(Category::$loaded[$_REQUEST['cat']]))
 		{
-			redirectexit('action=admin;area=manageboards');
+			Utils::redirectexit('action=admin;area=manageboards');
 		}
 		else
 		{
@@ -455,7 +455,7 @@ class Boards implements ActionInterface
 			}
 		}
 
-		redirectexit('action=admin;area=manageboards');
+		Utils::redirectexit('action=admin;area=manageboards');
 	}
 
 	/**
@@ -493,7 +493,7 @@ class Boards implements ActionInterface
 		{
 			// Category doesn't exist, man... sorry.
 			if (empty($_REQUEST['cat']))
-				redirectexit('action=admin;area=manageboards');
+				Utils::redirectexit('action=admin;area=manageboards');
 
 			// Some things that need to be setup for a new board.
 			$curBoard = array(
@@ -553,7 +553,7 @@ class Boards implements ActionInterface
 
 		// Category doesn't exist, man... sorry.
 		if (!isset(Category::$boardList[$curBoard['category']]))
-			redirectexit('action=admin;area=manageboards');
+			Utils::redirectexit('action=admin;area=manageboards');
 
 		foreach (Category::$boardList[$curBoard['category']] as $boardid)
 		{
@@ -863,11 +863,11 @@ class Boards implements ActionInterface
 
 		if (isset($_REQUEST['rid']) && $_REQUEST['rid'] == 'permissions')
 		{
-			redirectexit('action=admin;area=permissions;sa=board;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+			Utils::redirectexit('action=admin;area=permissions;sa=board;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 		}
 		else
 		{
-			redirectexit('action=admin;area=manageboards');
+			Utils::redirectexit('action=admin;area=manageboards');
 		}
 	}
 
@@ -906,7 +906,7 @@ class Boards implements ActionInterface
 		if ($cat .= $allowed_sa[1])
 			die(str_replace(',', ' to', $cat));
 
-		redirectexit();
+		Utils::redirectexit();
 	}
 
 	/**
@@ -939,7 +939,7 @@ class Boards implements ActionInterface
 
 			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
-			redirectexit('action=admin;area=manageboards;sa=settings');
+			Utils::redirectexit('action=admin;area=manageboards;sa=settings');
 		}
 
 		// We need this for the in-line permissions

@@ -78,7 +78,7 @@ class TopicPrint implements ActionInterface
 	{
 		// Redirect to the boardindex if no valid topic id is provided.
 		if (empty(Topic::$topic_id))
-			redirectexit();
+			Utils::redirectexit();
 
 		if (!empty(Config::$modSettings['disable_print_topic']))
 		{
@@ -105,7 +105,7 @@ class TopicPrint implements ActionInterface
 		);
 		// Redirect to the boardindex if no valid topic id is provided.
 		if (Db::$db->num_rows($request) == 0)
-			redirectexit();
+			Utils::redirectexit();
 		$row = Db::$db->fetch_assoc($request);
 		Db::$db->free_result($request);
 

@@ -72,7 +72,7 @@ class TopicRemove implements ActionInterface
 
 		// Trying to fool us around, are we?
 		if (empty(Topic::$topic_id))
-			redirectexit();
+			Utils::redirectexit();
 
 		self::removeDeleteConcurrence();
 
@@ -121,7 +121,7 @@ class TopicRemove implements ActionInterface
 			));
 		}
 
-		redirectexit('board=' . Board::$info->id . '.0');
+		Utils::redirectexit('board=' . Board::$info->id . '.0');
 	}
 
 	/***********************
@@ -195,7 +195,7 @@ class TopicRemove implements ActionInterface
 
 		// No boards at all?  Forget it then :/.
 		if (empty($_POST['boards']))
-			redirectexit('action=admin;area=maintain;sa=topics');
+			Utils::redirectexit('action=admin;area=maintain;sa=topics');
 
 		// This should exist, but we can make sure.
 		$_POST['delete_type'] = isset($_POST['delete_type']) ? $_POST['delete_type'] : 'nothing';
@@ -258,7 +258,7 @@ class TopicRemove implements ActionInterface
 		// Log an action into the moderation log.
 		Logging::logAction('pruned', array('days' => $_POST['maxdays']));
 
-		redirectexit('action=admin;area=maintain;sa=topics;done=purgeold');
+		Utils::redirectexit('action=admin;area=maintain;sa=topics;done=purgeold');
 	}
 
 	/******************

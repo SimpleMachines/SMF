@@ -1082,7 +1082,7 @@ class Permissions implements ActionInterface
 
 		// No groups were selected.
 		if (empty($_POST['group']))
-			redirectexit('action=admin;area=permissions;pid=' . $_REQUEST['pid']);
+			Utils::redirectexit('action=admin;area=permissions;pid=' . $_REQUEST['pid']);
 
 		// Profile ID must be an integer.
 		$_REQUEST['pid'] = (int) ($_REQUEST['pid'] ?? 0);
@@ -1116,7 +1116,7 @@ class Permissions implements ActionInterface
 
 		self::updateBoardManagers();
 
-		redirectexit('action=admin;area=permissions;pid=' . $_REQUEST['pid']);
+		Utils::redirectexit('action=admin;area=permissions;pid=' . $_REQUEST['pid']);
 	}
 
 	/**
@@ -1223,7 +1223,7 @@ class Permissions implements ActionInterface
 		// Clear cached permissions.
 		Config::updateModSettings(array('settings_updated' => time()));
 
-		redirectexit('action=admin;area=permissions;pid=' . $_GET['pid']);
+		Utils::redirectexit('action=admin;area=permissions;pid=' . $_GET['pid']);
 	}
 
 	/**
@@ -1316,7 +1316,7 @@ class Permissions implements ActionInterface
 			}
 
 			$_SESSION['adm-save'] = true;
-			redirectexit('action=admin;area=permissions;sa=settings');
+			Utils::redirectexit('action=admin;area=permissions;sa=settings');
 		}
 
 		// We need this for the in-line permissions
@@ -2579,7 +2579,7 @@ class Permissions implements ActionInterface
 		// Make sure it's a predefined permission set we expect.
 		if (!in_array($_POST['predefined'], array('restrict', 'standard', 'moderator', 'maintenance')))
 		{
-			redirectexit('action=admin;area=permissions;pid=' . $_REQUEST['pid']);
+			Utils::redirectexit('action=admin;area=permissions;pid=' . $_REQUEST['pid']);
 		}
 
 		foreach ($_POST['group'] as $group_id)
@@ -2606,14 +2606,14 @@ class Permissions implements ActionInterface
 
 		// Just checking the input.
 		if (!is_numeric($_POST['copy_from']))
-			redirectexit('action=admin;area=permissions;pid=' . $_REQUEST['pid']);
+			Utils::redirectexit('action=admin;area=permissions;pid=' . $_REQUEST['pid']);
 
 		// Make sure the group we're copying to is never included.
 		$_POST['group'] = array_diff($_POST['group'], array($_POST['copy_from']));
 
 		// No groups left? Too bad.
 		if (empty($_POST['group']))
-			redirectexit('action=admin;area=permissions;pid=' . $_REQUEST['pid']);
+			Utils::redirectexit('action=admin;area=permissions;pid=' . $_REQUEST['pid']);
 
 		if (empty($_REQUEST['pid']))
 		{
@@ -2748,7 +2748,7 @@ class Permissions implements ActionInterface
 		// Check whether our input is within expected range.
 		if (!in_array($_POST['add_remove'], array('add', 'clear', 'deny')) || !in_array($scope, array('global', 'board')))
 		{
-			redirectexit('action=admin;area=permissions;pid=' . $_REQUEST['pid']);
+			Utils::redirectexit('action=admin;area=permissions;pid=' . $_REQUEST['pid']);
 		}
 
 		if ($_POST['add_remove'] == 'clear')
@@ -2862,7 +2862,7 @@ class Permissions implements ActionInterface
 
 			// Can't set permissions for admins.
 			case 1:
-				redirectexit('action=admin;area=permissions');
+				Utils::redirectexit('action=admin;area=permissions');
 				break;
 
 			default:

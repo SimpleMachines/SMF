@@ -190,7 +190,7 @@ class ErrorLog implements ActionInterface
 		// If this filter is empty...
 		if ($num_errors == 0 && isset($this->filter))
 		{
-			redirectexit('action=admin;area=logs;sa=errorlog' . (isset($_REQUEST['desc']) ? ';desc' : ''));
+			Utils::redirectexit('action=admin;area=logs;sa=errorlog' . (isset($_REQUEST['desc']) ? ';desc' : ''));
 		}
 
 		// Clean up start.
@@ -611,11 +611,11 @@ class ErrorLog implements ActionInterface
 			);
 
 			// Go back to where we were.
-			redirectexit('action=admin;area=logs;sa=errorlog' . (isset($_REQUEST['desc']) ? ';desc' : '') . ';start=' . $_GET['start'] . (isset($this->filter) ? ';filter=' . $_GET['filter'] . ';value=' . $_GET['value'] : ''));
+			Utils::redirectexit('action=admin;area=logs;sa=errorlog' . (isset($_REQUEST['desc']) ? ';desc' : '') . ';start=' . $_GET['start'] . (isset($this->filter) ? ';filter=' . $_GET['filter'] . ';value=' . $_GET['value'] : ''));
 		}
 
 		// Back to the error log!
-		redirectexit('action=admin;area=logs;sa=errorlog' . (isset($_REQUEST['desc']) ? ';desc' : ''));
+		Utils::redirectexit('action=admin;area=logs;sa=errorlog' . (isset($_REQUEST['desc']) ? ';desc' : ''));
 	}
 }
 

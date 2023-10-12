@@ -131,7 +131,7 @@ class QuickModerationInTopic implements ActionInterface
 	 */
 	protected function restore()
 	{
-		redirectexit('action=restoretopic;msgs=' . implode(',', $this->messages) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+		Utils::redirectexit('action=restoretopic;msgs=' . implode(',', $this->messages) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 	}
 
 	/**
@@ -153,7 +153,7 @@ class QuickModerationInTopic implements ActionInterface
 
 		$_SESSION['split_selection'][Topic::$topic_id] = $this->messages;
 
-		redirectexit('action=splittopics;sa=selectTopics;topic=' . Topic::$topic_id . '.0;subname_enc=' . urlencode($subname) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+		Utils::redirectexit('action=splittopics;sa=selectTopics;topic=' . Topic::$topic_id . '.0;subname_enc=' . urlencode($subname) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 	}
 
 	/**
@@ -253,7 +253,7 @@ class QuickModerationInTopic implements ActionInterface
 			}
 		}
 
-		redirectexit(!empty($topicGone) ? 'board=' . Board::$info->id : 'topic=' . Topic::$topic_id . '.' . $_REQUEST['start']);
+		Utils::redirectexit(!empty($topicGone) ? 'board=' . Board::$info->id : 'topic=' . Topic::$topic_id . '.' . $_REQUEST['start']);
 	}
 }
 

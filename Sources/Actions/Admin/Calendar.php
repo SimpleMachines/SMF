@@ -291,7 +291,7 @@ class Calendar implements ActionInterface
 				'settings_updated' => time(),
 			));
 
-			redirectexit('action=admin;area=managecalendar;sa=holidays');
+			Utils::redirectexit('action=admin;area=managecalendar;sa=holidays');
 		}
 
 		SecurityToken::create('admin-eh');
@@ -364,7 +364,7 @@ class Calendar implements ActionInterface
 			));
 
 			$_SESSION['adm-save'] = true;
-			redirectexit('action=admin;area=managecalendar;sa=settings');
+			Utils::redirectexit('action=admin;area=managecalendar;sa=settings');
 		}
 
 		// We need this for the inline permissions

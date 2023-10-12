@@ -498,7 +498,7 @@ class Groups implements ActionInterface
 				SecurityToken::create('mod-gr');
 
 				// Let obExit etc sort things out.
-				obExit();
+				Utils::obExit();
 			}
 			// Otherwise we do something!
 			else

@@ -660,7 +660,7 @@ class Main implements ActionInterface
 				if (empty(Profile::$member->save_errors))
 				{
 					Activate::call();
-					redirectexit('action=profile;u=' . Profile::$member->id . ';area=summary');
+					Utils::redirectexit('action=profile;u=' . Profile::$member->id . ';area=summary');
 				}
 			}
 			elseif ($menu->current_area == 'deleteaccount')
@@ -668,7 +668,7 @@ class Main implements ActionInterface
 				if (empty(Profile::$member->save_errors))
 				{
 					Delete::call();
-					redirectexit();
+					Utils::redirectexit();
 				}
 			}
 			elseif (empty(Profile::$member->save_errors))
@@ -705,7 +705,7 @@ class Main implements ActionInterface
 		// If it's you or it's forced then we should redirect upon save.
 		elseif ((!empty(Profile::$member->new_data) && User::$me->is_owner && !Utils::$context['do_preview']) || !empty($force_redirect))
 		{
-			redirectexit('action=profile' . (User::$me->is_owner ? '' : ';u=' . Profile::$member->id) . ';area=' . $menu->current_area . (!empty($msg) ? ';msg=' . $msg : ';updated'));
+			Utils::redirectexit('action=profile' . (User::$me->is_owner ? '' : ';u=' . Profile::$member->id) . ';area=' . $menu->current_area . (!empty($msg) ? ';msg=' . $msg : ';updated'));
 		}
 
 		// Get the right callable.

@@ -213,15 +213,15 @@ class Announce implements ActionInterface
 
 			if (!empty($_REQUEST['move']) && User::$me->allowedTo('move_any'))
 			{
-				redirectexit('action=movetopic;topic=' . Topic::$topic_id . '.0' . (empty($_REQUEST['goback']) ? '' : ';goback'));
+				Utils::redirectexit('action=movetopic;topic=' . Topic::$topic_id . '.0' . (empty($_REQUEST['goback']) ? '' : ';goback'));
 			}
 			elseif (!empty($_REQUEST['goback']))
 			{
-				redirectexit('topic=' . Topic::$topic_id . '.new;boardseen#new', BrowserDetector::isBrowser('ie'));
+				Utils::redirectexit('topic=' . Topic::$topic_id . '.new;boardseen#new', BrowserDetector::isBrowser('ie'));
 			}
 			else
 			{
-				redirectexit('board=' . Board::$info->id . '.0');
+				Utils::redirectexit('board=' . Board::$info->id . '.0');
 			}
 		}
 		// Loop through all members that'll receive an announcement in this batch.

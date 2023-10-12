@@ -167,7 +167,7 @@ class Themes implements ActionInterface
 				User::updateMemberData(null, array('id_theme' => (int) $_POST['theme_reset']));
 			}
 
-			redirectexit('action=admin;area=theme;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=admin');
+			Utils::redirectexit('action=admin;area=theme;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=admin');
 		}
 
 		Theme::loadTemplate('Themes');
@@ -243,7 +243,7 @@ class Themes implements ActionInterface
 				);
 			}
 
-			redirectexit('action=admin;area=theme;sa=list;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+			Utils::redirectexit('action=admin;area=theme;sa=list;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 		}
 
 		Theme::loadTemplate('Themes');
@@ -421,7 +421,7 @@ class Themes implements ActionInterface
 			CacheApi::put('theme_settings-' . $_GET['th'], null, 90);
 			CacheApi::put('theme_settings-1', null, 90);
 
-			redirectexit('action=admin;area=theme;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=reset');
+			Utils::redirectexit('action=admin;area=theme;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=reset');
 		}
 		elseif (isset($_POST['submit']) && $_POST['who'] == 1)
 		{
@@ -546,7 +546,7 @@ class Themes implements ActionInterface
 				}
 			}
 
-			redirectexit('action=admin;area=theme;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=reset');
+			Utils::redirectexit('action=admin;area=theme;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=reset');
 		}
 		elseif (!empty($_GET['who']) && $_GET['who'] == 2)
 		{
@@ -585,7 +585,7 @@ class Themes implements ActionInterface
 				)
 			);
 
-			redirectexit('action=admin;area=theme;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=reset');
+			Utils::redirectexit('action=admin;area=theme;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=reset');
 		}
 
 		$old_id = Theme::$current->settings['theme_id'];
@@ -815,7 +815,7 @@ class Themes implements ActionInterface
 			// Invalidate the cache.
 			Config::updateModSettings(array('settings_updated' => time()));
 
-			redirectexit('action=admin;area=theme;sa=list;th=' . $_GET['th'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+			Utils::redirectexit('action=admin;area=theme;sa=list;th=' . $_GET['th'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 		}
 
 		Utils::$context['sub_template'] = 'set_settings';
@@ -915,7 +915,7 @@ class Themes implements ActionInterface
 			$this->deltree($theme_info['theme_dir']);
 
 		// Go back to the list page.
-		redirectexit('action=admin;area=theme;sa=list;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';done=removing');
+		Utils::redirectexit('action=admin;area=theme;sa=list;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';done=removing');
 	}
 
 	/**
@@ -949,7 +949,7 @@ class Themes implements ActionInterface
 		Config::updateModSettings(array('enableThemes' => $enableThemes));
 
 		// Done!
-		redirectexit('action=admin;area=theme;sa=list;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';done=' . (isset($_GET['disabled']) ? 'disabling' : 'enabling'));
+		Utils::redirectexit('action=admin;area=theme;sa=list;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';done=' . (isset($_GET['disabled']) ? 'disabling' : 'enabling'));
 	}
 
 	/**
@@ -1167,7 +1167,7 @@ class Themes implements ActionInterface
 					// Nuke any minified files and update Config::$modSettings['browser_cache']
 					Theme::deleteAllMinified();
 
-					redirectexit('action=admin;area=theme;th=' . $_GET['th'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=edit;directory=' . dirname($_REQUEST['filename']));
+					Utils::redirectexit('action=admin;area=theme;th=' . $_GET['th'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=edit;directory=' . dirname($_REQUEST['filename']));
 				}
 			}
 			// Session timed out.
@@ -1299,7 +1299,7 @@ class Themes implements ActionInterface
 			fwrite($fp, file_get_contents($filename));
 			fclose($fp);
 
-			redirectexit('action=admin;area=theme;th=' . Utils::$context['theme_id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=copy');
+			Utils::redirectexit('action=admin;area=theme;th=' . Utils::$context['theme_id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=copy');
 		}
 		elseif (isset($_REQUEST['lang_file']) && preg_match('~^[^\./\\\\:\0]\.[^\./\\\\:\0]$~', $_REQUEST['lang_file']) != 0)
 		{
@@ -1316,7 +1316,7 @@ class Themes implements ActionInterface
 			fwrite($fp, file_get_contents($filename));
 			fclose($fp);
 
-			redirectexit('action=admin;area=theme;th=' . Utils::$context['theme_id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=copy');
+			Utils::redirectexit('action=admin;area=theme;th=' . Utils::$context['theme_id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=copy');
 		}
 
 		$templates = array();
@@ -1520,12 +1520,12 @@ class Themes implements ActionInterface
 		// PickTheme() has been migrated to SMF\Theme::pickTheme()
 		if (isset($_GET['sa']) && $_GET['sa'] === 'pick')
 		{
-			redirectexit('action=theme;sa=pick' . (isset($_GET['u']) ? ';u=' . $_GET['u'] : ''));
+			Utils::redirectexit('action=theme;sa=pick' . (isset($_GET['u']) ? ';u=' . $_GET['u'] : ''));
 		}
 		// Everything in this file should be accessed via the ACP, not the 'theme' action.
 		elseif ($_REQUEST['action'] === 'theme')
 		{
-			redirectexit('action=admin;area=theme;' . (isset($_GET['sa']) ? ';sa=' . $_GET['sa'] : '') . (isset($_GET['u']) ? ';u=' . $_GET['u'] : ''));
+			Utils::redirectexit('action=admin;area=theme;' . (isset($_GET['sa']) ? ';sa=' . $_GET['sa'] : '') . (isset($_GET['u']) ? ';u=' . $_GET['u'] : ''));
 		}
 
 		User::$me->isAllowedTo('admin_forum');
@@ -1603,7 +1603,7 @@ class Themes implements ActionInterface
 		// This happens when the admin session is gone and the user has to login again.
 		if (!isset($_FILES) || !isset($_FILES['theme_gz']) || empty($_FILES['theme_gz']))
 		{
-			redirectexit('action=admin;area=theme;sa=admin;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+			Utils::redirectexit('action=admin;area=theme;sa=admin;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 		}
 
 		// Another error check layer, something went wrong with the upload.

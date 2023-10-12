@@ -72,7 +72,7 @@ class Activate implements ActionInterface
 			if (Profile::$member->is_activated == 4)
 			{
 				User::delete(Utils::$context['id_member']);
-				redirectexit();
+				Utils::redirectexit();
 			}
 
 			$prev_is_activated = Profile::$member->is_activated;

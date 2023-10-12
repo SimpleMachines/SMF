@@ -22,6 +22,7 @@ use SMF\Logging;
 use SMF\Msg;
 use SMF\Topic;
 use SMF\User;
+use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -133,23 +134,23 @@ class MsgDelete implements ActionInterface
 		// We want to redirect back to recent action.
 		if (isset($_REQUEST['modcenter']))
 		{
-			redirectexit('action=moderate;area=reportedposts;done');
+			Utils::redirectexit('action=moderate;area=reportedposts;done');
 		}
 		elseif (isset($_REQUEST['recent']))
 		{
-			redirectexit('action=recent');
+			Utils::redirectexit('action=recent');
 		}
 		elseif (isset($_REQUEST['profile'], $_REQUEST['start'], $_REQUEST['u']))
 		{
-			redirectexit('action=profile;u=' . $_REQUEST['u'] . ';area=showposts;start=' . $_REQUEST['start']);
+			Utils::redirectexit('action=profile;u=' . $_REQUEST['u'] . ';area=showposts;start=' . $_REQUEST['start']);
 		}
 		elseif ($full_topic)
 		{
-			redirectexit('board=' . Board::$info->id . '.0');
+			Utils::redirectexit('board=' . Board::$info->id . '.0');
 		}
 		else
 		{
-			redirectexit('topic=' . Topic::$topic_id . '.' . $_REQUEST['start']);
+			Utils::redirectexit('topic=' . Topic::$topic_id . '.' . $_REQUEST['start']);
 		}
 	}
 

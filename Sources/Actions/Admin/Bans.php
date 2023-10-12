@@ -813,19 +813,19 @@ class Bans implements ActionInterface
 		{
 			$this->saveTriggers($_POST['ban_suggestions'], $ban_group, 0, $ban_id);
 
-			redirectexit('action=admin;area=ban;sa=edit' . (!empty($ban_group) ? ';bg=' . $ban_group : ''));
+			Utils::redirectexit('action=admin;area=ban;sa=edit' . (!empty($ban_group) ? ';bg=' . $ban_group : ''));
 		}
 		elseif (isset($_POST['edit_trigger']) && !empty($_POST['ban_suggestions']))
 		{
 			$this->saveTriggers($_POST['ban_suggestions'], $ban_group, 0, $ban_id);
 
-			redirectexit('action=admin;area=ban;sa=edit' . (!empty($ban_group) ? ';bg=' . $ban_group : ''));
+			Utils::redirectexit('action=admin;area=ban;sa=edit' . (!empty($ban_group) ? ';bg=' . $ban_group : ''));
 		}
 		elseif (isset($_POST['edit_trigger']))
 		{
 			self::removeBanTriggers($ban_id);
 
-			redirectexit('action=admin;area=ban;sa=edit' . (!empty($ban_group) ? ';bg=' . $ban_group : ''));
+			Utils::redirectexit('action=admin;area=ban;sa=edit' . (!empty($ban_group) ? ';bg=' . $ban_group : ''));
 		}
 
 		Theme::loadJavaScriptFile('suggest.js', array('minimize' => true), 'smf_suggest');
@@ -1749,7 +1749,7 @@ class Bans implements ActionInterface
 
 		// Update the member table to represent the new ban situation.
 		self::updateBanMembers();
-		redirectexit('action=admin;area=ban;sa=edit;bg=' . $ban_group_id);
+		Utils::redirectexit('action=admin;area=ban;sa=edit;bg=' . $ban_group_id);
 	}
 
 	/**

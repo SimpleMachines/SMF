@@ -231,7 +231,7 @@ class Home implements ActionInterface
 			$_SESSION['rc_confirmation'] = 'message_saved';
 
 			// Redirect otherwise people can resubmit.
-			redirectexit('action=moderate');
+			Utils::redirectexit('action=moderate');
 		}
 
 		// Bye... bye...
@@ -280,7 +280,7 @@ class Home implements ActionInterface
 			// Tell them the message was deleted.
 			$_SESSION['rc_confirmation'] = 'message_deleted';
 
-			redirectexit('action=moderate');
+			Utils::redirectexit('action=moderate');
 		}
 
 		// How many notes in total?

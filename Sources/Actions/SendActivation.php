@@ -72,7 +72,7 @@ class SendActivation implements ActionInterface
 		Utils::$context['description'] = Lang::$txt['activate_changed_email_desc'];
 
 		// Aaand we're gone!
-		obExit();
+		Utils::obExit();
 	}
 
 	/***********************

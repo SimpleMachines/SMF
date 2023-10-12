@@ -222,7 +222,7 @@ class TopicSplit implements ActionInterface
 		// Redirect to the selector if they chose selective.
 		if ($_POST['step2'] == 'selective')
 		{
-			redirectexit ('action=splittopics;sa=selectTopics;subname=' . $_POST['subname'] . ';topic=' . Topic::$topic_id . '.0;start2=0');
+			Utils::redirectexit ('action=splittopics;sa=selectTopics;subname=' . $_POST['subname'] . ';topic=' . Topic::$topic_id . '.0;start2=0');
 		}
 
 		$_POST['at'] = (int) $_POST['at'];

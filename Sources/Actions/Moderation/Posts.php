@@ -741,7 +741,7 @@ class Posts implements ActionInterface
 			}
 		}
 
-		redirectexit('topic=' . Topic::$topic_id . '.msg' . $_REQUEST['msg'] . '#msg' . $_REQUEST['msg']);
+		Utils::redirectexit('topic=' . Topic::$topic_id . '.msg' . $_REQUEST['msg'] . '#msg' . $_REQUEST['msg']);
 	}
 
 	/***********************

@@ -140,7 +140,7 @@ class Search implements ActionInterface
 			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
 
-			redirectexit('action=admin;area=managesearch;sa=settings;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+			Utils::redirectexit('action=admin;area=managesearch;sa=settings;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 		}
 
 		// Prep the template!
@@ -269,7 +269,7 @@ class Search implements ActionInterface
 				);
 			}
 
-			redirectexit('action=admin;area=managesearch;sa=method');
+			Utils::redirectexit('action=admin;area=managesearch;sa=method');
 		}
 		elseif (!empty($_REQUEST['sa']) && $_REQUEST['sa'] == 'removefulltext' && !empty(Utils::$context['fulltext_index']))
 		{
@@ -305,7 +305,7 @@ class Search implements ActionInterface
 				));
 			}
 
-			redirectexit('action=admin;area=managesearch;sa=method');
+			Utils::redirectexit('action=admin;area=managesearch;sa=method');
 		}
 		elseif (!empty($_REQUEST['sa']) && $_REQUEST['sa'] == 'removecustom')
 		{
@@ -336,7 +336,7 @@ class Search implements ActionInterface
 				));
 			}
 
-			redirectexit('action=admin;area=managesearch;sa=method');
+			Utils::redirectexit('action=admin;area=managesearch;sa=method');
 		}
 		elseif (isset($_POST['save']))
 		{
@@ -349,7 +349,7 @@ class Search implements ActionInterface
 				'search_match_words' => isset($_POST['search_match_words']) ? '1' : '0',
 			));
 
-			redirectexit('action=admin;area=managesearch;sa=method');
+			Utils::redirectexit('action=admin;area=managesearch;sa=method');
 		}
 
 		Utils::$context['table_info'] = array(

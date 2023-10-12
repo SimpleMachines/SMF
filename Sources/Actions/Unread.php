@@ -297,7 +297,7 @@ class Unread implements ActionInterface
 		if (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch')
 		{
 			ob_end_clean();
-			send_http_status(403);
+			Utils::sendHttpStatus(403);
 			die;
 		}
 

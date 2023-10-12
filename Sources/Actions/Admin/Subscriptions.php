@@ -602,7 +602,7 @@ class Subscriptions implements ActionInterface
 
 			call_integration_hook('integrate_delete_subscription', array(Utils::$context['sub_id']));
 
-			redirectexit('action=admin;area=paidsubscribe;view');
+			Utils::redirectexit('action=admin;area=paidsubscribe;view');
 		}
 
 		// Saving?
@@ -752,7 +752,7 @@ class Subscriptions implements ActionInterface
 
 			call_integration_hook('integrate_save_subscription', array((Utils::$context['action_type'] == 'add' ? $id_subscribe : Utils::$context['sub_id']), $_POST['name'], $_POST['desc'], $isActive, $span, $cost, $_POST['prim_group'], $addgroups, $isRepeatable, $allowpartial, $emailComplete, $reminder));
 
-			redirectexit('action=admin;area=paidsubscribe;view');
+			Utils::redirectexit('action=admin;area=paidsubscribe;view');
 		}
 
 		// Defaults.
@@ -1030,7 +1030,7 @@ class Subscriptions implements ActionInterface
 			}
 
 			// Done - redirect...
-			redirectexit('action=admin;area=paidsubscribe;sa=viewsub;sid=' . Utils::$context['sub_id']);
+			Utils::redirectexit('action=admin;area=paidsubscribe;sa=viewsub;sid=' . Utils::$context['sub_id']);
 		}
 		// Deleting?
 		elseif (isset($_REQUEST['delete']) || isset($_REQUEST['finished']))
@@ -1059,7 +1059,7 @@ class Subscriptions implements ActionInterface
 				}
 				Db::$db->free_result($request);
 			}
-			redirectexit('action=admin;area=paidsubscribe;sa=viewsub;sid=' . Utils::$context['sub_id']);
+			Utils::redirectexit('action=admin;area=paidsubscribe;sa=viewsub;sid=' . Utils::$context['sub_id']);
 		}
 
 		// Default attributes.
@@ -1196,7 +1196,7 @@ class Subscriptions implements ActionInterface
 							);
 
 							// Reload
-							redirectexit('action=admin;area=paidsubscribe;sa=modifyuser;lid=' . Utils::$context['log_id']);
+							Utils::redirectexit('action=admin;area=paidsubscribe;sa=modifyuser;lid=' . Utils::$context['log_id']);
 						}
 					}
 				}
@@ -1348,7 +1348,7 @@ class Subscriptions implements ActionInterface
 			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
 
-			redirectexit('action=admin;area=paidsubscribe;sa=settings');
+			Utils::redirectexit('action=admin;area=paidsubscribe;sa=settings');
 		}
 
 		// Prepare the settings...

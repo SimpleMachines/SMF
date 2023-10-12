@@ -59,6 +59,8 @@ class Utils
 			'randomInt' => false,
 			'randomBytes' => false,
 			'emitFile' => false,
+			'sendHttpStatus' => 'send_http_status',
+			'serverResponse' => 'smf_serverResponse',
 		),
 		'prop_names' => array(
 			'context' => 'context',
@@ -1163,7 +1165,7 @@ class Utils
 			$range_end = !$range_end ? $file['size'] - 1 : intval($range_end);
 			$length = $range_end - $range + 1;
 
-			send_http_status(206);
+			self::sendHttpStatus(206);
 			header('Content-Length: ' . $length);
 			header('Content-Range: bytes ' . $range . '-' . $range_end . '/' . $file['size']);
 		}
@@ -1240,6 +1242,285 @@ class Utils
 		}
 
 		die();
+	}
+
+	/**
+	 * Sends an appropriate HTTP status header based on a given status code.
+	 *
+	 * @param int $code The status code.
+	 * @param string $status The status message. Set automatically if empty.
+	 */
+	public static function sendHttpStatus(int $code, string $status = ''): void
+	{
+		// This will fail anyways if headers have been sent.
+		if (headers_sent())
+			return;
+
+		$statuses = array(
+			204 => 'No Content',
+			206 => 'Partial Content',
+			304 => 'Not Modified',
+			400 => 'Bad Request',
+			403 => 'Forbidden',
+			404 => 'Not Found',
+			410 => 'Gone',
+			500 => 'Internal Server Error',
+			503 => 'Service Unavailable',
+		);
+
+		$protocol = !empty($_SERVER['SERVER_PROTOCOL']) && preg_match('~^\s*(HTTP/[12]\.\d)\s*$~i', $_SERVER['SERVER_PROTOCOL'], $matches) ? $matches[1] : 'HTTP/1.0';
+
+		// Typically during these requests, we have cleaned the response (ob_*clean), ensure these headers exist.
+		Security::frameOptionsHeader();
+		Security::corsPolicyHeader();
+
+		if (!isset($statuses[$code]))
+		{
+			header($protocol . ' 500 Internal Server Error');
+		}
+		else
+		{
+			header($protocol . ' ' . $code . ' ' . (!empty($status) ? $status : $statuses[$code]));
+		}
+	}
+
+	/**
+	 * Outputs a response.
+	 * It assumes the data is already a string.
+	 *
+	 * @param string $data The data to print
+	 * @param string $type The content type. Defaults to JSON.
+	 * @return void
+	 */
+	public static function serverResponse($data = '', $type = 'Content-Type: application/json')
+	{
+		// Defensive programming anyone?
+		if (empty($data))
+			return false;
+
+		// Don't need extra stuff...
+		Config::$db_show_debug = false;
+
+		// Kill anything else.
+		ob_end_clean();
+
+		if (!empty(Config::$modSettings['enableCompressedOutput']))
+		{
+			@ob_start('ob_gzhandler');
+		}
+		else
+		{
+			ob_start();
+		}
+
+		// Set the header.
+		header($type);
+
+		// Echo!
+		echo $data;
+
+		// Done.
+		self::obExit(false);
+	}
+
+	/**
+	 * Make sure the browser doesn't come back and repost the form data.
+	 * Should be used whenever anything is posted.
+	 *
+	 * @param string $setLocation The URL to redirect them to
+	 * @param bool $refresh Whether to use a meta refresh instead
+	 * @param bool $permanent Whether to send a 301 Moved Permanently instead of a 302 Moved Temporarily
+	 */
+	public static function redirectexit(string $setLocation = '', bool $refresh = false, bool $permanent = false): void
+	{
+		// In case we have mail to send, better do that - as obExit doesn't always quite make it...
+		// @todo this relies on 'flush_mail' being only set in Mail::addToQueue itself... :\
+		if (!empty(Utils::$context['flush_mail']))
+			Mail::addToQueue(true);
+
+		$add = preg_match('~^(ftp|http)s?://~', $setLocation) == 0 && substr($setLocation, 0, 6) != 'about:';
+
+		if ($add)
+			$setLocation = Config::$scripturl . ($setLocation != '' ? '?' . $setLocation : '');
+
+		// Put the session ID in.
+		if (defined('SID') && SID != '')
+		{
+			$setLocation = preg_replace('/^' . preg_quote(Config::$scripturl, '/') . '(?!\?' . preg_quote(SID, '/') . ')\\??/', Config::$scripturl . '?' . SID . ';', $setLocation);
+		}
+		// Keep that debug in their for template debugging!
+		elseif (isset($_GET['debug']))
+		{
+			$setLocation = preg_replace('/^' . preg_quote(Config::$scripturl, '/') . '\\??/', Config::$scripturl . '?debug;', $setLocation);
+		}
+
+		if (
+			!empty(Config::$modSettings['queryless_urls'])
+			&& (
+				empty(Utils::$context['server']['is_cgi'])
+				|| ini_get('cgi.fix_pathinfo') == 1
+				|| @get_cfg_var('cgi.fix_pathinfo') == 1
+			)
+			&& (
+				!empty(Utils::$context['server']['is_apache'])
+				|| !empty(Utils::$context['server']['is_lighttpd'])
+				|| !empty(Utils::$context['server']['is_litespeed'])
+			)
+		)
+		{
+			if (defined('SID') && SID != '')
+			{
+				$setLocation = preg_replace_callback(
+					'~^' . preg_quote(Config::$scripturl, '~') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~',
+					function($m)
+					{
+						return Config::$scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html?' . SID . (isset($m[2]) ? "$m[2]" : "");
+					},
+					$setLocation
+				);
+			}
+			else
+			{
+				$setLocation = preg_replace_callback(
+					'~^' . preg_quote(Config::$scripturl, '~') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?$~',
+					function($m)
+					{
+						return Config::$scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? "$m[2]" : "");
+					},
+					$setLocation
+				);
+			}
+		}
+
+		// Maybe integrations want to change where we are heading?
+		call_integration_hook('integrate_redirect', array(&$setLocation, &$refresh, &$permanent));
+
+		// Set the header.
+		header('location: ' . str_replace(' ', '%20', $setLocation), true, $permanent ? 301 : 302);
+
+		// Debugging.
+		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true)
+			$_SESSION['debug_redirect'] = Db::$cache;
+
+		self::obExit(false);
+	}
+
+	/**
+	 * Ends execution.  Takes care of template loading and remembering the previous URL.
+	 *
+	 * @param bool $header Whether to do the header
+	 * @param bool $do_footer Whether to do the footer
+	 * @param bool $from_index Whether we're coming from the board index
+	 * @param bool $from_fatal_error Whether we're coming from a fatal error
+	 */
+	public static function obExit(bool $header = null, bool $do_footer = null, bool $from_index = false, bool $from_fatal_error = false): void
+	{
+		static $header_done = false, $footer_done = false, $level = 0, $has_fatal_error = false;
+
+		// Attempt to prevent a recursive loop.
+		++$level;
+
+		if ($level > 1 && !$from_fatal_error && !$has_fatal_error)
+			exit;
+
+		if ($from_fatal_error)
+			$has_fatal_error = true;
+
+		// Clear out the stat cache.
+		Logging::trackStats();
+
+		// If we have mail to send, send it.
+		// @todo this relies on 'flush_mail' being only set in Mail::addToQueue itself... :\
+		if (!empty(Utils::$context['flush_mail']))
+			Mail::addToQueue(true);
+
+		$do_header = $header === null ? !$header_done : $header;
+
+		if ($do_footer === null)
+			$do_footer = $do_header;
+
+		// Has the template/header been done yet?
+		if ($do_header)
+		{
+			// Was the page title set last minute? Also update the HTML safe one.
+			if (!empty(Utils::$context['page_title']) && empty(Utils::$context['page_title_html_safe']))
+			{
+				Utils::$context['page_title_html_safe'] = Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title'])) . (!empty(Utils::$context['current_page']) ? ' - ' . Lang::$txt['page'] . ' ' . (Utils::$context['current_page'] + 1) : '');
+			}
+
+			// Start up the session URL fixer.
+			ob_start('SMF\\QueryString::ob_sessrewrite');
+
+			if (!empty(Theme::$current->settings['output_buffers']) && is_string(Theme::$current->settings['output_buffers']))
+			{
+				$buffers = explode(',', Theme::$current->settings['output_buffers']);
+			}
+			elseif (!empty(Theme::$current->settings['output_buffers']))
+			{
+				$buffers = Theme::$current->settings['output_buffers'];
+			}
+			else
+			{
+				$buffers = array();
+			}
+
+			if (isset(Config::$modSettings['integrate_buffer']))
+			{
+				$buffers = array_merge(explode(',', Config::$modSettings['integrate_buffer']), $buffers);
+			}
+
+			if (!empty($buffers))
+			{
+				foreach ($buffers as $function)
+				{
+					$call = call_helper($function, true);
+
+					// Is it valid?
+					if (!empty($call))
+						ob_start($call);
+				}
+			}
+
+			// Display the screen in the logical order.
+			Theme::template_header();
+			$header_done = true;
+		}
+
+		if ($do_footer)
+		{
+			Theme::loadSubTemplate(isset(Utils::$context['sub_template']) ? Utils::$context['sub_template'] : 'main');
+
+			// Anything special to put out?
+			if (!empty(Utils::$context['insert_after_template']) && !isset($_REQUEST['xml']))
+			{
+				echo Utils::$context['insert_after_template'];
+			}
+
+			// Just so we don't get caught in an endless loop of errors from the footer...
+			if (!$footer_done)
+			{
+				$footer_done = true;
+				Theme::template_footer();
+
+				// (since this is just debugging... it's okay that it's after </html>.)
+				if (!isset($_REQUEST['xml']))
+					Logging::displayDebug();
+			}
+		}
+
+		// Remember this URL in case someone doesn't like sending HTTP_REFERER.
+		if (!is_filtered_request(Forum::$unlogged_actions, 'action'))
+			$_SESSION['old_url'] = $_SERVER['REQUEST_URL'];
+
+		// For session check verification.... don't switch browsers...
+		$_SESSION['USER_AGENT'] = empty($_SERVER['HTTP_USER_AGENT']) ? '' : $_SERVER['HTTP_USER_AGENT'];
+
+		// Hand off the output to the portal, etc. we're integrated with.
+		call_integration_hook('integrate_exit', array($do_footer));
+
+		// Don't exit if we're coming from index.php; that will pass through normally.
+		if (!$from_index)
+			exit;
 	}
 
 	/*************************

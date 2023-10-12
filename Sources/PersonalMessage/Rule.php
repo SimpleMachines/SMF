@@ -487,7 +487,7 @@ class Rule implements \ArrayAccess
 			Security::spamProtection('pm');
 
 			self::apply(true);
-			redirectexit('action=pm;sa=manrules');
+			Utils::redirectexit('action=pm;sa=manrules');
 		}
 
 		// Editing a specific one?
@@ -667,7 +667,7 @@ class Rule implements \ArrayAccess
 
 			$rule->save();
 
-			redirectexit('action=pm;sa=manrules');
+			Utils::redirectexit('action=pm;sa=manrules');
 		}
 		// Deleting?
 		elseif (isset($_POST['delselected']) && !empty($_POST['delrule']))
@@ -676,7 +676,7 @@ class Rule implements \ArrayAccess
 
 			self::delete(array_keys($_POST['delrule']));
 
-			redirectexit('action=pm;sa=manrules');
+			Utils::redirectexit('action=pm;sa=manrules');
 		}
 	}
 

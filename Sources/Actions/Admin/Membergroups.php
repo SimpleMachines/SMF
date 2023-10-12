@@ -560,7 +560,7 @@ class Membergroups implements ActionInterface
 			Logging::logAction('add_group', array('group' => Utils::htmlspecialchars($_POST['group_name'])), 'admin');
 
 			// Go change some more settings.
-			redirectexit('action=admin;area=membergroups;sa=edit;group=' . $id_group);
+			Utils::redirectexit('action=admin;area=membergroups;sa=edit;group=' . $id_group);
 		}
 
 		// Just show the 'add membergroup' screen.
@@ -699,7 +699,7 @@ class Membergroups implements ActionInterface
 			if ($result === 'group_cannot_delete_sub')
 				ErrorHandler::fatalLang('membergroups_cannot_delete_paid', false);
 
-			redirectexit('action=admin;area=membergroups;');
+			Utils::redirectexit('action=admin;area=membergroups;');
 		}
 		// A form was submitted with the new membergroup settings.
 		elseif (isset($_POST['save']))
@@ -792,7 +792,7 @@ class Membergroups implements ActionInterface
 				Config::updateModSettings(array('show_group_membership' => $have_joinable ? 1 : 0));
 			}
 
-			redirectexit('action=admin;area=membergroups');
+			Utils::redirectexit('action=admin;area=membergroups');
 		}
 
 		// Fetch the current group information.
@@ -937,7 +937,7 @@ class Membergroups implements ActionInterface
 			ACP::saveDBSettings($config_vars);
 
 			$_SESSION['adm-save'] = true;
-			redirectexit('action=admin;area=membergroups;sa=settings');
+			Utils::redirectexit('action=admin;area=membergroups;sa=settings');
 		}
 
 		// Some simple context.

@@ -16,6 +16,8 @@ namespace SMF\Actions\Moderation;
 use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
+use SMF\Utils;
+
 /**
  * Ends a moderator session, requiring authentication to access the moderation
  * center again.
@@ -67,7 +69,7 @@ class EndSession implements ActionInterface
 				unset($_SESSION['token'][$key]);
 		}
 
-		redirectexit();
+		Utils::redirectexit();
 	}
 
 	/***********************

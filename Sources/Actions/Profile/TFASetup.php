@@ -79,7 +79,7 @@ class TFASetup implements ActionInterface
 	{
 		// Users have to do this for themselves, and can't do it again if they already did.
 		if (!User::$me->is_owner || !empty(User::$me->tfa_secret))
-			redirectexit('action=profile;area=account;u=' . Profile::$member->id);
+			Utils::redirectexit('action=profile;area=account;u=' . Profile::$member->id);
 
 		// Load JS lib for QR
 		Theme::loadJavaScriptFile('qrcode.js', array('force_current' => false, 'validate' => true));

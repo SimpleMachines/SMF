@@ -18,6 +18,7 @@ use SMF\BackwardCompatibility;
 use SMF\Attachment;
 use SMF\ErrorHandler;
 use SMF\User;
+use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -145,7 +146,7 @@ class AttachmentApprove implements ActionInterface
 		}
 
 		// Return to the topic....
-		redirectexit($redirect);
+		Utils::redirectexit($redirect);
 	}
 
 	/***********************

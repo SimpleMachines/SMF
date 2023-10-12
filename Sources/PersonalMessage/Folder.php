@@ -267,7 +267,7 @@ class Folder
 
 		// Remove 'view' from the query string so that refreshing the browser
 		// doesn't cause the view to change again.
-		redirectexit(preg_replace('/\bview;\b/', '', $_SERVER['QUERY_STRING']));
+		Utils::redirectexit(preg_replace('/\bview;\b/', '', $_SERVER['QUERY_STRING']));
 	}
 
 	/**

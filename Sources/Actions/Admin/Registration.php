@@ -455,7 +455,7 @@ class Registration implements ActionInterface
 
 			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
-			redirectexit('action=admin;area=regcenter;sa=settings');
+			Utils::redirectexit('action=admin;area=regcenter;sa=settings');
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=regcenter;save;sa=settings';

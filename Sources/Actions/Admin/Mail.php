@@ -286,7 +286,7 @@ class Mail implements ActionInterface
 			call_integration_hook('integrate_save_mail_settings');
 
 			ACP::saveDBSettings($config_vars);
-			redirectexit('action=admin;area=mailqueue;sa=settings');
+			Utils::redirectexit('action=admin;area=mailqueue;sa=settings');
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=mailqueue;save;sa=settings';
@@ -379,7 +379,7 @@ class Mail implements ActionInterface
 			$message = Utils::htmlspecialchars($_POST['message']);
 
 			$result = \SMF\Mail::send($to, $subject, $message, null, null, false, 0);
-			redirectexit(Utils::$context['base_url'] . ';result=' . ($result ? 'success' : 'failure'));
+			Utils::redirectexit(Utils::$context['base_url'] . ';result=' . ($result ? 'success' : 'failure'));
 		}
 
 		// The result.
@@ -669,7 +669,7 @@ class Mail implements ActionInterface
 		// Never more than 100%!
 		Utils::$context['continue_percent'] = min(Utils::$context['continue_percent'], 100);
 
-		obExit();
+		Utils::obExit();
 	}
 }
 

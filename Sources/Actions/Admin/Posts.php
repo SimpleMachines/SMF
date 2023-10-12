@@ -244,7 +244,7 @@ class Posts implements ActionInterface
 
 			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
-			redirectexit('action=admin;area=postsettings;sa=posts');
+			Utils::redirectexit('action=admin;area=postsettings;sa=posts');
 		}
 
 		// Final settings...
@@ -276,7 +276,7 @@ class Posts implements ActionInterface
 
 			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
-			redirectexit('action=admin;area=postsettings;sa=topics');
+			Utils::redirectexit('action=admin;area=postsettings;sa=topics');
 		}
 
 		// Final settings...
@@ -324,7 +324,7 @@ class Posts implements ActionInterface
 			// Save everything else and leave.
 			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
-			redirectexit('action=admin;area=postsettings;sa=drafts');
+			Utils::redirectexit('action=admin;area=postsettings;sa=drafts');
 		}
 
 		// Some JavaScript to enable / disable the frequency input box.

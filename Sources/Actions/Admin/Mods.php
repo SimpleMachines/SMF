@@ -133,7 +133,7 @@ class Mods implements ActionInterface
 			$_SESSION['adm-save'] = true;
 
 			// This line is to help mod authors do a search/add after if you want to add something here. Keyword: I LOVE TEA!
-			redirectexit('action=admin;area=modsettings;sa=general');
+			Utils::redirectexit('action=admin;area=modsettings;sa=general');
 		}
 
 		// This line is to help mod authors do a search/add after if you want to add something here. Keyword: RED INK IS FOR TEACHERS AND THOSE WHO LIKE PAIN!

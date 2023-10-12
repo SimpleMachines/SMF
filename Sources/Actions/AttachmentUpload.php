@@ -591,7 +591,7 @@ class AttachmentUpload implements ActionInterface
 		echo Utils::jsonEncode($this->_response ? $this->_response : array());
 
 		// Done.
-		obExit(false);
+		Utils::obExit(false);
 		die;
 	}
 }
