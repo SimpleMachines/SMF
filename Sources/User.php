@@ -2908,11 +2908,11 @@ class User implements \ArrayAccess
 		{
 			if (!empty(Config::$modSettings['gravatarAllowExtraEmail']) && !empty($data['avatar']) && stristr($data['avatar'], 'gravatar://'))
 			{
-				$image = get_gravatar_url(Utils::entitySubstr($data['avatar'], 11));
+				$image = self::getGravatarUrl(Utils::entitySubstr($data['avatar'], 11));
 			}
 			elseif (!empty($data['email']))
 			{
-				$image = get_gravatar_url($data['email']);
+				$image = self::getGravatarUrl($data['email']);
 			}
 		}
 		// Look if the user has a gravatar field or has set an external url as avatar.
@@ -2926,11 +2926,11 @@ class User implements \ArrayAccess
 				{
 					if ($data['avatar'] == 'gravatar://')
 					{
-						$image = get_gravatar_url($data['email']);
+						$image = self::getGravatarUrl($data['email']);
 					}
 					elseif (!empty(Config::$modSettings['gravatarAllowExtraEmail']))
 					{
-						$image = get_gravatar_url(Utils::entitySubstr($data['avatar'], 11));
+						$image = self::getGravatarUrl(Utils::entitySubstr($data['avatar'], 11));
 					}
 				}
 				// External url.
@@ -5701,6 +5701,59 @@ class User implements \ArrayAccess
 		Db::$db->free_result($request);
 	}
 
+	/**
+	 * Return a Gravatar URL based on
+	 * - the supplied email address,
+	 * - the global maximum rating,
+	 * - the global default fallback,
+	 * - maximum sizes as set in the admin panel.
+	 *
+	 * It is SSL aware, and caches most of the parameters.
+	 *
+	 * @param string $email_address The user's email address
+	 * @return string The gravatar URL
+	 */
+	protected static function getGravatarUrl(string $email_address): string
+	{
+		static $url_params = null;
+
+		if ($url_params === null)
+		{
+			$ratings = array('G', 'PG', 'R', 'X');
+			$defaults = array('mm', 'identicon', 'monsterid', 'wavatar', 'retro', 'blank');
+
+			$url_params = array();
+
+			if (!empty(Config::$modSettings['gravatarMaxRating']) && in_array(Config::$modSettings['gravatarMaxRating'], $ratings))
+			{
+				$url_params[] = 'rating=' . Config::$modSettings['gravatarMaxRating'];
+			}
+
+			if (!empty(Config::$modSettings['gravatarDefault']) && in_array(Config::$modSettings['gravatarDefault'], $defaults))
+			{
+				$url_params[] = 'default=' . Config::$modSettings['gravatarDefault'];
+			}
+
+			if (!empty(Config::$modSettings['avatar_max_width_external']))
+			{
+				$size_string = (int) Config::$modSettings['avatar_max_width_external'];
+			}
+
+			if (
+				!empty(Config::$modSettings['avatar_max_height_external'])
+				&& !empty($size_string)
+				&& (int) Config::$modSettings['avatar_max_height_external'] < $size_string
+			)
+			{
+					$size_string = Config::$modSettings['avatar_max_height_external'];
+			}
+
+			if (!empty($size_string))
+				$url_params[] = 's=' . $size_string;
+		}
+
+		return 'https://secure.gravatar.com/avatar/' . md5(Utils::strtolower($email_address)) . '?' . implode('&', $url_params);
+	}
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.

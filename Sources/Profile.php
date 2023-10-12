@@ -1273,7 +1273,7 @@ class Profile extends User implements \ArrayAccess
 				'server_pic' => 'blank.png',
 				'external' => $this->avatar['url'] == 'gravatar://' || empty(Config::$modSettings['gravatarAllowExtraEmail']) || (!empty(Config::$modSettings['gravatarOverride']) && substr($this->avatar['url'], 0, 11) != 'gravatar://') ? $this->email : substr($this->avatar['url'], 11)
 			);
-			$this->formatted['avatar']['href'] = get_gravatar_url($this->formatted['avatar']['external']);
+			$this->formatted['avatar']['href'] = self::getGravatarUrl($this->formatted['avatar']['external']);
 		}
 		// An attachment?
 		elseif (
