@@ -147,7 +147,7 @@ class DraftPM extends Draft
 			if (empty($row['subject']))
 				$row['subject'] = Lang::$txt['drafts_none'];
 
-			$tmp_subject = shorten_subject(stripslashes($row['subject']), 24);
+			$tmp_subject = Utils::shorten(stripslashes($row['subject']), 24);
 
 			Utils::$context['drafts'][] = array(
 				'subject' => Lang::censorText($tmp_subject),

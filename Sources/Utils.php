@@ -42,6 +42,7 @@ class Utils
 			'entityStrpos' => false,
 			'entitySubstr' => false,
 			'truncate' => false,
+			'shorten' => 'shorten_subject',
 			'normalize' => false,
 			'convertCase' => false,
 			'strtoupper' => false,
@@ -681,6 +682,25 @@ class Utils
 		}
 
 		return $string;
+	}
+
+	/**
+	 * Like Utils::entitySubstr(), except that this also appends an ellipsis
+	 * to the returned string to indicate that it was truncated (unless it
+	 * wasn't truncated because it was already short enough).
+	 *
+	 * @param string $subject The string.
+	 * @param int $len How many characters to limit it to.
+	 * @return string The shortened string.
+	 */
+	public static function shorten(string $subject, int $len): string
+	{
+		// It was already short enough!
+		if (self::entityStrlen($subject) <= $len)
+			return $subject;
+
+		// Truncate it and append an ellipsis.
+		return self::entitySubstr($subject, 0, $len) . '...';
 	}
 
 	/**

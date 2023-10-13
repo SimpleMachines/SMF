@@ -471,7 +471,7 @@ class BoardIndex implements ActionInterface
 					'type' => $row_board['is_redirect'] ? 'redirect' : 'board',
 					'name' => $row_board['board_name'],
 					'description' => $row_board['description'],
-					'short_description' => shorten_subject($row_board['description'], 128),
+					'short_description' => Utils::shorten($row_board['description'], 128),
 					'link_moderators' => array(),
 					'link_moderator_groups' => array(),
 					'parent' => $row_board['id_parent'],
@@ -778,7 +778,7 @@ class BoardIndex implements ActionInterface
 		}
 
 		Lang::censorText($row_board['subject']);
-		$short_subject = shorten_subject($row_board['subject'], 24);
+		$short_subject = Utils::shorten($row_board['subject'], 24);
 
 		$msg = new Msg($row_board['id_msg'], array(
 			'id_topic' => $row_board['id_topic'],

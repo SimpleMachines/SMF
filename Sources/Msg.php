@@ -484,7 +484,7 @@ class Msg implements \ArrayAccess
 		// Make a short version of the subject?
 		if (!empty($format_options['shorten_subject']))
 		{
-			$this->formatted['short_subject'] = shorten_subject($this->formatted['subject'], $format_options['shorten_subject']);
+			$this->formatted['short_subject'] = Utils::shorten($this->formatted['subject'], $format_options['shorten_subject']);
 		}
 
 		// Are likes enabled?
