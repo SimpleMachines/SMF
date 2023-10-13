@@ -388,7 +388,7 @@ class Draft
 			if (empty($row['subject']))
 				$row['subject'] = Lang::$txt['no_subject'];
 
-			$tmp_subject = shorten_subject(stripslashes($row['subject']), 24);
+			$tmp_subject = Utils::shorten(stripslashes($row['subject']), 24);
 
 			Utils::$context['drafts'][] = array(
 				'subject' => Lang::censorText($tmp_subject),

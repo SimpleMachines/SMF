@@ -50,28 +50,6 @@ class_exists('SMF\\User');
 class_exists('SMF\\Utils');
 
 /**
- * Shorten a subject + internationalization concerns.
- *
- * - shortens a subject so that it is either shorter than length, or that length plus an ellipsis.
- * - respects internationalization characters and entities as one character.
- * - avoids trailing entities.
- * - returns the shortened string.
- *
- * @param string $subject The subject
- * @param int $len How many characters to limit it to
- * @return string The shortened subject - either the entire subject (if it's <= $len) or the subject shortened to $len characters with "..." appended
- */
-function shorten_subject($subject, $len)
-{
-	// It was already short enough!
-	if (Utils::entityStrlen((string) $subject) <= (int) $len)
-		return $subject;
-
-	// Shorten it by the length it was too long, and strip off junk from the end.
-	return Utils::entitySubstr((string) $subject, 0, (int) $len) . '...';
-}
-
-/**
  * Calculates all the possible permutations (orders) of array.
  * should not be called on huge arrays (bigger than like 10 elements.)
  * returns an array containing each permutation.

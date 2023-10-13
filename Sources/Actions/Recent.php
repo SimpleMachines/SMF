@@ -221,7 +221,7 @@ class Recent implements ActionInterface
 		return array(
 			'topic' => $row['id_topic'],
 			'subject' => $row['subject'],
-			'short_subject' => shorten_subject($row['subject'], 24),
+			'short_subject' => Utils::shorten($row['subject'], 24),
 			'preview' => $row['body'],
 			'time' => Time::create('@' . $row['poster_time'])->format(),
 			'timestamp' => $row['poster_time'],
