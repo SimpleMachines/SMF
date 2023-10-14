@@ -17,6 +17,7 @@ use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\TaskRunner;
+use SMF\Utils;
 use SMF\DatabaseApi as Db;
 use SMF\WebFetch\WebFetchApi;
 
@@ -443,7 +444,7 @@ class UpdateUnicode extends BackgroundTask
 			if (!file_exists($file_paths['final']))
 				touch($file_paths['final']);
 
-			if (!is_file($file_paths['final']) || !smf_chmod($file_paths['final']))
+			if (!is_file($file_paths['final']) || !Utils::makeWritable($file_paths['final']))
 			{
 				Lang::load('Errors');
 				ErrorHandler::log(sprintf(Lang::$txt['unicode_update_failed'], $this->unicodedir));
@@ -455,7 +456,7 @@ class UpdateUnicode extends BackgroundTask
 			if (!file_exists($file_paths['temp']))
 				touch($file_paths['temp']);
 
-			if (!is_file($file_paths['temp']) || !smf_chmod($file_paths['temp']))
+			if (!is_file($file_paths['temp']) || !Utils::makeWritable($file_paths['temp']))
 			{
 				Lang::load('Errors');
 				ErrorHandler::log(sprintf(Lang::$txt['unicode_update_failed'], $this->temp_dir));
@@ -608,7 +609,7 @@ class UpdateUnicode extends BackgroundTask
 				@mkdir($this->temp_dir);
 
 			// Needs to be a writable directory.
-			if (!is_dir($this->temp_dir) || !smf_chmod($this->temp_dir))
+			if (!is_dir($this->temp_dir) || !Utils::makeWritable($this->temp_dir))
 				$this->temp_dir = null;
 		}
 	}

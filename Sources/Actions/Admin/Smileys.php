@@ -696,7 +696,7 @@ class Smileys implements ActionInterface
 					{
 						copy(self::$smileys_dir . '/' . $pathinfo['dirname'] . '/' . $pathinfo['basename'], self::$smileys_dir . '/' . $set . '/' . $pathinfo['basename']);
 
-						smf_chmod(self::$smileys_dir . '/' . $set . '/' . $pathinfo['basename'], 0644);
+						Utils::makeWritable(self::$smileys_dir . '/' . $set . '/' . $pathinfo['basename'], 0644);
 
 						$basename = $pathinfo['basename'];
 					}
@@ -2624,7 +2624,7 @@ class Smileys implements ActionInterface
 						// Copy the file into the set's folder
 						copy(self::$smileys_dir . '/' . $p . '/' . $smiley_files[$key], self::$smileys_dir . '/' . $set . '/' . $smiley_files[$key]);
 
-						smf_chmod(self::$smileys_dir . '/' . $set . '/' . $smiley_files[$key], 0644);
+						Utils::makeWritable(self::$smileys_dir . '/' . $set . '/' . $smiley_files[$key], 0644);
 					}
 
 					// Double-check that everything went as expected
@@ -2703,7 +2703,7 @@ class Smileys implements ActionInterface
 					{
 						copy(self::$smileys_dir . '/' . $smileyPath . '/' . $smiley_file, self::$smileys_dir . '/' . $set . '/' . $smiley_file);
 
-						smf_chmod(self::$smileys_dir . '/' . $set . '/' . $smiley_file, 0644);
+						Utils::makeWritable(self::$smileys_dir . '/' . $set . '/' . $smiley_file, 0644);
 
 						$basename = $smiley_file;
 					}
@@ -2842,7 +2842,7 @@ class Smileys implements ActionInterface
 				if (!file_exists($destination))
 					ErrorHandler::fatalLang('smiley_not_found', false);
 
-				smf_chmod($destination, 0644);
+				Utils::makeWritable($destination, 0644);
 
 				$source_file = $destination;
 

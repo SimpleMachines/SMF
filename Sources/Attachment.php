@@ -872,7 +872,7 @@ class Attachment implements \ArrayAccess
 		}
 
 		// Check if the dir is writable.
-		if (!smf_chmod($directory))
+		if (!Utils::makeWritable($directory))
 		{
 			Utils::$context['dir_creation_error'] = 'attachments_no_write';
 			return false;
@@ -1133,7 +1133,7 @@ class Attachment implements \ArrayAccess
 				// Move the file to the attachments folder with a temp name for now.
 				if (@move_uploaded_file($_FILES['attachment']['tmp_name'][$n], $destName))
 				{
-					smf_chmod($destName, 0644);
+					Utils::makeWritable($destName, 0644);
 				}
 				else
 				{

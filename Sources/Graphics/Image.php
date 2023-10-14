@@ -426,7 +426,7 @@ class Image
 			return false;
 
 		// Ensure the destination is writable.
-		if (!smf_chmod(file_exists($destination) ? $destination : dirname($destination)))
+		if (!Utils::makeWritable(file_exists($destination) ? $destination : dirname($destination)))
 			return false;
 
 		// If it doesn't need to be resized, just copy it to the destination.
@@ -497,7 +497,7 @@ class Image
 		$this->pathinfo = pathinfo($this->source);
 
 		// Attempt to chmod it.
-		@smf_chmod($image->source);
+		@Utils::makeWritable($image->source);
 
 		return true;
 	}
