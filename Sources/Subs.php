@@ -525,65 +525,6 @@ function check_mime_type($data, $type_pattern, $is_path = false)
 }
 
 /**
- * Decode HTML entities to their UTF-8 equivalent character, except for
- * HTML special characters, which are always converted to numeric entities.
- *
- * Callback function for preg_replace_callback in subs-members
- * Uses capture group 2 in the supplied array
- * Does basic scan to ensure characters are inside a valid range
- *
- * @deprecated since 3.0
- *
- * @param array $matches An array of matches (relevant info should be the 3rd item)
- * @return string A fixed string
- */
-function replaceEntities__callback($matches)
-{
-	return strtr(
-		htmlspecialchars(Utils::entityDecode($matches[1], true), ENT_QUOTES),
-		array(
-			'&amp;' => '&#038;',
-			'&quot;' => '&#034;',
-			'&lt;' => '&#060;',
-			'&gt;' => '&#062;',
-		)
-	);
-}
-
-/**
- * Converts HTML entities to UTF-8 equivalents.
- *
- * Callback function for preg_replace_callback
- * Uses capture group 1 in the supplied array
- * Does basic checks to keep characters inside a viewable range.
- *
- * @deprecated since 3.0
- *
- * @param array $matches An array of matches (relevant info should be the 2nd item in the array)
- * @return string The fixed string
- */
-function fixchar__callback($matches)
-{
-	return Utils::entityDecode($matches[0], true);
-}
-
-/**
- * Strips out invalid HTML entities and fixes double-encoded entities.
- *
- * Callback function for preg_replace_callback.
- *
- * @deprecated since 3.0
- *
- * @param array $matches An array of matches (relevant info should be the 3rd
- *    item in the array)
- * @return string The fixed string
- */
-function entity_fix__callback($matches)
-{
-	return Utils::sanitizeEntities(Utils::entityFix($matches[1]));
-}
-
-/**
  * Truncate an array to a specified length
  *
  * @param array $array The array to truncate
