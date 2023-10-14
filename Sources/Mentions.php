@@ -458,7 +458,7 @@ class Mentions
 					$excluded_bbc[] = $code['tag'];
 			}
 
-			self::$excluded_bbc_regex = build_regex($excluded_bbc, '~');
+			self::$excluded_bbc_regex = Utils::buildRegex($excluded_bbc, '~');
 		}
 	}
 }

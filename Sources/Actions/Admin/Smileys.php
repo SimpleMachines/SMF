@@ -2793,7 +2793,7 @@ class Smileys implements ActionInterface
 	 */
 	protected function validateImage(string $name, string $tmp_name): bool
 	{
-		return in_array(pathinfo($name, PATHINFO_EXTENSION), self::$allowed_extenions) && check_mime_type($tmp_name, build_regex(self::$allowed_mime_types, '~'), true);
+		return in_array(pathinfo($name, PATHINFO_EXTENSION), self::$allowed_extenions) && check_mime_type($tmp_name, Utils::buildRegex(self::$allowed_mime_types, '~'), true);
 	}
 
 	/**

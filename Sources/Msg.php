@@ -808,7 +808,7 @@ class Msg implements \ArrayAccess
 					$disallowed_bbc[] = $bbc;
 			}
 
-			$disallowed_tags_regex = build_regex(array_unique($disallowed_bbc), '~');
+			$disallowed_tags_regex = Utils::buildRegex(array_unique($disallowed_bbc), '~');
 		}
 		if (!empty($disallowed_tags_regex))
 		{
@@ -887,8 +887,6 @@ class Msg implements \ArrayAccess
 		// Remove empty bbc from the sections outside the code tags
 		if (empty($tags_regex))
 		{
-			require_once(Config::$sourcedir . '/Subs.php');
-
 			$allowed_empty = array('anchor', 'td',);
 
 			$tags = array();
@@ -899,7 +897,7 @@ class Msg implements \ArrayAccess
 					$tags[] = $code['tag'];
 			}
 
-			$tags_regex = build_regex($tags, '~');
+			$tags_regex = Utils::buildRegex($tags, '~');
 		}
 
 		while (preg_match('~\[(' . $tags_regex . ')\b[^\]]*\]\s*\[/\1\]\s?~i', $message))
