@@ -10,7 +10,7 @@
  * @version 3.0 Alpha 1
  */
 
-namespace SMF\Fetchers;
+namespace SMF\WebFetch\APIs;
 
 /**
  * Class CurlFetcher

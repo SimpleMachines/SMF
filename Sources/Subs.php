@@ -30,8 +30,8 @@ use SMF\Url;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
-use SMF\Fetchers\CurlFetcher;
 use SMF\Unicode\Utf8String;
+use SMF\WebFetch\APIs\CurlFetcher;
 
 if (!defined('SMF'))
 	die('No direct access...');
