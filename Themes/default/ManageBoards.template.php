@@ -620,8 +620,8 @@ function template_modify_board()
 	foreach (Utils::$context['board']['moderators'] as $id_member => $member_name)
 		echo '
 				{
-					sItemId: ', JavaScriptEscape($id_member), ',
-					sItemName: ', JavaScriptEscape($member_name), '
+					sItemId: ', Utils::JavaScriptEscape($id_member), ',
+					sItemName: ', Utils::JavaScriptEscape($member_name), '
 				}', $id_member == Utils::$context['board']['last_moderator_id'] ? '' : ',';
 
 	echo '
@@ -645,8 +645,8 @@ function template_modify_board()
 	foreach (Utils::$context['board']['moderator_groups'] as $id_group => $group_name)
 		echo '
 				{
-					sItemId: ', JavaScriptEscape($id_group), ',
-					sItemName: ', JavaScriptEscape($group_name), '
+					sItemId: ', Utils::JavaScriptEscape($id_group), ',
+					sItemName: ', Utils::JavaScriptEscape($group_name), '
 				}', $id_group == Utils::$context['board']['last_moderator_group_id'] ? '' : ',';
 
 	echo '

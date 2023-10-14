@@ -217,15 +217,15 @@ function template_main()
 				aSwapImages: [
 					{
 						sId: \'advanced_panel_toggle\',
-						altExpanded: ', JavaScriptEscape(Lang::$txt['hide']), ',
-						altCollapsed: ', JavaScriptEscape(Lang::$txt['show']), '
+						altExpanded: ', Utils::JavaScriptEscape(Lang::$txt['hide']), ',
+						altCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['show']), '
 					}
 				],
 				aSwapLinks: [
 					{
 						sId: \'advanced_panel_link\',
-						msgExpanded: ', JavaScriptEscape(Lang::$txt['choose_board']), ',
-						msgCollapsed: ', JavaScriptEscape(Lang::$txt['choose_board']), '
+						msgExpanded: ', Utils::JavaScriptEscape(Lang::$txt['choose_board']), ',
+						msgCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['choose_board']), '
 					}
 				]
 			});

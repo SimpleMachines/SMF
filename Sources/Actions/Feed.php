@@ -606,7 +606,7 @@ class Feed implements ActionInterface
 		while ($row = Db::$db->fetch_assoc($request))
 		{
 			// If any control characters slipped in somehow, kill the evil things
-			$row = filter_var($row, FILTER_CALLBACK, array('options' => 'cleanXml'));
+			$row = filter_var($row, FILTER_CALLBACK, array('options' => '\\SMF\\Utils::cleanXml'));
 
 			// Create a GUID for each member using the tag URI scheme
 			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', $row['date_registered']) . ':member=' . $row['id_member'];
@@ -807,7 +807,7 @@ class Feed implements ActionInterface
 		while ($row = Db::$db->fetch_assoc($request))
 		{
 			// If any control characters slipped in somehow, kill the evil things
-			$row = filter_var($row, FILTER_CALLBACK, array('options' => 'cleanXml'));
+			$row = filter_var($row, FILTER_CALLBACK, array('options' => '\\SMF\\Utils::cleanXml'));
 
 			// Limit the length of the message, if the option is set.
 			if (!empty(Config::$modSettings['xmlnews_maxlen']) && Utils::entityStrlen(str_replace('<br>', "\n", $row['body'])) > Config::$modSettings['xmlnews_maxlen'])
@@ -1256,7 +1256,7 @@ class Feed implements ActionInterface
 		while ($row = Db::$db->fetch_assoc($request))
 		{
 			// If any control characters slipped in somehow, kill the evil things
-			$row = filter_var($row, FILTER_CALLBACK, array('options' => 'cleanXml'));
+			$row = filter_var($row, FILTER_CALLBACK, array('options' => '\\SMF\\Utils::cleanXml'));
 
 			// Limit the length of the message, if the option is set.
 			if (!empty(Config::$modSettings['xmlnews_maxlen']) && Utils::entityStrlen(str_replace('<br>', "\n", $row['body'])) > Config::$modSettings['xmlnews_maxlen'])
@@ -1676,7 +1676,7 @@ class Feed implements ActionInterface
 		$profile = User::$loaded[$this->member]->format($this->format == 'smf');
 
 		// If any control characters slipped in somehow, kill the evil things
-		$profile = filter_var($profile, FILTER_CALLBACK, array('options' => 'cleanXml'));
+		$profile = filter_var($profile, FILTER_CALLBACK, array('options' => '\\SMF\\Utils::cleanXml'));
 
 		// Create a GUID for this member using the tag URI scheme
 		$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', $profile['registered_timestamp']) . ':member=' . $profile['id'];
@@ -2052,7 +2052,7 @@ class Feed implements ActionInterface
 			$row['poster_ip'] = new IP($row['poster_ip']);
 
 			// If any control characters slipped in somehow, kill the evil things
-			$row = filter_var($row, FILTER_CALLBACK, array('options' => 'cleanXml'));
+			$row = filter_var($row, FILTER_CALLBACK, array('options' => '\\SMF\\Utils::cleanXml'));
 
 			// If using our own format, we want both the raw and the parsed content.
 			$row[$this->format === 'smf' ? 'body_html' : 'body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
@@ -2516,7 +2516,7 @@ class Feed implements ActionInterface
 			$this->start_after = $row['id_pm'];
 
 			// If any control characters slipped in somehow, kill the evil things
-			$row = filter_var($row, FILTER_CALLBACK, array('options' => 'cleanXml'));
+			$row = filter_var($row, FILTER_CALLBACK, array('options' => '\\SMF\\Utils::cleanXml'));
 
 			// If using our own format, we want both the raw and the parsed content.
 			$row[$this->format === 'smf' ? 'body_html' : 'body'] = BBCodeParser::load()->parse($row['body']);

@@ -226,7 +226,7 @@ function template_login_tfa()
 
 						$.post(form.prop("action"), form.serialize(), function(data) {
 							if (data.indexOf("<bo" + "dy") > -1)
-								document.location = ', JavaScriptEscape(!empty($_SESSION['login_url']) ? $_SESSION['login_url'] : Config::$scripturl), ';
+								document.location = ', Utils::JavaScriptEscape(!empty($_SESSION['login_url']) ? $_SESSION['login_url'] : Config::$scripturl), ';
 							else {
 								form.parent().html($(data).find(".roundframe").html());
 							}

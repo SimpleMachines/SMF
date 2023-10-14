@@ -21,7 +21,7 @@ function template_sendbody()
 {
 	echo '<', '?xml version="1.0" encoding="', Utils::$context['character_set'], '"?', '>
 <smf>
-	<message view="', Utils::$context['view'], '">', cleanXml(Utils::$context['message']), '</message>
+	<message view="', Utils::$context['view'], '">', Utils::cleanXml(Utils::$context['message']), '</message>
 </smf>';
 }
 
@@ -32,7 +32,7 @@ function template_quotefast()
 {
 	echo '<', '?xml version="1.0" encoding="', Utils::$context['character_set'], '"?', '>
 <smf>
-	<quote>', cleanXml(Utils::$context['quote']['xml']), '</quote>
+	<quote>', Utils::cleanXml(Utils::$context['quote']['xml']), '</quote>
 </smf>';
 }
 
@@ -43,9 +43,9 @@ function template_modifyfast()
 {
 	echo '<', '?xml version="1.0" encoding="', Utils::$context['character_set'], '"?', '>
 <smf>
-	<subject><![CDATA[', cleanXml(Utils::$context['message']['subject']), ']]></subject>
-	<message id="msg_', Utils::$context['message']['id'], '"><![CDATA[', cleanXml(Utils::$context['message']['body']), ']]></message>
-	<reason time="', Utils::$context['message']['reason']['time'], '" name="', Utils::$context['message']['reason']['name'], '"><![CDATA[', cleanXml(Utils::$context['message']['reason']['text']), ']]></reason>
+	<subject><![CDATA[', Utils::cleanXml(Utils::$context['message']['subject']), ']]></subject>
+	<message id="msg_', Utils::$context['message']['id'], '"><![CDATA[', Utils::cleanXml(Utils::$context['message']['body']), ']]></message>
+	<reason time="', Utils::$context['message']['reason']['time'], '" name="', Utils::$context['message']['reason']['name'], '"><![CDATA[', Utils::cleanXml(Utils::$context['message']['reason']['text']), ']]></reason>
 </smf>';
 
 }
@@ -65,14 +65,14 @@ function template_modifydone()
 		$modified .= empty(Utils::$context['message']['modified']['reason']) ? '' : ' ' . sprintf(Lang::$txt['last_edit_reason'], Utils::$context['message']['modified']['reason']);
 
 		echo '
-		<modified><![CDATA[', empty($modified) ? '' : cleanXml($modified), ']]></modified>
-		<subject is_first="', Utils::$context['message']['first_in_topic'] ? '1' : '0', '"><![CDATA[', cleanXml(Utils::$context['message']['subject']), ']]></subject>
+		<modified><![CDATA[', empty($modified) ? '' : Utils::cleanXml($modified), ']]></modified>
+		<subject is_first="', Utils::$context['message']['first_in_topic'] ? '1' : '0', '"><![CDATA[', Utils::cleanXml(Utils::$context['message']['subject']), ']]></subject>
 		<body><![CDATA[', Utils::$context['message']['body'], ']]></body>
 		<success><![CDATA[', Lang::$txt['quick_modify_message'], ']]></success>';
 	}
 	else
 		echo '
-		<error in_subject="', Utils::$context['message']['error_in_subject'] ? '1' : '0', '" in_body="', cleanXml(Utils::$context['message']['error_in_body']) ? '1' : '0', '"><![CDATA[', implode('<br />', Utils::$context['message']['errors']), ']]></error>';
+		<error in_subject="', Utils::$context['message']['error_in_subject'] ? '1' : '0', '" in_body="', Utils::cleanXml(Utils::$context['message']['error_in_body']) ? '1' : '0', '"><![CDATA[', implode('<br />', Utils::$context['message']['errors']), ']]></error>';
 	echo '
 	</message>
 </smf>';
@@ -93,15 +93,15 @@ function template_modifytopicdone()
 		$modified .= empty(Utils::$context['message']['modified']['reason']) ? '' : sprintf(Lang::$txt['last_edit_reason'], Utils::$context['message']['modified']['reason']);
 
 		echo '
-		<modified><![CDATA[', empty($modified) ? '' : cleanXml('<em>' . $modified . '</em>'), ']]></modified>';
+		<modified><![CDATA[', empty($modified) ? '' : Utils::cleanXml('<em>' . $modified . '</em>'), ']]></modified>';
 
 		if (!empty(Utils::$context['message']['subject']))
 			echo '
-		<subject><![CDATA[', cleanXml(Utils::$context['message']['subject']), ']]></subject>';
+		<subject><![CDATA[', Utils::cleanXml(Utils::$context['message']['subject']), ']]></subject>';
 	}
 	else
 		echo '
-		<error in_subject="', Utils::$context['message']['error_in_subject'] ? '1' : '0', '"><![CDATA[', cleanXml(implode('<br />', Utils::$context['message']['errors'])), ']]></error>';
+		<error in_subject="', Utils::$context['message']['error_in_subject'] ? '1' : '0', '"><![CDATA[', Utils::cleanXml(implode('<br />', Utils::$context['message']['errors'])), ']]></error>';
 	echo '
 	</message>
 </smf>';
@@ -123,7 +123,7 @@ function template_post()
 	if (!empty(Utils::$context['post_error']))
 		foreach (Utils::$context['post_error'] as $message)
 			echo '
-		<error><![CDATA[', cleanXml($message), ']]></error>';
+		<error><![CDATA[', Utils::cleanXml($message), ']]></error>';
 
 	echo '
 		<caption name="guestname" class="', isset(Utils::$context['post_error']['long_name']) || isset(Utils::$context['post_error']['no_name']) || isset(Utils::$context['post_error']['bad_name']) ? 'error' : '', '" />
@@ -144,8 +144,8 @@ function template_post()
 			echo '
 		<post id="', $post['id'], '">
 			<time><![CDATA[', $post['time'], ']]></time>
-			<poster><![CDATA[', cleanXml($post['poster']), ']]></poster>
-			<message><![CDATA[', cleanXml($post['message']), ']]></message>
+			<poster><![CDATA[', Utils::cleanXml($post['poster']), ']]></poster>
+			<message><![CDATA[', Utils::cleanXml($post['message']), ']]></message>
 			<is_ignored>', $post['is_ignored'] ? '1' : '0', '</is_ignored>
 		</post>';
 
@@ -174,7 +174,7 @@ function template_pm()
 	if (!empty(Utils::$context['post_error']['messages']))
 		foreach (Utils::$context['post_error']['messages'] as $message)
 			echo '
-		<error><![CDATA[', cleanXml($message), ']]></error>';
+		<error><![CDATA[', Utils::cleanXml($message), ']]></error>';
 
 	echo '
 		<caption name="to" class="', isset(Utils::$context['post_error']['no_to']) ? 'error' : '', '" />
@@ -205,7 +205,7 @@ function template_warning()
 	if (!empty(Utils::$context['post_error']['messages']))
 		foreach (Utils::$context['post_error']['messages'] as $message)
 			echo '
-		<error><![CDATA[', cleanXml($message), ']]></error>';
+		<error><![CDATA[', Utils::cleanXml($message), ']]></error>';
 
 	echo '
 	</errors>';
@@ -259,10 +259,10 @@ function template_split()
 		else
 			echo '
 	<change id="', $change['id'], '" curAction="insert" section="', $change['section'], '">
-		<subject><![CDATA[', cleanXml($change['insert_value']['subject']), ']]></subject>
-		<time><![CDATA[', cleanXml($change['insert_value']['time']), ']]></time>
-		<body><![CDATA[', cleanXml($change['insert_value']['body']), ']]></body>
-		<poster><![CDATA[', cleanXml($change['insert_value']['poster']), ']]></poster>
+		<subject><![CDATA[', Utils::cleanXml($change['insert_value']['subject']), ']]></subject>
+		<time><![CDATA[', Utils::cleanXml($change['insert_value']['time']), ']]></time>
+		<body><![CDATA[', Utils::cleanXml($change['insert_value']['body']), ']]></body>
+		<poster><![CDATA[', Utils::cleanXml($change['insert_value']['poster']), ']]></poster>
 	</change>';
 	}
 	echo '
@@ -311,12 +311,12 @@ function template_results()
 				<relevance>', $topic['relevance'], '</relevance>
 				<board>
 					<id>', $topic['board']['id'], '</id>
-					<name>', cleanXml($topic['board']['name']), '</name>
+					<name>', Utils::cleanXml($topic['board']['name']), '</name>
 					<href>', $topic['board']['href'], '</href>
 				</board>
 				<category>
 					<id>', $topic['category']['id'], '</id>
-					<name>', cleanXml($topic['category']['name']), '</name>
+					<name>', Utils::cleanXml($topic['category']['name']), '</name>
 					<href>', $topic['category']['href'], '</href>
 				</category>
 				<messages>';
@@ -326,15 +326,15 @@ function template_results()
 				echo '
 					<message>
 						<id>', $message['id'], '</id>
-						<subject><![CDATA[', cleanXml($message['subject_highlighted'] != '' ? $message['subject_highlighted'] : $message['subject']), ']]></subject>
-						<body><![CDATA[', cleanXml($message['body_highlighted'] != '' ? $message['body_highlighted'] : $message['body']), ']]></body>
+						<subject><![CDATA[', Utils::cleanXml($message['subject_highlighted'] != '' ? $message['subject_highlighted'] : $message['subject']), ']]></subject>
+						<body><![CDATA[', Utils::cleanXml($message['body_highlighted'] != '' ? $message['body_highlighted'] : $message['body']), ']]></body>
 						<time>', $message['time'], '</time>
 						<timestamp>', $message['timestamp'], '</timestamp>
 						<start>', $message['start'], '</start>
 
 						<author>
 							<id>', $message['member']['id'], '</id>
-							<name>', cleanXml($message['member']['name']), '</name>
+							<name>', Utils::cleanXml($message['member']['name']), '</name>
 							<href>', $message['member']['href'], '</href>
 						</author>
 					</message>';
@@ -363,11 +363,11 @@ function template_jump_to()
 	foreach (Utils::$context['jump_to'] as $category)
 	{
 		echo '
-	<item type="category" id="', $category['id'], '"><![CDATA[', cleanXml($category['name']), ']]></item>';
+	<item type="category" id="', $category['id'], '"><![CDATA[', Utils::cleanXml($category['name']), ']]></item>';
 
 		foreach ($category['boards'] as $board)
 			echo '
-	<item type="board" id="', $board['id'], '" childlevel="', $board['child_level'], '" is_redirect="', (int) !empty($board['redirect']), '"><![CDATA[', cleanXml($board['name']), ']]></item>';
+	<item type="board" id="', $board['id'], '" childlevel="', $board['child_level'], '" is_redirect="', (int) !empty($board['redirect']), '"><![CDATA[', Utils::cleanXml($board['name']), ']]></item>';
 	}
 	echo '
 </smf>';
@@ -383,7 +383,7 @@ function template_message_icons()
 
 	foreach (Utils::$context['icons'] as $icon)
 		echo '
-	<icon value="', $icon['value'], '" url="', $icon['url'], '"><![CDATA[', cleanXml($icon['name']), ']]></icon>';
+	<icon value="', $icon['value'], '" url="', $icon['url'], '"><![CDATA[', Utils::cleanXml($icon['name']), ']]></icon>';
 
 	echo '
 </smf>';
@@ -396,7 +396,7 @@ function template_check_username()
 {
 	echo '<', '?xml version="1.0" encoding="', Utils::$context['character_set'], '"?', '>
 <smf>
-	<username valid="', Utils::$context['valid_username'] ? 1 : 0, '">', cleanXml(Utils::$context['checked_username']), '</username>
+	<username valid="', Utils::$context['valid_username'] ? 1 : 0, '">', Utils::cleanXml(Utils::$context['checked_username']), '</username>
 </smf>';
 }
 
@@ -439,7 +439,7 @@ function template_generic_xml_recursive($xml_data, $parent_ident, $child_ident, 
 			if (!empty($data['attributes']))
 				foreach ($data['attributes'] as $k => $v)
 					echo ' ' . $k . '="' . $v . '"';
-			echo '><![CDATA[', cleanXml($data['value']), ']]></', $child_ident, '>';
+			echo '><![CDATA[', Utils::cleanXml($data['value']), ']]></', $child_ident, '>';
 		}
 	}
 

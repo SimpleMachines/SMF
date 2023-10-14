@@ -1614,11 +1614,11 @@ class Post implements ActionInterface
 			foreach (Utils::$context['current_attachments'] as $key => $mock)
 				Theme::addInlineJavaScript('
 		current_attachments.push({
-			name: ' . JavaScriptEscape($mock['name']) . ',
+			name: ' . Utils::JavaScriptEscape($mock['name']) . ',
 			size: ' . $mock['size'] . ',
 			attachID: ' . $mock['attachID'] . ',
 			approved: ' . $mock['approved'] . ',
-			type: ' . JavaScriptEscape(!empty($mock['mime_type']) ? $mock['mime_type'] : '') . ',
+			type: ' . Utils::JavaScriptEscape(!empty($mock['mime_type']) ? $mock['mime_type'] : '') . ',
 			thumbID: ' . (!empty($mock['thumb']) ? $mock['thumb'] : 0) . '
 		});');
 		}
@@ -1639,24 +1639,24 @@ class Post implements ActionInterface
 			Theme::addInlineJavaScript('
 		$(function() {
 			smf_fileUpload({
-				dictDefaultMessage : ' . JavaScriptEscape(Lang::$txt['attach_drop_zone']) . ',
-				dictFallbackMessage : ' . JavaScriptEscape(Lang::$txt['attach_drop_zone_no']) . ',
-				dictCancelUpload : ' . JavaScriptEscape(Lang::$txt['modify_cancel']) . ',
-				genericError: ' . JavaScriptEscape(Lang::$txt['attach_php_error']) . ',
-				text_attachDropzoneLabel: ' . JavaScriptEscape(Lang::$txt['attach_drop_zone']) . ',
-				text_attachLimitNag: ' . JavaScriptEscape(Lang::$txt['attach_limit_nag']) . ',
-				text_attachLeft: ' . JavaScriptEscape(Lang::$txt['attachments_left']) . ',
-				text_deleteAttach: ' . JavaScriptEscape(Lang::$txt['attached_file_delete']) . ',
-				text_attachDeleted: ' . JavaScriptEscape(Lang::$txt['attached_file_deleted']) . ',
-				text_insertBBC: ' . JavaScriptEscape(Lang::$txt['attached_insert_bbc']) . ',
-				text_attachUploaded: ' . JavaScriptEscape(Lang::$txt['attached_file_uploaded']) . ',
-				text_attach_unlimited: ' . JavaScriptEscape(Lang::$txt['attach_drop_unlimited']) . ',
-				text_totalMaxSize: ' . JavaScriptEscape(Lang::$txt['attach_max_total_file_size_current']) . ',
-				text_max_size_progress: ' . JavaScriptEscape('{currentRemain} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? Lang::$txt['megabyte'] : Lang::$txt['kilobyte']) . ' / {currentTotal} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? Lang::$txt['megabyte'] : Lang::$txt['kilobyte'])) . ',
-				dictMaxFilesExceeded: ' . JavaScriptEscape(Lang::$txt['more_attachments_error']) . ',
-				dictInvalidFileType: ' . JavaScriptEscape(sprintf(Lang::$txt['cant_upload_type'], Utils::$context['allowed_extensions'])) . ',
-				dictFileTooBig: ' . JavaScriptEscape(sprintf(Lang::$txt['file_too_big'], Lang::numberFormat(Config::$modSettings['attachmentSizeLimit'], 0))) . ',
-				acceptedFiles: ' . JavaScriptEscape($acceptedFiles) . ',
+				dictDefaultMessage : ' . Utils::JavaScriptEscape(Lang::$txt['attach_drop_zone']) . ',
+				dictFallbackMessage : ' . Utils::JavaScriptEscape(Lang::$txt['attach_drop_zone_no']) . ',
+				dictCancelUpload : ' . Utils::JavaScriptEscape(Lang::$txt['modify_cancel']) . ',
+				genericError: ' . Utils::JavaScriptEscape(Lang::$txt['attach_php_error']) . ',
+				text_attachDropzoneLabel: ' . Utils::JavaScriptEscape(Lang::$txt['attach_drop_zone']) . ',
+				text_attachLimitNag: ' . Utils::JavaScriptEscape(Lang::$txt['attach_limit_nag']) . ',
+				text_attachLeft: ' . Utils::JavaScriptEscape(Lang::$txt['attachments_left']) . ',
+				text_deleteAttach: ' . Utils::JavaScriptEscape(Lang::$txt['attached_file_delete']) . ',
+				text_attachDeleted: ' . Utils::JavaScriptEscape(Lang::$txt['attached_file_deleted']) . ',
+				text_insertBBC: ' . Utils::JavaScriptEscape(Lang::$txt['attached_insert_bbc']) . ',
+				text_attachUploaded: ' . Utils::JavaScriptEscape(Lang::$txt['attached_file_uploaded']) . ',
+				text_attach_unlimited: ' . Utils::JavaScriptEscape(Lang::$txt['attach_drop_unlimited']) . ',
+				text_totalMaxSize: ' . Utils::JavaScriptEscape(Lang::$txt['attach_max_total_file_size_current']) . ',
+				text_max_size_progress: ' . Utils::JavaScriptEscape('{currentRemain} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? Lang::$txt['megabyte'] : Lang::$txt['kilobyte']) . ' / {currentTotal} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? Lang::$txt['megabyte'] : Lang::$txt['kilobyte'])) . ',
+				dictMaxFilesExceeded: ' . Utils::JavaScriptEscape(Lang::$txt['more_attachments_error']) . ',
+				dictInvalidFileType: ' . Utils::JavaScriptEscape(sprintf(Lang::$txt['cant_upload_type'], Utils::$context['allowed_extensions'])) . ',
+				dictFileTooBig: ' . Utils::JavaScriptEscape(sprintf(Lang::$txt['file_too_big'], Lang::numberFormat(Config::$modSettings['attachmentSizeLimit'], 0))) . ',
+				acceptedFiles: ' . Utils::JavaScriptEscape($acceptedFiles) . ',
 				thumbnailWidth: ' . (!empty(Config::$modSettings['attachmentThumbWidth']) ? Config::$modSettings['attachmentThumbWidth'] : 'null') . ',
 				thumbnailHeight: ' . (!empty(Config::$modSettings['attachmentThumbHeight']) ? Config::$modSettings['attachmentThumbHeight'] : 'null') . ',
 				limitMultiFileUploadSize:' . round(max(Config::$modSettings['attachmentPostLimit'] - (Utils::$context['attachments']['total_size'] / 1024), 0)) * 1024 . ',

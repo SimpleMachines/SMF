@@ -263,7 +263,7 @@ function template_body_above()
 		{
 			echo '
 			<ul class="floatleft">
-				<li class="welcome">', sprintf(Lang::$txt[Utils::$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], Utils::$context['forum_name_html_safe'], Config::$scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape(Lang::$txt['login']) . ', \'login\');', Config::$scripturl . '?action=signup'), '</li>
+				<li class="welcome">', sprintf(Lang::$txt[Utils::$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], Utils::$context['forum_name_html_safe'], Config::$scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . Utils::JavaScriptEscape(Lang::$txt['login']) . ', \'login\');', Config::$scripturl . '?action=signup'), '</li>
 			</ul>';
 		}
 		else
@@ -274,7 +274,7 @@ function template_body_above()
 					', sprintf(Lang::$txt['welcome_to_forum'], Utils::$context['forum_name_html_safe']), '
 				</li>
 				<li class="button_login">
-					<a href="', Config::$scripturl, '?action=login" class="', Utils::$context['current_action'] == 'login' ? 'active' : 'open','" onclick="return reqOverlayDiv(this.href, ' . JavaScriptEscape(Lang::$txt['login']) . ', \'login\');">
+					<a href="', Config::$scripturl, '?action=login" class="', Utils::$context['current_action'] == 'login' ? 'active' : 'open','" onclick="return reqOverlayDiv(this.href, ' . Utils::JavaScriptEscape(Lang::$txt['login']) . ', \'login\');">
 						<span class="main_icons login"></span>
 						<span class="textmenu">', Lang::$txt['login'], '</span>
 					</a>

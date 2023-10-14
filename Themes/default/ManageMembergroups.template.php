@@ -381,8 +381,8 @@ function template_edit_group()
 	foreach (Utils::$context['group']['moderators'] as $id_member => $member_name)
 		echo '
 				{
-					sItemId: ', JavaScriptEscape($id_member), ',
-					sItemName: ', JavaScriptEscape($member_name), '
+					sItemId: ', Utils::JavaScriptEscape($id_member), ',
+					sItemName: ', Utils::JavaScriptEscape($member_name), '
 				}', $id_member == Utils::$context['group']['last_moderator_id'] ? '' : ',';
 
 	echo '
