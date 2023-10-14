@@ -1358,7 +1358,7 @@ class Topic implements \ArrayAccess
 				if (function_exists('apache_reset_timeout'))
 					@apache_reset_timeout();
 
-				$words = array_merge($words, text2words($row['body'], $customIndexSettings['bytes_per_word'], true));
+				$words = array_merge($words, Utils::text2words($row['body'], $customIndexSettings['bytes_per_word'], true));
 				$messages[] = $row['id_msg'];
 			}
 			Db::$db->free_result($request);

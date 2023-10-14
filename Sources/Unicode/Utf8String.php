@@ -677,6 +677,97 @@ class Utf8String implements \Stringable
 		return $this;
 	}
 
+	/**
+	 * Extracts all the words in this string.
+	 *
+	 * Emoji characters count as words. Punctuation and other symbols do not.
+	 *
+	 * @todo Improve the fallback code we use when the IntlBreakIterator class
+	 * is unavailable.
+	 *
+	 * @param int $level See documentation for Utf8String::sanitizeInvisibles().
+	 * @return array The words in this string.
+	 */
+	public function extractWords(int $level): array
+	{
+		// Save this so we can restore it afterward.
+		$original_string = $this->string;
+
+		// Replace any illegal entities with spaces.
+		$this->string = \SMF\Utils::sanitizeEntities($this->string, ' ');
+
+		// Decode all the entities.
+		$this->string = \SMF\Utils::entityDecode($this->string, true, ENT_QUOTES | ENT_HTML5, true);
+
+		// Replace unwanted invisible characters with spaces.
+		$this->sanitizeInvisibles($level, ' ');
+
+		// Normalize the whitespace.
+		$this->string = \SMF\Utils::normalizeSpaces($this->string, true, true, array('replace_tabs' => true, 'collapse_hspace' => true));
+
+		// Preserve emoji characters, variation selectors, and join controls.
+		$placeholders = array();
+		$this->preserveEmoji($placeholders);
+		$this->sanitizeVariationSelectors($placeholders, ' ');
+		$this->sanitizeJoinControls($placeholders, $level, ' ');
+
+		// Remove the private use characters that delimit the placeholders
+		// so that they don't interfere with the word splitting.
+		foreach ($placeholders as $key => $placeholder)
+		{
+			$simple_placeholder = sha1($placeholder);
+			$this->string = str_replace($placeholder, $simple_placeholder, $this->string);
+			$placeholders[$key] = $simple_placeholder;
+		}
+
+		// Split into words, with Unicode awareness.
+		// Prefer IntlBreakIterator if it is available.
+		if (class_exists('IntlBreakIterator'))
+		{
+			$break_iterator = \IntlBreakIterator::createWordInstance();
+			$break_iterator->setText($this->string);
+			$parts_interator = $break_iterator->getPartsIterator();
+
+			$words = array();
+
+			foreach ($parts_interator as $word)
+				$words[] = $word;
+		}
+		else
+		{
+			/*
+			 * This is a sad, weak substitute for the IntlBreakIterator.
+			 * It works well enough for European languages, but it fails badly
+			 * for many Asian languages. To improve it will require adding more
+			 * data to our Unicode data files and then writing code to implement
+			 * the Unicode word break algorithm.
+			 * See https://www.unicode.org/reports/tr29/#Word_Boundaries
+			 */
+			$words = preg_split('/(?<![\p{L}\p{M}\p{N}_])(?=[\p{L}\p{M}\p{N}_])|(?<=[\p{L}\p{M}\p{N}_])(?![\p{L}\p{M}\p{N}_])/su', $this->string);
+		}
+
+		foreach ($words as $key => $word)
+		{
+			$word = trim($word);
+
+			if (preg_replace('/\W/u', '', $word) === '')
+			{
+				unset($words[$key]);
+				continue;
+			}
+
+			if (!empty($placeholders))
+				$word = strtr($word, array_flip($placeholders));
+
+			$words[$key] = $word;
+		}
+
+		// Restore the original version of the string.
+		$this->string = $original_string;
+
+		return $words;
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/

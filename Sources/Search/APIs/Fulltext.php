@@ -135,7 +135,7 @@ class Fulltext extends SearchApi
 	 */
 	public function prepareIndexes($word, array &$wordsSearch, array &$wordsExclude, $isExcluded): void
 	{
-		$subwords = text2words($word, null, false);
+		$subwords = Utils::text2words($word, PHP_INT_MAX, false);
 
 		if (empty(Config::$modSettings['search_force_index']))
 		{

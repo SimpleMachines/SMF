@@ -122,7 +122,7 @@ class Custom extends SearchApi
 	 */
 	public function prepareIndexes($word, array &$wordsSearch, array &$wordsExclude, $isExcluded): void
 	{
-		$subwords = text2words($word, $this->min_word_length, true);
+		$subwords = Utils::text2words($word, $this->min_word_length, true);
 
 		if (empty(Config::$modSettings['search_force_index']))
 			$wordsSearch['words'][] = $word;
@@ -254,7 +254,7 @@ class Custom extends SearchApi
 		$customIndexSettings = Utils::jsonDecode(Config::$modSettings['search_custom_index_config'], true);
 
 		$inserts = array();
-		foreach (text2words($msgOptions['body'], $customIndexSettings['bytes_per_word'], true) as $word)
+		foreach (Utils::text2words($msgOptions['body'], $customIndexSettings['bytes_per_word'], true) as $word)
 			$inserts[] = array($word, $msgOptions['id']);
 
 		if (!empty($inserts))
@@ -278,8 +278,8 @@ class Custom extends SearchApi
 			$old_body = isset($msgOptions['old_body']) ? $msgOptions['old_body'] : '';
 
 			// create thew new and old index
-			$old_index = text2words($old_body, $customIndexSettings['bytes_per_word'], true);
-			$new_index = text2words($msgOptions['body'], $customIndexSettings['bytes_per_word'], true);
+			$old_index = Utils::text2words($old_body, $customIndexSettings['bytes_per_word'], true);
+			$new_index = Utils::text2words($msgOptions['body'], $customIndexSettings['bytes_per_word'], true);
 
 			// Calculate the words to be added and removed from the index.
 			$removed_words = array_diff(array_diff($old_index, $new_index), $stopwords);

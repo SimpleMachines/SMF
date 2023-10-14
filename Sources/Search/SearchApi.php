@@ -1174,7 +1174,7 @@ abstract class SearchApi implements SearchApiInterface
 
 				$this->searchWords[$orIndex]['all_words'][] = $word;
 
-				$subjectWords = text2words($word);
+				$subjectWords = Utils::text2words($word);
 
 				if (!$is_excluded || count($subjectWords) === 1)
 				{
