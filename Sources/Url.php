@@ -14,6 +14,7 @@
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\WebFetch\WebFetchApi;
 
 /**
  * Represents a URL string and allows performing various operations on the URL.
@@ -588,8 +589,8 @@ class Url implements \Stringable
 		// Should we get a new copy of the official list of TLDs?
 		if ($update)
 		{
-			$tlds = fetch_web_data('https://data.iana.org/TLD/tlds-alpha-by-domain.txt');
-			$tlds_md5 = fetch_web_data('https://data.iana.org/TLD/tlds-alpha-by-domain.txt.md5');
+			$tlds = WebFetchApi::fetch('https://data.iana.org/TLD/tlds-alpha-by-domain.txt');
+			$tlds_md5 = WebFetchApi::fetch('https://data.iana.org/TLD/tlds-alpha-by-domain.txt.md5');
 
 			/*
 			 * If the Internet Assigned Numbers Authority can't be reached,

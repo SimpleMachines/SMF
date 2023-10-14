@@ -19,6 +19,7 @@ use SMF\Lang;
 use SMF\Theme;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
+use SMF\WebFetch\WebFetchApi;
 
 /**
  * Retrieves data (e.g. last version of SMF) from simplemachines.org.
@@ -63,7 +64,7 @@ class FetchSMFiles extends ScheduledTask
 			$url = $server . (!empty($file['path']) ? $file['path'] : $file['path']) . $file['filename'] . (!empty($file['parameters']) ? '?' . $file['parameters'] : '');
 
 			// Get the file
-			$file_data = fetch_web_data($url);
+			$file_data = WebFetchApi::fetch($url);
 
 			// If we got an error - give up - the site might be down. And if we should happen to be coming from elsewhere, let's also make a note of it.
 			if ($file_data === false)

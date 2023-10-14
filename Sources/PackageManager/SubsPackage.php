@@ -23,6 +23,7 @@ use SMF\Time;
 use SMF\Url;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
+use SMF\WebFetch\WebFetchApi;
 
 /**
  * Various utility functions for working with packages.
@@ -75,7 +76,7 @@ class SubsPackage
 	public static function read_tgz_file($gzfilename, $destination, $single_file = false, $overwrite = false, $files_to_extract = null)
 	{
 		$data = substr($gzfilename, 0, 7) == 'http://' || substr($gzfilename, 0, 8) == 'https://'
-			? fetch_web_data($gzfilename)
+			? WebFetchApi::fetch($gzfilename)
 			: file_get_contents($gzfilename);
 
 		if ($data === false)
@@ -3129,7 +3130,7 @@ class SubsPackage
 				'{SMF_VERSION}' => urlencode($the_version)
 			));
 
-			$results = fetch_web_data($validate_url, 'data=' . json_encode($sendData));
+			$results = WebFetchApi::fetch($validate_url, 'data=' . json_encode($sendData));
 
 			$parsed_data = Utils::jsonDecode($results, true);
 			if (is_array($parsed_data) && isset($parsed_data['data']) && is_array($parsed_data['data']))

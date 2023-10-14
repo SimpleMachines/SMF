@@ -22,6 +22,7 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\User;
 use SMF\Utils;
+use SMF\WebFetch\WebFetchApi;
 
 /**
  * Provides the search functionality inside the admin control panel.
@@ -348,7 +349,7 @@ class Find implements ActionInterface
 		// Get the results from the doc site.
 		// Demo URL:
 		// https://wiki.simplemachines.org/api.php?action=query&list=search&srprop=timestamp|snippet&format=xml&srwhat=text&srsearch=template+eval
-		$search_results = fetch_web_data(Utils::$context['doc_apiurl'] . '?action=query&list=search&srprop=timestamp|snippet&format=xml&srwhat=text&srsearch=' . $postVars);
+		$search_results = WebFetchApi::fetch(Utils::$context['doc_apiurl'] . '?action=query&list=search&srprop=timestamp|snippet&format=xml&srwhat=text&srsearch=' . $postVars);
 
 		// If we didn't get any xml back we are in trouble - perhaps the doc site is overloaded?
 		if (!$search_results || preg_match('~<' . '\?xml\sversion="\d+\.\d+"\?' . '>\s*(<api\b[^>]*>.+?</api>)~is', $search_results, $matches) != true)

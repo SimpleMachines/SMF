@@ -13,6 +13,8 @@
 
 namespace SMF;
 
+use SMF\WebFetch\WebFetchApi;
+
 /**
  * This is a lightweight proxy for serving images, generally meant to be used
  * alongside SSL.
@@ -245,7 +247,7 @@ class ProxyServer
 		$dest = $this->getCachedPath($request);
 		$ext = strtolower(pathinfo($request->path, PATHINFO_EXTENSION));
 
-		$image = fetch_web_data($request);
+		$image = WebFetchApi::fetch($request);
 
 		// Looks like nobody was home
 		if (empty($image))

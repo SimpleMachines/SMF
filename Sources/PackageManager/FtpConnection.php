@@ -244,7 +244,10 @@ class FtpConnection
 	{
 		// We can't create a passive data connection without a primary one first being there.
 		if (!is_resource($this->connection))
+		{
+			$this->error = 'no_connection';
 			return false;
+		}
 
 		// Request a passive connection - this means, we'll talk to you, you don't talk to us.
 		@fwrite($this->connection, 'PASV' . "\r\n");
