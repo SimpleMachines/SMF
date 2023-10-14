@@ -83,59 +83,6 @@ function permute($array)
 }
 
 /**
- * Chops a string into words and prepares them to be inserted into (or searched from) the database.
- *
- * @param string $text The text to split into words
- * @param int $max_chars The maximum number of characters per word
- * @param bool $encrypt Whether to encrypt the results
- * @return array An array of ints or words depending on $encrypt
- */
-function text2words($text, $max_chars = 20, $encrypt = false)
-{
-	// Upgrader may be working on old DBs...
-	if (!isset(Utils::$context['utf8']))
-		Utils::$context['utf8'] = false;
-
-	// Step 1: Remove entities/things we don't consider words:
-	$words = preg_replace('~(?:[\x0B\0' . (Utils::$context['utf8'] ? '\x{A0}' : '\xA0') . '\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~' . (Utils::$context['utf8'] ? 'u' : ''), ' ', strtr($text, array('<br>' => ' ')));
-
-	// Step 2: Entities we left to letters, where applicable, lowercase.
-	$words = Utils::htmlspecialcharsDecode(Utils::strtolower($words));
-
-	// Step 3: Ready to split apart and index!
-	$words = explode(' ', $words);
-
-	if ($encrypt)
-	{
-		$possible_chars = array_flip(array_merge(range(46, 57), range(65, 90), range(97, 122)));
-		$returned_ints = array();
-		foreach ($words as $word)
-		{
-			if (($word = trim($word, '-_\'')) !== '')
-			{
-				$encrypted = substr(crypt($word, 'uk'), 2, $max_chars);
-				$total = 0;
-				for ($i = 0; $i < $max_chars; $i++)
-					$total += $possible_chars[ord($encrypted[$i])] * pow(63, $i);
-				$returned_ints[] = $max_chars == 4 ? min($total, 16777215) : $total;
-			}
-		}
-		return array_unique($returned_ints);
-	}
-	else
-	{
-		// Trim characters before and after and add slashes for database insertion.
-		$returned_words = array();
-		foreach ($words as $word)
-			if (($word = trim($word, '-_\'')) !== '')
-				$returned_words[] = $max_chars === null ? $word : substr($word, 0, $max_chars);
-
-		// Filter out all words that occur more than once.
-		return array_unique($returned_words);
-	}
-}
-
-/**
  * Process functions of an integration hook.
  * calls all functions of the given hook.
  * supports static class method calls.

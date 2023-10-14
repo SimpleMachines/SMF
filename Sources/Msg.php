@@ -2910,7 +2910,7 @@ class Msg implements \ArrayAccess
 			{
 				$customIndexSettings = Utils::jsonDecode(Config::$modSettings['search_custom_index_config'], true);
 
-				$words = text2words($row['body'], $customIndexSettings['bytes_per_word'], true);
+				$words = Utils::text2words($row['body'], $customIndexSettings['bytes_per_word'], true);
 
 				if (!empty($words))
 				{

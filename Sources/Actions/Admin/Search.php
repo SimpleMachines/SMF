@@ -679,7 +679,7 @@ class Search implements ActionInterface
 
 						$number_processed++;
 
-						foreach (text2words($row['body'], Utils::$context['index_settings']['bytes_per_word'], true) as $id_word)
+						foreach (Utils::text2words($row['body'], Utils::$context['index_settings']['bytes_per_word'], true) as $id_word)
 						{
 							$inserts[] = array($id_word, $row['id_msg']);
 						}

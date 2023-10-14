@@ -345,7 +345,7 @@ class Logging
 				if ($parameter2 !== null)
 				{
 					$parameter1 = (int) $parameter1;
-					$parameter2 = text2words($parameter2);
+					$parameter2 = Utils::text2words($parameter2);
 
 					$inserts = array();
 
