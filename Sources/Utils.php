@@ -57,6 +57,8 @@ class Utils
 			'unescapestringRecursive' => 'unescapestring__recursive',
 			'jsonDecode' => 'smf_json_decode',
 			'jsonEncode' => false,
+			'safeSerialize' => 'safe_serialize',
+			'safeUnserialize' => 'safe_unserialize',
 			'randomInt' => false,
 			'randomBytes' => false,
 			'emitFile' => false,
@@ -1079,6 +1081,274 @@ class Utils
 	public static function jsonEncode($value, int $flags = 0, int $depth = 512)
 	{
 		return json_encode($value, $flags, $depth);
+	}
+
+	/**
+	 * Safe serialize() replacement.
+	 *
+	 * - Recursive.
+	 * - Outputs a strict subset of PHP's native serialized representation.
+	 * - Does not serialize objects.
+	 *
+	 * @param mixed $value
+	 * @return string
+	 */
+	public static function safeSerialize(mixed $value): string
+	{
+		// Make sure we use the byte count for strings even when strlen() is overloaded by mb_strlen()
+		if (function_exists('mb_internal_encoding') &&
+			(((int) ini_get('mbstring.func_overload')) & 2))
+		{
+			$mb_int_enc = mb_internal_encoding();
+			mb_internal_encoding('ASCII');
+		}
+
+		switch (gettype($value))
+		{
+			case 'NULL':
+				$out = 'N;';
+				break;
+
+			case 'boolean':
+				$out = 'b:' . (int) $value . ';';
+				break;
+
+			case 'integer':
+				$out = 'i:' . $value . ';';
+				break;
+
+			case 'double':
+				$out = 'd:' . str_replace(',', '.', $value) . ';';
+				break;
+
+			case 'string':
+				$out = 's:' . strlen($value) . ':"' . $value . '";';
+				break;
+
+			case 'array':
+				// Check for nested objects or resources.
+				$contains_invalid = false;
+
+				array_walk_recursive(
+					$value,
+					function($v) use (&$contains_invalid)
+					{
+						if (is_object($v) || is_resource($v))
+							$contains_invalid = true;
+					}
+				);
+
+				if ($contains_invalid)
+				{
+					$out = false;
+				}
+				else
+				{
+					$out = '';
+
+					foreach ($value as $k => $v)
+						$out .= self::safe_serialize($k) . self::safe_serialize($v);
+
+					$out = 'a:' . count($value) . ':{' . $out . '}';
+				}
+
+				break;
+
+			default:
+				$out = false;
+				break;
+		}
+
+		if (isset($mb_int_enc))
+			mb_internal_encoding($mb_int_enc);
+
+		return $out;
+	}
+
+	/**
+	 * Safe unserialize() replacement
+	 *
+	 * - Accepts a strict subset of PHP's native serialized representation.
+	 * - Does not unserialize objects.
+	 *
+	 * @param string $str
+	 * @return mixed
+	 */
+	public static function safeUnserialize(string $str): mixed
+	{
+		// Make sure we use the byte count for strings even when strlen() is overloaded by mb_strlen()
+		if (function_exists('mb_internal_encoding') &&
+			(((int) ini_get('mbstring.func_overload')) & 0x02))
+		{
+			$mb_int_enc = mb_internal_encoding();
+			mb_internal_encoding('ASCII');
+		}
+
+		// Input is not a string.
+		if (empty($str) || !is_string($str))
+		{
+			$out = false;
+		}
+		// The substring 'O:' is used to serialize objects.
+		// If it is not present, then there are none in the serialized data.
+		elseif (strpos($str, 'O:') === false)
+		{
+			$out = unserialize($str);
+		}
+		// It looks like there might be an object in the serialized data,
+		// but we won't know for sure until we check more closely.
+		else
+		{
+			$stack = array();
+			$expected = array();
+
+			/*
+			 * states:
+			 *   0 - initial state, expecting a single value or array
+			 *   1 - terminal state
+			 *   2 - in array, expecting end of array or a key
+			 *   3 - in array, expecting value or another array
+			 */
+			$state = 0;
+
+			while ($state != 1)
+			{
+				$type = isset($str[0]) ? $str[0] : '';
+
+				if ($type == '}')
+				{
+					$str = substr($str, 1);
+				}
+				elseif ($type == 'N' && $str[1] == ';')
+				{
+					$value = null;
+					$str = substr($str, 2);
+				}
+				elseif ($type == 'b' && preg_match('/^b:([01]);/', $str, $matches))
+				{
+					$value = $matches[1] == '1' ? true : false;
+					$str = substr($str, 4);
+				}
+				elseif ($type == 'i' && preg_match('/^i:(-?[0-9]+);(.*)/s', $str, $matches))
+				{
+					$value = (int) $matches[1];
+					$str = $matches[2];
+				}
+				elseif ($type == 'd' && preg_match('/^d:(-?[0-9]+\.?[0-9]*(E[+-][0-9]+)?);(.*)/s', $str, $matches))
+				{
+					$value = (float) $matches[1];
+					$str = $matches[3];
+				}
+				elseif ($type == 's' && preg_match('/^s:([0-9]+):"(.*)/s', $str, $matches) && substr($matches[2], (int) $matches[1], 2) == '";')
+				{
+					$value = substr($matches[2], 0, (int) $matches[1]);
+					$str = substr($matches[2], (int) $matches[1] + 2);
+				}
+				elseif ($type == 'a' && preg_match('/^a:([0-9]+):{(.*)/s', $str, $matches))
+				{
+					$expectedLength = (int) $matches[1];
+					$str = $matches[2];
+				}
+				// Object or unknown/malformed type.
+				else
+				{
+					$out = false;
+					break;
+				}
+
+				switch ($state)
+				{
+					// In array, expecting value or another array.
+					case 3:
+						if ($type == 'a')
+						{
+							$stack[] = &$list;
+							$list[$key] = array();
+							$list = &$list[$key];
+							$expected[] = $expectedLength;
+							$state = 2;
+							break;
+						}
+
+						if ($type != '}')
+						{
+							$list[$key] = $value;
+							$state = 2;
+							break;
+						}
+
+						// Missing array value.
+						$out = false;
+						break 2;
+
+					// In array, expecting end of array or a key.
+					case 2:
+						if ($type == '}')
+						{
+							// Array size is less than expected.
+							if (count($list) < end($expected))
+								return false;
+
+							unset($list);
+							$list = &$stack[count($stack) - 1];
+							array_pop($stack);
+
+							// Go to terminal state if we're at the end of the root array.
+							array_pop($expected);
+
+							if (count($expected) == 0)
+								$state = 1;
+
+							break;
+						}
+
+						if ($type == 'i' || $type == 's')
+						{
+							// Array size exceeds expected length.
+							if (count($list) >= end($expected))
+								return false;
+
+							$key = $value;
+							$state = 3;
+							break;
+						}
+
+						// Illegal array index type.
+						$out = false;
+						break 2;
+
+					// Expecting array or value.
+					case 0:
+						if ($type == 'a')
+						{
+							$data = array();
+							$list = &$data;
+							$expected[] = $expectedLength;
+							$state = 2;
+							break;
+						}
+
+						if ($type != '}')
+						{
+							$data = $value;
+							$state = 1;
+							break;
+						}
+
+						// Not in array.
+						$out = false;
+						break 2;
+				}
+			}
+
+			// If there's no trailing data in input, we're good to go.
+			$out = !empty($str) ? false : $data;
+		}
+
+		if (isset($mb_int_enc))
+			mb_internal_encoding($mb_int_enc);
+
+		return $out;
 	}
 
 	/**

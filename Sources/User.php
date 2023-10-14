@@ -4884,7 +4884,7 @@ class User implements \ArrayAccess
 
 			// Legacy format (for recent 2.0 --> 2.1 upgrades)
 			if (empty($cookie_data))
-				$cookie_data = safe_unserialize($_COOKIE[Config::$cookiename]);
+				$cookie_data = Utils::safeUnserialize($_COOKIE[Config::$cookiename]);
 
 			list(self::$my_id, $this->passwd, $login_span, $cookie_domain, $cookie_path) = array_pad((array) $cookie_data, 5, '');
 
@@ -4902,7 +4902,7 @@ class User implements \ArrayAccess
 			$cookie_data = Utils::jsonDecode($_SESSION['login_' . Config::$cookiename], true);
 
 			if (empty($cookie_data))
-				$cookie_data = safe_unserialize($_SESSION['login_' . Config::$cookiename]);
+				$cookie_data = Utils::safeUnserialize($_SESSION['login_' . Config::$cookiename]);
 
 			list(self::$my_id, $this->passwd, $login_span) = array_pad((array) $cookie_data, 3, '');
 

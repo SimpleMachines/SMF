@@ -133,12 +133,12 @@ class Login2 implements ActionInterface
 		// Next, try checking for 2.0 serialized string cookie in $_COOKIE
 		elseif (isset($_COOKIE[Config::$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\d+;~', $_COOKIE[Config::$cookiename]) === 1)
 		{
-			list(,, $timeout) = safe_unserialize($_COOKIE[Config::$cookiename]);
+			list(,, $timeout) = Utils::safeUnserialize($_COOKIE[Config::$cookiename]);
 		}
 		// Last, see if you need to fall back on checking for 2.0 serialized string cookie in $_SESSION
 		elseif (isset($_SESSION['login_' . Config::$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\d+;~', $_SESSION['login_' . Config::$cookiename]) === 1)
 		{
-			list(,, $timeout) = safe_unserialize($_SESSION['login_' . Config::$cookiename]);
+			list(,, $timeout) = Utils::safeUnserialize($_SESSION['login_' . Config::$cookiename]);
 		}
 		else
 		{
