@@ -680,7 +680,7 @@ class Url implements \Stringable
 		$tlds = array_merge($tlds, array('local', 'onion', 'test'));
 
 		// Get an optimized regex to match all the TLDs
-		$tld_regex = build_regex($tlds);
+		$tld_regex = Utils::buildRegex($tlds);
 
 		// Remember the new regex in Config::$modSettings
 		Config::updateModSettings(array('tld_regex' => $tld_regex));

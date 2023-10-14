@@ -1335,7 +1335,7 @@ class BBCodeParser
 				}
 			}
 
-			$this->smiley_preg_search = '~(?<=[>:\?\.\s' . $non_breaking_space . '[\]()*\\\;]|(?<![a-zA-Z0-9])\(|^)(' . build_regex($search_parts, '~') . ')(?=[^[:alpha:]0-9]|$)~' . ($this->utf8 ? 'u' : '');
+			$this->smiley_preg_search = '~(?<=[>:\?\.\s' . $non_breaking_space . '[\]()*\\\;]|(?<![a-zA-Z0-9])\(|^)(' . Utils::buildRegex($search_parts, '~') . ')(?=[^[:alpha:]0-9]|$)~' . ($this->utf8 ? 'u' : '');
 		}
 
 		// If there are no smileys defined, no need to replace anything
@@ -3347,9 +3347,9 @@ class BBCodeParser
 			'not_domain_label_char' => '[^' . self::$domain_label_chars . ']',
 			'domain' => '(?:(?P>domain_label_char)+\.)+(?P>tlds)(?!\.(?P>domain_label_char))',
 			'no_domain' => '(?:(?P>domain_label_char)|[._\~!$&\'()*+,;=:@]|(?P>pct))+',
-			'scheme_need_domain' => build_regex(self::$schemes['need_domain'], '~'),
-			'scheme_empty_authority' => build_regex(self::$schemes['empty_authority'], '~'),
-			'scheme_no_authority' => build_regex(self::$schemes['no_authority'], '~'),
+			'scheme_need_domain' => Utils::buildRegex(self::$schemes['need_domain'], '~'),
+			'scheme_empty_authority' => Utils::buildRegex(self::$schemes['empty_authority'], '~'),
+			'scheme_no_authority' => Utils::buildRegex(self::$schemes['no_authority'], '~'),
 			'scheme_any' => '[A-Za-z][0-9A-Za-z+\-.]*',
 			'user_info' => '(?:(?P>domain_label_char)|[._\~!$&\'()*+,;=:]|(?P>pct))+',
 			'dec_octet' => '(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)',
@@ -3428,8 +3428,8 @@ class BBCodeParser
 		}
 		$bracket_quote_chars = str_replace(array('[', ']'), array('\[', '\]'), $bracket_quote_chars);
 
-		$pcre_subroutines['bracket_quote'] = '[' . $bracket_quote_chars . ']|&' . build_regex($bracket_quote_entities, '~');
-		$pcre_subroutines['allowed_entities'] = '&(?!' . build_regex(array_merge($bracket_quote_entities, array('lt;', 'gt;')), '~') . ')';
+		$pcre_subroutines['bracket_quote'] = '[' . $bracket_quote_chars . ']|&' . Utils::buildRegex($bracket_quote_entities, '~');
+		$pcre_subroutines['allowed_entities'] = '&(?!' . Utils::buildRegex(array_merge($bracket_quote_entities, array('lt;', 'gt;')), '~') . ')';
 		$pcre_subroutines['excluded_lookahead'] = '(?![' . self::$excluded_trailing_chars . ']*(?P>space_lookahead))';
 
 		foreach (array('path', 'query', 'fragment') as $part)
@@ -3681,7 +3681,7 @@ class BBCodeParser
 				$alltags[] = $code['tag'];
 		}
 
-		$this->alltags_regex = '(?' . '>\b' . build_regex(array_unique($alltags)) . '\b|' . build_regex(array_keys(self::$itemcodes)) . ')';
+		$this->alltags_regex = '(?' . '>\b' . Utils::buildRegex(array_unique($alltags)) . '\b|' . Utils::buildRegex(array_keys(self::$itemcodes)) . ')';
 	}
 
 	/**

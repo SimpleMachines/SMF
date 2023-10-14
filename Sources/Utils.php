@@ -51,6 +51,7 @@ class Utils
 			'strtotitle' => false,
 			'ucfirst' => false,
 			'ucwords' => false,
+			'buildRegex' => 'build_regex',
 			'stripslashesRecursive' => 'stripslashes__recursive',
 			'urldecodeRecursive' => 'urldecode__recursive',
 			'escapestringRecursive' => 'escapestring__recursive',
@@ -891,6 +892,199 @@ class Utils
 		}
 
 		return array_unique($returned_ints);
+	}
+
+	/**
+	 * Creates optimized regular expressions from an array of strings.
+	 *
+	 * An optimized regex built using this function will be much faster than a
+	 * simple regex built using `implode('|', $strings)` --- anywhere from
+	 * several times to several orders of magnitude faster.
+	 *
+	 * However, the time required to build and execute the optimized regex is
+	 * approximately equal to the time it takes to execute the simple regex.
+	 * Therefore, it is usually only worth calling this method if the resulting
+	 * regex will be used more than once.
+	 *
+	 * Because PHP places an upper limit on the allowed length of a regex, very
+	 * large arrays of $strings may not fit in a single regex. Normally, the
+	 * excess strings will simply be dropped. However, if the $return_array
+	 * parameter is set to true, this function will build as many regexes as
+	 * necessary to accommodate everything in $strings and return them in an
+	 * array. You will need to iterate through all elements of the returned
+	 * array in order to test all possible matches.
+	 *
+	 * @param array $strings An array of strings to make a regex for.
+	 * @param string $delim Optional delimiter character to pass to preg_quote().
+	 * @param bool $return_array If true, returns an array of regexes.
+	 * @return string|array One or more regular expressions to match any of the
+	 *    input strings.
+	 */
+	public static function buildRegex(array $strings, string $delim = null, bool $return_array = false): string|array
+	{
+		static $regexes = array();
+
+		// If it's not an array, there's not much to do. ;)
+		if (!is_array($strings))
+			return preg_quote(@strval($strings), $delim);
+
+		$regex_key = md5(json_encode(array($strings, $delim, $return_array)));
+
+		if (isset($regexes[$regex_key]))
+			return $regexes[$regex_key];
+
+		if (($string_encoding = mb_detect_encoding(implode(' ', $strings))) !== false)
+		{
+			$current_encoding = mb_internal_encoding();
+			mb_internal_encoding($string_encoding);
+		}
+
+		// This recursive closure creates the trie from the strings.
+		$add_string_to_trie = function($string, $trie) use (&$add_string_to_trie)
+		{
+			static $depth = 0;
+			$depth++;
+
+			$first = (string) @mb_substr($string, 0, 1);
+
+			// No first character? That's no good.
+			if ($first === '')
+			{
+				// A nested array? Really? Ugh. Fine.
+				if (is_array($string) && $depth < 20)
+				{
+					foreach ($string as $str)
+						$trie = $add_string_to_trie($str, $trie);
+				}
+
+				$depth--;
+				return $trie;
+			}
+
+			if (empty($trie[$first]))
+				$trie[$first] = array();
+
+			if (mb_strlen($string) > 1)
+			{
+				// Sanity check on recursion
+				if ($depth > 99)
+				{
+					$trie[$first][mb_substr($string, 1)] = '';
+				}
+				else
+				{
+					$trie[$first] = $add_string_to_trie(mb_substr($string, 1), $trie[$first]);
+				}
+			}
+			else
+			{
+				$trie[$first][''] = '';
+			}
+
+			$depth--;
+			return $trie;
+		};
+
+		// This recursive closure turns the trie into a regular expression.
+		$trie_to_regex = function(&$trie, $delim) use (&$trie_to_regex)
+		{
+			static $depth = 0;
+			$depth++;
+
+			// Absolute max length for a regex is 32768, but we might need wiggle room
+			$max_length = 30000;
+
+			$regex = array();
+			$length = 0;
+
+			foreach ($trie as $key => $value)
+			{
+				$key_regex = preg_quote($key, $delim);
+				$new_key = $key;
+
+				if (empty($value))
+				{
+					$sub_regex = '';
+				}
+				else
+				{
+					$sub_regex = $trie_to_regex($value, $delim);
+
+					if (count(array_keys($value)) == 1)
+					{
+						$new_key_array = explode('(?' . '>', $sub_regex);
+						$new_key .= $new_key_array[0];
+					}
+					else
+					{
+						$sub_regex = '(?' . '>' . $sub_regex . ')';
+					}
+				}
+
+				if ($depth > 1)
+				{
+					$regex[$new_key] = $key_regex . $sub_regex;
+				}
+				else
+				{
+					if (($length += strlen($key_regex . $sub_regex) + 1) < $max_length || empty($regex))
+					{
+						$regex[$new_key] = $key_regex . $sub_regex;
+						unset($trie[$key]);
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+
+			// Sort by key length and then alphabetically
+			uksort(
+				$regex,
+				function($k1, $k2)
+				{
+					$l1 = mb_strlen($k1);
+					$l2 = mb_strlen($k2);
+
+					if ($l1 == $l2)
+						return strcmp($k1, $k2) > 0 ? 1 : -1;
+
+					return $l1 > $l2 ? -1 : 1;
+				}
+			);
+
+			$depth--;
+			return implode('|', $regex);
+		};
+
+		// Now that the closures are defined, let's do this thing.
+		$trie = array();
+		$regex = '';
+
+		foreach ($strings as $string)
+			$trie = $add_string_to_trie($string, $trie);
+
+		if ($return_array === true)
+		{
+			$regex = array();
+
+			while (!empty($trie))
+				$regex[] = '(?' . '>' . $trie_to_regex($trie, $delim) . ')';
+		}
+		else
+		{
+			$regex = '(?' . '>' . $trie_to_regex($trie, $delim) . ')';
+		}
+
+		// Restore PHP's internal character encoding to whatever it was originally.
+		if (!empty($current_encoding))
+			mb_internal_encoding($current_encoding);
+
+		// Save for later.
+		$regexes[$regex_key] = $regex;
+
+		return $regex;
 	}
 
 	/**

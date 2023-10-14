@@ -495,7 +495,7 @@ class SearchResult extends \SMF\Msg
 	 */
 	public static function highlight(string $text, array $words): string
 	{
-		$words = build_regex($words, '~');
+		$words = Utils::buildRegex($words, '~');
 
 		$highlighted = '';
 
