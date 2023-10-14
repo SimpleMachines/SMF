@@ -827,7 +827,9 @@ class SubsPackage
 					self::$package_ftp->chmod($ftp_file, $perms);
 				}
 				else
-					smf_chmod($file, $perms);
+				{
+					Utils::makeWritable($file, $perms);
+				}
 
 				$new_permissions = @fileperms($file);
 				$result = $new_permissions == $perms ? 'success' : 'failure';
@@ -874,24 +876,22 @@ class SubsPackage
 				if (!file_exists($file))
 					$file = dirname($file);
 
-				// This looks odd, but it's an attempt to work around PHP suExec.
-				if (!@is_writable($file))
-					smf_chmod($file, 0755);
-				if (!@is_writable($file))
-					smf_chmod($file, 0777);
-				if (!@is_writable(dirname($file)))
-					smf_chmod($file, 0755);
-				if (!@is_writable(dirname($file)))
-					smf_chmod($file, 0777);
+				Utils::makeWritable($file);
 
 				$fp = is_dir($file) ? @opendir($file) : @fopen($file, 'rb');
+
 				if (@is_writable($file) && $fp)
 				{
 					unset($files[$k]);
+
 					if (!is_dir($file))
+					{
 						fclose($fp);
+					}
 					else
+					{
 						closedir($fp);
+					}
 				}
 			}
 
@@ -913,15 +913,9 @@ class SubsPackage
 				{
 					self::mktree(dirname($file), 0755);
 					@touch($file);
-					smf_chmod($file, 0755);
 				}
 
-				if (!@is_writable($file))
-					smf_chmod($file, 0777);
-				if (!@is_writable(dirname($file)))
-					smf_chmod(dirname($file), 0777);
-
-				if (@is_writable($file))
+				if (Utils::makeWritable($file))
 					unset($files[$k]);
 			}
 
@@ -1724,8 +1718,7 @@ class SubsPackage
 				}
 				else
 				{
-					if (!is_writable($dir . '/' . $entryname))
-						smf_chmod($dir . '/' . $entryname, 0777);
+					Utils::makeWritable($dir . '/' . $entryname);
 					unlink($dir . '/' . $entryname);
 				}
 			}
@@ -1738,14 +1731,15 @@ class SubsPackage
 			if (isset(self::$package_ftp))
 			{
 				$ftp_file = strtr($dir, array($_SESSION['pack_ftp']['root'] => ''));
+
 				if (!is_writable($dir . '/' . $entryname))
 					self::$package_ftp->chmod($ftp_file, 0777);
+
 				self::$package_ftp->unlink($ftp_file);
 			}
 			else
 			{
-				if (!is_writable($dir))
-					smf_chmod($dir, 0777);
+				Utils::makeWritable($dir);
 				@rmdir($dir);
 			}
 		}
@@ -1766,9 +1760,13 @@ class SubsPackage
 			if (!is_writable($strPath) && $mode !== false)
 			{
 				if (isset(self::$package_ftp))
+				{
 					self::$package_ftp->chmod(strtr($strPath, array($_SESSION['pack_ftp']['root'] => '')), $mode);
+				}
 				else
-					smf_chmod($strPath, $mode);
+				{
+					Utils::makeWritable($strPath, $mode);
+				}
 			}
 
 			$test = @opendir($strPath);
@@ -1787,9 +1785,13 @@ class SubsPackage
 		if (!is_writable(dirname($strPath)) && $mode !== false)
 		{
 			if (isset(self::$package_ftp))
+			{
 				self::$package_ftp->chmod(dirname(strtr($strPath, array($_SESSION['pack_ftp']['root'] => ''))), $mode);
+			}
 			else
-				smf_chmod(dirname($strPath), $mode);
+			{
+				Utils::makeWritable(dirname($strPath), $mode);
+			}
 		}
 
 		if ($mode !== false && isset(self::$package_ftp))
@@ -2786,26 +2788,15 @@ class SubsPackage
 
 						self::mktree(dirname($chmod_file), 0755);
 						@touch($chmod_file);
-						smf_chmod($chmod_file, 0755);
+						Utils::makeWritable($chmod_file, 0755);
 					}
 					else
+					{
 						$file_permissions = @fileperms($chmod_file);
+					}
 				}
 
-				// This looks odd, but it's another attempt to work around PHP suExec.
-				if ($perm_state != 'writable')
-					smf_chmod($chmod_file, $perm_state == 'execute' ? 0755 : 0644);
-				else
-				{
-					if (!@is_writable($chmod_file))
-						smf_chmod($chmod_file, 0755);
-					if (!@is_writable($chmod_file))
-						smf_chmod($chmod_file, 0777);
-					if (!@is_writable(dirname($chmod_file)))
-						smf_chmod($chmod_file, 0755);
-					if (!@is_writable(dirname($chmod_file)))
-						smf_chmod($chmod_file, 0777);
-				}
+				Utils::makeWritable($chmod_file);
 
 				// The ultimate writable test.
 				if ($perm_state == 'writable')

@@ -134,7 +134,7 @@ class Export implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		if (empty(Config::$modSettings['export_dir']) || !is_dir(Config::$modSettings['export_dir']) || !smf_chmod(Config::$modSettings['export_dir']))
+		if (empty(Config::$modSettings['export_dir']) || !is_dir(Config::$modSettings['export_dir']) || !Utils::makeWritable(Config::$modSettings['export_dir']))
 		{
 			self::createDir();
 		}
@@ -426,7 +426,7 @@ class Export implements ActionInterface
 			@mkdir(Config::$modSettings['export_dir'], null, true);
 
 		// Make sure the directory has the correct permissions.
-		if (!is_dir(Config::$modSettings['export_dir']) || !smf_chmod(Config::$modSettings['export_dir']))
+		if (!is_dir(Config::$modSettings['export_dir']) || !Utils::makeWritable(Config::$modSettings['export_dir']))
 		{
 			Lang::load('Errors');
 

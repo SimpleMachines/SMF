@@ -1474,7 +1474,7 @@ class PackageManager
 				SubsPackage::deltree(Config::$packagesdir . '/' . $_GET['package']);
 			else
 			{
-				smf_chmod(Config::$packagesdir . '/' . $_GET['package'], 0777);
+				Utils::makeWritable(Config::$packagesdir . '/' . $_GET['package'], 0777);
 				unlink(Config::$packagesdir . '/' . $_GET['package']);
 			}
 		}
@@ -2201,7 +2201,9 @@ class PackageManager
 						SubsPackage::$package_ftp->chmod($ftp_file, $custom_value);
 					}
 					else
-						smf_chmod($path, $custom_value);
+					{
+						Utils::makeWritable($path, $custom_value);
+					}
 				}
 
 				// This fish is fried...
@@ -2388,7 +2390,7 @@ class PackageManager
 
 		if (Utils::$context['package_download_broken'])
 		{
-			smf_chmod(Config::$packagesdir, 0777);
+			Utils::makeWritable(Config::$packagesdir, 0777);
 		}
 
 		Utils::$context['package_download_broken'] = !is_writable(Config::$packagesdir);
@@ -2949,7 +2951,7 @@ class PackageManager
 
 		// Now move the file.
 		move_uploaded_file($_FILES['package']['tmp_name'], $destination);
-		smf_chmod($destination, 0777);
+		Utils::makeWritable($destination, 0777);
 
 		// If we got this far that should mean it's available.
 		Utils::$context['package'] = SubsPackage::getPackageInfo($packageFileName);

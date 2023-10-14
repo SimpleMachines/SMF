@@ -1593,7 +1593,7 @@ class Themes implements ActionInterface
 		if (!is_writable($dirtemp))
 		{
 			// Lets give it a try.
-			smf_chmod($dirtemp, '0755');
+			Utils::makeWritable($dirtemp, '0755');
 
 			// How about now?
 			if (!is_writable($dirtemp))
@@ -1716,7 +1716,7 @@ class Themes implements ActionInterface
 		foreach ($to_copy as $file)
 		{
 			copy(Theme::$current->settings['default_theme_dir'] . $file, Utils::$context['to_install']['theme_dir'] . $file);
-			smf_chmod(Utils::$context['to_install']['theme_dir'] . $file, 0777);
+			Utils::makeWritable(Utils::$context['to_install']['theme_dir'] . $file, 0777);
 		}
 
 		// And now the entire images directory!

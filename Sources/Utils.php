@@ -61,6 +61,7 @@ class Utils
 			'safeUnserialize' => 'safe_unserialize',
 			'randomInt' => false,
 			'randomBytes' => false,
+			'makeWritable' => 'smf_chmod',
 			'emitFile' => false,
 			'sendHttpStatus' => 'send_http_status',
 			'serverResponse' => 'smf_serverResponse',
@@ -1390,6 +1391,40 @@ class Utils
 		$length = max(1, $length);
 
 		return random_bytes($length);
+	}
+
+	/**
+	 * Tries different modes to make files or directories writable.
+	 *
+	 * Wrapper function for PHP's chmod().
+	 *
+	 * @param string $path The full path of the file or directory.
+	 * @return bool Whether the file/dir exists and is now writable.
+	 */
+	public static function makeWritable(string $path): bool
+	{
+		// No file? no checks!
+		if (empty($path))
+			return false;
+
+		// Already writable?
+		if (is_writable($path))
+			return true;
+
+		// Set different modes.
+		$chmod_values = is_dir($path) ? array(0750, 0755, 0775, 0777) : array(0644, 0664, 0666);
+
+		foreach ($chmod_values as $val)
+		{
+			// If it's writable now, we're done.
+			if (is_writable($path))
+				return true;
+
+			@chmod($path, $val);
+		}
+
+		// Didn't work.
+		return false;
 	}
 
 	/**

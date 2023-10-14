@@ -584,46 +584,6 @@ function entity_fix__callback($matches)
 }
 
 /**
- * Tries different modes to make file/dirs writable. Wrapper function for chmod()
- *
- * @param string $file The file/dir full path.
- * @param int $value Not needed, added for legacy reasons.
- * @return boolean  true if the file/dir is already writable or the function was able to make it writable, false if the function couldn't make the file/dir writable.
- */
-function smf_chmod($file, $value = 0)
-{
-	// No file? no checks!
-	if (empty($file))
-		return false;
-
-	// Already writable?
-	if (is_writable($file))
-		return true;
-
-	// Do we have a file or a dir?
-	$isDir = is_dir($file);
-	$isWritable = false;
-
-	// Set different modes.
-	$chmodValues = $isDir ? array(0750, 0755, 0775, 0777) : array(0644, 0664, 0666);
-
-	foreach ($chmodValues as $val)
-	{
-		// If it's writable, break out of the loop.
-		if (is_writable($file))
-		{
-			$isWritable = true;
-			break;
-		}
-
-		else
-			@chmod($file, $val);
-	}
-
-	return $isWritable;
-}
-
-/**
  * Creates optimized regular expressions from an array of strings.
  *
  * An optimized regex built using this function will be much faster than a

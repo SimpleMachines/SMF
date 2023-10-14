@@ -1827,7 +1827,7 @@ class Theme
 			));
 		}
 		// File has to exist. If it doesn't, try to create it.
-		elseif (@fopen($minified_file, 'w') === false || !smf_chmod($minified_file))
+		elseif (@fopen($minified_file, 'w') === false || !Utils::makeWritable($minified_file))
 		{
 			Lang::load('Errors');
 			ErrorHandler::log(sprintf(Lang::$txt['file_not_created'], $minified_file), 'general');
