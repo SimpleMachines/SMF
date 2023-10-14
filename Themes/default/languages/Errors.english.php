@@ -514,7 +514,7 @@ $txt['create_post_invalid_member_id'] = 'Msg::create(): invalid member id \'%d\'
 
 $txt['invalid_statistic_type'] = 'Logging::updateStats(): invalid statistic type \'%s\'';
 
-$txt['fetch_web_data_bad_url'] = 'fetch_web_data(): Bad URL';
+$txt['fetch_web_data_bad_url'] = '%1$s: Bad URL';
 
 $txt['unicode_update_failed'] = 'A new version of Unicode is available, but SMF could not update to it. Please make sure %1$s and all the files in it are writable. SMF will try to update its Unicode data files again automatically.';
 

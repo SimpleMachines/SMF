@@ -23,6 +23,7 @@ use SMF\Url;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
+use SMF\WebFetch\WebFetchApi;
 
 // IMAGETYPE_AVIF was added in PHP 8.1
 if (!defined('IMAGETYPE_AVIF'))
@@ -237,7 +238,7 @@ class Image
 				$this->original = $source;
 
 				// Fetch the raw image data from the URL. On failure, bail out.
-				if (!is_string($source = fetch_web_data($source)))
+				if (!is_string($source = WebFetchApi::fetch($source)))
 					return;
 			}
 

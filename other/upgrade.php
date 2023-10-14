@@ -21,6 +21,7 @@ use SMF\TaskRunner;
 use SMF\User;
 use SMF\Utils;
 use SMF\Db\DatabaseApi as Db;
+use SMF\WebFetch\WebFetchApi;
 
 // Version information...
 define('SMF_VERSION', '3.0 Alpha 1');
@@ -1943,9 +1944,6 @@ function cli_scheduled_fetchSMfiles()
 	}
 	Db::$db->free_result($request);
 
-	// We're gonna need fetch_web_data() to pull this off.
-	require_once(Config::$sourcedir . '/Subs.php');
-
 	foreach ($js_files as $ID_FILE => $file)
 	{
 		// Create the url
@@ -1953,7 +1951,7 @@ function cli_scheduled_fetchSMfiles()
 		$url = $server . (!empty($file['path']) ? $file['path'] : $file['path']) . $file['filename'] . (!empty($file['parameters']) ? '?' . $file['parameters'] : '');
 
 		// Get the file
-		$file_data = fetch_web_data($url);
+		$file_data = WebFetchApi::fetch($url);
 
 		// If we got an error - give up - the site might be down.
 		if ($file_data === false)

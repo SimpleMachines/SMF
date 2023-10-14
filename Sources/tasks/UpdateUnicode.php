@@ -18,6 +18,7 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\TaskRunner;
 use SMF\DatabaseApi as Db;
+use SMF\WebFetch\WebFetchApi;
 
 /**
  * This class contains code used to update SMF's Unicode data files.
@@ -652,7 +653,7 @@ class UpdateUnicode extends BackgroundTask
 				return false;
 		}
 
-		$file_contents = fetch_web_data($data_url . '/' . $file_url_name);
+		$file_contents = WebFetchApi::fetch($data_url . '/' . $file_url_name);
 
 		if (empty($file_contents))
 			return false;

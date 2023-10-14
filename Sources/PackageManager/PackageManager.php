@@ -28,6 +28,7 @@ use SMF\User;
 use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\WebFetch\WebFetchApi;
 
 /**
  * This is the main package manager.
@@ -2550,7 +2551,7 @@ class PackageManager
 		@set_time_limit(600);
 
 		// Read packages.xml and parse into XmlArray. (the true tells it to trim things ;).)
-		$listing = new XmlArray(fetch_web_data($_GET['package']), true);
+		$listing = new XmlArray(WebFetchApi::fetch($_GET['package']), true);
 
 		// Errm.... empty file?  Try the URL....
 		if (!$listing->exists('package-list'))
@@ -2883,7 +2884,7 @@ class PackageManager
 
 		// Use FTP if necessary.
 		SubsPackage::create_chmod_control(array(Config::$packagesdir . '/' . $package_name), array('destination_url' => Config::$scripturl . '?action=admin;area=packages;get;sa=download' . (isset($_GET['server']) ? ';server=' . $_GET['server'] : '') . (isset($_REQUEST['auto']) ? ';auto' : '') . ';package=' . $_REQUEST['package'] . (isset($_REQUEST['conflict']) ? ';conflict' : '') . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], 'crash_on_error' => true));
-		SubsPackage::package_put_contents(Config::$packagesdir . '/' . $package_name, fetch_web_data($url . $_REQUEST['package']));
+		SubsPackage::package_put_contents(Config::$packagesdir . '/' . $package_name, WebFetchApi::fetch($url . $_REQUEST['package']));
 
 		// Done!  Did we get this package automatically?
 		// @ TODO: These are usually update packages.  Allowing both for now until more testing has been done.

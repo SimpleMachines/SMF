@@ -29,6 +29,7 @@ use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\PackageManager\SubsPackage;
 use SMF\PackageManager\XmlArray;
+use SMF\WebFetch\WebFetchApi;
 
 /**
  * This class handles the administration of languages tasks.
@@ -1596,7 +1597,7 @@ class Languages implements ActionInterface
 		$smf_languages = array();
 
 		// Load the class file and stick it into an array.
-		$language_list = new XmlArray(fetch_web_data($url), true);
+		$language_list = new XmlArray(WebFetchApi::fetch($url), true);
 
 		// Check that the site responded and that the language exists.
 		if (!$language_list->exists('languages'))

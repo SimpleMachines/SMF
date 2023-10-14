@@ -34,6 +34,7 @@ use SMF\Actions\MessageIndex;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\PackageManager\SubsPackage;
+use SMF\WebFetch\WebFetchApi;
 
 /**
  * This class takes care of all administration of smileys.
@@ -1570,7 +1571,7 @@ class Smileys implements ActionInterface
 				ErrorHandler::fatalLang('package_upload_error_exists', false);
 
 			// Let's copy it to the Packages directory
-			file_put_contents($destination, fetch_web_data($_REQUEST['set_gz']));
+			file_put_contents($destination, WebFetchApi::fetch($_REQUEST['set_gz']));
 
 			$testing = true;
 		}

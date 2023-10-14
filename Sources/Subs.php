@@ -31,7 +31,7 @@ use SMF\Utils;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Unicode\Utf8String;
-use SMF\WebFetch\APIs\CurlFetcher;
+use SMF\WebFetch\WebFetchApi;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -48,6 +48,7 @@ class_exists('SMF\\Topic');
 class_exists('SMF\\Url');
 class_exists('SMF\\User');
 class_exists('SMF\\Utils');
+class_exists('SMF\\WebFetch\\WebFetchApi');
 
 /**
  * Calculates all the possible permutations (orders) of array.
@@ -434,191 +435,6 @@ function load_file($string)
 }
 
 /**
- * Get the contents of a URL, irrespective of allow_url_fopen.
- *
- * - reads the contents of an http or ftp address and returns the page in a string
- * - will accept up to 3 page redirections (redirectio_level in the function call is private)
- * - if post_data is supplied, the value and length is posted to the given url as form data
- * - URL must be supplied in lowercase
- *
- * @param string $url The URL
- * @param string $post_data The data to post to the given URL
- * @param bool $keep_alive Whether to send keepalive info
- * @param int $redirection_level How many levels of redirection
- * @return string|false The fetched data or false on failure
- */
-function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection_level = 0)
-{
-	static $keep_alive_dom = null, $keep_alive_fp = null;
-
-	$url = Url::create($url, true)->validate()->toAscii();
-
-	// No scheme? No data for you!
-	if (empty($url->scheme) || !in_array($url->scheme, array('http', 'https', 'ftp', 'ftps')))
-		return false;
-
-	$path_and_query = $url->path . (isset($url->query) && $url->query !== '' ? '?' . $url->query : '');
-
-	// An FTP url. We should try connecting and RETRieving it...
-	// @todo Move this to a SMF\Fetchers\FtpFetcher class.
-	if (in_array($url->scheme, array('ftp', 'ftps')))
-	{
-		// Establish a connection and attempt to enable passive mode.
-		$ftp = new SMF\PackageManager\FtpConnection(($url->scheme === 'ftps' ? 'ssl://' : '') . $url->host, empty($url->port) ? 21 : $url->port, 'anonymous', Config::$webmaster_email);
-
-		if ($ftp->error !== false || !$ftp->passive())
-			return false;
-
-		// I want that one *points*!
-		fwrite($ftp->connection, 'RETR ' . $path_and_query . "\r\n");
-
-		// Since passive mode worked (or we would have returned already!) open the connection.
-		$fp = @fsockopen($ftp->pasv['ip'], $ftp->pasv['port'], $err, $err, 5);
-		if (!$fp)
-			return false;
-
-		// The server should now say something in acknowledgement.
-		$ftp->check_response(150);
-
-		$data = '';
-		while (!feof($fp))
-			$data .= fread($fp, 4096);
-		fclose($fp);
-
-		// All done, right?  Good.
-		$ftp->check_response(226);
-		$ftp->close();
-	}
-	// This is more likely; a standard HTTP URL.
-	elseif (in_array($url->scheme, array('http', 'https')))
-	{
-		// First try to use fsockopen, because it is fastest.
-		// @todo Move this to a SMF\Fetchers\SocketFetcher class.
-		if ($keep_alive && $url->host == $keep_alive_dom)
-			$fp = $keep_alive_fp;
-
-		if (empty($fp))
-		{
-			// Open the socket on the port we want...
-			$fp = @fsockopen(($url->scheme === 'https' ? 'ssl://' : '') . $url->host, empty($url->port) ? ($url->scheme === 'https' ? 443 : 80) : $url->port, $err, $err, 5);
-		}
-		if (!empty($fp))
-		{
-			if ($keep_alive)
-			{
-				$keep_alive_dom = $url->host;
-				$keep_alive_fp = $fp;
-			}
-
-			// I want this, from there, and I'm not going to be bothering you for more (probably.)
-			if (empty($post_data))
-			{
-				fwrite($fp, 'GET ' . ($path_and_query !== '/' ? str_replace(' ', '%20', $path_and_query) : '') . ' HTTP/1.0' . "\r\n");
-				fwrite($fp, 'Host: ' . $url->host . (empty($url->port) ? ($url->scheme === 'https' ? ':443' : '') : ':' . $url->port) . "\r\n");
-				fwrite($fp, 'user-agent: '. SMF_USER_AGENT . "\r\n");
-				if ($keep_alive)
-					fwrite($fp, 'connection: Keep-Alive' . "\r\n\r\n");
-				else
-					fwrite($fp, 'connection: close' . "\r\n\r\n");
-			}
-			else
-			{
-				fwrite($fp, 'POST ' . ($path_and_query !== '/' ? $path_and_query : '') . ' HTTP/1.0' . "\r\n");
-				fwrite($fp, 'Host: ' . $url->host . (empty($url->port) ? ($url->scheme === 'https' ? ':443' : '') : ':' . $url->port) . "\r\n");
-				fwrite($fp, 'user-agent: '. SMF_USER_AGENT . "\r\n");
-				if ($keep_alive)
-					fwrite($fp, 'connection: Keep-Alive' . "\r\n");
-				else
-					fwrite($fp, 'connection: close' . "\r\n");
-				fwrite($fp, 'content-type: application/x-www-form-urlencoded' . "\r\n");
-				fwrite($fp, 'content-length: ' . strlen($post_data) . "\r\n\r\n");
-				fwrite($fp, $post_data);
-			}
-
-			$response = fgets($fp, 768);
-
-			// Redirect in case this location is permanently or temporarily moved.
-			if ($redirection_level < 3 && preg_match('~^HTTP/\S+\s+30[127]~i', $response) === 1)
-			{
-				$header = '';
-				$location = '';
-				while (!feof($fp) && trim($header = fgets($fp, 4096)) != '')
-					if (stripos($header, 'location:') !== false)
-						$location = trim(substr($header, strpos($header, ':') + 1));
-
-				if (empty($location))
-					return false;
-				else
-				{
-					if (!$keep_alive)
-						fclose($fp);
-					return fetch_web_data($location, $post_data, $keep_alive, $redirection_level + 1);
-				}
-			}
-
-			// Make sure we get a 200 OK.
-			elseif (preg_match('~^HTTP/\S+\s+20[01]~i', $response) === 0)
-				return false;
-
-			// Skip the headers...
-			while (!feof($fp) && trim($header = fgets($fp, 4096)) != '')
-			{
-				if (preg_match('~content-length:\s*(\d+)~i', $header, $match) != 0)
-					$content_length = $match[1];
-				elseif (preg_match('~connection:\s*close~i', $header) != 0)
-				{
-					$keep_alive_dom = null;
-					$keep_alive = false;
-				}
-
-				continue;
-			}
-
-			$data = '';
-			if (isset($content_length))
-			{
-				while (!feof($fp) && strlen($data) < $content_length)
-					$data .= fread($fp, $content_length - strlen($data));
-			}
-			else
-			{
-				while (!feof($fp))
-					$data .= fread($fp, 4096);
-			}
-
-			if (!$keep_alive)
-				fclose($fp);
-		}
-
-		// If using fsockopen didn't work, try to use cURL if available.
-		elseif (function_exists('curl_init'))
-		{
-			$fetch_data = new CurlFetcher();
-			$fetch_data->get_url_data($url, $post_data);
-
-			// no errors and a 200 result, then we have a good dataset, well we at least have data. ;)
-			if ($fetch_data->result('code') == 200 && !$fetch_data->result('error'))
-				$data = $fetch_data->result('body');
-			else
-				return false;
-		}
-
-		// Neither fsockopen nor curl are available. Well, phooey.
-		else
-			return false;
-	}
-	else
-	{
-		// Umm, this shouldn't happen?
-		Lang::load('Errors');
-		trigger_error(Lang::$txt['fetch_web_data_bad_url'], E_USER_NOTICE);
-		$data = false;
-	}
-
-	return $data;
-}
-
-/**
  * Attempts to determine the MIME type of some data or a file.
  *
  * @param string $data The data to check, or the path or URL of a file to check.
@@ -651,7 +467,7 @@ function get_mime_type($data, $is_path = false)
 				$mime_type = mime_content_type($data);
 
 			// URL.
-			elseif ($data = fetch_web_data($data))
+			elseif ($data = WebFetchApi::fetch($data))
 				$mime_type = finfo_buffer(finfo_open(FILEINFO_MIME_TYPE), $data);
 		}
 	}
@@ -661,7 +477,7 @@ function get_mime_type($data, $is_path = false)
 		// If $data is a URL to fetch, do so.
 		if (!empty($is_path) && !file_exists($data) && url_exists($data))
 		{
-			$data = fetch_web_data($data);
+			$data = WebFetchApi::fetch($data);
 			$is_path = false;
 		}
 

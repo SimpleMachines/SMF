@@ -17,6 +17,7 @@ use SMF\Actions\Agreement;
 use SMF\Actions\Notify;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\WebFetch\WebFetchApi;
 
 /**
  * Represents a loaded theme. Also provides many theme-related static methods.
@@ -3179,7 +3180,7 @@ class Theme
 			}
 			else
 			{
-				$error = fetch_web_data(Config::$boardurl . strtr($filename, array(Config::$boarddir => '', strtr(Config::$boarddir, '\\', '/') => '')));
+				$error = WebFetchApi::fetch(Config::$boardurl . strtr($filename, array(Config::$boarddir => '', strtr(Config::$boarddir, '\\', '/') => '')));
 
 				$error_array = error_get_last();
 
