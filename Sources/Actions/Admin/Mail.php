@@ -305,8 +305,8 @@ class Mail implements ActionInterface
 
 			Utils::$context['settings_insert_above'] .= '
 				' . $index . ': {
-					subject: ' . JavaScriptEscape($email['subject']) . ',
-					body: ' . JavaScriptEscape(nl2br($email['body'])) . '
+					subject: ' . Utils::JavaScriptEscape($email['subject']) . ',
+					body: ' . Utils::JavaScriptEscape(nl2br($email['body'])) . '
 				}' . (!$is_last ? ',' : '');
 		}
 

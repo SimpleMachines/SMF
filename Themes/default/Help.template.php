@@ -63,13 +63,13 @@ function template_find_members()
 					return;
 
 				// If we only accept one name don\'t remember what is there.
-				if (', JavaScriptEscape(Utils::$context['delimiter']), ' != \'null\')
+				if (', Utils::JavaScriptEscape(Utils::$context['delimiter']), ' != \'null\')
 					membersAdded[name] = true;
 
-				if (theTextBox.value.length < 1 || ', JavaScriptEscape(Utils::$context['delimiter']), ' == \'null\')
+				if (theTextBox.value.length < 1 || ', Utils::JavaScriptEscape(Utils::$context['delimiter']), ' == \'null\')
 					theTextBox.value = ', Utils::$context['quote_results'] ? '"\"" + name + "\""' : 'name', ';
 				else
-					theTextBox.value += ', JavaScriptEscape(Utils::$context['delimiter']), ' + ', Utils::$context['quote_results'] ? '"\"" + name + "\""' : 'name', ';
+					theTextBox.value += ', Utils::JavaScriptEscape(Utils::$context['delimiter']), ' + ', Utils::$context['quote_results'] ? '"\"" + name + "\""' : 'name', ';
 
 				window.focus();
 			}

@@ -61,7 +61,7 @@ function template_main()
 				pollOptionNum++
 				pollOptionId++
 
-				setOuterHTML(document.getElementById(\'pollMoreOptions\'), ', JavaScriptEscape('<dt><label for="options-'), ' + pollOptionId + ', JavaScriptEscape('">' . Lang::$txt['option'] . ' '), ' + pollOptionNum + ', JavaScriptEscape('</label>:</dt><dd><input type="text" name="options['), ' + pollOptionId + ', JavaScriptEscape(']" id="options-'), ' + pollOptionId + ', JavaScriptEscape('" value="" size="80" maxlength="255" tabindex="'), ' + pollTabIndex + ', JavaScriptEscape('"></dd><p id="pollMoreOptions"></p>'), ');
+				setOuterHTML(document.getElementById(\'pollMoreOptions\'), ', Utils::JavaScriptEscape('<dt><label for="options-'), ' + pollOptionId + ', Utils::JavaScriptEscape('">' . Lang::$txt['option'] . ' '), ' + pollOptionNum + ', Utils::JavaScriptEscape('</label>:</dt><dd><input type="text" name="options['), ' + pollOptionId + ', Utils::JavaScriptEscape(']" id="options-'), ' + pollOptionId + ', Utils::JavaScriptEscape('" value="" size="80" maxlength="255" tabindex="'), ' + pollTabIndex + ', Utils::JavaScriptEscape('"></dd><p id="pollMoreOptions"></p>'), ');
 			}';
 
 	// If we are making a calendar event we want to ensure we show the current days in a month etc... this is done here.
@@ -542,12 +542,12 @@ function template_main()
 				sErrorsListContainerID: "error_list",
 				sCaptionContainerID: "caption_%ID%",
 				sNewImageContainerID: "image_new_%ID%",
-				sPostBoxContainerID: ', JavaScriptEscape(Utils::$context['post_box_name']), ',
+				sPostBoxContainerID: ', Utils::JavaScriptEscape(Utils::$context['post_box_name']), ',
 				bMakePoll: ', Utils::$context['make_poll'] ? 'true' : 'false', ',
-				sTxtPreviewTitle: ', JavaScriptEscape(Lang::$txt['preview_title']), ',
-				sTxtPreviewFetch: ', JavaScriptEscape(Lang::$txt['preview_fetch']), ',
-				sSessionVar: ', JavaScriptEscape(Utils::$context['session_var']), ',
-				newPostsTemplate:', JavaScriptEscape($newPostsHTML);
+				sTxtPreviewTitle: ', Utils::JavaScriptEscape(Lang::$txt['preview_title']), ',
+				sTxtPreviewFetch: ', Utils::JavaScriptEscape(Lang::$txt['preview_fetch']), ',
+				sSessionVar: ', Utils::JavaScriptEscape(Utils::$context['session_var']), ',
+				newPostsTemplate:', Utils::JavaScriptEscape($newPostsHTML);
 
 	if (!empty(Utils::$context['current_board']))
 		echo ',
@@ -581,8 +581,8 @@ function template_main()
 				aSwapLinks: [
 					{
 						sId: \'postMoreExpandLink\',
-						msgExpanded: ', JavaScriptEscape(Lang::$txt['post_additionalopt']), ',
-						msgCollapsed: ', JavaScriptEscape(Lang::$txt['post_additionalopt']), '
+						msgExpanded: ', Utils::JavaScriptEscape(Lang::$txt['post_additionalopt']), ',
+						msgCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['post_additionalopt']), '
 					}
 				]
 			});';
@@ -606,8 +606,8 @@ function template_main()
 				aSwapLinks: [
 					{
 						sId: \'postDraftExpandLink\',
-						msgExpanded: ', JavaScriptEscape(Lang::$txt['draft_hide']), ',
-						msgCollapsed: ', JavaScriptEscape(Lang::$txt['drafts_show']), '
+						msgExpanded: ', Utils::JavaScriptEscape(Lang::$txt['draft_hide']), ',
+						msgCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['drafts_show']), '
 					}
 				]
 			});';
@@ -685,7 +685,7 @@ function template_main()
 					{
 						sId: \'msg_', $post_id, '_ignored_link\',
 						msgExpanded: \'\',
-						msgCollapsed: ', JavaScriptEscape(Lang::$txt['show_ignore_user_post']), '
+						msgCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['show_ignore_user_post']), '
 					}
 				]
 			});';

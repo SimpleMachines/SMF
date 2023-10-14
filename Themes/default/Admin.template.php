@@ -114,12 +114,12 @@ function template_admin()
 							sSelf: \'oAdminCenter\',
 
 							bLoadAnnouncements: true,
-							sAnnouncementTemplate: ', JavaScriptEscape('
+							sAnnouncementTemplate: ', Utils::JavaScriptEscape('
 								<dl>
 									%content%
 								</dl>
 							'), ',
-							sAnnouncementMessageTemplate: ', JavaScriptEscape('
+							sAnnouncementMessageTemplate: ', Utils::JavaScriptEscape('
 								<dt><a href="%href%">%subject%</a> ' . Lang::$txt['on'] . ' %time%</dt>
 								<dd>
 									%message%
@@ -130,15 +130,15 @@ function template_admin()
 							bLoadVersions: true,
 							sSmfVersionContainerId: \'smfVersion\',
 							sYourVersionContainerId: \'yourVersion\',
-							sVersionOutdatedTemplate: ', JavaScriptEscape('
+							sVersionOutdatedTemplate: ', Utils::JavaScriptEscape('
 								<span class="alert">%currentVersion%</span>
 							'), ',
 
 							bLoadUpdateNotification: true,
 							sUpdateNotificationContainerId: \'update_section\',
-							sUpdateNotificationDefaultTitle: ', JavaScriptEscape(Lang::$txt['update_available']), ',
-							sUpdateNotificationDefaultMessage: ', JavaScriptEscape(Lang::$txt['update_message']), ',
-							sUpdateNotificationTemplate: ', JavaScriptEscape('
+							sUpdateNotificationDefaultTitle: ', Utils::JavaScriptEscape(Lang::$txt['update_available']), ',
+							sUpdateNotificationDefaultMessage: ', Utils::JavaScriptEscape(Lang::$txt['update_message']), ',
+							sUpdateNotificationTemplate: ', Utils::JavaScriptEscape('
 								<h3 id="update_title">
 									%title%
 								</h3>
@@ -146,7 +146,7 @@ function template_admin()
 									%message%
 								</div>
 							'), ',
-							sUpdateNotificationLink: smf_scripturl + ', JavaScriptEscape('?action=admin;area=packages;pgdownload;auto;package=%package%;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']), '
+							sUpdateNotificationLink: smf_scripturl + ', Utils::JavaScriptEscape('?action=admin;area=packages;pgdownload;auto;package=%package%;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']), '
 						});
 					</script>';
 }

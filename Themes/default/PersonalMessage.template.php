@@ -854,15 +854,15 @@ function template_search()
 				aSwapImages: [
 					{
 						sId: \'advanced_panel_toggle\',
-						altExpanded: ', JavaScriptEscape(Lang::$txt['hide']), ',
-						altCollapsed: ', JavaScriptEscape(Lang::$txt['show']), '
+						altExpanded: ', Utils::JavaScriptEscape(Lang::$txt['hide']), ',
+						altCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['show']), '
 					}
 				],
 				aSwapLinks: [
 					{
 						sId: \'advanced_panel_link\',
-						msgExpanded: ', JavaScriptEscape(Lang::$txt['pm_search_choose_label']), ',
-						msgCollapsed: ', JavaScriptEscape(Lang::$txt['pm_search_choose_label']), '
+						msgExpanded: ', Utils::JavaScriptEscape(Lang::$txt['pm_search_choose_label']), ',
+						msgCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['pm_search_choose_label']), '
 					}
 				]
 			});
@@ -1130,7 +1130,7 @@ function template_send()
 					}
 					// @todo Currently not sending poll options and option checkboxes.
 					var x = new Array();
-					var textFields = [\'subject\', ', JavaScriptEscape(Utils::$context['post_box_name']), ', \'to\', \'bcc\'];
+					var textFields = [\'subject\', ', Utils::JavaScriptEscape(Utils::$context['post_box_name']), ', \'to\', \'bcc\'];
 					var numericFields = [\'recipient_to[]\', \'recipient_bcc[]\'];
 					var checkboxFields = [];
 
@@ -1138,7 +1138,7 @@ function template_send()
 						if (textFields[i] in document.forms.postmodify)
 						{
 							// Handle the WYSIWYG editor.
-							if (textFields[i] == ', JavaScriptEscape(Utils::$context['post_box_name']), ' && ', JavaScriptEscape('oEditorHandle_' . Utils::$context['post_box_name']), ' in window && oEditorHandle_', Utils::$context['post_box_name'], '.bRichTextEnabled)
+							if (textFields[i] == ', Utils::JavaScriptEscape(Utils::$context['post_box_name']), ' && ', Utils::JavaScriptEscape('oEditorHandle_' . Utils::$context['post_box_name']), ' in window && oEditorHandle_', Utils::$context['post_box_name'], '.bRichTextEnabled)
 								x[x.length] = \'message_mode=1&\' + textFields[i] + \'=\' + oEditorHandle_', Utils::$context['post_box_name'], '.getText(false).php_to8bit().php_urlencode();
 							else
 								x[x.length] = textFields[i] + \'=\' + document.forms.postmodify[textFields[i]].value.php_to8bit().php_urlencode();
@@ -1228,8 +1228,8 @@ function template_send()
 				aSwapLinks: [
 					{
 						sId: \'postDraftExpandLink\',
-						msgExpanded: ', JavaScriptEscape(Lang::$txt['draft_hide']), ',
-						msgCollapsed: ', JavaScriptEscape(Lang::$txt['drafts_show']), '
+						msgExpanded: ', Utils::JavaScriptEscape(Lang::$txt['draft_hide']), ',
+						msgCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['drafts_show']), '
 					}
 				]
 			});';
@@ -1267,8 +1267,8 @@ function template_send()
 	foreach (Utils::$context['recipients']['to'] as $i => $member)
 		echo '
 					{
-						sItemId: ', JavaScriptEscape($member['id']), ',
-						sItemName: ', JavaScriptEscape($member['name']), '
+						sItemId: ', Utils::JavaScriptEscape($member['id']), ',
+						sItemName: ', Utils::JavaScriptEscape($member['name']), '
 					}', $i == count(Utils::$context['recipients']['to']) - 1 ? '' : ',';
 
 	echo '
@@ -1278,8 +1278,8 @@ function template_send()
 	foreach (Utils::$context['recipients']['bcc'] as $i => $member)
 		echo '
 					{
-						sItemId: ', JavaScriptEscape($member['id']), ',
-						sItemName: ', JavaScriptEscape($member['name']), '
+						sItemId: ', Utils::JavaScriptEscape($member['id']), ',
+						sItemName: ', Utils::JavaScriptEscape($member['name']), '
 					}', $i == count(Utils::$context['recipients']['bcc']) - 1 ? '' : ',';
 
 	echo '
@@ -1290,7 +1290,7 @@ function template_send()
 				sBccLinkId: \'bcc_link\',
 				sBccLinkContainerId: \'bcc_link_container\',
 				bBccShowByDefault: ', empty(Utils::$context['recipients']['bcc']) && empty(Utils::$context['bcc_value']) ? 'false' : 'true', ',
-				sShowBccLinkTemplate: ', JavaScriptEscape('
+				sShowBccLinkTemplate: ', Utils::JavaScriptEscape('
 					<a href="#" id="bcc_link">' . Lang::$txt['make_bcc'] . '</a> <a href="' . Config::$scripturl . '?action=helpadmin;help=pm_bcc" onclick="return reqOverlayDiv(this.href);">(?)</a>'
 				), '
 			});';
@@ -1652,7 +1652,7 @@ function template_add_rule()
 					if (document.forms.addrule.elements[i].id.substr(0, 8) == "ruletype")
 					{
 						if (foundCriteria)
-							joinText = document.getElementById("logic").value == \'and\' ? ', JavaScriptEscape(' <em>' . Lang::$txt['pm_readable_and'] . '</em> '), ' : ', JavaScriptEscape(' <em>' . Lang::$txt['pm_readable_or'] . '</em> '), ';
+							joinText = document.getElementById("logic").value == \'and\' ? ', Utils::JavaScriptEscape(' <em>' . Lang::$txt['pm_readable_and'] . '</em> '), ' : ', Utils::JavaScriptEscape(' <em>' . Lang::$txt['pm_readable_or'] . '</em> '), ';
 						else
 							joinText = \'\';
 						foundCriteria = true;
@@ -1668,23 +1668,23 @@ function template_add_rule()
 
 						// What type of test is this?
 						if (curVal == "mid" && curDef)
-							text += joinText + ', JavaScriptEscape(Lang::$txt['pm_readable_member']), '.replace("{MEMBER}", curDef);
+							text += joinText + ', Utils::JavaScriptEscape(Lang::$txt['pm_readable_member']), '.replace("{MEMBER}", curDef);
 						else if (curVal == "gid" && curDef && groups[curDef])
-							text += joinText + ', JavaScriptEscape(Lang::$txt['pm_readable_group']), '.replace("{GROUP}", groups[curDef]);
+							text += joinText + ', Utils::JavaScriptEscape(Lang::$txt['pm_readable_group']), '.replace("{GROUP}", groups[curDef]);
 						else if (curVal == "sub" && curDef)
-							text += joinText + ', JavaScriptEscape(Lang::$txt['pm_readable_subject']), '.replace("{SUBJECT}", curDef);
+							text += joinText + ', Utils::JavaScriptEscape(Lang::$txt['pm_readable_subject']), '.replace("{SUBJECT}", curDef);
 						else if (curVal == "msg" && curDef)
-							text += joinText + ', JavaScriptEscape(Lang::$txt['pm_readable_body']), '.replace("{BODY}", curDef);
+							text += joinText + ', Utils::JavaScriptEscape(Lang::$txt['pm_readable_body']), '.replace("{BODY}", curDef);
 						else if (curVal == "bud" && !hadBuddy)
 						{
-							text += joinText + ', JavaScriptEscape(Lang::$txt['pm_readable_buddy']), ';
+							text += joinText + ', Utils::JavaScriptEscape(Lang::$txt['pm_readable_buddy']), ';
 							hadBuddy = true;
 						}
 					}
 					if (document.forms.addrule.elements[i].id.substr(0, 7) == "acttype")
 					{
 						if (foundAction)
-							joinText = ', JavaScriptEscape(' <em>' . Lang::$txt['pm_readable_and'] . '</em> '), ';
+							joinText = ', Utils::JavaScriptEscape(' <em>' . Lang::$txt['pm_readable_and'] . '</em> '), ';
 						else
 							joinText = "";
 						foundAction = true;
@@ -1698,9 +1698,9 @@ function template_add_rule()
 
 						// Now pick the actions.
 						if (curVal == "lab" && curDef && labels[curDef])
-							actionText += joinText + ', JavaScriptEscape(Lang::$txt['pm_readable_label']), '.replace("{LABEL}", labels[curDef]);
+							actionText += joinText + ', Utils::JavaScriptEscape(Lang::$txt['pm_readable_label']), '.replace("{LABEL}", labels[curDef]);
 						else if (curVal == "del")
-							actionText += joinText + ', JavaScriptEscape(Lang::$txt['pm_readable_delete']), ';
+							actionText += joinText + ', Utils::JavaScriptEscape(Lang::$txt['pm_readable_delete']), ';
 					}
 				}
 
@@ -1710,8 +1710,8 @@ function template_add_rule()
 				else
 				{
 					if (actionText != "")
-						text += ', JavaScriptEscape(' <strong>' . Lang::$txt['pm_readable_then'] . '</strong> '), ' + actionText;
-					text = ', JavaScriptEscape(Lang::$txt['pm_readable_start']), ' + text + ', JavaScriptEscape(Lang::$txt['pm_readable_end']), ';
+						text += ', Utils::JavaScriptEscape(' <strong>' . Lang::$txt['pm_readable_then'] . '</strong> '), ' + actionText;
+					text = ', Utils::JavaScriptEscape(Lang::$txt['pm_readable_start']), ' + text + ', Utils::JavaScriptEscape(Lang::$txt['pm_readable_end']), ';
 				}
 
 				// Set the actual HTML!

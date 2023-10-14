@@ -1088,6 +1088,61 @@ class Utils
 	}
 
 	/**
+	 * Clean up the XML to make sure it doesn't contain invalid characters.
+	 *
+	 * See https://www.w3.org/TR/xml/#charsets
+	 *
+	 * @param string $string The string to clean
+	 * @return string The cleaned string
+	 */
+	public static function cleanXml(string $string): string
+	{
+		$illegal_chars = array(
+			// Remove all ASCII control characters except \t, \n, and \r.
+			"\x00", "\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\x07", "\x08",
+			"\x0B", "\x0C", "\x0E", "\x0F", "\x10", "\x11", "\x12", "\x13", "\x14",
+			"\x15", "\x16", "\x17", "\x18", "\x19", "\x1A", "\x1B", "\x1C", "\x1D",
+			"\x1E", "\x1F",
+			// Remove \xFFFE and \xFFFF
+			"\xEF\xBF\xBE", "\xEF\xBF\xBF",
+		);
+
+		$string = str_replace($illegal_chars, '', $string);
+
+		// The Unicode surrogate pair code points should never be present in our
+		// strings to begin with, but if any snuck in, they need to be removed.
+		if (!empty(Utils::$context['utf8']) && strpos($string, "\xED") !== false)
+			$string = preg_replace('/\xED[\xA0-\xBF][\x80-\xBF]/', '', $string);
+
+		return $string;
+	}
+
+	/**
+	 * Escapes (replaces) characters in strings to make them safe for use in JavaScript
+	 *
+	 * @param string $string The string to escape
+	 * @param bool $as_json If true, escape as double-quoted string. Default false.
+	 * @return string The escaped string
+	 */
+	public static function JavaScriptEscape(string $string, bool $as_json = false): string
+	{
+		$q = !empty($as_json) ? '"' : '\'';
+
+		return $q . strtr($string, array(
+			"\r" => '',
+			"\n" => '\\n',
+			"\t" => '\\t',
+			'\\' => '\\\\',
+			$q => addslashes($q),
+			'</' => '<' . $q . ' + ' . $q . '/',
+			'<script' => '<scri' . $q . '+' . $q . 'pt',
+			'<body>' => '<bo' . $q . '+' . $q . 'dy>',
+			'<a href' => '<a hr' . $q . '+' . $q . 'ef',
+			Config::$scripturl => $q . ' + smf_scripturl + ' . $q,
+		)) . $q;
+	}
+
+	/**
 	 * Recursively applies stripslashes() to all elements of an array.
 	 *
 	 * Affects both keys and values of arrays.
