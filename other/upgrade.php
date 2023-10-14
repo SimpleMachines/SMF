@@ -3355,7 +3355,6 @@ function ConvertUtf8()
 
 		// Store it in Settings.php too because it's needed before db connection.
 		// Hopefully this works...
-		require_once(Config::$sourcedir . '/Subs.php');
 		Config::updateSettingsFile(array('db_character_set' => 'utf8'));
 
 		// The conversion might have messed up some serialized strings. Fix them!
@@ -3370,7 +3369,8 @@ function ConvertUtf8()
 		);
 		while ($row = Db::$db->fetch_assoc($request))
 		{
-			if (@safe_unserialize($row['extra']) === false && preg_match('~^(a:3:{s:5:"topic";i:\d+;s:7:"subject";s:)(\d+):"(.+)"(;s:6:"member";s:5:"\d+";})$~', $row['extra'], $matches) === 1)
+			if (@Utils::safeUnserialize($row['extra']) === false && preg_match('~^(a:3:{s:5:"topic";i:\d+;s:7:"subject";s:)(\d+):"(.+)"(;s:6:"member";s:5:"\d+";})$~', $row['extra'], $matches) === 1)
+			{
 				Db::$db->query('', '
 					UPDATE {db_prefix}log_actions
 					SET extra = {string:extra}
@@ -3380,6 +3380,7 @@ function ConvertUtf8()
 						'extra' => $matches[1] . strlen($matches[3]) . ':"' . $matches[3] . '"' . $matches[4],
 					)
 				);
+			}
 		}
 		Db::$db->free_result($request);
 
@@ -3420,7 +3421,7 @@ function upgrade_unserialize($string)
 	}
 	elseif (in_array(substr($string, 0, 2), array('b:', 'i:', 'd:', 's:', 'a:', 'N;')))
 	{
-		$data = @safe_unserialize($string);
+		$data = @Utils::safeUnserialize($string);
 
 		// The serialized data is broken.
 		if ($data === false)
@@ -3438,7 +3439,7 @@ function upgrade_unserialize($string)
 			// @todo Add more possible fixes here. For example, fix incorrect array lengths, try to handle truncated strings gracefully, etc.
 
 			// Did it work?
-			$data = @safe_unserialize($string);
+			$data = @Utils::safeUnserialize($string);
 		}
 	}
 	// Just a plain string, then.

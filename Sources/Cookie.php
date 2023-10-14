@@ -281,7 +281,7 @@ class Cookie
 			// Legacy format (for recent upgrades from SMF 2.0.x)
 			elseif (preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\d+;(i:3;i:\d;)?~', $_COOKIE[$name]))
 			{
-				$data = safe_unserialize($_COOKIE[$name]);
+				$data = Utils::safeUnserialize($_COOKIE[$name]);
 
 				list(,,, $state) = $data;
 
