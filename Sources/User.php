@@ -1344,18 +1344,28 @@ class User implements \ArrayAccess
 
 		if (!empty(Config::$modSettings['who_enabled']))
 		{
-			$encoded_get = truncate_array($_GET) + array('USER_AGENT' => mb_substr($_SERVER['HTTP_USER_AGENT'], 0, 128));
-
 			// In the case of a dlattach action, session_var may not be set.
 			if (!isset(Utils::$context['session_var']))
 				Utils::$context['session_var'] = $_SESSION['session_var'];
 
-			unset($encoded_get['sesc'], $encoded_get[Utils::$context['session_var']]);
-			$encoded_get = Utils::jsonEncode($encoded_get);
+			// Sometimes folks mess with USER_AGENT and $_GET, so we do this to
+			// prevent 'data too long' errors.
+			$num_elements = count($_GET, COUNT_RECURSIVE) + 1;
+			$max_length = 2048;
 
-			// Sometimes folks mess with USER_AGENT & $_GET data, so one last check to avoid 'data too long' errors
-			if (mb_strlen($encoded_get) > 2048)
-				$encoded_get = '';
+			do
+			{
+				$encoded_get = $_GET + array('USER_AGENT' => mb_substr($_SERVER['HTTP_USER_AGENT'], 0, 128));
+
+				unset($encoded_get['sesc'], $encoded_get[Utils::$context['session_var']]);
+
+				$encoded_get = Utils::truncateArray($encoded_get, $max_length);
+				$encoded_get = Utils::jsonEncode($encoded_get);
+
+				// If too long, reduce $max_length by one byte per element and try again.
+				$max_length -= $num_elements;
+			}
+			while (strlen($encoded_get) > 2048);
 		}
 		else
 		{

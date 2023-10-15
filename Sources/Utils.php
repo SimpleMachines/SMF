@@ -56,6 +56,8 @@ class Utils
 			'urldecodeRecursive' => 'urldecode__recursive',
 			'escapestringRecursive' => 'escapestring__recursive',
 			'unescapestringRecursive' => 'unescapestring__recursive',
+			'truncateArray' => 'truncate_array',
+			'arrayLength' => 'array_length',
 			'jsonDecode' => 'smf_json_decode',
 			'jsonEncode' => false,
 			'safeSerialize' => 'safe_serialize',
@@ -1240,6 +1242,74 @@ class Utils
 			$new_var[Db::$db->unescape_string($k)] = self::unescapestringRecursive($v);
 
 		return $new_var;
+	}
+
+	/**
+	 * Truncates the leaf nodes of an array so that their cumulative byte length
+	 * fits within a specified maximum.
+	 *
+	 * The array's keys are not considered when calculating the total length.
+	 *
+	 * @param array $array The array to truncate.
+	 * @param int $max_length The upperbound on the length.
+	 * @return array The truncated array.
+	 */
+	public static function truncateArray(array $array, int $max_length = 1900): array
+	{
+		$num_elements = 0;
+
+		array_walk_recursive(
+			$array,
+			function ($value) use (&$num_elements)
+			{
+				$num_elements++;
+			}
+		);
+
+		$temp = $array;
+		$current_length = self::arrayLength($array);
+		$param_length = floor($current_length / $num_elements);
+
+		while ($current_length > $max_length)
+		{
+			$temp = $array;
+
+			array_walk_recursive(
+				$temp,
+				function (&$value) use ($param_length)
+				{
+					$value = truncate(strval($value), $param_length);
+				}
+			);
+
+			$current_length = self::arrayLength($temp);
+			$param_length--;
+		}
+
+		$array = $temp;
+
+		return $array;
+	}
+
+	/**
+	 * Gets the total byte length of all leaf nodes in an array.
+	 *
+	 * @param array $array The array.
+	 * @return int Total byte length of all leaf nodes in an array.
+	 */
+	public static function arrayLength(array $array): int
+	{
+		$length = 0;
+
+		array_walk_recursive(
+			$array,
+			function ($value, $key) use (&$length)
+			{
+				$length += strlen($value);
+			}
+		);
+
+		return $length;
 	}
 
 	/**
