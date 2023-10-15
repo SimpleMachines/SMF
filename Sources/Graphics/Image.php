@@ -253,7 +253,7 @@ class Image
 		}
 
 		// Get the MIME type of the source file.
-		$mime_type = get_mime_type($this->source, true);
+		$mime_type = Utils::getMimeType($this->source, true);
 
 		// Not an image? Error and bail out.
 		if (!is_string($mime_type) || strpos($mime_type, 'image/') !== 0)
