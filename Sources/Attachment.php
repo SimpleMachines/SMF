@@ -386,7 +386,7 @@ class Attachment implements \ArrayAccess
 
 		// If we still don't have a MIME type, get it now.
 		if (empty($this->mime_type))
-			$this->mime_type = get_mime_type($this->path, true);
+			$this->mime_type = Utils::getMimeType($this->path, true);
 
 		// SVGs are special.
 		if ($this->mime_type === 'image/svg+xml')
@@ -1116,7 +1116,7 @@ class Attachment implements \ArrayAccess
 			if (empty($errors))
 			{
 				// The reported MIME type of the attachment might not be reliable.
-				$detected_mime_type = get_mime_type($_FILES['attachment']['tmp_name'][$n], true);
+				$detected_mime_type = Utils::getMimeType($_FILES['attachment']['tmp_name'][$n], true);
 
 				if ($detected_mime_type !== false)
 					$_FILES['attachment']['type'][$n] = $detected_mime_type;

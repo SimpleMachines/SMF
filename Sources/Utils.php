@@ -62,6 +62,8 @@ class Utils
 			'safeUnserialize' => 'safe_unserialize',
 			'randomInt' => false,
 			'randomBytes' => false,
+			'getMimeType' => 'get_mime_type',
+			'checkMimeType' => 'check_mime_type',
 			'makeWritable' => 'smf_chmod',
 			'emitFile' => false,
 			'sendHttpStatus' => 'send_http_status',
@@ -1640,6 +1642,116 @@ class Utils
 		$length = max(1, $length);
 
 		return random_bytes($length);
+	}
+
+	/**
+	 * Attempts to determine the MIME type of some data or a file.
+	 *
+	 * @param string $data The data to check, or the path or URL of a file to check.
+	 * @param string $is_path If true, $data is a path or URL to a file.
+	 * @return string|bool A MIME type, or false if we cannot determine it.
+	 */
+	public static function getMimeType(string $data, bool $is_path = false): string|bool
+	{
+		$finfo_loaded = extension_loaded('fileinfo');
+		$exif_loaded = extension_loaded('exif') && function_exists('image_type_to_mime_type');
+
+		// Oh well. We tried.
+		if (!$finfo_loaded && !$exif_loaded)
+			return false;
+
+		// Start with the 'empty' MIME type.
+		$mime_type = 'application/x-empty';
+
+		if ($finfo_loaded)
+		{
+			// Just some nice, simple data to analyze.
+			if (empty($is_path))
+			{
+				$mime_type = finfo_buffer(finfo_open(FILEINFO_MIME_TYPE), $data);
+			}
+			// A file, or maybe a URL?
+			else
+			{
+				$path = $data;
+
+				// Local file.
+				if (file_exists($path))
+				{
+					$mime_type = mime_content_type($path);
+				}
+				// URL.
+				elseif ($data = WebFetch\WebFetchApi::fetch($path))
+				{
+					$mime_type = finfo_buffer(finfo_open(FILEINFO_MIME_TYPE), $data);
+
+					// SVG sometimes needs a little extra help.
+					if ($mime_type === 'text/html' && strtolower(pathinfo($path, PATHINFO_EXTENSION)) === 'svg')
+					{
+						// Detection sometimes fails if the <svg> element isn't first.
+						$data = preg_replace('/^([^<]|<(?!svg\b))*/i', '', $data);
+
+						if (finfo_buffer(finfo_open(FILEINFO_MIME_TYPE), $data) == 'image/svg+xml')
+							$mime_type = 'image/svg+xml';
+					}
+				}
+			}
+		}
+		// Workaround using Exif requires a local file.
+		else
+		{
+			// If $data is a URL to fetch, do so.
+			if (!empty($is_path) && !file_exists($data))
+			{
+				$data = WebFetch\WebFetchApi::fetch($data);
+
+				if ($data === false)
+					return false;
+
+				$is_path = false;
+			}
+
+			// If we don't have a local file, create one and use it.
+			if (empty($is_path))
+			{
+				$temp_file = tempnam(Config::$cachedir, md5($data));
+				file_put_contents($temp_file, $data);
+				$is_path = true;
+				$data = $temp_file;
+			}
+
+			$imagetype = @exif_imagetype($data);
+
+			if (isset($temp_file))
+				unlink($temp_file);
+
+			// Unfortunately, this workaround only works for image files.
+			if ($imagetype !== false)
+				$mime_type = image_type_to_mime_type($imagetype);
+		}
+
+		return $mime_type;
+	}
+
+	/**
+	 * Checks whether a file or data has the expected MIME type.
+	 *
+	 * @param string $data The data to check, or the path or URL of a file to check.
+	 * @param string $type_pattern A regex pattern to match the acceptable MIME types.
+	 * @param bool $is_path If true, $data is a path or URL to a file.
+	 * @return int 1 if the detected MIME type matches the pattern, 0 if it doesn't, or 2 if we can't check.
+	 */
+	public static function checkMimeType(string $data, string $type_pattern, bool $is_path = false): int
+	{
+		// Get the MIME type.
+		$mime_type = self::getMimeType($data, $is_path);
+
+		// Couldn't determine it.
+		if ($mime_type === false)
+			return 2;
+
+		// Check whether the MIME type matches expectations.
+		return (int) @preg_match('~' . $type_pattern . '~', $mime_type);
 	}
 
 	/**

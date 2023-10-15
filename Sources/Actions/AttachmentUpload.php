@@ -369,7 +369,7 @@ class AttachmentUpload implements ActionInterface
 			if (empty($errors))
 			{
 				// The reported MIME type of the attachment might not be reliable.
-				$detected_mime_type = get_mime_type($_FILES['attachment']['tmp_name'][$n], true);
+				$detected_mime_type = Utils::getMimeType($_FILES['attachment']['tmp_name'][$n], true);
 
 				if ($detected_mime_type !== false)
 					$_FILES['attachment']['type'][$n] = $detected_mime_type;
