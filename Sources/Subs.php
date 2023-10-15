@@ -41,6 +41,7 @@ class_exists('SMF\\BBCodeParser');
 class_exists('SMF\\Image');
 class_exists('SMF\\Logging');
 class_exists('SMF\\PageIndex');
+class_exists('SMF\\QueryString');
 class_exists('SMF\\Theme');
 class_exists('SMF\\Time');
 class_exists('SMF\\TimeZone');
@@ -592,38 +593,6 @@ function array_length($array, $deep = 3)
 	}
 
 	return $length;
-}
-
-/**
- * Compares existance request variables against an array.
- *
- * The input array is associative, where keys denote accepted values
- * in a request variable denoted by `$req_val`. Values can be:
- *
- * - another associative array where at least one key must be found
- *   in the request and their values are accepted request values.
- * - A scalar value, in which case no furthur checks are done.
- *
- * @param array $array
- * @param string $req_var request variable
- *
- * @return bool whether any of the criteria was satisfied
- */
-function is_filtered_request(array $array, $req_var)
-{
-	$matched = false;
-	if (isset($_REQUEST[$req_var], $array[$_REQUEST[$req_var]]))
-	{
-		if (is_array($array[$_REQUEST[$req_var]]))
-		{
-			foreach ($array[$_REQUEST[$req_var]] as $subtype => $subnames)
-				$matched |= isset($_REQUEST[$subtype]) && in_array($_REQUEST[$subtype], $subnames);
-		}
-		else
-			$matched = true;
-	}
-
-	return (bool) $matched;
 }
 
 ?>

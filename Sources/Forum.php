@@ -346,7 +346,7 @@ class Forum
 		}
 
 		// Don't log if this is an attachment, avatar, toggle of editor buttons, theme option, XML feed, popup, etc.
-		if (!is_filtered_request(self::$unlogged_actions, 'action'))
+		if (!QueryString::isFilteredRequest(self::$unlogged_actions, 'action'))
 		{
 			// Log this user as online.
 			User::$me->logOnline();

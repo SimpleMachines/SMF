@@ -22,6 +22,19 @@ class QueryString
 {
 	use BackwardCompatibility;
 
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = array(
+		// Public static methods not listed here will keep the same name when
+		// exported to global namespace.
+		'func_names' => array(
+			'isFilteredRequest' => 'is_filtered_request',
+		),
+	);
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -420,6 +433,57 @@ class QueryString
 
 		if ($_SERVER['REMOTE_ADDR'] == 'unknown')
 			$_SERVER['REMOTE_ADDR'] = '';
+	}
+
+	/**
+	 * Checks whether a $_REQUEST variable contains an expected value.
+	 *
+	 * The second paramenter, $var, gives the name of the $_REQUEST variable
+	 * to check. For example, if $var == 'action', then $_REQUEST['action']
+	 * will be tested.
+	 *
+	 * The first parameter, $value_list, is an associative array whose keys
+	 * denote accepted values in $_REQUEST[$var], and whose values can be:
+	 *
+	 * - Null, in which case the existence of $_REQUEST[$var] causes the test
+	 *   to fail.
+	 *
+	 * - A non-null scalar value, in which case the existence of $_REQUEST[$var]
+	 *   is all that is necessary to pass the test.
+	 *
+	 * - Another associative array indicating additional $_REQUEST variables
+	 *   and acceptable values that must also be present.
+	 *
+	 * For example, if $var == 'action' and $value_list contains this:
+	 *
+	 *       'logout' => true,
+	 *       'pm' => array('sa' => array('popup')),
+	 *
+	 * ... then the test will pass (a) if $_REQUEST['action'] == 'logout'
+	 * or (b) if $_REQUEST['action'] == 'pm' and $_REQUEST['sa'] == 'popup'.
+	 *
+	 * @param array $value_list A list of acceptable values.
+	 * @param string $var Name of a $_REQUEST variable.
+	 * @return bool Whether any of the criteria were satisfied.
+	 */
+	public static function isFilteredRequest(array $value_list, string $var): bool
+	{
+		$matched = false;
+
+		if (isset($_REQUEST[$var], $value_list[$_REQUEST[$var]]))
+		{
+			if (is_array($value_list[$_REQUEST[$var]]))
+			{
+				foreach ($value_list[$_REQUEST[$var]] as $subvar => $subvalues)
+					$matched |= isset($_REQUEST[$subvar]) && in_array($_REQUEST[$subvar], $subvalues);
+			}
+			else
+			{
+				$matched = true;
+			}
+		}
+
+		return (bool) $matched;
 	}
 
 	/**
