@@ -2649,7 +2649,7 @@ class Theme
 		// 4a. View or accept the agreement and/or policy
 		// 4b. Login or logout
 		// 4c. Get a feed (RSS, ATOM, etc.)
-		if (!empty(User::$me->id) && empty(User::$me->is_admin) && SMF != 'SSI' && !isset($_REQUEST['xml']) && !is_filtered_request($this->agreement_actions, 'action'))
+		if (!empty(User::$me->id) && empty(User::$me->is_admin) && SMF != 'SSI' && !isset($_REQUEST['xml']) && !QueryString::isFilteredRequest($this->agreement_actions, 'action'))
 		{
 			$can_accept_agreement = !empty(Config::$modSettings['requireAgreement']) && Agreement::canRequireAgreement();
 

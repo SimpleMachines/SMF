@@ -4923,7 +4923,7 @@ class User implements \ArrayAccess
 			$dataset = 'normal';
 		}
 		// Popups, AJAX, etc.
-		elseif (is_filtered_request(Forum::$unlogged_actions, 'action'))
+		elseif (QueryString::isFilteredRequest(Forum::$unlogged_actions, 'action'))
 		{
 			$dataset = 'basic';
 		}
