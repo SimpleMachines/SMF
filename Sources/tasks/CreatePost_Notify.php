@@ -99,7 +99,6 @@ class CreatePost_Notify extends BackgroundTask
 	 */
 	public function execute()
 	{
-		require_once(Config::$sourcedir . '/Subs.php');
 		Theme::loadEssential();
 
 		$msgOptions = &$this->_details['msgOptions'];

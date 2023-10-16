@@ -1504,8 +1504,6 @@ function AdminAccount()
 
 	$settingsDefs = Config::getSettingsDefs();
 
-	require_once(Config::$sourcedir . '/Subs.php');
-
 	// Reload $modSettings.
 	Config::reloadModSettings();
 
@@ -1560,9 +1558,9 @@ function AdminAccount()
 			$incontext['error'] = Lang::$txt['error_user_settings_no_password'];
 			return false;
 		}
-		if (!file_exists(Config::$sourcedir . '/Subs.php'))
+		if (!file_exists(Config::$sourcedir . '/Utils.php'))
 		{
-			$incontext['error'] = sprintf(Lang::$txt['error_sourcefile_missing'], 'Subs.php');
+			$incontext['error'] = sprintf(Lang::$txt['error_sourcefile_missing'], 'Utils.php');
 			return false;
 		}
 
@@ -1707,8 +1705,6 @@ function DeleteInstall()
 	load_database();
 
 	chdir(Config::$boarddir);
-
-	require_once(Config::$sourcedir . '/Subs.php');
 
 	// Reload $modSettings.
 	Config::reloadModSettings();

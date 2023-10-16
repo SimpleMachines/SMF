@@ -116,7 +116,6 @@ if (SMF === 1)
  */
 
 require_once(SMF\Config::$sourcedir . '/Autoloader.php');
-require_once(SMF\Config::$sourcedir . '/Subs.php');
 
 // Ensure we don't trip over disabled internal functions
 require_once(SMF\Config::$sourcedir . '/Subs-Compat.php');
