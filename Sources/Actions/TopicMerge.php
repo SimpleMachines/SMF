@@ -21,6 +21,7 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Msg;
@@ -1004,7 +1005,7 @@ class TopicMerge implements ActionInterface
 			'subject' => $target_subject,
 		);
 
-		call_integration_hook('integrate_merge_topic', array($merged_topic, $updated_topics, $deleted_topics, $deleted_polls));
+		IntegrationHook::call('integrate_merge_topic', array($merged_topic, $updated_topics, $deleted_topics, $deleted_polls));
 
 		// Send them to the all done page.
 		Utils::redirectexit('action=mergetopics;sa=done;to=' . $id_topic . ';targetboard=' . $target_board);

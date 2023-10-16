@@ -16,6 +16,7 @@ namespace SMF\Actions;
 use SMF\BackwardCompatibility;
 
 use SMF\Config;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Theme;
@@ -414,7 +415,7 @@ class Credits implements ActionInterface
 		);
 
 		// Support for those that want to use a hook as well
-		call_integration_hook('integrate_credits');
+		IntegrationHook::call('integrate_credits');
 
 		if (!$this->in_admin)
 		{

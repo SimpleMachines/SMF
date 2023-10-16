@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\IntegrationHook;
 use SMF\IP;
 use SMF\ItemList;
 use SMF\Lang;
@@ -960,7 +961,7 @@ class Logs implements ActionInterface
 
 		// Overriding this with a hook?
 		$moderation_menu_name = array();
-		call_integration_hook('integrate_viewModLog', array(&$listOptions, &$moderation_menu_name));
+		IntegrationHook::call('integrate_viewModLog', array(&$listOptions, &$moderation_menu_name));
 
 		SecurityToken::create('mod-ml');
 

@@ -14,7 +14,9 @@
 namespace SMF\Cache;
 
 use SMF\BackwardCompatibility;
+
 use SMF\Config;
+use SMF\IntegrationHook;
 use SMF\Utils;
 
 abstract class CacheApi
@@ -447,7 +449,7 @@ abstract class CacheApi
 			$loadedApis[$class_name] = $cache_api;
 		}
 
-		call_integration_hook('integrate_load_cache_apis', array(&$loadedApis));
+		IntegrationHook::call('integrate_load_cache_apis', array(&$loadedApis));
 
 		return $loadedApis;
 	}
@@ -473,7 +475,7 @@ abstract class CacheApi
 		// Ask the API to do the heavy lifting. cleanCache also calls invalidateCache to be sure.
 		self::$loadedApi->cleanCache($type);
 
-		call_integration_hook('integrate_clean_cache');
+		IntegrationHook::call('integrate_clean_cache');
 
 		clearstatcache();
 	}
@@ -490,8 +492,8 @@ abstract class CacheApi
 	 */
 	final public static function quickGet($key, $file, $function, $params, $level = 1)
 	{
-		if (function_exists('call_integration_hook'))
-			call_integration_hook('pre_cache_quick_get', array(&$key, &$file, &$function, &$params, &$level));
+		if (class_exists('SMF\\IntegrationHook', false))
+			IntegrationHook::call('pre_cache_quick_get', array(&$key, &$file, &$function, &$params, &$level));
 
 		/* Refresh the cache if either:
 			1. Caching is disabled.
@@ -515,8 +517,8 @@ abstract class CacheApi
 		if (!empty($cache_block['post_retri_eval']))
 			eval($cache_block['post_retri_eval']);
 
-		if (function_exists('call_integration_hook'))
-			call_integration_hook('post_cache_quick_get', array(&$cache_block));
+		if (class_exists('SMF\\IntegrationHook', false))
+			IntegrationHook::call('post_cache_quick_get', array(&$cache_block));
 
 		return $cache_block['data'];
 	}
@@ -552,8 +554,8 @@ abstract class CacheApi
 		$value = $value === null ? null : Utils::jsonEncode($value);
 		self::$loadedApi->putData($key, $value, $ttl);
 
-		if (function_exists('call_integration_hook'))
-			call_integration_hook('cache_put_data', array(&$key, &$value, &$ttl));
+		if (class_exists('SMF\\IntegrationHook', false))
+			IntegrationHook::call('cache_put_data', array(&$key, &$value, &$ttl));
 
 		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true)
 			self::$hits[self::$count_hits]['t'] = microtime(true) - $st;
@@ -596,8 +598,8 @@ abstract class CacheApi
 			}
 		}
 
-		if (function_exists('call_integration_hook') && isset($value))
-			call_integration_hook('cache_get_data', array(&$key, &$ttl, &$value));
+		if (class_exists('SMF\\IntegrationHook', false) && isset($value))
+			IntegrationHook::call('cache_get_data', array(&$key, &$ttl, &$value));
 
 		return empty($value) ? null : Utils::jsonDecode($value, true);
 	}

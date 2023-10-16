@@ -32,20 +32,28 @@ spl_autoload_register(function ($class)
 		'SMF\\' => '',
 	);
 
-	// Do any third-party scripts want in on the fun?
-	if (function_exists('call_integration_hook') && $level === 0)
-	{
-		$level++;
-		call_integration_hook('integrate_autoload', array(&$class_map));
-		$level--;
-	}
-
 	// Ensure $sourcedir is set to something valid.
 	if (class_exists('SMF\\Config', false) && isset(Config::$sourcedir))
 		$sourcedir = Config::$sourcedir;
 
 	if (empty($sourcedir) || !is_dir($sourcedir))
 		$sourcedir = __DIR__;
+
+	// Do any third-party scripts want in on the fun?
+	if ($level === 0)
+	{
+		$level++;
+
+		if (!class_exists('SMF\\IntegrationHook', false) && is_file($sourcedir . '/IntegrationHook.php'))
+		{
+			require $sourcedir . '/IntegrationHook.php';
+		}
+
+		if (class_exists('SMF\\IntegrationHook', false))
+			IntegrationHook::call('integrate_autoload', array(&$class_map));
+
+		$level--;
+	}
 
 	foreach ($class_map as $prefix => $dirname)
 	{

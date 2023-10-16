@@ -19,6 +19,7 @@ use SMF\BBCodeParser;
 use SMF\BrowserDetector;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Msg;
@@ -1004,7 +1005,7 @@ class PersonalMessage implements ActionInterface
 		$this->pm_areas['folders']['areas']['drafts']['enabled'] = !empty(Config::$modSettings['drafts_pm_enabled']);
 
 		// Give mods access to the menu.
-		call_integration_hook('integrate_pm_areas', array(&$this->pm_areas));
+		IntegrationHook::call('integrate_pm_areas', array(&$this->pm_areas));
 
 		// Handle labels.
 		if (empty(Label::$loaded))

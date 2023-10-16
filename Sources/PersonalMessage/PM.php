@@ -20,6 +20,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Editor;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Group;
 use SMF\Lang;
 use SMF\Mail;
@@ -848,7 +849,7 @@ class PM implements \ArrayAccess
 		if (Utils::$context['require_verification'])
 			$verifier = new Verifier(array('id' => 'pm'));
 
-		call_integration_hook('integrate_pm_post');
+		IntegrationHook::call('integrate_pm_post');
 
 		// Register this form and get a sequence number in Utils::$context.
 		Security::checkSubmitOnce('register');
@@ -1229,7 +1230,7 @@ class PM implements \ArrayAccess
 			$recipients = array($recipients);
 
 		// Integrated PMs
-		call_integration_hook('integrate_personal_message', array(&$recipients, &$from, &$subject, &$message));
+		IntegrationHook::call('integrate_personal_message', array(&$recipients, &$from, &$subject, &$message));
 
 		// Get a list of usernames and convert them to IDs.
 		$usernames = array();
@@ -1632,7 +1633,7 @@ class PM implements \ArrayAccess
 		}
 
 		// Integrated After PMs
-		call_integration_hook('integrate_personal_message_after', array(&$id_pm, &$log, &$recipients, &$from, &$subject, &$message));
+		IntegrationHook::call('integrate_personal_message_after', array(&$id_pm, &$log, &$recipients, &$from, &$subject, &$message));
 
 		// Back to what we were on before!
 		Lang::load('index+PersonalMessage');
@@ -2238,7 +2239,7 @@ class PM implements \ArrayAccess
 
 		Utils::$context['bcc_value'] = empty($named_recipients['bcc']) ? '' : '&quot;' . implode('&quot;, &quot;', $named_recipients['bcc']) . '&quot;';
 
-		call_integration_hook('integrate_pm_error');
+		IntegrationHook::call('integrate_pm_error');
 
 		// No check for the previous submission is needed.
 		Security::checkSubmitOnce('free');

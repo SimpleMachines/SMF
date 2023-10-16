@@ -21,6 +21,7 @@ use SMF\Config;
 use SMF\Draft;
 use SMF\ErrorHandler;
 use SMF\Group;
+use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
@@ -1273,7 +1274,7 @@ class Maintenance implements ActionInterface
 				Db::$db->change_column('{db_prefix}messages', 'body', array('type' => 'text'));
 
 			// 3rd party integrations may be interested in knowning about this.
-			call_integration_hook('integrate_convert_msgbody', array($body_type));
+			IntegrationHook::call('integrate_convert_msgbody', array($body_type));
 
 			$colData = Db::$db->list_columns('{db_prefix}messages', true);
 			foreach ($colData as $column)
@@ -1871,16 +1872,17 @@ class Maintenance implements ActionInterface
 			SecurityToken::validate('admin-hook', 'request');
 
 			if ($_REQUEST['do'] == 'remove')
-				remove_integration_function($_REQUEST['hook'], urldecode($_REQUEST['function']));
-
+			{
+				IntegrationHook::remove($_REQUEST['hook'], urldecode($_REQUEST['function']));
+			}
 			else
 			{
 				// Disable/enable logic; always remove exactly what was passed
 				$function_remove = urldecode($_REQUEST['function']);
 				$function_add = urldecode(rtrim($_REQUEST['function'], '!')) . (($_REQUEST['do'] == 'disable') ? '!' : '');
 
-				remove_integration_function($_REQUEST['hook'], $function_remove);
-				add_integration_function($_REQUEST['hook'], $function_add);
+				IntegrationHook::remove($_REQUEST['hook'], $function_remove);
+				IntegrationHook::add($_REQUEST['hook'], $function_add);
 			}
 
 			Utils::redirectexit('action=admin;area=maintain;sa=hooks' . $filter_url);
@@ -2259,7 +2261,7 @@ class Maintenance implements ActionInterface
 		}
 
 		// Allow mods with their own post tables to reattribute posts as well :)
-		call_integration_hook('integrate_reattribute_posts', array($memID, $email, $membername, $post_count, &$updated));
+		IntegrationHook::call('integrate_reattribute_posts', array($memID, $email, $membername, $post_count, &$updated));
 
 		return $updated;
 	}
@@ -2507,7 +2509,7 @@ class Maintenance implements ActionInterface
 			),
 		);
 
-		call_integration_hook('integrate_manage_maintenance', array(&self::$subactions));
+		IntegrationHook::call('integrate_manage_maintenance', array(&self::$subactions));
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
 			$this->subaction = $_REQUEST['sa'];

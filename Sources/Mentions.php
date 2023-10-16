@@ -89,15 +89,17 @@ class Mentions
 	 */
 	public static function insertMentions($content_type, $content_id, array $members, $id_member)
 	{
-		call_integration_hook('mention_insert_' . $content_type, array($content_id, &$members));
+		IntegrationHook::call('mention_insert_' . $content_type, array($content_id, &$members));
 
 		foreach ($members as $member)
+		{
 			Db::$db->insert('ignore',
 				'{db_prefix}mentions',
 				array('content_id' => 'int', 'content_type' => 'string', 'id_member' => 'int', 'id_mentioned' => 'int', 'time' => 'int'),
 				array((int) $content_id, $content_type, $id_member, $member['id'], time()),
 				array('content_id', 'content_type', 'id_mentioned')
 			);
+		}
 	}
 
 	/**

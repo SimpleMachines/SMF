@@ -19,6 +19,7 @@ use SMF\Config;
 use SMF\Cookie;
 use SMF\ErrorHandler;
 use SMF\Group;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Profile;
@@ -460,7 +461,7 @@ class Register2 extends Register
 		}
 		else
 		{
-			call_integration_hook('integrate_activate', array($reg_options['username']));
+			IntegrationHook::call('integrate_activate', array($reg_options['username']));
 
 			Cookie::setLoginCookie(60 * Config::$modSettings['cookieTime'], $member_id, Cookie::encrypt($reg_options['register_vars']['passwd'], $reg_options['register_vars']['password_salt']));
 
@@ -616,7 +617,7 @@ class Register2 extends Register
 		Db::$db->free_result($request);
 
 		// Perhaps someone else wants to check this user.
-		call_integration_hook('integrate_register_check', array(&$reg_options, &$reg_errors));
+		IntegrationHook::call('integrate_register_check', array(&$reg_options, &$reg_errors));
 
 		// If we found any errors we need to do something about it right away!
 		foreach ($reg_errors as $key => $error)
@@ -776,7 +777,7 @@ class Register2 extends Register
 		);
 
 		// Call an optional function to validate the users' input.
-		call_integration_hook('integrate_register', array(&$reg_options, &$theme_vars, &$known_ints, &$known_floats));
+		IntegrationHook::call('integrate_register', array(&$reg_options, &$theme_vars, &$known_ints, &$known_floats));
 
 		$column_names = array();
 		$values = array();
@@ -816,7 +817,7 @@ class Register2 extends Register
 		);
 
 		// Call an optional function as notification of registration.
-		call_integration_hook('integrate_post_register', array(&$reg_options, &$theme_vars, &$member_id));
+		IntegrationHook::call('integrate_post_register', array(&$reg_options, &$theme_vars, &$member_id));
 
 		// Update the number of members and latest member's info - and pass the name, but remove the 's.
 		if ($reg_options['register_vars']['is_activated'] == 1)
@@ -960,7 +961,7 @@ class Register2 extends Register
 		$_SESSION['just_registered'] = 1;
 
 		// If they are for sure registered, let other people to know about it
-		call_integration_hook('integrate_register_after', array($reg_options, $member_id));
+		IntegrationHook::call('integrate_register_after', array($reg_options, $member_id));
 
 		return $member_id;
 	}

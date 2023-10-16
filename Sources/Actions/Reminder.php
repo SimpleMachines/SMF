@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\Security;
@@ -274,7 +275,7 @@ class Reminder implements ActionInterface
 		// User validated.  Update the database!
 		User::updateMemberData($this->member->id, array('validation_code' => '', 'passwd' => Security::hashPassword($this->member->username, $_POST['passwrd1'])));
 
-		call_integration_hook('integrate_reset_pass', array($this->member->username, $this->member->username, $_POST['passwrd1']));
+		IntegrationHook::call('integrate_reset_pass', array($this->member->username, $this->member->username, $_POST['passwrd1']));
 
 		Theme::loadTemplate('Login');
 		Utils::$context += array(
@@ -392,7 +393,7 @@ class Reminder implements ActionInterface
 		// Alright, so long as 'yer sure.
 		User::updateMemberData($this->member->id_member, array('passwd' => Security::hashPassword($this->member->username, $_POST['passwrd1'])));
 
-		call_integration_hook('integrate_reset_pass', array($this->member->username, $this->member->username, $_POST['passwrd1']));
+		IntegrationHook::call('integrate_reset_pass', array($this->member->username, $this->member->username, $_POST['passwrd1']));
 
 		// Tell them it went fine.
 		Theme::loadTemplate('Login');

@@ -608,7 +608,7 @@ class Profile extends User implements \ArrayAccess
 							User::updateMemberData($this->id, array('member_name' => $value));
 
 							// Call this here so any integrated systems will know about the name change (resetPassword() takes care of this if we're letting SMF generate the password)
-							call_integration_hook('integrate_reset_pass', array($this->username, $value, $_POST['passwrd1']));
+							IntegrationHook::call('integrate_reset_pass', array($this->username, $value, $_POST['passwrd1']));
 						}
 					}
 					return false;
@@ -1021,7 +1021,7 @@ class Profile extends User implements \ArrayAccess
 			),
 		);
 
-		call_integration_hook('integrate_load_profile_fields', array(&$this->standard_fields));
+		IntegrationHook::call('integrate_load_profile_fields', array(&$this->standard_fields));
 
 		$disabled_fields = !empty(Config::$modSettings['disabled_profile_fields']) ? explode(',', Config::$modSettings['disabled_profile_fields']) : array();
 
@@ -1207,7 +1207,7 @@ class Profile extends User implements \ArrayAccess
 		Utils::$context['custom_fields'] = &$this->custom_fields;
 		Utils::$context['custom_fields_required'] = &$this->custom_fields_required;
 
-		call_integration_hook('integrate_load_custom_profile_fields', array($this->id, $area));
+		IntegrationHook::call('integrate_load_custom_profile_fields', array($this->id, $area));
 	}
 
 	/**
@@ -1469,7 +1469,7 @@ class Profile extends User implements \ArrayAccess
 		Utils::$context['profile_javascript'] = '';
 		Utils::$context['profile_onsubmit_javascript'] = '';
 
-		call_integration_hook('integrate_setup_profile_context', array(&$fields));
+		IntegrationHook::call('integrate_setup_profile_context', array(&$fields));
 
 		// Make sure we have this!
 		$this->loadStandardFields(true);
@@ -1601,7 +1601,7 @@ class Profile extends User implements \ArrayAccess
 		$this->prepareToSaveCustomFields($_REQUEST['sa'] ?? null);
 
 		// Give hooks some access to the save data.
-		call_integration_hook('integrate_profile_save', array(&Profile::$member->new_data, &Profile::$member->save_errors, Profile::$member->id, Profile::$member->data, Menu::$loaded['profile']->current_area));
+		IntegrationHook::call('integrate_profile_save', array(&Profile::$member->new_data, &Profile::$member->save_errors, Profile::$member->id, Profile::$member->data, Menu::$loaded['profile']->current_area));
 
 		// There was a problem. Let them try again.
 		if (!empty($this->save_errors))
@@ -1619,7 +1619,7 @@ class Profile extends User implements \ArrayAccess
 			// If we've changed the password, notify any integration that may be listening in.
 			if (isset($this->new_data['passwd']))
 			{
-				call_integration_hook('integrate_reset_pass', array($this->username, $this->username, $_POST['passwrd2']));
+				IntegrationHook::call('integrate_reset_pass', array($this->username, $this->username, $_POST['passwrd2']));
 			}
 
 			parent::updateMemberData($this->id, $this->new_data);
@@ -1822,7 +1822,7 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// Announce to any hooks that we have changed groups, but don't allow them to change it.
-		call_integration_hook('integrate_profile_profileSaveGroups', array($value, $additional_groups));
+		IntegrationHook::call('integrate_profile_profileSaveGroups', array($value, $additional_groups));
 
 		return true;
 	}
@@ -1841,7 +1841,7 @@ class Profile extends User implements \ArrayAccess
 		if (empty($this->id) && !empty(Utils::$context['password_auth_failed']))
 			return false;
 
-		call_integration_hook('before_profile_save_avatar', array(&$value));
+		IntegrationHook::call('before_profile_save_avatar', array(&$value));
 
 		switch ($value)
 		{
@@ -1873,7 +1873,7 @@ class Profile extends User implements \ArrayAccess
 		// Setup the profile variables so it shows things right on display!
 		$this->data['avatar'] = $this->new_data['avatar'];
 
-		call_integration_hook('after_profile_save_avatar');
+		IntegrationHook::call('after_profile_save_avatar');
 
 		return false;
 	}
@@ -2654,7 +2654,7 @@ class Profile extends User implements \ArrayAccess
 
 		// The true in the hook params replaces an obsolete $returnErrors variable.
 		// The !self::$member->post_sanitized replaces an obsolete $sanitize variable.
-		$hook_errors = call_integration_hook('integrate_save_custom_profile_fields', array(
+		$hook_errors = IntegrationHook::call('integrate_save_custom_profile_fields', array(
 			&$this->new_cf_data['updates'],
 			&$this->log_changes,
 			&$this->cf_save_errors,
@@ -3202,7 +3202,7 @@ class Profile extends User implements \ArrayAccess
 			User::updateMemberData($this->id, array('passwd' => $new_password_sha1));
 		}
 
-		call_integration_hook('integrate_reset_pass', array($this->username, $username, $new_password));
+		IntegrationHook::call('integrate_reset_pass', array($this->username, $username, $new_password));
 
 		$replacements = array(
 			'USERNAME' => $username,

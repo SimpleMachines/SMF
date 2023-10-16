@@ -195,7 +195,7 @@ class ItemList implements \ArrayAccess
 		if (!$this->checkOptions($options))
 			return;
 
-		call_integration_hook('integrate_' . $options['id'], array(&$options));
+		IntegrationHook::call('integrate_' . $options['id'], array(&$options));
 
 		// Check again just in case a mod screwed up.
 		if (!$this->checkOptions($options))

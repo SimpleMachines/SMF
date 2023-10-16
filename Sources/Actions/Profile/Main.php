@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Profile;
@@ -637,7 +638,7 @@ class Main implements ActionInterface
 				$password = Utils::htmlspecialcharsDecode($password);
 
 				// Does the integration want to check passwords?
-				$good_password = in_array(true, call_integration_hook('integrate_verify_password', array(Profile::$member->username, $password, false)), true);
+				$good_password = in_array(true, IntegrationHook::call('integrate_verify_password', array(Profile::$member->username, $password, false)), true);
 
 				// Bad password!!!
 				if (!$good_password && !Security::hashVerifyPassword(Profile::$member->username, $password, Profile::$member->passwd))
@@ -862,7 +863,7 @@ class Main implements ActionInterface
 		$this->profile_areas['profile_action']['areas']['logout']['enabled'] = !empty($_REQUEST['area']) && $_REQUEST['area'] === 'popup';
 
 		// Give mods access to the menu.
-		call_integration_hook('integrate_profile_areas', array(&$this->profile_areas));
+		IntegrationHook::call('integrate_profile_areas', array(&$this->profile_areas));
 
 		// Do some cleaning ready for the menu function.
 		Utils::$context['password_areas'] = array();

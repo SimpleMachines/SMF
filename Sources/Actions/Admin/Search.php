@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\SecurityToken;
@@ -130,7 +131,7 @@ class Search implements ActionInterface
 		{
 			User::$me->checkSession();
 
-			call_integration_hook('integrate_save_search_settings');
+			IntegrationHook::call('integrate_save_search_settings');
 
 			if (empty($_POST['search_results_per_page']))
 			{
@@ -172,7 +173,7 @@ class Search implements ActionInterface
 			'search_weight_sticky',
 		);
 
-		call_integration_hook('integrate_modify_search_weights', array(&$factors));
+		IntegrationHook::call('integrate_modify_search_weights', array(&$factors));
 
 		// A form was submitted.
 		if (isset($_POST['save']))
@@ -180,7 +181,7 @@ class Search implements ActionInterface
 			User::$me->checkSession();
 			SecurityToken::validate('admin-msw');
 
-			call_integration_hook('integrate_save_search_weights');
+			IntegrationHook::call('integrate_save_search_weights');
 
 			$changes = array();
 
@@ -937,7 +938,7 @@ class Search implements ActionInterface
 			array('int', 'search_floodcontrol_time', 'subtext' => Lang::$txt['search_floodcontrol_time_desc'], 6, 'postinput' => Lang::$txt['seconds']),
 		);
 
-		call_integration_hook('integrate_modify_search_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_modify_search_settings', array(&$config_vars));
 
 		// Perhaps the search method wants to add some settings?
 		$searchAPI = SearchApi::load();
@@ -1023,7 +1024,7 @@ class Search implements ActionInterface
 			),
 		);
 
-		call_integration_hook('integrate_manage_search', array(&self::$subactions));
+		IntegrationHook::call('integrate_manage_search', array(&self::$subactions));
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
 			$this->subaction = $_REQUEST['sa'];

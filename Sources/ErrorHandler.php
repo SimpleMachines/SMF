@@ -120,7 +120,7 @@ class ErrorHandler
 		$message = self::log($error_level . ': ' . $error_string, $error_type, $file, $line);
 
 		// Let's give integrations a chance to output a bit differently
-		call_integration_hook('integrate_output_error', array($message, $error_type, $error_level, $file, $line));
+		IntegrationHook::call('integrate_output_error', array($message, $error_type, $error_level, $file, $line));
 
 		// Dying on these errors only causes MORE problems (blank pages!)
 		if ($file == 'Unknown')
@@ -250,7 +250,7 @@ class ErrorHandler
 			$tried_hook = true;
 
 			// Allow the hook to change the error_type and know about the error.
-			call_integration_hook('integrate_error_types', array(&$other_error_types, &$error_type, $error_message, $file, $line));
+			IntegrationHook::call('integrate_error_types', array(&$other_error_types, &$error_type, $error_message, $file, $line));
 
 			$known_error_types = array_merge($known_error_types, $other_error_types);
 		}

@@ -18,6 +18,7 @@ use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Cookie;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Security;
 use SMF\SecurityToken;
@@ -286,7 +287,7 @@ class Login2 implements ActionInterface
 			return;
 
 		// Are we using any sort of integration to validate the login?
-		if (in_array('retry', call_integration_hook('integrate_validate_login', array($_POST['user'], isset($_POST['passwrd']) ? $_POST['passwrd'] : null, Config::$modSettings['cookieTime'])), true))
+		if (in_array('retry', IntegrationHook::call('integrate_validate_login', array($_POST['user'], isset($_POST['passwrd']) ? $_POST['passwrd'] : null, Config::$modSettings['cookieTime'])), true))
 		{
 			Utils::$context['login_errors'] = array(Lang::$txt['incorrect_password']);
 			return;
@@ -634,7 +635,7 @@ class Login2 implements ActionInterface
 		}
 
 		// Allows mods to easily extend the $other_passwords array
-		call_integration_hook('integrate_other_passwords', array(&$other_passwords));
+		IntegrationHook::call('integrate_other_passwords', array(&$other_passwords));
 
 		// Whichever encryption it was using, let's make it use SMF's now ;).
 		if (in_array(User::$profiles[User::$my_id]['passwd'], $other_passwords))
@@ -787,7 +788,7 @@ class Login2 implements ActionInterface
 	protected function DoLogin()
 	{
 		// Call login integration functions.
-		call_integration_hook('integrate_login', array(User::$profiles[User::$my_id]['member_name'], null, Config::$modSettings['cookieTime']));
+		IntegrationHook::call('integrate_login', array(User::$profiles[User::$my_id]['member_name'], null, Config::$modSettings['cookieTime']));
 
 		// Get ready to set the cookie...
 		User::setMe(User::$my_id);

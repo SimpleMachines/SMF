@@ -18,6 +18,7 @@ use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\MessageIndex;
@@ -327,7 +328,7 @@ class TopicMove2 implements ActionInterface
 		// Notify people that this topic has been moved?
 		Mail::sendNotifications(Topic::$topic_id, 'move');
 
-		call_integration_hook('integrate_movetopic2_end');
+		IntegrationHook::call('integrate_movetopic2_end');
 
 		// Why not go back to the original board in case they want to keep moving?
 		if (!isset($_REQUEST['goback']))

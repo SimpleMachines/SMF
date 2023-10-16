@@ -208,7 +208,7 @@ class Cookie
 			$this->path,
 		);
 
-		call_integration_hook('integrate_cookie_data', array($data, &$this->custom_data));
+		IntegrationHook::call('integrate_cookie_data', array($data, &$this->custom_data));
 	}
 
 	/**
@@ -241,7 +241,7 @@ class Cookie
 
 		// MOD AUTHORS: This hook just informs you about the cookie. If you want
 		// to change the cookie data, use integrate_cookie_data instead.
-		call_integration_hook('integrate_cookie', array($this->name, $value, $this->expires, $this->path, $this->domain, $this->secure, $this->httponly, $this->samesite));
+		IntegrationHook::call('integrate_cookie', array($this->name, $value, $this->expires, $this->path, $this->domain, $this->secure, $this->httponly, $this->samesite));
 
 		return setcookie($this->name, $value, array(
 			'expires' 	=> $this->expires,

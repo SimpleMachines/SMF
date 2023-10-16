@@ -19,6 +19,7 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\PageIndex;
@@ -149,7 +150,7 @@ class Recent implements ActionInterface
 		$this->buildQuickButtons();
 
 		// Allow last minute changes.
-		call_integration_hook('integrate_recent_RecentPosts');
+		IntegrationHook::call('integrate_recent_RecentPosts');
 	}
 
 	/***********************

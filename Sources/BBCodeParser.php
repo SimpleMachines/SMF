@@ -1121,7 +1121,7 @@ class BBCodeParser
 			self::$domain_label_chars = '0-9A-Za-z\-';
 
 		// In case a mod wants to control behaviour for a special URI scheme.
-		call_integration_hook('integrate_autolinker_schemes', array(&self::$schemes));
+		IntegrationHook::call('integrate_autolinker_schemes', array(&self::$schemes));
 
 		/*************************
 		 * Set up smileys parsing.
@@ -1134,7 +1134,7 @@ class BBCodeParser
 		// (e.g. emojis instead of images)
 		if ($this->smiley_set !== 'none')
 		{
-			call_integration_hook('integrate_smileys', array(&$this->smiley_preg_search, &$this->smiley_preg_replacements));
+			IntegrationHook::call('integrate_smileys', array(&$this->smiley_preg_search, &$this->smiley_preg_replacements));
 		}
 
 		/************************
@@ -1188,7 +1188,7 @@ class BBCodeParser
 		}
 
 		// Allow mods access before entering $this->parseMessage.
-		call_integration_hook('integrate_pre_parsebbc', array(&$this->message, &$this->smileys, &$cache_id, &$this->parse_tags, &$this->cache_key_extras));
+		IntegrationHook::call('integrate_pre_parsebbc', array(&$this->message, &$this->smileys, &$cache_id, &$this->parse_tags, &$this->cache_key_extras));
 
 		// If no cache id was given, make a generic one.
 		$cache_id = strval($cache_id) !== '' ? $cache_id : 'str' . substr(md5($this->message), 0, 7);
@@ -1235,7 +1235,7 @@ class BBCodeParser
 		$this->parseMessage();
 
 		// Allow mods access to what $this->parseMessage created.
-		call_integration_hook('integrate_post_parsebbc', array(&$this->message, &$this->smileys, &$cache_id, &$this->parse_tags));
+		IntegrationHook::call('integrate_post_parsebbc', array(&$this->message, &$this->smileys, &$cache_id, &$this->parse_tags));
 
 		// Cache the output if it took some time...
 		if (!empty(CacheApi::$enable) && microtime(true) - $cache_t > pow(50, -CacheApi::$enable))
@@ -2569,7 +2569,7 @@ class BBCodeParser
 		// If you want to work with the attachment data itself, use one of these:
 		// - integrate_pre_parseAttachBBC
 		// - integrate_post_parseAttachBBC
-		call_integration_hook('integrate_attach_bbc_validate', array(&$return_context, $current_attachment, $tag, $data, $disabled, $params));
+		IntegrationHook::call('integrate_attach_bbc_validate', array(&$return_context, $current_attachment, $tag, $data, $disabled, $params));
 
 		// Gotta append what we just did.
 		$data = $return_context;
@@ -3215,7 +3215,7 @@ class BBCodeParser
 			}
 
 			// Maybe some custom BBC need to be disabled for printing.
-			call_integration_hook('integrate_bbc_print', array(&$this->disabled));
+			IntegrationHook::call('integrate_bbc_print', array(&$this->disabled));
 		}
 	}
 
@@ -5063,7 +5063,7 @@ class BBCodeParser
 		// Only do this once.
 		if (self::$integrate_bbc_codes_done !== true)
 		{
-			call_integration_hook('integrate_bbc_codes', array(&self::$codes, &self::$no_autolink_tags));
+			IntegrationHook::call('integrate_bbc_codes', array(&self::$codes, &self::$no_autolink_tags));
 
 			// Prevent duplicates.
 			$temp = array();

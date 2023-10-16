@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\IP;
 use SMF\Lang;
 use SMF\PageIndex;
@@ -422,7 +423,7 @@ class Who implements ActionInterface
 
 		Lang::load('Who');
 
-		call_integration_hook('who_allowed', array(&self::$allowedActions));
+		IntegrationHook::call('who_allowed', array(&self::$allowedActions));
 
 		if (!is_array($urls))
 		{
@@ -612,7 +613,7 @@ class Who implements ActionInterface
 			}
 
 			// Maybe the action is integrated into another system?
-			if (count($integrate_actions = call_integration_hook('integrate_whos_online', array($actions))) > 0)
+			if (count($integrate_actions = IntegrationHook::call('integrate_whos_online', array($actions))) > 0)
 			{
 				foreach ($integrate_actions as $integrate_action)
 				{
@@ -724,7 +725,7 @@ class Who implements ActionInterface
 			Db::$db->free_result($result);
 		}
 
-		call_integration_hook('whos_online_after', array(&$urls, &$data));
+		IntegrationHook::call('whos_online_after', array(&$urls, &$data));
 
 		if (!is_array($urls))
 		{

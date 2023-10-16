@@ -458,7 +458,7 @@ class Lang
 		if ((!empty(Theme::$current->options['show_no_censored']) && !empty(Config::$modSettings['allow_no_censored']) && !$force) || empty(Config::$modSettings['censor_vulgar']) || !is_string($text) || trim($text) === '')
 			return $text;
 
-		call_integration_hook('integrate_word_censor', array(&$text));
+		IntegrationHook::call('integrate_word_censor', array(&$text));
 
 		// If they haven't yet been loaded, load them.
 		if ($censor_vulgar == null)

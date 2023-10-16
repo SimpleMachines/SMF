@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Utils;
@@ -138,7 +139,7 @@ class Popup implements ActionInterface
 		// We only want to output our little layer here.
 		Utils::$context['template_layers'] = array();
 
-		call_integration_hook('integrate_profile_popup', array(&$this->profile_items));
+		IntegrationHook::call('integrate_profile_popup', array(&$this->profile_items));
 
 		// Now check if these items are available
 		Utils::$context['profile_items'] = array();

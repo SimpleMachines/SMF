@@ -206,7 +206,7 @@ class Security
 			'search' => !empty(Config::$modSettings['search_floodcontrol_time']) ? Config::$modSettings['search_floodcontrol_time'] : 1,
 		);
 
-		call_integration_hook('integrate_spam_protection', array(&$timeOverrides));
+		IntegrationHook::call('integrate_spam_protection', array(&$timeOverrides));
 
 		// Moderators are free...
 		if (!User::$me->allowedTo('moderate_board'))

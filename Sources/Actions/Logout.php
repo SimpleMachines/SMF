@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\Config;
 use SMF\Cookie;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -116,7 +117,7 @@ class Logout extends Login2
 		if (!User::$me->is_guest)
 		{
 			// Pass the logout information to integrations.
-			call_integration_hook('integrate_logout', array(User::$me->username));
+			IntegrationHook::call('integrate_logout', array(User::$me->username));
 
 			// If you log out, you aren't online anymore :P.
 			Db::$db->query('', '

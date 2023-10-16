@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Profile;
@@ -275,7 +276,7 @@ class StatPanel implements ActionInterface
 		);
 
 		// Custom stats (just add a template_layer to add it to the template!)
-		call_integration_hook('integrate_profile_stats', array(Profile::$member->id, &Utils::$context['text_stats']));
+		IntegrationHook::call('integrate_profile_stats', array(Profile::$member->id, &Utils::$context['text_stats']));
 	}
 
 	/***********************

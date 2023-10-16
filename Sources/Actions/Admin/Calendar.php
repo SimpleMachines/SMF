@@ -20,6 +20,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\Board;
 use SMF\Config;
+use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
@@ -355,7 +356,7 @@ class Calendar implements ActionInterface
 		if (isset($_GET['save']))
 		{
 			User::$me->checkSession();
-			call_integration_hook('integrate_save_calendar_settings');
+			IntegrationHook::call('integrate_save_calendar_settings');
 			ACP::saveDBSettings($config_vars);
 
 			// Update the stats in case.
@@ -476,7 +477,7 @@ class Calendar implements ActionInterface
 			);
 		}
 
-		call_integration_hook('integrate_modify_calendar_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_modify_calendar_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -551,7 +552,7 @@ class Calendar implements ActionInterface
 			);
 		}
 
-		call_integration_hook('integrate_manage_calendar', array(&self::$subactions));
+		IntegrationHook::call('integrate_manage_calendar', array(&self::$subactions));
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
 			$this->subaction = $_REQUEST['sa'];

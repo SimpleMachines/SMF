@@ -528,7 +528,7 @@ class ServerSideIncludes
 		Db::$db->free_result($request);
 
 		// If mods want to do something with this list of posts, let them do that now.
-		call_integration_hook('integrate_ssi_queryPosts', array(&$posts));
+		IntegrationHook::call('integrate_ssi_queryPosts', array(&$posts));
 
 		// Just return it.
 		if ($output_method != 'echo' || empty($posts))
@@ -699,7 +699,7 @@ class ServerSideIncludes
 		Db::$db->free_result($request);
 
 		// If mods want to do something with this list of topics, let them do that now.
-		call_integration_hook('integrate_ssi_recentTopics', array(&$posts));
+		IntegrationHook::call('integrate_ssi_recentTopics', array(&$posts));
 
 		// Just return it.
 		if ($output_method != 'echo' || empty($posts))
@@ -761,7 +761,7 @@ class ServerSideIncludes
 		Db::$db->free_result($request);
 
 		// If mods want to do something with this list of members, let them do that now.
-		call_integration_hook('integrate_ssi_topPoster', array(&$return));
+		IntegrationHook::call('integrate_ssi_topPoster', array(&$return));
 
 		// Just return all the top posters.
 		if ($output_method != 'echo')
@@ -819,7 +819,7 @@ class ServerSideIncludes
 		Db::$db->free_result($request);
 
 		// If mods want to do something with this list of boards, let them do that now.
-		call_integration_hook('integrate_ssi_topBoards', array(&$boards));
+		IntegrationHook::call('integrate_ssi_topBoards', array(&$boards));
 
 		// If we shouldn't output or have nothing to output, just jump out.
 		if ($output_method != 'echo' || empty($boards))
@@ -916,7 +916,7 @@ class ServerSideIncludes
 		Db::$db->free_result($request);
 
 		// If mods want to do something with this list of topics, let them do that now.
-		call_integration_hook('integrate_ssi_topTopics', array(&$topics, $type));
+		IntegrationHook::call('integrate_ssi_topTopics', array(&$topics, $type));
 
 		if ($output_method != 'echo' || empty($topics))
 			return $topics;
@@ -1153,7 +1153,7 @@ class ServerSideIncludes
 			return array();
 
 		// If mods want to do something with this list of members, let them do that now.
-		call_integration_hook('integrate_ssi_queryMembers', array(&$members));
+		IntegrationHook::call('integrate_ssi_queryMembers', array(&$members));
 
 		// Load the members.
 		User::load($members);
@@ -1235,7 +1235,7 @@ class ServerSideIncludes
 		Db::$db->free_result($result);
 
 		// If mods want to do something with the board stats, let them do that now.
-		call_integration_hook('integrate_ssi_boardStats', array(&$totals));
+		IntegrationHook::call('integrate_ssi_boardStats', array(&$totals));
 
 		if ($output_method != 'echo')
 			return $totals;
@@ -1267,7 +1267,7 @@ class ServerSideIncludes
 		$return = Logging::getMembersOnlineStats($membersOnlineOptions);
 
 		// If mods want to do something with the list of who is online, let them do that now.
-		call_integration_hook('integrate_ssi_whosOnline', array(&$return));
+		IntegrationHook::call('integrate_ssi_whosOnline', array(&$return));
 
 		// Add some redundancy for backwards compatibility reasons.
 		if ($output_method != 'echo')
@@ -1420,7 +1420,7 @@ class ServerSideIncludes
 		$return = $poll->format();
 
 		// If mods want to do something with this poll, let them do that now.
-		call_integration_hook('integrate_ssi_recentPoll', array(&$return, $topPollInstead));
+		IntegrationHook::call('integrate_ssi_recentPoll', array(&$return, $topPollInstead));
 
 		if ($output_method != 'echo')
 			return $return;
@@ -1505,7 +1505,7 @@ class ServerSideIncludes
 		$return = $poll->format();
 
 		// If mods want to do something with this poll, let them do that now.
-		call_integration_hook('integrate_ssi_showPoll', array(&$return));
+		IntegrationHook::call('integrate_ssi_showPoll', array(&$return));
 
 		if ($output_method != 'echo')
 			return $return;
@@ -1716,7 +1716,7 @@ class ServerSideIncludes
 		Utils::$context['random_news_line'] = !empty(Utils::$context['news_lines']) ? Utils::$context['news_lines'][mt_rand(0, count(Utils::$context['news_lines']) - 1)] : '';
 
 		// If mods want to do somthing with the news, let them do that now. Don't need to pass the news line itself, since it is already in Utils::$context.
-		call_integration_hook('integrate_ssi_news');
+		IntegrationHook::call('integrate_ssi_news');
 
 		if ($output_method != 'echo')
 			return Utils::$context['random_news_line'];
@@ -1748,7 +1748,7 @@ class ServerSideIncludes
 		$return = CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', 'SMF\\Actions\\Calendar::cache_getRecentEvents', array($eventOptions));
 
 		// The self::todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
-		call_integration_hook('integrate_ssi_calendar', array(&$return, $eventOptions));
+		IntegrationHook::call('integrate_ssi_calendar', array(&$return, $eventOptions));
 
 		if ($output_method != 'echo')
 			return $return['calendar_birthdays'];
@@ -1781,7 +1781,7 @@ class ServerSideIncludes
 		$return = CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', 'SMF\\Actions\\Calendar::cache_getRecentEvents', array($eventOptions));
 
 		// The self::todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
-		call_integration_hook('integrate_ssi_calendar', array(&$return, $eventOptions));
+		IntegrationHook::call('integrate_ssi_calendar', array(&$return, $eventOptions));
 
 		if ($output_method != 'echo')
 			return $return['calendar_holidays'];
@@ -1813,7 +1813,7 @@ class ServerSideIncludes
 		$return = CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', 'SMF\\Actions\\Calendar::cache_getRecentEvents', array($eventOptions));
 
 		// The self::todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
-		call_integration_hook('integrate_ssi_calendar', array(&$return, $eventOptions));
+		IntegrationHook::call('integrate_ssi_calendar', array(&$return, $eventOptions));
 
 		if ($output_method != 'echo')
 			return $return['calendar_events'];
@@ -1853,7 +1853,7 @@ class ServerSideIncludes
 		$return = CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', 'SMF\\Actions\\Calendar::cache_getRecentEvents', array($eventOptions));
 
 		// The self::todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
-		call_integration_hook('integrate_ssi_calendar', array(&$return, $eventOptions));
+		IntegrationHook::call('integrate_ssi_calendar', array(&$return, $eventOptions));
 
 		if ($output_method != 'echo')
 			return $return;
@@ -2080,7 +2080,7 @@ class ServerSideIncludes
 		$return[count($return) - 1]['is_last'] = true;
 
 		// If mods want to do something with this list of posts, let them do that now.
-		call_integration_hook('integrate_ssi_boardNews', array(&$return));
+		IntegrationHook::call('integrate_ssi_boardNews', array(&$return));
 
 		if ($output_method != 'echo')
 			return $return;
@@ -2223,7 +2223,7 @@ class ServerSideIncludes
 			$return[$mday][count($array) - 1]['is_last'] = true;
 
 		// If mods want to do something with this list of events, let them do that now.
-		call_integration_hook('integrate_ssi_recentEvents', array(&$return));
+		IntegrationHook::call('integrate_ssi_recentEvents', array(&$return));
 
 		if ($output_method != 'echo' || empty($return))
 			return $return;
@@ -2378,7 +2378,7 @@ class ServerSideIncludes
 		Db::$db->free_result($request);
 
 		// If mods want to do something with this list of attachments, let them do that now.
-		call_integration_hook('integrate_ssi_recentAttachments', array(&$attachments));
+		IntegrationHook::call('integrate_ssi_recentAttachments', array(&$attachments));
 
 		// So you just want an array?  Here you can have it.
 		if ($output_method == 'array' || empty($attachments))
@@ -2548,7 +2548,7 @@ class ServerSideIncludes
 			$_SESSION['USER_AGENT'] = $_SERVER['HTTP_USER_AGENT'];
 
 		// Have the ability to easily add functions to SSI.
-		call_integration_hook('integrate_SSI');
+		IntegrationHook::call('integrate_SSI');
 
 		self::$setup_done = true;
 	}

@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\Config;
 use SMF\Group;
+use SMF\IntegrationHook;
 use SMF\IP;
 use SMF\ItemList;
 use SMF\Lang;
@@ -273,7 +274,7 @@ class Members implements ActionInterface
 				'++' => '>'
 			);
 
-			call_integration_hook('integrate_view_members_params', array(&$params));
+			IntegrationHook::call('integrate_view_members_params', array(&$params));
 
 			$search_params = array();
 			if ($this->subaction == 'query' && !empty($_REQUEST['params']) && empty($_POST['types']))
@@ -1209,7 +1210,7 @@ class Members implements ActionInterface
 			if (!empty(Config::$modSettings['integrate_activate']))
 			{
 				foreach ($member_info as $member)
-					call_integration_hook('integrate_activate', array($member['username']));
+					IntegrationHook::call('integrate_activate', array($member['username']));
 			}
 
 			// Check for email.
@@ -1572,7 +1573,7 @@ class Members implements ActionInterface
 		}
 
 		// Call our hook now, letting customizations add to the subActions and/or modify Utils::$context as needed.
-		call_integration_hook('integrate_manage_members', array(&self::$subactions));
+		IntegrationHook::call('integrate_manage_members', array(&self::$subactions));
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
 			$this->subaction = $_REQUEST['sa'];

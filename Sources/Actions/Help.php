@@ -16,6 +16,7 @@ namespace SMF\Actions;
 use SMF\BackwardCompatibility;
 
 use SMF\Config;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\Utils;
@@ -178,7 +179,7 @@ class Help implements ActionInterface
 		Lang::load('Manual');
 
 		// CRUD $subactions as needed.
-		call_integration_hook('integrate_manage_help', array(&$subactions));
+		IntegrationHook::call('integrate_manage_help', array(&$subactions));
 
 		if (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']]))
 			$this->subaction = $_GET['sa'];

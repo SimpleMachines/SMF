@@ -15,6 +15,7 @@ namespace SMF\Actions;
 
 use SMF\Alert;
 use SMF\Config;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\Time;
@@ -387,7 +388,7 @@ class Like implements ActionInterface
 			 *
 			 * See also issueLike() for further notes.
 			 */
-			$can_like = call_integration_hook('integrate_valid_likes', array($this->type, $this->content, $this->subaction, $this->js, $this->extra));
+			$can_like = IntegrationHook::call('integrate_valid_likes', array($this->type, $this->content, $this->subaction, $this->js, $this->extra));
 
 			$found = false;
 
@@ -487,7 +488,7 @@ class Like implements ActionInterface
 		$user = (array) User::$me;
 		$time = time();
 
-		call_integration_hook('integrate_issue_like_before', array(&$type, &$content, &$user, &$time));
+		IntegrationHook::call('integrate_issue_like_before', array(&$type, &$content, &$user, &$time));
 
 		// Insert the like.
 		Db::$db->insert('insert',
@@ -634,7 +635,7 @@ class Like implements ActionInterface
 		}
 
 		// Sometimes there might be other things that need updating after we do this like.
-		call_integration_hook('integrate_issue_like', array($this));
+		IntegrationHook::call('integrate_issue_like', array($this));
 
 		// Now some clean up. This is provided here for any like handlers that
 		// want to do any cache flushing.
@@ -817,7 +818,7 @@ class Like implements ActionInterface
 		}
 
 		// Do you want to add something at the very last minute?
-		call_integration_hook('integrate_likes_json_response', array(&$print));
+		IntegrationHook::call('integrate_likes_json_response', array(&$print));
 
 		// Print the data.
 		Utils::serverResponse(Utils::jsonEncode($print));

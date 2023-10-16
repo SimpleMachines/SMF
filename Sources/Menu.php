@@ -312,7 +312,7 @@ class Menu implements \ArrayAccess
 		 */
 		if (!empty($this->current_action) && empty($this->options['disable_hook_call']))
 		{
-			call_integration_hook('integrate_' . $this->current_action . '_areas', array(&$this->data));
+			IntegrationHook::call('integrate_' . $this->current_action . '_areas', array(&$this->data));
 		}
 
 		// Should we use a custom base url, or use the default?

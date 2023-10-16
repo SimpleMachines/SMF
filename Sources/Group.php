@@ -443,7 +443,7 @@ class Group implements \ArrayAccess
 		// Saving a new group.
 		if (empty($this->id))
 		{
-			call_integration_hook('integrate_pre_add_membergroup', array());
+			IntegrationHook::call('integrate_pre_add_membergroup', array());
 
 			$columns = array(
 				'group_name' => 'string-80',
@@ -481,7 +481,7 @@ class Group implements \ArrayAccess
 
 			self::$loaded[$this->id] = $this;
 
-			call_integration_hook('integrate_add_membergroup', array($this->id, $this->min_posts > -1));
+			IntegrationHook::call('integrate_add_membergroup', array($this->id, $this->min_posts > -1));
 		}
 		// Updating an existing group.
 		else
@@ -520,7 +520,7 @@ class Group implements \ArrayAccess
 				$params
 			);
 
-			call_integration_hook('integrate_save_membergroup', array($this->id));
+			IntegrationHook::call('integrate_save_membergroup', array($this->id));
 		}
 
 		// Update membership for post groups, hidden groups, and the moderator group.
@@ -1112,7 +1112,7 @@ class Group implements \ArrayAccess
 		// For historical reasons, the hook expects an array rather than just the name string.
 		$group_names = array($this->id => $this->name);
 
-		call_integration_hook('integrate_add_members_to_group', array($members, $this->id, &$group_names));
+		IntegrationHook::call('integrate_add_members_to_group', array($members, $this->id, &$group_names));
 
 		// Update their postgroup statistics.
 		Logging::updateStats('postgroups', $members);
@@ -2330,7 +2330,7 @@ class Group implements \ArrayAccess
 			$groupCache[$row['id_group']] = '<a href="' . Config::$scripturl . '?action=groups;sa=members;group=' . $row['id_group'] . '" ' . ($row['online_color'] ? 'style="color: ' . $row['online_color'] . '"' : '') . '>' . $row['group_name'] . '</a>';
 		}
 
-		call_integration_hook('integrate_getMembergroupList', array(&$groupCache, $group));
+		IntegrationHook::call('integrate_getMembergroupList', array(&$groupCache, $group));
 
 		return array(
 			'data' => $groupCache,

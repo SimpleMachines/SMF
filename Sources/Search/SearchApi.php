@@ -16,6 +16,7 @@ namespace SMF\Search;
 use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\User;
 use SMF\Utils;
@@ -866,7 +867,7 @@ abstract class SearchApi implements SearchApiInterface
 			);
 		}
 
-		call_integration_hook('integrate_load_search_apis', array(&$loadedApis));
+		IntegrationHook::call('integrate_load_search_apis', array(&$loadedApis));
 
 		return $loadedApis;
 	}
@@ -883,7 +884,7 @@ abstract class SearchApi implements SearchApiInterface
 	 */
 	protected function calculateWeight(): void
 	{
-		call_integration_hook('integrate_search_weights', array(&self::$weight_factors));
+		IntegrationHook::call('integrate_search_weights', array(&self::$weight_factors));
 
 		foreach (self::$weight_factors as $weight_factor => $value)
 		{
@@ -904,7 +905,7 @@ abstract class SearchApi implements SearchApiInterface
 	 */
 	protected function setBlacklistedWords(): void
 	{
-		call_integration_hook('integrate_search_blacklisted_words', array(&$this->blacklisted_words));
+		IntegrationHook::call('integrate_search_blacklisted_words', array(&$this->blacklisted_words));
 	}
 
 	/**
@@ -995,7 +996,7 @@ abstract class SearchApi implements SearchApiInterface
 		$this->ageRecentMsg = Config::$modSettings['maxMsgID'] - $this->ageMinMsg;
 
 		// *** Parse the search query
-		call_integration_hook('integrate_search_params', array(&$this->params));
+		IntegrationHook::call('integrate_search_params', array(&$this->params));
 
 		// What are we searching for?
 		if (empty($this->params['search']))
@@ -1472,7 +1473,7 @@ abstract class SearchApi implements SearchApiInterface
 	 */
 	protected function setSort(): void
 	{
-		call_integration_hook('integrate_search_sort_columns', array(&$this->sort_columns));
+		IntegrationHook::call('integrate_search_sort_columns', array(&$this->sort_columns));
 
 		if (empty($this->params['sort']) && !empty($_REQUEST['sort']))
 		{
@@ -1584,7 +1585,7 @@ abstract class SearchApi implements SearchApiInterface
 				}
 			}
 
-			call_integration_hook('integrate_subject_only_search_query', array(&$subject_query, &$subject_query_params));
+			IntegrationHook::call('integrate_subject_only_search_query', array(&$subject_query, &$subject_query_params));
 
 			$relevance = '1000 * (';
 
@@ -1883,7 +1884,7 @@ abstract class SearchApi implements SearchApiInterface
 					}
 				}
 
-				call_integration_hook('integrate_subject_search_query', array(&$subject_query));
+				IntegrationHook::call('integrate_subject_search_query', array(&$subject_query));
 
 				// Nothing to search for?
 				if (empty($subject_query['where']))
@@ -2143,7 +2144,7 @@ abstract class SearchApi implements SearchApiInterface
 			}
 		}
 
-		call_integration_hook('integrate_main_search_query', array(&$main_query));
+		IntegrationHook::call('integrate_main_search_query', array(&$main_query));
 
 		// Did we either get some indexed results, or otherwise did not do an indexed query?
 		if (!empty($indexedResults) || !$this->supportsMethod('indexedWordQuery', $this->getQueryParams()))

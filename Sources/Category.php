@@ -356,7 +356,7 @@ class Category implements \ArrayAccess
 		$catParameters = array();
 
 		$cat_id = $category_id;
-		call_integration_hook('integrate_pre_modify_category', array($cat_id, &$catOptions));
+		IntegrationHook::call('integrate_pre_modify_category', array($cat_id, &$catOptions));
 
 		// Wanna change the categories position?
 		if (isset($catOptions['move_after']))
@@ -433,7 +433,7 @@ class Category implements \ArrayAccess
 		}
 
 		$cat_id = $category_id;
-		call_integration_hook('integrate_modify_category', array($cat_id, &$catUpdates, &$catParameters));
+		IntegrationHook::call('integrate_modify_category', array($cat_id, &$catUpdates, &$catParameters));
 
 		// Do the updates (if any).
 		if (!empty($catUpdates))
@@ -498,7 +498,7 @@ class Category implements \ArrayAccess
 			$catOptions['cat_desc'],
 		);
 
-		call_integration_hook('integrate_create_category', array(&$catOptions, &$cat_columns, &$cat_parameters));
+		IntegrationHook::call('integrate_create_category', array(&$catOptions, &$cat_columns, &$cat_parameters));
 
 		// Add the category to the database.
 		$category_id = Db::$db->insert('',
@@ -533,7 +533,7 @@ class Category implements \ArrayAccess
 	{
 		self::getTree();
 
-		call_integration_hook('integrate_delete_category', array($categories, &$moveBoardsTo));
+		IntegrationHook::call('integrate_delete_category', array($categories, &$moveBoardsTo));
 
 		// With no category set to move the boards to, delete them all.
 		if ($moveBoardsTo === null)
@@ -687,7 +687,7 @@ class Category implements \ArrayAccess
 		$order = array('c.cat_order', 'b.child_level', 'b.board_order');
 
 		// Let mods add extra columns, parameters, etc., to the SELECT query
-		call_integration_hook('integrate_pre_boardtree', array(&$selects, &$params, &$joins, &$where, &$order));
+		IntegrationHook::call('integrate_pre_boardtree', array(&$selects, &$params, &$joins, &$where, &$order));
 
 		$selects = array_unique($selects);
 		$params = array_unique($params);
@@ -766,7 +766,7 @@ class Category implements \ArrayAccess
 			}
 
 			// If mods want to do anything with this board before we move on, now's the time
-			call_integration_hook('integrate_boardtree_board', array($row));
+			IntegrationHook::call('integrate_boardtree_board', array($row));
 		}
 
 		// Get a list of all the boards in each category (using recursion).

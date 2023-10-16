@@ -18,6 +18,7 @@ use SMF\BackwardCompatibility;
 use SMF\Category;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -297,7 +298,7 @@ class Search implements ActionInterface
 
 		Utils::$context['page_title'] = Lang::$txt['set_parameters'];
 
-		call_integration_hook('integrate_search');
+		IntegrationHook::call('integrate_search');
 	}
 
 	/***********************

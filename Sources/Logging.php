@@ -90,7 +90,7 @@ class Logging
 		);
 		$always_log = array('agreement_accepted', 'policy_accepted', 'agreement_updated', 'policy_updated');
 
-		call_integration_hook('integrate_log_types', array(&$log_types, &$always_log));
+		IntegrationHook::call('integrate_log_types', array(&$log_types, &$always_log));
 
 		foreach ($logs as $log)
 		{
@@ -784,7 +784,7 @@ class Logging
 		// Hidden and non-hidden members make up all online members.
 		$membersOnlineStats['num_users_online'] = count($membersOnlineStats['users_online']) + $membersOnlineStats['num_users_hidden'] - (isset(Config::$modSettings['show_spider_online']) && Config::$modSettings['show_spider_online'] > 1 ? count($spider_finds) : 0);
 
-		call_integration_hook('integrate_online_stats', array(&$membersOnlineStats));
+		IntegrationHook::call('integrate_online_stats', array(&$membersOnlineStats));
 
 		return $membersOnlineStats;
 	}

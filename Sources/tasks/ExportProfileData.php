@@ -15,6 +15,7 @@ namespace SMF\Tasks;
 
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\TaskRunner;
 use SMF\Theme;
@@ -913,7 +914,7 @@ class ExportProfileData extends BackgroundTask
 		);
 
 		foreach ($hook_methods as $hook => $method)
-			add_integration_function('integrate_' . $hook, __CLASS__ . '::' . $method, false);
+			IntegrationHook::add('integrate_' . $hook, __CLASS__ . '::' . $method, false);
 
 		// Perform the export.
 		if ($this->_details['format'] == 'XML')
@@ -1366,7 +1367,7 @@ class ExportProfileData extends BackgroundTask
 		Utils::$context['export_dlfilename'] = $this->_details['dlfilename'];
 
 		// Embedded XSLT requires adding a special DTD and processing instruction in the main XML document.
-		add_integration_function('integrate_xml_data', __CLASS__ . '::add_dtd', false);
+		IntegrationHook::add('integrate_xml_data', __CLASS__ . '::add_dtd', false);
 
 		// Make sure the stylesheet is set.
 		$this->buildStylesheet();
@@ -1525,7 +1526,7 @@ class ExportProfileData extends BackgroundTask
 			);
 
 			// Let mods adjust the XSLT variables.
-			call_integration_hook('integrate_export_xslt_variables', array(&$xslt_variables, $this->_details['format']));
+			IntegrationHook::call('integrate_export_xslt_variables', array(&$xslt_variables, $this->_details['format']));
 
 			$idhash = hash_hmac('sha1', $this->_details['uid'], Config::getAuthSecret());
 			$xslt_variables['dltoken'] = array(
@@ -1674,7 +1675,7 @@ class ExportProfileData extends BackgroundTask
 		}
 
 		// Let mods adjust the XSLT stylesheet.
-		call_integration_hook('integrate_export_xslt_stylesheet', array(&$this->xslt_stylesheet, $this->_details['format']));
+		IntegrationHook::call('integrate_export_xslt_stylesheet', array(&$this->xslt_stylesheet, $this->_details['format']));
 
 		$this->stylesheet = implode("\n\n", $this->xslt_stylesheet);
 
@@ -1748,7 +1749,7 @@ class ExportProfileData extends BackgroundTask
 			Theme::loadCSSFile('rtl.css', array('order_pos' => 4000), 'smf_rtl');
 
 		// In case any mods added relevant CSS.
-		call_integration_hook('integrate_pre_css_output');
+		IntegrationHook::call('integrate_pre_css_output');
 
 		// This next chunk mimics some of Theme::template_css()
 		$css_to_minify = array();
@@ -1790,8 +1791,8 @@ class ExportProfileData extends BackgroundTask
 		Theme::loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', array('external' => true, 'seed' => false), 'smf_jquery');
 
 		// There might be JavaScript that we need to add in order to support custom BBC or something.
-		call_integration_hook('integrate_pre_javascript_output', array(false));
-		call_integration_hook('integrate_pre_javascript_output', array(true));
+		IntegrationHook::call('integrate_pre_javascript_output', array(false));
+		IntegrationHook::call('integrate_pre_javascript_output', array(true));
 
 		$js_to_minify = array();
 		$all_js_files = array();

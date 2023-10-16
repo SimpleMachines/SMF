@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Theme;
@@ -306,7 +307,7 @@ class AntiSpam implements ActionInterface
 			if (empty($count_questions) || $_POST['qa_verification_number'] > $count_questions)
 				$_POST['qa_verification_number'] = $count_questions;
 
-			call_integration_hook('integrate_save_spam_settings', array(&$save_vars));
+			IntegrationHook::call('integrate_save_spam_settings', array(&$save_vars));
 
 			// Now save.
 			ACP::saveDBSettings($save_vars);
@@ -464,7 +465,7 @@ class AntiSpam implements ActionInterface
 			array('callback', 'question_answer_list'),
 		);
 
-		call_integration_hook('integrate_spam_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_spam_settings', array(&$config_vars));
 
 		return $config_vars;
 	}

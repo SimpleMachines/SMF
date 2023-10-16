@@ -12,6 +12,7 @@
 
 use SMF\Config;
 use SMF\Lang;
+use SMF\IntegrationHook;
 use SMF\Theme;
 use SMF\Time;
 use SMF\Utils;
@@ -682,7 +683,7 @@ function template_quickbuttons($list_items, $list_class = null, $output_method =
 {
 	// Enable manipulation with hooks
 	if (!empty($list_class))
-		call_integration_hook('integrate_' . $list_class . '_quickbuttons', array(&$list_items));
+		IntegrationHook::call('integrate_' . $list_class . '_quickbuttons', array(&$list_items));
 
 	// Make sure the list has at least one shown item
 	foreach ($list_items as $key => $li)

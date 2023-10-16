@@ -14,6 +14,7 @@
 namespace SMF\Tasks;
 
 use SMF\Config;
+use SMF\IntegrationHook;
 use SMF\Theme;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -268,7 +269,7 @@ class WeeklyMaintenance extends ScheduledTask
 		Theme::deleteAllMinified();
 
 		// Maybe there's more to do.
-		call_integration_hook('integrate_weekly_maintenance');
+		IntegrationHook::call('integrate_weekly_maintenance');
 
 		return true;
 	}

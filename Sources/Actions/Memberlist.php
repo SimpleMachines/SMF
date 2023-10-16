@@ -18,6 +18,7 @@ use SMF\BackwardCompatibility;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\PageIndex;
 use SMF\Theme;
@@ -231,7 +232,7 @@ class Memberlist implements ActionInterface
 		);
 
 		// Allow mods to add additional buttons here
-		call_integration_hook('integrate_memberlist_buttons');
+		IntegrationHook::call('integrate_memberlist_buttons');
 
 		call_helper(method_exists($this, self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : self::$subactions[$this->subaction]);
 	}
@@ -862,7 +863,7 @@ class Memberlist implements ActionInterface
 	protected function __construct()
 	{
 		// Allow mods to add sub-actions and sort_links.
-		call_integration_hook('integrate_memberlist_subactions', array(&self::$subactions, $this->sort_links));
+		IntegrationHook::call('integrate_memberlist_subactions', array(&self::$subactions, $this->sort_links));
 
 		if (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']]))
 			$this->subaction = $_GET['sa'];

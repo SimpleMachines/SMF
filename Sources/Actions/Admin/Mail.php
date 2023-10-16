@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
@@ -283,7 +284,7 @@ class Mail implements ActionInterface
 			// We don't want to save the subject and body previews.
 			unset($config_vars['birthday_subject'], $config_vars['birthday_body']);
 
-			call_integration_hook('integrate_save_mail_settings');
+			IntegrationHook::call('integrate_save_mail_settings');
 
 			ACP::saveDBSettings($config_vars);
 			Utils::redirectexit('action=admin;area=mailqueue;sa=settings');
@@ -457,7 +458,7 @@ class Mail implements ActionInterface
 			'birthday_body' => array('var_message', 'birthday_body', 'var_message' => nl2br($body), 'disabled' => true, 'size' => ceil(strlen($body) / 25)),
 		);
 
-		call_integration_hook('integrate_modify_mail_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_modify_mail_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -624,7 +625,7 @@ class Mail implements ActionInterface
 		Utils::$context['page_title'] = Lang::$txt['mailqueue_title'];
 		Utils::$context['sub_template'] = 'show_settings';
 
-		call_integration_hook('integrate_manage_mail', array(&self::$subactions));
+		IntegrationHook::call('integrate_manage_mail', array(&self::$subactions));
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
 			$this->subaction = $_REQUEST['sa'];

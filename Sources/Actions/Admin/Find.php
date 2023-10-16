@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\User;
@@ -205,7 +206,7 @@ class Find implements ActionInterface
 		// Try to get some more memory.
 		Config::setMemoryLimit('128M');
 
-		call_integration_hook('integrate_admin_search', array(&$this->language_files, &$this->include_files, &$this->settings_search));
+		IntegrationHook::call('integrate_admin_search', array(&$this->language_files, &$this->include_files, &$this->settings_search));
 
 		Lang::load(implode('+', $this->language_files));
 

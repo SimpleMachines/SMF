@@ -19,6 +19,7 @@ use SMF\Actions\ActionInterface;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Profile;
@@ -148,7 +149,7 @@ class BuddyIgnoreLists implements ActionInterface
 		{
 			User::$me->checkSession('get');
 
-			call_integration_hook('integrate_remove_buddy', array(Profile::$member->id));
+			IntegrationHook::call('integrate_remove_buddy', array(Profile::$member->id));
 
 			$_SESSION['prf-save'] = Lang::$txt['could_not_remove_person'];
 
@@ -192,7 +193,7 @@ class BuddyIgnoreLists implements ActionInterface
 				}
 			}
 
-			call_integration_hook('integrate_add_buddies', array(Profile::$member->id, &$new_buddies));
+			IntegrationHook::call('integrate_add_buddies', array(Profile::$member->id, &$new_buddies));
 
 			$_SESSION['prf-save'] = Lang::$txt['could_not_add_person'];
 
@@ -358,7 +359,7 @@ class BuddyIgnoreLists implements ActionInterface
 			unset($_SESSION['prf-save']);
 		}
 
-		call_integration_hook('integrate_view_buddies', array(Profile::$member->id));
+		IntegrationHook::call('integrate_view_buddies', array(Profile::$member->id));
 	}
 
 	/**

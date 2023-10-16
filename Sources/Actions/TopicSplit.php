@@ -21,6 +21,7 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\MessageIndex;
@@ -973,7 +974,7 @@ class TopicSplit implements ActionInterface
 			'id_topic' => $split2_ID_TOPIC,
 		);
 
-		call_integration_hook('integrate_split_topic', array($split1, $split2, $new_subject, $id_board));
+		IntegrationHook::call('integrate_split_topic', array($split1, $split2, $new_subject, $id_board));
 
 		// Return the ID of the newly created topic.
 		return $split2_ID_TOPIC;

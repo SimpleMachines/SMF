@@ -16,6 +16,7 @@ namespace SMF\Actions\Profile;
 use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Profile;
 use SMF\Theme;
@@ -66,7 +67,7 @@ class ThemeOptions implements ActionInterface
 		Theme::loadSubTemplate('options');
 
 		// Let mods hook into the theme options.
-		call_integration_hook('integrate_theme_options');
+		IntegrationHook::call('integrate_theme_options');
 
 		Profile::$member->loadThemeOptions();
 

@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
@@ -513,7 +514,7 @@ class Tasks implements ActionInterface
 
 			$save_vars = $config_vars;
 
-			call_integration_hook('integrate_save_scheduled_tasks_settings', array(&$save_vars));
+			IntegrationHook::call('integrate_save_scheduled_tasks_settings', array(&$save_vars));
 
 			ACP::saveDBSettings($save_vars);
 
@@ -563,7 +564,7 @@ class Tasks implements ActionInterface
 			array('check', 'cron_is_real_cron', 'subtext' => Lang::$txt['cron_is_real_cron_desc'], 'help' => 'cron_is_real_cron'),
 		);
 
-		call_integration_hook('integrate_scheduled_tasks_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_scheduled_tasks_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -749,7 +750,7 @@ class Tasks implements ActionInterface
 			);
 		}
 
-		call_integration_hook('integrate_manage_scheduled_tasks', array(&self::$subactions));
+		IntegrationHook::call('integrate_manage_scheduled_tasks', array(&self::$subactions));
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
 			$this->subaction = $_REQUEST['sa'];

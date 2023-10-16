@@ -22,6 +22,7 @@ use SMF\Category;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Group;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\SecurityToken;
@@ -282,7 +283,7 @@ class Boards implements ActionInterface
 			}
 		}
 
-		call_integration_hook('integrate_boards_main');
+		IntegrationHook::call('integrate_boards_main');
 
 		Utils::$context['page_title'] = Lang::$txt['boards_and_cats'];
 		Utils::$context['can_manage_permissions'] = User::$me->allowedTo('manage_permissions');
@@ -390,7 +391,7 @@ class Boards implements ActionInterface
 		SecurityToken::create('admin-bc-' . $_REQUEST['cat']);
 		Utils::$context['token_check'] = 'admin-bc-' . $_REQUEST['cat'];
 
-		call_integration_hook('integrate_edit_category');
+		IntegrationHook::call('integrate_edit_category');
 	}
 
 	/**
@@ -686,7 +687,7 @@ class Boards implements ActionInterface
 		// Create a special token.
 		SecurityToken::create('admin-be-' . $_REQUEST['boardid']);
 
-		call_integration_hook('integrate_edit_board');
+		IntegrationHook::call('integrate_edit_board');
 	}
 
 	/**
@@ -935,7 +936,7 @@ class Boards implements ActionInterface
 		{
 			User::$me->checkSession();
 
-			call_integration_hook('integrate_save_board_settings');
+			IntegrationHook::call('integrate_save_board_settings');
 
 			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
@@ -1023,7 +1024,7 @@ class Boards implements ActionInterface
 			array('check', 'deny_boards_access'),
 		);
 
-		call_integration_hook('integrate_modify_board_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_modify_board_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -1072,7 +1073,7 @@ class Boards implements ActionInterface
 			),
 		);
 
-		call_integration_hook('integrate_manage_boards', array(&self::$subactions));
+		IntegrationHook::call('integrate_manage_boards', array(&self::$subactions));
 
 		// Default to sub action 'main' or 'settings' depending on permissions.
 		$this->subaction = isset($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (User::$me->allowedTo('manage_boards') ? 'main' : 'settings');

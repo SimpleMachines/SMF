@@ -15,6 +15,7 @@ namespace SMF\Tasks;
 
 use SMF\Alert;
 use SMF\Config;
+use SMF\IntegrationHook;
 use SMF\ProxyServer;
 use SMF\Actions\Admin\SearchEngines;
 use SMF\Cache\CacheApi;
@@ -151,7 +152,7 @@ class DailyMaintenance extends ScheduledTask
 		}
 
 		// Anyone else have something to do?
-		call_integration_hook('integrate_daily_maintenance');
+		IntegrationHook::call('integrate_daily_maintenance');
 
 		return true;
 	}

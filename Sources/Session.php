@@ -199,7 +199,7 @@ class Session implements \SessionHandlerInterface
 		@ini_set('arg_separator.output', '&amp;');
 
 		// Allows mods to change/add PHP settings
-		call_integration_hook('integrate_load_session');
+		IntegrationHook::call('integrate_load_session');
 
 		if (!empty(Config::$modSettings['globalCookies']))
 		{
@@ -248,7 +248,7 @@ class Session implements \SessionHandlerInterface
 			// Use cache setting sessions?
 			if (empty(Config::$modSettings['databaseSession_enable']) && !empty(CacheApi::$enable) && php_sapi_name() != 'cli')
 			{
-				call_integration_hook('integrate_session_handlers');
+				IntegrationHook::call('integrate_session_handlers');
 			}
 
 			session_start();

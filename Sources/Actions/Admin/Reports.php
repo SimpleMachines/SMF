@@ -19,6 +19,7 @@ use SMF\Actions\ActionInterface;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Group;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Theme;
@@ -193,7 +194,7 @@ class Reports implements ActionInterface
 		);
 
 		// Allow mods to add additional buttons here.
-		call_integration_hook('integrate_report_buttons');
+		IntegrationHook::call('integrate_report_buttons');
 
 		// Now generate the data.
 		call_helper(method_exists($this, self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : self::$subactions[$this->subaction]);
@@ -490,7 +491,7 @@ class Reports implements ActionInterface
 			$disabled_permissions[] = 'post_unapproved_attachments';
 		}
 
-		call_integration_hook('integrate_reports_boardperm', array(&$disabled_permissions));
+		IntegrationHook::call('integrate_reports_boardperm', array(&$disabled_permissions));
 
 		// Cache every permission setting, to make sure we don't miss any allows.
 		$permissions = array();
@@ -771,7 +772,7 @@ class Reports implements ActionInterface
 			$disabled_permissions[] = 'issue_warning';
 		}
 
-		call_integration_hook('integrate_reports_groupperm', array(&$disabled_permissions));
+		IntegrationHook::call('integrate_reports_groupperm', array(&$disabled_permissions));
 
 		// Now the big permission fetch!
 		$lastPermission = null;
@@ -1074,7 +1075,7 @@ class Reports implements ActionInterface
 		// For backward compatibility...
 		Utils::$context['report_types'] = &self::$subactions;
 
-		call_integration_hook('integrate_report_types', array(&self::$subactions));
+		IntegrationHook::call('integrate_report_types', array(&self::$subactions));
 
 		// Load up all the tabs...
 		Menu::$loaded['admin']->tab_data = array(

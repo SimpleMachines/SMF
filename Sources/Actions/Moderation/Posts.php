@@ -20,6 +20,7 @@ use SMF\Attachment;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
+use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
@@ -964,7 +965,7 @@ class Posts implements ActionInterface
 		Lang::load('ModerationCenter');
 		Theme::loadTemplate('ModerationCenter');
 
-		call_integration_hook('integrate_post_moderation', array(&self::$subactions));
+		IntegrationHook::call('integrate_post_moderation', array(&self::$subactions));
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
 			$this->subaction = $_REQUEST['sa'];

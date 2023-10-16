@@ -137,7 +137,7 @@ class Mail
 		$headers .= 'X-Mailer: SMF' . $line_break;
 
 		// Pass this to the integration before we start modifying the output -- it'll make it easier later.
-		if (in_array(false, call_integration_hook('integrate_outgoing_email', array(&$subject, &$message, &$headers, &$to_array)), true))
+		if (in_array(false, IntegrationHook::call('integrate_outgoing_email', array(&$subject, &$message, &$headers, &$to_array)), true))
 			return false;
 
 		// Save the original message...

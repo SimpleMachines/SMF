@@ -19,6 +19,7 @@ use SMF\Actions\ActionInterface;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
@@ -144,7 +145,7 @@ class Features implements ActionInterface
 			if (isset($_POST['lastActive']))
 				$_POST['lastActive'] = min((int) $_POST['lastActive'], 1440);
 
-			call_integration_hook('integrate_save_basic_settings');
+			IntegrationHook::call('integrate_save_basic_settings');
 
 			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
@@ -273,7 +274,7 @@ class Features implements ActionInterface
 				}
 			);
 
-			call_integration_hook('integrate_save_bbc_settings', array($bbcTags));
+			IntegrationHook::call('integrate_save_bbc_settings', array($bbcTags));
 
 			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
@@ -300,7 +301,7 @@ class Features implements ActionInterface
 		{
 			User::$me->checkSession();
 
-			call_integration_hook('integrate_save_layout_settings');
+			IntegrationHook::call('integrate_save_layout_settings');
 
 			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
@@ -580,7 +581,7 @@ class Features implements ActionInterface
 
 					$sig = strtr($sig, array("\n" => '<br>'));
 
-					call_integration_hook('integrate_apply_signature_settings', array(&$sig, $sig_limits, $disabledTags));
+					IntegrationHook::call('integrate_apply_signature_settings', array(&$sig, $sig_limits, $disabledTags));
 
 					if ($sig != $row['signature'])
 						$changes[$row['id_member']] = $sig;
@@ -672,7 +673,7 @@ class Features implements ActionInterface
 				}
 			}
 
-			call_integration_hook('integrate_save_signature_settings', array(&$sig_limits, &$bbcTags));
+			IntegrationHook::call('integrate_save_signature_settings', array(&$sig_limits, &$bbcTags));
 
 			$_POST['signature_settings'] = implode(',', $sig_limits) . ':' . implode(',', array_diff($bbcTags, $_POST['signature_bbc_enabledTags']));
 
@@ -1510,7 +1511,7 @@ class Features implements ActionInterface
 		{
 			User::$me->checkSession();
 
-			call_integration_hook('integrate_save_likes_settings');
+			IntegrationHook::call('integrate_save_likes_settings');
 
 			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
@@ -1537,7 +1538,7 @@ class Features implements ActionInterface
 		{
 			User::$me->checkSession();
 
-			call_integration_hook('integrate_save_mentions_settings');
+			IntegrationHook::call('integrate_save_mentions_settings');
 
 			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
@@ -1693,7 +1694,7 @@ class Features implements ActionInterface
 			array('int', 'alerts_per_page', 'step' => 1, 'min' => 0, 'max' => 999),
 		);
 
-		call_integration_hook('integrate_modify_basic_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_modify_basic_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -1730,7 +1731,7 @@ class Features implements ActionInterface
 			toggleBBCDisabled(\'disabledBBC\', ' . (empty(Config::$modSettings['enableBBC']) ? 'true' : 'false') . ');
 			toggleBBCDisabled(\'legacyBBC\', ' . (empty(Config::$modSettings['enableBBC']) ? 'true' : 'false') . ');';
 
-		call_integration_hook('integrate_modify_bbc_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_modify_bbc_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -1763,7 +1764,7 @@ class Features implements ActionInterface
 			array('check', 'timeLoadPageEnable'),
 		);
 
-		call_integration_hook('integrate_layout_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_layout_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -1797,7 +1798,7 @@ class Features implements ActionInterface
 			array('bbc', 'signature_bbc'),
 		);
 
-		call_integration_hook('integrate_signature_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_signature_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -1814,7 +1815,7 @@ class Features implements ActionInterface
 			array('permissions', 'likes_like'),
 		);
 
-		call_integration_hook('integrate_likes_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_likes_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -1831,7 +1832,7 @@ class Features implements ActionInterface
 			array('permissions', 'mention'),
 		);
 
-		call_integration_hook('integrate_mentions_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_mentions_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -2077,7 +2078,7 @@ class Features implements ActionInterface
 			),
 		);
 
-		call_integration_hook('integrate_modify_features', array(&self::$subactions));
+		IntegrationHook::call('integrate_modify_features', array(&self::$subactions));
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
 			$this->subaction = $_REQUEST['sa'];

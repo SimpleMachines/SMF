@@ -948,7 +948,7 @@ class Alert implements \ArrayAccess
 
 		// Hooks might want to do something snazzy with their own content types,
 		// including enforcing permissions if appropriate.
-		call_integration_hook('integrate_fetch_alerts', array(&$loaded, &self::$link_formats));
+		IntegrationHook::call('integrate_fetch_alerts', array(&$loaded, &self::$link_formats));
 
 		// Did a hook remove some of the alerts we loaded?
 		if ($loaded_ids !== array_keys($loaded))
@@ -1345,7 +1345,7 @@ class Alert implements \ArrayAccess
 			$this->icon = '';
 		}
 
-		call_integration_hook('integrate_alert_icon', array(&$this->icon, (array) $this));
+		IntegrationHook::call('integrate_alert_icon', array(&$this->icon, (array) $this));
 	}
 	/*************************
 	 * Internal static methods

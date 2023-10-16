@@ -23,6 +23,7 @@ use SMF\Actions\ActionInterface;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\IP;
+use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
@@ -493,7 +494,7 @@ class Bans implements ActionInterface
 			});',
 				);
 
-				call_integration_hook('integrate_ban_edit_list', array(&$listOptions));
+				IntegrationHook::call('integrate_ban_edit_list', array(&$listOptions));
 
 				new ItemList($listOptions);
 			}
@@ -599,7 +600,7 @@ class Bans implements ActionInterface
 					Utils::$context['ban']['from_user'] = true;
 				}
 
-				call_integration_hook('integrate_ban_edit_new', array());
+				IntegrationHook::call('integrate_ban_edit_new', array());
 			}
 		}
 
@@ -1379,7 +1380,7 @@ class Bans implements ActionInterface
 		}
 		Db::$db->free_result($request);
 
-		call_integration_hook('integrate_ban_list', array(&$ban_items));
+		IntegrationHook::call('integrate_ban_list', array(&$ban_items));
 
 		return $ban_items;
 	}
@@ -1635,7 +1636,7 @@ class Bans implements ActionInterface
 			);
 		}
 
-		call_integration_hook('integrate_manage_bans', array(&self::$subactions));
+		IntegrationHook::call('integrate_manage_bans', array(&self::$subactions));
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
 			$this->subaction = $_REQUEST['sa'];
@@ -1680,7 +1681,7 @@ class Bans implements ActionInterface
 			$ban_info['cannot']['register'] = !empty($ban_info['full_ban']) || empty($_POST['cannot_register']) ? 0 : 1;
 			$ban_info['cannot']['login'] = !empty($ban_info['full_ban']) || empty($_POST['cannot_login']) ? 0 : 1;
 
-			call_integration_hook('integrate_edit_bans', array(&$ban_info, empty($_REQUEST['bg'])));
+			IntegrationHook::call('integrate_edit_bans', array(&$ban_info, empty($_REQUEST['bg'])));
 
 			// Limit 'reason' characters
 			$ban_info['reason'] = Utils::truncate($ban_info['reason'], 255);
@@ -1742,7 +1743,7 @@ class Bans implements ActionInterface
 			self::removeBanTriggers($_POST['ban_items'], $ban_group_id);
 		}
 
-		call_integration_hook('integrate_edit_bans_post', array());
+		IntegrationHook::call('integrate_edit_bans_post', array());
 
 		// Register the last modified date.
 		Config::updateModSettings(array('banLastUpdated' => time()));
@@ -1764,7 +1765,7 @@ class Bans implements ActionInterface
 		Lang::load('Profile');
 
 		$search_list = array();
-		call_integration_hook('integrate_load_addtional_ip_ban', array(&$search_list));
+		IntegrationHook::call('integrate_load_addtional_ip_ban', array(&$search_list));
 
 		$search_list += array(
 			'ips_in_messages' => array($this, 'banLoadAdditionalIPsMember'),
@@ -1876,7 +1877,7 @@ class Bans implements ActionInterface
 
 		$ban_triggers = $this->validateTriggers($triggers);
 
-		call_integration_hook('integrate_save_triggers', array(&$ban_triggers, &$ban_group));
+		IntegrationHook::call('integrate_save_triggers', array(&$ban_triggers, &$ban_group));
 
 		// Time to save!
 		if (!empty($ban_triggers['ban_triggers']) && empty(Utils::$context['ban_errors']))
@@ -2535,7 +2536,7 @@ class Bans implements ActionInterface
 		$log_info = array();
 		$ban_items = array();
 
-		call_integration_hook('integrate_remove_triggers', array(&$items_ids, $group_id));
+		IntegrationHook::call('integrate_remove_triggers', array(&$items_ids, $group_id));
 
 		// First order of business: Load up the info so we can log this...
 		$request = Db::$db->query('', '

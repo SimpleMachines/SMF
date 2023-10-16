@@ -19,6 +19,7 @@ use SMF\Actions\ActionInterface;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\PageIndex;
 use SMF\SecurityToken;
@@ -114,7 +115,7 @@ class Home implements ActionInterface
 		// Handle moderators' notes.
 		$this->notes();
 
-		call_integration_hook('integrate_moderation_home_blocks', array(&$this->blocks));
+		IntegrationHook::call('integrate_moderation_home_blocks', array(&$this->blocks));
 
 		foreach ($this->blocks as $k => $block)
 		{
@@ -571,7 +572,7 @@ class Home implements ActionInterface
 	{
 		$valid_blocks = array();
 
-		call_integration_hook('integrate_mod_centre_blocks', array(&$valid_blocks));
+		IntegrationHook::call('integrate_mod_centre_blocks', array(&$valid_blocks));
 
 		if (empty($valid_blocks))
 			return;

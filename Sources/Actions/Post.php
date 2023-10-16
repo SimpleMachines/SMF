@@ -20,10 +20,11 @@ use SMF\BrowserDetector;
 use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
+use SMF\Draft;
 use SMF\Editor;
 use SMF\ErrorHandler;
 use SMF\Event;
-use SMF\Draft;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\Poll;
@@ -223,7 +224,7 @@ class Post implements ActionInterface
 			$this->loadTopic();
 
 		// Allow mods to add new sub-actions.
-		call_integration_hook('integrate_post_subactions', array(&self::$subactions));
+		IntegrationHook::call('integrate_post_subactions', array(&self::$subactions));
 
 		call_helper(method_exists($this, self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : self::$subactions[$this->subaction]);
 	}
@@ -255,7 +256,7 @@ class Post implements ActionInterface
 		Utils::$context['make_event'] = isset($_REQUEST['calendar']);
 		Utils::$context['robot_no_index'] = true;
 
-		call_integration_hook('integrate_post_start');
+		IntegrationHook::call('integrate_post_start');
 
 		// Where are we posting this (or where might we)?
 		$this->setBoards();
@@ -390,7 +391,7 @@ class Post implements ActionInterface
 		if (!isset($_REQUEST['xml']))
 			Theme::loadTemplate('Post');
 
-		call_integration_hook('integrate_post_end');
+		IntegrationHook::call('integrate_post_end');
 	}
 
 	/***********************
@@ -495,7 +496,7 @@ class Post implements ActionInterface
 
 			$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
 
-		 	call_integration_hook('integrate_getTopic_previous_post', array(&$row));
+		 	IntegrationHook::call('integrate_getTopic_previous_post', array(&$row));
 
 			// ...and store.
 			Utils::$context['previous_posts'][] = array(
@@ -1016,7 +1017,7 @@ class Post implements ActionInterface
 				Utils::$context['preview_subject'] = '<em>' . Lang::$txt['no_subject'] . '</em>';
 			}
 
-			call_integration_hook('integrate_preview_post', array(&$this->form_message, &$this->form_subject));
+			IntegrationHook::call('integrate_preview_post', array(&$this->form_message, &$this->form_subject));
 
 			// Protect any CDATA blocks.
 			if (isset($_REQUEST['xml']))
@@ -1690,7 +1691,7 @@ class Post implements ActionInterface
 	 */
 	protected function checkForErrors(): void
 	{
-		call_integration_hook('integrate_post_errors', array(&$this->errors, &$this->minor_errors, $this->form_message, $this->form_subject));
+		IntegrationHook::call('integrate_post_errors', array(&$this->errors, &$this->minor_errors, $this->form_message, $this->form_subject));
 
 		if (empty($this->errors))
 			return;

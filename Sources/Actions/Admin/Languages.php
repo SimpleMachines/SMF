@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
@@ -671,7 +672,7 @@ class Languages implements ActionInterface
 		{
 			User::$me->checkSession();
 
-			call_integration_hook('integrate_save_language_settings', array(&$config_vars));
+			IntegrationHook::call('integrate_save_language_settings', array(&$config_vars));
 
 			ACP::saveSettings($config_vars);
 
@@ -778,7 +779,7 @@ class Languages implements ActionInterface
 		);
 
 		// Does a hook need to add in some additional places to look for languages or info about how to handle them?
-		call_integration_hook('integrate_modifylanguages', array(&$themes, &$lang_dirs, &$allows_add_remove, &$additional_string_types));
+		IntegrationHook::call('integrate_modifylanguages', array(&$themes, &$lang_dirs, &$allows_add_remove, &$additional_string_types));
 
 		$string_types = array_unique(array_merge($string_types, $additional_string_types));
 
@@ -1064,7 +1065,7 @@ class Languages implements ActionInterface
 				'EmailTemplates' => array('txt' => 'txt_for_email_templates', 'txtBirthdayEmails' => 'txt_for_email_templates'),
 			);
 
-			call_integration_hook('integrate_language_edit_helptext', array(&$special_groups));
+			IntegrationHook::call('integrate_language_edit_helptext', array(&$special_groups));
 
 			// Determine which groups of strings (if any) allow adding new entries
 			if (isset($allows_add_remove[$file_id]['add']))
@@ -1578,7 +1579,7 @@ class Languages implements ActionInterface
 			array('userLanguage', Lang::$txt['userLanguage'], 'db', 'check', null, 'userLanguage'),
 		);
 
-		call_integration_hook('integrate_language_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_language_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -1809,7 +1810,7 @@ class Languages implements ActionInterface
 			'description' => Lang::$txt['language_description'],
 		);
 
-		call_integration_hook('integrate_manage_languages', array(&self::$subactions));
+		IntegrationHook::call('integrate_manage_languages', array(&self::$subactions));
 
 		// By default we're managing languages.
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))

@@ -20,6 +20,7 @@ use SMF\Board;
 use SMF\Config;
 use SMF\Editor;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\Profile;
@@ -465,7 +466,7 @@ class XmlHttp implements ActionInterface
 		Theme::loadTemplate('Xml');
 
 		// Easy adding of sub actions.
-		call_integration_hook('integrate_XMLhttpMain_subActions', array(&self::$subactions));
+		IntegrationHook::call('integrate_XMLhttpMain_subActions', array(&self::$subactions));
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
 			$this->subaction = $_REQUEST['sa'];

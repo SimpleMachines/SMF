@@ -16,6 +16,7 @@ namespace SMF\PackageManager;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
@@ -1137,9 +1138,13 @@ class PackageManager
 						Utils::$context['ignore_hook_errors'] = true;
 
 					if ($action['reverse'])
-						remove_integration_function($action['hook'], $action['function'], true, $action['include_file'], $action['object']);
+					{
+						IntegrationHook::remove($action['hook'], $action['function'], true, $action['include_file'], $action['object']);
+					}
 					else
-						add_integration_function($action['hook'], $action['function'], true, $action['include_file'], $action['object']);
+					{
+						IntegrationHook::add($action['hook'], $action['function'], true, $action['include_file'], $action['object']);
+					}
 				}
 				// Only do the database changes on uninstall if requested.
 				elseif ($action['type'] == 'database' && !empty($action['filename']) && (!Utils::$context['uninstalling'] || !empty($_POST['do_db_changes'])))
@@ -1493,7 +1498,7 @@ class PackageManager
 		Utils::$context['available_packages'] = 0;
 		Utils::$context['modification_types'] = array('modification', 'avatar', 'language', 'unknown', 'smiley');
 
-		call_integration_hook('integrate_modification_types');
+		IntegrationHook::call('integrate_modification_types');
 
 		foreach (Utils::$context['modification_types'] as $type)
 		{
@@ -2907,7 +2912,7 @@ class PackageManager
 			Utils::$context['package']['install']['link'] = '<a href="' . Config::$scripturl . '?action=admin;area=packages;sa=install;package=' . Utils::$context['package']['filename'] . '">[ ' . (isset(Lang::$txt['install_' . Utils::$context['package']['type']]) ? Lang::$txt['install_' . Utils::$context['package']['type']] : Lang::$txt['install_unknown']) . ' ]</a>';
 
 		// Does a 3rd party hook want to do some additional changes?
-		call_integration_hook('integrate_package_download');
+		IntegrationHook::call('integrate_package_download');
 
 		Utils::$context['package']['list_files']['link'] = '<a href="' . Config::$scripturl . '?action=admin;area=packages;sa=list;package=' . Utils::$context['package']['filename'] . '">[ ' . Lang::$txt['list_files'] . ' ]</a>';
 
@@ -2993,7 +2998,7 @@ class PackageManager
 			Utils::$context['package']['install']['link'] = '<a href="' . Config::$scripturl . '?action=admin;area=packages;sa=install;package=' . Utils::$context['package']['filename'] . '">[ ' . (isset(Lang::$txt['install_' . Utils::$context['package']['type']]) ? Lang::$txt['install_' . Utils::$context['package']['type']] : Lang::$txt['install_unknown']) . ' ]</a>';
 
 		// Does a 3rd party hook want to do some additional changes?
-		call_integration_hook('integrate_package_upload');
+		IntegrationHook::call('integrate_package_upload');
 
 		Utils::$context['package']['list_files']['link'] = '<a href="' . Config::$scripturl . '?action=admin;area=packages;sa=list;package=' . Utils::$context['package']['filename'] . '">[ ' . Lang::$txt['list_files'] . ' ]</a>';
 
@@ -3129,7 +3134,7 @@ class PackageManager
 				'unknown' => 1,
 				'smiley' => 1,
 			);
-			call_integration_hook('integrate_packages_sort_id', array(&$sort_id, &$packages));
+			IntegrationHook::call('integrate_packages_sort_id', array(&$sort_id, &$packages));
 
 			while ($package = readdir($dir))
 			{
@@ -3313,7 +3318,7 @@ class PackageManager
 
 			// Backward compatibility for deprecated integrate_package_get hook.
 			$temp = array_map(function($sa) {return $this->subactions[$sa];}, $this->packageget_subactions);
-			call_integration_hook('integrate_package_get', array(&$temp));
+			IntegrationHook::call('integrate_package_get', array(&$temp));
 			foreach ($temp as $sa => $func)
 				$this->subactions[isset($this->packageget_subactions[$sa]) ? $this->packageget_subactions[$sa] : $sa] = $func;
 		}
@@ -3323,7 +3328,7 @@ class PackageManager
 		}
 
 		// Give mods access to the sub-actions.
-		call_integration_hook('integrate_manage_packages', array(&$this->subactions));
+		IntegrationHook::call('integrate_manage_packages', array(&$this->subactions));
 	}
 
 	/**

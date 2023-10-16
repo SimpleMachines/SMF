@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\IntegrationHook;
 use SMF\IP;
 use SMF\ItemList;
 use SMF\Lang;
@@ -663,7 +664,7 @@ class SearchEngines implements ActionInterface
 		{
 			User::$me->checkSession();
 
-			call_integration_hook('integrate_save_search_engine_settings');
+			IntegrationHook::call('integrate_save_search_engine_settings');
 
 			ACP::saveDBSettings($config_vars);
 
@@ -849,7 +850,7 @@ class SearchEngines implements ActionInterface
 			}
 			disableFields();';
 
-		call_integration_hook('integrate_modify_search_engine_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_modify_search_engine_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -1196,7 +1197,7 @@ class SearchEngines implements ActionInterface
 			);
 		}
 
-		call_integration_hook('integrate_manage_search_engines', array(&self::$subactions));
+		IntegrationHook::call('integrate_manage_search_engines', array(&self::$subactions));
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
 			$this->subaction = $_REQUEST['sa'];

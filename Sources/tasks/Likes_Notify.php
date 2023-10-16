@@ -15,6 +15,7 @@ namespace SMF\Tasks;
 
 use SMF\Alert;
 use SMF\Config;
+use SMF\IntegrationHook;
 use SMF\User;
 use SMF\Utils;
 use SMF\Actions\Notify;
@@ -66,7 +67,7 @@ class Likes_Notify extends BackgroundTask
 		else
 		{
 			// This isn't something we know natively how to support. Call the hooks, if they're dealing with it, return false, otherwise return the user id.
-			$hook_results = call_integration_hook('integrate_find_like_author', array($this->_details['content_type'], $this->_details['content_id']));
+			$hook_results = IntegrationHook::call('integrate_find_like_author', array($this->_details['content_type'], $this->_details['content_id']));
 			foreach ($hook_results as $result)
 				if (!empty($result))
 				{

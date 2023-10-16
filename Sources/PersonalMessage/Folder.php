@@ -15,6 +15,7 @@ namespace SMF\PersonalMessage;
 
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\PageIndex;
 use SMF\Theme;
@@ -247,7 +248,7 @@ class Folder
 
 		$output = $message->format($counter++, $format_options);
 
-		call_integration_hook('integrate_prepare_pm_context', array(&$output, &$message, $counter));
+		IntegrationHook::call('integrate_prepare_pm_context', array(&$output, &$message, $counter));
 
 		return $output;
 	}
@@ -526,7 +527,7 @@ class Folder
 		);
 
 		// Allow mods to add additional buttons here
-		call_integration_hook('integrate_conversation_buttons');
+		IntegrationHook::call('integrate_conversation_buttons');
 
 		return array_keys($conversation->pms);
 	}

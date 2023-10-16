@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
@@ -600,7 +601,7 @@ class Subscriptions implements ActionInterface
 				)
 			);
 
-			call_integration_hook('integrate_delete_subscription', array(Utils::$context['sub_id']));
+			IntegrationHook::call('integrate_delete_subscription', array(Utils::$context['sub_id']));
 
 			Utils::redirectexit('action=admin;area=paidsubscribe;view');
 		}
@@ -750,7 +751,7 @@ class Subscriptions implements ActionInterface
 				);
 			}
 
-			call_integration_hook('integrate_save_subscription', array((Utils::$context['action_type'] == 'add' ? $id_subscribe : Utils::$context['sub_id']), $_POST['name'], $_POST['desc'], $isActive, $span, $cost, $_POST['prim_group'], $addgroups, $isRepeatable, $allowpartial, $emailComplete, $reminder));
+			IntegrationHook::call('integrate_save_subscription', array((Utils::$context['action_type'] == 'add' ? $id_subscribe : Utils::$context['sub_id']), $_POST['name'], $_POST['desc'], $isActive, $span, $cost, $_POST['prim_group'], $addgroups, $isRepeatable, $allowpartial, $emailComplete, $reminder));
 
 			Utils::redirectexit('action=admin;area=paidsubscribe;view');
 		}
@@ -1481,7 +1482,7 @@ class Subscriptions implements ActionInterface
 			);
 		}
 
-		call_integration_hook('integrate_paidsubs_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_paidsubs_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -2354,7 +2355,7 @@ class Subscriptions implements ActionInterface
 			);
 		}
 
-		call_integration_hook('integrate_manage_subscriptions', array(&self::$subactions));
+		IntegrationHook::call('integrate_manage_subscriptions', array(&self::$subactions));
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
 			$this->subaction = $_REQUEST['sa'];

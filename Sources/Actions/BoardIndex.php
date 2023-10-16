@@ -19,6 +19,7 @@ use SMF\Board;
 use SMF\Category;
 use SMF\Config;
 use SMF\Group;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Msg;
@@ -170,7 +171,7 @@ class BoardIndex implements ActionInterface
 		);
 
 		// Allow mods to add additional buttons here
-		call_integration_hook('integrate_mark_read_button');
+		IntegrationHook::call('integrate_mark_read_button');
 	}
 
 	/**
@@ -407,7 +408,7 @@ class BoardIndex implements ActionInterface
 		}
 
 		// Give mods access to the query.
-		call_integration_hook('integrate_pre_boardindex', array(&$selects, &$params, &$joins, &$where, &$order));
+		IntegrationHook::call('integrate_pre_boardindex', array(&$selects, &$params, &$joins, &$where, &$order));
 
 		// Start with empty arrays.
 		$boards = array();
@@ -497,7 +498,7 @@ class BoardIndex implements ActionInterface
 				if (!isset($parent) || $parent->id == $board_index_options['parent_id'])
 				{
 					// @todo Should this be called for every board, not just parent boards?
-					call_integration_hook('integrate_boardindex_board', array(&$cat_boards, $row_board));
+					IntegrationHook::call('integrate_boardindex_board', array(&$cat_boards, $row_board));
 
 					// Add parent boards to the $boards list later used to fetch moderators.
 					$boards[] = $row_board['id_board'];
@@ -646,11 +647,11 @@ class BoardIndex implements ActionInterface
 		// I can't remember why but trying to make a ternary to get this all in one line is actually a Very Bad Idea.
 		if ($board_index_options['include_categories'])
 		{
-			call_integration_hook('integrate_getboardtree', array($board_index_options, &Category::$loaded));
+			IntegrationHook::call('integrate_getboardtree', array($board_index_options, &Category::$loaded));
 		}
 		else
 		{
-			call_integration_hook('integrate_getboardtree', array($board_index_options, &$cat_boards));
+			IntegrationHook::call('integrate_getboardtree', array($board_index_options, &$cat_boards));
 		}
 
 		return $board_index_options['include_categories'] ? Category::$loaded : $cat_boards;
@@ -814,7 +815,7 @@ class BoardIndex implements ActionInterface
 			));
 		}
 
-		call_integration_hook('integrate_boardindex_last_post', array(&$last_post, $row_board));
+		IntegrationHook::call('integrate_boardindex_last_post', array(&$last_post, $row_board));
 
 		return $last_post;
 	}

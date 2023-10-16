@@ -513,7 +513,7 @@ class Msg implements \ArrayAccess
 			}
 		}
 
-		call_integration_hook('integrate_format_msg', array(&$this->formatted, $this->id));
+		IntegrationHook::call('integrate_format_msg', array(&$this->formatted, $this->id));
 
 		return $this->formatted;
 	}
@@ -600,7 +600,7 @@ class Msg implements \ArrayAccess
 		// Just FYI, for historical reasons the order in which the arguments are
 		// passed to this hook is different than the order in which they are
 		// passed to the queryData() method.
-		call_integration_hook('integrate_query_message', array(&$selects, &$joins, &$params, &$where, &$order, &$limit));
+		IntegrationHook::call('integrate_query_message', array(&$selects, &$joins, &$params, &$where, &$order, &$limit));
 
 		foreach(self::queryData($selects, $params, $joins, $where, $order, $limit) as $row)
 		{
@@ -923,7 +923,7 @@ class Msg implements \ArrayAccess
 		$message = strtr($message, array('[]' => '&#91;]', '[&#039;' => '&#91;&#039;'));
 
 		// Any hooks want to work here?
-		call_integration_hook('integrate_preparsecode', array(&$message, $previewing));
+		IntegrationHook::call('integrate_preparsecode', array(&$message, $previewing));
 	}
 
 	/**
@@ -935,7 +935,7 @@ class Msg implements \ArrayAccess
 	public static function un_preparsecode($message): string
 	{
 		// Any hooks want to work here?
-		call_integration_hook('integrate_unpreparsecode', array(&$message));
+		IntegrationHook::call('integrate_unpreparsecode', array(&$message));
 
 		$parts = preg_split('~(\[/code\]|\[code(?:=[^\]]+)?\])~i', $message, -1, PREG_SPLIT_DELIM_CAPTURE);
 
@@ -1419,7 +1419,7 @@ class Msg implements \ArrayAccess
 		);
 
 		// What if we want to do anything with posts?
-		call_integration_hook('integrate_create_post', array(&$msgOptions, &$topicOptions, &$posterOptions, &$message_columns, &$message_parameters));
+		IntegrationHook::call('integrate_create_post', array(&$msgOptions, &$topicOptions, &$posterOptions, &$message_columns, &$message_parameters));
 
 		// Insert the post.
 		$msgOptions['id'] = Db::$db->insert('',
@@ -1449,7 +1449,7 @@ class Msg implements \ArrayAccess
 		}
 
 		// What if we want to export new posts out to a CMS?
-		call_integration_hook('integrate_after_create_post', array($msgOptions, $topicOptions, $posterOptions, $message_columns, $message_parameters));
+		IntegrationHook::call('integrate_after_create_post', array($msgOptions, $topicOptions, $posterOptions, $message_columns, $message_parameters));
 
 		// Insert a new topic (if the topicID was left empty.)
 		if ($new_topic)
@@ -1468,7 +1468,7 @@ class Msg implements \ArrayAccess
 				$topicOptions['redirect_expires'] === null ? 0 : $topicOptions['redirect_expires'], $topicOptions['redirect_topic'] === null ? 0 : $topicOptions['redirect_topic'],
 			);
 
-			call_integration_hook('integrate_before_create_topic', array(&$msgOptions, &$topicOptions, &$posterOptions, &$topic_columns, &$topic_parameters));
+			IntegrationHook::call('integrate_before_create_topic', array(&$msgOptions, &$topicOptions, &$posterOptions, &$topic_columns, &$topic_parameters));
 
 			$topicOptions['id'] = Db::$db->insert('',
 				'{db_prefix}topics',
@@ -1511,7 +1511,7 @@ class Msg implements \ArrayAccess
 			Logging::updateStats('subject', $topicOptions['id'], $msgOptions['subject']);
 
 			// What if we want to export new topics out to a CMS?
-			call_integration_hook('integrate_create_topic', array(&$msgOptions, &$topicOptions, &$posterOptions));
+			IntegrationHook::call('integrate_create_topic', array(&$msgOptions, &$topicOptions, &$posterOptions));
 		}
 		// The topic already exists, it only needs a little updating.
 		else
@@ -1546,7 +1546,7 @@ class Msg implements \ArrayAccess
 			if ($topicOptions['sticky_mode'] !== null)
 				$topics_columns[] = 'is_sticky = {int:is_sticky}';
 
-			call_integration_hook('integrate_modify_topic', array(&$topics_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions));
+			IntegrationHook::call('integrate_modify_topic', array(&$topics_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions));
 
 			// Update the number of replies and the lock/sticky status.
 			Db::$db->query('', '
@@ -1843,7 +1843,7 @@ class Msg implements \ArrayAccess
 		$msgOptions['send_notifications'] = isset($msgOptions['send_notifications']) ? (bool) $msgOptions['send_notifications'] : true;
 
 		// Maybe a mod wants to make some changes?
-		call_integration_hook('integrate_modify_post', array(&$messages_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions, &$messageInts));
+		IntegrationHook::call('integrate_modify_post', array(&$messages_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions, &$messageInts));
 
 		foreach ($messages_columns as $var => $val)
 		{
@@ -2268,7 +2268,7 @@ class Msg implements \ArrayAccess
 		}
 
 		// In case an external CMS needs to know about this approval/unapproval.
-		call_integration_hook('integrate_after_approve_posts', array($approve, $msgs, $topic_changes, $member_post_changes));
+		IntegrationHook::call('integrate_after_approve_posts', array($approve, $msgs, $topic_changes, $member_post_changes));
 
 		return true;
 	}
@@ -2509,7 +2509,7 @@ class Msg implements \ArrayAccess
 		Db::$db->free_result($request);
 
 		// Give mods a heads-up before we do anything.
-		call_integration_hook('integrate_pre_remove_message', array($message, $decreasePostCount, $row));
+		IntegrationHook::call('integrate_pre_remove_message', array($message, $decreasePostCount, $row));
 
 		if (empty(Board::$info->id) || $row['id_board'] != Board::$info->id)
 		{
@@ -2934,7 +2934,7 @@ class Msg implements \ArrayAccess
 		}
 
 		// Allow mods to remove message related data of their own (likes, maybe?)
-		call_integration_hook('integrate_remove_message', array($message, $row, $recycle));
+		IntegrationHook::call('integrate_remove_message', array($message, $row, $recycle));
 
 		// Update the pesky statistics.
 		Logging::updateStats('message');

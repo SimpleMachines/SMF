@@ -16,6 +16,7 @@ namespace SMF\PersonalMessage;
 use SMF\Category;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\PageIndex;
@@ -335,7 +336,7 @@ class Search
 		// If mods want access to the general context values, let them do that now.
 		// MOD AUTHORS: If you need access to the messages themselves, use the
 		// integrate_pm_search_result hook.
-		call_integration_hook('integrate_search_pm_context');
+		IntegrationHook::call('integrate_search_pm_context');
 
 		// Set up our generator so that the template can loop through the results.
 		Utils::$context['personal_messages'] = SearchResult::getFormatted(Utils::$context['messages']);
