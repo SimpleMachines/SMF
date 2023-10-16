@@ -4306,7 +4306,7 @@ class BBCodeParser
 
 		// Set the validation method to something we can call.
 		if (isset($tag['validate']) && is_string($tag['validate']))
-			$tag['validate'] = call_helper($tag['validate'], true);
+			$tag['validate'] = Utils::getCallable($tag['validate']);
 
 		// No type means 'parsed_content'.
 		if (!isset($tag['type']))

@@ -137,7 +137,10 @@ class Home implements ActionInterface
 			}
 			else
 			{
-				call_helper($block['func']);
+				$call = Utils::getCallable($block['func']);
+
+				if (!empty($call))
+					call_user_func($call);
 			}
 
 			Utils::$context['mod_blocks'][] = $this->blocks[$k]['sub_template'];

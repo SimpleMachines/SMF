@@ -710,7 +710,7 @@ class Main implements ActionInterface
 		}
 
 		// Get the right callable.
-		$call = call_helper($menu->include_data['function'], true);
+		$call = Utils::getCallable($menu->include_data['function']);
 
 		// Is it valid?
 		if (!empty($call))

@@ -390,7 +390,7 @@ class Forum
 					// Sorry, only one default action is needed.
 					$defaultAction = $defaultAction[0];
 
-					$call = call_helper($defaultAction, true);
+					$call = Utils::getCallable($defaultAction);
 
 					if (!empty($call))
 						return $call;
@@ -432,7 +432,7 @@ class Forum
 				// Sorry, only one fallback action is needed.
 				$fallbackAction = $fallbackAction[0];
 
-				$call = call_helper($fallbackAction, true);
+				$call = Utils::getCallable($fallbackAction);
 
 				if (!empty($call))
 					return $call;
@@ -450,7 +450,7 @@ class Forum
 			require_once(Config::$sourcedir . '/' . self::$actions[$_REQUEST['action']][0]);
 
 		// Do the right thing.
-		return call_helper(self::$actions[$_REQUEST['action']][1], true);
+		return Utils::getCallable(self::$actions[$_REQUEST['action']][1]);
 	}
 }
 

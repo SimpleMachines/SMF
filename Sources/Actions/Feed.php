@@ -513,7 +513,7 @@ class Feed implements ActionInterface
 			}
 			else
 			{
-				$call = call_helper(self::$subactions[$this->subaction], true);
+				$call = Utils::getCallable(self::$subactions[$this->subaction]);
 			}
 
 			$this->data = !empty($call) ? call_user_func($call, $this->format) : array();

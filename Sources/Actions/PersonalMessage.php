@@ -328,7 +328,10 @@ class PersonalMessage implements ActionInterface
 		}
 
 		// Now let's get on with the main job...
-		call_helper(method_exists($this, self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : self::$subactions[$this->subaction]);
+		$call = method_exists($this, self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : Utils::getCallable(self::$subactions[$this->subaction]);
+
+		if (!empty($call))
+			call_user_func($call);
 	}
 
 	/**

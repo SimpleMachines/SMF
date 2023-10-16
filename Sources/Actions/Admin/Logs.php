@@ -180,7 +180,10 @@ class Logs implements ActionInterface
 		if (!empty(self::$subactions[$this->subaction][0]))
 			require_once(Config::$sourcedir . '/' . self::$subactions[$this->subaction][0]);
 
-		call_helper(method_exists($this, self::$subactions[$this->subaction][1]) ? array($this, self::$subactions[$this->subaction][1]) : self::$subactions[$this->subaction][1]);
+		$call = method_exists($this, self::$subactions[$this->subaction][1]) ? array($this, self::$subactions[$this->subaction][1]) : Utils::getCallable(self::$subactions[$this->subaction][1]);
+
+		if (!empty($call))
+			call_user_func($call);
 	}
 
 	/**

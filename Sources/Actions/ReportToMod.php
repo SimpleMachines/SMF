@@ -136,11 +136,18 @@ class ReportToMod implements ActionInterface
 		// You can't use this if it's off or you are not allowed to do it.
 		// If we don't have the ID of something to report, we'll die with a no_access error below
 		if (isset($_REQUEST['msg']))
+		{
 			User::$me->isAllowedTo('report_any');
+		}
 		elseif (isset($_REQUEST['u']))
+		{
 			User::$me->isAllowedTo('report_user');
+		}
 
-		call_helper(method_exists($this, self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : self::$subactions[$this->subaction]);
+		$call = method_exists($this, self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : Utils::getCallable(self::$subactions[$this->subaction]);
+
+		if (!empty($call))
+			call_user_func($call);
 	}
 
 	/**

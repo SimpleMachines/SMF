@@ -340,7 +340,7 @@ class ItemList implements \ArrayAccess
 			if (isset($this->options['get_count']['file']))
 				require_once($this->options['get_count']['file']);
 
-			$call = call_helper($this->options['get_count']['function'], true);
+			$call = Utils::getCallable($this->options['get_count']['function']);
 
 			$params = $this->options['get_count']['params'] ?? array();
 
@@ -489,7 +489,7 @@ class ItemList implements \ArrayAccess
 			if (isset($this->options['get_items']['file']))
 				require_once($this->options['get_items']['file']);
 
-			$call = call_helper($this->options['get_items']['function'], true);
+			$call = Utils::getCallable($this->options['get_items']['function']);
 
 			$items = call_user_func_array($call, array_merge(array($this->start, $this->items_per_page, $this->db_sort), empty($this->options['get_items']['params']) ? array() : $this->options['get_items']['params']));
 

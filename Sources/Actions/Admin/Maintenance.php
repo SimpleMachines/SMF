@@ -166,12 +166,18 @@ class Maintenance implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		call_helper(method_exists($this, self::$subactions[$this->subaction]['function']) ? array($this, self::$subactions[$this->subaction]['function']) : self::$subactions[$this->subaction]['function']);
+		$call = method_exists($this, self::$subactions[$this->subaction]['function']) ? array($this, self::$subactions[$this->subaction]['function']) : Utils::getCallable(self::$subactions[$this->subaction]['function']);
+
+		if (!empty($call))
+			call_user_func($call);
 
 		// Any special activity?
 		if (!empty($this->activity))
 		{
-			call_helper(method_exists($this, self::$subactions[$this->subaction]['activities'][$this->activity]) ? array($this, self::$subactions[$this->subaction]['activities'][$this->activity]) : self::$subactions[$this->subaction]['activities'][$this->activity]);
+			$call = method_exists($this, self::$subactions[$this->subaction]['activities'][$this->activity]) ? array($this, self::$subactions[$this->subaction]['activities'][$this->activity]) : Utils::getCallable(self::$subactions[$this->subaction]['activities'][$this->activity]);
+
+			if (!empty($call))
+				call_user_func($call);
 		}
 
 		// Create a maintenance token.  Kinda hard to do it any other way.

@@ -170,9 +170,16 @@ class PackageManager
 
 		// Call the function we're handing control to.
 		if (method_exists($this, $this->subactions[Utils::$context['sub_action']]))
+		{
 			call_user_func(array($this, $this->subactions[Utils::$context['sub_action']]));
+		}
 		else
-			call_helper($this->subactions[Utils::$context['sub_action']]);
+		{
+			$call = Utils::getCallable($this->subactions[Utils::$context['sub_action']]);
+
+			if (!empty($call))
+				call_user_func($call);
+		}
 	}
 
 	/**

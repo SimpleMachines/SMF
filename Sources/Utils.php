@@ -2277,7 +2277,7 @@ class Utils
 			{
 				foreach ($buffers as $function)
 				{
-					$call = call_helper($function, true);
+					$call = Utils::getCallable($function);
 
 					// Is it valid?
 					if (!empty($call))
@@ -2325,6 +2325,130 @@ class Utils
 		// Don't exit if we're coming from index.php; that will pass through normally.
 		if (!$from_index)
 			exit;
+	}
+
+	/**
+	 * Parses $input to find some sort of callable.
+	 *
+	 * If a method is found, it looks for a "#" which indicates SMF should
+	 * create a new instance of the given class.
+	 *
+	 * ADD MORE HERE.
+	 *
+	 * @param mixed $input Input to parse to find a callable.
+	 * @return string|array|bool Either a callable, or false on failure.
+	 */
+	public static function getCallable(mixed $input, bool $ignore_errors = null): mixed
+	{
+		$ignore_errors = $ignore_errors ?? !empty(Utils::$context['ignore_hook_errors']);
+
+		// Really?
+		if (empty($input))
+			return false;
+
+		// An array? should be a "callable" array IE array(object/class, valid_callable).
+		// A closure? should be a callable one.
+		if (is_array($input) || $input instanceof Closure)
+		{
+			return is_callable($input) ? $input : false;
+		}
+
+		// No full objects, sorry! pass a method or a property instead!
+		if (is_object($input))
+			return false;
+
+		// Stay vitaminized my friends...
+		$input = Utils::htmlspecialchars(Utils::htmlTrim($input));
+
+		// Is there a file to load?
+		$input = self::loadFile($input);
+
+		// Loaded file failed
+		if (empty($input))
+			return false;
+
+		// Found a method.
+		if (strpos($input, '::') !== false)
+		{
+			list($class, $method) = explode('::', $input);
+
+			// Check if a new object will be created.
+			if (strpos($method, '#') !== false)
+			{
+				if (!isset(Utils::$context['instances']))
+					Utils::$context['instances'] = array();
+
+				// Need to remove the # thing.
+				$method = str_replace('#', '', $method);
+
+				// Don't need to create a new instance for every method.
+				if (empty(Utils::$context['instances'][$class]) || !(Utils::$context['instances'][$class] instanceof $class))
+				{
+					Utils::$context['instances'][$class] = new $class;
+
+					// Add another one to the list.
+					if (Config::$db_show_debug === true)
+					{
+						if (!isset(Utils::$context['debug']['instances']))
+							Utils::$context['debug']['instances'] = array();
+
+						Utils::$context['debug']['instances'][$class] = $class;
+					}
+				}
+
+				$callable = array(Utils::$context['instances'][$class], $method);
+			}
+			// Right then. This is a call to a static method.
+			else
+			{
+				$callable = array($class, $method);
+			}
+		}
+		// Nope! just a plain regular function.
+		else
+		{
+			$callable = $input;
+		}
+
+		// Right, we got what we need, time to do some checks.
+		if (!is_callable($callable, false, $callable_name) && $ignore_errors)
+		{
+			// We can't call this helper, but we want to silently ignore this.
+			if ($ignore_errors)
+				return false;
+
+			// Gotta tell everybody.
+			Lang::load('Errors');
+			ErrorHandler::log(sprintf(Lang::$txt['sub_action_fail'], $callable_name), 'general');
+
+			return false;
+		}
+
+		return $callable;
+	}
+
+	/**
+	 * Backward compatibility method.
+	 *
+	 * Basically just a wrapper for Utils::getCallable(), except that if this
+	 * method's $return parameter is false, the callable will be called inside
+	 * this method..
+	 *
+	 * @param mixed $input Input to parse to find a callable.
+	 * @param boolean $return If true, just return the callable instead of
+	 *    calling it. Default: false.
+	 * @return mixed If $return is false, nothing. Otherwise, either a callable
+	 *    or false if no callable was found.
+	 */
+	public static function call_helper(mixed $input, bool $return = false): mixed
+	{
+		$callable = self::getCallable($input);
+
+		// Just return the callable if that's all we were asked to do.
+		if ($return)
+			return $callable;
+
+		call_user_func($func);
 	}
 
 	/**
@@ -2411,6 +2535,75 @@ class Utils
 		}
 
 		return mb_encode_numericentity($string, array(0x010000, 0x10FFFF, 0, 0xFFFFFF), 'UTF-8');
+	}
+
+	/**
+	 * Helper method for Utils::call_helper.
+	 *
+	 * Receives a string and tries to figure it out if it contains info to load
+	 * a file.
+	 *
+	 * Checks for a '|' symbol and tries to load a file with the info given.
+	 *
+	 * The string should be format as follows: 'path/to/file.php|whatever'.
+	 *
+	 * You can use the following wildcards in the path:
+	 *  - $boarddir
+	 *  - $sourcedir
+	 *  - $themedir (only works if SMF\Theme has already been initialized)
+	 *
+	 * @param string $string The string containing a valid format.
+	 * @return string|bool The given string with the pipe and file info removed
+	 *    or false if the file couldn't be loaded.
+	 */
+	final protected static function loadFile(string $string): string|bool
+	{
+		if (empty($string))
+			return false;
+
+		if (strpos($string, '|') !== false)
+		{
+			list($file, $string) = explode('|', $string);
+
+			$path = strtr($file, array(
+				'$boarddir' => Config::$boarddir,
+				'$sourcedir' => Config::$sourcedir,
+			));
+
+			if (strpos($path, '$themedir') !== false && class_exists('SMF\\Theme', false) && !empty(Theme::$current->settings['theme_dir']))
+			{
+				$path = strtr($path, array(
+					'$themedir' => Theme::$current->settings['theme_dir'],
+				));
+			}
+
+			// Load the file if it can be loaded.
+			if (is_file($path))
+			{
+				require_once($path);
+			}
+			// No? Try a fallback to Config::$sourcedir.
+			else
+			{
+				$path = Config::$sourcedir . '/' . $file;
+
+				if (is_file($path))
+				{
+					require_once($path);
+				}
+				// Sorry, can't do much for you at this point.
+				elseif (empty(Utils::$context['uninstalling']))
+				{
+					Lang::load('Errors');
+					ErrorHandler::log(sprintf(Lang::$txt['hook_fail_loading_file'], $path), 'general');
+
+					// File couldn't be loaded.
+					return false;
+				}
+			}
+		}
+
+		return $string;
 	}
 }
 

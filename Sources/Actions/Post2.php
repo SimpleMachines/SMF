@@ -142,7 +142,10 @@ class Post2 extends Post
 		// Allow mods to add new sub-actions.
 		IntegrationHook::call('integrate_post2_subactions', array(&self::$subactions));
 
-		call_helper(method_exists($this, self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : self::$subactions[$this->subaction]);
+		$call = method_exists($this, self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : Utils::getCallable(self::$subactions[$this->subaction]);
+
+		if (!empty($call))
+			call_user_func($call);
 	}
 
 	/**

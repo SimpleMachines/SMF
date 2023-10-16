@@ -144,7 +144,10 @@ class Tracking implements ActionInterface
 		// Set a page title.
 		Utils::$context['page_title'] = Lang::$txt['trackUser'] . ' - ' . Lang::$txt[self::$subactions[$this->subaction][1]] . ' - ' . Profile::$member->name;
 
-		call_helper(method_exists($this, self::$subactions[$this->subaction][0]) ? array($this, self::$subactions[$this->subaction][0]) : self::$subactions[$this->subaction][0]);
+		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? array($this, self::$subactions[$this->subaction][0]) : Utils::getCallable(self::$subactions[$this->subaction][0]);
+
+		if (!empty($call))
+			call_user_func($call);
 	}
 
 	/**

@@ -93,7 +93,8 @@ class RepairBoards implements ActionInterface
 	 *
 	 * In all cases where a function name is provided, the findForumErrors()
 	 * method will first look for a method of this class with that name. If no
-	 * such method exists, it will ask call_helper() to figure out what to call.
+	 * such method exists, it will ask Utils::getCallable() to figure out what
+	 * to call.
 	 *
 	 * MOD AUTHORS: If you want to add tests to this array so that SMF can fix
 	 * data for your mod, use the integrate_repair_boards hook.
@@ -1054,7 +1055,7 @@ class RepairBoards implements ActionInterface
 							// Find out if there are actually errors.
 							$found_errors = false;
 
-							$func = method_exists($this, $test['message_function']) ? array($this, $test['message_function']) : call_helper($test['message_function'], true);
+							$func = method_exists($this, $test['message_function']) ? array($this, $test['message_function']) : Utils::getCallable($test['message_function']);
 
 							while ($row = Db::$db->fetch_assoc($request))
 								$found_errors |= call_user_func($func, $row);
@@ -1077,7 +1078,7 @@ class RepairBoards implements ActionInterface
 
 							if (!empty($ids))
 							{
-								$func = method_exists($this, $test['fix_collect']['process']) ? array($this, $test['fix_collect']['process']) : call_helper($test['fix_collect']['process'], true);
+								$func = method_exists($this, $test['fix_collect']['process']) ? array($this, $test['fix_collect']['process']) : Utils::getCallable($test['fix_collect']['process']);
 
 								// Fix it!
 								call_user_func($func, $ids);
@@ -1095,7 +1096,7 @@ class RepairBoards implements ActionInterface
 						// Do we have some processing to do?
 						elseif (isset($test['fix_processing']))
 						{
-							$func = method_exists($this, $test['fix_processing']) ? array($this, $test['fix_processing']) : call_helper($test['fix_processing'], true);
+							$func = method_exists($this, $test['fix_processing']) ? array($this, $test['fix_processing']) : Utils::getCallable($test['fix_processing']);
 
 							while ($row = Db::$db->fetch_assoc($request))
 								call_user_func($func, $row);
@@ -1103,7 +1104,7 @@ class RepairBoards implements ActionInterface
 						// What about the full set of processing?
 						elseif (isset($test['fix_full_processing']))
 						{
-							$func = method_exists($this, $test['fix_full_processing']) ? array($this, $test['fix_full_processing']) : call_helper($test['fix_full_processing'], true);
+							$func = method_exists($this, $test['fix_full_processing']) ? array($this, $test['fix_full_processing']) : Utils::getCallable($test['fix_full_processing']);
 
 							call_user_func($func, $request);
 						}
