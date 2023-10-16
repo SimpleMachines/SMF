@@ -236,9 +236,6 @@ if (isset($_GET['ssi']))
 	Config::reloadModSettings();
 }
 
-// Include our helper functions.
-require_once(Config::$sourcedir . '/Subs.php');
-
 // Don't do security check if on Yabbse
 if (!isset(Config::$modSettings['smfVersion']))
 	$disable_security = true;
@@ -715,7 +712,6 @@ function loadEssentialData()
 		@ini_set('session.save_handler', 'files');
 	@session_start();
 
-	require_once(Config::$sourcedir . '/Subs.php');
 	require_once(Config::$sourcedir . '/Subs-Compat.php');
 
 	@set_time_limit(600);
@@ -1858,7 +1854,6 @@ function DeleteUpgrade()
 	// Wipe this out...
 	$upcontext['user'] = array();
 
-	require_once(Config::$sourcedir . '/Subs.php');
 	Config::updateSettingsFile($changes);
 
 	// Clean any old cache files away.
