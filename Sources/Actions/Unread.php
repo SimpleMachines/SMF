@@ -18,6 +18,7 @@ use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\PageIndex;
 use SMF\Theme;
@@ -253,7 +254,7 @@ class Unread implements ActionInterface
 		Utils::$context['no_topic_listing'] = empty(Utils::$context['topics']);
 
 		// Allow helpdesks and bug trackers and what not to add their own unread data (just add a template_layer to show custom stuff in the template!)
-		call_integration_hook('integrate_unread_list');
+		IntegrationHook::call('integrate_unread_list');
 	}
 
 	/***********************
@@ -1066,7 +1067,7 @@ class Unread implements ActionInterface
 		}
 
 		// Allow mods to add additional buttons here
-		call_integration_hook('integrate_recent_buttons');
+		IntegrationHook::call('integrate_recent_buttons');
 	}
 }
 

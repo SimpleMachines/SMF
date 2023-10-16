@@ -1297,7 +1297,7 @@ class User implements \ArrayAccess
 			}
 		}
 
-		call_integration_hook('integrate_member_context', array(&$this->formatted, $this->id, $display_custom_fields));
+		IntegrationHook::call('integrate_member_context', array(&$this->formatted, $this->id, $display_custom_fields));
 
 		$this->custom_fields_displayed = !empty($this->custom_fields_displayed) | $display_custom_fields;
 
@@ -1587,7 +1587,7 @@ class User implements \ArrayAccess
 			'mq' => $mod_query,
 		);
 
-		call_integration_hook('integrate_mod_cache');
+		IntegrationHook::call('integrate_mod_cache');
 
 		$this->mod_cache = $_SESSION['mc'];
 
@@ -2015,7 +2015,7 @@ class User implements \ArrayAccess
 		// Okay, well, you can watch, but don't touch a thing.
 		elseif (isset($_SESSION['ban']['cannot_post']) || (!empty(Config::$modSettings['warning_mute']) && Config::$modSettings['warning_mute'] <= $this->warning))
 		{
-			call_integration_hook('integrate_post_ban_permissions', array(&self::$post_ban_permissions));
+			IntegrationHook::call('integrate_post_ban_permissions', array(&self::$post_ban_permissions));
 
 			$this->permissions = array_diff($this->permissions, self::$post_ban_permissions);
 		}
@@ -2023,7 +2023,7 @@ class User implements \ArrayAccess
 		elseif (!empty(Config::$modSettings['warning_moderate']) && Config::$modSettings['warning_moderate'] <= $this->warning)
 		{
 			// Work out what permissions should change...
-			call_integration_hook('integrate_warn_permissions', array(&self::$warn_permissions));
+			IntegrationHook::call('integrate_warn_permissions', array(&self::$warn_permissions));
 
 			foreach (self::$warn_permissions as $old => $new)
 			{
@@ -2096,7 +2096,7 @@ class User implements \ArrayAccess
 
 		// Validate what type of session check this is.
 		$types = array();
-		call_integration_hook('integrate_validateSession', array(&$types));
+		IntegrationHook::call('integrate_validateSession', array(&$types));
 		$type = in_array($type, $types) || $type == 'moderate' ? $type : 'admin';
 
 		// If we're using XML give an additional ten minutes grace as an admin
@@ -2138,7 +2138,7 @@ class User implements \ArrayAccess
 
 			$this->checkSession();
 
-			$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($this->username, $_POST[$type . '_pass'], false)), true);
+			$good_password = in_array(true, IntegrationHook::call('integrate_verify_password', array($this->username, $_POST[$type . '_pass'], false)), true);
 
 			// Password correct?
 			if ($good_password || Security::hashVerifyPassword($this->username, $_POST[$type . '_pass'], $this->passwd))
@@ -2358,7 +2358,7 @@ class User implements \ArrayAccess
 			$user_permissions = (array) $this->permissions;
 
 			// Allow temporary overrides for general permissions?
-			call_integration_hook('integrate_allowed_to_general', array(&$user_permissions, $permission));
+			IntegrationHook::call('integrate_allowed_to_general', array(&$user_permissions, $permission));
 
 			return array_intersect($permission, $user_permissions) != array();
 		}
@@ -2425,7 +2425,7 @@ class User implements \ArrayAccess
 		}
 
 		// Allow temporary overrides for board permissions?
-		call_integration_hook('integrate_allowed_to_board', array(&$return, $permission, $boards, $any));
+		IntegrationHook::call('integrate_allowed_to_board', array(&$return, $permission, $boards, $any));
 
 		$this->perm_cache[$cache_key] = $return;
 
@@ -2466,7 +2466,7 @@ class User implements \ArrayAccess
 		$permission = (array) $permission;
 		$boards = (array) $boards;
 
-		call_integration_hook('integrate_heavy_permissions_session', array(&self::$heavy_permissions));
+		IntegrationHook::call('integrate_heavy_permissions_session', array(&self::$heavy_permissions));
 
 		// Check the permission and return an error...
 		if (!$this->allowedTo($permission, $boards, $any))
@@ -2616,7 +2616,7 @@ class User implements \ArrayAccess
 		}
 
 		// Maybe a mod needs to tweak the list of allowed boards on the fly?
-		call_integration_hook('integrate_boards_allowed_to', array(&$boards, $deny_boards, $permissions, $check_access, $simple));
+		IntegrationHook::call('integrate_boards_allowed_to', array(&$boards, $deny_boards, $permissions, $check_access, $simple));
 
 		return $boards;
 	}
@@ -2962,7 +2962,7 @@ class User implements \ArrayAccess
 			}
 		}
 
-		call_integration_hook('integrate_set_avatar_data', array(&$image, &$data));
+		IntegrationHook::call('integrate_set_avatar_data', array(&$image, &$data));
 
 		// At this point in time $image has to be filled unless you chose to force gravatar and the user doesn't have the needed data to retrieve it... thus a check for !empty() is still needed.
 		if (!empty($image))
@@ -3090,7 +3090,7 @@ class User implements \ArrayAccess
 				{
 					foreach ($vars_to_integrate as $var)
 					{
-						call_integration_hook('integrate_change_member_data', array($member_names, $var, &$data[$var], &self::$knownInts, &self::$knownFloats));
+						IntegrationHook::call('integrate_change_member_data', array($member_names, $var, &$data[$var], &self::$knownInts, &self::$knownFloats));
 					}
 				}
 			}
@@ -3663,7 +3663,7 @@ class User implements \ArrayAccess
 		));
 
 		// Integration rocks!
-		call_integration_hook('integrate_delete_members', array($users));
+		IntegrationHook::call('integrate_delete_members', array($users));
 
 		Logging::updateStats('member');
 
@@ -3697,7 +3697,7 @@ class User implements \ArrayAccess
 		// Maybe we need some more fancy password checks.
 		$pass_error = '';
 
-		call_integration_hook('integrate_validatePassword', array($password, $username, $restrict_in, &$pass_error));
+		IntegrationHook::call('integrate_validatePassword', array($password, $username, $restrict_in, &$pass_error));
 
 		if (!empty($pass_error))
 			return $pass_error;
@@ -3774,7 +3774,7 @@ class User implements \ArrayAccess
 		}
 
 		// Maybe a mod wants to perform more checks?
-		call_integration_hook('integrate_validate_username', array($username, &$errors));
+		IntegrationHook::call('integrate_validate_username', array($username, &$errors));
 
 		if ($return_error)
 			return $errors;
@@ -3905,7 +3905,7 @@ class User implements \ArrayAccess
 		$is_reserved = false;
 
 		// Maybe a mod wants to perform further checks?
-		call_integration_hook('integrate_check_name', array($checkName, &$is_reserved, $current_id_member, $is_name));
+		IntegrationHook::call('integrate_check_name', array($checkName, &$is_reserved, $current_id_member, $is_name));
 
 		return $is_reserved;
 	}
@@ -4295,7 +4295,7 @@ class User implements \ArrayAccess
 				$member_groups[$permission][$k] = array_unique($member_groups[$permission][$k]);
 
 			// Maybe a mod needs to tweak the list of allowed groups on the fly?
-			call_integration_hook('integrate_groups_allowed_to', array(&$member_groups[$permission], $permission, $board_id));
+			IntegrationHook::call('integrate_groups_allowed_to', array(&$member_groups[$permission], $permission, $board_id));
 
 			// Denied is never allowed.
 			$member_groups[$permission]['allowed'] = array_diff($member_groups[$permission]['allowed'], $member_groups[$permission]['denied']);
@@ -4695,7 +4695,7 @@ class User implements \ArrayAccess
 				// Alternatively, consider the integrate_user_properties hook in
 				// the setProperties() method, which lets you work with the
 				// properties of any instance of this class.
-				call_integration_hook('integrate_user_info');
+				IntegrationHook::call('integrate_user_info');
 			}
 		}
 		// Reloading the current user requires special handling.
@@ -4850,7 +4850,7 @@ class User implements \ArrayAccess
 		$this->dataset = $profile['dataset'];
 
 		// An easy way for mods to add or adjust properties.
-		call_integration_hook('integrate_user_properties', array($this));
+		IntegrationHook::call('integrate_user_properties', array($this));
 	}
 
 	/**
@@ -4859,7 +4859,7 @@ class User implements \ArrayAccess
 	 */
 	protected function integrateVerifyUser(): void
 	{
-		if (count($integration_ids = call_integration_hook('integrate_verify_user')) === 0)
+		if (count($integration_ids = IntegrationHook::call('integrate_verify_user')) === 0)
 			return;
 
 		foreach ($integration_ids as $integration_id)
@@ -5028,7 +5028,7 @@ class User implements \ArrayAccess
 				$force_tfasetup = false;
 			}
 
-			call_integration_hook('integrate_force_tfasetup', array(&$force_tfasetup));
+			IntegrationHook::call('integrate_force_tfasetup', array(&$force_tfasetup));
 		}
 
 		// Validate for Two Factor Authentication
@@ -5037,7 +5037,7 @@ class User implements \ArrayAccess
 			$tfacookie = Config::$cookiename . '_tfa';
 			$tfasecret = null;
 
-			$verified = call_integration_hook('integrate_verify_tfa', array(self::$my_id, self::$profiles[self::$my_id]));
+			$verified = IntegrationHook::call('integrate_verify_tfa', array(self::$my_id, self::$profiles[self::$my_id]));
 
 			if (empty($verified) || !in_array(true, $verified))
 			{
@@ -5596,7 +5596,7 @@ class User implements \ArrayAccess
 			}
 
 			// Allow mods to easily add to the selected member data
-			call_integration_hook('integrate_load_member_data', array(&$select_columns, &$select_tables, &$dataset));
+			IntegrationHook::call('integrate_load_member_data', array(&$select_columns, &$select_tables, &$dataset));
 
 			// Load the members' data.
 			$request = Db::$db->query('', '
@@ -5662,7 +5662,7 @@ class User implements \ArrayAccess
 				self::loadOptions($loaded_ids);
 
 			// This hook's name is due to historical reasons.
-			call_integration_hook('integrate_load_min_user_settings', array(&self::$profiles));
+			IntegrationHook::call('integrate_load_min_user_settings', array(&self::$profiles));
 
 			if ($type === self::LOAD_BY_ID && !empty(CacheApi::$enable))
 			{

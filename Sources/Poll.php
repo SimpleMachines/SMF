@@ -526,7 +526,7 @@ class Poll implements \ArrayAccess
 		}
 
 		// Allow mods to add additional buttons here
-		call_integration_hook('integrate_poll_buttons');
+		IntegrationHook::call('integrate_poll_buttons');
 
 		return $this->formatted;
 	}
@@ -670,7 +670,7 @@ class Poll implements \ArrayAccess
 		}
 
 		// Let mods know that this poll has been added or edited.
-		call_integration_hook('integrate_poll_add_edit', array($this->id, $is_edit));
+		IntegrationHook::call('integrate_poll_add_edit', array($this->id, $is_edit));
 	}
 
 	/**
@@ -1065,7 +1065,7 @@ class Poll implements \ArrayAccess
 		);
 
 		// Let mods know about this vote.
-		call_integration_hook('integrate_poll_vote', array($poll->id, $choices));
+		IntegrationHook::call('integrate_poll_vote', array($poll->id, $choices));
 
 		// Return to the post...
 		Utils::redirectexit('topic=' . Topic::$topic_id . '.' . (int) ($_REQUEST['start'] ?? 0));
@@ -1407,7 +1407,7 @@ class Poll implements \ArrayAccess
 		);
 
 		// Let mods know that this poll has been removed.
-		call_integration_hook('integrate_poll_remove', array($poll->id));
+		IntegrationHook::call('integrate_poll_remove', array($poll->id));
 
 		// Log this!
 		Logging::logAction('remove_poll', array('topic' => Topic::$topic_id));

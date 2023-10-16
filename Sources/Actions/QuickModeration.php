@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\Board;
 use SMF\Config;
+use SMF\IntegrationHook;
 use SMF\Logging;
 use SMF\Mail;
 use SMF\Msg;
@@ -269,11 +270,11 @@ class QuickModeration implements ActionInterface
 			// Approve isn't applicable when viewing search results.
 			self::$known_actions = array_diff(self::$known_actions, array('approve'));
 
-			call_integration_hook('integrate_quick_mod_actions_search', array(self::$known_actions));
+			IntegrationHook::call('integrate_quick_mod_actions_search', array(self::$known_actions));
 		}
 		else
 		{
-			call_integration_hook('integrate_quick_mod_actions', array(self::$known_actions));
+			IntegrationHook::call('integrate_quick_mod_actions', array(self::$known_actions));
 		}
 
 		return self::$known_actions;

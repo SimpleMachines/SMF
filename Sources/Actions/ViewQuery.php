@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -92,7 +93,7 @@ class ViewQuery implements ActionInterface
 			}
 		}
 
-		call_integration_hook('integrate_egg_nog');
+		IntegrationHook::call('integrate_egg_nog');
 
 		$query_id = isset($_REQUEST['qq']) ? (int) $_REQUEST['qq'] - 1 : -1;
 

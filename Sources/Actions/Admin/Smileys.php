@@ -21,6 +21,7 @@ use SMF\Actions\ActionInterface;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
@@ -2093,7 +2094,7 @@ class Smileys implements ActionInterface
 			// Validate the smiley set name.
 			$_POST['smiley_sets_default'] = empty(self::$smiley_sets[$_POST['smiley_sets_default']]) ? Config::$modSettings['smiley_sets_default'] : $_POST['smiley_sets_default'];
 
-			call_integration_hook('integrate_save_smiley_settings');
+			IntegrationHook::call('integrate_save_smiley_settings');
 
 			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
@@ -2168,7 +2169,7 @@ class Smileys implements ActionInterface
 			array('check', 'messageIconChecks_enable', 'subtext' => Lang::$txt['setting_messageIconChecks_enable_note'])
 		);
 
-		call_integration_hook('integrate_modify_smiley_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_modify_smiley_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -2477,7 +2478,7 @@ class Smileys implements ActionInterface
 			Menu::$loaded['admin']->tab_data['tabs']['setorder']['disabled'] = true;
 		}
 
-		call_integration_hook('integrate_manage_smileys', array(&self::$subactions));
+		IntegrationHook::call('integrate_manage_smileys', array(&self::$subactions));
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
 			$this->subaction = $_REQUEST['sa'];

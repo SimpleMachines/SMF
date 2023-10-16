@@ -20,6 +20,7 @@ use SMF\Board;
 use SMF\Category;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\PageIndex;
 use SMF\Theme;
@@ -529,7 +530,7 @@ class MessageIndex implements ActionInterface
 		}
 
 		// Bring in any changes we want to make before the query.
-		call_integration_hook('integrate_pre_messageindex', array(&$sort_columns, &$sort_joins, &$sort_asc_defaults, &$this->sort_default));
+		IntegrationHook::call('integrate_pre_messageindex', array(&$sort_columns, &$sort_joins, &$sort_asc_defaults, &$this->sort_default));
 
 		// Default to sorting by last post descending.
 		$this->sort_by = !isset($_REQUEST['sort']) || !isset($this->sort_methods[$_REQUEST['sort']]) ? $this->sort_default : $_REQUEST['sort'];
@@ -642,7 +643,7 @@ class MessageIndex implements ActionInterface
 		$main_where = array();
 		$sort_where = array();
 
-		call_integration_hook('integrate_message_index', array(&$selects, &$joins, &$params, &$main_where, &$topic_ids, &$sort_where));
+		IntegrationHook::call('integrate_message_index', array(&$selects, &$joins, &$params, &$main_where, &$topic_ids, &$sort_where));
 
 		if (!empty(Config::$modSettings['enableParticipation']) && !User::$me->is_guest)
 			$enableParticipation = true;
@@ -1093,7 +1094,7 @@ class MessageIndex implements ActionInterface
 
 		// Allow adding new buttons easily.
 		// Note: Utils::$context['normal_buttons'] is added for backward compatibility with 2.0, but is deprecated and should not be used
-		call_integration_hook('integrate_messageindex_buttons', array(&Utils::$context['normal_buttons']));
+		IntegrationHook::call('integrate_messageindex_buttons', array(&Utils::$context['normal_buttons']));
 	}
 
 }

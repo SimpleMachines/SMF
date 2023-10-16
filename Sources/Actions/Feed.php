@@ -21,6 +21,7 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\IP;
 use SMF\Lang;
 use SMF\Theme;
@@ -284,7 +285,7 @@ class Feed implements ActionInterface
 		$this->host = Url::create(Config::$scripturl)->host;
 
 		// Easy adding of sub actions
-		call_integration_hook('integrate_xmlfeeds', array(&self::$subactions));
+		IntegrationHook::call('integrate_xmlfeeds', array(&self::$subactions));
 
 		// These things are simple to set.
 		$this->setSubaction($subaction);
@@ -2826,7 +2827,7 @@ class Feed implements ActionInterface
 
 		// If mods want to do something with this feed, let them do that now.
 		// Provide the feed's data, metadata, namespaces, extra feed-level tags, keys that need special handling, the feed format, and the requested subaction.
-		call_integration_hook('integrate_xml_data', array(&$data, &$metadata, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $format, $subaction, &$doctype));
+		IntegrationHook::call('integrate_xml_data', array(&$data, &$metadata, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $format, $subaction, &$doctype));
 
 		// These can't be empty.
 		foreach (array('title', 'desc', 'source', 'self') as $mkey)
@@ -3252,7 +3253,7 @@ class Feed implements ActionInterface
 		if (substr($val, 0, strlen(Config::$scripturl)) != Config::$scripturl)
 			return $val;
 
-		call_integration_hook('integrate_fix_url', array(&$val));
+		IntegrationHook::call('integrate_fix_url', array(&$val));
 
 		if (
 			empty(Config::$modSettings['queryless_urls'])

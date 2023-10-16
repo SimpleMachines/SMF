@@ -18,6 +18,7 @@ use SMF\BackwardCompatibility;
 use SMF\Category;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\PageIndex;
 use SMF\Security;
@@ -203,7 +204,7 @@ class Search2 implements ActionInterface
 
 		$counter++;
 
-		call_integration_hook('integrate_search_message_context', array(&$output, &$message, $counter));
+		IntegrationHook::call('integrate_search_message_context', array(&$output, &$message, $counter));
 
 		return $output;
 	}
@@ -298,7 +299,7 @@ class Search2 implements ActionInterface
 	 */
 	protected function errorCheck(): bool
 	{
-		call_integration_hook('integrate_search_errors');
+		IntegrationHook::call('integrate_search_errors');
 
 		// One or more search errors? Go back to the first search screen.
 		if (!empty(Utils::$context['search_errors']))
@@ -551,7 +552,7 @@ class Search2 implements ActionInterface
 		// Load the posters...
 		$this->getPosters();
 
-		call_integration_hook('integrate_search_message_list', array(&$this->messages, &$this->posters));
+		IntegrationHook::call('integrate_search_message_list', array(&$this->messages, &$this->posters));
 
 		if (!empty($this->posters))
 			User::load(array_unique($this->posters));

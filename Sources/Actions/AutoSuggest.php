@@ -15,6 +15,7 @@ namespace SMF\Actions;
 
 use SMF\BackwardCompatibility;
 
+use SMF\IntegrationHook;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -321,7 +322,7 @@ class AutoSuggest implements ActionInterface
 	 */
 	public static function checkRegistered(string $suggest_type): bool
 	{
-		call_integration_hook('integrate_autosuggest', array(&$suggest_types));
+		IntegrationHook::call('integrate_autosuggest', array(&$suggest_types));
 
 		return isset(self::$suggest_types[$suggest_type]) && (method_exists(__CLASS__, $suggest_type) || function_exists('AutoSuggest_Search_' . self::$suggest_types[$this->suggest_type]) || function_exists('AutoSuggest_Search_' . $suggest_type));
 	}
@@ -379,7 +380,7 @@ class AutoSuggest implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		call_integration_hook('integrate_autosuggest', array(&self::$suggest_types));
+		IntegrationHook::call('integrate_autosuggest', array(&self::$suggest_types));
 
 		if (!empty($_REQUEST['suggest_type']) && isset(self::$suggest_types[$_REQUEST['suggest_type']]))
 			$this->suggest_type = $_REQUEST['suggest_type'];

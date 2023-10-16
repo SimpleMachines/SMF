@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\SecurityToken;
@@ -603,7 +604,7 @@ class Themes implements ActionInterface
 		Theme::loadSubTemplate('options');
 
 		// Let mods hook into the theme options.
-		call_integration_hook('integrate_theme_options');
+		IntegrationHook::call('integrate_theme_options');
 
 		Utils::$context['sub_template'] = 'set_options';
 		Utils::$context['page_title'] = Lang::$txt['theme_settings'];
@@ -746,7 +747,7 @@ class Themes implements ActionInterface
 		}
 
 		// Let mods hook into the theme settings.
-		call_integration_hook('integrate_theme_settings');
+		IntegrationHook::call('integrate_theme_settings');
 
 		// Submitting!
 		if (isset($_POST['save']))
@@ -1562,7 +1563,7 @@ class Themes implements ActionInterface
 		}
 
 		// CRUD self::$subactions as needed.
-		call_integration_hook('integrate_manage_themes', array(&self::$subactions));
+		IntegrationHook::call('integrate_manage_themes', array(&self::$subactions));
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
 			$this->subaction = $_REQUEST['sa'];
@@ -1823,7 +1824,7 @@ class Themes implements ActionInterface
 		$id = (int) $id;
 
 		// Make changes if you really want it.
-		call_integration_hook('integrate_get_single_theme', array(&$variables, $id));
+		IntegrationHook::call('integrate_get_single_theme', array(&$variables, $id));
 
 		$single = array(
 			'id' => $id,
@@ -1895,7 +1896,7 @@ class Themes implements ActionInterface
 		);
 
 		// Make changes if you really want it.
-		call_integration_hook('integrate_get_all_themes', array(&$themeValues, $enable_only));
+		IntegrationHook::call('integrate_get_all_themes', array(&$themeValues, $enable_only));
 
 		// So, what is it going to be?
 		$query_where = $enable_only ? $enableThemes : $knownThemes;
@@ -1964,7 +1965,7 @@ class Themes implements ActionInterface
 		);
 
 		// Make changes if you really want it.
-		call_integration_hook('integrate_get_installed_themes', array(&$themeValues));
+		IntegrationHook::call('integrate_get_installed_themes', array(&$themeValues));
 
 		// Perform the query as requested.
 		$request = Db::$db->query('', '
@@ -2225,7 +2226,7 @@ class Themes implements ActionInterface
 		$id_theme++;
 
 		// Last minute changes? although, the actual array is a context value you might want to use the new ID.
-		call_integration_hook('integrate_theme_install', array(&Utils::$context['to_install'], $id_theme));
+		IntegrationHook::call('integrate_theme_install', array(&Utils::$context['to_install'], $id_theme));
 
 		$inserts = array();
 

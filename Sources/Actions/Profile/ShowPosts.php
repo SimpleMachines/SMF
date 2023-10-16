@@ -20,6 +20,7 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
@@ -1027,7 +1028,7 @@ class ShowPosts implements ActionInterface
 		}
 
 		// Allow last minute changes.
-		call_integration_hook('integrate_profile_showPosts');
+		IntegrationHook::call('integrate_profile_showPosts');
 
 		foreach (Utils::$context['posts'] as $key => $post)
 		{

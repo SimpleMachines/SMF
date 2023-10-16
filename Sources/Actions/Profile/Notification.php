@@ -19,6 +19,7 @@ use SMF\Actions\ActionInterface;
 use SMF\Alert;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
@@ -426,7 +427,7 @@ class Notification implements ActionInterface
 
 		// Now, now, we could pass this through global but we should really get into the habit of
 		// passing content to hooks, not expecting hooks to splatter everything everywhere.
-		call_integration_hook('integrate_alert_types', array(&$this->alert_types, &$this->group_options));
+		IntegrationHook::call('integrate_alert_types', array(&$this->alert_types, &$this->group_options));
 
 		// Now we have to do some permissions testing - but only if we're not loading this from the admin center
 		if (!empty(Profile::$member->id))

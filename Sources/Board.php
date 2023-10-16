@@ -630,7 +630,7 @@ class Board implements \ArrayAccess
 			);
 
 			// Do any hooks want to add or adjust anything?
-			call_integration_hook('integrate_modify_board', array($this->id, $boardOptions, &$set, &$params));
+			IntegrationHook::call('integrate_modify_board', array($this->id, $boardOptions, &$set, &$params));
 
 			Db::$db->query('', '
 				UPDATE {db_prefix}boards
@@ -1528,7 +1528,7 @@ class Board implements \ArrayAccess
 			ErrorHandler::fatalLang('no_board');
 		}
 
-		call_integration_hook('integrate_pre_modify_board', array($board_id, &$boardOptions));
+		IntegrationHook::call('integrate_pre_modify_board', array($board_id, &$boardOptions));
 
 		$board = self::$loaded[$board_id];
 
@@ -1713,7 +1713,7 @@ class Board implements \ArrayAccess
 			'',
 		);
 
-		call_integration_hook('integrate_create_board', array(&$boardOptions, &$board_columns, &$board_parameters));
+		IntegrationHook::call('integrate_create_board', array(&$boardOptions, &$board_columns, &$board_parameters));
 
 		// Make a new instance and save it.
 		$board = new self(0, array_combine(array_keys($board_columns), $board_parameters));
@@ -1761,7 +1761,7 @@ class Board implements \ArrayAccess
 
 		Category::getTree();
 
-		call_integration_hook('integrate_delete_board', array($boards_to_remove, &$moveChildrenTo));
+		IntegrationHook::call('integrate_delete_board', array($boards_to_remove, &$moveChildrenTo));
 
 		// If $moveChildrenTo is set to null, include the children in the removal.
 		if ($moveChildrenTo === null)
@@ -2560,7 +2560,7 @@ class Board implements \ArrayAccess
 			}
 
 			// Do any mods want to add some custom stuff to the query?
-			call_integration_hook('integrate_load_board', array(&$selects, &$params, &$joins, &$where, &$order));
+			IntegrationHook::call('integrate_load_board', array(&$selects, &$params, &$joins, &$where, &$order));
 
 			$selects = array_unique($selects);
 			$params = array_unique($params);
@@ -2610,7 +2610,7 @@ class Board implements \ArrayAccess
 						'deny_groups' => $row['deny_member_groups'] == '' ? array() : array_filter(explode(',', $row['deny_member_groups']), 'strlen'),
 					);
 
-					call_integration_hook('integrate_board_info', array(&$props, $row));
+					IntegrationHook::call('integrate_board_info', array(&$props, $row));
 				}
 
 				// This row included an individual moderator.

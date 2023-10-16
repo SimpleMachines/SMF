@@ -715,7 +715,7 @@ class TaskRunner
 	protected function getScheduledTaskDetails(int $id, string $task, bool $is_callable = false): array
 	{
 		// Allow mods to easily add scheduled tasks.
-		call_integration_hook('integrate_scheduled_tasks', array(&self::$scheduled_tasks));
+		IntegrationHook::call('integrate_scheduled_tasks', array(&self::$scheduled_tasks));
 
 		if ($is_callable)
 		{

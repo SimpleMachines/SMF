@@ -19,6 +19,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Group;
+use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
@@ -1005,7 +1006,7 @@ class Groups implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		call_integration_hook('integrate_manage_groups', array(&self::$subactions));
+		IntegrationHook::call('integrate_manage_groups', array(&self::$subactions));
 
 		if (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']]))
 			$this->subaction = $_GET['sa'];

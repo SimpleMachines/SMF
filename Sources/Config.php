@@ -1165,7 +1165,7 @@ class Config
 
 			if (!empty(self::$modSettings['load_average']) || self::$modSettings['load_average'] === 0.0)
 			{
-				call_integration_hook('integrate_load_average', array(self::$modSettings['load_average']));
+				IntegrationHook::call('integrate_load_average', array(self::$modSettings['load_average']));
 			}
 
 			if (!empty(self::$modSettings['loadavg_forum']) && !empty(self::$modSettings['load_average']) && self::$modSettings['load_average'] >= self::$modSettings['loadavg_forum'])
@@ -1209,7 +1209,7 @@ class Config
 			$integration_settings = Utils::jsonDecode(SMF_INTEGRATION_SETTINGS, true);
 
 			foreach ($integration_settings as $hook => $function)
-				add_integration_function($hook, $function, false);
+				IntegrationHook::add($hook, $function, false);
 		}
 
 		// Any files to pre include?
@@ -1229,7 +1229,7 @@ class Config
 		Utils::load();
 
 		// Call pre load integration functions.
-		call_integration_hook('integrate_pre_load');
+		IntegrationHook::call('integrate_pre_load');
 	}
 
 	/**
@@ -1384,9 +1384,9 @@ class Config
 		self::$settings_defs = $class_vars['settings_defs'];
 
 		// Allow mods the option to define comments, defaults, etc., for their settings.
-		// Check if function exists, in case we are calling from installer or upgrader.
-		if (function_exists('call_integration_hook'))
-			call_integration_hook('integrate_update_settings_file', array(&self::$settings_defs));
+		// Check if IntegrationHook exists, in case we are calling from installer or upgrader.
+		if (class_exists('SMF\\IntegrationHook', false))
+			IntegrationHook::call('integrate_update_settings_file', array(&self::$settings_defs));
 
 		// Return the setting definitions, including any added by mods.
 		return self::$settings_defs;

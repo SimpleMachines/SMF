@@ -20,6 +20,7 @@ use SMF\BrowserDetector;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Event;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\Time;
@@ -331,7 +332,7 @@ class Calendar implements ActionInterface
 			Utils::$context['calendar_buttons']['post_event'] = array('text' => 'calendar_post_event', 'image' => 'calendarpe.png', 'url' => Config::$scripturl . '?action=calendar;sa=post;month=' . Utils::$context['current_month'] . ';year=' . Utils::$context['current_year'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 
 		// Allow mods to add additional buttons here
-		call_integration_hook('integrate_calendar_buttons');
+		IntegrationHook::call('integrate_calendar_buttons');
 	}
 
 	/**

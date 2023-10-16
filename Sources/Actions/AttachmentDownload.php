@@ -18,6 +18,7 @@ use SMF\BackwardCompatibility;
 use SMF\Attachment;
 use SMF\BrowserDetector;
 use SMF\Config;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\User;
 use SMF\Utils;
@@ -88,7 +89,7 @@ class AttachmentDownload implements ActionInterface
 	public function execute(): void
 	{
 		// An early hook to set up global vars, clean cache and other early process.
-		call_integration_hook('integrate_pre_download_request');
+		IntegrationHook::call('integrate_pre_download_request');
 
 		// This is done to clear any output that was made before now.
 		ob_end_clean();
@@ -128,7 +129,7 @@ class AttachmentDownload implements ActionInterface
 			 * SMF\Attachment::load() method.
 			 */
 			$request = null;
-			call_integration_hook('integrate_download_request', array(&$request));
+			IntegrationHook::call('integrate_download_request', array(&$request));
 			if (!is_null($request) && Db::$db->is_resource($request))
 			{
 				// No attachment has been found.

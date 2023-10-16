@@ -22,6 +22,7 @@ use SMF\Config;
 use SMF\Editor;
 use SMF\ErrorHandler;
 use SMF\Event;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\PageIndex;
@@ -285,7 +286,7 @@ class Display implements ActionInterface
 		else
 			$counter--;
 
-		call_integration_hook('integrate_prepare_display_context', array(&$output, $message, $counter));
+		IntegrationHook::call('integrate_prepare_display_context', array(&$output, $message, $counter));
 
 		return $output;
 	}
@@ -1162,7 +1163,7 @@ class Display implements ActionInterface
 		Db::$db->free_result($request);
 		$this->posters = array_unique($all_posters);
 
-		call_integration_hook('integrate_display_message_list', array(&$this->messages, &$this->posters));
+		IntegrationHook::call('integrate_display_message_list', array(&$this->messages, &$this->posters));
 	}
 
 	/**
@@ -1367,9 +1368,9 @@ class Display implements ActionInterface
 
 		// Allow adding new buttons easily.
 		// Note: Utils::$context['normal_buttons'] and Utils::$context['mod_buttons'] are added for backward compatibility with 2.0, but are deprecated and should not be used
-		call_integration_hook('integrate_display_buttons', array(&Utils::$context['normal_buttons']));
+		IntegrationHook::call('integrate_display_buttons', array(&Utils::$context['normal_buttons']));
 		// Note: integrate_mod_buttons is no longer necessary and deprecated, but is kept for backward compatibility with 2.0
-		call_integration_hook('integrate_mod_buttons', array(&Utils::$context['mod_buttons']));
+		IntegrationHook::call('integrate_mod_buttons', array(&Utils::$context['mod_buttons']));
 
 		// If any buttons have a 'test' check, run those tests now to keep things clean.
 		foreach (array('normal_buttons', 'mod_buttons') as $button_strip)

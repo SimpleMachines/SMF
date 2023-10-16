@@ -22,6 +22,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\Attachment;
 use SMF\Config;
+use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
@@ -203,7 +204,7 @@ class Attachments implements ActionInterface
 				}
 			}
 
-			call_integration_hook('integrate_save_attachment_settings');
+			IntegrationHook::call('integrate_save_attachment_settings');
 
 			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
@@ -245,7 +246,7 @@ class Attachments implements ActionInterface
 			if (empty($_POST['avatar_url']))
 				$_POST['avatar_url'] = Config::$boardurl . '/avatars';
 
-			call_integration_hook('integrate_save_avatar_settings');
+			IntegrationHook::call('integrate_save_avatar_settings');
 
 			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
@@ -467,7 +468,7 @@ class Attachments implements ActionInterface
 		$list_title = Lang::$txt['attachment_manager_browse_files'] . ': ';
 
 		// Does a hook want to display their attachments better?
-		call_integration_hook('integrate_attachments_browse', array(&$listOptions, &$titles));
+		IntegrationHook::call('integrate_attachments_browse', array(&$listOptions, &$titles));
 
 		foreach ($titles as $browse_type => $details)
 		{
@@ -615,7 +616,7 @@ class Attachments implements ActionInterface
 			// If the attachments are from a 3rd party, let them remove it. Hooks should remove their ids from the array.
 			$filesRemoved = false;
 
-			call_integration_hook('integrate_attachment_remove', array(&$filesRemoved, $attachments));
+			IntegrationHook::call('integrate_attachment_remove', array(&$filesRemoved, $attachments));
 
 			if ($_REQUEST['type'] == 'avatars' && !empty($attachments))
 			{
@@ -1200,7 +1201,7 @@ class Attachments implements ActionInterface
 				$ignore_ids = array(0);
 
 				// returns an array of ints of id_attach's that should not be deleted
-				call_integration_hook('integrate_repair_attachments_nomsg', array(&$ignore_ids, $_GET['substep'], $_GET['substep'] + 500));
+				IntegrationHook::call('integrate_repair_attachments_nomsg', array(&$ignore_ids, $_GET['substep'], $_GET['substep'] + 500));
 
 				$result = Db::$db->query('', '
 					SELECT a.id_attach, a.id_folder, a.filename, a.file_hash
@@ -2341,7 +2342,7 @@ class Attachments implements ActionInterface
 			array('int', 'max_image_height', 'subtext' => Lang::$txt['zero_for_no_limit']),
 		);
 
-		call_integration_hook('integrate_modify_attachment_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_modify_attachment_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -2424,7 +2425,7 @@ class Attachments implements ActionInterface
 			),
 		);
 
-		call_integration_hook('integrate_modify_avatar_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_modify_avatar_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -2871,7 +2872,7 @@ class Attachments implements ActionInterface
 			'description' => Lang::$txt['attachments_desc'],
 		);
 
-		call_integration_hook('integrate_manage_attachments', array(&self::$subactions));
+		IntegrationHook::call('integrate_manage_attachments', array(&self::$subactions));
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[strtolower($_REQUEST['sa'])]))
 			$this->subaction = strtolower($_REQUEST['sa']);

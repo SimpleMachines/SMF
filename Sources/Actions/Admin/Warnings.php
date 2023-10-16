@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\User;
@@ -118,7 +119,7 @@ class Warnings implements ActionInterface
 			$save_vars[] = array('text', 'warning_settings');
 			unset($save_vars['enable'], $save_vars['rem1'], $save_vars['rem2']);
 
-			call_integration_hook('integrate_save_warning_settings', array(&$save_vars));
+			IntegrationHook::call('integrate_save_warning_settings', array(&$save_vars));
 
 			ACP::saveDBSettings($save_vars);
 			$_SESSION['adm-save'] = true;
@@ -219,7 +220,7 @@ class Warnings implements ActionInterface
 			);
 		}
 
-		call_integration_hook('integrate_warning_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_warning_settings', array(&$config_vars));
 
 		return $config_vars;
 	}

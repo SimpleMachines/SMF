@@ -18,6 +18,7 @@ use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\IntegrationHook;
 use SMF\IP;
 use SMF\ItemList;
 use SMF\Profile;
@@ -331,7 +332,7 @@ class TrackIP implements ActionInterface
 
 		// Allow 3rd party integrations to add in their own lists or whatever.
 		Utils::$context['additional_track_lists'] = array();
-		call_integration_hook('integrate_profile_trackip', array($ip_string, $ip_var));
+		IntegrationHook::call('integrate_profile_trackip', array($ip_string, $ip_var));
 
 		Utils::$context['single_ip'] = ($ip_var['low'] === $ip_var['high']);
 

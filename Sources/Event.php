@@ -302,7 +302,7 @@ class Event implements \ArrayAccess
 				$params[] = $this->start->format('e');
 			}
 
-			call_integration_hook('integrate_create_event', array((array) $this, &$columns, &$params));
+			IntegrationHook::call('integrate_create_event', array((array) $this, &$columns, &$params));
 
 			$this->id = Db::$db->insert('',
 				'{db_prefix}calendar',
@@ -355,7 +355,7 @@ class Event implements \ArrayAccess
 			}
 
 			// Why pass `$this->id` if we're also passing `$this`, you ask? For historical reasons.
-			call_integration_hook('integrate_modify_event', array($this->id, $this, &$set, &$params));
+			IntegrationHook::call('integrate_modify_event', array($this->id, $this, &$set, &$params));
 
 			Db::$db->query('', '
 				UPDATE {db_prefix}calendar
@@ -991,7 +991,7 @@ class Event implements \ArrayAccess
 		if ($use_permissions)
 			$where[] = '(cal.id_board = {int:no_board_link} OR {query_wanna_see_board})';
 
-		call_integration_hook('integrate_query_event', array(&$selects, &$params, &$joins, &$where, &$order, &$limit));
+		IntegrationHook::call('integrate_query_event', array(&$selects, &$params, &$joins, &$where, &$order, &$limit));
 
 		foreach(self::queryData($selects, $params, $joins, $where, $order, $limit) as $row)
 		{
@@ -1097,7 +1097,7 @@ class Event implements \ArrayAccess
 			)
 		);
 
-		call_integration_hook('integrate_remove_event', array($id));
+		IntegrationHook::call('integrate_remove_event', array($id));
 
 		Config::updateModSettings(array(
 			'calendar_updated' => time(),

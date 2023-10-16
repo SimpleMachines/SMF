@@ -2376,7 +2376,7 @@ class TimeZone extends \DateTimeZone
 
 		list($when, $later) = self::getTimeRange($when);
 
-		call_integration_hook('integrate_metazones', array(&self::$metazones, $when));
+		IntegrationHook::call('integrate_metazones', array(&self::$metazones, $when));
 
 		// Fallbacks in case the server has an old version of the TZDB.
 		$tzid_fallbacks = self::getTzidFallbacks(array_keys(self::$metazones), $when);
@@ -2423,7 +2423,7 @@ class TimeZone extends \DateTimeZone
 		// Avoid unnecessary repetition.
 		if (!isset($country_tzids[$country_code]))
 		{
-			call_integration_hook('integrate_country_timezones', array(&self::$sorted_tzids, $country_code, $when));
+			IntegrationHook::call('integrate_country_timezones', array(&self::$sorted_tzids, $country_code, $when));
 
 			$country_tzids[$country_code] = isset(self::$sorted_tzids[$country_code]) ? self::$sorted_tzids[$country_code] : array();
 
@@ -2473,7 +2473,7 @@ class TimeZone extends \DateTimeZone
 
 		$missing = array_diff($tzids, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC));
 
-		call_integration_hook('integrate_timezone_fallbacks', array(&self::$fallbacks, &$missing, $tzids, $when));
+		IntegrationHook::call('integrate_timezone_fallbacks', array(&self::$fallbacks, &$missing, $tzids, $when));
 
 		$replacements = array();
 

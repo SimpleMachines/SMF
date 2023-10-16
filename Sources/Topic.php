@@ -1119,7 +1119,7 @@ class Topic implements \ArrayAccess
 		$recycle_board = !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) ? (int) Config::$modSettings['recycle_board'] : 0;
 
 		// Do something before?
-		call_integration_hook('integrate_remove_topics_before', array($topics, $recycle_board));
+		IntegrationHook::call('integrate_remove_topics_before', array($topics, $recycle_board));
 
 		// Decrease the post counts.
 		if ($decreasePostCount)
@@ -1421,7 +1421,7 @@ class Topic implements \ArrayAccess
 		);
 
 		// Maybe there's a mod that wants to delete topic related data of its own
-		call_integration_hook('integrate_remove_topics', array($topics));
+		IntegrationHook::call('integrate_remove_topics', array($topics));
 
 		// Update the totals...
 		Logging::updateStats('message');
@@ -1493,7 +1493,7 @@ class Topic implements \ArrayAccess
 			$topic_joins[] = 'LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})';
 		}
 
-		call_integration_hook('integrate_display_topic', array(&$topic_selects, &$topic_joins, &$topic_parameters));
+		IntegrationHook::call('integrate_display_topic', array(&$topic_selects, &$topic_joins, &$topic_parameters));
 
 		// @todo Why isn't this cached?
 		// @todo if we get id_board in this query and cache it, we can save a query on posting

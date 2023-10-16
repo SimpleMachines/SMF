@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\User;
@@ -124,7 +125,7 @@ class Mods implements ActionInterface
 
 			$save_vars = $config_vars;
 
-			call_integration_hook('integrate_save_general_mod_settings', array(&$save_vars));
+			IntegrationHook::call('integrate_save_general_mod_settings', array(&$save_vars));
 
 			// This line is to help mod authors do a search/add after if you want to add something here. Keyword: FOOT TAPPING SUCKS!
 			ACP::saveDBSettings($save_vars);
@@ -179,7 +180,7 @@ class Mods implements ActionInterface
 		);
 
 		// MOD AUTHORS: This hook is the right way to add new settings.
-		call_integration_hook('integrate_general_mod_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_general_mod_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -225,7 +226,7 @@ class Mods implements ActionInterface
 		);
 
 		// Make it easier for mods to add new areas.
-		call_integration_hook('integrate_modify_modifications', array(&self::$subactions));
+		IntegrationHook::call('integrate_modify_modifications', array(&self::$subactions));
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
 			$this->subaction = $_REQUEST['sa'];

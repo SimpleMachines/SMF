@@ -20,6 +20,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Group;
+use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
@@ -353,7 +354,7 @@ class Membergroups implements ActionInterface
 
 			$_POST['group_type'] = !isset($_POST['group_type']) || $_POST['group_type'] < 0 || $_POST['group_type'] > 3 || ($_POST['group_type'] == 1 && !User::$me->allowedTo('admin_forum')) ? 0 : (int) $_POST['group_type'];
 
-			call_integration_hook('integrate_pre_add_membergroup', array());
+			IntegrationHook::call('integrate_pre_add_membergroup', array());
 
 			$id_group = Db::$db->insert('',
 				'{db_prefix}membergroups',
@@ -369,7 +370,7 @@ class Membergroups implements ActionInterface
 				1
 			);
 
-			call_integration_hook('integrate_add_membergroup', array($id_group, $postCountBasedGroup));
+			IntegrationHook::call('integrate_add_membergroup', array($id_group, $postCountBasedGroup));
 
 			// Update the post groups now, if this is a post group!
 			if (isset($_POST['min_posts']))
@@ -906,7 +907,7 @@ class Membergroups implements ActionInterface
 			Utils::$context['inheritable_groups'][$inheritable_group->id] = $inheritable_group->name;
 		}
 
-		call_integration_hook('integrate_view_membergroup');
+		IntegrationHook::call('integrate_view_membergroup');
 
 		Utils::$context['sub_template'] = 'edit_group';
 		Utils::$context['page_title'] = Lang::$txt['membergroups_edit_group'];
@@ -931,7 +932,7 @@ class Membergroups implements ActionInterface
 		if (isset($_REQUEST['save']))
 		{
 			User::$me->checkSession();
-			call_integration_hook('integrate_save_membergroup_settings');
+			IntegrationHook::call('integrate_save_membergroup_settings');
 
 			// Yeppers, saving this...
 			ACP::saveDBSettings($config_vars);
@@ -987,7 +988,7 @@ class Membergroups implements ActionInterface
 			array('permissions', 'manage_membergroups'),
 		);
 
-		call_integration_hook('integrate_modify_membergroup_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_modify_membergroup_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -1068,7 +1069,7 @@ class Membergroups implements ActionInterface
 			'description' => Lang::$txt['membergroups_description'],
 		);
 
-		call_integration_hook('integrate_manage_membergroups', array(&self::$subactions));
+		IntegrationHook::call('integrate_manage_membergroups', array(&self::$subactions));
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
 		{

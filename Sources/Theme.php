@@ -265,7 +265,7 @@ class Theme
 		}
 
 		// Allow mod authors the option to override the theme id for custom page themes
-		call_integration_hook('integrate_pre_load_theme', array(&$id));
+		IntegrationHook::call('integrate_pre_load_theme', array(&$id));
 
 		// If not already loaded, load it now.
 		if (!isset(self::$loaded[$id]))
@@ -950,7 +950,7 @@ class Theme
 			Utils::$context['meta_tags'][] = array('name' => 'description', 'content' => Utils::$context['page_title_html_safe']);
 		}
 
-		call_integration_hook('integrate_theme_context');
+		IntegrationHook::call('integrate_theme_context');
 	}
 
 	/**
@@ -1160,7 +1160,7 @@ class Theme
 			);
 
 			// Allow editing menu buttons easily.
-			call_integration_hook('integrate_menu_buttons', array(&$buttons));
+			IntegrationHook::call('integrate_menu_buttons', array(&$buttons));
 
 			// Now we put the buttons in the context so the theme can use them.
 			$menu_buttons = array();
@@ -1331,7 +1331,7 @@ class Theme
 		}
 
 		// Not all actions are simple.
-		call_integration_hook('integrate_current_action', array(&$current_action));
+		IntegrationHook::call('integrate_current_action', array(&$current_action));
 
 		if (isset(Utils::$context['menu_buttons'][$current_action]))
 			Utils::$context['menu_buttons'][$current_action]['active_button'] = true;
@@ -1393,7 +1393,7 @@ class Theme
 				$securityFiles = array('install.php', 'upgrade.php', 'convert.php', 'repair_paths.php', 'repair_settings.php', 'Settings.php~', 'Settings_bak.php~');
 
 				// Add your own files.
-				call_integration_hook('integrate_security_files', array(&$securityFiles));
+				IntegrationHook::call('integrate_security_files', array(&$securityFiles));
 
 				foreach ($securityFiles as $i => $securityFile)
 				{
@@ -1539,7 +1539,7 @@ class Theme
 	public static function template_javascript($do_deferred = false)
 	{
 		// Use this hook to minify/optimize Javascript files and vars
-		call_integration_hook('integrate_pre_javascript_output', array(&$do_deferred));
+		IntegrationHook::call('integrate_pre_javascript_output', array(&$do_deferred));
 
 		$toMinify = array(
 			'standard' => array(),
@@ -1671,7 +1671,7 @@ class Theme
 	public static function template_css()
 	{
 		// Use this hook to minify/optimize CSS files
-		call_integration_hook('integrate_pre_css_output');
+		IntegrationHook::call('integrate_pre_css_output');
 
 		$toMinify = array();
 		$normal = array();
@@ -2028,9 +2028,9 @@ class Theme
 			if (!isset(self::$current->settings['catch_action']['filename']))
 				self::$current->settings['catch_action']['filename'] = '';
 
-			add_integration_function('integrate_wrap_action', $hook, false, self::$current->settings['catch_action']['filename'], false);
+			IntegrationHook::add('integrate_wrap_action', $hook, false, self::$current->settings['catch_action']['filename'], false);
 
-			call_integration_hook('integrate_wrap_action');
+			IntegrationHook::call('integrate_wrap_action');
 		}
 
 		// And finally, the main sub template ;).
@@ -2629,7 +2629,7 @@ class Theme
 		}
 
 		// Call load theme integration functions.
-		call_integration_hook('integrate_load_theme');
+		IntegrationHook::call('integrate_load_theme');
 
 		// We are ready to go.
 		Utils::$context['theme_loaded'] = true;
@@ -2798,7 +2798,7 @@ class Theme
 		// This allows sticking some HTML on the page output - useful for controls.
 		Utils::$context['insert_after_template'] = '';
 
-		call_integration_hook('integrate_simple_actions', array(&$this->simpleActions, &$this->simpleAreas, &$this->simpleSubActions, &$this->extraParams, &$this->xmlActions));
+		IntegrationHook::call('integrate_simple_actions', array(&$this->simpleActions, &$this->simpleAreas, &$this->simpleSubActions, &$this->extraParams, &$this->xmlActions));
 
 		Utils::$context['simple_action'] = (
 			in_array(Utils::$context['current_action'], $this->simpleActions)

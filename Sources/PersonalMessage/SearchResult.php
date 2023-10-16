@@ -13,6 +13,7 @@
 
 namespace SMF\PersonalMessage;
 
+use SMF\IntegrationHook;
 use SMF\Search\SearchResult as SR;
 
 /**
@@ -39,7 +40,7 @@ class SearchResult extends PM
 
 			unset($output['quickbuttons']['quickmod']);
 
-			call_integration_hook('integrate_pm_search_result', array(&$output));
+			IntegrationHook::call('integrate_pm_search_result', array(&$output));
 
 			yield $output;
 		}

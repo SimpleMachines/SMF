@@ -19,6 +19,7 @@ use SMF\Actions\ActionInterface;
 use SMF\Board;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
@@ -943,7 +944,7 @@ class RepairBoards implements ActionInterface
 		$_GET['substep'] = empty($_GET['substep']) ? 0 : (int) $_GET['substep'];
 
 		// Do mods want to add anything here to allow repairing their data?
-		call_integration_hook('integrate_repair_boards', array(&$this->errorTests));
+		IntegrationHook::call('integrate_repair_boards', array(&$this->errorTests));
 
 		// Don't allow the cache to get too full.
 		Utils::$context['db_cache'] = Db::$cache;

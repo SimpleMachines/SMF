@@ -21,6 +21,7 @@ use SMF\Category;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Group;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\SecurityToken;
@@ -1244,7 +1245,7 @@ class Permissions implements ActionInterface
 		{
 			User::$me->checkSession();
 
-			call_integration_hook('integrate_save_permission_settings');
+			IntegrationHook::call('integrate_save_permission_settings');
 
 			ACP::saveDBSettings($config_vars);
 
@@ -1405,7 +1406,7 @@ class Permissions implements ActionInterface
 		// Load all the permission profiles.
 		self::loadPermissionProfiles();
 
-		call_integration_hook('integrate_post_moderation_mapping', array(&$this->postmod_maps));
+		IntegrationHook::call('integrate_post_moderation_mapping', array(&$this->postmod_maps));
 
 		// Start this with the guests/members.
 		Utils::$context['profile_groups'] = array(
@@ -1632,7 +1633,7 @@ class Permissions implements ActionInterface
 			array('check', 'permission_enable_postgroups', 0, Lang::$txt['permission_settings_enable_postgroups'], 'help' => 'permissions_postgroups'),
 		);
 
-		call_integration_hook('integrate_modify_permission_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_modify_permission_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -1650,7 +1651,7 @@ class Permissions implements ActionInterface
 		if (!empty(self::$processed))
 			return self::$permissions;
 
-		call_integration_hook('integrate_permissions_list', array(&self::$permissions));
+		IntegrationHook::call('integrate_permissions_list', array(&self::$permissions));
 
 		// In case a mod screwed things up...
 		if (!in_array('html', Utils::$context['restricted_bbc']))
@@ -1816,7 +1817,7 @@ class Permissions implements ActionInterface
 			}
 		}
 
-		call_integration_hook('integrate_load_permission_levels', array(&$group_levels, &$board_levels));
+		IntegrationHook::call('integrate_load_permission_levels', array(&$group_levels, &$board_levels));
 
 		// Make sure we're not granting someone too many permissions!
 		foreach (array('global', 'board') as $scope)
@@ -2513,7 +2514,7 @@ class Permissions implements ActionInterface
 			),
 		);
 
-		call_integration_hook('integrate_manage_permissions', array(&self::$subactions));
+		IntegrationHook::call('integrate_manage_permissions', array(&self::$subactions));
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
 			$this->subaction = $_REQUEST['sa'];
@@ -3567,7 +3568,7 @@ class Permissions implements ActionInterface
 		}
 
 		// Provide a practical way to modify permissions.
-		call_integration_hook('integrate_load_permissions', array(&self::$permission_groups, &$permissions_by_scope, &self::$left_permission_groups, &$hidden_permissions, &$relabel_permissions));
+		IntegrationHook::call('integrate_load_permissions', array(&self::$permission_groups, &$permissions_by_scope, &self::$left_permission_groups, &$hidden_permissions, &$relabel_permissions));
 
 		// If the hook made changes, sync them back to our master list.
 		foreach ($permissions_by_scope as $scope => $permissions)
@@ -3645,7 +3646,7 @@ class Permissions implements ActionInterface
 		$temp = Utils::jsonEncode(self::$illegal);
 
 		// Give mods access to this list.
-		call_integration_hook('integrate_load_illegal_permissions');
+		IntegrationHook::call('integrate_load_illegal_permissions');
 
 		// If the hook added anything, sync that back to our master list.
 		// Because this hook can't tell us what the prerequistes are, we assume
@@ -3688,7 +3689,7 @@ class Permissions implements ActionInterface
 		$temp = Utils::jsonEncode(self::$never_guests);
 
 		// Give mods access to this list.
-		call_integration_hook('integrate_load_illegal_guest_permissions');
+		IntegrationHook::call('integrate_load_illegal_guest_permissions');
 
 		// If the hook changed anything, sync that back to our master list.
 		if ($temp != Utils::jsonEncode(self::$never_guests))

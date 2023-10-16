@@ -468,7 +468,7 @@ class Url implements \Stringable
 
 		// Allow mods to easily implement an alternative proxy.
 		// MOD AUTHORS: To add settings UI for your proxy, use the integrate_general_settings hook.
-		call_integration_hook('integrate_proxy', array($this->url, &$proxied->url));
+		IntegrationHook::call('integrate_proxy', array($this->url, &$proxied->url));
 
 		return $proxied;
 	}

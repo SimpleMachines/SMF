@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Theme;
@@ -396,7 +397,7 @@ class Logs implements ActionInterface
 		);
 
 		// MOD AUTHORS: If you want to add your own logs, use this hook.
-		call_integration_hook('integrate_prune_settings', array(&$config_vars, &self::$prune_toggle, false));
+		IntegrationHook::call('integrate_prune_settings', array(&$config_vars, &self::$prune_toggle, false));
 
 		return $config_vars;
 	}
@@ -431,7 +432,7 @@ class Logs implements ActionInterface
 				$subaction['disabled'] = empty(Config::$modSettings[$subaction['disabled']]);
 		}
 
-		call_integration_hook('integrate_manage_logs', array(&self::$subactions));
+		IntegrationHook::call('integrate_manage_logs', array(&self::$subactions));
 
 		// By default, error log should be shown in descending order.
 		if (!isset($_REQUEST['sa']))

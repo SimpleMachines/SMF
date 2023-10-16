@@ -19,6 +19,7 @@ use SMF\Actions\ActionInterface;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\Menu;
@@ -1107,7 +1108,7 @@ class ACP implements ActionInterface
 			}
 		}
 
-		call_integration_hook('integrate_prepare_db_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_prepare_db_settings', array(&$config_vars));
 		SecurityToken::create('admin-dbsc');
 	}
 
@@ -1905,7 +1906,7 @@ class ACP implements ActionInterface
 
 		// Validate what type of session check this is.
 		$types = array();
-		call_integration_hook('integrate_validateSession', array(&$types));
+		IntegrationHook::call('integrate_validateSession', array(&$types));
 		$type = in_array($type, $types) || $type == 'moderate' ? $type : 'admin';
 
 		// They used a wrong password, log it and unset that.
@@ -2049,7 +2050,7 @@ class ACP implements ActionInterface
 		$this->admin_areas['maintenance']['areas']['logs']['subsections']['spiderlog']['enabled'] = !empty(Config::$modSettings['spider_mode']);
 
 		// Give mods access to the menu.
-		call_integration_hook('integrate_admin_areas', array(&$this->admin_areas));
+		IntegrationHook::call('integrate_admin_areas', array(&$this->admin_areas));
 	}
 
 	/*************************

@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\IntegrationHook;
 use SMF\Logging;
 use SMF\Profile;
 use SMF\User;
@@ -78,7 +79,7 @@ class Activate implements ActionInterface
 			$prev_is_activated = Profile::$member->is_activated;
 
 			// Let the integrations know of the activation.
-			call_integration_hook('integrate_activate', array(Profile::$member->username));
+			IntegrationHook::call('integrate_activate', array(Profile::$member->username));
 
 			// Actually update this member now, as it guarantees the unapproved count can't get corrupted.
 			User::updateMemberData(Utils::$context['id_member'], array('is_activated' => Profile::$member->is_activated >= 10 ? 11 : 1, 'validation_code' => ''));

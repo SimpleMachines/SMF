@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Mail;
@@ -225,7 +226,7 @@ class Activate implements ActionInterface
 		}
 
 		// Let the integration know that they've been activated!
-		call_integration_hook('integrate_activate', array($row['member_name']));
+		IntegrationHook::call('integrate_activate', array($row['member_name']));
 
 		// Validation complete - update the database!
 		User::updateMemberData($row['id_member'], array('is_activated' => 1, 'validation_code' => ''));

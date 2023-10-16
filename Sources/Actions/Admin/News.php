@@ -20,6 +20,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Editor;
 use SMF\Group;
+use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
@@ -1107,7 +1108,7 @@ class News extends ACP implements ActionInterface
 		{
 			User::$me->checkSession();
 
-			call_integration_hook('integrate_save_news_settings');
+			IntegrationHook::call('integrate_save_news_settings');
 
 			self::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
@@ -1166,7 +1167,7 @@ class News extends ACP implements ActionInterface
 			array('check', 'xmlnews_attachments', 'subtext' => Lang::$txt['xmlnews_attachments_note']),
 		);
 
-		call_integration_hook('integrate_modify_news_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_modify_news_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -1381,7 +1382,7 @@ class News extends ACP implements ActionInterface
 			),
 		);
 
-		call_integration_hook('integrate_manage_news', array(&self::$subactions));
+		IntegrationHook::call('integrate_manage_news', array(&self::$subactions));
 
 		// Default to sub action 'main' or 'settings' depending on permissions.
 		$this->subaction = isset($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (User::$me->allowedTo('edit_news') ? 'editnews' : (User::$me->allowedTo('send_mail') ? 'mailingmembers' : 'settings'));

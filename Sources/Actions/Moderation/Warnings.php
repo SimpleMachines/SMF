@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 use SMF\Actions\ActionInterface;
 
 use SMF\Config;
+use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
@@ -786,7 +787,7 @@ class Warnings implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		call_integration_hook('integrate_warning_log_actions', array(&self::$subactions));
+		IntegrationHook::call('integrate_warning_log_actions', array(&self::$subactions));
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
 			$this->subaction = $_REQUEST['sa'];

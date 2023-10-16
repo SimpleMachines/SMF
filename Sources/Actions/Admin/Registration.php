@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
@@ -451,7 +452,7 @@ class Registration implements ActionInterface
 			// Post needs to take into account line breaks.
 			$_POST['coppaPost'] = str_replace("\n", '<br>', empty($_POST['coppaPost']) ? '' : Utils::normalize($_POST['coppaPost']));
 
-			call_integration_hook('integrate_save_registration_settings');
+			IntegrationHook::call('integrate_save_registration_settings');
 
 			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
@@ -538,7 +539,7 @@ class Registration implements ActionInterface
 			array('text', 'coppaPhone'),
 		);
 
-		call_integration_hook('integrate_modify_registration_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_modify_registration_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -637,7 +638,7 @@ class Registration implements ActionInterface
 			)
 		);
 
-		call_integration_hook('integrate_manage_registrations', array(&self::$subactions));
+		IntegrationHook::call('integrate_manage_registrations', array(&self::$subactions));
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
 		{

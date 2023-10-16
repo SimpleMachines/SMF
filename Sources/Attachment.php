@@ -541,7 +541,7 @@ class Attachment implements \ArrayAccess
 				$joins[] = 'LEFT JOIN {db_prefix}attachments AS thumb ON (a.id_thumb = thumb.id_attach)';
 			}
 
-			call_integration_hook('integrate_attachment_load', array(&$selects, &$params, &$from, &$joins, &$where, &$order, &$limit));
+			IntegrationHook::call('integrate_attachment_load', array(&$selects, &$params, &$from, &$joins, &$where, &$order, &$limit));
 
 			foreach (self::queryData($selects, $params, $from, $joins, $where, $order, $limit) as $props)
 			{
@@ -614,7 +614,7 @@ class Attachment implements \ArrayAccess
 			$joins[] = 'LEFT JOIN {db_prefix}attachments AS thumb ON (a.id_thumb = thumb.id_attach)';
 		}
 
-		call_integration_hook('integrate_attachment_loadbymsg', array(&$selects, &$params, &$from, &$joins, &$where, &$order, &$limit));
+		IntegrationHook::call('integrate_attachment_loadbymsg', array(&$selects, &$params, &$from, &$joins, &$where, &$order, &$limit));
 
 		foreach (self::queryData($selects, $params, $from, $joins, $where, $order, $limit) as $props)
 		{
@@ -679,7 +679,7 @@ class Attachment implements \ArrayAccess
 			$joins[] = 'LEFT JOIN {db_prefix}attachments AS thumb ON (a.id_thumb = thumb.id_attach)';
 		}
 
-		call_integration_hook('integrate_attachment_loadbymember', array(&$selects, &$params, &$from, &$joins, &$where, &$order, &$limit));
+		IntegrationHook::call('integrate_attachment_loadbymember', array(&$selects, &$params, &$from, &$joins, &$where, &$order, &$limit));
 
 		foreach (self::queryData($selects, $params, $from, $joins, $where, $order, $limit) as $props)
 		{
@@ -1168,7 +1168,7 @@ class Attachment implements \ArrayAccess
 		//   id_folder => Config::$modSettings['currentAttachmentUploadDir']
 		//   errors => An array of errors (use the index of the Lang::$txt variable for that error).
 		// Template changes can be done using "integrate_upload_template".
-		call_integration_hook('integrate_attachment_upload', array());
+		IntegrationHook::call('integrate_attachment_upload', array());
 	}
 
 	/**
@@ -1456,7 +1456,7 @@ class Attachment implements \ArrayAccess
 		);
 
 		// Last chance to change stuff!
-		call_integration_hook('integrate_createAttachment', array(&$attachmentOptions, &$attachmentInserts));
+		IntegrationHook::call('integrate_createAttachment', array(&$attachmentOptions, &$attachmentInserts));
 
 		// Make sure the folder is valid...
 		$tmp = is_array(Config::$modSettings['attachmentUploadDir']) ? Config::$modSettings['attachmentUploadDir'] : Utils::jsonDecode(Config::$modSettings['attachmentUploadDir'], true);
@@ -1667,7 +1667,7 @@ class Attachment implements \ArrayAccess
 			return false;
 
 		// "I see what is right and approve, but I do what is wrong."
-		call_integration_hook('integrate_assign_attachments', array(&$attachIDs, &$msgID));
+		IntegrationHook::call('integrate_assign_attachments', array(&$attachIDs, &$msgID));
 
 		// One last check
 		if (empty($attachIDs))
@@ -1769,7 +1769,7 @@ class Attachment implements \ArrayAccess
 			)
 		);
 
-		call_integration_hook('integrate_approve_attachments', array($attachments));
+		IntegrationHook::call('integrate_approve_attachments', array($attachments));
 
 		return true;
 	}
@@ -1947,7 +1947,7 @@ class Attachment implements \ArrayAccess
 			);
 		}
 
-		call_integration_hook('integrate_remove_attachments', array($attach));
+		IntegrationHook::call('integrate_remove_attachments', array($attach));
 
 		if ($return_affected_messages)
 			return array_unique($msgs);
@@ -1975,7 +1975,7 @@ class Attachment implements \ArrayAccess
 		$msgID = !empty($_REQUEST['msg']) ? (int) $_REQUEST['msg'] : 0;
 
 		// Perhaps someone else wants to do the honors? Yes, this also includes dealing with previews ;)
-		$externalParse = call_integration_hook('integrate_pre_parseAttachBBC', array($attachID, $msgID));
+		$externalParse = IntegrationHook::call('integrate_pre_parseAttachBBC', array($attachID, $msgID));
 
 		// "I am innocent of the blood of this just person: see ye to it."
 		if (!empty($externalParse) && (is_string($externalParse) || is_array($externalParse)))
@@ -2077,7 +2077,7 @@ class Attachment implements \ArrayAccess
 		}
 
 		// Last minute changes?
-		call_integration_hook('integrate_post_parseAttachBBC', array(&$attachContext));
+		IntegrationHook::call('integrate_post_parseAttachBBC', array(&$attachContext));
 
 		// Don't do any logic with the loaded data, leave it to whoever called this function.
 		return $attachContext;

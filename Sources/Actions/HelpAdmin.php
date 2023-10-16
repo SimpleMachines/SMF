@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -83,7 +84,7 @@ class HelpAdmin implements ActionInterface
 		Theme::loadTemplate('Help');
 
 		// Allow mods to load their own language file here
-		call_integration_hook('integrate_helpadmin');
+		IntegrationHook::call('integrate_helpadmin');
 
 		// What help string should be used?
 		if (isset(Lang::$helptxt[$_GET['help']]))

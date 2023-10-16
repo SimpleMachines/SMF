@@ -16,6 +16,7 @@ namespace SMF\Actions;
 use SMF\Attachment;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\User;
 use SMF\Utils;
@@ -426,7 +427,7 @@ class AttachmentUpload implements ActionInterface
 		//   id_folder => Config::$modSettings['currentAttachmentUploadDir']
 		//   errors => An array of errors (use the index of the Lang::$txt variable for that error).
 		// Template changes can be done using "integrate_upload_template".
-		call_integration_hook('integrate_attachment_upload', array());
+		IntegrationHook::call('integrate_attachment_upload', array());
 	}
 
 	/**

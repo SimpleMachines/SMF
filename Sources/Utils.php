@@ -1980,7 +1980,7 @@ class Utils
 
 		// Allow customizations to hook in here before we send anything to
 		// modify any headers needed or to change the process of how we output.
-		call_integration_hook('integrate_download_headers');
+		IntegrationHook::call('integrate_download_headers');
 
 		// Try to buy some time...
 		@set_time_limit(600);
@@ -2197,7 +2197,7 @@ class Utils
 		}
 
 		// Maybe integrations want to change where we are heading?
-		call_integration_hook('integrate_redirect', array(&$setLocation, &$refresh, &$permanent));
+		IntegrationHook::call('integrate_redirect', array(&$setLocation, &$refresh, &$permanent));
 
 		// Set the header.
 		header('location: ' . str_replace(' ', '%20', $setLocation), true, $permanent ? 301 : 302);
@@ -2320,7 +2320,7 @@ class Utils
 		$_SESSION['USER_AGENT'] = empty($_SERVER['HTTP_USER_AGENT']) ? '' : $_SERVER['HTTP_USER_AGENT'];
 
 		// Hand off the output to the portal, etc. we're integrated with.
-		call_integration_hook('integrate_exit', array($do_footer));
+		IntegrationHook::call('integrate_exit', array($do_footer));
 
 		// Don't exit if we're coming from index.php; that will pass through normally.
 		if (!$from_index)

@@ -18,6 +18,7 @@ use SMF\Actions\ActionInterface;
 
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Msg;
@@ -160,7 +161,7 @@ class Posts implements ActionInterface
 				'censorIgnoreCase' => empty($_POST['censorIgnoreCase']) ? '0' : '1',
 			);
 
-			call_integration_hook('integrate_save_censors', array(&$updates));
+			IntegrationHook::call('integrate_save_censors', array(&$updates));
 
 			Utils::$context['saved_successful'] = true;
 			Config::updateModSettings($updates);
@@ -190,7 +191,7 @@ class Posts implements ActionInterface
 			Utils::$context['censored_words'][Utils::htmlspecialchars(trim($censor_vulgar[$i]))] = isset($censor_proper[$i]) ? Utils::htmlspecialchars($censor_proper[$i]) : '';
 		}
 
-		call_integration_hook('integrate_censors');
+		IntegrationHook::call('integrate_censors');
 
 		// Since the "Allow users to disable the word censor" stuff was moved from a theme setting to a global one, we need this...
 		Lang::load('Themes');
@@ -240,7 +241,7 @@ class Posts implements ActionInterface
 			if (!empty($_POST['preview_characters']))
 				$_POST['preview_characters'] = (int) min(max(0, $_POST['preview_characters']), 512);
 
-			call_integration_hook('integrate_save_post_settings');
+			IntegrationHook::call('integrate_save_post_settings');
 
 			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
@@ -272,7 +273,7 @@ class Posts implements ActionInterface
 		if (isset($_GET['save']))
 		{
 			User::$me->checkSession();
-			call_integration_hook('integrate_save_topic_settings');
+			IntegrationHook::call('integrate_save_topic_settings');
 
 			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
@@ -410,7 +411,7 @@ class Posts implements ActionInterface
 			array('int', 'quote_expand', 'subtext' => Lang::$txt['zero_to_disable'], 'postinput' => Lang::$txt['quote_expand_pixels_units']),
 		);
 
-		call_integration_hook('integrate_modify_post_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_modify_post_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -455,7 +456,7 @@ class Posts implements ActionInterface
 			array('check', 'message_index_preview_first', 'subtext' => Lang::$txt['message_index_preview_first_desc']),
 		);
 
-		call_integration_hook('integrate_modify_topic_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_modify_topic_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -479,7 +480,7 @@ class Posts implements ActionInterface
 			array('int', 'drafts_autosave_frequency', 'postinput' => Lang::$txt['manageposts_seconds'], 'subtext' => Lang::$txt['drafts_autosave_frequency_subnote']),
 		);
 
-		call_integration_hook('integrate_modify_draft_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_modify_draft_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -568,7 +569,7 @@ class Posts implements ActionInterface
 			),
 		);
 
-		call_integration_hook('integrate_manage_posts', array(&self::$subactions));
+		IntegrationHook::call('integrate_manage_posts', array(&self::$subactions));
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
 			$this->subaction = $_REQUEST['sa'];

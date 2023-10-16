@@ -20,6 +20,7 @@ use SMF\Alert;
 use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\IP;
 use SMF\ItemList;
 use SMF\Lang;
@@ -746,7 +747,7 @@ class ReportedContent implements ActionInterface
 			User::$me->isAllowedTo('moderate_forum');
 
 		// Go ahead and add your own sub-actions.
-		call_integration_hook('integrate_reported_' . $this->type, array(&self::$subactions));
+		IntegrationHook::call('integrate_reported_' . $this->type, array(&self::$subactions));
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
 			$this->subaction = $_REQUEST['sa'];

@@ -346,7 +346,7 @@ class Editor implements \ArrayAccess
 			}
 		}
 
-		call_integration_hook('integrate_load_message_icons', array(&$icons));
+		IntegrationHook::call('integrate_load_message_icons', array(&$icons));
 
 		return array_values($icons);
 	}
@@ -643,7 +643,7 @@ class Editor implements \ArrayAccess
 		);
 
 		// Allow mods to modify BBC buttons.
-		call_integration_hook('integrate_bbc_buttons', array(&self::$bbc_tags, &$editor_tag_map, &self::$disabled_tags));
+		IntegrationHook::call('integrate_bbc_buttons', array(&self::$bbc_tags, &$editor_tag_map, &self::$disabled_tags));
 
 		// Generate a list of buttons that shouldn't be shown - this should be the fastest way to do this.
 		$disabled_bbc = !empty(Config::$modSettings['disabledBBC']) ? explode(',', Config::$modSettings['disabledBBC']) : array();
@@ -887,7 +887,7 @@ class Editor implements \ArrayAccess
 
 		// Allow mods to change $this->sce_options.
 		// Usful if, e.g., a mod wants to add an SCEditor plugin.
-		call_integration_hook('integrate_sceditor_options', array(&$this->sce_options));
+		IntegrationHook::call('integrate_sceditor_options', array(&$this->sce_options));
 	}
 }
 

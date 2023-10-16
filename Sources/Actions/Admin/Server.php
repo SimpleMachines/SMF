@@ -20,6 +20,7 @@ use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Cookie;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\MessageIndex;
@@ -252,7 +253,7 @@ class Server implements ActionInterface
 		// Saving settings?
 		if (isset($_REQUEST['save']))
 		{
-			call_integration_hook('integrate_save_general_settings');
+			IntegrationHook::call('integrate_save_general_settings');
 
 			foreach ($config_vars as $config_var)
 			{
@@ -333,7 +334,7 @@ class Server implements ActionInterface
 		// Saving settings?
 		if (isset($_REQUEST['save']))
 		{
-			call_integration_hook('integrate_save_database_settings');
+			IntegrationHook::call('integrate_save_database_settings');
 
 			ACP::saveSettings($config_vars);
 			$_SESSION['adm-save'] = true;
@@ -376,7 +377,7 @@ class Server implements ActionInterface
 		// Saving settings?
 		if (isset($_REQUEST['save']))
 		{
-			call_integration_hook('integrate_save_cookie_settings');
+			IntegrationHook::call('integrate_save_cookie_settings');
 
 			$_POST['cookiename'] = Utils::normalize($_POST['cookiename']);
 
@@ -484,7 +485,7 @@ class Server implements ActionInterface
 			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
 
-			call_integration_hook('integrate_save_general_security_settings');
+			IntegrationHook::call('integrate_save_general_security_settings');
 
 			User::$me->logOnline();
 			Utils::redirectexit('action=admin;area=serversettings;sa=security;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
@@ -506,7 +507,7 @@ class Server implements ActionInterface
 		// Saving again?
 		if (isset($_GET['save']))
 		{
-			call_integration_hook('integrate_save_cache_settings');
+			IntegrationHook::call('integrate_save_cache_settings');
 
 			if (is_callable(array(CacheApi::$loadedApi, 'cleanCache')) && ((int) $_POST['cache_enable'] < CacheApi::$enable || $_POST['cache_accelerator'] != CacheApi::$accelerator))
 			{
@@ -582,7 +583,7 @@ class Server implements ActionInterface
 				}
 			}
 
-			call_integration_hook('integrate_save_export_settings');
+			IntegrationHook::call('integrate_save_export_settings');
 
 			$_SESSION['adm-save'] = true;
 			Utils::redirectexit('action=admin;area=serversettings;sa=export;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
@@ -655,7 +656,7 @@ class Server implements ActionInterface
 				$_POST[$key] = max((float) $value, $min_value);
 			}
 
-			call_integration_hook('integrate_save_loadavg_settings');
+			IntegrationHook::call('integrate_save_loadavg_settings');
 
 			ACP::saveDBSettings($config_vars);
 
@@ -779,7 +780,7 @@ class Server implements ActionInterface
 			array('enable_sm_stats', Lang::$txt['enable_sm_stats'], 'db', 'check', null, 'enable_sm_stats'),
 		);
 
-		call_integration_hook('integrate_general_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_general_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -830,7 +831,7 @@ class Server implements ActionInterface
 			);
 		}
 
-		call_integration_hook('integrate_database_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_database_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -882,7 +883,7 @@ class Server implements ActionInterface
 			)), 'subtext' => Lang::$txt['tfa_mode_subtext'] . (empty(User::$me->tfa_secret) ? '<br><strong>' . Lang::$txt['tfa_mode_forced_help'] . '</strong>' : ''), 'tfa_mode'),
 		);
 
-		call_integration_hook('integrate_cookie_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_cookie_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -957,7 +958,7 @@ class Server implements ActionInterface
 			array('text', 'proxy_ip_servers'),
 		);
 
-		call_integration_hook('integrate_general_security_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_general_security_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -1009,7 +1010,7 @@ class Server implements ActionInterface
 				$("#cache_accelerator").change();
 			});';
 
-		call_integration_hook('integrate_modify_cache_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_modify_cache_settings', array(&$config_vars));
 
 		// Maybe we have some additional settings from the selected accelerator.
 		if (!empty($detectedCacheApis))
@@ -1056,7 +1057,7 @@ class Server implements ActionInterface
 			array('int', 'export_rate', 'min' => 5, 'max' => 500, 'step' => 5, 'subtext' => Lang::$txt['export_rate_desc']),
 		);
 
-		call_integration_hook('integrate_export_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_export_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -1082,7 +1083,7 @@ class Server implements ActionInterface
 			$config_vars[] = array('float', $name, 'value' => $value, 'disabled' => self::getLoadAverageDisabled());
 		}
 
-		call_integration_hook('integrate_loadavg_settings', array(&$config_vars));
+		IntegrationHook::call('integrate_loadavg_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -1430,7 +1431,7 @@ class Server implements ActionInterface
 			'description' => Lang::$txt['admin_basic_settings'],
 		);
 
-		call_integration_hook('integrate_server_settings', array(&self::$subactions));
+		IntegrationHook::call('integrate_server_settings', array(&self::$subactions));
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]))
 			$this->subaction = $_REQUEST['sa'];

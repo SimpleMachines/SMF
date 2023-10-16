@@ -23,6 +23,7 @@ use SMF\Config;
 use SMF\Draft;
 use SMF\ErrorHandler;
 use SMF\Event;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\MessageIndex;
@@ -139,7 +140,7 @@ class Post2 extends Post
 			$this->loadTopic();
 
 		// Allow mods to add new sub-actions.
-		call_integration_hook('integrate_post2_subactions', array(&self::$subactions));
+		IntegrationHook::call('integrate_post2_subactions', array(&self::$subactions));
 
 		call_helper(method_exists($this, self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : self::$subactions[$this->subaction]);
 	}
@@ -189,7 +190,7 @@ class Post2 extends Post
 
 		Lang::load('Post');
 
-		call_integration_hook('integrate_post2_start', array(&$this->errors));
+		IntegrationHook::call('integrate_post2_start', array(&$this->errors));
 
 		$this->submitAttachments();
 
@@ -339,7 +340,7 @@ class Post2 extends Post
 			$_POST['email'] = User::$me->email;
 		}
 
-	 	call_integration_hook('integrate_post2_pre', array(&$this->errors));
+	 	IntegrationHook::call('integrate_post2_pre', array(&$this->errors));
 
 		// Any mistakes?
 		if (!empty($this->errors))
@@ -686,7 +687,7 @@ class Post2 extends Post
 		if (Board::$info->num_topics == 0)
 			CacheApi::put('board-' . Board::$info->id, null, 120);
 
-		call_integration_hook('integrate_post2_end');
+		IntegrationHook::call('integrate_post2_end');
 
 		if (!empty($_POST['announce_topic']) && User::$me->allowedTo('announce_topic'))
 		{

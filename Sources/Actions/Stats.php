@@ -17,6 +17,7 @@ use SMF\BackwardCompatibility;
 
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\Time;
@@ -777,7 +778,7 @@ class Stats implements ActionInterface
 		}
 
 		// Custom stats (just add a template_layer to add it to the template!)
-		call_integration_hook('integrate_forum_stats');
+		IntegrationHook::call('integrate_forum_stats');
 
 		if (empty($_SESSION['expanded_stats']))
 			return;

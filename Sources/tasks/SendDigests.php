@@ -14,6 +14,7 @@
 namespace SMF\Tasks;
 
 use SMF\Config;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\Theme;
@@ -211,7 +212,7 @@ class SendDigests extends ScheduledTask
 				'bye' => sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name']),
 			);
 
-			call_integration_hook('integrate_daily_digest_lang', array(&$langtxt, $lang));
+			IntegrationHook::call('integrate_daily_digest_lang', array(&$langtxt, $lang));
 		}
 
 		// The preferred way...
@@ -323,7 +324,7 @@ class SendDigests extends ScheduledTask
 				}
 			}
 
-			call_integration_hook('integrate_daily_digest_email', array(&$email, $types, $notify_types, $langtxt));
+			IntegrationHook::call('integrate_daily_digest_email', array(&$email, $types, $notify_types, $langtxt));
 
 			if ($titled)
 				$email['body'] .= "\n";

@@ -194,7 +194,7 @@ class Verifier implements \ArrayAccess
 	public function __construct(array $options, bool $do_test = false)
 	{
 		// Add a verification hook, pre-setup.
-		call_integration_hook('integrate_create_control_verification_pre', array(&$options, $do_test));
+		IntegrationHook::call('integrate_create_control_verification_pre', array(&$options, $do_test));
 
 		// Always need an ID. If someone forgot to provide it, fall back to the
 		// current action (but trim off any trailing '2' in the action name).
@@ -280,7 +280,7 @@ class Verifier implements \ArrayAccess
 			$_SESSION[$this->id . '_vv']['count']++;
 
 			// Let our hooks know that we are done with the verification process.
-			call_integration_hook('integrate_create_control_verification_post', array(&$this->errors, $do_test));
+			IntegrationHook::call('integrate_create_control_verification_post', array(&$this->errors, $do_test));
 
 			// Return errors if we have them.
 			if (!empty($this->errors))
@@ -497,7 +497,7 @@ class Verifier implements \ArrayAccess
 		}
 
 		// Do ay hooks have something to say about this verification?
-		call_integration_hook('integrate_create_control_verification_test', array($this, &$this->errors));
+		IntegrationHook::call('integrate_create_control_verification_test', array($this, &$this->errors));
 	}
 
 	/**
@@ -617,7 +617,7 @@ class Verifier implements \ArrayAccess
 		}
 
 		// Hooks may need to know about this.
-		call_integration_hook('integrate_create_control_verification_refresh', array($this));
+		IntegrationHook::call('integrate_create_control_verification_refresh', array($this));
 	}
 
 	/**

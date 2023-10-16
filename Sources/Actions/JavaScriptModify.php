@@ -19,6 +19,7 @@ use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Msg;
@@ -176,7 +177,7 @@ class JavaScriptModify implements ActionInterface
 			}
 		}
 
-	 	call_integration_hook('integrate_post_JavascriptModify', array(&$post_errors, $row));
+	 	IntegrationHook::call('integrate_post_JavascriptModify', array(&$post_errors, $row));
 
 		if (isset($_POST['lock']))
 		{
@@ -368,7 +369,7 @@ class JavaScriptModify implements ActionInterface
 			}
 
 			// Allow mods to do something with Utils::$context before we return.
-			call_integration_hook('integrate_jsmodify_xml');
+			IntegrationHook::call('integrate_jsmodify_xml');
 		}
 		else
 		{
