@@ -105,7 +105,7 @@ class IntegrationHook
 			if (strpos($func_string, '!') !== false)
 				continue;
 
-			$this->callables[$func_string] = call_helper($func_string, true);
+			$this->callables[$func_string] = Utils::getCallable($func_string);
 		}
 	}
 

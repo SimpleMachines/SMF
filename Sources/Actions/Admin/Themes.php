@@ -122,7 +122,17 @@ class Themes implements ActionInterface
 		// Whatever they decide to do, clean the minify cache.
 		Theme::deleteAllMinified();
 
-		call_helper(isset(self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : $this->subaction);
+		if (isset(self::$subactions[$this->subaction]))
+		{
+			$call = method_exists($this, self::$subactions[$this->subaction]) ? array($this, self::$subactions[$this->subaction]) : Utils::getCallable(self::$subactions[$this->subaction]);
+		}
+		else
+		{
+			$call = Utils::getCallable($this->subaction);
+		}
+
+		if (!empty($call))
+			call_user_func($call);
 	}
 
 	/**

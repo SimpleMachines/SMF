@@ -628,7 +628,7 @@ class Like implements ActionInterface
 		// Any callbacks?
 		elseif (!empty($this->valid_likes['callback']))
 		{
-			$call = call_helper($this->valid_likes['callback'], true);
+			$call = Utils::getCallable($this->valid_likes['callback']);
 
 			if (!empty($call))
 				call_user_func_array($call, array($this));

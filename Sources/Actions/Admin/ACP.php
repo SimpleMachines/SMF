@@ -794,7 +794,7 @@ class ACP implements ActionInterface
 			require_once(Config::$sourcedir . '/' . $menu->include_data['file']);
 
 		// Get the right callable.
-		$call = call_helper($menu->include_data['function'], true);
+		$call = Utils::getCallable($menu->include_data['function']);
 
 		// Is it valid?
 		if (!empty($call))

@@ -13,6 +13,8 @@
 
 namespace SMF\Tasks;
 
+use SMF\Utils;
+
 /**
  * A class for running scheduled tasks with custom callable functions.
  */
@@ -25,7 +27,7 @@ class GenericScheduledTask extends ScheduledTask
 	 */
 	public function execute()
 	{
-		$callable_task = call_helper($this->_details['callable'], true);
+		$callable_task = Utils::getCallable($this->_details['callable']);
 
 		// Perform the task.
 		$this->should_log = !empty($callable_task) ? call_user_func($callable_task) : false;
