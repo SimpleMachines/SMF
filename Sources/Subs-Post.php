@@ -624,6 +624,10 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 
 	// Get rid of entities.
 	$subject = un_htmlspecialchars($subject);
+
+	// Add in a unsubscribe link.
+	$message .= "\n\n" . $txt['unsubscribe'] . ': ' . $scripturl . '?action=unsubscribe';
+
 	// Make the message use the proper line breaks.
 	$message = str_replace(array("\r", "\n"), array('', $line_break), $message);
 
@@ -647,6 +651,7 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 	if ($message_id !== null && empty($modSettings['mail_no_message_id']))
 		$headers .= 'Message-ID: <' . md5($scripturl . microtime()) . '-' . $message_id . strstr(empty($modSettings['mail_from']) ? $webmaster_email : $modSettings['mail_from'], '@') . '>' . $line_break;
 	$headers .= 'X-Mailer: SMF' . $line_break;
+    $headers .= 'List-Unsubscribe: <' . $scripturl . '?action=unsubscribe>' . $line_break;
 
 	// Pass this to the integration before we start modifying the output -- it'll make it easier later.
 	if (in_array(false, call_integration_hook('integrate_outgoing_email', array(&$subject, &$message, &$headers, &$to_array)), true))
