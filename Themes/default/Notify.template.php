@@ -98,7 +98,7 @@ function template_notify_pref_changed()
 /**
  *
  */
-function template_unsubscribe()
+function template_unsubscribe_request()
 {
 	global $context, $txt, $scripturl;
 
@@ -149,7 +149,7 @@ function template_unsubscribe_success()
 /**
  *
  */
-function template_unsubscribe_type()
+function template_unsubscribe_confirm()
 {
 	global $txt, $scripturl, $context;
 
@@ -163,7 +163,6 @@ function template_unsubscribe_type()
 		<form method="post" accept-charset="', $context['character_set'], '" action="', $scripturl, '?action=unsubscribe">
 			<div class="roundframe centertext">
 				<p class="centertext">
-					<button name="delete" class="button">', $txt['unsubscribe_delete_account'], '</button>
 					<button name="notify" class="button">', $txt['unsubscribe_remove_notifications'], '</button>
 				</p>
 			</div>

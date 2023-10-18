@@ -960,7 +960,7 @@ $txt['unsubscribe_email_subject'] = 'Unsubscribe Requested';
 $txt['unsubscribe_email_body'] = 'A request to unsubscribe was received.  To approve this request, follow this link: %1$s.';
 $txt['unsubscribe_success_request'] = 'An email has been sent with a approval link to the member if one exists.';
 $txt['unsubscribe_success_done'] = 'Your rqeuest has been received and is being processed.';
-$txt['unsubscribe_delete_account'] = 'Delete Account';
 $txt['unsubscribe_remove_notifications'] = 'Remove all email notifications';
+$txt['unsubscribe_email_message'] = 'To unsubscribe, visit %1$s';
 
 ?>

@@ -626,7 +626,7 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 	$subject = un_htmlspecialchars($subject);
 
 	// Add in a unsubscribe link.
-	$message .= "\n\n" . $txt['unsubscribe'] . ': ' . $scripturl . '?action=unsubscribe';
+	$message .= "\n\n" . sprintf($txt['unsubscribe_email_message'], $scripturl . '?action=unsubscribe');
 
 	// Make the message use the proper line breaks.
 	$message = str_replace(array("\r", "\n"), array('', $line_break), $message);
