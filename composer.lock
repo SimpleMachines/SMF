@@ -173,12 +173,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/SimpleMachines/BuildTools.git",
-                "reference": "85df0e7936420cad226b84fde89297f3d944fa72"
+                "reference": "405df8656accc8c00a6574fc9ed55d9e3463cb0e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/SimpleMachines/BuildTools/zipball/85df0e7936420cad226b84fde89297f3d944fa72",
-                "reference": "85df0e7936420cad226b84fde89297f3d944fa72",
+                "url": "https://api.github.com/repos/SimpleMachines/BuildTools/zipball/405df8656accc8c00a6574fc9ed55d9e3463cb0e",
+                "reference": "405df8656accc8c00a6574fc9ed55d9e3463cb0e",
                 "shasum": ""
             },
             "require": {
@@ -190,7 +190,7 @@
                 "source": "https://github.com/SimpleMachines/BuildTools/tree/master",
                 "issues": "https://github.com/SimpleMachines/BuildTools/issues"
             },
-            "time": "2022-11-14T03:06:14+00:00"
+            "time": "2023-11-04T21:07:58+00:00"
         },
         {
             "name": "symfony/console",
