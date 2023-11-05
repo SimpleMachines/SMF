@@ -590,12 +590,12 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		{
 			return $this->replace_result;
 		}
-		elseif ($result === null && !$this->last_result)
+		elseif ($connection === null && !$this->last_result)
 		{
 			return 0;
 		}
 
-		return pg_affected_rows($result === null ? $this->last_result : $result);
+		return pg_affected_rows($connection === null ? $this->last_result : $result);
 	}
 
 	/**
