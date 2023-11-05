@@ -326,7 +326,7 @@ abstract class DatabaseApi
 		}
 
 		// Figure out what type of database we are using.
-		$class = self::type(!empty(Config::$db_type) ? strtolower(Config::$db_type) : 'mysql');
+		$class = self::getClass(!empty(Config::$db_type) ? strtolower(Config::$db_type) : 'mysql');
 
 		if (!class_exists(__NAMESPACE__ . '\\APIs\\' . $class)) {
 			ErrorHandler::displayDbError();
@@ -344,7 +344,7 @@ abstract class DatabaseApi
 		return self::$db;
 	}
 
-	public static function type($db_type)
+	public static function getClass($db_type)
 	{
 		switch (strtolower($db_type)) {
 			// PostgreSQL is known by many names.
