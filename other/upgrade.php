@@ -815,8 +815,8 @@ function initialize_inputs()
 		// And the extra little files ;).
 		deleteFile(dirname(__FILE__) . '/upgrade_1-0.sql');
 		deleteFile(dirname(__FILE__) . '/upgrade_1-1.sql');
-		deleteFile(dirname(__FILE__) . '/upgrade_2-0_' . Config::$db_type . '.sql');
-		deleteFile(dirname(__FILE__) . '/upgrade_2-1_' . Config::$db_type . '.sql');
+		deleteFile(dirname(__FILE__) . '/upgrade_2-0_' . Db::type(Config::$db_type) . '.sql');
+		deleteFile(dirname(__FILE__) . '/upgrade_2-1_' . Db::type(Config::$db_type) . '.sql');
 		deleteFile(dirname(__FILE__) . '/upgrade-helper.php');
 
 		$dh = opendir(dirname(__FILE__));
@@ -873,12 +873,12 @@ function WelcomeLogin()
 	// Check for some key files - one template, one language, and a new and an old source file.
 	$check = @file_exists(Config::$modSettings['theme_dir'] . '/index.template.php')
 		&& @file_exists(Config::$sourcedir . '/QueryString.php')
-		&& @file_exists(Config::$sourcedir . '/Db/APIs/' . Config::$db_type . '.php')
-		&& @file_exists(dirname(__FILE__) . '/upgrade_2-1_' . Config::$db_type . '.sql');
+		&& @file_exists(Config::$sourcedir . '/Db/APIs/' . Db::type(Config::$db_type) . '.php')
+		&& @file_exists(dirname(__FILE__) . '/upgrade_2-1_' . Db::type(Config::$db_type) . '.sql');
 
 	// Need legacy scripts?
 	if (!isset(Config::$modSettings['smfVersion']) || Config::$modSettings['smfVersion'] < 2.1)
-		$check &= @file_exists(dirname(__FILE__) . '/upgrade_2-0_' . Config::$db_type . '.sql');
+		$check &= @file_exists(dirname(__FILE__) . '/upgrade_2-0_' . Db::type(Config::$db_type) . '.sql');
 	if (!isset(Config::$modSettings['smfVersion']) || Config::$modSettings['smfVersion'] < 2.0)
 		$check &= @file_exists(dirname(__FILE__) . '/upgrade_1-1.sql');
 	if (!isset(Config::$modSettings['smfVersion']) || Config::$modSettings['smfVersion'] < 1.1)
@@ -1677,8 +1677,8 @@ function DatabaseChanges()
 	$files = array(
 		array('upgrade_1-0.sql', '1.1', '1.1 RC0', false),
 		array('upgrade_1-1.sql', '2.0', '2.0 a', false),
-		array('upgrade_2-0_' . Config::$db_type . '.sql', '2.1', '2.1 dev0', false),
-		array('upgrade_2-1_' . Config::$db_type . '.sql', '3.0', SMF_VERSION, true),
+		array('upgrade_2-0_' . Db::type(Config::$db_type) . '.sql', '2.1', '2.1 dev0', false),
+		array('upgrade_2-1_' . Db::type(Config::$db_type) . '.sql', '3.0', SMF_VERSION, true),
 	);
 
 	// How many files are there in total?
