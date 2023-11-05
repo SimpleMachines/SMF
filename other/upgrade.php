@@ -785,7 +785,7 @@ function loadEssentialData()
 		return die(sprintf(Lang::$txt['error_sourcefile_missing'], 'Db/APIs/' . Db::type(Config::$db_type) . '.php'));
 
 	// If they don't have the file, they're going to get a warning anyway so we won't need to clean request vars.
-	if (class_exists('SMF\\QueryString', false) && php_version_check())
+	if (class_exists('SMF\\QueryString') && php_version_check())
 	{
 		QueryString::cleanRequest();
 	}
