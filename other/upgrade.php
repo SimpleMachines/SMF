@@ -3931,7 +3931,8 @@ function Cleanup()
 		return true;
 
 	$cleanupSteps = array(
-		0 => 'CleanupLanguages'
+		0 => 'CleanupLanguages',
+		0 => 'CleanupAgreements'
 	);
 
 	$upcontext['steps_count'] = count($cleanupSteps);
@@ -4025,6 +4026,28 @@ function CleanupLanguages()
 	$dir->close();
 }
 
+function CleanupAgreements()
+{
+	global $upcontext, $upgrade_path, $command_line;
+
+	// Can't do this if the old Themes/default/languages directory is not writable.
+	if(!quickFileWritable(Config::$boarddir))
+		return;
+
+	$dir = dir(Config::$boarddir);
+	while ($entry = $dir->read())
+	{
+		if (in_array($entry, ['.', '..', 'index.php']))
+			continue;
+
+		// Skip anything not agreements.
+		if (substr($entry, 0, 11) == 'agreements.' || substr($entry, -4) !== '.txt')
+			continue;
+
+		rename($Config::$boarddir . '/' . $entry, $Config::$languagesdir . '/' . $entry);
+	}
+	$dir->close();
+}
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 						Templates are below this point
