@@ -116,14 +116,16 @@ $upcontext['inactive_timeout'] = 10;
 
 // All the steps in detail.
 // Number,Name,Function,Progress Weight.
+<<<<<<< HEAD
 $upcontext['steps'] = [
-	0 => [1, 'upgrade_step_login', 'WelcomeLogin', 2],
-	1 => [2, 'upgrade_step_options', 'UpgradeOptions', 2],
+	0 => [1, 'upgrade_step_login', 'WelcomeLogin', 1],
+	1 => [2, 'upgrade_step_options', 'UpgradeOptions', 1],
 	2 => [3, 'upgrade_step_backup', 'BackupDatabase', 10],
 	3 => [4, 'upgrade_step_database', 'DatabaseChanges', 50],
 	4 => [5, 'upgrade_step_convertjson', 'serialize_to_json', 10],
 	5 => [6, 'upgrade_step_convertutf', 'ConvertUtf8', 20],
-	6 => [7, 'upgrade_step_delete', 'DeleteUpgrade', 1],
+	6 => [7, 'upgrade_step_cleanup', 'Cleanup', 2],
+	7 => [8, 'upgrade_step_delete', 'DeleteUpgrade', 1],
 ];
 // Just to remember which one has files in it.
 $upcontext['database_step'] = 3;
@@ -1873,7 +1875,7 @@ function DatabaseChanges()
 		return true;
 	}
 
-	return false;
+	return $did_not_do === 0;
 }
 
 // Different versions of the files use different sql_modes
@@ -3049,10 +3051,10 @@ function ConvertUtf8()
 	// Done it already?
 	if (!empty($_POST['utf8_done'])) {
 		if ($command_line) {
-			return DeleteUpgrade();
-		}
-
+			return Cleanup();
+		} else {
 			return true;
+		}
 	}
 
 	// First make sure they aren't already on UTF-8 before we go anywhere...
@@ -3066,12 +3068,11 @@ function ConvertUtf8()
 		);
 
 		if ($command_line) {
-			return DeleteUpgrade();
-		}
-
+			return Cleanup();
+		} else {
 			return true;
+		}
 	}
-
 
 		$upcontext['page_title'] = Lang::$txt['converting_utf8'];
 		$upcontext['sub_template'] = isset($_GET['xml']) ? 'convert_xml' : 'convert_utf8';
@@ -3917,6 +3918,113 @@ function serialize_to_json()
 
 	return false;
 }
+
+function Cleanup()
+{
+	global $command_line, $upcontext, $support_js, $txt;
+
+	$upcontext['sub_template'] = isset($_GET['xml']) ? 'cleanup_xml' : 'cleanup';
+	$upcontext['page_title'] = Lang::$txt['upgrade_cleanup'];
+
+	// Done it already - js wise?
+	if (!empty($_POST['cleanup_done']))
+		return true;
+
+	$cleanupSteps = array(
+		0 => 'CleanupLanguages'
+	);
+
+	$upcontext['steps_count'] = count($cleanupSteps);
+	$upcontext['cur_substep_num'] = ((int) $_GET['substep']) ?? 0;
+	$upcontext['cur_substep'] = isset($cleanupSteps[$upcontext['cur_substep_num']]) ? $cleanupSteps[$upcontext['cur_substep_num']] : $cleanupSteps[0];
+	$upcontext['cur_substep_name'] = isset($txt['cleanup_' . $upcontext['cur_substep']]) ? $txt['cleanup_' . $upcontext['cur_substep']] : $txt['upgrade_cleanup'];
+	$upcontext['step_progress'] = (int) (($upcontext['cur_substep_num'] / $upcontext['steps_count']) * 100);
+
+	foreach ($cleanupSteps as $id => $substep)
+		if ($id < $_GET['substep'])
+			$upcontext['previous_substeps'][] = $substep;
+
+	if ($command_line)
+		echo 'Cleaning up.';
+
+	if (!$support_js || isset($_GET['xml']))
+	{
+		// Dubstep.
+		for ($substep = $upcontext['cur_substep_num']; $substep < $upcontext['steps_count']; $substep++)
+		{
+			$upcontext['step_progress'] = (int) (($substep / $upcontext['steps_count']) * 100);
+			$upcontext['cur_substep_name'] = isset($txt['cleanup_' . $cleanupSteps[$substep]]) ? $txt['cleanup_' . $cleanupSteps[$substep]] : $txt['upgrade_cleanup'];
+			$upcontext['cur_substep_num'] = $substep + 1;
+
+			if ($command_line)
+				echo "\n" . ' +++ Clean up \"' . $upcontext['cur_substep_name'] . '"...';
+
+			// Timeouts
+			nextSubstep($substep);
+
+			if ($command_line)
+				echo ' done.';
+
+			// Just to make sure it doesn't time out.
+			if (function_exists('apache_reset_timeout'))
+				@apache_reset_timeout();
+
+			// Do the cleanup stuff.
+			$cleanupSteps[$substep]();
+
+			// If this is XML to keep it nice for the user do one cleanup at a time anyway!
+			if (isset($_GET['xml']))
+				return upgradeExit();
+		}
+
+		if ($command_line)
+		{
+			echo "\n" . 'Successful.' . "\n";
+			flush();
+		}
+
+		$upcontext['step_progress'] = 100;
+		$_GET['substep'] = 0;
+		return true;
+	}
+
+	// If this fails we just move on to deleting the upgrade anyway...
+	$_GET['substep'] = 0;
+	return false;
+}
+
+function CleanupLanguages()
+{
+	global $upcontext, $upgrade_path, $command_line;
+
+	$old_languages_dir = isset(Config::$modSettings['theme_dir']) ? Config::$modSettings['theme_dir'] . '/languages' : $upgrade_path . '/Themes/default/languages';;
+
+	// Can't do this if the old Themes/default/languages directory is not writable.
+	if(!quickFileWritable($old_languages_dir))
+		return;
+
+	$dir = dir($old_languages_dir);
+	while ($entry = $dir->read())
+	{
+		if (in_array($entry, ['.', '..', 'index.php']))
+			continue;
+
+		// Skip ThemeStrings
+		if (substr($entry, 0, 13) == 'ThemeStrings.')
+			continue;
+
+		// Rename Settings to ThemeStrings.
+		if (substr($entry, 0, 9) == 'Settings.' && substr($entry, -4) == '.php' && strpos($entry, '-utf8') === false)
+		{
+			quickFileWritable($old_languages_dir . '/' . $entry);
+			rename($old_languages_dir . '/' . $entry, $old_languages_dir . '/' . str_replace('Settings.', 'ThemeStrings.', $entry));
+		}
+		else
+			deleteFile($old_languages_dir . '/' . $entry);
+	}
+	$dir->close();
+}
+
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 						Templates are below this point
@@ -5207,6 +5315,96 @@ function template_serialize_json_xml()
 	echo '
 	<table num="', $upcontext['cur_table_num'], '">', $upcontext['cur_table_name'], '</table>';
 }
+
+function template_cleanup()
+{
+	global $upcontext, $support_js, $is_debug;
+
+	echo '
+				<h3>', Lang::$txt['upgrade_cleanup'], '</h3>
+				<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
+					<input type="hidden" name="cleanup_done" id="cleanup_done" value="0">
+					<strong>', Lang::$txt['upgrade_completed'], ' <span id="tab_done">', $upcontext['cur_substep_num'], '</span> ', Lang::$txt['upgrade_outof'], ' ', $upcontext['steps_count'], ' ', Lang::$txt['upgrade_steps'], '</strong>
+					<div id="debug_section">
+						<span id="debuginfo"></span>
+					</div>';
+
+	// Dont any tables so far?
+	if (!empty($upcontext['previous_substeps']))
+		foreach ($upcontext['previous_substeps'] as $substep)
+			echo '
+					<br>', Lang::$txt['completed_cleanup_step'], ' &quot;', $substep, '&quot;.';
+
+	echo '
+					<h3 id="current_tab">
+						', Lang::$txt['upgrade_current_step'], ' &quot;<span id="current_step_name">', $upcontext['cur_substep_name'], '</span>&quot;
+					</h3>
+					<p id="commess" class="', $upcontext['cur_substep_num'] == $upcontext['steps_count'] ? 'inline_block' : 'hidden', '">', Lang::$txt['upgrade_cleanup_completed'], '</p>';
+
+	// Continue please!
+	$upcontext['continue'] = $support_js ? 2 : 1;
+
+	// If javascript allows we want to do this using XML.
+	if ($support_js)
+	{
+		echo '
+					<script>
+						let lastSubStep = ', $upcontext['cur_substep_num'], ';
+						function getNextCleanup()
+						{
+							getXMLDocument(\'', $upcontext['form_url'], '&xml&substep=\' + lastSubStep, onCleanupUpdate);
+						}
+
+						// Got an update!
+						function onCleanupUpdate(oXMLDoc)
+						{
+							let sCurrentStepName = "";
+							let iStepNum = 0;
+							let sCompletedStepName = getInnerHTML(document.getElementById(\'current_step_name\'));
+							for (var i = 0; i < oXMLDoc.getElementsByTagName("step")[0].childNodes.length; i++)
+								sCurrentStepName += oXMLDoc.getElementsByTagName("step")[0].childNodes[i].nodeValue;
+							iStepNum = oXMLDoc.getElementsByTagName("step")[0].getAttribute("num");
+
+							// Update the page.
+							setInnerHTML(document.getElementById(\'tab_done\'), iStepNum);
+							setInnerHTML(document.getElementById(\'current_step_name\'), sCurrentStepName);
+							lastSubStep = iStepNum;
+							updateStepProgress(iStepNum, ', $upcontext['steps_count'], ', ', $upcontext['step_weight'] * ((100 - $upcontext['step_progress']) / 100), ');';
+
+		// If debug flood the screen.
+		if ($is_debug)
+			echo '
+							setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>', Lang::$txt['completed_cleanup_step'], ' &quot;\' + sCompletedStepName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');
+
+							if (document.getElementById(\'debug_section\').scrollHeight)
+								document.getElementById(\'debug_section\').scrollTop = document.getElementById(\'debug_section\').scrollHeight';
+
+		echo '
+							// Get the next update...
+							if (iStepNum == ', $upcontext['steps_count'], ')
+							{
+								document.getElementById(\'commess\').classList.remove("hidden");
+								document.getElementById(\'current_tab\').classList.add("hidden");
+								document.getElementById(\'contbutt\').disabled = 0;
+								document.getElementById(\'cleanup_done\').value = 1;
+							}
+							else
+								getNextCleanup();
+						}
+						getNextCleanup();
+					//# sourceURL=dynamicScript-json.js
+					</script>';
+	}
+}
+
+function template_cleanup_xml()
+{
+	global $upcontext;
+
+	echo '
+	<step num="', $upcontext['cur_substep_num'], '">', $upcontext['cur_substep_name'], '</step>';
+}
+
 
 function template_upgrade_complete()
 {
