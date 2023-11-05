@@ -23,46 +23,41 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.4
+ * @version 3.0 Alpha 1
  */
 
 // 1. Set a couple of variables that we'll need.
 $boarddir = realpath(dirname(__DIR__));
 $sourcedir = $boarddir . '/Sources';
 
-// 2. Borrow a bit of stuff from cron.php.
-$cron_php_start = file_get_contents($boarddir . '/cron.php', false, null, 0, 4096);
+// 2. Impersonate cron.php
+define('SMF', 'BACKGROUND');
+define('SMF_USER_AGENT', 'SMF');
+define('TIME_START', microtime(true));
 
-foreach (array('SMF', 'SMF_VERSION', 'SMF_SOFTWARE_YEAR') as $const)
+// 3. Borrow a bit of stuff from index.php.
+$index_php_start = file_get_contents($boarddir . '/index.php', false, null, 0, 4096);
+
+foreach (array('SMF_VERSION', 'SMF_SOFTWARE_YEAR') as $const)
 {
-	preg_match("/define\('$const', '([^)]+)'\);/", $cron_php_start, $matches);
+	preg_match("/define\('$const', '([^)]+)'\);/", $index_php_start, $matches);
 
 	if (empty($matches[1]))
-		die("Could not find value for $const in cron.php");
+		die("Could not find value for $const in index.php");
 
 	define($const, $matches[1]);
 }
 
-define('SMF_USER_AGENT', 'SMF');
-define('MAX_CLAIM_THRESHOLD', 300);
-define('TIME_START', microtime(true));
+// 4. Get some more stuff we need.
+require_once($sourcedir . '/Autoloader.php');
+SMF\Config::$boarddir = $boarddir;
+SMF\Config::$sourcedir = $sourcedir;
 
-abstract class SMF_BackgroundTask
-{
-	abstract public function execute();
-}
-
-// This should never be needed, but set it for completeness.
-$smcFunc['db_insert'] = function($method, $table, $columns, $data, $keys, $returnmode = 0, $connection = null) {};
-
-// 3. Do the job.
-require_once($sourcedir . '/Subs.php');
-require_once($sourcedir . '/tasks/UpdateUnicode.php');
-
-$unicode_updater = new Update_Unicode();
+// 5. Do the job.
+$unicode_updater = new SMF\Tasks\UpdateUnicode(array());
 $unicode_updater->execute();
 
 ?>

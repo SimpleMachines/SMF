@@ -1,7 +1,5 @@
 <?php
-// Version: 2.1.0; Stats
-
-global $context;
+// Version: 3.0 Alpha 1; Stats
 
 $txt['most_online'] = 'Most Online';
 

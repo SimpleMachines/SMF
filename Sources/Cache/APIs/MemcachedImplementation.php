@@ -5,15 +5,17 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.2
+ * @version 3.0 Alpha 1
  */
 
 namespace SMF\Cache\APIs;
 
 use Memcached;
+use SMF\Config;
+use SMF\Lang;
 use SMF\Cache\CacheApi;
 use SMF\Cache\CacheApiInterface;
 
@@ -29,10 +31,18 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 {
 	const CLASS_KEY = 'cache_memcached';
 
-	/** @var Memcached The memcache instance. */
+	/**
+	 * @var object
+	 *
+	 * The Memcache instance.
+	 */
 	private $memcached = null;
 
-	/** @var string[] */
+	/**
+	 * @var array
+	 *
+	 * Known Memcache servers.
+	 */
 	private $servers;
 
 	/**
@@ -40,11 +50,10 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	 */
 	public function __construct()
 	{
-		global $cache_memcached;
-
 		$this->servers = array_map(
 			function($server)
 			{
+				// Normal host names do not contain slashes, while e.g. unix sockets do. Assume alternative transport pipe with port 0.
 				if (strpos($server, '/') !== false)
 					return array($server, 0);
 
@@ -54,7 +63,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 					return array($server[0], isset($server[1]) ? (int) $server[1] : 11211);
 				}
 			},
-			explode(',', $cache_memcached)
+			explode(',', Config::$cache_memcached)
 		);
 
 		parent::__construct();
@@ -65,14 +74,12 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	 */
 	public function isSupported($test = false)
 	{
-		global $cache_memcached;
-
 		$supported = class_exists('Memcached');
 
 		if ($test)
 			return $supported;
 
-		return parent::isSupported() && $supported && !empty($cache_memcached);
+		return parent::isSupported() && $supported && !empty($this->servers);
 	}
 
 	/**
@@ -167,25 +174,23 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	 */
 	public function cacheSettings(array &$config_vars)
 	{
-		global $context, $txt;
-
-		if (!in_array($txt[self::CLASS_KEY .'_settings'], $config_vars))
+		if (!in_array(Lang::$txt[self::CLASS_KEY .'_settings'], $config_vars))
 		{
-			$config_vars[] = $txt[self::CLASS_KEY .'_settings'];
+			$config_vars[] = Lang::$txt[self::CLASS_KEY .'_settings'];
 			$config_vars[] = array(
 				self::CLASS_KEY,
-				$txt[self::CLASS_KEY .'_servers'],
+				Lang::$txt[self::CLASS_KEY .'_servers'],
 				'file',
 				'text',
 				0,
-				'subtext' => $txt[self::CLASS_KEY .'_servers_subtext']);
+				'subtext' => Lang::$txt[self::CLASS_KEY .'_servers_subtext']);
 		}
 
-		if (!isset($context['settings_post_javascript']))
-			$context['settings_post_javascript'] = '';
+		if (!isset(Utils::$context['settings_post_javascript']))
+			Utils::$context['settings_post_javascript'] = '';
 
-		if (empty($context['settings_not_writable']))
-			$context['settings_post_javascript'] .= '
+		if (empty(Utils::$context['settings_not_writable']))
+			Utils::$context['settings_post_javascript'] .= '
 			$("#cache_accelerator").change(function (e) {
 				var cache_type = e.currentTarget.value;
 				$("#'. self::CLASS_KEY .'").prop("disabled", cache_type != "MemcacheImplementation" && cache_type != "MemcachedImplementation");

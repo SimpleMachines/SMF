@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1.0; EmailTemplates
+// Version: 3.0 Alpha 1; EmailTemplates
 
 // Since all of these strings are being used in emails, numeric entities should be used.
 
@@ -8,8 +8,6 @@
 //   translate the description of the variable. Do not translate @description:, however you may translate the rest of that line.
 
 // Do not use block comments in this file, they will have special meaning.
-
-global $txtBirthdayEmails;
 
 /**
 	@additional_params: resend_activate_message

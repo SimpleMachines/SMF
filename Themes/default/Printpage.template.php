@@ -4,26 +4,30 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 3.0 Alpha 1
  */
+
+use SMF\Config;
+use SMF\Lang;
+use SMF\Theme;
+use SMF\Topic;
+use SMF\Utils;
 
 /**
  * The header. Defines the look and layout of the page as well as a form for choosing print options.
  */
 function template_print_above()
 {
-	global $context, $txt, $modSettings;
-
 	echo '<!DOCTYPE html>
-<html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
+<html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta charset="', $context['character_set'], '">
+		<meta charset="', Utils::$context['character_set'], '">
 		<meta name="robots" content="noindex">
-		<link rel="canonical" href="', $context['canonical_url'], '">
-		<title>', $txt['print_page'], ' - ', $context['topic_subject'], '</title>
+		<link rel="canonical" href="', Utils::$context['canonical_url'], '">
+		<title>', Lang::$txt['print_page'], ' - ', Utils::$context['topic_subject'], '</title>
 		<style>
 			body, a {
 				color: #000;
@@ -119,16 +123,16 @@ function template_print_above()
 				}
 			}';
 
-	if (!empty($modSettings['max_image_width']))
+	if (!empty(Config::$modSettings['max_image_width']))
 		echo '
 			.bbc_img {
-				max-width: ' . $modSettings['max_image_width'] . 'px;
+				max-width: ' . Config::$modSettings['max_image_width'] . 'px;
 			}';
 
-	if (!empty($modSettings['max_image_height']))
+	if (!empty(Config::$modSettings['max_image_height']))
 		echo '
 			.bbc_img {
-				max-height: ' . $modSettings['max_image_height'] . 'px;
+				max-height: ' . Config::$modSettings['max_image_height'] . 'px;
 			}';
 
 	echo '
@@ -139,8 +143,8 @@ function template_print_above()
 	template_print_options();
 
 	echo '
-		<h1 id="title">', $context['forum_name_html_safe'], '</h1>
-		<h2 id="linktree">', $context['category_name'], ' => ', (!empty($context['parent_boards']) ? implode(' => ', $context['parent_boards']) . ' => ' : ''), $context['board_name'], ' => ', $txt['topic_started'], ': ', $context['poster_name'], ' ', $txt['search_on'], ' ', $context['post_time'], '</h2>
+		<h1 id="title">', Utils::$context['forum_name_html_safe'], '</h1>
+		<h2 id="linktree">', Utils::$context['category_name'], ' => ', (!empty(Utils::$context['parent_boards']) ? implode(' => ', Utils::$context['parent_boards']) . ' => ' : ''), Utils::$context['board_name'], ' => ', Lang::$txt['topic_started'], ': ', Utils::$context['poster_name'], ' ', Lang::$txt['search_on'], ' ', Utils::$context['post_time'], '</h2>
 		<div id="posts">';
 }
 
@@ -149,44 +153,42 @@ function template_print_above()
  */
 function template_main()
 {
-	global $context, $options, $txt, $scripturl, $topic;
-
-	if (!empty($context['poll']))
+	if (!empty(Utils::$context['poll']))
 	{
 		echo '
-			<div id="poll_data">', $txt['poll'], '
-				<div class="question">', $txt['poll_question'], ': <strong>', $context['poll']['question'], '</strong>';
+			<div id="poll_data">', Lang::$txt['poll'], '
+				<div class="question">', Lang::$txt['poll_question'], ': <strong>', Utils::$context['poll']['question'], '</strong>';
 
 		$options = 1;
-		foreach ($context['poll']['options'] as $option)
+		foreach (Utils::$context['poll']['options'] as $option)
 			echo '
-					<div class="', $option['voted_this'] ? 'voted' : '', '">', $txt['option'], ' ', $options++, ': <strong>', $option['option'], '</strong>
-						', $context['allow_poll_view'] ? $txt['votes'] . ': ' . $option['votes'] . '' : '', '
+					<div class="', $option['voted_this'] ? 'voted' : '', '">', Lang::$txt['option'], ' ', $options++, ': <strong>', $option['option'], '</strong>
+						', Utils::$context['allow_results_view'] ? Lang::$txt['votes'] . ': ' . $option['votes'] . '' : '', '
 					</div>';
 
 		echo '
 			</div>';
 	}
 
-	foreach ($context['posts'] as $post)
+	foreach (Utils::$context['posts'] as $post)
 	{
 		echo '
 			<div class="postheader">
-				', $txt['title'], ': <strong>', $post['subject'], '</strong><br>
-				', $txt['post_by'], ': <strong>', $post['member'], '</strong> ', $txt['search_on'], ' <strong>', $post['time'], '</strong>
+				', Lang::$txt['title'], ': <strong>', $post['subject'], '</strong><br>
+				', Lang::$txt['post_by'], ': <strong>', $post['member'], '</strong> ', Lang::$txt['search_on'], ' <strong>', $post['time'], '</strong>
 			</div>
 			<div class="postbody">
 				', $post['body'];
 
 		// Show attachment images
-		if (isset($_GET['images']) && !empty($context['printattach'][$post['id_msg']]))
+		if (isset($_GET['images']) && !empty(Utils::$context['printattach'][$post['id_msg']]))
 		{
 			echo '
 				<hr>';
 
-			foreach ($context['printattach'][$post['id_msg']] as $attach)
+			foreach (Utils::$context['printattach'][$post['id_msg']] as $attach)
 				echo '
-					<img width="' . $attach['width'] . '" height="' . $attach['height'] . '" src="', $scripturl . '?action=dlattach;topic=' . $topic . '.0;attach=' . $attach['id_attach'] . '" alt="">';
+					<img width="' . $attach['width'] . '" height="' . $attach['height'] . '" src="', Config::$scripturl . '?action=dlattach;topic=' . Topic::$topic_id . '.0;attach=' . $attach['id_attach'] . '" alt="">';
 		}
 
 		echo '
@@ -205,7 +207,7 @@ function template_print_below()
 	template_print_options();
 
 	echo '
-		<div id="footer" class="smalltext">', theme_copyright(), '</div>
+		<div id="footer" class="smalltext">', Theme::copyright(), '</div>
 	</body>
 </html>';
 }
@@ -215,9 +217,7 @@ function template_print_below()
  */
 function template_print_options()
 {
-	global $scripturl, $topic, $txt;
-
-	$url_text = $scripturl . '?action=printpage;topic=' . $topic . '.0';
+	$url_text = Config::$scripturl . '?action=printpage;topic=' . Topic::$topic_id . '.0';
 	$url_images = $url_text . ';images';
 
 	echo '
@@ -226,10 +226,10 @@ function template_print_options()
 	// Which option is set, text or text&images
 	if (isset($_REQUEST['images']))
 		echo '
-			<a href="', $url_text, '">', $txt['print_page_text'], '</a> | <strong><a href="', $url_images, '">', $txt['print_page_images'], '</a></strong>';
+			<a href="', $url_text, '">', Lang::$txt['print_page_text'], '</a> | <strong><a href="', $url_images, '">', Lang::$txt['print_page_images'], '</a></strong>';
 	else
 		echo '
-			<strong><a href="', $url_text, '">', $txt['print_page_text'], '</a></strong> | <a href="', $url_images, '">', $txt['print_page_images'], '</a>';
+			<strong><a href="', $url_text, '">', Lang::$txt['print_page_text'], '</a></strong> | <a href="', $url_images, '">', Lang::$txt['print_page_images'], '</a>';
 
 	echo '
 		</div><!-- .print_options -->';

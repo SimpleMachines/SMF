@@ -1,7 +1,5 @@
 <?php
-// Version: 2.1.0; PersonalMessage
-
-global $context;
+// Version: 3.0 Alpha 1; PersonalMessage
 
 // Things for the popup
 $txt['pm_unread'] = 'Unread';

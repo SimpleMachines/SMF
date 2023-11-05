@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1.0; Search
+// Version: 3.0 Alpha 1; Search
 
 $txt['set_parameters'] = 'Set Search Parameters';
 $txt['choose_board'] = 'Choose boards to search in, or search all';

@@ -6,11 +6,15 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 3.0 Alpha 1
  */
+
+namespace SMF;
+
+use SMF\Db\DatabaseApi as Db;
 
 /**
  * This really is a pseudo class, I couldn't justify having instance of it
@@ -40,9 +44,7 @@ class Mentions
 	 */
 	public static function getMentionsByContent($content_type, $content_id, array $members = array())
 	{
-		global $smcFunc;
-
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT mem.id_member, mem.real_name, mem.email_address, mem.id_group, mem.id_post_group, mem.additional_groups,
 				mem.lngfile, ment.id_member AS id_mentioned_by, ment.real_name AS mentioned_by_name
 			FROM {db_prefix}mentions AS m
@@ -58,7 +60,7 @@ class Mentions
 			)
 		);
 		$members = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$members[$row['id_member']] = array(
 				'id' => $row['id_member'],
 				'real_name' => $row['real_name'],
@@ -70,7 +72,7 @@ class Mentions
 				),
 				'lngfile' => $row['lngfile'],
 			);
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		return $members;
 	}
@@ -87,17 +89,17 @@ class Mentions
 	 */
 	public static function insertMentions($content_type, $content_id, array $members, $id_member)
 	{
-		global $smcFunc;
-
-		call_integration_hook('mention_insert_' . $content_type, array($content_id, &$members));
+		IntegrationHook::call('mention_insert_' . $content_type, array($content_id, &$members));
 
 		foreach ($members as $member)
-			$smcFunc['db_insert']('ignore',
+		{
+			Db::$db->insert('ignore',
 				'{db_prefix}mentions',
 				array('content_id' => 'int', 'content_type' => 'string', 'id_member' => 'int', 'id_mentioned' => 'int', 'time' => 'int'),
 				array((int) $content_id, $content_type, $id_member, $member['id'], time()),
 				array('content_id', 'content_type', 'id_mentioned')
 			);
+		}
 	}
 
 	/**
@@ -115,8 +117,6 @@ class Mentions
 	 */
 	public static function modifyMentions($content_type, $content_id, array $members, $id_member)
 	{
-		global $smcFunc;
-
 		$existing_members = self::getMentionsByContent($content_type, $content_id);
 
 		$members_to_remove = array_diff_key($existing_members, $members);
@@ -125,7 +125,7 @@ class Mentions
 
 		// Delete mentions from the table that have been deleted in the content.
 		if (!empty($members_to_remove))
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				DELETE FROM {db_prefix}mentions
 				WHERE content_type = {string:type}
 					AND content_id = {int:id}
@@ -178,15 +178,13 @@ class Mentions
 	 */
 	public static function getMentionedMembers($body)
 	{
-		global $smcFunc;
-
 		if (empty($body))
 			return array();
 
 		$possible_names = self::getPossibleMentions($body);
 		$existing_mentions = self::getExistingMentions($body);
 
-		if ((empty($possible_names) && empty($existing_mentions)) || !allowedTo('mention'))
+		if ((empty($possible_names) && empty($existing_mentions)) || !User::$me->allowedTo('mention'))
 			return array();
 
 		// Make sure we don't pass empty arrays to the query.
@@ -195,7 +193,7 @@ class Mentions
 		if (empty($possible_names))
 			$possible_names = $existing_mentions;
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_member, real_name
 			FROM {db_prefix}members
 			WHERE id_member IN ({array_int:ids})
@@ -209,7 +207,7 @@ class Mentions
 			)
 		);
 		$members = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			if (!isset($existing_mentions[$row['id_member']]) && stripos($body, static::$char . $row['real_name']) === false)
 				continue;
@@ -219,7 +217,7 @@ class Mentions
 				'real_name' => $row['real_name'],
 			);
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		return $members;
 	}
@@ -250,8 +248,6 @@ class Mentions
 	 */
 	protected static function getPossibleMentions($body)
 	{
-		global $smcFunc;
-
 		if (empty($body))
 			return array();
 
@@ -302,7 +298,7 @@ class Mentions
 			$count = count($match);
 
 			for ($i = 1; $i <= $count; $i++)
-				$names[] = $smcFunc['htmlspecialchars']($smcFunc['htmltrim'](implode('', array_slice($match, 0, $i))));
+				$names[] = Utils::htmlspecialchars(Utils::htmlTrim(implode('', array_slice($match, 0, $i))));
 		}
 
 		$names = array_unique($names);
@@ -380,8 +376,6 @@ class Mentions
 	 */
 	public static function getQuotedMembers($body, $poster_id)
 	{
-		global $smcFunc;
-
 		if (empty($body))
 			return array();
 
@@ -422,7 +416,7 @@ class Mentions
 			return array();
 
 		// Get the messages
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT m.id_member AS id, mem.email_address, mem.lngfile, mem.real_name
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
@@ -435,7 +429,7 @@ class Mentions
 		);
 
 		$members = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			if ($poster_id == $row['id'])
 				continue;
@@ -460,13 +454,13 @@ class Mentions
 			$excluded_bbc = array('quote');
 
 			// Exclude everything with unparsed content.
-			foreach (parse_bbc(false) as $code)
+			foreach (BBCodeParser::getCodes() as $code)
 			{
 				if (!empty($code['type']) && in_array($code['type'], array('unparsed_content', 'unparsed_commas_content', 'unparsed_equals_content')))
 					$excluded_bbc[] = $code['tag'];
 			}
 
-			self::$excluded_bbc_regex = build_regex($excluded_bbc, '~');
+			self::$excluded_bbc_regex = Utils::buildRegex($excluded_bbc, '~');
 		}
 	}
 }

@@ -1,7 +1,5 @@
 <?php
-// Version: 2.1.0; ManagePaid
-
-global $boardurl;
+// Version: 3.0 Alpha 1; ManagePaid
 
 // Some payment gateways need language specific information.
 $txt['lang_paypal'] = 'US';
@@ -55,7 +53,7 @@ $txt['paypal_additional_emails_desc'] = 'If different (for business account)';
 $txt['paypal_sandbox_email'] = 'PayPal sandbox email address';
 $txt['paypal_sandbox_email_desc'] = 'Can be left blank if test mode is disabled or not using PayPal.';
 
-// argument(s): $boardurl
+// argument(s): Config::$boardurl
 $txt['paid_note'] = '<strong class="alert">Note:</strong><br>
 SMF currently supports <strong>PayPal</strong> as the installed payment method.
 <ul class="bbc_list">

@@ -8,7 +8,7 @@
  * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.4
+ * @version 3.0 Alpha 1
  *
  * This file contains helper functions for upgrade.php
  */
@@ -22,17 +22,9 @@ if (!defined('SMF_VERSION'))
  */
 function upgrade_clean_cache()
 {
-	global $cacheAPI, $sourcedir;
-
 	// Initialize the cache API if it does not have an instance yet.
-	require_once($sourcedir . '/Load.php');
-	if (empty($cacheAPI))
-	{
-		loadCacheAccelerator();
-	}
-
-	// Just through back to Load.php's clean_cache function.
-	clean_cache();
+	SMF\Cache\CacheApi::load();
+	SMF\Cache\CacheApi::clean();
 }
 
 /**
@@ -42,13 +34,12 @@ function upgrade_clean_cache()
  */
 function getMemberGroups()
 {
-	global $smcFunc;
 	static $member_groups = array();
 
 	if (!empty($member_groups))
 		return $member_groups;
 
-	$request = $smcFunc['db_query']('', '
+	$request = SMF\Db\DatabaseApi::$db->query('', '
 		SELECT groupName, id_group
 		FROM {db_prefix}membergroups
 		WHERE id_group = {int:admin_group} OR id_group > {int:old_group}',
@@ -60,7 +51,7 @@ function getMemberGroups()
 	);
 	if ($request === false)
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = SMF\Db\DatabaseApi::$db->query('', '
 			SELECT membergroup, id_group
 			FROM {db_prefix}membergroups
 			WHERE id_group = {int:admin_group} OR id_group > {int:old_group}',
@@ -71,9 +62,9 @@ function getMemberGroups()
 			)
 		);
 	}
-	while ($row = $smcFunc['db_fetch_row']($request))
+	while ($row = SMF\Db\DatabaseApi::$db->fetch_row($request))
 		$member_groups[trim($row[0])] = $row[1];
-	$smcFunc['db_free_result']($request);
+	SMF\Db\DatabaseApi::$db->free_result($request);
 
 	return $member_groups;
 }
@@ -86,7 +77,7 @@ function getMemberGroups()
  */
 function makeFilesWritable(&$files)
 {
-	global $upcontext, $boarddir, $sourcedir;
+	global $upcontext;
 
 	if (empty($files))
 		return true;
@@ -183,10 +174,10 @@ function makeFilesWritable(&$files)
 			$upcontext['chmod']['path'] = $_POST['ftp_path'];
 		}
 
-		require_once($sourcedir . '/Class-Package.php');
+		require_once(\SMF\Config::$sourcedir . '/PackageManager/FtpConnection.php');
 		if (isset($upcontext['chmod']['username']))
 		{
-			$ftp = new ftp_connection($upcontext['chmod']['server'], $upcontext['chmod']['port'], $upcontext['chmod']['username'], $upcontext['chmod']['password']);
+			$ftp = new \SMF\PackageManager\FtpConnection($upcontext['chmod']['server'], $upcontext['chmod']['port'], $upcontext['chmod']['username'], $upcontext['chmod']['password']);
 
 			if ($ftp->error === false)
 			{
@@ -202,7 +193,7 @@ function makeFilesWritable(&$files)
 		if (!isset($ftp) || $ftp->error !== false)
 		{
 			if (!isset($ftp))
-				$ftp = new ftp_connection(null);
+				$ftp = new \SMF\PackageManager\FtpConnection(null);
 			// Save the error so we can mess with listing...
 			elseif ($ftp->error !== false && !isset($upcontext['chmod']['ftp_error']))
 				$upcontext['chmod']['ftp_error'] = $ftp->last_message === null ? '' : $ftp->last_message;
@@ -216,7 +207,7 @@ function makeFilesWritable(&$files)
 				$upcontext['chmod']['username'] = $username;
 
 			// Don't forget the login token.
-			$upcontext += createToken('login');
+			$upcontext += \SMF\SecurityToken::create('login');
 
 			return false;
 		}
@@ -225,12 +216,12 @@ function makeFilesWritable(&$files)
 			// We want to do a relative path for FTP.
 			if (!in_array($upcontext['chmod']['path'], array('', '/')))
 			{
-				$ftp_root = strtr($boarddir, array($upcontext['chmod']['path'] => ''));
+				$ftp_root = strtr(\SMF\Config::$boarddir, array($upcontext['chmod']['path'] => ''));
 				if (substr($ftp_root, -1) == '/' && ($upcontext['chmod']['path'] == '' || $upcontext['chmod']['path'][0] === '/'))
 					$ftp_root = substr($ftp_root, 0, -1);
 			}
 			else
-				$ftp_root = $boarddir;
+				$ftp_root = \SMF\Config::$boarddir;
 
 			// Save the info for next time!
 			$_SESSION['installer_temp_ftp'] = array(
@@ -252,7 +243,7 @@ function makeFilesWritable(&$files)
 				// Assuming that didn't work calculate the path without the boarddir.
 				if (!is_writable($file))
 				{
-					if (strpos($file, $boarddir) === 0)
+					if (strpos($file, \SMF\Config::$boarddir) === 0)
 					{
 						$ftp_file = strtr($file, array($_SESSION['installer_temp_ftp']['root'] => ''));
 						$ftp->chmod($ftp_file, 0755);
@@ -336,19 +327,6 @@ function deleteFile($file)
 }
 
 /**
- * UTF-8 aware strtolower function.
- *
- * @param $string
- * @return string
- */
-function smf_strtolower($string)
-{
-	global $sourcedir;
-	require_once($sourcedir . '/Subs-Charset.php');
-	return utf8_strtolower($string);
-}
-
-/**
  * Prints an error to stderr.
  *
  * @param $message
@@ -418,8 +396,7 @@ function smf_mysql_free_result($rs)
  */
 function smf_mysql_insert_id($rs = null)
 {
-	global $db_connection;
-	return mysqli_insert_id($db_connection);
+	return mysqli_insert_id(SMF\Db\DatabaseApi::$db_connection);
 }
 
 /**
@@ -436,8 +413,7 @@ function smf_mysql_num_rows($rs)
  */
 function smf_mysql_real_escape_string($string)
 {
-	global $db_connection;
-	return mysqli_real_escape_string($db_connection, $string);
+	return mysqli_real_escape_string(SMF\Db\DatabaseApi::$db_connection, $string);
 }
 
 /**

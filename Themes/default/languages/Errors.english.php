@@ -1,7 +1,5 @@
 <?php
-// Version: 2.1.4; Errors
-
-global $scripturl, $modSettings;
+// Version: 3.0 Alpha 1; Errors
 
 $txt['no_access'] = 'You are not allowed to access this section';
 $txt['not_found'] = 'Sorry, this section isn\'t available at this time.';
@@ -160,7 +158,6 @@ $txt['event_year_missing'] = 'Event year is missing.';
 $txt['event_day_missing'] = 'Event day is missing.';
 $txt['event_title_missing'] = 'Event title is missing.';
 $txt['invalid_date'] = 'Invalid date.';
-$txt['no_event_title'] = 'No event title was entered.';
 $txt['missing_event_id'] = 'Missing event ID.';
 $txt['cant_edit_event'] = 'You do not have permission to edit this event.';
 $txt['missing_board_id'] = 'Board ID is missing.';
@@ -466,23 +463,20 @@ $txt['json_unknown'] = 'Unknown error';
 
 // The following strings are used with various trigger_error calls. Most include the function that they're called from.
 // Board errors
-$txt['create_board_missing_options'] = 'createBoard(): One or more of the required options is not set';
-$txt['move_board_no_target'] = 'createBoard(): Target board is not set';
-$txt['modify_board_move_to_incorrect'] = 'modifyBoard(): the move_to value \'%s\' is incorrect';
+$txt['create_board_missing_options'] = 'Board::create(): One or more of the required options is not set';
+$txt['move_board_no_target'] = 'Board::create(): Target board is not set';
+$txt['modify_board_move_to_incorrect'] = 'Board::modify(): the move_to value \'%s\' is incorrect';
 
 // Category errors
-$txt['create_category_no_name'] = 'createCategory(): A category name is required';
-$txt['cannot_move_to_deleted_category'] = 'deleteCategories(): You cannot move the boards to a category that\'s being deleted';
+$txt['create_category_no_name'] = 'Category::create(): A category name is required';
+$txt['cannot_move_to_deleted_category'] = 'Category::delete(): You cannot move the boards to a category that\'s being deleted';
 
 // Package manager error
 $txt['undefined_xml_attribute'] = 'Undefined XML attribute: %s';
 $txt['undefined_xml_element'] = 'Undefined XML element: %s';
 
-// loadMemberData() error
-$txt['invalid_member_data_set'] = 'loadMemberData(): Invalid member set: \'%s\'';
-
-// loadMemberContext() error
-$txt['user_not_loaded'] = 'loadMemberContext(): member id \'%d\' not previously loaded by loadMemberData()';
+// User::load() error
+$txt['invalid_member_data_set'] = 'SMF\User::load(): Invalid member set: \'%s\'';
 
 // logActions() errors
 $txt['logActions_not_array'] = 'logActions(): data is not an array with action \'%s\'';
@@ -498,7 +492,7 @@ $txt['login_no_session_cookie'] = 'Login2(): Cannot be logged in without a sessi
 // PM error (see isAccessiblePM function)
 $txt['pm_invalid_validation_type'] = 'Undefined validation type given';
 
-$txt['check_submit_once_invalid_action'] = 'checkSubmitOnce(): Invalid action \'%s\'';
+$txt['check_submit_once_invalid_action'] = 'Security::checkSubmitOnce(): Invalid action \'%s\'';
 
 $txt['get_server_versions_no_database'] = 'getServerVersions(): you need to be connected to the database in order to get its server version';
 
@@ -516,11 +510,11 @@ $txt['parse_modification_filename_not_full_path'] = 'parseModification(): The fi
 $txt['parse_boardmod_filename_not_full_path'] = 'parseBoardMod(): The filename \'%s\' is not a full path!';
 $txt['package_flush_cache_not_writable'] = 'package_flush_cache(): some files are still not writable';
 
-$txt['create_post_invalid_member_id'] = 'createPost(): invalid member id \'%d\'';
+$txt['create_post_invalid_member_id'] = 'Msg::create(): invalid member id \'%d\'';
 
-$txt['invalid_statistic_type'] = 'updateStats(): invalid statistic type \'%s\'';
+$txt['invalid_statistic_type'] = 'Logging::updateStats(): invalid statistic type \'%s\'';
 
-$txt['fetch_web_data_bad_url'] = 'fetch_web_data(): Bad URL';
+$txt['fetch_web_data_bad_url'] = '%1$s: Bad URL';
 
 $txt['unicode_update_failed'] = 'A new version of Unicode is available, but SMF could not update to it. Please make sure %1$s and all the files in it are writable. SMF will try to update its Unicode data files again automatically.';
 

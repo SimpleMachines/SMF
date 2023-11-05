@@ -1,35 +1,34 @@
 <?php
 
 /**
- * This file contains code used to initiate updates of $modSettings['tld_regex']
- *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 3.0 Alpha 1
  */
 
+namespace SMF\Tasks;
+
+use SMF\Config;
+use SMF\Url;
+
 /**
- * Class Update_TLD_Regex
+ * This file contains code used to initiate updates of Config::$modSettings['tld_regex']
  */
-class Update_TLD_Regex extends SMF_BackgroundTask
+class UpdateTldRegex extends BackgroundTask
 {
 	/**
-	 * This executes the task. It just calls set_tld_regex() in Subs.php
+	 * This executes the task. It just calls Url::setTldRegex()
 	 *
 	 * @return bool Always returns true
 	 */
 	public function execute()
 	{
-		global $sourcedir;
-
-		require_once($sourcedir . '/Subs.php');
-		set_tld_regex(true);
-
+		Url::setTldRegex(true);
 		return true;
 	}
 }

@@ -7,16 +7,19 @@
  * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.4
+ * @version 3.0 Alpha 1
  */
+
+use SMF\Config;
+use SMF\Lang;
+use SMF\Theme;
+use SMF\Utils;
 
 /**
  * The main moderation center.
  */
 function template_moderation_center()
 {
-	global $context;
-
 	// Show moderators notes.
 	template_notes();
 
@@ -25,7 +28,7 @@ function template_moderation_center()
 	<div id="modcenter">';
 
 	// Show all the blocks they want to see.
-	foreach ($context['mod_blocks'] as $block)
+	foreach (Utils::$context['mod_blocks'] as $block)
 	{
 		$block_function = 'template_' . $block;
 
@@ -42,29 +45,27 @@ function template_moderation_center()
  */
 function template_group_requests_block()
 {
-	global $context, $txt, $scripturl;
-
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span id="group_requests_toggle" class="', !empty($context['admin_prefs']['mcgr']) ? 'toggle_down' : 'toggle_up', ' floatright" title="', empty($context['admin_prefs']['mcgr']) ? $txt['hide'] : $txt['show'], '" style="display: none;"></span>
-				<a href="', $scripturl, '?action=groups;sa=requests" id="group_requests_link">', $txt['mc_group_requests'], '</a>
+				<span id="group_requests_toggle" class="', !empty(Utils::$context['admin_prefs']['mcgr']) ? 'toggle_down' : 'toggle_up', ' floatright" title="', empty(Utils::$context['admin_prefs']['mcgr']) ? Lang::$txt['hide'] : Lang::$txt['show'], '" style="display: none;"></span>
+				<a href="', Config::$scripturl, '?action=groups;sa=requests" id="group_requests_link">', Lang::$txt['mc_group_requests'], '</a>
 			</h3>
 		</div>
 		<div class="windowbg" id="group_requests_panel">
 			<ul>';
 
-	foreach ($context['group_requests'] as $request)
+	foreach (Utils::$context['group_requests'] as $request)
 		echo '
 				<li class="smalltext">
-					<a href="', $request['request_href'], '">', $request['group']['name'], '</a> ', $txt['mc_groupr_by'], ' ', $request['member']['link'], '
+					<a href="', $request['request_href'], '">', $request['group']['name'], '</a> ', Lang::$txt['mc_groupr_by'], ' ', $request['member']['link'], '
 				</li>';
 
 	// Don't have any watched users right now?
-	if (empty($context['group_requests']))
+	if (empty(Utils::$context['group_requests']))
 		echo '
 				<li>
-					<strong class="smalltext">', $txt['mc_group_requests_none'], '</strong>
+					<strong class="smalltext">', Lang::$txt['mc_group_requests_none'], '</strong>
 				</li>';
 
 	echo '
@@ -74,22 +75,22 @@ function template_group_requests_block()
 		<script>
 			var oGroupRequestsPanelToggle = new smc_Toggle({
 				bToggleEnabled: true,
-				bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcgr']) ? 'true' : 'false', ',
+				bCurrentlyCollapsed: ', !empty(Utils::$context['admin_prefs']['mcgr']) ? 'true' : 'false', ',
 				aSwappableContainers: [
 					\'group_requests_panel\'
 				],
 				aSwapImages: [
 					{
 						sId: \'group_requests_toggle\',
-						altExpanded: ', JavaScriptEscape($txt['hide']), ',
-						altCollapsed: ', JavaScriptEscape($txt['show']), '
+						altExpanded: ', Utils::JavaScriptEscape(Lang::$txt['hide']), ',
+						altCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['show']), '
 					}
 				],
 				aSwapLinks: [
 					{
 						sId: \'group_requests_link\',
-						msgExpanded: ', JavaScriptEscape($txt['mc_group_requests']), ',
-						msgCollapsed: ', JavaScriptEscape($txt['mc_group_requests']), '
+						msgExpanded: ', Utils::JavaScriptEscape(Lang::$txt['mc_group_requests']), ',
+						msgCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['mc_group_requests']), '
 					}
 				],
 				oThemeOptions: {
@@ -109,29 +110,27 @@ function template_group_requests_block()
  */
 function template_watched_users()
 {
-	global $context, $txt, $scripturl;
-
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span id="watched_users_toggle" class="', !empty($context['admin_prefs']['mcwu']) ? 'toggle_down' : 'toggle_up', ' floatright" title="', empty($context['admin_prefs']['mcwu']) ? $txt['hide'] : $txt['show'], '" style="display: none;"></span>
-				<a href="', $scripturl, '?action=moderate;area=userwatch" id="watched_users_link">', $txt['mc_watched_users'], '</a>
+				<span id="watched_users_toggle" class="', !empty(Utils::$context['admin_prefs']['mcwu']) ? 'toggle_down' : 'toggle_up', ' floatright" title="', empty(Utils::$context['admin_prefs']['mcwu']) ? Lang::$txt['hide'] : Lang::$txt['show'], '" style="display: none;"></span>
+				<a href="', Config::$scripturl, '?action=moderate;area=userwatch" id="watched_users_link">', Lang::$txt['mc_watched_users'], '</a>
 			</h3>
 		</div>
 		<div class="windowbg" id="watched_users_panel">
 			<ul>';
 
-	foreach ($context['watched_users'] as $user)
+	foreach (Utils::$context['watched_users'] as $user)
 		echo '
 				<li>
-					<span class="smalltext">', sprintf(!empty($user['last_login']) ? $txt['mc_seen'] : $txt['mc_seen_never'], $user['link'], $user['last_login']), '</span>
+					<span class="smalltext">', sprintf(!empty($user['last_login']) ? Lang::$txt['mc_seen'] : Lang::$txt['mc_seen_never'], $user['link'], $user['last_login']), '</span>
 				</li>';
 
 	// Don't have any watched users right now?
-	if (empty($context['watched_users']))
+	if (empty(Utils::$context['watched_users']))
 		echo '
 				<li>
-					<strong class="smalltext">', $txt['mc_watched_users_none'], '</strong>
+					<strong class="smalltext">', Lang::$txt['mc_watched_users_none'], '</strong>
 				</li>';
 
 	echo '
@@ -141,22 +140,22 @@ function template_watched_users()
 		<script>
 			var oWatchedUsersToggle = new smc_Toggle({
 				bToggleEnabled: true,
-				bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcwu']) ? 'true' : 'false', ',
+				bCurrentlyCollapsed: ', !empty(Utils::$context['admin_prefs']['mcwu']) ? 'true' : 'false', ',
 				aSwappableContainers: [
 					\'watched_users_panel\'
 				],
 				aSwapImages: [
 					{
 						sId: \'watched_users_toggle\',
-						altExpanded: ', JavaScriptEscape($txt['hide']), ',
-						altCollapsed: ', JavaScriptEscape($txt['show']), '
+						altExpanded: ', Utils::JavaScriptEscape(Lang::$txt['hide']), ',
+						altCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['show']), '
 					}
 				],
 				aSwapLinks: [
 					{
 						sId: \'watched_users_link\',
-						msgExpanded: ', JavaScriptEscape($txt['mc_watched_users']), ',
-						msgCollapsed: ', JavaScriptEscape($txt['mc_watched_users']), '
+						msgExpanded: ', Utils::JavaScriptEscape(Lang::$txt['mc_watched_users']), ',
+						msgCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['mc_watched_users']), '
 					}
 				],
 				oThemeOptions: {
@@ -176,29 +175,27 @@ function template_watched_users()
  */
 function template_reported_posts_block()
 {
-	global $context, $txt, $scripturl;
-
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span id="reported_posts_toggle" class="', !empty($context['admin_prefs']['mcrp']) ? 'toggle_down' : 'toggle_up', ' floatright" title="', empty($context['admin_prefs']['mcrp']) ? $txt['hide'] : $txt['show'], '" style="display: none;"></span>
-				<a href="', $scripturl, '?action=moderate;area=reportedposts" id="reported_posts_link">', $txt['mc_recent_reports'], '</a>
+				<span id="reported_posts_toggle" class="', !empty(Utils::$context['admin_prefs']['mcrp']) ? 'toggle_down' : 'toggle_up', ' floatright" title="', empty(Utils::$context['admin_prefs']['mcrp']) ? Lang::$txt['hide'] : Lang::$txt['show'], '" style="display: none;"></span>
+				<a href="', Config::$scripturl, '?action=moderate;area=reportedposts" id="reported_posts_link">', Lang::$txt['mc_recent_reports'], '</a>
 			</h3>
 		</div>
 		<div class="windowbg" id="reported_posts_panel">
 			<ul>';
 
-	foreach ($context['reported_posts'] as $post)
+	foreach (Utils::$context['reported_posts'] as $post)
 		echo '
 				<li>
-					<span class="smalltext">', sprintf($txt['mc_post_report'], $post['report_link'], $post['author']['link']), '</span>
+					<span class="smalltext">', sprintf(Lang::$txt['mc_post_report'], $post['report_link'], $post['author']['link']), '</span>
 				</li>';
 
 	// Don't have any watched users right now?
-	if (empty($context['reported_posts']))
+	if (empty(Utils::$context['reported_posts']))
 		echo '
 				<li>
-					<strong class="smalltext">', $txt['mc_recent_reports_none'], '</strong>
+					<strong class="smalltext">', Lang::$txt['mc_recent_reports_none'], '</strong>
 				</li>';
 
 	echo '
@@ -208,22 +205,22 @@ function template_reported_posts_block()
 		<script>
 			var oWatchedUsersToggle = new smc_Toggle({
 				bToggleEnabled: true,
-				bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcrp']) ? 'true' : 'false', ',
+				bCurrentlyCollapsed: ', !empty(Utils::$context['admin_prefs']['mcrp']) ? 'true' : 'false', ',
 				aSwappableContainers: [
 					\'reported_posts_panel\'
 				],
 				aSwapImages: [
 					{
 						sId: \'reported_posts_toggle\',
-						altExpanded: ', JavaScriptEscape($txt['hide']), ',
-						altCollapsed: ', JavaScriptEscape($txt['show']), '
+						altExpanded: ', Utils::JavaScriptEscape(Lang::$txt['hide']), ',
+						altCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['show']), '
 					}
 				],
 				aSwapLinks: [
 					{
 						sId: \'reported_posts_link\',
-						msgExpanded: ', JavaScriptEscape($txt['mc_recent_reports']), ',
-						msgCollapsed: ', JavaScriptEscape($txt['mc_recent_reports']), '
+						msgExpanded: ', Utils::JavaScriptEscape(Lang::$txt['mc_recent_reports']), ',
+						msgCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['mc_recent_reports']), '
 					}
 				],
 				oThemeOptions: {
@@ -243,29 +240,27 @@ function template_reported_posts_block()
  */
 function template_reported_users_block()
 {
-	global $context, $txt, $scripturl;
-
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span id="reported_users_toggle" class="', !empty($context['admin_prefs']['mcur']) ? 'toggle_down' : 'toggle_up', ' floatright" title="', empty($context['admin_prefs']['mcur']) ? $txt['hide'] : $txt['show'], '" style="display: none;"></span>
-				<a href="', $scripturl, '?action=moderate;area=userwatch" id="reported_users_link">', $txt['mc_recent_user_reports'], '</a>
+				<span id="reported_users_toggle" class="', !empty(Utils::$context['admin_prefs']['mcur']) ? 'toggle_down' : 'toggle_up', ' floatright" title="', empty(Utils::$context['admin_prefs']['mcur']) ? Lang::$txt['hide'] : Lang::$txt['show'], '" style="display: none;"></span>
+				<a href="', Config::$scripturl, '?action=moderate;area=userwatch" id="reported_users_link">', Lang::$txt['mc_recent_user_reports'], '</a>
 			</h3>
 		</div>
 		<div class="windowbg" id="reported_users_panel">
 			<ul>';
 
-	foreach ($context['reported_users'] as $user)
+	foreach (Utils::$context['reported_users'] as $user)
 		echo '
 				<li>
 					<span class="smalltext">', $user['user']['link'], '</span>
 				</li>';
 
 	// Don't have any watched users right now?
-	if (empty($context['reported_users']))
+	if (empty(Utils::$context['reported_users']))
 		echo '
 				<li>
-					<strong class="smalltext">', $txt['mc_reported_users_none'], '</strong>
+					<strong class="smalltext">', Lang::$txt['mc_reported_users_none'], '</strong>
 				</li>';
 
 	echo '
@@ -275,22 +270,22 @@ function template_reported_users_block()
 		<script>
 			var oWatchedUsersToggle = new smc_Toggle({
 				bToggleEnabled: true,
-				bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcur']) ? 'true' : 'false', ',
+				bCurrentlyCollapsed: ', !empty(Utils::$context['admin_prefs']['mcur']) ? 'true' : 'false', ',
 				aSwappableContainers: [
 					\'reported_users_panel\'
 				],
 				aSwapImages: [
 					{
 						sId: \'reported_users_toggle\',
-						altExpanded: ', JavaScriptEscape($txt['hide']), ',
-						altCollapsed: ', JavaScriptEscape($txt['show']), '
+						altExpanded: ', Utils::JavaScriptEscape(Lang::$txt['hide']), ',
+						altCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['show']), '
 					}
 				],
 				aSwapLinks: [
 					{
 						sId: \'reported_users_link\',
-						msgExpanded: ', JavaScriptEscape($txt['mc_recent_user_reports']), ',
-						msgCollapsed: ', JavaScriptEscape($txt['mc_recent_user_reports']), '
+						msgExpanded: ', Utils::JavaScriptEscape(Lang::$txt['mc_recent_user_reports']), ',
+						msgCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['mc_recent_user_reports']), '
 					}
 				],
 				oThemeOptions: {
@@ -310,50 +305,48 @@ function template_reported_users_block()
  */
 function template_notes()
 {
-	global $context, $txt, $scripturl;
-
 	// Let them know the action was a success.
-	if (!empty($context['report_post_action']))
+	if (!empty(Utils::$context['report_post_action']))
 		echo '
 		<div class="infobox">
-			', $txt['report_action_' . $context['report_post_action']], '
+			', Lang::$txt['report_action_' . Utils::$context['report_post_action']], '
 		</div>';
 
 	echo '
 		<div id="modnotes">
-			<form action="', $scripturl, '?action=moderate;area=index;modnote" method="post">
+			<form action="', Config::$scripturl, '?action=moderate;area=index;modnote" method="post">
 				<div class="cat_bar">
-					<h3 class="catbg">', $txt['mc_notes'], '</h3>
+					<h3 class="catbg">', Lang::$txt['mc_notes'], '</h3>
 				</div>
 				<div class="windowbg">';
 
-	if (!empty($context['notes']))
+	if (!empty(Utils::$context['notes']))
 	{
 		echo '
 					<ul class="moderation_notes">';
 
 		// Cycle through the notes.
-		foreach ($context['notes'] as $note)
+		foreach (Utils::$context['notes'] as $note)
 			echo '
 						<li class="smalltext">
-							', ($note['can_delete'] ? '<a href="' . $note['delete_href'] . ';' . $context['mod-modnote-del_token_var'] . '=' . $context['mod-modnote-del_token'] . '" data-confirm="' . $txt['mc_reportedp_delete_confirm'] . '" class="you_sure"><span class="main_icons delete"></span></a>' : ''), $note['time'], ' <strong>', $note['author']['link'], ':</strong> ', $note['text'], '
+							', ($note['can_delete'] ? '<a href="' . $note['delete_href'] . ';' . Utils::$context['mod-modnote-del_token_var'] . '=' . Utils::$context['mod-modnote-del_token'] . '" data-confirm="' . Lang::$txt['mc_reportedp_delete_confirm'] . '" class="you_sure"><span class="main_icons delete"></span></a>' : ''), $note['time'], ' <strong>', $note['author']['link'], ':</strong> ', $note['text'], '
 						</li>';
 
 		echo '
 					</ul>
 					<div class="pagesection notes">
-						<div class="pagelinks">', $context['page_index'], '</div>
+						<div class="pagelinks">', Utils::$context['page_index'], '</div>
 					</div>';
 	}
 
 	echo '
 					<div class="floatleft post_note">
-						<input type="text" name="new_note" placeholder="', $txt['mc_click_add_note'], '">
+						<input type="text" name="new_note" placeholder="', Lang::$txt['mc_click_add_note'], '">
 					</div>
-					<input type="hidden" name="', $context['mod-modnote-add_token_var'], '" value="', $context['mod-modnote-add_token'], '">
-					<input type="submit" name="makenote" value="', $txt['mc_add_note'], '" class="button">
+					<input type="hidden" name="', Utils::$context['mod-modnote-add_token_var'], '" value="', Utils::$context['mod-modnote-add_token'], '">
+					<input type="submit" name="makenote" value="', Lang::$txt['mc_add_note'], '" class="button">
 				</div><!-- .windowbg -->
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			</form>
 		</div><!-- #modnotes -->';
 }
@@ -363,23 +356,21 @@ function template_notes()
  */
 function template_unapproved_posts()
 {
-	global $options, $context, $txt, $scripturl;
-
 	// Just a big table of it all really...
 	echo '
 	<div id="modcenter">
-		<form action="', $scripturl, '?action=moderate;area=postmod;start=', $context['start'], ';sa=', $context['current_view'], '" method="post" accept-charset="', $context['character_set'], '">
-			<div class="cat_bar', !empty($context['unapproved_items']) ? ' cat_bar_round' : '', '">
-				<h3 class="catbg">', $txt['mc_unapproved_posts'], '</h3>
+		<form action="', Config::$scripturl, '?action=moderate;area=postmod;start=', Utils::$context['start'], ';sa=', Utils::$context['current_view'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<div class="cat_bar', !empty(Utils::$context['unapproved_items']) ? ' cat_bar_round' : '', '">
+				<h3 class="catbg">', Lang::$txt['mc_unapproved_posts'], '</h3>
 			</div>';
 
 	// No posts?
-	if (empty($context['unapproved_items']))
+	if (empty(Utils::$context['unapproved_items']))
 	{
 		echo '
 			<div class="windowbg">
 				<p class="centertext">
-					', $txt['mc_unapproved_' . $context['current_view'] . '_none_found'], '
+					', Lang::$txt['mc_unapproved_' . Utils::$context['current_view'] . '_none_found'], '
 				</p>
 			</div>';
 	}
@@ -388,7 +379,7 @@ function template_unapproved_posts()
 		echo '
 			<div class="pagesection">';
 
-		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
+		if (!empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1)
 			echo '
 				<ul class="buttonlist floatright">
 					<li class="inline_mod_check">
@@ -397,30 +388,30 @@ function template_unapproved_posts()
 				</ul>';
 
 		echo '
-				<div class="pagelinks">', $context['page_index'], '</div>
+				<div class="pagelinks">', Utils::$context['page_index'], '</div>
 			</div>';
 
 	}
 
-	foreach ($context['unapproved_items'] as $item)
+	foreach (Utils::$context['unapproved_items'] as $item)
 	{
 		// The buttons
 		$quickbuttons = array(
 			'approve' => array(
-				'label' => $txt['approve'],
-				'href' => $scripturl.'?action=moderate;area=postmod;sa='.$context['current_view'].';start='.$context['start'].';'.$context['session_var'].'='.$context['session_id'].';approve='.$item['id'],
+				'label' => Lang::$txt['approve'],
+				'href' => Config::$scripturl.'?action=moderate;area=postmod;sa='.Utils::$context['current_view'].';start='.Utils::$context['start'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'].';approve='.$item['id'],
 				'icon' => 'approve',
 			),
 			'delete' => array(
-				'label' => $txt['remove'],
-				'href' => $scripturl.'?action=moderate;area=postmod;sa='.$context['current_view'].';start='.$context['start'].';'.$context['session_var'].'='.$context['session_id'].';delete='.$item['id'],
+				'label' => Lang::$txt['remove'],
+				'href' => Config::$scripturl.'?action=moderate;area=postmod;sa='.Utils::$context['current_view'].';start='.Utils::$context['start'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'].';delete='.$item['id'],
 				'icon' => 'remove_button',
 				'show' => $item['can_delete']
 			),
 			'quickmod' => array(
 				'class' => 'inline_mod_check',
 				'content' => '<input type="checkbox" name="item[]" value="'.$item['id'].'" checked>',
-				'show' => !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1
+				'show' => !empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1
 			),
 		);
 		echo '
@@ -430,7 +421,7 @@ function template_unapproved_posts()
 					<h5>
 						<strong>', $item['category']['link'], ' / ', $item['board']['link'], ' / ', $item['link'], '</strong>
 					</h5>
-					<span class="smalltext">', sprintf(str_replace('<br>', ' ', $txt['last_post_topic']), $item['time'], '<strong>' . $item['poster']['link'] . '</strong>'), '</span>
+					<span class="smalltext">', sprintf(str_replace('<br>', ' ', Lang::$txt['last_post_topic']), $item['time'], '<strong>' . $item['poster']['link'] . '</strong>'), '</span>
 				</div>
 				<div class="list_posts">
 					<div class="post">', $item['body'], '</div>
@@ -442,27 +433,27 @@ function template_unapproved_posts()
 	echo '
 			<div class="pagesection">';
 
-	if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
+	if (!empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1)
 		echo '
 				<div class="floatright">
-					<select name="do" onchange="if (this.value != 0 &amp;&amp; confirm(\'', $txt['mc_unapproved_sure'], '\')) submit();">
-						<option value="0">', $txt['with_selected'], ':</option>
+					<select name="do" onchange="if (this.value != 0 &amp;&amp; confirm(\'', Lang::$txt['mc_unapproved_sure'], '\')) submit();">
+						<option value="0">', Lang::$txt['with_selected'], ':</option>
 						<option value="0" disabled>-------------------</option>
-						<option value="approve">&nbsp;--&nbsp;', $txt['approve'], '</option>
-						<option value="delete">&nbsp;--&nbsp;', $txt['delete'], '</option>
+						<option value="approve">&nbsp;--&nbsp;', Lang::$txt['approve'], '</option>
+						<option value="delete">&nbsp;--&nbsp;', Lang::$txt['delete'], '</option>
 					</select>
 					<noscript>
-						<input type="submit" name="mc_go" value="', $txt['go'], '" class="button">
+						<input type="submit" name="mc_go" value="', Lang::$txt['go'], '" class="button">
 					</noscript>
 				</div>';
 
-	if (!empty($context['unapproved_items']))
+	if (!empty(Utils::$context['unapproved_items']))
 		echo '
-				<div class="pagelinks">', $context['page_index'], '</div>';
+				<div class="pagelinks">', Utils::$context['page_index'], '</div>';
 
 	echo '
 			</div><!-- .pagesection -->
-		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+		<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 		</form>
 	</div><!-- #modcenter -->';
 }
@@ -475,15 +466,13 @@ function template_unapproved_posts()
  */
 function template_user_watch_post_callback($post)
 {
-	global $scripturl, $context, $txt, $delete_button;
-
 	// We'll have a delete and a checkbox please bob.
 	// @todo Discuss this with the team and rewrite if required.
 	$quickbuttons = array(
 		'delete' => array(
-			'label' => $txt['remove_message'],
-			'href' => $scripturl.'?action=moderate;area=userwatch;sa=post;delete='.$post['id'].';start='.$context['start'].';'.$context['session_var'].'='.$context['session_id'],
-			'javascript' => 'data-confirm="' . $txt['mc_watched_users_delete_post'] . '"',
+			'label' => Lang::$txt['remove_message'],
+			'href' => Config::$scripturl.'?action=moderate;area=userwatch;sa=post;delete='.$post['id'].';start='.Utils::$context['start'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'],
+			'javascript' => 'data-confirm="' . Lang::$txt['mc_watched_users_delete_post'] . '"',
 			'class' => 'you_sure',
 			'icon' => 'remove_button',
 			'show' => $post['can_delete']
@@ -498,12 +487,12 @@ function template_user_watch_post_callback($post)
 	$output_html = '
 					<div>
 						<div class="floatleft">
-							<strong><a href="' . $scripturl . '?topic=' . $post['id_topic'] . '.' . $post['id'] . '#msg' . $post['id'] . '">' . $post['subject'] . '</a></strong> ' . $txt['mc_reportedp_by'] . ' <strong>' . $post['author_link'] . '</strong>
+							<strong><a href="' . Config::$scripturl . '?topic=' . $post['id_topic'] . '.' . $post['id'] . '#msg' . $post['id'] . '">' . $post['subject'] . '</a></strong> ' . Lang::$txt['mc_reportedp_by'] . ' <strong>' . $post['author_link'] . '</strong>
 						</div>
 					</div>
 					<br>
 					<div class="smalltext">
-						' . $txt['mc_watched_users_posted'] . ': ' . $post['poster_time'] . '
+						' . Lang::$txt['mc_watched_users_posted'] . ': ' . $post['poster_time'] . '
 					</div>
 					<div class="list_posts">
 						' . $post['body'] . '
@@ -519,14 +508,12 @@ function template_user_watch_post_callback($post)
  */
 function template_moderation_settings()
 {
-	global $context, $txt, $scripturl;
-
 	echo '
 	<div id="modcenter">';
 
 	echo '
 		<div class="windowbg">
-			<div class="centertext">', $txt['mc_no_settings'], '</div>
+			<div class="centertext">', Lang::$txt['mc_no_settings'], '</div>
 		</div>';
 
 	echo '
@@ -538,30 +525,28 @@ function template_moderation_settings()
  */
 function template_show_notice()
 {
-	global $txt, $settings, $context, $modSettings;
-
 	// We do all the HTML for this one!
 	echo '<!DOCTYPE html>
-<html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
+<html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta charset="', $context['character_set'], '">
-		<title>', $context['page_title'], '</title>
-		', template_css(), '
+		<meta charset="', Utils::$context['character_set'], '">
+		<title>', Utils::$context['page_title'], '</title>
+		', Theme::template_css(), '
 	</head>
 	<body>
 		<div class="cat_bar">
-			<h3 class="catbg">', $txt['show_notice'], '</h3>
+			<h3 class="catbg">', Lang::$txt['show_notice'], '</h3>
 		</div>
 		<div class="title_bar">
-			<h3 class="titlebg">', $txt['show_notice_subject'], ': ', $context['notice_subject'], '</h3>
+			<h3 class="titlebg">', Lang::$txt['show_notice_subject'], ': ', Utils::$context['notice_subject'], '</h3>
 		</div>
 		<div class="windowbg">
 			<dl>
 				<dt>
-					<strong>', $txt['show_notice_text'], ':</strong>
+					<strong>', Lang::$txt['show_notice_text'], ':</strong>
 				</dt>
 				<dd>
-					', $context['notice_body'], '
+					', Utils::$context['notice_body'], '
 				</dd>
 			</dl>
 		</div>
@@ -575,68 +560,66 @@ function template_show_notice()
  */
 function template_warn_template()
 {
-	global $context, $txt, $scripturl;
-
 	echo '
 	<div id="modcenter">
-		<form action="', $scripturl, '?action=moderate;area=warnings;sa=templateedit;tid=', $context['id_template'], '" method="post" accept-charset="', $context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=moderate;area=warnings;sa=templateedit;tid=', Utils::$context['id_template'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
 			<div class="cat_bar">
-				<h3 class="catbg">', $context['page_title'], '</h3>
+				<h3 class="catbg">', Utils::$context['page_title'], '</h3>
 			</div>
 			<div class="information">
-				', $txt['mc_warning_template_desc'], '
+				', Lang::$txt['mc_warning_template_desc'], '
 			</div>
 			<div class="windowbg">
-				<div class="errorbox"', empty($context['warning_errors']) ? ' style="display: none"' : '', ' id="errors">
+				<div class="errorbox"', empty(Utils::$context['warning_errors']) ? ' style="display: none"' : '', ' id="errors">
 					<dl>
 						<dt>
-							<strong id="error_serious">', $txt['error_while_submitting'], '</strong>
+							<strong id="error_serious">', Lang::$txt['error_while_submitting'], '</strong>
 						</dt>
 						<dd class="error" id="error_list">
-							', empty($context['warning_errors']) ? '' : implode('<br>', $context['warning_errors']), '
+							', empty(Utils::$context['warning_errors']) ? '' : implode('<br>', Utils::$context['warning_errors']), '
 						</dd>
 					</dl>
 				</div>
-				<div id="box_preview"', !empty($context['template_preview']) ? '' : ' style="display:none"', '>
+				<div id="box_preview"', !empty(Utils::$context['template_preview']) ? '' : ' style="display:none"', '>
 					<dl class="settings">
 						<dt>
-							<strong>', $txt['preview'], '</strong>
+							<strong>', Lang::$txt['preview'], '</strong>
 						</dt>
 						<dd id="template_preview">
-							', !empty($context['template_preview']) ? $context['template_preview'] : '', '
+							', !empty(Utils::$context['template_preview']) ? Utils::$context['template_preview'] : '', '
 						</dd>
 					</dl>
 				</div>
 				<dl class="settings">
 					<dt>
-						<strong><label for="template_title">', $txt['mc_warning_template_title'], '</label>:</strong>
+						<strong><label for="template_title">', Lang::$txt['mc_warning_template_title'], '</label>:</strong>
 					</dt>
 					<dd>
-						<input type="text" id="template_title" name="template_title" value="', $context['template_data']['title'], '" size="30">
+						<input type="text" id="template_title" name="template_title" value="', Utils::$context['template_data']['title'], '" size="30">
 					</dd>
 					<dt>
-						<strong><label for="template_body">', $txt['profile_warning_notify_body'], '</label>:</strong><br>
-						<span class="smalltext">', $txt['mc_warning_template_body_desc'], '</span>
+						<strong><label for="template_body">', Lang::$txt['profile_warning_notify_body'], '</label>:</strong><br>
+						<span class="smalltext">', Lang::$txt['mc_warning_template_body_desc'], '</span>
 					</dt>
 					<dd>
-						<textarea id="template_body" name="template_body" rows="10" cols="45" class="smalltext">', $context['template_data']['body'], '</textarea>
+						<textarea id="template_body" name="template_body" rows="10" cols="45" class="smalltext">', Utils::$context['template_data']['body'], '</textarea>
 					</dd>
 				</dl>';
 
-	if ($context['template_data']['can_edit_personal'])
+	if (Utils::$context['template_data']['can_edit_personal'])
 		echo '
-				<input type="checkbox" name="make_personal" id="make_personal"', $context['template_data']['personal'] ? ' checked' : '', '>
+				<input type="checkbox" name="make_personal" id="make_personal"', Utils::$context['template_data']['personal'] ? ' checked' : '', '>
 					<label for="make_personal">
-						<strong>', $txt['mc_warning_template_personal'], '</strong>
+						<strong>', Lang::$txt['mc_warning_template_personal'], '</strong>
 					</label>
-					<p class="smalltext">', $txt['mc_warning_template_personal_desc'], '</p>';
+					<p class="smalltext">', Lang::$txt['mc_warning_template_personal_desc'], '</p>';
 
 	echo '
-				<input type="submit" name="preview" id="preview_button" value="', $txt['preview'], '" class="button">
-				<input type="submit" name="save" value="', $context['page_title'], '" class="button">
+				<input type="submit" name="preview" id="preview_button" value="', Lang::$txt['preview'], '" class="button">
+				<input type="submit" name="save" value="', Utils::$context['page_title'], '" class="button">
 			</div><!-- .windowbg -->
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-			<input type="hidden" name="', $context['mod-wt_token_var'], '" value="', $context['mod-wt_token'], '">
+			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+			<input type="hidden" name="', Utils::$context['mod-wt_token_var'], '" value="', Utils::$context['mod-wt_token'], '">
 		</form>
 	</div><!-- #modcenter -->
 
@@ -657,7 +640,7 @@ function template_warn_template()
 				xhrFields: {
 					withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
 				},
-				url: "' . $scripturl . '?action=xmlhttp;sa=previews;xml",
+				url: "' . Config::$scripturl . '?action=xmlhttp;sa=previews;xml",
 				data: {item: "warning_preview", title: $("#template_title").val(), body: $("#template_body").val(), user: $(\'input[name="u"]\').attr("value")},
 				context: document.body,
 				success: function(request){

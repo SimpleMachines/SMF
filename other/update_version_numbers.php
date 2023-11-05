@@ -28,11 +28,11 @@
  * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.4
+ * @version 3.0 Alpha 1
  */
 
 // Obviously, set this to the name of the release branch in question
-$release_branch = 'release-2.1';
+$release_branch = 'release-3.0';
 
 // The root directory of the working tree for this Git repository
 $basedir = dirname(__DIR__);

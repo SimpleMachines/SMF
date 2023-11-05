@@ -1,22 +1,30 @@
 <?php
 
 /**
- * This file contains code used to update SMF's Unicode data files.
- *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.3
+ * @version 3.0 Alpha 1
  */
 
+namespace SMF\Tasks;
+
+use SMF\Config;
+use SMF\ErrorHandler;
+use SMF\Lang;
+use SMF\TaskRunner;
+use SMF\Utils;
+use SMF\DatabaseApi as Db;
+use SMF\WebFetch\WebFetchApi;
+
 /**
- * Class Update_Unicode
+ * This class contains code used to update SMF's Unicode data files.
  */
-class Update_Unicode extends SMF_BackgroundTask
+class UpdateUnicode extends BackgroundTask
 {
 	/**
 	 * URLs where we can fetch the Unicode data files.
@@ -35,7 +43,7 @@ class Update_Unicode extends SMF_BackgroundTask
 	public $temp_dir = '';
 
 	/**
-	 * @var string Convenince alias of $sourcedir . '/Unicode'.
+	 * @var string Convenince alias of Config::$sourcedir . '/Unicode'.
 	 */
 	public $unicodedir = '';
 
@@ -407,12 +415,10 @@ class Update_Unicode extends SMF_BackgroundTask
 	 */
 	public function execute()
 	{
-		global $sourcedir, $smcFunc, $txt;
-
 		/*****************
 		 * Part 1: Setup *
 		 *****************/
-		$this->unicodedir = $sourcedir . DIRECTORY_SEPARATOR . 'Unicode';
+		$this->unicodedir = Config::$sourcedir . DIRECTORY_SEPARATOR . 'Unicode';
 
 		// We need a temporary directory to hold our files while we work on them.
 		$this->make_temp_dir();
@@ -429,7 +435,7 @@ class Update_Unicode extends SMF_BackgroundTask
 
 		@ini_set('memory_limit', '256M');
 
-		$this->time_limit = (empty(ini_get('max_execution_time')) || @set_time_limit(MAX_CLAIM_THRESHOLD) !== false) ? MAX_CLAIM_THRESHOLD : ini_get('max_execution_time');
+		$this->time_limit = (empty(ini_get('max_execution_time')) || @set_time_limit(TaskRunner::MAX_CLAIM_THRESHOLD) !== false) ? TaskRunner::MAX_CLAIM_THRESHOLD : ini_get('max_execution_time');
 
 		foreach ($this->funcs as $func_name => &$func_info)
 		{
@@ -438,10 +444,10 @@ class Update_Unicode extends SMF_BackgroundTask
 			if (!file_exists($file_paths['final']))
 				touch($file_paths['final']);
 
-			if (!is_file($file_paths['final']) || !smf_chmod($file_paths['final']))
+			if (!is_file($file_paths['final']) || !Utils::makeWritable($file_paths['final']))
 			{
-				loadLanguage('Errors');
-				log_error(sprintf($txt['unicode_update_failed'], $this->unicodedir));
+				Lang::load('Errors');
+				ErrorHandler::log(sprintf(Lang::$txt['unicode_update_failed'], $this->unicodedir));
 				return true;
 			}
 
@@ -450,16 +456,16 @@ class Update_Unicode extends SMF_BackgroundTask
 			if (!file_exists($file_paths['temp']))
 				touch($file_paths['temp']);
 
-			if (!is_file($file_paths['temp']) || !smf_chmod($file_paths['temp']))
+			if (!is_file($file_paths['temp']) || !Utils::makeWritable($file_paths['temp']))
 			{
-				loadLanguage('Errors');
-				log_error(sprintf($txt['unicode_update_failed'], $this->temp_dir));
+				Lang::load('Errors');
+				ErrorHandler::log(sprintf(Lang::$txt['unicode_update_failed'], $this->temp_dir));
 				return true;
 			}
 
 			$file_contents['temp'] = file_get_contents($file_paths['temp']);
 
-			if (empty($file_contents['temp']))
+			if (empty($file_contents['temp']) || strpos($file_contents['temp'], 'namespace SMF\\Unicode;') === false)
 			{
 				file_put_contents($file_paths['temp'], $this->smf_file_header());
 			}
@@ -485,7 +491,7 @@ class Update_Unicode extends SMF_BackgroundTask
 				// If prefetch is taking a really long time, pause and try again later.
 				if ($local_file === false || microtime(true) - TIME_START >= $this->time_limit - $max_fetch_time)
 				{
-					$smcFunc['db_insert']('',
+					Db::$db->insert('',
 						'{db_prefix}background_tasks',
 						array(
 							'task_file' => 'string',
@@ -595,19 +601,15 @@ class Update_Unicode extends SMF_BackgroundTask
 	 */
 	private function make_temp_dir()
 	{
-		global $sourcedir;
-
 		if (empty($this->temp_dir))
 		{
-			require_once($sourcedir . DIRECTORY_SEPARATOR . 'Subs-Admin.php');
-
-			$this->temp_dir = rtrim(sm_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'Unicode';
+			$this->temp_dir = rtrim(Config::getTempDir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'Unicode';
 
 			if (!is_dir($this->temp_dir))
 				@mkdir($this->temp_dir);
 
 			// Needs to be a writable directory.
-			if (!is_dir($this->temp_dir) || !smf_chmod($this->temp_dir))
+			if (!is_dir($this->temp_dir) || !Utils::makeWritable($this->temp_dir))
 				$this->temp_dir = null;
 		}
 	}
@@ -624,8 +626,6 @@ class Update_Unicode extends SMF_BackgroundTask
 	 */
 	private function fetch_unicode_file($filename, $data_url)
 	{
-		global $sourcedir;
-
 		$filename = ltrim($filename, '\\/');
 		$file_url_name = strtr($filename, array('\\' => '/'));
 		$file_local_name = strtr($filename, array('\\' => DIRECTORY_SEPARATOR, '/' => DIRECTORY_SEPARATOR));
@@ -654,7 +654,7 @@ class Update_Unicode extends SMF_BackgroundTask
 				return false;
 		}
 
-		$file_contents = fetch_web_data($data_url . '/' . $file_url_name);
+		$file_contents = WebFetchApi::fetch($data_url . '/' . $file_url_name);
 
 		if (empty($file_contents))
 			return false;
@@ -675,7 +675,7 @@ class Update_Unicode extends SMF_BackgroundTask
 		if (strpos($dir_path, $this->temp_dir) !== 0)
 			return;
 
-		$dir = new DirectoryIterator($dir_path);
+		$dir = new \DirectoryIterator($dir_path);
 
 		$to_delete = array();
 		foreach ($dir as $fileinfo)
@@ -702,15 +702,12 @@ class Update_Unicode extends SMF_BackgroundTask
 	 */
 	private function smf_file_header()
 	{
-		global $sourcedir;
-
 		static $file_template;
 
 		if (!empty($file_template))
 			return $file_template;
 
-		require_once($sourcedir . '/Subs-Admin.php');
-		$settings_defs = get_settings_defs();
+		$settings_defs = Config::getSettingsDefs();
 
 		$license_block = '';
 
@@ -730,6 +727,7 @@ class Update_Unicode extends SMF_BackgroundTask
 		$file_template = implode("\n\n", array(
 			'<' . '?php',
 			trim($license_block),
+			'namespace SMF\\Unicode;',
 			"if (!defined('SMF'))\n\tdie('No direct access...');",
 			'',
 		));
@@ -945,8 +943,6 @@ class Update_Unicode extends SMF_BackgroundTask
 	 */
 	private function lookup_ucd_version()
 	{
-		global $sourcedir;
-
 		if (!empty($this->ucd_version))
 			return true;
 

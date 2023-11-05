@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1.0; ManageMaintenance
+// Version: 3.0 Alpha 1; ManageMaintenance
 
 $txt['repair_zero_ids'] = 'Found topics and/or messages with topic or message IDs of 0.';
 $txt['repair_missing_topics'] = 'Message #%1$d is in non-existent topic #%2$d.';
@@ -115,8 +115,9 @@ $txt['filter_only_type'] = 'Only show the errors of this type';
 $txt['filter_only_file'] = 'Only show the errors from this file';
 $txt['apply_filter_of_type'] = 'Apply filter of type';
 $txt['backtrace_title'] = 'Backtrace information';
-// argument(s): error message, function, filename, line nr, filehash, $scripturl
+// argument(s): error message, function, filename, line nr, filehash, Config::$scripturl
 $txt['backtrace_info'] = '<b>#%1$d</b>: %2$s()<br>Called from <a href="%6$s?action=admin;area=logs;sa=errorlog;file=%5$s;line=%4$d" onclick="return reqWin(this.href, 600, 480, false);">%3$s on line %4$d</a>';
+$txt['backtrace_info_internal_function'] = '<b>#%1$d</b>: %2$s()<br>Called from [internal function]';
 
 $txt['errortype_all'] = 'All errors';
 $txt['errortype_general'] = 'General';

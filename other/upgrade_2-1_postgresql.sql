@@ -9,7 +9,7 @@
 if (!empty($upcontext['delete_karma']))
 {
 	// Delete old settings vars.
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}settings
 		WHERE variable IN ({array_string:karma_vars})',
 		array(
@@ -17,11 +17,11 @@ if (!empty($upcontext['delete_karma']))
 		)
 	);
 
-    $member_columns = $smcFunc['db_list_columns']('{db_prefix}members');
+    $member_columns = Db::$db->list_columns('{db_prefix}members');
 
 	// Cleaning up old karma member settings.
 	if (in_array('karma_good', $member_columns))
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			ALTER TABLE {db_prefix}members
 			DROP karma_good',
 			array()
@@ -29,14 +29,14 @@ if (!empty($upcontext['delete_karma']))
 
 	// Does karma bad was enable?
 	if (in_array('karma_bad', $member_columns))
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			ALTER TABLE {db_prefix}members
 			DROP karma_bad',
 			array()
 		);
 
 	// Cleaning up old karma permissions.
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}permissions
 		WHERE permission = {string:karma_vars}',
 		array(
@@ -45,7 +45,7 @@ if (!empty($upcontext['delete_karma']))
 	);
 
 	// Cleaning up old log_karma table
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DROP TABLE IF EXISTS {db_prefix}log_karma',
 		array()
 	);
@@ -61,7 +61,7 @@ if (!empty($upcontext['delete_karma']))
 ---{
 if (!empty($upcontext['empty_error']))
 {
-	$smcFunc['db_query']('truncate_table', '
+	Db::$db->query('truncate_table', '
 		TRUNCATE {db_prefix}log_errors',
 		array(
 		)
@@ -314,28 +314,28 @@ CREATE INDEX {$db_prefix}member_logins_time ON {$db_prefix}member_logins (time);
 
 ---# Copying the current package backup setting...
 ---{
-if (!isset($modSettings['package_make_full_backups']) && isset($modSettings['package_make_backups']))
+if (!isset(Config::$modSettings['package_make_full_backups']) && isset(Config::$modSettings['package_make_backups']))
 	upgrade_query("
 		INSERT INTO {$db_prefix}settings
 			(variable, value)
 		VALUES
-			('package_make_full_backups', '" . $modSettings['package_make_backups'] . "')");
+			('package_make_full_backups', '" . Config::$modSettings['package_make_backups'] . "')");
 ---}
 ---#
 
 ---# Copying the current "allow users to disable word censor" setting...
 ---{
-if (!isset($modSettings['allow_no_censored']))
+if (!isset(Config::$modSettings['allow_no_censored']))
 {
 	$request = upgrade_query("
 		SELECT value
 		FROM {$db_prefix}themes
 		WHERE variable='allow_no_censored'
-		AND id_theme = 1 OR id_theme = '$modSettings[theme_default]'
+		AND id_theme = 1 OR id_theme = 'Config::$modSettings[theme_default]'
 	");
 
 	// Is it set for either "default" or the one they've set as default?
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		if ($row['value'] == 1)
 		{
@@ -355,19 +355,19 @@ if (!isset($modSettings['allow_no_censored']))
 ---# Converting collapsed categories...
 ---{
 // We cannot do this twice
-if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<'))
+if (version_compare(trim(strtolower(@Config::$modSettings['smfVersion'])), '2.1.foo', '<'))
 {
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_member, id_cat
 		FROM {db_prefix}collapsed_categories');
 
 	$inserts = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$inserts[] = array($row['id_member'], 1, 'collapse_category_' . $row['id_cat'], $row['id_cat']);
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	if (!empty($inserts))
-		$smcFunc['db_insert']('replace',
+		Db::$db->insert('replace',
 			'{db_prefix}themes',
 			array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
 			$inserts,
@@ -379,21 +379,21 @@ if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<
 
 ---# Parsing board descriptions and names
 ---{
-if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<'))
+if (version_compare(trim(strtolower(@Config::$modSettings['smfVersion'])), '2.1.foo', '<'))
 {
-    $request = $smcFunc['db_query']('', '
+    $request = Db::$db->query('', '
         SELECT name, description, id_board
         FROM {db_prefix}boards');
 
     $inserts = array();
 
-    $smcFunc['db_free_result']($request);
+    Db::$db->free_result($request);
 
-    while ($row = $smcFunc['db_fetch_assoc']($request))
+    while ($row = Db::$db->fetch_assoc($request))
     {
         $inserts[] = array(
-            'name' => $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($row['name']))),
-            'description' => $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($row['description']))),
+            'name' => Utils::htmlspecialchars(strip_tags(SMF\BBCodeParser::load()->unparse($row['name']))),
+            'description' => Utils::htmlspecialchars(strip_tags(SMF\BBCodeParser::load()->unparse($row['description']))),
             'id' => $row['id'],
         );
     }
@@ -402,7 +402,7 @@ if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<
     {
         foreach ($inserts as $insert)
         {
-            $smcFunc['db_query']('', '
+            Db::$db->query('', '
                 UPDATE {db_prefix}boards
                 SET name = {string:name}, description = {string:description}
                 WHERE id = {int:id}',
@@ -444,8 +444,8 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 
 ---# Adding new "loginHistoryDays" setting
 ---{
-	if (!isset($modSettings['loginHistoryDays']))
-		$smcFunc['db_insert']('insert',
+	if (!isset(Config::$modSettings['loginHistoryDays']))
+		Db::$db->insert('insert',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
 			array('loginHistoryDays', '30'),
@@ -458,7 +458,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 ---{
 	$ripped_settings = array('show_modify', 'show_user_images', 'show_blurb', 'show_profile_buttons', 'subject_toggle', 'hide_post_group');
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT variable, value
 		FROM {db_prefix}themes
 		WHERE variable IN({array_string:ripped_settings})
@@ -470,11 +470,11 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 	);
 
 	$inserts = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 		$inserts[] = array($row['variable'], $row['value']);
 
-	$smcFunc['db_free_result']($request);
-	$smcFunc['db_insert']('replace',
+	Db::$db->free_result($request);
+	Db::$db->insert('replace',
 		'{db_prefix}settings',
 		array('variable' => 'string', 'value' => 'string'),
 		$inserts,
@@ -485,8 +485,8 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 
 ---# Disable Moderation Center Security if it doesn't exist
 ---{
-	if (!isset($modSettings['securityDisable_moderate']))
-		$smcFunc['db_insert']('ignore',
+	if (!isset(Config::$modSettings['securityDisable_moderate']))
+		Db::$db->insert('ignore',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
 			array('securityDisable_moderate', '1'),
@@ -504,22 +504,22 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_rate', '250')
 
 ---# Adding settings for marking boards as read
 ---{
-	if (!isset($modSettings['mark_read_beyond']))
-		$smcFunc['db_insert']('insert',
+	if (!isset(Config::$modSettings['mark_read_beyond']))
+		Db::$db->insert('insert',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
 			array('mark_read_beyond', '90'),
 			array()
 		);
-	if (!isset($modSettings['mark_read_delete_beyond']))
-		$smcFunc['db_insert']('insert',
+	if (!isset(Config::$modSettings['mark_read_delete_beyond']))
+		Db::$db->insert('insert',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
 			array('mark_read_delete_beyond', '365'),
 			array()
 		);
-	if (!isset($modSettings['mark_read_max_users']))
-		$smcFunc['db_insert']('insert',
+	if (!isset(Config::$modSettings['mark_read_max_users']))
+		Db::$db->insert('insert',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
 			array('mark_read_max_users', '500'),
@@ -541,7 +541,7 @@ ALTER TABLE {$db_prefix}attachments
 ---{
 
 // Need to know a few things first.
-$custom_av_dir = !empty($modSettings['custom_avatar_dir']) ? $modSettings['custom_avatar_dir'] : $GLOBALS['boarddir'] .'/custom_avatar';
+$custom_av_dir = !empty(Config::$modSettings['custom_avatar_dir']) ? Config::$modSettings['custom_avatar_dir'] : Config::boarddir .'/custom_avatar';
 
 // This little fellow has to cooperate...
 if (!is_writable($custom_av_dir))
@@ -560,41 +560,41 @@ if (!is_writable($custom_av_dir))
 }
 
 // If we already are using a custom dir, delete the predefined one.
-if (realpath($custom_av_dir) != realpath($GLOBALS['boarddir'] .'/custom_avatar'))
+if (realpath($custom_av_dir) != realpath(Config::boarddir .'/custom_avatar'))
 {
 	// Borrow custom_avatars index.php file.
 	if (!file_exists($custom_av_dir . '/index.php'))
-		@rename($GLOBALS['boarddir'] .'/custom_avatar/index.php', $custom_av_dir .'/index.php');
+		@rename(Config::boarddir .'/custom_avatar/index.php', $custom_av_dir .'/index.php');
 	else
-		@unlink($GLOBALS['boarddir'] . '/custom_avatar/index.php');
+		@unlink(Config::boarddir . '/custom_avatar/index.php');
 
 	// Borrow blank.png as well
 	if (!file_exists($custom_av_dir . '/blank.png'))
-		@rename($GLOBALS['boarddir'] . '/custom_avatar/blank.png', $custom_av_dir . '/blank.png');
+		@rename(Config::boarddir . '/custom_avatar/blank.png', $custom_av_dir . '/blank.png');
 	else
-		@unlink($GLOBALS['boarddir'] . '/custom_avatar/blank.png');
+		@unlink(Config::boarddir . '/custom_avatar/blank.png');
 
 	// Attempt to delete the directory.
-	@rmdir($GLOBALS['boarddir'] .'/custom_avatar');
+	@rmdir(Config::boarddir .'/custom_avatar');
 }
 
 $request = upgrade_query("
 	SELECT COUNT(*)
 	FROM {$db_prefix}attachments
 	WHERE attachment_type != 1");
-list ($step_progress['total']) = $smcFunc['db_fetch_row']($request);
-$smcFunc['db_free_result']($request);
+list ($step_progress['total']) = Db::$db->fetch_row($request);
+Db::$db->free_result($request);
 
 $_GET['a'] = isset($_GET['a']) ? (int) $_GET['a'] : 0;
 $step_progress['name'] = 'Converting legacy attachments';
 $step_progress['current'] = $_GET['a'];
 
 // We may be using multiple attachment directories.
-if (!empty($modSettings['currentAttachmentUploadDir']) && !is_array($modSettings['attachmentUploadDir']) && empty($modSettings['json_done']))
-	$modSettings['attachmentUploadDir'] = @unserialize($modSettings['attachmentUploadDir']);
+if (!empty(Config::$modSettings['currentAttachmentUploadDir']) && !is_array(Config::$modSettings['attachmentUploadDir']) && empty(Config::$modSettings['json_done']))
+	Config::$modSettings['attachmentUploadDir'] = @unserialize(Config::$modSettings['attachmentUploadDir']);
 
 // No need to do this if we already did it previously...
-if (empty($modSettings['attachments_21_done']))
+if (empty(Config::$modSettings['attachments_21_done']))
   $is_done = false;
 else
   $is_done = true;
@@ -611,13 +611,13 @@ while (!$is_done)
 		LIMIT $_GET[a], 100");
 
 	// Finished?
-	if ($smcFunc['db_num_rows']($request) == 0)
+	if (Db::$db->num_rows($request) == 0)
 		$is_done = true;
 
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		// The current folder.
-		$currentFolder = !empty($modSettings['currentAttachmentUploadDir']) ? $modSettings['attachmentUploadDir'][$row['id_folder']] : $modSettings['attachmentUploadDir'];
+		$currentFolder = !empty(Config::$modSettings['currentAttachmentUploadDir']) ? Config::$modSettings['attachmentUploadDir'][$row['id_folder']] : Config::$modSettings['attachmentUploadDir'];
 
 		$fileHash = '';
 
@@ -626,7 +626,7 @@ while (!$is_done)
 		{
 			// Remove international characters (windows-1252)
 			// These lines should never be needed again. Still, behave.
-			if (empty($db_character_set) || $db_character_set != 'utf8')
+			if (empty(Config::$db_character_set) || Config::$db_character_set != 'utf8')
 			{
 				$row['filename'] = strtr($row['filename'],
 					"\x8a\x8e\x9a\x9e\x9f\xc0\xc1\xc2\xc3\xc4\xc5\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd1\xd2\xd3\xd4\xd5\xd6\xd8\xd9\xda\xdb\xdc\xdd\xe0\xe1\xe2\xe3\xe4\xe5\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf1\xf2\xf3\xf4\xf5\xf6\xf8\xf9\xfa\xfb\xfc\xfd\xff",
@@ -700,7 +700,7 @@ while (!$is_done)
 		{
 			$size = @getimagesize($newFile);
 			if (!empty($size['mime']))
-				$smcFunc['db_query']('', '
+				Db::$db->query('', '
 					UPDATE {db_prefix}attachments
 					SET mime_type = {string:mime_type}
 					WHERE id_attach = {int:id_attach}',
@@ -711,7 +711,7 @@ while (!$is_done)
 				);
 		}
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	$_GET['a'] += 100;
 	$step_progress['current'] = $_GET['a'];
@@ -731,21 +731,21 @@ $attachs = array();
 // If id_member = 0, then it's not an avatar
 // If attachment_type = 0, then it's also not a thumbnail
 // Theory says there shouldn't be *that* many of these
-$request = $smcFunc['db_query']('', '
+$request = Db::$db->query('', '
 	SELECT id_attach, mime_type, width, height
 	FROM {db_prefix}attachments
 	WHERE id_member = 0
 		AND attachment_type = 0'
 );
-while ($row = $smcFunc['db_fetch_assoc']($request))
+while ($row = Db::$db->fetch_assoc($request))
 {
 	if (($row['width'] > 0 || $row['height'] > 0) && strpos($row['mime_type'], 'image') !== 0)
 		$attachs[] = $row['id_attach'];
 }
-$smcFunc['db_free_result']($request);
+Db::$db->free_result($request);
 
 if (!empty($attachs))
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		UPDATE {db_prefix}attachments
 		SET width = 0,
 			height = 0
@@ -762,36 +762,36 @@ if (!empty($attachs))
 // If it's a directory or an array, ensure it is stored as a serialized string (prep for later serial_to_json conversion)
 // Also ensure currentAttachmentUploadDir is set even for single directories
 // Make sure to do it in memory and in db...
-if (empty($modSettings['json_done']))
+if (empty(Config::$modSettings['json_done']))
 {
-	if (!is_array($modSettings['attachmentUploadDir']) && is_dir($modSettings['attachmentUploadDir']))
+	if (!is_array(Config::$modSettings['attachmentUploadDir']) && is_dir(Config::$modSettings['attachmentUploadDir']))
 	{
-		$modSettings['attachmentUploadDir'] = serialize(array(1 => $modSettings['attachmentUploadDir']));
-		$smcFunc['db_query']('', '
+		Config::$modSettings['attachmentUploadDir'] = serialize(array(1 => Config::$modSettings['attachmentUploadDir']));
+		Db::$db->query('', '
 			UPDATE {db_prefix}settings
 			SET value = {string:attach_dir}
 			WHERE variable = {string:uploadDir}',
 			array(
-				'attach_dir' => $modSettings['attachmentUploadDir'],
+				'attach_dir' => Config::$modSettings['attachmentUploadDir'],
 				'uploadDir' => 'attachmentUploadDir'
 			)
 		);
-		$smcFunc['db_insert']('replace',
+		Db::$db->insert('replace',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
 			array('currentAttachmentUploadDir', '1'),
 			array('variable')
 		);
 	}
-	elseif (is_array($modSettings['attachmentUploadDir']))
+	elseif (is_array(Config::$modSettings['attachmentUploadDir']))
 	{
-		$modSettings['attachmentUploadDir'] = serialize($modSettings['attachmentUploadDir']);
-		$smcFunc['db_query']('', '
+		Config::$modSettings['attachmentUploadDir'] = serialize(Config::$modSettings['attachmentUploadDir']);
+		Db::$db->query('', '
 			UPDATE {db_prefix}settings
 			SET value = {string:attach_dir}
 			WHERE variable = {string:uploadDir}',
 			array(
-				'attach_dir' => $modSettings['attachmentUploadDir'],
+				'attach_dir' => Config::$modSettings['attachmentUploadDir'],
 				'uploadDir' => 'attachmentUploadDir'
 			)
 		);
@@ -850,7 +850,7 @@ ADD COLUMN IF NOT EXISTS extra TEXT;
 
 ---# Add Package Validation to Downloads Site
 ---{
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_server
 		FROM {db_prefix}package_servers
 		WHERE url LIKE {string:downloads_site}',
@@ -859,12 +859,12 @@ ADD COLUMN IF NOT EXISTS extra TEXT;
 		)
 	);
 
-	if ($smcFunc['db_num_rows']($request) != 0)
-		list($downloads_server) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	if (Db::$db->num_rows($request) != 0)
+		list($downloads_server) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	if (empty($downloads_server))
-		$smcFunc['db_insert']('',
+		Db::$db->insert('',
 			'{db_prefix}package_servers',
 			array('name' => 'string', 'url' => 'string', 'validation_url' => 'string'),
 			array('Simple Machines Download Site', 'https://download.simplemachines.org/browse.php?api=v1;smf_version={SMF_VERSION}', 'https://download.simplemachines.org/validate.php?api=v1;smf_version={SMF_VERSION}'),
@@ -958,9 +958,9 @@ VALUES
 
 ---# Adding a new task-related setting...
 ---{
-	if (!isset($modSettings['allow_expire_redirect']))
+	if (!isset(Config::$modSettings['allow_expire_redirect']))
 	{
-		$get_info = $smcFunc['db_query']('', '
+		$get_info = Db::$db->query('', '
 			SELECT disabled
 			FROM {db_prefix}scheduled_tasks
 			WHERE task = {string:remove_redirect}',
@@ -969,10 +969,10 @@ VALUES
 			)
 		);
 
-		list($task_disabled) = $smcFunc['db_fetch_row']($get_info);
-		$smcFunc['db_free_result']($get_info);
+		list($task_disabled) = Db::$db->fetch_row($get_info);
+		Db::$db->free_result($get_info);
 
-		$smcFunc['db_insert']('replace',
+		Db::$db->insert('replace',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
 			array('allow_expire_redirect', !$task_disabled),
@@ -997,7 +997,7 @@ VALUES
 		'weekly_digest',
 		'weekly_maintenance');
 
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}scheduled_tasks
 		WHERE task NOT IN ({array_string:keep_tasks});',
 		array(
@@ -1048,11 +1048,11 @@ VALUES
 /******************************************************************************/
 ---# Removing manage_boards permission
 ---{
-if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<'))
+if (version_compare(trim(strtolower(@Config::$modSettings['smfVersion'])), '2.1.foo', '<'))
 {
 	$board_managers = array();
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_group
 		FROM {db_prefix}permissions
 		WHERE permission = {string:permission}',
@@ -1060,27 +1060,27 @@ if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<
 			'permission' => 'manage_boards',
 		)
 	);
-	if ($smcFunc['db_num_rows']($request) != 0)
+	if (Db::$db->num_rows($request) != 0)
 	{
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$board_managers[$row['id_group']] = 0;
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT member_groups
 		FROM {db_prefix}boards',
 		array()
 	);
-	$num_boards = $smcFunc['db_num_rows']($request);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	$num_boards = Db::$db->num_rows($request);
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$groups = explode(',', $row['member_groups']);
 		foreach ($groups as $group)
 			if (array_key_exists($group, $board_managers))
 				++$board_managers[$group];
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	$ex_board_managers = array();
 	foreach ($board_managers as $id_group => $board_count)
@@ -1089,7 +1089,7 @@ if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<
 
 	if (!empty($ex_board_managers))
 	{
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}permissions
 			WHERE permission = {string:permission}
 				AND id_group IN ({array_int:ex_board_managers})',
@@ -1193,7 +1193,7 @@ INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) V
 ---# Upgrading post notification settings
 ---{
 // First see if we still have a notify_regularity column
-$results = $smcFunc['db_list_columns']('{db_prefix}members');
+$results = Db::$db->list_columns('{db_prefix}members');
 if (in_array('notify_regularity', $results))
 {
 	$_GET['a'] = isset($_GET['a']) ? (int) $_GET['a'] : 0;
@@ -1203,9 +1203,9 @@ if (in_array('notify_regularity', $results))
 	$limit = 10000;
 	$is_done = false;
 
-	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}members');
-	list($maxMembers) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	$request = Db::$db->query('', 'SELECT COUNT(*) FROM {db_prefix}members');
+	list($maxMembers) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	while (!$is_done)
 	{
@@ -1213,7 +1213,7 @@ if (in_array('notify_regularity', $results))
 		$inserts = array();
 
 		// Skip errors here so we don't croak if the columns don't exist...
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_member, notify_regularity, notify_send_body, notify_types, notify_announcements
 			FROM {db_prefix}members
 			ORDER BY id_member
@@ -1224,19 +1224,19 @@ if (in_array('notify_regularity', $results))
 				'limit' => $limit,
 			)
 		);
-		if ($smcFunc['db_num_rows']($request) != 0)
+		if (Db::$db->num_rows($request) != 0)
 		{
-			while ($row = $smcFunc['db_fetch_assoc']($request))
+			while ($row = Db::$db->fetch_assoc($request))
 			{
 				$inserts[] = array($row['id_member'], 'msg_receive_body', !empty($row['notify_send_body']) ? 1 : 0);
 				$inserts[] = array($row['id_member'], 'msg_notify_pref', intval($row['notify_regularity']) + 1);
 				$inserts[] = array($row['id_member'], 'msg_notify_type', $row['notify_types']);
 				$inserts[] = array($row['id_member'], 'announcements', !empty($row['notify_announcements']) ? 1 : 0);
 			}
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 		}
 
-		$smcFunc['db_insert']('ignore',
+		Db::$db->insert('ignore',
 			'{db_prefix}user_alerts_prefs',
 			array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'string'),
 			$inserts,
@@ -1340,16 +1340,16 @@ DELETE FROM {$db_prefix}themes
 	$limit = 10000;
 	$is_done = false;
 
-	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}log_notify WHERE id_member <> 0 AND id_topic <> 0');
-	list($maxTopics) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	$request = Db::$db->query('', 'SELECT COUNT(*) FROM {db_prefix}log_notify WHERE id_member <> 0 AND id_topic <> 0');
+	list($maxTopics) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	while (!$is_done)
 	{
 		nextSubStep($substep);
 		$inserts = array();
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_member, (\'topic_notify_\' || id_topic) as alert_pref, 1 as alert_value
 			FROM {db_prefix}log_notify
 			WHERE id_member <> 0 AND id_topic <> 0
@@ -1360,13 +1360,13 @@ DELETE FROM {$db_prefix}themes
 				'limit' => $limit,
 			)
 		);
-		if ($smcFunc['db_num_rows']($request) != 0)
+		if (Db::$db->num_rows($request) != 0)
 		{
-			$inserts = $smcFunc['db_fetch_all']($request);
+			$inserts = Db::$db->fetch_all($request);
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
-		$smcFunc['db_insert']('ignore',
+		Db::$db->insert('ignore',
 			'{db_prefix}user_alerts_prefs',
 			array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'string'),
 			$inserts,
@@ -1392,16 +1392,16 @@ DELETE FROM {$db_prefix}themes
 	$limit = 10000;
 	$is_done = false;
 
-	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}log_notify WHERE id_member <> 0 AND id_board <> 0');
-	list($maxBoards) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	$request = Db::$db->query('', 'SELECT COUNT(*) FROM {db_prefix}log_notify WHERE id_member <> 0 AND id_board <> 0');
+	list($maxBoards) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	while (!$is_done)
 	{
 		nextSubStep($substep);
 		$inserts = array();
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_member, (\'board_notify_\' || id_board) as alert_pref, 1 as alert_value
 			FROM {db_prefix}log_notify
 			WHERE id_member <> 0 AND id_board <> 0
@@ -1412,13 +1412,13 @@ DELETE FROM {$db_prefix}themes
 				'limit' => $limit,
 			)
 		);
-		if ($smcFunc['db_num_rows']($request) != 0)
+		if (Db::$db->num_rows($request) != 0)
 		{
-			$inserts = $smcFunc['db_fetch_all']($request);
+			$inserts = Db::$db->fetch_all($request);
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
-		$smcFunc['db_insert']('ignore',
+		Db::$db->insert('ignore',
 			'{db_prefix}user_alerts_prefs',
 			array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'string'),
 			$inserts,
@@ -1528,7 +1528,7 @@ SET id_theme = 0;
 /******************************************************************************/
 ---# Check the current saved names for icons and change them to the new name.
 ---{
-$request = $smcFunc['db_query']('', '
+$request = Db::$db->query('', '
 	SELECT icons
 	FROM {db_prefix}membergroups
 	WHERE icons != {string:blank}',
@@ -1538,7 +1538,7 @@ $request = $smcFunc['db_query']('', '
 );
 $toMove = array();
 $toChange = array();
-while ($row = $smcFunc['db_fetch_assoc']($request))
+while ($row = Db::$db->fetch_assoc($request))
 {
 	if (strpos($row['icons'], 'star.gif') !== false)
 		$toChange[] = array(
@@ -1567,10 +1567,10 @@ while ($row = $smcFunc['db_fetch_assoc']($request))
 	else
 		$toMove[] = $row['icons'];
 }
-$smcFunc['db_free_result']($request);
+Db::$db->free_result($request);
 
 foreach ($toChange as $change)
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		UPDATE {db_prefix}membergroups
 		SET icons = {string:new}
 		WHERE icons = {string:old}',
@@ -1588,8 +1588,8 @@ foreach ($toMove as $move)
 	$image = $image[1];
 
 	// PHP wont suppress errors when running things from shell, so make sure it exists first...
-	if (file_exists($modSettings['theme_dir'] . '/images/' . $image))
-		@rename($modSettings['theme_dir'] . '/images/' . $image, $modSettings['theme_dir'] . '/images/membericons/'. $image);
+	if (file_exists(Config::$modSettings['theme_dir'] . '/images/' . $image))
+		@rename(Config::$modSettings['theme_dir'] . '/images/' . $image, Config::$modSettings['theme_dir'] . '/images/membericons/'. $image);
 }
 ---}
 ---#
@@ -1600,7 +1600,7 @@ foreach ($toMove as $move)
 ---# Clean up settings for unused themes
 ---{
 // Fetch list of theme directories
-$request = $smcFunc['db_query']('', '
+$request = Db::$db->query('', '
 	SELECT id_theme, variable, value
 	FROM {db_prefix}themes
 	WHERE variable = {string:theme_dir}
@@ -1613,14 +1613,14 @@ $request = $smcFunc['db_query']('', '
 // Check which themes exist in the filesystem & save off their IDs
 // Dont delete default theme(start with 1 in the array), & make sure to delete old core theme
 $known_themes = array('1');
-$core_dir = $GLOBALS['boarddir'] . '/Themes/core';
-while ($row = $smcFunc['db_fetch_assoc']($request))	{
+$core_dir = Config::boarddir . '/Themes/core';
+while ($row = Db::$db->fetch_assoc($request))	{
 	if ($row['value'] != $core_dir && is_dir($row['value'])) {
 		$known_themes[] = $row['id_theme'];
 	}
 }
 // Cleanup unused theme settings
-$smcFunc['db_query']('', '
+Db::$db->query('', '
 	DELETE FROM {db_prefix}themes
 	WHERE id_theme NOT IN ({array_int:known_themes});',
 	array(
@@ -1629,7 +1629,7 @@ $smcFunc['db_query']('', '
 );
 // Set knownThemes
 $known_themes = implode(',', $known_themes);
-$smcFunc['db_query']('', '
+Db::$db->query('', '
 	UPDATE {db_prefix}settings
 	SET value = {string:known_themes}
 	WHERE variable = {string:known_theme_str};',
@@ -1667,7 +1667,7 @@ INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_t
 
 ---# Add an order value to each existing cust profile field.
 ---{
-	$ocf = $smcFunc['db_query']('', '
+	$ocf = Db::$db->query('', '
 		SELECT id_field
 		FROM {db_prefix}custom_fields
 		WHERE field_order = 0');
@@ -1675,11 +1675,11 @@ INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_t
 		// We start counting from 5 because we already have the first 5 fields.
 		$fields_count = 5;
 
-		while ($row = $smcFunc['db_fetch_assoc']($ocf))
+		while ($row = Db::$db->fetch_assoc($ocf))
 		{
 			++$fields_count;
 
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				UPDATE {db_prefix}custom_fields
 				SET field_order = {int:field_count}
 				WHERE id_field = {int:id_field}',
@@ -1689,7 +1689,7 @@ INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_t
 				)
 			);
 		}
-		$smcFunc['db_free_result']($ocf);
+		Db::$db->free_result($ocf);
 ---}
 ---#
 
@@ -1697,7 +1697,7 @@ INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_t
 ---{
 // We cannot do this twice
 // See which columns we have
-$results = $smcFunc['db_list_columns']('{db_prefix}members');
+$results = Db::$db->list_columns('{db_prefix}members');
 $possible_columns = array('icq', 'msn', 'location', 'gender');
 
 // Find values that are in both arrays
@@ -1709,8 +1709,8 @@ if (!empty($select_columns))
 	$step_progress['name'] = 'Converting member values';
 	$step_progress['current'] = $_GET['a'];
 
-	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}members');
-	list($maxMembers) = $smcFunc['db_fetch_row']($request);
+	$request = Db::$db->query('', 'SELECT COUNT(*) FROM {db_prefix}members');
+	list($maxMembers) = Db::$db->fetch_row($request);
 
 	$limit = 10000;
 	$is_done = false;
@@ -1720,7 +1720,7 @@ if (!empty($select_columns))
 		nextSubStep($substep);
 		$inserts = array();
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_member, '. implode(',', $select_columns) .'
 			FROM {db_prefix}members
 			ORDER BY id_member
@@ -1730,7 +1730,7 @@ if (!empty($select_columns))
 				'limit' => $limit,
 		));
 
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			if (!empty($row['icq']))
 				$inserts[] = array($row['id_member'], 1, 'cust_icq', $row['icq']);
@@ -1744,10 +1744,10 @@ if (!empty($select_columns))
 			if (!empty($row['gender']))
 				$inserts[] = array($row['id_member'], 1, 'cust_gender', '{gender_' . intval($row['gender']) . '}');
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		if (!empty($inserts))
-			$smcFunc['db_insert']('replace',
+			Db::$db->insert('replace',
 				'{db_prefix}themes',
 				array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
 				$inserts,
@@ -1777,16 +1777,16 @@ ALTER TABLE {$db_prefix}members
 
 ---# Create the displayFields setting
 ---{
-	if (empty($modSettings['displayFields']))
+	if (empty(Config::$modSettings['displayFields']))
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT col_name, field_name, field_type, field_order, bbc, enclose, placement, show_mlist
 			FROM {db_prefix}custom_fields',
 			array()
 		);
 
 		$fields = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			$fields[] = array(
 				'col_name' => strtr($row['col_name'], array('|' => '', ';' => '')),
@@ -1800,9 +1800,9 @@ ALTER TABLE {$db_prefix}members
 			);
 		}
 
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
-		$smcFunc['db_insert']('',
+		Db::$db->insert('',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
 			array('displayFields', json_encode($fields)),
@@ -1841,7 +1841,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS {$db_prefix}user_drafts_id_member ON {$db_pref
 ---# Adding draft permissions...
 ---{
 // We cannot do this twice
-if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<'))
+if (version_compare(trim(strtolower(@Config::$modSettings['smfVersion'])), '2.1.foo', '<'))
 {
 	// Anyone who can currently post unapproved topics we assume can create drafts as well ...
 	$request = upgrade_query("
@@ -1849,15 +1849,15 @@ if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<
 		FROM {$db_prefix}board_permissions
 		WHERE permission = 'post_unapproved_topics'");
 	$inserts = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$inserts[] = array($row['id_group'], $row['id_board'], 'post_draft', $row['add_deny']);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	if (!empty($inserts))
 	{
-		$smcFunc['db_insert']('replace',
+		Db::$db->insert('replace',
 			'{$db_prefix}board_permissions',
 			array('id_group' => 'int', 'id_board' => 'int', 'permission' => 'string', 'add_deny' => 'int'),
 			$inserts,
@@ -1871,15 +1871,15 @@ if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<
 		FROM {$db_prefix}permissions
 		WHERE permission = 'pm_send'");
 	$inserts = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$inserts[] = array($row['id_group'], 'pm_draft', $row['add_deny']);
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	if (!empty($inserts))
 	{
-		$smcFunc['db_insert']('ignore',
+		Db::$db->insert('ignore',
 			'{db_prefix}permissions',
 			array('id_group' => 'int', 'add_deny' => 'int', 'permission' => 'string'),
 			$inserts,
@@ -1971,12 +1971,12 @@ WHERE variable = 'avatar_action_too_large'
 ---# Cleaning up the old Core Features page.
 ---{
 	// First get the original value
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT value
 		FROM {db_prefix}settings
 		WHERE variable = {literal:admin_features}'
 	);
-	if ($smcFunc['db_num_rows']($request) > 0 && $row = $smcFunc['db_fetch_assoc']($request))
+	if (Db::$db->num_rows($request) > 0 && $row = Db::$db->fetch_assoc($request))
 	{
 		// Some of these *should* already be set but you never know.
 		$new_settings = array();
@@ -2007,7 +2007,7 @@ WHERE variable = 'avatar_action_too_large'
 		// And now actually apply it.
 		if (!empty($new_settings))
 		{
-			$smcFunc['db_insert']('replace',
+			Db::$db->insert('replace',
 				'{db_prefix}settings',
 				array('variable' => 'string', 'value' => 'string'),
 				$new_settings,
@@ -2015,7 +2015,7 @@ WHERE variable = 'avatar_action_too_large'
 			);
 		}
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 ---}
 ---#
 
@@ -2032,16 +2032,16 @@ WHERE variable IN ('show_board_desc', 'display_quick_reply', 'show_mark_read', '
 ---# Update the SM Stat collection.
 ---{
 	// First get the original value
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT value
 		FROM {db_prefix}settings
 		WHERE variable = {literal:allow_sm_stats}'
 	);
-	if ($smcFunc['db_num_rows']($request) > 0 && $row = $smcFunc['db_fetch_assoc']($request))
+	if (Db::$db->num_rows($request) > 0 && $row = Db::$db->fetch_assoc($request))
 	{
 		if (!empty($row['value']))
 		{
-			$smcFunc['db_insert']('replace',
+			Db::$db->insert('replace',
 				'{db_prefix}settings',
 				array('variable' => 'string', 'value' => 'string'),
 				array(
@@ -2051,19 +2051,19 @@ WHERE variable IN ('show_board_desc', 'display_quick_reply', 'show_mark_read', '
 				array('variable')
 			);
 
-			$smcFunc['db_query']('', '
+			Db::$db->query('', '
 				DELETE FROM {db_prefix}settings
 				WHERE variable = {literal:allow_sm_stats}');
 		}
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 ---}
 ---#
 
 ---# Adding new "httponlyCookies" setting
 ---{
-	if (!isset($modSettings['httponlyCookies']))
-		$smcFunc['db_insert']('insert',
+	if (!isset(Config::$modSettings['httponlyCookies']))
+		Db::$db->insert('insert',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
 			array('httponlyCookies', '1'),
@@ -2074,8 +2074,8 @@ WHERE variable IN ('show_board_desc', 'display_quick_reply', 'show_mark_read', '
 
 ---# Adding new "samesiteCookies" setting
 ---{
-	if (!isset($modSettings['samesiteCookies']))
-		$smcFunc['db_insert']('insert',
+	if (!isset(Config::$modSettings['samesiteCookies']))
+		Db::$db->insert('insert',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
 			array('samesiteCookies', 'lax'),
@@ -2086,10 +2086,10 @@ WHERE variable IN ('show_board_desc', 'display_quick_reply', 'show_mark_read', '
 
 ---# Calculate appropriate hash cost
 ---{
-	$smcFunc['db_insert']('replace',
+	Db::$db->insert('replace',
 		'{db_prefix}settings',
 		array('variable' => 'string', 'value' => 'string'),
-		array('bcrypt_hash_cost', hash_benchmark()),
+		array('bcrypt_hash_cost', Security::hashVerifyPassword()),
 		array('variable')
 	);
 ---}
@@ -2106,7 +2106,7 @@ WHERE filename IN ('latest-packages.js', 'latest-smileys.js', 'latest-support.js
 ---# But we do need new files.
 ---{
 // Don't insert the info if it's already there...
-$file_check = $smcFunc['db_query']('', '
+$file_check = Db::$db->query('', '
 	SELECT id_file
 	FROM {db_prefix}admin_info_files
 	WHERE filename = {string:latest-versions}',
@@ -2115,9 +2115,9 @@ $file_check = $smcFunc['db_query']('', '
 	)
 );
 
-if ($smcFunc['db_num_rows']($file_check) == 0)
+if (Db::$db->num_rows($file_check) == 0)
 {
-	$smcFunc['db_insert']('',
+	Db::$db->insert('',
 		'{db_prefix}admin_info_files',
 		array('filename' => 'string', 'path' => 'string', 'parameters' => 'string', 'data' => 'string', 'filetype' => 'string'),
 		array('latest-versions.txt', '/smf/', 'version=%3$s', '', 'text/plain'),
@@ -2125,7 +2125,7 @@ if ($smcFunc['db_num_rows']($file_check) == 0)
 	);
 }
 
-$smcFunc['db_free_result']($file_check);
+Db::$db->free_result($file_check);
 ---}
 ---#
 
@@ -2158,14 +2158,14 @@ CREATE INDEX {$db_prefix}qanda_lngfile ON {$db_prefix}qanda (lngfile varchar_pat
 		FROM {$db_prefix}log_comments
 		WHERE comment_type = 'ver_test'");
 
-	while ($row = $smcFunc['db_fetch_assoc']($get_questions))
+	while ($row = Db::$db->fetch_assoc($get_questions))
 		$questions[] = array($upcontext['language'], $row['question'], serialize(array($row['answer'])));
 
-	$smcFunc['db_free_result']($get_questions);
+	Db::$db->free_result($get_questions);
 
 	if (!empty($questions))
 	{
-		$smcFunc['db_insert']('',
+		Db::$db->insert('',
 			'{db_prefix}qanda',
 			array('lngfile' => 'string', 'question' => 'string', 'answers' => 'string'),
 			$questions,
@@ -2230,16 +2230,16 @@ $request = upgrade_query("
 	FROM {$db_prefix}permissions
 	WHERE permission = 'profile_identity_own'");
 
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$inserts[] = array($row['id_group'], 'profile_password_own', $row['add_deny']);
 	}
 
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	if (!empty($inserts))
 	{
-		$smcFunc['db_insert']('ignore',
+		Db::$db->insert('ignore',
 			'{db_prefix}permissions',
 			array('id_group' => 'int', 'permission' => 'string', 'add_deny' => 'int'),
 			$inserts,
@@ -2251,16 +2251,16 @@ $request = upgrade_query("
 
 ---# Adding "view_warning_own" and "view_warning_any" permissions
 ---{
-if (isset($modSettings['warning_show']))
+if (isset(Config::$modSettings['warning_show']))
 {
 	$can_view_warning_own = array();
 	$can_view_warning_any = array();
 
-	if ($modSettings['warning_show'] >= 1)
+	if (Config::$modSettings['warning_show'] >= 1)
 	{
 		$can_view_warning_own[] = 0;
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_group
 			FROM {db_prefix}membergroups
 			WHERE min_posts = {int:not_post_based}',
@@ -2268,21 +2268,21 @@ if (isset($modSettings['warning_show']))
 				'not_post_based' => -1,
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			if (in_array($row['id_group'], array(1, 3)))
 				continue;
 
 			$can_view_warning_own[] = $row['id_group'];
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 	}
 
-	if ($modSettings['warning_show'] > 1)
+	if (Config::$modSettings['warning_show'] > 1)
 		$can_view_warning_any = $can_view_warning_own;
 	else
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_group, add_deny
 			FROM {db_prefix}permissions
 			WHERE permission = {string:perm}',
@@ -2290,14 +2290,14 @@ if (isset($modSettings['warning_show']))
 				'perm' => 'issue_warning',
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			if (in_array($row['id_group'], array(-1, 1, 3)) || $row['add_deny'] != 1)
 				continue;
 
 			$can_view_warning_any[] = $row['id_group'];
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 	}
 
 	$inserts = array();
@@ -2310,7 +2310,7 @@ if (isset($modSettings['warning_show']))
 
 	if (!empty($inserts))
 	{
-		$smcFunc['db_insert']('ignore',
+		Db::$db->insert('ignore',
 			'{db_prefix}permissions',
 			array('id_group' => 'int', 'permission' => 'string', 'add_deny' => 'int'),
 			$inserts,
@@ -2318,7 +2318,7 @@ if (isset($modSettings['warning_show']))
 		);
 	}
 
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}settings
 		WHERE variable = {string:warning_show}',
 		array(
@@ -2338,7 +2338,7 @@ $request = upgrade_query("
 	FROM {$db_prefix}permissions
 	WHERE permission = 'profile_extra_own'");
 
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$inserts[] = array($row['id_group'], 'profile_blurb_own', $row['add_deny']);
 		$inserts[] = array($row['id_group'], 'profile_displayed_name_own', $row['add_deny']);
@@ -2347,11 +2347,11 @@ $request = upgrade_query("
 		$inserts[] = array($row['id_group'], 'profile_signature_own', $row['add_deny']);
 	}
 
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	if (!empty($inserts))
 	{
-		$smcFunc['db_insert']('ignore',
+		Db::$db->insert('ignore',
 			'{db_prefix}permissions',
 			array('id_group' => 'int', 'permission' => 'string', 'add_deny' => 'int'),
 			$inserts,
@@ -2393,14 +2393,14 @@ ADD COLUMN IF NOT EXISTS in_inbox smallint NOT NULL default '1';
 ---# Moving label info to new tables and updating rules (May be slow!!!)
 ---{
 	// First see if we still have a message_labels column
-	$results = $smcFunc['db_list_columns']('{db_prefix}members');
+	$results = Db::$db->list_columns('{db_prefix}members');
 	if (in_array('message_labels', $results))
 	{
 		$_GET['a'] = isset($_GET['a']) ? (int) $_GET['a'] : 0;
 		$step_progress['name'] = 'Moving pm labels';
 		$step_progress['current'] = $_GET['a'];
 
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT COUNT(*)
 			FROM {db_prefix}members
 			WHERE message_labels != {string:blank}',
@@ -2408,8 +2408,8 @@ ADD COLUMN IF NOT EXISTS in_inbox smallint NOT NULL default '1';
 				'blank' => '',
 			)
 		);
-		list($maxMembers) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		list($maxMembers) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
 
 		if ($maxMembers > 0)
 		{
@@ -2422,7 +2422,7 @@ ADD COLUMN IF NOT EXISTS in_inbox smallint NOT NULL default '1';
 				$inserts = array();
 
 				// Pull the label info
-				$get_labels = $smcFunc['db_query']('', '
+				$get_labels = Db::$db->query('', '
 					SELECT id_member, message_labels
 					FROM {db_prefix}members
 					WHERE message_labels != {string:blank}
@@ -2437,7 +2437,7 @@ ADD COLUMN IF NOT EXISTS in_inbox smallint NOT NULL default '1';
 
 				$label_info = array();
 				$member_list = array();
-				while ($row = $smcFunc['db_fetch_assoc']($get_labels))
+				while ($row = Db::$db->fetch_assoc($get_labels))
 				{
 					$member_list[] = $row['id_member'];
 
@@ -2452,7 +2452,7 @@ ADD COLUMN IF NOT EXISTS in_inbox smallint NOT NULL default '1';
 					}
 				}
 
-				$smcFunc['db_free_result']($get_labels);
+				Db::$db->free_result($get_labels);
 
 				foreach ($label_info AS $id_member => $labels)
 				{
@@ -2464,14 +2464,14 @@ ADD COLUMN IF NOT EXISTS in_inbox smallint NOT NULL default '1';
 
 				if (!empty($inserts))
 				{
-					$smcFunc['db_insert']('', '{db_prefix}pm_labels', array('id_member' => 'int', 'name' => 'string-30'), $inserts, array());
+					Db::$db->insert('', '{db_prefix}pm_labels', array('id_member' => 'int', 'name' => 'string-30'), $inserts, array());
 
 					// Clear this out for our next query below
 					$inserts = array();
 				}
 
 				// This is the easy part - update the inbox stuff
-				$smcFunc['db_query']('', '
+				Db::$db->query('', '
 					UPDATE {db_prefix}pm_recipients
 					SET in_inbox = {int:in_inbox}
 					WHERE FIND_IN_SET({int:minusone}, labels) > 0
@@ -2484,7 +2484,7 @@ ADD COLUMN IF NOT EXISTS in_inbox smallint NOT NULL default '1';
 				);
 
 				// Now we go pull the new IDs for each label
-				$get_new_label_ids = $smcFunc['db_query']('', '
+				$get_new_label_ids = Db::$db->query('', '
 					SELECT *
 					FROM {db_prefix}pm_labels
 					WHERE id_member IN ({array_int:member_list})',
@@ -2494,18 +2494,18 @@ ADD COLUMN IF NOT EXISTS in_inbox smallint NOT NULL default '1';
 				);
 
 				$label_info_2 = array();
-				while ($label_row = $smcFunc['db_fetch_assoc']($get_new_label_ids))
+				while ($label_row = Db::$db->fetch_assoc($get_new_label_ids))
 				{
 					// Map the old index values to the new ID values...
 					$old_index = $label_info[$label_row['id_member']][$label_row['name']];
 					$label_info_2[$label_row['id_member']][$old_index] = $label_row['id_label'];
 				}
 
-				$smcFunc['db_free_result']($get_new_label_ids);
+				Db::$db->free_result($get_new_label_ids);
 
 				// Pull label info from pm_recipients
 				// Ignore any that are only in the inbox
-				$get_pm_labels = $smcFunc['db_query']('', '
+				$get_pm_labels = Db::$db->query('', '
 					SELECT id_pm, id_member, labels
 					FROM {db_prefix}pm_recipients
 					WHERE deleted = {int:not_deleted}
@@ -2518,7 +2518,7 @@ ADD COLUMN IF NOT EXISTS in_inbox smallint NOT NULL default '1';
 					)
 				);
 
-				while ($row = $smcFunc['db_fetch_assoc']($get_pm_labels))
+				while ($row = Db::$db->fetch_assoc($get_pm_labels))
 				{
 					$labels = explode(',', $row['labels']);
 
@@ -2532,16 +2532,16 @@ ADD COLUMN IF NOT EXISTS in_inbox smallint NOT NULL default '1';
 					}
 				}
 
-				$smcFunc['db_free_result']($get_pm_labels);
+				Db::$db->free_result($get_pm_labels);
 
 				// Insert the new data
 				if (!empty($inserts))
 				{
-					$smcFunc['db_insert']('', '{db_prefix}pm_labeled_messages', array('id_pm' => 'int', 'id_label' => 'int'), $inserts, array());
+					Db::$db->insert('', '{db_prefix}pm_labeled_messages', array('id_pm' => 'int', 'id_label' => 'int'), $inserts, array());
 				}
 
 				// Final step of this ridiculously massive process
-				$get_pm_rules = $smcFunc['db_query']('', '
+				$get_pm_rules = Db::$db->query('', '
 					SELECT id_member, id_rule, actions
 					FROM {db_prefix}pm_rules
 					WHERE id_member IN ({array_int:member_list})',
@@ -2551,7 +2551,7 @@ ADD COLUMN IF NOT EXISTS in_inbox smallint NOT NULL default '1';
 				);
 
 				// Go through the rules, unserialize the actions, then figure out if there's anything we can use
-				while ($row = $smcFunc['db_fetch_assoc']($get_pm_rules))
+				while ($row = Db::$db->fetch_assoc($get_pm_rules))
 				{
 					$updated = false;
 
@@ -2574,7 +2574,7 @@ ADD COLUMN IF NOT EXISTS in_inbox smallint NOT NULL default '1';
 						// Put this back into a string
 						$actions = serialize($actions);
 
-						$smcFunc['db_query']('', '
+						Db::$db->query('', '
 							UPDATE {db_prefix}pm_rules
 							SET actions = {string:actions}
 							WHERE id_rule = {int:id_rule}',
@@ -2587,7 +2587,7 @@ ADD COLUMN IF NOT EXISTS in_inbox smallint NOT NULL default '1';
 				}
 
 				// Remove processed pm labels, to avoid duplicated data if upgrader is restarted.
-				$smcFunc['db_query']('', '
+				Db::$db->query('', '
 					UPDATE {db_prefix}members
 					SET message_labels = {string:blank}
 					WHERE id_member IN ({array_int:member_list})',
@@ -2597,7 +2597,7 @@ ADD COLUMN IF NOT EXISTS in_inbox smallint NOT NULL default '1';
 					)
 				);
 
-				$smcFunc['db_free_result']($get_pm_rules);
+				Db::$db->free_result($get_pm_rules);
 
 				$_GET['a'] += $limit;
 				$step_progress['current'] = $_GET['a'];
@@ -2607,8 +2607,8 @@ ADD COLUMN IF NOT EXISTS in_inbox smallint NOT NULL default '1';
 			}
 
 			// Lastly, we drop the old columns
-			$smcFunc['db_remove_column']('{db_prefix}members', 'message_labels');
-			$smcFunc['db_remove_column']('{db_prefix}pm_recipients', 'labels');
+			Db::$db->remove_column('{db_prefix}members', 'message_labels');
+			Db::$db->remove_column('{db_prefix}pm_recipients', 'labels');
 		}
 	}
 	unset($_GET['a']);
@@ -2648,7 +2648,7 @@ ADD COLUMN IF NOT EXISTS modified_reason varchar(255) NOT NULL default '';
 
 	$illegal_permissions = array('calendar_edit_any', 'moderate_board', 'moderate_forum', 'send_email_to_members');
 
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}board_permissions
 		WHERE id_group = {int:guests}
 			AND permission IN ({array_string:illegal_board_perms})',
@@ -2658,7 +2658,7 @@ ADD COLUMN IF NOT EXISTS modified_reason varchar(255) NOT NULL default '';
 		)
 	);
 
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}permissions
 		WHERE id_group = {int:guests}
 			AND permission IN ({array_string:illegal_perms})',
@@ -2675,9 +2675,9 @@ ADD COLUMN IF NOT EXISTS modified_reason varchar(255) NOT NULL default '';
 /******************************************************************************/
 ---# Adding default gravatar settings
 ---{
-	if (empty($modSettings['gravatarEnabled']))
+	if (empty(Config::$modSettings['gravatarEnabled']))
 	{
-		$smcFunc['db_insert']('replace',
+		Db::$db->insert('replace',
 			'{db_prefix}settings',
 			array('variable' => 'string-255', 'value' => 'string'),
 			array(
@@ -2701,15 +2701,15 @@ ALTER TABLE {$db_prefix}members ADD IF NOT EXISTS timezone VARCHAR(80) NOT NULL 
 
 ---# Converting time offset to timezone
 ---{
-	if (!empty($modSettings['time_offset']))
+	if (!empty(Config::$modSettings['time_offset']))
 	{
-		$modSettings['default_timezone'] = empty($modSettings['default_timezone']) || !in_array($modSettings['default_timezone'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)) ? 'UTC' : $modSettings['default_timezone'];
+		Config::$modSettings['default_timezone'] = empty(Config::$modSettings['default_timezone']) || !in_array(Config::$modSettings['default_timezone'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)) ? 'UTC' : Config::$modSettings['default_timezone'];
 
-		$now = date_create('now', timezone_open($modSettings['default_timezone']));
+		$now = date_create('now', timezone_open(Config::$modSettings['default_timezone']));
 
-		if (($new_tzid = timezone_name_from_abbr('', date_offset_get($now) + $modSettings['time_offset'] * 3600, date_format($now, 'I'))) !== false)
+		if (($new_tzid = timezone_name_from_abbr('', date_offset_get($now) + Config::$modSettings['time_offset'] * 3600, date_format($now, 'I'))) !== false)
 		{
-			$smcFunc['db_insert']('replace',
+			Db::$db->insert('replace',
 				'{db_prefix}settings',
 				array('variable' => 'string-255', 'value' => 'string'),
 				array(
@@ -2718,10 +2718,10 @@ ALTER TABLE {$db_prefix}members ADD IF NOT EXISTS timezone VARCHAR(80) NOT NULL 
 				array('variable')
 			);
 
-			$modSettings['default_timezone'] = $new_tzid;
+			Config::$modSettings['default_timezone'] = $new_tzid;
 		}
 
-		$smcFunc['db_query']('', '
+		Db::$db->query('', '
 			DELETE FROM {db_prefix}settings
 			WHERE variable = {literal:time_offset}',
 			array()
@@ -2735,9 +2735,9 @@ ALTER TABLE {$db_prefix}members ADD IF NOT EXISTS timezone VARCHAR(80) NOT NULL 
 /******************************************************************************/
 ---# Adding default settings for the mail queue
 ---{
-	if (empty($modSettings['mail_limit']))
+	if (empty(Config::$modSettings['mail_limit']))
 	{
-		$smcFunc['db_insert']('replace',
+		Db::$db->insert('replace',
 			'{db_prefix}settings',
 			array('variable' => 'string-255', 'value' => 'string'),
 			array(
@@ -2755,7 +2755,7 @@ ALTER TABLE {$db_prefix}members ADD IF NOT EXISTS timezone VARCHAR(80) NOT NULL 
 /******************************************************************************/
 ---# Removing the "send_email_to_members" permission
 ---{
-	$smcFunc['db_query']('', '
+	Db::$db->query('', '
 		DELETE FROM {db_prefix}permissions
 		WHERE permission = {literal:send_email_to_members}',
 		array()
@@ -2840,8 +2840,8 @@ ADD COLUMN IF NOT EXISTS tfa_required smallint NOT NULL default '0';
 
 ---# Add tfa_mode setting
 ---{
-	if (!isset($modSettings['tfa_mode']))
-		$smcFunc['db_insert']('replace',
+	if (!isset(Config::$modSettings['tfa_mode']))
+		Db::$db->insert('replace',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
 			array('tfa_mode', '1'),
@@ -2870,14 +2870,14 @@ CREATE INDEX {$db_prefix}members_active_real_name ON {$db_prefix}members (is_act
 /******************************************************************************/
 ---# update table
 ---{
-$result = $smcFunc['db_query']('', '
+$result = Db::$db->query('', '
 	SHOW server_version_num'
 );
 if ($result !== false)
 {
-	while ($row = $smcFunc['db_fetch_assoc']($result))
+	while ($row = Db::$db->fetch_assoc($result))
 		$pg_version = $row['server_version_num'];
-	$smcFunc['db_free_result']($result);
+	Db::$db->free_result($result);
 }
 
 if(isset($pg_version))
@@ -2933,7 +2933,7 @@ DROP INDEX IF EXISTS {$db_prefix}topics_id_board;
 /******************************************************************************/
 ---# upgrade check
 ---{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}ban_items');
+$table_columns = Db::$db->list_columns('{db_prefix}ban_items');
 $upcontext['skip_db_substeps'] = in_array('ip_low', $table_columns);
 ---}
 ---#
@@ -3189,19 +3189,19 @@ ADD COLUMN IF NOT EXISTS timezone VARCHAR(80);
 
 ---# Update cal_maxspan and drop obsolete cal_allowspan setting
 ---{
-	if (!isset($modSettings['cal_allowspan']))
+	if (!isset(Config::$modSettings['cal_allowspan']))
 		$cal_maxspan = 0;
-	elseif ($modSettings['cal_allowspan'] == false)
+	elseif (Config::$modSettings['cal_allowspan'] == false)
 		$cal_maxspan = 1;
 	else
-		$cal_maxspan = ($modSettings['cal_maxspan'] > 1) ? $modSettings['cal_maxspan'] : 0;
+		$cal_maxspan = (Config::$modSettings['cal_maxspan'] > 1) ? Config::$modSettings['cal_maxspan'] : 0;
 
 	upgrade_query("
 		UPDATE {$db_prefix}settings
 		SET value = '$cal_maxspan'
 		WHERE variable = 'cal_maxspan'");
 
-	if (isset($modSettings['cal_allowspan']))
+	if (isset(Config::$modSettings['cal_allowspan']))
 		upgrade_query("
 			DELETE FROM {$db_prefix}settings
 			WHERE variable = 'cal_allowspan'");
@@ -3282,7 +3282,7 @@ CREATE INDEX {$db_prefix}log_comments_comment_type ON {$db_prefix}log_comments (
 ---# Upgrading pm notification settings
 ---{
 // First see if we still have a pm_email_notify column
-$results = $smcFunc['db_list_columns']('{db_prefix}members');
+$results = Db::$db->list_columns('{db_prefix}members');
 if (in_array('pm_email_notify', $results))
 {
 	$_GET['a'] = isset($_GET['a']) ? (int) $_GET['a'] : 0;
@@ -3292,9 +3292,9 @@ if (in_array('pm_email_notify', $results))
 	$limit = 10000;
 	$is_done = false;
 
-	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}members');
-	list($maxMembers) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	$request = Db::$db->query('', 'SELECT COUNT(*) FROM {db_prefix}members');
+	list($maxMembers) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	while (!$is_done)
 	{
@@ -3302,7 +3302,7 @@ if (in_array('pm_email_notify', $results))
 		$inserts = array();
 
 		// Skip errors here so we don't croak if the columns don't exist...
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_member, pm_email_notify
 			FROM {db_prefix}members
 			ORDER BY id_member
@@ -3313,17 +3313,17 @@ if (in_array('pm_email_notify', $results))
 				'limit' => $limit,
 			)
 		);
-		if ($smcFunc['db_num_rows']($request) != 0)
+		if (Db::$db->num_rows($request) != 0)
 		{
-			while ($row = $smcFunc['db_fetch_assoc']($request))
+			while ($row = Db::$db->fetch_assoc($request))
 			{
 				$inserts[] = array($row['id_member'], 'pm_new', !empty($row['pm_email_notify']) ? 2 : 0);
 				$inserts[] = array($row['id_member'], 'pm_notify', $row['pm_email_notify'] == 2 ? 2 : 1);
 			}
-			$smcFunc['db_free_result']($request);
+			Db::$db->free_result($request);
 		}
 
-		$smcFunc['db_insert']('ignore',
+		Db::$db->insert('ignore',
 			'{db_prefix}user_alerts_prefs',
 			array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'string'),
 			$inserts,
@@ -3407,8 +3407,8 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}smiley_files
 ---# Cleaning up unused smiley sets and adding the lovely new ones
 ---{
 // Start with the prior values...
-$dirs = explode(',', $modSettings['smiley_sets_known']);
-$setnames = explode("\n", $modSettings['smiley_sets_names']);
+$dirs = explode(',', Config::$modSettings['smiley_sets_known']);
+$setnames = explode("\n", Config::$modSettings['smiley_sets_names']);
 
 // Build combined pairs of folders and names
 $combined = array();
@@ -3419,35 +3419,35 @@ foreach ($dirs AS $ix => $dir)
 }
 
 // Add our lovely new 2.1 smiley sets if not already there
-$combined['fugue'] = array($txt['default_fugue_smileyset_name'], 'png');
-$combined['alienine'] = array($txt['default_alienine_smileyset_name'], 'png');
+$combined['fugue'] = array(Lang::$txt['default_fugue_smileyset_name'], 'png');
+$combined['alienine'] = array(Lang::$txt['default_alienine_smileyset_name'], 'png');
 
 // Add/fix our 2.0 sets (to correct past problems where these got corrupted)
-$combined['default'] = array($txt['default_legacy_smileyset_name'], 'gif');
-$combined['aaron'] = array($txt['default_aaron_smileyset_name'], 'gif');
-$combined['akyhne'] = array($txt['default_akyhne_smileyset_name'], 'gif');
+$combined['default'] = array(Lang::$txt['default_legacy_smileyset_name'], 'gif');
+$combined['aaron'] = array(Lang::$txt['default_aaron_smileyset_name'], 'gif');
+$combined['akyhne'] = array(Lang::$txt['default_akyhne_smileyset_name'], 'gif');
 
 // Confirm they exist in the filesystem
 $filtered = array();
 foreach ($combined as $dir => $attrs)
 {
-	if (is_dir($modSettings['smileys_dir'] . '/' . $dir . '/'))
+	if (is_dir(Config::$modSettings['smileys_dir'] . '/' . $dir . '/'))
 		$filtered[$dir] = $attrs[0];
 }
 
 // Update the Settings Table...
 upgrade_query("
 	UPDATE {$db_prefix}settings
-	SET value = '" . $smcFunc['db_escape_string'](implode(',', array_keys($filtered))) . "'
+	SET value = '" . Db::$db->escape_string(implode(',', array_keys($filtered))) . "'
 	WHERE variable = 'smiley_sets_known'");
 
 upgrade_query("
 	UPDATE {$db_prefix}settings
-	SET value = '" . $smcFunc['db_escape_string'](implode("\n", $filtered)) . "'
+	SET value = '" . Db::$db->escape_string(implode("\n", $filtered)) . "'
 	WHERE variable = 'smiley_sets_names'");
 
 // Populate the smiley_files table
-$smileys_columns = $smcFunc['db_list_columns']('{db_prefix}smileys');
+$smileys_columns = Db::$db->list_columns('{db_prefix}smileys');
 if (in_array('filename', $smileys_columns))
 {
 	$inserts = array();
@@ -3455,7 +3455,7 @@ if (in_array('filename', $smileys_columns))
 	$request = upgrade_query("
 		SELECT id_smiley, filename
 		FROM {$db_prefix}smileys");
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	while ($row = Db::$db->fetch_assoc($request))
 	{
 		$pathinfo = pathinfo($row['filename']);
 
@@ -3466,25 +3466,25 @@ if (in_array('filename', $smileys_columns))
 			// If we have a default extension for this set, check if we can switch to it.
 			if (isset($combined[$set]) && !empty($combined[$set][1]))
 			{
-				if (file_exists($modSettings['smileys_dir'] . '/' . $set . '/' . $pathinfo['filename'] . '.' . $combined[$set][1]))
+				if (file_exists(Config::$modSettings['smileys_dir'] . '/' . $set . '/' . $pathinfo['filename'] . '.' . $combined[$set][1]))
 					$ext = $combined[$set][1];
 			}
 			// In a custom set and no extension specified? Ugh...
 			elseif (empty($ext))
 			{
 				// Any files matching this name?
-				$found = glob($modSettings['smileys_dir'] . '/' . $set . '/' . $pathinfo['filename'] . '.*');
+				$found = glob(Config::$modSettings['smileys_dir'] . '/' . $set . '/' . $pathinfo['filename'] . '.*');
 				$ext = !empty($found) ? pathinfo($found[0], PATHINFO_EXTENSION) : 'gif';
 			}
 
 			$inserts[] = array($row['id_smiley'], $set, $pathinfo['filename'] . '.' . $ext);
 		}
 	}
-	$smcFunc['db_free_result']($request);
+	Db::$db->free_result($request);
 
 	if (!empty($inserts))
 	{
-		$smcFunc['db_insert']('ignore',
+		Db::$db->insert('ignore',
 			'{db_prefix}smiley_files',
 			array('id_smiley' => 'int', 'smiley_set' => 'string-48', 'filename' => 'string-48'),
 			$inserts,
@@ -3492,7 +3492,7 @@ if (in_array('filename', $smileys_columns))
 		);
 
 		// Unless something went horrifically wrong, drop the defunct column
-		if (count($inserts) == $smcFunc['db_affected_rows']())
+		if (count($inserts) == Db::$db->affected_rows())
 			upgrade_query("
 				ALTER TABLE {$db_prefix}smileys
 				DROP COLUMN IF EXISTS filename;");
@@ -3501,7 +3501,7 @@ if (in_array('filename', $smileys_columns))
 
 // Set new default if the old one doesnt exist
 // If fugue exists, use that.  Otherwise, what the heck, just grab the first one...
-if (!array_key_exists($modSettings['smiley_sets_default'], $filtered))
+if (!array_key_exists(Config::$modSettings['smiley_sets_default'], $filtered))
 {
 	if (array_key_exists('fugue', $filtered))
 		$newdefault = 'fugue';
@@ -3541,8 +3541,8 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}board_permissions_view
 ---# upgrade check
 ---{
 	// if one of source col is missing skip this step
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}membergroups');
-$table_columns2 = $smcFunc['db_list_columns']('{db_prefix}boards');
+$table_columns = Db::$db->list_columns('{db_prefix}membergroups');
+$table_columns2 = Db::$db->list_columns('{db_prefix}boards');
 $upcontext['skip_db_substeps'] = !in_array('id_group', $table_columns) || !in_array('member_groups', $table_columns2) || !in_array('deny_member_groups', $table_columns2);
 ---}
 ---#
@@ -4121,7 +4121,7 @@ ALTER TABLE {$db_prefix}log_spider_stats ALTER COLUMN page_hits TYPE INT;
 ---# Strip -utf8 from policy settings
 ---{
 $utf8_policy_settings = array();
-foreach($modSettings AS $k => $v)
+foreach(Config::$modSettings AS $k => $v)
 {
 	if ((substr($k, 0, 7) === 'policy_') && (substr($k, -5) === '-utf8'))
 		$utf8_policy_settings[$k] = $v;
@@ -4132,9 +4132,9 @@ foreach($utf8_policy_settings AS $var => $val)
 {
 	// Note this works on the policy_updated_ strings as well...
 	$language = substr($var, 7, strlen($var) - 12);
-	if (!array_key_exists('policy_' . $language, $modSettings))
+	if (!array_key_exists('policy_' . $language, Config::$modSettings))
 	{
-		$adds[] =  '(\'policy_' . $language . '\', \'' . $smcFunc['db_escape_string']($val) . '\')';
+		$adds[] =  '(\'policy_' . $language . '\', \'' . Db::$db->escape_string($val) . '\')';
 		$deletes[] = '\'' . $var . '\'';
 	}
 }
@@ -4158,7 +4158,7 @@ if (!empty($deletes))
 
 ---# Strip -utf8 from agreement file names
 ---{
-$files = glob($boarddir . '/agreement.*-utf8.txt');
+$files = glob(Config::$boarddir . '/agreement.*-utf8.txt');
 foreach($files AS $filename)
 {
 	$newfile = substr($filename, 0, strlen($filename) - 9) . '.txt';
@@ -4177,7 +4177,7 @@ foreach($files AS $filename)
 	// Setup progress bar
 	if (!isset($_GET['total_fixes']) || !isset($_GET['a']) || !isset($_GET['last_action_id']))
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT COUNT(*)
 				FROM {db_prefix}log_actions
 				WHERE id_member = {int:blank_id}
@@ -4187,9 +4187,9 @@ foreach($files AS $filename)
 				'target_actions' => array('policy_accepted', 'agreement_accepted'),
 			)
 		);
-		list ($step_progress['total']) = $smcFunc['db_fetch_row']($request);
+		list ($step_progress['total']) = Db::$db->fetch_row($request);
 		$_GET['total_fixes'] = $step_progress['total'];
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		$_GET['a'] = 0;
 		$_GET['last_action_id'] = 0;
@@ -4208,7 +4208,7 @@ foreach($files AS $filename)
 		nextSubstep($current_substep);
 
 		$extras = array();
-		$request = $smcFunc['db_query']('', '
+		$request = Db::$db->query('', '
 			SELECT id_action, extra
 				FROM {db_prefix}log_actions
 				WHERE id_member = {int:blank_id}
@@ -4223,9 +4223,9 @@ foreach($files AS $filename)
 				'limit' => $limit,
 			)
 		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 			$extras[$row['id_action']] = $row['extra'];
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		if (empty($extras))
 			$is_done = true;
@@ -4240,7 +4240,7 @@ foreach($files AS $filename)
 
 			if (!empty($extra['applicator']))
 			{
-				$request = $smcFunc['db_query']('', '
+				$request = Db::$db->query('', '
 					UPDATE {db_prefix}log_actions
 						SET id_member = {int:id_member}
 						WHERE id_action = {int:id_action}',

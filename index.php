@@ -1,14 +1,14 @@
 <?php
 
 /**
- * This, as you have probably guessed, is the crux on which SMF functions.
- * Everything should start here, so all the setup and security is done
- * properly.  The most interesting part of this file is the action array in
- * the smf_main() function.  It is formatted as so:
- * 	'action-in-url' => array('Source-File.php', 'FunctionToCall'),
+ * This is the file where SMF gets initialized. It defines common constants,
+ * loads the settings in Settings.php, ensures all the directory paths are
+ * correct, and includes some essential source files.
  *
- * Then, you can access the FunctionToCall() function from Source-File.php
- * with the URL index.php?action=action-in-url.  Relatively simple, no?
+ * If this file is included by another file, the initialization is all that will
+ * happen. But if this file is executed directly (the typical scenario), then it
+ * will also instantiate and execute an SMF\Forum object.
+ *
  *
  * Simple Machines Forum (SMF)
  *
@@ -17,438 +17,117 @@
  * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.4
+ * @version 3.0 Alpha 1
  */
 
-// Get everything started up...
-define('SMF', 1);
-define('SMF_VERSION', '2.1.4');
-define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_SOFTWARE_YEAR', '2023');
+/********************************************************
+ * Initialize things that are common to all entry points.
+ * (i.e. index.php, SSI.php, cron.php, proxy.php)
+ ********************************************************/
 
-define('JQUERY_VERSION', '3.6.3');
-define('POSTGRE_TITLE', 'PostgreSQL');
-define('MYSQL_TITLE', 'MySQL');
-define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
+/*
+ * 1. Define some constants we need.
+ */
+
+if (!defined('SMF'))
+	define('SMF', 1);
+
+if (!defined('SMF_VERSION'))
+	define('SMF_VERSION', '3.0 Alpha 1');
+
+if (!defined('SMF_FULL_VERSION'))
+	define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
+
+if (!defined('SMF_SOFTWARE_YEAR'))
+	define('SMF_SOFTWARE_YEAR', '2023');
+
+if (!defined('JQUERY_VERSION'))
+	define('JQUERY_VERSION', '3.6.3');
+
+if (!defined('POSTGRE_TITLE'))
+	define('POSTGRE_TITLE', 'PostgreSQL');
+
+if (!defined('MYSQL_TITLE'))
+	define('MYSQL_TITLE', 'MySQL');
+
+if (!defined('SMF_USER_AGENT'))
+	define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
 
 if (!defined('TIME_START'))
 	define('TIME_START', microtime(true));
 
-// If anything goes wrong loading Settings.php, make sure the admin knows it.
-error_reporting(E_ALL);
+if (!defined('SMF_SETTINGS_FILE'))
+	define('SMF_SETTINGS_FILE', __DIR__ . '/Settings.php');
 
-// This makes it so headers can be sent!
-ob_start();
+if (!defined('SMF_SETTINGS_BACKUP_FILE'))
+	define('SMF_SETTINGS_BACKUP_FILE', dirname(SMF_SETTINGS_FILE) . '/' . pathinfo(SMF_SETTINGS_FILE, PATHINFO_FILENAME) . '_bak.php');
 
-// Do some cleaning, just in case.
-foreach (array('db_character_set', 'cachedir') as $variable)
-	unset($GLOBALS[$variable]);
-
-// Load the settings...
-require_once(dirname(__FILE__) . '/Settings.php');
-
-// Devs want all error messages, but others don't.
-error_reporting(!empty($db_show_debug) ? E_ALL : E_ALL & ~E_DEPRECATED);
-
-// Ensure there are no trailing slashes in these variables.
-foreach (array('boardurl', 'boarddir', 'sourcedir', 'packagesdir', 'tasksdir', 'cachedir') as $variable)
-	if (!empty($GLOBALS[$variable]))
-		$GLOBALS[$variable] = rtrim($GLOBALS[$variable], "\\/");
-
-// Make absolutely sure the cache directory is defined and writable.
-if (empty($cachedir) || !is_dir($cachedir) || !is_writable($cachedir))
-{
-	if (is_dir($boarddir . '/cache') && is_writable($boarddir . '/cache'))
-		$cachedir = $boarddir . '/cache';
-
-	else
-	{
-		$cachedir = sys_get_temp_dir() . '/smf_cache_' . md5($boarddir);
-
-		@mkdir($cachedir, 0750);
-	}
-}
-
-// Without those we can't go anywhere
-require_once($sourcedir . '/QueryString.php');
-require_once($sourcedir . '/Subs.php');
-require_once($sourcedir . '/Subs-Auth.php');
-require_once($sourcedir . '/Errors.php');
-require_once($sourcedir . '/Load.php');
-require_once($sourcedir . '/Security.php');
-
-// Ensure we don't trip over disabled internal functions
-if (version_compare(PHP_VERSION, '8.0.0', '>='))
-	require_once($sourcedir . '/Subs-Compat.php');
-
-// If $maintenance is set specifically to 2, then we're upgrading or something.
-if (!empty($maintenance) &&  2 === $maintenance)
-{
-	display_maintenance_message();
-}
-
-// Create a variable to store some SMF specific functions in.
-$smcFunc = array();
-
-// Initiate the database connection and define some database functions to use.
-loadDatabase();
-
-/**
- * An autoloader for certain classes.
- *
- * @param string $class The fully-qualified class name.
+/*
+ * 2. Load the Settings.php file.
  */
-spl_autoload_register(function ($class) use ($sourcedir)
+
+if (!is_file(SMF_SETTINGS_FILE) || !is_readable(SMF_SETTINGS_FILE))
+	die('File not readable: ' . basename(SMF_SETTINGS_FILE));
+
+// Don't load it twice.
+if (in_array(SMF_SETTINGS_FILE, get_included_files()))
+	return;
+
+// If anything goes wrong loading Settings.php, make sure the admin knows it.
+if (SMF === 1)
 {
-	$classMap = array(
-		'ReCaptcha\\' => 'ReCaptcha/',
-		'MatthiasMullie\\Minify\\' => 'minify/src/',
-		'MatthiasMullie\\PathConverter\\' => 'minify/path-converter/src/',
-		'SMF\\Cache\\' => 'Cache/',
-	);
+	error_reporting(E_ALL);
+	ob_start();
+}
 
-	// Do any third-party scripts want in on the fun?
-	call_integration_hook('integrate_autoload', array(&$classMap));
+// This is wrapped in a closure to keep the global namespace clean.
+call_user_func(function()
+{
+	require_once(SMF_SETTINGS_FILE);
 
-	foreach ($classMap as $prefix => $dirName)
+	// Ensure $sourcedir is valid.
+	$sourcedir = rtrim($sourcedir, "\\/");
+	if ((empty($sourcedir) || !is_dir(realpath($sourcedir))))
 	{
-		// does the class use the namespace prefix?
-		$len = strlen($prefix);
-		if (strncmp($prefix, $class, $len) !== 0)
-		{
-			continue;
-		}
+		$boarddir = rtrim($boarddir, "\\/");
 
-		// get the relative class name
-		$relativeClass = substr($class, $len);
+		if (empty($boarddir) || !is_dir(realpath($boarddir)))
+			$boarddir = __DIR__;
 
-		// replace the namespace prefix with the base directory, replace namespace
-		// separators with directory separators in the relative class name, append
-		// with .php
-		$fileName = $dirName . strtr($relativeClass, '\\', '/') . '.php';
-
-		// if the file exists, require it
-		if (file_exists($fileName = $sourcedir . '/' . $fileName))
-		{
-			require_once $fileName;
-
-			return;
-		}
+		if (is_dir($boarddir . '/Sources'))
+			$sourcedir = $boarddir . '/Sources';
 	}
+
+	// We need this class, or nothing works.
+	if (!is_file($sourcedir . '/Config.php') || !is_readable($sourcedir . '/Config.php'))
+		die('File not readable: (Sources)/Config.php');
+
+	// Pass all the settings to SMF\Config.
+	require_once($sourcedir . '/Config.php');
+	SMF\Config::set(get_defined_vars());
 });
 
-// Load the settings from the settings table, and perform operations like optimizing.
-$context = array();
-reloadSettings();
+// Devs want all error messages, but others don't.
+if (SMF === 1)
+	error_reporting(!empty(SMF\Config::$db_show_debug) ? E_ALL : E_ALL & ~E_DEPRECATED);
 
-// Clean the request variables, add slashes, etc.
-cleanRequest();
-
-// Seed the random generator.
-if (empty($modSettings['rand_seed']) || mt_rand(1, 250) == 69)
-	smf_seed_generator();
-
-// And important includes.
-require_once($sourcedir . '/Session.php');
-require_once($sourcedir . '/Logging.php');
-require_once($sourcedir . '/Class-BrowserDetect.php');
-
-// If a Preflight is occurring, lets stop now.
-if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS')
-{
-	send_http_status(204);
-	die;
-}
-
-// Check if compressed output is enabled, supported, and not already being done.
-if (!empty($modSettings['enableCompressedOutput']) && !headers_sent())
-{
-	// If zlib is being used, turn off output compression.
-	if (ini_get('zlib.output_compression') >= 1 || ini_get('output_handler') == 'ob_gzhandler')
-		$modSettings['enableCompressedOutput'] = '0';
-
-	else
-	{
-		ob_end_clean();
-		ob_start('ob_gzhandler');
-	}
-}
-
-// Register an error handler.
-set_error_handler('smf_error_handler');
-
-// Start the session. (assuming it hasn't already been.)
-loadSession();
-
-// What function shall we execute? (done like this for memory's sake.)
-call_user_func(smf_main());
-
-// Call obExit specially; we're coming from the main area ;).
-obExit(null, null, true);
-
-/**
- * The main dispatcher.
- * This delegates to each area.
- *
- * @return array|string|void An array containing the file to include and name of function to call, the name of a function to call or dies with a fatal_lang_error if we couldn't find anything to do.
+/*
+ * 3. Load some other essential includes.
  */
-function smf_main()
+
+require_once(SMF\Config::$sourcedir . '/Autoloader.php');
+
+// Ensure we don't trip over disabled internal functions
+require_once(SMF\Config::$sourcedir . '/Subs-Compat.php');
+
+
+/*********************************************************************
+ * From this point forward, do stuff specific to normal forum loading.
+ *********************************************************************/
+
+if (SMF === 1)
 {
-	global $modSettings, $settings, $user_info, $board, $topic;
-	global $board_info, $maintenance, $sourcedir, $should_log;
-
-	// Special case: session keep-alive, output a transparent pixel.
-	if (isset($_GET['action']) && $_GET['action'] == 'keepalive')
-	{
-		header('content-type: image/gif');
-		die("\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00\x21\xF9\x04\x01\x00\x00\x00\x00\x2C\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3B");
-	}
-
-	// We should set our security headers now.
-	frameOptionsHeader();
-
-	// Set our CORS policy.
-	corsPolicyHeader();
-
-	// Load the user's cookie (or set as guest) and load their settings.
-	loadUserSettings();
-
-	// Load the current board's information.
-	loadBoard();
-
-	// Load the current user's permissions.
-	loadPermissions();
-
-	// Attachments don't require the entire theme to be loaded.
-	if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'dlattach' && empty($maintenance))
-		detectBrowser();
-	// Load the current theme.  (note that ?theme=1 will also work, may be used for guest theming.)
-	else
-		loadTheme();
-
-	// Check if the user should be disallowed access.
-	is_not_banned();
-
-	// If we are in a topic and don't have permission to approve it then duck out now.
-	if (!empty($topic) && empty($board_info['cur_topic_approved']) && !allowedTo('approve_posts') && ($user_info['id'] != $board_info['cur_topic_starter'] || $user_info['is_guest']))
-		fatal_lang_error('not_a_topic', false);
-
-	// Do some logging, unless this is an attachment, avatar, toggle of editor buttons, theme option, XML feed, popup, etc.
-	$no_stat_actions = array(
-		'about:unknown' => true,
-		'clock' => true,
-		'dlattach' => true,
-		'findmember' => true,
-		'helpadmin' => true,
-		'jsoption' => true,
-		'likes' => true,
-		'modifycat' => true,
-		'pm' => array('sa' => array('popup')),
-		'profile' => array('area' => array('popup', 'alerts_popup', 'download', 'dlattach')),
-		'requestmembers' => true,
-		'smstats' => true,
-		'suggest' => true,
-		'verificationcode' => true,
-		'viewquery' => true,
-		'viewsmfile' => true,
-		'xmlhttp' => true,
-		'.xml' => true,
-	);
-	call_integration_hook('integrate_pre_log_stats', array(&$no_stat_actions));
-
-	$should_log = !is_filtered_request($no_stat_actions, 'action');
-	if ($should_log)
-	{
-		// Log this user as online.
-		writeLog();
-
-		// Track forum statistics and hits...?
-		if (!empty($modSettings['hitStats']))
-			trackStats(array('hits' => '+'));
-	}
-	unset($no_stat_actions);
-
-	// Make sure that our scheduled tasks have been running as intended
-	check_cron();
-
-	// Is the forum in maintenance mode? (doesn't apply to administrators.)
-	if (!empty($maintenance) && !allowedTo('admin_forum'))
-	{
-		// You can only login.... otherwise, you're getting the "maintenance mode" display.
-		if (isset($_REQUEST['action']) && (in_array($_REQUEST['action'], array('login2', 'logintfa', 'logout'))))
-		{
-			require_once($sourcedir . '/LogInOut.php');
-			return ($_REQUEST['action'] == 'login2' ? 'Login2' : ($_REQUEST['action'] == 'logintfa' ? 'LoginTFA' : 'Logout'));
-		}
-		// Don't even try it, sonny.
-		else
-			return 'InMaintenance';
-	}
-	// If guest access is off, a guest can only do one of the very few following actions.
-	elseif (empty($modSettings['allow_guestAccess']) && $user_info['is_guest'] && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], array('coppa', 'login', 'login2', 'logintfa', 'reminder', 'activate', 'help', 'helpadmin', 'smstats', 'verificationcode', 'signup', 'signup2'))))
-		return 'KickGuest';
-	elseif (empty($_REQUEST['action']))
-	{
-		// Action and board are both empty... BoardIndex! Unless someone else wants to do something different.
-		if (empty($board) && empty($topic))
-		{
-			if (!empty($modSettings['integrate_default_action']))
-			{
-				$defaultAction = explode(',', $modSettings['integrate_default_action']);
-
-				// Sorry, only one default action is needed.
-				$defaultAction = $defaultAction[0];
-
-				$call = call_helper($defaultAction, true);
-
-				if (!empty($call))
-					return $call;
-			}
-
-			// No default action huh? then go to our good old BoardIndex.
-			else
-			{
-				require_once($sourcedir . '/BoardIndex.php');
-
-				return 'BoardIndex';
-			}
-		}
-
-		// Topic is empty, and action is empty.... MessageIndex!
-		elseif (empty($topic))
-		{
-			require_once($sourcedir . '/MessageIndex.php');
-			return 'MessageIndex';
-		}
-
-		// Board is not empty... topic is not empty... action is empty.. Display!
-		else
-		{
-			require_once($sourcedir . '/Display.php');
-			return 'Display';
-		}
-	}
-
-	// Here's the monstrous $_REQUEST['action'] array - $_REQUEST['action'] => array($file, $function).
-	$actionArray = array(
-		'agreement' => array('Agreement.php', 'Agreement'),
-		'acceptagreement' => array('Agreement.php', 'AcceptAgreement'),
-		'activate' => array('Register.php', 'Activate'),
-		'admin' => array('Admin.php', 'AdminMain'),
-		'announce' => array('Post.php', 'AnnounceTopic'),
-		'attachapprove' => array('ManageAttachments.php', 'ApproveAttach'),
-		'buddy' => array('Subs-Members.php', 'BuddyListToggle'),
-		'calendar' => array('Calendar.php', 'CalendarMain'),
-		'clock' => array('Calendar.php', 'clock'),
-		'coppa' => array('Register.php', 'CoppaForm'),
-		'credits' => array('Who.php', 'Credits'),
-		'deletemsg' => array('RemoveTopic.php', 'DeleteMessage'),
-		'dlattach' => array('ShowAttachments.php', 'showAttachment'),
-		'editpoll' => array('Poll.php', 'EditPoll'),
-		'editpoll2' => array('Poll.php', 'EditPoll2'),
-		'findmember' => array('Subs-Auth.php', 'JSMembers'),
-		'groups' => array('Groups.php', 'Groups'),
-		'help' => array('Help.php', 'ShowHelp'),
-		'helpadmin' => array('Help.php', 'ShowAdminHelp'),
-		'jsmodify' => array('Post.php', 'JavaScriptModify'),
-		'jsoption' => array('Themes.php', 'SetJavaScript'),
-		'likes' => array('Likes.php', 'Likes::call#'),
-		'lock' => array('Topic.php', 'LockTopic'),
-		'lockvoting' => array('Poll.php', 'LockVoting'),
-		'login' => array('LogInOut.php', 'Login'),
-		'login2' => array('LogInOut.php', 'Login2'),
-		'logintfa' => array('LogInOut.php', 'LoginTFA'),
-		'logout' => array('LogInOut.php', 'Logout'),
-		'markasread' => array('Subs-Boards.php', 'MarkRead'),
-		'mergetopics' => array('SplitTopics.php', 'MergeTopics'),
-		'mlist' => array('Memberlist.php', 'Memberlist'),
-		'moderate' => array('ModerationCenter.php', 'ModerationMain'),
-		'modifycat' => array('ManageBoards.php', 'ModifyCat'),
-		'movetopic' => array('MoveTopic.php', 'MoveTopic'),
-		'movetopic2' => array('MoveTopic.php', 'MoveTopic2'),
-		'notifyannouncements' => array('Notify.php', 'AnnouncementsNotify'),
-		'notifyboard' => array('Notify.php', 'BoardNotify'),
-		'notifytopic' => array('Notify.php', 'TopicNotify'),
-		'pm' => array('PersonalMessage.php', 'MessageMain'),
-		'post' => array('Post.php', 'Post'),
-		'post2' => array('Post.php', 'Post2'),
-		'printpage' => array('Printpage.php', 'PrintTopic'),
-		'profile' => array('Profile.php', 'ModifyProfile'),
-		'quotefast' => array('Post.php', 'QuoteFast'),
-		'quickmod' => array('MessageIndex.php', 'QuickModeration'),
-		'quickmod2' => array('Display.php', 'QuickInTopicModeration'),
-		'recent' => array('Recent.php', 'RecentPosts'),
-		'reminder' => array('Reminder.php', 'RemindMe'),
-		'removepoll' => array('Poll.php', 'RemovePoll'),
-		'removetopic2' => array('RemoveTopic.php', 'RemoveTopic2'),
-		'reporttm' => array('ReportToMod.php', 'ReportToModerator'),
-		'requestmembers' => array('Subs-Auth.php', 'RequestMembers'),
-		'restoretopic' => array('RemoveTopic.php', 'RestoreTopic'),
-		'search' => array('Search.php', 'PlushSearch1'),
-		'search2' => array('Search.php', 'PlushSearch2'),
-		'sendactivation' => array('Register.php', 'SendActivation'),
-		'signup' => array('Register.php', 'Register'),
-		'signup2' => array('Register.php', 'Register2'),
-		'smstats' => array('Stats.php', 'SMStats'),
-		'suggest' => array('Subs-Editor.php', 'AutoSuggestHandler'),
-		'splittopics' => array('SplitTopics.php', 'SplitTopics'),
-		'stats' => array('Stats.php', 'DisplayStats'),
-		'sticky' => array('Topic.php', 'Sticky'),
-		'theme' => array('Themes.php', 'ThemesMain'),
-		'trackip' => array('Profile-View.php', 'trackIP'),
-		'about:unknown' => array('Likes.php', 'BookOfUnknown'),
-		'unread' => array('Recent.php', 'UnreadTopics'),
-		'unreadreplies' => array('Recent.php', 'UnreadTopics'),
-		'uploadAttach' => array('Attachments.php', 'Attachments::call#'),
-		'verificationcode' => array('Register.php', 'VerificationCode'),
-		'viewprofile' => array('Profile.php', 'ModifyProfile'),
-		'vote' => array('Poll.php', 'Vote'),
-		'viewquery' => array('ViewQuery.php', 'ViewQuery'),
-		'viewsmfile' => array('Admin.php', 'DisplayAdminFile'),
-		'who' => array('Who.php', 'Who'),
-		'.xml' => array('News.php', 'ShowXmlFeed'),
-		'xmlhttp' => array('Xml.php', 'XMLhttpMain'),
-	);
-
-	// Allow modifying $actionArray easily.
-	call_integration_hook('integrate_actions', array(&$actionArray));
-
-	// Get the function and file to include - if it's not there, do the board index.
-	if (!isset($_REQUEST['action']) || !isset($actionArray[$_REQUEST['action']]))
-	{
-		// Catch the action with the theme?
-		if (!empty($settings['catch_action']))
-		{
-			require_once($sourcedir . '/Themes.php');
-			return 'WrapAction';
-		}
-
-		if (!empty($modSettings['integrate_fallback_action']))
-		{
-			$fallbackAction = explode(',', $modSettings['integrate_fallback_action']);
-
-			// Sorry, only one fallback action is needed.
-			$fallbackAction = $fallbackAction[0];
-
-			$call = call_helper($fallbackAction, true);
-
-			if (!empty($call))
-				return $call;
-		}
-
-		// No fallback action, huh?
-		else
-		{
-			fatal_lang_error('not_found', false, array(), 404);
-		}
-	}
-
-	// Otherwise, it was set - so let's go to that action.
-	if (!empty($actionArray[$_REQUEST['action']][0]))
-		require_once($sourcedir . '/' . $actionArray[$_REQUEST['action']][0]);
-
-	// Do the right thing.
-	return call_helper($actionArray[$_REQUEST['action']][1], true);
+	(new SMF\Forum())->execute();
 }
 
 ?>

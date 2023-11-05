@@ -1,7 +1,5 @@
 <?php
-// Version: 2.1.0; Settings
-
-global $settings;
+// Version: 3.0 Alpha 1; Settings
 
 // argument(s): images_url as saved in settings
 $txt['theme_thumbnail_href'] = '%1$s/thumbnail.png';

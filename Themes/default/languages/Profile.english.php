@@ -1,7 +1,5 @@
 <?php
-// Version: 2.1.3; Profile
-
-global $scripturl, $context;
+// Version: 3.0 Alpha 1; Profile
 
 // Some of the things from the popup need their own descriptions
 $txt['popup_forumprofile'] = 'Profile Details';

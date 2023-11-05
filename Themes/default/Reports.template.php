@@ -4,29 +4,32 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 3.0 Alpha 1
  */
+
+use SMF\Config;
+use SMF\Lang;
+use SMF\Theme;
+use SMF\Utils;
 
 /**
  * Choose which type of report to run?
  */
 function template_report_type()
 {
-	global $context, $scripturl, $txt;
-
 	echo '
-		<form action="', $scripturl, '?action=admin;area=reports" method="post" accept-charset="', $context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=reports" method="post" accept-charset="', Utils::$context['character_set'], '">
 			<div class="cat_bar">
-				<h3 class="catbg">', $txt['generate_reports_type'], '</h3>
+				<h3 class="catbg">', Lang::$txt['generate_reports_type'], '</h3>
 			</div>
 			<div class="windowbg">
 				<dl class="settings">';
 
 	// Go through each type of report they can run.
-	foreach ($context['report_types'] as $type)
+	foreach (Utils::$context['report_types'] as $type)
 	{
 		if (isset($type['description']))
 			echo '
@@ -40,8 +43,8 @@ function template_report_type()
 	}
 	echo '
 				</dl>
-				<input type="submit" name="continue" value="', $txt['generate_reports_continue'], '" class="button">
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+				<input type="submit" name="continue" value="', Lang::$txt['generate_reports_continue'], '" class="button">
+				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			</div><!-- .windowbg -->
 		</form>';
 }
@@ -51,22 +54,20 @@ function template_report_type()
  */
 function template_main()
 {
-	global $context, $txt;
-
 	echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', $txt['results'], '</h3>
+			<h3 class="catbg">', Lang::$txt['results'], '</h3>
 		</div>
 		<div id="report_buttons">';
 
-	if (!empty($context['report_buttons']))
-		template_button_strip($context['report_buttons'], 'right');
+	if (!empty(Utils::$context['report_buttons']))
+		template_button_strip(Utils::$context['report_buttons'], 'right');
 
 	echo '
 		</div>';
 
 	// Go through each table!
-	foreach ($context['tables'] as $table)
+	foreach (Utils::$context['tables'] as $table)
 	{
 		echo '
 		<table class="table_grid report_results">';
@@ -137,14 +138,12 @@ function template_main()
  */
 function template_print_above()
 {
-	global $context, $settings, $modSettings;
-
 	echo '<!DOCTYPE html>
-<html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
+<html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta charset="', $context['character_set'], '">
-		<title>', $context['page_title'], '</title>
-		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/report.css', $context['browser_cache'], '">
+		<meta charset="', Utils::$context['character_set'], '">
+		<title>', Utils::$context['page_title'], '</title>
+		<link rel="stylesheet" href="', Theme::$current->settings['default_theme_url'], '/css/report.css', Utils::$context['browser_cache'], '">
 	</head>
 	<body>';
 }
@@ -154,10 +153,8 @@ function template_print_above()
  */
 function template_print()
 {
-	global $context;
-
 	// Go through each table!
-	foreach ($context['tables'] as $table)
+	foreach (Utils::$context['tables'] as $table)
 	{
 		echo '
 		<div style="overflow: visible;', $table['max_width'] != 'auto' ? ' width: ' . $table['max_width'] . 'px;' : '', '">
@@ -229,7 +226,7 @@ function template_print()
 function template_print_below()
 {
 	echo '
-		<div class="copyright">', theme_copyright(), '</div>
+		<div class="copyright">', Theme::copyright(), '</div>
 	</body>
 </html>';
 }

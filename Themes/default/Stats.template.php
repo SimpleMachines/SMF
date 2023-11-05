@@ -4,95 +4,98 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 3.0 Alpha 1
  */
+
+use SMF\Config;
+use SMF\Lang;
+use SMF\Theme;
+use SMF\Utils;
 
 /**
  * The stats page.
  */
 function template_main()
 {
-	global $context, $settings, $txt, $scripturl, $modSettings;
-
 	echo '
 	<div id="statistics" class="main_section">
 		<div class="cat_bar">
-			<h3 class="catbg">', $context['page_title'], '</h3>
+			<h3 class="catbg">', Utils::$context['page_title'], '</h3>
 		</div>
 		<div class="roundframe">
 			<div class="title_bar">
 				<h4 class="titlebg">
-					<span class="main_icons general"></span> ', $txt['general_stats'], '
+					<span class="main_icons general"></span> ', Lang::$txt['general_stats'], '
 				</h4>
 			</div>
 			<dl class="stats half_content">
-				<dt>', $txt['total_members'], ':</dt>
-				<dd>', $context['show_member_list'] ? '<a href="' . $scripturl . '?action=mlist">' . $context['num_members'] . '</a>' : $context['num_members'], '</dd>
-				<dt>', $txt['total_posts'], ':</dt>
-				<dd>', $context['num_posts'], '</dd>
-				<dt>', $txt['total_topics'], ':</dt>
-				<dd>', $context['num_topics'], '</dd>
-				<dt>', $txt['total_cats'], ':</dt>
-				<dd>', $context['num_categories'], '</dd>
-				<dt>', $txt['users_online'], ':</dt>
-				<dd>', $context['users_online'], '</dd>
-				<dt>', $txt['most_online'], ':</dt>
-				<dd>', $context['most_members_online']['number'], ' - ', $context['most_members_online']['date'], '</dd>
-				<dt>', $txt['users_online_today'], ':</dt>
-				<dd>', $context['online_today'], '</dd>';
+				<dt>', Lang::$txt['total_members'], ':</dt>
+				<dd>', Utils::$context['show_member_list'] ? '<a href="' . Config::$scripturl . '?action=mlist">' . Utils::$context['num_members'] . '</a>' : Utils::$context['num_members'], '</dd>
+				<dt>', Lang::$txt['total_posts'], ':</dt>
+				<dd>', Utils::$context['num_posts'], '</dd>
+				<dt>', Lang::$txt['total_topics'], ':</dt>
+				<dd>', Utils::$context['num_topics'], '</dd>
+				<dt>', Lang::$txt['total_cats'], ':</dt>
+				<dd>', Utils::$context['num_categories'], '</dd>
+				<dt>', Lang::$txt['users_online'], ':</dt>
+				<dd>', Utils::$context['users_online'], '</dd>
+				<dt>', Lang::$txt['most_online'], ':</dt>
+				<dd>', Utils::$context['most_members_online']['number'], ' - ', Utils::$context['most_members_online']['date'], '</dd>
+				<dt>', Lang::$txt['users_online_today'], ':</dt>
+				<dd>', Utils::$context['online_today'], '</dd>';
 
-	if (!empty($modSettings['hitStats']))
+	if (!empty(Config::$modSettings['hitStats']))
 		echo '
-				<dt>', $txt['num_hits'], ':</dt>
-				<dd>', $context['num_hits'], '</dd>';
+				<dt>', Lang::$txt['num_hits'], ':</dt>
+				<dd>', Utils::$context['num_hits'], '</dd>';
 
 	echo '
 			</dl>
 			<dl class="stats half_content">
-				<dt>', $txt['average_members'], ':</dt>
-				<dd>', $context['average_members'], '</dd>
-				<dt>', $txt['average_posts'], ':</dt>
-				<dd>', $context['average_posts'], '</dd>
-				<dt>', $txt['average_topics'], ':</dt>
-				<dd>', $context['average_topics'], '</dd>
-				<dt>', $txt['total_boards'], ':</dt>
-				<dd>', $context['num_boards'], '</dd>
-				<dt>', $txt['latest_member'], ':</dt>
-				<dd>', $context['common_stats']['latest_member']['link'], '</dd>
-				<dt>', $txt['average_online'], ':</dt>
-				<dd>', $context['average_online'], '</dd>';
+				<dt>', Lang::$txt['average_members'], ':</dt>
+				<dd>', Utils::$context['average_members'], '</dd>
+				<dt>', Lang::$txt['average_posts'], ':</dt>
+				<dd>', Utils::$context['average_posts'], '</dd>
+				<dt>', Lang::$txt['average_topics'], ':</dt>
+				<dd>', Utils::$context['average_topics'], '</dd>
+				<dt>', Lang::$txt['total_boards'], ':</dt>
+				<dd>', Utils::$context['num_boards'], '</dd>
+				<dt>', Lang::$txt['latest_member'], ':</dt>
+				<dd>', Utils::$context['common_stats']['latest_member']['link'], '</dd>
+				<dt>', Lang::$txt['average_online'], ':</dt>
+				<dd>', Utils::$context['average_online'], '</dd>';
 
-	if (!empty($context['gender']))
+	if (!empty(Utils::$context['gender']))
 	{
 		echo '
-				<dt>', $txt['gender_stats'], ':</dt>
+				<dt>', Lang::$txt['gender_stats'], ':</dt>
 				<dd>';
 
-		foreach ($context['gender'] as $g => $n)
-			echo tokenTxtReplace($g), ': ', $n, '<br>';
+		foreach (Utils::$context['gender'] as $g => $n)
+			echo Lang::tokenTxtReplace($g), ': ', $n, '<br>';
 
 		echo '
 				</dd>';
 	}
 
-	if (!empty($modSettings['hitStats']))
+	if (!empty(Config::$modSettings['hitStats']))
 		echo '
-				<dt>', $txt['average_hits'], ':</dt>
-				<dd>', $context['average_hits'], '</dd>';
+				<dt>', Lang::$txt['average_hits'], ':</dt>
+				<dd>', Utils::$context['average_hits'], '</dd>';
 
 	echo '
 			</dl>';
 
-	foreach ($context['stats_blocks'] as $name => $block)
+	foreach (Utils::$context['stats_blocks'] as $name => $block)
 	{
 		echo '
 			<div class="half_content">
 				<div class="title_bar">
 					<h4 class="titlebg">
-						<span class="main_icons ', $name, '"></span> ', $txt['top_' . $name], '
+						<span class="main_icons ', $name, '"></span> ', Lang::$txt['top_' . $name], '
 					</h4>
 				</div>
 				<dl class="stats">';
@@ -127,44 +130,44 @@ function template_main()
 		<br class="clear">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="main_icons history"></span>', $txt['forum_history'], '
+				<span class="main_icons history"></span>', Lang::$txt['forum_history'], '
 			</h3>
 		</div>';
 
-	if (!empty($context['yearly']))
+	if (!empty(Utils::$context['yearly']))
 	{
 		echo '
 		<table id="stats" class="table_grid">
 			<thead>
 				<tr class="title_bar">
-					<th class="lefttext">', $txt['yearly_summary'], '</th>
-					<th>', $txt['stats_new_topics'], '</th>
-					<th>', $txt['stats_new_posts'], '</th>
-					<th>', $txt['stats_new_members'], '</th>
-					<th>', $txt['most_online'], '</th>';
+					<th class="lefttext">', Lang::$txt['yearly_summary'], '</th>
+					<th>', Lang::$txt['stats_new_topics'], '</th>
+					<th>', Lang::$txt['stats_new_posts'], '</th>
+					<th>', Lang::$txt['stats_new_members'], '</th>
+					<th>', Lang::$txt['most_online'], '</th>';
 
-		if (!empty($modSettings['hitStats']))
+		if (!empty(Config::$modSettings['hitStats']))
 			echo '
-					<th>', $txt['page_views'], '</th>';
+					<th>', Lang::$txt['page_views'], '</th>';
 
 		echo '
 				</tr>
 			</thead>
 			<tbody>';
 
-		foreach ($context['yearly'] as $id => $year)
+		foreach (Utils::$context['yearly'] as $id => $year)
 		{
 			echo '
 				<tr class="windowbg" id="year_', $id, '">
 					<th class="lefttext">
-						<img id="year_img_', $id, '" src="', $settings['images_url'], '/selected_open.png" alt="*"> <a href="#year_', $id, '" id="year_link_', $id, '">', $year['year'], '</a>
+						<img id="year_img_', $id, '" src="', Theme::$current->settings['images_url'], '/selected_open.png" alt="*"> <a href="#year_', $id, '" id="year_link_', $id, '">', $year['year'], '</a>
 					</th>
 					<th>', $year['new_topics'], '</th>
 					<th>', $year['new_posts'], '</th>
 					<th>', $year['new_members'], '</th>
 					<th>', $year['most_members_online'], '</th>';
 
-			if (!empty($modSettings['hitStats']))
+			if (!empty(Config::$modSettings['hitStats']))
 				echo '
 					<th>', $year['hits'], '</th>';
 
@@ -176,14 +179,14 @@ function template_main()
 				echo '
 				<tr class="windowbg" id="tr_month_', $month['id'], '">
 					<th class="stats_month">
-						<img src="', $settings['images_url'], '/', $month['expanded'] ? 'selected_open.png' : 'selected.png', '" alt="" id="img_', $month['id'], '"> <a id="m', $month['id'], '" href="', $month['href'], '" onclick="return doingExpandCollapse;">', $month['month'], ' ', $month['year'], '</a>
+						<img src="', Theme::$current->settings['images_url'], '/', $month['expanded'] ? 'selected_open.png' : 'selected.png', '" alt="" id="img_', $month['id'], '"> <a id="m', $month['id'], '" href="', $month['href'], '" onclick="return doingExpandCollapse;">', $month['month'], ' ', $month['year'], '</a>
 					</th>
 					<th>', $month['new_topics'], '</th>
 					<th>', $month['new_posts'], '</th>
 					<th>', $month['new_members'], '</th>
 					<th>', $month['most_members_online'], '</th>';
 
-				if (!empty($modSettings['hitStats']))
+				if (!empty(Config::$modSettings['hitStats']))
 					echo '
 					<th>', $month['hits'], '</th>';
 
@@ -202,7 +205,7 @@ function template_main()
 					<td>', $day['new_members'], '</td>
 					<td>', $day['most_members_online'], '</td>';
 
-						if (!empty($modSettings['hitStats']))
+						if (!empty(Config::$modSettings['hitStats']))
 							echo '
 					<td>', $day['hits'], '</td>';
 
@@ -239,10 +242,10 @@ function template_main()
 
 			aCollapsedYears: [';
 
-		foreach ($context['collapsed_years'] as $id => $year)
+		foreach (Utils::$context['collapsed_years'] as $id => $year)
 		{
 			echo '
-				\'', $year, '\'', $id != count($context['collapsed_years']) - 1 ? ',' : '';
+				\'', $year, '\'', $id != count(Utils::$context['collapsed_years']) - 1 ? ',' : '';
 		}
 
 		echo '
@@ -253,7 +256,7 @@ function template_main()
 				\'new_topics\',
 				\'new_posts\',
 				\'new_members\',
-				\'most_members_online\'', empty($modSettings['hitStats']) ? '' : ',
+				\'most_members_online\'', empty(Config::$modSettings['hitStats']) ? '' : ',
 				\'hits\'', '
 			]
 		});

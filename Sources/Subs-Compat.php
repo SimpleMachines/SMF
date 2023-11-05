@@ -10,151 +10,89 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.3
+ * @version 3.0 Alpha 1
  */
+
+use SMF\Config;
+use SMF\Lang;
+use SMF\Punycode;
 
 if (!defined('SMF'))
 	die('No direct access...');
 
-/**
- * Define the old SMF sha1 function. Uses mhash if available
- *
- * @param string $str The string
- * @return string The sha1 hashed version of $str
- */
-function sha1_smf($str)
+/*********************************************
+ * SMF\Config::$backward_compatibility support
+ *********************************************/
+
+if (!empty(SMF\Config::$backward_compatibility))
 {
-	// If we have mhash loaded in, use it instead!
-	if (function_exists('mhash') && defined('MHASH_SHA1'))
-		return bin2hex(mhash(MHASH_SHA1, $str));
-
-	$nblk = (strlen($str) + 8 >> 6) + 1;
-	$blks = array_pad(array(), $nblk * 16, 0);
-
-	for ($i = 0; $i < strlen($str); $i++)
-		$blks[$i >> 2] |= ord($str[$i]) << (24 - ($i % 4) * 8);
-
-	$blks[$i >> 2] |= 0x80 << (24 - ($i % 4) * 8);
-
-	return sha1_core($blks, strlen($str) * 8);
+	/*
+	 * In SMF 2.x, there was a file named Subs.php that was always loaded early in
+	 * the startup process and that contained many utility functions. Everything
+	 * else assumed that those functions were available. Subs.php went the way of
+	 * the dodo in SMF 3.0 after all its functions were migrated elsewhere, but
+	 * mods that rely on backward compatibilty support will still expect all those
+	 * functions to be available. So if backward compatibilty support is enabled,
+	 * we need to load a bunch of classes in order to make them available.
+	 */
+	class_exists('SMF\\Attachment');
+	class_exists('SMF\\BBCodeParser');
+	class_exists('SMF\\Logging');
+	class_exists('SMF\\PageIndex');
+	class_exists('SMF\\Theme');
+	class_exists('SMF\\Time');
+	class_exists('SMF\\TimeZone');
+	class_exists('SMF\\Topic');
+	class_exists('SMF\\Url');
+	class_exists('SMF\\User');
+	class_exists('SMF\\Graphics\\Image');
+	class_exists('SMF\\WebFetch\\WebFetchApi');
 }
 
-/**
- * This is the core SHA-1 calculation routine, used by sha1().
+/***************************
+ * PHP version compatibility
+ ***************************/
+
+/*
+ * Prevent fatal errors under PHP 8 when a disabled internal function is called.
  *
- * @param string $x
- * @param int $len
- * @return string
+ * Before PHP 8, calling a disabled internal function merely generated a
+ * warning that could be easily suppressed by the @ operator. But as of PHP 8
+ * a disabled internal function is treated like it is undefined, which means
+ * a fatal error will be thrown and execution will halt. SMF expects the old
+ * behaviour, so these no-op polyfills make sure that is what happens.
  */
-function sha1_core($x, $len)
+if (version_compare(PHP_VERSION, '8.0.0', '>='))
 {
-	@$x[$len >> 5] |= 0x80 << (24 - $len % 32);
-	$x[(($len + 64 >> 9) << 4) + 15] = $len;
-
-	$w = array();
-	$a = 1732584193;
-	$b = -271733879;
-	$c = -1732584194;
-	$d = 271733878;
-	$e = -1009589776;
-
-	for ($i = 0, $n = count($x); $i < $n; $i += 16)
+	// This is wrapped in a closure to keep the global namespace clean.
+	call_user_func(function()
 	{
-		$olda = $a;
-		$oldb = $b;
-		$oldc = $c;
-		$oldd = $d;
-		$olde = $e;
+		/*
+		 * This array contains function names that meet the following conditions:
+		 *
+		 * 1. SMF assumes they are defined, even if disabled. Note that prior to
+		 *    PHP 8, this was always true for internal functions.
+		 *
+		 * 2. Some hosts are known to disable them.
+		 *
+		 * 3. SMF can get by without them (as opposed to missing functions that
+		 *    really SHOULD cause execution to halt).
+		 */
+		$optional_funcs = array(
+			'set_time_limit',
+		);
 
-		for ($j = 0; $j < 80; $j++)
+		foreach ($optional_funcs as $func)
 		{
-			if ($j < 16)
-				$w[$j] = isset($x[$i + $j]) ? $x[$i + $j] : 0;
-			else
-				$w[$j] = sha1_rol($w[$j - 3] ^ $w[$j - 8] ^ $w[$j - 14] ^ $w[$j - 16], 1);
-
-			$t = sha1_rol($a, 5) + sha1_ft($j, $b, $c, $d) + $e + $w[$j] + sha1_kt($j);
-			$e = $d;
-			$d = $c;
-			$c = sha1_rol($b, 30);
-			$b = $a;
-			$a = $t;
+			if (!function_exists($func))
+			{
+				eval('function ' . $func . '() { trigger_error("' . $func . '() has been disabled", E_USER_WARNING); }');
+			}
 		}
-
-		$a += $olda;
-		$b += $oldb;
-		$c += $oldc;
-		$d += $oldd;
-		$e += $olde;
-	}
-
-	return sprintf('%08x%08x%08x%08x%08x', $a, $b, $c, $d, $e);
-}
-
-/**
- * Helper function for the core SHA-1 calculation
- *
- * @param int $t
- * @param int $b
- * @param int $c
- * @param int $d
- * @return int
- */
-function sha1_ft($t, $b, $c, $d)
-{
-	if ($t < 20)
-		return ($b & $c) | ((~$b) & $d);
-	if ($t < 40)
-		return $b ^ $c ^ $d;
-	if ($t < 60)
-		return ($b & $c) | ($b & $d) | ($c & $d);
-
-	return $b ^ $c ^ $d;
-}
-
-/**
- * Helper function for the core SHA-1 calculation
- *
- * @param int $t
- * @return int 1518500249, 1859775393, -1894007588 or -899497514 depending on the value of $t
- */
-function sha1_kt($t)
-{
-	return $t < 20 ? 1518500249 : ($t < 40 ? 1859775393 : ($t < 60 ? -1894007588 : -899497514));
-}
-
-/**
- * Helper function for the core SHA-1 calculation
- *
- * @param int $num
- * @param int $cnt
- * @return int
- */
-function sha1_rol($num, $cnt)
-{
-	// Unfortunately, PHP uses unsigned 32-bit longs only.  So we have to kludge it a bit.
-	if ($num & 0x80000000)
-		$a = ($num >> 1 & 0x7fffffff) >> (31 - $cnt);
-	else
-		$a = $num >> (32 - $cnt);
-
-	return ($num << $cnt) | $a;
-}
-
-/**
- * Available since: (PHP 5)
- * If the optional raw_output is set to TRUE, then the sha1 digest is instead returned in raw binary format with a length of 20,
- * otherwise the returned value is a 40-character hexadecimal number.
- *
- * @param string $text The text to hash
- * @return string The sha1 hash of $text
- */
-function sha1_raw($text)
-{
-	return sha1($text, true);
+	});
 }
 
 if (!function_exists('smf_crc32'))
@@ -181,6 +119,10 @@ if (!function_exists('smf_crc32'))
 		return $crc;
 	}
 }
+
+/*****************
+ * Polyfills, etc.
+ *****************/
 
 if (!function_exists('mb_ord'))
 {
@@ -377,15 +319,13 @@ if (!function_exists('mb_chr'))
  */
 function mb_ord_chr_encoding($encoding = null)
 {
-	global $modSettings, $txt;
-
 	if (is_null($encoding))
 	{
-		if (isset($modSettings['global_character_set']))
-			$encoding = $modSettings['global_character_set'];
+		if (isset(Config::$modSettings['global_character_set']))
+			$encoding = Config::$modSettings['global_character_set'];
 
-		elseif (isset($txt['lang_character_set']))
-			$encoding = $txt['lang_character_set'];
+		elseif (isset(Lang::$txt['lang_character_set']))
+			$encoding = Lang::$txt['lang_character_set'];
 
 		elseif (function_exists('mb_internal_encoding'))
 			$encoding = mb_internal_encoding();
@@ -434,11 +374,13 @@ function mb_ord_chr_encoding($encoding = null)
 	return false;
 }
 
-/**
- * IDNA_* constants used as flags for the idn_to_* functions.
- */
-foreach (
-	array(
+// This is wrapped in a closure to keep the global namespace clean.
+call_user_func(function()
+{
+	/**
+	 * IDNA_* constants used as flags for the idn_to_* functions.
+	 */
+	$idna_constants = array(
 		'IDNA_DEFAULT' => 0,
 		'IDNA_ALLOW_UNASSIGNED' => 1,
 		'IDNA_USE_STD3_RULES' => 2,
@@ -448,13 +390,14 @@ foreach (
 		'IDNA_NONTRANSITIONAL_TO_UNICODE' => 32,
 		'INTL_IDNA_VARIANT_2003' => 0,
 		'INTL_IDNA_VARIANT_UTS46' => 1,
-	)
-	as $name => $value
-)
-{
-	if (!defined($name))
-		define($name, $value);
-};
+	);
+
+	foreach ($idna_constants as $name => $value)
+	{
+		if (!defined($name))
+			define($name, $value);
+	}
+});
 
 if (!function_exists('idn_to_ascii'))
 {
@@ -476,11 +419,7 @@ if (!function_exists('idn_to_ascii'))
 	 */
 	function idn_to_ascii($domain, $flags = 0, $variant = 1, &$idna_info = null)
 	{
-		global $sourcedir;
-
 		static $Punycode;
-
-		require_once($sourcedir . '/Class-Punycode.php');
 
 		if (!is_object($Punycode))
 			$Punycode = new Punycode();
@@ -514,11 +453,7 @@ if (!function_exists('idn_to_utf8'))
 	 */
 	function idn_to_utf8($domain, $flags = 0, $variant = 1, &$idna_info = null)
 	{
-		global $sourcedir;
-
 		static $Punycode;
-
-		require_once($sourcedir . '/Class-Punycode.php');
 
 		if (!is_object($Punycode))
 			$Punycode = new Punycode();
@@ -530,34 +465,33 @@ if (!function_exists('idn_to_utf8'))
 	}
 }
 
-/**
- * Prevent fatal errors under PHP 8 when a disabled internal function is called.
- *
- * Before PHP 8, calling a disabled internal function merely generated a
- * warning that could be easily suppressed by the @ operator. But as of PHP 8
- * a disabled internal function is treated like it is undefined, which means
- * a fatal error will be thrown and execution will halt. SMF expects the old
- * behaviour, so these no-op polyfills make sure that is what happens.
- */
-if (version_compare(PHP_VERSION, '8.0.0', '>='))
+// Based on code by "examplehash at user dot com".
+// https://www.php.net/manual/en/function.hash-equals.php#125034
+if (!function_exists('hash_equals'))
 {
-	/*
-	 * This array contains function names that meet the following conditions:
-	 *
-	 * 1. SMF assumes they are defined, even if disabled. Note that prior to
-	 *    PHP 8, this was always true for internal functions.
-	 *
-	 * 2. Some hosts are known to disable them.
-	 *
-	 * 3. SMF can get by without them (as opposed to missing functions that
-	 *    really SHOULD cause execution to halt).
+	/**
+	 * A compatibility function for when PHP's "hash_equals" function isn't available
+	 * @param string $known_string A known hash
+	 * @param string $user_string The hash of the user string
+	 * @return bool Whether or not the two are equal
 	 */
-	foreach (array('set_time_limit') as $func)
+	function hash_equals($known_string, $user_string)
 	{
-		if (!function_exists($func))
-			eval('function ' . $func . '() { trigger_error("' . $func . '() has been disabled for security reasons", E_USER_WARNING); }');
+		$known_string = (string) $known_string;
+		$user_string = (string) $user_string;
+
+		$sx = 0;
+		$sy = strlen($known_string);
+		$uy = strlen($user_string);
+		$result = $sy - $uy;
+		for ($ux = 0; $ux < $uy; $ux++)
+		{
+			$result |= ord($user_string[$ux]) ^ ord($known_string[$sx]);
+			$sx = ($sx + 1) % $sy;
+		}
+
+		return !$result;
 	}
-	unset($func);
 }
 
 ?>

@@ -1,7 +1,5 @@
 <?php
-// Version: 2.1.3; Help
-
-global $helptxt, $scripturl;
+// Version: 3.0 Alpha 1; Help
 
 $txt['close_window'] = 'Close window';
 
@@ -639,7 +637,7 @@ It is <strong>very important</strong> to add the matched $txt string to <strong>
 	<li>Follow the prompts to add your new string.</li>
 </ol>';
 
-// argument(s): $boarddir, $boardurl
+// argument(s): Config::$boarddir, Config::$boardurl
 $helptxt['cron_is_real_cron'] = 'By default, SMF adds to every page a small bit of JavaScript that prompts the user\'s browser to trigger SMF\'s cron.php in the background. This approach allows SMF to execute its scheduled tasks on a regular basis without requiring the admin to do any extra server configuration. However, some admins might prefer to configure their servers to directly execute cron.php on a regular basis. If you have done this, you can disable the JavaScript method.<br><br><strong>Note:</strong> Configuring your server to run scheduled tasks this way cannot be done from within SMF. You will need to use your server configuration software to do so. Typical tools for this purpose include <code>cron</code> (for Linux servers), <code>schtasks.exe</code> (for Windows servers), and <code>launchd</code> (for macOS servers). Most web hosting companies provide some sort of control panel interface to allow their customers to access these tools.<br><br>The path and URL for your forum\'s cron.php are:<br>Path: %1$s/cron.php<br>URL: %2$s/cron.php';
 
 $helptxt['languages_txt'] = 'These language entries are used throughout SMF to define localized versions of text for different languages.<br><br>If you see a value like <code>&#37;1$s</code> in an entry, it is a placeholder that SMF fills in with a real value at runtime. Make sure to keep such placeholders in your customized text.';

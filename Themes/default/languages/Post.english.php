@@ -1,7 +1,5 @@
 <?php
-// Version: 2.1.4; Post
-
-global $context;
+// Version: 3.0 Alpha 1; Post
 
 $txt['post_reply'] = 'Post reply';
 $txt['message_icon'] = 'Message icon';

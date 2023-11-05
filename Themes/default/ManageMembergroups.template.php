@@ -4,11 +4,16 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 3.0 Alpha 1
  */
+
+use SMF\Config;
+use SMF\Lang;
+use SMF\Utils;
+use SMF\User;
 
 /**
  * The main page listing all the groups.
@@ -27,71 +32,69 @@ function template_main()
  */
 function template_new_group()
 {
-	global $context, $scripturl, $txt, $modSettings;
-
 	echo '
-		<form id="new_group" action="', $scripturl, '?action=admin;area=membergroups;sa=add" method="post" accept-charset="', $context['character_set'], '">
+		<form id="new_group" action="', Config::$scripturl, '?action=admin;area=membergroups;sa=add" method="post" accept-charset="', Utils::$context['character_set'], '">
 			<div class="cat_bar">
-				<h3 class="catbg">', $txt['membergroups_new_group'], '</h3>
+				<h3 class="catbg">', Lang::$txt['membergroups_new_group'], '</h3>
 			</div>
 			<div class="windowbg">
 				<dl class="settings">
 					<dt>
-						<label for="group_name_input"><strong>', $txt['membergroups_group_name'], ':</strong></label>
+						<label for="group_name_input"><strong>', Lang::$txt['membergroups_group_name'], ':</strong></label>
 					</dt>
 					<dd>
 						<input type="text" name="group_name" id="group_name_input" size="30">
 					</dd>';
 
-	if ($context['undefined_group'])
+	if (Utils::$context['undefined_group'])
 	{
 		echo '
 					<dt>
-						<label for="group_type"><strong>', $txt['membergroups_edit_group_type'], '</strong>:</label>
+						<label for="group_type"><strong>', Lang::$txt['membergroups_edit_group_type'], '</strong>:</label>
 					</dt>
 					<dd>
 						<fieldset id="group_type">
-							<legend>', $txt['membergroups_edit_select_group_type'], '</legend>
-							<label for="group_type_private"><input type="radio" name="group_type" id="group_type_private" value="0" checked onclick="swapPostGroup(0);">', $txt['membergroups_group_type_private'], '</label><br>';
+							<legend>', Lang::$txt['membergroups_edit_select_group_type'], '</legend>
+							<label for="group_type_private"><input type="radio" name="group_type" id="group_type_private" value="0" checked onclick="swapPostGroup(0);">', Lang::$txt['membergroups_group_type_private'], '</label><br>';
 
-		if ($context['allow_protected'])
+		if (Utils::$context['allow_protected'])
 			echo '
-							<label for="group_type_protected"><input type="radio" name="group_type" id="group_type_protected" value="1" onclick="swapPostGroup(0);">', $txt['membergroups_group_type_protected'], '</label><br>';
+							<label for="group_type_protected"><input type="radio" name="group_type" id="group_type_protected" value="1" onclick="swapPostGroup(0);">', Lang::$txt['membergroups_group_type_protected'], '</label><br>';
 
 		echo '
-							<label for="group_type_request"><input type="radio" name="group_type" id="group_type_request" value="2" onclick="swapPostGroup(0);">', $txt['membergroups_group_type_request'], '</label><br>
-							<label for="group_type_free"><input type="radio" name="group_type" id="group_type_free" value="3" onclick="swapPostGroup(0);">', $txt['membergroups_group_type_free'], '</label><br>
-							<label for="group_type_post"><input type="radio" name="group_type" id="group_type_post" value="-1" onclick="swapPostGroup(1);">', $txt['membergroups_group_type_post'], '</label><br>
+							<label for="group_type_request"><input type="radio" name="group_type" id="group_type_request" value="2" onclick="swapPostGroup(0);">', Lang::$txt['membergroups_group_type_request'], '</label><br>
+							<label for="group_type_free"><input type="radio" name="group_type" id="group_type_free" value="3" onclick="swapPostGroup(0);">', Lang::$txt['membergroups_group_type_free'], '</label><br>
+							<label for="group_type_post"><input type="radio" name="group_type" id="group_type_post" value="-1" onclick="swapPostGroup(1);">', Lang::$txt['membergroups_group_type_post'], '</label><br>
 						</fieldset>
 					</dd>';
 	}
 
-	if ($context['post_group'] || $context['undefined_group'])
+	if (Utils::$context['post_group'] || Utils::$context['undefined_group'])
 		echo '
 					<dt id="min_posts_text">
-						<strong>', $txt['membergroups_min_posts'], ':</strong>
+						<strong>', Lang::$txt['membergroups_min_posts'], ':</strong>
 					</dt>
 					<dd>
 						<input type="number" name="min_posts" id="min_posts_input" size="5">
 					</dd>';
 
-	if (!$context['post_group'] || !empty($modSettings['permission_enable_postgroups']))
+	if (!Utils::$context['post_group'] || !empty(Config::$modSettings['permission_enable_postgroups']))
 	{
 		echo '
 					<dt>
-						<label for="permission_base"><strong>', $txt['membergroups_permissions'], ':</strong></label><br>
-						<span class="smalltext">', $txt['membergroups_can_edit_later'], '</span>
+						<label for="permission_base"><strong>', Lang::$txt['membergroups_permissions'], ':</strong></label><br>
+						<span class="smalltext">', Lang::$txt['membergroups_can_edit_later'], '</span>
 					</dt>
 					<dd>
 						<fieldset id="permission_base">
-							<legend>', $txt['membergroups_select_permission_type'], '</legend>
+							<legend>', Lang::$txt['membergroups_select_permission_type'], '</legend>
 							<input type="radio" name="perm_type" id="perm_type_inherit" value="inherit" checked>
-							<label for="perm_type_inherit">', $txt['membergroups_new_as_inherit'], ':</label>
+							<label for="perm_type_inherit">', Lang::$txt['membergroups_new_as_inherit'], ':</label>
 							<select name="inheritperm" id="inheritperm_select" onclick="document.getElementById(\'perm_type_inherit\').checked = true;">
-								<option value="-1">', $txt['membergroups_guests'], '</option>
-								<option value="0" selected>', $txt['membergroups_members'], '</option>';
+								<option value="-1">', Lang::$txt['membergroups_guests'], '</option>
+								<option value="0" selected>', Lang::$txt['membergroups_members'], '</option>';
 
-		foreach ($context['groups'] as $group)
+		foreach (Utils::$context['groups'] as $group)
 			echo '
 								<option value="', $group['id'], '">', $group['name'], '</option>';
 
@@ -99,12 +102,12 @@ function template_new_group()
 							</select>
 							<br>
 							<input type="radio" name="perm_type" id="perm_type_copy" value="copy">
-							<label for="perm_type_copy">', $txt['membergroups_new_as_copy'], ':</label>
+							<label for="perm_type_copy">', Lang::$txt['membergroups_new_as_copy'], ':</label>
 							<select name="copyperm" id="copyperm_select" onclick="document.getElementById(\'perm_type_copy\').checked = true;">
-								<option value="-1">', $txt['membergroups_guests'], '</option>
-								<option value="0" selected>', $txt['membergroups_members'], '</option>';
+								<option value="-1">', Lang::$txt['membergroups_guests'], '</option>
+								<option value="0" selected>', Lang::$txt['membergroups_members'], '</option>';
 
-		foreach ($context['groups'] as $group)
+		foreach (Utils::$context['groups'] as $group)
 			echo '
 								<option value="', $group['id'], '">', $group['name'], '</option>';
 
@@ -112,12 +115,12 @@ function template_new_group()
 							</select>
 							<br>
 							<input type="radio" name="perm_type" id="perm_type_predefined" value="predefined">
-							<label for="perm_type_predefined">', $txt['membergroups_new_as_type'], ':</label>
+							<label for="perm_type_predefined">', Lang::$txt['membergroups_new_as_type'], ':</label>
 							<select name="level" id="level_select" onclick="document.getElementById(\'perm_type_predefined\').checked = true;">
-								<option value="restrict">', $txt['permitgroups_restrict'], '</option>
-								<option value="standard" selected>', $txt['permitgroups_standard'], '</option>
-								<option value="moderator">', $txt['permitgroups_moderator'], '</option>
-								<option value="maintenance">', $txt['permitgroups_maintenance'], '</option>
+								<option value="restrict">', Lang::$txt['permitgroups_restrict'], '</option>
+								<option value="standard" selected>', Lang::$txt['permitgroups_standard'], '</option>
+								<option value="moderator">', Lang::$txt['permitgroups_moderator'], '</option>
+								<option value="maintenance">', Lang::$txt['permitgroups_maintenance'], '</option>
 							</select>
 						</fieldset>
 					</dd>';
@@ -125,8 +128,8 @@ function template_new_group()
 
 	echo '
 					<dt>
-						<strong>', $txt['membergroups_new_board'], ':</strong>', $context['post_group'] ? '<br>
-						<span class="smalltext">' . $txt['membergroups_new_board_post_groups'] . '</span>' : '', '
+						<strong>', Lang::$txt['membergroups_new_board'], ':</strong>', Utils::$context['post_group'] ? '<br>
+						<span class="smalltext">' . Lang::$txt['membergroups_new_board_post_groups'] . '</span>' : '', '
 					</dt>
 					<dd>';
 
@@ -135,10 +138,10 @@ function template_new_group()
 	echo '
 					</dd>
 				</dl>
-				<input type="submit" value="', $txt['membergroups_add_group'], '" class="button">
+				<input type="submit" value="', Lang::$txt['membergroups_add_group'], '" class="button">
 			</div><!-- .windowbg -->';
 
-	if ($context['undefined_group'])
+	if (Utils::$context['undefined_group'])
 		echo '
 			<script>
 				function swapPostGroup(isChecked)
@@ -147,12 +150,12 @@ function template_new_group()
 					document.getElementById(\'min_posts_input\').disabled = !isChecked;
 					min_posts_text.style.color = isChecked ? "" : "#888888";
 				}
-				swapPostGroup(', $context['post_group'] ? 'true' : 'false', ');
+				swapPostGroup(', Utils::$context['post_group'] ? 'true' : 'false', ');
 			</script>';
 
 	echo '
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-			<input type="hidden" name="', $context['admin-mmg_token_var'], '" value="', $context['admin-mmg_token'], '">
+			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+			<input type="hidden" name="', Utils::$context['admin-mmg_token_var'], '" value="', Utils::$context['admin-mmg_token'], '">
 		</form>';
 }
 
@@ -161,142 +164,146 @@ function template_new_group()
  */
 function template_edit_group()
 {
-	global $context, $scripturl, $txt, $modSettings;
-
 	echo '
-		<form action="', $scripturl, '?action=admin;area=membergroups;sa=edit;group=', $context['group']['id'], '" method="post" accept-charset="', $context['character_set'], '" name="groupForm" id="groupForm">
+		<form action="', Config::$scripturl, '?action=admin;area=membergroups;sa=edit;group=', Utils::$context['group']['id'], '" method="post" accept-charset="', Utils::$context['character_set'], '" name="groupForm" id="groupForm">
 			<div class="cat_bar">
-				<h3 class="catbg">', $txt['membergroups_edit_group'], ' - ', $context['group']['name'], '
+				<h3 class="catbg">', Lang::$txt['membergroups_edit_group'], ' - ', Utils::$context['group']['name'], '
 				</h3>
 			</div>
 			<div class="windowbg">
 				<dl class="settings">
 					<dt>
-						<label for="group_name_input"><strong>', $txt['membergroups_edit_name'], ':</strong></label>
+						<label for="group_name_input"><strong>', Lang::$txt['membergroups_edit_name'], ':</strong></label>
 					</dt>
 					<dd>
-						<input type="text" name="group_name" id="group_name_input" value="', $context['group']['editable_name'], '" size="30">
+						<input type="text" name="group_name" id="group_name_input" value="', Utils::$context['group']['editable_name'], '" size="30">
 					</dd>';
 
-	if ($context['group']['id'] != 3 && $context['group']['id'] != 4)
+	if (Utils::$context['group']['id'] != 3 && Utils::$context['group']['id'] != 4)
 		echo '
 					<dt id="group_desc_text">
-						<label for="group_desc_input"><strong>', $txt['membergroups_edit_desc'], ':</strong></label>
+						<label for="group_desc_input"><strong>', Lang::$txt['membergroups_edit_desc'], ':</strong></label>
 					</dt>
 					<dd>
-						<textarea name="group_desc" id="group_desc_input" rows="4" cols="40">', $context['group']['description'], '</textarea>
+						<textarea name="group_desc" id="group_desc_input" rows="4" cols="40">', Utils::$context['group']['description'], '</textarea>
 					</dd>';
 
 	// Group type...
-	if ($context['group']['allow_post_group'])
+	if (Utils::$context['group']['can_change_type'])
 	{
 		echo '
 					<dt>
-						<label for="group_type"><strong>', $txt['membergroups_edit_group_type'], ':</strong></label>
+						<label for="group_type"><strong>', Lang::$txt['membergroups_edit_group_type'], ':</strong></label>
 					</dt>
 					<dd>
 						<fieldset id="group_type">
-							<legend>', $txt['membergroups_edit_select_group_type'], '</legend>
-							<label for="group_type_private"><input type="radio" name="group_type" id="group_type_private" value="0"', !$context['group']['is_post_group'] && $context['group']['type'] == 0 ? ' checked' : '', ' onclick="swapPostGroup(0);">', $txt['membergroups_group_type_private'], '</label><br>';
+							<legend>', Lang::$txt['membergroups_edit_select_group_type'], '</legend>
+							<label for="group_type_private"><input type="radio" name="group_type" id="group_type_private" value="0"', !Utils::$context['group']['is_post_group'] && Utils::$context['group']['type'] == 0 ? ' checked' : '', (Utils::$context['group']['allow_post_group'] ? ' onclick="swapPostGroup(0);"' : ''), '>', Lang::$txt['membergroups_group_type_private'], '</label><br>';
 
-		if ($context['group']['allow_protected'])
+		if (Utils::$context['group']['allow_protected'])
 			echo '
-							<label for="group_type_protected"><input type="radio" name="group_type" id="group_type_protected" value="1"', $context['group']['type'] == 1 ? ' checked' : '', ' onclick="swapPostGroup(0);">', $txt['membergroups_group_type_protected'], '</label><br>';
+							<label for="group_type_protected"><input type="radio" name="group_type" id="group_type_protected" value="1"', Utils::$context['group']['type'] == 1 ? ' checked' : '', (Utils::$context['group']['allow_post_group'] ? ' onclick="swapPostGroup(0);"' : ''), '>', Lang::$txt['membergroups_group_type_protected'], '</label><br>';
 
 		echo '
-							<label for="group_type_request"><input type="radio" name="group_type" id="group_type_request" value="2"', $context['group']['type'] == 2 ? ' checked' : '', ' onclick="swapPostGroup(0);">', $txt['membergroups_group_type_request'], '</label><br>
-							<label for="group_type_free"><input type="radio" name="group_type" id="group_type_free" value="3"', $context['group']['type'] == 3 ? ' checked' : '', ' onclick="swapPostGroup(0);">', $txt['membergroups_group_type_free'], '</label><br>
-							<label for="group_type_post"><input type="radio" name="group_type" id="group_type_post" value="-1"', $context['group']['is_post_group'] ? ' checked' : '', ' onclick="swapPostGroup(1);">', $txt['membergroups_group_type_post'], '</label><br>
+							<label for="group_type_request"><input type="radio" name="group_type" id="group_type_request" value="2"', Utils::$context['group']['type'] == 2 ? ' checked' : '', (Utils::$context['group']['allow_post_group'] ? ' onclick="swapPostGroup(0);"' : ''), '>', Lang::$txt['membergroups_group_type_request'], '</label><br>
+							<label for="group_type_free"><input type="radio" name="group_type" id="group_type_free" value="3"', Utils::$context['group']['type'] == 3 ? ' checked' : '', (Utils::$context['group']['allow_post_group'] ? ' onclick="swapPostGroup(0);"' : ''), '>', Lang::$txt['membergroups_group_type_free'], '</label><br>';
+
+		if (Utils::$context['group']['allow_post_group'])
+			echo '
+
+							<label for="group_type_post"><input type="radio" name="group_type" id="group_type_post" value="-1"', Utils::$context['group']['is_post_group'] ? ' checked' : '', ' onclick="swapPostGroup(1);">', Lang::$txt['membergroups_group_type_post'], '</label><br>';
+
+		echo '
 						</fieldset>
 					</dd>';
 	}
 
-	if ($context['group']['id'] != 3 && $context['group']['id'] != 4)
+	if (Utils::$context['group']['id'] != 3 && Utils::$context['group']['id'] != 4)
 		echo '
 					<dt id="group_moderators_text">
-						<label for="group_moderators"><strong>', $txt['moderators'], ':</strong></label>
+						<label for="group_moderators"><strong>', Lang::$txt['moderators'], ':</strong></label>
 					</dt>
 					<dd>
-						<input type="text" name="group_moderators" id="group_moderators" value="', $context['group']['moderator_list'], '" size="30">
+						<input type="text" name="group_moderators" id="group_moderators" value="', Utils::$context['group']['moderator_list'], '" size="30">
 						<div id="moderator_container"></div>
 					</dd>
 					<dt id="group_hidden_text">
-						<label for="group_hidden_input"><strong>', $txt['membergroups_edit_hidden'], ':</strong></label>
+						<label for="group_hidden_input"><strong>', Lang::$txt['membergroups_edit_hidden'], ':</strong></label>
 					</dt>
 					<dd>
-						<select name="group_hidden" id="group_hidden_input" onchange="if (this.value == 2 &amp;&amp; !confirm(\'', $txt['membergroups_edit_hidden_warning'], '\')) this.value = 0;">
-							<option value="0"', $context['group']['hidden'] ? '' : ' selected', '>', $txt['membergroups_edit_hidden_no'], '</option>
-							<option value="1"', $context['group']['hidden'] == 1 ? ' selected' : '', '>', $txt['membergroups_edit_hidden_boardindex'], '</option>
-							<option value="2"', $context['group']['hidden'] == 2 ? ' selected' : '', '>', $txt['membergroups_edit_hidden_all'], '</option>
+						<select name="group_hidden" id="group_hidden_input" onchange="if (this.value == 2 &amp;&amp; !confirm(\'', Lang::$txt['membergroups_edit_hidden_warning'], '\')) this.value = 0;">
+							<option value="0"', Utils::$context['group']['hidden'] ? '' : ' selected', '>', Lang::$txt['membergroups_edit_hidden_no'], '</option>
+							<option value="1"', Utils::$context['group']['hidden'] == 1 ? ' selected' : '', '>', Lang::$txt['membergroups_edit_hidden_boardindex'], '</option>
+							<option value="2"', Utils::$context['group']['hidden'] == 2 ? ' selected' : '', '>', Lang::$txt['membergroups_edit_hidden_all'], '</option>
 						</select>
 					</dd>';
 
 	// Can they inherit permissions?
-	if ($context['group']['id'] > 1 && $context['group']['id'] != 3)
+	if (Utils::$context['group']['id'] > 1 && Utils::$context['group']['id'] != 3)
 	{
 		echo '
 					<dt id="group_inherit_text">
-						<label for="group_inherit_input"><strong>', $txt['membergroups_edit_inherit_permissions'], '</strong></label>:<br>
-						<span class="smalltext">', $txt['membergroups_edit_inherit_permissions_desc'], '</span>
+						<label for="group_inherit_input"><strong>', Lang::$txt['membergroups_edit_inherit_permissions'], '</strong></label>:<br>
+						<span class="smalltext">', Lang::$txt['membergroups_edit_inherit_permissions_desc'], '</span>
 					</dt>
 					<dd>
 						<select name="group_inherit" id="group_inherit_input">
-							<option value="-2">', $txt['membergroups_edit_inherit_permissions_no'], '</option>
-							<option value="-1"', $context['group']['inherited_from'] == -1 ? ' selected' : '', '>', $txt['membergroups_edit_inherit_permissions_from'], ': ', $txt['membergroups_guests'], '</option>
-							<option value="0"', $context['group']['inherited_from'] == 0 ? ' selected' : '', '>', $txt['membergroups_edit_inherit_permissions_from'], ': ', $txt['membergroups_members'], '</option>';
+							<option value="-2">', Lang::$txt['membergroups_edit_inherit_permissions_no'], '</option>
+							<option value="-1"', Utils::$context['group']['inherited_from'] == -1 ? ' selected' : '', '>', Lang::$txt['membergroups_edit_inherit_permissions_from'], ': ', Lang::$txt['membergroups_guests'], '</option>
+							<option value="0"', Utils::$context['group']['inherited_from'] == 0 ? ' selected' : '', '>', Lang::$txt['membergroups_edit_inherit_permissions_from'], ': ', Lang::$txt['membergroups_members'], '</option>';
 
 		// For all the inheritable groups show an option.
-		foreach ($context['inheritable_groups'] as $id => $group)
+		foreach (Utils::$context['inheritable_groups'] as $id => $group)
 			echo '
-							<option value="', $id, '"', $context['group']['inherited_from'] == $id ? ' selected' : '', '>', $txt['membergroups_edit_inherit_permissions_from'], ': ', $group, '</option>';
+							<option value="', $id, '"', Utils::$context['group']['inherited_from'] == $id ? ' selected' : '', '>', Lang::$txt['membergroups_edit_inherit_permissions_from'], ': ', $group, '</option>';
 
 		echo '
 						</select>
-						<input type="hidden" name="old_inherit" value="', $context['group']['inherited_from'], '">
+						<input type="hidden" name="old_inherit" value="', Utils::$context['group']['inherited_from'], '">
 					</dd>';
 	}
 
-	if ($context['group']['allow_post_group'])
+	if (Utils::$context['group']['allow_post_group'])
 		echo '
 
 					<dt id="min_posts_text">
-						<label for="min_posts_input"><strong>', $txt['membergroups_min_posts'], ':</strong></label>
+						<label for="min_posts_input"><strong>', Lang::$txt['membergroups_min_posts'], ':</strong></label>
 					</dt>
 					<dd>
-						<input type="number" name="min_posts" id="min_posts_input"', $context['group']['is_post_group'] ? ' value="' . $context['group']['min_posts'] . '"' : '', ' size="6">
+						<input type="number" name="min_posts" id="min_posts_input"', Utils::$context['group']['is_post_group'] ? ' value="' . Utils::$context['group']['min_posts'] . '"' : '', ' size="6">
 					</dd>';
 
 	echo '
 					<dt>
-						<label for="online_color_input"><strong>', $txt['membergroups_online_color'], ':</strong></label>
+						<label for="online_color_input"><strong>', Lang::$txt['membergroups_online_color'], ':</strong></label>
 					</dt>
 					<dd>
-						<input type="text" name="online_color" id="online_color_input" value="', $context['group']['color'], '" size="20">
+						<input type="text" name="online_color" id="online_color_input" value="', Utils::$context['group']['color'], '" size="20">
 					</dd>
 					<dt>
-						<label for="icon_count_input"><strong>', $txt['membergroups_icon_count'], ':</strong></label>
+						<label for="icon_count_input"><strong>', Lang::$txt['membergroups_icon_count'], ':</strong></label>
 					</dt>
 					<dd>
-						<input type="number" name="icon_count" id="icon_count_input" value="', $context['group']['icon_count'], '" size="4">
+						<input type="number" name="icon_count" id="icon_count_input" value="', Utils::$context['group']['icon_count'], '" size="4">
 					</dd>';
 
 	// Do we have any possible icons to select from?
-	if (!empty($context['possible_icons']))
+	if (!empty(Utils::$context['possible_icons']))
 	{
 		echo '
 					<dt>
-						<label for="icon_image_input"><strong>', $txt['membergroups_icon_image'], ':</strong></label><br>
-						<span class="smalltext">', $txt['membergroups_icon_image_note'], '</span>
-						<span class="smalltext">', $txt['membergroups_icon_image_size'], '</span>
+						<label for="icon_image_input"><strong>', Lang::$txt['membergroups_icon_image'], ':</strong></label><br>
+						<span class="smalltext">', Lang::$txt['membergroups_icon_image_note'], '</span>
+						<span class="smalltext">', Lang::$txt['membergroups_icon_image_size'], '</span>
 					</dt>
 					<dd>
-						', $txt['membergroups_images_url'], '
+						', Lang::$txt['membergroups_images_url'], '
 						<select name="icon_image" id="icon_image_input">';
 
 		// For every possible icon, create an option.
-		foreach ($context['possible_icons'] as $icon)
+		foreach (Utils::$context['possible_icons'] as $icon)
 			echo '
-							<option value="', $icon, '"', $context['group']['icon_image'] == $icon ? ' selected' : '', '>', $icon, '</option>';
+							<option value="', $icon, '"', Utils::$context['group']['icon_image'] == $icon ? ' selected' : '', '>', $icon, '</option>';
 
 		echo '
 						</select>
@@ -311,35 +318,35 @@ function template_edit_group()
 
 	echo '
 					<dt>
-						<label for="max_messages_input"><strong>', $txt['membergroups_max_messages'], ':</strong></label><br>
-						<span class="smalltext">', $txt['membergroups_max_messages_note'], '</span>
+						<label for="max_messages_input"><strong>', Lang::$txt['membergroups_max_messages'], ':</strong></label><br>
+						<span class="smalltext">', Lang::$txt['membergroups_max_messages_note'], '</span>
 					</dt>
 					<dd>
-						<input type="text" name="max_messages" id="max_messages_input" value="', $context['group']['id'] == 1 ? 0 : $context['group']['max_messages'], '" size="6"', $context['group']['id'] == 1 ? ' disabled' : '', '>
+						<input type="text" name="max_messages" id="max_messages_input" value="', Utils::$context['group']['id'] == 1 ? 0 : Utils::$context['group']['max_messages'], '" size="6"', Utils::$context['group']['id'] == 1 ? ' disabled' : '', '>
 					</dd>';
 
 	// Force 2FA for this membergroup?
-	if (!empty($modSettings['tfa_mode']) && $modSettings['tfa_mode'] == 2)
+	if (!empty(Config::$modSettings['tfa_mode']) && Config::$modSettings['tfa_mode'] == 2)
 		echo '
 					<dt>
-						<label for="group_tfa_force_input"><strong>', $txt['membergroups_tfa_force'], ':</strong></label><br>
-						<span class="smalltext">', $txt['membergroups_tfa_force_note'], '</span>
+						<label for="group_tfa_force_input"><strong>', Lang::$txt['membergroups_tfa_force'], ':</strong></label><br>
+						<span class="smalltext">', Lang::$txt['membergroups_tfa_force_note'], '</span>
 					</dt>
 					<dd>
-						<input type="checkbox" name="group_tfa_force"', $context['group']['tfa_required'] ? ' checked' : '', '>
+						<input type="checkbox" name="group_tfa_force"', Utils::$context['group']['tfa_required'] ? ' checked' : '', '>
 					</dd>';
 
-	if (!empty($context['categories']))
+	if (!empty(Utils::$context['categories']))
 	{
 		echo '
 					<dt>
-						<strong>', $txt['membergroups_new_board'], ':</strong>', $context['group']['is_post_group'] ? '<br>
-						<span class="smalltext">' . $txt['membergroups_new_board_post_groups'] . '</span>' : '', '
+						<strong>', Lang::$txt['membergroups_new_board'], ':</strong>', Utils::$context['group']['is_post_group'] ? '<br>
+						<span class="smalltext">' . Lang::$txt['membergroups_new_board_post_groups'] . '</span>' : '', '
 					</dt>
 					<dd>';
 
-		if (!empty($context['can_manage_boards']))
-			echo $txt['membergroups_can_manage_access'];
+		if (!empty(Utils::$context['can_manage_boards']))
+			echo Lang::$txt['membergroups_can_manage_access'];
 
 		else
 			template_add_edit_group_boards_list(true, 'groupForm');
@@ -350,11 +357,11 @@ function template_edit_group()
 
 	echo '
 				</dl>
-				<input type="submit" name="save" value="', $txt['membergroups_edit_save'], '" class="button">', $context['group']['allow_delete'] ? '
-				<input type="submit" name="delete" value="' . $txt['membergroups_delete'] . '" data-confirm="' . ($context['is_moderator_group'] ? $txt['membergroups_confirm_delete_mod'] : $txt['membergroups_confirm_delete']) . '" class="button you_sure">' : '', '
+				<input type="submit" name="save" value="', Lang::$txt['membergroups_edit_save'], '" class="button">', Utils::$context['group']['allow_delete'] ? '
+				<input type="submit" name="delete" value="' . Lang::$txt['membergroups_delete'] . '" data-confirm="' . (Utils::$context['is_moderator_group'] ? Lang::$txt['membergroups_confirm_delete_mod'] : Lang::$txt['membergroups_confirm_delete']) . '" class="button you_sure">' : '', '
 			</div><!-- .windowbg -->
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-			<input type="hidden" name="', $context['admin-mmg_token_var'], '" value="', $context['admin-mmg_token'], '">
+			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+			<input type="hidden" name="', Utils::$context['admin-mmg_token_var'], '" value="', Utils::$context['admin-mmg_token'], '">
 		</form>
 	<script>
 		var oModeratorSuggest = new smc_AutoSuggest({
@@ -367,36 +374,36 @@ function template_edit_group()
 			bItemList: true,
 			sPostName: \'moderator_list\',
 			sURLMask: \'action=profile;u=%item_id%\',
-			sTextDeleteItem: \'', $txt['autosuggest_delete_item'], '\',
+			sTextDeleteItem: \'', Lang::$txt['autosuggest_delete_item'], '\',
 			sItemListContainerId: \'moderator_container\',
 			aListItems: [';
 
-	foreach ($context['group']['moderators'] as $id_member => $member_name)
+	foreach (Utils::$context['group']['moderators'] as $id_member => $member_name)
 		echo '
 				{
-					sItemId: ', JavaScriptEscape($id_member), ',
-					sItemName: ', JavaScriptEscape($member_name), '
-				}', $id_member == $context['group']['last_moderator_id'] ? '' : ',';
+					sItemId: ', Utils::JavaScriptEscape($id_member), ',
+					sItemName: ', Utils::JavaScriptEscape($member_name), '
+				}', $id_member == Utils::$context['group']['last_moderator_id'] ? '' : ',';
 
 	echo '
 			]
 		});
 	</script>';
 
-	if ($context['group']['allow_post_group'])
+	if (Utils::$context['group']['allow_post_group'])
 		echo '
 	<script>
 		function swapPostGroup(isChecked)
 		{
-			var is_moderator_group = ', (int)$context['is_moderator_group'], ';
-			var group_type = ', $context['group']['type'], ';
+			var is_moderator_group = ', (int)Utils::$context['is_moderator_group'], ';
+			var group_type = ', Utils::$context['group']['type'], ';
 			var min_posts_text = document.getElementById(\'min_posts_text\');
 			var group_desc_text = document.getElementById(\'group_desc_text\');
 			var group_hidden_text = document.getElementById(\'group_hidden_text\');
 			var group_moderators_text = document.getElementById(\'group_moderators_text\');
 
 			// If it\'s a moderator group, warn of possible problems... and remember the group type
-			if (isChecked && is_moderator_group && !confirm(\'', $txt['membergroups_swap_mod'], '\'))
+			if (isChecked && is_moderator_group && !confirm(\'', Lang::$txt['membergroups_swap_mod'], '\'))
 			{
 				isChecked = false;
 
@@ -430,7 +437,7 @@ function template_edit_group()
 			group_moderators_text.style.color = !isChecked ? "" : "#888888";
 		}
 
-		swapPostGroup(', $context['group']['is_post_group'] ? 'true' : 'false', ');
+		swapPostGroup(', Utils::$context['group']['is_post_group'] ? 'true' : 'false', ');
 	</script>';
 }
 
@@ -441,16 +448,14 @@ function template_edit_group()
  */
 function template_add_edit_group_boards_list($collapse = true, $form_id = 'new_group')
 {
-	global $context, $txt, $modSettings;
-
 	echo '
-							<fieldset id="visible_boards"', !empty($modSettings['deny_boards_access']) ? ' class="denyboards_layout"' : '', '>
-								<legend>', $txt['membergroups_new_board_desc'], '</legend>
+							<fieldset id="visible_boards"', !empty(Config::$modSettings['deny_boards_access']) ? ' class="denyboards_layout"' : '', '>
+								<legend>', Lang::$txt['membergroups_new_board_desc'], '</legend>
 								<ul class="padding floatleft">';
 
-	foreach ($context['categories'] as $category)
+	foreach (Utils::$context['categories'] as $category)
 	{
-		if (empty($modSettings['deny_boards_access']))
+		if (empty(Config::$modSettings['deny_boards_access']))
 			echo '
 									<li class="category">
 										<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \''.$form_id.'\'); return false;"><strong>', $category['name'], '</strong></a>
@@ -460,31 +465,31 @@ function template_add_edit_group_boards_list($collapse = true, $form_id = 'new_g
 									<li class="category clear">
 										<strong>', $category['name'], '</strong>
 										<span class="select_all_box floatright">
-											<em class="all_boards_in_cat">', $txt['all_boards_in_cat'], ': </em>
+											<em class="all_boards_in_cat">', Lang::$txt['all_boards_in_cat'], ': </em>
 											<select onchange="select_in_category(', $category['id'], ', this, [', implode(',', array_keys($category['boards'])), ']);">
 												<option>---</option>
-												<option value="allow">', $txt['board_perms_allow'], '</option>
-												<option value="ignore">', $txt['board_perms_ignore'], '</option>
-												<option value="deny">', $txt['board_perms_deny'], '</option>
+												<option value="allow">', Lang::$txt['board_perms_allow'], '</option>
+												<option value="ignore">', Lang::$txt['board_perms_ignore'], '</option>
+												<option value="deny">', Lang::$txt['board_perms_deny'], '</option>
 											</select>
 										</span>
 										<ul id="boards_list_', $category['id'], '">';
 
 		foreach ($category['boards'] as $board)
 		{
-			if (empty($modSettings['deny_boards_access']))
+			if (empty(Config::$modSettings['deny_boards_access']))
 				echo '
-											<li class="board" style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
+											<li class="board" style="margin-', Utils::$context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
 												<input type="checkbox" name="boardaccess[', $board['id'], ']" id="brd', $board['id'], '" value="allow"', $board['allow'] ? ' checked' : '', '> <label for="brd', $board['id'], '">', $board['name'], '</label>
 											</li>';
 			else
 				echo '
 											<li class="board clear">
-												<span style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">', $board['name'], ': </span>
+												<span style="margin-', Utils::$context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">', $board['name'], ': </span>
 												<span class="floatright">
-													<input type="radio" name="boardaccess[', $board['id'], ']" id="allow_brd', $board['id'], '" value="allow"', $board['allow'] ? ' checked' : '', '> <label for="allow_brd', $board['id'], '">', $txt['permissions_option_on'], '</label>
-													<input type="radio" name="boardaccess[', $board['id'], ']" id="ignore_brd', $board['id'], '" value="ignore"', !$board['allow'] && !$board['deny'] ? ' checked' : '', '> <label for="ignore_brd', $board['id'], '">', $txt['permissions_option_off'], '</label>
-													<input type="radio" name="boardaccess[', $board['id'], ']" id="deny_brd', $board['id'], '" value="deny"', $board['deny'] ? ' checked' : '', '> <label for="deny_brd', $board['id'], '">', $txt['permissions_option_deny'], '</label>
+													<input type="radio" name="boardaccess[', $board['id'], ']" id="allow_brd', $board['id'], '" value="allow"', $board['allow'] ? ' checked' : '', '> <label for="allow_brd', $board['id'], '">', Lang::$txt['permissions_option_on'], '</label>
+													<input type="radio" name="boardaccess[', $board['id'], ']" id="ignore_brd', $board['id'], '" value="ignore"', !$board['allow'] && !$board['deny'] ? ' checked' : '', '> <label for="ignore_brd', $board['id'], '">', Lang::$txt['permissions_option_off'], '</label>
+													<input type="radio" name="boardaccess[', $board['id'], ']" id="deny_brd', $board['id'], '" value="deny"', $board['deny'] ? ' checked' : '', '> <label for="deny_brd', $board['id'], '">', Lang::$txt['permissions_option_deny'], '</label>
 												</span>
 											</li>';
 		}
@@ -497,20 +502,20 @@ function template_add_edit_group_boards_list($collapse = true, $form_id = 'new_g
 	echo '
 								</ul>';
 
-	if (empty($modSettings['deny_boards_access']))
+	if (empty(Config::$modSettings['deny_boards_access']))
 		echo '
 								<br class="clear"><br>
 								<input type="checkbox" id="checkall_check" onclick="invertAll(this, this.form, \'boardaccess\');">
-								<label for="checkall_check"><em>', $txt['check_all'], '</em></label>
+								<label for="checkall_check"><em>', Lang::$txt['check_all'], '</em></label>
 							</fieldset>';
 	else
 		echo '
 								<br class="clear">
 								<span class="select_all_box">
-									<em>', $txt['all'], ': </em>
-									<input type="radio" name="select_all" id="allow_all" onclick="selectAllRadio(this, this.form, \'boardaccess\', \'allow\');"> <label for="allow_all">', $txt['board_perms_allow'], '</label>
-									<input type="radio" name="select_all" id="ignore_all" onclick="selectAllRadio(this, this.form, \'boardaccess\', \'ignore\');"> <label for="ignore_all">', $txt['board_perms_ignore'], '</label>
-									<input type="radio" name="select_all" id="deny_all" onclick="selectAllRadio(this, this.form, \'boardaccess\', \'deny\');"> <label for="deny_all">', $txt['board_perms_deny'], '</label>
+									<em>', Lang::$txt['all'], ': </em>
+									<input type="radio" name="select_all" id="allow_all" onclick="selectAllRadio(this, this.form, \'boardaccess\', \'allow\');"> <label for="allow_all">', Lang::$txt['board_perms_allow'], '</label>
+									<input type="radio" name="select_all" id="ignore_all" onclick="selectAllRadio(this, this.form, \'boardaccess\', \'ignore\');"> <label for="ignore_all">', Lang::$txt['board_perms_ignore'], '</label>
+									<input type="radio" name="select_all" id="deny_all" onclick="selectAllRadio(this, this.form, \'boardaccess\', \'deny\');"> <label for="deny_all">', Lang::$txt['board_perms_deny'], '</label>
 								</span>
 							</fieldset>
 							<script>
@@ -523,7 +528,7 @@ function template_add_edit_group_boards_list($collapse = true, $form_id = 'new_g
 
 	if ($collapse)
 		echo '
-							<a href="javascript:void(0);" onclick="document.getElementById(\'visible_boards\').classList.remove(\'hidden\'); document.getElementById(\'visible_boards_link\').classList.add(\'hidden\'); return false;" id="visible_boards_link" class="hidden">[ ', $txt['membergroups_select_visible_boards'], ' ]</a>
+							<a href="javascript:void(0);" onclick="document.getElementById(\'visible_boards\').classList.remove(\'hidden\'); document.getElementById(\'visible_boards_link\').classList.add(\'hidden\'); return false;" id="visible_boards_link" class="hidden">[ ', Lang::$txt['membergroups_select_visible_boards'], ' ]</a>
 							<script>
 								document.getElementById("visible_boards_link").classList.remove(\'hidden\');
 								document.getElementById("visible_boards").classList.add(\'hidden\');
@@ -535,50 +540,48 @@ function template_add_edit_group_boards_list($collapse = true, $form_id = 'new_g
  */
 function template_group_members()
 {
-	global $context, $scripturl, $txt;
-
 	echo '
-		<form action="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;group=', $context['group']['id'], '" method="post" accept-charset="', $context['character_set'], '" id="view_group">
+		<form action="', Config::$scripturl, '?action=', Utils::$context['current_action'], (isset(Utils::$context['admin_area']) ? ';area=' . Utils::$context['admin_area'] : ''), ';sa=members;group=', Utils::$context['group']['id'], '" method="post" accept-charset="', Utils::$context['character_set'], '" id="view_group">
 			<div class="cat_bar">
-				<h3 class="catbg">', $context['page_title'], '</h3>
+				<h3 class="catbg">', Utils::$context['page_title'], '</h3>
 			</div>
 			<div class="windowbg">
 				<dl class="settings">
 					<dt>
-						<strong>', $txt['name'], ':</strong>
+						<strong>', Lang::$txt['name'], ':</strong>
 					</dt>
 					<dd>
-						<span ', $context['group']['online_color'] ? 'style="color: ' . $context['group']['online_color'] . ';"' : '', '>', $context['group']['name'], '</span> ', $context['group']['icons'], '
+						<span ', Utils::$context['group']['online_color'] ? 'style="color: ' . Utils::$context['group']['online_color'] . ';"' : '', '>', Utils::$context['group']['name'], '</span> ', Utils::$context['group']['icons'], '
 					</dd>';
 
 	// Any description to show?
-	if (!empty($context['group']['description']))
+	if (!empty(Utils::$context['group']['description']))
 		echo '
 					<dt>
-						<strong>' . $txt['membergroups_members_description'] . ':</strong>
+						<strong>' . Lang::$txt['membergroups_members_description'] . ':</strong>
 					</dt>
 					<dd>
-						', $context['group']['description'], '
+						', Utils::$context['group']['description'], '
 					</dd>';
 
 	echo '
 					<dt>
-						<strong>', $txt['membergroups_members_top'], ':</strong>
+						<strong>', Lang::$txt['membergroups_members_top'], ':</strong>
 					</dt>
 					<dd>
-						', $context['total_members'], '
+						', Utils::$context['total_members'], '
 					</dd>';
 
 	// Any group moderators to show?
-	if (!empty($context['group']['moderators']))
+	if (!empty(Utils::$context['group']['moderators']))
 	{
 		$moderators = array();
-		foreach ($context['group']['moderators'] as $moderator)
-			$moderators[] = '<a href="' . $scripturl . '?action=profile;u=' . $moderator['id'] . '">' . $moderator['name'] . '</a>';
+		foreach (Utils::$context['group']['moderators'] as $moderator)
+			$moderators[] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $moderator['id'] . '">' . $moderator['name'] . '</a>';
 
 		echo '
 					<dt>
-						<strong>', $txt['membergroups_members_group_moderators'], ':</strong>
+						<strong>', Lang::$txt['membergroups_members_group_moderators'], ':</strong>
 					</dt>
 					<dd>
 						', implode(', ', $moderators), '
@@ -590,29 +593,29 @@ function template_group_members()
 			</div><!-- .windowbg -->
 			<br>
 			<div class="cat_bar">
-				<h3 class="catbg">', $txt['membergroups_members_group_members'], '</h3>
+				<h3 class="catbg">', Lang::$txt['membergroups_members_group_members'], '</h3>
 			</div>
 			<br>
 			<div class="pagesection">
-				<div class="pagelinks">', $context['page_index'], '</div>
+				<div class="pagelinks">', Utils::$context['page_index'], '</div>
 			</div>
 			<table class="table_grid" id="group_members">
 				<thead>
 					<tr class="title_bar">
-						<th class="user_name"><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=name', $context['sort_by'] == 'name' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['name'], $context['sort_by'] == 'name' ? ' <span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a></th>';
+						<th class="user_name"><a href="', Config::$scripturl, '?action=', Utils::$context['current_action'], (isset(Utils::$context['admin_area']) ? ';area=' . Utils::$context['admin_area'] : ''), ';sa=members;start=', Utils::$context['start'], ';sort=name', Utils::$context['sort_by'] == 'name' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', ';group=', Utils::$context['group']['id'], '">', Lang::$txt['name'], Utils::$context['sort_by'] == 'name' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a></th>';
 
-	if ($context['can_send_email'])
+	if (Utils::$context['can_send_email'])
 		echo '
-						<th class="email"><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=email', $context['sort_by'] == 'email' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['email'], $context['sort_by'] == 'email' ? ' <span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a></th>';
+						<th class="email"><a href="', Config::$scripturl, '?action=', Utils::$context['current_action'], (isset(Utils::$context['admin_area']) ? ';area=' . Utils::$context['admin_area'] : ''), ';sa=members;start=', Utils::$context['start'], ';sort=email', Utils::$context['sort_by'] == 'email' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', ';group=', Utils::$context['group']['id'], '">', Lang::$txt['email'], Utils::$context['sort_by'] == 'email' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a></th>';
 
 	echo '
-						<th class="last_active"><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=active', $context['sort_by'] == 'active' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['membergroups_members_last_active'], $context['sort_by'] == 'active' ? '<span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a></th>
-						<th class="date_registered"><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=registered', $context['sort_by'] == 'registered' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['date_registered'], $context['sort_by'] == 'registered' ? '<span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a></th>
-						<th class="posts"', empty($context['group']['assignable']) ? ' colspan="2"' : '', '>
-							<a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=posts', $context['sort_by'] == 'posts' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['posts'], $context['sort_by'] == 'posts' ? ' <span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
+						<th class="last_active"><a href="', Config::$scripturl, '?action=', Utils::$context['current_action'], (isset(Utils::$context['admin_area']) ? ';area=' . Utils::$context['admin_area'] : ''), ';sa=members;start=', Utils::$context['start'], ';sort=active', Utils::$context['sort_by'] == 'active' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', ';group=', Utils::$context['group']['id'], '">', Lang::$txt['membergroups_members_last_active'], Utils::$context['sort_by'] == 'active' ? '<span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a></th>
+						<th class="date_registered"><a href="', Config::$scripturl, '?action=', Utils::$context['current_action'], (isset(Utils::$context['admin_area']) ? ';area=' . Utils::$context['admin_area'] : ''), ';sa=members;start=', Utils::$context['start'], ';sort=registered', Utils::$context['sort_by'] == 'registered' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', ';group=', Utils::$context['group']['id'], '">', Lang::$txt['date_registered'], Utils::$context['sort_by'] == 'registered' ? '<span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a></th>
+						<th class="posts"', empty(Utils::$context['group']['assignable']) ? ' colspan="2"' : '', '>
+							<a href="', Config::$scripturl, '?action=', Utils::$context['current_action'], (isset(Utils::$context['admin_area']) ? ';area=' . Utils::$context['admin_area'] : ''), ';sa=members;start=', Utils::$context['start'], ';sort=posts', Utils::$context['sort_by'] == 'posts' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', ';group=', Utils::$context['group']['id'], '">', Lang::$txt['posts'], Utils::$context['sort_by'] == 'posts' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
 						</th>';
 
-	if (!empty($context['group']['assignable']))
+	if (!empty(Utils::$context['group']['assignable']))
 		echo '
 						<th class="quick_moderation" style="width: 4%"><input type="checkbox" onclick="invertAll(this, this.form);"></th>';
 
@@ -621,32 +624,32 @@ function template_group_members()
 				</thead>
 				<tbody>';
 
-	if (empty($context['members']))
+	if (empty(Utils::$context['members']))
 		echo '
 					<tr class="windowbg">
-						<td colspan="6">', $txt['membergroups_members_no_members'], '</td>
+						<td colspan="6">', Lang::$txt['membergroups_members_no_members'], '</td>
 					</tr>';
 
-	foreach ($context['members'] as $member)
+	foreach (Utils::$context['members'] as $member)
 	{
 		echo '
 					<tr class="windowbg">
-						<td class="user_name">', $member['name'], '</td>';
+						<td class="user_name">', $member['link'], '</td>';
 
-		if ($context['can_send_email'])
+		if (Utils::$context['can_send_email'])
 			echo '
 						<td class="email">
 								<a href="mailto:', $member['email'], '">', $member['email'], '</a>
 						</td>';
 
 		echo '
-						<td class="last_active">', $member['last_online'], '</td>
+						<td class="last_active">', $member['last_login'], '</td>
 						<td class="date_registered">', $member['registered'], '</td>
-						<td class="posts"', empty($context['group']['assignable']) ? ' colspan="2"' : '', '>', $member['posts'], '</td>';
+						<td class="posts"', empty(Utils::$context['group']['assignable']) ? ' colspan="2"' : '', '>', $member['posts'], '</td>';
 
-		if (!empty($context['group']['assignable']))
+		if (!empty(Utils::$context['group']['assignable']))
 			echo '
-						<td class="quick_moderation" style="width: 4%"><input type="checkbox" name="rem[]" value="', $member['id'], '" ', ($context['user']['id'] == $member['id'] && $context['group']['id'] == 1 ? 'onclick="if (this.checked) return confirm(\'' . $txt['membergroups_members_deadmin_confirm'] . '\')" ' : ''), '/></td>';
+						<td class="quick_moderation" style="width: 4%"><input type="checkbox" name="rem[]" value="', $member['id'], '" ', (User::$me->id == $member['id'] && Utils::$context['group']['id'] == 1 ? 'onclick="if (this.checked) return confirm(\'' . Lang::$txt['membergroups_members_deadmin_confirm'] . '\')" ' : ''), '/></td>';
 
 		echo '
 					</tr>';
@@ -656,54 +659,54 @@ function template_group_members()
 				</tbody>
 			</table>';
 
-	if (!empty($context['group']['assignable']))
+	if (!empty(Utils::$context['group']['assignable']))
 		echo '
 			<div class="floatright">
-				<input type="submit" name="remove" value="', $txt['membergroups_members_remove'], '" class="button ">
+				<input type="submit" name="remove" value="', Lang::$txt['membergroups_members_remove'], '" class="button ">
 			</div>';
 
 	echo '
 			<div class="pagesection">
-				<div class="pagelinks">', $context['page_index'], '</div>
+				<div class="pagelinks">', Utils::$context['page_index'], '</div>
 			</div>
 			<br>';
 
-	if (!empty($context['group']['assignable']))
+	if (!empty(Utils::$context['group']['assignable']))
 		echo '
 			<div class="cat_bar">
-				<h3 class="catbg">', $txt['membergroups_members_add_title'], '</h3>
+				<h3 class="catbg">', Lang::$txt['membergroups_members_add_title'], '</h3>
 			</div>
 			<div class="windowbg">
 				<dl class="settings">
 					<dt>
-						<strong><label for="toAdd">', $txt['membergroups_members_add_desc'], ':</label></strong>
+						<strong><label for="toAdd">', Lang::$txt['membergroups_members_add_desc'], ':</label></strong>
 					</dt>
 					<dd>
 						<input type="text" name="toAdd" id="toAdd" value="">
 						<div id="toAddItemContainer"></div>
 					</dd>
 				</dl>
-				<input type="submit" name="add" value="', $txt['membergroups_members_add'], '" class="button">
+				<input type="submit" name="add" value="', Lang::$txt['membergroups_members_add'], '" class="button">
 			</div>';
 
 	echo '
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-			<input type="hidden" name="', $context['mod-mgm_token_var'], '" value="', $context['mod-mgm_token'], '">
+			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+			<input type="hidden" name="', Utils::$context['mod-mgm_token_var'], '" value="', Utils::$context['mod-mgm_token'], '">
 		</form>';
 
-	if (!empty($context['group']['assignable']))
+	if (!empty(Utils::$context['group']['assignable']))
 		echo '
 	<script>
 		var oAddMemberSuggest = new smc_AutoSuggest({
 			sSelf: \'oAddMemberSuggest\',
-			sSessionId: \'', $context['session_id'], '\',
-			sSessionVar: \'', $context['session_var'], '\',
+			sSessionId: \'', Utils::$context['session_id'], '\',
+			sSessionVar: \'', Utils::$context['session_var'], '\',
 			sSuggestId: \'to_suggest\',
 			sControlId: \'toAdd\',
 			sSearchType: \'member\',
 			sPostName: \'member_add\',
 			sURLMask: \'action=profile;u=%item_id%\',
-			sTextDeleteItem: \'', $txt['autosuggest_delete_item'], '\',
+			sTextDeleteItem: \'', Lang::$txt['autosuggest_delete_item'], '\',
 			bItemList: true,
 			sItemListContainerId: \'toAddItemContainer\'
 		});
@@ -715,23 +718,21 @@ function template_group_members()
  */
 function template_group_request_reason()
 {
-	global $context, $txt, $scripturl;
-
 	// Show a welcome message to the user.
 	echo '
 	<div id="moderationcenter">
-		<form action="', $scripturl, '?action=groups;sa=requests" method="post" accept-charset="', $context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=groups;sa=requests" method="post" accept-charset="', Utils::$context['character_set'], '">
 			<div class="cat_bar">
-				<h3 class="catbg">', $txt['mc_groups_reason_title'], '</h3>
+				<h3 class="catbg">', Lang::$txt['mc_groups_reason_title'], '</h3>
 			</div>
 			<div class="windowbg">
 				<dl class="settings">';
 
 	// Loop through and print out a reason box for each...
-	foreach ($context['group_requests'] as $request)
+	foreach (Utils::$context['group_requests'] as $request)
 		echo '
 					<dt>
-						<strong>', sprintf($txt['mc_groupr_reason_desc'], $request['member_link'], $request['group_link']), ':</strong>
+						<strong>', sprintf(Lang::$txt['mc_groupr_reason_desc'], $request['member_link'], $request['group_link']), ':</strong>
 					</dt>
 					<dd>
 						<input type="hidden" name="groupr[]" value="', $request['id'], '">
@@ -740,10 +741,10 @@ function template_group_request_reason()
 
 	echo '
 				</dl>
-				<input type="submit" name="go" value="', $txt['mc_groupr_submit'], '" class="button">
+				<input type="submit" name="go" value="', Lang::$txt['mc_groupr_submit'], '" class="button">
 				<input type="hidden" name="req_action" value="got_reason">
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-				<input type="hidden" name="', $context['mod-gr_token_var'], '" value="', $context['mod-gr_token'], '">
+				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+				<input type="hidden" name="', Utils::$context['mod-gr_token_var'], '" value="', Utils::$context['mod-gr_token'], '">
 			</div><!-- .windowbg -->
 		</form>
 	</div><!-- #moderationcenter -->';

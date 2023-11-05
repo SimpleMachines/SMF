@@ -597,7 +597,7 @@ smf_mysql_free_result($request);
 
 ---# Fixing possible issues with board access (part 1)...
 ---{
-if (empty($modSettings['smfVersion']) || (substr($modSettings['smfVersion'], 0, 9) == '1.0 Beta ' && $modSettings['smfVersion'][9] <= 5))
+if (empty(Config::$modSettings['smfVersion']) || (substr(Config::$modSettings['smfVersion'], 0, 9) == '1.0 Beta ' && Config::$modSettings['smfVersion'][9] <= 5))
 {
 	$all_groups = array();
 	$result = upgrade_query("
@@ -1405,7 +1405,7 @@ foreach ($mg_updates as $group_to => $update_members)
 
 ---# Converting censored words...
 ---{
-if (!isset($modSettings['censor_vulgar']) || !isset($modSettings['censor_proper']))
+if (!isset(Config::$modSettings['censor_vulgar']) || !isset(Config::$modSettings['censor_proper']))
 {
 	$request = upgrade_query("
 		SELECT vulgar, proper
@@ -1419,15 +1419,15 @@ if (!isset($modSettings['censor_vulgar']) || !isset($modSettings['censor_proper'
 	}
 	smf_mysql_free_result($request);
 
-	$modSettings['censor_vulgar'] = addslashes(implode("\n", $censor_vulgar));
-	$modSettings['censor_proper'] = addslashes(implode("\n", $censor_proper));
+	Config::$modSettings['censor_vulgar'] = addslashes(implode("\n", $censor_vulgar));
+	Config::$modSettings['censor_proper'] = addslashes(implode("\n", $censor_proper));
 
 	upgrade_query("
 		INSERT IGNORE INTO {$db_prefix}settings
 			(variable, value)
 		VALUES
-			('censor_vulgar', '$modSettings[censor_vulgar]'),
-			('censor_proper', '$modSettings[censor_proper]')");
+			('censor_vulgar', 'Config::$modSettings[censor_vulgar]'),
+			('censor_proper', 'Config::$modSettings[censor_proper]')");
 
 	upgrade_query("
 		DROP TABLE IF EXISTS {$db_prefix}censor");
@@ -1744,13 +1744,13 @@ smf_mysql_free_result($result);
 
 ---# Updating news...
 ---{
-if (!isset($modSettings['smfVersion']))
+if (!isset(Config::$modSettings['smfVersion']))
 {
 	upgrade_query("
 		REPLACE INTO {$db_prefix}settings
 			(variable, value)
 		VALUES
-			('news', SUBSTRING('" . htmlspecialchars(stripslashes($modSettings['news']), ENT_QUOTES) . "', 1, 65534))");
+			('news', SUBSTRING('" . htmlspecialchars(stripslashes(Config::$modSettings['news']), ENT_QUOTES) . "', 1, 65534))");
 }
 ---}
 ---#
@@ -1900,7 +1900,7 @@ upgrade_query("
 	INSERT IGNORE INTO {$db_prefix}settings
 		(variable, value)
 	VALUES
-		('registration_method', '" . (!empty($modSettings['registration_disabled']) ? 3 : (!empty($modSettings['approve_registration']) ? 2 : (!empty($GLOBALS['emailpassword']) || !empty($modSettings['send_validation']) ? 1 : 0))) . "'),
+		('registration_method', '" . (!empty(Config::$modSettings['registration_disabled']) ? 3 : (!empty(Config::$modSettings['approve_registration']) ? 2 : (!empty($GLOBALS['emailpassword']) || !empty(Config::$modSettings['send_validation']) ? 1 : 0))) . "'),
 		('send_validation_onChange', '" . @$GLOBALS['emailnewpass'] . "'),
 		('send_welcomeEmail', '" . @$GLOBALS['emailwelcome'] . "'),
 		('allow_hideEmail', '" . @$GLOBALS['allow_hide_email'] . "'),

@@ -5,55 +5,58 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2023 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 3.0 Alpha 1
  */
+
+use SMF\BrowserDetector;
+use SMF\Config;
+use SMF\Lang;
+use SMF\Utils;
 
 /**
  * Download a new language file.
  */
 function template_download_language()
 {
-	global $context, $txt, $scripturl, $modSettings;
-
 	// Actually finished?
-	if (!empty($context['install_complete']))
+	if (!empty(Utils::$context['install_complete']))
 	{
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				', $txt['languages_download_complete'], '
+				', Lang::$txt['languages_download_complete'], '
 			</h3>
 		</div>
 		<div class="windowbg">
-			', $context['install_complete'], '
+			', Utils::$context['install_complete'], '
 		</div>';
 		return;
 	}
 
 	// An error?
-	if (!empty($context['error_message']))
+	if (!empty(Utils::$context['error_message']))
 		echo '
 	<div class="errorbox">
-		', $context['error_message'], '
+		', Utils::$context['error_message'], '
 	</div>';
 
 	// Provide something of an introduction...
 	echo '
-		<form action="', $scripturl, '?action=admin;area=languages;sa=downloadlang;did=', $context['download_id'], ';', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=languages;sa=downloadlang;did=', Utils::$context['download_id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', $txt['languages_download'], '
+					', Lang::$txt['languages_download'], '
 				</h3>
 			</div>
 			<div class="windowbg">
 				<p>
-					', $txt['languages_download_note'], '
+					', Lang::$txt['languages_download_note'], '
 				</p>
 				<div class="smalltext">
-					', $txt['languages_download_info'], '
+					', Lang::$txt['languages_download_info'], '
 				</div>
 			</div>';
 
@@ -62,55 +65,55 @@ function template_download_language()
 
 	// Do we want some FTP baby?
 	// If the files are not writable, we might!
-	if (!empty($context['still_not_writable']))
+	if (!empty(Utils::$context['still_not_writable']))
 	{
-		if (!empty($context['package_ftp']['error']))
+		if (!empty(Utils::$context['package_ftp']['error']))
 			echo '
 			<div class="errorbox">
-				', $context['package_ftp']['error'], '
+				', Utils::$context['package_ftp']['error'], '
 			</div>';
 
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', $txt['package_ftp_necessary'], '
+					', Lang::$txt['package_ftp_necessary'], '
 				</h3>
 			</div>
 			<div class="windowbg">
-				<p>', $txt['package_ftp_why'], '</p>
+				<p>', Lang::$txt['package_ftp_why'], '</p>
 				<dl class="settings">
 					<dt
-						<label for="ftp_server">', $txt['package_ftp_server'], ':</label>
+						<label for="ftp_server">', Lang::$txt['package_ftp_server'], ':</label>
 					</dt>
 					<dd>
 						<div class="floatright">
 							<label for="ftp_port">
-								', $txt['package_ftp_port'], ':
+								', Lang::$txt['package_ftp_port'], ':
 							</label>
-							<input type="text" size="3" name="ftp_port" id="ftp_port" value="', isset($context['package_ftp']['port']) ? $context['package_ftp']['port'] : (isset($modSettings['package_port']) ? $modSettings['package_port'] : '21'), '">
+							<input type="text" size="3" name="ftp_port" id="ftp_port" value="', isset(Utils::$context['package_ftp']['port']) ? Utils::$context['package_ftp']['port'] : (isset(Config::$modSettings['package_port']) ? Config::$modSettings['package_port'] : '21'), '">
 						</div>
-						<input type="text" size="30" name="ftp_server" id="ftp_server" value="', isset($context['package_ftp']['server']) ? $context['package_ftp']['server'] : (isset($modSettings['package_server']) ? $modSettings['package_server'] : 'localhost'), '" style="width: 70%;">
+						<input type="text" size="30" name="ftp_server" id="ftp_server" value="', isset(Utils::$context['package_ftp']['server']) ? Utils::$context['package_ftp']['server'] : (isset(Config::$modSettings['package_server']) ? Config::$modSettings['package_server'] : 'localhost'), '" style="width: 70%;">
 					</dd>
 
 					<dt>
-						<label for="ftp_username">', $txt['package_ftp_username'], ':</label>
+						<label for="ftp_username">', Lang::$txt['package_ftp_username'], ':</label>
 					</dt>
 					<dd>
-						<input type="text" size="50" name="ftp_username" id="ftp_username" value="', isset($context['package_ftp']['username']) ? $context['package_ftp']['username'] : (isset($modSettings['package_username']) ? $modSettings['package_username'] : ''), '">
+						<input type="text" size="50" name="ftp_username" id="ftp_username" value="', isset(Utils::$context['package_ftp']['username']) ? Utils::$context['package_ftp']['username'] : (isset(Config::$modSettings['package_username']) ? Config::$modSettings['package_username'] : ''), '">
 					</dd>
 
 					<dt>
-						<label for="ftp_password">', $txt['package_ftp_password'], ':</label>
+						<label for="ftp_password">', Lang::$txt['package_ftp_password'], ':</label>
 					</dt>
 					<dd>
 						<input type="password" size="50" name="ftp_password" id="ftp_password">
 					</dd>
 
 					<dt>
-						<label for="ftp_path">', $txt['package_ftp_path'], ':</label>
+						<label for="ftp_path">', Lang::$txt['package_ftp_path'], ':</label>
 					</dt>
 					<dd>
-						<input type="text" size="50" name="ftp_path" id="ftp_path" value="', $context['package_ftp']['path'], '">
+						<input type="text" size="50" name="ftp_path" id="ftp_path" value="', Utils::$context['package_ftp']['path'], '">
 					</dd>
 				</dl>
 			</div><!-- .windowbg -->';
@@ -119,9 +122,9 @@ function template_download_language()
 	// Install?
 	echo '
 			<div class="righttext padding">
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-				<input type="hidden" name="', $context['admin-dlang_token_var'], '" value="', $context['admin-dlang_token'], '">
-				<input type="submit" name="do_install" value="', $txt['add_language_smf_install'], '" class="button">
+				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+				<input type="hidden" name="', Utils::$context['admin-dlang_token_var'], '" value="', Utils::$context['admin-dlang_token'], '">
+				<input type="submit" name="do_install" value="', Lang::$txt['add_language_smf_install'], '" class="button">
 			</div>
 		</form>';
 }
@@ -131,80 +134,78 @@ function template_download_language()
  */
 function template_modify_language_entries()
 {
-	global $context, $txt, $scripturl;
-
 	echo '
-		<form action="', $scripturl, '?action=admin;area=languages;sa=editlang;lid=', $context['lang_id'], '" id="primary_settings" method="post" accept-charset="', $context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=languages;sa=editlang;lid=', Utils::$context['lang_id'], '" id="primary_settings" method="post" accept-charset="', Utils::$context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', $txt['edit_languages'], '
+					', Lang::$txt['edit_languages'], '
 				</h3>
 			</div>
 			<div id="editlang_desc" class="information">
-				', $txt['edit_language_entries_primary'], '
+				', Lang::$txt['edit_language_entries_primary'], '
 			</div>';
 
 	// Not writable? Oops, show an error for ya.
-	if (!empty($context['lang_file_not_writable_message']))
+	if (!empty(Utils::$context['lang_file_not_writable_message']))
 		echo '
 			<div class="errorbox">
-				', $context['lang_file_not_writable_message'], '
+				', Utils::$context['lang_file_not_writable_message'], '
 			</div>';
 
 	// Show the language entries
 	echo '
 			<div class="windowbg">
 				<fieldset>
-					<legend>', $context['primary_settings']['name'], '</legend>
+					<legend>', Utils::$context['primary_settings']['name'], '</legend>
 					<dl class="settings">';
 
-	foreach ($context['primary_settings'] as $setting => $setting_info)
+	foreach (Utils::$context['primary_settings'] as $setting => $setting_info)
 	{
 		if ($setting != 'name')
 			echo '
 						<dt>
-							<a id="settings_', $setting, '_help" href="', $scripturl, '?action=helpadmin;help=languages_', $setting_info['label'], '" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="', $txt['help'], '"></span></a>
-							<label for="', $setting, '">', $txt['languages_' . $setting_info['label']], ':</label>
+							<a id="settings_', $setting, '_help" href="', Config::$scripturl, '?action=helpadmin;help=languages_', $setting_info['label'], '" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
+							<label for="', $setting, '">', Lang::$txt['languages_' . $setting_info['label']], ':</label>
 						</dt>
 						<dd>
-							<input type="', (is_bool($setting_info['value']) ? 'checkbox' : 'text'), '" name="', $setting, '" id="', $setting_info['label'], '" size="20"', (is_bool($setting_info['value']) ? (!empty($setting_info['value']) ? ' checked' : '') : ' value="' . $setting_info['value'] . '"'), (!empty($context['lang_file_not_writable_message']) ? ' disabled' : ''), ' data-orig="' . (is_bool($setting_info['value']) ? (!empty($setting_info['value']) ? 'true' : 'false') : $setting_info['value']) . '">
+							<input type="', (is_bool($setting_info['value']) ? 'checkbox' : 'text'), '" name="', $setting, '" id="', $setting_info['label'], '" size="20"', (is_bool($setting_info['value']) ? (!empty($setting_info['value']) ? ' checked' : '') : ' value="' . $setting_info['value'] . '"'), (!empty(Utils::$context['lang_file_not_writable_message']) ? ' disabled' : ''), ' data-orig="' . (is_bool($setting_info['value']) ? (!empty($setting_info['value']) ? 'true' : 'false') : $setting_info['value']) . '">
 						</dd>';
 	}
 
 	echo '
 					</dl>
 				</fieldset>
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-				<input type="hidden" name="', $context['admin-mlang_token_var'], '" value="', $context['admin-mlang_token'], '">
-				<input type="submit" name="save_main" value="', $txt['save'], '"', !empty($context['lang_file_not_writable_message']) ? ' disabled' : '', ' class="button">
-				<input type="reset" id="reset_main" value="', $txt['reset'], '" class="button">';
+				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+				<input type="hidden" name="', Utils::$context['admin-mlang_token_var'], '" value="', Utils::$context['admin-mlang_token'], '">
+				<input type="submit" name="save_main" value="', Lang::$txt['save'], '"', !empty(Utils::$context['lang_file_not_writable_message']) ? ' disabled' : '', ' class="button">
+				<input type="reset" id="reset_main" value="', Lang::$txt['reset'], '" class="button">';
 
 	// Allow deleting entries. English can't be deleted though.
-	if ($context['lang_id'] != 'english')
+	if (Utils::$context['lang_id'] != 'english')
 		echo '
-				<input type="submit" name="delete_main" value="', $txt['delete'], '"', !empty($context['lang_file_not_writable_message']) ? ' disabled' : '', ' onclick="return confirm(\'', $txt['languages_delete_confirm'], '\');" class="button">';
+				<input type="submit" name="delete_main" value="', Lang::$txt['delete'], '"', !empty(Utils::$context['lang_file_not_writable_message']) ? ' disabled' : '', ' onclick="return confirm(\'', Lang::$txt['languages_delete_confirm'], '\');" class="button">';
 
 	echo '
 			</div><!-- .windowbg -->
 		</form>
 
-		<form action="', $scripturl, '?action=admin;area=languages;sa=editlang;lid=', $context['lang_id'], ';entries" id="entry_form" method="post" accept-charset="', $context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=languages;sa=editlang;lid=', Utils::$context['lang_id'], ';entries" id="entry_form" method="post" accept-charset="', Utils::$context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', $txt['edit_language_entries'], '
+					', Lang::$txt['edit_language_entries'], '
 				</h3>
 			</div>
 			<div class="information">
 				<div>
-					', sprintf($txt['edit_language_entries_desc'], $scripturl, $txt['themeadmin_edit_title']), '
+					', sprintf(Lang::$txt['edit_language_entries_desc'], Config::$scripturl, Lang::$txt['themeadmin_edit_title']), '
 				</div>
 				<br>
 				<div id="taskpad" class="floatright">
-					', $txt['edit_language_entries_file'], ':
+					', Lang::$txt['edit_language_entries_file'], ':
 					<select name="tfid" onchange="if (this.value != -1) document.forms.entry_form.submit();">
 						<option value="-1">&nbsp;</option>';
 
-	foreach ($context['possible_files'] as $id_theme => $theme)
+	foreach (Utils::$context['possible_files'] as $id_theme => $theme)
 	{
 		echo '
 						<optgroup label="', $theme['name'], '">';
@@ -219,33 +220,33 @@ function template_modify_language_entries()
 
 	echo '
 					</select>
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-					<input type="hidden" name="', $context['admin-mlang_token_var'], '" value="', $context['admin-mlang_token'], '">
-					<input type="submit" value="', $txt['go'], '" class="button" style="float: none">
+					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+					<input type="hidden" name="', Utils::$context['admin-mlang_token_var'], '" value="', Utils::$context['admin-mlang_token'], '">
+					<input type="submit" value="', Lang::$txt['go'], '" class="button" style="float: none">
 				</div><!-- #taskpad -->
 			</div><!-- .information -->';
 
 	// Is it not writable? Show an error.
-	if (!empty($context['entries_not_writable_message']))
+	if (!empty(Utils::$context['entries_not_writable_message']))
 		echo '
 			<div class="errorbox">
-				', $context['entries_not_writable_message'], '
+				', Utils::$context['entries_not_writable_message'], '
 			</div>';
 
 	// Already have some file entries?
-	if (!empty($context['file_entries']))
+	if (!empty(Utils::$context['file_entries']))
 	{
 		echo '
 			<div id="entry_fields" class="windowbg">';
 
 		$entry_num = 0;
-		foreach ($context['file_entries'] as $group => $entries)
+		foreach (Utils::$context['file_entries'] as $group => $entries)
 		{
 			echo '
 				<fieldset>
 					<legend>
-						<a id="settings_language_', $group, '_help" href="', $scripturl, '?action=helpadmin;help=languages_', $group, '" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="', $txt['help'], '"></span></a>
-						<span>', $txt['languages_' . $group], '</span>
+						<a id="settings_language_', $group, '_help" href="', Config::$scripturl, '?action=helpadmin;help=languages_', $group, '" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
+						<span>', Lang::$txt['languages_' . $group], '</span>
 					</legend>
 					<dl class="settings" id="language_', $group, '">';
 
@@ -263,20 +264,20 @@ function template_modify_language_entries()
 					echo '
 							<span style="margin-right: 1ch; white-space: nowrap">
 								<input id="entry_', $entry_num, '_none" class="entry_toggle" type="radio" name="edit[', $entry['key'], ']', isset($entry['subkey']) ? '[' . $entry['subkey'] . ']' : '', '" value="" data-target="#entry_', $entry_num, '" checked>
-								<label for="entry_', $entry_num, '_none">', $txt['no_change'], '</label>
+								<label for="entry_', $entry_num, '_none">', Lang::$txt['no_change'], '</label>
 							</span>
 							<span style="margin-right: 1ch; white-space: nowrap">
 								<input id="entry_', $entry_num, '_edit" class="entry_toggle" type="radio" name="edit[', $entry['key'], ']', isset($entry['subkey']) ? '[' . $entry['subkey'] . ']' : '', '" value="edit" data-target="#entry_', $entry_num, '">
-								<label for="entry_', $entry_num, '_edit">', $txt['edit'], '</label>
+								<label for="entry_', $entry_num, '_edit">', Lang::$txt['edit'], '</label>
 							</span>
 							<span style="margin-right: 1ch; white-space: nowrap">
 								<input id="entry_', $entry_num, '_remove" class="entry_toggle" type="radio" name="edit[', $entry['key'], ']', isset($entry['subkey']) ? '[' . $entry['subkey'] . ']' : '', '" value="remove" data-target="#entry_', $entry_num, '">
-								<label for="entry_', $entry_num, '_remove">', $txt['remove'], '</label>
+								<label for="entry_', $entry_num, '_remove">', Lang::$txt['remove'], '</label>
 							</span>';
 				else
 					echo '
 							<input id="entry_', $entry_num, '_edit" class="entry_toggle" type="checkbox" name="edit[', $entry['key'], ']', isset($entry['subkey']) ? '[' . $entry['subkey'] . ']' : '', '" value="edit" data-target="#entry_', $entry_num, '">
-							<label for="entry_', $entry_num, '_edit">', $txt['edit'], '</label>';
+							<label for="entry_', $entry_num, '_edit">', Lang::$txt['edit'], '</label>';
 
 				echo '
 							</span>
@@ -288,11 +289,11 @@ function template_modify_language_entries()
 			echo '
 					</dl>';
 
-			if (!empty($context['can_add_lang_entry'][$group]))
+			if (!empty(Utils::$context['can_add_lang_entry'][$group]))
 			{
 				echo '
 				<span class="add_lang_entry_button" style="display: none;">
-					<a class="button" href="javascript:void(0);" onclick="add_lang_entry(\'', $group, '\'); return false;">' . $txt['editnews_clickadd'] . '</a>
+					<a class="button" href="javascript:void(0);" onclick="add_lang_entry(\'', $group, '\'); return false;">' . Lang::$txt['editnews_clickadd'] . '</a>
 				</span>
 				<script>
 					entry_num = ', $entry_num, ';
@@ -304,7 +305,7 @@ function template_modify_language_entries()
 		}
 
 		echo '
-				<input type="submit" name="save_entries" value="', $txt['save'], '"', !empty($context['entries_not_writable_message']) ? ' disabled' : '', ' class="button">
+				<input type="submit" name="save_entries" value="', Lang::$txt['save'], '"', !empty(Utils::$context['entries_not_writable_message']) ? ' disabled' : '', ' class="button">
 			</div><!-- .windowbg -->';
 	}
 
@@ -318,44 +319,42 @@ function template_modify_language_entries()
  */
 function template_add_language()
 {
-	global $context, $txt, $scripturl;
-
 	echo '
-		<form id="admin_form_wrapper"action="', $scripturl, '?action=admin;area=languages;sa=add;', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
+		<form id="admin_form_wrapper"action="', Config::$scripturl, '?action=admin;area=languages;sa=add;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', $txt['add_language'], '
+					', Lang::$txt['add_language'], '
 				</h3>
 			</div>
 			<div class="windowbg">
 				<fieldset>
-					<legend>', $txt['add_language_smf'], '</legend>
-					<label class="smalltext">', $txt['add_language_smf_browse'], '</label>
-					<input type="text" name="smf_add" size="40" value="', !empty($context['smf_search_term']) ? $context['smf_search_term'] : '', '">';
+					<legend>', Lang::$txt['add_language_smf'], '</legend>
+					<label class="smalltext">', Lang::$txt['add_language_smf_browse'], '</label>
+					<input type="text" name="smf_add" size="40" value="', !empty(Utils::$context['smf_search_term']) ? Utils::$context['smf_search_term'] : '', '">';
 
 	// Do we have some errors? Too bad. Display a little error box.
-	if (!empty($context['smf_error']))
+	if (!empty(Utils::$context['smf_error']))
 		echo '
 					<div>
 						<br>
-						<p class="errorbox">', $txt['add_language_error_' . $context['smf_error']], '</p>
+						<p class="errorbox">', Lang::$txt['add_language_error_' . Utils::$context['smf_error']], '</p>
 					</div>';
 
 	echo '
 				</fieldset>
-				', isBrowser('is_ie') ? '<input type="text" name="ie_fix" style="display: none;"> ' : '', '
-				<input type="submit" name="smf_add_sub" value="', $txt['search'], '" class="button">
+				', BrowserDetector::isBrowser('is_ie') ? '<input type="text" name="ie_fix" style="display: none;"> ' : '', '
+				<input type="submit" name="smf_add_sub" value="', Lang::$txt['search'], '" class="button">
 				<br>
 			</div><!-- .windowbg -->';
 
 	// Had some results?
-	if (!empty($context['smf_languages']['rows']))
+	if (!empty(Utils::$context['smf_languages']['rows']))
 	{
 		echo '
 			<div class="cat_bar">
-				<h3 class="catbg">', $txt['add_language_found_title'], '</h3>
+				<h3 class="catbg">', Lang::$txt['add_language_found_title'], '</h3>
 			</div>
-			<div class="information">', $txt['add_language_smf_found'], '</div>';
+			<div class="information">', Lang::$txt['add_language_smf_found'], '</div>';
 
 		template_show_list('smf_languages');
 	}

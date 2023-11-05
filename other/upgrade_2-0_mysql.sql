@@ -554,16 +554,16 @@ upgrade_query("
 
 ---# Enable cache if upgrading from 1.1 and lower.
 ---{
-if (isset($modSettings['smfVersion']) && $modSettings['smfVersion'] <= '2.0 Beta 1')
+if (isset(Config::$modSettings['smfVersion']) && Config::$modSettings['smfVersion'] <= '2.0 Beta 1')
 {
 	$request = upgrade_query("
 		SELECT value
 		FROM {$db_prefix}settings
 		WHERE variable = 'cache_enable'");
-	list ($cache_enable) = $smcFunc['db_fetch_row']($request);
+	list ($cache_enable) = Db::$db->fetch_row($request);
 
 	// No cache before 1.1.
-	if ($smcFunc['db_num_rows']($request) == 0)
+	if (Db::$db->num_rows($request) == 0)
 		upgrade_query("
 			INSERT INTO {$db_prefix}settings
 				(variable, value)
@@ -613,30 +613,30 @@ $request = upgrade_query("
 if (smf_mysql_num_rows($request) == 0)
 {
 	// Upgrade visual verification again!
-	if (!empty($modSettings['visual_verification_type']))
+	if (!empty(Config::$modSettings['visual_verification_type']))
 	{
 		upgrade_query("
 			UPDATE {$db_prefix}settings
 			SET value = value - 1
 			WHERE variable = 'visual_verification_type'");
-		$modSettings['visual_verification_type']--;
+		Config::$modSettings['visual_verification_type']--;
 	}
 	// Never set?
-	elseif (!isset($modSettings['visual_verification_type']))
+	elseif (!isset(Config::$modSettings['visual_verification_type']))
 	{
 		upgrade_query("
 			INSERT INTO {$db_prefix}settings
 				(variable, value)
 			VALUES
 				('visual_verification_type', '3')");
-		$modSettings['visual_verification_type'] = 3;
+		Config::$modSettings['visual_verification_type'] = 3;
 	}
 
 	upgrade_query("
 		INSERT INTO {$db_prefix}settings
 			(variable, value)
 		VALUES
-			('reg_verification', '" . (!empty($modSettings['visual_verification_type']) ? 1 : 0) . "')");
+			('reg_verification', '" . (!empty(Config::$modSettings['visual_verification_type']) ? 1 : 0) . "')");
 }
 ---}
 ---#
@@ -673,29 +673,29 @@ VALUES
 ---# Replacing old calendar settings...
 ---{
 // Only try it if one of the "new" settings doesn't yet exist.
-if (!isset($modSettings['cal_showholidays']) || !isset($modSettings['cal_showbdays']) || !isset($modSettings['cal_showevents']))
+if (!isset(Config::$modSettings['cal_showholidays']) || !isset(Config::$modSettings['cal_showbdays']) || !isset(Config::$modSettings['cal_showevents']))
 {
 	// Default to just the calendar setting.
-	$modSettings['cal_showholidays'] = empty($modSettings['cal_showholidaysoncalendar']) ? 0 : 1;
-	$modSettings['cal_showbdays'] = empty($modSettings['cal_showbdaysoncalendar']) ? 0 : 1;
-	$modSettings['cal_showevents'] = empty($modSettings['cal_showeventsoncalendar']) ? 0 : 1;
+	Config::$modSettings['cal_showholidays'] = empty(Config::$modSettings['cal_showholidaysoncalendar']) ? 0 : 1;
+	Config::$modSettings['cal_showbdays'] = empty(Config::$modSettings['cal_showbdaysoncalendar']) ? 0 : 1;
+	Config::$modSettings['cal_showevents'] = empty(Config::$modSettings['cal_showeventsoncalendar']) ? 0 : 1;
 
 	// Then take into account board index.
-	if (!empty($modSettings['cal_showholidaysonindex']))
-		$modSettings['cal_showholidays'] = $modSettings['cal_showholidays'] === 1 ? 2 : 3;
-	if (!empty($modSettings['cal_showbdaysonindex']))
-		$modSettings['cal_showbdays'] = $modSettings['cal_showbdays'] === 1 ? 2 : 3;
-	if (!empty($modSettings['cal_showeventsonindex']))
-		$modSettings['cal_showevents'] = $modSettings['cal_showevents'] === 1 ? 2 : 3;
+	if (!empty(Config::$modSettings['cal_showholidaysonindex']))
+		Config::$modSettings['cal_showholidays'] = Config::$modSettings['cal_showholidays'] === 1 ? 2 : 3;
+	if (!empty(Config::$modSettings['cal_showbdaysonindex']))
+		Config::$modSettings['cal_showbdays'] = Config::$modSettings['cal_showbdays'] === 1 ? 2 : 3;
+	if (!empty(Config::$modSettings['cal_showeventsonindex']))
+		Config::$modSettings['cal_showevents'] = Config::$modSettings['cal_showevents'] === 1 ? 2 : 3;
 
 	// Actually save the settings.
 	upgrade_query("
 		INSERT IGNORE INTO {$db_prefix}settings
 			(variable, value)
 		VALUES
-			('cal_showholidays', $modSettings[cal_showholidays]),
-			('cal_showbdays', $modSettings[cal_showbdays]),
-			('cal_showevents', $modSettings[cal_showevents])");
+			('cal_showholidays', Config::$modSettings[cal_showholidays]),
+			('cal_showbdays', Config::$modSettings[cal_showbdays]),
+			('cal_showevents', Config::$modSettings[cal_showevents])");
 }
 
 ---}
@@ -710,7 +710,7 @@ if (!isset($modSettings['cal_showholidays']) || !isset($modSettings['cal_showbda
 
 ---# Adjusting calendar maximum year...
 ---{
-if (!isset($modSettings['cal_maxyear']) || $modSettings['cal_maxyear'] < 2030)
+if (!isset(Config::$modSettings['cal_maxyear']) || Config::$modSettings['cal_maxyear'] < 2030)
 {
 	upgrade_query("
 		REPLACE INTO {$db_prefix}settings
@@ -723,18 +723,18 @@ if (!isset($modSettings['cal_maxyear']) || $modSettings['cal_maxyear'] < 2030)
 
 ---# Adding advanced signature settings...
 ---{
-if (empty($modSettings['signature_settings']))
+if (empty(Config::$modSettings['signature_settings']))
 {
-	if (isset($modSettings['max_signatureLength']))
-		$modSettings['signature_settings'] = '1,' . $modSettings['max_signatureLength'] . ',0,0,0,0,0,0:';
+	if (isset(Config::$modSettings['max_signatureLength']))
+		Config::$modSettings['signature_settings'] = '1,' . Config::$modSettings['max_signatureLength'] . ',0,0,0,0,0,0:';
 	else
-		$modSettings['signature_settings'] = '1,300,0,0,0,0,0,0:';
+		Config::$modSettings['signature_settings'] = '1,300,0,0,0,0,0,0:';
 
 	upgrade_query("
 		INSERT IGNORE INTO {$db_prefix}settings
 			(variable, value)
 		VALUES
-			('signature_settings', '$modSettings[signature_settings]')");
+			('signature_settings', 'Config::$modSettings[signature_settings]')");
 
 	upgrade_query("
 		DELETE FROM {$db_prefix}settings
@@ -745,23 +745,23 @@ if (empty($modSettings['signature_settings']))
 
 ---# Updating spam protection settings.
 ---{
-if (empty($modSettings['pm_spam_settings']))
+if (empty(Config::$modSettings['pm_spam_settings']))
 {
-	if (isset($modSettings['max_pm_recipients']))
-		$modSettings['pm_spam_settings'] = $modSettings['max_pm_recipients'] . ',5,20';
+	if (isset(Config::$modSettings['max_pm_recipients']))
+		Config::$modSettings['pm_spam_settings'] = Config::$modSettings['max_pm_recipients'] . ',5,20';
 	else
-		$modSettings['pm_spam_settings'] = '10,5,20';
+		Config::$modSettings['pm_spam_settings'] = '10,5,20';
 }
-elseif (substr_count($modSettings['pm_spam_settings'], ',') == 1)
+elseif (substr_count(Config::$modSettings['pm_spam_settings'], ',') == 1)
 {
-	$modSettings['pm_spam_settings'] .= ',20';
+	Config::$modSettings['pm_spam_settings'] .= ',20';
 }
 
 upgrade_query("
 	INSERT IGNORE INTO {$db_prefix}settings
 		(variable, value)
 	VALUES
-		('pm_spam_settings', '$modSettings[pm_spam_settings]')");
+		('pm_spam_settings', 'Config::$modSettings[pm_spam_settings]')");
 
 upgrade_query("
 	DELETE FROM {$db_prefix}settings
@@ -771,7 +771,7 @@ upgrade_query("
 
 ---# Adjusting timezone settings...
 ---{
-	if (!isset($modSettings['default_timezone']) && function_exists('date_default_timezone_set'))
+	if (!isset(Config::$modSettings['default_timezone']) && function_exists('date_default_timezone_set'))
 	{
 		$server_offset = mktime(0, 0, 0, 1, 1, 1970);
 		$timezone_id = 'Etc/GMT' . ($server_offset > 0 ? '+' : '') . ($server_offset / 3600);
@@ -828,7 +828,7 @@ ADD INDEX id_topic (id_topic, id_member);
 
 ---# GDPR compliance settings.
 ---{
-if (!isset($modSettings['requirePolicyAgreement']))
+if (!isset(Config::$modSettings['requirePolicyAgreement']))
 {
 	upgrade_query("
 		INSERT INTO {$db_prefix}settings
@@ -877,14 +877,14 @@ CHANGE COLUMN default_value default_value varchar(255) NOT NULL default '';
 
 ---# Enhancing privacy settings for custom fields.
 ---{
-if (isset($modSettings['smfVersion']) && $modSettings['smfVersion'] <= '2.0 Beta 1')
+if (isset(Config::$modSettings['smfVersion']) && Config::$modSettings['smfVersion'] <= '2.0 Beta 1')
 {
 upgrade_query("
 	UPDATE {$db_prefix}custom_fields
 	SET private = 2
 	WHERE private = 1");
 }
-if (isset($modSettings['smfVersion']) && $modSettings['smfVersion'] < '2.0 Beta 4')
+if (isset(Config::$modSettings['smfVersion']) && Config::$modSettings['smfVersion'] < '2.0 Beta 4')
 {
 upgrade_query("
 	UPDATE {$db_prefix}custom_fields
@@ -896,7 +896,7 @@ upgrade_query("
 
 ---# Checking display fields setup correctly..
 ---{
-if (isset($modSettings['smfVersion']) && $modSettings['smfVersion'] <= '2.0 Beta 1' && isset($modSettings['displayFields']) && @unserialize($modSettings['displayFields']) == false)
+if (isset(Config::$modSettings['smfVersion']) && Config::$modSettings['smfVersion'] <= '2.0 Beta 1' && isset(Config::$modSettings['displayFields']) && @unserialize(Config::$modSettings['displayFields']) == false)
 {
 $request = upgrade_query("
 	SELECT col_name, field_name, bbc
@@ -1009,7 +1009,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}mail_queue (
 
 ---# Adding new mail queue settings...
 ---{
-if (!isset($modSettings['mail_next_send']))
+if (!isset(Config::$modSettings['mail_next_send']))
 {
 	upgrade_query("
 		INSERT INTO {$db_prefix}settings
@@ -1080,7 +1080,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}log_reported_comments (
 ---# Adding moderator center permissions...
 ---{
 // Don't do this twice!
-if (@$modSettings['smfVersion'] < '2.0')
+if (@Config::$modSettings['smfVersion'] < '2.0')
 {
 	// Try find people who probably should see the moderation center.
 	$request = upgrade_query("
@@ -1152,7 +1152,7 @@ ADD INDEX warning (warning);
 ---# Ensuring warning settings are present...
 ---{
 // Only do this if not already done.
-if (empty($modSettings['warning_settings']))
+if (empty(Config::$modSettings['warning_settings']))
 {
 	upgrade_query("
 		INSERT IGNORE INTO {$db_prefix}settings
@@ -1247,13 +1247,13 @@ WHERE attachment_type = 3
 ---# Calculating attachment mime types.
 ---{
 // Don't ever bother doing this twice.
-if (@$modSettings['smfVersion'] < '2.0' || @$modSettings['smfVersion'] === '2.0 a')
+if (@Config::$modSettings['smfVersion'] < '2.0' || @Config::$modSettings['smfVersion'] === '2.0 a')
 {
 	$request = upgrade_query("
 		SELECT MAX(id_attach)
 		FROM {$db_prefix}attachments");
-	list ($step_progress['total']) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	list ($step_progress['total']) = Db::$db->fetch_row($request);
+	Db::$db->free_result($request);
 
 	$_GET['a'] = isset($_GET['a']) ? (int) $_GET['a'] : 0;
 	$step_progress['name'] = 'Calculating MIME Types';
@@ -1263,7 +1263,7 @@ if (@$modSettings['smfVersion'] < '2.0' || @$modSettings['smfVersion'] === '2.0 
 	{
 		function getAttachmentFilename($filename, $attachment_id)
 		{
-			global $modSettings;
+			global Config::$modSettings;
 
 			$clean_name = strtr($filename, 'ŠŽšžŸÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝàáâãäåçèéêëìíîïñòóôõöøùúûüýÿ', 'SZszYAAAAAACEEEEIIIINOOOOOOUUUUYaaaaaaceeeeiiiinoooooouuuuyy');
 			$clean_name = strtr($clean_name, array('Þ' => 'TH', 'þ' => 'th', 'Ð' => 'DH', 'ð' => 'dh', 'ß' => 'ss', 'Œ' => 'OE', 'œ' => 'oe', 'Æ' => 'AE', 'æ' => 'ae', 'µ' => 'u'));
@@ -1274,10 +1274,10 @@ if (@$modSettings['smfVersion'] < '2.0' || @$modSettings['smfVersion'] === '2.0 
 			if ($attachment_id == false)
 				return $clean_name;
 
-			if (file_exists($modSettings['attachmentUploadDir'] . '/' . $enc_name))
-				$filename = $modSettings['attachmentUploadDir'] . '/' . $enc_name;
+			if (file_exists(Config::$modSettings['attachmentUploadDir'] . '/' . $enc_name))
+				$filename = Config::$modSettings['attachmentUploadDir'] . '/' . $enc_name;
 			else
-				$filename = $modSettings['attachmentUploadDir'] . '/' . $clean_name;
+				$filename = Config::$modSettings['attachmentUploadDir'] . '/' . $clean_name;
 
 			return $filename;
 		}
@@ -1310,9 +1310,9 @@ if (@$modSettings['smfVersion'] < '2.0' || @$modSettings['smfVersion'] === '2.0 
 				AND mime_type = ''
 			LIMIT $_GET[a], 100");
 		// Finished?
-		if ($smcFunc['db_num_rows']($request) == 0)
+		if (Db::$db->num_rows($request) == 0)
 			$is_done = true;
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			$filename = getAttachmentFilename($row['filename'], $row['id_attach']);
 			if (!file_exists($filename))
@@ -1341,7 +1341,7 @@ if (@$modSettings['smfVersion'] < '2.0' || @$modSettings['smfVersion'] === '2.0 
 				);
 			$ext_updates[$row['fileext'] . $size['mime']]['files'][] = $row['id_attach'];
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 
 		// Do the updates?
 		foreach ($ext_updates as $key => $update)
@@ -1409,7 +1409,7 @@ ADD unapproved_topics smallint(5) NOT NULL default '0';
 ---# Adding post moderation permissions...
 ---{
 // We *cannot* do this twice!
-if (@$modSettings['smfVersion'] < '2.0')
+if (@Config::$modSettings['smfVersion'] < '2.0')
 {
 	// Anyone who can currently edit posts we assume can approve them...
 	$request = upgrade_query("
@@ -1544,14 +1544,14 @@ WHERE task = 'clean_cache';
 
 ---# Moving auto optimise settings to scheduled task...
 ---{
-if (!isset($modSettings['next_task_time']) && isset($modSettings['autoOptLastOpt']))
+if (!isset(Config::$modSettings['next_task_time']) && isset(Config::$modSettings['autoOptLastOpt']))
 {
 	// Try move over the regularity...
-	if (isset($modSettings['autoOptDatabase']))
+	if (isset(Config::$modSettings['autoOptDatabase']))
 	{
-		$disabled = empty($modSettings['autoOptDatabase']) ? 1 : 0;
-		$regularity = $disabled ? 7 : $modSettings['autoOptDatabase'];
-		$next_time = $modSettings['autoOptLastOpt'] + 3600 * 24 * $modSettings['autoOptDatabase'];
+		$disabled = empty(Config::$modSettings['autoOptDatabase']) ? 1 : 0;
+		$regularity = $disabled ? 7 : Config::$modSettings['autoOptDatabase'];
+		$next_time = Config::$modSettings['autoOptLastOpt'] + 3600 * 24 * Config::$modSettings['autoOptDatabase'];
 
 		// Update the task accordingly.
 		upgrade_query("
@@ -1580,7 +1580,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}log_scheduled_tasks (
 
 ---# Adding new scheduled task setting...
 ---{
-if (!isset($modSettings['next_task_time']))
+if (!isset(Config::$modSettings['next_task_time']))
 {
 	upgrade_query("
 		INSERT INTO {$db_prefix}settings
@@ -1593,7 +1593,7 @@ if (!isset($modSettings['next_task_time']))
 
 ---# Setting the birthday email template if not set...
 ---{
-if (!isset($modSettings['birthday_email']))
+if (!isset(Config::$modSettings['birthday_email']))
 {
 	upgrade_query("
 		INSERT INTO {$db_prefix}settings
@@ -1915,17 +1915,17 @@ ADD INDEX id_poll (id_poll, id_member, id_choice);
 
 ---# Implementing admin feature toggles.
 ---{
-if (!isset($modSettings['admin_features']))
+if (!isset(Config::$modSettings['admin_features']))
 {
 	// Work out what they used to have enabled.
 	$enabled_features = array('rg');
-	if (!empty($modSettings['cal_enabled']))
+	if (!empty(Config::$modSettings['cal_enabled']))
 		$enabled_features[] = 'cd';
-	if (!empty($modSettings['karmaMode']))
+	if (!empty(Config::$modSettings['karmaMode']))
 		$enabled_features[] = 'k';
-	if (!empty($modSettings['modlog_enabled']))
+	if (!empty(Config::$modSettings['modlog_enabled']))
 		$enabled_features[] = 'ml';
-	if (!empty($modSettings['paid_enabled']))
+	if (!empty(Config::$modSettings['paid_enabled']))
 		$enabled_features[] = 'ps';
 
 	$enabled_features = implode(',', $enabled_features);
@@ -2130,7 +2130,7 @@ ADD COLUMN is_new tinyint(3) NOT NULL default '0';
 ---# Set the new status to be correct....
 ---{
 // Don't do this twice!
-if (@$modSettings['smfVersion'] < '2.0')
+if (@Config::$modSettings['smfVersion'] < '2.0')
 {
 	// Set all unread messages as new.
 	upgrade_query("
@@ -2401,7 +2401,7 @@ $request = upgrade_query("
 		AND p.num_guest_voters = 0
 	GROUP BY p.id_poll");
 
-while ($request && $row = $smcFunc['db_fetch_assoc']($request))
+while ($request && $row = Db::$db->fetch_assoc($request))
 	upgrade_query("
 		UPDATE {$db_prefix}polls
 		SET num_guest_voters = ". $row['guest_voters']. "
@@ -2646,7 +2646,7 @@ ADD COLUMN pm_receive_from tinyint(4) unsigned NOT NULL default '1';
 ---{
 
 // Don't do this if we've done this already.
-if (empty($modSettings['dont_repeat_buddylists']))
+if (empty(Config::$modSettings['dont_repeat_buddylists']))
 {
 	// Make sure the pm_receive_from column has the right default value - early adopters might have a '0' set here.
 	upgrade_query("
@@ -2676,16 +2676,16 @@ if (empty($modSettings['dont_repeat_buddylists']))
 }
 
 // And yet, and yet... We might have a small hiccup here...
-if (!empty($modSettings['dont_repeat_buddylists']) && !isset($modSettings['enable_buddylist']))
+if (!empty(Config::$modSettings['dont_repeat_buddylists']) && !isset(Config::$modSettings['enable_buddylist']))
 {
 	// Correct RC3 adopters setting here...
-	if (isset($modSettings['enable_buddylists']))
+	if (isset(Config::$modSettings['enable_buddylists']))
 	{
 		upgrade_query("
 		REPLACE INTO {$db_prefix}settings
 			(variable, value)
 		VALUES
-			('enable_buddylist', '" . $modSettings['enable_buddylists'] . "')");
+			('enable_buddylist', '" . Config::$modSettings['enable_buddylists'] . "')");
 	}
 	else
 	{
@@ -2709,7 +2709,7 @@ if (!empty($modSettings['dont_repeat_buddylists']) && !isset($modSettings['enabl
 ---{
 
 // Don't do this if we've done this already.
-if (!isset($modSettings['attachment_image_reencode']))
+if (!isset(Config::$modSettings['attachment_image_reencode']))
 {
 	// Enable image re-encoding by default.
 	upgrade_query("
@@ -2718,7 +2718,7 @@ if (!isset($modSettings['attachment_image_reencode']))
 		VALUES
 			('attachment_image_reencode', '1')");
 }
-if (!isset($modSettings['attachment_image_paranoid']))
+if (!isset(Config::$modSettings['attachment_image_paranoid']))
 {
 	// Disable draconic checks by default.
 	upgrade_query("
@@ -2727,7 +2727,7 @@ if (!isset($modSettings['attachment_image_paranoid']))
 		VALUES
 			('attachment_image_paranoid', '0')");
 }
-if (!isset($modSettings['avatar_reencode']))
+if (!isset(Config::$modSettings['avatar_reencode']))
 {
 	// Enable image re-encoding by default.
 	upgrade_query("
@@ -2736,7 +2736,7 @@ if (!isset($modSettings['avatar_reencode']))
 		VALUES
 			('avatar_reencode', '1')");
 }
-if (!isset($modSettings['avatar_paranoid']))
+if (!isset(Config::$modSettings['avatar_paranoid']))
 {
 	// Disable draconic checks by default.
 	upgrade_query("
@@ -2751,7 +2751,7 @@ if (!isset($modSettings['avatar_paranoid']))
 
 ---# Add other attachment settings...
 ---{
-if (!isset($modSettings['attachment_thumb_png']))
+if (!isset(Config::$modSettings['attachment_thumb_png']))
 {
 	// Make image attachment thumbnail as PNG by default.
 	upgrade_query("
@@ -2774,7 +2774,7 @@ if (!isset($modSettings['attachment_thumb_png']))
 if (file_exists($GLOBALS['boarddir'] . '/Themes/babylon'))
 {
 	$babylon_dir = $GLOBALS['boarddir'] . '/Themes/babylon';
-	$theme_request = $smcFunc['db_query']('', '
+	$theme_request = Db::$db->query('', '
 		SELECT id_theme
 		FROM {db_prefix}themes
 		WHERE variable = {string:themedir}
@@ -2786,14 +2786,14 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/babylon'))
 	);
 
 	// Don't do anything if this theme is already uninstalled
-	if ($smcFunc['db_num_rows']($theme_request) == 1)
+	if (Db::$db->num_rows($theme_request) == 1)
 	{
-		$row = $smcFunc['db_fetch_row']($theme_request);
+		$row = Db::$db->fetch_row($theme_request);
 		$id_theme = $row[0];
-		$smcFunc['db_free_result']($theme_request);
+		Db::$db->free_result($theme_request);
 		unset($row);
 
-		$known_themes = explode(',', $modSettings['knownThemes']);
+		$known_themes = explode(',', Config::$modSettings['knownThemes']);
 
 		// Remove this value...
 		$known_themes = array_diff($known_themes, array($id_theme));
@@ -2802,7 +2802,7 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/babylon'))
 		$known_themes = implode(',', $known_themes);
 
 		// Update the database
-		$smcFunc['db_insert']('replace',
+		Db::$db->insert('replace',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
 			array('knownThemes', $known_themes),
@@ -2825,9 +2825,9 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/babylon'))
 			SET id_theme = 0
 			WHERE id_theme = $id_theme");
 
-		if ($modSettings['theme_guests'] == $id_theme)
+		if (Config::$modSettings['theme_guests'] == $id_theme)
 		{
-			$smcFunc['db_insert']('replace',
+			Db::$db->insert('replace',
 				'{db_prefix}settings',
 				array('variable' => 'string', 'value' => 'string'),
 				array('theme_guests', 0),
@@ -2846,7 +2846,7 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/babylon'))
 ---# Installing new smiley sets...
 ---{
 // Don't do this twice!
-if (empty($modSettings['dont_repeat_smileys_20']) && empty($modSettings['installed_new_smiley_sets_20']))
+if (empty(Config::$modSettings['dont_repeat_smileys_20']) && empty(Config::$modSettings['installed_new_smiley_sets_20']))
 {
 	// First, the entries.
 	upgrade_query("

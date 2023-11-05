@@ -257,7 +257,7 @@ VALUES ('edit_disable_time', '0'),
 	('max_pm_recipients', '10');
 
 ---{
-if (@$modSettings['smfVersion'] < '1.1')
+if (@Config::$modSettings['smfVersion'] < '1.1')
 {
 	// Hopefully 90 days is enough?
 	upgrade_query("
@@ -266,7 +266,7 @@ if (@$modSettings['smfVersion'] < '1.1')
 		VALUES ('disableHashTime', " . (time() + 7776000) . ")");
 }
 
-if (isset($modSettings['smfVersion']) && $modSettings['smfVersion'] <= '1.1 Beta 4')
+if (isset(Config::$modSettings['smfVersion']) && Config::$modSettings['smfVersion'] <= '1.1 Beta 4')
 {
 	// Enable the buddy list for those used to it.
 	upgrade_query("
@@ -279,18 +279,18 @@ if (isset($modSettings['smfVersion']) && $modSettings['smfVersion'] <= '1.1 Beta
 
 ---# Adding PM spam protection settings.
 ---{
-if (empty($modSettings['pm_spam_settings']))
+if (empty(Config::$modSettings['pm_spam_settings']))
 {
-	if (isset($modSettings['max_pm_recipients']))
-		$modSettings['pm_spam_settings'] = (int) $modSettings['max_pm_recipients'] . ',5,20';
+	if (isset(Config::$modSettings['max_pm_recipients']))
+		Config::$modSettings['pm_spam_settings'] = (int) Config::$modSettings['max_pm_recipients'] . ',5,20';
 	else
-		$modSettings['pm_spam_settings'] = '10,5,20';
+		Config::$modSettings['pm_spam_settings'] = '10,5,20';
 
 	upgrade_query("
 		INSERT IGNORE INTO {$db_prefix}settings
 			(variable, value)
 		VALUES
-			('pm_spam_settings', '$modSettings[pm_spam_settings]')");
+			('pm_spam_settings', 'Config::$modSettings[pm_spam_settings]')");
 }
 upgrade_query("
 	DELETE FROM {$db_prefix}settings
@@ -332,13 +332,13 @@ WHERE variable IN (
 ---# Encoding SMTP password...
 ---{
 // Can't do this more than once, we just can't...
-if ((!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] <= '1.1 RC1') && empty($modSettings['dont_repeat_smtp']))
+if ((!isset(Config::$modSettings['smfVersion']) || Config::$modSettings['smfVersion'] <= '1.1 RC1') && empty(Config::$modSettings['dont_repeat_smtp']))
 {
-	if (!empty($modSettings['smtp_password']))
+	if (!empty(Config::$modSettings['smtp_password']))
 	{
 		upgrade_query("
 			UPDATE {$db_prefix}settings
-			SET value = '" . base64_encode($modSettings['smtp_password']) . "'
+			SET value = '" . base64_encode(Config::$modSettings['smtp_password']) . "'
 			WHERE variable = 'smtp_password'");
 	}
 	// Don't let this run twice!
@@ -354,7 +354,7 @@ if ((!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] <= '1.1 RC
 
 ---# Adjusting timezone settings...
 ---{
-	if (!isset($modSettings['default_timezone']) && function_exists('date_default_timezone_set'))
+	if (!isset(Config::$modSettings['default_timezone']) && function_exists('date_default_timezone_set'))
 	{
 		$server_offset = mktime(0, 0, 0, 1, 1, 1970);
 		$timezone_id = 'Etc/GMT' . ($server_offset > 0 ? '+' : '') . ($server_offset / 3600);
@@ -390,7 +390,7 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/classic'))
 		list($id_theme) = smf_mysql_fetch_row($theme_request);
 		smf_mysql_free_result($theme_request);
 
-		$known_themes = explode(',', $modSettings['knownThemes']);
+		$known_themes = explode(',', Config::$modSettings['knownThemes']);
 
 		// Remove this value...
 		$known_themes = array_diff($known_themes, array($id_theme));
@@ -419,7 +419,7 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/classic'))
 			SET ID_THEME = 0
 			WHERE ID_THEME = $id_theme");
 
-		if ($modSettings['theme_guests'] == $id_theme)
+		if (Config::$modSettings['theme_guests'] == $id_theme)
 		{
 			upgrade_query("
 				REPLACE INTO {$db_prefix}settings
@@ -482,7 +482,7 @@ ADD COLUMN memberIP2 tinytext NOT NULL;
 ---# Updating member approval...
 ---{
 // Although it *shouldn't* matter, best to do it just once to be sure.
-if (@$modSettings['smfVersion'] < '1.1')
+if (@Config::$modSettings['smfVersion'] < '1.1')
 {
 	upgrade_query("
 		UPDATE {$db_prefix}members
@@ -722,7 +722,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}message_icons (
 ---# Inserting "message_icons"...
 ---{
 // We do not want to do this twice!
-if (@$modSettings['smfVersion'] < '1.1')
+if (@Config::$modSettings['smfVersion'] < '1.1')
 {
 	upgrade_query("
 		INSERT INTO {$db_prefix}message_icons
@@ -921,7 +921,7 @@ unset($_GET['m']);
 
 ---# Converting server stored setting...
 ---{
-if (!empty($modSettings['avatar_allow_server_stored']))
+if (!empty(Config::$modSettings['avatar_allow_server_stored']))
 {
 	// Create permissions for existing membergroups.
 	upgrade_query("
@@ -938,7 +938,7 @@ if (!empty($modSettings['avatar_allow_server_stored']))
 ---# Converting avatar upload setting...
 ---{
 // Do the same, but for uploading avatars.
-if (!empty($modSettings['avatar_allow_upload']))
+if (!empty(Config::$modSettings['avatar_allow_upload']))
 {
 	// Put in these permissions
 	upgrade_query("
@@ -1019,9 +1019,9 @@ if (!$has_attachmentType_column)
 		$enc_name = $row['ID_ATTACH'] . '_' . strtr($clean_name, '.', '_') . md5($clean_name);
 		$clean_name = preg_replace('~\.[\.]+~', '.', $clean_name);
 
-		if (file_exists($modSettings['attachmentUploadDir'] . '/' . $enc_name))
+		if (file_exists(Config::$modSettings['attachmentUploadDir'] . '/' . $enc_name))
 			$filename = $enc_name;
-		elseif (file_exists($modSettings['attachmentUploadDir'] . '/' . $clean_name))
+		elseif (file_exists(Config::$modSettings['attachmentUploadDir'] . '/' . $clean_name))
 			$filename = $clean_name;
 		else
 			$filename = $row['filename'];
@@ -1033,7 +1033,7 @@ if (!$has_attachmentType_column)
 	smf_mysql_free_result($request);
 
 	// Let's loop through the attachments
-	if (is_dir($modSettings['attachmentUploadDir']) && $dir = @opendir($modSettings['attachmentUploadDir']))
+	if (is_dir(Config::$modSettings['attachmentUploadDir']) && $dir = @opendir(Config::$modSettings['attachmentUploadDir']))
 	{
 		while ($file = readdir($dir))
 		{
@@ -1055,12 +1055,12 @@ if (!$has_attachmentType_column)
 					continue;
 
 				// No need to register thumbs of non-existent attachments.
-				if (!file_exists($modSettings['attachmentUploadDir'] . '/' . $attach_realFilename) || strlen($attach_filename) > 249)
+				if (!file_exists(Config::$modSettings['attachmentUploadDir'] . '/' . $attach_realFilename) || strlen($attach_filename) > 249)
 					continue;
 
 				// Determine the dimensions of the thumb.
-				list ($thumb_width, $thumb_height) = @getimagesize($modSettings['attachmentUploadDir'] . '/' . $file);
-				$thumb_size = filesize($modSettings['attachmentUploadDir'] . '/' . $file);
+				list ($thumb_width, $thumb_height) = @getimagesize(Config::$modSettings['attachmentUploadDir'] . '/' . $file);
+				$thumb_size = filesize(Config::$modSettings['attachmentUploadDir'] . '/' . $file);
 				$thumb_filename = $attach_filename . '_thumb';
 
 				// Insert the thumbnail in the attachment database.
@@ -1072,7 +1072,7 @@ if (!$has_attachmentType_column)
 
 				// Determine the dimensions of the original attachment.
 				$attach_width = $attach_height = 0;
-				list ($attach_width, $attach_height) = @getimagesize($modSettings['attachmentUploadDir'] . '/' . $attach_realFilename);
+				list ($attach_width, $attach_height) = @getimagesize(Config::$modSettings['attachmentUploadDir'] . '/' . $attach_realFilename);
 
 				// Link the original attachment to its thumb.
 				upgrade_query("
@@ -1085,8 +1085,8 @@ if (!$has_attachmentType_column)
 					LIMIT 1");
 
 				// Since it's an attachment now, we might as well encrypt it.
-				if (!empty($modSettings['attachmentEncryptFilenames']))
-					@rename($modSettings['attachmentUploadDir'] . '/' . $file, $modSettings['attachmentUploadDir'] . '/' . $thumb_attach_id . '_' . strtr($thumb_filename, '.', '_') . md5($thumb_filename));
+				if (!empty(Config::$modSettings['attachmentEncryptFilenames']))
+					@rename(Config::$modSettings['attachmentUploadDir'] . '/' . $file, Config::$modSettings['attachmentUploadDir'] . '/' . $thumb_attach_id . '_' . strtr($thumb_filename, '.', '_') . md5($thumb_filename));
 			}
 		}
 		closedir($dir);
@@ -1108,7 +1108,7 @@ $request = upgrade_query("
 while ($row = smf_mysql_fetch_assoc($request))
 {
 	if ($row['attachmentType'] == 1)
-		$filename = $modSettings['custom_avatar_dir'] . '/' . $row['filename'];
+		$filename = Config::$modSettings['custom_avatar_dir'] . '/' . $row['filename'];
 	else
 	{
 		$clean_name = strtr($row['filename'], 'ŠŽšžŸÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝàáâãäåçèéêëìíîïñòóôõöøùúûüýÿ', 'SZszYAAAAAACEEEEIIIINOOOOOOUUUUYaaaaaaceeeeiiiinoooooouuuuyy');
@@ -1117,12 +1117,12 @@ while ($row = smf_mysql_fetch_assoc($request))
 		$enc_name = $row['ID_ATTACH'] . '_' . strtr($clean_name, '.', '_') . md5($clean_name);
 		$clean_name = preg_replace('~\.[\.]+~', '.', $clean_name);
 
-		if (file_exists($modSettings['attachmentUploadDir'] . '/' . $enc_name))
-			$filename = $modSettings['attachmentUploadDir'] . '/' . $enc_name;
-		elseif (file_exists($modSettings['attachmentUploadDir'] . '/' . $clean_name))
-			$filename = $modSettings['attachmentUploadDir'] . '/' . $clean_name;
+		if (file_exists(Config::$modSettings['attachmentUploadDir'] . '/' . $enc_name))
+			$filename = Config::$modSettings['attachmentUploadDir'] . '/' . $enc_name;
+		elseif (file_exists(Config::$modSettings['attachmentUploadDir'] . '/' . $clean_name))
+			$filename = Config::$modSettings['attachmentUploadDir'] . '/' . $clean_name;
 		else
-			$filename = $modSettings['attachmentUploadDir'] . '/' . $row['filename'];
+			$filename = Config::$modSettings['attachmentUploadDir'] . '/' . $row['filename'];
 	}
 
 	$width = 0;
@@ -1301,7 +1301,7 @@ WHERE permission IN ('view_threads', 'poll_delete_own', 'poll_delete_any', 'prof
 ---# Renaming permissions...
 ---{
 // We *cannot* do this twice!
-if (@$modSettings['smfVersion'] < '1.1')
+if (@Config::$modSettings['smfVersion'] < '1.1')
 {
 	upgrade_query("
 		UPDATE {$db_prefix}board_permissions
@@ -1325,7 +1325,7 @@ if (@$modSettings['smfVersion'] < '1.1')
 
 ---# Upgrading "deny"-permissions...
 ---{
-if (!isset($modSettings['permission_enable_deny']))
+if (!isset(Config::$modSettings['permission_enable_deny']))
 {
 	// Only disable if no deny permissions are used.
 	$request = upgrade_query("
@@ -1358,7 +1358,7 @@ if (!isset($modSettings['permission_enable_deny']))
 
 ---# Upgrading post based group permissions...
 ---{
-if (!isset($modSettings['permission_enable_postgroups']))
+if (!isset(Config::$modSettings['permission_enable_postgroups']))
 {
 	// Only disable if no post group permissions are used.
 	$disable_postgroup_permissions = true;
@@ -1397,7 +1397,7 @@ ALTER TABLE {$db_prefix}boards
 CHANGE COLUMN use_local_permissions permission_mode tinyint(4) unsigned NOT NULL default '0';
 
 ---{
-if (!isset($modSettings['permission_enable_by_board']))
+if (!isset(Config::$modSettings['permission_enable_by_board']))
 {
 	// Enable by-board permissions if there's >= 1 local permission board.
 	$request = upgrade_query("
@@ -1526,7 +1526,7 @@ if ($numIndexedWords == 0 || isset($_GET['lt']))
 		$inserts = array();
 		while ($row = smf_mysql_fetch_assoc($request))
 		{
-			foreach (text2words($row['subject']) as $word)
+			foreach (Utils::text2words($row['subject']) as $word)
 				$inserts[] = "'" . smf_mysql_real_escape_string($word) . "', $row[ID_TOPIC]";
 		}
 		smf_mysql_free_result($request);
@@ -1549,23 +1549,23 @@ if ($numIndexedWords == 0 || isset($_GET['lt']))
 
 ---# Converting settings...
 ---{
-if (isset($modSettings['search_method']))
+if (isset(Config::$modSettings['search_method']))
 {
-	if (!empty($modSettings['search_method']))
+	if (!empty(Config::$modSettings['search_method']))
 		$request = upgrade_query("
 			INSERT INTO {$db_prefix}settings
 				(variable, value)
 			VALUES
 				('search_match_words', '1')");
 
-	if ($modSettings['search_method'] > 1)
+	if (Config::$modSettings['search_method'] > 1)
 		$request = upgrade_query("
 			INSERT INTO {$db_prefix}settings
 				(variable, value)
 			VALUES
 				('search_index', 'fulltext')");
 
-	if ($modSettings['search_method'] == 3)
+	if (Config::$modSettings['search_method'] == 3)
 		$request = upgrade_query("
 			INSERT INTO {$db_prefix}settings
 				(variable, value)
@@ -2501,7 +2501,7 @@ $columnChanges = array(
 	),
 );
 
-if (!empty($modSettings['search_custom_index_config']))
+if (!empty(Config::$modSettings['search_custom_index_config']))
 	$columnChanges[] = array(
 		'table' => 'log_search_words',
 		'type' => 'column',
