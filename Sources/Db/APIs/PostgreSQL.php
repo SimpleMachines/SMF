@@ -590,12 +590,12 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		{
 			return $this->replace_result;
 		}
-		elseif ($result === null && !$this->last_result)
+		elseif ($connection === null && !$this->last_result)
 		{
 			return 0;
 		}
 
-		return pg_affected_rows($result === null ? $this->last_result : $result);
+		return pg_affected_rows($connection === null ? $this->last_result : $connection);
 	}
 
 	/**
@@ -2107,7 +2107,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$this->error_backtrace('Invalid value inserted or no type specified.', '', E_USER_ERROR, __FILE__, __LINE__);
 
 		if ($matches[1] === 'literal')
-			return '\'' . pg_escape_string($connection, $matches[2]) . '\'';
+			return '\'' . pg_escape_string($this->connection, $matches[2]) . '\'';
 
 		if (!isset($this->temp_values[$matches[2]]))
 			$this->error_backtrace('The database value you\'re trying to insert does not exist: ' . Utils::htmlspecialchars($matches[2]), '', E_USER_ERROR, __FILE__, __LINE__);
@@ -2124,7 +2124,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 			case 'string':
 			case 'text':
-				return sprintf('\'%1$s\'', pg_escape_string($connection, $replacement));
+				return sprintf('\'%1$s\'', pg_escape_string($this->connection, $replacement));
 				break;
 
 			case 'array_int':
@@ -2155,7 +2155,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 						$this->error_backtrace('Database error, given array of string values is empty. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 
 					foreach ($replacement as $key => $value)
-						$replacement[$key] = sprintf('\'%1$s\'', pg_escape_string($connection, $value));
+						$replacement[$key] = sprintf('\'%1$s\'', pg_escape_string($this->connection, $value));
 
 					return implode(', ', $replacement);
 				}
@@ -2211,7 +2211,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 					$this->error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 				}
 
-				return sprintf('\'%1$s\'::inet', pg_escape_string($connection, $ip));
+				return sprintf('\'%1$s\'::inet', pg_escape_string($this->connection, $ip));
 
 			case 'array_inet':
 				if (is_array($replacement))
@@ -2233,7 +2233,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 							$this->error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected.(' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 						}
 
-						$replacement[$key] = sprintf('\'%1$s\'::inet', pg_escape_string($connection, $ip));
+						$replacement[$key] = sprintf('\'%1$s\'::inet', pg_escape_string($this->connection, $ip));
 					}
 
 					return implode(', ', $replacement);
