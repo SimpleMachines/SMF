@@ -709,7 +709,9 @@ class Languages implements ActionInterface
 		Db::$db->free_result($request);
 
 		// This will be where we look
-		$lang_dirs = [];
+		$lang_dirs = [
+			Config::$languagesdir
+		];
 
 		// There are different kinds of strings
 		$string_types = ['txt', 'helptxt', 'editortxt', 'tztxt', 'txtBirthdayEmails'];
@@ -752,7 +754,13 @@ class Languages implements ActionInterface
 		$current_file = $file_id ? $lang_dirs[$theme_id] . '/' . $file_id . '.' . $lang_id . '.php' : '';
 
 		// Now for every theme get all the files and stick them in context!
-		Utils::$context['possible_files'] = [];
+		Utils::$context['possible_files'] = [
+			0 => [
+				'id' => 0,
+				'name' => Lang::$txt['languages_default'],
+				'files' => [],
+			]
+		];
 
 		foreach ($lang_dirs as $theme => $theme_dir) {
 			// Open it up.
@@ -878,7 +886,7 @@ class Languages implements ActionInterface
 			SecurityToken::validate('admin-mlang');
 
 			// Read in the current file.
-			$current_data = implode('', file(Theme::$current->settings['default_theme_dir'] . '/languages/index.' . $lang_id . '.php'));
+			$current_data = implode('', file(Config::$languagesdir . '/index.' . $lang_id . '.php'));
 
 			// Build the replacements. old => new
 			$replace_array = [];
@@ -889,7 +897,7 @@ class Languages implements ActionInterface
 
 			$current_data = preg_replace(array_keys($replace_array), array_values($replace_array), $current_data);
 
-			$fp = fopen(Theme::$current->settings['default_theme_dir'] . '/languages/index.' . $lang_id . '.php', 'w+');
+			$fp = fopen(Config::$languagesdir . '/index.' . $lang_id . '.php', 'w+');
 			fwrite($fp, $current_data);
 			fclose($fp);
 
@@ -899,9 +907,9 @@ class Languages implements ActionInterface
 		// Quickly load index language entries.
 		$old_txt = Lang::$txt;
 
-		require Theme::$current->settings['default_theme_dir'] . '/languages/index.' . $lang_id . '.php';
+		require Config::$languagesdir . '/index.' . $lang_id . '.php';
 
-		Utils::$context['lang_file_not_writable_message'] = is_writable(Theme::$current->settings['default_theme_dir'] . '/languages/index.' . $lang_id . '.php') ? '' : sprintf(Lang::$txt['lang_file_not_writable'], Theme::$current->settings['default_theme_dir'] . '/languages/index.' . $lang_id . '.php');
+		Utils::$context['lang_file_not_writable_message'] = is_writable(Config::$languagesdir . '/index.' . $lang_id . '.php') ? '' : sprintf(Lang::$txt['lang_file_not_writable'], Config::$languagesdir . '/index.' . $lang_id . '.php');
 
 		// Setup the primary settings context.
 		Utils::$context['primary_settings']['name'] = Utils::ucwords(strtr($lang_id, ['_' => ' ', '-utf8' => '']));
@@ -1571,7 +1579,7 @@ class Languages implements ActionInterface
 		// Get the language files and data...
 		foreach (Utils::$context['languages'] as $lang) {
 			// Load the file to get the character set.
-			require Theme::$current->settings['default_theme_dir'] . '/languages/index.' . $lang['filename'] . '.php';
+			require Config::$languagesdir . '/index.' . $lang['filename'] . '.php';
 
 			$languages[$lang['filename']] = [
 				'id' => $lang['filename'],

@@ -328,9 +328,9 @@ function load_lang_file()
 	$incontext['detected_languages'] = [];
 
 	// Make sure the languages directory actually exists.
-	if (file_exists(Config::$boarddir . '/Themes/default/languages')) {
+	if (file_exists(Config::$languagesdir)) {
 		// Find all the "Install" language files in the directory.
-		$dir = dir(Config::$boarddir . '/Themes/default/languages');
+		$dir = dir(Config::$languagesdir);
 
 		while ($entry = $dir->read()) {
 			if (substr($entry, 0, 8) == 'Install.' && substr($entry, -4) == '.php') {
@@ -370,7 +370,7 @@ function load_lang_file()
 
 		<p>This installer was unable to find the installer\'s language file or files. They should be found under:</p>
 
-		<div class="directory">', dirname($_SERVER['PHP_SELF']) != '/' ? dirname($_SERVER['PHP_SELF']) : '', '/Themes/default/languages</div>
+		<div class="directory">', dirname($_SERVER['PHP_SELF']) != '/' ? dirname($_SERVER['PHP_SELF']) : '', '/Languages</div>
 
 		<p>In some cases, FTP clients do not properly upload files with this many folders. Please double check to make sure you <strong>have uploaded all the files in the distribution</strong>.</p>
 		<p>If that doesn\'t help, please make sure this install.php file is in the same place as the Themes folder.</p>
@@ -389,7 +389,7 @@ function load_lang_file()
 	}
 
 	// Make sure it exists, if it doesn't reset it.
-	if (!isset($_SESSION['installer_temp_lang']) || preg_match('~[^\\w_\\-.]~', $_SESSION['installer_temp_lang']) === 1 || !file_exists(Config::$boarddir . '/Themes/default/languages/' . $_SESSION['installer_temp_lang'])) {
+	if (!isset($_SESSION['installer_temp_lang']) || preg_match('~[^\\w_\\-.]~', $_SESSION['installer_temp_lang']) === 1 || !file_exists(Config::$languagesdir . $_SESSION['installer_temp_lang'])) {
 		// Use the first one...
 		list($_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
 
@@ -403,7 +403,7 @@ function load_lang_file()
 	Config::$language = preg_replace('~^Install\.|(-utf8)?\.php$~', '', $_SESSION['installer_temp_lang']);
 
 	// Ensure SMF\Lang knows the path to the language directory.
-	Lang::addDirs(Config::$boarddir . '/Themes/default/languages');
+	Lang::addDirs(Config::$languagesdir);
 
 	// And now load the language file.
 	Lang::load('Install');
@@ -571,7 +571,7 @@ function CheckFilesWritable()
 	];
 
 	foreach ($incontext['detected_languages'] as $lang => $temp) {
-		$extra_files[] = 'Themes/default/languages/' . $lang;
+		$extra_files[] = 'Languages/' . $lang;
 	}
 
 	// With mod_security installed, we could attempt to fix it with .htaccess.
@@ -1065,6 +1065,7 @@ function ForumSettings()
 			'sourcedir' => $path . '/Sources',
 			'cachedir' => $path . '/cache',
 			'packagesdir' => $path . '/Packages',
+			'languagesdir' => $path . '/Languages',
 			'tasksdir' => $path . '/Sources/Tasks',
 			'mbname' => strtr($_POST['mbname'], ['\"' => '"']),
 			'language' => substr($_SESSION['installer_temp_lang'], 8, -4),

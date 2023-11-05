@@ -536,13 +536,7 @@ function load_lang_file()
 
 	static $lang_dir = '', $detected_languages = [], $loaded_langfile = '';
 
-	// Do we know where to look for the language files, or shall we just guess for now?
-	$temp = isset(Config::$modSettings['theme_dir']) ? Config::$modSettings['theme_dir'] . '/languages' : $upgrade_path . '/Themes/default/languages';
-
-	if ($lang_dir != $temp) {
-		$lang_dir = $temp;
-		$detected_languages = [];
-	}
+	$lang_dir = Config::$languagesdir;
 
 	// Override the language file?
 	if (isset($upcontext['language'])) {
@@ -1008,12 +1002,12 @@ function WelcomeLogin()
 
 	quickFileWritable($cachedir_temp . '/db_last_error.php');
 
-	if (!file_exists(Config::$modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php')) {
+	if (!file_exists(Config::$languagesdir . '/index.' . $upcontext['language'] . '.php')) {
 		return throw_error(sprintf(Lang::$txt['error_lang_index_missing'], $upcontext['language'], $upgradeurl));
 	}
 
 	if (!isset($_GET['skiplang'])) {
-		$temp = substr(@implode('', @file(Config::$modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php')), 0, 4096);
+		$temp = substr(@implode('', @file(Config::$languagesdir . '/index.' . $upcontext['language'] . '.php')), 0, 4096);
 		preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*index(?:[\s]{2}|\*/)~i', $temp, $match);
 
 		if (empty($match[1]) || $match[1] != SMF_LANG_VERSION) {
@@ -1347,14 +1341,14 @@ function checkLogin()
 			$upcontext['upgrade_status']['pass'] = $upcontext['user']['pass'];
 
 			// Set the language to that of the user?
-			if (isset($user_language) && $user_language != $upcontext['language'] && file_exists(Config::$modSettings['theme_dir'] . '/languages/index.' . basename($user_language, '.lng') . '.php')) {
+			if (isset($user_language) && $user_language != $upcontext['language'] && file_exists(Config::$languagesdir . '/index.' . basename($user_language, '.lng') . '.php')) {
 				$user_language = basename($user_language, '.lng');
-				$temp = substr(@implode('', @file(Config::$modSettings['theme_dir'] . '/languages/index.' . $user_language . '.php')), 0, 4096);
+				$temp = substr(@implode('', @file(Config::$languagesdir . '/index.' . $user_language . '.php')), 0, 4096);
 				preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*index(?:[\s]{2}|\*/)~i', $temp, $match);
 
 				if (empty($match[1]) || $match[1] != SMF_LANG_VERSION) {
 					$upcontext['upgrade_options_warning'] = sprintf(Lang::$txt['warning_lang_old'], $user_language, $upcontext['language']);
-				} elseif (!file_exists(Config::$modSettings['theme_dir'] . '/languages/Install.' . $user_language . '.php')) {
+				} elseif (!file_exists(Config::$languagesdir . '/Install.' . $user_language . '.php')) {
 					$upcontext['upgrade_options_warning'] = sprintf(Lang::$txt['warning_lang_missing'], $user_language, $upcontext['language']);
 				} else {
 					// Set this as the new language.
@@ -1506,7 +1500,7 @@ function UpgradeOptions()
 	}
 
 	// If we're overriding the language follow it through.
-	if (isset($upcontext['lang']) && file_exists(Config::$modSettings['theme_dir'] . '/languages/index.' . $upcontext['lang'] . '.php')) {
+	if (isset($upcontext['lang']) && file_exists(Config::$languagesdir . '/index.' . $upcontext['lang'] . '.php')) {
 		$changes['language'] = $upcontext['lang'];
 	}
 
@@ -1577,6 +1571,10 @@ function UpgradeOptions()
 	if (empty(Config::$packagesdir)) {
 		$changes['packagesdir'] = fixRelativePath(Config::$boarddir) . '/Packages';
 	}
+
+	// Languages have moved!
+	if (empty(Config::$languagesdir))
+		$changes['languagesdir'] = fixRelativePath(Config::$boarddir) . '/Languages';
 
 	// Add support for $tasksdir var.
 	if (empty(Config::$tasksdir)) {
@@ -2993,22 +2991,22 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 		print_error('Error: Unable to obtain write access to "db_last_error.php".');
 	}
 
-	if (!file_exists(Config::$modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php')) {
+	if (!file_exists(Config::$languagesdir . '/index.' . $upcontext['language'] . '.php')) {
 		print_error('Error: Unable to find language files!', true);
 	} else {
-		$temp = substr(@implode('', @file(Config::$modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php')), 0, 4096);
+		$temp = substr(@implode('', @file(Config::$languagesdir . '/index.' . $upcontext['language'] . '.php')), 0, 4096);
 		preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*index(?:[\s]{2}|\*/)~i', $temp, $match);
 
 		if (empty($match[1]) || $match[1] != SMF_LANG_VERSION) {
 			print_error('Error: Language files out of date.', true);
 		}
 
-		if (!file_exists(Config::$modSettings['theme_dir'] . '/languages/Install.' . $upcontext['language'] . '.php')) {
+		if (!file_exists(Config::$languagesdir . '/Install.' . $upcontext['language'] . '.php')) {
 			print_error('Error: Install language is missing for selected language.', true);
 		}
 
 		// Otherwise include it!
-		require_once Config::$modSettings['theme_dir'] . '/languages/Install.' . $upcontext['language'] . '.php';
+		require_once Config::$languagesdir . '/Install.' . $upcontext['language'] . '.php';
 	}
 
 	// Do we need to add this setting?

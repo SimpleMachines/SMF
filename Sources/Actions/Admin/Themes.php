@@ -1552,7 +1552,7 @@ class Themes implements ActionInterface
 			'/css/rtl.css',
 			'/scripts/theme.js',
 			'/languages/index.php',
-			'/languages/Settings.english.php',
+			'/languages/ThemeStrings.english.php',
 		];
 
 		foreach ($to_copy as $file) {

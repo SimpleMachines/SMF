@@ -318,6 +318,8 @@ class Lang
 		if (!empty($custom_dirs)) {
 			self::$dirs = array_merge($custom_dirs, self::$dirs);
 		} else {
+			self::$dirs[] = Config::$languagesdir;
+
 			// Make sure we have Theme::$current->settings - if not we're in trouble and need to find it!
 			if (empty(Theme::$current->settings['default_theme_dir'])) {
 				Theme::loadEssential();
@@ -354,6 +356,7 @@ class Lang
 
 			// Default language directories to try.
 			$language_directories = [
+				Config::$languagesdir,
 				Theme::$current->settings['default_theme_dir'] . '/languages',
 			];
 

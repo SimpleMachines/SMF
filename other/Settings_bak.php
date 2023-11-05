@@ -218,6 +218,12 @@ $packagesdir = dirname(__FILE__) . '/Packages';
 /**
  * @var string
  *
+ * Path to the language directory.
+ */
+$languagesdir = dirname(__FILE__) . '/Languages';
+/**
+ * @var string
+ *
  * Path to the tasks directory.
  */
 $tasksdir = $sourcedir . '/Tasks';
@@ -233,6 +239,8 @@ if (!is_dir(realpath($packagesdir)) && is_dir($boarddir . '/Packages'))
 	$packagesdir = $boarddir . '/Packages';
 if (!is_dir(realpath($cachedir)) && is_dir($boarddir . '/cache'))
 	$cachedir = $boarddir . '/cache';
+if (!is_dir(realpath($languagesdir)) && is_dir($boarddir . '/Languages'))
+	$languagesdir = $boarddir . '/Languages';
 
 ######### Legacy Settings #########
 /**

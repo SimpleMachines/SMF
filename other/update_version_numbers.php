@@ -147,7 +147,7 @@ foreach ($files as $file) {
 }
 
 // Update SMF_LANG_VERSION
-preg_match($lang_pattern, file_get_contents("{$basedir}/Themes/default/languages/index.english.php"), $matches);
+preg_match($lang_pattern, file_get_contents("{$basedir}/Languages/index.english.php"), $matches);
 
 $lang_version = $matches[0];
 
