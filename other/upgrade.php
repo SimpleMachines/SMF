@@ -4098,13 +4098,13 @@ function template_welcome_message()
 	{
 		$ago = time() - $upcontext['started'];
 		$ago_hours = floor($ago / 3600);
-		$ago_minutes = intval(($ago / 60) % 60);
+		$ago_minutes = (int) (((int) ($ago / 60)) % 60);
 		$ago_seconds = intval($ago % 60);
 		$agoTxt = $ago < 60 ? 'upgrade_time_s' : ($ago < 3600 ? 'upgrade_time_ms' : 'upgrade_time_hms');
 
 		$updated = time() - $upcontext['updated'];
 		$updated_hours = floor($updated / 3600);
-		$updated_minutes = intval(($updated / 60) % 60);
+		$updated_minutes = intval(((int) ($updated / 60)) % 60);
 		$updated_seconds = intval($updated % 60);
 		$updatedTxt = $updated < 60 ? 'upgrade_time_updated_s' : ($updated < 3600 ? 'upgrade_time_updated_hm' : 'upgrade_time_updated_hms');
 
