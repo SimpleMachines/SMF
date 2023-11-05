@@ -190,10 +190,10 @@ class Register implements ActionInterface
 		// If you have to agree to the agreement, it needs to be fetched from the file.
 		if (!empty(Config::$modSettings['requireAgreement'])) {
 			// Have we got a localized one?
-			if (file_exists(Config::$boarddir . '/agreement.' . User::$me->language . '.txt')) {
-				Utils::$context['agreement'] = BBCodeParser::load()->parse(file_get_contents(Config::$boarddir . '/agreement.' . User::$me->language . '.txt'), true, 'agreement_' . User::$me->language);
-			} elseif (file_exists(Config::$boarddir . '/agreement.txt')) {
-				Utils::$context['agreement'] = BBCodeParser::load()->parse(file_get_contents(Config::$boarddir . '/agreement.txt'), true, 'agreement');
+			if (file_exists(Config::$languagesdir . '/agreement.' . User::$me->language . '.txt')) {
+				Utils::$context['agreement'] = BBCodeParser::load()->parse(file_get_contents(Config::$languagesdir . '/agreement.' . User::$me->language . '.txt'), true, 'agreement_' . User::$me->language);
+			} elseif (file_exists(Config::$languagesdir . '/agreement.txt')) {
+				Utils::$context['agreement'] = BBCodeParser::load()->parse(file_get_contents(Config::$languagesdir . '/agreement.txt'), true, 'agreement');
 			} else {
 				Utils::$context['agreement'] = '';
 			}

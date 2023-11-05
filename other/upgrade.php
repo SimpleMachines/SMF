@@ -1020,7 +1020,7 @@ function WelcomeLogin()
 	}
 
 	// Check agreement.txt. (it may not exist, in which case $boarddir must be writable.)
-	if (isset(Config::$modSettings['agreement']) && (!is_writable(Config::$boarddir) || file_exists(Config::$boarddir . '/agreement.txt')) && !is_writable(Config::$boarddir . '/agreement.txt')) {
+	if (isset(Config::$modSettings['agreement']) && (!is_writable(Config::$languagesdir) || file_exists(Config::$languagesdir . '/agreement.txt')) && !is_writable(Config::$languagesdir . '/agreement.txt')) {
 		return throw_error(Lang::$txt['error_agreement_not_writable']);
 	}
 
@@ -2955,7 +2955,7 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 		print_error('Error: Unable to obtain write access to "' . basename(SMF_SETTINGS_BACKUP_FILE) . '".');
 	}
 
-	if (isset(Config::$modSettings['agreement']) && (!is_writable(Config::$boarddir) || file_exists(Config::$boarddir . '/agreement.txt')) && !is_writable(Config::$boarddir . '/agreement.txt')) {
+	if (isset(Config::$modSettings['agreement']) && (!is_writable(Config::$languagesdir) || file_exists(Config::$languagesdir . '/agreement.txt')) && !is_writable(Config::$languagesdir . '/agreement.txt')) {
 		print_error('Error: Unable to obtain write access to "agreement.txt".');
 	} elseif (isset(Config::$modSettings['agreement'])) {
 		$fp = fopen(Config::$boarddir . '/agreement.txt', 'w');

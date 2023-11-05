@@ -1313,7 +1313,7 @@ class Theme
 
 				// If agreement is enabled, at least the english version shall exist
 				if (!empty(Config::$modSettings['requireAgreement'])) {
-					$agreement = !file_exists(Config::$boarddir . '/agreement.txt');
+					$agreement = !file_exists(Config::$languagesdir . '/agreement.txt');
 				}
 
 				// If privacy policy is enabled, at least the default language version shall exist

@@ -224,7 +224,7 @@ class Registration implements ActionInterface
 
 		// Try to figure out if we have more agreements.
 		foreach (Utils::$context['languages'] as $lang) {
-			if (file_exists(Config::$boarddir . '/agreement.' . $lang['filename'] . '.txt')) {
+			if (file_exists(Config::$langaugesdir . '/agreement.' . $lang['filename'] . '.txt')) {
 				Utils::$context['editable_agreements']['.' . $lang['filename']] = $lang['name'];
 
 				// Are we editing this?
@@ -236,7 +236,7 @@ class Registration implements ActionInterface
 
 		$agreement_lang = empty(Utils::$context['current_agreement']) ? 'default' : substr(Utils::$context['current_agreement'], 1);
 
-		$agreement_file = Config::$boarddir . '/agreement' . Utils::$context['current_agreement'] . '.txt';
+		$agreement_file = Config::$languagesdir . '/agreement' . Utils::$context['current_agreement'] . '.txt';
 
 		Utils::$context['agreement'] = file_exists($agreement_file) ? str_replace("\r", '', file_get_contents($agreement_file)) : '';
 
@@ -501,7 +501,7 @@ class Registration implements ActionInterface
 	public static function getConfigVars(): array
 	{
 		// Do we have at least default versions of the agreement and privacy policy?
-		$agreement = file_exists(Config::$boarddir . '/agreement.' . Lang::$default . '.txt') || file_exists(Config::$boarddir . '/agreement.txt');
+		$agreement = file_exists(Config::$languagesdir . '/agreement.' . Lang::$default . '.txt') || file_exists(Config::$languagesdir . '/agreement.txt');
 
 		$policy = !empty(Config::$modSettings['policy_' . Lang::$default]);
 

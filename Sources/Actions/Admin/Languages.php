@@ -829,8 +829,8 @@ class Languages implements ActionInterface
 			}
 
 			// Third, the agreement file.
-			if (file_exists(Config::$boarddir . '/agreement.' . $lang_id . '.txt')) {
-				unlink(Config::$boarddir . '/agreement.' . $lang_id . '.txt');
+			if (file_exists(Config::$languagesdir . '/agreement.' . $lang_id . '.txt')) {
+				unlink(Config::$languagesdir . '/agreement.' . $lang_id . '.txt');
 			}
 
 			// Fourth, a related images folder, if it exists...

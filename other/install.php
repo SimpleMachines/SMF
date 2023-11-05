@@ -564,7 +564,7 @@ function CheckFilesWritable()
 		'Packages',
 		'Smileys',
 		'Themes',
-		'agreement.txt',
+		'Languages/agreement.txt',
 		'Settings.php',
 		'Settings_bak.php',
 		'cache/db_last_error.php',

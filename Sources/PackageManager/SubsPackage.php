@@ -2938,7 +2938,7 @@ class SubsPackage
 	{
 		$files = [];
 
-		$base_files = ['index.php', 'SSI.php', 'agreement.txt', 'cron.php', 'proxy.php', 'ssi_examples.php', 'ssi_examples.shtml', 'subscriptions.php'];
+		$base_files = ['index.php', 'SSI.php', 'cron.php', 'proxy.php', 'ssi_examples.php', 'ssi_examples.shtml', 'subscriptions.php'];
 
 		foreach ($base_files as $file) {
 			if (file_exists(Config::$boarddir . '/' . $file)) {
@@ -2948,6 +2948,7 @@ class SubsPackage
 
 		$dirs = [
 			Config::$sourcedir => empty($_REQUEST['use_full_paths']) ? 'Sources/' : strtr(Config::$sourcedir . '/', '\\', '/'),
+			Config::$languagesdir => empty($_REQUEST['use_full_paths']) ? 'Languages/' : strtr(Config::$languagesdir . '/', '\\', '/'),
 		];
 
 		$request = Db::$db->query(
