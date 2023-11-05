@@ -733,7 +733,7 @@ function loadEssentialData()
 
 	require_once(Config::$sourcedir . '/Autoloader.php');
 
-	if (class_exists('SMF\\Db\\APIs\\' . Config::$db_type))
+	if (class_exists('SMF\\Db\\APIs\\' . Db::type(Config::$db_type)))
 	{
 		// Make the connection...
 		if (empty(Db::$db_connection))
@@ -782,7 +782,7 @@ function loadEssentialData()
 		Db::$db->free_result($request);
 	}
 	else
-		return throw_error(sprintf(Lang::$txt['error_sourcefile_missing'], 'Db/APIs/' . Config::$db_type . '.php'));
+		return die(sprintf(Lang::$txt['error_sourcefile_missing'], 'Db/APIs/' . Db::type(Config::$db_type) . '.php'));
 
 	// If they don't have the file, they're going to get a warning anyway so we won't need to clean request vars.
 	if (class_exists('SMF\\QueryString', false) && php_version_check())
