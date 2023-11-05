@@ -20,9 +20,9 @@ namespace SMF;
  */
 spl_autoload_register(function ($class)
 {
-	static $level = 0;
+	static $hook_value = '';
 
-	$class_map = array(
+	static $class_map = array(
 		// Some special cases.
 		'ReCaptcha\\' => 'ReCaptcha/',
 		'MatthiasMullie\\Minify\\' => 'minify/src/',
@@ -40,19 +40,18 @@ spl_autoload_register(function ($class)
 		$sourcedir = __DIR__;
 
 	// Do any third-party scripts want in on the fun?
-	if ($level === 0)
+	if (class_exists('SMF\\Config', false) && $hook_value !== (Config::$modSettings['integrate_autoload'] ?? ''))
 	{
-		$level++;
-
 		if (!class_exists('SMF\\IntegrationHook', false) && is_file($sourcedir . '/IntegrationHook.php'))
 		{
-			require $sourcedir . '/IntegrationHook.php';
+			require_once $sourcedir . '/IntegrationHook.php';
 		}
 
 		if (class_exists('SMF\\IntegrationHook', false))
+		{
+			$hook_value = Config::$modSettings['integrate_autoload'];
 			IntegrationHook::call('integrate_autoload', array(&$class_map));
-
-		$level--;
+		}
 	}
 
 	foreach ($class_map as $prefix => $dirname)
