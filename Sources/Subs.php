@@ -1263,7 +1263,7 @@ function un_htmlspecialchars($string)
  * @param int $level Controls filtering of invisible formatting characters.
  *      0: Allow valid formatting characters. Use for sanitizing text in posts.
  *      1: Allow necessary formatting characters. Use for sanitizing usernames.
- *      2: Disallow all formatting characters. Use for internal comparisions
+ *      2: Disallow all formatting characters. Use for internal comparisons
  *         only, such as in the word censor, search contexts, etc.
  *      Default: 0.
  * @param string|null $substitute Replacement string for the invalid characters.
@@ -1759,6 +1759,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						// Image.
 						if (!empty($currentAttachment['is_image']))
 						{
+							// Just viewing the page shouldn't increase the download count for embedded images.
+							$currentAttachment['href'] .= ';preview';
+
 							if (empty($params['{width}']) && empty($params['{height}']))
 								$returnContext .= '<img src="' . $currentAttachment['href'] . '"' . $alt . $title . ' class="bbc_img">';
 							else
@@ -1841,8 +1844,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'center',
-				'before' => '<div class="centertext">',
-				'after' => '</div>',
+				'before' => '<div class="centertext"><div class="inline_block">',
+				'after' => '</div></div>',
 				'block_level' => true,
 			),
 			array(
@@ -2279,8 +2282,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'right',
-				'before' => '<div class="righttext">',
-				'after' => '</div>',
+				'before' => '<div class="righttext"><div class="inline_block">',
+				'after' => '</div></div>',
 				'block_level' => true,
 			),
 			array(
@@ -3059,7 +3062,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 										')' .
 										// Initial "/"
 										'/' .
-										// Then a run of allowed path segement characters
+										// Then a run of allowed path segment characters
 										'(?P>path_segment)*+' .
 									')*+' .
 								')' .
@@ -3472,7 +3475,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		}
 
 		// Item codes are complicated buggers... they are implicit [li]s and can make [list]s!
-		if ($smileys !== false && $tag === null && isset($itemcodes[$message[$pos + 1]]) && $message[$pos + 2] == ']' && !isset($disabled['list']) && !isset($disabled['li']))
+		if ($smileys !== false && $tag === null && isset($itemcodes[$message[$pos + 1]], $message[$pos + 2]) && $message[$pos + 2] == ']' && !isset($disabled['list']) && !isset($disabled['li']))
 		{
 			if ($message[$pos + 1] == '0' && !in_array($message[$pos - 1], array(';', ' ', "\t", "\n", '>')))
 				continue;
@@ -4693,7 +4696,7 @@ function template_javascript($do_deferred = false)
 		'async' => array(),
 	);
 
-	// Ouput the declared Javascript variables.
+	// Output the declared Javascript variables.
 	if (!empty($context['javascript_vars']) && !$do_deferred)
 	{
 		echo '
@@ -5917,7 +5920,7 @@ function remove_integration_function($hook, $function, $permanent = true, $file 
 }
 
 /**
- * Receives a string and tries to figure it out if its a method or a function.
+ * Receives a string and tries to figure it out if it's a method or a function.
  * If a method is found, it looks for a "#" which indicates SMF should create a new instance of the given class.
  * Checks the string/array for is_callable() and return false/fatal_lang_error is the given value results in a non callable string/array.
  * Prepare and returns a callable depending on the type of method/function found.
@@ -6415,7 +6418,7 @@ function sanitizeMSCutPaste($string)
 	if (empty($string))
 		return $string;
 
-	// UTF-8 occurences of MS special characters
+	// UTF-8 occurrences of MS special characters
 	$findchars_utf8 = array(
 		"\xe2\x80\x9a",	// single low-9 quotation mark
 		"\xe2\x80\x9e",	// double low-9 quotation mark
@@ -8133,7 +8136,7 @@ function send_http_status($code, $status = '')
 		503 => 'Service Unavailable',
 	);
 
-	$protocol = preg_match('~^\s*(HTTP/[12]\.\d)\s*$~i', $_SERVER['SERVER_PROTOCOL'], $matches) ? $matches[1] : 'HTTP/1.0';
+	$protocol = !empty($_SERVER['SERVER_PROTOCOL']) && preg_match('~^\s*(HTTP/[12]\.\d)\s*$~i', $_SERVER['SERVER_PROTOCOL'], $matches) ? $matches[1] : 'HTTP/1.0';
 
 	// Typically during these requests, we have cleaned the response (ob_*clean), ensure these headers exist.
 	require_once($sourcedir . '/Security.php');
@@ -8149,7 +8152,7 @@ function send_http_status($code, $status = '')
 /**
  * Concatenates an array of strings into a grammatically correct sentence list
  *
- * Uses formats defined in the language files to build the list appropropriately
+ * Uses formats defined in the language files to build the list appropriately
  * for the currently loaded language.
  *
  * @param array $list An array of strings to concatenate.

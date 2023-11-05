@@ -23,7 +23,7 @@ if (!defined('SMF'))
  * Reads an archive from either a remote location or from the local filesystem.
  *
  * @param string $gzfilename The path to the tar.gz file
- * @param string $destination The path to the desitnation directory
+ * @param string $destination The path to the destination directory
  * @param bool $single_file If true returns the contents of the file specified by destination if it exists
  * @param bool $overwrite Whether to overwrite existing files
  * @param null|array $files_to_extract Specific files to extract
@@ -158,8 +158,11 @@ function read_tgz_data($data, $destination, $single_file = false, $overwrite = f
 		$current['data'] = substr($data, ++$offset << 9, $current['size']);
 		$offset += $size;
 
+		// If hunting for a file in subdirectories, pass to subsequent write test...
+		if ($single_file && $destination !== null && (substr($destination, 0, 2) == '*/'))
+			$write_this = true;
 		// Not a directory and doesn't exist already...
-		if (substr($current['filename'], -1, 1) != '/' && $destination !== null && !file_exists($destination . '/' . $current['filename']))
+		elseif (substr($current['filename'], -1, 1) != '/' && $destination !== null && !file_exists($destination . '/' . $current['filename']))
 			$write_this = true;
 		// File exists... check if it is newer.
 		elseif (substr($current['filename'], -1, 1) != '/')
@@ -223,14 +226,14 @@ function read_tgz_data($data, $destination, $single_file = false, $overwrite = f
  * @param string $data ZIP data
  * @param string $destination Null to display a listing of files in the archive, the destination for the files in the archive or the name of a single file to display (if $single_file is true)
  * @param boolean $single_file If true, returns the contents of the file specified by destination or false if the file can't be found (default value is false).
- * @param boolean $overwrite If true, will overwrite files with newer modication times. Default is false.
+ * @param boolean $overwrite If true, will overwrite files with newer modification times. Default is false.
  * @param array $files_to_extract
  * @return mixed If destination is null, return a short array of a few file details optionally delimited by $files_to_extract. If $single_file is true, return contents of a file as a string; false otherwise
  */
 function read_zip_data($data, $destination, $single_file = false, $overwrite = false, $files_to_extract = null)
 {
 	umask(0);
-	if ($destination !== null && !file_exists($destination) && !$single_file)
+	if ($destination !== null && (substr($destination, 0, 2) != '*/') && !file_exists($destination) && !$single_file)
 		mktree($destination, 0777);
 
 	// Search for the end of directory signature 0x06054b50.
@@ -291,8 +294,11 @@ function read_zip_data($data, $destination, $single_file = false, $overwrite = f
 		$write_this = false;
 		if ($destination !== null)
 		{
+			// If hunting for a file in subdirectories, pass to subsequent write test...
+			if ($single_file && $destination !== null && (substr($destination, 0, 2) == '*/'))
+				$write_this = true;
 			// If this is a file, and it doesn't exist.... happy days!
-			if ($is_file)
+			elseif ($is_file)
 				$write_this = !file_exists($destination . '/' . $file_info['filename']) || $overwrite;
 			// This is a directory, so we're gonna want to create it. (probably...)
 			elseif (!$single_file)
@@ -314,7 +320,7 @@ function read_zip_data($data, $destination, $single_file = false, $overwrite = f
 		// Only for the deflate method (the most common)
 		if ($file_info['compression'] == 8)
 			$file_info['data'] = gzinflate($file_info['data']);
-		// We do not support any other compresion methods.
+		// We do not support any other compression methods.
 		elseif ($file_info['compression'] != 0)
 			continue;
 
@@ -1654,7 +1660,7 @@ function parse_path($path)
 }
 
 /**
- * Deletes a directory, and all the files and direcories inside it.
+ * Deletes a directory, and all the files and directories inside it.
  * requires access to delete these files.
  *
  * @param string $dir A directory

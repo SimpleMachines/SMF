@@ -242,7 +242,7 @@ function PackageGBrowse()
 	}
 	elseif (isset($_GET['absolute']) && $_GET['absolute'] != '')
 	{
-		// Initialize the requried variables.
+		// Initialize the required variables.
 		$server = '';
 		$url = $_GET['absolute'];
 		$name = '';
@@ -584,7 +584,7 @@ function PackageDownload()
 	}
 	else
 	{
-		// Initialize the requried variables.
+		// Initialize the required variables.
 		$server = '';
 		$url = '';
 	}

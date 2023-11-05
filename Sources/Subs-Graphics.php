@@ -238,6 +238,70 @@ function checkImageContents($fileName, $extensiveCheck = false)
 }
 
 /**
+ * Searches through an SVG file to see if there's potentially harmful content.
+ *
+ * @param string $fileName The path to the file.
+ * @return bool Whether the image appears to be safe.
+ */
+function checkSvgContents($fileName)
+{
+	$fp = fopen($fileName, 'rb');
+	if (!$fp)
+		fatal_lang_error('attach_timeout');
+
+	$patterns = array(
+		// No external or embedded scripts allowed.
+		'/<(\S*:)?script\b/i',
+		'/\b(\S:)?href\s*=\s*["\']\s*javascript:/i',
+
+		// No SVG event attributes allowed, since they execute scripts.
+		'/\bon\w+\s*=\s*["\']/',
+		'/<(\S*:)?set\b[^>]*\battributeName\s*=\s*(["\'])\s*on\w+\\1/i',
+
+		// No XML Events allowed, since they execute scripts.
+		'~\bhttp://www\.w3\.org/2001/xml-events\b~i',
+
+		// No data URIs allowed, since they contain arbitrary data.
+		'/\b(\S*:)?href\s*=\s*["\']\s*data:/i',
+
+		// No foreignObjects allowed, since they allow embedded HTML.
+		'/<(\S*:)?foreignObject\b/i',
+
+		// No custom entities allowed, since they can be used for entity
+		// recursion attacks.
+		'/<!ENTITY\b/',
+
+		// Embedded external images can't have custom cross-origin rules.
+		'/<\b(\S*:)?image\b[^>]*\bcrossorigin\s*=/',
+
+		// No embedded PHP tags allowed.
+		// Harmless if the SVG is just the src of an img element, but very bad
+		// if the SVG is embedded inline into the HTML document.
+		'/<(php)?[?]|[?]>/i',
+	);
+
+	$prev_chunk = '';
+	while (!feof($fp))
+	{
+		$cur_chunk = fread($fp, 8192);
+
+		foreach ($patterns as $pattern)
+		{
+			if (preg_match($pattern, $prev_chunk . $cur_chunk))
+			{
+				fclose($fp);
+				return false;
+			}
+		}
+
+		$prev_chunk = $cur_chunk;
+	}
+	fclose($fp);
+
+	return true;
+}
+
+/**
  * Sets a global $gd2 variable needed by some functions to determine
  * whether the GD2 library is present.
  *
@@ -643,7 +707,7 @@ function imagecopyresamplebicubic($dst_img, $src_img, $dst_x, $dst_y, $src_x, $s
 if (!function_exists('imagecreatefrombmp'))
 {
 	/**
-	 * It is set only if it doesn't already exist (for forwards compatiblity.)
+	 * It is set only if it doesn't already exist (for forwards compatibility.)
 	 * It only supports uncompressed bitmaps.
 	 *
 	 * @param string $filename The name of the file
@@ -994,7 +1058,7 @@ function showCodeImage($code)
 		$dotbgcolor[$i] = $background_color[$i] < $foreground_color[$i] ? mt_rand(0, max($foreground_color[$i] - 20, 0)) : mt_rand(min($foreground_color[$i] + 20, 255), 255);
 	$randomness_color = imagecolorallocate($code_image, $dotbgcolor[0], $dotbgcolor[1], $dotbgcolor[2]);
 
-	// Some squares/rectanges for new extreme level
+	// Some squares/rectangles for new extreme level
 	if ($noiseType == 'extreme')
 	{
 		for ($i = 0; $i < mt_rand(1, 5); $i++)
@@ -1217,6 +1281,127 @@ function showLetterImage($letter)
 
 	// Nothing more to come.
 	die();
+}
+
+/**
+ * Gets the dimensions of an SVG image (specifically, of its viewport).
+ *
+ * See https://www.w3.org/TR/SVG11/coords.html#IntrinsicSizing
+ *
+ * @param string $filepath The path to the SVG file.
+ * @return array The width and height of the SVG image in pixels.
+ */
+function getSvgSize($filepath)
+{
+	preg_match('/<svg\b[^>]*>/', file_get_contents($filepath, false, null, 0, 480), $matches);
+	$svg = $matches[0];
+
+	// If the SVG has width and height attributes, use those.
+	// If attribute is missing, SVG spec says the default is '100%'.
+	// If no unit is supplied, spec says unit defaults to px.
+	foreach (array('width', 'height') as $dimension)
+	{
+		if (preg_match("/\b$dimension\s*=\s*([\"'])\s*([\d.]+)([\D\S]*)\s*\\1/", $svg, $matches))
+		{
+			$$dimension = $matches[2];
+			$unit = !empty($matches[3]) ? $matches[3] : 'px';
+		}
+		else
+		{
+			$$dimension = 100;
+			$unit = '%';
+		}
+
+		// Resolve unit.
+		switch ($unit)
+		{
+			// Already pixels, so do nothing.
+			case 'px':
+				break;
+
+			// Points.
+			case 'pt':
+				$$dimension *= 0.75;
+				break;
+
+			// Picas.
+			case 'pc':
+				$$dimension *= 16;
+				break;
+
+			// Inches.
+			case 'in':
+				$$dimension *= 96;
+				break;
+
+			// Centimetres.
+			case 'cm':
+				$$dimension *= 37.8;
+				break;
+
+			// Millimetres.
+			case 'mm':
+				$$dimension *= 3.78;
+				break;
+
+			// Font height.
+			// Assume browser default of 1em = 1pc.
+			case 'em':
+				$$dimension *= 16;
+				break;
+
+			// Font x-height.
+			// Assume half of font height.
+			case 'ex':
+				$$dimension *= 8;
+				break;
+
+			// Font '0' character width.
+			// Assume a typical monospace font at 1em = 1pc.
+			case 'ch':
+				$$dimension *= 9.6;
+				break;
+
+			// Percentage.
+			// SVG spec says to use viewBox dimensions in this case.
+			default:
+				unset($$dimension);
+				break;
+		}
+	}
+
+	// Width and/or height is missing or a percentage, so try the viewBox attribute.
+	if ((!isset($width) || !isset($height)) && preg_match('/\bviewBox\s*=\s*(["\'])\s*[\d.]+[,\s]+[\d.]+[,\s]+([\d.]+)[,\s]+([\d.]+)\s*\\1/', $svg, $matches))
+	{
+		$vb_width = $matches[2];
+		$vb_height = $matches[3];
+
+		// No dimensions given, so use viewBox dimensions.
+		if (!isset($width) && !isset($height))
+		{
+			$width = $vb_width;
+			$height = $vb_height;
+		}
+		// Width but no height, so calculate height.
+		elseif (isset($width))
+		{
+			$height = $width * $vb_height / $vb_width;
+		}
+		// Height but no width, so calculate width.
+		elseif (isset($height))
+		{
+			$width = $height * $vb_width / $vb_height;
+		}
+	}
+
+	// Viewport undefined, so call it infinite.
+	if (!isset($width) && !isset($height))
+	{
+		$width = INF;
+		$height = INF;
+	}
+
+	return array('width' => round($width), 'height' => round($height));
 }
 
 ?>

@@ -14,7 +14,9 @@
 if (!defined('SMF'))
 	die('No direct access...');
 
-require_once($sourcedir . '/Unicode/Metadata.php');
+// If this file is missing, we're using an old version of Unicode.
+if (!@include_once($sourcedir . '/Unicode/Metadata.php'))
+	define('SMF_UNICODE_VERSION', '14.0.0.0');
 
 /**
  * Converts the given UTF-8 string into lowercase.
@@ -686,7 +688,7 @@ function utf8_compose($chars)
  * @param int $level Controls how invisible formatting characters are handled.
  *      0: Allow valid formatting characters. Use for sanitizing text in posts.
  *      1: Allow necessary formatting characters. Use for sanitizing usernames.
- *      2: Disallow all formatting characters. Use for internal comparisions
+ *      2: Disallow all formatting characters. Use for internal comparisons
  *         only, such as in the word censor, search contexts, etc.
  * @param string $substitute Replacement string for the invalid characters.
  * @return string The sanitized string.
@@ -857,7 +859,7 @@ function utf8_sanitize_invisibles($string, $level, $substitute)
 		'/u',
 		function ($matches) use (&$placeholders)
 		{
-			// Skip lone ASCII characters that are not actully part of an emoji sequence.
+			// Skip lone ASCII characters that are not actually part of an emoji sequence.
 			// This can happen because the digits 0-9 and the '*' and '#' characters are
 			// the base characters for the "Emoji_Keycap_Sequence" emojis.
 			if (strlen($matches[0]) === 1)

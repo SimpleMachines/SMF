@@ -110,9 +110,9 @@ if (!empty($upcontext['empty_error']))
 /******************************************************************************/
 ---# Adding login history...
 CREATE TABLE IF NOT EXISTS {$db_prefix}member_logins (
-	id_login INT(10) AUTO_INCREMENT,
+	id_login INT AUTO_INCREMENT,
 	id_member MEDIUMINT NOT NULL DEFAULT '0',
-	time INT(10) NOT NULL DEFAULT '0',
+	time INT NOT NULL DEFAULT '0',
 	ip VARBINARY(16),
 	ip2 VARBINARY(16),
 	PRIMARY KEY id_login(id_login),
@@ -605,7 +605,7 @@ if (!empty($attachs))
 
 ---# Fixing attachment directory setting...
 ---{
-// If its a directory or an array, ensure it is stored as a serialized string (prep for later serial_to_json conversion)
+// If it's a directory or an array, ensure it is stored as a serialized string (prep for later serial_to_json conversion)
 // Also ensure currentAttachmentUploadDir is set even for single directories
 // Make sure to do it in memory and in db...
 if (empty($modSettings['json_done']))
@@ -652,10 +652,10 @@ if (empty($modSettings['json_done']))
 /******************************************************************************/
 ---# Adding new columns to log_group_requests
 ALTER TABLE {$db_prefix}log_group_requests
-ADD COLUMN status TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+ADD COLUMN status TINYINT UNSIGNED NOT NULL DEFAULT '0',
 ADD COLUMN id_member_acted MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
 ADD COLUMN member_name_acted VARCHAR(255) NOT NULL DEFAULT '',
-ADD COLUMN time_acted INT(10) UNSIGNED NOT NULL DEFAULT '0',
+ADD COLUMN time_acted INT UNSIGNED NOT NULL DEFAULT '0',
 ADD COLUMN act_reason TEXT NOT NULL;
 ---#
 
@@ -740,7 +740,7 @@ CHANGE `session_id` `session_id` VARCHAR(128) NOT NULL DEFAULT '';
 /******************************************************************************/
 ---# Adding new columns to topics ..
 ALTER TABLE {$db_prefix}topics
-ADD COLUMN redirect_expires INT(10) UNSIGNED NOT NULL DEFAULT '0',
+ADD COLUMN redirect_expires INT UNSIGNED NOT NULL DEFAULT '0',
 ADD COLUMN id_redirect_topic MEDIUMINT UNSIGNED NOT NULL DEFAULT '0';
 ---#
 
@@ -827,11 +827,11 @@ VALUES
 /******************************************************************************/
 ---# Adding the new table
 CREATE TABLE IF NOT EXISTS {$db_prefix}background_tasks (
-	id_task INT(10) UNSIGNED AUTO_INCREMENT,
+	id_task INT UNSIGNED AUTO_INCREMENT,
 	task_file VARCHAR(255) NOT NULL DEFAULT '',
 	task_class VARCHAR(255) NOT NULL DEFAULT '',
 	task_data mediumtext NOT NULL,
-	claimed_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	claimed_time INT UNSIGNED NOT NULL DEFAULT '0',
 	PRIMARY KEY (id_task)
 ) ENGINE=MyISAM;
 ---#
@@ -927,20 +927,20 @@ ADD COLUMN description TEXT NOT NULL;
 /******************************************************************************/
 ---# Adding the count to the members table...
 ALTER TABLE {$db_prefix}members
-ADD COLUMN alerts INT(10) UNSIGNED NOT NULL DEFAULT '0';
+ADD COLUMN alerts INT UNSIGNED NOT NULL DEFAULT '0';
 ---#
 
 ---# Adding the new table for alerts.
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts (
-	id_alert INT(10) UNSIGNED AUTO_INCREMENT,
-	alert_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	id_alert INT UNSIGNED AUTO_INCREMENT,
+	alert_time INT UNSIGNED NOT NULL DEFAULT '0',
 	id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
 	id_member_started MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
 	member_name VARCHAR(255) NOT NULL DEFAULT '',
 	content_type VARCHAR(255) NOT NULL DEFAULT '',
-	content_id INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	content_id INT UNSIGNED NOT NULL DEFAULT '0',
 	content_action VARCHAR(255) NOT NULL DEFAULT '',
-	is_read INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	is_read INT UNSIGNED NOT NULL DEFAULT '0',
 	extra TEXT NOT NULL,
 	PRIMARY KEY (id_alert),
 	INDEX idx_id_member (id_member),
@@ -952,7 +952,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts (
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts_prefs (
 	id_member MEDIUMINT UNSIGNED DEFAULT '0',
 	alert_pref VARCHAR(32) DEFAULT '',
-	alert_value TINYINT(3) NOT NULL DEFAULT '0',
+	alert_value TINYINT NOT NULL DEFAULT '0',
 	PRIMARY KEY (id_member, alert_pref)
 ) ENGINE=MyISAM;
 
@@ -999,7 +999,7 @@ if (in_array('notify_regularity', $results))
 	$step_progress['name'] = 'Upgrading post notification settings';
 	$step_progress['current'] = $_GET['a'];
 
-	$limit = 100000;
+	$limit = 10000;
 	$is_done = false;
 
 	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}members');
@@ -1067,7 +1067,7 @@ $_GET['a'] = isset($_GET['a']) ? (int) $_GET['a'] : 0;
 $step_progress['name'] = 'Upgrading auto notify setting';
 $step_progress['current'] = $_GET['a'];
 
-$limit = 100000;
+$limit = 10000;
 $is_done = false;
 
 $request = $smcFunc['db_query']('', '
@@ -1136,7 +1136,7 @@ DELETE FROM {$db_prefix}themes
 	$step_progress['name'] = 'Creating alert preferences for watched topics';
 	$step_progress['current'] = $_GET['a'];
 
-	$limit = 100000;
+	$limit = 10000;
 	$is_done = false;
 
 	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}log_notify WHERE id_member <> 0 AND id_topic <> 0');
@@ -1188,7 +1188,7 @@ DELETE FROM {$db_prefix}themes
 	$step_progress['name'] = 'Creating alert preferences for watched boards';
 	$step_progress['current'] = $_GET['a'];
 
-	$limit = 100000;
+	$limit = 10000;
 	$is_done = false;
 
 	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}log_notify WHERE id_member <> 0 AND id_board <> 0');
@@ -1614,19 +1614,19 @@ ALTER TABLE `{$db_prefix}members`
 /******************************************************************************/
 ---# Creating draft table
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
-	id_draft INT(10) UNSIGNED AUTO_INCREMENT,
+	id_draft INT UNSIGNED AUTO_INCREMENT,
 	id_topic MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
-	id_board SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
-	id_reply INT(10) UNSIGNED NOT NULL DEFAULT '0',
-	type TINYINT(4) NOT NULL DEFAULT '0',
-	poster_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	id_board SMALLINT UNSIGNED NOT NULL DEFAULT '0',
+	id_reply INT UNSIGNED NOT NULL DEFAULT '0',
+	type TINYINT NOT NULL DEFAULT '0',
+	poster_time INT UNSIGNED NOT NULL DEFAULT '0',
 	id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
 	subject VARCHAR(255) NOT NULL DEFAULT '',
-	smileys_enabled TINYINT(4) NOT NULL DEFAULT '1',
+	smileys_enabled TINYINT NOT NULL DEFAULT '1',
 	body mediumtext NOT NULL,
 	icon VARCHAR(16) NOT NULL DEFAULT 'xx',
-	locked TINYINT(4) NOT NULL DEFAULT '0',
-	is_sticky TINYINT(4) NOT NULL DEFAULT '0',
+	locked TINYINT NOT NULL DEFAULT '0',
+	is_sticky TINYINT NOT NULL DEFAULT '0',
 	to_list VARCHAR(255) NOT NULL DEFAULT '',
 	PRIMARY KEY id_draft(id_draft),
 	UNIQUE idx_id_member (id_member, id_draft, type)
@@ -1697,8 +1697,8 @@ VALUES
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_likes (
 	id_member MEDIUMINT UNSIGNED DEFAULT '0',
 	content_type CHAR(6) DEFAULT '',
-	content_id INT(10) UNSIGNED DEFAULT '0',
-	like_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	content_id INT UNSIGNED DEFAULT '0',
+	like_time INT UNSIGNED NOT NULL DEFAULT '0',
 	PRIMARY KEY (content_id, content_type, id_member),
 	INDEX idx_content (content_id, content_type),
 	INDEX idx_liker (id_member)
@@ -1707,7 +1707,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_likes (
 
 ---# Adding likes column to the messages table. (May take a while)
 ALTER TABLE {$db_prefix}messages
-ADD COLUMN likes SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0';
+ADD COLUMN likes SMALLINT UNSIGNED NOT NULL DEFAULT '0';
 ---#
 
 /******************************************************************************/
@@ -1731,8 +1731,8 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}mentions (
 /******************************************************************************/
 ---# Creating moderator_groups table
 CREATE TABLE IF NOT EXISTS {$db_prefix}moderator_groups (
-	id_board SMALLINT(5) UNSIGNED DEFAULT '0',
-	id_group SMALLINT(5) UNSIGNED DEFAULT '0',
+	id_board SMALLINT UNSIGNED DEFAULT '0',
+	id_group SMALLINT UNSIGNED DEFAULT '0',
 	PRIMARY KEY (id_board, id_group)
 ) ENGINE=MyISAM;
 ---#
@@ -1886,7 +1886,7 @@ $smcFunc['db_free_result']($file_check);
 /******************************************************************************/
 ---# Creating qanda table
 CREATE TABLE IF NOT EXISTS {$db_prefix}qanda (
-	id_question SMALLINT(5) UNSIGNED AUTO_INCREMENT,
+	id_question SMALLINT UNSIGNED AUTO_INCREMENT,
 	lngfile VARCHAR(255) NOT NULL DEFAULT '',
 	question VARCHAR(255) NOT NULL DEFAULT '',
 	answers TEXT NOT NULL,
@@ -2111,7 +2111,7 @@ $request = upgrade_query("
 /******************************************************************************/
 ---# Adding pm_labels table...
 CREATE TABLE IF NOT EXISTS {$db_prefix}pm_labels (
-	id_label INT(10) UNSIGNED AUTO_INCREMENT,
+	id_label INT UNSIGNED AUTO_INCREMENT,
 	id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
 	name VARCHAR(30) NOT NULL DEFAULT '',
 	PRIMARY KEY (id_label)
@@ -2120,15 +2120,15 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}pm_labels (
 
 ---# Adding pm_labeled_messages table...
 CREATE TABLE IF NOT EXISTS {$db_prefix}pm_labeled_messages (
-	id_label INT(10) UNSIGNED NOT NULL DEFAULT '0',
-	id_pm INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	id_label INT UNSIGNED NOT NULL DEFAULT '0',
+	id_pm INT UNSIGNED NOT NULL DEFAULT '0',
 	PRIMARY KEY (id_label, id_pm)
 ) ENGINE=MyISAM;
 ---#
 
 ---# Adding "in_inbox" column to pm_recipients
 ALTER TABLE {$db_prefix}pm_recipients
-ADD COLUMN in_inbox TINYINT(3) NOT NULL DEFAULT '1';
+ADD COLUMN in_inbox TINYINT NOT NULL DEFAULT '1';
 ---#
 
 ---# Moving label info to new tables and updating rules (May be slow!!!)
@@ -2573,7 +2573,7 @@ ADD tfa_backup VARCHAR(64) NOT NULL DEFAULT '';
 
 ---# Force 2FA per membergroup
 ALTER TABLE {$db_prefix}membergroups
-ADD COLUMN tfa_required TINYINT(3) NOT NULL DEFAULT '0';
+ADD COLUMN tfa_required TINYINT NOT NULL DEFAULT '0';
 ---#
 
 
@@ -2947,7 +2947,7 @@ if (in_array('pm_email_notify', $results))
 	$step_progress['name'] = 'Upgrading pm notification settings';
 	$step_progress['current'] = $_GET['a'];
 
-	$limit = 100000;
+	$limit = 10000;
 	$is_done = false;
 
 	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}members');
@@ -3094,7 +3094,7 @@ MODIFY COLUMN id_topic MEDIUMINT UNSIGNED NOT NULL DEFAULT '0';
 
 ---# Updating log_digest id_msg
 ALTER TABLE {$db_prefix}log_digest
-MODIFY COLUMN id_msg INT(10) UNSIGNED NOT NULL DEFAULT '0';
+MODIFY COLUMN id_msg INT UNSIGNED NOT NULL DEFAULT '0';
 ---#
 
 ---# Updating log_reported
@@ -3129,7 +3129,7 @@ MODIFY COLUMN id_member MEDIUMINT NOT NULL DEFAULT '0';
 
 ---# Updating member_logins time
 ALTER TABLE {$db_prefix}member_logins
-MODIFY COLUMN time INT(10) NOT NULL DEFAULT '0';
+MODIFY COLUMN time INT NOT NULL DEFAULT '0';
 ---#
 
 ---# Updating pm_recipients is_new

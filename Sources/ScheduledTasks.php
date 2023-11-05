@@ -27,7 +27,7 @@ function AutoTask()
 	frameOptionsHeader();
 	corsPolicyHeader();
 
-	// Requests from a CORS response may send a options to find if the requst is valid.  Simply bail out here, the cors header have been sent already.
+	// Requests from a CORS response may send a options to find if the request is valid.  Simply bail out here, the cors header have been sent already.
 	if (isset($_SERVER['HTTP_X_SMF_AJAX']) && isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS')
 	{
 		send_http_status(204);
@@ -712,7 +712,7 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 
 	// Now we know how many we're sending, let's send them.
 	$request = $smcFunc['db_query']('', '
-		SELECT id_mail, recipient, body, subject, headers, send_html, time_sent, private
+		SELECT id_mail, recipient, body, subject, headers, send_html, time_sent, private, priority
 		FROM {db_prefix}mail_queue
 		ORDER BY priority ASC, id_mail ASC
 		LIMIT {int:limit}',
@@ -734,6 +734,7 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 			'send_html' => $row['send_html'],
 			'time_sent' => $row['time_sent'],
 			'private' => $row['private'],
+			'priority' => $row['priority'],
 		);
 	}
 	$smcFunc['db_free_result']($request);
@@ -772,8 +773,18 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 
 	// Send each email, yea!
 	$failed_emails = array();
+	$max_priority = 127;
+	$smtp_expire = 259200;
+	$priority_offset = 4;
 	foreach ($emails as $email)
 	{
+		// This seems odd, but check the priority if we should try again so soon. Do this so we don't DOS some poor mail server.
+		if ($email['priority'] > $priority_offset && (time() - $email['time_sent']) % $priority_offset != rand(0, $priority_offset))
+		{
+			$failed_emails[] = array($email['to'], $email['body'], $email['subject'], $email['headers'], $email['send_html'], $email['time_sent'], $email['private'], $email['priority']);
+			continue;
+		}
+
 		if (empty($modSettings['mail_type']) || $modSettings['smtp_host'] == '')
 		{
 			$email['subject'] = strtr($email['subject'], array("\r" => '', "\n" => ''));
@@ -794,10 +805,20 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 		else
 			$result = smtp_mail(array($email['to']), $email['subject'], $email['body'], $email['headers']);
 
+		// Old emails should expire
+		if (!$result && $email['priority'] >= $max_priority)
+			$result = true;
+
 		// Hopefully it sent?
 		if (!$result)
-			$failed_emails[] = array($email['to'], $email['body'], $email['subject'], $email['headers'], $email['send_html'], $email['time_sent'], $email['private']);
+		{
+			// Determine the "priority" as a way to keep track of SMTP failures.
+			$email['priority'] = max($priority_offset, $email['priority'], min(ceil((time() - $email['time_sent']) / $smtp_expire * ($max_priority - $priority_offset)) + $priority_offset, $max_priority));
+
+			$failed_emails[] = array($email['to'], $email['body'], $email['subject'], $email['headers'], $email['send_html'], $email['time_sent'], $email['private'], $email['priority']);
+		}
 	}
+
 
 	// Any emails that didn't send?
 	if (!empty($failed_emails))
@@ -826,7 +847,7 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 		// Add our email back to the queue, manually.
 		$smcFunc['db_insert']('insert',
 			'{db_prefix}mail_queue',
-			array('recipient' => 'string', 'body' => 'string', 'subject' => 'string', 'headers' => 'string', 'send_html' => 'string', 'time_sent' => 'string', 'private' => 'int'),
+			array('recipient' => 'string', 'body' => 'string', 'subject' => 'string', 'headers' => 'string', 'send_html' => 'string', 'time_sent' => 'string', 'private' => 'int', 'priority' => 'int'),
 			$failed_emails,
 			array('id_mail')
 		);
@@ -1051,7 +1072,7 @@ function loadEssentialThemeData()
 }
 
 /**
- * This retieves data (e.g. last version of SMF) from sm.org
+ * This retrieves data (e.g. last version of SMF) from sm.org
  */
 function scheduled_fetchSMfiles()
 {
@@ -1320,6 +1341,12 @@ function scheduled_weekly_maintenance()
 	$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
 		array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
 		array('$sourcedir/tasks/UpdateTldRegex.php', 'Update_TLD_Regex', '', 0), array()
+	);
+
+	// Ensure Unicode data files are up to date
+	$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
+		array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
+		array('$sourcedir/tasks/UpdateUnicode.php', 'Update_Unicode', '', 0), array()
 	);
 
 	// Run Cache housekeeping

@@ -23,7 +23,7 @@ if (!defined('SMF'))
  * Cleans up links (javascript, etc.) and code/quote sections.
  * Won't convert \n's and a few other things if previewing is true.
  *
- * @param string $message The mesasge
+ * @param string $message The message
  * @param bool $previewing Whether we're previewing
  */
 function preparsecode(&$message, $previewing = false)
@@ -1143,7 +1143,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 	// Add the recipients.
 	if (!empty($id_pm))
 	{
-		// If this is new we need to set it part of it's own conversation.
+		// If this is new we need to set it part of its own conversation.
 		if (empty($pm_head))
 			$smcFunc['db_query']('', '
 				UPDATE {db_prefix}personal_messages
@@ -1572,9 +1572,18 @@ function server_parse($message, $socket, $code, &$response = null)
 	if ($code === null)
 		return substr($server_response, 0, 3);
 
-	if (substr($server_response, 0, 3) != $code)
+	$response_code = (int) substr($server_response, 0, 3);
+	if ($response_code != $code)
 	{
-		log_error($txt['smtp_error'] . $server_response);
+		// Ignoreable errors that we can't fix should not be logged.
+		/*
+		 * 550 - cPanel rejected sending due to DNS issues
+		 * 450 - DNS Routing issues
+		 * 451 - cPanel "Temporary local problem - please try later"
+		 */
+		if ($response_code < 500 && !in_array($response_code, array(450, 451)))
+			log_error($txt['smtp_error'] . $server_response);
+
 		return false;
 	}
 

@@ -728,14 +728,14 @@ sceditor.formats.bbcode.set(
 				if (typeof attrs.height !== "undefined")
 					attribs += ' height="' + attrs.height + '"';
 
-				var contentUrl = smf_scripturl +'?action=dlattach;attach='+ id + ';type=preview;thumb';
+				var contentUrl = smf_scripturl +'?action=dlattach;attach='+ id + ';preview;image';
 				contentIMG = new Image();
 					contentIMG.src = contentUrl;
 			}
 
 			// If not an image, show a boring ol' link
 			if (typeof contentUrl === "undefined" || contentIMG.getAttribute('width') == 0)
-				return '<a href="' + smf_scripturl + '?action=dlattach;attach=' + id + ';type=preview;file"' + attribs + '>' + content + '</a>';
+				return '<a href="' + smf_scripturl + '?action=dlattach;attach=' + id + ';file"' + attribs + '>' + content + '</a>';
 			// Show our purdy li'l picture
 			else
 				return '<img' + attribs + ' src="' + contentUrl + '">';

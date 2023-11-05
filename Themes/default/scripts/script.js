@@ -268,8 +268,9 @@ function reqOverlayDiv(desktopURL, sHeader, sIcon)
 			oPopup_body.html(textStatus);
 		},
 		statusCode: {
-			403: function() {
-				oPopup_body.html(banned_text);
+			403: function(res, status, xhr) {
+				let errorMsg = res.getResponseHeader('x-smf-errormsg');
+				oPopup_body.html(errorMsg ?? banned_text);
 			},
 			500: function() {
 				oPopup_body.html('500 Internal Server Error');
@@ -1434,6 +1435,7 @@ function expandThumb(thumbID)
 	img.src = link.href;
 	img.style.width = link.style.width;
 	img.style.height = link.style.height;
+	img.classList.toggle('original_size');
 
 	// place the image attributes back
 	link.href = tmp_src;

@@ -628,6 +628,8 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		$msgOptions = &$this->_details['msgOptions'];
 		$posterOptions = &$this->_details['posterOptions'];
 
+		$members_info = $this->getMinUserInfo([$posterOptions['id']]);
+
 		foreach ($this->members['quoted'] as $member_id => $member_data)
 		{
 			if (in_array($member_id, $this->members['done']))
@@ -671,7 +673,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			{
 				$replacements = array(
 					'CONTENTSUBJECT' => $msgOptions['subject'],
-					'QUOTENAME' => $posterOptions['name'],
+					'QUOTENAME' => un_htmlspecialchars(isset($members_info[$posterOptions['id']]['name']) ? $members_info[$posterOptions['id']]['name'] : $posterOptions['name']),
 					'MEMBERNAME' => $member_data['real_name'],
 					'CONTENTLINK' => $scripturl . '?msg=' . $msgOptions['id'],
 				);

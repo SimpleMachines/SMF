@@ -273,7 +273,7 @@ function MaintainCleanCache()
 }
 
 /**
- * Empties all uninmportant logs
+ * Empties all unimportant logs
  */
 function MaintainEmptyUnimportantLogs()
 {
@@ -371,7 +371,7 @@ function ConvertMsgBody()
 		else
 			$smcFunc['db_change_column']('{db_prefix}messages', 'body', array('type' => 'text'));
 
-		// 3rd party integrations may be interested in knowning about this.
+		// 3rd party integrations may be interested in knowing about this.
 		call_integration_hook('integrate_convert_msgbody', array($body_type));
 
 		$colData = $smcFunc['db_list_columns']('{db_prefix}messages', true);
@@ -2193,6 +2193,7 @@ function list_integration_hooks()
 						else
 							return $instance . $data['real_function'];
 					},
+					'class' => 'word_break',
 				),
 				'sort' => array(
 					'default' => 'function_name',
@@ -2205,6 +2206,7 @@ function list_integration_hooks()
 				),
 				'data' => array(
 					'db' => 'file_name',
+					'class' => 'word_break',
 				),
 				'sort' => array(
 					'default' => 'file_name',

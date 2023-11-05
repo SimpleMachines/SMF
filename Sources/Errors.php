@@ -210,6 +210,17 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status 
 		loadTheme();
 	}
 
+	// Attempt to load the text string.
+	loadLanguage('Errors');
+	if (empty($txt[$error]))
+		$error_message = $error;
+	else
+		$error_message = empty($sprintf) ? $txt[$error] : vsprintf($txt[$error], $sprintf);
+
+	// Send a custom header if we have a custom message.
+	if (isset($_REQUEST['js']) || isset($_REQUEST['xml']) || isset($_RQEUEST['ajax']))
+		header('X-SMF-errormsg: ' .  $error_message);
+
 	// If we have no theme stuff we can't have the language file...
 	if (empty($context['theme_loaded']))
 		die($error);
@@ -228,7 +239,7 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status 
 	}
 
 	// Load the language file, only if it needs to be reloaded
-	if ($reload_lang_file)
+	if ($reload_lang_file && !empty($txt[$error]))
 	{
 		loadLanguage('Errors');
 		$error_message = empty($sprintf) ? $txt[$error] : vsprintf($txt[$error], $sprintf);
@@ -300,7 +311,7 @@ function smf_error_handler($error_level, $error_string, $file, $line)
 
 	$message = log_error($error_level . ': ' . $error_string, $error_type, $file, $line);
 
-	// Let's give integrations a chance to ouput a bit differently
+	// Let's give integrations a chance to output a bit differently
 	call_integration_hook('integrate_output_error', array($message, $error_type, $error_level, $file, $line));
 
 	// Dying on these errors only causes MORE problems (blank pages!)

@@ -551,7 +551,7 @@ function SetThemeOptions()
 	loadTheme($_GET['th'], false);
 
 	loadLanguage('Profile');
-	// @todo Should we just move these options so they are no longer theme dependant?
+	// @todo Should we just move these options so they are no longer theme dependent?
 	loadLanguage('PersonalMessage');
 
 	// Let the theme take care of the settings.
@@ -1584,7 +1584,7 @@ function SetJavaScript()
  */
 function EditTheme()
 {
-	global $context, $scripturl, $boarddir, $smcFunc, $txt;
+	global $context, $scripturl, $boarddir, $smcFunc, $txt, $sourcedir;
 
 	// @todo Should this be removed?
 	if (isset($_REQUEST['preview']))
@@ -1696,12 +1696,12 @@ function EditTheme()
 
 			$_POST['entire_file'] = rtrim(strtr($_POST['entire_file'], array("\r" => '', '   ' => "\t")));
 
+			require_once($sourcedir . '/Subs-Admin.php');
+
 			// Check for a parse error!
 			if (substr($_REQUEST['filename'], -13) == '.template.php' && is_writable($currentTheme['theme_dir']) && ini_get('display_errors'))
 			{
-				$fp = fopen($currentTheme['theme_dir'] . '/tmp_' . session_id() . '.php', 'w');
-				fwrite($fp, $_POST['entire_file']);
-				fclose($fp);
+				safe_file_write($currentTheme['theme_dir'] . '/tmp_' . session_id() . '.php', $_POST['entire_file']);
 
 				$error = @file_get_contents($currentTheme['theme_url'] . '/tmp_' . session_id() . '.php');
 				if (preg_match('~ <b>(\d+)</b><br( /)?' . '>$~i', $error) != 0)
@@ -1712,9 +1712,7 @@ function EditTheme()
 
 			if (!isset($error_file))
 			{
-				$fp = fopen($currentTheme['theme_dir'] . '/' . $_REQUEST['filename'], 'w');
-				fwrite($fp, $_POST['entire_file']);
-				fclose($fp);
+				safe_file_write($currentTheme['theme_dir'] . '/' . $_REQUEST['filename'], $_POST['entire_file']);
 
 				// Nuke any minified files and update $modSettings['browser_cache']
 				deleteAllMinified();
