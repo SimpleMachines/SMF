@@ -140,7 +140,7 @@ abstract class DatabaseApi
 	 *
 	 * @todo Use auto-detect for MySQL.
 	 */
-	public string $mb4;
+	public bool $mb4;
 
 	/**
 	 * @var string
