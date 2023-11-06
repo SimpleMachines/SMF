@@ -1984,8 +1984,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$this->prefixReservedTables();
 		}
 
-		$this->get_version();
-		$this->supports_pcre = version_compare($this->version, strpos($this->version, 'MariaDB') !== false ? '10.0.5' : '8.0.4', '>=');
+		if (empty($this->connection) && !$non_fatal)
+		{
+			$this->get_version();
+			$this->supports_pcre = version_compare($this->version, strpos($this->version, 'MariaDB') !== false ? '10.0.5' : '8.0.4', '>=');
+		}
 
 		// For backward compatibility.
 		if (!is_object(self::$db_connection)) {
