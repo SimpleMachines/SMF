@@ -868,9 +868,9 @@ function DatabaseSettings()
 		Config::load();
 
 		// Better find the database file!
-		if (!file_exists(Config::$sourcedir . '/Db/APIs/' . Db::getClase(Config::$db_type) . '.php'))
+		if (!file_exists(Config::$sourcedir . '/Db/APIs/' . Db::getClass(Config::$db_type) . '.php'))
 		{
-			$incontext['error'] = sprintf(Lang::$txt['error_db_file'], 'Db/APIs/' . Db::getClase(Config::$db_type) . '.php');
+			$incontext['error'] = sprintf(Lang::$txt['error_db_file'], 'Db/APIs/' . Db::getClass(Config::$db_type) . '.php');
 			return false;
 		}
 
