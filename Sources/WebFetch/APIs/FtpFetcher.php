@@ -104,7 +104,7 @@ class FtpFetcher extends WebFetchApi
 	 * @param string $url the site we are going to fetch
 	 * @return object A reference to the object for method chaining.
 	 */
-	public function request(string $url): object
+	public function request(string $url, array|string $post_data = array()): object
 	{
 		$url = new Url($url, true);
 		$url->toAscii();
