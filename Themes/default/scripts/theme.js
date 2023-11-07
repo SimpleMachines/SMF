@@ -38,23 +38,41 @@ if (is_ie || is_webkit || is_ff)
 // Toggles the element height and width styles of an image.
 function smc_toggleImageDimensions()
 {
-	$('.postarea .bbc_img.resized').each(function(index, item)
+	var oImages = document.getElementsByTagName('IMG');
+	for (oImage in oImages)
 	{
-		$(item).click(function(e)
+		// Not a resized image? Skip it.
+		if (oImages[oImage].className == undefined || oImages[oImage].className.indexOf('bbc_img resized') == -1)
+			continue;
+
+		oImages[oImage].addEventListener('click', function()
 		{
-			$(item).toggleClass('original_size');
+			this.classList.toggle('original_size');
 		});
-	});
+	}
 }
 
 // Add a load event for the function above.
-addLoadEvent(smc_toggleImageDimensions);
+window.addEventListener("load", smc_toggleImageDimensions);
 
-function smf_addButton(stripId, image, options)
+// Adds a button to a certain button strip.
+function smf_addButton(sButtonStripId, bUseImage, oOptions)
 {
-	$('#' + stripId).append(
-		'<a href="' + options.sUrl + '" class="button last" ' + ('sCustom' in options ? options.sCustom : '') + ' ' + ('sId' in options ? ' id="' + options.sId + '_text"' : '') + '>'
-			+ options.sText +
-		'</a>'
-	);
+	var oButtonStrip = document.getElementById(sButtonStripId);
+	var oNewButton = document.createElement("a");
+	oNewButton.href = oOptions.sUrl;
+	oNewButton.textContent = oOptions.sText;
+	oNewButton.className = 'button';
+
+	if (oOptions.sId)
+		oNewButton.id = oOptions.sId;
+
+	if (oOptions.aEvents)
+		oOptions.aEvents.forEach(function (e)
+		{
+			oNewButton.addEventListener(e[0], e[1]);
+		});
+	oButtonStrip.appendChild(oNewButton);
+
+	return oNewButton;
 }

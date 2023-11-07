@@ -826,7 +826,7 @@ function template_quotefast()
 			window.opener.onReceiveOpener(quote);
 
 			window.focus();
-			setTimeout("window.close();", 400);';
+			setTimeout(function() { window.close(); }, 400);';
 	}
 	echo '
 		</script>
@@ -925,7 +925,7 @@ function template_announcement_send()
 			document.forms.autoSubmit.b.value = "', Lang::$txt['announce_continue'], ' (" + countdown + ")";
 			countdown--;
 
-			setTimeout("doAutoSubmit();", 1000);
+			setTimeout(doAutoSubmit, 1000);
 		}
 	</script>';
 }

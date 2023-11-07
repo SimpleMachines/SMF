@@ -1257,7 +1257,6 @@ function template_send()
 	echo '
 		<script>
 			var oPersonalMessageSend = new smf_PersonalMessageSend({
-				sSelf: \'oPersonalMessageSend\',
 				sSessionId: smf_session_id,
 				sSessionVar: smf_session_var,
 				sTextDeleteItem: \'', Lang::$txt['autosuggest_delete_item'], '\',

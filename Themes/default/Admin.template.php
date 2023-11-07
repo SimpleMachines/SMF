@@ -111,7 +111,6 @@ function template_admin()
 	echo '
 					<script>
 						var oAdminIndex = new smf_AdminIndex({
-							sSelf: \'oAdminCenter\',
 
 							bLoadAnnouncements: true,
 							sAnnouncementTemplate: ', Utils::JavaScriptEscape('
@@ -695,7 +694,7 @@ function template_not_done()
 							document.forms.autoSubmit.cont.value = "', Lang::$txt['not_done_continue'], ' (" + countdown + ")";
 							countdown--;
 
-							setTimeout("doAutoSubmit();", 1000);
+							setTimeout(doAutoSubmit, 1000);
 						}
 					</script>';
 }
@@ -1517,7 +1516,7 @@ function template_repair_boards()
 							document.forms.recount_form.recount_now.value = "', Lang::$txt['errors_recount_now'], ' (" + countdown + ")";
 							countdown--;
 
-							setTimeout("doAutoSubmit();", 1000);
+							setTimeout(doAutoSubmit, 1000);
 						}
 					</script>';
 	}

@@ -324,14 +324,12 @@ function template_maintain_members()
 
 	<script>
 		var oAttributeMemberSuggest = new smc_AutoSuggest({
-			sSelf: \'oAttributeMemberSuggest\',
 			sSessionId: smf_session_id,
 			sSessionVar: smf_session_var,
 			sSuggestId: \'attributeMember\',
 			sControlId: \'to\',
 			sSearchType: \'member\',
 			sTextDeleteItem: \'', Lang::$txt['autosuggest_delete_item'], '\',
-			bItemList: false
 		});
 	</script>';
 }

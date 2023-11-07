@@ -336,7 +336,6 @@ function template_main()
 	{
 		echo '
 			var oInTopicModeration = new InTopicModeration({
-				sSelf: \'oInTopicModeration\',
 				sCheckboxContainerMask: \'in_topic_mod_check_\',
 				aMessageIds: [\'', implode('\', \'', Utils::$context['removableMessageIDs']), '\'],
 				sSessionId: smf_session_id,
@@ -362,7 +361,6 @@ function template_main()
 		// Add it to the mobile button strip as well
 		echo '
 			var oInTopicModerationMobile = new InTopicModeration({
-				sSelf: \'oInTopicModerationMobile\',
 				sCheckboxContainerMask: \'in_topic_mod_check_\',
 				aMessageIds: [\'', implode('\', \'', Utils::$context['removableMessageIDs']), '\'],
 				sSessionId: smf_session_id,
@@ -1020,7 +1018,6 @@ function template_quickreply()
 		echo '
 		<script>
 			var oDraftAutoSave = new smf_DraftAutoSave({
-				sSelf: \'oDraftAutoSave\',
 				sLastNote: \'draft_lastautosave\',
 				sLastID: \'id_draft\',', !empty(Utils::$context['post_box_name']) ? '
 				sSceditorID: \'' . Utils::$context['post_box_name'] . '\',' : '', '

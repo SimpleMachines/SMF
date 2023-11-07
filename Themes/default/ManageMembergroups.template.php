@@ -365,7 +365,6 @@ function template_edit_group()
 		</form>
 	<script>
 		var oModeratorSuggest = new smc_AutoSuggest({
-			sSelf: \'oModeratorSuggest\',
 			sSessionId: smf_session_id,
 			sSessionVar: smf_session_var,
 			sSuggestId: \'group_moderators\',
@@ -698,7 +697,6 @@ function template_group_members()
 		echo '
 	<script>
 		var oAddMemberSuggest = new smc_AutoSuggest({
-			sSelf: \'oAddMemberSuggest\',
 			sSessionId: \'', Utils::$context['session_id'], '\',
 			sSessionVar: \'', Utils::$context['session_var'], '\',
 			sSuggestId: \'to_suggest\',

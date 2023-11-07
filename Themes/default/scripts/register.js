@@ -52,7 +52,6 @@ function smfRegister(formID, passwordDifficultyLevel, regTextStrings)
 		// Step to it!
 		if (eventHandler)
 		{
-			createEventListener(inputHandle);
 			inputHandle.addEventListener('keyup', eventHandler, false);
 			eventHandler();
 
@@ -69,9 +68,6 @@ function smfRegister(formID, passwordDifficultyLevel, regTextStrings)
 	function addUsernameSearchTrigger(elementID)
 	{
 		var buttonHandle = document.getElementById(elementID);
-
-		// Attach the event to this element.
-		createEventListener(buttonHandle);
 		buttonHandle.addEventListener('click', checkUsername, false);
 	}
 

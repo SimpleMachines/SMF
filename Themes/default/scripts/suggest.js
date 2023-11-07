@@ -14,35 +14,45 @@ function smc_AutoSuggest(oOptions)
 	this.aCache = [];
 	this.aDisplayData = [];
 
-	this.sRetrieveURL = 'sRetrieveURL' in this.opt ? this.opt.sRetrieveURL : '%scripturl%action=suggest;suggest_type=%suggest_type%;search=%search%;%sessionVar%=%sessionID%;xml;time=%time%';
+	this.sRetrieveURL = this.opt.sRetrieveURL || '%scripturl%action=suggest;suggest_type=%suggest_type%;search=%search%;%sessionVar%=%sessionID%;xml;time=%time%';
+	this.oRetrieveTokens = {
+		scripturl: smf_prepareScriptUrl(smf_scripturl),
+		suggest_type: this.opt.sSearchType,
+		sessionVar: this.opt.sSessionVar,
+		sessionID: this.opt.sSessionId
+	};
 
 	// How many objects can we show at once?
-	this.iMaxDisplayQuantity = 'iMaxDisplayQuantity' in this.opt ? this.opt.iMaxDisplayQuantity : 15;
+	this.iMaxDisplayQuantity = this.opt.iMaxDisplayQuantity || 15;
 
 	// How many characters shall we start searching on?
-	this.iMinimumSearchChars = 'iMinimumSearchChars' in this.opt ? this.opt.iMinimumSearchChars : 3;
+	this.iMinimumSearchChars = this.opt.iMinimumSearchChars || 3;
 
 	// Should selected items be added to a list?
-	this.bItemList = 'bItemList' in this.opt ? this.opt.bItemList : false;
+	this.bItemList = this.opt.bItemList || false;
 
 	// Are there any items that should be added in advance?
-	this.aListItems = 'aListItems' in this.opt ? this.opt.aListItems : [];
+	this.aListItems = this.opt.aListItems || [];
 
-	this.sItemTemplate = 'sItemTemplate' in this.opt ? this.opt.sItemTemplate : '<input type="hidden" name="%post_name%[]" value="%item_id%"><a href="%item_href%" class="extern" onclick="window.open(this.href, \'_blank\'); return false;">%item_name%</a>&nbsp;<span class="main_icons delete" title="%delete_text%" onclick="return %self%.deleteAddedItem(%item_id%);"></span>';
-
-	this.sTextDeleteItem = 'sTextDeleteItem' in this.opt ? this.opt.sTextDeleteItem : '';
-
+	this.sItemTemplate = this.opt.sItemTemplate || '<input type="hidden" name="%post_name%[]" value="%item_id%" /><a href="%item_href%" target="_blank">%item_name%</a>&nbsp;<span class="main_icons delete" title="%delete_text%" tabindex="0"></span>';
+	this.sTextDeleteItem = this.opt.sTextDeleteItem || '';
+	this.oItemTokens = {
+		'post_name': this.opt.sPostName,
+		'images_url': smf_images_url,
+		'delete_text': this.sTextDeleteItem
+	};
 	this.oCallback = {};
 	this.bDoAutoAdd = false;
 	this.iItemCount = 0;
-
 	this.oHideTimer = null;
 	this.bPositionComplete = false;
+	this.iCurrentIndex = -1;
 
 	// Just make sure the page is loaded before calling the init.
-	addLoadEvent(this.opt.sSelf + '.init();');
+	window.addEventListener("load", this.init.bind(this));
 }
 
+// Initialize our autosuggest object, adds events and containers to the element we monitor
 smc_AutoSuggest.prototype.init = function()
 {
 	// Create a div that'll contain the results later on.
@@ -61,29 +71,19 @@ smc_AutoSuggest.prototype.init = function()
 	this.oTextHandle.name = 'dummy_' + Math.floor(Math.random() * 1000000);
 	this.oTextHandle.autocomplete = 'off';
 
-	this.oTextHandle.instanceRef = this;
+	// Set up all the event monitoring
+	this.oTextHandle.onkeydown = this.handleKey.bind(this);
+	this.oTextHandle.oninput = this.autoSuggestUpdate.bind(this);
+	this.oTextHandle.onblur = this.autoSuggestActualHide.bind(this);
+	this.oTextHandle.onfocus = function()
+	{
+		if (this.oSuggestDivHandle.children.length)
+			this.autoSuggestShow();
+		else
+			this.autoSuggestUpdate();
+	}.bind(this);
 
-	var fOnKeyDown = function (oEvent) {
-		return this.instanceRef.handleKey(oEvent);
-	};
-	is_opera ? this.oTextHandle.onkeypress = fOnKeyDown : this.oTextHandle.onkeydown = fOnKeyDown;
-
-	this.oTextHandle.onkeyup = function (oEvent) {
-		return this.instanceRef.autoSuggestUpdate(oEvent);
-	};
-
-	this.oTextHandle.onchange = function (oEvent) {
-		return this.instanceRef.autoSuggestUpdate(oEvent);
-	};
-
-	this.oTextHandle.onblur = function (oEvent) {
-		return this.instanceRef.autoSuggestHide(oEvent);
-	};
-
-	this.oTextHandle.onfocus = function (oEvent) {
-		return this.instanceRef.autoSuggestUpdate(oEvent);
-	};
-
+	// Adding items to a list, then we need a place to insert them
 	if (this.bItemList)
 	{
 		if ('sItemListContainerId' in this.opt)
@@ -91,7 +91,7 @@ smc_AutoSuggest.prototype.init = function()
 		else
 		{
 			this.oItemList = document.createElement('div');
-			this.oTextHandle.parentNode.insertBefore(this.oItemList, this.oTextHandle.nextSibling);
+			this.oTextHandle.after(this.oItemList);
 		}
 	}
 
@@ -105,123 +105,67 @@ smc_AutoSuggest.prototype.init = function()
 // Was it an enter key - if so assume they are trying to select something.
 smc_AutoSuggest.prototype.handleKey = function(oEvent)
 {
-	// Grab the event object, one way or the other
-	if (!oEvent)
-		oEvent = window.event;
-
-	// Get the keycode of the key that was pressed.
-	var iKeyPress = 0;
-	if ('keyCode' in oEvent)
-		iKeyPress = oEvent.keyCode;
-	else if ('which' in oEvent)
-		iKeyPress = oEvent.which;
+	var iKeyPress = oEvent.keyCode;
 
 	switch (iKeyPress)
 	{
 		// Tab.
 		case 9:
-			if (this.aDisplayData.length > 0)
+			if (this.aDisplayData.length)
 			{
-				if (this.oSelectedDiv != null)
+				if (this.oSelectedDiv)
 					this.itemClicked(this.oSelectedDiv);
 				else
 					this.handleSubmit();
 			}
-
-			// Continue to the next control.
-			return true;
-		break;
+			break;
 
 		// Enter.
 		case 13:
-			if (this.aDisplayData.length > 0 && this.oSelectedDiv != null)
+			if (this.aDisplayData.length && this.oSelectedDiv)
 			{
 				this.itemClicked(this.oSelectedDiv);
 
 				// Do our best to stop it submitting the form!
 				return false;
 			}
-			else
-				return true;
-
-		break;
+			break;
 
 		// Up/Down arrow?
 		case 38:
 		case 40:
 			if (this.aDisplayData.length && this.oSuggestDivHandle.style.visibility != 'hidden')
 			{
-				// Loop through the display data trying to find our entry.
-				var bPrevHandle = false;
-				var oToHighlight = null;
-				for (var i = 0; i < this.aDisplayData.length; i++)
-				{
-					// If we're going up and yet the top one was already selected don't go around.
-					if (this.oSelectedDiv != null && this.oSelectedDiv == this.aDisplayData[i] && i == 0 && iKeyPress == 38)
-					{
-						oToHighlight = this.oSelectedDiv;
-						break;
-					}
-					// If nothing is selected and we are going down then we select the first one.
-					if (this.oSelectedDiv == null && iKeyPress == 40)
-					{
-						oToHighlight = this.aDisplayData[i];
-						break;
-					}
+				// Simulate modulo operator in mathematics, returning only unsigned values.
+				const mod = (n, m) => (n % m + m) % m;
 
-					// If the previous handle was the actual previously selected one and we're hitting down then this is the one we want.
-					if (bPrevHandle != false && bPrevHandle == this.oSelectedDiv && iKeyPress == 40)
-					{
-						oToHighlight = this.aDisplayData[i];
-						break;
-					}
-					// If we're going up and this is the previously selected one then we want the one before, if there was one.
-					if (bPrevHandle != false && this.aDisplayData[i] == this.oSelectedDiv && iKeyPress == 38)
-					{
-						oToHighlight = bPrevHandle;
-						break;
-					}
-					// Make the previous handle this!
-					bPrevHandle = this.aDisplayData[i];
-				}
+				// Calculate indexes baseed on the arrow key.
+				var iNum = iKeyPress - 39;
+				if (!this.oSelectedDiv && iNum == -1)
+					iNum++;
+				this.iCurrentIndex = mod((this.iCurrentIndex + iNum), this.aDisplayData.length);
 
-				// If we don't have one to highlight by now then it must be the last one that we're after.
-				if (oToHighlight == null)
-					oToHighlight = bPrevHandle;
-
-				// Remove any old highlighting.
-				if (this.oSelectedDiv != null)
-					this.itemMouseOut(this.oSelectedDiv);
-				// Mark what the selected div now is.
-				this.oSelectedDiv = oToHighlight;
-				this.itemMouseOver(this.oSelectedDiv);
+				// Go up or down, wrapping around as needed.
+				this.itemOver(this.aDisplayData[this.iCurrentIndex]);
 			}
-		break;
+			break;
 	}
-	return true;
+}
+
+smc_AutoSuggest.prototype.itemOver = function(oDiv)
+{
+	if (this.oSelectedDiv)
+		this.oSelectedDiv.className = 'auto_suggest_item';
+
+	this.oSelectedDiv = oDiv;
+	this.iCurrentIndex = oDiv.iCurrentIndex;
+	this.oSelectedDiv.className = 'auto_suggest_item_hover';
 }
 
 // Functions for integration.
-smc_AutoSuggest.prototype.registerCallback = function(sCallbackType, sCallback)
+smc_AutoSuggest.prototype.registerCallback = function(sCallbackType, fCallback)
 {
-	switch (sCallbackType)
-	{
-		case 'onBeforeAddItem':
-			this.oCallback.onBeforeAddItem = sCallback;
-			break;
-
-		case 'onAfterAddItem':
-			this.oCallback.onAfterAddItem = sCallback;
-			break;
-
-		case 'onAfterDeleteItem':
-			this.oCallback.onAfterDeleteItem = sCallback;
-			break;
-
-		case 'onBeforeUpdate':
-			this.oCallback.onBeforeUpdate = sCallback;
-			break;
-	}
+	this.oCallback[sCallbackType] = fCallback;
 }
 
 // User hit submit?
@@ -284,25 +228,25 @@ smc_AutoSuggest.prototype.positionDiv = function()
 
 	this.oSuggestDivHandle.style.left = aParentPos[0] + 'px';
 	this.oSuggestDivHandle.style.top = (aParentPos[1] + this.oTextHandle.offsetHeight) + 'px';
-	this.oSuggestDivHandle.style.width = this.oTextHandle.style.width;
+	this.oSuggestDivHandle.style.width = this.oTextHandle.clientWidth + 'px';
 
 	return true;
 }
 
 // Do something after clicking an item.
-smc_AutoSuggest.prototype.itemClicked = function(oCurElement)
+smc_AutoSuggest.prototype.itemClicked = function(oDiv)
 {
 	// Is there a div that we are populating?
 	if (this.bItemList)
-		this.addItemLink(oCurElement.sItemId, oCurElement.innerHTML);
-
+		this.addItemLink(oDiv.sItemId, oDiv.innerHTML);
 	// Otherwise clear things down.
 	else
-		this.oTextHandle.value = oCurElement.innerHTML.php_unhtmlspecialchars();
+		this.oTextHandle.value = oDiv.innerHTML.php_unhtmlspecialchars();
 
 	this.oRealTextHandle.value = this.oTextHandle.value;
 	this.autoSuggestActualHide();
 	this.oSelectedDiv = null;
+	this.iCurrentIndex = -1;
 }
 
 // Remove the last searched for name from the search box.
@@ -338,24 +282,40 @@ smc_AutoSuggest.prototype.removeLastSearchString = function ()
 smc_AutoSuggest.prototype.addItemLink = function (sItemId, sItemName, bFromSubmit)
 {
 	// Increase the internal item count.
-	this.iItemCount ++;
+	this.iItemCount++;
 
 	// If there's a callback then call it.
-	if ('oCallback' in this && 'onBeforeAddItem' in this.oCallback && typeof(this.oCallback.onBeforeAddItem) == 'string')
+	if (typeof this.oCallback.onBeforeAddItem == 'function')
 	{
 		// If it returns false the item must not be added.
-		if (!eval(this.oCallback.onBeforeAddItem + '(' + this.opt.sSelf + ', \'' + sItemId + '\');'))
+		if (!this.oCallback.onBeforeAddItem.call(this, sItemId))
+			return;
+	}
+	// Backward compatibility; to be removed in the future
+	else if (typeof this.oCallback.onBeforeAddItem == 'string')
+	{
+		// If it returns false the item must not be added.
+		if (!window[this.oCallback.onBeforeAddItem].call(this, this.opt.sSelf, sItemId))
 			return;
 	}
 
 	var oNewDiv = document.createElement('div');
 	oNewDiv.id = 'suggest_' + this.opt.sSuggestId + '_' + sItemId;
-	setInnerHTML(oNewDiv, this.sItemTemplate.replace(/%post_name%/g, this.opt.sPostName).replace(/%item_id%/g, sItemId).replace(/%item_href%/g, smf_prepareScriptUrl(smf_scripturl) + this.opt.sURLMask.replace(/%item_id%/g, sItemId)).replace(/%item_name%/g, sItemName).replace(/%images_url%/g, smf_images_url).replace(/%self%/g, this.opt.sSelf).replace(/%delete_text%/g, this.sTextDeleteItem));
+	oNewDiv.innerHTML = this.sItemTemplate.easyReplace(this.oItemTokens).easyReplace({
+		'item_id': sItemId,
+		'item_href': smf_prepareScriptUrl(smf_scripturl) + this.opt.sURLMask.replace(/%item_id%/g, sItemId),
+		'item_name': sItemName,
+	});
+
+	oNewDiv.getElementsByTagName('span')[0].addEventListener("click", this.deleteAddedItem.bind(this, oNewDiv.id));
 	this.oItemList.appendChild(oNewDiv);
 
 	// If there's a registered callback, call it.
-	if ('oCallback' in this && 'onAfterAddItem' in this.oCallback && typeof(this.oCallback.onAfterAddItem) == 'string')
-		eval(this.oCallback.onAfterAddItem + '(' + this.opt.sSelf + ', \'' + oNewDiv.id + '\', ' + this.iItemCount + ');');
+	if (typeof this.oCallback.onAfterAddItem == 'function')
+		this.oCallback.onAfterAddItem.call(this, oNewDiv.id);
+	// Backward compatibility; to be removed in the future
+	else if (typeof this.oCallback.onAfterAddItem == 'string')
+		window[this.oCallback.onAfterAddItem].call(this, this.opt.sSelf, oNewDiv.id, this.iItemCount);
 
 	// Clear the div a bit.
 	this.removeLastSearchString();
@@ -373,16 +333,19 @@ smc_AutoSuggest.prototype.deleteAddedItem = function (sItemId)
 	var oDiv = document.getElementById('suggest_' + this.opt.sSuggestId + '_' + sItemId);
 
 	// Remove the div if it exists.
-	if (typeof(oDiv) == 'object' && oDiv != null)
+	if (oDiv)
 	{
-		oDiv.parentNode.removeChild(document.getElementById('suggest_' + this.opt.sSuggestId + '_' + sItemId));
+		this.oItemList.removeChild(oDiv);
 
 		// Decrease the internal item count.
-		this.iItemCount --;
+		this.iItemCount--;
 
 		// If there's a registered callback, call it.
-		if ('oCallback' in this && 'onAfterDeleteItem' in this.oCallback && typeof(this.oCallback.onAfterDeleteItem) == 'string')
-			eval(this.oCallback.onAfterDeleteItem + '(' + this.opt.sSelf + ', ' + this.iItemCount + ');');
+		if (typeof this.oCallback.onAfterDeleteItem == 'function')
+			this.oCallback.onAfterDeleteItem.call(this);
+		// Backward compatibility; to be removed in the future
+		else if (typeof this.oCallback.onAfterDeleteItem == 'string')
+			window[this.oCallback.onAfterDeleteItem].call(this, this.opt.sSelf, this.iItemCount);
 	}
 
 	return false;
@@ -391,8 +354,8 @@ smc_AutoSuggest.prototype.deleteAddedItem = function (sItemId)
 // Hide the box.
 smc_AutoSuggest.prototype.autoSuggestHide = function ()
 {
-	// Delay to allow events to propogate through....
-	this.oHideTimer = setTimeout(this.opt.sSelf + '.autoSuggestActualHide();', 250);
+	// Delay to allow events to propagate through....
+	this.oHideTimer = setTimeout(this.autoSuggestActualHide.bind(this), 250);
 }
 
 // Do the actual hiding after a timeout.
@@ -421,77 +384,41 @@ smc_AutoSuggest.prototype.autoSuggestShow = function()
 // Populate the actual div.
 smc_AutoSuggest.prototype.populateDiv = function(aResults)
 {
-	// Cannot have any children yet.
-	while (this.oSuggestDivHandle.childNodes.length > 0)
+	if (!aResults)
 	{
-		// Tidy up the events etc too.
-		this.oSuggestDivHandle.childNodes[0].onmouseover = null;
-		this.oSuggestDivHandle.childNodes[0].onmouseout = null;
-		this.oSuggestDivHandle.childNodes[0].onclick = null;
-
-		this.oSuggestDivHandle.removeChild(this.oSuggestDivHandle.childNodes[0]);
-	}
-
-	// Something to display?
-	if (typeof(aResults) == 'undefined')
-	{
+		this.oSuggestDivHandle.replaceChildren();
 		this.aDisplayData = [];
+
 		return false;
 	}
 
 	var aNewDisplayData = [];
-	for (var i = 0; i < (aResults.length > this.iMaxDisplayQuantity ? this.iMaxDisplayQuantity : aResults.length); i++)
+	for (var i = 0, n = Math.min(aResults.length, this.iMaxDisplayQuantity); i < n; i++)
 	{
-		// Create the sub element
 		var oNewDivHandle = document.createElement('div');
+		oNewDivHandle.iCurrentIndex = i;
 		oNewDivHandle.sItemId = aResults[i].sItemId;
 		oNewDivHandle.className = 'auto_suggest_item';
 		oNewDivHandle.innerHTML = aResults[i].sItemName;
-		//oNewDivHandle.style.width = this.oTextHandle.style.width;
-
-		this.oSuggestDivHandle.appendChild(oNewDivHandle);
-
-		// Attach some events to it so we can do stuff.
-		oNewDivHandle.instanceRef = this;
-		oNewDivHandle.onmouseover = function (oEvent)
-		{
-			this.instanceRef.itemMouseOver(this);
-		}
-		oNewDivHandle.onmouseout = function (oEvent)
-		{
-			this.instanceRef.itemMouseOut(this);
-		}
-		oNewDivHandle.onclick = function (oEvent)
-		{
-			this.instanceRef.itemClicked(this);
-		}
-
+		oNewDivHandle.onmouseover = this.itemOver.bind(this, oNewDivHandle);
+		oNewDivHandle.onclick = this.itemClicked.bind(this, oNewDivHandle);
 
 		aNewDisplayData[i] = oNewDivHandle;
 	}
 
 	this.aDisplayData = aNewDisplayData;
+	this.oSuggestDivHandle.replaceChildren(...aNewDisplayData);
 
 	return true;
 }
 
-// Refocus the element.
-smc_AutoSuggest.prototype.itemMouseOver = function (oCurElement)
-{
-	this.oSelectedDiv = oCurElement;
-	oCurElement.className = 'auto_suggest_item_hover';
-}
-
-// Onfocus the element
-smc_AutoSuggest.prototype.itemMouseOut = function (oCurElement)
-{
-	oCurElement.className = 'auto_suggest_item';
-}
-
+// Callback function for the XML request, should contain the list of users that match
 smc_AutoSuggest.prototype.onSuggestionReceived = function (oXMLDoc)
 {
-	var sQuoteText = '';
-	var aItems = oXMLDoc.getElementsByTagName('item');
+	var sQuoteText = '',
+		aItems = oXMLDoc.getElementsByTagName('item');
+
+	// Go through each item received
 	this.aCache = [];
 	for (var i = 0; i < aItems.length; i++)
 	{
@@ -531,10 +458,17 @@ smc_AutoSuggest.prototype.onSuggestionReceived = function (oXMLDoc)
 smc_AutoSuggest.prototype.autoSuggestUpdate = function ()
 {
 	// If there's a callback then call it.
-	if ('onBeforeUpdate' in this.oCallback && typeof(this.oCallback.onBeforeUpdate) == 'string')
+	if (typeof this.oCallback.onBeforeUpdate == 'function')
 	{
 		// If it returns false the item must not be added.
-		if (!eval(this.oCallback.onBeforeUpdate + '(' + this.opt.sSelf + ');'))
+		if (!this.oCallback.onBeforeUpdate.call(this))
+			return false;
+	}
+	// Backward compatibility; to be removed in the future
+	else if (typeof this.oCallback.onBeforeUpdate == 'string')
+	{
+		// If it returns false the item must not be added.
+		if (!window[this.oCallback.onBeforeUpdate].call(this, this.opt.sSelf))
 			return false;
 	}
 
@@ -543,9 +477,7 @@ smc_AutoSuggest.prototype.autoSuggestUpdate = function ()
 	if (isEmptyText(this.oTextHandle))
 	{
 		this.aCache = [];
-
 		this.populateDiv();
-
 		this.autoSuggestHide();
 
 		return true;
@@ -572,7 +504,7 @@ smc_AutoSuggest.prototype.autoSuggestUpdate = function ()
 		return true;
 	}
 
-	// Nothing?
+	// Nothing new?
 	if (sRealLastSearch == sSearchString)
 		return true;
 
@@ -613,7 +545,11 @@ smc_AutoSuggest.prototype.autoSuggestUpdate = function ()
 	sSearchString = sSearchString.php_to8bit().php_urlencode();
 
 	// Get the document.
-	sendXMLDocument.call(this, this.sRetrieveURL.replace(/%scripturl%/g, smf_prepareScriptUrl(smf_scripturl)).replace(/%suggest_type%/g, this.opt.sSearchType).replace(/%search%/g, sSearchString).replace(/%sessionVar%/g, this.opt.sSessionVar).replace(/%sessionID%/g, this.opt.sSessionId).replace(/%time%/g, new Date().getTime()), '', this.onSuggestionReceived);
+	var sRetrieveURL = this.sRetrieveURL.easyReplace(this.oRetrieveTokens).easyReplace({
+		search: sSearchString,
+		time: new Date().getTime()
+	});
+	getXMLDocument.call(this, sRetrieveURL, this.onSuggestionReceived);
 
 	return true;
 }

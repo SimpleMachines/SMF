@@ -983,7 +983,7 @@ function template_bcd()
 					else
 						icons[i].src = "', Utils::$context['onimg'], '";
 
-				window.setTimeout("update();", 500);
+				window.setTimeout(update, 500);
 			}
 			// Checks for variable in theArray.
 			function in_array(variable, theArray)
@@ -1078,7 +1078,7 @@ function template_hms()
 					else
 						icons[i].src = "', Utils::$context['onimg'], '";
 
-				window.setTimeout("update();", 500);
+				window.setTimeout(update, 500);
 			}
 			// Checks for variable in theArray.
 			function in_array(variable, theArray)
@@ -1171,7 +1171,7 @@ function template_omfg()
 					else
 						icons[i].src = "', Utils::$context['onimg'], '";
 
-				window.setTimeout("update();", 500);
+				window.setTimeout(update, 500);
 			}
 			// Checks for variable in theArray.
 			function in_array(variable, theArray)

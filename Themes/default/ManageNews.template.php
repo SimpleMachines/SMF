@@ -142,7 +142,6 @@ function template_email_members()
 	</script>
 	<script>
 		var oMemberSuggest = new smc_AutoSuggest({
-			sSelf: \'oMemberSuggest\',
 			sSessionId: smf_session_id,
 			sSessionVar: smf_session_var,
 			sSuggestId: \'members\',
@@ -156,7 +155,6 @@ function template_email_members()
 			aListItems: []
 		});
 		var oExcludeMemberSuggest = new smc_AutoSuggest({
-			sSelf: \'oExcludeMemberSuggest\',
 			sSessionId: \'', Utils::$context['session_id'], '\',
 			sSessionVar: \'', Utils::$context['session_var'], '\',
 			sSuggestId: \'exclude_members\',
