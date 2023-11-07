@@ -81,7 +81,7 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function request(string $url, array $post_data = array()): object
+	public function request(string $url, array|string $post_data = array()): object
 	{
 	}
 
