@@ -153,10 +153,10 @@ class Mail implements ActionInterface
 			'default_sort_col' => 'age',
 			'no_items_label' => Lang::$txt['mailqueue_no_items'],
 			'get_items' => array(
-				'function' => 'list_getMailQueue',
+				'function' => __CLASS__ . '::list_getMailQueue',
 			),
 			'get_count' => array(
-				'function' => 'list_getMailQueueSize',
+				'function' => __CLASS__ . '::list_getMailQueueSize',
 			),
 			'columns' => array(
 				'subject' => array(
