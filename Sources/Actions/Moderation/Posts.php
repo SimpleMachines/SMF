@@ -560,13 +560,13 @@ class Posts implements ActionInterface
 			'base_href' => Config::$scripturl . '?action=moderate;area=attachmod;sa=attachments',
 			'default_sort_col' => 'attach_name',
 			'get_items' => array(
-				'function' => 'list_getUnapprovedAttachments',
+				'function' => __CLASS__ . '::list_getUnapprovedAttachments',
 				'params' => array(
 					$approve_query,
 				),
 			),
 			'get_count' => array(
-				'function' => 'list_getNumUnapprovedAttachments',
+				'function' => __CLASS__ . '::list_getNumUnapprovedAttachments',
 				'params' => array(
 					$approve_query,
 				),

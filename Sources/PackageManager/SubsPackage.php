@@ -565,7 +565,7 @@ class SubsPackage
 				'id' => 'restore_file_permissions',
 				'title' => Lang::$txt['package_restore_permissions'],
 				'get_items' => array(
-					'function' => array(__CLASS__, 'list_restoreFiles'),
+					'function' => __CLASS__ . '::list_restoreFiles',
 					'params' => array(
 						!empty($_POST['restore_perms']),
 					),

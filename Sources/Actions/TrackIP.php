@@ -164,14 +164,14 @@ class TrackIP implements ActionInterface
 			'base_href' => Utils::$context['base_url'] . ';searchip=' . Utils::$context['ip'],
 			'default_sort_col' => 'date',
 			'get_items' => array(
-				'function' => 'list_getIPMessages',
+				'function' => __CLASS__ . '::list_getIPMessages',
 				'params' => array(
 					'm.poster_ip >= ' . $ip_string[0] . ' and m.poster_ip <= ' . $ip_string[1],
 					$fields,
 				),
 			),
 			'get_count' => array(
-				'function' => 'list_getIPMessageCount',
+				'function' => __CLASS__ . '::list_getIPMessageCount',
 				'params' => array(
 					'm.poster_ip >= ' . $ip_string[0] . ' and m.poster_ip <= ' . $ip_string[1],
 					$fields,

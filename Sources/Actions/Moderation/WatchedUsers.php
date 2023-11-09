@@ -118,14 +118,14 @@ class WatchUsers implements ActionInterface
 			'base_href' => Config::$scripturl . '?action=moderate;area=userwatch;sa=' . (Utils::$context['view_posts'] ? 'post' : 'member'),
 			'default_sort_col' => Utils::$context['view_posts'] ? '' : 'member',
 			'get_items' => array(
-				'function' => Utils::$context['view_posts'] ? 'list_getWatchedUserPosts' : 'list_getWatchedUsers',
+				'function' => Utils::$context['view_posts'] ? __CLASS__ . '::list_getWatchedUserPosts' : __CLASS__ . '::list_getWatchedUsers',
 				'params' => array(
 					$approve_query,
 					$delete_boards,
 				),
 			),
 			'get_count' => array(
-				'function' => Utils::$context['view_posts'] ? 'list_getWatchedUserPostsCount' : 'list_getWatchedUserCount',
+				'function' => Utils::$context['view_posts'] ? 'list_getWatchedUserPostsCount' : __CLASS__ . '::list_getWatchedUserCount',
 				'params' => array(
 					$approve_query,
 				),
