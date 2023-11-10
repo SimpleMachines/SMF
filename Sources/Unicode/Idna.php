@@ -831,7 +831,7 @@ function idna_maps()
 		"\xE1\xBA\x94" => "\xE1\xBA\x95",
 		"\xE1\xBA\x9A" => "\x61\xCA\xBE",
 		"\xE1\xBA\x9B" => "\xE1\xB9\xA1",
-		"\xE1\xBA\x9E" => "\x73\x73",
+		"\xE1\xBA\x9E" => "\xC3\x9F",
 		"\xE1\xBA\xA0" => "\xE1\xBA\xA1",
 		"\xE1\xBA\xA2" => "\xE1\xBA\xA3",
 		"\xE1\xBA\xA4" => "\xE1\xBA\xA5",
@@ -6369,8 +6369,6 @@ function idna_regex()
 			'\x{2101}' .
 			'\x{2105}' .
 			'\x{2106}' .
-			'\x{2260}' .
-			'\x{226E}-\x{226F}' .
 			'\x{2474}' .
 			'\x{2475}' .
 			'\x{2476}' .
@@ -6911,7 +6909,8 @@ function idna_regex()
 			'\x{3130}' .
 			'\x{3164}' .
 			'\x{318F}' .
-			'\x{31E4}-\x{31EF}' .
+			'\x{31E4}-\x{31EE}' .
+			'\x{31EF}' .
 			'\x{321F}' .
 			'\x{33C2}' .
 			'\x{33C7}' .
@@ -7353,7 +7352,8 @@ function idna_regex()
 			'\x{2B73A}-\x{2B73F}' .
 			'\x{2B81E}-\x{2B81F}' .
 			'\x{2CEA2}-\x{2CEAF}' .
-			'\x{2EBE1}-\x{2F7FF}' .
+			'\x{2EBE1}-\x{2EBEF}' .
+			'\x{2EE5E}-\x{2F7FF}' .
 			'\x{2F868}' .
 			'\x{2F874}' .
 			'\x{2F91F}' .
