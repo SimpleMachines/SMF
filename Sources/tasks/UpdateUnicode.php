@@ -1497,7 +1497,7 @@ class UpdateUnicode extends BackgroundTask
 
 		foreach ($this->funcs['utf8_regex_variation_selectors']['data'] as $variation_selector => $class_string)
 		{
-			$this->funcs['utf8_regex_variation_selectors']['data'][$variation_selector] = preg_split('/(?<=})(?=\\\x{)/', $class_string);
+			$this->funcs['utf8_regex_variation_selectors']['data'][$variation_selector] = array_unique(preg_split('/(?<=})(?=\\\x{)/', $class_string));
 		}
 
 		krsort($this->funcs['utf8_regex_variation_selectors']['data']);
@@ -1815,7 +1815,7 @@ class UpdateUnicode extends BackgroundTask
 				return $a['stats']['age'] - $b['stats']['age'];
 			}
 		});
-		foreach ($this->funcs['utf8_regex_joining_type']['data'] as $char_script => $joining_types)
+		foreach ($this->funcs['utf8_regex_joining_type']['data'] as $char_script => &$joining_types)
 		{
 			unset($this->funcs['utf8_regex_joining_type']['data'][$char_script]['stats'], $joining_types['stats']);
 
@@ -1826,7 +1826,7 @@ class UpdateUnicode extends BackgroundTask
 				continue;
 			}
 
-			foreach ($joining_types as $joining_type => $value)
+			foreach ($joining_types as $joining_type => &$value)
 			{
 				sort($value);
 			}
@@ -2001,7 +2001,7 @@ class UpdateUnicode extends BackgroundTask
 					}
 				}
 
-				$this->funcs['utf8_regex_indic']['data'][$char_script][$insc] = preg_split('/(?<=})(?=\\\x{)/', $class_string);
+				$this->funcs['utf8_regex_indic']['data'][$char_script][$insc] = array_unique(preg_split('/(?<=})(?=\\\x{)/', $class_string));
 			}
 
 			ksort($this->funcs['utf8_regex_indic']['data'][$char_script]);
