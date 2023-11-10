@@ -399,7 +399,7 @@ class Attachment implements \ArrayAccess
 			$this->thumb_height = min($this->height, !empty(Config::$modSettings['attachmentThumbHeight']) ? Config::$modSettings['attachmentThumbHeight'] : 1000);
 
 			// Must set the thumbnail's CSS dimensions manually.
-			addInlineCss('img#thumb_' . $this->thumb . ':not(.original_size) {width: ' . $this->thumb_width . 'px; height: ' . $this->thumb_height . 'px;}');
+			Theme::addInlineCss('img#thumb_' . $this->thumb . ':not(.original_size) {width: ' . $this->thumb_width . 'px; height: ' . $this->thumb_height . 'px;}');
 		}
 
 		self::$loaded[$id] = $this;
