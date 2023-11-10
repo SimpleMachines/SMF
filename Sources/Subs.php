@@ -7044,7 +7044,7 @@ function _safe_unserialize($str)
 
 	// The substrings 'O' and 'C' are used to serialize objects.
 	// If they are not present, then there are none in the serialized data.
-	if (strpos($str, 'O') === false && strpos($str, 'C') === false)
+	if (strpos($str, 'O:') === false && strpos($str, 'C:') === false)
 		return unserialize($str, ['allowed_classes' => false]);
 
 	$stack = array();
