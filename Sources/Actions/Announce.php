@@ -49,7 +49,6 @@ class Announce implements ActionInterface
 			'load' => false,
 			'call' => 'AnnounceTopic',
 			'selectGroup' => 'AnnouncementSelectMembergroup',
-			'send' => 'AnnouncementSend',
 		),
 	);
 
@@ -75,7 +74,7 @@ class Announce implements ActionInterface
 	 * Available sub-actions.
 	 */
 	public static array $subactions = array(
-		'selectgroup' => 'selectGroup',
+		'selectgroup' => 'select',
 		'send' => 'send',
 	);
 
@@ -109,7 +108,7 @@ class Announce implements ActionInterface
 	/**
 	 *
 	 */
-	public function selectGroup(): void
+	public function select(): void
 	{
 		$groups = array_diff(array_map('intval', array_merge(Board::$info->groups, array(Group::ADMIN))), array(Group::GUEST));
 
@@ -319,6 +318,26 @@ class Announce implements ActionInterface
 	public static function call(): void
 	{
 		self::load()->execute();
+	}
+
+	/**
+	 * Backward compatibility wrapper for the selectgroup sub-action.
+	 */
+	public static function selectGroup(): void
+	{
+		self::load();
+		self::$obj->subaction = 'selectgroup';
+		self::$obj->execute();
+	}
+
+	/**
+	 * Backward compatibility wrapper for the send sub-action.
+	 */
+	public static function announcementSend(): void
+	{
+		self::load();
+		self::$obj->subaction = 'send';
+		self::$obj->execute();
 	}
 
 	/******************

@@ -53,7 +53,6 @@ class TopicMerge implements ActionInterface
 			'load' => false,
 			'call' => 'MergeTopics',
 			'initiate' => false,
-			'mergeExecute' => 'MergeExecute',
 		),
 	);
 
@@ -1086,7 +1085,7 @@ class TopicMerge implements ActionInterface
 	 *
 	 * @param array $topics The IDs of the topics to merge
 	 */
-	public function mergeExecute($topics = array())
+	public static function mergeExecute($topics = array())
 	{
 		self::load();
 		self::$obj->subaction = !empty($_GET['sa']) && $_GET['sa'] === 'merge' ? 'merge' : 'options';

@@ -28,7 +28,6 @@ class IP implements \Stringable
 	 * BackwardCompatibility settings for this class.
 	 */
 	private static $backcompat = array(
-		'func_underscores' => true,
 		'func_names' => array(
 			'create' => false,
 			'hostFromIp'=> 'host_from_ip',

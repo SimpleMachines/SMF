@@ -275,8 +275,11 @@ class Theme
 		self::$current = self::$loaded[$id];
 
 		// For backward compatibility.
-		$GLOBALS['settings'] = &self::$current->settings;
-		$GLOBALS['options']  = &self::$current->options;
+		if (!empty(Config::$backward_compatibility))
+		{
+			$GLOBALS['settings'] = &self::$current->settings;
+			$GLOBALS['options']  = &self::$current->options;
+		}
 
 		// Ensure that SMF\Lang knows that it should use this theme's langauge files.
 		Lang::addDirs();
