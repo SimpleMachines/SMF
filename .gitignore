@@ -23,6 +23,9 @@ Themes/default/scripts/minified_deferred*.js
 custom_avatar/
 !custom_avatar/index.php
 !custom_avatar/blank.png
+Sources/Unicode/*.php
+!Sources/Unicode/index.php
+!Sources/Unicode/Utf8String.php
 
 # Compiled source #
 ###################
