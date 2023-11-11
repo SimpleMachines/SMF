@@ -31,7 +31,7 @@ use SMF\Db\DatabaseApi as Db;
 /**
  * Rename here and in the exportStatic call at the end of the file.
  */
-class WatchUsers implements ActionInterface
+class WatchedUsers implements ActionInterface
 {
 	use BackwardCompatibility;
 
@@ -511,7 +511,7 @@ class WatchUsers implements ActionInterface
 }
 
 // Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\WatchUsers::exportStatic'))
-	WatchUsers::exportStatic();
+if (is_callable(__NAMESPACE__ . '\WatchedUsers::exportStatic'))
+	WatchedUsers::exportStatic();
 
 ?>

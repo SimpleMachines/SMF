@@ -318,4 +318,8 @@ class Session implements \SessionHandlerInterface
 	}
 }
 
+// Export public static functions and properties to global namespace for backward compatibility.
+if (is_callable(__NAMESPACE__ . '\Session::exportStatic'))
+	Session::exportStatic();
+
 ?>

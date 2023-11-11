@@ -94,6 +94,7 @@ class User implements \ArrayAccess
 			'profiles' => 'user_profile',
 			'settings' => 'user_settings',
 			'info' => 'user_info',
+			'sc' => 'sc',
 			'memberContext' => 'memberContext',
 		),
 	);
@@ -672,7 +673,7 @@ class User implements \ArrayAccess
 	 * "Session check" value for the current user.
 	 * Set by Session::load(). Used by checkSession().
 	 */
-	public static string $sc;
+	public static $sc;
 
 	/**
 	 * @var array

@@ -33,6 +33,8 @@ class Mail
 			'send' => 'sendmail',
 			'sendSmtp' => 'smtp_mail',
 			'addToQueue' => 'AddMailQueue',
+			'reduceQueue' => 'ReduceMailQueue',
+			'serverParse' => 'server_parse',
 		),
 	);
 
