@@ -181,7 +181,7 @@ class SendDigests extends ScheduledTask
 
 		foreach ($langs as $lang) {
 			Lang::load('Post', $lang);
-			Lang::load('index', $lang);
+			Lang::load('General', $lang);
 			Lang::load('EmailTemplates', $lang);
 
 			$langtxt[$lang] = [

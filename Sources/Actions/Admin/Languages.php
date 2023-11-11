@@ -751,7 +751,7 @@ class Languages implements ActionInterface
 			}
 		}
 
-		$current_file = $file_id ? $lang_dirs[$theme_id] . '/' . $lang_id . '/' . $file_id . '.' . $lang_id . '.php' : '';
+		$current_file = $file_id ? $lang_dirs[$theme_id] . '/' . $lang_id . '/' . $file_id . '.php' : '';
 
 		// Now for every theme get all the files and stick them in context!
 		Utils::$context['possible_files'] = [
@@ -820,20 +820,20 @@ class Languages implements ActionInterface
 			// Second, loop through the array to remove the files.
 			foreach ($lang_dirs as $curPath) {
 				foreach (Utils::$context['possible_files'][1]['files'] as $lang) {
-					if (file_exists($curPath . '/' . $lang_id . '/' . $lang['id'] . '.' . $lang_id . '.php')) {
-						unlink($curPath . '/' . $lang_id . '/' . $lang['id'] . '.' . $lang_id . '.php');
+					if (file_exists($curPath . '/' . $lang_id . '/' . $lang['id'] . '.php')) {
+						unlink($curPath . '/' . $lang_id . '/' . $lang['id'] . '.php');
 					}
 				}
 
 				// Check for the email template.
-				if (file_exists($curPath . '/' . $lang_id . '/EmailTemplates.' . $lang_id . '.php')) {
-					unlink($curPath . '/' . $lang_id . '/EmailTemplates.' . $lang_id . '.php');
+				if (file_exists($curPath . '/' . $lang_id . '/EmailTemplates.php')) {
+					unlink($curPath . '/' . $lang_id . '/EmailTemplates.php');
 				}
 			}
 
 			// Third, the agreement file.
-			if (file_exists(Config::$languagesdir . '/' . $lang_id . '/agreement.' . $lang_id . '.txt')) {
-				unlink(Config::$languagesdir . '/' . $lang_id . '/agreement.' . $lang_id . '.txt');
+			if (file_exists(Config::$languagesdir . '/' . $lang_id . '/agreement.txt')) {
+				unlink(Config::$languagesdir . '/' . $lang_id . '/agreement.txt');
 			}
 
 			// Fourth, a related images folder, if it exists...

@@ -606,7 +606,7 @@ class TopicMerge implements ActionInterface
 
 			// Should be in the boardwide language.
 			if (User::$me->language != Lang::$default) {
-				Lang::load('index', Lang::$default);
+				Lang::load('General', Lang::$default);
 
 				// Make sure we catch both languages in the reason.
 				$reason_replacements += [
@@ -656,7 +656,7 @@ class TopicMerge implements ActionInterface
 
 			// Restore language strings to normal.
 			if (User::$me->language != Lang::$default) {
-				Lang::load('index');
+				Lang::load('General');
 			}
 		}
 
@@ -665,9 +665,9 @@ class TopicMerge implements ActionInterface
 			if (Lang::$default === User::$me->language) {
 				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
 			} else {
-				Lang::load('index', Lang::$default, false);
+				Lang::load('General', Lang::$default, false);
 				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-				Lang::load('index');
+				Lang::load('General');
 			}
 
 			CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);

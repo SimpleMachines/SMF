@@ -372,7 +372,7 @@ class Mail
 		if (empty(Lang::$txt)) {
 			Theme::loadEssential();
 			Lang::load('Errors', Lang::$default, false);
-			Lang::load('index', Lang::$default, false);
+			Lang::load('General', Lang::$default, false);
 		}
 
 		// By default send 5 at once.

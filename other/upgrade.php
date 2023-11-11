@@ -695,7 +695,7 @@ function load_lang_file()
 	Lang::addDirs($lang_dir);
 
 	// And now load the language files.
-	Lang::load('index+Install', preg_replace('~^Install\.|\.php$~', '', $_SESSION['upgrader_langfile']));
+	Lang::load('General+Install', preg_replace('~^Install\.|\.php$~', '', $_SESSION['upgrader_langfile']));
 
 	// Remember what we've done
 	$loaded_langfile = $lang_dir . '/' . $_SESSION['upgrader_langfile'];

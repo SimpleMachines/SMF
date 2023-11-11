@@ -177,6 +177,11 @@ class Lang
 
 		// For each file open it up and write it out!
 		foreach (explode('+', $template_name) as $template) {
+			// Did we call the old index language file? Redirect.
+			if ($template === 'index') {
+				$template = 'General';
+			}
+
 			$attempts = [];
 
 			foreach (self::$dirs as $dir) {
@@ -195,7 +200,7 @@ class Lang
 			$found = false;
 
 			foreach ($attempts as $k => $file) {
-				if (file_exists($file[0] . '/' . $file[2] . '/' . $file[1] . '.' . $file[2] . '.php')) {
+				if (file_exists($file[0] . '/' . $file[2] . '/' . $file[1] . '.php')) {
 					/**
 					 * @var string $forum_copyright
 					 * @var array $txt
@@ -205,8 +210,8 @@ class Lang
 					 * @var array $helptxt
 					 */
 					// Include it!
-					// {DIR} / {locale} / {file} . {locale} .php
-					require $file[0] . '/' . $file[2] . '/' . $file[1] . '.' . $file[2] . '.php';
+					// {DIR} / {locale} / {file} .php
+					require $file[0] . '/' . $file[2] . '/' . $file[1] . '.php';
 
 					// Note that we found it.
 					$found = true;
@@ -383,12 +388,12 @@ class Lang
 
 				while ($entry = $dir->read()) {
 					// Languages are in a sub directory.
-					if (!is_dir($language_dir . '/' . $entry) || !file_exists($language_dir . '/' . $entry . '/index.' . $entry . '.php')) {
+					if (!is_dir($language_dir . '/' . $entry) || !file_exists($language_dir . '/' . $entry . '/General.php')) {
 						continue;
 					}
 
 					// Get the line we need.
-					$fp = @fopen($language_dir . '/' . $entry . '/index.' . $entry . '.php', 'r');
+					$fp = @fopen($language_dir . '/' . $entry . '/General.php', 'r');
 
 					// Yay!
 					if ($fp) {
@@ -420,7 +425,7 @@ class Lang
 						'name' => $langName ?? $entry,
 						'selected' => false,
 						'filename' => $entry,
-						'location' => $language_dir . '/' . $entry . '/index.' . $entry . '.php',
+						'location' => $language_dir . '/' . $entry . '/General.php',
 					];
 				}
 				$dir->close();
