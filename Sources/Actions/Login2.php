@@ -616,9 +616,6 @@ class Login2 implements ActionInterface
 					$other_passwords[] = hash_hmac('sha256', $_POST['passwrd'], User::$profiles[User::$my_id]['password_salt']);
 				break;
 			}
-
-			// PHPBB 3 check this function exists in PHP 5.5 or higher
-			$other_passwords[] = password_verify($_POST['passwrd'], User::$profiles[User::$my_id]['password_salt']);
 		}
 
 		// Allows mods to easily extend the $other_passwords array
