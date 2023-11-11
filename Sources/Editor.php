@@ -31,6 +31,7 @@ class Editor implements \ArrayAccess
 	private static $backcompat = array(
 		'func_names' => array(
 			'load' => 'create_control_richedit',
+			'getMessageIcons' => 'getMessageIcons',
 		),
 	);
 

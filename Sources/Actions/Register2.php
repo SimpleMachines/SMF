@@ -48,8 +48,8 @@ class Register2 extends Register
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'Register2',
+			'registerMember' => 'registerMember',
 		),
 	);
 

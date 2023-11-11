@@ -38,6 +38,7 @@ class BrowserDetector
 	private static $backcompat = array(
 		'func_names' => array(
 			'call' => 'detectBrowser',
+			'isBrowser' => 'isBrowser',
 		),
 	);
 

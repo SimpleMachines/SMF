@@ -51,12 +51,15 @@ class PM implements \ArrayAccess
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
-			'get' => false,
+			'old' => 'old',
+			'compose' => 'compose',
+			'compose2' => 'compose2',
 			'send' => 'sendpm',
-			'count' => false,
 			'delete' => 'deleteMessages',
 			'markRead' => 'markMessages',
+			'getLatest' => 'getLatest',
+			'getRecent' => 'getRecent',
+			'countSent' => 'countSent',
 			'reportErrors' => 'messagePostError',
 			'isAccessible' => 'isAccessiblePM',
 		),

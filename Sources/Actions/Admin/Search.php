@@ -41,9 +41,10 @@ class Search implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'ManageSearch',
-			'getConfigVars' => false,
+			'editWeights' => 'EditWeights',
+			'editSearchMethod' => 'EditSearchMethod',
+			'createMessageIndex' => 'CreateMessageIndex',
 		),
 	);
 

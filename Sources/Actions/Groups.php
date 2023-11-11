@@ -47,8 +47,14 @@ class Groups implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'Groups',
+			'list_getMembergroups' => 'list_getMembergroups',
+			'listMembergroupMembers_Href' => 'listMembergroupMembers_Href',
+			'list_getGroupRequestCount' => 'list_getGroupRequestCount',
+			'list_getGroupRequests' => 'list_getGroupRequests',
+			'GroupList' => 'GroupList',
+			'MembergroupMembers' => 'MembergroupMembers',
+			'GroupRequests' => 'GroupRequests',
 		),
 	);
 

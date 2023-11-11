@@ -60,8 +60,15 @@ class Themes implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'ThemesMain',
+			'themeAdmin' => 'ThemeAdmin',
+			'themeList' => 'ThemeList',
+			'setThemeOptions' => 'SetThemeOptions',
+			'removeTheme' => 'RemoveTheme',
+			'enableTheme' => 'EnableTheme',
+			'themeInstall' => 'ThemeInstall',
+			'editTheme' => 'EditTheme',
+			'copyTemplate' => 'CopyTemplate',
 		),
 	);
 

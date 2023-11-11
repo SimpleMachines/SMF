@@ -46,9 +46,12 @@ class Registration implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'RegCenter',
-			'getConfigVars' => false,
+			'adminRegister' => 'AdminRegister',
+			'editAgreement' => 'EditAgreement',
+			'editPrivacyPolicy' => 'EditPrivacyPolicy',
+			'setReserved' => 'SetReserved',
+			'modifyRegistrationSettings' => 'ModifyRegistrationSettings',
 		),
 	);
 

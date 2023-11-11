@@ -40,8 +40,10 @@ class ReportToMod implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'ReportToModerator',
+			'ReportToModerator2' => 'ReportToModerator2',
+			'reportPost' => 'reportPost',
+			'reportUser' => 'reportUser',
 		),
 	);
 

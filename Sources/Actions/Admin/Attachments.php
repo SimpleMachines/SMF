@@ -47,10 +47,23 @@ class Attachments implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'ManageAttachments',
-			'attachConfigVars' => false,
-			'avatarConfigVars' => false,
+			'list_getFiles' => 'list_getFiles',
+			'list_getNumFiles' => 'list_getNumFiles',
+			'list_getAttachDirs' => 'list_getAttachDirs',
+			'list_getBaseDirs' => 'list_getBaseDirs',
+			'attachDirStatus' => 'attachDirStatus',
+			'manageAttachmentSettings' => 'ManageAttachmentSettings',
+			'manageAvatarSettings' => 'ManageAvatarSettings',
+			'browseFiles' => 'BrowseFiles',
+			'maintainFiles' => 'MaintainFiles',
+			'removeAttachment' => 'RemoveAttachment',
+			'removeAttachmentByAge' => 'RemoveAttachmentByAge',
+			'removeAttachmentBySize' => 'RemoveAttachmentBySize',
+			'removeAllAttachments' => 'RemoveAllAttachments',
+			'repairAttachments' => 'RepairAttachments',
+			'manageAttachmentPaths' => 'ManageAttachmentPaths',
+			'transferAttachments' => 'TransferAttachments',
 		),
 	);
 

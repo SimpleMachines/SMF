@@ -42,7 +42,7 @@ class DraftPM extends Draft
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'save' => 'SavePMDraft',
+			'showInEditor' => 'showInEditor',
 			'showInProfile' => 'showPMDrafts',
 		),
 	);

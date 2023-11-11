@@ -26,9 +26,12 @@ class TimeZone extends \DateTimeZone
 	 * BackwardCompatibility settings for this class.
 	 */
 	private static $backcompat = array(
-		'func_underscores' => true,
 		'func_names' => array(
 			'list' => 'smf_list_timezones',
+			'getTzidMetazones' => 'get_tzid_metazones',
+			'getSortedTzidsForCountry' => 'get_sorted_tzids_for_country',
+			'getTzidFallbacks' => 'get_tzid_fallbacks',
+			'validateIsoCountryCodes' => 'validate_iso_country_codes',
 		),
 	);
 

@@ -50,6 +50,7 @@ class BoardIndex implements ActionInterface
 	private static array $backcompat = array(
 		'func_names' => array(
 			'load' => 'BoardIndex',
+			'call' => 'call',
 			'get' => 'getBoardIndex',
 		),
 	);

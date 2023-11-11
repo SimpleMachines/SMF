@@ -58,8 +58,21 @@ class PersonalMessage implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'MessageMain',
+			'messageFolder' => 'MessageFolder',
+			'messagePopup' => 'MessagePopup',
+			'manageLabels' => 'ManageLabels',
+			'manageRules' => 'ManageRules',
+			'messageActionsApply' => 'MessageActionsApply',
+			'messagePrune' => 'MessagePrune',
+			'messageKillAll' => 'MessageKillAll',
+			'reportMessage' => 'ReportMessage',
+			'messageSearch' => 'MessageSearch',
+			'messageSearch2' => 'MessageSearch2',
+			'messagePost' => 'MessagePost',
+			'messagePost2' => 'MessagePost2',
+			'messageSettings' => 'MessageSettings',
+			'messageDrafts' => 'MessageDrafts',
 		),
 	);
 

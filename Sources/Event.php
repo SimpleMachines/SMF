@@ -34,14 +34,9 @@ class Event implements \ArrayAccess
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
-			'loadRange' => false,
-			'get' => false,
 			'create' => 'insertEvent',
 			'modify' => 'modifyEvent',
 			'remove' => 'removeEvent',
-			'getDateFormat' => false,
-			'getTimeFormat' => false,
 		),
 	);
 

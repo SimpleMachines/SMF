@@ -29,7 +29,6 @@ class IntegrationHook
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'call_integration_hook',
 			'add' => 'add_integration_function',
 			'remove' => 'remove_integration_function',

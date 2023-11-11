@@ -46,8 +46,9 @@ class MessageIndex implements ActionInterface
 	 */
 	private static array $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'MessageIndex',
+			'getBoardList' => 'getBoardList',
+			'buildTopicContext' => 'buildTopicContext',
 		),
 	);
 

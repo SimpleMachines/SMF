@@ -37,9 +37,19 @@ class Utf8String implements \Stringable
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'create' => false,
 			'decompose' => 'utf8_decompose',
 			'compose' => 'utf8_compose',
+			'utf8_strtolower' => 'utf8_strtolower',
+			'utf8_strtoupper' => 'utf8_strtoupper',
+			'utf8_casefold' => 'utf8_casefold',
+			'utf8_convert_case' => 'utf8_convert_case',
+			'utf8_normalize_d' => 'utf8_normalize_d',
+			'utf8_normalize_kd' => 'utf8_normalize_kd',
+			'utf8_normalize_c' => 'utf8_normalize_c',
+			'utf8_normalize_kc' => 'utf8_normalize_kc',
+			'utf8_normalize_kc_casefold' => 'utf8_normalize_kc_casefold',
+			'utf8_is_normalized' => 'utf8_is_normalized',
+			'utf8_sanitize_invisibles' => 'utf8_sanitize_invisibles',
 		),
 	);
 

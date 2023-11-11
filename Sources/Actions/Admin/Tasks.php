@@ -45,9 +45,14 @@ class Tasks implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'ManageScheduledTasks',
-			'getConfigVars' => false,
+			'list_getScheduledTasks' => 'list_getScheduledTasks',
+			'list_getTaskLogEntries' => 'list_getTaskLogEntries',
+			'list_getNumTaskLogEntries' => 'list_getNumTaskLogEntries',
+			'scheduledTasks' => 'ScheduledTasks',
+			'editTask' => 'EditTask',
+			'taskLog' => 'TaskLog',
+			'taskSettings' => 'TaskSettings',
 		),
 	);
 

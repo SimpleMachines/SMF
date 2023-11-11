@@ -39,8 +39,8 @@ class TopicRemove implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'RemoveTopic2',
+			'removeDeleteConcurrence' => 'removeDeleteConcurrence',
 			'old' => 'RemoveOldTopics2',
 		),
 	);

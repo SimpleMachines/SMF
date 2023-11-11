@@ -48,8 +48,14 @@ class ReportedContent implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'ReportedContent',
+			'recountOpenReports' => 'recountOpenReports',
+			'showReports' => 'ShowReports',
+			'showClosedReports' => 'ShowClosedReports',
+			'reportDetails' => 'ReportDetails',
+			'handleReport' => 'HandleReport',
+			'handleComment' => 'HandleComment',
+			'editComment' => 'EditComment',
 		),
 	);
 

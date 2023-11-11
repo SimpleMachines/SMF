@@ -36,7 +36,6 @@ class ExportAttachment implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'export_attachment',
 		),
 	);

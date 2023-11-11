@@ -44,7 +44,6 @@ class Export implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'export_profile_data',
 			'createDir' => 'create_export_dir',
 			'getFormats' => 'get_export_formats',

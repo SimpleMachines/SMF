@@ -45,9 +45,20 @@ class SearchEngines implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'SearchEngines',
-			'getConfigVars' => false,
+			'consolidateSpiderStats' => 'consolidateSpiderStats',
+			'list_getSpiders' => 'list_getSpiders',
+			'list_getNumSpiders' => 'list_getNumSpiders',
+			'list_getSpiderLogs' => 'list_getSpiderLogs',
+			'list_getNumSpiderLogs' => 'list_getNumSpiderLogs',
+			'list_getSpiderStats' => 'list_getSpiderStats',
+			'list_getNumSpiderStats' => 'list_getNumSpiderStats',
+			'recacheSpiderNames' => 'recacheSpiderNames',
+			'spiderStats' => 'SpiderStats',
+			'spiderLogs' => 'SpiderLogs',
+			'viewSpiders' => 'ViewSpiders',
+			'manageSearchEngineSettings' => 'ManageSearchEngineSettings',
+			'editSpider' => 'EditSpider',
 		),
 	);
 

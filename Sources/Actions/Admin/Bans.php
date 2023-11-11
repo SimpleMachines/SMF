@@ -49,8 +49,21 @@ class Bans implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'Ban',
+			'updateBanMembers' => 'updateBanMembers',
+			'list_getBans' => 'list_getBans',
+			'list_getNumBans' => 'list_getNumBans',
+			'list_getBanItems' => 'list_getBanItems',
+			'list_getNumBanItems' => 'list_getNumBanItems',
+			'list_getBanTriggers' => 'list_getBanTriggers',
+			'list_getNumBanTriggers' => 'list_getNumBanTriggers',
+			'list_getBanLogEntries' => 'list_getBanLogEntries',
+			'list_getNumBanLogEntries' => 'list_getNumBanLogEntries',
+			'banList' => 'BanList',
+			'banEdit' => 'BanEdit',
+			'banBrowseTriggers' => 'BanBrowseTriggers',
+			'banEditTrigger' => 'BanEditTrigger',
+			'banLog' => 'BanLog',
 		),
 	);
 

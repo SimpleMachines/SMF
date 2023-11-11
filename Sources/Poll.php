@@ -31,10 +31,8 @@ class Poll implements \ArrayAccess
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
-			'create' => false,
-			'checkCreatePermission' => false,
-			'checkEditPermission' => false,
+			'checkRemovePermission' => 'checkRemovePermission',
+			'vote' => 'Vote',
 			'lock' => 'LockVoting',
 			'edit' => 'EditPoll',
 			'edit2' => 'EditPoll2',

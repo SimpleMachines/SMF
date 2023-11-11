@@ -44,8 +44,19 @@ class Tracking implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'tracking',
+			'list_getUserErrors' => 'list_getUserErrors',
+			'list_getUserErrorCount' => 'list_getUserErrorCount',
+			'list_getProfileEdits' => 'list_getProfileEdits',
+			'list_getProfileEditCount' => 'list_getProfileEditCount',
+			'list_getGroupRequests' => 'list_getGroupRequests',
+			'list_getGroupRequestsCount' => 'list_getGroupRequestsCount',
+			'list_getLogins' => 'list_getLogins',
+			'list_getLoginCount' => 'list_getLoginCount',
+			'trackActivity' => 'trackActivity',
+			'trackEdits' => 'trackEdits',
+			'trackGroupReq' => 'trackGroupReq',
+			'trackLogins' => 'TrackLogins',
 		),
 	);
 

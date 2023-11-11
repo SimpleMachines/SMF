@@ -41,9 +41,7 @@ class QuickModeration implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'QuickModeration',
-			'getActions' => false,
 		),
 	);
 

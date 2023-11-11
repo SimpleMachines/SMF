@@ -30,10 +30,13 @@ class Group implements \ArrayAccess
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
-			'loadModeratorsBatch' => false,
-			'countMembersBatch' => false,
-			'getCachedList' => 'cache_getMembergroupList'
+			'loadSimple' => 'loadSimple',
+			'loadAssignable' => 'loadAssignable',
+			'loadPermissionsBatch' => 'loadPermissionsBatch',
+			'countPermissionsBatch' => 'countPermissionsBatch',
+			'getPostGroups' => 'getPostGroups',
+			'getUnassignable' => 'getUnassignable',
+			'getCachedList' => 'cache_getMembergroupList',
 		),
 	);
 

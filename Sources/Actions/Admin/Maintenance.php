@@ -50,8 +50,29 @@ class Maintenance implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'ManageMaintenance',
+			'getIntegrationHooksData' => 'getIntegrationHooksData',
+			'reattributePosts' => 'reattributePosts',
+			'maintainRoutine' => 'MaintainRoutine',
+			'maintainDatabase' => 'MaintainDatabase',
+			'maintainMembers' => 'MaintainMembers',
+			'maintainTopics' => 'MaintainTopics',
+			'list_integration_hooks' => 'list_integration_hooks',
+			'versionDetail' => 'VersionDetail',
+			'maintainFindFixErrors' => 'MaintainFindFixErrors',
+			'adminBoardRecount' => 'AdminBoardRecount',
+			'rebuildSettingsFile' => 'RebuildSettingsFile',
+			'maintainEmptyUnimportantLogs' => 'MaintainEmptyUnimportantLogs',
+			'maintainCleanCache' => 'MaintainCleanCache',
+			'optimizeTables' => 'OptimizeTables',
+			'convertEntities' => 'ConvertEntities',
+			'convertMsgBody' => 'ConvertMsgBody',
+			'maintainReattributePosts' => 'MaintainReattributePosts',
+			'maintainPurgeInactiveMembers' => 'MaintainPurgeInactiveMembers',
+			'maintainRecountPosts' => 'MaintainRecountPosts',
+			'maintainMassMoveTopics' => 'MaintainMassMoveTopics',
+			'maintainRemoveOldPosts' => 'MaintainRemoveOldPosts',
+			'maintainRemoveOldDrafts' => 'MaintainRemoveOldDrafts',
 		),
 	);
 

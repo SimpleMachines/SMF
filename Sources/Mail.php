@@ -31,10 +31,14 @@ class Mail
 	private static $backcompat = array(
 		'func_names' => array(
 			'send' => 'sendmail',
-			'sendSmtp' => 'smtp_mail',
 			'addToQueue' => 'AddMailQueue',
-			'reduceQueue' => 'ReduceMailQueue',
-			'serverParse' => 'server_parse',
+			'reduceQueue' => 'reduceQueue',
+			'mimespecialchars' => 'mimespecialchars',
+			'sendSmtp' => 'smtp_mail',
+			'serverParse' => 'serverParse',
+			'sendNotifications' => 'sendNotifications',
+			'adminNotify' => 'adminNotify',
+			'loadEmailTemplate' => 'loadEmailTemplate',
 		),
 	);
 

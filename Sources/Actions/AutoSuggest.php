@@ -35,9 +35,10 @@ class AutoSuggest implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
-			'call' => false,
-			'checkRegistered' => false,
+			'AutoSuggestHandler' => 'AutoSuggestHandler',
+			'AutoSuggest_Search_Member' => 'AutoSuggest_Search_Member',
+			'AutoSuggest_Search_MemberGroups' => 'AutoSuggest_Search_MemberGroups',
+			'AutoSuggest_Search_SMFVersions' => 'AutoSuggest_Search_SMFVersions',
 		),
 	);
 

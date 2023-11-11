@@ -44,8 +44,10 @@ class XmlHttp implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'XMLhttpMain',
+			'GetJumpTo' => 'GetJumpTo',
+			'ListMessageIcons' => 'ListMessageIcons',
+			'RetrievePreview' => 'RetrievePreview',
 		),
 	);
 

@@ -45,9 +45,12 @@ class Membergroups implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'ModifyMembergroups',
-			'getConfigVars' => false,
+			'AddMembergroup' => 'AddMembergroup',
+			'DeleteMembergroup' => 'DeleteMembergroup',
+			'EditMembergroup' => 'EditMembergroup',
+			'MembergroupIndex' => 'MembergroupIndex',
+			'ModifyMembergroupsettings' => 'ModifyMembergroupsettings',
 		),
 	);
 

@@ -29,8 +29,14 @@ class IP implements \Stringable
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'create' => false,
-			'hostFromIp'=> 'host_from_ip',
+			'ip2range' => 'ip2range',
+			'range2ip' => 'range2ip',
+			'isValidIP' => 'isValidIP',
+			'isValidIPv6' => 'isValidIPv6',
+			'hostFromIp' => 'host_from_ip',
+			'inet_ptod' => 'inet_ptod',
+			'inet_dtop' => 'inet_dtop',
+			'expandIPv6' => 'expandIPv6',
 		),
 	);
 

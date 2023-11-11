@@ -44,8 +44,8 @@ class Recent implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'RecentPosts',
+			'getLastPost' => 'getLastPost',
 		),
 	);
 

@@ -36,7 +36,6 @@ class Login extends Login2
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'Login',
 		),
 	);

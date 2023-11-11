@@ -50,9 +50,10 @@ class TopicMerge implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'MergeTopics',
-			'initiate' => false,
+			'mergeIndex' => 'MergeIndex',
+			'mergeExecute' => 'MergeExecute',
+			'mergeDone' => 'MergeDone',
 		),
 	);
 

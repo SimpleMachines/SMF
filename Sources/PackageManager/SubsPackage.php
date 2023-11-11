@@ -34,6 +34,46 @@ class SubsPackage
 {
 	use BackwardCompatibility;
 
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = array(
+		'func_names' => array(
+			'read_tgz_file' => 'read_tgz_file',
+			'read_tgz_data' => 'read_tgz_data',
+			'read_zip_data' => 'read_zip_data',
+			'url_exists' => 'url_exists',
+			'loadInstalledPackages' => 'loadInstalledPackages',
+			'getPackageInfo' => 'getPackageInfo',
+			'create_chmod_control' => 'create_chmod_control',
+			'list_restoreFiles' => 'list_restoreFiles',
+			'packageRequireFTP' => 'packageRequireFTP',
+			'parsePackageInfo' => 'parsePackageInfo',
+			'matchHighestPackageVersion' => 'matchHighestPackageVersion',
+			'matchPackageVersion' => 'matchPackageVersion',
+			'compareVersions' => 'compareVersions',
+			'parse_path' => 'parse_path',
+			'deltree' => 'deltree',
+			'mktree' => 'mktree',
+			'copytree' => 'copytree',
+			'listtree' => 'listtree',
+			'parseModification' => 'parseModification',
+			'parseBoardMod' => 'parseBoardMod',
+			'package_get_contents' => 'package_get_contents',
+			'package_put_contents' => 'package_put_contents',
+			'package_flush_cache' => 'package_flush_cache',
+			'package_chmod' => 'package_chmod',
+			'package_crypt' => 'package_crypt',
+			'package_unique_filename' => 'package_unique_filename',
+			'package_create_backup' => 'package_create_backup',
+			'package_validate_installtest' => 'package_validate_installtest',
+			'package_validate' => 'package_validate',
+			'package_validate_send' => 'package_validate_send',
+		),
+	);
+
 	/**************************
 	 * Public static properties
 	 **************************/

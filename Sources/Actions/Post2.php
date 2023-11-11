@@ -53,7 +53,6 @@ class Post2 extends Post
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'Post2',
 		),
 	);

@@ -42,8 +42,9 @@ class TrackIP implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
-			'call' => false,
+			'list_getIPMessages' => 'list_getIPMessages',
+			'list_getIPMessageCount' => 'list_getIPMessageCount',
+			'trackIP' => 'TrackIP',
 		),
 	);
 

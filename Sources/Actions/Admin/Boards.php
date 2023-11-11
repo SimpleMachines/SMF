@@ -46,9 +46,8 @@ class Boards implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'ManageBoards',
-			'getConfigVars' => false,
+			'editBoardSettings' => 'EditBoardSettings',
 		),
 	);
 

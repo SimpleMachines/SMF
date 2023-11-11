@@ -50,9 +50,17 @@ class News extends ACP implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'ManageNews',
-			'getConfigVars' => false,
+			'list_getNews' => 'list_getNews',
+			'list_getNewsTextarea' => 'list_getNewsTextarea',
+			'list_getNewsPreview' => 'list_getNewsPreview',
+			'list_getNewsCheckbox' => 'list_getNewsCheckbox',
+			'prepareMailingForPreview' => 'prepareMailingForPreview',
+			'editNews' => 'EditNews',
+			'selectMailingMembers' => 'SelectMailingMembers',
+			'composeMailing' => 'ComposeMailing',
+			'sendMailing' => 'SendMailing',
+			'modifyNewsSettings' => 'ModifyNewsSettings',
 		),
 	);
 

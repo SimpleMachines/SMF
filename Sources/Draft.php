@@ -32,7 +32,6 @@ class Draft
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'save' => 'SaveDraft',
 			'delete' => 'DeleteDraft',
 			'showInEditor' => 'ShowDrafts',
 			'showInProfile' => 'showProfileDrafts',

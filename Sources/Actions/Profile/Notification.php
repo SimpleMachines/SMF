@@ -46,8 +46,15 @@ class Notification implements ActionInterface
 	 */
 	private static $backcompat = array(
 		'func_names' => array(
-			'load' => false,
 			'call' => 'notification',
+			'list_getTopicNotificationCount' => 'list_getTopicNotificationCount',
+			'list_getTopicNotifications' => 'list_getTopicNotifications',
+			'list_getBoardNotifications' => 'list_getBoardNotifications',
+			'alert_configuration' => 'alert_configuration',
+			'alert_markread' => 'alert_markread',
+			'alert_notifications_topics' => 'alert_notifications_topics',
+			'alert_notifications_boards' => 'alert_notifications_boards',
+			'makeNotificationChanges' => 'makeNotificationChanges',
 		),
 	);
 
