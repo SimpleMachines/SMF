@@ -3128,7 +3128,7 @@ class Config
 	 */
 	public static function checkCron()
 	{
-		if (!empty(self::$modSettings['cron_is_real_cron']) && time() - @intval(self::$modSettings['cron_last_checked']) > 84600)
+		if (!empty(self::$modSettings['cron_is_real_cron']) && time() - @intval(self::$modSettings['cron_last_checked']) > 86400)
 		{
 			$request = Db\DatabaseApi::$db->query('', '
 				SELECT COUNT(*)
@@ -3137,7 +3137,7 @@ class Config
 					AND next_time < {int:yesterday}',
 				array(
 					'not_disabled' => 0,
-					'yesterday' => time() - 84600,
+					'yesterday' => time() - 86400,
 				)
 			);
 			list($overdue) = Db\DatabaseApi::$db->fetch_row($request);
