@@ -118,7 +118,7 @@ class Agreement implements ActionInterface
 			return false;
 		}
 
-		$agreement_lang = file_exists(Config::$languagesdir . '/agreement.' . User::$me->language . '.txt') ? User::$me->language : 'default';
+		$agreement_lang = file_exists(Config::$languagesdir . '/' . User::$me->language . '/agreement.' . User::$me->language . '.txt') ? User::$me->language : 'default';
 
 		if (empty(Config::$modSettings['agreement_updated_' . $agreement_lang])) {
 			return false;
@@ -177,10 +177,10 @@ class Agreement implements ActionInterface
 		if (!Utils::$context['accept_doc'] || Utils::$context['can_accept_agreement']) {
 			// Grab the agreement.
 			// Have we got a localized one?
-			if (file_exists(Config::$languagesdir . '/agreement.' . User::$me->language . '.txt')) {
-				Utils::$context['agreement_file'] = Config::$languagesdir . '/agreement.' . User::$me->language . '.txt';
-			} elseif (file_exists(Config::$languagesdir . '/agreement.txt')) {
-				Utils::$context['agreement_file'] = Config::$languagesdir . '/agreement.txt';
+			if (file_exists(Config::$languagesdir . '/' . User::$me->language . '/agreement.' . User::$me->language . '.txt')) {
+				Utils::$context['agreement_file'] = Config::$languagesdir . '/' . User::$me->language . '/agreement.' . User::$me->language . '.txt';
+			} elseif (file_exists(Config::$languagesdir . '/en-us/agreement.txt')) {
+				Utils::$context['agreement_file'] = Config::$languagesdir . '/en-us/agreement.txt';
 			}
 
 			if (!empty(Utils::$context['agreement_file'])) {

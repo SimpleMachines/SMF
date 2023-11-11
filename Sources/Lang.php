@@ -185,9 +185,9 @@ class Lang
 			}
 
 			// Fall back to English if none of the preferred languages can be found.
-			if (empty(Config::$modSettings['disable_language_fallback']) && !in_array('english', [$lang, self::$default])) {
+			if (empty(Config::$modSettings['disable_language_fallback']) && !in_array('en-us', [$lang, self::$default])) {
 				foreach (self::$dirs as $dir) {
-					$attempts[] = [$dir, $template, 'english'];
+					$attempts[] = [$dir, $template, 'en-us'];
 				}
 			}
 
@@ -195,7 +195,7 @@ class Lang
 			$found = false;
 
 			foreach ($attempts as $k => $file) {
-				if (file_exists($file[0] . '/' . $file[1] . '.' . $file[2] . '.php')) {
+				if (file_exists($file[0] . '/' . $file[2] . '/' . $file[1] . '.' . $file[2] . '.php')) {
 					/**
 					 * @var string $forum_copyright
 					 * @var array $txt
@@ -205,7 +205,8 @@ class Lang
 					 * @var array $helptxt
 					 */
 					// Include it!
-					require $file[0] . '/' . $file[1] . '.' . $file[2] . '.php';
+					// {DIR} / {locale} / {file} . {locale} .php
+					require $file[0] . '/' . $file[2] . '/' . $file[1] . '.' . $file[2] . '.php';
 
 					// Note that we found it.
 					$found = true;
@@ -225,7 +226,7 @@ class Lang
 					if (isset($forum_copyright)) {
 						self::$localized_copyright[$file[2]] = $forum_copyright;
 
-						self::$forum_copyright = self::$localized_copyright[$lang] ?? (self::$localized_copyright[self::$default] ?? (self::$localized_copyright['english'] ?? ''));
+						self::$forum_copyright = self::$localized_copyright[$lang] ?? (self::$localized_copyright[self::$default] ?? (self::$localized_copyright['en-us'] ?? ''));
 
 						unset($forum_copyright);
 					}
@@ -381,19 +382,13 @@ class Lang
 				$dir = dir($language_dir);
 
 				while ($entry = $dir->read()) {
-					// Look for the index language file... For good measure skip any "index.language-utf8.php" files
-					if (!preg_match('~^index\.((?:.(?!-utf8))+)\.php$~', $entry, $matches)) {
+					// Languages are in a sub directory.
+					if (!is_dir($language_dir . '/' . $entry) || !file_exists($language_dir . '/' . $entry . '/index.' . $entry . '.php')) {
 						continue;
 					}
 
-					$langName = Utils::ucwords(strtr($matches[1], ['_' => ' ']));
-
-					if (($spos = strpos($langName, ' ')) !== false) {
-						$langName = substr($langName, 0, ++$spos) . '(' . substr($langName, $spos) . ')';
-					}
-
 					// Get the line we need.
-					$fp = @fopen($language_dir . '/' . $entry, 'r');
+					$fp = @fopen($language_dir . '/' . $entry . '/index.' . $entry . '.php', 'r');
 
 					// Yay!
 					if ($fp) {
@@ -407,7 +402,7 @@ class Lang
 							// Set the language's name.
 							if (!empty($matchNative) && !empty($matchNative[1])) {
 								// Don't mislabel the language if the translator missed this one.
-								if ($langName !== 'English' && $matchNative[1] === 'English') {
+								if ($entry !== 'en-us' && $matchNative[1] === 'English') {
 									break;
 								}
 
@@ -421,20 +416,14 @@ class Lang
 					}
 
 					// Build this language entry.
-					Utils::$context['languages'][$matches[1]] = [
-						'name' => $langName,
+					Utils::$context['languages'][$entry] = [
+						'name' => $langName ?? $entry,
 						'selected' => false,
-						'filename' => $matches[1],
-						'location' => $language_dir . '/index.' . $matches[1] . '.php',
+						'filename' => $entry,
+						'location' => $language_dir . '/' . $entry . '/index.' . $entry . '.php',
 					];
 				}
 				$dir->close();
-			}
-
-			// Avoid confusion when we have more than one English variant installed.
-			// Honestly, our default English version should always have been called "English (US)"
-			if (substr_count(implode(' ', array_keys(Utils::$context['languages'])), 'english') > 1 && Utils::$context['languages']['english']['name'] === 'English') {
-				Utils::$context['languages']['english']['name'] = 'English (US)';
 			}
 
 			// Let's cash in on this deal.

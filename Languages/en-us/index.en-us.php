@@ -2,7 +2,7 @@
 // Version: 3.0 Alpha 1; index
 
 // Native name, please use full HTML entities to write your language's name.
-$txt['native_name'] = 'English';
+$txt['native_name'] = 'English (US)';
 
 // Locale (strftime, basename). For more information see:
 //   - https://php.net/function.setlocale
