@@ -333,9 +333,39 @@ function load_lang_file()
 		$dir = dir(Config::$languagesdir);
 
 		while ($entry = $dir->read()) {
-			if (substr($entry, 0, 8) == 'Install.' && substr($entry, -4) == '.php') {
-				$incontext['detected_languages'][$entry] = ucfirst(substr($entry, 8, strlen($entry) - 12));
+			if (!is_dir(Config::$languagesdir . '/' . $entry) || !file_exists(Config::$languagesdir . '/' . $entry . '/' . 'Install.' . $entry . '.php') || !file_exists(Config::$languagesdir . '/' . $entry . '/' . 'index.' . $entry . '.php')) {
+				continue;
 			}
+
+			// Get the line we need.
+			$fp = @fopen($language_dir . '/' . $entry . '/' . 'index.' . $entry . '.php', 'r');
+
+			// Yay!
+			if ($fp)
+			{
+				while (($line = fgets($fp)) !== false)
+				{
+					if (strpos($line, '$txt[\'native_name\']') === false)
+						continue;
+
+					preg_match('~\$txt\[\'native_name\'\]\s*=\s*\'([^\']+)\';~', $line, $matchNative);
+
+					// Set the language's name.
+					if (!empty($matchNative) && !empty($matchNative[1]))
+					{
+						// Don't mislabel the language if the translator missed this one.
+						if ($entry !== 'en-us' && $matchNative[1] === 'English')
+							break;
+
+						$langName = Utils::htmlspecialcharsDecode($matchNative[1]);
+						break;
+					}
+				}
+
+				fclose($fp);
+			}
+
+			$incontext['detected_languages'][$entry] = $langName ?? $entry;
 		}
 		$dir->close();
 	}
@@ -389,13 +419,13 @@ function load_lang_file()
 	}
 
 	// Make sure it exists, if it doesn't reset it.
-	if (!isset($_SESSION['installer_temp_lang']) || preg_match('~[^\\w_\\-.]~', $_SESSION['installer_temp_lang']) === 1 || !file_exists(Config::$languagesdir . $_SESSION['installer_temp_lang'])) {
+	if (!isset($_SESSION['installer_temp_lang']) || preg_match('~[^\\w_\\-.]~', $_SESSION['installer_temp_lang']) === 1 || !file_exists(Config::$languagesdir . '/' . $_SESSION['installer_temp_lang'])) {
 		// Use the first one...
 		list($_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
 
 		// If we have english and some other language, use the other language.  We Americans hate english :P.
-		if ($_SESSION['installer_temp_lang'] == 'Install.english.php' && count($incontext['detected_languages']) > 1) {
-			list(, $_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
+		if ($_SESSION['installer_temp_lang'] == 'Install.en-us.php' && count($incontext['detected_languages']) > 1) {
+			list (, $_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
 		}
 	}
 

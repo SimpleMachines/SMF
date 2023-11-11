@@ -116,7 +116,6 @@ $upcontext['inactive_timeout'] = 10;
 
 // All the steps in detail.
 // Number,Name,Function,Progress Weight.
-<<<<<<< HEAD
 $upcontext['steps'] = [
 	0 => [1, 'upgrade_step_login', 'WelcomeLogin', 1],
 	1 => [2, 'upgrade_step_options', 'UpgradeOptions', 1],
@@ -541,12 +540,14 @@ function load_lang_file()
 	$lang_dir = Config::$languagesdir;
 
 	// Override the language file?
-	if (isset($upcontext['language'])) {
-		$_SESSION['upgrader_langfile'] = 'Install.' . $upcontext['language'] . '.php';
-	} elseif (isset($upcontext['lang'])) {
-		$_SESSION['upgrader_langfile'] = 'Install.' . $upcontext['lang'] . '.php';
-	} elseif (isset(Config::$language)) {
-		$_SESSION['upgrader_langfile'] = 'Install.' . Config::$language . '.php';
+	if (isset($upcontext['language']) && file_exists($lang_dir . '/' . $upcontext['language'] . '/Install.' . $upcontext['language'] . '.php')) {
+		$_SESSION['upgrader_langfile'] = $upcontext['language'] . '/Install.' . $upcontext['language'] . '.php';
+	} elseif (isset($upcontext['lang']) && file_exists($lang_dir . '/' . $upcontext['lang'] . '/Install.' . $upcontext['lang'] . '.php')) {
+		$_SESSION['upgrader_langfile'] = $upcontext['lang'] . '/Install.' . $upcontext['lang'] . '.php';
+	} elseif (isset(Config::$language) && file_exists($lang_dir . '/' . Config::$language . '/Install.' . Config::$language . '.php')) {
+		$_SESSION['upgrader_langfile'] = Config::$language . '/Install.' . Config::$language . '.php';
+	} else {
+		$_SESSION['upgrader_langfile'] = Config::$language . '/Install.en-us.php';
 	}
 
 	// Avoid pointless repetition
@@ -562,19 +563,43 @@ function load_lang_file()
 			$dir = dir($lang_dir);
 
 			while ($entry = $dir->read()) {
-				// Skip any old '-utf8' language files that might be lying around
-				if (strpos($entry, '-utf8') !== false) {
+				if (!is_dir(Config::$languagesdir . '/' . $entry) || !file_exists(Config::$languagesdir . '/' . $entry . '/' . 'Install.' . $entry . '.php') || !file_exists(Config::$languagesdir . '/' . $entry . '/' . 'index.' . $entry . '.php')) {
 					continue;
 				}
 
-				if (substr($entry, 0, 8) == 'Install.' && substr($entry, -4) == '.php') {
-					$detected_languages[$entry] = ucfirst(substr($entry, 8, strlen($entry) - 12));
+				// Get the line we need.
+				$fp = @fopen($language_dir . '/' . $entry . '/' . 'index.' . $entry . '.php', 'r');
+
+				// Yay!
+				if ($fp) {
+					while (($line = fgets($fp)) !== false) {
+						if (strpos($line, '$txt[\'native_name\']') === false) {
+							continue;
+						}
+
+						preg_match('~\$txt\[\'native_name\'\]\s*=\s*\'([^\']+)\';~', $line, $matchNative);
+
+						// Set the language's name.
+						if (!empty($matchNative) && !empty($matchNative[1])) {
+							// Don't mislabel the language if the translator missed this one.
+							if ($entry !== 'en-us' && $matchNative[1] === 'English') {
+								break;
+							}
+
+							$langName = Utils::htmlspecialcharsDecode($matchNative[1]);
+							break;
+						}
+					}
+
+					fclose($fp);
 				}
+
+				$detected_languages[$entry] = $langName ?? $entry;
 			}
 			$dir->close();
 		}
-		// Our guess was wrong, but that's fine. We'll try again after Config::$modSettings['theme_dir'] is defined.
-		elseif (!isset(Config::$modSettings['theme_dir'])) {
+		// Our guess was wrong, but that's fine. We'll try again after Config::$Languagesdir is defined.
+		elseif (!isset(Config::$Languagesdir)) {
 			// Define a few essential strings for now.
 			Lang::$txt['error_db_connect_settings'] = 'Cannot connect to the database server.<br><br>Please check that the database info variables are correct in Settings.php.';
 			Lang::$txt['error_sourcefile_missing'] = 'Unable to find the Sources/%1$s file. Please make sure it was uploaded properly, and then try again.';
@@ -661,8 +686,8 @@ function load_lang_file()
 		list($_SESSION['upgrader_langfile']) = array_keys($detected_languages);
 
 		// If we have English and some other language, use the other language.
-		if ($_SESSION['upgrader_langfile'] == 'Install.english.php' && count($detected_languages) > 1) {
-			list(, $_SESSION['upgrader_langfile']) = array_keys($detected_languages);
+		if ($_SESSION['upgrader_langfile'] == 'Install.en-us.php' && count($detected_languages) > 1) {
+			list (, $_SESSION['upgrader_langfile']) = array_keys($detected_languages);
 		}
 	}
 
@@ -1004,12 +1029,11 @@ function WelcomeLogin()
 
 	quickFileWritable($cachedir_temp . '/db_last_error.php');
 
-	if (!file_exists(Config::$languagesdir . '/index.' . $upcontext['language'] . '.php')) {
+	if (!file_exists(Config::$languagesdir . '/' . $upcontext['language'] . '/index.' . $upcontext['language'] . '.php')) {
 		return throw_error(sprintf(Lang::$txt['error_lang_index_missing'], $upcontext['language'], $upgradeurl));
-	}
+	} elseif (!isset($_GET['skiplang'])) {
+		$temp = substr(@implode('', @file(Config::$languagesdir . '/' . $upcontext['language'] . '/index.' . $upcontext['language'] . '.php')), 0, 4096);
 
-	if (!isset($_GET['skiplang'])) {
-		$temp = substr(@implode('', @file(Config::$languagesdir . '/index.' . $upcontext['language'] . '.php')), 0, 4096);
 		preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*index(?:[\s]{2}|\*/)~i', $temp, $match);
 
 		if (empty($match[1]) || $match[1] != SMF_LANG_VERSION) {
