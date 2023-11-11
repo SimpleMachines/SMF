@@ -864,7 +864,7 @@ class Languages implements ActionInterface
 
 			// Sixth, if we deleted the default language, set us back to english?
 			if ($lang_id == Lang::$default) {
-				Lang::$default = 'english';
+				Lang::$default = 'en_US';
 				Config::updateSettingsFile(['language' => Lang::$default]);
 			}
 
@@ -1589,7 +1589,7 @@ class Languages implements ActionInterface
 				'id' => $lang['filename'],
 				'count' => 0,
 				'char_set' => Lang::$txt['lang_character_set'],
-				'default' => Lang::$default == $lang['filename'] || (Lang::$default == '' && $lang['filename'] == 'en-us'),
+				'default' => Lang::$default == $lang['filename'] || (Lang::$default == '' && $lang['filename'] == 'en_US'),
 				'locale' => Lang::$txt['lang_locale'],
 				'name' => $lang['name'],
 			];

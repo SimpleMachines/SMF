@@ -179,8 +179,8 @@ class Agreement implements ActionInterface
 			// Have we got a localized one?
 			if (file_exists(Config::$languagesdir . '/' . User::$me->language . '/agreement.txt')) {
 				Utils::$context['agreement_file'] = Config::$languagesdir . '/' . User::$me->language . '/agreement.txt';
-			} elseif (file_exists(Config::$languagesdir . '/en-us/agreement.txt')) {
-				Utils::$context['agreement_file'] = Config::$languagesdir . '/en-us/agreement.txt';
+			} elseif (file_exists(Config::$languagesdir . '/en_US/agreement.txt')) {
+				Utils::$context['agreement_file'] = Config::$languagesdir . '/en_US/agreement.txt';
 			}
 
 			if (!empty(Utils::$context['agreement_file'])) {

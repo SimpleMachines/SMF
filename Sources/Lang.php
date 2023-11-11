@@ -190,9 +190,9 @@ class Lang
 			}
 
 			// Fall back to English if none of the preferred languages can be found.
-			if (empty(Config::$modSettings['disable_language_fallback']) && !in_array('en-us', [$lang, self::$default])) {
+			if (empty(Config::$modSettings['disable_language_fallback']) && !in_array('en_US', array($lang, self::$default))) {
 				foreach (self::$dirs as $dir) {
-					$attempts[] = [$dir, $template, 'en-us'];
+					$attempts[] = array($dir, $template, 'en_US');
 				}
 			}
 
@@ -231,7 +231,7 @@ class Lang
 					if (isset($forum_copyright)) {
 						self::$localized_copyright[$file[2]] = $forum_copyright;
 
-						self::$forum_copyright = self::$localized_copyright[$lang] ?? (self::$localized_copyright[self::$default] ?? (self::$localized_copyright['en-us'] ?? ''));
+						self::$forum_copyright = self::$localized_copyright[$lang] ?? (self::$localized_copyright[self::$default] ?? (self::$localized_copyright['en_US'] ?? ''));
 
 						unset($forum_copyright);
 					}
@@ -405,7 +405,7 @@ class Lang
 							// Set the language's name.
 							if (!empty($matchNative) && !empty($matchNative[1])) {
 								// Don't mislabel the language if the translator missed this one.
-								if ($entry !== 'en-us' && $matchNative[1] === 'English') {
+								if ($entry !== 'en_US' && $matchNative[1] === 'English') {
 									break;
 								}
 

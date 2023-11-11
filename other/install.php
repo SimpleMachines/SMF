@@ -354,7 +354,7 @@ function load_lang_file()
 					if (!empty($matchNative) && !empty($matchNative[1]))
 					{
 						// Don't mislabel the language if the translator missed this one.
-						if ($entry !== 'en-us' && $matchNative[1] === 'English')
+						if ($entry !== 'en_US' && $matchNative[1] === 'English')
 							break;
 
 						$langName = Utils::htmlspecialcharsDecode($matchNative[1]);
@@ -424,7 +424,7 @@ function load_lang_file()
 		list($_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
 
 		// If we have english and some other language, use the other language.  We Americans hate english :P.
-		if ($_SESSION['installer_temp_lang'] == 'Install.en-us.php' && count($incontext['detected_languages']) > 1) {
+		if ($_SESSION['installer_temp_lang'] == 'Install.en_US.php' && count($incontext['detected_languages']) > 1) {
 			list (, $_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
 		}
 	}

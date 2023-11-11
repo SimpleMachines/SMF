@@ -5271,6 +5271,20 @@ class User implements \ArrayAccess
 		elseif (!empty($_SESSION['language']) && isset($languages[strtr($_SESSION['language'], './\\:', '____')])) {
 			$this->language = strtr($_SESSION['language'], './\\:', '____');
 		}
+		// Can we locate it in the accept language?
+		elseif (!empty($_SERVER['HTTP_ACCEPT_LANGUAGE']))
+		{
+			foreach (explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']) as $match)
+			{
+				[$lang,] = explode(';', $match);
+				$lang = \Locale::canonicalize($lang);
+				
+				if (is_null($lang))
+					continue;
+				elseif (isset($languages[$lang]))
+					$this->language = $_SESSION['language'] = $lang;
+			}
+		}
 	}
 
 	/*************************

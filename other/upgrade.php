@@ -547,7 +547,7 @@ function load_lang_file()
 	} elseif (isset(Config::$language) && file_exists($lang_dir . '/' . Config::$language . '/Install.' . Config::$language . '.php')) {
 		$_SESSION['upgrader_langfile'] = Config::$language . '/Install.' . Config::$language . '.php';
 	} else {
-		$_SESSION['upgrader_langfile'] = Config::$language . '/Install.en-us.php';
+		$_SESSION['upgrader_langfile'] = Config::$language . '/Install.en_US.php';
 	}
 
 	// Avoid pointless repetition
@@ -563,12 +563,12 @@ function load_lang_file()
 			$dir = dir($lang_dir);
 
 			while ($entry = $dir->read()) {
-				if (!is_dir(Config::$languagesdir . '/' . $entry) || !file_exists(Config::$languagesdir . '/' . $entry . '/' . 'Install.' . $entry . '.php') || !file_exists(Config::$languagesdir . '/' . $entry . '/' . 'index.' . $entry . '.php')) {
+				if (!is_dir(Config::$languagesdir . '/' . $entry) || !file_exists(Config::$languagesdir . '/' . $entry . '/' . 'Install.php') || !file_exists(Config::$languagesdir . '/' . $entry . '/' . 'General.php')) {
 					continue;
 				}
 
 				// Get the line we need.
-				$fp = @fopen($language_dir . '/' . $entry . '/' . 'index.' . $entry . '.php', 'r');
+				$fp = @fopen($language_dir . '/' . $entry . '/' . 'index.php', 'r');
 
 				// Yay!
 				if ($fp) {
@@ -582,7 +582,7 @@ function load_lang_file()
 						// Set the language's name.
 						if (!empty($matchNative) && !empty($matchNative[1])) {
 							// Don't mislabel the language if the translator missed this one.
-							if ($entry !== 'en-us' && $matchNative[1] === 'English') {
+							if ($entry !== 'en_US' && $matchNative[1] === 'English') {
 								break;
 							}
 
@@ -686,7 +686,7 @@ function load_lang_file()
 		list($_SESSION['upgrader_langfile']) = array_keys($detected_languages);
 
 		// If we have English and some other language, use the other language.
-		if ($_SESSION['upgrader_langfile'] == 'Install.en-us.php' && count($detected_languages) > 1) {
+		if ($_SESSION['upgrader_langfile'] == 'Install.en_US.php' && count($detected_languages) > 1) {
 			list (, $_SESSION['upgrader_langfile']) = array_keys($detected_languages);
 		}
 	}

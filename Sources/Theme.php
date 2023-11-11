@@ -1313,7 +1313,7 @@ class Theme
 
 				// If agreement is enabled, at least the english version shall exist
 				if (!empty(Config::$modSettings['requireAgreement'])) {
-					$agreement = !file_exists(Config::$languagesdir . '/en-us/agreement.txt');
+					$agreement = !file_exists(Config::$languagesdir . '/en_US/agreement.txt');
 				}
 
 				// If privacy policy is enabled, at least the default language version shall exist
@@ -2625,7 +2625,6 @@ class Theme
 
 		// Output is fully XML, so no need for the index template.
 		if (isset($_REQUEST['xml']) && (in_array(Utils::$context['current_action'], $this->xmlActions) || $requiresXML)) {
-		{
 			Lang::load('General+Modifications');
 			self::loadTemplate('Xml');
 			Utils::$context['template_layers'] = [];
