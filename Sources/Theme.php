@@ -2312,7 +2312,7 @@ class Theme
 					self::$current->settings['theme_variants'] = array();
 
 					// Fill settings up.
-					eval(($matches[1] === '$' ? 'global $settings; ' : '') . $matches[0]);
+					eval(($matches[1] === '$' ? 'global $settings; ' : 'use SMF\\Theme; ') . $matches[0]);
 
 					if (!empty(self::$current->settings['theme_variants']))
 					{
