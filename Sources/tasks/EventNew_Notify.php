@@ -39,7 +39,7 @@ class EventNew_Notify extends BackgroundTask
 
 		// Don't alert the event creator
 		if (!empty($this->_details['sender_id']))
-			$members = array_diff($members, array($this->_details['sender_id']));
+			$members = array_diff($members, $this->_details['sender_id']);
 
 		// Having successfully figured this out, now let's get the preferences of everyone.
 		$prefs = Notify::getNotifyPrefs($members, 'event_new', true);
@@ -85,7 +85,7 @@ class EventNew_Notify extends BackgroundTask
 					'content_id' => $this->_details['event_id'],
 					'content_action' => empty($this->_details['sender_id']) ? 'new_guest' : 'new',
 					'is_read' => 0,
-					'extra' => Db::$db->smcFunc['json_encode'](
+					'extra' => Utils::jsonEncode(
 						array(
 							"event_id" => $this->_details['event_id'],
 							"event_title" => $this->_details['event_title']
