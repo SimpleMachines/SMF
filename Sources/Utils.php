@@ -1499,9 +1499,9 @@ class Utils
 		{
 			$out = false;
 		}
-		// The substring 'O:' is used to serialize objects.
-		// If it is not present, then there are none in the serialized data.
-		elseif (strpos($str, 'O:') === false)
+		// The substrings 'O:' and 'C:' are used to serialize objects.
+		// If they are not present, then there are none in the serialized data.
+		elseif (strpos($str, 'O:') === false && strpos($str, 'C:') === false)
 		{
 			$out = unserialize($str);
 		}
