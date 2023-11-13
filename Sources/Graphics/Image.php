@@ -505,7 +505,7 @@ class Image
 		$this->pathinfo = pathinfo($this->source);
 
 		// Attempt to chmod it.
-		@Utils::makeWritable($image->source);
+		@Utils::makeWritable($this->source);
 
 		return true;
 	}
