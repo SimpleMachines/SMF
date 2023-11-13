@@ -649,7 +649,7 @@ class Alert implements \ArrayAccess
 		$possible_topics = array();
 
 		// First, weed out any alerts that wouldn't be visible.
-		foreach ($props_batch as $props)
+		foreach ($props_batch as &$props)
 		{
 			$members[] = $props['id_member'];
 

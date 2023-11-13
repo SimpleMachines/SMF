@@ -174,7 +174,7 @@ abstract class Notify
 	public static function getNotifyPrefs($members, $prefs = '', $process_default = false)
 	{
 		// We want this as an array whether it is or not.
-		$members = is_array($members) ? $members : (array) $members;
+		$members = array_map('intval', (array) $members);
 
 		if (!empty($prefs))
 			$prefs = is_array($prefs) ? $prefs : (array) $prefs;
